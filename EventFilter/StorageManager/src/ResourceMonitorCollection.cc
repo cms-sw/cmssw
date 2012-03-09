@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.cc,v 1.43 2011/04/21 14:00:05 mommsen Exp $
+// $Id: ResourceMonitorCollection.cc,v 1.44 2011/04/26 09:25:26 mommsen Exp $
 /// @file: ResourceMonitorCollection.cc
 
 #include <stdio.h>
@@ -7,12 +7,6 @@
 #include <iomanip>
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef __APPLE__
-#include <sys/param.h>
-#include <sys/mount.h>
-#else
-#include <sys/statfs.h>
-#endif
 #include <fcntl.h>
 #include <dirent.h>
 #include <fnmatch.h>
@@ -23,6 +17,7 @@
 #include <boost/bind.hpp>
 #include <boost/regex.hpp> 
 
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/CurlInterface.h"
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/ResourceMonitorCollection.h"
@@ -78,8 +73,7 @@ namespace stor {
   {
     if ( pathname.empty() ) return;
     
-    DiskUsagePtr diskUsage( new DiskUsage() );
-    diskUsage->pathName = pathname;
+    DiskUsagePtr diskUsage( new DiskUsage(pathname) );
     retrieveDiskSize(diskUsage);
     diskUsageList_.push_back(diskUsage);
   }
@@ -139,11 +133,11 @@ namespace stor {
           ++it)
     {
       DiskUsageStatsPtr diskUsageStats(new DiskUsageStats);
-      diskUsageStats->diskSize = (*it)->diskSize;
-      diskUsageStats->absDiskUsage = (*it)->absDiskUsage;
-      diskUsageStats->relDiskUsage = (*it)->relDiskUsage;
-      diskUsageStats->pathName = (*it)->pathName;
-      diskUsageStats->alarmState = (*it)->alarmState;
+      diskUsageStats->diskSize = (*it)->diskSize_;
+      diskUsageStats->absDiskUsage = (*it)->absDiskUsage_;
+      diskUsageStats->relDiskUsage = (*it)->relDiskUsage_;
+      diskUsageStats->pathName = (*it)->pathName_;
+      diskUsageStats->alarmState = (*it)->alarmState_;
       stats.diskUsageStatsList.push_back(diskUsageStats);
     }
   }
@@ -170,9 +164,14 @@ namespace stor {
           it != itEnd;
           ++it)
     {
-      (*it)->absDiskUsage = -1;
-      (*it)->relDiskUsage = -1;
-      (*it)->alarmState = AlarmHandler::OKAY;
+      if ( ! (*it)->retrievingDiskSize_ )
+      {
+        (*it)->diskSize_ = -1;
+        (*it)->absDiskUsage_ = -1;
+        (*it)->relDiskUsage_ = -1;
+        (*it)->retVal_ = 0;
+        (*it)->alarmState_ = AlarmHandler::OKAY;
+      }
     }
   }
   
@@ -253,99 +252,118 @@ namespace stor {
     }
   }
   
+  
   void ResourceMonitorCollection::retrieveDiskSize(DiskUsagePtr diskUsage)
   {
-    #if __APPLE__
-    struct statfs buf;
-    int retVal = statfs(diskUsage->pathName.c_str(), &buf);
-    #else
-    struct statfs64 buf;
-    int retVal = statfs64(diskUsage->pathName.c_str(), &buf);
-    #endif
-    if(retVal==0) {
-      unsigned int blksize = buf.f_bsize;
-      diskUsage->diskSize =
-        static_cast<double>(buf.f_blocks * blksize) / 1024 / 1024 / 1024;
-      diskUsage->absDiskUsage =
-        diskUsage->diskSize -
-        static_cast<double>(buf.f_bavail * blksize) / 1024 / 1024 / 1024;
-      diskUsage->relDiskUsage = (100 * (diskUsage->absDiskUsage / diskUsage->diskSize));
-      if ( diskUsage->relDiskUsage > dwParams_.highWaterMark_ )
-      {
-        emitDiskSpaceAlarm(diskUsage);
-      }
-      else if ( diskUsage->relDiskUsage < dwParams_.highWaterMark_*0.95 )
-        // do not change alarm level if we are close to the high water mark
-      {
-        revokeDiskAlarm(diskUsage);
-      }
-    }
-    else
+    if ( ! diskUsage->retrievingDiskSize_ )
+      // don't start another thread if there's already one
     {
-      emitDiskAlarm(diskUsage, errno);
-      diskUsage->diskSize = -1;
-      diskUsage->absDiskUsage = -1;
-      diskUsage->relDiskUsage = -1;
+      boost::thread thread(
+        boost::bind( &ResourceMonitorCollection::doStatFs, this, diskUsage)
+      );
+      if (
+        ( ! thread.timed_join( boost::posix_time::milliseconds(500) ) )
+        || (diskUsage->retVal_ != 0)
+      )
+      {
+        emitDiskAlarm(diskUsage);
+      }
+      else
+      {
+        const unsigned int blksize = diskUsage->statfs_.f_bsize;
+        diskUsage->diskSize_ =
+          static_cast<double>(diskUsage->statfs_.f_blocks * blksize) / 1024 / 1024 / 1024;
+        diskUsage->absDiskUsage_ =
+          diskUsage->diskSize_ -
+          static_cast<double>(diskUsage->statfs_.f_bavail * blksize) / 1024 / 1024 / 1024;
+        diskUsage->relDiskUsage_ = (100 * (diskUsage->absDiskUsage_ / diskUsage->diskSize_));
+        if ( diskUsage->relDiskUsage_ > dwParams_.highWaterMark_ )
+        {
+          emitDiskSpaceAlarm(diskUsage);
+        }
+        else if ( diskUsage->relDiskUsage_ < dwParams_.highWaterMark_*0.95 )
+          // do not change alarm level if we are close to the high water mark
+        {
+          revokeDiskAlarm(diskUsage);
+        }
+      }
     }
   }
   
   
-  void ResourceMonitorCollection::emitDiskAlarm(DiskUsagePtr diskUsage, error_t e)
-  // do NOT use errno here
+  void ResourceMonitorCollection::doStatFs(DiskUsagePtr diskUsage)
   {
-    std::string msg;
-    
-    switch(e)
+    diskUsage->retrievingDiskSize_ = true;
+
+    #if __APPLE__
+    diskUsage->retVal_ = statfs(diskUsage->pathName_.c_str(), &(diskUsage->statfs_));
+    #else
+    diskUsage->retVal_ = statfs64(diskUsage->pathName_.c_str(), &(diskUsage->statfs_));
+    #endif
+    if (diskUsage->pathName_ == "/aSlowDiskForUnitTests") ::sleep(5);
+
+    diskUsage->retrievingDiskSize_ = false;
+  }
+  
+  
+  void ResourceMonitorCollection::emitDiskAlarm(DiskUsagePtr diskUsage)
+  {
+    const std::string msg = "Cannot access " + diskUsage->pathName_ + ". Is it mounted?";
+
+    diskUsage->diskSize_ = -1;
+    diskUsage->absDiskUsage_ = -1;
+    diskUsage->relDiskUsage_ = -1;
+
+    if ( isImportantDisk(diskUsage->pathName_) )
     {
-      case ENOENT :
-        diskUsage->alarmState = AlarmHandler::ERROR;
-        msg = "Cannot access " + diskUsage->pathName + ". Is it mounted?";
-        break;
-        
-      default :
-        diskUsage->alarmState = AlarmHandler::WARNING;
-        msg = "Failed to retrieve disk space information for " + diskUsage->pathName + ":"
-          + strerror(e);
+      diskUsage->alarmState_ = AlarmHandler::FATAL;
+      XCEPT_DECLARE(stor::exception::DiskSpaceAlarm, ex, msg);
+      alarmHandler_->moveToFailedState(ex);
     }
-    
-    XCEPT_DECLARE(stor::exception::DiskSpaceAlarm, ex, msg);
-    alarmHandler_->notifySentinel(diskUsage->alarmState, ex);
+    else
+    {    
+      diskUsage->alarmState_ = AlarmHandler::ERROR;
+      XCEPT_DECLARE(stor::exception::DiskSpaceAlarm, ex, msg);
+      alarmHandler_->raiseAlarm(diskUsage->pathName_, diskUsage->alarmState_, ex);
+    }
   }
   
   
   void ResourceMonitorCollection::emitDiskSpaceAlarm(DiskUsagePtr diskUsage)
   {
-    if ( diskUsage->relDiskUsage > dwParams_.failHighWaterMark_ )
+    if (
+      isImportantDisk(diskUsage->pathName_) &&
+      (diskUsage->relDiskUsage_ > dwParams_.failHighWaterMark_)
+    )
     {
-      failIfImportantDisk(diskUsage);
+      diskUsage->alarmState_ = AlarmHandler::FATAL;
+      XCEPT_DECLARE(stor::exception::DiskSpaceAlarm, ex, diskUsage->toString());
+      alarmHandler_->moveToFailedState(ex);
     }
-    
-    diskUsage->alarmState = AlarmHandler::WARNING;
-    
-    XCEPT_DECLARE(stor::exception::DiskSpaceAlarm, ex, diskUsage->toString());
-    alarmHandler_->raiseAlarm(diskUsage->pathName, diskUsage->alarmState, ex);
+    else
+    {    
+      diskUsage->alarmState_ = AlarmHandler::WARNING;
+      XCEPT_DECLARE(stor::exception::DiskSpaceAlarm, ex, diskUsage->toString());
+      alarmHandler_->raiseAlarm(diskUsage->pathName_, diskUsage->alarmState_, ex);
+    }
   }
   
   
-  void ResourceMonitorCollection::failIfImportantDisk(DiskUsagePtr diskUsage)
+  bool ResourceMonitorCollection::isImportantDisk(const std::string& pathName)
   {
-    // do not fail if the disk is one of the other disks
     DiskWritingParams::OtherDiskPaths::const_iterator begin =
       dwParams_.otherDiskPaths_.begin();
     DiskWritingParams::OtherDiskPaths::const_iterator end =
       dwParams_.otherDiskPaths_.end();
-    if ( std::find(begin, end, diskUsage->pathName) != end ) return;
-    
-    diskUsage->alarmState = AlarmHandler::FATAL;
-    XCEPT_RAISE(stor::exception::DiskSpaceAlarm, diskUsage->toString());
+    return ( std::find(begin, end, pathName) == end );
   }
   
 
   void ResourceMonitorCollection::revokeDiskAlarm(DiskUsagePtr diskUsage)
   {
-    diskUsage->alarmState = AlarmHandler::OKAY;
+    diskUsage->alarmState_ = AlarmHandler::OKAY;
     
-    alarmHandler_->revokeAlarm(diskUsage->pathName);
+    alarmHandler_->revokeAlarm(diskUsage->pathName_);
   }
   
   
@@ -679,14 +697,21 @@ namespace stor {
   }
   
   
+  ResourceMonitorCollection::DiskUsage::DiskUsage(const std::string& path)
+  : absDiskUsage_(-1), relDiskUsage_(-1), diskSize_(-1),
+    pathName_(path), retrievingDiskSize_(false),
+    alarmState_(AlarmHandler::OKAY), retVal_(0)
+  {}
+  
+  
   std::string ResourceMonitorCollection::DiskUsage::toString()
   {
     std::ostringstream msg;
     msg << std::fixed << std::setprecision(1) <<
-      "Disk space usage for " << pathName <<
-      " is " << relDiskUsage << "% (" <<
-      absDiskUsage << "GB of " <<
-      diskSize << "GB).";
+      "Disk space usage for " << pathName_ <<
+      " is " << relDiskUsage_ << "% (" <<
+      absDiskUsage_ << "GB of " <<
+      diskSize_ << "GB).";
     return msg.str();
   }
   

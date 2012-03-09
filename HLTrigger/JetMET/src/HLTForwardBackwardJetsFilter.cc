@@ -1,6 +1,6 @@
 /** \class HLTForwardBackwardJetsFilter
  *
- * $Id: HLTForwardBackwardJetsFilter.cc,v 1.3 2011/02/16 17:30:07 wdd Exp $
+ * $Id: HLTForwardBackwardJetsFilter.cc,v 1.4 2011/05/01 08:21:43 gruen Exp $
  *
  *
  */
@@ -64,8 +64,8 @@ HLTForwardBackwardJetsFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByLabel(inputTag_,recocalojets);
 
   // look at all candidates,  check cuts and add to filter object
-  int nplusjets(0);
-  int nminusjets(0);
+  unsigned int nplusjets(0);
+  unsigned int nminusjets(0);
 
   if(recocalojets->size() > 1){
     // events with two or more jets

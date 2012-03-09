@@ -26,7 +26,7 @@ PixelTrackReconstructionBlock = cms.PSet (
         ComponentName = cms.string('StandardHitTripletGenerator'),
         SeedingLayers = cms.string('PixelLayerTriplets'),
         GeneratorPSet = cms.PSet(
-            PixelTripletHLTGenerator
+            PixelTripletHLTGeneratorWithFilter
         )
     ),
     CleanerPSet = cms.PSet(

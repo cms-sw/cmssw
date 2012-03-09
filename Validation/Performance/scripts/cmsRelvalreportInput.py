@@ -647,11 +647,6 @@ def writeCommands(simcandles,
         #Looking for step in userSteps, or for composite steps that step matches the first of a composite step in userSteps
         if step in userSteps or reduce(lambda x,y : x or y,map(lambda x: step == x.split("-")[0].split(":")[0],userSteps)): 
 
-            if "GEN,FASTSIM" in userSteps: # HLT/L1 menu workaround
-                stepToWrite = stepToWrite + ",HLT:GRun"
-            elif "HLT" in userSteps:
-                stepToWrite = stepToWrite.replace("HLT", "HLT:GRun")
-            
             #Checking now if the current step matches the first of a composite step in userSteps
             hypMatch = filter(lambda x: "-" in x,filter(lambda x: step == x.split("-")[0],userSteps))
             if not len(hypMatch) == 0 :
@@ -659,8 +654,6 @@ def writeCommands(simcandles,
                 #print hypsteps
                 #print hypMatch[0]
                 stepToWrite = ",".join(hypsteps)
-                if "GEN,SIM-HLT" in userSteps: # HLT/L1 menu workaround
-                    stepToWrite = stepToWrite.replace("HLT","HLT:GRun")
                 befStep     = hypsteps[0]
                 #Kludge to avoid running HLT in composite steps if the -b option is chosen
                 if bypasshlt and hypsteps[-1]=='HLT':
@@ -680,19 +673,11 @@ def writeCommands(simcandles,
             writeStepHead(simcandles,acandle,stepToWrite)
 
             #Set the output file name for Pile up and for regular case:
-            if "GEN,SIM-HLT" or "GEN,FASTSIM" or "HLT" in userSteps: # change to make root file output work (without colons)
-                stepToWrite = stepToWrite.replace(":","=")
-
             if '--pileup' in cmsDriverOptions:
                 outfile = stepToWrite + "_PILEUP"
             else:
                 outfile = stepToWrite
-
-            #print stepToWrite
-
-            if "GEN,SIM-HLT" or "GEN,FASTSIM" or "HLT" in userSteps: # change it back
-                stepToWrite = stepToWrite.replace("=",":")
-
+                
             OutputFile = setOutputFileOption(acandle,outfile)
             if fstROOTfile:
                 fstROOTfileStr = OutputFile
@@ -753,8 +738,7 @@ def writeCommands(simcandles,
                                CustomiseFragment['GEN,SIM'],#Done by hand to avoid silly use of MixinModule.py for pre-digi individual steps
                                cmsDriverOptions[:cmsDriverOptions.index('--pileup')]
                            ))
-                    elif '--pileup' in cmsDriverOptions and (stepToWrite=='GEN,FASTSIM' or stepToWrite=='GEN,FASTSIM,HLT:GRun'): #Adding GEN,FASTIM case exception and use the CustomiseFragment['DIGI']
-                                                                                                                                #+exception to the HLT:GRun case
+                    elif '--pileup' in cmsDriverOptions and stepToWrite=='GEN,FASTSIM': #Adding GEN,FASTIM case exception and use the CustomiseFragment['DIGI']
                         Command = ("%s %s -n %s --step=%s %s %s --customise=%s %s" % (
                                cmsDriver,
                                KeywordToCfi[acandle],
@@ -848,7 +832,6 @@ def writeCommands(simcandles,
                                 PileUp=keywords[1]
                             elif "eventcontent" in keywords[0]:
                                 EventContent=keywords[1]
-
                         #so here's our new MetaName:
                         MetaName=acandle+"___"+stepToWrite+"___"+PileUp+"___"+Conditions+"___"+EventContent+"___"+IgProfProfile
                         
@@ -860,19 +843,12 @@ def writeCommands(simcandles,
                                                                            #FileName[acandle],
                                                                            #stepLabel,
                                                                            #prof))
-                            analyse_command = ("%s @@@ %s @@@ %s\n" % (Command,
+                            simcandles.write("%s @@@ %s @@@ %s\n" % (Command,
                                                                            Profiler[prof].split(".")[0]+'.ANALYSE.'+Profiler[prof].split(".")[1], #Add the IgProf counter in here (e.g. IgProfMem.ANALYSE.MEM_TOTAL)
                                                                            MetaName))
                                                                            #FileName[acandle],
                                                                            #stepLabel,
                                                                            #prof))
-
-                            #for the relval case, GEN-SIM,HLT get rid of the last " @@@ reuse":
-                            if Profiler[prof] == 'IgProf_mem.MEM_MAX' or Profiler[prof] == 'IgProf_perf.PERF_TICKS':
-                                analyse_command = analyse_command.replace("@@@ reuse", "")
-
-                            simcandles.write(analyse_command)
-
                         elif 'Analyse' in prof:
                             pass
                     else:    

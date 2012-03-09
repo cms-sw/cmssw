@@ -22,7 +22,7 @@ loosePatMuons = cleanPatMuons.clone(
     )
   )
 )
-step1a = cms.EDFilter(
+step3b = cms.EDFilter(
   "PATCandViewCountFilter"
 , src = cms.InputTag( 'loosePatMuons' )
 , minNumber = cms.uint32( 1 )
@@ -34,9 +34,9 @@ tightPatMuons = cleanPatMuons.clone(
 , preselection  = '' # tightMuonCut
 , checkOverlaps = cms.PSet()
 )
-step1b = step1a.clone( src = cms.InputTag( 'tightPatMuons' ) )
+step3a = step3b.clone( src = cms.InputTag( 'tightPatMuons' ) )
 
-step2 = countPatMuons.clone( maxNumber = 1 ) # includes the signal muon
+step4 = countPatMuons.clone( maxNumber = 1 ) # includes the signal muon
 
 ### Jets
 
@@ -55,17 +55,17 @@ goodPatJets = cleanPatJets.clone(
   )
 )
 
-step4a = cms.EDFilter(
+step6a = cms.EDFilter(
   "PATCandViewCountFilter"
 , src = cms.InputTag( 'goodPatJets' )
 , minNumber = cms.uint32( 1 )
 , maxNumber = cms.uint32( 999999 )
 )
-step4b = step4a.clone( minNumber = 2 )
-step4c = step4a.clone( minNumber = 3 )
-step5  = step4a.clone( minNumber = 4 )
+step6b = step6a.clone( minNumber = 2 )
+step6c = step6a.clone( minNumber = 3 )
+step7  = step6a.clone( minNumber = 4 )
 
 ### Electrons
 
-step3 = countPatElectrons.clone( maxNumber = 0 )
+step5 = countPatElectrons.clone( maxNumber = 0 )
 

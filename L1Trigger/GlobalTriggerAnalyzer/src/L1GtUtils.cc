@@ -65,8 +65,6 @@ L1GtUtils::L1GtUtils() :
 
     m_l1GtMenuLiteValid(false),
 
-    m_beginRunCache(false),
-
     m_physicsDaqPartition(0),
 
     m_retrieveL1EventSetup(false),
@@ -263,166 +261,82 @@ void L1GtUtils::retrieveL1EventSetup(const edm::EventSetup& evSetup) {
 
 }
 
+void L1GtUtils::retrieveL1GtTriggerMenuLite(const edm::Event& iEvent) {
 
-void L1GtUtils::retrieveL1GtTriggerMenuLite(const edm::Run& iRun,
-        const edm::InputTag& l1GtMenuLiteInputTag) {
+    // cache the L1GtTriggerMenuLite
+
+    const edm::Run& iRun = iEvent.getRun();
+    const edm::RunID* runID = &(iRun.runAuxiliary().id());
+
+    if (runID != m_provRunIDCache) {
+
+        edm::InputTag l1GtTriggerMenuLiteInputTag;
+        getL1GtTriggerMenuLiteInputTag(iEvent, l1GtTriggerMenuLiteInputTag);
+
+        retrieveL1GtTriggerMenuLite(iEvent, l1GtTriggerMenuLiteInputTag);
+
+        m_provRunIDCache = runID;
+
+    }
+}
+
+void L1GtUtils::retrieveL1GtTriggerMenuLite(const edm::Event& iEvent,
+        edm::InputTag& l1GtMenuLiteInputTag) {
 
     //
     m_retrieveL1GtTriggerMenuLite = true;
 
-    // get L1GtTriggerMenuLite
-    edm::Handle<L1GtTriggerMenuLite> l1GtMenuLite;
-    iRun.getByLabel(l1GtMenuLiteInputTag, l1GtMenuLite);
-
-    if (!l1GtMenuLite.isValid()) {
-
-        LogDebug("L1GtUtils") << "\nL1GtTriggerMenuLite with \n  "
-                << l1GtMenuLiteInputTag
-                << "\nrequested in configuration, but not found in the event."
-                << std::endl;
-
-        m_l1GtMenuLiteValid = false;
-    } else {
-        m_l1GtMenuLite = l1GtMenuLite.product();
-        m_l1GtMenuLiteValid = true;
-
-        LogDebug("L1GtUtils") << "\nL1GtTriggerMenuLite with \n  "
-                << l1GtMenuLiteInputTag << "\nretrieved for run "
-                << iRun.runAuxiliary().run() << std::endl;
-
-        m_algorithmMapLite = &(m_l1GtMenuLite->gtAlgorithmMap());
-        m_algorithmAliasMapLite = &(m_l1GtMenuLite->gtAlgorithmAliasMap());
-        m_technicalTriggerMapLite = &(m_l1GtMenuLite->gtTechnicalTriggerMap());
-
-        m_triggerMaskAlgoTrigLite = &(m_l1GtMenuLite->gtTriggerMaskAlgoTrig());
-        m_triggerMaskTechTrigLite = &(m_l1GtMenuLite->gtTriggerMaskTechTrig());
-
-        m_prescaleFactorsAlgoTrigLite
-                = &(m_l1GtMenuLite->gtPrescaleFactorsAlgoTrig());
-        m_prescaleFactorsTechTrigLite
-                = &(m_l1GtMenuLite->gtPrescaleFactorsTechTrig());
-
-    }
-
-}
-
-void L1GtUtils::getL1GtRunCache(const edm::Run& iRun,
-        const edm::EventSetup& evSetup, const bool useL1EventSetup,
-        const bool useL1GtTriggerMenuLite, const edm::InputTag& l1GtTmLInputTag) {
-
-    // first call will turn this to true: the quantities which can be cached in
-    // beginRun will not be cached then in analyze
-    m_beginRunCache = true;
-
-    // if requested, retrieve and cache L1 event setup
-    // keep the caching based on cacheIdentifier() for each record
-    if (useL1EventSetup) {
-        retrieveL1EventSetup(evSetup);
-    }
-
-    // cached per run
-
-    // if requested, retrieve and cache the L1GtTriggerMenuLite
-    // L1GtTriggerMenuLite is defined per run and produced in prompt reco by L1Reco
-    // and put in the Run section
-    if (useL1GtTriggerMenuLite) {
-        retrieveL1GtTriggerMenuLite(iRun, l1GtTmLInputTag);
-    }
-
-}
-
-
-void L1GtUtils::getL1GtRunCache(const edm::Run& iRun,
-        const edm::EventSetup& evSetup, bool useL1EventSetup,
-        bool useL1GtTriggerMenuLite) {
-
-    if (useL1GtTriggerMenuLite) {
-        getL1GtTriggerMenuLiteInputTag(iRun, m_provL1GtTriggerMenuLiteInputTag);
-
-    }
-
-    getL1GtRunCache(iRun, evSetup, useL1EventSetup, useL1GtTriggerMenuLite,
-            m_provL1GtTriggerMenuLiteInputTag);
-
-}
-
-
-
-void L1GtUtils::getL1GtRunCache(const edm::Event& iEvent,
-        const edm::EventSetup& evSetup, const bool useL1EventSetup,
-        const bool useL1GtTriggerMenuLite, const edm::InputTag& l1GtTmLInputTag) {
-
-    // if there was no retrieval and caching in beginRun, do it here
-    if (!m_beginRunCache) {
-
-        // if requested, retrieve and cache L1 event setup
-        // keep the caching based on cacheIdentifier() for each record
-        if (useL1EventSetup) {
-            retrieveL1EventSetup(evSetup);
-        }
-    }
-
-    // cached per run
-
+    // get Run Data - the same code can be run in beginRun, with getByLabel from edm::Run
     const edm::Run& iRun = iEvent.getRun();
     const edm::RunID* runID = &(iRun.runAuxiliary().id());
 
     if (runID != m_runIDCache) {
 
-        if (!m_beginRunCache) {
-            // if requested, retrieve and cache the L1GtTriggerMenuLite
-            // L1GtTriggerMenuLite is defined per run and produced in prompt reco by L1Reco
-            // and put in the Run section
-            if (useL1GtTriggerMenuLite) {
-                retrieveL1GtTriggerMenuLite(iRun, l1GtTmLInputTag);
-            }
+        // get L1GtTriggerMenuLite
+        edm::Handle<L1GtTriggerMenuLite> l1GtMenuLite;
+        iRun.getByLabel(l1GtMenuLiteInputTag, l1GtMenuLite);
+
+        if (!l1GtMenuLite.isValid()) {
+
+            LogDebug("L1GtUtils") << "\nL1GtTriggerMenuLite with \n  "
+                    << l1GtMenuLiteInputTag
+                    << "\nrequested in configuration, but not found in the event."
+                    << std::endl;
+
+            m_l1GtMenuLiteValid = false;
+        } else {
+            m_l1GtMenuLite = l1GtMenuLite.product();
+            m_l1GtMenuLiteValid = true;
+
+            LogDebug("L1GtUtils") << "\nL1GtTriggerMenuLite with \n  "
+                    << l1GtMenuLiteInputTag << "\nretrieved for run "
+                    << iRun.runAuxiliary().run() << std::endl;
+
+            m_algorithmMapLite = &(m_l1GtMenuLite->gtAlgorithmMap());
+            m_algorithmAliasMapLite = &(m_l1GtMenuLite->gtAlgorithmAliasMap());
+            m_technicalTriggerMapLite
+                    = &(m_l1GtMenuLite->gtTechnicalTriggerMap());
+
+            m_triggerMaskAlgoTrigLite
+                    = &(m_l1GtMenuLite->gtTriggerMaskAlgoTrig());
+            m_triggerMaskTechTrigLite
+                    = &(m_l1GtMenuLite->gtTriggerMaskTechTrig());
+
+            m_prescaleFactorsAlgoTrigLite
+                    = &(m_l1GtMenuLite->gtPrescaleFactorsAlgoTrig());
+            m_prescaleFactorsTechTrigLite
+                    = &(m_l1GtMenuLite->gtPrescaleFactorsTechTrig());
+
         }
 
-        // find from provenance and cache the input tags for L1GlobalTriggerRecord and
-        // L1GlobalTriggerReadoutRecord
-        getL1GtRecordInputTag(iEvent, m_provL1GtRecordInputTag,
-                m_provL1GtReadoutRecordInputTag);
-
-        //
         m_runIDCache = runID;
-
     }
 
 }
 
 
-void L1GtUtils::getL1GtRunCache(const edm::Event& iEvent,
-        const edm::EventSetup& evSetup, const bool useL1EventSetup,
-        const bool useL1GtTriggerMenuLite) {
 
-    // if the input tag for L1GtTriggerMenuLite was not found in beginRun, do it here
-    if (!m_beginRunCache) {
-
-        const edm::Run& iRun = iEvent.getRun();
-        const edm::RunID* runID = &(iRun.runAuxiliary().id());
-
-        if (runID != m_provRunIDCache) {
-
-            if (useL1GtTriggerMenuLite) {
-
-                getL1GtTriggerMenuLiteInputTag(iRun,
-                        m_provL1GtTriggerMenuLiteInputTag);
-            }
-
-            //
-            m_provRunIDCache = runID;
-        }
-
-    }
-
-    // call now the general method for getL1GtRunCache
-    getL1GtRunCache(iEvent, evSetup, useL1EventSetup, useL1GtTriggerMenuLite,
-            m_provL1GtTriggerMenuLiteInputTag);
-
-}
-
-
-void L1GtUtils::getL1GtRecordInputTag(const edm::Event& iEvent,
+void L1GtUtils::getInputTag(const edm::Event& iEvent,
         edm::InputTag& l1GtRecordInputTag,
         edm::InputTag& l1GtReadoutRecordInputTag) const {
 
@@ -433,18 +347,22 @@ void L1GtUtils::getL1GtRecordInputTag(const edm::Event& iEvent,
     std::string instanceName;
     std::string processName;
 
+    // to be sure that the input tags are correctly initialized
+    edm::InputTag l1GtRecordInputTagVal;
+    edm::InputTag l1GtReadoutRecordInputTagVal;
+
     bool foundL1GtRecord = false;
     bool foundL1GtReadoutRecord = false;
 
-    LogDebug("L1GtUtils") << "\nTry to get AllProvenance for event "
-            << iEvent.id().event() << std::endl;
+    //edm::LogVerbatim("L1GtUtils") << "\nTry to get AllProvenance for event "
+    //        << iEvent.id().event() << std::endl;
 
     iEvent.getAllProvenance(provenances);
 
-    LogTrace("L1GtUtils") << "\n" << "Event contains " << provenances.size()
-            << " product" << (provenances.size() == 1 ? "" : "s")
-            << " with friendlyClassName, moduleLabel, productInstanceName and processName:\n"
-            << std::endl;
+    //edm::LogVerbatim("L1GtUtils") << "\n" << "Event contains "
+    //        << provenances.size() << " product" << (provenances.size()==1 ? "" : "s")
+    //        << " with friendlyClassName, moduleLabel, productInstanceName and processName:"
+    //        << std::endl;
 
     for (Provenances::iterator itProv = provenances.begin(), itProvEnd =
             provenances.end(); itProv != itProvEnd; ++itProv) {
@@ -454,42 +372,42 @@ void L1GtUtils::getL1GtRecordInputTag(const edm::Event& iEvent,
         instanceName = (*itProv)->productInstanceName();
         processName = (*itProv)->processName();
 
-        LogTrace("L1GtUtils") << friendlyName << "\t \"" << modLabel
-                << "\" \t \"" << instanceName << "\" \t \"" << processName
-                << "\"" << std::endl;
+        //edm::LogVerbatim("L1GtUtils") << friendlyName << " \"" << modLabel
+        //        << "\" \"" << instanceName << "\" \"" << processName << "\""
+        //        << std::endl;
 
         if (friendlyName == "L1GlobalTriggerRecord") {
-            l1GtRecordInputTag = edm::InputTag(modLabel, instanceName,
+            l1GtRecordInputTagVal = edm::InputTag(modLabel, instanceName,
                     processName);
             foundL1GtRecord = true;
         } else if (friendlyName == "L1GlobalTriggerReadoutRecord") {
 
-            l1GtReadoutRecordInputTag = edm::InputTag(modLabel, instanceName,
+            l1GtReadoutRecordInputTagVal = edm::InputTag(modLabel, instanceName,
                     processName);
             foundL1GtReadoutRecord = true;
         }
     }
 
-    // if not found, return empty input tags
-    if (!foundL1GtRecord) {
-        l1GtRecordInputTag = edm::InputTag();
-    } else {
-        LogTrace("L1GtUtils")
-                << "\nL1GlobalTriggerRecord found in the event with \n  "
-                << l1GtRecordInputTag << std::endl;
-    }
+    // copy the input tags found to the returned arguments
+    l1GtRecordInputTag = l1GtRecordInputTagVal;
+    l1GtReadoutRecordInputTag = l1GtReadoutRecordInputTagVal;
 
-    if (!foundL1GtReadoutRecord) {
-        l1GtReadoutRecordInputTag = edm::InputTag();
-    } else {
-        LogTrace("L1GtUtils")
-                << "\nL1GlobalTriggerReadoutRecord found in the event with \n  "
-                << l1GtReadoutRecordInputTag << std::endl;
-    }
+    //if (foundL1GtRecord) {
+    //    edm::LogVerbatim("L1GtUtils")
+    //            << "\nL1GlobalTriggerRecord found in the event with \n  "
+    //            << l1GtRecordInputTag << std::endl;
+    //
+    //}
+
+    //if (foundL1GtReadoutRecord) {
+    //    edm::LogVerbatim("L1GtUtils")
+    //            << "\nL1GlobalTriggerReadoutRecord found in the event with \n  "
+    //           << l1GtReadoutRecordInputTag << std::endl;
+    //}
 
 }
 
-void L1GtUtils::getL1GtTriggerMenuLiteInputTag(const edm::Run& iRun,
+void L1GtUtils::getL1GtTriggerMenuLiteInputTag(const edm::Event& iEvent,
         edm::InputTag& l1GtTriggerMenuLiteInputTag) const {
 
     typedef std::vector<edm::Provenance const*> Provenances;
@@ -499,17 +417,24 @@ void L1GtUtils::getL1GtTriggerMenuLiteInputTag(const edm::Run& iRun,
     std::string instanceName;
     std::string processName;
 
+    // to be sure that the input tag is correctly initialized
+    edm::InputTag l1GtTriggerMenuLiteInputTagVal;
     bool foundL1GtTriggerMenuLite = false;
 
-    LogDebug("L1GtUtils") << "\nTry to get AllProvenance for run "
-            << iRun.runAuxiliary().run() << std::endl;
+    // get Run Data
+    const edm::Run& iRun = iEvent.getRun();
+
+    //edm::LogVerbatim("L1GtUtils") << "\nTry to get AllProvenance for run "
+    //        << iRun.runAuxiliary().run() << " event " << iEvent.id().event()
+    //        << std::endl;
 
     iRun.getAllProvenance(provenances);
 
-    LogTrace("L1GtUtils") << "\n" << "Run contains " << provenances.size()
-            << " product" << (provenances.size() == 1 ? "" : "s")
-            << " with friendlyClassName, moduleLabel, productInstanceName and processName:\n"
-            << std::endl;
+    //edm::LogVerbatim("L1GtUtils") << "\n" << "Run contains "
+    //        << provenances.size() << " product"
+    //        << (provenances.size() == 1 ? "" : "s")
+    //        << " with friendlyClassName, moduleLabel, productInstanceName and processName:"
+    //        << std::endl;
 
     for (Provenances::iterator itProv = provenances.begin(), itProvEnd =
             provenances.end(); itProv != itProvEnd; ++itProv) {
@@ -519,29 +444,28 @@ void L1GtUtils::getL1GtTriggerMenuLiteInputTag(const edm::Run& iRun,
         instanceName = (*itProv)->productInstanceName();
         processName = (*itProv)->processName();
 
-        LogTrace("L1GtUtils") << friendlyName << "\t \"" << modLabel
-                << "\" \t \"" << instanceName << "\" \t \"" << processName
-                << "\"" << std::endl;
+        //edm::LogVerbatim("L1GtUtils") << friendlyName << " \"" << modLabel
+        //        << "\" \"" << instanceName << "\" \"" << processName << "\""
+        //        << std::endl;
 
         if (friendlyName == "L1GtTriggerMenuLite") {
-            l1GtTriggerMenuLiteInputTag = edm::InputTag(modLabel, instanceName,
-                    processName);
+            l1GtTriggerMenuLiteInputTagVal = edm::InputTag(modLabel,
+                    instanceName, processName);
             foundL1GtTriggerMenuLite = true;
         }
 
     }
 
-    if (!foundL1GtTriggerMenuLite) {
-        l1GtTriggerMenuLiteInputTag = edm::InputTag();
-        LogTrace("L1GtUtils") << "\nL1GtTriggerMenuLite not found in Run"
-                << std::endl;
-    } else {
-        LogTrace("L1GtUtils") << "\nL1GtTriggerMenuLite found in Run with \n  "
-                << l1GtTriggerMenuLiteInputTag << std::endl;
-    }
+    // copy the input tags found to the returned arguments
+    l1GtTriggerMenuLiteInputTag = l1GtTriggerMenuLiteInputTagVal;
+
+    //if (foundL1GtTriggerMenuLite) {
+    //    edm::LogVerbatim("L1GtUtils")
+    //            << "\nL1GtTriggerMenuLite found in the event with \n  "
+    //            << l1GtTriggerMenuLiteInputTag << std::endl;
+    //}
 
 }
-
 
 const bool L1GtUtils::l1AlgoTechTrigBitNumber(
         const std::string& nameAlgoTechTrig, TriggerCategory& trigCategory,
@@ -670,6 +594,21 @@ const bool L1GtUtils::l1AlgoTechTrigBitNumber(
 
 }
 
+// deprecated
+const bool L1GtUtils::l1AlgTechTrigBitNumber(
+        const std::string& nameAlgoTechTrig, int& triggerAlgoTechTrig,
+        int& bitNumber) const {
+
+    TriggerCategory trigCategory = AlgorithmTrigger;
+    bitNumber = -1;
+
+    const bool trigCategBitNr = l1AlgoTechTrigBitNumber(nameAlgoTechTrig,
+            trigCategory, bitNumber);
+    triggerAlgoTechTrig = trigCategory;
+
+    return trigCategBitNr;
+
+}
 
 
 const int L1GtUtils::l1Results(const edm::Event& iEvent,
@@ -1145,18 +1084,21 @@ const int L1GtUtils::l1Results(const edm::Event& iEvent,
         const std::string& nameAlgoTechTrig, bool& decisionBeforeMask,
         bool& decisionAfterMask, int& prescaleFactor, int& triggerMask) const {
 
+    edm::InputTag l1GtRecordInputTag;
+    edm::InputTag l1GtReadoutRecordInputTag;
+
     // initial values for returned results
     decisionBeforeMask = false;
     decisionAfterMask = false;
     prescaleFactor = -1;
     triggerMask = -1;
 
-    //getInputTagCache(iEvent);
+    getInputTag(iEvent, l1GtRecordInputTag, l1GtReadoutRecordInputTag);
 
     int l1ErrorCode = 0;
 
-    l1ErrorCode = l1Results(iEvent, m_provL1GtRecordInputTag,
-            m_provL1GtReadoutRecordInputTag, nameAlgoTechTrig, decisionBeforeMask,
+    l1ErrorCode = l1Results(iEvent, l1GtRecordInputTag,
+            l1GtReadoutRecordInputTag, nameAlgoTechTrig, decisionBeforeMask,
             decisionAfterMask, prescaleFactor, triggerMask);
 
     return l1ErrorCode;
@@ -1765,10 +1707,13 @@ const int L1GtUtils::prescaleFactorSetIndex(const edm::Event& iEvent,
     int iError = 0;
     int pfIndex = -1;
 
-    //getInputTagCache(iEvent);
+    edm::InputTag l1GtRecordInputTag;
+    edm::InputTag l1GtReadoutRecordInputTag;
 
-    pfIndex = prescaleFactorSetIndex(iEvent, m_provL1GtRecordInputTag,
-            m_provL1GtReadoutRecordInputTag, trigCategory, iError);
+    getInputTag(iEvent, l1GtRecordInputTag, l1GtReadoutRecordInputTag);
+
+    pfIndex = prescaleFactorSetIndex(iEvent, l1GtRecordInputTag,
+            l1GtReadoutRecordInputTag, trigCategory, iError);
 
     // return the error code and the index value
     // if the  error code is 0, the index returned is -1
@@ -1778,6 +1723,79 @@ const int L1GtUtils::prescaleFactorSetIndex(const edm::Event& iEvent,
 }
 
 
+// deprecated
+const int L1GtUtils::prescaleFactorSetIndex(const edm::Event& iEvent,
+        const edm::InputTag& l1GtRecordInputTag,
+        const edm::InputTag& l1GtReadoutRecordInputTag,
+        const std::string& triggerAlgoTechTrig, int& errorCode) const {
+
+    // initialize error code and return value
+    int iError = 0;
+    int l1ConfCode = 0;
+    int pfIndex = -1;
+
+    // check if L1 configuration is available
+
+    if (!availableL1Configuration(iError, l1ConfCode)) {
+        errorCode = iError;
+        return pfIndex;
+    }
+
+    // test if the argument for the "trigger algorithm type" is correct
+    TriggerCategory trigCategory = AlgorithmTrigger;
+
+    if (triggerAlgoTechTrig == "TechnicalTriggers") {
+        trigCategory = TechnicalTrigger;
+
+    } else if (triggerAlgoTechTrig == "PhysicsAlgorithms") {
+        trigCategory = AlgorithmTrigger;
+
+    } else {
+
+        LogDebug("L1GtUtils")
+                << "\nErrr : prescale factor set index cannot be retrieved for the argument "
+                << triggerAlgoTechTrig
+                << "\n  Supported arguments: 'PhysicsAlgorithms' or 'TechnicalTriggers'"
+                << "\nWarning: this method is deprecated, please use method with TriggerCategory."
+                << std::endl;
+
+        iError = l1ConfCode + 6000;
+
+        errorCode = iError;
+        return pfIndex;
+
+    }
+
+    pfIndex = prescaleFactorSetIndex(iEvent, l1GtRecordInputTag,
+            l1GtReadoutRecordInputTag, trigCategory, errorCode);
+
+    errorCode = iError;
+    return pfIndex;
+
+}
+
+// deprecated
+const int L1GtUtils::prescaleFactorSetIndex(const edm::Event& iEvent,
+        const std::string& triggerAlgoTechTrig, int& errorCode) const {
+
+    // initialize error code and return value
+    int iError = 0;
+    int pfIndex = -1;
+
+    edm::InputTag l1GtRecordInputTag;
+    edm::InputTag l1GtReadoutRecordInputTag;
+
+    getInputTag(iEvent, l1GtRecordInputTag, l1GtReadoutRecordInputTag);
+
+    pfIndex = prescaleFactorSetIndex(iEvent, l1GtRecordInputTag,
+            l1GtReadoutRecordInputTag, triggerAlgoTechTrig, iError);
+
+    // return the error code and the index value
+    // if the  error code is not 0, the index returned is -1
+    errorCode = iError;
+    return pfIndex;
+
+}
 
 const std::vector<int>& L1GtUtils::prescaleFactorSet(const edm::Event& iEvent,
         const edm::InputTag& l1GtRecordInputTag,
@@ -1863,10 +1881,13 @@ const std::vector<int>& L1GtUtils::prescaleFactorSet(const edm::Event& iEvent,
     // initialize error code
     int iError = 0;
 
-    //getInputTagCache(iEvent);
+    edm::InputTag l1GtRecordInputTag;
+    edm::InputTag l1GtReadoutRecordInputTag;
 
-    m_prescaleFactorSet = prescaleFactorSet(iEvent, m_provL1GtRecordInputTag,
-            m_provL1GtReadoutRecordInputTag, trigCategory, iError);
+    getInputTag(iEvent, l1GtRecordInputTag, l1GtReadoutRecordInputTag);
+
+    m_prescaleFactorSet = prescaleFactorSet(iEvent, l1GtRecordInputTag,
+            l1GtReadoutRecordInputTag, trigCategory, iError);
 
     errorCode = iError;
     return m_prescaleFactorSet;
@@ -1874,6 +1895,78 @@ const std::vector<int>& L1GtUtils::prescaleFactorSet(const edm::Event& iEvent,
 }
 
 
+// deprecated
+const std::vector<int>& L1GtUtils::prescaleFactorSet(const edm::Event& iEvent,
+        const edm::InputTag& l1GtRecordInputTag,
+        const edm::InputTag& l1GtReadoutRecordInputTag,
+        const std::string& triggerAlgoTechTrig, int& errorCode) {
+
+    // clear the vector before filling it
+    m_prescaleFactorSet.clear();
+
+    // initialize error code and return value
+    int iError = 0;
+    int l1ConfCode = 0;
+
+    // check if L1 configuration is available
+
+    if (!availableL1Configuration(iError, l1ConfCode)) {
+        errorCode = iError;
+        return m_prescaleFactorSet;
+    }
+
+    // test if the argument for the "trigger algorithm type" is correct
+    TriggerCategory trigCategory = AlgorithmTrigger;
+
+    if (triggerAlgoTechTrig == "TechnicalTriggers") {
+        trigCategory = TechnicalTrigger;
+
+    } else if (triggerAlgoTechTrig == "PhysicsAlgorithms") {
+        trigCategory = AlgorithmTrigger;
+
+    } else {
+
+        LogDebug("L1GtUtils")
+                << "\nErrr : prescale factor set cannot be retrieved for the argument "
+                << triggerAlgoTechTrig
+                << "\n  Supported arguments: 'PhysicsAlgorithms' or 'TechnicalTriggers'"
+                << "\nWarning: this method is deprecated, please use method with TriggerCategory."
+                << std::endl;
+
+        iError = l1ConfCode + 6000;
+
+        errorCode = iError;
+        return m_prescaleFactorSet;
+
+    }
+
+    m_prescaleFactorSet = prescaleFactorSet(iEvent, l1GtRecordInputTag,
+            l1GtReadoutRecordInputTag, trigCategory, iError);
+
+    errorCode = iError;
+    return m_prescaleFactorSet;
+}
+
+
+// deprecated
+const std::vector<int>& L1GtUtils::prescaleFactorSet(const edm::Event& iEvent,
+        const std::string& triggerAlgoTechTrig, int& errorCode) {
+
+    // initialize error code
+    int iError = 0;
+
+    edm::InputTag l1GtRecordInputTag;
+    edm::InputTag l1GtReadoutRecordInputTag;
+
+    getInputTag(iEvent, l1GtRecordInputTag, l1GtReadoutRecordInputTag);
+
+    m_prescaleFactorSet = prescaleFactorSet(iEvent, l1GtRecordInputTag,
+            l1GtReadoutRecordInputTag, triggerAlgoTechTrig, iError);
+
+    errorCode = iError;
+    return m_prescaleFactorSet;
+
+}
 
 
 const std::vector<unsigned int>& L1GtUtils::triggerMaskSet(
@@ -1974,6 +2067,55 @@ const std::vector<unsigned int>& L1GtUtils::triggerMaskSet(
 }
 
 
+//deprecated
+const std::vector<unsigned int>& L1GtUtils::triggerMaskSet(
+        const std::string& triggerAlgoTechTrig, int& errorCode) {
+
+    // clear the vector before filling it
+    m_triggerMaskSet.clear();
+
+    // initialize error code and return value
+    int iError = 0;
+    int l1ConfCode = 0;
+
+    // check if L1 configuration is available
+
+    if (!availableL1Configuration(iError, l1ConfCode)) {
+        errorCode = iError;
+        return m_triggerMaskSet;
+    }
+
+    // test if the argument for the "trigger algorithm type" is correct
+    TriggerCategory trigCategory = AlgorithmTrigger;
+
+    if (triggerAlgoTechTrig == "TechnicalTriggers") {
+        trigCategory = TechnicalTrigger;
+
+    } else if (triggerAlgoTechTrig == "PhysicsAlgorithms") {
+        trigCategory = AlgorithmTrigger;
+
+    } else {
+
+        LogDebug("L1GtUtils")
+                << "\nErrr : trigger mask set cannot be retrieved for the argument "
+                << triggerAlgoTechTrig
+                << "\n  Supported arguments: 'PhysicsAlgorithms' or 'TechnicalTriggers'"
+                << "\nWarning: this method is deprecated, please use method with TriggerCategory."
+                << std::endl;
+
+        iError = l1ConfCode + 6000;
+
+        errorCode = iError;
+        return m_triggerMaskSet;
+
+    }
+
+    m_triggerMaskSet = triggerMaskSet(trigCategory, iError);
+
+    errorCode = iError;
+    return m_triggerMaskSet;
+
+}
 
 const std::string& L1GtUtils::l1TriggerMenu() const {
 
@@ -2095,20 +2237,20 @@ const bool L1GtUtils::availableL1Configuration(int& errorCode, int& l1ConfCode) 
     if (m_retrieveL1GtTriggerMenuLite) {
         if (!m_retrieveL1EventSetup) {
             LogDebug("L1GtUtils")
-                    << "\nRetrieve L1 trigger configuration from L1GtTriggerMenuLite only.\n"
+                    << "\nRetrieve L1 trigger configuration from L1GtTriggerMenuLite only\n"
                     << std::endl;
             l1ConfCode = 0;
         } else {
             LogDebug("L1GtUtils")
-                    << "\nFall through: retrieve L1 trigger configuration from L1GtTriggerMenuLite."
-                    << "\nIf L1GtTriggerMenuLite not valid, try to retrieve from event setup.\n"
+                    << "\nFall through: retrieve L1 trigger configuration from L1GtTriggerMenuLite"
+                    << "\n  if L1GtTriggerMenuLite not valid, try to retrieve from event setup "
                     << std::endl;
             l1ConfCode = 100000;
         }
 
         if (m_l1GtMenuLiteValid) {
             LogDebug("L1GtUtils")
-                    << "\nRetrieve L1 trigger configuration from L1GtTriggerMenuLite, valid product.\n"
+                    << "\nRetrieve L1 trigger configuration from L1GtTriggerMenuLite, valid product\n"
                     << std::endl;
             l1ConfCode = l1ConfCode  + 10000;
             errorCode = 0;
@@ -2182,7 +2324,7 @@ const bool L1GtUtils::availableL1Configuration(int& errorCode, int& l1ConfCode) 
     } else {
         LogDebug("L1GtUtils")
                 << "\nError: no L1 trigger configuration requested to be retrieved."
-                << "\nMust call before getL1GtRunCache in beginRun and analyze.\n"
+                << "\nMust call before either retrieveL1GtTriggerMenuLite or retrieveL1EventSetup.\n"
                 << std::endl;
         l1ConfCode = 300000;
         errorCode = l1ConfCode;

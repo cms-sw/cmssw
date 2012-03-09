@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.28 2011/06/21 23:27:55 vadler Exp $
+// $Id: PATTriggerProducer.cc,v 1.29 2011/06/22 13:12:32 vadler Exp $
 //
 
 
@@ -539,8 +539,8 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           const reco::CandidateBaseRef leafCandRef( l1extra::L1MuonParticleRef( handleL1ExtraMu, l1Mu ) );
           triggerObject = TriggerObject( leafCandRef );
         } else {
-          const reco::LeafCandidate * leafCandidate( handleL1ExtraMu->at( l1Mu ).reco::LeafCandidate::clone() );
-          triggerObject = TriggerObject( *leafCandidate );
+          const reco::LeafCandidate leafCandidate( *( handleL1ExtraMu->at( l1Mu ).reco::LeafCandidate::clone() ) );
+          triggerObject = TriggerObject( leafCandidate );
         }
         triggerObject.setCollection( tagL1ExtraMu_ );
         triggerObject.addTriggerObjectType( trigger::TriggerL1Mu );
@@ -564,8 +564,8 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           const reco::CandidateBaseRef leafCandRef( l1extra::L1EmParticleRef( handleL1ExtraNoIsoEG, l1NoIsoEG ) );
           triggerObject = TriggerObject( leafCandRef );
         } else {
-          const reco::LeafCandidate * leafCandidate( handleL1ExtraNoIsoEG->at( l1NoIsoEG ).reco::LeafCandidate::clone() );
-          triggerObject = TriggerObject( *leafCandidate );
+          const reco::LeafCandidate leafCandidate( *( handleL1ExtraNoIsoEG->at( l1NoIsoEG ).reco::LeafCandidate::clone() ) );
+          triggerObject = TriggerObject( leafCandidate );
         }
         triggerObject.setCollection( tagL1ExtraNoIsoEG_ );
         triggerObject.addTriggerObjectType( trigger::TriggerL1NoIsoEG );
@@ -589,8 +589,8 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           const reco::CandidateBaseRef leafCandRef( l1extra::L1EmParticleRef( handleL1ExtraIsoEG, l1IsoEG ) );
           triggerObject = TriggerObject( leafCandRef );
         } else {
-          const reco::LeafCandidate * leafCandidate( handleL1ExtraIsoEG->at( l1IsoEG ).reco::LeafCandidate::clone() );
-          triggerObject = TriggerObject( *leafCandidate );
+          const reco::LeafCandidate leafCandidate( *( handleL1ExtraIsoEG->at( l1IsoEG ).reco::LeafCandidate::clone() ) );
+          triggerObject = TriggerObject( leafCandidate );
         }
         triggerObject.setCollection( tagL1ExtraIsoEG_ );
         triggerObject.addTriggerObjectType( trigger::TriggerL1IsoEG );
@@ -614,8 +614,8 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           const reco::CandidateBaseRef leafCandRef( l1extra::L1JetParticleRef( handleL1ExtraCenJet, l1CenJet ) );
           triggerObject = TriggerObject( leafCandRef );
         } else {
-          const reco::LeafCandidate * leafCandidate( handleL1ExtraCenJet->at( l1CenJet ).reco::LeafCandidate::clone() );
-          triggerObject = TriggerObject( *leafCandidate );
+          const reco::LeafCandidate leafCandidate( *( handleL1ExtraCenJet->at( l1CenJet ).reco::LeafCandidate::clone() ) );
+          triggerObject = TriggerObject( leafCandidate );
         }
         triggerObject.setCollection( tagL1ExtraCenJet_ );
         triggerObject.addTriggerObjectType( trigger::TriggerL1CenJet );
@@ -639,8 +639,8 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           const reco::CandidateBaseRef leafCandRef( l1extra::L1JetParticleRef( handleL1ExtraForJet, l1ForJet ) );
           triggerObject = TriggerObject( leafCandRef );
         } else {
-          const reco::LeafCandidate * leafCandidate( handleL1ExtraForJet->at( l1ForJet ).reco::LeafCandidate::clone() );
-          triggerObject = TriggerObject( *leafCandidate );
+          const reco::LeafCandidate leafCandidate( *( handleL1ExtraForJet->at( l1ForJet ).reco::LeafCandidate::clone() ) );
+          triggerObject = TriggerObject( leafCandidate );
         }
         triggerObject.setCollection( tagL1ExtraForJet_ );
         triggerObject.addTriggerObjectType( trigger::TriggerL1ForJet );
@@ -664,8 +664,8 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           const reco::CandidateBaseRef leafCandRef( l1extra::L1JetParticleRef( handleL1ExtraTauJet, l1TauJet ) );
           triggerObject = TriggerObject( leafCandRef );
         } else {
-          const reco::LeafCandidate * leafCandidate( handleL1ExtraTauJet->at( l1TauJet ).reco::LeafCandidate::clone() );
-          triggerObject = TriggerObject( *leafCandidate );
+          const reco::LeafCandidate leafCandidate( *( handleL1ExtraTauJet->at( l1TauJet ).reco::LeafCandidate::clone() ) );
+          triggerObject = TriggerObject( leafCandidate );
         }
         triggerObject.setCollection( tagL1ExtraTauJet_ );
         triggerObject.addTriggerObjectType( trigger::TriggerL1TauJet );
@@ -689,8 +689,8 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           const reco::CandidateBaseRef leafCandRef( l1extra::L1EtMissParticleRef( handleL1ExtraETM, l1ETM ) );
           triggerObject = TriggerObject( leafCandRef );
         } else {
-          const reco::LeafCandidate * leafCandidate( handleL1ExtraETM->at( l1ETM ).reco::LeafCandidate::clone() );
-          triggerObject = TriggerObject( *leafCandidate );
+          const reco::LeafCandidate leafCandidate( *( handleL1ExtraETM->at( l1ETM ).reco::LeafCandidate::clone() ) );
+          triggerObject = TriggerObject( leafCandidate );
         }
         triggerObject.setCollection( tagL1ExtraETM_ );
         triggerObject.addTriggerObjectType( trigger::TriggerL1ETM );
@@ -714,8 +714,8 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           const reco::CandidateBaseRef leafCandRef( l1extra::L1EtMissParticleRef( handleL1ExtraHTM, l1HTM ) );
           triggerObject = TriggerObject( leafCandRef );
         } else {
-          const reco::LeafCandidate * leafCandidate( handleL1ExtraHTM->at( l1HTM ).reco::LeafCandidate::clone() );
-          triggerObject = TriggerObject( *leafCandidate );
+          const reco::LeafCandidate leafCandidate( *( handleL1ExtraHTM->at( l1HTM ).reco::LeafCandidate::clone() ) );
+          triggerObject = TriggerObject( leafCandidate );
         }
         triggerObject.setCollection( tagL1ExtraHTM_ );
         triggerObject.addTriggerObjectType( trigger::TriggerL1HTM );

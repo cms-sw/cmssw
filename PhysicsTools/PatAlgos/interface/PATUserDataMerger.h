@@ -1,5 +1,5 @@
 //
-// $Id: PATUserDataMerger.h,v 1.8 2009/06/25 16:56:45 gpetrucc Exp $
+// $Id: PATUserDataMerger.h,v 1.9 2010/02/20 21:00:14 wmtan Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATUserDataMerger_h
@@ -15,10 +15,10 @@
 
 		This will be called from PATUserDataHelper to handle the templated cases
 		like UserData or double. PATUserDataHelper will then add all the instantiated
-		cases. 
+		cases.
 
   \author   Salvatore Rappoccio
-  \version  $Id: PATUserDataMerger.h,v 1.8 2009/06/25 16:56:45 gpetrucc Exp $
+  \version  $Id: PATUserDataMerger.h,v 1.9 2010/02/20 21:00:14 wmtan Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -56,7 +56,7 @@ namespace pat {
         typedef edm::Ptr<UserData>        value_type;
         typedef edm::ValueMap<value_type> product_type;
         template<typename ObjectType>
-        void addData(ObjectType &obj, const std::string & key, const value_type &val) { 
+        void addData(ObjectType &obj, const std::string & key, const value_type &val) {
               obj.addUserDataFromPtr(key, val);
         }
     };
@@ -71,7 +71,7 @@ namespace pat {
 
   template<typename ObjectType, typename Operation>
   class PATUserDataMerger {
-    
+
   public:
 
     PATUserDataMerger() {}
@@ -79,8 +79,8 @@ namespace pat {
     ~PATUserDataMerger() {}
 
     static void fillDescription(edm::ParameterSetDescription & iDesc);
-    
-    // Method to call from PATUserDataHelper to add information to the PATObject in question. 
+
+    // Method to call from PATUserDataHelper to add information to the PATObject in question.
     void add(ObjectType & patObject,
 	     edm::Event const & iEvent, edm::EventSetup const & iSetup);
 
@@ -103,30 +103,30 @@ pat::PATUserDataMerger<ObjectType, Operation>::PATUserDataMerger(const edm::Para
 
 
 /* ==================================================================================
-     PATUserDataMerger::add 
+     PATUserDataMerger::add
             This expects four inputs:
 	        patObject:         ObjectType to add to
 
 		from Event:
 		userDataSrc:       The data to add, which is a ValueMap keyed by recoObject
-		
+
 		from Setup:
 		none currently
 
-		This will simply add the UserData *'s from the value map that are 
+		This will simply add the UserData *'s from the value map that are
 		indexed by the reco objects, to the pat object's user data vector.
    ==================================================================================
 */
 
 template<class ObjectType, typename Operation>
-void 
+void
 pat::PATUserDataMerger<ObjectType, Operation>::add(ObjectType & patObject,
-						   edm::Event const & iEvent, 
-						   const edm::EventSetup & iSetup ) 
+						   edm::Event const & iEvent,
+						   const edm::EventSetup & iSetup )
 {
 
   std::vector<edm::InputTag>::const_iterator input_it = userDataSrc_.begin(),
-    input_begin = userDataSrc_.begin(),
+//     input_begin = userDataSrc_.begin(), // warning from gcc461: variable 'input_begin' set but not used [-Wunused-but-set-variable]
     input_end = userDataSrc_.end();
 
   for ( ; input_it != input_end; ++input_it ) {
@@ -146,14 +146,14 @@ pat::PATUserDataMerger<ObjectType, Operation>::add(ObjectType & patObject,
     }
 
   }
-  
+
 }
 
 template<class ObjectType, typename Operation>
 void
 pat::PATUserDataMerger<ObjectType, Operation>::fillDescription(edm::ParameterSetDescription & iDesc)
 {
-  iDesc.add<std::vector<edm::InputTag> >("src"); 
+  iDesc.add<std::vector<edm::InputTag> >("src");
 }
 
 #endif

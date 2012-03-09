@@ -1,4 +1,4 @@
-#ifndef GsfElectron_h
+ #ifndef GsfElectron_h
 #define GsfElectron_h
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -165,11 +165,25 @@ class GsfElectron : public RecoCandidate
     virtual GsfElectronCoreRef core() const ;
 
     // forward core methods
-    SuperClusterRef superCluster() const { return core()->superCluster() ; }
-    GsfTrackRef gsfTrack() const { return core()->gsfTrack() ; }
+    virtual SuperClusterRef superCluster() const { return core()->superCluster() ; }
+    virtual GsfTrackRef gsfTrack() const { return core()->gsfTrack() ; }
+    virtual TrackRef closestTrack() const { return core()->ctfTrack() ; }
+    float ctfGsfOverlap() const { return core()->ctfGsfOverlap() ; }
     bool ecalDrivenSeed() const { return core()->ecalDrivenSeed() ; }
     bool trackerDrivenSeed() const { return core()->trackerDrivenSeed() ; }
     SuperClusterRef pflowSuperCluster() const { return core()->pflowSuperCluster() ; }
+
+    // backward compatibility
+    struct ClosestCtfTrack
+     {
+      TrackRef ctfTrack ; // best matching ctf track
+      float shFracInnerHits ; // fraction of common hits between the ctf and gsf tracks
+      ClosestCtfTrack() : shFracInnerHits(0.) {}
+      ClosestCtfTrack( TrackRef track, float sh ) : ctfTrack(track), shFracInnerHits(sh) {}
+     } ;
+    float shFracInnerHits() const { return core()->ctfGsfOverlap() ; }
+    TrackRef closestCtfTrackRef() const { return core()->ctfTrack() ; }
+    ClosestCtfTrack closestCtfTrack() const { return ClosestCtfTrack(core()->ctfTrack(),core()->ctfGsfOverlap()) ; }
 
   private:
 
@@ -288,30 +302,6 @@ class GsfElectron : public RecoCandidate
     // for backward compatibility
     math::XYZPoint caloPosition() const { return superCluster()->position() ; }
 
-
-  //=======================================================
-  // For backward compatibility
-  //=======================================================
-
-  public :
-
-    struct ClosestCtfTrack
-     {
-      TrackRef ctfTrack ; // best matching ctf track
-      float shFracInnerHits ; // fraction of common hits between the ctf and gsf tracks
-      ClosestCtfTrack() : shFracInnerHits(0.) {}
-      ClosestCtfTrack( TrackRef track, float sh ) : ctfTrack(track), shFracInnerHits(sh) {}
-     } ;
-
-
-    // for backward compatibility
-    float shFracInnerHits() const { return core()->ctfGsfOverlap() ; } // measure the fraction of common hits between the GSF and CTF tracks
-    TrackRef closestCtfTrackRef() const { return core()->ctfTrack() ; }
-    ClosestCtfTrack closestCtfTrack() const { return ClosestCtfTrack(core()->ctfTrack(),core()->ctfGsfOverlap()) ; }
-
-  private :
-
-    //ClosestCtfTrack closestCtfTrack_ ;
 
 
   //=======================================================

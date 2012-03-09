@@ -18,6 +18,7 @@ namespace edm {
   std::string getUuid(TTree *uuidTree);
   void printUuids(TTree *uuidTree);
   void printEventLists(TFile *tfl);
+  void printEventsInLumis(TFile* tfl);
 }
 
 #endif

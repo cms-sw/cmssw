@@ -11,7 +11,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Wed Oct 15  11:38:38 CEST 2008
-// $Id: EcalTPCondAnalyzer.cc,v 1.4 2011/03/09 13:10:32 ebecheva Exp $
+// $Id: EcalTPCondAnalyzer.cc,v 1.3 2010/07/07 10:06:28 ebecheva Exp $
 //
 //
 //
@@ -217,14 +217,7 @@ void  EcalTPCondAnalyzer::printSTRIP(const EcalTPGSlidingWindow *slWin,const Eca
 	if (subdet==1) {
 	  std::cout<<"STRIP_EB "<<std::dec<<(*it).first<<std::endl;
 	  std::cout << std::hex << "0x" <<(*it).second<<std::endl ;
-	  std::cout  <<"" <<(*groupId).second<< std::endl ; //weightgroupid
-	  EcalTPGFineGrainStripEEMapIterator it2=fgstripEEmap.find((*it).first);
-	  if (it2==fgstripEEmap.end()) {
-	    edm::LogWarning("EcalTPGCondAnalyzer") <<" could not find strip Id "<<(*it).first<<", given in sliding window, inside the EcalTPGFineGranStripEEMap!!!";
-	  } else {
-	    EcalTPGFineGrainStripEE::Item item=(*it2).second;
-	    std::cout<<std::hex<<"0x"<<item.threshold<<" 0x"<<item.lut<<std::endl ;  
-	  }
+	  std::cout  <<" " <<(*groupId).second<< std::endl ; //weightgroupid
 	}else if (subdet==2) {
 	  std::cout<<"STRIP_EE "<<std::dec<<(*it).first<<std::endl;
 	  std::cout << std::hex << "0x" <<(*it).second<<std::endl ;
@@ -252,8 +245,6 @@ void EcalTPCondAnalyzer::printWEIGHT(const EcalTPGWeightIdMap * ecaltpgWeightIdM
       std::cout <<"WEIGHT "<<(*it).first<<std::endl;
       (*it).second.getValues(w0,w1,w2,w3,w4);
       std::cout <<std::hex<<"0x"<<w0<<" 0x"<<w1<<" 0x"<<w2<<" 0x"<<w3<<" 0x"<<w4<<" "<<std::endl;
-      std::cout<<std::endl;
-      std::cout<<std::endl;
     }
 }
 
@@ -262,7 +253,7 @@ void  EcalTPCondAnalyzer::printEcalTPGFineGrainEBIdMap(const EcalTPGFineGrainEBI
     const EcalTPGFineGrainEBIdMap::EcalTPGFineGrainEBMap map=ecaltpgFineGrainEB->getMap();
     uint32_t ThresholdETLow, ThresholdETHigh, RatioLow, RatioHigh, LUT;
 
-    //std::cout<<std::endl;
+    std::cout<<std::endl;
     for (it=map.begin();it!=map.end();++it) {
       std::cout <<"FG "<<(*it).first<<std::endl;
       (*it).second.getValues(ThresholdETLow, ThresholdETHigh, RatioLow, RatioHigh, LUT);
@@ -426,7 +417,7 @@ void EcalTPCondAnalyzer::printTOWEREB(const EcalTPGSpike *ecaltpgSpikeTh, const 
       itSpikeTh=spikeThMap.find((*it).first);
       std::cout <<std::hex<<" "<<(*it).second<<std::endl;
       std::cout <<std::hex<<" "<<(*lutGroupId).second<<std::endl;
-      std::cout <<std::dec<<" "<<(*itSpikeTh).second<<std::endl; 
+      std::cout <<std::hex<<" "<<(*itSpikeTh).second<<std::endl; 
     }
 }
 

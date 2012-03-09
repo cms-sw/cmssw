@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsTwoBin_H
 
 /** \class MuonResidualsTwoBin
- *  $Date: 2009/10/26 02:06:13 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/10/08 02:20:59 $
+ *  $Revision: 1.8 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -222,17 +222,6 @@ public:
     }
   };
 
-  void selectPeakResiduals(double nsigma, int nvar, int *vars)
-  {
-    if (m_twoBin) {
-      m_pos->selectPeakResiduals(nsigma, nvar, vars);
-      m_neg->selectPeakResiduals(nsigma, nvar, vars);
-    }
-    else {
-      m_pos->selectPeakResiduals(nsigma, nvar, vars);
-    }
-  }
-  
   std::vector<double*>::const_iterator residualsPos_begin() const { return m_pos->residuals_begin(); };
   std::vector<double*>::const_iterator residualsPos_end() const { return m_pos->residuals_end(); };
   std::vector<double*>::const_iterator residualsNeg_begin() const { return m_neg->residuals_begin(); };

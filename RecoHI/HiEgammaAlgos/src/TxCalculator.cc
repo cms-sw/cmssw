@@ -223,7 +223,7 @@ double TxCalculator::getJct(const reco::Photon cluster, double r1, double r2, do
          if ( dPhi < -PI )    dPhi = dPhi + 2*PI ;
          if ( dPhi >  PI )    dPhi = dPhi - 2*PI ;
 	 if ( fabs(dPhi) >PI )   cout << " error!!! dphi > 2pi   : " << dPhi << endl;
-         double dR = sqrt(dEta*dEta+dPhi*dPhi);
+	 //         double dR = sqrt(dEta*dEta+dPhi*dPhi);
          
 
 	 //////// phi strip /////////                                                                                                           

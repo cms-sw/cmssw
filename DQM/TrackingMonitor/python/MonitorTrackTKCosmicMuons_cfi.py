@@ -8,5 +8,8 @@ MonitorTrackTKCosmicMuons.FolderName = 'Muons/TKTrack'
 MonitorTrackTKCosmicMuons.doBeamSpotPlots = False
 MonitorTrackTKCosmicMuons.BSFolderName = 'Muons/TKTrack/BeamSpotParameters'
 MonitorTrackTKCosmicMuons.doSeedParameterHistos = False
+MonitorTrackTKCosmicMuons.doAllPlots = False
+MonitorTrackTKCosmicMuons.doHitPropertiesPlots = True
+MonitorTrackTKCosmicMuons.doGeneralPropertiesPlots = True
 
 

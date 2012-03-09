@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessor.cc,v 1.16 2011/04/19 16:01:53 mommsen Exp $
+// $Id: DQMEventProcessor.cc,v 1.17 2011/04/21 09:48:30 mommsen Exp $
 /// @file: DQMEventProcessor.cc
 
 #include "toolbox/task/WorkLoopFactory.h"
@@ -9,7 +9,6 @@
 #include "EventFilter/StorageManager/interface/DQMEventProcessorResources.h"
 #include "EventFilter/StorageManager/interface/DQMEventQueueCollection.h"
 #include "EventFilter/StorageManager/interface/QueueID.h"
-#include "EventFilter/StorageManager/interface/StatisticsReporter.h"
 #include "EventFilter/StorageManager/src/DQMEventStore.icc"
 
 
@@ -21,7 +20,7 @@ namespace stor {
   
   template<>  
   DQMEventMsgView
-  DQMEventStore<I2OChain,InitMsgCollection,SharedResources>::
+  DQMEventStore<I2OChain,InitMsgCollection,AlarmHandler>::
   getDQMEventView(I2OChain const& dqmEvent)
   {
     tempEventArea_.clear();
@@ -44,9 +43,9 @@ namespace stor {
     sr->statisticsReporter_->getDQMEventMonitorCollection(),
     sr->initMsgCollection_.get(),
     &stor::InitMsgCollection::maxMsgCount,
-    sr.get(),
-    &stor::SharedResources::moveToFailedState,
-    sr->statisticsReporter_->alarmHandler()
+    sr->alarmHandler_.get(),
+    &stor::AlarmHandler::moveToFailedState,
+    sr->alarmHandler_
   )
   {
     WorkerThreadParams workerParams =
@@ -104,21 +103,21 @@ namespace stor {
     {
       XCEPT_DECLARE_NESTED( stor::exception::DQMEventProcessing,
         sentinelException, errorMsg, e );
-      sharedResources_->moveToFailedState(sentinelException);
+      sharedResources_->alarmHandler_->moveToFailedState(sentinelException);
     }
     catch(std::exception &e)
     {
       errorMsg += e.what();
       XCEPT_DECLARE( stor::exception::DQMEventProcessing,
         sentinelException, errorMsg );
-      sharedResources_->moveToFailedState(sentinelException);
+      sharedResources_->alarmHandler_->moveToFailedState(sentinelException);
     }
     catch(...)
     {
       errorMsg += "Unknown exception";
       XCEPT_DECLARE( stor::exception::DQMEventProcessing,
         sentinelException, errorMsg );
-      sharedResources_->moveToFailedState(sentinelException);
+      sharedResources_->alarmHandler_->moveToFailedState(sentinelException);
     }
     
     return actionIsActive_;

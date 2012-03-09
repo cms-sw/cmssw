@@ -440,6 +440,7 @@ namespace edm
     formerID = 0;
     ESum = 0.;
     float ZDCTime = 0.;
+    float lowGainEnergy = 0;
     ZDCRecHit ZOldHit;
 
     ZDCRecHitMap::const_iterator iZDCchk;
@@ -457,18 +458,19 @@ namespace edm
       else {
 	if(formerID>0) {
 	  // cutoff for ESum?                                                                                 
-	  ZDCRecHit aHit(formerID, ESum, ZDCTime);
+	  ZDCRecHit aHit(formerID, ESum, ZDCTime, lowGainEnergy);
 	  ZDCrechits->push_back( aHit );
 	}
 	//save pointers for next iteration                                                                    
 	formerID = currentID;
 	ESum = (iZDC->second).energy();
+	lowGainEnergy = (iZDC->second).lowGainEnergy();
 	ZDCTime = (iZDC->second).time();  // take time of first hit in sequence - is this ok?
       }
       
       iZDCchk = iZDC;
       if((++iZDCchk) == ZDCRecHitStorage_.end()) {  //make sure not to lose the last one  
-	ZDCRecHit aHit(formerID, ESum, HBTime);
+	ZDCRecHit aHit(formerID, ESum, HBTime, lowGainEnergy);
 	ZDCrechits->push_back( aHit );
       }
     } 

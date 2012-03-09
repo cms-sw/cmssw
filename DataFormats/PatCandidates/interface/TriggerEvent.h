@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerEvent
 //
-// $Id: TriggerEvent.h,v 1.14 2011/04/08 16:16:48 vadler Exp $
+// $Id: TriggerEvent.h,v 1.15 2011/05/24 15:56:25 vadler Exp $
 //
 /**
   \class    pat::TriggerEvent TriggerEvent.h "DataFormats/PatCandidates/interface/TriggerEvent.h"
@@ -19,7 +19,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerEvent
 
   \author   Volker Adler
-  \version  $Id: TriggerEvent.h,v 1.14 2011/04/08 16:16:48 vadler Exp $
+  \version  $Id: TriggerEvent.h,v 1.15 2011/05/24 15:56:25 vadler Exp $
 */
 
 
@@ -99,7 +99,7 @@ namespace pat {
       /// Constructors and Desctructor
 
       /// Default constructor
-      TriggerEvent() { objectMatchResults_.clear(); };
+      TriggerEvent();
       /// Constructor from values, HLT only
       TriggerEvent( const std::string & nameHltTable, bool run = true, bool accept = true, bool error = false, bool physDecl = true );
       /// Constructor from values, HLT and L1/GT

@@ -381,29 +381,37 @@ void FUResourceBroker::I2O_FU_TAKE_Callback(toolbox::mem::Reference* bufRef)
 //______________________________________________________________________________
 void FUResourceBroker::I2O_EVM_LUMISECTION_Callback(toolbox::mem::Reference* bufRef)
 {
+  if(fsm_.checkIfEnabled()){
 
-  I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *msg = 
+    I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *msg = 
     (I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *)bufRef->getDataLocation();
-  if(msg->lumiSection==0){
-    LOG4CPLUS_ERROR(log_,"EOL message received for ls=0!!! ");
-    fsm_.fireFailed("EOL message received for ls=0!!! ",this);
-  }
-  nbReceivedEol_++;
-  if(highestEolReceived_.value_+100 < msg->lumiSection) 
-    {
-      LOG4CPLUS_ERROR(log_,"EOL message not in sequence, expected " 
-		      << highestEolReceived_.value_+1
-		      << " received " << msg->lumiSection);
-      fsm_.fireFailed("EOL message with corrupted LS ",this);
+    if(msg->lumiSection==0){
+      LOG4CPLUS_ERROR(log_,"EOL message received for ls=0!!! ");
+      fsm_.fireFailed("EOL message received for ls=0!!! ",this);
     }
-  if(highestEolReceived_.value_+1 != msg->lumiSection) 
-    LOG4CPLUS_WARN(log_,"EOL message not in sequence, expected " 
-		    << highestEolReceived_.value_+1
-		    << " received " << msg->lumiSection);
+    nbReceivedEol_++;
+    if(highestEolReceived_.value_+100 < msg->lumiSection) 
+      {
+	LOG4CPLUS_ERROR(log_,"EOL message not in sequence, expected " 
+			<< highestEolReceived_.value_+1
+			<< " received " << msg->lumiSection);
+	fsm_.fireFailed("EOL message with corrupted LS ",this);
+      }
+    if(highestEolReceived_.value_+1 != msg->lumiSection) 
+      LOG4CPLUS_WARN(log_,"EOL message not in sequence, expected " 
+		     << highestEolReceived_.value_+1
+		     << " received " << msg->lumiSection);
+    
+    if(highestEolReceived_.value_ < msg->lumiSection) 
+      highestEolReceived_.value_ = msg->lumiSection;
+    resourceTable_->postEndOfLumiSection(bufRef); 
+  }
+  else{
+    LOG4CPLUS_ERROR(log_,"EOL i2o frame received in state " 
+		    << fsm_.stateName() << " is being lost");
+  }
+  bufRef->release();
 
-  if(highestEolReceived_.value_ < msg->lumiSection) 
-    highestEolReceived_.value_ = msg->lumiSection;
-  resourceTable_->postEndOfLumiSection(bufRef); // this method dummy for now
 //   I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *msg =
 //     (I2O_EVM_END_OF_LUMISECTION_MESSAGE_FRAME *)bufRef->getDataLocation();
   
@@ -693,14 +701,11 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
     double tdiff =difftime(tcurr,tstamp);
     if (tdiff>timeOutSec_) {
       if(processKillerEnabled_)	{
-	LOG4CPLUS_ERROR(log_,"evt "<<evt<<" timed out, "<<"kill prc "<<pid);
 	kill(pid,9);
 	nbTimeoutsWithEvent_++;
       }
-      else {
-	LOG4CPLUS_INFO(log_,"evt "<<evt<<" under processing for more than "
-		       <<timeOutSec_<<"sec for process "<<pid);
-      }
+      LOG4CPLUS_ERROR(log_,"evt "<<evt<<" under processing for more than "
+			<<timeOutSec_<<"sec for process "<<pid);
     }
   }
   

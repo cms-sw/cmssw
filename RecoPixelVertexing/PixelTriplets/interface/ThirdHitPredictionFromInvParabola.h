@@ -43,7 +43,7 @@ private:
   inline double coeffA(double impactParameter, int charge) const;
   inline double coeffB(double impactParameter, int charge) const;
   double predV(double u, double  ip, int charge) const;
-  double ipFromCurvature(double  curvature, int charge) const;
+  inline double ipFromCurvature(double  curvature, int charge) const;
 
 
 private:
@@ -77,7 +77,9 @@ private:
 
   Rotation theRotation;
   typedef MappedPoint<double> PointUV;
-  PointUV p1, p2;
+  //PointUV p1, p2;
+  double u1u2, overDu, pv, dv, su;
+
   PointUV findPointAtCurve(double radius, int charge, double ip) const;
 
   Range theIpRangePlus, theIpRangeMinus; 
@@ -90,20 +92,21 @@ private:
 double  ThirdHitPredictionFromInvParabola::
     coeffA(double impactParameter, int charge) const
 {
-  double u1u2 = p1.u()*p2.u();
-  double du = p2.u() - p1.u();
-  double pv = p1.v()*p2.u() - p2.v()*p1.u();
-  return -charge*pv/du - u1u2*impactParameter;
+  return -charge*pv*overDu - u1u2*impactParameter;
 }
 
 double ThirdHitPredictionFromInvParabola::
     coeffB(double impactParameter,int charge) const
 {
-  double dv = p2.v() - p1.v();
-  double du = p2.u() - p1.u();
-  double su = p2.u() + p1.u();
-  return charge*dv/du - su*impactParameter;
+  return charge*dv*overDu - su*impactParameter;
 }
 
+double ThirdHitPredictionFromInvParabola::
+    ipFromCurvature(double curvature, int charge) const 
+{
+  double overU1u2 = 1./u1u2;
+  double inInf = -charge*pv*overDu*overU1u2;
+  return inInf-curvature*overU1u2*0.5;
+}
 
 #endif

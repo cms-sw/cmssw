@@ -242,4 +242,131 @@ namespace edm {
       preIndexIntoFilePrintEventLists(tfl, fileFormatVersion, metaDataTree);
     }
   }
+  
+  
+  static void preIndexIntoFilePrintEventsInLumis(TFile*, FileFormatVersion const& fileFormatVersion, TTree *metaDataTree) {
+    FileIndex fileIndex;
+    FileIndex *findexPtr = &fileIndex;
+    if (metaDataTree->FindBranch(poolNames::fileIndexBranchName().c_str()) != 0) {
+      TBranch *fndx = metaDataTree->GetBranch(poolNames::fileIndexBranchName().c_str());
+      fndx->SetAddress(&findexPtr);
+      fndx->GetEntry(0);
+    } else {
+      std::cout << "FileIndex not found.  If this input file was created with release 1_8_0 or later\n"
+      "this indicates a problem with the file.  This condition should be expected with\n"
+      "files created with earlier releases and printout of the event list will fail.\n";
+      return;
+    }
+    
+    std::cout <<"\n"<< std::setw(15) << "Run"
+    << std::setw(15) << "Lumi"
+    << std::setw(15) << "# Events"
+    << "\n";
+    unsigned long nEvents = 0;
+    unsigned long runID = 0;
+    unsigned long lumiID = 0;
+    for(std::vector<FileIndex::Element>::const_iterator it = fileIndex.begin(), itEnd = fileIndex.end(); it != itEnd; ++it) {
+      if(it->getEntryType() == FileIndex::kEvent) {
+        ++nEvents;
+      }
+      else if(it->getEntryType() == FileIndex::kLumi) {
+        if(runID !=it->run_ || lumiID !=it->lumi_) {
+          //print the previous one
+          if(lumiID !=0) {
+            std::cout << std::setw(15) << runID
+            << std::setw(15) << lumiID 
+            << std::setw(15) << nEvents<<"\n";
+          }
+          nEvents=0;
+          runID = it->run_;
+          lumiID = it->lumi_;
+        }
+      }
+    }
+    //print the last one
+    if(lumiID !=0) {
+      std::cout << std::setw(15) << runID
+      << std::setw(15) << lumiID 
+      << std::setw(15) << nEvents<<"\n";
+    }
+    
+    std::cout << "\n";
+  }
+  
+  static void postIndexIntoFilePrintEventsInLumis(TFile* tfl, FileFormatVersion const& fileFormatVersion, TTree *metaDataTree) {
+    IndexIntoFile indexIntoFile;
+    IndexIntoFile *findexPtr = &indexIntoFile;
+    if (metaDataTree->FindBranch(poolNames::indexIntoFileBranchName().c_str()) != 0) {
+      TBranch *fndx = metaDataTree->GetBranch(poolNames::indexIntoFileBranchName().c_str());
+      fndx->SetAddress(&findexPtr);
+      fndx->GetEntry(0);
+    } else {
+      std::cout << "IndexIntoFile not found.  If this input file was created with release 1_8_0 or later\n"
+      "this indicates a problem with the file.  This condition should be expected with\n"
+      "files created with earlier releases and printout of the event list will fail.\n";
+      return;
+    }
+    std::cout <<"\n"<< std::setw(15) << "Run"
+    << std::setw(15) << "Lumi"
+    << std::setw(15) << "# Events"
+    << "\n";
+    
+    unsigned long nEvents = 0;
+    unsigned long runID = 0;
+    unsigned long lumiID = 0;
+
+    for(IndexIntoFile::IndexIntoFileItr it = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder),
+        itEnd = indexIntoFile.end(IndexIntoFile::firstAppearanceOrder);
+        it != itEnd; ++it) {
+      IndexIntoFile::EntryType t = it.getEntryType();
+      switch(t) {
+        case IndexIntoFile::kRun:
+          break;
+        case IndexIntoFile::kLumi:
+          if(runID != it.run() || lumiID != it.lumi()) {
+            //print the previous one
+            if(lumiID !=0) {
+              std::cout << std::setw(15) << runID
+              << std::setw(15) << lumiID 
+              << std::setw(15) << nEvents<<"\n";
+            }
+            nEvents=0;
+            runID = it.run();
+            lumiID = it.lumi();
+          }
+          break;
+        case IndexIntoFile::kEvent:
+          ++nEvents;
+          break;
+        default:
+          break;
+      }
+    }
+    //print the last one
+    if(lumiID !=0) {
+      std::cout << std::setw(15) << runID
+      << std::setw(15) << lumiID 
+      << std::setw(15) << nEvents<<"\n";
+    }
+    
+    std::cout << "\n";
+  }
+
+  void printEventsInLumis(TFile *tfl) {
+    TTree *metaDataTree = dynamic_cast<TTree *>(tfl->Get(poolNames::metaDataTreeName().c_str()));
+    
+    FileFormatVersion fileFormatVersion;
+    FileFormatVersion *fftPtr = &fileFormatVersion;
+    if (metaDataTree->FindBranch(poolNames::fileFormatVersionBranchName().c_str()) != 0) {
+      TBranch *fft = metaDataTree->GetBranch(poolNames::fileFormatVersionBranchName().c_str());
+      fft->SetAddress(&fftPtr);
+      fft->GetEntry(0);
+    }
+    if(fileFormatVersion.hasIndexIntoFile()) {
+      postIndexIntoFilePrintEventsInLumis(tfl, fileFormatVersion, metaDataTree);
+    } else {
+      preIndexIntoFilePrintEventsInLumis(tfl, fileFormatVersion, metaDataTree);
+    }
+  }
+
 }

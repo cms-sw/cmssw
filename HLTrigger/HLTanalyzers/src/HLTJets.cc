@@ -41,6 +41,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 
     const int kMaxRecoPFJet = 10000;
     jpfrecopt=new float[kMaxRecoPFJet];
+    jpfrecoe=new float[kMaxRecoPFJet];
     jpfrecophi=new float[kMaxRecoPFJet];
     jpfrecoeta=new float[kMaxRecoPFJet];
     jpfreconeutralHadronFraction=new float[kMaxRecoPFJet];
@@ -66,6 +67,14 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     jhcorcalemf = new float[kMaxJetCal]; 
     jhcorcaln90 = new float[kMaxJetCal]; 
     jhcorcaln90hits = new float[kMaxJetCal]; 
+
+    jhcorL1L2L3calpt = new float[kMaxJetCal]; 
+    jhcorL1L2L3calphi = new float[kMaxJetCal]; 
+    jhcorL1L2L3caleta = new float[kMaxJetCal]; 
+    jhcorL1L2L3cale = new float[kMaxJetCal]; 
+    jhcorL1L2L3calemf = new float[kMaxJetCal]; 
+    jhcorL1L2L3caln90 = new float[kMaxJetCal]; 
+    jhcorL1L2L3caln90hits = new float[kMaxJetCal]; 
     
     jrcalpt = new float[kMaxJetCal];
     jrcalphi = new float[kMaxJetCal];
@@ -147,6 +156,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     pfJetEta         = new float[kMaxPFJet];
     pfJetPhi         = new float[kMaxPFJet];
     pfJetPt         = new float[kMaxPFJet];
+    pfJetE         = new float[kMaxPFJet];
 
 
     const int kMaxTauIso = 5000;
@@ -236,6 +246,15 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("ohJetCorCalN90",jhcorcaln90,"ohJetCorCalN90[NohJetCorCal]/F");
     HltTree->Branch("ohJetCorCalN90hits",jhcorcaln90hits,"ohJetCorCalN90hits[NohJetCorCal]/F");
 
+    HltTree->Branch("NohJetCorL1L2L3Cal",&nhcorL1L2L3jetcal,"NohJetCorL1L2L3Cal/I");
+    HltTree->Branch("ohJetCorL1L2L3CalPt",jhcorL1L2L3calpt,"ohJetCorL1L2L3CalPt[NohJetCorL1L2L3Cal]/F");
+    HltTree->Branch("ohJetCorL1L2L3CalPhi",jhcorL1L2L3calphi,"ohJetCorL1L2L3CalPhi[NohJetCorL1L2L3Cal]/F");
+    HltTree->Branch("ohJetCorL1L2L3CalEta",jhcorL1L2L3caleta,"ohJetCorL1L2L3CalEta[NohJetCorL1L2L3Cal]/F");
+    HltTree->Branch("ohJetCorL1L2L3CalE",jhcorL1L2L3cale,"ohJetCorL1L2L3CalE[NohJetCorL1L2L3Cal]/F");
+    HltTree->Branch("ohJetCorL1L2L3CalEMF",jhcorL1L2L3calemf,"ohJetCorL1L2L3CalEMF[NohJetCorL1L2L3Cal]/F");
+    HltTree->Branch("ohJetCorL1L2L3CalN90",jhcorL1L2L3caln90,"ohJetCorL1L2L3CalN90[NohJetCorL1L2L3Cal]/F");
+    HltTree->Branch("ohJetCorL1L2L3CalN90hits",jhcorL1L2L3caln90hits,"ohJetCorL1L2L3CalN90hits[NohJetCorL1L2L3Cal]/F");
+
     //ccla GenJets
     HltTree->Branch("recoJetGenPt",jgenpt,"recoJetGenPt[NrecoJetGen]/F");
     HltTree->Branch("recoJetGenPhi",jgenphi,"recoJetGenPhi[NrecoJetGen]/F");
@@ -258,6 +277,10 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("recoHTCal",&htcalet,"recoHTCal/F");
     HltTree->Branch("recoHTCalPhi",&htcalphi,"recoHTCalPhi/F");
     HltTree->Branch("recoHTCalSum",&htcalsum,"recoHTCalSum/F");
+    HltTree->Branch("recoMetPF", &pfmet, "recoMetPF/F");
+    HltTree->Branch("recoMetPFSum", &pfsumet, "recoMetPFSum/F");
+    HltTree->Branch("recoMetPFPhi", &pfmetphi, "recoMetPFPhi/F");
+
     //for(int ieta=0;ieta<NETA;ieta++){std::cout << " ieta " << ieta << " eta min " << CaloTowerEtaBoundries[ieta] <<std::endl;}
     
     
@@ -322,12 +345,14 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("pfMHT",&pfMHT,"pfMHT/F");
     HltTree->Branch("NohPFJet",&nohPFJet,"NohPFJet/I");
     HltTree->Branch("pfJetPt",pfJetPt,"pfJetPt[NohPFJet]/F");
+    HltTree->Branch("pfJetE",pfJetE,"pfJetE[NohPFJet]/F");
     HltTree->Branch("pfJetEta",pfJetEta,"pfJetEta[NohPFJet]/F");
     HltTree->Branch("pfJetPhi",pfJetPhi,"pfJetPhi[NohPFJet]/F");
 
     //RECO PFJets
     HltTree->Branch("nrpj",&nrpj,"nrpj/I");
     HltTree->Branch("recopfJetpt",                    jpfrecopt,                     "recopfJetpt[nrpj]/F");
+    HltTree->Branch("recopfJete",                     jpfrecoe,                      "recopfJete[nrpj]/F");
     HltTree->Branch("recopfJetphi",                   jpfrecophi,                    "recopfJetphi[nrpj]/F");
     HltTree->Branch("recopfJeteta",                   jpfrecoeta,                    "recopfJeteta[nrpj]/F");
     HltTree->Branch("recopfJetneutralHadronFraction", jpfreconeutralHadronFraction,  "recopfJetneutralHadronFraction[nrpj]/F");
@@ -343,6 +368,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 void HLTJets::analyze(edm::Event const& iEvent,
 		      const edm::Handle<reco::CaloJetCollection>      & ohcalojets,
                       const edm::Handle<reco::CaloJetCollection>      & ohcalocorjets,
+		      const edm::Handle<reco::CaloJetCollection>      & ohcalocorL1L2L3jets,
 		      const edm::Handle<reco::CaloJetCollection>      & rcalojets,
 		      const edm::Handle<reco::CaloJetCollection>      & rcalocorjets,
                       const edm::Handle<reco::GenJetCollection>       & genjets,
@@ -363,6 +389,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
 		      const edm::Handle<reco::PFTauDiscriminator>	      & theRecoPFTauDiscrAgainstMuon,
                       const edm::Handle<reco::PFJetCollection>        & recoPFJets,
 		      const edm::Handle<CaloTowerCollection>          & caloTowers,
+		      const edm::Handle<reco::PFMETCollection>        & pfmets, 
                       double thresholdForSavingTowers, 
                       double		    minPtCH,
                       double		   minPtGamma,
@@ -371,7 +398,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
     if (_Debug) std::cout << " Beginning HLTJets " << std::endl;
     
     //initialize branch variables
-    nhjetcal=0; nhcorjetcal=0; njetgen=0;ntowcal=0;
+    nhjetcal=0; nhcorjetcal=0;nhcorL1L2L3jetcal=0; njetgen=0;ntowcal=0;
     mcalmet=0.; mcalphi=0.;
     mgenmet=0.; mgenphi=0.;
     htcalet=0.,htcalphi=0.,htcalsum=0.;
@@ -479,6 +506,31 @@ void HLTJets::analyze(edm::Event const& iEvent,
     }
     else {nhcorjetcal = 0;}
     
+ if (ohcalocorL1L2L3jets.isValid()) {
+        reco::CaloJetCollection mycalocorL1L2L3jets;
+        mycalocorL1L2L3jets=*ohcalocorL1L2L3jets;
+        std::sort(mycalocorL1L2L3jets.begin(),mycalocorL1L2L3jets.end(),PtGreater());
+        typedef reco::CaloJetCollection::const_iterator ccorL1L2L3jiter;
+        int jhcorL1L2L3cal=0;
+        for ( ccorL1L2L3jiter i=mycalocorL1L2L3jets.begin(); i!=mycalocorL1L2L3jets.end(); i++) {
+            
+            if (i->pt()>_CalJetMin){
+                jhcorL1L2L3calpt[jhcorL1L2L3cal] = i->pt();
+                jhcorL1L2L3calphi[jhcorL1L2L3cal] = i->phi();
+                jhcorL1L2L3caleta[jhcorL1L2L3cal] = i->eta();
+                jhcorL1L2L3cale[jhcorL1L2L3cal] = i->energy();
+                jhcorL1L2L3calemf[jhcorL1L2L3cal] = i->emEnergyFraction();
+                jhcorL1L2L3caln90[jhcorL1L2L3cal] = i->n90();
+		jetID->calculate( iEvent, *i );
+                jhcorL1L2L3caln90hits[jhcorL1L2L3cal] = jetID->n90Hits();
+                jhcorL1L2L3cal++;
+            }
+            
+        }
+        nhcorL1L2L3jetcal = jhcorL1L2L3cal;
+    }
+    else {nhcorL1L2L3jetcal = 0;}
+
     if (caloTowers.isValid()) {
         //    ntowcal = caloTowers->size();
         int jtow = 0;
@@ -506,6 +558,15 @@ void HLTJets::analyze(edm::Event const& iEvent,
             mcalphi = i->phi();
             mcalsum = i->sumEt();
         }
+    }
+
+    if (pfmets.isValid()) {
+      typedef reco::PFMETCollection::const_iterator pfmetiter;
+      for( pfmetiter i=pfmets->begin(); i!=pfmets->end(); i++) {
+	pfmet = i->pt();
+	pfsumet = i->sumEt();
+	pfmetphi = i->phi();
+      }
     }
     
     if (ht.isValid()) {
@@ -819,16 +880,19 @@ void HLTJets::analyze(edm::Event const& iEvent,
             pfJetEta[ipfJet] = i->eta();
             pfJetPhi[ipfJet] = i->phi();
             pfJetPt[ipfJet] = i->pt();           
+	    pfJetE[ipfJet] = i->energy();
             
-	    pfHT  += i -> pt();
-            pfMHTx = pfMHTx + i->px();
-            pfMHTy = pfMHTy + i->py();
+	    if (i->pt() > 40. && abs(i->eta())<3.0)
+	      pfHT  += i -> pt();
+	    if (i->pt() > 30.){
+	      pfMHTx = pfMHTx + i->px();
+	      pfMHTy = pfMHTy + i->py();
+	    }
             ipfJet++;   
         } 
         pfMHT = sqrt(pfMHTx*pfMHTx + pfMHTy*pfMHTy);
         
     }
-    
     //////////////// RECO Particle Flow Jets ////////////////////////////////////
     nrpj = 0;
     if(recoPFJets.isValid()){
@@ -842,6 +906,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
 		    jpfrecoeta[ipfJet] = i->eta();
 		    jpfrecophi[ipfJet] = i->phi();
 		    jpfrecopt[ipfJet] = i->pt();           
+		    jpfrecoe[ipfJet] = i->energy();           
 		    jpfreconeutralHadronFraction[ipfJet] = i->neutralHadronEnergyFraction ();
 		    jpfrecochargedHadronFraction[ipfJet] = i->chargedHadronEnergyFraction ();
 		    jpfreconeutralMultiplicity[ipfJet] = i->neutralMultiplicity ();

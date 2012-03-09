@@ -195,7 +195,10 @@ vector<Trajectory> KFFittingSmoother::fit(const TrajectorySeed& aSeed,
 			else 
 			  log_pixel_hit_probability = log10( pixel_hit_probability );
 			
-			if ( log_pixel_hit_probability < log_pixel_prob_cut )
+			int qbin = (int)pixhit->qBin();
+
+			if ( ( log_pixel_hit_probability <  log_pixel_prob_cut ) &&
+			     ( qbin                      != 0                  ) )
 			  {
 			    has_low_pixel_prob = true;
 			    log_pixel_prob_cut = log_pixel_hit_probability;
@@ -204,7 +207,7 @@ vector<Trajectory> KFFittingSmoother::fit(const TrajectorySeed& aSeed,
 			  }	    
 			
 		      } // if ( !persistentHit == 0 && ... )
-		  
+		    
 		  } // if ( hit->isValid() && ... )
 	      }	      
 	      // --- here the block of code about PXL Outlier Rejection ends --- 

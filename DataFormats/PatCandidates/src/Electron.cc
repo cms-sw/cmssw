@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.25 2011/03/31 10:13:26 namapane Exp $
+// $Id: Electron.cc,v 1.27 2011/10/22 10:30:41 sprenger Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -41,7 +41,7 @@ Electron::Electron(const reco::GsfElectron & anElectron) :
   initImpactParameters();
 }
 
-/// constructor from ref to reco::GsfElectron
+/// constructor from a RefToBase to a reco::GsfElectron (to be superseded by Ptr counterpart)
 Electron::Electron(const edm::RefToBase<reco::GsfElectron> & anElectronRef) :
     Lepton<reco::GsfElectron>(anElectronRef),
     embeddedGsfElectronCore_(false),
@@ -57,7 +57,7 @@ Electron::Electron(const edm::RefToBase<reco::GsfElectron> & anElectronRef) :
   initImpactParameters();
 }
 
-/// constructor from Ptr to reco::GsfElectron
+/// constructor from a Ptr to a reco::GsfElectron
 Electron::Electron(const edm::Ptr<reco::GsfElectron> & anElectronRef) :
     Lepton<reco::GsfElectron>(anElectronRef),
     embeddedGsfElectronCore_(false),
@@ -77,6 +77,7 @@ Electron::Electron(const edm::Ptr<reco::GsfElectron> & anElectronRef) :
 Electron::~Electron() {
 }
 
+/// pipe operator (introduced to use pat::Electron with PFTopProjectors)
 std::ostream& 
 reco::operator<<(std::ostream& out, const pat::Electron& obj) 
 {
@@ -94,7 +95,7 @@ reco::operator<<(std::ostream& out, const pat::Electron& obj)
   return out; 
 }
 
-// initialize impact parameter container vars
+/// initializes the impact parameter container vars
 void Electron::initImpactParameters() {
   for (int i_ = 0; i_<5; ++i_){
     ip_.push_back(0.0);
@@ -132,17 +133,21 @@ reco::SuperClusterRef Electron::superCluster() const {
   }
 }
 
-
-/// override the reco::GsfElectron::track method, to access the internal storage of the track
-reco::TrackRef Electron::track() const {
+/// override the reco::GsfElectron::closestCtfTrack method, to access the internal storage of the track
+reco::TrackRef Electron::closestCtfTrackRef() const {
   if (embeddedTrack_) {
     return reco::TrackRef(&track_, 0);
   } else {
-    return reco::GsfElectron::track();
+    return reco::GsfElectron::closestCtfTrackRef();
   }
 }
 
-/// method to store the electron's gsfElectronCore internally
+// the name of the method is misleading, users should use gsfTrack of closestCtfTrack
+reco::TrackRef Electron::track() const {
+  return reco::TrackRef();
+}
+
+/// Stores the electron's core (reco::GsfElectronCoreRef) internally
 void Electron::embedGsfElectronCore() {
   gsfElectronCore_.clear();
   if (reco::GsfElectron::core().isNonnull()) {
@@ -151,7 +156,7 @@ void Electron::embedGsfElectronCore() {
   }
 }
 
-/// method to store the electron's gsfTrack internally
+/// Stores the electron's gsfTrack (reco::GsfTrackRef) internally
 void Electron::embedGsfTrack() {
   gsfTrack_.clear();
   if (reco::GsfElectron::gsfTrack().isNonnull()) {
@@ -161,7 +166,7 @@ void Electron::embedGsfTrack() {
 }
 
 
-/// method to store the electron's supercluster internally
+/// Stores the electron's SuperCluster (reco::SuperClusterRef) internally
 void Electron::embedSuperCluster() {
   superCluster_.clear();
   if (reco::GsfElectron::superCluster().isNonnull()) {
@@ -170,17 +175,29 @@ void Electron::embedSuperCluster() {
   }
 }
 
-
 /// method to store the electron's track internally
 void Electron::embedTrack() {
   track_.clear();
-  if (reco::GsfElectron::track().isNonnull()) {
-      track_.push_back(*reco::GsfElectron::track());
+  if (reco::GsfElectron::closestCtfTrackRef().isNonnull()) {
+      track_.push_back(*reco::GsfElectron::closestCtfTrackRef());
       embeddedTrack_ = true;
   }
 }
 
-// method to retrieve a lepton ID (or throw)
+/// Returns a specific electron ID associated to the pat::Electron given its name
+/// For cut-based IDs, the value map has the following meaning:
+/// 0: fails,
+/// 1: passes electron ID only,
+/// 2: passes electron Isolation only,
+/// 3: passes electron ID and Isolation only,
+/// 4: passes conversion rejection,
+/// 5: passes conversion rejection and ID,
+/// 6: passes conversion rejection and Isolation,
+/// 7: passes the whole selection.
+/// For more details have a look at:
+/// https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
+/// https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCategoryBasedElectronID
+/// Note: an exception is thrown if the specified ID is not available
 float Electron::electronID(const std::string & name) const {
     for (std::vector<IdPair>::const_iterator it = electronIDs_.begin(), ed = electronIDs_.end(); it != ed; ++it) {
         if (it->first == name) return it->second;
@@ -194,7 +211,8 @@ float Electron::electronID(const std::string & name) const {
     ex << ".\n";
     throw ex;
 }
-// check if an ID is there
+
+/// Checks if a specific electron ID is associated to the pat::Electron.
 bool Electron::isElectronIDAvailable(const std::string & name) const {
     for (std::vector<IdPair>::const_iterator it = electronIDs_.begin(), ed = electronIDs_.end(); it != ed; ++it) {
         if (it->first == name) return true;
@@ -211,7 +229,8 @@ reco::PFCandidateRef Electron::pfCandidateRef() const {
     return pfCandidateRef_;
   }
 }
-/// embed the IsolatedPFCandidate pointed to by pfCandidateRef_
+
+/// Stores the PFCandidate pointed to by pfCandidateRef_ internally
 void Electron::embedPFCandidate() {
   pfCandidate_.clear();
   if ( pfCandidateRef_.isAvailable() && pfCandidateRef_.isNonnull()) {
@@ -220,7 +239,8 @@ void Electron::embedPFCandidate() {
   }
 }
 
-/// reference to the parent PF candidate for use in TopProjector
+/// Returns the reference to the parent PF candidate with index i.
+/// For use in TopProjector.
 reco::CandidatePtr Electron::sourceCandidatePtr( size_type i ) const {
   if (embeddedPFCandidate_) {
     return reco::CandidatePtr( pfCandidateRef_.id(), pfCandidateRef_.get(), pfCandidateRef_.key() );
@@ -233,7 +253,14 @@ reco::CandidatePtr Electron::sourceCandidatePtr( size_type i ) const {
 
 /// dB gives the impact parameter wrt the beamline.
 /// If this is not cached it is not meaningful, since
-/// it relies on the distance to the beamline. 
+/// it relies on the distance to the beamline.
+///
+/// IpType defines the type of the impact parameter
+/// None is default and reverts to the old functionality.
+///
+/// Example: electron->dB(pat::Electron::PV2D)
+/// will return the electron transverse impact parameter
+/// relative to the primary vertex.
 double Electron::dB(IpType type_) const {
   // preserve old functionality exactly
   if (type_ == None){
@@ -254,6 +281,13 @@ double Electron::dB(IpType type_) const {
 /// edB gives the uncertainty on the impact parameter wrt the beamline.
 /// If this is not cached it is not meaningful, since
 /// it relies on the distance to the beamline. 
+///
+/// IpType defines the type of the impact parameter
+/// None is default and reverts to the old functionality.
+///
+/// Example: electron->edB(pat::Electron::PV2D)
+/// will return the electron transverse impact parameter uncertainty
+/// relative to the primary vertex.
 double Electron::edB(IpType type_) const {
   // preserve old functionality exactly
   if (type_ == None) {
@@ -272,6 +306,7 @@ double Electron::edB(IpType type_) const {
 
 }
 
+/// Sets the impact parameter and its error wrt the beamline and caches it.
 void Electron::setDB(double dB, double edB, IpType type){
   if (type == None) { // Preserve  old functionality exactly
     dB_ = dB; edB_ = edB;

@@ -104,54 +104,6 @@ EcalFloatCondObjectContainerXMLTranslator::endcapfromXML(const string& filename)
 }
 
 
-
-std::string 
-EcalFloatCondObjectContainerXMLTranslator::dumpXML(       
-				  const EcalCondHeader&   header,
-				  const std::vector<float>& eb,
-				  const std::vector<float>& ee){
-
-
-  if (eb.size() != EBDetId::kSizeForDenseIndexing){
-    std::cerr<<"Error in EcalFloatCondObjectContainerXMLTranslator::dumpXML, invalid Barrel array size: "
-	     <<eb.size() << " should be "<<  EBDetId::kSizeForDenseIndexing<< std::endl;
-    return std::string("");
-  }
-
-  if (ee.size() != EEDetId::kSizeForDenseIndexing){
-    std::cerr<<"Error in EcalFloatCondObjectContainerXMLTranslator::dumpXML, invalid Endcap array size: "
-	     <<ee.size() << " should be "<<  EEDetId::kSizeForDenseIndexing<< std::endl;
-    return std::string("");
-  }
-
-  EcalFloatCondObjectContainer record;
-  
-  for (int cellid = 0; 
-       cellid < EBDetId::kSizeForDenseIndexing; 
-       ++cellid){// loop on EB cells
-        
-    uint32_t rawid = EBDetId::unhashIndex(cellid);
-    record[rawid]   = eb[cellid];
-  } 
-  
-  for (int cellid = 0; 
-       cellid < EEDetId::kSizeForDenseIndexing; 
-       ++cellid){// loop on EE cells
-    
-    
-    
-    if (EEDetId::validHashIndex(cellid)){  
-      uint32_t rawid = EEDetId::unhashIndex(cellid);
-   
-      record[rawid]=ee[cellid];
-    } // if
-  }
-  
-  return dumpXML(header,record);
-
-
-}
-
 std::string 
 EcalFloatCondObjectContainerXMLTranslator::dumpXML(       
 				  const EcalCondHeader&   header,

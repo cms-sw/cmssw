@@ -64,6 +64,13 @@ DTConfigDBProducer::DTConfigDBProducer(const edm::ParameterSet& p)
   m_manager->setLutFromDB(tracoLutsFromDB);
   m_manager->setUseAcceptParam(useBtiAcceptParam);
 
+  // initialize flags to check if data are present in OMDS 
+  flagDBBti 	= false;
+  flagDBTraco 	= false;
+  flagDBTSS 	= false;
+  flagDBTSM 	= false;
+  flagDBLUTS    = false;
+
   // set debug
   edm::ParameterSet conf_ps = m_ps.getParameter<edm::ParameterSet>("DTTPGParameters");  
   bool dttpgdebug = conf_ps.getUntrackedParameter<bool>("Debug");
@@ -94,11 +101,7 @@ std::auto_ptr<DTConfigManager> DTConfigDBProducer::produce(const DTConfigManager
    }  else{
      code = readDTCCBConfig(iRecord);
      readDBPedestalsConfig(iRecord); // no return code if fails exception is raised by ESHandle getter
-     // 110628 SV add config check
-     if(code != -1 && checkDTCCBConfig() > 0)
-       code=-1;
    }
-   //cout << "DTConfigDBProducer::produce CODE " << code << endl;
    if(code==-1) {
      //throw cms::Exception("DTTPG") << "DTConfigDBProducer::produce : " << endl
      //				   << "generic error pharsing DT CCB config strings." << endl
@@ -112,7 +115,7 @@ std::auto_ptr<DTConfigManager> DTConfigDBProducer::produce(const DTConfigManager
                            << "Configurations successfully read from OMDS" << endl; 
    } else {
      LogProblem ("DTTPG") << "DTConfigDBProducer::produce : " << endl
-			  << "Wrong configuration return CODE" << endl;
+			  << "Wrong congiguration rertun CODE" << endl;
    }
 
    std::auto_ptr<DTConfigManager> dtConfig = std::auto_ptr<DTConfigManager>( m_manager );
@@ -135,7 +138,6 @@ void DTConfigDBProducer::readDBPedestalsConfig(const DTConfigManagerRcd& iRecord
  
     pedestals.setUseT0(true);
     pedestals.setES(dttpgParams.product(),t0i.product());
-//cout << "checkDTCCBConfig CODE is " << checkDTCCBConfig() << endl;
 
   } else {
 
@@ -146,121 +148,6 @@ void DTConfigDBProducer::readDBPedestalsConfig(const DTConfigManagerRcd& iRecord
 
   m_manager->setDTConfigPedestals(pedestals);
 
-}
-
-int DTConfigDBProducer::checkDTCCBConfig()
-{
-  // 110627 SV test if configuration from CCB has correct number of chips,
-  // return error code: 
-  // check_cfg_code = 1 : NO correct BTI number
-  // check_cfg_code = 2 : NO correct TRACO number
-  // check_cfg_code = 3 : NO correct valid TSS number
-  // check_cfg_code = 4 : NO correct valid TSM number
-
-  int check_cfg_code = 0; 
-
-  // do not take chambers from MuonGeometryRecord to avoid geometry dependency
-  for(int iwh=-2;iwh<=2;iwh++){
-    for(int ise=1;ise<=12;ise++){
-      for(int ist=1;ist<=4;ist++){
-
-        check_cfg_code = 0; 
-        DTChamberId chid(iwh,ist,ise);
-
-        //retrive number of configurated chip
-        int nbti      = m_manager->getDTConfigBtiMap(chid).size();
-        int ntraco    = m_manager->getDTConfigTracoMap(chid).size();
-        int ntss      = m_manager->getDTConfigTSPhi(chid)->nValidTSS();
-        int ntsm      = m_manager->getDTConfigTSPhi(chid)->nValidTSM();
-
-        //check BTIs 
-        if((ist==1 && nbti!=168) || 
-           (ist==2 && nbti!=192) || 
-           (ist==3 && nbti!=224) || 
-           (ist==4 && (ise==1||ise==2||ise==3||ise==5||ise==6||ise==7||ise==8||ise==12) && nbti!=192) ||
-           (ist==4 && (ise==9||ise==11) && nbti!=96) ||
-           (ist==4 && ise==10 && nbti!=128) || 
-           (ist==4 && ise==4 && nbti!=160)){  
-          check_cfg_code = 1;
-          return check_cfg_code;
-        }
-
-        //check TRACOs
-        if((ist==1 && ntraco!=13) || 
-           (ist==2 && ntraco!=16) || 
-           (ist==3 && ntraco!=20) || 
-           (ist==4 && (ise==1||ise==2||ise==3||ise==5||ise==6||ise==7||ise==8||ise==12) && ntraco!=24) ||
-           (ist==4 && (ise==9||ise==11) && ntraco!=12) ||
-           (ist==4 && ise==10 && ntraco!=16) || 
-           (ist==4 && ise==4 && ntraco!=20)){  
-           check_cfg_code = 2;
-           return check_cfg_code;
-        }
-
-        //check TSS
-        if((ist==1 && ntss!=4) || 
-           (ist==2 && ntss!=4) || 
-           (ist==3 && ntss!=5) || 
-           (ist==4 && (ise==1||ise==2||ise==3||ise==5||ise==6||ise==7||ise==8||ise==12) && ntss!=6) ||
-           (ist==4 && (ise==9||ise==11) && ntss!=3) ||
-           (ist==4 && ise==10 && ntss!=4) || 
-           (ist==4 && ise==4 && ntss!=5) ){ 
-           check_cfg_code = 3;
-           return check_cfg_code;
-        }   
-        
-        //check TSM
-        if(ntsm!=1){ 
-          check_cfg_code = 4;
-          return check_cfg_code;
-        }
-
-        //if(check_cfg_code){
-        //cout << "nbti " << nbti << " ntraco " << ntraco << " ntss " << ntss << " ntsm " << ntsm << endl; 
-        //cout << "Check: ch " << ist << " sec " << ise << " wh " << iwh << " == >check_cfg_code " << check_cfg_code << endl;
-        //}
-        }// end st loop
-    }// end sec loop
-
-    // SV MB4 has two more chambers
-    for(int ise=13;ise<=14;ise++){
-
-      DTChamberId chid(iwh,4,ise);
-
-      int nbti      = m_manager->getDTConfigBtiMap(chid).size();
-      int ntraco    = m_manager->getDTConfigTracoMap(chid).size();
-      int ntss      = m_manager->getDTConfigTSPhi(chid)->nValidTSS();
-      int ntsm      = m_manager->getDTConfigTSPhi(chid)->nValidTSM();
-
-      if((ise==13 && nbti != 160) ||
-         (ise==14 && nbti != 128)){
-         check_cfg_code = 1;
-         return check_cfg_code;
-      }  
-      if((ise==13 && ntraco != 20) || 
-         (ise==14 && ntraco != 16)){
-         check_cfg_code = 2;
-         return check_cfg_code;
-      }  
-      if((ise==13 && ntss != 5) ||
-         (ise==14 && ntss != 4)) {
-         check_cfg_code = 3;
-         return check_cfg_code;
-      }
-      if(ntsm != 1){
-        check_cfg_code = 4;
-        return check_cfg_code;
-      }  
-      //if(check_cfg_code){
-        //cout << "nbti " << nbti << " ntraco " << ntraco << " ntss " << ntss << " ntsm " << ntsm << endl; 
-        //cout << "Check: ch " << 4 << " sec " << ise << " wh " << iwh << " == >check_cfg_code " << check_cfg_code << endl;
-      //}
-    }// end sec 13 14  
-
-  }// end wh loop
-
-  //cout << "CheckDTCCB: config OK! check_cfg_code = " << check_cfg_code << endl;
-  return check_cfg_code;
 }
 
 int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
@@ -296,8 +183,7 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
   if( ndata==0 ){
     //throw cms::Exception("DTTPG") << "DTConfigDBProducer::readDTCCBConfig : " << endl 
     //				  << "DTCCBConfigRcd is empty!" << endl;
-    //m_manager->setCCBConfigValidity(false);
-    return -1;
+    m_manager->setCCBConfigValidity(false);
   }
 
   // get DTTPGMap for retrieving bti number and traco number
@@ -308,23 +194,11 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
   DTCCBConfig::ccb_config_iterator iter = configKeys.begin();
   DTCCBConfig::ccb_config_iterator iend = configKeys.end();
 
-  // 110628 SV check that number of CCB is equal to total number of chambers
-  if(ccb_conf->configKeyMap().size() != 250) //check the number of chambers!!!
-    return -1;
-
   // read data from CCBConfig
   while ( iter != iend ) {
-    // 110628 SV moved here from constructor, to check config consistency for EVERY chamber 
-    // initialize flags to check if data are present in OMDS 
-    flagDBBti 	= false;
-    flagDBTraco 	= false;
-    flagDBTSS 	= false;
-    flagDBTSM 	= false;
-    flagDBLUTS    = false;
-
     // get chamber id
-    const DTCCBId& ccbId = iter->first;
-    if(m_debugDB)
+      	const DTCCBId& ccbId = iter->first;
+	if(m_debugDB)
       		cout << " Filling configuration for chamber : wh " << ccbId.wheelId   << " st "
         	        << ccbId.stationId << " se "
                 	<< ccbId.sectorId  << " -> " << endl;
@@ -563,45 +437,42 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 	}
 
  	// get configuration for TSTheta, SC and TU from .cfg
-      edm::ParameterSet conf_ps = m_ps.getParameter<edm::ParameterSet>("DTTPGParameters");  
+        edm::ParameterSet conf_ps = m_ps.getParameter<edm::ParameterSet>("DTTPGParameters");  
 	edm::ParameterSet tups = conf_ps.getParameter<edm::ParameterSet>("TUParameters");
 
 	// TSTheta configuration from .cfg
-       DTConfigTSTheta tsthetaconf(tups.getParameter<edm::ParameterSet>("TSThetaParameters"));
+        DTConfigTSTheta tsthetaconf(tups.getParameter<edm::ParameterSet>("TSThetaParameters"));
 	tsthetaconf.setDebug(m_debugTST);
 	m_manager->setDTConfigTSTheta(chambid,tsthetaconf);
 
 	// SC configuration from .cfg
-       DTConfigSectColl sectcollconf(conf_ps.getParameter<edm::ParameterSet>("SectCollParameters"));
+        DTConfigSectColl sectcollconf(conf_ps.getParameter<edm::ParameterSet>("SectCollParameters"));
 	sectcollconf.setDebug(m_debugSC);
-       m_manager->setDTConfigSectColl(DTSectCollId(chambid.wheel(),chambid.sector()),sectcollconf);
+        m_manager->setDTConfigSectColl(DTSectCollId(chambid.wheel(),chambid.sector()),sectcollconf);
 
 	// TU configuration from .cfg
   	DTConfigTrigUnit trigunitconf(tups);
 	trigunitconf.setDebug(m_debugTU);
-      m_manager->setDTConfigTrigUnit(chambid,trigunitconf);
+        m_manager->setDTConfigTrigUnit(chambid,trigunitconf);
        
-     ++iter;
-     
-     // 110628 SV moved inside CCB loop to check for every chamber 
-     // moved to exception handling no attempt to configure from cfg is DB is missing
-     // SV comment exception handling and activate flag in DTConfigManager
-     if(!flagDBBti || !flagDBTraco || !flagDBTSS || !flagDBTSM ){
-       //throw cms::Exception("DTTPG") << "DTConfigDBProducer::readDTCCBConfig :"  << endl
-       //				  << "(at least) part of the CCB strings needed to configure"  << endl
-       //				  << "DTTPG emulator were not found in DTCCBConfigRcd" << endl;
-       //m_manager->setCCBConfigValidity(false);
-       return -1;
-     }
-     if(!flagDBLUTS && m_manager->lutFromDB()==true){
-     //throw cms::Exception("DTTPG") << "DTConfigDBProducer::readDTCCBConfig : " << endl
-     //				  << "Asked to configure the emulator using Lut seeds from DB "
-     //				  << "but no configuration parameters found in DTCCBConfigRcd." << endl;
-     //m_manager->setCCBConfigValidity(false);
-       return -1;
-     } 
-  } // end loop over CCB
+      	++iter;
+  }
 
+  // moved to exception handling no attempt to configure from cfg is DB is missing
+  // SV comment exception handling and activate flag in DTConfigManager
+  if(!flagDBBti || !flagDBTraco || !flagDBTSS || !flagDBTSM ){
+    //throw cms::Exception("DTTPG") << "DTConfigDBProducer::readDTCCBConfig :"  << endl
+    //				  << "(at least) part of the CCB strings needed to configure"  << endl
+    //				  << "DTTPG emulator were not found in DTCCBConfigRcd" << endl;
+    m_manager->setCCBConfigValidity(false);
+    
+  }
+  if(!flagDBLUTS && m_manager->lutFromDB()==true){
+    //throw cms::Exception("DTTPG") << "DTConfigDBProducer::readDTCCBConfig : " << endl
+    //				  << "Asked to configure the emulator using Lut seeds from DB "
+    //				  << "but no configuration parameters found in DTCCBConfigRcd." << endl;
+    m_manager->setCCBConfigValidity(false);
+  } 
   
   return 0;
 }

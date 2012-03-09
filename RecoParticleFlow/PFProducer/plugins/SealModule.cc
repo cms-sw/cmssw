@@ -6,6 +6,7 @@
 
 #include "RecoParticleFlow/PFProducer/plugins/PFProducer.h"
 #include "RecoParticleFlow/PFProducer/plugins/PFConcretePFCandidateProducer.h"
+#include "RecoParticleFlow/PFProducer/plugins/PFCandidateChecker.h"
 #include "RecoParticleFlow/PFProducer/plugins/PFElectronTranslator.h"
 #include "RecoParticleFlow/PFProducer/plugins/PFPhotonTranslator.h"
 #include "RecoParticleFlow/PFProducer/plugins/PFBlockProducer.h"
@@ -14,6 +15,7 @@
 
 DEFINE_FWK_MODULE(PFProducer);
 DEFINE_FWK_MODULE(PFConcretePFCandidateProducer);
+DEFINE_FWK_MODULE(PFCandidateChecker);
 DEFINE_FWK_MODULE(PFElectronTranslator);
 DEFINE_FWK_MODULE(PFPhotonTranslator);
 DEFINE_FWK_MODULE(PFBlockProducer);

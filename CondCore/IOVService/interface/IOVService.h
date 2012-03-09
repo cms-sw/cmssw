@@ -6,6 +6,7 @@
 #include "CondFormats/Common/interface/IOVSequence.h"
 
 namespace cond{
+
   class IOVEditor;
   class IOVService{
   public:

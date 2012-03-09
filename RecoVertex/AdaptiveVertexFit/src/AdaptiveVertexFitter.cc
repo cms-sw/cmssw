@@ -398,6 +398,7 @@ AdaptiveVertexFitter::reWeightTracks(
                     const CachingVertex<5> & vertex ) const
 {
   VertexState seed = vertex.vertexState();
+  // cout << "[AdaptiveVertexFitter] now reweight around " << seed.position() << endl;
   theNr++;
   // GlobalPoint pos = seed.position();
 
@@ -410,9 +411,14 @@ AdaptiveVertexFitter::reWeightTracks(
         = lTracks.begin(); i != lTracks.end(); i++)
   {
     double weight=0.;
-    pair<bool, double> chi2Res =  theComp->estimate ( vertex, *i );
+    // cout << "[AdaptiveVertexFitter] estimate " << endl;
+    pair < bool, double > chi2Res ( false, 0. );
+    try {
+      chi2Res =  theComp->estimate ( vertex, *i );
+    } catch ( ... ) {};
+    // cout << "[AdaptiveVertexFitter] /estimate " << endl;
     if (!chi2Res.first) {
-      cout << "[AdaptiveVertexFitter] aie... vertex candidate is at  " << vertex.position() << endl;
+      // cout << "[AdaptiveVertexFitter] aie... vertex candidate is at  " << vertex.position() << endl;
       LogWarning("AdaptiveVertexFitter" ) << "When reweighting, chi2<0. Will add this track with w=0.";
       // edm::LogWarning("AdaptiveVertexFitter" ) << "pt=" << (**i).track().pt();
     }else {
@@ -437,6 +443,7 @@ AdaptiveVertexFitter::reWeightTracks(
   }
   sort ( finalTracks.begin(), finalTracks.end(), 
          DistanceToRefPoint ( vertex.position() ) );
+  // cout << "[AdaptiveVertexFitter] /now reweight" << endl;
   return finalTracks;
 }
 
@@ -463,7 +470,7 @@ AdaptiveVertexFitter::weightTracks(
     double weight = 0.;
     pair<bool, double> chi2Res = theComp->estimate ( seedvtx, *i );
     if (!chi2Res.first) {
-      cout << "[AdaptiveVertexFitter] Aiee! " << endl;
+      // cout << "[AdaptiveVertexFitter] Aiee! " << endl;
       LogWarning ("AdaptiveVertexFitter" ) << "When weighting a track, chi2 calculation failed;"
                                            << " will add with w=0.";
     } else {
@@ -516,6 +523,7 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
                           const VertexState & priorSeed,
                           bool withPrior) const
 {
+  // cout << "[AdaptiveVertexFit] fit with " << tracks.size() << endl;
   theAssProbComputer->resetAnnealing();
 
   vector<RefCountedVertexTrack> initialTracks;
@@ -548,21 +556,32 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
   int ns_trks=0; // number of significant tracks.
   // If we have only two significant tracks, we return an invalid vertex
 
+  // cout << "[AdaptiveVertexFit] start " << tracks.size() << endl;
+  /*
+  for ( vector< RefCountedVertexTrack >::const_iterator 
+        i=globalVTracks.begin(); i!=globalVTracks.end() ; ++i )
+  {
+    cout << "  " << (**i).linearizedTrack()->track().initialFreeState().momentum() << endl;
+  }*/
   do {
     ns_trks=0;
     CachingVertex<5> fVertex = initialVertex;
+    // cout << "[AdaptiveVertexFit] step " << step << " at " << fVertex.position() << endl;
     if ((previousPosition - newPosition).transverse() > theMaxLPShift)
     {
       // relinearize and reweight.
       // (reLinearizeTracks also reweights tracks)
+      // cout << "[AdaptiveVertexFit] relinearize at " << returnVertex.position() << endl;
       if (gsfIntermediarySmoothing_) returnVertex = theSmoother->smooth(returnVertex);
       globalVTracks = reLinearizeTracks( globalVTracks, returnVertex );
       lpStep++;
     } else if (step) {
       // reweight, if it is not the first step
+      // cout << "[AdaptiveVertexFit] reweight at " << returnVertex.position() << endl;
       if (gsfIntermediarySmoothing_) returnVertex = theSmoother->smooth(returnVertex);
       globalVTracks = reWeightTracks( globalVTracks, returnVertex );
     }
+    // cout << "[AdaptiveVertexFit] relinarized, reweighted" << endl;
     // update sequentially the vertex estimate
     CachingVertex<5> nVertex;
     for(vector<RefCountedVertexTrack>::const_iterator i
@@ -631,5 +650,6 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
   m["pos"]="final";
   dataharvester::Writer::file("w.txt").save ( m );
   #endif
+  // cout << "[AdaptiveVertexFit] /fit" << endl;
   return theSmoother->smooth( returnVertex );
 }

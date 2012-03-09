@@ -62,13 +62,13 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 
   if (pset_.getParameter<bool>("UsePixelModuleQualityDB")) {
     pixelQualityFlags += MeasurementTracker::BadModules;
-    if (pset_.getUntrackedParameter<bool>("DebugPixelModuleQualityDB")) {
+    if (pset_.getUntrackedParameter<bool>("DebugPixelModuleQualityDB", false)) {
         pixelQualityDebugFlags += MeasurementTracker::BadModules;
     }
   }
   if (pset_.getParameter<bool>("UsePixelROCQualityDB")) {
     pixelQualityFlags += MeasurementTracker::BadROCs;
-    if (pset_.getUntrackedParameter<bool>("DebugPixelROCQualityDB")) {
+    if (pset_.getUntrackedParameter<bool>("DebugPixelROCQualityDB", false)) {
         pixelQualityDebugFlags += MeasurementTracker::BadROCs;
     }
   }
@@ -89,13 +89,13 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 
   if (pset_.getParameter<bool>("UseStripModuleQualityDB")) {
     stripQualityFlags += MeasurementTracker::BadModules;
-    if (pset_.getUntrackedParameter<bool>("DebugStripModuleQualityDB")) {
+    if (pset_.getUntrackedParameter<bool>("DebugStripModuleQualityDB", false)) {
         stripQualityDebugFlags += MeasurementTracker::BadModules;
     }
   }
   if (pset_.getParameter<bool>("UseStripAPVFiberQualityDB")) {
     stripQualityFlags += MeasurementTracker::BadAPVFibers;
-    if (pset_.getUntrackedParameter<bool>("DebugStripAPVFiberQualityDB")) {
+    if (pset_.getUntrackedParameter<bool>("DebugStripAPVFiberQualityDB", false)) {
         stripQualityDebugFlags += MeasurementTracker::BadAPVFibers;
     }
     if (pset_.existsAs<bool>("MaskBadAPVFibers") && pset_.getParameter<bool>("MaskBadAPVFibers")) {
@@ -104,7 +104,7 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
   }
   if (pset_.getParameter<bool>("UseStripStripQualityDB")) {
     stripQualityFlags += MeasurementTracker::BadStrips;
-    if (pset_.getUntrackedParameter<bool>("DebugStripStripQualityDB")) {
+    if (pset_.getUntrackedParameter<bool>("DebugStripStripQualityDB", false)) {
         stripQualityDebugFlags += MeasurementTracker::BadStrips;
     }
   }

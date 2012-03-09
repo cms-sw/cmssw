@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/05/24 14:22:45 $
- *  $Revision: 1.18 $
+ *  $Date: 2011/07/20 13:59:00 $
+ *  $Revision: 1.19 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -350,7 +350,7 @@ void PFJetAnalyzer::beginJob(DQMStore * dbe) {
   
   if(makedijetselection==1) {
     mDijetAsymmetry                   = dbe->book1D("DijetAsymmetry", "DijetAsymmetry", 100, -1., 1.);
-    mDijetBalance                     = dbe->book1D("DijetBalance",   "DijetBalance",   100, -10., 10.);
+    mDijetBalance                     = dbe->book1D("DijetBalance",   "DijetBalance",   100, -2., 2.);
     if (fillpfJIDPassFrac==1) {
       mLooseJIDPassFractionVSeta  = dbe->bookProfile("LooseJIDPassFractionVSeta","LooseJIDPassFractionVSeta",50, -3., 3.,0.,1.2);
       mLooseJIDPassFractionVSpt   = dbe->bookProfile("LooseJIDPassFractionVSpt","LooseJIDPassFractionVSpt",ptBin, ptMin, ptMax,0.,1.2);
@@ -381,6 +381,9 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   bool ThisCHFcleaned=false;
   bool LooseCHFcleaned=false;
   bool TightCHFcleaned=false;
+
+  srand( iEvent.id().event() % 10000);
+
   if(makedijetselection==1){
     //Dijet selection - careful: the pT is uncorrected!
     //if(makedijetselection==1 && pfJets.size()>=2){
@@ -512,7 +515,7 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       }// pt jets > threshold
       //now do the dijet balance and asymmetry calculations
       if (fabs(pfJets.at(0).eta() < 1.4)) {
-	double pt_dijet = (pfJets.at(0).eta() + pfJets.at(1).eta())/2;
+	double pt_dijet = (pfJets.at(0).pt() + pfJets.at(1).pt())/2;
 
 	double dPhi = fabs((pfJets.at(0)).phi()-(pfJets.at(1)).phi());
 	if (dPhi > 3.14) dPhi=fabs(dPhi -6.28 );
@@ -522,7 +525,6 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  double pt_barrel;
 	  int jet1, jet2;
 
-	  srand( time(NULL));
 	  int randJet = rand() % 2;
 
 	  if (fabs(pfJets.at(1).eta() < 1.4)) {

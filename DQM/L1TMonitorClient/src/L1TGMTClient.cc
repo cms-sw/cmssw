@@ -32,15 +32,15 @@ void L1TGMTClient::initialize(){
   
   // base folder for the contents of this job
   monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","");
-  LogDebug("TriggerDQM") << "Monitor name = " << monitorName_ << endl;
+  cout << "Monitor name = " << monitorName_ << endl;
   prescaleLS_ = parameters_.getUntrackedParameter<int>("prescaleLS", -1);
-  LogDebug("TriggerDQM") << "DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< endl;
+  cout << "DQM lumi section prescale = " << prescaleLS_ << " lumi section(s)"<< endl;
   prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
-  LogDebug("TriggerDQM") << "DQM event prescale = " << prescaleEvt_ << " events(s)"<< endl;
+  cout << "DQM event prescale = " << prescaleEvt_ << " events(s)"<< endl;
   output_dir_ = parameters_.getUntrackedParameter<string>("output_dir","");
-  LogDebug("TriggerDQM") << "DQM output dir = " << output_dir_ << endl;
+  cout << "DQM output dir = " << output_dir_ << endl;
   input_dir_ = parameters_.getUntrackedParameter<string>("input_dir","");
-  LogDebug("TriggerDQM") << "DQM input dir = " << input_dir_ << endl;
+  cout << "DQM input dir = " << input_dir_ << endl;
   
   LogInfo( "TriggerDQM");
 
@@ -105,7 +105,7 @@ void L1TGMTClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   counterLS_++;
   if (prescaleLS_<1) return;
   if (prescaleLS_>0 && counterLS_%prescaleLS_ != 0) return;
-  LogDebug("TriggerDQM") << "L1TGMTClient::endLumi" << endl;
+//  cout << "L1TGMTClient::endLumi" << endl;
 
   process();
 }             
@@ -120,7 +120,7 @@ void L1TGMTClient::analyze(const Event& e, const EventSetup& context){
 //--------------------------------------------------------
 void L1TGMTClient::process() {
   
-  LogDebug("TriggerDQM") << "L1TGMTClient: processing..." << endl;
+//  cout << "L1TGMTClient: processing..." << endl;
   
   makeEfficiency1D(eff_eta_dtcsc,"eta_DTCSC_and_RPC","eta_RPC_only");
   makeEfficiency1D(eff_eta_rpc  ,"eta_DTCSC_and_RPC","eta_DTCSC_only");

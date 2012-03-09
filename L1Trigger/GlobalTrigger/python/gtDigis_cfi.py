@@ -68,30 +68,7 @@ gtDigis = cms.EDProducer("L1GlobalTrigger",
     
     # length of BST record (in bytes) from parameter set
     # negative value: take the value from EventSetup      
-    BstLengthBytes = cms.int32(-1),
-    
-    # run algorithm triggers 
-    #     if true, unprescaled (all prescale factors 1)
-    #     will overwrite the event setup
-    AlgorithmTriggersUnprescaled = cms.bool(False),
-    
-    #     if true, unmasked - all enabled (all trigger masks set to 0)
-    #     will overwrite the event setup
-    AlgorithmTriggersUnmasked = cms.bool(False),
-
-    # run technical triggers
-    #     if true, unprescaled (all prescale factors 1)
-    #     will overwrite the event setup
-    TechnicalTriggersUnprescaled = cms.bool(False),
-    
-    #     if true, unmasked - all enabled (all trigger masks set to 0)
-    #     will overwrite the event setup
-    TechnicalTriggersUnmasked = cms.bool(False),
-
-    #     if true, veto unmasked - all enabled (all trigger veto masks set to 0)
-    #     will overwrite the event setup
-    TechnicalTriggersVetoUnmasked = cms.bool(False)
-    
+    BstLengthBytes = cms.int32(-1)
     
 )
 

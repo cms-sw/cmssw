@@ -4,6 +4,7 @@
 #include <vector>
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBCommon/interface/DbSession.h"
+#include "CondFormats/Common/interface/IOVSequence.h"
 #include<iosfwd>
 
 //
@@ -60,6 +61,12 @@ namespace cond{
     
     //stamp iov
     void stamp(std::string const & icomment, bool append=false);
+
+    /// edit metadata
+    void editMetadata( std::string const & metadata, bool append=false);
+
+    /// set the scope
+    void setScope( cond::IOVSequence::ScopeType scope );
 
     /// Update the closure of the iov sequence
     void updateClosure( cond::Time_t newtillTime );

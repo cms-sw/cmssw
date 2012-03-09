@@ -1,5 +1,5 @@
 //
-// $Id: TriggerEvent.cc,v 1.17 2011/04/08 16:16:48 vadler Exp $
+// $Id: TriggerEvent.cc,v 1.18 2011/05/24 15:56:25 vadler Exp $
 //
 
 
@@ -12,13 +12,47 @@ using namespace pat;
 // Constructors and Destructor
 
 
+// Default constructor
+TriggerEvent::TriggerEvent() :
+  nameL1Menu_(),
+  nameHltTable_(),
+  run_(),
+  accept_(),
+  error_(),
+  physDecl_(),
+  lhcFill_(),
+  beamMode_(),
+  beamMomentum_(),
+  intensityBeam1_(),
+  intensityBeam2_(),
+  bstMasterStatus_(),
+  turnCount_(),
+  bCurrentStart_(),
+  bCurrentStop_(),
+  bCurrentAvg_()
+{
+  objectMatchResults_.clear();
+}
+
+
 // Constructor from values, HLT only
 TriggerEvent::TriggerEvent( const std::string & nameHltTable, bool run, bool accept, bool error, bool physDecl ) :
+  nameL1Menu_(),
   nameHltTable_( nameHltTable ),
   run_( run ),
   accept_( accept ),
   error_( error ),
-  physDecl_( physDecl )
+  physDecl_( physDecl ) ,
+  lhcFill_(),
+  beamMode_(),
+  beamMomentum_(),
+  intensityBeam1_(),
+  intensityBeam2_(),
+  bstMasterStatus_(),
+  turnCount_(),
+  bCurrentStart_(),
+  bCurrentStop_(),
+  bCurrentAvg_()
 {
   objectMatchResults_.clear();
 }
@@ -31,7 +65,17 @@ TriggerEvent::TriggerEvent( const std::string & nameL1Menu, const std::string & 
   run_( run ),
   accept_( accept ),
   error_( error ),
-  physDecl_( physDecl )
+  physDecl_( physDecl ) ,
+  lhcFill_(),
+  beamMode_(),
+  beamMomentum_(),
+  intensityBeam1_(),
+  intensityBeam2_(),
+  bstMasterStatus_(),
+  turnCount_(),
+  bCurrentStart_(),
+  bCurrentStop_(),
+  bCurrentAvg_()
 {
   objectMatchResults_.clear();
 }
