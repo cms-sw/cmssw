@@ -15,7 +15,7 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     # Input digi label (_must_ be without zero-suppression!)
     inputLabel = cms.VInputTag(cms.InputTag('simHcalUnsuppressedDigis'),
                                cms.InputTag('simHcalUnsuppressedDigis')),
-    InputTagFEDRaw = cms.InputTag("source"),
+    InputTagFEDRaw = cms.InputTag("rawDataCollector"),
     RunZS = cms.bool(False),
     FrontEndFormatError = cms.bool(False), # Front End Format Error, for real data only
     PeakFinderAlgorithm = cms.int32(2)
