@@ -222,9 +222,6 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
 void
 SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
 {
-std::cout << "DEBUG A\n";
-
-
    Charge_Vs_Index           = tfs->make<TH2F>("Charge_Vs_Index"          , "Charge_Vs_Index"          , 72785, 0   , 72784,1000,0,2000);
    Charge_Vs_Index_Absolute  = tfs->make<TH2F>("Charge_Vs_Index_Absolute" , "Charge_Vs_Index_Absolute" , 72785, 0   , 72784, 500,0,2000);
    Charge_Vs_PathlengthTIB   = tfs->make<TH2F>("Charge_Vs_PathlengthTIB"  , "Charge_Vs_PathlengthTIB"  , 20   , 0.3 , 1.3  , 250,0,2000);
@@ -240,28 +237,18 @@ std::cout << "DEBUG A\n";
    iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
    vector<GeomDet*> Det = tkGeom->dets();
 
-std::cout << "DEBUG Aa\n";
-
-
    edm::ESHandle<SiStripGain> gainHandle;
    iSetup.get<SiStripGainRcd>().get(gainHandle);
    if(!gainHandle.isValid()){printf("\n#####################\n\nERROR --> gainHandle is not valid\n\n#####################\n\n");exit(0);}
  
-std::cout << "DEBUG Ab\n";
-
-
 //   size_t numberOfTag = gainHandle->getNumberOfTags();
    for(unsigned int i=0;i<gainHandle->getNumberOfTags();i++){
       printf("Reccord %i --> Rcd Name = %s    Label Name = %s\n",i,gainHandle->getRcdName(i).c_str(), gainHandle->getLabelName(i).c_str());
    }
  
-std::cout << "DEBUG Ac\n";
-
 
    edm::ESHandle<SiStripQuality> SiStripQuality_;
    iSetup.get<SiStripQualityRcd>().get(SiStripQuality_);
-
-std::cout << "DEBUG Ad\n";
 
 
    unsigned int Index=0;
@@ -314,8 +301,6 @@ std::cout << "DEBUG Ad\n";
       }
    }
 
-std::cout << "DEBUG B\n";
-
    MakeCalibrationMap();
 
 
@@ -327,12 +312,8 @@ std::cout << "DEBUG B\n";
    GOOD       = 0;
    BAD        = 0;
 
-std::cout << "DEBUG C\n";
-
    algoAnalyzeTheTree();
    algoComputeMPVandGain();
-
-std::cout << "DEBUG D\n";
 }
 
 
