@@ -175,5 +175,6 @@ if [ -f chi2ndfperbinary.eps ]; then
 fi
 
 if [ -f chi2ndfperbinary.C ]; then
-    cp -p chi2ndfperbinary.C $RUNDIR
+    gzip -f chi2ndfperbinary.C
+    cp -p chi2ndfperbinary.C.gz $RUNDIR
 fi
