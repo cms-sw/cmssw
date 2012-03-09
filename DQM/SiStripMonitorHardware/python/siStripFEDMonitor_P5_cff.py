@@ -231,3 +231,7 @@ siStripFEDMonitor.FedMaxEventSizevsTimeHistogramConfig = cms.untracked.PSet(
   Min = cms.untracked.double(0),
   Max = cms.untracked.double(3600)
 )
+FedIdVsApvIdHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(False)
+)
+        

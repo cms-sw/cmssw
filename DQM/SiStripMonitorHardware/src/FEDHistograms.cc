@@ -104,6 +104,8 @@ void FEDHistograms::initialise(const edm::ParameterSet& iConfig,
 
   getConfigForHistogram(lumiErrorFraction_,"ErrorFractionByLumiBlock",iConfig,pDebugStream);
 
+  getConfigForHistogram(fedIdVsApvId_,"FedIdVsApvId",iConfig,pDebugStream);
+
 }
 
 void FEDHistograms::fillCountersHistograms(const FEDErrors::FEDCounters & fedLevelCounters, 
@@ -308,6 +310,11 @@ MonitorElement * FEDHistograms::cmHistPointer(bool aApv1)
   else return medianAPV1_.monitorEle;
 }
 
+MonitorElement * FEDHistograms::getFedvsAPVpointer()
+{
+  return fedIdVsApvId_.monitorEle;
+}
+
 void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 {
   //get FED IDs
@@ -348,6 +355,14 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 		"nTotalBadActiveChannels",
 		"Number of active channels with any error",
 		"Total # bad active channels");
+
+  book2DHistogram(fedIdVsApvId_,
+		"FedIdVsApvId",
+		"Any error per APV per event",
+		  192, 0 , 192,
+		  440, 50, 490,
+		  "APV-ID",
+		  "FED-ID");
 
   //dqm_->setCurrentFolder(fedKey.path());
 

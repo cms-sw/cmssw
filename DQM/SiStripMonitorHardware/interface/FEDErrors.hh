@@ -178,6 +178,7 @@ public:
   //2--if aFillAll = true, add all channels anyway with 0 if no errors, so TkHistoMap is filled for all valid channels ...
   void fillBadChannelList(const bool doTkHistoMap,
 			  TkHistoMap *aTkMapPointer,
+			  MonitorElement *aFedIdVsApvId,
 			  unsigned int & aNBadChannels,
 			  unsigned int & aNBadActiveChannels);
 
