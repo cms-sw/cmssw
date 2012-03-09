@@ -1,7 +1,7 @@
-#ifndef CalibMuon_DTT0FillDefaultFromDB_H
-#define CalibMuon_DTT0FillDefaultFromDB_H
+#ifndef CalibMuon_DTT0FillChamberFromDB_H
+#define CalibMuon_DTT0FillChamberFromDB_H
 
-/** \class DTT0FillDefaultFromDB
+/** \class DTT0FillChamberFromDB
  *  Concrete implementation of a DTT0BaseCorrection.
  *  Computes correction for t0
  *
@@ -10,6 +10,7 @@
  */
 
 #include "CalibMuon/DTCalibration/interface/DTT0BaseCorrection.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
 #include <string>
 
@@ -21,19 +22,22 @@ class DTT0;
 
 namespace dtCalibration {
 
-class DTT0FillDefaultFromDB: public DTT0BaseCorrection {
+class DTT0FillChamberFromDB: public DTT0BaseCorrection {
 public:
   // Constructor
-  DTT0FillDefaultFromDB(const edm::ParameterSet&);
+  DTT0FillChamberFromDB(const edm::ParameterSet&);
 
   // Destructor
-  virtual ~DTT0FillDefaultFromDB();
+  virtual ~DTT0FillChamberFromDB();
 
   virtual void setES(const edm::EventSetup& setup);
   virtual DTT0Data correction(const DTWireId&);
 
 private:
   std::string dbLabelRef_;
+  std::string chamberRef_;
+
+  DTChamberId chosenChamberId_;
 
   const DTT0 *t0MapRef_;
   const DTT0 *t0Map_;
