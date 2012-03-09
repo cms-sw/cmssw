@@ -149,10 +149,11 @@ def _switchToPFTau(process,
     applyPostfix(process, "patTaus" + patTauLabel, postfix).tauSource = pfTauLabelNew
     applyPostfix(process, "patTaus" + patTauLabel, postfix).tauIDSources = _buildIDSourcePSet(pfTauType, idSources, postfix)
 
-    applyPostfix(process, "cleanPatTaus" + patTauLabel, postfix).preselection = \
-      'tauID("leadingTrackFinding") > 0.5 & tauID("leadingPionPtCut") > 0.5 & tauID("byIsolationUsingLeadingPion") > 0.5' \
-     + ' & tauID("againstMuon") > 0.5 & tauID("againstElectron") > 0.5' \
-     + ' & (signalPFChargedHadrCands.size() = 1 | signalPFChargedHadrCands.size() = 3)'
+    if hasattr(process, "cleanPatTaus" + patTauLabel + postfix):
+        getattr(process, "cleanPatTaus" + patTauLabel + postfix).preselection = \
+          'tauID("leadingTrackFinding") > 0.5 & tauID("leadingPionPtCut") > 0.5 & tauID("byIsolationUsingLeadingPion") > 0.5' \
+         + ' & tauID("againstMuon") > 0.5 & tauID("againstElectron") > 0.5' \
+         + ' & (signalPFChargedHadrCands.size() = 1 | signalPFChargedHadrCands.size() = 3)'
 
 # Name mapping for classic tau ID sources (present for fixed and shrinkingCones)
 classicTauIDSources = [
