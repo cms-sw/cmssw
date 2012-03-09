@@ -10,7 +10,7 @@ from FastSimulation.Tracking.GlobalPixelTracking_cff import *
 from FastSimulation.HighLevelTrigger.HLTFastRecoForJetMET_cff import *
 from FastSimulation.HighLevelTrigger.HLTFastRecoForEgamma_cff import *
 from FastSimulation.HighLevelTrigger.HLTFastRecoForMuon_cff import *
-#from FastSimulation.HighLevelTrigger.HLTFastRecoForTau_cff import *  # IT IS NOT NEEDED ANY MORE IN 44X
+from FastSimulation.HighLevelTrigger.HLTFastRecoForTau_cff import *
 from FastSimulation.HighLevelTrigger.HLTFastRecoForB_cff import *
 #from FastSimulation.HighLevelTrigger.HLTFastRecoForPF_cff import *   # IT IS NOT NEEDED ANY MORE IN 44X
 from FastSimulation.HighLevelTrigger.HLTFastRecoForXchannel_cff import *
