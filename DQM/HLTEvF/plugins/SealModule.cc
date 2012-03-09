@@ -1,4 +1,4 @@
-// $Id: SealModule.cc,v 1.27 2011/03/15 18:53:43 fblekman Exp $
+// $Id: SealModule.cc,v 1.28 2012/03/01 09:34:59 sauerlan Exp $
 
 #include "DQM/HLTEvF/interface/PathTimerService.h"
 #include "DQM/HLTEvF/interface/PathTimerInserter.h"
@@ -11,7 +11,7 @@
 #include "DQM/HLTEvF/interface/HLTAlCaMonPi0.h"
 #include "DQM/HLTEvF/interface/HLTAlCaMonEcalPhiSym.h"
 #include "DQM/HLTEvF/interface/HLTOniaSource.h"
-#include "DQM/HLTEvF/interface/HLTMuonDQMSource.h"
+//#include "DQM/HLTEvF/interface/HLTMuonDQMSource.h"
 #include "DQM/HLTEvF/interface/HLTMonMuonClient.h"
 #include "DQM/HLTEvF/interface/HLTJetMETDQMSource.h"
 #include "DQM/HLTEvF/interface/HLTMonSimpleBTag.h"
@@ -27,7 +27,7 @@ DEFINE_FWK_SERVICE(PathTimerService);
 DEFINE_FWK_MODULE(PathTimerInserter);
 DEFINE_FWK_MODULE(HLTMonBitSummary);
 DEFINE_FWK_MODULE(HLTMonElectron);
-DEFINE_FWK_MODULE(HLTMuonDQMSource);
+//DEFINE_FWK_MODULE(HLTMuonDQMSource);
 DEFINE_FWK_MODULE(HLTMonMuonClient);
 DEFINE_FWK_MODULE(HLTJetMETDQMSource);
 DEFINE_FWK_MODULE(HLTMonElectronConsumer);
