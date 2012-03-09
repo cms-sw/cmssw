@@ -11,5 +11,6 @@ import DQM.HLTEvF.hltMonBTagMuSource_cfi
 
 
 # simple b-tag monitor (can also just be included through HLTMonSimpleBTag_cff)
-import DQM.HLTEvF.HLTMonSimpleBTag_cfi
+#import DQM.HLTEvF.HLTMonSimpleBTag_cfi
+from DQM.HLTEvF.HLTMonSimpleBTag_cfi import *
 hltMonBTag = cms.Path(hltMonSimpleBTag)
