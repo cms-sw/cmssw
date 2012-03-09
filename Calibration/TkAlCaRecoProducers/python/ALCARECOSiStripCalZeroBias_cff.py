@@ -46,7 +46,8 @@ ZeroBiasClusterizer = cms.PSet(
     MaxSequentialHoles = cms.uint32(0),
     MaxSequentialBad = cms.uint32(1),
     MaxAdjacentBad = cms.uint32(0),
-    QualityLabel = cms.string('unbiased')
+    QualityLabel = cms.string('unbiased'),
+    RemoveApvShots     = cms.bool(True) 
     )
 
 
