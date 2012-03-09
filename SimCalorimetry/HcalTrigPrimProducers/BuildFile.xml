@@ -3,6 +3,3 @@
 <use   name="SimCalorimetry/HcalTrigPrimAlgos"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>
