@@ -51,7 +51,8 @@ private:
    void DrawRhoPhi() const;
    void DrawRhoZ() const;
    //  void DrawYZ() const;
-   
+   void   drawArch(float pStart, float pEnd, float phiStep, TEveVector& v0,  TEveVector& v1, TEveVector& v2) const;
+
 protected:
    TEveEllipsoidProjected  *fM;  // Model object.
 
@@ -63,7 +64,6 @@ public:
    virtual void   SetBBox();
 
    virtual void   DirectDraw(TGLRnrCtx & rnrCtx) const;
-
    ClassDef(TEveEllipsoidProjectedGL, 0); // GL renderer class for TEveEllipsoid.
 };
 

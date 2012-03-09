@@ -151,11 +151,9 @@ void TEveEllipsoidProjectedGL::DirectDraw(TGLRnrCtx& /*rnrCtx*/) const
    TEveProjection *proj = fM->GetManager()->GetProjection();
    
    
-   glPushAttrib(GL_ENABLE_BIT| GL_LINE_BIT | GL_POINT_BIT);
+   glPushAttrib(GL_ENABLE_BIT| GL_POLYGON_BIT | GL_LINE_BIT | GL_POINT_BIT);
    glDisable(GL_LIGHTING);
-
-   TGLUtil::LineWidth(fE->fLineWidth);
-   TGLUtil::Color(fE->fLineColor);
+   glDisable(GL_CULL_FACE);
 
    glPushMatrix();
    if ( proj->GetType() == TEveProjection::kPT_RPhi)
@@ -165,6 +163,24 @@ void TEveEllipsoidProjectedGL::DirectDraw(TGLRnrCtx& /*rnrCtx*/) const
 
    glPopMatrix();
    glPopAttrib();  
+}
+
+//-------------------------------------------------------------------------------
+
+void TEveEllipsoidProjectedGL::drawArch(float phiStart, float phiEnd, float phiStep, TEveVector& v0,  TEveVector& v1, TEveVector& v2) const
+{
+   TEveProjection *proj = fM->GetManager()->GetProjection();
+   float phi = phiStart;
+   while (phi < phiEnd ) {
+      TEveVector v = v0 + v1*((float)cos(phi)) + v2*((float)sin(phi));
+      proj->ProjectVector(v, fM->fDepth);
+      glVertex3fv(v.Arr());
+      
+      phi += phiStep;
+   }
+   TEveVector v = v0 + v1*((float)cos(phiEnd)) + v2*((float)sin(phiEnd));
+   proj->ProjectVector(v, fM->fDepth);
+   glVertex3fv(v.Arr());   
 }
 
  //-------------------------------------------------------------------------------
@@ -191,9 +207,20 @@ void TEveEllipsoidProjectedGL::DrawRhoPhi() const
    v2 *= fE->fEScale *  sqrt(TMath::Abs(xxxEig[1]));
    
    TEveProjection *proj = fM->GetManager()->GetProjection();
+      
+  // fill
+   glBegin(GL_POLYGON);   
+   drawArch(0, TMath::TwoPi(),  TMath::TwoPi()/20, v0, v1, v2);
+   glEnd();
    
-   // axis
-
+   // frame
+   TGLUtil::LineWidth(fE->fLineWidth);
+   TGLUtil::Color(fE->fLineColor);
+   
+   glBegin(GL_LINE_LOOP);   
+   drawArch(0, TMath::TwoPi(),  TMath::TwoPi()/20, v0, v1, v2);
+   glEnd();
+   
    glBegin(GL_LINES);
    {
       // glColor3f(1, 0, 0);
@@ -216,19 +243,9 @@ void TEveEllipsoidProjectedGL::DrawRhoPhi() const
    glEnd();
    
    
-   // ellipse
-   int N = 20;
-   double phiStep = TMath::TwoPi()/N;
-   glBegin(GL_LINE_LOOP);
-   for (int i=0; i < N; ++i)
-   {
-      TEveVector p = v0 + v1 * ((float)cos(i*phiStep)) + v2 * ((float)sin(i*phiStep));
-      proj->ProjectVector(p, fM->fDepth);
-      glVertex3fv(p.Arr());
-   }
-   glEnd();
    
 }
+
 //--------------------------------------------------------------------
 void TEveEllipsoidProjectedGL::DrawRhoZ() const
 {
@@ -285,7 +302,9 @@ void TEveEllipsoidProjectedGL::DrawRhoZ() const
 
    // ellipse intersection with projection center
    bool splitted = false;
-
+   int N = 20;
+   double phiStep = TMath::TwoPi()/N;
+   
    // projection center can be moved in beam-spot 
    float bs = 0;
    if (proj->GetDisplaceOrigin())
@@ -357,57 +376,39 @@ void TEveEllipsoidProjectedGL::DrawRhoZ() const
          double phiMax = TMath::Max(phi1, phi2);         
          // printf(" %f %f \n",phi1*TMath::RadToDeg(), phi2*TMath::RadToDeg() );
 
-         {
-            // upper clothing
-            glBegin(GL_LINE_LOOP);
-            double phi = phiMin + phiOffset;
-            double phiEnd = phiMax - phiOffset;
-            while (phi < phiEnd ) {
-               TEveVector v = v0 + v1*((float)cos(phi)) + v2*((float)sin(phi));
-               proj->ProjectVector(v, fM->fDepth);
-               glVertex3fv(v.Arr());
-
-               phi += phiStep;
-            }
-            TEveVector v = v0 + v1*((float)cos(phiEnd)) + v2*((float)sin(phiEnd));
-            proj->ProjectVector(v, fM->fDepth);
-            glVertex3fv(v.Arr());
-
-            glEnd();
-         }
+         // fill
+         // upper clothing
+         glBegin(GL_POLYGON);
+         drawArch(phiMin + phiOffset, phiMax - phiOffset, phiStep, v0, v1, v2);
+         glEnd();
+         // bottom clothing
+         glBegin(GL_POLYGON);
+         drawArch(phiMax + phiOffset, phiMax + TMath::TwoPi() - (phiMax -phiMin) - phiOffset, phiStep, v0, v1, v2);
+         glEnd();
          
-         {
-            // bottom clothing
-            glBegin(GL_LINE_LOOP);
-            double phi = phiMax + phiOffset;
-            double phiEnd = phi + TMath::TwoPi() - (phiMax -phiMin) -2 * phiOffset;
-            while (phi < phiEnd ) {
-               TEveVector v = v0 + v1*((float)cos(phi)) + v2*((float)sin(phi));
-               proj->ProjectVector(v, fM->fDepth);
-               glVertex3fv(v.Arr());
-               phi += phiStep;
-            }
-            TEveVector v = v0 + v1*(float)cos(phiEnd) + v2*(float)sin(phiEnd);
-            proj->ProjectVector(v, fM->fDepth);
-            glVertex3fv(v.Arr());
-
-            glEnd();
-         }
+         // frame
+         TGLUtil::LineWidth(fE->fLineWidth);
+         TGLUtil::Color(fE->fLineColor);
+         // upper clothing
+         glBegin(GL_LINE_LOOP);
+         drawArch(phiMin + phiOffset, phiMax - phiOffset, phiStep, v0, v1, v2);
+         glEnd();
+         // bottom clothing
+         glBegin(GL_LINE_LOOP);
+         drawArch(phiMax + phiOffset, phiMax + TMath::TwoPi() - (phiMax -phiMin) - phiOffset, phiStep, v0, v1, v2);
+         glEnd();
          
       }
    }
    
    if (!splitted) {
+       glBegin(GL_POLYGON);
+      drawArch(0, TMath::TwoPi(), phiStep, v0, v1, v2);
+      glEnd();
+      TGLUtil::LineWidth(fE->fLineWidth);
+      TGLUtil::Color(fE->fLineColor);
       glBegin(GL_LINE_LOOP);
-      int N = 20;
-      float phiStep = TMath::TwoPi()/N;
-      for (int i = 0; i < N; ++i)
-      {
-         float phi =i*phiStep;
-         TEveVector v = v0 + v1*(float)cos(phi) + v2*(float)sin(phi);
-         proj->ProjectVector(v, fM->fDepth);
-         glVertex3fv(v.Arr());
-      }
+      drawArch(0, TMath::TwoPi(), phiStep, v0, v1, v2);
       glEnd();  
    }
 }
