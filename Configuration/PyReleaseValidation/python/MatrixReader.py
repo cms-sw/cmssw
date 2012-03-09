@@ -87,7 +87,21 @@ class MatrixReader(object):
             return
 
         print "request for INPUT for ", useInput
-
+        fromInput=[]
+        if useInput=='all' and fromScratch=='all':
+            raise MatrixException("Cannot useinput for all and run scratch for all")
+        if useInput==['all']:
+            fromInput=self.relvalModule.workflows.keys()
+        elif useInput:
+            fromInput=map(float,fromInput)
+        if fromScratch=='all':
+            fromInput=[]
+        elif fromScratch:
+            fromScratch=map(float,fromScratch)
+            for num in fromScratch:
+                if num in fromInput:
+                    fromInput.remove(num)
+                            
         #change the origin of dataset on the fly
         if refRel:
             self.relvalModule.changeRefRelease(
@@ -129,14 +143,11 @@ class MatrixReader(object):
                 if len(name) > 0 : name += '+'
                 #any step can be mirrored with INPUT
                 ## maybe we want too level deep input
-                if useInput and (str(num) in useInput or "all" in useInput):
+                if num in fromInput:
                     if step+'INPUT' in self.relvalModule.steps.keys():
                         stepName = step+"INPUT"
                         stepList.remove(step)
                         stepList.insert(stepIndex,stepName)
-                    if fromScratch and (str(num) in fromScratch or "all" in fromScratch):
-                        msg = "FATAL ERROR: request for both fromScratch and input for workflow "+str(num)
-                        raise MatrixException(msg)
                 name += stepName
 
                 if addCom and (not addTo or addTo[stepIndex]==1):
