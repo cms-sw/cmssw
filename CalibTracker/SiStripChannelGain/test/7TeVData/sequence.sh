@@ -33,12 +33,20 @@ EOF
 # end of publication methode
 
 if [ "$#" == '0' ]; then
-   cp Empty_Sqlite.db Gains_Sqlite.db
+   cp Empty_Sqlite.db Gains_Sqlite.db;
+   if [ $? -ne 0 ];then exit 1; fi #stop if error
+
    echo "Running: cmsRun Gains_Compute_cfg.py"
    cmsRun Gains_Compute_cfg.py
+   if [ $? -ne 0 ];then exit 1; fi #stop if error
+
    root -l -b -q KeepOnlyGain.C+
+   if [ $? -ne 0 ];then exit 1; fi #stop if error
+
    echo "Running: cmsRun Validation_Compute_cfg.py"
    cmsRun Validation_Compute_cfg.py
+   if [ $? -ne 0 ];then exit 1; fi #stop if error
+
    root -l -b -q PlotMacro.C+
 else
    WORKDIR=$PWD
