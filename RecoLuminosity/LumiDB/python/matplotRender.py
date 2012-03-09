@@ -1,9 +1,8 @@
 '''
-This module is graphical API using pymatplotlib.
 Specs:
 -- We use matplotlib OO class level api, we do not use its high-level helper modules. Favor endured stability over simplicity. 
 -- PNG as default batch file format
--- we support http mode by sending string buf via meme type image/png. Sending a premade static plot to webserver is considered a uploading process instead of http dynamic graphical mode. Therefore covered in this module.
+-- we support http mode by sending string buf via meme type image/png. Sending a premade static plot to webserver is considered a uploading process instead of http dynamic graphical mode. 
 '''
 import sys,os
 import numpy,datetime
@@ -182,8 +181,6 @@ class matplotRender():
         withannotation: wheather the boundary points should be annotated
         textoutput: text output file name. 
         '''
-        if yscale not in ['linear','log']:
-            raise RunTimeError('unsupported yscale ',yscale)
         ytotal={}
         ypoints={}
         for r in resultlines: #parse old text data
@@ -216,16 +213,6 @@ class matplotRender():
                 ypoints[label].append(sum(lumivals[0:i+1])/denomitor)
             ytotal[label]=sum(lumivals)/denomitor
         xpoints=[t[0] for t in rawdata[referenceLabel]]#after sort
-        if textoutput:
-            csvreport=csvReporter.csvReporter(textoutput)
-            head=['#fill','run','delivered','recorded']
-            csvreport.writeRow(head)
-            allfills=[int(t[0]) for t in rawdata[referenceLabel]]
-            allruns=[int(t[1]) for t in rawdata[referenceLabel]]
-            flat.insert(0,allfills)
-            flat.insert(1,allruns)
-            rows=zip(*flat)
-            csvreport.writeRows([list(t) for t in rows])
         ax=self.__fig.add_subplot(111)
         ax.set_xlabel(r'LHC Fill Number',position=(0.84,0))
         ax.set_ylabel(r'L '+unitstring,position=(0,0.9))
@@ -246,7 +233,9 @@ class matplotRender():
         ax.grid(True)
         keylist=ypoints.keys()
         keylist.sort()
+        keylist.insert(0,keylist.pop(keylist.index(referenceLabel)))#move refereceLabel to front from now on
         legendlist=[]
+        head=['#fill','run']        
         textsummaryhead=['#TotalFill']
         textsummaryline=['#'+str(len(xpoints))]
         for ylabel in keylist:
@@ -257,7 +246,16 @@ class matplotRender():
             legendlist.append(ylabel+' '+'%.3f'%(ytotal[ylabel])+' '+unitstring)
             textsummaryhead.append('Total'+ylabel)
             textsummaryline.append('%.3f'%(ytotal[ylabel])+' '+unitstring)
+            head.append(ylabel)
         if textoutput:
+            csvreport=csvReporter.csvReporter(textoutput)
+            allfills=[int(t[0]) for t in rawdata[referenceLabel]]
+            allruns=[int(t[1]) for t in rawdata[referenceLabel]]
+            flat.insert(0,allfills)
+            flat.insert(1,allruns)
+            rows=zip(*flat)
+            csvreport.writeRow(head)
+            csvreport.writeRows([list(t) for t in rows])
             csvreport.writeRow(textsummaryhead)
             csvreport.writeRow(textsummaryline)
         #font=FontProperties(size='medium',weight='demibold')

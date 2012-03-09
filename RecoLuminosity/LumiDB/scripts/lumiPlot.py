@@ -180,6 +180,7 @@ if __name__=='__main__':
     #
     #plot options
     #
+    ####input/output file names
     parser.add_argument('--inplotdata',
                         dest='inplot',
                         action='store',
@@ -188,12 +189,7 @@ if __name__=='__main__':
                         dest='outplot',
                         action='store',
                         help='output plot. By default, a text dump of the plot is produced.')
-    parser.add_argument('--yscale',
-                        dest='yscale',
-                        action='store',
-                        default='linear',
-                        help='y_scale[linear,log,both]')
-    ####switches
+    ####graphic switches
     parser.add_argument('--with-annotation',
                         dest='withannotation',
                         action='store_true',
@@ -202,6 +198,16 @@ if __name__=='__main__':
                         dest='interactive',
                         action='store_true',
                         help='graphical mode to draw plot in a QT pannel.')
+    parser.add_argument('--without-textoutput',
+                        dest='withoutTextoutput',
+                        action='store_true',
+                        help='not to write out text output file')
+    parser.add_argument('--yscale',
+                        dest='yscale',
+                        action='store',
+                        default='linear',
+                        help='y_scale[linear,log,both]')
+    ####correction switches
     parser.add_argument('--without-correction',
                         dest='withoutCorrection',
                         action='store_true',
@@ -214,10 +220,7 @@ if __name__=='__main__':
                         dest='correctionv3',
                         action='store_true',
                         help='apply correction v3')
-    parser.add_argument('--without-textoutput',
-                        dest='withoutTextoutput',
-                        action='store_true',
-                        help='not to write out text output file')
+    ###general switches
     parser.add_argument('--verbose',
                         dest='verbose',
                         action='store_true',
@@ -288,7 +291,7 @@ if __name__=='__main__':
         runlist=lumiCalcAPI.runList(schema,options.fillnum,runmin=None,runmax=None,startT=begtime,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
         session.transaction().commit()
         #
-        #parse -i selection file if any
+        #parse -i selection file if any,else process all candiate runs 
         #
         if options.inputfile:
             (irunlsdict,iresults)=parseInputFiles(options.inputfile,runlist,'isnotdelivered')
@@ -296,6 +299,7 @@ if __name__=='__main__':
             for run in runlist:
                 irunlsdict[run]=None
     runsinrange=[]
+    fillrunMap={}
     session.transaction().start(True)
     schema=session.nominalSchema()
     finecorrections=None
@@ -318,11 +322,16 @@ if __name__=='__main__':
 
     if options.action=='fill':
         lastDrawnRun=None
+        startrun=None
+        stoprun=None
         if resultlines:
-            lastDrawnFill=max([int(t[0]) for t in resultlines])
-        #print lastDrawnFill
-        startrun=min([int(t[1]) for t in resultlines if int(t[0])==lastDrawnFill])
-        runsinrange=lumiCalcAPI.runList(schema,runmin=startrun,runmax=None,startT=begtime,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
+            lastDrawnFill=max([int(t[0]) for t in resultlines])        
+            startrun=min([int(t[1]) for t in resultlines if int(t[0])==lastDrawnFill])
+        elif irunlsdict:
+            startrun=min(irunlsdict.keys())
+            stoprun=max(irunlsdict.keys())
+        runsinrange=lumiCalcAPI.runList(schema,runmin=startrun,runmax=stoprun,startT=begtime,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
+        fillrunMap=lumiCalcAPI.fillrunMap(schema,runmin=startrun,runmax=stoprun,startT=begtime,stopT=endtime)
     #if options.action=='inst':##temporaryly mask inst
     #    runsinrange.append(options.runnumber)
     session.transaction().commit()
@@ -378,10 +387,6 @@ if __name__=='__main__':
             hltname=None
         lumibyls=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),irunlsdict,hltpathname=hltname,hltpathpattern=hltpat,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=(options.correctionv2 or options.correctionv3))
     session.transaction().commit()
-    fillrunMap={}
-    if options.action=='fill' or options.action=='inst':
-        fillrunMap=lumiCalcAPI.fillrunMap(schema,runmin=min(irunlsdict.keys()),runmax=max(irunlsdict.keys()))
-    session.transaction().commit()
     rawdata={}
     #
     # start to plot
@@ -416,9 +421,25 @@ if __name__=='__main__':
     if options.action=='fill':
         for fill in sorted(fillrunMap):
             for run in fillrunMap[fill]:
+                if not lumibyls.has_key(run): continue
                 rundata=lumibyls[run]
-                rawdata.setdefault('Delivered',[]).append((fill,run,sum([t[5] for t in rundata])))
-                rawdata.setdefault('Recorded',[]).append((fill,run,sum([t[6] for t in rundata])))
+                if not options.hltpath:
+                    if len(rundata)!=0:
+                        rawdata.setdefault('Delivered',[]).append((fill,run,sum([t[5] for t in rundata])))
+                        rawdata.setdefault('Recorded',[]).append((fill,run,sum([t[6] for t in rundata])))
+                else:
+                    labels=['Recorded']
+                    if len(rundata)!=0:
+                        pathdict={}#{pathname:[eff,]}
+                        rawdata.setdefault('Recorded',[]).append((fill,run,sum([t[6] for t in rundata])))
+                        for perlsdata in rundata:
+                            effdict=perlsdata[8]
+                            pathnames=effdict.keys()
+                            for thispath in pathnames:
+                                pathdict.setdefault(thispath,[]).append(effdict[thispath][3])
+                        for thispath in pathdict.keys():
+                            labels.append(thispath)
+                            rawdata.setdefault(thispath,[]).append((fill,run,sum([t for t in pathdict[thispath]])))
         if options.yscale=='linear':
             m.plotSumX_Fill(rawdata,resultlines,textoutput=outtextfilename,yscale='linear',referenceLabel=referenceLabel)
         elif options.yscale=='log':
