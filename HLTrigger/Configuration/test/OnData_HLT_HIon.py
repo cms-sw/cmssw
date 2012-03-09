@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_0/HIon/V5 (CMSSW_5_2_0_HLT1)
+# /dev/CMSSW_5_2_0/HIon/V6 (CMSSW_5_2_0_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_0/HIon/V5')
+  tableName = cms.string('/dev/CMSSW_5_2_0/HIon/V6')
 )
 
 process.streams = cms.PSet( 
@@ -4764,7 +4764,7 @@ process.hltHISiStripRawToClustersFacility = cms.EDProducer( "SiStripRawToCluster
       SeedThreshold = cms.double( 3.0 ),
       ClusterThreshold = cms.double( 5.0 ),
       setDetId = cms.bool( True ),
-      RemoveApvShots = cms.bool( False )
+      RemoveApvShots = cms.bool( True )
     )
 )
 process.hltHISiStripClusters = cms.EDProducer( "MeasurementTrackerSiStripRefGetterProducer",
@@ -6619,7 +6619,8 @@ process.hltHISiStripClustersNonRegional = cms.EDProducer( "SiStripClusterizer",
       MaxAdjacentBad = cms.uint32( 0 ),
       QualityLabel = cms.string( "" ),
       SeedThreshold = cms.double( 3.0 ),
-      ClusterThreshold = cms.double( 5.0 )
+      ClusterThreshold = cms.double( 5.0 ),
+      RemoveApvShots = cms.bool( True )
     )
 )
 process.hltHIPixelTrackSeeds = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
