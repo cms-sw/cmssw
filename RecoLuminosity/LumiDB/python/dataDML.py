@@ -242,20 +242,21 @@ def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l
                 minTime=lute.StrToDatetime(startT,customfm='%m/%d/%y %H:%M:%S')
                 maxTime=lute.StrToDatetime(stopT,customfm='%m/%d/%y %H:%M:%S')
                 runTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
-                if runTime>=minTime and runTime<=maxTime:
+                if runTime>=minTime and runTime<=maxTime and runnum not in result:
                     result.append(runnum)
             elif startT is not None:
                 minTime=lute.StrToDatetime(startT,customfm='%m/%d/%y %H:%M:%S')
                 runTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
-                if runTime>=minTime:
+                if runTime>=minTime and runnum not in result:
                     result.append(runnum)
             elif stopT is not None:
                 maxTime=lute.StrToDatetime(stopT,customfm='%m/%d/%y %H:%M:%S')
                 runTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
-                if runTime<=maxTime:
+                if runTime<=maxTime and runnum not in result:
                     result.append(runnum)
             else:
-                result.append(runnum)
+                if runnum not in result:
+                    result.append(runnum)
     except :
         del qHandle
         raise
