@@ -31,7 +31,7 @@
 template <class T>
 bool any(const std::vector<T> & v, const T &what)
 {
-  return std::find(v.begin(), v.end(), what) == v.end();
+  return std::find(v.begin(), v.end(), what) != v.end();
 }
 
 ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
