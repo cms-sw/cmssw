@@ -1,4 +1,4 @@
-#!/usr/bin/python -u
+#!/usr/bin/env PYTHONUNBUFFERED=1 python
 """CMS Package Management script. Feedback and Help: mojedasa@cern.ch
 
 This script must be able to run in Python 2.4.
