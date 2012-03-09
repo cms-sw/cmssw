@@ -98,7 +98,7 @@ def dqmIOSource(args):
 
 def harvestingMode(process, datasetName, args,rANDl=True):
     import FWCore.ParameterSet.Config as cms
-    if rANDl:
+    if rANDl and (not args.get('newDQMIO', False)):
         process.source.processingMode = cms.untracked.string('RunsAndLumis')
     process.dqmSaver.workflow = datasetName
     process.dqmSaver.saveByLumiSection = 1
