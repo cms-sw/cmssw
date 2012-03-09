@@ -6,8 +6,8 @@ class lumiTime(object):
         self.coraltimefm='MM/DD/YY HH24:MI:SS.FF6'
         self.pydatetimefm='%m/%d/%y %H:%M:%S.%f'
         self.nbx=3564
-        self.bunchspace_us=0.025 #in microseconds
-        self.bunchspace_s=25e-09 #in seconds
+        self.bunchspace_us=0.02495 #in microseconds
+        self.bunchspace_s=24.95e-09 #in seconds
         
     def LSDuration(self,norbits):
         return timedelta(microseconds=(self.nbx*norbits*self.bunchspace_us))
