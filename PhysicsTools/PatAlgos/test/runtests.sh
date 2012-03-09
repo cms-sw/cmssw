@@ -4,13 +4,13 @@ function die { echo $1: status $2 ;  exit $2; }
 
 cmsRun ${LOCAL_TEST_DIR}/patTuple_standard_cfg.py || die 'Failure using patTuple_standard_cfg.py' $?
 
-# cmsRun ${LOCAL_TEST_DIR}/patTuple_PF2PAT_cfg.py || die 'Failure using patTuple_PF2PAT_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/patTuple_PF2PAT_cfg.py || die 'Failure using patTuple_PF2PAT_cfg.py' $?
 
 # cmsRun ${LOCAL_TEST_DIR}/patTuple_PATandPF2PAT_cfg.py || die 'Failure using patTuple_PATandPF2PAT_cfg.py' $?
 
 cmsRun ${LOCAL_TEST_DIR}/patTuple_addDecayInFlight_cfg.py || die 'Failure using patTuple_addDecayInFlight_cfg.py' $?
 
-cmsRun ${LOCAL_TEST_DIR}/patTuple_addJets_cfg.py || die 'Failure using patTuple_addJets_cfg.py' $?
+# cmsRun ${LOCAL_TEST_DIR}/patTuple_addJets_cfg.py || die 'Failure using patTuple_addJets_cfg.py' $?
 
 cmsRun ${LOCAL_TEST_DIR}/patTuple_addTracks_cfg.py || die 'Failure using patTuple_addTracks_cfg.py' $?
 
