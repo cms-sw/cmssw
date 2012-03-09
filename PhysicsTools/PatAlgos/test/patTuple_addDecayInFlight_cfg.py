@@ -4,12 +4,12 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 ## switch to RECO input
 process.source.fileNames = cms.untracked.vstring(
     pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_2_0_pre6'
-                        , relVal        = 'RelValProdTTbar'
-                        , globalTag     = 'START52_V2'
-                        , dataTier      = 'GEN-SIM-RECO'
-                        , maxVersions   = 3
-                        , numberOfFiles = 1
-                        )
+                          , relVal        = 'RelValProdTTbar'
+                          , globalTag     = 'START52_V2'
+                          , dataTier      = 'GEN-SIM-RECO'
+                          , maxVersions   = 3
+                          , numberOfFiles = 1
+                          )
     )
 
 ## add inFlightMuons
@@ -55,3 +55,20 @@ process.p = cms.Path(
     process.inFlightMuons +
     process.patDefaultSequence
 )
+
+## ------------------------------------------------------
+#  In addition you usually want to change the following
+#  parameters:
+## ------------------------------------------------------
+#
+#   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
+#                                         ##
+#   process.source.fileNames =  ...       ##  (e.g. 'file:AOD.root')
+#                                         ##
+process.maxEvents.input = 10
+#                                         ##
+#   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
+#                                         ##
+process.out.fileName = 'patTuple_addDecayInFlight.root'
+#                                         ##
+#   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
