@@ -94,6 +94,9 @@ GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
   theMinNrOfHitsForRebuild    = max(0,conf.getParameter<int>("minNrOfHitsForRebuild"));
   maxPtForLooperReconstruction     = conf.existsAs<double>("maxPtForLooperReconstruction") ? 
     conf.getParameter<double>("maxPtForLooperReconstruction") : 0;
+  maxDPhiForLooperReconstruction     = conf.existsAs<double>("maxDPhiForLooperReconstruction") ? 
+    conf.getParameter<double>("maxDPhiForLooperReconstruction") : 2.0;
+
 
   /* ======= B.M. to be ported layer ===========
   bool setOK = thePropagator->setMaxDirectionChange(1.6);
@@ -356,7 +359,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
        //stateAndLayers.second.size()==0 &&
        traj.lastLayer()->location()==0 && 
        stateAndLayers.first.globalMomentum().perp()<maxPtForLooperReconstruction &&
-       stateAndLayers.first.globalMomentum().perp()>0.2)
+       stateAndLayers.first.globalMomentum().perp()>0.3)
       stateAndLayers.second.push_back(traj.lastLayer());
   }
 
@@ -417,11 +420,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 	  if(fabs(farther.z())*0.95>length) continue;
 
 	  Geom::Phi<double> tmpDphi = target1.phi()-target2.phi();
-
-	  // -- FIXME: this cut should be configurable and it has to be tuned
-	  //if(tmpDphi.degrees() )>170)continue;
-	  //if(fabs(tmpDphi)>2.966) continue;
-	  if(fabs(tmpDphi)>1.5) continue;
+	  if(fabs(tmpDphi)>maxDPhiForLooperReconstruction) continue;
 	  GlobalPoint target((target1.x()+target2.x())/2,
 			     (target1.y()+target2.y())/2,
 			     (target1.z()+target2.z())/2);
@@ -434,7 +433,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 	  stateToUse = extrapolator.extrapolate(stateToUse, target, *propagator);
 	  //dPhiCacheForLoopersReconstruction = fabs(target1.phi()-target2.phi())*2.;
 	  dPhiCacheForLoopersReconstruction = fabs(tmpDphi);
-	  traj.setIsLooper(true);
+	  traj.incrementLoops();
 	}else{
 	  continue;
 	}
@@ -488,7 +487,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 	int tmpCounter(0);
 	for(const TempTrajectory::DataContainer::const_iterator newTrajMeasIt = newTraj.measurements().rbegin(); 
 	    newTrajMeasIt != newTraj.measurements().rend(); --newTrajMeasIt){
-	  if(tmpCounter==2) break;
+	  //if(tmpCounter==2) break;
 	  if(revIt->recHit()->geographicalId()==newTrajMeasIt->recHit()->geographicalId()){
 	    toBeRejected=true;
 	    break;
@@ -591,8 +590,8 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
       while ( im1!=firstMeasurements.rend()&&im2!=secondMeasurements.rend() ) {
 	if ( im1->layer()!=layerPtr || im2->layer()!=layerPtr )  break;
 	if ( !(im1->recHit()->isValid()) || !(im2->recHit()->isValid()) ||
-	     //!recHitEqualByChannels(im1->recHit(),im2->recHit()) ) {
-	     !im1->recHit()->hit()->sharesInput(im2->recHit()->hit(), TrackingRecHit::some) ) {
+	     !im1->recHit()->hit()->sharesInput(im2->recHit()->hit(), TrackingRecHit::all) ) {
+	  //!im1->recHit()->hit()->sharesInput(im2->recHit()->hit(), TrackingRecHit::some) ) {
 	  unequal = true;
 	  break;
 	}
@@ -625,8 +624,8 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
       while ( im1!=firstMeasurements.rend()&&im2!=secondMeasurements.rend() ) {
 	if ( im1->layer()!=layerPtr || im2->layer()!=layerPtr )  break;
 	if ( !(im1->recHit()->isValid()) || !(im2->recHit()->isValid()) ||
-	     //!recHitEqualByChannels(im1->recHit(),im2->recHit()) ) {
-	     !im1->recHit()->hit()->sharesInput(im2->recHit()->hit(), TrackingRecHit::some) ) {
+	     !im1->recHit()->hit()->sharesInput(im2->recHit()->hit(), TrackingRecHit::all) ) {
+	  //!im1->recHit()->hit()->sharesInput(im2->recHit()->hit(), TrackingRecHit::some) ) {
 	  unequal = true;
 	  break;
 	}
@@ -839,7 +838,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const std::vector<const Tracki
     // construct final trajectory in the right order
     //
     TempTrajectory reversedTrajectory(it->seed(),it->seed().direction());
-    reversedTrajectory.setIsLooper(it->isLooper());
+    reversedTrajectory.setNLoops(it->nLoops());
     for (TempTrajectory::DataContainer::const_iterator im=newMeasurements.rbegin(), ed = newMeasurements.rend();
 	  im != ed; --im ) {
       reversedTrajectory.push(*im);
@@ -917,7 +916,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
   // create input trajectory for backward fit
   //
   Trajectory fwdTraj(candidate.seed(),oppositeDirection(candidate.direction()));
-  fwdTraj.setIsLooper(candidate.isLooper());
+  fwdTraj.setNLoops(candidate.nLoops());
   //const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(), TrajectorySeed::recHitContainer(), oppositeDirection(candidate.direction()));
   //Trajectory fwdTraj(seed, oppositeDirection(candidate.direction()));
   std::vector<const DetLayer*> bwdDetLayer; 
@@ -969,7 +968,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
   if (bwdFitted.size()){
     LogDebug("CkfPattern")<<"Obtained " << bwdFitted.size() << " bwdFitted trajectories with measurement size " << bwdFitted.front().measurements().size();
 	TempTrajectory fitted(fwdTraj.seed(), fwdTraj.direction());
-	fitted.setIsLooper(fwdTraj.isLooper());
+	fitted.setNLoops(fwdTraj.nLoops());
         vector<TM> tmsbf = bwdFitted.front().measurements();
 	int iDetLayer=0;
 	//this is ugly but the TM in the fitted track do not contain the DetLayer.
