@@ -81,6 +81,7 @@ class TrackClusterRemover : public edm::EDProducer {
 
   bool clusterWasteSolution_;
   bool filterTracks_;
+  int minNumberOfLayersWithMeasBeforeFiltering_;
   reco::TrackBase::TrackQuality trackQuality_;
   std::vector<bool> collectedStrips_;
   std::vector<bool> collectedPixels_;
@@ -162,6 +163,8 @@ TrackClusterRemover::TrackClusterRemover(const ParameterSet& iConfig):
     if (iConfig.exists("TrackQuality")){
       filterTracks_=true;
       trackQuality_=reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
+      minNumberOfLayersWithMeasBeforeFiltering_ = iConfig.existsAs<int>("minNumberOfLayersWithMeasBeforeFiltering") ? 
+	iConfig.getParameter<int>("minNumberOfLayersWithMeasBeforeFiltering") : 6;
     }
 
 }
@@ -402,6 +405,7 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 	else
 	  goodTk=(track.quality(trackQuality_));
 	if ( !goodTk) continue;
+	if(track.hitPattern().trackerLayersWithMeasurement() < minNumberOfLayersWithMeasBeforeFiltering_) continue;
       }
       const Trajectory &tj = *(asst->key);
       const vector<TrajectoryMeasurement> &tms = tj.measurements();
