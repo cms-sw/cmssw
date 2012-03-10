@@ -590,8 +590,8 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
       while ( im1!=firstMeasurements.rend()&&im2!=secondMeasurements.rend() ) {
 	if ( im1->layer()!=layerPtr || im2->layer()!=layerPtr )  break;
 	if ( !(im1->recHit()->isValid()) || !(im2->recHit()->isValid()) ||
-	     !im1->recHit()->hit()->sharesInput(im2->recHit()->hit(), TrackingRecHit::all) ) {
-	  //!im1->recHit()->hit()->sharesInput(im2->recHit()->hit(), TrackingRecHit::some) ) {
+	     !im1->recHit()->hit()->sharesInput(im2->recHit()->hit(), TrackingRecHit::some) ) {
+	  //!im1->recHit()->hit()->sharesInput(im2->recHit()->hit(), TrackingRecHit::all) ) {
 	  unequal = true;
 	  break;
 	}
@@ -624,8 +624,8 @@ GroupedCkfTrajectoryBuilder::groupedIntermediaryClean (TempTrajectoryContainer& 
       while ( im1!=firstMeasurements.rend()&&im2!=secondMeasurements.rend() ) {
 	if ( im1->layer()!=layerPtr || im2->layer()!=layerPtr )  break;
 	if ( !(im1->recHit()->isValid()) || !(im2->recHit()->isValid()) ||
-	     !im1->recHit()->hit()->sharesInput(im2->recHit()->hit(), TrackingRecHit::all) ) {
-	  //!im1->recHit()->hit()->sharesInput(im2->recHit()->hit(), TrackingRecHit::some) ) {
+	     !im1->recHit()->hit()->sharesInput(im2->recHit()->hit(), TrackingRecHit::some) ) {
+	  //!im1->recHit()->hit()->sharesInput(im2->recHit()->hit(), TrackingRecHit::all) ) {
 	  unequal = true;
 	  break;
 	}
