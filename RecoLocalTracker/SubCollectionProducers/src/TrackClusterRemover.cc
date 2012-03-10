@@ -164,7 +164,7 @@ TrackClusterRemover::TrackClusterRemover(const ParameterSet& iConfig):
       filterTracks_=true;
       trackQuality_=reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
       minNumberOfLayersWithMeasBeforeFiltering_ = iConfig.existsAs<int>("minNumberOfLayersWithMeasBeforeFiltering") ? 
-	iConfig.getParameter<int>("minNumberOfLayersWithMeasBeforeFiltering") : 6;
+	iConfig.getParameter<int>("minNumberOfLayersWithMeasBeforeFiltering") : 0;
     }
 
 }
