@@ -24,5 +24,5 @@ VtxSmeared = {
     'Centered7TeV2011Collision':     'IOMC.EventVertexGenerators.VtxSmearedCentered7TeV2011Collision_cfi',
     'RealisticHI2011Collision':      'IOMC.EventVertexGenerators.VtxSmearedRealisticHI2011Collision_cfi'
 }
-VtxSmearedDefaultKey='Realistic7TeV2011Collision'
+VtxSmearedDefaultKey='Realistic8TeVCollision'
 VtxSmearedHIDefaultKey='RealisticHI2011Collision'
