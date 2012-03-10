@@ -144,7 +144,7 @@ void TEveEllipsoidProjectedGL::SetBBox()
 }
 
 //______________________________________________________________________________
-void TEveEllipsoidProjectedGL::DirectDraw(TGLRnrCtx& /*rnrCtx*/) const
+void TEveEllipsoidProjectedGL::DirectDraw(TGLRnrCtx& rnrCtx) const
 {
    // Render with OpenGL.
  
@@ -249,7 +249,7 @@ void TEveEllipsoidProjectedGL::DrawRhoPhi() const
 //--------------------------------------------------------------------
 void TEveEllipsoidProjectedGL::DrawRhoZ() const
 {
-   //  printf("TEveEllipsoidProjectedGL::DirectDraw [%s ]\n", fE->GetName() );
+   // printf("TEveEllipsoidProjectedGL::DirectDraw [%s ]\n", fE->GetTitle() );
  
    TEveVector v0(fE->RefPos()[0], fE->RefPos()[1], fE->RefPos()[2]);
    
@@ -275,31 +275,6 @@ void TEveEllipsoidProjectedGL::DrawRhoZ() const
    
    TEveProjection *proj = fM->GetManager()->GetProjection();
    
-   /*   
-   // axis 
-   {
-   glBegin(GL_LINES);
-
-   TEveVector p0 = v0;
-   TEveVector p1 = v1 + v0;
-   TEveVector p2 = v2 + v0;
-
-   proj->ProjectVector(p0, fM->fDepth); 
-   proj->ProjectVector(p1, fM->fDepth); 
-   proj->ProjectVector(p2, fM->fDepth);
-      
-      
-   glColor3f(1, 0, 0);
-   glVertex3fv(p0.Arr());
-   glVertex3fv(p1.Arr());
-      
-   glColor3f(0, 1, 0);
-   glVertex3fv(p0.Arr());
-   glVertex3fv(p2.Arr());
-   glEnd();
-   }
-   */
-
    // ellipse intersection with projection center
    bool splitted = false;
    int N = 20;
@@ -328,46 +303,14 @@ void TEveEllipsoidProjectedGL::DrawRhoZ() const
          TEveVector ps1 = v0 + v1*((float)cos(phi1)) + v2*((float)sin(phi1));
          TEveVector ps2 = v0 + v1*((float)cos(phi2)) + v2*((float)sin(phi2));
          
-         //  marker before correction
-         /*
-           {
-           glColor3f(1, 1, 0);
-           TEveVector pps1 = ps1; 
-           proj->ProjectVector(pps1, fM->fDepth);
-           glVertex3fv(pps1.Arr());
-            
-           TEveVector pps2 = ps2; 
-           proj->ProjectVector(pps2, fM->fDepth);
-           glVertex3fv(pps2.Arr());
-           }
-         */
+        
 
          // acos has values [0, Pi] , check the symetry over x axis (mirroring)
          if (TMath::Abs(ps1[1] - bs) > 1e-5)
             phi1 = TMath::TwoPi() -phi1;
       
          if (TMath::Abs(ps2[1] - bs) > 1e-5) 
-            phi2 = TMath::TwoPi() -phi2;
-
-
-         //  marker after correction
-         /*
-           glPointSize(5);
-           glBegin(GL_POINTS);
-     
-           ps1 = v0 + v1*((float)cos(phi1)) + v2*((float)sin(phi1));
-           ps2 = v0 + v1*((float)cos(phi2)) + v2*((float)sin(phi2));
-         
-           glColor3f(0, 1, 1);
-           proj->ProjectVector(ps1, fM->fDepth);
-           glVertex3fv(ps1.Arr());
-
-           glColor3f(1, 0, 1);
-           proj->ProjectVector(ps2, fM->fDepth);
-           glVertex3fv(ps2.Arr());
-           glEnd();
-         */
-         
+            phi2 = TMath::TwoPi() -phi2;         
          
          int N = 20;
          double phiStep = TMath::TwoPi()/N;
@@ -401,6 +344,7 @@ void TEveEllipsoidProjectedGL::DrawRhoZ() const
       }
    }
    
+   
    if (!splitted) {
        glBegin(GL_POLYGON);
       drawArch(0, TMath::TwoPi(), phiStep, v0, v1, v2);
@@ -411,157 +355,41 @@ void TEveEllipsoidProjectedGL::DrawRhoZ() const
       drawArch(0, TMath::TwoPi(), phiStep, v0, v1, v2);
       glEnd();  
    }
+   
+   drawRhoZAxis(v0, v2);
+   drawRhoZAxis(v0, v1);
 }
 //______________________________________________________________________________
-
-/*
-void TEveEllipsoidProjectedGL::DrawYZ() const
+void TEveEllipsoidProjectedGL::drawRhoZAxis(TEveVector& v0, TEveVector& v2) const
 {
-   TMatrixDSym xxx(2);
-   for(int i=1;i<3;i++)
-      for(int j=1;j<3;j++)
-      {
-         xxx(i-1,j-1) = fE->RefEMtx()(i+1,j+1);
-      }
-
-   TMatrixDEigen eig(xxx);
-   TVectorD xxxEig ( eig.GetEigenValuesRe());
-   //xxxEig.Print();
-   // eeeig.GetEigenVectors().Print();
-
-   float a = fE->fEScale * sqrt(xxxEig[0]);
-   float b = fE->fEScale * sqrt(xxxEig[1]);
-   TEveVector2D v0(fE->RefPos()[2], fE->RefPos()[1]);
-   TEveVector2D v1( eig.GetEigenVectors()(0, 1),   eig.GetEigenVectors()(0, 0));
-   TEveVector2D v2(eig.GetEigenVectors()(1, 1),  eig.GetEigenVectors()(1, 0));
-   v1 *= a;
-   v2 *= b;
-   if (v1[0]*v2[1] < v1[1]*v2[0]) {
-      printf("!!!!!!! fix to right handed \n");
-      v2 *= -1;
-   }
-
-
-   // axis
+   glBegin(GL_LINES);
+   TEveProjection* proj =   fM->GetManager()->GetProjection();
+   
+   float bs = 0;
+   if (proj->GetDisplaceOrigin())
+      bs = proj->fCenter[1];
+   
+   float off = (v2[1] > v0[1] ) ? 0.01 : -0.01;
+   TEveVector alu = v0 + v2;
+   proj->ProjectVector(alu, fM->fDepth);
+   glVertex3fv(alu.Arr());   
+   
+   if (TMath::Abs(v0[1]/v2[1]) < 1 )
    {
-      glBegin(GL_LINES);
-
-      glColor3f(1, 0, 0);
-      glVertex2dv(v0.Arr());
-      glVertex2dv((v1 + v0).Arr());
-
-      glColor3f(0, 1, 0);
-      glVertex2dv(v0.Arr());
-      glVertex2dv((v2 + v0).Arr());
-      glEnd();
-   }
-   // line intersection, discriminant 
-   
-   bool splitted = false;
-   double da = v2[1]*v2[1] + v1[1]*v1[1];
-   double db = 2 * v1[1] * v0[1];
-   double dc = v0[1]*v0[1] - v2[1]*v2[1];
-   
-   double disc = (db*db -4*da*dc);
-   
-   if (disc > 0) {
-      disc = sqrt(disc);
-      double cosS1 = ( -db + disc)/(2 * da);
-      double cosS2 = ( -db - disc)/(2 * da);
-      if (TMath::Abs(cosS1) < 1) {
-         splitted = true;
-         double phi1 = acos(cosS1);
-         double phi2 = acos(cosS2);
-         // printf("cos   %f %f \n acos %f %f \n", cosS1, cosS2, phi1*TMath::RadToDeg(), phi2*TMath::RadToDeg());
-         printf("1 : acos %f cos %f \n", cosS1, phi1*TMath::RadToDeg());
-         printf("2 : acos %f cos %f \n", cosS2, phi2*TMath::RadToDeg());
-         
-         TEveVector2D ps1 = v0 + v1*cos(phi1) + v2*sin(phi1);
-         TEveVector2D ps2 = v0 + v1*cos(phi2) + v2*sin(phi2);
-         
-         glPointSize(5);
-         glBegin(GL_POINTS);
-         glColor3f(0, 1, 1);
-         
-         glColor3f(1, 1, 0);
-         if (TMath::Abs(ps1[1]) > 1e-7) {
-            phi1 = TMath::TwoPi() -phi1;
-            printf("fix phi1 %f\n", phi1*TMath::RadToDeg());
-            ps1 = v0 + v1*cos(phi1) + v2*sin(phi1);
-            glVertex2dv(ps1.Arr());
-         }
-         if (TMath::Abs(ps2[1]) > 1e-9) 
-         {
-            phi2 = TMath::TwoPi() -phi2;
-            printf("fix phi2 %f\n", phi2*TMath::RadToDeg());
-            ps2 = v0 + v1*cos(phi2) + v2*sin(phi2);
-            glVertex2dv(ps2.Arr());
-         }
-         
-         glVertex2dv(ps1.Arr());
-         glVertex2dv(ps2.Arr());
-         glEnd();
-         
-         
-         glColor3f(0.2,0.2,0.1);
-         
-         int N = 20;
-         double phiStep = TMath::TwoPi()/N;
-         double phiOffset = phiStep*0.1;
-         
-         double phiMin = TMath::Min(phi1, phi2);
-         double phiMax = TMath::Max(phi1, phi2);
-         
-         // upper clothing
-         {
-            glBegin(GL_LINE_LOOP);
-            double phi = phiMin + phiOffset;
-            double phiEnd = phiMax - phiOffset;
-            while (phi < phiEnd ) {
-               TEveVector2D v = v0 + v1*cos(phi) + v2*sin(phi);
-               glVertex2dv(v.Arr());
-
-               phi += phiStep;
-            }
-            TEveVector2D v = v0 + v1*cos(phiEnd) + v2*sin(phiEnd);
-            glVertex2dv(v.Arr());
-
-            glEnd();
-         }
-         // bottom clothing
-         if (1) {
-            glColor3f(1,1,1);
-            glBegin(GL_LINE_LOOP);
-            double phi = phiMax + phiOffset;
-            double phiEnd = phi + TMath::TwoPi() - (phiMax -phiMin) -phiOffset;
-            while (phi < phiEnd ) {
-               TEveVector2D v = v0 + v1*cos(phi) + v2*sin(phi);
-               glVertex2dv(v.Arr());
-               phi += phiStep;
-            }
-            TEveVector2D v = v0 + v1*cos(phiEnd) + v2*sin(phiEnd);
-            glVertex2dv(v.Arr());
-
-            glEnd();
-         }
-         
-      }
-   }
-   
-   if (!splitted) {
+      alu = v0 - ((float) ((1-off) *(v0[1]-bs)/v2[1])) * v2;
+      proj->ProjectVector(alu, fM->fDepth);
+      glVertex3fv(alu.Arr());   
       
-      glBegin(GL_LINE_LOOP);
-      glColor3f(0.2,0.2,0.1);
-      using namespace TMath;
-      int N = 20;
-      float phiStep = TwoPi()/N;
-      for (int i = 0; i < N; ++i)
-      {
-         float phi =i*phiStep;
-         TEveVector2D v = v0 + v1*cos(phi) + v2*sin(phi);
-         glVertex2dv(v.Arr());
-      }
-      glEnd();  
+      //============================
+      
+      alu = v0 - ((float) ((1+off) * (v0[1]-bs)/v2[1])) * v2;
+      proj->ProjectVector(alu, fM->fDepth);
+      glVertex3fv(alu.Arr());  
    }
+   
+   alu = v0 - v2;
+   proj->ProjectVector(alu, fM->fDepth);
+   glVertex3fv(alu.Arr());   
+   
+   glEnd();
 }
-*/

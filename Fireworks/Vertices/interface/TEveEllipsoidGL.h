@@ -52,7 +52,7 @@ private:
    void DrawRhoZ() const;
    //  void DrawYZ() const;
    void   drawArch(float pStart, float pEnd, float phiStep, TEveVector& v0,  TEveVector& v1, TEveVector& v2) const;
-
+   void drawRhoZAxis(TEveVector& v, TEveVector&) const;
 protected:
    TEveEllipsoidProjected  *fM;  // Model object.
 
