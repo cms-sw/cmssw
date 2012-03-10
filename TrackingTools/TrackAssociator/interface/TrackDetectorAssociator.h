@@ -14,7 +14,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.h,v 1.17 2010/03/12 13:51:28 gpetrucc Exp $
+// $Id: TrackDetectorAssociator.h,v 1.21 2011/04/07 09:02:44 innocent Exp $
 //
 //
 
@@ -99,7 +99,10 @@ class TrackDetectorAssociator {
 					   const GlobalPoint&,
 					   const int,
 					   const AssociatorParameters& );
-   
+   /// trajector information
+   const CachedTrajectory& getCachedTrajector() const
+     {return cachedTrajectory_;}
+
    /// use a user configured propagator
    void setPropagator( const Propagator* );
    
@@ -116,7 +119,7 @@ class TrackDetectorAssociator {
 						      const GlobalVector&,
 						      const GlobalPoint&,
 						      const int);
-        
+   
    static bool                crossedIP(const reco::Track& track);
 
  private:

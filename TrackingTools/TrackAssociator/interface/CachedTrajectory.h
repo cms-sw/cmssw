@@ -18,7 +18,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CachedTrajectory.h,v 1.19 2011/04/21 06:42:45 innocent Exp $
+// $Id: CachedTrajectory.h,v 1.20 2011/04/21 06:58:12 innocent Exp $
 //
 //
 
@@ -81,10 +81,10 @@ private:
   void findHOTrajectory(const FiducialVolume&) dso_internal;
   void findPreshowerTrajectory(const FiducialVolume&) dso_internal;
   
-  const std::vector<SteppingHelixStateInfo>& getEcalTrajectory() dso_internal;
-  const std::vector<SteppingHelixStateInfo>& getHcalTrajectory() dso_internal;
-  const std::vector<SteppingHelixStateInfo>& getHOTrajectory() dso_internal;
-  const std::vector<SteppingHelixStateInfo>& getPreshowerTrajectory() dso_internal;
+  const std::vector<SteppingHelixStateInfo>& getEcalTrajectory() const dso_internal;
+  const std::vector<SteppingHelixStateInfo>& getHcalTrajectory() const dso_internal;
+  const std::vector<SteppingHelixStateInfo>& getHOTrajectory() const dso_internal;
+  const std::vector<SteppingHelixStateInfo>& getPreshowerTrajectory() const dso_internal;
   
   std::vector<GlobalPoint>* getWideTrajectory(const std::vector<SteppingHelixStateInfo>&,
 					      WideTrajectoryType) dso_internal;
