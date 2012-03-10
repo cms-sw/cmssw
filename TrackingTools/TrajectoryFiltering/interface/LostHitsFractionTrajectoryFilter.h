@@ -28,8 +28,6 @@ public:
 protected:
 
   template<class T> bool TBC(const T& traj) const {
-    //if( (traj.foundHits()>=theTransition &&  traj.lostHits() <= theMaxLostHitsFraction*traj.foundHits() ) ||
-    //	(traj.foundHits()<theTransition && traj.lostHits() <= 1) ) return true;
     if(traj.lostHits() <= theConstantValue + theMaxLostHitsFraction*traj.foundHits() )
       return true;
     else

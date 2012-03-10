@@ -10,6 +10,7 @@
 #include "TrackingTools/TrajectoryFiltering/interface/MinHitsTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/MinPtTrajectoryFilter.h"
 #include "TrackingTools/TrajectoryFiltering/interface/LostHitsFractionTrajectoryFilter.h"
+#include "TrackingTools/TrajectoryFiltering/interface/LooperTrajectoryFilter.h"
 
 
 class CkfBaseTrajectoryFilter : public TrajectoryFilter {
@@ -24,6 +25,7 @@ public:
     theMaxHitsTrajectoryFilter = new MaxHitsTrajectoryFilter(pset);
     theMinHitsTrajectoryFilter = new MinHitsTrajectoryFilter(pset);
     theLostHitsFractionTrajectoryFilter = new LostHitsFractionTrajectoryFilter(pset);
+    theLooperTrajectoryFilter = new LooperTrajectoryFilter(pset);
   }
   
   virtual bool qualityFilter( const Trajectory& traj) const {return QF<Trajectory>(traj);}
@@ -40,7 +42,7 @@ protected:
     if (!theChargeSignificanceTrajectoryFilter->qualityFilter(traj)) return false;            
     if (!theMinHitsTrajectoryFilter->qualityFilter(traj)) return false;
     if (!theMinPtTrajectoryFilter->qualityFilter(traj)) return false;
-    if (traj.isLooper() && traj.foundHits()<12) return false;
+    if (!theLooperTrajectoryFilter->qualityFilter(traj)) return false;
     return true;}
 
   template <class T> bool TBC(T& traj) const{
@@ -50,6 +52,7 @@ protected:
     if (!theLostHitsFractionTrajectoryFilter->toBeContinued(traj)) return false;
     if (!theMinPtTrajectoryFilter->toBeContinued(traj)) return false;     
     if (!theChargeSignificanceTrajectoryFilter->toBeContinued(traj)) return false;
+    if (!theLooperTrajectoryFilter->toBeContinued(traj)) return false;
     return true;}
 
   
@@ -61,6 +64,7 @@ protected:
   LostHitsFractionTrajectoryFilter * theLostHitsFractionTrajectoryFilter;
   MinHitsTrajectoryFilter * theMinHitsTrajectoryFilter;
   MinPtTrajectoryFilter * theMinPtTrajectoryFilter;
+  LooperTrajectoryFilter* theLooperTrajectoryFilter;
 };
 
 #endif
