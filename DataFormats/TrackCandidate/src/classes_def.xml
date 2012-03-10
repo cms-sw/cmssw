@@ -1,6 +1,6 @@
 <lcgdict>
-  <class name="TrackCandidate" ClassVersion="11">
-   <version ClassVersion="11" checksum="3688116731"/>
+  <class name="TrackCandidate" ClassVersion="12">
+   <version ClassVersion="12" checksum="3750078709"/>
   </class>
   <class name="std::vector<TrackCandidate>"/>
   <class name="edm::Wrapper<std::vector<TrackCandidate> >"/>
