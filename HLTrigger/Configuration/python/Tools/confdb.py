@@ -64,26 +64,11 @@ class HLTProcess(object):
     "HLT_Mu7_Track7_Jpsi_v*",
 
     # TODO: paths removed from the 2012 menu, for which a recovery should be attempted as soon as that menu is more stabel
-    "HLT_HT250_L1FastJet_DoubleDisplacedPFJet60_v*",
-    "HLT_HT250_L1FastJet_DoubleDisplacedPFJet60_ChgFraction10_v*",
-    "HLT_HT250_L1FastJet_SingleDisplacedPFJet60_v*",
-    "HLT_HT250_L1FastJet_SingleDisplacedPFJet60_ChgFraction10_v*",
-    "HLT_Jet80Eta1p7_Jet70Eta1p7_L1FastJet_DiBTagIP3D_v*",
-    "HLT_Jet60Eta1p7_Jet53Eta1p7_L1FastJet_DiBTagIP3D_v*",
-    "HLT_Jet160Eta2p4_Jet120Eta2p4_L1FastJet_DiBTagIP3DLoose_v*",
-    "HLT_DiJet80Eta2p6_L1FastJet_BTagIP3DLoose_v*",
-    "HLT_DiJet40Eta2p6_L1FastJet_BTagIP3D_v*",
-    "HLT_Tau2Mu_RegPixTrack_v*",
-    "HLT_QuadL1FastJet_BTagIP_VBF_v*",
     "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v*",
     "HLT_MET120_HBHENoiseCleaned_v*",
     "HLT_MET200_HBHENoiseCleaned_v*",
     "HLT_MET300_HBHENoiseCleaned_v*",
     "HLT_MET400_HBHENoiseCleaned_v*",
-    "HLT_Mu12_eta2p1_DiCentralL1FastJet_40_20_DiBTagIP3D1stTrack_v*",
-    "HLT_Mu12_eta2p1_DiCentralL1FastJet_40_20_BTagIP3D1stTrack_v*",
-    "HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_DiBTagIP3D1stTrack_v*",
-    "HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_BTagIP3D1stTrack_v*",
     "HLT_DiCentralPFJet30_CaloMET50_PFMHT80_HBHENoiseFiltered_dPhi1_v*",
     "HLT_CentralCaloJet50PFJet80_CaloMET50PFMHT80_HBHENoiseFiltered_dPhi1_v*",
   
@@ -926,6 +911,22 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltPFJetCkfTrackCandidates" )
       self.options['modules'].append( "-hltPFJetCtfWithMaterialTracks" )
       self.options['modules'].append( "-hltPFlowTrackSelectionHighPurity" )
+      # === hltFastJet
+      self.options['modules'].append( "-hltDisplacedHT250L1FastJetRegionalPixelSeedGenerator" )
+      self.options['modules'].append( "-hltDisplacedHT250L1FastJetRegionalCkfTrackCandidates" )
+      self.options['modules'].append( "-hltDisplacedHT250L1FastJetRegionalCtfWithMaterialTracks" )     
+      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorbbPhiL1FastJet" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesbbPhiL1FastJet" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksbbPhiL1FastJet" )     
+      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorHbbVBF" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesHbbVBF" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksHbbVBF" )
+      self.options['modules'].append( "-hltBLifetimeBTagIP3D1stTrkRegionalPixelSeedGeneratorJet20HbbL1FastJet" )
+      self.options['modules'].append( "-hltBLifetimeBTagIP3D1stTrkRegionalCkfTrackCandidatesJet20HbbL1FastJet" )
+      self.options['modules'].append( "-hltBLifetimeBTagIP3D1stTrkRegionalCtfWithMaterialTracksJet20HbbL1FastJet" )
+      self.options['modules'].append( "-hltBLifetimeDiBTagIP3D1stTrkRegionalPixelSeedGeneratorJet20HbbL1FastJet" )
+      self.options['modules'].append( "-hltBLifetimeDiBTagIP3D1stTrkRegionalCkfTrackCandidatesJet20HbbL1FastJet" )
+      self.options['modules'].append( "-hltBLifetimeBTagIP3D1stTrkRegionalCtfWithMaterialTracksJet20HbbL1FastJet" )
       # === hltBLifetimeRegional
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorSingleTop" )
       self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksSingleTop" )
@@ -963,6 +964,7 @@ if 'GlobalTag' in %%(dict)s:
 
       self.options['modules'].append( "-hltPixelTracksForMinBias" )
       self.options['modules'].append( "-hltPixelTracksForHighMult" )
+      self.options['modules'].append( "-hltRegionalPixelTracks" )
       self.options['modules'].append( "-hltIter4Merged" )
       self.options['modules'].append( "-hltPFJetCtfWithMaterialTracks" )
       self.options['modules'].append( "hltPixelMatchElectronsActivity" )

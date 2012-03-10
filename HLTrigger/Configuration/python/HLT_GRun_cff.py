@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_0/GRun/V7 (CMSSW_5_2_0_HLT1)
+# /dev/CMSSW_5_2_0/GRun/V8 (CMSSW_5_2_0_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_0/GRun/V7')
+  tableName = cms.string('/dev/CMSSW_5_2_0/GRun/V8')
 )
 
 streams = cms.PSet( 
@@ -26982,7 +26982,7 @@ hltOverlapFilterMu18LooseIsoPFTau20 = cms.EDFilter( "HLT2MuonPFTau",
     triggerType2 = cms.int32( 84 ),
     MaxMinv = cms.double( -1.0 ),
     MinDeta = cms.double( 1.0 ),
-    MaxDelR = cms.double( -1.0 ),
+    MaxDelR = cms.double( 99999.0 ),
     inputTag1 = cms.InputTag( "hltL3fL1sMu16Eta2p1L1f0L2f16QL3Filtered18Q" ),
     inputTag2 = cms.InputTag( "hltPFTau20TrackLooseIso" ),
     MaxDphi = cms.double( -1.0 ),
@@ -27041,7 +27041,7 @@ hltOverlapFilterIsoMu18LooseIsoPFTau20 = cms.EDFilter( "HLT2MuonPFTau",
     triggerType2 = cms.int32( 84 ),
     MaxMinv = cms.double( -1.0 ),
     MinDeta = cms.double( 1.0 ),
-    MaxDelR = cms.double( -1.0 ),
+    MaxDelR = cms.double( 99999.0 ),
     inputTag1 = cms.InputTag( "hltL3crIsoL1sMu16Eta2p1L1f0L2f16QL3f18QL3crIsoFiltered10" ),
     inputTag2 = cms.InputTag( "hltPFTau20TrackLooseIso" ),
     MaxDphi = cms.double( -1.0 ),
@@ -27351,7 +27351,7 @@ hltOverlapFilterIsoEle20LooseIsoPFTau20L1Jet = cms.EDFilter( "HLT2ElectronPFTau"
     triggerType2 = cms.int32( 84 ),
     MaxMinv = cms.double( -1.0 ),
     MinDeta = cms.double( 0.0 ),
-    MaxDelR = cms.double( -1.0 ),
+    MaxDelR = cms.double( 99999.0 ),
     inputTag1 = cms.InputTag( "hltEle20CaloIdVTCaloIsoTTrkIdTTrkIsoTL1JetTrackIsoFilter" ),
     inputTag2 = cms.InputTag( "hltL1MatchedLooseIsoPFTau20" ),
     MaxDphi = cms.double( -1.0 ),
@@ -27495,7 +27495,7 @@ hltOverlapFilterEle20LooseIsoPFTau20L1Jet = cms.EDFilter( "HLT2ElectronPFTau",
     triggerType2 = cms.int32( 84 ),
     MaxMinv = cms.double( -1.0 ),
     MinDeta = cms.double( 0.0 ),
-    MaxDelR = cms.double( -1.0 ),
+    MaxDelR = cms.double( 99999.0 ),
     inputTag1 = cms.InputTag( "hltEle20CaloIdVTTrkIdTL1JetDphiFilter" ),
     inputTag2 = cms.InputTag( "hltL1MatchedLooseIsoPFTau20" ),
     MaxDphi = cms.double( -1.0 ),
@@ -27747,7 +27747,7 @@ hltOverlapFilterIsoEle20LooseIsoPFTau20 = cms.EDFilter( "HLT2ElectronPFTau",
     triggerType2 = cms.int32( 84 ),
     MaxMinv = cms.double( -1.0 ),
     MinDeta = cms.double( 0.0 ),
-    MaxDelR = cms.double( -1.0 ),
+    MaxDelR = cms.double( 99999.0 ),
     inputTag1 = cms.InputTag( "hltEle20CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilterL1IsoEG18OrEG20" ),
     inputTag2 = cms.InputTag( "hltPFTau20TrackLooseIso" ),
     MaxDphi = cms.double( -1.0 ),
