@@ -297,7 +297,7 @@ namespace cms{
             boost::shared_ptr<const TrajectorySeed> seed(new TrajectorySeed(state, hits, direction));
             // 3) make a trajectory
             Trajectory trajectory(seed, direction);
-	    trajectory.setIsLooper(it->isLooper());
+	    trajectory.setNLoops(it->nLoops());
             trajectory.setSeedRef(it->seedRef());
             // 4) push states in reversed order
             const Trajectory::DataContainer &meas = it->measurements();
