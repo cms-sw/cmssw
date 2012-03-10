@@ -9,17 +9,9 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 ## Source
-from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
+from PhysicsTools.PatAlgos.patInputFiles_cff import *
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-    pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_2_0_pre6'
-                        , relVal        = 'RelValProdTTbar'
-                        , globalTag     = 'START52_V2'
-                        , dataTier      = 'AODSIM'
-                        , maxVersions   = 3
-                        , numberOfFiles = 1
-                        )
-    )
+    fileNames = filesRelValProdTTbarAODSIM
 )
 ## Maximal Number of Events
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )

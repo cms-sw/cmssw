@@ -2,15 +2,7 @@
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 ## switch to RECO input
-process.source.fileNames = cms.untracked.vstring(
-    pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_2_0_pre6'
-                          , relVal        = 'RelValProdTTbar'
-                          , globalTag     = 'START52_V2'
-                          , dataTier      = 'GEN-SIM-RECO'
-                          , maxVersions   = 3
-                          , numberOfFiles = 1
-                          )
-    )
+process.source.fileNames = filesRelValProdTTbarGENSIMRECO
 
 ## add inFlightMuons
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
