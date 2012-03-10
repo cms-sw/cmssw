@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik, Riccardo Bellan, Michalis Bachtis
  *
- * \version $Id: Muon.h,v 1.67 2011/11/02 06:41:54 slava77 Exp $
+ * \version $Id: Muon.h,v 1.68 2011/11/25 10:13:04 bellan Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -198,6 +198,7 @@ namespace reco {
     static const unsigned int StandAloneMuon =  1<<3;
     static const unsigned int CaloMuon =  1<<4;
     static const unsigned int PFMuon =  1<<5;
+    static const unsigned int RPCMuon =  1<<6;
 
     void setType( unsigned int type ) { type_ = type; }
     unsigned int type() const { return type_; }
@@ -208,6 +209,7 @@ namespace reco {
     bool isStandAloneMuon() const { return type_ & StandAloneMuon; }
     bool isCaloMuon() const { return type_ & CaloMuon; }
     bool isPFMuon() const {return type_ & PFMuon;} //fix me ! Has to go to type
+    bool isPPCMuon() const {return type_ & RPCMuon;}
     
   private:
     /// check overlap with another candidate
