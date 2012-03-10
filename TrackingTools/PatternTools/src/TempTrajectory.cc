@@ -11,7 +11,7 @@ TempTrajectory::TempTrajectory( const Trajectory& traj):
   theDirection(traj.direction()), theDirectionValidity(true),
   theValid(traj.isValid()),
   theDPhiCache(traj.dPhiCacheForLoopersReconstruction()),
-  theIsLooper(traj.isLooper()) {
+  theNLoops(traj.nLoops()) {
   
   Trajectory::DataContainer::const_iterator begin=traj.measurements().begin();
   Trajectory::DataContainer::const_iterator end=traj.measurements().end();
@@ -154,7 +154,7 @@ bool TempTrajectory::lost( const TransientTrackingRecHit& hit)
 
 Trajectory TempTrajectory::toTrajectory() const {
   Trajectory traj(theSeed, theDirection);
-  traj.setIsLooper(theIsLooper);
+  traj.setNLoops(theNLoops);
 
   traj.reserve(theData.size());
   static std::vector<const TrajectoryMeasurement*> work;

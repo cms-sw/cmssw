@@ -53,7 +53,7 @@ public:
     theSeed(), seedRef_(),
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(alongMomentum), theDirectionValidity(false), theValid(true),theDPhiCache(0),theIsLooper(false)
+    theDirection(alongMomentum), theDirectionValidity(false), theValid(true),theDPhiCache(0),theNLoops(0)
     {}
 
 
@@ -67,7 +67,7 @@ public:
     theSeed( new TrajectorySeed(seed) ), seedRef_(),
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(alongMomentum), theDirectionValidity(false), theValid(true),theDPhiCache(0),theIsLooper(false)
+    theDirection(alongMomentum), theDirectionValidity(false), theValid(true),theDPhiCache(0),theNLoops(0)
   {}
 
   /** Constructor of an empty trajectory with defined direction.
@@ -78,7 +78,7 @@ public:
     theSeed( new TrajectorySeed(seed) ), seedRef_(),
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(dir), theDirectionValidity(true), theValid(true),theDPhiCache(0),theIsLooper(false)
+    theDirection(dir), theDirectionValidity(true), theValid(true),theDPhiCache(0),theNLoops(0)
    
   {}
 
@@ -90,7 +90,7 @@ public:
     theSeed( seed ), seedRef_(),
     theChiSquared(0), theChiSquaredBad(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(dir), theDirectionValidity(true), theValid(true),theDPhiCache(0),theIsLooper(false)
+    theDirection(dir), theDirectionValidity(true), theValid(true),theDPhiCache(0),theNLoops(0)
   {}
 
 
@@ -101,7 +101,7 @@ public:
     theChiSquared(rh.theChiSquared), theChiSquaredBad(rh.theChiSquaredBad),
     theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
     theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity), theValid(rh.theValid),
-     theDPhiCache(rh.theDPhiCache),theIsLooper(rh.theIsLooper) 
+     theDPhiCache(rh.theDPhiCache),theNLoops(rh.theNLoops) 
   {}
 
 
@@ -111,7 +111,7 @@ public:
     theChiSquared(rh.theChiSquared), theChiSquaredBad(rh.theChiSquaredBad),
     theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
     theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity), theValid(rh.theValid),
-    theDPhiCache(rh.theDPhiCache),theIsLooper(rh.theIsLooper)  
+    theDPhiCache(rh.theDPhiCache),theNLoops(rh.theNLoops)  
   {}
 
   Trajectory & operator=(Trajectory && rh) {
@@ -121,7 +121,7 @@ public:
     theChiSquaredBad=rh.theChiSquaredBad;
     theValid=rh.theValid;
     theDPhiCache=rh.theDPhiCache;
-    theIsLooper=rh.theIsLooper;  
+    theNLoops=rh.theNLoops;  
     theNumberOfFoundHits=rh.theNumberOfFoundHits;
     theNumberOfLostHits=rh.theNumberOfLostHits;
     theDirection=rh.theDirection; 
@@ -139,7 +139,7 @@ public:
     theChiSquaredBad=rh.theChiSquaredBad;
     theValid=rh.theValid;
     theDPhiCache=rh.theDPhiCache; 
-    theIsLooper=rh.theIsLooper;  
+    theNLoops=rh.theNLoops;  
     theNumberOfFoundHits=rh.theNumberOfFoundHits;
     theNumberOfLostHits=rh.theNumberOfLostHits;
     theDirection=rh.theDirection;
@@ -315,8 +315,11 @@ public:
   /// two layers crossed by the trajectory
    void setDPhiCacheForLoopersReconstruction(float dphi) {  theDPhiCache = dphi;}
 
-   bool isLooper() const { return theIsLooper;}
-   void setIsLooper(bool value) { theIsLooper = value;}
+   bool isLooper() const { return (theNLoops>0);}
+   char nLoops() const {return theNLoops;}
+
+   void setNLoops(char value) { theNLoops=value;}
+   void incrementLoops() {theNLoops++;}
 
 private:
 
@@ -335,7 +338,7 @@ private:
   bool theValid;
 
   float theDPhiCache;
-  bool theIsLooper;
+  char theNLoops;
 
   void check() const;
 };
