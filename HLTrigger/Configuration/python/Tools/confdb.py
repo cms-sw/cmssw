@@ -64,7 +64,6 @@ class HLTProcess(object):
     "HLT_Mu7_Track7_Jpsi_v*",
 
     # TODO: paths removed from the 2012 menu, for which a recovery should be attempted as soon as that menu is more stabel
-    "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v*",
     "HLT_MET120_HBHENoiseCleaned_v*",
     "HLT_MET200_HBHENoiseCleaned_v*",
     "HLT_MET300_HBHENoiseCleaned_v*",
@@ -880,6 +879,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltCtf3HitL1NonIsoWithMaterialTracks" )
       self.options['modules'].append( "-hltCkf3HitActivityTrackCandidates" )
       self.options['modules'].append( "-hltCtf3HitActivityWithMaterialTracks" )
+      self.options['modules'].append( "-hltActivityCkfTrackCandidatesForGSF" )
       self.options['modules'].append( "-hltMuCkfTrackCandidates" )
       self.options['modules'].append( "-hltMuCtfTracks" )
       self.options['modules'].append( "-hltESRegionalEgammaRecHit" )
