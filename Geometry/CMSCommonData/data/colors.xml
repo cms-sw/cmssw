@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
-
-<SpecParSection label="colors.xml">
+  <SpecParSection label="colors.xml">
     <SpecPar name="color-0">
       <PartSelector path="//OCMS"/>
       <PartSelector path="//BEAM"/>
@@ -898,7 +897,5 @@
       <PartSelector path="//PXHD"/>
       <Parameter name="G4Color" value="1:0:1:1:1:0"/>
     </SpecPar>
-</SpecParSection>
-
-
+  </SpecParSection>
 </DDDefinition>

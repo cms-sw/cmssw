@@ -1,9 +1,7 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
   <SpecParSection label="csc_reco.xml">
-
-    <SpecPar name="METree">      
+    <SpecPar name="METree">
       <PartSelector path="//ME11AlumFrame"/>
       <PartSelector path="//ME12AlumFrame"/>
       <PartSelector path="//ME13AlumFrame"/>
@@ -14,5 +12,5 @@ xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Sche
       <PartSelector path="//ME41AlumFrame"/>
       <Parameter name="MuStructure" value="MuonEndcapCSC"/>
     </SpecPar>
- </SpecParSection>
+  </SpecParSection>
 </DDDefinition>
