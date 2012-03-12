@@ -149,21 +149,14 @@ void MTVHistoProducerAlgoForTracker::setUpVectors(){
   std::vector<double> vertposintervalsv;
   std::vector<double> zposintervalsv;
   std::vector<double> vertcountintervalsv;
-<<<<<<< MTVHistoProducerAlgoForTracker.cc
+
   std::vector<int>    totSIMveta,totASSveta,totASS2veta,totloopveta,totmisidveta,totASS2vetaSig,totRECveta;
   std::vector<int>    totSIMvpT,totASSvpT,totASS2vpT,totRECvpT,totloopvpT,totmisidvpT;
   std::vector<int>    totSIMv_hit,totASSv_hit,totASS2v_hit,totRECv_hit,totloopv_hit,totmisidv_hit;
   std::vector<int>    totSIMv_phi,totASSv_phi,totASS2v_phi,totRECv_phi,totloopv_phi,totmisidv_phi;
   std::vector<int>    totSIMv_dxy,totASSv_dxy,totASS2v_dxy,totRECv_dxy,totloopv_dxy,totmisidv_dxy;
   std::vector<int>    totSIMv_dz,totASSv_dz,totASS2v_dz,totRECv_dz,totloopv_dz,totmisidv_dz;
-=======
-  std::vector<int>    totSIMveta,totASSveta,totASS2veta,totloopveta,totmisidveta,totASS2vetaSig,totRECveta;
-  std::vector<int>    totSIMvpT,totASSvpT,totASS2vpT,totRECvpT;
-  std::vector<int>    totSIMv_hit,totASSv_hit,totASS2v_hit,totRECv_hit;
-  std::vector<int>    totSIMv_phi,totASSv_phi,totASS2v_phi,totRECv_phi;
-  std::vector<int>    totSIMv_dxy,totASSv_dxy,totASS2v_dxy,totRECv_dxy;
-  std::vector<int>    totSIMv_dz,totASSv_dz,totASS2v_dz,totRECv_dz;
->>>>>>> 1.14
+
   std::vector<int>    totSIMv_vertpos,totASSv_vertpos,totSIMv_zpos,totASSv_zpos; 
   std::vector<int>    totSIMv_vertcount,totASSv_vertcount,totRECv_vertcount,totASS2v_vertcount; 
   std::vector<int>    totRECv_algo;
@@ -403,45 +396,45 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
   h_recoeta.push_back( dbe_->book1D("num_reco_eta","N of reco track vs eta",nintEta,minEta,maxEta) );
   h_assoceta.push_back( dbe_->book1D("num_assoc(simToReco)_eta","N of associated tracks (simToReco) vs eta",nintEta,minEta,maxEta) );
   h_assoc2eta.push_back( dbe_->book1D("num_assoc(recoToSim)_eta","N of associated (recoToSim) tracks vs eta",nintEta,minEta,maxEta) );
-  h_loopereta.push_back( dbe_->book1D("num_looper_eta","N of associated (recoToSim) looper tracks vs eta",nintEta,minEta,maxEta) );
-  h_misideta.push_back( dbe_->book1D("num_misid_eta","N of associated (recoToSim) charge misIDed tracks vs eta",nintEta,minEta,maxEta) );
+  h_loopereta.push_back( dbe_->book1D("num_duplicate_eta","N of associated (recoToSim) looper tracks vs eta",nintEta,minEta,maxEta) );
+  h_misideta.push_back( dbe_->book1D("num_chargemisid_eta","N of associated (recoToSim) charge misIDed tracks vs eta",nintEta,minEta,maxEta) );
   h_simuleta.push_back( dbe_->book1D("num_simul_eta","N of simulated tracks vs eta",nintEta,minEta,maxEta) );
-  h_loopereta.push_back( dbe_->book1D("num_looper_eta","N of associated (recoToSim) looper tracks vs eta",nintEta,minEta,maxEta) );
-  h_misideta.push_back( dbe_->book1D("num_misid_eta","N of associated (recoToSim) charge misIDed tracks vs eta",nintEta,minEta,maxEta) );
+  h_loopereta.push_back( dbe_->book1D("num_duplicate_eta","N of associated (recoToSim) looper tracks vs eta",nintEta,minEta,maxEta) );
+  h_misideta.push_back( dbe_->book1D("num_chargemisid_eta","N of associated (recoToSim) charge misIDed tracks vs eta",nintEta,minEta,maxEta) );
   h_recopT.push_back( dbe_->book1D("num_reco_pT","N of reco track vs pT",nintPt,minPt,maxPt) );
   h_assocpT.push_back( dbe_->book1D("num_assoc(simToReco)_pT","N of associated tracks (simToReco) vs pT",nintPt,minPt,maxPt) );
   h_assoc2pT.push_back( dbe_->book1D("num_assoc(recoToSim)_pT","N of associated (recoToSim) tracks vs pT",nintPt,minPt,maxPt) );
   h_simulpT.push_back( dbe_->book1D("num_simul_pT","N of simulated tracks vs pT",nintPt,minPt,maxPt) );
-  h_looperpT.push_back( dbe_->book1D("num_looper_pT","N of associated (recoToSim) looper tracks vs pT",nintPt,minPt,maxPt) );
-  h_misidpT.push_back( dbe_->book1D("num_misid_pT","N of associated (recoToSim) charge misIDed tracks vs pT",nintPt,minPt,maxPt) );
+  h_looperpT.push_back( dbe_->book1D("num_duplicate_pT","N of associated (recoToSim) looper tracks vs pT",nintPt,minPt,maxPt) );
+  h_misidpT.push_back( dbe_->book1D("num_chargemisid_pT","N of associated (recoToSim) charge misIDed tracks vs pT",nintPt,minPt,maxPt) );
   //
   h_recohit.push_back( dbe_->book1D("num_reco_hit","N of reco track vs hit",nintHit,minHit,maxHit) );
   h_assochit.push_back( dbe_->book1D("num_assoc(simToReco)_hit","N of associated tracks (simToReco) vs hit",nintHit,minHit,maxHit) );
   h_assoc2hit.push_back( dbe_->book1D("num_assoc(recoToSim)_hit","N of associated (recoToSim) tracks vs hit",nintHit,minHit,maxHit) );
   h_simulhit.push_back( dbe_->book1D("num_simul_hit","N of simulated tracks vs hit",nintHit,minHit,maxHit) );
-  h_looperhit.push_back( dbe_->book1D("num_looper_hit","N of associated (recoToSim) looper tracks vs hit",nintHit,minHit,maxHit) );
-  h_misidhit.push_back( dbe_->book1D("num_misid_hit","N of associated (recoToSim) charge misIDed tracks vs hit",nintHit,minHit,maxHit) );
+  h_looperhit.push_back( dbe_->book1D("num_duplicate_hit","N of associated (recoToSim) looper tracks vs hit",nintHit,minHit,maxHit) );
+  h_misidhit.push_back( dbe_->book1D("num_chargemisid_hit","N of associated (recoToSim) charge misIDed tracks vs hit",nintHit,minHit,maxHit) );
   //
   h_recophi.push_back( dbe_->book1D("num_reco_phi","N of reco track vs phi",nintPhi,minPhi,maxPhi) );
   h_assocphi.push_back( dbe_->book1D("num_assoc(simToReco)_phi","N of associated tracks (simToReco) vs phi",nintPhi,minPhi,maxPhi) );
   h_assoc2phi.push_back( dbe_->book1D("num_assoc(recoToSim)_phi","N of associated (recoToSim) tracks vs phi",nintPhi,minPhi,maxPhi) );
   h_simulphi.push_back( dbe_->book1D("num_simul_phi","N of simulated tracks vs phi",nintPhi,minPhi,maxPhi) );
-  h_looperphi.push_back( dbe_->book1D("num_looper_phi","N of associated (recoToSim) looper tracks vs phi",nintPhi,minPhi,maxPhi) );
-  h_misidphi.push_back( dbe_->book1D("num_misid_phi","N of associated (recoToSim) charge misIDed tracks vs phi",nintPhi,minPhi,maxPhi) );
+  h_looperphi.push_back( dbe_->book1D("num_duplicate_phi","N of associated (recoToSim) looper tracks vs phi",nintPhi,minPhi,maxPhi) );
+  h_misidphi.push_back( dbe_->book1D("num_chargemisid_phi","N of associated (recoToSim) charge misIDed tracks vs phi",nintPhi,minPhi,maxPhi) );
   
   h_recodxy.push_back( dbe_->book1D("num_reco_dxy","N of reco track vs dxy",nintDxy,minDxy,maxDxy) );
   h_assocdxy.push_back( dbe_->book1D("num_assoc(simToReco)_dxy","N of associated tracks (simToReco) vs dxy",nintDxy,minDxy,maxDxy) );
   h_assoc2dxy.push_back( dbe_->book1D("num_assoc(recoToSim)_dxy","N of associated (recoToSim) tracks vs dxy",nintDxy,minDxy,maxDxy) );
   h_simuldxy.push_back( dbe_->book1D("num_simul_dxy","N of simulated tracks vs dxy",nintDxy,minDxy,maxDxy) );
-  h_looperdxy.push_back( dbe_->book1D("num_looper_dxy","N of associated (recoToSim) looper tracks vs dxy",nintDxy,minDxy,maxDxy) );
-  h_misiddxy.push_back( dbe_->book1D("num_misid_dxy","N of associated (recoToSim) charge misIDed tracks vs dxy",nintDxy,minDxy,maxDxy) );
+  h_looperdxy.push_back( dbe_->book1D("num_duplicate_dxy","N of associated (recoToSim) looper tracks vs dxy",nintDxy,minDxy,maxDxy) );
+  h_misiddxy.push_back( dbe_->book1D("num_chargemisid_dxy","N of associated (recoToSim) charge misIDed tracks vs dxy",nintDxy,minDxy,maxDxy) );
   
   h_recodz.push_back( dbe_->book1D("num_reco_dz","N of reco track vs dz",nintDz,minDz,maxDz) );
   h_assocdz.push_back( dbe_->book1D("num_assoc(simToReco)_dz","N of associated tracks (simToReco) vs dz",nintDz,minDz,maxDz) );
   h_assoc2dz.push_back( dbe_->book1D("num_assoc(recoToSim)_dz","N of associated (recoToSim) tracks vs dz",nintDz,minDz,maxDz) );
   h_simuldz.push_back( dbe_->book1D("num_simul_dz","N of simulated tracks vs dz",nintDz,minDz,maxDz) );
-  h_looperdz.push_back( dbe_->book1D("num_looper_dz","N of associated (recoToSim) looper tracks vs dz",nintDz,minDz,maxDz) );
-  h_misiddz.push_back( dbe_->book1D("num_misid_dz","N of associated (recoToSim) charge misIDed tracks vs dz",nintDz,minDz,maxDz) );
+  h_looperdz.push_back( dbe_->book1D("num_duplicate_dz","N of associated (recoToSim) looper tracks vs dz",nintDz,minDz,maxDz) );
+  h_misiddz.push_back( dbe_->book1D("num_chargemisid_dz","N of associated (recoToSim) charge misIDed tracks vs dz",nintDz,minDz,maxDz) );
   
   h_assocvertpos.push_back( dbe_->book1D("num_assoc(simToReco)_vertpos",
 					 "N of associated tracks (simToReco) vs transverse vert position",	 
@@ -674,23 +667,23 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistosForStandaloneRunning(){
   h_effic_vertz_fwdpos.push_back( dbe_->book1D("effic_vertz_fwdpos","efficiency in endcap(+) vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
   h_effic_vertz_fwdneg.push_back( dbe_->book1D("effic_vertz_fwdneg","efficiency in endcap(-) vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
 
-  h_looprate.push_back( dbe_->book1D("looprate","loop rate vs #eta",nintEta,minEta,maxEta) );
-  h_misidrate.push_back( dbe_->book1D("misidrate","misid rate vs #eta",nintEta,minEta,maxEta) );
+  h_looprate.push_back( dbe_->book1D("duplicatesRate","loop rate vs #eta",nintEta,minEta,maxEta) );
+  h_misidrate.push_back( dbe_->book1D("chargeMisIdRate","misid rate vs #eta",nintEta,minEta,maxEta) );
   h_fakerate.push_back( dbe_->book1D("fakerate","fake rate vs #eta",nintEta,minEta,maxEta) );
-  h_loopratepT.push_back( dbe_->book1D("loopratePt","loop rate vs pT",nintPt,minPt,maxPt) );
-  h_misidratepT.push_back( dbe_->book1D("misidratePt","misid rate vs pT",nintPt,minPt,maxPt) );
+  h_loopratepT.push_back( dbe_->book1D("duplicatesRate_Pt","loop rate vs pT",nintPt,minPt,maxPt) );
+  h_misidratepT.push_back( dbe_->book1D("chargeMisIdRate_Pt","misid rate vs pT",nintPt,minPt,maxPt) );
   h_fakeratePt.push_back( dbe_->book1D("fakeratePt","fake rate vs pT",nintPt,minPt,maxPt) );
-  h_loopratehit.push_back( dbe_->book1D("loopratehit","loop rate vs hit",nintHit,minHit,maxHit) );
-  h_misidratehit.push_back( dbe_->book1D("misidratehit","misid rate vs hit",nintHit,minHit,maxHit) );
+  h_loopratehit.push_back( dbe_->book1D("duplicatesRate_hit","loop rate vs hit",nintHit,minHit,maxHit) );
+  h_misidratehit.push_back( dbe_->book1D("chargeMisIdRate_hit","misid rate vs hit",nintHit,minHit,maxHit) );
   h_fake_vs_hit.push_back( dbe_->book1D("fakerate_vs_hit","fake rate vs hit",nintHit,minHit,maxHit) );
-  h_loopratephi.push_back( dbe_->book1D("loopratephi","loop rate vs #phi",nintPhi,minPhi,maxPhi) );
-  h_misidratephi.push_back( dbe_->book1D("misidratephi","misid rate vs #phi",nintPhi,minPhi,maxPhi) );
+  h_loopratephi.push_back( dbe_->book1D("duplicatesRate_phi","loop rate vs #phi",nintPhi,minPhi,maxPhi) );
+  h_misidratephi.push_back( dbe_->book1D("chargeMisIdRate_phi","misid rate vs #phi",nintPhi,minPhi,maxPhi) );
   h_fake_vs_phi.push_back( dbe_->book1D("fakerate_vs_phi","fake vs #phi",nintPhi,minPhi,maxPhi) );
-  h_loopratedxy.push_back( dbe_->book1D("loopratedxy","loop rate vs dxy",nintDxy,minDxy,maxDxy) );
-  h_misidratedxy.push_back( dbe_->book1D("misidratedxy","misid rate vs dxy",nintDxy,minDxy,maxDxy) );
+  h_loopratedxy.push_back( dbe_->book1D("duplicatesRate_dxy","loop rate vs dxy",nintDxy,minDxy,maxDxy) );
+  h_misidratedxy.push_back( dbe_->book1D("chargeMisIdRate_dxy","misid rate vs dxy",nintDxy,minDxy,maxDxy) );
   h_fake_vs_dxy.push_back( dbe_->book1D("fakerate_vs_dxy","fake rate vs dxy",nintDxy,minDxy,maxDxy) );
-  h_loopratedz.push_back( dbe_->book1D("loopratedz","loop rate vs dz",nintDz,minDz,maxDz) );
-  h_misidratedz.push_back( dbe_->book1D("misidratedz","misid rate vs dz",nintDz,minDz,maxDz) );
+  h_loopratedz.push_back( dbe_->book1D("duplicatesRate_dz","loop rate vs dz",nintDz,minDz,maxDz) );
+  h_misidratedz.push_back( dbe_->book1D("chargeMisIdRate_dz","misid rate vs dz",nintDz,minDz,maxDz) );
   h_fake_vs_dz.push_back( dbe_->book1D("fakerate_vs_dz","fake vs dz",nintDz,minDz,maxDz) );
   h_fakerate_vertcount_entire.push_back( dbe_->book1D("fakerate_vertcount_entire","fake rate vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
   h_fakerate_vertcount_barrel.push_back( dbe_->book1D("fakerate_vertcount_barrel","fake rate in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
