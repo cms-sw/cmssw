@@ -296,7 +296,7 @@ HLT_Photon36_R9Id85_Photon22_R9Id85_v*                                          
 HLT_Photon26_Photon18_v*                                                                        #sr126475
 HLT_Photon36_Photon22_v*                                                                        #sr126475
 #HLT_Photon20_R9Id_Photon18_R9Id_v*                                                             #sr126475 - but now dropped as per AB
-HLT_Photon26_CaloIdXL_IsoXL_Photon18_v*                                                         #sr126475
+#HLT_Photon26_CaloIdXL_IsoXL_Photon18_v*                                                        #sr126475 - but now dropped as per AB
 HLT_Photon30_CaloIdVL_v*                                                                        #sr126475
 HLT_Photon50_CaloIdVL_v*                                                                        #sr126475
 HLT_Photon75_CaloIdVL_v*                                                                        #sr126475
