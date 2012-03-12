@@ -4,7 +4,13 @@ import FWCore.ParameterSet.Config as cms
 # Now beta function vertex smearing 
 #from FastSimulation.Event.Early10TeVCollisionVertexGenerator_cfi import *
 #from FastSimulation.Event.Realistic7TeV2011CollisionVertexGenerator_cfi import *
-from FastSimulation.Event.Realistic8TeVCollisionVertexGenerator_cfi import *
+from FastSimulation.Configuration.CommonInputs_cff import *
+if(fastsimPrimaryVertex=='Realistic8TeV'):
+    from FastSimulation.Event.Realistic8TeVCollisionVertexGenerator_cfi import *
+else:
+    from FastSimulation.Event.Realistic7TeV2011CollisionVertexGenerator_cfi import *
+    
+
 from FastSimulation.Event.ParticleFilter_cfi import *
 from FastSimulation.MaterialEffects.MaterialEffects_cfi import *
 from FastSimulation.TrajectoryManager.ActivateDecays_cfi import *
