@@ -1,8 +1,7 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
-
-<SpecParSection label="ecal" eval="true">
- <SpecPar name="ecal_eb">
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <SpecParSection label="ecal" eval="true">
+  <SpecPar name="ecal_eb">
    <PartSelector path="//EBRY_1_E1AL"/>
    <PartSelector path="//EBRY_2_E1AL"/>
    <PartSelector path="//EBRY_3_E1AL"/>
@@ -174,15 +173,14 @@
    <PartSelector path="//EBRY_169_EQAL"/>
    <PartSelector path="//EBRY_170_EQAL"/>
    <Parameter name="SensitiveDetector" value="EcalSensitiveDetector" eval="false"/>
-   <Parameter name="ReadOutName" value="EcalHitsEB" eval="false" />
-   <Parameter name="nxtalEta"     value="85.0"/>
-   <Parameter name="PhiBaskets"     value="18.0"/>
-   <Parameter name="nxtalPhi"     value="360.0"/>
-   <Parameter name="EtaBaskets"     value="25.0"/>
-   <Parameter name="EtaBaskets"     value="45.0"/>
-   <Parameter name="EtaBaskets"     value="65.0"/>
-   <Parameter name="EtaBaskets"     value="85.0"/>
- </SpecPar>  
-</SpecParSection>
-
+   <Parameter name="ReadOutName" value="EcalHitsEB" eval="false"/>
+   <Parameter name="nxtalEta" value="85.0"/>
+   <Parameter name="PhiBaskets" value="18.0"/>
+   <Parameter name="nxtalPhi" value="360.0"/>
+   <Parameter name="EtaBaskets" value="25.0"/>
+   <Parameter name="EtaBaskets" value="45.0"/>
+   <Parameter name="EtaBaskets" value="65.0"/>
+   <Parameter name="EtaBaskets" value="85.0"/>
+  </SpecPar>
+ </SpecParSection>
 </DDDefinition>

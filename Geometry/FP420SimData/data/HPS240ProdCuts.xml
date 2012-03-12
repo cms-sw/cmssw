@@ -1,81 +1,71 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
   <SpecParSection label="regions.xml" eval="true">
-
- <SpecPar name="hps240_beam_pipe_steel">
-   <PartSelector path="//HPS240SBST"/>
-   <PartSelector path="//HPS240SBSTs"/>
-   <PartSelector path="//HPS240SBSTG"/>
-   <PartSelector path="//HPS240SBSTGs"/>
-   <PartSelector path="//HPS240FlIn"/>
-   <PartSelector path="//HPS240FlOut"/>
-   <PartSelector path="//HPS240EdgeOut"/>
-   <PartSelector path="//HPS240FlOutIn"/>
-   <PartSelector path="//HPS240Bellows"/>
-   <PartSelector path="//HPS240EdgeLOut3"/>
-   <PartSelector path="//HPS240EdgeROut3"/>
-   <PartSelector path="//HPS240EdgeL2Out3"/>
-   <PartSelector path="//HPS240EdgeR2Out3"/>
+    <SpecPar name="hps240_beam_pipe_steel">
+      <PartSelector path="//HPS240SBST"/>
+      <PartSelector path="//HPS240SBSTs"/>
+      <PartSelector path="//HPS240SBSTG"/>
+      <PartSelector path="//HPS240SBSTGs"/>
+      <PartSelector path="//HPS240FlIn"/>
+      <PartSelector path="//HPS240FlOut"/>
+      <PartSelector path="//HPS240EdgeOut"/>
+      <PartSelector path="//HPS240FlOutIn"/>
+      <PartSelector path="//HPS240Bellows"/>
+      <PartSelector path="//HPS240EdgeLOut3"/>
+      <PartSelector path="//HPS240EdgeROut3"/>
+      <PartSelector path="//HPS240EdgeL2Out3"/>
+      <PartSelector path="//HPS240EdgeR2Out3"/>
       <Parameter name="CMSCutsRegion" value="BeamPipeRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="10000*mm"/>
       <Parameter name="ProdCutsForPositrons" value="10000*mm"/>
       <Parameter name="ProdCutsForGamma" value="10000*mm"/>
- </SpecPar>  
-
- <SpecPar name="hps240_gastof">
-   <PartSelector path="//HPS240GASTOFALL"/>
-   <PartSelector path="//HPS240GASTOF"/>
+    </SpecPar>
+    <SpecPar name="hps240_gastof">
+      <PartSelector path="//HPS240GASTOFALL"/>
+      <PartSelector path="//HPS240GASTOF"/>
       <Parameter name="CMSCutsRegion" value="SidetRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="1000*mm"/>
       <Parameter name="ProdCutsForPositrons" value="1000*mm"/>
       <Parameter name="ProdCutsForGamma" value="1000*mm"/>
- </SpecPar>  
-
-
- <SpecPar name="hps240_silicon_station">
-   <PartSelector path="//HPS240SISTATION"/>
-   <PartSelector path="//HPS240SIPLANE"/>
-   <PartSelector path="//HPS240SENSOR1"/>
-   <PartSelector path="//HPS240SENSOR2"/>
-   <PartSelector path="//HPS240CERAMOUT"/>
-   <PartSelector path="//HPS240CERAMOUT0"/>
-   <PartSelector path="//HPS240TurnPlate"/>
-   <PartSelector path="//HPS240Turn0Plate"/>
-   <PartSelector path="//HPS240Flexes"/>
-   <PartSelector path="//HPS240MccCard"/>
-   <PartSelector path="//HPS240BOUNDDET"/>
+    </SpecPar>
+    <SpecPar name="hps240_silicon_station">
+      <PartSelector path="//HPS240SISTATION"/>
+      <PartSelector path="//HPS240SIPLANE"/>
+      <PartSelector path="//HPS240SENSOR1"/>
+      <PartSelector path="//HPS240SENSOR2"/>
+      <PartSelector path="//HPS240CERAMOUT"/>
+      <PartSelector path="//HPS240CERAMOUT0"/>
+      <PartSelector path="//HPS240TurnPlate"/>
+      <PartSelector path="//HPS240Turn0Plate"/>
+      <PartSelector path="//HPS240Flexes"/>
+      <PartSelector path="//HPS240MccCard"/>
+      <PartSelector path="//HPS240BOUNDDET"/>
       <Parameter name="CMSCutsRegion" value="SidetRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="1000*mm"/>
       <Parameter name="ProdCutsForPositrons" value="1000*mm"/>
       <Parameter name="ProdCutsForGamma" value="1000*mm"/>
- </SpecPar>  
-
-
-<SpecPar name="hps240_silicon_detl">
-   <PartSelector path="//HPS240SIDETL"/>
+    </SpecPar>
+    <SpecPar name="hps240_silicon_detl">
+      <PartSelector path="//HPS240SIDETL"/>
       <Parameter name="CMSCutsRegion" value="SidetRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="100*mm"/>
       <Parameter name="ProdCutsForPositrons" value="100*mm"/>
       <Parameter name="ProdCutsForGamma" value="100*mm"/>
- </SpecPar>  
- <SpecPar name="hps240_silicon_detr">
-   <PartSelector path="//HPS240SIDETR"/>
+    </SpecPar>
+    <SpecPar name="hps240_silicon_detr">
+      <PartSelector path="//HPS240SIDETR"/>
       <Parameter name="CMSCutsRegion" value="SidetRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="100*mm"/>
       <Parameter name="ProdCutsForPositrons" value="100*mm"/>
       <Parameter name="ProdCutsForGamma" value="100*mm"/>
- </SpecPar>  
- <SpecPar name="hps240_ceramic">
-   <PartSelector path="//HPS240CERAMDET"/>
-   <PartSelector path="//HPS240SIELECTR"/>
+    </SpecPar>
+    <SpecPar name="hps240_ceramic">
+      <PartSelector path="//HPS240CERAMDET"/>
+      <PartSelector path="//HPS240SIELECTR"/>
       <Parameter name="CMSCutsRegion" value="SidetRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="10000*mm"/>
       <Parameter name="ProdCutsForPositrons" value="10000*mm"/>
       <Parameter name="ProdCutsForGamma" value="10000*mm"/>
- </SpecPar>  
-
-
+    </SpecPar>
   </SpecParSection>
 </DDDefinition>
-
-

@@ -1,16 +1,11 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="http://www.cern.ch/cms/DDL http://cmsdoc.cern.ch/cms/software/ddd/DDLSchema/DDLSchema.xsd">
-
-<SpecParSection label="fp420sens" eval="true">
-
- <SpecPar name="fp420_silicon_det">
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <SpecParSection label="fp420sens" eval="true">
+  <SpecPar name="fp420_silicon_det">
    <PartSelector path="//SIDETL"/>
    <PartSelector path="//SIDETR"/>
    <Parameter name="SensitiveDetector" value="FP420SensitiveDetector" eval="false"/>
    <Parameter name="ReadOutName" value="FP420SI" eval="false"/>
- </SpecPar>  
-
-</SpecParSection>
-
+  </SpecPar>
+ </SpecParSection>
 </DDDefinition>

@@ -1,14 +1,12 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
-
-<SpecParSection label="es" eval="true">
- <SpecPar name="ecal_sf">
+ <SpecParSection label="es" eval="true">
+  <SpecPar name="ecal_sf">
    <PartSelector path="//SFSX"/>
    <PartSelector path="//SFSY"/>
    <Parameter name="SensitiveDetector" value="EcalSensitiveDetector" eval="false"/>
-   <Parameter name="ReadOutName"    value="EcalHitsES" eval="false"/>
-   <Parameter name="EnergyWeight"   value="0.0"/>
- </SpecPar> 
-</SpecParSection>
-
+   <Parameter name="ReadOutName" value="EcalHitsES" eval="false"/>
+   <Parameter name="EnergyWeight" value="0.0"/>
+  </SpecPar>
+ </SpecParSection>
 </DDDefinition>

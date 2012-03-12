@@ -1,81 +1,80 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
-
-<MaterialSection label="TBHcal02Materials.xml">
+ <MaterialSection label="TBHcal02Materials.xml">
   <CompositeMaterial name="Air" density="1.214*mg/cm3" symbol=" " method="mixture by weight">
-    <MaterialFraction fraction="0.7494">
-      <rMaterial name="TBHcal02Materials:Nitrogen"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.2369">
-      <rMaterial name="TBHcal02Materials:Oxygen"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.0129">
-      <rMaterial name="TBHcal02Materials:Argon"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.0008">
-      <rMaterial name="TBHcal02Materials:Hydrogen"/>
-    </MaterialFraction>
+   <MaterialFraction fraction="0.7494">
+    <rMaterial name="TBHcal02Materials:Nitrogen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.2369">
+    <rMaterial name="TBHcal02Materials:Oxygen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0129">
+    <rMaterial name="TBHcal02Materials:Argon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0008">
+    <rMaterial name="TBHcal02Materials:Hydrogen"/>
+   </MaterialFraction>
   </CompositeMaterial>
   <ElementaryMaterial name="Aluminium" density="2.7*g/cm3" symbol="Al" atomicWeight="26.98*g/mole" atomicNumber="13"/>
   <CompositeMaterial name="Brass" density="8.53*g/cm3" symbol=" " method="mixture by weight">
-    <MaterialFraction fraction="0.7">
-      <rMaterial name="TBHcal02Materials:Copper"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.3">
-      <rMaterial name="TBHcal02Materials:Zinc"/>
-    </MaterialFraction>
+   <MaterialFraction fraction="0.7">
+    <rMaterial name="TBHcal02Materials:Copper"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.3">
+    <rMaterial name="TBHcal02Materials:Zinc"/>
+   </MaterialFraction>
   </CompositeMaterial>
   <CompositeMaterial name="E_PbWO4" density="8.28*g/cm3" symbol=" " method="mixture by weight">
-    <MaterialFraction fraction="0.45532661">
-      <rMaterial name="TBHcal02Materials:Lead"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.40403397">
-      <rMaterial name="TBHcal02Materials:Tungsten"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.14063942">
-      <rMaterial name="TBHcal02Materials:Oxygen"/>
-    </MaterialFraction>
+   <MaterialFraction fraction="0.45532661">
+    <rMaterial name="TBHcal02Materials:Lead"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.40403397">
+    <rMaterial name="TBHcal02Materials:Tungsten"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.14063942">
+    <rMaterial name="TBHcal02Materials:Oxygen"/>
+   </MaterialFraction>
   </CompositeMaterial>
   <ElementaryMaterial name="Iron" density="7.87*g/cm3" symbol="Fe" atomicWeight="55.85*g/mole" atomicNumber="26"/>
   <CompositeMaterial name="Plexiglas" density="1.18*g/cm3" symbol=" " method="mixture by weight">
-    <MaterialFraction fraction="0.080541353">
-      <rMaterial name="TBHcal02Materials:Hydrogen"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.59985105">
-      <rMaterial name="TBHcal02Materials:Carbon"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.31960759">
-      <rMaterial name="TBHcal02Materials:Oxygen"/>
-    </MaterialFraction>
+   <MaterialFraction fraction="0.080541353">
+    <rMaterial name="TBHcal02Materials:Hydrogen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.59985105">
+    <rMaterial name="TBHcal02Materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.31960759">
+    <rMaterial name="TBHcal02Materials:Oxygen"/>
+   </MaterialFraction>
   </CompositeMaterial>
   <CompositeMaterial name="Polyethylene" density="950*mg/cm3" symbol=" " method="mixture by weight">
-    <MaterialFraction fraction="0.85628451">
-      <rMaterial name="TBHcal02Materials:Carbon"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.14371549">
-      <rMaterial name="TBHcal02Materials:Hydrogen"/>
-    </MaterialFraction>
+   <MaterialFraction fraction="0.85628451">
+    <rMaterial name="TBHcal02Materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.14371549">
+    <rMaterial name="TBHcal02Materials:Hydrogen"/>
+   </MaterialFraction>
   </CompositeMaterial>
   <CompositeMaterial name="Polystyrene" density="1.032*g/cm3" symbol=" " method="mixture by weight">
-    <MaterialFraction fraction="0.91512109">
-      <rMaterial name="TBHcal02Materials:Carbon"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.084878906">
-      <rMaterial name="TBHcal02Materials:Hydrogen"/>
-    </MaterialFraction>
+   <MaterialFraction fraction="0.91512109">
+    <rMaterial name="TBHcal02Materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.084878906">
+    <rMaterial name="TBHcal02Materials:Hydrogen"/>
+   </MaterialFraction>
   </CompositeMaterial>
   <CompositeMaterial name="Scintillator" density="1.032*g/cm3" symbol=" " method="mixture by weight">
-    <MaterialFraction fraction="0.91512109">
-      <rMaterial name="TBHcal02Materials:Carbon"/>
-    </MaterialFraction>
-    <MaterialFraction fraction="0.084878906">
-      <rMaterial name="TBHcal02Materials:Hydrogen"/>
-    </MaterialFraction>
+   <MaterialFraction fraction="0.91512109">
+    <rMaterial name="TBHcal02Materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.084878906">
+    <rMaterial name="TBHcal02Materials:Hydrogen"/>
+   </MaterialFraction>
   </CompositeMaterial>
   <ElementaryMaterial name="Vacuum" density="1e-22*mg/cm3" symbol=" " atomicWeight="1.01*g/mole" atomicNumber="1"/>
- <ElementaryMaterial name="Al support" density="254*mg/cm3" symbol=" " atomicWeight="26.98*g/mole" atomicNumber="13"/>
+  <ElementaryMaterial name="Al support" density="254*mg/cm3" symbol=" " atomicWeight="26.98*g/mole" atomicNumber="13"/>
   <ElementaryMaterial name="Al-MMC" density="1.84*g/cm3" symbol=" " atomicWeight="26.98*g/mole" atomicNumber="13"/>
-  <ElementaryMaterial name="Aluminium" density="2.7*g/cm3" symbol=" " atomicWeight="26.98*g/mole" atomicNumber="13"/>
+  <!-- Duplicate definition of ElementaryMaterial name="Aluminium" density="2.7*g/cm3" symbol=" " atomicWeight="26.98*g/mole" atomicNumber="13" -->
   <ElementaryMaterial name="Aluminium Pix_b" density="2.7*g/cm3" symbol=" " atomicWeight="26.98*g/mole" atomicNumber="13"/>
   <ElementaryMaterial name="Antimony" density="6.679*g/cm3" symbol=" " atomicWeight="121.75*g/mole" atomicNumber="51"/>
   <ElementaryMaterial name="Argon" density="1.639*mg/cm3" symbol=" " atomicWeight="39.948*g/mole" atomicNumber="18"/>
@@ -86,7 +85,7 @@
   <ElementaryMaterial name="Bor 10" density="2.34*g/cm3" symbol=" " atomicWeight="10*g/mole" atomicNumber="5"/>
   <ElementaryMaterial name="Bor 11" density="2.34*g/cm3" symbol=" " atomicWeight="11*g/mole" atomicNumber="5"/>
   <ElementaryMaterial name="Bromine" density="3.11*g/cm3" symbol=" " atomicWeight="79.904*g/mole" atomicNumber="35"/>
- <ElementaryMaterial name="Cadmium" density="8.63*g/cm3" symbol=" " atomicWeight="112.41*g/mole" atomicNumber="48"/>
+  <ElementaryMaterial name="Cadmium" density="8.63*g/cm3" symbol=" " atomicWeight="112.41*g/mole" atomicNumber="48"/>
   <ElementaryMaterial name="Calcium" density="1.55*g/cm3" symbol=" " atomicWeight="40.078*g/mole" atomicNumber="20"/>
   <ElementaryMaterial name="Carbon" density="2.265*g/cm3" symbol=" " atomicWeight="12.011*g/mole" atomicNumber="6"/>
   <ElementaryMaterial name="Cerium" density="6.637*g/cm3" symbol=" " atomicWeight="140.12*g/mole" atomicNumber="58"/>
@@ -114,7 +113,7 @@
   <ElementaryMaterial name="Hydrogen" density="70.8*mg/cm3" symbol=" " atomicWeight="1.00794*g/mole" atomicNumber="1"/>
   <ElementaryMaterial name="Indium" density="7.3*g/cm3" symbol=" " atomicWeight="114.82*g/mole" atomicNumber="49"/>
   <ElementaryMaterial name="Iodine" density="7.3*g/cm3" symbol=" " atomicWeight="114.82*g/mole" atomicNumber="53"/>
-  <ElementaryMaterial name="Iron" density="7.87*g/cm3" symbol=" " atomicWeight="55.85*g/mole" atomicNumber="26"/>
+  <!-- Duplicate definition of ElementaryMaterial name="Iron" density="7.87*g/cm3" symbol=" " atomicWeight="55.85*g/mole" atomicNumber="26" -->
   <ElementaryMaterial name="Krypton" density="2.6*g/cm3" symbol=" " atomicWeight="83.8*g/mole" atomicNumber="36"/>
   <ElementaryMaterial name="Lanthanum" density="6.127*g/cm3" symbol=" " atomicWeight="138.9055*g/mole" atomicNumber="57"/>
   <ElementaryMaterial name="Lead" density="11.35*g/cm3" symbol=" " atomicWeight="207.19*g/mole" atomicNumber="82"/>
@@ -124,7 +123,7 @@
   <ElementaryMaterial name="Liquid Krypton" density="2.39*g/cm3" symbol=" " atomicWeight="83.8*g/mole" atomicNumber="36"/>
   <ElementaryMaterial name="Lithium" density="534*mg/cm3" symbol=" " atomicWeight="6.941*g/mole" atomicNumber="3"/>
   <ElementaryMaterial name="M_Aluminium" density="8.9*g/cm3" symbol=" " atomicWeight="26.98*g/mole" atomicNumber="13"/>
-   <ElementaryMaterial name="M_Copper" density="8.96*g/cm3" symbol=" " atomicWeight="63.546*g/mole" atomicNumber="29"/>
+  <ElementaryMaterial name="M_Copper" density="8.96*g/cm3" symbol=" " atomicWeight="63.546*g/mole" atomicNumber="29"/>
   <ElementaryMaterial name="Magnesium" density="1.735*g/cm3" symbol=" " atomicWeight="24.305*g/mole" atomicNumber="12"/>
   <ElementaryMaterial name="Manganese" density="7.43*g/cm3" symbol=" " atomicWeight="54.938*g/mole" atomicNumber="25"/>
   <ElementaryMaterial name="Mg-MMC" density="1.52*g/cm3" symbol=" " atomicWeight="24.305*g/mole" atomicNumber="12"/>
@@ -190,7 +189,7 @@
   <ElementaryMaterial name="Tungsten" density="19.3*g/cm3" symbol=" " atomicWeight="183.85*g/mole" atomicNumber="74"/>
   <ElementaryMaterial name="Uranium" density="18.95*g/cm3" symbol=" " atomicWeight="238.03*g/mole" atomicNumber="92"/>
   <ElementaryMaterial name="V_Iron" density="7.87*g/cm3" symbol=" " atomicWeight="55.85*g/mole" atomicNumber="26"/>
-  <ElementaryMaterial name="Vacuum" density="1e-13*mg/cm3" symbol=" " atomicWeight="1*g/mole" atomicNumber="1"/>
+  <!-- Duplicate definition of ElementaryMaterial name="Vacuum" density="1e-13*mg/cm3" symbol=" " atomicWeight="1*g/mole" atomicNumber="1" -->
   <ElementaryMaterial name="Vanadium" density="6.1*g/cm3" symbol=" " atomicWeight="50.941*g/mole" atomicNumber="23"/>
   <ElementaryMaterial name="Xenon" density="3.057*g/cm3" symbol=" " atomicWeight="131.29*g/mole" atomicNumber="54"/>
   <ElementaryMaterial name="Yttrium" density="4.456*g/cm3" symbol=" " atomicWeight="88.9059*g/mole" atomicNumber="39"/>
@@ -198,8 +197,5 @@
   <ElementaryMaterial name="Zirconium" density="6.494*g/cm3" symbol=" " atomicWeight="91.22*g/mole" atomicNumber="40"/>
   <ElementaryMaterial name="TIE_Side_Wafer" density=" 2.33*g/cm3" symbol=" " atomicWeight="28.09*g/mole" atomicNumber="14"/>
   <ElementaryMaterial name="TIE_Wafer" density=" 2.33*g/cm3" symbol=" " atomicWeight="28.09*g/mole" atomicNumber="14"/>
-
-</MaterialSection>
-
-
+ </MaterialSection>
 </DDDefinition>
