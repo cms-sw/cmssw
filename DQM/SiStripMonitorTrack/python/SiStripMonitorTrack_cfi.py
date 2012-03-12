@@ -25,7 +25,7 @@ SiStripMonitorTrack = cms.EDAnalyzer(
     Trend_On      = cms.bool(False),
     HistoFlag_On  = cms.bool(False),
     RingFlag_On   = cms.bool(False),
-    TkHistoMap_On = cms.bool(True),   
+    TkHistoMap_On = cms.bool(False),   
     
     ClusterConditions = cms.PSet( On       = cms.bool(False),
                                   minStoN  = cms.double(0.0),
@@ -36,32 +36,39 @@ SiStripMonitorTrack = cms.EDAnalyzer(
     
     TH1nClustersOn = cms.PSet( Nbinx = cms.int32(100),
                              xmin  = cms.double(-0.5),
-                             xmax  = cms.double(1999.5)
+                             xmax  = cms.double(1999.5),
+                             layerswitchon  = cms.bool(True)
                              ),   
 
     TH1nClustersOff = cms.PSet( Nbinx = cms.int32(200),
                              xmin  = cms.double(-0.5),
-                             xmax  = cms.double(3999.5)
+                             xmax  = cms.double(3999.5),
+                             layerswitchon  = cms.bool(True)
                              ),
     
     TH1ClusterCharge = cms.PSet( Nbinx = cms.int32(100),
                                  xmin  = cms.double(-0.5),
-                                 xmax  = cms.double(999.5)
+                                 xmax  = cms.double(999.5),
+                                 layerswitchon  = cms.bool(True)
                                  ),
     
     TH1ClusterStoN = cms.PSet( Nbinx = cms.int32(100),
                                xmin  = cms.double(-0.5),
-                               xmax  = cms.double(299.5)
+                               xmax  = cms.double(299.5),
+                               layerswitchon  = cms.bool(True)
                                ),
     
     TH1ClusterChargeCorr = cms.PSet( Nbinx = cms.int32(100),
                                      xmin  = cms.double(-0.5),
-                                     xmax  = cms.double(399.5)
+                                     xmax  = cms.double(399.5),
+                                     layerswitchon  = cms.bool(True)
                                      ),
     
     TH1ClusterStoNCorr = cms.PSet( Nbinx = cms.int32(200),
                                    xmin  = cms.double(-0.5),
-                                   xmax  = cms.double(199.5)
+                                   xmax  = cms.double(199.5),
+                                   layerswitchon  = cms.bool(True),
+                                   globalswitchon = cms.bool(True)
                                    ),
     TH1ClusterStoNCorrMod = cms.PSet( Nbinx = cms.int32(50),
                                    xmin  = cms.double(-0.5),
@@ -70,12 +77,14 @@ SiStripMonitorTrack = cms.EDAnalyzer(
     
     TH1ClusterNoise = cms.PSet( Nbinx = cms.int32(20),
                                 xmin  = cms.double(-0.5),
-                                xmax  = cms.double(9.5)
+                                xmax  = cms.double(9.5),
+                                layerswitchon  = cms.bool(True)
                                 ),
     
     TH1ClusterWidth = cms.PSet( Nbinx = cms.int32(20),
                                 xmin  = cms.double(-0.5),
-                                xmax  = cms.double(19.5)
+                                xmax  = cms.double(19.5),
+                                layerswitchon  = cms.bool(True)
                                 ),
     
     TH1ClusterSymmEtaCC = cms.PSet( Nbinx = cms.int32(120),
