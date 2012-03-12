@@ -69,7 +69,7 @@ class HLTProcess(object):
     "HLT_MET300_HBHENoiseCleaned_v*",
     "HLT_MET400_HBHENoiseCleaned_v*",
     "HLT_DiCentralPFJet30_CaloMET50_PFMHT80_HBHENoiseFiltered_dPhi1_v*",
-    "HLT_CentralCaloJet50PFJet80_CaloMET50PFMHT80_HBHENoiseFiltered_dPhi1_v*",
+    "HLT_CentralCaloJet50PFJet80_CaloMET50_PFMHT80_HBHENoiseFiltered_dPhi1_v*",
   
     )
 
