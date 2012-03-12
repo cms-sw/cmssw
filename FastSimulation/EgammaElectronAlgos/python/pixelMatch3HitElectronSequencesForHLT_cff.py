@@ -27,7 +27,7 @@ hltCkf3HitL1SeededTrackCandidates.SplitHits = False
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 
 hltCtf3HitL1SeededWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-hltCtf3HitL1SeededWithMaterialTracks.src = 'hltCkfL1SeededTrackCandidates'
+hltCtf3HitL1SeededWithMaterialTracks.src = 'hltCkf3HitL1SeededTrackCandidates'
 hltCtf3HitL1SeededWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
 hltCtf3HitL1SeededWithMaterialTracks.Fitter = 'KFFittingSmootherForElectrons'
 hltCtf3HitL1SeededWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
@@ -39,66 +39,6 @@ hltCtf3HitL1SeededWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
 HLTPixelMatch3HitElectronL1SeededTrackingSequence = cms.Sequence(hltCkf3HitL1SeededTrackCandidates+
                                                           hltCtf3HitL1SeededWithMaterialTracks+
                                                           cms.SequencePlaceholder("hltPixelMatch3HitElectronsL1Seeded"))
-
-
-#### ISO sequence
-
-# CKFTrackCandidateMaker
-import FastSimulation.Tracking.TrackCandidateProducer_cfi
-
-hltCkf3HitL1IsoTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-hltCkf3HitL1IsoTrackCandidates.SeedProducer = cms.InputTag("hltL1IsoStartUpElectronPixelSeeds")
-hltCkf3HitL1IsoTrackCandidates.TrackProducers = []
-hltCkf3HitL1IsoTrackCandidates.MaxNumberOfCrossedLayers = 999
-hltCkf3HitL1IsoTrackCandidates.SeedCleaning = True
-hltCkf3HitL1IsoTrackCandidates.SplitHits = False
-
-# CTF track fit with material
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
-
-hltCtf3HitL1IsoWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-hltCtf3HitL1IsoWithMaterialTracks.src = 'hltCkfL1IsoTrackCandidates'
-hltCtf3HitL1IsoWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
-hltCtf3HitL1IsoWithMaterialTracks.Fitter = 'KFFittingSmootherForElectrons'
-hltCtf3HitL1IsoWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
-
-
-#hltL1IsoStartUpElectronPixelSeedsSequence = cms.Sequence(globalPixelTracking+
-#                                                         cms.SequencePlaceholder("hltL1IsoStartUpElectronPixelSeeds"))
-
-HLTPixelMatch3HitElectronL1IsoTrackingSequence = cms.Sequence(hltCkf3HitL1IsoTrackCandidates+
-                                                          hltCtf3HitL1IsoWithMaterialTracks+
-                                                          cms.SequencePlaceholder("hltPixelMatch3HitElectronsL1Iso"))
-
-
-#### NON-ISO sequence
-
-# CKFTrackCandidateMaker
-import FastSimulation.Tracking.TrackCandidateProducer_cfi
-
-hltCkf3HitL1NonIsoTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-hltCkf3HitL1NonIsoTrackCandidates.SeedProducer = cms.InputTag("hltL1NonIsoStartUpElectronPixelSeeds")
-hltCkf3HitL1NonIsoTrackCandidates.TrackProducers = []
-hltCkf3HitL1NonIsoTrackCandidates.MaxNumberOfCrossedLayers = 999
-hltCkf3HitL1NonIsoTrackCandidates.SeedCleaning = True
-hltCkf3HitL1NonIsoTrackCandidates.SplitHits = False
-
-# CTF track fit with material
-import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
-
-hltCtf3HitL1NonIsoWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-hltCtf3HitL1NonIsoWithMaterialTracks.src = 'hltCkfL1NonIsoTrackCandidates'
-hltCtf3HitL1NonIsoWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
-hltCtf3HitL1NonIsoWithMaterialTracks.Fitter = 'KFFittingSmootherForElectrons'
-hltCtf3HitL1NonIsoWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
-
-
-#hltL1NonIsoStartUpElectronPixelSeedsSequence = cms.Sequence(globalPixelTracking+
-#                                                         cms.SequencePlaceholder("hltL1NonIsoStartUpElectronPixelSeeds"))
-
-HLTPixelMatch3HitElectronL1IsoTrackingSequence = cms.Sequence(hltCkf3HitL1NonIsoTrackCandidates+
-                                                          hltCtf3HitL1NonIsoWithMaterialTracks+
-                                                          cms.SequencePlaceholder("hltPixelMatch3HitElectronsL1NonIso"))
 
 
 #### Activity sequence
