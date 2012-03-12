@@ -54,16 +54,7 @@ class HLTProcess(object):
     "HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v*",
     "HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v*",
     
-  # TODO: paths not supported by FastSim, but for which a recovery should be attempted
-    "HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*",
-    "HLT_Mu5_Track0_Jpsi_B5Q7_v*",
-    "HLT_Mu5_Track2_Jpsi_v*",
-    "HLT_Mu5_Track3p5_Jpsi_v*",
-    "HLT_Mu5_Track5_Jpsi_v*",
-    "HLT_Mu7_Track5_Jpsi_v*",
-    "HLT_Mu7_Track7_Jpsi_v*",
-
-    # TODO: paths removed from the 2012 menu, for which a recovery should be attempted as soon as that menu is more stabel
+# TODO: paths not supported by FastSim, but for which a recovery should be attempted
     "HLT_MET120_HBHENoiseCleaned_v*",
     "HLT_MET200_HBHENoiseCleaned_v*",
     "HLT_MET300_HBHENoiseCleaned_v*",
@@ -882,6 +873,10 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltActivityCkfTrackCandidatesForGSF" )
       self.options['modules'].append( "-hltMuCkfTrackCandidates" )
       self.options['modules'].append( "-hltMuCtfTracks" )
+      self.options['modules'].append( "-hltMuTrackJpsiCkfTrackCandidates" )
+      self.options['modules'].append( "-hltMuTrackJpsiCtfTracks" )
+      self.options['modules'].append( "-hltMuTrackJpsiEffCkfTrackCandidates" )
+      self.options['modules'].append( "-hltMuTrackJpsiEffCtfTracks" )
       self.options['modules'].append( "-hltESRegionalEgammaRecHit" )
       self.options['modules'].append( "-hltEcalRegionalJetsFEDs" )
       self.options['modules'].append( "-hltEcalRegionalMuonsFEDs" )
@@ -980,8 +975,6 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltScalersRawToDigi" )
 
       self.options['sequences'].append( "-HLTL1SeededEgammaRegionalRecoTrackerSequence" )
-#      self.options['sequences'].append( "-HLTL1IsoEgammaRegionalRecoTrackerSequence" )
-#      self.options['sequences'].append( "-HLTL1NonIsoEgammaRegionalRecoTrackerSequence" )
       self.options['sequences'].append( "-HLTEcalActivityEgammaRegionalRecoTrackerSequence" )
       self.options['sequences'].append( "-HLTPixelMatchElectronActivityTrackingSequence" )
       self.options['sequences'].append( "-HLTDoLocalStripSequence" )
