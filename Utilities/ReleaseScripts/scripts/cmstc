@@ -4,7 +4,8 @@
 Available commands:
    tags, diff, difflast, tagset, search, pendingappr, ibs, lastib, pkghist,
    comment, sign, signall, rejectsign, approve, bypass, rejectappr, remove,
-   pendingpkgs, approvepkgs, cmsdisttags, cmsdistdiff
+   pendingpkgs, approvepkgs, cmsdisttags, cmsdistdiff, createrel, requestcib,
+   relarch, tagsappr, tagssign
 
 Common commands:
    tags         Prints all tags of up to 4 releases.
@@ -21,6 +22,15 @@ Common commands:
                 Searching for users includes the full names and emails.
                 Returns at most 10 results per type of result
                 (e.g. 10 releases + 10 packages + ...).
+                
+ ^ tagssign     Prints Pending Signature tags of one or more releases,
+                one or more tagsets, or both (i.e. it joins all the tags).
+                Prints an error if several tags appear for a single package
+                if the '-m' flag is not specified.
+                Suitable for piping to addpkg (note: at the moment,
+                addpkg does not read from stdin, use "-f" instead).
+                Optional parameter: '-m' ('--multiple').
+                   Allows multiple tags for a single package.
 
  ^ tagsappr     Prints Pending Approval tags of one or more releases,
                 one or more tagsets, or both (i.e. it joins all the tags).
@@ -119,6 +129,10 @@ Examples:
    cmstc search        align
    cmstc search        2011-01-01
    cmstc search        miguel
+
+   cmstc tagssign      CMSSW_4_1_X
+   cmstc tagssign      12345 98765
+   cmstc tagssign      CMSSW_4_1_X 12345 98765
 
    cmstc tagsappr      CMSSW_4_1_X
    cmstc tagsappr      12345 98765
@@ -289,6 +303,8 @@ def printTags(tags):
   maxSize = dict([(x, 0) for x in xrange(sizeTag)])
   for tag in tags:
     for i in xrange(sizeTag):
+      if tag[i] == None:
+          tag[i] = '-'
       maxSize[i] = max(maxSize[i], len(tag[i]))
   for tag in tags:
     f = "".join("%%-%is  " % maxSize[x] for x in xrange(sizeTag))
@@ -393,6 +409,15 @@ def cmd_tagsappr(args):
   if len(args) < 1:
     raise Exception("Error: Expected at least a tagset ID or release name.")
   printTags(sorted(cmstc.TagCollector().getPendingApprovalTags(args, multiple)))
+
+def cmd_tagssign(args):
+  parser = optparse.OptionParser()
+  parser.add_option("-m", "--multiple", action="store_true", dest="multiple", default=False)
+  (opts, args) = parser.parse_args(args)
+  multiple = opts.multiple
+  if len(args) < 1:
+    raise Exception("Error: Expected at least a tagset ID or release name.")
+  printTags(sorted(cmstc.TagCollector().getPendingSignatureTags(args, multiple)))
 
 def cmd_ibs(filt):
   if filt:
