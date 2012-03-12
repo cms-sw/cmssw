@@ -7,9 +7,6 @@
       <Parameter name="ProdCutsForElectrons" value="1*mm"/>
       <Parameter name="ProdCutsForPositrons" value="1*mm"/>
       <Parameter name="ProdCutsForGamma" value="1*mm"/>
-  </SpecPar>
-
+    </SpecPar>
   </SpecParSection>
 </DDDefinition>
-
-
