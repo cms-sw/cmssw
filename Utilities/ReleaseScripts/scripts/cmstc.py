@@ -101,6 +101,16 @@ class TagCollector(object):
 		args = json.dumps(args)
 		allow_multiple_tags = json.dumps(allow_multiple_tags)
 		return self._openjson('py_getPendingApprovalTags', {'args': args, 'allow_multiple_tags': allow_multiple_tags})
+	
+	def getPendingSignatureTags(self, args, allow_multiple_tags = False):
+		"""Prints Pending Signature tags of one or more releases,
+                one or more tagsets, or both (i.e. it joins all the tags).
+		Prints an error if several tags appear for a single package.
+		Suitable for piping to addpkg (note: at the moment,
+		addpkg does not read from stdin, use "-f" instead)."""
+		args = json.dumps(args)
+		allow_multiple_tags = json.dumps(allow_multiple_tags)
+		return self._openjson('py_getPendingSignatureTags', {'args': args, 'allow_multiple_tags': allow_multiple_tags})
 
 	def commentTagsets(self, tagset_ids, comment):
 		"""Comment one or more tagsets.
