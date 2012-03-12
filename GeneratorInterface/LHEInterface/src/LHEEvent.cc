@@ -56,7 +56,7 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 	}
 
 	if (std::abs(idwtup) == 3 && std::abs(hepeup.XWGTUP) != 1.) {
-		edm::LogWarning("Generator|LHEInterface")
+		edm::LogInfo("Generator|LHEInterface")
 			<< "Event weight not set to one for abs(IDWTUP) == 3"
 			<< std::endl;
 		hepeup.XWGTUP = hepeup.XWGTUP > 0. ? 1.0 : -1.0;
