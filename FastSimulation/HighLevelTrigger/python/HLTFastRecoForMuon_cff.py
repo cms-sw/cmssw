@@ -60,6 +60,20 @@ hltMuCkfTrackCandidates.MaxNumberOfCrossedLayers = 999
 hltMuCkfTrackCandidates.SeedCleaning = True
 hltMuCkfTrackCandidates.SplitHits = False
 
+hltMuTrackJpsiCkfTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
+hltMuTrackJpsiCkfTrackCandidates.SeedProducer = cms.InputTag("hltMuTrackJpsiTrackSeeds")
+hltMuTrackJpsiCkfTrackCandidates.TrackProducers = []
+hltMuTrackJpsiCkfTrackCandidates.MaxNumberOfCrossedLayers = 999
+hltMuTrackJpsiCkfTrackCandidates.SeedCleaning = True
+hltMuTrackJpsiCkfTrackCandidates.SplitHits = False
+
+hltMuTrackJpsiEffCkfTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
+hltMuTrackJpsiEffCkfTrackCandidates.SeedProducer = cms.InputTag("hltMuTrackJpsiTrackSeeds")
+hltMuTrackJpsiEffCkfTrackCandidates.TrackProducers = []
+hltMuTrackJpsiEffCkfTrackCandidates.MaxNumberOfCrossedLayers = 999
+hltMuTrackJpsiEffCkfTrackCandidates.SeedCleaning = True
+hltMuTrackJpsiEffCkfTrackCandidates.SplitHits = False
+
 # CTF track fit with material
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 
@@ -68,6 +82,18 @@ hltMuCtfTracks.src = 'hltMuCkfTrackCandidates'
 hltMuCtfTracks.TTRHBuilder = 'WithoutRefit'
 hltMuCtfTracks.Fitter = 'KFFittingSmoother'
 hltMuCtfTracks.Propagator = 'PropagatorWithMaterial'
+
+hltMuTrackJpsiCtfTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+hltMuTrackJpsiCtfTracks.src = 'hltMuTrackJpsiCkfTrackCandidates'
+hltMuTrackJpsiCtfTracks.TTRHBuilder = 'WithoutRefit'
+hltMuTrackJpsiCtfTracks.Fitter = 'KFFittingSmoother'
+hltMuTrackJpsiCtfTracks.Propagator = 'PropagatorWithMaterial'
+
+hltMuTrackJpsiEffCtfTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+hltMuTrackJpsiEffCtfTracks.src = 'hltMuTrackJpsiEffCkfTrackCandidates'
+hltMuTrackJpsiEffCtfTracks.TTRHBuilder = 'WithoutRefit'
+hltMuTrackJpsiEffCtfTracks.Fitter = 'KFFittingSmoother'
+hltMuTrackJpsiEffCtfTracks.Propagator = 'PropagatorWithMaterial'
 
 
 #hltMuTrackSeedsSequence = cms.Sequence(globalPixelTracking+
