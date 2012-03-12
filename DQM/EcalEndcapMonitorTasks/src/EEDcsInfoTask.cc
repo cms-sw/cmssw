@@ -1,8 +1,8 @@
 /*
  * \file EEDcsInfoTask.cc
  *
- * $Date: 2010/08/11 14:57:34 $
- * $Revision: 1.17 $
+ * $Date: 2011/06/27 12:16:03 $
+ * $Revision: 1.18.4.1 $
  * \author E. Di Marco
  *
 */
@@ -18,6 +18,8 @@
 
 #include "CondFormats/EcalObjects/interface/EcalDCSTowerStatus.h"
 #include "CondFormats/DataRecord/interface/EcalDCSTowerStatusRcd.h"
+
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -50,26 +52,24 @@ EEDcsInfoTask::~EEDcsInfoTask() {
 
 void EEDcsInfoTask::beginJob(void){
 
-  char histo[200];
-
   if ( dqmStore_ ) {
+
+    std::string name;
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
 
-    sprintf(histo, "DCSSummary");
-    meEEDcsFraction_ = dqmStore_->bookFloat(histo);
+    meEEDcsFraction_ = dqmStore_->bookFloat( "DCSSummary" );
     meEEDcsFraction_->Fill(0.0);
 
-    sprintf(histo, "DCSSummaryMap");
-    meEEDcsActiveMap_ = dqmStore_->book2D(histo,histo, 200, 0., 200., 100, 0., 100.);
-    meEEDcsActiveMap_->setAxisTitle("jx", 1);
-    meEEDcsActiveMap_->setAxisTitle("jy", 2);
+    name = "DCSSummaryMap";
+    meEEDcsActiveMap_ = dqmStore_->book2D(name, name, 40, 0., 200., 20, 0., 100.);
+    meEEDcsActiveMap_->setAxisTitle("ix / ix+100", 1);
+    meEEDcsActiveMap_->setAxisTitle("iy", 2);
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DCSContents");
 
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
-      meEEDcsActive_[i] = dqmStore_->bookFloat(histo);
+      meEEDcsActive_[i] = dqmStore_->bookFloat( "EcalEndcap_" + Numbers::sEE(i+1) );
       meEEDcsActive_[i]->Fill(-1.0);
     }
 
@@ -105,33 +105,72 @@ void EEDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
   }
   const EcalDCSTowerStatus* dcsStatus = pDCSStatus.product();
 
-  for(int iz=-1; iz<=1; iz+=2) {
-    for(int itx=0 ; itx<20; itx++) {
-      for(int ity=0 ; ity<20; ity++) {
-        if (EcalScDetId::validDetId(itx+1,ity+1,iz )){
+  edm::ESHandle< EcalElectronicsMapping > pElecMapping;
+  iSetup.get< EcalMappingRcd >().get(pElecMapping);
+  if( !pElecMapping.isValid() ) {
+    edm::LogWarning("EEDaqInfoTask") << "EcalElectronicsMapping not available";
+    return;
+  }
+  const EcalElectronicsMapping *map = pElecMapping.product();
 
-          EcalScDetId eeid(itx+1,ity+1,iz);
+  std::vector<DetId> crystals;
+  std::vector<EcalScDetId> scs;
 
-          uint16_t dbStatus = 0; // 0 = good
-          EcalDCSTowerStatus::const_iterator dcsStatusIt = dcsStatus->find( eeid.rawId() );
-          if ( dcsStatusIt != dcsStatus->end() ) dbStatus = dcsStatusIt->getStatusCode();
+  for(unsigned i=0 ; i<sizeof(DccId_)/sizeof(int) ; i++){
+    for(int t=1 ; t<=nTowerMax_ ; t++){
 
-          if ( dbStatus > 0 ) {
-            int offsetSC = (iz > 0) ? 0 : 20;
-            readyRun[offsetSC+itx][ity] = 0;
-            readyLumi[offsetSC+itx][ity] = 0;
-          }
+      crystals = map->dccTowerConstituents(DccId_[i], t);
+      if(!crystals.size()) continue;
 
-        }
+      scs = map->getEcalScDetId(DccId_[i], t, false);
+
+      for(unsigned u=0 ; u<scs.size() ; u++){
+
+	uint16_t dbStatus = 0; // 0 = good
+	EcalDCSTowerStatus::const_iterator dcsStatusIt = dcsStatus->find( scs[u].rawId() );
+	if ( dcsStatusIt != dcsStatus->end() ) dbStatus = dcsStatusIt->getStatusCode();
+	
+	if ( dbStatus > 0 ) {
+	  int jx = scs[u].ix() - 1 + (scs[u].zside()<0 ? 0 : 20);
+	  int jy = scs[u].iy() - 1;
+	  readyRun[jx][jy] = 0;
+	  readyLumi[jx][jy] = 0;
+	}
       }
     }
   }
+
+//   for(int iz=-1; iz<=1; iz+=2) {
+//     for(int itx=0 ; itx<20; itx++) {
+//       for(int ity=0 ; ity<20; ity++) {
+//         if (EcalScDetId::validDetId(itx+1,ity+1,iz )){
+
+//           EcalScDetId eeid(itx+1,ity+1,iz);
+
+//           uint16_t dbStatus = 0; // 0 = good
+//           EcalDCSTowerStatus::const_iterator dcsStatusIt = dcsStatus->find( eeid.rawId() );
+//           if ( dcsStatusIt != dcsStatus->end() ) dbStatus = dcsStatusIt->getStatusCode();
+
+//           if ( dbStatus > 0 ) {
+//             int offsetSC = (iz > 0) ? 0 : 20;
+//             readyRun[offsetSC+itx][ity] = 0;
+//             readyLumi[offsetSC+itx][ity] = 0;
+//           }
+
+//         }
+//       }
+//     }
+//   }
 
 }
 
 void EEDcsInfoTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
 
-  this->fillMonitorElements(readyLumi);
+  edm::ESHandle< EcalElectronicsMapping > handle;
+  iSetup.get< EcalMappingRcd >().get(handle);
+  const EcalElectronicsMapping *map = handle.product();
+  if( ! map ) edm::LogWarning("EEDaqInfoTask") << "EcalElectronicsMapping not available";
+  else this->fillMonitorElements(readyLumi, map);
 
 }
 
@@ -149,7 +188,11 @@ void EEDcsInfoTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
 void EEDcsInfoTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
-  this->fillMonitorElements(readyRun);
+  edm::ESHandle< EcalElectronicsMapping > handle;
+  c.get< EcalMappingRcd >().get(handle);
+  const EcalElectronicsMapping *map = handle.product();
+  if( ! map ) edm::LogWarning("EEDaqInfoTask") << "EcalElectronicsMapping not available";
+  else this->fillMonitorElements(readyRun, map);
 
 }
 
@@ -186,7 +229,7 @@ void EEDcsInfoTask::cleanup(void){
 
 }
 
-void EEDcsInfoTask::fillMonitorElements(int ready[40][20]) {
+void EEDcsInfoTask::fillMonitorElements(int ready[40][20], const EcalElectronicsMapping *map) {
 
   float readySum[18];
   int nValidChannels[18];
@@ -197,45 +240,50 @@ void EEDcsInfoTask::fillMonitorElements(int ready[40][20]) {
   float readySumTot = 0.;
   int nValidChannelsTot = 0;
 
-  for ( int iz = -1; iz < 2; iz+=2 ) {
-    for ( int itx = 0; itx < 20; itx++ ) {
-      for ( int ity = 0; ity < 20; ity++ ) {
-        for ( int h = 0; h < 5; h++ ) {
-          for ( int k = 0; k < 5; k++ ) {
-
-            int ix = 5*itx + h;
-            int iy = 5*ity + k;
-
-            int offsetSC = (iz > 0) ? 0 : 20;
-            int offset = (iz > 0) ? 0 : 100;
-
-            if( EEDetId::validDetId(ix+1, iy+1, iz) ) {
-
-              if(meEEDcsActiveMap_) meEEDcsActiveMap_->setBinContent( offset+ix+1, iy+1, ready[offsetSC+itx][ity] );
-
-              EEDetId id = EEDetId(ix+1, iy+1, iz, EEDetId::XYMODE);
-
-              int ism = Numbers::iSM(id);
-              if(ready[offsetSC+itx][ity]) {
-                readySum[ism-1]++;
-                readySumTot++;
-              }
-
-              nValidChannels[ism-1]++;
-              nValidChannelsTot++;
-
-            } else {
-              if(meEEDcsActiveMap_) meEEDcsActiveMap_->setBinContent( offset+ix+1, iy+1, -1.0 );
-            }
-
-          }
-        }
+  if(meEEDcsActiveMap_){
+    for(int ix=1 ; ix<=meEEDcsActiveMap_->getNbinsX() ; ix++){
+      for(int iy=1 ; iy<=meEEDcsActiveMap_->getNbinsY() ; iy++){
+	meEEDcsActiveMap_->setBinContent( ix, iy, -1.0 );
       }
     }
   }
 
-  for ( int ism = 0; ism < 18; ism++ ) {
-    if( meEEDcsActive_[ism] ) meEEDcsActive_[ism]->Fill( readySum[ism]/float(nValidChannels[ism]) );
+  std::vector<DetId> crystals;
+  std::vector<EcalScDetId> scs;
+
+  for ( unsigned iDcc = 0; iDcc < sizeof(DccId_)/sizeof(int); iDcc++) {
+    for ( int t = 1; t<=nTowerMax_; t++ ) {
+
+      crystals = map->dccTowerConstituents(DccId_[iDcc], t);
+      if(!crystals.size()) continue;
+
+      scs = map->getEcalScDetId(DccId_[iDcc], t, false);
+
+      for(unsigned u=0 ; u<scs.size() ; u++){ // most of the time one DCC tower = one SC
+
+	int jx = scs[u].ix() - 1 + (scs[u].zside()<0 ? 0 : 20);
+	int jy = scs[u].iy() - 1;
+
+	if(meEEDcsActiveMap_) meEEDcsActiveMap_->setBinContent( jx+1, jy+1, ready[jx][jy] );
+
+	int ncrystals = 0;
+
+	for(std::vector<DetId>::const_iterator it=crystals.begin() ; it!=crystals.end() ; ++it){
+	  EEDetId id(*it);
+	  if( id.zside() == scs[u].zside() && (id.ix()-1)/5+1 == scs[u].ix() && (id.iy()-1)/5+1 == scs[u].iy() ) ncrystals++;
+	}
+
+	if(ready[jx][jy]) {
+	  readySum[iDcc] += ncrystals;
+	  readySumTot += ncrystals;
+	}
+
+	nValidChannels[iDcc] += ncrystals;
+	nValidChannelsTot += ncrystals;
+      }
+    }
+
+    if( meEEDcsActive_[iDcc] ) meEEDcsActive_[iDcc]->Fill( readySum[iDcc]/float(nValidChannels[iDcc]) );
   }
 
   if( meEEDcsFraction_ ) meEEDcsFraction_->Fill( readySumTot/float(nValidChannelsTot) );

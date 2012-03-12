@@ -42,6 +42,9 @@
 //		pointed-to strings in anticipation of key objects going
 //		away before a message is going to be issued.
 //
+//
+//  7/6/11 fwyzard  Add support for discarding LogError-level messages
+//                  on a per-module basis (needed at HLT)
 // ------------------------------------------------------------------------
 
 namespace edm {
@@ -78,6 +81,10 @@ bool isInfoEnabled() {
 bool isWarningEnabled() {
   return ((!edm::MessageDrop::warningAlwaysSuppressed)		// 9/27/10 mf
          && edm::MessageDrop::warningEnabled );
+}
+
+bool isErrorEnabled() {
+  return edm::MessageDrop::errorEnabled;                        // 7/6/11 fwyzard
 }
 
 void HaltMessageLogging() {

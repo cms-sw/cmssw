@@ -7,7 +7,6 @@
   <class name="std::vector<reco::CaloJet>"/>
   <class name="edm::RefProd<std::vector<reco::CaloJet> >"/>
   <class name="edm::RefVector<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> >"/>
-  <class name="std::vector<edm::Ref<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> > >"/>
   <class name="edm::Ref<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> >"/>
   <class name="edm::Wrapper<std::vector<reco::CaloJet> >"/>
   <class name="edm::Wrapper<reco::CaloJetRefVector>"/>
@@ -16,7 +15,6 @@
   <class name="edm::AssociationMap<edm::OneToMany<reco::CaloJetCollection, std::vector<reco::Track>, unsigned int> >">
       <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::helpers::Key<edm::RefProd<reco::CaloJetCollection > >"/>
   <class name="edm::helpers::KeyVal<edm::RefProd<reco::CaloJetCollection>,edm::RefProd<std::vector<reco::Track> > >"/>
   <class name="edm::FwdRef<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> >"/>
   <class name="reco::CaloJetFwdRefVector"/>
@@ -26,6 +24,8 @@
   <class name="edm::Wrapper<reco::CaloJetFwdPtrVector>"/>
 
   <class name="reco::JPTJet"/>
+  <class name="std::vector<reco::CaloJetRefVector>"/>
+  <class name="edm::Wrapper<std::vector<reco::CaloJetRefVector> >"/>
   <class name="reco::JPTJet::Specific"/>
   <class name="std::vector<reco::JPTJet>"/>
   <class name="edm::RefProd<std::vector<reco::JPTJet> >"/>
@@ -89,8 +89,6 @@
   <class name="edm::FwdPtr<reco::BasicJet>"/>
   <class name="reco::BasicJetFwdPtrVector"/>
   <class name="edm::Wrapper<reco::BasicJetFwdPtrVector>"/>
-  <class name="edm::reftobase::Holder<reco::Jet, reco::BasicJetRef>" />
-  <class name="edm::reftobase::RefHolder<reco::BasicJetRef>" />
 
   <class name="reco::TrackJet"/>
   <class name="std::vector<reco::TrackJet>"/>
@@ -234,6 +232,8 @@
 
   <class name="edm::Ptr<reco::TrackJet>" />
   <class name="edm::PtrVector<reco::TrackJet>" />
+  <class name="edm::Ptr<reco::Track>" />
+  <class name="std::vector<edm::Ptr<reco::Track> >" />
 
   <class name="edm::Ptr<reco::PFClusterJet>" />
   <class name="edm::PtrVector<reco::PFClusterJet>" />
@@ -416,5 +416,4 @@
    <class name="edm::PtrVector<reco::FFTJPTJet>" />
    <class name="edm::Association<reco::FFTJPTJetCollection>" />
    <class name="edm::Wrapper<edm::Association<reco::FFTJPTJetCollection> >" />
-
 </lcgdict>

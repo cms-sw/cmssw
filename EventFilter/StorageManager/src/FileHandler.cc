@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.26.4.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: FileHandler.cc,v 1.29 2011/07/05 13:25:43 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -6,7 +6,10 @@
 #include <EventFilter/StorageManager/interface/I2OChain.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include <FWCore/Version/interface/GetReleaseVersion.h>
+
+#include "boost/shared_array.hpp"
 
 #include <errno.h>
 #include <iostream>
@@ -32,8 +35,7 @@ namespace stor {
   lastEntry_(firstEntry_),
   diskWritingParams_(dwParams),
   maxFileSize_(maxFileSize),
-  cmsver_(edm::getReleaseVersion()),
-  adler_(0)
+  cmsver_(edm::getReleaseVersion())
   {
     // stripp quotes if present
     if(cmsver_[0]=='"') cmsver_=cmsver_.substr(1,cmsver_.size()-2);
@@ -66,25 +68,6 @@ namespace stor {
   // File bookkeeping //
   //////////////////////
   
-  void FileHandler::writeToSummaryCatalog() const
-  {
-    std::ostringstream currentStat;
-    std::string ind(":");
-    currentStat
-      << fileRecord_->filePath() << ind
-        << fileRecord_->fileName() << ind
-        << fileSize() << ind 
-        << events() << ind
-        << utils::timeStamp(lastEntry_) << ind
-        << (lastEntry_ - firstEntry_).total_seconds() << ind
-        << fileRecord_->whyClosed << std::endl;
-    std::string currentStatString (currentStat.str());
-    std::ofstream of(diskWritingParams_.fileCatalog_.c_str(), std::ios_base::ate | std::ios_base::out | std::ios_base::app );
-    of << currentStatString;
-    of.close();
-  }
-  
-  
   void FileHandler::updateDatabase() const
   {
     std::ostringstream oss;
@@ -108,8 +91,8 @@ namespace stor {
       << " --APPNAME CMSSW"
       << " --TYPE streamer"               
       << " --DEBUGCLOSE "   << fileRecord_->whyClosed
-      << " --CHECKSUM "     << std::hex << adler_
-      << " --CHECKSUMIND "  << std::hex << 0
+      << " --CHECKSUM "     << std::hex << fileRecord_->adler32
+      << " --CHECKSUMIND 0"
       << "\n";
     
     dbFileHandler_->writeOld( lastEntry_, oss.str() );
@@ -229,6 +212,7 @@ namespace stor {
     fileRecord_->isOpen = false;
     fileRecord_->whyClosed = reason;
     checkFileSizeMatch(closedFileName, openFileSize);
+    checkAdler32(closedFileName);
   }
   
   
@@ -282,6 +266,48 @@ namespace stor {
       std::ostringstream msg;
       msg << "Unable to change permissions of " << fileName
         << " to read only: " << strerror(errno);
+      XCEPT_RAISE(stor::exception::DiskWriting, msg.str());
+    }
+  }
+  
+  
+  void FileHandler::checkAdler32(const std::string& fileName) const
+  {
+    if (!diskWritingParams_.checkAdler32_) return;
+
+    std::ifstream file(fileName.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
+    if (!file.is_open())
+    {
+      std::ostringstream msg;
+      msg << "File " << fileName << " could not be opened.\n";
+      XCEPT_RAISE(stor::exception::DiskWriting, msg.str());
+    }
+    
+    std::ifstream::pos_type size = file.tellg();
+    file.seekg (0, std::ios::beg);
+    
+    boost::shared_array<char> ptr(new char[1024*1024]);
+    uint32_t a = 1, b = 0;
+    
+    std::ifstream::pos_type rsize = 0;
+    while(rsize < size)
+    {
+      file.read(ptr.get(), 1024*1024);
+      rsize += 1024*1024;
+      if(file.gcount()) 
+        cms::Adler32(ptr.get(), file.gcount(), a, b);
+      else 
+        break;
+    }
+    file.close();
+    
+    const uint32 adler = (b << 16) | a;
+    if (adler != fileRecord_->adler32)
+    {
+      std::ostringstream msg;
+      msg << "Disk resident file " << fileName <<
+        " has Adler32 checksum " << std::hex << adler <<
+        ", while the expected checkum is " << std::hex << fileRecord_->adler32;
       XCEPT_RAISE(stor::exception::DiskWriting, msg.str());
     }
   }

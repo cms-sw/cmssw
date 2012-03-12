@@ -33,7 +33,6 @@ public:
    *  frames etc.
    */
   uint32_t geographicalId() const {return detId_;}
-  void setId(uint32_t id) { detId_=id; }
 
   /** The amplitudes of the strips forming the cluster.
    *  The amplitudes are on consecutive strips; if a strip is missing

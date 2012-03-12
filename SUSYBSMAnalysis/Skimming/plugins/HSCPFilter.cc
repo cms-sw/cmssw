@@ -13,7 +13,7 @@
 //
 // Original Author:  Jie Chen
 //         Created:  Thu Apr 29 16:32:10 CDT 2010
-// $Id: HSCPFilter.cc,v 1.1 2010/05/04 06:06:41 jiechen Exp $
+// $Id: HSCPFilter.cc,v 1.3 2011/04/13 17:10:07 jiechen Exp $
 //
 //
 
@@ -58,9 +58,10 @@ class HSCPFilter : public edm::EDFilter {
       virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      edm::InputTag input_track_collection,input_dedx_collection;
+      bool filterFlag;
+      edm::InputTag input_muon_collection, input_track_collection,input_dedx_collection;
       int ndedxHits;
-      double dedxMin, dedxMaxLeft, trkPtMin,etaMin,etaMax,chi2nMax,dxyMax,dzMax;
+      double dedxMin, dedxMaxLeft, trkPtMin,SAMuPtMin,etaMin,etaMax,chi2nMax,dxyMax,dzMax;
       
       // ----------member data ---------------------------
 };
@@ -78,6 +79,8 @@ class HSCPFilter : public edm::EDFilter {
 //
 HSCPFilter::HSCPFilter(const edm::ParameterSet& iConfig)
 {
+     filterFlag = iConfig.getParameter< bool >("filter");
+     input_muon_collection = iConfig.getParameter< edm::InputTag >("inputMuonCollection");    
      input_track_collection = iConfig.getParameter< edm::InputTag >("inputTrackCollection");    
 input_dedx_collection =  iConfig.getParameter< edm::InputTag >("inputDedxCollection");
      dedxMin = iConfig.getParameter< double >("dedxMin");
@@ -89,7 +92,7 @@ input_dedx_collection =  iConfig.getParameter< edm::InputTag >("inputDedxCollect
      chi2nMax = iConfig.getParameter< double >("chi2nMax");
      dxyMax = iConfig.getParameter< double >("dxyMax");
      dzMax = iConfig.getParameter< double >("dzMax");
-
+     SAMuPtMin = iConfig.getParameter< double >("SAMuPtMin");
 }
 
 
@@ -128,7 +131,28 @@ HSCPFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel("offlinePrimaryVertices", recoVertexHandle);
    reco::VertexCollection recoVertex = *recoVertexHandle;
 
+   if(!filterFlag) return true;
+
    if(recoVertex.size()<1) return false;
+
+   using reco::MuonCollection;
+
+   Handle<MuonCollection> muTracks;
+   iEvent.getByLabel(input_muon_collection,muTracks);
+   const reco::MuonCollection muonC = *(muTracks.product());
+   for(unsigned int i=0; i<muonC.size(); i++){
+      reco::MuonRef muon  = reco::MuonRef( muTracks, i );
+      if(!muon->standAloneMuon().isNull()) {
+         TrackRef SATrack = muon->standAloneMuon();
+         if(SATrack->pt()>SAMuPtMin) return true;
+      }
+
+   }
+
+
+
+
+
 
    using reco::TrackCollection;
    Handle<TrackCollection> tkTracks;

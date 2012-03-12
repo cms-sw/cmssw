@@ -22,10 +22,10 @@ BzeroReferenceTrajectory::BzeroReferenceTrajectory(const TrajectoryStateOnSurfac
   // no check against magField == 0
 
   // No estimate for momentum of cosmics available -> set to default value.
-  theParameters = asHepVector(refTsos.localParameters().mixedFormatVector());
+  theParameters = asHepVector<5>( refTsos.localParameters().mixedFormatVector() );
   theParameters[0] = 1./theMomentumEstimate;
 
-  LocalTrajectoryParameters locParamWithFixedMomentum( asSVector<5>(theParameters),
+  LocalTrajectoryParameters locParamWithFixedMomentum( theParameters,
 						       refTsos.localParameters().pzSign(),
 						       refTsos.localParameters().charge() );
 

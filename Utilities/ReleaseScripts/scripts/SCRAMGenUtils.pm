@@ -416,7 +416,8 @@ sub writeHashCache ()
 {
   my $cache=shift;
   my $file=shift;
-  my $binary=shift || $CacheType;
+  my $binary=shift || undef;
+  if (!defined $binary){$binary=$CacheType;}
   if ($binary)
   {
    eval {nstore($cache,$file);};
@@ -440,7 +441,8 @@ sub writeHashCache ()
 sub readHashCache ()
 {
   my $file=shift;
-  my $binary=shift || $CacheType;
+  my $binary=shift || undef;
+  if (!defined $binary){$binary=$CacheType;}
   my $cache=undef;
   if ($binary)
   {

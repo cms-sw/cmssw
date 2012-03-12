@@ -3,6 +3,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="DQMServices/Core"/>
 <use   name="DataFormats/SiStripCluster"/>
+<use   name="DataFormats/SiPixelCluster"/>
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="CalibTracker/Records"/>
 <use   name="DPGAnalysis/SiStripTools"/>

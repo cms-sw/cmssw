@@ -20,7 +20,7 @@ class ElectronDqmAnalyzerBase : public edm::EDAnalyzer
     virtual ~ElectronDqmAnalyzerBase() ;
 
     // specific implementation of EDAnalyzer
-    void beginJob() ; // prepare DQM, open input fiel if declared, and call book() below
+    void beginJob() ; // prepare DQM, open input field if declared, and call book() below
     virtual void endRun( edm::Run const &, edm::EventSetup const & ) ; // call finialize() if finalStep==AtRunEnd
     virtual void endLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & ) ; // call  finalize() if finalStep==AtLumiEnd
     virtual void endJob() ; // call finalize() if if finalStep==AtJobEnd
@@ -35,9 +35,11 @@ class ElectronDqmAnalyzerBase : public edm::EDAnalyzer
     int verbosity() { return verbosity_ ; }
     MonitorElement * get( const std::string & name ) ;
     void remove( const std::string & name ) ;
+    void remove_other_dirs() ;
 
     void setBookPrefix( const std::string & ) ;
     void setBookIndex( short ) ;
+
     MonitorElement * bookH1
      ( const std::string & name, const std::string & title,
        int nchX, double lowX, double highX,
@@ -86,12 +88,12 @@ class ElectronDqmAnalyzerBase : public edm::EDAnalyzer
       const std::string & title ="" ) ;
 
     MonitorElement * profileX
-     ( const std::string & name, MonitorElement * me2d,
+     ( MonitorElement * me2d,
        const std::string & title ="", const std::string & titleX ="", const std::string & titleY ="",
        Double_t minimum = -1111, Double_t maximum = -1111 ) ;
 
     MonitorElement * profileY
-     ( const std::string & name, MonitorElement * me2d,
+     ( MonitorElement * me2d,
        const std::string & title ="", const std::string & titleX ="", const std::string & titleY ="",
        Double_t minimum = -1111, Double_t maximum = -1111 ) ;
 
@@ -110,12 +112,12 @@ class ElectronDqmAnalyzerBase : public edm::EDAnalyzer
        const std::string & title ="" ) ;
 
     MonitorElement * profileX
-     ( const std::string & name, const std::string & me2d,
+     ( const std::string & me2d,
        const std::string & title ="", const std::string & titleX ="", const std::string & titleY ="",
        Double_t minimum = -1111, Double_t maximum = -1111 ) ;
 
     MonitorElement * profileY
-     ( const std::string & name, const std::string & me2d,
+     ( const std::string & me2d,
        const std::string & title ="", const std::string & titleX ="", const std::string & titleY ="",
        Double_t minimum = -1111, Double_t maximum = -1111 ) ;
 
@@ -135,6 +137,7 @@ class ElectronDqmAnalyzerBase : public edm::EDAnalyzer
     bool finalDone_ ;
 
     // utility methods
+    std::string newName( const std::string & name ) ;
     const std::string * find( const std::string & name ) ;
  } ;
 

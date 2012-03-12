@@ -188,7 +188,6 @@
         <runNumber          xsi:type="xsd:unsignedInt">0</runNumber>
         <nLogicalDisk       xsi:type="xsd:integer">0</nLogicalDisk> 
         <filePath           xsi:type="xsd:string">../../db</filePath> 
-        <fileCatalog        xsi:type="xsd:string">summaryCatalog.txt</fileCatalog> 
         <setupLabel         xsi:type="xsd:string">smdev</setupLabel> 
         <fileSizeTolerance  xsi:type="xsd:double">0.1</fileSizeTolerance>
         <collateDQM         xsi:type="xsd:boolean">true</collateDQM>
@@ -196,6 +195,7 @@
         <useCompressionDQM  xsi:type="xsd:boolean">true</useCompressionDQM>
         <compressionLevelDQM xsi:type="xsd:integer">1</compressionLevelDQM>
         <faultyEventsStream  xsi:type="xsd:string">smFaultyEvents</faultyEventsStream>
+        <checkAdler32       xsi:type="xsd:boolean">true</checkAdler32>
       </properties>
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterStorageManager.so</xc:Module>

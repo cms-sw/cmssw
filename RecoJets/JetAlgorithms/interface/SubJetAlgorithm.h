@@ -5,54 +5,56 @@
 
 #include "RecoJets/JetAlgorithms/interface/CompoundPseudoJet.h"
 #include "FWCore/Framework/interface/Event.h"
-
+#include "RecoJets/JetAlgorithms/interface/FastPrunePlugin.hh"
 #include <fastjet/JetDefinition.hh>
 #include <fastjet/PseudoJet.hh>
 #include <fastjet/ClusterSequence.hh>
+#include <fastjet/ActiveAreaSpec.hh>
 
 
 class SubJetAlgorithm{
  public:
-  SubJetAlgorithm(edm::InputTag mSrc,
-		    int algorithm,
-		    double centralEtaCut,            
-		    double ptMin,                    
-		    double jetsize,
-		    unsigned int subjets,
-		    bool pruning,
-		    double zcut=0.1) :
-    mSrc_          (mSrc          ),
-    algorithm_     (algorithm     ),
-    centralEtaCut_ (centralEtaCut ), 
-    ptMin_         (ptMin         ),         
-    jetsize_       (jetsize       ),
+ SubJetAlgorithm( double ptMin,                    
+		  unsigned int subjets,
+		  double zcut,
+		  double rcut_factor,
+		  boost::shared_ptr<fastjet::JetDefinition> fjJetDefinition,
+		  bool doAreaFastjet,
+		  boost::shared_ptr<fastjet::ActiveAreaSpec> fjActiveArea,
+		  double voronoiRfact
+		  ) :
+    ptMin_         (ptMin         ),
     nSubjets_      (subjets       ),
-    enable_pruning_(pruning       ),
-    zcut_          (zcut          )
-      { }
+    zcut_          (zcut          ),
+    rcut_factor_   (rcut_factor   ),
+    fjJetDefinition_(fjJetDefinition),
+    doAreaFastjet_ (doAreaFastjet),
+    fjActiveArea_  (fjActiveArea),
+    voronoiRfact_  (voronoiRfact)
+      { 
+	
+      }
 
-  bool get_pruning()const;
   void set_zcut(double z);
   void set_rcut_factor(double r);
+  double zcut() const { return zcut_;}
+  double rcut_factor() const { return rcut_factor_; }
 
-    /// Find the ProtoJets from the collection of input Candidates.
-    void run( const std::vector<fastjet::PseudoJet> & cell_particles, 
-	      std::vector<CompoundPseudoJet> & hardjetsOutput,
-	      const edm::EventSetup & c);
+  /// Find the ProtoJets from the collection of input Candidates.
+  void run( const std::vector<fastjet::PseudoJet> & cell_particles, 
+	    std::vector<CompoundPseudoJet> & hardjetsOutput);
 
 
  private:
 
-  edm::InputTag       mSrc_;          //<! calo tower input source
-  int                 algorithm_;     //<! 0 = KT, 1 = CA, 2 = anti-KT
-  double              centralEtaCut_; //<! eta for defining "central" jets
   double              ptMin_;	      //<! lower pt cut on which jets to reco
-  double              jetsize_;	      //<!
   int                 nSubjets_;      //<! number of subjets to produce.
-  bool                enable_pruning_;//<! flag whether pruning is enabled (see arXiv:0903.5081)
   double              zcut_;          //<! zcut parameter (see arXiv:0903.5081). Only relevant if pruning is enabled.
   double              rcut_factor_;   //<! r-cut factor (see arXiv:0903.5081).
-  
+  boost::shared_ptr<fastjet::JetDefinition> fjJetDefinition_; //<! jet definition to use
+  bool                doAreaFastjet_; //<! whether or not to use the fastjet area
+  boost::shared_ptr<fastjet::ActiveAreaSpec> fjActiveArea_; //<! fastjet area spec
+  double              voronoiRfact_;  //<! fastjet voronoi area R factor
 };
 
 #endif

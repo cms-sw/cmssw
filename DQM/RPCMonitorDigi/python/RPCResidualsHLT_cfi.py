@@ -19,9 +19,12 @@ rpcEfficiencyHLT = cms.EDAnalyzer("RPCEfficiency",
 
 #    cscSegments = cms.untracked.string('cscSegments'),
 #    dt4DSegments = cms.untracked.string('dt4DSegments'),
+#    cscSegments = cms.untracked.string('hltCscSegments'),
+#    dt4DSegments = cms.untracked.string('hltDt4DSegments'),
 
-    cscSegments = cms.untracked.string('hltCscSegments'),
-    dt4DSegments = cms.untracked.string('hltDt4DSegments'),
+     cscSegments = cms.InputTag('hltCscSegments'),
+     dt4DSegments = cms.InputTag('hltDt4DSegments'),
+     RecHitLabel = cms.InputTag('rpcRecHits'),
 
 
     folderPath = cms.untracked.string('HLT/HLTMonMuon/RPC/'),

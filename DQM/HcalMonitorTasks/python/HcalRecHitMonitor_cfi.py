@@ -24,18 +24,10 @@ hcalRecHitMonitor=cms.EDAnalyzer("HcalRecHitMonitor",
 
                                  HLTResultsLabel              = cms.untracked.InputTag("TriggerResults","","HLT"),
                                  # triggers required to meet Hcal HLT or Min Bias conditions
-                                 HcalHLTBits                  = cms.untracked.vstring("HLT_L1Tech_HCAL_HF_coincidence_PM",
-                                                                                      "HLT_L1Tech_HCAL_HF",
-                                                                                      "HLT_ActivityHF_Coincidence3",
-                                                                                      "HLT_L1Tech_HCAL_HF",
-                                                                                      "HLT_L1Tech_BSC_minBias_treshold1_v2"),
-                                 MinBiasHLTBits               = cms.untracked.vstring("HLT_MinBiasBSC",
-                                                                                      "HLT_L1Tech_BSC_minBias",
-                                                                                      "HLT_MinBiasPixel_SingleTrack",
-                                                                                      "HLT_L1Tech_BSC_minBias",
-                                                                                      "HLT_L1Tech_BSC_minBias_OR",
-                                                                                      "HLT_L1Tech_BSC_minBias_threshold1_v2",
-                                                                                      "HLT_ZeroBias_v1"),
+                                 HcalHLTBits                  = cms.untracked.vstring("HLT_ExclDiJet60_HF"),
+                                 MinBiasHLTBits               = cms.untracked.vstring("HLT_Physics",
+                                                                                      "HLT_MinBias",
+                                                                                      "HLT_ZeroBias"),
                                  
                                  # Energy thresholds for some BPTX plots
                                  energyThreshold              = cms.untracked.double(2.),

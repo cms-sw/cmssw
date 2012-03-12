@@ -20,10 +20,6 @@
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
@@ -42,10 +38,6 @@ class RecoTauPlotDiscriminator : public edm::EDAnalyzer {
     typedef std::map<std::string, HistoMap> DiscMap;
     typedef std::vector<edm::InputTag> VInputTag;
     VInputTag discs_;
-    bool plotPU_;
-    double pileupPtCut_;
-    edm::InputTag pileupInfoSrc_;
-    edm::InputTag pileupVerticesSrc_;
     DiscMap histos_;
 };
 
@@ -58,13 +50,6 @@ RecoTauPlotDiscriminator::RecoTauPlotDiscriminator(const edm::ParameterSet &pset
   // Get the discriminators
   discs_ = pset.getParameter<std::vector<edm::InputTag> >("discriminators");
 
-  plotPU_ = pset.getParameter<bool>("plotPU");
-  if (plotPU_) {
-    pileupPtCut_ = pset.getParameter<double>("pileupTauPtCut");
-    pileupInfoSrc_ = pset.getParameter<edm::InputTag>("pileupInfo");
-    pileupVerticesSrc_ = pset.getParameter<edm::InputTag>("pileupVertices");
-  }
-
   BOOST_FOREACH(const edm::InputTag &tag, discs_) {
     HistoMap discMap;
     discMap["plain"] =
@@ -75,30 +60,30 @@ RecoTauPlotDiscriminator::RecoTauPlotDiscriminator(const edm::ParameterSet &pset
     std::string vs_pt_name = tag.label()+"_pt";
     discMap["vs_pt"] =
         fs->make<TH2F>(vs_pt_name.c_str(), vs_pt_name.c_str(),
-                       nbins, min, max, 100, 0, 200);
+                       nbins, min, max, 100, 0, 100);
 
     // W.r.t. jet pt
     std::string vs_jetpt_name = tag.label()+"_jetPt";
     discMap["vs_jetPt"] =
         fs->make<TH2F>(vs_jetpt_name.c_str(), vs_jetpt_name.c_str(),
-                       nbins, min, max, 100, 0, 200);
+                       nbins, min, max, 100, 0, 100);
 
     // W.r.t. embedded pt in alternat lorentz vector (used to hold gen tau pt)
     std::string vs_embedpt_name = tag.label()+"_embedPt";
     discMap["vs_embedPt"] =
         fs->make<TH2F>(vs_embedpt_name.c_str(), vs_embedpt_name.c_str(),
-                       nbins, min, max, 100, 0, 200);
+                       nbins, min, max, 100, 0, 100);
 
     // 3D histogram with tau pt & jet pt
     std::string vs_pt_jetPt_name = tag.label()+"_pt_jetPt";
     discMap["vs_pt_jetPt"] =
         fs->make<TH3F>(vs_pt_jetPt_name.c_str(), vs_pt_jetPt_name.c_str(),
-                       nbins, min, max, 100, 0, 200, 100, 0, 200);
+                       nbins, min, max, 100, 0, 100, 100, 0, 100);
 
     std::string vs_pt_embedPt_name = tag.label()+"_pt_embedPt";
     discMap["vs_pt_embedPt"] =
         fs->make<TH3F>(vs_pt_embedPt_name.c_str(), vs_pt_embedPt_name.c_str(),
-                       nbins, min, max, 100, 0, 200, 100, 0, 200);
+                       nbins, min, max, 100, 0, 100, 100, 0, 100);
 
 
     std::string vs_eta_name = tag.label()+"_eta";
@@ -110,16 +95,6 @@ RecoTauPlotDiscriminator::RecoTauPlotDiscriminator(const edm::ParameterSet &pset
     discMap["vs_dm"] =
         fs->make<TH2F>(vs_dm_name.c_str(), vs_dm_name.c_str(),
                        nbins, min, max, 15, -0.5, 14.5);
-
-    if (plotPU_) {
-      std::string vs_truePU_name = tag.label()+"_truePU";
-      discMap["vs_truePU"] = fs->make<TH2F>(vs_truePU_name.c_str(),
-          vs_truePU_name.c_str(), nbins, min, max, 15, -0.5, 14.5);
-      std::string vs_recoPU_name = tag.label()+"_recoPU";
-      discMap["vs_recoPU"] = fs->make<TH2F>(vs_recoPU_name.c_str(),
-          vs_recoPU_name.c_str(), nbins, min, max, 15, -0.5, 14.5);
-    }
-
     histos_[tag.label()] = discMap;
   }
 }
@@ -134,13 +109,6 @@ RecoTauPlotDiscriminator::analyze(const edm::Event &evt,
   // Cast the input candidates to Refs to real taus
   reco::PFTauRefVector inputRefs =
       reco::tau::castView<reco::PFTauRefVector>(input);
-
-  edm::Handle<PileupSummaryInfo> puInfo;
-  edm::Handle<reco::VertexCollection> puVertices;
-  if (plotPU_) {
-    evt.getByLabel(pileupInfoSrc_, puInfo);
-    evt.getByLabel(pileupVerticesSrc_, puVertices);
-  }
 
   // Plot the discriminator output for each of our taus
   BOOST_FOREACH(const reco::PFTauRef& tau, inputRefs) {
@@ -161,11 +129,6 @@ RecoTauPlotDiscriminator::analyze(const edm::Event &evt,
           result, tau->pt(), tau->alternatLorentzVect().pt());
       mymap["vs_eta"]->Fill(result, tau->eta());
       mymap["vs_dm"]->Fill(result, tau->decayMode());
-      if (plotPU_ && tau->pt() > pileupPtCut_) {
-        if (puInfo.isValid())
-          mymap["vs_truePU"]->Fill(result, puInfo->getPU_NumInteractions());
-        mymap["vs_recoPU"]->Fill(result, puVertices->size());
-      }
     }
   }
 }

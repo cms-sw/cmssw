@@ -235,7 +235,7 @@ class ToolDataAccessor(BasicDataAccessor):
         logging.debug(__name__ + ": updateToolList")
         if not self.configDataAccessor().process():
             return
-        history=self.configDataAccessor().process().history()
+        history=self.configDataAccessor().process().history(True)
         self._toolList=[]
         self._toolModules={}
         importCommands=[]

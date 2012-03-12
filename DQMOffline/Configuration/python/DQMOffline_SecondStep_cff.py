@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from CondTools.DQM.DQMReferenceHistogramRootFileEventSetupAnalyzer_cfi import *
-from DQMServices.Components.DQMMessageLoggerClient_cfi import *
+from DQMServices.Components.DQMMessageLoggerClient_cff import *
 from DQMServices.Components.DQMDcsInfoClient_cfi import *
 
 from DQMOffline.Ecal.ecal_dqm_client_offline_cff import *
@@ -28,16 +28,16 @@ DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
 
 DQMOffline_SecondStepDPG = cms.Sequence( dqmRefHistoRootFileGetter *
                                          DQMOffline_SecondStep_PreDPG *
-                                         DQMMessageLoggerClient )
+                                         DQMMessageLoggerClientSeq )
 
 from DQMOffline.Muon.muonQualityTests_cff import *
-from DQMOffline.EGamma.photonOfflineDQMClient_cff import *
+from DQMOffline.EGamma.egammaPostProcessing_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_Client_cff import *
 from DQMOffline.Trigger.DQMOffline_HLT_Client_cff import *
 from DQMOffline.RecoB.dqmCollector_cff import *
 
 DQMOffline_SecondStep_PrePOG = cms.Sequence( muonQualityTests *
-                                             photonOfflineDQMClient *
+                                             egammaPostProcessing *
                                              triggerOfflineDQMClient *
                                              hltOfflineDQMClient *
                                              bTagCollectorSequence *
@@ -45,16 +45,16 @@ DQMOffline_SecondStep_PrePOG = cms.Sequence( muonQualityTests *
 
 DQMOffline_SecondStepPOG = cms.Sequence( dqmRefHistoRootFileGetter *
                                          DQMOffline_SecondStep_PrePOG *
-                                         DQMMessageLoggerClient )
+                                         DQMMessageLoggerClientSeq )
 
 DQMOffline_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
                                       DQMOffline_SecondStep_PreDPG *
                                       DQMOffline_SecondStep_PrePOG *
-                                      DQMMessageLoggerClient )
+                                      DQMMessageLoggerClientSeq )
 
 DQMOffline_SecondStep_PrePOGMC = cms.Sequence( bTagCollectorSequence )
 
 DQMOffline_SecondStepPOGMC = cms.Sequence( dqmRefHistoRootFileGetter *
                                            DQMOffline_SecondStep_PrePOGMC *
-                                           DQMMessageLoggerClient )
+                                           DQMMessageLoggerClientSeq )
 

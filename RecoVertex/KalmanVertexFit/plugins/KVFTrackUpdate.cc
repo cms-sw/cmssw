@@ -77,7 +77,7 @@ KVFTrackUpdate::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     GlobalPoint glbPos(0.,0.,0.);
 
-    AlgebraicSymMatrix33 mat;
+    AlgebraicSymMatrix mat(3,0);
     mat[0][0] = (20.e-04)*(20.e-04);
     mat[1][1] = (20.e-04)*(20.e-04);
     mat[2][2] = (5.3)*(5.3);

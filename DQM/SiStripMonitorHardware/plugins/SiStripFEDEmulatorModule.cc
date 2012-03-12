@@ -1,6 +1,6 @@
 // Original Author:  Anne-Marie Magnan
 //         Created:  2010/01/21
-// $Id: SiStripFEDEmulatorModule.cc,v 1.2 2010/03/15 03:33:35 wmtan Exp $
+// $Id: SiStripFEDEmulatorModule.cc,v 1.3 2010/04/29 09:45:12 dellaric Exp $
 //
 
 #include <sstream>
@@ -93,7 +93,7 @@ namespace sistrip {
   //
   // Constructors and destructor
   //
-  const char* FEDEmulator::messageLabel_ = "SiStripFEDEmulatorModule";
+  const char* FEDEmulatorModule::messageLabel_ = "SiStripFEDEmulatorModule";
 
 
   FEDEmulatorModule::FEDEmulatorModule(const edm::ParameterSet& iConfig): 

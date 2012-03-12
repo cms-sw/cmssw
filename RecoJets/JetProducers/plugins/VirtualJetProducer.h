@@ -137,8 +137,6 @@ protected:
   virtual std::vector<reco::CandidatePtr>
     getConstituents(const std::vector<fastjet::PseudoJet>&fjConstituents);
   
-  
-  
   //
   // member data
   //
@@ -160,9 +158,11 @@ protected:
 
   // for fastjet jet area calculation
   bool                  doAreaFastjet_;             // calculate area w/ fastjet?
+  bool                  doAreaDiskApprox_;          // calculate area w/ disk approximation (only makes sense for anti-KT)?
   // for fastjet rho calculation
   bool                  doRhoFastjet_;              // calculate rho w/ fastjet?
   bool                  doFastJetNonUniform_;       // choice of eta-dependent PU calculation
+  double                voronoiRfact_;              // negative to calculate rho using active area (ghosts); otherwise calculates Voronoi area with this effective scale factor
   
   // for pileup offset correction
   bool                  doPUOffsetCorr_;            // add the pileup calculation from offset correction? 
@@ -186,6 +186,9 @@ protected:
 
   std::string                     jetCollInstanceName_;       // instance name for output jet collection
   boost::shared_ptr<PileUpSubtractor>  subtractor_;
+
+  bool                            useDeterministicSeed_; // If desired, use a deterministic seed to fastjet
+  unsigned int                    minSeed_;              // minimum seed to use, useful for MC generation
 
 private:
   std::auto_ptr<AnomalousTower>   anomalousTowerDef_;  // anomalous tower definition

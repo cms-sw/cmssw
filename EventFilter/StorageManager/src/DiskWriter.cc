@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.25.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.30 2011/06/20 15:55:53 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include <algorithm>
@@ -27,6 +27,7 @@ namespace stor {
   dbFileHandler_(new DbFileHandler()),
   runNumber_(0),
   lastFileTimeoutCheckTime_(utils::getCurrentTime()),
+  endOfRunReport_(new StreamsMonitorCollection::EndOfRunReport()),
   actionIsActive_(true)
   {
     WorkerThreadParams workerParams =
@@ -289,33 +290,24 @@ namespace stor {
   }
   
   
-  void DiskWriter::reportRemainingLumiSections() const
+  void DiskWriter::reportRemainingLumiSections()
   {
     StreamsMonitorCollection& smc =
       sharedResources_->statisticsReporter_->getStreamsMonitorCollection();
     
-    smc.reportAllLumiSectionInfos(dbFileHandler_);
+    smc.reportAllLumiSectionInfos(dbFileHandler_, endOfRunReport_);
   }
   
   
-  void DiskWriter::writeEndOfRunMarker() const
+  void DiskWriter::writeEndOfRunMarker()
   {
-    RunMonitorCollection& rmc =
-      sharedResources_->statisticsReporter_->getRunMonitorCollection();
-    // Make sure we report the latest values
-    rmc.calculateStatistics(utils::getCurrentTime());
-    
-    MonitoredQuantity::Stats lumiSectionsSeenStats;
-    rmc.getLumiSectionsSeenMQ().getStats(lumiSectionsSeenStats);
-    MonitoredQuantity::Stats eolsSeenStats;
-    rmc.getEoLSSeenMQ().getStats(eolsSeenStats);
-    
     std::ostringstream str;
-    str << "LScount:" << lumiSectionsSeenStats.getSampleCount()
-      << "\tEoLScount:" << eolsSeenStats.getSampleCount()
-      << "\tLastLumi:" << lumiSectionsSeenStats.getLastSampleValue()
+    str << "LScount:" << endOfRunReport_->lsCountWithFiles
+      << "\tEoLScount:" << endOfRunReport_->eolsCount
+      << "\tLastLumi:" << endOfRunReport_->latestLumiSectionWritten
       << "\tEoR";
     dbFileHandler_->write(str.str());
+    endOfRunReport_->reset();
   }
   
   
@@ -326,13 +318,20 @@ namespace stor {
     const uint32_t lumiSection = msg.lumiSection();
     
     std::string fileCountStr;
-    
+    bool filesWritten = false;
+
     for (StreamHandlers::const_iterator it = streamHandlers_.begin(),
            itEnd = streamHandlers_.end(); it != itEnd; ++it)
     {
-      (*it)->closeFilesForLumiSection(lumiSection, fileCountStr);
+      if ( (*it)->closeFilesForLumiSection(lumiSection, fileCountStr) )
+        filesWritten = true;
     }
+    fileCountStr += "\tEoLS:1";
     dbFileHandler_->write(fileCountStr);
+
+    ++(endOfRunReport_->eolsCount);
+    if (filesWritten) ++(endOfRunReport_->lsCountWithFiles);
+    endOfRunReport_->updateLatestWrittenLumiSection(lumiSection);
   }
   
 } // namespace stor

@@ -125,7 +125,7 @@ import FWCore.ParameterSet.Config as cms
 ## HLT_DoublePhoton5_CEP_L1R, HLT_DoublePhoton17_L1R
 ################################################
 
-MC_flag = True
+MC_flag = False
 GLOBAL_TAG = 'GR_R_39X_V4::All'
 if MC_flag:
     #GLOBAL_TAG = 'START38_V14::All'
@@ -135,8 +135,7 @@ HLTPath = "HLT_Ele17_SW_TightEleId_L1R"
 HLTProcessName = "HLT"
 if MC_flag:
     #HLTPath = "HLT_Ele17_SW_LooseEleId_L1R"
-    #HLTPath = "HLT_Ele17_SW_TighterEleIdIsol_L1R_v3"
-    HLTPath = "HLT_Ele17_SW_L1R_v2"
+    HLTPath = "HLT_Ele17_SW_TighterEleIdIsol_L1R_v3"
     HLTProcessName = "REDIGI39X"
 
 OUTPUT_FILE_NAME = "testNewWrite.root"
@@ -518,11 +517,17 @@ process.JetMultiplicityInSCEvents = cms.EDProducer("CandMultiplicityCounter",
     objects = cms.InputTag(JET_COLL),
     objectSelection = cms.string(JET_CUTS + " && pt > 20.0"),
 )
-
+process.SCConvRejVars = cms.EDProducer("ElectronConversionRejectionVars",
+    probes = cms.InputTag("goodSuperClusters")
+)
+process.GsfConvRejVars = process.SCConvRejVars.clone()
+process.GsfConvRejVars.probes = cms.InputTag( ELECTRON_COLL )
 process.PhotonDRToNearestJet = process.superClusterDRToNearestJet.clone()
 process.PhotonDRToNearestJet.probes =cms.InputTag("goodPhotons")
 process.JetMultiplicityInPhotonEvents = process.JetMultiplicityInSCEvents.clone()
 process.JetMultiplicityInPhotonEvents.probes = cms.InputTag("goodPhotons")
+process.PhotonConvRejVars = process.SCConvRejVars.clone()
+process.PhotonConvRejVars.probes = cms.InputTag("goodPhotons")
 
 process.GsfDRToNearestJet = process.superClusterDRToNearestJet.clone()
 process.GsfDRToNearestJet.probes = cms.InputTag( ELECTRON_COLL )
@@ -533,10 +538,13 @@ process.ext_ToNearestJet_sequence = cms.Sequence(
     #process.ak5PFResidual + 
     process.superClusterDRToNearestJet +
     process.JetMultiplicityInSCEvents +
+    process.SCConvRejVars +
     process.PhotonDRToNearestJet +
     process.JetMultiplicityInPhotonEvents +    
+    process.PhotonConvRejVars + 
     process.GsfDRToNearestJet +
-    process.JetMultiplicityInGsfEvents
+    process.JetMultiplicityInGsfEvents +
+    process.GsfConvRejVars
     )
 
 
@@ -1148,6 +1156,10 @@ process.SuperClusterToGsfElectron = cms.EDAnalyzer("TagProbeFitTreeProducer",
 )
 process.SuperClusterToGsfElectron.variables.probe_dRjet = cms.InputTag("superClusterDRToNearestJet")
 process.SuperClusterToGsfElectron.variables.probe_nJets = cms.InputTag("JetMultiplicityInSCEvents")
+process.SuperClusterToGsfElectron.variables.probe_dist = cms.InputTag("SCConvRejVars","dist")
+process.SuperClusterToGsfElectron.variables.probe_dcot = cms.InputTag("SCConvRejVars","dcot")
+process.SuperClusterToGsfElectron.variables.probe_convradius = cms.InputTag("SCConvRejVars","convradius")
+process.SuperClusterToGsfElectron.variables.probe_passConvRej = cms.InputTag("SCConvRejVars","passConvRej")
 process.SuperClusterToGsfElectron.tagVariables.dRjet = cms.InputTag("GsfDRToNearestJet")
 process.SuperClusterToGsfElectron.tagVariables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
 process.SuperClusterToGsfElectron.tagVariables.eidCicVeryLoose = cms.InputTag("eidVeryLoose")
@@ -1160,6 +1172,10 @@ process.SuperClusterToGsfElectron.tagVariables.eidCicHyperTight2 = cms.InputTag(
 process.SuperClusterToGsfElectron.tagVariables.eidCicHyperTight3 = cms.InputTag("eidHyperTight3")
 process.SuperClusterToGsfElectron.tagVariables.eidCicHyperTight4 = cms.InputTag("eidHyperTight4")
 process.SuperClusterToGsfElectron.tagVariables.eidLikelihood = cms.InputTag("eidLikelihoodExt")
+process.SuperClusterToGsfElectron.tagVariables.dist = cms.InputTag("GsfConvRejVars","dist")
+process.SuperClusterToGsfElectron.tagVariables.dcot = cms.InputTag("GsfConvRejVars","dcot")
+process.SuperClusterToGsfElectron.tagVariables.convradius = cms.InputTag("GsfConvRejVars","convradius")
+process.SuperClusterToGsfElectron.tagVariables.passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
 
 
 
@@ -1194,6 +1210,10 @@ process.PhotonToGsfElectron.variables.probe_ecaliso = cms.string("ecalRecHitSumE
 process.PhotonToGsfElectron.variables.probe_hcaliso = cms.string("hcalTowerSumEtConeDR03")
 process.PhotonToGsfElectron.variables.probe_HoverE  = cms.string("hadronicOverEm")
 process.PhotonToGsfElectron.variables.probe_sigmaIetaIeta = cms.string("sigmaIetaIeta")
+process.PhotonToGsfElectron.variables.probe_dist = cms.InputTag("PhotonConvRejVars","dist")
+process.PhotonToGsfElectron.variables.probe_dcot = cms.InputTag("PhotonConvRejVars","dcot")
+process.PhotonToGsfElectron.variables.probe_convradius = cms.InputTag("PhotonConvRejVars","convradius")
+process.PhotonToGsfElectron.variables.probe_passConvRej = cms.InputTag("PhotonConvRejVars","passConvRej")
 process.PhotonToGsfElectron.tagVariables.dRjet = cms.InputTag("GsfDRToNearestJet")
 process.PhotonToGsfElectron.tagVariables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
 process.PhotonToGsfElectron.tagVariables.eidCicVeryLoose = cms.InputTag("eidVeryLoose")
@@ -1206,7 +1226,10 @@ process.PhotonToGsfElectron.tagVariables.eidCicHyperTight2 = cms.InputTag("eidHy
 process.PhotonToGsfElectron.tagVariables.eidCicHyperTight3 = cms.InputTag("eidHyperTight3")
 process.PhotonToGsfElectron.tagVariables.eidCicHyperTight4 = cms.InputTag("eidHyperTight4")
 process.PhotonToGsfElectron.tagVariables.eidLikelihood = cms.InputTag("eidLikelihoodExt")
-
+process.PhotonToGsfElectron.tagVariables.dist = cms.InputTag("GsfConvRejVars","dist")
+process.PhotonToGsfElectron.tagVariables.dcot = cms.InputTag("GsfConvRejVars","dcot")
+process.PhotonToGsfElectron.tagVariables.convradius = cms.InputTag("GsfConvRejVars","convradius")
+process.PhotonToGsfElectron.tagVariables.passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
 
 ##   ____      __       __    ___                 ___    _ 
 ##  / ___|___ / _|      \ \  |_ _|___  ___       |_ _|__| |
@@ -1252,6 +1275,10 @@ process.GsfElectronToId.variables.probe_eidCicHyperTight2 = cms.InputTag("eidHyp
 process.GsfElectronToId.variables.probe_eidCicHyperTight3 = cms.InputTag("eidHyperTight3")
 process.GsfElectronToId.variables.probe_eidCicHyperTight4 = cms.InputTag("eidHyperTight4")
 process.GsfElectronToId.variables.probe_eidLikelihood = cms.InputTag("eidLikelihoodExt")
+process.GsfElectronToId.variables.probe_dist = cms.InputTag("GsfConvRejVars","dist")
+process.GsfElectronToId.variables.probe_dcot = cms.InputTag("GsfConvRejVars","dcot")
+process.GsfElectronToId.variables.probe_convradius = cms.InputTag("GsfConvRejVars","convradius")
+process.GsfElectronToId.variables.probe_passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
 process.GsfElectronToId.tagVariables.dRjet = cms.InputTag("GsfDRToNearestJet")
 process.GsfElectronToId.tagVariables.nJets = cms.InputTag("JetMultiplicityInGsfEvents")
 process.GsfElectronToId.tagVariables.eidCicVeryLoose = cms.InputTag("eidVeryLoose")
@@ -1264,6 +1291,10 @@ process.GsfElectronToId.tagVariables.eidCicHyperTight2 = cms.InputTag("eidHyperT
 process.GsfElectronToId.tagVariables.eidCicHyperTight3 = cms.InputTag("eidHyperTight3")
 process.GsfElectronToId.tagVariables.eidCicHyperTight4 = cms.InputTag("eidHyperTight4")
 process.GsfElectronToId.tagVariables.eidLikelihood = cms.InputTag("eidLikelihoodExt")
+process.GsfElectronToId.tagVariables.dist = cms.InputTag("GsfConvRejVars","dist")
+process.GsfElectronToId.tagVariables.dcot = cms.InputTag("GsfConvRejVars","dcot")
+process.GsfElectronToId.tagVariables.convradius = cms.InputTag("GsfConvRejVars","convradius")
+process.GsfElectronToId.tagVariables.passConvRej = cms.InputTag("GsfConvRejVars","passConvRej")
 process.GsfElectronToId.pairVariables.costheta = cms.InputTag("CSVarsTagGsf","costheta")
 process.GsfElectronToId.pairVariables.sin2theta = cms.InputTag("CSVarsTagGsf","sin2theta")
 process.GsfElectronToId.pairVariables.tanphi = cms.InputTag("CSVarsTagGsf","tanphi")

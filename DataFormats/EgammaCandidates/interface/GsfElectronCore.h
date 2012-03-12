@@ -74,12 +74,9 @@ namespace reco
 // \author David Chamont  - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
 // \author Claude Charlot - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
 //
-// \version $Id: GsfElectronCore.h,v 1.11.2.1 2011/03/04 18:22:31 chamont Exp $
+// \version $Id: GsfElectronCore.h,v 1.11 2011/02/18 15:26:05 chamont Exp $
 //
 // $Log: GsfElectronCore.h,v $
-// Revision 1.11.2.1  2011/03/04 18:22:31  chamont
-// backward incompatible cleaning
-//
 // Revision 1.11  2011/02/18 15:26:05  chamont
 // remove the ref to pflow candidate
 //

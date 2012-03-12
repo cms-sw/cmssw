@@ -4,8 +4,8 @@
 /*
  * \file EELaserTask.h
  *
- * $Date: 2009/08/03 23:44:22 $
- * $Revision: 1.13 $
+ * $Date: 2011/08/12 15:57:34 $
+ * $Revision: 1.14.14.1 $
  * \author G. Della Ricca
  *
 */
@@ -106,6 +106,11 @@ MonitorElement* mePnAmplMapG01L4_[18];
 MonitorElement* mePnPedMapG01L4_[18];
 MonitorElement* mePnAmplMapG16L4_[18];
 MonitorElement* mePnPedMapG16L4_[18];
+
+ MonitorElement* meAmplSummaryMapL1_[2];
+ MonitorElement* meAmplSummaryMapL2_[2];
+ MonitorElement* meAmplSummaryMapL3_[2];
+ MonitorElement* meAmplSummaryMapL4_[2];
 
 bool init_;
 

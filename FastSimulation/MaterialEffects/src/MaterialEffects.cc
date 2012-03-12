@@ -1,6 +1,7 @@
 
 //Framework Headers
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //TrackingTools Headers
 
@@ -248,17 +249,25 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
       int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack,
 					    FSimVertexType::PAIR_VERTEX);
       
-      // This was a photon that converted
-      for ( DaughterIter = PairProduction->beginDaughters();
-	    DaughterIter != PairProduction->endDaughters(); 
-	    ++DaughterIter) {
-
-	mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
-
+      // Check if it is a valid vertex first:
+      if (ivertex>=0) {
+	// This was a photon that converted
+	for ( DaughterIter = PairProduction->beginDaughters();
+	      DaughterIter != PairProduction->endDaughters(); 
+	      ++DaughterIter) {
+	  
+	  mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
+	  
+	}
+	// The photon converted. Return.
+	return;
       }
-      // The photon converted. Return.
-      return;
+      else {
+	edm::LogWarning("MaterialEffects") <<  " WARNING: A non valid vertex was found in photon conv. -> " << ivertex << std::endl;    
+      }
+
     }
+
   }
 
   if ( myTrack.pid() == 22 ) return;
@@ -282,24 +291,31 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
       int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack,
 					    FSimVertexType::NUCL_VERTEX);
       
-      // This was a hadron that interacted inelastically
-      int idaugh = 0;
-      for ( DaughterIter = NuclearInteraction->beginDaughters();
-	    DaughterIter != NuclearInteraction->endDaughters(); 
-	    ++DaughterIter) {
-
-	// The daughter in the event
-	int daughId = mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
-	
-	// Store the closest daughter in the mother info (for later tracking purposes)
-	if ( NuclearInteraction->closestDaughterId() == idaugh++ ) {
-	  if ( mySimEvent.track(itrack).vertex().position().Pt() < 4.0 ) 
-	    mySimEvent.track(itrack).setClosestDaughterId(daughId);
+      // Check if it is a valid vertex first:
+      if (ivertex>=0) {
+	// This was a hadron that interacted inelastically
+	int idaugh = 0;
+	for ( DaughterIter = NuclearInteraction->beginDaughters();
+	      DaughterIter != NuclearInteraction->endDaughters(); 
+	      ++DaughterIter) {
+	  
+	  // The daughter in the event
+	  int daughId = mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
+	  
+	  // Store the closest daughter in the mother info (for later tracking purposes)
+	  if ( NuclearInteraction->closestDaughterId() == idaugh++ ) {
+	    if ( mySimEvent.track(itrack).vertex().position().Pt() < 4.0 ) 
+	      mySimEvent.track(itrack).setClosestDaughterId(daughId);
+	  }
+	  
 	}
-
+	// The hadron is destroyed. Return.
+	return;
       }
-      // The hadron is destroyed. Return.
-      return;
+      else {
+	edm::LogWarning("MaterialEffects") <<  " WARNING: A non valid vertex was found in nucl. int. -> " << ivertex << std::endl;    
+      }
+
     }
     
   }
@@ -323,11 +339,16 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
       int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack,
 					    FSimVertexType::BREM_VERTEX);
 
-      for ( DaughterIter = Bremsstrahlung->beginDaughters();
-	    DaughterIter != Bremsstrahlung->endDaughters(); 
-	    ++DaughterIter) {
-	mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
-
+      // Check if it is a valid vertex first:
+      if (ivertex>=0) {
+	for ( DaughterIter = Bremsstrahlung->beginDaughters();
+	      DaughterIter != Bremsstrahlung->endDaughters(); 
+	      ++DaughterIter) {
+	  mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
+	}
+      }
+      else {
+	edm::LogWarning("MaterialEffects") <<  " WARNING: A non valid vertex was found in brem -> " << ivertex << std::endl;    
       }
       
     }
@@ -348,13 +369,17 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
       // continues its way...
       int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack,
                                             FSimVertexType::BREM_VERTEX);
-      for ( DaughterIter = MuonBremsstrahlung->beginDaughters();
-            DaughterIter != MuonBremsstrahlung->endDaughters();
-            ++DaughterIter) {
-
-        mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
-	//        std::cout << "adding a new photon to the vertex (Muon_Bremsstrahlung) " << std::endl;
-
+ 
+     // Check if it is a valid vertex first:
+      if (ivertex>=0) {
+	for ( DaughterIter = MuonBremsstrahlung->beginDaughters();
+	      DaughterIter != MuonBremsstrahlung->endDaughters();
+	      ++DaughterIter) {
+	  mySimEvent.addSimTrack(&(*DaughterIter), ivertex);
+	}
+      }
+      else {
+	edm::LogWarning("MaterialEffects") <<  " WARNING: A non valid vertex was found in muon brem -> " << ivertex << std::endl;    
       }
 
     }

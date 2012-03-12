@@ -9,7 +9,7 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
 
-// $Id: SiStripFolderOrganizer.cc,v 1.28 2010/03/27 11:03:34 dutta Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.29 2010/05/06 06:55:40 dutta Exp $
 //
 
 #include <iostream>
@@ -27,15 +27,13 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-
+#define CONTROL_FOLDER_NAME "ControlView"
+#define MECHANICAL_FOLDER_NAME "MechanicalView"
+#define SEP "/"
 
 SiStripFolderOrganizer::SiStripFolderOrganizer()
 {
   TopFolderName="SiStrip";
-  MechanicalFolderName="MechanicalView";
-  ReadoutFolderName="ReadoutView";
-  ControlFolderName="ControlView";
-  sep ="/";
   // get a pointer to DQMStore
   dbe_  = edm::Service<DQMStore>().operator->();
 }
@@ -61,13 +59,13 @@ void SiStripFolderOrganizer::setSiStripFolder(){
 
 
 std::string SiStripFolderOrganizer::getSiStripTopControlFolder(){
-   std::string lokal_folder = TopFolderName + ControlFolderName;
+   std::string lokal_folder = TopFolderName + CONTROL_FOLDER_NAME;
    return lokal_folder;
 }
 
 
 void SiStripFolderOrganizer::setSiStripTopControlFolder(){
-   std::string lokal_folder = TopFolderName + ControlFolderName;
+   std::string lokal_folder = TopFolderName + CONTROL_FOLDER_NAME;
    dbe_->setCurrentFolder(lokal_folder);
    return;
 }
@@ -84,17 +82,17 @@ std::string SiStripFolderOrganizer::getSiStripControlFolder(
   std::stringstream lokal_folder;
   lokal_folder << getSiStripTopControlFolder();
   //   if ( crate != all_ ) {// if ==all_ then remain in top control folder
-  //     lokal_folder << sep << "FecCrate" << crate;
+  //     lokal_folder << SEP << "FecCrate" << crate;
   if ( slot != all_ ) {
-    lokal_folder << sep << "FecSlot" << slot;
+    lokal_folder << SEP << "FecSlot" << slot;
     if ( ring != all_ ) {
-      lokal_folder << sep << "FecRing" << ring;
+      lokal_folder << SEP << "FecRing" << ring;
       if ( addr != all_ ) {
-	lokal_folder << sep << "CcuAddr" << addr;
+	lokal_folder << SEP << "CcuAddr" << addr;
 	if ( chan != all_ ) {
-	  lokal_folder << sep << "CcuChan" << chan;
+	  lokal_folder << SEP << "CcuChan" << chan;
 	  // 	    if ( i2c != all_ ) {
-	  // 	      lokal_folder << sep << "I2cAddr" << i2c;
+	  // 	      lokal_folder << SEP << "I2cAddr" << i2c;
 	  // 	    }
 	}
       }
@@ -160,16 +158,16 @@ void SiStripFolderOrganizer::setDetectorFolder(uint32_t rawdetid){
 }
 
 void SiStripFolderOrganizer::getSubDetLayerFolderName(std::stringstream& ss, SiStripDetId::SubDetector subDet, uint32_t layer, uint32_t side){
-  ss << TopFolderName << sep << MechanicalFolderName;
+  ss << TopFolderName << SEP << MECHANICAL_FOLDER_NAME;
 
   if(subDet == SiStripDetId::TIB){
-    ss << sep << "TIB" << sep << "layer_" << layer << sep;
+    ss << SEP << "TIB" << SEP << "layer_" << layer << SEP;
   } else if(subDet == SiStripDetId::TID){
-    ss << sep << "TID" << sep << "side_" << side << sep << "wheel_" << layer << sep;
+    ss << SEP << "TID" << SEP << "side_" << side << SEP << "wheel_" << layer << SEP;
   } else if( subDet == SiStripDetId::TOB){
-    ss << sep << "TOB" << sep << "layer_" << layer << sep;
+    ss << SEP << "TOB" << SEP << "layer_" << layer << SEP;
   }else if(subDet == SiStripDetId::TEC){
-    ss << sep << "TEC" << sep << "side_" << side << sep << "wheel_" << layer << sep;
+    ss << SEP << "TEC" << SEP << "side_" << side << SEP << "wheel_" << layer << SEP;
   }else{
     // ---------------------------  ???  --------------------------- //
     edm::LogWarning("SiStripTkDQM|WrongInput")<<"no such SubDet :"<< subDet <<" no folder set!"<<std::endl;
@@ -189,39 +187,39 @@ void SiStripFolderOrganizer::getFolderName(int32_t rawdetid, std::string& lokal_
   // ---------------------------  TIB  --------------------------- //
     TIBDetId tib = TIBDetId(rawdetid);
     getSubDetLayerFolderName(rest,stripdet.subDetector(),tib.layerNumber());
-    if (tib.isZMinusSide())      rest << "backward_strings" << sep;
-    else                         rest << "forward_strings"  << sep;
-    if (tib.isExternalString())  rest << "external_strings" << sep;
-    else                         rest << "internal_strings" << sep;
-    rest << "string_" << tib.stringNumber() << sep << "module_" << rawdetid;
+    if (tib.isZMinusSide())      rest << "backward_strings" << SEP;
+    else                         rest << "forward_strings"  << SEP;
+    if (tib.isExternalString())  rest << "external_strings" << SEP;
+    else                         rest << "internal_strings" << SEP;
+    rest << "string_" << tib.stringNumber() << SEP << "module_" << rawdetid;
   } else if(stripdet.subDetector() == SiStripDetId::TID){
   // ---------------------------  TID  --------------------------- //
     TIDDetId tid = TIDDetId(rawdetid);
     getSubDetLayerFolderName(rest,stripdet.subDetector(),tid.wheel(),tid.side());
-    rest<< "ring_"  << tid.ring() << sep;
+    rest<< "ring_"  << tid.ring() << SEP;
 
-    if (tid.isStereo()) rest << "stereo_modules" << sep;
-    else                rest << "mono_modules" << sep;
+    if (tid.isStereo()) rest << "stereo_modules" << SEP;
+    else                rest << "mono_modules" << SEP;
     rest  << "module_" << rawdetid;
   } else if( stripdet.subDetector() == SiStripDetId::TOB){
   // ---------------------------  TOB  --------------------------- //
     TOBDetId tob = TOBDetId(rawdetid);
     getSubDetLayerFolderName(rest,stripdet.subDetector(),tob.layerNumber());
-    if (tob.isZMinusSide()) rest << "backward_rods" << sep;
-    else                    rest << "forward_rods" << sep;
-    rest << "rod_" << tob.rodNumber() << sep<< "module_" << rawdetid;
+    if (tob.isZMinusSide()) rest << "backward_rods" << SEP;
+    else                    rest << "forward_rods" << SEP;
+    rest << "rod_" << tob.rodNumber() << SEP<< "module_" << rawdetid;
   }else if(stripdet.subDetector() == SiStripDetId::TEC){
   // ---------------------------  TEC  --------------------------- //
     TECDetId tec = TECDetId(rawdetid);
     getSubDetLayerFolderName(rest,stripdet.subDetector(),tec.wheel(),tec.side());
-    if (tec.isBackPetal()) rest << "backward_petals" << sep;
-    else                   rest << "forward_petals" << sep;
+    if (tec.isBackPetal()) rest << "backward_petals" << SEP;
+    else                   rest << "forward_petals" << SEP;
 
-    rest << "petal_" << tec.petalNumber() << sep
-         << "ring_"<< tec.ringNumber() << sep;
+    rest << "petal_" << tec.petalNumber() << SEP
+         << "ring_"<< tec.ringNumber() << SEP;
 
-    if (tec.isStereo())    rest << "stereo_modules" << sep;
-    else                   rest << "mono_modules" << sep;
+    if (tec.isStereo())    rest << "stereo_modules" << SEP;
+    else                   rest << "mono_modules" << SEP;
 
     rest << "module_" << rawdetid;
   }else{
@@ -234,7 +232,7 @@ void SiStripFolderOrganizer::getFolderName(int32_t rawdetid, std::string& lokal_
 }
 
 void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, int32_t layer, bool ring_flag){
-  std::string lokal_folder = TopFolderName + sep + MechanicalFolderName;
+  std::string lokal_folder = TopFolderName + SEP + MECHANICAL_FOLDER_NAME;
   if(rawdetid == 0 ){ // just top MechanicalFolder if rawdetid==0;
     dbe_->setCurrentFolder(lokal_folder);
     return;
@@ -250,7 +248,7 @@ void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, int32_t layer, bo
       edm::LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tib1.layer() <<std::endl;
       return;
     }
-    rest<<sep<<"TIB"<<sep<<"layer_"<<tib1.layer();
+    rest<<SEP<<"TIB"<<SEP<<"layer_"<<tib1.layer();
   }else if(stripdet.subDetector() == SiStripDetId::TID){
   // ---------------------------  TID  --------------------------- //
     TIDDetId tid1 = TIDDetId(rawdetid);
@@ -260,14 +258,14 @@ void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, int32_t layer, bo
 	edm::LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tid1.ring() <<std::endl;
 	return;
       }
-      rest<<sep<<"TID"<<sep<<"side_"<<tid1.side()<<sep<<"ring_"<<tid1.ring();
+      rest<<SEP<<"TID"<<SEP<<"side_"<<tid1.side()<<SEP<<"ring_"<<tid1.ring();
     }else{
       int tid_wheel = tid1.wheel();
       if (abs(layer)  != tid_wheel) {
 	edm::LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tid1.wheel() <<std::endl;
 	return;
       }
-      rest<<sep<<"TID"<<sep<<"side_"<<tid1.side()<<sep<<"wheel_"<<tid1.wheel();
+      rest<<SEP<<"TID"<<SEP<<"side_"<<tid1.side()<<SEP<<"wheel_"<<tid1.wheel();
     }
   }else if(stripdet.subDetector() == SiStripDetId::TOB){
   // ---------------------------  TOB  --------------------------- //
@@ -277,7 +275,7 @@ void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, int32_t layer, bo
       edm::LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tob1.layer() <<std::endl;
       return;
     }
-    rest<<sep<<"TOB"<<sep<<"layer_"<<tob1.layer();
+    rest<<SEP<<"TOB"<<SEP<<"layer_"<<tob1.layer();
   }else if( stripdet.subDetector() == SiStripDetId::TEC){
   // ---------------------------  TEC  --------------------------- //
     TECDetId tec1 = TECDetId(rawdetid);
@@ -287,14 +285,14 @@ void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, int32_t layer, bo
 	edm::LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tec1.ring() <<std::endl;
 	return;
       }
-      rest<<sep<<"TEC"<<sep<<"side_"<<tec1.side()<<sep<<"ring_"<<tec1.ring();
+      rest<<SEP<<"TEC"<<SEP<<"side_"<<tec1.side()<<SEP<<"ring_"<<tec1.ring();
     }else{
       int tec_wheel = tec1.wheel();
       if (abs(layer)  != tec_wheel) {
 	edm::LogWarning("SiStripTkDQM|Layer mismatch!!!")<< " expect "<<  abs(layer) << " but getting " << tec1.wheel() <<std::endl;
 	return;
       }
-      rest<<sep<<"TEC"<<sep<<"side_"<<tec1.side()<<sep<<"wheel_"<<tec1.wheel();
+      rest<<SEP<<"TEC"<<SEP<<"side_"<<tec1.side()<<SEP<<"wheel_"<<tec1.wheel();
     }
   }else{
   // ---------------------------  ???  --------------------------- //
@@ -315,7 +313,7 @@ void SiStripFolderOrganizer::getSubDetFolder(const uint32_t& detid, std::string&
 // -- Get the name of Subdetector Layer folder
 //
 void SiStripFolderOrganizer::getLayerFolderName(std::stringstream& ss, uint32_t rawdetid,bool ring_flag){
-  ss << TopFolderName + sep + MechanicalFolderName;
+  ss << TopFolderName + SEP + MECHANICAL_FOLDER_NAME;
   if(rawdetid == 0 ){ // just top MechanicalFolder if rawdetid==0;
     return;
   }
@@ -324,26 +322,26 @@ void SiStripFolderOrganizer::getLayerFolderName(std::stringstream& ss, uint32_t 
   if(stripdet.subDetector() == SiStripDetId::TIB ){
   // ---------------------------  TIB  --------------------------- //
     TIBDetId tib1 = TIBDetId(rawdetid);
-    ss<<sep<<"TIB"<<sep<<"layer_"<<tib1.layer();
+    ss<<SEP<<"TIB"<<SEP<<"layer_"<<tib1.layer();
   }else if(stripdet.subDetector() == SiStripDetId::TID){
   // ---------------------------  TID  --------------------------- //
     TIDDetId tid1 = TIDDetId(rawdetid);
     if(ring_flag){
-      ss<<sep<<"TID"<<sep<<"side_"<<tid1.side()<<sep<<"ring_"<<tid1.ring();
+      ss<<SEP<<"TID"<<SEP<<"side_"<<tid1.side()<<SEP<<"ring_"<<tid1.ring();
     }else{
-      ss<<sep<<"TID"<<sep<<"side_"<<tid1.side()<<sep<<"wheel_"<<tid1.wheel();
+      ss<<SEP<<"TID"<<SEP<<"side_"<<tid1.side()<<SEP<<"wheel_"<<tid1.wheel();
     }
   }else if(stripdet.subDetector() == SiStripDetId::TOB){
   // ---------------------------  TOB  --------------------------- //
     TOBDetId tob1 = TOBDetId(rawdetid);
-    ss<<sep<<"TOB"<<sep<<"layer_"<<tob1.layer();
+    ss<<SEP<<"TOB"<<SEP<<"layer_"<<tob1.layer();
   }else if( stripdet.subDetector() == SiStripDetId::TEC){
   // ---------------------------  TEC  --------------------------- //
     TECDetId tec1 = TECDetId(rawdetid);
     if(ring_flag){
-      ss<<sep<<"TEC"<<sep<<"side_"<<tec1.side()<<sep<<"ring_"<<tec1.ring();
+      ss<<SEP<<"TEC"<<SEP<<"side_"<<tec1.side()<<SEP<<"ring_"<<tec1.ring();
     }else{
-      ss<<sep<<"TEC"<<sep<<"side_"<<tec1.side()<<sep<<"wheel_"<<tec1.wheel();
+      ss<<SEP<<"TEC"<<SEP<<"side_"<<tec1.side()<<SEP<<"wheel_"<<tec1.wheel();
     }
   }else{
   // ---------------------------  ???  --------------------------- //
@@ -355,44 +353,43 @@ void SiStripFolderOrganizer::getLayerFolderName(std::stringstream& ss, uint32_t 
 // -- Get Subdetector Folder name and the Tag
 //
 std::pair<std::string, std::string> SiStripFolderOrganizer::getSubDetFolderAndTag(const uint32_t& detid) {
-
+  std::pair<std::string, std::string> result;
+  result.first = TopFolderName + SEP MECHANICAL_FOLDER_NAME SEP;
   std::string subdet_folder;
-  std::string subdet_tag;
   switch(StripSubdetector::SubDetector(StripSubdetector(detid).subdetId()))
     {
     case StripSubdetector::TIB:
-      subdet_folder="TIB";
-      subdet_tag = subdet_folder;
+      subdet_folder = "TIB";
+      result.second = subdet_folder;
       break;
     case StripSubdetector::TOB:
-      subdet_folder="TOB";
-      subdet_tag = subdet_folder;
+      subdet_folder = "TOB";
+      result.second = subdet_folder;
       break;
     case StripSubdetector::TID:
       if (TIDDetId(detid).side() == 2) {
         subdet_folder = "TID/side_2";
-	subdet_tag    = "TID__side__2";
+	result.second = "TID__side__2";
       } else if (TIDDetId(detid).side() == 1) {
         subdet_folder = "TID/side_1";
-	subdet_tag    = "TID__side__1";
+	result.second = "TID__side__1";
       }
       break;
     case StripSubdetector::TEC:
       if (TECDetId(detid).side() == 2) {
         subdet_folder = "TEC/side_2";
-	subdet_tag    = "TEC__side__2";
+	result.second = "TEC__side__2";
       } else if (TECDetId(detid).side() == 1) {
         subdet_folder = "TEC/side_1";
-	subdet_tag    = "TEC__side__1";
+	result.second = "TEC__side__1";
       }
       break;
     default:
       {
 	edm::LogWarning("SiStripCommon") << "WARNING!!! this detid does not belong to tracker" << std::endl;
         subdet_folder = "";
-        subdet_tag    = "";
       }
     }
-  std::string folder_name = TopFolderName + sep + MechanicalFolderName + sep + subdet_folder;
-  return std::make_pair(folder_name,subdet_tag);
+  result.first += subdet_folder;
+  return result; 
 }
