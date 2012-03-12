@@ -55,12 +55,6 @@ class HLTProcess(object):
     "HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v*",
     
 # TODO: paths not supported by FastSim, but for which a recovery should be attempted
-    "HLT_MET120_HBHENoiseCleaned_v*",
-    "HLT_MET200_HBHENoiseCleaned_v*",
-    "HLT_MET300_HBHENoiseCleaned_v*",
-    "HLT_MET400_HBHENoiseCleaned_v*",
-    "HLT_DiCentralPFJet30_CaloMET50_PFMHT80_HBHENoiseFiltered_dPhi1_v*",
-    "HLT_CentralCaloJet50PFJet80_CaloMET50_PFMHT80_HBHENoiseFiltered_dPhi1_v*",
   
     )
 
@@ -352,6 +346,7 @@ if 'hltHfreco' in %(dict)s:
       self._fix_parameter(                               type = 'InputTag', value = 'hltMuonDTDigis',       replace = 'simMuonDTDigis')
       self._fix_parameter(                               type = 'InputTag', value = 'hltMuonRPCDigis',      replace = 'simMuonRPCDigis')
       self._fix_parameter(                               type = 'InputTag', value = 'hltRegionalTracksForL3MuonIsolation', replace = 'hltPixelTracks')
+      self._fix_parameter(name = 'src',                  type = 'InputTag', value = 'hltHcalTowerNoiseCleaner', replace = 'hltTowerMakerForAll')
 
       # fix the definition of sequences and paths
       self.data = re.sub( r'hltMuonCSCDigis', r'cms.SequencePlaceholder( "simMuonCSCDigis" )',  self.data )
@@ -857,17 +852,8 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "hltPixelVertices" )
       self.options['modules'].append( "-hltCkfL1SeededTrackCandidates" )
       self.options['modules'].append( "-hltCtfL1SeededithMaterialTracks" )
-      self.options['modules'].append( "-hltCkfL1IsoTrackCandidates" )
-      self.options['modules'].append( "-hltCtfL1IsoWithMaterialTracks" )
-      self.options['modules'].append( "-hltCkfL1NonIsoTrackCandidates" )
-      self.options['modules'].append( "-hltCtfL1NonIsoWithMaterialTracks" )
-      self.options['modules'].append( "-hltCkf3HitL1IsoTrackCandidates" )
       self.options['modules'].append( "-hltCkf3HitL1SeededTrackCandidates" )
       self.options['modules'].append( "-hltCtf3HitL1SeededWithMaterialTracks" )
-      self.options['modules'].append( "-hltCkf3HitL1IsoTrackCandidates" )
-      self.options['modules'].append( "-hltCtf3HitL1IsoWithMaterialTracks" )
-      self.options['modules'].append( "-hltCkf3HitL1NonIsoTrackCandidates" )
-      self.options['modules'].append( "-hltCtf3HitL1NonIsoWithMaterialTracks" )
       self.options['modules'].append( "-hltCkf3HitActivityTrackCandidates" )
       self.options['modules'].append( "-hltCtf3HitActivityWithMaterialTracks" )
       self.options['modules'].append( "-hltActivityCkfTrackCandidatesForGSF" )
@@ -991,6 +977,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTHBHENoiseSequence" )
       self.options['sequences'].append( "-HLTIterativeTracking" )
       self.options['sequences'].append( "-HLTRegionalCKFTracksForL3Isolation" )
+      self.options['sequences'].append( "-HLTHBHENoiseCleanerSequence" )
 
       # remove HLTAnalyzerEndpath from fastsim cff's
       if self.config.fragment:
