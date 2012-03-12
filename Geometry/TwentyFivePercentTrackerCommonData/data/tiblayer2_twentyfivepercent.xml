@@ -1,67 +1,63 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
-
-<ConstantsSection label="tiblayer2_twentyfivepercent.xml" eval="true">
- <Constant name="RadiusUp"       value="([tiblayerpar:RadiusLo2]+
-                                         [tiblayerpar:DRUpLo])"/>
-</ConstantsSection>
-
-<Algorithm name="track:DDTIBLayerAlgo">
-  <rParent name="tiblayer2_twentyfivepercent:TIBLayer2"/>
-  <String name="GeneralMaterial"    value="materials:Air"/>
-  <Numeric name="DetectorTilt"      value="[tiblayerpar:DetTilt]"/>
-  <Numeric name="LayerL"            value="[tibstringpar:StringL]"/>
-  <Numeric name="LayerTolerance"    value="[tiblayerpar:Tolerance]"/>
-  <Numeric name="DetectorWidth"     value="2*[tibmodpar:ModuleDx]"/>
-  <Numeric name="DetectorThickness" value="2*[tibmodpar:ModuleDy]"/>
-  <Numeric name="CoolTubeWidth"     value="[tibstringpar:CoolTubeW]"/>
-  <Numeric name="CoolTubeThickness" value="[tibstringpar:CoolTubeD]"/>
-  <Numeric name="RadiusLo"          value="[tiblayerpar:RadiusLo2]"/>
-  <Numeric name="PhiOffsetLo"       value="4.323*deg"/>
-  <Numeric name="StringsLo"         value="44"/>
-  <String name="StringDetLoName"    value="tibstring2_twentyfivepercent:TIBString2Lo1"/>
-  <Numeric name="ROffsetDetLo"      value="[tiblayerpar:ROffDet]"/>
-  <String name="StringCabLoName"    value="tibstring2_twentyfivepercent:TIBString2Lo2"/>
-  <Numeric name="ROffsetCabLo"      value="[tiblayerpar:ROffCable]"/>
-  <Numeric name="RadiusUp"          value="[tiblayer2_twentyfivepercent:RadiusUp]"/>
-  <Numeric name="PhiOffsetUp"       value="4.004*deg"/>
-  <Numeric name="StringsUp"         value="46"/>
-  <String name="StringDetUpName"    value="tibstring2_twentyfivepercent:TIBString2Up1"/>
-  <Numeric name="ROffsetDetUp"      value="-[tiblayerpar:ROffDet]"/>
-  <String name="StringCabUpName"    value="tibstring2_twentyfivepercent:TIBString2Up2"/>
-  <Numeric name="ROffsetCabUp"      value="-[tiblayerpar:ROffCable]"/>
-  <Numeric name="CylinderThickness" value="[tiblayerpar:CylinderT]"/>
-  <String name="CylinderMaterial"   value="tibmaterial:TIB_cylinder"/>
-  <Numeric name="SupportWidth"      value="[tiblayerpar:SupportW]"/>
-  <Numeric name="SupportThickness"  value="[tiblayerpar:SupportT]"/>
-  <String name="SupportMaterial"    value="tibmaterial:TIB_cent_supp"/>
-  <String name="RibMaterial"        value="tibmaterial:TIB_Rib_in3"/>
-  <Vector name="RibWidth" type="numeric" nEntries="6">
-   [tiblayerpar:RibWidth1], [tiblayerpar:RibWidth2], [tiblayerpar:RibWidth2], 
-   [tiblayerpar:RibWidth1], [tiblayerpar:RibWidth2], [tiblayerpar:RibWidth2] 
-  </Vector>
-  <Vector name="RibPhi" type="numeric" nEntries="6">
-   0*deg, 62.6*deg, 117.4*deg, 180.0*deg, 242.6*deg, 297.4*deg
-  </Vector>
-  <Numeric name="DOHMPhiNumber"           value="6"/>
-  <Vector name="DOHMList" type="numeric" nEntries="6">
-    2 , 2 , 2 , 2 , 2 , 2
-  </Vector>
-  <Numeric name="DOHMCarrierWidth"        value="[tiblayerpar:DOHMCarrierW]"/>
-  <Numeric name="DOHMCarrierThickness"    value="[tiblayerpar:DOHMCarrierT]"/>
-  <Numeric name="DOHMCarrierRadialHeight" value="2.5*cm"/>
-  <String name="DOHMCarrierMaterial"      value="tibmaterial:TIB_DOHM_carrier"/>
-  <String name="DOHMCableMaterial"        value="tibmaterial:TIB_DOHM_cable"/>
-  <String name="DOHMPRIMMaterial"         value="tibmaterial:TIB_DOHM_PRIM"/>
-  <Numeric name="DOHMPRIMWidth"           value="[tiblayerpar:DOHM_PRIM_W]"/>
-  <Numeric name="DOHMPRIMLength"          value="[tiblayerpar:DOHM_PRIM_L]"/>
-  <Numeric name="DOHMPRIMThickness"       value="[tiblayerpar:DOHM_PRIM_T]"/>
-  <String name="DOHMAUXMaterial"          value="tibmaterial:TIB_DOHM_AUX"/>
-  <Numeric name="DOHMAUXWidth"            value="[tiblayerpar:DOHM_AUX_W]"/>
-  <Numeric name="DOHMAUXLength"           value="[tiblayerpar:DOHM_AUX_L]"/>
-  <Numeric name="DOHMAUXThickness"        value="[tiblayerpar:DOHM_AUX_T]"/>
-  <String name="DOHMRotstrPlus"           value="tiblayerpar:NULL"/>
-  <String name="DOHMRotstrMinus"          value="tiblayerpar:D180"/>
-</Algorithm>
-
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tiblayer2_twentyfivepercent.xml" eval="true">
+		<Constant name="RadiusUp" value="([tiblayerpar:RadiusLo2]+                                          [tiblayerpar:DRUpLo])"/>
+	</ConstantsSection>
+	<Algorithm name="track:DDTIBLayerAlgo">
+		<rParent name="tiblayer2_twentyfivepercent:TIBLayer2"/>
+		<String name="GeneralMaterial" value="materials:Air"/>
+		<Numeric name="DetectorTilt" value="[tiblayerpar:DetTilt]"/>
+		<Numeric name="LayerL" value="[tibstringpar:StringL]"/>
+		<Numeric name="LayerTolerance" value="[tiblayerpar:Tolerance]"/>
+		<Numeric name="DetectorWidth" value="2*[tibmodpar:ModuleDx]"/>
+		<Numeric name="DetectorThickness" value="2*[tibmodpar:ModuleDy]"/>
+		<Numeric name="CoolTubeWidth" value="[tibstringpar:CoolTubeW]"/>
+		<Numeric name="CoolTubeThickness" value="[tibstringpar:CoolTubeD]"/>
+		<Numeric name="RadiusLo" value="[tiblayerpar:RadiusLo2]"/>
+		<Numeric name="PhiOffsetLo" value="4.323*deg"/>
+		<Numeric name="StringsLo" value="44"/>
+		<String name="StringDetLoName" value="tibstring2_twentyfivepercent:TIBString2Lo1"/>
+		<Numeric name="ROffsetDetLo" value="[tiblayerpar:ROffDet]"/>
+		<String name="StringCabLoName" value="tibstring2_twentyfivepercent:TIBString2Lo2"/>
+		<Numeric name="ROffsetCabLo" value="[tiblayerpar:ROffCable]"/>
+		<Numeric name="RadiusUp" value="[tiblayer2_twentyfivepercent:RadiusUp]"/>
+		<Numeric name="PhiOffsetUp" value="4.004*deg"/>
+		<Numeric name="StringsUp" value="46"/>
+		<String name="StringDetUpName" value="tibstring2_twentyfivepercent:TIBString2Up1"/>
+		<Numeric name="ROffsetDetUp" value="-[tiblayerpar:ROffDet]"/>
+		<String name="StringCabUpName" value="tibstring2_twentyfivepercent:TIBString2Up2"/>
+		<Numeric name="ROffsetCabUp" value="-[tiblayerpar:ROffCable]"/>
+		<Numeric name="CylinderThickness" value="[tiblayerpar:CylinderT]"/>
+		<String name="CylinderMaterial" value="tibmaterial:TIB_cylinder"/>
+		<Numeric name="SupportWidth" value="[tiblayerpar:SupportW]"/>
+		<Numeric name="SupportThickness" value="[tiblayerpar:SupportT]"/>
+		<String name="SupportMaterial" value="tibmaterial:TIB_cent_supp"/>
+		<String name="RibMaterial" value="tibmaterial:TIB_Rib_in3"/>
+		<Vector name="RibWidth" type="numeric" nEntries="6">
+			[tiblayerpar:RibWidth1], [tiblayerpar:RibWidth2], [tiblayerpar:RibWidth2], 
+			[tiblayerpar:RibWidth1], [tiblayerpar:RibWidth2], [tiblayerpar:RibWidth2] 
+		</Vector>
+		<Vector name="RibPhi" type="numeric" nEntries="6">
+			0*deg, 62.6*deg, 117.4*deg, 180.0*deg, 242.6*deg, 297.4*deg
+		</Vector>
+		<Numeric name="DOHMPhiNumber" value="6"/>
+		<Vector name="DOHMList" type="numeric" nEntries="6">
+			2 , 2 , 2 , 2 , 2 , 2
+		</Vector>
+		<Numeric name="DOHMCarrierWidth" value="[tiblayerpar:DOHMCarrierW]"/>
+		<Numeric name="DOHMCarrierThickness" value="[tiblayerpar:DOHMCarrierT]"/>
+		<Numeric name="DOHMCarrierRadialHeight" value="2.5*cm"/>
+		<String name="DOHMCarrierMaterial" value="tibmaterial:TIB_DOHM_carrier"/>
+		<String name="DOHMCableMaterial" value="tibmaterial:TIB_DOHM_cable"/>
+		<String name="DOHMPRIMMaterial" value="tibmaterial:TIB_DOHM_PRIM"/>
+		<Numeric name="DOHMPRIMWidth" value="[tiblayerpar:DOHM_PRIM_W]"/>
+		<Numeric name="DOHMPRIMLength" value="[tiblayerpar:DOHM_PRIM_L]"/>
+		<Numeric name="DOHMPRIMThickness" value="[tiblayerpar:DOHM_PRIM_T]"/>
+		<String name="DOHMAUXMaterial" value="tibmaterial:TIB_DOHM_AUX"/>
+		<Numeric name="DOHMAUXWidth" value="[tiblayerpar:DOHM_AUX_W]"/>
+		<Numeric name="DOHMAUXLength" value="[tiblayerpar:DOHM_AUX_L]"/>
+		<Numeric name="DOHMAUXThickness" value="[tiblayerpar:DOHM_AUX_T]"/>
+		<String name="DOHMRotstrPlus" value="tiblayerpar:NULL"/>
+		<String name="DOHMRotstrMinus" value="tiblayerpar:D180"/>
+	</Algorithm>
 </DDDefinition>

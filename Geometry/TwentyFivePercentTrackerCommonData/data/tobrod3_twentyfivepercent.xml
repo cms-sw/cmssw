@@ -1,25 +1,20 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
-
-<ConstantsSection label="tobrod3_twentyfivepercent.xml" eval="true">
- <Constant name="zero"          value="0.0*fm"/>
-</ConstantsSection>
-
-<LogicalPartSection label="tobrod3_twentyfivepercent.xml">
- <LogicalPart name="TOBRod3" category="unspecified">
-  <rSolid name="tobrodpar:TOBRod"/>
-  <rMaterial name="materials:Air"/>
- </LogicalPart>
-</LogicalPartSection>
-
-<PosPartSection label="tobrod3_twentyfivepercent.xml">
- <PosPart copyNumber="1">
-   <rParent name="tobrod3_twentyfivepercent:TOBRod3"/>
-   <rChild name="tobrod3l:TOBRod3L"/>
-  <rRotation name="tobrodpar:180X"/>
-  <Translation x="[zero]"         y="[zero]" 
-               z="([tobrodpar:RodL]-[tobrodpar:RodDL])/2" />
- </PosPart>
-</PosPartSection>
- 
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tobrod3_twentyfivepercent.xml" eval="true">
+		<Constant name="zero" value="0.0*fm"/>
+	</ConstantsSection>
+	<LogicalPartSection label="tobrod3_twentyfivepercent.xml">
+		<LogicalPart name="TOBRod3" category="unspecified">
+			<rSolid name="tobrodpar:TOBRod"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="tobrod3_twentyfivepercent.xml">
+		<PosPart copyNumber="1">
+			<rParent name="tobrod3_twentyfivepercent:TOBRod3"/>
+			<rChild name="tobrod3l:TOBRod3L"/>
+			<rRotation name="tobrodpar:180X"/>
+			<Translation x="[zero]" y="[zero]" z="([tobrodpar:RodL]-[tobrodpar:RodDL])/2"/>
+		</PosPart>
+	</PosPartSection>
 </DDDefinition>
