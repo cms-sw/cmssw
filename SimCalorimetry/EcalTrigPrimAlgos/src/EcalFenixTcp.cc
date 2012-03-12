@@ -20,7 +20,6 @@ EcalFenixTcp::EcalFenixTcp(const edm::EventSetup& setup,bool tcpFormat, bool deb
     formatter_= new EcalFenixTcpFormat(tcpFormat, debug_, famos, binOfMax);
     fgvbEB_= new EcalFenixFgvbEB(maxNrSamples);
     fgvbEE_= new EcalFenixTcpFgvbEE(maxNrSamples);
-    sfgvbEB_ = new EcalFenixTcpsFgvbEB();
 
     // permanent data structures
     bypasslin_out_.resize(nbMaxStrips_);
@@ -29,7 +28,6 @@ EcalFenixTcp::EcalFenixTcp(const edm::EventSetup& setup,bool tcpFormat, bool deb
     adder_out_.resize(maxNrSamples);
     maxOf2_out_.resize(maxNrSamples);
     fgvb_out_.resize(maxNrSamples);
-    strip_fgvb_out_.resize(maxNrSamples);
 
   }
 //-----------------------------------------------------------------------------------------  
@@ -55,7 +53,7 @@ void EcalFenixTcp::process(const edm::EventSetup& setup,
   process_part1(tpframetow,nStr,bitMask);
 
  
-process_part2_barrel(tpframetow,nStr,bitMask,ecaltpgFgEBGroup_,ecaltpgLutGroup_,ecaltpgLut_,ecaltpgFineGrainEB_,ecaltpgBadTT_,ecaltpgSpike_,tptow,tptow2,towid);
+process_part2_barrel(tpframetow,nStr,ecaltpgFgEBGroup_,ecaltpgLutGroup_,ecaltpgLut_,ecaltpgFineGrainEB_,ecaltpgBadTT_,tptow,tptow2,towid);
 }
  
 //-----------------------------------------------------------------------------------------  
@@ -107,21 +105,19 @@ void EcalFenixTcp::process_part1(std::vector<std::vector<int> > &tpframetow, int
     
 }
 //-----------------------------------------------------------------------------------------
-void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int> > & bypasslinout,
-                                        int nStr, int bitMask,
+void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int> > & bypasslinout, int nStr,
                                         const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup,
                                         const EcalTPGLutGroup *ecaltpgLutGroup,
                                         const EcalTPGLutIdMap *ecaltpgLut,
                                         const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB,
 					const EcalTPGTowerStatus *ecaltpgBadTT,
-                                        const EcalTPGSpike * ecaltpgSpike,
 					std::vector< EcalTriggerPrimitiveSample> & tcp_out,
                                         std::vector< EcalTriggerPrimitiveSample> & tcp_outTcc,
 					EcalTrigTowerDetId towid)
 {
   //call maxof2
   //  this->getMaxOf2()->process(bypasslin_out_,nStr,maxOf2_out_);
-  this->getMaxOf2()->process(bypasslinout,nStr,bitMask,maxOf2_out_);
+  this->getMaxOf2()->process(bypasslinout,nStr,maxOf2_out_);
   // this is a test:
   if (debug_) {
     std::cout<< "output of maxof2 is a vector of size: "<<maxOf2_out_.size()<<std::endl; 
@@ -136,10 +132,6 @@ void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int> > & bypassl
 
   this->getFGVBEB()->setParameters(towid.rawId(),ecaltpgFgEBGroup,ecaltpgFineGrainEB);
   this->getFGVBEB()->process(adder_out_,maxOf2_out_,fgvb_out_);
-
-  // Call sFGVB
-  this->getsFGVBEB()->process(bypasslinout,nStr,bitMask,strip_fgvb_out_);
-
   //this is a test:
   if (debug_) {
     std::cout<< "output of fgvb is a vector of size: "<<fgvb_out_.size()<<std::endl; 
@@ -153,8 +145,8 @@ void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int> > & bypassl
   // call formatter
   int eTTotShift=2;
  
-  this->getFormatter()->setParameters(towid.rawId(),ecaltpgLutGroup,ecaltpgLut,ecaltpgBadTT,ecaltpgSpike);
-  this->getFormatter()->process(adder_out_,fgvb_out_,strip_fgvb_out_,eTTotShift,tcp_out,tcp_outTcc,false);
+  this->getFormatter()->setParameters(towid.rawId(),ecaltpgLutGroup,ecaltpgLut,ecaltpgBadTT);
+  this->getFormatter()->process(adder_out_,fgvb_out_,eTTotShift,tcp_out,tcp_outTcc,false);
   //this is a test:
   if (debug_) {
     std::cout<< "output of TCP formatter Barrel is a vector of size: "<<std::dec<<tcp_out.size()<<std::endl; 
@@ -178,12 +170,6 @@ void EcalFenixTcp::process_part2_endcap(std::vector<std::vector<int> > & bypassl
 					EcalTrigTowerDetId towid)
 
 {
-  // Zero EB strip records
-  for(unsigned int i = 0; i < strip_fgvb_out_.size(); ++i)
-  {
-    strip_fgvb_out_[i] = 0;
-  }
-
   //call fgvb
   this->getFGVBEE()->setParameters(towid.rawId(),ecaltpgFineGrainTowerEE);
   //  fgvbEE_->process(bypasslin_out_,nStr,bitMask,fgvb_out_);
@@ -192,9 +178,9 @@ void EcalFenixTcp::process_part2_endcap(std::vector<std::vector<int> > & bypassl
   //call formatter
   int eTTotShift=2; // Pascal: endcap has 12 bits as in EB (bug in FENIX!!!!) so shift must be applied to just keep [11:2]
 
-  this->getFormatter()->setParameters(towid.rawId(),ecaltpgLutGroup,ecaltpgLut,ecaltpgbadTT,0);
+  this->getFormatter()->setParameters(towid.rawId(),ecaltpgLutGroup,ecaltpgLut,ecaltpgbadTT);
 
-  this->getFormatter()->process(adder_out_,fgvb_out_,strip_fgvb_out_,eTTotShift,tcp_out,tcp_outTcc,isInInnerRings);
+  this->getFormatter()->process(adder_out_,fgvb_out_,eTTotShift,tcp_out,tcp_outTcc,isInInnerRings);
   //this is a test:
   if (debug_) {
     std::cout<< "output of TCP formatter(endcap) is a vector of size: "<<std::dec<<tcp_out.size()<<std::endl; 

@@ -33,8 +33,10 @@
   <use   name="TrackingTools/TrackAssociator"/>
   <use   name="Utilities/Timing"/>
   <use   name="xerces-c"/>
+  <flags   LCGDICT_ARGS="--deep"/>
 </bin>
 <bin   name="coeffCompareEE" file="coeffCompareEE.cpp,trivialParser.cc">
+  <flags   LCGDICT_ARGS="--deep"/>
   <use   name="CalibCalorimetry/CaloMiscalibTools"/>
   <use   name="Calibration/Tools"/>
   <use   name="clhep"/>
@@ -71,6 +73,7 @@
   <use   name="xerces-c"/>
 </bin>
 <bin   name="coeffCompareInvEE" file="coeffCompareInvEE.cpp,trivialParser.cc">
+  <flags   LCGDICT_ARGS="--deep"/>
   <use   name="CalibCalorimetry/CaloMiscalibTools"/>
   <use   name="Calibration/Tools"/>
   <use   name="clhep"/>
@@ -106,6 +109,7 @@
   <use   name="xerces-c"/>
 </bin>
 <bin   name="coeffCompare" file="coeffCompare.cpp,trivialParser.cc">
+  <flags   LCGDICT_ARGS="--deep"/>
   <use   name="CalibCalorimetry/CaloMiscalibTools"/>
   <use   name="Calibration/Tools"/>
   <use   name="clhep"/>
@@ -141,6 +145,7 @@
   <use   name="xerces-c"/>
 </bin>
 <bin   name="viewCoeffEB" file="viewCoeffEB.cpp">
+  <flags   LCGDICT_ARGS="--deep"/>
   <use   name="CalibCalorimetry/CaloMiscalibTools"/>
   <use   name="Calibration/Tools"/>
   <use   name="clhep"/>
@@ -176,6 +181,7 @@
   <use   name="xerces-c"/>
 </bin>
 <bin   name="viewCoeffEE" file="viewCoeffEE.cpp">
+  <flags   LCGDICT_ARGS="--deep"/>
   <use   name="CalibCalorimetry/CaloMiscalibTools"/>
   <use   name="Calibration/Tools"/>
   <use   name="clhep"/>
@@ -211,6 +217,7 @@
   <use   name="xerces-c"/>
 </bin>
 <bin   name="mergeXMLEB" file="mergeXMLEB.cpp,trivialParser.cc">
+  <flags   LCGDICT_ARGS="--deep"/>
   <use   name="CalibCalorimetry/CaloMiscalibTools"/>
   <use   name="Calibration/Tools"/>
   <use   name="clhep"/>
@@ -246,6 +253,7 @@
   <use   name="xerces-c"/>
 </bin>
 <bin   name="mergeXMLEE" file="mergeXMLEE.cpp,trivialParser.cc">
+  <flags   LCGDICT_ARGS="--deep"/>
   <use   name="CalibCalorimetry/CaloMiscalibTools"/>
   <use   name="Calibration/Tools"/>
   <use   name="clhep"/>
@@ -281,6 +289,7 @@
   <use   name="xerces-c"/>
 </bin>
 <bin   name="recalibEB" file="recalibEB.cpp">
+  <flags   LCGDICT_ARGS="--deep"/>
   <use   name="CalibCalorimetry/CaloMiscalibTools"/>
   <use   name="Calibration/Tools"/>
   <use   name="clhep"/>
@@ -316,6 +325,7 @@
   <use   name="xerces-c"/>
 </bin>
 <bin   name="recalibEE" file="recalibEE.cpp">
+  <flags   LCGDICT_ARGS="--deep"/>
   <use   name="CalibCalorimetry/CaloMiscalibTools"/>
   <use   name="Calibration/Tools"/>
   <use   name="clhep"/>
@@ -351,6 +361,7 @@
   <use   name="xerces-c"/>
 </bin>
 <bin   name="solveCalibSys" file="solveCalibSys.cpp">
+  <flags   LCGDICT_ARGS="--deep"/>
   <use   name="CalibCalorimetry/CaloMiscalibTools"/>
   <use   name="Calibration/Tools"/>
   <use   name="clhep"/>

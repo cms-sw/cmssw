@@ -1,4 +1,4 @@
-// $Id: DiskWriter.h,v 1.12.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: DiskWriter.h,v 1.14 2011/06/20 09:07:22 mommsen Exp $
 /// @file: DiskWriter.h 
 
 #ifndef EventFilter_StorageManager_DiskWriter_h
@@ -19,6 +19,7 @@
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
+#include "EventFilter/StorageManager/interface/StreamsMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
 
 
@@ -34,8 +35,8 @@ namespace stor {
    * to the appropriate stream file(s) on disk. 
    *
    * $Author: mommsen $
-   * $Revision: 1.12.4.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.14 $
+   * $Date: 2011/06/20 09:07:22 $
    */
   
   class DiskWriter : public toolbox::lang::Class
@@ -132,12 +133,12 @@ namespace stor {
     /**
      * Log file statistics for so far unreported lumi sections
      */
-    void reportRemainingLumiSections() const;
+    void reportRemainingLumiSections();
 
     /**
      * Log end-of-run marker
      */
-    void writeEndOfRunMarker() const;
+    void writeEndOfRunMarker();
 
 
     xdaq::Application* app_;
@@ -152,6 +153,8 @@ namespace stor {
     typedef boost::shared_ptr<StreamHandler> StreamHandlerPtr;
     typedef std::vector<StreamHandlerPtr> StreamHandlers;
     StreamHandlers streamHandlers_;
+
+    StreamsMonitorCollection::EndOfRunReportPtr endOfRunReport_;
 
     bool actionIsActive_;
     toolbox::task::WorkLoop* writingWL_;      

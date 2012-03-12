@@ -286,6 +286,7 @@ private:
   std::vector<std::string> suppressInfo;
   std::vector<std::string> suppressDebug;
   std::vector<std::string> suppressWarning;
+  std::vector<std::string> suppressError;
 
   
 };  // MessageServicePSetValidation

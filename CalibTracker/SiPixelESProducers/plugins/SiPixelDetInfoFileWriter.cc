@@ -3,7 +3,7 @@
 // Class:      SiPixelDetInfoFileWriter
 // Original Author:  V.Chiochia (adapted from the Strip version by G.Bruno)
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiPixelDetInfoFileWriter.cc,v 1.3 2010/01/13 16:25:39 ursl Exp $
+// $Id: SiPixelDetInfoFileWriter.cc,v 1.4.2.1 2010/06/25 16:41:54 hcheung Exp $
 
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileWriter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -27,6 +27,7 @@ SiPixelDetInfoFileWriter::SiPixelDetInfoFileWriter(const edm::ParameterSet& iCon
   edm::LogInfo("SiPixelDetInfoFileWriter::SiPixelDetInfoFileWriter");
 
   filePath_ = iConfig.getUntrackedParameter<std::string>("FilePath",std::string("SiPixelDetInfo.dat"));
+  writeROCInfo_ = iConfig.getUntrackedParameter<bool>("WriteROCInfo",false);
 
 }
 
@@ -38,11 +39,14 @@ SiPixelDetInfoFileWriter::~SiPixelDetInfoFileWriter(){
 
 
 
-void SiPixelDetInfoFileWriter::beginRun(const edm::Run &run , const edm::EventSetup &iSetup){
+void SiPixelDetInfoFileWriter::beginRun(const edm::Run &run , const edm::EventSetup& iSetup){
+
 
   outputFile_.open(filePath_.c_str());
 
+
   if (outputFile_.is_open()){
+
 
     edm::ESHandle<TrackerGeometry> pDD;
 
@@ -65,8 +69,13 @@ void SiPixelDetInfoFileWriter::beginRun(const edm::Run &run , const edm::EventSe
       int ncols = topol.ncolumns();   // cols in y      
       uint32_t detid=(mit->geographicalId()).rawId();
       
-      
-      outputFile_ << detid << " "<< ncols << " " << nrows << "\n";
+      if (writeROCInfo_)
+	{ int rocrows=topol.rowsperroc();
+	outputFile_ << detid << " "<< ncols << " " << nrows << " " << rocrows << "\n";
+	}
+      else
+      { outputFile_ << detid << " "<< ncols << " " << nrows << "\n";
+      }
       
       }
     }    
@@ -82,7 +91,6 @@ void SiPixelDetInfoFileWriter::beginRun(const edm::Run &run , const edm::EventSe
   }
 
 }
-
 
 void SiPixelDetInfoFileWriter::beginJob() {
 

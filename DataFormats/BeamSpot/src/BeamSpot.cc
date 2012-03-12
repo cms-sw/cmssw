@@ -7,7 +7,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpot.cc,v 1.10 2009/03/26 19:39:03 yumiceva Exp $
+ version $Id: BeamSpot.cc,v 1.11 2009/03/26 19:54:21 yumiceva Exp $
 
  ________________________________________________________________**/
 
@@ -40,6 +40,14 @@ namespace reco {
 	  betaStar_ = 0;
   }
    	
+  const BeamSpot::Point BeamSpot::position(const double z) const {
+
+    Point pos(x(z),y(z),z);
+    return pos;
+
+  }
+
+
   void BeamSpot::print(std::stringstream& ss) const {
 
     ss << "-----------------------------------------------------\n"

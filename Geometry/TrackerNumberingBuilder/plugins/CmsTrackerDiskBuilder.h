@@ -13,6 +13,9 @@ class CmsTrackerDiskBuilder : public CmsTrackerLevelBuilder {
   virtual void sortNS(DDFilteredView& , GeometricDet*);
   virtual void buildComponent(DDFilteredView& , GeometricDet*, std::string);
 
+  void PhiPosNegSplit_innerOuter(std::vector< GeometricDet const *>::iterator begin,
+                                 std::vector< GeometricDet const *>::iterator end);
+
 };
 
 #endif

@@ -7,6 +7,7 @@ patMuons = cms.EDProducer("PATMuonProducer",
     # use particle flow instead of std reco                                
     useParticleFlow =  cms.bool( False ),
     pfMuonSource    = cms.InputTag("pfIsolatedMuons"),          
+    linkToPFSource  = cms.InputTag(""),
 
     # add TeV refit tracks
     addTeVRefits    = cms.bool(True),

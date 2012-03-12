@@ -212,10 +212,10 @@ void MuonAlignment::recursiveCopySurveyToAlignment(Alignable *alignable) {
       alignable->move(GlobalVector(pos.x(), pos.y(), pos.z()));
 
       align::ErrorMatrix matrix6x6 = survey->errors();  // start from 0,0
-      AlgebraicSymMatrix33 matrix3x3;                   // start from 0,0
+      CLHEP::HepSymMatrix matrix3x3(3);                 // start from 1,1
       for (int i = 0;  i < 3;  i++) {
-	 for (int j = 0;  j <= i;  j++) {
-	    matrix3x3(i, j) = matrix6x6(i, j);
+	 for (int j = 0;  j < 3;  j++) {
+	    matrix3x3(i+1, j+1) = matrix6x6(i, j);
 	 }
       }
 

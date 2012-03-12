@@ -273,7 +273,7 @@ void HLTMonBitSummary::beginRun(const edm::Run  & r, const edm::EventSetup  &iSe
     //pf_->Reset();
     //if (ratio_) ratio_->Reset();
 
-    for (uint i=0; i < nValidTriggers_ && i < 200 ; ++i){
+    for (uint i=0; i < nValidTriggers_ && i < 400 ; ++i){
       h1_->getTH1F()->GetXaxis()->SetBinLabel(i+1,HLTPathsByName_[i].c_str());
       h2_->getTH2F()->GetXaxis()->SetBinLabel(i+1,HLTPathsByName_[i].c_str());
       h2_->getTH2F()->GetYaxis()->SetBinLabel(i+1,HLTPathsByName_[i].c_str());
@@ -445,9 +445,9 @@ void HLTMonBitSummary::beginJob() {
     if (directory_ != "" && directory_.substr(directory_.length()-1,1) != "/" ) directory_ = directory_+"/" ;
   
     float min = -0.5;
-    float max = 200-0.5;
+    float max = 400-0.5;
     //uint nBin = HLTPathsByName_.size();
-    uint nBin = 200;
+    uint nBin = 400;
    
     dbe_->setCurrentFolder(directory_);
 

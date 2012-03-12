@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/03/09 13:58:06 $
- *  $Revision: 1.11 $
+ *  $Date: 2011/05/01 09:47:28 $
+ *  $Revision: 1.14 $
  *
  *  \author Martin Grunewald
  *
@@ -24,7 +24,7 @@ static const edm::ParameterSet* s_dummyPSet()
 HLTConfigData::HLTConfigData():
   processPSet_(s_dummyPSet()),
   processName_(""),
-  tableName_(), triggerNames_(), moduleLabels_(),
+  tableName_(), triggerNames_(), moduleLabels_(), saveTagsModules_(),
   triggerIndex_(), moduleIndex_(),
   hltL1GTSeeds_(),
   streamNames_(), streamIndex_(), streamContents_(),
@@ -39,7 +39,7 @@ HLTConfigData::HLTConfigData():
 HLTConfigData::HLTConfigData(const edm::ParameterSet* iPSet):
   processPSet_(iPSet),
   processName_(""),
-  tableName_(), triggerNames_(), moduleLabels_(),
+  tableName_(), triggerNames_(), moduleLabels_(), saveTagsModules_(),
   triggerIndex_(), moduleIndex_(),
   hltL1GTSeeds_(),
   streamNames_(), streamIndex_(), streamContents_(),
@@ -88,6 +88,19 @@ void HLTConfigData::extract()
      if (processPSet_->existsAs<vector<string> >(triggerNames_[i],true)) {
        moduleLabels_.push_back(processPSet_->getParameter<vector<string> >(triggerNames_[i]));
      }
+   }
+   saveTagsModules_.reserve(n);
+   vector<string> labels;
+   for (unsigned int i=0;i!=n; ++i) {
+     labels.clear();
+     const vector<string>& modules(moduleLabels(i));
+     const unsigned int m(modules.size());
+     labels.reserve(m);
+     for (unsigned int j=0;j!=m; ++j) {
+       const string& label(modules[j]);
+       if (saveTags(label)) labels.push_back(label);
+     }
+     saveTagsModules_.push_back(labels);
    }
 
    // Fill index maps for fast lookup
@@ -235,7 +248,8 @@ void HLTConfigData::dump(const std::string& what) const {
 	 const string& label(moduleLabels_[i][j]);
 	 const string  type(moduleType(label));
 	 const string  edmtype(moduleEDMType(label));
-	 cout << " " << j << ":" << label << "/" << type << "/" << edmtype;
+	 const bool    tags(saveTags(label));
+	 cout << " " << j << ":" << label << "/" << type << "/" << edmtype << "/" << tags;
 	 if (type=="HLTPrescaler") nHLTPrescalers++;
 	 if (type=="HLTLevel1GTSeed") nHLTLevel1GTSeed++;
        }
@@ -338,6 +352,13 @@ const std::vector<std::string>& HLTConfigData::moduleLabels(const std::string& t
   return moduleLabels_.at(triggerIndex(trigger));
 }
 
+const std::vector<std::string>& HLTConfigData::saveTagsModules(unsigned int trigger) const {
+  return saveTagsModules_.at(trigger);
+}
+const std::vector<std::string>& HLTConfigData::saveTagsModules(const std::string& trigger) const {
+  return saveTagsModules_.at(triggerIndex(trigger));
+}
+
 const std::string& HLTConfigData::moduleLabel(unsigned int trigger, unsigned int module) const {
   return moduleLabels_.at(trigger).at(module);
 }
@@ -358,16 +379,18 @@ unsigned int HLTConfigData::moduleIndex(const std::string& trigger, const std::s
 }
 
 const std::string HLTConfigData::moduleType(const std::string& module) const {
-  if (modulePSet(module).existsAs<std::string>("@module_type",true)) {
-    return modulePSet(module).getParameter<std::string>("@module_type");
+  const edm::ParameterSet& pset(modulePSet(module));
+  if (pset.existsAs<std::string>("@module_type",true)) {
+    return pset.getParameter<std::string>("@module_type");
   } else {
     return "";
   }
 }
 
 const std::string HLTConfigData::moduleEDMType(const std::string& module) const {
-  if (modulePSet(module).existsAs<std::string>("@module_edm_type",true)) {
-    return modulePSet(module).getParameter<std::string>("@module_edm_type");
+  const edm::ParameterSet& pset(modulePSet(module));
+  if (pset.existsAs<std::string>("@module_edm_type",true)) {
+    return pset.getParameter<std::string>("@module_edm_type");
   } else {
     return "";
   }
@@ -382,6 +405,15 @@ const edm::ParameterSet& HLTConfigData::modulePSet(const std::string& module) co
     return processPSet_->getParameterSet(module);
   } else {
     return *s_dummyPSet();
+  }
+}
+
+const bool HLTConfigData::saveTags(const std::string& module) const {
+  const edm::ParameterSet& pset(modulePSet(module));
+  if (pset.existsAs<bool>("saveTags",true)) {
+    return pset.getParameter<bool>("saveTags");
+  } else {
+    return false;
   }
 }
 

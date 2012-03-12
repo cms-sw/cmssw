@@ -1,9 +1,151 @@
+2011-07-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-04-00
+	* Move Adler32 checksum into FileRecord struct and display it on the hyperdaq page.
+	* Add option 'checkAdler32' to check Adler32 checksum of closed file to match
+	  to the one calculated on the fly (by default off).
+	* Resurrect the playback system for running over existing streamer files.
+
+2011-07-05 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-03-03
+	* Better way to book merge count and dropped event counts from Luis I. Lopera.
+
+2011-07-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-03-02
+	* Put merge count and dropped event counts into dedicated subdirectory
+	  '/SM_SMPS_Stats' instead of root (or some random directory).
+
+2011-06-21 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-03-01
+	* Use local struct instead of relying on MonitoredQuantities for EoR record.
+
+2011-06-20 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-03-00
+	* Report lastLumi in EoR as last LS for which a EoLS entry was written,
+	  not the last LS the SM knows about. Also flag the EoLS records if they
+	  are based on an EoLS signal from the EVM or not.
+	* Remove summaryCatalog which is essentially unused and tends to get
+	  too large over time.
+
+2011-06-01 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-02-04
+	* Fix reporting of latest lumi section in case that the last EoLS signal
+	  received is from an earlier LS.
+
+011-05-27 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-02-03
+	* Disable xhtmlmaker multithread test, which still fails.
+
+2011-05-24 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-02-02
+	* Correct the number of connected EPs by the number of error events,
+	  i.e. the number of EPs which got restarted.
+	* Convert xhtmlmaker_t.cpp into a proper CPPUNIT test.
+
+2011-05-18 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-02-01
+	* Use latest lumi section seen either in data or from last EoLS signal
+	  in EoR record.
+	* Don't print SATAbeast username/password in error string.
+	* Add ifdef'd debug code to generate corrupted events.
+
+2011-04-21 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-02-00
+	* Fixed ROOT TThread handling from tag V07-03-06 (branch_3_10_x).
+	* Merge changes from tags V07-03-04, V07-04-00, and V07-04-01
+	  (branch_3_10_x) into trunk.
+	* Safer handling of stream records in SM hyperdaq page.
+
+2011-04-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-01-01
+	* Improve handling of droppedEventsCount.
+	* Merge fixes from tags V07-03-01, V07-03-02 and V07-03-03 (branch_3_10_x)
+	  into trunk.
+
+2011-04-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-01-00
+	* Merge changes from tag V07-02-01 and V07-03-00 (branch_3_10_x) into trunk.
+	* Move EventServerProxy template specialization from EventStreamHttpReader
+	  to EventServerProxy.
+	* Fully implement mergeCount and droppedEventsCount for DQM histograms and
+	  data events, respectively.
+
 2011-03-30 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-00-00
 	* Merge the new SM as of tag V07-02-00 (branch_3_10_x)
 	  into trunk.
 	* This tag requires IOPool/Streamer V07-01-00 or later.
+
+2011-04-21 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-04-01
+	* Reset latest LS seen for DQM message at run stop.
+
+2011-04-20 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-04-00
+	* Discard DQM updates older than 16 LS. This number is configurable with
+	  'discardDQMUpdatesForOlderLS'. Setting it to 0 will disable the feature.
+	* Don't raise unwantedEvents alarm on first occurrence.
+	* Fix reporting of number of copy/inject workers in case that this number
+	  has not been determined.
+
+2011-04-18 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-03-06
+	* Hopefully correct way to cancel the ROOT TThread.
+	* Back port a couple of changes from trunk:
+	  - Improved accounting of dropped events in ConcurrentQueue
+	  - Safer handling of stream records in SM hyperdaq page
+	  - Remove consumerPriority from demoSystem config files
+	* Remove logging of state changes.
+
+2011-04-13 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-03-05
+	* Remove log message when resizing info-space vectors.
+	* Log state changes to help with debugging the stopping failures.
+
+2011-04-08 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-03-04
+	* Show total number of complete DQM updates, not average.
+	* Only resize info-space vectors when actually needed. Warn when doing so.
+
+2011-04-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-03-03
+	* Fix unit tests for modified DiscardManager.
+
+2011-04-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-03-02
+	* A couple of minor fixes.
+
+2011-04-06 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-03-01
+	* Create our own pool for discard messages instead of piggy-backing on the one
+	  from ATCP. Various minor improvements in DiscardManager and FUProxy.
+	* Add '--track-origins=yes' to valgrind options.
+
+2011-04-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V07-03-00
+	* Raise sentinel alarm if we get more DQM top level folder updates than
+	  we expect. Keep statistics about number of complete updates.
 
 2011-03-30 Remi Mommsen <Remigius.Mommsen@cern.ch>
 

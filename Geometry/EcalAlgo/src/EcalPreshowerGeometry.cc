@@ -48,8 +48,8 @@ EcalPreshowerGeometry::alignmentTransformIndexLocal( const DetId& id )
    const bool second ( 1 == pl ) ;
    const bool top   ( 19 < jy ) ;
    const bool negz  ( 0 == jz ) ;
-   const int lrl    ( 19>jx ? 0 : 1 ) ;
-   const int lrr    ( 21>jx ? 0 : 1 ) ;
+   const int lrl    ( 20>jx ? 0 : 1 ) ;
+   const int lrr    ( 22>jx ? 0 : 1 ) ;
 
    return ( second ? jx/20 + 3*jz :  // 2nd plane split along middle
 	    ( negz && !top ? lrl + 2 :  // 1st plane at neg z and bottom half split at six=19&20
@@ -82,11 +82,10 @@ EcalPreshowerGeometry::initializeParms()
    double z2minus ( 0 ) ;
    double z1plus ( 0 ) ;
    double z2plus ( 0 ) ;
-   const std::vector<DetId>& esDetIds ( getValidDetIds() ) ;
    const Cont& con ( cellGeometries() ) ;
    for( unsigned int i ( 0 ) ; i != con.size() ; ++i )
    {
-      const ESDetId esid ( esDetIds[i] ) ;
+      const ESDetId esid ( getValidDetIds()[i] ) ;
       if( 1 == esid.plane() )
       {
 	 if( 0 > esid.zside() )

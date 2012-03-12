@@ -55,7 +55,7 @@ void SummaryPlotXmlParser::parseXML( const std::string& f ) {
     getDocument(f);
     
     // Retrieve root element
-    DOMElement* root = this->doc->getDocumentElement();
+    DOMElement* root = this->doc()->getDocumentElement();
     if( !root ) { 
       std::stringstream ss;
       ss << "[SummaryPlotXmlParser::" << __func__ << "]"

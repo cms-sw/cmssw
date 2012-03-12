@@ -16,12 +16,12 @@ namespace egHLT {
     int getMinNrObjsRequiredByFilter(const std::string& filterName); //slow function, call at begin job and cache results
 
     //reads hlt config and works out which are the active last filters stored in trigger summary, is sorted
-    void getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<std::string>& activeFilters);
+    void getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<std::string>& activeFilters,std::vector<std::string>& activeEleFilters,std::vector<std::string>& activeEle2LegFilters,std::vector<std::string>& activePhoFilters,std::vector<std::string>& activePho2LegFilters);
     //---Morse test--------
     //void getPhoton30(const HLTConfigProvider& hltConfig,std::vector<std::string>& activeFilters);
     //------------------
     //filters a list of filternames removing any filters which are not in active filters, assumes active filters is sorted
-    void filterInactiveTriggers(std::vector<std::string>& namesToFilter,const std::vector<std::string>& activeFilters);
+    void filterInactiveTriggers(std::vector<std::string>& namesToFilter,std::vector<std::string>& activeFilters);
     //filters a list of filterName1:filterName2 removing any entry for which either filter is not in activeFilters, assumes active filters is sorted
     void filterInactiveTightLooseTriggers(std::vector<std::string>& namesToFilter,const std::vector<std::string>& activeFilters);
 
@@ -31,6 +31,7 @@ namespace egHLT {
     //looks for string Et and then looks for a number after that (currently the standard of all E/g triggers)
     //returns 0 if unsuccessful
     float getEtThresFromName(const std::string& trigName);
+    float getSecondEtThresFromName(const std::string& trigName);
   }
   
   //I have the horrible feeling that I'm converting into an intermediatry format and then coverting back again
