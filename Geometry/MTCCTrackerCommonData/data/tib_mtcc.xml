@@ -1,217 +1,194 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
-
-<ConstantsSection label="tib_mtcc.xml" eval="true">
- <Constant name="zero"         value="0.0*fm"/>
- <Constant name="Rin1"         value="22.20*cm"/>
- <Constant name="Rin2"         value="53.00*cm"/>
- <Constant name="Rin3"         value="1.140*m"/>
- <Constant name="Rout1"        value="54.00*cm"/>
- <Constant name="Rout2"        value="1.150*m"/>
- <Constant name="Zv1"          value="73.00*cm"/>
- <Constant name="Zv2"          value="1.210*m"/>
- <Constant name="Zv3"          value="1.225*m"/>
- <Constant name="Zv4"          value="2.820*m"/>
- <Constant name="CableT"       value="0.30*cm"/>
- <Constant name="SupportT"     value="1.50*cm"/>
- <Constant name="SupportDR"    value="1.50*cm"/>
- <Constant name="SupportRin"   value="53.05*cm"/>
- <Constant name="SupportRout"  value="53.10*cm"/>
- <Constant name="SupportZ"     value="71.00*cm"/>
- <Constant name="AxCables"     value="3"/>
- <Constant name="AxCabW"       value="18.0*deg"/>
- <Constant name="AxCabPhiOff"  value="60.0*deg"/>
- <Constant name="AxCabDR0"     value="0.70*cm"/>
- <Constant name="AxCabZ2"      value="90.0*cm"/>
- <Constant name="AxCabZ3"      value="1.215*m"/>
- <Constant name="ConnectorR"   value="85.00*cm"/>
- <Constant name="ConnectorW"   value="20.00*cm"/>
- <Constant name="ConnectorT"   value="0.30*cm"/>
- <Constant name="CFDiskT"      value="0.50*cm"/>
- <Constant name="AxCabDR1"     value="[AxCabDR0]*[Rin2]/[Rin3]"/>
- <Constant name="AxCabZ1"      value="[tibstringpar:StringL]/2+[SupportT]"/>
- <Constant name="AxCabZ4"      value="([AxCabZ3]+[AxCabDR1])"/>
- <Constant name="SideDiskT"    value="(4*[CableT]+[SupportT])"/>
- <Constant name="SideDiskZ"    value="([tibstringpar:StringL]+[SideDiskT])/2"/>
-</ConstantsSection>
-
-<SolidSection label="tib_mtcc.xml">
- <Polycone name="TIB" startPhi="0*deg" deltaPhi="360*deg" >
-  <ZSection z="-[Zv4]"     rMin="[Rin3]"  rMax="[Rout2]" />
-  <ZSection z="-[Zv3]"     rMin="[Rin3]"  rMax="[Rout2]" />
-  <ZSection z="-[Zv3]"     rMin="[Rin2]"  rMax="[Rout2]" />
-  <ZSection z="-[Zv2]"     rMin="[Rin2]"  rMax="[Rout2]" />
-  <ZSection z="-[Zv2]"     rMin="[Rin2]"  rMax="[Rout1]" />
-  <ZSection z="-[Zv1]"     rMin="[Rin2]"  rMax="[Rout1]" />
-  <ZSection z="-[Zv1]"     rMin="[Rin1]"  rMax="[Rout1]" />
-  <ZSection z="[Zv1]"      rMin="[Rin1]"  rMax="[Rout1]" />
-  <ZSection z="[Zv1]"      rMin="[Rin2]"  rMax="[Rout1]" />
-  <ZSection z="[Zv2]"      rMin="[Rin2]"  rMax="[Rout1]" />
-  <ZSection z="[Zv2]"      rMin="[Rin2]"  rMax="[Rout2]" />
-  <ZSection z="[Zv3]"      rMin="[Rin2]"  rMax="[Rout2]" />
-  <ZSection z="[Zv3]"      rMin="[Rin3]"  rMax="[Rout2]" />
-  <ZSection z="[Zv4]"      rMin="[Rin3]"  rMax="[Rout2]" />
- </Polycone> 
- <Tubs name="TIBOutSupport" rMin="[SupportRin]"     rMax="[SupportRout]"
-                            dz="[SupportZ]/2"
-                            startPhi="0*deg"        deltaPhi="360*deg"/>
- <Tubs name="TIBSideDisk"   rMin="[Rin1]"           rMax="[Rin2]"
-                            dz="[SideDiskT]/2"
-                            startPhi="0*deg"        deltaPhi="360*deg"/>
- <Polycone name="TIBAxCabCont" startPhi="0*deg" deltaPhi="360*deg" >
-  <ZSection z="[SupportZ]" rMin="[Rin2]"  rMax="[Rout1]" />
-  <ZSection z="[Zv2]"      rMin="[Rin2]"  rMax="[Rout1]" />
-  <ZSection z="[Zv2]"      rMin="[Rin2]"  rMax="[Rout2]" />
-  <ZSection z="[Zv3]"      rMin="[Rin2]"  rMax="[Rout2]" />
-  <ZSection z="[Zv3]"      rMin="[Rin3]"  rMax="[Rout2]" />
-  <ZSection z="[Zv4]"      rMin="[Rin3]"  rMax="[Rout2]" />
- </Polycone> 
- <Tubs name="TIBCFDisk"     rMin="[Rout1]"          rMax="[Rout2]"
-                            dz="[CFDiskT]/2"
-                            startPhi="60*deg"        deltaPhi="60*deg"/>
- <Tubs name="TIBConnector"  rMin="([ConnectorR]-[ConnectorW]/2)"
-                            rMax="([ConnectorR]+[ConnectorW]/2)"
-                            dz="[ConnectorT]/2"
-                            startPhi="60*deg"        deltaPhi="60*deg"/>
- <Tubs name="TIBAxCable0"   rMin="[Rin2]"           rMax="([Rin2]+[AxCabDR0])"
-                            dz="([AxCabZ2]-[AxCabZ1])/2"
-                            startPhi="-[AxCabW]/2"  deltaPhi="[AxCabW]"/>
- <Tubs name="TIBAxCable1"   rMin="[Rin2]"           rMax="([Rin2]+[AxCabDR0])"
-                            dz="([AxCabZ3]-[AxCabZ2])/2"
-                            startPhi="-[AxCabW]/2"  deltaPhi="[AxCabW]"/>
- <Polycone name="TIBAxCable2" startPhi="-[AxCabW]/2" deltaPhi="[AxCabW]" >
-  <ZSection z="[AxCabZ3]"            rMin="[Rin2]"  rMax="[Rin3]" />
-  <ZSection z="[AxCabZ3]+[AxCabDR1]" rMin="[Rin2]"  rMax="[Rin3]" />
-  <ZSection z="[AxCabZ3]+[AxCabDR0]" rMin="[Rin2]"  rMax="[Rin3]" />
- </Polycone> 
- <Tubs name="TIBAxCable3"   rMin="[Rin3]"           rMax="([Rin3]+[AxCabDR1])"
-                            dz="([Zv4]-[AxCabZ4])/2"
-                            startPhi="-[AxCabW]/2"  deltaPhi="[AxCabW]"/>
-</SolidSection>
-
-<LogicalPartSection label="tib_mtcc.xml">
- <LogicalPart name="TIB" category="unspecified">
-  <rSolid name="TIB"/>
-  <rMaterial name="materials:Air"/>
- </LogicalPart>
- <LogicalPart name="TIBOutSupport" category="unspecified">
-  <rSolid name="TIBOutSupport"/>
-  <rMaterial name="tibmaterial:TIB_outer_supp"/>
- </LogicalPart>
- <LogicalPart name="TIBSideDisk" category="unspecified">
-  <rSolid name="TIBSideDisk"/>
-  <rMaterial name="materials:Air"/>
- </LogicalPart>
- <LogicalPart name="TIBAxCabCont" category="unspecified">
-  <rSolid name="TIBAxCabCont"/>
-  <rMaterial name="materials:Air"/>
- </LogicalPart>
- <LogicalPart name="TIBConnector" category="unspecified">
-  <rSolid name="TIBConnector"/>
-  <rMaterial name="tibmaterial:TIB_connector"/>
- </LogicalPart>
- <LogicalPart name="TIBCFDisk" category="unspecified">
-  <rSolid name="TIBCFDisk"/>
-  <rMaterial name="tibmaterial:TIB_CF"/>
- </LogicalPart>
- <LogicalPart name="TIBAxCable1" category="unspecified">
-  <rSolid name="TIBAxCable1"/>
-  <rMaterial name="tibmaterial:TIB_cables_ax_out"/>
- </LogicalPart>
- <LogicalPart name="TIBAxCable2" category="unspecified">
-  <rSolid name="TIBAxCable2"/>
-  <rMaterial name="tibmaterial:TIB_cables_ax_out"/>
- </LogicalPart>
-</LogicalPartSection>
-
-<PosPartSection label="tib_mtcc.xml">
- <PosPart copyNumber="1">
-   <rParent name="tib_mtcc:TIB"/>
-   <rChild name="tib_mtcc:TIBOutSupport"/>
-  <Translation x="[zero]" y="[zero]" z="[SupportZ]/2" />
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="tib_mtcc:TIB"/>
-   <rChild name="tiblayer1_mtcc:TIBLayer1"/>
- </PosPart>
- <PosPart copyNumber="2">
-   <rParent name="tib_mtcc:TIB"/>
-   <rChild name="tiblayer2_mtcc:TIBLayer2"/>
- </PosPart>
-
- <PosPart copyNumber="1">
-   <rParent name="tib_mtcc:TIB"/>
-   <rChild name="tib_mtcc:TIBSideDisk"/>
-  <Translation x="[zero]" y="[zero]" z="[SideDiskZ]" />
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="tib_mtcc:TIB"/>
-   <rChild name="tib_mtcc:TIBAxCabCont"/>
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="tib_mtcc:TIBAxCabCont"/>
-   <rChild name="tib_mtcc:TIBCFDisk"/>
-  <Translation x="[zero]" y="[zero]" z="([Zv2]+[CFDiskT]/2)" />
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="tib_mtcc:TIBAxCabCont"/>
-   <rChild name="tib_mtcc:TIBConnector"/>
-  <Translation x="[zero]" y="[zero]" z="([Zv3]-[ConnectorT]/2)" />
- </PosPart>
-</PosPartSection>
-
-<Algorithm name="track:DDTrackerAngular">
-  <rParent name="tib_mtcc:TIBAxCabCont"/>
-  <String  name="ChildName"   value="tib_mtcc:TIBAxCable1"/>
-  <Numeric name="N"           value="[AxCables]" />
-  <Numeric name="StartCopyNo" value="1" />
-  <Numeric name="IncrCopyNo"  value="1" />
-  <Numeric name="RangeAngle"  value="60*deg"/>
-  <Numeric name="StartAngle"  value="[AxCabPhiOff]"/>
-  <Numeric name="Radius"      value="0"/>
-  <Vector name="Center" type="numeric" nEntries="3"> 
-    [zero], [zero], ([AxCabZ3]+[AxCabZ2])/2
-  </Vector>
-</Algorithm>
-<Algorithm name="track:DDTrackerAngular">
-  <rParent name="tib_mtcc:TIBAxCabCont"/>
-  <String  name="ChildName"   value="tib_mtcc:TIBAxCable2"/>
-  <Numeric name="N"           value="[AxCables]" />
-  <Numeric name="StartCopyNo" value="1" />
-  <Numeric name="IncrCopyNo"  value="1" />
-  <Numeric name="RangeAngle"  value="60*deg"/>
-  <Numeric name="StartAngle"  value="[AxCabPhiOff]"/>
-  <Numeric name="Radius"      value="0"/>
-  <Vector name="Center" type="numeric" nEntries="3"> 
-   [zero], [zero], [zero]
-  </Vector>
-</Algorithm>
-
-<Algorithm name="track:DDTIBRadCableAlgo_MTCC">
-  <rParent name="tib_mtcc:TIBSideDisk"/>
-  <Numeric name="RMin"           value="[tib_mtcc:Rin1]"/>
-  <Numeric name="RMax"           value="[tib_mtcc:Rin2]"/>
-  <Vector name="RadiusLo" type="numeric" nEntries="4">
-   [tiblayerpar:RadiusLo0], [tiblayerpar:RadiusLo1],
-   [tiblayerpar:RadiusLo2], [tiblayerpar:RadiusLo3]
-  </Vector>
-  <Numeric name="DeltaR"         value="[tiblayerpar:DRUpLo]"/>
-  <Numeric name="CylinderThick"  value="[tiblayerpar:CylinderT]"/>
-  <Numeric name="SupportThick"   value="[tib_mtcc:SupportT]"/>
-  <Numeric name="SupportDR"      value="[tib_mtcc:SupportDR]"/>
-  <String name="SupportMaterial" value="tibmaterial:TIB_disk"/>
-  <Numeric name="CableThick"     value="[tib_mtcc:CableT]"/>
-  <Vector name="CableMaterial" type="string" nEntries="4">
-   tibmaterial:TIB_cab_rad1, tibmaterial:TIB_cab_rad2, 
-   tibmaterial:TIB_cab_rad3, tibmaterial:TIB_cab_rad4
-  </Vector>
-  <Vector name="StructureMaterial" type="string" nEntries="5">
-   tibmaterial:TIB_rib0, tibmaterial:TIB_rib1, tibmaterial:TIB_rib2,
-   tibmaterial:TIB_rib3, tibmaterial:TIB_rib4
-  </Vector>
-  <Vector name="Layers" type="numeric" nEntries="2">
-   2 , 3
-  </Vector>
-</Algorithm>
-
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tib_mtcc.xml" eval="true">
+		<Constant name="zero" value="0.0*fm"/>
+		<Constant name="Rin1" value="22.20*cm"/>
+		<Constant name="Rin2" value="53.00*cm"/>
+		<Constant name="Rin3" value="1.140*m"/>
+		<Constant name="Rout1" value="54.00*cm"/>
+		<Constant name="Rout2" value="1.150*m"/>
+		<Constant name="Zv1" value="73.00*cm"/>
+		<Constant name="Zv2" value="1.210*m"/>
+		<Constant name="Zv3" value="1.225*m"/>
+		<Constant name="Zv4" value="2.820*m"/>
+		<Constant name="CableT" value="0.30*cm"/>
+		<Constant name="SupportT" value="1.50*cm"/>
+		<Constant name="SupportDR" value="1.50*cm"/>
+		<Constant name="SupportRin" value="53.05*cm"/>
+		<Constant name="SupportRout" value="53.10*cm"/>
+		<Constant name="SupportZ" value="71.00*cm"/>
+		<Constant name="AxCables" value="3"/>
+		<Constant name="AxCabW" value="18.0*deg"/>
+		<Constant name="AxCabPhiOff" value="60.0*deg"/>
+		<Constant name="AxCabDR0" value="0.70*cm"/>
+		<Constant name="AxCabZ2" value="90.0*cm"/>
+		<Constant name="AxCabZ3" value="1.215*m"/>
+		<Constant name="ConnectorR" value="85.00*cm"/>
+		<Constant name="ConnectorW" value="20.00*cm"/>
+		<Constant name="ConnectorT" value="0.30*cm"/>
+		<Constant name="CFDiskT" value="0.50*cm"/>
+		<Constant name="AxCabDR1" value="[AxCabDR0]*[Rin2]/[Rin3]"/>
+		<Constant name="AxCabZ1" value="[tibstringpar:StringL]/2+[SupportT]"/>
+		<Constant name="AxCabZ4" value="([AxCabZ3]+[AxCabDR1])"/>
+		<Constant name="SideDiskT" value="(4*[CableT]+[SupportT])"/>
+		<Constant name="SideDiskZ" value="([tibstringpar:StringL]+[SideDiskT])/2"/>
+	</ConstantsSection>
+	<SolidSection label="tib_mtcc.xml">
+		<Polycone name="TIB" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="-[Zv4]" rMin="[Rin3]" rMax="[Rout2]"/>
+			<ZSection z="-[Zv3]" rMin="[Rin3]" rMax="[Rout2]"/>
+			<ZSection z="-[Zv3]" rMin="[Rin2]" rMax="[Rout2]"/>
+			<ZSection z="-[Zv2]" rMin="[Rin2]" rMax="[Rout2]"/>
+			<ZSection z="-[Zv2]" rMin="[Rin2]" rMax="[Rout1]"/>
+			<ZSection z="-[Zv1]" rMin="[Rin2]" rMax="[Rout1]"/>
+			<ZSection z="-[Zv1]" rMin="[Rin1]" rMax="[Rout1]"/>
+			<ZSection z="[Zv1]" rMin="[Rin1]" rMax="[Rout1]"/>
+			<ZSection z="[Zv1]" rMin="[Rin2]" rMax="[Rout1]"/>
+			<ZSection z="[Zv2]" rMin="[Rin2]" rMax="[Rout1]"/>
+			<ZSection z="[Zv2]" rMin="[Rin2]" rMax="[Rout2]"/>
+			<ZSection z="[Zv3]" rMin="[Rin2]" rMax="[Rout2]"/>
+			<ZSection z="[Zv3]" rMin="[Rin3]" rMax="[Rout2]"/>
+			<ZSection z="[Zv4]" rMin="[Rin3]" rMax="[Rout2]"/>
+		</Polycone>
+		<Tubs name="TIBOutSupport" rMin="[SupportRin]" rMax="[SupportRout]" dz="[SupportZ]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TIBSideDisk" rMin="[Rin1]" rMax="[Rin2]" dz="[SideDiskT]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Polycone name="TIBAxCabCont" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[SupportZ]" rMin="[Rin2]" rMax="[Rout1]"/>
+			<ZSection z="[Zv2]" rMin="[Rin2]" rMax="[Rout1]"/>
+			<ZSection z="[Zv2]" rMin="[Rin2]" rMax="[Rout2]"/>
+			<ZSection z="[Zv3]" rMin="[Rin2]" rMax="[Rout2]"/>
+			<ZSection z="[Zv3]" rMin="[Rin3]" rMax="[Rout2]"/>
+			<ZSection z="[Zv4]" rMin="[Rin3]" rMax="[Rout2]"/>
+		</Polycone>
+		<Tubs name="TIBCFDisk" rMin="[Rout1]" rMax="[Rout2]" dz="[CFDiskT]/2" startPhi="60*deg" deltaPhi="60*deg"/>
+		<Tubs name="TIBConnector" rMin="([ConnectorR]-[ConnectorW]/2)" rMax="([ConnectorR]+[ConnectorW]/2)" dz="[ConnectorT]/2" startPhi="60*deg" deltaPhi="60*deg"/>
+		<Tubs name="TIBAxCable0" rMin="[Rin2]" rMax="([Rin2]+[AxCabDR0])" dz="([AxCabZ2]-[AxCabZ1])/2" startPhi="-[AxCabW]/2" deltaPhi="[AxCabW]"/>
+		<Tubs name="TIBAxCable1" rMin="[Rin2]" rMax="([Rin2]+[AxCabDR0])" dz="([AxCabZ3]-[AxCabZ2])/2" startPhi="-[AxCabW]/2" deltaPhi="[AxCabW]"/>
+		<Polycone name="TIBAxCable2" startPhi="-[AxCabW]/2" deltaPhi="[AxCabW]">
+			<ZSection z="[AxCabZ3]" rMin="[Rin2]" rMax="[Rin3]"/>
+			<ZSection z="[AxCabZ3]+[AxCabDR1]" rMin="[Rin2]" rMax="[Rin3]"/>
+			<ZSection z="[AxCabZ3]+[AxCabDR0]" rMin="[Rin2]" rMax="[Rin3]"/>
+		</Polycone>
+		<Tubs name="TIBAxCable3" rMin="[Rin3]" rMax="([Rin3]+[AxCabDR1])" dz="([Zv4]-[AxCabZ4])/2" startPhi="-[AxCabW]/2" deltaPhi="[AxCabW]"/>
+	</SolidSection>
+	<LogicalPartSection label="tib_mtcc.xml">
+		<LogicalPart name="TIB" category="unspecified">
+			<rSolid name="TIB"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TIBOutSupport" category="unspecified">
+			<rSolid name="TIBOutSupport"/>
+			<rMaterial name="tibmaterial:TIB_outer_supp"/>
+		</LogicalPart>
+		<LogicalPart name="TIBSideDisk" category="unspecified">
+			<rSolid name="TIBSideDisk"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TIBAxCabCont" category="unspecified">
+			<rSolid name="TIBAxCabCont"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TIBConnector" category="unspecified">
+			<rSolid name="TIBConnector"/>
+			<rMaterial name="tibmaterial:TIB_connector"/>
+		</LogicalPart>
+		<LogicalPart name="TIBCFDisk" category="unspecified">
+			<rSolid name="TIBCFDisk"/>
+			<rMaterial name="tibmaterial:TIB_CF"/>
+		</LogicalPart>
+		<LogicalPart name="TIBAxCable1" category="unspecified">
+			<rSolid name="TIBAxCable1"/>
+			<rMaterial name="tibmaterial:TIB_cables_ax_out"/>
+		</LogicalPart>
+		<LogicalPart name="TIBAxCable2" category="unspecified">
+			<rSolid name="TIBAxCable2"/>
+			<rMaterial name="tibmaterial:TIB_cables_ax_out"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="tib_mtcc.xml">
+		<PosPart copyNumber="1">
+			<rParent name="tib_mtcc:TIB"/>
+			<rChild name="tib_mtcc:TIBOutSupport"/>
+			<Translation x="[zero]" y="[zero]" z="[SupportZ]/2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tib_mtcc:TIB"/>
+			<rChild name="tiblayer1_mtcc:TIBLayer1"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tib_mtcc:TIB"/>
+			<rChild name="tiblayer2_mtcc:TIBLayer2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tib_mtcc:TIB"/>
+			<rChild name="tib_mtcc:TIBSideDisk"/>
+			<Translation x="[zero]" y="[zero]" z="[SideDiskZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tib_mtcc:TIB"/>
+			<rChild name="tib_mtcc:TIBAxCabCont"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tib_mtcc:TIBAxCabCont"/>
+			<rChild name="tib_mtcc:TIBCFDisk"/>
+			<Translation x="[zero]" y="[zero]" z="([Zv2]+[CFDiskT]/2)"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tib_mtcc:TIBAxCabCont"/>
+			<rChild name="tib_mtcc:TIBConnector"/>
+			<Translation x="[zero]" y="[zero]" z="([Zv3]-[ConnectorT]/2)"/>
+		</PosPart>
+	</PosPartSection>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tib_mtcc:TIBAxCabCont"/>
+		<String name="ChildName" value="tib_mtcc:TIBAxCable1"/>
+		<Numeric name="N" value="[AxCables]"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="60*deg"/>
+		<Numeric name="StartAngle" value="[AxCabPhiOff]"/>
+		<Numeric name="Radius" value="0"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 
+			[zero], [zero], ([AxCabZ3]+[AxCabZ2])/2
+		</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tib_mtcc:TIBAxCabCont"/>
+		<String name="ChildName" value="tib_mtcc:TIBAxCable2"/>
+		<Numeric name="N" value="[AxCables]"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="60*deg"/>
+		<Numeric name="StartAngle" value="[AxCabPhiOff]"/>
+		<Numeric name="Radius" value="0"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 
+			[zero], [zero], [zero]
+		</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTIBRadCableAlgo_MTCC">
+		<rParent name="tib_mtcc:TIBSideDisk"/>
+		<Numeric name="RMin" value="[tib_mtcc:Rin1]"/>
+		<Numeric name="RMax" value="[tib_mtcc:Rin2]"/>
+		<Vector name="RadiusLo" type="numeric" nEntries="4">
+			[tiblayerpar:RadiusLo0], [tiblayerpar:RadiusLo1],
+			[tiblayerpar:RadiusLo2], [tiblayerpar:RadiusLo3]
+		</Vector>
+		<Numeric name="DeltaR" value="[tiblayerpar:DRUpLo]"/>
+		<Numeric name="CylinderThick" value="[tiblayerpar:CylinderT]"/>
+		<Numeric name="SupportThick" value="[tib_mtcc:SupportT]"/>
+		<Numeric name="SupportDR" value="[tib_mtcc:SupportDR]"/>
+		<String name="SupportMaterial" value="tibmaterial:TIB_disk"/>
+		<Numeric name="CableThick" value="[tib_mtcc:CableT]"/>
+		<Vector name="CableMaterial" type="string" nEntries="4">
+			tibmaterial:TIB_cab_rad1, tibmaterial:TIB_cab_rad2, 
+			tibmaterial:TIB_cab_rad3, tibmaterial:TIB_cab_rad4
+		</Vector>
+		<Vector name="StructureMaterial" type="string" nEntries="5">
+			tibmaterial:TIB_rib0, tibmaterial:TIB_rib1, tibmaterial:TIB_rib2,
+			tibmaterial:TIB_rib3, tibmaterial:TIB_rib4
+		</Vector>
+		<Vector name="Layers" type="numeric" nEntries="2">
+			2 , 3
+		</Vector>
+	</Algorithm>
 </DDDefinition>

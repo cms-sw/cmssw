@@ -1,70 +1,46 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
-
-<!--general comments:-->
-<!--jlamb 081105-->
-
-<!--this file contains the geometry support structures for the TEC in the MTCC, which are-->
-<!--specific to the MTCC, ie not a subset of the real TEC.  So far I only include ones relevant-->
-<!--for the alignment-->
-
-<!--I chose to use numeric values rather than symbolic constants.  That means substituting-->
-<!--the numeric values from various files when copying structures.  I chose to do it this way-->
-<!--because this file is small, and the file and hardware are totally custom for the MTCC-->
-<!--the notable exception to this is that I _do_ use materials from tecmaterial.xml (and materials.xml).-->
-<!--Copying all that stuff would be too much.  Note also that some constants are defined and used-->
-<!--in tec_MTCC.xml to control the positioning of structures defined in this file-->
-
-<!--dependencies:-->
-<!--tecmaterial.xml-->
-<!--materials.xml-->
-
-<ConstantsSection label="tecsupport_mtcc.xml" eval="true">
-</ConstantsSection>
-
-<SolidSection label="tecsupport_mtcc.xml">
-
-<!--define the imaginary structure to which all support structures -->
-<!--will be referenced.  It is identical to the aligmnet ring, except -->
-<!--imaginary and made of air-->
-<!--then all the support structures are children of this-->
- <Tubs name="TEC_MTCCSupportBase" rMin="28*cm"
-       rMax="40*cm"          dz="1.680*cm"        
-       startPhi="0*deg"      deltaPhi="360*deg" />
-
-<!--the alignment ring, numerical values are just guesses until I talk-->
-<!--to someone in authority-->
- <Tubs name="TEC_MTCCAlignmentRing" rMin="28*cm"
-       rMax="40*cm"          dz="1.680*cm"        
-       startPhi="0*deg"      deltaPhi="360*deg" />
-
-</SolidSection>
-
-<LogicalPartSection label="tecsupport_mtcc.xml">
-
- <LogicalPart name="TEC_MTCCSupportBase" category="unspecified">
-   <rSolid name="tecsupport_mtcc:TEC_MTCCSupportBase"/>
-   <rMaterial name="materials:Air"/>
- </LogicalPart>
-
-
- <LogicalPart name="TEC_MTCCAlignmentRing" category="unspecified">
-   <rSolid name="tecsupport_mtcc:TEC_MTCCAlignmentRing"/>
-   <rMaterial name="tecmaterial:TEC_wheel_CF"/>
- </LogicalPart>
-
-
-</LogicalPartSection>
-
-<PosPartSection label="tecsupport_mtcc.xml">
-
- <PosPart copyNumber="0">
-  <rParent name="tecsupport_mtcc:TEC_MTCCSupportBase"/>
-  <rChild name="tecsupport_mtcc:TEC_MTCCAlignmentRing"/>
-  <Translation x="0*cm" y="0*cm" z="20*cm"/>
- </PosPart>
-
-</PosPartSection>
-
-
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+    <!--general comments:-->
+    <!--jlamb 081105-->
+    <!--this file contains the geometry support structures for the TEC in the MTCC, which are-->
+    <!--specific to the MTCC, ie not a subset of the real TEC.  So far I only include ones relevant-->
+    <!--for the alignment-->
+    <!--I chose to use numeric values rather than symbolic constants.  That means substituting-->
+    <!--the numeric values from various files when copying structures.  I chose to do it this way-->
+    <!--because this file is small, and the file and hardware are totally custom for the MTCC-->
+    <!--the notable exception to this is that I _do_ use materials from tecmaterial.xml (and materials.xml).-->
+    <!--Copying all that stuff would be too much.  Note also that some constants are defined and used-->
+    <!--in tec_MTCC.xml to control the positioning of structures defined in this file-->
+    <!--dependencies:-->
+    <!--tecmaterial.xml-->
+    <!--materials.xml-->
+    <ConstantsSection label="tecsupport_mtcc.xml" eval="true">
+    </ConstantsSection>
+    <SolidSection label="tecsupport_mtcc.xml">
+        <!--define the imaginary structure to which all support structures -->
+        <!--will be referenced.  It is identical to the aligmnet ring, except -->
+        <!--imaginary and made of air-->
+        <!--then all the support structures are children of this-->
+        <Tubs name="TEC_MTCCSupportBase" rMin="28*cm" rMax="40*cm" dz="1.680*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+        <!--the alignment ring, numerical values are just guesses until I talk-->
+        <!--to someone in authority-->
+        <Tubs name="TEC_MTCCAlignmentRing" rMin="28*cm" rMax="40*cm" dz="1.680*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+    </SolidSection>
+    <LogicalPartSection label="tecsupport_mtcc.xml">
+        <LogicalPart name="TEC_MTCCSupportBase" category="unspecified">
+            <rSolid name="tecsupport_mtcc:TEC_MTCCSupportBase"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="TEC_MTCCAlignmentRing" category="unspecified">
+            <rSolid name="tecsupport_mtcc:TEC_MTCCAlignmentRing"/>
+            <rMaterial name="tecmaterial:TEC_wheel_CF"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    <PosPartSection label="tecsupport_mtcc.xml">
+        <PosPart copyNumber="0">
+            <rParent name="tecsupport_mtcc:TEC_MTCCSupportBase"/>
+            <rChild name="tecsupport_mtcc:TEC_MTCCAlignmentRing"/>
+            <Translation x="0*cm" y="0*cm" z="20*cm"/>
+        </PosPart>
+    </PosPartSection>
 </DDDefinition>

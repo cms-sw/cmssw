@@ -1,140 +1,114 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
   <SpecParSection label="spec-pars2.xml">
-
     <SpecPar name="FullTrackerPar">
-      <PartSelector path="//Tracker" />
+      <PartSelector path="//Tracker"/>
       <Parameter name="TkDDDStructure" value="FullTracker"/>
     </SpecPar>
-
-
     <SpecPar name="TIBSubDetPar">
-      <PartSelector path="//tib_mtcc:TIB" />
+      <PartSelector path="//tib_mtcc:TIB"/>
       <Parameter name="TkDDDStructure" value="TIB"/>
     </SpecPar>
-
     <SpecPar name="TIBSubDetLayerPar">
-      <PartSelector path="//tiblayer1_mtcc:TIBLayer1" />
-      <PartSelector path="//tiblayer2_mtcc:TIBLayer2" />
+      <PartSelector path="//tiblayer1_mtcc:TIBLayer1"/>
+      <PartSelector path="//tiblayer2_mtcc:TIBLayer2"/>
       <Parameter name="TkDDDStructure" value="TIBLayer"/>
     </SpecPar>
-
-definire plus e minus
-
+    <!-- definire plus e minus -->
     <SpecPar name="TIBSubDetStringPar">
-      <PartSelector path="//tibstring1lr:TIBString1LoPls1" />
-      <PartSelector path="//tibstring1ur:TIBString1UpPls1" />
-      <PartSelector path="//tibstring2lr:TIBString2LoPls1" />
-      <PartSelector path="//tibstring2ur:TIBString2UpPls1" />
+      <PartSelector path="//tibstring1lr:TIBString1LoPls1"/>
+      <PartSelector path="//tibstring1ur:TIBString1UpPls1"/>
+      <PartSelector path="//tibstring2lr:TIBString2LoPls1"/>
+      <PartSelector path="//tibstring2ur:TIBString2UpPls1"/>
       <Parameter name="TkDDDStructure" value="TIBString"/>
-    </SpecPar>				
-
+    </SpecPar>
     <SpecPar name="TIBSubDetGluedDetPar">
-      <PartSelector path="//tibmodule0a:TIBModule0A" />
-      <PartSelector path="//tibmodule0b:TIBModule0B" />
+      <PartSelector path="//tibmodule0a:TIBModule0A"/>
+      <PartSelector path="//tibmodule0b:TIBModule0B"/>
       <Parameter name="TkDDDStructure" value="TIBGluedDet"/>
     </SpecPar>
-
     <SpecPar name="TIBSubDetDetPar">
-      <PartSelector path="//tibmodule0:TIBActiveRphi0" />
-      <PartSelector path="//tibmodule0:TIBActiveSter0" />
-      <PartSelector path="//tibmodule2:TIBActiveRphi2" />
+      <PartSelector path="//tibmodule0:TIBActiveRphi0"/>
+      <PartSelector path="//tibmodule0:TIBActiveSter0"/>
+      <PartSelector path="//tibmodule2:TIBActiveRphi2"/>
       <Parameter name="TkDDDStructure" value="TIBDet"/>
     </SpecPar>
-
     <SpecPar name="TOBSubDetPar">
-      <PartSelector path="//tob_mtcc:TOB" />
+      <PartSelector path="//tob_mtcc:TOB"/>
       <Parameter name="TkDDDStructure" value="TOB"/>
     </SpecPar>
-
     <SpecPar name="TOBSubDetLayerPar">
-      <PartSelector path="//tob_mtcc:TOBLayer0" />
-      <PartSelector path="//tob_mtcc:TOBLayer4" />
+      <PartSelector path="//tob_mtcc:TOBLayer0"/>
+      <PartSelector path="//tob_mtcc:TOBLayer4"/>
       <Parameter name="TkDDDStructure" value="TOBLayer"/>
     </SpecPar>
-
     <SpecPar name="TOBSubDetRodPar">
-      <PartSelector path="//tobrod2l:TOBRod2L" />
-      <PartSelector path="//tobrod4l:TOBRod4L" />
+      <PartSelector path="//tobrod2l:TOBRod2L"/>
+      <PartSelector path="//tobrod4l:TOBRod4L"/>
       <Parameter name="TkDDDStructure" value="TOBRod"/>
     </SpecPar>
-
     <SpecPar name="TOBSubDetDetPar">
-      <PartSelector path="//tobmodule2:TOBActiveRphi2" />
-      <PartSelector path="//tobmodule4:TOBActiveRphi4" />
+      <PartSelector path="//tobmodule2:TOBActiveRphi2"/>
+      <PartSelector path="//tobmodule4:TOBActiveRphi4"/>
       <Parameter name="TkDDDStructure" value="TOBDet"/>
     </SpecPar>
-
     <SpecPar name="TECSubDetPar">
-      <PartSelector path="//tec_mtcc:TEC" />
+      <PartSelector path="//tec_mtcc:TEC"/>
       <Parameter name="TkDDDStructure" value="TEC"/>
     </SpecPar>
-
     <SpecPar name="TECSubDetWheelPar">
-      <PartSelector path="//tecwheeld_mtcc:TECWheelD" />
+      <PartSelector path="//tecwheeld_mtcc:TECWheelD"/>
       <Parameter name="TkDDDStructure" value="TECWheel"/>
     </SpecPar>
-
     <SpecPar name="TECSubDetPetalPar">
-      <PartSelector path="//tecpetal8f:TECPetalCont8F" />
-      <PartSelector path="//tecpetal8b:TECPetalCont8B" />
+      <PartSelector path="//tecpetal8f:TECPetalCont8F"/>
+      <PartSelector path="//tecpetal8b:TECPetalCont8B"/>
       <Parameter name="TkDDDStructure" value="TECPetal"/>
     </SpecPar>
-
-
     <SpecPar name="TECSubDetRingPar">
-      <PartSelector path="//tecring3f:TECRing3F" />
-      <PartSelector path="//tecring3b:TECRing3B" />
-      <PartSelector path="//tecring4f:TECRing4F" />
-      <PartSelector path="//tecring4b:TECRing4B" />
-      <PartSelector path="//tecring5f:TECRing5F" />
-      <PartSelector path="//tecring5b:TECRing5B" />
-      <PartSelector path="//tecring6f:TECRing6F" />
-      <PartSelector path="//tecring6b:TECRing6B" />
+      <PartSelector path="//tecring3f:TECRing3F"/>
+      <PartSelector path="//tecring3b:TECRing3B"/>
+      <PartSelector path="//tecring4f:TECRing4F"/>
+      <PartSelector path="//tecring4b:TECRing4B"/>
+      <PartSelector path="//tecring5f:TECRing5F"/>
+      <PartSelector path="//tecring5b:TECRing5B"/>
+      <PartSelector path="//tecring6f:TECRing6F"/>
+      <PartSelector path="//tecring6b:TECRing6B"/>
       <Parameter name="TkDDDStructure" value="TECRing"/>
     </SpecPar>
-
-
     <SpecPar name="TECSubDetGluedDetPar">
-      <PartSelector path="//tecmodule4:TECModule4" />
+      <PartSelector path="//tecmodule4:TECModule4"/>
       <Parameter name="TkDDDStructure" value="TECGluedDet"/>
     </SpecPar>
-
     <SpecPar name="TECSubDetDetPar">
-      <PartSelector path="//TECModule3RphiActive" />
-      <PartSelector path="//TECModule4RphiActive" /> 
-      <PartSelector path="//TECModule4StereoActive" />
-      <PartSelector path="//TECModule5RphiActive" />
-      <PartSelector path="//TECModule6RphiActive" />
+      <PartSelector path="//TECModule3RphiActive"/>
+      <PartSelector path="//TECModule4RphiActive"/>
+      <PartSelector path="//TECModule4StereoActive"/>
+      <PartSelector path="//TECModule5RphiActive"/>
+      <PartSelector path="//TECModule6RphiActive"/>
       <Parameter name="TkDDDStructure" value="TECDet"/>
     </SpecPar>
-
-  <SpecPar name="TrackerStereoDetectorsPar">
-      <PartSelector path="//TIBActiveSter0" />
-      <PartSelector path="//TOBActiveSter0" />
-      <PartSelector path="//TECModule4StereoActive" />
+    <SpecPar name="TrackerStereoDetectorsPar">
+      <PartSelector path="//TIBActiveSter0"/>
+      <PartSelector path="//TOBActiveSter0"/>
+      <PartSelector path="//TECModule4StereoActive"/>
       <Parameter name="TrackerStereoDetectors" value="true"/>
-  </SpecPar>
-
-
-  <SpecPar name="TrackerAPVNumber6Par">
-      <PartSelector path="//TIBActiveRphi0" />
-      <PartSelector path="//TIBActiveSter0" />
-      <PartSelector path="//TOBActiveRphi4" />
-      <PartSelector path="//TECModule4RphiActive" /> 
-      <PartSelector path="//TECModule4StereoActive" />
+    </SpecPar>
+    <SpecPar name="TrackerAPVNumber6Par">
+      <PartSelector path="//TIBActiveRphi0"/>
+      <PartSelector path="//TIBActiveSter0"/>
+      <PartSelector path="//TOBActiveRphi4"/>
+      <PartSelector path="//TECModule4RphiActive"/>
+      <PartSelector path="//TECModule4StereoActive"/>
       <Parameter name="SiliconAPVNumber" value="6"/>
-  </SpecPar>
-
-  <SpecPar name="TrackerAPVNumber4Par">
-      <PartSelector path="//TIBActiveRphi2" />
-      <PartSelector path="//TOBActiveRphi2" />
-      <PartSelector path="//TECModule3RphiActive" />
-      <PartSelector path="//TECModule5RphiActive" />
-      <PartSelector path="//TECModule6RphiActive" />
+    </SpecPar>
+    <SpecPar name="TrackerAPVNumber4Par">
+      <PartSelector path="//TIBActiveRphi2"/>
+      <PartSelector path="//TOBActiveRphi2"/>
+      <PartSelector path="//TECModule3RphiActive"/>
+      <PartSelector path="//TECModule5RphiActive"/>
+      <PartSelector path="//TECModule6RphiActive"/>
       <Parameter name="SiliconAPVNumber" value="4"/>
-  </SpecPar>
-
+    </SpecPar>
   </SpecParSection>
 </DDDefinition>
-
