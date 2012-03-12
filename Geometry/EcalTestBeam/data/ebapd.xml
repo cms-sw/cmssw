@@ -1,70 +1,54 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
-
-
-
-<SolidSection label="ebapd.xml">
- <Box name="ECAL"   dx="10*cm"   dy="10*cm"   dz="1*cm"/>
-</SolidSection>
-
-
-<LogicalPartSection label="ebapd.xml">
- <LogicalPart name="ECAL" category="unspecified">
-  <rSolid name="ECAL"/>
-  <rMaterial name="materials:Air"/>
- </LogicalPart>
-</LogicalPartSection>
-
-<Algorithm name="ecal:DDEcalAPDAlgo">
-    <rParent name="ebapd:ECAL"/>
-    <!-- APD assembly has capsule, ceramic, bulk silicon, epoxy, sensitive silicon-->
-    <Vector  name="CerPos" type="numeric" nEntries="3">
-      0*mm, 0*mm, 0*mm
-    </Vector>
-    <Numeric name="APDHere"     value="1" />
-
-    <String  name="CapName"     value="ECAP"  />
-    <String  name="CapMat"      value="materials:Air"  />
-    <Numeric name="CapXSize"    value="  23*mm" />
-    <Numeric name="CapYSize"    value="  20*mm" />
-    <Numeric name="CapThick"    value="   4*mm" />
-
-    <String  name="SGLName"     value="ESGL"  />
-    <String  name="SGLMat"      value="materials:Silicone_Gel"  />
-    <Numeric name="SGLThick"    value=" 0.030*mm" />
-
-    <String  name="CerName"     value="ECER"  />
-    <String  name="CerMat"      value="materials:Borosilicate_Glass"  />
-    <Numeric name="CerXSize"    value=" 9.1*mm" />
-    <Numeric name="CerYSize"    value="10.5*mm" />
-    <Numeric name="CerThick"    value=" 1.55*mm + 0.575*mm - 0.350*mm" />
-
-    <String  name="AGLName"     value="EAGL"  />
-    <String  name="AGLMat"      value="materials:E_Epoxy"  />
-    <Numeric name="AGLThick"    value=" 0.575*mm" />
-
-    <String  name="BSiName"     value="EBSI"  />
-    <String  name="BSiMat"      value="materials:E_Silicon"  />
-    <Numeric name="BSiXSize"    value=" 7.5*mm" />
-    <Numeric name="BSiYSize"    value=" 7.5*mm" />
-    <Numeric name="BSiThick"    value=" 0.400*mm + 0.575*mm" />
-
-    <String  name="APDName"     value="EAPD"  />
-    <String  name="APDMat"      value="materials:E_Silicon"  />
-    <Numeric name="APDSide"     value="   5*mm" />
-    <Numeric name="APDThick"    value=" 0.005*mm" />
-    <Numeric name="APDZ"        value="12.5*mm" />
-    <Numeric name="APDX1"       value=" 7.2*mm" />
-    <Numeric name="APDX2"       value="16.8*mm" />
-
-    <String  name="ATJName"     value="EATJ"  />
-    <String  name="ATJMat"      value="materials:E_Silicon"  />
-    <Numeric name="ATJThick"    value=" 0.0449*mm" />
-
-    <String  name="ANDName"     value="EAND"  />
-    <String  name="ANDMat"      value="materials:E_Silicon"  />
-    <Numeric name="ANDThick"    value=" 0.0001*mm" />
-
-</Algorithm>
-
+	<SolidSection label="ebapd.xml">
+		<Box name="ECAL" dx="10*cm" dy="10*cm" dz="1*cm"/>
+	</SolidSection>
+	<LogicalPartSection label="ebapd.xml">
+		<LogicalPart name="ECAL" category="unspecified">
+			<rSolid name="ECAL"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<Algorithm name="ecal:DDEcalAPDAlgo">
+		<rParent name="ebapd:ECAL"/>
+		<!-- APD assembly has capsule, ceramic, bulk silicon, epoxy, sensitive silicon-->
+		<Vector name="CerPos" type="numeric" nEntries="3">
+			0*mm, 0*mm, 0*mm
+		</Vector>
+		<Numeric name="APDHere" value="1"/>
+		<String name="CapName" value="ECAP"/>
+		<String name="CapMat" value="materials:Air"/>
+		<Numeric name="CapXSize" value="  23*mm"/>
+		<Numeric name="CapYSize" value="  20*mm"/>
+		<Numeric name="CapThick" value="   4*mm"/>
+		<String name="SGLName" value="ESGL"/>
+		<String name="SGLMat" value="materials:Silicone_Gel"/>
+		<Numeric name="SGLThick" value=" 0.030*mm"/>
+		<String name="CerName" value="ECER"/>
+		<String name="CerMat" value="materials:Borosilicate_Glass"/>
+		<Numeric name="CerXSize" value=" 9.1*mm"/>
+		<Numeric name="CerYSize" value="10.5*mm"/>
+		<Numeric name="CerThick" value=" 1.55*mm + 0.575*mm - 0.350*mm"/>
+		<String name="AGLName" value="EAGL"/>
+		<String name="AGLMat" value="materials:E_Epoxy"/>
+		<Numeric name="AGLThick" value=" 0.575*mm"/>
+		<String name="BSiName" value="EBSI"/>
+		<String name="BSiMat" value="materials:E_Silicon"/>
+		<Numeric name="BSiXSize" value=" 7.5*mm"/>
+		<Numeric name="BSiYSize" value=" 7.5*mm"/>
+		<Numeric name="BSiThick" value=" 0.400*mm + 0.575*mm"/>
+		<String name="APDName" value="EAPD"/>
+		<String name="APDMat" value="materials:E_Silicon"/>
+		<Numeric name="APDSide" value="   5*mm"/>
+		<Numeric name="APDThick" value=" 0.005*mm"/>
+		<Numeric name="APDZ" value="12.5*mm"/>
+		<Numeric name="APDX1" value=" 7.2*mm"/>
+		<Numeric name="APDX2" value="16.8*mm"/>
+		<String name="ATJName" value="EATJ"/>
+		<String name="ATJMat" value="materials:E_Silicon"/>
+		<Numeric name="ATJThick" value=" 0.0449*mm"/>
+		<String name="ANDName" value="EAND"/>
+		<String name="ANDMat" value="materials:E_Silicon"/>
+		<Numeric name="ANDThick" value=" 0.0001*mm"/>
+	</Algorithm>
 </DDDefinition>

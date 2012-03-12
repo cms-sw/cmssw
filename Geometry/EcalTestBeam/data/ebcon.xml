@@ -1,95 +1,84 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
-
-
-<!-- TBH4 geometry constants.
-
-     The constants sections in ebcon.xml and tbrot.xml drive 
-     the TBH4 geometry geometry.
-
-     tbrot.xml has the theta and phi of the beam. That file
-     is the only one to be routinely modified for production simulation.
-
-     The first 2 z positions are in the H4 beamline coordinate system,
-     specifying the first z of interest at the momentum-defining magnet,
-     and the z of the pivot point in this coordinate system.
-
-     From that is computed the total distance from one to the other,
-     and the length of the beam line volume which must also
-     contain the last hodoscope which is closer to the
-     supermodule than the pivot point; the hodoLastz value
-     is in a coordinate system in which z=0 is the pivot point.
--->
-
-<ConstantsSection  label="ebcon.xml" eval="true" >
-
-<Constant name="zLastBend"  value="384815*mm"/>
-<Constant name="zPivotPt"   value="652150*mm"/>
-<Constant name="zPivotDist" value="[zPivotPt] - [zLastBend]"/>
-<Constant name="hodoLastZ"  value="193*mm"/> 
-<Constant name="blLength"   value="[zPivotDist] + [hodoLastZ] + 10*mm"/>
-<Constant name="blRadius"   value="48*mm"/>
-<Constant name="ocmsdz"     value="0.5*[blLength]"/>
-<Constant name="blShift"    value="[ocmsdz]-[zPivotDist]"/>
-
-<Constant name="BarZPts01" value="-3045.0*mm"/>
-<Constant name="BarZPts02" value="-2686.7*mm"/>
-<Constant name="BarZPts03" value=" 2686.7*mm"/>
-<Constant name="BarZPts04" value=" 3045.0*mm"/>
-
-<Constant name="BarRMin01" value=" 1455.22*mm"/>
-<Constant name="BarRMin02" value=" 1238.00*mm"/>
-<Constant name="BarRMin03" value=" 1238.00*mm"/>
-<Constant name="BarRMin04" value=" 1455.22*mm"/>
-
-<Constant name="BarRMax01" value=" 1775*mm"/>
-<Constant name="BarRMax02" value=" 1775*mm"/>
-<Constant name="BarRMax03" value=" 1775*mm"/>
-<Constant name="BarRMax04" value=" 1775*mm"/>
-
-<Constant name="BarTranX"  value="0*mm"/>
-<Constant name="BarTranY"  value="0*mm"/>
-<Constant name="BarTranZ"  value="0*mm"/>
-<Constant name="BarPhiLo"  value="-25*deg"/>
-<Constant name="BarPhiHi"  value="25*deg"/>
-<Constant name="SpmHere01" value="1"/>
-<Constant name="SpmHere02" value="0"/>
-<Constant name="SpmHere03" value="0"/>
-<Constant name="SpmHere04" value="0"/>
-<Constant name="SpmHere05" value="0"/>
-<Constant name="SpmHere06" value="0"/>
-<Constant name="SpmHere07" value="0"/>
-<Constant name="SpmHere08" value="0"/>
-<Constant name="SpmHere09" value="0"/>
-<Constant name="SpmHere10" value="0"/>
-<Constant name="SpmHere11" value="0"/>
-<Constant name="SpmHere12" value="0"/>
-<Constant name="SpmHere13" value="0"/>
-<Constant name="SpmHere14" value="0"/>
-<Constant name="SpmHere15" value="0"/>
-<Constant name="SpmHere16" value="0"/>
-<Constant name="SpmHere17" value="0"/>
-<Constant name="SpmHere18" value="0"/>
-<Constant name="SpmHere19" value="0"/>
-<Constant name="SpmHere20" value="0"/>
-<Constant name="SpmHere21" value="0"/>
-<Constant name="SpmHere22" value="0"/>
-<Constant name="SpmHere23" value="0"/>
-<Constant name="SpmHere24" value="0"/>
-<Constant name="SpmHere25" value="0"/>
-<Constant name="SpmHere26" value="0"/>
-<Constant name="SpmHere27" value="0"/>
-<Constant name="SpmHere28" value="0"/>
-<Constant name="SpmHere29" value="0"/>
-<Constant name="SpmHere30" value="0"/>
-<Constant name="SpmHere31" value="0"/>
-<Constant name="SpmHere32" value="0"/>
-<Constant name="SpmHere33" value="0"/>
-<Constant name="SpmHere34" value="0"/>
-<Constant name="SpmHere35" value="0"/>
-<Constant name="SpmHere36" value="0"/>
-
-</ConstantsSection>
-
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+    <!-- TBH4 geometry constants.
+         
+         The constants sections in ebcon.xml and tbrot.xml drive 
+         the TBH4 geometry geometry.
+         
+         tbrot.xml has the theta and phi of the beam. That file
+         is the only one to be routinely modified for production simulation.
+         
+         The first 2 z positions are in the H4 beamline coordinate system,
+         specifying the first z of interest at the momentum-defining magnet,
+         and the z of the pivot point in this coordinate system.
+         
+         From that is computed the total distance from one to the other,
+         and the length of the beam line volume which must also
+         contain the last hodoscope which is closer to the
+         supermodule than the pivot point; the hodoLastz value
+         is in a coordinate system in which z=0 is the pivot point.
+         -->
+    <ConstantsSection label="ebcon.xml" eval="true">
+        <Constant name="zLastBend" value="384815*mm"/>
+        <Constant name="zPivotPt" value="652150*mm"/>
+        <Constant name="zPivotDist" value="[zPivotPt] - [zLastBend]"/>
+        <Constant name="hodoLastZ" value="193*mm"/>
+        <Constant name="blLength" value="[zPivotDist] + [hodoLastZ] + 10*mm"/>
+        <Constant name="blRadius" value="48*mm"/>
+        <Constant name="ocmsdz" value="0.5*[blLength]"/>
+        <Constant name="blShift" value="[ocmsdz]-[zPivotDist]"/>
+        <Constant name="BarZPts01" value="-3045.0*mm"/>
+        <Constant name="BarZPts02" value="-2686.7*mm"/>
+        <Constant name="BarZPts03" value=" 2686.7*mm"/>
+        <Constant name="BarZPts04" value=" 3045.0*mm"/>
+        <Constant name="BarRMin01" value=" 1455.22*mm"/>
+        <Constant name="BarRMin02" value=" 1238.00*mm"/>
+        <Constant name="BarRMin03" value=" 1238.00*mm"/>
+        <Constant name="BarRMin04" value=" 1455.22*mm"/>
+        <Constant name="BarRMax01" value=" 1775*mm"/>
+        <Constant name="BarRMax02" value=" 1775*mm"/>
+        <Constant name="BarRMax03" value=" 1775*mm"/>
+        <Constant name="BarRMax04" value=" 1775*mm"/>
+        <Constant name="BarTranX" value="0*mm"/>
+        <Constant name="BarTranY" value="0*mm"/>
+        <Constant name="BarTranZ" value="0*mm"/>
+        <Constant name="BarPhiLo" value="-25*deg"/>
+        <Constant name="BarPhiHi" value="25*deg"/>
+        <Constant name="SpmHere01" value="1"/>
+        <Constant name="SpmHere02" value="0"/>
+        <Constant name="SpmHere03" value="0"/>
+        <Constant name="SpmHere04" value="0"/>
+        <Constant name="SpmHere05" value="0"/>
+        <Constant name="SpmHere06" value="0"/>
+        <Constant name="SpmHere07" value="0"/>
+        <Constant name="SpmHere08" value="0"/>
+        <Constant name="SpmHere09" value="0"/>
+        <Constant name="SpmHere10" value="0"/>
+        <Constant name="SpmHere11" value="0"/>
+        <Constant name="SpmHere12" value="0"/>
+        <Constant name="SpmHere13" value="0"/>
+        <Constant name="SpmHere14" value="0"/>
+        <Constant name="SpmHere15" value="0"/>
+        <Constant name="SpmHere16" value="0"/>
+        <Constant name="SpmHere17" value="0"/>
+        <Constant name="SpmHere18" value="0"/>
+        <Constant name="SpmHere19" value="0"/>
+        <Constant name="SpmHere20" value="0"/>
+        <Constant name="SpmHere21" value="0"/>
+        <Constant name="SpmHere22" value="0"/>
+        <Constant name="SpmHere23" value="0"/>
+        <Constant name="SpmHere24" value="0"/>
+        <Constant name="SpmHere25" value="0"/>
+        <Constant name="SpmHere26" value="0"/>
+        <Constant name="SpmHere27" value="0"/>
+        <Constant name="SpmHere28" value="0"/>
+        <Constant name="SpmHere29" value="0"/>
+        <Constant name="SpmHere30" value="0"/>
+        <Constant name="SpmHere31" value="0"/>
+        <Constant name="SpmHere32" value="0"/>
+        <Constant name="SpmHere33" value="0"/>
+        <Constant name="SpmHere34" value="0"/>
+        <Constant name="SpmHere35" value="0"/>
+        <Constant name="SpmHere36" value="0"/>
+    </ConstantsSection>
 </DDDefinition>
-

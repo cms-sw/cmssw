@@ -1,60 +1,54 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
-
-<ConstantsSection label="fp420world.xml" eval="true">
- <Constant name="Rmin"         value="0*fm"/>
- <Constant name="HallZ"        value="500.0*m"/>
- <Constant name="HallR"        value="3.0*m"/>
-</ConstantsSection>
-
-<SolidSection label="fp420world.xml">
- <Tubs name="OCMS" rMin="[Rmin]" rMax="[HallR]" dz="[HallZ]" 
-                   startPhi="0*deg" deltaPhi="360*deg"/>
-</SolidSection>
-
-<LogicalPartSection label="fp420world.xml">
- <LogicalPart name="OCMS" category="unspecified">
-  <rSolid name="OCMS"/>
-  <rMaterial name="materialsfp420:Vacuum"/>
- </LogicalPart>
-</LogicalPartSection>
-<!--  -->
-<!--3D CLOCKWISE(at +Z dir.) FP420 DETECTOR IS LOCALLY DESCRIBED IN POSITIVE Y DIRECTION  -->
-<!--  -->
-<!-- ONE HAVE TO PUT IT IN +(OR -) X -->
-<!--  -->
-<!--DO Z-ROTATION IN 90 DEGREE USING  FP420R090 TO EXCHANGE X AND Y -->
-<!-- DETECTOR WILL LIE AT (-X) -->
-<!--  -->
-<!--DO Z-ROTATION IN 270 DEGREE USING  FP420R270 TO EXCHANGE X AND Y -->
-<!-- DETECTOR WILL LIE AT (+X) BUT Y directed TO DOWN-->
-<!--  -->
-<!--  -->
-<PosPartSection label="fp420world.xml">
-<!--  -->
- <PosPart copyNumber="1">
-   <rParent name="fp420world:OCMS"/>
-   <rChild name="fp420:FP420E"/>
-  <Translation x="0*fm" y="0*fm" z="[fp420:ZMainShift]" />
-  <rRotation name="FP420Rot:FP420R090"/>
- </PosPart>
-<!--  -->
-<!--3D UNTI-CLOCKWISE(at -Z dir.) FP420 DETECTOR   -->
-<!--  -->
-<!-- ONE HAVE TO PUT IT IN +(OR -) X -->
-<!--  -->
-<!--DO in addition to previous one the Y-ROTATION IN 180 DEGREE -->
-<!--Finally, it will be the FP420R090 TO EXCHANGE X AND Y -->
-<!-- DETECTOR WILL LIE AT (-X) -->
-<!--  -->
- <PosPart copyNumber="2">
-   <rParent name="fp420world:OCMS"/>
-   <rChild name="fp420:FP420E"/>
-  <Translation x="0*fm" y="0*fm" z="-[fp420:ZMainShift]" />
-  <rRotation name="FP420Rot:FP420X180"/>
- </PosPart>
-<!--  -->
-</PosPartSection>
-
-
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="fp420world.xml" eval="true">
+		<Constant name="Rmin" value="0*fm"/>
+		<Constant name="HallZ" value="500.0*m"/>
+		<Constant name="HallR" value="3.0*m"/>
+	</ConstantsSection>
+	<SolidSection label="fp420world.xml">
+		<Tubs name="OCMS" rMin="[Rmin]" rMax="[HallR]" dz="[HallZ]" startPhi="0*deg" deltaPhi="360*deg"/>
+	</SolidSection>
+	<LogicalPartSection label="fp420world.xml">
+		<LogicalPart name="OCMS" category="unspecified">
+			<rSolid name="OCMS"/>
+			<rMaterial name="materialsfp420:Vacuum"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<!--  -->
+	<!--3D CLOCKWISE(at +Z dir.) FP420 DETECTOR IS LOCALLY DESCRIBED IN POSITIVE Y DIRECTION  -->
+	<!--  -->
+	<!-- ONE HAVE TO PUT IT IN +(OR -) X -->
+	<!--  -->
+	<!--DO Z-ROTATION IN 90 DEGREE USING  FP420R090 TO EXCHANGE X AND Y -->
+	<!-- DETECTOR WILL LIE AT (-X) -->
+	<!--  -->
+	<!--DO Z-ROTATION IN 270 DEGREE USING  FP420R270 TO EXCHANGE X AND Y -->
+	<!-- DETECTOR WILL LIE AT (+X) BUT Y directed TO DOWN-->
+	<!--  -->
+	<!--  -->
+	<PosPartSection label="fp420world.xml">
+		<!--  -->
+		<PosPart copyNumber="1">
+			<rParent name="fp420world:OCMS"/>
+			<rChild name="fp420:FP420E"/>
+			<Translation x="0*fm" y="0*fm" z="[fp420:ZMainShift]"/>
+			<rRotation name="FP420Rot:FP420R090"/>
+		</PosPart>
+		<!--  -->
+		<!--3D UNTI-CLOCKWISE(at -Z dir.) FP420 DETECTOR   -->
+		<!--  -->
+		<!-- ONE HAVE TO PUT IT IN +(OR -) X -->
+		<!--  -->
+		<!--DO in addition to previous one the Y-ROTATION IN 180 DEGREE -->
+		<!--Finally, it will be the FP420R090 TO EXCHANGE X AND Y -->
+		<!-- DETECTOR WILL LIE AT (-X) -->
+		<!--  -->
+		<PosPart copyNumber="2">
+			<rParent name="fp420world:OCMS"/>
+			<rChild name="fp420:FP420E"/>
+			<Translation x="0*fm" y="0*fm" z="-[fp420:ZMainShift]"/>
+			<rRotation name="FP420Rot:FP420X180"/>
+		</PosPart>
+		<!--  -->
+	</PosPartSection>
 </DDDefinition>
