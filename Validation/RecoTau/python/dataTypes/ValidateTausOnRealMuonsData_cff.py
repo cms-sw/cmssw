@@ -5,68 +5,98 @@ import copy
 from RecoJets.Configuration.RecoPFJets_cff import *
 import PhysicsTools.PatAlgos.tools.helpers as helpers
 
-selectedMuons = cms.EDFilter("MuonSelector",
+MuPrimaryVertexFilter = cms.EDFilter(
+    "VertexSelector",
+    src = cms.InputTag("offlinePrimaryVertices"),
+    cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
+    filter = cms.bool(False)
+    )
+
+MuBestPV = cms.EDProducer(
+    "HighestSumP4PrimaryVertexSelector",
+    src = cms.InputTag("MuPrimaryVertexFilter")
+	)
+
+selectedMuons = cms.EDFilter(
+    "MuonSelector",
     src = cms.InputTag('muons'),
-    cut = cms.string("pt > 20.0 && abs(eta) < 2.1 && isGlobalMuon = 1 && isTrackerMuon = 1 && abs(innerTrack().dxy) < 2.0 && abs(innerTrack().dz) < 24."),
+    cut = cms.string("pt > 20.0 && abs(eta) < 2.1 && isGlobalMuon = 1 && isTrackerMuon = 1"),
     filter = cms.bool(False)
 	)
 
-selectedMuonsIso = cms.EDFilter("MuonSelector",
+selectedMuonsIso = cms.EDFilter(
+    "MuonSelector",
     src = cms.InputTag('selectedMuons'),
-    cut = cms.string('(isolationR03().emEt + isolationR03().hadEt + isolationR03().sumPt)/pt < 0.25'),
+    cut = cms.string('(isolationR03().emEt + isolationR03().hadEt + isolationR03().sumPt)/pt < 0.15'),
     filter = cms.bool(False)
 	)    
 
+MuonsFromPV = cms.EDProducer(
+    "MuonFromPVSelector",
+    srcMuon    = cms.InputTag("selectedMuonsIso"),
+    srcVertex  = cms.InputTag("MuBestPV"),
+    max_dxy    = cms.double(0.01),
+    max_dz     = cms.double(0.1)
+    )
+
 from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 
-goodTracks = cms.EDFilter("TrackSelector",
+MuGoodTracks = cms.EDFilter("TrackSelector",
     src = cms.InputTag("generalTracks"), 
-    cut = cms.string("pt > 5 && abs(eta) < 2.5 && abs(dxy) < 2.0 && abs(dz) < 24."),
-    #cut = cms.string("pt > 0.5 "),
+    cut = cms.string("pt > 5 && abs(eta) < 2.5"),
     filter = cms.bool(False)
 	)
 
-trackCands  = cms.EDProducer("ConcreteChargedCandidateProducer", 
-    src  = cms.InputTag("goodTracks"),      
+MuIsoTracks = cms.EDProducer(
+    "IsoTracks",
+    src           = cms.InputTag("MuGoodTracks"),
+    radius        = cms.double(0.3),
+    SumPtFraction = cms.double(0.5)
+    )
+
+MuTrackFromPV = cms.EDProducer(
+    "TrackFromPVSelector",
+    srcTrack   = cms.InputTag("MuIsoTracks"),
+    srcVertex  = cms.InputTag("MuBestPV"),
+    max_dxy    = cms.double(0.01),
+    max_dz     = cms.double(0.1)
+    )
+
+MuTrackCands  = cms.EDProducer(
+    "ConcreteChargedCandidateProducer", 
+    src  = cms.InputTag("MuTrackFromPV"),      
     particleType = cms.string("mu+")     # this is needed to define a mass
 	)
 
-ZmmCandMuonTrack = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("selectedMuonsIso@+ trackCands@-"), # it takes opposite sign collection, no matter if +- or -+
-    cut   = cms.string("60 < mass < 120")
+ZmmCandMuonTrack = cms.EDProducer(
+    "CandViewShallowCloneCombiner",
+    decay = cms.string("MuonsFromPV@+ MuTrackCands@-"), # it takes opposite sign collection, no matter if +- or -+
+    cut   = cms.string("80 < mass < 100")
 	)
 
-BestZ = cms.EDProducer("BestMassZArbitrationProducer", # returns the Z with mass closest to 91.18 GeV
+BestZmm = cms.EDProducer("BestMassZArbitrationProducer", # returns the Z with mass closer to 91.18 GeV
 	ZCandidateCollection = cms.InputTag("ZmmCandMuonTrack")
 	)
 
-ZLegs  = cms.EDProducer("CollectionFromZLegProducer", 
-    ZCandidateCollection  = cms.InputTag("BestZ"),      
+MuZLegs  = cms.EDProducer("CollectionFromZLegProducer", 
+    ZCandidateCollection  = cms.InputTag("BestZmm"),      
 	)
-
-# kinematicSelectedTauValDenominatorRealMuonsData = cms.EDFilter( ##FIXME: this should be a filter
-#    "TauValMuonSelector", #"GenJetSelector"
-#    src = cms.InputTag("muons"),
-#    cut = cms.string(kinematicSelectedTauValDenominatorCut.value()+' && isGlobalMuon && isTrackerMuon && isPFIsolationValid && (pfIsolationR04.sumChargedParticlePt + max(pfIsolationR04.sumPhotonEt + pfIsolationR04.sumNeutralHadronEt - 0.0729*pfIsolationR04.sumPUPt,0.0) )/pt < 0.25'),#cms.string('pt > 5. && abs(eta) < 2.5'), #Defined: Validation.RecoTau.RecoTauValidation_cfi 
-#    filter = cms.bool(False)
-# )
 
 procAttributes = dir(proc) #Takes a snapshot of what there in the process
 helpers.cloneProcessingSnippet( proc, proc.TauValNumeratorAndDenominator, 'RealMuonsData') #clones the sequence inside the process with RealMuonsData postfix
 helpers.cloneProcessingSnippet( proc, proc.TauEfficiencies, 'RealMuonsData') #clones the sequence inside the process with RealMuonsData postfix
-helpers.massSearchReplaceAnyInputTag(proc.TauValNumeratorAndDenominatorRealMuonsData, 'kinematicSelectedTauValDenominator',  cms.InputTag("ZLegs","theProbeLeg")) #sets the correct input tag
+helpers.massSearchReplaceAnyInputTag(proc.TauValNumeratorAndDenominatorRealMuonsData, 'kinematicSelectedTauValDenominator',  cms.InputTag("MuZLegs","theProbeLeg")) #sets the correct input tag
 
 #adds to TauValNumeratorAndDenominator modules in the sequence RealMuonsData to the extention name
 zttLabeler = lambda module : SetValidationExtention(module, 'RealMuonsData')
 zttModifier = ApplyFunctionToSequence(zttLabeler)
 proc.TauValNumeratorAndDenominatorRealMuonsData.visit(zttModifier)
 
-#-----------------------------------------Sets binning
 binning = cms.PSet(
-    pt = cms.PSet( nbins = cms.int32(8), min = cms.double(0.), max = cms.double(300.) ), #hinfo(75, 0., 150.)
+    pt = cms.PSet( nbins = cms.int32(10), min = cms.double(0.), max = cms.double(100.) ), #hinfo(75, 0., 150.)
     eta = cms.PSet( nbins = cms.int32(4), min = cms.double(-3.), max = cms.double(3.) ), #hinfo(60, -3.0, 3.0);
     phi = cms.PSet( nbins = cms.int32(4), min = cms.double(-180.), max = cms.double(180.) ), #hinfo(36, -180., 180.);
-    pileup = cms.PSet( nbins = cms.int32(16), min = cms.double(0.), max = cms.double(80.) ),#hinfo(25, 0., 25.0);
+    pileup = cms.PSet( nbins = cms.int32(6), min = cms.double(0.), max = cms.double(24.) ),#hinfo(25, 0., 25.0);
     )
 zttModifier = ApplyFunctionToSequence(lambda m: setBinning(m,binning))
 proc.TauValNumeratorAndDenominatorRealMuonsData.visit(zttModifier)
@@ -83,21 +113,13 @@ for newAttr in newProcAttributes:
     locals()[newAttr] = getattr(proc,newAttr)
 
 produceDenominatorRealMuonsData = cms.Sequence(
-	( ( selectedMuons * selectedMuonsIso ) + ( goodTracks * trackCands ) ) *
-	ZmmCandMuonTrack *
-	BestZ *
-	ZLegs 
-	)
-
-#################################    
-# produceDenominatorRealMuonsData = cms.Sequence(
-#       kinematicSelectedTauValDenominatorRealMuonsData +
-#       #goodMuons *
-#       goodTracks +
-#       (tagMuons + probeMuons)*
-#       ZCandidates
-#       #trackCands *
-#       )
+                            MuPrimaryVertexFilter * MuBestPV *
+                            ( ( selectedMuons * selectedMuonsIso * MuonsFromPV ) +
+                              ( MuGoodTracks * MuIsoTracks * MuTrackFromPV * MuTrackCands ) ) *
+                            ZmmCandMuonTrack *
+                            BestZmm *
+                            MuZLegs 
+                            )
 
 produceDenominator = produceDenominatorRealMuonsData
 
