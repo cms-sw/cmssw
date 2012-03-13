@@ -123,6 +123,7 @@ TEveEllipsoidProjectedGL::TEveEllipsoidProjectedGL() :
    // Constructor.
 
    // fDLCache = kFALSE; // Disable display list.
+   fMultiColor = kTRUE;
 }
 
 //______________________________________________________________________________
