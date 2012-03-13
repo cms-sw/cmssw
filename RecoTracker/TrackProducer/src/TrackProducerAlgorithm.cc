@@ -39,7 +39,7 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
 						 float ndof,
 						 const reco::BeamSpot& bs,
 						 SeedRef seedRef,
-						 int qualityMask,bool isLooper)						 
+						 int qualityMask,signed char nLoops)						 
 {
   //variable declarations
   std::vector<Trajectory> trajVec;
@@ -48,7 +48,7 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
   PropagationDirection seedDir = seed.direction();
       
   //perform the fit: the result's size is 1 if it succeded, 0 if fails
-  if(isLooper)
+  if(nLoops>0)
     trajVec = theFitter->fit(seed, hits, theTSOS,TrajectoryFitter::looper);
   else
     trajVec = theFitter->fit(seed, hits, theTSOS,TrajectoryFitter::standard);
@@ -107,7 +107,7 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
 			       algo_);
    
     theTrack->setQualityMask(qualityMask);
-    theTrack->setLooper(isLooper);
+    theTrack->setNLoops(nLoops);
 
     LogDebug("TrackProducer") << "theTrack->pt()=" << theTrack->pt();
 
@@ -131,7 +131,7 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
 						    float ndof,
 						    const reco::BeamSpot& bs,
 						    SeedRef seedRef,
-						    int qualityMask,bool isLooper)
+						    int qualityMask,signed char nLoops)
 {
   //variable declarations
   std::vector<Trajectory> trajVec;
@@ -140,7 +140,7 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
   PropagationDirection seedDir = seed.direction();
       
   //perform the fit: the result's size is 1 if it succeded, 0 if fails
-  if(isLooper)
+  if(nLoops>0)
     trajVec = theFitter->fit(seed, hits, theTSOS,TrajectoryFitter::looper);
   else
     trajVec = theFitter->fit(seed, hits, theTSOS,TrajectoryFitter::standard);

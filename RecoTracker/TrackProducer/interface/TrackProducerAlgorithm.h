@@ -4,8 +4,8 @@
 /** \class TrackProducerAlgorithm
  *  This class calls the Final Fit and builds the Tracks then produced by the TrackProducer or by the TrackRefitter
  *
- *  $Date: 2011/08/01 09:37:29 $
- *  $Revision: 1.25 $
+ *  $Date: 2012/03/06 17:06:21 $
+ *  $Revision: 1.26 $
  *  \author cerati
  */
 
@@ -116,7 +116,7 @@ public:
 		  const reco::BeamSpot&,
 		  SeedRef seedRef = SeedRef(),
 		  int qualityMask=0,
-		  bool isLooper=false);
+		  signed char nLoops=0);
 
  private:
   edm::ParameterSet conf_;  
@@ -144,7 +144,7 @@ TrackProducerAlgorithm<reco::Track>::buildTrack(const TrajectoryFitter *,
 						const reco::BeamSpot&,
 						SeedRef seedRef,
 						int qualityMask,
-						bool isLooper);
+						signed char nLoops);
 
 
 template <> bool
@@ -158,6 +158,6 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack(const TrajectoryFitter *,
 						   const reco::BeamSpot&,
 						   SeedRef seedRef,
 						   int qualityMask,
-						   bool isLooper);
+						   signed char nLoops);
 
 #endif
