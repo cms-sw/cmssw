@@ -37,11 +37,11 @@ if [ -n $title ]; then
 		echo "folders are created"
 
 		if [ -z $norm ]; then
-		../../../../test/slc5_amd64_gcc461/compareHists $new $reference ${TAG[${i}]} ${TAGREF[${i}]} $title
+		../../../../test/slc5_amd64_gcc462/compareHists $new $reference ${TAG[${i}]} ${TAGREF[${i}]} $title
 		fi
 
 		if [ $norm = "y" ]; then
-		../../../../test/slc5_amd64_gcc461/compareHists $new $reference ${TAG[${i}]} ${TAGREF[${i}]} $title y
+		../../../../test/slc5_amd64_gcc462/compareHists $new $reference ${TAG[${i}]} ${TAGREF[${i}]} $title y
 		fi
 
 		bash make_thumbnails.sh *.gif
@@ -65,10 +65,10 @@ if [ -n $title ]; then
 		    cp html/htmlTemplate.html $title/${FOLDER[${i}]}
 		fi
 
-		../../../../test/slc5_amd64_gcc461/fixed_plotHists $new ${TAG[${i}]}
+		../../../../test/slc5_amd64_gcc462/fixed_plotHists $new ${TAG[${i}]}
 		mv *.gif $title/${FOLDER[${i}]}/NewData
 
-		../../../../test/slc5_amd64_gcc461/fixed_plotHists $reference ${TAG[${i}]}
+		../../../../test/slc5_amd64_gcc462/fixed_plotHists $reference ${TAG[${i}]}
 		mv *.gif $title/${FOLDER[${i}]}/RefData
 	    done
 
