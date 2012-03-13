@@ -23,14 +23,8 @@ Common commands:
                 Returns at most 10 results per type of result
                 (e.g. 10 releases + 10 packages + ...).
                 
- ^ tagssign     Prints Pending Signature tags of one or more releases,
-                one or more tagsets, or both (i.e. it joins all the tags).
-                Prints an error if several tags appear for a single package
-                if the '-m' flag is not specified.
-                Suitable for piping to addpkg (note: at the moment,
-                addpkg does not read from stdin, use "-f" instead).
-                Optional parameter: '-m' ('--multiple').
-                   Allows multiple tags for a single package.
+ ^ tagssign     Prints Pending Signature tags of one or more releases.
+                Type `cmstc tagssign --help` for usage information
 
  ^ tagsappr     Prints Pending Approval tags of one or more releases,
                 one or more tagsets, or both (i.e. it joins all the tags).
@@ -130,9 +124,13 @@ Examples:
    cmstc search        2011-01-01
    cmstc search        miguel
 
-   cmstc tagssign      CMSSW_4_1_X
-   cmstc tagssign      12345 98765
-   cmstc tagssign      CMSSW_4_1_X 12345 98765
+   cmstc tagssign
+   cmstc tagssign      CMSSW_5_0_X 
+   cmstc tagssign      CMSSW_5_0_X CMSSW_4_4_X
+   cmstc tagssign      -u vskarupe
+   cmstc tagssign      CMSSW_5_0_X CMSSW_4_4_X -u vskarupe --author
+   cmstc tagssign      --all
+   
 
    cmstc tagsappr      CMSSW_4_1_X
    cmstc tagsappr      12345 98765
@@ -423,7 +421,7 @@ def cmd_tagsappr(args):
 
 def cmd_tagssign(args):
   current_user = getpass.getuser()
-  parser = optparse.OptionParser(usage="cmstc tagssign <CMSSW_X_Y_Z1> ... <CMSSW_X_Y_Zn> [--username <username>] [--all] [--author]")
+  parser = optparse.OptionParser(usage="cmstc tagssign <CMSSW_X_Y_Z1> ... <CMSSW_X_Y_Zn> [-u <username>] [--all] [--author]")
   parser.add_option("-u", "--username", dest="username", default=current_user, help="username, if not provided will be taken current system user")
   parser.add_option("-a", "--all", dest="show_all", action="store_true", default=False, help="once set it shows all the pending signatures for all the users, overrides all other options except releases")
   parser.add_option("-t", "--author", dest="author_tagsets", action="store_true", default=False, help="once set it shows all the pending signatures queued by the user")
