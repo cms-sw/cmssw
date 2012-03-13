@@ -27,8 +27,8 @@ TrackBase::TrackBase() :
 
 TrackBase::TrackBase( double chi2, double ndof, const Point & vertex, const Vector & momentum, int charge,
 		      const CovarianceMatrix & cov,
-		      TrackAlgorithm algorithm , TrackQuality quality) :
-  chi2_( chi2 ), ndof_( ndof ), vertex_( vertex ), momentum_( momentum ), charge_( charge ), algorithm_(algorithm), quality_(0), nLoops_(0) {
+		      TrackAlgorithm algorithm , TrackQuality quality,signed char nloops) :
+  chi2_( chi2 ), ndof_( ndof ), vertex_( vertex ), momentum_( momentum ), charge_( charge ), algorithm_(algorithm), quality_(0), nLoops_(nloops) {
   index idx = 0;
   for( index i = 0; i < dimension; ++ i )
     for( index j = 0; j <= i; ++ j )

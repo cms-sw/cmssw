@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.82 2012/03/06 17:49:04 mangano Exp $
+ * \version $Id: TrackBase.h,v 1.83 2012/03/13 15:44:10 mangano Exp $
  *
  */
 
@@ -100,7 +100,7 @@ namespace reco {
     /// constructor from fit parameters and error matrix
     TrackBase( double chi2, double ndof, const Point & referencePoint,
 	       const Vector & momentum, int charge, const CovarianceMatrix &,
-	       TrackAlgorithm=undefAlgorithm, TrackQuality quality=undefQuality);
+	       TrackAlgorithm=undefAlgorithm, TrackQuality quality=undefQuality,signed char nloops=0);
     /// virtual destructor   
     ~TrackBase();
     /// chi-squared of the fit
@@ -286,7 +286,7 @@ namespace reco {
     void setQualityMask(int qualMask) {quality_ = qualMask;}
 
    
-    void setNLoops(char value) { nLoops_=value;}
+    void setNLoops(signed char value) { nLoops_=value;}
 
     bool isLooper() const { return (nLoops_>0);}
     char nLoops() const {return nLoops_;}
@@ -318,7 +318,7 @@ namespace reco {
     uint8_t quality_;
 
     /// number of loops made during the building of the trajectory of a looper particle
-    char nLoops_;
+    signed char nLoops_; ///I use signed char because I don't expect more than 128 loops and I could use a negative value for a special purpose
 
   };
 

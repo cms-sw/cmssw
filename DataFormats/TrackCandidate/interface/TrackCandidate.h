@@ -57,9 +57,9 @@ public:
  
 
   bool isLooper() const {return (nLoops_>0);}
-  char nLoops() const {return nLoops_;}
+  signed char nLoops() const {return nLoops_;}
 
-  void setNLoops(char value) {nLoops_=value;}
+  void setNLoops(signed char value) {nLoops_=value;}
 
   /**  return the edm::reference to the trajectory seed in the original
    *   seeds collection. If the collection has been dropped from the
@@ -75,6 +75,6 @@ private:
   TrajectorySeed seed_;
   PTrajectoryStateOnDet state_;
   edm::RefToBase<TrajectorySeed> seedRef_;
-  char nLoops_;
+  signed char nLoops_;
 };
 #endif
