@@ -46,8 +46,8 @@ HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralPFJet30_v*                  
 HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFJet30_v*                                                  #sr126286
 #HLT_Ele25_CaloIdVT_TrkIdT_QuadCentralPFJet30_v*                                                #sr126286, removed in sr126618
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFJet30_BTagIPIter_v*                         #sr126286
-HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFJet50_Jet40_Jet30_v*                        #sr126618
-HLT_Ele25_CaloIdVT_TrkIdT_CentralPFJet50_Jet40_Jet30_v*                                         #sr126618
+HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFJet50_40_30_v*                           #sr126618
+HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFJet50_40_30_v*                                            #sr126618
 HLT_Iso10Mu20_eta2p1_CentralPFJet30_BTagIPIter_v*                                               #sr126286
 HLT_Iso10Mu20_eta2p1_CentralPFJet30_v*                                                          #sr126286
 HLT_Iso10Mu20_eta2p1_DiCentralPFJet30_v*                                                        #sr126286
