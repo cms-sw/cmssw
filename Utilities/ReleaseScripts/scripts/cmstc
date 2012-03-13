@@ -309,15 +309,20 @@ def printTags(tags):
           isFirst = True
           for unit in tag[i]:
               if not isFirst:
-                  list_str += ", "
+                  list_str += ","
               else:
                   isFirst = False
               list_str += str(unit)
           tag[i] = list_str
-      maxSize[i] = max(maxSize[i], len(str(tag[i])))
+      tag[i] = normalizeStr(tag[i])
+      maxSize[i] = max(maxSize[i], len(tag[i]))
   for tag in tags:
     f = "".join("%%-%is  " % maxSize[x] for x in xrange(sizeTag))
     print f % tuple([x or "-" for x in tag])
+    
+def normalizeStr(value):
+    value = str(value)
+    return value.replace(' ', '_')
 
 def printIBs(ibs):
   for ib in ibs:
