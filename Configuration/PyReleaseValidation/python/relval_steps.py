@@ -563,6 +563,14 @@ steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
                    '--data':'',
                    '--scenario':'pp'}
 
+# run RECO+DQM in step 3 and harvesting in step4, for HLT + RECO workflow
+steps['HARVESTDst4']={'-s':'HARVESTING:dqmHarvesting',
+                   '--conditions':'auto:com10',
+                   '--filein':'file:step3_inDQM.root',
+                   '--filetype':'DQM',
+                   '--data':'',
+                   '--scenario':'pp'}
+
 # step4
 step4Defaults = { 
                   '-s'            : 'ALCA:TkAlMuonIsolated+TkAlMinBias+EcalCalElectron+HcalCalIsoTrk+MuAlOverlaps',
