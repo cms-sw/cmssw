@@ -46,7 +46,7 @@ initialStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilde
     alwaysUseInvalidHits = True,
     maxCand = 3,
     estimator = cms.string('initialStepChi2Est'),
-    maxPtForLooperReconstruction = cms.double(0.9) 
+    maxPtForLooperReconstruction = cms.double(-1) 
     )
 
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi

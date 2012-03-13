@@ -99,7 +99,7 @@ tobTecStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder
     maxCand = 2,
     estimator = cms.string('tobTecStepChi2Est'),
     #startSeedHitsInRebuild = True
-    maxPtForLooperReconstruction = cms.double(0.9)  
+    maxPtForLooperReconstruction = cms.double(-1)  
     )
 
 # MAKING OF TRACK CANDIDATES

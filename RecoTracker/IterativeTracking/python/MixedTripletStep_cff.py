@@ -161,7 +161,7 @@ mixedTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
     clustersToSkip = cms.InputTag('mixedTripletStepClusters'),
     maxCand = 2,
     estimator = cms.string('mixedTripletStepChi2Est'),
-    maxPtForLooperReconstruction = cms.double(0.9) 
+    maxPtForLooperReconstruction = cms.double(-1) 
     )
 
 # MAKING OF TRACK CANDIDATES

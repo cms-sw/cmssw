@@ -64,12 +64,11 @@ lowPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
     MeasurementTrackerName = '',
     trajectoryFilterName = 'lowPtTripletStepTrajectoryFilter',
     clustersToSkip = cms.InputTag('lowPtTripletStepClusters'),
-    #BM maxCand = 2,
-    maxCand = 3,
+    maxCand = 2,
     estimator = cms.string('lowPtTripletStepChi2Est'),
     # 0.63 GeV is the maximum pT for a charged particle to loop within the 1.1m radius
     # of the outermost Tracker barrel layer (with B=3.8T)
-    maxPtForLooperReconstruction = cms.double(0.9) 
+    maxPtForLooperReconstruction = cms.double(-1) 
     )
 
 # MAKING OF TRACK CANDIDATES

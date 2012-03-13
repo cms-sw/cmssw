@@ -82,7 +82,7 @@ pixelPairStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuil
     clustersToSkip = cms.InputTag('pixelPairStepClusters'),
     maxCand = 2,
     estimator = cms.string('pixelPairStepChi2Est'),
-    maxPtForLooperReconstruction = cms.double(0.9) 
+    maxPtForLooperReconstruction = cms.double(-1) 
     )
 
 # MAKING OF TRACK CANDIDATES
