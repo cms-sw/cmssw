@@ -863,6 +863,10 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltMuTrackJpsiCtfTracks" )
       self.options['modules'].append( "-hltMuTrackJpsiEffCkfTrackCandidates" )
       self.options['modules'].append( "-hltMuTrackJpsiEffCtfTracks" )
+      self.options['modules'].append( "-hltJpsiTkPixelSeedFromL3Candidate" )
+      self.options['modules'].append( "-hltCkfTrackCandidatesJpsiTk" )
+      self.options['modules'].append( "-hltCtfWithMaterialTracksJpsiTk" )
+      
       self.options['modules'].append( "-hltESRegionalEgammaRecHit" )
       self.options['modules'].append( "-hltEcalRegionalJetsFEDs" )
       self.options['modules'].append( "-hltEcalRegionalMuonsFEDs" )
