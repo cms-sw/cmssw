@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWVertexProxyBuilder.cc,v 1.14 2012/03/09 08:24:27 amraktad Exp $
+// $Id: FWVertexProxyBuilder.cc,v 1.15 2012/03/13 00:11:48 amraktad Exp $
 //
 // user include files// user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
@@ -48,9 +48,10 @@ public:
       if (iItem)
       {
          iItem->getConfig()->assertParam("Draw Tracks", false);
+         iItem->getConfig()->assertParam("Draw Pseudo Track", false);
          iItem->getConfig()->assertParam("Draw Ellipse", false);
          iItem->getConfig()->assertParam("Scale Ellipse",2l, 1l, 10l);
-         iItem->getConfig()->assertParam("Ellipse Color Index",  2l, 0l, (long)context().colorManager()->numberOfLimitedColors());
+         iItem->getConfig()->assertParam("Ellipse Color Index",  6l, 0l, (long)context().colorManager()->numberOfLimitedColors());
       }
    }
    
@@ -142,7 +143,19 @@ FWVertexProxyBuilder::build(const reco::Vertex& iData, unsigned int iIndex, TEve
          setupAddElement(trk, &oItemHolder);
       }
    }
-  
+   if ( item()->getConfig()->value<bool>("Draw Pseudo Track"))
+   {
+      TEveRecTrack t;
+      t.fBeta = 1.;
+      t.fV = TEveVector(v.x(),v.y(),v.z());
+      t.fP = TEveVector(-v.p4().px(), -v.p4().py(), -v.p4().pz());
+      t.fSign = 1;
+      TEveTrack* trk = new TEveTrack(&t, context().getTrackPropagator());
+      trk->SetLineStyle(7);
+      trk->MakeTrack();
+      setupAddElement(trk, &oItemHolder);
+      
+   }
 }
 
 void
