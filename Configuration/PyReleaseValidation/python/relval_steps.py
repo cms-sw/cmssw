@@ -456,7 +456,15 @@ dataReco={'--conditions':'auto:com10',
           '--scenario':'pp',
           }
 
-steps['HLTD']=merge([{'--process':'reHLT','-s':'HLT','--condition':'auto:hltonline','--data':'','--datatier':'RAW','--eventcontent':'RAW'},])
+steps['HLTD']=merge([{'--process':'reHLT',
+                      '-s':'L1REPACK,HLT',
+                      '--condition':'auto:hltonline',
+                      '--custom_conditions':'L1GtTriggerMenu_L1Menu_Collisions2012_v0_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T', 
+                      '--data':'',
+                      '--datatier':'RAW',
+                      '--eventcontent':'RAW',
+                      '--customise_commands':'\'process.RAWoutput.outputCommands.append("drop FEDRawDataCollection_rawDataCollector__LHC")\''
+                      },])
 steps['RECOD']=merge([{'--scenario':'pp',},dataReco])
 steps['RECOSKIMALCA']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'
                               },steps['RECOD']])
