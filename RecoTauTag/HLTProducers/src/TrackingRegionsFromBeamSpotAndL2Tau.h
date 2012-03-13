@@ -4,7 +4,7 @@
 //
 // Class:           TrackingRegionsFromBeamSpotAndL2Tau
 //
-// $Id:$
+// $Id: TrackingRegionsFromBeamSpotAndL2Tau.h,v 1.1 2012/02/02 23:20:09 khotilov Exp $
 
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
@@ -16,10 +16,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 /** class TrackingRegionsFromBeamSpotAndL2Tau
  * plugin for creating eta-phi TrackingRegions in directions of L2 taus
@@ -73,27 +70,24 @@ public:
     const reco::BeamSpot & bs = *bsHandle;
     GlobalPoint origin(bs.x0(), bs.y0(), bs.z0());
 
-    // get L2 object refs by the label
-    edm::Handle<trigger::TriggerFilterObjectWithRefs> coll_l2;
-    e.getByLabel(m_jetSrc, coll_l2);
+    // pick up the candidate objects of interest
+    edm::Handle< reco::CandidateView > objects;
+    e.getByLabel( m_jetSrc, objects );
+    size_t n_objects = objects->size();
+    if (n_objects == 0) return result;
 
-    // get hold of L2 tau jets
-    std::vector<reco::CaloJetRef> coll_l2_tau_jets;
-    coll_l2->getObjects(trigger::TriggerTau, coll_l2_tau_jets);
-    const size_t n_jets(coll_l2_tau_jets.size());
-    
     // create maximum JetMaxN tracking regions in directions of 
     // highest pt jets that are above threshold and are within allowed eta
     // (we expect that jet collection was sorted in decreasing pt order)
     int n_regions = 0;
-    for (unsigned int i =0; i < n_jets && n_regions < m_jetMaxN; ++i)
+    for (size_t i =0; i < n_objects && n_regions < m_jetMaxN; ++i)
     {
-      reco::CaloJetRef jet = coll_l2_tau_jets[i];
-      if ( jet->pt() < m_jetMinPt || std::abs(jet->eta()) > m_jetMaxEta ) continue;
+      const reco::Candidate & jet = (*objects)[i];
+      if ( jet.pt() < m_jetMinPt || std::abs(jet.eta()) > m_jetMaxEta ) continue;
       
-      GlobalVector direction(jet->momentum().x(), jet->momentum().y(), jet->momentum().z());
-      RectangularEtaPhiTrackingRegion* etaphiRegion = 
-        new RectangularEtaPhiTrackingRegion(
+      GlobalVector direction(jet.momentum().x(), jet.momentum().y(), jet.momentum().z());
+
+      RectangularEtaPhiTrackingRegion* etaphiRegion = new RectangularEtaPhiTrackingRegion(
           direction,
           origin,
           m_ptMin,
@@ -105,7 +99,7 @@ public:
           m_precise,
           m_measurementTrackerName,
           m_searchOpt
-        );
+      );
       result.push_back(etaphiRegion);
       ++n_regions;
     }
