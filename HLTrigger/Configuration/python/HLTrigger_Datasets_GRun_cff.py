@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_2_0/GRun/V16
+# /dev/CMSSW_5_2_0/GRun/V17
 
 import FWCore.ParameterSet.Config as cms
 
@@ -61,6 +61,7 @@ streamA_datasetDoubleElectron_selector.triggerConditions = cms.vstring('HLT_Doub
     'HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_Mass50_v1', 
     'HLT_Ele8_CaloIdL_CaloIsoVL_v12', 
     'HLT_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v10', 
+    'HLT_Ele8_CaloIdT_TrkIdVL_v1', 
     'HLT_TripleEle10_CaloIdL_TrkIdVL_v13')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetDoubleMu_selector

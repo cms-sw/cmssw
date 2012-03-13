@@ -371,6 +371,8 @@ HLT_Ele32_WP70_PFMT50_v*                                                        
 HLT_Ele8_CaloIdL_CaloIsoVL_v*                                                                   #sr126493, kept from 2011
 HLT_Ele17_CaloIdL_CaloIsoVL_v*                                                                  #sr126493, kept from 2011
 
+HLT_Ele8_CaloIdT_TrkIdVL_v*									#sr127024
+
 HLT_Ele15_Ele8_Ele5_CaloIdL_TrkIdVL_v*                                                          #sr126773
 
 HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*                                             #sr126497
