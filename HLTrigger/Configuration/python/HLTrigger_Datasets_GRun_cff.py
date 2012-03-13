@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_2_0/GRun/V15
+# /dev/CMSSW_5_2_0/GRun/V16
 
 import FWCore.ParameterSet.Config as cms
 
@@ -95,11 +95,11 @@ streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_DoubleE
     'HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Jet30_v1', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFJet30_BTagIPIter_v1', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFJet30_v5', 
-    'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFJet50_Jet40_Jet30_v1', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralPFJet30_v5', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFJet30_v5', 
-    'HLT_Ele25_CaloIdVT_TrkIdT_CentralPFJet50_Jet40_Jet30_v1', 
+    'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFJet50_40_30_v1', 
     'HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFJet30_v5', 
+    'HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFJet50_40_30_v1', 
     'HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_PFMHT20_v1', 
     'HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_v1', 
     'HLT_Ele27_WP80_CentralPFJet80_v1', 
