@@ -38,7 +38,6 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
-
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include <memory>
@@ -179,6 +178,7 @@ typedef ObjectViewCleaner<reco::Muon>        TauValMuonViewCleaner;
 typedef ObjectViewCleaner<reco::GsfElectron> TauValGsfElectronViewCleaner;
 typedef ObjectViewCleaner<reco::Electron>    TauValElectronViewCleaner;
 typedef ObjectViewCleaner<reco::Photon>      TauValPhotonViewCleaner;
+typedef ObjectViewCleaner<reco::Track>       TauValTrackViewCleaner;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(TauValCandViewCleaner);
@@ -187,4 +187,5 @@ DEFINE_FWK_MODULE(TauValMuonViewCleaner);
 DEFINE_FWK_MODULE(TauValGsfElectronViewCleaner);
 DEFINE_FWK_MODULE(TauValElectronViewCleaner);
 DEFINE_FWK_MODULE(TauValPhotonViewCleaner);
+DEFINE_FWK_MODULE(TauValTrackViewCleaner);
 
