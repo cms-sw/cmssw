@@ -486,11 +486,11 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   // Now get collections we need
   HT_HFP_=0;
   HT_HFM_=0;
-  bool rechitsFound=false;
+  //  bool rechitsFound=false;
   edm::Handle<HFRecHitCollection> hf_rechit;
   if (e.getByLabel(hfRechitLabel_,hf_rechit))
     {
-      rechitsFound=true;
+      //      rechitsFound=true;
       for (HFRecHitCollection::const_iterator HF=hf_rechit->begin();HF!=hf_rechit->end();++HF)
 	{
 	  float en=HF->energy();
@@ -1106,7 +1106,7 @@ void HcalDigiMonitor::fill_Nevents()
   if (debug_>0)
     std::cout <<"<HcalDigiMonitor> Calling fill_Nevents for event  "<<tevt_<< " (processed events = "<<ievt_<<")"<<std::endl;
   int iPhi, iEta, iDepth;
-  bool valid=false;
+  //  bool valid=false;
 
   // Fill problems vs. lumi block plots
   ProblemsVsLB->Fill(currentLS,hbHists.count_bad+heHists.count_bad+hoHists.count_bad+hfHists.count_bad);
@@ -1297,12 +1297,12 @@ void HcalDigiMonitor::fill_Nevents()
 	      iEta=eta-41;
 	      if (phi==0)
 		DigiOccupancyEta->Fill(iEta,occupancyEta[eta]);
-	      valid=false;
+	      //	      valid=false;
 	
 	      // HB
 	      if (validDetId(HcalBarrel, iEta, iPhi, iDepth))
 		{
-		  valid=true;
+		  //		  valid=true;
 		  if (HBpresent_)
 		    {
                       int calcEta = CalcEtaBin(HcalBarrel,iEta,iDepth);
@@ -1332,7 +1332,7 @@ void HcalDigiMonitor::fill_Nevents()
 	      // HE
 	      if (validDetId(HcalEndcap, iEta, iPhi, iDepth))
 		{
-		  valid=true;
+		  //		  valid=true;
 		  if (HEpresent_)
 		    {
                       int calcEta = CalcEtaBin(HcalEndcap,iEta,iDepth);
@@ -1360,7 +1360,7 @@ void HcalDigiMonitor::fill_Nevents()
 	      // HO
 	      if (validDetId(HcalOuter,iEta,iPhi,iDepth))
 		{
-		  valid=true;
+		  //		  valid=true;
 		  if (HOpresent_)
 		    {
                       int calcEta = CalcEtaBin(HcalOuter,iEta,iDepth);
@@ -1387,7 +1387,7 @@ void HcalDigiMonitor::fill_Nevents()
 	      // HF
 	      if (validDetId(HcalForward,iEta,iPhi,iDepth))
 		{
-		  valid=true;
+		  //		  valid=true;
 		  if (HFpresent_)
 		    {
                       int calcEta = CalcEtaBin(HcalForward,iEta,iDepth);
@@ -1410,6 +1410,7 @@ void HcalDigiMonitor::fill_Nevents()
 							badunpackerreport[calcEta][phi][d]);
 		      DigiErrorsByDepth.depth[d]->Fill(iEta+zside, iPhi,
 						       baddigis[calcEta][phi][d]);
+		      
 		    } // if (HFpresent_)
 		}
 	    } // for (int eta=0;...)

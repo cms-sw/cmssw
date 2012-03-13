@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmitry Vishnevskiy,591 R-013,+41227674265,
 //         Created:  Tue Mar  9 12:59:18 CET 2010
-// $Id: HcalDetDiagPedestalMonitor.cc,v 1.17 2011/05/24 14:40:13 dma Exp $
+// $Id: HcalDetDiagPedestalMonitor.cc,v 1.19 2012/01/31 16:15:17 davidlt Exp $
 //
 //
 // user include files
@@ -572,7 +572,7 @@ void HcalDetDiagPedestalMonitor::fillHistos(){
    // HO summary map
    for(int eta=-10;eta<=15;eta++) for(int phi=1;phi<=72;phi++){
       if(eta>10 && !isSiPM(eta,phi,4)) continue;
-      double PED=0,RMS=0,nped=0,nrms=0,ave,rms;
+      double PED=0,RMS=0,nped=0,nrms=0,ave=0,rms=0;
       if(ho_data[eta+42][phi-1][4-1][0].get_statistics()>100){
 	 ho_data[eta+42][phi-1][4-1][0].get_average(&ave,&rms); PED+=ave; nped++; RMS+=rms; nrms++;
 	 ho_data[eta+42][phi-1][4-1][1].get_average(&ave,&rms); PED+=ave; nped++; RMS+=rms; nrms++; 
@@ -585,7 +585,7 @@ void HcalDetDiagPedestalMonitor::fillHistos(){
    // HB histograms
    for(int eta=-16;eta<=16;eta++) for(int phi=1;phi<=72;phi++) for(int depth=1;depth<=2;depth++){
       if(hb_data[eta+42][phi-1][depth-1][0].get_statistics()>100){
-          double ave,rms,sum=0;
+          double ave=0,rms=0,sum=0;
 	  hb_data[eta+42][phi-1][depth-1][0].get_average(&ave,&rms); sum+=ave; PedestalsRmsHB->Fill(rms);
 	  hb_data[eta+42][phi-1][depth-1][1].get_average(&ave,&rms); sum+=ave; PedestalsRmsHB->Fill(rms);
 	  hb_data[eta+42][phi-1][depth-1][2].get_average(&ave,&rms); sum+=ave; PedestalsRmsHB->Fill(rms);
@@ -608,7 +608,7 @@ void HcalDetDiagPedestalMonitor::fillHistos(){
    for(int eta=-10;eta<=15;eta++) for(int phi=1;phi<=72;phi++) for(int depth=4;depth<=4;depth++){
       if(eta>10 && !isSiPM(eta,phi,4)) continue;
       if(ho_data[eta+42][phi-1][depth-1][0].get_statistics()>100){
-          double ave,rms,sum=0;
+          double ave=0,rms=0,sum=0;
 	  if((eta>=11 && eta<=15 && phi>=59 && phi<=70) || (eta>=5 && eta<=10 && phi>=47 && phi<=58)){
 	     ho_data[eta+42][phi-1][depth-1][0].get_average(&ave,&rms); sum+=ave; PedestalsRmsSimp->Fill(rms);
 	     ho_data[eta+42][phi-1][depth-1][1].get_average(&ave,&rms); sum+=ave; PedestalsRmsSimp->Fill(rms);
@@ -627,7 +627,7 @@ void HcalDetDiagPedestalMonitor::fillHistos(){
    // HF histograms
    for(int eta=-42;eta<=42;eta++) for(int phi=1;phi<=72;phi++) for(int depth=1;depth<=2;depth++){
       if(hf_data[eta+42][phi-1][depth-1][0].get_statistics()>100){
-          double ave,rms,sum=0;
+          double ave=0,rms=0,sum=0;
 	  hf_data[eta+42][phi-1][depth-1][0].get_average(&ave,&rms); sum+=ave; PedestalsRmsHF->Fill(rms);
 	  hf_data[eta+42][phi-1][depth-1][1].get_average(&ave,&rms); sum+=ave; PedestalsRmsHF->Fill(rms);
 	  hf_data[eta+42][phi-1][depth-1][2].get_average(&ave,&rms); sum+=ave; PedestalsRmsHF->Fill(rms);

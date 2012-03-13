@@ -329,9 +329,9 @@ void HcalEEUSMonitor::unpack(const FEDRawData& raw,
   dccOrN = dccHeader->getOrbitNumber();
   //  unsigned long dccEvtNum = dccHeader->getDCCEventNumber();
 
-  uint64_t* lastDataWord = (uint64_t*) ( raw.data()+raw.size()-(2*sizeof(uint64_t)) );
-  int EvFragLength = ((*lastDataWord>>32)*8);
-  EvFragLength = raw.size();
+  //  uint64_t* lastDataWord = (uint64_t*) ( raw.data()+raw.size()-(2*sizeof(uint64_t)) );
+  //  int EvFragLength = ((*lastDataWord>>32)*8);
+  //  EvFragLength = raw.size();
 
 
   unsigned char WholeErrorList=0; 
@@ -348,7 +348,7 @@ void HcalEEUSMonitor::unpack(const FEDRawData& raw,
   for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {
     if (!dccHeader->getSpigotPresent(spigot)) continue;
     
-    bool chsummAOK=true;
+    //    bool chsummAOK=true;
 //    bool channAOK=true;
 
     // From this Spigot's DCC header, first.
@@ -372,7 +372,7 @@ void HcalEEUSMonitor::unpack(const FEDRawData& raw,
     if ( !  ((HTRwdcount != 8)               ||
 	     (HTRwdcount != 12 + NTP + NDAQ) ||
 	     (HTRwdcount != 20 + NTP + NDAQ)    )) {
-      chsummAOK=false;
+      //      chsummAOK=false;
       //incompatible Sizes declared. Skip it.
       continue; }
     bool EE = ((dccHeader->getSpigotErrorBits(spigot) >> 2) & 0x01);
@@ -380,12 +380,12 @@ void HcalEEUSMonitor::unpack(const FEDRawData& raw,
       numEEthisEvent++;
       meEEPerSpigot_->Fill(here);
       if (HTRwdcount != 8) {
-	chsummAOK=false;
+	//	chsummAOK=false;
 	//incompatible Sizes declared. Skip it.
 	continue;}}
     else{ //For non-EE,
       if ((HTRwdcount-NDAQ-NTP) != 20) {
-	chsummAOK=false;
+	//	chsummAOK=false;
 	//incompatible Sizes declared. Skip it.
 	continue;}}
 
