@@ -18,7 +18,7 @@ class SiPixelFedCabling;
 class SiPixelQuality;
 class TH1D;
 class R2DTimerObserver;
-
+class PixelUnpackingRegions;
 
 class SiPixelRawToDigi : public edm::EDProducer {
 public:
@@ -42,6 +42,8 @@ private:
   const SiPixelFedCabling* cabling_;
   const SiPixelQuality* badPixelInfo_;
   bool  useCablingTree_;
+  PixelUnpackingRegions* regions_;
+
   TH1D *hCPU, *hDigi;
   R2DTimerObserver * theTimer;
   bool includeErrors;

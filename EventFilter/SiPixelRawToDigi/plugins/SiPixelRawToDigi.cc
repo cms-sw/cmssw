@@ -28,6 +28,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 
 #include "EventFilter/SiPixelRawToDigi/interface/R2DTimerObserver.h"
+#include "EventFilter/SiPixelRawToDigi/interface/PixelUnpackingRegions.h"
 
 #include "TH1D.h"
 #include "TFile.h"
@@ -38,7 +39,8 @@ using namespace std;
 SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf ) 
   : config_(conf), 
     cabling_(0), 
-    badPixelInfo_(0), 
+    badPixelInfo_(0),
+    regions_(0),
     hCPU(0), hDigi(0), theTimer(0)
 {
 
@@ -64,6 +66,11 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
     produces<DetIdCollection>("UserErrorModules");
   }
 
+  // regions
+  if (config_.exists("Regions")) {
+    regions_ = new PixelUnpackingRegions(config_);
+  }
+
   // Timing
   bool timing = config_.getUntrackedParameter<bool>("Timing",false);
   if (timing) {
@@ -78,7 +85,8 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
 SiPixelRawToDigi::~SiPixelRawToDigi() {
   edm::LogInfo("SiPixelRawToDigi")  << " HERE ** SiPixelRawToDigi destructor!";
 
-  if(useCablingTree_) delete cabling_;
+  if (useCablingTree_) delete cabling_;
+  if (regions_) delete regions_;
 
   if (theTimer) {
     TFile rootFile("analysis.root", "RECREATE", "my histograms");
@@ -149,9 +157,19 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   bool errorsInEvent = false;
   PixelDataFormatter::DetErrors nodeterrors;
 
+  if (regions_) {
+    regions_->run(ev, es);
+    formatter.setModulesToUnpack(regions_->modulesToUnpack());
+    LogDebug("SiPixelRawToDigi") << "region2unpack #feds (BPIX,EPIX,total): "<<regions_->nBarrelFEDs()<<" "<<regions_->nForwardFEDs()<<" "<<regions_->nFEDs();
+    LogDebug("SiPixelRawToDigi") << "region2unpack #modules (BPIX,EPIX,total): "<<regions_->nBarrelModules()<<" "<<regions_->nForwardModules()<<" "<<regions_->nModules();
+  }
+
   typedef std::vector<unsigned int>::const_iterator IF;
   for (IF aFed = fedIds.begin(); aFed != fedIds.end(); ++aFed) {
     int fedId = *aFed;
+
+    if (regions_ && !regions_->mayUnpackFED(fedId)) continue;
+
     if(debug) LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  fedId << endl;
     PixelDataFormatter::Digis digis;
     PixelDataFormatter::Errors errors;

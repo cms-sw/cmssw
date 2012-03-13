@@ -5,6 +5,7 @@
 <use   name="DataFormats/SiPixelDigi"/>
 <use   name="DataFormats/SiPixelRawData"/>
 <use   name="CondFormats/SiPixelObjects"/>
+<use   name="DataFormats/Candidate"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="Utilities/Timing"/>
 <use   name="root"/>

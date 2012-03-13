@@ -45,7 +45,7 @@ const PixelDataFormatter::Word64 WORD32_mask = 0xffffffff;
 
 
 PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map)
-  : theDigiCounter(0), theWordCounter(0), theCablingTree(map), badPixelInfo(0)
+  : theDigiCounter(0), theWordCounter(0), theCablingTree(map), badPixelInfo(0), modulesToUnpack(0)
 {
   int s32 = sizeof(Word32);
   int s64 = sizeof(Word64);
@@ -74,6 +74,11 @@ void PixelDataFormatter::setQualityStatus(bool QualityStatus, const SiPixelQuali
 {
   useQualityInfo = QualityStatus;
   badPixelInfo = QualityInfo;
+}
+
+void PixelDataFormatter::setModulesToUnpack(const std::set<unsigned int> * moduleIds)
+{
+  modulesToUnpack = moduleIds;
 }
 
 void PixelDataFormatter::passFrameReverter(const SiPixelFrameReverter* reverter)
@@ -282,6 +287,8 @@ int PixelDataFormatter::word2digi(const int fedId, const SiPixelFrameConverter* 
     bool badROC = badPixelInfo->IsRocBad(detIdx.rawId, rocInDet);
     if (badROC) return 0;
   }
+
+  if (modulesToUnpack && modulesToUnpack->find(detIdx.rawId) == modulesToUnpack->end()) return 0;
 
   PixelDigi pd(detIdx.row, detIdx.col, adc);
   digis[detIdx.rawId].push_back(pd);

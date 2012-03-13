@@ -40,6 +40,7 @@
 
 #include <vector>
 #include <map>
+#include <set>
 
 class FEDRawData;
 class SiPixelFedCabling;
@@ -65,6 +66,7 @@ public:
 
   void setErrorStatus(bool ErrorStatus);
   void setQualityStatus(bool QualityStatus, const SiPixelQuality* QualityInfo);
+  void setModulesToUnpack(const std::set<unsigned int> * moduleIds);
   void passFrameReverter(const SiPixelFrameReverter* reverter);
 
   int nDigis() const { return theDigiCounter; }
@@ -81,6 +83,8 @@ private:
   const SiPixelFedCabling* theCablingTree;
   const SiPixelFrameReverter* theFrameReverter;
   const SiPixelQuality* badPixelInfo;
+  const std::set<unsigned int> * modulesToUnpack;
+
   bool includeErrors;
   bool useQualityInfo;
   bool debug;
