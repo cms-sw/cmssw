@@ -8,12 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWVertexProxyBuilder.cc,v 1.13 2012/03/09 06:57:43 amraktad Exp $
+// $Id: FWVertexProxyBuilder.cc,v 1.14 2012/03/09 08:24:27 amraktad Exp $
 //
 // user include files// user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
+#include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWParameters.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -47,7 +49,8 @@ public:
       {
          iItem->getConfig()->assertParam("Draw Tracks", false);
          iItem->getConfig()->assertParam("Draw Ellipse", false);
-         iItem->getConfig()->assertParam("Scale Ellipse", 3l, 1l, 100l);
+         iItem->getConfig()->assertParam("Scale Ellipse",2l, 1l, 10l);
+         iItem->getConfig()->assertParam("Ellipse Color Index",  2l, 0l, (long)context().colorManager()->numberOfLimitedColors());
       }
    }
    
@@ -106,12 +109,17 @@ FWVertexProxyBuilder::build(const reco::Vertex& iData, unsigned int iIndex, TEve
       TVectorD vv ( eig.GetEigenValuesRe());
       eveEllipsoid->RefExtent3D().Set(sqrt(vv(0))*ellipseScale,sqrt(vv(1))*ellipseScale,sqrt(vv(2))*ellipseScale); 
 
-      eveEllipsoid->SetFillColor(item()->defaultDisplayProperties().color());
-      eveEllipsoid->SetLineColor(item()->defaultDisplayProperties().color());
       eveEllipsoid->SetLineWidth(2);
       setupAddElement(eveEllipsoid, &oItemHolder);
       eveEllipsoid->SetMainTransparency(TMath::Min(100, 80 + item()->defaultDisplayProperties().transparency() / 5)); 
-    }
+      
+      
+      
+      Color_t color = item()->getConfig()->value<long>("Ellipse Color Index");
+     // eveEllipsoid->SetFillColor(item()->defaultDisplayProperties().color());
+     // eveEllipsoid->SetLineColor(item()->defaultDisplayProperties().color());    
+      eveEllipsoid->SetMainColor(color + context().colorManager()->offsetOfLimitedColors());
+   }
 
    // tracks
    if ( item()->getConfig()->value<bool>("Draw Tracks")) 
@@ -142,6 +150,9 @@ FWVertexProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* iComp
                                      FWViewType::EType viewType, const FWViewContext* vc)
 {
    increaseComponentTransparency(iId.index(), iCompound, "Ellipsoid", 80);
+   TEveElement* el = iCompound->FindChild("Ellipsoid");
+   if (el)
+      el->SetMainColor(item()->getConfig()->value<long>("Ellipse Color Index") + context().colorManager()->offsetOfLimitedColors());
 }
 
 //
