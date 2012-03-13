@@ -10,7 +10,7 @@
 //------------------------------------------------------------------------------
 
 ScoutingAnalyzerBase::ScoutingAnalyzerBase( const edm::ParameterSet& conf ){
-  m_MEsPath = conf.getUntrackedParameter<std::string>("rootPath","/DataScouting") ;
+  m_MEsPath = conf.getUntrackedParameter<std::string>("rootPath","DataScouting") ;
   m_modulePath = conf.getUntrackedParameter<std::string>("modulePath","DataScouting") ;
   m_verbosityLevel = conf.getUntrackedParameter<unsigned int>("verbosityLevel", 0) ;
   if (m_modulePath.size() != 0)
