@@ -911,7 +911,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltBLifetimeBTagIP3D1stTrkRegionalCtfWithMaterialTracksJet20HbbL1FastJet" )
       self.options['modules'].append( "-hltBLifetimeDiBTagIP3D1stTrkRegionalPixelSeedGeneratorJet20HbbL1FastJet" )
       self.options['modules'].append( "-hltBLifetimeDiBTagIP3D1stTrkRegionalCkfTrackCandidatesJet20HbbL1FastJet" )
-      self.options['modules'].append( "-hltBLifetimeBTagIP3D1stTrkRegionalCtfWithMaterialTracksJet20HbbL1FastJet" )
+      self.options['modules'].append( "-hltBLifetimeDiBTagIP3D1stTrkRegionalCtfWithMaterialTracksJet20HbbL1FastJet" )
       # === hltBLifetimeRegional
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorSingleTop" )
       self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksSingleTop" )
