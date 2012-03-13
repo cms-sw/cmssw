@@ -15,10 +15,12 @@ dropboxDir="/dropbox/hcallumipro/"
 lumiauthpath="/home/lumidb/auth/writer"
 lumilogpath="/home/lumidb/log"
 loaderconf="loader.cfg"
+minrun=180250
+
 cd /nfshome0/hcallumipro/LumiDBUtil/exec
 date > "$lumilogpath/tmp.log"
 sqlplus cms_runinfo_r@cms_orcon_prod/$1 < dumpfill.sql >> "$lumilogpath/tmp.log"
-lumiDBFiller.py -c $dbConnectionString -d $dropboxDir -P $lumiauthpath -L $lumilogpath -f $loaderconf >> "$lumilogpath/tmp.log"
+lumiDBFiller.py -c $dbConnectionString -d $dropboxDir -P $lumiauthpath -L $lumilogpath -f $loaderconf --minrun $minrun >> "$lumilogpath/tmp.log"
 date >> "$lumilogpath/tmp.log"
 myDate=`date +"%y-%m-%d-%H"`
 mv "$lumilogpath/tmp.log" "$lumilogpath/lumiDBFiller-$myDate.log"
