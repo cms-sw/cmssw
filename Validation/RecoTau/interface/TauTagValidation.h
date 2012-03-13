@@ -41,7 +41,7 @@
 #include "TH1.h"
 #include "TH1F.h"
 #include <vector>
-
+#include <string>
 
 // Include DQM core
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -183,7 +183,6 @@ private:
   // book-keeping variables
 
   DQMStore* dbeTau_;
-
   int numEvents_;
 
  protected:

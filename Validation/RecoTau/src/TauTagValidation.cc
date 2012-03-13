@@ -15,7 +15,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.33 2012/02/24 16:48:44 mverzett Exp $
+// $Id: TauTagValidation.cc,v 1.34 2012/02/27 10:26:53 mverzett Exp $
 //
 //
 // user include files
@@ -56,6 +56,7 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig):
   // Get the discriminators and their cuts
   discriminators_( iConfig.getParameter< std::vector<edm::ParameterSet> >( "discriminators" ))
 {
+  cout << moduleLabel_<<"::TauTagValidation" << endl;
   turnOnTrigger_ = iConfig.exists("turnOnTrigger") && iConfig.getParameter<bool>("turnOnTrigger");
   genericTriggerEventFlag_ = (iConfig.exists("GenericTriggerSelection") && turnOnTrigger_) ? new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("GenericTriggerSelection")) : NULL;
   if(genericTriggerEventFlag_ != NULL)  std::cout<<"--> GenericTriggerSelection parameters found in "<<moduleLabel_<<"."<<std::endl;//move to LogDebug
@@ -111,6 +112,7 @@ TauTagValidation::~TauTagValidation() {
 }
 
 void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  //cout << moduleLabel_<<"::analyze" << endl;
   if (genericTriggerEventFlag_) {
     if (!genericTriggerEventFlag_->on()) std::cout<<"TauTagValidation::analyze: No working genericTriggerEventFlag. Did you specify a valid globaltag?"<<std::endl;//move to LogDebug?
     if ( genericTriggerEventFlag_->on() && !genericTriggerEventFlag_->accept(iEvent, iSetup) ) {
@@ -231,6 +233,10 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           phiTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(RefJet->phi()*180.0/TMath::Pi());
           pileupTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(pvHandle->size());
           
+	  //fill the DeltaR plots
+	  if(thePFTau->jetRef().isAvailable() && thePFTau->jetRef().isNonnull())
+	    plotMap_.find( currentDiscriminatorLabel + "_dRTauRefJet")->second->Fill( algo_->deltaR(thePFTau.get(), thePFTau->jetRef().get() ) );
+
           //fill the momentum resolution plots
           double tauPtRes = thePFTau->pt()/gen_particle->pt();//WARNING: use only the visible parts!
           plotMap_.find( currentDiscriminatorLabel + "_pTRatio_allHadronic" )->second->Fill(tauPtRes);
@@ -301,7 +307,7 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   }
 }
 void TauTagValidation::beginJob() {
-  
+  cout << moduleLabel_<<"::beginJob" << endl;
   dbeTau_ = &*edm::Service<DQMStore>();
   
   if(dbeTau_) {
@@ -315,6 +321,7 @@ void TauTagValidation::beginJob() {
     hinfo etaHinfo = (histoSettings_.exists("eta")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("eta")) : hinfo(60, -3.0, 3.0);
     hinfo phiHinfo = (histoSettings_.exists("phi")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("phi")) : hinfo(36, -180., 180.);
     hinfo pileupHinfo = (histoSettings_.exists("pileup")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("pileup")) : hinfo(25, 0., 25.0);
+    hinfo dRHinfo = (histoSettings_.exists("deltaR")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("deltaR")) : hinfo(10, 0., 0.5);
 
     // What kind of Taus do we originally have!
     
@@ -327,7 +334,8 @@ void TauTagValidation::beginJob() {
     etaTauVisibleMap.insert( std::make_pair(refCollection_,etaTemp));
     phiTauVisibleMap.insert( std::make_pair(refCollection_,phiTemp));
     pileupTauVisibleMap.insert( std::make_pair(refCollection_,pileupTemp));
-    
+   
+
     // Number of Tau Candidates matched to MC Taus
     
     dbeTau_->setCurrentFolder("RecoTauV/"+ TauProducer_ + extensionName_ + "_Matched");
@@ -352,7 +360,7 @@ void TauTagValidation::beginJob() {
       dbeTau_->setCurrentFolder("RecoTauV/" +  TauProducer_ + extensionName_ + "_" +  DiscriminatorLabel );
       
       ptTemp    =  dbeTau_->book1D(DiscriminatorLabel + "_vs_ptTauVisible", histogramName +"_vs_ptTauVisible", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
-      etaTemp   =  dbeTau_->book1D(DiscriminatorLabel + "_vs_etaTauVisible", DiscriminatorLabel + "_vs_etaTauVisible", etaHinfo.nbins, etaHinfo.min, etaHinfo.max );
+      etaTemp   =  dbeTau_->book1D(DiscriminatorLabel + "_vs_etaTauVisible", histogramName + "_vs_etaTauVisible", etaHinfo.nbins, etaHinfo.min, etaHinfo.max );
       phiTemp   =  dbeTau_->book1D(DiscriminatorLabel + "_vs_phiTauVisible", histogramName + "_vs_phiTauVisible", phiHinfo.nbins, phiHinfo.min, phiHinfo.max);
       pileupTemp =  dbeTau_->book1D(DiscriminatorLabel + "_vs_pileupTauVisible", histogramName + "_vs_pileupTauVisible", pileupHinfo.nbins, pileupHinfo.min, pileupHinfo.max);
       
@@ -360,8 +368,12 @@ void TauTagValidation::beginJob() {
       etaTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,etaTemp));
       phiTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,phiTemp));
       pileupTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,pileupTemp));
-      
-      
+
+
+      //DR between tau and refJet
+      tmpME =  dbeTau_->book1D(DiscriminatorLabel + "_dRTauRefJet", histogramName +"_dRTauRefJet;#DeltaR(#tau,refJet);Frequency", dRHinfo.nbins, dRHinfo.min, dRHinfo.max);
+      plotMap_.insert( std::make_pair(DiscriminatorLabel + "_dRTauRefJet",tmpME));
+     
       
       // momentum resolution for several decay modes
 
@@ -486,8 +498,12 @@ void TauTagValidation::endJob() {
   if (!outPutFile_.empty() && &*edm::Service<DQMStore>() && saveoutputhistograms_) dbeTau_->save (outPutFile_);
 }
 void TauTagValidation::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
+  cout << moduleLabel_<<"::beginRun" << endl;
   if (genericTriggerEventFlag_) {
-    if (genericTriggerEventFlag_->on()) genericTriggerEventFlag_->initRun(iRun, iSetup);
+    if (genericTriggerEventFlag_->on()){
+      cout << "initializing trigger" << endl;
+      genericTriggerEventFlag_->initRun(iRun, iSetup);
+    }
   }
 }
 void TauTagValidation::endRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
