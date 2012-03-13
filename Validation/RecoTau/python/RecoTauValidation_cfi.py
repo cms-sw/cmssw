@@ -102,7 +102,7 @@ StandardMatchingParameters = cms.PSet(
 
 GenericTriggerSelectionParameters = cms.PSet(
    andOr          = cms.bool( False ),#specifies the logical combination of the single filters' (L1, HLT and DCS) decisions at top level (True=OR)
-   #dbLabel        = cms.string("JetMETDQMTrigger"),#specifies the label under which the DB payload is available from the ESSource or Global Tag
+   dbLabel        = cms.string("PFTauDQMTrigger"),#specifies the label under which the DB payload is available from the ESSource or Global Tag
    andOrHlt       = cms.bool(True),#specifies the logical combination of the single HLT paths' decisions (True=OR)
    hltInputTag    = cms.InputTag("TriggerResults::HLT"),
    #hltDBKey       = cms.string('jetmet_highptjet'),#Tag of the record in the database, where IOV-based HLT paths are found. This record overwrites the configuration parameter hltPaths
@@ -180,7 +180,7 @@ proc.efficiencies = cms.EDAnalyzer(
 
 proc.normalizePlots = cms.EDAnalyzer(
    "DQMHistNormalizer",
-   plotNamesToNormalize = cms.vstring('*_pTRatio_*','*_Size_*','*_SumPt_*'),
+   plotNamesToNormalize = cms.vstring('*_pTRatio_*','*_Size_*','*_SumPt_*','*_dRTauRefJet*'),
    reference = cms.string('*_pTRatio_allHadronic')
    )
 
