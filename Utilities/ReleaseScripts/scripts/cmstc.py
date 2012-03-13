@@ -9,7 +9,7 @@ __maintainer__ = "Miguel Ojeda"
 __email__ = "mojedasa@cern.ch"
 __status__ = "Staging"
 
-_tagcollector_url = 'https://cmssdt.cern.ch/tc/'
+_tagcollector_url = 'https://localhost:4443/'
 
 import urllib
 import urllib2
@@ -102,15 +102,16 @@ class TagCollector(object):
 		allow_multiple_tags = json.dumps(allow_multiple_tags)
 		return self._openjson('py_getPendingApprovalTags', {'args': args, 'allow_multiple_tags': allow_multiple_tags})
 	
-	def getPendingSignatureTags(self, args, allow_multiple_tags = False):
+	def getTagsetsTagsPendingSignatures(self, user_name, show_all, author_tagsets, release_names = None):
 		"""Prints Pending Signature tags of one or more releases,
                 one or more tagsets, or both (i.e. it joins all the tags).
 		Prints an error if several tags appear for a single package.
 		Suitable for piping to addpkg (note: at the moment,
 		addpkg does not read from stdin, use "-f" instead)."""
-		args = json.dumps(args)
-		allow_multiple_tags = json.dumps(allow_multiple_tags)
-		return self._openjson('py_getPendingSignatureTags', {'args': args, 'allow_multiple_tags': allow_multiple_tags})
+		if not release_names == None:
+			return self._openjson('py_getTagsetsTagsPendingSignatures', {'user_name': user_name, 'show_all': show_all, 'author_tagsets': author_tagsets, 'release_names': json.dumps(release_names)})
+		else:
+			return self._openjson('py_getTagsetsTagsPendingSignatures', {'user_name': user_name, 'show_all': show_all, 'author_tagsets': author_tagsets})
 
 	def commentTagsets(self, tagset_ids, comment):
 		"""Comment one or more tagsets.

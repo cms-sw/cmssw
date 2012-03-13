@@ -178,6 +178,7 @@ import sys
 import optparse
 import subprocess
 import re
+import getpass
 from optparse import OptionParser
 
 def _system(args):
@@ -305,7 +306,17 @@ def printTags(tags):
     for i in xrange(sizeTag):
       if tag[i] == None:
           tag[i] = '-'
-      maxSize[i] = max(maxSize[i], len(tag[i]))
+      if type(tag[i]) is list:
+          list_str = ""
+          isFirst = True
+          for unit in tag[i]:
+              if not isFirst:
+                  list_str += ", "
+              else:
+                  isFirst = False
+              list_str += str(unit)
+          tag[i] = list_str
+      maxSize[i] = max(maxSize[i], len(str(tag[i])))
   for tag in tags:
     f = "".join("%%-%is  " % maxSize[x] for x in xrange(sizeTag))
     print f % tuple([x or "-" for x in tag])
@@ -411,13 +422,24 @@ def cmd_tagsappr(args):
   printTags(sorted(cmstc.TagCollector().getPendingApprovalTags(args, multiple)))
 
 def cmd_tagssign(args):
-  parser = optparse.OptionParser()
-  parser.add_option("-m", "--multiple", action="store_true", dest="multiple", default=False)
+  current_user = getpass.getuser()
+  parser = optparse.OptionParser(usage="cmstc tagssign <CMSSW_X_Y_Z1> ... <CMSSW_X_Y_Zn> [--username <username>] [--all] [--author]")
+  parser.add_option("-u", "--username", dest="username", default=current_user, help="username, if not provided will be taken current system user")
+  parser.add_option("-a", "--all", dest="show_all", action="store_true", default=False, help="once set it shows all the pending signatures for all the users, overrides all other options except releases")
+  parser.add_option("-t", "--author", dest="author_tagsets", action="store_true", default=False, help="once set it shows all the pending signatures queued by the user")
   (opts, args) = parser.parse_args(args)
-  multiple = opts.multiple
-  if len(args) < 1:
-    raise Exception("Error: Expected at least a tagset ID or release name.")
-  printTags(sorted(cmstc.TagCollector().getPendingSignatureTags(args, multiple)))
+  release_names = None
+  for arg in args:
+      if 'CMSSW_' in arg:
+          if release_names == None:
+              release_names = []
+          release_names.append(arg)
+  tagsetTagsHeader = ["Release", "Tagset_Id", "Package", "Tag", "Dependencies", "Pending_Signatures", "Provided_Signatures"]
+  tagsetTags = cmstc.TagCollector().getTagsetsTagsPendingSignatures(opts.username, opts.show_all, opts.author_tagsets, release_names)
+  tagsetTagsFinal = [tagsetTagsHeader]
+  for tagsetTag in tagsetTags:
+      tagsetTagsFinal.append(tagsetTag)
+  printTags(tagsetTagsFinal)
 
 def cmd_ibs(filt):
   if filt:
