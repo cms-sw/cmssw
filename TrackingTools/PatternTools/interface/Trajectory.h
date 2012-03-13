@@ -316,9 +316,9 @@ public:
    void setDPhiCacheForLoopersReconstruction(float dphi) {  theDPhiCache = dphi;}
 
    bool isLooper() const { return (theNLoops>0);}
-   char nLoops() const {return theNLoops;}
+   signed char nLoops() const {return theNLoops;}
 
-   void setNLoops(char value) { theNLoops=value;}
+   void setNLoops(signed char value) { theNLoops=value;}
    void incrementLoops() {theNLoops++;}
 
 private:
@@ -338,7 +338,7 @@ private:
   bool theValid;
 
   float theDPhiCache;
-  char theNLoops;
+  signed char theNLoops;
 
   void check() const;
 };
