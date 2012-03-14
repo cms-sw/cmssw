@@ -3362,7 +3362,8 @@ float CSCTFPtMethods::Pt2Stn2012(int type, float eta, float dphi, int PtbyMLH, f
           break;
           case 13 :  //1-4
                  if(iETA1 < 9)iETA1 = 9;
-                 if(iETA1 > 12)iETA1 = 12;
+                 if(iETA1 > 11)iETA1 = 11;
+                 //if(iETA1 > 12)iETA1 = 12;
                  if(fr == 1){
                    par1[0] = A_mu14Front[0][iETA1];
                    par1[1] = A_mu14Front[1][iETA1];
