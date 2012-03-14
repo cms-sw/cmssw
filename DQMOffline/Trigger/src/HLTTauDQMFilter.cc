@@ -139,7 +139,7 @@ void HLTTauDQMFilter::regexSearch() {
     while ( boost::regex_search(start, end, what, exprTau) ) {
         int energy = 0;
         string2int(what[2].str().c_str(),energy);
-        if (std::string(what[1]) == "Double") {
+        if (std::string(what[1]) == "Double" || std::string(what[1]) == "DoubleLoose" || std::string(what[1]) == "DoubleMedium" || std::string(what[1]) == "DoubleTight") {
             taus_.insert(std::pair<int,std::string>(energy,""));
             taus_.insert(std::pair<int,std::string>(energy,""));
             count_taus_ += 2;
@@ -283,11 +283,11 @@ std::map<int,std::string> HLTTauDQMFilter::interestingModules( HLTConfigProvider
             
             if ( HLTCP.moduleType(*imodule) == "HLTLevel1GTSeed" ) {
                 insertUniqueValue(modules, std::make_pair(idx,*imodule));
-            } else if ( HLTCP.moduleType(*imodule) == "HLT1Tau" || HLTCP.moduleType(*imodule) == "HLT1SmartTau" ) {
+            } else if ( HLTCP.moduleType(*imodule) == "HLT1Tau" || HLTCP.moduleType(*imodule) == "HLT1PFTau" || HLTCP.moduleType(*imodule) == "HLT1SmartTau" ) {
                 if ( boost::regex_match(*imodule, rePFTau) || boost::regex_match(*imodule, rePFIsoTau) ) {
                     insertUniqueValue(modules, std::make_pair(idx,*imodule));
                 }
-            } else if ( HLTCP.moduleType(*imodule) == "HLT2ElectronTau" || HLTCP.moduleType(*imodule) == "HLT2MuonTau" ) {
+            } else if ( HLTCP.moduleType(*imodule) == "HLT2ElectronTau" || HLTCP.moduleType(*imodule) == "HLT2ElectronPFTau" || HLTCP.moduleType(*imodule) == "HLT2MuonTau" || HLTCP.moduleType(*imodule) == "HLT2MuonPFTau" ) {
                 if ( boost::regex_match(*imodule, rePFTau) || boost::regex_match(*imodule, rePFIsoTau) ) {
                     insertUniqueValue(modules, std::make_pair(idx,*imodule));
                     
@@ -297,7 +297,7 @@ std::map<int,std::string> HLTTauDQMFilter::interestingModules( HLTConfigProvider
                     std::string input2 = HLTCP.modulePSet(*imodule).getParameter<edm::InputTag>("inputTag2").label();
                     int idx2 = std::find(moduleLabels.begin(), moduleLabels.end(), input2) - moduleLabels.begin();                            
                     
-                    if ( HLTCP.moduleType(input1) == "HLT1Tau" || HLTCP.moduleType(input1) == "HLT1SmartTau" ) {
+                    if ( HLTCP.moduleType(input1) == "HLT1Tau" || HLTCP.moduleType(input1) == "HLT1PFTau" || HLTCP.moduleType(input1) == "HLT1SmartTau" ) {
                         if ( boost::regex_match(input1, rePFTau) || boost::regex_match(input1, rePFIsoTau) ) {
                             insertUniqueValue(modules, std::make_pair(idx1,input1));
                         }
@@ -305,7 +305,7 @@ std::map<int,std::string> HLTTauDQMFilter::interestingModules( HLTConfigProvider
                         insertUniqueValue(modules, std::make_pair(idx1,input1));
                     }
                     
-                    if ( HLTCP.moduleType(input2) == "HLT1Tau" || HLTCP.moduleType(input2) == "HLT1SmartTau" ) {
+                    if ( HLTCP.moduleType(input2) == "HLT1Tau" || HLTCP.moduleType(input2) == "HLT1PFTau" || HLTCP.moduleType(input2) == "HLT1SmartTau" ) {
                         if ( boost::regex_match(input2, rePFTau) || boost::regex_match(input2, rePFIsoTau) ) {
                             insertUniqueValue(modules, std::make_pair(idx2,input2));
                         }
@@ -320,7 +320,7 @@ std::map<int,std::string> HLTTauDQMFilter::interestingModules( HLTConfigProvider
         for ( std::map<int,std::string>::iterator iter = modules.begin(); iter != modules.end(); ) {
             std::map<int,std::string>::iterator tempItr = iter++;
             std::string const& value = HLTCP.moduleType(tempItr->second);
-            if ( value != "HLT1Tau" && value != "HLT1SmartTau" ) {
+            if ( value != "HLT1Tau" && value != "HLT1PFTau" && value != "HLT1SmartTau" ) {
                 modules.erase(tempItr);
             }
         }
@@ -379,19 +379,19 @@ std::vector<edm::ParameterSet> HLTTauDQMFilter::getPSets( HLTConfigProvider cons
                 tmp.addUntrackedParameter<unsigned int>( "NTriggeredLeptons", 0 );
                 tmp.addUntrackedParameter<int>( "LeptonType", 0 );
             }
-        } else if ( HLTCP.moduleType(imodule->second) == "HLT1Tau" || HLTCP.moduleType(imodule->second) == "HLT1SmartTau" ) {
+        } else if ( HLTCP.moduleType(imodule->second) == "HLT1Tau" || HLTCP.moduleType(imodule->second) == "HLT1PFTau" || HLTCP.moduleType(imodule->second) == "HLT1SmartTau" ) {
             tmp.addUntrackedParameter<double>( "MatchDeltaR", HLTMatchDeltaR_ );
             tmp.addUntrackedParameter<unsigned int>( "NTriggeredTaus", count_taus_ );
             tmp.addUntrackedParameter<int>( "TauType", trigger::TriggerTau );
             tmp.addUntrackedParameter<unsigned int>( "NTriggeredLeptons", 0 );
             tmp.addUntrackedParameter<int>( "LeptonType", 0 );
-        } else if ( HLTCP.moduleType(imodule->second) == "HLT2ElectronTau" ) {
+        } else if ( HLTCP.moduleType(imodule->second) == "HLT2ElectronTau" || HLTCP.moduleType(imodule->second) == "HLT2ElectronPFTau" ) {
             tmp.addUntrackedParameter<double>( "MatchDeltaR", HLTMatchDeltaR_ );
             tmp.addUntrackedParameter<unsigned int>( "NTriggeredTaus", count_taus_ );
             tmp.addUntrackedParameter<int>( "TauType", trigger::TriggerTau );
             tmp.addUntrackedParameter<unsigned int>( "NTriggeredLeptons", count_electrons_ );
             tmp.addUntrackedParameter<int>( "LeptonType", trigger::TriggerElectron );
-        } else if ( HLTCP.moduleType(imodule->second) == "HLT2MuonTau" ) {
+        } else if ( HLTCP.moduleType(imodule->second) == "HLT2MuonTau" || HLTCP.moduleType(imodule->second) == "HLT2MuonPFTau" ) {
             tmp.addUntrackedParameter<double>( "MatchDeltaR", HLTMatchDeltaR_ );
             tmp.addUntrackedParameter<unsigned int>( "NTriggeredTaus", count_taus_ );
             tmp.addUntrackedParameter<int>( "TauType", trigger::TriggerTau );
