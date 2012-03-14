@@ -35,16 +35,16 @@ public:
   TrackCandidate(RecHitContainer & rh,
 		 TrajectorySeed const & s,
 		 PTrajectoryStateOnDet const & st,
-		 bool isLooper=0):
-    rh_(), seed_(s), state_(st), seedRef_(),nLoops_(isLooper) {rh_.swap(rh);}
+		 signed char nLoops=0):
+    rh_(), seed_(s), state_(st), seedRef_(),nLoops_(nLoops) {rh_.swap(rh);}
 
   
   TrackCandidate(RecHitContainer & rh,
 		 TrajectorySeed const & s,
 		 PTrajectoryStateOnDet const & st,
 		 const edm::RefToBase<TrajectorySeed> & seedRef,
-		 bool isLooper=0) :
-    rh_(), seed_(s), state_(st), seedRef_(seedRef),nLoops_(isLooper) {rh_.swap(rh);}
+		 signed char nLoops=0) :
+    rh_(), seed_(s), state_(st), seedRef_(seedRef),nLoops_(nLoops) {rh_.swap(rh);}
 
 
 

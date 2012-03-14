@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.83 2012/03/13 15:44:10 mangano Exp $
+ * \version $Id: TrackBase.h,v 1.84 2012/03/13 16:19:26 mangano Exp $
  *
  */
 
@@ -289,7 +289,7 @@ namespace reco {
     void setNLoops(signed char value) { nLoops_=value;}
 
     bool isLooper() const { return (nLoops_>0);}
-    char nLoops() const {return nLoops_;}
+    signed char nLoops() const {return nLoops_;}
    
   private:
 
