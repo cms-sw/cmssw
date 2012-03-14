@@ -30,8 +30,8 @@ HLT_TrackerCalibration_v*
 HLT_Random_v*
 HLT_L1SingleMuOpen_AntiBPTX_v*
 HLT_L1TrackerCosmics_v*
-HLT_RegionalCosmicTracking_v*
-HLT_L3MuonsCosmicTracking_v*
+# HLT_RegionalCosmicTracking_v*   # removed sr #127068
+# HLT_L3MuonsCosmicTracking_v*    # removed sr #127068
 HLT_LogMonitor_v*
 HLT_DTErrors_v*
 AlCa_EcalPi0_v*
