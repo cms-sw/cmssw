@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_2_0/GRun/V18
+# /dev/CMSSW_5_2_0/GRun/V19
 
 import FWCore.ParameterSet.Config as cms
 
@@ -286,14 +286,14 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleDisplac
     'HLT_DoubleMu8_Mass8_PFHT175_v1', 
     'HLT_DoubleMu8_Mass8_PFHT225_v1', 
     'HLT_HcalCalibration_v3', 
-    'HLT_Iso10Mu17_eta2p1_TriCentralPFJet30_v1', 
-    'HLT_Iso10Mu20_eta2p1_CentralPFJet30_BTagIPIter_v1', 
-    'HLT_Iso10Mu20_eta2p1_CentralPFJet30_v1', 
-    'HLT_Iso10Mu20_eta2p1_CentralPFJet50_Jet40_Jet30_v1', 
-    'HLT_Iso10Mu20_eta2p1_DiCentralPFJet30_v1', 
-    'HLT_Iso10Mu20_eta2p1_TriCentralPFJet30_v1', 
     'HLT_IsoMu17_eta2p1_DiCentralPFJet30_PFHT350_PFMHT40_v1', 
+    'HLT_IsoMu17_eta2p1_TriCentralPFJet30_v1', 
+    'HLT_IsoMu20_eta2p1_CentralPFJet30_BTagIPIter_v1', 
+    'HLT_IsoMu20_eta2p1_CentralPFJet30_v1', 
     'HLT_IsoMu20_eta2p1_CentralPFJet80_v1', 
+    'HLT_IsoMu20_eta2p1_DiCentralPFJet30_v1', 
+    'HLT_IsoMu20_eta2p1_TriCentralPFJet30_v1', 
+    'HLT_IsoMu20_eta2p1_TriCentralPFJet50_40_30_v1', 
     'HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_PFMHT20_v1', 
     'HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_v1', 
     'HLT_IsoMu24_eta2p1_PFJet30_PFJet25_Deta3_v1', 
@@ -312,8 +312,8 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleDisplac
     'HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_DiBTagIP3D1stTrack_v1', 
     'HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_v1', 
     'HLT_Mu20_eta2p1_CentralPFJet30_BTagIPIter_v1', 
-    'HLT_Mu20_eta2p1_CentralPFJet50_Jet40_Jet30_v1', 
     'HLT_Mu20_eta2p1_TriCentralPFJet30_v1', 
+    'HLT_Mu20_eta2p1_TriCentralPFJet50_40_30_v1', 
     'HLT_Mu24_eta2p1_CentralPFJet30_CentralPFJet25_v1', 
     'HLT_Mu24_eta2p1_PFJet30_PFJet25_Deta3_v1', 
     'HLT_Mu40_FJHT200_v1', 
