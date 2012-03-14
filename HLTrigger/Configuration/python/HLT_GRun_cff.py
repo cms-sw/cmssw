@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_0/GRun/V19 (CMSSW_5_2_0_HLT1)
+# /dev/CMSSW_5_2_0/GRun/V20 (CMSSW_5_2_0_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_0/GRun/V19')
+  tableName = cms.string('/dev/CMSSW_5_2_0/GRun/V20')
 )
 
 streams = cms.PSet( 
@@ -26660,7 +26660,7 @@ hltL2SingleMuOpenCenJetL2QFiltered14 = cms.EDFilter( "HLTMuonL2PreFilter",
 hltSingleMuOpenIsoCenJetL3withL2QPreFiltered17 = cms.EDFilter( "HLTMuonL3PreFilter",
     MaxNormalizedChi2 = cms.double( 9999.0 ),
     saveTags = cms.bool( False ),
-    PreviousCandTag = cms.InputTag( "hltSingleMuOpenIsoCenJetL2QIsoFiltered14" ),
+    PreviousCandTag = cms.InputTag( "hltL2SingleMuOpenCenJetL2QFiltered14" ),
     MinNmuonHits = cms.int32( 0 ),
     MinN = cms.int32( 1 ),
     MinTrackPt = cms.double( 0.0 ),
