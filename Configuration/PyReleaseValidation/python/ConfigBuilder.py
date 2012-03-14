@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.374 $"
+__version__ = "$Revision: 1.375 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -607,7 +607,7 @@ class ConfigBuilder(object):
         try:
 		if len(self.stepMap):
 			self.loadAndRemember(self.GeometryCFF)
-			if 'SIM' in self.stepMap:
+			if 'SIM' in self.stepMap or 'reSIM' in self.stepMap:
 				self.loadAndRemember(self.SimGeometryCFF)
 				if self.geometryDBLabel:
 					self.executeAndRemember('process.XMLFromDBSource.label = cms.string("%s")'%(self.geometryDBLabel))
@@ -1741,7 +1741,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.374 $"),
+                                            (version=cms.untracked.string("$Revision: 1.375 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
