@@ -13,7 +13,7 @@
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: OccupancyPlotter.cc,v 1.9 2011/12/19 16:18:33 abrinke1 Exp $
+// $Id: OccupancyPlotter.cc,v 1.10 2011/12/19 17:44:16 abrinke1 Exp $
 //
 //
 
@@ -30,6 +30,9 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h"
+
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -74,7 +77,12 @@ class OccupancyPlotter : public edm::EDAnalyzer {
       virtual void setupHltMatrix(std::string, int);
   virtual void fillHltMatrix(std::string, std::string, double, double, bool);
 
-      // ----------member data ---------------------------
+  // a method to unpack the dcs info
+  bool checkDcsInfo (const edm::Event & jEvent);
+
+  void checkLumiInfo (const edm::Event & jEvent);
+
+  // ----------member data ---------------------------
 
 
   bool debugPrint;
@@ -87,6 +95,10 @@ class OccupancyPlotter : public edm::EDAnalyzer {
   HLTConfigProvider hltConfig_;
 
   vector< vector<string> > PDsVectorPathsVector;
+
+  // Store the HV info
+  bool dcs[25];
+
   
 };
 
@@ -140,6 +152,11 @@ OccupancyPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    using std::string;
 
    if (debugPrint) std::cout << "Inside analyze" << std::endl;
+
+
+   // === Check the HV and the lumi
+   bool highVoltageOK = checkDcsInfo ( iEvent );
+   checkLumiInfo( iEvent);
 
     // Access Trigger Results
    edm::Handle<edm::TriggerResults> triggerResults;
@@ -366,9 +383,9 @@ Double_t PhiMaxFine = 33.0*TMath::Pi()/32.0;
  hist_1dEta->SetMinimum(0);
  hist_1dPhi->SetMinimum(0);
 
-MonitorElement * ME_EtaVsPhi = dbe->book2D(h_name.c_str(),hist_EtaVsPhi);
-MonitorElement * ME_1dEta = dbe->book1D(h_name_1dEta.c_str(),hist_1dEta);
-MonitorElement * ME_1dPhi = dbe->book1D(h_name_1dPhi.c_str(),hist_1dPhi);
+dbe->book2D(h_name.c_str(),hist_EtaVsPhi);
+dbe->book1D(h_name_1dEta.c_str(),hist_1dEta);
+dbe->book1D(h_name_1dPhi.c_str(),hist_1dPhi);
 
   for (unsigned int iPath = 0; iPath < PDsVectorPathsVector[iPD].size(); iPath++) { 
     pathName = PDsVectorPathsVector[iPD][iPath];
@@ -379,8 +396,8 @@ MonitorElement * ME_1dPhi = dbe->book1D(h_name_1dPhi.c_str(),hist_1dPhi);
     Path_Folder = TString("HLT/OccupancyPlots/"+label+"/Paths");
     dbe->setCurrentFolder(Path_Folder.c_str());
 
-    MonitorElement * ME_1dEta = dbe->book1D(h_name_1dEtaPath.c_str(),h_title_1dEtaPath.c_str(),numBinsEtaFine,-EtaMax,EtaMax);
-    MonitorElement * ME_1dPhi = dbe->book1D(h_name_1dPhiPath.c_str(),h_title_1dPhiPath.c_str(),numBinsPhiFine,-PhiMaxFine,PhiMaxFine);
+    dbe->book1D(h_name_1dEtaPath.c_str(),h_title_1dEtaPath.c_str(),numBinsEtaFine,-EtaMax,EtaMax);
+    dbe->book1D(h_name_1dPhiPath.c_str(),h_title_1dPhiPath.c_str(),numBinsPhiFine,-PhiMaxFine,PhiMaxFine);
   
     if (debugPrint) std::cout << "book1D for " << pathName << std::endl;
   }
@@ -444,6 +461,104 @@ if (label != "SingleMu" && label != "SingleElectron" && label != "Jet") {
  if (debugPrint) std::cout << "hist->Fill" << std::endl;
 
 } //End fillHltMatrix
+
+//=========================================================
+
+bool OccupancyPlotter::checkDcsInfo (const edm::Event & jEvent) {
+
+  //Copy of code from DQMServices/Components/src/DQMDcsInfo.cc
+
+  edm::Handle<DcsStatusCollection> dcsStatus;
+  if ( ! jEvent.getByLabel("hltScalersRawToDigi", dcsStatus) )
+    {
+      if (debugPrint) std::cout  << "Could not get scalersRawToDigi by label" ;
+      for (int i=0;i<24;i++) dcs[i]=false;
+      return false;
+    }
+
+  if ( ! dcsStatus.isValid() ) 
+    {
+      if (debugPrint) std::cout  << "scalersRawToDigi not valid" ;
+      for (int i=0;i<24;i++) dcs[i]=false; // info not available: set to false
+      return false;
+    }
+  
+  for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); 
+       dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) 
+    {
+      
+      if (debugPrint) std::cout << (*dcsStatusItr) << std::endl;
+      
+      if (!dcsStatusItr->ready(DcsStatus::CSCp))   dcs[0]=false;
+      if (!dcsStatusItr->ready(DcsStatus::CSCm))   dcs[1]=false;   
+      if (!dcsStatusItr->ready(DcsStatus::DT0))    dcs[2]=false;
+      if (!dcsStatusItr->ready(DcsStatus::DTp))    dcs[3]=false;
+      if (!dcsStatusItr->ready(DcsStatus::DTm))    dcs[4]=false;
+      if (!dcsStatusItr->ready(DcsStatus::EBp))    dcs[5]=false;
+      if (!dcsStatusItr->ready(DcsStatus::EBm))    dcs[6]=false;
+      if (!dcsStatusItr->ready(DcsStatus::EEp))    dcs[7]=false;
+      if (!dcsStatusItr->ready(DcsStatus::EEm))    dcs[8]=false;
+      if (!dcsStatusItr->ready(DcsStatus::ESp))    dcs[9]=false;
+      if (!dcsStatusItr->ready(DcsStatus::ESm))    dcs[10]=false; 
+      if (!dcsStatusItr->ready(DcsStatus::HBHEa))  dcs[11]=false;
+      if (!dcsStatusItr->ready(DcsStatus::HBHEb))  dcs[12]=false;
+      if (!dcsStatusItr->ready(DcsStatus::HBHEc))  dcs[13]=false; 
+      if (!dcsStatusItr->ready(DcsStatus::HF))     dcs[14]=false;
+      if (!dcsStatusItr->ready(DcsStatus::HO))     dcs[15]=false;
+      if (!dcsStatusItr->ready(DcsStatus::BPIX))   dcs[16]=false;
+      if (!dcsStatusItr->ready(DcsStatus::FPIX))   dcs[17]=false;
+      if (!dcsStatusItr->ready(DcsStatus::RPC))    dcs[18]=false;
+      if (!dcsStatusItr->ready(DcsStatus::TIBTID)) dcs[19]=false;
+      if (!dcsStatusItr->ready(DcsStatus::TOB))    dcs[20]=false;
+      if (!dcsStatusItr->ready(DcsStatus::TECp))   dcs[21]=false;
+      if (!dcsStatusItr->ready(DcsStatus::TECm))   dcs[22]=false;
+      if (!dcsStatusItr->ready(DcsStatus::CASTOR)) dcs[23]=false;
+    }
+
+
+  // now we should add some logic that tests the HV status
+  
+  return true;
+  
+}
+
+void OccupancyPlotter::checkLumiInfo (const edm::Event & jEvent) {
+
+  if (debugPrint) std::cout << "Inside method check lumi info" << std::endl;
+  
+  edm::Handle<LumiScalersCollection> lumiScalers;
+  bool lumiHandleOK = jEvent.getByLabel(InputTag("hltScalersRawToDigi","",""), lumiScalers);
+
+  if (!lumiHandleOK || !lumiScalers.isValid()){
+    if (debugPrint) std::cout << "scalers not valid" << std::endl;
+    return;
+  }
+
+  if (lumiScalers->size() == 0) {
+    if (debugPrint) std::cout << "scalers has size < 0" << std::endl;
+    return;    
+  }
+
+  LumiScalersCollection::const_iterator it3 = lumiScalers->begin();
+  //unsigned int lumisection = it3->sectionNumber();
+
+  if (debugPrint) std::cout << "Instanteous Lumi is " << it3->instantLumi() << std::endl;
+  if (debugPrint) std::cout << "Instanteous Lumi Error is " <<it3->instantLumiErr() << std::endl;
+  if (debugPrint) std::cout << "Lumi Fill is " <<it3->lumiFill() << std::endl;
+  if (debugPrint) std::cout << "Lumi Fill is " <<it3->lumiRun() << std::endl;
+  if (debugPrint) std::cout << "Live Lumi Fill is " <<it3->liveLumiFill() << std::endl;
+  if (debugPrint) std::cout << "Live Lumi Run is " <<it3->liveLumiRun() << std::endl;
+
+  if (debugPrint) std::cout << "Pileup? = " << it3->pileup() << std::endl;
+
+  // could be changed to store the lumi info somewhere or make a plot
+
+
+  return;
+  
+}
+
+//=========================================================
 
 // ------------ method called when starting to processes a luminosity block  ------------
 void OccupancyPlotter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
