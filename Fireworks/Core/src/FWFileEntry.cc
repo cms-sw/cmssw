@@ -56,7 +56,6 @@ void FWFileEntry::openFile(bool checkVersion)
 
    // check CMSSW relese version for compatibility
    if (checkVersion) {
-      bool pass = false;
       typedef std::vector<edm::ProcessConfiguration> provList;
   
       TTree   *metaData = dynamic_cast<TTree*>(m_file->Get("MetaData"));
@@ -64,25 +63,18 @@ void FWFileEntry::openFile(bool checkVersion)
       provList *x = 0;
       b->SetAddress(&x);
       b->GetEntry(0);
-      for (provList::iterator i = x->begin(); i != x->end(); ++i)
-      {
-         // std::cout << i->releaseVersion() << "  " << i->processName() << std::endl;
-         TString v=  i->releaseVersion();
-         if (fireworks::acceptDataFormatsVersion(v))
-         {
-            pass = true;
-            break;
-         }
-         
-      }
+
+      const edm::ProcessConfiguration& dd= x->back();
+
+      fwLog(fwlog::kInfo) << "Checking process history. " << m_name.c_str() << " latest process \""  << dd.processName() << "\", version " << dd.releaseVersion() << std::endl;
 
       b->SetAddress(0);
-
-      if (!pass)
+      TString v = dd.releaseVersion();
+      if (!fireworks::acceptDataFormatsVersion(v))
       {
          int* di = (fireworks::supportedDataFormatsVersion());
-         TString msg = Form("incompatible data: Process version does not mactch major data formats version. File %s produced with %s. Data formats version \"CMSSW_%d_%d_%d\".\n", 
-                            m_name.c_str(),  x->begin()->releaseVersion().c_str(), di[0], di[1], di[2]);
+         TString msg = Form("incompatible data: Process version does not mactch major data formats version. File produced with %s. Data formats version \"CMSSW_%d_%d_%d\".\n", 
+                            dd.releaseVersion().c_str(), di[0], di[1], di[2]);
          msg += "Use --no-version-check option if you still want to view the file.\n";
          throw std::runtime_error(msg.Data());
       }
