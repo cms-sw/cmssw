@@ -20,7 +20,7 @@ process.TrackerTrackHitFilter.rejectBadStoNHits = True
 process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 12.0")
 process.TrackerTrackHitFilter.useTrajectories= True
 process.TrackerTrackHitFilter.rejectLowAngleHits= True
-process.TrackerTrackHitFilter.TrackAngleCut= 0.17 #~20 degrees
+process.TrackerTrackHitFilter.TrackAngleCut= 0.17 #~10 degrees
 process.TrackerTrackHitFilter.usePixelQualityFlag= True
 process.TrackerTrackHitFilter.PxlCorrClusterChargeCut=10000.0 
 
@@ -64,11 +64,4 @@ process.AlignmentTrackSelector.nHighestPt = 1
 #process.KFFittingSmootherWithOutliersRejectionAndRK.MinNumberOfHits=5
 process.FittingSmootherRKP5.EstimateCut=18.0
 process.FittingSmootherRKP5.MinNumberOfHits=5
-
-# others which aren't used
-#process.AlignmentTrackSelector.minHitsPerSubDet.inTIB = 1
-#process.AlignmentTrackSelector.minHitsPerSubDet.inTOB = 1
-#process.AlignmentTrackSelector.minHitsPerSubDet.inBPIX = 0
-#process.AlignmentTrackSelector.minHitsPerSubDet.inFPIX = 0
-
 
