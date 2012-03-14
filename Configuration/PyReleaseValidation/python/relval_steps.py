@@ -335,8 +335,8 @@ def addForAll(steps,d):
 #### fastsim section ####
 ##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
 step1FastDefaults =merge([{'-s':'GEN,FASTSIM,HLT:GRun,VALIDATION',
-                           '--eventcontent':'FEVTDEBUGHLT',
-                           '--datatier':'GEN-SIM-DIGI-RECO',
+                           '--eventcontent':'FEVTDEBUGHLT,DQM',
+                           '--datatier':'GEN-SIM-DIGI-RECO,DQM',
                            '--relval':'27000,500'},
                           step1Defaults])
 K100by500={'--relval':'100000,500'}
@@ -564,21 +564,6 @@ steps['ALCAEXP']={'-s':'ALCA:PromptCalibProd',
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO'}
 
-steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
-                   '--conditions':'auto:com10',
-                   '--filein':'file:step2_inDQM.root',
-                   '--filetype':'DQM',
-                   '--data':'',
-                   '--scenario':'pp'}
-
-# run RECO+DQM in step 3 and harvesting in step4, for HLT + RECO workflow
-steps['HARVESTDst4']={'-s':'HARVESTING:dqmHarvesting',
-                   '--conditions':'auto:com10',
-                   '--filein':'file:step3_inDQM.root',
-                   '--filetype':'DQM',
-                   '--data':'',
-                   '--scenario':'pp'}
-
 # step4
 step4Defaults = { 
                   '-s'            : 'ALCA:TkAlMuonIsolated+TkAlMinBias+EcalCalElectron+HcalCalIsoTrk+MuAlOverlaps',
@@ -614,10 +599,44 @@ steps['HARVGEN']={'-s':'HARVESTING:genHarvesting',
                   '--filein':'file:step1.root'
                   }
 
+#data
+steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
+                   '--conditions':'auto:com10',
+                   '--filetype':'DQM',
+                   '--data':'',
+                   '--scenario':'pp'}
+
+steps['HARVESTDC']={'-s':'HARVESTING:dqmHarvesting',
+                   '--conditions':'auto:com10',
+                   '--filetype':'DQM',
+                   '--data':'',
+                    '--filein':'file:step2_inDQM.root',
+                   '--scenario':'cosmics'}
+steps['HARVESTDHI']={'-s':'HARVESTING:dqmHarvesting',
+                   '--conditions':'auto:com10',
+                   '--filetype':'DQM',
+                   '--data':'',
+                   '--scenario':'HeavyIons'}
+
+#MC
 steps['HARVEST']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'auto:startup',
                    '--mc':'',
                    '--scenario':'pp'}
+steps['HARVESTCOS']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
+                     '--conditions':'auto:startup',
+                     '--mc':'',
+                     '--filein':'file:step3_inDQM.root',
+                   '--scenario':'cosmics'}
+steps['HARVESTFS']={'-s':'HARVESTING:validationHarvestingFS',
+                   '--conditions':'auto:startup',
+                   '--mc':'',
+                   '--scenario':'pp'}
+steps['HARVESTHI']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
+                   '--conditions':'auto:startup',
+                   '--mc':'',
+                   '--scenario':'HeavyIons'}
+
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
                     '--conditions':'auto:com10',
                     '--scenario':'pp',

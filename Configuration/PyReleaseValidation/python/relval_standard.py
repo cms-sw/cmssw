@@ -36,7 +36,7 @@ workflows[4.19] = ['', ['RunElectron2011A','RECOD']]
 workflows[4.20] = ['', ['RunPhoton2011A','RECOD']]
 workflows[4.21] = ['', ['RunJet2011A','RECOD']]
 
-workflows[4.22] = ['', ['RunCosmics2011A','RECOCOSD','ALCACOSD','SKIMCOSD']]
+workflows[4.22] = ['', ['RunCosmics2011A','RECOCOSD','ALCACOSD','SKIMCOSD','HARVESTDC']]
 
 workflows[4.23] = ['',['ValSkim2011A','RECOSKIM']]
 workflows[4.24] = ['',['WMuSkim2011A','RECOSKIM']]
@@ -46,7 +46,7 @@ workflows[4.27] = ['',['ZElSkim2011A','RECOSKIM']]
 workflows[4.28] = ['',['HighMet2011A','RECOSKIM']]
 
 workflows[4.29] = ['', ['RunMinBias2011B','RECOD','HARVESTD','SKIMD']]
-workflows[4.291] = ['', ['RunMinBias2011B','HLTD','RECODst3','HARVESTDst4']]
+workflows[4.291] = ['', ['RunMinBias2011B','HLTD','RECODst3','HARVESTD']]
 workflows[4.30] = ['', ['RunMu2011B','RECOD']]
 workflows[4.31] = ['', ['RunElectron2011B','RECOD']]
 workflows[4.32] = ['', ['RunPhoton2011B','RECOD']]
@@ -61,10 +61,10 @@ workflows[4.39] = ['',['HighMet2011B','RECOSKIM']]
 
 workflows[4.51] = ['',['RunHI2010','REPACKHID','RECOHID11St3']]
 workflows[4.52] = ['',['RunHI2010','RECOHID10','RECOHIR10D11']]
-workflows[4.53] = ['',['RunHI2011','RECOHID11']]
+workflows[4.53] = ['',['RunHI2011','RECOHID11','HARVESTDHI']]
 
 ### fastsim ###
-workflows[5.1] = ['TTbar', ['TTbarFS']]
+workflows[5.1] = ['TTbar', ['TTbarFS','HARVESTFS']]
 workflows[5.2] = ['SingleMuPt10', ['SingleMuPt10FS']]
 workflows[5.3] = ['SingleMuPt100', ['SingleMuPt100FS']]
 workflows[5.4] = ['ZEE', ['ZEEFS']]
@@ -103,7 +103,7 @@ workflows[33] = ['', ['PhotonJets_Pt_10','DIGI','RECO']]
 workflows[34] = ['', ['QQH1352T_Tauola','DIGI','RECO']]
 
 workflows[7]  = ['', ['Cosmics','DIGICOS','RECOCOS','ALCACOS']]
-workflows[8]  = ['', ['BeamHalo','DIGICOS','RECOCOS','ALCABH']]
+workflows[8]  = ['', ['BeamHalo','DIGICOS','RECOCOS','ALCABH','HARVESTCOS']]
 workflows[11] = ['', ['MinBias','DIGI','RECOMIN','ALCAMIN']]
 workflows[15] = ['', ['QCD_Pt_80_120','DIGI','RECO']]
 workflows[27] = ['', ['WM','DIGI','RECO']]
@@ -111,7 +111,7 @@ workflows[30] = ['', ['ZMM','DIGI','RECO']]
 
 
 ### HI test ###
-workflows[40] = ['',['HydjetQ_MinBias_2760GeV','DIGIHI','RECOHI']]
+workflows[40] = ['',['HydjetQ_MinBias_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
 workflows[41] = ['',['HydjetQ_B0_2760GeV','DIGIHI','RECOHI']]
 workflows[42] = ['',['HydjetQ_B8_2760GeV','DIGIHI','RECOHI']]
 
