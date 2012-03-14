@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 # luminosity
 #
 from RecoLuminosity.LumiProducer.lumiProducer_cff import *
-from L1Trigger.GlobalTrigger.convertObjectMapRecord_cff import *
 #
 # tracker
 #
@@ -46,8 +45,8 @@ caloCosmics = cms.Sequence(calolocalreco*ecalClusters)
 caloCosmics_HcalNZS = cms.Sequence(calolocalrecoNZS*ecalClusters)
 muonsLocalRecoCosmics = cms.Sequence(muonlocalreco+muonlocalrecoT0Seg)
 
-localReconstructionCosmics         = cms.Sequence(trackerCosmics*caloCosmics*muonsLocalRecoCosmics*vertexrecoCosmics+lumiProducer*convertObjectMapRecords)
-localReconstructionCosmics_HcalNZS = cms.Sequence(trackerCosmics*caloCosmics_HcalNZS*muonsLocalRecoCosmics*vertexrecoCosmics +lumiProducer*convertObjectMapRecords)
+localReconstructionCosmics         = cms.Sequence(trackerCosmics*caloCosmics*muonsLocalRecoCosmics*vertexrecoCosmics+lumiProducer)
+localReconstructionCosmics_HcalNZS = cms.Sequence(trackerCosmics*caloCosmics_HcalNZS*muonsLocalRecoCosmics*vertexrecoCosmics +lumiProducer)
 
 
 # global reco
