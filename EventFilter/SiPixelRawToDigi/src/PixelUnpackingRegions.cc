@@ -1,15 +1,12 @@
 //
-// $Id: $
+// $Id: PixelUnpackingRegions.cc,v 1.1 2012/03/13 15:46:10 khotilov Exp $
 //
 #include "EventFilter/SiPixelRawToDigi/interface/PixelUnpackingRegions.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -103,8 +100,7 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es)
 
   // initialize cabling map or update it if necessary
   // and re-cache modules information
-  static edm::ESWatcher<SiPixelFedCablingMapRcd> watcherSiPixelFedCablingMap;
-  if (watcherSiPixelFedCablingMap.check( es ))
+  if (watcherSiPixelFedCablingMap_.check( es ))
   {
     edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
     es.get<SiPixelFedCablingMapRcd>().get( cablingMap );

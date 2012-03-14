@@ -6,6 +6,8 @@
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
+
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 
 #include <cmath>
@@ -119,6 +121,8 @@ private:
 
   boost::scoped_ptr<SiPixelFedCabling> cabling_;
   math::XYZPoint beamSpot_;
+
+  edm::ESWatcher<SiPixelFedCablingMapRcd> watcherSiPixelFedCablingMap_;
 };
 
 #endif
