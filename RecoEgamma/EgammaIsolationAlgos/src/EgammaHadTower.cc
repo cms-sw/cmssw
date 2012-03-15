@@ -29,7 +29,7 @@ std::vector<CaloTowerDetId>  EgammaHadTower::towersOf(const reco::SuperCluster& 
 
   // in this mode, check only the tower behind the seed
   if ( mode_ == SingleTower ) {
-    towers.push_back(towerOf(sc));
+    towers.push_back(towerOf(*sc.seed()));
   }
 
   // in this mode check the towers behind each basic cluster
