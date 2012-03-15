@@ -1,6 +1,6 @@
 HLT_L1SingleJet36_v*
 HLT_JetE30_NoBPTX_v*
-# HLT_JetE30_NoBPTX_NoHalo_v*     # removed
+HLT_JetE30_NoBPTX_NoHalo_v*
 HLT_JetE30_NoBPTX3BX_NoHalo_v*
 HLT_L1SingleMuOpen_v*
 HLT_L1SingleMuOpen_DT_v*
