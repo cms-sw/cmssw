@@ -212,7 +212,7 @@ if central :
     dqmModules += '''
 process.load("DQM.Integration.test.environment_cfi")
 '''
-elif doOutput :
+else :
     dqmModules += '''
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 '''
@@ -520,43 +520,20 @@ source += '''
 ### SOURCE ###
 '''
 
-if privEcal :
-    if live :
-        source += '''
-process.source = cms.Source("EventStreamHttpReader",
-    sourceURL = cms.string("http://dqm-c2d07-30.cms:22100/urn:xdaq-application:lid=30"),
-    consumerPriority = cms.untracked.string("normal"),
-    max_event_size = cms.int32(7000000),
-    SelectHLTOutput = cms.untracked.string("hltOutputDQM"),
-    max_queue_depth = cms.int32(5),
-    maxEventRequestRate = cms.untracked.double(100.0),
-    SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring("*") ),
-    headerRetryInterval = cms.untracked.int32(3)
-)
-'''
-        if configuration == 'Ecal' :
-            source += '''
-process.source.consumerName = cms.untracked.string("Ecal DQM Consumer")
-'''
-        else :
-            source += '''
-process.source.consumerName = cms.untracked.string("EcalCalibration DQM Consumer")
-'''
-    else :
-        source += '''
-process.source = cms.Source("NewEventStreamFileReader"
-)
-'''
-        source += 'process.source.fileNames = cms.untracked.vstring("file:'+sourceFile+'")'
-elif central :
+if live :
     source += '''
 process.load("DQM.Integration.test.inputsource_cfi")
 '''
 else :
-    source += '''
-process.source = cms.Source("PoolSource"
-)
+    if privEcal :
+        source += '''
+process.source = cms.Source("NewEventStreamFileReader")
 '''
+    else :
+        source += '''
+process.source = cms.Source("PoolSource")
+'''
+        
     source += 'process.source.fileNames = cms.untracked.vstring("file:'+sourceFile+'")' + "\n"
 
 customizations += '''
@@ -785,6 +762,7 @@ if live and privEcal :
     customizations += '''
 process.DQM.collectorHost = "ecalod-web01.cms"
 '''
+    customizations += 'process.source.consumerName = cms.untracked.string("' + configuration + ' DQM Consumer")' + "\n"
 
 if central :
     customizations += '''
