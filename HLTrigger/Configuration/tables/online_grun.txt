@@ -227,7 +227,7 @@ HLT_Mu24_eta2p1_PFJet30_PFJet25_Deta3_v*                                        
 #HLT_Dimuon9_Jpsi_v*                                                                            #sr126442 -> Superseeded by #sr126726
 
 HLT_Dimuon3p5_SameSign_v*                                                                       #sr126726
-HLT_Tau2Mu_RegPixTrack_v*                                                                       #sr126726
+#HLT_Tau2Mu_RegPixTrack_v*                                                                      #sr126726 -> Removed by sr(bug)92594
 HLT_DoubleMu4_JpsiTk_Displaced_v*                                                               #sr126726
 HLT_DoubleMu4_Jpsi_Displaced_v*                                                                 #sr126726
 HLT_DoubleMu4_Dimuon6_Bs_Barrel_v*                                                              #sr126726
@@ -258,6 +258,8 @@ HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20L1Jet_v*           
 HLT_Ele20_CaloIdVT_TrkIdT_LooseIsoPFTau20_v*                                                    #sr126461
 HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v*                                #sr126461
 HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_v*                                                #sr126461
+
+HLT_Tau2Mu_ItTrack_v*										#sr(bug)92594
 
 HLT_QuadJet80_L1FastJet_v*                                                                      #sr126462
 HLT_SixJet45_L1FastJet_v*                                                                       #sr126462
@@ -473,7 +475,10 @@ AlCa_EcalPhiSym_v*
 AlCa_RPCMuonNoTriggers_v*                                                                       #sr126621
 AlCa_RPCMuonNoHits_v*                                                                           #sr126621
 AlCa_RPCMuonNormalisation_v*                                                                    #sr126621
+
 AlCa_LumiPixels_v*
+AlCa_LumiPixels_Random_v*
+AlCa_LumiPixels_ZeroBias_v*
 
 DQM_FEDIntegrity_v*
 HLTriggerFirstPath
