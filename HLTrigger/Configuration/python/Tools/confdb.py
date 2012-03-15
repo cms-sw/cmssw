@@ -861,6 +861,8 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltActivityCkfTrackCandidatesForGSF" )
       self.options['modules'].append( "-hltMuCkfTrackCandidates" )
       self.options['modules'].append( "-hltMuCtfTracks" )
+      self.options['modules'].append( "-hltTau3MuCkfTrackCandidates" )
+      self.options['modules'].append( "-hltTau3MuCtfWithMaterialTracks" )
       self.options['modules'].append( "-hltMuTrackJpsiCkfTrackCandidates" )
       self.options['modules'].append( "-hltMuTrackJpsiCtfTracks" )
       self.options['modules'].append( "-hltMuTrackJpsiEffCkfTrackCandidates" )
