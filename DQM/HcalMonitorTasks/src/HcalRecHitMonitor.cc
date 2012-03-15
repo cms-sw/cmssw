@@ -497,19 +497,18 @@ void HcalRecHitMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
   if (tevt_!=0) return;
   // create histograms displaying trigger parameters?  Specify names?
   dbe_->setCurrentFolder(subdir_+"rechit_parameters");
-  MonitorElement* trig;
   std::string tnames="";
   if (HcalHLTBits_.size()>0)
     tnames=HcalHLTBits_[0];
   for (unsigned int i=1;i<HcalHLTBits_.size();++i)
     tnames=tnames + " OR " + HcalHLTBits_[i];
-  trig=dbe_->bookString("HcalHLTriggerRequirements",tnames);
+  dbe_->bookString("HcalHLTriggerRequirements",tnames);
   tnames="";
   if (MinBiasHLTBits_.size()>0)
     tnames=MinBiasHLTBits_[0];
   for (unsigned int i=1;i<MinBiasHLTBits_.size();++i)
     tnames=tnames + " OR " + MinBiasHLTBits_[i];
-  trig=dbe_->bookString("MinBiasHLTriggerRequirements",tnames);
+  dbe_->bookString("MinBiasHLTriggerRequirements",tnames);
   return;
   
 } //void HcalRecHitMonitor::beginRun(...)
