@@ -33,6 +33,8 @@ class HLTProcess(object):
     "AlCa_RPCMuonNoTriggers_v*",
     "AlCa_RPCMuonNormalisation_v*",
     "AlCa_LumiPixels_v*",
+    "AlCa_LumiPixels_Random_v*",
+    "AlCa_LumiPixels_ZeroBias_v*",
     "DQM_FEDIntegrity_v*",
     "HLT_Calibration_v*",
     "HLT_EcalCalibration_v*",
