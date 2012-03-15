@@ -6,7 +6,7 @@ class TString;
 namespace fireworks
 {
 void setPath( TString& v);
-void getDecomposedVersion(TString& s, int* out);
+void getDecomposedVersion(const TString& s, int* out);
 int* supportedDataFormatsVersion();
 bool acceptDataFormatsVersion(TString& n);
 }
