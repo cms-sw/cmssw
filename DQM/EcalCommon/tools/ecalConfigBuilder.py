@@ -156,7 +156,7 @@ process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi")
 process.load("DQM.EcalEndcapMonitorTasks.EcalEndcapMonitorTasks_cfi")
 '''
 
-if not central :
+if not central and (configuration == 'Ecal'):
     ecalDQM += '''
 process.load("DQM.EcalBarrelMonitorTasks.EBHltTask_cfi")
 process.load("DQM.EcalEndcapMonitorTasks.EEHltTask_cfi")
@@ -236,48 +236,9 @@ process.ecalPhysicsFilter = cms.EDFilter("EcalMonitorPrescaler")
 else :
     filters += '''
 process.ecalLaserFilter = cms.EDFilter("EcalMonitorPrescaler")
-  EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
-  cosmicPrescaleFactor = cms.untracked.int32(0),
-  physicsPrescaleFactor = cms.untracked.int32(0),
-  laserPrescaleFactor = cms.untracked.int32(1),
-  ledPrescaleFactor = cms.untracked.int32(0),
-  pedestalPrescaleFactor = cms.untracked.int32(0),
-  testpulsePrescaleFactor = cms.untracked.int32(0),
-  pedestaloffsetPrescaleFactor = cms.untracked.int32(0)
-)
-
-process.ecalLedFilter = cms.EDFilter("EcalMonitorPrescaler",
-  EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
-  cosmicPrescaleFactor = cms.untracked.int32(0),
-  physicsPrescaleFactor = cms.untracked.int32(0),
-  laserPrescaleFactor = cms.untracked.int32(0),
-  ledPrescaleFactor = cms.untracked.int32(1),
-  pedestalPrescaleFactor = cms.untracked.int32(0),
-  testpulsePrescaleFactor = cms.untracked.int32(0),
-  pedestaloffsetPrescaleFactor = cms.untracked.int32(0)
-)
-
-process.ecalPedestalFilter = cms.EDFilter("EcalMonitorPrescaler",
-  EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
-  cosmicPrescaleFactor = cms.untracked.int32(0),
-  physicsPrescaleFactor = cms.untracked.int32(0),
-  laserPrescaleFactor = cms.untracked.int32(0),
-  ledPrescaleFactor = cms.untracked.int32(0),
-  pedestalPrescaleFactor = cms.untracked.int32(1),
-  testpulsePrescaleFactor = cms.untracked.int32(0),
-  pedestaloffsetPrescaleFactor = cms.untracked.int32(1)
-)
-
-process.ecalTestPulseFilter = cms.EDFilter("EcalMonitorPrescaler",
-  EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
-  cosmicPrescaleFactor = cms.untracked.int32(0),
-  physicsPrescaleFactor = cms.untracked.int32(0),
-  laserPrescaleFactor = cms.untracked.int32(0),
-  ledPrescaleFactor = cms.untracked.int32(0),
-  pedestalPrescaleFactor = cms.untracked.int32(0),
-  testpulsePrescaleFactor = cms.untracked.int32(1),
-  pedestaloffsetPrescaleFactor = cms.untracked.int32(0)
-)
+process.ecalLedFilter = cms.EDFilter("EcalMonitorPrescaler")
+process.ecalPedestalFilter = cms.EDFilter("EcalMonitorPrescaler")
+process.ecalTestPulseFilter = cms.EDFilter("EcalMonitorPrescaler")
 '''
 
 setup += '''
@@ -366,16 +327,17 @@ process.ecalClusterSequence.remove(process.multi5x5SuperClustersWithPreshower)
 sequencePaths += '''
 process.ecalMonitorBaseSequence = cms.Sequence(
     process.ecalBarrelMonitorModule +
-    process.ecalEndcapMonitorModule +
-'''
+    process.ecalEndcapMonitorModule +'''
 
-if not central :
-    sequencePaths += '    process.ecalBarrelHltTask +' + "\n"
-    sequencePaths += '    process.ecalEndcapHltTask +'
+if not central and (configuration == 'Ecal'):
+    sequencePaths += '''
+    process.ecalBarrelHltTask +
+    process.ecalEndcapHltTask +'''
 
 if live :
-    sequencePaths += '    process.ecalBarrelTrendTask +' + "\n"
-    sequencePaths += '    process.ecalEndcapTrendTask +'
+    sequencePaths += '''
+    process.ecalBarrelTrendTask +
+    process.ecalEndcapTrendTask +'''
 
 sequencePaths += '''
     process.ecalBarrelPedestalOnlineTask +
@@ -804,13 +766,12 @@ if live :
     customizations += 'process.ecalBarrelTrendTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
     customizations += 'process.ecalEndcapTrendTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
 
-if not central :
-    customizations += 'process.ecalBarrelHltTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
-    customizations += 'process.ecalEndcapHltTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
-
 if configuration == 'Ecal' :
     customizations += 'process.ecalBarrelSelectiveReadoutTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
-    customizations += 'process.ecalEndcapSelectiveReadoutTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"    
+    customizations += 'process.ecalEndcapSelectiveReadoutTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
+    if not central :
+        customizations += 'process.ecalBarrelHltTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
+        customizations += 'process.ecalEndcapHltTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
 
 # write cfg file
 if filename == '' :
