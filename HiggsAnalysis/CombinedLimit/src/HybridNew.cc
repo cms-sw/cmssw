@@ -72,6 +72,8 @@ std::string HybridNew::algo_ = "logSecant";
 bool HybridNew::optimizeProductPdf_     = true;
 bool HybridNew::optimizeTestStatistics_ = true;
 bool HybridNew::newToyMCSampler_        = true;
+bool HybridNew::rMinSet_                = false; 
+bool HybridNew::rMaxSet_                = false; 
 std::string HybridNew::plot_;
 std::string HybridNew::minimizerAlgo_ = "Minuit2";
 float       HybridNew::minimizerTolerance_ = 1e-2;
@@ -125,12 +127,13 @@ LimitAlgo("HybridNew specific options") {
 }
 
 void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
+    rMinSet_ = vm.count("rMin")>0; rMaxSet_ = vm.count("rMax")>0;
     if (vm.count("expectedFromGrid") && !vm["expectedFromGrid"].defaulted()) {
         //if (!vm.count("grid")) throw std::invalid_argument("HybridNew: Can't use --expectedFromGrid without --grid!");
         if (quantileForExpectedFromGrid_ <= 0 || quantileForExpectedFromGrid_ >= 1.0) throw std::invalid_argument("HybridNew: the quantile for the expected limit must be between 0 and 1");
         expectedFromGrid_ = true;
         g_quantileExpected_ = quantileForExpectedFromGrid_;
-    } 
+    }
     if (vm.count("frequentist")) {
         genNuisances_ = 0; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
         if (vm["testStat"].defaulted()) testStat_ = "LHC";
@@ -292,7 +295,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
             if (gridFile.get() == 0) throw std::runtime_error(("Can't open grid file "+gridFile_).c_str());
             TDirectory *toyDir = gridFile->GetDirectory("toys");
             if (!toyDir) throw std::logic_error("Cannot use readHypoTestResult: empty toy dir in input file empty");
-            readGrid(toyDir, rMin, rMax);
+            readGrid(toyDir, rMinSet_ ? rMin : -99e99, rMaxSet_ ? rMax :+99e99);
         }
         if (grid_.size() <= 1) throw std::logic_error("The grid must contain at least 2 points."); 
         if (noUpdateGrid_) {

@@ -64,6 +64,8 @@ private:
   static bool optimizeProductPdf_;
   static bool optimizeTestStatistics_;
   static bool newToyMCSampler_;
+  static bool rMinSet_;
+  static bool rMaxSet_;
   float mass_;
  
   // graph, used to compute the limit, not just for plotting!
