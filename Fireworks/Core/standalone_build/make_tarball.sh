@@ -131,11 +131,11 @@ getSources()
    
    cd  $tard
    ln -s  src/Fireworks/Core/macros/default.fwc .
-   ln -s  src/Fireworks/Core/macros/ispy.fwc  .
-   ln -s  src/Fireworks/Core/macros/pflow.fwc  .
-   ln -s  src/Fireworks/Core/macros/hfLego.fwc  
-   ln -s  src/Fireworks/Core/macros/simGeo.fwc  
-   ln -s  src/Fireworks/Core/macros/overlaps.fwc  ..
+   ln -s  src/Fireworks/Core/macros/ispy.fwc .
+   ln -s  src/Fireworks/Core/macros/pflow.fwc .
+   ln -s  src/Fireworks/Core/macros/hfLego.fwc .
+   ln -s  src/Fireworks/Core/macros/simGeo.fwc .
+   ln -s  src/Fireworks/Core/macros/overlaps.fwc .
    
    ln -s  src/Fireworks/Core/scripts/cmsShow .
    
