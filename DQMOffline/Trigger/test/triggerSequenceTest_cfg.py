@@ -42,7 +42,8 @@ process.source = cms.Source("PoolSource",
     # never use old files to do this test
     # you will be sad
 #	 'file:/data/ndpc0/c/abrinke1/RAW/170354/SingleMu/08B0697A-B7B0-E011-B0DE-003048D375AA.root'
-'/store/data/Run2011B/SingleMu/AOD/PromptReco-v1/000/180/241/C0F4F7A3-EF04-E111-A94F-003048D2C0F0.root'
+#'/store/data/Run2011B/SingleMu/AOD/PromptReco-v1/000/180/241/C0F4F7A3-EF04-E111-A94F-003048D2C0F0.root'
+    '/store/relval/CMSSW_5_2_0/RelValTTbar/GEN-SIM-RECO/START52_V4A-v1/0248/8698CFBB-1869-E111-8121-00304867C1BA.root'
     )
 )
 
