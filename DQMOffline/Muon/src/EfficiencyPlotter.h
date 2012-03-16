@@ -77,6 +77,10 @@ private:
   int phiBin;
   double phiMin;
   double phiMax;
+  
+  int vtxBin;
+  int vtxMin;
+  int vtxMax;
 
   // efficiency histograms
   MonitorElement* h_eff_pt_TightMu;
@@ -85,6 +89,15 @@ private:
   MonitorElement* h_eff_eta_TightMu;
   MonitorElement* h_eff_hp_eta_TightMu;
   MonitorElement* h_eff_phi_TightMu;
+  MonitorElement* h_eff_pt_detIsoTightMu;
+  MonitorElement* h_eff_pt_barrel_detIsoTightMu;
+  MonitorElement* h_eff_pt_endcap_detIsoTightMu;
+  MonitorElement* h_eff_pt_pfIsoTightMu;
+  MonitorElement* h_eff_pt_barrel_pfIsoTightMu;
+  MonitorElement* h_eff_pt_endcap_pfIsoTightMu;
+
+  MonitorElement* h_eff_vtx_detIsoTightMu;
+  MonitorElement* h_eff_vtx_pfIsoTightMu;
 
 };
 

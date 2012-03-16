@@ -22,6 +22,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
 
 class EfficiencyAnalyzer : public MuonAnalyzerBase {
   
@@ -48,6 +50,10 @@ class EfficiencyAnalyzer : public MuonAnalyzerBase {
   edm::InputTag theMuonCollectionLabel;
   edm::InputTag theTrackCollectionLabel;
 
+  //Vertex requirements
+  bool _doPVCheck;
+  edm::InputTag  vertexTag;
+
 
   //histo binning parameters
   int etaBin_;
@@ -63,12 +69,24 @@ class EfficiencyAnalyzer : public MuonAnalyzerBase {
   double phiMin_;  
   double phiMax_;
 
+  int vtxBin_;
+  int vtxMin_;
+  int vtxMax_;
+
   MonitorElement* h_passProbes_TightMu_pt;
   MonitorElement* h_passProbes_TightMu_barrel_pt;
   MonitorElement* h_passProbes_TightMu_endcap_pt;
   MonitorElement* h_passProbes_TightMu_eta;
   MonitorElement* h_passProbes_TightMu_hp_eta;
   MonitorElement* h_passProbes_TightMu_phi;
+  MonitorElement* h_passProbes_detIsoTightMu_pt;
+  MonitorElement* h_passProbes_barrel_detIsoTightMu_pt;
+  MonitorElement* h_passProbes_endcap_detIsoTightMu_pt;
+  MonitorElement* h_passProbes_pfIsoTightMu_pt;
+  MonitorElement* h_passProbes_barrel_pfIsoTightMu_pt;
+  MonitorElement* h_passProbes_endcap_pfIsoTightMu_pt;
+  MonitorElement* h_passProbes_detIsoTightMu_nVtx; 
+  MonitorElement* h_passProbes_pfIsoTightMu_nVtx; 
 
   MonitorElement* h_failProbes_TightMu_pt;
   MonitorElement* h_failProbes_TightMu_eta;
@@ -80,11 +98,16 @@ class EfficiencyAnalyzer : public MuonAnalyzerBase {
   MonitorElement* h_allProbes_eta;
   MonitorElement* h_allProbes_hp_eta;
   MonitorElement* h_allProbes_phi;
+  MonitorElement* h_allProbes_TightMu_pt;
+  MonitorElement* h_allProbes_barrel_TightMu_pt;
+  MonitorElement* h_allProbes_endcap_TightMu_pt;
+  MonitorElement* h_allProbes_TightMu_nVtx;
+
 
 
   MonitorElement* test_TightMu_Minv;
 
-
+  int _numPV;
 
 };
 #endif 
