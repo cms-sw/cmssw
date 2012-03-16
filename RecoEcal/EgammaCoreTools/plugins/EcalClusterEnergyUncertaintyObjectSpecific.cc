@@ -231,7 +231,7 @@ float EcalClusterEnergyUncertaintyObjectSpecific::getValue( const reco::SuperClu
 	if (et>5 && et<200) uncertainty = par0[iEtaSl][iBremSl] + par1[iEtaSl][iBremSl]/(et-par2[iEtaSl][iBremSl]) + par3[iEtaSl][iBremSl]/((et-par2[iEtaSl][iBremSl])*(et-par2[iEtaSl][iBremSl]));
  
 	
-	return uncertainty;  
+	return (uncertainty*en);  
 	
 
 }
