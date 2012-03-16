@@ -1,24 +1,16 @@
 #include "Utilities/RFIOAdaptor/interface/RFIOFile.h"
 #include "Utilities/StorageFactory/interface/File.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <sys/types.h>
-#include <unistd.h>
-#include <pwd.h>
 #include <iostream>
-#include <iomanip>
 #include <string>
 
 int main (int argc, char *argv[])
 {
   try
   {
-    struct passwd *info = getpwuid (getuid());
-    std::string	user (info && info->pw_name ? info->pw_name : "unknown");
-    std::string	path (std::string ("/castor/cern.ch/user/")
-    	       	      + user[0] + "/" + user + "/rfiotestput");
+    std::string	path ("/castor/cern.ch/cms/test/IBTestFiles/rfiotestput");
     if (argc > 1) {
-      std::string scramArch(argv[1]);
-      path += scramArch;
+      path = argv[1];
     }
     std::cout << "copying /etc/motd to " << path << "\n";
 

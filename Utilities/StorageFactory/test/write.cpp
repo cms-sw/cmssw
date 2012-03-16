@@ -2,22 +2,15 @@
 #include "Utilities/StorageFactory/test/Test.h"
 #include "Utilities/StorageFactory/interface/File.h"
 #include "Utilities/StorageFactory/interface/Storage.h"
-#include <sys/types.h>
-#include <unistd.h>
-#include <pwd.h>
 #include <string>
 
 int main (int argc, char *argv[]) try
 {
   initTest();
 
-    struct passwd *info = getpwuid (getuid());
-    std::string user (info && info->pw_name ? info->pw_name : "unknown");
-    std::string	path (std::string ("rfio:/castor/cern.ch/user/")
-    	       	      + user[0] + "/" + user + "/rfiotest");
+    std::string	path ("rfio:/castor/cern.ch/cms/test/IBTestFiles/rfiotestwrite");
     if (argc > 1) {
-      std::string scramArch(argv[1]);
-      path += scramArch;
+      path = std::string ("rfio:") + argv[1];
     }
     std::cout << "copying /etc/profile to " << path << "\n";
 

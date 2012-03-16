@@ -23,9 +23,8 @@ pushd ${LOCAL_TMP_DIR}
   echo " "
   echo Running test_StorageFactory_Write ----------------------------------------------------------
 
-  filepostfix=`date +.%Y%M%d%H%m-${SCRAM_ARCH}-$$`
-  ${LOCAL_TOP_DIR}/test/${SCRAM_ARCH}/test_StorageFactory_Write ${filepostfix} || die "test_StorageFactory_Write" $?
-  castorfile=/castor/cern.ch/`whoami | sed 's|^\(.\)|user/\1/\1|'`/rfiotest${filepostfix}
+  castorfile=/castor/cern.ch/cms/test/IBTestFiles/test_StorageFactory_Write.`date +%Y%M%d%H%m-${SCRAM_ARCH}-$$`
+  ${LOCAL_TOP_DIR}/test/${SCRAM_ARCH}/test_StorageFactory_Write ${castorfile} || die "test_StorageFactory_Write" $?
   stager_rm -M ${castorfile}
   rfrm ${castorfile}
   
