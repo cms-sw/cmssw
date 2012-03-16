@@ -164,6 +164,7 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   firmSP_Map.insert(std::pair<int,int>(20110322,20110118));
   
   firmSP_Map.insert(std::pair<int,int>(20120131,20120131));
+  firmSP_Map.insert(std::pair<int,int>(20120227,20120131));
 }
 
 
