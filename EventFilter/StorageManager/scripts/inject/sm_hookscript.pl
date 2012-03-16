@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: sm_hookscript.pl,v 1.20 2010/06/21 08:48:22 babar Exp $
+# $Id: sm_hookscript.pl,v 1.21 2010/06/23 08:37:36 babar Exp $
 ################################################################################
 
 # XXX This should be converted into a POE::Wheel object so it's asynchronous
@@ -12,101 +12,78 @@ use Getopt::Long;
 my $lookfreq   = 20;                       #copy cycle: copy every n-th LumiSec
 my $lookhosts  = 16;                       #max-number of hosts assumed
 my $lookmodulo = $lookfreq * $lookhosts;
+my (
+    $appname,  $appversion, $runnumber,   $lumisection, $filename,
+    $pathname, $hostname,   $destination, $setuplabel,  $stream,
+    $type,     $nevents,    $filesize,    $checksum,    $instance,
+    $hltkey,   $starttime,  $stoptime,    $count
+);
 
-# XXX Should clean this up
-my $filename    = $ENV{'SM_FILENAME'};
-my $count       = $ENV{'SM_FILECOUNTER'};
-my $nevents     = $ENV{'SM_NEVENTS'};
-my $filesize    = $ENV{'SM_FILESIZE'};
-my $starttime   = $ENV{'SM_STARTTIME'};
-my $stoptime    = $ENV{'SM_STOPTIME'};
-my $status      = $ENV{'SM_STATUS'};
-my $runnumber   = $ENV{'SM_RUNNUMBER'};
-my $lumisection = $ENV{'SM_LUMISECTION'};
-my $pathname    = $ENV{'SM_PATHNAME'};
-my $hostname    = $ENV{'SM_HOSTNAME'};
-my $dataset     = $ENV{'SM_DATASET'};
-my $stream      = $ENV{'SM_STREAM'};
-my $instance    = $ENV{'SM_INSTANCE'};
-my $safety      = $ENV{'SM_SAFETY'};
-my $appversion  = $ENV{'SM_APPVERSION'};
-my $appname     = $ENV{'SM_APPNAME'};
-my $type        = $ENV{'SM_TYPE'};
-my $checksum    = $ENV{'SM_CHECKSUM'};
-my $setuplabel  = $ENV{'SM_SETUPLABEL'};
-my $destination = $ENV{'SM_DESTINATION'};
-my $index       = $ENV{'SM_INDEX'};
-my $hltkey      = $ENV{'SM_HLTKEY'};
-my $producer    = 'StorageManager';
-my $retries     = 2;
-my $copydelay   = 3;
-
-# XXX That too
+# XXX Could clean this up as most of those are not used, but POE::Wheel will do
 GetOptions(
+    "APPNAME=s"     => \$appname,
+    "APPVERSION=s"  => \$appversion,
+    "RUNNUMBER=i"   => \$runnumber,
+    "LUMISECTION=i" => \$lumisection,
     "FILENAME=s"    => \$filename,
     "PATHNAME=s"    => \$pathname,
     "HOSTNAME=s"    => \$hostname,
-    "FILESIZE=i"    => \$filesize,
-    "TYPE=s"        => \$type,
+    "DESTINATION=s" => \$destination,
     "SETUPLABEL=s"  => \$setuplabel,
     "STREAM=s"      => \$stream,
-    "RUNNUMBER=i"   => \$runnumber,
-    "LUMISECTION=i" => \$lumisection,
+    "TYPE=s"        => \$type,
     "NEVENTS=i"     => \$nevents,
-    "APPNAME=s"     => \$appname,
-    "APPVERSION=s"  => \$appversion,
+    "FILESIZE=i"    => \$filesize,
+    "CHECKSUM=s"    => \$checksum,
+    "INSTANCE=i"    => \$instance,
+    "HLTKEY=s"      => \$hltkey,
     "STARTTIME=i"   => \$starttime,
     "STOPTIME=i"    => \$stoptime,
-    "CHECKSUM=s"    => \$checksum,
-    "DESTINATION=s" => \$destination,
-    "INDEX=s"       => \$index,
-    "HLTKEY=s"      => \$hltkey,
-    "INSTANCE=i"    => \$instance,
     "FILECOUNTER=i" => \$count,
 );
 
-# XXX and that...
+my $copycommand  = "$ENV{SMT0_BASE_DIR}/sm_nfscopy.sh";
+my $nfsserver    = '';
 my $filepathname = "$pathname/$filename";
+my $target       = '';
+my $parallel = 10;                         # Allow 10 instances of sm_nfscopy.sh
+my $retries  = 1;                          # Default: do not retry
+my $delete   = $stream =~ '_NoTransfer$';
 
 # special treatment for EcalCalibration
-my $doca = $ENV{'SM_CALIB_NFS'};
-
 if ( $stream eq "EcalCalibration" || $stream =~ '_EcalNFS$' ) {
-    if ($doca) {
-        my $COPYCOMMAND =
-"$ENV{SMT0_BASE_DIR}/sm_nfscopy.sh $doca $filepathname $ENV{SM_CALIBAREA} 5";
-        my $copyresult = 1;
-        while ( $copyresult && $retries ) {
-            $copyresult = system($COPYCOMMAND);
-            $retries--;
-            sleep($copydelay);
-        }
-    }
-    unlink $filepathname;
-    $filepathname =~ s/\.dat$/.ind/;
-    unlink $filepathname;
-    exit 0;
+    $nfsserver = $ENV{'SM_CALIB_NFS'};
+    $target =
+      $ENV{SM_CALIBAREA} . '/'
+      . ( $hostname eq 'srv-C2D05-02' ? 'minidaq' : 'global' );
+    $parallel = 5;
+    $retries  = 2;                         # Retry once
+    $delete   = 1;
 }
 
 # copy one file per instance to look area
-my $dola = $ENV{'SM_LA_NFS'};
-if ($dola) {
+elsif ( $nfsserver = $ENV{'SM_LA_NFS'} ) {
     if (   $lumisection % $lookmodulo == ( ( $lookfreq * $instance ) + 1 )
         && $count < 1 )
     {
-        my $COPYCOMMAND =
-"$ENV{SMT0_BASE_DIR}/sm_nfscopy.sh $dola $filepathname $ENV{SM_LOOKAREA} 10";
-        system($COPYCOMMAND);
+        $target   = $ENV{SM_LOOKAREA};
+        $parallel = 10;
+    }
+}
+my $copyresult = 1;    # Assume it failed
+if ( $nfsserver && $target ) {
+    while ( $copyresult && $retries-- ) {
+        $copyresult =
+          system( $copycommand, $nfsserver, $filepathname, $target, $parallel );
+        sleep($copydelay) if $retries;
     }
 }
 
 # delete if NoTransfer option is set
-if ( $stream =~ '_NoTransfer$' ) {
-    $filename = "$pathname/$filename";
+if ( $delete && $stream =~ '_NoTransfer$' ) {
     unlink $filepathname;
     $filepathname =~ s/\.dat$/.ind/;
     unlink $filepathname;
-    exit 0;
 }
 
 exit 0;

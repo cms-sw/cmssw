@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: sm_nfscopy.sh,v 1.8 2010/09/01 13:19:45 babar Exp $
+# $Id: sm_nfscopy.sh,v 1.9 2010/09/03 06:33:01 babar Exp $
 
 nfsserver=$1
 filename=$2
@@ -25,11 +25,6 @@ else
     execmd3="chmod a+r $destination/$fname"
     grepstr="cp -a"
     grepstr2=$destination
-fi
-
-if test -z "$3"; then
-    echo "Usage: $0 nfsserver filename destination [parallel] [debug]"
-    exit 123;
 fi
 
 if test -n "$parallel"; then
