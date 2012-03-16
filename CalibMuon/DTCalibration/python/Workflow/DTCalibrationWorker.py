@@ -623,7 +623,8 @@ class DTCalibrationWorker:
 	noise_txt = os.path.abspath(result_dir + '/' + 'noise_' + run + '.txt')
        
 	datasetstr = getDatasetStr(config.datasetpath)
-	config.userdircaf = 'DTCalibration/' + datasetstr + '/Run' + str(run) + '/NoiseCalibration/' + label + '/' + 'v' + str(trial)
+	#config.userdircaf = 'DTCalibration/' + datasetstr + '/Run' + str(run) + '/NoiseCalibration/' + label + '/' + 'v' + str(trial)
+	config.userdircaf = 'DTCalibration/' + datasetstr + '/Run' + str(run) + '/NoiseCalibration/' + 'v' + str(trial)
 
 	task_dir = config.base_dir + '/NoiseCalib'
 	dtNoiseCalibration = DTNoiseCalibration(run=run,
