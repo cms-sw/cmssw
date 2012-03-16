@@ -113,7 +113,7 @@ CmsShowSearchFiles::CmsShowSearchFiles (const char *filename,
    std::string path;
    if (x1 > 0 && x1 < x2)
       path = Form("http://fireworks.web.cern.ch/fireworks/%d/",fireworks::supportedDataFormatsVersion()[0] );
-   if (x2)
+   else if (x2 > 0)
       path = Form("http://uaf-2.t2.ucsd.edu/fireworks/%d/", fireworks::supportedDataFormatsVersion()[0]);
 
    if (!path.empty())
