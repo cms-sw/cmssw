@@ -14,14 +14,12 @@ my $lookhosts  = 16;                       #max-number of hosts assumed
 my $lookmodulo = $lookfreq * $lookhosts;
 
 # Global defaults, overridden depending on streams
-my $copycommand  = "$ENV{SMT0_BASE_DIR}/sm_nfscopy.sh";
-my $nfsserver    = '';
-my $filepathname = "$pathname/$filename";
-my $target       = '';
+my $copycommand = "$ENV{SMT0_BASE_DIR}/sm_nfscopy.sh";
+my $nfsserver   = '';
+my $target      = '';
 my $parallel  = 10;                        # Allow 10 instances of sm_nfscopy.sh
 my $retries   = 1;                         # Default: do not retry
 my $copydelay = 3;
-my $delete    = $stream =~ '_NoTransfer$';
 
 my (
     $appname,  $appversion, $runnumber,   $lumisection, $filename,
@@ -53,6 +51,9 @@ GetOptions(
     "FILECOUNTER=i" => \$count,
 );
 
+my $filepathname = "$pathname/$filename";
+my $delete = $stream =~ '_NoTransfer$';
+
 # special treatment for EcalCalibration
 if ( $stream eq "EcalCalibration" || $stream =~ '_EcalNFS$' ) {
     $nfsserver = $ENV{'SM_CALIB_NFS'};
@@ -73,6 +74,7 @@ elsif ( $nfsserver = $ENV{'SM_LA_NFS'} ) {
         $parallel = 10;
     }
 }
+
 if ( $nfsserver && $target ) {
     while (
         system( $copycommand, $nfsserver, $filepathname, $target, $parallel )
