@@ -1,4 +1,4 @@
-# /dev/CMSSW_5_2_0/GRun/V23
+# /dev/CMSSW_5_2_0/GRun/V24
 
 import FWCore.ParameterSet.Config as cms
 
@@ -225,7 +225,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMET_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMET_selector.l1tResults = cms.InputTag('')
 streamA_datasetMET_selector.throw      = cms.bool(False)
-streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CentralCaloJet50PFJet80_CaloMET50_PFMHT80_HBHENoiseFiltered_dPhi1_v1', 
+streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CentralPFJet80_CaloMET50_PFMHT80_HBHENoiseFiltered_dPhi1_v1', 
     'HLT_DiCentralJet20_BTagIP_MET65_v13', 
     'HLT_DiCentralPFJet30_CaloMET50_PFMHT80_HBHENoiseFiltered_dPhi1_v1', 
     'HLT_DiCentralPFJet30_PFMHT80_v3', 
