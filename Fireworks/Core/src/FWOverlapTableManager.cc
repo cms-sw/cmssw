@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 20:31:32 CET 2012
-// $Id: FWOverlapTableManager.cc,v 1.5 2012/02/23 02:41:46 amraktad Exp $
+// $Id: FWOverlapTableManager.cc,v 1.6 2012/03/14 23:58:21 amraktad Exp $
 //
 
 // system include files
@@ -330,7 +330,7 @@ void FWOverlapTableManager::recalculateVisibilityNodeRec( int pIdx)
 
 bool  FWOverlapTableManager::nodeIsParent(const NodeInfo& data) const
 {
-   return   data.testBit(kOverlapChild) ;
+   return  m_browser->listAllNodes() ? data.m_node->GetNdaughters() : data.testBit(kOverlapChild) ;
 }
 
 void FWOverlapTableManager::printOverlaps(int idx) const
