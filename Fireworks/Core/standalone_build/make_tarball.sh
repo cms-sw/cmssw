@@ -158,6 +158,7 @@ getDataFiles()
    $dwnCmd http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/$name
    mv $name data.root
    $dwnCmd http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/cmsSimGeom-14.root
+   $dwnCmd http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/cmsGeom10.root
 }
 
 #----------------------------------------------------------------
