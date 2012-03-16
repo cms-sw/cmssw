@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.84 2012/03/13 16:19:26 mangano Exp $
+ * \version $Id: TrackBase.h,v 1.85 2012/03/14 16:32:25 mangano Exp $
  *
  */
 
@@ -292,19 +292,6 @@ namespace reco {
     signed char nLoops() const {return nLoops_;}
    
   private:
-
-    /// chi-squared
-    float chi2_;
-    /// number of degrees of freedom
-    float ndof_;
-     /// innermost (reference) point on track
-    Point vertex_;
-    /// momentum vector at innermost point
-    Vector momentum_;
-    /// electric charge
-    char charge_;
-    /// perigee 5x5 covariance matrix
-    float covariance_[ covarianceSize ];
     /// hit pattern
     HitPattern hitPattern_;
     /// hit pattern used for expected crossed layers after the last trajectory's hit
@@ -312,6 +299,20 @@ namespace reco {
     /// hit pattern used for expected crossed layers before the first trajectory's hit
     HitPattern trackerExpectedHitsOuter_;
 
+    /// perigee 5x5 covariance matrix
+    float covariance_[ covarianceSize ];
+    /// chi-squared
+    float chi2_;
+     /// innermost (reference) point on track
+    Point vertex_;
+    /// momentum vector at innermost point
+    Vector momentum_;
+
+    /// number of degrees of freedom
+    float ndof_;
+
+    /// electric charge
+    char charge_;
     /// track algorithm
     uint8_t algorithm_;
     /// track quality
