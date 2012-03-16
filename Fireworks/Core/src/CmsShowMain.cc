@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.198 2011/11/10 04:40:17 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.199 2012/03/14 19:22:13 amraktad Exp $
 //
 
 // system include files
@@ -507,6 +507,7 @@ CmsShowMain::openDataViaURL()
    if(!chosenFile.empty()) {
       guiManager()->updateStatus("loading file ...");
       if(m_navigator->openFile(chosenFile.c_str())) {
+         m_loadedAnyInputFile = true;
          m_navigator->firstEvent();
          checkPosition();
          draw();
