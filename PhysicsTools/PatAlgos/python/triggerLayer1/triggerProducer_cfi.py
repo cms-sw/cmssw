@@ -4,7 +4,7 @@ patTrigger = cms.EDProducer( "PATTriggerProducer"
 , onlyStandAlone = cms.bool( False )
 # ## L1
 # , addL1Algos                     = cms.bool( False )                                 # default; possibly superseded by 'onlyStandAlone' = True
-# , l1GlobalTriggerObjectMaps      = cms.InputTag( "hltL1GtObjectMap" )                # default; change only, if you know exactly, what you are doing!
+# , l1GlobalTriggerObjectMaps      = cms.InputTag( "l1L1GtObjectMap" )                 # default; change only, if you know exactly, what you are doing!
 # , l1ExtraMu                      = cms.InputTag( "l1extraParticles", ""            ) # default; change only, if you know exactly, what you are doing!
 # , l1ExtraNoIsoEG                 = cms.InputTag( "l1extraParticles", "NonIsolated" ) # default; change only, if you know exactly, what you are doing!
 # , l1ExtraIsoEG                   = cms.InputTag( "l1extraParticles", "Isolated"    ) # default; change only, if you know exactly, what you are doing!
