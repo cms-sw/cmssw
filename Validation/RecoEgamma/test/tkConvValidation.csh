@@ -20,17 +20,17 @@ setenv TYPE AllConversions
 setenv RUNTYPE Central
 setenv STARTUP True
 
+setenv CMSSWver1 5_2_0
+setenv CMSSWver2 5_2_0
+setenv OLDRELEASE 5_2_0
+setenv NEWRELEASE 5_2_0
+setenv OLDPRERELEASE pre6
+setenv NEWPRERELEASE 
 
-setenv CMSSWver1 5_0_1
-setenv CMSSWver2  5_2_0
-setenv OLDRELEASE 5_0_1
-setenv NEWRELEASE  5_2_0
-setenv OLDPRERELEASE  patch1
-setenv NEWPRERELEASE  pre5
 
 if ( $STARTUP == True) then
-setenv OLDGLOBALTAG START50_V13_special_120203-v1
-setenv NEWGLOBALTAG  START52_V1-v1
+setenv OLDGLOBALTAG START52_V2-v3
+setenv NEWGLOBALTAG START52_V4A-v1
 else
 setenv OLDGLOBALTAG MC_42_V9-v1
 setenv NEWGLOBALTAG MC_42_V11-v1
@@ -40,23 +40,20 @@ endif
 
 setenv OLDRELEASE ${OLDRELEASE}_${OLDPRERELEASE}
 #setenv OLDRELEASE ${OLDRELEASE}
-setenv NEWRELEASE ${NEWRELEASE}_${NEWPRERELEASE}
-#setenv NEWRELEASE ${NEWRELEASE}
+#setenv NEWRELEASE ${NEWRELEASE}_${NEWPRERELEASE}
+setenv NEWRELEASE ${NEWRELEASE}
 
 
 
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
-
 setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
-#setenv WorkDir1    /data/pccmsnd1/b/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-#setenv WorkDir2    /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
-#setenv WorkDir2    /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
+
 
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
@@ -65,9 +62,9 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #Name of sample (affects output directory name and htmldescription only) 
 #setenv SAMPLE SingleGammaPt10
 #setenv SAMPLE SingleGammaPt35
-setenv SAMPLE QCD_Pt_80_120
+#setenv SAMPLE QCD_Pt_80_120
 #setenv SAMPLE QCD_Pt_20_30
-#setenv SAMPLE H130GGgluonfusion
+setenv SAMPLE H130GGgluonfusion
 
 if ( $RUNTYPE == Central ) then
 setenv HISTOPATHNAME_Efficiencies DQMData/Run\ 1/EgammaV/Run\ summary/ConversionValidator/EfficienciesAndFakeRate
