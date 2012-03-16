@@ -3,15 +3,15 @@ import FWCore.ParameterSet.Config as cms
 
 # HLT Online -----------------------------------
 # AlCa
-from DQM.HLTEvF.HLTAlCaMonPi0_cfi import *
-from DQM.HLTEvF.HLTAlCaMonEcalPhiSym_cfi import *
+#from DQM.HLTEvF.HLTAlCaMonPi0_cfi import *
+#from DQM.HLTEvF.HLTAlCaMonEcalPhiSym_cfi import *
 # JetMET
-from DQM.HLTEvF.HLTMonJetMETDQMSource_cfi import *
+#from DQM.HLTEvF.HLTMonJetMETDQMSource_cfi import *
 # Electron
-from DQM.HLTEvF.HLTMonEleBits_cfi import *
+#from DQM.HLTEvF.HLTMonEleBits_cfi import *
 # Muon
-from DQM.HLTEvF.HLTMonMuonDQM_cfi import *
-from DQM.HLTEvF.HLTMonMuonBits_cfi import *
+#from DQM.HLTEvF.HLTMonMuonDQM_cfi import *
+#from DQM.HLTEvF.HLTMonMuonBits_cfi import *
 # Photon
 #from DQM.HLTEvF.HLTMonPhotonBits_cfi import *
 # Tau
@@ -29,7 +29,7 @@ dqmEnvHLTOnline = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 dqmEnvHLTOnline.subSystemFolder = 'HLT'
 
 #onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonEleBits*hltMonMuBits*hltMonTauReco*hltMonBTagIPSource*hltMonBTagMuSource*dqmEnvHLTOnline)
-onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonMuBits*dqmEnvHLTOnline)
+#onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonMuBits*dqmEnvHLTOnline)
 
 # HLT Offline -----------------------------------
 
@@ -68,5 +68,6 @@ offlineHLTSource = cms.Sequence(
     #TnPEfficiency *
     dqmEnvHLT)
 
-triggerOfflineDQMSource =  cms.Sequence(onlineHLTSource*offlineHLTSource)
+#triggerOfflineDQMSource =  cms.Sequence(onlineHLTSource*offlineHLTSource)
+triggerOfflineDQMSource =  cms.Sequence(offlineHLTSource)
  
