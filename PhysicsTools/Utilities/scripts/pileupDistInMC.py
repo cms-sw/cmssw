@@ -15,7 +15,10 @@ if __name__ == "__main__":
     parser.add_option ('--prefix', dest='prefix', type='string',
                        default='',
                        help="Prefix to add to files" )
-    
+
+    parser.add_option ('--bx', dest='bx', type='int',
+                       default='0',
+                       help="Bunch crossing to check (0 = in-time)" )
     (options, args) = parser.parse_args()
     import ROOT # stupid ROOT takes the arugments error
     from DataFormats.FWLite import Events, Handle
@@ -41,7 +44,7 @@ if __name__ == "__main__":
 
     events = Events (listOfFiles)
 
-    handle = Handle('PileupSummaryInfo')
+    handle = Handle('vector<PileupSummaryInfo>')
     label  = ('addPileupInfo')
 
     ROOT.gROOT.SetBatch()        # don't pop up canvases
@@ -51,7 +54,13 @@ if __name__ == "__main__":
     total = 0.
     for event in events:
         event.getByLabel (label, handle)
-        pileup = handle.product()
+        pileups = handle.product()
+        for pileup in pileups:
+            if pileup.getBunchCrossing() == options.bx:
+                break
+            if pileup == pileups[-1] and len(pileups)>1 :
+                raise RuntimeError, "Requested BX not found in file"
+
         num = pileup.getPU_NumInteractions()
         total += 1
         if not countDict.has_key (num):
