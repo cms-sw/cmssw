@@ -84,8 +84,8 @@ if ( $nfsserver && $target ) {
     }
 }
 
-# delete if NoTransfer option is set
-if ( $delete && $stream =~ '_NoTransfer$' ) {
+# delete if NoTransfer option is set or it's EcalCalibration
+if ( $delete || $stream =~ '_NoTransfer$' ) {
     unlink $filepathname;
     $filepathname =~ s/\.dat$/.ind/;
     unlink $filepathname;
