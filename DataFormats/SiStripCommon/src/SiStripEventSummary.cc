@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEventSummary.cc,v 1.10 2008/06/09 12:55:03 delaer Exp $
+// Last commit: $Id: SiStripEventSummary.cc,v 1.11 2008/11/26 16:47:10 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -34,6 +34,7 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
   
   // Set RunType
   uint16_t run = static_cast<uint16_t>( buffer[10] & 0xFFFF );
+
   runType_ = SiStripEnumsAndStrings::runType(run);
 
   // Set spill number
@@ -153,7 +154,8 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
 
   } else if (  runType_ == sistrip::PHYSICS ||
 	       runType_ == sistrip::PHYSICS_ZS ||
-	       runType_ == sistrip::PEDESTALS ) { 
+	       runType_ == sistrip::PEDESTALS ||
+	       runType_ == sistrip::NOISE_HVSCAN ) { 
 
     //@@ do anything?...
 
@@ -246,6 +248,9 @@ void SiStripEventSummary::commissioningInfo( const uint32_t& daq1,
   } else if ( runType_ == sistrip::QUITE_FAST_CABLING ) { 
   } else if ( runType_ == sistrip::FAST_CABLING ) { 
     params_[0] = (daq2>>0)&0xFF; // key
+  } else if ( runType_ == sistrip::NOISE_HVSCAN ) {
+    params_[0] = (daq2>>0)&0xFFF;    // High Voltage (0 -> 4095 V)
+    //params_[1] = (daq2>>12)&0xFFFFF; // Possible HV status bits (TODO)
   } else { 
     if ( edm::isDebugEnabled() ) {
       edm::LogWarning(mlDigis_)

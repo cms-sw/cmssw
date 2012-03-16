@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEnumsAndStrings.cc,v 1.22 2010/02/22 14:10:23 wto Exp $
+// Last commit: $Id: SiStripEnumsAndStrings.cc,v 1.23 2011/03/15 23:36:44 wto Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 
@@ -90,6 +90,7 @@ sistrip::RunType SiStripEnumsAndStrings::runType( const std::string& run_type ) 
   else if ( run_type == "DAQ_SCOPE_MODE" ) { return sistrip::DAQ_SCOPE_MODE; }
   else if ( run_type == "PHYSICS" ) { return sistrip::PHYSICS; }
   else if ( run_type == "UNDEFINED" ) { return sistrip::UNDEFINED_RUN_TYPE; }
+  else if ( run_type == "NOISE_HVSCAN" ) { return sistrip::NOISE_HVSCAN; }
   else { return sistrip::UNKNOWN_RUN_TYPE; }
 }
 
@@ -120,6 +121,7 @@ sistrip::RunType SiStripEnumsAndStrings::runType( const uint16_t& run_type ) {
   else if ( run_type == 23 ) { return sistrip::NOISE; }
   else if ( run_type == 24 ) { return sistrip::PEDS_FULL_NOISE; }
   else if ( run_type == 33 ) { return sistrip::CALIBRATION_DECO; }
+  else if ( run_type == 42 ) { return sistrip::NOISE_HVSCAN; }
   else if ( run_type == sistrip::invalid_ ) { return sistrip::UNDEFINED_RUN_TYPE; }
   else { return sistrip::UNKNOWN_RUN_TYPE; }
 }
