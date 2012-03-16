@@ -167,6 +167,33 @@ void MuonIsolationDQM::InitStatics(){
   main_titles[22] = "Average Momentum per Track, #Delta R = 0.5";
   main_titles[23] = "Weighted Energy, #Delta R = 0.5";
 
+
+  main_titles[24 ] = "Relative Detector-Based Isolation, #Delta R = 0.3";
+  main_titles[25 ] = "Relative Detector-Based Isolation, #Delta R = 0.5";
+
+  //-----Titles of the plots-----------
+  main_titles[26 ] = "Sum PF Charged Hadron Pt, #Delta R = 0.3";
+  main_titles[27 ] = "Sum PF Neutral Hadron Pt, #Delta R = 0.3";
+  main_titles[28 ] = "Sum PF Photon Et, #Delta R = 0.3";
+  main_titles[29 ] = "Sum PF Neutral Hadron Pt (Higher Pt threshold), #Delta R = 0.3";
+  main_titles[30 ] = "Sum PF Photon Et (Higher Pt threshold), #Delta R = 0.3";
+  main_titles[31 ] = "Sum PF Charged Particles Pt not from PV  (for Pu corrections), #Delta R = 0.3";
+
+ //-----Titles of the plots-----------
+  main_titles[32 ] = "Sum PF Charged Hadron Pt, #Delta R = 0.4";
+  main_titles[33 ] = "Sum PF Neutral Hadron Pt, #Delta R = 0.4";
+  main_titles[34 ] = "Sum PF Photon Et, #Delta R = 0.4";
+  main_titles[35 ] = "Sum PF Neutral Hadron Pt (Higher Pt threshold), #Delta R = 0.4";
+  main_titles[36 ] = "Sum PF Photon Et (Higher Pt threshold), #Delta R = 0.4";
+  main_titles[37 ] = "Sum PF Charged Particles Pt not from PV  (for Pu corrections), #Delta R = 0.4";
+ 
+  main_titles[38 ] = "Relative PF Isolation, #Delta R = 0.3";
+  main_titles[39 ] = "Relative PF Isolation, #Delta R = 0.4";
+ 
+  main_titles[40 ] = "Relative PF Isolation (Higher Pt threshold), #Delta R = 0.3";
+  main_titles[41 ] = "Relative PF Isolation (Higher Pt threshold), #Delta R = 0.4";
+ 
+
   //------Titles on the X or Y axis------------
   axis_titles[0 ] = "#Sigma p_{T}   (GeV)";
   axis_titles[1 ] = "#Sigma E_{T}^{EM}   (GeV)";
@@ -194,6 +221,31 @@ void MuonIsolationDQM::InitStatics(){
   axis_titles[22] = "#Sigma p_{T} / N_{Tracks} (GeV)";
   axis_titles[23] = "(1.5) X #Sigma E_{T}^{EM} + #Sigma E_{T}^{Had}";
 
+  axis_titles[24] = "(#Sigma Tk p_{T} + #Sigma ECAL p_{T} + #Sigma HCAL p_{T})/ Mu p_{T}  (GeV)";
+  axis_titles[25] = "(#Sigma Tk p_{T} + #Sigma ECAL p_{T} + #Sigma HCAL p_{T})/ Mu p_{T}  (GeV)";
+
+  axis_titles[26] = "#Sigma PFCharged p_{T}";
+  axis_titles[27] = "#Sigma PFNeutral p_{T}";
+  axis_titles[28] = "#Sigma PFPhoton p_{T}";
+  axis_titles[29] = "#Sigma PFNeutral p_{T}";
+  axis_titles[30] = "#Sigma PFPhoton p_{T}";
+  axis_titles[31] = "#Sigma PFCharged p_{T}";
+
+  axis_titles[32] = "#Sigma PFCharged p_{T}";
+  axis_titles[33] = "#Sigma PFNeutral p_{T}";
+  axis_titles[34] = "#Sigma PFPhoton p_{T}";
+  axis_titles[35] = "#Sigma PFNeutral p_{T}";
+  axis_titles[36] = "#Sigma PFPhoton p_{T}";
+  axis_titles[37] = "#Sigma PFCharged p_{T}";
+
+
+  axis_titles[38] = "(#Sigma PFCharged p_{T} + #Sigma PFNeutral p_{T} + #Sigma PFPhoton p_{T}) Mu p_{T}  (GeV)";
+  axis_titles[39] = "(#Sigma PFCharged p_{T} + #Sigma PFNeutral p_{T} + #Sigma PFPhoton p_{T}) Mu p_{T}  (GeV)";
+  axis_titles[40] = "(#Sigma PFCharged p_{T} + #Sigma PFNeutral p_{T} + #Sigma PFPhoton p_{T}) Mu p_{T}  (GeV)";
+  axis_titles[41] = "(#Sigma PFCharged p_{T} + #Sigma PFNeutral p_{T} + #Sigma PFPhoton p_{T}) Mu p_{T}  (GeV)";
+
+
+
   //-----------Names given for the root file----------
   names[0 ] = "sumPt_R03";
   names[1 ] = "emEt_R03";
@@ -220,6 +272,30 @@ void MuonIsolationDQM::InitStatics(){
   names[21] = "hoVetoEt_R05";
   names[22] = "avgPt_R05";
   names[23] = "weightedEt_R05";
+
+  names[24] = "relDetIso_R03";
+  names[25] = "relDetIso_R05";
+
+  names[26] = "pfChargedPt_R03";
+  names[27] = "pfNeutralPt_R03";
+  names[28] = "pfPhotonPt_R03";
+  names[29] = "pfNeutralPt_HT_R03";
+  names[30] = "pfPhotonPt_HT_R03";
+  names[31] = "pfChargedPt_PU_R03";
+
+  names[32] = "pfChargedPt_R04";
+  names[33] = "pfNeutralPt_R04";
+  names[34] = "pfPhotonPt_R04";
+  names[35] = "pfNeutralPt_HT_R04";
+  names[36] = "pfPhotonPt_HT_R04";
+  names[37] = "pfChargedPt_PU_R04";
+
+  names[38] = "relPFIso_R03";
+  names[39] = "relPFIso_R04";
+
+  names[40] = "relPFIso_HT_R03";
+  names[41] = "relPFIso_HT_R04";
+
 
   //----------Parameters for binning of histograms---------
   //param[var][0] is the number of bins
@@ -255,6 +331,32 @@ void MuonIsolationDQM::InitStatics(){
   param[22][0]= (int)( 15.0/S_BIN_WIDTH); param[22][1]=  0.0; param[22][2]= param[22][0]*S_BIN_WIDTH;
   param[23][0]= (int)( 20.0/S_BIN_WIDTH); param[23][1]=  0.0; param[23][2]= param[23][0]*S_BIN_WIDTH;
 
+  param[24][0]= 50; param[24][1]=  0.0; param[24][2]= 1.0;
+  param[25][0]= 50; param[25][1]=  0.0; param[25][2]= 1.0;
+
+
+  param[26 ][0]= (int)( 20.0/S_BIN_WIDTH); param[26 ][1]=  0.0; param[26 ][2]= param[26 ][0]*S_BIN_WIDTH;
+  param[27 ][0]= (int)( 20.0/S_BIN_WIDTH); param[27 ][1]=  0.0; param[27 ][2]= param[27 ][0]*S_BIN_WIDTH;
+  param[28 ][0]= (int)( 20.0/S_BIN_WIDTH); param[28 ][1]=  0.0; param[28 ][2]= param[28 ][0]*S_BIN_WIDTH;
+  param[29 ][0]= (int)( 20.0/S_BIN_WIDTH); param[29 ][1]=  0.0; param[29 ][2]= param[29 ][0]*S_BIN_WIDTH;
+  param[30 ][0]= (int)( 20.0/S_BIN_WIDTH); param[30 ][1]=  0.0; param[30 ][2]= param[30 ][0]*S_BIN_WIDTH;
+  param[31 ][0]= (int)( 20.0/S_BIN_WIDTH); param[31 ][1]=  0.0; param[31 ][2]= param[31 ][0]*S_BIN_WIDTH;
+
+  param[32 ][0]= (int)( 20.0/S_BIN_WIDTH); param[32 ][1]=  0.0; param[32 ][2]= param[32 ][0]*S_BIN_WIDTH;
+  param[33 ][0]= (int)( 20.0/S_BIN_WIDTH); param[33 ][1]=  0.0; param[33 ][2]= param[33 ][0]*S_BIN_WIDTH;
+  param[34 ][0]= (int)( 20.0/S_BIN_WIDTH); param[34 ][1]=  0.0; param[34 ][2]= param[34 ][0]*S_BIN_WIDTH;
+  param[35 ][0]= (int)( 20.0/S_BIN_WIDTH); param[35 ][1]=  0.0; param[35 ][2]= param[35 ][0]*S_BIN_WIDTH;
+  param[36 ][0]= (int)( 20.0/S_BIN_WIDTH); param[36 ][1]=  0.0; param[36 ][2]= param[36 ][0]*S_BIN_WIDTH;
+  param[37 ][0]= (int)( 20.0/S_BIN_WIDTH); param[37 ][1]=  0.0; param[37 ][2]= param[37 ][0]*S_BIN_WIDTH;
+
+  param[38][0]= 50; param[38][1]=  0.0; param[38][2]= 1.0;
+  param[39][0]= 50; param[39][1]=  0.0; param[39][2]= 1.0;
+
+  param[40][0]= 50; param[40][1]=  0.0; param[40][2]= 1.0;
+  param[41][0]= 50; param[41][1]=  0.0; param[41][2]= 1.0;
+
+
+
   //--------------Is the variable continuous (i.e. non-integer)?-------------
   //---------(Log binning will only be used for continuous variables)--------
   isContinuous[0 ] = 1;
@@ -283,6 +385,25 @@ void MuonIsolationDQM::InitStatics(){
   isContinuous[22] = 1;
   isContinuous[23] = 1;
 
+  isContinuous[24] = 1;
+  isContinuous[25] = 1;
+  isContinuous[26] = 1;
+  isContinuous[27] = 1;
+  isContinuous[28] = 1;
+  isContinuous[29] = 1;
+  isContinuous[30] = 1;
+  isContinuous[31] = 1;
+  isContinuous[32] = 1;
+  isContinuous[33] = 1;
+  isContinuous[34] = 1;
+  isContinuous[35] = 1;
+  isContinuous[36] = 1;
+  isContinuous[37] = 1;
+  isContinuous[38] = 1;
+  isContinuous[39] = 1;
+  isContinuous[40] = 1;
+  isContinuous[41] = 1;
+
 }
 
 
@@ -309,16 +430,19 @@ void MuonIsolationDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (requireSTAMuon && muon->isStandAloneMuon()) {
       ++nSTAMuons;
       RecordData(muon);
+      doPFIsoPlots(muon);
       FillHistos();
     }
     else if (requireTRKMuon && muon->isTrackerMuon()) {
       ++nTRKMuons;
       RecordData(muon);
+      doPFIsoPlots(muon);
       FillHistos();
     }
     else if (requireGLBMuon && muon->isGlobalMuon()) {
       ++nGLBMuons;
       RecordData(muon);
+      doPFIsoPlots(muon);
       FillHistos();
     }
   }
@@ -365,6 +489,36 @@ void MuonIsolationDQM::RecordData(MuonIterator muon){
   else theData[22] = -99;
 
   theData[23] = 1.5 * theData[13] + theData[14];
+
+  theData[24] = (theData[0]+theData[1]+theData[2]) / muon->pt(); 
+  theData[25] = (theData[12]+theData[13]+theData[14]) / muon->pt(); 
+ 
+
+}
+
+//---------------Record data for a signle muon's data---------------------
+void MuonIsolationDQM::doPFIsoPlots(MuonIterator muon){
+
+  theData[26] = muon->pfIsolationR03().sumChargedHadronPt;
+  theData[27] = muon->pfIsolationR03().sumNeutralHadronEt;
+  theData[28] = muon->pfIsolationR03().sumPhotonEt; 
+  theData[29] = muon->pfIsolationR03().sumNeutralHadronEtHighThreshold;
+  theData[30] = muon->pfIsolationR03().sumPhotonEtHighThreshold; 
+  theData[31] = muon->pfIsolationR03().sumPUPt;
+
+  theData[32] = muon->pfIsolationR04().sumChargedHadronPt;
+  theData[33] = muon->pfIsolationR04().sumNeutralHadronEt;
+  theData[34] = muon->pfIsolationR04().sumPhotonEt; 
+  theData[35] = muon->pfIsolationR04().sumNeutralHadronEtHighThreshold;
+  theData[36] = muon->pfIsolationR04().sumPhotonEtHighThreshold; 
+  theData[37] = muon->pfIsolationR04().sumPUPt;
+
+  theData[38] = (theData[26] + theData[27] + theData[28]) / muon->pt();
+  theData[39] = (theData[32] + theData[33] + theData[34]) / muon->pt();
+
+  theData[40] = (theData[26] + theData[29] + theData[30]) / muon->pt();
+  theData[41] = (theData[32] + theData[35] + theData[36]) / muon->pt();
+
 
 }
 
