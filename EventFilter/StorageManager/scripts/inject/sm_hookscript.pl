@@ -12,6 +12,17 @@ use Getopt::Long;
 my $lookfreq   = 20;                       #copy cycle: copy every n-th LumiSec
 my $lookhosts  = 16;                       #max-number of hosts assumed
 my $lookmodulo = $lookfreq * $lookhosts;
+
+# Global defaults, overridden depending on streams
+my $copycommand  = "$ENV{SMT0_BASE_DIR}/sm_nfscopy.sh";
+my $nfsserver    = '';
+my $filepathname = "$pathname/$filename";
+my $target       = '';
+my $parallel  = 10;                        # Allow 10 instances of sm_nfscopy.sh
+my $retries   = 1;                         # Default: do not retry
+my $copydelay = 3;
+my $delete    = $stream =~ '_NoTransfer$';
+
 my (
     $appname,  $appversion, $runnumber,   $lumisection, $filename,
     $pathname, $hostname,   $destination, $setuplabel,  $stream,
@@ -42,14 +53,6 @@ GetOptions(
     "FILECOUNTER=i" => \$count,
 );
 
-my $copycommand  = "$ENV{SMT0_BASE_DIR}/sm_nfscopy.sh";
-my $nfsserver    = '';
-my $filepathname = "$pathname/$filename";
-my $target       = '';
-my $parallel = 10;                         # Allow 10 instances of sm_nfscopy.sh
-my $retries  = 1;                          # Default: do not retry
-my $delete   = $stream =~ '_NoTransfer$';
-
 # special treatment for EcalCalibration
 if ( $stream eq "EcalCalibration" || $stream =~ '_EcalNFS$' ) {
     $nfsserver = $ENV{'SM_CALIB_NFS'};
@@ -57,7 +60,7 @@ if ( $stream eq "EcalCalibration" || $stream =~ '_EcalNFS$' ) {
       $ENV{SM_CALIBAREA} . '/'
       . ( $hostname eq 'srv-C2D05-02' ? 'minidaq' : 'global' );
     $parallel = 5;
-    $retries  = 2;                         # Retry once
+    $retries  = 2;    # Retry once
     $delete   = 1;
 }
 
@@ -70,11 +73,11 @@ elsif ( $nfsserver = $ENV{'SM_LA_NFS'} ) {
         $parallel = 10;
     }
 }
-my $copyresult = 1;    # Assume it failed
 if ( $nfsserver && $target ) {
-    while ( $copyresult && $retries-- ) {
-        $copyresult =
-          system( $copycommand, $nfsserver, $filepathname, $target, $parallel );
+    while (
+        system( $copycommand, $nfsserver, $filepathname, $target, $parallel )
+        && $retries-- )
+    {
         sleep($copydelay) if $retries;
     }
 }
