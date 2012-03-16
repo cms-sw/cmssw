@@ -67,6 +67,11 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
+<library file="TestDIPLumiProducer.cc" name="TestDIPLumiProducer">
+  <use name="RecoLuminosity/LumiProducer"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <library file="testEvtLoop.cc" name="testEvtLoop">
   <flags EDM_PLUGIN="1"/>
 </library>
