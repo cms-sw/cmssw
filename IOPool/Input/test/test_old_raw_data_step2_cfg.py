@@ -11,6 +11,10 @@ process.source = cms.Source("PoolSource",
    )
 )
 
-process.eca= cms.EDAnalyzer("EventContentAnalyzer")
+process.eca= cms.EDAnalyzer("EventContentAnalyzer",
+   getData = cms.untracked.bool(True),
+   listContent = cms.untracked.bool(False)
+)
+
 process.p = cms.Path(process.eca)
 
