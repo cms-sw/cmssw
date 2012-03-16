@@ -16,7 +16,9 @@
 </library>
 <library   file="RFIODPMPlugin.cc" name="RFIODPMPlugin">
   <use   name="Utilities/RFIOAdaptor"/>
-  <use   name="dpm"/>
+  # Not linking against libdpm directly since we load it
+  # via dlopen at runtime.
+  #<use   name="dpm"/>
   <flags   EDM_PLUGIN="1"/>
   <flags   cppflags="-D_FILE_OFFSET_BITS=64"/>
 </library>
