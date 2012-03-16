@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2011/09/20 14:57:56 $
- *  $Revision: 1.52 $
+ *  $Date: 2011/10/03 14:50:30 $
+ *  $Revision: 1.53 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -1458,9 +1458,12 @@ void MuScleFitUtils::minimizeLikelihood()
 	  std::pair<double, double> windowBorder = backgroundHandler->windowBorders( doBackgroundFit[loopCounter], ires );
           // if( resfind[ires] && checkMassWindow( mass, ires, backgroundHandler->resMass( doBackgroundFit[loopCounter], ires ),
           //                                       0.9*windowFactor.first, 0.9*windowFactor.second ) ) {
-	  double resMassValue = backgroundHandler->resMass( doBackgroundFit[loopCounter], ires );
-	  double windowBorderLeft = resMassValue - protectionFactor*(resMassValue - windowBorder.first);
-	  double windowBorderRight = resMassValue + protectionFactor*(windowBorder.second - resMassValue);
+	  // double resMassValue = backgroundHandler->resMass( doBackgroundFit[loopCounter], ires );
+	  // double windowBorderLeft = resMassValue - protectionFactor*(resMassValue - windowBorder.first);
+	  // double windowBorderRight = resMassValue + protectionFactor*(windowBorder.second - resMassValue);
+	  double windowBorderShift = (windowBorder.second - windowBorder.first)*(1-protectionFactor)/2.;
+	  double windowBorderLeft = windowBorder.first + windowBorderShift;
+	  double windowBorderRight = windowBorder.second - windowBorderShift;
           if( resfind[ires] && checkMassWindow( mass, windowBorderLeft, windowBorderRight ) ) {
             check = true;
           }
