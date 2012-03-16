@@ -1,11 +1,11 @@
-# /online/collisions/2012/5e33/v4.1/HLT/V4 (CMSSW_5_2_0_HLT2)
+# /online/collisions/2012/5e33/v4.1/HLT/V5 (CMSSW_5_2_0_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/5e33/v4.1/HLT/V4')
+  tableName = cms.string('/online/collisions/2012/5e33/v4.1/HLT/V5')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -27833,8 +27833,8 @@ HLT_PFMHT150_v19 = cms.Path( HLTBeginSequence + hltL1sL1ETM36ORETM40 + hltPrePFM
 HLT_PFMHT180_v1 = cms.Path( HLTBeginSequence + hltL1sL1ETM36ORETM40 + hltPrePFMHT180 + HLTRecoMETSequence + hltMET80 + HLTPFReconstructionSequence + hltPFMHTProducer + hltPFMHT180Filter + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_DiCentralPFJet30_PFMHT80_v3 = cms.Path( HLTBeginSequence + hltL1sL1ETM36OR40 + hltPreDiCentralPFJet30PFMHT80 + HLTRecoMETSequence + hltMET80 + HLTRecoJetSequenceAK5Corrected + hltDiCentralJet20 + HLTPFReconstructionSequence + hltPFMHTDiPFJet30 + hltPFMHT80HT60 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_DiCentralPFJet50_PFMET80_v1 = cms.Path( HLTBeginSequence + hltL1sL1DoubleJetC36ETM30 + hltPreDiCentralPFJet50PFMET80 + HLTRecoMETSequence + hltMET80 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltDiCentralJet20L1FastJetCorrected + HLTPFReconstructionSequence + hltPFMHTDiPFJet50 + hltPFMHT80HT100 + cms.SequencePlaceholder( "HLTEndSequence" ) )
-HLT_DiCentralPFJet30_CaloMET50_PFMHT80_HBHENoiseFiltered_dPhi1_v1 = cms.Path( HLTBeginSequence + hltL1sL1ETM36OR40 + hltPreDiCentralPFJet30CaloMET50PFMHT80HBHENoiseFiltereddPhi1 + HLTRecoMETSequence + hltMET50 + HLTHBHENoiseCleanerSequence + hltMetClean + hltMET25 + HLTRecoJetSequenceAK5Corrected + hltDiCentralJet20 + HLTPFReconstructionSequence + hltPFMHTDiPFJet30 + hltPFMHT80HT60 + hltCentralPFJets30 + hlt2CaloJetMETMHTdPhi1 + cms.SequencePlaceholder( "HLTEndSequence" ) )
-HLT_CentralPFJet80_CaloMET50_PFMHT80_HBHENoiseFiltered_dPhi1_v1 = cms.Path( HLTBeginSequence + hltL1sL1ETM36OR40 + hltPreCentralCaloJet50PFJet80CaloMET50PFMHT80HBHENoiseFiltereddPhi1 + HLTRecoMETSequence + hltMET50 + HLTHBHENoiseCleanerSequence + hltMetClean + hltMET25 + HLTRecoJetSequenceAK5Corrected + hltCentralJet50 + HLTPFReconstructionSequence + hltPFMHTPFJet80 + hltPFMHT80HT80 + hltCentralPFJets30 + hlt2BoostedCaloJet80METMHT80dPhi1 + cms.SequencePlaceholder( "HLTEndSequence" ) )
+HLT_DiCentralPFJet30_CaloMET50_PFMHT80_HBHENoiseFiltered_dPhi1_v1 = cms.Path( HLTBeginSequence + hltL1sL1ETM36OR40 + hltPreDiCentralPFJet30CaloMET50PFMHT80HBHENoiseFiltereddPhi1 + HLTRecoMETSequence + hltMET50 + HLTHBHENoiseCleanerSequence + hltMetClean + hltMET25 + HLTRecoJetSequenceAK5Corrected + hltDiCentralJet20 + HLTPFReconstructionSequence + hltPFMHTDiPFJet30 + hltPFMHT80HT60 + hltCentralPFJets30 + ~hlt2CaloJetMETMHTdPhi1 + cms.SequencePlaceholder( "HLTEndSequence" ) )
+HLT_CentralPFJet80_CaloMET50_PFMHT80_HBHENoiseFiltered_dPhi1_v1 = cms.Path( HLTBeginSequence + hltL1sL1ETM36OR40 + hltPreCentralCaloJet50PFJet80CaloMET50PFMHT80HBHENoiseFiltereddPhi1 + HLTRecoMETSequence + hltMET50 + HLTHBHENoiseCleanerSequence + hltMetClean + hltMET25 + HLTRecoJetSequenceAK5Corrected + hltCentralJet50 + HLTPFReconstructionSequence + hltPFMHTPFJet80 + hltPFMHT80HT80 + hltCentralPFJets30 + ~hlt2BoostedCaloJet80METMHT80dPhi1 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_MET80_v1 = cms.Path( HLTBeginSequence + hltL1sL1ETM36 + hltPreMET80 + HLTRecoMETSequence + hltMET80 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_MET80_Track50_dEdx3p6_v1 = cms.Path( HLTBeginSequence + hltL1sL1ETM36 + hltPreMET80Track50dEdx3p6 + HLTRecoMETSequence + hltMET80 + HLTPFReconstructionDEDXSequence + hltDeDxEstimatorProducer + hltDeDxFilter50DEDX3p6 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_MET80_Track60_dEdx3p7_v1 = cms.Path( HLTBeginSequence + hltL1sL1ETM36 + hltPreMET80Track60dEdx3p7 + HLTRecoMETSequence + hltMET80 + HLTPFReconstructionDEDXSequence + hltDeDxEstimatorProducer + hltDeDxFilter60DEDX3p7 + cms.SequencePlaceholder( "HLTEndSequence" ) )
