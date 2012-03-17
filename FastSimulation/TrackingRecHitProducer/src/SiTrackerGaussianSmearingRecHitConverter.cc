@@ -81,7 +81,8 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   thePixelForwardResolutionFile = 0;
   thePixelBarrelParametrization = 0;
   thePixelEndcapParametrization = 0;
-  theSiStripErrorParametrization = 0; 
+  theSiStripErrorParametrization = 0;
+  numberOfDisabledModules = 0;
 
   random = 0;
 
