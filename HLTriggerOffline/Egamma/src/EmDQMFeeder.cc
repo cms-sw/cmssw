@@ -6,7 +6,7 @@
 //
 // Original Author:  Thomas Reis,40 4-B24,+41227671567,
 //         Created:  Tue Mar 15 12:24:11 CET 2011
-// $Id: EmDQMFeeder.cc,v 1.21 2011/07/11 16:56:43 treis Exp $
+// $Id: EmDQMFeeder.cc,v 1.22 2011/09/01 13:12:48 treis Exp $
 //
 //
 
@@ -653,7 +653,8 @@ EmDQMFeeder::makePSetForEgammaGenericFilter(const std::string& moduleName)
       inputType == "EgammaHLTR9IDProducer" ||                     // R9 ID
       inputType == "EgammaHLTClusterShapeProducer" ||             // cluster shape
       inputType == "EgammaHLTEcalRecIsolationProducer" ||         // ecal isolation
-      inputType == "EgammaHLTHcalIsolationProducersRegional"      // HCAL isolation and HE
+      inputType == "EgammaHLTHcalIsolationProducersRegional" ||   // HCAL isolation and HE
+      inputType == "EgammaHLTGsfTrackVarProducer"                 // GSF track deta and dphi filter
      ) {
     retPSet.addParameter<std::vector<double> >("PlotBounds", std::vector<double>(2, 0.0));
     //retPSet.addParameter<edm::InputTag>("HLTCollectionLabels", edm::InputTag(moduleName, "", processName_));
