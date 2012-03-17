@@ -8,13 +8,9 @@ process.MessageLogger.cerr.threshold = 'INFO'
 
 ## define input
 from Configuration.AlCa.autoCond import autoCond
-from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesSingleMuRECO
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_0_0'
-                                                          , relVal        = 'SingleMu'
-                                                          , dataTier      = 'RECO'
-                                                          , globalTag     = 'GR_R_50_V6_RelVal_mu2011B'
-                                                          , maxVersions   = 3 ))
+    fileNames = cms.untracked.vstring( filesSingleMuRECO )
 )
 ## define maximal number of events to loop over
 process.maxEvents = cms.untracked.PSet(
