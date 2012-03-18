@@ -22,7 +22,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "TH1D.h"
 #include <map>
-// system include files
 #include <memory>
 #include <vector>
 
