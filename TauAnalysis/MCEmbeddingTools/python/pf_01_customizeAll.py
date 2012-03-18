@@ -256,24 +256,49 @@ def customise(process):
 
 
   process.particleFlowORG = process.particleFlow.clone()
-  if hasattr(process,"famosParticleFlowSequence"):
-    process.famosParticleFlowSequence.remove(process.pfPhotonTranslatorSequence)
-    process.famosParticleFlowSequence.remove(process.pfElectronTranslatorSequence)
-    process.famosParticleFlowSequence.remove(process.particleFlow)
-    process.famosParticleFlowSequence.__iadd__(process.particleFlowORG)
-    process.famosParticleFlowSequence.__iadd__(process.particleFlow)
-    process.famosParticleFlowSequence.__iadd__(process.pfElectronTranslatorSequence)
-    process.famosParticleFlowSequence.__iadd__(process.pfPhotonTranslatorSequence)
-  elif hasattr(process,"particleFlowReco"):
-    process.particleFlowReco.remove(process.pfPhotonTranslatorSequence)
-    process.particleFlowReco.remove(process.pfElectronTranslatorSequence)
-    process.particleFlowReco.remove(process.particleFlow)
-    process.particleFlowReco.__iadd__(process.particleFlowORG)
-    process.particleFlowReco.__iadd__(process.particleFlow)
-    process.particleFlowReco.__iadd__(process.pfElectronTranslatorSequence)
-    process.particleFlowReco.__iadd__(process.pfPhotonTranslatorSequence)
-  else :
-    raise "Cannot find tracking sequence"
+
+  # Since CMSSW 4_4 the particleFlow reco works a bit differently. The step is
+  # twofold, first particleFlowTmp is created and then the final particleFlow
+  # collection. What we do in this case is that we merge the final ParticleFlow
+  # collection. For the muon reconstruction, we also merge particleFlowTmp in
+  # order to get PF-based isolation right.
+  if hasattr(process, 'particleFlowTmp'):
+    process.particleFlowTmpMixed = cms.EDProducer('PFCandidateMixer',
+      col1 = cms.untracked.InputTag("removedInputMuons","pfCands"),
+      col2 = cms.untracked.InputTag("particleFlowTmp", ""),
+      trackCol = cms.untracked.InputTag("tmfTracks")
+    )
+    process.muons.PFCandidates = cms.InputTag("particleFlowTmpMixed")
+
+    for p in process.paths:
+      if "particleFlow" in pth.moduleNames():
+        pth.replace(process.particleFlow, process.particleFlowORG*process.particleFlow)
+      if "muons" in pth.moduleNames():
+        pth.replace(process.muons, process.particleFlowTmpMixed*process.muons)
+  else:
+    # CMSSW_4_2
+    if hasattr(process,"famosParticleFlowSequence"):
+      process.famosParticleFlowSequence.remove(process.pfPhotonTranslatorSequence)
+      process.famosParticleFlowSequence.remove(process.pfElectronTranslatorSequence)
+      process.famosParticleFlowSequence.remove(process.particleFlow)
+      process.famosParticleFlowSequence.__iadd__(process.particleFlowORG)
+      process.famosParticleFlowSequence.__iadd__(process.particleFlow)
+      process.famosParticleFlowSequence.__iadd__(process.pfElectronTranslatorSequence)
+      process.famosParticleFlowSequence.__iadd__(process.pfPhotonTranslatorSequence)
+    elif hasattr(process,"particleFlowReco"):
+      process.particleFlowReco.remove(process.pfPhotonTranslatorSequence)
+      process.particleFlowReco.remove(process.pfElectronTranslatorSequence)
+      process.particleFlowReco.remove(process.particleFlow)
+      process.particleFlowReco.__iadd__(process.particleFlowORG)
+      process.particleFlowReco.__iadd__(process.particleFlow)
+      process.particleFlowReco.__iadd__(process.pfElectronTranslatorSequence)
+      process.particleFlowReco.__iadd__(process.pfPhotonTranslatorSequence)
+    else :
+      raise "Cannot find particleFlow sequence"
+
+      process.pfSelectedElectrons.src = cms.InputTag("particleFlowORG")
+      process.pfSelectedPhotons.src   = cms.InputTag("particleFlowORG")
+
 
   process.particleFlow =  cms.EDProducer('PFCandidateMixer',
           col1 = cms.untracked.InputTag("removedInputMuons","pfCands"),
@@ -313,9 +338,6 @@ def customise(process):
      #if (seqVis.catch==1):
        #seqVis.catch=0
        #i.__iadd__(source)
-
-  process.pfSelectedElectrons.src = cms.InputTag("particleFlowORG")
-  process.pfSelectedPhotons.src   = cms.InputTag("particleFlowORG")
 
 
   #'''
