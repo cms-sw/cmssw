@@ -37,7 +37,7 @@ class TagCollector(object):
 			data = urllib.urlencode(data)
 		try:
 			return self._opener.open(url, data).read()
-		except urllib2.HTTPError as e:
+		except urllib2.HTTPError, e:
 			raise Exception(e.read().strip())
 
 	def _openjson(self, page, params = None, data = None):
