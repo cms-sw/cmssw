@@ -69,17 +69,6 @@ else {
     exit 1;
 }
 
-my $globaltag;
-open(CMSENV, "<$cmsenv");
-while(<CMSENV>){
-    my($line) = $_;
-    chomp($line);
-    if($line =~ /^[ ]*globaltag[=]([A-Z0-9_]+)[ ]*$/) {
-	$globaltag = $1;
-    }
-}
-close(CMSENV);
-
 my $workdir = "$config{'ec_mon_master_rundir'}/dqm-data/tmp";
 my $cfgfile = "$workdir/monitor-$runnum.py";
 
@@ -122,9 +111,7 @@ else {
   exit 1;
 }
 
-system("python ~ecalpro/DQM/tools/ecalConfigBuilder.py -e $environment -c $cfgtype -f $cfgfile --source='$sourceFiles' -g '$globaltag'");
-
-my $task = "source $cmsenv; cd $workdir ; time cmsRun $cfgfile";
+my $task = "source $cmsenv; python ~ecalpro/DQM/tools/ecalConfigBuilder.py -e $environment -c $cfgtype -f $cfgfile --source='$sourceFiles' -g " + '$globaltag' + "; cd $workdir; time cmsRun $cfgfile";
 
 my $logdir = "$config{'ec_mon_master_rundir'}/dqm-data/logs";
 my $logfile = "$logdir/$runnum.cmssw.log";
