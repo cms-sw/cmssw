@@ -27,18 +27,27 @@ require "ec_mon_utils.pl";
 
 ec_mon_conf_file();
 
+my $statusdir = "$config{'ec_mon_master_rundir'}/dqm-data/status/";
+
 my ($loc, $num, $lun, $out, $fun, $fil, $ful) = split('\.', $runnum);
 
 if ( $runnum ) {
-  exit 0 unless ( -e "$config{'ec_mon_master_rundir'}/dqm-data/status/.$runnum.PEDESTAL-OFFSET_SCAN.daq_done" ||
-                  -e "$config{'ec_mon_master_rundir'}/dqm-data/status/.$runnum.PEDESTAL-OFFSET_SCAN.mon_run" ||
-                  -e "$config{'ec_mon_master_rundir'}/dqm-data/status/.$runnum.PEDESTAL-OFFSET_SCAN.mon_done" ||
-                  -e "$config{'ec_mon_master_rundir'}/dqm-data/status/.$runnum.PEDESTAL-OFFSET_SCAN.mon_fail" );
+  exit 0 unless ( -e "$statusdir/.$runnum.PEDESTAL-OFFSET_SCAN.daq_done" ||
+                  -e "$statusdir/.$runnum.PEDESTAL-OFFSET_SCAN.mon_run" ||
+                  -e "$statusdir/.$runnum.PEDESTAL-OFFSET_SCAN.mon_done" ||
+                  -e "$statusdir/.$runnum.PEDESTAL-OFFSET_SCAN.mon_fail" );
 }
 
-my @filelist = split('\n', `find $config{'ec_mon_master_rundir'}/daq-data/ -maxdepth 1 \\( -name 'ecal_local.$num.*.A.$fun.*.*.dat' -or -name 'Global*.$num.*.A.$fun.*.*.dat' -or -name 'MW*.$num.*.A.$fun.*.*.dat' -or -name 'PrivCal*.$num.*.A.$fun.*.*.dat' -or -name 'TransferTestWithSafety.$num.*.A.$fun.*.*.dat' -or -name 'CRUZET*.$num.*.A.$fun.*.*.dat' -or -name 'CRAFT*.$num.*.A.$fun.*.*.dat' -or -name 'Commissioning*.$num.*.A.$fun.*.*.dat' -or -name 'Run*.$num.*.A.$fun.*.*.dat' -or -name 'Data.$num.*.A.$fun.*.*.dat' -or -name 'Minidaq.$num.*.A.$fun.*.*.dat' -or -name 'PrivMinidaq.$num.*.A.$fun.*.*.dat' \\) -printf '%f\n' 2>&1 | sort`);
+my $daqdir = "$config{'ec_mon_master_rundir'}/daq-data";
+my $trashdir = "$config{'ec_mon_master_rundir'}/daq-data/trash";
 
-my @filelist_archived = split('\n', `find $config{'ec_mon_master_rundir'}/daq-data/trash/ -maxdepth 1 \\( -name 'ecal_local.$num.*.A.$fun.*.*.dat' -or -name 'Global*.$num.*.A.$fun.*.*.dat' -or -name 'MW*.$num.*.A.$fun.*.*.dat' -or -name 'PrivCal*.$num.*.A.$fun.*.*.dat' -or -name 'TransferTestWithSafety.$num.*.A.$fun.*.*.dat' -or -name 'CRUZET*.$num.*.A.$fun.*.*.dat' -or -name 'CRAFT*.$num.*.A.$fun.*.*.dat' -or -name 'Commissioning*.$num.*.A.$fun.*.*.dat' -or -name 'Run*.$num.*.A.$fun.*.*.dat' -or -name 'Data.$num.*.A.$fun.*.*.dat' -or -name 'Minidaq.$num.*.A.$fun.*.*.dat' -or -name 'PrivMinidaq.$num.*.A.$fun.*.*.dat' \\) -printf '%f\n' 2>&1 | sort`);
+my $command = ec_mon_filelist("$daqdir/", $num, $fun);
+
+my @filelist = split('\n', `$command`);
+
+$command = ec_mon_filelist("$trashdir/", $num, $fun);
+
+my @filelist_archived = split('\n', `$command`);
 
 if ( $runnum ) {
   exit 1 unless ( @filelist != 0 ||
@@ -59,21 +68,21 @@ my $cmssw_setup;
 my $cmssw_path;
 
 if ( $config{'ec_mon_path'} =~ /localDAQ/ ) {
-  $cmssw_arch = "slc4_ia32_gcc345";
-  $cmssw_setup = "/nfshome0/cmssw/scripts/setup.sh";
-  $cmssw_path = "/nfshome0/ecalpro/DQM/CMSSW_3_3_5";
+  $cmssw_arch = "slc5_amd64_gcc461";
+  $cmssw_setup = "/nfshome0/cmssw2/scripts/setup.sh";
+  $cmssw_path = "/nfshome0/ecalpro/DQM/CMSSW_5_0_1_patch2";
 }
 
 if ( $config{'ec_mon_path'} =~ /globalDAQ/ ) {
-  $cmssw_arch = "slc5_amd64_gcc434";
+  $cmssw_arch = "slc5_amd64_gcc461";
   $cmssw_setup = "/nfshome0/cmssw2/scripts/setup.sh";
-  $cmssw_path = "/nfshome0/ecalpro/DQM/CMSSW_4_2_6";
+  $cmssw_path = "/nfshome0/ecalpro/DQM/CMSSW_5_0_1_patch2";
 }
 
 if ( @filelist != 0 && $filelist[0] =~ /^Minidaq/ ) {
-  $cmssw_arch = "slc5_amd64_gcc434";
+  $cmssw_arch = "slc5_amd64_gcc461";
   $cmssw_setup = "/nfshome0/cmssw2/scripts/setup.sh";
-  $cmssw_path = "/nfshome0/ecalpro/DQM/CMSSW_4_1_2";
+  $cmssw_path = "/nfshome0/ecalpro/DQM/CMSSW_5_0_1_patch2";
 }
 
 my $xml_path = "/nfshome0/ecalpro/XML-DQM";
@@ -82,11 +91,14 @@ exit 1 unless ( -e "$cmssw_path" );
 
 my $task;
 
-if ( -e "$config{'ec_mon_master_rundir'}/dqm-data/tmp/pedestal-offset-$runnum.py" ) {
-  system("rm -f $config{'ec_mon_master_rundir'}/dqm-data/tmp/pedestal-offset-$runnum.py >> /dev/null 2>&1");
+my $workdir = "$config{'ec_mon_master_rundir'}/dqm-data/tmp";
+my $cfgfile = "$workdir/monitor-$runnum.py";
+
+if ( -e "$workdir/pedestal-offset-$runnum.py" ) {
+  system("rm -f $workdir/pedestal-offset-$runnum.py >> /dev/null 2>&1");
 }
 
-open CONFIGFILE, ">>$config{'ec_mon_master_rundir'}/dqm-data/tmp/pedestal-offset-$runnum.py";
+open CONFIGFILE, ">>$workdir/pedestal-offset-$runnum.py";
 
 print CONFIGFILE <<EOF1;
 import FWCore.ParameterSet.Config as cms
@@ -283,27 +295,31 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.p = cms.Path(process.ecalEBunpacker*process.ecalPedOffset)
 process.q = cms.EndPath(process.printAscii)
 
-process.ecalEBunpacker.silentMode = False
+process.ecalEBunpacker.silentMode = True
+#process.ecalEBunpacker.InputLabel = cms.InputTag('rawDataCollector')
 
 EOF3
 
 close CONFIGFILE;
 
-$task = "export SCRAM_ARCH=$cmssw_arch ; source $cmssw_setup ; cd $cmssw_path ; eval `scramv1 runtime -sh` ; cd $config{'ec_mon_master_rundir'}/dqm-data/tmp/ ; time cmsRun pedestal-offset-$runnum.py";
+$task = "export SCRAM_ARCH=$cmssw_arch ; source $cmssw_setup ; cd $cmssw_path ; eval `scramv1 runtime -sh` ; cd $workdir ; time cmsRun pedestal-offset-$runnum.py";
 
-if ( -e "$config{'ec_mon_master_rundir'}/dqm-data/logs/pedestal-offset-$runnum.log" ) {
-  system("rm -f $config{'ec_mon_master_rundir'}/dqm-data/logs/pedestal-offset-$runnum.log >> /dev/null 2>&1");
+my $logdir = "$config{'ec_mon_master_rundir'}/dqm-data/logs";
+my $xmldir = "$config{'ec_mon_master_rundir'}/dqm-data/xml";
+
+if ( -e "$logdir/pedestal-offset-$runnum.log" ) {
+  system("rm -f $logdir/pedestal-offset-$runnum.log >> /dev/null 2>&1");
 }
 
-my $status = system("($task) > $config{'ec_mon_master_rundir'}/dqm-data/logs/pedestal-offset-$runnum.log 2>&1");
+my $status = system("($task) > $logdir/pedestal-offset-$runnum.log 2>&1");
 
-system("mv -f $config{'ec_mon_master_rundir'}/dqm-data/tmp/pedestal-offset-$runnum.py $config{'ec_mon_master_rundir'}/dqm-data/logs/ >> /dev/null 2>&1");
+system("mv -f $workdir/pedestal-offset-$runnum.py $logdir/ >> /dev/null 2>&1");
 
-system("mv -f $config{'ec_mon_master_rundir'}/dqm-data/tmp/pedestal-offset-$runnum\_*.xml $config{'ec_mon_master_rundir'}/dqm-data/xml/ >> /dev/null 2>&1");
+system("mv -f $workdir/pedestal-offset-$runnum\_*.xml $xmldir/ >> /dev/null 2>&1");
 
-system("cp $config{'ec_mon_master_rundir'}/dqm-data/xml/pedestal-offset-$runnum\_*.xml $xml_path/ >> /dev/null 2>&1");
+system("cp $xmldir/pedestal-offset-$runnum\_*.xml $xml_path/ >> /dev/null 2>&1");
 
-system("mv -f $config{'ec_mon_master_rundir'}/dqm-data/tmp/pedestal-offset-$runnum.root $config{'ec_mon_master_rundir'}/dqm-data/xml/ >> /dev/null 2>&1");
+system("mv -f $workdir/pedestal-offset-$runnum.root $xmldir/ >> /dev/null 2>&1");
 
 exit $status >> 8;
 

@@ -323,7 +323,9 @@ sub get_runs {
 
   my %filelist;
 
-  open ( LIST, "find $config{'ec_mon_master_rundir'}/daq-data/ -maxdepth 1 \\( -name 'ecal_local.*.*.A.*.*.*.dat' -or -name 'ecal_local.*.*.A.*.*.*.archived' -or -name 'Global*.*.*.A.*.*.*.dat' -or -name 'MW*.*.*.A.*.*.*.dat' -or -name 'PrivCal*.*.*.A.*.*.*.dat' -or -name 'TransferTestWithSafety.*.*.A.*.*.*.dat' -or -name 'CRUZET*.*.*.A.*.*.*.dat' -or -name 'CRAFT*.*.*.A.*.*.*.dat' -or -name 'Commissioning*.*.*.A.*.*.*.dat' -or -name 'Run*.*.*.A.*.*.*.dat' -or -name 'Data.*.*.A.*.*.*.dat' -or -name 'Minidaq.*.*.A.*.*.*.dat' -or -name 'PrivMinidaq.*.*.A.*.*.*.dat' \\) -printf '%f\n' 2>&1 | sort |");
+  my $command = ec_mon_filelist("$config{'ec_mon_master_rundir'}/daq-data/", "*", "*");
+
+  open ( LIST, "$command |");
   while ( <LIST> ) {
     my @fields = split('\.', $_);
     $filelist{ $fields[1] } = $_;

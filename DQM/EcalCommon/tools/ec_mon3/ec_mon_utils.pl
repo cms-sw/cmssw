@@ -102,6 +102,36 @@ sub ec_mon_conf_file {
 
 }
 
+sub ec_mon_filelist {
+    my $searchdir = $_[0];
+    my $num = $_[1];
+    my $fun = $_[2];
+
+    my @namelist = (
+		    "ecal_local.$num.*.A.$fun.*.*.dat",
+		    "Global*.$num.*.A.$fun.*.*.dat",
+		    "MW*.$num.*.A.$fun.*.*.dat",
+		    "PrivCal*.$num.*.A.$fun.*.*.dat",
+		    "TransferTestWithSafety.$num.*.A.$fun.*.*.dat",
+		    "CRUZET*.$num.*.A.$fun.*.*.dat",
+		    "CRAFT*.$num.*.A.$fun.*.*.dat",
+		    "Commissioning*.$num.*.A.$fun.*.*.dat",
+		    "Run*.$num.*.A.$fun.*.*.dat",
+		    "Data.$num.*.A.$fun.*.*.dat",
+#		    "Minidaq.$num.*.A.$fun.*.*.dat",
+		    "Minidaq.$num.*.Calibration.$fun.*.*.dat",
+		    "PrivMinidaq.$num.*.A.$fun.*.*.dat"
+		    );
+
+    my $result = "find $searchdir -maxdepth 1 \\( -name '$namelist[0]'";
+    for (my $i = 1; $i < @namelist; $i++) {
+	$result = "$result -or -name '$namelist[$i]'";
+    }
+    $result = "$result \\) -printf '%f\n' 2>&1 | sort";
+
+    return $result;
+}
+
 ############################################################################
 
 1;

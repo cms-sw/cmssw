@@ -1,4 +1,5 @@
 from optparse import OptionParser
+import re
 
 # get options
 optparser = OptionParser()
@@ -8,8 +9,8 @@ optparser.add_option("-c", "--config", dest = "config",
                    help = "CONFIG=(Physics|Calibration)", metavar = "CONFIG")
 optparser.add_option("-f", "--file", dest = "filename", default = "",
                    help = "write to FILE (optional)", metavar = "FILE")
-optparser.add_option("-s", "--source", dest = "sourceFile", default = "",
-                     help = "use FILE as source", metavar = "FILE")
+optparser.add_option("-s", "--source", dest = "sourceFiles", default = "",
+                     help = "use FILELIST (space separated) as source", metavar = "FILELIST")
 optparser.add_option("-g", "--gtag", dest = "gtag", default = "",
                      help = "global tag", metavar = "TAG")
 optparser.add_option("-r", "--runtype", dest = "runtype", default = "",
@@ -36,7 +37,7 @@ else :
     exit
 
 filename = options.filename
-sourceFile = options.sourceFile
+sourceFiles = re.sub(r'([^ ]+)[ ]?', r'    "file:\1",\n', options.sourceFiles)
 gtag = options.gtag
 runtype = options.runtype
 
@@ -71,7 +72,7 @@ if not P5 and not gtag :
     optparser.error("Global tag must be given for non-central DQM cfg")
     exit
 
-if not live and not sourceFile :
+if not live and not sourceFiles :
     optparser.error("Source file name not given for offline DQM")
     exit
 
@@ -495,8 +496,6 @@ process.source = cms.Source("NewEventStreamFileReader")
         source += '''
 process.source = cms.Source("PoolSource")
 '''
-        
-    source += 'process.source.fileNames = cms.untracked.vstring("file:'+sourceFile+'")' + "\n"
 
 customizations += '''
 
@@ -724,7 +723,17 @@ if live and privEcal :
     customizations += '''
 process.DQM.collectorHost = "ecalod-web01.cms"
 '''
+
+customizations += '''
+ ## Source ##
+'''
+if live :
     customizations += 'process.source.consumerName = cms.untracked.string("' + configuration + ' DQM Consumer")' + "\n"
+else :
+    customizations += '''
+process.source.fileNames = cms.untracked.vstring(
+''' + sourceFiles + ''')
+'''
 
 if central :
     customizations += '''
@@ -737,7 +746,9 @@ elif process.runType.getRunType() == process.runType.hpu_run:
 '''
 
 FedRawData = 'rawDataCollector'
-HIFedRawData = 'rawDataRepacker'    
+HIFedRawData = 'rawDataRepacker'
+if configuration == 'EcalCalibration' :
+    FedRawData = 'hltEcalCalibrationRaw'
     
 customizations += '''
  ## FEDRawDataCollection name ##

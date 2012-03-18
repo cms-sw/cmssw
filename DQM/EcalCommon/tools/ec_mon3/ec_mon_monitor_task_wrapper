@@ -23,13 +23,20 @@ ec_mon_conf_file();
 
 exit 1 unless ( -e "$config{'ec_mon_master_rundir'}/dqm-data/status/.$runnum.daq_done" );
 
+my $daqdir = "$config{'ec_mon_master_rundir'}/daq-data";
+my $trashdir = "$config{'ec_mon_master_rundir'}/daq-data/trash";
+
 my ($loc, $num, $lun, $out, $fun, $fil, $ful, $typ) = split('\.', "$runnum");
 
 my $runfil = "$loc.$num.$lun.$out.$fun.$fil.$ful";
 
-my @filelist = split('\n', `find $config{'ec_mon_master_rundir'}/daq-data/ -maxdepth 1 \\( -name 'ecal_local.$num.*.A.$fun.*.*.dat' -or -name 'Global*.$num.*.A.$fun.*.*.dat' -or -name '*MW*.$num.*.A.$fun.*.*.dat' -or -name 'PrivCal*.$num.*.A.$fun.*.*.dat' -or -name 'TransferTestWithSafety.$num.*.A.$fun.*.*.dat' -or -name 'CRUZET*.$num.*.A.$fun.*.*.dat' -or -name 'CRAFT*.$num.*.A.$fun.*.*.dat' -or -name 'Commissioning*.$num.*.A.$fun.*.*.dat' -or -name 'Run*.$num.*.A.$fun.*.*.dat' -or -name 'Data.$num.*.A.$fun.*.*.dat' -or -name 'Minidaq.$num.*.A.$fun.*.*.dat' -or -name 'PrivMinidaq.$num.*.A.$fun.*.*.dat' \\) -printf '%f\n' 2>&1 | sort`);
+my $command = ec_mon_filelist("$daqdir/", $num, $fun);
 
-my @filelist_archived = split('\n', `find $config{'ec_mon_master_rundir'}/daq-data/trash/ -maxdepth 1 \\( -name 'ecal_local.$num.*.A.$fun.*.*.dat' -or -name 'Global*.$num.*.A.$fun.*.*.dat' -or -name '*MW*.$num.*.A.$fun.*.*.dat' -or -name 'PrivCal*.$num.*.A.$fun.*.*.dat' -or -name 'TransferTestWithSafety.$num.*.A.$fun.*.*.dat' -or -name 'CRUZET*.$num.*.A.$fun.*.*.dat' -or -name 'CRAFT*.$num.*.A.$fun.*.*.dat' -or -name 'Commissioning*.$num.*.A.$fun.*.*.dat' -or -name 'Run*.$num.*.A.$fun.*.*.dat' -or -name 'Data.$num.*.A.$fun.*.*.dat' -or -name 'Minidaq.$num.*.A.$fun.*.*.dat' -or -name 'PrivMinidaq.$num.*.A.$fun.*.*.dat' \\) -printf '%f\n' 2>&1 | sort`);
+my @filelist = split('\n', `$command`);
+
+$command = ec_mon_filelist("$trashdir/", $num, $fun);
+
+my @filelist_archived = split('\n', `$command`);
 
 if ( $runnum ) {
   exit 1 unless ( @filelist != 0 ||
