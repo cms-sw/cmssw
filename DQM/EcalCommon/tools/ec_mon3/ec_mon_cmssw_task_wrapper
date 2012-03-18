@@ -80,8 +80,6 @@ while(<CMSENV>){
 }
 close(CMSENV);
 
-my $task;
-
 my $workdir = "$config{'ec_mon_master_rundir'}/dqm-data/tmp";
 my $cfgfile = "$workdir/monitor-$runnum.py";
 
@@ -126,7 +124,7 @@ else {
 
 system("python ~ecalpro/DQM/tools/ecalConfigBuilder.py -e $environment -c $cfgtype -f $cfgfile --source='$sourceFiles' -g '$globaltag'");
 
-$task = "source $cmsenv; cd $workdir ; time cmsRun $cfgfile";
+my $task = "source $cmsenv; cd $workdir ; time cmsRun $cfgfile";
 
 my $logdir = "$config{'ec_mon_master_rundir'}/dqm-data/logs";
 my $logfile = "$logdir/$runnum.cmssw.log";

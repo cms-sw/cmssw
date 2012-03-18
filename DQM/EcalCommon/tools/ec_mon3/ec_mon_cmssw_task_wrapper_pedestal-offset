@@ -63,33 +63,22 @@ if ( $filnam ) {
   }
 }
 
-my $cmssw_arch;
-my $cmssw_setup;
-my $cmssw_path;
-
-if ( $config{'ec_mon_path'} =~ /localDAQ/ ) {
-  $cmssw_arch = "slc5_amd64_gcc461";
-  $cmssw_setup = "/nfshome0/cmssw2/scripts/setup.sh";
-  $cmssw_path = "/nfshome0/ecalpro/DQM/CMSSW_5_0_1_patch2";
-}
-
-if ( $config{'ec_mon_path'} =~ /globalDAQ/ ) {
-  $cmssw_arch = "slc5_amd64_gcc461";
-  $cmssw_setup = "/nfshome0/cmssw2/scripts/setup.sh";
-  $cmssw_path = "/nfshome0/ecalpro/DQM/CMSSW_5_0_1_patch2";
-}
+my $cmsenv;
 
 if ( @filelist != 0 && $filelist[0] =~ /^Minidaq/ ) {
-  $cmssw_arch = "slc5_amd64_gcc461";
-  $cmssw_setup = "/nfshome0/cmssw2/scripts/setup.sh";
-  $cmssw_path = "/nfshome0/ecalpro/DQM/CMSSW_5_0_1_patch2";
+    $cmsenv = "/nfshome0/ecalpro/DQM/swconf/cmsenv.miniDAQ";
+}
+elsif ( $config{'ec_mon_path'} =~ /localDAQ/ ) {
+    $cmsenv = "/nfshome0/ecalpro/DQM/swconf/cmsenv.localDAQ";
+}
+elsif ( $config{'ec_mon_path'} =~ /globalDAQ/ ) {
+    $cmsenv = "/nfshome0/ecalpro/DQM/swconf/cmsenv.globalDAQ";
+}
+else {
+    exit 1;
 }
 
 my $xml_path = "/nfshome0/ecalpro/XML-DQM";
-
-exit 1 unless ( -e "$cmssw_path" );
-
-my $task;
 
 my $workdir = "$config{'ec_mon_master_rundir'}/dqm-data/tmp";
 my $cfgfile = "$workdir/monitor-$runnum.py";
@@ -302,7 +291,7 @@ EOF3
 
 close CONFIGFILE;
 
-$task = "export SCRAM_ARCH=$cmssw_arch ; source $cmssw_setup ; cd $cmssw_path ; eval `scramv1 runtime -sh` ; cd $workdir ; time cmsRun pedestal-offset-$runnum.py";
+my $task = "source $cmsenv; cd $workdir ; time cmsRun pedestal-offset-$runnum.py";
 
 my $logdir = "$config{'ec_mon_master_rundir'}/dqm-data/logs";
 my $xmldir = "$config{'ec_mon_master_rundir'}/dqm-data/xml";
