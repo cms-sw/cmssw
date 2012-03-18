@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_0/HIon/V28 (CMSSW_5_2_0_HLT2)
+# /dev/CMSSW_5_2_0/HIon/V29 (CMSSW_5_2_0_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_0/HIon/V28')
+  tableName = cms.string('/dev/CMSSW_5_2_0/HIon/V29')
 )
 
 process.streams = cms.PSet( 
@@ -8234,7 +8234,6 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltL1HLTSingleIsoPFTau35Trk20Met60JetsMatch_*_*',
       'keep *_hltL1IsoElectronTrackIsol_*_*',
       'keep *_hltL1NonIsoElectronTrackIsol_*_*',
-      'keep *_hltL1SeededRecoEcalCandidate_*_*',
       'keep *_hltL1extraParticles_*_*',
       'keep *_hltL1sDoubleTauJet44Eta2p17orDoubleJet64Central_*_*',
       'keep *_hltL1sL1Jet52ETM30_*_*',
@@ -8299,12 +8298,8 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltPFTauTightIso20_*_*',
       'keep *_hltParticleFlowForTaus_*_*',
       'keep *_hltParticleFlow_*_*',
-      'keep *_hltPixelMatch3HitElectronsL1Seeded_*_*',
-      'keep *_hltPixelMatchCleanElectronsL1Seeded_*_*',
       'keep *_hltPixelMatchElectronsL1Iso_*_*',
       'keep *_hltPixelMatchElectronsL1NonIso_*_*',
-      'keep *_hltPixelMatchElectronsL1Seeded_*_*',
-      'keep *_hltRecoEcalSuperClusterActivityCandidateSC4_*_*',
       'keep *_hltRpcRecHits_*_*',
       'keep *_hltSiStripRawToClustersFacility_*_*',
       'keep *_hltSingleMu15L3Filtered15_*_*',
@@ -8495,7 +8490,6 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltL1HLTSingleIsoPFTau35Trk20Met60JetsMatch_*_*',
       'keep *_hltL1IsoElectronTrackIsol_*_*',
       'keep *_hltL1NonIsoElectronTrackIsol_*_*',
-      'keep *_hltL1SeededRecoEcalCandidate_*_*',
       'keep *_hltL1extraParticles_*_*',
       'keep *_hltL1sDoubleTauJet44Eta2p17orDoubleJet64Central_*_*',
       'keep *_hltL1sL1Jet52ETM30_*_*',
@@ -8539,12 +8533,8 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltPFTauTightIso20_*_*',
       'keep *_hltParticleFlowForTaus_*_*',
       'keep *_hltParticleFlow_*_*',
-      'keep *_hltPixelMatch3HitElectronsL1Seeded_*_*',
-      'keep *_hltPixelMatchCleanElectronsL1Seeded_*_*',
       'keep *_hltPixelMatchElectronsL1Iso_*_*',
       'keep *_hltPixelMatchElectronsL1NonIso_*_*',
-      'keep *_hltPixelMatchElectronsL1Seeded_*_*',
-      'keep *_hltRecoEcalSuperClusterActivityCandidateSC4_*_*',
       'keep *_hltRecoEcalSuperClusterActivityCandidate_*_*',
       'keep *_hltRpcRecHits_*_*',
       'keep *_hltSingleMu15L3Filtered15_*_*',
