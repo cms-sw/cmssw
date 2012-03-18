@@ -8,6 +8,7 @@ namespace l1slhc
 	L1CaloCluster::L1CaloCluster(  ):mIeta( 0 ),
 	mIphi( 0 ),
 	mE( 0 ),
+	mLeadTowerE( 0 ),			       
 	mFg( false ),
 	mEgamma( false ),
 	mCentral( false ),
@@ -26,6 +27,7 @@ namespace l1slhc
 	L1CaloCluster::L1CaloCluster( const int &iEta, const int &iPhi ):mIeta( iEta ),
 	mIphi( iPhi ),
 	mE( 0 ),
+        mLeadTowerE( 0 ),			       
 	mFg( false ),
 	mEgamma( false ),
 	mCentral( false ),
@@ -75,6 +77,12 @@ namespace l1slhc
 	}
 
 
+	const int &L1CaloCluster::LeadTowerE(  ) const
+	{
+		return mLeadTowerE;
+	}
+
+
 	const bool & L1CaloCluster::fg(  ) const
 	{
 		return mFg;
@@ -121,6 +129,15 @@ namespace l1slhc
 		return mIsoclusterstau;
 	}
 
+	const int &L1CaloCluster::isoEnergyEG(  ) const
+	{
+		return mIsoenergyeg;
+	}
+
+	const int &L1CaloCluster::isoEnergyTau(  ) const
+	{
+		return mIsoenergytau;
+	}
 
 	bool L1CaloCluster::isEGamma(  ) const
 	{
@@ -146,6 +163,12 @@ namespace l1slhc
 	void L1CaloCluster::setE( const int &E )
 	{
 		mE = E;
+	}
+
+
+	void L1CaloCluster::setLeadTowerE( const int &E )
+	{
+		mLeadTowerE = E;
 	}
 
 
@@ -196,6 +219,12 @@ namespace l1slhc
 	{
 		mIsoclusterseg = eg;
 		mIsoclusterstau = tau;
+	}
+
+	void L1CaloCluster::setIsoEnergy( const int &eg, const int &tau )
+	{
+		mIsoenergyeg = eg;
+		mIsoenergytau = tau;
 	}
 
 

@@ -60,8 +60,9 @@ namespace l1slhc
 
 		void setFg( const bool & );	// Set FG Bit
 		void setEGamma( const bool & );	// Set EGamma Bit
-		void setEGammaValue( const int & );	// Set EGamma Value E/E+H (%)
+ 		void setEGammaValue( const int & );	// Set EGamma Value E/E+H (%)
 		void setIsoClusters( const int &, const int & );	// Number of isolated objectsisolation Clusters
+		void setIsoEnergy( const int &, const int & );	// Energy of Isolation
 		void setIsoEG( const bool & );	// EG isolation
 		void setIsoTau( const bool & );	// Tau isolation
 		void setCentral( const bool & );	// Central Bit 
@@ -70,6 +71,7 @@ namespace l1slhc
 		void setPosBits( const int &, const int & );
 		void setConstituents( const L1CaloTowerRefVector & );
 		void setE( const int & );
+		void setLeadTowerE( const int & );
 		void addConstituent( const L1CaloTowerRef & );
 		int hasConstituent( const int &, const int & );
 		void removeConstituent( const int &, const int & );
@@ -78,6 +80,7 @@ namespace l1slhc
 		const int &iEta(  ) const;	// Eta of origin in integer coordinates
 		const int &iPhi(  ) const;	// Phi of Origin in integer
 		const int &E(  ) const;	// Compressed Et 
+		const int &LeadTowerE(  ) const;	// Lead Tower Et 
 		const int &innerEta(  ) const;	// Weighted position eta
 		const int &innerPhi(  ) const;	// Weighted position phi
 		const L1CaloTowerRefVector & getConstituents(  ) const;
@@ -98,6 +101,8 @@ namespace l1slhc
 		const bool & isoTau(  ) const;	// Tau isolation
 		const int &isoClustersEG(  ) const;	// 2x2 isolation clusters for Egamma cuts
 		const int &isoClustersTau(  ) const;	// 2x2 isolation clusters for Tau Cut
+		const int &isoEnergyEG(  ) const;	// 2x2 isolation clusters for Egamma cuts
+		const int &isoEnergyTau(  ) const;	// 2x2 isolation clusters for Egamma cuts
 		const bool & hasLeadTower(  ) const;
 
 		// Trigger Results
@@ -118,6 +123,7 @@ namespace l1slhc
 		int mIeta;
 		int mIphi;
 		int mE;
+		int mLeadTowerE; //Lead Tower Energy
 		// FineGrain / EGamma /Isolations
 
 		bool mFg;
@@ -130,6 +136,8 @@ namespace l1slhc
 		int mInnereta;
 		int mInnerphi;
 		int mIsoclusterseg;
+		int mIsoenergyeg;
+		int mIsoenergytau;
 		int mIsoclusterstau;
 
 		math::PtEtaPhiMLorentzVector mP4;	// Lorentz Vector of precise position

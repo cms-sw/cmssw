@@ -7,15 +7,16 @@
 class L1CaloClusterIsolator:public L1CaloAlgoBase < l1slhc::L1CaloClusterCollection , l1slhc::L1CaloClusterCollection >
 {
   public:
-    L1CaloClusterIsolator( const edm::ParameterSet & );
-    ~L1CaloClusterIsolator(  );
+	L1CaloClusterIsolator( const edm::ParameterSet & );
+	 ~L1CaloClusterIsolator(  );
 
-    void algorithm( const int &, const int & );
-    //	void initialize(  );
+	void algorithm( const int &, const int & );
+//	void initialize(  );
 
   private:
-    bool isoLookupTable( const int& clusters, const int& aCoeffA, const int& aCoeffB, const int& E );
-
+        bool isoLookupTable( const int& clusters, const int& aCoeffA, const int& E );
+  bool isoLookupTable( const int& aConeEnergy, const int& aTwoHighTowers, const int& aCoeffB, const int& aE );
+        int ItrLookUp(const int& lPhi, const int& nTowers);
 };
 
 
@@ -25,12 +26,12 @@ class L1CaloClusterIsolator:public L1CaloAlgoBase < l1slhc::L1CaloClusterCollect
 
 
 L1CaloClusterIsolator::L1CaloClusterIsolator( const edm::ParameterSet & aConfig ):
-  L1CaloAlgoBase < l1slhc::L1CaloClusterCollection , l1slhc::L1CaloClusterCollection > ( aConfig )
+L1CaloAlgoBase < l1slhc::L1CaloClusterCollection , l1slhc::L1CaloClusterCollection > ( aConfig )
 {
-  // mPhiOffset = 0; 
-  mEtaOffset = -1;
-  //mPhiIncrement = 1; 
-  //mEtaIncrement = 1;
+// mPhiOffset = 0; 
+mEtaOffset = -1;
+//mPhiIncrement = 1; 
+//mEtaIncrement = 1;
 }
 
 
@@ -39,85 +40,129 @@ L1CaloClusterIsolator::~L1CaloClusterIsolator(  )
 }
 
 /*
-   void L1CaloClusterIsolator::initialize(  )
-   {
-   }
-   */
+void L1CaloClusterIsolator::initialize(  )
+{
+}
+*/
 
 void L1CaloClusterIsolator::algorithm( const int &aEta, const int &aPhi )
 {
 
-  // Look if there is a cluster here and if the cluster is central (not pruned)
+		// Look if there is a cluster here and if the cluster is central (not pruned)
 
-  l1slhc::L1CaloClusterCollection::const_iterator lClusterItr = fetch( aEta, aPhi );
-  if ( lClusterItr != mInputCollection->end(  ) )
-  {
+			l1slhc::L1CaloClusterCollection::const_iterator lClusterItr = fetch( aEta, aPhi );
+			if ( lClusterItr != mInputCollection->end(  ) )
+			{
 
-    if ( lClusterItr->isCentral(  ) )
-    {
-      int lEgammaClusterCount= 0;
-      int lTauClusterCount = 0;
-      l1slhc::L1CaloCluster lIsolatedCluster( *lClusterItr );
+			  if ( lClusterItr->isCentral(  ) ) ///is central--> Not pruned at all, aE is also declared here
+				{
+					int lEgammaClusterCount= 0;
+					int lTauClusterCount = 0;
+					int lEgammaConeEnergy = 0;
+					int lTauConeEnergy = 0;
 
-      // There is a cluster here:Calculate isoDeposits
-      for ( int lPhi = aPhi - mCaloTriggerSetup->nIsoTowers(  ); lPhi <= aPhi + mCaloTriggerSetup->nIsoTowers(  ) + 1; ++lPhi )
-      {
-        for ( int lEta = aEta - mCaloTriggerSetup->nIsoTowers(  ); lEta <= aEta + mCaloTriggerSetup->nIsoTowers(  ) + 1; ++lEta )
-        {
-          if ( !( lEta == aEta && lPhi == aPhi ) )
-          {
-            // If neighbor exists
-            l1slhc::L1CaloClusterCollection::const_iterator lNeighbourItr = fetch( lEta, lPhi );
-            if ( lNeighbourItr != mInputCollection->end(  ) )
-            {
-              if ( lNeighbourItr->E(  ) >= mCaloTriggerSetup->isoThr(0) )
-              {
-                lEgammaClusterCount++;
-              }
-              if ( lNeighbourItr->E(  ) >= mCaloTriggerSetup->isoThr(1) )
-              {
-                lTauClusterCount++;
-              }
-            }
-          }
-        }
-      }
+					l1slhc::L1CaloCluster lIsolatedCluster( *lClusterItr );
+					for ( int lPhi = aPhi - mCaloTriggerSetup->nIsoTowers(  ); lPhi <= aPhi + mCaloTriggerSetup->nIsoTowers(  ); ++lPhi ) //phi -n iso towers, aph ==central cluster
+					{
+					  for ( int lEta = aEta - ItrLookUp(abs(lPhi-aPhi),mCaloTriggerSetup->nIsoTowers()); lEta <= aEta + ItrLookUp(abs(lPhi-aPhi),mCaloTriggerSetup->nIsoTowers())+1; ++lEta )
+						{
+						  if ( !( lEta == aEta && lPhi == aPhi ) ) //requires that the clusters are not the central
+							{
+								l1slhc::L1CaloClusterCollection::const_iterator lNeighbourItr = fetch( lEta, lPhi );
+								if ( lNeighbourItr != mInputCollection->end(  ) )//if it found a cluster
+								  {
+								    lEgammaConeEnergy = lEgammaConeEnergy + lNeighbourItr->E( );
+								    if ( lNeighbourItr->E(  ) >= mCaloTriggerSetup->isoThr(0) )
+								      {
+									lEgammaClusterCount++; ///count the number of clusters above threshold
+								      }
+
+								    if ( lNeighbourItr->E(  ) >= mCaloTriggerSetup->isoThr(1) )//leakage outside 2x2 are different for taus
+								      {
+									lTauConeEnergy = lTauConeEnergy + lNeighbourItr->E( );
+									lTauClusterCount++;
+								      }
+								  }
+							}
+						  else if( ( lEta == aEta && lPhi == aPhi )  ){
+						    l1slhc::L1CaloClusterCollection::const_iterator lNeighbourItr = fetch( lEta, lPhi );
+
+						  }
+						}
+					}
 
 
-      lIsolatedCluster.setIsoClusters( lEgammaClusterCount, lTauClusterCount );
+					lIsolatedCluster.setIsoClusters( lEgammaClusterCount, lTauClusterCount );
+					lIsolatedCluster.setIsoEnergy( lEgammaConeEnergy , lTauConeEnergy );
 
+					// Calculate Bits Tau isolation / electron Isolation
+					if ( isoLookupTable( lEgammaConeEnergy, lIsolatedCluster.LeadTowerE(), mCaloTriggerSetup->isolationE(0), lIsolatedCluster.E(  ) ) )
+					{
+					 
+					    lIsolatedCluster.setIsoEG( true );
+						
+					}
 
-      // Calculate Bits Tau isolation / electron Isolation
-      if ( isoLookupTable( lEgammaClusterCount, mCaloTriggerSetup->isolationE(0), mCaloTriggerSetup->isolationE(1), lIsolatedCluster.E(  ) ) )
-      {
-        lIsolatedCluster.setIsoEG( true );
-      }
-
-      // Add the LUT inputs 
-
-      if ( isoLookupTable( lTauClusterCount, mCaloTriggerSetup->isolationT(0), mCaloTriggerSetup->isolationT(1), lIsolatedCluster.E(  ) ) )
-      {
-        lIsolatedCluster.setIsoTau( true );
-      }
-      mOutputCollection->insert( lIsolatedCluster.iEta(  ) , lIsolatedCluster.iPhi() , lIsolatedCluster );
-    }
-  }
+					// Add the LUT inputs 
+					if ( isoLookupTable( lTauConeEnergy, mCaloTriggerSetup->isolationT(0), lIsolatedCluster.E(  ) ) )
+					{
+						lIsolatedCluster.setIsoTau( true );
+					}
+					mOutputCollection->insert( lIsolatedCluster.iEta(  ) , lIsolatedCluster.iPhi() , lIsolatedCluster );
+				}
+			}
 
 
 }
 
 
+//change look up table to be cone/pt < something
 
-bool L1CaloClusterIsolator::isoLookupTable( const int& aClusters, const int& aCoeffA, const int& aCoeffB, const int& aE )	// takes as input the # Clusters the isolation coefficients
+int L1CaloClusterIsolator::ItrLookUp(const int& lPhi, const int& nTowers)
 {
-  if( aE < 0 ) return false;
-  if( aE >= 160 ) return true;
+  int itrVal = (nTowers/2)+abs(lPhi-nTowers);
 
-  int lRegime = (16*(aE/16))+8;
+    if(itrVal < nTowers){
+      return itrVal;
+      }
+    else
+      {return nTowers;}
+}
 
-  int lThresh = aCoeffA + int( double( aCoeffB * lRegime ) / 1000. );
+bool L1CaloClusterIsolator::isoLookupTable( const int& aConeEnergy, const int& aCoeffA, const int& aE )	// takes as input the # Clusters the isolation coefficients
+{
+  	if( aE < 0 ) return false;
+	if( aE >= 100 ) return true;
 
-  return ( aClusters <= lThresh );
+	int cut = 0;
+	if( int( double( aConeEnergy*100 )/ double(aE) ) <30){
+	cut = aE-aConeEnergy;
+
+	//printf("aE-aClusters=%i aE=%i coneE/aE= %f\n",cut,aE,double( aConeEnergy*100 )/ double(aE));
+
+	return (cut > 32);
+	}
+	else
+	  return false;
+}
+
+
+bool L1CaloClusterIsolator::isoLookupTable( const int& aConeEnergy, const int& aTwoHighTowers, const int& aCoeffB, const int& aE )	// takes as input the # Clusters the isolation coefficients/
+{
+
+  	if( aE < 0 ) return false;
+	if( aE >= 100 ) return true;
+
+	int cut = 0;
+	int TotalaConeEnergy = aConeEnergy + aE - aTwoHighTowers;
+
+	//printf("aE-aClusters=%i aE=%i coneE/aE= %f\n",aE-TotalaConeEnergy,aE,double( TotalaConeEnergy*100 )/ double(aE));
+
+	if( double( TotalaConeEnergy*100 )/ double(aE)  <20){
+	cut = aE-TotalaConeEnergy;
+	}
+	return (cut > 32);
+
 }
 
 
