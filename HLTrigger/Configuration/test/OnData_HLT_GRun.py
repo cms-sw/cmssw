@@ -1,11 +1,11 @@
-# /online/collisions/2012/5e33/v4.1/HLT/V6 (CMSSW_5_2_0_HLT2)
+# /online/collisions/2012/5e33/v4.1/HLT/V7 (CMSSW_5_2_0_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/5e33/v4.1/HLT/V6')
+  tableName = cms.string('/online/collisions/2012/5e33/v4.1/HLT/V7')
 )
 
 process.streams = cms.PSet( 
@@ -38558,6 +38558,7 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltL1HLTSingleIsoPFTau35Trk20Met60JetsMatch_*_*',
       'keep *_hltL1IsoElectronTrackIsol_*_*',
       'keep *_hltL1NonIsoElectronTrackIsol_*_*',
+      'keep *_hltL1SeededRecoEcalCandidate_*_*',
       'keep *_hltL1extraParticles_*_*',
       'keep *_hltL1sDoubleTauJet44Eta2p17orDoubleJet64Central_*_*',
       'keep *_hltL1sL1Jet52ETM30_*_*',
@@ -38622,8 +38623,12 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltPFTauTightIso20_*_*',
       'keep *_hltParticleFlowForTaus_*_*',
       'keep *_hltParticleFlow_*_*',
+      'keep *_hltPixelMatch3HitElectronsL1Seeded_*_*',
+      'keep *_hltPixelMatchCleanElectronsL1Seeded_*_*',
       'keep *_hltPixelMatchElectronsL1Iso_*_*',
       'keep *_hltPixelMatchElectronsL1NonIso_*_*',
+      'keep *_hltPixelMatchElectronsL1Seeded_*_*',
+      'keep *_hltRecoEcalSuperClusterActivityCandidateSC4_*_*',
       'keep *_hltRpcRecHits_*_*',
       'keep *_hltSiStripRawToClustersFacility_*_*',
       'keep *_hltSingleMu15L3Filtered15_*_*',
@@ -39131,6 +39136,7 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltL1HLTSingleIsoPFTau35Trk20Met60JetsMatch_*_*',
       'keep *_hltL1IsoElectronTrackIsol_*_*',
       'keep *_hltL1NonIsoElectronTrackIsol_*_*',
+      'keep *_hltL1SeededRecoEcalCandidate_*_*',
       'keep *_hltL1extraParticles_*_*',
       'keep *_hltL1sDoubleTauJet44Eta2p17orDoubleJet64Central_*_*',
       'keep *_hltL1sL1Jet52ETM30_*_*',
@@ -39174,8 +39180,12 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltPFTauTightIso20_*_*',
       'keep *_hltParticleFlowForTaus_*_*',
       'keep *_hltParticleFlow_*_*',
+      'keep *_hltPixelMatch3HitElectronsL1Seeded_*_*',
+      'keep *_hltPixelMatchCleanElectronsL1Seeded_*_*',
       'keep *_hltPixelMatchElectronsL1Iso_*_*',
       'keep *_hltPixelMatchElectronsL1NonIso_*_*',
+      'keep *_hltPixelMatchElectronsL1Seeded_*_*',
+      'keep *_hltRecoEcalSuperClusterActivityCandidateSC4_*_*',
       'keep *_hltRecoEcalSuperClusterActivityCandidate_*_*',
       'keep *_hltRpcRecHits_*_*',
       'keep *_hltSingleMu15L3Filtered15_*_*',
