@@ -818,7 +818,7 @@ if filename == '' :
     else :
         c = 'ecalcalib'
 
-    if p5 and live :
+    if P5 and live :
         e = 'live'
     elif privEcal and live :
         e = 'privlive'
