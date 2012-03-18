@@ -296,8 +296,8 @@ def customise(process):
     else :
       raise "Cannot find particleFlow sequence"
 
-      process.pfSelectedElectrons.src = cms.InputTag("particleFlowORG")
-      process.pfSelectedPhotons.src   = cms.InputTag("particleFlowORG")
+    process.pfSelectedElectrons.src = cms.InputTag("particleFlowORG")
+    process.pfSelectedPhotons.src   = cms.InputTag("particleFlowORG")
 
 
   process.particleFlow =  cms.EDProducer('PFCandidateMixer',
