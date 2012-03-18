@@ -66,7 +66,7 @@ dump.write('''# %s
 
 import FWCore.ParameterSet.Config as cms
 
-''' % process.HLTConfigVersion.tableName.value())
+''' % "getDatasets.py" )
 
 list_of_streams = ['A','AForPP','AForHI']
 for stream in list_of_streams:
