@@ -330,8 +330,8 @@ HLT_IsoMu20_eta2p1_v*                                                           
 
 HLT_DiCentralJet20_BTagIP_MET65_v*                                                              #sr126490
 HLT_DiCentralPFJet30_PFMHT80_v*                                                                 #sr126490
-HLT_DiCentralPFJet30_CaloMET50_PFMHT80_HBHENoiseFiltered_dPhi1_v*                               #sr126490
-HLT_CentralPFJet80_CaloMET50_PFMHT80_HBHENoiseFiltered_dPhi1_v*                                 #sr126490
+HLT_DiCentralPFJet30_CaloMET50_dPhi1_PFMHT80_HBHENoiseFiltered_v*                               #sr126490
+HLT_CentralPFJet80_CaloMET50_dPhi1_PFMHT80_HBHENoiseFiltered_v*                                 #sr126490
 HLT_L1ETM30_v*                                                                                  #sr126490
 HLT_L1ETM40_v*                                                                                  #sr126490
 HLT_L1ETM70_v*                                                                                  #sr126490
