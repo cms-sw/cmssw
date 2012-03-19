@@ -13,7 +13,7 @@ int main(){
   edmplugin::PluginManager::configure(edmplugin::standard::config());
   cond::DbConnection* conn = new cond::DbConnection;
   conn->configure( cond::CmsDefaults );
-  std::string connStr("sqlite_file:mytest.db");
+  std::string connStr("sqlite_file:testDbSession.db");
   {
     std::cout << "######### test 0"<<std::endl;
     cond::DbSession session = conn->createSession();

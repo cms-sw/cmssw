@@ -41,7 +41,7 @@ int main() {
   coral::IHandle<coral::IConnectionService> connectionService=coral::Context::instance().query<coral::IConnectionService>();
   connectionService->configuration().setAuthenticationService( authServiceName );
   connectionService->configuration().setMonitoringService( monitoringServiceName );
-  connectionService->configuration().setMonitoringLevel(coral::monitor::Trace);	  //std::string connectionString("sqlite_file:mytest.db");
+  connectionService->configuration().setMonitoringLevel(coral::monitor::Trace);	  
   std::string connectionString("oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS");
   
   coral::ISessionProxy* session = connectionService->connect( connectionString );

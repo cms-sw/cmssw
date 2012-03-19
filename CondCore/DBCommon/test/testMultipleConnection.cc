@@ -16,7 +16,7 @@ int main(){
   connection.configure();
   //
   cond::DbSession session = connection.createSession();
-  session.open( "sqlite_file:mydata.db" );
+  session.open( "sqlite_file:testMultipleConnection0.db" );
   session.transaction().start(false);
   session.transaction().commit();
   boost::shared_ptr<testCondObj> myobj( new testCondObj );
@@ -27,7 +27,7 @@ int main(){
   session.storeObject(myobj.get(), "testCondObjContainer");
   session.transaction().commit();
   cond::DbSession session2 = connection.createSession();
-  session2.open( "sqlite_file:miodati.db" );
+  session2.open( "sqlite_file:testMultipleConnection1.db" );
   session2.transaction().start(false);
   coral::ISchema& schema = session2.nominalSchema();
   schema.dropIfExistsTable( "mytest" );

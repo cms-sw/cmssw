@@ -25,7 +25,7 @@ int main(){
   connection.configuration().setConnectionTimeOut(0);
   connection.configure();
   cond::DbSession session = connection.createSession();
-  session.open( "sqlite_file:mydata.db" );
+  session.open( "sqlite_file:testSingleConnection.db" );
   boost::shared_ptr<testCondObj> myobj( new testCondObj );
   myobj->data.insert(std::make_pair<unsigned int,std::string>(10,"ten"));
   myobj->data.insert(std::make_pair<unsigned int,std::string>(2,"two"));
