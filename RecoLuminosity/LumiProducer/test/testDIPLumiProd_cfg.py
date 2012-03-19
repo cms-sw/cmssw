@@ -17,7 +17,7 @@ process.maxEvents = cms.untracked.PSet(
 #        firstLuminosityBlock = cms.untracked.uint32(1)
 #)
 process.DBService=cms.Service('DBService',
-        authPath= cms.untracked.string('/data/cmsdata')       
+        authPath= cms.untracked.string('/afs/cern.ch/cms/lumi')       
 )
 process.source= cms.Source("PoolSource",
         processingMode=cms.untracked.string('RunsAndLumis'),        
