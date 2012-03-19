@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_0/HIon/V35 (CMSSW_5_2_0_HLT3)
+# /dev/CMSSW_5_2_0/HIon/V36 (CMSSW_5_2_0_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_0/HIon/V35')
+  tableName = cms.string('/dev/CMSSW_5_2_0/HIon/V36')
 )
 
 process.streams = cms.PSet( 
@@ -7030,6 +7030,7 @@ process.hltHIGoodLooseTracks = cms.EDProducer( "AnalyticalTrackSelector",
     nSigmaZ = cms.double( 4.0 ),
     dz_par2 = cms.vdouble( 5.0, 0.0 ),
     applyAdaptedPVCuts = cms.bool( True ),
+    min_eta = cms.double( -9999.0 ),
     dz_par1 = cms.vdouble( 9999.0, 0.0 ),
     copyTrajectories = cms.untracked.bool( True ),
     vtxNumber = cms.int32( -1 ),
@@ -7047,6 +7048,7 @@ process.hltHIGoodLooseTracks = cms.EDProducer( "AnalyticalTrackSelector",
     src = cms.InputTag( "hltHIGlobalPrimTracks" ),
     chi2n_no1Dmod_par = cms.double( 0.2 ),
     vertices = cms.InputTag( "hltHISelectedVertex" ),
+    max_eta = cms.double( 9999.0 ),
     d0_par2 = cms.vdouble( 5.0, 0.0 ),
     d0_par1 = cms.vdouble( 9999.0, 0.0 ),
     res_par = cms.vdouble( 99999.0, 99999.0 ),
