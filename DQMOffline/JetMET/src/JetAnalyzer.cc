@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/08/12 15:37:12 $
- *  $Revision: 1.26 $
+ *  $Date: 2012/03/06 11:39:22 $
+ *  $Revision: 1.27 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -150,7 +150,7 @@ void JetAnalyzer::beginJob(DQMStore * dbe) {
     mPt_Hi                  = dbe->book1D("Pt_Hi", "Pt (Pass Hi Pt Jet Trigger)", 60, 0, 300);   
     mEta_Hi                 = dbe->book1D("Eta_Hi", "Eta (Pass Hi Pt Jet Trigger)", etaBin, etaMin, etaMax);
     mPhi_Hi                 = dbe->book1D("Phi_Hi", "Phi (Pass Hi Pt Jet Trigger)", phiBin, phiMin, phiMax);
-    mNJets                   = dbe->book1D("NJets", "Number of Jets", 100, 0, 100);
+    mNJets                   = dbe->book1D("NJets", "number of jets", 100, 0, 100);
 
     //mPt_Barrel_Lo            = dbe->book1D("Pt_Barrel_Lo", "Pt Barrel (Pass Low Pt Jet Trigger)", 20, 0, 100);   
     //mPhi_Barrel_Lo           = dbe->book1D("Phi_Barrel_Lo", "Phi Barrel (Pass Low Pt Jet Trigger)", phiBin, phiMin, phiMax);

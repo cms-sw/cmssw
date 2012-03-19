@@ -62,7 +62,7 @@ void JetPtAnalyzer::beginJob(DQMStore * dbe) {
   mEta                     = dbe->book2D("EtaVsPt", "EtaVsPt",ptBin, ptMin, ptMax, etaBin, etaMin, etaMax);
   mPhi                     = dbe->book2D("PhiVsPt", "PhiVsPt",ptBin, ptMin, ptMax, phiBin, phiMin, phiMax);
   mConstituents            = dbe->book2D("ConstituentsVsPt", "# of ConstituentsVsPt",ptBin, ptMin, ptMax, 100, 0, 100);
-  //  mNJets                   = dbe->book2D("NJetsVsPt", "Number of JetsVsPt",ptBin, ptMin, ptMax, 100, 0, 100);
+  //  mNJets                   = dbe->book2D("NJetsVsPt", "number of jetsVsPt",ptBin, ptMin, ptMax, 100, 0, 100);
 
   // CaloJet specific
   mHFrac                  = dbe->book2D("HFracVsPt", "HFracVsPt",ptBin, ptMin, ptMax, 120, -0.1, 1.1);
