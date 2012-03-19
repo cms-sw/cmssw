@@ -1,5 +1,5 @@
 //
-// $Id: PixelUnpackingRegions.cc,v 1.1 2012/03/13 15:46:10 khotilov Exp $
+// $Id: PixelUnpackingRegions.cc,v 1.2 2012/03/14 23:16:49 khotilov Exp $
 //
 #include "EventFilter/SiPixelRawToDigi/interface/PixelUnpackingRegions.h"
 
@@ -56,8 +56,6 @@ PixelUnpackingRegions::PixelUnpackingRegions(const edm::ParameterSet& conf)
 
 void PixelUnpackingRegions::run(const edm::Event& e, const edm::EventSetup& es)
 {
-  using namespace std;
-
   feds_.clear();
   modules_.clear();
   nreg_ = 0;
@@ -67,7 +65,7 @@ void PixelUnpackingRegions::run(const edm::Event& e, const edm::EventSetup& es)
   edm::Handle<reco::BeamSpot> beamSpot;
   e.getByLabel(beamSpotTag_, beamSpot);
   beamSpot_ = beamSpot->position();
-  beamSpot_ = math::XYZPoint(0.,0.,0.);
+  //beamSpot_ = math::XYZPoint(0.,0.,0.);
 
   size_t ninputs = inputs_.size();
   for(size_t input = 0; input < ninputs; ++input)
@@ -84,20 +82,12 @@ void PixelUnpackingRegions::run(const edm::Event& e, const edm::EventSetup& es)
       Region r(c.momentum(), dPhi_[input], maxZ_[input]);
       addRegion(r);
     }
-
-    //Region r(math::XYZVector(0.,1.,0.5), dPhi_[input], maxZ_[input]);
-    //addRegion(r);
-    //r = Region(math::XYZVector(0.7,0.7,1.5), dPhi_[input], maxZ_[input]);
-    //addRegion(r);
-
   }
 }
 
 
 void PixelUnpackingRegions::initialize(const edm::EventSetup& es)
 {
-  using namespace std;
-
   // initialize cabling map or update it if necessary
   // and re-cache modules information
   if (watcherSiPixelFedCablingMap_.check( es ))
@@ -118,7 +108,7 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es)
     phiFPIXp_.reserve(512);
     phiFPIXm_.reserve(512);
 
-    vector<GeomDet*>::const_iterator it = geom->dets().begin();
+    std::vector<GeomDet*>::const_iterator it = geom->dets().begin();
     for ( ; it != geom->dets().end(); ++it)
     {
       int subdet = (*it)->geographicalId().subdetId();
@@ -134,7 +124,7 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es)
       m.phi = normalizedPhi( (*it)->position().phi() ); // ensure [-pi,+pi]
 
       m.id = (*it)->geographicalId().rawId();
-      const  vector<sipixelobjects::CablingPathToDetUnit> path2det = cabling_->pathToDetUnit(m.id);
+      const std::vector<sipixelobjects::CablingPathToDetUnit> path2det = cabling_->pathToDetUnit(m.id);
 
       m.fed = path2det[0].fed;
       assert(m.fed<40);
@@ -154,18 +144,12 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es)
     std::sort(phiBPIX_.begin(),  phiBPIX_.end());
     std::sort(phiFPIXp_.begin(), phiFPIXp_.end());
     std::sort(phiFPIXm_.begin(), phiFPIXm_.end());
-
-    //for(size_t i=0; i<phiBPIX_.size(); ++i) cout<<"init "<<i<<"  "<<phiBPIX_[i]<<endl;
-    //for(size_t i=0; i<phiFPIXp_.size(); ++i) cout<<"init "<<i<<"  "<<phiFPIXp_[i]<<endl;
-    //for(size_t i=0; i<phiFPIXm_.size(); ++i) cout<<"init "<<i<<"  "<<phiFPIXm_[i]<<endl;
-    //cout<<endl;
   }
 }
 
 
 void PixelUnpackingRegions::addRegion(Region &r)
 {
-  using namespace std;
   ++nreg_;
 
   float phi = normalizedPhi(r.v.phi());  // ensure [-pi,+pi]
@@ -173,18 +157,13 @@ void PixelUnpackingRegions::addRegion(Region &r)
   Module lo(phi - r.dPhi);
   Module hi(phi + r.dPhi);
 
-  //std::cout<<"adding region "<<phi<<" ["<<lo.phi<<","<<hi.phi<<"]"<<std::endl;
-  //std::cout<<"addRegionLocal BPIX"<<std::endl;
-
   addRegionLocal(r, phiBPIX_, lo, hi);
   if (r.v.eta() >  1.)
   {
-    //std::cout<<"addRegionLocal FPIXp"<<std::endl;
     addRegionLocal(r, phiFPIXp_, lo, hi);
   }
   if (r.v.eta() < -1.)
   {
-    //std::cout<<"addRegionLocal FPIXm"<<std::endl;
     addRegionLocal(r, phiFPIXm_, lo, hi);
   }
 }
@@ -192,18 +171,15 @@ void PixelUnpackingRegions::addRegion(Region &r)
 
 void PixelUnpackingRegions::addRegionLocal(Region &r, std::vector<Module> &container, Module lo, Module hi)
 {
-  using namespace std;
-
   Module pi_m(-M_PI);
   Module pi_p( M_PI);
 
-  vector<Module>::const_iterator a, b;
+  std::vector<Module>::const_iterator a, b;
 
   if (lo.phi >= -M_PI && hi.phi <= M_PI) // interval doesn't cross the +-pi overlap
   {
     a = lower_bound(container.begin(), container.end(), lo);
     b = upper_bound(container.begin(), container.end(), hi);
-    //cout<<"phi bounds ["<<a-container.begin()<<" , "<<b-container.begin()<<"]"<<endl;
     gatherFromRange(r, a, b);
   }
   else // interval is torn by the +-pi overlap
@@ -211,13 +187,11 @@ void PixelUnpackingRegions::addRegionLocal(Region &r, std::vector<Module> &conta
     if (hi.phi >  M_PI) hi.phi -= 2.*M_PI;
     a = lower_bound(container.begin(), container.end(), pi_m);
     b = upper_bound(container.begin(), container.end(), hi);
-    //cout<<"phi bounds ["<<a-container.begin()<<" , "<<b-container.begin()<<"]"<<endl;
     gatherFromRange(r, a, b);
 
     if (lo.phi < -M_PI) lo.phi += 2.*M_PI;
     a = lower_bound(container.begin(), container.end(), lo);
     b = upper_bound(container.begin(), container.end(), pi_p);
-    //cout<<"phi bounds ["<<a-container.begin()<<" , "<<b-container.begin()<<"]"<<endl;
     gatherFromRange(r, a, b);
   }
 }
@@ -229,8 +203,6 @@ void PixelUnpackingRegions::gatherFromRange(Region &r, std::vector<Module>::cons
   {
     // projection in r's direction onto beam's z
     float zmodule = a->z - (  (a->x - beamSpot_.x())*r.cosphi + (a->y - beamSpot_.y())*r.sinphi ) * r.atantheta;
-
-    //std::cout<<"gatherz "<<zmodule<<"   "<<*a<<std::endl;
 
     // do not include modules that project too far in z
     if ( std::abs(zmodule) > r.maxZ ) continue;
