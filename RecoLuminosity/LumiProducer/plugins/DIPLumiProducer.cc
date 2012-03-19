@@ -110,7 +110,7 @@ DIPLumiProducer::fillcache(unsigned int runnumber,unsigned int startlsnum){
   //
   //queries once per cache refill
   //
-  //select lumisection,startorbit,instlumi,delivlumi,livelumi,deadtime from cms_runtime_logger.lumi_sections where lumisection>=:lsmin and lumisection<:lsmax and runnumber=:runnumber;
+  //select lumisection,startorbit,instlumi,delivlumi,livelumi from cms_runtime_logger.lumi_sections where lumisection>=:lsmin and lumisection<:lsmax and runnumber=:runnumber;
   //
   edm::Service<lumi::service::DBService> mydbservice;
   if( !mydbservice.isAvailable() ){
@@ -134,18 +134,18 @@ DIPLumiProducer::fillcache(unsigned int runnumber,unsigned int startlsnum){
     coral::ISchema& schema=session->nominalSchema();
     coral::AttributeList lumisummaryBindVariables;
     lumisummaryBindVariables.extend("lsmin",typeid(unsigned int));
-    lumisummaryBindVariables.extend("lsmax",typeid(unsigned int));
     lumisummaryBindVariables.extend("runnumber",typeid(unsigned int));
     lumisummaryBindVariables["runnumber"].data<unsigned int>()=m_cachedrun;
     lumisummaryBindVariables["lsmin"].data<unsigned int>()=lsmin;
-    std::string conditionStr(" RUNNUMBER=:runnumber AND CMSLSNUM>=:lsmin ");
+    std::string conditionStr(" RUNNUMBER=:runnumber AND LUMISECTION>=:lsmin ");
     coral::AttributeList lumisummaryOutput;
     lumisummaryOutput.extend("LUMISECTION",typeid(unsigned int));
     lumisummaryOutput.extend("INSTLUMI",typeid(float));
     lumisummaryOutput.extend("DELIVLUMI",typeid(float));
     lumisummaryOutput.extend("LIVELUMI",typeid(float));
-    lumisummaryOutput.extend("DEADTIME",typeid(float));
+    lumisummaryOutput.extend("CMS_ACTIVE",typeid(unsigned short));
     if(m_cachesize!=0){
+      lumisummaryBindVariables.extend("lsmax",typeid(unsigned int));
       conditionStr=conditionStr+"AND CMSLSNUM<:lsmax";
       lumisummaryBindVariables["lsmax"].data<unsigned int>()=lsmax;      
     }
@@ -155,7 +155,7 @@ DIPLumiProducer::fillcache(unsigned int runnumber,unsigned int startlsnum){
     lumisummaryQuery->addToOutputList("INSTLUMI");
     lumisummaryQuery->addToOutputList("DELIVLUMI");
     lumisummaryQuery->addToOutputList("LIVELUMI");
-    lumisummaryQuery->addToOutputList("DEADTIME");
+    lumisummaryQuery->addToOutputList("CMS_ACTIVE");
     lumisummaryQuery->setCondition(conditionStr,lumisummaryBindVariables);
     lumisummaryQuery->defineOutput(lumisummaryOutput);
     coral::ICursor& lumisummarycursor=lumisummaryQuery->execute();
@@ -166,9 +166,8 @@ DIPLumiProducer::fillcache(unsigned int runnumber,unsigned int startlsnum){
       float instlumi=row["INSTLUMI"].data<float>();
       float intgdellumi=row["DELIVLUMI"].data<float>();
       float intgreclumi=row["LIVELUMI"].data<float>();
-      float deadfraction=row["DEADTIME"].data<float>();
       unsigned short cmsalive=row["CMS_ACTIVE"].data<unsigned short>();
-      boost::shared_ptr<DIPLumiSummary> tmpls(new DIPLumiSummary(instlumi,intgdellumi,intgreclumi,deadfraction,cmsalive));
+      boost::shared_ptr<DIPLumiSummary> tmpls(new DIPLumiSummary(instlumi,intgdellumi,intgreclumi,cmsalive));
       m_lscache.insert(std::make_pair(lsnum,tmpls));
       ++rowcounter;
     }
