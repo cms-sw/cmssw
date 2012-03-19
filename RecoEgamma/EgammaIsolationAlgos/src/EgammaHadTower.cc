@@ -16,8 +16,13 @@ EgammaHadTower::EgammaHadTower(const edm::EventSetup &es,HoeMode mode):mode_(mod
 CaloTowerDetId  EgammaHadTower::towerOf(const reco::CaloCluster& cluster) const {
   DetId detid = cluster.seed();
   if(detid.det() != DetId::Ecal) {
-    CaloTowerDetId tower;
-    return tower;
+    // Basic clusters of hybrid super-cluster do not have the seed set; take the first DetId instead 
+    // Should be checked . The single Tower Mode should be favoured until fixed
+    detid = cluster.hitsAndFractions()[0].first;
+    if(detid.det() != DetId::Ecal) {
+      CaloTowerDetId tower;
+      return tower;
+    }
   }
   CaloTowerDetId id(towerMap_->towerOf(detid));
   return id;

@@ -17,7 +17,7 @@ class EgammaHadTower {
 
   enum HoeMode{SingleTower=0,TowersBehindCluster=1};
 
-  EgammaHadTower(const edm::EventSetup &es,HoeMode mode=TowersBehindCluster);
+  EgammaHadTower(const edm::EventSetup &es,HoeMode mode=SingleTower);
   ~EgammaHadTower(){;}
   double getDepth1HcalESum( const reco::SuperCluster & sc ) const ;
   double getDepth2HcalESum( const reco::SuperCluster & sc ) const ;
