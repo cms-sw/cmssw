@@ -11,6 +11,7 @@ from RecoHI.HiMuonAlgos.RecoHiMuon_EventContent_cff import *
 
 # combine RECO, AOD, FEVT content from all RecoHI packages
 # RecoHI event contents to be included by Configuration.EventContent.EventContentHeavyIons_cff
+
 RecoHIRECO = cms.PSet(
     outputCommands = cms.untracked.vstring()
     )

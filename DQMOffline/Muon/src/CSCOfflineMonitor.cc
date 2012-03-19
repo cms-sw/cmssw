@@ -1031,9 +1031,10 @@ void CSCOfflineMonitor::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits,
     float rHSumQ = 0;
     float sumsides = 0;
     for (unsigned int i = 0; i < dRHIter->nStrips(); i++){
-      for (unsigned int j=0; j<dRHIter->nTimeBins()-1; j++) 
+      for (unsigned int j=0; j<dRHIter->nTimeBins()-1; j++) {
 	rHSumQ+=dRHIter->adcs(i,j);
-      sumsides+=dRHIter->adcs(i,dRHIter->nTimeBins()-1);
+        if ( i != 1 ) sumsides += dRHIter->adcs(i,j); // skip central strip
+      }
     }	
 
     float rHratioQ = sumsides/rHSumQ;

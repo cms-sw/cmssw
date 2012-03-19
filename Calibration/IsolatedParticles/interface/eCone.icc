@@ -75,11 +75,6 @@ namespace spr{
       gposHotCell = spr::getGpos(geo, hit.at(hottestIndex));
       ietaHotCell = hit.at(hottestIndex)->id().ieta();
       iphiHotCell = hit.at(hottestIndex)->id().iphi();
-      //       GlobalVector vecdistFromHotCell = gposHotCell-hpoint1;
-      //       distFromHotCell = vecdistFromHotCell.mag();
-      //       distFromHotCell = spr::getDistInCMatHcal(gposHotCell.eta(), 
-      //  					       gposHotCell.phi(), 
-      //  					       hpoint1.eta(), hpoint1.phi());
       distFromHotCell = spr::getDistInPlaneTrackDir(hpoint1, trackMom, gposHotCell);
     }
     
@@ -130,11 +125,6 @@ namespace spr{
       gposHotCell = spr::getGpos(geo, hit.at(hottestIndex));
       ietaHotCell = hit.at(hottestIndex)->id().ieta();
       iphiHotCell = hit.at(hottestIndex)->id().iphi();
-      //       GlobalVector vecdistFromHotCell = gposHotCell-hpoint1;
-      //       distFromHotCell = vecdistFromHotCell.mag();
-      //       distFromHotCell = spr::getDistInCMatHcal(gposHotCell.eta(), 
-      //        					       gposHotCell.phi(), 
-      //        					       hpoint1.eta(), hpoint1.phi());
       distFromHotCell = spr::getDistInPlaneTrackDir(hpoint1, trackMom, gposHotCell);
 
     }
@@ -159,8 +149,6 @@ namespace spr{
       if      (DetId(hit[ihit]->id()).subdetId()==EcalBarrel) ok = (eTower > ebThr);
       else if (DetId(hit[ihit]->id()).subdetId()==EcalEndcap) ok = (eTower > eeThr);
       // No need for hcal sampling weight
-      // getEnergy():
-      //      energySum += getEnergy(hit[ihit]);
       if (ok && tt > tMin && tt < tMax) energySum += eTower;
     }
     

@@ -23,7 +23,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.41 2011/11/18 16:00:59 fwyzard Exp $
+#  $Id: EventContent_cff.py,v 1.46 2012/01/19 15:49:57 vlimant Exp $
 #
 #
 #
@@ -330,9 +330,11 @@ DATAMIXEREventContent = cms.PSet(
                                                'keep HBHEDataFramesSorted_hcalDigis_*_*',
                                                'keep HFDataFramesSorted_hcalDigis_*_*',
                                                'keep HODataFramesSorted_hcalDigis_*_*',
+                                               'keep ZDCDataFramesSorted_hcalDigis_*_*',
+                                               'keep CastorDataFramesSorted_castorDigis_*_*',
                                                'keep EBDigiCollection_ecalDigis_*_*',
                                                'keep EEDigiCollection_ecalDigis_*_*',
-                                               'keep ESDataFramesSorted_ecalPreshowerDigis_*_*'),
+                                               'keep ESDigiCollection_ecalPreshowerDigis_*_*'),
         splitLevel = cms.untracked.int32(0),
         eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
         )
@@ -635,3 +637,14 @@ REPACKRAWSIMEventContent.outputCommands.extend(['drop FEDRawDataCollection_sourc
                                                 'drop FEDRawDataCollection_rawDataCollector_*_*'])
 REPACKRAWEventContent.outputCommands.extend(['drop FEDRawDataCollection_source_*_*',
                                                 'drop FEDRawDataCollection_rawDataCollector_*_*'])
+
+REDIGIEventContent = cms.PSet(
+    inputCommands=cms.untracked.vstring('drop *')
+    )
+REDIGIEventContent.inputCommands.extend(SimG4CoreRAW.outputCommands)
+REDIGIEventContent.inputCommands.extend(IOMCRAW.outputCommands)
+REDIGIEventContent.inputCommands.extend(GeneratorInterfaceRAW.outputCommands)
+for item in REDIGIEventContent.inputCommands:
+    if 'genParticles' in item:
+        REDIGIEventContent.inputCommands.remove(item)
+REDIGIEventContent.inputCommands.append('drop *_randomEngineStateProducer_*_*')

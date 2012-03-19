@@ -17,8 +17,8 @@ electronEcalRecHitIsolationScone = cms.EDProducer("EgammaEcalRecHitIsolationProd
     jurassicWidth = cms.double(1.5),    #dEta strip width
     extRadius = cms.double(0.3),
     etMinBarrel = cms.double(0.0),
-    eMinBarrel = cms.double(0.08),
-    etMinEndcap = cms.double(0.100),
+    eMinBarrel = cms.double(0.095),
+    etMinEndcap = cms.double(0.110),
     eMinEndcap = cms.double(0.0),
 
     useIsolEt = cms.bool(True),

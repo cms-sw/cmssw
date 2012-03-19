@@ -10,7 +10,7 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Mon Jun  7 14:40:12 EDT 2010
-// $Id: HiEvtPlaneFlatten.h,v 1.3 2011/10/07 09:41:29 yilmaz Exp $
+// $Id: HiEvtPlaneFlatten.h,v 1.2 2011/10/06 22:41:20 yilmaz Exp $
 //
 //
 
@@ -107,7 +107,7 @@ public:
     double correction = 0;
     for(int k = 0; k<hOrder; k++) {
       int indx = GetCutIndx(cent,vtx,k);
-      if(indx>=0) correction+=(2./(double)((k+1)*vorder))*(flatXDB[indx]*sin(vorder*(k+1)*psi)-flatYDB[indx]*cos(vorder*(k+1)*psi));
+      correction+=(2./(double)((k+1)*vorder))*(flatXDB[indx]*sin(vorder*(k+1)*psi)-flatYDB[indx]*cos(vorder*(k+1)*psi));
     }
     psi+=correction;
     psi=bounds(psi);

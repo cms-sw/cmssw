@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2011/01/24 17:41:34 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/01/24 18:27:40 $
+ *  $Revision: 1.4 $
  */
  
 #include "Validation/EventGenerator/interface/WValidation.h"
@@ -17,7 +17,8 @@
 
 using namespace edm;
 
-WValidation::WValidation(const edm::ParameterSet& iPSet):  
+WValidation::WValidation(const edm::ParameterSet& iPSet): 
+  _wmanager(iPSet),
   hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection")),
   _flavor(iPSet.getParameter<int>("decaysTo")),
   _name(iPSet.getParameter<std::string>("name")) 
@@ -83,7 +84,9 @@ void WValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup
   //Get EVENT
   const HepMC::GenEvent *myGenEvent = evt->GetEvent();
 
-  nEvt->Fill(0.5);
+  double weight = _wmanager.weight(iEvent);
+
+  nEvt->Fill(0.5,weight);
 
   std::vector<const HepMC::GenParticle*> allleptons; 
   std::vector<const HepMC::GenParticle*> allneutrinos; 
@@ -126,8 +129,8 @@ void WValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup
   std::vector<const HepMC::GenParticle*> fsrphotons;
   HepMCValidationHelper::findFSRPhotons(selectedLepton, myGenEvent, 0.1, fsrphotons);
 
-  Wdaughters->Fill(allleptons.front()->pdg_id()); 
-  Wdaughters->Fill(allneutrinos.front()->pdg_id()); 
+  Wdaughters->Fill(allleptons.front()->pdg_id(),weight); 
+  Wdaughters->Fill(allneutrinos.front()->pdg_id(),weight); 
  
   //assemble FourMomenta
   TLorentzVector lep1(allleptons[0]->momentum().x(), allleptons[0]->momentum().y(), allleptons[0]->momentum().z(), allleptons[0]->momentum().t()); 
@@ -138,29 +141,29 @@ void WValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup
   for (unsigned int ipho = 0; ipho < fsrphotons.size(); ++ipho){
     TLorentzVector phomom(fsrphotons[ipho]->momentum().x(), fsrphotons[ipho]->momentum().y(), fsrphotons[ipho]->momentum().z(), fsrphotons[ipho]->momentum().t()); 
     dilepton_andphoton_mom += phomom;
-    Wdaughters->Fill(fsrphotons[ipho]->pdg_id());
+    Wdaughters->Fill(fsrphotons[ipho]->pdg_id(),weight);
     gammasMomenta.push_back(phomom);
   }  
   //Fill "true" W histograms
-  Wmass->Fill(dilepton_andphoton_mom.M());
-  WmassPeak->Fill(dilepton_andphoton_mom.M());
-  Wpt->Fill(dilepton_andphoton_mom.Pt());
-  WptLog->Fill(log10(dilepton_andphoton_mom.Pt())); 
-  Wrap->Fill(dilepton_andphoton_mom.Rapidity());
+  Wmass->Fill(dilepton_andphoton_mom.M(),weight);
+  WmassPeak->Fill(dilepton_andphoton_mom.M(),weight);
+  Wpt->Fill(dilepton_andphoton_mom.Pt(),weight);
+  WptLog->Fill(log10(dilepton_andphoton_mom.Pt()),weight); 
+  Wrap->Fill(dilepton_andphoton_mom.Rapidity(),weight);
 
   TLorentzVector met_mom = HepMCValidationHelper::genMet(myGenEvent, -3., 3.);
   TLorentzVector lep1T(lep1.Px(), lep1.Py(), 0., lep1.Et());
   TLorentzVector lepmet_mom = lep1T + met_mom;
   //Fill lepmet histograms
-  lepmet_mT->Fill(lepmet_mom.M());
-  lepmet_mTPeak->Fill(lepmet_mom.M());
-  lepmet_pt->Fill(lepmet_mom.Pt());
-  lepmet_ptLog->Fill(log10(lepmet_mom.Pt()));
+  lepmet_mT->Fill(lepmet_mom.M(),weight);
+  lepmet_mTPeak->Fill(lepmet_mom.M(),weight);
+  lepmet_pt->Fill(lepmet_mom.Pt(),weight);
+  lepmet_ptLog->Fill(log10(lepmet_mom.Pt()),weight);
 
   //Fill lepton histograms 
-  leppt->Fill(lep1.Pt());
-  lepeta->Fill(lep1.Eta());
-  met->Fill(met_mom.Pt());	
+  leppt->Fill(lep1.Pt(),weight);
+  lepeta->Fill(lep1.Eta(),weight);
+  met->Fill(met_mom.Pt(),weight);	
 
   //boost everything in the W frame
   TVector3 boost = dilepton_andphoton_mom.BoostVector();
@@ -174,9 +177,9 @@ void WValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup
 
   //fill gamma histograms
   if (gammasMomenta.size() != 0 && dilepton_andphoton_mom.M() > 50.) {
-    gamma_energy->Fill(gammasMomenta.front().E());
+    gamma_energy->Fill(gammasMomenta.front().E(),weight);
     double dphi = lep1.DeltaR(gammasMomenta.front());
-    cos_theta_gamma_lepton->Fill(cos(dphi));
+    cos_theta_gamma_lepton->Fill(cos(dphi),weight);
   } 
 
 

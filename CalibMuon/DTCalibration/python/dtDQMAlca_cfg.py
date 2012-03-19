@@ -20,7 +20,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
-#process.load("CalibMuon.DTCalibration.ALCARECODtCalib_cff")
+process.load("CalibMuon.DTCalibration.ALCARECODtCalib_cff")
 process.load("DQM.DTMonitorModule.ALCARECODTCalibSynchDQM_cff")
 
 process.output = cms.OutputModule("PoolOutputModule",
@@ -31,9 +31,10 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 process.load("DQMServices.Components.MEtoEDMConverter_cff")
 
-process.dtLocalRecoSequence = cms.Sequence(process.dt1DRecHits*process.dt2DSegments*process.dt4DSegments)
-process.ALCARECODTCalibSynchDQM_step = cms.Path(process.dtLocalRecoSequence+
-                                                process.ALCARECODTCalibSynchDQM)
+#process.pathALCARECODtCalib = cms.Path(process.seqALCARECODtCalib*process.ALCARECODTCalibSynchDQM)
+#process.pathALCARECODtCalib = cms.Path(process.muonDTDigis*
+#                                       process.seqALCARECODtCalib*process.ALCARECODTCalibSynchDQM)
+process.ALCARECODTCalibSynchDQM_step = cms.Path(process.ALCARECODTCalibSynchDQM)
 process.MEtoEDMConverter_step = cms.Path(process.MEtoEDMConverter)
 process.out_step = cms.EndPath(process.output)
 process.DQM.collectorHost = ''

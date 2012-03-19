@@ -87,9 +87,19 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset,
   double barrelCorrection[15] = {1.02, 1.01, 1.02, 1.02, 1.02, 1.02, 1.02, 1.03,     1.03, 1.03, 1.03, 1.03, 1.03, 1.03, 1.03};  
   double endcapCorrection[15] = {1.12, 1.12, 1.12, 1.12, 1.12, 1.13, 1.13, 1.14,    1.14, 1.15, 1.15, 1.16, 1.16, 1.16, 1.16};
   //                             1-15 >>> 20   30    50   100   150   225
-  double forwardCorrection[15] = {1.09, 1.09, 1.08, 1.08, 1.07, 1.06,
+  double forwardCorrectionEnergyDependent[15] = {1.09, 1.09, 1.08, 1.08, 1.07, 1.06,
                                         1.05, 1.05, 1.06, 1.08, 1.09, 1.10, 
 				        1.09, 1.08, 1.08};     
+
+  double forwardCorrectionEtaDependent[maxHDeta];
+  for (unsigned int j=0;j<maxHDeta;j++){
+    if (j<30) forwardCorrectionEtaDependent[j]=1.;
+    if (j>=30 && j<43) forwardCorrectionEtaDependent[j]=0.98;
+    if (j>=43 || j<46) forwardCorrectionEtaDependent[j]=0.95;
+    if (j==46 || j==47) forwardCorrectionEtaDependent[j]=0.94;
+    if (j==48) forwardCorrectionEtaDependent[j]=0.92;
+    if (j>=49) forwardCorrectionEtaDependent[j]=0.86;
+  }
 
   // MEAN energy response for (1) all (2) MIP in ECAL (3) non-MIP in ECAL 
   //-----------------------------------------------------------------------
@@ -424,7 +434,7 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset,
 
       if( j < 16)             factor = barrelCorrection[i];  // special HB
       if( j < 30 && j >= 16)  factor = endcapCorrection[i];  // special HE
-      if( j >= 30)            factor = forwardCorrection[i]; // special HF 
+      if( j >= 30)            factor = forwardCorrectionEnergyDependent[i]*forwardCorrectionEtaDependent[j]; // special HF
 
       meanHD[i][j]        =  factor * _meanHD[i][j]  / eGridHD[i];
       sigmaHD[i][j]       =  factor_s * _sigmaHD[i][j] / eGridHD[i];

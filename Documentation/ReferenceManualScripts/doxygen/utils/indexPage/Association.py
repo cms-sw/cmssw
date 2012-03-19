@@ -14,9 +14,29 @@ except:
     errorOnImport = True    
 
 cvsBaseUrl = "http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW"     # NO SLASH IN THE END
-
+baseUrl = "http://cmssdt.cern.ch/SDT/doxygen/"
 refmanfiles = {}
 packageDocLinks = []
+
+
+def parseJSON(url):
+    ret = {}
+    
+    html = os.popen("curl \""+url+"\"")
+    input = html.read()
+    html.close()
+    
+    input = input.replace("{","").replace("}", "")
+    collections = input.split("], ")
+    
+    for collection in collections:
+        parts = collection.split(": [")
+        title = parts[0].replace('"', '')
+        list = parts[1].replace("]", "").replace('"', '').split(", ")
+        ret[title] = list
+    
+    return ret
+
 
 ## Prepate dictionary of doxygen generated html files
 def prepareRefManFiles(DOC_DIR):    
@@ -26,7 +46,7 @@ def prepareRefManFiles(DOC_DIR):
     
     for line in lines:
         (head, tail) = os.path.split(line)
-        refmanfiles[tail.replace("class","").replace(".html","")] = line
+        refmanfiles[tail.replace("class","").replace(".html","")] = baseUrl+line[line.find(CMSSW_VERSION):]
 
 ## Extract links to package documentation
 def preparePackageDocumentationLinks(DOC_DIR):
@@ -46,13 +66,14 @@ def formatCVSLink(package, subpackage):
 def formatPackageDocumentationLink(package, subpackage):    
     for link in packageDocLinks:
         if (link.find(package+"_"+subpackage+".html") != -1):
-            return "[ <a target=\"_blank\" href=\"../"+link+"\">pd</a> ]"
+            return "[ <a target=\"_blank\" href=\"../"+link+"\">packageDoc</a> ]"
     
     return ""
 
 ## Fetches information about Subsystems/Packages/Subpackages from TagCollector
 def generateTree(release):
-    data = json.loads(urllib2.urlopen('https://cmstags.cern.ch/tc/CategoriesPackagesJSON?release=' + release).read())
+    #data = json.loads(urllib2.urlopen('https://cmstags.cern.ch/tc/CategoriesPackagesJSON?release=' + release).read())
+    data = parseJSON('http://cmssdt.cern.ch/SDT/doxygen/tcproxy.php?type=packages&release=' + release)
     
     tree = {}
     subsystems = sorted(data.keys())
@@ -144,7 +165,10 @@ try:
     ## Index Page Preparations
 
     # Loading responsibles for subsystems
-    (managers, users) = json.loads(urllib2.urlopen('https://cmstags.cern.ch/tc/CategoriesManagersJSON').read())
+    #(managers, users) = json.loads(urllib2.urlopen('https://cmstags.cern.ch/tc/CategoriesManagersJSON').read())
+    managers = parseJSON('http://cmssdt.cern.ch/SDT/doxygen/tcproxy.php?type=managers')
+    users = parseJSON('http://cmssdt.cern.ch/SDT/doxygen/tcproxy.php?type=users')
+
 except:
     ## Warning page
     fileIN = open(SCRIPTS_LOCATION+"/indexPage/indexpage_warning.html", "r")

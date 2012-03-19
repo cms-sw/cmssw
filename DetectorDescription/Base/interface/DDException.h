@@ -26,11 +26,8 @@ class DDException : public cms::Exception
   explicit DDException(const std::string & s);
   DDException();
   DDException(const DDException& dde);
-  void swap(DDException& other) throw();
-  
-  DDException& operator=(DDException const& other);
-  
-  virtual ~DDException() throw();
+
+  ~DDException() throw();
 };    
 
 #endif

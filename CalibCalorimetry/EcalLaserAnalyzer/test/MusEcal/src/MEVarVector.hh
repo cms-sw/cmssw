@@ -27,7 +27,6 @@ public:
   bool getValByTime( ME::Time time, int ii, 
 		     float& val, bool& flag );
   
- 
   // get times in interval
   void getTime(	std::vector< ME::Time >& time,
 		const METimeInterval* timeInterval=0 );
@@ -38,42 +37,12 @@ public:
 		      std::vector< float >& val,
 		      std::vector< bool >& flag );
 
-  void getValFlagAndNorm( int ii, 
-			    const vector< ME::Time >& time, 
-			    vector< float >& val,
-			    vector< bool >& flag,
-			  double& norm	);
-
   // get times and values of a variable in interval
   void getTimeValAndFlag( int ii,
 			  std::vector< ME::Time >& time, 
 			  std::vector< float >& val,
 			  std::vector< bool >& flag,
 			  const METimeInterval* timeInterval=0 );
-  
-  // get times and values of a variable in interval
-  void getTimeValFlagAndNorm( int ii,
-			  std::vector< ME::Time >& time, 
-			  std::vector< float >& val,
-			  std::vector< bool >& flag,
-			      double& norm,
-			  const METimeInterval* timeInterval=0 );
-  
-  void getNormsInInterval(int ii, unsigned int nbuf, unsigned int nave,
-					   const METimeInterval* timeInterval,
-					   std::vector< double >& norm,
-					   std::vector< bool >& normflag);
-  
-  void getNormsInInterval(int ivar,int irms, int inevt,
-			  unsigned int nbuf, unsigned int nave, 
-			  const METimeInterval* timeInterval,
-			  std::vector< double >&  norm,
-			  std::vector< double >&  enorm,
-			  std::vector< bool >&  normflag);
-  
-  void getClosestValid( ME::Time timeref, int ii,  vector< ME::Time >& time, float &val, bool &flag );
-  void getClosestValidInPast( ME::Time timeref, int ii,   ME::Time& time, float &val, bool &flag );
-  void getClosestValidInFuture( ME::Time timeref, int ii,   ME::Time& time, float &val, bool &flag );
 
 private:
 

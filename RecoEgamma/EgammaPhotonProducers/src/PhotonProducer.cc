@@ -55,7 +55,7 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
     config.getParameter<edm::ParameterSet>("posCalcParameters");
   posCalculator_ = PositionCalc(posCalcParameters);
 
-  thePhotonEnergyCorrector_ = new PhotonEnergyCorrector(conf_);
+
 
   // Parameters for the position calculation:
   //  std::map<std::string,double> providedParameters;
@@ -113,6 +113,7 @@ void  PhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & theEventSet
     thePhotonMIPHaloTagger_ = new PhotonMIPHaloTagger();
     edm::ParameterSet mipVariableSet = conf_.getParameter<edm::ParameterSet>("mipVariableSet"); 
     thePhotonMIPHaloTagger_->setup(mipVariableSet);
+    thePhotonEnergyCorrector_ = new PhotonEnergyCorrector(conf_);
     thePhotonEnergyCorrector_ -> init(theEventSetup); 
 
 
@@ -133,7 +134,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   using namespace edm;
   //  nEvt_++;
-
+ 
   reco::PhotonCollection outputPhotonCollection;
   std::auto_ptr< reco::PhotonCollection > outputPhotonCollection_p(new reco::PhotonCollection);
 
@@ -197,8 +198,8 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
     }
     if (validVertex) vertexCollection = *(vertexHandle.product());
   }
-  math::XYZPoint vtx(0.,0.,0.);
-  if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
+  //  math::XYZPoint vtx(0.,0.,0.);
+  //if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
 
 
   int iSC=0; // index in photon collection
@@ -211,7 +212,8 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 			 &barrelRecHits,
 			 &endcapRecHits,
 			 hcalTowersHandle,
-			 vtx,
+			 //vtx,
+			 vertexCollection,
 			 outputPhotonCollection,
 			 iSC);
  
@@ -230,7 +232,8 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
 					  const EcalRecHitCollection* ecalBarrelHits,
 					  const EcalRecHitCollection* ecalEndcapHits,
 					  const edm::Handle<CaloTowerCollection> & hcalTowersHandle, 
-					  math::XYZPoint & vtx,
+					  // math::XYZPoint & vtx,
+                                          reco::VertexCollection & vertexCollection,
 					  reco::PhotonCollection & outputPhotonCollection, int& iSC) {
   
   const CaloGeometry* geometry = theCaloGeom_.product();
@@ -314,29 +317,18 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
 
     //// energy determination -- Default to create the candidate. Afterwards corrections are applied
     double photonEnergy=1.;
+    math::XYZPoint vtx(0.,0.,0.);
+    if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
     // compute momentum vector of photon from primary vertex and cluster position
     math::XYZVector direction = caloPosition - vtx;
     //math::XYZVector momentum = direction.unit() * photonEnergy ;
     math::XYZVector momentum = direction.unit() ;
 
-    // Create dummy candidate with unit momentum and zero energy
+    // Create dummy candidate with unit momentum and zero energy to allow setting of all variables. The energy is set for last.
     math::XYZTLorentzVectorD p4(momentum.x(), momentum.y(), momentum.z(), photonEnergy );
     reco::Photon newCandidate(p4, caloPosition, coreRef, vtx);
     //std::cout << " standard p4 before " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
     //std::cout << " type " <<newCandidate.getCandidateP4type() <<  " standard p4 after " << newCandidate.p4() << " energy " << newCandidate.energy() << std::endl;
-
-    /// get ecal photon specific corrected energy 
-    /// plus values from regressions     and store them in the Photon
-    // Photon candidate takes by default (set in photons_cfi.py)  a 4-momentum derived from the ecal photon-specific corrections. 
-    thePhotonEnergyCorrector_->calculate(newCandidate, subdet);
-   
-    if ( candidateP4type_ == "fromEcalEnergy") {
-      newCandidate.setP4( newCandidate.p4(reco::Photon::ecal_photons) );
-    } else if ( candidateP4type_ == "fromRegression") {
-      newCandidate.setP4( newCandidate.p4(reco::Photon::regression1) );
-    }
-
-    //       std::cout << " final p4 " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
 
 
 
@@ -362,6 +354,21 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.hcalDepth1OverEcalBc = hcalDepth1OverEcalBc;
     showerShape.hcalDepth2OverEcalBc = hcalDepth2OverEcalBc;
     newCandidate.setShowerShapeVariables ( showerShape ); 
+
+    /// get ecal photon specific corrected energy 
+    /// plus values from regressions     and store them in the Photon
+    // Photon candidate takes by default (set in photons_cfi.py)  a 4-momentum derived from the ecal photon-specific corrections. 
+    thePhotonEnergyCorrector_->calculate(evt, newCandidate, subdet, vertexCollection,es);
+    if ( candidateP4type_ == "fromEcalEnergy") {
+      newCandidate.setP4( newCandidate.p4(reco::Photon::ecal_photons) );
+      newCandidate.setCandidateP4type(reco::Photon::ecal_photons);
+    } else if ( candidateP4type_ == "fromRegression") {
+      newCandidate.setP4( newCandidate.p4(reco::Photon::regression1) );
+      newCandidate.setCandidateP4type(reco::Photon::regression1);
+    }
+
+    //       std::cout << " final p4 " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
+
 
     // std::cout << " PhotonProducer from candidate HoE with towers in a cone " << newCandidate.hadronicOverEm()  << "  " <<  newCandidate.hadronicDepth1OverEm()  << " " <<  newCandidate.hadronicDepth2OverEm()  << std::endl;
     //    std::cout << " PhotonProducer from candidate  of HoE with towers behind the BCs " <<  newCandidate.hadTowOverEm()  << "  " << newCandidate.hadTowDepth1OverEm() << " " << newCandidate.hadTowDepth2OverEm() << std::endl;

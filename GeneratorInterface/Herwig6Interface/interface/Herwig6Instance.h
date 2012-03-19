@@ -25,6 +25,9 @@ class Herwig6Instance : public FortranInstance {
 	bool callWithTimeout(unsigned int secs, void (*fn)())
 	{ InstanceWrapper wrapper(this); return timeout(secs, fn); }
 
+        // method to open External Particle Spectra Files
+        void openParticleSpecFile(const std::string fileName);
+
     protected:
 	// intercept HERWIG warnings and errors (default: no)
         virtual bool hwwarn(const std::string &fn, int code);

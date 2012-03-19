@@ -31,7 +31,7 @@ process.MessageLogger.destinations = ['cerr']
 process.MessageLogger.statistics = []
 process.MessageLogger.fwkJobReports = []
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20000))
 
 process.source = cms.Source("EmptySource")
 

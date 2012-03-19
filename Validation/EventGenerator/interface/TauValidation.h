@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2011/02/14 09:52:07 $
- *  $Revision: 1.7 $
+ *  $Date: 2011/02/17 14:46:42 $
+ *  $Revision: 1.8 $
  *
  */
 
@@ -30,6 +30,8 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "TLorentzVector.h"
+
+#include "Validation/EventGenerator/interface/WeightManager.h"
 
 class TauValidation : public edm::EDAnalyzer
 {
@@ -68,19 +70,21 @@ class TauValidation : public edm::EDAnalyzer
 	virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
     private:
-	int tauMother(const HepMC::GenParticle*);
-	int tauProngs(const HepMC::GenParticle*);
-	int tauDecayChannel(const HepMC::GenParticle*);
+	int tauMother(const HepMC::GenParticle*, double weight);
+	int tauProngs(const HepMC::GenParticle*, double weight);
+	int tauDecayChannel(const HepMC::GenParticle*, double weight);
 	int findMother(const HepMC::GenParticle*);
 	int findTauDecayChannel(const HepMC::GenParticle*);
-	void rtau(const HepMC::GenParticle*,int,int);
-	void spinEffects(const HepMC::GenParticle*,int,int);
-	void spinEffectsZ(const HepMC::GenParticle*);
-	double leadingPionMomentum(const HepMC::GenParticle*);
+	void rtau(const HepMC::GenParticle*,int,int, double weight);
+	void spinEffects(const HepMC::GenParticle*,int,int, double weight);
+	void spinEffectsZ(const HepMC::GenParticle*, double weight);
+	double leadingPionMomentum(const HepMC::GenParticle*, double weight);
 	double visibleTauEnergy(const HepMC::GenParticle*);
 	TLorentzVector leadingPionP4(const HepMC::GenParticle*);
 	TLorentzVector motherP4(const HepMC::GenParticle*);
-	void photons(const HepMC::GenParticle*);
+	void photons(const HepMC::GenParticle*, double weight);
+
+        WeightManager _wmanager;
 
     	edm::InputTag hepmcCollection_;
 

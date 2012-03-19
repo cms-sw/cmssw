@@ -69,9 +69,9 @@ void TMTQ::setCut(int ivar, double mean, double sig){
   }
 }
 
-vector<double> TMTQ::get(int ivar){ 
+std::vector<double> TMTQ::get(int ivar){ 
 
-  vector<double> res;
+  std::vector<double> res;
   
   if(ivar<nOutVar){
 
@@ -87,17 +87,17 @@ vector<double> TMTQ::get(int ivar){
 
 }
 
-vector<double>   TMTQ::getPeak(){vector<double> x=get(TMTQ::iPeak); return x;}
-vector<double>   TMTQ::getAmpl(){vector<double> x=get(TMTQ::iAmpl); return x;}
-vector<double>   TMTQ::getSigma(){vector<double> x=get(TMTQ::iSigma); return x;}
-vector<double>   TMTQ::getTrise(){vector<double> x=get(TMTQ::iTrise); return x;}
-vector<double>   TMTQ::getFit(){vector<double> x=get(TMTQ::iFit); return x;}
-vector<double>   TMTQ::getFwhm(){vector<double> x=get(TMTQ::iFwhm); return x;}
-vector<double>   TMTQ::getFw20(){vector<double> x=get(TMTQ::iFw20); return x;}
-vector<double>   TMTQ::getFw80(){vector<double> x=get(TMTQ::iFw80); return x;}
-vector<double>   TMTQ::getPed(){vector<double> x=get(TMTQ::iPed); return x;}
-vector<double>   TMTQ::getPedsig(){vector<double> x=get(TMTQ::iPedsig); return x;}
-vector<double>   TMTQ::getSliding(){vector<double> x=get(TMTQ::iSlide); return x;}
+std::vector<double>   TMTQ::getPeak(){std::vector<double> x=get(TMTQ::iPeak); return x;}
+std::vector<double>   TMTQ::getAmpl(){std::vector<double> x=get(TMTQ::iAmpl); return x;}
+std::vector<double>   TMTQ::getSigma(){std::vector<double> x=get(TMTQ::iSigma); return x;}
+std::vector<double>   TMTQ::getTrise(){std::vector<double> x=get(TMTQ::iTrise); return x;}
+std::vector<double>   TMTQ::getFit(){std::vector<double> x=get(TMTQ::iFit); return x;}
+std::vector<double>   TMTQ::getFwhm(){std::vector<double> x=get(TMTQ::iFwhm); return x;}
+std::vector<double>   TMTQ::getFw20(){std::vector<double> x=get(TMTQ::iFw20); return x;}
+std::vector<double>   TMTQ::getFw80(){std::vector<double> x=get(TMTQ::iFw80); return x;}
+std::vector<double>   TMTQ::getPed(){std::vector<double> x=get(TMTQ::iPed); return x;}
+std::vector<double>   TMTQ::getPedsig(){std::vector<double> x=get(TMTQ::iPedsig); return x;}
+std::vector<double>   TMTQ::getSliding(){std::vector<double> x=get(TMTQ::iSlide); return x;}
 
 
 

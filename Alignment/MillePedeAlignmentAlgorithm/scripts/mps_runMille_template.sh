@@ -6,23 +6,10 @@
 #
 # In the very beginning of this script, stager requests for the files will be added.
 
-
 # these defaults will be overwritten by MPS
 RUNDIR=$HOME/scratch0/some/path
 MSSDIR=/castor/cern.ch/user/u/username/another/path
 MSSDIRPOOL=
-
-clean_up () {
-#try to recover log files and root files
-    echo try to recover log files and root files ...
-    cp -p *.log $RUNDIR
-    cp -p *.log.gz $RUNDIR
-    cp -p millePedeMonitor*root $RUNDIR
-    exit
-}
-#LSF signals according to http://batch.web.cern.ch/batch/lsf-return-codes.html
-trap clean_up HUP INT TERM SEGV USR2 XCPU XFSZ IO
-
 
 # The batch job directory (will vanish after job end):
 BATCH_DIR=$(pwd)
@@ -64,10 +51,9 @@ if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
 else
 # Using cmscafuser pool => cmsStageOut command must be used
   . /afs/cern.ch/cms/caf/setup.sh
-  MSSCAFDIR=`echo $MSSDIR | perl -pe 's/\/castor\/cern.ch\/cms//gi'`
-  
-  echo "cmsStageOut -f milleBinaryISN.dat.gz $MSSCAFDIR/milleBinaryISN.dat.gz > /dev/null"
-  cmsStageOut -f milleBinaryISN.dat.gz    $MSSCAFDIR/milleBinaryISN.dat.gz  > /dev/null
-  cmsStageOut -f treeFile*root         $MSSCAFDIR/treeFileISN.root > /dev/null
-  cmsStageOut -f millePedeMonitor*root $MSSCAFDIR/millePedeMonitorISN.root > /dev/null
+  MSSCAFDIR=`echo $MSSDIR | awk 'sub("/castor/cern.ch/cms","")'`
+  echo "cmsStageOut milleBinaryISN.dat.gz $MSSCAFDIR/milleBinaryISN.dat.gz > /dev/null"
+  cmsStageOut milleBinaryISN.dat.gz    $MSSCAFDIR/milleBinaryISN.dat.gz  > /dev/null
+  cmsStageOut treeFile*root         $MSSCAFDIR/treeFileISN.root > /dev/null
+  cmsStageOut millePedeMonitor*root $MSSCAFDIR/millePedeMonitorISN.root > /dev/null
 fi

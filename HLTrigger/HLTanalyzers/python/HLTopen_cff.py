@@ -44,7 +44,7 @@ hltMu5L2Mu2JpsiTrackMassFiltered.MaxMasses = cms.vdouble ( 4.5, 130.0 )
 #HLTDisplacemumuSequence = cms.Sequence(  hltL1sL1DoubleMu0 + hltDimuonL1Filtered0 + hltDimuonL2PreFiltered0 + hltLowMassDisplacedL3Filtered + hltDisplacedmumuVtxProducerLowMass + hltDisplacedmumuFilterLowMass)
 
 # create the jetMET HLT reco path
-DoHLTJets = cms.Path(HLTBeginSequence + 
+DoHLTJets = cms.Path(
     HLTBeginSequence +
     HLTRecoJetSequenceAK5Corrected +
     HLTRecoJetSequenceAK5L1FastJetCorrected +

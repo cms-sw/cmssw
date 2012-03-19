@@ -8,13 +8,13 @@ Bool_t FillChain(TChain *chain, const TString &inputFileList);
 
 int main(Int_t argc, Char_t *argv[]) {
   if( argc<6 ){
-    std::cerr << "Please give 4 arguments "
-              << "runList Seed" << " " 
-	      << "outputFileName" << " "
-	      << "L1 Trigger Name" << " " 
-	      << "dRCut for L1" << " " 
-	      << "maximum sample size" << " " 
-	      << "iRange" << " " 
+    std::cerr << "Please give 7 arguments "
+              << "runList Seed" << "\n" 
+	      << "outputFileName" << "\n"
+	      << "L1 Trigger Name" << "\n" 
+	      << "dRCut for L1" << "\n" 
+	      << "maximum sample size" << "\n" 
+	      << "iRange" << "\n" 
 	      << "fRange" << "" 
 	      << std::endl;
     return -1;
@@ -32,17 +32,21 @@ int main(Int_t argc, Char_t *argv[]) {
   std::cout << "---------------------" << std::endl;
   std::cout << "Reading List of input trees from " << inputFileList << std::endl;
 
+  //  bool debug=true;
   bool debug=false;
-  const char *ranges[15] = {"0to5", "5to15", "15to30","30to50","50to80",
-                            "80to120", "120to170", "170to300", "300to470", "470to600",
-                            "600to800", "800to1000", "1000to1400", "1400to1800", "1800"};
-
-  double evFrac[15]         = {4.844e10, 3.675e10, 8.159e08, 5.312e07, 6.359e06,
-                               7.843e05, 1.151e05, 2.426e04, 1.168e03, 7.022e01,
-                               1.555e01, 1.844, 3.321e-01, 1.087e-02, 3.575e-04};
-  double nEvents[15]    = {0.0, 0.0, 5420080, 3244045, 2739226,
-                           3197605, 3045200, 3164688, 3144399, 2009369,
-                           1968447, 2070884, 1077390, 1021510, 529009};
+  const char *ranges[15] = {"0to5",     "5to15",    "15to30",   "30to50",
+			    "50to80",   "80to120",  "120to170", "170to300", 
+			    "300to470", "470to600", "600to800", "800to1000", 
+			    "1000to1400", "1400to1800", "1800"};
+  
+  double evFrac[15]      = {4.844e10, 3.675e10, 8.159e08, 5.312e07, 
+			    6.359e06, 7.843e05, 1.151e05, 2.426e04, 
+			    1.168e03, 7.022e01, 1.555e01, 1.844, 
+			    3.321e-01, 1.087e-02, 3.575e-04};
+  double nEvents[15]     = {1082851, 1649302, 6582850, 10999212,  
+			    6599873, 6589860, 6127443, 5593629,
+			    6255698, 3890287, 3379490, 3585297,
+			    2051327, 2196167, 293135 };
 
   std::vector<std::string> Ranges, rangesV;
   std::vector<double>      fraction, events;
@@ -62,27 +66,27 @@ int main(Int_t argc, Char_t *argv[]) {
   }
   
   TreeAnalysisReadGen tree(outFileName, rangesV);
-  tree.debug = debug;
+  tree.debug  = debug;
+  tree.l1Name = name;
+  tree.dRCut  = atof(DRCut);
+  tree.iRange = iRange;
+  tree.fRange = fRange;
   for (unsigned int i=0; i<Ranges.size(); i++) {
     char fileList[200], treeName[200];
     sprintf (fileList, "%s_%s.txt", inputFileList, Ranges[i].c_str());
-    TChain *chain = new TChain("/isolatedGenParticles/tree");
     std::cout << "try to create a chain for " << fileList << std::endl;
+    TChain *chain = new TChain("/isolatedGenParticles/tree");
     if( ! FillChain(chain, fileList) ) {
       std::cerr << "Cannot get the tree " << std::endl;
       return(0);
-    }else {
-      tree.l1Name = name;
-      tree.dRCut  = atof(DRCut);
-      tree.iRange = iRange;
-      tree.fRange = fRange;
-      unsigned int nmax = (unsigned int)(fraction[i]*totalTracks);
+    } else {
       tree.Init(chain);
       tree.setRange(i+iRange);
       tree.Loop();
       tree.weights[i]= (fraction[i]*totalTracks)/events[i];
       std::cout << "range " << Ranges[i].c_str() << " cross-section " << fraction[i] << " nevents  " << events[i] << " weight " << tree.weights[i] << std::endl;
       tree.clear();
+      std::cout << iRange << " tree cleared" << std::endl;
     }
   }
   std::cout << "Here I am " << iRange << ":" << fRange << std::endl;
@@ -114,16 +118,16 @@ Bool_t FillChain(TChain *chain, const TString &inputFileList) {
 
 TreeAnalysisReadGen::TreeAnalysisReadGen(const char *outFileName, std::vector<std::string>& ranges) {
 
-  double tempgen_TH[22] = { 0.0,  1.0,  2.0,  3.0,  4.0,  
-			    5.0,  6.0,  7.0,  8.0,  9.0, 
-			    10.0, 12.0, 15.0, 20.0, 25.0, 
-			    30.0, 40.0, 60.0, 70.0, 80.0, 100., 200.};
+  double tempgen_TH[NPBins+1] = { 0.0,  1.0,  2.0,  3.0,  4.0,  
+				  5.0,  6.0,  7.0,  8.0,  9.0, 
+				  10.0, 12.0, 15.0, 20.0, 25.0, 
+				  30.0, 40.0, 60.0, 70.0, 80.0, 100., 200.};
 
-  for(int i=0; i<22; i++)  genPartPBins[i]  = tempgen_TH[i];
+  for(int i=0; i<NPBins+1; i++)  genPartPBins[i]  = tempgen_TH[i];
   
-  double tempgen_Eta[5] = {0.0, 0.5, 1.1, 1.7, 2.3};
+  double tempgen_Eta[NEtaBins+1] = {0.0, 0.5, 1.1, 1.7, 2.3};
 
-  for(int i=0; i<5; i++) genPartEtaBins[i] = tempgen_Eta[i];
+  for(int i=0; i<NEtaBins+1; i++) genPartEtaBins[i] = tempgen_Eta[i];
 
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree.
@@ -132,14 +136,10 @@ TreeAnalysisReadGen::TreeAnalysisReadGen(const char *outFileName, std::vector<st
 }
 
 TreeAnalysisReadGen::~TreeAnalysisReadGen() {
-  std::cout << "in the destructor \n";
   if (!fChain) return;
 
-  std::cout << "before cd\n";
   fout->cd();
-  std::cout << "before Write\n";
   fout->Write();
-  std::cout << "before CLose\n";
   fout->Close();
   std::cout << "after Close\n";
   //  delete fChain->GetCurrentFile();
@@ -525,24 +525,29 @@ void TreeAnalysisReadGen::Loop() {
   getL1Names();
   int ibit = -1;
   for (std::map<std::string,int>::iterator it=l1Names.begin(); it != l1Names.end(); ++it) {
-    if (strcmp(l1Name.c_str(),(it->first).c_str())) {
+    if (!strcmp(l1Name.c_str(),(it->first).c_str())) {
       ibit =(it->second);
       break;
     }
   }
-  
+  if (debug) std::cout << "liName " << l1Name.c_str() << " " << ibit << std::endl;  
+
   if (fChain == 0) return;  
   Long64_t nentries = fChain->GetEntries();
   std::cout << "No. of Entries in tree " << nentries << std::endl;
   
   Long64_t nbytes = 0, nb = 0;
+  unsigned int nTrk=0;    
+  unsigned int nTrk_Bins=0;    
+  unsigned int nTrk_maxNearP=0;
+  unsigned int nIsoTrk=0;
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
-
+    
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
     
-    if( !(jentry%10) )
+    if( !(jentry%100000) )
       std::cout << "processing event " << jentry+1 << std::endl;
     
     // get the inclusive distributions here
@@ -574,7 +579,7 @@ void TreeAnalysisReadGen::Loop() {
 	  h_trkDPhi[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill(dphi);
 	}
       }
-      if( std::abs(pdgid)==321 ) {
+      else if( std::abs(pdgid)==321 ) {
 	h_trkPAll  [1][iRangeBin] ->Fill(p);
 	h_trkPtAll [1][iRangeBin] ->Fill(pt);
 	h_trkEtaAll[1][iRangeBin] ->Fill(eta);
@@ -584,7 +589,7 @@ void TreeAnalysisReadGen::Loop() {
 	  h_trkDPhi[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill(dphi);
 	}
       }
-      if( std::abs(pdgid)==2212 ) {
+      else if( pdgid==2212 ) {
 	h_trkPAll  [2][iRangeBin] ->Fill(p);
 	h_trkPtAll [2][iRangeBin] ->Fill(pt);
 	h_trkEtaAll[2][iRangeBin] ->Fill(eta);
@@ -594,8 +599,18 @@ void TreeAnalysisReadGen::Loop() {
 	  h_trkDPhi[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill(dphi);
 	}
       }
+      else if( pdgid==-2212 ) {
+	h_trkPAll  [3][iRangeBin] ->Fill(p);
+	h_trkPtAll [3][iRangeBin] ->Fill(pt);
+	h_trkEtaAll[3][iRangeBin] ->Fill(eta);
+	h_trkPhiAll[3][iRangeBin] ->Fill(phi);
+	if( iTrkMomBin>=0 && iTrkEtaBin>=0 ) {
+	  h_trkDEta[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill(deta);
+	  h_trkDPhi[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill(dphi);
+	}
+      }
     } /// Loop over IsoTrkpAll
-
+    
     // L1 Trigger Information       
     double leadL1JetPt=0.0, leadL1JetEta=-0.999, leadL1JetPhi = -0.999;
     std::vector<int> myDec;
@@ -621,7 +636,7 @@ void TreeAnalysisReadGen::Loop() {
 	  leadL1JetPhi = (*t_L1FwdJetPhi)[i];
 	}
       }
-      if (debug) std::cout << " L1_SingleJet: LeadJet : pT " << leadL1JetPt << " eta " << leadL1JetEta << " phi " << leadL1JetPhi << std::endl;
+      //      if (debug) std::cout << " L1_SingleJet: LeadJet : pT " << leadL1JetPt << " eta " << leadL1JetEta << " phi " << leadL1JetPhi << std::endl;
     }
 
     bool l1SingleTauJet=false;
@@ -636,7 +651,7 @@ void TreeAnalysisReadGen::Loop() {
 	  leadL1JetPhi = (*t_L1TauJetPhi)[i];
 	}
       }
-      if (debug) std::cout << " L1TauJet: LeadTauJet: pT " << leadL1JetPt << " eta " << leadL1JetEta << " phi " << leadL1JetPhi << std::endl; 
+      //      if (debug) std::cout << " L1TauJet: LeadTauJet: pT " << leadL1JetPt << " eta " << leadL1JetEta << " phi " << leadL1JetPhi << std::endl; 
     }
     if( l1SingleTauJet || l1SingleJet ) h_L1LeadJetPt[iRangeBin]->Fill(leadL1JetPt);
     bool l1SingleIsoEG=false;
@@ -659,7 +674,8 @@ void TreeAnalysisReadGen::Loop() {
 	(*t_L1Decision)[l1Names["L1_SingleMu20"]] ) {
       l1L1_SingleMu=true;  myDec.push_back(L1SingleMu);
     }
-    if (debug) std::cout << " L1Decision (L1SingleJet/L1SingleTauJet/L1SingleIsoEG/L1SingleEG/L1SingleMu) " << l1SingleJet << "/" << l1SingleTauJet << "/" << l1SingleIsoEG << "/" << l1SingleEG << "/" << l1L1_SingleMu << std::endl;
+    //    if (debug) std::cout << " L1Decision (L1SingleJet/L1SingleTauJet/L1SingleIsoEG/L1SingleEG/L1SingleMu) " << l1SingleJet << "/" << l1SingleTauJet << "/" << l1SingleIsoEG << "/" << l1SingleEG << "/" << l1L1_SingleMu << std::endl;
+
     bool checkL1=false, checkTest=false;
     if (ibit >= 0) {
       checkTest = true;
@@ -679,9 +695,10 @@ void TreeAnalysisReadGen::Loop() {
 	if (l1SingleEG) checkL1 = true;
       }
     }
-
-    // check the isolation of tracks
+    //    if (debug) std::cout << " ibit " << ibit << std::endl;
+    if (debug) std::cout << "isotrkP size " << t_isoTrkP->size() << std::endl;
     for(int itrk=0; itrk<t_isoTrkP->size(); itrk++ ){      
+      nTrk++;
       double p1            = (*t_isoTrkP)[itrk];
       double pt1           = (*t_isoTrkPt)[itrk];
       double eta1          = (*t_isoTrkEta)[itrk];
@@ -708,8 +725,9 @@ void TreeAnalysisReadGen::Loop() {
        for(int ipt=0;  ipt<NPBins;   ipt++)  {
 	 if( p1>genPartPBins[ipt] &&  p1<genPartPBins[ipt+1] )  iTrkMomBin = ipt;
        }
-       //std::cout << "p " << p1 << " " << iTrkMomBin << " eta " << eta1 << " " << iTrkEtaBin << std::endl;
-       
+       h_maxNearPIsoHCR_allbins[iRangeBin]->Fill( maxNearPIsoHCR );
+       if( iTrkMomBin>=0) h_maxNearPIsoHCR_pbins[iTrkMomBin][iRangeBin]->Fill( maxNearPIsoHCR );
+
        if( maxNearP31x31<0 )  h_trkP_iso31x31[iRangeBin]->Fill(p1);
        if( maxNearP25x25<0 )  h_trkP_iso25x25[iRangeBin]->Fill(p1);
        if( maxNearP21x21<0 )  h_trkP_iso21x21[iRangeBin]->Fill(p1);
@@ -717,11 +735,15 @@ void TreeAnalysisReadGen::Loop() {
        if( maxNearP11x11<0 )  h_trkP_iso11x11[iRangeBin]->Fill(p1);
        // Optimize Charge Isolation
        if( iTrkMomBin>=0 && iTrkEtaBin>=0 ) {
+	 nTrk_Bins++;
 	 h_maxNearP31x31[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( maxNearP31x31 );
 	 h_maxNearP25x25[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( maxNearP25x25 );
 	 h_maxNearP21x21[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( maxNearP21x21 );
 	 h_maxNearP15x15[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( maxNearP15x15 );
 	 h_maxNearP11x11[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( maxNearP11x11 );
+
+	 h_maxNearPIsoR[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( maxNearPIsoR );
+	 h_maxNearPIsoHCR[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( maxNearPIsoHCR );
 
 	 // dR cut from trigger object
 	 double dR=-999.0;
@@ -732,7 +754,9 @@ void TreeAnalysisReadGen::Loop() {
 	 }
 
 	 //===================================================================================================
+	 if (debug) std::cout << " maxNearP31x31 " << maxNearP31x31;
 	 if (maxNearP31x31<0) {
+	   nTrk_maxNearP++;
 	   double etotal1 = (*t_photonEne31x31)[itrk]+(*t_cHadronEne31x31_1)[itrk]+(*t_nHadronEne31x31)[itrk];
 	   h_photon_iso31x31[iTrkMomBin][iTrkEtaBin][iRangeBin]        ->Fill( (*t_photonEne31x31)[itrk] );
 	   h_charged_iso31x31[iTrkMomBin][iTrkEtaBin][iRangeBin]       ->Fill( (*t_cHadronEne31x31_1)[itrk] );
@@ -746,7 +770,9 @@ void TreeAnalysisReadGen::Loop() {
 	   h_contamination11x11_iso31x31[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( etotal2 );
 
 	   bool eNeutIso = (etotal1-etotal2 < 0.1);
+	   if (debug) std::cout << " etotal1 " << etotal1  << " etotal1 " << etotal1 << " eNeutIso " << eNeutIso;
 	   if (eNeutIso) {
+	     nIsoTrk++;
 	     h_photon11x11_isoEcal_NxN[iTrkMomBin][iTrkEtaBin][iRangeBin]       ->Fill( (*t_photonEne11x11)[itrk] );
 	     h_charged11x11_isoEcal_NxN[iTrkMomBin][iTrkEtaBin][iRangeBin]      ->Fill( (*t_cHadronEne11x11_1)[itrk] );
 	     h_neutral11x11_isoEcal_NxN[iTrkMomBin][iTrkEtaBin][iRangeBin]      ->Fill( (*t_nHadronEne11x11)[itrk] );
@@ -759,7 +785,7 @@ void TreeAnalysisReadGen::Loop() {
 	     if( (*t_nHadronEne11x11)[itrk] > 0.1) h_L1_iso31x31_isoNeutral_11x11_1[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill(myDec[i]);
 	     else                                  h_L1_iso31x31_isoNeutral_11x11_2[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill(myDec[i]);
 	   }
-
+	   if (debug) std::cout << " maxNearPHC7x7 " << maxNearPHC7x7 <<" ";;
 	   if (maxNearPHC7x7<0) {
 	     double htotal1 = (*t_photonEneHC7x7)[itrk]+(*t_cHadronEneHC7x7_1)[itrk]+(*t_nHadronEneHC7x7)[itrk];
 	     double htotal2 = (*t_photonEneHC3x3)[itrk]+(*t_cHadronEneHC3x3_1)[itrk]+(*t_nHadronEneHC3x3)[itrk];
@@ -770,7 +796,7 @@ void TreeAnalysisReadGen::Loop() {
 	       h_neutralHC5x5_IsoNxN[iTrkMomBin][iTrkEtaBin][iRangeBin]      ->Fill( (*t_nHadronEneHC5x5)[itrk] );
 	       h_contaminationHC5x5_IsoNxN[iTrkMomBin][iTrkEtaBin][iRangeBin]->Fill( (*t_photonEneHC5x5)[itrk]+(*t_cHadronEneHC5x5_1)[itrk]+(*t_nHadronEneHC5x5)[itrk] );
 	     }
-
+	     if (debug) std::cout << " dR(dRcut) " << dR << "(" << dRCut << ")" << std::endl;
 	     if ((dR > dRCut) && eNeutIso && hNeutIso) {
 	       if( std::abs(pdgid1) == 211 ) {
 		 h_trkPIsoNxN  [0][iRangeBin] ->Fill(p1);
@@ -782,11 +808,16 @@ void TreeAnalysisReadGen::Loop() {
 		 h_trkPtIsoNxN [1][iRangeBin] ->Fill(pt1);
 		 h_trkEtaIsoNxN[1][iRangeBin] ->Fill(eta1);
 		 h_trkPhiIsoNxN[1][iRangeBin] ->Fill(phi1);
-	       } else if (std::abs(pdgid1)==2212 ) {
+	       } else if (pdgid1==2212 ) {
 		 h_trkPIsoNxN  [2][iRangeBin] ->Fill(p1);
 		 h_trkPtIsoNxN [2][iRangeBin] ->Fill(pt1);
 		 h_trkEtaIsoNxN[2][iRangeBin] ->Fill(eta1);
 		 h_trkPhiIsoNxN[2][iRangeBin] ->Fill(phi1);
+	       } else if (pdgid1==-2212 ) {
+		 h_trkPIsoNxN  [3][iRangeBin] ->Fill(p1);
+		 h_trkPtIsoNxN [3][iRangeBin] ->Fill(pt1);
+		 h_trkEtaIsoNxN[3][iRangeBin] ->Fill(eta1);
+		 h_trkPhiIsoNxN[3][iRangeBin] ->Fill(phi1);
 	       }
 	     }
 	   }
@@ -794,6 +825,7 @@ void TreeAnalysisReadGen::Loop() {
 	 } // if isolated in 31x31
 
 	 //===================================================================================================
+	 //////// CHARGE ISOLATION CHANGED TO 2GEV
 	 if (maxNearPIsoR<0) {
 	   double etotal1_R = (*t_photonEneIsoR)[itrk]+(*t_cHadronEneIsoR_1)[itrk]+(*t_nHadronEneIsoR)[itrk];
 	   double etotal2_R = (*t_photonEneR)[itrk]+(*t_cHadronEneR_1)[itrk]+(*t_nHadronEneR)[itrk];
@@ -825,11 +857,16 @@ void TreeAnalysisReadGen::Loop() {
 		 h_trkPtIsoR [1][iRangeBin] ->Fill(pt1);
 		 h_trkEtaIsoR[1][iRangeBin] ->Fill(eta1);
 		 h_trkPhiIsoR[1][iRangeBin] ->Fill(phi1);
-	       } else if (std::abs(pdgid1)==2212 ) {
+	       } else if (pdgid1==2212 ) {
 		 h_trkPIsoR  [2][iRangeBin] ->Fill(p1);
 		 h_trkPtIsoR [2][iRangeBin] ->Fill(pt1);
 		 h_trkEtaIsoR[2][iRangeBin] ->Fill(eta1);
 		 h_trkPhiIsoR[2][iRangeBin] ->Fill(phi1);
+	       } else if (pdgid1==-2212 ) {
+		 h_trkPIsoR  [3][iRangeBin] ->Fill(p1);
+		 h_trkPtIsoR [3][iRangeBin] ->Fill(pt1);
+		 h_trkEtaIsoR[3][iRangeBin] ->Fill(eta1);
+		 h_trkPhiIsoR[3][iRangeBin] ->Fill(phi1);
 	       }
 	     }
 	   }
@@ -866,9 +903,12 @@ void TreeAnalysisReadGen::Loop() {
 	 }
 	 //===================================================================================================
        }
-     }
-
-   } // loop over entries
+    }    
+  } // loop over entries
+  std::cout << "number of tracks " << nTrk << std::endl
+	    << "number of tracks selected  in bins " << nTrk_Bins << std::endl
+	    << "number of tracks selected in maxnearP " << nTrk_maxNearP << std::endl
+	    << "number of isolated tracks " << nIsoTrk << std::endl;
 }
 
 Bool_t TreeAnalysisReadGen::Notify() {
@@ -943,59 +983,71 @@ void TreeAnalysisReadGen::BookHistograms(const char *outFileName, std::vector<st
   TDirectory *d_HCR_IsoR              = fout->mkdir( "d_HCR_IsoR" );
   TDirectory *d_trigger = fout->mkdir("trigger");
   TDirectory *d_inclusive           = fout->mkdir( "InclusiveTracks" ); 
-  std::string PNames[PTypes] = {"Pions", "Kaons", "Protons"};
-  d_inclusive ->cd();
+  std::string PNames[PTypes] = {"Pions", "Kaons", "Protons", "AntiProtons"};
   for (unsigned int j=0; j<ranges.size()+1; j++) {
     if(j==ranges.size()) sprintf(name, "all");
     else sprintf(name, "%s", ranges[j].c_str());
+    d_inclusive ->cd();
     for(int itype=0; itype<PTypes; itype++){
       sprintf(hname, "h_trkPAll_%i_%s",itype, name);
       sprintf(htit,  "tracks : P(%s)_%s", PNames[itype].c_str(), name);
       h_trkPAll[itype][j] = new TH1F(hname, htit, NPBins, genPartPBins);
+      h_trkPAll[itype][j]->Sumw2();
       
       sprintf(hname, "h_trkPtAll_%i_%s",itype, name);
       sprintf(htit,  "tracks : Pt(%s)_%s", PNames[itype].c_str(), name);
       h_trkPtAll[itype][j] = new TH1F(hname, htit, NPBins, genPartPBins);
+      h_trkPtAll[itype][j]->Sumw2();
 
       sprintf(hname, "h_trkEtaAll_%i_%s",itype, name);
       sprintf(htit,  "tracks : Eta(%s)_%s", PNames[itype].c_str(), name);
       h_trkEtaAll[itype][j] = new TH1F(hname, htit, 200, -10.0, 10.0);
+      h_trkEtaAll[itype][j]->Sumw2();
 
       sprintf(hname, "h_trkPhiAll_%i_%s",itype, name);
       sprintf(htit,  "tracks : Phi(%s)_%s", PNames[itype].c_str(), name);
       h_trkPhiAll[itype][j] = new TH1F(hname, htit, 100, -5.0, 5.0);    
+      h_trkPhiAll[itype][j]->Sumw2();
       
       sprintf(hname, "h_trkPIsoNxN_%i_%s",itype, name);
       sprintf(htit,  "tracks : P(%s)_%s", PNames[itype].c_str(), name);
       h_trkPIsoNxN[itype][j] = new TH1F(hname, htit, NPBins, genPartPBins);
+      h_trkPIsoNxN[itype][j]->Sumw2();
 
       sprintf(hname, "h_trkPtIsoNxN_%i_%s",itype, name);
       sprintf(htit,  "tracks : Pt(%s)_%s", PNames[itype].c_str(), name);
       h_trkPtIsoNxN[itype][j] = new TH1F(hname, htit, NPBins, genPartPBins);
+      h_trkPtIsoNxN[itype][j]->Sumw2();
       
       sprintf(hname, "h_trkEtaIsoNxN_%i_%s",itype, name);
       sprintf(htit,  "tracks : Eta(%s)_%s", PNames[itype].c_str(), name);
       h_trkEtaIsoNxN[itype][j] = new TH1F(hname, htit, 100, -5.0, 5.0);
+      h_trkEtaIsoNxN[itype][j]->Sumw2();
       
       sprintf(hname, "h_trkPhiIsoNxN_%i_%s",itype, name);
       sprintf(htit,  "tracks : Phi(%s)_%s", PNames[itype].c_str(), name);
       h_trkPhiIsoNxN[itype][j] = new TH1F(hname, htit, 100, -5.0, 5.0);    
+      h_trkPhiIsoNxN[itype][j]->Sumw2();
       
       sprintf(hname, "h_trkPIsoR_%i_%s",itype, name);
       sprintf(htit,  "tracks : P(%s)_%s", PNames[itype].c_str(), name);
       h_trkPIsoR[itype][j] = new TH1F(hname, htit, NPBins, genPartPBins);
+      h_trkPIsoR[itype][j]->Sumw2();
       
       sprintf(hname, "h_trkPtIsoR_%i_%s",itype, name);
       sprintf(htit,  "tracks : Pt(%s)_%s", PNames[itype].c_str(), name);
       h_trkPtIsoR[itype][j] = new TH1F(hname, htit, NPBins, genPartPBins);
+      h_trkPtIsoR[itype][j]->Sumw2();
       
       sprintf(hname, "h_trkEtaIsoR_%i_%s",itype, name);
       sprintf(htit,  "tracks : Eta(%s)_%s", PNames[itype].c_str(), name);
       h_trkEtaIsoR[itype][j] = new TH1F(hname, htit, 100, -5.0, 5.0);
+      h_trkEtaIsoR[itype][j]->Sumw2();
       
       sprintf(hname, "h_trkPhiIsoR_%i_%s",itype, name);
       sprintf(htit,  "tracks : Phi(%s)_%s", PNames[itype].c_str(), name);
       h_trkPhiIsoR[itype][j] = new TH1F(hname, htit, 100, -5.0, 5.0);    
+      h_trkPhiIsoR[itype][j]->Sumw2();
     }
     for(int ieta=0; ieta<NEtaBins; ieta++) {
       double lowEta=-5.0, highEta= 5.0;
@@ -1010,32 +1062,55 @@ void TreeAnalysisReadGen::BookHistograms(const char *outFileName, std::vector<st
 	sprintf(hname, "h_trkDEta_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "#Delta(#eta(track),#eta(EcalImpactPoint)) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_trkDEta[ipt][ieta][j] = new TH1F(hname, htit, 250, -0.5, 0.5);
+	h_trkDEta[ipt][ieta][j]->Sumw2();
 	
 	sprintf(hname, "h_trkDPhi_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "#Delta(#phi(track),#phi(EcalImpactPoint)) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_trkDPhi[ipt][ieta][j] = new TH1F(hname, htit, 350, -0.2, 1.5);
+	h_trkDPhi[ipt][ieta][j]->Sumw2();
       }
-    }    
+    }
     
     sprintf(hname, "h_trkP_iso31x31_%s", name);
     h_trkP_iso31x31[j] = new TH1F(hname, hname, NPBins, genPartPBins);
+    h_trkP_iso31x31[j]->Sumw2();
     sprintf(hname, "h_trkP_iso25x25_%s", name);
     h_trkP_iso25x25[j] = new TH1F(hname, hname, NPBins, genPartPBins);
+    h_trkP_iso25x25[j]->Sumw2();
     sprintf(hname, "h_trkP_iso21x21_%s", name);
     h_trkP_iso21x21[j] = new TH1F(hname, hname, NPBins, genPartPBins);
+    h_trkP_iso21x21[j]->Sumw2();
     sprintf(hname, "h_trkP_iso15x15_%s", name);
     h_trkP_iso15x15[j] = new TH1F(hname, hname, NPBins, genPartPBins);
+    h_trkP_iso15x15[j]->Sumw2();
     sprintf(hname, "h_trkP_iso11x11_%s", name);
     h_trkP_iso11x11[j] = new TH1F(hname, hname, NPBins, genPartPBins);
+    h_trkP_iso11x11[j]->Sumw2();
     
     sprintf(hname, "h_L1Decision_%s", name);
     h_L1Decision[j]    = new TH1F(hname,    hname,    10, -0.5, 9.5);
+    h_L1Decision[j]->Sumw2();
     h_L1Decision[j]->GetXaxis()->SetBinLabel(1,"L1SingleJet");
     h_L1Decision[j]->GetXaxis()->SetBinLabel(2,"L1SingleTauJet");
     h_L1Decision[j]->GetXaxis()->SetBinLabel(3,"L1SingleEG");
     h_L1Decision[j]->GetXaxis()->SetBinLabel(4,"L1SingleIsoEG");
     h_L1Decision[j]->GetXaxis()->SetBinLabel(5,"L1SingleMu");
     
+    d_maxNearP->cd();
+    sprintf(hname, "h_maxNearPIsoHCR_allbins_%s", name);
+    h_maxNearPIsoHCR_allbins[j] = new TH1F(hname, hname, 220, -2.0, 100.0);
+    h_maxNearPIsoHCR_allbins[j]->Sumw2();
+
+    for(int ipt=0; ipt<NPBins; ipt++) {
+      double lowP=0.0, highP=300.0;
+      lowP    = genPartPBins[ipt];
+      highP   = genPartPBins[ipt+1];
+      
+      sprintf(hname, "h_maxNearPIsoHCR_ptBin%i_%s",ipt, name);
+      sprintf(htit,  "maxNearP in IsoHCR (%2.0f<trkP<%3.0f) for %s", lowP, highP, name);
+      h_maxNearPIsoHCR_pbins[ipt][j] = new TH1F(hname, htit, 220, -2.0, 100.0);
+      h_maxNearPIsoHCR_pbins[ipt][j]->Sumw2();
+    }
     for(int ieta=0; ieta<NEtaBins; ieta++) {
       double lowEta=-5.0, highEta= 5.0;
       lowEta  = genPartEtaBins[ieta];
@@ -1047,38 +1122,58 @@ void TreeAnalysisReadGen::BookHistograms(const char *outFileName, std::vector<st
 	highP   = genPartPBins[ipt+1];
 	
 	d_maxNearP->cd();
+	sprintf(hname, "h_maxNearPIsoR_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "maxNearP in IsoR (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
+	h_maxNearPIsoR[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 100.0);
+	h_maxNearPIsoR[ipt][ieta][j]->Sumw2();
+	sprintf(hname, "h_maxNearPIsoHCR_ptBin%i_etaBin%i_%s",ipt, ieta, name);
+	sprintf(htit,  "maxNearP in IsoHCR (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
+	h_maxNearPIsoHCR[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 100.0);
+	h_maxNearPIsoHCR[ipt][ieta][j]->Sumw2();
+
 	sprintf(hname, "h_maxNearP31x31_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "maxNearP in 31x31 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
-	h_maxNearP31x31[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_maxNearP31x31[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 100.0);
+	h_maxNearP31x31[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_maxNearP25x25_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "maxNearP in 25x25 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
-	h_maxNearP25x25[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_maxNearP25x25[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 100.0);
+	h_maxNearP25x25[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_maxNearP21x21_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "maxNearP in 21x21 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
-	h_maxNearP21x21[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_maxNearP21x21[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 100.0);
+	h_maxNearP21x21[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_maxNearP15x15_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "maxNearP in 15x15 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
-	h_maxNearP15x15[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_maxNearP15x15[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 100.0);
+	h_maxNearP15x15[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_maxNearP11x11_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "maxNearP in 11x11 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
-	h_maxNearP11x11[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_maxNearP11x11[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 100.0);
+	h_maxNearP11x11[ipt][ieta][j]->Sumw2();
+
 
 	d_chargeIso31x31->cd();
 	sprintf(hname, "h_photon_iso31x31_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "photon in 31x31 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
 	h_photon_iso31x31[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_photon_iso31x31[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_charged_iso31x31_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "charged in 31x31 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
 	h_charged_iso31x31[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_charged_iso31x31[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_neutral_iso31x31_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "neutral in 31x31 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
 	h_neutral_iso31x31[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_neutral_iso31x31[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_contamination_iso31x31_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "contamination in 31x31 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
 	h_contamination_iso31x31[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_contamination_iso31x31[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_L1_iso31x31_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "L1 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP, name);
 	h_L1_iso31x31[ipt][ieta][j] = new TH1F(hname, htit, 10, -0.5, 9.5);
+	h_L1_iso31x31[ipt][ieta][j]->Sumw2();
 	h_L1_iso31x31[ipt][ieta][j]->GetXaxis()->SetBinLabel(1,"L1SingleJet");
 	h_L1_iso31x31[ipt][ieta][j]->GetXaxis()->SetBinLabel(2,"L1SingleTauJet");
 	h_L1_iso31x31[ipt][ieta][j]->GetXaxis()->SetBinLabel(3,"L1SingleEG");
@@ -1089,74 +1184,96 @@ void TreeAnalysisReadGen::BookHistograms(const char *outFileName, std::vector<st
 	sprintf(hname, "h_photon_iso25x25_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "photon in 25x25 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_photon_iso25x25[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_photon_iso25x25[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_charged_iso25x25_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "charged in 25x25 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_charged_iso25x25[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_charged_iso25x25[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_neutral_iso25x25_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "neutral in 25x25 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_neutral_iso25x25[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_neutral_iso25x25[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_contamination_iso25x25_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "contamination in 25x25 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_contamination_iso25x25[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_contamination_iso25x25[ipt][ieta][j]->Sumw2();
 	
 	d_chargeIso21x21->cd();
 	sprintf(hname, "h_photon_iso21x21_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "photon in 21x21 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_photon_iso21x21[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_photon_iso21x21[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_charged_iso21x21_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "charged in 21x21 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_charged_iso21x21[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_charged_iso21x21[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_neutral_iso21x21_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "neutral in 21x21 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_neutral_iso21x21[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_neutral_iso21x21[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_contamination_iso21x21_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "contamination in 21x21 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_contamination_iso21x21[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_contamination_iso21x21[ipt][ieta][j]->Sumw2();
 	
 	d_chargeIso15x15->cd();
 	sprintf(hname, "h_photon_iso15x15_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "photon in 15x15 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_photon_iso15x15[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_photon_iso15x15[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_charged_iso15x15_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "charged in 15x15 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_charged_iso15x15[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_charged_iso15x15[ipt][ieta][j]->Sumw2();
+
 	sprintf(hname, "h_neutral_iso15x15_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "neutral in 15x15 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_neutral_iso15x15[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_neutral_iso15x15[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_contamination_iso15x15_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "contamination in 15x15 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_contamination_iso15x15[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_contamination_iso15x15[ipt][ieta][j]->Sumw2();
 	
 	d_chargeIso11x11->cd();
 	sprintf(hname, "h_photon_iso11x11_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "photon in 11x11 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_photon_iso11x11[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_photon_iso11x11[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_charged_iso11x11_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "charged in 11x11 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_charged_iso11x11[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_charged_iso11x11[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_neutral_iso11x11_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "neutral in 11x11 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_neutral_iso11x11[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_neutral_iso11x11[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_contamination_iso11x11_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "contamination in 11x11 (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_contamination_iso11x11[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_contamination_iso11x11[ipt][ieta][j]->Sumw2();
 	
 	d_E11x11_chargeIso31x31->cd();
 	sprintf(hname, "h_photon11x11_iso31x31_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "photon in 11x11 (iso31x31) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_photon11x11_iso31x31[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_photon11x11_iso31x31[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_charged11x11_iso31x31_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "charged in 11x11 (iso31x31) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_charged11x11_iso31x31[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_charged11x11_iso31x31[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_neutral11x11_iso31x31_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "neutral in 11x11 (iso31x31) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_neutral11x11_iso31x31[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_neutral11x11_iso31x31[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_contamination11x11_iso31x31_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "contamination in 11x11 (iso31x31) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_contamination11x11_iso31x31[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_contamination11x11_iso31x31[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_L1_iso31x31_isoPhoton_11x11_1_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "L1(iso31x31, photonEne>0)) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_L1_iso31x31_isoPhoton_11x11_1[ipt][ieta][j] = new TH1F(hname, htit, 10, -0.5, 9.5);
+	h_L1_iso31x31_isoPhoton_11x11_1[ipt][ieta][j]->Sumw2();
 	h_L1_iso31x31_isoPhoton_11x11_1[ipt][ieta][j]->GetXaxis()->SetBinLabel(1,"L1SingleJet");
 	h_L1_iso31x31_isoPhoton_11x11_1[ipt][ieta][j]->GetXaxis()->SetBinLabel(2,"L1SingleTauJet");
 	h_L1_iso31x31_isoPhoton_11x11_1[ipt][ieta][j]->GetXaxis()->SetBinLabel(3,"L1SingleEG");
@@ -1165,6 +1282,7 @@ void TreeAnalysisReadGen::BookHistograms(const char *outFileName, std::vector<st
 	sprintf(hname, "h_L1_iso31x31_isoPhoton_11x11_2_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "L1(iso31x31, photonEne==0)) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_L1_iso31x31_isoPhoton_11x11_2[ipt][ieta][j] = new TH1F(hname, htit, 10, -0.5, 9.5);
+	h_L1_iso31x31_isoPhoton_11x11_2[ipt][ieta][j]->Sumw2();
 	h_L1_iso31x31_isoPhoton_11x11_2[ipt][ieta][j]->GetXaxis()->SetBinLabel(1,"L1SingleJet");
 	h_L1_iso31x31_isoPhoton_11x11_2[ipt][ieta][j]->GetXaxis()->SetBinLabel(2,"L1SingleTauJet");
 	h_L1_iso31x31_isoPhoton_11x11_2[ipt][ieta][j]->GetXaxis()->SetBinLabel(3,"L1SingleEG");
@@ -1173,6 +1291,7 @@ void TreeAnalysisReadGen::BookHistograms(const char *outFileName, std::vector<st
 	sprintf(hname, "h_L1_iso31x31_isoNeutral_11x11_1_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "L1(iso31x31, photonEne>0)) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_L1_iso31x31_isoNeutral_11x11_1[ipt][ieta][j] = new TH1F(hname, htit, 10, -0.5, 9.5);
+	h_L1_iso31x31_isoNeutral_11x11_1[ipt][ieta][j]->Sumw2();
 	h_L1_iso31x31_isoNeutral_11x11_1[ipt][ieta][j]->GetXaxis()->SetBinLabel(1,"L1SingleJet");
 	h_L1_iso31x31_isoNeutral_11x11_1[ipt][ieta][j]->GetXaxis()->SetBinLabel(2,"L1SingleTauJet");
 	h_L1_iso31x31_isoNeutral_11x11_1[ipt][ieta][j]->GetXaxis()->SetBinLabel(3,"L1SingleEG");
@@ -1181,6 +1300,7 @@ void TreeAnalysisReadGen::BookHistograms(const char *outFileName, std::vector<st
 	sprintf(hname, "h_L1_iso31x31_isoNeutral_11x11_2_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "L1(iso31x31, photonEne==0)) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_L1_iso31x31_isoNeutral_11x11_2[ipt][ieta][j] = new TH1F(hname, htit, 10, -0.5, 9.5);
+	h_L1_iso31x31_isoNeutral_11x11_2[ipt][ieta][j]->Sumw2();
 	h_L1_iso31x31_isoNeutral_11x11_2[ipt][ieta][j]->GetXaxis()->SetBinLabel(1,"L1SingleJet");
 	h_L1_iso31x31_isoNeutral_11x11_2[ipt][ieta][j]->GetXaxis()->SetBinLabel(2,"L1SingleTauJet");
 	h_L1_iso31x31_isoNeutral_11x11_2[ipt][ieta][j]->GetXaxis()->SetBinLabel(3,"L1SingleEG");
@@ -1190,57 +1310,73 @@ void TreeAnalysisReadGen::BookHistograms(const char *outFileName, std::vector<st
 	sprintf(hname, "h_photon11x11_isoEcal_NxN_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "photon in 11x11 (iso31x31-11x11) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_photon11x11_isoEcal_NxN[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_photon11x11_isoEcal_NxN[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_charged11x11_isoEcal_NxN_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "charged in 11x11 (iso31x31-11x11) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_charged11x11_isoEcal_NxN[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_charged11x11_isoEcal_NxN[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_neutral11x11_isoEcal_NxN_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "neutral in 11x11 (iso31x31-11x11) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_neutral11x11_isoEcal_NxN[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_neutral11x11_isoEcal_NxN[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_contamination11x11_isoEcal_NxN_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "contamination in 11x11 (iso31x31-11x11) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_contamination11x11_isoEcal_NxN[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_contamination11x11_isoEcal_NxN[ipt][ieta][j]->Sumw2();
 	
 	d_R_chargeIsoIsoR->cd();
 	sprintf(hname, "h_photonR_isoEcal_R_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "photon in R iso(IsoR-R) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_photonR_isoEcal_R[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_photonR_isoEcal_R[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_chargedR_isoEcal_R_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "charged in R iso(IsoR-R) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_chargedR_isoEcal_R[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_chargedR_isoEcal_R[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_neutralR_isoEcal_R_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "neutral in R iso(IsoR-R) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_neutralR_isoEcal_R[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_neutralR_isoEcal_R[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_contaminationR_isoEcal_R_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "contamination in R iso(IsoR-R) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_contaminationR_isoEcal_R[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_contaminationR_isoEcal_R[ipt][ieta][j]->Sumw2();
 	
 	d_H5x5_IsoNxN->cd();
 	sprintf(hname, "h_photonHC5x5_IsoNxN_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "photon in HC5x5 (IsoNxN) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_photonHC5x5_IsoNxN[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_photonHC5x5_IsoNxN[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_chargedHC5x5_IsoNxN_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "charged in HC5x5 (IsoNxN) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_chargedHC5x5_IsoNxN[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_chargedHC5x5_IsoNxN[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_neutralHC5x5_IsoNxN_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "neutral in HC5x5 (IsoNxN) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_neutralHC5x5_IsoNxN[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_neutralHC5x5_IsoNxN[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_contaminationHC5x5_IsoNxN_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "contamination in HC5x5 (IsoNxN) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_contaminationHC5x5_IsoNxN[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_contaminationHC5x5_IsoNxN[ipt][ieta][j]->Sumw2();
 	
 	d_HCR_IsoR->cd();
 	sprintf(hname, "h_photonHCR_IsoR_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "photon in HCR (IsoR) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_photonHCR_IsoR[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_photonHCR_IsoR[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_chargedHCR_IsoR_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "charged in HCR (IsoR) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_chargedHCR_IsoR[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_chargedHCR_IsoR[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_neutralHCR_IsoR_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "neutral in HCR (IsoR) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_neutralHCR_IsoR[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_neutralHCR_IsoR[ipt][ieta][j]->Sumw2();
 	sprintf(hname, "h_contaminationHCR_IsoR_ptBin%i_etaBin%i_%s",ipt, ieta, name);
 	sprintf(htit,  "contamination in HCR (IsoR) (%3.2f<|#eta|<%3.2f), (%2.0f<trkP<%3.0f) for %s", lowEta, highEta, lowP, highP , name);
 	h_contaminationHCR_IsoR[ipt][ieta][j] = new TH1F(hname, htit, 220, -2.0, 20.0);
+	h_contaminationHCR_IsoR[ipt][ieta][j]->Sumw2();
       }
     }
     
@@ -1248,13 +1384,16 @@ void TreeAnalysisReadGen::BookHistograms(const char *outFileName, std::vector<st
     d_trigger->cd();
     sprintf(hname, "h_L1CenJetPt_%s", name);
     h_L1CenJetPt[j]  = new TH1F(hname, hname, 500, 0.0, 500);
+    h_L1CenJetPt[j]->Sumw2();
     sprintf(hname, "h_L1FwdJetPt_%s", name);
     h_L1FwdJetPt[j]  = new TH1F(hname, hname, 500, 0.0, 500);
+    h_L1FwdJetPt[j]->Sumw2();
     sprintf(hname, "h_L1TauJetPt_%s", name);
     h_L1TauJetPt[j]  = new TH1F(hname, hname, 500, 0.0, 500);
+    h_L1TauJetPt[j]->Sumw2();
     sprintf(hname, "h_L1LeadJetPt_%s", name);
     h_L1LeadJetPt[j] = new TH1F(hname, hname, 500, 0.0, 500);
-    
+    h_L1LeadJetPt[j]->Sumw2();    
   }
 }
 
@@ -1279,8 +1418,9 @@ double TreeAnalysisReadGen::DeltaR(double eta1, double phi1, double eta2, double
 }
 
 void TreeAnalysisReadGen::AddWeight(){
+
   for (unsigned int i=0; i<fRange-iRange+1; i++) {
-    for(int itype=0; itype<PTypes; itype++){
+    for (int itype=0; itype<PTypes; itype++) {
       h_trkPAll[itype][NRanges]          ->Add(h_trkPAll[itype][i+iRange]          , weights[i]);
       h_trkPtAll[itype][NRanges]         ->Add(h_trkPtAll[itype][i+iRange]         , weights[i]);
       h_trkEtaAll[itype][NRanges]        ->Add(h_trkEtaAll[itype][i+iRange]        , weights[i]);
@@ -1301,8 +1441,8 @@ void TreeAnalysisReadGen::AddWeight(){
     h_trkP_iso11x11[NRanges] ->Add(h_trkP_iso11x11[i+iRange] , weights[i]);
     h_L1Decision[NRanges]    ->Add(h_L1Decision[i+iRange]    , weights[i]);
 
-    for(int ieta=0; ieta<NEtaBins; ieta++) {
-      for(int ipt=0; ipt<NPBins; ipt++) {
+    for (int ieta=0; ieta<NEtaBins; ieta++) {
+      for (int ipt=0; ipt<NPBins; ipt++) {
 	h_trkDEta[ipt][ieta][NRanges] ->Add(h_trkDEta[ipt][ieta][i+iRange] , weights[i]);
 	h_trkDPhi[ipt][ieta][NRanges] ->Add(h_trkDPhi[ipt][ieta][i+iRange] , weights[i]);
 	h_maxNearP31x31[ipt][ieta][NRanges]                  ->Add(h_maxNearP31x31[ipt][ieta][i+iRange]                  , weights[i]);
@@ -1363,10 +1503,13 @@ void TreeAnalysisReadGen::AddWeight(){
     h_L1LeadJetPt[NRanges] ->Add(h_L1LeadJetPt[i+iRange] , weights[i]);
   }
 }
+
 void TreeAnalysisReadGen::setRange(unsigned int ir) {
   iRangeBin = ir;
 }
+
 void TreeAnalysisReadGen::clear() {
+  std::cout << fChain << std::endl;
   if (!fChain) return;
   delete fChain->GetCurrentFile();
 }

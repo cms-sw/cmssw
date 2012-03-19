@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg      3-Jul-2007
 #     A. Parenti, DESY Hamburg    21-Apr-2008
-#     $Revision: 1.25 $ by $Author: jbehr $
-#     $Date: 2011/07/16 10:23:57 $
+#     $Revision: 1.24 $ by $Author: jbehr $
+#     $Date: 2011/06/30 11:16:05 $
 #
 #  Submit jobs that are setup in local mps database
 #  
@@ -164,7 +164,7 @@ if ($fireMerge == 0) {
           # Rewrite the mergeCfg, using only "OK" jobs
           system "mps_merge.pl -c $theJobData/@JOBDIR[$i]/$mergeCfg.bak $theJobData/@JOBDIR[$i]/$mergeCfg $theJobData/@JOBDIR[$i] $nJobs";
           # Rewrite theScript.sh, using only "OK" jobs
-	  system "mps_scriptm.pl -c $mergeScript $theJobData/@JOBDIR[$i]/theScript.sh $theJobData/@JOBDIR[$i] $mergeCfg $nJobs $mssDir $mssDirPool";
+	  system "mps_scriptm.pl -c $mergeScript $theJobData/@JOBDIR[$i]/theScript.sh $theJobData/@JOBDIR[$i] $mergeCfg $nJobs $mssDir";
         } else {
           # Restore the backup copy of the script
           if (-e "$theJobData/@JOBDIR[$i]/theScript.sh.bak") {

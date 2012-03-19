@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2011/02/17 14:46:42 $
- *  $Revision: 1.12 $
+ *  $Date: 2011/06/21 20:45:53 $
+ *  $Revision: 1.13 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -17,7 +17,8 @@
 
 using namespace edm;
 
-TauValidation::TauValidation(const edm::ParameterSet& iPSet):  
+TauValidation::TauValidation(const edm::ParameterSet& iPSet): 
+  _wmanager(iPSet),
   hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection")),
   tauEtCut(iPSet.getParameter<double>("tauEtCutForRtau"))
 {    
@@ -109,25 +110,28 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
   //Get EVENT
   HepMC::GenEvent *myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
 
-  nEvt->Fill(0.5);
+  double weight = _wmanager.weight(iEvent);
+
+
+  nEvt->Fill(0.5,weight);
 
   // find taus
   for(HepMC::GenEvent::particle_const_iterator iter = myGenEvent->particles_begin(); iter != myGenEvent->particles_end(); ++iter) {
     if ((*iter)->status()==3)
     {
       if(abs((*iter)->pdg_id())==15){
-        TauPt->Fill((*iter)->momentum().perp());
-        TauEta->Fill((*iter)->momentum().eta());
-	TauPhi->Fill((*iter)->momentum().phi());
-	int mother  = tauMother(*iter);
-	int decaychannel = tauDecayChannel(*iter);
-	tauProngs(*iter);
-	rtau(*iter,mother,decaychannel);
-	spinEffects(*iter,mother,decaychannel);
-	photons(*iter);
+        TauPt->Fill((*iter)->momentum().perp(),weight);
+        TauEta->Fill((*iter)->momentum().eta(),weight);
+	TauPhi->Fill((*iter)->momentum().phi(),weight);
+	int mother  = tauMother(*iter, weight);
+	int decaychannel = tauDecayChannel(*iter, weight);
+	tauProngs(*iter, weight);
+	rtau(*iter,mother,decaychannel, weight);
+	spinEffects(*iter,mother,decaychannel, weight);
+	photons(*iter, weight);
       }
       if(abs((*iter)->pdg_id())==23){
-        spinEffectsZ(*iter);
+        spinEffectsZ(*iter, weight);
       }
     }
   }
@@ -150,7 +154,7 @@ int TauValidation::findMother(const HepMC::GenParticle* tau){
 	return mother_pid;
 }
 
-int TauValidation::tauMother(const HepMC::GenParticle* tau){
+int TauValidation::tauMother(const HepMC::GenParticle* tau, double weight){
 
 	if(abs(tau->pdg_id()) != 15 ) return -1;
 
@@ -166,12 +170,12 @@ int TauValidation::tauMother(const HepMC::GenParticle* tau){
 	if(abs(mother_pid) == 36) label = A0;
 	if(abs(mother_pid) == 37) label = Hpm;
 
-	TauMothers->Fill(label);
+	TauMothers->Fill(label,weight);
 
 	return mother_pid;
 }
 
-int TauValidation::tauProngs(const HepMC::GenParticle* tau){
+int TauValidation::tauProngs(const HepMC::GenParticle* tau, double weight){
 
 	int nProngs = 0;
 	if ( tau->end_vertex() ) {
@@ -179,7 +183,7 @@ int TauValidation::tauProngs(const HepMC::GenParticle* tau){
 		for(des = tau->end_vertex()->particles_begin(HepMC::descendants);
 		    des!= tau->end_vertex()->particles_end(HepMC::descendants);++des ) {
 			int pid = (*des)->pdg_id();
-			if(abs(pid) == 15) return tauProngs(*des);
+			if(abs(pid) == 15) return tauProngs(*des, weight);
 			if((*des)->status() != 1) continue; // dont count unstable particles
 
 			const HepPDT::ParticleData*  pd = fPDGTable->particle((*des)->pdg_id ());
@@ -191,7 +195,7 @@ int TauValidation::tauProngs(const HepMC::GenParticle* tau){
 			nProngs++;
 		}
 	}
-	TauProngs->Fill(nProngs);
+	TauProngs->Fill(nProngs,weight);
 	return nProngs;
 }
 
@@ -254,29 +258,29 @@ int TauValidation::findTauDecayChannel(const HepMC::GenParticle* tau){
 	return channel;
 }
 
-int TauValidation::tauDecayChannel(const HepMC::GenParticle* tau){
+int TauValidation::tauDecayChannel(const HepMC::GenParticle* tau, double weight){
 	int channel = findTauDecayChannel(tau);
-	TauDecayChannels->Fill(channel);
+	TauDecayChannels->Fill(channel,weight);
 	return channel;
 }
 
-void TauValidation::rtau(const HepMC::GenParticle* tau,int mother, int decay){
+void TauValidation::rtau(const HepMC::GenParticle* tau,int mother, int decay, double weight){
 
 	if(decay != pi1pi0) return; // polarization only for 1-prong hadronic taus with one neutral pion to make a clean case
 
 	if(tau->momentum().perp() < tauEtCut) return; // rtau visible only for boosted taus
 	
 	double rTau = 0;
-	double ltrack = leadingPionMomentum(tau);
+	double ltrack = leadingPionMomentum(tau, weight);
 	double visibleTauE = visibleTauEnergy(tau);
 
 	if(visibleTauE != 0) rTau = ltrack/visibleTauE;
 
-	if(abs(mother) == 24) TauRtauW->Fill(rTau);
-        if(abs(mother) == 37) TauRtauHpm->Fill(rTau); 
+	if(abs(mother) == 24) TauRtauW->Fill(rTau,weight);
+        if(abs(mother) == 37) TauRtauHpm->Fill(rTau,weight); 
 }
 
-void TauValidation::spinEffects(const HepMC::GenParticle* tau,int mother, int decay){
+void TauValidation::spinEffects(const HepMC::GenParticle* tau,int mother, int decay, double weight){
 
 	if(decay != pi) return; // polarization only for 1-prong hadronic taus with no neutral pions
 
@@ -287,11 +291,11 @@ void TauValidation::spinEffects(const HepMC::GenParticle* tau,int mother, int de
 
 	double energy = pionP4.E()/(momP4.M()/2);
 
-	if(abs(mother) == 24) TauSpinEffectsW->Fill(energy);	
-	if(abs(mother) == 37) TauSpinEffectsHpm->Fill(energy);
+	if(abs(mother) == 24) TauSpinEffectsW->Fill(energy,weight);	
+	if(abs(mother) == 37) TauSpinEffectsHpm->Fill(energy,weight);
 }
 
-void TauValidation::spinEffectsZ(const HepMC::GenParticle* boson){
+void TauValidation::spinEffectsZ(const HepMC::GenParticle* boson, double weight){
 
         TLorentzVector tautau(0,0,0,0);
 	TLorentzVector pipi(0,0,0,0);
@@ -321,11 +325,11 @@ void TauValidation::spinEffectsZ(const HepMC::GenParticle* boson){
                 }
         }
         if(nSinglePionDecays == 2 && tautau.M() != 0) {
-          TauSpinEffectsZ->Fill(pipi.M()/tautau.M());
+          TauSpinEffectsZ->Fill(pipi.M()/tautau.M(),weight);
         }
 }
 
-double TauValidation::leadingPionMomentum(const HepMC::GenParticle* tau){
+double TauValidation::leadingPionMomentum(const HepMC::GenParticle* tau, double weight){
 	return leadingPionP4(tau).P();
 }
 
@@ -401,7 +405,7 @@ double TauValidation::visibleTauEnergy(const HepMC::GenParticle* tau){
 	return p4.E();
 }
 
-void TauValidation::photons(const HepMC::GenParticle* tau){
+void TauValidation::photons(const HepMC::GenParticle* tau, double weight){
 
         if ( tau->end_vertex() ) {
 	      double photonFromTauPtSum = 0;
@@ -416,10 +420,12 @@ void TauValidation::photons(const HepMC::GenParticle* tau){
 			} 
               }
 	      
-	      TauPhotonsN->Fill(0.5);
+	      TauPhotonsN->Fill(0.5,weight);
+              //doesn't seems like it makes sense to use a weight below  
 	      TauPhotonsPt->Fill(0.5,tau->momentum().perp());
 	      if(photonFromTau) {
-		TauPhotonsN->Fill(1.5);
+		TauPhotonsN->Fill(1.5,weight);
+                //doesn't seems like it makes sense to use a weight below  
 		TauPhotonsPt->Fill(1.5,photonFromTauPtSum);
 	      }
         }

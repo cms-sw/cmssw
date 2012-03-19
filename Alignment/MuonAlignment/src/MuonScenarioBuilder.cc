@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2011/06/07 19:38:24 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/11/26 14:57:13 $
+ *  $Revision: 1.7 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -36,6 +36,7 @@ MuonScenarioBuilder::MuonScenarioBuilder( Alignable* alignable )
 //__________________________________________________________________________________________________
 void MuonScenarioBuilder::applyScenario( const edm::ParameterSet& scenario )
 {
+
   // Apply the scenario to all main components of Muon.
   theScenario = scenario;
   theModifierCounter = 0;
@@ -61,12 +62,13 @@ void MuonScenarioBuilder::applyScenario( const edm::ParameterSet& scenario )
   
   edm::LogInfo("TrackerScenarioBuilder") 
 	<< "Applied modifications to " << theModifierCounter << " alignables";
+
 }
 
 
 
-align::Scalars MuonScenarioBuilder::extractParameters(const edm::ParameterSet& pSet, const char *blockId)
-{
+std::vector<float> MuonScenarioBuilder::extractParameters(const edm::ParameterSet& pSet, const char *blockId) {
+  
   double scale_ = 0, scaleError_ = 0, phiX_ = 0, phiY_ = 0, phiZ_ = 0;
   double dX_ = 0, dY_ = 0, dZ_ = 0;
   std::string distribution_;
@@ -89,7 +91,7 @@ align::Scalars MuonScenarioBuilder::extractParameters(const edm::ParameterSet& p
 	error << " " << *iParam;
       }
   }
-  align::Scalars param;
+  std::vector<float> param;
   param.push_back(scale_); param.push_back(scaleError_);
   param.push_back(phiX_); param.push_back(phiY_);
   param.push_back(phiZ_); param.push_back(dX_);
@@ -102,26 +104,27 @@ align::Scalars MuonScenarioBuilder::extractParameters(const edm::ParameterSet& p
     param.push_back(2);
   
   return param;
+
 }
 
 //_____________________________________________________________________________________________________
-void MuonScenarioBuilder::moveDTSectors(const edm::ParameterSet& pSet)
-{
+void MuonScenarioBuilder::moveDTSectors(const edm::ParameterSet& pSet) {
+  
   std::vector<Alignable *> DTchambers = theAlignableMuon->DTChambers();
   //Take parameters
-  align::Scalars param = this->extractParameters(pSet, "DTSectors");
-  double scale_ = param[0]; double scaleError_ = param[1];
-  double phiX_ = param[2]; double phiY_ = param[3]; double phiZ_ = param[4];
-  double dX_ = param[5]; double dY_ = param[6]; double dZ_ = param[7];
-  double dist_ = param[8];
+  std::vector<float> param = this->extractParameters(pSet, "DTSectors");
+  float scale_ = param[0]; float scaleError_ = param[1];
+  float phiX_ = param[2]; float phiY_ = param[3]; float phiZ_ = param[4];
+  float dX_ = param[5]; float dY_ = param[6]; float dZ_ = param[7];
+  float dist_ = param[8];
 
-  double dx = scale_*dX_; double dy = scale_*dY_; double dz = scale_*dZ_;
-  double phix = scale_*phiX_; double phiy = scale_*phiY_; double phiz = scale_*phiZ_;
-  double errorx = scaleError_*dX_; double errory = scaleError_*dY_; double errorz = scaleError_*dZ_;
-  double errorphix = scaleError_*phiX_; double errorphiy = scaleError_*phiY_; double errorphiz = scaleError_*phiZ_;
-  align::Scalars errorDisp;
+  float dx = scale_*dX_; float dy = scale_*dY_; float dz = scale_*dZ_;
+  float phix = scale_*phiX_; float phiy = scale_*phiY_; float phiz = scale_*phiZ_;
+  float errorx = scaleError_*dX_; float errory = scaleError_*dY_; float errorz = scaleError_*dZ_;
+  float errorphix = scaleError_*phiX_; float errorphiy = scaleError_*phiY_; float errorphiz = scaleError_*phiZ_;
+  std::vector<float> errorDisp;
   errorDisp.push_back(errorx); errorDisp.push_back(errory); errorDisp.push_back(errorz);
-  align::Scalars errorRotation;
+  std::vector<float> errorRotation;
   errorRotation.push_back(errorphix); errorRotation.push_back(errorphiy); errorRotation.push_back(errorphiz);
  
   int index[5][4][14];
@@ -134,8 +137,8 @@ void MuonScenarioBuilder::moveDTSectors(const edm::ParameterSet& pSet)
   }
   for(int wheel = 0; wheel < 5; wheel++) {
     for(int sector = 0; sector < 12; sector++) {
-      align::Scalars disp;
-      align::Scalars rotation;
+      std::vector<float> disp;
+      std::vector<float> rotation;
       if( dist_ == 0 ) {
         const std::vector<float> disp_ = theMuonModifier.gaussianRandomVector(dx, dy, dz);
         const std::vector<float> rotation_ = theMuonModifier.gaussianRandomVector(phix, phiy, phiz);
@@ -166,24 +169,25 @@ void MuonScenarioBuilder::moveDTSectors(const edm::ParameterSet& pSet)
 }
 
 
+
 //______________________________________________________________________________________________________
-void MuonScenarioBuilder::moveCSCSectors(const edm::ParameterSet& pSet)
-{
+void MuonScenarioBuilder::moveCSCSectors(const edm::ParameterSet& pSet) {
+  
   std::vector<Alignable *> CSCchambers = theAlignableMuon->CSCChambers();
   //Take Parameters
-  align::Scalars param = this->extractParameters(pSet, "CSCSectors");
-  double scale_ = param[0]; double scaleError_ = param[1];
-  double phiX_ = param[2]; double phiY_ = param[3]; double phiZ_ = param[4];
-  double dX_ = param[5]; double dY_ = param[6]; double dZ_ = param[7];
-  double dist_ = param[8];
+  std::vector<float> param = this->extractParameters(pSet, "CSCSectors");
+  float scale_ = param[0]; float scaleError_ = param[1];
+  float phiX_ = param[2]; float phiY_ = param[3]; float phiZ_ = param[4];
+  float dX_ = param[5]; float dY_ = param[6]; float dZ_ = param[7];
+  float dist_ = param[8];
   
-  double dx = scale_*dX_; double dy = scale_*dY_; double dz = scale_*dZ_;
-  double phix = scale_*phiX_; double phiy = scale_*phiY_; double phiz = scale_*phiZ_;
-  double errorx = scaleError_*dX_; double errory = scaleError_*dY_; double errorz = scaleError_*dZ_;
-  double errorphix = scaleError_*phiX_; double errorphiy = scaleError_*phiY_; double errorphiz = scaleError_*phiZ_;
-  align::Scalars errorDisp;
+  float dx = scale_*dX_; float dy = scale_*dY_; float dz = scale_*dZ_;
+  float phix = scale_*phiX_; float phiy = scale_*phiY_; float phiz = scale_*phiZ_;
+  float errorx = scaleError_*dX_; float errory = scaleError_*dY_; float errorz = scaleError_*dZ_;
+  float errorphix = scaleError_*phiX_; float errorphiy = scaleError_*phiY_; float errorphiz = scaleError_*phiZ_;
+  std::vector<float> errorDisp;
   errorDisp.push_back(errorx); errorDisp.push_back(errory); errorDisp.push_back(errorz);
-  align::Scalars errorRotation;
+  std::vector<float> errorRotation;
   errorRotation.push_back(errorphix); errorRotation.push_back(errorphiy); errorRotation.push_back(errorphiz);
   
   int index[2][4][4][36];
@@ -199,8 +203,8 @@ void MuonScenarioBuilder::moveCSCSectors(const edm::ParameterSet& pSet)
   for(int endcap = 0; endcap < 2; endcap++) {
     for(int ring = 0; ring < 2; ring++) {
       for(int sector = 1; sector < 7; sector++) {
-        align::Scalars disp;
-        align::Scalars rotation;
+        std::vector<float> disp;
+        std::vector<float> rotation;
         if( dist_ == 0 ) {
           const std::vector<float> disp_ = theMuonModifier.gaussianRandomVector(dx, dy, dz);
           const std::vector<float> rotation_ = theMuonModifier.gaussianRandomVector(phix, phiy, phiz);
@@ -251,23 +255,23 @@ void MuonScenarioBuilder::moveCSCSectors(const edm::ParameterSet& pSet)
 
 
 //______________________________________________________________________________________________________
-void MuonScenarioBuilder::moveMuon(const edm::ParameterSet& pSet)
-{
+void MuonScenarioBuilder::moveMuon(const edm::ParameterSet& pSet) {
+
   std::vector<Alignable *> DTbarrel = theAlignableMuon->DTBarrel();	
   std::vector<Alignable *> CSCendcaps = theAlignableMuon->CSCEndcaps();  
   //Take Parameters
-  align::Scalars param = this->extractParameters(pSet, "Muon");
-  double scale_ = param[0]; double scaleError_ = param[1];
-  double phiX_ = param[2]; double phiY_ = param[3]; double phiZ_ = param[4];
-  double dX_ = param[5]; double dY_ = param[6]; double dZ_ = param[7];
-  double dist_ = param[8]; 
-  double dx = scale_*dX_; double dy = scale_*dY_; double dz = scale_*dZ_;
-  double phix = scale_*phiX_; double phiy = scale_*phiY_; double phiz = scale_*phiZ_;
-  double errorx = scaleError_*dX_; double errory = scaleError_*dY_; double errorz = scaleError_*dZ_;
-  double errorphix = scaleError_*phiX_; double errorphiy = scaleError_*phiY_; double errorphiz = scaleError_*phiZ_;
+  std::vector<float> param = this->extractParameters(pSet, "Muon");
+  float scale_ = param[0]; float scaleError_ = param[1];
+  float phiX_ = param[2]; float phiY_ = param[3]; float phiZ_ = param[4];
+  float dX_ = param[5]; float dY_ = param[6]; float dZ_ = param[7];
+  float dist_ = param[8]; 
+  float dx = scale_*dX_; float dy = scale_*dY_; float dz = scale_*dZ_;
+  float phix = scale_*phiX_; float phiy = scale_*phiY_; float phiz = scale_*phiZ_;
+  float errorx = scaleError_*dX_; float errory = scaleError_*dY_; float errorz = scaleError_*dZ_;
+  float errorphix = scaleError_*phiX_; float errorphiy = scaleError_*phiY_; float errorphiz = scaleError_*phiZ_;
   //Create an index for the chambers in the alignable vector
-  align::Scalars disp;
-  align::Scalars rotation;
+  std::vector<float> disp;
+  std::vector<float> rotation;
   if( dist_ == 0 ) {
     const std::vector<float> disp_ = theMuonModifier.gaussianRandomVector(dx, dy, dz);
     const std::vector<float> rotation_ = theMuonModifier.gaussianRandomVector(phix, phiy, phiz);
@@ -294,21 +298,23 @@ void MuonScenarioBuilder::moveMuon(const edm::ParameterSet& pSet)
     theMuonModifier.addAlignmentPositionError( *iter, errorx, errory, errorz );
     theMuonModifier.addAlignmentPositionErrorFromRotation( *iter,  errorphix, errorphiy, errorphiz ); 
   }
+  
 }
 
 
 //______________________________________________________________________________________________________
-void MuonScenarioBuilder::moveChamberInSector(Alignable *chamber, align::Scalars disp, align::Scalars rotation, align::Scalars dispError, align::Scalars rotationError)
-{
-    align::RotationType rotx( Basic3DVector<double>(1.0, 0.0, 0.0), rotation[0] );
-    align::RotationType roty( Basic3DVector<double>(0.0, 1.0, 0.0), rotation[1] );
-    align::RotationType rotz( Basic3DVector<double>(0.0, 0.0, 1.0), rotation[2] );
+void MuonScenarioBuilder::moveChamberInSector(Alignable *chamber, std::vector<float> disp, std::vector<float>rotation, std::vector<float> dispError, std::vector<float> rotationError) {
+   
+    align::RotationType rotx( Basic3DVector<float>(1.0, 0.0, 0.0), rotation[0] );
+    align::RotationType roty( Basic3DVector<float>(0.0, 1.0, 0.0), rotation[1] );
+    align::RotationType rotz( Basic3DVector<float>(0.0, 0.0, 1.0), rotation[2] );
     align::RotationType rot = rotz * roty * rotx;
-    align::GlobalPoint pos = chamber->globalPosition();
-    align::GlobalPoint dispRot(pos.basicVector()-rot*pos.basicVector());
+    GlobalPoint pos = chamber->globalPosition();
+    GlobalPoint dispRot(pos.basicVector()-rot*pos.basicVector());
     disp[0] += dispRot.x(); disp[1] += dispRot.y(); disp[2] += dispRot.z();
     theMuonModifier.moveAlignable( chamber, false, true, disp[0], disp[1], disp[2] );
     theMuonModifier.rotateAlignable( chamber, false, true, rotation[0],  rotation[1], rotation[2] );
     theMuonModifier.addAlignmentPositionError( chamber, dispError[0], dispError[1], dispError[2] );
     theMuonModifier.addAlignmentPositionErrorFromRotation( chamber,  rotationError[0], rotationError[1], rotationError[2] );
-}
+
+}  

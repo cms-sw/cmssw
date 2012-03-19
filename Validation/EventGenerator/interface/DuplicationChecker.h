@@ -5,8 +5,8 @@
  *  
  *  Class to monitor duplication of events
  *
- *  $Date: 2010/03/19 09:10:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/05/25 16:50:50 $
+ *  $Revision: 1.1 $
  *
  */
 
@@ -35,6 +35,8 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 
+#include "Validation/EventGenerator/interface/WeightManager.h"
+
 class DuplicationChecker : public edm::EDAnalyzer
 {
   
@@ -53,6 +55,7 @@ class DuplicationChecker : public edm::EDAnalyzer
   void findValuesAssociatedWithKey(associationMap &mMap, double &key, itemList &theObjects);  
   
  private:
+  WeightManager _wmanager;
   
   edm::InputTag generatedCollection_;
   

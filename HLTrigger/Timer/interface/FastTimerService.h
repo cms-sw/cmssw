@@ -14,11 +14,6 @@ typedef int clockid_t;
 #include <map>
 #include <tr1/unordered_map>
 
-// boost headers
-// for forward compatibility with boost 1.47
-#define BOOST_FILESYSTEM_VERSION 3
-#include <boost/filesystem/path.hpp>
-
 // CMSSW headers
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -225,7 +220,7 @@ private:
   // dqm configuration
   const double                                  m_dqm_time_range;
   const double                                  m_dqm_time_resolution;
-  boost::filesystem::path                       m_dqm_path;
+  std::string                                   m_dqm_path;
 
   // job configuration and caching
   std::string const *                           m_first_path;           // the framework does not provide a pre-paths or pre-endpaths signal,

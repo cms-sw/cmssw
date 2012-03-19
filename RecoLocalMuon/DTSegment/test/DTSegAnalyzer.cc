@@ -261,7 +261,7 @@ void DTSegAnalyzer::analyzeDTSegments(const Event & event,
     histo("hNSegs")->Fill(nSegsCh);
 
     // some quality on segments
-    bool hasGoodSegment=false;
+    //bool hasGoodSegment=false;
 
     for (DTRecSegment4DCollection::const_iterator seg=segsch.first ;
          seg!=segsch.second ; ++seg ) {
@@ -275,7 +275,7 @@ void DTSegAnalyzer::analyzeDTSegments(const Event & event,
       if (phiSeg) {
         if(debug) cout << "Phi " << *phiSeg << endl;
         phiHits = phiSeg->specificRecHits();
-        if (phiHits.size()>=6) hasGoodSegment = true;
+        //if (phiHits.size()>=6) hasGoodSegment = true;
 
         DTSuperLayerId slid1(phiSeg->chamberId(),1);
         /// Mean timer analysis

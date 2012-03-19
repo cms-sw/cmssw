@@ -16,7 +16,7 @@ int main(){
   connection.configuration().setMessageLevel( coral::Error );
   connection.configure();
   cond::DbSession session = connection.createSession();
-  session.open( "sqlite_file:mydata.db" );
+  session.open( "sqlite_file:testSequenceManager.db" );
   session.transaction().start(false);
   cond::SequenceManager sequenceGenerator(session,"mysequenceDepot");
   if( !sequenceGenerator.existSequencesTable() ){

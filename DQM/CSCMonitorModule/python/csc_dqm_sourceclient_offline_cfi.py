@@ -43,6 +43,9 @@ dqmCSCClient = cms.EDAnalyzer("CSCMonitorModule",
     EVENTS_ECHO = cms.untracked.uint32(1000),
     MO_FILTER = cms.untracked.vstring(
       '+/^.*$/',
+      '-/All_Readout_Errors/',
+      '-/^DMB_.*$/',
+      '-/DDU_[0-9]+/',
       '-/CSC_[0-9]+_[0-9]+/'
     )
   )

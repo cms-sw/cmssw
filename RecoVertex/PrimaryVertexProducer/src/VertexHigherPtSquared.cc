@@ -7,8 +7,8 @@ VertexHigherPtSquared::operator() ( const TransientVertex & v1,
 				    const TransientVertex & v2) const
 {
   //  return (sumPtSquared(v1) > sumPtSquared(v2));  V-01-05-02
-  const  std::vector<reco::TransientTrack> & tks1 = v1.originalTracks();
-  const  std::vector<reco::TransientTrack> & tks2 = v2.originalTracks();
+  std::vector<reco::TransientTrack> tks1 = v1.originalTracks();
+  std::vector<reco::TransientTrack> tks2 = v2.originalTracks();
   return (sumPtSquared(tks1) > sumPtSquared(tks2));
 }
 

@@ -99,12 +99,20 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 // initialize cabling map or update if necessary
   if (recordWatcher.check( es )) {
     // cabling map, which maps online address (fed->link->ROC->local pixel) to offline (DetId->global pixel)
-    edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
-    es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
-    fedIds = cablingMap->fedIds();
-    if (useCablingTree_ && cabling_) delete cabling_; 
-    if (useCablingTree_) cabling_ = cablingMap->cablingTree();
-    else cabling_ = cablingMap.product();
+    if (useCablingTree_) {
+      delete cabling_;
+      // we are going to make our own copy so safe to let the map be deleted early
+      edm::ESTransientHandle<SiPixelFedCablingMap> cablingMap;
+      es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
+      fedIds   = cablingMap->fedIds();
+      cabling_ = cablingMap->cablingTree();
+    } else {
+      // we are going to hold the pointer so we need the map to stick around
+      edm::ESHandle<SiPixelFedCablingMap> cablingMap;
+      es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
+      fedIds   = cablingMap->fedIds();
+      cabling_ = cablingMap.product();
+    }
     LogDebug("map version:")<< cabling_->version();
   }
 // initialize quality record or update if necessary

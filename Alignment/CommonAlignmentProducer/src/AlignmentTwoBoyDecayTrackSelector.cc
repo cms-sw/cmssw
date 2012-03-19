@@ -31,7 +31,7 @@ AlignmentTwoBodyDecayTrackSelector::AlignmentTwoBodyDecayTrackSelector(const edm
     theDaughterMass = cfg.getParameter<double>( "daughterMass" );
     theCandNumber = cfg.getParameter<unsigned int>( "numberOfCandidates" );//Number of candidates to keep
     LogDebug("Alignment") << ">  Massrange min,max         :   " << theMinMass   << "," << theMaxMass 
-			 << "\n>  Mass of daughter Particle :   " << theDaughterMass;
+			  << "\n>  Mass of daughter Particle :   " << theDaughterMass;
 
   }else{
     theMinMass = 0;
@@ -154,14 +154,15 @@ AlignmentTwoBodyDecayTrackSelector::checkMass(const Tracks& cands) const
   }
 
   if (candCollection.size()==0) return result;
+  if (candCollection.size() > theCandNumber) return result;
 
   sort(candCollection.begin(), candCollection.end(), 
        higherTwoBodyDecayPt<candCollectionItem>());
-
+ 
   std::map<const reco::Track*,unsigned int> uniqueTrackIndex;
   std::map<const reco::Track*,unsigned int>::iterator it;
   for (unsigned int i=0;
-       i<candCollection.size() && i<theCandNumber;
+       i<candCollection.size();
        i++) {
     constTrackPair & trackPair = candCollection[i].second;
     
@@ -243,6 +244,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMETMass(const Tracks& cands,const edm::
   }
 
   if (candCollection.size()==0) return result;
+  if (candCollection.size() > theCandNumber) return result;
 
   sort(candCollection.begin(), candCollection.end(), 
        higherTwoBodyDecayPt<candCollectionItem>());
@@ -250,7 +252,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMETMass(const Tracks& cands,const edm::
   std::map<const reco::Track*,unsigned int> uniqueTrackIndex;
   std::map<const reco::Track*,unsigned int>::iterator it;
   for (unsigned int i=0;
-       i<candCollection.size() && i<theCandNumber;
+       i<candCollection.size();
        i++) {
     it = uniqueTrackIndex.find(candCollection[i].second);
     if (it==uniqueTrackIndex.end()) {

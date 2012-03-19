@@ -33,9 +33,9 @@ int main(){
   cond::DbSession session = conn.createSession();
   
   const Connections connects[] = {
-    {"sqlite_file:mydata.db", false},
+    {"sqlite_file:technologyPlugin.db", false},
     {"oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS", true},
-    //{"sqlite_fip:CondCore/SQLiteData/data/mydata.db", true},
+    //{"sqlite_fip:CondCore/SQLiteData/data/technologyPlugin.db", true},
     {"frontier://FrontierDev/CMS_COND_UNIT_TESTS", true}, 
     {"frontier://cmsfrontier.cern.ch:8000/FrontierDev/CMS_COND_UNIT_TESTS", true}
   };

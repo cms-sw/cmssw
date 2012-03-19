@@ -60,11 +60,11 @@ private:
 			    float eta_0, float eta_1 );
   static void setSM_2_and_20();
 
-  static map< int, pair<float,float>  > _phiLimits;
-  static map< int, pair<float,float>  > _etaLimits;
+  static std::map< int, std::pair<float,float>  > _phiLimits;
+  static std::map< int, std::pair<float,float>  > _etaLimits;
 
   static void setRzXtals();
-  static map< int, TPolyLine* > _rzXtals;
+  static std::map< int, TPolyLine* > _rzXtals;
 
   static list<TObject*> _list;
   static void registerTObject( TObject* );

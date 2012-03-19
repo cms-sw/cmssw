@@ -4,6 +4,7 @@
 
 #include "Calibration/IsolatedParticles/interface/MatrixECALDetIds.h"
 #include "Calibration/IsolatedParticles/interface/FindDistCone.h"
+#include "Calibration/IsolatedParticles/interface/DebugInfo.h"
 
 #include <algorithm>
 #include <iostream>
@@ -22,18 +23,7 @@ namespace spr{
     if (debug) {
       std::cout << "matrixECALIds::Add " << ieta << " rows and " << iphi 
 		<< " columns of cells for 1 cell" << std::endl;
-      if (det.subdetId() == EcalBarrel) {
-	EBDetId id = det;
-	std::cout << "matrixECALIds::Cell 0x" << std::hex << det() << std::dec 
-		  << " " << id << std::endl;
-      } else if (det.subdetId() == EcalEndcap) {
-	EEDetId id = det;
-	std::cout << "matrixECALIds::Cell 0x" << std::hex << det() << std::dec
-		  << " " << id << std::endl;
-      } else {
-	std::cout << "matrixECALIds::Cell 0x" << std::hex << det() << std::dec
-		  << " Unknown Type" << std::endl;
-      }
+      spr::debugEcalDets(0, det, true);
     }
 
     std::vector<DetId> dets(1,det);
@@ -60,20 +50,7 @@ namespace spr{
     if (debug) {
       std::cout << "matrixECALIds::Total number of cells found is " 
 		<< vdets.size() << std::endl;
-      for (unsigned int i1=0; i1<vdets.size(); i1++) {
-	if (vdets[i1].subdetId() == EcalBarrel) {
-	  EBDetId id = vdets[i1];
-	  std::cout << "matrixECALIds::Cell " << i1 << " 0x" << std::hex 
-		    << vdets[i1]() << std::dec << " " << id << std::endl;
-	} else if (vdets[i1].subdetId() == EcalEndcap) {
-	  EEDetId id = vdets[i1];
-	  std::cout << "matrixECALIds::Cell " << i1 << " 0x" << std::hex 
-		    << vdets[i1]() << std::dec << " " << id << std::endl;
-	} else {
-	  std::cout << "matrixECALIds::Cell " << i1 << " 0x" << std::hex 
-		    << vdets[i1]() << std::dec << " Unknown Type" << std::endl;
-	}
-      }
+      spr::debugEcalDets(0, vdets);
     }
   }
 
@@ -122,20 +99,7 @@ namespace spr{
       std::cout << "matrixECALIds::Final List of cells for dR " << dR
 		<< " is with " << vdetx.size() << " from original list of " 
 		<< vdets.size() << std::endl;
-      for (unsigned int i=0; i < vdetx.size(); ++i) {
-	if (vdetx[i].subdetId() == EcalBarrel) {
-	  EBDetId id = vdetx[i];
-	  std::cout << "matrixECALIds::Cell " << i << " 0x" << std::hex 
-		    << vdetx[i]() << std::dec << " " << id << std::endl;
-	} else if (vdetx[i].subdetId() == EcalEndcap) {
-	  EEDetId id = vdetx[i];
-	  std::cout << "matrixECALIds::Cell " << i << " 0x" << std::hex 
-		    << vdetx[i]() << std::dec<< " " << id << std::endl;
-	} else {
-	  std::cout << "matrixECALIds::Cell " << i << " 0x" << std::hex 
-		    << vdetx[i]() << std::dec << " Unknown Type" << std::endl;
-	}
-      }
+      spr::debugEcalDets(0, vdetx);
     }
     return vdetx;
   }
@@ -153,18 +117,7 @@ namespace spr{
       std::cout << "matrixECALIds::Add " << ietaE << "|" << ietaW
 		<< " rows and " << iphiN << "|" << iphiS
 		<< " columns of cells for 1 cell" << std::endl;
-      if (det.subdetId() == EcalBarrel) {
-	EBDetId id = det;
-	std::cout << "matrixECALIds::Cell 0x" << std::hex << det() << std::dec 
-		  << " " << id << std::endl;
-      } else if (det.subdetId() == EcalEndcap) {
-	EEDetId id = det;
-	std::cout << "matrixECALIds::Cell 0x" << std::hex << det() << std::dec
-		  << " " << id << std::endl;
-      } else {
-	std::cout << "matrixECALIds::Cell 0x" << std::hex << det() << std::dec
-		  << " Unknown Type" << std::endl;
-      }
+      debugEcalDets(0, det, true);
     }
 
     std::vector<DetId> dets(1,det);
@@ -196,20 +149,7 @@ namespace spr{
     if (debug) {
       std::cout << "matrixECALIds::Total number of cells found is " 
 		<< vdets.size() << std::endl;
-      for (unsigned int i1=0; i1<vdets.size(); i1++) {
-	if (vdets[i1].subdetId() == EcalBarrel) {
-	  EBDetId id = vdets[i1];
-	  std::cout << "matrixECALIds::Cell " << i1 << " 0x" << std::hex 
-		    << vdets[i1]() << std::dec << " " << id << std::endl;
-	} else if (vdets[i1].subdetId() == EcalEndcap) {
-	  EEDetId id = vdets[i1];
-	  std::cout << "matrixECALIds::Cell " << i1 << " 0x" << std::hex 
-		    << vdets[i1]() << std::dec << " " << id << std::endl;
-	} else {
-	  std::cout << "matrixECALIds::Cell " << i1 << " 0x" << std::hex 
-		    << vdets[i1]() << std::dec << " Unknown Type" << std::endl;
-	}
-      }
+      spr::debugEcalDets(0, vdets);
     }
   }
 
@@ -238,21 +178,7 @@ namespace spr{
       std::cout << "newECALIdNS::Add " << iphi << " columns of cells for " 
 		<< (dets.size()-last) << " cells (last " << last << ")"
 		<< std::endl;
-      for (unsigned int i1=last; i1<dets.size(); i1++) {
-	if (dets[i1].subdetId() == EcalBarrel) {
-	  EBDetId id = dets[i1];
-	  std::cout << "newECALIdNS::Cell " << i1 << " "  << id << " along "
-		    << dir[i1] << std::endl;
-	} else if (dets[i1].subdetId() == EcalEndcap) {
-	  EEDetId id = dets[i1];
-	  std::cout << "newECALIdNS::Cell " << i1 << " " << id << " along "
-		    << dir[i1] << std::endl;
-	} else {
-	  std::cout << "newECALIdNS::Cell " << i1 << " 0x" << std::hex 
-		    << dets[i1]() << std::dec << " Unknown Type along " 
-		    << dir[i1] << std::endl;
-	}
-      }
+      spr::debugEcalDets(last, dets, dir);
     }
     
     std::vector<DetId> vdets;
@@ -283,21 +209,7 @@ namespace spr{
       if (debug) {
 	std::cout <<"newECALIdNS::With Added cells along E/W results a set of "
 		  << (vdets.size()-dets.size()) << " new  cells" << std::endl;
-	for (unsigned int i1=dets.size(); i1<vdets.size(); i1++) {
-	  if (vdets[i1].subdetId() == EcalBarrel) {
-	    EBDetId id = vdets[i1];
-	    std::cout << "newECALIdNS::Cell " << i1 << " "  << id << " along "
-		      << dirs[i1] << std::endl;
-	  } else if (vdets[i1].subdetId() == EcalEndcap) {
-	    EEDetId id = vdets[i1];
-	    std::cout << "newECALIdNS::Cell " << i1 << " " << id << " along "
-		      << dirs[i1] << std::endl;
-	  } else {
-	    std::cout << "newECALIdNS::Cell " << i1 << " 0x" << std::hex 
-		      << vdets[i1]() << std::dec << " Unknown Type along " 
-		      << dirs[i1] << std::endl;
-	  }
-	}
+	spr::debugEcalDets(dets.size(), vdets, dirs);
       }
     }
 
@@ -310,38 +222,10 @@ namespace spr{
       std::vector<CaloDirection> dirnE(1,EAST), dirnW(1,WEST);
       int flag=0;
       for (unsigned int i1=last; i1<dets.size(); i1++) {
-	std::vector<DetId> cells;
-	spr::simpleMove(dets[i1], dir[i1], barrelTopo, endcapTopo,
-			barrelGeom, endcapGeom, cells, flag, debug);
-	/*
-	if (dets[i1].subdetId() == EcalBarrel) {
-	  EBDetId id = dets[i1];
-	  std::cout << "Moved Cell " << i1 << " "  << id << " along "
-		    << dir[i1] << std::endl;
-	} else if (dets[i1].subdetId() == EcalEndcap) {
-	  EEDetId id = dets[i1];
-	  std::cout << "Moved Cell " << i1 << " " << id << " along "
-		    << dir[i1] << std::endl;
-	} else {
-	  std::cout << "Moved Cell " << i1 << " 0x" << std::hex 
-		    << dets[i1]() << std::dec << " Unknown Type along " 
-		    << dir[i1] << std::endl;
-	}
-	for (unsigned int kk=0; kk<cells.size(); kk++) {
-	  if (cells[kk].subdetId() == EcalBarrel) {
-	    EBDetId id = cells[kk];
-	    std::cout << "Moved to " << id << " flag " << flag << "\n";
-	  } else if (cells[kk].subdetId() == EcalEndcap) {
-	    EEDetId id = cells[kk];
-	    std::cout << "Moved to " << id << " flag " << flag << "\n";
-	  } else {
-	    std::cout << "Moved Cell " << i1 << " 0x" << std::hex 
-		      << cells[kk]() << std::dec << " Unknown Type flag " 
-		      << flag << std::endl;
-	  }
-	}
-	*/
-	if (flag != 0) {
+        std::vector<DetId> cells;
+        spr::simpleMove(dets[i1], dir[i1], barrelTopo, endcapTopo,
+                        barrelGeom, endcapGeom, cells, flag, debug);
+ 	if (flag != 0) {
 	  if (std::count(vdets.begin(),vdets.end(),cells[0]) == 0) {
 	    vdetn[0] = cells[0];
 	    vdetnew.push_back(vdetn[0]);
@@ -384,21 +268,7 @@ namespace spr{
 	std::cout << "newECALIdNS::Addition results a set of " 
 		  << (vdets.size()-last0)  << " new  cells (last " << last0
 		  << ", iphi " << iphi << ")" << std::endl;
-	for (unsigned int i1=last0; i1<vdets.size(); i1++) {
-	  if (vdets[i1].subdetId() == EcalBarrel) {
-	    EBDetId id = vdets[i1];
-	    std::cout << "newECALIdNS::Cell " << i1 << " "  << id << " along "
-		      << dirs[i1] << std::endl;
-	  } else if (vdets[i1].subdetId() == EcalEndcap) {
-	    EEDetId id = vdets[i1];
-	    std::cout << "newECALIdNS::Cell " << i1 << " " << id << " along "
-		      << dirs[i1] << std::endl;
-	  } else {
-	    std::cout << "newECALIdNS::Cell " << i1 << " 0x" << std::hex 
-		      << vdets[i1]() << std::dec << " Unknown Type along " 
-		      << dirs[i1] << std::endl;
-	  }
-	}
+	spr::debugEcalDets(last0, vdets, dirs);
       }
       last0 = last;
     }
@@ -410,19 +280,7 @@ namespace spr{
       if (debug) {
 	std::cout << "newECALIdNS::Final list consists of " << vdets.size()
 		  << " cells" << std::endl;
-	for (unsigned int i1=0; i1<vdets.size(); i1++) {
-	  if (vdets[i1].subdetId() == EcalBarrel) {
-	    EBDetId id = vdets[i1];
-	    std::cout << "newECALIdNS::Cell " << i1 << " "  << id << std::endl;
-	  } else if (vdets[i1].subdetId() == EcalEndcap) {
-	    EEDetId id = vdets[i1];
-	    std::cout << "newECALIdNS::Cell " << i1 << " " << id << std::endl;
-	  } else {
-	    std::cout << "newECALIdNS::Cell " << i1 << " 0x" << std::hex 
-		      << vdets[i1]() << std::dec << " Unknown Type" 
-		      << std::endl;
-	  }
-	}
+	spr::debugEcalDets(0, vdets);
       }
       return vdets;
     }
@@ -444,22 +302,9 @@ namespace spr{
       std::cout << "newECALIdNS::Add columns of cells for " 
 		<< (dets.size()-last) << " cells (last) " << last << std::endl;
       for (unsigned int i1=last; i1<dets.size(); i1++) {
-	if (dets[i1].subdetId() == EcalBarrel) {
-	  EBDetId id = dets[i1];
-	  std::cout << "newECALIdNS::Cell " << i1 << " "  << id << " along "
-		    << dir[i1] << " # " << iphiN[i1] << "|" << iphiS[i1]
-		    << std::endl;
-	} else if (dets[i1].subdetId() == EcalEndcap) {
-	  EEDetId id = dets[i1];
-	  std::cout << "newECALIdNS::Cell " << i1 << " " << id << " along "
-		    << dir[i1] << " # " << iphiN[i1] << "|" << iphiS[i1]
-		    << std::endl;
-	} else {
-	  std::cout << "newECALIdNS::Cell " << i1 << " 0x" << std::hex 
-		    << dets[i1]() << std::dec << " Unknown Type along " 
-		    << dir[i1] << " # " << iphiN[i1] << "|" << iphiS[i1] 
-		    << std::endl;
-	}
+	spr::debugEcalDets (i1, dets[i1], false);
+	std::cout << " along " << dir[i1] << " # " << iphiN[i1] << "|" 
+		  << iphiS[i1] << std::endl;
       }
     }
 
@@ -503,21 +348,7 @@ namespace spr{
       if (debug) {
 	std::cout <<"newECALIdNS::With Added cells along E/W results a set of "
 		  << (vdets.size()-dets.size()) << " new  cells" << std::endl;
-	for (unsigned int i1=dets.size(); i1<vdets.size(); i1++) {
-	  if (vdets[i1].subdetId() == EcalBarrel) {
-	    EBDetId id = vdets[i1];
-	    std::cout << "newECALIdNS::Cell " << i1 << " "  << id << " along "
-		      << dirs[i1] << std::endl;
-	  } else if (vdets[i1].subdetId() == EcalEndcap) {
-	    EEDetId id = vdets[i1];
-	    std::cout << "newECALIdNS::Cell " << i1 << " " << id << " along "
-		      << dirs[i1] << std::endl;
-	  } else {
-	    std::cout << "newECALIdNS::Cell " << i1 << " 0x" << std::hex 
-		      << vdets[i1]() << std::dec << " Unknown Type along " 
-		      << dirs[i1] << std::endl;
-	  }
-	}
+	spr::debugEcalDets(dets.size(), vdets, dirs);
       }
     }
 
@@ -601,22 +432,10 @@ namespace spr{
 		<< (vdets.size()-last0)  << " new  cells (last " << last0
 		<< ", iphi " << kphi << ")" << std::endl;
       for (unsigned int i1=last0; i1<vdets.size(); i1++) {
-	if (vdets[i1].subdetId() == EcalBarrel) {
-	  EBDetId id = vdets[i1];
-	  std::cout << "newECALIdNS::Cell " << i1 << " "  << id << " along "
-		    << dirs[i1] << " iphi " << jphiN[i1] << "|" << jphiS[i1]
-		    << " ieta " << jetaE[i1] << "|" << jetaW[i1] << std::endl;
-	} else if (vdets[i1].subdetId() == EcalEndcap) {
-	  EEDetId id = vdets[i1];
-	  std::cout << "newECALIdNS::Cell " << i1 << " " << id << " along "
-		    << dirs[i1] << " iphi " << jphiN[i1] << "|" << jphiS[i1]
-		    << " ieta " << jetaE[i1] << "|" << jetaW[i1] << std::endl;
-	} else {
-	  std::cout << "newECALIdNS::Cell " << i1 << " 0x" << std::hex 
-		    << vdets[i1]() << std::dec << " Unknown Type along "
-		    << dirs[i1] << " iphi " << jphiN[i1] << "|" << jphiS[i1]
-		    << " ieta " << jetaE[i1] << "|" << jetaW[i1] << std::endl;
-	}
+	spr::debugEcalDets (i1, vdets[i1], false);
+	std::cout << " along " << dirs[i1] << " iphi " << jphiN[i1] << "|" 
+		  << jphiS[i1] << " ieta " << jetaE[i1] << "|" << jetaW[i1] 
+		  << std::endl;
       }
     }
     last0 = last;
@@ -630,19 +449,7 @@ namespace spr{
       if (debug) {
 	std::cout << "newECALIdNS::Final list consists of " << vdets.size()
 		  << " cells" << std::endl;
-	for (unsigned int i1=0; i1<vdets.size(); i1++) {
-	  if (vdets[i1].subdetId() == EcalBarrel) {
-	    EBDetId id = vdets[i1];
-	    std::cout << "newECALIdNS::Cell " << i1 << " "  << id << std::endl;
-	  } else if (vdets[i1].subdetId() == EcalEndcap) {
-	    EEDetId id = vdets[i1];
-	    std::cout << "newECALIdNS::Cell " << i1 << " " << id << std::endl;
-	  } else {
-	    std::cout << "newECALIdNS::Cell " << i1 << " 0x" << std::hex 
-		      << vdets[i1]() << std::dec << " Unknown Type" 
-		      << std::endl;
-	  }
-	}
+	spr::debugEcalDets (0, vdets);
       }
       return vdets;
     }
@@ -660,21 +467,7 @@ namespace spr{
       std::cout << "newECALIdEW::Add " << ieta << " rows of cells for " 
 		<< last << ":" << dets.size() << ":" << (dets.size()-last) 
                 << " cells" << std::endl;
-      for (unsigned int i1=last; i1<dets.size(); i1++) {
-	if (dets[i1].subdetId() == EcalBarrel) {
-	  EBDetId id = dets[i1];
-	  std::cout << "newECALIdEW::Cell " << i1 << " "  << id << " along "
-		    << dir[i1] << std::endl;
-	} else if (dets[i1].subdetId() == EcalEndcap) {
-	  EEDetId id = dets[i1];
-	  std::cout << "newECALIdEW::Cell " << i1 << " " << id << " along "
-		    << dir[i1] << std::endl;
-	} else {
-	  std::cout << "newECALIdEW::Cell " << i1 << " 0x" << std::hex 
-		    << dets[i1]() << std::dec << " Unknown Type along " 
-		    << dir[i1] << std::endl;
-	}
-      }
+      spr::debugEcalDets (last, dets, dir);
     }
 
     std::vector<DetId> vdets; vdets.clear();
@@ -688,34 +481,6 @@ namespace spr{
 	std::vector<DetId> cells;
 	spr::simpleMove(dets[i1], dir[i1], barrelTopo, endcapTopo,
 			barrelGeom, endcapGeom, cells, flag, debug);
-	/*
-	if (dets[i1].subdetId() == EcalBarrel) {
-	  EBDetId id = dets[i1];
-	  std::cout << "Moved Cell " << i1 << " "  << id << " along "
-		    << dir[i1] << std::endl;
-	} else if (dets[i1].subdetId() == EcalEndcap) {
-	  EEDetId id = dets[i1];
-	  std::cout << "Moved Cell " << i1 << " " << id << " along "
-		    << dir[i1] << std::endl;
-	} else {
-	  std::cout << "Moved Cell " << i1 << " 0x" << std::hex 
-		    << dets[i1]() << std::dec << " Unknown Type along " 
-		    << dir[i1] << std::endl;
-	}
-	for (unsigned int kk=0; kk<cells.size(); kk++) {
-	  if (cells[kk].subdetId() == EcalBarrel) {
-	    EBDetId id = cells[kk];
-	    std::cout << "Moved to " << id << " flag " << flag << "\n";
-	  } else if (cells[kk].subdetId() == EcalEndcap) {
-	    EEDetId id = cells[kk];
-	    std::cout << "Moved to " << id << " flag " << flag << "\n";
-	  } else {
-	    std::cout << "Moved Cell " << i1 << " 0x" << std::hex 
-		      << cells[kk]() << std::dec << " Unknown Type flag " 
-		      << flag << std::endl;
-	  }
-	}
-	*/
 	if (flag != 0) {
 	  if (std::count(vdets.begin(),vdets.end(),cells[0]) == 0) {
 	    CaloDirection dirn = dir[i1];
@@ -734,21 +499,7 @@ namespace spr{
     if (debug) {
       std::cout << "newECALIdEW::Addition results a set of " 
 		<< (vdets.size()-dets.size()) << " new  cells" << std::endl;
-      for (unsigned int i1=dets.size(); i1<vdets.size(); i1++) {
-	if (vdets[i1].subdetId() == EcalBarrel) {
-	  EBDetId id = vdets[i1];
-	  std::cout << "newECALIdEW::Cell " << i1 << " "  << id << " along " 
-		    << dirs[i1] << std::endl;
-	} else if (vdets[i1].subdetId() == EcalEndcap) {
-	  EEDetId id = vdets[i1];
-	  std::cout << "newECALIdEW::Cell " << i1 << " " << id << " along " 
-		    << dirs[i1] << std::endl;
-	} else {
-	  std::cout << "newECALIdEW::Cell " << i1 << " 0x" << std::hex 
-		    << vdets[i1]() << std::dec << " Unknown Type along " 
-		    << dirs[i1] << std::endl;
-	}
-      }
+      spr::debugEcalDets (dets.size(), vdets, dirs);
     }
 
     if (ieta > 0) {
@@ -758,18 +509,7 @@ namespace spr{
       if (debug) {
 	std::cout << "newECALIdEW::Final list (EW) consists of " <<vdets.size()
 		  << " cells" << std::endl;
-	for (unsigned int i1=0; i1<vdets.size(); i1++) {
-	  if (vdets[i1].subdetId() == EcalBarrel) {
-	    EBDetId id = vdets[i1];
-	    std::cout << "newECALIdEW::Cell " << i1 << " "  << id << std::endl;
-	  } else if (vdets[i1].subdetId() == EcalEndcap) {
-	    EEDetId id = vdets[i1];
-	    std::cout << "newECALIdEW::Cell " << i1 << " " << id << std::endl;
-	  } else {
-	    std::cout << "newECALIdEW::Cell " << i1 << " 0x" << std::hex 
-		      << vdets[i1]() <<std::dec << " Unknown Type" <<std::endl;
-	  }
-	}
+	spr::debugEcalDets (0, vdets);
       }
       return vdets;
     }
@@ -789,21 +529,7 @@ namespace spr{
       std::cout << "newECALIdEW::Add " << ietaE[0] << "|" << ietaW[0]
 		<< " rows of cells for " << (dets.size()-last) 
 		<< " cells (last " << last << ")" << std::endl;
-      for (unsigned int i1=last; i1<dets.size(); i1++) {
-	if (dets[i1].subdetId() == EcalBarrel) {
-	  EBDetId id = dets[i1];
-	  std::cout << "newECALIdEW::Cell " << i1 << " "  << id << " along "
-		    << dir[i1] << std::endl;
-	} else if (dets[i1].subdetId() == EcalEndcap) {
-	  EEDetId id = dets[i1];
-	  std::cout << "newECALIdEW::Cell " << i1 << " " << id << " along "
-		    << dir[i1] << std::endl;
-	} else {
-	  std::cout << "newECALIdEW::Cell " << i1 << " 0x" << std::hex 
-		    << dets[i1]() << std::dec << " Unknown Type along " 
-		    << dir[i1] << std::endl;
-	}
-      }
+      spr::debugEcalDets (last, dets, dir);
     }
 
     std::vector<DetId> vdets;
@@ -851,18 +577,7 @@ namespace spr{
       std::cout << "newECALIdEW::Addition results a set of " 
 		<< (vdets.size()-dets.size()) << " new  cells (last " 
 		<< dets.size() << ", ieta " << keta << ")" << std::endl;
-      for (unsigned int i1=dets.size(); i1<vdets.size(); i1++) {
-	if (vdets[i1].subdetId() == EcalBarrel) {
-	  EBDetId id = vdets[i1];
-	  std::cout << "newECALIdEW::Cell " << i1 << " "  << id << std::endl;
-	} else if (vdets[i1].subdetId() == EcalEndcap) {
-	  EEDetId id = vdets[i1];
-	  std::cout << "newECALIdEW::Cell " << i1 << " " << id << std::endl;
-	} else {
-	  std::cout << "newECALIdEW::Cell " << i1 << " 0x" << std::hex 
-		    << vdets[i1]() << std::dec << " Unknown Type" << std::endl;
-	}
-      }
+      spr::debugEcalDets (dets.size(), vdets);
     }
 
     if (keta > 0) {
@@ -873,18 +588,7 @@ namespace spr{
       if (debug) {
 	std::cout << "newECALIdEW::Final list (EW) consists of " <<vdets.size()
 		  << " cells" << std::endl;
-	for (unsigned int i1=0; i1<vdets.size(); i1++) {
-	  if (vdets[i1].subdetId() == EcalBarrel) {
-	    EBDetId id = vdets[i1];
-	    std::cout << "newECALIdEW::Cell " << i1 << " "  << id << std::endl;
-	  } else if (vdets[i1].subdetId() == EcalEndcap) {
-	    EEDetId id = vdets[i1];
-	    std::cout << "newECALIdEW::Cell " << i1 << " " << id << std::endl;
-	  } else {
-	    std::cout << "newECALIdEW::Cell " << i1 << " 0x" << std::hex 
-		      << vdets[i1]() <<std::dec << " Unknown Type" <<std::endl;
-	  }
-	}
+	spr::debugEcalDets (0, vdets);
       }
       return vdets;
     }
@@ -1009,18 +713,7 @@ namespace spr{
     if (debug) {
       std::cout << "extraIds:: finds " << cells.size() << " new cells" 
 		<< std::endl;
-      for (unsigned int i1=0; i1<cells.size(); ++i1) {
-	if (cells[i1].subdetId() == EcalBarrel) {
-	  EBDetId id = cells[i1];
-	  std::cout << "extraIds::Cell " << i1 << " "  << id << std::endl;
-	} else if (cells[i1].subdetId() == EcalEndcap) {
-	  EEDetId id = cells[i1];
-	  std::cout << "ectraIds::Cell " << i1 << " " << id << std::endl;
-	} else {
-	  std::cout << "extraIds::Cell " << i1 << " 0x" << std::hex 
-		    << cells[i1]() <<std::dec << " Unknown Type" <<std::endl;
-	}
-      }
+      spr::debugEcalDets (0, cells);
     }
   }
 }

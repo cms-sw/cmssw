@@ -29,6 +29,7 @@ namespace edm {
     explicit ProcessHistory(size_type n) : data_(n), transient_() {}
     explicit ProcessHistory(collection_type const& vec) : data_(vec), transient_() {}
 
+    void push_front(const_reference t) {data_.insert(data_.begin(), t); phid() = ProcessHistoryID();}
     void push_back(const_reference t) {data_.push_back(t); phid() = ProcessHistoryID();}
     void swap(ProcessHistory& other) {data_.swap(other.data_); phid().swap(other.phid());}
     bool empty() const {return data_.empty();}

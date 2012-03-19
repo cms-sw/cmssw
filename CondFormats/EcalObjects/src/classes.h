@@ -41,6 +41,7 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGSlidingWindow.h"
 #include "CondFormats/EcalObjects/interface/EcalMappingElectronics.h"
+#include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionParameters.h"
@@ -59,8 +60,74 @@
 
 namespace{
   struct dictionary {
-    EcalPedestals pedmap;
-    EcalWeightXtalGroups gg;
+    
+    std::vector<EcalChannelStatusCode> v_ecalChannelStatusCode;
+    EcalContainer<EEDetId,EcalChannelStatusCode> ec_eeDetId_ecalChannelStatusCode;
+    EcalContainer<EBDetId,EcalChannelStatusCode> ec_ebDetId_ecalChannelStatusCode;
+    EcalCondObjectContainer<EcalChannelStatusCode> channelStatus; //typedef: EcalChannelStatus
+    
+    std::vector<EcalDQMStatusCode> v_ecalDQMStatusCode;
+    EcalContainer<EEDetId,EcalDQMStatusCode> ec_eeDetId_ecalDQMStatusCode;
+    EcalContainer<EBDetId,EcalDQMStatusCode> ec_ebDetId_ecalDQMStatusCode;
+    EcalCondObjectContainer<EcalDQMStatusCode> dqmChannelStatus; //typedef EcalDQMChannelStatus
+    
+    std::vector<EcalMGPAGainRatio> v_ecalMGPAGainRatio;
+    EcalContainer<EEDetId,EcalMGPAGainRatio> ec_eeDetId_ecalMGPAGainRatio;
+    EcalContainer<EBDetId,EcalMGPAGainRatio> ec_ebDetId_ecalMGPAGainRatio;
+    EcalCondObjectContainer<EcalMGPAGainRatio> gainratios; // typedef EcalGainRatios 
+    
+    std::vector<EcalMappingElement> v_ecalMappingElement;
+    EcalContainer<EEDetId,EcalMappingElement> ec_eeDetId_ecalMappingElement;
+    EcalContainer<EBDetId,EcalMappingElement> ec_ebDetId_ecalMappingElement;
+    EcalCondObjectContainer<EcalMappingElement> ecalMap; //typedef EcalMappingElectronics
+    
+    std::vector<EcalPedestal> v_ecalPedestal;
+    EcalContainer<EEDetId,EcalPedestal> ec_eeDetId_ecalPedestal;
+    EcalContainer<EBDetId,EcalPedestal> ec_ebDetId_ecalPedestal;
+    EcalCondObjectContainer<EcalPedestal> pedmap; //typedef EcalPedestals
+    
+    std::vector<EcalTPGCrystalStatusCode> v_ecalTPGCrystalStatusCode;
+    EcalContainer<EEDetId,EcalTPGCrystalStatusCode> ec_eeDetId_ecalTPGCrystalStatusCode;
+    EcalContainer<EBDetId,EcalTPGCrystalStatusCode> ec_ebDetId_ecalTPGCrystalStatusCode;
+    EcalCondObjectContainer<EcalTPGCrystalStatusCode> tpgCrystalStatus; //typedef EcalTPGCrystalStatus
+    
+    std::vector<EcalTPGLinearizationConstant> v_ecalTPGLinearizationConstant;
+    EcalContainer<EEDetId,EcalTPGLinearizationConstant> ec_eeDetId_ecalTPGLinearizationConstant;
+    EcalContainer<EBDetId,EcalTPGLinearizationConstant> ec_ebDetId_ecalTPGLinearizationConstant;
+    EcalCondObjectContainer<EcalTPGLinearizationConstant> tpglinconstmap; //typedef EcalTPGLinearizationConst
+    
+    std::vector<EcalTPGPedestal> v_ecalTPGPedestal;
+    EcalContainer<EEDetId,EcalTPGPedestal> ec_eeDetId_ecalTPGPedestal;
+    EcalContainer<EBDetId,EcalTPGPedestal> ec_ebDetId_ecalTPGPedestal;
+    EcalCondObjectContainer<EcalTPGPedestal> tpgpedmap; //typedef EcalTPGPedestals
+    
+    std::vector<EcalXtalGroupId> v_ecalXtalGroupId;
+    EcalContainer<EEDetId,EcalXtalGroupId> ec_eeDetId_ecalXtalGroupId;
+    EcalContainer<EBDetId,EcalXtalGroupId> ec_ebDetId_ecalXtalGroupId;
+    EcalCondObjectContainer<EcalXtalGroupId> gg; //typedef EcalWeightXtalGroups
+
+    EcalContainer<EEDetId,float> ec_eeDetId_float;
+    EcalContainer<EBDetId,float> ec_ebDetId_float;
+    EcalCondObjectContainer<float> floatCondObjectContainer; //typedefs: EcalFloatCondObjectContainer, EcalIntercalibConstants, EcalIntercalibConstantsMC, EcalIntercalibErrors, EcalLaserAPDPNRatiosRef, EcalLaserAlphas, EcalTimeCalibConstants, EcalTimeCalibErrors
+    
+    EcalLaserAPDPNRatios laser_map;
+    std::vector<EcalLaserAPDPNRatios::EcalLaserAPDPNpair> pair_map;
+    std::vector<EcalLaserAPDPNRatios::EcalLaserTimeStamp> time_map;
+    EcalContainer<EEDetId,EcalLaserAPDPNRatios::EcalLaserAPDPNpair> ec_eeDetId_pair;
+    EcalContainer<EBDetId,EcalLaserAPDPNRatios::EcalLaserAPDPNpair> ec_ebDetId_pair;
+    EcalCondObjectContainer<EcalLaserAPDPNRatios::EcalLaserAPDPNpair> laser_map_dm;
+    
+    EcalContainer<EcalTrigTowerDetId,EcalChannelStatusCode> ec_ettDetId_ecalChannelStatusCode;
+    EcalContainer<EcalScDetId,EcalChannelStatusCode> ec_esDetId_ecalChannelStatusCode;
+    EcalCondTowerObjectContainer<EcalChannelStatusCode> dcsTowerStatus; //typedef EcalDCSTowerStatus
+    
+    EcalContainer<EcalTrigTowerDetId,EcalDAQStatusCode> ec_ettDetId_ecalDAQStatusCode;
+    EcalContainer<EcalScDetId,EcalDAQStatusCode> ec_esDetId_ecalDAQStatusCode;
+    EcalCondTowerObjectContainer<EcalDAQStatusCode> daqTowerStatus; //typedef EcalDAQTowerStatus
+
+    EcalContainer<EcalTrigTowerDetId,EcalDQMStatusCode> ec_ettDetId_ecalDQMStatusCode;
+    EcalContainer<EcalScDetId,EcalDQMStatusCode> ec_esDetId_ecalDQMStatusCode;
+    EcalCondTowerObjectContainer<EcalDQMStatusCode> dqmTowerStatus; //typedef EcalDQMTowerStatus
  
     EcalTBWeights tbwgt;
     EcalWeightSet wset;
@@ -70,68 +137,30 @@ namespace{
     std::pair< const std::pair< EcalXtalGroupId, EcalTBWeights::EcalTDCId > , EcalWeightSet > wgmapvalue;
  
     EcalADCToGeVConstant adcfactor;
- 
-    EcalGainRatios gainratios;
- 
-    EcalIntercalibConstants intercalib;
-    EcalIntercalibConstantsMC intercalibMC;
-    EcalIntercalibErrors intercalibErrors;
- 
-    EcalTimeCalibConstants timeCalib;
-    EcalTimeCalibErrors timeCalibErrors;
+    
     EcalTimeOffsetConstant timeOffsetConstant;
- 
+    
     EcalDCUTemperatures dcuTemperatures;
- 
+    
     EcalPTMTemperatures ptmTemperatures;
- 
-    EcalChannelStatus channelStatus;
-    EcalDQMChannelStatus dqmChannelStatus;
-
-    EcalDQMTowerStatus dqmTowerStatus;
-    EcalDCSTowerStatus dcsTowerStatus;
-    EcalDAQTowerStatus daqTowerStatus;
- 
-    EcalLaserAlphas laserAplhas;
- 
-    EcalLaserAPDPNRatios laser_map;
-    EcalCondObjectContainer<EcalLaserAPDPNRatios::EcalLaserAPDPNpair> laser_map_dm;
-    std::vector<EcalLaserAPDPNRatios::EcalLaserTimeStamp> time_map ;
- 
-    EcalLaserAPDPNRatiosRef laserAPDPNRatiosRef;
- 
+    
     EcalTPGFineGrainConstEB grain;
     std::map<uint32_t, EcalTPGFineGrainConstEB> EcalTPGFineGrainEBMap ;
     std::pair<const uint32_t, EcalTPGFineGrainConstEB> EcalTPGFineGrainEBMap_valuetype ;
- 
+    
     std::map< uint32_t, EcalTPGFineGrainStripEE::Item > EcalTPGFineGrainStripEEMap;
     std::pair< const uint32_t, EcalTPGFineGrainStripEE::Item > EcalTPGFineGrainStripEEMap_valuetype;
- 
- 
-    EcalTPGLinearizationConst tpglinconstmap;
- 
+    
     EcalTPGLut lut;
     std::map< uint32_t, EcalTPGLut > EcalTPGLutMap;
     std::pair< const uint32_t, EcalTPGLut > EcalTPGLutMap_valuetype;
- 
-    EcalTPGPedestals tpgpedmap;
- 
+    
     EcalTPGWeights weightsweights;
     std::map<uint32_t, EcalTPGWeights> EcalTPGWeightMap;
     std::pair<const uint32_t, EcalTPGWeights> EcalTPGWeightMap_valuetype;
- 
-    EcalMappingElectronics ecalMap;
- 
-    EcalClusterLocalContCorrParameters clusterLocalContCorrParams;
- 
-    EcalClusterCrackCorrParameters clusterCrackCorrParams;
- 
-    EcalClusterEnergyCorrectionParameters clusterEnergyCorrectionParams;
-
-    EcalClusterEnergyUncertaintyParameters clusterEnergyUncertaintyParams;
- 
-    EcalClusterEnergyCorrectionObjectSpecificParameters clusterEnergyCorrectionObjectSpecificParams;
- 
+    
+    EcalFunParams funParams; // typdefs: EcalClusterCrackCorrParameters, EcalClusterEnergyCorrectionObjectSpecificParameters, EcalClusterEnergyCorrectionParameters, EcalClusterEnergyUncertaintyParameters, EcalClusterLocalContCorrParameters
+    
     EcalTPGFineGrainEBGroup fgrgroup;
  
     EcalTPGLutGroup lutgroup;
@@ -150,8 +179,6 @@ namespace{
     
     EcalTPGTowerStatus spike;
     
-    EcalTPGCrystalStatus tpgCrystalStatus;
-
     EcalSRSettings ecalSRSettings;
     //    std::vector<std::vector<short> > ecalSRSettings_srpMasksFromConfig;
     //    std::vector<std::vector<float> > ecalSRSettings_dccNormalizedWeights_0;

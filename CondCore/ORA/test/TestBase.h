@@ -10,6 +10,12 @@ namespace ora {
 
   class TestBase {
   public:
+
+    static void sleep(){
+      ::sleep(2);
+    }
+
+  public:
    
     explicit TestBase( const std::string& testName ):
       m_testName( testName ){}
@@ -20,9 +26,14 @@ namespace ora {
     virtual void execute( const std::string& connectionString ) = 0;
 
     void run( const std::string& connectionString ){
-      std::string authpath("/afs/cern.ch/cms/DB/conddb/int9r");
-      std::string pathenv(std::string("CORAL_AUTH_PATH=")+authpath);
-      ::putenv(const_cast<char*>(pathenv.c_str()));
+      const char* authEnv = ::getenv( "CORAL_AUTH_PATH" );
+      std::string defaultPath("/afs/cern.ch/cms/DB/conddb/int9r");
+      std::string pathEnv(std::string("CORAL_AUTH_PATH=")+defaultPath);
+      if( !authEnv ){
+	//setting environment variable: if pathEnv is defined in this scope (as it should be), it does not work!! (??)
+        authEnv = pathEnv.c_str();
+	::putenv(const_cast<char*>(pathEnv.c_str()));
+      }
       try{
 	Serializer serializer;
 	serializer.lock( connectionString );
@@ -44,7 +55,6 @@ namespace ora {
       }
       run( connStr );
     }
-
 
   protected:
     std::string m_testName;

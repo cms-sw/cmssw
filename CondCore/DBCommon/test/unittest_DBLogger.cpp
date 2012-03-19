@@ -53,7 +53,7 @@ int main(){
 	 "Pedestals",
 	 1);
   std::string const tok2 = tk.tokenAsString();
-  std::string constr("sqlite_file:mylog.db");
+  std::string constr("sqlite_file:unittest_DBLogger.db");
   //std::string constr("oracle://devdb10/cms_xiezhen_dev");
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());

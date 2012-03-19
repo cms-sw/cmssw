@@ -16,7 +16,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO, Radek Ofierzynski
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: ZeeRescaleFactorPlots.h,v 1.4 2009/01/09 10:23:04 saout Exp $
+// $Id: ZeeRescaleFactorPlots.h,v 1.2 2008/04/30 09:37:42 palmale Exp $
 //
 //
 
@@ -54,7 +54,7 @@
 class ZeeRescaleFactorPlots {
  
  public:
-  ZeeRescaleFactorPlots( const char* );
+  ZeeRescaleFactorPlots( char* );
   ~ZeeRescaleFactorPlots();
   
   void writeHistograms( ZIterativeAlgorithmWithFit* );
@@ -62,7 +62,7 @@ class ZeeRescaleFactorPlots {
  private:
   
   TFile* file_;
-  const char* fileName_;
+  char* fileName_;
   
 };
 #endif

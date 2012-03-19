@@ -16,7 +16,6 @@
 //  Josh Bendavid - MIT                                                 //
 //////////////////////////////////////////////////////////////////////////
 
-#include "TNamed.h"
 #include <vector>
 #include "GBRTree.h"
 
@@ -25,31 +24,29 @@
     class MethodBDT;
   }
 
-  class GBRForest : public TNamed {
+  class GBRForest {
 
     public:
 
        GBRForest();
-       GBRForest(const TMVA::MethodBDT *bdt);
-       GBRForest(const GBRForest &other);
+       explicit GBRForest(const TMVA::MethodBDT *bdt);
        virtual ~GBRForest();
        
-       Double_t GetResponse(const Float_t* vector) const;
+       double GetResponse(const float* vector) const;
       
-       std::vector<GBRTree*> &Trees() { return fTrees; }
+       std::vector<GBRTree> &Trees() { return fTrees; }
        
     protected:
-      Double_t             fInitialResponse;
-      std::vector<GBRTree*> fTrees;
-    
-    ClassDef(GBRForest,50) // Node for the Decision Tree 
+      double               fInitialResponse;
+      std::vector<GBRTree> fTrees;  
+      
   };
 
 //_______________________________________________________________________
-inline Double_t GBRForest::GetResponse(const Float_t* vector) const {
-  Double_t response = fInitialResponse;
-  for (std::vector<GBRTree*>::const_iterator it=fTrees.begin(); it!=fTrees.end(); ++it) {
-    response += (*it)->GetResponse(vector);
+inline double GBRForest::GetResponse(const float* vector) const {
+  double response = fInitialResponse;
+  for (std::vector<GBRTree>::const_iterator it=fTrees.begin(); it!=fTrees.end(); ++it) {
+    response += it->GetResponse(vector);
   }
   return response;
 }

@@ -13,6 +13,7 @@ ZdcSimpleRecAlgo::ZdcSimpleRecAlgo(bool correctForTimeslew, bool correctForPulse
   recoMethod_(recoMethod),
   correctForTimeslew_(correctForTimeslew),
   correctForPulse_(correctForPulse),
+  phaseNS_(phaseNS),
   lowGainOffset_(lowGainOffset),
   lowGainFrac_(lowGainFrac)
   {
@@ -77,7 +78,7 @@ namespace ZdcSimpleRecAlgoImpl {
     // Time based on regular energy (lowGainEnergy signal assumed to happen at same Time)
     ////Cannot calculate time value with max ADC sample at first or last position in window....
     if(maxI==0 || maxI==(tool.size()-1)) {      
-      LogDebug("HCAL Pulse") << "ZdcSimpleRecAlgo::reco2 :" 
+      LogDebug("HCAL Pulse") << "ZdcSimpleRecAlgo::reco1 :" 
 					       << " Invalid max amplitude position, " 
 					       << " max Amplitude: "<< maxI
 					       << " first: "<<ifirst

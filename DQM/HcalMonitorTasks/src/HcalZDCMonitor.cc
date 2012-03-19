@@ -289,7 +289,9 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 	     }
 	  }
       
-	double fTSMean = getTime(fData, 4, 6, fSum); // tsmin = 4, tsmax = 6.
+	double fTSMean = 0;
+	if (fData.size()>6)
+    fTSMean = getTime(fData, 4, 6, fSum); // tsmin = 4, tsmax = 6.
 	//std::cout << "Side= " << iSide << " Section= " << iSection << " Channel= " << iChannel << "\tCharge\t" << fSum <<std::endl; 
 	  if (saturated==true){
 	     h_2D_saturation->Fill(iSide==1?0:1,iSection==1?iChannel-1:iChannel+4,1);

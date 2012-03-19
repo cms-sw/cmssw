@@ -54,7 +54,8 @@ Decay MyLambda_b0
 Enddecay
 #
 Decay Myanti-Lambda_b0
-1.0	   Myanti-Lambda0	MyJpsi	HELAMP bPlus betaPlus aMinus alphaMinus aPlus alphaPlus bMinus betaMinus;
+#1.0	   Myanti-Lambda0	MyJpsi	HELAMP bPlus betaPlus aMinus alphaMinus aPlus alphaPlus bMinus betaMinus;
+1.0	Myanti-Lambda0		MyJpsi	HELAMP bMinus betaMinus aPlus alphaPlus aMinus alphaMinus bPlus betaPlus;
 Enddecay
 #
 Decay MyLambda0

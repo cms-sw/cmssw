@@ -57,6 +57,7 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p, int det,
 {
   edm::ParameterSet RecHitsParameters=p.getParameter<edm::ParameterSet>("HCAL");
   noise_ = RecHitsParameters.getParameter<std::vector<double> >("Noise");
+  corrfac_ = RecHitsParameters.getParameter<std::vector<double> >("NoiseCorrectionFactor");
   threshold_ = RecHitsParameters.getParameter<std::vector<double> >("Threshold");
   doSaturation_ = RecHitsParameters.getParameter<bool>("EnableSaturation");
     
@@ -96,20 +97,16 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p, int det,
     {
       for(unsigned inoise=0;inoise<nnoise_;++inoise)
 	{
-	  if(noise_[inoise]==0) 
-	    {
-	      hcalHotFraction_[inoise]=0.;
-	      continue;
-	    }
-	  else if(noise_[inoise]==-1) {
+	  if(noise_[inoise]==0) {
+	    hcalHotFraction_[inoise]=0.;
+	    continue;
+	  } else if(noise_[inoise]==-1) {
 	    noiseFromDb_=true;
 	    continue;
+	  } else {
+	    hcalHotFraction_.push_back(0.5-0.5*myErf(threshold_[inoise]/noise_[inoise]/sqrt(2.)));
+	    myGaussianTailGenerators_[inoise]=new GaussianTail(random_,noise_[inoise],threshold_[inoise]);
 	  }
-	  else
-	    {
-	      hcalHotFraction_.push_back(0.5-0.5*myErf(threshold_[inoise]/noise_[inoise]/sqrt(2.)));
-	      myGaussianTailGenerators_[inoise]=new GaussianTail(random_,noise_[inoise],threshold_[inoise]);
-	    }
 	}   
     }  
 }
@@ -158,9 +155,8 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
       gains_.resize(9201);
       if(doSaturation_)
 	sat_.resize(9201);
-      if(noiseFromDb_)
+      if(noiseFromDb_) 
 	noisesigma_.resize(9201);
-      
       
       
       miscalib_.resize(maxIndex_+1,1.);
@@ -361,25 +357,25 @@ void HcalRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 	case HcalBarrel: 
 	  {
 	    if(det_==4)
-	      Fill(hashedindex,fTOF*(it->energy()),firedCells_,noise_[0]);
+	      Fill(hashedindex,fTOF*(it->energy()),firedCells_,noise_[0],corrfac_[0]);
 	  }
 	  break;
 	case HcalEndcap: 
 	  {	  
 	    if(det_==4)
-	      Fill(hashedindex,fTOF*(it->energy()),firedCells_,noise_[1]);
+	      Fill(hashedindex,fTOF*(it->energy()),firedCells_,noise_[1],corrfac_[1]);
 	  }
 	  break;
 	case HcalOuter: 
 	  {
 	    if(det_==5)
-	      Fill(hashedindex,fTOF*(it->energy()),firedCells_,noise_[0]);
+	      Fill(hashedindex,fTOF*(it->energy()),firedCells_,noise_[0],corrfac_[0]);
 	  }
 	  break;		     
 	case HcalForward: 
 	  {
 	    if(det_==6 && time_slice==0) // skip the HF hit if out-of-time
-	      Fill(hashedindex,it->energy(),firedCells_,noise_[0]);
+	      Fill(hashedindex,it->energy(),firedCells_,noise_[0],corrfac_[0]);
 	  }
 	  break;
 	default:
@@ -558,13 +554,13 @@ unsigned HcalRecHitsMaker::createVectorOfSubdetectorCells(const CaloGeometry& cg
 }
 
 // Takes a hit (from a PSimHit) and fills a map 
-void HcalRecHitsMaker::Fill(int id, float energy, std::vector<int>& theHits,float noise)
+void HcalRecHitsMaker::Fill(int id, float energy, std::vector<int>& theHits,float noise,float correctionfactor)
 {
   if(doMiscalib_) 
     energy*=miscalib_[id];
 
   if(noiseFromDb_)
-    noise=noisesigma_[id];
+    noise=noisesigma_[id]*correctionfactor;
 
   // Check if the RecHit exists
   if(hcalRecHits_[id]>0.)
@@ -586,11 +582,11 @@ void HcalRecHitsMaker::noisify()
       {
 	// do the HB
 	if(noise_[0] != 0.) {
-	  total+=noisifySubdet(hcalRecHits_,firedCells_,hbhi_,nhbcells_,hcalHotFraction_[0],myGaussianTailGenerators_[0],noise_[0],threshold_[0]);
+	  total+=noisifySubdet(hcalRecHits_,firedCells_,hbhi_,nhbcells_,hcalHotFraction_[0],myGaussianTailGenerators_[0],noise_[0],threshold_[0],corrfac_[0]);
 	}
 	// do the HE
 	if(noise_[1] != 0.) {	 
-	  total+=noisifySubdet(hcalRecHits_,firedCells_,hehi_,nhecells_,hcalHotFraction_[1],myGaussianTailGenerators_[1],noise_[1],threshold_[1]);
+	  total+=noisifySubdet(hcalRecHits_,firedCells_,hehi_,nhecells_,hcalHotFraction_[1],myGaussianTailGenerators_[1],noise_[1],threshold_[1],corrfac_[1]);
 	}
       }
       break;
@@ -598,7 +594,7 @@ void HcalRecHitsMaker::noisify()
       {
 	// do the HO
 	if(noise_[0] != 0.) {
-	  total+=noisifySubdet(hcalRecHits_,firedCells_,hohi_,nhocells_,hcalHotFraction_[0],myGaussianTailGenerators_[0],noise_[0],threshold_[0]);
+	  total+=noisifySubdet(hcalRecHits_,firedCells_,hohi_,nhocells_,hcalHotFraction_[0],myGaussianTailGenerators_[0],noise_[0],threshold_[0],corrfac_[0]);
 	}
       }
       break;
@@ -606,7 +602,7 @@ void HcalRecHitsMaker::noisify()
       {
 	// do the HF
 	if(noise_[0] != 0.) {
-	  total+=noisifySubdet(hcalRecHits_,firedCells_,hfhi_,nhfcells_,hcalHotFraction_[0],myGaussianTailGenerators_[0],noise_[0],threshold_[0]);
+	  total+=noisifySubdet(hcalRecHits_,firedCells_,hfhi_,nhfcells_,hcalHotFraction_[0],myGaussianTailGenerators_[0],noise_[0],threshold_[0],corrfac_[0]);
 	}
       }
       break;
@@ -616,7 +612,7 @@ void HcalRecHitsMaker::noisify()
   edm::LogInfo("CaloRecHitsProducer") << "CaloRecHitsProducer : added noise in "<<  total << " HCAL cells "  << std::endl;
 }
 
-unsigned HcalRecHitsMaker::noisifySubdet(std::vector<float>& theMap, std::vector<int>& theHits, const std::vector<int>& thecells, unsigned ncells, double hcalHotFraction,const GaussianTail *myGT,double sigma,double threshold)
+unsigned HcalRecHitsMaker::noisifySubdet(std::vector<float>& theMap, std::vector<int>& theHits, const std::vector<int>& thecells, unsigned ncells, double hcalHotFraction,const GaussianTail *myGT,double sigma,double threshold,double correctionfactor)
 {
  // If the fraction of "hot " is small, use an optimized method to inject noise only in noisy cells. The 30% has not been tuned
   if(!noiseFromDb_ && hcalHotFraction==0.) return 0;
@@ -655,7 +651,7 @@ unsigned HcalRecHitsMaker::noisifySubdet(std::vector<float>& theMap, std::vector
 	  if(hcalRecHits_[cellhashedindex]==0.) // new cell
 	    {
 	      
-	      sigma=noisesigma_[cellhashedindex];
+	      sigma=noisesigma_[cellhashedindex]*correctionfactor;
 
 	      double noise =random_->gaussShoot(0.,sigma);
 	      if(noise>threshold)
@@ -707,7 +703,8 @@ double HcalRecHitsMaker::noiseInfCfromDB(const HcalDbService * conditions,const 
   double ssqq_4 = pedWidth->getSigma(3,3);
 
   // correction factors (hb,he,ho,hf)
-  static float corrfac[4]={1.39,1.32,1.17,3.76};
+  //  static float corrfac[4]={1.39,1.32,1.17,3.76};
+  //  static float corrfac[4]={0.93,0.88,1.17,2.51}; // divided HB, HE, HF by 1.5 (to take into account the halving of the number of time slices), HO did not change
 
   int sub   = detId.subdet();
 
@@ -735,7 +732,6 @@ double HcalRecHitsMaker::noiseInfCfromDB(const HcalDbService * conditions,const 
   //  else          noise_rms_fC = RMS4;
   noise_rms_fC = RMS4;
 
-  noise_rms_fC *= corrfac[sub-1];
 
   // to convert from above fC to GeV - multiply by gain (GeV/fC)        
   //  const HcalGain*  gain = conditions->getGain(detId); 
@@ -746,17 +742,21 @@ double HcalRecHitsMaker::noiseInfCfromDB(const HcalDbService * conditions,const 
 // fraction of energy collected as a function of ToF (for out-of-time particles; use case is out-of-time pileup)
 double HcalRecHitsMaker::fractionOOT(int time_slice)// in units of 25 ns; 0 means in-time
 {
-  if (abs(time_slice)>=5) return 0.;
-  double f[5]={0.7, 0.18, 0.06, 0.04, 0.02}; // numbers provided by Salavat
-  double fraction_observed=0.;
-  if (time_slice>=0) {
-    for(int i=time_slice; i<5; i++) fraction_observed+=f[i];
+  double SF = 100./88.; // to normalize to in-time signal (88% is in the reco window)
+  if (time_slice==-4) {
+    return 0.02*SF;
+  } else if (time_slice==-3) {
+    return 0.06*SF;
+  } else if (time_slice==-2) {
+    return 0.19*SF;
+  } else if (time_slice==-1) {
+    return 0.24*SF;
+  } else if (time_slice==0) {
+    return 1.;
+  } else if (time_slice==1) {
+    return 0.70*SF;
   } else {
-    for(int i=0; i<5+time_slice; i++) fraction_observed+=f[i];
+    return 0.;
   }
-  return fraction_observed;
 
-  // Note (by Andrea G): actually one can just tabulate these numbers instead of doing sums
-  // but this is error-prone and I prefer to delay that until the next update, after some validation.
-  // (one can put the tabulation macro in /test, in order to recalculate the scaling factors quickly in case the TS fractions change)
 }

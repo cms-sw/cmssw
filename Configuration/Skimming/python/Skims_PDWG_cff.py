@@ -140,6 +140,39 @@ SKIMStreamEXOHPTE = cms.FilteredStream(
     dataTier = cms.untracked.string('AOD')
     )
 
+#####################
+# For the Data on Data Mixing in TSG
+from HLTrigger.Configuration.HLT_FULL_cff import hltGtDigis
+hltGtDigisPath=cms.Path(hltGtDigis)
+
+# The events to be used as PileUp
+from Configuration.Skimming.PDWG_HLTZEROBIASPU_SD_cff import *
+HLTZEROBIASPUSDPath = cms.Path(HLTZEROBIASPUSD)
+SKIMStreamHLTZEROBIASPUSD = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'HLTZEROBIASPUSD',
+    paths = (HLTZEROBIASPUSDPath),
+    content = skimRecoContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW') # for the moment, it could be DIGI in the future
+    )
+
+#The events to be used as signal
+from Configuration.Skimming.PDWG_HLTZEROBIASSIG_SD_cff import *
+HLTZEROBIASSIGSDPath = cms.Path(HLTZEROBIASSIGSD)
+SKIMStreamHLTZEROBIASSIGSD = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'HLTZEROBIASSIGSD',
+    paths = (HLTZEROBIASSIGSDPath),
+    content = skimRecoContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW') # for the moment, it could be DIGI in the future
+    )
+
+####################
+   
+
+
 ## exo skims
 """
 from SUSYBSMAnalysis.Skimming.EXOLLResSkim_cff import *

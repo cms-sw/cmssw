@@ -43,13 +43,13 @@ isolationSumsCalculator = cms.PSet(
     EcalRecHitInnerRadiusA_Barrel   = cms.double(3.5),
     EcalRecHitOuterRadiusA_Barrel   = cms.double(0.4),
     EcalRecHitEtaSliceA_Barrel      = cms.double(2.5),
-    EcalRecHitThreshEA_Barrel       = cms.double(0.08),
+    EcalRecHitThreshEA_Barrel       = cms.double(0.095),
     EcalRecHitThreshEtA_Barrel      = cms.double(0.0),
 #
     EcalRecHitInnerRadiusB_Barrel   = cms.double(3.5),
     EcalRecHitOuterRadiusB_Barrel   = cms.double(0.3),
     EcalRecHitEtaSliceB_Barrel      = cms.double(2.5),
-    EcalRecHitThreshEB_Barrel       = cms.double(0.08),
+    EcalRecHitThreshEB_Barrel       = cms.double(0.095),
     EcalRecHitThreshEtB_Barrel      = cms.double(0.0),
     #Hcal towers
     HcalTowerInnerRadiusA_Barrel    = cms.double(0.15),
@@ -92,13 +92,13 @@ isolationSumsCalculator = cms.PSet(
     EcalRecHitOuterRadiusA_Endcap    = cms.double(0.4),
     EcalRecHitEtaSliceA_Endcap       = cms.double(2.5),
     EcalRecHitThreshEA_Endcap        = cms.double(0.0),
-    EcalRecHitThreshEtA_Endcap       = cms.double(0.1),
+    EcalRecHitThreshEtA_Endcap       = cms.double(0.110),
 #
     EcalRecHitInnerRadiusB_Endcap    = cms.double(3.5),
     EcalRecHitOuterRadiusB_Endcap    = cms.double(0.3),
     EcalRecHitEtaSliceB_Endcap       = cms.double(2.5),
     EcalRecHitThreshEB_Endcap        = cms.double(0.0),
-    EcalRecHitThreshEtB_Endcap       = cms.double(0.1),
+    EcalRecHitThreshEtB_Endcap       = cms.double(0.110),
 
     severityLevelCut = cms.int32(4),
     severityRecHitThreshold = cms.double(5.0),
