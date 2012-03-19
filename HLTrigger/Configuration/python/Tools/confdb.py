@@ -57,7 +57,6 @@ class HLTProcess(object):
     "HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v*",
     
 # TODO: paths not supported by FastSim, but for which a recovery should be attempted
-    "HLT_Tau2Mu_ItTrack_v*",
   
     )
 
@@ -350,6 +349,7 @@ if 'hltHfreco' in %(dict)s:
       self._fix_parameter(                               type = 'InputTag', value = 'hltMuonRPCDigis',      replace = 'simMuonRPCDigis')
       self._fix_parameter(                               type = 'InputTag', value = 'hltRegionalTracksForL3MuonIsolation', replace = 'hltPixelTracks')
       self._fix_parameter(name = 'src',                  type = 'InputTag', value = 'hltHcalTowerNoiseCleaner', replace = 'hltTowerMakerForAll')
+      self._fix_parameter(name = 'src',                  type = 'InputTag', value = 'hltIter4Tau3MuMerged', replace = 'hltIter4Merged')
 
       # fix the definition of sequences and paths
       self.data = re.sub( r'hltMuonCSCDigis', r'cms.SequencePlaceholder( "simMuonCSCDigis" )',  self.data )
@@ -957,6 +957,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltRegionalPixelTracks" )
       self.options['modules'].append( "-hltRegPixelTracks" )
       self.options['modules'].append( "-hltIter4Merged" )
+      self.options['modules'].append( "-hltIter4Tau3MuMerged" )
       self.options['modules'].append( "-hltPFJetCtfWithMaterialTracks" )
       self.options['modules'].append( "hltPixelMatchElectronsActivity" )
 
@@ -986,6 +987,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTBeginSequenceAntiBPTX" )
       self.options['sequences'].append( "-HLTHBHENoiseSequence" )
       self.options['sequences'].append( "-HLTIterativeTracking" )
+      self.options['sequences'].append( "-HLTIterativeTrackingTau3Mu" )
       self.options['sequences'].append( "-HLTRegionalCKFTracksForL3Isolation" )
       self.options['sequences'].append( "-HLTHBHENoiseCleanerSequence" )
 
