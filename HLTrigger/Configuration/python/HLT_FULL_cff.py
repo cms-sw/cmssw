@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_0/HLT/V68 (CMSSW_5_2_0_HLT2)
+# /dev/CMSSW_5_2_0/HLT/V69 (CMSSW_5_2_0_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_0/HLT/V68')
+  tableName = cms.string('/dev/CMSSW_5_2_0/HLT/V69')
 )
 
 streams = cms.PSet( 
@@ -5820,6 +5820,7 @@ hltSiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
     UseCablingTree = cms.untracked.bool( True ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     ErrorList = cms.vint32(  ),
+    Regions = cms.PSet(  ),
     Timing = cms.untracked.bool( False ),
     UserErrorList = cms.vint32(  )
 )

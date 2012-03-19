@@ -1,10 +1,10 @@
-# /online/collisions/2012/5e33/v4.1/HLT/V12 (CMSSW_5_2_0_HLT2)
+# /online/collisions/2012/5e33/v4.1/HLT/V13 (CMSSW_5_2_0_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/5e33/v4.1/HLT/V12')
+  tableName = cms.string('/online/collisions/2012/5e33/v4.1/HLT/V13')
 )
 
 streams = cms.PSet( 
@@ -5237,6 +5237,7 @@ hltSiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
     UseCablingTree = cms.untracked.bool( True ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     ErrorList = cms.vint32(  ),
+    Regions = cms.PSet(  ),
     Timing = cms.untracked.bool( False ),
     UserErrorList = cms.vint32(  )
 )
