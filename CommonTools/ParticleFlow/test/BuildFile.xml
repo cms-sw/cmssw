@@ -1,0 +1,10 @@
+<library   name="CommonToolsParticleFlowTest" file="PFIsoReaderDemo.cc">
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/EgammaCandidates"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="PhysicsTools/UtilAlgos"/>
+
+  <flags   EDM_PLUGIN="1"/>
+</library>
