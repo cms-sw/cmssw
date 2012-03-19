@@ -108,36 +108,6 @@ dedxNPASmi.UsePixel = cms.bool(False)
 
 
 ####################################################################################
-#   HIT-DEDX Information
-####################################################################################
-
-dedxHitInfo               = cms.EDProducer("HSCPDeDxInfoProducer",
-    tracks                     = cms.InputTag("TrackRefitter"),
-    trajectoryTrackAssociation = cms.InputTag("TrackRefitter"),
-
-    Reccord            = cms.untracked.string("SiStripDeDxMip_3D_Rcd"),
-    Formula            = cms.untracked.uint32(0),
-#    ProbabilityMode    = cms.untracked.string("Integral"),
-    ProbabilityMode    = cms.untracked.string("Accumulation"),
-
-
-    UseStrip           = cms.bool(True),
-    UsePixel           = cms.bool(True),
-    MeVperADCStrip     = cms.double(3.61e-06*265),
-    MeVperADCPixel     = cms.double(3.61e-06),
-
-    MisCalib_Mean      = cms.untracked.double(1.0),
-    MisCalib_Sigma     = cms.untracked.double(0.00),
-
-    UseCalibration  = cms.bool(False),
-    calibrationPath = cms.string("file:Gains.root"),
-    ShapeTest          = cms.bool(True),
-
-    MaxNrStrips        = cms.untracked.uint32(255)
-)
-
-
-####################################################################################
 #   MUON TIMING
 ####################################################################################
 
@@ -226,6 +196,6 @@ HSCParticleSelector = cms.EDFilter("HSCParticleSelector",
 #   HSCP Candidate Sequence
 ####################################################################################
 
-HSCParticleProducerSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxHarm2 + dedxTru40 + dedxNPHarm2 + dedxNPTru40 + dedxNSHarm2 + dedxNSTru40 + dedxProd + dedxASmi + dedxNPProd + dedxNPASmi + dedxHitInfo + muontiming + HSCParticleProducer)
+HSCParticleProducerSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxHarm2 + dedxTru40 + dedxNPHarm2 + dedxNPTru40 + dedxNSHarm2 + dedxNSTru40 + dedxProd + dedxASmi + dedxNPProd + dedxNPASmi + muontiming + HSCParticleProducer)
 
 

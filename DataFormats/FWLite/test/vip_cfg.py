@@ -12,7 +12,10 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("EmptySource")
 
-process.VIP = cms.EDProducer("VectorIntProducer")
+process.VIP = cms.EDProducer("IntVectorProducer",
+    ivalue = cms.int32(42),
+    count = cms.int32(1)
+)
 
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('vectorinttest.root')

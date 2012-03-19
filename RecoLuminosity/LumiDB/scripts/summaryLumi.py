@@ -3,7 +3,7 @@
 import os,os.path,sys,math,array,datetime,time,re
 import coral
 
-from RecoLuminosity.LumiDB import argparse,lumiTime,CommonUtil,lumiCalcAPI,lumiCorrections,sessionManager
+from RecoLuminosity.LumiDB import argparse,lumiTime,CommonUtil,lumiCalcAPI,lumiCorrections,sessionManager,lumiParameters
 MINFILL=1800
 MAXFILL=9999
 allfillname='allfills.txt'
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     parser.add_argument('-P',dest='authpath',action='store',required=True,help='authentication.xml dir')
     parser.add_argument('-i',dest='inputdir',action='store',required=False,help='output dir',default='.')
     parser.add_argument('-o',dest='outputdir',action='store',required=False,help='output dir',default='.')
-    parser.add_argument('-f',dest='fillnum',action='store',required=False,help='specific fill',default=None)
+    parser.add_argument('-f','--fill',dest='fillnum',action='store',required=False,help='specific fill',default=None)
     parser.add_argument('--norm',dest='norm',action='store',required=False,help='norm',default='pp7TeV')
     parser.add_argument('--minfill',dest='minfill',action='store',required=False,help='minimal fillnumber ',default=None)
     parser.add_argument('--maxfill',dest='maxfill',action='store',required=False,help='maximum fillnumber ',default=MAXFILL)
@@ -54,7 +54,6 @@ if __name__ == '__main__':
     options=parser.parse_args()
     if options.minfill:
         MINFILL=int(options.minfill)
-    allfillsFromFile=[]
     fillstoprocess=[]
     maxfillnum=options.maxfill
     summaryfilenameTMP='_summary_CMS.txt'
@@ -86,8 +85,8 @@ if __name__ == '__main__':
     if len(fillstoprocess)==0:
         print 'no fill to process, exit '
         exit(0)
-
-    lslength=23.357
+    lumip=lumiParameters.ParametersObject()
+    lslength=lumip.lslengthsec()
     import commands,os,RecoLuminosity.LumiDB.lumiTime,datetime,time
     for fillnum in fillstoprocess:
         clineElements=['lumiCalc2.py','lumibyls','-c',dbname,'-P',authdir,'-f',str(fillnum),'-o','tmp.out']

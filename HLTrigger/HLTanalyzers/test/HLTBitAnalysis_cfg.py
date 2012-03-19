@@ -46,8 +46,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #   tag names to allow append IOV, and DT cabling map corresponding to 2009 configuration (10 FEDs).
 # Meanwhile...:
 #process.GlobalTag.globaltag = 'MC_31X_V9::All'
-#process.GlobalTag.globaltag = 'START42_V9::All'
-process.GlobalTag.globaltag = 'GR_R_50_V3::All'
+process.GlobalTag.globaltag = 'START42_V9::All'
 process.GlobalTag.pfnPrefix=cms.untracked.string('frontier://FrontierProd/')
 
 process.load('Configuration/StandardSequences/SimL1Emulator_cff')

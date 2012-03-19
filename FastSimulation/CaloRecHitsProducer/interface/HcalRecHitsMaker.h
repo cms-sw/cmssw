@@ -37,12 +37,12 @@ class HcalRecHitsMaker
  private:
   unsigned createVectorsOfCells(const edm::EventSetup &es);
   unsigned createVectorOfSubdetectorCells( const CaloGeometry&,int subdetn,std::vector<int>&);
-  unsigned noisifySubdet(std::vector<float >& theMap, std::vector<int>& theHits,const std::vector<int>& thecells, unsigned ncells, double  hcalHotFraction_, const GaussianTail *,double sigma,double threshold); 
+  unsigned noisifySubdet(std::vector<float >& theMap, std::vector<int>& theHits,const std::vector<int>& thecells, unsigned ncells, double  hcalHotFraction_, const GaussianTail *,double sigma,double threshold,double correctionfactor); 
   // Not currently used. Will probably be removed soon.
   //  void noisifySignal(std::map<uint32_t,std::pair<float,bool> >& theMap); 
   void noisify();
   double noiseInfCfromDB(const HcalDbService * conditions,const HcalDetId & detId);
-  void Fill(int id,float energy, std::vector<int> & myHits,float noise);
+  void Fill(int id,float energy, std::vector<int> & myHits,float noise,float correctionfactor);
   void loadPCaloHits(const edm::Event & iEvent);
   
   void clean();
@@ -55,6 +55,7 @@ class HcalRecHitsMaker
   unsigned det_;
   std::vector<double> threshold_;
   std::vector<double> noise_;
+  std::vector<double> corrfac_;
   std::vector<double> hcalHotFraction_;
   unsigned nnoise_;
 

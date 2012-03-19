@@ -1,3 +1,7 @@
+V00-03-05, V00-03-06:
+---------------------
+	* added time stamp in log messages
+
 V00-03-04:
 --------
 	* support for lmf file spanning over more than 2 lumi blocks

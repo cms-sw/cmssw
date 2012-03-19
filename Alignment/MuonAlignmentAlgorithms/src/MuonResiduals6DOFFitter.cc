@@ -1,4 +1,4 @@
-// $Id: MuonResiduals6DOFFitter.cc,v 1.9 2011/10/12 23:44:11 khotilov Exp $
+// $Id:$
 
 #ifdef STANDALONE_FITTER
 #include "MuonResiduals6DOFFitter.h"
@@ -153,12 +153,6 @@ void MuonResiduals6DOFFitter_FCN(int &npar, double *gin, double &fval, double *p
           fval += -weight * MuonResidualsFitter_logPureGaussian(residX, residXpeak, resXsigma);
           fval += -weight * MuonResidualsFitter_logPureGaussian(resslopeX, slopeXpeak, slopeXsigma);
         }
-        else if (fitter->useRes() == MuonResidualsFitter::k1000) {
-          fval += -weight * MuonResidualsFitter_logPureGaussian(residX, residXpeak, resXsigma);
-        }
-        else if (fitter->useRes() == MuonResidualsFitter::k0100) {
-          fval += -weight * MuonResidualsFitter_logPureGaussian(residY, residYpeak, resYsigma);
-        }
         else if (fitter->useRes() == MuonResidualsFitter::k0010) {
           fval += -weight * MuonResidualsFitter_logPureGaussian(resslopeX, slopeXpeak, slopeXsigma);
         }
@@ -182,12 +176,6 @@ void MuonResiduals6DOFFitter_FCN(int &npar, double *gin, double &fval, double *p
         }
         else if (fitter->useRes() == MuonResidualsFitter::k1010) {
           fval += -weight * MuonResidualsFitter_logPureGaussian2D(residX, resslopeX, residXpeak, slopeXpeak, resXsigma, slopeXsigma, alphax);
-        }
-        else if (fitter->useRes() == MuonResidualsFitter::k1000) {
-          fval += -weight * MuonResidualsFitter_logPureGaussian(residX, residXpeak, resXsigma);
-        }
-        else if (fitter->useRes() == MuonResidualsFitter::k0100) {
-          fval += -weight * MuonResidualsFitter_logPureGaussian(residY, residYpeak, resYsigma);
         }
         else if (fitter->useRes() == MuonResidualsFitter::k0010) {
                 fval += -weight * MuonResidualsFitter_logPureGaussian(resslopeX, slopeXpeak, slopeXsigma);
@@ -285,16 +273,6 @@ bool MuonResiduals6DOFFitter::fit(Alignable *ali)
   double highs[16]      = {0., 0., 0., 0., 0., 0.,    10., 10., 0.1, 0.1,
                            1.,1.,    0., 0., 0., 0.};
 
-  // adjust the default initial values with possible custom ones:
-  for (std::map<int, double>::iterator it = m_parNum2InitValue.begin(); it != m_parNum2InitValue.end(); ++it)
-  {
-    int parNum = it->first;
-    int idx = -1;
-    for (int i=0; i<16; ++i) if (nums[i]==parNum) {idx=i; break;}
-    assert(idx>=0);
-    starts[idx] = it->second;
-  }
-
   std::vector<int> num(nums, nums+6);
   std::vector<std::string> name(names, names+6);
   std::vector<double> start(starts, starts+6);
@@ -337,24 +315,6 @@ bool MuonResiduals6DOFFitter::fit(Alignable *ali)
     fix(kResSlopeYSigma);
     fix(kAlphaY);
     if (!add_alpha) fix(kAlphaX);
-  }
-  else if (useRes() == k1000) {
-    idx[ni++] = 6;
-    if (add_gamma) idx[ni++] = 12;
-    fix(kResidYSigma);
-    fix(kResSlopeXSigma);
-    fix(kResSlopeYSigma);
-    fix(kAlphaX);
-    fix(kAlphaY);
-  }
-  else if (useRes() == k0100) {
-    idx[ni++] = 7;
-    if (add_gamma) idx[ni++] = 13;
-    fix(kResidXSigma);
-    fix(kResSlopeXSigma);
-    fix(kResSlopeYSigma);
-    fix(kAlphaX);
-    fix(kAlphaY);
   }
   else if (useRes() == k0010) {
     idx[ni++] = 8;

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.197 2011/10/04 20:20:37 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.199 2012/03/14 19:22:13 amraktad Exp $
 //
 
 // system include files
@@ -251,10 +251,10 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    if (vm.count(kGeomFileOpt)) {
       setGeometryFilename(vm[kGeomFileOpt].as<std::string>());
    } else {
-      fwLog(fwlog::kInfo) << "No geom file name.  Choosing default.\n";
+      //  fwLog(fwlog::kInfo) << "No geom file name.  Choosing default.\n";
       setGeometryFilename("cmsGeom10.root");
    }
-   fwLog(fwlog::kInfo) << "Geom " << geometryFilename() << std::endl;
+   fwLog(fwlog::kInfo) << "Geometry file " << geometryFilename() << "\n";
 
    if (vm.count(kSimGeomFileOpt)) {
       setSimGeometryFilename(vm[kSimGeomFileOpt].as<std::string>());
@@ -507,6 +507,7 @@ CmsShowMain::openDataViaURL()
    if(!chosenFile.empty()) {
       guiManager()->updateStatus("loading file ...");
       if(m_navigator->openFile(chosenFile.c_str())) {
+         m_loadedAnyInputFile = true;
          m_navigator->firstEvent();
          checkPosition();
          draw();

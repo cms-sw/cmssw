@@ -4,7 +4,7 @@ HLT_JetE30_NoBPTX_NoHalo_v*
 HLT_JetE30_NoBPTX3BX_NoHalo_v*
 HLT_L1SingleMuOpen_v*
 HLT_L1SingleMuOpen_DT_v*
-HLT_L1SingleMu10_v*
+HLT_L1SingleMu12_v*
 HLT_L1SingleEG5_v*
 HLT_L1SingleEG12_v*
 HLT_BeamGas_HF_v*
@@ -30,12 +30,14 @@ HLT_TrackerCalibration_v*
 HLT_Random_v*
 HLT_L1SingleMuOpen_AntiBPTX_v*
 HLT_L1TrackerCosmics_v*
-HLT_RegionalCosmicTracking_v*
-HLT_L3MuonsCosmicTracking_v*
+# HLT_RegionalCosmicTracking_v*   # removed sr #127068
+# HLT_L3MuonsCosmicTracking_v*    # removed sr #127068
 HLT_LogMonitor_v*
 HLT_DTErrors_v*
-AlCa_EcalPi0_v*
-AlCa_EcalEta_v*
+AlCa_EcalPi0EBonly_v*
+AlCa_EcalPi0EEonly_v*
+AlCa_EcalEtaEBonly_v*
+AlCa_EcalEtaEEonly_v*
 AlCa_EcalPhiSym_v*
 AlCa_RPCMuonNoTriggers_v*
 AlCa_RPCMuonNoHits_v*
@@ -46,9 +48,9 @@ AForPPOutput
 ALCAP0Output
 ALCAPHISYMOutput
 CalibrationOutput
-DQMOutput
+DQMForPPOutput
 EcalCalibrationOutput
-ExpressCosmicsOutput
+ExpressForCosmicsOutput
 HLTDQMOutput
 HLTDQMResultsOutput
 HLTMONOutput

@@ -11,7 +11,7 @@
  *         David Dagenhart
  *         Zhen Xie
  * \version   1st Version June 7 2007
- * $Id: LumiSummary.h,v 1.18 2010/10/12 10:54:59 xiezhen Exp $
+ * $Id: LumiSummary.h,v 1.19 2011/02/21 18:08:45 matevz Exp $
  *
  ************************************************************/
  
@@ -73,23 +73,36 @@ class LumiSummary {
 
     /// destructor
     ~LumiSummary(){}
-    /**average inst lumi**/
+    /** 
+	average inst lumi,delivered, 
+	unit Hz/ub, 
+	uncalibrated for lumiversion v2 
+    **/
     float avgInsDelLumi() const;
-    /**average inst lumi error**/
+    /**
+       average inst lumi error, empty for lumiversion v2 
+    **/
     float avgInsDelLumiErr() const;
-    /**delivered luminosity integrated over LS **/
+    /**
+       delivered luminosity integrated over LS , 
+       unit /ub,  
+       uncalibrated for lumiversion v2 
+    **/
     float intgDelLumi()const;
     short lumiSecQual() const ;
-    /** trigger DeadtimeBeamActive count **/
+    /** 
+	trigger DeadtimeBeamActive count 
+    **/
     unsigned long long deadcount() const;
+    /**
+       trigger normalization bit count*prescale
+    **/
+    unsigned long long bitzerocount() const;
     /** the fraction trigger is not active=
 	trigger DeadtimeBeamActive/BitZero
 	special values:
 	if trigger data absent for this LS, return deadfraction 1.0
 	if bitzero=0 return -1.0 meaning no beam
-    **/
-    unsigned long long bitzerocount() const;
-    /** trigger bit 0 count = rate * prescale
     **/
     float deadFrac() const ;
     /** the fraction trigger is active=
@@ -101,7 +114,7 @@ class LumiSummary {
     float liveFrac() const;
     /**lumi section length in seconds
        numorbits*3564*25e-09
-     **/
+    **/
     float lumiSectionLength() const;
     unsigned int lsNumber() const;
     unsigned int startOrbit() const;

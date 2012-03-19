@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/10/10 14:43:31 $
- *  $Revision: 1.76 $
+ *  $Date: 2011/10/10 13:45:50 $
+ *  $Revision: 1.75 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -344,7 +344,6 @@ void JetMETAnalyzer::beginJob(void) {
   cleanupME->setBinLabel(8,"DCS::HO");
   cleanupME->setBinLabel(9,"DCS::Muon");
 
-  verticesME = dbe->book1D("vertices", "vertices", 50, 0, 50);
 }
 
 // ***********************************************************
@@ -500,8 +499,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   // ==========================================================
   //Vertex information
-
-  int _numPV = 0;
+  
   bool bPrimaryVertex = true;
   if(_doPVCheck){
     bPrimaryVertex = false;
@@ -528,14 +526,11 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	      && vertex_number>=_nvtx_min
 	      && vertex_ndof   >_vtxndof_min
 	      && vertex_chi2   <_vtxchi2_max
-	      && fabs(vertex_Z)<_vtxz_max ) {
+	      && fabs(vertex_Z)<_vtxz_max )
 	  bPrimaryVertex = true;
-	  ++_numPV;
-	}
       }
     }
   }
-  verticesME->Fill(_numPV);
   // ==========================================================
 
   edm::Handle< L1GlobalTriggerReadoutRecord > gtReadoutRecord;

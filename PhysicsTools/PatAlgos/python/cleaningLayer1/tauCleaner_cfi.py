@@ -1,16 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 cleanPatTaus = cms.EDProducer("PATTauCleaner",
-    src = cms.InputTag("selectedPatTaus"), 
+    src = cms.InputTag("selectedPatTaus"),
 
     # preselection (any string-based cut on pat::Tau)
     preselection = cms.string(
-        'tauID("leadingTrackFinding") > 0.5 &'
-        ' tauID("leadingPionPtCut") > 0.5 &'
-        ' tauID("byIsolationUsingLeadingPion") > 0.5 &'
-        ' tauID("againstMuon") > 0.5 &'
-        ' tauID("againstElectron") > 0.5 &'
-        ' (signalPFChargedHadrCands.size() = 1 | signalPFChargedHadrCands.size() = 3)'
+        'tauID("decayModeFinding") > 0.5 &'
+        ' tauID("byLooseCombinedIsolationDeltaBetaCorr") > 0.5 &'
+        ' tauID("againstMuonMedium") > 0.5 &'
+        ' tauID("againstElectronMedium") > 0.5'
     ),
 
     # overlap checking configurables
@@ -36,6 +34,5 @@ cleanPatTaus = cms.EDProducer("PATTauCleaner",
     ),
 
     # finalCut (any string-based cut on pat::Tau)
-    finalCut = cms.string(''),
+    finalCut = cms.string('pt > 20. & abs(eta) < 2.3'),
 )
-

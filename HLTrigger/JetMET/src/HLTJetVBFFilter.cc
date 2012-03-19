@@ -1,8 +1,9 @@
 /** \class HLTJetVBFFilter
  *
- * $Id: HLTJetVBFFilter.cc,v 1.16 2012/02/13 15:51:25 srimanob Exp $
+ * $Id: HLTJetVBFFilter.cc,v 1.18 2012/03/02 17:53:53 srimanob Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
+ *  \modifier Phst Srimanobhas (srimanob@mail.cern.ch)
  *
  */
 
@@ -112,19 +113,19 @@ HLTJetVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
     typename TCollection::const_iterator jet1 ( objects->begin() );
     for (; jet1!=objects->end(); jet1++) {
       countJet1++;
-      if( leadingJetOnly_==true && countJet1>2) break;
+      if( leadingJetOnly_==true && countJet1>2 ) break;
       //
-      if( jet1->pt()<minPtHigh_ ) continue;
-      if( std::abs(jet1->eta())>maxEta_ ) continue;      
+      if( jet1->pt() < minPtHigh_ ) break; //No need to go to the next jet (lower PT)
+      if( std::abs(jet1->eta()) > maxEta_ ) continue;      
       //
       countJet2 = countJet1-1;
       typename TCollection::const_iterator jet2 ( jet1+1 );
       for (; jet2!=objects->end(); jet2++) {
 	countJet2++;
-	if( leadingJetOnly_==true && countJet2>2) break;
+	if( leadingJetOnly_==true && countJet2>2 ) break;
 	//
-        if( jet2->pt() < minPtLow_ ) break;
-	if( maxEta_>=0.0 && std::abs(jet2->eta())>maxEta_ ) break;
+        if( jet2->pt() < minPtLow_ ) break; //No need to go to the next jet (lower PT)
+	if( std::abs(jet2->eta()) > maxEta_ ) continue;
 	//
         ejet1   = jet1->energy();
         pxjet1  = jet1->px();
@@ -158,10 +159,10 @@ HLTJetVBFFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
           filterproduct.addObject(triggerType_,ref1);
           filterproduct.addObject(triggerType_,ref2);
         }// VBF cuts
-	if(n>=1) break;
+	//if(n>=1) break; //Store all possible pairs
       }
-      if(n>=1) break;
-    }// loop on all jets 
+      //if(n>=1) break; //Store all possible pairs
+    }// loop on all jets
   }// events with two or more jets
   
   // filter decision

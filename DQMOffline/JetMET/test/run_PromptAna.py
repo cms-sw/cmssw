@@ -23,7 +23,7 @@ jobname = (os.environ.get('JOB_NAME','test'))
 print 'jobname (default=test) = '+str(jobname)
 #
 # --- [number of events (default=1000)]
-nevents = int(os.environ.get('NEVENTS','1000'))
+nevents = int(os.environ.get('NEVENTS','5000'))
 print 'nevents (default=1000)  = '+str(nevents)
 #
 # --- [turn on all histograms (default=True)?]
@@ -31,7 +31,7 @@ allhist = (os.environ.get('ALL_HISTS','True'))
 print 'allhist (default=True) = '+str(allhist)
 #
 #--- [read list of input files from a text file? or not (default=False)]
-read_from_file = (os.environ.get('READ_LIST_FROM_FILE','False'))
+read_from_file = (os.environ.get('READ_LIST_FROM_FILE','True'))
 print 'read list of input files from a text file (default=False) = '+str(read_from_file)
 #
 #--- [trigger set (default=HLT)]
@@ -53,9 +53,8 @@ if read_from_file=="True":
     f.close()
 else:
   inputfiles = os.environ.get('INPUTFILES',
-                              '/store/relval/CMSSW_5_2_0_pre4/Jet/RECO/GR_R_52_V1_RelVal_jet2011B-v1/0034/7E4E91B0-C651-E111-9197-001A92971B36.root').split(",")
-  #'/store/hidata/HIRun2010/HIAllPhysics/RECO/PromptReco-v2/000/150/314/D28FA8E9-4EEA-DF11-9B2A-000423D987E0.root').split(",")
-#'/store/data/Commissioning09/MinimumBias/RECO/v4/000/102/347/F85D1BC6-A06A-DE11-BDF8-0019B9F581C9.root').split(",")
+  '/store/hidata/HIRun2010/HIAllPhysics/RECO/PromptReco-v2/000/150/314/D28FA8E9-4EEA-DF11-9B2A-000423D987E0.root').split(",")
+  #'/store/data/Commissioning09/MinimumBias/RECO/v4/000/102/347/F85D1BC6-A06A-DE11-BDF8-0019B9F581C9.root').split(",")
   #'/store/data/CRAFT09/Calo/RECO/v1/000/112/220/F0B768A4-5E93-DE11-B222-000423D94524.root').split(",")
 
 print 'List of input files'
@@ -87,7 +86,7 @@ process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag ='GR_R_38X_V13A::All'
 
 #process.GlobalTag.globaltag ='GR_P_V14::All'
-process.GlobalTag.globaltag ='GR_R_52_V3::All'
+process.GlobalTag.globaltag ='GR_R_44_V6A::All'
 
 ##process.GlobalTag.toGet = cms.VPSet(
 ##    cms.PSet(record = cms.string("AlCaRecoTriggerBitsRcd"),
@@ -189,13 +188,13 @@ if iscosmics=="True":
   process.p = cms.Path(#process.BeamHaloId
                        process.jetMETDQMOfflineSourceCosmic
                      * process.dqmStoreStats
-###                     * process.MEtoEDMConverter
+                     * process.MEtoEDMConverter
                      )
 else:
   process.p = cms.Path(#process.BeamHaloId
                        process.jetMETDQMOfflineSource
-                       * process.dqmStoreStats
-###                       * process.MEtoEDMConverter
+                     * process.dqmStoreStats
+                     * process.MEtoEDMConverter
                      )
 
 process.outpath = cms.EndPath(process.FEVT)

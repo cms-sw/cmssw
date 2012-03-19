@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.119 2011/09/07 01:20:57 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.120 2011/09/07 22:37:02 amraktad Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -745,7 +745,7 @@ CmsShowMainFrame::showFWorksInfo()
 
       infoText += "\nIt works or we fix it for free!\nhn-cms-visualization@cern.ch\n";
 
-      const UInt_t ww = 280, hh = 180;
+      const UInt_t ww = 280, hh = 190;
       
       m_fworksAbout = new InfoFrame(gClient->GetRoot(), ww, hh, kVerticalFrame | kFixedSize);
       m_fworksAbout->SetWMSizeHints(ww, hh, ww, hh, 0, 0);

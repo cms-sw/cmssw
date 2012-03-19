@@ -92,6 +92,9 @@ class LumiScalers
   unsigned int startOrbit() const          { return(startOrbit_);}
   unsigned int numOrbits() const           { return(numOrbits_);}
 
+  float pileup() const                     { return(pileup_);}
+  float spare() const                      { return(spare_);}
+
   /// equality operator
   int operator==(const LumiScalers& e) const { return false; }
 
@@ -141,6 +144,9 @@ protected:
   unsigned int sectionNumber_;
   unsigned int startOrbit_;
   unsigned int numOrbits_;
+
+  float pileup_;
+  float spare_;
 };
 
 

@@ -1,6 +1,6 @@
 /** \class HLTElectronPixelMatchFilter
  *
- * $Id: HLTElectronPixelMatchFilter.cc,v 1.13 2011/05/01 08:14:08 gruen Exp $
+ * $Id: HLTElectronPixelMatchFilter.cc,v 1.14 2012/01/21 14:56:58 fwyzard Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -69,7 +69,8 @@ HLTElectronPixelMatchFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
   PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
-
+  if(recoecalcands.empty()) PrevFilterOutput->getObjects(TriggerPhoton,recoecalcands);  //we dont know if its type trigger cluster or trigger photon
+  
   //get hold of the pixel seed - supercluster association map
   edm::Handle<reco::ElectronSeedCollection> L1IsoSeeds;
   iEvent.getByLabel (L1IsoPixelSeedsTag_,L1IsoSeeds);
@@ -81,13 +82,13 @@ HLTElectronPixelMatchFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
   
   // look at all egammas,  check cuts and add to filter object
   int n = 0;
-  //std::cout<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"<<std::endl;
+  // std::cout<<"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"<<std::endl;
   for (unsigned int i=0; i<recoecalcands.size(); i++) {
 
     ref = recoecalcands[i];
     reco::SuperClusterRef recr2 = ref->superCluster();
 
-    //std::cout<<"AA  ref, e, eta, phi"<<&(*recr2)<<" "<<recr2->energy()<<" "<<recr2->eta()<<" "<<recr2->phi()<<std::endl;
+    // std::cout<<"AA  ref, e, eta, phi"<<&(*recr2)<<" "<<recr2->energy()<<" "<<recr2->eta()<<" "<<recr2->phi()<<std::endl;
     int nmatch = 0;
 
     for(reco::ElectronSeedCollection::const_iterator it = L1IsoSeeds->begin(); 
@@ -95,7 +96,7 @@ HLTElectronPixelMatchFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
 
       edm::RefToBase<reco::CaloCluster> caloCluster = it->caloCluster() ;
       reco::SuperClusterRef scRef = caloCluster.castTo<reco::SuperClusterRef>() ;
-      //std::cout<<"BB ref, e, eta, phi"<<&(*scRef)<<" "<<scRef->energy()<<" "<<scRef->eta()<<" "<<scRef->phi()<<std::endl;
+      // std::cout<<"BB ref, e, eta, phi"<<&(*scRef)<<" "<<scRef->energy()<<" "<<scRef->eta()<<" "<<scRef->phi()<<std::endl;
    
       if(&(*recr2) ==  &(*scRef)) {
 	nmatch++;
@@ -122,7 +123,7 @@ HLTElectronPixelMatchFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
     }
     
   }//end of loop over candidates
-  //    std::cout<<"######################################################################"<<std::endl;   
+  // std::cout<<"######################################################################"<<std::endl;   
   // filter decision
   bool accept(n>=ncandcut_);
   

@@ -744,6 +744,7 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
 
 void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
 				   TkHistoMap *aTkMapPointer,
+				   MonitorElement *aFedIdVsApvId,
 				   unsigned int & aNBadChannels,
 				   unsigned int & aNBadActiveChannels)
 {
@@ -757,7 +758,7 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
   for (unsigned int iCh = 0; 
        iCh < sistrip::FEDCH_PER_FED; 
        iCh++) {//loop on channels
-
+    
     if (!connected_[iCh]) continue;
     if (!detid_[iCh] || detid_[iCh] == sistrip::invalid32_) continue;
 
@@ -770,6 +771,7 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
 	
     bool isBadFE = false;
     bool isMissingFE = false;
+    //feErrors vector of FE 0 - 7, each FE has channels 0 -11, 12 .. - ,... - 96
     for (unsigned int badfe(0); badfe<feErrors_.size(); badfe++) {
       if ((feErrors_[badfe]).FeID == feNumber) {
 	isBadFE = true;
@@ -780,13 +782,31 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
 
     bool isBadChan = false;
     bool isActiveChan = false;
-    for (unsigned int badCh(0); badCh<chErrors_.size(); badCh++) {
-      if (chErrors_[badCh].first == iCh) {
-	if (chErrors_[badCh].second) isActiveChan = true;
+    //FED errors, apv
+    //for (unsigned int badCh(0); badCh<chErrors_.size(); badCh++) {
+    //if (chErrors_[badCh].first == iCh) {
+    //if (chErrors_[badCh].second) isActiveChan = true;
+    //isBadChan = true;
+    //break;
+    //}
+    //}
+
+    //apvErrors_
+    bool isBadApv1 = false;
+    bool isBadApv2 = false;
+    for (unsigned int badApv(0); badApv<apvErrors_.size(); badApv++) {
+      if ((apvErrors_[badApv]).ChannelID == iCh) {
 	isBadChan = true;
-	break;
+	if (apvErrors_[badApv].IsActive) isActiveChan = true;
       }
+      if (apvErrors_[badApv].APVID == 2 * iCh ) isBadApv1 = true;
+      if (apvErrors_[badApv].APVID == 2 * iCh + 1 ) 
+	{
+	  isBadApv2 = true;
+	  break;
+	}
     }
+    
 
     if (detid_[iCh] == lPrevId){
       if (hasBeenProcessed) hasBeenProcessed = false;
@@ -812,6 +832,8 @@ void FEDErrors::fillBadChannelList(const bool doTkHistoMap,
       aNBadChannels++;
       //define as active channel if channel locked AND not from an unlocked FE.
       if ((isBadChan && isActiveChan) || lFailFED || (isBadFE && !isMissingFE)) aNBadActiveChannels++;
+      if ( isBadApv1 || lFailFED || isBadFE ) HistogramBase::fillHistogram ( aFedIdVsApvId , 2 * iCh , fedID_ ) ; 
+      if ( isBadApv2 || lFailFED || isBadFE ) HistogramBase::fillHistogram ( aFedIdVsApvId , 2 * iCh + 1 , fedID_ ) ; 
     }
 
 

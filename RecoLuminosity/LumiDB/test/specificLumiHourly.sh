@@ -1,23 +1,41 @@
 #!/bin/sh
 currendir=`pwd`
-sarch="slc5_ia32_gcc434"
-workdir="/afs/cern.ch/user/l/lumipro/scratch0/CMSSW_3_11_0"
+sarch="slc5_amd64_gcc434"
+workdir="/afs/cern.ch/user/l/lumipro/scratch0/exec/CMSSW_5_0_1"
 authdir="/afs/cern.ch/user/l/lumipro"
-indir="/afs/cern.ch/cms/lumi/ppfills2011"
+runfillmapdir="/afs/cern.ch/cms/lumi/ppfills2012"
 outdir="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_GLOBAL/LHCFILES"
 logpath="/afs/cern.ch/cms/lumi/"
+logfile="specificLumi-2012pp.log"
+minfill=2355
+norm="pp8TeV"
+
 dbConnectionString="oracle://cms_orcoff_prod/cms_lumi_prod"
 source /afs/cern.ch/cms/cmsset_default.sh;
 export SCRAM_ARCH="$sarch";
 cd $workdir
 eval `scramv1 runtime -sh`
-touch "$logpath/specificLumiHourly-withcorrection.log"
-date >> "$logpath/specificLumiHourly-withcorrection.log"
-specificLumi.py -c $dbConnectionString -P $authdir -i $indir -o $outdir --with-correction>> "$logpath/specificLumiHourly-withcorrection.log" ;
-date >> "$logpath/specificLumiHourly-withcorrection.log"
-rm -f "$logpath/checklumi.log"
-touch "$logpath/checklumi.log"
-date >> "$logpath/checklumi.log"
-python $workdir/src/RecoLuminosity/LumiDB/test/checklumi.py >> "$logpath/checklumi.log"
-date >> "$logpath/checklumi.log"
+
+touch "$logpath/$logfile"
+
+date >> "$logpath/$logfile"
+
+echo "dumpFill.py -c $dbConnectionString -P $authdir -o $runfillmapdir --amodetag PROTOPHYS --minfill $minfill" >> "$logpath/$logfile"
+
+dumpFill.py -c $dbConnectionString -P $authdir -o $runfillmapdir --amodetag PROTOPHYS --minfill $minfill
+
+date >> "$logpath/$logfile"
+
+echo "summaryLumi.py -c $dbConnectionString -P $authdir -i $runfillmapdir -o $outdir --amodetag PROTOPHYS --norm $norm --minfill $minfill" >> "$logpath/$logfile"
+
+summaryLumi.py -c $dbConnectionString -P $authdir -i $runfillmapdir -o $outdir --amodetag PROTOPHYS --norm $norm --minfill $minfill >> "$logpath/$logfile" 
+
+date >> "$logpath/$logfile"
+
+echo "specificLumi.py -c $dbConnectionString -P $authdir -i $runfillmapdir -o $outdir --norm $norm --minfill $minfill" >> "$logpath/$logfile"
+
+specificLumi.py -c $dbConnectionString -P $authdir -i $runfillmapdir -o $outdir --norm  $norm --minfill $minfill >> "$logpath/$logfile"
+
+date >> "$logpath/$logfile"
+
 cd $currentdir

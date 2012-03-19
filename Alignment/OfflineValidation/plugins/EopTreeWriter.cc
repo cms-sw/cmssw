@@ -13,7 +13,7 @@
 //
 // Original Author:  Holger Enderle
 //         Created:  Thu Dec  4 11:22:48 CET 2008
-// $Id: EopTreeWriter.cc,v 1.1 2011/11/10 13:18:06 henderle Exp $
+// $Id: EopTreeWriter.cc,v 1.2 2011/11/30 07:45:28 mussgill Exp $
 //
 //
 
@@ -48,10 +48,6 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-
-#include "RecoParticleFlow/PFRootEvent/interface/JetRecoTypes.h"
-#include "RecoParticleFlow/PFRootEvent/interface/JetMaker.h"
-#include "RecoParticleFlow/PFRootEvent/interface/ProtoJet.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"

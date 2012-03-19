@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.78 2011/11/01 15:53:32 fiori Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.79 2012/02/20 18:10:19 borrell Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -459,12 +459,11 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     if (globalswitchMultiRegions) PixVsStripMultiplicityRegions->Fill(MultiplicityRegion);
    
     if (ClusterHisto_){
-      double ratio = 0.0;
       NumberOfPixelClus->Fill(NPixClusters);
       NumberOfStripClus->Fill(NStripClusters);
-      if ( NPixClusters > 0) ratio = atan(5*NPixClusters/NStripClusters);
+      double ratio = 0.0;      
+      if ( NPixClusters > 0) ratio = atan(NPixClusters*5.0/NStripClusters);
       RatioOfPixelAndStripClus->Fill(ratio);
-
     }
   }
   // initialise # of clusters to zero

@@ -49,16 +49,16 @@ const float ETAMIN = -0.5;
 const float ETAMAX = 21.5;
 
 const unsigned int BITETABINS = 44;
-const float BITETAMIN = 0;
-const float BITETAMAX = 22;
+const float BITETAMIN = -0.5;
+const float BITETAMAX = 21.5;
 
 const unsigned int BITPHIBINS = 72;
-const float BITPHIMIN = 0;
-const float BITPHIMAX = 18;
+const float BITPHIMIN = -0.5;
+const float BITPHIMAX = 17.5;
 
 const unsigned int BITRPHIBINS = 90;
-const float BITRPHIMIN = 0;
-const float BITRPHIMAX = 18;
+const float BITRPHIMIN = -0.5;
+const float BITRPHIMAX = 17.5;
 
 const unsigned int TPGPHIBINS = 72;
 const float TPGPHIMIN = -0.5;
@@ -1442,8 +1442,8 @@ if(first)
 	      //Check for the bit that is different and store it
 	      bitset<8> bitDifference( electronEmulRank[k][i]^electronDataRank[k][j] );
 	      for( size_t n=0; n < bitDifference.size(); n++){
-		  if( n < 4 ){ rctIsoEmBitDiff_->Fill( electronEmulEta[k][i], electronEmulPhi[k][i]+n*0.25, bitDifference[n] ); }
-		  if( n >= 4 ){ rctIsoEmBitDiff_->Fill( electronEmulEta[k][i]+0.5, electronEmulPhi[k][i]+(n-4)*0.25, bitDifference[n] ); }
+		  if( n < 4 ){ rctIsoEmBitDiff_->Fill( electronEmulEta[k][i]-0.5, electronEmulPhi[k][i]+n*0.25-0.5, bitDifference[n] ); }
+		  if( n >= 4 ){ rctIsoEmBitDiff_->Fill( electronEmulEta[k][i], electronEmulPhi[k][i]+(n-4)*0.25-0.5, bitDifference[n] ); }
 	      }
             }
           }
@@ -1482,8 +1482,8 @@ if(first)
 	      //Check for the bit that is different and store it
 	      bitset<8> bitDifference( electronEmulRank[k][i]^electronDataRank[k][j] );
 	      for( size_t n=0; n < bitDifference.size(); n++){
-		  if( n < 4 ){ rctNIsoEmBitDiff_->Fill( electronEmulEta[k][i], electronEmulPhi[k][i]+n*0.25, bitDifference[n] ); }
-		  if( n >= 4 ){ rctNIsoEmBitDiff_->Fill( electronEmulEta[k][i]+0.5, electronEmulPhi[k][i]+(n-4)*0.25, bitDifference[n] ); }
+		  if( n < 4 ){ rctNIsoEmBitDiff_->Fill( electronEmulEta[k][i]-0.5, electronEmulPhi[k][i]+n*0.25-0.5, bitDifference[n] ); }
+		  if( n >= 4 ){ rctNIsoEmBitDiff_->Fill( electronEmulEta[k][i], electronEmulPhi[k][i]+(n-4)*0.25-0.5, bitDifference[n] ); }
 	      }
             }
           }
@@ -1504,8 +1504,8 @@ if(first)
 	  //Store the bit map for the emulator
 	  bitset<8> bit( electronEmulRank[k][i] );
 	  for( size_t n=0; n < bit.size(); n++){
-	     if( n < 4 ){ rctIsoEmBitOff_->Fill( electronEmulEta[k][i], electronEmulPhi[k][i]+n*0.25, bit[n] ); }
-	     if( n >= 4 ){ rctIsoEmBitOff_->Fill( electronEmulEta[k][i]+0.5, electronEmulPhi[k][i]+(n-4)*0.25, bit[n] ); }
+	     if( n < 4 ){ rctIsoEmBitOff_->Fill( electronEmulEta[k][i]-0.5, electronEmulPhi[k][i]+n*0.25-0.5, bit[n] ); }
+	     if( n >= 4 ){ rctIsoEmBitOff_->Fill( electronEmulEta[k][i], electronEmulPhi[k][i]+(n-4)*0.25-0.5, bit[n] ); }
 	  }
 
           chnl=PHIBINS*electronEmulEta[k][i]+electronEmulPhi[k][i];
@@ -1529,8 +1529,8 @@ if(first)
 	  //Store the bit map for the emulator
 	  bitset<8> bit( electronEmulRank[k][i] );
 	  for( size_t n=0; n < bit.size(); n++){
-	     if( n < 4 ){ rctNIsoEmBitOff_->Fill( electronEmulEta[k][i], electronEmulPhi[k][i]+n*0.25, bit[n] ); }
-	     if( n >= 4 ){ rctNIsoEmBitOff_->Fill( electronEmulEta[k][i]+0.5, electronEmulPhi[k][i]+(n-4)*0.25, bit[n] ); }
+	     if( n < 4 ){ rctNIsoEmBitOff_->Fill( electronEmulEta[k][i]-0.5, electronEmulPhi[k][i]+n*0.25-0.5, bit[n] ); }
+	     if( n >= 4 ){ rctNIsoEmBitOff_->Fill( electronEmulEta[k][i], electronEmulPhi[k][i]+(n-4)*0.25-0.5, bit[n] ); }
 	  }
 
           if(singlechannelhistos_)
@@ -1603,8 +1603,8 @@ if(first)
 	  //Store the bit map for the emulator
 	  bitset<8> bit( electronDataRank[k][i] );
 	  for( size_t n=0; n < bit.size(); n++){
-	     if( n < 4 ){ rctIsoEmBitOn_->Fill( electronDataEta[k][i], electronDataPhi[k][i]+n*0.25, bit[n] ); }
-	     if( n >= 4 ){ rctIsoEmBitOn_->Fill( electronDataEta[k][i]+0.5, electronDataPhi[k][i]+(n-4)*0.25, bit[n] ); }
+	     if( n < 4 ){ rctIsoEmBitOn_->Fill( electronDataEta[k][i]-0.5, electronDataPhi[k][i]+n*0.25-0.5, bit[n] ); }
+	     if( n >= 4 ){ rctIsoEmBitOn_->Fill( electronDataEta[k][i], electronDataPhi[k][i]+(n-4)*0.25-0.5, bit[n] ); }
 	  }
 
           chnl=PHIBINS*electronDataEta[k][i]+electronDataPhi[k][i];
@@ -1626,8 +1626,8 @@ if(first)
 	  //Store the bit map for the emulator
 	  bitset<8> bit( electronDataRank[k][i] );
 	  for( size_t n=0; n < bit.size(); n++){
-	     if( n < 4 ){ rctNIsoEmBitOn_->Fill( electronDataEta[k][i], electronDataPhi[k][i]+n*0.25, bit[n] ); }
-	     if( n >= 4 ){ rctNIsoEmBitOn_->Fill( electronDataEta[k][i]+0.5, electronDataPhi[k][i]+(n-4)*0.25, bit[n] ); }
+	     if( n < 4 ){ rctNIsoEmBitOn_->Fill( electronDataEta[k][i]-0.5, electronDataPhi[k][i]+n*0.25-0.5, bit[n] ); }
+	     if( n >= 4 ){ rctNIsoEmBitOn_->Fill( electronDataEta[k][i], electronDataPhi[k][i]+(n-4)*0.25-0.5, bit[n] ); }
 	  }
 
           chnl=PHIBINS*electronDataEta[k][i]+electronDataPhi[k][i];
@@ -1692,8 +1692,8 @@ if(first)
 
 	      bitset<10> bitDifference( regionEmulRank[i]^regionDataRank[i] );
 	      for( size_t n=0; n < bitDifference.size(); n++){
-		  if( n < 5 ){ rctRegBitDiff_->Fill( regionEmulEta[i], regionEmulPhi[i]+n*0.2, bitDifference[n] ); }
-		  if( n >= 5 ){ rctRegBitDiff_->Fill( regionEmulEta[i]+0.5, regionEmulPhi[i]+(n-5)*0.2, bitDifference[n] ); }
+		  if( n < 5 ){ rctRegBitDiff_->Fill( regionEmulEta[i]-0.5, regionEmulPhi[i]+n*0.2-0.5, bitDifference[n] ); }
+		  if( n >= 5 ){ rctRegBitDiff_->Fill( regionEmulEta[i], regionEmulPhi[i]+(n-5)*0.2-0.5, bitDifference[n] ); }
 	      }
 
              }
@@ -1744,8 +1744,8 @@ if(first)
 
 	bitset<10> bit( regionEmulRank[i] );
 	for( size_t n=0; n < bit.size(); n++){
-	   if( n < 5 ){ rctRegBitOff_->Fill( regionEmulEta[i], regionEmulPhi[i]+n*0.2, bit[n] ); }
-	   if( n >= 5 ){ rctRegBitOff_->Fill( regionEmulEta[i]+0.5, regionEmulPhi[i]+(n-5)*0.2, bit[n] ); }
+	   if( n < 5 ){ rctRegBitOff_->Fill( regionEmulEta[i]-0.5, regionEmulPhi[i]+n*0.2-0.5, bit[n] ); }
+	   if( n >= 5 ){ rctRegBitOff_->Fill( regionEmulEta[i], regionEmulPhi[i]+(n-5)*0.2-0.5, bit[n] ); }
 	}
 
         chnl = PHIBINS*regionEmulEta[i] + regionEmulPhi[i];
@@ -1853,8 +1853,8 @@ if(first)
 
 	bitset<10> bit( regionDataRank[i] );
 	for( size_t n=0; n < bit.size(); n++){
-	    if( n < 5 ){ rctRegBitOn_->Fill( regionDataEta[i], regionDataPhi[i]+n*0.2, bit[n] ); }
-	    if( n >= 5 ){ rctRegBitOn_->Fill( regionDataEta[i]+0.5, regionDataPhi[i]+(n-5)*0.2, bit[n] ); }
+	    if( n < 5 ){ rctRegBitOn_->Fill( regionDataEta[i]-0.5, regionDataPhi[i]+n*0.2-0.5, bit[n] ); }
+	    if( n >= 5 ){ rctRegBitOn_->Fill( regionDataEta[i], regionDataPhi[i]+(n-5)*0.2-0.5, bit[n] ); }
 	}
 
 

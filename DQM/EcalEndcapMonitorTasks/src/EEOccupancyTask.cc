@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2011/10/30 15:01:28 $
- * $Revision: 1.90 $
+ * $Date: 2011/02/14 08:01:29 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -27,6 +27,9 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -110,7 +113,7 @@ EEOccupancyTask::EEOccupancyTask(const edm::ParameterSet& ps){
   meEEPedestalDigiOccupancy_[1] = 0;
 
   recHitEnergyMin_ = 0.500; // GeV
-  trigPrimEtMin_ = 4.; // 2 ADCs == 1 GeV
+  trigPrimEtMin_ = 4.; // 4 ADCs == 1 GeV
 
   for (int i = 0; i < EEDetId::kSizeForDenseIndexing; i++) {
     geometryEE[i][0] = 0;
@@ -740,6 +743,9 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   }
 
+  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
+  c.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
+
   edm::Handle<EcalRecHitCollection> rechits;
 
   if ( e.getByLabel(EcalRecHitCollection_, rechits) ) {
@@ -787,25 +793,25 @@ void EEOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
           if ( meEERecHitOccupancyProPhi_[1] ) meEERecHitOccupancyProPhi_[1]->Fill( phi );
         }
 
-	// it's no use to use severitylevel to detect spikes (SeverityLevelAlgo simply uses RecHit flag for spikes)
-	uint32_t mask = 0xffffffff ^ ((0x1 << EcalRecHit::kGood));
+        uint32_t flag = rechitItr->recoFlag();
 
-	if( !rechitItr->checkFlagMask(mask) ){
-	  if ( rechitItr->energy() > recHitEnergyMin_ ){
+        uint32_t sev = sevlv->severityLevel(id, *rechits);
 
-	    if ( ism >= 1 && ism <= 9 ) {
-	      if ( meEERecHitOccupancyThr_[0] ) meEERecHitOccupancyThr_[0]->Fill( xeex, xeey );
-	      if ( meEERecHitOccupancyProEtaThr_[0] ) meEERecHitOccupancyProEtaThr_[0]->Fill( eta );
-	      if ( meEERecHitOccupancyProPhiThr_[0] ) meEERecHitOccupancyProPhiThr_[0]->Fill( phi );
-	    } else {
-	      if ( meEERecHitOccupancyThr_[1] ) meEERecHitOccupancyThr_[1]->Fill( xeex, xeey );
-	      if ( meEERecHitOccupancyProEtaThr_[1] ) meEERecHitOccupancyProEtaThr_[1]->Fill( eta );
-	      if ( meEERecHitOccupancyProPhiThr_[1] ) meEERecHitOccupancyProPhiThr_[1]->Fill( phi );
-	    }
+        if ( rechitItr->energy() > recHitEnergyMin_ && flag == EcalRecHit::kGood && sev == EcalSeverityLevel::kGood ) {
 
-	  }
+          if ( ism >= 1 && ism <= 9 ) {
+            if ( meEERecHitOccupancyThr_[0] ) meEERecHitOccupancyThr_[0]->Fill( xeex, xeey );
+            if ( meEERecHitOccupancyProEtaThr_[0] ) meEERecHitOccupancyProEtaThr_[0]->Fill( eta );
+            if ( meEERecHitOccupancyProPhiThr_[0] ) meEERecHitOccupancyProPhiThr_[0]->Fill( phi );
+          } else {
+            if ( meEERecHitOccupancyThr_[1] ) meEERecHitOccupancyThr_[1]->Fill( xeex, xeey );
+            if ( meEERecHitOccupancyProEtaThr_[1] ) meEERecHitOccupancyProEtaThr_[1]->Fill( eta );
+            if ( meEERecHitOccupancyProPhiThr_[1] ) meEERecHitOccupancyProPhiThr_[1]->Fill( phi );
+          }
 
+        }
 
+        if ( flag == EcalRecHit::kGood && sev == EcalSeverityLevel::kGood ) {
           if ( meEERecHitEnergy_[ism-1] ) meEERecHitEnergy_[ism-1]->Fill( xix, xiy, rechitItr->energy() );
           if ( meSpectrum_[ism-1] ) meSpectrum_[ism-1]->Fill( rechitItr->energy() );
           if (  ism >= 1 && ism <= 9  ) meEERecHitSpectrum_[0]->Fill( rechitItr->energy() );

@@ -17,6 +17,6 @@ from DQM.SiStripMonitorClient.SiStripSourceConfigTier0_Cosmic_cff import *
 #-------------------------------------------------
 SiStripDQMTest_cosmicTk = cms.Sequence(SiStripDQMTier0_cosmicTk*MEtoEDMConverter)
 SiStripDQMTest_ckf = cms.Sequence(SiStripDQMTier0_ckf*MEtoEDMConverter)
-SiStripDQMTest_rs = cms.Sequence(SiStripDQMTier0_rs*MEtoEDMConverter)
+#SiStripDQMTest_rs = cms.Sequence(SiStripDQMTier0_rs*MEtoEDMConverter)
 SiStripDQMTest = cms.Sequence(SiStripDQMTier0*MEtoEDMConverter)
 

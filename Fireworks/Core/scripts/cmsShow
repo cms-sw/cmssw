@@ -97,7 +97,6 @@ setupEnv()
      export CMSSW_DATA_PATH="."
      export ROOTSYS=$CMSSW_BASE/external/root 
      export LD_LIBRARY_PATH=${CMSSW_BASE}/lib:${CMSSW_BASE}/external/gcc/lib64:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib:$LD_LIBRARY_PATH
-     export DYLD_LIBRARY_PATH="/usr/lib"
      export DYLD_FALLBACK_LIBRARY_PATH=${LD_LIBRARY_PATH}
      export PATH=${ROOTSYS}/bin:$PATH
 

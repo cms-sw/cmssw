@@ -15,7 +15,7 @@ from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
 from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
 #from DQMOffline.Trigger.MuonTrigRateAnalyzer_cfi import *
 # online dqm:
-from DQM.HLTEvF.HLTMonTau_cfi import *
+from DQMOffline.Trigger.HLTMonTau_cfi import *
 
 # additional producer sequence prior to hltvalidation
 # to evacuate producers/filters from the EndPath

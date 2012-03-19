@@ -218,8 +218,7 @@ std::string LMFRunIOV::fetchIdSql(Statement *stmt)
 {
   std::string sql = "";
   
-  sql = "SELECT LMF_IOV_ID FROM CMS_ECAL_LASER_COND.LMF_RUN_IOV WHERE "
-    "SEQ_ID = :1 "
+  sql = "SELECT LMF_IOV_ID FROM LMF_RUN_IOV WHERE SEQ_ID = :1 "
     "AND LMR = :2 ";
   if (m_intFields["tag_id"] > 0) {
     sql += "AND TAG_ID = :3";
@@ -237,8 +236,7 @@ std::string LMFRunIOV::setByIDSql(Statement *stmt, int id)
 {
    DateHandler dh(m_env, m_conn);
    std::string sql = "SELECT TAG_ID, SEQ_ID, LMR, COLOR_ID, TRIG_TYPE, "
-     "SUBRUN_START, SUBRUN_END, SUBRUN_TYPE, DB_TIMESTAMP FROM "
-     "CMS_ECAL_LASER_COND.LMF_RUN_IOV "
+     "SUBRUN_START, SUBRUN_END, SUBRUN_TYPE, DB_TIMESTAMP FROM LMF_RUN_IOV "
      "WHERE LMF_IOV_ID = :1";
    stmt->setSQL(sql);
    stmt->setInt(1, id);
@@ -329,7 +327,7 @@ std::list<LMFRunIOV> LMFRunIOV::fetchBySequence(vector<int> par,
       stmt->setInt(i + 1, par[i]);
     }
     ResultSet *rset = stmt->executeQuery();
-    while (rset->next() != 0) {
+    while (rset->next()) {
       int lmf_iov_id = rset->getInt(1);
       LMFRunIOV iov;
       iov.setConnection(m_env, m_conn);
@@ -348,8 +346,7 @@ std::list<LMFRunIOV> LMFRunIOV::fetchBySequence(const LMFSeqDat &s) {
   int seq_id = s.getID();
   vector<int> parameters;
   parameters.push_back(seq_id);
-  return fetchBySequence(parameters, "SELECT LMF_IOV_ID FROM "
-			 "CMS_ECAL_LASER_COND.LMF_RUN_IOV "
+  return fetchBySequence(parameters, "SELECT LMF_IOV_ID FROM LMF_RUN_IOV "
 			 "WHERE SEQ_ID = :1", "fetchBySequence");
 }
 
@@ -358,8 +355,7 @@ std::list<LMFRunIOV> LMFRunIOV::fetchBySequence(const LMFSeqDat &s, int lmr) {
   vector<int> parameters;
   parameters.push_back(seq_id);
   parameters.push_back(lmr);
-  return fetchBySequence(parameters, "SELECT LMF_IOV_ID FROM "
-			 "CMS_ECAL_LASER_COND.LMF_RUN_IOV "
+  return fetchBySequence(parameters, "SELECT LMF_IOV_ID FROM LMF_RUN_IOV "
 			 "WHERE SEQ_ID = :1 AND LMR = :2", 
 			 "fetchBySequence");
 }
@@ -372,8 +368,7 @@ std::list<LMFRunIOV> LMFRunIOV::fetchBySequence(const LMFSeqDat &s, int lmr,
   parameters.push_back(lmr);
   parameters.push_back(color);
   parameters.push_back(type);
-  return fetchBySequence(parameters, "SELECT LMF_IOV_ID FROM "
-			 "CMS_ECAL_LASER_COND.LMF_RUN_IOV "
+  return fetchBySequence(parameters, "SELECT LMF_IOV_ID FROM LMF_RUN_IOV "
 			 "WHERE SEQ_ID = :1 AND LMR = :2 AND COLOR_ID = :3 "
 			 "AND TRIG_TYPE = :4",
 			 "fetchBySequence");
@@ -389,8 +384,7 @@ std::list<LMFRunIOV> LMFRunIOV::fetchLastBeforeSequence(const LMFSeqDat &s,
   parameters.push_back(color);
   parameters.push_back(type);
   return fetchBySequence(parameters, "SELECT LMF_IOV_ID FROM (SELECT "
-			 "SEQ_ID, LMF_IOV_ID FROM "
-			 "CMS_ECAL_LASER_COND.LMF_RUN_IOV "
+			 "SEQ_ID, LMF_IOV_ID FROM LMF_RUN_IOV "
 			 "WHERE SEQ_ID < :1 AND LMR = :2 AND COLOR_ID = :3 "
 			 "AND TRIG_TYPE = :4 ORDER BY SEQ_ID DESC) WHERE "
 			 "ROWNUM <= 1",

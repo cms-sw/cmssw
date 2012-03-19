@@ -46,7 +46,7 @@ workflows[4.27] = ['',['ZElSkim2011A','RECOSKIM']]
 workflows[4.28] = ['',['HighMet2011A','RECOSKIM']]
 
 workflows[4.29] = ['', ['RunMinBias2011B','RECOD','HARVESTD','SKIMD']]
-workflows[4.291] = ['', ['RunMinBias2011B','HLTD','RECODst3']]
+workflows[4.291] = ['', ['RunMinBias2011B','HLTD','RECODst3','HARVESTDst4']]
 workflows[4.30] = ['', ['RunMu2011B','RECOD']]
 workflows[4.31] = ['', ['RunElectron2011B','RECOD']]
 workflows[4.32] = ['', ['RunPhoton2011B','RECOD']]
@@ -105,9 +105,9 @@ workflows[34] = ['', ['QQH1352T_Tauola','DIGI','RECO']]
 workflows[7]  = ['', ['Cosmics','DIGICOS','RECOCOS','ALCACOS']]
 workflows[8]  = ['', ['BeamHalo','DIGICOS','RECOCOS','ALCABH']]
 workflows[11] = ['', ['MinBias','DIGI','RECOMIN','ALCAMIN']]
-workflows[15] = ['', ['QCD_Pt_80_120','DIGI','RECOQCD']]
-workflows[27] = ['', ['WM','DIGI','RECOMU']]
-workflows[30] = ['', ['ZMM','DIGI','RECOMU']]
+workflows[15] = ['', ['QCD_Pt_80_120','DIGI','RECO']]
+workflows[27] = ['', ['WM','DIGI','RECO']]
+workflows[30] = ['', ['ZMM','DIGI','RECO']]
 
 
 ### HI test ###

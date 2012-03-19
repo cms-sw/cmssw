@@ -19,6 +19,7 @@ particleFlowBlock.useNuclear = cms.bool(False)
 particleFlowBlock.useConversions = cms.bool(False)
 particleFlowBlock.RecMuons = 'muons'
 
+particleFlowTmp.postMuonCleaning = cms.bool(False)
 particleFlowTmp.vertexCollection = cms.InputTag("hiSelectedVertex")
 particleFlowTmp.usePFElectrons = cms.bool(True)
 particleFlowTmp.muons = cms.InputTag("muons")
@@ -28,7 +29,7 @@ from RecoParticleFlow.PFTracking.pfTrackElec_cfi import *
 pfTrackElec.applyGsfTrackCleaning = cms.bool(True)
 pfTrackElec.PrimaryVertexLabel = cms.InputTag("hiSelectedVertex")
 
-electronsCiCLoose.verticesCollection = cms.InputTag("hiSelectedVertex")
+mvaElectrons.vertexTag = cms.InputTag("hiSelectedVertex")
 
 # local reco must run before electrons (RecoHI/HiEgammaAlgos), due to PF integration
 HiParticleFlowLocalReco = cms.Sequence(particleFlowCluster
@@ -37,7 +38,7 @@ HiParticleFlowLocalReco = cms.Sequence(particleFlowCluster
                                        )
 
 #PF Reco runs after electrons
-HiParticleFlowReco = cms.Sequence(pfGsfElectronCiCSelectionSequence
+HiParticleFlowReco = cms.Sequence(pfGsfElectronMVASelectionSequence
                                   * particleFlowBlock
                                   * particleFlowTmp
                                   )

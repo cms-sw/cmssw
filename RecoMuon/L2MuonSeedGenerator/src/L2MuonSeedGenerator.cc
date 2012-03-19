@@ -7,8 +7,8 @@
  *   L2 muon reconstruction
  *
  *
- *   $Date: 2011/12/23 05:11:10 $
- *   $Revision: 1.14 $
+ *   $Date: 2012/01/24 10:58:56 $
+ *   $Revision: 1.15 $
  *
  *   \author  A.Everett, R.Bellan, J. Alcaraz
  *
@@ -347,8 +347,11 @@ const TrajectorySeed* L2MuonSeedGenerator::associateOfflineSeedToL1( edm::Handle
     if(offseedMap[nOffseed]!=0) continue;
     GlobalPoint glbPos = theService->trackingGeometry()->idToDet(offseed->startingState().detId())->surface().toGlobal(offseed->startingState().parameters().position());
     GlobalVector glbMom = theService->trackingGeometry()->idToDet(offseed->startingState().detId())->surface().toGlobal(offseed->startingState().parameters().momentum());
-    // No errors (for the time being)
-    //GlobalTrajectoryParameters offSeedParam(glbPos, glbMom, offseed->startingState()->parameters().charge(), &*theService->magneticField());
+
+    // Preliminary check
+    double preDr = deltaR( newTsos.globalPosition().eta(), newTsos.globalPosition().phi(), glbPos.eta(), glbPos.phi() );
+    if(preDr > 1.0) continue;
+
     const FreeTrajectoryState offseedFTS(glbPos, glbMom, offseed->startingState().parameters().charge(), &*theService->magneticField()); 
     TrajectoryStateOnSurface offseedTsos = theService->propagator(thePropagatorName)->propagate(offseedFTS, newTsos.surface());
     LogDebug(metlabel) << "Offline seed info: Det and State" << std::endl;

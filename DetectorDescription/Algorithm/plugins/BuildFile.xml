@@ -1,3 +1,5 @@
-<use   name="DetectorDescription/Algorithm"/>
+<library file="module.cc" name="DetectorDescriptionAlgorithmPlugins">
+ <use name="DetectorDescription/Algorithm"/>
+</library>
 <flags   EDM_PLUGIN="1"/>
 

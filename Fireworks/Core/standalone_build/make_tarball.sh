@@ -2,77 +2,77 @@
 
 getExternals()
 {
-   mkdir  ${tard}/external
+    mkdir  ${tard}/external
 
    # external libraries
-   extdl=${tard}/external/lib
-   mkdir $extdl
-   
+    extdl=${tard}/external/lib
+    mkdir $extdl
+    
 
- 
+    
 
-  ext=`dirname ${CMSSW_DATA_PATH}`/external
-   ls -l $CMSSW_RELEASE_BASE/external/$SCRAM_ARCH/lib/* > $HOME/extlist
+    ext=`dirname ${CMSSW_DATA_PATH}`/external
+    ls -l $CMSSW_RELEASE_BASE/external/$SCRAM_ARCH/lib/* > $HOME/extlist
 
-     echo "=========================================================="
-   echo "=========================================================="
-    # on linux ship compiler
-   gccd=${tard}/external
-   if [ `uname` = "Linux" ]; then
-      export gcmd=`which gcc`
-      gv=`perl -e ' if ($ENV{gcmd} =~ /\/gcc\/(.*)\/bin\/gcc/) { print $1;}'`
-      printf "gcc version $gv"
-      if [ -z "$gv" ]; then
+    echo "=========================================================="
+    echo "=========================================================="
+
+    gccd=${tard}/external
+
+	export gcmd=`which gcc`
+	gv=`perl -e ' if ($ENV{gcmd} =~ /\/gcc\/(.*)\/bin\/gcc/) { print $1;}'`
+	printf "gcc version $gv"
+	if [ -z "$gv" ]; then
             echo "can't get gcc version"
             exit;
 	fi
-      echo "Copy gcc from  $ext/gcc/${gv}/ to ${gccd}"
-      cp -a $ext/gcc/${gv}/ ${gccd}/gcc
-   fi
-  
-   echo "=========================================================="
-   echo "=========================================================="
+	echo "Copy gcc from  $ext/gcc/${gv}/ to ${gccd}"
+	cp -a $ext/gcc/${gv}/ ${gccd}/gcc
+
+    
+    echo "=========================================================="
+    echo "=========================================================="
 
 
-   echo "Copying external libraries from $ext to $extdl."
+    echo "Copying external libraries from $ext to $extdl."
    # cp -a $ext/*/*/lib/*  ${tard}/external/lib
-   for i in boost bz2lib castor clhep dcap db4 dcap \
+    for i in boost bz2lib castor clhep dcap db4 dcap \
         expat fftw3 gdbm gsl hepmc\
    	libjpg libpng libtiff libungif \
-   	openldap openssl pcre \
-   	sigcpp sqlite xrootd zlib
-   do
+   	openssl pcre \
+   	sigcpp  xrootd zlib xz freetype
+    do
         export i;
         ever=`grep $i $HOME/extlist |  perl -ne 'if ($_ =~ /$ENV{i}\/(.*)\/lib\/(.*)/ ) {print "$1\n"; last;}'`
         echo "copy $i $ever"
         if [ -z "$ever" ]; then
-            echo "can't get externals fro $i"
-            exit;
+            echo "!!!!!!!! can't get externals fro $i"
 	fi
         echo "cp -a $ext/$i/$ever/lib/* === ${extdl}"
         cp -a $ext/$i/$ever/lib/* ${extdl}
-   done
+    done
 
 
-   echo "=========================================================="
-   echo "=========================================================="
+    echo "=========================================================="
+    echo "=========================================================="
    # can be linked or installed at $ROOTSYS   
-   ROOTSYS=`echo $ROOTSYS |  sed 's/\/$//'` # remove '/' character  at end of string, becuse it invalidates symblic link interpretation
-   origr=$ROOTSYS
-   if [ -L ${ROOTSYS} ]; then
-      b=`dirname ${ROOTSYS}`   
-      if [ `uname` = "Linux" ]; then
-          origr=`readlink -f ${ROOTSYS}`
-      else
-          origr=`readlink ${ROOTSYS}`
-      fi
-   fi
-   
-   echo "copy root from $origr to ${tard}/external/root"
-   pushd $PWD
-   cd $ROOTSYS
-   ROOTSYS=${tard}/external/root make install
-   popd
+    ROOTSYS=`echo $ROOTSYS |  sed 's/\/$//'` # remove '/' character  at end of string, becuse it invalidates symblic link interpretation
+    origr=$ROOTSYS
+    if [ -L ${ROOTSYS} ]; then
+	b=`dirname ${ROOTSYS}`   
+	if [ `uname` = "Linux" ]; then
+            origr=`readlink -f ${ROOTSYS}`
+	else
+            origr=`readlink ${ROOTSYS}`
+	fi
+    fi
+    
+    echo "copy root from $origr to ${tard}/external/root"
+   # pushd $PWD
+   # cd $ROOTSYS
+   # ROOTSYS=${tard}/external/root make install
+   # popd
+    cp -a $origr  ${tard}/external/root
    
  
    
@@ -131,11 +131,11 @@ getSources()
    
    cd  $tard
    ln -s  src/Fireworks/Core/macros/default.fwc .
-   ln -s  src/Fireworks/Core/macros/ispy.fwc  .
-   ln -s  src/Fireworks/Core/macros/pflow.fwc  .
-   ln -s  src/Fireworks/Core/macros/hfLego.fwc  
-   ln -s  src/Fireworks/Core/macros/simGeo.fwc  
-   ln -s  src/Fireworks/Core/macros/overlaps.fwc  ..
+   ln -s  src/Fireworks/Core/macros/ispy.fwc .
+   ln -s  src/Fireworks/Core/macros/pflow.fwc .
+   ln -s  src/Fireworks/Core/macros/hfLego.fwc .
+   ln -s  src/Fireworks/Core/macros/simGeo.fwc .
+   ln -s  src/Fireworks/Core/macros/overlaps.fwc .
    
    ln -s  src/Fireworks/Core/scripts/cmsShow .
    
@@ -158,6 +158,7 @@ getDataFiles()
    $dwnCmd http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/$name
    mv $name data.root
    $dwnCmd http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/cmsSimGeom-14.root
+   $dwnCmd http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/cmsGeom10.root
 }
 
 #----------------------------------------------------------------

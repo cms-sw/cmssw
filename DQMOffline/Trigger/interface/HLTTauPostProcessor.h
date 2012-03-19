@@ -15,10 +15,10 @@
 #include "FWCore/Utilities/interface/Digest.h"
 
 //Plotters
-#include "DQM/HLTEvF/interface/HLTTauDQMSummaryPlotter.h"
+#include "DQMOffline/Trigger/interface/HLTTauDQMSummaryPlotter.h"
 
 //Automatic Configuration
-#include "DQM/HLTEvF/interface/HLTTauDQMAutomation.h"
+#include "DQMOffline/Trigger/interface/HLTTauDQMAutomation.h"
 
 class HLTTauPostProcessor : public edm::EDAnalyzer {
 public:

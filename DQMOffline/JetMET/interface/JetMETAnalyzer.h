@@ -6,8 +6,8 @@
  *
  *  DQM jetMET analysis monitoring
  *
- *  $Date: 2011/10/10 14:43:38 $
- *  $Revision: 1.29 $
+ *  $Date: 2011/10/10 13:45:58 $
+ *  $Revision: 1.28 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -123,7 +123,6 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   //MonitorElement* hltpathME;
   MonitorElement* lumisecME;
   MonitorElement* cleanupME;
-  MonitorElement* verticesME;
 
   GenericTriggerEventFlag * _HighPtJetEventFlag;
   GenericTriggerEventFlag * _LowPtJetEventFlag;

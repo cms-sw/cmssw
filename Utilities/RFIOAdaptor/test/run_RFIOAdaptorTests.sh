@@ -15,8 +15,10 @@ pushd ${LOCAL_TMP_DIR}
     echo Skipping test.
     exit 0
   fi
-
-  ${LOCAL_TOP_DIR}/test/${SCRAM_ARCH}/test_RFIOAdaptor_put ${SCRAM_ARCH} || die "test_RFIOAdaptor_put" $?
+  castorfile=/castor/cern.ch/cms/test/IBTestFiles/test_RFIOAdaptor_put.`date +%Y%M%d%H%m-${SCRAM_ARCH}-$$`
+  ${LOCAL_TOP_DIR}/test/${SCRAM_ARCH}/test_RFIOAdaptor_put ${castorfile} || die "test_RFIOAdaptor_put" $?
+  stager_rm -M ${castorfile}
+  rfrm ${castorfile}
 
 popd
 exit 0

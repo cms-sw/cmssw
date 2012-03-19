@@ -48,7 +48,8 @@ HLTEgammaDoubleEtDeltaPhiFilter::hltFilter(edm::Event& iEvent, const edm::EventS
   
    std::vector<edm::Ref<reco::RecoEcalCandidateCollection> >  recoecalcands;
    PrevFilterOutput->getObjects(TriggerCluster,  recoecalcands);
-
+   if(recoecalcands.empty()) PrevFilterOutput->getObjects(TriggerPhoton,recoecalcands);  //we dont know if its type trigger cluster or trigger photon
+ 
    // Refs to the two Candidate objects used to calculate deltaPhi
    edm::Ref<reco::RecoEcalCandidateCollection> ref1, ref2;
 

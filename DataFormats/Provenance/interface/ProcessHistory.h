@@ -35,6 +35,7 @@ namespace edm {
     void emplace_back(Args&&... args) {data_.emplace_back(std::forward<Args>(args)...); phid() = ProcessHistoryID();}
 #endif
 
+    void push_front(const_reference t) {data_.insert(data_.begin(), t); phid() = ProcessHistoryID();}
     void push_back(const_reference t) {data_.push_back(t); phid() = ProcessHistoryID();}
     void swap(ProcessHistory& other) {data_.swap(other.data_); phid().swap(other.phid());}
     bool empty() const {return data_.empty();}

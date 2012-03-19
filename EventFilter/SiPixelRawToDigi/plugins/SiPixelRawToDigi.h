@@ -47,7 +47,8 @@ private:
   bool includeErrors;
   bool useQuality;
   bool debug;
-  std::vector<int> errorList;
+  std::vector<int> tkerrorlist;
+  std::vector<int> usererrorlist;
   std::vector<unsigned int> fedIds;
   edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher;
   edm::ESWatcher<SiPixelQualityRcd> qualityWatcher;

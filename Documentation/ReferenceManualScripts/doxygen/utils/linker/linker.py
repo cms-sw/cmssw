@@ -99,7 +99,7 @@ def process(filename):
             href = getLink(match)
         
         if (href != ""):
-            INDEX[match] = href
+            INDEX[match] = BASE+href[href.find("CMSSW_"):]
             
             link = "<a class=\"configfileLink\" href=\""+href+"\">"+match+"</a>"
             regex = r"\b"+match+r"\b"

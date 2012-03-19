@@ -142,7 +142,7 @@ def reconfigurePF2PATTaus(process,
            )
        newTau.modifiers[1] = newTauSansRefs.modifiers[1]
        newTauSansRefs.piZeroSrc = "pfJetsLegacyTaNCPiZeros"+postfix
-       newTau.piZeroSrc = newTauSansRefs.piZeroSrc 
+       newTau.piZeroSrc = newTauSansRefs.piZeroSrc
        newTauSansRefs.builders[0].pfCandSrc = oldTauSansRefs.builders[0].pfCandSrc
        newTauSansRefs.jetRegionSrc = oldTauSansRefs.jetRegionSrc
        newTauSansRefs.jetSrc = oldTauSansRefs.jetSrc
@@ -151,7 +151,7 @@ def reconfigurePF2PATTaus(process,
    elif tauType=='hpsPFTau':
        newTau = process.combinatoricRecoTaus.clone()
        newTau.piZeroSrc="pfJetsLegacyHPSPiZeros"+postfix
-       newTau.modifiers[2] = cms.PSet(
+       newTau.modifiers[3] = cms.PSet(
            pfTauTagInfoSrc = cms.InputTag("pfTauTagInfoProducer"+postfix),
            name = cms.string('pfTauTTIworkaround'+postfix),
            plugin = cms.string('RecoTauTagInfoWorkaroundModifer')
@@ -263,7 +263,7 @@ def adaptPFTaus(process,tauType = 'shrinkingConePFTau', postfix = ""):
     else:
         applyPostfix(process,"patTaus", postfix).tauSource = cms.InputTag("hpsPFTauProducer"+postfix)
     # to use preselected collection (old default) uncomment line below
-    #applyPostfix(process,"patTaus", postfix).tauSource = cms.InputTag("pfTaus"+postfix)    
+    #applyPostfix(process,"patTaus", postfix).tauSource = cms.InputTag("pfTaus"+postfix)
 
 
     redoPFTauDiscriminators(process,

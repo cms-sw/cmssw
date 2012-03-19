@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/03/08 17:12:09 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/07/20 02:58:32 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
@@ -91,7 +91,7 @@ void HLTPrescaleRecorder::beginRun(edm::Run& iRun, const edm::EventSetup& iSetup
     ParameterSet pPSet(getProcessParameterSet());
     ParameterSet iPS(pPSet.getParameter<ParameterSet>(psetName_));
 
-    string defaultLabel(iPS.getUntrackedParameter<std::string>("lvl1DefaultLabel",""));
+    string defaultLabel(iPS.getParameter<std::string>("lvl1DefaultLabel"));
     vector<string> labels(iPS.getParameter<std::vector<std::string> >("lvl1Labels"));
     vector<ParameterSet> vpTable(iPS.getParameter<std::vector<ParameterSet> >("prescaleTable"));
 

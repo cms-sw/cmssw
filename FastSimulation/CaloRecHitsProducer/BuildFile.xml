@@ -25,6 +25,3 @@
 <use   name="boost"/>
 <use   name="clhep"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>

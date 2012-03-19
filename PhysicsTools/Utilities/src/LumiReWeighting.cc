@@ -148,6 +148,10 @@ double LumiReWeighting::weight( float npv ) {
   return weights_->GetBinContent( bin );
 }
 
+double LumiReWeighting::weight3BX( float ave_npv ) {
+  int bin = weights_->GetXaxis()->FindBin( ave_npv );
+  return weights_->GetBinContent( bin );
+}
 
 
 // This version of weight does all of the work for you, assuming you want to re-weight
@@ -199,8 +203,37 @@ double LumiReWeighting::weight( const edm::EventBase &e ) {
 
   if(npv < 0) std::cerr << " no in-time beam crossing found\n! " ;
 
-  return weight(npv);
+  int bin = weights_->GetXaxis()->FindBin( npv );
 
+  return weights_->GetBinContent( bin );
+ 
+}
+
+double LumiReWeighting::weight3BX( const edm::EventBase &e ) {
+
+
+  // get pileup summary information
+
+  Handle<std::vector< PileupSummaryInfo > >  PupInfo;
+  e.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);
+
+  std::vector<PileupSummaryInfo>::const_iterator PVI;
+
+  int sum_npv = 0;
+
+  for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+
+    sum_npv += PVI->getPU_NumInteractions();
+
+  }
+
+  float ave_npv = float(sum_npv)/3.;
+
+
+  int bin = weights_->GetXaxis()->FindBin( ave_npv );
+
+  return weights_->GetBinContent( bin );
+ 
 }
 
 void LumiReWeighting::weightOOT_init() {

@@ -91,7 +91,7 @@ int SelectReplacementCandidates::determineMuonsToUse(const edm::Event& iEvent, c
 	}
 //	std::cout << zCandidate_handle->size() << " Kandidaten gefunden!\n";
 
-	uint nMuons = zCandidate_handle->size();
+	unsigned int nMuons = zCandidate_handle->size();
 	if (nMuons==0)
 		return -1;
 
@@ -139,7 +139,7 @@ int SelectReplacementCandidates::determineMuonsToUse_old(const edm::Event& iEven
 	iEvent.getByLabel(muonInputTag_, trackCollection);
 	const edm::View<reco::Muon>& muons = * trackCollection;
 
-	uint nMuons = muons.size();
+	unsigned int nMuons = muons.size();
 	if (nMuons<2)
 		return -1;
 	

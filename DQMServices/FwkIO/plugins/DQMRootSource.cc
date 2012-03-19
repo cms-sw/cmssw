@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.25 2011/10/23 22:39:49 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.27 2012/03/03 21:39:22 chrjones Exp $
 //
 
 // system include files
@@ -785,23 +785,31 @@ DQMRootSource::setupFile(unsigned int iIndex)
   } catch(cms::Exception const& e) {
     edm::Exception ex(edm::errors::FileOpenError,"",e);
     ex.addContext("Opening DQM Root file");
-    ex <<"Input file " << m_catalog.fileNames()[iIndex] << " was not found, could not be opened, or is corrupted.\n";
+    ex <<"\nInput file " << m_catalog.fileNames()[iIndex] << " was not found, could not be opened, or is corrupted.\n";
+    throw ex;
   }
   if(not m_file->IsZombie()) {  
     logFileAction("  Successfully opened file ", m_catalog.fileNames()[iIndex].c_str());
   } else {
-    throw edm::Exception(edm::errors::FileReadError)<<"Input file "<<m_catalog.fileNames()[iIndex].c_str() <<" could not be opened.\n";
+    edm::Exception ex(edm::errors::FileOpenError);
+    ex<<"Input file "<<m_catalog.fileNames()[iIndex].c_str() <<" could not be opened.\n";
+    ex.addContext("Opening DQM Root file");
+    throw ex;
   }
   //Check file format version, which is encoded in the Title of the TFile
   if(0 != strcmp(m_file->GetTitle(),"1")) {
-    throw edm::Exception(edm::errors::FileReadError)<<"Input file "<<m_catalog.fileNames()[iIndex].c_str() <<" does not appear to be a DQM Root file.\n";
+    edm::Exception ex(edm::errors::FileReadError);
+    ex<<"Input file "<<m_catalog.fileNames()[iIndex].c_str() <<" does not appear to be a DQM Root file.\n";
   }
   
   //Get meta Data
   TDirectory* metaDir = m_file->GetDirectory(kMetaDataDirectoryAbsolute);
   if(0==metaDir) {
-    throw edm::Exception(edm::errors::FileReadError)<<"Input file "<<m_catalog.fileNames()[iIndex].c_str() <<" appears to be corrupted since it does not have the proper internal structure.\n"
+    edm::Exception ex(edm::errors::FileReadError);
+    ex<<"Input file "<<m_catalog.fileNames()[iIndex].c_str() <<" appears to be corrupted since it does not have the proper internal structure.\n"
       " Check to see if the file was closed properly.\n";    
+    ex.addContext("Opening DQM Root file");
+    throw ex;    
   }
   TTree* parameterSetTree = dynamic_cast<TTree*>(metaDir->Get(kParameterSetTree));
   assert(0!=parameterSetTree);
@@ -846,7 +854,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
     std::vector<edm::ProcessConfiguration> configs;
     configs.reserve(5);
     for(unsigned int i=0; i != processHistoryTree->GetEntries(); ++i) {
-      processHistoryTree->GetEntry();
+      processHistoryTree->GetEntry(i);
       if(phIndex==0) {
         if(not configs.empty()) {
           edm::ProcessHistory ph(configs);

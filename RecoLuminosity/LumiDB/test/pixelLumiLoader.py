@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os,sys,time,json
-from RecoLuminosity.LumiDB import sessionManager,argparse,nameDealer,revisionDML,dataDML
+from RecoLuminosity.LumiDB import sessionManager,argparse,nameDealer,revisionDML,dataDML,lumiParameters
 
 def generateLumiRundata(filename,nominalegev,runlist):
     '''
@@ -17,10 +17,11 @@ def generateLumiLSdataForRun(lsdata):
     output:
     i.e. bulkInsertLumiLSSummary expected input: {lumilsnum:[cmslsnum,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit]}
     '''
+    lumip=lumiParameters.ParametersObject()
     result={}
     beamstatus='STABLE BEAMS'
     beamenergy=3.5e03
-    numorbit=262144
+    numorbit=lumip.numorbit
     startorbit=0
     for (cmslsnum,instlumi) in lsdata:
         lumilsnum=cmslsnum
@@ -41,7 +42,8 @@ def toinstlumi(i):
     input: luminosity integrated in ls
     output: avg instlumi in ls Hz/ub
     '''
-    lslength=23.357
+    lumip=lumiParameters.ParametersObject()
+    lslength=lumip.lslengthsec()
     return float(i)/lslength
 def parseInputFile(filename):
     '''

@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:06:31 CET 2012
-// $Id: FWOverlapTableView.h,v 1.3 2012/02/22 21:00:31 amraktad Exp $
+// $Id: FWOverlapTableView.h,v 1.4 2012/02/24 23:00:57 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
@@ -29,6 +29,7 @@ class FWEveOverlap;
 //class FWGeoPathValidator;
 class TGNumberEntry;
 class RGTextButton;
+class TGCheckButton;
 
 class FWOverlapTableView : public FWGeometryTableViewBase
 {
@@ -52,7 +53,8 @@ public:
    void drawPoints();
    void pointSize();
 
-
+   bool listAllNodes() const;
+   void setListAllNodes();
    virtual void chosenItem(int x);
 
 protected:
@@ -64,7 +66,8 @@ private:
    const FWOverlapTableView& operator=(const FWOverlapTableView&); // stop default
    
    void setCheckerState(bool);
-   TGTextButton* m_applyButton;  
+   TGTextButton* m_applyButton;
+   TGCheckButton* m_listOptionButton;  
 
 public:
    // ---------- member data --------------------------------
@@ -81,6 +84,8 @@ public:
 #ifndef __CINT__
    FWStringParameter       m_path; 
    FWDoubleParameter       m_precision;
+
+   FWBoolParameter         m_listAllNodes;
 
    FWBoolParameter         m_rnrOverlap;
    FWBoolParameter         m_rnrExtrusion;

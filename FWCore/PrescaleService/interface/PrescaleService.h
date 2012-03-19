@@ -39,7 +39,7 @@ namespace edm {
       void reconfigure(ParameterSet const& ps);
 
       unsigned int getPrescale(unsigned int lvl1Index,
-			       std::string const& prescaledPath);
+                               std::string const& prescaledPath);
       unsigned int getPrescale(std::string const& prescaledPath);
 
       void setIndex(unsigned int lvl1Index){iLvl1IndexDefault_ = lvl1Index;}      
@@ -50,25 +50,28 @@ namespace edm {
       void preModule(ModuleDescription const&) {}
       void postModule(ModuleDescription const&) {}
       
-      typedef std::vector<std::string>                         VString_t;
+      typedef std::vector<std::string>                          VString_t;
       typedef std::map<std::string, std::vector<unsigned int> > PrescaleTable_t;
       unsigned int getLvl1IndexDefault() const {return iLvl1IndexDefault_;}
       const VString_t& getLvl1Labels() const {return lvl1Labels_;}
       const PrescaleTable_t& getPrescaleTable() const {return prescaleTable_;}
 
+      static unsigned int findDefaultIndex(std::string const & label, std::vector<std::string> const & labels);
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     private:
       //
       // private member functions
       //
+
       void configure();
       
       //
       // member data
       //
 
-      bool	      configured_;
+      bool            configured_;
+      bool            forceDefault_;
       VString_t       lvl1Labels_; 
       unsigned int    nLvl1Index_;
       unsigned int    iLvl1IndexDefault_;

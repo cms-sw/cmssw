@@ -87,7 +87,7 @@ class AddPfMET(ConfigToolBase):
             addAlso(label, new)
 
         ## addClone('corMetType1Icone5Muons', uncorMETInputTag = cms.InputTag("tcMet"))
-        addClone('patMETs', metSource = cms.InputTag("pfMet"), addMuonCorrections = False)
+        addClone('patMETs', metSource = cms.InputTag("pfType1CorrectedMet"), addMuonCorrections = False)
 
         ## add new met collections output to the pat summary
         process.patCandidateSummary.candidates += [ cms.InputTag('patMETs'+postfixLabel) ]

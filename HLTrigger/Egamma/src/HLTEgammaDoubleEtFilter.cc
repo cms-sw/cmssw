@@ -1,6 +1,6 @@
 /** \class HLTEgammaDoubleEtFilter
  *
- * $Id: HLTEgammaDoubleEtFilter.cc,v 1.8 2011/05/01 08:14:08 gruen Exp $
+ * $Id: HLTEgammaDoubleEtFilter.cc,v 1.9 2012/01/21 14:56:56 fwyzard Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -57,6 +57,7 @@ HLTEgammaDoubleEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> >  mysortedrecoecalcands;
   PrevFilterOutput->getObjects(TriggerPhoton,  mysortedrecoecalcands);
+ if(mysortedrecoecalcands.empty()) PrevFilterOutput->getObjects(TriggerCluster,mysortedrecoecalcands);  //we dont know if its type trigger cluster or trigger photon
 
   // look at all candidates,  check cuts and add to filter object
   int n(0);

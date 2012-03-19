@@ -93,8 +93,8 @@ public:
 
 
    void cdNode(int);
-   void cdTop();
-   void cdUp();
+   virtual void cdTop();
+   virtual void cdUp();
    virtual void setPath(int, std::string&);
 
    void checkExpandLevel();

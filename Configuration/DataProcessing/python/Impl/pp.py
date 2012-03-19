@@ -34,18 +34,7 @@ class pp(Reco):
 
         """
         if not 'skims' in args:
-            args['skims']=['TkAlMinBias',
-                           'TkAlMuonIsolated',
-                           'MuAlCalIsolatedMu',
-                           'MuAlOverlaps',
-                           'HcalCalIsoTrk',
-                           'HcalCalDijets',
-                           'SiStripCalMinBias',
-                           'EcalCalElectron',
-                           'DtCalib',
-                           'TkAlJpsiMuMu',
-                           'TkAlUpsilonMuMu',
-                           'TkAlZMuMu']
+            args['skims']=['@allForPrompt']
         process = Reco.promptReco(self,globalTag, **args)
 
         #add the former top level patches here
@@ -62,11 +51,7 @@ class pp(Reco):
 
         """
         if not 'skims' in args:
-            args['skims']=['SiStripCalZeroBias',
-                           'TkAlMinBias',
-                           'DtCalib',
-                           'MuAlCalIsolatedMu',
-                           'SiStripPCLHistos']
+            args['skims']=['@allForExpress']
         process = Reco.expressProcessing(self,globalTag, **args)
         
         customiseExpress(process)

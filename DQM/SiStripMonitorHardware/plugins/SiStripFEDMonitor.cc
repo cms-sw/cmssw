@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.41 2011/07/04 14:47:32 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.42 2011/07/13 16:22:47 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -299,6 +299,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
     fedErrors_.fillBadChannelList(doTkHistoMap_,
 				  fedHists_.tkHistoMapPointer(),
+				  fedHists_.getFedvsAPVpointer(),
 				  lNTotBadChannels,
 				  lNTotBadActiveChannels);
   }//loop over FED IDs
