@@ -15,6 +15,8 @@ optparser.add_option("-g", "--gtag", dest = "gtag", default = "",
                      help = "global tag", metavar = "TAG")
 optparser.add_option("-r", "--runtype", dest = "runtype", default = "",
                      help = "RUNTYPE=(PP|HI)", metavar = "RUNTYPE")
+optparser.add_option("-w", "--workflow", dest = "workflow", default = "",
+                     help = "offline workflow", metavar = "WORKFLOW")
 
 (options, args) = optparser.parse_args()
 
@@ -40,6 +42,7 @@ filename = options.filename
 sourceFiles = re.sub(r'([^ ]+)[ ]?', r'    "file:\1",\n', options.sourceFiles)
 gtag = options.gtag
 runtype = options.runtype
+workflow = options.workflow
 
 # set environments
 withDB = False
@@ -78,6 +81,14 @@ if not live and not sourceFiles :
 
 if central and runtype :
     optparser.error("Cannot specify run type for central DQM")
+    exit
+
+if doOutput and not live and not workflow :
+    optparser.error("Workflow needs to be given for offline DQM")
+    exit
+
+if workflow and not re.match('[\/][a-zA-Z0-9_]+[\/][a-zA-Z0-9_]+[\/][a-zA-Z0-9_]+', workflow) :
+    optparser.error("Invalid workflow: " + workflow)
     exit
 
 header = ''
@@ -728,15 +739,16 @@ process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/ecalcalib_reference
 
 customizations += 'process.dqmEnv.subSystemFolder = cms.untracked.string("' + configuration + '")' + "\n"
 
-if doOutput and not central :
-    customizations += '''
-process.dqmSaver.convention = cms.untracked.string("Online")
-process.dqmSaver.referenceHandling = cms.untracked.string("skip")
-'''
+if doOutput :
+    if not central :
+        customizations += 'process.dqmSaver.referenceHandling = cms.untracked.string("skip")' + "\n"
+
     if privEcal :
-        customizations += '''
-process.dqmSaver.dirName = "/data/ecalod-disk01/dqm-data/tmp"
-'''
+        customizations += 'process.dqmSaver.dirName = "/data/ecalod-disk01/dqm-data/tmp"' + "\n"
+
+    if not live :
+        customizations += 'process.dqmSaver.convention = "Offline"' + "\n"
+        customizations += 'process.dqmSaver.workflow = "' + workflow + '"' + "\n"
 
 if live and privEcal :
     customizations += '''
