@@ -360,7 +360,7 @@ namespace cms{
 	 else state = trajectoryStateTransform::persistentState( initState.first,
 									initState.second->geographicalId().rawId());
 	 LogDebug("CkfPattern") << "pushing a TrackCandidate.";
-	 output->push_back(TrackCandidate(recHits,it->seed(),state,it->seedRef(),it->isLooper() ) );
+	 output->push_back(TrackCandidate(recHits,it->seed(),state,it->seedRef(),it->nLoops() ) );
        }
       }//output trackcandidates
 
