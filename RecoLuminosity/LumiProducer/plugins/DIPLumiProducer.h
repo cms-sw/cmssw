@@ -23,10 +23,11 @@ class DIPLumiProducer: public edm::ESProducer , public edm::EventSetupRecordInte
                                edm::ValidityInterval& );  
 
  private:
-  edm::ParameterSet m_pset;
+  std::string m_connectStr;
   std::map< unsigned int,boost::shared_ptr<DIPLumiSummary> > m_lscache;
   bool m_isNullRun; //if lumi data exist for this run
   unsigned int m_cachedrun;
+  unsigned int m_cachesize;
   boost::shared_ptr<DIPLumiSummary> m_result;
  private:
   void fillcache(unsigned int runnumber,unsigned int startlsnum);
