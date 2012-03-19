@@ -2,65 +2,65 @@ import FWCore.ParameterSet.Config as cms
 
 
 
-elPFIsoValueCharged03 = cms.EDProducer("CandIsolatorFromDeposits",
+elPFIsoValueCharged03PFId = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(
             cms.PSet(
             src = cms.InputTag("elPFIsoDepositCharged"),
             deltaR = cms.double(0.3),
             weight = cms.string('1'),
-            vetos = cms.vstring('Threshold(0.0)'),
+            vetos = cms.vstring('EcalEndcaps:ConeVeto(0.015)'),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
             )
      )
 )
 
-elPFIsoValueChargedAll03 = cms.EDProducer("CandIsolatorFromDeposits",
+elPFIsoValueChargedAll03PFId = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(
             cms.PSet(
             src = cms.InputTag("elPFIsoDepositChargedAll"),
             deltaR = cms.double(0.3),
             weight = cms.string('1'),
-            vetos = cms.vstring('Threshold(0.0)'),
+            vetos = cms.vstring('EcalEndcaps:ConeVeto(0.015)'),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
      )
    )
 )
 
-elPFIsoValueGamma03 = cms.EDProducer("CandIsolatorFromDeposits",
+elPFIsoValueGamma03PFId = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(
             cms.PSet(
             src = cms.InputTag("elPFIsoDepositGamma"),
             deltaR = cms.double(0.3),
             weight = cms.string('1'),
-            vetos = cms.vstring('Threshold(0.5)'),
+            vetos = cms.vstring('EcalEndcaps:ConeVeto(0.08)'),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
       )
    )
 )
 
-elPFIsoValueNeutral03 = cms.EDProducer("CandIsolatorFromDeposits",
+elPFIsoValueNeutral03PFId = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(
             cms.PSet(
             src = cms.InputTag("elPFIsoDepositNeutral"),
             deltaR = cms.double(0.3),
             weight = cms.string('1'),
-            vetos = cms.vstring('Threshold(0.5)'),
+            vetos = cms.vstring(),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
     )
  )
 )
 
-elPFIsoValuePU03 = cms.EDProducer("CandIsolatorFromDeposits",
+elPFIsoValuePU03PFId = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(
             cms.PSet(
             src = cms.InputTag("elPFIsoDepositPU"),
             deltaR = cms.double(0.3),
             weight = cms.string('1'),
-            vetos = cms.vstring('Threshold(0.5)'),
+            vetos = cms.vstring('EcalEndcaps:ConeVeto(0.015)'),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
       )
@@ -69,85 +69,67 @@ elPFIsoValuePU03 = cms.EDProducer("CandIsolatorFromDeposits",
 
 
 
-elPFIsoValueCharged04 = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("elPFIsoDepositCharged"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('Threshold(0.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum')
-            )
-     )
-)
+elPFIsoValueCharged04PFId = elPFIsoValueCharged03PFId.clone()
+elPFIsoValueCharged04PFId.deposits[0].deltaR = cms.double(0.4)
 
 
+elPFIsoValueChargedAll04PFId = elPFIsoValueChargedAll03PFId.clone()
+elPFIsoValueChargedAll04PFId.deposits[0].deltaR = cms.double(0.4)
+
+elPFIsoValueGamma04PFId = elPFIsoValueGamma03PFId.clone()
+elPFIsoValueGamma04PFId.deposits[0].deltaR = cms.double(0.4)
 
 
-elPFIsoValueChargedAll04 = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("elPFIsoDepositChargedAll"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('Threshold(0.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum')
-     )
-   )
-)
+elPFIsoValueNeutral04PFId = elPFIsoValueNeutral03PFId.clone()
+elPFIsoValueNeutral04PFId.deposits[0].deltaR = cms.double(0.4)
 
-elPFIsoValueGamma04 = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("elPFIsoDepositGamma"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('Threshold(0.5)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum')
-      )
-   )
-)
+elPFIsoValuePU04PFId = elPFIsoValuePU03PFId.clone()
+elPFIsoValuePU04PFId.deposits[0].deltaR = cms.double(0.4)
+
+##########Now the PFNoId
+elPFIsoValueCharged03NoPFId     =  elPFIsoValueCharged03PFId.clone()           
+elPFIsoValueChargedAll03NoPFId  =  elPFIsoValueChargedAll03PFId.clone()
+elPFIsoValueGamma03NoPFId       =  elPFIsoValueGamma03PFId.clone()         
+elPFIsoValueNeutral03NoPFId     =  elPFIsoValueNeutral03PFId.clone()       
+elPFIsoValuePU03NoPFId          =  elPFIsoValuePU03PFId.clone()            
+# Customization
+elPFIsoValueCharged03NoPFId.deposits[0].vetos = cms.vstring('EcalBarrel:ConeVeto(0.015)','EcalEndcaps:ConeVeto(0.015)')
+elPFIsoValueChargedAll03NoPFId.deposits[0].vetos = cms.vstring('EcalBarrel:ConeVeto(0.015)','EcalEndcaps:ConeVeto(0.015)')
+elPFIsoValuePU03NoPFId.deposits[0].vetos = cms.vstring('EcalBarrel:ConeVeto(0.015)','EcalEndcaps:ConeVeto(0.015)') 
+elPFIsoValueGamma03NoPFId.deposits[0].vetos = cms.vstring('EcalBarrel:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)','EcalEndcaps:ConeVeto(0.08)')
 
 
-elPFIsoValueNeutral04 = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("elPFIsoDepositNeutral"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('Threshold(0.5)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum')
-    )
- )
-
-)
-elPFIsoValuePU04 = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("elPFIsoDepositPU"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('Threshold(0.5)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum')
-      )
-   )
-)
+elPFIsoValueCharged04NoPFId     =  elPFIsoValueCharged04PFId.clone()       
+elPFIsoValueChargedAll04NoPFId  =  elPFIsoValueChargedAll04PFId.clone()    
+elPFIsoValueGamma04NoPFId       =  elPFIsoValueGamma04PFId.clone()         
+elPFIsoValueNeutral04NoPFId     =  elPFIsoValueNeutral04PFId.clone()       
+elPFIsoValuePU04NoPFId          =  elPFIsoValuePU04PFId.clone()            
+elPFIsoValueCharged04NoPFId.deposits[0].vetos = cms.vstring('EcalBarrel:ConeVeto(0.015)','EcalEndcaps:ConeVeto(0.015)')
+elPFIsoValueChargedAll04NoPFId.deposits[0].vetos = cms.vstring('EcalBarrel:ConeVeto(0.015)','EcalEndcaps:ConeVeto(0.015)')
+elPFIsoValuePU04NoPFId.deposits[0].vetos = cms.vstring('EcalBarrel:ConeVeto(0.015)','EcalEndcaps:ConeVeto(0.015)') 
+elPFIsoValueGamma04NoPFId.deposits[0].vetos = cms.vstring('EcalBarrel:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)','EcalEndcaps:ConeVeto(0.08)')
 
 electronPFIsolationValuesSequence = (
-    elPFIsoValueCharged03+
-    elPFIsoValueChargedAll03+
-    elPFIsoValueGamma03+
-    elPFIsoValueNeutral03+
-    elPFIsoValuePU03+
+    elPFIsoValueCharged03PFId+
+    elPFIsoValueChargedAll03PFId+
+    elPFIsoValueGamma03PFId+
+    elPFIsoValueNeutral03PFId+
+    elPFIsoValuePU03PFId+
     ############################## 
-    elPFIsoValueCharged04+
-    elPFIsoValueChargedAll04+
-    elPFIsoValueGamma04+
-    elPFIsoValueNeutral04+
-    elPFIsoValuePU04
-    )
+    elPFIsoValueCharged04PFId+
+    elPFIsoValueChargedAll04PFId+
+    elPFIsoValueGamma04PFId+
+    elPFIsoValueNeutral04PFId+
+    elPFIsoValuePU04PFId+
+    ############################## 
+    elPFIsoValueCharged03NoPFId+
+    elPFIsoValueChargedAll03NoPFId+
+    elPFIsoValueGamma03NoPFId+
+    elPFIsoValueNeutral03NoPFId+
+    elPFIsoValuePU03NoPFId+
+    ############################## 
+    elPFIsoValueCharged04NoPFId+
+    elPFIsoValueChargedAll04NoPFId+
+    elPFIsoValueGamma04NoPFId+
+    elPFIsoValueNeutral04NoPFId+
+    elPFIsoValuePU04NoPFId)
