@@ -10,29 +10,42 @@ class DIPLumiSummary {
   DIPLumiSummary(){}
   
   /// set default constructor
-  DIPLumiSummary(float instlumi,float dellumi,float reclumi,float deadfrac,unsigned short cmsalive):m_instlumi(instlumi),m_dellumi(dellumi),m_reclumi(reclumi),m_deadfrac(deadfrac),m_cmsalive(cmsalive){}
+  DIPLumiSummary(float instlumi,float dellumi,float reclumi,unsigned short cmsalive):m_instlumi(instlumi),m_totdellumi(dellumi),m_totreclumi(reclumi),m_deadfrac(1.0),m_cmsalive(cmsalive){}
     
   /// destructor
   ~DIPLumiSummary(){}
   /** 
-      average inst lumi,delivered, 
+      average inst lumi,delivered HF, 
       unit Hz/ub, 
   **/
   float instDelLumi() const;
   /**
-     delivered luminosity integrated over LS , 
+     delivered luminosity integrated over this LS , 
+     instDelLumi*23.31
      unit /ub,  
   **/ 
-  float intgDelLumi()const;
+  float intgDelLumiByLS()const;
   /**
-     recorded luminosity integrated over LS , 
+     recorded luminosity integrated over this LS,this is deduced
+     intgRecLumi=intgDelLumi*(m_totreclumi/m_totdellumi)
      unit /ub,  
   **/ 
-  float intgRecLumi()const;
+  float intgRecLumiByLS()const;
   /** 
-      trigger Deadtime fraction
+      trigger Deadtime fraction, this is deduced 
+      1.0-m_totreclumi/m_totdellumi
   **/
   float deadtimefraction() const;
+  /**
+     delivered luminosity integrated since the beginning of run
+     unit /ub  
+   **/
+  float intgDelLumiSinceRun()const;
+  /**
+     recorded luminosity integrated since the beginning of run
+     unit /ub
+   **/
+  float intgRecLumiSinceRun()const;
   /**
      if cms central daq alive
    **/
@@ -40,14 +53,11 @@ class DIPLumiSummary {
   //
   //setters
   //
-  void setLumiData(float instlumi,float delivlumi,float reclumi);
-  void setDeadFraction(float deadfrac);
-  void setCMSAlive(unsigned short cmsalive);
  private :
-  float m_instlumi;
-  float m_dellumi;
-  float m_reclumi;
-  float m_deadfrac;
+  float m_instlumi;//avg inst lumi in LS
+  float m_totdellumi;//total integrated luminosity counting from the beg of run
+  float m_totreclumi;
+  mutable float m_deadfrac;
   unsigned short m_cmsalive;  
 }; 
 
