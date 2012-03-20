@@ -26,15 +26,13 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/METReco/interface/PFMET.h"
-#include "DataFormats/METReco/interface/PFMETFwd.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -61,11 +59,7 @@ class HLTHiggsSubAnalysis
 			ELEC,
 			PHOTON,
 			CALOMET,
-			PFMET,
 			PFTAU,
-			JET,
-			PFJET,
-			MHT,
 			_nMAX
 		};
 
@@ -122,26 +116,26 @@ class HLTHiggsSubAnalysis
 	      	std::string _genParticleLabel;
 		std::map<unsigned int,std::string> _recLabels;
 		
-		//! 
+		//! Some kinematical parameters
 	      	std::vector<double> _parametersEta;
 	      	std::vector<double> _parametersPhi;
 	      	std::vector<double> _parametersTurnOn;
 		
-		std::map<unsigned int,double> _cutMinPt;
+		std::map<unsigned int,double> _cutMinPt;   
 		std::map<unsigned int,double> _cutMaxEta;
-		std::map<unsigned int,unsigned int> _cutMotherId;
-		std::map<unsigned int,std::vector<double> > _cutsDr;
+		std::map<unsigned int,unsigned int> _cutMotherId;    //TO BE DEPRECATED (HLTMATCH)
+		std::map<unsigned int,std::vector<double> > _cutsDr; // TO BE DEPRECATED (HLTMATCH)
 		//! gen/rec objects cuts
 		std::map<unsigned int,std::string> _genCut;
 		std::map<unsigned int,std::string> _recCut;
 
+		//! The concrete String selectors (use the string cuts introduced
+		//! via the config python)
 	      	StringCutObjectSelector<reco::GenParticle> * _genSelector;
 	      	StringCutObjectSelector<reco::Muon>        * _recMuonSelector;
 	      	StringCutObjectSelector<reco::GsfElectron> * _recElecSelector;
-	      	//StringCutObjectSelector<reco::caloMET>    * _recMETSelector;
-/*	      	StringCutObjectSelector<reco::pfMET>        * _recPFMETSelector;
-	      	StringCutObjectSelector<reco::Jet>         * _recJetSelector;
-	      	StringCutObjectSelector<reco::pfJet>       * _recPFJetSelector;*/
+	      	StringCutObjectSelector<reco::CaloMET>     * _recCaloMETSelector;
+	      	StringCutObjectSelector<reco::PFTau>       * _recPFTauSelector;
 	      	StringCutObjectSelector<reco::Photon>      * _recPhotonSelector;
 		
 		// The plotters: managers of each hlt path where the plots are done

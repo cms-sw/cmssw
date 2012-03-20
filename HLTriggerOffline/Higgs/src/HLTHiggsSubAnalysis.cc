@@ -37,10 +37,8 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
 	_genSelector(0),
 	_recMuonSelector(0),
 	_recElecSelector(0),
-	/*_recMETSelector(0),
-	_recPFMETSelector(0),
-	_recJetSelector(0),
-	_recPFJetSelector(0),*/
+	_recCaloMETSelector(0),
+	_recPFTauSelector(0),
 	_recPhotonSelector(0),
 	_dbe(0)
 {
@@ -91,6 +89,16 @@ HLTHiggsSubAnalysis::~HLTHiggsSubAnalysis()
 		delete _recPhotonSelector;
 		_recPhotonSelector =0;
 	}
+	if( _recCaloMETSelector != 0)
+	{
+		delete _recCaloMETSelector;
+		_recCaloMETSelector =0;
+	}
+	if( _recPFTauSelector != 0)
+	{
+		delete _recPFTauSelector;
+		_recPFTauSelector =0;
+	}
 }
 
 
@@ -136,7 +144,8 @@ void HLTHiggsSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetup 
 		}
 	}
 
-	LogTrace("HiggsValidation") << "SubAnalysis: " << _analysisname;
+	LogTrace("HiggsValidation") << "SubAnalysis: " << _analysisname 
+		<< "\nHLT Trigger Paths found >>>"; ;
       	// Initialize the plotters (analysers for each trigger path)
 	_analyzers.clear();
   	for(std::set<std::string>::iterator iPath = _hltPaths.begin(); 
@@ -209,9 +218,6 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 	// Initialize the collection (the ones which hasn't been initialiazed yet)
  	this->initobjects(iEvent,cols);
 
-	//! Map to reference the object type with its selector
-	//  just to account the first time it is instanciated
-	//std::map<unsigned int, void *> recObjSelRef;
 	// Map to reference the source (gen/reco) with the recoCandidates
 	std::map<unsigned int,std::vector<MatchStruct> > sourceMatchMap;
 	// utility map
@@ -308,14 +314,7 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 		}
 	}
 	
-	// Setting up the trigger: EVTColContainer tiene que cogerlo...
-	//edm::Handle<edm::TriggerResults> trigResults;
-	//edm::InputTag trigResultsTag("TriggerResults","",cols->rawTriggerEvent->usedProcessName());
-        //iEvent.getByLabel(trigResultsTag,trigResults);
-
 	const edm::TriggerNames trigNames = iEvent.triggerNames(*(cols->triggerResults));
-	//const edm::TriggerNames trigNames = iEvent.triggerNames(cols->triggerResults);
-
 
 	// Calling to the plotters analysis (where the evaluation of the different trigger paths are done)
 	for(std::map<unsigned int,std::vector<MatchStruct> >::iterator um = sourceMatchMap.begin();
@@ -327,7 +326,6 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 					it != _analyzers.end(); ++it)
 		{
 			const std::string hltPath = _shortpath2long[it->gethltpath()];
-			//const bool ispassTrigger =  cols->triggerResults->accept(trigNames.triggerIndex(hltPath));
 			const bool ispassTrigger =  cols->triggerResults->accept(trigNames.triggerIndex(hltPath));
 			it->analyze(ispassTrigger,source,um->second);
 		}
@@ -335,7 +333,7 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 }
 
 // Return the objects (muons,electrons,photons,...) needed by a hlt path. Note that it 
-// returns a vector which can contain repeated elements if it is a double path for instance
+// returns a vector which can contain repeated elements if it is a double path
 const std::vector<unsigned int> HLTHiggsSubAnalysis::getObjectsType(const std::string & hltPath) const
 {
 	std::vector<unsigned int> objsType;
@@ -392,21 +390,9 @@ void HLTHiggsSubAnalysis::bookobjects( const edm::ParameterSet & anpset )
 	{
 		_recLabels[CALOMET] = anpset.getParameter<std::string>("recCaloMETLabel");
 	}
-	if( anpset.exists("recPFMETLabel") )
-	{
-		_recLabels[PFMET] = anpset.getParameter<std::string>("recPFMETLabel");
-	}
 	if( anpset.exists("recPFTauLabel") )
 	{
 		_recLabels[PFTAU] = anpset.getParameter<std::string>("recPFTauLabel");
-	}
-	if( anpset.exists("recPFJetLabel") )
-	{
-		_recLabels[PFJET] = anpset.getParameter<std::string>("recPFJetLabel");
-	}
-	if( anpset.exists("recMHTLabel") )
-	{
-		_recLabels[MHT] = anpset.getParameter<std::string>("recMHTLabel");
 	}
 
 	if( _recLabels.size() < 1 )
@@ -438,7 +424,9 @@ void HLTHiggsSubAnalysis::initobjects(const edm::Event & iEvent, EVTColContainer
 			return;
 		}
 		col->rawTriggerEvent = rawTEH.product();
+		// END-- TO BE DEPRECATED
 	
+		// extract the trigger results (path info, pass,...)
 		edm::Handle<edm::TriggerResults> trigResults;
 		edm::InputTag trigResultsTag("TriggerResults","",_hltProcessName);
 		iEvent.getByLabel(trigResultsTag,trigResults);
@@ -447,6 +435,7 @@ void HLTHiggsSubAnalysis::initobjects(const edm::Event & iEvent, EVTColContainer
 			col->triggerResults = trigResults.product();
 		}
 
+		// GenParticle collection if is there
 		edm::Handle<reco::GenParticleCollection> genPart;
 		iEvent.getByLabel(_genParticleLabel,genPart);
 		if( genPart.isValid() )
@@ -473,6 +462,18 @@ void HLTHiggsSubAnalysis::initobjects(const edm::Event & iEvent, EVTColContainer
 		else if( it->first == PHOTON )
 		{
 			edm::Handle<reco::PhotonCollection> theHandle;
+			iEvent.getByLabel(it->second, theHandle);
+			col->set(theHandle.product());
+		}
+		else if( it->first == CALOMET )
+		{
+			edm::Handle<reco::CaloMETCollection> theHandle;
+			iEvent.getByLabel(it->second, theHandle);
+			col->set(theHandle.product());
+		}
+		else if( it->first == PFTAU )
+		{
+			edm::Handle<reco::PFTauCollection> theHandle;
 			iEvent.getByLabel(it->second, theHandle);
 			col->set(theHandle.product());
 		}
@@ -544,17 +545,13 @@ const std::string HLTHiggsSubAnalysis::getTypeString(const unsigned int & objtyp
 	{
 		objTypestr = "Photon";
 	}
-	else if( objtype == HLTHiggsSubAnalysis::JET )
-	{
-		objTypestr = "Jet";
-	}
-	else if( objtype == HLTHiggsSubAnalysis::PFJET )
-	{
-		objTypestr = "PFJet";
-	}
 	else if( objtype == HLTHiggsSubAnalysis::CALOMET )
 	{
-		objTypestr = "ET";
+		objTypestr = "MET";
+	}
+	else if( objtype == HLTHiggsSubAnalysis::PFTAU )
+	{
+		objTypestr = "PFTau";
 	}
 	/*else
 	{ ERROR FIXME
@@ -564,52 +561,33 @@ const std::string HLTHiggsSubAnalysis::getTypeString(const unsigned int & objtyp
 }
 
 
-
+// Initialize the selectors
 void HLTHiggsSubAnalysis::InitSelector(const unsigned int & objtype)
 {	
-	//void * selector = 0;
-
 	if( objtype == HLTHiggsSubAnalysis::MUON && _recMuonSelector == 0 )
 	{
 		_recMuonSelector = new StringCutObjectSelector<reco::Muon>(_recCut[objtype]);
-	//	selector = _recMuonSelector;
 	}
 	else if( objtype == HLTHiggsSubAnalysis::ELEC && _recElecSelector == 0)
 	{
 		_recElecSelector = new StringCutObjectSelector<reco::GsfElectron>(_recCut[objtype]);
-	//	selector = _recElecSelector;
 	}
 	else if( objtype == HLTHiggsSubAnalysis::PHOTON && _recPhotonSelector == 0)
 	{
 		_recPhotonSelector = new StringCutObjectSelector<reco::Photon>(_recCut[objtype]);
-	//	selector = _recPhotonSelector;
-	}
-/*	else if( objtype == HLTHiggsSubAnalysis::JET && _recJetSelector == 0)
-	{
-		_recJetSelector = new StringCutObjectSelector<reco::Jet>(_recCut[objtype]);
-	//	selector = _recMuonSelector;
-	}
-	else if( objtype == HLTHiggsSubAnalysis::PFJET && _recPFJetSelector == 0 )
-	{
-		_recPFJetSelector = new StringCutObjectSelector<reco::pfJet>(_recCut[objtype]);
-	//	selector = _recMuonSelector;
 	}
 	else if( objtype == HLTHiggsSubAnalysis::CALOMET && _recCaloMETSelector == 0)
 	{
-		_recMETSelector = new StringCutObjectSelector<reco::caloMET>(_recCut[objtype]);
-	//	selector = _recMuonSelector;
+		_recCaloMETSelector = new StringCutObjectSelector<reco::CaloMET>(_recCut[objtype]);
 	}
-	else if( objtype == HLTHiggsSubAnalysis::PFMET && _recPFMETSelector == 0 )
+	else if( objtype == HLTHiggsSubAnalysis::PFTAU && _recPFTauSelector == 0 )
 	{
-		_recPFMETSelector = new StringCutObjectSelector<reco::pfMET>(_recCut[objtype]);
-	//	selector = _recMuonSelector;
-	}*/
+		_recPFTauSelector = new StringCutObjectSelector<reco::PFTau>(_recCut[objtype]);
+	}
 /*	else
 	{
 FIXME: ERROR NO IMPLEMENTADO
 	}*/
-
-//	return selector;
 }
 
 void HLTHiggsSubAnalysis::insertcandidates(const unsigned int & objType, const EVTColContainer * cols, 
@@ -617,8 +595,6 @@ void HLTHiggsSubAnalysis::insertcandidates(const unsigned int & objType, const E
 {
 	if( objType == MUON )
 	{
-		//const std::vector<reco::Muon> * recCol = static_cast<std::vector<reco::Muon> *>(cols->get(it->first));
-		//StringCutObjectSelector<reco::Muon> * recSelector = static_cast<StringCutObjectSelector<reco::Muon>* >(recObjSelRef[objType]);
 		for(size_t i = 0; i < cols->muons->size(); i++)
 		{
 			if(_recMuonSelector->operator()(cols->muons->at(i)))
@@ -629,8 +605,6 @@ void HLTHiggsSubAnalysis::insertcandidates(const unsigned int & objType, const E
 	}
 	else if( objType == ELEC )
 	{
-		//const std::vector<reco::Muon> * recCol = static_cast<std::vector<reco::Muon> *>(cols->get(it->first));
-		//StringCutObjectSelector<reco::Muon> * recSelector = static_cast<StringCutObjectSelector<reco::Muon>* >(recObjSelRef[objType]);
 		for(size_t i = 0; i < cols->electrons->size(); i++)
 		{
 			if(_recElecSelector->operator()(cols->electrons->at(i)))
@@ -641,13 +615,31 @@ void HLTHiggsSubAnalysis::insertcandidates(const unsigned int & objType, const E
 	}
 	else if( objType == PHOTON )
 	{
-		//const std::vector<reco::Muon> * recCol = static_cast<std::vector<reco::Muon> *>(cols->get(it->first));
-		//StringCutObjectSelector<reco::Muon> * recSelector = static_cast<StringCutObjectSelector<reco::Muon>* >(recObjSelRef[objType]);
 		for(size_t i = 0; i < cols->photons->size(); i++)
 		{
 			if(_recPhotonSelector->operator()(cols->photons->at(i)))
 			{
 				matches.push_back(MatchStruct(&cols->photons->at(i),objType));
+			}
+		}
+	}
+	else if( objType == CALOMET )
+	{
+		for(size_t i = 0; i < cols->caloMETs->size(); i++)
+		{
+			if(_recCaloMETSelector->operator()(cols->caloMETs->at(i)))
+			{
+				matches.push_back(MatchStruct(&cols->caloMETs->at(i),objType));
+			}
+		}
+	}
+	else if( objType == PFTAU )
+	{
+		for(size_t i = 0; i < cols->pfTaus->size(); i++)
+		{
+			if(_recPFTauSelector->operator()(cols->pfTaus->at(i)))
+			{
+				matches.push_back(MatchStruct(&cols->pfTaus->at(i),objType));
 			}
 		}
 	}

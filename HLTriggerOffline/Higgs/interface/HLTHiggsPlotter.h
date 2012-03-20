@@ -83,8 +83,6 @@ class HLTHiggsPlotter
 		std::map<unsigned int,double> _cutMaxEta;
 		std::map<unsigned int,unsigned int> _cutMotherId;
 		std::map<unsigned int,std::vector<double> > _cutsDr;
-//		std::map<unsigned int,std::string> _genCut;
-//		std::map<unsigned int,std::string> _recCut;
 		
 		
 	      	DQMStore* _dbe;

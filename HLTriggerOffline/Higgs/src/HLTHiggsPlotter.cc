@@ -9,15 +9,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
-
-/*#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
-#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"*/
 
 #include "HLTriggerOffline/Higgs/interface/HLTHiggsPlotter.h"
 #include "HLTriggerOffline/Higgs/interface/HLTHiggsSubAnalysis.h"
@@ -186,17 +181,13 @@ const std::string HLTHiggsPlotter::getTypeString(const unsigned int & objtype) c
 	{
 		objTypestr = "Photon";
 	}
-	else if( objtype == HLTHiggsSubAnalysis::JET )
-	{
-		objTypestr = "Jet";
-	}
-	else if( objtype == HLTHiggsSubAnalysis::PFJET )
-	{
-		objTypestr = "PFJet";
-	}
 	else if( objtype == HLTHiggsSubAnalysis::CALOMET )
 	{
-		objTypestr = "ET";
+		objTypestr = "CaloMET";
+	}
+	else if( objtype == HLTHiggsSubAnalysis::PFTAU )
+	{
+		objTypestr = "PFTau";
 	}
 	/*else
 	{ ERROR FIXME

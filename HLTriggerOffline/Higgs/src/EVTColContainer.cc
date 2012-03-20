@@ -17,13 +17,13 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/METReco/interface/PFMET.h"
-#include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "HLTriggerOffline/Higgs/interface/HLTHiggsSubAnalysis.h"
@@ -41,7 +41,7 @@ struct EVTColContainer
 	const std::vector<reco::GsfElectron> * electrons;
 	const std::vector<reco::Photon> * photons;
 	const std::vector<reco::CaloMET> * caloMETs;
-	const std::vector<reco::PFMET> * pfMETs;
+	const std::vector<reco::PFTau> * pfTaus;
 	const trigger::TriggerEventWithRefs * rawTriggerEvent;
 	const edm::TriggerResults   * triggerResults ;
 	EVTColContainer():
@@ -51,7 +51,7 @@ struct EVTColContainer
 		muons(0),
 		electrons(0),
 		photons(0),
-		pfMETs(0),
+		pfTaus(0),
 		rawTriggerEvent(0),
 		triggerResults(0)
 	{
@@ -71,7 +71,7 @@ struct EVTColContainer
 	{
 		nInitialized = 0;
 		genParticles = 0;
-		muons = 0; electrons = 0; photons = 0; pfMETs=0; caloMETs=0; 
+		muons = 0; electrons = 0; photons = 0; pfTaus=0; caloMETs=0; 
 		rawTriggerEvent = 0;
 	}
 	//! Setter: multiple overloaded function
@@ -95,9 +95,9 @@ struct EVTColContainer
 		caloMETs = v;
 		++nInitialized;
 	}
-	void set(const std::vector<reco::PFMET> * v)
+	void set(const reco::PFTauCollection * v)
 	{
-		pfMETs = v;
+		pfTaus = v;
 		++nInitialized;
 	}
 	const unsigned int getSize(const unsigned int & objtype) const
@@ -119,9 +119,9 @@ struct EVTColContainer
 		{
 			size = caloMETs->size();
 		}
-		else if( objtype == HLTHiggsSubAnalysis::PFMET && pfMETs != 0 )
+		else if( objtype == HLTHiggsSubAnalysis::PFTAU && pfTaus != 0 )
 		{
-			size = pfMETs->size();
+			size = pfTaus->size();
 		}
 
 		return size;
