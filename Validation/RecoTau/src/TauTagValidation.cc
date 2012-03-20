@@ -24,6 +24,7 @@
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include <DataFormats/VertexReco/interface/Vertex.h>
 #include <DataFormats/VertexReco/interface/VertexFwd.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
@@ -56,11 +57,11 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig):
   // Get the discriminators and their cuts
   discriminators_( iConfig.getParameter< std::vector<edm::ParameterSet> >( "discriminators" ))
 {
-  cout << moduleLabel_<<"::TauTagValidation" << endl;
+  //LogDebug("StormStorageMaker") << moduleLabel_<<"::TauTagValidation" << endl;
   turnOnTrigger_ = iConfig.exists("turnOnTrigger") && iConfig.getParameter<bool>("turnOnTrigger");
   genericTriggerEventFlag_ = (iConfig.exists("GenericTriggerSelection") && turnOnTrigger_) ? new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("GenericTriggerSelection")) : NULL;
-  if(genericTriggerEventFlag_ != NULL)  std::cout<<"--> GenericTriggerSelection parameters found in "<<moduleLabel_<<"."<<std::endl;//move to LogDebug
-  else std::cout<<"--> GenericTriggerSelection not found in "<<moduleLabel_<<"."<<std::endl;//move to LogDebug to keep track of modules that fail and pass
+  if(genericTriggerEventFlag_ != NULL)  LogDebug(moduleLabel_) <<"--> GenericTriggerSelection parameters found in "<<moduleLabel_<<"."<<std::endl;//move to LogDebug
+  else LogDebug(moduleLabel_) <<"--> GenericTriggerSelection not found in "<<moduleLabel_<<"."<<std::endl;//move to LogDebug to keep track of modules that fail and pass
 
 
   //InputTag to strings  
@@ -307,7 +308,7 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   }
 }
 void TauTagValidation::beginJob() {
-  cout << moduleLabel_<<"::beginJob" << endl;
+  //cout << moduleLabel_<<"::beginJob" << endl;
   dbeTau_ = &*edm::Service<DQMStore>();
   
   if(dbeTau_) {
@@ -498,10 +499,10 @@ void TauTagValidation::endJob() {
   if (!outPutFile_.empty() && &*edm::Service<DQMStore>() && saveoutputhistograms_) dbeTau_->save (outPutFile_);
 }
 void TauTagValidation::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  cout << moduleLabel_<<"::beginRun" << endl;
+  //cout << moduleLabel_<<"::beginRun" << endl;
   if (genericTriggerEventFlag_) {
     if (genericTriggerEventFlag_->on()){
-      cout << "initializing trigger" << endl;
+      //cout << "initializing trigger" << endl;
       genericTriggerEventFlag_->initRun(iRun, iSetup);
     }
   }
