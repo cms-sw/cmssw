@@ -24,29 +24,31 @@
 //
 #include "RelationalAccess/AuthenticationCredentials.h"
 //
-#include <cstdlib>
 #include <sstream>
 #include <fstream>
 #include <boost/filesystem.hpp>
 
 static const std::string serviceName = "CondAuthenticationService";
 
-const std::string coral_bridge::AuthenticationCredentialSet::DEFAULT_ROLE("COND_DEFAULT_ROLE");
-
 coral_bridge::AuthenticationCredentialSet::AuthenticationCredentialSet() :
   m_data(){
 }
 
 coral_bridge::AuthenticationCredentialSet::~AuthenticationCredentialSet(){
+  reset();
+}
+
+void coral_bridge::AuthenticationCredentialSet::reset(){
   for ( std::map< std::pair<std::string,std::string>, coral::AuthenticationCredentials* >::iterator iData = m_data.begin();
         iData != m_data.end(); ++iData )
     delete iData->second;
+  m_data.clear();
 }
 
 void coral_bridge::AuthenticationCredentialSet::registerItem( const std::string& connectionString, 
 							      const std::string& itemName,
 							      const std::string& itemValue ){
-  registerItem( connectionString, DEFAULT_ROLE, itemName, itemValue );
+  registerItem( connectionString, cond::Auth::COND_DEFAULT_ROLE, itemName, itemValue );
 }
 			      
 
@@ -67,7 +69,7 @@ void
 coral_bridge::AuthenticationCredentialSet::registerCredentials( const std::string& connectionString,
 								const std::string& userName,
 								const std::string& password ){
-  registerCredentials( connectionString, DEFAULT_ROLE, userName, password );
+  registerCredentials( connectionString, cond::Auth::COND_DEFAULT_ROLE, userName, password );
 }
 
 void
@@ -97,7 +99,7 @@ void coral_bridge::AuthenticationCredentialSet::import( const AuthenticationCred
 const coral::IAuthenticationCredentials*
 coral_bridge::AuthenticationCredentialSet::get( const std::string& connectionString ) const
 {
-  return get( connectionString, DEFAULT_ROLE );
+  return get( connectionString, cond::Auth::COND_DEFAULT_ROLE );
 }
 
 const coral::IAuthenticationCredentials*
@@ -116,68 +118,500 @@ const std::map< std::pair<std::string,std::string>, coral::AuthenticationCredent
   return m_data;
 }
 
-namespace cond {
-  std::string validPath( const char* envPath ){
-    std::string searchPath(envPath);
-    boost::filesystem::path fullPath( searchPath );
-    if(!boost::filesystem::exists(searchPath) || !boost::filesystem::is_directory( searchPath )){
-      throwException( "Authentication Path is invalid.","cond::CredentialStore::validPath" );
-    }
-    boost::filesystem::path file( DecodingKey::FILE_NAME );
-    fullPath /= file;
-    return fullPath.string();
-  }
-}
-
-#define VERIFICATION_KEY TABLE_NAME
-
 static std::string SEQUENCE_TABLE_NAME("COND_CREDENTIAL_SEQUENCE");
-static std::string TABLE_NAME("COND_CREDENTIAL");
-static std::string ID_COLUMN("ID");
-static std::string PRINCIPAL_COLUMN("PRINCIPAL");
-static std::string ROLE_COLUMN("ROLE");
-static std::string CONNECTION_COLUMN("CRED0");
-static std::string USERNAME_COLUMN("CRED1");
-static std::string PASSWORD_COLUMN("CRED2");
-static std::string VERIFICATION_KEY_COLUMN("CRED3");
+
+static std::string COND_AUTHENTICATION_TABLE("COND_AUTHENTICATION");
+static std::string PRINCIPAL_ID_COL("P_ID");
+static std::string PRINCIPAL_NAME_COL("P_NAME");
+static std::string VERIFICATION_COL("CRED0");
+static std::string PRINCIPAL_KEY_COL("CRED1");
+static std::string ADMIN_KEY_COL("CRED2");
+
+static std::string COND_AUTHORIZATION_TABLE("COND_AUTHORIZATION");
+static std::string AUTH_ID_COL("AUTH_ID");
+static std::string P_ID_COL("P_ID");
+static std::string ROLE_COL("ROLE");
+static std::string SCHEMA_COL("SCHEMA");
+static std::string AUTH_KEY_COL("CRED3");
+static std::string C_ID_COL("C_ID");
+
+static std::string COND_CREDENTIAL_TABLE("COND_CREDENTIAL");
+static std::string CONNECTION_ID_COL("CONN_ID");
+static std::string CONNECTION_LABEL_COL("CONN_LABEL");
+static std::string USERNAME_COL("CRED4");
+static std::string PASSWORD_COL("CRED5");
+static std::string VERIFICATION_KEY_COL("CRED6");
+static std::string CONNECTION_KEY_COL("CRED7");
 
 const std::string DEFAULT_DATA_SOURCE("Cond_Default_Authentication");
 
-cond::CredentialStore::CoralSession::~CoralSession(){
-  session->endUserSession();
-  connection->disconnect();
+namespace cond {
+
+  /**
+  std::string defaultConnectionString( const std::string& serviceConnectionString, 
+				       const std::string& serviceName,
+				       const std::string& userName ){
+    size_t pos = serviceConnectionString.find( serviceName );
+    std::string technologyPrefix = serviceConnectionString.substr(0,pos);
+    std::stringstream connStr;
+    connStr << technologyPrefix;
+    if( !userName.empty() ) connStr <<"/"<< userName;
+    return connStr.str();
+  }
+
+  **/
+  std::string schemaLabel( const std::string& serviceName, 
+			   const std::string& userName ){
+    return userName+"@"+serviceName;
+  }
+
+  class CSScopedSession {
+  public: 
+    CSScopedSession( CredentialStore& store ):
+      m_store( store ){}
+    ~CSScopedSession(){
+      m_store.closeSession( false );
+    }
+    void startSuper( const std::string& connectionString, const std::string& userName, const std::string& password ){
+      m_store.startSuperSession( connectionString, userName, password );
+    }
+    void start( bool readOnly=true ){
+      m_store.startSession( readOnly );
+    }
+    void close(){
+      m_store.closeSession();
+    }
+      
+  private:
+    CredentialStore& m_store;
+  };
+
+  struct PrincipalData {
+    int id;
+    std::string verifKey;
+    std::string principalKey;
+    std::string adminKey;
+    PrincipalData():
+      id(-1),
+      verifKey(""),
+      principalKey(""),
+      adminKey(""){}
+  };
+
+  bool selectPrincipal( coral::ISchema& schema, const std::string& principal, PrincipalData& destination ){
+    std::auto_ptr<coral::IQuery> query(schema.tableHandle(COND_AUTHENTICATION_TABLE).newQuery());
+    coral::AttributeList readBuff;
+    readBuff.extend<int>(PRINCIPAL_ID_COL);
+    readBuff.extend<std::string>(VERIFICATION_COL);
+    readBuff.extend<std::string>(PRINCIPAL_KEY_COL);
+    readBuff.extend<std::string>(ADMIN_KEY_COL);
+    coral::AttributeList whereData;
+    whereData.extend<std::string>(PRINCIPAL_NAME_COL);
+    whereData[ PRINCIPAL_NAME_COL ].data<std::string>() = principal;
+    std::string whereClause = PRINCIPAL_NAME_COL + " = :" + PRINCIPAL_NAME_COL;
+    query->defineOutput(readBuff);
+    query->addToOutputList( PRINCIPAL_ID_COL );
+    query->addToOutputList( VERIFICATION_COL );
+    query->addToOutputList( PRINCIPAL_KEY_COL );
+    query->addToOutputList( ADMIN_KEY_COL );
+    query->setCondition( whereClause, whereData );
+    coral::ICursor& cursor = query->execute();
+    bool found = false;
+    if ( cursor.next() ) {
+      found = true;
+      const coral::AttributeList& row = cursor.currentRow();
+      destination.id = row[ PRINCIPAL_ID_COL ].data<int>();
+      destination.verifKey = row[ VERIFICATION_COL ].data<std::string>();
+      destination.principalKey = row[ PRINCIPAL_KEY_COL ].data<std::string>();
+      destination.adminKey = row[ ADMIN_KEY_COL ].data<std::string>();
+    }
+    return found;
+  }
+
+  struct CredentialData {
+    int id;
+    std::string userName;
+    std::string password;
+    std::string connectionKey;
+    std::string verificationKey;
+    CredentialData():
+      id(-1),
+      userName(""),
+      password(""),
+      connectionKey(""){
+    }
+  };
+
+  bool selectConnection( coral::ISchema& schema, const std::string& connectionLabel, CredentialData& destination ){
+    
+    std::auto_ptr<coral::IQuery> query(schema.tableHandle(COND_CREDENTIAL_TABLE).newQuery());
+    coral::AttributeList readBuff;
+    readBuff.extend<int>( CONNECTION_ID_COL );
+    readBuff.extend<std::string>( USERNAME_COL );
+    readBuff.extend<std::string>( PASSWORD_COL );
+    readBuff.extend<std::string>( VERIFICATION_KEY_COL );
+    readBuff.extend<std::string>( CONNECTION_KEY_COL );
+    coral::AttributeList whereData;
+    whereData.extend<std::string>( CONNECTION_LABEL_COL );
+    whereData[ CONNECTION_LABEL_COL ].data<std::string>() = connectionLabel;
+    std::string whereClause = CONNECTION_LABEL_COL + " = :" + CONNECTION_LABEL_COL;
+    query->defineOutput(readBuff);
+    query->addToOutputList( CONNECTION_ID_COL );
+    query->addToOutputList( USERNAME_COL );
+    query->addToOutputList( PASSWORD_COL );
+    query->addToOutputList( VERIFICATION_KEY_COL );
+    query->addToOutputList( CONNECTION_KEY_COL );
+    query->setCondition( whereClause, whereData );
+    coral::ICursor& cursor = query->execute();
+    bool found = false;
+    if ( cursor.next() ) {
+      const coral::AttributeList& row = cursor.currentRow();
+      destination.id = row[ CONNECTION_ID_COL].data<int>();
+      destination.userName = row[ USERNAME_COL].data<std::string>();
+      destination.password = row[ PASSWORD_COL].data<std::string>();
+      destination.verificationKey = row[ VERIFICATION_KEY_COL].data<std::string>();
+      destination.connectionKey = row[ CONNECTION_KEY_COL].data<std::string>();
+      found = true;
+    }
+    return found;
+  }
+
+  struct AuthorizationData {
+    int id;
+    int connectionId;
+    std::string key;
+    AuthorizationData():
+      id(-1),
+      connectionId(-1),
+      key(""){}
+  };
+
+  bool selectAuthorization( coral::ISchema& schema, int principalId, const std::string& role, const std::string& connectionString, AuthorizationData& destination ){
+    std::auto_ptr<coral::IQuery> query(schema.tableHandle(COND_AUTHORIZATION_TABLE).newQuery());
+    coral::AttributeList readBuff;
+    readBuff.extend<int>(AUTH_ID_COL);
+    readBuff.extend<int>(C_ID_COL);
+    readBuff.extend<std::string>(AUTH_KEY_COL);
+    coral::AttributeList whereData;
+    whereData.extend<int>(P_ID_COL);
+    whereData.extend<std::string>(ROLE_COL);
+    whereData.extend<std::string>(SCHEMA_COL);
+    whereData[ P_ID_COL ].data<int>() = principalId;
+    whereData[ ROLE_COL ].data<std::string>() = role;
+    whereData[ SCHEMA_COL ].data<std::string>() = connectionString;
+    std::stringstream whereClause;
+    whereClause << P_ID_COL << " = :"<<P_ID_COL;
+    whereClause << " AND " << ROLE_COL << " = :"<<ROLE_COL;
+    whereClause << " AND " << SCHEMA_COL << " = :"<<SCHEMA_COL;
+    query->defineOutput(readBuff);
+    query->addToOutputList( AUTH_ID_COL );
+    query->addToOutputList( C_ID_COL );
+    query->addToOutputList( AUTH_KEY_COL );
+    query->setCondition( whereClause.str(), whereData );
+    coral::ICursor& cursor = query->execute();
+    bool found = false;
+    if ( cursor.next() ) {
+      const coral::AttributeList& row = cursor.currentRow();
+      destination.id = row[AUTH_ID_COL].data<int>();  
+      destination.connectionId = row[C_ID_COL].data<int>();
+      destination.key = row[AUTH_KEY_COL].data<std::string>();
+      found = true;
+    }
+    return found;
+  }
+
 }
 
-// open session on the storage
-cond::CredentialStore::CoralSession cond::CredentialStore::openDatabase( bool readMode ){
-  coral::MessageStream::setMsgVerbosity( coral::Debug );
-  coral::AccessMode accessMode = coral::ReadOnly;
-  if(!readMode ) accessMode = coral::Update;
-  if(!m_serviceKey){
-    std::string msg("");
-    msg += "The credential store has not been initialized.";
-    throwException( msg,"cond::CredentialStore::openDatabaseForService" );    
+void cond::CredentialStore::closeSession( bool commit ){
+
+  if( m_session.get() ){
+    if(m_session->transaction().isActive()){
+      if( commit ){
+	m_session->transaction().commit();
+      } else {
+	m_session->transaction().rollback();
+      }
+    }
+    m_session->endUserSession();
   }
-  const std::string& storeConnectionString = m_serviceKey->dataSource;
-  const std::string& userName = m_serviceKey->userName;
-  const std::string& password = m_serviceKey->password;
+  m_session.reset();
+  if( m_connection.get() ){
+    m_connection->disconnect();
+  }
+  m_connection.reset();
+}
+
+std::pair<std::string,std::string> cond::CredentialStore::openConnection( const std::string& connectionString ){
   coral::IHandle<coral::IRelationalService> relationalService = coral::Context::instance().query<coral::IRelationalService>();
   if ( ! relationalService.isValid() ){
     coral::Context::instance().loadComponent("CORAL/Services/RelationalService");
     relationalService = coral::Context::instance().query<coral::IRelationalService>();
   }
-  coral::IRelationalDomain& domain = relationalService->domainForConnection( storeConnectionString );
-  std::pair<std::string,std::string> connTokens = domain.decodeUserConnectionString( storeConnectionString );
-  CoralSession ret;
-  ret.connection.reset( domain.newConnection( connTokens.first ) );
-  ret.connection->connect();
-  ret.session.reset( ret.connection->newSession( connTokens.second, accessMode) );
-  ret.session->startUserSession( userName, password );
-  return ret;
-}    
+  coral::IRelationalDomain& domain = relationalService->domainForConnection( connectionString );
+  std::pair<std::string,std::string> connTokens = domain.decodeUserConnectionString( connectionString );
+  m_connection.reset( domain.newConnection( connTokens.first ) );
+  m_connection->connect();
+  return connTokens;
+}
+
+void cond::CredentialStore::openSession( const std::string& schemaName, const std::string& userName, const std::string& password, bool readMode ){
+  coral::AccessMode accessMode = coral::ReadOnly;
+  if( !readMode ) accessMode = coral::Update;  
+  m_session.reset( m_connection->newSession( schemaName, accessMode) );
+  m_session->startUserSession( userName, password );
+  // open read-only transaction
+  m_session->transaction().start( readMode );
+}
+
+void cond::CredentialStore::startSuperSession( const std::string& connectionString, const std::string& userName, const std::string& password ){
+  //coral::MessageStream::setMsgVerbosity( coral::Debug );
+  std::pair<std::string,std::string> connTokens = openConnection( connectionString );
+  openSession( connTokens.second, userName, password, false );
+}
+
+// open session on the storage
+void cond::CredentialStore::startSession( bool readMode ){
+  if(!m_serviceData){
+    throwException( "The credential store has not been initialized.","cond::CredentialStore::openConnection" );    
+  }
+  const std::string& storeConnectionString = m_serviceData->connectionString;
+
+  //coral::MessageStream::setMsgVerbosity( coral::Debug );
+  std::pair<std::string,std::string> connTokens = openConnection( storeConnectionString );
+
+  const std::string& userName = m_serviceData->userName;
+  const std::string& password = m_serviceData->password;
+ 
+  openSession( connTokens.second, userName, password, true );
+
+  coral::ISchema& schema = m_session->nominalSchema();
+  if(!schema.existsTable(COND_AUTHENTICATION_TABLE) ||
+     !schema.existsTable(COND_AUTHORIZATION_TABLE) ||
+     !schema.existsTable(COND_CREDENTIAL_TABLE) ){
+    throwException("Credential database does not exists in this schema","CredentialStore::startSession");
+  }
+
+  const std::string& principalName = m_key.principalName();
+  // now authenticate...
+  PrincipalData princData;
+  if( !selectPrincipal( m_session->nominalSchema(), principalName, princData ) ){
+    throwException( "Invalid credentials provided.(0)",
+		    "CredentialStore::openSession");
+  }
+  Cipher cipher0( m_key.principalKey() );
+  std::string verifStr = cipher0.b64decrypt( princData.verifKey );
+  if( verifStr != principalName ){
+    throwException( "Invalid credentials provided (1)",
+		    "CredentialStore::openSession");
+  }
+  // ok, authenticated!
+  m_principalId = princData.id;
+  m_principalKey = cipher0.b64decrypt( princData.principalKey );
+  
+  if(!readMode ) {
+
+    /**
+    if( principalName != Auth::COND_ADMIN_GROUP ){
+      throwException( "Current user is not allowed to modifiy credentials",
+		      "CredentialStore::openSession");
+    }
+    **/
+
+    Cipher cipher( m_principalKey );
+    // first find the credentials for WRITING in the security tables
+    std::auto_ptr<coral::IQuery> query(schema.newQuery());
+    query->addToTableList(COND_AUTHORIZATION_TABLE, "AUTHO");
+    query->addToTableList(COND_CREDENTIAL_TABLE, "CREDS");
+    coral::AttributeList readBuff;
+    readBuff.extend<std::string>("CREDS."+CONNECTION_LABEL_COL);
+    readBuff.extend<std::string>("CREDS."+USERNAME_COL);
+    readBuff.extend<std::string>("CREDS."+PASSWORD_COL);
+    readBuff.extend<std::string>("CREDS."+VERIFICATION_KEY_COL);
+    coral::AttributeList whereData;
+    whereData.extend<int>(P_ID_COL);
+    whereData.extend<std::string>(ROLE_COL);
+    whereData.extend<std::string>(SCHEMA_COL);
+    whereData[ P_ID_COL ].data<int>() = m_principalId;
+    whereData[ ROLE_COL ].data<std::string>() = Auth::COND_ADMIN_ROLE;
+    whereData[ SCHEMA_COL ].data<std::string>() = storeConnectionString;
+    std::stringstream whereClause;
+    whereClause << "AUTHO."<< P_ID_COL << " = :"<<P_ID_COL;
+    whereClause << " AND AUTHO."<< ROLE_COL << " = :"<<ROLE_COL;
+    whereClause << " AND AUTHO."<< SCHEMA_COL << " = :"<<SCHEMA_COL;
+    query->defineOutput(readBuff);
+    query->addToOutputList( "CREDS."+CONNECTION_LABEL_COL );
+    query->addToOutputList( "CREDS."+USERNAME_COL );
+    query->addToOutputList( "CREDS."+PASSWORD_COL );
+    query->addToOutputList( "CREDS."+VERIFICATION_KEY_COL );
+    query->setCondition( whereClause.str(), whereData );
+    coral::ICursor& cursor = query->execute();
+    bool found = false;
+    std::string writeUserName("");
+    std::string writePassword("");
+    if ( cursor.next() ) {
+      const coral::AttributeList& row = cursor.currentRow();
+      const std::string& connLabel = row[ "CREDS."+CONNECTION_LABEL_COL ].data<std::string>();
+      const std::string& encryptedUserName = row[ "CREDS."+USERNAME_COL ].data<std::string>();
+      const std::string& encryptedPassword = row[ "CREDS."+USERNAME_COL ].data<std::string>();
+      const std::string& verificationKey = row[ "CREDS."+VERIFICATION_KEY_COL ].data<std::string>();
+      if( cipher.b64decrypt( verificationKey ) != connLabel  ){
+	throwException( "Could not decrypt credentials.Provided key is invalid.",
+			"CredentialStore::openSession");
+      }
+      writeUserName = cipher.b64decrypt( encryptedUserName );
+      writePassword = cipher.b64decrypt( encryptedPassword );
+      found = true;
+    }
+    m_session->transaction().commit();
+    m_session->endUserSession();
+    if( ! found ){
+      throwException( "Provided credentials are invalid for write access.",
+		      "CredentialStore::openSession");
+    }
+    openSession( connTokens.second, writeUserName, writePassword, false );
+
+  }
+}   
+
+bool cond::CredentialStore::setPermission( int principalId, const std::string& principalKey, const std::string& role, const std::string& connectionString, int connectionId, const std::string& connectionKey ){
+  coral::ISchema& schema = m_session->nominalSchema();
+  Cipher cipher( principalKey );
+  std::string encryptedConnectionKey = cipher.b64encrypt( connectionKey );
+
+  AuthorizationData authData;
+  bool found = selectAuthorization( schema, principalId, role, connectionString, authData );
+
+  coral::ITableDataEditor& editor = schema.tableHandle(COND_AUTHORIZATION_TABLE).dataEditor();
+  if( found ) {
+    coral::AttributeList updateData;
+    updateData.extend<int>( AUTH_ID_COL );
+    updateData.extend<int>( C_ID_COL );
+    updateData.extend<std::string>( AUTH_KEY_COL );
+    updateData[ AUTH_ID_COL ].data<int>() = authData.id;
+    updateData[ C_ID_COL ].data<int>() = connectionId;
+    updateData[ AUTH_KEY_COL ].data<std::string>() = encryptedConnectionKey;
+    std::string setCl = C_ID_COL+" = :"+C_ID_COL + " AND "+AUTH_KEY_COL+" = :"+AUTH_KEY_COL;
+    std::string whereCl = AUTH_ID_COL+" = :"+AUTH_ID_COL;
+    editor.updateRows( setCl,whereCl, updateData );
+  } else {
+
+    ora::SequenceManager sequenceMgr( SEQUENCE_TABLE_NAME,schema );
+    int next = sequenceMgr.getNextId( COND_AUTHORIZATION_TABLE, true );
+    
+    coral::AttributeList insertData;
+    insertData.extend<int>( AUTH_ID_COL );
+    insertData.extend<int>( P_ID_COL );
+    insertData.extend<std::string>( ROLE_COL );
+    insertData.extend<std::string>( SCHEMA_COL );
+    insertData.extend<std::string>( AUTH_KEY_COL );
+    insertData.extend<int>( C_ID_COL );
+    insertData[ AUTH_ID_COL ].data<int>() = next;
+    insertData[ P_ID_COL ].data<int>() = principalId;
+    insertData[ ROLE_COL ].data<std::string>() = role;
+    insertData[ SCHEMA_COL ].data<std::string>() = connectionString;
+    insertData[ AUTH_KEY_COL ].data<std::string>() = encryptedConnectionKey;
+    insertData[ C_ID_COL ].data<int>() = connectionId;
+    editor.insertRow( insertData );
+  }
+  return true;    
+}
+
+std::pair<int,std::string> cond::CredentialStore::updateConnection( const std::string& connectionLabel, 
+								    const std::string& userName, 
+								    const std::string& password,
+								    bool forceUpdate ){
+  coral::ISchema& schema = m_session->nominalSchema();
+  CredentialData credsData;
+  bool found = selectConnection( schema, connectionLabel, credsData );
+  int connId = credsData.id;
+  
+  Cipher adminCipher( m_principalKey );
+  std::string connectionKey("");
+  coral::ITableDataEditor& editor = schema.tableHandle(COND_CREDENTIAL_TABLE).dataEditor();
+  if( found && forceUpdate ){
+    
+    connectionKey = adminCipher.b64decrypt( credsData.connectionKey );
+    Cipher cipher( connectionKey );
+    std::string verificationKey = cipher.b64decrypt( credsData.verificationKey );
+    if( verificationKey != connectionLabel ){
+      throwException("Decoding of connection key failed.","CredentialStore::updateConnection");
+    }
+     std::string encryptedUserName = cipher.b64encrypt( userName );
+     std::string encryptedPassword = cipher.b64encrypt( password );
+     
+     coral::AttributeList updateData;
+     updateData.extend<int>( CONNECTION_ID_COL );
+     updateData.extend<std::string>( USERNAME_COL );
+     updateData.extend<std::string>( PASSWORD_COL );
+     updateData[ CONNECTION_ID_COL ].data<int>() = connId;
+     updateData[ USERNAME_COL ].data<std::string>() = encryptedUserName;
+     updateData[ PASSWORD_COL ].data<std::string>() = encryptedPassword;
+     std::stringstream setCl;
+     setCl << USERNAME_COL << " = :" << USERNAME_COL;
+     setCl <<", " << PASSWORD_COL << " = :" << PASSWORD_COL;
+     std::string whereCl = CONNECTION_ID_COL+" = :"+CONNECTION_ID_COL;
+     editor.updateRows( setCl.str(),whereCl, updateData );
+  }
+  
+  if(!found){
+    
+    KeyGenerator gen;
+    connectionKey = gen.make( Auth::COND_DB_KEY_SIZE );
+    Cipher cipher( connectionKey );
+    std::string encryptedUserName = cipher.b64encrypt( userName );
+    std::string encryptedPassword = cipher.b64encrypt( password );
+    std::string encryptedLabel = cipher.b64encrypt( connectionLabel );
+    
+    ora::SequenceManager sequenceMgr( SEQUENCE_TABLE_NAME,schema );
+    connId = sequenceMgr.getNextId( COND_CREDENTIAL_TABLE, true );
+    
+    coral::AttributeList insertData;
+    insertData.extend<int>( CONNECTION_ID_COL );
+    insertData.extend<std::string>( CONNECTION_LABEL_COL );
+    insertData.extend<std::string>( USERNAME_COL );
+    insertData.extend<std::string>( PASSWORD_COL );
+    insertData.extend<std::string>( VERIFICATION_KEY_COL );
+    insertData.extend<std::string>( CONNECTION_KEY_COL );
+    insertData[ CONNECTION_ID_COL ].data<int>() = connId;
+    insertData[ CONNECTION_LABEL_COL ].data<std::string>() = connectionLabel;
+    insertData[ USERNAME_COL ].data<std::string>() = encryptedUserName;
+    insertData[ PASSWORD_COL ].data<std::string>() = encryptedPassword;
+    insertData[ VERIFICATION_KEY_COL ].data<std::string>() = encryptedLabel;
+    insertData[ CONNECTION_KEY_COL ].data<std::string>() = adminCipher.b64encrypt( connectionKey ) ;;
+    editor.insertRow( insertData );
+    
+    /***
+    // then set the admin permission on the new connection
+    ora::SequenceManager sequenceMgr2( SEQUENCE_TABLE_NAME,schema );
+    int authId = sequenceMgr2.getNextId( COND_AUTHORIZATION_TABLE, true );
+    
+    coral::ITableDataEditor& authEditor = schema.tableHandle(COND_AUTHORIZATION_TABLE).dataEditor();
+    coral::AttributeList authData;
+    authData.extend<int>( AUTH_ID_COL );
+    authData.extend<int>( P_ID_COL );
+    authData.extend<std::string>( ROLE_COL );
+    authData.extend<std::string>( SCHEMA_COL );
+    authData.extend<std::string>( AUTH_KEY_COL );
+    authData.extend<int>( C_ID_COL );
+    authData[ AUTH_ID_COL ].data<int>() = authId;
+    authData[ P_ID_COL ].data<int>() = m_principalId;
+    authData[ ROLE_COL ].data<std::string>() = Auth::COND_ADMIN_ROLE;
+    authData[ SCHEMA_COL ].data<std::string>() = defaultConnectionString( m_serviceData->connectionString, m_serviceName, userName );
+    authData[ AUTH_KEY_COL ].data<std::string>() = adminCipher.b64encrypt( connectionKey ) ;
+    authData[ C_ID_COL ].data<int>() = connId;
+    authEditor.insertRow( authData );
+    **/
+  }
+  return std::make_pair( connId, connectionKey );
+}
 
 cond::CredentialStore::CredentialStore():
-  m_serviceKey(0),
+  m_connection(),
+  m_session(),
+  m_principalId(-1),
+  m_principalKey(""),
+  m_serviceName(""),
+  m_serviceData(0),
   m_key(){
 }
 
@@ -185,29 +619,39 @@ cond::CredentialStore::~CredentialStore(){
 }
 
 void
-cond::CredentialStore::setUpForService( const std::string& serviceName )
-{
+cond::CredentialStore::setUpForService( const std::string& serviceName, 
+					const std::string& authPath ){
   if( serviceName.empty() ){
     throwException( "Service name has not been provided.","cond::CredentialStore::setUpConnection" );        
   }
-  m_serviceKey = 0;
-  const char* authEnv = ::getenv( Auth::COND_AUTH_PATH );
-  if(!authEnv){
-    authEnv = ::getenv("HOME");
+  m_serviceName.clear();
+  m_serviceData = 0;
+
+  if( authPath.empty() ){
+    throwException( "The authentication Path has not been provided.","cond::CredentialStore::setUpForService" );
   }
-  std::string keyFile = validPath( authEnv );
-  m_key.init( keyFile, Auth::COND_KEY ); 
-  std::map< std::string, ServiceKey >::const_iterator iK = m_key.serviceKeys().find( serviceName );
-  if( iK == m_key.serviceKeys().end() ){
+  boost::filesystem::path fullPath( authPath );
+  if(!boost::filesystem::exists(authPath) || !boost::filesystem::is_directory( authPath )){
+    throwException( "Authentication Path is invalid.","cond::CredentialStore::setUpForService" );
+  }
+  boost::filesystem::path file( DecodingKey::FILE_NAME );
+  fullPath /= file;
+
+  m_key.init( fullPath.string(), Auth::COND_KEY ); 
+  
+  std::map< std::string, ServiceCredentials >::const_iterator iK = m_key.services().find( serviceName );
+  if( iK == m_key.services().end() ){
     std::string msg("");
     msg += "Service \""+serviceName+"\" can't be open with the current key.";
     throwException( msg,"cond::CredentialStore::setUpConnection" );    
   }
-  m_serviceKey = &iK->second;
+  m_serviceName = serviceName;
+  m_serviceData = &iK->second;
 }
 
 void 
-cond::CredentialStore::setUpForConnectionString( const std::string& connectionString ){
+cond::CredentialStore::setUpForConnectionString( const std::string& connectionString,
+						 const std::string& authPath ){
   coral::IHandle<coral::IRelationalService> relationalService = coral::Context::instance().query<coral::IRelationalService>();
   if ( ! relationalService.isValid() ){
     coral::Context::instance().loadComponent("CORAL/Services/RelationalService");
@@ -216,316 +660,649 @@ cond::CredentialStore::setUpForConnectionString( const std::string& connectionSt
   coral::IRelationalDomain& domain = relationalService->domainForConnection( connectionString );
   std::pair<std::string,std::string> connTokens = domain.decodeUserConnectionString( connectionString );
   std::string& serviceName = connTokens.first;
-  setUpForService( serviceName );
+  setUpForService( serviceName, authPath );
 }
 
 
 bool
-cond::CredentialStore::createSchema()
-{
-  CoralSession coralDb = openDatabase( false );
-  coralDb.session->transaction().start();
-  coral::ISchema& schema = coralDb.session->nominalSchema();
-  if(schema.existsTable(TABLE_NAME)) {
-    coralDb.session->transaction().commit();
-    std::stringstream msg;
-    msg <<"Cannot create credential database, a table named \"" << TABLE_NAME << "\" already exists.";
-    throwException(msg.str(),"CredentialStore::create");
+cond::CredentialStore::createSchema( const std::string& connectionString, const std::string& userName, const std::string& password ) {
+  CSScopedSession session( *this );
+  session.startSuper( connectionString, userName, password );
+
+  coral::ISchema& schema = m_session->nominalSchema();
+  if(schema.existsTable(COND_AUTHENTICATION_TABLE)) {
+    throwException("Credential database, already exists.","CredentialStore::create");
   }
   ora::SequenceManager sequenceMgr( SEQUENCE_TABLE_NAME, schema );
-  sequenceMgr.create( TABLE_NAME );
-  coral::TableDescription descr;
-  descr.setName(TABLE_NAME);
   int columnSize = 2000;
-  descr.insertColumn( ID_COLUMN, coral::AttributeSpecification::typeNameForType<int>());
-  descr.insertColumn( PRINCIPAL_COLUMN, coral::AttributeSpecification::typeNameForType<std::string>(),columnSize,false);
-  descr.insertColumn( ROLE_COLUMN, coral::AttributeSpecification::typeNameForType<std::string>(),columnSize,false);
-  descr.insertColumn( CONNECTION_COLUMN, coral::AttributeSpecification::typeNameForType<std::string>(),columnSize,false);
-  descr.insertColumn( USERNAME_COLUMN, coral::AttributeSpecification::typeNameForType<std::string>(),columnSize,false);
-  descr.insertColumn( PASSWORD_COLUMN, coral::AttributeSpecification::typeNameForType<std::string>(),columnSize,false);
-  descr.insertColumn( VERIFICATION_KEY_COLUMN, coral::AttributeSpecification::typeNameForType<std::string>(),columnSize,false);
-  descr.setNotNullConstraint( ID_COLUMN );
-  descr.setNotNullConstraint( PRINCIPAL_COLUMN );
-  descr.setNotNullConstraint( ROLE_COLUMN );
-  descr.setNotNullConstraint( CONNECTION_COLUMN );
-  descr.setNotNullConstraint( USERNAME_COLUMN );
-  descr.setNotNullConstraint( PASSWORD_COLUMN );
-  descr.setNotNullConstraint( VERIFICATION_KEY_COLUMN );
+
+  // authentication table
+  sequenceMgr.create( COND_AUTHENTICATION_TABLE );
+  coral::TableDescription descr0;
+  descr0.setName( COND_AUTHENTICATION_TABLE );
+  descr0.insertColumn( PRINCIPAL_ID_COL, coral::AttributeSpecification::typeNameForType<int>());
+  descr0.insertColumn( PRINCIPAL_NAME_COL, coral::AttributeSpecification::typeNameForType<std::string>(),columnSize,false);
+  descr0.insertColumn( VERIFICATION_COL, coral::AttributeSpecification::typeNameForType<std::string>(),columnSize,false);
+  descr0.insertColumn( PRINCIPAL_KEY_COL, coral::AttributeSpecification::typeNameForType<std::string>(),columnSize,false);
+  descr0.insertColumn( ADMIN_KEY_COL, coral::AttributeSpecification::typeNameForType<std::string>(),columnSize,false);
+  descr0.setNotNullConstraint( PRINCIPAL_ID_COL );
+  descr0.setNotNullConstraint( PRINCIPAL_NAME_COL );
+  descr0.setNotNullConstraint( VERIFICATION_COL );
+  descr0.setNotNullConstraint( PRINCIPAL_KEY_COL );
+  descr0.setNotNullConstraint( ADMIN_KEY_COL );
   std::vector<std::string> columnsUnique;
-  columnsUnique.push_back( PRINCIPAL_COLUMN);
-  columnsUnique.push_back( ROLE_COLUMN);
-  columnsUnique.push_back( CONNECTION_COLUMN );
-  descr.setUniqueConstraint( columnsUnique );
+  columnsUnique.push_back( PRINCIPAL_NAME_COL);
+  descr0.setUniqueConstraint( columnsUnique );
   std::vector<std::string> columnsForIndex;
-  columnsForIndex.push_back(ID_COLUMN);
-  descr.setPrimaryKey( columnsForIndex );
-  schema.createTable( descr );  
-  coralDb.session->transaction().commit();
+  columnsForIndex.push_back(PRINCIPAL_ID_COL);
+  descr0.setPrimaryKey( columnsForIndex );
+  schema.createTable( descr0 );
+
+  // authorization table
+  sequenceMgr.create( COND_AUTHORIZATION_TABLE );
+  coral::TableDescription descr1;
+  descr1.setName( COND_AUTHORIZATION_TABLE );
+  descr1.insertColumn( AUTH_ID_COL, coral::AttributeSpecification::typeNameForType<int>());
+  descr1.insertColumn( P_ID_COL, coral::AttributeSpecification::typeNameForType<int>());
+  descr1.insertColumn( ROLE_COL, coral::AttributeSpecification::typeNameForType<std::string>(),columnSize,false);
+  descr1.insertColumn( SCHEMA_COL, coral::AttributeSpecification::typeNameForType<std::string>(),columnSize,false);
+  descr1.insertColumn( AUTH_KEY_COL, coral::AttributeSpecification::typeNameForType<std::string>(),columnSize,false);
+  descr1.insertColumn( C_ID_COL, coral::AttributeSpecification::typeNameForType<int>());
+  descr1.setNotNullConstraint( AUTH_ID_COL );
+  descr1.setNotNullConstraint( P_ID_COL );
+  descr1.setNotNullConstraint( ROLE_COL );
+  descr1.setNotNullConstraint( SCHEMA_COL );
+  descr1.setNotNullConstraint( AUTH_KEY_COL );
+  descr1.setNotNullConstraint( C_ID_COL );
+  columnsUnique.clear();
+  columnsUnique.push_back( P_ID_COL);
+  columnsUnique.push_back( ROLE_COL);
+  columnsUnique.push_back( SCHEMA_COL);
+  descr1.setUniqueConstraint( columnsUnique );
+  columnsForIndex.clear();
+  columnsForIndex.push_back(AUTH_ID_COL);
+  descr1.setPrimaryKey( columnsForIndex );
+  schema.createTable( descr1 );
+
+  // credential table
+  sequenceMgr.create( COND_CREDENTIAL_TABLE );
+  coral::TableDescription descr2;
+  descr2.setName( COND_CREDENTIAL_TABLE );
+  descr2.insertColumn( CONNECTION_ID_COL, coral::AttributeSpecification::typeNameForType<int>());
+  descr2.insertColumn( CONNECTION_LABEL_COL, coral::AttributeSpecification::typeNameForType<std::string>(),columnSize,false);
+  descr2.insertColumn( USERNAME_COL, coral::AttributeSpecification::typeNameForType<std::string>(),columnSize,false);
+  descr2.insertColumn( PASSWORD_COL, coral::AttributeSpecification::typeNameForType<std::string>(),columnSize,false);
+  descr2.insertColumn( VERIFICATION_KEY_COL, coral::AttributeSpecification::typeNameForType<std::string>(),columnSize,false);
+  descr2.insertColumn( CONNECTION_KEY_COL, coral::AttributeSpecification::typeNameForType<std::string>(),columnSize,false);
+  descr2.setNotNullConstraint( CONNECTION_ID_COL );
+  descr2.setNotNullConstraint( CONNECTION_LABEL_COL );
+  descr2.setNotNullConstraint( USERNAME_COL );
+  descr2.setNotNullConstraint( PASSWORD_COL );
+  descr2.setNotNullConstraint( VERIFICATION_KEY_COL );
+  descr2.setNotNullConstraint( CONNECTION_KEY_COL );
+  columnsUnique.clear();
+  columnsUnique.push_back( CONNECTION_LABEL_COL);
+  descr2.setUniqueConstraint( columnsUnique );
+  columnsForIndex.clear();
+  columnsForIndex.push_back(CONNECTION_ID_COL);
+  descr2.setPrimaryKey( columnsForIndex );
+  schema.createTable( descr2 );
+
+  session.close();
   return true;
 }
 
 bool
-cond::CredentialStore::drop()
-{
-  CoralSession coralDb = openDatabase( false );
-  coralDb.session->transaction().start();
-  coral::ISchema& schema = coralDb.session->nominalSchema();
-  if(!schema.existsTable(TABLE_NAME)) {
-    coralDb.session->transaction().commit();
-    std::stringstream msg;
-    msg <<"Cannot drop credential database, a table named \"" << TABLE_NAME << "\" does not exists.";
-    throwException(msg.str(),"CredentialStore::drop");
-  }
-  schema.dropTable( TABLE_NAME );
-  coralDb.session->transaction().commit();
+cond::CredentialStore::drop( const std::string& connectionString, const std::string& userName, const std::string& password ) {
+  CSScopedSession session( *this );
+  session.startSuper( connectionString, userName, password );
+
+  coral::ISchema& schema = m_session->nominalSchema();
+  schema.dropIfExistsTable( COND_AUTHORIZATION_TABLE );
+  schema.dropIfExistsTable( COND_CREDENTIAL_TABLE );
+  schema.dropIfExistsTable( COND_AUTHENTICATION_TABLE );
+  session.close();
   return true;
 }
 
-
-bool
-cond::CredentialStore::update( const std::string& principal,
-			       const std::string& role,
-			       const std::string& connectionString,
-			       const std::string& userName,
-			       const std::string& password )
-{
-  CoralSession coralDb = openDatabase( false );
-  coralDb.session->transaction().start();
-  coral::ISchema& schema = coralDb.session->nominalSchema();
-  if(!schema.existsTable(TABLE_NAME)) {
-    coralDb.session->transaction().commit();
-    throwException( "Cannot find credential database.","CredentialStore::addEntry");
+bool cond::CredentialStore::installAdmin( const std::string& userName, const std::string& password ){
+  if(!m_serviceData){
+    throwException( "The credential store has not been initialized.","cond::CredentialStore::installAdmin" );    
   }
-  Cipher cipher( m_serviceKey->key );
-  std::string user = cipher.encrypt(userName);
-  std::string passwd = cipher.encrypt(password);
-  std::string conn = cipher.encrypt(connectionString);
+  const std::string& connectionString = m_serviceData->connectionString;
+  //const std::string& principalName = Auth::COND_ADMIN_GROUP;
+  const std::string& principalName = m_key.principalName();
 
-  coral::AttributeList readBuff;
-  readBuff.extend<std::string>(CONNECTION_COLUMN);
-  std::auto_ptr<coral::IQuery> query(schema.tableHandle(TABLE_NAME).newQuery());
-  coral::AttributeList whereData;
-  whereData.extend<std::string>(PRINCIPAL_COLUMN);
-  whereData.extend<std::string>(ROLE_COLUMN);
-  whereData.extend<std::string>(CONNECTION_COLUMN);
-  whereData[ PRINCIPAL_COLUMN ].data<std::string>() = principal;
-  whereData[ ROLE_COLUMN ].data<std::string>() = role;
-  whereData[ CONNECTION_COLUMN ].data<std::string>() = conn;
-  std::stringstream whereClause;
-  whereClause << PRINCIPAL_COLUMN << " = :"<<PRINCIPAL_COLUMN;
-  whereClause << " AND "<<ROLE_COLUMN << " = :"<<ROLE_COLUMN;
-  whereClause << " AND "<<CONNECTION_COLUMN << " = :"<<CONNECTION_COLUMN;
-  query->defineOutput(readBuff);
-  query->setCondition( whereClause.str(), whereData );
-  coral::ICursor& cursor = query->execute();
-  bool found = false;
-  std::string encodedConn("");
-  if ( cursor.next() ) {
-    found = true;
-  }
+  CSScopedSession session( *this );
+  session.startSuper( connectionString, userName, password  );
+
+  coral::ISchema& schema = m_session->nominalSchema();
+
+  PrincipalData princData;
+  bool found = selectPrincipal( schema, principalName, princData );
 
   if( found ){
-    coral::ITableDataEditor& updater = schema.tableHandle(TABLE_NAME).dataEditor();
-    coral::AttributeList dataBuffer;
-    dataBuffer.extend<std::string>( USERNAME_COLUMN );
-    dataBuffer.extend<std::string>( PASSWORD_COLUMN );
-    dataBuffer.extend<std::string>( PRINCIPAL_COLUMN );
-    dataBuffer.extend<std::string>( CONNECTION_COLUMN );
-    dataBuffer[ USERNAME_COLUMN ].data<std::string>() = user;
-    dataBuffer[ PASSWORD_COLUMN ].data<std::string>() = passwd;
-    dataBuffer[ PRINCIPAL_COLUMN ].data<std::string>() = principal;
-    dataBuffer[ CONNECTION_COLUMN ].data<std::string>() = conn;
-    std::string setClause = USERNAME_COLUMN+" = :"+USERNAME_COLUMN+", "+
-      PASSWORD_COLUMN+" = :"+PASSWORD_COLUMN;
-    std::string whereClause = PRINCIPAL_COLUMN+" = :"+PRINCIPAL_COLUMN+
-      " AND "+ ROLE_COLUMN+ " = :"+ROLE_COLUMN +
-      " AND "+ CONNECTION_COLUMN+" = :"+CONNECTION_COLUMN;
-    updater.updateRows( setClause,whereClause, dataBuffer );
-    coralDb.session->transaction().commit();
-    return true;
+    throwException("Admin group has been installed already.","CredentialStore::installAdmin");
   }
 
-  std::string connString = cipher.encrypt( connectionString );
-  std::string verifKey = cipher.encrypt(TABLE_NAME);
+  coral::ITableDataEditor& editor0 = schema.tableHandle(COND_AUTHENTICATION_TABLE).dataEditor();
 
   ora::SequenceManager sequenceMgr( SEQUENCE_TABLE_NAME,schema );
-  int next = sequenceMgr.getNextId( TABLE_NAME, true );
+  int principalId = sequenceMgr.getNextId( COND_AUTHENTICATION_TABLE, true );
+    
+  KeyGenerator gen;
+  std::string principalKey = gen.make( Auth::COND_DB_KEY_SIZE );
+  Cipher cipher0( m_key.principalKey() );
+  Cipher cipher1( principalKey );
 
-  coral::ITableDataEditor& inserter = schema.tableHandle(TABLE_NAME).dataEditor();
-  coral::AttributeList dataBuffer;
-  inserter.rowBuffer(dataBuffer);
-  dataBuffer[ ID_COLUMN ].data<int>() = next;
-  dataBuffer[ PRINCIPAL_COLUMN ].data<std::string>() = principal;
-  dataBuffer[ ROLE_COLUMN ].data<std::string>() = role;
-  dataBuffer[ CONNECTION_COLUMN ].data<std::string>() = conn;
-  dataBuffer[ USERNAME_COLUMN ].data<std::string>() = user;
-  dataBuffer[ PASSWORD_COLUMN ].data<std::string>() = passwd;
-  dataBuffer[ VERIFICATION_KEY_COLUMN ].data<std::string>() = verifKey;
-  inserter.insertRow( dataBuffer );
-  coralDb.session->transaction().commit();
-  return true;
-}
+  coral::AttributeList authData;
+  editor0.rowBuffer(authData);
+  authData[ PRINCIPAL_ID_COL ].data<int>() = principalId;
+  authData[ PRINCIPAL_NAME_COL ].data<std::string>() = principalName;
+  authData[ VERIFICATION_COL ].data<std::string>() = cipher0.b64encrypt( principalName );
+  authData[ PRINCIPAL_KEY_COL ].data<std::string>() = cipher0.b64encrypt( principalKey );
+  authData[ ADMIN_KEY_COL ].data<std::string>() = cipher1.b64encrypt( principalKey );
+  editor0.insertRow( authData );
 
-bool 
-cond::CredentialStore::remove( const std::string& principal, 
-			       const std::string& role,
-			       const std::string& connectionString ){
+  std::string connLabel = schemaLabel( m_serviceName, userName );
+  DecodingKey tmpKey;
+  std::string connectionKey = gen.make( Auth::COND_DB_KEY_SIZE );
+  std::string encryptedConnectionKey = cipher1.b64encrypt( connectionKey );    
+
+  Cipher cipher2( connectionKey );
+  std::string encryptedUserName = cipher2.b64encrypt( userName );
+  std::string encryptedPassword = cipher2.b64encrypt( password );
+  std::string encryptedLabel = cipher2.b64encrypt( connLabel );    
   
-  CoralSession coralDb = openDatabase( false );
-  coralDb.session->transaction().start();
-  coral::ISchema& schema = coralDb.session->nominalSchema();
-  if(!schema.existsTable(TABLE_NAME)) {
-    coralDb.session->transaction().commit(); 
-    throwException("Cannot find credential database.","CredentialStore::removeEntry");
-  }
-
-  Cipher cipher( m_serviceKey->key );
-  std::string connectionS = cipher.encrypt( connectionString );
-  coral::AttributeList dataBuff;
-  std::string condition = PRINCIPAL_COLUMN + " = :" + PRINCIPAL_COLUMN + " AND " +
-    ROLE_COLUMN+ " = :"+ROLE_COLUMN + " AND "+
-    CONNECTION_COLUMN + " = :" + CONNECTION_COLUMN;
-  dataBuff.extend<std::string>(PRINCIPAL_COLUMN);
-  dataBuff.extend<std::string>(ROLE_COLUMN);
-  dataBuff.extend<std::string>(CONNECTION_COLUMN);
-  dataBuff[PRINCIPAL_COLUMN].data<std::string>() = principal;
-  dataBuff[ROLE_COLUMN].data<std::string>() = role;
-  dataBuff[CONNECTION_COLUMN].data<std::string>() = connectionS;
-  schema.tableHandle(TABLE_NAME).dataEditor().deleteRows(condition,dataBuff);
-  coralDb.session->transaction().commit();
-  return true;
-}
-
-bool 
-cond::CredentialStore::removePrincipal( const std::string& principal ){
   
-  CoralSession coralDb = openDatabase( false );
-  coralDb.session->transaction().start();
-  coral::ISchema& schema = coralDb.session->nominalSchema();
-  if(!schema.existsTable(TABLE_NAME)) {
-    coralDb.session->transaction().commit();
-    throwException("Cannot find credential database.","CredentialStore::removeEntry");
-  }
+  int connId = sequenceMgr.getNextId( COND_CREDENTIAL_TABLE, true );
+    
+  coral::ITableDataEditor& editor1 = schema.tableHandle(COND_CREDENTIAL_TABLE).dataEditor();
+  coral::AttributeList connectionData;
+  editor1.rowBuffer(connectionData);
+  connectionData[ CONNECTION_ID_COL ].data<int>() = connId;
+  connectionData[ CONNECTION_LABEL_COL ].data<std::string>() = connLabel;
+  connectionData[ USERNAME_COL ].data<std::string>() = encryptedUserName;
+  connectionData[ PASSWORD_COL ].data<std::string>() = encryptedPassword;
+  connectionData[ VERIFICATION_KEY_COL ].data<std::string>() = encryptedLabel;
+  connectionData[ CONNECTION_KEY_COL ].data<std::string>() = encryptedConnectionKey;
+  editor1.insertRow( connectionData );
 
-  coral::AttributeList dataBuff;
-  std::string condition = PRINCIPAL_COLUMN + " = :" + PRINCIPAL_COLUMN;
-  dataBuff.extend<std::string>(PRINCIPAL_COLUMN);
-  dataBuff[PRINCIPAL_COLUMN].data<std::string>() = principal;
-  schema.tableHandle(TABLE_NAME).dataEditor().deleteRows(condition,dataBuff);
-  coralDb.session->transaction().commit();
+  int authId = sequenceMgr.getNextId( COND_AUTHORIZATION_TABLE, true );
+    
+  coral::ITableDataEditor& editor2 = schema.tableHandle(COND_AUTHORIZATION_TABLE).dataEditor();
+  coral::AttributeList permissionData;
+  editor2.rowBuffer(permissionData);
+  permissionData[ AUTH_ID_COL ].data<int>() = authId;
+  permissionData[ P_ID_COL ].data<int>() = principalId;
+  permissionData[ ROLE_COL ].data<std::string>() = Auth::COND_ADMIN_ROLE;
+  permissionData[ SCHEMA_COL ].data<std::string>() = connectionString;
+  permissionData[ AUTH_KEY_COL ].data<std::string>() = encryptedConnectionKey;
+  permissionData[ C_ID_COL ].data<int>() = connId;
+  editor2.insertRow( permissionData );
+
+  session.close();
   return true;
 }
 
-bool cond::CredentialStore::exportForPrincipal( const std::string& principal, 
-						coral_bridge::AuthenticationCredentialSet& destination ){
+bool cond::CredentialStore::updatePrincipal( const std::string& principalName, 
+					     const std::string& principalKey ){
+  CSScopedSession session( *this );
+  session.start( false  );
 
-  CoralSession coralDb = openDatabase( true );
-  coralDb.session->transaction().start( true );
-  coral::ISchema& schema = coralDb.session->nominalSchema();
-  if(!schema.existsTable(TABLE_NAME)) {
-    coralDb.session->transaction().commit();
-    throwException("Cannot find credential database.","CredentialStore::removeEntry");
+  coral::ISchema& schema = m_session->nominalSchema();
+
+  PrincipalData princData;
+  bool found = selectPrincipal( schema, principalName, princData );
+
+  Cipher adminCipher( m_principalKey );
+  Cipher cipher( principalKey );
+  std::string verifStr = cipher.b64encrypt( principalName );
+
+  coral::ITableDataEditor& editor = schema.tableHandle(COND_AUTHENTICATION_TABLE).dataEditor();
+  if( found ){
+    std::string principalKey = adminCipher.b64decrypt( princData.adminKey );
+    coral::AttributeList updateData;
+    updateData.extend<int>( PRINCIPAL_ID_COL );
+    updateData.extend<std::string>( VERIFICATION_COL );
+    updateData.extend<std::string>( PRINCIPAL_KEY_COL );
+    updateData[ PRINCIPAL_ID_COL ].data<int>() = princData.id;
+    updateData[ VERIFICATION_COL ].data<std::string>() = verifStr;
+    updateData[ PRINCIPAL_KEY_COL ].data<std::string>() = cipher.b64encrypt( principalKey );
+    std::stringstream setClause;
+    setClause << VERIFICATION_COL <<" = :" <<VERIFICATION_COL <<", ";
+    setClause << PRINCIPAL_KEY_COL << " = :" << PRINCIPAL_KEY_COL <<", ";
+    std::string whereClause = PRINCIPAL_ID_COL+" = :"+PRINCIPAL_ID_COL;
+    editor.updateRows( setClause.str(),whereClause, updateData );
+  } else {
+    KeyGenerator gen;
+    std::string principalKey = gen.make( Auth::COND_DB_KEY_SIZE );
+    ora::SequenceManager sequenceMgr( SEQUENCE_TABLE_NAME,schema );
+    int next = sequenceMgr.getNextId( COND_AUTHENTICATION_TABLE, true );
+    
+    coral::AttributeList insertData;
+    editor.rowBuffer(insertData);
+    insertData[ PRINCIPAL_ID_COL ].data<int>() = next;
+    insertData[ PRINCIPAL_NAME_COL ].data<std::string>() = principalName;
+    insertData[ VERIFICATION_COL ].data<std::string>() = verifStr;
+    insertData[ PRINCIPAL_KEY_COL ].data<std::string>() = cipher.b64encrypt( principalKey );;
+    insertData[ ADMIN_KEY_COL ].data<std::string>() = adminCipher.b64encrypt( principalKey );;
+    editor.insertRow( insertData );
   }
-  Cipher cipher( m_serviceKey->key );
+
+  session.close();
+  return true;
+}
+
+
+bool cond::CredentialStore::setPermission( const std::string& principal, 
+					   const std::string& role, 
+					   const std::string& connectionString, 
+					   const std::string& connectionLabel ){
+  CSScopedSession session( *this );
+  session.start( false  );
+
+  coral::ISchema& schema = m_session->nominalSchema();
+
+  PrincipalData princData;
+  bool found = selectPrincipal( schema, principal, princData );
+
+  if( ! found ){
+    std::string msg = "Principal \"" + principal + "\" does not exist in the database.";
+    throwException( msg, "CredentialStore::setPermission");
+  }
+
+  CredentialData credsData;
+  found = selectConnection( schema, connectionLabel, credsData );
+  
+  if( ! found ){
+    std::string msg = "Connection named \"" + connectionLabel + "\" does not exist in the database.";
+    throwException( msg, "CredentialStore::setPermission");
+  }
+
+  Cipher cipher( m_principalKey );
+  bool ret = setPermission( princData.id, cipher.b64decrypt( princData.adminKey), role, connectionString, credsData.id, cipher.b64decrypt( credsData.connectionKey ) );
+  session.close();
+  return ret;
+}
+
+bool cond::CredentialStore::unsetPermission( const std::string& principal, 
+					     const std::string& role, 
+					     const std::string& connectionString ){
+  CSScopedSession session( *this );
+  session.start( false  );
+  coral::ISchema& schema = m_session->nominalSchema();
+
+  PrincipalData princData;
+  bool found = selectPrincipal( schema, principal, princData );
+
+  if( ! found ){
+    std::string msg = "Principal \"" + principal + "\" does not exist in the database.";
+    throwException( msg, "CredentialStore::unsetPermission");
+  }
+
+  coral::ITableDataEditor& editor = schema.tableHandle(COND_AUTHENTICATION_TABLE).dataEditor();
+  coral::AttributeList deleteData;
+  deleteData.extend<int>( P_ID_COL );
+  deleteData.extend<std::string>( ROLE_COL );
+  deleteData.extend<std::string>( SCHEMA_COL );
+  deleteData[ P_ID_COL ].data<int>() = princData.id;
+  deleteData[ ROLE_COL ].data<std::string>() = role;
+  deleteData[ SCHEMA_COL ].data<std::string>() = connectionString;
+  std::stringstream whereClause;
+  whereClause << P_ID_COL+" = :"+P_ID_COL;
+  whereClause << " AND "<< ROLE_COL <<" = :"<<ROLE_COL;
+  whereClause << " AND "<< SCHEMA_COL <<" = :"<<SCHEMA_COL;
+  editor.deleteRows( whereClause.str(), deleteData );
+  session.close();
+  return true;
+}
+
+bool cond::CredentialStore::updateConnection( const std::string& connectionLabel, 
+					      const std::string& userName, 
+					      const std::string& password ){
+  CSScopedSession session( *this );
+  session.start( false  );
+
+  m_session->transaction().start();
+
+  updateConnection( connectionLabel,userName, password, true ); 
+
+  session.close();
+  return true;
+}
+
+bool cond::CredentialStore::removePrincipal( const std::string& principal ){
+  CSScopedSession session( *this );
+  session.start( false  );
+  coral::ISchema& schema = m_session->nominalSchema();
+
+  PrincipalData princData;
+  bool found = selectPrincipal( schema, principal, princData );
+
+  if( ! found ){
+    std::string msg = "Principal \"" + principal + "\" does not exist in the database.";
+    throwException( msg, "CredentialStore::removePrincipal");
+  }
+
+  coral::ITableDataEditor& editor0 = schema.tableHandle(COND_AUTHORIZATION_TABLE).dataEditor();
+
+  coral::AttributeList deleteData0;
+  deleteData0.extend<int>( P_ID_COL );
+  deleteData0[ P_ID_COL ].data<int>() = princData.id;
+  std::string whereClause0 = P_ID_COL+" = :"+P_ID_COL;
+  editor0.deleteRows( whereClause0 , deleteData0 );
+
+  coral::ITableDataEditor& editor1 = schema.tableHandle(COND_AUTHENTICATION_TABLE).dataEditor();
+
+  coral::AttributeList deleteData1;
+  deleteData1.extend<int>( PRINCIPAL_ID_COL );
+  deleteData1[ PRINCIPAL_ID_COL ].data<int>() = princData.id;
+  std::string whereClause1 = PRINCIPAL_ID_COL+" = :"+PRINCIPAL_ID_COL;
+  editor1.deleteRows( whereClause1 , deleteData1 );
+
+  session.close();
+  
+  return true;
+}
+
+bool cond::CredentialStore::removeConnection( const std::string& connectionLabel ){
+  CSScopedSession session( *this );
+  session.start( false  );
+  coral::ISchema& schema = m_session->nominalSchema();
+
+  CredentialData credsData;
+  bool found = selectConnection( schema, connectionLabel, credsData );
+
+  if( ! found ){
+    std::string msg = "Connection named \"" + connectionLabel + "\" does not exist in the database.";
+    throwException( msg, "CredentialStore::removeConnection");
+  }
+
+  coral::ITableDataEditor& editor0 = schema.tableHandle(COND_AUTHORIZATION_TABLE).dataEditor();
+
+  coral::AttributeList deleteData0;
+  deleteData0.extend<int>( C_ID_COL );
+  deleteData0[ C_ID_COL ].data<int>() = credsData.id;
+  std::string whereClause0 = C_ID_COL+" = :"+C_ID_COL;
+  editor0.deleteRows( whereClause0 , deleteData0 );
+
+  coral::ITableDataEditor& editor1 = schema.tableHandle(COND_CREDENTIAL_TABLE).dataEditor();
+
+  coral::AttributeList deleteData1;
+  deleteData1.extend<int>( CONNECTION_ID_COL );
+  deleteData1[ CONNECTION_ID_COL ].data<int>() = credsData.id;
+  std::string whereClause1 = CONNECTION_ID_COL+" = :"+CONNECTION_ID_COL;
+  editor1.deleteRows( whereClause1 , deleteData1 );
+
+  session.close();
+
+  return true;
+}
+
+bool cond::CredentialStore::selectForUser( coral_bridge::AuthenticationCredentialSet& destinationData ){
+  CSScopedSession session( *this );
+  session.start( true  );
+  coral::ISchema& schema = m_session->nominalSchema();
+
+  Cipher cipher( m_principalKey );
+
+  std::auto_ptr<coral::IQuery> query(schema.newQuery());
+  query->addToTableList(COND_AUTHORIZATION_TABLE, "AUTHO");
+  query->addToTableList(COND_CREDENTIAL_TABLE, "CREDS");
   coral::AttributeList readBuff;
-  readBuff.extend<std::string>(ROLE_COLUMN);
-  readBuff.extend<std::string>(CONNECTION_COLUMN);
-  readBuff.extend<std::string>(USERNAME_COLUMN);
-  readBuff.extend<std::string>(PASSWORD_COLUMN);
-  readBuff.extend<std::string>(VERIFICATION_KEY_COLUMN);
-  std::auto_ptr<coral::IQuery> query(schema.tableHandle(TABLE_NAME).newQuery());
+  readBuff.extend<std::string>("AUTHO."+ROLE_COL);
+  readBuff.extend<std::string>("AUTHO."+SCHEMA_COL);
+  readBuff.extend<std::string>("AUTHO."+AUTH_KEY_COL);
+  readBuff.extend<std::string>("CREDS."+CONNECTION_LABEL_COL);
+  readBuff.extend<std::string>("CREDS."+USERNAME_COL);
+  readBuff.extend<std::string>("CREDS."+PASSWORD_COL);
+  readBuff.extend<std::string>("CREDS."+VERIFICATION_KEY_COL);
   coral::AttributeList whereData;
-  whereData.extend<std::string>(PRINCIPAL_COLUMN);
-  whereData[PRINCIPAL_COLUMN].data<std::string>() = principal;
-  std::string condition = PRINCIPAL_COLUMN + " = :" + PRINCIPAL_COLUMN;
+  whereData.extend<int>(P_ID_COL);
+  whereData[ P_ID_COL ].data<int>() = m_principalId;
+  std::stringstream whereClause;
+  whereClause << "AUTHO."<< C_ID_COL << "="<<"CREDS."<<CONNECTION_ID_COL;
+  whereClause << " AND " << "AUTHO."<< P_ID_COL << " = :"<<P_ID_COL;
   query->defineOutput(readBuff);
-  query->addToOutputList( ROLE_COLUMN );
-  query->addToOutputList( CONNECTION_COLUMN );
-  query->addToOutputList( USERNAME_COLUMN );
-  query->addToOutputList( PASSWORD_COLUMN );
-  query->addToOutputList( VERIFICATION_KEY_COLUMN );
-  query->setCondition( condition , whereData );
+  query->addToOutputList( "AUTHO."+ROLE_COL );
+  query->addToOutputList( "AUTHO."+SCHEMA_COL );
+  query->addToOutputList( "AUTHO."+AUTH_KEY_COL );
+  query->addToOutputList( "CREDS."+CONNECTION_LABEL_COL );
+  query->addToOutputList( "CREDS."+USERNAME_COL );
+  query->addToOutputList( "CREDS."+PASSWORD_COL );
+  query->addToOutputList( "CREDS."+VERIFICATION_KEY_COL );
+  query->setCondition( whereClause.str(), whereData );
   coral::ICursor& cursor = query->execute();
-  bool ret = false;
   while ( cursor.next() ) {
     const coral::AttributeList& row = cursor.currentRow();
-    std::string role = row[ROLE_COLUMN].data<std::string>();
-    std::string connectionString = cipher.decrypt( row[CONNECTION_COLUMN].data<std::string>() );
-    std::string userName = cipher.decrypt( row[USERNAME_COLUMN].data<std::string>() );
-    std::string password = cipher.decrypt( row[PASSWORD_COLUMN].data<std::string>() );
-    std::string verifKey = cipher.decrypt( row[VERIFICATION_KEY_COLUMN].data<std::string>() );
-    if( verifKey == VERIFICATION_KEY ){
-      destination.registerCredentials( connectionString, role, userName, password );
-      ret = true;
-    }
+    const std::string& role = row[ "AUTHO."+ROLE_COL ].data<std::string>();
+    const std::string& connectionString = row[ "AUTHO."+SCHEMA_COL ].data<std::string>();
+    const std::string& encryptedAuthKey = row[ "AUTHO."+AUTH_KEY_COL ].data<std::string>();
+    const std::string& connectionLabel = row[ "CREDS."+CONNECTION_LABEL_COL ].data<std::string>();
+    const std::string& encryptedUserName = row[ "CREDS."+USERNAME_COL ].data<std::string>();
+    const std::string& encryptedPassword = row[ "CREDS."+PASSWORD_COL ].data<std::string>();
+    const std::string& encryptedLabel = row[ "CREDS."+VERIFICATION_KEY_COL ].data<std::string>();
+    std::string authKey = cipher.b64decrypt( encryptedAuthKey );
+    Cipher connCipher( authKey );
+    if( connCipher.b64decrypt( encryptedLabel ) == connectionLabel ){
+      destinationData.registerCredentials( connectionString, role, connCipher.b64decrypt( encryptedUserName ),  connCipher.b64decrypt( encryptedPassword ) );
+    } 
   }
-  coralDb.session->transaction().commit();
-  return ret;
+  session.close();
+  return true;
 }
 
-bool cond::CredentialStore::exportAll( coral_bridge::AuthenticationCredentialSet& destination ){
-  CoralSession coralDb = openDatabase( true );
-  coralDb.session->transaction().start( true );
-  coral::ISchema& schema = coralDb.session->nominalSchema();
-  if(!schema.existsTable(TABLE_NAME)) {
-    coralDb.session->transaction().commit();
-    throwException("Cannot find credential database.","CredentialStore::removeEntry");
-  }
-  Cipher cipher( m_serviceKey->key );
-  coral::AttributeList readBuff;
-  readBuff.extend<std::string>(PRINCIPAL_COLUMN);
-  readBuff.extend<std::string>(ROLE_COLUMN);
-  readBuff.extend<std::string>(CONNECTION_COLUMN);
-  readBuff.extend<std::string>(USERNAME_COLUMN);
-  readBuff.extend<std::string>(PASSWORD_COLUMN);
-  readBuff.extend<std::string>(VERIFICATION_KEY_COLUMN);
-  std::auto_ptr<coral::IQuery> query(schema.tableHandle(TABLE_NAME).newQuery());
-  query->defineOutput(readBuff);
-  coral::ICursor& cursor = query->execute();
-  bool ret = false;
-  const std::string& user = m_key.user();
-  coral_bridge::AuthenticationCredentialSet userSet;  
-  while ( cursor.next() ) {
-    const coral::AttributeList& row = cursor.currentRow();
-    std::string principal = row[PRINCIPAL_COLUMN].data<std::string>();
-    std::string role = row[ROLE_COLUMN].data<std::string>();
-    std::string connectionString = cipher.decrypt( row[CONNECTION_COLUMN].data<std::string>() );
-    std::string userName = cipher.decrypt( row[USERNAME_COLUMN].data<std::string>() );
-    std::string password = cipher.decrypt( row[PASSWORD_COLUMN].data<std::string>() );
-    std::string verifKey = cipher.decrypt( row[VERIFICATION_KEY_COLUMN].data<std::string>() );
-    if( !user.empty() && user == principal ){
-      if( verifKey == VERIFICATION_KEY ){
-	userSet.registerCredentials( connectionString, role, userName, password );
-	ret = true;
-      }
-    } else {
-      const std::set<std::string>& groups = m_key.groups();
-      std::set<std::string>::const_iterator iG = groups.find( principal );
-      if( iG != groups.end() && verifKey == VERIFICATION_KEY ){
-	destination.registerCredentials( connectionString, role, userName, password );
-	ret = true;
-      }
-    }
-  }
-  coralDb.session->transaction().commit();
-  destination.import( userSet );
-  return ret;
-}
+bool cond::CredentialStore::importForPrincipal( const std::string& principal, 
+						const coral_bridge::AuthenticationCredentialSet& dataSource ){
+  CSScopedSession session( *this );
+  session.start( false  );
+  coral::ISchema& schema = m_session->nominalSchema();
 
-bool
-cond::CredentialStore::importForPrincipal( const std::string& principal, const coral_bridge::AuthenticationCredentialSet& data ){
+  PrincipalData princData;
+  bool found = selectPrincipal( schema, principal, princData );
+
+  if( ! found ){
+    std::string msg = "Principal \"" + principal + "\" does not exist in the database.";
+    throwException( msg, "CredentialStore::importForPrincipal");
+  }
+
   bool imported = false;
-  //const std::map< std::string, coral::AuthenticationCredentials* >& defaults = data.defaultCredentials();
-  // for the moment only import the roles
-  const std::map< std::pair<std::string,std::string>, coral::AuthenticationCredentials* >& creds = data.data();
+  Cipher cipher( m_principalKey );
+
+  const std::map< std::pair<std::string,std::string>, coral::AuthenticationCredentials* >& creds = dataSource.data();
+  // first import the connections
   for( std::map< std::pair<std::string,std::string>, coral::AuthenticationCredentials* >::const_iterator iConn = creds.begin(); iConn != creds.end(); ++iConn ){
     const std::string& connectionString = iConn->first.first;
     const std::string& role = iConn->first.second;
     std::string userName = iConn->second->valueForItem( coral::IAuthenticationCredentials::userItem() );
     std::string password = iConn->second->valueForItem( coral::IAuthenticationCredentials::passwordItem());
-    update( principal, role, connectionString, userName, password ); 
+    std::pair<int,std::string> conn = updateConnection( schemaLabel( m_serviceName, userName ), userName, password, false );
+    setPermission( princData.id, cipher.b64decrypt( princData.adminKey), role, connectionString, conn.first, conn.second );
     imported = true;
   }
+  session.close();  
   return imported;
+}
+
+bool cond::CredentialStore::listPrincipals( std::vector<std::string>& destination ){
+
+  CSScopedSession session( *this );
+  session.start( true  );
+  coral::ISchema& schema = m_session->nominalSchema();
+
+  std::auto_ptr<coral::IQuery> query(schema.tableHandle(COND_AUTHENTICATION_TABLE).newQuery());
+  coral::AttributeList readBuff;
+  readBuff.extend<std::string>(PRINCIPAL_NAME_COL);
+  query->defineOutput(readBuff);
+  query->addToOutputList( PRINCIPAL_NAME_COL );
+  coral::ICursor& cursor = query->execute();
+  bool found = false;
+  while ( cursor.next() ) {
+    found = true;
+    const coral::AttributeList& row = cursor.currentRow();
+    destination.push_back( row[ PRINCIPAL_NAME_COL ].data<std::string>() );
+  }
+  session.close();    
+  return found;
+}
+
+
+bool cond::CredentialStore::listConnections( std::map<std::string,std::pair<std::string,std::string> >& destination ){
+  CSScopedSession session( *this );
+  session.start( true  );
+  coral::ISchema& schema = m_session->nominalSchema();
+
+  std::auto_ptr<coral::IQuery> query(schema.tableHandle(COND_CREDENTIAL_TABLE).newQuery());
+  coral::AttributeList readBuff;
+  readBuff.extend<std::string>( CONNECTION_LABEL_COL );
+  readBuff.extend<std::string>( USERNAME_COL );
+  readBuff.extend<std::string>( PASSWORD_COL );
+  readBuff.extend<std::string>( VERIFICATION_KEY_COL );
+  readBuff.extend<std::string>( CONNECTION_KEY_COL );
+  query->defineOutput(readBuff);
+  query->addToOutputList( CONNECTION_LABEL_COL );
+  query->addToOutputList( USERNAME_COL );
+  query->addToOutputList( PASSWORD_COL );
+  query->addToOutputList( VERIFICATION_KEY_COL );
+  query->addToOutputList( CONNECTION_KEY_COL );
+  coral::ICursor& cursor = query->execute();
+  bool found = false;
+  Cipher cipher0(m_principalKey );
+  while ( cursor.next() ) {
+    std::string userName("");
+    std::string password("");
+    const coral::AttributeList& row = cursor.currentRow();
+    const std::string& connLabel = row[ CONNECTION_LABEL_COL].data<std::string>();
+    const std::string& encryptedKey = row[ CONNECTION_KEY_COL].data<std::string>();
+    const std::string& encryptedVerif = row[ VERIFICATION_KEY_COL].data<std::string>();
+    std::string connKey = cipher0.b64decrypt( encryptedKey );
+    Cipher cipher1( connKey );
+    std::string verif = cipher1.b64decrypt( encryptedVerif );
+    if( verif == connLabel ){
+      const std::string& encryptedUserName = row[ USERNAME_COL].data<std::string>();
+      const std::string& encryptedPassword = row[ PASSWORD_COL].data<std::string>();
+      userName = cipher1.b64decrypt( encryptedUserName );
+      password = cipher1.b64decrypt( encryptedPassword );
+    }
+    destination.insert( std::make_pair( connLabel, std::make_pair( userName, password ) ) );
+    found = true;
+  }
+  session.close();    
+  return found;
+}
+
+bool cond::CredentialStore::selectPermissions( const std::string& principalName, 
+					       const std::string& role, 
+					       const std::string& connectionString, 
+					       std::vector<Permission>& destination ){
+  CSScopedSession session( *this );
+  session.start( true  );
+  coral::ISchema& schema = m_session->nominalSchema();
+  std::auto_ptr<coral::IQuery> query(schema.newQuery());
+  query->addToTableList(COND_AUTHENTICATION_TABLE, "AUTHE");
+  query->addToTableList(COND_AUTHORIZATION_TABLE, "AUTHO");
+  query->addToTableList(COND_CREDENTIAL_TABLE, "CREDS");
+  coral::AttributeList readBuff;
+  readBuff.extend<std::string>("AUTHE."+PRINCIPAL_NAME_COL);
+  readBuff.extend<std::string>("AUTHO."+ROLE_COL);
+  readBuff.extend<std::string>("AUTHO."+SCHEMA_COL);
+  readBuff.extend<std::string>("CREDS."+CONNECTION_LABEL_COL);
+  coral::AttributeList whereData;
+  std::stringstream whereClause;
+  whereClause << "AUTHE."<< PRINCIPAL_ID_COL << "= AUTHO."<< P_ID_COL;
+  whereClause << " AND AUTHO."<< C_ID_COL << "="<<"CREDS."<<CONNECTION_ID_COL;
+  if( !principalName.empty() ){
+    whereData.extend<std::string>(PRINCIPAL_NAME_COL);
+    whereData[ PRINCIPAL_NAME_COL ].data<std::string>() = principalName;
+    whereClause << " AND AUTHE."<< PRINCIPAL_NAME_COL <<" = :"<<PRINCIPAL_NAME_COL;
+  }
+  if( !role.empty() ){
+    whereData.extend<std::string>(ROLE_COL);
+    whereData[ ROLE_COL ].data<std::string>() = role;
+    whereClause << " AND AUTHO."<< ROLE_COL <<" = :"<<ROLE_COL;
+  }
+  if( !connectionString.empty() ){
+    whereData.extend<std::string>(SCHEMA_COL);
+    whereData[ SCHEMA_COL ].data<std::string>() = connectionString;
+    whereClause << " AND AUTHO."<< SCHEMA_COL <<" = :"<<SCHEMA_COL;
+  }
+  
+  query->defineOutput(readBuff);
+  query->addToOutputList( "AUTHE."+PRINCIPAL_NAME_COL );
+  query->addToOutputList( "AUTHO."+ROLE_COL );
+  query->addToOutputList( "AUTHO."+SCHEMA_COL );
+  query->addToOutputList( "CREDS."+CONNECTION_LABEL_COL );
+  query->setCondition( whereClause.str(), whereData );
+  coral::ICursor& cursor = query->execute();
+  bool found = false;
+  while ( cursor.next() ) {
+    const coral::AttributeList& row = cursor.currentRow();
+    destination.resize( destination.size()+1 );
+    Permission& perm = destination.back();
+    perm.principalName = row[ "AUTHE."+PRINCIPAL_NAME_COL ].data<std::string>();
+    perm.role = row[ "AUTHO."+ROLE_COL ].data<std::string>();
+    perm.connectionString = row[ "AUTHO."+SCHEMA_COL ].data<std::string>();
+    perm.connectionLabel = row[ "CREDS."+CONNECTION_LABEL_COL ].data<std::string>();
+    found = true;
+  }
+  session.close();
+  return found;  
+}
+
+bool cond::CredentialStore::exportAll( coral_bridge::AuthenticationCredentialSet& data ){
+  CSScopedSession session( *this );
+  session.start( true  );
+  coral::ISchema& schema = m_session->nominalSchema();
+  std::auto_ptr<coral::IQuery> query(schema.newQuery());
+  query->addToTableList(COND_AUTHORIZATION_TABLE, "AUTHO");
+  query->addToTableList(COND_CREDENTIAL_TABLE, "CREDS");
+  coral::AttributeList readBuff;
+  readBuff.extend<std::string>("AUTHO."+ROLE_COL);
+  readBuff.extend<std::string>("AUTHO."+SCHEMA_COL);
+  readBuff.extend<std::string>("CREDS."+CONNECTION_LABEL_COL);
+  readBuff.extend<std::string>("CREDS."+VERIFICATION_KEY_COL);
+  readBuff.extend<std::string>("CREDS."+CONNECTION_KEY_COL);
+  readBuff.extend<std::string>("CREDS."+USERNAME_COL);
+  readBuff.extend<std::string>("CREDS."+PASSWORD_COL);
+  coral::AttributeList whereData;
+  std::stringstream whereClause;
+  whereClause << "AUTHO."<< C_ID_COL << "="<<"CREDS."<<CONNECTION_ID_COL;
+  
+  query->defineOutput(readBuff);
+  query->addToOutputList( "AUTHO."+ROLE_COL );
+  query->addToOutputList( "AUTHO."+SCHEMA_COL );
+  query->addToOutputList( "CREDS."+CONNECTION_LABEL_COL );
+  query->addToOutputList( "CREDS."+VERIFICATION_KEY_COL );
+  query->addToOutputList( "CREDS."+CONNECTION_KEY_COL );
+  query->addToOutputList( "CREDS."+USERNAME_COL );
+  query->addToOutputList( "CREDS."+PASSWORD_COL );
+  query->setCondition( whereClause.str(), whereData );
+  coral::ICursor& cursor = query->execute();
+  bool found = false;
+  Cipher cipher0( m_principalKey );
+  while ( cursor.next() ) {
+    const coral::AttributeList& row = cursor.currentRow();
+    const std::string& role = row[ "AUTHO."+ROLE_COL ].data<std::string>();
+    const std::string& connectionString = row[ "AUTHO."+SCHEMA_COL ].data<std::string>();
+    const std::string& connectionLabel = row[ "CREDS."+CONNECTION_LABEL_COL ].data<std::string>();
+    const std::string& encryptedVerifKey = row[ "CREDS."+VERIFICATION_KEY_COL ].data<std::string>();
+    const std::string& encryptedConnection = row[ "CREDS."+CONNECTION_KEY_COL ].data<std::string>();
+    std::string userName("");
+    std::string password("");
+    std::string connectionKey = cipher0.b64decrypt( encryptedConnection );
+    Cipher cipher1( connectionKey );
+    std::string verifKey = cipher1.b64decrypt( encryptedVerifKey );
+    if( verifKey == connectionLabel ){
+      const std::string& encryptedUserName = row[ "CREDS."+USERNAME_COL].data<std::string>();
+      const std::string& encryptedPassword = row[ "CREDS."+PASSWORD_COL].data<std::string>();
+      userName = cipher1.b64decrypt( encryptedUserName );
+      password = cipher1.b64decrypt( encryptedPassword );
+    }
+    data.registerCredentials( connectionString, role, userName, password );
+    found = true;
+  }
+  session.close();
+  return found;  
 }
 

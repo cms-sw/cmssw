@@ -1,19 +1,21 @@
+#include "CondCore/DBCommon/interface/DecodingKey.h"
 #include "CondCore/DBCommon/interface/Cipher.h"
 #include <iostream>
 
 int main(){
-  std::string key("ABCDdfyfyfugugugudddrsfgrdfddfffgfgfgglsdsdsdsedgueduehciljhcowjcodcjwdcjdojjdedoedqpwns]ppwlmmzpwmsad");
-  std::string mystring("0123456789abcdefghijklmnopqrstuvwxyzABCDEFG");
-  cond::Cipher cipher( key );
-  std::string en = cipher.encrypt( mystring );
-  unsigned char A = '/';
-  unsigned char a_ = '9';
-  unsigned char at = '8';
-  std::cout <<"### slash="<<(int)A<<" 9="<<(int)a_<<" +="<<(int)at<<std::endl;
-  std::cout <<"### String=\""<<mystring<<"\" en="<<en<<std::endl;
-  std::string de = cipher.decrypt( en );
-  std::cout <<"### decr=\""<<de<<"\" "<<std::endl;  
-  cipher.test();
-  //delete [] en;
-  return 0;
+  cond::KeyGenerator gen;
+  for( unsigned int i = 0; i<200; i++ ){
+    
+    std::string word = gen.makeWithRandomSize( 200 );
+    std::string k = gen.makeWithRandomSize( 100 );
+    cond::Cipher cipher0( k );
+    std::string encr = cipher0.b64encrypt( word );
+    cond::Cipher cipher1( k );
+    std::string decr = cipher1.b64decrypt( encr );
+    if( word != decr ){
+      std::cout <<"##### Error: encoded ["<<word<<"] (size="<<word.size()<<") with key="<<k<<"; decoded=["<<decr<<"] (size="<<decr.size()<<") "<<std::endl;
+    } else {
+      std::cout <<"TEST OK: encoded size "<<word.size()<<" with key size="<<k.size()<<std::endl;
+    }
+  }
 }

@@ -5,6 +5,7 @@
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/TagInfo.h"
 #include "CondCore/DBCommon/interface/IOVInfo.h"
+#include "CondCore/DBCommon/interface/Auth.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -70,7 +71,7 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
 
   m_connectionString = iConfig.getParameter<std::string>("connect");
   m_session = connection.createSession();
-  m_session.open( m_connectionString );  
+  m_session.open( m_connectionString, Auth::COND_WRITER_ROLE );  
   
   if( iConfig.exists("logconnect") ){
     m_logConnectionString = iConfig.getUntrackedParameter<std::string>("logconnect");

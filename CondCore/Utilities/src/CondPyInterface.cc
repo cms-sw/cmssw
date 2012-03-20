@@ -236,8 +236,8 @@ namespace cond {
 
   void RDBMS::setLogger(std::string const & connstr) {
     DbSession loggerSession = connection->createSession();
-    loggerSession.open( connstr, true );
     logger.reset(new cond::Logger(loggerSession));
+    logger->connect( connstr, true );
   }
 
 

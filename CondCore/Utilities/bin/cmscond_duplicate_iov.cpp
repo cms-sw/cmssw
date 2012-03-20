@@ -2,6 +2,7 @@
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/Auth.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 
 #include "CondCore/IOVService/interface/IOVEditor.h"
@@ -61,7 +62,7 @@ int cond::DuplicateIOVUtilities::execute(){
   std::string usertext("no user comments");
   if( hasOptionValue("usertext")) usertext = getOptionValue<std::string>("usertext");
   
-  cond::DbSession destDb = openDbSession( "connect" );
+  cond::DbSession destDb = openDbSession( "connect", Auth::COND_WRITER_ROLE );
 
   std::string iovToken("");
   std::string destIovToken("");
@@ -119,7 +120,7 @@ int cond::DuplicateIOVUtilities::execute(){
   // setup logDB and write on it...
   if (doLog){
     std::auto_ptr<cond::Logger> logdb;
-    cond::DbSession logSession = openDbSession( "logDB" );
+    cond::DbSession logSession = openDbSession( "logDB", Auth::COND_WRITER_ROLE );
     logdb.reset(new cond::Logger( logSession ));
     logdb->createLogDBIfNonExist();
 

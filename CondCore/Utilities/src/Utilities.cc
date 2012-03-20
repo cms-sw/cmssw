@@ -15,6 +15,9 @@
 #include <boost/foreach.hpp>                   
 #include <fstream>
 
+#include "CondCore/DBCommon/interface/Auth.h"
+
+
 cond::UtilitiesError::UtilitiesError(const std::string& message ):Exception(message){
 }
 cond::UtilitiesError::~UtilitiesError() throw(){}
@@ -253,11 +256,13 @@ void cond::Utilities::initializeForDbConnection(){
   
 }
 
-cond::DbSession cond::Utilities::openDbSession( const std::string& connectionParameterName, bool readOnly ){
+cond::DbSession cond::Utilities::openDbSession( const std::string& connectionParameterName, 
+						const std::string& role, 
+						bool readOnly ){
   initializeForDbConnection();
   std::string connectionString = getOptionValue<std::string>( connectionParameterName );
   cond::DbSession session = m_dbConnection->createSession();
-  session.open( connectionString, readOnly );
+  session.open( connectionString, role, readOnly );
   return session;
 }
 

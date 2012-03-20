@@ -1,6 +1,7 @@
 //#include "CondCore/DBCommon/interface/DecodingKey.h"
 #include "CondCore/DBCommon/interface/FileUtils.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/Auth.h"
 #include "RelationalAccess/AuthenticationCredentials.h"
 #include "CoralCommon/Cipher.h"
 #include "RelationalAccess/AuthenticationServiceException.h"
@@ -92,11 +93,11 @@ cond::XMLAuthenticationService::XMLAuthenticationService::XMLAuthenticationServi
     m_mutexLock(),
     m_callbackID(0)
 {
-  boost::function1<void, std::string> cb(boost::bind(&cond::XMLAuthenticationService::XMLAuthenticationService::setInputFileName, this, _1));
+  boost::function1<void, std::string> cb(boost::bind(&cond::XMLAuthenticationService::XMLAuthenticationService::setAuthenticationPath, this, _1));
        
-  coral::Property* pm = dynamic_cast<coral::Property*>(coral::Context::instance().PropertyManager().property("AuthenticationFile"));
+  coral::Property* pm = dynamic_cast<coral::Property*>(coral::Context::instance().PropertyManager().property(Auth::COND_AUTH_PATH_PROPERTY));
   if(pm){
-    m_inputFileName = pm->get();
+    setAuthenticationPath( pm->get() );
     m_callbackID = pm->registerCallback(cb);
   } 
 }
@@ -108,9 +109,14 @@ cond::XMLAuthenticationService::XMLAuthenticationService::~XMLAuthenticationServ
 }
 
 void
-cond::XMLAuthenticationService::XMLAuthenticationService::setInputFileName(  const std::string& inputFileName )
+cond::XMLAuthenticationService::XMLAuthenticationService::setAuthenticationPath(  const std::string& inputPath )
 {
-  m_inputFileName = inputFileName;
+  boost::filesystem::path boostAuthPath( inputPath );
+  if(boost::filesystem::is_directory(boostAuthPath)){
+    boostAuthPath /= boost::filesystem::path(XML_AUTHENTICATION_FILE);      
+  }
+
+  m_inputFileName = boostAuthPath.string();
   reset();
 }
 

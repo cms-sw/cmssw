@@ -1,6 +1,7 @@
 #include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/Auth.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
@@ -78,7 +79,7 @@ int cond::LoadIOVUtilities::execute(){
   if( !okFile ) throw UtilitiesError("The input file is not in the expected format.");  
   std::string iovtoken("");
 
-  cond::DbSession session = openDbSession("connect");
+  cond::DbSession session = openDbSession("connect", Auth::COND_WRITER_ROLE );
   cond::DbScopedTransaction transaction(session);
   transaction.start(false);
 

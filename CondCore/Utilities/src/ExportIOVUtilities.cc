@@ -4,6 +4,7 @@
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/Auth.h"
 
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
@@ -71,8 +72,8 @@ int cond::ExportIOVUtilities::execute(){
   bool newIOV = true;
   cond::TimeType sourceIovType;
 
-  cond::DbSession sourceDb = openDbSession("sourceConnect", true);
-  cond::DbSession destDb = openDbSession("destConnect");
+  cond::DbSession sourceDb = openDbSession("sourceConnect", Auth::COND_READER_ROLE, true);
+  cond::DbSession destDb = openDbSession("destConnect", Auth::COND_WRITER_ROLE );
     
   std::auto_ptr<cond::Logger> logDb;
   cond::DbSession logSession;
@@ -83,7 +84,7 @@ int cond::ExportIOVUtilities::execute(){
   int ncopied = 0;
   cond::UserLogInfo a;
   if (doLog) {
-    logSession = openDbSession( "logDB");
+    logSession = openDbSession( "logDB",Auth::COND_WRITER_ROLE );
     logDb.reset(new cond::Logger(logSession));
     logDb->createLogDBIfNonExist();
     a.provenance=sourceConnect+"/"+inputTag;

@@ -110,7 +110,7 @@ namespace cond {
 
     public:
       /// Sets the input file name 
-      void setInputFileName(  const std::string& inputFileName );
+      void setAuthenticationPath(  const std::string& inputPath );
 
     private:
       /// Service framework related initialization

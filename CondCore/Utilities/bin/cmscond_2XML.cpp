@@ -3,6 +3,7 @@
 #include "CondCore/ORA/interface/Object.h"
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/Auth.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 
 #include "CondCore/DBCommon/interface/Time.h"
@@ -44,7 +45,7 @@ cond::XMLUtilities::~XMLUtilities(){
 int cond::XMLUtilities::execute(){
   initializePluginManager();
   
-  cond::DbSession session = openDbSession( "connect", true );
+  cond::DbSession session = openDbSession( "connect", Auth::COND_READER_ROLE, true );
 
   std::string tag = getOptionValue<std::string>("tag");
   cond::MetaData metadata_svc(session);

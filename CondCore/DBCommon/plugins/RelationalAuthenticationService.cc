@@ -23,13 +23,29 @@
 
 cond::RelationalAuthenticationService::RelationalAuthenticationService::RelationalAuthenticationService( const std::string& key )
   : coral::Service( key ),
+    m_authenticationPath(""),
     m_db(),
-    m_cache()
+    m_cache(),
+    m_callbackID(0)
 {
+  boost::function1<void, std::string> cb(boost::bind(&cond::RelationalAuthenticationService::RelationalAuthenticationService::setAuthenticationPath, this, _1));
+       
+  coral::Property* pm = dynamic_cast<coral::Property*>(coral::Context::instance().PropertyManager().property(Auth::COND_AUTH_PATH_PROPERTY));
+  if(pm){
+    setAuthenticationPath( pm->get() );
+    m_callbackID = pm->registerCallback(cb);
+  } 
 }
 
 cond::RelationalAuthenticationService::RelationalAuthenticationService::~RelationalAuthenticationService()
 {
+}
+
+void
+cond::RelationalAuthenticationService::RelationalAuthenticationService::setAuthenticationPath(  const std::string& inputPath )
+{
+  m_authenticationPath = inputPath;
+  m_cache.reset();
 }
 
 const coral::IAuthenticationCredentials&
@@ -37,8 +53,8 @@ cond::RelationalAuthenticationService::RelationalAuthenticationService::credenti
 {
   const coral::IAuthenticationCredentials* creds = m_cache.get( connectionString );
   if( !creds ){
-    m_db.setUpForConnectionString( connectionString );
-    m_db.exportAll( m_cache );
+    m_db.setUpForConnectionString( connectionString, m_authenticationPath );
+    m_db.selectForUser( m_cache );
   } 
   creds = m_cache.get( connectionString );
   if( ! creds ){
@@ -55,8 +71,8 @@ cond::RelationalAuthenticationService::RelationalAuthenticationService::credenti
 {
   const coral::IAuthenticationCredentials* creds = m_cache.get( connectionString, role );
   if( !creds ){
-    m_db.setUpForConnectionString( connectionString );
-    m_db.exportAll( m_cache );
+    m_db.setUpForConnectionString( connectionString, m_authenticationPath );
+    m_db.selectForUser( m_cache );
   } 
   creds = m_cache.get( connectionString, role );
   if( ! creds ){

@@ -2,6 +2,7 @@
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/Logger.h"
+#include "CondCore/DBCommon/interface/Auth.h"
 #include "CondCore/Utilities/interface/Utilities.h"
 #include <iostream>
 
@@ -27,7 +28,7 @@ int cond::SchemaLogDbUtilities::execute(){
 
   bool createSchema= hasOptionValue("create");
   
-  cond::DbSession session = openDbSession("connect");
+  cond::DbSession session = openDbSession("connect", Auth::COND_ADMIN_ROLE );
 
   cond::Logger logger(session);
 

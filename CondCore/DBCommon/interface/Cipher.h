@@ -15,21 +15,20 @@ namespace cond {
 
     ~Cipher();
 
-    //std::pair<char*,size_t> encrypt( const std::string& input );
+    size_t encrypt( const std::string& input, unsigned char*& output );
 
-    //std::string decrypt( const char* input,size_t sz );
-    std::string encrypt( const std::string& input );
+    std::string decrypt( const unsigned char* input, size_t inputSize );
 
-    std::string decrypt( const std::string& input );
+    std::string b64encrypt( const std::string& input );
 
-    void bencrypt( const std::string& input, std::ostream& out );
-
-    std::string bdecrypt( std::istream& input );
-
-    void test();
+    std::string b64decrypt( const std::string& input );
 
   private:
+
+    size_t bf_process_alloc( const unsigned char* input, size_t input_size, unsigned char*& output, bool decrypt=false );
     
+  private:
+
     BLOWFISH_CTX* m_ctx;
   };
 

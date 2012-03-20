@@ -1,6 +1,7 @@
 //local includes
 #include "CondCore/DBCommon/interface/DbConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/CoralServiceManager.h"
+#include "CondCore/DBCommon/interface/Auth.h"
 // CMSSW includes
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 // coral includes
@@ -10,7 +11,6 @@
 #include "CoralKernel/IPropertyManager.h"
 // externals
 #include <boost/filesystem/operations.hpp>
-
 
 std::vector<cond::DbConnectionConfiguration>&
 cond::DbConnectionConfiguration::defaultConfigurations(){
@@ -198,20 +198,34 @@ void cond::DbConnectionConfiguration::configure( coral::IConnectionServiceConfig
 {
   // message streaming
   coral::MessageStream::setMsgVerbosity( m_messageLevel );
-  // authentication
   std::string authServiceName("CORAL/Services/EnvironmentAuthenticationService");
-  if( !m_authPath.empty() )
-  {
-    authServiceName = "COND/Services/XMLAuthenticationService";
-    boost::filesystem::path boostAuthPath( m_authPath );
-    if(boost::filesystem::is_directory(boostAuthPath))
-    {
-      boostAuthPath /= boost::filesystem::path("authentication.xml");      
+  std::string authPath = m_authPath;
+  // authentication
+  if( authPath.empty() ){
+    // first try to check the env...
+    const char* authEnv = ::getenv( Auth::COND_AUTH_PATH );
+    if(authEnv){
+      authPath += authEnv;
+    } 
+  }
+  const char* authSys = ::getenv( Auth::COND_AUTH_SYS );
+  std::string servName("");
+  if( authSys ){
+    if( authPath.empty() ){
+      const char* authEnv = ::getenv("HOME");
+      if(authEnv){
+	authPath += authEnv;
+      } 
     }
-    std::string authFileName = boostAuthPath.string();
-    coral::Context::instance().PropertyManager().property("AuthenticationFile")->set(authFileName);
+    servName = "COND/Services/RelationalAuthenticationService";
+  } else {
+    servName = "COND/Services/XMLAuthenticationService";  
+  }
+  if( !authPath.empty() ){
+    authServiceName = servName;    
+    coral::Context::instance().PropertyManager().property(Auth::COND_AUTH_PATH_PROPERTY)->set(authPath);  
     coral::Context::instance().loadComponent( authServiceName, m_pluginManager );
-   }
+  } 
   coralConfig.setAuthenticationService( authServiceName );
   // connection sharing
   if(m_connectionSharing.first)

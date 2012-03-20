@@ -20,11 +20,8 @@ namespace coral {
 
 namespace coral_bridge {
 
-  class AuthenticationCredentialSet
-  {
-  public:
+  class AuthenticationCredentialSet {
 
-    static const std::string DEFAULT_ROLE;
   public:
     /// Constructor
     AuthenticationCredentialSet();
@@ -66,6 +63,8 @@ namespace coral_bridge {
 
     const std::map< std::pair<std::string,std::string>, coral::AuthenticationCredentials* >& data() const ;
 
+    void reset();
+
   private:
     /// credentials for the specific roles 
     std::map< std::pair<std::string,std::string>, coral::AuthenticationCredentials* > m_data;
@@ -78,6 +77,8 @@ namespace cond {
 
   class Cipher;
 
+  std::string schemaLabel( const std::string& serviceName, const std::string& userName );
+    
   //
   class CredentialStore {
 
@@ -95,51 +96,76 @@ namespace cond {
   public:
 
     /// Sets the initialization parameters
-    void setUpForService( const std::string& serviceName );
+    void setUpForService( const std::string& serviceName, const std::string& authPath );
 
-    void setUpForConnectionString( const std::string& connectionString );
+    void setUpForConnectionString( const std::string& connectionString, const std::string& authPath );
     
-    bool createSchema( );
+    bool createSchema( const std::string& connectionString, const std::string& userName, const std::string& password );
 
-    bool drop( );
+    bool drop( const std::string& connectionString, const std::string& userName, const std::string& password );
 
-    /// add a credential entry into the repository
-    bool update( const std::string& principal, 
-		 const std::string& role,
-		 const std::string& connectionString,  
-		 const std::string& userName, const std::string& password );
-    
-    /// remove a credential entry from the repository
-    bool remove( const std::string& principal, 
-		 const std::string& role,
-		 const std::string& connectionString );
-    
-    /// remove a credential entry from the repository
+    bool installAdmin( const std::string& userName, const std::string& password );
+
+    bool updatePrincipal( const std::string& principal, const std::string& principalKey );
+
+    bool setPermission( const std::string& principal, const std::string& role, const std::string& connectionString, const std::string& connectionLabel );
+
+    bool unsetPermission( const std::string& principal, const std::string& role, const std::string& connectionString );
+
+    bool updateConnection( const std::string& connectionLabel, const std::string& userName, const std::string& password  );
+
     bool removePrincipal( const std::string& principal );
 
-    bool exportForPrincipal( const std::string& principal, coral_bridge::AuthenticationCredentialSet& destinationData );
-    
-    /// import/export data 
+    bool removeConnection( const std::string& connectionLabel );
+
+    bool selectForUser( coral_bridge::AuthenticationCredentialSet& destinationData );
+
+    /// import data 
     bool importForPrincipal( const std::string& principal, const coral_bridge::AuthenticationCredentialSet& data );    
 
-    bool exportAll( coral_bridge::AuthenticationCredentialSet& destinationData );
-    
-    private:
-    struct CoralSession {
-      boost::shared_ptr<coral::IConnection> connection;
-      boost::shared_ptr<coral::ISession> session;
-      ~CoralSession();
+    bool listPrincipals( std::vector<std::string>& destination );
+
+    bool listConnections( std::map<std::string,std::pair<std::string,std::string> >& destination );
+
+    struct Permission {
+      std::string principalName;
+      std::string role;
+      std::string connectionString;
+      std::string connectionLabel;
     };
+    bool selectPermissions( const std::string& principalName, const std::string& role, const std::string& connectionString, std::vector<Permission>& destination );
 
-    CoralSession openDatabase( bool readMode );
-    
+    bool exportAll( coral_bridge::AuthenticationCredentialSet& data );
+
     private:
 
-    const ServiceKey* m_serviceKey;
+    friend class CSScopedSession;
 
-    /// The cipher
-    DecodingKey m_key;
+    std::pair<std::string,std::string> openConnection( const std::string& connectionString );
+    void openSession( const std::string& schemaName, const std::string& userName, const std::string& password, bool readMode );
+    void startSuperSession( const std::string& connectionString, const std::string& userName, const std::string& password );
+    void startSession( bool readMode );
 
+    void openSession( bool readOnly=true );
+    
+    void closeSession( bool commit=true );
+
+    bool setPermission( int principalId, const std::string& principalKey, const std::string& role, const std::string& connectionString, int connectionId, const std::string& connectionKey );
+
+    std::pair<int,std::string> updateConnection( const std::string& connectionLabel, const std::string& userName, const std::string& password, bool forceUpdate );
+
+    private:
+
+      boost::shared_ptr<coral::IConnection> m_connection;
+      boost::shared_ptr<coral::ISession> m_session;
+
+      int m_principalId;
+      std::string m_principalKey;
+
+      std::string m_serviceName;
+      const ServiceCredentials* m_serviceData;
+
+      DecodingKey m_key;
 
   };
 

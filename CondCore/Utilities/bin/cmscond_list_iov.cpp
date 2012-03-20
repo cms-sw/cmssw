@@ -4,6 +4,7 @@
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/Auth.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 
 #include "CondCore/DBCommon/interface/Time.h"
@@ -125,7 +126,7 @@ int cond::ListIOVUtilities::execute(){
   bool listAll = hasOptionValue("all");
   bool dump = hasOptionValue("outputfile");
   std::auto_ptr<std::ofstream> outFile;
-  cond::DbSession session = openDbSession( "connect", true );
+  cond::DbSession session = openDbSession( "connect", Auth::COND_READER_ROLE, true );
   cond::DbScopedTransaction transaction(session);
   transaction.start(true);
   if( listAll ){

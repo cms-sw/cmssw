@@ -4,6 +4,7 @@
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/Auth.h"
 #include "CondCore/ORA/interface/PoolToken.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
@@ -37,8 +38,10 @@ cond::Logger::Logger(cond::DbSession& sessionHandle):
   m_logTableExists(false){
 }
 
-void cond::Logger::connect( const std::string& logConnectionString ){
-  m_sessionHandle.open( logConnectionString );
+void cond::Logger::connect( const std::string& logConnectionString, bool readOnly ){
+  std::string role = Auth::COND_WRITER_ROLE;
+  if( readOnly ) role = Auth::COND_READER_ROLE;
+  m_sessionHandle.open( logConnectionString, role, readOnly );
 }
 
 void 

@@ -1,6 +1,7 @@
 #include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/Auth.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/Utilities/interface/Utilities.h"
@@ -34,7 +35,7 @@ int cond::DeleteIOVUtilities::execute(){
   std::string tag = getOptionValue<std::string>("tag");
   bool withPayload = hasOptionValue("withPayload");
   bool onlyTag = hasOptionValue("onlyTag");
-  cond::DbSession rdbms = openDbSession( "connect" );
+  cond::DbSession rdbms = openDbSession( "connect" , Auth::COND_WRITER_ROLE );
 
   cond::DbScopedTransaction transaction( rdbms );
   transaction.start(false);

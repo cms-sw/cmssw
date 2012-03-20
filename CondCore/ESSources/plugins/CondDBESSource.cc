@@ -13,6 +13,7 @@
 
 #include "boost/shared_ptr.hpp"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/Auth.h"
 #include "CondFormats/Common/interface/Time.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/ConvertIOVSyncValue.h"
@@ -183,7 +184,7 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
     if (p==sessions.end()) {
       //open db get tag info (i.e. the IOV token...)
       nsess = m_connection.createSession();
-      nsess.open( it->pfn, true );
+      nsess.open( it->pfn, cond::Auth::COND_READER_ROLE, true );
       sessions.insert(std::make_pair(it->pfn,nsess));
     } else nsess = (*p).second;
     //cond::MetaData metadata(nsess);
@@ -389,7 +390,7 @@ CondDBESSource::fillTagCollectionFromDB( const std::string & coraldb,
    if (coraldb.empty()) 
      throw cond::Exception(std::string("ESSource: requested global tag ")+roottag+" but not connection string given");
    cond::DbSession session = m_connection.createSession();
-   session.open( coraldb, true );
+   session.open( coraldb, cond::Auth::COND_READER_ROLE, true );
    session.transaction().start(true);
    cond::TagCollectionRetriever tagRetriever( session, prefix, postfix );
    tagRetriever.getTagCollection(roottag,tagcoll);

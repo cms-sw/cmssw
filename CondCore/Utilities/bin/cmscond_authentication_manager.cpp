@@ -1,5 +1,6 @@
 #include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
+#include "CondCore/DBCommon/interface/Auth.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/CredentialStore.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
@@ -59,79 +60,208 @@ namespace cond {
   };
 }
 
-cond::AuthenticationManager::AuthenticationManager():Utilities("cmscond_schema_manager"){
-  addOption<bool>("create","c","create credential database");
-  addOption<bool>("drop","d", "drop credential database");
-  addOption<bool>("update","u", "insert or update a credential entry");
-  addOption<bool>("list","l","list available credentials");
-  addOption<bool>("remove","e","remove a credential entry");
-  addOption<std::string>("service","n","service name");
-  addOption<std::string>("principal","p","the principal");
+cond::AuthenticationManager::AuthenticationManager():Utilities("cmscond_authentication_manager"){
+  addOption<std::string>("authPath","P","authentication path");
+  addOption<bool>("create","","[-c a0 -u a1 -p a2] create creds db");
+  addOption<bool>("init","","[-s a0 -u a1 -p a2] init db for admin");
+  addOption<bool>("drop","", "[-c a0 -u a1 -p a2] drop creds db");
+  addOption<bool>("update_princ","", "[-s a0 -k a1] add/update principal");
+  addOption<bool>("update_conn","", "[-s a0 -u a1 -p a2 (-l a3)] add/update connection");
+  addOption<bool>("set_perm","", "[-s a0 -n a1 -r a2 -c a3 -l a4] set permission");
+  addOption<bool>("unset_perm","", "[-s a0 -n a1 -r a2 -c a3] unset permission");
+  addOption<bool>("list_conn","","[-s arg ] list connections");
+  addOption<bool>("list_perm","","[-s a0 (-n a1)(-r a2)(-c a3)] list permissions");
+  addOption<bool>("list_princ","","[-s arg] list principals");
+  addOption<bool>("remove_princ","","[-s a0 -n a1] remove principal");
+  addOption<bool>("remove_conn","","[-s a0 -l a1] remove connection");
+  addOption<std::string>("import","","[a0 -s a1 -n a2] import from the xml file");
+  addOption<std::string>("export","","[a0 -s a1] export to the xml file");
+  addOption<std::string>("service","s","service name");
+  addOption<std::string>("princ_name","n","the principal");
+  addOption<std::string>("key","k","the key filename");
   addOption<std::string>("role","r","the role");
-  addOption<std::string>("connectionString","s","the connection string");
-  addOption<std::string>("userName","a","the user name");
-  addOption<std::string>("password","b","the password");
-  addOption<std::string>("import","i","import from the specified xml file");
-  addOption<std::string>("export","x","export to the specified xml file");
+  addOption<std::string>("connectionString","c","the connection string");
+  addOption<std::string>("connectionLabel","l","the connection label");
+  addOption<std::string>("userName","u","the user name");
+  addOption<std::string>("password","p","the password");
 }
 
 cond::AuthenticationManager::~AuthenticationManager(){
 }
 
 int cond::AuthenticationManager::execute(){
+  if( hasDebug() ) coral::MessageStream::setMsgVerbosity( coral::Debug );
+  std::string authPath("");
+  if( hasOptionValue("authPath") ) authPath = getOptionValue<std::string>("authPath"); 
+  if( authPath.empty() ){
+    const char* authEnv = ::getenv( Auth::COND_AUTH_PATH );
+    if(authEnv){
+      authPath += authEnv;
+    } else {
+      authEnv = ::getenv("HOME");
+      if(authEnv){
+	authPath += authEnv;
+      } 
+    }
+  }
+
   bool drop= hasOptionValue("drop");
   bool create= hasOptionValue("create");
-  bool update= hasOptionValue("update");
-  //bool list = hasOptionValue("list");
-  bool remove = hasOptionValue("remove");
-  std::string service("");
-  if( hasOptionValue("service") ) service = getOptionValue<std::string>("service");
+  bool init= hasOptionValue("init");
+  bool update_princ= hasOptionValue("update_princ");
+  bool update_conn= hasOptionValue("update_conn");
+  bool list_conn = hasOptionValue("list_conn");
+  bool list_perm = hasOptionValue("list_perm");
+  bool list_princ = hasOptionValue("list_princ");
+  bool remove_princ = hasOptionValue("remove_princ");
+  bool remove_conn = hasOptionValue("remove_conn");
+  bool set_perm = hasOptionValue("set_perm");
+  bool unset_perm = hasOptionValue("unset_perm");
+  bool import = hasOptionValue("import");
+  bool exp = hasOptionValue("export");
 
   CredentialStore credDb;
 
   if( drop ){
-    credDb.setUpForService( service );
-    credDb.drop();
+    std::string connectionString = getOptionValue<std::string>("connectionString");
+    std::string userName = getOptionValue<std::string>("userName");
+    std::string password = getOptionValue<std::string>("password");
+    credDb.drop( connectionString, userName, password );
     return 0;
   }
 
   if( create ){
-    credDb.setUpForService( service );
-    credDb.createSchema();
-    return 0;
-  }
-
-  if( update ){
-    credDb.setUpForService( service );
-    std::string principal = getOptionValue<std::string>("principal");
-    std::string role = getOptionValue<std::string>("role");
     std::string connectionString = getOptionValue<std::string>("connectionString");
     std::string userName = getOptionValue<std::string>("userName");
     std::string password = getOptionValue<std::string>("password");
-    credDb.update( principal, role, connectionString, userName, password );
+    credDb.createSchema( connectionString, userName, password);
     return 0;
   }
 
-  if( remove ){
-    credDb.setUpForService( service );
-    std::string principal = getOptionValue<std::string>("principal");
+  std::string service = getOptionValue<std::string>("service");
+  if( init ){
+    std::string userName = getOptionValue<std::string>("userName");
+    std::string password = getOptionValue<std::string>("password");
+    credDb.setUpForService( service, authPath );
+    credDb.installAdmin( userName, password );
+    return 0;
+  }
+
+  if( update_princ ){
+    credDb.setUpForService( service, authPath );
+    std::string key = getOptionValue<std::string>("key");
+    DecodingKey pk;
+    pk.init( key, Auth::COND_KEY );
+    credDb.updatePrincipal( pk.principalName(), pk.principalKey() );
+    return 0;
+  }
+
+  if( update_conn ){
+    credDb.setUpForService( service, authPath );
+    std::string userName = getOptionValue<std::string>("userName");
+    std::string password = getOptionValue<std::string>("password");
+    std::string connectionLabel = schemaLabel( service, userName );
+    if( hasOptionValue("connectionLabel") ) {
+      connectionLabel = getOptionValue<std::string>("connectionLabel");
+    } 
+    std::cout <<"Updating credentials for connection label \""<<connectionLabel<<"\""<<std::endl;
+    credDb.updateConnection( connectionLabel, userName, password );
+    return 0;
+  }
+
+  if( remove_princ ){
+    credDb.setUpForService( service, authPath );
+    std::string principal = getOptionValue<std::string>("princ_name");
+    credDb.removePrincipal( principal );
+    return 0;
+  }
+
+  if( remove_conn ){
+    credDb.setUpForService( service, authPath );
+    std::string connectionLabel = getOptionValue<std::string>("connectionLabel");
+    credDb.removeConnection( connectionLabel );
+    return 0;
+  }
+
+  if( set_perm ){
+    credDb.setUpForService( service, authPath );
+    std::string principal = getOptionValue<std::string>("princ_name");
     std::string role = getOptionValue<std::string>("role");
     std::string connectionString = getOptionValue<std::string>("connectionString");
-    credDb.remove( principal, role, connectionString );
+    std::string connectionLabel = getOptionValue<std::string>("connectionLabel");
+    credDb.setPermission( principal, role, connectionString, connectionLabel );
     return 0;
   }
 
-  if( hasOptionValue("export") ){
-    std::string principal("");
-    if( hasOptionValue("principal")) principal = getOptionValue<std::string>("principal");
-    std::string fileName = getOptionValue<std::string>("export");
-    credDb.setUpForService( service );
-    coral_bridge::AuthenticationCredentialSet data;
-    if( principal.empty() ){
-      credDb.exportAll( data );
-    } else {
-      credDb.exportForPrincipal( principal, data );
+  if( unset_perm ){
+    credDb.setUpForService( service, authPath );
+    std::string principal = getOptionValue<std::string>("princ_name");
+    std::string role = getOptionValue<std::string>("role");
+    std::string connectionString = getOptionValue<std::string>("connectionString");
+    credDb.unsetPermission( principal, role, connectionString );
+    return 0;
+  }
+
+
+  if( import ){
+    std::string fileName = getOptionValue<std::string>("import");
+    std::string principal = getOptionValue<std::string>("princ_name");
+    coral_bridge::AuthenticationCredentialSet source;
+    if( !coral_bridge::parseXMLAuthenticationFile( fileName, source ) ){
+      return 1;
     }
+    credDb.setUpForService( service, authPath );
+    credDb.importForPrincipal( principal, source );
+    return 0;
+  }
+
+  if( list_conn ){
+    credDb.setUpForService( service, authPath );
+    std::map<std::string,std::pair<std::string,std::string> > data;
+    credDb.listConnections( data );
+    std::cout <<"Found "<<data.size()<<" connection(s)."<<std::endl;
+    for( std::map<std::string,std::pair<std::string,std::string> >::const_iterator iC = data.begin();
+	 iC != data.end(); ++iC ){
+      std::cout <<iC->first<<"  u="<<iC->second.first<<"  p="<<iC->second.second<<std::endl;
+    }
+    return 0;
+  }
+
+  if( list_princ ){
+    credDb.setUpForService( service, authPath );
+    std::vector<std::string> data;
+    credDb.listPrincipals( data );
+    std::cout <<"Found "<<data.size()<<" principal(s)."<<std::endl;
+    for( std::vector<std::string>::const_iterator iP = data.begin();
+	 iP != data.end(); ++iP ){
+      std::cout <<*iP<<std::endl;
+    }
+    return 0;
+  }
+
+  if( list_perm ){
+    credDb.setUpForService( service, authPath );
+    std::vector<CredentialStore::Permission> data;
+    std::string pName("");
+    std::string role("");
+    std::string conn("");
+    if( hasOptionValue("connectionString") ) conn = getOptionValue<std::string>("connectionString");
+    if( hasOptionValue("princ_name") ) pName = getOptionValue<std::string>("princ_name");
+    if( hasOptionValue("role") ) role = getOptionValue<std::string>("role");
+    credDb.selectPermissions( pName, role, conn, data );
+    std::cout <<"Found "<<data.size()<<" permission(s)."<<std::endl;
+    for( std::vector<CredentialStore::Permission>::const_iterator iP = data.begin();
+	 iP != data.end(); ++iP ){
+      std::cout <<"P="<<iP->principalName<<" R="<<iP->role<<" C="<<iP->connectionString<<" L="<<iP->connectionLabel<<std::endl;
+    }
+    return 0;    
+  }
+
+  if( exp ){
+    std::string fileName = getOptionValue<std::string>("export");
+    credDb.setUpForService( service, authPath );
+    coral_bridge::AuthenticationCredentialSet data;
+    credDb.exportAll( data );
     std::ofstream outFile( fileName );
     coral_bridge::XMLAuthenticationFileContent xmlFile( outFile );
     const std::map< std::pair<std::string,std::string>, coral::AuthenticationCredentials* >& creds = data.data();
@@ -146,7 +276,7 @@ int cond::AuthenticationManager::execute(){
 	xmlFile.openConnectionEntry( connectStr );
 	started = true;
 	connections.insert( connectStr );
-	std::pair<std::string,std::string> defRoleKey(connectStr,coral_bridge::AuthenticationCredentialSet::DEFAULT_ROLE);
+	std::pair<std::string,std::string> defRoleKey(connectStr,Auth::COND_DEFAULT_ROLE);
 	std::map< std::pair<std::string,std::string>, coral::AuthenticationCredentials* >::const_iterator iDef = creds.find( defRoleKey );
 	if( iDef != creds.end() ){
 	  xmlFile.addCredentialEntry( iDef->second->valueForItem( coral::IAuthenticationCredentials::userItem() ), 
@@ -154,7 +284,7 @@ int cond::AuthenticationManager::execute(){
 	}
       }
       const std::string& role = iEntry->first.second;
-      if( role != coral_bridge::AuthenticationCredentialSet::DEFAULT_ROLE ){
+      if( role != Auth::COND_DEFAULT_ROLE ){
 	xmlFile.openRoleEntry( role );
 	xmlFile.addCredentialEntry( iEntry->second->valueForItem( coral::IAuthenticationCredentials::userItem() ), 
 				    iEntry->second->valueForItem( coral::IAuthenticationCredentials::passwordItem() ) );
@@ -162,35 +292,8 @@ int cond::AuthenticationManager::execute(){
       }
     }
     xmlFile.close();
-    return 0;
+    return 0;    
   }
-
-
-  if( hasOptionValue("import") ){
-    std::string principal("");
-    if( hasOptionValue("principal")) principal = getOptionValue<std::string>("principal");
-    std::string fileName = getOptionValue<std::string>("import");
-    coral_bridge::AuthenticationCredentialSet source;
-    if( !coral_bridge::parseXMLAuthenticationFile( fileName, source ) ){
-      return 1;
-    }
-    credDb.setUpForService( service );
-    credDb.importForPrincipal( principal, source );
-    return 0;
-  }
-
-  /**
-  if( list ){
-    credDb.setUpForService( service );
-    coral_bridge::AuthenticationCredentialSet data;
-    if( principal.empty() ){
-      credDb.exportAll( data );
-    } else {
-      credDb.exportForPrincipal( principal, data );
-    }
-    
-  }
-  **/
 
   return 0;
 }

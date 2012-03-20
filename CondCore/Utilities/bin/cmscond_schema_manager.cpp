@@ -1,6 +1,7 @@
 #include "CondCore/DBCommon/interface/DbSession.h"
 #include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/DBCommon/interface/Auth.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
 #include "CondCore/IOVService/interface/IOVSchemaUtility.h"
 #include "CondCore/Utilities/interface/Utilities.h"
@@ -38,7 +39,7 @@ int cond::SchemaManager::execute(){
   std::string typeName("");
   if( hasOptionValue("type") ) typeName = getOptionValue<std::string>("type");
 
-  cond::DbSession session = openDbSession("connect");
+  cond::DbSession session = openDbSession("connect", Auth::COND_ADMIN_ROLE);
 
   cond::IOVSchemaUtility util( session, std::cout );
 

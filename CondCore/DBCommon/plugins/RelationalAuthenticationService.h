@@ -5,6 +5,7 @@
 //
 #include "RelationalAccess/IAuthenticationService.h"
 #include "CoralKernel/Service.h"
+#include "CoralKernel/Property.h"
 //
 #include <map>
 #include <set>
@@ -34,6 +35,10 @@ namespace cond {
       virtual ~RelationalAuthenticationService();
 
     public:
+
+      /// Sets the input file name 
+      void setAuthenticationPath(  const std::string& inputPath );
+
       /**
        * Returns a reference to the credentials object for a given connection string.
        * If the connection string is not known to the service an UnknownConnectionException is thrown.
@@ -50,10 +55,15 @@ namespace cond {
 
     private:
 
+      /// The input file with the data
+      std::string m_authenticationPath;
+
       /// The service providing the authentication data
       mutable CredentialStore m_db;
 
       mutable coral_bridge::AuthenticationCredentialSet m_cache;
+
+      coral::Property::CallbackID m_callbackID;
 
     };
 

@@ -8,12 +8,25 @@
 
 namespace cond {
 
-  struct ServiceKey {
-    ServiceKey();
-    std::string dataSource;
-    std::string key;
+  struct ServiceCredentials {
+    ServiceCredentials();
+    std::string connectionString;
     std::string userName;
     std::string password;
+  };
+
+  class KeyGenerator {
+    public:
+
+    KeyGenerator();
+
+    std::string make( size_t keySize );
+    std::string makeWithRandomSize( size_t maxSize );
+    
+    private:
+
+    int m_iteration;
+
   };
 
   class DecodingKey {
@@ -21,6 +34,8 @@ namespace cond {
     public:
 
     static const std::string FILE_NAME;
+    static const size_t DEFAULT_KEY_SIZE = 100;
+    static std::string templateFile();
 
     public:
 
@@ -30,31 +45,26 @@ namespace cond {
 
     size_t init( const std::string& keyFileName,  const std::string& password, bool readMode = true );
 
-    size_t createFromInputFile( const std::string& inputFileName, bool generateKey = true );
+    size_t createFromInputFile( const std::string& inputFileName, size_t generatedKeySize = 0 );
 
     void list( std::ostream& out );
 
     void flush();
 
-    const std::string& user() const;
-    const std::set<std::string>& groups() const;
-    const std::map< std::string, ServiceKey >& serviceKeys() const;
+    const std::string& principalName() const;
 
-    void setUser( const std::string& user );
+    const std::string& principalKey() const;
 
-    void addGroup( const std::string& group );
+    bool isNominal() const;
 
-    void addKeyForDefaultService( const std::string& dataSource, const std::string& key );
+    const std::string& ownerName() const;
 
-    void addDefaultService( const std::string& dataSource );
+    const std::map< std::string, ServiceCredentials >& services() const;
 
-    void addKeyForService( const std::string& serviceName, const std::string& dataSource, const std::string& key, const std::string& userName, const std::string& password );
+    void addDefaultService( const std::string& connectionString );
 
-    void addService( const std::string& serviceName, const std::string& dataSource, const std::string& userName, const std::string& password );
+    void addService( const std::string& serviceName, const std::string& connectionString, const std::string& userName, const std::string& password );
 
-    private:
-    
-    std::string generateKey();
 
     private:
 
@@ -62,42 +72,58 @@ namespace cond {
 
     bool m_mode;
 
-    int m_iteration;
-
     std::string m_pwd;
 
-    std::string m_user;
+    std::string m_principalName;
 
-    std::set<std::string> m_groups;
+    std::string m_principalKey;
 
-    std::map< std::string, ServiceKey > m_serviceKeys;
+    std::string m_owner;
+
+    std::map< std::string, ServiceCredentials > m_services;
     
   };
 }
 
 inline
-cond::ServiceKey::ServiceKey():dataSource(""),key(""),userName(""),password(""){
+cond::KeyGenerator::KeyGenerator():m_iteration(0){
 }
 
 inline
-cond::DecodingKey::DecodingKey():m_fileName(""),m_mode( true ),m_iteration(0),m_pwd(""),m_user(""),m_groups(),m_serviceKeys(){
+cond::ServiceCredentials::ServiceCredentials():connectionString(""),userName(""),password(""){
+}
+
+inline
+cond::DecodingKey::DecodingKey():m_fileName(""),m_mode( true ),m_pwd(""),m_principalName(""),m_principalKey(""),m_owner(""),m_services(){
 }
 
 inline
 const std::string& 
-cond::DecodingKey::user() const {
-  return m_user;
+cond::DecodingKey::principalName() const {
+  return m_principalName;
 }
 
 inline
-const std::set< std::string >& 
-cond::DecodingKey::groups() const {
-  return m_groups;
+const std::string& 
+cond::DecodingKey::principalKey() const {
+  return  m_principalKey;
+}
+ 
+inline
+bool 
+cond::DecodingKey::isNominal() const {
+  return  !m_owner.empty();
 }
 
 inline
-const std::map< std::string, cond::ServiceKey >&
-cond::DecodingKey::serviceKeys() const { return m_serviceKeys; }
+const std::string& 
+cond::DecodingKey::ownerName() const {
+  return  m_owner;
+}
+
+inline
+const std::map< std::string, cond::ServiceCredentials >&
+cond::DecodingKey::services() const { return m_services; }
 
 #endif //  CondCoreDBCommon_DecodingKey_H
 
