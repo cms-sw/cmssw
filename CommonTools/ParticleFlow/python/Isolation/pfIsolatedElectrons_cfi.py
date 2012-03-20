@@ -4,14 +4,14 @@ pfIsolatedElectrons  = cms.EDFilter(
     "IsolatedPFCandidateSelector",
     src = cms.InputTag("pfSelectedElectrons"),
     isolationValueMapsCharged = cms.VInputTag(
-        cms.InputTag("elPFIsoValueCharged04"),
+        cms.InputTag("elPFIsoValueCharged04PFId"),
        ),
     isolationValueMapsNeutral = cms.VInputTag(
-        cms.InputTag("elPFIsoValueNeutral04"),
-        cms.InputTag("elPFIsoValueGamma04")
+        cms.InputTag("elPFIsoValueNeutral04PFId"),
+        cms.InputTag("elPFIsoValueGamma04PFId")
        ),
     doDeltaBetaCorrection = cms.bool(False),
-    deltaBetaIsolationValueMap = cms.InputTag("elPFIsoValuePU04"),
+    deltaBetaIsolationValueMap = cms.InputTag("elPFIsoValuePU04PFId"),
     deltaBetaFactor = cms.double(-0.5),    
     ## if True isolation is relative to pT
     isRelative = cms.bool(True),
