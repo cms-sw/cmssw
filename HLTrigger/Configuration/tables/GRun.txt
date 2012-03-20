@@ -329,6 +329,7 @@ HLT_Mu15_eta2p1_v*                                                              
 HLT_IsoMu20_eta2p1_v*                                                                           #sr126489, 126618
 
 HLT_DiCentralJet20_BTagIP_MET65_v*                                                              #sr126490
+HLT_DiCentralJet20_BTagIP_MET65_HBHENoiseFiltered_dPhi1_v*					#sr127238
 HLT_DiCentralPFJet30_PFMHT80_v*                                                                 #sr126490
 HLT_DiCentralPFJet30_CaloMET50_dPhi1_PFMHT80_HBHENoiseFiltered_v*                               #sr126490
 HLT_CentralPFJet80_CaloMET50_dPhi1_PFMHT80_HBHENoiseFiltered_v*                                 #sr126490

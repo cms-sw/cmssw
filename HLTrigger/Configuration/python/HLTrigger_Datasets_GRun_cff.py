@@ -226,6 +226,7 @@ streamA_datasetMET_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT
 streamA_datasetMET_selector.l1tResults = cms.InputTag('')
 streamA_datasetMET_selector.throw      = cms.bool(False)
 streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CentralPFJet80_CaloMET50_dPhi1_PFMHT80_HBHENoiseFiltered_v1', 
+    'HLT_DiCentralJet20_BTagIP_MET65_HBHENoiseFiltered_dPhi1_v1', 
     'HLT_DiCentralJet20_BTagIP_MET65_v13', 
     'HLT_DiCentralPFJet30_CaloMET50_dPhi1_PFMHT80_HBHENoiseFiltered_v1', 
     'HLT_DiCentralPFJet30_PFMHT80_v3', 
