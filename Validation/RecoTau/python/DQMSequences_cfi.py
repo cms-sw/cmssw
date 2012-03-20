@@ -1,5 +1,5 @@
-from Validation.RecoTau.dataTypes.ValidateTausOnRealData_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnRealElectronsData_cff import *
+from Validation.RecoTau.dataTypes.ValidateTausOnRealData_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnRealMuonsData_cff import *
 
 dqmInfoTauV = cms.EDAnalyzer(
@@ -13,6 +13,15 @@ produceDenoms = cms.Sequence(
     produceDenominatorRealElectronsData+
     produceDenominatorRealMuonsData
     )
+
+seqModifier = ApplyFunctionToSequence( lambda module: setTrigger( module, cms.PSet( hltDBKey = cms.string('TauTriggerForALLQCDDataset'), hltPaths = cms.vstring('HLT_IsoMu24_eta2p1_v*') ) ) )
+TauValNumeratorAndDenominatorRealData.visit(seqModifier)
+
+seqModifier = ApplyFunctionToSequence( lambda module: setTrigger( module, cms.PSet( hltDBKey = cms.string('TauTriggerForALLEleDataset'), hltPaths = cms.vstring('HLT_Ele20_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC4_Mass50_v*') ) ) )
+TauValNumeratorAndDenominatorRealElectronsData.visit(seqModifier)
+
+seqModifier = ApplyFunctionToSequence( lambda module: setTrigger( module, cms.PSet( hltDBKey = cms.string('TauTriggerForALLMuDataset'), hltPaths = cms.vstring('HLT_IsoMu24_eta2p1_v*') ) ) )
+TauValNumeratorAndDenominatorRealMuonsData.visit(seqModifier)
 
 pfTauRunDQMValidation = cms.Sequence(
     TauValNumeratorAndDenominatorRealData+
@@ -31,10 +40,10 @@ runTauEff = cms.Sequence(
 #----------------------------------------------------------------------------------------------------------------------------------------
 #                                                  Denominators according to dataset
 #----------------------------------------------------------------------------------------------------------------------------------------
-produceDenomsMu = cms.Sequence(
-    produceDenominatorRealData+
-    produceDenominatorRealMuonsData
-    )
+## produceDenomsMu = cms.Sequence(
+##     produceDenominatorRealData+
+##     produceDenominatorRealMuonsData
+##     )
 produceDenomsSingleMu = cms.Sequence(
     produceDenominatorRealData+
     produceDenominatorRealMuonsData
@@ -48,28 +57,29 @@ produceDenomsTauPlusX = produceDenomsDoubleElectron
 #----------------------------------------------------------------------------------------------------------------------------------------
 #                                                  Main modules according to dataset
 #----------------------------------------------------------------------------------------------------------------------------------------
-#Mu Dataset
 proc.GeneralMuSequence = cms.Sequence( proc.TauValNumeratorAndDenominatorRealData * proc.TauValNumeratorAndDenominatorRealMuonsData )
-procAttributes = dir(proc) #Takes a snapshot of what there in the process
-helpers.cloneProcessingSnippet( proc, proc.GeneralMuSequence, 'AtMu') #clones the sequence inside the process with AtMu postfix
-seqModifier = ApplyFunctionToSequence( lambda module: setTrigger( module, cms.PSet( hltDBKey = cms.string('OUR_CUSTOM_STRING'), hltPaths = cms.vstring('OUR_HLT_FALLBACK_PATH') ) ) )
-proc.GeneralMuSequenceAtMu.visit(seqModifier)
-#checks what's new in the process (the cloned sequences and modules in them)
-newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('AtMu') != -1), dir(proc) )
-#spawns a local variable with the same name as the proc attribute, needed for future process.load
-for newAttr in newProcAttributes:
-    locals()[newAttr] = getattr(proc,newAttr)
-    
-pfTauRunDQMValidationMu = cms.Sequence(
-    TauValNumeratorAndDenominatorRealDataAtMu+
-    TauValNumeratorAndDenominatorRealMuonsDataAtMu+
-    dqmInfoTauV
-    )
+
+#Mu Dataset
+## procAttributes = dir(proc) #Takes a snapshot of what there in the process
+## helpers.cloneProcessingSnippet( proc, proc.GeneralMuSequence, 'AtMu') #clones the sequence inside the process with AtMu postfix
+## seqModifier = ApplyFunctionToSequence( lambda module: setTrigger( module, cms.PSet( hltDBKey = cms.string('TauTriggerForMuDataset'), hltPaths = cms.vstring('HLT_IsoMu24_eta2p1_v*') ) ) )
+## proc.GeneralMuSequenceAtMu.visit(seqModifier)
+## #checks what's new in the process (the cloned sequences and modules in them)
+## newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('AtMu') != -1), dir(proc) )
+## #spawns a local variable with the same name as the proc attribute, needed for future process.load
+## for newAttr in newProcAttributes:
+##     locals()[newAttr] = getattr(proc,newAttr)
+ 
+## pfTauRunDQMValidationMu = cms.Sequence(
+##     TauValNumeratorAndDenominatorRealDataAtMu+
+##     TauValNumeratorAndDenominatorRealMuonsDataAtMu+
+##     dqmInfoTauV
+##     )
 
 #SingleMu Dataset
 procAttributes = dir(proc) #Takes a snapshot of what there in the process
 helpers.cloneProcessingSnippet( proc, proc.GeneralMuSequence, 'AtSingleMu') #clones the sequence inside the process with AtSingleMu postfix
-seqModifier = ApplyFunctionToSequence( lambda module: setTrigger( module, cms.PSet( hltDBKey = cms.string('OUR_CUSTOM_STRING'), hltPaths = cms.vstring('OUR_HLT_FALLBACK_PATH') ) ) )
+seqModifier = ApplyFunctionToSequence( lambda module: setTrigger( module, cms.PSet( hltDBKey = cms.string('TauTriggerForSingleMuDataset'), hltPaths = cms.vstring('HLT_IsoMu24_eta2p1_v*') ) ) )
 proc.GeneralMuSequenceAtSingleMu.visit(seqModifier)
 #checks what's new in the process (the cloned sequences and modules in them)
 newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('AtSingleMu') != -1), dir(proc) )
@@ -86,7 +96,7 @@ pfTauRunDQMValidationSingleMu = cms.Sequence(
 #Jet Dataset
 procAttributes = dir(proc) #Takes a snapshot of what there in the process
 helpers.cloneProcessingSnippet( proc, proc.TauValNumeratorAndDenominatorRealData, 'AtJet') #clones the sequence inside the process with AtJet postfix
-seqModifier = ApplyFunctionToSequence( lambda module: setTrigger( module, cms.PSet( hltDBKey = cms.string('OUR_CUSTOM_STRING'), hltPaths = cms.vstring('OUR_HLT_FALLBACK_PATH') ) ) )
+seqModifier = ApplyFunctionToSequence( lambda module: setTrigger( module, cms.PSet( hltDBKey = cms.string('TauTriggerForJetDataset'), hltPaths = cms.vstring('HLT_Jet30_L1FastJet_v*') ) ) )
 proc.TauValNumeratorAndDenominatorRealDataAtJet.visit(seqModifier)
 #checks what's new in the process (the cloned sequences and modules in them)
 newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('AtJet') != -1), dir(proc) )
@@ -102,7 +112,7 @@ pfTauRunDQMValidationJet = cms.Sequence(
 #MultiJet Dataset
 procAttributes = dir(proc) #Takes a snapshot of what there in the process
 helpers.cloneProcessingSnippet( proc, proc.TauValNumeratorAndDenominatorRealData, 'AtMultiJet') #clones the sequence inside the process with AtMultiJet postfix
-seqModifier = ApplyFunctionToSequence( lambda module: setTrigger( module, cms.PSet( hltDBKey = cms.string('OUR_CUSTOM_STRING'), hltPaths = cms.vstring('OUR_HLT_FALLBACK_PATH') ) ) )
+seqModifier = ApplyFunctionToSequence( lambda module: setTrigger( module, cms.PSet( hltDBKey = cms.string('TauTriggerForMultiJetDataset'), hltPaths = cms.vstring('OUR_HLT_FALLBACK_PATH') ) ) )
 proc.TauValNumeratorAndDenominatorRealDataAtMultiJet.visit(seqModifier)
 #checks what's new in the process (the cloned sequences and modules in them)
 newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('AtMultiJet') != -1), dir(proc) )
@@ -118,7 +128,7 @@ pfTauRunDQMValidationMultiJet = cms.Sequence(
 #DoubleElectron Dataset
 procAttributes = dir(proc) #Takes a snapshot of what there in the process
 helpers.cloneProcessingSnippet( proc, proc.TauValNumeratorAndDenominatorRealElectronsData, 'AtDoubleElectron') #clones the sequence inside the process with AtDoubleElectron postfix
-seqModifier = ApplyFunctionToSequence( lambda module: setTrigger( module, cms.PSet( hltDBKey = cms.string('OUR_CUSTOM_STRING'), hltPaths = cms.vstring('OUR_HLT_FALLBACK_PATH') ) ) )
+seqModifier = ApplyFunctionToSequence( lambda module: setTrigger( module, cms.PSet( hltDBKey = cms.string('TauTriggerForDoubleElectronDataset'), hltPaths = cms.vstring('HLT_Ele20_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC4_Mass50_v*') ) ) ) 
 proc.TauValNumeratorAndDenominatorRealElectronsDataAtDoubleElectron.visit(seqModifier)
 #checks what's new in the process (the cloned sequences and modules in them)
 newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('AtDoubleElectron') != -1), dir(proc) )
@@ -134,7 +144,7 @@ pfTauRunDQMValidationDoubleElectron = cms.Sequence(
 #TauPlusX Dataset
 procAttributes = dir(proc) #Takes a snapshot of what there in the process
 helpers.cloneProcessingSnippet( proc, proc.TauValNumeratorAndDenominatorRealElectronsData, 'TauPlusX') #clones the sequence inside the process with TauPlusX postfix
-seqModifier = ApplyFunctionToSequence( lambda module: setTrigger( module, cms.PSet( hltDBKey = cms.string('OUR_CUSTOM_STRING'), hltPaths = cms.vstring('OUR_HLT_FALLBACK_PATH') ) ) )
+seqModifier = ApplyFunctionToSequence( lambda module: setTrigger( module, cms.PSet( hltDBKey = cms.string('TauTriggerForTauPlusXDataset'), hltPaths = cms.vstring('HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v*') ) ) )
 proc.TauValNumeratorAndDenominatorRealElectronsDataTauPlusX.visit(seqModifier)
 #checks what's new in the process (the cloned sequences and modules in them)
 newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('TauPlusX') != -1), dir(proc) )
@@ -150,11 +160,11 @@ pfTauRunDQMValidationTauPlusX = cms.Sequence(
 #----------------------------------------------------------------------------------------------------------------------------------------
 #                                                      Efficiencies production according to dataset
 #----------------------------------------------------------------------------------------------------------------------------------------
-runTauEffMu = cms.Sequence(
-    efficienciesRealMuonsData+
-    efficienciesRealData+
-    normalizePlotsRealMuonsData
-    )
+## runTauEffMu = cms.Sequence(
+##     efficienciesRealMuonsData+
+##     efficienciesRealData+
+##     normalizePlotsRealMuonsData
+##     )
 runTauEffSingleMu = runTauEffMu
 
 runTauEffJet = TauEfficienciesRealData
