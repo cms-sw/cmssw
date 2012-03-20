@@ -52,32 +52,35 @@ else {
 
 exit 1 unless ( @filelist != 0 );
 
+if ($config{'ec_mon_era'} == '') {
+    open LOGFILE, ">>$config{'ec_mon_master_rundir'}/dqm-data/$config{'ec_mon_master_log'}";
+    print LOGFILE localtime()." - ec_mon_cmssw_task_wrapper: no era defined; cannot set workflow.\n";
+    close LOGFILE;    
+    exit 1;
+}
+
 my $cmsenv;
 my $daq;
+my $workflow;
 
 if ( $filelist[0] =~ /Minidaq/ ) {
     $cmsenv = "/nfshome0/ecalpro/DQM/swconf/cmsenv.miniDAQ";
     $daq = 'globalDAQ';
+    $workflow = "/All/$config{'ec_mon_era'}/MiniDAQ";
 }
 elsif ( $config{'ec_mon_path'} =~ /localDAQ/ ) {
     $cmsenv = "/nfshome0/ecalpro/DQM/swconf/cmsenv.localDAQ";
     $daq = 'localDAQ';
+    $workflow = "/All/$config{'ec_mon_era'}/LocalDAQ";
 }
 elsif ( $config{'ec_mon_path'} =~ /globalDAQ/ ) {
     $cmsenv = "/nfshome0/ecalpro/DQM/swconf/cmsenv.globalDAQ";
     $daq = 'globalDAQ';
+    $workflow = "/All/$config{'ec_mon_era'}/CentralDAQ";
 }
 else {
     exit 1;
 }
-
-my $command = "source $cmsenv; " . 'echo -n $era';
-my $era = `$command`;
-if ($era == '') {
-    exit 1;
-}
-
-my $workflow = "/All/$era/ECALDQM";
 
 my $workdir = "$config{'ec_mon_master_rundir'}/dqm-data/tmp";
 
@@ -116,11 +119,9 @@ foreach my $file (@filelist) {
 	system("rm -f $logfile >> /dev/null 2>&1");
     }
 
-    if(system("($task) > $logfile 2>&1") != 0) {
+    if(system("($task) > $logfile 2>&1") != 0 || system("mv -f $cfgfile $logdir/ >> /dev/null 2>&1") != 0) {
 	exit 1;
     }
-
-    system("mv -f $cfgfile $logdir/ >> /dev/null 2>&1");
 
     my $outputname = "DQM_V0001_R0" . $num . "$workflow.root";
     $outputname =~ s/\//__/g;

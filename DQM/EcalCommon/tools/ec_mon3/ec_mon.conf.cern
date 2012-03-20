@@ -31,3 +31,4 @@ ec_mon_master_archive_wait=600
 #
 #ec_mon_archive_dir=cms-tier0-stage:/dropbox/ecal/daq-data
 #
+#ec_mon_era=Run2012A

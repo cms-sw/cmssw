@@ -56,6 +56,7 @@ sub ec_mon_conf_file {
   $config{'ec_mon_master_submit_wait'} = 120;
   $config{'ec_mon_master_archive_wait'} = 600;
   $config{'ec_mon_archive_dir'} = '';
+  $config{'ec_mon_era'} = '';
 
   open FILE, "<$config{'$ec_mon_conf'}";
   print "Found control file, opening...\n" if ( $opts{'debug'} );
@@ -66,33 +67,37 @@ sub ec_mon_conf_file {
       $config{'ec_mon_master_runcontrol'} = 1 if ( $1 eq 'suspend' );
       $config{'ec_mon_master_runcontrol'} = 2 if ( $1 eq 'run' );
     }
-    if ( $line =~ /^ec_mon_master_runrange=(.*)$/ ) {
+    elsif ( $line =~ /^ec_mon_master_runrange=(.*)$/ ) {
       $config{'ec_mon_master_runrange'} = $1;
       print "Found ec_mon_master_runrange = $config{'ec_mon_master_runrange'}\n" if ( $opts{'debug'} );
     }
-    if ( $line =~ /^ec_mon_master_rundir=(.*)$/ ) {
+    elsif ( $line =~ /^ec_mon_master_rundir=(.*)$/ ) {
       $config{'ec_mon_master_rundir'} = $1;
       print "Found ec_mon_master_rundir = $config{'ec_mon_master_rundir'}\n" if ( $opts{'debug'} );
     }
-    if ( $line =~ /^ec_mon_master_name=(.*)$/ ) {
+    elsif ( $line =~ /^ec_mon_master_name=(.*)$/ ) {
       $config{'ec_mon_master_name'} = $1;
       print "Found ec_mon_master_name = $config{'ec_mon_master_name'}\n" if ( $opts{'debug'} );
     }
-    if ( $line =~ /^ec_mon_master_max_jobs_running=(.*)$/ ) {
+    elsif ( $line =~ /^ec_mon_master_max_jobs_running=(.*)$/ ) {
       $config{'ec_mon_master_max_jobs_running'} = $1;
       print "Found ec_mon_master_max_jobs_running =  $config{'ec_mon_master_max_jobs_running'}\n" if ( $opts{'debug'} );
     }
-    if ( $line =~ /^ec_mon_master_submit_wait=(.*)$/ ) {
+    elsif ( $line =~ /^ec_mon_master_submit_wait=(.*)$/ ) {
       $config{'ec_mon_master_submit_wait'} = $1;
       print "Found ec_mon_master_submit_wait = $config{'ec_mon_master_submit_wait'}\n" if ( $opts{'debug'} );
     }
-    if ( $line =~ /^ec_mon_master_archive_wait=(.*)$/ ) {
+    elsif ( $line =~ /^ec_mon_master_archive_wait=(.*)$/ ) {
       $config{'ec_mon_master_archive_wait'} = $1;
       print "Found ec_mon_master_archive_wait = $config{'ec_mon_master_archive_wait'}\n" if ( $opts{'debug'} );
     }
-    if ( $line =~ /^ec_mon_archive_dir=(.*)$/ ) {
+    elsif ( $line =~ /^ec_mon_archive_dir=(.*)$/ ) {
       $config{'ec_mon_archive_dir'} = $1;
       print "Found ec_mon_archive_dir = $config{'ec_mon_archive_dir'}\n" if ( $opts{'debug'} );
+    }
+    elsif ( $line =~ /^ec_mon_era=(.*)$/ ) {
+	$config{'ec_mon_era'} = $1;
+	print "Found ec_mon_era = $config{'ec_mon_era'}\n" if ( $opts{'debug'} );
     }
 
   }
