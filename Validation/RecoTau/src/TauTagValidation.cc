@@ -15,7 +15,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.34 2012/02/27 10:26:53 mverzett Exp $
+// $Id: TauTagValidation.cc,v 1.35 2012/03/13 10:22:29 mverzett Exp $
 //
 //
 // user include files
@@ -234,8 +234,8 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           pileupTauVisibleMap.find(  currentDiscriminatorLabel )->second->Fill(pvHandle->size());
           
 	  //fill the DeltaR plots
-	  if(thePFTau->jetRef().isAvailable() && thePFTau->jetRef().isNonnull())
-	    plotMap_.find( currentDiscriminatorLabel + "_dRTauRefJet")->second->Fill( algo_->deltaR(thePFTau.get(), thePFTau->jetRef().get() ) );
+	  /*if(thePFTau->jetRef().isAvailable() && thePFTau->jetRef().isNonnull())
+	    plotMap_.find( currentDiscriminatorLabel + "_dRTauRefJet")->second->Fill( algo_->deltaR(thePFTau.get(), thePFTau->jetRef().get() ) );*/
 
           //fill the momentum resolution plots
           double tauPtRes = thePFTau->pt()/gen_particle->pt();//WARNING: use only the visible parts!
@@ -370,9 +370,9 @@ void TauTagValidation::beginJob() {
       pileupTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,pileupTemp));
 
 
-      //DR between tau and refJet
+      /*/DR between tau and refJet
       tmpME =  dbeTau_->book1D(DiscriminatorLabel + "_dRTauRefJet", histogramName +"_dRTauRefJet;#DeltaR(#tau,refJet);Frequency", dRHinfo.nbins, dRHinfo.min, dRHinfo.max);
-      plotMap_.insert( std::make_pair(DiscriminatorLabel + "_dRTauRefJet",tmpME));
+      plotMap_.insert( std::make_pair(DiscriminatorLabel + "_dRTauRefJet",tmpME));*/
      
       
       // momentum resolution for several decay modes
