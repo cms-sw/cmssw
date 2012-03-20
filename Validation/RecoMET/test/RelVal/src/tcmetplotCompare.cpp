@@ -164,7 +164,9 @@ int main(int argc, char *argv[]) {
     double ks_score = hnew->KolmogorovTest(href,"D");
     double chi2_score = hnew->Chi2Test(href, "p");
     //double result = KS_TEST ? ks_score : chi2_score;
-    double result = (ks_score>chi2_score) ? ks_score : chi2_score;
+	 //switching to KS for all plots as per requests from others: Sam Hewamanage Jan. 2012
+    //double result = (ks_score>chi2_score) ? ks_score : chi2_score;
+    double result = ks_score;
     
     href->SetNormFactor(hnew->GetEntries());
     //hnew->SetNormFactor(1);
@@ -220,10 +222,11 @@ int main(int argc, char *argv[]) {
     hdumb->GetXaxis()->SetTitleSize(0.6 * hdumb->GetXaxis()->GetTitleSize());
     stringstream ss_title;
     ss_title.precision(5);
-    if (ks_score>chi2_score)
+	 //switching to KS for all plots as per requests from others: Samantha Hewamanage Jan. 2012
+    //if (ks_score>chi2_score)
       ss_title << "KS Score = " << ks_score;
-    else
-      ss_title << "Chi^2 Score = " << chi2_score;
+    //else
+     // ss_title << "Chi^2 Score = " << chi2_score;
     TText canvas_title(0.15,0.97,ss_title.str().c_str());
 
     // determine if test is a "pass" or a "fail"
