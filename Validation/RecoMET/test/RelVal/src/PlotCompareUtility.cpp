@@ -32,8 +32,8 @@ PlotCompareUtility::PlotCompareUtility(string Reference, string New, string Data
   if (new_file->Get(DataPath.c_str()) == NULL) status += 1L << 4;
 
   // set the current style to the tdr standard
-  style = tdrstyle();
-  style.cd();
+  //style = tdrstyle();
+  //style.cd();
 
   // set the thresholds to their default values
   ks_threshold = DEFAULT_KS_THRESHOLD;
