@@ -358,10 +358,10 @@ HLT_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Jet30_v*                            
 HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Jet30_v*                                           #sr126493
 HLT_Ele20_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC4_Mass50_v*                                      #sr126493
 HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_Mass50_v*                                        #sr126493
-HLT_Photon36_R9Id90_HE10_Iso40_v*                                                               #sr126493
-HLT_Photon50_R9Id90_HE10_Iso40_v*                                                               #sr126493
-HLT_Photon75_R9Id90_HE10_Iso40_v*                                                               #sr126493
-HLT_Photon90_R9Id90_HE10_Iso40_v*                                                               #sr126493
+#HLT_Photon36_R9Id90_HE10_Iso40_v*                                                              #sr126493 (renamed by #sr127257)
+#HLT_Photon50_R9Id90_HE10_Iso40_v*                                                              #sr126493 (renamed by #sr127257)
+#HLT_Photon75_R9Id90_HE10_Iso40_v*                                                              #sr126493 (renamed by #sr127257)
+#HLT_Photon90_R9Id90_HE10_Iso40_v*                                                              #sr126493 (renamed by #sr127257)
 HLT_Ele27_WP70_v*                                                                               #sr126493
 HLT_Ele27_WP80_v*                                                                               #sr126493
 HLT_Ele27_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*                                                 #sr126493, kept from 2011
@@ -434,7 +434,13 @@ HLT_DoubleMu4_Acoplanarity03_v*									#sr126853
 HLT_Dimuon0_Jpsi_NoVertexing_v*									#sr126853
 HLT_Mu7_Ele7_CaloIdT_CaloIsoVL_v*								#sr126853
 
-HLT_Photon22_R9Id90_HE10_Iso40_v*								#sr126852
+#HLT_Photon22_R9Id90_HE10_Iso40_v*								#sr126852  (renamed by #sr127257)
+
+HLT_Photon22_R9Id90_HE10_Iso40_v*								#sr127257
+HLT_Photon36_R9Id90_HE10_Iso40_v*                                                               #sr127257
+HLT_Photon50_R9Id90_HE10_Iso40_v*                                                               #sr127257
+HLT_Photon75_R9Id90_HE10_Iso40_v*                                                               #sr127257
+HLT_Photon90_R9Id90_HE10_Iso40_v*                                                               #sr127257
 
 HLT_BeamGas_HF_Beam1_v*                                                                         #sr126174
 HLT_BeamGas_HF_Beam2_v*                                                                         #sr126174
