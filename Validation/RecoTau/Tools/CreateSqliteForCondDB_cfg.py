@@ -8,11 +8,11 @@ Triggers = cms.VPSet(
         hltPaths = cms.vstring('HLT_IsoMu24_eta2p1_v*'),
         dataTypeToInclude = cms.vstring('RealData','RealMuonsData'),
         ),    
-    cms.PSet(
-        listName = cms.string( 'TauTriggerForSingleMuDataset' ),
-        hltPaths = cms.vstring('HLT_IsoMu24_eta2p1_v*'),
-        dataTypeToInclude = cms.vstring('RealData','RealMuonsData'),
-        ),    
+    ## cms.PSet(
+    ##     listName = cms.string( 'TauTriggerForSingleMuDataset' ),
+    ##     hltPaths = cms.vstring('HLT_IsoMu24_eta2p1_v*'),
+    ##     dataTypeToInclude = cms.vstring('RealData','RealMuonsData'),
+    ##     ),    
     cms.PSet(
         listName = cms.string( 'TauTriggerForJetDataset' ),
         hltPaths = cms.vstring('HLT_Jet30_L1FastJet_v*'),
@@ -20,7 +20,7 @@ Triggers = cms.VPSet(
         ),    
     cms.PSet(
         listName = cms.string( 'TauTriggerForMultiJetDataset' ),
-        hltPaths = cms.vstring('pippo'),
+        hltPaths = cms.vstring('HLT_Jet30_L1FastJet_v*'),
         dataTypeToInclude = cms.vstring('RealData'),
         ),    
     cms.PSet(
