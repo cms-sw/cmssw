@@ -108,7 +108,7 @@ GenericTriggerSelectionParameters = cms.PSet(
    #hltDBKey       = cms.string('jetmet_highptjet'),#Tag of the record in the database, where IOV-based HLT paths are found. This record overwrites the configuration parameter hltPaths
    hltPaths       = cms.vstring('HLT_IsoMu*_eta*_LooseIsoPFTau*_v*','HLT_DoubleIsoPFTau*_Trk*_eta*_v*'),#Lists logical expressions of HLT paths, which should have accepted the event (fallback in case DB unaccessible)
    errorReplyHlt  = cms.bool(False),#specifies the desired return value of the HLT filter and the single HLT path filter in case of certain errors
-   verbosityLevel = cms.uint32(20) #0: complete silence (default), needed for T0 processing;
+   verbosityLevel = cms.uint32(0) #0: complete silence (default), needed for T0 processing;
 )
 
 proc.PFTausHighEfficiencyLeadingPionBothProngs = cms.EDAnalyzer("TauTagValidation",
@@ -146,7 +146,7 @@ proc.RunHPSValidation.discriminators = cms.VPSet(
    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseMuonRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumMuonRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightMuonRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVAElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVAElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
 )
 
 proc.TauValNumeratorAndDenominator = cms.Sequence(
