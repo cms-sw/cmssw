@@ -93,15 +93,12 @@ foreach my $file (@filelist) {
     my ($loc, $num, $lun, $out, $fun, $fil, $ful) = split('\.', $name);
 
     my $cfgtype;
-    my $dbflag;
 
     if ( $config{'ec_mon_path'} =~ /localDAQ/ || $out eq 'Calibration' ) {
 	$cfgtype = 'Calibration';
-	$dbflag = '-b';
     }
     else {
 	$cfgtype = 'Physics';
-	$dbflag = '';
     }
 
     my $cfgfile = "$workdir/monitor-$name.py";
