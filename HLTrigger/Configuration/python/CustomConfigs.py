@@ -27,14 +27,14 @@ def Base(process):
     process.MessageLogger.categories.append('L1GtTrigReport')
     process.MessageLogger.categories.append('HLTrigReport')
 
-    if 'convertObjectMapRecords' in process.__dict__:
-        process.globalReplace('convertObjectMapRecords',cms.Sequence())
-        process.convertObjectMapRecords = cms.Sequence()
-        from HLTrigger.Configuration.HLT_FULL_cff import hltL1GtObjectMap
-        if 'hltL1GtObjectMap' in process.__dict__:
-            process.globalReplace('hltL1GtObjectMap',hltL1GtObjectMap)
-        process.hltL1GtObjectMap = hltL1GtObjectMap
-        process.HLTL1UnpackerSequence = cms.Sequence( process.hltGtDigis + process.hltGctDigis + process.hltL1GtObjectMap + process.hltL1extraParticles )
+#    if 'convertObjectMapRecords' in process.__dict__:
+#        process.globalReplace('convertObjectMapRecords',cms.Sequence())
+#        process.convertObjectMapRecords = cms.Sequence()
+#        from HLTrigger.Configuration.HLT_FULL_cff import hltL1GtObjectMap
+#        if 'hltL1GtObjectMap' in process.__dict__:
+#            process.globalReplace('hltL1GtObjectMap',hltL1GtObjectMap)
+#        process.hltL1GtObjectMap = hltL1GtObjectMap
+#        process.HLTL1UnpackerSequence = cms.Sequence( process.hltGtDigis + process.hltGctDigis + process.hltL1GtObjectMap + process.hltL1extraParticles )
 
     process=ProcessName(process)
 
