@@ -417,6 +417,8 @@ HLT_Photon40_CaloIdL_RsqMR45_Rsq0p09_MR150_v*							#sr127259
 HLT_Photon40_CaloIdL_RsqMR50_Rsq0p09_MR150_v8							#sr127259
 HLT_RsqMR65_Rsq0p09_MR150_v*									#sr127259
 
+HLT_FatDiPFJetMass750_DR1p1_Deta1p5_v*								#sr127088
+
 HLT_PixelTracks_Multiplicity70_v*								#sr126810
 HLT_PixelTracks_Multiplicity80_v*								#sr126810
 HLT_PixelTracks_Multiplicity90_v*								#sr126810
