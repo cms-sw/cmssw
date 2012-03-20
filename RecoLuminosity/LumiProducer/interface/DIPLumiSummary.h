@@ -10,7 +10,7 @@ class DIPLumiSummary {
   DIPLumiSummary(){}
   
   /// set default constructor
-  DIPLumiSummary(float instlumi,float dellumi,float reclumi,unsigned short cmsalive):m_instlumi(instlumi),m_totdellumi(dellumi),m_totreclumi(reclumi),m_deadfrac(1.0),m_cmsalive(cmsalive){}
+  DIPLumiSummary(float instlumi,float dellumi,float reclumi,unsigned short cmsalive):m_instlumi(instlumi),m_dellumi(dellumi),m_reclumi(reclumi),m_deadfrac(1.0),m_cmsalive(cmsalive){}
     
   /// destructor
   ~DIPLumiSummary(){}
@@ -21,31 +21,19 @@ class DIPLumiSummary {
   float instDelLumi() const;
   /**
      delivered luminosity integrated over this LS , 
-     instDelLumi*23.31
      unit /ub,  
   **/ 
   float intgDelLumiByLS()const;
   /**
      recorded luminosity integrated over this LS,this is deduced
-     intgRecLumi=intgDelLumi*(m_totreclumi/m_totdellumi)
      unit /ub,  
   **/ 
   float intgRecLumiByLS()const;
   /** 
       trigger Deadtime fraction, this is deduced 
-      1.0-m_totreclumi/m_totdellumi
+      1.0-m_reclumi/m_dellumi
   **/
   float deadtimefraction() const;
-  /**
-     delivered luminosity integrated since the beginning of run
-     unit /ub  
-   **/
-  float intgDelLumiSinceRun()const;
-  /**
-     recorded luminosity integrated since the beginning of run
-     unit /ub
-   **/
-  float intgRecLumiSinceRun()const;
   /**
      if cms central daq alive
    **/
@@ -55,8 +43,8 @@ class DIPLumiSummary {
   //
  private :
   float m_instlumi;//avg inst lumi in LS
-  float m_totdellumi;//total integrated luminosity counting from the beg of run
-  float m_totreclumi;
+  float m_dellumi;//integrated luminosity of this ls
+  float m_reclumi;
   mutable float m_deadfrac;
   unsigned short m_cmsalive;  
 }; 

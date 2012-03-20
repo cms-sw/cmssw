@@ -6,7 +6,7 @@
 /**\class DIPLumiProducer DIPLumiProducer.cc RecoLuminosity/LumiProducer/src/DIPLumiProducer.cc
 Description: A essource/esproducer for lumi values from DIP via runtime logger DB
 */
-// $Id: DIPLumiProducer.cc,v 1.1 2012/03/16 21:32:59 xiezhen Exp $
+// $Id: DIPLumiProducer.cc,v 1.3 2012/03/19 10:45:10 xiezhen Exp $
 
 //#include <memory>
 //#include "boost/shared_ptr.hpp"
@@ -141,8 +141,8 @@ DIPLumiProducer::fillcache(unsigned int runnumber,unsigned int startlsnum){
     coral::AttributeList lumisummaryOutput;
     lumisummaryOutput.extend("LUMISECTION",typeid(unsigned int));
     lumisummaryOutput.extend("INSTLUMI",typeid(float));
-    lumisummaryOutput.extend("DELIVLUMI",typeid(float));
-    lumisummaryOutput.extend("LIVELUMI",typeid(float));
+    lumisummaryOutput.extend("DELIVLUMISECTION",typeid(float));
+    lumisummaryOutput.extend("LIVELUMISECTION",typeid(float));
     lumisummaryOutput.extend("CMS_ACTIVE",typeid(unsigned short));
     if(m_cachesize!=0){
       lumisummaryBindVariables.extend("lsmax",typeid(unsigned int));
@@ -153,8 +153,8 @@ DIPLumiProducer::fillcache(unsigned int runnumber,unsigned int startlsnum){
     lumisummaryQuery->addToTableList(std::string("LUMI_SECTIONS"));
     lumisummaryQuery->addToOutputList("LUMISECTION");
     lumisummaryQuery->addToOutputList("INSTLUMI");
-    lumisummaryQuery->addToOutputList("DELIVLUMI");
-    lumisummaryQuery->addToOutputList("LIVELUMI");
+    lumisummaryQuery->addToOutputList("DELIVLUMISECTION");
+    lumisummaryQuery->addToOutputList("LIVELUMISECTION");
     lumisummaryQuery->addToOutputList("CMS_ACTIVE");
     lumisummaryQuery->setCondition(conditionStr,lumisummaryBindVariables);
     lumisummaryQuery->defineOutput(lumisummaryOutput);
@@ -163,9 +163,9 @@ DIPLumiProducer::fillcache(unsigned int runnumber,unsigned int startlsnum){
     while( lumisummarycursor.next() ){
       const coral::AttributeList& row=lumisummarycursor.currentRow();
       unsigned int lsnum=row["LUMISECTION"].data<unsigned int>();
-      float instlumi=row["INSTLUMI"].data<float>();
-      float intgdellumi=row["DELIVLUMI"].data<float>();
-      float intgreclumi=row["LIVELUMI"].data<float>();
+      float instlumi=row["INSTLUMI"].data<float>();//Hz/ub
+      float intgdellumi=row["DELIVLUMISECTION"].data<float>()*1000.0;//convert to /ub
+      float intgreclumi=row["LIVELUMISECTION"].data<float>()*1000.0;//convert to /ub
       unsigned short cmsalive=row["CMS_ACTIVE"].data<unsigned short>();
       boost::shared_ptr<DIPLumiSummary> tmpls(new DIPLumiSummary(instlumi,intgdellumi,intgreclumi,cmsalive));
       m_lscache.insert(std::make_pair(lsnum,tmpls));
