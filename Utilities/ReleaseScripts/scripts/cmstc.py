@@ -14,7 +14,10 @@ _tagcollector_url = 'https://cmssdt.cern.ch/tc/'
 import urllib
 import urllib2
 import cookielib
-import json
+try:
+    import json
+except ImportError:
+    import simplejson as json
 import getpass
 
 class TagCollector(object):
