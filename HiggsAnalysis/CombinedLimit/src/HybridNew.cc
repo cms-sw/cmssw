@@ -35,6 +35,7 @@
 #include "../interface/ProfiledLikelihoodRatioTestStat.h"
 #include "../interface/SimplerLikelihoodRatioTestStatExt.h"
 #include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
+#include "../interface/BestFitSigmaTestStat.h"
 #include "../interface/ToyMCSamplerOpt.h"
 #include "../interface/utils.h"
 #include "../interface/ProfileLikelihood.h"
@@ -192,7 +193,7 @@ void HybridNew::validateOptions() {
     if (testStat_ == "ModifiedProfileLikelihood"  || testStat_ == "MPL")  { testStat_ = "LHC";     }
     if (testStat_ == "SignFlipProfileLikelihood"  || testStat_ == "SFPL") { testStat_ = "LHCFC";   }
     if (testStat_ == "Atlas") { testStat_ = "LHC"; std::cout << "Note: the Atlas test statistics is now known as LHC test statistics.\n" << std::endl; }
-    if (testStat_ != "LEP" && testStat_ != "TEV" && testStat_ != "LHC"  && testStat_ != "LHCFC" && testStat_ != "Profile") {
+    if (testStat_ != "LEP" && testStat_ != "TEV" && testStat_ != "LHC"  && testStat_ != "LHCFC" && testStat_ != "Profile" && testStat_ != "MLZ") {
         throw std::invalid_argument("HybridNew: Test statistics should be one of 'LEP' or 'TEV' or 'LHC' (previously known as 'Atlas') or 'Profile'");
     }
     if (verbose) {
@@ -201,6 +202,7 @@ void HybridNew::validateOptions() {
         if (testStat_ == "LHC")     std::cout << ">>> using the Profile Likelihood test statistics modified for upper limits (Q_LHC)" << std::endl;
         if (testStat_ == "LHCFC")   std::cout << ">>> using the Profile Likelihood test statistics modified for upper limits and Feldman-Cousins (Q_LHCFC)" << std::endl;
         if (testStat_ == "Profile") std::cout << ">>> using the Profile Likelihood test statistics not modified for upper limits (Q_Profile)" << std::endl;
+        if (testStat_ == "MLZ")     std::cout << ">>> using the Maximum likelihood estimator of the signal strength as test statistics" << std::endl;
     }
     if (readHybridResults_ || workingMode_ == MakeTestStatistics || workingMode_ == MakeSignificanceTestStatistics) {
         // If not generating toys, don't need to fit nuisance parameters
@@ -503,13 +505,20 @@ bool HybridNew::runSinglePoint(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
 }
 
 bool HybridNew::runTestStatistics(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
-    RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
-    HybridNew::Setup setup;
-    std::auto_ptr<RooStats::HybridCalculator> hc(create(w, mc_s, mc_b, data, rValue_, setup));
-    RooArgSet nullPOI(*setup.modelConfig_bonly.GetSnapshot());
-    if (testStat_ == "LHC" || testStat_ == "LHCFC" || testStat_ == "Profile") nullPOI.setRealValue(r->GetName(), rValue_);
-    limit = -2 * setup.qvar->Evaluate(data, nullPOI);
-    if (testStat_ == "LHC" || testStat_ == "LHCFC" || testStat_ == "Profile") limit = -limit; // there's a sign flip for these two
+    bool isProfile = (testStat_ == "LHC" || testStat_ == "LHCFC"  || testStat_ == "Profile");
+    if (readHybridResults_ && expectedFromGrid_) {
+        std::auto_ptr<RooStats::HypoTestResult> result(readToysFromFile(0));
+        applyExpectedQuantile(*result);
+        limit = -2 * result->GetTestStatisticData();
+    } else {    
+        RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
+        HybridNew::Setup setup;
+        std::auto_ptr<RooStats::HybridCalculator> hc(create(w, mc_s, mc_b, data, rValue_, setup));
+        RooArgSet nullPOI(*setup.modelConfig_bonly.GetSnapshot());
+        if (isProfile) nullPOI.setRealValue(r->GetName(), rValue_);
+        limit = -2 * setup.qvar->Evaluate(data, nullPOI);
+    }
+    if (isProfile) limit = -limit; // there's a sign flip for these two
     std::cout << "\n -- Hybrid New -- \n";
     std::cout << "-2 ln Q_{"<< testStat_<<"} = " << limit << std::endl;
     return true;
@@ -567,7 +576,8 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   RooArgSet  poi(*mc_s->GetParametersOfInterest());
   RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
 
-  r->setMax(rVal); r->setVal(rVal); 
+  if (testStat_ != "MLZ") r->setMax(rVal); 
+  r->setVal(rVal); 
   if (testStat_ == "LHC" || testStat_ == "Profile") {
     r->setConstant(false); r->setMin(0); 
     if (workingMode_ == MakeSignificance || workingMode_ == MakeSignificanceTestStatistics) {
@@ -724,6 +734,10 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
               throw std::invalid_argument("Test statistics LHCFC is not supported without optimization");
           }
       }
+  } else if (testStat_ == "MLZ") {
+      if (workingMode_ == MakeSignificance) r->setVal(0.0);
+      RooArgSet snapS(poi); 
+      setup.qvar.reset(new BestFitSigmaTestStat(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  snapS, verbose));
   }
 
   RooAbsPdf *nuisancePdf = 0;
@@ -932,7 +946,7 @@ std::pair<double,double> HybridNew::eval(const RooStats::HypoTestResult &hcres, 
 
 void HybridNew::applyExpectedQuantile(RooStats::HypoTestResult &hcres) {
   if (expectedFromGrid_) {
-      if (workingMode_ == MakeSignificance) {
+      if (workingMode_ == MakeSignificance || workingMode_ == MakeSignificanceTestStatistics) {
           applySignalQuantile(hcres); 
       } else if (clsQuantiles_) {
           applyClsQuantile(hcres);
@@ -983,9 +997,15 @@ void HybridNew::applyClsQuantile(RooStats::HypoTestResult &hcres) {
     for (std::vector<std::pair<double,double> >::const_reverse_iterator it = bcumul.rbegin(), ed = bcumul.rend(); it != ed; ++it) {
         runningSum += it->second; 
         std::vector<std::pair<double,double> >::const_iterator match = std::upper_bound(sbegin, send, std::pair<double,double>(it->first, 0));
-        double clsb = match->second, clb = runningSum*binv, cls = clsb / clb;
-        //if ((++k) % 100 == 0) printf("At %+8.5f  CLb = %6.4f, CLsplusb = %6.4f, CLs =%7.4f\n", it->first, clb, clsb, cls);
-        xcumul.push_back(std::make_pair(CLs_ ? cls : clsb, *it));
+        if (match == send) {
+            //std::cout << "Did not find match, for it->first == " << it->first << ", as back = ( " << scumul.back().first << " , " << scumul.back().second << " ) " << std::endl;
+            double clsb = (scumul.back().second > 0.5 ? 1.0 : 0.0), clb = runningSum*binv, cls = clsb / clb;
+            xcumul.push_back(std::make_pair(CLs_ ? cls : clsb, *it));
+        } else {
+            double clsb = match->second, clb = runningSum*binv, cls = clsb / clb;
+            //if ((++k) % 100 == 0) printf("At %+8.5f  CLb = %6.4f, CLsplusb = %6.4f, CLs =%7.4f\n", it->first, clb, clsb, cls);
+            xcumul.push_back(std::make_pair(CLs_ ? cls : clsb, *it));
+        }
     }
     // sort 
     std::sort(xcumul.begin(), xcumul.end()); 

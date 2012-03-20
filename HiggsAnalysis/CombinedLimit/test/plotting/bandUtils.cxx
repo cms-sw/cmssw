@@ -690,9 +690,9 @@ void pasteFcBands(TDirectory *bands, TString band1, TString band2, TString comb,
 }
 
 
-void stripPoint(TGraph *band, int m) {
+void stripPoint(TGraph *band, float m) {
     for (int i = 0, n = band->GetN(); i < n; ++i) {
-        if (int(band->GetX()[i]) == m) {
+        if (float(band->GetX()[i]) == m) {
             band->RemovePoint(i);
             return;
         }
@@ -702,7 +702,7 @@ void stripPoint(TGraph *band, int m) {
         (band->GetX()[band->GetN()-1] >= m)) {
     }
 }
-void stripBand(TDirectory *in, TString band1, int m1, int m2=0, int m3=0, int m4=0, int m5=0) {
+void stripBand(TDirectory *in, TString band1, float m1, float m2=0, float m3=0, float m4=0, float m5=0) {
     TGraphAsymmErrors *band = (TGraphAsymmErrors *) in->Get(band1);
     if (band == 0 || band->GetN() == 0) return; 
     if (m1) stripPoint(band,m1);
@@ -713,7 +713,7 @@ void stripBand(TDirectory *in, TString band1, int m1, int m2=0, int m3=0, int m4
     in->WriteTObject(band, band->GetName(), "Overwrite");
 }
 
-void stripBands(TDirectory *in, TString band,  int m1, int m2=0, int m3=0, int m4=0, int m5=0) {
+void stripBands(TDirectory *in, TString band,  float m1, float m2=0, float m3=0, float m4=0, float m5=0) {
     stripBand(in, band+"_obs",       m1,m2,m3,m4,m5);
     stripBand(in, band+"_mean",      m1,m2,m3,m4,m5);
     stripBand(in, band+"_median",    m1,m2,m3,m4,m5);
@@ -727,6 +727,44 @@ void stripBands(TDirectory *in, TString band,  int m1, int m2=0, int m3=0, int m
     stripBand(in, band+"_nosyst_median_95", m1,m2,m3,m4,m5);
     stripBand(in, band+"_nosyst_asimov",    m1,m2,m3,m4,m5);
 }
+
+void copyPoint(TGraphAsymmErrors *from, float m, TGraphAsymmErrors *to, int idx=-1) {
+    int j = findBin(from, m);
+    if (j == -1) return;
+    if (idx == -1) { idx = to->GetN(); to->Set(idx+1); }
+    to->SetPoint(idx, from->GetX()[j], from->GetY()[j]);
+    to->SetPointError(idx, from->GetErrorXlow(j), from->GetErrorXhigh(j), from->GetErrorYlow(j), from->GetErrorYhigh(j));
+}
+void selectedPointsBand(TDirectory *in, TString band1, TString band2, float m1, float m2=0, float m3=0, float m4=0, float m5=0, float m6=0, float m7=0){
+    TGraphAsymmErrors *band = (TGraphAsymmErrors *) in->Get(band1);
+    if (band == 0 || band->GetN() == 0) return; 
+    TGraphAsymmErrors *ret = new TGraphAsymmErrors();
+    copyPoint(band, m1, ret);
+    if (m2) copyPoint(band, m2, ret);
+    if (m3) copyPoint(band, m3, ret);
+    if (m4) copyPoint(band, m4, ret);
+    if (m5) copyPoint(band, m5, ret);
+    if (m6) copyPoint(band, m6, ret);
+    if (m7) copyPoint(band, m7, ret);
+    ret->SetName(band2);
+    in->WriteTObject(ret, ret->GetName(), "Overwrite");
+}
+
+void selectedPointsBands(TDirectory *in, TString bandIn, TString bandOut,  float m1, float m2=0, float m3=0, float m4=0, float m5=0, float m6=0, float m7=0) {
+    selectedPointsBand(in, bandIn+"_obs",       bandOut+"_obs",       m1,m2,m3,m4,m5,m6,m7);
+    selectedPointsBand(in, bandIn+"_mean",      bandOut+"_mean",      m1,m2,m3,m4,m5,m6,m7);
+    selectedPointsBand(in, bandIn+"_median",    bandOut+"_median",    m1,m2,m3,m4,m5,m6,m7);
+    selectedPointsBand(in, bandIn+"_mean_95",   bandOut+"_mean_95",   m1,m2,m3,m4,m5,m6,m7);
+    selectedPointsBand(in, bandIn+"_median_95", bandOut+"_median_95", m1,m2,m3,m4,m5,m6,m7);
+    selectedPointsBand(in, bandIn+"_asimov",    bandOut+"_asimov",    m1,m2,m3,m4,m5,m6,m7);
+    selectedPointsBand(in, bandIn+"_nosyst_obs",       bandOut+"_nosyst_obs",       m1,m2,m3,m4,m5,m6,m7);
+    selectedPointsBand(in, bandIn+"_nosyst_mean",      bandOut+"_nosyst_mean",      m1,m2,m3,m4,m5,m6,m7);
+    selectedPointsBand(in, bandIn+"_nosyst_median",    bandOut+"_nosyst_median",    m1,m2,m3,m4,m5,m6,m7);
+    selectedPointsBand(in, bandIn+"_nosyst_mean_95",   bandOut+"_nosyst_mean_95",   m1,m2,m3,m4,m5,m6,m7);
+    selectedPointsBand(in, bandIn+"_nosyst_median_95", bandOut+"_nosyst_median_95", m1,m2,m3,m4,m5,m6,m7);
+    selectedPointsBand(in, bandIn+"_nosyst_asimov",    bandOut+"_nosyst_asimov",    m1,m2,m3,m4,m5,m6,m7);
+}
+
 
 void printLine(TDirectory *bands, TString who, FILE *fout, TString header="value") {
     TGraphAsymmErrors *mean = (TGraphAsymmErrors*) bands->Get(who);
