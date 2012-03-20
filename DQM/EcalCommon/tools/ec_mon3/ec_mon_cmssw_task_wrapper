@@ -52,7 +52,7 @@ else {
 
 exit 1 unless ( @filelist != 0 );
 
-if ($config{'ec_mon_era'} == '') {
+if ($config{'ec_mon_era'} eq '') {
     open LOGFILE, ">>$config{'ec_mon_master_rundir'}/dqm-data/$config{'ec_mon_master_log'}";
     print LOGFILE localtime()." - ec_mon_cmssw_task_wrapper: no era defined; cannot set workflow.\n";
     close LOGFILE;    
