@@ -36,6 +36,9 @@ public:
   virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
   //virtual void beginJob() ;
   virtual void endJob() ;
+//  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+	void FillpfMETRes();
+
 
  private:
 
