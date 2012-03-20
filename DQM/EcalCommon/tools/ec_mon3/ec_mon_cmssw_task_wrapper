@@ -122,11 +122,8 @@ foreach my $file (@filelist) {
 
     system("mv -f $cfgfile $logdir/ >> /dev/null 2>&1");
 
-    my $outputname = "DQM_V0001_R0" . $num . "__$workflow.root";
+    my $outputname = "DQM_V0001_R0" . $num . "$workflow.root";
     $outputname =~ s/\//__/g;
-    if(system("source $cmsenv; root -b -q -l '$tooldir/mergeDQMFiles.cc(\"$workdir\", \"$outputname\")'") != 0) {
-	exit 1;
-    }
 
     system("mv -f $workdir/$outputname $config{'ec_mon_master_rundir'}/dqm-data/root/ >> /dev/null 2>&1");
 
