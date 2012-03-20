@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:06:35 CET 2012
-// $Id: FWOverlapTableView.cc,v 1.5 2012/02/23 02:41:46 amraktad Exp $
+// $Id: FWOverlapTableView.cc,v 1.6 2012/02/24 23:00:56 amraktad Exp $
 //
 
 // system include files
@@ -57,11 +57,14 @@ static const std::string sUpdateMsg = "Please press Apply button to update overl
 
 FWOverlapTableView::FWOverlapTableView(TEveWindowSlot* iParent, FWColorManager* colMng) : 
    FWGeometryTableViewBase(iParent, FWViewType::kOverlapTable, colMng),
+   m_applyButton(0),
+   m_listOptionButton(0),
    m_tableManager(0),
    m_numEntry(0),
    m_runChecker(true),
    m_path(this,"Path:", std::string("/cms:World_1/cms:CMSE_1")),
    m_precision(this, "Precision", 0.05, 0.000001, 10),
+   m_listAllNodes(this, "ListAllNodes", true),
    m_rnrOverlap(this, "Overlap", true),
    m_rnrExtrusion(this, "Extrusion", true),
    m_drawPoints(this, "DrawPoints", true),
@@ -92,11 +95,20 @@ FWOverlapTableView::FWOverlapTableView(TEveWindowSlot* iParent, FWColorManager* 
       hp->AddFrame(m_numEntry, new TGLayoutHints(kLHintsNormal, 2, 2, 0, 0));
       m_numEntry->Connect("ValueSet(Long_t)","FWOverlapTableView",this,"precisionCallback(Long_t)");
    }
+
+   { 
+      m_listOptionButton  = new TGCheckButton(hp,m_listAllNodes.name().c_str());
+      m_listOptionButton->SetState( m_listAllNodes.value() ? kButtonDown : kButtonUp );
+      m_listOptionButton->Connect("Clicked()", "FWOverlapTableView", this, "setListAllNodes()");
+      hp->AddFrame(m_listOptionButton, new TGLayoutHints(kLHintsLeft|kLHintsCenterY,2,0,1,1));
+
+   }
    {
       m_applyButton = new TGTextButton (hp, "Apply");
       hp->AddFrame( m_applyButton, new TGLayoutHints(kLHintsNormal, 2, 2, 0, 0));
-       m_applyButton->Connect("Clicked()","FWOverlapTableView",this,"recalculate()");
+      m_applyButton->Connect("Clicked()","FWOverlapTableView",this,"recalculate()");
    }
+   
    m_frame->AddFrame(hp,new TGLayoutHints(kLHintsLeft|kLHintsExpandX, 4, 2, 2, 0));
    m_tableManager = new FWOverlapTableManager(this);
 
@@ -143,7 +155,18 @@ FWGeometryTableManagerBase* FWOverlapTableView::getTableManager()
 }
 
 //______________________________________________________________________________
+bool FWOverlapTableView::listAllNodes() const
+{
+   return m_listAllNodes.value();
+}
 
+//______________________________________________________________________________
+void FWOverlapTableView::setListAllNodes()
+{
+   m_listAllNodes.set( m_listOptionButton->IsOn());
+   refreshTable3D();
+}
+//______________________________________________________________________________
 
 TEveElement* FWOverlapTableView::getEveGeoElement() const
 {

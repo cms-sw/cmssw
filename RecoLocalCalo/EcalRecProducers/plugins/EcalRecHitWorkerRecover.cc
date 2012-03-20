@@ -19,7 +19,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//$Id: EcalRecHitWorkerRecover.cc,v 1.34 2012/02/15 14:37:18 vieri Exp $
+//$Id: EcalRecHitWorkerRecover.cc,v 1.35 2012/02/16 09:59:20 vieri Exp $
 
 EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps) :
         EcalRecHitWorkerBaseClass(ps)
@@ -178,7 +178,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
 				        if (alreadyInserted(*dit)) continue;
 				        float theta = ebGeom_->getGeometry(*dit)->getPosition().theta();
                                         float tpEt  = ecalScale_.getTPGInGeV( tp->compressedEt(), tp->id() );
-                                        if(!checkChannelStatus(*dit, dbStatusToBeExcludedEB_)){
+                                        if(checkChannelStatus(*dit, dbStatusToBeExcludedEB_)){
 						EcalRecHit hit( *dit, tpEt /((float)vid.size()) / sin(theta), 0.);
 						hit.setFlag( EcalRecHit::kTowerRecovered ) ;
 						if ( tp->compressedEt() == 0xFF ) hit.setFlag( EcalRecHit::kTPSaturated );

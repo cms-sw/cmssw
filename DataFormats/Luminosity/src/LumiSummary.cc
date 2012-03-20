@@ -1,5 +1,5 @@
 
-// $Id: LumiSummary.cc,v 1.22 2011/02/21 18:08:45 matevz Exp $
+// $Id: LumiSummary.cc,v 1.23 2011/04/19 09:10:42 xiezhen Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
@@ -8,11 +8,14 @@
 #include <iostream>
 float
 LumiSummary::avgInsDelLumi()const{ 
+  if(lumiversion_=="v2"){
+    return avginsdellumi_*1000.0;
+  }
   return avginsdellumi_;
 }
 float
 LumiSummary::intgDelLumi()const{
-  return avginsdellumi_*float(this->lumiSectionLength());
+  return this->avgInsDelLumi()*float(this->lumiSectionLength());
 }
 float
 LumiSummary::avgInsDelLumiErr()const{ 
@@ -20,7 +23,7 @@ LumiSummary::avgInsDelLumiErr()const{
 }
 float 
 LumiSummary::intgRecLumi()const{
-  return this->avgInsRecLumi() *float(this->lumiSectionLength());
+  return this->avgInsRecLumi()*float(this->lumiSectionLength());
 }
 short
 LumiSummary::lumiSecQual()const {
@@ -90,7 +93,7 @@ LumiSummary::nHLTPath()const{
 }
 float
 LumiSummary::avgInsRecLumi() const {
-  return avginsdellumi_ * liveFrac(); 
+  return this->avgInsDelLumi() * liveFrac(); 
 }
 float
 LumiSummary::avgInsRecLumiErr() const {
@@ -163,6 +166,7 @@ std::ostream& operator<<(std::ostream& s, const LumiSummary& lumiSummary) {
   }
   s << "  lumiVersion = " << lumiSummary.lumiVersion()  << "\n";
   s << "  avgInsDelLumi = " << lumiSummary.avgInsDelLumi() << "\n";
+  s << "  avgIntgDelLumi = " << lumiSummary.intgDelLumi() <<"\n";
   s << "  avgInsDelLumiErr = " << lumiSummary.avgInsDelLumiErr() << "\n";
   s << "  lumiSecQual = " << lumiSummary.lumiSecQual() << "\n";
   s << "  deadCount = " << lumiSummary.deadcount() << "\n";

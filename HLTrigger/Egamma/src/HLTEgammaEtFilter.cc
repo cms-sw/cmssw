@@ -1,6 +1,6 @@
 /** \class HLTEgammaEtFilter
  *
- * $Id: HLTEgammaEtFilter.cc,v 1.11 2011/05/01 08:14:08 gruen Exp $
+ * $Id: HLTEgammaEtFilter.cc,v 1.12 2012/01/21 14:56:57 fwyzard Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -56,7 +56,8 @@ HLTEgammaEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;                // vref with your specific C++ collection type
   PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
- 
+  if(recoecalcands.empty()) PrevFilterOutput->getObjects(TriggerPhoton,recoecalcands);  //we dont know if its type trigger cluster or trigger photon
+  
   // look at all candidates,  check cuts and add to filter object
   int n(0);
 

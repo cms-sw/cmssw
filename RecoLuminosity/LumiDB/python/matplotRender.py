@@ -15,16 +15,14 @@ batchonly=False
 if not os.environ.has_key('DISPLAY') or not os.environ['DISPLAY']:
     batchonly=True
     matplotlib.use('Agg',warn=False)
-    from matplotlib.backends.backend_agg import FigureCanvasAgg as CanvasBackend
 else:
     try:
-        from RecoLuminosity.LumiDB import lumiQTWidget
+        from RecoLuminosity.LumiDB import lumiQTWidget  
     except ImportError:
         print 'unable to import GUI backend, switch to batch only mode'
         matplotlib.use('Agg',warn=False)
-        from matplotlib.backends.backend_agg import FigureCanvasAgg as CanvasBackend
         batchonly=True
-
+from matplotlib.backends.backend_agg import FigureCanvasAgg as CanvasBackend
 from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager,FontProperties
 matplotlib.rcParams['lines.linewidth']=1.5

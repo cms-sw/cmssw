@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.40 2012/01/31 15:59:02 davidlt Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.41 2012/02/21 10:32:34 slaunwhj Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQM/HLTEvF/interface/FourVectorHLTOnline.h"
@@ -602,7 +602,7 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     const int hltIndex = fTriggerObj->filterIndex(filterTag);
     if ( hltIndex >= fTriggerObj->sizeFilters() ) {
 
-      LogTrace("FourVectorHLTOnline") << "WTF no index "<< index << " of that name " << filterTag << std::endl;
+      LogTrace("FourVectorHLTOnline") << "WTF no index of that name " << filterTag << std::endl;
       continue; // not in this event
 
     }

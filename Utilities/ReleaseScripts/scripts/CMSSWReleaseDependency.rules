@@ -120,6 +120,7 @@ Vis.* : Vis.*
 #Generator.* exception for Generator.* & FastSimulation
 Generator.*        : Generator.*
 FastSimulation/.*  : Generator.*
+TauAnalysis/MCEmbeddingTools/.* : GeneratorInterface/.*
 
 #f77compiler exception
 Generator.*                      : f77compiler

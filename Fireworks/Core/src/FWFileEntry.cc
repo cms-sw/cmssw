@@ -18,6 +18,7 @@
 
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/interface/fwPaths.h"
 
 FWFileEntry::FWFileEntry(const std::string& name, bool checkVersion) :
    m_name(name), m_file(0), m_eventTree(0), m_event(0),
@@ -55,7 +56,6 @@ void FWFileEntry::openFile(bool checkVersion)
 
    // check CMSSW relese version for compatibility
    if (checkVersion) {
-      bool pass = false;
       typedef std::vector<edm::ProcessConfiguration> provList;
   
       TTree   *metaData = dynamic_cast<TTree*>(m_file->Get("MetaData"));
@@ -63,29 +63,20 @@ void FWFileEntry::openFile(bool checkVersion)
       provList *x = 0;
       b->SetAddress(&x);
       b->GetEntry(0);
-      char rel[4] = { 0, 0, 0, 0 };
-      for (provList::iterator i = x->begin(); i != x->end(); ++i)
-      {
-         // std::cout << i->releaseVersion() << "  " << i->processName() << std::endl;
-         if (i->releaseVersion().size() > 11)
-         {
-            rel[0] = i->releaseVersion()[7];
-            rel[1] = i->releaseVersion()[9];
-            rel[2] = i->releaseVersion()[11];
-            int relInt = atoi(rel);
-            if (relInt >= 420)
-            {
-               pass = true;
-               break;
-            }
-         }
-      }
+
+      const edm::ProcessConfiguration& dd= x->back();
+
+      fwLog(fwlog::kInfo) << "Checking process history. " << m_name.c_str() << " latest process \""  << dd.processName() << "\", version " << dd.releaseVersion() << std::endl;
 
       b->SetAddress(0);
-
-      if (!pass)
+      TString v = dd.releaseVersion();
+      if (!fireworks::acceptDataFormatsVersion(v))
       {
-         throw std::runtime_error("Incompatible data file. Process with version CMSSW_4_2_X or more required.\nUse --no-version-check option if you still want to view the file.\n");                                   
+         int* di = (fireworks::supportedDataFormatsVersion());
+         TString msg = Form("incompatible data: Process version does not mactch major data formats version. File produced with %s. Data formats version \"CMSSW_%d_%d_%d\".\n", 
+                            dd.releaseVersion().c_str(), di[0], di[1], di[2]);
+         msg += "Use --no-version-check option if you still want to view the file.\n";
+         throw std::runtime_error(msg.Data());
       }
    }
 

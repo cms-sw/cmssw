@@ -38,6 +38,14 @@ cmsRun --parameter-set ${LOCAL_TEST_DIR}/poolsource_multiprocess_selectevents_cf
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/poolsource_multiprocess_emptyrunslumis_cfy.py || die 'Failure using poolsource_multiprocess_emptyrunslumis_cfy.py' $?
 
 #test reading of the old format files
+
+for file in ${CMSSW_BASE}/src/IOPool/Input/testdata/raw*.root
+do
+  cmsRun ${LOCAL_TEST_DIR}/test_old_raw_data_step1_cfg.py "$file" || die "Failed to read old raw data file $file" $?
+  cmsRun ${LOCAL_TEST_DIR}/test_old_raw_data_step2_cfg.py || die "Failed to read raw data file converted from $file" $?
+  rm -fr converted.root
+done
+
 for file in ${CMSSW_BASE}/src/IOPool/Input/testdata/old*.root
 do
   cmsRun ${LOCAL_TEST_DIR}/test_old_formats_cfg.py "$file" || die "Failed to read old file $file" $?

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 20:31:32 CET 2012
-// $Id: FWOverlapTableManager.cc,v 1.4 2012/02/23 00:07:37 amraktad Exp $
+// $Id: FWOverlapTableManager.cc,v 1.6 2012/03/14 23:58:21 amraktad Exp $
 //
 
 // system include files
@@ -295,14 +295,13 @@ void FWOverlapTableManager::addOverlapEntry(TGeoOverlap* ovl, int ovlIdx,  Int_t
 
 void FWOverlapTableManager::recalculateVisibility( )
 {
- // printf("overlap recalcuate vis \n");
+   // printf("overlap recalcuate vis \n");
    m_row_to_index.clear();
    int i = m_browser->getTopNodeIdx();
    m_row_to_index.push_back(i);
 
-  if (m_entries[i].testBit(kExpanded)  )
-   recalculateVisibilityNodeRec(i);
-
+   if (m_entries[i].testBit(kExpanded)  )
+      recalculateVisibilityNodeRec(i);
 }
 
 void FWOverlapTableManager::recalculateVisibilityNodeRec( int pIdx)
@@ -316,8 +315,11 @@ void FWOverlapTableManager::recalculateVisibilityNodeRec( int pIdx)
       NodeInfo& data = m_entries[idx];
 
 
-      if (data.testBitAny(kOverlap | kOverlapChild)) m_row_to_index.push_back(idx); 
-      if (data.testBit(kOverlapChild) && data.testBit(kExpanded) ) recalculateVisibilityNodeRec(idx);
+      if (m_browser->listAllNodes() || data.testBitAny(kOverlap | kOverlapChild))
+         m_row_to_index.push_back(idx);
+ 
+      if ((m_browser->listAllNodes() || data.testBit(kOverlapChild)) && data.testBit(kExpanded) )
+         recalculateVisibilityNodeRec(idx);
 
       FWGeometryTableManagerBase::getNNodesTotal(parentNode->GetDaughter(n), dOff);
    }
@@ -328,7 +330,7 @@ void FWOverlapTableManager::recalculateVisibilityNodeRec( int pIdx)
 
 bool  FWOverlapTableManager::nodeIsParent(const NodeInfo& data) const
 {
-   return   data.testBit(kOverlapChild) ;
+   return  m_browser->listAllNodes() ? data.m_node->GetNdaughters() : data.testBit(kOverlapChild) ;
 }
 
 void FWOverlapTableManager::printOverlaps(int idx) const
@@ -363,25 +365,25 @@ void FWOverlapTableManager::getOverlapTitles(int idx, TString& txt) const
 }
 //______________________________________________________________________________
 /*
-const char* FWOverlapTableManager::cellName(const NodeInfo& data) const
-{
-   if (data.m_parent == -1)
-   {
-     int ne = 0;
-     int no = 0;
-     TGeoOverlap* ovl;
-     TEveGeoManagerHolder gmgr( FWGeometryTableViewManager::getGeoMangeur());
-     TIter next_ovl(gGeoManager->GetListOfOverlaps());
-     while((ovl = (TGeoOverlap*)next_ovl())) 
-       ovl->IsOverlap() ? no++ : ne++;
+  const char* FWOverlapTableManager::cellName(const NodeInfo& data) const
+  {
+  if (data.m_parent == -1)
+  {
+  int ne = 0;
+  int no = 0;
+  TGeoOverlap* ovl;
+  TEveGeoManagerHolder gmgr( FWGeometryTableViewManager::getGeoMangeur());
+  TIter next_ovl(gGeoManager->GetListOfOverlaps());
+  while((ovl = (TGeoOverlap*)next_ovl())) 
+  ovl->IsOverlap() ? no++ : ne++;
      
-     return Form("%s Ovl[%d] Ext[%d]", data.m_node->GetName(), no, ne);
-   }
-   else
-   {
-      return data.name();
-   }
-}*/
+  return Form("%s Ovl[%d] Ext[%d]", data.m_node->GetName(), no, ne);
+  }
+  else
+  {
+  return data.name();
+  }
+  }*/
 
 //______________________________________________________________________________
 
@@ -396,7 +398,9 @@ FWTableCellRendererBase* FWOverlapTableManager::cellRenderer(int iSortedRowNumbe
 
    const NodeInfo& data = m_entries[unsortedRow];
 
-   bool isSelected = data.testBit(kHighlighted) ||  data.testBit(kSelected) ;//||  data.testBit(kOverlap);
+   bool isSelected = data.testBit(kHighlighted) ||  data.testBit(kSelected);
+   if (m_browser->listAllNodes()) isSelected = isSelected ||  data.testBit(kOverlap);
+
    if (data.testBit(kSelected))
    {
       m_highlightContext->SetBackground(0xc86464);
@@ -405,29 +409,28 @@ FWTableCellRendererBase* FWOverlapTableManager::cellRenderer(int iSortedRowNumbe
    {
       m_highlightContext->SetBackground(0x6464c8);
    }
-   /*
-   else if (data.testBit(kOverlap) )
+   else if (m_browser->listAllNodes() && data.testBit(kOverlap) )
    {
       m_highlightContext->SetBackground(0xdddddd);
-      }*/
+   }
   
-  if (iCol == 0)
-  {
-    if (unsortedRow == m_browser->getTopNodeIdx())
-    {
-      int no = 0, ne =0;
-      TEveGeoManagerHolder gmgr( FWGeometryTableViewManager::getGeoMangeur());
-      TIter next_ovl(gGeoManager->GetListOfOverlaps());
-      const TGeoOverlap* ovl;
-      while((ovl = (TGeoOverlap*)next_ovl())) 
-        ovl->IsOverlap() ? no++ : ne++;
+   if (iCol == 0)
+   {
+      if (unsortedRow == m_browser->getTopNodeIdx())
+      {
+         int no = 0, ne =0;
+         TEveGeoManagerHolder gmgr( FWGeometryTableViewManager::getGeoMangeur());
+         TIter next_ovl(gGeoManager->GetListOfOverlaps());
+         const TGeoOverlap* ovl;
+         while((ovl = (TGeoOverlap*)next_ovl())) 
+            ovl->IsOverlap() ? no++ : ne++;
       
-      m_renderer.setData(Form("%s Ovl[%d] Ext[%d]", data.m_node->GetName(), no, ne), isSelected);
-    }
-    else {
-    m_renderer.setData(data.name(), isSelected); 
-    }
-    m_renderer.setIsParent(nodeIsParent(data));
+         m_renderer.setData(Form("%s Ovl[%d] Ext[%d]", data.m_node->GetName(), no, ne), isSelected);
+      }
+      else {
+         m_renderer.setData(data.name(), isSelected); 
+      }
+      m_renderer.setIsParent(nodeIsParent(data));
 
       m_renderer.setIsOpen( data.testBit(FWGeometryTableManagerBase::kExpanded));
 
@@ -446,21 +449,21 @@ FWTableCellRendererBase* FWOverlapTableManager::cellRenderer(int iSortedRowNumbe
       {
          if (data.testBit(kOverlap) ) 
          {
-           std::string x;
-           std::pair<std::multimap<int, int>::const_iterator, std::multimap<int, int>::const_iterator> ppp;
-          ppp = m_mapNodeOverlaps.equal_range(unsortedRow);
+            std::string x;
+            std::pair<std::multimap<int, int>::const_iterator, std::multimap<int, int>::const_iterator> ppp;
+            ppp = m_mapNodeOverlaps.equal_range(unsortedRow);
 
-           TEveGeoManagerHolder gmgr( FWGeometryTableViewManager::getGeoMangeur());
+            TEveGeoManagerHolder gmgr( FWGeometryTableViewManager::getGeoMangeur());
            
-           for (std::multimap<int, int>::const_iterator it2 = ppp.first;it2 != ppp.second;++it2) {
-             const TGeoOverlap* ovl = (const TGeoOverlap*) gGeoManager->GetListOfOverlaps()->At((*it2).second);
-             if (ovl)
-               x +=  Form("%s: %g ", ovl->IsOverlap() ? "Ovl" : "Extr", ovl->GetOverlap());
-             else
-               x += "err";
+            for (std::multimap<int, int>::const_iterator it2 = ppp.first;it2 != ppp.second;++it2) {
+               const TGeoOverlap* ovl = (const TGeoOverlap*) gGeoManager->GetListOfOverlaps()->At((*it2).second);
+               if (ovl)
+                  x +=  Form("%s: %g ", ovl->IsOverlap() ? "Ovl" : "Extr", ovl->GetOverlap());
+               else
+                  x += "err";
              
-           }
-           m_renderer.setData(x,  isSelected);
+            }
+            m_renderer.setData(x,  isSelected);
          }
          else
          {
@@ -484,19 +487,19 @@ FWTableCellRendererBase* FWOverlapTableManager::cellRenderer(int iSortedRowNumbe
       }
       else if (iCol == 5)
       { 
-        bool motherV = false;
-        if (data.testBit(kOverlapChild))
-        {
-          for (std::vector<int>::iterator i = m_browser->m_markerIndices.begin(); i!= m_browser->m_markerIndices.end(); i++)
-          {
-            if (TMath::Abs(*i) == unsortedRow) {
-              motherV = true;
-              break;
+         bool motherV = false;
+         if (data.testBit(kOverlapChild))
+         {
+            for (std::vector<int>::iterator i = m_browser->m_markerIndices.begin(); i!= m_browser->m_markerIndices.end(); i++)
+            {
+               if (TMath::Abs(*i) == unsortedRow) {
+                  motherV = true;
+                  break;
+               }
             }
-          }
-        }
+         }
 
-        m_renderer.setData(motherV ? (data.testBit(kVisMarker) ? "On" : "-") : "", isSelected);         
+         m_renderer.setData(motherV ? (data.testBit(kVisMarker) ? "On" : "-") : "", isSelected);         
       }
    }
    return &m_renderer;

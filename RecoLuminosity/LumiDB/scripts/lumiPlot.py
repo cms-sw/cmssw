@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 VERSION='1.00'
 import os,sys,datetime,time,commands,csv
-from RecoLuminosity.LumiDB import lumiTime,argparse,CommonUtil,matplotRender,sessionManager,lumiCalcAPI,lumiCorrections,dataDML
+from RecoLuminosity.LumiDB import lumiTime,argparse,CommonUtil,matplotRender,sessionManager,lumiCalcAPI,lumiCorrections,dataDML,lumiParameters
 from matplotlib.figure import Figure
 def parseInputFiles(inputfilename,dbrunlist,optaction):
     '''
@@ -40,12 +40,13 @@ if __name__=='__main__':
     parser.add_argument('-c',
                         dest='connect',
                         action='store',
-                        help='connect string to lumiDB')
+                        help='connect string to lumiDB',
+                        default='frontier://LumiCalc/CMS_LUMI_PROD')
     parser.add_argument('-P',
                         dest='authpath',
                         action='store',
                         help='path to authentication file')
-    parser.add_argument('-norm',
+    parser.add_argument('--norm',
                         dest='norm',
                         action='store',
                         default='pp7TeV',
@@ -64,7 +65,7 @@ if __name__=='__main__':
                         dest='beamstatus',
                         action='store',
                         help='selection criteria beam status')
-    parser.add_argument('-amodetag',
+    parser.add_argument('--amodetag',
                         dest='amodetag',
                         action='store',
                         help='accelerator mode')
@@ -151,12 +152,13 @@ if __name__=='__main__':
     outtextfilename = outplotfilename+'.csv'
     if options.withoutTextoutput:
         outtextfilename=None
+    lumip=lumiParameters.ParametersObject()
     svc=sessionManager.sessionManager(options.connect,
                                       authpath=options.authpath,
                                       siteconfpath=options.siteconfpath,
                                       debugON=options.debug)
     session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
-    lslength=23.357
+    lslength=lumip.lslengthsec()
     begtime=options.begintime
     endtime=options.endtime
     lut=lumiTime.lumiTime()
@@ -224,7 +226,8 @@ if __name__=='__main__':
             irunlsdict[run]=None            
     runlist=irunlsdict.keys()
     runlist.sort()
-    print 'runs needed from db ',runlist
+    if options.verbose:
+        print 'runs needed from db ',runlist
     filllist=[]
     #print irunlsdict            
     fig=Figure(figsize=(7.2,5.4),dpi=120)
@@ -282,8 +285,9 @@ if __name__=='__main__':
     if options.action=='time':
         for run in sorted(lumibyls):
             rundata=lumibyls[run]
-            rawdata.setdefault('Delivered',[]).append((run,rundata[0][2],rundata[-1][2],sum([t[5] for t in rundata])))
-            rawdata.setdefault('Recorded',[]).append((run,rundata[0][2],rundata[-1][2],sum([t[6] for t in rundata])))
+            if len(rundata)!=0:
+                rawdata.setdefault('Delivered',[]).append((run,rundata[0][2],rundata[-1][2],sum([t[5] for t in rundata])))
+                rawdata.setdefault('Recorded',[]).append((run,rundata[0][2],rundata[-1][2],sum([t[6] for t in rundata])))
         m.plotSumX_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename)
     if options.action=='perday':
         daydict={}

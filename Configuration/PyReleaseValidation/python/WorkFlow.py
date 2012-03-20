@@ -5,18 +5,16 @@ import re
 
 class WorkFlow(object):
 
-    def __init__(self, num, nameID, cmd1=None, cmd2=None, cmd3=None, cmd4=None, inputInfo=None, commands=None):
+    def __init__(self, num, nameID, inputInfo=None, commands=None):
 
         self.numId  = num
         self.nameId = nameID
         self.cmds = []
-        self.check(cmd1)
-        self.check(cmd2, 100)
-        self.check(cmd3, 100)
-        self.check(cmd4, 100)
+
         if commands:
             for (i,c) in enumerate(commands):
-                self.check(c,10 + (i==0)*90)
+                nToRun=10 + (i!=0)*90
+                self.check(c,nToRun)
         
 
         # run on real data requested:

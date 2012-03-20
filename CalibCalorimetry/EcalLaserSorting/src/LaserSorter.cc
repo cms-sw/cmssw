@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: LaserSorter.cc,v 1.13 2011/09/21 23:18:01 pgras Exp $
+ * $Id: LaserSorter.cc,v 1.15 2012/02/03 11:11:46 vskarupe Exp $
  */
 
 /***************************************************
@@ -980,6 +980,7 @@ bool LaserSorter::writeIndexTable(std::ofstream& out,
   return rc;
 }
 
+//beware this method change the pointer position in the ifstream in
 bool LaserSorter::readIndexTable(std::ifstream& in,
                                  std::string& inName,
                                  OutStreamRecord& outRcd,
@@ -988,7 +989,7 @@ bool LaserSorter::readIndexTable(std::ifstream& in,
 
   ifstream* s = &in;
   
-  streampos pos = s->tellg();
+  //streampos pos = s->tellg();
   s->clear();
   s->seekg(0);
   
@@ -1050,6 +1051,7 @@ bool LaserSorter::readIndexTable(std::ifstream& in,
     outRcd.excludedOrbit().insert((*outRcd.indices())[i].orbit);
   }
   if(verbosity_>1) cout << "\n";
+
   return true;
 }
 

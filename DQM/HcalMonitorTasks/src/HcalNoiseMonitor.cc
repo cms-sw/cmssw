@@ -376,22 +376,22 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
 
       int NoiseCategory = 0;
       bool IsRBXNoise = false;
-      bool IsHPDNoise = false;
-      bool IsHPDIonFeedback = false;
-      bool IsHPDDischarge = false;
+      /* bool IsHPDNoise = false; */
+      /* bool IsHPDIonFeedback = false; */
+      /* bool IsHPDDischarge = false; */
 
       if(RBXEnergy > 1e-5 && HighestHPDEnergy / RBXEnergy > 0.98)
       {
-         IsHPDNoise = true;
+         /* IsHPDNoise = true; */
 
          if(HighestHPDHits >= 9)
          {
-            IsHPDDischarge = true;
+            /* IsHPDDischarge = true; */
             NoiseCategory = 7;
          }
          else
          {
-            IsHPDIonFeedback = true;
+            /* IsHPDIonFeedback = true; */
             NoiseCategory = 8;
          }
       }

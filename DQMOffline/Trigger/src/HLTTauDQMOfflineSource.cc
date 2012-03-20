@@ -43,11 +43,33 @@ void HLTTauDQMOfflineSource::beginRun( const edm::Run& iRun, const EventSetup& i
         if ( hltMenuChanged_ ) {
             processPSet(ps_);
             if (verbose_) {
-                std::cout << "Configuration of '" << moduleName_ << "' for trigger menu '" << HLTCP_.tableName() << "'" << std::endl;
+                std::cout << "Trigger menu '" << HLTCP_.tableName() << "'" << std::endl;
+                HLTCP_.dump("Triggers");
+                
+                std::cout << std::endl << "Configuration of '" << moduleName_ << "' for trigger menu '" << HLTCP_.tableName() << "'" << std::endl;
                 for ( unsigned int i = 0; i < config_.size(); ++i ) {
                     std::cout << config_[i].dump() << std::endl;
                 }
                 std::cout << matching_.dump() << std::endl << std::endl;
+                
+                unsigned int npars = 14;
+                npars += countParameters(matching_);
+                for ( unsigned int i = 0; i < config_.size(); ++i ) {
+                    npars += countParameters(config_[i]);
+                }
+                
+                std::cout << "--> Number of parameters: " << npars << std::endl;
+                std::cout << std::endl << "Event content need by this module: " << std::endl;
+                
+                std::vector<edm::InputTag> evtcontent;
+                for ( unsigned int i = 0; i < config_.size(); ++i ) {
+                    searchEventContent(evtcontent, config_[i]);
+                }
+                searchEventContent(evtcontent, matching_);
+                
+                for (std::vector<edm::InputTag>::const_iterator iter = evtcontent.begin(); iter != evtcontent.end(); ++iter) {
+                    std::cout << " " << iter->encode() << std::endl;
+                }
             }
         }
     } else {
@@ -219,6 +241,43 @@ void HLTTauDQMOfflineSource::processPSet( const edm::ParameterSet& pset ) {
                 edm::LogWarning("HLTTauDQMSource") << e.what() << std::endl;
                 continue;
             }
+        }
+    }
+}
+
+unsigned int HLTTauDQMOfflineSource::countParameters( const edm::ParameterSet& pset ) {
+    unsigned int num = 0;
+    const std::map<std::string,edm::ParameterSetEntry>& tmppset = pset.psetTable();
+    for ( std::map<std::string,edm::ParameterSetEntry>::const_iterator iter = tmppset.begin(); iter != tmppset.end(); ++iter ) {
+        num += countParameters(iter->second.pset());
+    }
+    const std::map<std::string,edm::VParameterSetEntry>& tmpvpset = pset.vpsetTable();
+    for ( std::map<std::string,edm::VParameterSetEntry>::const_iterator iter = tmpvpset.begin(); iter != tmpvpset.end(); ++iter ) {
+        const std::vector<edm::ParameterSet>& tmpvec = iter->second.vpset();
+        for ( std::vector<edm::ParameterSet>::const_iterator iter2 = tmpvec.begin(); iter2 != tmpvec.end(); ++iter2 ) {
+            num += countParameters(*iter2);
+        }
+    }
+    num += pset.tbl().size();
+    return num;
+}
+
+void HLTTauDQMOfflineSource::searchEventContent(std::vector<edm::InputTag>& eventContent, const edm::ParameterSet& pset) {
+    for (std::map< std::string, edm::Entry >::const_iterator i = pset.tbl().begin(), e = pset.tbl().end(); i != e; ++i) {
+        if (std::string(1,i->second.typeCode()) == "t") {
+            std::vector<edm::InputTag>::iterator iter = std::find(eventContent.begin(), eventContent.end(), i->second.getInputTag());
+            if (iter == eventContent.end()) {
+                eventContent.push_back(i->second.getInputTag());
+            }
+        }
+    }
+    for (std::map< std::string, edm::ParameterSetEntry >::const_iterator i = pset.psetTable().begin(), e = pset.psetTable().end(); i != e; ++i) {
+        searchEventContent(eventContent, i->second.pset());
+    }
+    for (std::map< std::string, edm::VParameterSetEntry >::const_iterator i = pset.vpsetTable().begin(), e = pset.vpsetTable().end(); i != e; ++i) {
+        std::vector<edm::ParameterSet> vpset = i->second.vpset();
+        for (std::vector<edm::ParameterSet>::const_iterator iter = vpset.begin(); iter != vpset.end(); ++iter) {
+            searchEventContent(eventContent, *iter);
         }
     }
 }

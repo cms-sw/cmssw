@@ -60,7 +60,6 @@ def removeTtSemiLepHypGenMatch(process):
 ## -> this works for "jets", "leps", "mets", "maxNJets"
 def setForAllTtSemiLepHypotheses(process, attribute, value):
     modules = ["findTtSemiLepJetCombGeom",
-               "findTtSemiLepJetCombGeom",
                "ttSemiLepHypGeom",
                "ttSemiLepHypMaxSumPtWMass",
                "ttSemiLepHypWMassMaxSumPt",
@@ -80,8 +79,10 @@ def setForAllTtSemiLepHypotheses(process, attribute, value):
 
 ## use electrons instead of muons for the hypotheses
 def useElectronsForAllTtSemiLepHypotheses(process, elecLabel = "selectedPatElectrons"):
-    ## replace lepton InputTags in all modules
-    setForAllTtSemiLepHypotheses(process, "leps", elecLabel)
     ## use correct KinFitter module
     import TopQuarkAnalysis.TopKinFitter.TtSemiLepKinFitProducer_Electrons_cfi
     process.kinFitTtSemiLepEventHypothesis = TopQuarkAnalysis.TopKinFitter.TtSemiLepKinFitProducer_Electrons_cfi.kinFitTtSemiLepEvent.clone()
+    import TopQuarkAnalysis.TopHitFit.TtSemiLepHitFitProducer_Electrons_cfi
+    process.hitFitTtSemiLepEventHypothesis = TopQuarkAnalysis.TopHitFit.TtSemiLepHitFitProducer_Electrons_cfi.hitFitTtSemiLepEvent.clone()
+    ## replace lepton InputTags in all modules
+    setForAllTtSemiLepHypotheses(process, "leps", elecLabel)

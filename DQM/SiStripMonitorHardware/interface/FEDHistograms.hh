@@ -91,11 +91,14 @@ public:
 
   MonitorElement *cmHistPointer(bool aApv1);
 
+  MonitorElement *getFedvsAPVpointer();
+
 protected:
   
 private:
 
   //counting histograms (histogram of number of problems per event)
+
   HistogramConfig fedEventSize_;
   HistogramConfig fedMaxEventSizevsTime_;
 
@@ -149,7 +152,8 @@ private:
     badMajorityAddresses_,
     badMajorityInPartition_,
     feMissing_, 
-    anyFEProblems_;
+    anyFEProblems_,
+    fedIdVsApvId_;
 
   HistogramConfig feTimeDiffTIB_,
     feTimeDiffTOB_,

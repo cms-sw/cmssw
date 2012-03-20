@@ -76,6 +76,7 @@ def OptionsFromItems(items):
                  "reSIM":"SIM",
                  "DIGI":"SIM",
                  "reDIGI":"DIGI",
+                 "L1REPACK":"RAW",
                  "HLT":"RAW",
                  "RECO":"DIGI",
                  "ALCA":"RECO",

@@ -74,7 +74,10 @@ def CalcPileup (deadTable, parameters, mode='deadtable'):
 
         if ((lumiSection > 0)):
             #print " LS, Total lumi, filled xings %d, %f, %d" %(lumiSection,TotalLumi,FilledXings)
-            AveLumi = TotalLumi/FilledXings
+            if FilledXings > 0:
+                AveLumi = TotalLumi/FilledXings
+            else:
+                AveLumi = 0
             RMSLumi = 0
             Denom = TotalWeight*TotalWeight-TotalWeight2
             if TotalLumi > 0 and Denom > 0:
@@ -147,11 +150,11 @@ if __name__ == '__main__':
             runLumiDict = {}    
             csvDict = {}
             pieces = sepRE.split (line.strip())
-            if len (pieces) < 6: # means we are missing data; keep track of LS, lumi
+            if len (pieces) < 7: # means we are missing data; keep track of LS, lumi
                 InGap = 1
                 try:
                     run,       lumi     = int  ( pieces[0] ), int  ( pieces[1] )
-                    delivered, recorded = float( pieces[2] ), float( pieces[3] )
+                    delivered, recorded = float( pieces[6] ), float( pieces[7] )
                 except:
                     if pieces[0] != 'run':
                         print " cannot parse csv file "
@@ -159,16 +162,18 @@ if __name__ == '__main__':
                     continue
                 GapDict[lumi] = [delivered, recorded]
                 continue
-            if len (pieces) % 2:
+            #if len (pieces) % 2:
                 # not an even number
-                continue
+            #    continue
             try:
                 run,       lumi     = int  ( pieces[0] ), int  ( pieces[1] )
-                delivered, recorded = float( pieces[2] ), float( pieces[3] )
+                delivered, recorded = float( pieces[6] ), float( pieces[7] )
                 xingInstLumiArray = [( int(orbit), float(lum) ) \
-                                     for orbit, lum in zip( pieces[4::2],
-                                                            pieces[5::2] ) ]
+                                     for orbit, lum in zip( pieces[8::2],
+                                                            pieces[9::2] ) ]
             except:
+                print " Bad Parsing"
+                print pieces[0],pieces[1],pieces[2],pieces[3],pieces[4],pieces[5]
                 continue
 
             csvDict.setdefault (run, {})[lumi] = \

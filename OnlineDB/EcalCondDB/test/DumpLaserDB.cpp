@@ -224,8 +224,6 @@ public:
     init();
     std::map<int, int> detids = econn->getLogicId2DetIdMap();
     std::cout << "Crystal map got: " << detids.size() << std::endl;
-    std::map<int, int>::const_iterator imap = detids.begin();
-    std::map<int, int>::const_iterator emap = detids.end();
     for (run_t run = run_min; run <= run_max; run++) {
       std::cout << "Analyzing run " << run << std::endl << std::flush;
       run_num = run;

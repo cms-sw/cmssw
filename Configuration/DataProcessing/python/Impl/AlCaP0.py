@@ -10,8 +10,7 @@ from Configuration.DataProcessing.Impl.AlCa import AlCa
 
 class AlCaP0(AlCa):
     def __init__(self):
-        self.skims=['EcalCalPi0Calib',
-                    'EcalCalEtaCalib']
+        self.skims=['@AlCaP0']
     """
     _AlCaP0_
 

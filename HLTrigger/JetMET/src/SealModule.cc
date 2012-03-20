@@ -17,7 +17,7 @@
 #include "HLTrigger/JetMET/interface/HLTHcalTowerNoiseCleaner.h"
 #include "HLTrigger/JetMET/interface/PFJetsMatchedToFilteredCaloJetsProducer.h"
 #include "HLTrigger/JetMET/interface/HLTNVFilter.h"
-#include "HLTrigger/JetMET/interface/HLTJetIDProducer.h"
+#include "HLTrigger/JetMET/interface/HLTCaloJetIDProducer.h"
 #include "HLTrigger/JetMET/interface/HLTPFJetIDProducer.h"
 
 //Work with all jet collections without changing the module name
@@ -64,9 +64,6 @@
 #include "HLTrigger/JetMET/interface/HLTJetVBFFilter.h"
 #include "HLTrigger/JetMET/src/HLTJetVBFFilter.cc"
 //
-#include "HLTrigger/JetMET/interface/HLTMhtHtFilter.h"
-#include "HLTrigger/JetMET/src/HLTMhtHtFilter.cc"
-//
 #include "HLTrigger/JetMET/interface/HLTForwardBackwardJetsFilter.h"
 #include "HLTrigger/JetMET/src/HLTForwardBackwardJetsFilter.cc"
 //
@@ -112,9 +109,6 @@ typedef HLTJetCollectionsVBFFilter<  PFJet> HLTPFJetCollectionsVBFFilter;
 typedef HLTJetVBFFilter<CaloJet> HLTCaloJetVBFFilter;
 typedef HLTJetVBFFilter<  PFJet> HLTPFJetVBFFilter;
 
-typedef HLTMhtHtFilter<CaloJet> HLTCaloMhtHtFilter;
-typedef HLTMhtHtFilter<  PFJet> HLTPFMhtHtFilter;
-
 typedef HLTForwardBackwardJetsFilter<CaloJet> HLTForwardBackwardCaloJetsFilter;
 typedef HLTForwardBackwardJetsFilter<  PFJet> HLTForwardBackwardPFJetsFilter;
 
@@ -135,7 +129,7 @@ DEFINE_FWK_MODULE(HLTPFEnergyFractionsFilter);
 DEFINE_FWK_MODULE(HLTHtMhtFilter);
 DEFINE_FWK_MODULE(HLTMhtFilter);
 DEFINE_FWK_MODULE(HLTHPDFilter);
-DEFINE_FWK_MODULE(HLTJetIDProducer);
+DEFINE_FWK_MODULE(HLTCaloJetIDProducer);
 DEFINE_FWK_MODULE(HLTPFJetIDProducer);
 DEFINE_FWK_MODULE(HLTHcalMETNoiseFilter);
 DEFINE_FWK_MODULE(HLTHcalMETNoiseCleaner);
@@ -181,9 +175,6 @@ DEFINE_FWK_MODULE(HLTPFJetL1MatchProducer);
 
 DEFINE_FWK_MODULE(HLTCaloJetVBFFilter);
 DEFINE_FWK_MODULE(HLTPFJetVBFFilter);
-
-DEFINE_FWK_MODULE(HLTCaloMhtHtFilter);
-DEFINE_FWK_MODULE(HLTPFMhtHtFilter);
 
 DEFINE_FWK_MODULE(HLTForwardBackwardCaloJetsFilter);
 DEFINE_FWK_MODULE(HLTForwardBackwardPFJetsFilter);

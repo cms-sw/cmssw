@@ -29,11 +29,11 @@ HLTElectronPFMTFilter::~HLTElectronPFMTFilter(){}
 
 void HLTElectronPFMTFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputMetTag",edm::InputTag("hltPFMHT"));
   desc.add<edm::InputTag>("inputEleTag",edm::InputTag("hltEle25CaloIdVTTrkIdTCaloIsoTTrkIsoTTrackIsolFilter"));
   desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
   desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
-  desc.add<bool>("saveTags",false);
   desc.add<bool>("relaxed",true);
   desc.add<int>("minN",0);
   desc.add<double>("minMht",0.0);

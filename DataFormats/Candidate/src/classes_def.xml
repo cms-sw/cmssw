@@ -9,10 +9,10 @@
    <version ClassVersion="11" checksum="2698562380"/>
    <version ClassVersion="10" checksum="2605909260"/>
   </class>
-  <ioread sourceClass = "Particle" version="[1-]" targetClass="Particle" source = "" target="cachePolarFixed_">
+  <ioread sourceClass = "reco::Particle" version="[1-]" targetClass="reco::Particle" source = "" target="cachePolarFixed_">
     <![CDATA[cachePolarFixed_ = false;]]>
   </ioread>
-  <ioread sourceClass = "Particle" version="[1-]" targetClass="Particle" source = "" target="cacheCartesianFixed_">
+  <ioread sourceClass = "reco::Particle" version="[1-]" targetClass="reco::Particle" source = "" target="cacheCartesianFixed_">
     <![CDATA[cacheCartesianFixed_ = false;]]>
   </ioread>
   <class name="reco::Candidate" ClassVersion="10">
@@ -28,10 +28,10 @@
    <version ClassVersion="11" checksum="1947948955"/>
    <version ClassVersion="10" checksum="4128105563"/>
   </class>
-  <ioread sourceClass = "LeafCandidate" version="[1-]" targetClass="LeafCandidate" source = "" target="cachePolarFixed_">
+  <ioread sourceClass = "reco::LeafCandidate" version="[1-]" targetClass="reco::LeafCandidate" source = "" target="cachePolarFixed_">
     <![CDATA[cachePolarFixed_ = false;]]>
   </ioread>
-  <ioread sourceClass = "LeafCandidate" version="[1-]" targetClass="LeafCandidate" source = "" target="cacheCartesianFixed_">
+  <ioread sourceClass = "reco::LeafCandidate" version="[1-]" targetClass="reco::LeafCandidate" source = "" target="cacheCartesianFixed_">
     <![CDATA[cacheCartesianFixed_ = false;]]>
   </ioread>
   <class name="reco::CompositeCandidate" ClassVersion="10">

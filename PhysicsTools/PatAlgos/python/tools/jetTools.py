@@ -516,7 +516,7 @@ class AddJetCollection(ConfigToolBase):
                         )
 
                     ## add MET corrections to sequence
-                    addClone('patMETs', metSource = cms.InputTag(jetCorrLabel[0]+'Type1CorMet'))
+                    addClone('patMETs', metSource = cms.InputTag(jetCorrLabel[0]+'Type1CorMet'), addMuonCorrections = False)
                     setattr(process,'produce'+jetCorrLabel[0]+'METCorrections',producePFMETCorrections.copy())
                     getattr(process,'produce'+jetCorrLabel[0]+'METCorrections').replace(getattr(process,'pfCandsNotInJet'),      getattr(process,jetCorrLabel[0]+'CandsNotInJet'))
                     getattr(process,'produce'+jetCorrLabel[0]+'METCorrections').replace(getattr(process,'pfJetMETcorr'),         getattr(process,jetCorrLabel[0]+'JetMETcorr'))
@@ -829,9 +829,7 @@ class SwitchJetCollection(ConfigToolBase):
 
                     ## add MET corrections to sequence
                     getattr(process, 'patMETs'+ postfix).metSource = cms.InputTag('pfType1CorrectedMet'+postfix)
-                    getattr(process,'patDefaultSequence'+postfix).replace(getattr(process,'patJetCorrFactors'+postfix),
-                                                                          getattr(process,'kt6PFJets'+postfix)
-                                                                          *getattr(process,'patJetCorrFactors'+postfix))
+                    getattr(process, 'patMETs'+ postfix).addMuonCorrections = False
                     getattr(process,'producePFMETCorrections'+postfix).remove(getattr(process,'kt6PFJets'))#,            getattr(process,'kt6PFJets'            +postfix))
                     getattr(process,'producePFMETCorrections'+postfix).remove(getattr(process,'ak5PFJets'))#,            getattr(process,'ak5PFJets'            +postfix))
                     getattr(process,'producePFMETCorrections'+postfix).replace(getattr(process,'pfCandsNotInJet'),      getattr(process,'pfCandsNotInJet'      +postfix))
@@ -844,6 +842,10 @@ class SwitchJetCollection(ConfigToolBase):
                     getattr(process,"patDefaultSequence"+postfix).replace( getattr(process,'patMETs'+postfix),
                                                                            getattr(process,'producePFMETCorrections'+postfix)
                                                                            *getattr(process,'patMETs'+postfix) )
+
+            getattr(process,'patDefaultSequence'+postfix).replace(getattr(process,'patJetCorrFactors'+postfix),
+                                                                  getattr(process,'kt6PFJets'+postfix)
+                                                                  *getattr(process,'patJetCorrFactors'+postfix))
         else:
             ## remove the jetCorrFactors from the std sequence
             process.patJetMETCorrections.remove(process.patJetCorrFactors)

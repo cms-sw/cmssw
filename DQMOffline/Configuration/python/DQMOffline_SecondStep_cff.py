@@ -92,8 +92,8 @@ DQMStepTwo_Common_Muon = cms.Sequence( DQMHarvestCommon * DQMHarvestMuon)
 
 DQMStepTwo_Common_Hcal_JetMET = cms.Sequence( DQMHarvestCommon * DQMHarvestHcal * DQMHarvestJetMET)
 
-DQMStepTwo_Common_Ecal = cms.Sequence( DQMHarvestCommon * DQMHarvestEcal)
+DQMStepTwo_Common_Ecal = cms.Sequence( DQMHarvestCommon * DQMHarvestEcal) 
 
-DQMStepTwo_Common_Ecal_Hcal = cms.Sequence( DQMHarvestCommon * DQMHarvestEcal * DQMHarvestHcal)
+DQMStepTwo_Common_Ecal_Hcal_Muon = cms.Sequence( DQMHarvestCommon * DQMHarvestEcal * DQMHarvestHcal * DQMHarvestMuon)
                                    
 DQMStepTwo_Common_Muon_JetMET = cms.Sequence( DQMHarvestCommon * DQMHarvestMuon * DQMHarvestJetMET)

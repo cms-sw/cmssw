@@ -3,14 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from HLTrigger.Configuration import customizeHLTforL1Emulator
 
 
-def Base(process):
-#   default modifications
-
-    process.options.wantSummary = cms.untracked.bool(True)
-
-    process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
-    process.MessageLogger.categories.append('L1GtTrigReport')
-    process.MessageLogger.categories.append('HLTrigReport')
+def ProcessName(process):
+#   processname modifications
 
     if 'hltTrigReport' in process.__dict__:
         process.hltTrigReport.HLTriggerResults = cms.InputTag( 'TriggerResults','',process.name_() )
@@ -20,6 +14,29 @@ def Base(process):
 
     if 'hltDQML1SeedLogicScalers' in process.__dict__:
         process.hltDQML1SeedLogicScalers.processname = process.name_()
+
+    return(process)
+
+
+def Base(process):
+#   default modifications
+
+    process.options.wantSummary = cms.untracked.bool(True)
+
+    process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
+    process.MessageLogger.categories.append('L1GtTrigReport')
+    process.MessageLogger.categories.append('HLTrigReport')
+
+    if 'convertObjectMapRecords' in process.__dict__:
+        process.globalReplace('convertObjectMapRecords',cms.Sequence())
+        process.convertObjectMapRecords = cms.Sequence()
+        from HLTrigger.Configuration.HLT_FULL_cff import hltL1GtObjectMap
+        if 'hltL1GtObjectMap' in process.__dict__:
+            process.globalReplace('hltL1GtObjectMap',hltL1GtObjectMap)
+        process.hltL1GtObjectMap = hltL1GtObjectMap
+        process.HLTL1UnpackerSequence = cms.Sequence( process.hltGtDigis + process.hltGctDigis + process.hltL1GtObjectMap + process.hltL1extraParticles )
+
+    process=ProcessName(process)
 
     return(process)
 

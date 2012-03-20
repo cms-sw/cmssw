@@ -85,8 +85,6 @@ process.p = cms.Path(
     process.patDefaultSequence
 )
 
-
-
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
 #  parameters:
@@ -94,15 +92,12 @@ process.p = cms.Path(
 #
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
-#   process.source.fileNames = [          ##
-#    '/store/relval/CMSSW_3_8_6/RelValTTbar/GEN-SIM-RECO/START38_V13-v1/0065/F438C4C4-BCE7-DF11-BC6B-002618943885.root'
-#   ]                                     ##  (e.g. 'file:AOD.root')
+#   process.source.fileNames =  ...       ##  (e.g. 'file:AOD.root')
 #                                         ##
-process.maxEvents.input = 100             ##  (e.g. -1 to run on all events)
+process.maxEvents.input = 10
 #                                         ##
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #                                         ##
-#   process.out.fileName = ...            ##  (e.g. 'myTuple.root')
+process.out.fileName = 'patTuple_addJets.root'
 #                                         ##
-process.options.wantSummary = False       ##  (to suppress the long output at the end of the job)
-
+#   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)

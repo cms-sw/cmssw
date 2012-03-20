@@ -476,7 +476,7 @@ void htmlErrors(int runNo, std::string htmlDir, std::string client, std::string 
     MonitorElement* me = dbe->get(meName);
     errorFile << "<br>" << std::endl;
     errorFile << "<br>" << std::endl;
-    char* substr = strstr(meName.c_str(), client.c_str());
+    const char * substr = strstr(meName.c_str(), client.c_str());
     if(me->getMeanError(2)==0){
       TH1F* obj1f = getHisto(substr, process.c_str(), dbe);
       std::string save = getIMG(runNo,obj1f,1,htmlDir,"X1a","Y1a");
@@ -519,7 +519,7 @@ void htmlErrors(int runNo, std::string htmlDir, std::string client, std::string 
     MonitorElement* me = dbe->get(meName);
     errorFile << "<br>" << std::endl;
     errorFile << "<br>" << std::endl;
-    char* substr = strstr(meName.c_str(), client.c_str());
+    const char * substr = strstr(meName.c_str(), client.c_str());
     if(me->getMeanError(2)==0){
       TH1F* obj1f = getHisto(substr, process.c_str(), dbe);
       std::string save = getIMG(runNo,obj1f,1,htmlDir,"X1b","Y1b");
@@ -561,7 +561,7 @@ void htmlErrors(int runNo, std::string htmlDir, std::string client, std::string 
     errorFile << "<br>" << std::endl;
     errorFile << "<br>" << std::endl;
     MonitorElement* me = dbe->get(meName);
-    char* substr = strstr(meName.c_str(), client.c_str());
+    const char * substr = strstr(meName.c_str(), client.c_str());
     if(me->getMeanError(2)==0){
       TH1F* obj1f = getHisto(substr, process.c_str(), dbe);
       std::string save = getIMG(runNo,obj1f,1,htmlDir,"X1c","Y1c");

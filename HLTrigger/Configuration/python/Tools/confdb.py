@@ -33,6 +33,8 @@ class HLTProcess(object):
     "AlCa_RPCMuonNoTriggers_v*",
     "AlCa_RPCMuonNormalisation_v*",
     "AlCa_LumiPixels_v*",
+    "AlCa_LumiPixels_Random_v*",
+    "AlCa_LumiPixels_ZeroBias_v*",
     "DQM_FEDIntegrity_v*",
     "HLT_Calibration_v*",
     "HLT_EcalCalibration_v*",
@@ -54,29 +56,10 @@ class HLTProcess(object):
     "HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v*",
     "HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v*",
     
-  # TODO: paths not supported by FastSim, but for which a recovery should be attempted
-    "HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*",
-    "HLT_Mu5_Track0_Jpsi_B5Q7_v*",
-    "HLT_Mu5_Track2_Jpsi_v*",
-    "HLT_Mu5_Track3p5_Jpsi_v*",
-    "HLT_Mu5_Track5_Jpsi_v*",
-    "HLT_Mu7_Track5_Jpsi_v*",
-    "HLT_Mu7_Track7_Jpsi_v*",
-
-    # TODO: paths removed from the 2012 menu, for which a recovery should be attempted as soon as that menu is more stabel
-    "HLT_HT250_L1FastJet_DoubleDisplacedPFJet60_v*",
-    "HLT_HT250_L1FastJet_DoubleDisplacedPFJet60_ChgFraction10_v*",
-    "HLT_HT250_L1FastJet_SingleDisplacedPFJet60_v*",
-    "HLT_HT250_L1FastJet_SingleDisplacedPFJet60_ChgFraction10_v*",
-    "HLT_Jet80Eta1p7_Jet70Eta1p7_L1FastJet_DiBTagIP3D_v*",
-    "HLT_Jet60Eta1p7_Jet53Eta1p7_L1FastJet_DiBTagIP3D_v*",
-    "HLT_Jet160Eta2p4_Jet120Eta2p4_L1FastJet_DiBTagIP3DLoose_v*",
-    "HLT_DiJet80Eta2p6_L1FastJet_BTagIP3DLoose_v*",
-    "HLT_DiJet40Eta2p6_L1FastJet_BTagIP3D_v*",
-    "HLT_Tau2Mu_RegPixTrack_v*",
-    "HLT_QuadL1FastJet_BTagIP_VBF_v*",
-    "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v*",
-  )
+# TODO: paths not supported by FastSim, but for which a recovery should be attempted
+    "HLT_Tau2Mu_ItTrack_v*",
+  
+    )
 
   def __init__(self, configuration):
     self.config = configuration
@@ -253,14 +236,15 @@ if 'hltHfreco' in %(dict)s:
 
     if self.config.fragment:
       
-      self.data += """
-# dummyfy hltGetConditions in cff's
-if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
-    %(process)shltDummyConditions = cms.EDFilter( "HLTBool",
-        result = cms.bool( True )
-    )
-    %(process)sHLTriggerFirstPath.replace(%(process)shltGetConditions,%(process)shltDummyConditions)
-"""
+#      self.data += """
+## dummyfy hltGetConditions in cff's
+#if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
+#    %(process)shltDummyConditions = cms.EDFilter( "HLTBool",
+#        result = cms.bool( True )
+#    )
+#    %(process)sHLTriggerFirstPath.replace(%(process)shltGetConditions,%(process)shltDummyConditions)
+#"""
+
       # if requested, adapt the configuration for FastSim
       self.fixForFastSim()
 
@@ -365,6 +349,7 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
       self._fix_parameter(                               type = 'InputTag', value = 'hltMuonDTDigis',       replace = 'simMuonDTDigis')
       self._fix_parameter(                               type = 'InputTag', value = 'hltMuonRPCDigis',      replace = 'simMuonRPCDigis')
       self._fix_parameter(                               type = 'InputTag', value = 'hltRegionalTracksForL3MuonIsolation', replace = 'hltPixelTracks')
+      self._fix_parameter(name = 'src',                  type = 'InputTag', value = 'hltHcalTowerNoiseCleaner', replace = 'hltTowerMakerForAll')
 
       # fix the definition of sequences and paths
       self.data = re.sub( r'hltMuonCSCDigis', r'cms.SequencePlaceholder( "simMuonCSCDigis" )',  self.data )
@@ -392,7 +377,7 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
       self.data += """
 # remove the HLT prescales
 if 'PrescaleService' in %(dict)s:
-    %(process)sPrescaleService.lvl1DefaultLabel = cms.untracked.string( '0' )
+    %(process)sPrescaleService.lvl1DefaultLabel = cms.string( '0' )
     %(process)sPrescaleService.lvl1Labels       = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
     %(process)sPrescaleService.prescaleTable    = cms.VPSet( )
 """
@@ -415,52 +400,39 @@ if 'PrescaleService' in %(dict)s:
   def overrideGlobalTag(self):
     # overwrite GlobalTag
     # the logic is:
-    #   - for running online, do nothing, unless a globaltag has been specified on the command line
-    #   - for running offline on data, only add the pfnPrefix
-    #   - for running offline on mc, take the GT from the command line of the configuration.type
+    #   - always set the correct connection string and pfnPrefix
+    #   - if a GlobalTag is specified on the command line:
+    #      - override the global tag
     #      - if the GT is "auto:...", insert the code to read it from Configuration.AlCa.autoCond
-    text = ''
-    if self.config.online:
-      if self.config.globaltag:
-        # override the GlobalTag connection string and pfnPrefix
-        text += """
-# override the GlobalTag
-if 'GlobalTag' in %%(dict)s:
-    %%(process)sGlobalTag.connect   = '%%(connect)s/CMS_COND_31X_GLOBALTAG'
-    %%(process)sGlobalTag.pfnPrefix = cms.untracked.string('%%(connect)s/')
-    %%(process)sGlobalTag.globaltag = '%(globaltag)s'
-"""
+    #   - if a GlobalTag is NOT  specified on the command line:
+    #      - when running on data, do nothing, and keep the global tag in the menu
+    #      - when running on mc, take the GT from the configuration.type
 
-    else:
-      # override the GlobalTag connection string and pfnPrefix
-      text += """
+    # override the GlobalTag connection string and pfnPrefix
+    text = """
 # override the GlobalTag, connection string and pfnPrefix
 if 'GlobalTag' in %%(dict)s:
     %%(process)sGlobalTag.connect   = '%%(connect)s/CMS_COND_31X_GLOBALTAG'
     %%(process)sGlobalTag.pfnPrefix = cms.untracked.string('%%(connect)s/')
 """
 
-      if self.config.data:
-        # do not override the GlobalTag unless one was specified on the command line
-        pass
+    # when running on MC, override the global tag even if not specified on the command line
+    if not self.config.data and not self.config.globaltag:
+      if self.config.type in globalTag:
+        self.config.globaltag = globalTag[self.config.type]
       else:
-        # check if a specific GlobalTag was specified on the command line, or choose one from the configuration.type
-        if not self.config.globaltag:
-          if self.config.type in globalTag:
-            self.config.globaltag = globalTag[self.config.type]
-          else:
-            self.config.globaltag = globalTag['GRun']
+        self.config.globaltag = globalTag['GRun']
 
-      # check if the GlobalTag is an autoCond or an explicit tag
-      if not self.config.globaltag:
-        # when running on data, do not override the GlobalTag unless one was specified on the command line
-        pass
-      elif self.config.globaltag.startswith('auto:'):
-        self.config.menuGlobalTagAuto = self.config.globaltag[5:]
-        text += "    from Configuration.AlCa.autoCond import autoCond\n"
-        text += "    %%(process)sGlobalTag.globaltag = autoCond['%(menuGlobalTagAuto)s']\n"
-      else:
-        text += "    %%(process)sGlobalTag.globaltag = '%(globaltag)s'\n"
+    # check if the GlobalTag is an autoCond or an explicit tag
+    if not self.config.globaltag:
+      # skip the cases with no override
+      pass
+    elif self.config.globaltag.startswith('auto:'):
+      self.config.menuGlobalTagAuto = self.config.globaltag[5:]
+      text += "    from Configuration.AlCa.autoCond import autoCond\n"
+      text += "    %%(process)sGlobalTag.globaltag = autoCond['%(menuGlobalTagAuto)s']\n"
+    else:
+      text += "    %%(process)sGlobalTag.globaltag = '%(globaltag)s'\n"
 
     self.data += text % self.config.__dict__
 
@@ -656,7 +628,7 @@ if 'GlobalTag' in %%(dict)s:
       if not 'hltGetRaw' in self.data:
         # add hltGetRaw
         text += """
-%%(process)shltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
+%(process)shltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
     RawDataCollection = cms.InputTag( "rawDataCollector" )
 )
 """
@@ -883,21 +855,23 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "hltPixelVertices" )
       self.options['modules'].append( "-hltCkfL1SeededTrackCandidates" )
       self.options['modules'].append( "-hltCtfL1SeededithMaterialTracks" )
-      self.options['modules'].append( "-hltCkfL1IsoTrackCandidates" )
-      self.options['modules'].append( "-hltCtfL1IsoWithMaterialTracks" )
-      self.options['modules'].append( "-hltCkfL1NonIsoTrackCandidates" )
-      self.options['modules'].append( "-hltCtfL1NonIsoWithMaterialTracks" )
-      self.options['modules'].append( "-hltCkf3HitL1IsoTrackCandidates" )
       self.options['modules'].append( "-hltCkf3HitL1SeededTrackCandidates" )
       self.options['modules'].append( "-hltCtf3HitL1SeededWithMaterialTracks" )
-      self.options['modules'].append( "-hltCkf3HitL1IsoTrackCandidates" )
-      self.options['modules'].append( "-hltCtf3HitL1IsoWithMaterialTracks" )
-      self.options['modules'].append( "-hltCkf3HitL1NonIsoTrackCandidates" )
-      self.options['modules'].append( "-hltCtf3HitL1NonIsoWithMaterialTracks" )
       self.options['modules'].append( "-hltCkf3HitActivityTrackCandidates" )
       self.options['modules'].append( "-hltCtf3HitActivityWithMaterialTracks" )
+      self.options['modules'].append( "-hltActivityCkfTrackCandidatesForGSF" )
       self.options['modules'].append( "-hltMuCkfTrackCandidates" )
       self.options['modules'].append( "-hltMuCtfTracks" )
+      self.options['modules'].append( "-hltTau3MuCkfTrackCandidates" )
+      self.options['modules'].append( "-hltTau3MuCtfWithMaterialTracks" )
+      self.options['modules'].append( "-hltMuTrackJpsiCkfTrackCandidates" )
+      self.options['modules'].append( "-hltMuTrackJpsiCtfTracks" )
+      self.options['modules'].append( "-hltMuTrackJpsiEffCkfTrackCandidates" )
+      self.options['modules'].append( "-hltMuTrackJpsiEffCtfTracks" )
+      self.options['modules'].append( "-hltJpsiTkPixelSeedFromL3Candidate" )
+      self.options['modules'].append( "-hltCkfTrackCandidatesJpsiTk" )
+      self.options['modules'].append( "-hltCtfWithMaterialTracksJpsiTk" )
+      
       self.options['modules'].append( "-hltESRegionalEgammaRecHit" )
       self.options['modules'].append( "-hltEcalRegionalJetsFEDs" )
       self.options['modules'].append( "-hltEcalRegionalMuonsFEDs" )
@@ -927,6 +901,22 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltPFJetCkfTrackCandidates" )
       self.options['modules'].append( "-hltPFJetCtfWithMaterialTracks" )
       self.options['modules'].append( "-hltPFlowTrackSelectionHighPurity" )
+      # === hltFastJet
+      self.options['modules'].append( "-hltDisplacedHT250L1FastJetRegionalPixelSeedGenerator" )
+      self.options['modules'].append( "-hltDisplacedHT250L1FastJetRegionalCkfTrackCandidates" )
+      self.options['modules'].append( "-hltDisplacedHT250L1FastJetRegionalCtfWithMaterialTracks" )     
+      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorbbPhiL1FastJet" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesbbPhiL1FastJet" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksbbPhiL1FastJet" )     
+      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorHbbVBF" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesHbbVBF" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksHbbVBF" )
+      self.options['modules'].append( "-hltBLifetimeBTagIP3D1stTrkRegionalPixelSeedGeneratorJet20HbbL1FastJet" )
+      self.options['modules'].append( "-hltBLifetimeBTagIP3D1stTrkRegionalCkfTrackCandidatesJet20HbbL1FastJet" )
+      self.options['modules'].append( "-hltBLifetimeBTagIP3D1stTrkRegionalCtfWithMaterialTracksJet20HbbL1FastJet" )
+      self.options['modules'].append( "-hltBLifetimeDiBTagIP3D1stTrkRegionalPixelSeedGeneratorJet20HbbL1FastJet" )
+      self.options['modules'].append( "-hltBLifetimeDiBTagIP3D1stTrkRegionalCkfTrackCandidatesJet20HbbL1FastJet" )
+      self.options['modules'].append( "-hltBLifetimeDiBTagIP3D1stTrkRegionalCtfWithMaterialTracksJet20HbbL1FastJet" )
       # === hltBLifetimeRegional
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorSingleTop" )
       self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksSingleTop" )
@@ -964,6 +954,8 @@ if 'GlobalTag' in %%(dict)s:
 
       self.options['modules'].append( "-hltPixelTracksForMinBias" )
       self.options['modules'].append( "-hltPixelTracksForHighMult" )
+      self.options['modules'].append( "-hltRegionalPixelTracks" )
+      self.options['modules'].append( "-hltRegPixelTracks" )
       self.options['modules'].append( "-hltIter4Merged" )
       self.options['modules'].append( "-hltPFJetCtfWithMaterialTracks" )
       self.options['modules'].append( "hltPixelMatchElectronsActivity" )
@@ -979,8 +971,6 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltScalersRawToDigi" )
 
       self.options['sequences'].append( "-HLTL1SeededEgammaRegionalRecoTrackerSequence" )
-#      self.options['sequences'].append( "-HLTL1IsoEgammaRegionalRecoTrackerSequence" )
-#      self.options['sequences'].append( "-HLTL1NonIsoEgammaRegionalRecoTrackerSequence" )
       self.options['sequences'].append( "-HLTEcalActivityEgammaRegionalRecoTrackerSequence" )
       self.options['sequences'].append( "-HLTPixelMatchElectronActivityTrackingSequence" )
       self.options['sequences'].append( "-HLTDoLocalStripSequence" )
@@ -997,6 +987,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTHBHENoiseSequence" )
       self.options['sequences'].append( "-HLTIterativeTracking" )
       self.options['sequences'].append( "-HLTRegionalCKFTracksForL3Isolation" )
+      self.options['sequences'].append( "-HLTHBHENoiseCleanerSequence" )
 
       # remove HLTAnalyzerEndpath from fastsim cff's
       if self.config.fragment:

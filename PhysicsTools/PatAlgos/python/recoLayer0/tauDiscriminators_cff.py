@@ -18,13 +18,24 @@ patFixedConePFTauDiscrimination = cms.Sequence(
 )
 patHPSPFTauDiscrimination = cms.Sequence(
     hpsPFTauDiscriminationByDecayModeFinding +
+    hpsPFTauDiscriminationByVLooseIsolation +
     hpsPFTauDiscriminationByLooseIsolation +
     hpsPFTauDiscriminationByMediumIsolation +
     hpsPFTauDiscriminationByTightIsolation +
+    hpsPFTauDiscriminationByVLooseIsolationDBSumPtCorr +
+    hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr +
+    hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr +
+    hpsPFTauDiscriminationByTightIsolationDBSumPtCorr +
+    hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr +
+    hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr +
+    hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr +
+    hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr +
     hpsPFTauDiscriminationByLooseElectronRejection +
     hpsPFTauDiscriminationByMediumElectronRejection +
     hpsPFTauDiscriminationByTightElectronRejection +
+    hpsPFTauDiscriminationByMVAElectronRejection +
     hpsPFTauDiscriminationByLooseMuonRejection +
+    hpsPFTauDiscriminationByMediumMuonRejection +
     hpsPFTauDiscriminationByTightMuonRejection
 )
 patShrinkingConePFTauDiscrimination = cms.Sequence(
@@ -49,9 +60,8 @@ patShrinkingConePFTauDiscrimination = cms.Sequence(
 )
 
 patCaloTauDiscrimination = cms.Sequence(
-    caloRecoTauDiscriminationAgainstElectron  +  
+    caloRecoTauDiscriminationAgainstElectron  +
     caloRecoTauDiscriminationByIsolation +
     caloRecoTauDiscriminationByLeadingTrackFinding +
-    caloRecoTauDiscriminationByLeadingTrackPtCut 
+    caloRecoTauDiscriminationByLeadingTrackPtCut
 )
-

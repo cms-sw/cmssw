@@ -45,7 +45,6 @@
 #include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 #include "TH2D.h"
 #include "TVector3.h"
-#include "RecoMET/METProducers/interface/METProducer.h"
 
 class TCMETAlgo 
 {

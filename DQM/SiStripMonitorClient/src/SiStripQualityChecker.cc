@@ -73,6 +73,8 @@ SiStripQualityChecker::SiStripQualityChecker(edm::ParameterSet const& ps):pSet_(
   tracking_mes.UpperCut = TkPSet.getParameter<double>("UpperCut");
   TrackingMEsMap.insert(std::pair<std::string, TrackingMEs>("RecHits", tracking_mes));
 
+  useGoodTracks_  = pSet_.getUntrackedParameter<bool>("UseGoodTracks", false);
+  if (useGoodTracks_) edm::LogInfo("SiStripQualityChecker") <<  " use GoodTrack histograms for certification " << "\n" ;
 }
 //
 // --  Destructor
@@ -302,8 +304,15 @@ void SiStripQualityChecker::fillTrackingStatus(DQMStore* dqm_store) {
   dir = "TrackParameters"; 
   if (!SiStripUtility::goToDir(dqm_store, dir)) return;
   
-  std::vector<MonitorElement*> meVec1 = dqm_store->getContents(dqm_store->pwd()+"/GeneralProperties");
-  std::vector<MonitorElement*> meVec2 = dqm_store->getContents(dqm_store->pwd()+"/HitProperties");
+  std::vector<MonitorElement*> meVec1;
+  std::vector<MonitorElement*> meVec2;
+  if (useGoodTracks_){
+    meVec1 = dqm_store->getContents(dqm_store->pwd()+"/GeneralProperties/GoodTracks");
+    meVec2 = dqm_store->getContents(dqm_store->pwd()+"/HitProperties/GoodTracks");
+  }else{
+    meVec1 = dqm_store->getContents(dqm_store->pwd()+"/GeneralProperties");
+    meVec2 = dqm_store->getContents(dqm_store->pwd()+"/HitProperties");
+  }
   std::vector<MonitorElement*> meVec(meVec1.size() + meVec2.size()); 
   std::merge(meVec1.begin(), meVec1.end(), meVec2.begin(), meVec2.end(), meVec.begin());
 
@@ -598,11 +607,19 @@ void SiStripQualityChecker::fillTrackingStatusAtLumi(DQMStore* dqm_store){
   if (!SiStripUtility::goToDir(dqm_store, dir)) return;
   dir = "TrackParameters"; 
   if (!SiStripUtility::goToDir(dqm_store, dir)) return;
-  
-  std::vector<MonitorElement*> meVec1 = dqm_store->getContents(dqm_store->pwd()+"/GeneralProperties");
-  std::vector<MonitorElement*> meVec2 = dqm_store->getContents(dqm_store->pwd()+"/HitProperties");
+
+  std::vector<MonitorElement*> meVec1;
+  std::vector<MonitorElement*> meVec2;
+  if (useGoodTracks_){
+    meVec1 = dqm_store->getContents(dqm_store->pwd()+"/GeneralProperties/GoodTracks");
+    meVec2 = dqm_store->getContents(dqm_store->pwd()+"/HitProperties/GoodTracks");
+  }else{
+    meVec1 = dqm_store->getContents(dqm_store->pwd()+"/GeneralProperties");
+    meVec2 = dqm_store->getContents(dqm_store->pwd()+"/HitProperties");
+  }
   std::vector<MonitorElement*> meVec(meVec1.size() + meVec2.size()); 
   std::merge(meVec1.begin(), meVec1.end(), meVec2.begin(), meVec2.end(), meVec.begin());
+
   float gstatus = 1.0;
   for (std::vector<MonitorElement*>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
     MonitorElement * me = (*it);     

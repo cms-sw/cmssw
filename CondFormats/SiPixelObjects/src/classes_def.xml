@@ -6,6 +6,7 @@
   <field name="theNCols" transient="true"/>
   </class>
 
+  <class name="SiPixelFedCabling"/>
   <class name="SiPixelFedCablingMap::Key"/>
   <class name="std::map<SiPixelFedCablingMap::Key,sipixelobjects::PixelROC>"/>
   <class name="std::pair<const SiPixelFedCablingMap::Key,sipixelobjects::PixelROC>"/>

@@ -17,7 +17,6 @@ void
 FWGLEventHandler::PopupContextMenu(TGLPhysicalShape* pshp,  Event_t *event, Int_t gx, Int_t gy)
 {
    // Popup context menu.
-
   
    if (event->fState & kKeyShiftMask && event->fState & kKeyControlMask)
    {
@@ -26,16 +25,21 @@ FWGLEventHandler::PopupContextMenu(TGLPhysicalShape* pshp,  Event_t *event, Int_
    }
 
   
-   if (pshp && pshp->GetLogical())
-   {
-      SelectForClicked(event);
-
+  if (pshp)
+  {
+    SelectForClicked(event);
+    
+    if (pshp->GetLogical()) 
+    {
       FWGeoTopNodeGLScene* js = dynamic_cast<FWGeoTopNodeGLScene*>(pshp->GetLogical()->GetScene());
-      if (js)
-         js->GeoPopupMenu(gx, gy);
-      else
-         openSelectedModelContextMenu_(gx,gy);
-   }
+      if (js) {
+        js->GeoPopupMenu(gx, gy);
+        return;
+      }
+    }
+    
+    openSelectedModelContextMenu_(gx,gy);
+  }
 }
 
 Bool_t FWGLEventHandler::HandleKey(Event_t *event)

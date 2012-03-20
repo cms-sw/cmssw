@@ -114,8 +114,7 @@ namespace edm {
     phv.push_back(ProcessHistory()); // For new processHistory, containing only processConfiguration_.
     for(std::vector<ProcessHistory>::iterator it = phv.begin(), itEnd = phv.end(); it != itEnd; ++it) {
       ProcessHistoryID oldPHID = it->id();
-      std::vector<ProcessConfiguration>& pcv = const_cast<std::vector<ProcessConfiguration>&>(it->data());
-      pcv.insert(pcv.begin(), processConfiguration_);
+      it->push_front(processConfiguration_);
       ProcessHistoryID newPHID = it->id();
       phidMap_.insert(std::make_pair(oldPHID, newPHID));
     }

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/02/18 13:33:23 $
- *  $Revision: 1.32 $
+ *  $Date: 2012/02/24 08:05:24 $
+ *  $Revision: 1.33 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -174,16 +174,18 @@ void TrackingMonitor::beginJob(void)
       
       // temporary patch in order to put back those MEs in Muon Workspace
       //      if (doGoodTrackPlots_) {
-	histname = "NumberOfGoodTracks_" + CategoryName;
-	NumberOfGoodTracks = dqmStore_->book1D(histname, histname, TKNoBin, TKNoMin, TKNoMax);
-	NumberOfGoodTracks->setAxisTitle("Number of Good Tracks per Event", 1);
-	NumberOfGoodTracks->setAxisTitle("Number of Events", 2);
+      dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties/GoodTracks");
+
+      histname = "NumberOfGoodTracks_" + CategoryName;
+      NumberOfGoodTracks = dqmStore_->book1D(histname, histname, TKNoBin, TKNoMin, TKNoMax);
+      NumberOfGoodTracks->setAxisTitle("Number of Good Tracks per Event", 1);
+      NumberOfGoodTracks->setAxisTitle("Number of Events", 2);
       
-	histname = "FractionOfGoodTracks_" + CategoryName;
-	FractionOfGoodTracks = dqmStore_->book1D(histname, histname, 101, -0.005, 1.005);
-	FractionOfGoodTracks->setAxisTitle("Fraction of High Purity Tracks (Tracks with Pt>1GeV)", 1);
-	FractionOfGoodTracks->setAxisTitle("Entries", 2);
-	//      }
+      histname = "FractionOfGoodTracks_" + CategoryName;
+      FractionOfGoodTracks = dqmStore_->book1D(histname, histname, 101, -0.005, 1.005);
+      FractionOfGoodTracks->setAxisTitle("Fraction of High Purity Tracks (Tracks with Pt>1GeV)", 1);
+      FractionOfGoodTracks->setAxisTitle("Entries", 2);
+      //      }
     }
 
 

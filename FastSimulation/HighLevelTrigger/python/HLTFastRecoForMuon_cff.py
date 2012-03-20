@@ -46,9 +46,21 @@ hltL3TrackCandidateFromL2NoVtx = FastSimulation.Muons.TrackCandidateFromL2_cfi.h
 hltL3TrackCandidateFromL2NoVtx.SeedProducer = "hltL3TrajectorySeedNoVtx"
 
 
-
 # (Not-so) Regional Tracking - needed because the TrackCandidateProducer needs the seeds 
 from FastSimulation.Tracking.GlobalPixelTracking_cff import *
+
+
+# Seeds (just clone the hltMuTrackSeeds with a different InputVertexCollection, for now):
+hltJpsiTkPixelSeedFromL3Candidate = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
+    useEventsWithNoVertex = cms.bool( True ),
+    originHalfLength = cms.double( 1.0E9 ),
+    useProtoTrackKinematics = cms.bool( False ),
+    InputVertexCollection = cms.InputTag( "hltDisplacedmumuVtxProducerDoubleMu4JpsiTk" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+    InputCollection = cms.InputTag( "hltL3Muons" ),
+    originRadius = cms.double( 1.0 )
+)
+
 
 # CKFTrackCandidateMaker
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
@@ -56,9 +68,27 @@ import FastSimulation.Tracking.TrackCandidateProducer_cfi
 hltMuCkfTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 hltMuCkfTrackCandidates.SeedProducer = cms.InputTag("hltMuTrackSeeds")
 hltMuCkfTrackCandidates.TrackProducers = []
-hltMuCkfTrackCandidates.MaxNumberOfCrossedLayers = 999
 hltMuCkfTrackCandidates.SeedCleaning = True
 hltMuCkfTrackCandidates.SplitHits = False
+
+hltMuTrackJpsiCkfTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
+hltMuTrackJpsiCkfTrackCandidates.SeedProducer = cms.InputTag("hltMuTrackJpsiTrackSeeds")
+hltMuTrackJpsiCkfTrackCandidates.TrackProducers = []
+hltMuTrackJpsiCkfTrackCandidates.SeedCleaning = True
+hltMuTrackJpsiCkfTrackCandidates.SplitHits = False
+
+hltMuTrackJpsiEffCkfTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
+hltMuTrackJpsiEffCkfTrackCandidates.SeedProducer = cms.InputTag("hltMuTrackJpsiTrackSeeds")
+hltMuTrackJpsiEffCkfTrackCandidates.TrackProducers = []
+hltMuTrackJpsiEffCkfTrackCandidates.SeedCleaning = True
+hltMuTrackJpsiEffCkfTrackCandidates.SplitHits = False
+
+hltCkfTrackCandidatesJpsiTk = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
+hltCkfTrackCandidatesJpsiTk.SeedProducer = cms.InputTag("hltJpsiTkPixelSeedFromL3Candidate")
+hltCkfTrackCandidatesJpsiTk.TrackProducers = []
+hltCkfTrackCandidatesJpsiTk.SeedCleaning = True
+hltCkfTrackCandidatesJpsiTk.SplitHits = False
+
 
 # CTF track fit with material
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
@@ -68,6 +98,24 @@ hltMuCtfTracks.src = 'hltMuCkfTrackCandidates'
 hltMuCtfTracks.TTRHBuilder = 'WithoutRefit'
 hltMuCtfTracks.Fitter = 'KFFittingSmoother'
 hltMuCtfTracks.Propagator = 'PropagatorWithMaterial'
+
+hltMuTrackJpsiCtfTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+hltMuTrackJpsiCtfTracks.src = 'hltMuTrackJpsiCkfTrackCandidates'
+hltMuTrackJpsiCtfTracks.TTRHBuilder = 'WithoutRefit'
+hltMuTrackJpsiCtfTracks.Fitter = 'KFFittingSmoother'
+hltMuTrackJpsiCtfTracks.Propagator = 'PropagatorWithMaterial'
+
+hltMuTrackJpsiEffCtfTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+hltMuTrackJpsiEffCtfTracks.src = 'hltMuTrackJpsiEffCkfTrackCandidates'
+hltMuTrackJpsiEffCtfTracks.TTRHBuilder = 'WithoutRefit'
+hltMuTrackJpsiEffCtfTracks.Fitter = 'KFFittingSmoother'
+hltMuTrackJpsiEffCtfTracks.Propagator = 'PropagatorWithMaterial'
+
+hltCtfWithMaterialTracksJpsiTk = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+hltCtfWithMaterialTracksJpsiTk.src = 'hltCkfTrackCandidatesJpsiTk'
+hltCtfWithMaterialTracksJpsiTk.TTRHBuilder = 'WithoutRefit'
+hltCtfWithMaterialTracksJpsiTk.Fitter = 'KFFittingSmoother'
+hltCtfWithMaterialTracksJpsiTk.Propagator = 'PropagatorWithMaterial'
 
 
 #hltMuTrackSeedsSequence = cms.Sequence(globalPixelTracking+

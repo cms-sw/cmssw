@@ -5,10 +5,10 @@ class TString;
 
 namespace fireworks
 {
-   void setPath( TString& v);
-
-   // AMT TODO move static FWCheckIconBox::iconDir here
-   // void iconDir();
+void setPath( TString& v);
+void getDecomposedVersion(const TString& s, int* out);
+int* supportedDataFormatsVersion();
+bool acceptDataFormatsVersion(TString& n);
 }
 
 

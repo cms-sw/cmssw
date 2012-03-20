@@ -4,7 +4,7 @@ import sys
 
 from Configuration.PyReleaseValidation.MatrixReader import MatrixReader
 from Configuration.PyReleaseValidation.MatrixRunner import MatrixRunner
-from Configuration.PyReleaseValidation.MatrixInjector import MatrixInjector
+from Configuration.PyReleaseValidation.MatrixInjector import MatrixInjector,performInjectionOptionTest
         
 # ================================================================================
 
@@ -28,7 +28,7 @@ def runSelected(opt):
         if opt.testList : print 'testListected items:', opt.testList
     else:
         mRunnerHi = MatrixRunner(mrd.workFlows, opt.nThreads)
-        ret = mRunnerHi.runTests(opt.testList,dryRun=(opt.wmcontrol=='test'))
+        ret = mRunnerHi.runTests(opt.testList,opt.dryRun)
 
     if opt.wmcontrol:
         if ret!=0:
@@ -110,6 +110,7 @@ if __name__ == '__main__':
                       )
     parser.add_option('--wmcontrol',
                       help='Create the workflows for injection to WMAgent. In the WORKING. -wmcontrol init will create the the workflows, -wmcontrol test will dryRun a test, -wmcontrol submit will submit to wmagent',
+                      choices=['init','test','submit','force'],
                       dest='wmcontrol',
                       default=None,
                       )
@@ -118,27 +119,43 @@ if __name__ == '__main__':
                       dest='command',
                       default=None
                       )
+    parser.add_option('--workflow',
+                      help='define a workflow to be created or altered from the matrix',
+                      action='append',
+                      dest='workflow',
+                      default=None
+                      )
+    parser.add_option('--dryRun',
+                      help='do not run the wf at all',
+                      action='store_true',
+                      dest='dryRun',
+                      default=False
+                      )
+    
     
     opt,args = parser.parse_args()
     if opt.testList: opt.testList = map(float,opt.testList.split(','))
     if opt.restricted:
+        limitedMatrix=[5.1, #FastSim ttbar
+                       8, #BH/Cosmic MC
+                       25, #MC ttbar
+                       4.22, #cosmic data
+                       4.291, #hlt data
+                       1000, #data+prompt
+                       1001, #data+express
+                       4.53, #HI data
+                       40, #HI MC
+                       ]
         if opt.testList:
-            opt.testList.extend([5.2,7,8,25,121,123.3])
+            opt.testList.extend(limitedMatrix)
         else:
-            opt.testList=[5.2,7,8,25,121,123.3]
+            opt.testList=limitedMatrix
     if opt.useInput: opt.useInput = opt.useInput.split(',')
     if opt.fromScratch: opt.fromScratch = opt.fromScratch.split(',')
     if opt.nThreads: opt.nThreads=int(opt.nThreads)
 
     if opt.wmcontrol:
-        if opt.show:
-            print 'Not injecting to wmagent in --show mode. Need to run the worklfows.'
-            sys.exit(-1)
-        if opt.wmcontrol=='submit' and opt.nThreads==0:
-            print 'Not injecting to wmagent in -j 0 mode. Need to run the worklfows.'
-            sys.exit(-1)
-        if opt.wmcontrol=='init':        opt.nThreads=0
-
+        performInjectionOptionTest(opt)
         
     # some sanity checking:
     if opt.useInput and opt.useInput != 'all' :

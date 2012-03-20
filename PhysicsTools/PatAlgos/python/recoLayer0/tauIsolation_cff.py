@@ -3,13 +3,13 @@ import copy
 
 # compute IsoDeposits from all PFCandidates
 tauIsoDepositPFCandidates = cms.EDProducer("CandIsoDepositProducer",
-    src = cms.InputTag("shrinkingConePFTauProducer"),
+    src = cms.InputTag("hpsPFTauProducer"),
     MultipleDepositsFlag = cms.bool(False),
     trackType = cms.string('candidate'),
     ExtractorPSet = cms.PSet(
         # PFTau specific Extractor, which allows to exclude particles within tau signal cone from IsoDeposit computation
         ComponentName = cms.string('PFTauExtractor'),
-        
+
         # collection of PFCandidates to be used for IsoDeposit computation
         candidateSource = cms.InputTag("particleFlow"),
 
@@ -26,14 +26,14 @@ tauIsoDepositPFCandidates = cms.EDProducer("CandIsoDepositProducer",
         Diff_r = cms.double(1.e+4),
 
         # collection of PFTaus, needed for excluding particles in tau signal cone from IsoDeposit
-        tauSource = cms.InputTag("shrinkingConePFTauProducer"),
+        tauSource = cms.InputTag("hpsPFTauProducer"),
         # maximum distance in eta-phi, needed to match PFTau to direction passed as function argument to Extractor
         dRmatchPFTau = cms.double(0.1),
         # size of cones around tau signal cone particles excluded from IsoDeposit computation
         dRvetoPFTauSignalConeConstituents = cms.double(0.01),
-        
+
         DepositLabel = cms.untracked.string('')
-    )                                             
+    )
 )
 
 # compute IsoDeposits from PFChargedHadrons
@@ -55,4 +55,3 @@ patPFTauIsolation = cms.Sequence( tauIsoDepositPFCandidates
                                  * tauIsoDepositPFChargedHadrons
                                  * tauIsoDepositPFNeutralHadrons
                                  * tauIsoDepositPFGammas )
-

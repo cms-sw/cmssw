@@ -14,7 +14,10 @@ _tagcollector_url = 'https://cmssdt.cern.ch/tc/'
 import urllib
 import urllib2
 import cookielib
-import json
+try:
+    import json
+except ImportError:
+    import simplejson as json
 import getpass
 
 class TagCollector(object):
@@ -37,7 +40,7 @@ class TagCollector(object):
 			data = urllib.urlencode(data)
 		try:
 			return self._opener.open(url, data).read()
-		except urllib2.HTTPError as e:
+		except urllib2.HTTPError, e:
 			raise Exception(e.read().strip())
 
 	def _openjson(self, page, params = None, data = None):
@@ -53,6 +56,7 @@ class TagCollector(object):
 		username = raw_input('Username: ')
 		password = getpass.getpass()
 		self.signIn(username, password)
+		return username
 
 	def signOut(self):
 		"""Sign out of TagCollector."""
@@ -100,6 +104,17 @@ class TagCollector(object):
 		args = json.dumps(args)
 		allow_multiple_tags = json.dumps(allow_multiple_tags)
 		return self._openjson('py_getPendingApprovalTags', {'args': args, 'allow_multiple_tags': allow_multiple_tags})
+	
+	def getTagsetsTagsPendingSignatures(self, user_name, show_all, author_tagsets, release_names = None):
+		"""Prints Pending Signature tags of one or more releases,
+                one or more tagsets, or both (i.e. it joins all the tags).
+		Prints an error if several tags appear for a single package.
+		Suitable for piping to addpkg (note: at the moment,
+		addpkg does not read from stdin, use "-f" instead)."""
+		if not release_names == None:
+			return self._openjson('py_getTagsetsTagsPendingSignatures', {'user_name': user_name, 'show_all': show_all, 'author_tagsets': author_tagsets, 'release_names': json.dumps(release_names)})
+		else:
+			return self._openjson('py_getTagsetsTagsPendingSignatures', {'user_name': user_name, 'show_all': show_all, 'author_tagsets': author_tagsets})
 
 	def commentTagsets(self, tagset_ids, comment):
 		"""Comment one or more tagsets.
@@ -176,4 +191,23 @@ class TagCollector(object):
 		By default, it only returns the latest 10 IBs.
 		Optionally, filter by name."""
 		return self._openjson('py_getIBs', {'filt': filt, 'limit': limit})
-
+	
+	def createRelease(self, base_release_name, new_release_name, new_state, new_private, new_type, new_description, release_managers, copy_queues, tags):
+		"""Create a new release.
+		Requirement: Signed in as a release manager."""
+		if self.login:
+		    self._open('copyRelease', {'release_name': base_release_name, 'new_release_name': new_release_name, 'new_state': new_state, 'new_private': new_private, 'new_type': new_type, 'new_description': new_description, 'release_managers': release_managers, 'copy_queues': copy_queues, 'tags': tags})
+		else:
+			raise Exception("Error: Not logged in?!")
+		
+	def requestCustomIB(self, release_name, architectures, tags):
+		"""Request a CustomIB.
+		Requirement: Signed in."""
+		if self.login:
+		    self._open('requestCustomIB', {'release_name': release_name, 'architecture_names': architectures, 'tags': tags})
+		else:
+			raise Exception("Error: Not logged in?!")
+		
+	def getReleaseArchitectures(self, release, default='0'):
+		"""Returns release architectures."""
+		return self._openjson('py_getReleaseArchitectures', {'release': release, 'default': default})

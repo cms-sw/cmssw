@@ -166,16 +166,16 @@ siStripFEDMonitor.nTotalBadActiveChannelsHistogramConfig = cms.untracked.PSet(
   Max = cms.untracked.double(500)
 )
 siStripFEDMonitor.nTotalBadChannelsvsTimeHistogramConfig = cms.untracked.PSet(
-  Enabled = cms.untracked.bool(False),
-  #NBins = cms.untracked.uint32(600),
-  #Min = cms.untracked.double(0),
-  #Max = cms.untracked.double(3600)
+  Enabled = cms.untracked.bool(True),
+  NBins = cms.untracked.uint32(600),
+  Min = cms.untracked.double(0),
+  Max = cms.untracked.double(3600)
 )
 siStripFEDMonitor.nTotalBadActiveChannelsvsTimeHistogramConfig = cms.untracked.PSet(
-  Enabled = cms.untracked.bool(False),
-  #NBins = cms.untracked.uint32(600),
-  #Min = cms.untracked.double(0),
-  #Max = cms.untracked.double(3600)
+  Enabled = cms.untracked.bool(True),
+  NBins = cms.untracked.uint32(600),
+  Min = cms.untracked.double(0),
+  Max = cms.untracked.double(3600)
 )
 siStripFEDMonitor.nFEDErrorsvsTimeHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(False),
@@ -231,3 +231,7 @@ siStripFEDMonitor.FedMaxEventSizevsTimeHistogramConfig = cms.untracked.PSet(
   #Min = cms.untracked.double(0),
   #Max = cms.untracked.double(3600)
 )
+siStripFEDMonitor.FedIdVsApvIdHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True)
+)
+        

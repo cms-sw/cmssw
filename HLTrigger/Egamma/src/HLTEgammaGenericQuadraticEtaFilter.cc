@@ -1,6 +1,6 @@
 /** \class HLTEgammaGenericQuadraticEtaFilter
  *
- * $Id: HLTEgammaGenericQuadraticEtaFilter.cc,v 1.2 2012/01/31 21:35:29 cgtully Exp $
+ * $Id: HLTEgammaGenericQuadraticEtaFilter.cc,v 1.3 2012/02/01 16:47:56 gruen Exp $
  *
  *  \author Roberto Covarelli (CERN)
  *  modified by Chris Tully (Princeton)
@@ -83,7 +83,8 @@ HLTEgammaGenericQuadraticEtaFilter::hltFilter(edm::Event& iEvent, const edm::Eve
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
   PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
- 
+  if(recoecalcands.empty()) PrevFilterOutput->getObjects(TriggerPhoton,recoecalcands);  //we dont know if its type trigger cluster or trigger photon
+
   //get hold of isolated association map
   edm::Handle<reco::RecoEcalCandidateIsolationMap> depMap;
   iEvent.getByLabel (isoTag_,depMap);

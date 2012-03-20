@@ -17,22 +17,16 @@ SiStripMonitorDigi.xLumiProf = 3
 SiStripMonitorDigi.TkHistoMapNApvShots_On = True 
 SiStripMonitorDigi.TkHistoMapNStripApvShots_On= True
 SiStripMonitorDigi.TkHistoMapMedianChargeApvShots_On= True
-
 SiStripMonitorDigi.TH1NApvShots.subdetswitchon = True
 SiStripMonitorDigi.TH1NApvShots.globalswitchon = True
-
 SiStripMonitorDigi.TH1ChargeMedianApvShots.subdetswitchon = True
 SiStripMonitorDigi.TH1ChargeMedianApvShots.globalswitchon = True
-
 SiStripMonitorDigi.TH1NStripsApvShots.subdetswitchon = True
 SiStripMonitorDigi.TH1NStripsApvShots.globalswitchon = True
-
 SiStripMonitorDigi.TH1ApvNumApvShots.subdetswitchon = True
 SiStripMonitorDigi.TH1ApvNumApvShots.globalswitchon = True
-
 SiStripMonitorDigi.TProfNShotsVsTime.subdetswitchon = True
 SiStripMonitorDigi.TProfNShotsVsTime.globalswitchon = True
-
 SiStripMonitorDigi.TProfGlobalNShots.globalswitchon = True
 
 # removing some histograms
@@ -55,6 +49,7 @@ SiStripMonitorClusterReal.TH1MultiplicityRegions.globalswitchon=True
 SiStripMonitorClusterReal.TH1MainDiagonalPosition.globalswitchon=True
 SiStripMonitorClusterReal.TH1StripNoise2ApvCycle.globalswitchon=True
 SiStripMonitorClusterReal.TH1StripNoise3ApvCycle.globalswitchon=True
+SiStripMonitorClusterReal.ClusterHisto = True
 
 # removing some histograms
 SiStripMonitorClusterReal.TH1NrOfClusterizedStrips.moduleswitchon = False

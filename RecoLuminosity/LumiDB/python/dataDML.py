@@ -265,7 +265,7 @@ def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l
 def runsummary(schema,runnum,sessionflavor=''):
     '''
     select l1key,amodetag,egev,hltkey,fillnum,sequence,to_char(starttime),to_char(stoptime) from cmsrunsummary where runnum=:runnum
-    output: [l1key,amodetag,egev,hltkey,fillnum,sequence,starttime,stoptime]
+    output: [l1key(0),amodetag(1),egev(2),hltkey(3),fillnum(4),sequence(5),starttime(6),stoptime(7)]
     '''
     result=[]
     qHandle=schema.newQuery()

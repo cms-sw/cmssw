@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.cc,v 1.18 2010/11/11 15:35:23 srappocc Exp $
+// $Id: JetCorrectorParameters.cc,v 1.19 2011/01/27 12:14:13 kkousour Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -341,7 +341,23 @@ JetCorrectorParametersCollection::labelsArray_[JetCorrectorParametersCollection:
     "L1JPTOffset",
     "L2L3Residual",
     "Uncertainty",
-    "L1FastJet" 
+    "L1FastJet",
+    "UncertaintyAbsolute", 
+    "UncertaintyHighPtExtra", 
+    "UncertaintySinglePion", 
+    "UncertaintyFlavor", 
+    "UncertaintyTime",
+    "UncertaintyRelativeJEREC1", 
+    "UncertaintyRelativeJEREC2", 
+    "UncertaintyRelativeJERHF",
+    "UncertaintyRelativeStatEC2", 
+    "UncertaintyRelativeStatHF", 
+    "UncertaintyRelativeFSR",
+    "UncertaintyPileUpDataMC", 
+    "UncertaintyPileUpOOT", 
+    "UncertaintyPileUpPt", 
+    "UncertaintyPileUpBias", 
+    "UncertaintyPileUpJetRate"
   }; 
 
 const char *
@@ -446,7 +462,8 @@ JetCorrectorParameters const & JetCorrectorParametersCollection::operator[]( key
   for ( ; i != iend; ++i ) {
     if ( k == i->first ) return i->second;
   }
-  throw cms::Exception("InvalidInput") << " cannot find key " << static_cast<int>(k) << std::endl;
+  throw cms::Exception("InvalidInput") << " cannot find key " << static_cast<int>(k) 
+				       << " in the JEC payload, this usually means you have to change the global tag" << std::endl;
 }
 
 // Get a list of valid keys. These will contain hashed keys

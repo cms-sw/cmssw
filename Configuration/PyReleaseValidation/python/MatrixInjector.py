@@ -3,23 +3,43 @@ import json
 import os
 import copy
 
+def performInjectionOptionTest(opt):
+    if opt.show:
+        print 'Not injecting to wmagent in --show mode. Need to run the worklfows.'
+        sys.exit(-1)
+    if opt.wmcontrol=='init':
+        #init means it'll be in test mode
+        opt.nThreads=0
+    if opt.wmcontrol=='test':
+        #means the wf were created already, and we just dryRun it.
+        opt.dryRun=True
+    if opt.wmcontrol=='submit' and opt.nThreads==0:
+        print 'Not injecting to wmagent in -j 0 mode. Need to run the worklfows.'
+        sys.exit(-1)
+    if opt.wmcontrol=='force':
+        print "This is an expert setting, you'd better know what you're doing"
+        opt.dryRun=True
+
 
 class MatrixInjector(object):
 
     def __init__(self,mode='init'):
         self.count=1040
-        self.testMode=(mode!='submit')
+        self.testMode=((mode!='submit') and (mode!='force'))
         self.version ='v1'
 
+        #wagemt stuff
+        self.wmagent=os.getenv('WMAGENT_REQMGR')
+        if not self.wmagent:
+            self.wmagent = 'cmsweb.cern.ch'
+            
         #couch stuff
-        self.couch = 'https://cmsweb.cern.ch/couchdb'
+        self.couch = 'https://'+self.wmagent+'/couchdb'
         self.couchDB = 'reqmgr_config_cache'
         self.user = os.getenv('USER')
         self.group = 'ppd'
         self.label = 'RelValSet_'+os.getenv('CMSSW_VERSION').replace('-','')+'_'+self.version
 
-        #wagemt stuff
-        self.wmagent = 'cmsweb.cern.ch'
 
         if not os.getenv('WMCORE_ROOT'):
             print '\n\twmclient is not setup properly. Will not be able to upload or submit requests.\n'
@@ -30,8 +50,10 @@ class MatrixInjector(object):
             print '\n\tFound wmclient\n'
             
         self.defaultChain={
+            "RequestType" :   "TaskChain",                    #this is how we handle relvals
             "AcquisitionEra": "ReleaseValidation",            #Acq Era
-            "Requestor": self.user+'@cern.ch',                #Person responsible
+            "Requestor": self.user,                           #Person responsible
+            "Group": self.group,                              #group for the request
             "CMSSWVersion": os.getenv('CMSSW_VERSION'),       #CMSSW Version (used for all tasks in chain)
             "ScramArch": os.getenv('SCRAM_ARCH'),             #Scram Arch (used for all tasks in chain)
             "ProcessingVersion": self.version,                #Processing Version (used for all tasks in chain)
@@ -49,7 +71,8 @@ class MatrixInjector(object):
             "ConfigCacheID" : None,                   #Generator Config id
             "SplittingAlgorithm"  : "EventBased",             #Splitting Algorithm
             "SplittingArguments" : {"events_per_job" : 250},  #Size of jobs in terms of splitting algorithm
-            "RequestSizeEvents" : 10000,                      #Total number of events to generate
+            #"RequestSizeEvents" : 10000,                      #Total number of events to generate
+            "RequestNumEvents" : 10000,                      #Total number of events to generate
             "Seeding" : "Automatic",                          #Random seeding method
             "PrimaryDataset" : None,                          #Primary Dataset to be created
             }
@@ -84,6 +107,7 @@ class MatrixInjector(object):
                 #s has the format (num, name, commands, stepList)
                 if x[0]==n:
                     #print "found",n,s[3]
+                    chainDict['RequestString']='RV'+s[1].split('+')[0]
                     for (index,step) in enumerate(s[3]):
                         if 'INPUT' in step or (not isinstance(s[2][index],str)):
                             nextHasDSInput=s[2][index]
@@ -145,12 +169,13 @@ class MatrixInjector(object):
                 t.pop('nowmIO')
                 chainDict['Task%d'%(i+1)]=t
 
-                                
             chainDict.pop('nowmTasklist')
             self.chainDicts[n]=chainDict
+
+            
         return 0
 
-    def uploadConf(self,filePath,label):
+    def uploadConf(self,filePath,label,where):
         labelInCouch=self.label+'_'+label
         if self.testMode:
             self.count+=1
@@ -163,17 +188,23 @@ class MatrixInjector(object):
                 print '\n\tUnable to find wmcontrol modules. Please include it in your python path\n'
                 print '\n\t QUIT\n'
                 sys.exit(-16)
+            print "Loading",filePath,"to",where,"for",label
             return upload_to_couch(filePath,
                                    self.group,
                                    self.user,
-                                   labelInCouch)
+                                   labelInCouch,
+                                   where
+                                   )
     
     def upload(self):
         for (n,d) in self.chainDicts.items():
             for it in d:
                 if it.startswith("Task") and it!='TaskChain':
                     #upload
-                    couchID=self.uploadConf(d[it]['ConfigCacheID'],str(n)+d[it]['TaskName'])
+                    couchID=self.uploadConf(d[it]['ConfigCacheID'],
+                                            str(n)+d[it]['TaskName'],
+                                            d['CouchURL']
+                                            )
                     print d[it]['ConfigCacheID']," uploaded to couchDB for",str(n),"with ID",couchID
                     d[it]['ConfigCacheID']=couchID
             
@@ -194,6 +225,8 @@ class MatrixInjector(object):
                 print pprint.pprint(d)
             else:
                 #submit to wmagent each dict
+                print "For eyes before submitting",n
+                print pprint.pprint(d)
                 print "Submitting",n,"..........."
                 workFlow=makeRequest(self.wmagent,d)
                 approveRequest(self.wmagent,workFlow)

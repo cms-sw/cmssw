@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2011/10/31 01:46:06 $
- * $Revision: 1.74 $
+ * $Date: 2011/11/04 10:47:14 $
+ * $Revision: 1.75 $
  */
 
 
@@ -57,7 +57,7 @@ const char * BeamMonitor::formatFitTime( const time_t & t )  {
   int year = ptm->tm_year;
   if (year < 1995) {
     edm::LogError("BadTimeStamp") << "year reported is " << year << "!! resetting to 2011..." << std::endl;
-    year = 2011;
+    year = 2012;
   }
   sprintf( ts, "%4d-%02d-%02d %02d:%02d:%02d", year,ptm->tm_mon+1,ptm->tm_mday,(ptm->tm_hour+CEST)%24, ptm->tm_min, ptm->tm_sec);
 
@@ -317,11 +317,11 @@ void BeamMonitor::beginJob() {
   // Histos of PrimaryVertices:
   dbe_->setCurrentFolder(monitorName_+"PrimaryVertex");
 
-  h_nVtx = dbe_->book1D("vtxNbr","Reconstructed Vertices(non-fake) in all Event",30,-0.5,29.5);
+  h_nVtx = dbe_->book1D("vtxNbr","Reconstructed Vertices(non-fake) in all Event",60,-0.5,59.5);
   h_nVtx->setAxisTitle("Num. of reco. vertices",1);
   
   //For one Trigger only
-  h_nVtx_st = dbe_->book1D("vtxNbr_SelectedTriggers","Reconstructed Vertices(non-fake) in Events",30,-0.5,29.5);
+  h_nVtx_st = dbe_->book1D("vtxNbr_SelectedTriggers","Reconstructed Vertices(non-fake) in Events",60,-0.5,59.5);
   //h_nVtx_st->setAxisTitle("Num. of reco. vertices for Un-Prescaled Jet Trigger",1);
 
   // Monitor only the PV with highest sum pt of assoc. trks:

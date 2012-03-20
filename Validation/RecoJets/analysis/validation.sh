@@ -22,9 +22,9 @@ if [ -n $title ]; then
     if [ -e $reference ]; then
 	if [ -e $new ]; then
 
-	    TAG=(PFJetTask_kt6PFJets CaloJetTask_kt6CaloJets CaloJetTask_ak5CaloJets CaloJetTask_ak7CaloJets PFJetTask_ak5PFJets JPTJetTask_JetPlusTrackZSPCorJetAntiKt5)
-	    TAGREF=(PFJetTask_kt6PFJets CaloJetTask_kt6CaloJets CaloJetTask_ak5CaloJets CaloJetTask_ak7CaloJets PFJetTask_ak5PFJets JPTJetTask_JetPlusTrackZSPCorJetAntiKt5)
-	    FOLDER=(PFlowKt6 kt6 AntiKt5 AntiKt7 PFlowAntiKt5 JPTAntiKt5)
+	    TAG=(CaloJetTask_iterativeCone5CaloJets CaloJetTask_L2L3CorJetIcone5 CaloJetTask_JetPlusTrackZSPCorJetIcone5 PFJetTask_iterativeCone5PFJets CaloJetTask_kt4CaloJets CaloJetTask_kt6CaloJets CaloJetTask_sisCone5CaloJets CaloJetTask_sisCone7CaloJets CaloJetTask_ak5CaloJets CaloJetTask_ak7CaloJets PFJetTask_ak5PFJets CaloJetTask_JetPlusTrackZSPCorJetAntiKt5)
+	    TAGREF=(CaloJetTask_iterativeCone5CaloJets CaloJetTask_L2L3CorJetIcone5 CaloJetTask_JetPlusTrackZSPCorJetIcone5 PFJetTask_iterativeCone5PFJets CaloJetTask_kt4CaloJets CaloJetTask_kt6CaloJets CaloJetTask_sisCone5CaloJets CaloJetTask_sisCone7CaloJets CaloJetTask_ak5CaloJets CaloJetTask_ak7CaloJets PFJetTask_ak5PFJets CaloJetTask_JetPlusTrackZSPCorJetAntiKt5)
+	    FOLDER=(Icone5 CorrIcone5 JPT PFlow kt4 kt6 Siscone5 Siscone7 AntiKt5 AntiKt7 PFlowAntiKt5 JPTAntiKt5)
 	    ntag=${#TAG[@]}
 	    echo "Number of module tags: " $ntag
 	    for (( i=0;i<$ntag;i++ )); do
@@ -37,11 +37,11 @@ if [ -n $title ]; then
 		echo "folders are created"
 
 		if [ -z $norm ]; then
-		../../../../test/slc5_amd64_gcc461/compareHists $new $reference ${TAG[${i}]} ${TAGREF[${i}]} $title
+		../../../../test/slc5_ia32_gcc434/compareHists $new $reference ${TAG[${i}]} ${TAGREF[${i}]} $title
 		fi
 
 		if [ $norm = "y" ]; then
-		../../../../test/slc5_amd64_gcc461/compareHists $new $reference ${TAG[${i}]} ${TAGREF[${i}]} $title y
+		../../../../test/slc5_ia32_gcc434/compareHists $new $reference ${TAG[${i}]} ${TAGREF[${i}]} $title y
 		fi
 
 		bash make_thumbnails.sh *.gif
@@ -49,26 +49,20 @@ if [ -n $title ]; then
 		mv *.jpg $title/${FOLDER[${i}]}
 		cp html/spacer.gif $title/${FOLDER[${i}]}
 
-                 # kt6 PF
-                if [ ${FOLDER[${i}]} = ${FOLDER[0]} ]; then
-                    cp html/htmlTemplate_PFUnCorr.html $title/${FOLDER[${i}]}
-                 # kt6 Calo
-                elif [ ${FOLDER[${i}]} = ${FOLDER[1]} ]; then
-                    cp html/htmlTemplateUnCorr.html $title/${FOLDER[${i}]}
-                # AntiKt PF
-		elif [ ${FOLDER[${i}]} = ${FOLDER[4]} ]; then
+                # Icone PF
+		if [ ${FOLDER[${i}]} = ${FOLDER[3]} ]; then
 		    cp html/htmlTemplate_PF.html $title/${FOLDER[${i}]}
-                # JPT AK5
-		elif [ ${FOLDER[${i}]} = ${FOLDER[5]} ]; then
-		    cp html/JPT.html $title/${FOLDER[${i}]}
+                # AntiKt PF
+		elif [ ${FOLDER[${i}]} = ${FOLDER[10]} ]; then
+		    cp html/htmlTemplate_PF.html $title/${FOLDER[${i}]}
 		else
 		    cp html/htmlTemplate.html $title/${FOLDER[${i}]}
 		fi
 
-		../../../../test/slc5_amd64_gcc461/fixed_plotHists $new ${TAG[${i}]}
+		../../../../test/slc5_ia32_gcc434/fixed_plotHists $new ${TAG[${i}]}
 		mv *.gif $title/${FOLDER[${i}]}/NewData
 
-		../../../../test/slc5_amd64_gcc461/fixed_plotHists $reference ${TAG[${i}]}
+		../../../../test/slc5_ia32_gcc434/fixed_plotHists $reference ${TAG[${i}]}
 		mv *.gif $title/${FOLDER[${i}]}/RefData
 	    done
 
