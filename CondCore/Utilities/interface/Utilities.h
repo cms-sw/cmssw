@@ -52,6 +52,7 @@ namespace cond {
     bool hasOptionValue(const std::string& fullName);
     bool hasDebug();
     void initializePluginManager();
+    cond::DbSession openDbSession( const std::string& connectionParameterName, bool readOnly=false );
     cond::DbSession openDbSession( const std::string& connectionParameterName, const std::string& role, bool readOnly=false );
     
     private:

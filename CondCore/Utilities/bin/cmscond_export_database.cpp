@@ -156,7 +156,6 @@ int cond::ExportAccountUtilities::exportTags( const std::vector<std::string>& in
       std::cout << ">> All of the tests passed. Tag \""<<*iT<<"\" successfully exported."<<std::endl; 
     }
   }
-<<<<<<< cmscond_export_database.cpp
   return 0;
 }
 
@@ -208,59 +207,6 @@ int cond::ExportAccountUtilities::execute(){
   std::string sourceConnect = getOptionValue<std::string>( "sourceConnect" );
   std::string destConnect = getOptionValue<std::string>( "destConnect" );
   bool verbose = hasOptionValue("verbose");
-=======
-  return 0;
-}
-
-bool cond::ExportAccountUtilities::getTagList( const std::string& globalTag, 
-					       const std::string& accountName, 
-					       std::vector<std::string>& tagList ){
-  if(hasDebug() || hasOptionValue("verbose")) std::cout <<">> Account name=\""<<accountName<<"\""<<std::endl;
-  DbSession gtSession =  openDbSession("gtConnect",true);
-  gtSession.transaction().start(true);
-  coral::ISchema& schema = gtSession.nominalSchema();
-  std::string gtTable("TAGTREE_TABLE_");
-  gtTable += globalTag;
-  if( !schema.existsTable( gtTable ) ){
-    std::cout <<"ERROR: The specified Global Tag \"" << globalTag <<"\" has not been found in the database." <<std::endl;
-    return false;
-  }
-  std::auto_ptr<coral::IQuery> query( schema.newQuery() );
-  query->addToTableList("TAGINVENTORY_TABLE","TAGS");
-  query->addToTableList( gtTable,"GT");
-  query->addToOutputList( "TAGS.tagname" );
-  coral::AttributeList condData;
-  condData.extend<std::string>( "PFNHINT" );
-  std::string condDataToBind("%");
-  condDataToBind += accountName;
-  condData[ "PFNHINT" ].data<std::string>() =  condDataToBind;
-  std::string condition("TAGS.tagid = GT.tagid");
-  condition += " AND ";
-  condition += "TAGS.pfn LIKE :PFNHINT";
-  //condition += "TAGS.pfn LIKE " + condDataToBind;
-  coral::AttributeList qresult;
-  qresult.extend<std::string>("TAGS.tagname");
-  query->defineOutput(qresult);
-  query->setCondition( condition, condData );
-  coral::ICursor& cursor = query->execute();
-  while( cursor.next() ) {
-    const coral::AttributeList& row = cursor.currentRow();
-    tagList.push_back( row["TAGS.tagname"].data<std::string>() );
-  }
-  cursor.close();
-  gtSession.transaction().commit();
-  return true;
-}
-
-int cond::ExportAccountUtilities::execute(){
-
-  int ret = 0;
-  m_sourceDb = openDbSession("sourceConnect", true);
-  m_destDb = openDbSession("destConnect");
-  std::string sourceConnect = getOptionValue<std::string>( "sourceConnect" );
-  std::string destConnect = getOptionValue<std::string>( "destConnect" );
-  bool verbose = hasOptionValue("verbose");
->>>>>>> 1.2
 
   // listing tag in source
   m_sourceDb.transaction().start(true);

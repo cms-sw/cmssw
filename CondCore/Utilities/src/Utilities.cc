@@ -266,6 +266,15 @@ cond::DbSession cond::Utilities::openDbSession( const std::string& connectionPar
   return session;
 }
 
+cond::DbSession cond::Utilities::openDbSession( const std::string& connectionParameterName, 
+						bool readOnly ){
+  initializeForDbConnection();
+  std::string connectionString = getOptionValue<std::string>( connectionParameterName );
+  cond::DbSession session = m_dbConnection->createSession();
+  session.open( connectionString, readOnly );
+  return session;
+}
+
 std::string cond::Utilities::getValueIfExists(const std::string& fullName){
   std::string val("");
   if(m_values.count(fullName)){
