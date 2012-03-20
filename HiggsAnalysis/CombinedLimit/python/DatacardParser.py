@@ -1,5 +1,24 @@
 import re
+from sys import stderr
 
+def addDatacardParserOptions(parser):
+    parser.add_option("-s", "--stat",   dest="stat",    default=False, action="store_true", help="keep only statistical uncertainties, no systematics") 
+    parser.add_option("-f", "--fix-pars", dest="fixpars",default=False, action="store_true", help="fix all floating parameters of the pdfs except for the POI") 
+    parser.add_option("-c", "--compiled", dest="cexpr", default=False, action="store_true", help="use compiled expressions (not suggested)")
+    parser.add_option("-a", "--ascii",    dest="bin",   default=True, action="store_false", help="produce a Workspace in a rootfile in an HLF file (legacy, unsupported)")
+    parser.add_option("-b", "--binary",   dest="bin",   default=True, action="store_true",  help="produce a Workspace in a rootfile (default)")
+    parser.add_option("-o", "--out",      dest="out",   default=None,  type="string", help="output file (if none, it will print to stdout). Required for binary mode.")
+    parser.add_option("-v", "--verbose",  dest="verbose",  default=0,  type="int",    help="Verbosity level (0 = quiet, 1 = verbose, 2+ = more)")
+    parser.add_option("-m", "--mass",     dest="mass",     default=0,  type="float",  help="Higgs mass to use. Will also be written in the Workspace as RooRealVar 'MH'.")
+    parser.add_option("-D", "--dataset",  dest="dataname", default="data_obs",  type="string",  help="Name of the observed dataset")
+    parser.add_option("-L", "--LoadLibrary", dest="libs",  type="string" , action="append", help="Load these libraries")
+    parser.add_option("--poisson",  dest="poisson",  default=0,  type="int",    help="If set to a positive number, binned datasets wih more than this number of entries will be generated using poissonians")
+    parser.add_option("--default-morphing",  dest="defMorph", type="string", default="shape", help="Default template morphing algorithm (to be used when the datacard has just 'shape')")
+    parser.add_option("--X-exclude-nuisance", dest="nuisancesToExclude", type="string", action="append", default=[], help="Exclude nuisances that match these regular expressions")
+    parser.add_option("--X-force-simpdf",  dest="forceSimPdf", default=False, action="store_true", help="FOR DEBUG ONLY: Always produce a RooSimultaneous, even for single channels")
+    parser.add_option("--X-no-check-norm",  dest="noCheckNorm", default=False, action="store_true", help="FOR DEBUG ONLY: Turn off the consistency check between datacard norms and shape norms. Will give you nonsensical results if you have shape uncertainties")
+
+    
 class Datacard():
     def __init__(self):
         self.bins = []
@@ -12,6 +31,12 @@ class Datacard():
         self.shapeMap = {} # map channel -> (process -> [fname, hname, hname_syst])
         self.hasShape = False
         self.flatParamNuisances = {}
+
+def isVetoed(name,vetoList):
+    isExcluded = False
+    for pattern in vetoList:
+        if re.match(pattern,name): return True
+    return False
 
 def parseCard(file, options):
     if type(file) == type("str"):
@@ -104,6 +129,10 @@ def parseCard(file, options):
         if lsyst.endswith("[nofloat]"):
           lsyst = lsyst.replace("[nofloat]","")
           nofloat = True
+        if options.nuisancesToExclude and isVetoed(lsyst, options.nuisancesToExclude):
+            if options.verbose > 0: stderr.write("Excluding nuisance %s selected by a veto pattern among %s\n" % (lsyst, options.nuisancesToExclude))
+            if nuisances != -1: nuisances -= 1
+            continue
         if re.match("[0-9]+",lsyst): lsyst = "theta"+lsyst
         if pdf == "lnN" or pdf == "lnU" or pdf == "gmM" or pdf == "trG" or pdf.startswith("shape"):
             pass # nothing special to do
