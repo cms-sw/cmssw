@@ -40108,7 +40108,7 @@ process.TrackerCalibrationOutput = cms.EndPath( process.hltPreTrackerCalibration
 
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/data/Run2011B/MinimumBias/RAW/v1/000/178/479/3E364D71-F4F5-E011-ABD2-001D09F29146.root',
+        'file:RelVal_Raw_GRun_DATA.root',
     ),
     secondaryFileNames = cms.untracked.vstring(
     ),
