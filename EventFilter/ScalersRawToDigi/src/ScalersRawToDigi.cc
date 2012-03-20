@@ -49,7 +49,7 @@ class ScalersRawToDigi : public edm::EDProducer
 
 // Constructor
 ScalersRawToDigi::ScalersRawToDigi(const edm::ParameterSet& iConfig):
-  inputTag_((char const *)"source")
+  inputTag_((char const *)"rawDataCollector")
 {
   produces<L1AcceptBunchCrossingCollection>();
   produces<L1TriggerScalersCollection>();
