@@ -305,6 +305,23 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 				me["hMETPhiResolution_GenMETTrue"] = dbe_->book1D("METTask_METPhiResolution_GenMETTrue","METTask_METPhiResolution_GenMETTrue", 80,0,4); 
 				me["hMETPhiResolution_GenMETCalo"] = dbe_->book1D("METTask_METPhiResolution_GenMETCalo","METTask_METPhiResolution_GenMETCalo", 80,0,4); 
 
+
+				me["hMETResolution_GenMETTrue_MET0to20"]    = dbe_->book1D("METTask_METResolution_GenMETTrue_MET0to20"   , "METTask_METResolution_GenMETTrue_MET0to20"   , 500,-500,500); 
+				me["hMETResolution_GenMETTrue_MET20to40"]   = dbe_->book1D("METTask_METResolution_GenMETTrue_MET20to40"  , "METTask_METResolution_GenMETTrue_MET20to40"  , 500,-500,500); 
+				me["hMETResolution_GenMETTrue_MET40to60"]   = dbe_->book1D("METTask_METResolution_GenMETTrue_MET40to60"  , "METTask_METResolution_GenMETTrue_MET40to60"  , 500,-500,500); 
+				me["hMETResolution_GenMETTrue_MET60to80"]   = dbe_->book1D("METTask_METResolution_GenMETTrue_MET60to80"  , "METTask_METResolution_GenMETTrue_MET60to80"  , 500,-500,500); 
+				me["hMETResolution_GenMETTrue_MET80to100"]  = dbe_->book1D("METTask_METResolution_GenMETTrue_MET80to100" , "METTask_METResolution_GenMETTrue_MET80to100" , 500,-500,500); 
+				me["hMETResolution_GenMETTrue_MET100to150"] = dbe_->book1D("METTask_METResolution_GenMETTrue_MET100to150", "METTask_METResolution_GenMETTrue_MET100to150", 500,-500,500); 
+				me["hMETResolution_GenMETTrue_MET150to200"] = dbe_->book1D("METTask_METResolution_GenMETTrue_MET150to200", "METTask_METResolution_GenMETTrue_MET150to200", 500,-500,500); 
+				me["hMETResolution_GenMETTrue_MET200to300"] = dbe_->book1D("METTask_METResolution_GenMETTrue_MET200to300", "METTask_METResolution_GenMETTrue_MET200to300", 500,-500,500); 
+				me["hMETResolution_GenMETTrue_MET300to400"] = dbe_->book1D("METTask_METResolution_GenMETTrue_MET300to400", "METTask_METResolution_GenMETTrue_MET300to400", 500,-500,500); 
+				me["hMETResolution_GenMETTrue_MET400to500"] = dbe_->book1D("METTask_METResolution_GenMETTrue_MET400to500", "METTask_METResolution_GenMETTrue_MET400to500", 500,-500,500); 
+				//this will be filled at the end of the job using info from above hists
+				int nBins = 10;
+				float bins[] = {0.,20.,40.,60.,80.,100.,150.,200.,300.,400.,500.};
+				me["hMETResolution_GenMETTrue_METResolution"]     = dbe_->book1D("METTask_METResolution_GenMETTrue_InMETBins","METTask_METResolution_GenMETTrue_InMETBins",nBins, bins);
+
+
 			} else 
 			{
 
@@ -338,6 +355,21 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 				me["hMETPhiResolution_GenMETCalo"] = dbe_->book1D("METTask_METPhiResolution_GenMETCalo","METTask_METPhiResolution_GenMETCalo", 80,0,4); 
 
 
+				me["hMETResolution_GenMETTrue_MET0to20"]    = dbe_->book1D("METTask_METResolution_GenMETTrue_MET0to20","METTask_METResolution_GenMETTrue_MET0to20"      , 2000,-1000,1000); 
+				me["hMETResolution_GenMETTrue_MET20to40"]   = dbe_->book1D("METTask_METResolution_GenMETTrue_MET20to40","METTask_METResolution_GenMETTrue_MET20to40"    , 2000,-1000,1000); 
+				me["hMETResolution_GenMETTrue_MET40to60"]   = dbe_->book1D("METTask_METResolution_GenMETTrue_MET40to60","METTask_METResolution_GenMETTrue_MET40to60"    , 2000,-1000,1000); 
+				me["hMETResolution_GenMETTrue_MET60to80"]   = dbe_->book1D("METTask_METResolution_GenMETTrue_MET60to80","METTask_METResolution_GenMETTrue_MET60to80"    , 2000,-1000,1000); 
+				me["hMETResolution_GenMETTrue_MET80to100"]  = dbe_->book1D("METTask_METResolution_GenMETTrue_MET80to100","METTask_METResolution_GenMETTrue_MET80to100"  , 2000,-1000,1000); 
+				me["hMETResolution_GenMETTrue_MET100to150"] = dbe_->book1D("METTask_METResolution_GenMETTrue_MET100to150","METTask_METResolution_GenMETTrue_MET100to150", 2000,-1000,1000); 
+				me["hMETResolution_GenMETTrue_MET150to200"] = dbe_->book1D("METTask_METResolution_GenMETTrue_MET150to200","METTask_METResolution_GenMETTrue_MET150to200", 2000,-1000,1000); 
+				me["hMETResolution_GenMETTrue_MET200to300"] = dbe_->book1D("METTask_METResolution_GenMETTrue_MET200to300","METTask_METResolution_GenMETTrue_MET200to300", 2000,-1000,1000); 
+				me["hMETResolution_GenMETTrue_MET300to400"] = dbe_->book1D("METTask_METResolution_GenMETTrue_MET300to400","METTask_METResolution_GenMETTrue_MET300to400", 2000,-1000,1000); 
+				me["hMETResolution_GenMETTrue_MET400to500"] = dbe_->book1D("METTask_METResolution_GenMETTrue_MET400to500","METTask_METResolution_GenMETTrue_MET400to500", 2000,-1000,1000); 
+
+				//this will be filled at the end of the job using info from above hists
+				int nBins = 10;
+				float bins[] = {0.,20.,40.,60.,80.,100.,150.,200.,300.,400.,500.};
+				me["hMETResolution_GenMETTrue_METResolution"]     = dbe_->book1D("METTask_METResolution_GenMETTrue_InMETBins","METTask_METResolution_GenMETTrue_InMETBins",nBins, bins);
 			}
 		
 		} else if (METType_ == "TCMET" || inputMETLabel_.label() == "corMetGlobalMuons") 
@@ -747,6 +779,26 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 			me["hMETResolution_GenMETTrue"]->Fill( MET - genMET );
 			me["hMETPhiResolution_GenMETTrue"]->Fill( TMath::ACos( TMath::Cos( METPhi - genMETPhi ) ) );
+
+			//pfMET resolution in pfMET bins : Sam, Feb, 2012
+
+			if (MET > 0 && MET < 20) me["hMETResolution_GenMETTrue_MET0to20"]->Fill( MET - genMET );
+			else if (MET > 20 && MET < 40) me["hMETResolution_GenMETTrue_MET20to40"]->Fill( MET - genMET );
+			else if (MET > 40 && MET < 60) me["hMETResolution_GenMETTrue_MET40to60"]->Fill( MET - genMET );
+			else if (MET > 60 && MET < 80) me["hMETResolution_GenMETTrue_MET60to80"]->Fill( MET - genMET );
+			else if (MET > 80 && MET <100) me["hMETResolution_GenMETTrue_MET80to100"]->Fill( MET - genMET );
+			else if (MET >100 && MET <150) me["hMETResolution_GenMETTrue_MET100to150"]->Fill( MET - genMET );
+			else if (MET >150 && MET <200) me["hMETResolution_GenMETTrue_MET150to200"]->Fill( MET - genMET );
+			else if (MET >200 && MET <300) me["hMETResolution_GenMETTrue_MET200to300"]->Fill( MET - genMET );
+			else if (MET >300 && MET <400) me["hMETResolution_GenMETTrue_MET300to400"]->Fill( MET - genMET );
+			else if (MET >400 && MET <500) me["hMETResolution_GenMETTrue_MET400to500"]->Fill( MET - genMET );
+
+			//This is an ugly hack I had to do.
+			//I wanted to fill just one histogram at the endo the job. I tried
+			//to do this in endjob() but it seems the file is closed before this
+			//step.
+			FillpfMETRes();
+
 		} else {
 			edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetTrue";
 		}    
@@ -1172,6 +1224,32 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 void METTester::endJob() 
 { 
+}
+
+//void METTester::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+void METTester::FillpfMETRes()
+{
+	me["hMETResolution_GenMETTrue_METResolution"]->setBinContent(1, me["hMETResolution_GenMETTrue_MET0to20"]->getMean());
+	me["hMETResolution_GenMETTrue_METResolution"]->setBinContent(2, me["hMETResolution_GenMETTrue_MET20to40"]->getMean());
+	me["hMETResolution_GenMETTrue_METResolution"]->setBinContent(3, me["hMETResolution_GenMETTrue_MET40to60"]->getMean());
+	me["hMETResolution_GenMETTrue_METResolution"]->setBinContent(4, me["hMETResolution_GenMETTrue_MET60to80"]->getMean());
+	me["hMETResolution_GenMETTrue_METResolution"]->setBinContent(5, me["hMETResolution_GenMETTrue_MET80to100"]->getMean());
+	me["hMETResolution_GenMETTrue_METResolution"]->setBinContent(6, me["hMETResolution_GenMETTrue_MET100to150"]->getMean());
+	me["hMETResolution_GenMETTrue_METResolution"]->setBinContent(7, me["hMETResolution_GenMETTrue_MET150to200"]->getMean());
+	me["hMETResolution_GenMETTrue_METResolution"]->setBinContent(8, me["hMETResolution_GenMETTrue_MET200to300"]->getMean());
+	me["hMETResolution_GenMETTrue_METResolution"]->setBinContent(9, me["hMETResolution_GenMETTrue_MET300to400"]->getMean());
+	me["hMETResolution_GenMETTrue_METResolution"]->setBinContent(10, me["hMETResolution_GenMETTrue_MET400to500"]->getMean());
+	me["hMETResolution_GenMETTrue_METResolution"]->setBinError(1, me["hMETResolution_GenMETTrue_MET0to20"]->getRMS());
+	me["hMETResolution_GenMETTrue_METResolution"]->setBinError(2, me["hMETResolution_GenMETTrue_MET20to40"]->getRMS());
+	me["hMETResolution_GenMETTrue_METResolution"]->setBinError(3, me["hMETResolution_GenMETTrue_MET40to60"]->getRMS());
+	me["hMETResolution_GenMETTrue_METResolution"]->setBinError(4, me["hMETResolution_GenMETTrue_MET60to80"]->getRMS());
+	me["hMETResolution_GenMETTrue_METResolution"]->setBinError(5, me["hMETResolution_GenMETTrue_MET80to100"]->getRMS());
+	me["hMETResolution_GenMETTrue_METResolution"]->setBinError(6, me["hMETResolution_GenMETTrue_MET100to150"]->getRMS());
+	me["hMETResolution_GenMETTrue_METResolution"]->setBinError(7, me["hMETResolution_GenMETTrue_MET150to200"]->getRMS());
+	me["hMETResolution_GenMETTrue_METResolution"]->setBinError(8, me["hMETResolution_GenMETTrue_MET200to300"]->getRMS());
+	me["hMETResolution_GenMETTrue_METResolution"]->setBinError(9, me["hMETResolution_GenMETTrue_MET300to400"]->getRMS());
+	me["hMETResolution_GenMETTrue_METResolution"]->setBinError(10, me["hMETResolution_GenMETTrue_MET400to500"]->getRMS());
+
 }
 
 //determines if track is "good" - i.e. passes quality and kinematic cuts
