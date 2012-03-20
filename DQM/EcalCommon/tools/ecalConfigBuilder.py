@@ -9,6 +9,9 @@ optparser.add_option("-c", "--config", dest = "config",
                    help = "CONFIG=(Physics|Calibration)", metavar = "CONFIG")
 optparser.add_option("-d", "--daqtype", dest = "daqtype", default = "globalDAQ",
                    help = "DAQ=(globalDAQ|localDAQ)", metavar = "DAQ")
+optparser.add_option("-b", "--database", dest = "withDB", default = False,
+                     help = "write to ECAL cond DB")
+                   help = "DAQ=(globalDAQ|localDAQ)", metavar = "DAQ")
 optparser.add_option("-f", "--file", dest = "filename", default = "",
                    help = "write to FILE (optional)", metavar = "FILE")
 optparser.add_option("-s", "--source", dest = "sourceFiles", default = "",
@@ -41,6 +44,7 @@ else :
     exit
 
 daqtype = options.daqtype
+withDB = options.withDB
 filename = options.filename
 sourceFiles = re.sub(r'([^ ]+)[ ]?', r'    "file:\1",\n', options.sourceFiles)
 gtag = options.gtag
@@ -48,7 +52,6 @@ runtype = options.runtype
 workflow = options.workflow
 
 # set environments
-withDB = False
 if (env == 'CMSLive') or (env == 'PrivLive') :
     withDB = True
 

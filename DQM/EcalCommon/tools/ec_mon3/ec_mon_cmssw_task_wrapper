@@ -93,15 +93,15 @@ foreach my $file (@filelist) {
     my ($loc, $num, $lun, $out, $fun, $fil, $ful) = split('\.', $name);
 
     my $cfgtype;
-    my $worksubdir;
+    my $dbflag;
 
-    if ( ($config{'ec_mon_path'} =~ /localDAQ/) || $out eq 'Calibration' ) {
+    if ( $config{'ec_mon_path'} =~ /localDAQ/ || $out eq 'Calibration' ) {
 	$cfgtype = 'Calibration';
-	$worksubdir = 'EcalCalibration';
+	$dbflag = '-b';
     }
     else {
 	$cfgtype = 'Physics';
-	$worksubdir = 'Ecal';
+	$dbflag = '';
     }
 
     my $cfgfile = "$workdir/monitor-$name.py";
@@ -110,7 +110,7 @@ foreach my $file (@filelist) {
 	system("rm -f $cfgfile >> /dev/null 2>&1");
     }
 
-    my $task = "source $cmsenv; python $tooldir/ecalConfigBuilder.py -e PrivOffline -c $cfgtype -d $daq -w '$workflow' -f $cfgfile -s '$file' -g " . '"$globaltag"' . "; cd $workdir; time cmsRun $cfgfile";
+    my $task = "source $cmsenv; python $tooldir/ecalConfigBuilder.py $dbflag -e PrivOffline -c $cfgtype -d $daq -w '$workflow' -f $cfgfile -s '$file' -g " . '"$globaltag"' . "; cd $workdir; time cmsRun $cfgfile";
 
     my $logdir = "$config{'ec_mon_master_rundir'}/dqm-data/logs";
     my $logfile = "$logdir/$name.cmssw.log";
