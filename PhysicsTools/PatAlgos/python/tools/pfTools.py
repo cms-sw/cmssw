@@ -77,11 +77,11 @@ def adaptPFElectrons(process,module, postfix):
         pfPhotons = cms.InputTag("elPFIsoDepositGamma" + postfix)
         )
     module.isolationValues = cms.PSet(
-        pfChargedHadrons = cms.InputTag("elPFIsoValueCharged04"+ postfix),
-        pfChargedAll = cms.InputTag("elPFIsoValueChargedAll04"+ postfix),
-        pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU04" + postfix),
-        pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral04" + postfix),
-        pfPhotons = cms.InputTag("elPFIsoValueGamma04" + postfix)
+        pfChargedHadrons = cms.InputTag("elPFIsoValueCharged04PFId"+ postfix),
+        pfChargedAll = cms.InputTag("elPFIsoValueChargedAll04PFId"+ postfix),
+        pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU04PFId" + postfix),
+        pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral04PFId" + postfix),
+        pfPhotons = cms.InputTag("elPFIsoValueGamma04PFId" + postfix)
         )
 
     # COLIN: since we take the egamma momentum for pat Electrons, we must
