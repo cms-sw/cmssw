@@ -23,8 +23,8 @@
   <class name="edm::Ref<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra> >"/>
   <class name="edm::RefVector<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrackExtra>,reco::GsfTrackExtra> >"/>
 
-  <class name="reco::GsfTrack" ClassVersion="10">
-   <version ClassVersion="10" checksum="1456169080"/>
+  <class name="reco::GsfTrack" ClassVersion="11">
+   <version ClassVersion="11" checksum="1456169080"/>
     <field name="momentumMode_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
   </class>
   <class name="std::vector<reco::GsfTrack>"/>
