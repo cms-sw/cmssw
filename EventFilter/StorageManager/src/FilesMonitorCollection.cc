@@ -1,4 +1,4 @@
-// $Id: FilesMonitorCollection.cc,v 1.13.4.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: FilesMonitorCollection.cc,v 1.14 2011/03/07 15:31:32 mommsen Exp $
 /// @file: FilesMonitorCollection.cc
 
 #include <string>
@@ -30,6 +30,7 @@ namespace stor {
     fileRecord->entryCounter = entryCounter_++;
     fileRecord->fileSize = 0;
     fileRecord->eventCount = 0;
+    fileRecord->adler32 = 0;
     fileRecords_.push_back(fileRecord);
     return fileRecord;
   }

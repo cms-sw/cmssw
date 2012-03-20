@@ -6,7 +6,7 @@ process = cms.Process("CSCDQM")
 # CSC L1 Emulator Configuration
 #-------------------------------------------------
 
-process.load("L1Trigger.CSCTriggerPrimitives.CSCTPE_setup_cfi")
+#process.load("L1Trigger.CSCTriggerPrimitives.CSCTPE_setup_cfi")
 
 #-------------------------------------------------
 # DQM Module Configuration
@@ -30,13 +30,21 @@ process.csc2DRecHits.readBadChambers = cms.bool(False)
 # Event Source
 #-----------------------------
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
+#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 process.source = cms.Source("PoolSource",
   fileNames  = cms.untracked.vstring(
 
     #'file:/tmp/valdo/0E746464-1D16-DF11-913D-000423D6CAF2.root'
 
-    '/store/data/Commissioning10/Cosmics/RAW/v4/000/132/601/4218B1F6-5940-DF11-BA79-0030487CD178.root',
+    '/store/data/Run2011A/Interfill/RAW/v1/000/173/200/0080F30B-D4C4-E011-AB51-BCAEC53296F7.root',
+    '/store/data/Run2011A/Interfill/RAW/v1/000/173/200/6C133534-CAC4-E011-9CD9-003048F1C424.root',
+    '/store/data/Run2011A/Interfill/RAW/v1/000/173/200/947727C3-C6C4-E011-A3B6-0030486780EC.root',
+    '/store/data/Run2011A/Interfill/RAW/v1/000/173/200/E6E538D1-C8C4-E011-B2BC-003048D2C1C4.root',
+    '/store/data/Run2011A/Interfill/RAW/v1/000/173/200/F06811C3-C6C4-E011-B46D-003048D2C16E.root',
+    '/store/data/Run2011A/Interfill/RAW/v1/000/173/200/F256C126-C8C4-E011-BEF2-0030487C6090.root',
+    '/store/data/Run2011A/Interfill/RAW/v1/000/173/200/F2E5F6EB-CAC4-E011-A54B-0030487C8CB8.root'
+
+    #'/store/data/Commissioning10/Cosmics/RAW/v4/000/132/601/4218B1F6-5940-DF11-BA79-0030487CD178.root',
     #'/store/data/Commissioning10/Cosmics/RAW/v4/000/132/601/F0BEA43D-8440-DF11-BD1B-000423D6C8E6.root',
 
     #'/store/data/Commissioning10/Cosmics/RAW/v4/000/132/440/72DAEFC2-1A3C-DF11-A352-0030487A195C.root',
@@ -175,8 +183,8 @@ process.p = cms.Path(
     #process.l1GtRecord*
     #process.physicsBitSelector*
     process.muonCSCDigis * 
-    process.cscTriggerPrimitiveDigis * 
-    process.lctreader *
+    #process.cscTriggerPrimitiveDigis * 
+    #process.lctreader *
     process.scalersRawToDigi +
     process.dqmCSCClient * 
     process.cscDaqInfo * 

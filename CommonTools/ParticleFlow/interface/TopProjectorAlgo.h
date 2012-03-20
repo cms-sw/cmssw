@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_PFCandProducer_TopProjectorAlgo_
-#define PhysicsTools_PFCandProducer_TopProjectorAlgo_
+#ifndef CommonTools_ParticleFlow_TopProjectorAlgo
+#define CommonTools_ParticleFlow_TopProjectorAlgo
 
 // system include files
 #include <iostream>

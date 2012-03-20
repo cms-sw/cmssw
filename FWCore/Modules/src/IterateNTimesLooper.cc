@@ -2,7 +2,7 @@
 //
 // Package:     Modules
 // Class  :     IterateNTimesLooper
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -14,9 +14,9 @@
 
 // user include files
 #include "FWCore/Framework/interface/EDLooper.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/LooperFactory.h"
-  
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 namespace edm {
 
   class IterateNTimesLooper : public EDLooper {
@@ -30,10 +30,10 @@ namespace edm {
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      virtual void startingNewLoop(unsigned int) ; 
-      virtual Status duringLoop(Event const&, EventSetup const&) ; 
-      virtual Status endOfLoop(EventSetup const&, unsigned int) ; 
-      
+      virtual void startingNewLoop(unsigned int);
+      virtual Status duringLoop(Event const&, EventSetup const&);
+      virtual Status endOfLoop(EventSetup const&, unsigned int);
+
     private:
       IterateNTimesLooper(IterateNTimesLooper const&); // stop default
 
@@ -54,15 +54,14 @@ namespace edm {
     times_(0),
     shouldStop_(false) {
   }
-  
-  // IterateNTimesLooper::IterateNTimesLooper(IterateNTimesLooper const& rhs)
-  // {
+
+  // IterateNTimesLooper::IterateNTimesLooper(IterateNTimesLooper const& rhs) {
   //    // do actual copying here;
   // }
-  
+
   IterateNTimesLooper::~IterateNTimesLooper() {
   }
-  
+
   //
   // assignment operators
   //
@@ -73,25 +72,25 @@ namespace edm {
   //
   //   return *this;
   // }
-  
+
   //
   // member functions
   //
-  void 
+  void
   IterateNTimesLooper::startingNewLoop(unsigned int iIteration) {
     times_ = iIteration;
-    if (iIteration >= max_) {
+    if(iIteration >= max_) {
       shouldStop_ = true;
     }
   }
-  
-  EDLooper::Status 
-  IterateNTimesLooper::duringLoop(Event const& event, EventSetup const& eventSetup) {
+
+  EDLooper::Status
+  IterateNTimesLooper::duringLoop(Event const&, EventSetup const&) {
     return shouldStop_ ? kStop : kContinue;
   }
-  
-  EDLooper::Status 
-  IterateNTimesLooper::endOfLoop(EventSetup const& es, unsigned int iCounter) {
+
+  EDLooper::Status
+  IterateNTimesLooper::endOfLoop(EventSetup const&, unsigned int /*iCounter*/) {
     ++times_;
     return (times_ < max_) ? kContinue : kStop;
   }

@@ -11,7 +11,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Wed Oct 15  11:38:38 CEST 2008
-// $Id: EcalTPCondAnalyzer.h,v 1.4 2010/07/07 10:06:28 ebecheva Exp $
+// $Id: EcalTPCondAnalyzer.h,v 1.2 2009/10/28 00:09:30 ebecheva Exp $
 //
 //
 
@@ -39,10 +39,6 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBIdMap.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainTowerEE.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGPhysicsConst.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
 
 class CaloSubdetectorGeometry ;
 
@@ -77,14 +73,9 @@ class EcalTPCondAnalyzer : public edm::EDAnalyzer {
   void printCRYSTAL(const EcalTPGPedestals * ecaltpPed, const EcalTPGLinearizationConst * ecaltpLin ) ;
   void printSTRIP(const EcalTPGSlidingWindow *ecaltpgSlidW,const EcalTPGWeightGroup *ecaltpgWeightGroup,const EcalTPGFineGrainStripEE * ecaltpgFgStripEE) const;
   void printWEIGHT(const EcalTPGWeightIdMap * ecaltpgWeightMap) const ;
-  void printTOWEREB(const EcalTPGSpike *ecaltpgSpike, const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup,const EcalTPGLutGroup *ecaltpgLutGroup) const;
+  void printTOWEREB(const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup,const EcalTPGLutGroup *ecaltpgLutGroup) const;
   void printEcalTPGLutIdMap(const EcalTPGLutIdMap *ecaltpgLut) const;
   void printEcalTPGFineGrainEBIdMap(const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB) const ;
   void printTOWEREE(const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE,const EcalTPGLutGroup *ecaltpgLutGroup) const ;
-  void printBadX(const EcalTPGCrystalStatus *ecaltpgBadX) const; 
-  void printBadTT(const EcalTPGTowerStatus *ecaltpgBadTT) const;
-  void printBadStrip(const EcalTPGStripStatus *ecaltpgBadStrip) const;
-  void printSpikeTh(const EcalTPGSpike *ecaltpgSpike) const;
-
 };
 

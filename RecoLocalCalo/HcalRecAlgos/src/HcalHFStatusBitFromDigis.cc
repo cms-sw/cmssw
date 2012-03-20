@@ -90,13 +90,10 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
       samplesToAdd_=4;
     }
 
-
-  // The following 3 values are computed using the default reconstruction window (for Shuichi's algorithm)
-  double maxInWindow=-10; // maximum value found in reco window
-  int maxCapid=-1;
-  int maxTS=-1;  // time slice where maximum is found
-
-  // The following 3 values are computed only in the window [firstSample_, firstSample_ + samplesToAdd_), which may not be the same as the default reco window  (for Igor's algorithm)
+  // The following 3 values are computed by Igor's algorithm 
+  //only in the window [firstSample_, firstSample_ + samplesToAdd_), 
+  //which may not be the same as the default reco window.
+  
   double totalCharge=0;
   double peakCharge=0;
   double RecomputedEnergy=0;
@@ -109,17 +106,7 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
     {
       int capid=digi.sample(i).capid();
       double value = tool[i]-calib.pedestal(capid);
-      // Find largest value within reconstruction window
-      if (i>=recoFirstSample_ && i <recoFirstSample_+recoSamplesToAdd_)
-	{
-	  // Find largest overall pulse within the full digi, or just the allowed window?
-	  if (value>maxInWindow) 
-	    {
-	      maxCapid=capid;
-	      maxInWindow=value;  
-	      maxTS=i;
-	    }
-	}
+
 
       // Sum all charge within flagging window, find charge in expected peak time slice
       if (i >=firstSample_ && i < firstSample_+samplesToAdd_)
@@ -130,15 +117,6 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
 	}
     } // for (int i=0;i<digi.size();++i)
   
-  // FLAG:  HcalCaloLabel::Fraction2TS
-  // Shuichi's Algorithm:  Compare size of peak in digi to charge in TS immediately before peak
-  int TSfrac_counter=1; 
-  // get pedestals for each capid -- add 4 to each capid, and then check mod 4.
-  // (This takes care of the case where max capid =0 , and capid-1 would then be negative)
-  if (maxTS>0 &&
-      tool[maxTS]!=calib.pedestal(maxCapid))
-    TSfrac_counter=int(50*((tool[maxTS-1]-calib.pedestal((maxCapid+3)%4))/(tool[maxTS]-calib.pedestal((maxCapid+4)%4)))+1); // 6-bit counter to hold peak ratio info
-  hf.setFlagField(TSfrac_counter, HcalCaloFlagLabels::Fraction2TS,6);
 
   // FLAG:  HcalCaloLabels::HFDigiTime
   // Igor's algorithm:  compare charge in peak to total charge in window

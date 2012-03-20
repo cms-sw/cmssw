@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: checkdeps,v 1.11 2010/04/12 08:18:33 muzaffar Exp $
+# $Id: checkdeps,v 1.14 2011/04/29 12:30:55 muzaffar Exp $
 #
 # Created by: David Lange
 #             LLNL
@@ -18,15 +18,20 @@ use Cwd;
 
 #if any argument, print help and exit 
 
+my $poisondir="poison";
 my $cvsOpt="";
 my $checkout=0;
 my $checkpython=0;
 my $checkheader=0;
 my $checkbuildfile=0;
+my $printFileNames=0;
+my $poison_includes=undef;
+my $poison_only=0;
  
 foreach my $arg (@ARGV) {
     if ( $arg eq "-a" ) {
 	$checkout=1;
+	if (!defined $poison_includes) {$poison_includes=1;}
     }
     elsif ( $arg eq "-p" ) {
 	$checkpython=1;
@@ -40,26 +45,55 @@ foreach my $arg (@ARGV) {
     elsif ( $arg eq "-b" ) {
 	$checkbuildfile=1;
     }
+    elsif ( $arg eq "-f" ) {
+	$printFileNames=1;
+    }
+    elsif ( $arg eq "-d" ) {
+	$poison_includes=0;
+    }
+    elsif ( $arg eq "-D" ) {
+	$poison_only=1;
+    }
+    elsif ( $arg eq "-A" ) {
+        $checkpython=1;
+        $checkheader=1;
+        $checkbuildfile=1;
+    }
     else{
-	print "checkdeps:\n";
-	print "   Utility to check your local development area against the CMSSW release.\n";
-	print "   Any modified header files or python modules are found and the package\n";
-	print "   dependencies of these files will be returned. addpkg-ing these packages\n";
-	print "   and rebuilding them should provide a full and consistent build.\n";
-	print "\nUsage: \n";
-	print "   -p look for python modules and their dependencies  (ON by default)\n";
-	print "   -h look for header files and their dependencies    (ON by default)\n";
-	print "   -b look for BuildFile files and their dependencies (OFF by default)\n";
-	print "   -a will add/checkout the packages into your development area\n";
-	print "   -q will pass -Q option to cvs to make it quiet\n\n";
+	print "checkdeps:\n",
+              "   Utility to check your local development area against the CMSSW release.\n",
+              "   Any modified header files or python modules are found and the package\n",
+              "   dependencies of these files will be returned. addpkg-ing these packages\n",
+              "   and rebuilding them should provide a full and consistent build.\n",
+              "\nUsage: \n",
+              "   -p look for python modules and their dependencies  (ON by default)\n",
+              "   -h look for header files and their dependencies    (ON by default)\n",
+              "   -b look for BuildFile files and their dependencies (OFF by default)\n",
+              "   -f print name of changed file name instead of type of dependency (OFF by default)\n",
+              "   -a will add/checkout the packages into your development area\n",
+              "   -A will check all dependencies i.e. header (-h), python(-p) and BuildFile(-b)\n",
+              "   -d do not create dummy copy of deleted files in ${poisondir} directory. Dummy copies\n",
+              "      are useful to find out if deleted headers files are included by other source files.\n",
+              "   -D only dummy copy of deleted files in ${poisondir} directory created.\n",
+              "      NOTE: all other dependency check/add command-line args are ignored.\n",
+              "   -q will pass -Q option to cvs to make it quiet\n\n";
 	exit;
     }
 }
 
-if ((!$checkpython) && (!$checkheader) && (!$checkbuildfile)) {
+if ($poison_only) {
+    $checkpython=0;
+    $checkheader=0;
+    $checkbuildfile=0;
+    $checkout=0;
+    $poison_includes=1;
+}
+elsif ((!$checkpython) && (!$checkheader) && (!$checkbuildfile)) {
     $checkpython=1;
     $checkheader=1;
 }
+
+if(!defined $poison_includes) { $poison_includes = 0; }
 
 # make sure cvs is setup
 die "ERROR: CVS not set. Do |project CMSSW| first\n" unless(defined $ENV{"CVSROOT"});
@@ -92,24 +126,17 @@ if ($checkbuildfile)
 }
 
 chdir("${localtop}/src");
-my @f1 = `ls`;
-my $maindir=cwd;
-
-my @packages;
 
 # Get the list of packages
-for my $f (@f1) {
+my @packages;
+for my $f (`ls`) {
   chomp($f);
-  chdir("$maindir");
   if( -d $f && ($f ne "CVS") ) { 
-    chdir("$f");
-    # list of packages in subystem
-    my @f2 = `ls`;
-    for my $ff (@f2) {
+    for my $ff (`ls ${localtop}/src/$f`) {
       chomp($ff);
-      if(-d $ff && ($ff ne "CVS") ) {
-        my $pack = "$f/$ff";
-        push @packages, "$pack";
+      my $pack="${f}/${ff}";
+      if(-d $pack && ($ff ne "CVS") ) {
+        push @packages, $pack;
       }
     }
   }
@@ -117,36 +144,56 @@ for my $f (@f1) {
 
 my $tags=&readTags($taglist);
 my @changedFiles;
+my @deletedFiles;
 
 foreach my $package (@packages) {
-    next if ($package =~/^UserCode.*/);
+    next if ($package =~/^UserCode.*/o);
     next if (!exists $tags->{$package});
-    chdir("$maindir");
-    chdir("$package");
     my $reltag=$tags->{$package};
-    my $diffs=`cvs -q -n update -r $reltag`;
+    print ">> Checking $package $reltag\n";
+    my $diffs=`cvs -q -n update -r $reltag $package 2>&1`;
     my @diffs=split('\n',$diffs);
+    my %msgs=("-" => {}, "x" => {});
     foreach my $diff (@diffs) {
-	if ( ($diff =~/^M/) || ($diff =~/^U/) || ($diff =~/^R/) ) {
-	    my @sp2=split(' ', $diff);
-	    push(@changedFiles,"$package/$sp2[1]");
-	}
+        my $del = 0;
+        if ( ($diff =~/^(M)/o) || ($diff =~/^(U)/o) || ($diff =~/^(R)/o) ) {
+            if ($1 eq "R"){$del =1;}
+            my @sp2=split(' ', $diff);
+            $diff = $sp2[1];
+        }
+        elsif ($diff=~/^\s*cvs\s+update:\s+warning:\s+(.+)\s+was\s+lost\s*$/o){
+            $diff = $1; $diff=~s/^.//o; $diff=~s/.$//o;
+            $del = 1;
+        }
+        else {$diff = "";}
+        if ($diff) {$msgs{"x"}{$diff}=1;}
+        if ($del)  {$msgs{"-"}{$diff}=1;}
     }
+    &checkDeleted($package,"${localtop}/src","${releasetop}/src",$msgs{"-"});
+    my @files=sort keys %{$msgs{"-"}};
+    push(@deletedFiles,@files);
+    push(@changedFiles,@files);
+    foreach my $diff (@files){print "   - $diff\n"; delete $msgs{"x"}{$diff};}
+    @files=sort keys %{$msgs{"x"}};
+    push(@changedFiles,@files);
+    foreach my $diff (@files){print "   x $diff\n";}
 }
-chdir("${localtop}/src");
+
+&poisonIncludes(\@deletedFiles,$localtop) if ($poison_includes);
+if ($poison_only) {exit 0;}
 
 my %recompileList;
 foreach my $file (@changedFiles) {
     next if (!(exists $vals{$file}));
     foreach my $dep (@{$vals{$file}}) {
-	my @sp=split('/',$dep);
-	my $recompile="$sp[0]/$sp[1]";
-	if (!(grep {$_ eq $recompile} @packages)) {
-	    my $scope="header";
-	    if ($file=~/\.py$/o){$scope="python";}
-	    elsif($file=~/BuildFile(\.xml|)$/o){$scope="buildfile";}
-	    $recompileList{$recompile}{$scope}=1;
-	}
+        my @sp=split('/',$dep);
+        my $recompile="$sp[0]/$sp[1]";
+        if (!(grep {$_ eq $recompile} @packages)) {
+            my $scope="header";
+            if ($file=~/\.py$/o){$scope="python";}
+            elsif($file=~/BuildFile(\.xml|)$/o){$scope="buildfile";}
+            $recompileList{$recompile}{$scope}=$file;
+        }
     }
 }
 
@@ -162,10 +209,13 @@ else{
 my $exitcode=0;
 if ( $len > 0 ) {
     foreach my $pk (@t) {
-	print "$pk (",join(", ",sort keys %{$recompileList{$pk}}),")\n";
+	if ( $printFileNames == 1 ) {
+	    print "$pk (",join(", ",sort values %{$recompileList{$pk}}),")\n";
+	} else {
+	    print "$pk (",join(", ",sort keys %{$recompileList{$pk}}),")\n";
+	}
     }
     if ( $checkout == 1 ) {
-	chdir("$maindir");
 	foreach my $pk (@t) {
 	    my $tag = $tags->{$pk};
 	    print ">> Checking out $tag $pk\n";
@@ -202,7 +252,7 @@ sub readTags(){
     if (open($ref,$taglist)) {
         while(my $l=<$ref>) {
             chomp $l;
-	    if ($l=~/^\s*(#.*|)$/){next;}
+	    if ($l=~/^\s*(#.*|)$/o){next;}
 	    my ($pk,$tag)=split '\s+', $l;
 	    $cache->{$pk}=$tag;
         }
@@ -218,7 +268,7 @@ sub getLocalTop(){
     use File::Basename;
     my $dir=getcwd;
     my $subdir=".SCRAM";
-    while((!-d "${dir}/${subdir}") && ($dir!~/^[\.\/]$/)){$dir=dirname($dir);}
+    while((!-d "${dir}/${subdir}") && ($dir!~/^[\.\/]$/o)){$dir=dirname($dir);}
     if(-d "${dir}/${subdir}"){return $dir;}
     return ""; 
 }
@@ -237,5 +287,45 @@ sub setArch(){
     if (!defined $ENV{SCRAM_ARCH}){
         my $arch=`scram arch`; chomp $arch;
         $ENV{SCRAM_ARCH}=$arch;
+    }
+}
+
+sub poisonIncludes() {
+    my ($deletedFiles,$topdir)=@_;
+    use File::Path qw (mkpath rmtree);
+    use File::Basename qw(dirname);
+    my $poison="${topdir}/${poisondir}";
+    if (-d $poison){rmtree($poison);}
+    if (scalar(@$deletedFiles)>0) {print ">> Creating dummy files under $poison directory.\n";}
+    foreach my $file (@$deletedFiles) {
+        my $f="${poison}/${file}";
+        my $dir=dirname($f);
+        if (!-d $dir){mkpath($dir);}
+        my $ref;
+        if(!open($ref,">${f}")){die "ERROR: Can not open file for writing: $f\n";}
+        print $ref "#error THIS FILE HAS BEEN REMOVED FROM THE PACKAGE.\n";
+        close($ref);
+        print "   $file\n";
+    }
+}
+
+sub checkDeleted() {
+    my ($rpath,$dev,$rel,$deleted,$add)=@_;
+    my $rdir="${rel}/${rpath}";
+    if (-d "$rdir") {
+        my $ref;
+        if(!opendir($ref,"$rdir")){die "ERROR: Can not open directory: $rdir\n";}
+        my @files=readdir($ref);
+        closedir($ref);
+        foreach my $f (@files) {
+            if (($f eq "doc") || ($f eq "CVS") || ($f eq "html") || ($f=~/^\./o) || ($f=~/\.pyc/o) || ($f=~/^__init__\.py/o)){next;}
+            my $rfile="${rpath}/${f}";
+            if (-d "${rdir}/${f}") {
+                my $radd=$add;
+                if (!-e "${dev}/${rfile}"){$radd=1;}
+                &checkDeleted($rfile,$dev,$rel,$deleted,$radd);
+            }
+            elsif($add || (!-e "${dev}/${rfile}")){$deleted->{$rfile}=1;}
+        }
     }
 }

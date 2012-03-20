@@ -47,7 +47,7 @@ print 'LOCAL_HEADERS=^([^/]+/[^/]+)/.+$:"$1/.+"',"\n";
 print "BASE_DIR=${release}/${src}\n";
 my $flags="";
 my $cache={};
-print "BASE_DIR=${releasetop}/${src}\n";
+#print "BASE_DIR=${releasetop}/${src}\n";
 my $doscramb=0;
 my $pcf=&SCRAMGenUtils::fixCacheFileName("${release}/.SCRAM/${arch}/ProjectCache.db");
 if((-f "${release}/tmp/${arch}/Makefile") && (-f $pcf))

@@ -12,8 +12,8 @@
  *  only be included when propagating from a TrajectoryStateOnSurface.
  *  Ported from ORCA.
  *
- *  $Date: 2010/12/07 13:56:03 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/11/12 18:49:19 $
+ *  $Revision: 1.10 $
  *  \author todorov, cerati
  */
 
@@ -45,7 +45,7 @@ public:
 			 const MagneticField * mf=0,
 			 bool useRungeKutta=false);
 
-  virtual ~PropagatorWithMaterial();
+  ~PropagatorWithMaterial() {}
 
   virtual TrajectoryStateOnSurface propagate (const TrajectoryStateOnSurface& tsos, 
 					      const Plane& plane) const

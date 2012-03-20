@@ -1,8 +1,8 @@
 /*
  * \file EBDaqInfoTask.cc
  *
- * $Date: 2010/08/08 08:56:00 $
- * $Revision: 1.10 $
+ * $Date: 2011/08/23 00:25:30 $
+ * $Revision: 1.11.4.1 $
  * \author E. Di Marco
  *
 */
@@ -51,26 +51,26 @@ EBDaqInfoTask::~EBDaqInfoTask() {
 
 void EBDaqInfoTask::beginJob(void){
 
-  char histo[200];
+  std::string name;
 
   if ( dqmStore_ ) {
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
 
-    sprintf(histo, "DAQSummary");
-    meEBDaqFraction_ = dqmStore_->bookFloat(histo);
+    name = "DAQSummary";
+    meEBDaqFraction_ = dqmStore_->bookFloat(name);
     meEBDaqFraction_->Fill(0.0);
 
-    sprintf(histo, "DAQSummaryMap");
-    meEBDaqActiveMap_ = dqmStore_->book2D(histo,histo, 72, 0., 72., 34, 0., 34.);
+    name = "DAQSummaryMap";
+    meEBDaqActiveMap_ = dqmStore_->book2D(name, name, 72, 0., 72., 34, 0., 34.);
     meEBDaqActiveMap_->setAxisTitle("jphi", 1);
     meEBDaqActiveMap_->setAxisTitle("jeta", 2);
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DAQContents");
 
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
-      meEBDaqActive_[i] = dqmStore_->bookFloat(histo);
+      name = "EcalBarrel_" + Numbers::sEB(i+1);
+      meEBDaqActive_[i] = dqmStore_->bookFloat(name);
       meEBDaqActive_[i]->Fill(0.0);
     }
 

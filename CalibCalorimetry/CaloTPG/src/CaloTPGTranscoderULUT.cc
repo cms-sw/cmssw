@@ -30,6 +30,7 @@ CaloTPGTranscoderULUT::~CaloTPGTranscoderULUT() {
 }
 
 void CaloTPGTranscoderULUT::loadHCALCompress() const{
+
 // Initialize analytical compression LUT's here
    // TODO cms::Error log
   if (OUTPUT_LUT_SIZE != (unsigned int) 0x400) std::cout << "Error: Analytic compression expects 10-bit LUT; found LUT with " << OUTPUT_LUT_SIZE << " entries instead" << std::endl;
@@ -42,28 +43,30 @@ void CaloTPGTranscoderULUT::loadHCALCompress() const{
 	analyticalLUT[i] = (unsigned int)(sqrt(14.94*log(1.+i/14.94)*i) + 0.5);
 	identityLUT[i] = min(i,0xffu);
   }
- 
+
   for (int ieta=-32; ieta <= 32; ieta++){
-     for (int iphi = 1; iphi <= 72; iphi++){
-        if (!HTvalid(ieta,iphi)) continue;
-        int lutId = getOutputLUTId(ieta,iphi);
-        // TODO cms::Error log
-        if (outputLUT_[lutId] != 0){
-           std::cout << "Error: LUT with (ieta,iphi) = (" << ieta << "," << iphi << ") has been previously allocated!" << std::endl;
-           continue;
-        }
-
-        outputLUT_[lutId] = new LUT[OUTPUT_LUT_SIZE];
-
-        HcalTrigTowerDetId id(ieta, iphi);
-        const HcalLutMetadatum *meta = lutMetadata_->getValues(id);
-        int threshold = meta->getOutputLutThreshold();
-
-        for (int i = 0; i < threshold; ++i)
-           outputLUT_[lutId][i] = 0;
-
-        for (unsigned int i = threshold; i < OUTPUT_LUT_SIZE; ++i)
-           outputLUT_[lutId][i] = (abs(ieta) < theTrigTowerGeometry.firstHFTower()) ? analyticalLUT[i] : identityLUT[i];
+    for (int iphi = 1; iphi <= 72; iphi++){
+      
+      if (!HTvalid(ieta,iphi)) continue;
+      int lutId = getOutputLUTId(ieta,iphi);
+      // TODO cms::Error log
+      if (outputLUT_[lutId] != 0){
+	std::cout << "Error: LUT with (ieta,iphi) = (" << ieta << "," << iphi << ") has been previously allocated!" << std::endl;
+	continue;
+      }
+      
+      outputLUT_[lutId] = new LUT[OUTPUT_LUT_SIZE];
+      
+      HcalTrigTowerDetId id(ieta, iphi);
+      const HcalLutMetadatum *meta = lutMetadata_->getValues(id);
+      int threshold = meta->getOutputLutThreshold();
+      
+      for (int i = 0; i < threshold; ++i)
+	outputLUT_[lutId][i] = 0;
+      
+      for (unsigned int i = threshold; i < OUTPUT_LUT_SIZE; ++i)
+	outputLUT_[lutId][i] = (abs(ieta) < theTrigTowerGeometry.firstHFTower()) ? analyticalLUT[i] : identityLUT[i];
+      
      } //for iphi
   } //for ieta
 }
@@ -374,16 +377,17 @@ void CaloTPGTranscoderULUT::setup(const edm::EventSetup& es, Mode mode=All) cons
    if (rctlsb != 0.25 && rctlsb != 0.5)
       throw cms::Exception("RCTLSB") << " value=" << rctlsb << " (should be 0.25 or 0.5)" << std::endl;
    rctlsb_factor_ = rctlsb;
+  
+  if (compressionFile_.empty() && decompressionFile_.empty()) {
+    loadHCALCompress();
+  }
 
-   if (compressionFile_.empty() && decompressionFile_.empty()) {
-      loadHCALCompress();
-   }
-   else {
-      // TODO Message to discourage using txt.
-      std::cout << "From Text File:" << std::endl;
-      loadHCALCompress(compressionFile_);
-   }
-   isLoaded_ = true;
+  else {
+    // TODO Message to discourage using txt.
+    std::cout << "From Text File:" << std::endl;
+    loadHCALCompress(compressionFile_);
+  }
+  isLoaded_ = true;
 }
 
 void CaloTPGTranscoderULUT::printDecompression() const{

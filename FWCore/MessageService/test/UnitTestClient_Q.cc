@@ -8,7 +8,7 @@ namespace edmtest
 {
 
 void
-  UTC_Q1::analyze( edm::Event      const & e
+  UTC_Q1::analyze( edm::Event      const & /*unused*/
                             , edm::EventSetup const & /*unused*/
                               )
 {
@@ -18,7 +18,7 @@ void
 }  
 
 void
-  UTC_Q2::analyze( edm::Event      const & e
+  UTC_Q2::analyze( edm::Event      const & /*unused*/
                             , edm::EventSetup const & /*unused*/
                               )
 {

@@ -196,8 +196,6 @@ namespace edm {
 
     bool hasProductCache() const {return ref_.hasProductCache() || backRef_.hasProductCache();}
 
-    bool hasCache() const {return ref_.hasCache() || backRef_.hasCache();}
-
     /// Checks if collection is in memory or available
     /// in the Event. No type checking is done.
     bool isAvailable() const {return ref_.isAvailable() || backRef_.isAvailable();}

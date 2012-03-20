@@ -11,7 +11,7 @@
 
 <!-- BU / BROKER CONTEXT -->
   <xc:Context url="http://STMGR_DEV_BU_HOST:STMGR_DEV_BU_PORT">
-      <xc:Endpoint protocol="tcp" service="i2o"
+      <xc:Endpoint protocol="atcp" service="i2o"
           hostname="STMGR_DEV_BU_HOST" port="BU_ENDPOINT_PORT" network="tcp1"/>
 
     <!-- FUEventProcessor playback provider -->
@@ -19,19 +19,17 @@
       <properties xmlns="urn:xdaq-application:FUEventProcessor" xsi:type="soapenc:Struct">
         <parameterSet xsi:type="xsd:string">file:../../cfg/FUPB_PROVIDER_CFG_FILE</parameterSet>
         <hasPrescaleService xsi:type="xsd:boolean">false</hasPrescaleService>
-        <ignoreDQMAttachErrors xsi:type="xsd:boolean">true</ignoreDQMAttachErrors>
-        <declareRunNumberIfInvalid xsi:type="xsd:boolean">true</declareRunNumberIfInvalid>
+        <isRunNumberSetter xsi:type="xsd:boolean">false</isRunNumberSetter>
       </properties>
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterProcessor.so</xc:Module>
 
     <!-- Playback Builder Unit -->
-    <xc:Application class="evf::BU" id="24" instance="0" network="tcp1">
+    <xc:Application class="evf::BU" id="24" instance="0" network="local">
       <properties xmlns="urn:xdaq-application:evf::BU" xsi:type="soapenc:Struct">
         <replay xsi:type="xsd:boolean">true</replay>
         <queueSize xsi:type="xsd:unsignedInt">200</queueSize>
         <eventBufferSize xsi:type="xsd:unsignedInt">0x100000</eventBufferSize>
-        <throttlingSleepUs xsi:type="xsd:unsignedInt">50000</throttlingSleepUs>
       </properties>
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterAutoBU.so</xc:Module>
@@ -52,13 +50,13 @@
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterResourceBroker.so</xc:Module>
 
-    <xc:Application class="pt::tcp::PeerTransportTCP" id="26" network="tcp1">
-      <properties xmlns="urn:xdaq-application:pt::tcp::PeerTransportTCP" xsi:type="soapenc:Struct">
+    <xc:Application class="pt::atcp::PeerTransportATCP" id="26" instance="0" network="local">
+      <properties xmlns="urn:xdaq-application:pt::atcp::PeerTransportATCP" xsi:type="soapenc:Struct">
         <autoSize xsi:type="xsd:boolean">true</autoSize>
         <maxPacketSize xsi:type="xsd:unsignedInt">262144</maxPacketSize>
       </properties>
     </xc:Application>
-    <xc:Module>${XDAQ_ROOT}/lib/libpttcp.so</xc:Module>
+    <xc:Module>${XDAQ_ROOT}/lib/libptatcp.so</xc:Module>
 
   </xc:Context>
 
@@ -70,7 +68,8 @@
         <parameterSet xsi:type="xsd:string">file:../../cfg/FUPB_PASSTHRU_CFG_FILE</parameterSet>
         <runNumber xsi:type="xsd:unsignedInt">0</runNumber>
         <hasPrescaleService xsi:type="xsd:boolean">false</hasPrescaleService>
-        <ignoreDQMAttachErrors xsi:type="xsd:boolean">true</ignoreDQMAttachErrors>
+        <nbSubProcesses xsi:type="xsd:unsignedInt">2</nbSubProcesses>
+        <autoRestartSlaves xsi:type="xsd:boolean">true</autoRestartSlaves>
       </properties>
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterProcessor.so</xc:Module>
@@ -80,7 +79,7 @@
 <!-- StorageManager context -->
   <!-- Declare a context that contains the application -->
   <xc:Context id = "1" url="http://STMGR_DEV_SM_HOST:STMGR_DEV_SM_PORT">
-    <xc:Endpoint protocol="tcp" service="i2o"
+    <xc:Endpoint protocol="atcp" service="i2o"
       hostname="STMGR_DEV_SM_HOST" port="SM_ENDPOINT_PORT" network="tcp1"/>
 
     <!-- Declare a StorageManager application -->
@@ -90,22 +89,22 @@
         <runNumber          xsi:type="xsd:unsignedInt">0</runNumber>
         <nLogicalDisk       xsi:type="xsd:integer">0</nLogicalDisk> 
         <filePath           xsi:type="xsd:string">../../db</filePath> 
-        <fileCatalog        xsi:type="xsd:string">summaryCatalog.txt</fileCatalog> 
         <collateDQM         xsi:type="xsd:boolean">true</collateDQM>
         <readyTimeDQM       xsi:type="xsd:integer">30</readyTimeDQM>
         <useCompressionDQM  xsi:type="xsd:boolean">true</useCompressionDQM>
         <compressionLevelDQM xsi:type="xsd:integer">1</compressionLevelDQM>
+        <checkAdler32       xsi:type="xsd:boolean">true</checkAdler32>
       </properties>
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterStorageManager.so</xc:Module>
 
-    <xc:Application class="pt::tcp::PeerTransportTCP" id="31" network="tcp1">
-      <properties xmlns="urn:xdaq-application:pt::tcp::PeerTransportTCP" xsi:type="soapenc:Struct">
+    <xc:Application class="pt::atcp::PeerTransportATCP" id="31" instance="0" network="local">
+      <properties xmlns="urn:xdaq-application:pt::atcp::PeerTransportATCP" xsi:type="soapenc:Struct">
         <autoSize xsi:type="xsd:boolean">true</autoSize>
         <maxPacketSize xsi:type="xsd:unsignedInt">262144</maxPacketSize>
       </properties>
     </xc:Application>
-    <xc:Module>${XDAQ_ROOT}/lib/libpttcp.so</xc:Module>
+    <xc:Module>${XDAQ_ROOT}/lib/libptatcp.so</xc:Module>
 
   </xc:Context>
 

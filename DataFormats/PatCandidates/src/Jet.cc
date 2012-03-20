@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.41 2010/12/01 18:38:42 rwolf Exp $
+// $Id: Jet.cc,v 1.43 2011/04/12 20:34:49 rwolf Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -58,6 +58,23 @@ Jet::Jet(const edm::RefToBase<reco::Jet> & aJetRef) :
   isPFCandidateCached_(false)
 {
   tryImportSpecific(*aJetRef);
+}
+
+std::ostream& 
+reco::operator<<(std::ostream& out, const pat::Jet& obj) 
+{
+  if(!out) return out;
+  
+  out << "\tpat::Jet: ";
+  out << std::setiosflags(std::ios::right);
+  out << std::setiosflags(std::ios::fixed);
+  out << std::setprecision(3);
+  out << " E/pT/eta/phi " 
+      << obj.energy()<<"/"
+      << obj.pt()<<"/"
+      << obj.eta()<<"/"
+      << obj.phi();
+  return out; 
 }
 
 /// constructor helper that tries to import the specific info from the source jet
@@ -246,7 +263,7 @@ float Jet::jecFactor(const unsigned int& level, const JetCorrFactors::Flavor& fl
     throw cms::Exception("InvalidRequest") << "This jet does not carry any jet energy correction factor information \n"
 					   << "for a jet energy correction set with index " << set << "\n";
   }
-  return jec_.at(set).correction(level, flavor)/jec_.at(set).correction(currentJECLevel_, currentJECFlavor_);
+  return jec_.at(set).correction(level, flavor)/jec_.at(currentJECSet_).correction(currentJECLevel_, currentJECFlavor_);
 }
 
 /// copy of the jet with correction factor to target step for

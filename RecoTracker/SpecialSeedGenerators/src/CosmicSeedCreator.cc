@@ -1,22 +1,10 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/CosmicSeedCreator.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
-#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
-#include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
-#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-#include "TrackingTools/TrackAssociator/interface/DetIdInfo.h"
 
 template <class T> T sqr( T t) {return t*t;}
 

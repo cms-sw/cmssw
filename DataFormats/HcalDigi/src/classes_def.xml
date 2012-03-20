@@ -6,6 +6,8 @@
    <class name="HcalCalibDataFrame"/>
    <class name="HcalTriggerPrimitiveSample"/>
    <class name="HcalTriggerPrimitiveDigi"/>
+   <class name="HcalUpgradeTriggerPrimitiveSample"/>
+   <class name="HcalUpgradeTriggerPrimitiveDigi"/>
    <class name="HOTriggerPrimitiveDigi"/>
    <class name="HcalHistogramDigi"/>
    <class name="ZDCDataFrame"/>
@@ -16,11 +18,13 @@
    <class name="HcalUpgradeDataFrame"/>
    <class name="std::vector<HcalQIESample>"/>
    <class name="std::vector<HcalTriggerPrimitiveSample>"/>
+   <class name="std::vector<HcalUpgradeTriggerPrimitiveSample>"/>
    <class name="std::vector<HBHEDataFrame>"/>
    <class name="std::vector<HODataFrame>"/>
    <class name="std::vector<HFDataFrame>"/>
    <class name="std::vector<HcalCalibDataFrame>"/>
    <class name="std::vector<HcalTriggerPrimitiveDigi>"/>
+   <class name="std::vector<HcalUpgradeTriggerPrimitiveDigi>"/>
    <class name="std::vector<HOTriggerPrimitiveDigi>"/>
    <class name="std::vector<HcalHistogramDigi>"/>
    <class name="std::vector<ZDCDataFrame>"/>
@@ -33,6 +37,7 @@
    <class name="edm::SortedCollection<HFDataFrame,edm::StrictWeakOrdering<HFDataFrame> >"/>
    <class name="edm::SortedCollection<HcalCalibDataFrame,edm::StrictWeakOrdering<HcalCalibDataFrame> >"/>
    <class name="edm::SortedCollection<HcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<HcalTriggerPrimitiveDigi> >"/>
+   <class name="edm::SortedCollection<HcalUpgradeTriggerPrimitiveDigi,edm::StrictWeakOrdering<HcalUpgradeTriggerPrimitiveDigi> >"/>
    <class name="edm::SortedCollection<HOTriggerPrimitiveDigi,edm::StrictWeakOrdering<HOTriggerPrimitiveDigi> >"/>
    <class name="edm::SortedCollection<HcalHistogramDigi,edm::StrictWeakOrdering<HcalHistogramDigi> >"/>
    <class name="edm::SortedCollection<ZDCDataFrame,edm::StrictWeakOrdering<ZDCDataFrame> >"/>
@@ -46,6 +51,7 @@
    <class name="edm::Wrapper<edm::SortedCollection<HFDataFrame,edm::StrictWeakOrdering<HFDataFrame> > >" splitLevel="0" />
    <class name="edm::Wrapper<edm::SortedCollection<HcalCalibDataFrame,edm::StrictWeakOrdering<HcalCalibDataFrame> > >"/>
    <class name="edm::Wrapper<edm::SortedCollection<HcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<HcalTriggerPrimitiveDigi> > >" splitLevel="0"/>
+   <class name="edm::Wrapper<edm::SortedCollection<HcalUpgradeTriggerPrimitiveDigi,edm::StrictWeakOrdering<HcalUpgradeTriggerPrimitiveDigi> > >" splitLevel="0"/>
    <class name="edm::Wrapper<edm::SortedCollection<HOTriggerPrimitiveDigi,edm::StrictWeakOrdering<HOTriggerPrimitiveDigi> > >" splitLevel="0"/>
    <class name="edm::Wrapper<edm::SortedCollection<HcalHistogramDigi,edm::StrictWeakOrdering<HcalHistogramDigi> > >" splitLevel="0"/>
    <class name="edm::Wrapper<edm::SortedCollection<ZDCDataFrame,edm::StrictWeakOrdering<ZDCDataFrame> > >" splitLevel="0" />

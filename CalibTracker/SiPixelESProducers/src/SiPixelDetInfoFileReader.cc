@@ -3,7 +3,7 @@
 // Class:      SiPixelDetInfoFileReader
 // Original Author:  V.Chiochia
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiPixelDetInfoFileReader.cc,v 1.1 2007/07/09 11:24:03 gbruno Exp $
+// $Id: SiPixelDetInfoFileReader.cc,v 1.1.2.1 2010/06/25 16:41:54 hcheung Exp $
 
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,7 +14,7 @@ using namespace cms;
 using namespace std;
 
 
-SiPixelDetInfoFileReader::SiPixelDetInfoFileReader(std::string filePath) {
+SiPixelDetInfoFileReader::SiPixelDetInfoFileReader(std::string filePath, bool readROCInfo) {
 
 //   if(filePath==std::string("")){
 //     filePath = edm::FileInPath(std::string("CalibTracker/SiPixelCommon/data/SiPixelDetInfo.dat") ).fullPath();
@@ -22,7 +22,7 @@ SiPixelDetInfoFileReader::SiPixelDetInfoFileReader(std::string filePath) {
 
   detData_.clear();
   detIds_.clear();
-
+  theROCInfo_.clear();
   inputFile_.open(filePath.c_str());
 
   if (inputFile_.is_open()){
@@ -32,8 +32,10 @@ SiPixelDetInfoFileReader::SiPixelDetInfoFileReader(std::string filePath) {
       uint32_t detid;
       int ncols;
       int nrows;
+      int rocrows;
 
       inputFile_ >> detid >> ncols  >> nrows ;
+      if (readROCInfo) { inputFile_ >> rocrows;}
 
       if (!(inputFile_.eof() || inputFile_.fail())){
 
@@ -49,7 +51,8 @@ SiPixelDetInfoFileReader::SiPixelDetInfoFileReader(std::string filePath) {
 	if( it==detData_.end() ){
 	  
 	  detData_[detid]=pair<int, int>(ncols,nrows);
-	  
+	  if (readROCInfo) { theROCInfo_[detid]=rocrows; }
+	  else {theROCInfo_[detid]=80;} //Move hard-wired constant to here...
 	}
 	else{	  
 	  edm::LogError("SiPixelDetInfoFileReader::SiPixelDetInfoFileReader") <<"DetId " << detid << " already found on file. Ignoring new data"<<endl;
@@ -121,6 +124,25 @@ const std::pair<int, int> & SiPixelDetInfoFileReader::getDetUnitDimensions(uint3
 
     static std::pair< int, int> defaultValue(0,0);
     edm::LogWarning("SiPixelDetInfoFileReader::getDetUnitDimensions - Unable to find requested detid. Returning invalid data ")<<endl; 
+    return defaultValue;
+
+  }
+
+}
+
+const int & SiPixelDetInfoFileReader::getROCRows(uint32_t detId) const{
+
+  std::map<uint32_t, int >::const_iterator it = theROCInfo_.find(detId);
+
+  if(it!=theROCInfo_.end()){
+    
+    return (*it).second; 
+
+  }
+  else{
+
+    static int defaultValue(80);
+    edm::LogWarning("SiPixelDetInfoFileReader::getROCRows - Unable to find requested detid. Returning default data ")<<endl; 
     return defaultValue;
 
   }

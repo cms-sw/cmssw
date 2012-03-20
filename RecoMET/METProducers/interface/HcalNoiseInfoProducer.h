@@ -93,6 +93,10 @@ namespace reco {
     double minRecHitE_, minLowHitE_, minHighHitE_; // parameters used to determine noise status
     HcalNoiseAlgo algo_; // algorithms to determine if an RBX is noisy
 
+    double TS4TS5EnergyThreshold_;
+    std::vector<std::pair<double, double> > TS4TS5UpperCut_;
+    std::vector<std::pair<double, double> > TS4TS5LowerCut_;
+
     uint32_t HcalAcceptSeverityLevel_;
     
   };

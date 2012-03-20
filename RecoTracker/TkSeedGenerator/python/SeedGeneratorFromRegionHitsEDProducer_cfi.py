@@ -11,6 +11,18 @@ seedGeneratorFromRegionHitsEDProducer = cms.EDProducer("SeedGeneratorFromRegionH
         SeedingLayers = cms.string(''),
         maxElement = cms.uint32(100000)
     ),
+    SeedMergerPSet = cms.PSet(
+        # layer list for the merger, as defined in (or modified from):
+        # RecoPixelVertexing/PixelTriplets/python/quadrupletseedmerging_cff.py
+        layerListName = cms.string( "PixelSeedMergerQuadruplets" ),
+        # merge triplets -> quadruplets if applicable?
+        mergeTriplets = cms.bool( True ),
+        # add remaining (non-merged) triplets to merged output quadruplets?
+        # (results in a "mixed" output)
+        addRemainingTriplets = cms.bool( False ),
+        # the builder
+        ttrhBuilderLabel = cms.string( "PixelTTRHBuilderWithoutAngle" )
+    ),
     SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('none')
     ),

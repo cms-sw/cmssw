@@ -8,8 +8,6 @@
  */
 
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/CombinedHitTripletGenerator.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -25,12 +23,11 @@ class TripletFilter;
 class   PixelTripletLowPtGenerator :
  public HitTripletGeneratorFromPairAndLayers {
 
- typedef CombinedHitTripletGenerator::LayerCacheType       LayerCacheType;
 
  public:
    PixelTripletLowPtGenerator( const edm::ParameterSet& cfg) 
-    : ps(cfg), thePairGenerator(0), theLayerCache(0)
-   { theTracker = 0; theFilter = 0; }
+     : theTracker(0), theFilter(0), ps(cfg), thePairGenerator(0), theLayerCache(0)
+   {  }
 
    virtual ~PixelTripletLowPtGenerator() { delete thePairGenerator; delete theFilter; }
 
@@ -54,13 +51,14 @@ class   PixelTripletLowPtGenerator :
   std::vector<ctfseeding::SeedingLayer> theLayers;
   LayerCacheType * theLayerCache;
 
-  bool checkMultipleScattering;
   double nSigMultipleScattering;
-  bool checkClusterShape;
   double rzTolerance;
   double maxAngleRatio;
 
   std::string builderName;
+  bool checkMultipleScattering;
+  bool checkClusterShape;
+ 
 };
 
 #endif

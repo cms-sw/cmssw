@@ -10,7 +10,8 @@ JacobianCurvilinearToLocal(const Surface& surface,
  
   // Origin: TRSCSD
   GlobalPoint  x = surface.toGlobal(localParameters.position());
-  GlobalVector h  = magField.inInverseGeV(x);
+  //  GlobalVector h = MagneticField::inInverseGeV(x);
+  GlobalVector h  = magField.inTesla(x) * 2.99792458e-3;
   GlobalVector  hdir =  h.unit();
 
   LocalVector tnl = localParameters.momentum().unit();
@@ -63,4 +64,10 @@ JacobianCurvilinearToLocal(const Surface& surface,
   theJacobian(2,4) = vi*(vj*cosz-uj*sinz);
   // end of TRSCSD
   //dbg::dbg_trace(1,"Cu2L", localParameters.vector(),di,dj,dk,theJacobian);
+}
+const AlgebraicMatrix55& JacobianCurvilinearToLocal::jacobian() const {
+  return theJacobian;
+}
+const AlgebraicMatrix JacobianCurvilinearToLocal::jacobian_old() const {
+  return asHepMatrix(theJacobian);
 }

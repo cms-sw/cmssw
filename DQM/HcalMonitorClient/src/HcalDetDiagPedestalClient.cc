@@ -14,8 +14,8 @@
 /*
  * \file HcalDetDiagPedestalClient.cc
  * 
- * $Date: 2010/03/25 21:23:47 $
- * $Revision: 1.9 $
+ * $Date: 2010/03/25 21:24:52 $
+ * $Revision: 1.10 $
  * \author J. Temple
  * \brief Hcal DetDiagPedestal Client class
  */
@@ -48,6 +48,8 @@ HcalDetDiagPedestalClient::HcalDetDiagPedestalClient(std::string myname, const e
 						   ps.getUntrackedParameter<double>("minerrorrate",0.05));
   minevents_    = ps.getUntrackedParameter<int>("DetDiagPedestal_minevents",
 						ps.getUntrackedParameter<int>("minevents",1));
+  Online_                = ps.getUntrackedParameter<bool>("online",false);
+
   ProblemCells=0;
   ProblemCellsByDepth=0;
 }

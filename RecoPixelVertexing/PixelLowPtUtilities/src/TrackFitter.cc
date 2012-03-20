@@ -30,7 +30,7 @@
 
 #include "RecoPixelVertexing/PixelTrackFitting/src/RZLine.h"
 #include "RecoPixelVertexing/PixelTrackFitting/src/CircleFromThreePoints.h"
-#include "RecoPixelVertexing/PixelTrackFitting/src/PixelTrackBuilder.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackBuilder.h"
 
 using namespace std;
 

@@ -25,7 +25,7 @@ FWPFLegoCandidate::FWPFLegoCandidate( const FWViewContext *vc, const fireworks::
 
    // Circle pt
    const unsigned int nLineSegments = 20;
-   const double radius = log( 1 + m_pt ) / log(10) / 30.f;
+   const double radius = log( 1 + m_pt ) / log(10) / 10.f;
    //const double radius = m_pt / 100.f;
    const double twoPi = 2 * TMath::Pi();
 

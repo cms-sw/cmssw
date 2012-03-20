@@ -97,7 +97,6 @@ StandardMatchingParameters = cms.PSet(
    SaveOutputHistograms         = cms.bool(False), #TRUE FOR TEST ONLY
    #RefCollection                = cms.InputTag("TauGenJetProducer","selectedGenTauDecaysToHadronsPt5Cumulative"),
    RefCollection                = cms.InputTag("kinematicSelectedTauValDenominator"),
-   LeadingTrackPtCut            = cms.double(0.),
 )
 
 PFTausHighEfficiencyLeadingPionBothProngs = cms.EDAnalyzer("TauTagValidation",
@@ -144,7 +143,6 @@ RunTancValidation.discriminators = cms.VPSet(
 RunHPSValidation = copy.deepcopy(PFTausHighEfficiencyBothProngs)
 RunHPSValidation.ExtensionName = ""
 RunHPSValidation.TauProducer   = cms.InputTag('hpsPFTauProducer')
-RunHPSValidation.LeadingTrackPtCut = 15
 RunHPSValidation.discriminators = cms.VPSet(
    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByDecayModeFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
@@ -161,7 +159,6 @@ RunHPSValidation.discriminators = cms.VPSet(
 RunHPSTanc_HPSValidation = copy.deepcopy(PFTausHighEfficiencyBothProngs)
 RunHPSTanc_HPSValidation.ExtensionName = "_HPS"
 RunHPSTanc_HPSValidation.TauProducer   = cms.InputTag('hpsTancTaus')
-RunHPSTanc_HPSValidation.LeadingTrackPtCut = 15
 RunHPSTanc_HPSValidation.discriminators = cms.VPSet(
    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByDecayModeSelection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByVLooseIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
@@ -178,7 +175,6 @@ RunHPSTanc_HPSValidation.discriminators = cms.VPSet(
 RunHPSTanc_TANCValidation = copy.deepcopy(PFTausHighEfficiencyBothProngs)
 RunHPSTanc_TANCValidation.ExtensionName = "_TANC"
 RunHPSTanc_TANCValidation.TauProducer   = cms.InputTag('hpsTancTaus')
-RunHPSTanc_TANCValidation.LeadingTrackPtCut = 15
 RunHPSTanc_TANCValidation.discriminators = cms.VPSet(
     cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByDecayModeSelection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
     cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByLeadingPionPtCut"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)), #not plotted

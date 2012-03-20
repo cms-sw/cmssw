@@ -25,7 +25,7 @@ SiPixelLayoutParser::~SiPixelLayoutParser() {
 // -- Get list of Layouts for ME groups
 //
 bool SiPixelLayoutParser::getAllLayouts(map<string, vector< string > >& layouts){
-  if (!doc) {
+  if (!doc()) {
     cout << " SiPixelLayoutParser::Configuration File is not set!!! " << endl;
     return false;
   }
@@ -33,7 +33,7 @@ bool SiPixelLayoutParser::getAllLayouts(map<string, vector< string > >& layouts)
   layouts.clear();
 
   DOMNodeList * layoutList 
-    = doc->getElementsByTagName(qtxml::_toDOMS("layout"));
+    = doc()->getElementsByTagName(qtxml::_toDOMS("layout"));
 
   unsigned int nlayout = layoutList->getLength();
   if (nlayout == 0) return false;

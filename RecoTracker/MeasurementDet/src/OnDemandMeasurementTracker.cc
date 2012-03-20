@@ -129,6 +129,9 @@ OnDemandMeasurementTracker::OnDemandMeasurementTracker(const edm::ParameterSet& 
 	throw MeasurementDetException("OnDemandMeasurementTracker dealing with a non tracker GeomDet.");
       }//abort
     }//loop over DetMap
+
+  if (theInactiveStripDetectorLabels.size()!=0)
+    theRawInactiveStripDetIds.reserve(200);
 }
 
 
@@ -198,6 +201,10 @@ void OnDemandMeasurementTracker::updateStrips( const edm::Event& event) const
 	theSkipClusterRefs=true;
 	event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),theStripClusterRefs);
       }
+
+      //get the detid that are inactive
+      theRawInactiveStripDetIds.clear();
+      getInactiveStrips(event,theRawInactiveStripDetIds);
     }
 }
 
@@ -281,6 +288,12 @@ void OnDemandMeasurementTracker::assign(const TkStripMeasurementDet * csmdet,
   if  ( elementInMap != theDetODMap.end()){
     //flag it as updated
     elementInMap->second.updated = true;
+
+    if (!theRawInactiveStripDetIds.empty() && std::binary_search(theRawInactiveStripDetIds.begin(), theRawInactiveStripDetIds.end(), id)) {
+                smdet->setActiveThisEvent(false);
+		          return;
+    }
+
     //retrieve the region range index for this module
     std::pair<unsigned int,unsigned int> & indexes =elementInMap->second.region_range;
 
@@ -304,6 +317,8 @@ void OnDemandMeasurementTracker::assign(const TkStripMeasurementDet * csmdet,
 	  edmNew::DetSetVector<TkStripMeasurementDet::SiStripRegionalClusterRef>::const_iterator f=theStripClusterRefs->find(id);
 	  if (f!=theStripClusterRefs->end())
 	    smdet->setRegionalClustersToSkip(f->begin(),f->end());
+	  else
+	    smdet->unset();
 	}
 	//and you are done
 	return;}
@@ -341,12 +356,7 @@ OnDemandMeasurementTracker::idToDet(const DetId& id) const
 	//glued det
 	LogDebug(category_)<<"updating glued id: "<<id.rawId()<<" ("<<comp.size()<<").";
 	//cast to specific type
-	TkGluedMeasurementDet*  theConcreteDet = dynamic_cast<TkGluedMeasurementDet*>(it->second.mdet);
-	//FIXME. do not require the dynamic cast, since we know what we do here
-	//              const TkGluedMeasurementDet*  theConcreteDet = (const TkGluedMeasurementDet*) it->second.mdet;
-	if (!theConcreteDet){
-	  edm::LogError(category_)<<"failed to cast to glued measurement det:"<<it->first.rawId();
-	  throw MeasurementDetException("failed to cast. see log file.");}
+	TkGluedMeasurementDet*  theConcreteDet = static_cast<TkGluedMeasurementDet*>(it->second.mdet);
 		
 	//	update the two components
 	//update the mono
@@ -361,12 +371,7 @@ OnDemandMeasurementTracker::idToDet(const DetId& id) const
 	//single layer 
 	LogDebug(category_)<<"updating singel id: "<<id.rawId();
 	//cast to specific type
-	TkStripMeasurementDet*  theConcreteDet = dynamic_cast<TkStripMeasurementDet*>(it->second.mdet);
-	//FIXME. do not require the dynamic cast, since we know what we do here
-	//              const TkStripMeasurementDet*  theConcreteDet = (const TkStripMeasurementDet*)it->second.mdet;
-	if (!theConcreteDet){
-	  edm::LogError(category_)<<"failed to cast to strip measurement det:"<<it->first.rawId();
-	  throw MeasurementDetException("failed to cast. see log file.");}
+	TkStripMeasurementDet*  theConcreteDet = static_cast<TkStripMeasurementDet*>(it->second.mdet);
 
 	//update the single layer
 	assign(theConcreteDet,&it);
