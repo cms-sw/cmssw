@@ -21,36 +21,22 @@ require "ec_mon_utils.pl";
 
 ec_mon_conf_file();
 
-exit 1 unless ( -e "$config{'ec_mon_master_rundir'}/dqm-data/status/.$runnum.daq_done" );
+my $statusdir = "$config{'ec_mon_master_rundir'}/dqm-data/status";
 
-my $daqdir = "$config{'ec_mon_master_rundir'}/daq-data";
-my $trashdir = "$config{'ec_mon_master_rundir'}/daq-data/trash";
+exit 1 unless ( -e "$statusdir/.$runnum.daq_done" );
 
 my ($loc, $num, $lun, $out, $fun, $fil, $ful, $typ) = split('\.', "$runnum");
 
 my $runfil = "$loc.$num.$lun.$out.$fun.$fil.$ful";
 
-my $command = ec_mon_filelist("$daqdir/", $num, $fun);
+system("mv -f $statusdir/.$runnum.daq_done $statusdir/.$runnum.mon_run");
 
-my @filelist = split('\n', `$command`);
-
-$command = ec_mon_filelist("$trashdir/", $num, $fun);
-
-my @filelist_archived = split('\n', `$command`);
-
-if ( $runnum ) {
-  exit 1 unless ( @filelist != 0 ||
-                  @filelist_archived != 0 );
-}
-
-system("mv -f $config{'ec_mon_master_rundir'}/dqm-data/status/.$runnum.daq_done $config{'ec_mon_master_rundir'}/dqm-data/status/.$runnum.mon_run");
-
-if ( system("$config{'ec_mon_path'}/ec_mon_cmssw_task_wrapper --run $runfil 2>&1") || system("$config{'ec_mon_path'}/ec_mon_cmssw_task_wrapper_pedestal-offset --run $runfil 2>&1") ) {
-  system("mv -f $config{'ec_mon_master_rundir'}/dqm-data/status/.$runnum.mon_run $config{'ec_mon_master_rundir'}/dqm-data/status/.$runnum.mon_fail");
-  system("/nfshome0/ecalpro/DAQ/RunTime/common/pilot/scripts/notifyRCMS.pl $num FAIL >/tmp/notifyRCMS.log 2>&1");
-} else {
-  system("mv -f $config{'ec_mon_master_rundir'}/dqm-data/status/.$runnum.mon_run $config{'ec_mon_master_rundir'}/dqm-data/status/.$runnum.mon_done");
+if ( system("$config{'ec_mon_path'}/ec_mon_cmssw_task_wrapper --run $runfil 2>&1") == 0 || system("$config{'ec_mon_path'}/ec_mon_cmssw_task_wrapper_pedestal-offset --run $runfil 2>&1") == 0 ) {
+  system("mv -f $statusdir/.$runnum.mon_run $statusdir/.$runnum.mon_done");
   system("/nfshome0/ecalpro/DAQ/RunTime/common/pilot/scripts/notifyRCMS.pl $num DONE >/tmp/notifyRCMS.log 2>&1");
+} else {
+  system("mv -f $statusdir/.$runnum.mon_run $statusdir/.$runnum.mon_fail");
+  system("/nfshome0/ecalpro/DAQ/RunTime/common/pilot/scripts/notifyRCMS.pl $num FAIL >/tmp/notifyRCMS.log 2>&1");
 }
 
 exit 0;

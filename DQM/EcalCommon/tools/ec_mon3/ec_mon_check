@@ -12,7 +12,6 @@ Getopt::Long::config('bundling_override');
 GetOptions( \%opts,
                 "conf|c=s",
                 "short",
-                "html",
                 "reverse",
                 "last=s",
                 "daq_run",
@@ -211,14 +210,6 @@ foreach $run ( @new_runlist ) {
       $file = 'tape';
     }
 
-    if ( $opts{'html'} ) {
-      if ( $status eq "mon_done" ) {
-        if ( ! ( -e "$config{'ec_mon_master_rundir'}/dqm-data/html/0$numb" ) ) {
-          $status = "mon_fail";
-        }
-      }
-    }
-
     unless ( $opts{'short'} ) { $runnum = sprintf("%-54s", $runnum); }
     $status = sprintf("%-9s", $status);
     $type = sprintf("%-29s", $type);
@@ -323,21 +314,18 @@ sub get_runs {
 
   my %filelist;
 
-  my $command = ec_mon_filelist("$config{'ec_mon_master_rundir'}/daq-data/", "*", "*");
+  my @rawlist = split('\n', ec_mon_filelist("$config{'ec_mon_master_rundir'}/daq-data/", "*", "", 0));
 
-  open ( LIST, "$command |");
-  while ( <LIST> ) {
-    my @fields = split('\.', $_);
-    $filelist{ $fields[1] } = $_;
+  foreach my $run (@rawlist) {
+    my @fields = split('\.', $run);
+    $filelist{ $fields[1] } = 1;
   }
-  close( LIST );
 
   opendir ( DIR, "$config{'ec_mon_master_rundir'}/dqm-data/status/" );
   while ( defined(my $filename = readdir( DIR )) ) {
-    if ( $filename ne '.' && $filename ne '..' && $filename =~ /^\.ecal_local/ ) {
+    if ( $filename =~ /^\.ecal_local/ ) {
       print "Looking at $filename\n" if ( $opts{'debug'} );
       my ($loc, $num, $lun, $out, $fun, $fil, $ful, $typ, $sta) = split('\.', substr($filename, 1));
-      my $runnum;
       if ( defined $num ) {
         if ( exists $filelist{$num} ) {
           $runlist .= substr($filename, 1)."\n";
@@ -365,8 +353,6 @@ Options are:
   --nocolor       Do not use color in the output
 
   --short         Print only the run names
-
-  --html          Check for the availability of the html output
 
   --reverse       List new runs first (default is to list new runs last)
 

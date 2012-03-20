@@ -41,13 +41,9 @@ if ( $runnum ) {
 my $daqdir = "$config{'ec_mon_master_rundir'}/daq-data";
 my $trashdir = "$config{'ec_mon_master_rundir'}/daq-data/trash";
 
-my $command = ec_mon_filelist("$daqdir/", $num, $fun);
+my @filelist = split('\n', ec_mon_filelist("$daqdir/", $num, $out, 1));
 
-my @filelist = split('\n', `$command`);
-
-$command = ec_mon_filelist("$trashdir/", $num, $fun);
-
-my @filelist_archived = split('\n', `$command`);
+my @filelist_archived = split('\n', ec_mon_filelist("$trashdir/", $num, $out, 1));
 
 if ( $runnum ) {
   exit 1 unless ( @filelist != 0 ||

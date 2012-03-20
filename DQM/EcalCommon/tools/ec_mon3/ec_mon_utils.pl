@@ -103,33 +103,54 @@ sub ec_mon_conf_file {
 }
 
 sub ec_mon_filelist {
-    my $searchdir = $_[0];
+    my $dir = $_[0];
     my $num = $_[1];
-    my $fun = $_[2];
+    my $out = $_[2];
+    my $datonly = $_[3];
 
-    my @namelist = (
-		    "ecal_local.$num.*.A.$fun.*.*.dat",
-		    "Global*.$num.*.A.$fun.*.*.dat",
-		    "MW*.$num.*.A.$fun.*.*.dat",
-		    "PrivCal*.$num.*.A.$fun.*.*.dat",
-		    "TransferTestWithSafety.$num.*.A.$fun.*.*.dat",
-		    "CRUZET*.$num.*.A.$fun.*.*.dat",
-		    "CRAFT*.$num.*.A.$fun.*.*.dat",
-		    "Commissioning*.$num.*.A.$fun.*.*.dat",
-		    "Run*.$num.*.A.$fun.*.*.dat",
-		    "Data.$num.*.A.$fun.*.*.dat",
-#		    "Minidaq.$num.*.A.$fun.*.*.dat",
-		    "Minidaq.$num.*.Calibration.$fun.*.*.dat",
-		    "PrivMinidaq.$num.*.A.$fun.*.*.dat"
-		    );
+    my @namelist;
 
-    my $result = "find $searchdir -maxdepth 1 \\( -name '$namelist[0]'";
-    for (my $i = 1; $i < @namelist; $i++) {
-	$result = "$result -or -name '$namelist[$i]'";
+    if ( $config{'ec_mon_path'} =~ /localDAQ/ ) {
+	@namelist = (
+		     "ecal_local.$num.*.A.*.*.*.dat"
+		     );
+	if($datonly == 0){
+	    @namelist = (@namelist,
+			 "ecal_local.$num.*.A.*.*.*.archived"
+			 );
+	}
     }
-    $result = "$result \\) -printf '%f\n' 2>&1 | sort";
+    elsif ( $config{'ec_mon_path'} =~ /globalDAQ/ ) {
+	my @outs = qw($out);
 
-    return $result;
+	if($out eq ''){
+	    @outs = qw(A Calibration);
+	}
+
+	foreach my $o (@outs) {
+	    @namelist = (@namelist,
+			 "Global*.$num.*.$o.*.*.*.dat",
+			 "MW*.$num.*.$o.*.*.*.dat",
+			 "PrivCal*.$num.*.$o.*.*.*.dat",
+			 "TransferTestWithSafety.$num.*.$o.*.*.*.dat",
+			 "CRUZET*.$num.*.$o.*.*.*.dat",
+			 "CRAFT*.$num.*.$o.*.*.*.dat",
+			 "Commissioning*.$num.*.$o.*.*.*.dat",
+			 "Run*.$num.*.$o.*.*.*.dat",
+			 "Data.$num.*.$o.*.*.*.dat",
+			 "Minidaq.$num.*.$o.*.*.*.dat",
+			 "PrivMinidaq.$num.*.$o.*.*.*.dat"
+			 );
+	}
+    }
+
+    my $command = "find $dir/ -maxdepth 1 \\( -name '$namelist[0]'";
+    for (my $i = 1; $i < @namelist; $i++) {
+	$command = "$command -or -name '$namelist[$i]'";
+    }
+    $command = "$command \\) -printf '%f\n' 2>&1 | sort";
+
+    return `$command`;
 }
 
 ############################################################################
