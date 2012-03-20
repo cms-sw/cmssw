@@ -1,3 +1,4 @@
+#!/bin/sh
 # Symple script to set the include path for RooFit
 
 cd $LOCALRT/src

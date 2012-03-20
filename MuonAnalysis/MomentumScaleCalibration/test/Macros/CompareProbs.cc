@@ -69,16 +69,20 @@ void CompareProbs()
     if( pIt->second->GetEntries() == 0 ) continue;
     // if( pIt->first != 20 ) continue;
     newCanvas->cd(pad);
+
+    // double xMin = 3.0969-0.2;
+    // double xMax = 3.0969+0.2;
+    double xMin = 2.85;
+    double xMax = 3.3;
+
     TH1D * mP = pIt->second;
-    mP->Scale(1/mP->Integral());
+    mP->Scale(1/mP->Integral(mP->FindBin(xMin), mP->FindBin(xMax)));
     mP->SetLineColor(2);
     mP->SetMarkerColor(2);
     mP->SetMarkerStyle(2);
     mP->SetMarkerSize(0.2);
 
     TH1D * mM = projectMass[pIt->first];
-    double xMin = 3.0969-0.2;
-    double xMax = 3.0969+0.2;
     mM->Scale(1/mM->Integral(mM->FindBin(xMin), mM->FindBin(xMax)));
   
     mP->Draw();

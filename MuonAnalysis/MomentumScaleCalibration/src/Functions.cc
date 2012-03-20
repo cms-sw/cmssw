@@ -1,6 +1,6 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 
-scaleFunctionBase<double * > * scaleFunctionService( const int identifier )
+scaleFunctionBase<double *> * scaleFunctionService( const int identifier )
 {
   switch ( identifier ) {
   case ( 0 ): return ( new scaleFunctionType0<double * > ); break;
@@ -33,6 +33,9 @@ scaleFunctionBase<double * > * scaleFunctionService( const int identifier )
   case ( 27 ): return ( new scaleFunctionType27<double * > ); break;
   case ( 28 ): return ( new scaleFunctionType28<double * > ); break;
   case ( 29 ): return ( new scaleFunctionType29<double * > ); break;
+  case ( 30 ): return ( new scaleFunctionType30<double * > ); break;
+  case ( 31 ): return ( new scaleFunctionType31<double * > ); break;
+  case ( 32 ): return ( new scaleFunctionType32<double * > ); break;
   default: std::cout << "Error: wrong identifier = " << identifier << std::endl; exit(1);
   }
 }
@@ -70,6 +73,9 @@ scaleFunctionBase<std::vector<double> > * scaleFunctionVecService( const int ide
   case ( 27 ): return ( new scaleFunctionType27<std::vector<double> > ); break;
   case ( 28 ): return ( new scaleFunctionType28<std::vector<double> > ); break;
   case ( 29 ): return ( new scaleFunctionType29<std::vector<double> > ); break;  
+  case ( 30 ): return ( new scaleFunctionType30<std::vector<double> > ); break;
+  case ( 31 ): return ( new scaleFunctionType31<std::vector<double> > ); break;
+  case ( 32 ): return ( new scaleFunctionType32<std::vector<double> > ); break;
   default: std::cout << "Error: wrong identifier = " << identifier << std::endl; exit(1);
   }
 }
@@ -113,14 +119,14 @@ resolutionFunctionBase<double *> * resolutionFunctionService( const int identifi
   case ( 19 ): return ( new resolutionFunctionType19<double *> ); break;
   case ( 20 ): return ( new resolutionFunctionType20<double *> ); break;
   case ( 30 ): return ( new resolutionFunctionType30<double *> ); break;
-
+  case ( 31 ): return ( new resolutionFunctionType31<double *> ); break;
+  case ( 32 ): return ( new resolutionFunctionType32<double *> ); break;
   case ( 40 ): return ( new resolutionFunctionType40<double *> ); break;
   case ( 41 ): return ( new resolutionFunctionType41<double *> ); break;
   case ( 42 ): return ( new resolutionFunctionType42<double *> ); break;
   case ( 43 ): return ( new resolutionFunctionType43<double *> ); break;
   case ( 44 ): return ( new resolutionFunctionType44<double *> ); break;
   case ( 45 ): return ( new resolutionFunctionType45<double *> ); break;
-
   default: std::cout << "Error: undefined resolution type = " << identifier << std::endl; exit(1); break;
   }
 }
@@ -149,29 +155,33 @@ resolutionFunctionBase<std::vector<double> > * resolutionFunctionVecService( con
   case ( 19 ): return ( new resolutionFunctionType19<std::vector<double> > ); break;
   case ( 20 ): return ( new resolutionFunctionType20<std::vector<double> > ); break;
   case ( 30 ): return ( new resolutionFunctionType30<std::vector<double> > ); break;
-
+  case ( 31 ): return ( new resolutionFunctionType31<std::vector<double> > ); break;
+  case ( 32 ): return ( new resolutionFunctionType32<std::vector<double> > ); break;
   case ( 40 ): return ( new resolutionFunctionType40<std::vector<double> > ); break; 
   case ( 41 ): return ( new resolutionFunctionType41<std::vector<double> > ); break;
   case ( 42 ): return ( new resolutionFunctionType42<std::vector<double> > ); break;
   case ( 43 ): return ( new resolutionFunctionType43<std::vector<double> > ); break;
   case ( 44 ): return ( new resolutionFunctionType44<std::vector<double> > ); break;
   case ( 45 ): return ( new resolutionFunctionType45<std::vector<double> > ); break;
- 
- default: std::cout << "Error: undefined resolution type = " << identifier << std::endl; exit(1); break;
-  }
-}
+  
+  default: std::cout << "Error: undefined resolution type = " << identifier << std::endl; exit(1); break;
+    }
+ }
 
 backgroundFunctionBase * backgroundFunctionService( const int identifier, const double & lowerLimit, const double & upperLimit )
 {
   switch ( identifier ) {
-  case ( 0 ): std::cout << "Error: background function type " << identifier << " not defined" << std::endl; exit(1); break;
-  case ( 1 ): return new backgroundFunctionType1(lowerLimit, upperLimit); break;
-  case ( 2 ): return new backgroundFunctionType2(lowerLimit, upperLimit); break;
-  // case ( 3 ): return new backgroundFunctionType3(lowerLimit, upperLimit); break;
-  case ( 4 ): return new backgroundFunctionType4(lowerLimit, upperLimit); break;
-  case ( 5 ): return new backgroundFunctionType5(lowerLimit, upperLimit); break;
-  case ( 6 ): return new backgroundFunctionType6(lowerLimit, upperLimit); break;
-  case ( 7 ): return new backgroundFunctionType7(lowerLimit, upperLimit); break;
+  case ( 0 ):  std::cout << "Error: background function type " << identifier << " not defined" << std::endl; exit(1); break;
+  case ( 1 ):  return new backgroundFunctionType1(lowerLimit, upperLimit); break;
+  case ( 2 ):  return new backgroundFunctionType2(lowerLimit, upperLimit); break;
+  // case ( 3 ):  return new backgroundFunctionType3(lowerLimit, upperLimit); break;
+  case ( 4 ):  return new backgroundFunctionType4(lowerLimit, upperLimit); break;
+  case ( 5 ):  return new backgroundFunctionType5(lowerLimit, upperLimit); break;
+  case ( 6 ):  return new backgroundFunctionType6(lowerLimit, upperLimit); break;
+  case ( 7 ):  return new backgroundFunctionType7(lowerLimit, upperLimit); break;
+  case ( 8 ):  return new backgroundFunctionType8(lowerLimit, upperLimit); break;
+  case ( 9 ):  return new backgroundFunctionType9(lowerLimit, upperLimit); break; //Gul
+  case ( 10 ): return new backgroundFunctionType10(lowerLimit, upperLimit); break; //Gul
   default: std::cout << "Error: undefined background function type = " << identifier << std::endl; exit(1); break;
   }
 }

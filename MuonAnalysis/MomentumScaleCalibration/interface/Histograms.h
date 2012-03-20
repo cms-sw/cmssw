@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2011/03/02 15:47:15 $
- *  $Revision: 1.31 $
+ *  $Date: 2012/01/23 17:03:19 $
+ *  $Revision: 1.33 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -1406,9 +1406,9 @@ class HLikelihoodVSPart : public Histograms
 class HFunctionResolution : public Histograms
 {
  public:
-  HFunctionResolution(TFile * outputFile, const TString & name, const double & ptMax = 100, const int totBinsY = 200) : Histograms(outputFile, name) {
+  HFunctionResolution(TFile * outputFile, const TString & name, const double & ptMax = 100, const int totBinsY = 300) : Histograms(outputFile, name) {
     name_ = name;
-    totBinsX_ = 200;
+    totBinsX_ = 300;
     totBinsY_ = totBinsY;
     xMin_ = 0.;
     yMin_ = -3.0;

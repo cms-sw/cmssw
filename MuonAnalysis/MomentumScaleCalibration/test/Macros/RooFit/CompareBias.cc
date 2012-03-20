@@ -19,7 +19,7 @@ public:
     doFit_ = false;
 
     TString fileNum1("0");
-    TString fileNum2("1");
+    TString fileNum2("2");
 
     TString inputFileName("_MuScleFit.root");
     TString outputFileName("BiasCheck_");
@@ -37,16 +37,17 @@ public:
     fitter1.useChi2 = false;
 
     fitter1.rebinX = 2;
+    fitter1.rebinY = 2;
     fitter1.sigma2 = 1.;
-    // fitter1.fit(fileNum1+"_MuScleFit.root", "BiasCheck_"+fileNum1+".root", "crystalBall", "exponential", 3.095, 2.8, 3.4, 0.04, 0., 0.);
-    fitter1.fit(fileNum1+"_MuScleFit.root", "BiasCheck_"+fileNum1+".root", "voigtian", "", 91, 80, 100, 2, 0.1, 10);
+    fitter1.fit(fileNum1+"_MuScleFit.root", "BiasCheck_"+fileNum1+".root", "crystalBall", "exponential", 3.095, 2.8, 3.4, 0.04, 0., 0.);
+    // fitter1.fit(fileNum1+"_MuScleFit.root", "BiasCheck_"+fileNum1+".root", "voigtian", "", 91, 80, 100, 2, 0.1, 10);
 
     if( fileNum2 != "" ) {
       fitter2.rebinX = 2;
+      fitter2.rebinY = 2;
       fitter2.sigma2 = 1.;
-      // fitter2.fit(fileNum2+"_MuScleFit.root", "BiasCheck_"+fileNum2+".root", "crystalBall", "exponential", 3.095, 2.8, 3.4, 04, 0., 0.);    
-      fitter2.fit(fileNum2+"_MuScleFit.root", "BiasCheck_"+fileNum2+".root", "voigtian", "", 91, 80, 100, 2, 0.1, 10);
- 
+      fitter2.fit(fileNum2+"_MuScleFit.root", "BiasCheck_"+fileNum2+".root", "crystalBall", "exponential", 3.095, 2.8, 3.4, 0.04, 0., 0.);    
+      // fitter2.fit(fileNum2+"_MuScleFit.root", "BiasCheck_"+fileNum2+".root", "voigtian", "", 91, 80, 100, 2, 0.1, 10); 
     }
 
     file1_ = new TFile(outputFile1, "READ");
