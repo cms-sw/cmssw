@@ -28,6 +28,7 @@ require "ec_mon_utils.pl";
 ec_mon_conf_file();
 
 my @filelist;
+my $therun;
 
 if ($filnam) {
     if ( -e "$filnam" ) {
@@ -48,6 +49,8 @@ else {
     if (@filelist == 0){
 	@filelist = map {"$trashdir/" . $_} split('\n', ec_mon_filelist("$trashdir/", $num, '', 1));
     }
+
+    $therun = $num;
 }
 
 exit 1 unless ( @filelist != 0 );
@@ -107,7 +110,7 @@ foreach my $file (@filelist) {
 	system("rm -f $cfgfile >> /dev/null 2>&1");
     }
 
-    my $task = "source $cmsenv; python $tooldir/ecalConfigBuilder.py $dbflag -e PrivOffline -c $cfgtype -d $daq -w '$workflow' -f $cfgfile -s '$file' -g " . '"$globaltag"' . "; cd $workdir; time cmsRun $cfgfile";
+    my $task = "source $cmsenv; python $tooldir/ecalConfigBuilder.py -e PrivOffline -c $cfgtype -d $daq -w '$workflow' -f $cfgfile -s '$file' -g " . '"$globaltag"' . "; cd $workdir; time cmsRun $cfgfile";
 
     my $logdir = "$config{'ec_mon_master_rundir'}/dqm-data/logs";
     my $logfile = "$logdir/$name.cmssw.log";
@@ -119,13 +122,12 @@ foreach my $file (@filelist) {
     if(system("($task) > $logfile 2>&1") != 0 || system("mv -f $cfgfile $logdir/ >> /dev/null 2>&1") != 0) {
 	exit 1;
     }
-
-    my $outputname = "DQM_V0001_R0" . $num . "$workflow.root";
-    $outputname =~ s/\//__/g;
-
-    system("mv -f $workdir/$outputname $config{'ec_mon_master_rundir'}/dqm-data/root/ >> /dev/null 2>&1");
-
 }
+
+my $outputname = "DQM_V0001_R0$therun$workflow.root";
+$outputname =~ s/\//__/g;
+
+system("mv -f $workdir/$outputname $config{'ec_mon_master_rundir'}/dqm-data/root/ >> /dev/null 2>&1");
 
 exit 0;
 

@@ -736,8 +736,8 @@ process.ecalEndcapMonitorClient.dbPassword = dbPassword
         customizations += '''
 process.ecalBarrelMonitorClient.resetFile = "/data/ecalod-disk01/dqm-data/reset/EB"
 process.ecalBarrelMonitorClient.resetFile = "/data/ecalod-disk01/dqm-data/reset/EE"
-process.ecalBarrelMonitorClient.dbTagName = "CMSSW-online-private"
-process.ecalEndcapMonitorClient.dbTagName = "CMSSW-online-private"
+process.ecalBarrelMonitorClient.dbTagName = "CMSSW-offline-private"
+process.ecalEndcapMonitorClient.dbTagName = "CMSSW-offline-private"
 '''
     else :
         customizations += '''
