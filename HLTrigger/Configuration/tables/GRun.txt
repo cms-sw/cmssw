@@ -411,6 +411,12 @@ HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_DiBTagIP3D1stTrack_v*              
 HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_BTagIP3D1stTrack_v*                                #sr126638
 HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_v*                                                 #sr126638
 
+HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_RsqMR45_Rsq0p04_MR200_v*				#sr127259
+HLT_Mu12_RsqMR45_Rsq0p04_MR200_v*								#sr127259
+HLT_Photon40_CaloIdL_RsqMR45_Rsq0p09_MR150_v*							#sr127259
+HLT_Photon40_CaloIdL_RsqMR50_Rsq0p09_MR150_v8							#sr127259
+HLT_RsqMR65_Rsq0p09_MR150_v*									#sr127259
+
 HLT_PixelTracks_Multiplicity70_v*								#sr126810
 HLT_PixelTracks_Multiplicity80_v*								#sr126810
 HLT_PixelTracks_Multiplicity90_v*								#sr126810
