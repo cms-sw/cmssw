@@ -3,7 +3,8 @@
 #CONDITIONS=FrontierConditions_GlobalTag,START3X_V26::All
 #CONDITIONS=FrontierConditions_GlobalTag,START38_V12::All
 #CONDITIONS=FrontierConditions_GlobalTag,START311_V2::All
-CONDITIONS=FrontierConditions_GlobalTag,START42_V13::All
+#CONDITIONS=FrontierConditions_GlobalTag,START42_V13::All
+CONDITIONS=FrontierConditions_GlobalTag,START52_V5::All
 
 cmsDriver.py TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff \
        -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun,RAW2DIGI,RECO \

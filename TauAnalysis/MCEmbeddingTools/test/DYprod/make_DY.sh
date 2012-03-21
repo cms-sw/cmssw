@@ -1,6 +1,6 @@
 #!/bin/bash
 #CONDITIONS=FrontierConditions_GlobalTag,START42_V13::All
-CONDITIONS=FrontierConditions_GlobalTag,START52_V2A::All
+CONDITIONS=FrontierConditions_GlobalTag,START52_V5::All
 
 # mix_E7TeV_Ave25_50ns_PoissonOOTPU_cfi.py -> E7TeV_Ave25_50ns_PoissonOOTPU
 
