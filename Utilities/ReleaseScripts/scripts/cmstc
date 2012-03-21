@@ -33,7 +33,7 @@ Common commands:
                 Suitable for piping to addpkg (note: at the moment,
                 addpkg does not read from stdin, use "-f" instead).
                 Optional parameter: '-m' ('--multiple').
-                   Allows multiple tags for a single package.
+                Allows multiple tags for a single package.
                    
    createrel    Creates a new release queue. The command is using mandatory
                 switches. Type 'cmstc createrel --help' for more information
@@ -588,7 +588,7 @@ def cmd_createrel(args):
   parser.add_option("-s", "--state", dest="state", help="New release state: [Open, Closed, Finished, Announced, Deprecated]", default="Open")
   parser.add_option("-t", "--type", dest="type", help="New release type: [Development, Analysis, Integration Build, Production]", default="Development")
   parser.add_option("-d", "--description", dest="description", help="New release description, please use more than 4 letters", default="New release is added")
-  parser.add_option("-m", "--managers", dest="managers", help="New release managers besides the one used for logging in TC", default="")
+  parser.add_option("-m", "--managers", dest="managers", help="Sets release manager(s) and overrides the default current user. Multiple users can be listed, use ',' as separator", default="")
   parser.add_option("-a", "--tags", dest="tags", help="New release tags", default="")
   (opts, args) = parser.parse_args(args)
   
