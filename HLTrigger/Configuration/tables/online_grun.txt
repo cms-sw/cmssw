@@ -18,6 +18,8 @@ HLT_HT250_L1FastJet_SingleDisplacedPFJet60_ChgFraction10_v*                     
 #HLT_QuadL1FastJet_BTagIP_VBF_v*                                                                 #sr126239, removed in sr127203
 HLT_QuadJet75_55_35_20_BTagIP_VBF_v*                                                            #sr127203
 
+HLT_QuadJet75_55_38_20_BTagIP_VBF_v*                                                            #sr127255
+
 HLT_Jet80Eta1p7_Jet70Eta1p7_L1FastJet_DiBTagIP3D_v*                                             #sr126241
 HLT_Jet60Eta1p7_Jet53Eta1p7_L1FastJet_DiBTagIP3D_v*                                             #sr126241
 HLT_Jet160Eta2p4_Jet120Eta2p4_L1FastJet_DiBTagIP3DLoose_v*                                      #sr126241
@@ -260,6 +262,10 @@ HLT_Ele20_CaloIdVT_TrkIdT_LooseIsoPFTau20_v*                                    
 HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v*                                #sr126461
 HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_v*                                                #sr126461
 
+HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau22L1Jet_v*                           #sr127269
+HLT_IsoMu20_eta2p1_LooseIsoPFTau20_v*                                                           #sr127269
+HLT_Ele22_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v*                                #sr127269
+
 HLT_Tau2Mu_ItTrack_v*										#sr(bug)92594
 
 HLT_QuadJet80_L1FastJet_v*                                                                      #sr126462
@@ -414,7 +420,7 @@ HLT_Mu15_eta2p1_TriCentralL1FastJet_40_20_20_v*                                 
 HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_RsqMR45_Rsq0p04_MR200_v*				#sr127259
 HLT_Mu12_RsqMR45_Rsq0p04_MR200_v*								#sr127259
 HLT_Photon40_CaloIdL_RsqMR45_Rsq0p09_MR150_v*							#sr127259
-HLT_Photon40_CaloIdL_RsqMR50_Rsq0p09_MR150_v8							#sr127259
+HLT_Photon40_CaloIdL_RsqMR50_Rsq0p09_MR150_v*							#sr127259
 HLT_RsqMR65_Rsq0p09_MR150_v*									#sr127259
 
 HLT_FatDiPFJetMass750_DR1p1_Deta1p5_v*								#sr127088
@@ -444,11 +450,11 @@ HLT_Mu7_Ele7_CaloIdT_CaloIsoVL_v*								#sr126853
 
 #HLT_Photon22_R9Id90_HE10_Iso40_v*								#sr126852  (renamed by #sr127257)
 
-HLT_Photon22_R9Id90_HE10_Iso40_v*								#sr127257
-HLT_Photon36_R9Id90_HE10_Iso40_v*                                                               #sr127257
-HLT_Photon50_R9Id90_HE10_Iso40_v*                                                               #sr127257
-HLT_Photon75_R9Id90_HE10_Iso40_v*                                                               #sr127257
-HLT_Photon90_R9Id90_HE10_Iso40_v*                                                               #sr127257
+HLT_Photon22_R9Id90_HE10_Iso40_HBOnly_v*								#sr127257
+HLT_Photon36_R9Id90_HE10_Iso40_HBOnly_v*                                                               #sr127257
+HLT_Photon50_R9Id90_HE10_Iso40_HBOnly_v*                                                               #sr127257
+HLT_Photon75_R9Id90_HE10_Iso40_HBOnly_v*                                                               #sr127257
+HLT_Photon90_R9Id90_HE10_Iso40_HBOnly_v*                                                               #sr127257
 
 HLT_BeamGas_HF_Beam1_v*                                                                         #sr126174
 HLT_BeamGas_HF_Beam2_v*                                                                         #sr126174
