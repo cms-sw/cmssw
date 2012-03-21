@@ -30,6 +30,7 @@
 #include "CalibMuon/DTCalibration/plugins/DTTTrigResidualCorrection.h"
 #include "CalibMuon/DTCalibration/plugins/DTTTrigMatchRPhi.h"
 #include "CalibMuon/DTCalibration/plugins/DTTTrigFillWithAverage.h"
+#include "CalibMuon/DTCalibration/plugins/DTTTrigConstantShift.h"
 
 #include "CalibMuon/DTCalibration/interface/DTT0CorrectionFactory.h"
 #include "CalibMuon/DTCalibration/plugins/DTT0FillDefaultFromDB.h"
@@ -65,6 +66,7 @@ DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,dtCalibration::DTTTrigT0SegCorrection
 DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,dtCalibration::DTTTrigResidualCorrection,"DTTTrigResidualCorrection");
 DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,dtCalibration::DTTTrigMatchRPhi,"DTTTrigMatchRPhi");
 DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,dtCalibration::DTTTrigFillWithAverage,"DTTTrigFillWithAverage");
+DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,dtCalibration::DTTTrigConstantShift,"DTTTrigConstantShift");
 
 DEFINE_EDM_PLUGIN(DTT0CorrectionFactory,dtCalibration::DTT0FillDefaultFromDB,"DTT0FillDefaultFromDB");
 DEFINE_EDM_PLUGIN(DTT0CorrectionFactory,dtCalibration::DTT0FillChamberFromDB,"DTT0FillChamberFromDB");
