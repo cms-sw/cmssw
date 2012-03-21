@@ -1,7 +1,6 @@
 <use   name="DataFormats/CaloRecHit"/>
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/Common"/>
-<use   name="DataFormats/ParticleFlowReco"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="clhep"/>
 <use   name="SimDataFormats/GeneratorProducts"/>

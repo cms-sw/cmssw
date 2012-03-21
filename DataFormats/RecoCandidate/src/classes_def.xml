@@ -12,17 +12,8 @@
     <field name="cachePolarFixed_" transient="true"/>
     <field name="cacheCartesianFixed_" transient="true"/>
   </class>
-  <class name="reco::RecoPFClusterRefCandidateBase">
-    <field name="p4Polar_" transient="true"/>
-    <field name="p4Cartesian_" transient="true"/>
-    <field name="cachePolarFixed_" transient="true"/>
-    <field name="cacheCartesianFixed_" transient="true"/>
-  </class>
   <class name="reco::RecoChargedRefCandidate"  ClassVersion="10">
    <version ClassVersion="10" checksum="2155624976"/>
-  </class>
-  <class name="reco::RecoPFClusterRefCandidate"  ClassVersion="10">
-   <version ClassVersion="10" checksum="3428152128"/>
   </class>
   <class name="reco::RecoEcalCandidate"  ClassVersion="10">
    <version ClassVersion="10" checksum="3531165310"/>
@@ -63,15 +54,6 @@
  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate> > >" />
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate> > >" />
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::RecoChargedRefCandidate>,reco::RecoChargedRefCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedRefCandidate>,reco::RecoChargedRefCandidate> > >" />
-
-
-  <class name="std::vector<reco::RecoPFClusterRefCandidate>"/>
-  <class name="edm::Wrapper<std::vector<reco::RecoPFClusterRefCandidate> >"/>
-  <class name="edm::Ref<std::vector<reco::RecoPFClusterRefCandidate>,reco::RecoPFClusterRefCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoPFClusterRefCandidate>,reco::RecoPFClusterRefCandidate> >"/>
-  <class name="edm::RefProd<std::vector<reco::RecoPFClusterRefCandidate> >"/>
-  <class name="edm::RefVector<std::vector<reco::RecoPFClusterRefCandidate>,reco::RecoPFClusterRefCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoPFClusterRefCandidate>,reco::RecoPFClusterRefCandidate> >"/>
-
-
 
   <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::RecoEcalCandidate>, float, unsigned int> >">
     <field name="transientMap_" transient="true" />
@@ -120,12 +102,6 @@
   <class name="edm::reftobase::RefVectorHolder<reco::RecoEcalCandidateRefVector>" />
 
 
-  <class name="edm::reftobase::Holder<reco::Candidate, reco::RecoPFClusterRefCandidateRef>" />
-  <class name="edm::reftobase::RefHolder<reco::RecoPFClusterRefCandidateRef>" />
-  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::RecoPFClusterRefCandidateRefVector>" />
-  <class name="edm::reftobase::RefVectorHolder<reco::RecoPFClusterRefCandidateRefVector>" />
-
-
   <class name="reco::IsoDeposit" ClassVersion="10">
    <version ClassVersion="10" checksum="2477314412"/>
   </class>
@@ -161,9 +137,6 @@
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate> > >" />
 
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::RecoChargedRefCandidate>,reco::RecoChargedRefCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedRefCandidate>,reco::RecoChargedRefCandidate> > >" />
-
-  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::RecoPFClusterRefCandidate>,reco::RecoPFClusterRefCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoPFClusterRefCandidate>,reco::RecoPFClusterRefCandidate> > >" />
-
 
   <class name="std::vector<reco::RecoCandidate*>"/>
   <class name="edm::OwnVector<reco::RecoCandidate, edm::ClonePolicy<reco::RecoCandidate> >"/>
