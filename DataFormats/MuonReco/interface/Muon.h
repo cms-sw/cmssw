@@ -10,11 +10,10 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik, Riccardo Bellan, Michalis Bachtis
  *
- * \version $Id: Muon.h,v 1.68 2011/11/25 10:13:04 bellan Exp $
+ * \version $Id: Muon.h,v 1.69 2012/03/10 21:21:46 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/MuonReco/interface/MuonChamberMatch.h"
 #include "DataFormats/MuonReco/interface/MuonIsolation.h"
 #include "DataFormats/MuonReco/interface/MuonPFIsolation.h"
