@@ -604,7 +604,7 @@ def cmd_createrel(args):
   if opts.managers == "":
       opts.managers = username
   else:
-      opts.managers = username + "," + opts.managers
+      opts.managers = opts.managers
   packages = cmstc.TagCollector().getPackagesPendingApproval()
   
   if opts.isPrivate:
