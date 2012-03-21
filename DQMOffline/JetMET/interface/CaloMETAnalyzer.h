@@ -47,10 +47,6 @@
 
 #include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
 
-
-#include "GlobalVariables.h"
-
-
 class CaloMETAnalyzer : public CaloMETAnalyzerBase {
  public:
 
@@ -79,10 +75,13 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   // Book MonitorElements
   void bookMESet(std::string);
   void bookMonitorElement(std::string, bool);
+  void bookMonitorElementTriggered(std::string, bool);
 
   // Fill MonitorElements
-  void fillMESet(const edm::Event&, std::string, const reco::CaloMET&);
-  void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::CaloMET&, bool);
+  void fillMESet(const edm::Event&, std::string, const reco::CaloMET&, const reco::CaloMET&);
+  void fillMESubSet(const edm::Event&, std::string, const reco::CaloMET&, const reco::CaloMET&);
+  void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::CaloMET&, const reco::CaloMET&, bool);
+  void fillMonitorElementTriggered(const edm::Event&, std::string, std::string, const reco::CaloMET&, const reco::CaloMET&, bool);
   void makeRatePlot(std::string, double);
 
   void validateMET(const reco::CaloMET&, edm::Handle<edm::View<reco::Candidate> >);
@@ -174,7 +173,6 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   double _lowMETThreshold;
 
   // Et threshold for MET plots
-  int _numPV;
   double _etThreshold;
 
   // JetID helper
@@ -191,6 +189,7 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   //
   std::vector<std::string> _FolderNames;
 
+  int _numPV;
   //
   double _EmMEx;
   double _EmMEy;
@@ -239,6 +238,20 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   MonitorElement* hCaloMET1;
   MonitorElement* hCaloMETPhi;
   MonitorElement* hCaloSumET;
+  MonitorElement* hCaloMETNoHF;
+  //MonitorElement* hCaloMETNoHFPhi;
+
+  ///Binned in NPV
+  MonitorElement* hCaloMEx_npv[5];
+  MonitorElement* hCaloMEy_npv[5];
+  //MonitorElement* hCaloEz_npv[5];
+  MonitorElement* hCaloMETSig_npv[5];
+  MonitorElement* hCaloMET_npv[5];
+  MonitorElement* hCaloMET1_npv[5];
+  MonitorElement* hCaloMETPhi_npv[5];
+  MonitorElement* hCaloSumET_npv[5];
+  MonitorElement* hCaloMETNoHF_npv[5];
+  //MonitorElement* hCaloMETNoHFPhi_npv[5];
   
   MonitorElement* hCaloMET_logx;
   MonitorElement* hCaloSumET_logx;
@@ -293,23 +306,6 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   MonitorElement* hCaloMExCorrection;
   MonitorElement* hCaloMEyCorrection;
   MonitorElement* hCaloMuonCorrectionFlag;
-
-
-  //NPV Binned plots
-  MonitorElement* hCaloMEx_npv[_npvRanges];
-  MonitorElement* hCaloMEy_npv[_npvRanges];
-  //MonitorElement* hCaloEz_npv[_npvRanges];
-  //MonitorElement* hCaloMETSig_npv[_npvRanges];
-  MonitorElement* hCaloMET_npv[_npvRanges];
-  //MonitorElement* hCaloMET1_npv[_npvRanges];
-  //MonitorElement* hCaloMETPhi_npv[_npvRanges];
-  MonitorElement* hCaloSumET_npv[_npvRanges];
-
-  MonitorElement* hCaloMET_logx_npv[_npvRanges];
-  MonitorElement* hCaloSumET_logx_npv[_npvRanges];
-
-  MonitorElement* hCaloEtFractionHadronic_npv[_npvRanges];
-  MonitorElement* hCaloEmEtFraction_npv[_npvRanges];
-
+  
 };
 #endif
