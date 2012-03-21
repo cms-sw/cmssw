@@ -36,6 +36,9 @@
 
 
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableVertexReconstructor.h"
+#include "RecoVertex/AdaptiveVertexFinder/interface/TrackVertexArbitratration.h"
+
+
 
 //#define VTXDEBUG
 
@@ -53,35 +56,17 @@ class TrackVertexArbitrator : public edm::EDProducer {
 	edm::InputTag				secondaryVertexCollection;
 	edm::InputTag				trackCollection;
         edm::InputTag                           beamSpotCollection;
-        double 					dRCut;
-        double					distCut;
-        double					sigCut;
-	double					dLenFraction;
+	TrackVertexArbitration * theArbitrator;
 };
 
 TrackVertexArbitrator::TrackVertexArbitrator(const edm::ParameterSet &params) :
-	primaryVertexCollection(params.getParameter<edm::InputTag>("primaryVertices")),
-	secondaryVertexCollection(params.getParameter<edm::InputTag>("secondaryVertices")),
-	trackCollection(params.getParameter<edm::InputTag>("tracks")),
-        beamSpotCollection(params.getParameter<edm::InputTag>("beamSpot")),
-	dRCut(params.getParameter<double>("dRCut")),
-	distCut(params.getParameter<double>("distCut")),
-	sigCut(params.getParameter<double>("sigCut")),
-	dLenFraction(params.getParameter<double>("dLenFraction"))
+	primaryVertexCollection      (params.getParameter<edm::InputTag>("primaryVertices")),
+	secondaryVertexCollection    (params.getParameter<edm::InputTag>("secondaryVertices")),
+	trackCollection              (params.getParameter<edm::InputTag>("tracks")),
+        beamSpotCollection           (params.getParameter<edm::InputTag>("beamSpot"))
 {
 	produces<reco::VertexCollection>();
-}
-
-bool TrackVertexArbitrator::trackFilter(const reco::TrackRef &track) const
-{
-        if (track->hitPattern().trackerLayersWithMeasurement() < 4)
-                return false;
-        if (track->pt() < 0.4 )
-                return false;
-        if (track->hitPattern().numberOfValidPixelHits() < 1)
-                return false;
-
-        return true;
+	theArbitrator = new TrackVertexArbitration(params);
 }
 
 
@@ -91,9 +76,11 @@ void TrackVertexArbitrator::produce(edm::Event &event, const edm::EventSetup &es
 
 	edm::Handle<VertexCollection> secondaryVertices;
 	event.getByLabel(secondaryVertexCollection, secondaryVertices);
+        VertexCollection theSecVertexColl = *(secondaryVertices.product());
 
         edm::Handle<VertexCollection> primaryVertices;
         event.getByLabel(primaryVertexCollection, primaryVertices);
+        const reco::Vertex &pv = (*primaryVertices)[0];
 
         edm::Handle<TrackCollection> tracks;
         event.getByLabel(trackCollection, tracks);
@@ -105,118 +92,30 @@ void TrackVertexArbitrator::produce(edm::Event &event, const edm::EventSetup &es
         edm::Handle<BeamSpot> beamSpot;
         event.getByLabel(beamSpotCollection, beamSpot);
 
-        const reco::Vertex &pv = (*primaryVertices)[0];
-//        std::cout << "PV: " << pv.position() << std::endl;
-        VertexDistance3D dist;
-
-  double sigmacut = 3.0;
-  double Tini = 256.;
-  double ratio = 0.25;
-
-  AdaptiveVertexFitter theAdaptiveFitter(
-                                            GeometricAnnealing(sigmacut, Tini, ratio),
-                                            DefaultLinearizationPointFinder(),
-                                            KalmanVertexUpdator<5>(),
-                                            KalmanVertexTrackCompatibilityEstimator<5>(),
-                                            KalmanVertexSmoother() );
-
-
-
-	std::auto_ptr<VertexCollection> recoVertices(new VertexCollection);
-
-  VertexDistance3D vdist;
-
-for(std::vector<reco::Vertex>::const_iterator sv = secondaryVertices->begin();
-	    sv != secondaryVertices->end(); ++sv) {
-/*          recoVertices->push_back(*sv);
         
-
-       for(std::vector<reco::Vertex>::iterator sv = recoVertices->begin();
-	    sv != recoVertices->end(); ++sv) {
-*/
-	    GlobalPoint ppv(pv.position().x(),pv.position().y(),pv.position().z());
-	    GlobalPoint ssv(sv->position().x(),sv->position().y(),sv->position().z());
-            GlobalVector flightDir = ssv-ppv;
-//            std::cout << "Vertex : " << sv-secondaryVertices->begin() << " " << sv->position() << std::endl;
-            Measurement1D dlen= vdist.distance(pv,*sv);
-            std::vector<reco::TransientTrack>  selTracks;
-
-        for(TrackCollection::const_iterator track = tracks->begin();
-            track != tracks->end(); ++track) {
-
-                TrackRef ref(tracks, track - tracks->begin());
-	        if (!trackFilter(ref))                         continue;
-
-                TransientTrack tt = trackBuilder->build(ref);
-                tt.setBeamSpot(*beamSpot);
-	        float w = sv->trackWeight(ref);
-                std::pair<bool,Measurement1D> ipv = IPTools::absoluteImpactParameter3D(tt,pv);
-                std::pair<bool,Measurement1D> itpv = IPTools::absoluteTransverseImpactParameter(tt,pv);
-                std::pair<bool,Measurement1D> isv = IPTools::absoluteImpactParameter3D(tt,*sv);
-		  float dR = deltaR(flightDir.eta(), flightDir.phi(), tt.track().eta(), tt.track().phi());
-
-                if( w > 0 || ( isv.second.significance() < sigCut && isv.second.value() < distCut && isv.second.value() < dlen.value()*dLenFraction ) )
-                {
-
-                  if(( isv.second.value() < ipv.second.value()  ) && isv.second.value() < distCut && isv.second.value() < dlen.value()*dLenFraction 
-                  && dR < dRCut  ) 
-                  {
-#ifdef VTXDEBUG
-                     if(w > 0.5) std::cout << " = ";
-                    else std::cout << " + ";
-#endif 
-                     selTracks.push_back(tt);
-                  } else
-                  {
-#ifdef VTXDEBUG
-                     if(w > 0.5 && isv.second.value() > ipv.second.value() ) std::cout << " - ";
-                  else std::cout << "   ";
-#endif
-                     //add also the tracks used in previous fitting that are still closer to Sv than Pv 
-                     if(w > 0.5 && isv.second.value() <= ipv.second.value() && dR < dRCut) {  
-                       selTracks.push_back(tt);
-#ifdef VTXDEBUG
-                       std::cout << " = ";
-#endif
-                     }
-                     if(w > 0.5 && isv.second.value() <= ipv.second.value() && dR >= dRCut) {
-#ifdef VTXDEBUG
-                       std::cout << " - ";
-#endif
-
-                     }
-
-                    
-                  }
-#ifdef VTXDEBUG
-
-                  std::cout << "t : " << track-tracks->begin() <<  " w: " << w 
-                  << " svip: " << isv.second.significance() << " " << isv.second.value()  
-                  << " pvip: " << ipv.second.significance() << " " << ipv.second.value()  << " res " << track->residualX(0)   << "," << track->residualY(0) 
-                  << " tpvip: " << itpv.second.significance() << " " << itpv.second.value()  << " dr: "   << dR << std::endl;
-#endif
- 
-                }
-               else
-                 {
-#ifdef VTXDEBUG
-
-                  std::cout << " . t : " << track-tracks->begin() <<  " w: " << w 
-                  << " svip: " << isv.second.significance() << " " << isv.second.value()  
-                  << " pvip: " << ipv.second.significance() << " " << ipv.second.value()  << " dr: "   << dR << std::endl;
-#endif
-
-                 }
-           }      
-
-           if(selTracks.size() >= 2)
-              { 
-             	 TransientVertex singleFitVertex;
-             	 singleFitVertex = theAdaptiveFitter.vertex(selTracks,ssv);
-              	if(singleFitVertex.isValid())  recoVertices->push_back(singleFitVertex);
-              } 
+	edm::RefVector< TrackCollection >  selectedTracks;
+	for(TrackCollection::const_iterator track = tracks->begin();
+	    track != tracks->end(); ++track) {
+		TrackRef ref(tracks, track - tracks->begin());
+		selectedTracks.push_back(ref);
+	   
 	}
+	
+	
+        const edm::RefVector< TrackCollection > tracksForArbitration= selectedTracks;
+	reco::VertexCollection  theRecoVertices = theArbitrator->trackVertexArbitrator(beamSpot, pv, trackBuilder, tracksForArbitration,
+	theSecVertexColl);
+	
+	std::auto_ptr<VertexCollection> recoVertices(new VertexCollection);
+        for(unsigned int ivtx=0; ivtx < theRecoVertices.size(); ivtx++){
+         recoVertices->push_back(theRecoVertices[ivtx]);
+        }
+
+	
 	event.put(recoVertices);
+	
+	
+	
 }
 
 DEFINE_FWK_MODULE(TrackVertexArbitrator);
