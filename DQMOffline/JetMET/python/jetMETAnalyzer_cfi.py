@@ -67,7 +67,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #                                                                   
     DoCaloMETAnalysis            = cms.untracked.bool(True),
     DoTcMETAnalysis              = cms.untracked.bool(True),
-    DoMuCorrMETAnalysis          = cms.untracked.bool(True),
+    DoMuCorrMETAnalysis          = cms.untracked.bool(False),
     DoPfMETAnalysis              = cms.untracked.bool(True),
     DoHTMHTAnalysis              = cms.untracked.bool(False),
 
@@ -138,8 +138,8 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
      # For tcMETAnalysis
      #
      tcMETAnalysis = metDQMParameters.clone(
-         METCollectionLabel     = cms.InputTag("tcMet"),
-         Source                 = cms.string("TcMET"),
+         METCollectionLabel = cms.InputTag("tcMet"),
+         Source             = cms.string("TcMET"),
          InputTrackLabel    = cms.InputTag("generalTracks"),
          InputMuonLabel     = cms.InputTag("muons"),
          InputElectronLabel = cms.InputTag("gsfElectrons"),
