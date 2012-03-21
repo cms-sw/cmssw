@@ -1,6 +1,5 @@
 #include "DetectorDescription/Core/interface/DDStreamer.h"
 
-//#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Base/interface/Singleton.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -31,7 +30,7 @@ DDStreamer::DDStreamer(std::ostream & os)
     o_ = &os;
   }
   else {
-    throw DDException("DDStreamer::DDStreamer(std::ostream&): not valid std::ostream");
+    throw cms::Exception("DDException") << "DDStreamer::DDStreamer(std::ostream&): not valid std::ostream";
   }
 }
 
@@ -42,7 +41,7 @@ DDStreamer::DDStreamer(std::istream & is)
     i_ = &is;
   }
   else {
-    throw DDException("DDStreamer::DDStreamer(std::ostream&): not valid std::ostream");
+    throw cms::Exception("DDException") << "DDStreamer::DDStreamer(std::ostream&): not valid std::ostream";
   }
 }
 
@@ -114,7 +113,7 @@ void DDStreamer::write()
      write(*o_);
    }
    else {
-     throw DDException("DDStreamer::write(): bad std::ostream");
+     throw cms::Exception("DDException") << "DDStreamer::write(): bad std::ostream";
    }
 }
 
@@ -124,7 +123,7 @@ void DDStreamer::read()
     read(*i_);
    }
    else {
-     throw DDException("DDStreamer::read(): bad std::istream");
+     throw cms::Exception("DDException") << "DDStreamer::read(): bad std::istream";
    }
 }
 
@@ -391,7 +390,7 @@ void dd_get_boolean_params(std::istream & is, DDRotation & r, DDTranslation & t,
    B x,y,z;
    char cr = is.get();
    if(cr != ' ') 
-      throw DDException("DDStreamer::get_boolean_param(): inconsistent sequence! no blank delimiter before trans!");
+      throw cms::Exception("DDException") << "DDStreamer::get_boolean_param(): inconsistent sequence! no blank delimiter before trans!";
    is >> x;
    is >> y;
    is >> z;
@@ -437,7 +436,7 @@ void DDStreamer::solids_read()
         DDSolidFactory::subtraction(dn,a,b,t,r);
 	break;	
       default:
-        throw DDException("DDStreamer::solids_read(): messed up in boolean solid reading!");	
+        throw cms::Exception("DDException") << "DDStreamer::solids_read(): messed up in boolean solid reading!";	
       }
     }
     
@@ -468,7 +467,7 @@ void DDStreamer::solids_read()
         c = is.get();
         if (c != ' ') {
 	   edm::LogError("DDStreamer") << "delimiter: " << c << std::endl;
-          throw DDException("DDStreamer::solids_read(): wrong separator in atomic for atomic solids parameters");
+          throw cms::Exception("DDException") << "DDStreamer::solids_read(): wrong separator in atomic for atomic solids parameters";
 	}
         is.read((char*)&(*(p.begin())),npars*sizeof(double));	
         /*
@@ -485,7 +484,7 @@ void DDStreamer::solids_read()
     }
     else {
       edm::LogError("DDStreamer") << "wrong solid enum: " << shape << std::endl;
-      throw DDException("Error in DDStreamer::solids_read(), wrong shape-enum!");
+      throw cms::Exception("DDException") << "Error in DDStreamer::solids_read(), wrong shape-enum!";
     }
   }
 }
@@ -597,7 +596,7 @@ void DDStreamer::rots_read()
     DDName dn = dd_get_name(is);
     char c = is.get();
     if (c != ' ') { 
-      throw DDException("DDStreamer::rots_read(): inconsitency! no blank separator found!");
+      throw cms::Exception("DDException") << "DDStreamer::rots_read(): inconsitency! no blank separator found!";
     }
  
     DDRotationMatrix * rm = new DDRotationMatrix();
@@ -693,7 +692,7 @@ void DDStreamer::pos_read()
     edm::LogWarning("DDStreamer") << std::endl;
     edm::LogWarning("DDStreamer") << "DDStreamer::pos_read(): The CompactView already contains some position information." << std::endl
          << "                        It may cause an inconsistent geometry representation!" << std::endl << std::endl;
-    throw DDException("DDStreamer::pos_read() failed; CompactView has already been populated by another data source");	 
+    throw cms::Exception("DDException") << "DDStreamer::pos_read() failed; CompactView has already been populated by another data source";	 
   }
   for (; i < n; ++i) { // Positions
     is.ignore(1000,'@');
@@ -702,7 +701,7 @@ void DDStreamer::pos_read()
     std::string cp;
     is >> cp;
     char cr = is.get();
-    if (cr != ' ') throw DDException("DDStreamer::pos_read(): inconsistent sequence! no blank delimiter found!");
+    if (cr != ' ') throw cms::Exception("DDException") << "DDStreamer::pos_read(): inconsistent sequence! no blank delimiter found!";
     //double x,y,z;
     B x,y,z;
     is >> x;
@@ -728,7 +727,7 @@ void DDStreamer::pos_read()
         break;
       default:
         std::string message = "DDStreamer::pos_read(): could not determine type of rotation\n";
-        throw(DDException(message));
+        throw cms::Exception("DDException") << message;
       }	              	               
     //DDName rot(dd_get_name(is));
     cpv.position(DDLogicalPart(to),DDLogicalPart(from),cp,t,rot); 
@@ -894,7 +893,7 @@ void DDStreamer::vars_write()
     const std::vector<std::string> & vars = eval->variables();
     const std::vector<std::string> & vals = eval->values();
     if (vars.size() != vals.size()) {
-      throw DDException("DDStreamer::vars_write(): different size of variable names & values!") ;
+      throw cms::Exception("DDException") << "DDStreamer::vars_write(): different size of variable names & values!";
     }
     size_t i(0), s(vars.size());
     os << s << std::endl;
@@ -904,7 +903,7 @@ void DDStreamer::vars_write()
     }  
   }
   else {
-    throw DDException("DDStreamer::vars_write(): expression-evaluator is not a ClhepEvaluator-implementation!");
+    throw cms::Exception("DDException") << "DDStreamer::vars_write(): expression-evaluator is not a ClhepEvaluator-implementation!";
   }
 }
 
@@ -927,7 +926,7 @@ void DDStreamer::vars_read()
     }
   }
   else {
-    throw DDException("DDStreamer::vars_write(): expression-evaluator is not a ClhepEvaluator-implementation!");  
+    throw cms::Exception("DDException") << "DDStreamer::vars_write(): expression-evaluator is not a ClhepEvaluator-implementation!";  
   }
   DDConstant::createConstantsFromEvaluator();
 }

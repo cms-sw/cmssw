@@ -76,11 +76,6 @@ int main(int argc, char *argv[])
     }
     return 0;
   }
-  catch (DDException& e) // DDD-Exceptions are simple string for the Prototype
-  {
-    cerr << "DDD-PROBLEM:" << endl 
-	 << e << endl;
-  }  
   //  Deal with any exceptions that may have been thrown.
   catch (cms::Exception& e) {
     std::cout << "cms::Exception caught in "

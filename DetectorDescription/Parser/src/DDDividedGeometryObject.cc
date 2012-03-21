@@ -5,10 +5,7 @@
 // ********************************************************************
 
 #include "DetectorDescription/Parser/src/DDDividedGeometryObject.h"
-
-#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
-
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 
 #include <Math/RotationZ.h>
@@ -68,7 +65,7 @@ DDDividedGeometryObject::checkParametersValidity( void )
     s+= "\n ERROR - the LogicalPart of the parent must be ";
     s+= "\n         defined before a division can occur.";
     s+= "\n         Parent= " + div_.parent().toString();
-    throw DDException(s);
+    throw cms::Exception("DDException") << s;
   }
 }
 
@@ -82,7 +79,7 @@ DDDividedGeometryObject::checkOffset( double maxPar )
     s += "\nERROR - DDDividedGeometryObject::checkOffset()";
     s += "\n        failed.";
     s += "  Too big an offset.";
-    throw DDException(s);
+    throw cms::Exception("DDException") << s;
   }
 }
 
@@ -97,7 +94,7 @@ DDDividedGeometryObject::checkNDivAndWidth( double maxPar )
     s+= " has too big an offset.";
     DCOUT_V('P', "DDDividedGeometryObject::checkNDivAndWidth has computed div_.offset() + compWidth_*compNDiv_ - maxPar =" << div_.offset() + compWidth_*compNDiv_ - maxPar << " and tolerance()=" << tolerance());
     std::cout << compWidth_ << std::endl;
-    throw DDException(s);
+    throw cms::Exception("DDException") << s;
   }
 }
 

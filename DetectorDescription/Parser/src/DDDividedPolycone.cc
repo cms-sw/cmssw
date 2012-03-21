@@ -11,7 +11,6 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 
 #include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
@@ -295,7 +294,7 @@ DDDividedPolyconeZ::checkParametersValidity( void )
     s += "\n\t" + DDXMLElement::itostr( msol.zVec().size() - 1 );
     s += "\n\tinstead of " + DDXMLElement::itostr(tempNDiv) + " !\n";
 
-    throw DDException(s);
+    throw cms::Exception("DDException") << s;
   }
 }
 

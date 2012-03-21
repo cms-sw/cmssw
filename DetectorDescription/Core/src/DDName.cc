@@ -1,8 +1,8 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
-#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Base/interface/Singleton.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <sstream>
 
@@ -74,7 +74,7 @@ void DDName::defineId(const std::pair<std::string,std::string> & nm, DDName::id_
     if(id2n[id]->first != nm) {
       std::stringstream s;
       s << id;
-      throw DDException("DDName::DDName(std::pair<std::string,std::string>,id_type): id=" + s.str() + " reg-name=?" );
+      throw cms::Exception("DDException") << "DDName::DDName(std::pair<std::string,std::string>,id_type): id=" + s.str() + " reg-name=?";
     }
   }
   else {

@@ -4,7 +4,6 @@
 #include <vector>
 #include <DetectorDescription/Core/interface/DDLogicalPart.h>
 #include <DetectorDescription/Core/interface/DDCompactView.h>
-#include <DetectorDescription/Base/interface/DDException.h>
 #include <DetectorDescription/Base/interface/DDTypes.h>
 
 class DDAlgorithmHandler;

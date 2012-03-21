@@ -59,8 +59,8 @@ EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(
 
       if( solid.shape() != ddbox ) 
       {
-	 throw DDException(std::string(__FILE__) 
-			   +"\n CaloGeometryEcalTBHodoscope::upDate(...): currently only box fiber shapes supported ");
+	 throw cms::Exception("DDException") << std::string(__FILE__) 
+			    << "\n CaloGeometryEcalTBHodoscope::upDate(...): currently only box fiber shapes supported ";
 	 edm::LogWarning("EcalTBHodoscopeGeometry") << "Wrong shape for sensitive volume!" << solid;
       }
        

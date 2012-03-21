@@ -13,7 +13,6 @@
 
 #include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
 #include "DetectorDescription/Parser/src/StrX.h"
-#include "DetectorDescription/Base/interface/DDException.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -116,7 +115,7 @@ DDLSAX2Handler::fatalError( const SAXParseException& e )
     << ", char " << e.getColumnNumber()
     << "\n  Message: " 
     << StrX(e.getMessage()) << std::endl;
-  throw DDException(std::string("DetectorDescription_Parser_Unrecoverable_Error_from_Xerces: "))
+  throw cms::Exception("DDException") << "DetectorDescription_Parser_Unrecoverable_Error_from_Xerces: "
     << std::string(StrX(e.getMessage()).localForm())
     << " file: " << std::string(StrX(e.getSystemId()).localForm())
     << " line: " << e.getLineNumber() << " col: " << e.getColumnNumber();

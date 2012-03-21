@@ -1,10 +1,8 @@
 #include "DetectorDescription/Base/interface/DDReadMapType.h"
-#include "DetectorDescription/Base/interface/DDException.h"
-
+#include "FWCore/Utilities/interface/Exception.h"
 
 namespace dddDetails {
-  void errorReadMapType(const std::string & key) throw (DDException) {
-    std::string message("ReadMapType::operator[] key not found:" + key);
-    throw DDException(message);    
+  void errorReadMapType(const std::string & key) {
+    throw cms::Exception("DDException") << "ReadMapType::operator[] key not found:" << key;
   }
 }

@@ -4,7 +4,6 @@
 #include <utility>
 #include <string>
 #include "DetectorDescription/Base/interface/Singleton.h"
-#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Base/interface/Store.h"
 #include "DetectorDescription/Base/interface/rep_type.h"
 
@@ -94,12 +93,12 @@ public:
     { return *(prep_->second); }
     
   const typename DDI::rep_traits<N,C>::reference val() const
-    { if (!isValid()) throw DDException(std::string("undefined: ") + std::string(name())); 
+   { if (!isValid()) throw cms::Exception("DDException") << "undefined: " << name(); 
       return rep();
     };  
 
   const typename DDI::rep_traits<N,C>::reference val() 
-    { if (!isValid()) throw DDException(std::string("undefined: ") + std::string(name())); 
+   { if (!isValid()) throw cms::Exception("DDException") << "undefined: " << name(); 
       return rep();
     };  
   

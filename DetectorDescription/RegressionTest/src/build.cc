@@ -245,7 +245,7 @@ void testParser()
     cout << endl << endl << "main::Start checking!" << endl << endl;
   
   }
-  catch (DDException& e)
+  catch (cms::Exception& e)
     {
       cout << "main::PROBLEM:" << endl 
 	   << "         " << e << endl;

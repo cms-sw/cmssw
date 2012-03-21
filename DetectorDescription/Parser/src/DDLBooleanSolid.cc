@@ -17,7 +17,6 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Base/interface/DDException.h"
 
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
@@ -123,7 +122,7 @@ DDLBooleanSolid::processElement( const std::string& name, const std::string& nms
       );	       
   }
   else {
-    throw DDException("DDLBooleanSolid was asked to do something other than Union-, Subtraction- or IntersectionSolid?");
+    throw cms::Exception("DDException") << "DDLBooleanSolid was asked to do something other than Union-, Subtraction- or IntersectionSolid?";
   }
   
   DDLSolid::setReference(nmspace, cpv);

@@ -7,7 +7,6 @@
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DetectorDescription/Parser/src/DDLElementaryMaterial.h"
-#include "DetectorDescription/Base/interface/DDException.h"
 
 int main(int argc, char *argv[])
 {
@@ -87,11 +86,6 @@ int main(int argc, char *argv[])
     std::cout << "Process Element " << std::endl;
     m.processElement(element, nmspc, cpv);
   }
-  catch (DDException& e)
-  {
-    std::cerr << "DDD-PROBLEM:" << std::endl 
-	      << e << std::endl;
-  }  
   //  Deal with any exceptions that may have been thrown.
   catch (cms::Exception& e) {
     std::cout << "cms::Exception caught in "

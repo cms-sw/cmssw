@@ -1,6 +1,3 @@
-
-
-#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/src/Solid.h"
 
@@ -126,7 +123,7 @@ DDSolid::DDSolid(const DDName & n, DDSolidShape s, const std::vector<double> & p
 	 solid = new DDI::Parallelepiped(0,0,0,0,0,0);
 	 break;
        default:
-        throw DDException("DDSolid::DDSolid(DDName,DDSolidShape,std::vector<double>: wrong shape");   
+        throw cms::Exception("DDException") << "DDSolid::DDSolid(DDName,DDSolidShape,std::vector<double>: wrong shape";   
   }
   solid->setParameters(p);
   prep_ = StoreT::instance().create(n,solid);
@@ -163,7 +160,7 @@ DDTrap::DDTrap(const DDSolid & s) : DDSolid(s)
   if (s.shape() != ddtrap) {
     std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is no DDTrap.\n";
     ex = ex + "Use a different solid interface!";
-    throw DDException(ex);
+    throw cms::Exception("DDException") << ex;
   }
 }
 
@@ -197,7 +194,7 @@ DDTruncTubs::DDTruncTubs(const DDSolid & s) : DDSolid(s)
     edm::LogError ("DDSolid") << "s.shape()=" << s.shape() << "  " << s << std::endl;
     std::string ex = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is no DDTruncTubs\n";
     ex = ex + "Use a different solid interface!";
-    throw DDException(ex);
+    throw cms::Exception("DDException") << ex;
   }
 }
 
@@ -224,7 +221,7 @@ DDPseudoTrap::DDPseudoTrap(const DDSolid & s) : DDSolid(s)
   if (s.shape() != ddpseudotrap) {
     std::string ex = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is no DDPseudoTrap\n";
     ex = ex + "Use a different solid interface!";
-    throw DDException(ex);
+    throw cms::Exception("DDException") << ex;
   }
 }
 
@@ -250,7 +247,7 @@ DDBox::DDBox(const DDSolid & s)
  if (s.shape() != ddbox) {
     std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDBox.\n";
     ex = ex + "Use a different solid interface!";
-    throw DDException(ex);
+    throw cms::Exception("DDException") << ex;
  }
 }
 
@@ -283,7 +280,7 @@ DDShapelessSolid::DDShapelessSolid (const DDSolid & s) : DDSolid(s)
   if (s.shape() != ddshapeless) {
     std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDShapelessSolid.\n";
     ex = ex + "Use a different solid interface!";
-    throw DDException(ex);
+    throw cms::Exception("DDException") << ex;
   }
 }
 
@@ -296,7 +293,7 @@ DDUnion::DDUnion(const DDSolid & s)
   if (s.shape() != ddunion) {
     std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDUnion.\n";
     ex = ex + "Use a different solid interface!";
-    throw DDException(ex);
+    throw cms::Exception("DDException") << ex;
   }
 }
 
@@ -309,7 +306,7 @@ DDIntersection::DDIntersection(const DDSolid & s)
   if (s.shape() != ddunion) {
     std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDIntersection.\n";
     ex = ex + "Use a different solid interface!";
-    throw DDException(ex);
+    throw cms::Exception("DDException") << ex;
   }
 }
 
@@ -322,7 +319,7 @@ DDSubtraction::DDSubtraction(const DDSolid & s)
   if (s.shape() != ddsubtraction) {
     std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is no DDSubtraction.\n";
     ex = ex + "Use a different solid interface!";
-    throw DDException(ex);
+    throw cms::Exception("DDException") << ex;
   }
 }
 
@@ -364,7 +361,7 @@ DDPolycone::DDPolycone(const DDSolid & s)
   if (s.shape() != ddpolycone_rz && s.shape() != ddpolycone_rrz) {
     std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDPolycone.\n";
     ex = ex + "Use a different solid interface!";
-    throw DDException(ex);
+    throw cms::Exception("DDException") << ex;
   }
 }
 
@@ -409,7 +406,7 @@ DDPolyhedra::DDPolyhedra(const DDSolid & s)
   if (s.shape() != ddpolyhedra_rz && s.shape() != ddpolyhedra_rrz) {
     std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDPolyhedra.\n";
     ex = ex + "Use a different solid interface!";
-    throw DDException(ex);
+    throw cms::Exception("DDException") << ex;
   }
 }
 
@@ -454,7 +451,7 @@ DDCons::DDCons(const DDSolid& s)
   if (s.shape() != ddcons) {
     std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDCons.\n";
     ex = ex + "Use a different solid interface!";
-    throw DDException(ex);
+    throw cms::Exception("DDException") << ex;
   }
 }
 
@@ -479,7 +476,7 @@ DDTorus::DDTorus(const DDSolid& s)
   if (s.shape() != ddtorus) {
     std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDTorus.\n";
     ex = ex + "Use a different solid interface!";
-    throw DDException(ex);
+    throw cms::Exception("DDException") << ex;
   }
 }
 
@@ -501,7 +498,7 @@ DDTubs::DDTubs(const DDSolid& s)
   if (s.shape() != ddtubs) {
     std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDTubs.\n";
     ex = ex + "Use a different solid interface!";
-    throw DDException(ex);
+    throw cms::Exception("DDException") << ex;
   }
 }
 
@@ -562,7 +559,7 @@ DDSphere::DDSphere(const DDSolid& s)
   if (s.shape() != ddsphere) {
     std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDSphere (or sphere section).\n";
     ex = ex + "Use a different solid interface!";
-    throw DDException(ex);
+    throw cms::Exception("DDException") << ex;
   }
 }
 
@@ -585,7 +582,7 @@ DDOrb::DDOrb(const DDSolid& s)
   if (s.shape() != ddorb) {
     std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDOrb.\n";
     ex = ex + "Use a different solid interface!";
-    throw DDException(ex);
+    throw cms::Exception("DDException") << ex;
   }
 }
 
@@ -598,7 +595,7 @@ DDEllipticalTube::DDEllipticalTube(const DDSolid& s)
   if (s.shape() != ddellipticaltube) {
     std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDEllipticalTube.\n";
     ex = ex + "Use a different solid interface!";
-    throw DDException(ex);
+    throw cms::Exception("DDException") << ex;
   }
 }
 
@@ -615,7 +612,7 @@ DDEllipsoid::DDEllipsoid(const DDSolid& s)
   if (s.shape() != ddellipsoid) {
     std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDEllipsoid (or truncated ellipsoid).\n";
     ex = ex + "Use a different solid interface!";
-    throw DDException(ex);
+    throw cms::Exception("DDException") << ex;
   }
 }
 
@@ -636,7 +633,7 @@ DDParallelepiped::DDParallelepiped(const DDSolid& s)
   if (s.shape() != ddparallelepiped) {
     std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDParallelepiped.\n";
     ex = ex + "Use a different solid interface!";
-    throw DDException(ex);
+    throw cms::Exception("DDException") << ex;
   }
 }
 

@@ -13,7 +13,6 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 
 #include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/Base/interface/DDException.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
@@ -73,7 +72,7 @@ DDDividedTrdX::makeDDTranslation( const int copyNo ) const
     s += " !\n" ;
     s += "DDDividedTrdX::makeDDTranslation()";
     s += " IllegalConstruct: Only axes along x are allowed !";
-    throw DDException(s);
+    throw cms::Exception("DDException") << s;
   }
   
   return DDTranslation();
@@ -150,7 +149,7 @@ DDDividedTrdX::checkParametersValidity( void )
     s+= "\n        while the X half lengths are not equal,";
     s+= "\n        is not (yet) supported. It will result";
     s+= "\n        in non-equal division solids.";
-    throw DDException(s);
+    throw cms::Exception("DDException") << s;
   }
   //    if (fabs(mpDy1 - mpDy2) > tolerance())
   //      {
@@ -159,7 +158,7 @@ DDDividedTrdX::checkParametersValidity( void )
   //        s+= "\n        while the Y half lengths are not equal,";
   //        s+= "\n        is not (yet) supported. It will result";
   //        s+= "\n        in non-equal division solids.";
-  //        throw DDException(s);
+  //        throw cms::Exception("DDException") << s;
   //      }
   // mec:  we only have traps, not trds in DDD, so I added this check
   // to make sure it is only a trd (I think! :-))
@@ -170,7 +169,7 @@ DDDividedTrdX::checkParametersValidity( void )
     s+= "\n        while the theta, phi and aplhpa2 are not zero,";
     s+= "\n        is not (yet) supported. It will result";
     s+= "\n        in non-equal division solids.";
-    throw DDException(s);
+    throw cms::Exception("DDException") << s;
   }
 }
 
@@ -226,7 +225,7 @@ DDDividedTrdY::makeDDTranslation( const int copyNo ) const
     s += " !\n" ;
     s += "DDDividedTrdY::makeDDTranslation()";
     s += " IllegalConstruct: Only axes along y are allowed !";
-    throw DDException(s);
+    throw cms::Exception("DDException") << s;
   }
   return DDTranslation();
 }
@@ -297,7 +296,7 @@ DDDividedTrdY::checkParametersValidity( void )
     s += "\n        the Y half lengths are not equal is not (yet)";
     s += "\n        supported. It will result in non-equal";
     s += "\n        division solids.";
-    throw DDException(s);
+    throw cms::Exception("DDException") << s;
   }
   // mec:  we only have traps, not trds in DDD, so I added this check
   // to make sure it is only a trd (I think! :-))
@@ -308,7 +307,7 @@ DDDividedTrdY::checkParametersValidity( void )
     s+= "\n        while the theta, phi and aplhpa2 are not zero,";
     s+= "\n        is not (yet) supported. It will result";
     s+= "\n        in non-equal division solids.";
-    throw DDException(s);
+    throw cms::Exception("DDException") << s;
   }
 }
 
@@ -363,7 +362,7 @@ DDDividedTrdZ::makeDDTranslation( const int copyNo ) const
     s += " !\n" ;
     s += "DDDividedTrdY::makeDDTranslation()";
     s += " IllegalConstruct: Only axes along z are allowed !";
-    throw DDException(s);
+    throw cms::Exception("DDException") << s;
 
   }
   return DDTranslation();
@@ -440,6 +439,6 @@ DDDividedTrdZ::checkParametersValidity( void )
     s+= "\n        while the theta, phi and aplhpa2 are not zero,";
     s+= "\n        is not (yet) supported. It will result";
     s+= "\n        in non-equal division solids.";
-    throw DDException(s);
+    throw cms::Exception("DDException") << s;
   }
 }

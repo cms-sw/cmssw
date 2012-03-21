@@ -5,7 +5,6 @@
 
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 
-#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -631,7 +630,7 @@ void HcalNumberingFromDDD::initialize(std::string & name,
     edm::LogError("HCalGeom") << "HcalNumberingFromDDD: cannot get filtered "
 			      << " view for " << attribute << " matching "
 			      << name;
-    throw DDException("HcalNumberingFromDDD: cannot match "+attribute+" to "+name);
+    throw cms::Exception("DDException") << "HcalNumberingFromDDD: cannot match " << attribute << " to " << name;
   }
 
 #ifdef DebugLog
@@ -1137,14 +1136,14 @@ std::vector<double> HcalNumberingFromDDD::getDDDArray(const std::string & str,
 	edm::LogError("HCalGeom") << "HcalNumberingFromDDD : # of " << str 
 				  << " bins " << nval << " < " << nmin 
 				  << " ==> illegal";
-	throw DDException("HcalNumberingFromDDD: cannot get array "+str);
+	throw cms::Exception("DDException") << "HcalNumberingFromDDD: cannot get array " << str;
       }
     } else {
       if (nval < 2) {
 	edm::LogError("HCalGeom") << "HcalNumberingFromDDD : # of " << str
 				  << " bins " << nval << " < 2 ==> illegal"
 				  << " (nmin=" << nmin << ")";
-	throw DDException("HcalNumberingFromDDD: cannot get array "+str);
+	throw cms::Exception("DDException") << "HcalNumberingFromDDD: cannot get array " << str;
       }
     }
     nmin = nval;
@@ -1152,7 +1151,7 @@ std::vector<double> HcalNumberingFromDDD::getDDDArray(const std::string & str,
   } else {
     edm::LogError("HCalGeom") << "HcalNumberingFromDDD: cannot get array "
 			      << str;
-    throw DDException("HcalNumberingFromDDD: cannot get array "+str);
+    throw cms::Exception("DDException") << "HcalNumberingFromDDD: cannot get array " << str;
   }
 }
 
