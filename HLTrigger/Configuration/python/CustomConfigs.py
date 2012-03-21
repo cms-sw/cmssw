@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from HLTrigger.Configuration import customizeHLTforL1Emulator
-
-
 def ProcessName(process):
 #   processname modifications
 
@@ -61,23 +58,13 @@ def L1THLT(process):
     return(process)
 
 
-#def L1THLT2(process):
-##   modifications when re-running L1T+HLT    
-#
-##   run trigger primitive generation on unpacked digis, then central L1
-#
-#    process.load("L1Trigger.Configuration.CaloTriggerPrimitives_cff")
-#    process.simEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
-#    process.simHcalTriggerPrimitiveDigis.inputLabel = ('hcalDigis', 'hcalDigis')
-#
-##   patch the process to use 'sim*Digis' from the L1 emulator
-##   instead of 'hlt*Digis' from the RAW data
-#
-#    patchToRerunL1Emulator.switchToSimGtDigis( process )
-#
-#    process=Base(process)
-#
-#    return(process)
+def FASTSIM(process):
+#   modifications when running L1T+HLT
+
+    process=L1THLT(process)
+    process.hltL1GtTrigReport.L1GtRecordInputTag = cms.InputTag("gtDigis")
+
+    return(process)
 
 
 def HLTDropPrevious(process):
