@@ -1,5 +1,5 @@
-#include "QGSPCMS_FTFP_BERT_EML95.hh"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95.h"
+#include "QGSPCMS_FTFP_BERT_EML95msc92.hh"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95msc92.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -15,7 +15,7 @@
 
 #include <string>
 
-QGSPCMS_FTFP_BERT_EML95::QGSPCMS_FTFP_BERT_EML95(G4LogicalVolumeToDDLogicalPartMap& map,
+QGSPCMS_FTFP_BERT_EML95msc92::QGSPCMS_FTFP_BERT_EML95msc92(G4LogicalVolumeToDDLogicalPartMap& map,
 						 const HepPDT::ParticleDataTable * table_,
 						 sim::FieldBuilder *fieldBuilder_, 
 						 const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
@@ -28,14 +28,14 @@ QGSPCMS_FTFP_BERT_EML95::QGSPCMS_FTFP_BERT_EML95(G4LogicalVolumeToDDLogicalPartM
   bool tracking= p.getParameter<bool>("TrackingCut");
   std::string region = p.getParameter<std::string>("Region");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_FTFP_BERT_EML95 with Flags for EM Physics "
+			      << "QGSP_FTFP_BERT_EML95msc92 with Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
 			      << hadPhys << " and tracking cut " << tracking
                               << " with special region " << region;
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics95("standard EM EML95",ver,region));
+    RegisterPhysics( new CMSEmStandardPhysics95msc92("standard EM EML95msc92",ver,region));
 
     // Synchroton Radiation & GN Physics
     RegisterPhysics( new G4EmExtraPhysics("extra EM"));
