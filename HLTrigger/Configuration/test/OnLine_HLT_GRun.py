@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/GRun/V6 (CMSSW_5_2_1_HLT1)
+# /dev/CMSSW_5_2_1/GRun/V7 (CMSSW_5_2_1_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V6')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V7')
 )
 
 process.streams = cms.PSet( 
@@ -232,7 +232,6 @@ process.datasets = cms.PSet(
     'HLT_DiCentralPFJet50_PFMET80_v1',
     'HLT_DiPFJet40L1FastJet_PFMHTWOM65_M600VBF_LEADINGJETS_v1',
     'HLT_DiPFJet40L1FastJet_PFMHTWOM65_M800VBF_ALLJETS_v1',
-    'HLT_IsoMu15_eta2p1_L1ETM20_v1',
     'HLT_MET120_HBHENoiseCleaned_v1',
     'HLT_MET120_v9',
     'HLT_MET200_HBHENoiseCleaned_v1',
@@ -242,7 +241,6 @@ process.datasets = cms.PSet(
     'HLT_MET400_HBHENoiseCleaned_v1',
     'HLT_MET400_v4',
     'HLT_MonoCentralPFJet80L1FastJet_PFMHTWOM95_NHEF95_v1',
-    'HLT_Mu15_eta2p1_L1ETM20_v1',
     'HLT_PFMHT150_v19',
     'HLT_PFMHT180_v1' ),
   MinimumBias = cms.vstring( 'HLT_JetE30_NoBPTX3BX_NoHalo_v12',
@@ -1664,9 +1662,11 @@ process.datasets = cms.PSet(
     'HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_v1',
     'HLT_Ele20_CaloIdVT_TrkIdT_LooseIsoPFTau20_v1',
     'HLT_Ele22_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v1',
+    'HLT_IsoMu15_eta2p1_L1ETM20_v1',
     'HLT_IsoMu15_eta2p1_LooseIsoPFTau35_Trk20_L1ETM20_v1',
     'HLT_IsoMu18_eta2p1_LooseIsoPFTau20_v1',
     'HLT_IsoMu20_eta2p1_LooseIsoPFTau20_v1',
+    'HLT_Mu15_eta2p1_L1ETM20_v1',
     'HLT_Mu18_eta2p1_LooseIsoPFTau20_v1' ),
   TestEnablesEcalHcalDT = cms.vstring( 'HLT_DTCalibration_v2',
     'HLT_EcalCalibration_v3',
@@ -5613,9 +5613,6 @@ process.PrescaleService = cms.Service( "PrescaleService",
       ),
       cms.PSet(  pathName = cms.string( "DQM_FEDIntegrity_v7" ),
         prescales = cms.vuint32( 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 )
-      ),
-      cms.PSet(  pathName = cms.string( "AForPPOutput" ),
-        prescales = cms.vuint32( 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "DQMForPPOutput" ),
         prescales = cms.vuint32( 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )

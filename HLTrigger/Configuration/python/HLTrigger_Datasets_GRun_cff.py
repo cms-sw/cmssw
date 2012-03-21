@@ -235,7 +235,6 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CentralPFJet80_
     'HLT_DiCentralPFJet50_PFMET80_v1', 
     'HLT_DiPFJet40L1FastJet_PFMHTWOM65_M600VBF_LEADINGJETS_v1', 
     'HLT_DiPFJet40L1FastJet_PFMHTWOM65_M800VBF_ALLJETS_v1', 
-    'HLT_IsoMu15_eta2p1_L1ETM20_v1', 
     'HLT_MET120_HBHENoiseCleaned_v1', 
     'HLT_MET120_v9', 
     'HLT_MET200_HBHENoiseCleaned_v1', 
@@ -245,7 +244,6 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CentralPFJet80_
     'HLT_MET400_HBHENoiseCleaned_v1', 
     'HLT_MET400_v4', 
     'HLT_MonoCentralPFJet80L1FastJet_PFMHTWOM95_NHEF95_v1', 
-    'HLT_Mu15_eta2p1_L1ETM20_v1', 
     'HLT_PFMHT150_v19', 
     'HLT_PFMHT180_v1')
 
@@ -518,8 +516,10 @@ streamA_datasetTauPlusX_selector.triggerConditions = cms.vstring('HLT_Ele20_Calo
     'HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_v1', 
     'HLT_Ele20_CaloIdVT_TrkIdT_LooseIsoPFTau20_v1', 
     'HLT_Ele22_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v1', 
+    'HLT_IsoMu15_eta2p1_L1ETM20_v1', 
     'HLT_IsoMu15_eta2p1_LooseIsoPFTau35_Trk20_L1ETM20_v1', 
     'HLT_IsoMu18_eta2p1_LooseIsoPFTau20_v1', 
     'HLT_IsoMu20_eta2p1_LooseIsoPFTau20_v1', 
+    'HLT_Mu15_eta2p1_L1ETM20_v1', 
     'HLT_Mu18_eta2p1_LooseIsoPFTau20_v1')
 

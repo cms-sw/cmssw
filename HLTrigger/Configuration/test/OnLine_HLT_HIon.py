@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V6 (CMSSW_5_2_1_HLT1)
+# /dev/CMSSW_5_2_1/HIon/V7 (CMSSW_5_2_1_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V6')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V7')
 )
 
 process.streams = cms.PSet( 
@@ -3341,9 +3341,6 @@ process.PrescaleService = cms.Service( "PrescaleService",
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIUPCNeuHcalHfEG5Pixel_SingleTrack_v2" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
-      ),
-      cms.PSet(  pathName = cms.string( "AForHIOutput" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "DQMForHIOutput" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
