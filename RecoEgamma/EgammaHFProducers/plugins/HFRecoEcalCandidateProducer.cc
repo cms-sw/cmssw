@@ -31,6 +31,8 @@
 HFRecoEcalCandidateProducer::HFRecoEcalCandidateProducer(edm::ParameterSet const& conf):
   hfclusters_(conf.getParameter<edm::InputTag>("hfclusters")),
   CorrectForPileup_(conf.getParameter<bool>("CorrectForPileup")),
+  defaultSlope_(20,0.0),
+  defaultIntercept_(20,1.0),
   algo_(conf.getParameter<bool>("Correct"),
 	conf.getParameter<double>("e9e25Cut"),
 	conf.getParameter<double>("intercept2DCut"),
@@ -39,9 +41,9 @@ HFRecoEcalCandidateProducer::HFRecoEcalCandidateProducer(edm::ParameterSet const
 	conf.getParameter<std::vector<double> >("eCOREe9Cut"),
 	conf.getParameter<std::vector<double> >("eSeLCut"),
 	conf.getParameter<int>("era"),
-	conf.getParameter<bool>("CorrectForPileup"),
-	conf.getUntrackedParameter<std::vector<double> >("PileupSlopes"),
-	conf.getUntrackedParameter<std::vector<double> >("PileupIntercepts")
+	conf.getUntrackedParameter<bool>("CorrectForPileup",false),
+	conf.getUntrackedParameter<std::vector<double> >("PileupSlopes",defaultSlope_),
+	conf.getUntrackedParameter<std::vector<double> >("PileupIntercepts",defaultIntercept_)
 
 
 ) {
