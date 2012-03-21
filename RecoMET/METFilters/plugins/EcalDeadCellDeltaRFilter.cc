@@ -106,16 +106,16 @@ private:
   virtual void envSet(const edm::EventSetup&);
 
   // ----------member data ---------------------------
-  edm::InputTag jetInputTag_;
+  const edm::InputTag jetInputTag_;
   edm::Handle<edm::View<reco::Jet> > jets;
 // jet selection cut: pt, eta
 // default (pt=-1, eta= 9999) means no cut
-  std::vector<double> jetSelCuts_; 
+  const std::vector<double> jetSelCuts_; 
 
-  edm::InputTag metInputTag_;
+  const edm::InputTag metInputTag_;
   edm::Handle<edm::View<reco::MET> > met;
 
-  bool debug_, printSkimInfo_;
+  const bool debug_, printSkimInfo_;
 
   bool isPrintedOnce;
 
@@ -136,8 +136,8 @@ private:
 
   EcalTPGScale ecalScale_;
 
-  int maskedEcalChannelStatusThreshold_;
-  int chnStatusToBeEvaluated_;
+  const int maskedEcalChannelStatusThreshold_;
+  const int chnStatusToBeEvaluated_;
 
 // XXX: All the following can be built at the beginning of a run
 // Store DetId <==> std::vector<double> (eta, phi, theta)
@@ -154,20 +154,20 @@ private:
   int evtProcessedCnt, totTPFilteredCnt;
   double wtdEvtProcessed, wtdTPFiltered;
 
-  bool makeProfileRoot_;
-  std::string profileRootName_;
+  const bool makeProfileRoot_;
+  const std::string profileRootName_;
   TFile *profFile;
   TH1F *h1_dummy;
 
-  bool isProd_;
-  int verbose_;
+  const bool isProd_;
+  const int verbose_;
 
-  bool doCracks_;
+  const bool doCracks_;
 // Cracks definition
-  std::vector<double> cracksHBHEdef_, cracksHEHFdef_;
+  const std::vector<double> cracksHBHEdef_, cracksHEHFdef_;
 
 // Simple dR filter
-  std::vector<double> EcalDeadCellDeltaRFilterInput_;
+  const std::vector<double> EcalDeadCellDeltaRFilterInput_;
 
   int dPhiToMETfunc(const std::vector<reco::Jet> &jetTVec, const double &dPhiCutVal, std::vector<reco::Jet> &closeToMETjetsVec);
   int dRtoMaskedChnsEvtFilterFunc(const std::vector<reco::Jet> &jetTVec, const int &chnStatus, const double &dRCutVal);
@@ -176,7 +176,7 @@ private:
 
   int isCloseToBadEcalChannel(const reco::Jet &jet, const double &deltaRCut, const int &chnStatus, std::map<double, DetId> &deltaRdetIdMap);
 
-  bool taggingMode_;
+  const bool taggingMode_;
 };
 
 void EcalDeadCellDeltaRFilter::loadMET(const edm::Event& iEvent, const edm::EventSetup& iSetup){
@@ -192,8 +192,10 @@ void EcalDeadCellDeltaRFilter::loadEventInfo(const edm::Event& iEvent, const edm
    isdata = iEvent.isRealData();
 
    if( !isPrintedOnce ){
-      if( isdata ) std::cout<<"\nInput dataset is DATA"<<std::endl<<std::endl;
-      else std::cout<<"\nInput dataset is MC"<<std::endl<<std::endl;
+      if( debug_ ){
+         if( isdata ) std::cout<<"\nInput dataset is DATA"<<std::endl<<std::endl;
+         else std::cout<<"\nInput dataset is MC"<<std::endl<<std::endl;
+      }
       isPrintedOnce = true;
    }
 
@@ -212,36 +214,32 @@ void EcalDeadCellDeltaRFilter::loadJets(const edm::Event& iEvent, const edm::Eve
 //
 // constructors and destructor
 //
-EcalDeadCellDeltaRFilter::EcalDeadCellDeltaRFilter(const edm::ParameterSet& iConfig){
+EcalDeadCellDeltaRFilter::EcalDeadCellDeltaRFilter(const edm::ParameterSet& iConfig)
+  : jetInputTag_ (iConfig.getParameter<edm::InputTag>("jetInputTag"))
+  , jetSelCuts_ (iConfig.getParameter<std::vector<double> >("jetSelCuts"))
 
-  debug_= iConfig.getUntrackedParameter<bool>("debug",false);
-  printSkimInfo_= iConfig.getUntrackedParameter<bool>("printSkimInfo",false);
+  , metInputTag_ (iConfig.getParameter<edm::InputTag>("metInputTag"))
 
-  jetInputTag_ = iConfig.getParameter<edm::InputTag>("jetInputTag");
-  jetSelCuts_ = iConfig.getParameter<std::vector<double> >("jetSelCuts");
+  , debug_ (iConfig.getUntrackedParameter<bool>("debug",false))
+  , printSkimInfo_ (iConfig.getUntrackedParameter<bool>("printSkimInfo",false))
 
-  metInputTag_ = iConfig.getParameter<edm::InputTag>("metInputTag");
+  , maskedEcalChannelStatusThreshold_ (iConfig.getParameter<int>("maskedEcalChannelStatusThreshold"))
+  , chnStatusToBeEvaluated_ (iConfig.getParameter<int>("chnStatusToBeEvaluated"))
 
-  makeProfileRoot_ = iConfig.getUntrackedParameter<bool>("makeProfileRoot", true);
-  profileRootName_ = iConfig.getUntrackedParameter<std::string>("profileRootName", "EcalDeadCellDeltaRFilter.root");
+  , makeProfileRoot_ (iConfig.getUntrackedParameter<bool>("makeProfileRoot", true))
+  , profileRootName_ (iConfig.getUntrackedParameter<std::string>("profileRootName", "EcalDeadCellDeltaRFilter.root"))
 
-  maskedEcalChannelStatusThreshold_ = iConfig.getParameter<int>("maskedEcalChannelStatusThreshold");
+  , isProd_ (iConfig.getUntrackedParameter<bool>("isProd"))
+  , verbose_ (iConfig.getParameter<int>("verbose"))
 
-  chnStatusToBeEvaluated_ = iConfig.getParameter<int>("chnStatusToBeEvaluated");
+  , doCracks_ (iConfig.getUntrackedParameter<bool>("doCracks"))
+  , cracksHBHEdef_ (iConfig.getParameter<std::vector<double> > ("cracksHBHEdef"))
+  , cracksHEHFdef_ (iConfig.getParameter<std::vector<double> > ("cracksHEHFdef"))
 
-  isProd_ = iConfig.getUntrackedParameter<bool>("isProd");
+  , EcalDeadCellDeltaRFilterInput_ (iConfig.getParameter<std::vector<double> >("EcalDeadCellDeltaRFilterInput"))
 
-  doCracks_ = iConfig.getUntrackedParameter<bool>("doCracks");
-  
-  verbose_ = iConfig.getParameter<int>("verbose");
-
-  EcalDeadCellDeltaRFilterInput_ = iConfig.getParameter<std::vector<double> >("EcalDeadCellDeltaRFilterInput");
-
-  cracksHBHEdef_ = iConfig.getParameter<std::vector<double> > ("cracksHBHEdef");
-  cracksHEHFdef_ = iConfig.getParameter<std::vector<double> > ("cracksHEHFdef");
-
-  taggingMode_ = iConfig.getParameter<bool>("taggingMode");
-
+  , taggingMode_ (iConfig.getParameter<bool>("taggingMode"))
+{
   produces<int> ("deadCellStatus"); produces<int> ("boundaryStatus");
   produces<bool>();
 
@@ -328,13 +326,11 @@ bool EcalDeadCellDeltaRFilter::filter(edm::Event& iEvent, const edm::EventSetup&
   iEvent.put( deadCellStatusPtr, "deadCellStatus");
   iEvent.put( boundaryStatusPtr, "boundaryStatus");
 
-  std::auto_ptr<bool> pOut( new bool(pass) );
-  iEvent.put( pOut );
-
   if( deadCellStatus || (doCracks_ && boundaryStatus) ) pass = false;
 
-  if( taggingMode_ ) return true;
-  else return pass;
+  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
+
+  return taggingMode_ || pass;
 }
 
 // ------------ method called once each job just before starting event loop  ------------

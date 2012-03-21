@@ -20,7 +20,7 @@
 //
 // Original Author:  Konstantinos Theofilatos, Ulla Gebbert and Christian Sander
 //         Created:  Sat Nov 14 18:43:21 CET 2009
-// $Id: EcalDeadCellBoundaryEnergyFilter.cc,v 1.3 2012/02/02 05:32:39 lhx Exp $
+// $Id: EcalDeadCellBoundaryEnergyFilter.cc,v 1.4 2012/02/08 06:43:36 lhx Exp $
 //
 //
 
@@ -69,13 +69,19 @@ class EcalDeadCellBoundaryEnergyFilter: public edm::EDFilter {
       virtual void endJob();
 
       // ----------member data ---------------------------
-      edm::InputTag EBRecHitsLabel_;
-      edm::InputTag EERecHitsLabel_;
-
-      std::string FilterAlgo_;
-      bool taggingMode_;
-
       const int kMAX;
+
+      const edm::InputTag EBRecHitsLabel_;
+      const edm::InputTag EERecHitsLabel_;
+
+      const std::string FilterAlgo_;
+      const bool taggingMode_;
+
+      const bool skimGap_;
+      const bool skimDead_;
+
+      const double cutBoundEnergyGapEE, cutBoundEnergyGapEB, cutBoundEnergyDeadCellsEB, cutBoundEnergyDeadCellsEE;
+
       int i_EBDead, i_EEDead, i_EBGap, i_EEGap;
       float * enNeighboursGap_EB;
       float * enNeighboursGap_EE;
@@ -86,27 +92,17 @@ class EcalDeadCellBoundaryEnergyFilter: public edm::EDFilter {
       vector<BoundaryInformation> v_boundaryInfoDeadCells_EB;
       vector<BoundaryInformation> v_boundaryInfoDeadCells_EE;
 
-      double cutBoundEnergyGapEE;
-      double cutBoundEnergyGapEB;
-      double cutBoundEnergyDeadCellsEB;
-      double cutBoundEnergyDeadCellsEE;
-
       EcalBoundaryInfoCalculator<EBDetId> ebBoundaryCalc;
       EcalBoundaryInfoCalculator<EEDetId> eeBoundaryCalc;
 
-      bool debug_;
-
-      bool skimGap_;
-      bool skimDead_;
-
       double maxBoundaryEnergy_;
 
-      bool limitFilterToEB_, limitFilterToEE_;
-      vector<int> limitDeadCellToChannelStatusEB_;
-      vector<int> limitDeadCellToChannelStatusEE_;
+      const bool limitFilterToEB_, limitFilterToEE_;
+      const vector<int> limitDeadCellToChannelStatusEB_;
+      const vector<int> limitDeadCellToChannelStatusEE_;
 
-      bool enableGap_;
-//      ofstream *outFile;
+      const bool enableGap_;
+      const bool debug_;
 
 };
 
@@ -117,36 +113,31 @@ class EcalDeadCellBoundaryEnergyFilter: public edm::EDFilter {
 //
 // constructors and destructor
 //
-EcalDeadCellBoundaryEnergyFilter::EcalDeadCellBoundaryEnergyFilter(const edm::ParameterSet& iConfig) :
-   kMAX(50) {
-   cout << "Constructor EcalAnomalousEvent" << endl;
-
+EcalDeadCellBoundaryEnergyFilter::EcalDeadCellBoundaryEnergyFilter(const edm::ParameterSet& iConfig) 
+   : kMAX (50)
    //now do what ever initialization is needed
-   EBRecHitsLabel_ = iConfig.getParameter<edm::InputTag> ("recHitsEB");
-   EERecHitsLabel_ = iConfig.getParameter<edm::InputTag> ("recHitsEE");
+   , EBRecHitsLabel_ (iConfig.getParameter<edm::InputTag> ("recHitsEB"))
+   , EERecHitsLabel_ (iConfig.getParameter<edm::InputTag> ("recHitsEE"))
 
-   FilterAlgo_ = iConfig.getUntrackedParameter<std::string> ("FilterAlgo", "TuningMode");
-   taggingMode_ = iConfig.getParameter<bool>("taggingMode");
-   skimGap_ = iConfig.getUntrackedParameter<bool> ("skimGap", false);
-   skimDead_ = iConfig.getUntrackedParameter<bool> ("skimDead", false);
-   if (skimGap_)
-      cout << "Skim Gap!" << endl;
-   if (skimDead_)
-      cout << "Skim Dead!" << endl;
+   , FilterAlgo_ (iConfig.getUntrackedParameter<std::string> ("FilterAlgo", "TuningMode"))
+   , taggingMode_ (iConfig.getParameter<bool>("taggingMode"))
+   , skimGap_ (iConfig.getUntrackedParameter<bool> ("skimGap", false))
+   , skimDead_ (iConfig.getUntrackedParameter<bool> ("skimDead", false))
+   , cutBoundEnergyGapEE (iConfig.getUntrackedParameter<double> ("cutBoundEnergyGapEE"))
+   , cutBoundEnergyGapEB (iConfig.getUntrackedParameter<double> ("cutBoundEnergyGapEB"))
+   , cutBoundEnergyDeadCellsEB (iConfig.getUntrackedParameter<double> ("cutBoundEnergyDeadCellsEB"))
+   , cutBoundEnergyDeadCellsEE (iConfig.getUntrackedParameter<double> ("cutBoundEnergyDeadCellsEE"))
 
-   cutBoundEnergyGapEB = iConfig.getUntrackedParameter<double> ("cutBoundEnergyGapEB");
-   cutBoundEnergyGapEE = iConfig.getUntrackedParameter<double> ("cutBoundEnergyGapEE");
-   cutBoundEnergyDeadCellsEB = iConfig.getUntrackedParameter<double> ("cutBoundEnergyDeadCellsEB");
-   cutBoundEnergyDeadCellsEE = iConfig.getUntrackedParameter<double> ("cutBoundEnergyDeadCellsEE");
+   , limitFilterToEB_ (iConfig.getUntrackedParameter<bool> ("limitFilterToEB", false))
+   , limitFilterToEE_ (iConfig.getUntrackedParameter<bool> ("limitFilterToEE", false))
+   , limitDeadCellToChannelStatusEB_ (iConfig.getParameter<vector<int> > ("limitDeadCellToChannelStatusEB"))
+   , limitDeadCellToChannelStatusEE_ (iConfig.getParameter<vector<int> > ("limitDeadCellToChannelStatusEE"))
+
+   , enableGap_ (iConfig.getUntrackedParameter<bool> ("enableGap", false))
+   , debug_ (iConfig.getParameter<bool>("debug"))
+{
 
    maxBoundaryEnergy_ = cutBoundEnergyDeadCellsEB;
-
-   limitFilterToEB_ = iConfig.getUntrackedParameter<bool> ("limitFilterToEB", false);
-   limitFilterToEE_ = iConfig.getUntrackedParameter<bool> ("limitFilterToEE", false);
-   limitDeadCellToChannelStatusEB_ = iConfig.getParameter<vector<int> > ("limitDeadCellToChannelStatusEB");
-   limitDeadCellToChannelStatusEE_ = iConfig.getParameter<vector<int> > ("limitDeadCellToChannelStatusEE");
-
-   enableGap_ = iConfig.getUntrackedParameter<bool> ("enableGap", false);
 
    i_EBDead = 0;
    i_EEDead = 0;
@@ -163,7 +154,10 @@ EcalDeadCellBoundaryEnergyFilter::EcalDeadCellBoundaryEnergyFilter(const edm::Pa
    v_boundaryInfoDeadCells_EB.clear();
    v_boundaryInfoDeadCells_EE.clear();
 
-   debug_ = false;
+   if (skimGap_ && debug_ ) cout << "Skim Gap!" << endl;
+   if (skimDead_ && debug_ ) cout << "Skim Dead!" << endl;
+
+   if( debug_ ) cout << "Constructor EcalAnomalousEvent" << endl;
 
    produces<bool>();
 
@@ -201,8 +195,8 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
    edm::ESHandle<CaloGeometry> geometry;
    iSetup.get<CaloGeometryRecord> ().get(geometry);
 
-   int DeadChannelsCounterEB = 0;
-   int DeadChannelsCounterEE = 0;
+//   int DeadChannelsCounterEB = 0;
+//   int DeadChannelsCounterEE = 0;
 
    i_EBDead = 0;
    i_EEDead = 0;
@@ -423,8 +417,7 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
 
    iEvent.put(pAnomalousECALVariables, "anomalousECALVariables");
 
-   std::auto_ptr<bool> pOut( new bool(pass) );
-   iEvent.put( pOut );
+   iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
 
    if( taggingMode_ ){
       if (skimDead_ && (i_EBDead >= 1 || i_EEDead >= 1)) {
@@ -466,7 +459,6 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
 
       bool result = (!isBoundary && ((!isGap && enableGap_) || !enableGap_));
       if (!result) {
-//         (*outFile) << iEvent.id().run() << ":" << iEvent.id().luminosityBlock() << ":" << iEvent.id().event() << std::endl;
       }
       return result;
    }
@@ -477,12 +469,10 @@ bool EcalDeadCellBoundaryEnergyFilter::filter(edm::Event& iEvent, const edm::Eve
 
 // ------------ method called once each job just before starting event loop  ------------
 void EcalDeadCellBoundaryEnergyFilter::beginJob() {
-//   outFile = new ofstream("./filteredEventsBE.txt");
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void EcalDeadCellBoundaryEnergyFilter::endJob() {
-//   outFile->close();
 }
 
 //define this as a plug-in

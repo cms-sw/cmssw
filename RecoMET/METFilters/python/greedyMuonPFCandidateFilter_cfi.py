@@ -6,4 +6,5 @@ greedyMuonPFCandidateFilter = cms.EDFilter(
     eOverPMax = cms.double(1.),
     verbose = cms.untracked.bool( True ),
     taggingMode = cms.bool( False ),
-    )
+    debug = cms.bool( False ),
+)

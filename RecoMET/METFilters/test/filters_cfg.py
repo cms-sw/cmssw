@@ -83,10 +83,10 @@ process.load('RecoMET.METFilters.greedyMuonPFCandidateFilter_cfi')
 #)
 
 ##____________________________________________________________________________||
-#process.Vertex = cms.Path(process.primaryVertexFilter)
-#process.Scraping = cms.Path(process.noscraping)
-#process.HBHENoise = cms.Path(process.HBHENoiseFilter)
-#process.CSCTightHalo = cms.Path(process.CSCTightHaloFilter)
+process.Vertex = cms.Path(~process.primaryVertexFilter)
+process.Scraping = cms.Path(~process.noscraping)
+#process.HBHENoise = cms.Path(~process.HBHENoiseFilter)
+#process.CSCTightHalo = cms.Path(~process.CSCTightHaloFilter)
 #process.RecovRecHit = cms.Path(process.RecovRecHitFilter)
 
 process.HCALLaser = cms.Path(~process.hcalLaserEventFilter)

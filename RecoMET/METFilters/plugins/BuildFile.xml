@@ -1,3 +1,4 @@
+<library   name="METFilters_plugins" file="*.cc">
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/PluginManager"/>
@@ -28,3 +29,6 @@
 <use   name="RecoMET/METAlgorithms"/>
 <use   name="root"/>
 <flags   EDM_PLUGIN="1"/>
+</library>
+<export>
+</export>

@@ -10,4 +10,5 @@ trackingFailureFilter = cms.EDFilter(
   DxyTrVtxMax = cms.double(0.2),
   MinSumPtOverHT = cms.double(0.10),
   taggingMode = cms.bool(False),
+  debug = cms.bool(False),
 )

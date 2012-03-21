@@ -29,22 +29,23 @@ class MultiEventFilter : public edm::EDFilter {
     virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
     
     std::vector<Event> events_;
+    const std::vector<std::string> eventList_;
 
-    bool taggingMode_;
+    const bool taggingMode_;
 
 };
 
 
-MultiEventFilter::MultiEventFilter(const edm::ParameterSet & iConfig) {
-  std::vector<std::string> eventList = iConfig.getParameter<std::vector<std::string> >("EventList");
-  taggingMode_ = iConfig.getParameter<bool>("taggingMode");
-
+MultiEventFilter::MultiEventFilter(const edm::ParameterSet & iConfig)
+  : eventList_ (iConfig.getParameter<std::vector<std::string> >("EventList") )
+  , taggingMode_ (iConfig.getParameter<bool>("taggingMode") )
+{
   edm::FileInPath fp = iConfig.getParameter<edm::FileInPath>("file");
   std::string fFile = fp.fullPath();
   std::ifstream inStream(fFile.c_str());
 
-  for (unsigned int i = 0; i < eventList.size(); ++i) {
-    std::vector<std::string> tokens = edm::tokenize(eventList[i], ":");
+  for (unsigned int i = 0; i < eventList_.size(); ++i) {
+    std::vector<std::string> tokens = edm::tokenize(eventList_[i], ":");
     if(tokens.size() != 3) {
       throw edm::Exception(edm::errors::Configuration) << "Incorrect event specification";
       continue;
@@ -76,11 +77,9 @@ bool MultiEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetu
         events_[i].lumi == iEvent.id().luminosityBlock()) pass = false; 
   }
 
-  std::auto_ptr<bool> pOut( new bool(pass) );
-  iEvent.put( pOut );
+  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
 
-  if( taggingMode_ ) return true;
-  else return pass;
+  return taggingMode_ || pass;
 
 }
 

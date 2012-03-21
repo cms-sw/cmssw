@@ -7,4 +7,5 @@ inconsistentMuonPFCandidateFilter = cms.EDFilter(
     maxPTDiff     = cms.double(0.1),                # Muons with |pT(tracker)/pT(global) - 1| > maxPTDiff are flagged as "inconsistent"
     verbose       = cms.untracked.bool(False),
     taggingMode   = cms.bool(False),
- )
+    debug         = cms.bool(False),
+)

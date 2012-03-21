@@ -15,7 +15,7 @@ It also allows users to remove events in which the number of HBHE rechits exceed
 //
 // Original Author:  Jeff Temple (temple@cern.ch)
 //         Created:  Thu Nov 17 12:44:22 EST 2011
-// $Id: HcalLaserEventFilter.cc,v 1.1 2012/01/06 19:56:06 lhx Exp $
+// $Id: HcalLaserEventFilter.cc,v 1.2 2012/02/02 05:32:39 lhx Exp $
 //
 //
 
@@ -59,24 +59,24 @@ class HcalLaserEventFilter : public edm::EDFilter {
       // ----------member data ---------------------------
   
   // Filter option 1:  veto events by run, event number
-  bool vetoByRunEventNumber_;
+  const bool vetoByRunEventNumber_;
   std::vector<std::pair<uint,uint> > RunEventData_;
   
   // Filter option 2:  veto events by HBHE occupancy
-  bool vetoByHBHEOccupancy_;
-  uint minOccupiedHBHE_;
+  const bool vetoByHBHEOccupancy_;
+  const uint minOccupiedHBHE_;
 
   // Allow for debugging information to be printed
-  bool debug_;
+  const bool debug_;
   // Reverse the filter decision (so instead of selecting only good events, it 
   // will select only events that fail the filter conditions -- useful for studying 
   // bad events.)
-  bool reverseFilter_;
+  const bool reverseFilter_;
 
   // InputTag for HBHE rechits
-  edm::InputTag hbheInputLabel_;
+  const edm::InputTag hbheInputLabel_;
 
-  bool taggingMode_;
+  const bool taggingMode_;
 };
 
 //
@@ -91,21 +91,21 @@ class HcalLaserEventFilter : public edm::EDFilter {
 // constructors and destructor
 //
 HcalLaserEventFilter::HcalLaserEventFilter(const edm::ParameterSet& iConfig)
-{
   
+  // Get values from python cfg file
+  : vetoByRunEventNumber_ (iConfig.getUntrackedParameter<bool>("vetoByRunEventNumber",true))
+  , vetoByHBHEOccupancy_  (iConfig.getUntrackedParameter<bool>("vetoByHBHEOccupancy",false))
+  , minOccupiedHBHE_      (iConfig.getUntrackedParameter<uint>("minOccupiedHBHE",5000))
+  , debug_                (iConfig.getUntrackedParameter<bool>("debug",false))
+  , reverseFilter_        (iConfig.getUntrackedParameter<bool>("reverseFilter",false)) 
+  , hbheInputLabel_       (iConfig.getUntrackedParameter<edm::InputTag>("hbheInputLabel",edm::InputTag("hbhereco")))
+
+  , taggingMode_ (iConfig.getParameter<bool>("taggingMode"))
+{
   std::vector<uint> dummy; // dummy empty vector
   dummy.clear();
 
-  // Get values from python cfg file
-  vetoByRunEventNumber_ = iConfig.getUntrackedParameter<bool>("vetoByRunEventNumber",true);
   std::vector<uint> temprunevt   = iConfig.getUntrackedParameter<std::vector<uint> >("BadRunEventNumbers",dummy);
-  vetoByHBHEOccupancy_  = iConfig.getUntrackedParameter<bool>("vetoByHBHEOccupancy",false);
-  minOccupiedHBHE_      = iConfig.getUntrackedParameter<uint>("minOccupiedHBHE",5000);
-  debug_                = iConfig.getUntrackedParameter<bool>("debug",false);
-  reverseFilter_        = iConfig.getUntrackedParameter<bool>("reverseFilter",false); 
-  hbheInputLabel_       = iConfig.getUntrackedParameter<edm::InputTag>("hbheInputLabel",edm::InputTag("hbhereco"));
-
-  taggingMode_ = iConfig.getParameter<bool>("taggingMode");
 
   // Make (run,evt) pairs for storing bad events
   // Make this a map for better search performance?
@@ -177,11 +177,9 @@ HcalLaserEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if (reverseFilter_)
      filterDecision=!filterDecision;
 
-   std::auto_ptr<bool> pOut( new bool(filterDecision) );
-   iEvent.put( pOut );
-   
-   if( taggingMode_ ) return true;
-   else return filterDecision;
+   iEvent.put( std::auto_ptr<bool>(new bool(filterDecision)) );
+  
+   return taggingMode_ || filterDecision; 
 }
 
 // ------------ method called once each job just before starting event loop  ------------

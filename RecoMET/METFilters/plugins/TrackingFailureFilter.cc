@@ -20,23 +20,24 @@ class TrackingFailureFilter : public edm::EDFilter {
 
     virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup);
     
-    edm::InputTag jetSrc_, trackSrc_, vertexSrc_;
-    double dzTrVtxMax_, dxyTrVtxMax_;
-    double minSumPtOverHT_;
+    const edm::InputTag jetSrc_, trackSrc_, vertexSrc_;
+    const double dzTrVtxMax_, dxyTrVtxMax_, minSumPtOverHT_;
 
-    bool taggingMode_;
+    const bool taggingMode_, debug_;
 
 };
 
 
-TrackingFailureFilter::TrackingFailureFilter(const edm::ParameterSet & iConfig) {
-  jetSrc_         = iConfig.getParameter<edm::InputTag>("JetSource");
-  trackSrc_       = iConfig.getParameter<edm::InputTag>("TrackSource");
-  vertexSrc_      = iConfig.getParameter<edm::InputTag>("VertexSource");
-  dzTrVtxMax_     = iConfig.getParameter<double>("DzTrVtxMax");
-  dxyTrVtxMax_    = iConfig.getParameter<double>("DxyTrVtxMax");
-  minSumPtOverHT_ = iConfig.getParameter<double>("MinSumPtOverHT");
-  taggingMode_    = iConfig.getParameter<bool>("taggingMode");
+TrackingFailureFilter::TrackingFailureFilter(const edm::ParameterSet & iConfig)
+  : jetSrc_          (iConfig.getParameter<edm::InputTag>("JetSource"))
+  , trackSrc_        (iConfig.getParameter<edm::InputTag>("TrackSource"))
+  , vertexSrc_       (iConfig.getParameter<edm::InputTag>("VertexSource"))
+  , dzTrVtxMax_      (iConfig.getParameter<double>("DzTrVtxMax"))
+  , dxyTrVtxMax_     (iConfig.getParameter<double>("DxyTrVtxMax"))
+  , minSumPtOverHT_  (iConfig.getParameter<double>("MinSumPtOverHT"))
+  , taggingMode_     (iConfig.getParameter<bool>("taggingMode"))
+  , debug_           (iConfig.getParameter<bool>("debug"))
+{
 
   produces<bool>();
 }
@@ -64,20 +65,18 @@ bool TrackingFailureFilter::filter(edm::Event & iEvent, const edm::EventSetup & 
       sumpt += tr->pt();
     }
   }
-  if ((sumpt/ht) < minSumPtOverHT_)
+  const bool pass = (sumpt/ht) > minSumPtOverHT_;
+
+  if( !pass && debug_ )
     std::cout << "TRACKING FAILURE: "
               << iEvent.id().run() << " : " << iEvent.id().luminosityBlock() << " : " << iEvent.id().event()
               << " HT=" << ht
               << " SumPt=" << sumpt
               << std::endl;
-
-  bool pass = (sumpt/ht) > minSumPtOverHT_;
   
-  std::auto_ptr<bool> pOut( new bool(pass) );
-  iEvent.put( pOut );
+  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
 
-  if( taggingMode_ ) return true;
-  else return pass;
+  return taggingMode_ || pass; // return false if filtering and not enough tracks in event
 
 }
 

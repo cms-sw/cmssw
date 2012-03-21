@@ -80,11 +80,11 @@ private:
 
   // ----------member data ---------------------------
 
-  const bool            taggingMode_;
+  const bool taggingMode_;
 
-  bool debug_;
+  const bool debug_;
 
-  bool doEEfilter_;
+  const bool doEEfilter_;
 
 // Channel status related
   edm::ESHandle<EcalChannelStatus>  ecalStatus;
@@ -93,8 +93,8 @@ private:
   void loadEcalDigis(edm::Event& iEvent, const edm::EventSetup& iSetup);
   void loadEcalRecHits(edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  edm::InputTag ebReducedRecHitCollection_;
-  edm::InputTag eeReducedRecHitCollection_;
+  const edm::InputTag ebReducedRecHitCollection_;
+  const edm::InputTag eeReducedRecHitCollection_;
   edm::Handle<EcalRecHitCollection> barrelReducedRecHitsHandle;
   edm::Handle<EcalRecHitCollection> endcapReducedRecHitsHandle;
 
@@ -102,7 +102,7 @@ private:
 
   EcalTPGScale ecalScale_;
 
-  int maskedEcalChannelStatusThreshold_;
+  const int maskedEcalChannelStatusThreshold_;
 
 // XXX: All the following can be built at the beginning of a job
 // Store DetId <==> vector<double> (eta, phi, theta)
@@ -117,9 +117,9 @@ private:
   int getChannelStatusMaps();
 
 // TP filter
-  double etValToBeFlagged_;
+  const double etValToBeFlagged_;
 
-  edm::InputTag tpDigiCollection_;
+  const edm::InputTag tpDigiCollection_;
   edm::Handle<EcalTrigPrimDigiCollection> pTPDigis;
 
 // chnStatus > 0, then exclusive, i.e., only consider status == chnStatus
@@ -129,8 +129,8 @@ private:
 
   int evtProcessedCnt, totFilteredCnt;
 
-  bool makeProfileRoot_;
-  std::string profileRootName_;
+  const bool makeProfileRoot_;
+  const std::string profileRootName_;
   TFile *profFile;
   TTree *profTree;
 
@@ -158,104 +158,21 @@ private:
 
 };
 
-
-void EcalDeadCellTriggerPrimitiveFilter::loadEventInfoForFilter(const edm::Event &iEvent){
-
-  std::vector<edm::Provenance const*> provenances;
-  iEvent.getAllProvenance(provenances);
-  const unsigned int nProvenance = provenances.size();
-  for (unsigned int ip = 0; ip < nProvenance; ip++) {
-    const edm::Provenance& provenance = *( provenances[ip] );
-    if( provenance.moduleLabel().data() ==  tpDigiCollection_.label() ){ hastpDigiCollection_ = 1; }
-    if( provenance.moduleLabel().data() == ebReducedRecHitCollection_.label() || provenance.moduleLabel().data() == eeReducedRecHitCollection_.label() ){
-       hasReducedRecHits_++;
-    }
-    if( hastpDigiCollection_ && hasReducedRecHits_>=2 ){ break; }
-  }
-
-  std::cout<<"\nhastpDigiCollection_ : "<<hastpDigiCollection_<<"  hasReducedRecHits_ : "<<hasReducedRecHits_<<std::endl;
-
-  const edm::ProcessHistory& history = iEvent.processHistory();
-  const unsigned int nHist = history.size();
-// XXX: the last one is usually a USER process!
-  releaseVersion_ = history[nHist-2].releaseVersion();
-  TString tmpTstr(releaseVersion_);
-  TObjArray * split = tmpTstr.Tokenize("_");
-  int majorV = TString(split->At(1)->GetName()).Atoi();
-  int minorV = TString(split->At(2)->GetName()).Atoi();
-
-  std::cout<<"processName : "<<history[nHist-2].processName().data()<<"  releaseVersion : "<<releaseVersion_<<std::endl; 
-
-// If TP is available, always use TP.
-// In RECO file, we always have ecalTPSkim (at least from 38X for data and 39X for MC).
-// In AOD file, we can only have recovered rechits in the reduced rechits collection after 42X
-// Do NOT expect end-users provide ecalTPSkim or recovered rechits themselves!!
-// If they really can provide them, they must be experts to modify this code to suit their own purpose :-)
-  if( !hastpDigiCollection_ && !hasReducedRecHits_ ){ useTPmethod_ = false; useHITmethod_ = false; 
-     std::cout<<"\nWARNING ... Cannot find either tpDigiCollection_ or reducedRecHitCollecion_ ?!"<<std::endl;
-     std::cout<<"  Will NOT DO ANY FILTERING !"<<std::endl;
-  }
-  else if( hastpDigiCollection_ ){ useTPmethod_ = true; useHITmethod_ = false; }
-  else if( majorV >=4 && minorV >=2 ){ useTPmethod_ = false; useHITmethod_ = true; }
-  else{ useTPmethod_ = false; useHITmethod_ = false; 
-     std::cout<<"\nWARNING ... TP filter can ONLY be used in AOD after 42X"<<std::endl;
-     std::cout<<"  Will NOT DO ANY FILTERING !"<<std::endl;
-  }
-
-  std::cout<<"useTPmethod_ : "<<useTPmethod_<<"  useHITmethod_ : "<<useHITmethod_<<std::endl;
-
-  getEventInfoForFilterOnce_ = true;
- 
-}
-
-
-void EcalDeadCellTriggerPrimitiveFilter::loadEventInfo(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-   run = iEvent.id().run();
-   event = iEvent.id().event();
-   ls = iEvent.luminosityBlock();
-}
-
-
-void EcalDeadCellTriggerPrimitiveFilter::loadEcalDigis(edm::Event& iEvent, const edm::EventSetup& iSetup){
-
-  iEvent.getByLabel(tpDigiCollection_, pTPDigis);
-  if ( !pTPDigis.isValid() ) { edm::LogWarning("EcalDeadCellTriggerPrimitiveFilter") << "Can't get the product " << tpDigiCollection_.instance()
-                                             << " with label " << tpDigiCollection_.label(); return; }
-}
-
-void EcalDeadCellTriggerPrimitiveFilter::loadEcalRecHits(edm::Event& iEvent, const edm::EventSetup& iSetup){
-
-  iEvent.getByLabel(ebReducedRecHitCollection_,barrelReducedRecHitsHandle);
-  iEvent.getByLabel(eeReducedRecHitCollection_,endcapReducedRecHitsHandle);
-
-}
-
-//
-// static data member definitions
-//
-
 //
 // constructors and destructor
 //
-EcalDeadCellTriggerPrimitiveFilter::EcalDeadCellTriggerPrimitiveFilter(const edm::ParameterSet& iConfig) : 
-  taggingMode_( iConfig.getParameter<bool>("taggingMode") ) {
-
-  debug_= iConfig.getUntrackedParameter<bool>("debug",false);
-
-  tpDigiCollection_ = iConfig.getParameter<edm::InputTag>("tpDigiCollection");
-
-  maskedEcalChannelStatusThreshold_ = iConfig.getParameter<int>("maskedEcalChannelStatusThreshold");
-
-  etValToBeFlagged_ = iConfig.getParameter<double>("etValToBeFlagged");
-
-  doEEfilter_ = iConfig.getUntrackedParameter<bool>("doEEfilter");
-
-  ebReducedRecHitCollection_ = iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollection");
-  eeReducedRecHitCollection_ = iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollection");
-
-  makeProfileRoot_ = iConfig.getUntrackedParameter<bool>("makeProfileRoot");
-  profileRootName_ = iConfig.getUntrackedParameter<std::string>("profileRootName");
-
+EcalDeadCellTriggerPrimitiveFilter::EcalDeadCellTriggerPrimitiveFilter(const edm::ParameterSet& iConfig)
+  : taggingMode_ (iConfig.getParameter<bool>("taggingMode") ) 
+  , debug_ (iConfig.getParameter<bool>("debug") )
+  , doEEfilter_ (iConfig.getUntrackedParameter<bool>("doEEfilter") )
+  , ebReducedRecHitCollection_ (iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollection") )
+  , eeReducedRecHitCollection_ (iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollection") )
+  , maskedEcalChannelStatusThreshold_ (iConfig.getParameter<int>("maskedEcalChannelStatusThreshold") )
+  , etValToBeFlagged_ (iConfig.getParameter<double>("etValToBeFlagged") )
+  , tpDigiCollection_ (iConfig.getParameter<edm::InputTag>("tpDigiCollection") )
+  , makeProfileRoot_ (iConfig.getUntrackedParameter<bool>("makeProfileRoot") )
+  , profileRootName_ (iConfig.getUntrackedParameter<std::string>("profileRootName") )
+{
   getEventInfoForFilterOnce_ = false;
   hastpDigiCollection_ = 0; hasReducedRecHits_ = 0; 
   useTPmethod_ = true; useHITmethod_ = false;
@@ -286,6 +203,85 @@ EcalDeadCellTriggerPrimitiveFilter::~EcalDeadCellTriggerPrimitiveFilter() {
   }
 
 }
+
+void EcalDeadCellTriggerPrimitiveFilter::loadEventInfoForFilter(const edm::Event &iEvent){
+
+  std::vector<edm::Provenance const*> provenances;
+  iEvent.getAllProvenance(provenances);
+  const unsigned int nProvenance = provenances.size();
+  for (unsigned int ip = 0; ip < nProvenance; ip++) {
+    const edm::Provenance& provenance = *( provenances[ip] );
+    if( provenance.moduleLabel().data() ==  tpDigiCollection_.label() ){ hastpDigiCollection_ = 1; }
+    if( provenance.moduleLabel().data() == ebReducedRecHitCollection_.label() || provenance.moduleLabel().data() == eeReducedRecHitCollection_.label() ){
+       hasReducedRecHits_++;
+    }
+    if( hastpDigiCollection_ && hasReducedRecHits_>=2 ){ break; }
+  }
+
+  if( debug_ ) std::cout<<"\nhastpDigiCollection_ : "<<hastpDigiCollection_<<"  hasReducedRecHits_ : "<<hasReducedRecHits_<<std::endl;
+
+  const edm::ProcessHistory& history = iEvent.processHistory();
+  const unsigned int nHist = history.size();
+// XXX: the last one is usually a USER process!
+  releaseVersion_ = history[nHist-2].releaseVersion();
+  TString tmpTstr(releaseVersion_);
+  TObjArray * split = tmpTstr.Tokenize("_");
+  int majorV = TString(split->At(1)->GetName()).Atoi();
+  int minorV = TString(split->At(2)->GetName()).Atoi();
+
+  if( debug_ ) std::cout<<"processName : "<<history[nHist-2].processName().data()<<"  releaseVersion : "<<releaseVersion_<<std::endl; 
+
+// If TP is available, always use TP.
+// In RECO file, we always have ecalTPSkim (at least from 38X for data and 39X for MC).
+// In AOD file, we can only have recovered rechits in the reduced rechits collection after 42X
+// Do NOT expect end-users provide ecalTPSkim or recovered rechits themselves!!
+// If they really can provide them, they must be experts to modify this code to suit their own purpose :-)
+  if( !hastpDigiCollection_ && !hasReducedRecHits_ ){ useTPmethod_ = false; useHITmethod_ = false; 
+     if( debug_ ){
+        std::cout<<"\nWARNING ... Cannot find either tpDigiCollection_ or reducedRecHitCollecion_ ?!"<<std::endl;
+        std::cout<<"  Will NOT DO ANY FILTERING !"<<std::endl;
+     }
+  }
+  else if( hastpDigiCollection_ ){ useTPmethod_ = true; useHITmethod_ = false; }
+  else if( majorV >=4 && minorV >=2 ){ useTPmethod_ = false; useHITmethod_ = true; }
+  else{ useTPmethod_ = false; useHITmethod_ = false; 
+     if( debug_ ){
+        std::cout<<"\nWARNING ... TP filter can ONLY be used in AOD after 42X"<<std::endl;
+        std::cout<<"  Will NOT DO ANY FILTERING !"<<std::endl;
+     }
+  }
+
+  if( debug_ ) std::cout<<"useTPmethod_ : "<<useTPmethod_<<"  useHITmethod_ : "<<useHITmethod_<<std::endl;
+
+  getEventInfoForFilterOnce_ = true;
+ 
+}
+
+
+void EcalDeadCellTriggerPrimitiveFilter::loadEventInfo(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+   run = iEvent.id().run();
+   event = iEvent.id().event();
+   ls = iEvent.luminosityBlock();
+}
+
+
+void EcalDeadCellTriggerPrimitiveFilter::loadEcalDigis(edm::Event& iEvent, const edm::EventSetup& iSetup){
+
+  iEvent.getByLabel(tpDigiCollection_, pTPDigis);
+  if ( !pTPDigis.isValid() ) { edm::LogWarning("EcalDeadCellTriggerPrimitiveFilter") << "Can't get the product " << tpDigiCollection_.instance()
+                                             << " with label " << tpDigiCollection_.label(); return; }
+}
+
+void EcalDeadCellTriggerPrimitiveFilter::loadEcalRecHits(edm::Event& iEvent, const edm::EventSetup& iSetup){
+
+  iEvent.getByLabel(ebReducedRecHitCollection_,barrelReducedRecHitsHandle);
+  iEvent.getByLabel(eeReducedRecHitCollection_,endcapReducedRecHitsHandle);
+
+}
+
+//
+// static data member definitions
+//
 
 void EcalDeadCellTriggerPrimitiveFilter::envSet(const edm::EventSetup& iSetup) {
 
@@ -429,7 +425,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double &tpValCu
            if( towerTest <0 && bit2Itor->second.back() >= abs(towerTest) ) continue;
            towerTestCnt ++;
         }
-        if( towerTestCnt !=0 ) std::cout<<"towerTestCnt : "<<towerTestCnt<<"  for towerTest : "<<towerTest<<std::endl;
+        if( towerTestCnt !=0 && debug_ ) std::cout<<"towerTestCnt : "<<towerTestCnt<<"  for towerTest : "<<towerTest<<std::endl;
 
         std::vector<DetId>::iterator avoidItor; avoidItor = find( avoidDuplicateVec.begin(), avoidDuplicateVec.end(), det);
         if( avoidItor == avoidDuplicateVec.end() ){

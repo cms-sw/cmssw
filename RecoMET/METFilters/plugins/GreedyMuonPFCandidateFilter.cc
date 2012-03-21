@@ -32,14 +32,14 @@ private:
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   
-  edm::InputTag  inputTagPFCandidates_; 
+  const edm::InputTag  inputTagPFCandidates_; 
       // ----------member data ---------------------------
   
-  double eOverPMax_;
+  const double eOverPMax_;
 
-  bool verbose_;
+  const bool debug_;
 
-  bool taggingMode_;
+  const bool taggingMode_;
 };
 
 //
@@ -54,16 +54,12 @@ private:
 // constructors and destructor
 //
 GreedyMuonPFCandidateFilter::GreedyMuonPFCandidateFilter(const edm::ParameterSet& iConfig)
-{
    //now do what ever initialization is needed
-  
-  inputTagPFCandidates_ = iConfig.getParameter<edm::InputTag>("PFCandidates");
-  eOverPMax_ = iConfig.getParameter<double>("eOverPMax");
-  verbose_ = 
-    iConfig.getUntrackedParameter<bool>("verbose",false);
-
-  taggingMode_ = iConfig.getParameter<bool>("taggingMode");
-
+  : inputTagPFCandidates_ (iConfig.getParameter<edm::InputTag>("PFCandidates") )
+  , eOverPMax_ (iConfig.getParameter<double>("eOverPMax") )
+  , debug_ ( iConfig.getParameter<bool>("debug") )
+  , taggingMode_ (iConfig.getParameter<bool>("taggingMode") )
+{
   produces<bool>();
   produces<reco::PFCandidateCollection>("muons");
 }
@@ -118,7 +114,7 @@ GreedyMuonPFCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 
     pOutputCandidateCollection->push_back( cand ); 
 
-    if( verbose_ ) {
+    if( debug_ ) {
       cout<<cand<<" HCAL E="<<endl;
       cout<<"\t"<<"ECAL energy "<<cand.rawEcalEnergy()<<endl;
       cout<<"\t"<<"HCAL energy "<<cand.rawHcalEnergy()<<endl;
@@ -130,11 +126,9 @@ GreedyMuonPFCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 
   bool pass = !foundMuon;
 
-  std::auto_ptr<bool> pOut( new bool(pass) );
-  iEvent.put( pOut );
+  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
 
-  if( taggingMode_ ) return true;
-  else return pass;
+  return taggingMode_ || pass;
 
 }
 
