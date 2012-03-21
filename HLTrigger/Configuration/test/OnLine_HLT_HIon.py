@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V4 (CMSSW_5_2_1_HLT1)
+# /dev/CMSSW_5_2_1/HIon/V6 (CMSSW_5_2_1_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V4')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V6')
 )
 
 process.streams = cms.PSet( 
@@ -411,7 +411,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     toGet = cms.VPSet( 
     ),
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
-    globaltag = cms.string( "GR_H_V26::All" ),
+    globaltag = cms.string( "GR_H_V27::All" ),
     timetype = cms.string( "runnumber" )
 )
 process.HepPDTESSource = cms.ESSource( "HepPDTESSource",
