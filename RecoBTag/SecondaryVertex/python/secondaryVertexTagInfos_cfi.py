@@ -15,5 +15,9 @@ secondaryVertexTagInfos = cms.EDProducer("SecondaryVertexProducer",
 	minimumTrackWeight = cms.double(0.5),
 	usePVError = cms.bool(True),
 	trackSort = cms.string('sip3dSig'),
-        beamSpotTag = cms.InputTag('offlineBeamSpot')                                        
+        beamSpotTag = cms.InputTag('offlineBeamSpot'),                                        
+        useExternalSV       = cms.bool(False),
+        extSVCollection     = cms.InputTag('secondaryVertices'),
+        extSVDeltaRToJet    = cms.double(0.3)
+
 )
