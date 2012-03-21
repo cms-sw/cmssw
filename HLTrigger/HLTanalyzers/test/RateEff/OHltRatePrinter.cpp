@@ -98,7 +98,7 @@ void OHltRatePrinter::printRatesASCII(OHltConfig *cfg, OHltMenu *menu)
             //cout<<it->first<<endl; 
             for (unsigned int j=0; j<it->second.size(); j++)
             {
-               itmp.push_back(menu->GetL1Prescale((it->second)[j]));
+	      itmp.push_back(menu->GetL1Prescale((it->second)[j]));
                //cout<<"\t"<<(it->second)[j]<<endl; 
             }
          }
@@ -163,7 +163,8 @@ void OHltRatePrinter::printRatesASCII(OHltConfig *cfg, OHltMenu *menu)
 
       cout<<setw(50)<<menu->GetTriggerName(i)<<" (" <<setw(8)
             <<(int)(menu->GetPrescale(i) * hltPrescaleCorrection)
-	    << "*" <<tempTrigSeedPrescales<<setw(5)<<")  "
+	//	    << "*" <<tempTrigSeedPrescales<<setw(5)<<")  "
+	  << "*" << " - "<<setw(5)<<")  "
             <<setw(8)<<Rate[i]<<" +- " <<setw(7)<<RateErr[i]<<" | " <<setw(8)
             <<spureRate[i]<<" | " <<setw(8)<<cumulRate <<endl;
    }
@@ -259,7 +260,7 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu)
             //cout<<it->first<<endl; 
             for (unsigned int j=0; j<it->second.size(); j++)
             {
-               itmp.push_back(menu->GetL1Prescale((it->second)[j]));
+	      itmp.push_back(menu->GetL1Prescale((it->second)[j]));
                //cout<<"\t"<<(it->second)[j]<<endl; 
             }
          }
@@ -323,7 +324,8 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu)
          hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);
 
       outFile << "| !"<< menu->GetTriggerName(i) << " | !" << tempTrigSeeds
-            << " | " << tempTrigSeedPrescales << " | "
+	//            << " | " << tempTrigSeedPrescales << " | "
+	      << " | " << "-" << " | "
             << (int)(menu->GetPrescale(i) * hltPrescaleCorrection) << " | "
             << Rate[i] << "+-" << RateErr[i] << " | " << cumulRate << " | "
             << menu->GetEventsize(i) << " | " << cuThru << " | " << endl;
@@ -951,7 +953,7 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu)
             //cout<<it->first<<endl;
             for (unsigned int j=0; j<it->second.size(); j++)
             {
-               itmp.push_back(menu->GetL1Prescale((it->second)[j]));
+	      itmp.push_back(menu->GetL1Prescale((it->second)[j]));
                //cout<<"\t"<<(it->second)[j]<<endl;
             }
          }
@@ -1004,7 +1006,8 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu)
          hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);
 
       outFile << "\\color{blue}" << tempTrigName << " & " << tempTrigSeeds
-            << " & " << tempTrigSeedPrescales << " & "
+	//            << " & " << tempTrigSeedPrescales << " & "
+	      << " & " << "-" << " & "
             << (int)(menu->GetPrescale(i) * hltPrescaleCorrection) << " & "
             << Rate[i] << " {$\\pm$ " << RateErr[i] << "} & " << cumulRate
             << " & " << menu->GetEventsize(i) << " & " << cuThru << "\\\\"
