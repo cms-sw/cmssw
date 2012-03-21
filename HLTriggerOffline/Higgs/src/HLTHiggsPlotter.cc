@@ -97,11 +97,17 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger,const std::string & sou
 	// Fill the histos if pass the trigger (just the two with higher pt)
 	for(size_t j = 0; j < matches.size(); ++j)
 	{
+		// Is this object owned by this trigger?
+		if( _objectsType.find( matches[j].objType) == _objectsType.end() )
+		{
+			 continue;
+		}
+
 		std::string objTypeStr = this->getTypeString(matches[j].objType);
 		
-		float pt  = matches[j].candBase->pt();
-		float eta = matches[j].candBase->eta();
-		float phi = matches[j].candBase->phi();
+		float pt  = matches[j].pt;
+		float eta = matches[j].eta;
+		float phi = matches[j].phi;
 		this->fillHist(isPassTrigger,source,objTypeStr,"Eta",eta);
 		this->fillHist(isPassTrigger,source,objTypeStr,"Phi",phi);
 		if( j == 0 )
@@ -154,6 +160,7 @@ void HLTHiggsPlotter::bookHist(const std::string & source,
       	h->Sumw2();
       	_elements[name] = _dbe->book1D(name, h);
       	delete h;
+std::cout << " --- BOOKED:"  << name << std::endl;
 }
 
 void HLTHiggsPlotter::fillHist(const bool & passTrigger, const std::string & source, 
@@ -163,6 +170,7 @@ void HLTHiggsPlotter::fillHist(const bool & passTrigger, const std::string & sou
       	sourceUpper[0] = toupper(sourceUpper[0]);
 	std::string name = source + objType + variable + "_" + _hltPath;
 
+std::cout << "PLOTTER " << _hltPath << " : name-" << name << " histo:" << _elements[name] << std::endl;
 	_elements[name]->Fill(value);
 //std::cout << " --- FILLING:"  << source << " " << objType << " " << variable << ":" << value << std::endl;
 }

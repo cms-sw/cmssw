@@ -205,7 +205,7 @@ void HLTHiggsSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetup 
 
 	LogTrace("HiggsValidation") << "SubAnalysis: " << _analysisname 
 		<< "\nHLT Trigger Paths found >>>"; 
-std::cout << " ........... BEGINRUN.... SubAnalysis: " << _analysisname << " HLT Trigger Paths found >>>" << std::endl;
+//std::cout << " ........... BEGINRUN.... SubAnalysis: " << _analysisname << " HLT Trigger Paths found >>>" << std::endl;
       	// Initialize the plotters (analysers for each trigger path)
 	_analyzers.clear();
   	for(std::set<std::string>::iterator iPath = _hltPaths.begin(); 
@@ -367,11 +367,13 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 		// Just the first two if there are more
 		for(size_t j = 0; j < it->second.size(); ++j)
 		{
+//std::cout << "  The Object: " ;  
 			std::string objTypeStr = this->getTypeString((it->second)[j].objType);
+//std::cout << objTypeStr << std::endl;
 
-			float pt  = (it->second)[j].candBase->pt();
-			float eta = (it->second)[j].candBase->eta();
-			float phi = (it->second)[j].candBase->phi();
+			float pt  = (it->second)[j].pt; 
+			float eta = (it->second)[j].eta;
+			float phi = (it->second)[j].phi;
 //std::cout << " -- Type:" << objTypeStr << " pt:" << pt << " eta:" << eta << " phi:" << phi << " " ; 
 			this->fillHist(u2str[it->first],objTypeStr,"Eta",eta);
 			this->fillHist(u2str[it->first],objTypeStr,"Phi",phi);
@@ -605,6 +607,7 @@ void HLTHiggsSubAnalysis::bookHist(const std::string & source,
       	h->Sumw2();
       	_elements[name] = _dbe->book1D(name, h);
       	delete h;
+std::cout << " BOOKED: (" << _analysisname << ")" << name << std::endl;
 }
 
 void HLTHiggsSubAnalysis::fillHist(const std::string & source, 
@@ -613,6 +616,7 @@ void HLTHiggsSubAnalysis::fillHist(const std::string & source,
 	std::string sourceUpper = source; 
       	sourceUpper[0] = toupper(sourceUpper[0]);
 	std::string name = source + objType + variable ;
+std::cout << "SUBANALYSIS " << _analysisname << " : name-" << name << " histo:" << _elements[name] << std::endl;
 
 	_elements[name]->Fill(value);
 //std::cout << " --- FILLING:"  << source << " " << objType << " " << variable << ":" << value << std::endl;
