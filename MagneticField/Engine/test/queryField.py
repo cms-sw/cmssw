@@ -45,23 +45,23 @@ process.load("MagneticField.Engine.volumeBasedMagneticField_090322_2pi_scaled_cf
 #process.VolumeBasedMagneticFieldESProducer.scalingFactors = ( 1.5 , )
 
 
-process.MessageLogger = cms.Service("MessageLogger",
-    categories   = cms.untracked.vstring("MagneticField"),
-    destinations = cms.untracked.vstring("cout"),
-    cout = cms.untracked.PSet(  
-    noLineBreaks = cms.untracked.bool(True),
-    threshold = cms.untracked.string("INFO"),
-    INFO = cms.untracked.PSet(
-      limit = cms.untracked.int32(0)
-    ),
-    WARNING = cms.untracked.PSet(
-      limit = cms.untracked.int32(0)
-    ),
-    MagneticField = cms.untracked.PSet(
-     limit = cms.untracked.int32(10000000)
-    )
-  )
-)
+# process.MessageLogger = cms.Service("MessageLogger",
+#     categories   = cms.untracked.vstring("MagneticField"),
+#     destinations = cms.untracked.vstring("cout"),
+#     cout = cms.untracked.PSet(  
+#     noLineBreaks = cms.untracked.bool(True),
+#     threshold = cms.untracked.string("INFO"),
+#     INFO = cms.untracked.PSet(
+#       limit = cms.untracked.int32(0)
+#     ),
+#     WARNING = cms.untracked.PSet(
+#       limit = cms.untracked.int32(0)
+#     ),
+#     MagneticField = cms.untracked.PSet(
+#      limit = cms.untracked.int32(10000000)
+#     )
+#   )
+# )
 
 process.queryField  = cms.EDAnalyzer("queryField")
 process.p1 = cms.Path(process.queryField)
