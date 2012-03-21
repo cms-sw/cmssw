@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/04/20 09:56:20 $
- *  $Revision: 1.18 $
+ *  $Date: 2010/10/13 15:40:20 $
+ *  $Revision: 1.19 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -30,7 +30,13 @@ MagGeometry::MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer 
 {
   
   cacheLastVolume = config.getUntrackedParameter<bool>("cacheLastVolume", true);
-  geometryVersion = config.getParameter<int>("geometryVersion");
+
+  // FIXME: wait geometryVersion to be propagated to all cfgs.
+  if (config.exists("geometryVersion")) {
+    geometryVersion = config.getParameter<int>("geometryVersion");
+  } else {
+    geometryVersion = 90322;
+  }  
 
   vector<double> rBorders;
 
