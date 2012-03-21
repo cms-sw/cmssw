@@ -54,9 +54,9 @@ class HLTHiggsPlotter
 		~HLTHiggsPlotter();
 	      	void beginJob();
 	      	void beginRun(const edm::Run &, const edm::EventSetup &);
-	      	void analyze(const bool & passTrigger, const std::string & source, 
+		void analyze(const bool & isPassTrigger,const std::string & source,
 				const std::vector<MatchStruct> & matches);
-
+		
 		inline const std::string gethltpath() const { return _hltPath; }
 		
        	private:

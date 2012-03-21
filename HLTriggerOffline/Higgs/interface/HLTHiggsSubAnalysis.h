@@ -32,6 +32,8 @@
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
@@ -60,6 +62,7 @@ class HLTHiggsSubAnalysis
 			PHOTON,
 			CALOMET,
 			PFTAU,
+			TRACK,
 			_nMAX
 		};
 
@@ -137,6 +140,7 @@ class HLTHiggsSubAnalysis
 	      	StringCutObjectSelector<reco::CaloMET>     * _recCaloMETSelector;
 	      	StringCutObjectSelector<reco::PFTau>       * _recPFTauSelector;
 	      	StringCutObjectSelector<reco::Photon>      * _recPhotonSelector;
+	      	StringCutObjectSelector<reco::Track>       * _recTrackSelector;
 		
 		// The plotters: managers of each hlt path where the plots are done
 		std::vector<HLTHiggsPlotter> _analyzers;

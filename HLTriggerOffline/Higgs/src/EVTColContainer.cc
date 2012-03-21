@@ -22,6 +22,8 @@
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -42,16 +44,18 @@ struct EVTColContainer
 	const std::vector<reco::Photon> * photons;
 	const std::vector<reco::CaloMET> * caloMETs;
 	const std::vector<reco::PFTau> * pfTaus;
+	const std::vector<reco::Track> * tracks;
 	const trigger::TriggerEventWithRefs * rawTriggerEvent;
 	const edm::TriggerResults   * triggerResults ;
 	EVTColContainer():
-		nOfCollections(4),
+		nOfCollections(6),
 		nInitialized(0),
 		genParticles(0),
 		muons(0),
 		electrons(0),
 		photons(0),
 		pfTaus(0),
+		tracks(0),
 		rawTriggerEvent(0),
 		triggerResults(0)
 	{
@@ -71,8 +75,9 @@ struct EVTColContainer
 	{
 		nInitialized = 0;
 		genParticles = 0;
-		muons = 0; electrons = 0; photons = 0; pfTaus=0; caloMETs=0; 
+		muons = 0; electrons = 0; photons = 0; pfTaus=0; caloMETs=0; tracks=0; 
 		rawTriggerEvent = 0;
+		triggerResults = 0;
 	}
 	//! Setter: multiple overloaded function
 	void set(const reco::MuonCollection * v)
@@ -100,6 +105,11 @@ struct EVTColContainer
 		pfTaus = v;
 		++nInitialized;
 	}
+	void set(const reco::TrackCollection * v)
+	{
+		tracks = v;
+		++nInitialized;
+	}
 	const unsigned int getSize(const unsigned int & objtype) const
 	{
 		unsigned int size = 0;
@@ -122,6 +132,10 @@ struct EVTColContainer
 		else if( objtype == HLTHiggsSubAnalysis::PFTAU && pfTaus != 0 )
 		{
 			size = pfTaus->size();
+		}
+		else if( objtype == HLTHiggsSubAnalysis::TRACK && tracks != 0 )
+		{
+			size = tracks->size();
 		}
 
 		return size;

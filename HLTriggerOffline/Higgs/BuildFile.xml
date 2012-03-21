@@ -11,6 +11,7 @@
 <use   name="DataFormats/EgammaCandidates"/>
 <use   name="DataFormats/METReco"/>
 <use   name="DataFormats/TauReco"/>
+<use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/HepMCCandidate"/>
 <use   name="hepmc"/>
 <flags   EDM_PLUGIN="1"/>

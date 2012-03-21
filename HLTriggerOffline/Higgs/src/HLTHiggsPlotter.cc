@@ -46,8 +46,6 @@ HLTHiggsPlotter::HLTHiggsPlotter(const edm::ParameterSet & pset,
 		std::string objStr = this->getTypeString( *it );
 		_cutMinPt[*it] = pset.getParameter<double>( std::string(objStr+"_cutMinPt").c_str() );
 		_cutMaxEta[*it] = pset.getParameter<double>( std::string(objStr+"_cutMaxEta").c_str() );
-		_cutMotherId[*it] = pset.getParameter<unsigned int>( std::string(objStr+"_cutMotherId").c_str() );
-		_cutsDr[*it] = pset.getParameter<std::vector<double> >( std::string(objStr+"_cutDr").c_str() );
 	}
 }
 
@@ -87,19 +85,20 @@ void HLTHiggsPlotter::beginRun(const edm::Run & iRun, const edm::EventSetup & iS
 	}
 }
 
-void HLTHiggsPlotter::analyze(const bool & isPassTrigger, const std::string & source,
-	       	const std::vector<MatchStruct> & matches)
+void HLTHiggsPlotter::analyze(const bool & isPassTrigger,const std::string & source,
+		const std::vector<MatchStruct> & matches)
 {
 	if( ! isPassTrigger )
 	{
 		return;
 	}
-
+	
+//std::cout << "INSIDE PLOTTER " << source << " size:" << matches.size() << std::endl;
 	// Fill the histos if pass the trigger (just the two with higher pt)
 	for(size_t j = 0; j < matches.size(); ++j)
 	{
 		std::string objTypeStr = this->getTypeString(matches[j].objType);
-
+		
 		float pt  = matches[j].candBase->pt();
 		float eta = matches[j].candBase->eta();
 		float phi = matches[j].candBase->phi();
@@ -165,15 +164,20 @@ void HLTHiggsPlotter::fillHist(const bool & passTrigger, const std::string & sou
 	std::string name = source + objType + variable + "_" + _hltPath;
 
 	_elements[name]->Fill(value);
+//std::cout << " --- FILLING:"  << source << " " << objType << " " << variable << ":" << value << std::endl;
 }
 
 
 //! 
 const std::string HLTHiggsPlotter::getTypeString(const unsigned int & objtype) const
 {
-	std::string objTypestr("Mu");
+	std::string objTypestr;
 
-	if( objtype == HLTHiggsSubAnalysis::ELEC )
+	if( objtype == HLTHiggsSubAnalysis::MUON )
+	{
+		objTypestr = "Mu";
+	}
+	else if( objtype == HLTHiggsSubAnalysis::ELEC )
 	{
 		objTypestr = "Ele";
 	}
@@ -183,15 +187,21 @@ const std::string HLTHiggsPlotter::getTypeString(const unsigned int & objtype) c
 	}
 	else if( objtype == HLTHiggsSubAnalysis::CALOMET )
 	{
-		objTypestr = "CaloMET";
+		objTypestr = "MET";
 	}
 	else if( objtype == HLTHiggsSubAnalysis::PFTAU )
 	{
 		objTypestr = "PFTau";
 	}
-	/*else
-	{ ERROR FIXME
-	}*/
+	else if( objtype == HLTHiggsSubAnalysis::TRACK )
+	{
+		objTypestr = "TkMu";
+	}
+	else
+	{
+		edm::LogError("HiggsValidations") << "HLTHiggsPlotter::getTypeString, "
+			<< "NOT Implemented error (object type id='" << objtype << "')" << std::endl;;
+	}
 
 	return objTypestr;
 }
