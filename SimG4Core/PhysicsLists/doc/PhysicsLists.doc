@@ -28,12 +28,17 @@ components provided by Geant4.
 - CMSEmStandardPhysics92   - standard EM physics equivalent to Option1
 - CMSEmStandardPhysics95   - standard EM physics equivalent to Option1 
                              + Seltzer-Berger model of bremsstrahlung for e+e-
-                             below 1 GeV, made for 2012 custom production
+                             below 1 GeV, CMSUrbanMscModel95 for e+- scattering
+                             for 2012 custom production
+- CMSEmStandardPhysics95msc92 - CMSUrbanMscModel95 replaced 
+                             by CMSUrbanMscModel92 made for tests
+- CMSEmStandardPhysics95msc93 - CMSUrbanMscModel95 replaced 
+                             by CMSUrbanMscModel92 made for tests
 - CMSEmStandardPhysicsLPM  - obsolete
 - CMSEmStandardPhysicsSync - standard EM physics equivalent to Option1 
                              + Synkrotron radiation active
-- CMSGlauberGribovXS       - obsolete alternative x-section for protons, neutrons, 
-                             pions at high energy
+- CMSGlauberGribovXS       - obsolete alternative x-section for protons, 
+                             neutrons, pions at high energy
 - CMSHadronElasticPhysicsXS- obsolete alternative hadron elastic constructor
 - CMSMonopolePhysics       - extra constructor of magnetic monopole physics
 - CMSNeutronXS             - precise inelastic and capture neutron x-sections
@@ -50,9 +55,9 @@ components provided by Geant4.
 <!-- List the plugins that are provided for use in other packages (if any) -->
 QGSPCMS_FTFP_BERT_EML       - production Physics List for 2012
 QGSPCMS_FTFP_BERT_EML95     - alternative  Physics List for 2012 providing better
-                              EM shower shape
-QGSPCMS_FTFP_BERT_EML95_New - alternative  Physics List for 2012 providing better
                               EM shower shape, also kaon and hyperon x-sections
+QGSPCMS_FTFP_BERT_EML95msc92- alternative  Physics List for 2012 tests
+QGSPCMS_FTFP_BERT_EML95msc93- alternative  Physics List for 2012 tests
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
