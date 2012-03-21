@@ -20,6 +20,8 @@ def customise(process):
                           "keep *_goldenZmumuCandidatesGe1IsoMuons_*_*",
                           "keep *_goldenZmumuCandidatesGe2IsoMuons_*_*"))
 
+  process.load('Configuration.StandardSequences.GeometryDB_cff')
+  process.load('Configuration.StandardSequences.MagneticField_38T_cff')
   process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
   process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelection_cff")
 
