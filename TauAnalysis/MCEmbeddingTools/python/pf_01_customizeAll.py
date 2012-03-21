@@ -186,7 +186,8 @@ def customise(process):
 
     print "options.overrideBeamSpot", options.overrideBeamSpot
     if options.overrideBeamSpot != 0:
-      bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v21_offline") # 42x data PR gt
+      bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v26_offline") # 52x data PR gt
+      # bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v21_offline") # 42x data PR gt
       # bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v18_offline") # 41x data PR gt
       # bs = cms.string("BeamSpotObjects_2009_LumiBased_v17_offline") # 38x data gt
       #bs = cms.string("BeamSpotObjects_2009_v14_offline") # 36x data gt
