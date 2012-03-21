@@ -102,7 +102,7 @@ namespace edm {
     output_ << " \treadFile\n";
   }
 
-  void MockEventProcessor::closeInputFile() {
+  void MockEventProcessor::closeInputFile(bool /*cleaningUpAfterException*/) {
     output_ << "\tcloseInputFile\n";
   }
 
@@ -160,7 +160,7 @@ namespace edm {
     output_ << "\tbeginRun " << run.runNumber() << "\n";
   }
 
-  void MockEventProcessor::endRun(statemachine::Run const& run) {
+  void MockEventProcessor::endRun(statemachine::Run const& run, bool /*cleaningUpAfterException*/ ) {
     output_ << "\tendRun " << run.runNumber() << "\n";
   }
 
@@ -168,7 +168,7 @@ namespace edm {
     output_ << "\tbeginLumi " << run << "/" << lumi << "\n";
   }
 
-  void MockEventProcessor::endLumi(ProcessHistoryID const&, int run, int lumi) {
+  void MockEventProcessor::endLumi(ProcessHistoryID const&, int run, int lumi, bool /*cleaningUpAfterException*/) {
     output_ << "\tendLumi " << run << "/" << lumi << "\n";
   }
 

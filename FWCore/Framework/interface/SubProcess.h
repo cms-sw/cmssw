@@ -49,11 +49,11 @@ namespace edm {
 
     void doBeginRun(RunPrincipal const& principal, IOVSyncValue const& ts);
 
-    void doEndRun(RunPrincipal const& principal, IOVSyncValue const& ts);
+    void doEndRun(RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
 
     void doBeginLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts);
 
-    void doEndLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts);
+    void doEndLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException);
 
     // Write the luminosity block
     void writeLumi(ProcessHistoryID const& parentPhID, int runNumber, int lumiNumber);
@@ -225,6 +225,7 @@ namespace edm {
     boost::scoped_ptr<HistoryAppender>            historyAppender_;
     std::auto_ptr<ESInfo>                         esInfo_;
     std::auto_ptr<SubProcess>                     subProcess_;
+    bool                                          cleaningUpAfterException_;
   };
 
   // free function

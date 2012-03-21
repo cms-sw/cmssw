@@ -47,7 +47,8 @@ namespace edm {
       parentToChildPhID_(),
       historyAppender_(new HistoryAppender),
       esInfo_(0),
-      subProcess_() {
+      subProcess_(),
+      cleaningUpAfterException_(false) {
 
     std::string const maxEvents("maxEvents");
     std::string const maxLumis("maxLuminosityBlocks");
@@ -229,7 +230,8 @@ namespace edm {
   }
 
   void
-  SubProcess::doEndRun(RunPrincipal const& principal, IOVSyncValue const& ts) {
+  SubProcess::doEndRun(RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
+    cleaningUpAfterException_ = cleaningUpAfterException;
     ServiceRegistry::Operate operate(serviceToken_);
     esInfo_.reset(new ESInfo(ts, *esp_));
     CurrentProcessingContext cpc;
@@ -242,8 +244,8 @@ namespace edm {
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
     propagateProducts(InRun, principal, rp);
     typedef OccurrenceTraits<RunPrincipal, BranchActionEnd> Traits;
-    schedule_->processOneOccurrence<Traits>(rp, esInfo_->es_);
-    if(subProcess_.get()) subProcess_->doEndRun(rp, esInfo_->ts_);
+    schedule_->processOneOccurrence<Traits>(rp, esInfo_->es_, cleaningUpAfterException_);
+    if(subProcess_.get()) subProcess_->doEndRun(rp, esInfo_->ts_, cleaningUpAfterException_);
   }
 
   void
@@ -287,7 +289,8 @@ namespace edm {
   }
 
   void
-  SubProcess::doEndLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {
+  SubProcess::doEndLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
+    cleaningUpAfterException_ = cleaningUpAfterException;
     ServiceRegistry::Operate operate(serviceToken_);
     esInfo_.reset(new ESInfo(ts, *esp_));
     CurrentProcessingContext cpc;
@@ -300,8 +303,8 @@ namespace edm {
     LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
     propagateProducts(InLumi, principal, lbp);
     typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionEnd> Traits;
-    schedule_->processOneOccurrence<Traits>(lbp, esInfo_->es_);
-    if(subProcess_.get()) subProcess_->doEndLuminosityBlock(lbp, esInfo_->ts_);
+    schedule_->processOneOccurrence<Traits>(lbp, esInfo_->es_, cleaningUpAfterException_);
+    if(subProcess_.get()) subProcess_->doEndLuminosityBlock(lbp, esInfo_->ts_, cleaningUpAfterException_);
   }
 
   void

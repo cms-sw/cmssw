@@ -265,7 +265,7 @@ namespace edm {
     // boost statemachine
 
     virtual void readFile();
-    virtual void closeInputFile();
+    virtual void closeInputFile(bool cleaningUpAfterException);
     virtual void openOutputFiles();
     virtual void closeOutputFiles();
 
@@ -283,10 +283,10 @@ namespace edm {
     virtual void doErrorStuff();
 
     virtual void beginRun(statemachine::Run const& run);
-    virtual void endRun(statemachine::Run const& run);
+    virtual void endRun(statemachine::Run const& run, bool cleaningUpAfterException);
 
     virtual void beginLumi(ProcessHistoryID const& phid, int run, int lumi);
-    virtual void endLumi(ProcessHistoryID const& phid, int run, int lumi);
+    virtual void endLumi(ProcessHistoryID const& phid, int run, int lumi, bool cleaningUpAfterException);
 
     virtual statemachine::Run readAndCacheRun(bool merge);
     virtual int readAndCacheLumi(bool merge);

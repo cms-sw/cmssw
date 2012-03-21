@@ -60,13 +60,13 @@ namespace statemachine {
   void HandleFiles::exit() {
     if(ep_.alreadyHandlingException()) return;
     exitCalled_ = true;
-    closeFiles();
+    closeFiles(false);
   }
 
   HandleFiles::~HandleFiles() {
     if(!exitCalled_) {
       try {
-        closeFiles();
+        closeFiles(true);
       }
       catch(...) {
         std::string message("Another exception was caught while trying to clean up files after the primary fatal exception.");
@@ -75,16 +75,16 @@ namespace statemachine {
     }
   }
 
-  void HandleFiles::closeFiles() {
+  void HandleFiles::closeFiles(bool cleaningUpAfterException) {
     ep_.respondToCloseInputFile();
-    ep_.closeInputFile();
+    ep_.closeInputFile(cleaningUpAfterException);
     ep_.respondToCloseOutputFiles();
     ep_.closeOutputFiles();
   }
 
   void HandleFiles::goToNewInputFile() {
     ep_.respondToCloseInputFile();
-    ep_.closeInputFile();
+    ep_.closeInputFile(false);
 
     ep_.readFile();
     ep_.respondToOpenInputFile();
@@ -177,7 +177,7 @@ namespace statemachine {
 
   void NewInputAndOutputFiles::goToNewInputAndOutputFiles() {
     ep_.respondToCloseInputFile();
-    ep_.closeInputFile();
+    ep_.closeInputFile(false);
 
     ep_.respondToCloseOutputFiles();
     ep_.closeOutputFiles();
@@ -200,13 +200,13 @@ namespace statemachine {
   void HandleRuns::exit() {
     if(ep_.alreadyHandlingException()) return;
     exitCalled_ = true;
-    finalizeRun();
+    finalizeRun(false);
   }
 
   HandleRuns::~HandleRuns() {
     if(!exitCalled_) {
       try {
-        finalizeRun();
+        finalizeRun(true);
       }
       catch(...) {
         std::string message("Another exception was caught while trying to clean up runs after the primary fatal exception.");
@@ -238,24 +238,24 @@ namespace statemachine {
     runException_ = false;
   }
 
-  void HandleRuns::endRun(Run const& run) {
+  void HandleRuns::endRun(Run const& run, bool cleaningUpAfterException) {
     beginRunCalled_ = false;
 
     runException_ = true;
-    ep_.endRun(run);
+    ep_.endRun(run, cleaningUpAfterException);
     runException_ = false;
   }
 
   void HandleRuns::finalizeRun(Run const&) {
-    finalizeRun();
+    finalizeRun(false);
   }
 
-  void HandleRuns::finalizeRun() {
+  void HandleRuns::finalizeRun(bool cleaningUpAfterException) {
 
     if(runException_) return;
     runException_ = true;
 
-    if(beginRunCalled_) endRun(currentRun());
+    if(beginRunCalled_) endRun(currentRun(), cleaningUpAfterException);
     ep_.writeRun(currentRun_);
     ep_.deleteRunFromCache(currentRun_);
     currentRun_ = INVALID_RUN;
@@ -283,7 +283,7 @@ namespace statemachine {
     if(run == context<HandleRuns>().currentRun()) {
       return transit<ContinueRun1>();
     }
-    context<HandleRuns>().finalizeRun();
+    context<HandleRuns>().finalizeRun(false);
     return transit<NewRun>();
   }
 
@@ -381,7 +381,7 @@ namespace statemachine {
     exitCalled_ = true;
     checkInvariant();
     if(!lumiException_ && !context<HandleRuns>().runException()) {
-      finalizeLumi();
+      finalizeLumi(false);
     }
   }
 
@@ -390,7 +390,7 @@ namespace statemachine {
       try {
         checkInvariant();
         if(!lumiException_ && !context<HandleRuns>().runException()) {
-          finalizeLumi();
+          finalizeLumi(true);
         }
       }
       catch(...) {
@@ -426,13 +426,13 @@ namespace statemachine {
     currentLumiEmpty_ = true;
   }
 
-  void HandleLumis::finalizeLumi() {
+  void HandleLumis::finalizeLumi(bool cleaningUpAfterException) {
 
     lumiException_ = true;
 
     if(!currentLumiEmpty_ ||
         context<Machine>().emptyRunLumiMode() == handleEmptyRunsAndLumis) {
-      ep_.endLumi(currentLumi().processHistoryID(), currentLumi().run(), currentLumi().lumi());
+      ep_.endLumi(currentLumi().processHistoryID(), currentLumi().run(), currentLumi().lumi(), cleaningUpAfterException);
     }
 
     ep_.writeLumi(currentLumi().processHistoryID(), currentLumi().run(), currentLumi().lumi());
@@ -490,7 +490,7 @@ namespace statemachine {
 
   AnotherLumi::AnotherLumi(my_context ctx) :
       my_base(ctx) {
-    context<HandleLumis>().finalizeLumi();
+    context<HandleLumis>().finalizeLumi(false);
     context<HandleLumis>().setupCurrentLumi();
     checkInvariant();
   }

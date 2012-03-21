@@ -2,7 +2,7 @@
 #define Framework_EPStates_h
 
 /*
-$Id: EPStates.h,v 1.9 2010/06/28 18:16:17 wmtan Exp $
+$Id: EPStates.h,v 1.10 2010/08/05 16:05:49 wdd Exp $
 
 The state machine that controls the processing of runs, luminosity
 blocks, events, and loops is implemented using the boost statechart
@@ -146,7 +146,7 @@ namespace statemachine {
       sc::transition<Stop, EndingLoop>,
       sc::transition<Restart, Error> > reactions;
 
-    void closeFiles();
+    void closeFiles(bool cleaningUpAfterException);
     void goToNewInputFile();
     bool shouldWeCloseOutput();
   private:
@@ -244,9 +244,9 @@ namespace statemachine {
     bool runException() const;
     void setupCurrentRun();
     void beginRun(Run const& run);
-    void endRun(Run const& run);
+    void endRun(Run const& run, bool cleaningUpAfterException);
     void finalizeRun(Run const&);
-    void finalizeRun();
+    void finalizeRun(bool cleaningUpAfterException);
     void beginRunIfNotDoneAlready();
   private:
     edm::IEventProcessor & ep_;
@@ -333,7 +333,7 @@ namespace statemachine {
     LumiID const& currentLumi() const;
     bool currentLumiEmpty() const;
     void setupCurrentLumi();
-    void finalizeLumi();
+    void finalizeLumi(bool cleaningUpAfterException);
     void markLumiNonEmpty();
 
     typedef sc::transition<Run, NewRun, HandleRuns, &HandleRuns::finalizeRun> reactions;

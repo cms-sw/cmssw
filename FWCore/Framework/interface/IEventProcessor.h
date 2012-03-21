@@ -41,7 +41,7 @@ namespace edm {
     virtual StatusCode runEventCount(int numberOfEventsToProcess) = 0;
 
     virtual void readFile() = 0;
-    virtual void closeInputFile() = 0;
+    virtual void closeInputFile(bool cleaningUpAfterException) = 0;
     virtual void openOutputFiles() = 0;
     virtual void closeOutputFiles() = 0;
 
@@ -59,10 +59,10 @@ namespace edm {
     virtual void doErrorStuff() = 0;
 
     virtual void beginRun(statemachine::Run const& run) = 0;
-    virtual void endRun(statemachine::Run const& run) = 0;
+    virtual void endRun(statemachine::Run const& run, bool cleaningUpAfterException) = 0;
 
     virtual void beginLumi(ProcessHistoryID const& phid, int run, int lumi) = 0;
-    virtual void endLumi(ProcessHistoryID const& phid, int run, int lumi) = 0;
+    virtual void endLumi(ProcessHistoryID const& phid, int run, int lumi, bool cleaningUpAfterException) = 0;
 
     virtual statemachine::Run readAndCacheRun(bool merge) = 0;
     virtual int readAndCacheLumi(bool merge) = 0;

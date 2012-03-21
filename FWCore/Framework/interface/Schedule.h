@@ -61,6 +61,7 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
@@ -123,7 +124,9 @@ namespace edm {
     enum State { Ready = 0, Running, Latched };
 
     template <typename T>
-    void processOneOccurrence(typename T::MyPrincipal& principal, EventSetup const& eventSetup);
+    void processOneOccurrence(typename T::MyPrincipal& principal,
+                              EventSetup const& eventSetup,
+                              bool cleaningUpAfterException = false);
 
     void beginJob();
     void endJob(ExceptionCollector & collector);
@@ -324,8 +327,6 @@ namespace edm {
     boost::shared_ptr<UnscheduledCallProducer> unscheduled_;
 
     volatile bool           endpathsAreActive_;
-
-    bool                    printedFirstException_;
   };
 
   // -----------------------------
@@ -435,7 +436,9 @@ namespace edm {
 
   template <typename T>
   void
-  Schedule::processOneOccurrence(typename T::MyPrincipal& ep, EventSetup const& es) {
+  Schedule::processOneOccurrence(typename T::MyPrincipal& ep,
+                                 EventSetup const& es,
+                                 bool cleaningUpAfterException) {
     this->resetAll();
     state_ = Running;
 
@@ -492,20 +495,10 @@ namespace edm {
       catch (...) { convertException::unknownToEDM(); }
     }
     catch(cms::Exception& ex) {
-      if (!printedFirstException_) {
-        Service<JobReport> jobReportSvc;
-        if (ex.context().empty()) {
-          ex.addContext("Calling function Schedule::processOneOccurrence");
-        }
-        if (jobReportSvc.isAvailable()) {
-          JobReport *jobRep = jobReportSvc.operator->();
-          edm::printCmsException(ex, jobRep, ex.returnCode());
-        }
-        else {
-          edm::printCmsException(ex);
-        }
-        ex.setAlreadyPrinted(true);
-        printedFirstException_ = true;
+      if (ex.context().empty()) {
+        addContextAndPrintException("Calling function Schedule::processOneOccurrence", ex, cleaningUpAfterException);
+      } else {
+        addContextAndPrintException("", ex, cleaningUpAfterException);
       }
       state_ = Ready;
       throw;

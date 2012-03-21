@@ -283,10 +283,10 @@ namespace edm {
         descriptions.validate(*main_input, std::string("source"));
       }
       catch (cms::Exception& e) { throw; }
-      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+      catch (std::bad_alloc& bda) { convertException::badAllocToEDM(); }
       catch (std::exception& e) { convertException::stdToEDM(e); }
-      catch(std::string& s) { convertException::stringToEDM(s); }
-      catch(char const* c) { convertException::charPtrToEDM(c); }
+      catch (std::string& s) { convertException::stringToEDM(s); }
+      catch (char const* c) { convertException::charPtrToEDM(c); }
       catch (...) { convertException::unknownToEDM(); }
     }
     catch (cms::Exception & iException) {
@@ -317,10 +317,10 @@ namespace edm {
         input = boost::shared_ptr<InputSource>(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
       }
       catch (cms::Exception& e) { throw; }
-      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
+      catch (std::bad_alloc& bda) { convertException::badAllocToEDM(); }
       catch (std::exception& e) { convertException::stdToEDM(e); }
-      catch(std::string& s) { convertException::stringToEDM(s); }
-      catch(char const* c) { convertException::charPtrToEDM(c); }
+      catch (std::string& s) { convertException::stringToEDM(s); }
+      catch (char const* c) { convertException::charPtrToEDM(c); }
       catch (...) { convertException::unknownToEDM(); }
     }
     catch (cms::Exception& iException) {
@@ -1889,9 +1889,9 @@ namespace edm {
     }
   }
 
-  void EventProcessor::closeInputFile() {
+  void EventProcessor::closeInputFile(bool cleaningUpAfterException) {
     if (fb_.get() != 0) {
-      input_->closeFile(fb_);
+      input_->closeFile(fb_, cleaningUpAfterException);
     }
     FDEBUG(1) << "\tcloseInputFile\n";
   }
@@ -2023,18 +2023,18 @@ namespace edm {
     }
   }
 
-  void EventProcessor::endRun(statemachine::Run const& run) {
+  void EventProcessor::endRun(statemachine::Run const& run, bool cleaningUpAfterException) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run.processHistoryID(), run.runNumber());
-    input_->doEndRun(runPrincipal);
+    input_->doEndRun(runPrincipal, cleaningUpAfterException);
     IOVSyncValue ts(EventID(runPrincipal.run(), LuminosityBlockID::maxLuminosityBlockNumber(), EventID::maxEventNumber()),
                     runPrincipal.endTime());
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     {
       typedef OccurrenceTraits<RunPrincipal, BranchActionEnd> Traits;
       ScheduleSignalSentry<Traits> sentry(actReg_.get(), &runPrincipal, &es);
-      schedule_->processOneOccurrence<Traits>(runPrincipal, es);
+      schedule_->processOneOccurrence<Traits>(runPrincipal, es, cleaningUpAfterException);
       if(hasSubProcess()) {
-        subProcess_->doEndRun(runPrincipal, ts);
+        subProcess_->doEndRun(runPrincipal, ts, cleaningUpAfterException);
       }
     }
     FDEBUG(1) << "\tendRun " << run.runNumber() << "\n";
@@ -2071,9 +2071,9 @@ namespace edm {
     }
   }
 
-  void EventProcessor::endLumi(ProcessHistoryID const& phid, int run, int lumi) {
+  void EventProcessor::endLumi(ProcessHistoryID const& phid, int run, int lumi, bool cleaningUpAfterException) {
     LuminosityBlockPrincipal& lumiPrincipal = principalCache_.lumiPrincipal(phid, run, lumi);
-    input_->doEndLumi(lumiPrincipal);
+    input_->doEndLumi(lumiPrincipal, cleaningUpAfterException);
     //NOTE: Using the max event number for the end of a lumi block is a bad idea
     // lumi blocks know their start and end times why not also start and end events?
     IOVSyncValue ts(EventID(lumiPrincipal.run(), lumiPrincipal.luminosityBlock(), EventID::maxEventNumber()),
@@ -2082,9 +2082,9 @@ namespace edm {
     {
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionEnd> Traits;
       ScheduleSignalSentry<Traits> sentry(actReg_.get(), &lumiPrincipal, &es);
-      schedule_->processOneOccurrence<Traits>(lumiPrincipal, es);
+      schedule_->processOneOccurrence<Traits>(lumiPrincipal, es, cleaningUpAfterException);
       if(hasSubProcess()) {
-        subProcess_->doEndLuminosityBlock(lumiPrincipal, ts);
+        subProcess_->doEndLuminosityBlock(lumiPrincipal, ts, cleaningUpAfterException);
       }
     }
     FDEBUG(1) << "\tendLumi " << run << "/" << lumi << "\n";
@@ -2130,23 +2130,8 @@ namespace edm {
   }
 
   void EventProcessor::readAndProcessEvent() {
-    EventPrincipal *pep = 0;
-    try {
-      try {
-        pep = input_->readEvent(principalCache_.lumiPrincipalPtr());
-        FDEBUG(1) << "\treadEvent\n";
-      }
-      catch (cms::Exception& e) { throw; }
-      catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-      catch (std::exception& e) { convertException::stdToEDM(e); }
-      catch(std::string& s) { convertException::stringToEDM(s); }
-      catch(char const* c) { convertException::charPtrToEDM(c); }
-      catch (...) { convertException::unknownToEDM(); }
-    }
-    catch(cms::Exception& ex) {
-      ex.addContext("Calling readEvent in the input source");
-      throw;
-    }
+    EventPrincipal *pep = input_->readEvent(principalCache_.lumiPrincipalPtr());
+    FDEBUG(1) << "\treadEvent\n";
     assert(pep != 0);
 
     IOVSyncValue ts(pep->id(), pep->time());

@@ -50,9 +50,12 @@ written to the output file anyway.
 namespace edm {
 
   class EventPrincipal;
+  class FileBlock;
   struct InputSourceDescription;
+  class LuminosityBlock;
   class LuminosityBlockPrincipal;
   class ParameterSet;
+  class Run;
   class RunPrincipal;
 
   class TestRunLumiSource : public InputSource {
@@ -62,10 +65,37 @@ namespace edm {
 
   private:
 
+    enum {
+      kDoNotThrow  = 0,
+      kConstructor = 1,
+      kBeginJob = 2,
+      kBeginRun = 3,
+      kBeginLumi = 4,
+      kEndLumi = 5,
+      kEndRun = 6,
+      kEndJob = 7,
+      kGetNextItemType = 8,
+      kReadEvent = 9,
+      kReadLuminosityBlockAuxiliary = 10,
+      kReadRunAuxiliary = 11,
+      kReadFile = 12,
+      kCloseFile = 13,
+      kDestructor = 14
+    };
+
+    virtual void beginJob();
+    virtual void endJob();
+    virtual void beginLuminosityBlock(LuminosityBlock&);
+    virtual void endLuminosityBlock(LuminosityBlock&);
+    virtual void beginRun(Run&);
+    virtual void endRun(Run&);
+    virtual boost::shared_ptr<FileBlock> readFile_();
+    virtual void closeFile_();
+
     virtual ItemType getNextItemType();
     virtual EventPrincipal* readEvent_();
-    boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
-    boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
+    virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
+    virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
 
     // This vector holds 3 values representing (run, lumi, event)
     // repeated over and over again, in one vector.
@@ -79,6 +109,9 @@ namespace edm {
     std::vector<int> runLumiEvent_;
     std::vector<int>::size_type currentIndex_;
     bool firstTime_;
+
+    // To test exception throws from sources
+    int whenToThrow_;
   };
 }
 #endif
