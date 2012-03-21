@@ -9,7 +9,7 @@ Directory=${current_area}/FullSim/
 mkdir $Directory -p
 
 #======= Define list of samples that you will be validating ========#
-dirlist="QCD_Pt_80_120 LM1_sfts TTbar QCD_FlatPt_15_3000"
+dirlist="TTbar QCD"
 
 #======= Define list of modules that will be run for each sample ========#
 RunPath="fileSaver, calotoweroptmaker, analyzeRecHits, analyzecaloTowers, analyzeGenMET, analyzeGenMETFromGenJets, analyzeHTMET, analyzeCaloMET, analyzeTCMET,OB analyzePFMET"
@@ -112,13 +112,13 @@ process.fileSaver = cms.EDAnalyzer(\"METFileSaver\",
     OutputFile = cms.untracked.string('METTester_data_${i}.root')
 ) 
 process.p = cms.Path(process.fileSaver*
-                     process.analyzeGenMET*
-                     process.analyzeGenMETFromGenJets*
-                     process.analyzeHTMET*
+                #     process.analyzeGenMET*
+                #     process.analyzeGenMETFromGenJets*
+                #     process.analyzeHTMET*
                      process.analyzeCaloMET*
                      process.analyzePFMET*
                      process.analyzeTCMET*
-                     process.analyzeMuonCorrectedCaloMET
+                #     process.analyzeMuonCorrectedCaloMET
 )
 process.schedule = cms.Schedule(process.p)
 
