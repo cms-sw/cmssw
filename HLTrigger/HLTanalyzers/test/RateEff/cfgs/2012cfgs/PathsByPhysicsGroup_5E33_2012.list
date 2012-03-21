@@ -17,9 +17,9 @@
 Higgs:	
   HLT_Ele15_Ele8_Ele5_CaloIdL_TrkIdVL_v1
   HLT_DiCentralJet20_BTagIP_MET65_v13
-  HLT_DiCentralPFJet30_PFMHT80_v2
+  HLT_DiCentralPFJet30_PFMHT80_v3
   HLT_DiCentralPFJet30_CaloMET50_PFMHT80_HBHENoiseFiltered_dPhi1_v1
-  HLT_CentralCaloJet50PFJet80_CaloMET50PFMHT80_HBHENoiseFiltered_dPhi1_v1
+  HLT_CentralCaloJet50PFJet80_CaloMET50PFMHT80_HBHENoiseFiltered_dPhi1
   HLT_L1ETM30_v1
   HLT_L1ETM40_v1
   HLT_L1ETM70_v1
@@ -47,7 +47,7 @@ Higgs:
   HLT_Mu12_v14
 
 Forward:	
-  HLT_DoubleMu11_Acoplanarity03
+  HLT_DoubleMu11_Acoplanarity03_v1
   HLT_DoubleMu4_Acoplanarity03_v1
   HLT_SingleForJet25_v1
   HLT_SingleForJet15_v1
@@ -65,7 +65,7 @@ Forward:
 Exotica:	
   HLT_Mu22_TkMu8_v1
   HLT_Mu22_TkMu22_v1
-  HLT_L2DoubleMu23_NoVertex_v10
+  HLT_L2DoubleMu23_NoVertex0
   HLT_L2DoubleMu23_NoVertex_2Cha_Angle2p5_v1
   HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_v1
   HLT_HT650_Track50_dEdx3p6_v1
@@ -85,7 +85,7 @@ Exotica:
   HLT_FatJetMassX_DR1p1_Deta2p0
   HLT_Jet370
   HLT_MonoCentralPFJet80L1FastJet_PFMHTWOM95_NHEF95_v1
-  HLT_JetE30_NoBPTX_v10
+  HLT_JetE30_NoBPTX0
   HLT_JetE30_NoBPTX3BX_NoHalo_v12
   HLT_JetE50_NoBPTX3BX_NoHalo_v7
   HLT_JetE70_NoBPTX3BX_NoHalo_v1
@@ -109,9 +109,14 @@ Exotica:
   HLT_DoublePhoton70_v3
   HLT_DoublePhoton80_v4
   HLT_Photon135_v4
+  HLT_Photon135_v4
+  HLT_Photon150_v1
   HLT_Photon150_v1
   HLT_Photon160_v1
+  HLT_Photon160_v1
   HLT_Photon250_NoHE_v1
+  HLT_Photon250_NoHE_v1
+  HLT_Photon300_NoHE_v1
   HLT_Photon300_NoHE_v1
   HLT_Photon90EBOnly_CaloIdVL_IsoL_TriPFJet25_v7
   HLT_Photon90EBOnly_CaloIdVL_IsoL_TriPFJet30_v7
@@ -280,14 +285,26 @@ JetMET:
   HLT_DiPFJetAve320_v1
   HLT_DiPFJetAve400_v1
   HLT_MET120_v9
+  HLT_MET120_v9
+  HLT_MET200_v9
   HLT_MET200_v9
   HLT_MET300_v1
+  HLT_MET300_v1
+  HLT_MET120_HBHENoiseCleaned_v1
   HLT_MET120_HBHENoiseCleaned_v1
   HLT_MET200_HBHENoiseCleaned_v1
+  HLT_MET200_HBHENoiseCleaned_v1
   HLT_MET300_HBHENoiseCleaned_v1
+  HLT_MET300_HBHENoiseCleaned_v1
+  HLT_MET400_HBHENoiseCleaned_v1
   HLT_MET400_HBHENoiseCleaned_v1
 
 B-Tagging:	
+  HLT_BTagMu_DiJet20_L1FastJet_Mu5_v1 
+  HLT_BTagMu_DiJet40_L1FastJet_Mu5_v1 
+  HLT_BTagMu_DiJet70_L1FastJet_Mu5_v1 
+  HLT_BTagMu_DiJet110_L1FastJet_Mu5_v1 
+  HLT_BTagMu_Jet300_L1FastJet_Mu5_v1 
 
 Taus:	
   HLT_Mu15_eta2p1_L1ETM20_v1
@@ -309,7 +326,13 @@ Other:
   HLT_BeamGas_HF_Beam2_v4
   HLT_L1TrackerCosmics_v6
   HLT_L1SingleMuOpen_AntiBPTX_v5
-  HLT_BeamHalo_v10
+  HLT_BeamHalo0
+  HLT_HcalNZS 
+  HLT_HcalPhiSym 
+  HLT_HcalNZS 
+  HLT_HcalPhiSym 
+  HLT_L1SingleMuOpen_v6 
+  HLT_L1SingleMu12_v1 
 
 Shared:
   HLT_Ele8_CaloIdL_CaloIsoVL_v12
@@ -340,8 +363,9 @@ Shared:
   HLT_PFMHT1508
   HLT_PFMHT180_v1
   HLT_MET400_v4
+  HLT_MET400_v4
   HLT_PixelTracks_Multiplicity70_v1
-  HLT_PixelTracks_Multiplicity80_v10
+  HLT_PixelTracks_Multiplicity800
   HLT_PixelTracks_Multiplicity90_v1
   HLT_IsoMu17_eta2p1_TriCentralPFJet30 	
   HLT_IsoMu20_eta2p1_CentralPFJet80_v1
@@ -407,17 +431,6 @@ Shared:
   HLT_Mu17_TkMu8_v6
   HLT_IsoMu30_eta2p1_v9
 
-Unclaimed:
-  HLT_HcalNZS
-  HLT_HcalPhiSym
-  HLT_BTagMu_DiJet20_L1FastJet_Mu5_v1
-  HLT_BTagMu_DiJet40_L1FastJet_Mu5_v1
-  HLT_BTagMu_DiJet70_L1FastJet_Mu5_v1
-  HLT_BTagMu_DiJet110_L1FastJet_Mu5_v1
-  HLT_BTagMu_Jet300_L1FastJet_Mu5_v1
-  HLT_L1SingleMuOpen_v6
-  HLT_L1SingleMu12_v1
-	
 	
 	
 	
