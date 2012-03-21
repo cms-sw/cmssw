@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/GRun/V7 (CMSSW_5_2_1_HLT1)
+# /dev/CMSSW_5_2_1/GRun/V8 (CMSSW_5_2_1_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V7')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V8')
 )
 
 streams = cms.PSet( 
@@ -11374,18 +11374,6 @@ hltPFMHT80HT80 = cms.EDFilter( "HLTHtMhtFilter",
     minMht = cms.vdouble( 80.0 ),
     htLabels = cms.VInputTag( 'hltPFMHTPFJet80' ),
     minHt = cms.vdouble( 80.0 )
-)
-hltL1sL1ETM36 = cms.EDFilter( "HLTLevel1GTSeed",
-    saveTags = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_ETM36" ),
-    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
-    L1UseL1TriggerObjectMaps = cms.bool( True ),
-    L1UseAliasesForSeeding = cms.bool( True ),
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
-    L1NrBxInEvent = cms.int32( 3 ),
-    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
-    L1TechTriggerSeeding = cms.bool( False )
 )
 hltPreMET80 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -35590,8 +35578,8 @@ HLT_HT450_L1FastJet_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175OrDo
 HLT_HT500_L1FastJet_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175 + hltPreHT500L1FastJet + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHtL1FastJet + hltHt500L1FastJet + HLTEndSequence )
 HLT_HT550_L1FastJet_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175 + hltPreHT550L1FastJet + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHtL1FastJet + hltHt550L1FastJet + HLTEndSequence )
 HLT_HT650_L1FastJet_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175 + hltPreHT650L1FastJet + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHtL1FastJet + hltHt650L1FastJet + HLTEndSequence )
-HLT_HT650_Track50_dEdx3p6_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150 + hltPreHT650Track50dEdx3p6 + HLTRecoJetSequenceAK5Corrected + hltCaloHTMHT + hltCaloHT650 + HLTPFReconstructionDEDXSequence + hltDeDxEstimatorProducer + hltDeDxFilter50DEDX3p6 + HLTEndSequence )
-HLT_HT650_Track60_dEdx3p7_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150 + hltPreHT650Track60dEdx3p7 + HLTRecoJetSequenceAK5Corrected + hltCaloHTMHT + hltCaloHT650 + HLTPFReconstructionDEDXSequence + hltDeDxEstimatorProducer + hltDeDxFilter60DEDX3p7 + HLTEndSequence )
+HLT_HT650_Track50_dEdx3p6_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175 + hltPreHT650Track50dEdx3p6 + HLTRecoJetSequenceAK5Corrected + hltCaloHTMHT + hltCaloHT650 + HLTPFReconstructionDEDXSequence + hltDeDxEstimatorProducer + hltDeDxFilter50DEDX3p6 + HLTEndSequence )
+HLT_HT650_Track60_dEdx3p7_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175 + hltPreHT650Track60dEdx3p7 + HLTRecoJetSequenceAK5Corrected + hltCaloHTMHT + hltCaloHT650 + HLTPFReconstructionDEDXSequence + hltDeDxEstimatorProducer + hltDeDxFilter60DEDX3p7 + HLTEndSequence )
 HLT_HT750_L1FastJet_v5 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175 + hltPreHT750L1FastJet + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHtL1FastJet + hltHt750L1FastJet + HLTEndSequence )
 HLT_PFHT350_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175 + hltPrePFHT350 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHtL1FastJet + hltHt250L1FastJet + HLTPFReconstructionSequence + hltPFHTMET + hltPFHT350 + HLTEndSequence )
 HLT_PFHT650_v3 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175 + hltPrePFHT650 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHtL1FastJet + hltHt550L1FastJet + HLTPFReconstructionSequence + hltPFHTMET + hltPFHT650 + HLTEndSequence )
@@ -35604,9 +35592,9 @@ HLT_DiCentralPFJet30_PFMHT80_v3 = cms.Path( HLTBeginSequence + hltL1sL1ETM36OR40
 HLT_DiCentralPFJet50_PFMET80_v1 = cms.Path( HLTBeginSequence + hltL1sL1DoubleJetC36ETM30 + hltPreDiCentralPFJet50PFMET80 + HLTRecoMETSequence + hltMET80 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltDiCentralJet20L1FastJetCorrected + HLTPFReconstructionSequence + hltPFMHTDiPFJet50 + hltPFMHT80HT100 + HLTEndSequence )
 HLT_DiCentralPFJet30_CaloMET50_dPhi1_PFMHT80_HBHENoiseFiltered_v1 = cms.Path( HLTBeginSequence + hltL1sL1ETM36OR40 + hltPreDiCentralPFJet30CaloMET50dPhi1PFMHT80HBHENoiseFiltered + HLTRecoMETSequence + hltMET50 + HLTHBHENoiseCleanerSequence + hltMetClean + hltMET25 + HLTRecoJetSequenceAK5Corrected + hltDiCentralJet20 + hltJet20 + ~hlt2CaloJetCaloMETdPhi1 + HLTPFReconstructionSequence + hltPFMHTDiPFJet30 + hltPFMHT80HT60 + HLTEndSequence )
 HLT_CentralPFJet80_CaloMET50_dPhi1_PFMHT80_HBHENoiseFiltered_v1 = cms.Path( HLTBeginSequence + hltL1sL1ETM36OR40 + hltPreCentralPFJet80CaloMET50dPhi1PFMHT80HBHENoiseFiltered + HLTRecoMETSequence + hltMET50 + HLTHBHENoiseCleanerSequence + hltMetClean + hltMET25 + HLTRecoJetSequenceAK5Corrected + hltCentralJet50 + hltJet20 + ~hlt2CaloJetCaloMETdPhi1 + HLTPFReconstructionSequence + hltPFMHTPFJet80 + hltPFMHT80HT80 + HLTEndSequence )
-HLT_MET80_v1 = cms.Path( HLTBeginSequence + hltL1sL1ETM36 + hltPreMET80 + HLTRecoMETSequence + hltMET80 + HLTEndSequence )
-HLT_MET80_Track50_dEdx3p6_v1 = cms.Path( HLTBeginSequence + hltL1sL1ETM36 + hltPreMET80Track50dEdx3p6 + HLTRecoMETSequence + hltMET80 + HLTPFReconstructionDEDXSequence + hltDeDxEstimatorProducer + hltDeDxFilter50DEDX3p6 + HLTEndSequence )
-HLT_MET80_Track60_dEdx3p7_v1 = cms.Path( HLTBeginSequence + hltL1sL1ETM36 + hltPreMET80Track60dEdx3p7 + HLTRecoMETSequence + hltMET80 + HLTPFReconstructionDEDXSequence + hltDeDxEstimatorProducer + hltDeDxFilter60DEDX3p7 + HLTEndSequence )
+HLT_MET80_v1 = cms.Path( HLTBeginSequence + hltL1sL1ETM36ORETM40 + hltPreMET80 + HLTRecoMETSequence + hltMET80 + HLTEndSequence )
+HLT_MET80_Track50_dEdx3p6_v1 = cms.Path( HLTBeginSequence + hltL1sL1ETM36ORETM40 + hltPreMET80Track50dEdx3p6 + HLTRecoMETSequence + hltMET80 + HLTPFReconstructionDEDXSequence + hltDeDxEstimatorProducer + hltDeDxFilter50DEDX3p6 + HLTEndSequence )
+HLT_MET80_Track60_dEdx3p7_v1 = cms.Path( HLTBeginSequence + hltL1sL1ETM36ORETM40 + hltPreMET80Track60dEdx3p7 + HLTRecoMETSequence + hltMET80 + HLTPFReconstructionDEDXSequence + hltDeDxEstimatorProducer + hltDeDxFilter60DEDX3p7 + HLTEndSequence )
 HLT_MET120_v9 = cms.Path( HLTBeginSequence + hltL1sL1ETM36ORETM40 + hltPreMET120 + HLTRecoMETSequence + hltMET120 + HLTEndSequence )
 HLT_MET120_HBHENoiseCleaned_v1 = cms.Path( HLTBeginSequence + hltL1sL1ETM36ORETM40 + hltPreMET120HBHENoiseCleaned + HLTRecoMETSequence + hltMET120 + HLTHBHENoiseCleanerSequence + hltMetClean + hltMETClean60 + HLTEndSequence )
 HLT_MET200_v9 = cms.Path( HLTBeginSequence + hltL1sL1ETM36ORETM40 + hltPreMET200 + HLTRecoMETSequence + hltMET200 + HLTEndSequence )
