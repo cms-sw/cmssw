@@ -27,15 +27,6 @@ def Base(process):
     process.MessageLogger.categories.append('L1GtTrigReport')
     process.MessageLogger.categories.append('HLTrigReport')
 
-#    if 'convertObjectMapRecords' in process.__dict__:
-#        process.globalReplace('convertObjectMapRecords',cms.Sequence())
-#        process.convertObjectMapRecords = cms.Sequence()
-#        from HLTrigger.Configuration.HLT_FULL_cff import hltL1GtObjectMap
-#        if 'hltL1GtObjectMap' in process.__dict__:
-#            process.globalReplace('hltL1GtObjectMap',hltL1GtObjectMap)
-#        process.hltL1GtObjectMap = hltL1GtObjectMap
-#        process.HLTL1UnpackerSequence = cms.Sequence( process.hltGtDigis + process.hltGctDigis + process.hltL1GtObjectMap + process.hltL1extraParticles )
-
     process=ProcessName(process)
 
     return(process)
@@ -58,28 +49,38 @@ def L1T(process):
 def L1THLT(process):
 #   modifications when running L1T+HLT
 
-    process=Base(process)
-
-    return(process)
-
-
-def L1THLT2(process):
-#   modifications when re-running L1T+HLT    
-
-#   run trigger primitive generation on unpacked digis, then central L1
-
-    process.load("L1Trigger.Configuration.CaloTriggerPrimitives_cff")
-    process.simEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
-    process.simHcalTriggerPrimitiveDigis.inputLabel = ('hcalDigis', 'hcalDigis')
-
-#   patch the process to use 'sim*Digis' from the L1 emulator
-#   instead of 'hlt*Digis' from the RAW data
-
-    patchToRerunL1Emulator.switchToSimGtDigis( process )
+    if not ('HLTAnalyzerEndpath' in process.__dict__) :
+        from L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi import l1GtTrigReport
+        process.hltL1GtTrigReport = l1GtTrigReport.clone()
+        process.hltL1GtTrigReport.L1GtRecordInputTag = cms.InputTag( "hltGtDigis" )
+        from HLTrigger.HLTanalyzers.hlTrigReport_cfi import hlTrigReport
+        process.hltTrigReport = hlTrigReport.clone()
+        
+        process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport)
+        process.schedule.append(process.HLTAnalyzerEndpath)
 
     process=Base(process)
 
     return(process)
+
+
+#def L1THLT2(process):
+##   modifications when re-running L1T+HLT    
+#
+##   run trigger primitive generation on unpacked digis, then central L1
+#
+#    process.load("L1Trigger.Configuration.CaloTriggerPrimitives_cff")
+#    process.simEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
+#    process.simHcalTriggerPrimitiveDigis.inputLabel = ('hcalDigis', 'hcalDigis')
+#
+##   patch the process to use 'sim*Digis' from the L1 emulator
+##   instead of 'hlt*Digis' from the RAW data
+#
+#    patchToRerunL1Emulator.switchToSimGtDigis( process )
+#
+#    process=Base(process)
+#
+#    return(process)
 
 
 def HLTDropPrevious(process):
