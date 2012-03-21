@@ -42,10 +42,10 @@ siStripFEDMonitor.APVErrorBitsDetailedHistogramConfig.Enabled = False
 siStripFEDMonitor.APVAddressErrorBitsDetailedHistogramConfig.Enabled = False
 siStripFEDMonitor.UnlockedBitsDetailedHistogramConfig.Enabled = False
 siStripFEDMonitor.OOSBitsDetailedHistogramConfig.Enabled = False
-siStripFEDMonitor.FETimeDiffTIBHistogramConfig.Enabled = False
-siStripFEDMonitor.FETimeDiffTOBHistogramConfig.Enabled = False
-siStripFEDMonitor.FETimeDiffTECBHistogramConfig.Enabled = False
-siStripFEDMonitor.FETimeDiffTECFHistogramConfig.Enabled = False
+siStripFEDMonitor.FETimeDiffTIBHistogramConfig.Enabled = True
+siStripFEDMonitor.FETimeDiffTOBHistogramConfig.Enabled = True
+siStripFEDMonitor.FETimeDiffTECBHistogramConfig.Enabled = True
+siStripFEDMonitor.FETimeDiffTECFHistogramConfig.Enabled = True
 siStripFEDMonitor.ApveAddressHistogramConfig.Enabled = False
 siStripFEDMonitor.FeMajAddressHistogramConfig.Enabled = False
 #medians per APV for all channels, all events
@@ -64,9 +64,9 @@ siStripFEDMonitor.MedianAPV1HistogramConfig = cms.untracked.PSet(
 #Error counting histograms
 siStripFEDMonitor.nFEDErrorsHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(True),
-  NBins = cms.untracked.uint32(101),
+  NBins = cms.untracked.uint32(441),
   Min = cms.untracked.double(-0.5),
-  Max = cms.untracked.double(100.5)
+  Max = cms.untracked.double(440.5)
 )
 siStripFEDMonitor.nFEDDAQProblemsHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(True),
