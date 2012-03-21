@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/03/02 19:47:32 $
+ *  $Date: 2012/03/09 17:29:12 $
  *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
@@ -65,7 +65,7 @@ DTT0Data DTT0FillChamberFromDB::correction(const DTWireId& wireId) {
  
   DTChamberId chamberId = wireId.layerId().superlayerId().chamberId();
 
-  if( chamberId == chosenChamberId_ ){
+  if( chamberRef_ != "" && chamberRef_ != "None" && chamberId == chosenChamberId_ ){
      // Access reference DB
      float t0MeanRef,t0RMSRef;
      int statusRef = t0MapRef_->get(wireId,t0MeanRef,t0RMSRef,DTTimeUnits::counts);
