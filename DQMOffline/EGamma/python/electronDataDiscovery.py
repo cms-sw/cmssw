@@ -69,6 +69,7 @@ def common_search(dd_tier):
       query = query + " dataset=*" + os.environ['DD_COND'] + "*"
     if os.environ['DD_RUN'] != "":
       query = query + " run=" + os.environ['DD_RUN']
+    #query = query + " | unique" # too long ??
     
     #data = os.popen('das_client.py --limit=0 --query "'+query+'"')
     #datalines = data.readlines()
@@ -85,9 +86,15 @@ def common_search(dd_tier):
     if data['nresults']==0:
       print '[electronDataDiscovery.py] No DAS dataset for query:', query
       return []
-    if data['nresults']>1:
-      print '[electronDataDiscovery.py] Several DAS datasets for query:', query
-      return []
+    while data['nresults']>1:
+      if data['data'][0]['dataset'][0]['name']==data['data'][1]['dataset'][0]['name']:
+        data['data'].pop(0)
+        data['nresults'] -= 1
+      else:
+        print '[electronDataDiscovery.py] Several DAS datasets for query:', query
+        for i in range(data['nresults']):
+          print '[electronDataDiscovery.py] dataset['+str(i)+']: '+data['data'][i]['dataset'][0]['name']
+        return []
 
     dataset = data['data'][0]['dataset'][0]['name']
     
