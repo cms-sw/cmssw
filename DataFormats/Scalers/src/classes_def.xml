@@ -14,8 +14,8 @@
   <class name="Level1TriggerRates" ClassVersion="10">
    <version ClassVersion="10" checksum="1930374175"/>
   </class>
-  <class name="LumiScalers" ClassVersion="13">
-   <version ClassVersion="13" checksum="4277530324"/>
+  <class name="LumiScalers" ClassVersion="16">
+   <version ClassVersion="16" checksum="3479164400"/>
   </class>
   <class name="DcsStatus" ClassVersion="10">
    <version ClassVersion="10" checksum="1373867021"/>

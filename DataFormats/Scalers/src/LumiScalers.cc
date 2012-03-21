@@ -42,7 +42,9 @@ LumiScalers::LumiScalers() :
    startOrbit_(0),
    numOrbits_(0),
    pileup_(0.0),
-   pileupRMS_(0.0)
+   pileupRMS_(0.0),
+   bunchLumi_(0.0),
+   spare_(0.0)
 { 
 }
 
@@ -104,6 +106,7 @@ LumiScalers::LumiScalers(const unsigned char * rawData)
     sectionNumber_ = lumi->sectionNumber;
     startOrbit_    = lumi->startOrbit;
     numOrbits_     = lumi->numOrbits;
+
     if ( version_ >= 7 )
     {
       struct ScalersEventRecordRaw_v6 * raw6 
@@ -111,20 +114,23 @@ LumiScalers::LumiScalers(const unsigned char * rawData)
       float * fspare = (float *) raw6->spare;
       pileup_    = fspare[ScalersRaw::I_SPARE_PILEUP_v7];
       pileupRMS_ = fspare[ScalersRaw::I_SPARE_PILEUPRMS_v7];
-      if ( version_ >= 7 )
+      if ( version_ >= 8 )
       {
 	bunchLumi_ = fspare[ScalersRaw::I_SPARE_BUNCHLUMI_v8];
+	spare_     = fspare[ScalersRaw::I_SPARE_SPARE_v8];
       }
       else
       {
-	bunchLumi_ = (float)0.0;
-      }
+	bunchLumi_ = (float)0.0; 
+	spare_     = (float)0.0;
+     }
     }
     else
     {
       pileup_    = (float)0.0;
       pileupRMS_ = (float)0.0;
       bunchLumi_ = (float)0.0;
+      spare_     = (float)0.0;
     }
   }
 }
@@ -212,8 +218,12 @@ std::ostream& operator<<(std::ostream& s, const LumiScalers& c)
     s << line << std::endl;
   }
 
-  sprintf(line," Pileup: %f   PileupRMS: %f   BunchLumi: %f", 
-	  c.pileup(), c.pileupRMS(), c.bunchLumi());
+  sprintf(line," Pileup: %f       PileupRMS: %f", 
+	  c.pileup(), c.pileupRMS());
+  s << line << std::endl;
+
+  sprintf(line," BunchLumi: %f    Spare: %f", 
+	   c.bunchLumi(), c.spare());
   s << line << std::endl;
 
   return s;

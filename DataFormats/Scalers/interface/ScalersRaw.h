@@ -38,6 +38,7 @@ class ScalersRaw
     I_SPARE_PILEUP_v7     = 0,
     I_SPARE_PILEUPRMS_v7  = 1,
     I_SPARE_BUNCHLUMI_v8  = 2,
+    I_SPARE_SPARE_v8      = 3,
     SCALERS_FED_ID        = 735
   };
 };
