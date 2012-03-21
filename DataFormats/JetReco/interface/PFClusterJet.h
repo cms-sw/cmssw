@@ -13,13 +13,13 @@
  *
  * \author Salvatore Rappoccio
  *
- * $Id: PFClusterJet.h,v 1.4 2010/06/29 09:56:50 srappocc Exp $
+ * $Id: PFClusterJet.h,v 1.1 2010/12/28 16:11:35 srappocc Exp $
  *
  ************************************************************/
 
 
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/RecoCandidate/interface/RecoPFClusterRefCandidate.h"
+#include "DataFormats/ParticleFlowReco/interface/RecoPFClusterRefCandidate.h"
 
 
 namespace reco {
