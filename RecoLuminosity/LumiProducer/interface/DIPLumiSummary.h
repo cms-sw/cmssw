@@ -2,7 +2,7 @@
 #define RecoLuminosity_LumiProducer_DIPLumiSummary_h
 #include <iosfwd>
 #include <string>
-#include "RecoLuminosity/LumiProducer/interface/DIPLumiSummaryRcd.h"
+#include "RecoLuminosity/LumiProducer/interface/DIPLuminosityRcd.h"
 #include "FWCore/Framework/interface/data_default_record_trait.h"
 class DIPLumiSummary {
  public:
@@ -51,6 +51,6 @@ class DIPLumiSummary {
 
 std::ostream& operator<<(std::ostream& s, const DIPLumiSummary& diplumiSummary);
 
-EVENTSETUP_DATA_DEFAULT_RECORD(DIPLumiSummary,DIPLumiSummaryRcd)
+EVENTSETUP_DATA_DEFAULT_RECORD(DIPLumiSummary,DIPLuminosityRcd)
 
 #endif // RecoLuminosity_LuminosityProducer_DIPLumiSummary_h

@@ -9,16 +9,16 @@
 
 //#include <memory>
 #include "boost/shared_ptr.hpp"
-class DIPLumiSummaryRcd;
+class DIPLuminosityRcd;
 class DIPLumiSummary;
 class DIPLumiDetail;
 class DIPLumiProducer: public edm::ESProducer , public edm::EventSetupRecordIntervalFinder{
  public:
   DIPLumiProducer(const edm::ParameterSet&);
   typedef boost::shared_ptr<DIPLumiSummary> ReturnSummaryType;
-  ReturnSummaryType produceSummary(const DIPLumiSummaryRcd&);
+  ReturnSummaryType produceSummary(const DIPLuminosityRcd&);
   typedef boost::shared_ptr<DIPLumiDetail> ReturnDetailType;
-  ReturnDetailType produceDetail(const DIPLumiSummaryRcd&);
+  ReturnDetailType produceDetail(const DIPLuminosityRcd&);
   ~DIPLumiProducer();
 
   protected:

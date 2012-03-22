@@ -6,7 +6,7 @@
 /**\class DIPLumiProducer DIPLumiProducer.cc RecoLuminosity/LumiProducer/src/DIPLumiProducer.cc
 Description: A essource/esproducer for lumi values from DIP via runtime logger DB
 */
-// $Id: DIPLumiProducer.cc,v 1.4 2012/03/20 17:09:05 xiezhen Exp $
+// $Id: DIPLumiProducer.cc,v 1.5 2012/03/21 18:49:11 xiezhen Exp $
 
 //#include <memory>
 //#include "boost/shared_ptr.hpp"
@@ -42,7 +42,7 @@ Description: A essource/esproducer for lumi values from DIP via runtime logger D
 #include "RecoLuminosity/LumiProducer/interface/ConstantDef.h"
 #include "RecoLuminosity/LumiProducer/interface/DIPLumiSummary.h"
 #include "RecoLuminosity/LumiProducer/interface/DIPLumiDetail.h"
-#include "RecoLuminosity/LumiProducer/interface/DIPLumiSummaryRcd.h"
+#include "RecoLuminosity/LumiProducer/interface/DIPLuminosityRcd.h"
 #include "DIPLumiProducer.h"
 #include <iostream>
 #include <sstream>
@@ -65,19 +65,19 @@ Description: A essource/esproducer for lumi values from DIP via runtime logger D
 DIPLumiProducer::DIPLumiProducer(const edm::ParameterSet& iConfig):m_connectStr(""),m_cachedrun(0),m_cachesize(0){
   setWhatProduced(this,&DIPLumiProducer::produceSummary);
   setWhatProduced(this,&DIPLumiProducer::produceDetail);
-  findingRecord<DIPLumiSummaryRcd>();
+  findingRecord<DIPLuminosityRcd>();
   m_connectStr=iConfig.getParameter<std::string>("connect");
   m_cachesize=iConfig.getUntrackedParameter<unsigned int>("ncacheEntries",0);
 }
 
 DIPLumiProducer::ReturnSummaryType
-DIPLumiProducer::produceSummary(const DIPLumiSummaryRcd&)  
+DIPLumiProducer::produceSummary(const DIPLuminosityRcd&)  
 { 
   std::cout<<"produceSummary called"<<std::endl;
   return m_result;
 }
 DIPLumiProducer::ReturnDetailType
-DIPLumiProducer::produceDetail(const DIPLumiSummaryRcd&)  
+DIPLumiProducer::produceDetail(const DIPLuminosityRcd&)  
 { 
   std::cout<<"produceDetail called "<<std::endl;
   //boost::shared_ptr<DIPLumiDetail> tmpls(new DIPLumiDetail(0.1,0.2,0.3,1));
