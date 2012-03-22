@@ -98,7 +98,38 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
                     cgobs->Print("V");
                     throw std::runtime_error(Form("AsimovUtils: can't find nuisance for constraint term %s", cterm->GetName()));
                 }
-                rrv.setVal(match->getVal());
+                std::string pdfName(cterm->ClassName());
+                if (pdfName == "RooGaussian" || pdfName == "RooPoisson") {
+                    // this is easy
+                    rrv.setVal(match->getVal());
+                } else if (pdfName == "RooGamma") {
+                    // notation as in http://en.wikipedia.org/wiki/Gamma_distribution
+                    //     nuisance = x
+                    //     global obs = kappa ( = observed sideband events + 1)
+                    //     scaling    = theta ( = extrapolation from sideband to signal)
+                    // we want to set the global obs to a value for which the current value 
+                    // of the nuisance is the best fit one.
+                    // best fit x = (k-1)*theta    ---->  k = x/theta + 1
+                    RooArgList leaves; cterm->leafNodeServerList(&leaves);
+                    std::auto_ptr<TIterator> iter2(leaves.createIterator());
+                    RooAbsReal *match2 = 0;
+                    for (RooAbsArg *a2 = (RooAbsArg *) iter2->Next(); a2 != 0; a2 = (RooAbsArg *) iter2->Next()) {
+                        RooAbsReal *rar = dynamic_cast<RooAbsReal *>(a2);
+                        if (rar == 0 || rar == match || rar == &rrv) continue;
+                        if (!rar->isConstant()) throw std::runtime_error(Form("AsimovUtils: extra floating parameter %s of RooGamma %s.", rar->GetName(), cterm->GetName()));
+                        if (rar->getVal() == 0) continue; // this could be mu
+                        if (match2 != 0) throw std::runtime_error(Form("AsimovUtils: extra constant non-zero parameter %s of RooGamma %s.", rar->GetName(), cterm->GetName()));
+                        match2 = rar;
+                    } 
+                    if (match2 == 0) throw std::runtime_error(Form("AsimovUtils: could not find the scaling term for  RooGamma %s.", cterm->GetName()));
+                    //std::cout << " nuisance "   << match->GetName() << " = x = " << match->getVal() << std::endl;
+                    //std::cout << " scaling param "   << match2->GetName() << " = theta = " << match2->getVal() << std::endl;
+                    //std::cout << " global obs " << rrv.GetName() << " = kappa = " << rrv.getVal() << std::endl;
+                    //std::cout << " new value for global obs " << rrv.GetName() << " = x/theta+1 = " << (match->getVal()/match2->getVal() + 1) << std::endl;
+                    rrv.setVal(match->getVal()/match2->getVal() + 1.);
+                } else {
+                    throw std::runtime_error(Form("AsimovUtils: can't handle constraint term %s of type %s", cterm->GetName(), cterm->ClassName()));
+                }
             }
 
             // snapshot
