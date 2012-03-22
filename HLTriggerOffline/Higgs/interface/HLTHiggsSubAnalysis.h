@@ -53,19 +53,8 @@
 class EVTColContainer;
 
 class HLTHiggsSubAnalysis 
-{
+{	
        	public:
-		enum 
-		{
-			MUON,
-			ELEC,
-			PHOTON,
-			CALOMET,
-			PFTAU,
-			TRACK,
-			_nMAX
-		};
-
 		enum
 		{
 			GEN,
@@ -80,7 +69,6 @@ class HLTHiggsSubAnalysis
 	      	void analyze(const edm::Event & iEvent, const edm::EventSetup & iEventSetup, EVTColContainer * cols);
 
 		//! Extract what objects need this analysis
-		const std::vector<unsigned int> getObjectsType() const; // TO BE DEPRECATED
 		const std::vector<unsigned int> getObjectsType(const std::string & hltpath) const;
 
 		
@@ -89,8 +77,7 @@ class HLTHiggsSubAnalysis
 		void initobjects(const edm::Event & iEvent, EVTColContainer * col);
 		void InitSelector(const unsigned int & objtype);
 		void insertcandidates(const unsigned int & objtype, const EVTColContainer * col,
-				std::vector<MatchStruct> & matches);
-		const std::string getTypeString(const unsigned int & objtype) const;
+				std::vector<MatchStruct> * matches);
 
 		void bookHist(const std::string & source, const std::string & objType,
 			       	const std::string & variable);
@@ -134,7 +121,7 @@ class HLTHiggsSubAnalysis
 
 		//! The concrete String selectors (use the string cuts introduced
 		//! via the config python)
-	      	StringCutObjectSelector<reco::GenParticle> * _genSelector;
+		std::map<unsigned int,StringCutObjectSelector<reco::GenParticle> *> _genSelectorMap;
 	      	StringCutObjectSelector<reco::Muon>        * _recMuonSelector;
 	      	StringCutObjectSelector<reco::GsfElectron> * _recElecSelector;
 	      	StringCutObjectSelector<reco::CaloMET>     * _recCaloMETSelector;

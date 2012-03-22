@@ -41,7 +41,6 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
       	_parametersEta(pset.getParameter<std::vector<double> >("parametersEta")),
   	_parametersPhi(pset.getParameter<std::vector<double> >("parametersPhi")),
   	_parametersTurnOn(pset.getParameter<std::vector<double> >("parametersTurnOn")),
-	_genSelector(0),
 	_recMuonSelector(0),
 	_recElecSelector(0),
 	_recCaloMETSelector(0),
@@ -56,25 +55,22 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
 	// initializing _recLabels data member)
 	this->bookobjects( anpset );
 
-//std::cout << "INITIALIZE SUBANALYSIS " << _analysisname << " ---- " << std::endl;
 	// Generic objects: Initialization of cuts
 	for(std::map<unsigned int,std::string>::const_iterator it = _recLabels.begin();
 			it != _recLabels.end(); ++it)
 	{
-		const std::string objStr = this->getTypeString(it->first);
+		const std::string objStr = EVTColContainer::getTypeString(it->first);
 		_genCut[it->first] = pset.getParameter<std::string>( std::string(objStr+"_genCut").c_str() );
 		_recCut[it->first] = pset.getParameter<std::string>( std::string(objStr+"_recCut").c_str() );
 		_cutMinPt[it->first] = pset.getParameter<double>( std::string(objStr+"_cutMinPt").c_str() );
 		_cutMaxEta[it->first] = pset.getParameter<double>( std::string(objStr+"_cutMaxEta").c_str() );
-//std::cout << " " << objStr << " ---- " << "(" << _cutMinPt[it->first] << ")" << std::endl;
 	}
 
-	//--- Updating parameters if has to be modified for this particular specific
+	//--- Updating parameters if has to be modified for this particular specific analysis
 	for(std::map<unsigned int,std::string>::const_iterator it = _recLabels.begin();
 			it != _recLabels.end(); ++it)
 	{
-		const std::string objStr = this->getTypeString(it->first);
-//std::cout << "---ESTOY DENTRO><<" << std::endl;
+		const std::string objStr = EVTColContainer::getTypeString(it->first);
 		try
 		{
 			_genCut[it->first] = anpset.getUntrackedParameter<std::string>( std::string(objStr+"_genCut").c_str() ); 
@@ -104,8 +100,7 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
 		{
 		}
 	}
-
-	//FIXME: CHECK ERRORS
+	
 	_hltPathsToCheck = anpset.getParameter<std::vector<std::string> >("hltPathsToCheck");
 	_minCandidates = anpset.getParameter<unsigned int>("minCandidates");
 
@@ -115,10 +110,14 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
 
 HLTHiggsSubAnalysis::~HLTHiggsSubAnalysis()
 {
-	if( _genSelector != 0)
+	for(std::map<unsigned int,StringCutObjectSelector<reco::GenParticle>* >::iterator it = _genSelectorMap.begin();
+			it != _genSelectorMap.end(); ++it)
 	{
-		delete _genSelector;
-		_genSelector =0;
+		if( it->second != 0)
+		{
+			delete it->second;
+			it->second =0;
+		}
 	}
 	if( _recMuonSelector != 0)
 	{
@@ -175,9 +174,7 @@ void HLTHiggsSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetup 
 
 	// Parse the input paths to get them if there are in the table 
 	// and associate them the last filter of the path (in order to extract the
-	// trigger objects to match with the reco/gen objects)
 	_hltPaths.clear();
-	std::map<std::string,std::string> pathLastFilter;
 	for(size_t i = 0; i < _hltPathsToCheck.size(); ++i)
 	{
 		bool found = false;
@@ -188,16 +185,12 @@ void HLTHiggsSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetup 
 			if(TString(thetriggername).Contains(pattern))
 			{
 				_hltPaths.insert(thetriggername);
-				std::vector<std::string> mods = _hltConfig.moduleLabels(thetriggername);
-				// Extract the last filter (to get the trigger objects 
-				// which passing the filter) --> DEPRECATED IF WE DON'T MATCH WITH HLT objects
-				pathLastFilter[thetriggername] = mods.at(mods.size()-2); 
 				found = true;
 			}
 		}
 		if( ! found )
 		{
-			edm::LogError("HiggsValidations") << "HLTHiggsSubAnalysis::beginRun: In "
+			edm::LogError("HiggsValidations") << "HLTHiggsSubAnalysis::beginRun, In "
 				<< _analysisname << " subfolder NOT found the path: '" 
 				<< _hltPathsToCheck[i] << "*'" ;
 		}
@@ -205,12 +198,13 @@ void HLTHiggsSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetup 
 
 	LogTrace("HiggsValidation") << "SubAnalysis: " << _analysisname 
 		<< "\nHLT Trigger Paths found >>>"; 
-//std::cout << " ........... BEGINRUN.... SubAnalysis: " << _analysisname << " HLT Trigger Paths found >>>" << std::endl;
       	// Initialize the plotters (analysers for each trigger path)
 	_analyzers.clear();
   	for(std::set<std::string>::iterator iPath = _hltPaths.begin(); 
 			iPath != _hltPaths.end(); ++iPath) 
 	{
+		// Avoiding the dependence of the version number for
+		// the trigger paths
 		std::string path = * iPath;
 		std::string shortpath = path;
 	    	if(path.rfind("_v") < path.length())
@@ -219,32 +213,37 @@ void HLTHiggsSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetup 
 		}
 		_shortpath2long[shortpath] = path;
 
-		// Sanity check: the object needed by a trigger path  was
-		// introduced by the user via config python (_recLabels datamember)
+		// Objects needed by the HLT path
 		const std::vector<unsigned int> objsNeedHLT = this->getObjectsType(shortpath);
-		if( objsNeedHLT.size() == 0 )
+		// Sanity check: the object needed by a trigger path should be
+		// introduced by the user via config python (_recLabels datamember)
+		std::vector<unsigned int> userInstantiate;
+		for(std::map<unsigned int,std::string>::iterator it = _recLabels.begin() ; 
+				it != _recLabels.end(); ++it)
 		{
-			edm::LogError("HiggsValidation") << "In HLTHiggsSubAnalysis::beginRun, " 
-				<< "Incoherence found in the python configuration file!!\nThe SubAnalysis '" 
-				<< _analysisname << "' has been asked to evaluate the trigger path '"
-				<< shortpath << "' (found it in 'hltPathsToCheck') BUT this path"
-				<< " needs a variable which has not been instantiate ('recVariableLabels'" 
-				<< ")" ;
-			exit(-1);
+			userInstantiate.push_back(it->first);
 		}
-		
+		for(std::vector<unsigned int>::const_iterator it = objsNeedHLT.begin(); it != objsNeedHLT.end(); 
+				++it)
+		{
+			if( std::find(userInstantiate.begin(),userInstantiate.end(), *it) == 
+					userInstantiate.end() )
+			{
+				edm::LogError("HiggsValidation") << "In HLTHiggsSubAnalysis::beginRun, " 
+					<< "Incoherence found in the python configuration file!!\nThe SubAnalysis '" 
+					<< _analysisname << "' has been asked to evaluate the trigger path '"
+					<< shortpath << "' (found it in 'hltPathsToCheck') BUT this path"
+					<< " needs a '" << EVTColContainer::getTypeString(*it) 
+ 					<< "' which has not been instantiate ('recVariableLabels'" 
+					<< ")" ;
+				exit(-1);
+			}
+		}
 		LogTrace("HiggsValidation") << " --- " << shortpath;
-//std::cout << " ---> " << shortpath << " AND NEEDS: " ;
-//for(size_t kkk = 0 ;  kkk < objsNeedHLT.size() ; ++kkk)
-//{
-//std::cout << " " << getTypeString(objsNeedHLT[kkk]) ;
-//}
-//std::cout << std::endl;
-
-		// the hlt path, its last filter, the objects (elec,muons,photons,...)
+		
+		// the hlt path, the objects (elec,muons,photons,...)
 		// needed to evaluate the path are the argumens of the plotter
-		HLTHiggsPlotter analyzer(_pset, shortpath, pathLastFilter[path],
-				objsNeedHLT, _dbe);
+		HLTHiggsPlotter analyzer(_pset, shortpath,objsNeedHLT, _dbe);
 		_analyzers.push_back(analyzer);
     	}
 
@@ -259,7 +258,7 @@ void HLTHiggsSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetup 
 	for(std::map<unsigned int,std::string>::const_iterator it = _recLabels.begin();
 			it != _recLabels.end(); ++it)
 	{
-		const std::string objStr = this->getTypeString(it->first);
+		const std::string objStr = EVTColContainer::getTypeString(it->first);
 		std::vector<std::string> sources(2);
 		sources[0] = "gen";
 		sources[1] = "rec";
@@ -282,94 +281,101 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 {
 	// Initialize the collection (the ones which hasn't been initialiazed yet)
  	this->initobjects(iEvent,cols);
-//std::cout << "--Subanalysis " << _analysisname << std::endl;
-//std::cout << "Mu:" << cols->muons << " e:" << cols->electrons << " photon:" << cols->photons 
-//	<< " Taus:" << cols->pfTaus << " tracks" << cols->tracks << " caloMET" << cols->caloMETs << std::endl;
-	// Map to reference the source (gen/reco) with the recoCandidates
-	std::map<unsigned int,std::vector<MatchStruct> > sourceMatchMap;
 	// utility map
 	std::map<unsigned int,std::string> u2str;
 	u2str[GEN]="gen";
 	u2str[RECO]="rec";
+
 	// Extract the match structure containing the gen/reco candidates (electron, muons,...)
 	// common to all the SubAnalysis
-	for(std::map<unsigned int,std::string>::iterator it = _recLabels.begin(); 
+	//---- Generation
+ 	// Make each good gen object into the base cand for a MatchStruct
+	std::vector<MatchStruct> * matches = new std::vector<MatchStruct>;
+//	bool alreadyMu = false;
+	for(std::map<unsigned int,std::string>::iterator it = _recLabels.begin();
 			it != _recLabels.end(); ++it)
 	{
-		std::vector<unsigned int> sources;
-		bool hasGen = false;
-		if( cols->genParticles != 0 )
+		// Avoiding the TkMu and Mu case
+/*		if( alreadyMu )
 		{
-			// using the mc particles to evaluate the efficiencies
-			sources.push_back(GEN);
-			hasGen = true;
+			continue;
+		}*/
+		// Initialize selectors when first event
+		if(!_genSelectorMap[it->first]) 
+		{
+			_genSelectorMap[it->first] = new StringCutObjectSelector<reco::GenParticle>(_genCut[it->first]);
 		}
 
-		bool hasReco = false;
-//std::cout << " -- (rec) -- Size " << getTypeString(it->first) << ": " << cols->getSize(it->first) << std::endl;
-		if(cols->getSize(it->first) != 0)
+		for(size_t i = 0; i < cols->genParticles->size(); ++i)
 		{
-			// Using the reco particles to evaluate the efficiencies
-			sources.push_back(RECO);
-			hasReco = true;
-		}
-
-		// Extraction of the gen/reco candidates 
-		for(size_t sourceNo = 0; sourceNo < sources.size(); ++sourceNo)
-		{
-			const unsigned int source = sources[sourceNo];
-			// Initialize selectors when first event
-			if(!_genSelector) 
- 			{
- 				_genSelector      = new StringCutObjectSelector<reco::GenParticle>(_genCut[it->first]);
+			if(_genSelectorMap[it->first]->operator()(cols->genParticles->at(i)))
+			{
+				matches->push_back(MatchStruct(&cols->genParticles->at(i),it->first));
 			}
-			// reco selectors (the function takes into account if it was instantiated 
-			// before or not
-			this->InitSelector(it->first);
-
- 		    	// Make each good gen/rec object into the base cand for a MatchStruct
- 			std::vector<MatchStruct> matches;
- 		    	if(source == GEN && hasGen)
- 			{
- 			  	for(size_t i = 0; i < cols->genParticles->size(); ++i)
- 				{
- 					if(_genSelector->operator()(cols->genParticles->at(i)))
- 					{
- 				       		matches.push_back(MatchStruct(&cols->genParticles->at(i),it->first));
- 					}
- 				}
- 			}
- 			if(source == RECO && hasReco)
- 			{
-				this->insertcandidates(it->first,cols,matches);
- 			}
-			// Sort the MatchStructs by pT for later filling of turn-on curve
-			std::sort(matches.begin(), matches.end(), matchesByDescendingPt());
-			sourceMatchMap[source] = matches;
 		}
+/*		if( it->first == EVTColContainer::MUON || it->first == EVTColContainer::TRACK )
+		{
+			alreadyMu = true;
+		}*/
 	}
+	// Sort the MatchStructs by pT for later filling of turn-on curve
+	std::sort(matches->begin(), matches->end(), matchesByDescendingPt());
+	
+	// Map to reference the source (gen/reco) with the recoCandidates
+	std::map<unsigned int,std::vector<MatchStruct> > sourceMatchMap;  // To be a pointer to delete
+	// --- Storing the generating candidates
+	sourceMatchMap[GEN] = *matches;
+	
+	// Reuse the vector
+	matches->clear();
+	// --- same for RECO objects
+	// Extraction of the objects candidates 
+	for(std::map<unsigned int,std::string>::iterator it = _recLabels.begin();
+			it != _recLabels.end(); ++it)
+	{
+		// Reco selectors (the function takes into account if it was instantiated 
+		// before or not
+		this->InitSelector(it->first);
+		// -- Storing the matches 
+		this->insertcandidates(it->first,cols,matches);
+	}
+	// Sort the MatchStructs by pT for later filling of turn-on curve
+	std::sort(matches->begin(), matches->end(), matchesByDescendingPt());
+	// --- Storing the reco candidates
+	sourceMatchMap[RECO] = *matches;
+	// --- All the objects are in place
+	delete matches;  
 	
 	// -- Trigger Results
 	const edm::TriggerNames trigNames = iEvent.triggerNames(*(cols->triggerResults));
 
-	// Filling the histograms if pass the minimum amount of candidates needed by the analysis
+	// Filling the histograms if pass the minimum amount of candidates needed by the analysis:
+	// GEN + RECO CASE in the same loop
 	for(std::map<unsigned int,std::vector<MatchStruct> >::iterator it = sourceMatchMap.begin(); 
 			it != sourceMatchMap.end(); ++it)
 	{
 //std::cout << "How many objects passing the minimum cuts (" << u2str[it->first] << "): " << it->second.size() << " " << std::endl;  
 		// it->first: gen/reco   it->second: matches (std::vector<MatchStruc>)
-		if( it->second.size() < _minCandidates )
+		if( it->second.size() < _minCandidates )   // FIXME: A bug is potentially here: what about the mixed channels?
 		{
 			continue;
 		}
 		
 		// Filling the gen/reco objects (eff-denominators): 
-		// Just the first two if there are more
+		// Just the first two different ones, if there are more
+		std::map<unsigned int,int> * countobjects = new std::map<unsigned int,int>;
+		// Initializing the count of the used object
+		for(std::map<unsigned int,std::string>::iterator co = _recLabels.begin();
+				co != _recLabels.end(); ++co)
+		{
+			countobjects->insert(std::pair<unsigned int,int>(co->first,0));
+		}
+		int counttotal = 0;
+		const int totalobjectssize2 = 2*countobjects->size();
 		for(size_t j = 0; j < it->second.size(); ++j)
 		{
-//std::cout << "  The Object: " ;  
-			std::string objTypeStr = this->getTypeString((it->second)[j].objType);
-//std::cout << objTypeStr << std::endl;
+   			const unsigned int objType = it->second[j].objType;
+			const std::string objTypeStr = EVTColContainer::getTypeString(objType);
 
 			float pt  = (it->second)[j].pt; 
 			float eta = (it->second)[j].eta;
@@ -377,16 +383,31 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 //std::cout << " -- Type:" << objTypeStr << " pt:" << pt << " eta:" << eta << " phi:" << phi << " " ; 
 			this->fillHist(u2str[it->first],objTypeStr,"Eta",eta);
 			this->fillHist(u2str[it->first],objTypeStr,"Phi",phi);
-			if( j == 0 )
+			if( (*countobjects)[objType] == 0 )
 			{
 				this->fillHist(u2str[it->first],objTypeStr,"MaxPt1",pt);
+				// Filled the high pt ...
+				++((*countobjects)[objType]);
+				++counttotal;
 			}
-			else if( j == 1 )
+			else if( (*countobjects)[objType] == 1  )
 			{
 				this->fillHist(u2str[it->first],objTypeStr,"MaxPt2",pt);
-				break;
+				// Filled the second high pt ...
+				++((*countobjects)[objType]);
+				++counttotal;
 			}
+			else
+			{
+				// Already the minimum two objects has been filled, get out...
+				if( counttotal == totalobjectssize2 )
+				{
+					break;
+				}
+			}				
 		}
+		delete countobjects;
+//std::cout << std::endl; 
 	
 		// Calling to the plotters analysis (where the evaluation of the different trigger paths are done)
 		const std::string source = u2str[it->first];
@@ -401,75 +422,69 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 	}
 }
 
-// Return the objects (muons,electrons,photons,...) needed by a hlt path. Note that it 
-// returns a vector which can contain repeated elements if it is a double path << 
-//  FIXME: NOt necessary anymore (datamember _minCandidates) and introduces complications... TO BE FIXED
+// Return the objects (muons,electrons,photons,...) needed by a hlt path. 
 const std::vector<unsigned int> HLTHiggsSubAnalysis::getObjectsType(const std::string & hltPath) const
 {
-	std::vector<unsigned int> objsType;
+	static const unsigned int objSize = 5; //6;
+	static const unsigned int objtriggernames[] = { EVTColContainer::MUON, 
+		EVTColContainer::ELEC, 
+		EVTColContainer::PHOTON,
+//		EVTColContainer::TRACK,  // Note is tracker muon
+	       	EVTColContainer::PFTAU,
+		EVTColContainer::CALOMET
+	};
+
+	std::set<unsigned int> objsType;
 	// The object to deal has to be entered via the config .py
-	for(std::map<unsigned int,std::string>::const_iterator it = _recLabels.begin();
-			it != _recLabels.end(); ++it)
+	for(unsigned int i = 0; i < objSize; ++i)
 	{
-		std::string objTypeStr = this->getTypeString( it->first );
+		std::string objTypeStr = EVTColContainer::getTypeString( objtriggernames[i] );
 		// Check if it is needed this object for this trigger
 		if( ! TString(hltPath).Contains(objTypeStr) )
 		{
 			continue;
 		}
 
-		// Number of ocurrences of the object (so how many objects we need)
-		int n = 0;
-		std::string::size_type pos = 0;
-		while( (pos = hltPath.find( objTypeStr, pos)) != std::string::npos )
-		{
-			++n;
-			pos += objTypeStr.size();
-		} // End algorithm to extract n-ocurrences
-		int nocur = n;
-		for(int i = 0; i < nocur; ++i)
-		{
-			objsType.push_back(it->first);
-		}
-		// Or (and) if has the double label in the name
-		if( TString(hltPath).Contains("Double") )
-		{
-			objsType.push_back(it->first);
-		}
+		objsType.insert(objtriggernames[i]);
 	}
 
-	// Recovering the case TkMu << FIXME -- TO BE IMPLEMENTED
-	return objsType;
+	return std::vector<unsigned int>(objsType.begin(),objsType.end());
 }
 
 
-
+// Booking the maps: recLabels and genParticle selectors
 void HLTHiggsSubAnalysis::bookobjects( const edm::ParameterSet & anpset )
 {
 	if( anpset.exists("recMuonLabel") )
 	{
-		_recLabels[MUON] = anpset.getParameter<std::string>("recMuonLabel");
+		_recLabels[EVTColContainer::MUON] = anpset.getParameter<std::string>("recMuonLabel");
+		_genSelectorMap[EVTColContainer::MUON] = 0 ;
 	}
 	if( anpset.exists("recElecLabel") )
 	{
-		_recLabels[ELEC] = anpset.getParameter<std::string>("recElecLabel");
+		_recLabels[EVTColContainer::ELEC] = anpset.getParameter<std::string>("recElecLabel");
+		_genSelectorMap[EVTColContainer::ELEC] = 0 ;
 	}
 	if( anpset.exists("recPhotonLabel") )
 	{
-		_recLabels[PHOTON] = anpset.getParameter<std::string>("recPhotonLabel");
+		_recLabels[EVTColContainer::PHOTON] = anpset.getParameter<std::string>("recPhotonLabel");
+		_genSelectorMap[EVTColContainer::PHOTON] = 0 ;
 	}
 	if( anpset.exists("recCaloMETLabel") )
 	{
-		_recLabels[CALOMET] = anpset.getParameter<std::string>("recCaloMETLabel");
+		_recLabels[EVTColContainer::CALOMET] = anpset.getParameter<std::string>("recCaloMETLabel");
+		_genSelectorMap[EVTColContainer::CALOMET] = 0 ;
 	}
 	if( anpset.exists("recPFTauLabel") )
 	{
-		_recLabels[PFTAU] = anpset.getParameter<std::string>("recPFTauLabel");
+		_recLabels[EVTColContainer::PFTAU] = anpset.getParameter<std::string>("recPFTauLabel");
+		_genSelectorMap[EVTColContainer::PFTAU] = 0 ;
 	}
-	if( anpset.exists("recTrackLabel") )
+	/*if( anpset.exists("recTrackLabel") )
 	{
-		_recLabels[TRACK] = anpset.getParameter<std::string>("recTrackLabel");
-	}
+		_recLabels[EVTColContainer::TRACK] = anpset.getParameter<std::string>("recTrackLabel");
+		_genSelectorMap[EVTColContainer::TRACK] = 0 ;
+	}*/
 
 	if( _recLabels.size() < 1 )
 	{
@@ -491,7 +506,7 @@ void HLTHiggsSubAnalysis::initobjects(const edm::Event & iEvent, EVTColContainer
 	{
 		// TO BE DEPRECATED AS we don't need it anymore.
 		// There is no match with HLT candidates... Use, then TriggerResults
-		edm::Handle<trigger::TriggerEventWithRefs> rawTEH;
+		/*edm::Handle<trigger::TriggerEventWithRefs> rawTEH;
 		iEvent.getByLabel("hltTriggerSummaryRAW",rawTEH);
 		if(rawTEH.failedToGet())
 		{
@@ -499,7 +514,7 @@ void HLTHiggsSubAnalysis::initobjects(const edm::Event & iEvent, EVTColContainer
 				<< "No trigger summary found"; 
 			return;
 		}
-		col->rawTriggerEvent = rawTEH.product();
+		col->rawTriggerEvent = rawTEH.product();*/
 		// END-- TO BE DEPRECATED
 	
 		// extract the trigger results (path info, pass,...)
@@ -523,46 +538,42 @@ void HLTHiggsSubAnalysis::initobjects(const edm::Event & iEvent, EVTColContainer
 	for(std::map<unsigned int,std::string>::iterator it = _recLabels.begin(); 
 			it != _recLabels.end(); ++it)
 	{
-		if( it->first == MUON )
+		if( it->first == EVTColContainer::MUON )
 		{
 			edm::Handle<reco::MuonCollection> theHandle;
 			iEvent.getByLabel(it->second, theHandle);
 			col->set(theHandle.product());
 		}
-		else if( it->first == ELEC )
+		else if( it->first == EVTColContainer::ELEC )
 		{
 			edm::Handle<reco::GsfElectronCollection> theHandle;
 			iEvent.getByLabel(it->second, theHandle);
 			col->set(theHandle.product());
 		}
-		else if( it->first == PHOTON )
+		else if( it->first == EVTColContainer::PHOTON )
 		{
 			edm::Handle<reco::PhotonCollection> theHandle;
 			iEvent.getByLabel(it->second, theHandle);
 			col->set(theHandle.product());
 		}
-		else if( it->first == CALOMET )
+		else if( it->first == EVTColContainer::CALOMET )
 		{
-//std::cout << "ESTOY AQUI =============================== " << _analysisname;
 			edm::Handle<reco::CaloMETCollection> theHandle;
 			iEvent.getByLabel(it->second, theHandle);
-//std::cout << it->second << std::endl;
 			col->set(theHandle.product());
 		}
-		else if( it->first == PFTAU )
+		else if( it->first == EVTColContainer::PFTAU )
 		{
-//std::cout << "ESTOY AQUI TAUS =============================== " << _analysisname;
 			edm::Handle<reco::PFTauCollection> theHandle;
 			iEvent.getByLabel(it->second, theHandle);
-//std::cout << it->second << std::endl;
 			col->set(theHandle.product());
 		}
-		else if( it->first == TRACK )
+/*		else if( it->first == EVTColContainer::TRACK )
 		{
 			edm::Handle<reco::TrackCollection> theHandle;
 			iEvent.getByLabel(it->second, theHandle);
 			col->set(theHandle.product());
-		}
+		}*/
 		else
 		{
 			edm::LogError("HiggsValidation") << "HLTHiggsSubAnalysis::initobjects " 
@@ -607,7 +618,6 @@ void HLTHiggsSubAnalysis::bookHist(const std::string & source,
       	h->Sumw2();
       	_elements[name] = _dbe->book1D(name, h);
       	delete h;
-std::cout << " BOOKED: (" << _analysisname << ")" << name << std::endl;
 }
 
 void HLTHiggsSubAnalysis::fillHist(const std::string & source, 
@@ -616,77 +626,39 @@ void HLTHiggsSubAnalysis::fillHist(const std::string & source,
 	std::string sourceUpper = source; 
       	sourceUpper[0] = toupper(sourceUpper[0]);
 	std::string name = source + objType + variable ;
-std::cout << "SUBANALYSIS " << _analysisname << " : name-" << name << " histo:" << _elements[name] << std::endl;
 
 	_elements[name]->Fill(value);
-//std::cout << " --- FILLING:"  << source << " " << objType << " " << variable << ":" << value << std::endl;
 }
 
-const std::string HLTHiggsSubAnalysis::getTypeString(const unsigned int & objtype) const
-{
-	std::string objTypestr;
-
-	if( objtype == HLTHiggsSubAnalysis::MUON )
-	{
-		objTypestr = "Mu";
-	}
-	else if( objtype == HLTHiggsSubAnalysis::ELEC )
-	{
-		objTypestr = "Ele";
-	}
-	else if( objtype == HLTHiggsSubAnalysis::PHOTON )
-	{
-		objTypestr = "Photon";
-	}
-	else if( objtype == HLTHiggsSubAnalysis::CALOMET )
-	{
-		objTypestr = "MET";
-	}
-	else if( objtype == HLTHiggsSubAnalysis::PFTAU )
-	{
-		objTypestr = "PFTau";
-	}
-	else if( objtype == HLTHiggsSubAnalysis::TRACK )
-	{
-		objTypestr = "TkMu";
-	}
-	else
-	{ 
-		edm::LogError("HiggsValidations") << "HLTHiggsSubAnalysis::getTypeString, "
-			<< "NOT Implemented error (object type id='" << objtype << "')" << std::endl;;
-	}
-
-	return objTypestr;
-}
 
 
 // Initialize the selectors
 void HLTHiggsSubAnalysis::InitSelector(const unsigned int & objtype)
 {	
-	if( objtype == HLTHiggsSubAnalysis::MUON && _recMuonSelector == 0 )
+	if( objtype == EVTColContainer::MUON && _recMuonSelector == 0 )
 	{
 		_recMuonSelector = new StringCutObjectSelector<reco::Muon>(_recCut[objtype]);
 	}
-	else if( objtype == HLTHiggsSubAnalysis::ELEC && _recElecSelector == 0)
+	else if( objtype == EVTColContainer::ELEC && _recElecSelector == 0)
 	{
 		_recElecSelector = new StringCutObjectSelector<reco::GsfElectron>(_recCut[objtype]);
 	}
-	else if( objtype == HLTHiggsSubAnalysis::PHOTON && _recPhotonSelector == 0)
+	else if( objtype == EVTColContainer::PHOTON && _recPhotonSelector == 0)
 	{
 		_recPhotonSelector = new StringCutObjectSelector<reco::Photon>(_recCut[objtype]);
 	}
-	else if( objtype == HLTHiggsSubAnalysis::CALOMET && _recCaloMETSelector == 0)
+	else if( objtype == EVTColContainer::CALOMET && _recCaloMETSelector == 0)
 	{
 		_recCaloMETSelector = new StringCutObjectSelector<reco::CaloMET>(_recCut[objtype]);
 	}
-	else if( objtype == HLTHiggsSubAnalysis::PFTAU && _recPFTauSelector == 0 )
+	else if( objtype == EVTColContainer::PFTAU && _recPFTauSelector == 0 )
 	{
 		_recPFTauSelector = new StringCutObjectSelector<reco::PFTau>(_recCut[objtype]);
 	}
-	else if( objtype == HLTHiggsSubAnalysis::TRACK && _recTrackSelector == 0)
+	/*else if( objtype == EVTColContainer::TRACK && _recTrackSelector == 0)
 	{
 		_recTrackSelector = new StringCutObjectSelector<reco::Track>(_recCut[objtype]);
-	}
+	}*/
 /*	else
 	{
 FIXME: ERROR NO IMPLEMENTADO
@@ -694,68 +666,68 @@ FIXME: ERROR NO IMPLEMENTADO
 }
 
 void HLTHiggsSubAnalysis::insertcandidates(const unsigned int & objType, const EVTColContainer * cols, 
-		std::vector<MatchStruct> & matches)
+		std::vector<MatchStruct> * matches)
 {
-	if( objType == MUON )
+	if( objType == EVTColContainer::MUON )
 	{
 		for(size_t i = 0; i < cols->muons->size(); i++)
 		{
 			if(_recMuonSelector->operator()(cols->muons->at(i)))
 			{
-				matches.push_back(MatchStruct(&cols->muons->at(i),objType));
+				matches->push_back(MatchStruct(&cols->muons->at(i),objType));
 			}
 		}
 	}
-	else if( objType == ELEC )
+	else if( objType == EVTColContainer::ELEC )
 	{
 		for(size_t i = 0; i < cols->electrons->size(); i++)
 		{
 			if(_recElecSelector->operator()(cols->electrons->at(i)))
 			{
-				matches.push_back(MatchStruct(&cols->electrons->at(i),objType));
+				matches->push_back(MatchStruct(&cols->electrons->at(i),objType));
 			}
 		}
 	}
-	else if( objType == PHOTON )
+	else if( objType == EVTColContainer::PHOTON )
 	{
 		for(size_t i = 0; i < cols->photons->size(); i++)
 		{
 			if(_recPhotonSelector->operator()(cols->photons->at(i)))
 			{
-				matches.push_back(MatchStruct(&cols->photons->at(i),objType));
+				matches->push_back(MatchStruct(&cols->photons->at(i),objType));
 			}
 		}
 	}
-	else if( objType == CALOMET )
+	else if( objType == EVTColContainer::CALOMET )
 	{
 		for(size_t i = 0; i < cols->caloMETs->size(); i++)
 		{
 			if(_recCaloMETSelector->operator()(cols->caloMETs->at(i)))
 			{
-				matches.push_back(MatchStruct(&cols->caloMETs->at(i),objType));
+				matches->push_back(MatchStruct(&cols->caloMETs->at(i),objType));
 			}
 		}
 	}
-	else if( objType == PFTAU )
+	else if( objType == EVTColContainer::PFTAU )
 	{
 		for(size_t i = 0; i < cols->pfTaus->size(); i++)
 		{
 			if(_recPFTauSelector->operator()(cols->pfTaus->at(i)))
 			{
-				matches.push_back(MatchStruct(&cols->pfTaus->at(i),objType));
+				matches->push_back(MatchStruct(&cols->pfTaus->at(i),objType));
 			}
 		}
 	}
-	else if( objType == TRACK )
+	/*else if( objType == EVTColContainer::TRACK )
 	{
 		for(size_t i = 0; i < cols->tracks->size(); i++)
 		{
 			if(_recTrackSelector->operator()(cols->tracks->at(i)))
 			{
-				matches.push_back(MatchStruct(&cols->tracks->at(i),objType));
+				matches->push_back(MatchStruct(&cols->tracks->at(i),objType));
 			}
 		}
-	}
+	}*/
 	/*
 	else FIXME: Control errores
 	{

@@ -11,7 +11,7 @@ def efficiency_string(objtype,plot_type,triggerpath):
 	objtypeLatex="#gamma"
     elif objtype == "Ele": 
 	objtypeLatex="e"
-    elif objtype == "CaloMET" :
+    elif objtype == "MET" :
 	objtypeLatex="MET"
     elif objtype == "PFTau": 
 	objtypeLatex="#tau"

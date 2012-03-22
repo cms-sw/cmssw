@@ -5,7 +5,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 		
     hltProcessName = cms.string("HLT"),
     analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau"),
-    #analysis       = cms.vstring("Hgg"),
+    #analysis       = cms.vstring("HWW"),
     
     genParticleLabel = cms.string("genParticles"),
     #parametersTurnOn = cms.vdouble(0,
@@ -55,20 +55,20 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     Photon_cutMaxEta  = cms.double(2.4),
 
     # --- Taus: ----> ?? NOT SURE ABOUT THE CUTS
-    PFTau_genCut      = cms.string("abs(pdgId) == 15 && status == 3"),
+    PFTau_genCut      = cms.string("pt > 20 && abs(eta) < 2.5 && abs(pdgId) == 15 && status == 3"),
     PFTau_recCut      = cms.string(""),
     PFTau_cutMinPt    = cms.double(20),
     PFTau_cutMaxEta   = cms.double(2.5),
 
     # --- Muon Tracks    
-    TkMu_genCut      = cms.string("abs(pdgId) == 13 && status == 1"),
-    TkMu_recCut      = cms.string("pt > 10 && abs(eta) < 2.4"),
-    TkMu_cutMinPt    = cms.double(20),
-    TkMu_cutMaxEta   = cms.double(2.4),
+    #TkMu_genCut      = cms.string("pt > 10 && abs(eta) < 2.4 && abs(pdgId) == 13 && status == 1"),
+    #TkMu_recCut      = cms.string("pt > 10 && abs(eta) < 2.4"),
+    #TkMu_cutMinPt    = cms.double(20),
+    #TkMu_cutMaxEta   = cms.double(2.4),
     
     # --- MET (calo)    
     MET_genCut      = cms.string("(abs(pdgId) == 12 || abs(pdgId)==14 || abs(pdgId) == 16 ) && status == 1"),
-    MET_recCut      = cms.string("pt > 5."),  # (pt or et??)
+    MET_recCut      = cms.string("pt > 75."),  
     MET_cutMinPt    = cms.double(75),
     MET_cutMaxEta   = cms.double(0),
 
@@ -94,15 +94,16 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 		    ),
 	    recMuonLabel  = cms.string("muons"),
 	    recElecLabel  = cms.string("gsfElectrons"),
+	    #recTrackLabel = cms.string("globalMuons"),
 	    # -- Analysis specific cuts
 	    minCandidates = cms.uint32(4), 
 	    ),
     Hgg = cms.PSet( 
 	    hltPathsToCheck = cms.vstring(
-		    "HLT_Photon26_Photon18_v",
-		    "HLT_Photon36_Photon22_v",
-		    #"HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v", #WARNING!!
-		    #"HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v", #WARNING !!
+		    #   "HLT_Photon26_Photon18_v",
+		    # "HLT_Photon36_Photon22_v",
+		    "HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v",
+		    "HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v",
 		    ),
 	    recPhotonLabel  = cms.string("photons"),
 	    # -- Analysis specific cuts
@@ -111,7 +112,6 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     Htaunu = cms.PSet( 
 	    hltPathsToCheck = cms.vstring(
 		    "HLT_LooseIsoPFTau35_Trk20_MET75_v",
-		    "HLT_MediumIsoPFTau35_Trk20_MET70_v",  # TO DELETE
 		    ),
 	    recPFTauLabel   = cms.string("hpsTancTaus"),
 	    recCaloMETLabel = cms.string("met"),

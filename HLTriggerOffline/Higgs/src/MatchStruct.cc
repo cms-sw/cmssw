@@ -40,15 +40,16 @@ struct MatchStruct
 		objType(obj),
 		pt(cand->pt()),
 		eta(cand->eta()),
-		phi(cand->eta()),
+		phi(cand->phi()),
 		thepointer(cand)
 
 	{
 	}
+	// FIXME: If finally the track is disappeared, then recover the last code...
 	MatchStruct(const reco::Track * cand, const unsigned int & obj) :
 		objType(obj),
 		pt(cand->pt()),
-		eta(cand->pt()),
+		eta(cand->eta()),
 		phi(cand->phi()),
 		thepointer(cand)
 	{

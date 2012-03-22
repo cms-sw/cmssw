@@ -48,7 +48,7 @@ class HLTHiggsPlotter
 {
        	public:
 	      	HLTHiggsPlotter(const edm::ParameterSet & pset, const std::string & hltPath,
-				const std::string & lastFilter,
+				//const std::string & lastFilter,
 				const std::vector<unsigned int> & objectsType,
 			       	DQMStore * dbe);
 		~HLTHiggsPlotter();
@@ -65,10 +65,8 @@ class HLTHiggsPlotter
 				const std::string & objType, const std::string & var, 
 				const float & value);
 		
-		const std::string getTypeString(const unsigned int & objtype) const;
-
 	      	std::string _hltPath;
-		std::string _lastFilter;
+		//std::string _lastFilter;
 		std::string _hltProcessName;
 
 		std::set<unsigned int> _objectsType;
