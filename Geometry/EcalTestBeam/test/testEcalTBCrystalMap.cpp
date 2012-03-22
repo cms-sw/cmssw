@@ -1,16 +1,13 @@
 #include "Geometry/EcalTestBeam/interface/EcalTBCrystalMap.h"
-
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CLHEP/Random/RandFlat.h"
 
 #include <string>
 
-int main() {
-
-  const char *workarea = getenv("CMSSW_BASE");
-
-  const std::string MapFileName = "/src/Geometry/EcalTestBeam/data/BarrelSM1CrystalCenterElectron120GeV.dat";
-
-  EcalTBCrystalMap theTestMap(workarea + MapFileName);
+int main()
+{
+  edm::FileInPath dataFile("Geometry/EcalTestBeam/data/BarrelSM1CrystalCenterElectron120GeV.dat");
+  EcalTBCrystalMap theTestMap(dataFile.fullPath());
   
   long nCrystal = 1700;
 
