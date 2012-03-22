@@ -503,7 +503,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 		    //const Chi2MeasurementEstimator *theEstimator(100);
 		    //theEstimator->estimate(TM->tsos(), TransientTrackingRecHit);
 		    
-		    //SiStripClusterInfo clusterInfo = SiStripClusterInfo(*iter, es);  
+		    SiStripClusterInfo clusterInfo = SiStripClusterInfo(*iter, es, ClusterId);  
 		    // signal to noise from SiStripClusterInfo not working in 225. I'll fix this after the interface
 		    // redesign in 300 -ku
 		    //float cluster_info[7] = {res, sigma, parameters.first.x(), sqrt(parameters.second.xx()), parameters.first.y(), sqrt(parameters.second.yy()), signal_to_noise};
@@ -514,10 +514,10 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 		    cluster_info.push_back(sqrt(parameters.second.xx()));
 		    cluster_info.push_back(parameters.first.y());
 		    cluster_info.push_back(sqrt(parameters.second.yy()));
-		    //cout << "before getting signal over noise" << endl;
-		    //cluster_info.push_back( clusterInfo.signalOverNoise() );
+		    cout << "before getting signal over noise" << endl;
+		    cluster_info.push_back( clusterInfo.signalOverNoise() );
 		    //cluster_info.push_back( clusterInfo.getSignalOverNoise() );
-		    //cout << "after getting signal over noise" << endl;
+		    cout << "after getting signal over noise" << endl;
 		    VCluster_info.push_back(cluster_info);
 		    nClusters++;
 		    if (DEBUG) cout << "Have ID match. residual = " << VCluster_info.back()[0] << "  res sigma = " << VCluster_info.back()[1] << endl;

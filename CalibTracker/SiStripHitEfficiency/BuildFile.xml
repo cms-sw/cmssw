@@ -1,4 +1,4 @@
-<use   name="AnalysisDataFormats/SiStripClusterInfo"/>
+<use   name="RecoLocalTracker/SiStripClusterizer"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="DataFormats/DetId"/>
 <use   name="DataFormats/SiStripDetId"/>
