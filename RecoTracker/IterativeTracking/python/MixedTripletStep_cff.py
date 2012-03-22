@@ -10,6 +10,7 @@ mixedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
     trajectories = cms.InputTag("detachedTripletStepTracks"),
     overrideTrkQuals = cms.InputTag('detachedTripletStep'),
     TrackQuality = cms.string('highPurity'),
+    minNumberOfLayersWithMeasBeforeFiltering = cms.int32(5),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
     Common = cms.PSet(
@@ -161,7 +162,8 @@ mixedTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
     clustersToSkip = cms.InputTag('mixedTripletStepClusters'),
     maxCand = 2,
     estimator = cms.string('mixedTripletStepChi2Est'),
-    maxPtForLooperReconstruction = cms.double(-1) 
+    maxDPhiForLooperReconstruction = cms.double(2.0),
+    maxPtForLooperReconstruction = cms.double(0.7) 
     )
 
 # MAKING OF TRACK CANDIDATES

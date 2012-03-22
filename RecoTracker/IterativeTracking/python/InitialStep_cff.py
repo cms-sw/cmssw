@@ -36,7 +36,7 @@ import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
 initialStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('initialStepChi2Est'),
     nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(9.0)
+    MaxChi2 = cms.double(30.0)
 )
 
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
@@ -44,9 +44,10 @@ initialStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilde
     ComponentName = 'initialStepTrajectoryBuilder',
     trajectoryFilterName = 'initialStepTrajectoryFilter',
     alwaysUseInvalidHits = True,
-    maxCand = 3,
+    maxCand = 5,
     estimator = cms.string('initialStepChi2Est'),
-    maxPtForLooperReconstruction = cms.double(-1) 
+    maxDPhiForLooperReconstruction = cms.double(2.0),
+    maxPtForLooperReconstruction = cms.double(0.7) 
     )
 
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi

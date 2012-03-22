@@ -8,6 +8,7 @@ pixelPairStepClusters = cms.EDProducer("TrackClusterRemover",
     trajectories = cms.InputTag("lowPtTripletStepTracks"),
     overrideTrkQuals = cms.InputTag('lowPtTripletStepSelector','lowPtTripletStep'),
     TrackQuality = cms.string('highPurity'),
+    minNumberOfLayersWithMeasBeforeFiltering = cms.int32(5),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
     Common = cms.PSet(
@@ -82,7 +83,8 @@ pixelPairStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuil
     clustersToSkip = cms.InputTag('pixelPairStepClusters'),
     maxCand = 2,
     estimator = cms.string('pixelPairStepChi2Est'),
-    maxPtForLooperReconstruction = cms.double(-1) 
+    maxDPhiForLooperReconstruction = cms.double(2.0),
+    maxPtForLooperReconstruction = cms.double(0.7) 
     )
 
 # MAKING OF TRACK CANDIDATES
