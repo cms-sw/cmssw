@@ -13,13 +13,14 @@
 #include <RooDataSet.h>
 #include <RooRandom.h>
 
-ToyMCSamplerOpt::ToyMCSamplerOpt(RooStats::TestStatistic& ts, Int_t ntoys, RooAbsPdf *globalObsPdf) :
+ToyMCSamplerOpt::ToyMCSamplerOpt(RooStats::TestStatistic& ts, Int_t ntoys, RooAbsPdf *globalObsPdf, bool generateNuisances) :
     ToyMCSampler(ts, ntoys),
     globalObsPdf_(globalObsPdf),
     globalObsValues_(0), globalObsIndex_(-1),
-    weightVar_(0),
-    _allVars(0)
+    nuisValues_(0), nuisIndex_(-1),
+    weightVar_(0)
 {
+    if (!generateNuisances) fPriorNuisance = 0; // set things straight from the beginning
 }
 
 
@@ -27,8 +28,7 @@ ToyMCSamplerOpt::ToyMCSamplerOpt(const RooStats::ToyMCSampler &base) :
     ToyMCSampler(base),
     globalObsPdf_(0),
     globalObsValues_(0), globalObsIndex_(-1),
-    weightVar_(0),
-    _allVars(0)
+    weightVar_(0)
 {
 }
 
@@ -36,8 +36,7 @@ ToyMCSamplerOpt::ToyMCSamplerOpt(const ToyMCSamplerOpt &other) :
     ToyMCSampler(other),
     globalObsPdf_(0),
     globalObsValues_(0), globalObsIndex_(-1),
-    weightVar_(0),
-    _allVars(0)
+    weightVar_(0)
 {
 }
 
@@ -48,7 +47,7 @@ ToyMCSamplerOpt::~ToyMCSamplerOpt()
         delete it->second;
     }
     genCache_.clear();
-    delete _allVars;
+    delete _allVars; _allVars = 0;
     delete globalObsValues_;
 }
 
@@ -376,11 +375,11 @@ ToyMCSamplerOpt::SetPdf(RooAbsPdf& pdf)
     ToyMCSampler::SetPdf(pdf);
     delete _allVars; _allVars = 0; 
     delete globalObsValues_; globalObsValues_ = 0; globalObsIndex_ = -1;
+    delete nuisValues_; nuisValues_ = 0; nuisIndex_ = -1;
 }
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,29,0)
-//--- Taken from SVN HEAD ------------
-RooAbsData* ToyMCSamplerOpt::GenerateToyData(RooArgSet& /*nullPOI*/) const {
+RooAbsData* ToyMCSamplerOpt::GenerateToyData(RooArgSet& /*nullPOI*/, double& weight, RooAbsPdf& pdf) const {
+   weight = 1;
    // This method generates a toy data set for the given parameter point taking
    // global observables into account.
 
@@ -389,73 +388,34 @@ RooAbsData* ToyMCSamplerOpt::GenerateToyData(RooArgSet& /*nullPOI*/) const {
       return 0; 
    }
 
+   // generate nuisances
+   RooArgSet saveNuis;
+   if(fPriorNuisance && fNuisancePars && fNuisancePars->getSize() > 0) {
+        if (nuisValues_ == 0 || nuisIndex_ == nuisValues_->numEntries()) {
+            delete nuisValues_;
+            nuisValues_ = fPriorNuisance->generate(*fNuisancePars, fNToys);
+            nuisIndex_  = 0;
+        }
+        fNuisancePars->snapshot(saveNuis);
+        const RooArgSet *values = nuisValues_->get(nuisIndex_++);
+        RooArgSet pars(*fNuisancePars); pars = *values;
+   }
+
    RooArgSet observables(*fObservables);
    if(fGlobalObservables  &&  fGlobalObservables->getSize()) {
       observables.remove(*fGlobalObservables);
 
-      
       // generate one set of global observables and assign it
-      // has problem for sim pdfs
-      RooSimultaneous* simPdf = dynamic_cast<RooSimultaneous*>(fPdf);
-      if(globalObsPdf_ || !simPdf){
-        if (globalObsValues_ == 0 || globalObsIndex_ == globalObsValues_->numEntries()) {
-            delete globalObsValues_;
-            globalObsValues_ = (globalObsPdf_ ? globalObsPdf_ : fPdf)->generate(*fGlobalObservables, fNToys);
-            globalObsIndex_  = 0;
-        }
-	const RooArgSet *values = globalObsValues_->get(globalObsIndex_++);
-        //std::cout << "Generated for " << fPdf->GetName() << std::endl; values->Print("V");
-	if (!_allVars) {
-	  _allVars = fPdf->getObservables(*fGlobalObservables);
-	}
-	*_allVars = *values;
-
-      } else {
-#if 0
-	if (_pdfList.size()==0) {
-	  TIterator* citer = simPdf->indexCat().typeIterator() ;
-	  RooCatType* tt = NULL;
-	  while((tt=(RooCatType*) citer->Next())) {
-	    RooAbsPdf* pdftmp = simPdf->getPdf(tt->GetName()) ;
-	    RooArgSet* globtmp = pdftmp->getObservables(*fGlobalObservables) ;
-	    RooAbsPdf::GenSpec* gs = pdftmp->prepareMultiGen(*globtmp,RooFit::NumEvents(1)) ;
-	    _pdfList.push_back(pdftmp) ;
-	    _obsList.push_back(globtmp) ;
-	    _gsList.push_back(gs) ;
-	  }
-	}
-
-	list<RooArgSet*>::iterator oiter = _obsList.begin() ;
-	list<RooAbsPdf::GenSpec*>::iterator giter = _gsList.begin() ;
-	for (list<RooAbsPdf*>::iterator iter = _pdfList.begin() ; iter != _pdfList.end() ; ++iter, ++giter, ++oiter) {
-	  //RooDataSet* tmp = (*iter)->generate(**oiter,1) ;	  
-	  RooDataSet* tmp = (*iter)->generate(**giter) ;
-	  **oiter = *tmp->get(0) ;
-	  delete tmp ;	  
-	}	
-#else
-        //try fix for sim pdf
-        TIterator* iter = simPdf->indexCat().typeIterator() ;
-        RooCatType* tt = NULL;
-        while((tt=(RooCatType*) iter->Next())) {
-
-            // Get pdf associated with state from simpdf
-            RooAbsPdf* pdftmp = simPdf->getPdf(tt->GetName()) ;
-
-            // Generate only global variables defined by the pdf associated with this state
-            RooArgSet* globtmp = pdftmp->getObservables(*fGlobalObservables) ;
-            RooDataSet* tmp = pdftmp->generate(*globtmp,1) ;
-
-            // Transfer values to output placeholder
-            *globtmp = *tmp->get(0) ;
-
-            // Cleanup
-            delete globtmp ;
-            delete tmp ;
-        }
-#endif
-      } 
-}
+      assert(globalObsPdf_);
+      if (globalObsValues_ == 0 || globalObsIndex_ == globalObsValues_->numEntries()) {
+          delete globalObsValues_;
+          globalObsValues_ = (globalObsPdf_ ? globalObsPdf_ : fPdf)->generate(*fGlobalObservables, fNToys);
+          globalObsIndex_  = 0;
+      }
+      const RooArgSet *values = globalObsValues_->get(globalObsIndex_++);
+      if (!_allVars) _allVars = fPdf->getObservables(*fGlobalObservables);
+      *_allVars = *values;
+   }
 
    RooAbsData* data = NULL;
 
@@ -463,7 +423,7 @@ RooAbsData* ToyMCSamplerOpt::GenerateToyData(RooArgSet& /*nullPOI*/) const {
       // no Importance Sampling
       data = Generate(*fPdf, observables);
    }else{
-
+      throw std::runtime_error("No importance sampling yet");
       // Importance Sampling
       RooArgSet* allVars = fPdf->getVariables();
       RooArgSet* allVars2 = fImportanceDensity->getVariables();
@@ -494,9 +454,9 @@ RooAbsData* ToyMCSamplerOpt::GenerateToyData(RooArgSet& /*nullPOI*/) const {
       delete saveVars;
    }
 
+   if (saveNuis.getSize()) { RooArgSet pars(*fNuisancePars); pars = saveNuis; }
    return data;
 }
-#endif
 
 
 RooAbsData *  

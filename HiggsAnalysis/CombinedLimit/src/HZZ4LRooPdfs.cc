@@ -2542,7 +2542,7 @@ double Roo4lMasses2D_BkgGGZZ::evaluate() const
 	
 	double Gamma=0, mZ=0, a0=0, a1=0, a2=0, a3=0, Gamma0=0, m0=0, f=0, f0=0;
 	double a0_bkgd=0, a1_bkgd=0, a2_bkgd=0, a3_bkgd=0, a4_bkgd=0, a5_bkgd=0, a6_bkgd=0, a7_bkgd=0;
-	double a8_bkgd=0, a9_bkgd=0, a10_bkgd=0, a11_bkgd=0, a12_bkgd=0, a13_bkgd=0;
+	double a8_bkgd=0, a9_bkgd=0;//, a10_bkgd=0, a11_bkgd=0, a12_bkgd=0, a13_bkgd=0;
 	
 	a2 = 0.; a3 = 0.;
 	if (channelVal == 1.){

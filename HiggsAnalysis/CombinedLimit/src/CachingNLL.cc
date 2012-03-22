@@ -309,8 +309,8 @@ cacheutils::CachingAddNLL::evaluate() const
     std::fill( partialSum_.begin(), partialSum_.end(), 0.0 );
 
     std::vector<RooAbsReal*>::iterator  itc = coeffs_.begin(), edc = coeffs_.end();
-    std::vector<CachingPdf>::iterator   itp = pdfs_.begin(),   edp = pdfs_.end();
-    std::vector<Double_t>::const_iterator itw, bgw = weights_.begin(),    edw = weights_.end();
+    std::vector<CachingPdf>::iterator   itp = pdfs_.begin();//,   edp = pdfs_.end();
+    std::vector<Double_t>::const_iterator itw, bgw = weights_.begin();//,    edw = weights_.end();
     std::vector<Double_t>::iterator       its, bgs = partialSum_.begin(), eds = partialSum_.end();
     double sumCoeff = 0;
     //std::cout << "Performing evaluation of " << GetName() << std::endl;
@@ -615,7 +615,6 @@ void cacheutils::CachingSimNLL::setZeroPoint() {
     for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it) {
         if (*it != 0) (*it)->setZeroPoint();
     }
-    std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end();
     std::vector<double>::iterator itz = constrainZeroPoints_.begin();
     for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it, ++itz) {
         double pdfval = (*it)->getVal(nuis_);

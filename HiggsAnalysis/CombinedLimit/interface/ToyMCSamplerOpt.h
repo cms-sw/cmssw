@@ -47,30 +47,25 @@ namespace toymcoptutils {
 
 class ToyMCSamplerOpt : public RooStats::ToyMCSampler{
     public:
-        ToyMCSamplerOpt(RooStats::TestStatistic& ts, Int_t ntoys, RooAbsPdf *globalObsPdf = 0) ;
+        ToyMCSamplerOpt(RooStats::TestStatistic& ts, Int_t ntoys, RooAbsPdf *globalObsPdf = 0, bool generateNuisances = false) ;
         ToyMCSamplerOpt(const RooStats::ToyMCSampler &base) ;
         ToyMCSamplerOpt(const ToyMCSamplerOpt &other) ;
         ~ToyMCSamplerOpt() ;
-        virtual RooAbsData* Generate(RooAbsPdf& pdf, RooArgSet& observables, const RooDataSet* protoData = NULL, int forceEvents = 0) const ;
         virtual void SetPdf(RooAbsPdf& pdf) ;
         void setGlobalObsPdf(RooAbsPdf *pdf) { globalObsPdf_ = pdf; }
+        virtual RooAbsData* GenerateToyData(RooArgSet& /*nullPOI*/, double& weight, RooAbsPdf& pdf) const ;
     private:
+        RooAbsData* Generate(RooAbsPdf& pdf, RooArgSet& observables, const RooDataSet* protoData = NULL, int forceEvents = 0) const ;
         RooAbsPdf *globalObsPdf_;
         mutable RooDataSet *globalObsValues_; 
         mutable int globalObsIndex_;
 
+        // We can't use the NuisanceParameterSampler because, even if public, there's no interface file for it
+        mutable RooDataSet *nuisValues_; 
+        mutable int nuisIndex_;
+
         mutable RooRealVar *weightVar_;
         mutable std::map<RooAbsPdf *, toymcoptutils::SimPdfGenInfo *> genCache_;
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,29,0)
-    public:
-        virtual RooAbsData* GenerateToyData(RooArgSet& /*nullPOI*/) const ;
-    private:
-        // objects below cache information and are mutable and non-persistent
-        mutable RooArgSet* _allVars ; //! 
-        //mutable std::list<RooAbsPdf*> _pdfList ; //!
-        //mutable std::list<RooArgSet*> _obsList ; //!
-        //mutable std::list<RooAbsPdf::GenSpec*> _gsList ; //!      
-#endif
         
 };
 

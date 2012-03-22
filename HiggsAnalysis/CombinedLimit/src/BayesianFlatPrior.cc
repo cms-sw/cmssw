@@ -17,18 +17,12 @@
 using namespace RooStats;
 
 int BayesianFlatPrior::maxDim_ = 4;
-int BayesianFlatPrior::numIters_ = 0;
-std::string BayesianFlatPrior::interationType_ = "default";
 
 BayesianFlatPrior::BayesianFlatPrior() :
     LimitAlgo("BayesianSimple specific options")
 {
     options_.add_options()
         ("maxDim", boost::program_options::value<int>(&maxDim_)->default_value(maxDim_), "Maximum number of dimensions to try doing the integration")
-        ("interationType", boost::program_options::value<std::string>(&interationType_)->default_value(interationType_), "Integration algorithm to use")
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,29,0)
-        ("numIters", boost::program_options::value<int>(&numIters_)->default_value(numIters_), "Number of iterations or calls used within iteration (0=ROOT Default)")
-#endif
         ;
 }
 
@@ -40,10 +34,10 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooSta
   if (dim >= maxDim_) {
     std::cerr << "ERROR: Your model has more parameters than the maximum allowed in the BayesianSimple method. \n" << 
                  "             N(params) = " << dim << ", maxDim = " << maxDim_ << "\n" <<
-                 "       Please use MarkovChainMC method to compute Bayesian limits instead of BayesianSimple. \n" <<
+                 "       Please use MarkovChainMC or BayesianToyMC method to compute Bayesian limits instead of BayesianSimple.\n" <<
                  "       If you really want to run BayesianSimple, change the value of the 'maxDim' option, \n" 
                  "       but note that it's really not supposed to work for N(params) above 5 or so " << std::endl;
-    throw std::logic_error("Too many parameters for BayesianSimple method. Use MarkovChainMC method to compute Bayesian limits instead.");
+    throw std::logic_error("Too many parameters for BayesianSimple method. Use MarkovChainMC or BayesianToyMC method to compute Bayesian limits instead.");
   }
 
   RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
@@ -61,10 +55,6 @@ bool BayesianFlatPrior::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooSta
     BayesianCalculator bcalc(data, *mc_s);
     bcalc.SetLeftSideTailFraction(0);
     bcalc.SetConfidenceLevel(cl); 
-    if (interationType_ != "default") bcalc.SetIntegrationType(interationType_.c_str());
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,29,0)
-    if (numIters_) bcalc.SetNumIters(numIters_);
-#endif
     std::auto_ptr<SimpleInterval> bcInterval(bcalc.GetInterval());
     if (bcInterval.get() == 0) return false;
     limit = bcInterval->UpperLimit();

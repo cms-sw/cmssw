@@ -22,6 +22,7 @@
 #include "RooConstVar.h"
 #include "RooMsgService.h"
 #include <RooStats/ModelConfig.h>
+#include <RooStats/FrequentistCalculator.h>
 #include <RooStats/HybridCalculator.h>
 #include <RooStats/SimpleLikelihoodRatioTestStat.h>
 #include <RooStats/RatioOfProfiledLikelihoodsTestStat.h>
@@ -47,6 +48,7 @@ unsigned int HybridNew::nToys_ = 500;
 double HybridNew::clsAccuracy_ = 0.005;
 double HybridNew::rAbsAccuracy_ = 0.1;
 double HybridNew::rRelAccuracy_ = 0.05;
+double HybridNew::interpAccuracy_ = 0.2;
 std::string HybridNew::rule_ = "CLs";
 std::string HybridNew::testStat_ = "LEP";
 bool HybridNew::genNuisances_ = true;
@@ -97,6 +99,7 @@ LimitAlgo("HybridNew specific options") {
         ("clsAcc",  boost::program_options::value<double>(&clsAccuracy_ )->default_value(clsAccuracy_),  "Absolute accuracy on CLs to reach to terminate the scan")
         ("rAbsAcc", boost::program_options::value<double>(&rAbsAccuracy_)->default_value(rAbsAccuracy_), "Absolute accuracy on r to reach to terminate the scan")
         ("rRelAcc", boost::program_options::value<double>(&rRelAccuracy_)->default_value(rRelAccuracy_), "Relative accuracy on r to reach to terminate the scan")
+        ("interpAcc", boost::program_options::value<double>(&interpAccuracy_)->default_value(interpAccuracy_), "Minimum uncertainty from interpolation delta(x)/(max(x)-min(x))")
         ("iterations,i", boost::program_options::value<unsigned int>(&iterations_)->default_value(iterations_), "Number of times to throw 'toysH' toys to compute the p-values (for --singlePoint if clsAcc is set to zero disabling adaptive generation)")
         ("fork",    boost::program_options::value<unsigned int>(&fork_)->default_value(fork_),           "Fork to N processes before running the toys (set to 0 for debugging)")
         ("nCPU",    boost::program_options::value<unsigned int>(&nCpu_)->default_value(nCpu_),           "Use N CPUs with PROOF Lite (experimental!)")
@@ -144,6 +147,9 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
                 fitNuisances_ = false;
             }
         }
+    }
+    if (genGlobalObs_ && genNuisances_) {
+        std::cerr << "ALERT: generating both global observables and nuisance parameters at the same time is not validated." << std::endl;
     }
     if (vm.count("singlePoint")) {
         if (doSignificance_) throw std::invalid_argument("HybridNew: Can't use --significance and --singlePoint at the same time");
@@ -237,7 +243,7 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
         for (unsigned int i = 1; i < iterations_; ++i) {
             std::auto_ptr<HypoTestResult> more(evalGeneric(*hc));
             hcResult->Append(more.get());
-            if (verbose) std::cout << "\tCLb = " << hcResult->CLb() << " +/- " << hcResult->CLbError() << std::endl;
+            if (verbose) std::cout << "\t1 - CLb = " << hcResult->CLb() << " +/- " << hcResult->CLbError() << std::endl;
         }
     }
     if (hcResult.get() == 0) {
@@ -253,8 +259,8 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
     // I don't need to flip the P-values for significances, only for limits
     hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+EPS); // issue with < vs <= in discrete models
     double sig   = hcResult->Significance();
-    double sigHi = RooStats::PValueToSignificance( 1 - (hcResult->CLb() + hcResult->CLbError()) ) - sig;
-    double sigLo = RooStats::PValueToSignificance( 1 - (hcResult->CLb() - hcResult->CLbError()) ) - sig;
+    double sigHi = RooStats::PValueToSignificance( (hcResult->CLb() - hcResult->CLbError()) ) - sig;
+    double sigLo = RooStats::PValueToSignificance( (hcResult->CLb() + hcResult->CLbError()) ) - sig;
     if (reportPVal_) {
         limit    = hcResult->NullPValue();
         limitErr = hcResult->NullPValueError();
@@ -382,6 +388,8 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
                   limitErr = hypot((logTarget-logMax) * (clsMin.second/clsMin.first), (logTarget-logMin) * (clsMax.second/clsMax.first));
                   limitErr *= (rMax-rMin)/((logMax-logMin)*(logMax-logMin));
               }
+              // disallow "too precise" interpolations
+              if (limitErr < interpAccuracy_ * (rMax-rMin)) limitErr = interpAccuracy_ * (rMax-rMin);
           }
           r->setError(limitErr);
 
@@ -613,11 +621,12 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   std::auto_ptr<RooFitResult> fitMu, fitZero;
   if (fitNuisances_ && mc_s->GetNuisanceParameters() && withSystematics) {
     TStopwatch timer;
+    bool isExt = mc_s->GetPdf()->canBeExtended();
     r->setConstant(true); r->setVal(0);
     timer.Start();
     {
         CloseCoutSentry sentry(verbose < 3);
-        fitZero.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+        fitZero.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
     }
     if (verbose > 1) { std::cout << "Zero signal fit" << std::endl; fitZero->Print("V"); }
     if (verbose > 1) { std::cout << "Fitting of the background hypothesis done in " << timer.RealTime() << " s" << std::endl; }
@@ -625,7 +634,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     timer.Start();
     {
        CloseCoutSentry sentry(verbose < 3);
-       fitMu.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+       fitMu.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
     }
     if (verbose > 1) { std::cout << "Reference signal fit (r = " << rVal << ")" << std::endl; fitMu->Print("V"); }
     if (verbose > 1) { std::cout << "Fitting of the signal-plus-background hypothesis done in " << timer.RealTime() << " s" << std::endl; }
@@ -663,6 +672,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
       setup.modelConfig_bonly.SetNuisanceParameters(RooArgSet(*w->var("__HybridNew_fake_nuis__")));
   }
  
+
   // create snapshots
   RooArgSet poiZero; 
   poiZero.addClone(*r); 
@@ -706,11 +716,13 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
               setup.qvar.reset(new SimplerLikelihoodRatioTestStatOpt(*mc_s->GetObservables(), *factorizedPdf_s, *factorizedPdf_s, snapB, snapS, withSystematics));
           }
       } else {
+          std::cerr << "ALERT: LEP test statistics without optimization not validated." << std::endl;
           setup.qvar.reset(new SimpleLikelihoodRatioTestStat(*factorizedPdf_b,*factorizedPdf_s));
           ((SimpleLikelihoodRatioTestStat&)*setup.qvar).SetNullParameters(snapB); // Null is B
           ((SimpleLikelihoodRatioTestStat&)*setup.qvar).SetAltParameters(snapS);
       }
   } else if (testStat_ == "TEV") {
+      std::cerr << "ALERT: Tevatron test statistics not yet validated." << std::endl;
       if (optimizeTestStatistics_) {
           setup.qvar.reset(new ProfiledLikelihoodRatioTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(), poiZero, poi));
           ((ProfiledLikelihoodRatioTestStatOpt&)*setup.qvar).setPrintLevel(verbose);
@@ -727,6 +739,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
           RooArgSet snapS(poi); 
           setup.qvar.reset(new ProfiledLikelihoodTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  snapS, gobsParams,gobs, verbose, side));
       } else {
+          std::cerr << "ALERT: LHC test statistics without optimization not validated." << std::endl;
           setup.qvar.reset(new ProfileLikelihoodTestStat(*mc_s->GetPdf()));
           if (testStat_ == "LHC") {
               ((ProfileLikelihoodTestStat&)*setup.qvar).SetOneSided(true);
@@ -746,24 +759,30 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     if (nuisancePdf) setup.cleanupList.addOwned(*nuisancePdf);
   }
   if (newToyMCSampler_) { 
-    setup.toymcsampler.reset(new ToyMCSamplerOpt(*setup.qvar, nToys_, nuisancePdf));
+    setup.toymcsampler.reset(new ToyMCSamplerOpt(*setup.qvar, nToys_, nuisancePdf, genNuisances_));
   } else {
+    std::cerr << "ALERT: running with newToyMC=0 not validated." << std::endl;
     setup.toymcsampler.reset(new ToyMCSampler(*setup.qvar, nToys_));
   }
 
   if (!mc_b->GetPdf()->canBeExtended()) setup.toymcsampler->SetNEventsPerToy(1);
   
   if (nCpu_ > 0) {
+    std::cerr << "ALERT: running with proof not validated." << std::endl;
     if (verbose > 1) std::cout << "  Will use " << nCpu_ << " CPUs." << std::endl;
     setup.pc.reset(new ProofConfig(*w, nCpu_, "", kFALSE)); 
     setup.toymcsampler->SetProofConfig(setup.pc.get());
   }   
 
-  std::auto_ptr<HybridCalculator> hc(new HybridCalculator(data,setup.modelConfig, setup.modelConfig_bonly, setup.toymcsampler.get()));
-  if (genNuisances_ && withSystematics) {
-    hc->ForcePriorNuisanceNull(*nuisancePdf);
-    hc->ForcePriorNuisanceAlt(*nuisancePdf);
+
+  std::auto_ptr<HybridCalculator> hc(new HybridCalculator(data, setup.modelConfig, setup.modelConfig_bonly, setup.toymcsampler.get()));
+  if (genNuisances_ || !genGlobalObs_) {
+      if (withSystematics) {
+          (static_cast<HybridCalculator&>(*hc)).ForcePriorNuisanceNull(*nuisancePdf);
+          (static_cast<HybridCalculator&>(*hc)).ForcePriorNuisanceAlt(*nuisancePdf);
+      }  
   } else if (genGlobalObs_ && !genNuisances_) {
+      setup.toymcsampler->SetGlobalObservables(*setup.modelConfig.GetGlobalObservables());
       hc->ForcePriorNuisanceNull(*w->pdf("__HybridNew_fake_nuisPdf__"));
       hc->ForcePriorNuisanceAlt(*w->pdf("__HybridNew_fake_nuisPdf__"));
   }
@@ -793,6 +812,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
 
   static const char * istr = "__HybridNew__importanceSamplingDensity";
   if(importanceSamplingNull_) {
+    std::cerr << "ALERT: running with importance sampling not validated (and probably not working)." << std::endl;
     if(verbose > 1) std::cout << ">>> Enabling importance sampling for null hyp." << std::endl;
     if(!withSystematics) {
       throw std::invalid_argument("Importance sampling is not available without systematics");
@@ -804,6 +824,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     hc->SetNullImportanceDensity(mc_b->GetPdf(), &importanceSnapshot);
   }
   if(importanceSamplingAlt_) {
+    std::cerr << "ALERT: running with importance sampling not validated (and probably not working)." << std::endl;
     if(verbose > 1) std::cout << ">>> Enabling importance sampling for alt. hyp." << std::endl;
     if(!withSystematics) {
       throw std::invalid_argument("Importance sampling is not available without systematics");
@@ -833,10 +854,10 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
     }
     if (testStat_ == "LHC" || testStat_ == "LHCFC" || testStat_ == "Profile") {
         // I need to flip the P-values
-        hcResult->SetPValueIsRightTail(!hcResult->GetPValueIsRightTail());
         hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()-EPS); // issue with < vs <= in discrete models
     } else {
         hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+EPS); // issue with < vs <= in discrete models
+        hcResult->SetPValueIsRightTail(!hcResult->GetPValueIsRightTail());
     }
     std::pair<double,double> cls = eval(*hcResult, rVal);
     if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << cls.first << " +/- " << cls.second << std::endl;
@@ -853,6 +874,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
         }
         while (cls.second >= clsAccuracy_ && (clsTarget == -1 || fabs(cls.first-clsTarget) < 3*cls.second) ) {
             std::auto_ptr<HypoTestResult> more(evalGeneric(hc));
+            more->SetBackgroundAsAlt(false);
             if (testStat_ == "LHC" || testStat_ == "LHCFC"  || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
             hcResult->Append(more.get());
             if (expectedFromGrid_) applyExpectedQuantile(*hcResult);
@@ -862,6 +884,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
     } else if (iterations_ > 1) {
         for (unsigned int i = 1; i < iterations_; ++i) {
             std::auto_ptr<HypoTestResult> more(evalGeneric(hc));
+            more->SetBackgroundAsAlt(false);
             if (testStat_ == "LHC" || testStat_ == "LHCFC"  || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
             hcResult->Append(more.get());
             if (expectedFromGrid_) applyExpectedQuantile(*hcResult);
@@ -1339,14 +1362,14 @@ std::pair<double,double> HybridNew::updateGridPoint(RooWorkspace *w, RooStats::M
     RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
     if (expectedFromGrid_) {
         applyExpectedQuantile(*point->second);
-        point->second->SetTestStatisticData(point->second->GetTestStatisticData() + (isProfile ? -EPS : EPS));
+        point->second->SetTestStatisticData(point->second->GetTestStatisticData() + (isProfile ? EPS : EPS));
     } else {
         Setup setup;
         std::auto_ptr<RooStats::HybridCalculator> hc = create(w, mc_s, mc_b, data, point->first, setup);
         RooArgSet nullPOI(*setup.modelConfig_bonly.GetSnapshot());
         if (isProfile) nullPOI.setRealValue(r->GetName(), point->first);
         double testStat = setup.qvar->Evaluate(data, nullPOI);
-        point->second->SetTestStatisticData(testStat + (isProfile ? -EPS : EPS));
+        point->second->SetTestStatisticData(testStat + (isProfile ? EPS : EPS));
     }
     if (verbose > 1) {
         std::cout << "At " << r->GetName() << " = " << point->first << ":\n" << 

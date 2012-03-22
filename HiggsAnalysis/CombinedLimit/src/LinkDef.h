@@ -11,9 +11,6 @@
 #include "../interface/HZZ4LRooPdfs.h"
 #include "../interface/HZZ2L2QRooPdfs.h"
 #include "../interface/HGGRooPdfs.h"
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,29,99)
-#include "../interface/FlexibleInterpVar.h"
-#endif
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -54,8 +51,5 @@
 #pragma link C++ class Triangle+;
 #pragma link C++ class RooLevelledExp+;
 #pragma link C++ class RooPower+;
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,29,99)
-#pragma link C++ class RooStats::HistFactory::FlexibleInterpVar+;
-#endif
 
 #endif

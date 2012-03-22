@@ -20,8 +20,6 @@ public:
   }
 private:
   static int maxDim_;
-  static std::string interationType_;
-  static int numIters_;
 };
 
 #endif

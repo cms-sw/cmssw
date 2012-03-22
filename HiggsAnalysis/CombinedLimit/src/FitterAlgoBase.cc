@@ -131,19 +131,19 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooArgList
             double threshold95 = nll0 + 1.92;
             // search for crossings
 
-            assert(!isnan(r0));
+            assert(!std::isnan(r0));
             // high error
             double hi68 = findCrossing(minim2, *nll, r, threshold68, r0,   rMax);
-            double hi95 = do95_ ? findCrossing(minim2, *nll, r, threshold95, isnan(hi68) ? r0 : hi68, std::max(rMax, isnan(hi68*2-r0) ? r0 : hi68*2-r0)) : r0;
+            double hi95 = do95_ ? findCrossing(minim2, *nll, r, threshold95, std::isnan(hi68) ? r0 : hi68, std::max(rMax, std::isnan(hi68*2-r0) ? r0 : hi68*2-r0)) : r0;
             // low error 
             *allpars = RooArgSet(ret->floatParsFinal()); r.setVal(r0); r.setConstant(true);
             double lo68 = findCrossing(minim2, *nll, r, threshold68, r0,   rMin); 
-            double lo95 = do95_ ? findCrossing(minim2, *nll, r, threshold95, isnan(lo68) ? r0 : lo68, rMin) : r0;
+            double lo95 = do95_ ? findCrossing(minim2, *nll, r, threshold95, std::isnan(lo68) ? r0 : lo68, rMin) : r0;
 
-            rf.setAsymError(!isnan(lo68) ? lo68 - r0 : 0, !isnan(hi68) ? hi68 - r0 : 0);
-            rf.setRange("err68", !isnan(lo68) ? lo68 : r0, !isnan(hi68) ? hi68 : r0);
-            if (do95_ && (!isnan(lo95) || !isnan(hi95))) {
-                rf.setRange("err95", !isnan(lo95) ? lo95 : r0, !isnan(hi95) ? hi95 : r0);
+            rf.setAsymError(!std::isnan(lo68) ? lo68 - r0 : 0, !std::isnan(hi68) ? hi68 - r0 : 0);
+            rf.setRange("err68", !std::isnan(lo68) ? lo68 : r0, !std::isnan(hi68) ? hi68 : r0);
+            if (do95_ && (!std::isnan(lo95) || !std::isnan(hi95))) {
+                rf.setRange("err95", !std::isnan(lo95) ? lo95 : r0, !std::isnan(hi95) ? hi95 : r0);
             }
 
             r.setVal(r0); r.setConstant(false);
@@ -156,7 +156,6 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooArgList
 double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, RooRealVar &r, double level, double rStart, double rBound) {
     ProfileLikelihood::MinimizerSentry minimizerConfig(minimizerAlgoForMinos_, minimizerToleranceForMinos_);
     if (verbose) std::cout << "Searching for crossing at nll = " << level << " in the interval " << rStart << ", " << rBound << std::endl; 
-    bool overshot = false;
     double rInc = stepSize_*(rBound - rStart);
     r.setVal(rStart); 
     std::auto_ptr<RooFitResult> checkpoint;
@@ -219,7 +218,6 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
             } else {
                 rInc *= 0.3;
             }
-            overshot = true;
             if (allpars.get() == 0) allpars.reset(nll.getParameters((const RooArgSet *)0));
             RooArgSet oldparams(checkpoint->floatParsFinal());
             *allpars = oldparams;
@@ -249,7 +247,6 @@ double FitterAlgoBase::findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, Ro
             }
             checkpoint.reset(minim.save());
         }
-        //if (overshot) rInc *= 0.5;
     } while (fabs(rInc) > minimizerToleranceForMinos_*stepSize_*std::max(1.0,rBound-rStart));
     if (fabs(here - level) > 0.01) {
         std::cout << "Error: closed range without finding crossing." << std::endl;

@@ -39,7 +39,7 @@ public:
 private:
   static WorkingMode workingMode_;
   static unsigned int nToys_;
-  static double clsAccuracy_, rAbsAccuracy_, rRelAccuracy_;
+  static double clsAccuracy_, rAbsAccuracy_, rRelAccuracy_, interpAccuracy_;
   static bool CLs_;
   static std::string rule_, testStat_;
   static bool reportPVal_;

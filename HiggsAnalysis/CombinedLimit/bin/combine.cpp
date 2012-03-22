@@ -11,9 +11,9 @@
 #include <stdexcept>
 #include <boost/program_options.hpp>
 #include "../interface/ProfileLikelihood.h"
-#include "../interface/Hybrid.h"
 #include "../interface/HybridNew.h"
 #include "../interface/BayesianFlatPrior.h"
+#include "../interface/BayesianToyMC.h"
 #include "../interface/MarkovChainMC.h"
 #include "../interface/FeldmanCousins.h"
 #include "../interface/MaxLikelihoodFit.h"
@@ -44,9 +44,9 @@ int main(int argc, char **argv) {
   Combine combiner;
 
   map<string, LimitAlgo *> methods;
-  algo = new Hybrid(); methods.insert(make_pair(algo->name(), algo));
   algo = new ProfileLikelihood(); methods.insert(make_pair(algo->name(), algo));
   algo = new BayesianFlatPrior(); methods.insert(make_pair(algo->name(), algo));
+  algo = new BayesianToyMC(); methods.insert(make_pair(algo->name(), algo));
   algo = new MarkovChainMC();  methods.insert(make_pair(algo->name(), algo));
   algo = new HybridNew();  methods.insert(make_pair(algo->name(), algo));
   algo = new FeldmanCousins();  methods.insert(make_pair(algo->name(), algo));

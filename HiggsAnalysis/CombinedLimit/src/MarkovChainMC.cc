@@ -8,6 +8,10 @@
 #include "RooWorkspace.h"
 #include "RooFitResult.h"
 #include "RooRandom.h"
+#ifndef ROOT_THnSparse
+class THnSparse;
+#define ROOT_THnSparse
+#endif
 #include "RooStats/MCMCCalculator.h"
 #include "RooStats/MCMCInterval.h"
 #include "RooStats/ModelConfig.h"

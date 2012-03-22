@@ -201,6 +201,7 @@ RooAbsPdf *utils::makeNuisancePdf(RooStats::ModelConfig &model, const char *name
 RooAbsPdf *utils::makeNuisancePdf(RooAbsPdf &pdf, const RooArgSet &observables, const char *name) { 
     RooArgList obsTerms, constraints;
     factorizePdf(observables, pdf, obsTerms, constraints);
+    if (constraints.getSize() == 0) return 0;
     return new RooProdPdf(name,"", constraints);
 }
 
