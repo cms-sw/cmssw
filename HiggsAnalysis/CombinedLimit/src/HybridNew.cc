@@ -429,9 +429,10 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
   }
 
   if (!done) { // didn't reach accuracy with scan, now do fit
+      double rMinBound, rMaxBound; expoFit.GetRange(rMinBound, rMaxBound);
       if (verbose) {
           std::cout << "\n -- HybridNew, before fit -- \n";
-          std::cout << "Limit: " << r->GetName() << " < " << limit << " +/- " << limitErr << " [" << rMin << ", " << rMax << "]\n";
+          std::cout << "Limit: " << r->GetName() << " < " << limit << " +/- " << limitErr << " [" << rMinBound << ", " << rMaxBound << "]\n";
       }
 
       expoFit.FixParameter(0,clsTarget);
@@ -440,7 +441,6 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
       double par1guess = log(clsmaxfirst/clsMin.first)/(rMax-rMin);
       expoFit.SetParameter(1,par1guess);
       expoFit.SetParameter(2,limit);
-      double rMinBound, rMaxBound; expoFit.GetRange(rMinBound, rMaxBound);
       limitErr = std::max(fabs(rMinBound-limit), fabs(rMaxBound-limit));
       int npoints = 0; 
       for (int j = 0; j < limitPlot_->GetN(); ++j) { 
@@ -452,7 +452,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
           if (verbose) {
               std::cout << "Fit to " << npoints << " points: " << expoFit.GetParameter(2) << " +/- " << expoFit.GetParError(2) << std::endl;
           }
-          if ((rMin < expoFit.GetParameter(2))  && (expoFit.GetParameter(2) < rMax) && (expoFit.GetParError(2) < 0.5*(rMaxBound-rMinBound))) { 
+          if ((rMinBound < expoFit.GetParameter(2))  && (expoFit.GetParameter(2) < rMaxBound) && (expoFit.GetParError(2) < 0.5*(rMaxBound-rMinBound))) { 
               // sanity check fit result
               limit = expoFit.GetParameter(2);
               limitErr = expoFit.GetParError(2);
