@@ -14,6 +14,7 @@
 #include "SimG4CMS/Calo/interface/HFShowerPMT.h"
 #include "SimG4CMS/Calo/interface/HFShowerFibreBundle.h"
 #include "SimG4CMS/Calo/interface/HcalNumberingScheme.h"
+#include "SimG4CMS/Calo/interface/HEDarkening.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 
@@ -77,10 +78,12 @@ private:
   HFShowerParam *               showerParam;
   HFShowerPMT *                 showerPMT;
   HFShowerFibreBundle *         showerBundle;
-  bool                          useBirk, useLayerWt, useFibreBundle, applyFidCut;
+  HEDarkening *                 darkening; 
+  bool                          useBirk, useLayerWt, useFibreBundle;
   double                        birk1, birk2, birk3, betaThr;
   bool                          useHF, useShowerLibrary, useParam, usePMTHit;
   double                        eminHitHB, eminHitHE, eminHitHO, eminHitHF;
+  double                        lumiDarkening;
   G4int                         mumPDG, mupPDG; 
   std::vector<double>           layer0wt;
   std::vector<G4LogicalVolume*> hfLV;
