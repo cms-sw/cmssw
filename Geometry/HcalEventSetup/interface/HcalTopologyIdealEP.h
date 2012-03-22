@@ -19,19 +19,24 @@
 //
 
 class HcalTopologyIdealEP : public edm::ESProducer {
-   public:
-      HcalTopologyIdealEP(const edm::ParameterSet&);
-      ~HcalTopologyIdealEP();
 
-      typedef boost::shared_ptr<HcalTopology> ReturnType;
+public:
+  HcalTopologyIdealEP(const edm::ParameterSet&);
+  ~HcalTopologyIdealEP();
 
-      ReturnType produce(const IdealGeometryRecord&);
+  typedef boost::shared_ptr<HcalTopology> ReturnType;
+
+  ReturnType produce(const IdealGeometryRecord&);
+
 private:
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
   std::string m_restrictions;
-  bool m_h2mode;
+  bool m_h2mode, m_SLHCmode, m_H2HEmode;
+  // can be specified in the config
+  struct RingSegmentation {
+    int ring;
+    std::vector<int> segmentation;
+  };
+  std::vector<RingSegmentation> m_segmentation;
 };
-
-
-
 #endif

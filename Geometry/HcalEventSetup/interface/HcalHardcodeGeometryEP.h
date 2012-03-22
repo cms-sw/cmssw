@@ -8,7 +8,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // class declarations
 class CaloSubdetectorGeometry;
@@ -16,18 +16,21 @@ class IdealGeometryRecord;
 class HcalGeometryRecord;
 
 
-class HcalHardcodeGeometryEP : public edm::ESProducer 
-{
-   public:
-      HcalHardcodeGeometryEP(const edm::ParameterSet&);
-      virtual ~HcalHardcodeGeometryEP();
+class HcalHardcodeGeometryEP : public edm::ESProducer {
 
-      typedef boost::shared_ptr<CaloSubdetectorGeometry> ReturnType;
+public:
+  HcalHardcodeGeometryEP(const edm::ParameterSet&);
+  virtual ~HcalHardcodeGeometryEP();
 
-      ReturnType produceIdeal(   const IdealGeometryRecord&);
-      ReturnType produceAligned( const HcalGeometryRecord& );
+  typedef boost::shared_ptr<CaloSubdetectorGeometry> ReturnType;
 
-      void       idealRecordCallBack( const IdealGeometryRecord& );
+  ReturnType produceIdeal(   const IdealGeometryRecord&);
+  ReturnType produceAligned( const HcalGeometryRecord& );
+
+  void       idealRecordCallBack( const IdealGeometryRecord& );
+
+private:
+  edm::ParameterSet ps0;
 };
 
 
