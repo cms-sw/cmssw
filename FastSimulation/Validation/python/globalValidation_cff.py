@@ -16,6 +16,9 @@ from Validation.MuonIsolation.MuIsoVal_cff import *
 from Validation.MuonIdentification.muonIdVal_cff import *
 muonIdVal.makeCosmicCompatibilityPlots = False
 
+from Validation.RecoEgamma.egammaFastSimValidation_cff import *
+
+
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 
 #from PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi import * 
@@ -32,6 +35,7 @@ globalValidation = cms.Sequence(trackingTruthValid
                                 +muIsoVal_seq
                                 +muonIdValDQMSeq
                                 +bTagPlots
+                                +egammaFastSimValidation
                                # +myPartons
                                # +iterativeCone5Flavour
                                # +bTagValidation
