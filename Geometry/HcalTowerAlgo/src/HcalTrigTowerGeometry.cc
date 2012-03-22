@@ -9,6 +9,7 @@
 HcalTrigTowerGeometry::HcalTrigTowerGeometry() {
   useShortFibers_=true;
   useHFQuadPhiRings_=true;
+  useUpgradeConfigurationHFTowers_=!true;
 }
 
 void HcalTrigTowerGeometry::setupHF(bool useShortFibers, bool useQuadRings) {
@@ -16,11 +17,20 @@ void HcalTrigTowerGeometry::setupHF(bool useShortFibers, bool useQuadRings) {
   useHFQuadPhiRings_=useQuadRings;
 }
 
-std::vector<HcalTrigTowerDetId>
+std::vector<HcalTrigTowerDetId> 
 HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
 
   std::vector<HcalTrigTowerDetId> results;
 
+  int HfTowerPhiSize, shift;
+  if ( useUpgradeConfigurationHFTowers_ ) { 
+    HfTowerPhiSize = 1;
+    shift = 0;
+  } else {
+    HfTowerPhiSize = 4;
+    shift = 1;
+  }
+  
   if(cellId.subdet() == HcalForward) {
     // short fibers don't count
     if(cellId.depth() == 1 || useShortFibers_) {
@@ -31,13 +41,18 @@ HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
       while(hfRing >= firstHFRingInTower(ieta+1)) {
         ++ieta;
       }
+      
+      if ( useUpgradeConfigurationHFTowers_ && ieta == 29) {
+	ieta = 30; 
+      }
 
       ieta *= cellId.zside();
 
       // now for phi
       // HF towers are quad, 18 in phi.
       // go two cells per trigger tower.
-      int iphi = (((cellId.iphi()+1)/4) * 4 + 1)%72; // 71+1 --> 1, 3+5 --> 5
+
+      int iphi = (((cellId.iphi()+shift)/HfTowerPhiSize) * HfTowerPhiSize + shift)%72; // 71+1 --> 1, 3+5 --> 5
       if (useHFQuadPhiRings_ || cellId.ietaAbs() < theTopology.firstHFQuadPhiRing())
         results.push_back( HcalTrigTowerDetId(ieta, iphi) );
     }
@@ -118,21 +133,24 @@ HcalTrigTowerGeometry::detIds(const HcalTrigTowerDetId & hcalTrigTowerDetId) con
   }
     
   // HF 
-  
+
   if (abs(cell_ieta) >= theTopology.firstHFRing()){  
+
+    int HfTowerPhiSize;
+    if   ( useUpgradeConfigurationHFTowers_ ) HfTowerPhiSize = 1;
+    else                                      HfTowerPhiSize = 72 / nPhiBins(tower_ieta);
     
-    int HfTowerPhiSize     = 72 / nPhiBins(tower_ieta);
     int HfTowerEtaSize     = hfTowerEtaSize(tower_ieta);
     int FirstHFRingInTower = firstHFRingInTower(abs(tower_ieta));
-    
+
     for (int iHFTowerPhiSegment = 0; iHFTowerPhiSegment < HfTowerPhiSize; iHFTowerPhiSegment++){      
             
       cell_iphi =  (tower_iphi / HfTowerPhiSize) * HfTowerPhiSize; // Find the minimum phi segment
-      cell_iphi -= 2;                        // The first trigger tower starts at HCAL iphi = 71, not HCAL iphi = 1
+      if ( !useUpgradeConfigurationHFTowers_ ) cell_iphi -= 2; // The first trigger tower starts at HCAL iphi = 71, not HCAL iphi = 1
       cell_iphi += iHFTowerPhiSegment;       // Get all of the HCAL iphi values in this trigger tower
       cell_iphi += 72;                       // Don't want to take the mod of a negative number
       cell_iphi =  cell_iphi % 72;           // There are, at most, 72 cells.
-      cell_iphi += 1;                        // There is no cell at iphi = 0
+      if ( !useUpgradeConfigurationHFTowers_) cell_iphi += 1;// There is no cell at iphi = 0
       
       if (cell_iphi%2 == 0) continue;        // These cells don't exist.
 
@@ -145,10 +163,19 @@ HcalTrigTowerGeometry::detIds(const HcalTrigTowerDetId & hcalTrigTowerDetId) con
 	theTopology.depthBinInformation(HcalForward, cell_ieta, n_depths, min_depth);  
 
 	// Negative tower_ieta -> negative cell_ieta
-	if (tower_ieta < 0) cell_ieta *= -1;	       
+	int zside = 1;
+	if (tower_ieta < 0) zside = -1;
+
+	cell_ieta *= zside;	       
 
 	for (int cell_depth = min_depth; cell_depth <= min_depth + n_depths - 1; cell_depth++)
 	  results.push_back(HcalDetId(HcalForward, cell_ieta, cell_iphi, cell_depth));
+	
+	if ( zside * cell_ieta == 30 ) {
+	  theTopology.depthBinInformation(HcalForward, 29 * zside, n_depths, min_depth);  
+	  for (int cell_depth = min_depth; cell_depth <= min_depth + n_depths - 1; cell_depth++) 
+	    results.push_back(HcalDetId(HcalForward, 29 * zside , cell_iphi, cell_depth));
+	}
 	
       }    
     }
@@ -159,10 +186,14 @@ HcalTrigTowerGeometry::detIds(const HcalTrigTowerDetId & hcalTrigTowerDetId) con
 
 
 int HcalTrigTowerGeometry::hfTowerEtaSize(int ieta) const {
+  
+  if ( useUpgradeConfigurationHFTowers_ ) return 1;
+  
   int ietaAbs = abs(ieta); 
   assert(ietaAbs >= firstHFTower() && ietaAbs <= nTowers());
   // the first three come from rings 29-31, 32-34, 35-37. The last has 4 rings: 38-41
   return (ietaAbs == nTowers()) ? 4 : 3;
+  
 }
 
 
