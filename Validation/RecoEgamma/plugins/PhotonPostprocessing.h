@@ -35,7 +35,7 @@
  **  
  **
  **  $Id: PhotonPostprocessing
- **  $Date: 2011/05/20 13:55:42 $ 
+ **  $Date: 2012/02/14 19:51:07 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **     
@@ -85,6 +85,7 @@ class PhotonPostprocessing : public edm::EDAnalyzer
   bool standAlone_;
   bool batch_;
   bool isRunCentrally_;
+  bool fastSim_;
   std::string outputFileName_;
   std::string inputFileName_;
 
