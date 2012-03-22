@@ -574,8 +574,8 @@ namespace sistrip {
       FEDStatusRegister fedStatusRegister() const;
       
       //check that channel has no errors
-      virtual bool channelGood(const uint8_t internalFEDChannelNum) const;
-      bool channelGood(const uint8_t internalFEUnitNum, const uint8_t internalChannelNum) const;
+      virtual bool channelGood(const uint8_t internalFEDChannelNum, const bool doAPVeCheck=true) const;
+      bool channelGood(const uint8_t internalFEUnitNum, const uint8_t internalChannelNum, const bool doAPVeCheck=true) const;
       //return channel object for channel
       const FEDChannel& channel(const uint8_t internalFEDChannelNum) const;
       const FEDChannel& channel(const uint8_t internalFEUnitNum, const uint8_t internalChannelNum) const;
@@ -1142,7 +1142,13 @@ namespace sistrip {
   
   inline bool FEDFullDebugHeader::apvErrorFromBit(const uint8_t internalFEDChannelNum, const uint8_t apvNum) const
     {
-      return !getBit(internalFEDChannelNum,0+2*apvNum);
+      //Discovered March 2012: two bits inverted in firmware. Decided
+      //to update documentation but keep firmware identical for
+      //backward compatibility. So status bit order is actually:
+      //apvErr1 - apvAddrErr0 - apvErr0 - apvAddrErr1 - OOS - unlocked.
+      //Before, it was: return !getBit(internalFEDChannelNum,0+2*apvNum);
+
+      return !getBit(internalFEDChannelNum,0+2*(1-apvNum));
     }
   
   inline bool FEDFullDebugHeader::apvAddressErrorFromBit(const uint8_t internalFEDChannelNum, const uint8_t apvNum) const
@@ -1444,9 +1450,9 @@ namespace sistrip {
       return specialHeader_.fedStatusRegister();
     }
   
-  inline bool FEDBufferBase::channelGood(const uint8_t internalFEUnitNum, const uint8_t internalChannelNum) const
+  inline bool FEDBufferBase::channelGood(const uint8_t internalFEUnitNum, const uint8_t internalChannelNum, const bool doAPVeCheck) const
     {
-      return channelGood(internalFEDChannelNum(internalFEUnitNum,internalChannelNum));
+      return channelGood(internalFEDChannelNum(internalFEUnitNum,internalChannelNum),doAPVeCheck);
     }
   
   inline const FEDChannel& FEDBufferBase::channel(const uint8_t internalFEDChannelNum) const

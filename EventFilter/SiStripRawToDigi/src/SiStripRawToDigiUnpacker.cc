@@ -35,6 +35,7 @@ namespace sistrip {
     quiet_(true),
     extractCm_(false),
     doFullCorruptBufferChecks_(false),
+    doAPVEmulatorCheck_(false),
     errorThreshold_(errorThreshold)
   {
     if ( edm::isDebugEnabled() ) {
@@ -244,7 +245,7 @@ namespace sistrip {
 	if ( !useFedKey_ && ( !iconn->detId() || iconn->detId() == sistrip::invalid32_ ) ) { continue; }
       
 	// Check FED channel
-	if (!buffer->channelGood(iconn->fedCh())) {
+	if (!buffer->channelGood(iconn->fedCh(),doAPVEmulatorCheck_)) {
           if (!unpackBadChannels_ || !(buffer->fePresent(iconn->fedCh()/FEDCH_PER_FEUNIT) && buffer->feEnabled(iconn->fedCh()/FEDCH_PER_FEUNIT)) ) {
             detids.push_back(iconn->detId()); //@@ Possible multiple entries (ok for Giovanni)
             continue;

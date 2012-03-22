@@ -1324,10 +1324,10 @@ namespace sistrip {
     return true;
   }
   
-  bool FEDBufferBase::channelGood(const uint8_t internalFEDChannelNum) const
+  bool FEDBufferBase::channelGood(const uint8_t internalFEDChannelNum,const bool doAPVeCheck) const
   {
     const uint8_t feUnit = internalFEDChannelNum/FEDCH_PER_FEUNIT;
-    return ( !majorityAddressErrorForFEUnit(feUnit) && feEnabled(feUnit) && !feOverflow(feUnit) );
+    return ( ((doAPVeCheck && !majorityAddressErrorForFEUnit(feUnit)) || !doAPVeCheck) && feEnabled(feUnit) && !feOverflow(feUnit) );
   }
   
   bool FEDBufferBase::doChecks() const
