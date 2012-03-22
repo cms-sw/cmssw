@@ -13,6 +13,8 @@ class Test:
         return "%s/%s.log" % (dir,self._name)
     def jsonName(self,dir):
         return "%s/%s.json" % (dir,self._name)
+    def numCPUs(self):
+        return 1
     def createScriptBase(self,dir):
         """Creates script file, writes preamble, then calls createScript to fill it"""
         print "  creating script", self.scriptName(dir)
@@ -91,7 +93,11 @@ def _readRootFileWithExpected(fname):
         f.Close()
         return results
 
-
+def numCPUs_(method,options):
+    if "Hybrid" not in method: return 1
+    m = re.search(r"--fork\s+(\d+)", options)
+    if m: return int(m.group(1))
+    return 1
 
 class SingleDatacardTest(Test):
     def __init__(self,name,datacard,method,options,mass=120):
@@ -100,6 +106,8 @@ class SingleDatacardTest(Test):
         self._method   = method
         self._options  = options
         self._mass     = mass
+    def numCPUs(self):
+        return numCPUs_(self._method, self._options)
     def createScript(self,dir,file):
         datacard_full = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/benchmarks/%s" % self._datacard
         if os.access(datacard_full, os.R_OK) == False: 
@@ -131,6 +139,8 @@ class MultiDatacardTest(Test):
         self._datacards = [ (dc,i*10+100) for i,dc in enumerate(datacards) ]
         self._method   = method
         self._options  = options
+    def numCPUs(self):
+        return numCPUs_(self._method, self._options)
     def createScript(self,dir,file):
         for dc, mass in self._datacards:
             datacard_full = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/benchmarks/%s" % dc 
@@ -191,6 +201,8 @@ class MultiOptionTest(Test):
         self._method   = method
         pn = os.path.basename(self._datacard) + " ";
         self._options  = [ (pn+on,commonOptions+" "+ov,i*10+100) for i,(on,ov) in enumerate(optionsMap.items()) ]
+    def numCPUs(self):
+        return max([numCPUs_(self._method, o) for n,o,m in self._options])
     def createScript(self,dir,file):
         datacard_full = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/benchmarks/%s" % self._datacard
         if os.access(datacard_full, os.R_OK) == False: 

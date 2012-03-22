@@ -57,7 +57,10 @@ class TestSuite:
         pool.join()
     def runBatch(self,queue="8nh",command="bsub -q %(queue)s %(script)s"):
         for t in self._tests: 
-            os.system(command % {'queue':queue,'script':os.getcwd()+"/"+t.scriptName(self._dir)})
+            cmd = command % {'queue':queue,'script':os.getcwd()+"/"+t.scriptName(self._dir)}
+            if t.numCPUs() > 1 and "bsub " in command:
+                cmd = cmd.replace("bsub ", "bsub -n %d -R 'span[hosts=1]' " % t.numCPUs())
+            os.system(cmd)
     def report(self):
         import ROOT
         ROOT.gROOT.SetBatch(True)
@@ -113,28 +116,34 @@ class TestSuite:
                 if   deltaLimRel <= 2: res['status'] = 'ok'
                 elif deltaLimRel <= 5: res['status'] = 'warning'
                 else:                  res['status'] = 'error'
-                if limitErr > 0 and limitErrR > 0:
-                    if limitErr/limitErrR >= 1.5 and ref['comment'] == '': 
-                        res['status']  = 'warning'
-                        res['comment'] += 'worse uncertainty'
-                if time > 0.5 and timeR > 0.5 and ref['comment'] == '':
-                    if time/timeR >= 2: 
-                        res['status'] = 'warning'
-                        res['comment'] += 'worse timing'
+                if res['status'] == 'ok':
+                    if limitErr > 0 and limitErrR > 0:
+                        if limitErr/limitErrR >= 1.5 and ref['comment'] == '': 
+                            res['status']  = 'w unc.'
+                            res['comment'] += 'worse uncertainty'
+                    if time > 0.5 and timeR > 0.5 and ref['comment'] == '':
+                        if time/timeR >= 2: 
+                            res['status'] = 'w time'
+                            res['comment'] += 'worse timing'
                 res['ref'] = { 'limit':limitR, 'limitErr':limitErrR, 't_real':timeR, 'comment':ref['comment'] }
                 tv['has_ref'] = True
             errors   = sum([res['status'] == 'error'   for res in tv['results'].values()])
-            warnings = sum([res['status'] == 'warning' for res in tv['results'].values()])
+            warnings = sum([res['status'] in ['warning', 'w unc.', 'w time'] for res in tv['results'].values()])
             aborts   = sum([res['status'] == 'aborted' for res in tv['results'].values()])
-            if errors > 0:
-                tv['status'] = 'error'; tv['comment'] = '%d errors, %d warnings' % (errors, warnings)
-                report['has_ref'] = True
-            elif warnings > 0:
-                tv['status'] = 'warning'; tv['comment'] = '%d warnings' % warnings
-                report['has_ref'] = True
-            elif aborts > 0:
-                tv['status'] = 'mixed'
-            elif tv.has_key('has_ref'):
-                tv['status'] = 'ok'
-                report['has_ref'] = True
+            if (len(tv['results']) == 1):
+                rv = tv['results'].values()[0]
+                tv['status'] = rv['status']
+                if tv.has_key('has_ref'): report['has_ref'] = True
+            else:
+                if errors > 0:
+                    tv['status'] = 'error'; tv['comment'] = '%d errors, %d warnings' % (errors, warnings)
+                    report['has_ref'] = True
+                elif warnings > 0:
+                    tv['status'] = 'warning'; tv['comment'] = '%d warnings' % warnings
+                    report['has_ref'] = True
+                elif aborts > 0:
+                    tv['status'] = 'mixed'
+                elif tv.has_key('has_ref'):
+                    tv['status'] = 'ok'
+                    report['has_ref'] = True
 
