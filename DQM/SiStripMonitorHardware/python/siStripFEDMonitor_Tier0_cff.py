@@ -46,8 +46,8 @@ siStripFEDMonitor.FETimeDiffTIBHistogramConfig.Enabled = True
 siStripFEDMonitor.FETimeDiffTOBHistogramConfig.Enabled = True
 siStripFEDMonitor.FETimeDiffTECBHistogramConfig.Enabled = True
 siStripFEDMonitor.FETimeDiffTECFHistogramConfig.Enabled = True
-siStripFEDMonitor.ApveAddressHistogramConfig.Enabled = False
-siStripFEDMonitor.FeMajAddressHistogramConfig.Enabled = False
+siStripFEDMonitor.ApveAddressHistogramConfig.Enabled = True
+siStripFEDMonitor.FeMajAddressHistogramConfig.Enabled = True
 #medians per APV for all channels, all events
 siStripFEDMonitor.MedianAPV0HistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(False),
