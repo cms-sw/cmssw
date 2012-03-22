@@ -8,7 +8,7 @@ void EmissionVetoHook::fatalEmissionVeto(string message) {
 
 // Use VetoMIStep to analyse the incoming LHEF event and
 // extract the veto scale
-bool EmissionVetoHook::doVetoMIStep(int, const Pythia8::Event &e) {
+bool EmissionVetoHook::doVetoMPIStep(int, const Pythia8::Event &e) {
   int first=-1, myid;
   last = -1;
   for(int ip = 2; ip < e.size(); ip++) {
@@ -72,6 +72,8 @@ bool EmissionVetoHook::doVetoMIStep(int, const Pythia8::Event &e) {
 bool EmissionVetoHook::doVetoISREmission(int, const Pythia8::Event &e, int iSys) {
   // Must be radiation from the hard system
   if (iSys != 0) return false;
+
+  if(last < 0) fatalEmissionVeto(string("Variable last is not filled"));
 
   // ISR - next shower emission is given status 43
   int i;

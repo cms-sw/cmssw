@@ -197,8 +197,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   if ( params.exists("emissionVeto") )
   {   
     fEmissionVetoHook = new EmissionVetoHook(0);
-    pythia->setUserHooksPtr( fEmissionVetoHook );
-  }  
+  }
 
   int NHooks=0;
   if(fReweightUserHook) NHooks++;
