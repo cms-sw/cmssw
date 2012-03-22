@@ -179,6 +179,46 @@
         }, 
         "status": "done"
     },
+    "Counting_Sig_2_HybridNew": {
+        "comment": "all 5 jobs done", 
+        "results": {
+            "counting-B5p5-Obs11-StatOnly.txt": { "comment": "", "limit": 2.2776070514569495, "limitErr": 0.04169333290110222, "status": "done", "t_real": 0.026785735040903091 }, 
+            "counting-B5p5-Obs11-Syst30B.txt":  { "comment": "", "limit": 1.8200591344181229, "limitErr": 0.027431268744850579, "status": "done", "t_real": 0.037475399672985077 }, 
+            "counting-B5p5-Obs11-Syst30C.txt":  { "comment": "", "limit": 1.8200591344181229, "limitErr": 0.027431268744850579, "status": "done", "t_real": 0.037102766335010529 }, 
+            "counting-B5p5-Obs11-Syst30S.txt":  { "comment": "", "limit": 2.3079844749459575, "limitErr": 0.04306045560354832, "status": "done", "t_real": 0.028499431908130646 }, 
+            "counting-B5p5-Obs11-Syst30U.txt":  { "comment": "", "limit": 1.7866133654934699, "limitErr": 0.026728182601117423, "status": "done", "t_real": 0.049588046967983246 }
+        }, 
+        "status": "done"
+    }, 
+    "Counting_Sig_3p5_HybridNew": {
+        "comment": "all 3 jobs done", 
+        "results": {
+            "counting-B5p5-Obs20-Syst30B.txt": { "comment": "", "limit": 3.7455485932384569, "limitErr": 0.045518620350335492, "status": "done", "t_real": 2.4166839122772217 }, 
+            "counting-B5p5-Obs20-Syst30C.txt": { "comment": "", "limit": 3.7455485932384569, "limitErr": 0.045518620350335492, "status": "done", "t_real": 2.3150513172149658 }, 
+            "counting-B5p5-Obs20-Syst30U.txt": { "comment": "", "limit": 3.7319542690588556, "limitErr": 0.04433925796828575, "status": "done", "t_real": 1.9085551500320435 }
+        }, 
+        "status": "done"
+    },
+    "Counting_Freq_Sig_2_HybridNew": {
+        "comment": "all 5 jobs done", 
+        "results": {
+            "counting-B5p5-Obs11-StatOnly.txt": { "comment": "", "limit": 2.2776070514569495, "limitErr": 0.04169333290110222, "status": "done", "t_real": 0.10778608173131943 }, 
+            "counting-B5p5-Obs11-Syst30B.txt": { "comment": "", "limit": 1.7251524629226296, "limitErr": 0.025522303734902163, "status": "done", "t_real": 0.29485902190208435 }, 
+            "counting-B5p5-Obs11-Syst30C.txt": { "comment": "", "limit": 1.7251524629226296, "limitErr": 0.025522303734902163, "status": "done", "t_real": 0.29696539044380188 }, 
+            "counting-B5p5-Obs11-Syst30S.txt": { "comment": "", "limit": 2.2693014570431722, "limitErr": 0.04133141935148954, "status": "done", "t_real": 0.28087267279624939 }, 
+            "counting-B5p5-Obs11-Syst30U.txt": { "comment": "", "limit": 1.6993672959502422, "limitErr": 0.025047505122447689, "status": "done", "t_real": 0.3449137806892395 }
+        }, 
+        "status": "done"
+    }, 
+    "Counting_Freq_Sig_3p5_HybridNew": {
+        "comment": "all 3 jobs done", 
+        "results": {
+            "counting-B5p5-Obs20-Syst30B.txt": { "comment": "", "limit": 3.7319542690588556, "limitErr": 0.04433925796828575, "status": "done", "t_real": 18.953897476196289 }, 
+            "counting-B5p5-Obs20-Syst30C.txt": { "comment": "", "limit": 3.7319542690588556, "limitErr": 0.04433925796828575, "status": "done", "t_real": 18.709600448608398 }, 
+            "counting-B5p5-Obs20-Syst30U.txt": { "comment": "", "limit": 3.628565903610768, "limitErr": 0.036522131055911178, "status": "done", "t_real": 21.805641174316406 }
+        }, 
+        "status": "done"
+    }, 
     "Counting_Lower_FeldmanCousins": {
         "comment": "not validated", 
         "status": "done"

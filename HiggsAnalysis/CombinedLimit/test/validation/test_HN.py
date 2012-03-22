@@ -65,6 +65,11 @@ for d in datacardGlob("hww4ch-1fb-B*mH*.txt"):
     n = re.sub("hww4ch-1fb-(.*mH..0).txt","\\1",d)
     suite += [ (M, 'full',  SingleDatacardTest('HWW_'+n, d, M, optionsFull)) ]
 
+### Test significances
+suite += [ (M, '*', MultiDatacardTest("Counting_Sig_2",   datacardGlob("simple-counting/counting-B5p5-Obs11-S*.txt"),M,"--signif -T 2000 -i 4  "+optionsFast))]
+suite += [ (M, '*', MultiDatacardTest("Counting_Sig_3p5", datacardGlob("simple-counting/counting-B5p5-Obs20-Syst30[BUC].txt"),M,"--signif -T 4000 -i 100 "+optionsFast))]
+suite += [ (M, '*', MultiDatacardTest("Counting_Freq_Sig_2",   datacardGlob("simple-counting/counting-B5p5-Obs11-S*.txt"),M,"--signif --freq -T 2002 -i 4  "+optionsFast))]
+suite += [ (M, '*', MultiDatacardTest("Counting_Freq_Sig_3p5", datacardGlob("simple-counting/counting-B5p5-Obs20-Syst30[BUC].txt"),M,"--signif --freq -T 4000 -i 100 "+optionsFast))]
 
 opts = "-T 400 --fork 4 -H ProfileLikelihood --rAbsAcc=0 --rRelAcc=0.05 --clsAcc=0.008"
 suite += [ (M, 'summer11', SingleDatacardTest("Summer11_HGG_115",      "summer11/hgg/hgg_8cats.txt",            M, opts, 115)) ]
