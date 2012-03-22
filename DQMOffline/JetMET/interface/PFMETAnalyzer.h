@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFMET
  *
- *  $Date: 2011/10/10 14:43:38 $
- *  $Revision: 1.24 $
+ *  $Date: 2011/10/10 13:45:58 $
+ *  $Revision: 1.23 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -47,10 +47,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
-
-
-#include "GlobalVariables.h"
-
 
 class PFMETAnalyzer : public PFMETAnalyzerBase {
  public:
@@ -174,7 +170,6 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   double _highPFMETThreshold;
   double _lowPFMETThreshold;
 
-  int _numPV;
   // Et threshold for MET plots
   double _etThreshold;
 
@@ -238,25 +233,5 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   MonitorElement* mePfMETRate;
 
 
-  // NPV binned
-  //----------------------------------------------------------------------------
-  MonitorElement* mePfMEx_npv   [_npvRanges];
-  MonitorElement* mePfMEy_npv   [_npvRanges];
-  //  MonitorElement* mePfEz_npv    [_npvRanges];
-  //  MonitorElement* mePfMETSig_npv[_npvRanges];
-  MonitorElement* mePfMET_npv   [_npvRanges];
-  //  MonitorElement* mePfMETPhi_npv[_npvRanges];
-  MonitorElement* mePfSumET_npv [_npvRanges];
-
-  MonitorElement* mePfMET_logx_npv  [_npvRanges];
-  MonitorElement* mePfSumET_logx_npv[_npvRanges];
-
-  MonitorElement* mePfNeutralEMFraction_npv [_npvRanges];
-  MonitorElement* mePfNeutralHadFraction_npv[_npvRanges];
-  MonitorElement* mePfChargedEMFraction_npv [_npvRanges];
-  MonitorElement* mePfChargedHadFraction_npv[_npvRanges];
-  MonitorElement* mePfMuonFraction_npv      [_npvRanges];
 };
-
-
 #endif

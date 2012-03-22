@@ -335,8 +335,8 @@ def addForAll(steps,d):
 #### fastsim section ####
 ##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
 step1FastDefaults =merge([{'-s':'GEN,FASTSIM,HLT:GRun,VALIDATION',
-                           '--eventcontent':'FEVTDEBUGHLT,DQM',
-                           '--datatier':'GEN-SIM-DIGI-RECO,DQM',
+                           '--eventcontent':'FEVTDEBUGHLT',
+                           '--datatier':'GEN-SIM-DIGI-RECO',
                            '--relval':'27000,500'},
                           step1Defaults])
 K100by500={'--relval':'100000,500'}
@@ -385,14 +385,35 @@ steps['WToLNu_TuneZ2star_8TeV_pythia6-tauola']=genvalid('WToLNu_TuneZ2star_8TeV_
 steps['QCD_Pt-30_8TeV_herwig6']=genvalid('QCD_Pt_30_8TeV_herwig6_cff',step1GenDefaults,'qcd')
 steps['MinBias_8TeV_pythia8']=genvalid('MinBias_8TeV_pythia8_cff',step1GenDefaults,'qcd')
 
-
-steps['QCD_Ht-100To250_TuneZ2star_8TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchTuneZ2star_8TeV_madgraph_tauola_cff',step1GenDefaults,'qcd',5475)
-steps['QCD_Ht-250To500_TuneZ2star_8TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchTuneZ2star_8TeV_madgraph_tauola_cff',step1GenDefaults,'qcd',5476)
-steps['QCD_Ht-500To1000_TuneZ2star_8TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchTuneZ2star_8TeV_madgraph_tauola_cff',step1GenDefaults,'qcd',5481)
-steps['TTJets_TuneZ2star_8TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchTuneZ2star_8TeV_madgraph_tauola_cff',step1GenDefaults,'',5606)
-steps['WJetsLNu_TuneZ2star_8TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchTuneZ2star_8TeV_madgraph_tauola_cff',step1GenDefaults,'w',5607)
-steps['ZJetsLNu_TuneZ2star_8TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchTuneZ2star_8TeV_madgraph_tauola_cff',step1GenDefaults,'dy',5591)
-steps['ZJetsLNu_Tune4C_8TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTune4C_8TeV_madgraph_pythia8_cff',step1GenDefaults,'dy',5591)
+steps['DYToMuMu_M-20_8TeV_mcatnlo']=genvalid('DYToMuMu_M_20_8TeV_mcatnlo_cff',step1GenDefaults,'dy',664)
+steps['TT_8TeV_mcatnlo']=genvalid('TT_8TeV_mcatnlo_cff',step1GenDefaults,'',346)
+steps['WminusToENu_8TeV_mcatnlo']=genvalid('WminusToENu_8TeV_mcatnlo_cff',step1GenDefaults,'w',666)
+steps['WminusToMuNu_8TeV_mcatnlo']=genvalid('WminusToMuNu_8TeV_mcatnlo_cff',step1GenDefaults,'w',668)
+steps['WplusToENu_8TeV_mcatnlo']=genvalid('WplusToENu_8TeV_mcatnlo_cff',step1GenDefaults,'w',665)
+steps['WplusToMuNu_8TeV_mcatnlo']=genvalid('WplusToMuNu_8TeV_mcatnlo_cff',step1GenDefaults,'w',667)
+steps['QCD_Ht-100To250_TuneZ2star_8TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchTuneZ2star_8TeV_madgraph_tauola_cff',step1GenDefaults,'qcd',3358)
+steps['QCD_Ht-250To500_TuneZ2star_8TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchTuneZ2star_8TeV_madgraph_tauola_cff',step1GenDefaults,'qcd',3356)
+steps['QCD_Ht-500To1000_TuneZ2star_8TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchTuneZ2star_8TeV_madgraph_tauola_cff',step1GenDefaults,'qcd',3306)
+steps['TTJets_TuneZ2star_8TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchTuneZ2star_8TeV_madgraph_tauola_cff',step1GenDefaults,'',5226)
+steps['WJetsLNu_TuneZ2star_8TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchTuneZ2star_8TeV_madgraph_tauola_cff',step1GenDefaults,'w',2924)
+steps['ZJetsLNu_TuneZ2star_8TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchTuneZ2star_8TeV_madgraph_tauola_cff',step1GenDefaults,'dy',2925)
+steps['QCD2Jets_Pt-40To120_TuneZ2star_8TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2star_8TeV_alpgen_tauola_cff',step1GenDefaults,'qcd',785)
+steps['QCD3Jets_Pt-40To120_TuneZ2star_8TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2star_8TeV_alpgen_tauola_cff',step1GenDefaults,'qcd',786)
+steps['QCD4Jets_Pt-40To120_TuneZ2star_8TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2star_8TeV_alpgen_tauola_cff',step1GenDefaults,'qcd',787)
+steps['QCD5Jets_Pt-40To120_TuneZ2star_8TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2star_8TeV_alpgen_tauola_cff',step1GenDefaults,'qcd',832)
+steps['TT0Jets_Et-40_TuneZ2star_8TeV_alpgen_tauola']=genvalid('Hadronizer_Et48ExclTuneZ2star_8TeV_alpgen_tauola_cff',step1GenDefaults,'',472)
+steps['TT1Jets_Et-40_TuneZ2star_8TeV_alpgen_tauola']=genvalid('Hadronizer_Et48ExclTuneZ2star_8TeV_alpgen_tauola_cff',step1GenDefaults,'',475)
+steps['TT2Jets_Et-40_TuneZ2star_8TeV_alpgen_tauola']=genvalid('Hadronizer_Et48ExclTuneZ2star_8TeV_alpgen_tauola_cff',step1GenDefaults,'',478)
+steps['TT3Jets_Et-40_TuneZ2star_8TeV_alpgen_tauola']=genvalid('Hadronizer_Et48ExclTuneZ2star_8TeV_alpgen_tauola_cff',step1GenDefaults,'',481)
+steps['W0Jets_Pt-0To100_TuneZ2star_8TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2star_8TeV_alpgen_tauola_cff',step1GenDefaults,'w',397)
+steps['W1Jets_Pt-0To100_TuneZ2star_8TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2star_8TeV_alpgen_tauola_cff',step1GenDefaults,'w',398)
+steps['W2Jets_Pt-0To100_TuneZ2star_8TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2star_8TeV_alpgen_tauola_cff',step1GenDefaults,'w',399)
+steps['W3Jets_Pt-0To100_TuneZ2star_8TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2star_8TeV_alpgen_tauola_cff',step1GenDefaults,'w',400)
+steps['Z0Jets_Pt-0To100_TuneZ2star_8TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2star_8TeV_alpgen_tauola_cff',step1GenDefaults,'dy',440)
+steps['Z1Jets_Pt-0To100_TuneZ2star_8TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2star_8TeV_alpgen_tauola_cff',step1GenDefaults,'dy',441)
+steps['Z2Jets_Pt-0To100_TuneZ2star_8TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2star_8TeV_alpgen_tauola_cff',step1GenDefaults,'dy',442)
+steps['Z3Jets-Pt_0To100_TuneZ2star_8TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2star_8TeV_alpgen_tauola_cff',step1GenDefaults,'dy',443)
+steps['ZJetsLNu_Tune4C_8TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTune4C_8TeV_madgraph_pythia8_cff',step1GenDefaults,'dy',2925)
 
 PU={'--pileup':'default','--pileup_input':'dbs:/RelValProdMinBias/%s/GEN-SIM-RAW'%(baseDataSetRelease[0],)}
 PUFS={'--pileup':'default'}
@@ -543,6 +564,21 @@ steps['ALCAEXP']={'-s':'ALCA:PromptCalibProd',
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO'}
 
+steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
+                   '--conditions':'auto:com10',
+                   '--filein':'file:step2_inDQM.root',
+                   '--filetype':'DQM',
+                   '--data':'',
+                   '--scenario':'pp'}
+
+# run RECO+DQM in step 3 and harvesting in step4, for HLT + RECO workflow
+steps['HARVESTDst4']={'-s':'HARVESTING:dqmHarvesting',
+                   '--conditions':'auto:com10',
+                   '--filein':'file:step3_inDQM.root',
+                   '--filetype':'DQM',
+                   '--data':'',
+                   '--scenario':'pp'}
+
 # step4
 step4Defaults = { 
                   '-s'            : 'ALCA:TkAlMuonIsolated+TkAlMinBias+EcalCalElectron+HcalCalIsoTrk+MuAlOverlaps',
@@ -578,44 +614,10 @@ steps['HARVGEN']={'-s':'HARVESTING:genHarvesting',
                   '--filein':'file:step1.root'
                   }
 
-#data
-steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
-                   '--conditions':'auto:com10',
-                   '--filetype':'DQM',
-                   '--data':'',
-                   '--scenario':'pp'}
-
-steps['HARVESTDC']={'-s':'HARVESTING:dqmHarvesting',
-                   '--conditions':'auto:com10',
-                   '--filetype':'DQM',
-                   '--data':'',
-                    '--filein':'file:step2_inDQM.root',
-                   '--scenario':'cosmics'}
-steps['HARVESTDHI']={'-s':'HARVESTING:dqmHarvesting',
-                   '--conditions':'auto:com10',
-                   '--filetype':'DQM',
-                   '--data':'',
-                   '--scenario':'HeavyIons'}
-
-#MC
 steps['HARVEST']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'auto:startup',
                    '--mc':'',
                    '--scenario':'pp'}
-steps['HARVESTCOS']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
-                     '--conditions':'auto:startup',
-                     '--mc':'',
-                     '--filein':'file:step3_inDQM.root',
-                   '--scenario':'cosmics'}
-steps['HARVESTFS']={'-s':'HARVESTING:validationHarvestingFS',
-                   '--conditions':'auto:startup',
-                   '--mc':'',
-                   '--scenario':'pp'}
-steps['HARVESTHI']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
-                   '--conditions':'auto:startup',
-                   '--mc':'',
-                   '--scenario':'HeavyIons'}
-
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
                     '--conditions':'auto:com10',
                     '--scenario':'pp',

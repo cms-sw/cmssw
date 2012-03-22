@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/03/06 11:39:22 $
- *  $Revision: 1.27 $
+ *  $Date: 2011/07/20 13:59:00 $
+ *  $Revision: 1.25 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -114,24 +114,6 @@ void JetAnalyzer::beginJob(DQMStore * dbe) {
   mConstituents            = dbe->book1D("Constituents", "# of Constituents", 50, 0, 100);
   mHFrac                   = dbe->book1D("HFrac", "HFrac", 120, -0.1, 1.1);
   mEFrac                   = dbe->book1D("EFrac", "EFrac", 120, -0.1, 1.1);
-
-
-  // NPV binned
-  //----------------------------------------------------------------------------
-  for (int bin=0; bin<_npvRanges; ++bin) {
-
-    mPt_npv          [bin] = dbe->book1D(Form("Pt_npvBin%d",           bin), "Pt"                + _npvs[bin],  ptBin,  ptMin,  ptMax);
-    mEta_npv         [bin] = dbe->book1D(Form("Eta_npvBin%d",          bin), "Eta"               + _npvs[bin], etaBin, etaMin, etaMax);
-    mPhi_npv         [bin] = dbe->book1D(Form("Phi_npvBin%d",          bin), "Phi"               + _npvs[bin], phiBin, phiMin, phiMax);
-    mConstituents_npv[bin] = dbe->book1D(Form("Constituents_npvBin%d", bin), "# of constituents" + _npvs[bin],     50,      0,    100);
-    mHFrac_npv       [bin] = dbe->book1D(Form("HFrac_npvBin%d",        bin), "HFrac"             + _npvs[bin],    120,   -0.1,    1.1);
-    mEFrac_npv       [bin] = dbe->book1D(Form("EFrac_npvBin%d",        bin), "EFrac"             + _npvs[bin],    120,   -0.1,    1.1);
-
-    if (makedijetselection != 1)
-      mNJets_npv[bin] = dbe->book1D(Form("NJets_npvBin%d", bin), "number of jets" + _npvs[bin], 100, 0, 100);
- }
-
-
   //
   //mE                       = dbe->book1D("E", "E", eBin, eMin, eMax);
   //mP                       = dbe->book1D("P", "P", pBin, pMin, pMax);
@@ -150,7 +132,7 @@ void JetAnalyzer::beginJob(DQMStore * dbe) {
     mPt_Hi                  = dbe->book1D("Pt_Hi", "Pt (Pass Hi Pt Jet Trigger)", 60, 0, 300);   
     mEta_Hi                 = dbe->book1D("Eta_Hi", "Eta (Pass Hi Pt Jet Trigger)", etaBin, etaMin, etaMax);
     mPhi_Hi                 = dbe->book1D("Phi_Hi", "Phi (Pass Hi Pt Jet Trigger)", phiBin, phiMin, phiMax);
-    mNJets                   = dbe->book1D("NJets", "number of jets", 100, 0, 100);
+    mNJets                   = dbe->book1D("NJets", "Number of Jets", 100, 0, 100);
 
     //mPt_Barrel_Lo            = dbe->book1D("Pt_Barrel_Lo", "Pt Barrel (Pass Low Pt Jet Trigger)", 20, 0, 100);   
     //mPhi_Barrel_Lo           = dbe->book1D("Phi_Barrel_Lo", "Phi Barrel (Pass Low Pt Jet Trigger)", phiBin, phiMin, phiMax);
@@ -261,8 +243,7 @@ void JetAnalyzer::endJob() {
 
 // ***********************************************************
 void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
-			  const reco::CaloJetCollection& caloJets,
-			  const int numPV) {
+			  const reco::CaloJetCollection& caloJets) {
   int numofjets=0;
   double  fstPhi=0.;
   double  sndPhi=0.;
@@ -278,15 +259,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   srand( iEvent.id().event() % 10000);
   
-
-  int npvbin = -1;
-  if      (numPV <  5) npvbin = 0;
-  else if (numPV < 10) npvbin = 1;
-  else if (numPV < 15) npvbin = 2;
-  else if (numPV < 25) npvbin = 3;
-  else                 npvbin = 4;
-
-
   if(makedijetselection==1){
     //Dijet selection - careful: the pT is uncorrected!
     //if(makedijetselection==1 && caloJets.size()>=2){
@@ -379,21 +351,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      //  if (msigmaEta)  msigmaEta->Fill(sqrt((caloJets.at(1)).etaetaMoment()));
 	      //  if (msigmaPhi)  msigmaPhi->Fill(sqrt((caloJets.at(1)).phiphiMoment()));
 
-
-	      // NPV binned
-	      //----------------------------------------------------------------
-	      for (int ijet=0; ijet<2; ijet++) {
-
-		if (mPt_npv          [npvbin]) mPt_npv          [npvbin]->Fill((caloJets.at(ijet)).pt());
-		if (mEta_npv         [npvbin]) mEta_npv         [npvbin]->Fill((caloJets.at(ijet)).eta());
-		if (mPhi_npv         [npvbin]) mPhi_npv         [npvbin]->Fill((caloJets.at(ijet)).phi());
-		if (mConstituents_npv[npvbin]) mConstituents_npv[npvbin]->Fill((caloJets.at(ijet)).nConstituents());
-		if (mHFrac_npv       [npvbin]) mHFrac_npv       [npvbin]->Fill((caloJets.at(ijet)).energyFractionHadronic());
-		if (mEFrac_npv       [npvbin]) mEFrac_npv       [npvbin]->Fill((caloJets.at(ijet)).emEnergyFraction());
-	      }
 	    }
-
-
 	    //let's see how many of these jets passed the JetID cleaning
 	    if(fillJIDPassFrac==1) {
 	      if(LoosecleanedFirstJet) {
@@ -620,17 +578,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if (mHFrac)        mHFrac->Fill (jet->energyFractionHadronic());
 	  if (mEFrac)        mEFrac->Fill (jet->emEnergyFraction());
 	  
-
-	  // NPV binned
-	  //--------------------------------------------------------------------
-	  if (mPt_npv          [npvbin]) mPt_npv          [npvbin]->Fill(jet->pt());
-	  if (mEta_npv         [npvbin]) mEta_npv         [npvbin]->Fill(jet->eta());
-	  if (mPhi_npv         [npvbin]) mPhi_npv         [npvbin]->Fill(jet->phi());
-	  if (mConstituents_npv[npvbin]) mConstituents_npv[npvbin]->Fill(jet->nConstituents());
-	  if (mHFrac_npv       [npvbin]) mHFrac_npv       [npvbin]->Fill(jet->energyFractionHadronic());
-	  if (mEFrac_npv       [npvbin]) mEFrac_npv       [npvbin]->Fill(jet->emEnergyFraction());
-
-
 	  if (fabs(jet->eta()) <= 1.3) {
 	    if (mPt_Barrel)   mPt_Barrel->Fill (jet->pt());
 	    if (mPhi_Barrel)  mPhi_Barrel->Fill (jet->phi());
@@ -691,11 +638,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
     if (mNJets) mNJets->Fill (numofjets);
     if (mDPhi && dphi>-998.) mDPhi->Fill (dphi);
-
-
-    if (mNJets_npv[npvbin]) mNJets_npv[npvbin]->Fill(numofjets);
-
-
   }//not dijet
 }
 

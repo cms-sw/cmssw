@@ -6,8 +6,8 @@
 
 /** \class HcalTrigPrimMonitor
   *  
-  * $Date: 2010/10/21 12:12:15 $
-  * $Revision: 1.24 $
+  * $Date: 2010/05/17 18:50:46 $
+  * $Revision: 1.23 $
   * \author W. Fisher - FNAL
   */
 
@@ -31,7 +31,6 @@ class HcalTrigPrimMonitor: public HcalBaseDQMonitor {
    private:
       edm::InputTag dataLabel_;
       edm::InputTag emulLabel_;
-      std::vector<int> ZSBadTPThreshold_;
       std::vector<int> ZSAlarmThreshold_;
 
       MonitorElement* create_summary(const std::string& folder, const std::string& name);

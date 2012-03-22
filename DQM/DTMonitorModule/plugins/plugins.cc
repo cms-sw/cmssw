@@ -63,9 +63,6 @@ DEFINE_FWK_MODULE(DTScalerInfoTask);
 #include <DQM/DTMonitorModule/src/DTDCSByLumiTask.h>
 DEFINE_FWK_MODULE(DTDCSByLumiTask);
 
-#include <DQM/DTMonitorModule/src/L1TdeDTTPG.h>
-DEFINE_FWK_MODULE(L1TdeDTTPG);
-
 
 #include <DQM/DTMonitorModule/interface/DTDataIntegrityTask.h>
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"

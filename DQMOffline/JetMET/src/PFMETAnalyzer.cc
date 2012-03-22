@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/10/10 14:43:31 $
- *  $Revision: 1.40 $
+ *  $Date: 2011/10/10 13:45:50 $
+ *  $Revision: 1.39 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -302,46 +302,7 @@ void PFMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fa
       mePfMEyLS->setAxisTitle("Lumi Section",2);
     }
   }
-
-
-  // NPV binned
-  //----------------------------------------------------------------------------
-  for (int bin=0; bin<_npvRanges; ++bin) {
-
-    mePfMEx_npv[bin]                = _dbe->book1D(Form("METTask_PfMEx_npvBin%d", bin),   "METTask_PfMEx"+_npvs[bin]   ,200,-500,500); 
-    mePfMEy_npv[bin]                = _dbe->book1D(Form("METTask_PfMEy_npvBin%d", bin),   "METTask_PfMEy"+_npvs[bin]   ,200,-500,500); 
-    //mePfEz_npv[bin]                 = _dbe->book1D(Form("METTask_PfEz_npvBin%d", bin),    "METTask_PfEz"+_npvs[bin]    ,500,-500,500);
-    //mePfMETSig_npv[bin]             = _dbe->book1D(Form("METTask_PfMETSig_npvBin%d", bin),"METTask_PfMETSig"+_npvs[bin],51,0,51);
-    mePfMET_npv[bin]                = _dbe->book1D(Form("METTask_PfMET_npvBin%d", bin),   "METTask_PfMET"+_npvs[bin]   ,200,0,1000); 
-    //mePfMETPhi_npv[bin]             = _dbe->book1D(Form("METTask_PfMETPhi_npvBin%d", bin),"METTask_PfMETPhi"+_npvs[bin],60,-TMath::Pi(),TMath::Pi());
-    mePfSumET_npv[bin]              = _dbe->book1D(Form("METTask_PfSumET_npvBin%d", bin), "METTask_PfSumET"+_npvs[bin] ,400,0,2000); 
-
-    mePfMET_logx_npv[bin]           = _dbe->book1D(Form("METTask_PfMET_logx_npvBin%d", bin),   "METTask_PfMET_logx"+_npvs[bin]   ,40,-1.,7.);
-    mePfSumET_logx_npv[bin]         = _dbe->book1D(Form("METTask_PfSumET_logx_npvBin%d", bin), "METTask_PfSumET_logx"+_npvs[bin] ,40,-1.,7.);
-    
-    mePfNeutralEMFraction_npv[bin]  = _dbe->book1D(Form("METTask_PfNeutralEMFraction_npvBin%d", bin), "METTask_PfNeutralEMFraction"+_npvs[bin] ,50,0.,1.);
-    mePfNeutralHadFraction_npv[bin] = _dbe->book1D(Form("METTask_PfNeutralHadFraction_npvBin%d", bin),"METTask_PfNeutralHadFraction"+_npvs[bin],50,0.,1.);
-    mePfChargedEMFraction_npv[bin]  = _dbe->book1D(Form("METTask_PfChargedEMFraction_npvBin%d", bin), "METTask_PfChargedEMFraction"+_npvs[bin] ,50,0.,1.);
-    mePfChargedHadFraction_npv[bin] = _dbe->book1D(Form("METTask_PfChargedHadFraction_npvBin%d", bin),"METTask_PfChargedHadFraction"+_npvs[bin],50,0.,1.);
-    mePfMuonFraction_npv[bin]       = _dbe->book1D(Form("METTask_PfMuonFraction_npvBin%d", bin),      "METTask_PfMuonFraction"+_npvs[bin]      ,50,0.,1.);
-
-    mePfMEx_npv               [bin]->setAxisTitle("MEx [GeV]",1);
-    mePfMEy_npv               [bin]->setAxisTitle("MEy [GeV]",1);
-    //    mePfEz_npv                [bin]->setAxisTitle("MEz [GeV]",1);
-    //    mePfMETSig_npv            [bin]->setAxisTitle("METSig",1);
-    mePfMET_npv               [bin]->setAxisTitle("MET [GeV]",1);
-    //    mePfMETPhi_npv            [bin]->setAxisTitle("METPhi [rad]",1);
-    mePfSumET_npv             [bin]->setAxisTitle("SumET [GeV]",1);
-    mePfMET_logx_npv          [bin]->setAxisTitle("log(MET) [GeV]",1);
-    mePfSumET_logx_npv        [bin]->setAxisTitle("log(SumET) [GeV]",1);
-    mePfNeutralEMFraction_npv [bin]->setAxisTitle("Pf Neutral EM Fraction",1);
-    mePfNeutralHadFraction_npv[bin]->setAxisTitle("Pf Neutral Had Fraction",1);
-    mePfChargedEMFraction_npv [bin]->setAxisTitle("Pf Charged EM Fraction",1);
-    mePfChargedHadFraction_npv[bin]->setAxisTitle("Pf Charged Had Fraction",1);
-    mePfMuonFraction_npv      [bin]->setAxisTitle("Pf Muon Fraction",1);
-  }
 }
-
 
 // ***********************************************************
 void PFMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
@@ -743,7 +704,6 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   // ==========================================================
   //Vertex information
   
-  _numPV = 0;
   bool bPrimaryVertex = true;
   if(_doPVCheck){
     bPrimaryVertex = false;
@@ -770,10 +730,8 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      && vertex_number>=_nvtx_min
 	      && vertex_ndof   >_vtxndof_min
 	      && vertex_chi2   <_vtxchi2_max
-	      && fabs(vertex_Z)<_vtxz_max ) {
+	      && fabs(vertex_Z)<_vtxz_max )
 	  bPrimaryVertex = true;
-	  ++_numPV;
-	}
       }
     }
   }
@@ -1038,51 +996,6 @@ void PFMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string Dir
 	mePfMEyLS = _dbe->get(DirName+"/"+"METTask_PfMEyLS"); if (mePfMEyLS && mePfMEyLS->getRootObject()) mePfMEyLS->Fill(pfMEy,myLuminosityBlock);
       }
     } // _allhist
-
-
-    // NPV binned
-    //--------------------------------------------------------------------------
-    int npvbin = -1;
-    if      (_numPV <  5) npvbin = 0;
-    else if (_numPV < 10) npvbin = 1;
-    else if (_numPV < 15) npvbin = 2;
-    else if (_numPV < 25) npvbin = 3;
-    else                  npvbin = 4;
-
-    mePfMEx_npv[npvbin]    = _dbe->get(Form("%s/METTask_PfMEx_npvBin%d", DirName.c_str(), npvbin));    if (mePfMEx_npv[npvbin]    && mePfMEx_npv[npvbin]->getRootObject())    mePfMEx_npv[npvbin]->Fill(pfMEx);
-    mePfMEy_npv[npvbin]    = _dbe->get(Form("%s/METTask_PfMEy_npvBin%d", DirName.c_str(), npvbin));    if (mePfMEy_npv[npvbin]    && mePfMEy_npv[npvbin]->getRootObject())    mePfMEy_npv[npvbin]->Fill(pfMEy);
-    mePfMET_npv[npvbin]    = _dbe->get(Form("%s/METTask_PfMET_npvBin%d", DirName.c_str(), npvbin));    if (mePfMET_npv[npvbin]    && mePfMET_npv[npvbin]->getRootObject())    mePfMET_npv[npvbin]->Fill(pfMET);
-    //mePfMETPhi_npv[npvbin] = _dbe->get(Form("%s/METTask_PfMETPhi_npvBin%d", DirName.c_str(), npvbin)); if (mePfMETPhi_npv[npvbin] && mePfMETPhi_npv[npvbin]->getRootObject()) mePfMETPhi_npv[npvbin]->Fill(pfMETPhi);
-    mePfSumET_npv[npvbin]  = _dbe->get(Form("%s/METTask_PfSumET_npvBin%d", DirName.c_str(), npvbin));  if (mePfSumET_npv[npvbin]  && mePfSumET_npv[npvbin]->getRootObject())  mePfSumET_npv[npvbin]->Fill(pfSumET);
-    //mePfMETSig_npv[npvbin] = _dbe->get(Form("%s/METTask_PfMETSig_npvBin%d", DirName.c_str(), npvbin)); if (mePfMETSig_npv[npvbin] && mePfMETSig_npv[npvbin]->getRootObject()) mePfMETSig_npv[npvbin]->Fill(pfMETSig);
-    //mePfEz_npv[npvbin]     = _dbe->get(Form("%s/METTask_PfEz_npvBin%d", DirName.c_str(), npvbin));     if (mePfEz_npv[npvbin]     && mePfEz_npv[npvbin]->getRootObject())     mePfEz_npv[npvbin]->Fill(pfEz);
-
-    mePfMET_logx_npv[npvbin]    = _dbe->get(Form("%s/METTask_PfMET_logx_npvBin%d", DirName.c_str(), npvbin));    if (mePfMET_logx    && mePfMET_logx_npv[npvbin]->getRootObject())    mePfMET_logx_npv[npvbin]->Fill(log10(pfMET));
-    mePfSumET_logx_npv[npvbin]  = _dbe->get(Form("%s/METTask_PfSumET_logx_npvBin%d", DirName.c_str(), npvbin));  if (mePfSumET_logx  && mePfSumET_logx_npv[npvbin]->getRootObject())  mePfSumET_logx_npv[npvbin]->Fill(log10(pfSumET));
-
-    mePfNeutralEMFraction_npv[npvbin] = _dbe->get(Form("%s/METTask_PfNeutralEMFraction_npvBin%d", DirName.c_str(), npvbin)); 
-    if (mePfNeutralEMFraction_npv[npvbin]   && mePfNeutralEMFraction_npv[npvbin]->getRootObject()) mePfNeutralEMFraction_npv[npvbin]->Fill(pfNeutralEMFraction);
-    mePfNeutralHadFraction_npv[npvbin] = _dbe->get(Form("%s/METTask_PfNeutralHadFraction_npvBin%d", DirName.c_str(), npvbin)); 
-    if (mePfNeutralHadFraction_npv[npvbin]   && mePfNeutralHadFraction_npv[npvbin]->getRootObject()) mePfNeutralHadFraction_npv[npvbin]->Fill(pfNeutralHadFraction);
-    mePfChargedEMFraction_npv[npvbin] = _dbe->get(Form("%s/METTask_PfChargedEMFraction_npvBin%d", DirName.c_str(), npvbin)); 
-    if (mePfChargedEMFraction_npv[npvbin]   && mePfChargedEMFraction_npv[npvbin]->getRootObject()) mePfChargedEMFraction_npv[npvbin]->Fill(pfChargedEMFraction);
-    mePfChargedHadFraction_npv[npvbin] = _dbe->get(Form("%s/METTask_PfChargedHadFraction_npvBin%d", DirName.c_str(), npvbin)); 
-    if (mePfChargedHadFraction_npv[npvbin]   && mePfChargedHadFraction_npv[npvbin]->getRootObject()) mePfChargedHadFraction_npv[npvbin]->Fill(pfChargedHadFraction);
-    mePfMuonFraction_npv[npvbin] = _dbe->get(Form("%s/METTask_PfMuonFraction_npvBin%d", DirName.c_str(), npvbin)); 
-    if (mePfMuonFraction_npv[npvbin]   && mePfMuonFraction_npv[npvbin]->getRootObject()) mePfMuonFraction_npv[npvbin]->Fill(pfMuonFraction);
-    
-
-
-
-
-
-
-
-
-
-
-
-
   } // et threshold cut
 }
 

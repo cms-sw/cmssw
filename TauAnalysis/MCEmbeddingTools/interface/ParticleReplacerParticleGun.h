@@ -45,7 +45,6 @@ private:
   float tauHelicity(int pdg_id);
   float randomPolarization();
 
-  //gen::TauolaInterface* tauola_;
   gen::TauolaInterface tauola_;
   gen::Pythia6Service pythia_;
 

@@ -94,7 +94,6 @@ class LumiScalers
 
   float pileup() const                     { return(pileup_);}
   float pileupRMS() const                  { return(pileupRMS_);}
-  float bunchLumi() const                  { return(bunchLumi_);}
 
   /// equality operator
   int operator==(const LumiScalers& e) const { return false; }
@@ -148,7 +147,6 @@ protected:
 
   float pileup_;
   float pileupRMS_;
-  float bunchLumi_;
 };
 
 

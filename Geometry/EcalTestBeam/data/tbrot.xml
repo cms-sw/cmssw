@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
-	<ConstantsSection label="tbrot.xml" eval="true">
-		<Constant name="eta" value="0.221605"/>
-		<Constant name="phi" value="0.0467487*rad"/>
-		<Constant name="theta" value="2*atan(exp(-[tbrot:eta]))"/>
-	</ConstantsSection>
-</DDDefinition>

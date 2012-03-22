@@ -467,6 +467,37 @@ if 'GlobalTag' in %%(dict)s:
 """
       self.data += text % self.config.l1Xml.__dict__
 
+  def runL1EmulatorGT(self):
+    # if requested, run (part of) the L1 emulator, then repack the data into a new RAW collection, to be used by the HLT
+    if not self.config.emulator:
+      return
+
+    if self.config.emulator != 'gt':
+      # only the GT emulator is currently supported
+      return
+
+    # run the L1 GT emulator, then repack the data into a new RAW collection, to be used by the HLT
+    text = """
+# run the L1 GT emulator, then repack the data into a new RAW collection, to be used by the HLT
+"""
+    if self.config.fragment:
+      # FIXME in a cff, should also update the HLTSchedule
+      text += "import Configuration.StandardSequences.SimL1EmulatorRepack_GT_cff\n"
+    else:
+      text += "process.load( 'Configuration.StandardSequences.SimL1EmulatorRepack_GT_cff' )\n"
+
+    if not 'hltBoolFalse' in self.data:
+      # add hltBoolFalse
+      text += """
+%(process)shltBoolFalse = cms.EDFilter( "HLTBool",
+    result = cms.bool( False )
+)
+"""
+    text += "process.L1Emulator = cms.Path( process.SimL1Emulator + process.hltBoolFalse )\n\n"
+
+    self.data = re.sub(r'.*cms\.(End)?Path.*', text + r'\g<0>', self.data, 1)
+
+
   def runL1Emulator(self):
     # if requested, run (part of) the L1 emulator
     if self.config.emulator:

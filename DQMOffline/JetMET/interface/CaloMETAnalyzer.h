@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2011/10/10 14:43:38 $
- *  $Revision: 1.30 $
+ *  $Date: 2011/10/10 13:45:58 $
+ *  $Revision: 1.29 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -75,13 +75,10 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   // Book MonitorElements
   void bookMESet(std::string);
   void bookMonitorElement(std::string, bool);
-  void bookMonitorElementTriggered(std::string, bool);
 
   // Fill MonitorElements
-  void fillMESet(const edm::Event&, std::string, const reco::CaloMET&, const reco::CaloMET&);
-  void fillMESubSet(const edm::Event&, std::string, const reco::CaloMET&, const reco::CaloMET&);
-  void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::CaloMET&, const reco::CaloMET&, bool);
-  void fillMonitorElementTriggered(const edm::Event&, std::string, std::string, const reco::CaloMET&, const reco::CaloMET&, bool);
+  void fillMESet(const edm::Event&, std::string, const reco::CaloMET&);
+  void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::CaloMET&, bool);
   void makeRatePlot(std::string, double);
 
   void validateMET(const reco::CaloMET&, edm::Handle<edm::View<reco::Candidate> >);
@@ -189,7 +186,6 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   //
   std::vector<std::string> _FolderNames;
 
-  int _numPV;
   //
   double _EmMEx;
   double _EmMEy;
@@ -238,20 +234,6 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   MonitorElement* hCaloMET1;
   MonitorElement* hCaloMETPhi;
   MonitorElement* hCaloSumET;
-  MonitorElement* hCaloMETNoHF;
-  //MonitorElement* hCaloMETNoHFPhi;
-
-  ///Binned in NPV
-  MonitorElement* hCaloMEx_npv[5];
-  MonitorElement* hCaloMEy_npv[5];
-  //MonitorElement* hCaloEz_npv[5];
-  MonitorElement* hCaloMETSig_npv[5];
-  MonitorElement* hCaloMET_npv[5];
-  MonitorElement* hCaloMET1_npv[5];
-  MonitorElement* hCaloMETPhi_npv[5];
-  MonitorElement* hCaloSumET_npv[5];
-  MonitorElement* hCaloMETNoHF_npv[5];
-  //MonitorElement* hCaloMETNoHFPhi_npv[5];
   
   MonitorElement* hCaloMET_logx;
   MonitorElement* hCaloSumET_logx;

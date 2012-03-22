@@ -111,20 +111,11 @@ LumiScalers::LumiScalers(const unsigned char * rawData)
       float * fspare = (float *) raw6->spare;
       pileup_    = fspare[ScalersRaw::I_SPARE_PILEUP_v7];
       pileupRMS_ = fspare[ScalersRaw::I_SPARE_PILEUPRMS_v7];
-      if ( version_ >= 7 )
-      {
-	bunchLumi_ = fspare[ScalersRaw::I_SPARE_BUNCHLUMI_v8];
-      }
-      else
-      {
-	bunchLumi_ = (float)0.0;
-      }
     }
     else
     {
       pileup_    = (float)0.0;
       pileupRMS_ = (float)0.0;
-      bunchLumi_ = (float)0.0;
     }
   }
 }
@@ -187,7 +178,7 @@ std::ostream& operator<<(std::ostream& s, const LumiScalers& c)
     s << line << std::endl;
 
     sprintf(line,
-	       " LiveLumiOccFill[%d]:  %e   LiveLumiOccRun[%d]:  %e", 
+	       " LiveLumiOccFill[%d]:  %e   LiveLumiOccRun[%d]:v %e", 
 	    i, c.liveLumiOccFill()[i], i, c.liveLumiOccRun()[i]);
     s << line << std::endl;
   }
@@ -212,8 +203,8 @@ std::ostream& operator<<(std::ostream& s, const LumiScalers& c)
     s << line << std::endl;
   }
 
-  sprintf(line," Pileup: %f   PileupRMS: %f   BunchLumi: %f", 
-	  c.pileup(), c.pileupRMS(), c.bunchLumi());
+  sprintf(line,"            Pileup: %f  PileupRMS: %f", 
+	  c.pileup(), c.pileupRMS());
   s << line << std::endl;
 
   return s;

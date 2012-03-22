@@ -18,8 +18,10 @@ DTMeantimerPatternReco4DAlgo_LinearDriftFromDBLoose = cms.PSet(
         DTLinearDriftFromDBAlgo,
         # this are the RecSegment2D algo parameters!
         DTMeantimerPatternReco2DAlgo_LinearDriftFromDBLoose,
-        debug = cms.untracked.bool(False),
+        segmCleanerMode = cms.int32(1),
         # Parameters for the cleaner
+        nSharedHitsMax = cms.int32(2),
+        debug = cms.untracked.bool(False),
         nUnSharedHitsMin = cms.int32(2),
         # the input type. 
         # If true the instructions in setDTRecSegment2DContainer will be schipped and the 
@@ -30,8 +32,8 @@ DTMeantimerPatternReco4DAlgo_LinearDriftFromDBLoose = cms.PSet(
         # Parameters for  T0 fit segment in the Updator 
         performT0SegCorrection = cms.bool(False),
         hit_afterT0_resolution = cms.double(0.03),
-        performT0_vdriftSegCorrection = cms.bool(False),
-        perform_delta_rejecting = cms.bool(True)
+        performT0_vdriftSegCorrection = cms.bool(False)
+        
     )
 )
 

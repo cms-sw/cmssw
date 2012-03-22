@@ -6,9 +6,9 @@
  * 
  * \author Paolo Azzurri, Giovanni Petrucciani 
  *
- * \version $Revision: 1.20 $
+ * \version $Revision: 1.19 $
  *
- * $Id: AnalyticalTrackSelector.h,v 1.20 2011/08/09 22:41:09 edelmaie Exp $
+ * $Id: AnalyticalTrackSelector.h,v 1.19 2011/06/18 15:11:49 gpetrucc Exp $
  *
  */
 
@@ -55,9 +55,6 @@ namespace reco { namespace modules {
             bool copyExtras_;
             /// copy also trajectories and trajectory->track associations
             bool copyTrajectories_;
-            /// eta restrictions
-            double minEta_;
-	    double maxEta_;
 			
             /// storage
             std::auto_ptr<reco::TrackCollection> selTracks_;

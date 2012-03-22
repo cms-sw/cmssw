@@ -39,7 +39,6 @@ namespace csctf_analysis
 	int getPhiPacked() const {return PhiPacked;};
 	int getChargePacked() const {return ChargePacked;};
 	int getFR() const {return FR;};
-	int getBX() const {return Bx;};
 	int getLUTAddress() const {return LUTAddress;}
 	int getEndcap() const {if(isEndcap1==true){return 1;} else{return 2;}}
 	//added by josh and nathaniel

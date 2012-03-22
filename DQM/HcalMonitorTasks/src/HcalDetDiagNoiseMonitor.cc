@@ -353,9 +353,9 @@ void HcalDetDiagNoiseMonitor::analyze(const edm::Event& iEvent, const edm::Event
    edm::Handle<HBHEDigiCollection> hbhe; 
    iEvent.getByLabel(digiLabel_,hbhe);
    for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
-     double max=-100/*,sum*/,energy=0; int n_zero=0;
+     double max=-100, /* sum, */ energy=0; int n_zero=0;
      for(int i=0;i<digi->size();i++){
-       //       sum=adc2fC[digi->sample(i).adc()&0xff]; 
+       /* sum=adc2fC[digi->sample(i).adc()&0xff]; */ 
        if(max<adc2fC[digi->sample(i).adc()&0xff]) max=adc2fC[digi->sample(i).adc()&0xff];
        if(adc2fC[digi->sample(i).adc()&0xff]==0) n_zero++;
      }

@@ -222,11 +222,8 @@ class MatrixReader(object):
                 stepNames=stepNames.replace('+RECODFROMRAWRECO','')
                 stepNames=stepNames.replace('+SKIMCOSD','')
                 stepNames=stepNames.replace('+SKIMD','')
-                if 'HARVEST' in stepNames:
-                    #find out automatically what to remove
-                    exactb=stepNames.index('+HARVEST')
-                    exacte=stepNames.index('+',exactb+1) if ('+' in stepNames[exactb+1:]) else (len(stepNames))
-                    stepNames=stepNames.replace(stepNames[exactb:exacte],'')
+                stepNames=stepNames.replace('+HARVESTD','')
+                stepNames=stepNames.replace('+HARVEST','')
                 otherSteps = None
                 if '+' in stepNames:
                     step1,otherSteps = stepNames.split('+',1)

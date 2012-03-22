@@ -30,7 +30,6 @@ namespace csctf_analysis
 	matchedRefPt_FWD = matchSubdirPt.make<TH1F>("matchedRefPt_FWD","Forward Region: Pt of Matched Sim Tracks",500,0,100);
 	SimPt_vs_TFPt_DT = allSubdir.make<TH2F>("SimPt_vs_TFPt_DT","DT Region: Sim Pt vs TF Pt",100,0,100,100,0,100);	
 	matchedRefPt_DT = matchSubdirPt.make<TH1F>("matchedRefPt_DT","DT Region: Pt of Matched Sim Tracks",500,0,100);
-	BX = allSubdir.make<TH1F>("BX","Track Finder BX",20,-10,10);
 	FR = allSubdir.make<TH1F>("FR","Track Finder FR Bit",2,-0.5,1.5);
 	modeOcc = allSubdir.make<TH1F>("modeOcc","Mode Occupancy",16,-0.5,15.5);
 	modeOccDT = allSubdir.make<TH1F>("modeOccDT","Mode Occupancy 0 <= #eta <= 0.9",16,-0.5,15.5);
@@ -152,8 +151,6 @@ namespace csctf_analysis
 	Pt->GetYaxis()->SetTitle("Counts");
 	Quality->GetXaxis()->SetTitle("Track Quality");
 	Quality->GetYaxis()->SetTitle("Counts");
-	BX->GetXaxis()->SetTitle("Bunch Crossing");
-	BX->GetYaxis()->SetTitle("Counts");
 	FR->GetXaxis()->SetTitle("FR Bit Value");
 	FR->GetYaxis()->SetTitle("Counts");
 	modeOcc->GetXaxis()->SetTitle("Mode");

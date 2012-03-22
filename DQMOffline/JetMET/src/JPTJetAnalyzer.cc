@@ -51,7 +51,7 @@ namespace jptJetAnalysis {
     uint32_t propagatorCacheId_;
   };
   
-  // Helper class to calculate strip signal to noise and manage the necessary ES objects
+  // Helpper class to calculate strip signal to noise and manage the necessary ES objects
   class StripSignalOverNoiseCalculator
   {
    public:
@@ -172,37 +172,21 @@ void JPTJetAnalyzer::beginJob(DQMStore* dqmStore)
 }
 
 
-void JPTJetAnalyzer::analyze(const edm::Event&             event,
-			     const edm::EventSetup&        eventSetup,
-			     const reco::JPTJetCollection& jptJets,
-			     const int                     numPV)
+void JPTJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::JPTJetCollection& jptJets)
 {
   double pt1 = 0;
   double pt2 = 0;
   double pt3 = 0;
-
   for (reco::JPTJetCollection::const_iterator iJet = jptJets.begin(); iJet != jptJets.end(); ++iJet) {
-    analyze(event, eventSetup, *iJet, pt1, pt2, pt3, numPV);
+    analyze(event,eventSetup,*iJet,pt1,pt2,pt3);
   }
   if (pt1) fillHistogram(JetPt1_,pt1);
   if (pt2) fillHistogram(JetPt2_,pt2);
   if (pt3) fillHistogram(JetPt3_,pt3);
 }
 
-void JPTJetAnalyzer::analyze(const edm::Event&      event,
-			     const edm::EventSetup& eventSetup,
-			     const reco::JPTJet&    jptJet,
-			     double&                pt1,
-			     double&                pt2,
-			     double&                pt3,
-			     const int              numPV)
+void JPTJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup, const reco::JPTJet& jptJet, double& pt1, double& pt2, double& pt3)
 {
-  int npvbin = -1;
-  if      (numPV <  5) npvbin = 0;
-  else if (numPV < 10) npvbin = 1;
-  else if (numPV < 15) npvbin = 2;
-  else if (numPV < 25) npvbin = 3;
-  else                 npvbin = 4;
   
   //update the track propagator and strip noise calculator
   trackPropagator_->update(eventSetup);
@@ -272,16 +256,6 @@ void JPTJetAnalyzer::analyze(const edm::Event&      event,
       fillHistogram(JetDeltaEta_,deltaEta);
       fillHistogram(JetDeltaPhi_,deltaPhi);
       fillHistogram(JetPhiVsEta_,jptJet.phi(),jptJet.eta());
-
-
-      // NPV binned
-      //------------------------------------------------------------------------
-      fillHistogram(JetPt_npv [npvbin], jptJet.pt());
-      fillHistogram(JetEta_npv[npvbin], jptJet.eta());
-      fillHistogram(JetPhi_npv[npvbin], jptJet.phi());
-
-
-
       const uint16_t totalTracks = jptJet.chargedMultiplicity();
       fillHistogram(NTracksPerJetHisto_,totalTracks);
       fillHistogram(NTracksPerJetVsJetEtHisto_,rawJet.et(),totalTracks);
@@ -452,16 +426,6 @@ void JPTJetAnalyzer::bookHistograms(DQMStore* dqm)
   JetResEMF_   = bookHistogram("ResEMF","Jet restricted EM fraction","restricted EMF",dqm);
   JetfRBX_     = bookHistogram("fRBX","Jet fRBX","fRBX",dqm);
   
-
-  // NPV binned
-  //----------------------------------------------------------------------------
-  for (int bin=0; bin<_npvRanges; ++bin) {
-    JetPt_npv [bin] = bookHistogram(Form("Pt_npvBin%d",  bin), "jet p_{T}" + _npvs[bin], "p_{T} /GeV/c", dqm);
-    JetEta_npv[bin] = bookHistogram(Form("Eta_npvBin%d", bin), "jet #eta"  + _npvs[bin], "#eta",         dqm);
-    JetPhi_npv[bin] = bookHistogram(Form("Phi_npvBin%d", bin), "jet #phi"  + _npvs[bin], "#phi",         dqm);
-  }
-
-
   TrackSiStripHitStoNHisto_            = bookHistogram("TrackSiStripHitStoN","Signal to noise of track SiStrip hits","S/N",dqm);
   InCaloTrackDirectionJetDRHisto_      = bookHistogram("InCaloTrackDirectionJetDR",
                                                        "#Delta R between track direrction at vertex and jet axis (track in cone at calo)","#Delta R",dqm);

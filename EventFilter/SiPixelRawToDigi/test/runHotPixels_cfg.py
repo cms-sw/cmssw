@@ -1,28 +1,7 @@
 #
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("d")
-
-import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
-# accept if 'path_1' succeeds
-process.hltfilter = hlt.hltHighLevel.clone(
-# Min-Bias
-#    HLTPaths = ['HLT_Physics_v*'],
-#    HLTPaths = ['HLT_L1Tech_BSC_minBias_threshold1_v*'],
-    HLTPaths = ['HLT_Random_v*'],
-#    HLTPaths = ['HLT_ZeroBias_v*'],
-# Commissioning:
-#    HLTPaths = ['HLT_L1_Interbunch_BSC_v*'],
-#    HLTPaths = ['HLT_L1_PreCollisions_v*'],
-#    HLTPaths = ['HLT_BeamGas_BSC_v*'],
-#    HLTPaths = ['HLT_BeamGas_HF_v*'],
-# examples
-#    HLTPaths = ['p*'],
-#    HLTPaths = ['path_?'],
-    andOr = True,  # False = and, True=or
-    throw = False
-    )
-
+process = cms.Process("RawDumper")
 
 # process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -47,62 +26,42 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(                          
+
 # "/store/data/Commissioning11/Cosmics/RAW/v1/000/157/884/FE867543-D938-E011-B9C4-001D09F2983F.root",
-# 186160
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/Cosmics/RAW/v1/000/186/160/0224F8A5-6A61-E111-BCC5-BCAEC5329708.root"
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/Commissioning/RAW/v1/000/186/160/04D2072A-8161-E111-9058-BCAEC518FF5A.root"
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/160/60406E4F-8A61-E111-9CF3-BCAEC53296F8.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/160/62193B74-6D61-E111-8044-BCAEC518FF7A.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/160/847DCF6E-8061-E111-9638-BCAEC5329708.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/160/9C639109-9E61-E111-BC15-E0CB4E55365C.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/160/A4420D9C-7661-E111-8763-5404A63886BD.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/160/EC5A04E5-9461-E111-8600-BCAEC53296F5.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/160/F2915E5C-A461-E111-8FBF-BCAEC532970D.root"
-# 185984
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/Commissioning/RAW/v1/000/185/984/00DB308B-775E-E111-94B1-BCAEC532972E.root"
-# 185250
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/Commissioning/RAW/v1/000/185/250/0286CCB5-7858-E111-B19E-BCAEC5329708.root"
+# "/store/data/Commissioning11/Cosmics/RAW/v1/000/157/884/FE0D426F-C338-E011-85FB-001D09F253D4.root",
+# "/store/data/Commissioning11/Cosmics/RAW/v1/000/157/884/FCDDC3CC-B638-E011-87B9-0030487A3232.root",
+# "/store/data/Commissioning11/Cosmics/RAW/v1/000/157/884/FC896B0F-C638-E011-A6B1-0030487CD184.root",
+# "/store/data/Commissioning11/Cosmics/RAW/v1/000/157/884/FC268CDA-C438-E011-8148-003048F1C836.root"
 
-# 186822
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/822/06D621F9-1C68-E111-817A-001D09F2906A.root",
-    
-# 186996
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/996/1A8BFCC6-BE68-E111-B0F5-0019B9F72F97.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/996/1E2C2DC4-B468-E111-B1C6-001D09F25267.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/996/1ECD78E8-D068-E111-9B5F-001D09F29321.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/996/2A2E8E83-A968-E111-97A0-001D09F24399.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/996/523DC559-EC68-E111-9534-0019B9F4A1D7.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/996/5E323AB2-E668-E111-B4FA-001D09F295FB.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/996/62F17EC4-C768-E111-A53F-001D09F23D1D.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/996/7A1B5B90-DD68-E111-AB69-001D09F2983F.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/186/996/A045EE58-A068-E111-8DCF-001D09F27003.root",
-
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/Cosmics/RAW/v1/000/186/996/007B8341-C468-E111-9909-001D09F2906A.root",
-
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/Commissioning/RAW/v1/000/186/996/006860ED-D068-E111-8327-001D09F24303.root",
-
-# 187361
- "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/483A4D50-566A-E111-AE98-001D09F2AF96.root",
- "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/5630B3CF-6C6A-E111-BA18-001D09F28F25.root",
- "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/6CD5D083-806A-E111-BEDD-001D09F2906A.root",
- "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/70C71F71-856A-E111-839E-001D09F2983F.root",
- "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/A6868F2F-676A-E111-AD64-001D09F2305C.root",
- "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/B465D505-5E6A-E111-952C-001D09F29114.root",
- "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/F6994FC3-786A-E111-99FA-001D09F25267.root",
- "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/F6BA5695-746A-E111-B8EF-001D09F2910A.root",
-
-# 187446
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/02CC6857-376B-E111-ADC2-001D09F28E80.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/0438B1B9-826B-E111-919B-001D09F24D8A.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/065A1CA7-3D6B-E111-81A4-001D09F24FEC.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/088CEEC5-2C6B-E111-9C1D-001D09F24D67.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/12549E7F-916B-E111-8972-001D09F2B30B.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/146B7135-546B-E111-8E3E-0019B9F72F97.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/1630241C-A36B-E111-ADC0-003048D374F2.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/16B7554B-436B-E111-BAEC-001D09F251FE.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/1883852F-4D6B-E111-ACF5-001D09F241F0.root",
-# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/24FCE29B-1C6B-E111-928D-001D09F2910A.root",
- 
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/F22D81ED-BF38-E011-AFA2-0019B9F70468.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/DE96271E-D538-E011-9EFD-001D09F24682.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/DCC2B27F-BE38-E011-892B-001D09F2932B.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/D8D8037B-D838-E011-9DF6-001D09F24259.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/D4F50EC5-C938-E011-9E9C-0030487C608C.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/BC14A85C-DD38-E011-88C0-003048F118D4.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/AC95A605-BB38-E011-A39F-0030487D05B0.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/A0FA70E0-CB38-E011-94C3-003048F1110E.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/92501BF6-E638-E011-B461-003048F1C832.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/82E99EEA-B838-E011-8017-0030487CD184.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/8034D960-B538-E011-B121-003048F11DE2.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/7E239292-D338-E011-BB32-0030487C5CFA.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/76AC3661-EE38-E011-BFA8-0030487CD6DA.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/5E14751A-DE38-E011-B9E3-001D09F28D4A.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/589162EF-E038-E011-9907-001D09F244BB.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/528FFA66-CF38-E011-BA76-001D09F25479.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/4E462F65-BC38-E011-B9FA-001D09F23F2A.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/4043F509-C238-E011-A52F-001D09F34488.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/3ED25535-B838-E011-9593-0030487CD7B4.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/3AADB84F-CD38-E011-A34C-0019B9F709A4.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/3A2D4ED8-DE38-E011-AF77-0019B9F72BAA.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/3469F1E0-C538-E011-A153-0030487C7E18.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/2AE84352-E238-E011-8025-0030487C912E.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/28D1741D-D738-E011-B9DF-0030487D1BCC.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/22403963-C838-E011-AA86-001D09F24F65.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/1ADF7E78-D138-E011-B88F-003048F118D4.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/0CE94E23-C438-E011-B2CF-0030487CD6DA.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/0A600A8C-DF38-E011-87FB-001D09F232B9.root",
+ "/store/data/Commissioning11/CommissioningNoBeam/RAW/v1/000/157/884/02E8D4AD-DC38-E011-9046-001617C3B6CC.root"
 
     )
 
@@ -115,15 +74,14 @@ process.source = cms.Source("PoolSource",
 process.dumper = cms.EDAnalyzer("findHotPixels", 
     Timing = cms.untracked.bool(False),
     IncludeErrors = cms.untracked.bool(True),
-#    InputLabel = cms.untracked.string('source'),
-#   In 2012, extension = _LHC                                
-    InputLabel = cms.untracked.string('rawDataCollector'),
+    InputLabel = cms.untracked.string('source'),
 #    InputLabel = cms.untracked.string('siPixelRawData'),
     CheckPixelOrder = cms.untracked.bool(False)
 )
 
-process.p = cms.Path(process.hltfilter*process.dumper)
-# process.p = cms.Path(process.dumper)
+# process.s = cms.Sequence(process.dumper)
+
+process.p = cms.Path(process.dumper)
 
 # process.ep = cms.EndPath(process.out)
 

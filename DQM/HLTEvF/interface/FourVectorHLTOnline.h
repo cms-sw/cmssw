@@ -19,7 +19,7 @@
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
 //
-// $Id: FourVectorHLTOnline.h,v 1.17 2010/03/25 15:03:37 rekovic Exp $
+// $Id: FourVectorHLTOnline.h,v 1.16 2010/03/25 12:17:33 rekovic Exp $
 //
 //
 
@@ -263,9 +263,9 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
               onEtOn_ = onEtOn;
               onOneOverEtOn_ = onOneOverEtOn;
               onEtavsonPhiOn_ = onEtavsonPhiOn;
-              //NOff_ = NOff;
-              //offEtOff_ = offEtOff;
-              //offEtavsoffPhiOff_ = offEtavsoffPhiOff;
+              NOff_ = NOff;
+              offEtOff_ = offEtOff;
+              offEtavsoffPhiOff_ = offEtavsoffPhiOff;
               NL1_ = NL1;
               l1EtL1_ = l1EtL1;
               l1Etavsl1PhiL1_ = l1Etavsl1PhiL1;
@@ -305,15 +305,15 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
          MonitorElement * getOnEtaVsOnPhiOnHisto() {
            return onEtavsonPhiOn_;
          }
-         //         MonitorElement * getNOffHisto() {
-        //            return NOff_;
-        //          }
-        //          MonitorElement * getOffEtOffHisto() {
-        //            return offEtOff_;
-        //          }
-        //  MonitorElement * getOffEtaVsOffPhiOffHisto() {
-        //            return offEtavsoffPhiOff_;
-        //          }
+         MonitorElement * getNOffHisto() {
+           return NOff_;
+         }
+         MonitorElement * getOffEtOffHisto() {
+           return offEtOff_;
+         }
+         MonitorElement * getOffEtaVsOffPhiOffHisto() {
+           return offEtavsoffPhiOff_;
+         }
          MonitorElement * getNL1Histo() {
            return NL1_;
          }
@@ -428,7 +428,7 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
           processName_(processName), 
           objectType_(type),
           NOn_(0), onEtOn_(0), onOneOverEtOn_(0), onEtavsonPhiOn_(0), 
-          
+          NOff_(0), offEtOff_(0), offEtavsoffPhiOff_(0),
           NL1_(0), l1EtL1_(0), l1Etavsl1PhiL1_(0),
           NL1On_(0), l1EtL1On_(0), l1Etavsl1PhiL1On_(0),
           NL1Off_(0), offEtL1Off_(0), offEtavsoffPhiL1Off_(0),
@@ -481,7 +481,8 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
             denomPathName_(denomPathName), 
             pathName_(pathName), l1pathName_(l1pathName), 
             filterName_(filterName), processName_(processName), objectType_(type),
-            NOn_(NOn), onEtOn_(onEtOn), onOneOverEtOn_(onOneOverEtOn), onEtavsonPhiOn_(onEtavsonPhiOn),             
+            NOn_(NOn), onEtOn_(onEtOn), onOneOverEtOn_(onOneOverEtOn), onEtavsonPhiOn_(onEtavsonPhiOn), 
+            NOff_(NOff), offEtOff_(offEtOff), offEtavsoffPhiOff_(offEtavsoffPhiOff),
             NL1_(NL1), l1EtL1_(l1EtL1), l1Etavsl1PhiL1_(l1Etavsl1PhiL1),
             NL1On_(NL1On), l1EtL1On_(l1EtL1On), l1Etavsl1PhiL1On_(l1Etavsl1PhiL1On),
             NL1Off_(NL1Off), offEtL1Off_(offEtL1Off), offEtavsoffPhiL1Off_(offEtavsoffPhiL1Off),
@@ -525,7 +526,7 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
         
         // we don't own this data
         MonitorElement *NOn_, *onEtOn_, *onOneOverEtOn_, *onEtavsonPhiOn_;
-        //  MonitorElement *NOff_, *offEtOff_, *offEtavsoffPhiOff_;
+        MonitorElement *NOff_, *offEtOff_, *offEtavsoffPhiOff_;
         MonitorElement *NL1_, *l1EtL1_, *l1Etavsl1PhiL1_;
         MonitorElement *NL1On_, *l1EtL1On_, *l1Etavsl1PhiL1On_;
         MonitorElement *NL1Off_, *offEtL1Off_, *offEtavsoffPhiL1Off_;

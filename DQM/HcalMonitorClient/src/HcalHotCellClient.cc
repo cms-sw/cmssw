@@ -11,8 +11,8 @@
 /*
  * \file HcalHotCellClient.cc
  * 
- * $Date: 2011/04/12 18:25:42 $
- * $Revision: 1.77 $
+ * $Date: 2010/11/17 19:17:42 $
+ * $Revision: 1.76 $
  * \author J. Temple
  * \brief Hot Cell Client class
  */
@@ -38,9 +38,8 @@ HcalHotCellClient::HcalHotCellClient(std::string myname, const edm::ParameterSet
   validHtmlOutput_       = ps.getUntrackedParameter<bool>("HotCell_validHtmlOutput",true);
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
   badChannelStatusMask_   = ps.getUntrackedParameter<int>("HotCell_BadChannelStatusMask",
-  							  ps.getUntrackedParameter<int>("BadChannelStatusMask",
-  											(1<<HcalChannelStatus::HcalCellHot))); // identify channel status values to mask
-  // badChannelStatusMask_   = ps.getUntrackedParameter<int>("HotCell_BadChannelStatusMask", (1<<1)); // identify channel status values to mask
+							  ps.getUntrackedParameter<int>("BadChannelStatusMask",
+											(1<<HcalChannelStatus::HcalCellHot))); // identify channel status values to mask
 
   minerrorrate_ = ps.getUntrackedParameter<double>("HotCell_minerrorrate",
 						   ps.getUntrackedParameter<double>("minerrorrate",0.25));
@@ -298,6 +297,7 @@ bool HcalHotCellClient::test_enabled(void){return true;}
 void HcalHotCellClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual)
 {
   // This gets called by HcalMonitorClient
+
   if (nevts_<minevents_) return; // not enough events to make judgment; don't create new status file
 
   float binval;

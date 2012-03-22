@@ -123,23 +123,23 @@ void ESDaqInfoTask::endJob(void) {
 void ESDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup){
 
    this->reset();
-   
-   for (int x = 0; x < 80; ++x) {
-     for (int y = 0; y < 80; ++y) {
-       int iz = (x<40)  ? 1:2;
-       int ip = (y>=40) ? 1:2;
-       int ix = (x<40)  ? x:x-40;
-       int iy = (y<40)  ? y:y-40;
-       int ifed = (*es_mapping_).getFED( iz, ip, ix+1, iy+1);
-       if( ifed > 0 ) meESDaqActiveMap_->setBinContent( x+1, y+1, 0.0 );
-       else meESDaqActiveMap_->setBinContent( x+1, y+1, -1.0 );
-     }
+
+   for ( int x = 0; x < 80; x++ ) {
+      for ( int y = 0; y < 80; y++ ) {
+	 int iz = (x<40)?  1:2;
+	 int ip = (y>=40)? 1:2;
+	 int ix = (x<40)? x:x-40;
+	 int iy = (y<40)?  y:y-40;
+	 int ifed = (*es_mapping_).getFED( iz, ip, ix, iy);
+	 if( ifed > 0 ) meESDaqActiveMap_->setBinContent( x+1, y+1, 0.0 );
+	 else meESDaqActiveMap_->setBinContent( x+1, y+1, -1.0 );
+      }
    }
-   
+
    for (int i = 0; i < 56; i++) {
-     if ( meESDaqError_ ) meESDaqError_->setBinContent(i, 0.0);
+      if ( meESDaqError_ ) meESDaqError_->setBinContent(i, 0.0);
    }
-   
+
    edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
 
    if( iSetup.find( recordKey ) ) {

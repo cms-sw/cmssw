@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: TrigResRateMon_cfi.py,v 1.10 2011/09/21 16:51:09 lwming Exp $
+# $Id: TrigResRateMon_cfi.py,v 1.3 2010/09/02 10:00:02 rekovic Exp $
 trRateMon = cms.EDAnalyzer("TrigResRateMon",
     dirname = cms.untracked.string("HLT/TrigResults/"),
     muonRecoCollectionName = cms.untracked.string("muons"),
@@ -12,8 +12,8 @@ trRateMon = cms.EDAnalyzer("TrigResRateMon",
     ptMin = cms.untracked.double(0.0),
 		Nbins = cms.untracked.uint32(50),
     referenceBX= cms.untracked.uint32(1),
-		NLuminositySegments= cms.untracked.uint32(1000),
-		LuminositySegmentSize= cms.untracked.double(23.3),
+		NLuminositySegments= cms.untracked.uint32(2000),
+		LuminositySegmentSize= cms.untracked.double(23),
 		NbinsOneOverEt = cms.untracked.uint32(10000),
 
 		muonEtaMax = cms.untracked.double(2.1),
@@ -51,40 +51,6 @@ trRateMon = cms.EDAnalyzer("TrigResRateMon",
             'HLT_ZeroBias'
       ),
 
-     # Will mask any path whose name
-     # contains any of the following sub-strings
-     # For example: HLT_Mu
-     # will mask all paths that contain the sub-string
-     # HLT_Mu                            
-     MaskedPaths = cms.vstring(
-            'HLT_ZeroBias_v',
-            'HLT_Mu5_v',
-            'HLT_Mu8_v',
-            'HLT_Mu12_v',
-            'HLT_Jet30_v',
-            'HLT_Jet60_v',
-            'HLT_DiJetAve30_v'
-            
-      ),
-
-  ## Robin
-     testPaths = cms.vstring(
-            'HLT_IsoMu30_eta2p1',
-            'HLT_Ele65_CaloIdVT_TrkIdT',
-            'HLT_MET200',
-            'HLT_Jet370',
-            'HLT_HT600',
-            'HLT_Photon26_R9Id_Photon18_R9Id',
-            'HLT_IsoMu15_eta2p1_LooseIsoPFTau20',
-            'HLT_PFMHT150',
-            'HLT_Photon90_CaloIdVL_IsoL'
-
-      ),                           
-
-   # Will pick the first trigger whose name contains this substring
- #  ReferenceTrigger = cms.string('HLT_Mu17_Ele8_CaloIdL_v'),        
-   ReferenceTrigger = cms.string('HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_v'),
-                           
     paths = cms.VPSet(
              cms.PSet(
               pathname = cms.string("HLT_"),

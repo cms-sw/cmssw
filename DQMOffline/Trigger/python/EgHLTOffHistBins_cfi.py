@@ -5,9 +5,6 @@ egHLTOffDQMBinData = cms.PSet (
     #---Morse----------
     #et = cms.PSet(nr=cms.int32(11),min=cms.double(-5.),max=cms.double(105.)),
     et = cms.PSet(nr=cms.int32(80),min=cms.double(-5.),max=cms.double(155.)),
-    HLTet = cms.PSet(nr=cms.int32(80),min=cms.double(-5.),max=cms.double(155.)),
-    HLTeta =cms.PSet(nr=cms.int32(30),min=cms.double(-3.),max=cms.double(3.)),
-    HLTphi =cms.PSet(nr=cms.int32(16),min=cms.double(-3.14),max=cms.double(3.14)),
     #--------------
     etHigh = cms.PSet(nr=cms.int32(30),min=cms.double(25),max=cms.double(2025)),
     eta =cms.PSet(nr=cms.int32(30),min=cms.double(-3.),max=cms.double(3.)),
@@ -24,7 +21,6 @@ egHLTOffDQMBinData = cms.PSet (
     minr9=cms.PSet(nr=cms.int32(24),min=cms.double(-0.1),max=cms.double(1.1)),
     maxr9=cms.PSet(nr=cms.int32(24),min=cms.double(-0.1),max=cms.double(1.1)),
     nVertex=cms.PSet(nr=cms.int32(22),min=cms.double(-1.),max=cms.double(21.)),
-    deltaEt=cms.PSet(nr=cms.int32(30),min=cms.double(-15.),max=cms.double(15.)),
     #---------
     isolEm=cms.PSet(nr=cms.int32(22),min=cms.double(-1),max=cms.double(10)),
     isolHad=cms.PSet(nr=cms.int32(22),min=cms.double(-1),max=cms.double(10)),

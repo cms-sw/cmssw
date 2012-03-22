@@ -3,9 +3,7 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
-#include "JetMETCorrections/Type1MET/interface/JetCorrExtractorT.h"
-
-typedef CaloJetMETcorrInputProducerT<reco::CaloJet, JetCorrExtractorT<reco::CaloJet> > CaloJetMETcorrInputProducer;
+typedef CaloJetMETcorrInputProducerT<reco::CaloJet> CaloJetMETcorrInputProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

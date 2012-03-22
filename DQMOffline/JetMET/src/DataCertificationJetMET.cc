@@ -5,7 +5,7 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.50 2011/12/05 19:04:30 dutta Exp $
+// $Id: DataCertificationJetMET.cc,v 1.49 2010/09/28 15:42:41 sturdy Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -658,10 +658,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   float qr_MET_METPhi[5][2]  = {{-999.}};
   float dc_MET[5]            = {-999.};
 
-
-  // J.Piedra, 27/02/212
-  // Started the process to remove MuCorrMET --> loop up to 4 instead of 5
-  for (int mtyp = 0; mtyp < 4; ++mtyp){
+  for (int mtyp = 0; mtyp < 5; ++mtyp){
     //Mean test results
     //std::cout<<"meMEx = :"<<meMExy[mtyp][0]<<std::endl;
     //std::cout<<"meMEy = :"<<meMExy[mtyp][1]<<std::endl;

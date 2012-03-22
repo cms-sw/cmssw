@@ -26,10 +26,6 @@ CkfBaseTrajectoryFilter_block = cms.PSet(
     maxLostHitsFraction = cms.double(1./10),
     constantValueForLostHitsFractionFilter = cms.double(1.),
 
-# Cuts for looperTrajectoryFilter
-    minNumberOfHits = cms.int32(13),
-    minNumberOfHitsPerLoop = cms.int32(4),
-    extraNumberOfHitsBeforeTheFirstLoop = cms.int32(4), 
 )
 ChargeSignificanceTrajectoryFilter_block = cms.PSet(
     ComponentType = cms.string('ChargeSignificanceTrajectoryFilter'),

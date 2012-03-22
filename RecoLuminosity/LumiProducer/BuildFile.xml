@@ -1,10 +1,7 @@
 <use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
-<use name="FWCore/ParameterSet"/>
 <use name="CoralBase"/>
 <use name="RelationalAccess"/>
 <use name="FWCore/ServiceRegistry"/>
-<use name="FWCore/Utilities"/>
 <export>
    <lib name="1"/>
 </export>

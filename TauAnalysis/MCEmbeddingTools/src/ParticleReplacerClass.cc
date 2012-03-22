@@ -24,12 +24,10 @@ ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& pset, bool
   ParticleReplacerBase(pset),
   generatorMode_(pset.getParameter<std::string>("generatorMode")),
   tauola_(pset.getParameter< edm::ParameterSet>("TauolaOptions")),
-  //tauola_(gen::TauolaInterface::getInstance()),
   printEvent_(verbose),
   outTree(0),
   maxNumberOfAttempts_(pset.getUntrackedParameter<int>("maxNumberOfAttempts", 1000))
 {
-//	tauola_->setPSet(pset.getParameter< edm::ParameterSet>("TauolaOptions"));
 // 	using namespace reco;
 	using namespace edm;
 	using namespace std;

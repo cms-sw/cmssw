@@ -46,10 +46,6 @@ selectLoose = cms.EDProducer("AnalyticalTrackSelector",
 
     # parameters for cutting on pterror/pt and number of valid hits
     max_relpterr = cms.double(9999.),
-    min_nhits = cms.uint32(0),
-
-    # parameters for cutting on eta
-    max_eta = cms.double(9999.),
-    min_eta = cms.double(-9999.)
+    min_nhits = cms.uint32(0)
 
 )

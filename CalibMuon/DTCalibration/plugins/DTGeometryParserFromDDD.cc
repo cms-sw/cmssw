@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/06/04 16:29:12 $
- *  $Revision: 1.0 $
+ *  $Date: 2007/11/02 10:47:56 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN To 
  */
 
@@ -31,7 +31,7 @@ DTGeometryParserFromDDD::DTGeometryParserFromDDD(const DDCompactView* cview, con
 
     parseGeometry(fview, muonConstants, theLayerIdWiresMap);
   }
-  catch (const DDException & e ) {
+  catch (const cms::Exception & e ) {
     std::cerr << "DTGeometryParserFromDDD::build() : DDD Exception: something went wrong during XML parsing!" << std::endl
 	      << "  Message: " << e << std::endl
 	      << "  Terminating execution ... " << std::endl;
