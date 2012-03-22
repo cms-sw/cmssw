@@ -14,7 +14,7 @@
 #include "../interface/ProfilingTools.h"
 
 //---- Uncomment this and run with --perfCounters to get statistics of successful and failed fits
-#define DEBUG_FIT_STATUS
+//#define DEBUG_FIT_STATUS
 #ifdef DEBUG_FIT_STATUS
 #define  COUNT_ONE(x) PerfCounter::add(x);
 #else
@@ -27,10 +27,10 @@
 #define DBGV(X,Z) if (X>1) { Z; }
 #define DBG_TestStat_params 0 // ProfiledLikelihoodRatioTestStatOpt::Evaluate; 1 = dump nlls; 2 = dump params at each eval
 #define DBG_TestStat_NOFIT  0 // FIXME HACK: if set, don't profile the likelihood, just evaluate it
-#define DBG_PLTestStat_ctor 0 // dump parameters in c-tor
-#define DBG_PLTestStat_pars 0 // dump parameters in eval
-#define DBG_PLTestStat_fit  0 // dump fit result
-#define DBG_PLTestStat_main 1 // limited debugging (final NLLs, failed fits)
+#define DBG_PLTestStat_ctor 2 // dump parameters in c-tor
+#define DBG_PLTestStat_pars 2 // dump parameters in eval
+#define DBG_PLTestStat_fit  2 // dump fit result
+#define DBG_PLTestStat_main 2 // limited debugging (final NLLs, failed fits)
 #else
 #define DBG(X,Z) 
 #define DBGV(X,Z) 

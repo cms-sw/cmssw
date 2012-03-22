@@ -778,6 +778,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   std::auto_ptr<HybridCalculator> hc(new HybridCalculator(data, setup.modelConfig, setup.modelConfig_bonly, setup.toymcsampler.get()));
   if (genNuisances_ || !genGlobalObs_) {
       if (withSystematics) {
+          setup.toymcsampler->SetGlobalObservables(*setup.modelConfig.GetNuisanceParameters());
           (static_cast<HybridCalculator&>(*hc)).ForcePriorNuisanceNull(*nuisancePdf);
           (static_cast<HybridCalculator&>(*hc)).ForcePriorNuisanceAlt(*nuisancePdf);
       }  

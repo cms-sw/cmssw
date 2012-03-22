@@ -378,7 +378,7 @@ ToyMCSamplerOpt::SetPdf(RooAbsPdf& pdf)
     delete nuisValues_; nuisValues_ = 0; nuisIndex_ = -1;
 }
 
-RooAbsData* ToyMCSamplerOpt::GenerateToyData(RooArgSet& /*nullPOI*/, double& weight, RooAbsPdf& pdf) const {
+RooAbsData* ToyMCSamplerOpt::GenerateToyData(RooArgSet& /*nullPOI*/, double& weight) const {
    weight = 1;
    // This method generates a toy data set for the given parameter point taking
    // global observables into account.
@@ -468,7 +468,12 @@ ToyMCSamplerOpt::Generate(RooAbsPdf& pdf, RooArgSet& observables, const RooDataS
    }
    int events = forceEvents;
    if (events == 0) events = fNEvents;
-   if (events != 0) return RooStats::ToyMCSampler::Generate(pdf, observables, protoData, forceEvents);
+   if (events != 0) {
+      assert(events == 1);
+      assert(protoData == 0);
+      RooAbsData *ret = pdf.generate(observables, events);
+      return ret;
+   }
    toymcoptutils::SimPdfGenInfo *& info = genCache_[&pdf];
    if (info == 0) { 
        info = new toymcoptutils::SimPdfGenInfo(pdf, observables, fGenerateBinned, protoData, forceEvents);

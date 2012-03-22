@@ -53,7 +53,7 @@ class ToyMCSamplerOpt : public RooStats::ToyMCSampler{
         ~ToyMCSamplerOpt() ;
         virtual void SetPdf(RooAbsPdf& pdf) ;
         void setGlobalObsPdf(RooAbsPdf *pdf) { globalObsPdf_ = pdf; }
-        virtual RooAbsData* GenerateToyData(RooArgSet& /*nullPOI*/, double& weight, RooAbsPdf& pdf) const ;
+        virtual RooAbsData* GenerateToyData(RooArgSet& /*nullPOI*/, double& weight) const ;
     private:
         RooAbsData* Generate(RooAbsPdf& pdf, RooArgSet& observables, const RooDataSet* protoData = NULL, int forceEvents = 0) const ;
         RooAbsPdf *globalObsPdf_;
