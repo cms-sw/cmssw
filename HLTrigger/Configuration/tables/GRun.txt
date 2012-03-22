@@ -177,8 +177,6 @@ HLT_Mu8_DiJet30_v*										#sr126304
 HLT_Mu8_TriJet30_v*										#sr126304
 HLT_Mu8_QuadJet30_v*										#sr126304
 
-
-
 HLT_IsoMu20_eta2p1_CentralPFJet80_v*                                                            #sr126316
 HLT_Ele27_WP80_CentralPFJet80_v*                                                                #sr126316
 HLT_Ele27_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele15_CaloIdT_CaloIsoVL_trackless_v*               #sr126316
