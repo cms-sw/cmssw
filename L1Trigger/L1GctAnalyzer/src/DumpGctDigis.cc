@@ -70,8 +70,14 @@ DumpGctDigis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   
-  outFile_ << "Run :" << iEvent.id().run() << "  Event :" << iEvent.id().event() << endl;
+  outFile_ << "Run   : " << iEvent.id().run() << std::endl;
+  outFile_ << "LS    : " << iEvent.luminosityBlock() << std::endl;
+  outFile_ << "Event : " << iEvent.id().event() << std::endl;
+  outFile_ << "Orbit : " << iEvent.orbitNumber() << std::endl;
+  outFile_ << "BX    : " << iEvent.bunchCrossing() << std::endl;
   
+
+
   // EM
   if (doRctEM_ && doHW_) { doRctEM(iEvent, rawLabel_); }
   if (doRctEM_ && doEmu_) { doRctEM(iEvent, emuRctLabel_); }
@@ -265,22 +271,22 @@ void DumpGctDigis::doEnergySums(const edm::Event& iEvent, const edm::InputTag& l
   
   L1GctEtTotalCollection::const_iterator et;
   for (et=etTotal->begin(); et!=etTotal->end(); et++){
-    outFile_ << *(et) << endl;
+    outFile_ << *(et) << " BX=" << et->bx() << endl;
   }
 
   L1GctEtHadCollection::const_iterator ht;
   for (ht=etHad->begin(); ht!=etHad->end(); ht++){
-    outFile_ << *(ht) << endl;
+    outFile_ << *(ht) << " BX=" << ht->bx() << endl;
   }
 
   L1GctEtMissCollection::const_iterator met;
   for (met=etMiss->begin(); met!=etMiss->end(); met++){
-    outFile_ << *(met) << endl;
+    outFile_ << *(met) << " BX=" << met->bx() << endl;
   }
 
   L1GctHtMissCollection::const_iterator mht;
   for (mht=htMiss->begin(); mht!=htMiss->end(); mht++){
-    outFile_ << *(mht) << endl;
+    outFile_ << *(mht) << " BX=" << mht->bx() << endl;
   }
 
 }
