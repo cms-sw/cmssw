@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFMET
  *
- *  $Date: 2012/03/06 11:39:21 $
- *  $Revision: 1.25 $
+ *  $Date: 2012/03/23 15:13:47 $
+ *  $Revision: 1.26 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -238,26 +238,18 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   MonitorElement* mePfMETRate;
 
 
-  // NPV binned
+  // NPV profiles
   //----------------------------------------------------------------------------
   MonitorElement* mePfMEx_profile;
+  MonitorElement* mePfMEy_profile;
+  MonitorElement* mePfMET_profile;
+  MonitorElement* mePfSumET_profile;
 
-  MonitorElement* mePfMEx_npv   [_npvRanges];
-  MonitorElement* mePfMEy_npv   [_npvRanges];
-  //  MonitorElement* mePfEz_npv    [_npvRanges];
-  //  MonitorElement* mePfMETSig_npv[_npvRanges];
-  MonitorElement* mePfMET_npv   [_npvRanges];
-  //  MonitorElement* mePfMETPhi_npv[_npvRanges];
-  MonitorElement* mePfSumET_npv [_npvRanges];
-
-  MonitorElement* mePfMET_logx_npv  [_npvRanges];
-  MonitorElement* mePfSumET_logx_npv[_npvRanges];
-
-  MonitorElement* mePfNeutralEMFraction_npv [_npvRanges];
-  MonitorElement* mePfNeutralHadFraction_npv[_npvRanges];
-  MonitorElement* mePfChargedEMFraction_npv [_npvRanges];
-  MonitorElement* mePfChargedHadFraction_npv[_npvRanges];
-  MonitorElement* mePfMuonFraction_npv      [_npvRanges];
+  MonitorElement* mePfNeutralEMFraction_profile;
+  MonitorElement* mePfNeutralHadFraction_profile;
+  MonitorElement* mePfChargedEMFraction_profile;
+  MonitorElement* mePfChargedHadFraction_profile;
+  MonitorElement* mePfMuonFraction_profile;
 };
 
 

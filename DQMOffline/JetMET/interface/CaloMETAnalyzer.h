@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2011/10/10 14:43:38 $
- *  $Revision: 1.30 $
+ *  $Date: 2012/03/21 15:49:52 $
+ *  $Revision: 1.32 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -46,6 +46,10 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
+
+
+#include "GlobalVariables.h"
+
 
 class CaloMETAnalyzer : public CaloMETAnalyzerBase {
  public:
@@ -241,17 +245,15 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   MonitorElement* hCaloMETNoHF;
   //MonitorElement* hCaloMETNoHFPhi;
 
-  ///Binned in NPV
-  MonitorElement* hCaloMEx_npv[5];
-  MonitorElement* hCaloMEy_npv[5];
-  //MonitorElement* hCaloEz_npv[5];
-  MonitorElement* hCaloMETSig_npv[5];
-  MonitorElement* hCaloMET_npv[5];
-  MonitorElement* hCaloMET1_npv[5];
-  MonitorElement* hCaloMETPhi_npv[5];
-  MonitorElement* hCaloSumET_npv[5];
-  MonitorElement* hCaloMETNoHF_npv[5];
-  //MonitorElement* hCaloMETNoHFPhi_npv[5];
+
+  // NPV profiles
+  //----------------------------------------------------------------------------
+  MonitorElement* hCaloMEx_profile;
+  MonitorElement* hCaloMEy_profile;
+  MonitorElement* hCaloMET_profile;
+  MonitorElement* hCaloMETNoHF_profile;
+  MonitorElement* hCaloSumET_profile;
+
   
   MonitorElement* hCaloMET_logx;
   MonitorElement* hCaloSumET_logx;
