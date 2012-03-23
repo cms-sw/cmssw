@@ -44,5 +44,3 @@
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="DPGAnalysis/SiStripTools"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-</export>
