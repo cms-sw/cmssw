@@ -11,12 +11,7 @@ parser.add_option("-P", "--prefix", type="string", dest="fprefix", default="",  
 parser.add_option("--xc", "--exclude-channel", type="string", dest="channelVetos", default=[], action="append", help="Exclude channels that match this regexp; can specify multiple ones")
 (options, args) = parser.parse_args()
 options.bin = True # fake that is a binary output, so that we parse shape lines
-
-def isVetoed(channel):
-    global options
-    for veto in options.channelVetos:
-        if re.match(veto, channel): return True
-    return False
+options.nuisancesToExclude = []
 
 from HiggsAnalysis.CombinedLimit.DatacardParser import *
 
@@ -39,7 +34,7 @@ for ich,fname in enumerate(args):
         label += "_";
     for b in DC.bins:
         bout = label if singlebin else label+b
-        if isVetoed(bout): continue
+        if isVetoed(bout,options.channelVetos): continue
         obskeyline.append(bout)
         for (p,e) in DC.exp[b].items(): # so that we get only self.DC.processes contributing to this bin
             if DC.isSignal[p] == False: continue
@@ -62,7 +57,7 @@ for ich,fname in enumerate(args):
             continue
         for b in DC.bins:
             bout = label if singlebin else label+b
-            if isVetoed(bout): continue
+            if isVetoed(bout,options.channelVetos): continue
             if not systeffect.has_key(bout): systeffect[bout] = {} 
             for p in DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
                 r = str(errline[b][p]);
@@ -100,7 +95,7 @@ for ich,fname in enumerate(args):
     if len(DC.shapeMap):
         for b in DC.bins:
             bout = label if singlebin else label+b
-            if isVetoed(bout): continue
+            if isVetoed(bout,options.channelVetos): continue
             p2sMap  = DC.shapeMap[b]   if DC.shapeMap.has_key(b)   else {}
             p2sMapD = DC.shapeMap['*'] if DC.shapeMap.has_key('*') else {}
             for p, x in p2sMap.items():
@@ -122,7 +117,7 @@ for ich,fname in enumerate(args):
     elif obsline != None:
         for b in DC.bins:
             bout = label if singlebin else label+b
-            if isVetoed(bout): continue
+            if isVetoed(bout,options.channelVetos): continue
             obsline += [str(DC.obs[b])]; 
 
 bins = []
