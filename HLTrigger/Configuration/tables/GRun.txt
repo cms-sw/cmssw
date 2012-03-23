@@ -368,7 +368,7 @@ HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_Mass50_v*                        
 #HLT_Photon50_R9Id90_HE10_Iso40_v*                                                              #sr126493 (renamed by #sr127257)
 #HLT_Photon75_R9Id90_HE10_Iso40_v*                                                              #sr126493 (renamed by #sr127257)
 #HLT_Photon90_R9Id90_HE10_Iso40_v*                                                              #sr126493 (renamed by #sr127257)
-HLT_Ele27_WP70_v*                                                                               #sr126493
+#HLT_Ele27_WP70_v*                                                                              #sr126493 (dropped in sr #127291)
 HLT_Ele27_WP80_v*                                                                               #sr126493
 HLT_Ele27_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*                                                 #sr126493, kept from 2011
 HLT_Ele32_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*                                                 #sr126493, kept from 2011
@@ -376,8 +376,8 @@ HLT_Ele65_CaloIdVT_TrkIdT_v*                                                    
 HLT_Ele80_CaloIdVT_TrkIdT_v*                                                                    #sr126493, kept from 2011
 HLT_Ele100_CaloIdVT_TrkIdT_v*                                                                   #sr126493, kept from 2011
 HLT_Ele27_WP80_PFMT50_v*                                                                        #sr126493, kept from 2011
-HLT_Ele32_WP70_v*                                                                               #sr126493, kept from 2011
-HLT_Ele32_WP70_PFMT50_v*                                                                        #sr126493, kept from 2011
+#HLT_Ele32_WP70_v*                                                                              #sr126493 (dropped in sr #127291)
+#HLT_Ele32_WP70_PFMT50_v*                                                                       #sr126493 (dropped in sr #127291)
 HLT_Ele8_CaloIdL_CaloIsoVL_v*                                                                   #sr126493, kept from 2011
 HLT_Ele17_CaloIdL_CaloIsoVL_v*                                                                  #sr126493, kept from 2011
 
