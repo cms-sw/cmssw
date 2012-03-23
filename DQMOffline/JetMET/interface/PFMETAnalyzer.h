@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFMET
  *
- *  $Date: 2011/10/10 14:43:38 $
- *  $Revision: 1.24 $
+ *  $Date: 2012/03/06 11:39:21 $
+ *  $Revision: 1.25 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -240,6 +240,8 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
 
   // NPV binned
   //----------------------------------------------------------------------------
+  MonitorElement* mePfMEx_profile;
+
   MonitorElement* mePfMEx_npv   [_npvRanges];
   MonitorElement* mePfMEy_npv   [_npvRanges];
   //  MonitorElement* mePfEz_npv    [_npvRanges];

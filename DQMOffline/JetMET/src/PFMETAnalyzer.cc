@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/10/10 14:43:31 $
- *  $Revision: 1.40 $
+ *  $Date: 2012/03/06 11:39:22 $
+ *  $Revision: 1.41 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -306,6 +306,8 @@ void PFMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fa
 
   // NPV binned
   //----------------------------------------------------------------------------
+  mePfMEx_profile = _dbe->bookProfile("METTask_PfMEx_profile", "METTask_PfMEx_profile", 50, 0, 50, 200, -500, 500);
+
   for (int bin=0; bin<_npvRanges; ++bin) {
 
     mePfMEx_npv[bin]                = _dbe->book1D(Form("METTask_PfMEx_npvBin%d", bin),   "METTask_PfMEx"+_npvs[bin]   ,200,-500,500); 
@@ -324,6 +326,8 @@ void PFMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fa
     mePfChargedEMFraction_npv[bin]  = _dbe->book1D(Form("METTask_PfChargedEMFraction_npvBin%d", bin), "METTask_PfChargedEMFraction"+_npvs[bin] ,50,0.,1.);
     mePfChargedHadFraction_npv[bin] = _dbe->book1D(Form("METTask_PfChargedHadFraction_npvBin%d", bin),"METTask_PfChargedHadFraction"+_npvs[bin],50,0.,1.);
     mePfMuonFraction_npv[bin]       = _dbe->book1D(Form("METTask_PfMuonFraction_npvBin%d", bin),      "METTask_PfMuonFraction"+_npvs[bin]      ,50,0.,1.);
+
+    ///////////////////////////////////    mePfMEx_profile->getTH1()->Sumw2();  // crashes at run time
 
     mePfMEx_npv               [bin]->setAxisTitle("MEx [GeV]",1);
     mePfMEy_npv               [bin]->setAxisTitle("MEy [GeV]",1);
@@ -1048,6 +1052,10 @@ void PFMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string Dir
     else if (_numPV < 15) npvbin = 2;
     else if (_numPV < 25) npvbin = 3;
     else                  npvbin = 4;
+
+
+    mePfMEx_profile = _dbe->get(Form("%s/METTask_PfMEx_profile", DirName.c_str())); if (mePfMEx_profile && mePfMEx_profile->getRootObject()) mePfMEx_profile->Fill(_numPV, pfMEx);
+    
 
     mePfMEx_npv[npvbin]    = _dbe->get(Form("%s/METTask_PfMEx_npvBin%d", DirName.c_str(), npvbin));    if (mePfMEx_npv[npvbin]    && mePfMEx_npv[npvbin]->getRootObject())    mePfMEx_npv[npvbin]->Fill(pfMEx);
     mePfMEy_npv[npvbin]    = _dbe->get(Form("%s/METTask_PfMEy_npvBin%d", DirName.c_str(), npvbin));    if (mePfMEy_npv[npvbin]    && mePfMEy_npv[npvbin]->getRootObject())    mePfMEy_npv[npvbin]->Fill(pfMEy);
