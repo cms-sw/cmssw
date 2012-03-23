@@ -431,7 +431,7 @@ HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFHT175_v*						#sr127259
 HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFHT225_v*						#sr127259
 HLT_RelIso1p0Mu5_v*										#sr127259
 HLT_RelIso1p0Mu17_v*										#sr127259
-HLT_Ele8_CaloIdT_TrkIdVL_Jet30 _v*								#sr127259
+HLT_Ele8_CaloIdT_TrkIdVL_Jet30_v*								#sr127259
 
 HLT_RsqMR45_Rsq0p09_v*										#sr127304
 

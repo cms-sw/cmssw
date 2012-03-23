@@ -112,6 +112,7 @@ streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_DoubleE
     'HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v11', 
     'HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v11', 
     'HLT_Ele8_CaloIdT_TrkIdT_TriJet30_v11', 
+    'HLT_Ele8_CaloIdT_TrkIdVL_Jet30_v1', 
     'HLT_HT650_Track50_dEdx3p6_v1', 
     'HLT_HT650_Track60_dEdx3p7_v1', 
     'HLT_MET80_Track50_dEdx3p6_v1', 

@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/HLT/V18 (CMSSW_5_2_1_HLT1)
+# /dev/CMSSW_5_2_1/HLT/V22 (CMSSW_5_2_1_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V18')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V22')
 )
 
 streams = cms.PSet( 
@@ -13744,7 +13744,7 @@ hltL2DoubleMu23NoVertexL2Filtered2ChaAngle2p5 = cms.EDFilter( "HLTMuonDimuonL2Fi
     MaxAngle = cms.double( 2.5 ),
     MaxDz = cms.double( 9999.0 ),
     MinPtPair = cms.double( 0.0 ),
-    MaxDr = cms.double( 100.0 ),
+    MaxDr = cms.double( 9999.0 ),
     MinAcop = cms.double( -1.0 ),
     MinNstations = cms.int32( 0 ),
     MinNhits = cms.int32( 1 ),
@@ -13775,7 +13775,7 @@ hltL2DoubleMu38NoVertexL2Filtered2ChaAngle2p5 = cms.EDFilter( "HLTMuonDimuonL2Fi
     MaxAngle = cms.double( 2.5 ),
     MaxDz = cms.double( 9999.0 ),
     MinPtPair = cms.double( 0.0 ),
-    MaxDr = cms.double( 100.0 ),
+    MaxDr = cms.double( 9999.0 ),
     MinAcop = cms.double( -1.0 ),
     MinNstations = cms.int32( 0 ),
     MinNhits = cms.int32( 1 ),
@@ -20684,16 +20684,43 @@ hltPrePhoton300NoHE = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
+hltL1sL1SingleEG20OREG22 = cms.EDFilter( "HLTLevel1GTSeed",
+    saveTags = cms.bool( True ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG20 OR L1_SingleEG22" ),
+    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
+    L1UseL1TriggerObjectMaps = cms.bool( True ),
+    L1UseAliasesForSeeding = cms.bool( True ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
+    L1NrBxInEvent = cms.int32( 3 ),
+    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
+    L1TechTriggerSeeding = cms.bool( False )
+)
 hltPreDoublePhoton43HEVT = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
+)
+hltEGRegionalL1SingleEG20OREG22 = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
+    saveTags = cms.bool( False ),
+    endcap_end = cms.double( 2.65 ),
+    region_eta_size_ecap = cms.double( 1.0 ),
+    barrel_end = cms.double( 1.4791 ),
+    l1IsolatedTag = cms.InputTag( 'hltL1extraParticles','Isolated' ),
+    candIsolatedTag = cms.InputTag( "hltL1SeededRecoEcalCandidate" ),
+    region_phi_size = cms.double( 1.044 ),
+    region_eta_size = cms.double( 0.522 ),
+    L1SeedFilterTag = cms.InputTag( "hltL1sL1SingleEG20OREG22" ),
+    ncandcut = cms.int32( 1 ),
+    doIsolated = cms.bool( False ),
+    candNonIsolatedTag = cms.InputTag( "" ),
+    l1NonIsolatedTag = cms.InputTag( 'hltL1extraParticles','NonIsolated' )
 )
 hltEG43EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     saveTags = cms.bool( False ),
     L1NonIsoCand = cms.InputTag( "" ),
     relaxed = cms.untracked.bool( False ),
     L1IsoCand = cms.InputTag( "hltL1SeededRecoEcalCandidate" ),
-    inputTag = cms.InputTag( "hltEGRegionalL1SingleEG20" ),
+    inputTag = cms.InputTag( "hltEGRegionalL1SingleEG20OREG22" ),
     etcutEB = cms.double( 43.0 ),
     ncandcut = cms.int32( 1 ),
     etcutEE = cms.double( 43.0 )
@@ -20753,7 +20780,7 @@ hltEG48EtFilter = cms.EDFilter( "HLTEgammaEtFilter",
     L1NonIsoCand = cms.InputTag( "" ),
     relaxed = cms.untracked.bool( False ),
     L1IsoCand = cms.InputTag( "hltL1SeededRecoEcalCandidate" ),
-    inputTag = cms.InputTag( "hltEGRegionalL1SingleEG20" ),
+    inputTag = cms.InputTag( "hltEGRegionalL1SingleEG20OREG22" ),
     etcutEB = cms.double( 48.0 ),
     ncandcut = cms.int32( 1 ),
     etcutEE = cms.double( 48.0 )
@@ -39866,8 +39893,8 @@ HLTSinglePhoton160Sequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLT
 HLTSinglePhoton400Sequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1SeededEcalClustersSequence + hltL1SeededRecoEcalCandidate + hltEGRegionalL1SingleEG20 + hltEG400EtFilter + HLTDoLocalHcalWithoutHOSequence + hltL1SeededPhotonHcalForHE + hltPhoton400HEFilter )
 HLTSinglePhoton250NoHESequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1SeededEcalClustersSequence + hltL1SeededRecoEcalCandidate + hltEGRegionalL1SingleEG30 + hltEG300EtFilter )
 HLTSinglePhoton300NoHESequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1SeededEcalClustersSequence + hltL1SeededRecoEcalCandidate + hltEGRegionalL1SingleEG30 + hltEG300EtFilter )
-HLTDoublePhoton43HEVTSequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1SeededEcalClustersSequence + hltL1SeededRecoEcalCandidate + hltEGRegionalL1SingleEG20 + hltEG43EtFilter + HLTDoLocalHcalWithoutHOSequence + hltL1SeededPhotonHcalForHE + hltEG43HEVTFilter + HLTEcalActivitySequence + hltDoubleEG43EtDoubleFilter + hltActivityPhotonHcalForHE + hltDoubleEG43HEVTDoubleFilter )
-HLTDoublePhoton48HEVTSequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1SeededEcalClustersSequence + hltL1SeededRecoEcalCandidate + hltEGRegionalL1SingleEG20 + hltEG48EtFilter + HLTDoLocalHcalWithoutHOSequence + hltL1SeededPhotonHcalForHE + hltEG48HEVTFilter + HLTEcalActivitySequence + hltDoubleEG48EtDoubleFilter + hltActivityPhotonHcalForHE + hltDoubleEG48HEVTDoubleFilter )
+HLTDoublePhoton43HEVTSequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1SeededEcalClustersSequence + hltL1SeededRecoEcalCandidate + hltEGRegionalL1SingleEG20OREG22 + hltEG43EtFilter + HLTDoLocalHcalWithoutHOSequence + hltL1SeededPhotonHcalForHE + hltEG43HEVTFilter + HLTEcalActivitySequence + hltDoubleEG43EtDoubleFilter + hltActivityPhotonHcalForHE + hltDoubleEG43HEVTDoubleFilter )
+HLTDoublePhoton48HEVTSequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1SeededEcalClustersSequence + hltL1SeededRecoEcalCandidate + hltEGRegionalL1SingleEG20OREG22 + hltEG48EtFilter + HLTDoLocalHcalWithoutHOSequence + hltL1SeededPhotonHcalForHE + hltEG48HEVTFilter + HLTEcalActivitySequence + hltDoubleEG48EtDoubleFilter + hltActivityPhotonHcalForHE + hltDoubleEG48HEVTDoubleFilter )
 HLTPhoton70Sequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1SeededEcalClustersSequence + hltL1SeededRecoEcalCandidate + hltEGRegionalL1SingleEG30 + hltEG70EtFilterL1EG30 + HLTDoLocalHcalWithoutHOSequence + hltL1SeededPhotonHcalForHE + hltEG70HEFilter )
 HLTDoublePhoton70UnseededLegSequence = cms.Sequence( HLTEcalActivitySequence + hltDoubleEG70EtDoubleFilter + hltActivityPhotonHcalForHE + hltDoubleEG70HEDoubleFilter )
 HLTDoublePhoton80Sequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1SeededEcalClustersSequence + hltL1SeededRecoEcalCandidate + hltEGRegionalL1SingleEG30 + hltEG80EtFilterL1EG30 + HLTDoLocalHcalWithoutHOSequence + hltL1SeededPhotonHcalForHE + hltEG80HEFilter + HLTEcalActivitySequence + hltDoubleIsoEG80EtFilterUnseededTight + hltActivityPhotonHcalForHE + hltDoublePhoton80EgammaLHEDoubleFilter )
@@ -40215,8 +40242,8 @@ HLT_Photon160_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG30 + hltPrePhoto
 HLT_Photon400_v4 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG20 + hltPrePhoton400 + HLTSinglePhoton400Sequence + HLTEndSequence )
 HLT_Photon250_NoHE_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG30 + hltPrePhoton250NoHE + HLTSinglePhoton250NoHESequence + HLTEndSequence )
 HLT_Photon300_NoHE_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG30 + hltPrePhoton300NoHE + HLTSinglePhoton300NoHESequence + HLTEndSequence )
-HLT_DoublePhoton43_HEVT_v3 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG20 + hltPreDoublePhoton43HEVT + HLTDoublePhoton43HEVTSequence + HLTEndSequence )
-HLT_DoublePhoton48_HEVT_v3 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG20 + hltPreDoublePhoton48HEVT + HLTDoublePhoton48HEVTSequence + HLTEndSequence )
+HLT_DoublePhoton43_HEVT_v3 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG20OREG22 + hltPreDoublePhoton43HEVT + HLTDoublePhoton43HEVTSequence + HLTEndSequence )
+HLT_DoublePhoton48_HEVT_v3 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG20OREG22 + hltPreDoublePhoton48HEVT + HLTDoublePhoton48HEVTSequence + HLTEndSequence )
 HLT_DoublePhoton70_v3 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG30 + hltPreDoublePhoton70 + HLTPhoton70Sequence + HLTDoublePhoton70UnseededLegSequence + HLTEndSequence )
 HLT_DoublePhoton80_v4 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG30 + hltPreDoublePhoton80 + HLTDoublePhoton80Sequence + HLTEndSequence )
 HLT_DoublePhoton5_IsoVL_CEP_v11 = cms.Path( HLTBeginSequence + hltL1sL1DoubleEG3FwdVeto + hltPreDoublePhoton5IsoVLCEP + HLTDoublePhoton5IsoVLSequence + hltTowerMakerForHcal + hltHcalTowerFilter + HLTEndSequence )
