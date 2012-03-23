@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:34 CET 2012
-// $Id: FWGeometryTableView.cc,v 1.23 2012/02/22 03:45:59 amraktad Exp $
+// $Id: FWGeometryTableView.cc,v 1.24 2012/02/22 23:03:47 amraktad Exp $
 //
 
 // system include files
@@ -42,6 +42,7 @@
 #include "TEveManager.h"
 #include "TGeoManager.h"
 #include "TGLCamera.h"
+
 
 //==============================================================================
 //==============================================================================
@@ -142,7 +143,11 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
      m_visLevelFilter(this,"IgnoreVisLevelOnFilter", true)
 {
    FWGeoTopNodeGLScene *gls = new FWGeoTopNodeGLScene(0);
-   m_eveScene  = new TEveScene(gls, "TopGeoNodeScene", "");
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,32,0)
+   m_eveScene  = new  FWGeoTopNodeEveScene(gls, "TopGeoNodeScene", "");
+#else
+   m_eveScene  = new  TEveScene(gls, "TopGeoNodeScene", "");
+#endif
    gEve->GetScenes()->AddElement(m_eveScene);
 
    m_eveTopNode = new  FWEveDetectorGeo(this);

@@ -5,7 +5,6 @@
 #include "TGLScenePad.h"
 
 class FWGeoTopNode;
-class FWGeoTopNode;
 
 class FWGeoTopNodeGLScene : public TGLScenePad
 {
@@ -31,4 +30,20 @@ public:
 
    virtual Int_t  AddObject(const TBuffer3D& buffer, Bool_t* addChildren = 0);
 };
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,32,0)
+
+#include "TEveScene.h"
+class FWGeoTopNodeEveScene : public TEveScene
+{
+public:
+   FWGeoTopNodeEveScene(FWGeoTopNodeGLScene* gl_scene, const char* n="TEveScene", const char* t="");
+
+   ~FWGeoTopNodeEveScene() {}
+};
+#endif
+
 #endif
