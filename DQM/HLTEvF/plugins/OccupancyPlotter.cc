@@ -13,7 +13,7 @@
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: OccupancyPlotter.cc,v 1.10 2011/12/19 17:44:16 abrinke1 Exp $
+// $Id: OccupancyPlotter.cc,v 1.11 2012/03/14 10:45:34 slaunwhj Exp $
 //
 //
 
@@ -99,6 +99,9 @@ class OccupancyPlotter : public edm::EDAnalyzer {
   // Store the HV info
   bool dcs[25];
 
+  // counters
+  int cntevt;
+  int cntBadHV;
   
 };
 
@@ -120,7 +123,8 @@ OccupancyPlotter::OccupancyPlotter(const edm::ParameterSet& iConfig)
 
   debugPrint = false;
   outputPrint = false;
-
+  cntevt=0;
+  cntBadHV=0;
   if (debugPrint) std::cout << "Inside Constructor" << std::endl;
 
   plotDirectoryName = iConfig.getUntrackedParameter<std::string>("dirname", "HLT/Test");
@@ -152,10 +156,15 @@ OccupancyPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    using std::string;
 
    if (debugPrint) std::cout << "Inside analyze" << std::endl;
-
-
+   ++cntevt;
+   if (cntevt % 10000 == 0) std::cout << "[OccupancyPlotter::analyze] Received event " << cntevt << std::endl;
    // === Check the HV and the lumi
    bool highVoltageOK = checkDcsInfo ( iEvent );
+   if (!highVoltageOK) {
+      if (debugPrint) std::cout << "Skipping event: DCS problem\n";
+      ++cntBadHV;
+      return; 
+   } 
    checkLumiInfo( iEvent);
 
     // Access Trigger Results
@@ -332,6 +341,7 @@ OccupancyPlotter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 // ------------ method called when ending the processing of a run  ------------
 void OccupancyPlotter::endRun(edm::Run const&, edm::EventSetup const&)
 {
+   std::cout << "[OccupancyPlotter::endRun] Total events received=" << cntevt << ", events with HV problem=" << cntBadHV << std::endl;
 }
 
 void OccupancyPlotter::setupHltMatrix(std::string label, int iPD) {
@@ -471,17 +481,20 @@ bool OccupancyPlotter::checkDcsInfo (const edm::Event & jEvent) {
   edm::Handle<DcsStatusCollection> dcsStatus;
   if ( ! jEvent.getByLabel("hltScalersRawToDigi", dcsStatus) )
     {
-      if (debugPrint) std::cout  << "Could not get scalersRawToDigi by label" ;
+      std::cout  << "[OccupancyPlotter::checkDcsInfo] Could not get scalersRawToDigi by label\n" ;
       for (int i=0;i<24;i++) dcs[i]=false;
       return false;
-    }
+    }//if (debugPrint) 
 
   if ( ! dcsStatus.isValid() ) 
     {
-      if (debugPrint) std::cout  << "scalersRawToDigi not valid" ;
+      std::cout  << "[OccupancyPlotter::checkDcsInfo] scalersRawToDigi not valid\n" ;
       for (int i=0;i<24;i++) dcs[i]=false; // info not available: set to false
       return false;
     }
+  
+  // initialize all to "true"
+  for (int i=0; i<24; i++) dcs[i]=true;
   
   for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); 
        dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) 
@@ -504,7 +517,7 @@ bool OccupancyPlotter::checkDcsInfo (const edm::Event & jEvent) {
       if (!dcsStatusItr->ready(DcsStatus::HBHEb))  dcs[12]=false;
       if (!dcsStatusItr->ready(DcsStatus::HBHEc))  dcs[13]=false; 
       if (!dcsStatusItr->ready(DcsStatus::HF))     dcs[14]=false;
-      if (!dcsStatusItr->ready(DcsStatus::HO))     dcs[15]=false;
+//      if (!dcsStatusItr->ready(DcsStatus::HO))     dcs[15]=false; // ignore HO
       if (!dcsStatusItr->ready(DcsStatus::BPIX))   dcs[16]=false;
       if (!dcsStatusItr->ready(DcsStatus::FPIX))   dcs[17]=false;
       if (!dcsStatusItr->ready(DcsStatus::RPC))    dcs[18]=false;
@@ -517,8 +530,15 @@ bool OccupancyPlotter::checkDcsInfo (const edm::Event & jEvent) {
 
 
   // now we should add some logic that tests the HV status
-  
-  return true;
+  bool decision = true;
+  for (int i=0; i<24; i++) decision=decision && dcs[i];
+  if (debugPrint) {
+     std::cout << "[OccupancyPlotter::checkDcsInfo] DCS Status:";
+     for (int i=0; i<24; i++) std::cout << dcs[i] << "-";
+     std::cout << "; Decision: " << decision << std::endl;
+  }
+  //std::cout << "; Decision: " << decision << std::endl;
+  return decision;
   
 }
 
