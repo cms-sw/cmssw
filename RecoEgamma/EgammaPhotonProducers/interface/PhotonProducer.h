@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.40 2011/11/02 19:09:37 nancy Exp $ 
- **  $Date: 2011/11/02 19:09:37 $ 
- **  $Revision: 1.40 $
+ **  $Id: PhotonProducer.h,v 1.41 2011/12/15 00:26:16 nancy Exp $ 
+ **  $Date: 2011/12/15 00:26:16 $ 
+ **  $Revision: 1.41 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -30,6 +30,7 @@
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonMIPHaloTagger.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
@@ -60,7 +61,8 @@ class PhotonProducer : public edm::EDProducer {
 			    //math::XYZPoint & vtx,
 			    reco::VertexCollection& pvVertices,
 			    reco::PhotonCollection & outputCollection,
-			    int& iSC);
+			    int& iSC,
+			    const EcalSeverityLevelAlgo * sevLv);
 
 
 
@@ -76,6 +78,14 @@ class PhotonProducer : public edm::EDProducer {
 
   std::string conversionProducer_;
   std::string conversionCollection_;
+
+  //AA
+  //Flags and severities to be excluded from calculations
+  
+  std::vector<int> flagsexcl_;
+  std::vector<int> severitiesexcl_;
+  //
+
 
   double hOverEConeSize_;
   double maxHOverE_;
