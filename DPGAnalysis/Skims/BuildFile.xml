@@ -33,4 +33,5 @@
 <use   name="DataFormats/HcalRecHit"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="DataFormats/EgammaReco"/>
+<use   name="PhysicsTools/SelectorUtils"/>
 <flags   EDM_PLUGIN="1"/>
