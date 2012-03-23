@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/03/06 11:39:22 $
- *  $Revision: 1.78 $
+ *  $Date: 2012/03/21 12:10:03 $
+ *  $Revision: 1.79 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -172,7 +172,7 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   // --- do the analysis on the MET
   if(theCaloMETAnalyzerFlag){
     theCaloMETAnalyzer       = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETAnalysis"));
-    //theCaloMETNoHFAnalyzer   = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETNoHFAnalysis"));
+    theCaloMETNoHFAnalyzer   = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETNoHFAnalysis"));
     //theCaloMETHOAnalyzer     = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETHOAnalysis"));
     //theCaloMETNoHFHOAnalyzer = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETNoHFHOAnalysis"));
   }
@@ -263,7 +263,7 @@ JetMETAnalyzer::~JetMETAnalyzer() {
 
   if(theCaloMETAnalyzerFlag){
     delete theCaloMETAnalyzer;
-    //delete theCaloMETNoHFAnalyzer;
+    delete theCaloMETNoHFAnalyzer;
     //delete theCaloMETHOAnalyzer;
     //delete theCaloMETNoHFHOAnalyzer;
   }
@@ -322,7 +322,7 @@ void JetMETAnalyzer::beginJob(void) {
   //--- MET
   if(theCaloMETAnalyzerFlag){
     theCaloMETAnalyzer->beginJob(dbe);
-    //theCaloMETNoHFAnalyzer->beginJob(dbe);
+    theCaloMETNoHFAnalyzer->beginJob(dbe);
     //theCaloMETHOAnalyzer->beginJob(dbe);
     //theCaloMETNoHFHOAnalyzer->beginJob(dbe);
   }
@@ -397,7 +397,7 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
   //--- MET
   if(theCaloMETAnalyzerFlag){
     theCaloMETAnalyzer->beginRun(iRun, iSetup);
-    //theCaloMETNoHFAnalyzer->beginRun(iRun, iSetup);
+    theCaloMETNoHFAnalyzer->beginRun(iRun, iSetup);
     //theCaloMETHOAnalyzer->beginRun(iRun, iSetup);
     //theCaloMETNoHFHOAnalyzer->beginRun(iRun, iSetup);
   }
@@ -418,7 +418,7 @@ void JetMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
   //--- MET
   if(theCaloMETAnalyzerFlag){
     theCaloMETAnalyzer->endRun(iRun, iSetup, dbe);
-    //theCaloMETNoHFAnalyzer->endRun(iRun, iSetup, dbe);
+    theCaloMETNoHFAnalyzer->endRun(iRun, iSetup, dbe);
     //theCaloMETHOAnalyzer->endRun(iRun, iSetup, dbe);
     //theCaloMETNoHFHOAnalyzer->endRun(iRun, iSetup, dbe);
   }
@@ -770,7 +770,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if(theCaloMETAnalyzerFlag){
      
     theCaloMETAnalyzer->analyze(iEvent,       iSetup, *triggerResults);
-    //theCaloMETNoHFAnalyzer->analyze(iEvent,   iSetup, *triggerResults);
+    theCaloMETNoHFAnalyzer->analyze(iEvent,   iSetup, *triggerResults);
     //theCaloMETHOAnalyzer->analyze(iEvent,     iSetup, *triggerResults);
     //theCaloMETNoHFHOAnalyzer->analyze(iEvent, iSetup, *triggerResults);
   }
@@ -823,7 +823,7 @@ void JetMETAnalyzer::endJob(void) {
   //--- MET
   if(theCaloMETAnalyzerFlag){
     theCaloMETAnalyzer->endJob();
-    //theCaloMETNoHFAnalyzer->endJob();
+    theCaloMETNoHFAnalyzer->endJob();
     //theCaloMETHOAnalyzer->endJob();
     //theCaloMETNoHFHOAnalyzer->endJob();
   }
