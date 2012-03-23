@@ -55,6 +55,37 @@ float EcalClusterTools::recHitEnergy(DetId id, const EcalRecHitCollection *recHi
     return 0;
 }
 
+float EcalClusterTools::recHitEnergy(DetId id, const EcalRecHitCollection *recHits, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const  EcalSeverityLevelAlgo *sevLv)
+{
+    if ( id == DetId(0) ) {
+        return 0;
+    } else {
+        EcalRecHitCollection::const_iterator it = recHits->find( id );
+        if ( it != recHits->end() ) {
+	  // avoid anomalous channels (recoFlag based)
+	  uint32_t rhFlag = (*it).recoFlag();
+	  std::vector<int>::const_iterator vit = std::find( flagsexcl.begin(), flagsexcl.end(), rhFlag );
+	  //if your flag was found to be one which is excluded, zero out
+	  //this energy.
+	  if ( vit != flagsexcl.end() ) return 0;
+	    
+	  int severityFlag =  sevLv->severityLevel( it->id(), *recHits);
+	  std::vector<int>::const_iterator sit = std::find(severitiesexcl.begin(), severitiesexcl.end(), severityFlag);
+	  //if you were flagged by some condition (kWeird etc.)
+	  //zero out this energy.
+	  if (sit!= severitiesexcl.end())
+	    return 0; 
+	  //If we make it here, you're a found, clean hit.
+	  return (*it).energy();
+        } else {
+	  //throw cms::Exception("EcalRecHitNotFound") << "The recHit corresponding to the DetId" << id.rawId() << " not found in the EcalRecHitCollection";
+	  // the recHit is not in the collection (hopefully zero suppressed)
+	  return 0;
+        }
+    }
+    return 0;
+}
+
 
 // Returns the energy in a rectangle of crystals
 // specified in eta by ixMin and ixMax
@@ -86,6 +117,21 @@ float EcalClusterTools::matrixEnergy( const reco::BasicCluster &cluster, const E
     //for ( std::vector<DetId>::const_iterator it = v_id.begin(); it != v_id.end(); ++it ) {
     //        energy += recHitEnergy( *it, recHits );
     //}
+    return energy;
+}
+
+float EcalClusterTools::matrixEnergy( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv )
+{
+    // fast version
+    CaloNavigator<DetId> cursor = CaloNavigator<DetId>( id, topology->getSubdetectorTopology( id ) );
+    float energy = 0;
+    for ( int i = ixMin; i <= ixMax; ++i ) {
+        for ( int j = iyMin; j <= iyMax; ++j ) {
+            cursor.home();
+            cursor.offsetBy( i, j );
+            energy += recHitEnergy( *cursor, recHits, flagsexcl, severitiesexcl, sevLv );
+        }
+    }
     return energy;
 }
 
@@ -240,6 +286,13 @@ float EcalClusterTools::e1x5( const reco::BasicCluster &cluster, const EcalRecHi
 {
     DetId id = getMaximum( cluster.hitsAndFractions(), recHits ).first;
     return matrixEnergy( cluster, recHits, topology, id, 0, 0, -2, 2 );
+}
+
+float EcalClusterTools::e1x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv)
+{
+    DetId id = getMaximum( cluster.hitsAndFractions(), recHits ).first;
+    return matrixEnergy( cluster, recHits, topology, id, 0, 0, -2, 2 ,
+			 flagsexcl, severitiesexcl, sevLv);
 }
 
 

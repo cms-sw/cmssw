@@ -16,7 +16,7 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 //#include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 //includes for ShowerShape function to work
@@ -55,6 +55,10 @@ class EcalClusterTools {
                 static float e1x3( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float e3x1( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float e1x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
+		//AA
+		//Take into account severities
+                static float e1x5( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv);
+
                 static float e5x1( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float e2x2( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
                 static float e3x2( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology );
@@ -120,10 +124,18 @@ class EcalClusterTools {
                 // get the energy deposited in a matrix centered in the maximum energy crystal = (0,0)
                 // the size is specified by ixMin, ixMax, iyMin, iyMax in unit of crystals
                 static float matrixEnergy( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax );
+
+		//AA
+		//Take into account the severities and flags
+                static float matrixEnergy( const reco::BasicCluster &cluster, const EcalRecHitCollection *recHits, const CaloTopology* topology, DetId id, int ixMin, int ixMax, int iyMin, int iyMax, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv );
                 // get the DetId and the energy of the maximum energy crystal in a vector of DetId
                 static std::pair<DetId, float> getMaximum( const std::vector< std::pair<DetId, float> > &v_id, const EcalRecHitCollection *recHits);
                 // get the energy of a DetId, return 0 if the DetId is not in the collection
                 static float recHitEnergy(DetId id, const EcalRecHitCollection *recHits);
+
+		//AA
+		//Take into account severities and flags
+                static float recHitEnergy(DetId id, const EcalRecHitCollection *recHits, std::vector<int> flagsexcl, std::vector<int> severitiesexcl, const EcalSeverityLevelAlgo *sevLv);
 
 		//Shower shape variables return vector <Roundness, Angle> of a photon
 		static std::vector<float> roundnessBarrelSuperClusters( const reco::SuperCluster &superCluster ,const EcalRecHitCollection &recHits, int weightedPositionMethod = 0, float energyThreshold = 0.0);
