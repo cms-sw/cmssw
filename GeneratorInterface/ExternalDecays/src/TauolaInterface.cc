@@ -456,6 +456,8 @@ void TauolaInterface::init( const edm::EventSetup& es )
          
    Tauola::initialise();
 
+   Tauola::spin_correlation.setAll(fPolarization);// Tauola switches this on during Tauola::initialise(); so we add this here to keep it on/off
+
    // override decay modes if needs be
    //
    // we have to do it AFTER init because otherwises branching ratios are NOT filled in
