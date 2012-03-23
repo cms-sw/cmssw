@@ -18,12 +18,19 @@ void
 DIPLumiDetail::filldata(std::vector<float>& lumivalues){
   lumivalues.swap(m_lumiValues);
 }
+void
+DIPLumiDetail::fillbxdata(unsigned int bxidx,float bxvalue){
+  m_lumiValues[bxidx]=bxvalue;
+}
+
 std::ostream& operator<<(std::ostream& s, DIPLumiDetail const& diplumiDetail) {
   s << "\nDumping DIPLumiDetail\n";
+  std::cout.setf(std::ios::fixed,std::ios::floatfield);
+  std::cout.setf(std::ios::showpoint);
   std::vector<float>::const_iterator lumivalueIt= diplumiDetail.lumiValues().first;
   std::vector<float>::const_iterator lumivalueEnd = diplumiDetail.lumiValues().second;
-  for(; lumivalueIt!=lumivalueEnd;++lumivalueIt){
-    s<<std::setw(12)<<*lumivalueIt << "\n";
+  for(unsigned int i=0; lumivalueIt!=lumivalueEnd;++lumivalueIt,++i){
+    s<<std::setw(10)<<" bunch = "<<i<<" bunchlumi = "<<*lumivalueIt << "\n";
   }
   s<<"\n";
   return s;

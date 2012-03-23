@@ -14,6 +14,7 @@ class DIPLumiDetail {
   float lumiValue(unsigned int bx) const;
   ValueRange lumiValues()const;
   void filldata(std::vector<float>& lumivalues);
+  void fillbxdata(unsigned int bxidx, float bxlumi);
  private:
   std::vector<float> m_lumiValues;
 }; 

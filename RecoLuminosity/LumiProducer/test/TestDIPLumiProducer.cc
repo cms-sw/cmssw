@@ -58,27 +58,25 @@ void TestDIPLumiProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiBlo
   if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
     std::cout <<"Record \"DIPLuminosityRcd"<<"\" does not exist "<<std::endl;
   }
+  //try{
+  //  edm::ESHandle<DIPLumiSummary> datahandle;
+  //  unsigned long long cache_id=es.get<DIPLuminosityRcd>().cacheIdentifier();
+  //  std::cout<<cache_id<<std::endl;
+  //  es.getData(datahandle);
+  //  if(datahandle.isValid()){
+  //    const DIPLumiSummary* mydata=datahandle.product();
+  //   std::cout<<*mydata<<std::endl;
+  //  }else{
+  //   std::cout<<"no valid data found"<<std::endl;
+  //  }
+  //}catch(const edm::eventsetup::NoRecordException<DIPLuminosityRcd>& er){
+  //  std::cout<<"no data found"<<std::endl;
+  //}
   try{
-    edm::ESHandle<DIPLumiSummary> datahandle;
-    unsigned long long cache_id=es.get<DIPLuminosityRcd>().cacheIdentifier();
-    std::cout<<cache_id<<std::endl;
-    es.getData(datahandle);
-    if(datahandle.isValid()){
-      const DIPLumiSummary* mydata=datahandle.product();
-      std::cout<<*mydata<<std::endl;
-    }else{
-      std::cout<<"no valid data found"<<std::endl;
-    }
-  }catch(const edm::eventsetup::NoRecordException<DIPLuminosityRcd>& er){
-    std::cout<<"no data found"<<std::endl;
-  }
-  std::cout<<"looking at detail"<<std::endl;
-  try{
+    std::cout<<"looking at detail"<<std::endl;
     edm::ESHandle<DIPLumiDetail> pDetail;
-    unsigned long long cache_id=es.get<DIPLuminosityRcd>().cacheIdentifier();
-    std::cout<<cache_id<<std::endl;
+    es.getData(pDetail);
     if(pDetail.isValid()){
-      es.getData(pDetail);
       const DIPLumiDetail* ddata=pDetail.product();
       std::cout<<*ddata<<std::endl;
     }else{
