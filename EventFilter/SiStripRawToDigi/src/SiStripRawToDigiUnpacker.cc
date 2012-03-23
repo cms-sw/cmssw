@@ -35,7 +35,7 @@ namespace sistrip {
     quiet_(true),
     extractCm_(false),
     doFullCorruptBufferChecks_(false),
-    doAPVEmulatorCheck_(false),
+    doAPVEmulatorCheck_(true),
     errorThreshold_(errorThreshold)
   {
     if ( edm::isDebugEnabled() ) {

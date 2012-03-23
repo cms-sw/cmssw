@@ -574,8 +574,8 @@ namespace sistrip {
       FEDStatusRegister fedStatusRegister() const;
       
       //check that channel has no errors
-      virtual bool channelGood(const uint8_t internalFEDChannelNum, const bool doAPVeCheck=true) const;
-      bool channelGood(const uint8_t internalFEUnitNum, const uint8_t internalChannelNum, const bool doAPVeCheck=true) const;
+      virtual bool channelGood(const uint8_t internalFEDChannelNum) const;
+      bool channelGood(const uint8_t internalFEUnitNum, const uint8_t internalChannelNum) const;
       //return channel object for channel
       const FEDChannel& channel(const uint8_t internalFEDChannelNum) const;
       const FEDChannel& channel(const uint8_t internalFEUnitNum, const uint8_t internalChannelNum) const;
@@ -1450,9 +1450,9 @@ namespace sistrip {
       return specialHeader_.fedStatusRegister();
     }
   
-  inline bool FEDBufferBase::channelGood(const uint8_t internalFEUnitNum, const uint8_t internalChannelNum, const bool doAPVeCheck) const
+  inline bool FEDBufferBase::channelGood(const uint8_t internalFEUnitNum, const uint8_t internalChannelNum) const
     {
-      return channelGood(internalFEDChannelNum(internalFEUnitNum,internalChannelNum),doAPVeCheck);
+      return channelGood(internalFEDChannelNum(internalFEUnitNum,internalChannelNum));
     }
   
   inline const FEDChannel& FEDBufferBase::channel(const uint8_t internalFEDChannelNum) const
