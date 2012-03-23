@@ -28,7 +28,7 @@ if not options.environment or not options.config :
 
 env = options.environment
 if env not in set(['CMSLive', 'PrivLive', 'PrivOffline', 'LocalTest']) :
-    optparser.error("ENV variable " + env + " not correct")
+    optparser.error("ENV value " + env + " not correct")
     exit
 
 configuration = ''
@@ -37,19 +37,30 @@ if options.config == 'Physics' :
 elif options.config == 'Calibration' :
     configuration = 'EcalCalibration'
 else :
-    optparser.error("CONFIG variable not correct")
+    optparser.error("CONFIG value not correct")
     exit
 
 daqtype = options.daqtype
+if daqtype not in set(['localDAQ', 'globalDAQ']) :
+    optparser.error("DAQ value " + daqtype + " not correct")
+    exit
+
+runtype = options.runtype
+if runtype not in set(['', 'PP', 'HI']) :
+    optparser.error("RUNTYPE value " + runtype + " not correct")
+    exit
+
 filename = options.filename
 sourceFiles = re.sub(r'([^ ]+)[ ]?', r'    "file:\1",\n', options.sourceFiles)
 gtag = options.gtag
-runtype = options.runtype
 workflow = options.workflow
 
 # set environments
+
+# TODO : should we write in PrivOffline rather than PrivLive?
+# PrivLive will have larger coverage of time; what about statistics?
 withDB = False
-if (env == 'CMSLive') or (env == 'PrivOffline') :
+if (env == 'CMSLive') or (env == 'PrivLive') or (daqtype == 'localDAQ') :
     withDB = True
 
 central = False
@@ -70,6 +81,10 @@ live = False
 if (env == 'CMSLive') or (env == 'PrivLive'):
     live = True
 
+onlyCalib = False
+if (daqtype == 'localDAQ') :
+    onlyCalib = True
+
 if not p5 and not gtag :
     optparser.error("Global tag must be given for non-P5 DQM cfg")
     exit
@@ -79,7 +94,7 @@ if not live and not sourceFiles :
     exit
 
 if central and runtype :
-    optparser.error("Cannot specify run type for central DQM")
+    optparser.error("Cannot specify a run type for central DQM")
     exit
 
 if doOutput and not live and not workflow :
@@ -89,6 +104,14 @@ if doOutput and not live and not workflow :
 if workflow and not re.match('[\/][a-zA-Z0-9_]+[\/][a-zA-Z0-9_]+[\/][a-zA-Z0-9_]+', workflow) :
     optparser.error("Invalid workflow: " + workflow)
     exit
+
+if onlyCalib and (configuration != 'EcalCalibration') :
+    optparser.error("Calibration-only setup for non calibration config")
+    exit
+
+streamerInput = False
+if re.search('[.]dat', sourceFiles) :
+    streamerInput = True
 
 header = ''
 recoModules = ''
@@ -228,11 +251,14 @@ process.dqmQTestEE = cms.EDAnalyzer("QualityTester",
 
 if central :
     dqmModules += '''
-process.load("DQM.Integration.test.environment_cfi")
-'''
+process.load("DQM.Integration.test.environment_cfi")'''
 else :
     dqmModules += '''
-process.load("DQMServices.Components.DQMEnvironment_cfi")
+process.load("DQMServices.Components.DQMEnvironment_cfi")'''
+
+dqmModules += '''
+process.dqmEnvEB = process.dqmEnv.clone()
+process.dqmEnvEE = process.dqmEnv.clone()
 '''
 
 filters += '''
@@ -351,7 +377,14 @@ if privEcal and not live :
 
 sequencePaths += '''
     process.ecalBarrelMonitorModule +
-    process.ecalEndcapMonitorModule +
+    process.ecalEndcapMonitorModule +'''
+
+if onlyCalib :
+    sequencePaths += '''
+    process.ecalBarrelPedestalOnlineTask +
+    process.ecalEndcapPedestalOnlineTask +'''  
+
+sequencePaths += '''
     process.ecalBarrelOccupancyTask +
     process.ecalBarrelIntegrityTask +
     process.ecalEndcapOccupancyTask +
@@ -379,12 +412,12 @@ process.ecalMonitorSequence = cms.Sequence('''
 
     sequencePaths += '''
     process.ecalBarrelPedestalOnlineTask +
+    process.ecalEndcapPedestalOnlineTask +
     process.ecalBarrelCosmicTask +
     process.ecalBarrelClusterTask +
     process.ecalBarrelTriggerTowerTask +
     process.ecalBarrelTimingTask +
     process.ecalBarrelSelectiveReadoutTask +
-    process.ecalEndcapPedestalOnlineTask +
     process.ecalEndcapCosmicTask +
     process.ecalEndcapClusterTask +
     process.ecalEndcapTriggerTowerTask +
@@ -476,7 +509,8 @@ sequencePaths += '''
 )
 
 process.ecalMonitorEndPath = cms.EndPath(
-    process.dqmEnv +
+    process.dqmEnvEB +
+    process.dqmEnvEE +
     process.dqmQTestEB +
     process.dqmQTestEE
 )
@@ -523,7 +557,7 @@ if live :
 process.load("DQM.Integration.test.inputsource_cfi")
 '''
 else :
-    if privEcal :
+    if streamerInput :
         source += '''
 process.source = cms.Source("NewEventStreamFileReader")
 '''
@@ -581,8 +615,7 @@ customizations += '''
 if configuration == 'Ecal' :
     customizations += '''
 process.ecalPhysicsFilter.EcalRawDataCollection = cms.InputTag("ecalEBunpacker")
-process.ecalPhysicsFilter.cosmicPrescaleFactor = cms.untracked.int32(1)
-process.ecalPhysicsFilter.physicsPrescaleFactor = cms.untracked.int32(1)
+process.ecalPhysicsFilter.clusterPrescaleFactor = cms.untracked.int32(1)
 '''
     if live :
         customizations += '''
@@ -628,7 +661,7 @@ process.ecalEndcapMonitorClient.laserWavelengths = [ 1, 4 ]
 process.ecalEndcapMonitorClient.ledWavelengths = [ 1, 2 ]
 '''
 
-    if daqtype == 'globalDAQ' :
+    if not onlyCalib :
         customizations += '''
 process.ecalBarrelIntegrityTask.subfolder = "Calibration"
 process.ecalBarrelOccupancyTask.subfolder = "Calibration"
@@ -681,17 +714,26 @@ process.ecalBarrelMonitorClient.enabledClients = ["Integrity", "StatusFlags", "O
 process.ecalEndcapMonitorClient.enabledClients = ["Integrity", "StatusFlags", "Occupancy", "PedestalOnline", "Timing", "Cosmic", "TriggerTower", "Cluster", "Summary"]
 '''
 else :
-    customizations += '''
-process.ecalBarrelMonitorClient.enabledClients = ["Integrity", "Occupancy", "Pedestal", "TestPulse", "Laser", "Summary"]
-process.ecalEndcapMonitorClient.enabledClients = ["Integrity", "Occupancy", "Pedestal", "TestPulse", "Laser", "Led", "Summary"]
+    customizations += 'process.ecalBarrelMonitorClient.enabledClients = ["Integrity", "Occupancy", '
+    if onlyCalib :
+        customizations += '"PedestalOnline", '
+        
+    customizations += '"Pedestal", "TestPulse", "Laser", "Summary"]' + "\n"
+    customizations += 'process.ecalEndcapMonitorClient.enabledClients = ["Integrity", "Occupancy", '
+    if onlyCalib :
+        customizations += '"PedestalOnline", '
 
-process.ecalBarrelMonitorClient.produceReports = False
-process.ecalEndcapMonitorClient.produceReports = False
-'''
-    if daqtype == 'globalDAQ' :
+    customizations += '"Pedestal", "TestPulse", "Laser", "Led", "Summary"]' + "\n"
+
+    if not onlyCalib :
         customizations += '''
 process.ecalBarrelMonitorClient.subfolder = "Calibration"
 process.ecalEndcapMonitorClient.subfolder = "Calibration"
+'''
+
+    customizations += '''
+process.ecalBarrelMonitorClient.produceReports = False
+process.ecalEndcapMonitorClient.produceReports = False
 '''
 
 if withDB :
@@ -732,14 +774,19 @@ process.ecalEndcapMonitorClient.dbHostPort = dbHostPort
 process.ecalEndcapMonitorClient.dbUserName = dbUserName
 process.ecalEndcapMonitorClient.dbPassword = dbPassword
 '''
-    if privEcal :
+    if env == 'PrivLive' :
         customizations += '''
 process.ecalBarrelMonitorClient.resetFile = "/data/ecalod-disk01/dqm-data/reset/EB"
 process.ecalBarrelMonitorClient.resetFile = "/data/ecalod-disk01/dqm-data/reset/EE"
+process.ecalBarrelMonitorClient.dbTagName = "CMSSW-online-private"
+process.ecalEndcapMonitorClient.dbTagName = "CMSSW-online-private"
+'''
+    elif env == 'PrivOffline' :
+        customizations += '''
 process.ecalBarrelMonitorClient.dbTagName = "CMSSW-offline-private"
 process.ecalEndcapMonitorClient.dbTagName = "CMSSW-offline-private"
 '''
-    else :
+    elif central :
         customizations += '''
 process.ecalBarrelMonitorClient.dbUpdateTime = 120
 process.ecalBarrelMonitorClient.dbUpdateTime = 120
@@ -755,6 +802,9 @@ if privEcal and not live :
 
 customizations += '''
  ## DQM common modules ##
+
+process.dqmEnvEB.subSystemFolder = cms.untracked.string("EcalBarrel")
+process.dqmEnvEE.subSystemFolder = cms.untracked.string("EcalEndcap")
 '''
 
 if central :
@@ -766,8 +816,6 @@ process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/ecal_reference.root
         customizations += '''
 process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/ecalcalib_reference.root"
 '''
-
-customizations += 'process.dqmEnv.subSystemFolder = cms.untracked.string("' + configuration + '")' + "\n"
 
 if doOutput :
     if not central :
@@ -791,7 +839,7 @@ customizations += '''
 if live :
     customizations += 'process.source.consumerName = cms.untracked.string("' + configuration + ' DQM Consumer")' + "\n"
     if privEcal :
-        customizations += 'process.source.sourceURL = cms.string("http://dqm-c2d07-03.cms:22100/urn:xdaq-application:lid=30")' + "\n"
+        customizations += 'process.source.sourceURL = cms.string("http://dqm-c2d07-17.cms:22100/urn:xdaq-application:lid=30")' + "\n"
 
     if (configuration == 'Ecal') and (daqtype == 'globalDAQ') :
         customizations += 'process.source.SelectHLTOutput = cms.untracked.string("hltOutputA")' + "\n"

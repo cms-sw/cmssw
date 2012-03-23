@@ -32,7 +32,7 @@ my $statusdir = "$config{'ec_mon_master_rundir'}/dqm-data/status/";
 my ($loc, $num, $lun, $out, $fun, $fil, $ful) = split('\.', $runnum);
 
 if ( $runnum ) {
-  exit 0 unless ( -e "$statusdir/.$runnum.PEDESTAL-OFFSET_SCAN.daq_done" ||
+  exit 1 unless ( -e "$statusdir/.$runnum.PEDESTAL-OFFSET_SCAN.daq_done" ||
                   -e "$statusdir/.$runnum.PEDESTAL-OFFSET_SCAN.mon_run" ||
                   -e "$statusdir/.$runnum.PEDESTAL-OFFSET_SCAN.mon_done" ||
                   -e "$statusdir/.$runnum.PEDESTAL-OFFSET_SCAN.mon_fail" );

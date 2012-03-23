@@ -126,7 +126,7 @@ sub ec_mon_filelist {
 	}
     }
     elsif ( $config{'ec_mon_path'} =~ /globalDAQ/ ) {
-	my @outs = qw($out);
+	my @outs = $out;
 
 	if($out eq ''){
 	    @outs = qw(A Calibration);
