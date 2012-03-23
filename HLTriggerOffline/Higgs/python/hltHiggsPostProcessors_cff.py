@@ -4,7 +4,8 @@ from HLTriggerOffline.Higgs.hltHiggsPostProcessor_cfi import *
 
 # Build the standard strings to the DQM
 def efficiency_string(objtype,plot_type,triggerpath):
-    # Add here a elif if you are introduce a new collection
+    # --- IMPORTANT: Add here a elif if you are introduce a new collection
+    #                (see EVTColContainer::getTypeString) 
     if objtype == "Mu" :
 	objtypeLatex="#mu"
     elif objtype == "Photon": 
@@ -15,8 +16,6 @@ def efficiency_string(objtype,plot_type,triggerpath):
 	objtypeLatex="MET"
     elif objtype == "PFTau": 
 	objtypeLatex="#tau"
-    elif objtype == "TkMu": 
-	objtypeLatex="track #mu"
     else:
 	objtypeLatex=objtype
 
@@ -46,7 +45,7 @@ def efficiency_string(objtype,plot_type,triggerpath):
     return "Eff_%s_%s '%s' %s_%s %s" % (input_type,triggerpath,
 		    all_titles,input_type,triggerpath,input_type)
 
-# Adding the reco 
+# Adding the reco objects
 def add_reco_strings(strings):
     reco_strings = []
     for entry in strings:
@@ -58,19 +57,14 @@ def add_reco_strings(strings):
 
 
 plot_types = ["TurnOn1", "TurnOn2", "EffEta", "EffPhi"]
-#--- IMPORTANT: Update this collection whenever you introduce
-#               a new object in the code
-obj_types  = ["Mu","Ele","Photon","CaloMET","TkMu","PFTau"]
-triggers = [ "HLT_Photon26_Photon18", 
-		"HLT_Photon36_Photon22",
-		"HLT_Mu17_Mu8",
-		"HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL",
-		"HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL",
-		"HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele0_Mass60",
-		]
+#--- IMPORTANT: Update this collection whenever you introduce a new object
+#               in the code (from EVTColContainer::getTypeString)
+obj_types  = ["Mu","Ele","Photon","MET","PFTau"]
+#--- IMPORTANT: Trigger are extracted from the hltHiggsValidator_cfi.py module
+triggers = [ ] 
 efficiency_strings = []
 
-# Extract the triggers used in the hltHiggsValidator
+# Extract the triggers used in the hltHiggsValidator 
 from HLTriggerOffline.Higgs.hltHiggsValidator_cfi import hltHiggsValidator as config
 triggers = set([])
 for an in config.analysis:
@@ -79,8 +73,8 @@ for an in config.analysis:
 	map(lambda x: triggers.add(x.replace("_v","")),vstr)
 triggers = list(triggers)
 #------------------------------------------------------------
-print triggers  # FIXME
 
+# Generating the list with all the efficiencies
 for type in plot_types:
     for obj in obj_types:
 	for trig in triggers:

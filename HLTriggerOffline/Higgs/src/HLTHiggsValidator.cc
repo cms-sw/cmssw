@@ -72,10 +72,6 @@ void HLTHiggsValidator::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	{
 	     	iter->analyze(iEvent, iSetup, this->_collections);
       	}
-//std::cout << ">>>>>>>>>>>>>>>>>>> Event:" << eventNumber << std::endl;
-//std::cout << "Mu:" << _collections->muons << " e:" << _collections->electrons << " photon:" << _collections->photons 
-//	<< " Taus:" << _collections->pfTaus << " tracks" << _collections->tracks << " caloMET:" << _collections->caloMETs << std::endl;
-//std::cout << "  <<<<<<<<<<<<<<<<<<< | LOOK UP | >>>>>>>>>>>>>>>>>>>> " << std::endl;
 }
 
 

@@ -354,7 +354,6 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 	for(std::map<unsigned int,std::vector<MatchStruct> >::iterator it = sourceMatchMap.begin(); 
 			it != sourceMatchMap.end(); ++it)
 	{
-//std::cout << "How many objects passing the minimum cuts (" << u2str[it->first] << "): " << it->second.size() << " " << std::endl;  
 		// it->first: gen/reco   it->second: matches (std::vector<MatchStruc>)
 		if( it->second.size() < _minCandidates )   // FIXME: A bug is potentially here: what about the mixed channels?
 		{
@@ -380,7 +379,7 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 			float pt  = (it->second)[j].pt; 
 			float eta = (it->second)[j].eta;
 			float phi = (it->second)[j].phi;
-//std::cout << " -- Type:" << objTypeStr << " pt:" << pt << " eta:" << eta << " phi:" << phi << " " ; 
+			
 			this->fillHist(u2str[it->first],objTypeStr,"Eta",eta);
 			this->fillHist(u2str[it->first],objTypeStr,"Phi",phi);
 			if( (*countobjects)[objType] == 0 )
@@ -407,7 +406,6 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 			}				
 		}
 		delete countobjects;
-//std::cout << std::endl; 
 	
 		// Calling to the plotters analysis (where the evaluation of the different trigger paths are done)
 		const std::string source = u2str[it->first];
@@ -417,7 +415,6 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 			const std::string hltPath = _shortpath2long[an->gethltpath()];
 			const bool ispassTrigger =  cols->triggerResults->accept(trigNames.triggerIndex(hltPath));
 			an->analyze(ispassTrigger,source,it->second);
-//std::cout << " PASSING THE " << an->gethltpath() << " ? " << ispassTrigger << std::endl;
 		}
 	}
 }
