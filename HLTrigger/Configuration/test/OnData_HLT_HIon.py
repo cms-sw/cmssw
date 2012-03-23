@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V11 (CMSSW_5_2_1_HLT2)
+# /dev/CMSSW_5_2_1/HIon/V12 (CMSSW_5_2_1_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V11')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V12')
 )
 
 process.streams = cms.PSet( 
@@ -8544,7 +8544,7 @@ process.RPCMONOutput = cms.EndPath( process.hltPreRPCMONOutput )
 
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:RelVal_Raw_HIon_DATA.root',
+        '/store/data/Run2011B/MinimumBias/RAW/v1/000/178/479/3E364D71-F4F5-E011-ABD2-001D09F29146.root',
     ),
     secondaryFileNames = cms.untracked.vstring(
     ),
