@@ -611,17 +611,17 @@ double PhotonIsolationCalculator::calculateHcalTowerIso(const reco::Photon* phot
   
   const CaloTowerCollection *toww = hcalhitsCollH.product();
 
-  double ecalIsol=0.;
+  double hcalIsol=0.;
   
   //std::cout << "before iso call" << std::endl;
   EgammaTowerIsolation phoIso(RCone,
                               RConeInner,
                               eMin,depth,
                               toww);
-  ecalIsol = phoIso.getTowerEtSum(photon);
+  hcalIsol = phoIso.getTowerEtSum(photon, &(photon->hcalTowersBehindClusters()) );
   //  delete phoIso;
   //std::cout << "after call" << std::endl;
-  return ecalIsol;
+  return hcalIsol;
   
 
 }
