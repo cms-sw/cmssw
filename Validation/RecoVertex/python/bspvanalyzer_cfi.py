@@ -7,6 +7,7 @@ bspvanalyzer = cms.EDAnalyzer('BSvsPVAnalyzer',
                               bspvHistogramMakerPSet = cms.PSet(
                                  useSlope = cms.bool(True),
                                  trueOnly = cms.untracked.bool(True),
+                                 maxLSBeforeRebin = cms.uint32(100),
                                  histoParameters = cms.untracked.PSet(
                                      nBinX = cms.untracked.uint32(200), xMin=cms.untracked.double(-0.1), xMax=cms.untracked.double(0.1),
                                      nBinY = cms.untracked.uint32(200), yMin=cms.untracked.double(-0.1), yMax=cms.untracked.double(0.1),

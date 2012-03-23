@@ -40,6 +40,7 @@ class BSvsPVHistogramMaker {
  private:
 
   TFileDirectory* _currdir;
+  const unsigned int m_maxLS;
   const bool useSlope_;
   const bool _trueOnly;
   const bool _runHisto;

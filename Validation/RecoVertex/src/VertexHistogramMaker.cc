@@ -152,9 +152,9 @@ void VertexHistogramMaker::book(const std::string dirname) {
 			      m_histoParameters.getUntrackedParameter<double>("zMax",20.));
     
     if(m_runHistoProfile) {
-      m_hvtxxvsorbrun = m_rhm.makeTProfile("vtxxvsorbrun","Vertex X position vs orbit number",16*m_maxLS,0.5,16*m_maxLS*16384+0.5);
-      m_hvtxyvsorbrun = m_rhm.makeTProfile("vtxyvsorbrun","Vertex Y position vs orbit number",16*m_maxLS,0.5,16*m_maxLS*16384+0.5);
-      m_hvtxzvsorbrun = m_rhm.makeTProfile("vtxzvsorbrun","Vertex Z position vs orbit number",16*m_maxLS,0.5,16*m_maxLS*16384+0.5);
+      m_hvtxxvsorbrun = m_rhm.makeTProfile("vtxxvsorbrun","Vertex X position vs orbit number",4*m_maxLS,0.5,m_maxLS*262144+0.5);
+      m_hvtxyvsorbrun = m_rhm.makeTProfile("vtxyvsorbrun","Vertex Y position vs orbit number",4*m_maxLS,0.5,m_maxLS*262144+0.5);
+      m_hvtxzvsorbrun = m_rhm.makeTProfile("vtxzvsorbrun","Vertex Z position vs orbit number",4*m_maxLS,0.5,m_maxLS*262144+0.5);
       m_hnvtxvsorbrun = m_rhm.makeTProfile("nvtxvsorbrun","Number of true vertices vs orbit number",m_maxLS,0.5,m_maxLS*262144+0.5);
     }
     

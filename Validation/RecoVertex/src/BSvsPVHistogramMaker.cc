@@ -12,11 +12,12 @@
 
 
 BSvsPVHistogramMaker::BSvsPVHistogramMaker():
-  _currdir(0), useSlope_(true), _trueOnly(true), 
+  _currdir(0), m_maxLS(100), useSlope_(true), _trueOnly(true), 
   _runHisto(true), _runHistoProfile(true), _runHistoBXProfile(true), _runHistoBX2D(false), _histoParameters() { }
 
 BSvsPVHistogramMaker::BSvsPVHistogramMaker(const edm::ParameterSet& iConfig):
   _currdir(0),
+  m_maxLS(iConfig.getParameter<unsigned int>("maxLSBeforeRebin")),
   useSlope_(iConfig.getParameter<bool>("useSlope")),
   _trueOnly(iConfig.getUntrackedParameter<bool>("trueOnly",true)),
   _runHisto(iConfig.getUntrackedParameter<bool>("runHisto",true)),
@@ -114,9 +115,9 @@ void BSvsPVHistogramMaker::book(const std::string dirname) {
 				       );
 
     if(_runHistoProfile) {
-      _hdeltaxvsorbrun = _rhm.makeTProfile("deltaxvsorbrun","(PV-BS) X position vs orbit number",1600,0.5,1600.*16384+0.5);
-      _hdeltayvsorbrun = _rhm.makeTProfile("deltayvsorbrun","(PV-BS) Y position vs orbit number",1600,0.5,1600.*16384+0.5);
-      _hdeltazvsorbrun = _rhm.makeTProfile("deltazvsorbrun","(PV-BS) Z position vs orbit number",1600,0.5,1600.*16384+0.5);
+      _hdeltaxvsorbrun = _rhm.makeTProfile("deltaxvsorbrun","(PV-BS) X position vs orbit number",4*m_maxLS,0.5,m_maxLS*262144+0.5);
+      _hdeltayvsorbrun = _rhm.makeTProfile("deltayvsorbrun","(PV-BS) Y position vs orbit number",4*m_maxLS,0.5,m_maxLS*262144+0.5);
+      _hdeltazvsorbrun = _rhm.makeTProfile("deltazvsorbrun","(PV-BS) Z position vs orbit number",4*m_maxLS,0.5,m_maxLS*262144+0.5);
     }
     if(_runHistoBXProfile) {
       _hdeltaxvsbxrun = _rhm.makeTProfile("deltaxvsbxrun","(PV-BS) X position vs BX number",3564,-0.5,3563.5);
