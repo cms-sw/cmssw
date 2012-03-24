@@ -21,17 +21,22 @@ hltPixelTracksReg = FastSimulation.Tracking.HLTPixelTracksProducer_cfi.hltPixelT
 hltPixelTracksReg.FilterPSet.ptMin = 0.1
 hltPixelTracksReg.FilterPSet.chi2 = 50.
 hltPixelTracksReg.RegionFactoryPSet.ComponentName = "CandidateSeededTrackingRegionsProducer"
-hltPixelTracksReg.RegionFactoryPSet.RegionPSet = cms.PSet(
-    originRadius = cms.double( 0.2 ),
-    ptMin = cms.double( 0.9 ),
-    originHalfLength = cms.double( 15.0 ),
-    vertexZDefault = cms.double( 0.0 ),
-    vertexSrc = cms.string( "" ),
-    deltaEtaRegion = cms.double( 0.5 ),
-    deltaPhiRegion = cms.double( 0.5 ),
-#    TrkSrc = cms.InputTag( "hltL3Muons" ),
-    input = cms.InputTag( "hltL2TausForPixelIsolation" ),
-    UseVtxTks = cms.bool( False )
+hltPixelTracksReg.RegionFactoryPSet.RegionPSet = cms.PSet( 
+        precise = cms.bool( True ),
+        originRadius = cms.double( 0.2 ),
+        ptMin = cms.double( 0.9 ),
+        beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+        mode = cms.string( "BeamSpotSigma" ),
+        input = cms.InputTag( "hltL2TausForPixelIsolation" ),
+        maxNRegions = cms.int32( 10 ),
+        vertexCollection = cms.InputTag( "" ),
+        maxNVertices = cms.int32( 1 ),
+        zErrorBeamSpot = cms.double( 24.2 ),
+        deltaEta = cms.double( 0.5 ),
+        deltaPhi = cms.double( 0.5 ),
+        nSigmaZVertex = cms.double( 3.0 ),
+        zErrorVertex = cms.double( 0.2 ),
+        nSigmaZBeamSpot = cms.double( 4.0 )
 )
 
 
