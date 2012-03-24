@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/GRun/V15 (CMSSW_5_2_1_HLT2)
+# /dev/CMSSW_5_2_1/GRun/V16 (CMSSW_5_2_1_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V15')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V16')
 )
 
 process.streams = cms.PSet( 
@@ -2624,6 +2624,32 @@ process.hltESPHIPixelLayerTriplets = cms.ESProducer( "SeedingLayersESProducer",
     TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
     HitProducer = cms.string( "hltHISiPixelRecHits" ),
     hitErrorRZ = cms.double( 0.0060 )
+  ),
+  TIB = cms.PSet(  ),
+  TOB = cms.PSet(  )
+)
+process.hltESPPixelLayerTripletsReg = cms.ESProducer( "SeedingLayersESProducer",
+  layerList = cms.vstring( 'BPix1+BPix2+BPix3',
+    'BPix1+BPix2+FPix1_pos',
+    'BPix1+BPix2+FPix1_neg',
+    'BPix1+FPix1_pos+FPix2_pos',
+    'BPix1+FPix1_neg+FPix2_neg' ),
+  ComponentName = cms.string( "hltESPPixelLayerTripletsReg" ),
+  TEC = cms.PSet(  ),
+  FPix = cms.PSet( 
+    hitErrorRZ = cms.double( 0.0036 ),
+    hitErrorRPhi = cms.double( 0.0051 ),
+    useErrorsFromParam = cms.bool( True ),
+    HitProducer = cms.string( "hltSiPixelRecHitsReg" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" )
+  ),
+  TID = cms.PSet(  ),
+  BPix = cms.PSet( 
+    hitErrorRZ = cms.double( 0.0060 ),
+    hitErrorRPhi = cms.double( 0.0027 ),
+    useErrorsFromParam = cms.bool( True ),
+    HitProducer = cms.string( "hltSiPixelRecHitsReg" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" )
   ),
   TIB = cms.PSet(  ),
   TOB = cms.PSet(  )
