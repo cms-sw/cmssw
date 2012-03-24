@@ -986,7 +986,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltPixelTracksForMinBias" )
       self.options['modules'].append( "-hltPixelTracksForHighMult" )
       self.options['modules'].append( "-hltRegionalPixelTracks" )
-      self.options['modules'].append( "-hltRegPixelTracks" )
+      self.options['modules'].append( "-hltPixelTracksReg" )
       self.options['modules'].append( "-hltIter4Merged" )
       self.options['modules'].append( "-hltIter4Tau3MuMerged" )
       self.options['modules'].append( "-hltPFJetCtfWithMaterialTracks" )
