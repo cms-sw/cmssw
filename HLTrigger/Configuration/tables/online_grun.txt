@@ -62,6 +62,22 @@ HLT_Mu20_eta2p1_TriCentralPFJet30_v*                                            
 HLT_Mu20_eta2p1_TriCentralPFJet50_40_30_v*                                                      #sr126618
 HLT_Mu20_eta2p1_CentralPFJet30_BTagIPIter_v*                                                    #sr126618
 
+HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFNoPUJet30_v*                                              #sr127305
+HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFNoPUJet50_40_30_v*                                        #sr127305
+HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_v*                                #sr127305
+HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFNoPUJet30_v*                             #sr127305
+HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralPFNoPUJet30_v*                              #sr127305
+HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v*                     #sr127305
+HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFNoPUJet50_40_30_v*                       #sr127305
+HLT_IsoMu20_eta2p1_CentralPFNoPUJet30_BTagIPIter_v*                                             #sr127305
+HLT_IsoMu20_eta2p1_CentralPFNoPUJet30_v*                                                        #sr127305
+HLT_IsoMu20_eta2p1_DiCentralPFNoPUJet30_v*                                                      #sr127305
+HLT_IsoMu20_eta2p1_TriCentralPFNoPUJet30_v*                                                     #sr127305
+HLT_IsoMu20_eta2p1_TriCentralPFNoPUJet50_40_30_v*                                               #sr127305
+HLT_Mu20_eta2p1_CentralPFNoPUJet30_BTagIPIter_v*                                                #sr127305
+HLT_Mu20_eta2p1_TriCentralPFNoPUJet30_v*                                                        #sr127305
+HLT_Mu20_eta2p1_TriCentralPFNoPUJet50_40_30_v*                                                  #sr127305
+
 HLT_Ele30_CaloIdVT_TrkIdT_PFJet100_PFJet25_v*                                                   #sr126292
 HLT_Ele30_CaloIdVT_TrkIdT_PFJet150_PFJet25_v*                                                   #sr126292
 HLT_Ele30_CaloIdVT_TrkIdT_v*                                                                    #sr126292
