@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/GRun/V16 (CMSSW_5_2_1_HLT2)
+# /dev/CMSSW_5_2_1/GRun/V17 (CMSSW_5_2_1_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V16')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V17')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -20074,59 +20074,6 @@ hltSiPixelRecHitsReg = cms.EDProducer( "SiPixelRecHitConverter",
     src = cms.InputTag( "hltSiPixelClustersReg" ),
     CPE = cms.string( "hltESPPixelCPEGeneric" )
 )
-hltPixelTracksReg = cms.EDProducer( "PixelTrackProducer",
-    useFilterWithES = cms.bool( False ),
-    FilterPSet = cms.PSet( 
-      chi2 = cms.double( 50.0 ),
-      nSigmaTipMaxTolerance = cms.double( 0.0 ),
-      ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
-      nSigmaInvPtTolerance = cms.double( 0.0 ),
-      ptMin = cms.double( 0.1 ),
-      tipMax = cms.double( 1.0 )
-    ),
-    passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
-    FitterPSet = cms.PSet( 
-      ComponentName = cms.string( "PixelFitterByHelixProjections" ),
-      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-      fixImpactParameter = cms.double( 0.0 )
-    ),
-    RegionFactoryPSet = cms.PSet( 
-      ComponentName = cms.string( "CandidateSeededTrackingRegionsProducer" ),
-      RegionPSet = cms.PSet( 
-        precise = cms.bool( True ),
-        originRadius = cms.double( 0.2 ),
-        ptMin = cms.double( 0.9 ),
-        beamSpot = cms.InputTag( "offlineBeamSpot" ),
-        mode = cms.string( "BeamSpotSigma" ),
-        input = cms.InputTag( "hltL2TausForPixelIsolation" ),
-        maxNRegions = cms.int32( 10 ),
-        vertexCollection = cms.InputTag( "" ),
-        maxNVertices = cms.int32( 1 ),
-        zErrorBeamSpot = cms.double( 24.2 ),
-        deltaEta = cms.double( 0.5 ),
-        deltaPhi = cms.double( 0.5 ),
-        nSigmaZVertex = cms.double( 3.0 ),
-        zErrorVertex = cms.double( 0.2 ),
-        nSigmaZBeamSpot = cms.double( 4.0 )
-      )
-    ),
-    CleanerPSet = cms.PSet(  ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ) ),
-    OrderedHitsFactoryPSet = cms.PSet( 
-      ComponentName = cms.string( "StandardHitTripletGenerator" ),
-      GeneratorPSet = cms.PSet( 
-        useBending = cms.bool( True ),
-        useFixedPreFiltering = cms.bool( False ),
-        maxElement = cms.uint32( 100000 ),
-        phiPreFiltering = cms.double( 0.3 ),
-        extraHitRPhitolerance = cms.double( 0.06 ),
-        useMultScattering = cms.bool( True ),
-        SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "LowPtClusterShapeSeedComparitor" ) ),
-        extraHitRZtolerance = cms.double( 0.06 ),
-        ComponentName = cms.string( "PixelTripletHLTGenerator" )
-      ),
-      SeedingLayers = cms.string( "hltESPPixelLayerTripletsReg" )
-    )
-)
 hltPixelVerticesReg = cms.EDProducer( "PixelVertexProducer",
     WtAverage = cms.bool( True ),
     Method2 = cms.bool( True ),
@@ -20312,7 +20259,7 @@ hltDoublePFTau35TrackPt5MediumIsolationProng2L1HLTMatched = cms.EDFilter( "HLT1P
 hltDoublePFTau35TrackPt5MediumIsolationProng2Dz02 = cms.EDFilter( "HLTPFTauPairDzMatchFilter",
     saveTags = cms.bool( True ),
     TriggerType = cms.int32( 84 ),
-    JetSrc = cms.InputTag( "hltDoublePFTau35TrackPt5MediumIsolationProng2L1HLTMatched" ),
+    JetSrc = cms.InputTag( "hltL1JetsHLTDoublePFTauTrackPt5MediumIsolationProng2Match" ),
     JetMinPt = cms.double( 35.0 ),
     JetMaxDZ = cms.double( 0.2 ),
     JetMinDR = cms.double( 0.5 ),
@@ -20356,7 +20303,7 @@ hltDoublePFTau35TrackPt5MediumIsolationProng4L1HLTMatched = cms.EDFilter( "HLT1P
 hltDoublePFTau35TrackPt5MediumIsolationProng4Dz02 = cms.EDFilter( "HLTPFTauPairDzMatchFilter",
     saveTags = cms.bool( True ),
     TriggerType = cms.int32( 84 ),
-    JetSrc = cms.InputTag( "hltDoublePFTau35TrackPt5MediumIsolationProng4L1HLTMatched" ),
+    JetSrc = cms.InputTag( "hltL1JetsHLTDoublePFTauTrackPt5MediumIsolationProng4Match" ),
     JetMinPt = cms.double( 35.0 ),
     JetMaxDZ = cms.double( 0.2 ),
     JetMinDR = cms.double( 0.5 ),
@@ -20459,7 +20406,7 @@ hltDoublePFTau25TrackPt5MediumIsolationProng4L1HLTMatched = cms.EDFilter( "HLT1P
 hltDoublePFTau25TrackPt5MediumIsolationProng4Dz02 = cms.EDFilter( "HLTPFTauPairDzMatchFilter",
     saveTags = cms.bool( True ),
     TriggerType = cms.int32( 84 ),
-    JetSrc = cms.InputTag( "hltDoublePFTau25TrackPt5MediumIsolationProng4L1HLTMatched" ),
+    JetSrc = cms.InputTag( "hltL1JetsHLTDoublePFTauTrackPt5MediumIsolationProng4Match" ),
     JetMinPt = cms.double( 25.0 ),
     JetMaxDZ = cms.double( 0.2 ),
     JetMinDR = cms.double( 0.5 ),

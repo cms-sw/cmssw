@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/GRun/V16 (CMSSW_5_2_1_HLT2)
+# /dev/CMSSW_5_2_1/GRun/V17 (CMSSW_5_2_1_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V16')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V17')
 )
 
 streams = cms.PSet( 
@@ -25785,7 +25785,7 @@ hltDoublePFTau35TrackPt5MediumIsolationProng2L1HLTMatched = cms.EDFilter( "HLT1P
 hltDoublePFTau35TrackPt5MediumIsolationProng2Dz02 = cms.EDFilter( "HLTPFTauPairDzMatchFilter",
     saveTags = cms.bool( True ),
     TriggerType = cms.int32( 84 ),
-    JetSrc = cms.InputTag( "hltDoublePFTau35TrackPt5MediumIsolationProng2L1HLTMatched" ),
+    JetSrc = cms.InputTag( "hltL1JetsHLTDoublePFTauTrackPt5MediumIsolationProng2Match" ),
     JetMinPt = cms.double( 35.0 ),
     JetMaxDZ = cms.double( 0.2 ),
     JetMinDR = cms.double( 0.5 ),
@@ -25829,7 +25829,7 @@ hltDoublePFTau35TrackPt5MediumIsolationProng4L1HLTMatched = cms.EDFilter( "HLT1P
 hltDoublePFTau35TrackPt5MediumIsolationProng4Dz02 = cms.EDFilter( "HLTPFTauPairDzMatchFilter",
     saveTags = cms.bool( True ),
     TriggerType = cms.int32( 84 ),
-    JetSrc = cms.InputTag( "hltDoublePFTau35TrackPt5MediumIsolationProng4L1HLTMatched" ),
+    JetSrc = cms.InputTag( "hltL1JetsHLTDoublePFTauTrackPt5MediumIsolationProng4Match" ),
     JetMinPt = cms.double( 35.0 ),
     JetMaxDZ = cms.double( 0.2 ),
     JetMinDR = cms.double( 0.5 ),
@@ -25932,7 +25932,7 @@ hltDoublePFTau25TrackPt5MediumIsolationProng4L1HLTMatched = cms.EDFilter( "HLT1P
 hltDoublePFTau25TrackPt5MediumIsolationProng4Dz02 = cms.EDFilter( "HLTPFTauPairDzMatchFilter",
     saveTags = cms.bool( True ),
     TriggerType = cms.int32( 84 ),
-    JetSrc = cms.InputTag( "hltDoublePFTau25TrackPt5MediumIsolationProng4L1HLTMatched" ),
+    JetSrc = cms.InputTag( "hltL1JetsHLTDoublePFTauTrackPt5MediumIsolationProng4Match" ),
     JetMinPt = cms.double( 25.0 ),
     JetMaxDZ = cms.double( 0.2 ),
     JetMinDR = cms.double( 0.5 ),
