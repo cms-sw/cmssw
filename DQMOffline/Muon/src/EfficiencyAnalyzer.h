@@ -70,41 +70,46 @@ class EfficiencyAnalyzer : public MuonAnalyzerBase {
   double phiMax_;
 
   int vtxBin_;
-  int vtxMin_;
-  int vtxMax_;
+  double vtxMin_;
+  double vtxMax_;
 
   MonitorElement* h_passProbes_TightMu_pt;
-  MonitorElement* h_passProbes_TightMu_barrel_pt;
-  MonitorElement* h_passProbes_TightMu_endcap_pt;
+  MonitorElement* h_passProbes_TightMu_EB_pt;
+  MonitorElement* h_passProbes_TightMu_EE_pt;
   MonitorElement* h_passProbes_TightMu_eta;
   MonitorElement* h_passProbes_TightMu_hp_eta;
   MonitorElement* h_passProbes_TightMu_phi;
   MonitorElement* h_passProbes_detIsoTightMu_pt;
-  MonitorElement* h_passProbes_barrel_detIsoTightMu_pt;
-  MonitorElement* h_passProbes_endcap_detIsoTightMu_pt;
+  MonitorElement* h_passProbes_EB_detIsoTightMu_pt;
+  MonitorElement* h_passProbes_EE_detIsoTightMu_pt;
   MonitorElement* h_passProbes_pfIsoTightMu_pt;
-  MonitorElement* h_passProbes_barrel_pfIsoTightMu_pt;
-  MonitorElement* h_passProbes_endcap_pfIsoTightMu_pt;
+  MonitorElement* h_passProbes_EB_pfIsoTightMu_pt;
+  MonitorElement* h_passProbes_EE_pfIsoTightMu_pt;
   MonitorElement* h_passProbes_detIsoTightMu_nVtx; 
   MonitorElement* h_passProbes_pfIsoTightMu_nVtx; 
+  MonitorElement* h_passProbes_EB_detIsoTightMu_nVtx; 
+  MonitorElement* h_passProbes_EE_detIsoTightMu_nVtx; 
+  MonitorElement* h_passProbes_EB_pfIsoTightMu_nVtx; 
+  MonitorElement* h_passProbes_EE_pfIsoTightMu_nVtx; 
 
   MonitorElement* h_failProbes_TightMu_pt;
   MonitorElement* h_failProbes_TightMu_eta;
   MonitorElement* h_failProbes_TightMu_phi;
 
   MonitorElement* h_allProbes_pt;
-  MonitorElement* h_allProbes_barrel_pt;
-  MonitorElement* h_allProbes_endcap_pt;
+  MonitorElement* h_allProbes_EB_pt;
+  MonitorElement* h_allProbes_EE_pt;
   MonitorElement* h_allProbes_eta;
   MonitorElement* h_allProbes_hp_eta;
   MonitorElement* h_allProbes_phi;
   MonitorElement* h_allProbes_TightMu_pt;
-  MonitorElement* h_allProbes_barrel_TightMu_pt;
-  MonitorElement* h_allProbes_endcap_TightMu_pt;
+  MonitorElement* h_allProbes_EB_TightMu_pt;
+  MonitorElement* h_allProbes_EE_TightMu_pt;
   MonitorElement* h_allProbes_TightMu_nVtx;
-
-
-
+  MonitorElement* h_allProbes_EB_TightMu_nVtx;
+  MonitorElement* h_allProbes_EE_TightMu_nVtx;
+  
+  
   MonitorElement* test_TightMu_Minv;
 
   int _numPV;

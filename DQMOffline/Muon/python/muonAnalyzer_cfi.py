@@ -213,9 +213,9 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
     phiMax = cms.double(3.2),
     phiMin = cms.double(-3.2),
 
-    vtxBin = cms.int32(3),
-    vtxMax = cms.int32(30),
-    vtxMin = cms.int32(1)
+    vtxBin = cms.int32(10),
+    vtxMax = cms.double(50.5),
+    vtxMin = cms.double(0.5)
     
 
     )
