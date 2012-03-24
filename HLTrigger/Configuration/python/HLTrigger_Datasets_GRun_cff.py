@@ -521,7 +521,9 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetTau_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetTau_selector.l1tResults = cms.InputTag('')
 streamA_datasetTau_selector.throw      = cms.bool(False)
-streamA_datasetTau_selector.triggerConditions = cms.vstring('HLT_DoubleLooseIsoPFTau45_Trk5_eta2p1_v1', 
+streamA_datasetTau_selector.triggerConditions = cms.vstring('HLT_DoubleMediumIsoPFTau25_Trk5_eta2p1_L2Jet30FastJet_v1', 
+    'HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_Prong1_v1', 
+    'HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_v1', 
     'HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v1', 
     'HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v1', 
     'HLT_LooseIsoPFTau35_Trk20_Prong1_v1')
@@ -539,6 +541,7 @@ streamA_datasetTauPlusX_selector.triggerConditions = cms.vstring('HLT_Ele20_Calo
     'HLT_IsoMu15_eta2p1_L1ETM20_v1', 
     'HLT_IsoMu15_eta2p1_LooseIsoPFTau35_Trk20_Prong1_L1ETM20_v1', 
     'HLT_IsoMu18_eta2p1_LooseIsoPFTau20_v1', 
+    'HLT_IsoMu18_eta2p1_MediumIsoPFTau25_Trk5_eta2p1_v1', 
     'HLT_IsoMu20_eta2p1_LooseIsoPFTau20_v1', 
     'HLT_Mu15_eta2p1_L1ETM20_v1', 
     'HLT_Mu18_eta2p1_LooseIsoPFTau20_v1')
