@@ -58,11 +58,6 @@ class HLTProcess(object):
     
 # TODO: paths not supported by FastSim, but for which a recovery should be attempted
 
-#    "HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_Prong1_v*",
-#    "HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_v*",
-#    "HLT_DoubleMediumIsoPFTau25_Trk5_eta2p1_L2Jet30FastJet_v*",
-#    "HLT_IsoMu18_eta2p1_MediumIsoPFTau25_Trk5_eta2p1_v*",
-  
     )
 
   def __init__(self, configuration):
