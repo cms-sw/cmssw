@@ -62,9 +62,9 @@ HLT_Mu20_eta2p1_TriCentralPFJet30_v*                                            
 HLT_Mu20_eta2p1_TriCentralPFJet50_40_30_v*                                                      #sr126618, sr127333
 HLT_Mu20_eta2p1_CentralPFJet30_BTagIPIter_v*                                                    #sr126618, sr127333
 
-HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFNoPUJet30_v*                                              #sr127305
+HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFNoPUJet30_v*						#sr127305
 HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFNoPUJet50_40_30_v*                                        #sr127305
-HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_v*                                #sr127305
+HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_v*				#sr127305
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFNoPUJet30_v*                             #sr127305
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralPFNoPUJet30_v*                              #sr127305
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v*                     #sr127305
@@ -297,11 +297,16 @@ HLT_SixJet50_L1FastJet_v*                                                       
 HLT_HT750_L1FastJet_v*                                                                          #sr126816
 HLT_HT650_L1FastJet_v*                                                                          #sr126816
 
-HLT_LooseIsoPFTau35_Trk20_v*                                                                    #sr126469
-HLT_LooseIsoPFTau35_Trk20_MET70_v*                                                              #sr126469
-HLT_LooseIsoPFTau35_Trk20_MET75_v*                                                              #sr126469
-HLT_IsoMu15_eta2p1_LooseIsoPFTau35_Trk20_L1ETM20_v*                                             #sr126469
+#HLT_LooseIsoPFTau35_Trk20_v*                                                                   #sr126469 (removed by sr127332)
+#HLT_LooseIsoPFTau35_Trk20_MET70_v*                                                             #sr126469 (removed by sr127332)
+#HLT_LooseIsoPFTau35_Trk20_MET75_v*                                                             #sr126469 (removed by sr127332)
+#HLT_IsoMu15_eta2p1_LooseIsoPFTau35_Trk20_L1ETM20_v*                                            #sr126469 (removed by sr127332)
 HLT_DoubleLooseIsoPFTau45_Trk5_eta2p1_v*                                                        #sr126469
+
+HLT_LooseIsoPFTau35_Trk20_Prong1_v*								#sr127332
+HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v*							#sr127332
+HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v*							#sr127332
+HLT_IsoMu15_eta2p1_LooseIsoPFTau35_Trk20_Prong1_L1ETM20_v*					#sr127332
 
 HLT_DiPFJet40L1FastJet_PFMHTWOM65_M800VBF_ALLJETS_v*                                            #sr126471
 HLT_DiPFJet40L1FastJet_PFMHTWOM65_M600VBF_LEADINGJETS_v*                                        #sr126471
