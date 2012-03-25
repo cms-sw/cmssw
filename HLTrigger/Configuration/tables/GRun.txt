@@ -20,6 +20,9 @@ HLT_QuadJet75_55_35_20_BTagIP_VBF_v*                                            
 
 HLT_QuadJet75_55_38_20_BTagIP_VBF_v*                                                            #sr127255
 
+HLT_QuadPFJet75_55_35_20_BTagCSV_VBF_v*                                                         #sr127327
+HLT_QuadPFJet75_55_38_20_BTagCSV_VBF_v*                                                         #sr127330
+
 HLT_Jet80Eta1p7_Jet70Eta1p7_L1FastJet_DiBTagIP3D_v*                                             #sr126241
 HLT_Jet60Eta1p7_Jet53Eta1p7_L1FastJet_DiBTagIP3D_v*                                             #sr126241
 HLT_Jet160Eta2p4_Jet120Eta2p4_L1FastJet_DiBTagIP3DLoose_v*                                      #sr126241

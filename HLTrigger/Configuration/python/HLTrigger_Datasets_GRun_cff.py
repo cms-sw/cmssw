@@ -406,6 +406,8 @@ streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_DiJet40Eta
     'HLT_QuadJet75_55_38_20_BTagIP_VBF_v1', 
     'HLT_QuadJet80_L1FastJet_v4', 
     'HLT_QuadJet90_L1FastJet_v1', 
+    'HLT_QuadPFJet75_55_35_20_BTagCSV_VBF_v1', 
+    'HLT_QuadPFJet75_55_38_20_BTagCSV_VBF_v1', 
     'HLT_SixJet35_L1FastJet_v1', 
     'HLT_SixJet45_L1FastJet_v4', 
     'HLT_SixJet50_L1FastJet_v1')
