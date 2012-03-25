@@ -139,7 +139,7 @@ foreach my $datatype (@datatypes) {
 my $outputname = "DQM_V0001_R0$num$workflow.root";
 $outputname =~ s/\//__/g;
 
-system("mv -f $workdir/$outputname $config{'ec_mon_master_rundir'}/dqm-data/root/ >> /dev/null 2>&1");
+system("mv -f $workdir/$outputname $workdir/closed/$outputname >> /dev/null 2>&1");
 
 exit 0;
 
