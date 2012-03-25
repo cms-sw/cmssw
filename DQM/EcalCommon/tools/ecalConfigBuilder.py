@@ -74,8 +74,8 @@ if (env == 'PrivLive') or (env == 'PrivOffline') :
 p5 = privEcal or central
 
 doOutput = True
-if (env == 'PrivLive') :
-    doOutput = False
+#if (env == 'PrivLive') :
+#    doOutput = False
 
 live = False
 if (env == 'CMSLive') or (env == 'PrivLive'):
@@ -279,6 +279,7 @@ process.ecalPhysicsFilter = cms.EDFilter("EcalMonitorPrescaler")
 '''
 else :
     filters += '''
+process.ecalCalibrationFilter = cms.EDFilter("EcalMonitorPrescaler")
 process.ecalLaserFilter = cms.EDFilter("EcalMonitorPrescaler")
 process.ecalLedFilter = cms.EDFilter("EcalMonitorPrescaler")
 process.ecalPedestalFilter = cms.EDFilter("EcalMonitorPrescaler")
@@ -345,7 +346,7 @@ sequencePaths += '''
 process.ecalPreRecoSequence = cms.Sequence(
     process.preScaler +
 '''
-if live :
+if live and (configuration == 'EcalCalibration') :
     sequencePaths += '    process.hltTriggerTypeFilter +'
 
 sequencePaths += '''
@@ -431,7 +432,7 @@ process.ecalMonitorPath = cms.Path(
     process.ecalDataSequence *
     (
     process.ecalClusterSequence +
-    '''
+'''
 
     if live :
         sequencePaths += '    process.l1GtEvmUnpack +'
@@ -497,11 +498,19 @@ process.ecalTestPulsePath = cms.Path(
 
 sequencePaths += '''
 process.ecalClientPath = cms.Path(
-'''
+    process.ecalPreRecoSequence *'''
+
+if configuration == 'Ecal' :
+    sequencePaths += '''
+    process.ecalPhysicsFilter +'''
+else :
+    sequencePaths += '''
+    process.ecalCalibrationFilter +'''
 
 if live :
-    sequencePaths += '    process.ecalBarrelTrendClient +' + "\n"
-    sequencePaths += '    process.ecalEndcapTrendClient +'
+    sequencePaths += '''
+    process.ecalBarrelTrendClient +
+    process.ecalEndcapTrendClient +'''
 
 sequencePaths += '''
     process.ecalBarrelMonitorClient +
@@ -624,6 +633,12 @@ process.hltTriggerTypeFilter.SelectedTriggerType = 1 # 0=random, 1=physics, 2=ca
         
 else :
     customizations += '''
+process.ecalCalibrationFilter.EcalRawDataCollection = cms.InputTag("ecalEBunpacker")
+process.ecalCalibrationFilter.laserPrescaleFactor = cms.untracked.int32(1)
+process.ecalCalibrationFilter.ledPrescaleFactor = cms.untracked.int32(1)
+process.ecalCalibrationFilter.pedestalPrescaleFactor = cms.untracked.int32(1)
+process.ecalCalibrationFilter.testpulsePrescaleFactor = cms.untracked.int32(1)
+    
 process.ecalLaserFilter.EcalRawDataCollection = cms.InputTag("ecalEBunpacker")
 process.ecalLaserFilter.laserPrescaleFactor = cms.untracked.int32(1)
 
@@ -806,13 +821,13 @@ customizations += '''
 
 if configuration == 'Ecal' :
     customizations += '''
-    process.dqmEnvEB.subSystemFolder = cms.untracked.string("EcalBarrel")
-    process.dqmEnvEE.subSystemFolder = cms.untracked.string("EcalEndcap")
+process.dqmEnvEB.subSystemFolder = cms.untracked.string("EcalBarrel")
+process.dqmEnvEE.subSystemFolder = cms.untracked.string("EcalEndcap")
 '''
 else :
     customizations += '''
-    process.dqmEnvEB.subSystemFolder = cms.untracked.string("EcalBarrel/Calibration")
-    process.dqmEnvEE.subSystemFolder = cms.untracked.string("EcalEndcap/Calibration")
+process.dqmEnvEB.subSystemFolder = cms.untracked.string("EcalBarrel/Calibration")
+process.dqmEnvEE.subSystemFolder = cms.untracked.string("EcalEndcap/Calibration")
 '''    
 
 if central :
@@ -829,8 +844,15 @@ if doOutput :
     if not central :
         customizations += 'process.dqmSaver.referenceHandling = cms.untracked.string("skip")' + "\n"
 
-    if privEcal :
+    if privEcal and not live :
         customizations += 'process.dqmSaver.dirName = "' + dirName + '"' + "\n"
+
+    if privEcal and live :
+        customizations += 'process.dqmSaver.convention = "Online"' + "\n"        
+        customizations += 'process.dqmSaver.dirName = "/data/ecalod-disk01/dqm-data/online-DQM/data"' + "\n"
+        # temporary - remove when subsystemFolder issue is resolved
+        if configuration == 'EcalCalibration' :
+            customizations += 'process.dqmSaver.version = 2' + "\n"
 
     if not live :
         customizations += 'process.dqmSaver.convention = "Offline"' + "\n"
@@ -847,7 +869,7 @@ customizations += '''
 if live :
     customizations += 'process.source.consumerName = cms.untracked.string("' + configuration + ' DQM Consumer")' + "\n"
     if privEcal :
-        customizations += 'process.source.sourceURL = cms.string("http://dqm-c2d07-17.cms:22100/urn:xdaq-application:lid=30")' + "\n"
+        customizations += 'process.source.sourceURL = cms.string("http://dqm-c2d07-30.cms:22100/urn:xdaq-application:lid=30")' + "\n"
 
     if (configuration == 'Ecal') and (daqtype == 'globalDAQ') :
         customizations += 'process.source.SelectHLTOutput = cms.untracked.string("hltOutputA")' + "\n"
@@ -916,7 +938,7 @@ if filename == '' :
     else :
         c = 'ecalcalib'
 
-    if p5 and live :
+    if central :
         e = 'live'
     elif privEcal and live :
         e = 'privlive'

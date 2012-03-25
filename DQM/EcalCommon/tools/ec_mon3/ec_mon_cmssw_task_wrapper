@@ -78,17 +78,17 @@ my $daq;
 my $workflow;
 
 if ( $filelists{$datatypes[0]}[0] =~ /Minidaq/ ) {
-    $cmsenv = "/nfshome0/ecalpro/DQM/swconf/cmsenv.miniDAQ";
+    $cmsenv = "$config{'ec_mon_swconf_dir'}/cmsenv.miniDAQ";
     $daq = 'globalDAQ';
     $workflow = "/All/$config{'ec_mon_era'}/MiniDAQ";
 }
 elsif ( $config{'ec_mon_path'} =~ /localDAQ/ ) {
-    $cmsenv = "/nfshome0/ecalpro/DQM/swconf/cmsenv.localDAQ";
+    $cmsenv = "${'ec_mon_swconf_dir'}/cmsenv.localDAQ";
     $daq = 'localDAQ';
     $workflow = "/All/$config{'ec_mon_era'}/LocalDAQ";
 }
 elsif ( $config{'ec_mon_path'} =~ /globalDAQ/ ) {
-    $cmsenv = "/nfshome0/ecalpro/DQM/swconf/cmsenv.globalDAQ";
+    $cmsenv = "${'ec_mon_swconf_dir'}/cmsenv.globalDAQ";
     $daq = 'globalDAQ';
     $workflow = "/All/$config{'ec_mon_era'}/CentralDAQ";
 }

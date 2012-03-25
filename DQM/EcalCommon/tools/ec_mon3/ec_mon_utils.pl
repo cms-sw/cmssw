@@ -57,6 +57,7 @@ sub ec_mon_conf_file {
   $config{'ec_mon_master_archive_wait'} = 600;
   $config{'ec_mon_archive_dir'} = '';
   $config{'ec_mon_era'} = '';
+  $config{'ec_mon_swconf_dir'} = '';
 
   open FILE, "<$config{'$ec_mon_conf'}";
   print "Found control file, opening...\n" if ( $opts{'debug'} );
@@ -98,6 +99,10 @@ sub ec_mon_conf_file {
     elsif ( $line =~ /^ec_mon_era=(.*)$/ ) {
 	$config{'ec_mon_era'} = $1;
 	print "Found ec_mon_era = $config{'ec_mon_era'}\n" if ( $opts{'debug'} );
+    }
+    elsif ( $line =~ /^ec_mon_swconf_dir(.*)$/ ) {
+	$config{'ec_mon_swconf_dir'} = $1;
+	print "Found ec_mon_swconf_dir = $config{'ec_mon_swconf_dir'}\n" if( $opts{'debug'} );
     }
 
   }

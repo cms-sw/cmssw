@@ -62,13 +62,13 @@ if ( $filnam ) {
 my $cmsenv;
 
 if ( @filelist != 0 && $filelist[0] =~ /^Minidaq/ ) {
-    $cmsenv = "/nfshome0/ecalpro/DQM/swconf/cmsenv.miniDAQ";
+    $cmsenv = "$config{'ec_mon_swconf_dir'}/cmsenv.miniDAQ";
 }
 elsif ( $config{'ec_mon_path'} =~ /localDAQ/ ) {
-    $cmsenv = "/nfshome0/ecalpro/DQM/swconf/cmsenv.localDAQ";
+    $cmsenv = "$config{'ec_mon_swconf_dir'}/cmsenv.localDAQ";
 }
 elsif ( $config{'ec_mon_path'} =~ /globalDAQ/ ) {
-    $cmsenv = "/nfshome0/ecalpro/DQM/swconf/cmsenv.globalDAQ";
+    $cmsenv = "$config{'ec_mon_swconf_dir'}/cmsenv.globalDAQ";
 }
 else {
     exit 1;
