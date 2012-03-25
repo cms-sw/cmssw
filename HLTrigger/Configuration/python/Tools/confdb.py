@@ -55,7 +55,10 @@ class HLTProcess(object):
     "HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v*",
     "HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v*",
     "HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v*",
-    
+    "HLT_QuadPFJet75_55_35_20_BTagCSV_VBF_v*",
+    "HLT_QuadPFJet75_55_38_20_BTagCSV_VBF_v*",
+
+  
 # TODO: paths not supported by FastSim, but for which a recovery should be attempted
 
     )
