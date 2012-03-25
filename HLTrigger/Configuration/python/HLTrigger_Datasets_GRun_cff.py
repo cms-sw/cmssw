@@ -387,7 +387,9 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMultiJet_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMultiJet_selector.l1tResults = cms.InputTag('')
 streamA_datasetMultiJet_selector.throw      = cms.bool(False)
-streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_DiJet40Eta2p6_L1FastJet_BTagIP3D_v1', 
+streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_DiJet40Eta2p6_BTagIP3DFastPV_v1', 
+    'HLT_DiJet40Eta2p6_L1FastJet_BTagIP3D_v1', 
+    'HLT_DiJet80Eta2p6_BTagIP3DFastPVLoose_v1', 
     'HLT_DiJet80Eta2p6_L1FastJet_BTagIP3DLoose_v1', 
     'HLT_DoubleJet20_ForwardBackward_v1', 
     'HLT_EightJet35_L1FastJet_v4', 
@@ -395,8 +397,11 @@ streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_DiJet40Eta
     'HLT_ExclDiJet35_HFAND_v1', 
     'HLT_ExclDiJet35_HFOR_v1', 
     'HLT_ExclDiJet80_HFAND_v1', 
+    'HLT_Jet160Eta2p4_Jet120Eta2p4_DiBTagIP3DFastPVLoose_v1', 
     'HLT_Jet160Eta2p4_Jet120Eta2p4_L1FastJet_DiBTagIP3DLoose_v1', 
+    'HLT_Jet60Eta1p7_Jet53Eta1p7_DiBTagIP3DFastPV_v1', 
     'HLT_Jet60Eta1p7_Jet53Eta1p7_L1FastJet_DiBTagIP3D_v1', 
+    'HLT_Jet80Eta1p7_Jet70Eta1p7_DiBTagIP3DFastPV_v1', 
     'HLT_Jet80Eta1p7_Jet70Eta1p7_L1FastJet_DiBTagIP3D_v1', 
     'HLT_L1DoubleJet36Central_v6', 
     'HLT_QuadJet50_L1FastJet_v1', 
