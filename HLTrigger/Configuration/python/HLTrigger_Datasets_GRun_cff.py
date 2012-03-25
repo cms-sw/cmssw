@@ -115,6 +115,8 @@ streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_DoubleE
     'HLT_Ele27_WP80_PFJet30_PFJet25_Deta3_v1', 
     'HLT_Ele30_CaloIdVT_TrkIdT_PFJet100_PFJet25_v1', 
     'HLT_Ele30_CaloIdVT_TrkIdT_PFJet150_PFJet25_v1', 
+    'HLT_Ele30_CaloIdVT_TrkIdT_PFNoPUJet100_PFNoPUJet25_v1', 
+    'HLT_Ele30_CaloIdVT_TrkIdT_PFNoPUJet150_PFNoPUJet25_v1', 
     'HLT_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Jet30_v1', 
     'HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v11', 
     'HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v11', 
