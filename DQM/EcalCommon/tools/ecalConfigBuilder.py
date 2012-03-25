@@ -802,10 +802,18 @@ if privEcal and not live :
 
 customizations += '''
  ## DQM common modules ##
-
-process.dqmEnvEB.subSystemFolder = cms.untracked.string("EcalBarrel")
-process.dqmEnvEE.subSystemFolder = cms.untracked.string("EcalEndcap")
 '''
+
+if configuration == 'Ecal' :
+    customizations += '''
+    process.dqmEnvEB.subSystemFolder = cms.untracked.string("EcalBarrel")
+    process.dqmEnvEE.subSystemFolder = cms.untracked.string("EcalEndcap")
+'''
+else :
+    customizations += '''
+    process.dqmEnvEB.subSystemFolder = cms.untracked.string("EcalBarrel/Calibration")
+    process.dqmEnvEE.subSystemFolder = cms.untracked.string("EcalEndcap/Calibration")
+'''    
 
 if central :
     if configuration == 'Ecal' :
