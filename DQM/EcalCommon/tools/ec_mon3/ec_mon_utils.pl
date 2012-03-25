@@ -100,7 +100,7 @@ sub ec_mon_conf_file {
 	$config{'ec_mon_era'} = $1;
 	print "Found ec_mon_era = $config{'ec_mon_era'}\n" if ( $opts{'debug'} );
     }
-    elsif ( $line =~ /^ec_mon_swconf_dir(.*)$/ ) {
+    elsif ( $line =~ /^ec_mon_swconf_dir=(.*)$/ ) {
 	$config{'ec_mon_swconf_dir'} = $1;
 	print "Found ec_mon_swconf_dir = $config{'ec_mon_swconf_dir'}\n" if( $opts{'debug'} );
     }

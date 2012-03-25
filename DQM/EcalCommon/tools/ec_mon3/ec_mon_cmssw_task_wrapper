@@ -83,12 +83,12 @@ if ( $filelists{$datatypes[0]}[0] =~ /Minidaq/ ) {
     $workflow = "/All/$config{'ec_mon_era'}/MiniDAQ";
 }
 elsif ( $config{'ec_mon_path'} =~ /localDAQ/ ) {
-    $cmsenv = "${'ec_mon_swconf_dir'}/cmsenv.localDAQ";
+    $cmsenv = "$config{'ec_mon_swconf_dir'}/cmsenv.localDAQ";
     $daq = 'localDAQ';
     $workflow = "/All/$config{'ec_mon_era'}/LocalDAQ";
 }
 elsif ( $config{'ec_mon_path'} =~ /globalDAQ/ ) {
-    $cmsenv = "${'ec_mon_swconf_dir'}/cmsenv.globalDAQ";
+    $cmsenv = "$config{'ec_mon_swconf_dir'}/cmsenv.globalDAQ";
     $daq = 'globalDAQ';
     $workflow = "/All/$config{'ec_mon_era'}/CentralDAQ";
 }
