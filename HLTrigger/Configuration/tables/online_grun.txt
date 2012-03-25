@@ -15,6 +15,11 @@ HLT_HT250_L1FastJet_DoubleDisplacedPFJet60_ChgFraction10_v*                     
 HLT_HT250_L1FastJet_SingleDisplacedPFJet60_v*                                                   #sr126222
 HLT_HT250_L1FastJet_SingleDisplacedPFJet60_ChgFraction10_v*                                     #sr126222
 
+HLT_HT300_L1FastJet_DoubleDisplacedPFJet60_v*                                                   #sr126335
+HLT_HT300_L1FastJet_DoubleDisplacedPFJet60_ChgFraction10_v*                                     #sr126335
+HLT_HT300_L1FastJet_SingleDisplacedPFJet60_v*                                                   #sr126335
+HLT_HT300_L1FastJet_SingleDisplacedPFJet60_ChgFraction10_v*                                     #sr126335
+
 #HLT_QuadL1FastJet_BTagIP_VBF_v*                                                                #sr126239, removed in sr127203
 HLT_QuadJet75_55_35_20_BTagIP_VBF_v*                                                            #sr127203
 
