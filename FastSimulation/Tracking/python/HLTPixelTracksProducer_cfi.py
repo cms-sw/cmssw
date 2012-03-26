@@ -26,3 +26,4 @@ hltPixelTracks = cms.EDProducer("PixelTracksProducer",
 
 hltFastPixelHitsVertex = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltFastPixelTracks = hltPixelTracks.clone()
+hltFastPixelTracksRecover = hltPixelTracks.clone()
