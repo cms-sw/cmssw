@@ -1,6 +1,6 @@
 /** \class HLTDisplacedEgammaFilter
  *
- * $Id: HLTDisplacedEgammaFilter.cc,v 1.12 2012/01/21 14:56:57 fwyzard Exp $
+ * $Id: HLTDisplacedEgammaFilter.cc,v 1.4 2012/03/26 14:52:38 sckao Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -42,6 +42,7 @@ HLTDisplacedEgammaFilter::HLTDisplacedEgammaFilter(const edm::ParameterSet& iCon
   rechitsEB  = iConfig.getParameter< edm::InputTag > ("RecHitsEB");
   rechitsEE  = iConfig.getParameter< edm::InputTag > ("RecHitsEE");
   
+  EBOnly       = iConfig.getParameter<bool> ("EBOnly") ;
   sMin_min     = iConfig.getParameter<double> ("sMin_min");
   sMin_max     = iConfig.getParameter<double> ("sMin_max");
   sMaj_min     = iConfig.getParameter<double> ("sMaj_min");
@@ -66,7 +67,7 @@ void HLTDisplacedEgammaFilter::fillDescriptions(edm::ConfigurationDescriptions& 
    desc.add<edm::InputTag>("inputTrack",edm::InputTag("hltL1SeededEgammaRegionalCTFFinalFitWithMaterial"));
    desc.add<bool>("relaxed",false);
    desc.add<int>("ncandcut",1);
-   desc.add<bool>("EBOnly",true);
+   desc.add<bool>("EBOnly",false);
    desc.add<double>("sMin_min",0.1);
    desc.add<double>("sMin_max",0.4);
    desc.add<double>("sMaj_min",0.0);
