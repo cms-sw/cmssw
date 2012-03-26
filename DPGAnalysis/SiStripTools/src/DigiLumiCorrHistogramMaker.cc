@@ -108,7 +108,7 @@ void DigiLumiCorrHistogramMaker::book(const std::string dirname) {
 	edm::LogInfo("RunHistos") << "Pseudo-booking run histos " << slab.c_str();
 	sprintf(name,"n%sdigivslumivsbxprofrun",slab.c_str());
 	sprintf(title,"%s %s multiplicity vs BX lumi vs BX",slab.c_str(),m_hitname.c_str());
-	m_nmultvslumivsbxprofrun[i] = m_fhm[i]->makeTProfile2D(name,title,3564,0.5,3563.5,250,0.,10.);
+	m_nmultvslumivsbxprofrun[i] = m_fhm[i]->makeTProfile2D(name,title,3564,-0.5,3563.5,250,0.,10.);
       }
     }
 
