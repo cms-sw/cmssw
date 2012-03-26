@@ -2,8 +2,8 @@
 #     R. Mankel, DESY Hamburg     03-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
 #
-#     $Revision: 1.24 $
-#     $Date: 2010/08/03 12:15:26 $
+#     $Revision: 1.25 $
+#     $Date: 2011/06/15 14:24:52 $
 #
 #  produce cfg file for merging run
 #
@@ -156,8 +156,17 @@ for ($i=1; $i<=$nJobs; ++$i) {
   ++$iIsOk;
 
   $newName = sprintf "milleBinary%03d.dat",$i;
-  print "Adding $newName to list of binary files\n";
-  $binaryList = "$binaryList$sep\'$newName\'";
+  if($JOBSP2[$i-1] ne "" && defined $JOBSP2[$i-1])
+    {
+      my $weight = $JOBSP2[$i-1];
+      print "Adding $newName to list of binary files using weight $weight\n";
+      $binaryList = "$binaryList$sep\'$newName -- $weight\'";
+    }
+  else
+    {
+      print "Adding $newName to list of binary files\n";
+      $binaryList = "$binaryList$sep\'$newName\'";
+    }
 }
 
 # replace list of binary files

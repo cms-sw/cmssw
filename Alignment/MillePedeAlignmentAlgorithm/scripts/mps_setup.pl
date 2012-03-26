@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     08-Oct-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.25 $
-#     $Date: 2011/11/18 12:15:55 $
+#     $Revision: 1.26 $
+#     $Date: 2011/11/22 14:21:01 $
 #
 #  Setup local mps database
 #  
@@ -29,6 +29,7 @@
 #              If not given, it is evinced from the pede executable name.
 #              Finally, it is set 2560 MB if neither of the two are available.
 #  -N name     The name to be assigned to the jobs. Whitespaces and colons are not allowed.
+#  -w          Assign statistical weight.
 
 BEGIN {
 use File::Basename;
@@ -49,11 +50,13 @@ $mssDir = "";
 $append = 0;
 
 my $confname = "";
+my $weight = 1.0;
+my $useweight = 0;
 
 # parse the arguments
 while (@ARGV) {
   my $arg = shift(ARGV);
-  if ($arg =~ /\A-/) {  # check for option 
+  if ($arg =~ /\A-/) {  # check for option
     if ($arg =~ /-N/g) {
       $confname = $arg;
       $confname =~ s/-N//; # Strips away the "-N"
@@ -67,6 +70,19 @@ while (@ARGV) {
           print "colons were removed in configuration name: $confname\n";
         }
     }
+    elsif($arg =~ "w")
+      {
+        my $tmp = $arg;
+        $tmp =~ s/-w//; # Strips away the "-w"
+        if (length($tmp) == 0) {
+          $tmp = shift(ARGV);
+        }
+        $tmp =~ s/\s//g;
+        $tmp =~ s/\://g;
+        $tmp =~ s/\,//g;
+        $weight = $tmp;
+        $useweight = 1;
+      }
     elsif ($arg =~ "h") {
       $helpwanted = 1;
     }
@@ -133,6 +149,7 @@ if ($nJobs eq 0 or $helpwanted != 0 ) {
   print "  \n             If not given, it is evinced from the pede executable name.";
   print "  \n             Finally, it is set 2560 MB if neither of the two are available.";
   print "  \n -N name     Some arbitrary name assigned to the jobs.";
+  print "  \n -w value    Statistical weight to be used.";
   print "\n";
   exit 1;
 }
@@ -293,7 +310,14 @@ for ($j = 1; $j <= $nJobs; ++$j) {
   push @JOBINCR,0;
   push @JOBREMARK,"";
   push @JOBSP1,"";
-  push @JOBSP2,"";
+  if($useweight)
+    {
+      push @JOBSP2,"$weight";
+    }
+  else
+    {
+      push @JOBSP2,"";
+    }
   push @JOBSP3,"$confname";
   # create the split card files
   print "mps_split.pl $infiList $j $nJobs >jobData/$theJobDir/theSplit\n";
