@@ -4,11 +4,11 @@ from RecoMuon.Configuration.RecoMuonPPonly_cff import *
 from RecoHI.HiMuonAlgos.hiMuonIterativeTk_cff import *
 
 # pretty much everything is as the pp sequence
-hiTracks = 'hiRegitMuGeneralTracks'
+hiReMuTracks = 'hiGeneralAndRegitMuTracks' #'hiRegitMuGeneralTracks'
 
 # global muon track
 reglobalMuons = globalMuons.clone()
-reglobalMuons.TrackerCollectionLabel                                     = hiTracks
+reglobalMuons.TrackerCollectionLabel                                     = hiReMuTracks
 
 # tevMuons tracks
 retevMuons    = tevMuons.clone()
@@ -23,10 +23,10 @@ reglbTrackQual.InputLinksCollection = cms.InputTag("reglobalMuons")
 
 #recoMuons
 remuons       = muons1stStep.clone()
-remuons.inputCollectionLabels                   = [hiTracks, 'reglobalMuons', 'standAloneMuons:UpdatedAtVtx','retevMuons:firstHit','retevMuons:picky','retevMuons:dyt']
+remuons.inputCollectionLabels                   = [hiReMuTracks, 'reglobalMuons', 'standAloneMuons:UpdatedAtVtx','retevMuons:firstHit','retevMuons:picky','retevMuons:dyt']
 remuons.globalTrackQualityInputTag              = cms.InputTag('reglbTrackQual')
 remuons.JetExtractorPSet.JetCollectionLabel     = cms.InputTag("iterativeConePu5CaloJets")
-remuons.TrackExtractorPSet.inputTrackCollection = hiTracks
+remuons.TrackExtractorPSet.inputTrackCollection = hiReMuTracks
 
 remuonEcalDetIds = muonEcalDetIds.clone()
 remuonEcalDetIds.inputCollection                = "remuons"
@@ -34,7 +34,7 @@ remuonEcalDetIds.inputCollection                = "remuons"
 #muons.fillGlobalTrackRefits = False
 # calomuons
 recalomuons   = calomuons.clone()
-recalomuons.inputTracks          = hiTracks
+recalomuons.inputTracks          = hiReMuTracks
 recalomuons.inputCollection      = 'remuons'
 recalomuons.inputMuons           = 'remuons'
 
@@ -61,11 +61,13 @@ muIsolation.replace(muIsoDepositJets,remuIsoDepositJets)
 muIsolation.replace(muIsoDepositCalByAssociatorTowers,remuIsoDepositCalByAssociatorTowers)
 
 #run this if there are no STA muons in events
-muontracking                        = cms.Sequence(standAloneMuonSeeds * standAloneMuons * hiRegitMuonIterTracking * globalMuons)
+muontracking                        = cms.Sequence(standAloneMuonSeeds * standAloneMuons * hiRegitMuTracking * reglobalMuons)
 
 #the default setting assumes the STA is already in the event
-muontracking_re                     = cms.Sequence(hiRegitMuonIterTracking * reglobalMuons)
+muontracking_re                     = cms.Sequence(hiRegitMuTracking * reglobalMuons)
 muontracking_with_TeVRefinement_re  = cms.Sequence(muontracking_re * retevMuons)
+
+muonreco_re                         = cms.Sequence(muontracking_re * muonIdProducerSequence)
 muonrecowith_TeVRefinemen_re        = cms.Sequence(muontracking_with_TeVRefinement_re * muonIdProducerSequence)
 muonreco_plus_isolation_re          = cms.Sequence(muonrecowith_TeVRefinemen_re * muIsolation)
 
