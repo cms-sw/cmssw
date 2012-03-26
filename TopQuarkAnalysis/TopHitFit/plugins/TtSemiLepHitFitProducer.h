@@ -177,6 +177,7 @@ TtSemiLepHitFitProducer<LeptonCollection>::TtSemiLepHitFitProducer(const edm::Pa
   produces< std::vector<double> >("MT");
   produces< std::vector<double> >("SigMT");
   produces< std::vector<int> >("Status");
+  produces< int >("NumberOfConsideredJets");
 }
 
 template<typename LeptonCollection>
@@ -201,6 +202,7 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   std::auto_ptr< std::vector<double>            > pMT    ( new std::vector<double> );
   std::auto_ptr< std::vector<double>            > pSigMT ( new std::vector<double> );
   std::auto_ptr< std::vector<int>               > pStatus( new std::vector<int> );
+  std::auto_ptr< int > pJetsConsidered( new int );
 
   edm::Handle<std::vector<pat::Jet> > jets;
   evt.getByLabel(jets_, jets);
@@ -236,19 +238,20 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   }
 
   // Add jets into HitFit
-  int nJetsFound = 0;
-  for(unsigned iJet=0; iJet<(*jets).size() && nJetsFound!=maxNJets_; ++iJet) {
+  unsigned int nJetsFound = 0;
+  for(unsigned iJet=0; iJet<(*jets).size() && (int)nJetsFound!=maxNJets_; ++iJet) {
     if(std::abs((*jets)[iJet].eta()) <= maxEtaJet_) {
       HitFit->AddJet((*jets)[iJet]);
       nJetsFound++;
     }
   }
+  *pJetsConsidered = nJetsFound;
 
   // Add missing transverse energy into HitFit
   if(!mets->empty())
     HitFit->SetMet((*mets)[0]);
 
-  if( !foundLepton || mets->empty() || (unsigned)nJetsFound<nPartons ) {
+  if( !foundLepton || mets->empty() || nJetsFound<nPartons ) {
     // the kinFit getters return empty objects here
     pPartonsHadP->push_back( pat::Particle() );
     pPartonsHadQ->push_back( pat::Particle() );
@@ -283,6 +286,7 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
     evt.put(pMT         , "MT"         );
     evt.put(pSigMT      , "SigMT"      );
     evt.put(pStatus     , "Status"     );
+    evt.put(pJetsConsidered, "NumberOfConsideredJets");
     return;
   }
 
@@ -479,6 +483,7 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   evt.put(pMT         , "MT"         );
   evt.put(pSigMT      , "SigMT"      );
   evt.put(pStatus     , "Status"     );
+  evt.put(pJetsConsidered, "NumberOfConsideredJets");
 }
 
 #endif
