@@ -33,6 +33,7 @@ class PFIsoReaderDemo : public edm::EDAnalyzer
   edm::Service<TFileService> fileservice_;
 
   edm::InputTag inputTagGsfElectrons_;
+  edm::InputTag inputTagPFCandidateMap_;
   std::vector<edm::InputTag> inputTagIsoDepElectrons_;
   std::vector<edm::InputTag> inputTagIsoValElectronsNoPFId_;
   std::vector<edm::InputTag> inputTagIsoValElectronsPFId_;   

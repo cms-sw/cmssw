@@ -7,11 +7,13 @@
 #include "CommonTools/ParticleFlow/test/PFIsoReaderDemo.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 PFIsoReaderDemo::PFIsoReaderDemo(const edm::ParameterSet& iConfig)
 {
   inputTagGsfElectrons_ = iConfig.getParameter<edm::InputTag>("Electrons");
+  inputTagPFCandidateMap_ = iConfig.getParameter< edm::InputTag>("PFCandidateMap");   
   inputTagIsoDepElectrons_ = iConfig.getParameter< std::vector<edm::InputTag> >("IsoDepElectron");
   inputTagIsoValElectronsNoPFId_ = iConfig.getParameter< std::vector<edm::InputTag> >("IsoValElectronNoPF");
   inputTagIsoValElectronsPFId_   = iConfig.getParameter< std::vector<edm::InputTag> >("IsoValElectronPF");   
@@ -64,18 +66,29 @@ void PFIsoReaderDemo::analyze(const edm::Event & iEvent,const edm::EventSetup & 
   for (size_t j = 0; j<inputTagIsoValElectronsPFId_.size(); ++j) {
     iEvent.getByLabel(inputTagIsoValElectronsNoPFId_[j], electronIsoValNoPFId[j]);
   }
+
+  // PFCandidateMap
+  edm::Handle<edm::ValueMap<reco::PFCandidatePtr> >ValMapH;
+  iEvent.getByLabel(inputTagPFCandidateMap_,ValMapH);
+  const edm::ValueMap<reco::PFCandidatePtr> & myValMap(*ValMapH); 
+
+
   // Electrons - from reco 
   unsigned nele=gsfElectronH->size();
-  std::cout<<"Electron: "<<nele<<std::endl;
+
   for(unsigned iele=0; iele<nele;++iele) {
     reco::GsfElectronRef myElectronRef(gsfElectronH,iele);
-    
-    unsigned pfId=(myElectronRef->passingMvaPreselection()) ? 1 : 0 ;
+
+    // Get the PFCandidate
+    const reco::PFCandidatePtr pfElePtr(myValMap[myElectronRef]); 
+
+    unsigned pfId= pfElePtr.isNonnull();
 
     const IsoDepositVals * electronIsoVals =  (pfId) ? &electronIsoValPFId : &electronIsoValNoPFId ;
     double charged =  (*(*electronIsoVals)[0])[myElectronRef];
     double photon = (*(*electronIsoVals)[1])[myElectronRef];
     double neutral = (*(*electronIsoVals)[2])[myElectronRef];
+    std::cout << " GsfElectron pT, eta, phi, charge " << myElectronRef->pt() << " " << myElectronRef->eta() << " " << myElectronRef->phi() << " " << myElectronRef->charge() << std::endl; 
     std::cout << " Charged Iso " << charged << std::endl;
     std::cout << " Photon Iso " <<  photon << std::endl;
     std::cout << " Neutral Hadron Iso " << neutral << std::endl;

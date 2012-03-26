@@ -33,6 +33,7 @@ process.TFileService = cms.Service("TFileService", fileName = cms.string("histo.
 
 process.elePFIsoReader = cms.EDAnalyzer("PFIsoReaderDemo",
                                         Electrons = cms.InputTag('gsfElectrons'),
+                                        PFCandidateMap = cms.InputTag('particleFlow:electrons'),
                                         IsoDepElectron = cms.VInputTag(cms.InputTag('elPFIsoDepositChargedPFIso'),
                                                                        cms.InputTag('elPFIsoDepositGammaPFIso'),
                                                                        cms.InputTag('elPFIsoDepositNeutralPFIso')),
@@ -61,7 +62,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 
 process.outpath = cms.EndPath(
-#    process.out 
+    process.out 
     )
 
 
