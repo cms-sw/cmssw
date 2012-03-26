@@ -605,7 +605,7 @@ steps['HARVEST']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'auto:startup',
                    '--mc':'',
                    '--scenario':'pp'}
-steps['HARVESTCOS']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
+steps['HARVESTCOS']={'-s':'HARVESTING:dqmHarvesting',
                      '--conditions':'auto:startup',
                      '--mc':'',
                      '--filein':'file:step3_inDQM.root',
