@@ -1,0 +1,8 @@
+<use   name="root"/>
+<use   name="rootcintex"/>
+<use   name="rootgraphics"/>
+<library   name="DPGAnalysisSiStripToolsMacros" file="*.cc">
+</library>
+<export>
+<lib name="1"/>
+</export>
