@@ -14,12 +14,17 @@
 <use   name="DataFormats/Scalers"/>
 <use   name="DataFormats/DetId"/>
 <use   name="DataFormats/Common"/>
+<use   name="DataFormats/GeometryVector"/>
 <use   name="DPGAnalysis/SiStripTools"/>
 <use   name="DQM/SiStripCommon"/>
 <use   name="DQMServices/Core"/>
 <use   name="CommonTools/TrackerMap"/>
 <use   name="CalibFormats/SiStripObjects"/>
+<use   name="CondFormats/SiPixelObjects"/>
+<use   name="CondFormats/DataRecord"/>
 <use   name="CalibTracker/Records"/>
+<use   name="CalibTracker/SiStripCommon"/>
+<use   name="CalibTracker/SiPixelESProducers"/>
 <use   name="MagneticField/Records"/>
 <use   name="MagneticField/Engine"/>
 <use   name="RecoTracker/TransientTrackingRecHit"/>
@@ -29,6 +34,7 @@
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/Records"/>
 
 <library   file="*.cc" name="DPGAnalysisSiStripToolsPlugins">

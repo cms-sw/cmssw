@@ -42,6 +42,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"
 #include "DPGAnalysis/SiStripTools/interface/DetIdSelector.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
@@ -125,52 +126,78 @@ DetIdSelectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 {
    using namespace edm;
    
-
-   SiStripDetInfoFileReader * reader=edm::Service<SiStripDetInfoFileReader>().operator->();
-
-   //   SiStripDetInfoFileReader reader(edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"));
-   //   SiStripDetInfoFileReader reader;
-
-   const std::vector<uint32_t>& detids = reader->getAllDetIds();
-
-   for(std::vector<uint32_t>::const_iterator detid=detids.begin();detid!=detids.end();++detid) {
-
-     LogDebug("DetID") << *detid;
-     int index=0;
-     for(std::vector<DetIdSelector>::const_iterator detidsel=detidsels_.begin();detidsel!=detidsels_.end();++detidsel) {
-       if(detidsel->isSelected(*detid)) {
-	 LogDebug("selected") << "Selected by selection " << index;
-	 unsigned int det = *detid;
-	 tkhisto_->add(det,index);
-	 tkmap_.fill_current_val(det,index);
-       }
-       ++index;
-     }
-
-   }
-
-   edm::ESHandle<TrackerGeometry> pDD;
-   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
-   
-   for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+   {
+     SiStripDetInfoFileReader * reader=edm::Service<SiStripDetInfoFileReader>().operator->();
      
-     if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
-       DetId detId = (*it)->geographicalId();
-       LogDebug("DetID") << detId.rawId();
+     //   SiStripDetInfoFileReader reader(edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"));
+     //   SiStripDetInfoFileReader reader;
+     
+     const std::vector<uint32_t>& detids = reader->getAllDetIds();
+     
+     for(std::vector<uint32_t>::const_iterator detid=detids.begin();detid!=detids.end();++detid) {
+       
+       LogDebug("DetID") << *detid;
        int index=0;
        for(std::vector<DetIdSelector>::const_iterator detidsel=detidsels_.begin();detidsel!=detidsels_.end();++detidsel) {
-	 if(detidsel->isSelected(detId)) {
-	   LogDebug("selected") << " Selected by selection " << index;
-	   //	 tkhisto_->add(det,index);
-	   tkmap_.fill_current_val(detId.rawId(),index);
+	 if(detidsel->isSelected(*detid)) {
+	   LogDebug("selected") << "Selected by selection " << index;
+	   unsigned int det = *detid;
+	   tkhisto_->add(det,index);
+	   tkmap_.fill_current_val(det,index);
 	 }
 	 ++index;
        }
        
      }
-     
    }
-   
+
+   {
+     edm::FileInPath fp("CalibTracker/SiPixelESProducers/data/PixelSkimmedGeometry.txt");
+     
+     SiPixelDetInfoFileReader pxlreader(fp.fullPath());
+     const std::vector<uint32_t>& detids = pxlreader.getAllDetIds();
+     
+     for(std::vector<uint32_t>::const_iterator detid=detids.begin();detid!=detids.end();++detid) {
+       
+       LogDebug("DetID") << *detid;
+       int index=0;
+       for(std::vector<DetIdSelector>::const_iterator detidsel=detidsels_.begin();detidsel!=detidsels_.end();++detidsel) {
+	 if(detidsel->isSelected(*detid)) {
+	   LogDebug("selected") << "Selected by selection " << index;
+	   unsigned int det = *detid;
+	   //	   tkhisto_->add(det,index);
+	   tkmap_.fill_current_val(det,index);
+	 }
+	 ++index;
+       }
+       
+     }
+   }
+    
+ 
+   /*
+     edm::ESHandle<TrackerGeometry> pDD;
+     iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
+     
+     for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+     
+     if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
+     DetId detId = (*it)->geographicalId();
+     LogDebug("DetID") << detId.rawId();
+     int index=0;
+     for(std::vector<DetIdSelector>::const_iterator detidsel=detidsels_.begin();detidsel!=detidsels_.end();++detidsel) {
+     if(detidsel->isSelected(detId)) {
+     LogDebug("selected") << " Selected by selection " << index;
+     //	 tkhisto_->add(det,index);
+     tkmap_.fill_current_val(detId.rawId(),index);
+     }
+     ++index;
+     }
+     
+     }
+     
+     }
+   */   
 }
 
 void 
