@@ -1,11 +1,11 @@
-# /online/collisions/2012/5e33/v4.2/HLT/V5 (CMSSW_5_2_1_HLT2)
+# /online/collisions/2012/5e33/v4.2/HLT/V6 (CMSSW_5_2_1_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/5e33/v4.2/HLT/V5')
+  tableName = cms.string('/online/collisions/2012/5e33/v4.2/HLT/V6')
 )
 
 process.streams = cms.PSet( 
@@ -1950,7 +1950,7 @@ process.EcalUnpackerWorkerESProducer = cms.ESProducer( "EcalUnpackerWorkerESProd
     Type = cms.string( "EcalRecHitWorkerSimple" ),
     killDeadChannels = cms.bool( True ),
     ChannelStatusToBeExcluded = cms.vint32( 10, 11, 12, 13, 14 ),
-    laserCorrection = cms.bool( False ),
+    laserCorrection = cms.bool( True ),
     EBLaserMIN = cms.double( 0.5 ),
     EELaserMIN = cms.double( 0.5 ),
     EBLaserMAX = cms.double( 2.0 ),

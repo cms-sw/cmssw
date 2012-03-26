@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/HLT/V57 (CMSSW_5_2_1_HLT2)
+# /dev/CMSSW_5_2_1/HLT/V58 (CMSSW_5_2_1_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V57')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V58')
 )
 
 streams = cms.PSet( 
@@ -2402,7 +2402,7 @@ EcalUnpackerWorkerESProducer = cms.ESProducer( "EcalUnpackerWorkerESProducer",
     Type = cms.string( "EcalRecHitWorkerSimple" ),
     killDeadChannels = cms.bool( True ),
     ChannelStatusToBeExcluded = cms.vint32( 10, 11, 12, 13, 14 ),
-    laserCorrection = cms.bool( False ),
+    laserCorrection = cms.bool( True ),
     EBLaserMIN = cms.double( 0.5 ),
     EELaserMIN = cms.double( 0.5 ),
     EBLaserMAX = cms.double( 2.0 ),
