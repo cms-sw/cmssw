@@ -89,20 +89,31 @@ class MatrixReader(object):
             return
 
         print "request for INPUT for ", useInput
-        fromInput=[]
-        if useInput=='all' and fromScratch=='all':
-            raise MatrixException("Cannot useinput for all and run scratch for all")
-        if useInput==['all']:
-            fromInput=self.relvalModule.workflows.keys()
-        elif useInput:
-            fromInput=map(float,fromInput)
-        if fromScratch=='all':
-            fromInput=[]
-        elif fromScratch:
+
+        
+        fromInput={}
+        
+        if useInput:
+            for i in useInput:
+                if ':' in i:
+                    (ik,il)=i.split(':')
+                    if ik=='all':
+                        for k in self.relvalModule.workflows.keys():
+                            fromInput[float(k)]=int(il)
+                    else:
+                        fromInput[float(ik)]=int(il)
+                else:
+                    if i=='all':
+                        for k in self.relvalModule.workflows.keys():
+                            fromInput[float(k)]=0
+                    else:
+                        fromInput[float(i)]=0
+                
+        if fromScratch:
             fromScratch=map(float,fromScratch)
             for num in fromScratch:
                 if num in fromInput:
-                    fromInput.remove(num)
+                    fromInput.pop(num)
                             
         #change the origin of dataset on the fly
         if refRel:
@@ -136,13 +147,16 @@ class MatrixReader(object):
             ranStepList=[]
 
             #first resolve INPUT possibilities
-            for (stepIr,step) in enumerate(reversed(stepList)):
-                stepName=step
-                #reversed index
-                stepI=(len(stepList)-stepIr)-1
-                if num in fromInput:
-                    #if num!=25 : continue
-                    #print stepIr,step,stepI
+            if num in fromInput:
+                ilevel=fromInput[num]
+                #print num,ilevel
+                for (stepIr,step) in enumerate(reversed(stepList)):
+                    stepName=step
+                    stepI=(len(stepList)-stepIr)-1
+                    #print stepIr,step,stepI,ilevel                    
+                    if stepI>ilevel:
+                        #print "ignoring"
+                        continue
                     if stepI!=0:
                         testName='__'.join(stepList[0:stepI+1])+'INPUT'
                     else:

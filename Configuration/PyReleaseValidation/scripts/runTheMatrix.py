@@ -99,7 +99,7 @@ if __name__ == '__main__':
                       default=False
                       )
     parser.add_option('--fromScratch',
-                      help='Coma separated list of wf to be run without recycling',
+                      help='Coma separated list of wf to be run without recycling. all is not supported as default.',
                       dest='fromScratch',
                       default=None
                        )
@@ -157,13 +157,6 @@ if __name__ == '__main__':
     if opt.wmcontrol:
         performInjectionOptionTest(opt)
         
-    # some sanity checking:
-    if opt.useInput and opt.useInput != 'all' :
-        for item in opt.useInput:
-            if opt.fromScratch and item in opt.fromScratch:
-                print 'FATAL error: request to run workflow ',item,'from scratch and using input. '
-                sys.exit(-1)
-
     if opt.raw and opt.show: ###prodAgent to be discontinued
         ret = showRaw(opt)
     else:
