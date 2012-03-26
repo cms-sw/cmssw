@@ -406,19 +406,12 @@ start()
       done
       ;;
 
-    srv-s2f19-29:*agents* )
+    srv-s2f19-29:*agents* ) #ecalod-web01
       refuseproc "file agents" "visDQMIndex|[^/]zip +" "refusing to restart"
 
       # standard lot of agents
       for D in $FLAVOR; do
         DQM_DATA=$STATEDIR/$D
-        startagent $D/agent-qcontrol \
-          visDQMRootFileQuotaControl \
-          $DQM_DATA/agents/qcontrol \
-          $DQM_DATA/agents/register \
-          $DQM_DATA/data \
-          $CFGDIR/quota-rfqc-${D}.py
-
         startagent $D/agent-vcontrol \
           visDQMVerControlDaemon \
           $DQM_DATA/agents/vcontrol \
