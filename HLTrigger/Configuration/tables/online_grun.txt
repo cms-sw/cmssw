@@ -1,4 +1,4 @@
-"online" menu
+# "GRun" menu
 HLT_Activity_Ecal_SC7_v*
 
 HLT_IsoMu15_eta2p1_L1ETM20_v*                                                                   #added in Feb 2012 5e33 menu (sr #126183)
@@ -35,11 +35,11 @@ HLT_DiJet80Eta2p6_L1FastJet_BTagIP3DLoose_v*                                    
 HLT_DiJet40Eta2p6_L1FastJet_BTagIP3D_v*                                                         #sr126241
 HLT_L1DoubleJet36Central_v*                                                                     #sr126241
 
-HLT_DiJet40Eta2p6_BTagIP3DFastPV_v*                                                             #sr127336
-HLT_DiJet80Eta2p6_BTagIP3DFastPVLoose_v*                                                        #sr127336
-HLT_Jet60Eta1p7_Jet53Eta1p7_DiBTagIP3DFastPV_v*                                                 #sr127336
-HLT_Jet80Eta1p7_Jet70Eta1p7_DiBTagIP3DFastPV_v*                                                 #sr127336
-HLT_Jet160Eta2p4_Jet120Eta2p4_DiBTagIP3DFastPVLoose_v*                                          #sr127336
+HLT_DiJet40Eta2p6_BTagIP3DFastPV_v*								#sr127336
+HLT_DiJet80Eta2p6_BTagIP3DFastPVLoose_v*							#sr127336
+HLT_Jet60Eta1p7_Jet53Eta1p7_DiBTagIP3DFastPV_v*							#sr127336
+HLT_Jet80Eta1p7_Jet70Eta1p7_DiBTagIP3DFastPV_v*							#sr127336
+HLT_Jet160Eta2p4_Jet120Eta2p4_DiBTagIP3DFastPVLoose_v*						#sr127336
 
 HLT_JetE30_NoBPTX_v*                                                                            #sr126248
 HLT_JetE30_NoBPTX3BX_NoHalo_v*                                                                  #sr126248
@@ -108,8 +108,8 @@ HLT_DoublePhoton70_v*                                                           
 HLT_DoublePhoton80_v*                                                                           #sr126292
 HLT_Photon135_v*                                                                                #sr126292
 
-HLT_Ele30_CaloIdVT_TrkIdT_PFNoPUJet100_PFNoPUJet25_v*                                           #sr127353
-HLT_Ele30_CaloIdVT_TrkIdT_PFNoPUJet150_PFNoPUJet25_v*                                           #sr127353
+HLT_Ele30_CaloIdVT_TrkIdT_PFNoPUJet100_PFNoPUJet25_v*						#sr127353
+HLT_Ele30_CaloIdVT_TrkIdT_PFNoPUJet150_PFNoPUJet25_v*						#sr127353
 
 HLT_L2Mu20_eta2p1_NoVertex_v*                                                                   #sr126302
 HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v*                                                         #sr126302
@@ -198,6 +198,7 @@ HLT_CleanPFHT300_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_PFMET50_v*             
 HLT_CleanPFHT300_Ele40_CaloIdVT_TrkIdT_v*                                                       #sr126304
 HLT_CleanPFHT300_Ele60_CaloIdVT_TrkIdT_v*                                                       #sr126304
 HLT_IsoMu17_eta2p1_TriCentralPFJet30_v*                                                         #sr126304
+HLT_Photon20_CaloIdVL_v*                                                                        #sr127372
 HLT_Photon20_CaloIdVL_IsoL_v*                                                                   #sr126304
 HLT_Photon30_CaloIdVL_IsoL_v*                                                                   #sr126304
 HLT_Photon50_CaloIdVL_IsoL_v*                                                                   #sr126304
@@ -383,6 +384,7 @@ HLT_DiCentralJet20_BTagIP_MET65_HBHENoiseFiltered_dPhi1_v*					#sr127238
 HLT_DiCentralPFJet30_PFMHT80_v*                                                                 #sr126490
 HLT_DiCentralPFJet30_CaloMET50_dPhi1_PFMHT80_HBHENoiseFiltered_v*                               #sr126490
 HLT_CentralPFJet80_CaloMET50_dPhi1_PFMHT80_HBHENoiseFiltered_v*                                 #sr126490
+HLT_DiCentralJet20_CaloMET65_BTagCSV07_PFMHT80_v*                                               #sr127360
 HLT_L1ETM30_v*                                                                                  #sr126490
 HLT_L1ETM40_v*                                                                                  #sr126490
 HLT_L1ETM70_v*                                                                                  #sr126490
@@ -556,6 +558,7 @@ AlCa_RPCMuonNormalisation_v*                                                    
 AlCa_LumiPixels_v*
 AlCa_LumiPixels_Random_v*
 AlCa_LumiPixels_ZeroBias_v*
+
 
 DQM_FEDIntegrity_v*
 HLTriggerFirstPath

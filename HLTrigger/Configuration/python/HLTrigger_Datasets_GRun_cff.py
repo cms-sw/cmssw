@@ -245,6 +245,7 @@ streamA_datasetMET_selector.l1tResults = cms.InputTag('')
 streamA_datasetMET_selector.throw      = cms.bool(False)
 streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CentralPFJet80_CaloMET50_dPhi1_PFMHT80_HBHENoiseFiltered_v1', 
     'HLT_DiCentralJet20_BTagIP_MET65_HBHENoiseFiltered_dPhi1_v1', 
+    'HLT_DiCentralJet20_CaloMET65_BTagCSV07_PFMHT80_v1', 
     'HLT_DiCentralPFJet30_CaloMET50_dPhi1_PFMHT80_HBHENoiseFiltered_v1', 
     'HLT_DiCentralPFJet30_PFMHT80_v3', 
     'HLT_DiCentralPFJet50_PFMET80_v1', 
@@ -438,6 +439,7 @@ streamA_datasetPhoton_selector.triggerConditions = cms.vstring('HLT_DoubleEle33_
     'HLT_Photon150_v1', 
     'HLT_Photon160_v1', 
     'HLT_Photon20_CaloIdVL_IsoL_v11', 
+    'HLT_Photon20_CaloIdVL_v1', 
     'HLT_Photon22_R9Id90_HE10_Iso40_HBOnly_v1', 
     'HLT_Photon250_NoHE_v1', 
     'HLT_Photon26_CaloId10_Iso50_Photon18_CaloId10_Iso50_Mass60_v1', 
