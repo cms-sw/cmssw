@@ -24,7 +24,7 @@ DetIdSelector::DetIdSelector(const edm::ParameterSet& selconfig):
   m_selections(),m_masks()
 {
 
-  const std::vector<std::string> selstrings = selconfig.getParameter<std::vector<std::string> >("selections");
+  const std::vector<std::string> selstrings = selconfig.getUntrackedParameter<std::vector<std::string> >("selection");
   addSelection(selstrings);
 
 }
