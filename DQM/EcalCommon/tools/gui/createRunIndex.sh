@@ -4,11 +4,7 @@ ulimit -c 0
 
 cd ${HOME}/DQM/dqm-gui
 
-LD_LIBRARY_PATH=
-VO_CMS_SW_DIR=${PWD}/sw
-SCRAM_ARCH=slc5_amd64_gcc434
-source ${VO_CMS_SW_DIR}/cmsset_default.sh
-source ${VO_CMS_SW_DIR}/${SCRAM_ARCH}/cms/dqmgui/6.0.7/etc/profile.d/env.sh
+. $PWD/current/apps/dqmgui/etc/profile.d/env.sh
 
 if [ -e /tmp/createRunIndex.lock ]; then
   echo "Lock file is present, exit"
@@ -17,13 +13,14 @@ fi
 
 touch /tmp/createRunIndex.lock
 
-rm -fr /data/ecalod-disk01/dqm-gui/idx
+mv /data/ecalod-disk01/dqm-gui/state/dqmgui/ecal/ix /data/ecalod-disk01/dqm-gui/state/dqmgui/ecal/ix.old 
 
 echo "Index create: begin"
 
-visDQMIndex create /data/ecalod-disk01/dqm-gui/idx
+visDQMIndex create /data/ecalod-disk01/dqm-gui/state/dqmgui/ecal/ix
 
 echo "Index create: end"
+echo "Old index directory moved to /data/ecalod-disk01/dqm-gui/state/dqmgui/ecal/ix.old"
 
 rm /tmp/createRunIndex.lock
 
