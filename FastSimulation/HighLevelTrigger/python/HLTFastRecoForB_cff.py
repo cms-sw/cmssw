@@ -29,6 +29,7 @@ hltBLifetimeRegionalPixelSeedGeneratorbbPhiL1FastJet = FastSimulation.HighLevelT
 hltBLifetimeBTagIP3D1stTrkRegionalPixelSeedGeneratorJet20HbbL1FastJet = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltBLifetimeDiBTagIP3D1stTrkRegionalPixelSeedGeneratorJet20HbbL1FastJet = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltBLifetimeFastRegionalPixelSeedGeneratorHbbVBF = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltBLifetimeRegionalPixelSeedGeneratorbbPhiL1FastJetFastPV = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 
 hltBLifetimeRegionalCkfTrackCandidatesHbb = cms.Sequence(globalPixelTracking)
 hltBLifetimeRegionalCkfTrackCandidatesHbbVBF = cms.Sequence(globalPixelTracking)
@@ -38,6 +39,7 @@ hltBLifetimeRegionalCkfTrackCandidatesbbPhiL1FastJet = cms.Sequence(globalPixelT
 hltBLifetimeBTagIP3D1stTrkRegionalCkfTrackCandidatesJet20HbbL1FastJet = cms.Sequence(globalPixelTracking)
 hltBLifetimeDiBTagIP3D1stTrkRegionalCkfTrackCandidatesJet20HbbL1FastJet = cms.Sequence(globalPixelTracking)
 hltBLifetimeFastRegionalCkfTrackCandidatesHbbVBF = cms.Sequence(globalPixelTracking)
+hltBLifetimeRegionalCkfTrackCandidatesbbPhiL1FastJetFastPV = cms.Sequence(globalPixelTracking)
 
 hltBLifetimeRegionalCtfWithMaterialTracksHbb = hltFastTrackMergerForB.clone()
 hltBLifetimeRegionalCtfWithMaterialTracksHbbVBF = hltFastTrackMergerForB.clone()
@@ -47,6 +49,7 @@ hltBLifetimeRegionalCtfWithMaterialTracksbbPhiL1FastJet = hltFastTrackMergerForB
 hltBLifetimeBTagIP3D1stTrkRegionalCtfWithMaterialTracksJet20HbbL1FastJet = hltFastTrackMergerForB.clone()
 hltBLifetimeDiBTagIP3D1stTrkRegionalCtfWithMaterialTracksJet20HbbL1FastJet = hltFastTrackMergerForB.clone()
 hltBLifetimeFastRegionalCtfWithMaterialTracksHbbVBF = hltFastTrackMergerForB.clone()
+hltBLifetimeRegionalCtfWithMaterialTracksbbPhiL1FastJetFastPV  = hltFastTrackMergerForB.clone()
 
 
 #############################################
