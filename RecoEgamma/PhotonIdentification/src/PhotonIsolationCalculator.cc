@@ -375,6 +375,7 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
 						 useNumCrystals_);
   phoisolR2.ecalRecHitSumEt = EcalRecHitIsoB;
 
+
   double HcalTowerIsoA = calculateHcalTowerIso(pho, e, es, photonHcalTowerConeOuterRadiusA_,
 					      photonHcalTowerConeInnerRadiusA_,
 					      photonHcalTowerThreshEA_, -1 );
@@ -404,8 +405,8 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
   //// Hcal depth2
 
   double HcalDepth2TowerIsoA = calculateHcalTowerIso(pho, e, es, photonHcalDepth2TowerConeOuterRadiusA_,
-					      photonHcalDepth2TowerConeInnerRadiusA_,
-					      photonHcalDepth2TowerThreshEA_, 2 );
+						       photonHcalDepth2TowerConeInnerRadiusA_,
+						       photonHcalDepth2TowerThreshEA_, 2 );
   phoisolR1.hcalDepth2TowerSumEt = HcalDepth2TowerIsoA;
 
 
@@ -415,7 +416,39 @@ void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
   phoisolR2.hcalDepth2TowerSumEt = HcalDepth2TowerIsoB;
 
 
+  // New Hcal isolation based on the new H/E definition (towers behind the BCs in the SC are used to evaluated H)
+  double HcalTowerBcIsoA = calculateHcalTowerIso(pho, e, es, photonHcalTowerConeOuterRadiusA_,
+						 photonHcalTowerThreshEA_, -1 );
+  phoisolR1.hcalTowerSumEtBc = HcalTowerBcIsoA;
 
+
+  double HcalTowerBcIsoB = calculateHcalTowerIso(pho, e, es, photonHcalTowerConeOuterRadiusB_,
+						 photonHcalTowerThreshEB_, -1 );
+  phoisolR2.hcalTowerSumEtBc = HcalTowerBcIsoB;
+
+  //// Hcal depth1
+
+  double HcalDepth1TowerBcIsoA = calculateHcalTowerIso(pho, e, es, photonHcalDepth1TowerConeOuterRadiusA_,
+						       photonHcalDepth1TowerThreshEA_, 1 );
+  phoisolR1.hcalDepth1TowerSumEtBc = HcalDepth1TowerBcIsoA;
+
+
+  double HcalDepth1TowerBcIsoB = calculateHcalTowerIso(pho, e, es, photonHcalDepth1TowerConeOuterRadiusB_,
+						       photonHcalDepth1TowerThreshEB_, 1 );
+  phoisolR2.hcalDepth1TowerSumEtBc = HcalDepth1TowerBcIsoB;
+
+
+
+  //// Hcal depth2
+
+  double HcalDepth2TowerBcIsoA = calculateHcalTowerIso(pho, e, es, photonHcalDepth2TowerConeOuterRadiusA_,
+						       photonHcalDepth2TowerThreshEA_, 2 );
+  phoisolR1.hcalDepth2TowerSumEtBc = HcalDepth2TowerBcIsoA;
+
+
+  double HcalDepth2TowerBcIsoB = calculateHcalTowerIso(pho, e, es, photonHcalDepth2TowerConeOuterRadiusB_,
+						       photonHcalDepth2TowerThreshEB_, 2 );
+  phoisolR2.hcalDepth2TowerSumEtBc = HcalDepth2TowerBcIsoB;
 
 
 
@@ -616,6 +649,37 @@ double PhotonIsolationCalculator::calculateHcalTowerIso(const reco::Photon* phot
   //std::cout << "before iso call" << std::endl;
   EgammaTowerIsolation phoIso(RCone,
                               RConeInner,
+                              eMin,depth,
+                              toww);
+  hcalIsol = phoIso.getTowerEtSum(photon);
+  //  delete phoIso;
+  //std::cout << "after call" << std::endl;
+  return hcalIsol;
+  
+
+}
+
+
+
+double PhotonIsolationCalculator::calculateHcalTowerIso(const reco::Photon* photon,
+							const edm::Event& iEvent,
+							const edm::EventSetup& iSetup,
+							double RCone,
+							double eMin,
+							signed int depth )
+{
+
+  edm::Handle<CaloTowerCollection> hcalhitsCollH;
+ 
+  iEvent.getByLabel(hcalCollection_, hcalhitsCollH);
+  
+  const CaloTowerCollection *toww = hcalhitsCollH.product();
+
+  double hcalIsol=0.;
+  
+  //std::cout << "before iso call" << std::endl;
+  EgammaTowerIsolation phoIso(RCone,
+			      0.,
                               eMin,depth,
                               toww);
   hcalIsol = phoIso.getTowerEtSum(photon, &(photon->hcalTowersBehindClusters()) );
