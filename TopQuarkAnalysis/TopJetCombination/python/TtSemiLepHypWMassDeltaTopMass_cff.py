@@ -6,7 +6,9 @@ import FWCore.ParameterSet.Config as cms
 #
 
 ## configure wMassDeltaTopMass hyothesis
+from TopQuarkAnalysis.TopJetCombination.TtSemiLepJetCombWMassDeltaTopMass_cfi import *
 from TopQuarkAnalysis.TopJetCombination.TtSemiLepHypWMassDeltaTopMass_cfi import *
 
 ## make hypothesis
-makeHypothesis_wMassDeltaTopMass = cms.Sequence(ttSemiLepHypWMassDeltaTopMass)
+makeHypothesis_wMassDeltaTopMass = cms.Sequence(findTtSemiLepJetCombWMassDeltaTopMass *
+                                                ttSemiLepHypWMassDeltaTopMass)

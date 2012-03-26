@@ -10,20 +10,13 @@ ttSemiLepHypWMassMaxSumPt = cms.EDProducer("TtSemiLepHypWMassMaxSumPt",
     jets  = cms.InputTag("selectedPatJets"),
     ## lepton input
     leps  = cms.InputTag("selectedPatMuons"),
-    ## maximal number of jets to be considered
-    maxNJets = cms.int32(4),
-    ## nominal WMass parameter (in GeV)
-    wMass    = cms.double(80.4),
-    ## use b-tagging two distinguish between light and b jets
-    useBTagging = cms.bool(False),
-    ## choose algorithm for b-tagging
-    bTagAlgorithm = cms.string("trackCountingHighEffBJetTags"),
-    ## minimum b discriminator value required for b jets and
-    ## maximum b discriminator value allowed for non-b jets
-    minBDiscBJets     = cms.double(1.0),
-    maxBDiscLightJets = cms.double(3.0),
+    ## jet combination
+    match = cms.InputTag("findTtSemiLepJetCombWMassMaxSumPt"),
+    ## number of considered jets
+    nJetsConsidered = cms.InputTag("findTtSemiLepJetCombWMassMaxSumPt","NumberOfConsideredJets"),
     ## specify jet correction level as, Uncorrected, L1Offset, L2Relative, L3Absolute, L4Emf,
-    ## L5Hadron, L6UE, L7Parton, a flavor specification will be added automatically, when chosen 
+    ## L5Hadron, L6UE, L7Parton, a flavor specification will be added automatically, when
+    ## chosen    
     jetCorrectionLevel = cms.string("L3Absolute"),
     ## different ways to calculate a neutrino pz:
     ## -1 : take MET as neutrino directly, i.e. pz = 0

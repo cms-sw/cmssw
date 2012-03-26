@@ -12,6 +12,8 @@ ttSemiLepHypGeom = cms.EDProducer("TtSemiLepHypGeom",
     leps  = cms.InputTag("selectedPatMuons"),
     ## jet combination
     match = cms.InputTag("findTtSemiLepJetCombGeom"),
+    ## number of considered jets
+    nJetsConsidered = cms.InputTag("findTtSemiLepJetCombGeom","NumberOfConsideredJets"),
     ## specify jet correction level as, Uncorrected, L1Offset, L2Relative, L3Absolute, L4Emf,
     ## L5Hadron, L6UE, L7Parton, a flavor specification will be added automatically, when
     ## chosen    

@@ -24,8 +24,8 @@
    The class provides an interface for the creation of semi-leptonic ttbar event hypotheses. Input information is read 
    from the event content and the proper candidate creation is taken care of. Hypotheses are characterized by the 
    CompositeCandidate made of a ttbar pair (including all its decay products in a parton level interpretation) and an 
-   enumerator type key to specify the algorithm to determine the candidate (hypothesis cklass). The buildKey and the 
-   buildHypo class have to implemented by derived classes.
+   enumerator type key to specify the algorithm that was used to determine the candidate (the "hypothesis class").
+   The buildKey and the buildHypo methods have to implemented by derived classes.
 **/
 
 class TtSemiLepHypothesis : public edm::EDProducer {
@@ -52,6 +52,11 @@ class TtSemiLepHypothesis : public edm::EDProducer {
   /// set neutrino, using mW = 80.4 to calculate the neutrino pz
   void setNeutrino(const edm::Handle<std::vector<pat::MET> >& met, const edm::Handle<edm::View<reco::RecoCandidate> >& leps, const int& idx, const int& type);
   /// return key
+  /// minimalistic build function for simple hypotheses
+  void buildHypo(const edm::Handle<edm::View<reco::RecoCandidate> >& leps,
+		 const edm::Handle<std::vector<pat::MET> >& mets, 
+		 const edm::Handle<std::vector<pat::Jet> >& jets, 
+		 std::vector<int>& jetPartonAssociation);
   int key() const { return key_; };
   /// return event hypothesis
   reco::CompositeCandidate hypo();
@@ -84,11 +89,14 @@ class TtSemiLepHypothesis : public edm::EDProducer {
   edm::InputTag leps_;
   edm::InputTag mets_;
   edm::InputTag match_;
+  edm::InputTag nJetsConsidered_;
   /// specify the desired jet correction level (the default should 
   /// be L3Absolute-'abs')
   std::string jetCorrectionLevel_;
   /// hypothesis key (to be set by the buildKey function)
   int key_;
+  /// algorithm used to calculate neutrino solutions (see cfi for further details)
+  int neutrinoSolutionType_;
   /// number of real neutrino solutions:
   /// -1 if not determined, 0 if only complex, 2 if two real solutions
   int numberOfRealNeutrinoSolutions_;

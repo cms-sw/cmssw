@@ -8,7 +8,13 @@ DEFINE_FWK_MODULE(TtSemiLepJetCombMVAComputer);
 DEFINE_FWK_MODULE(TtSemiLepJetCombMVATrainer);
 
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombGeom.h"
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMaxSumPtWMass.h"
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombWMassDeltaTopMass.h"
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombWMassMaxSumPt.h"
 DEFINE_FWK_MODULE(TtSemiLepJetCombGeom);
+DEFINE_FWK_MODULE(TtSemiLepJetCombMaxSumPtWMass);
+DEFINE_FWK_MODULE(TtSemiLepJetCombWMassDeltaTopMass);
+DEFINE_FWK_MODULE(TtSemiLepJetCombWMassMaxSumPt);
 
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypGeom.h"
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypWMassDeltaTopMass.h"

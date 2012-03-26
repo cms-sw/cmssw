@@ -4,8 +4,7 @@
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepHypGenMatch.h"
 
 TtSemiLepHypGenMatch::TtSemiLepHypGenMatch(const edm::ParameterSet& cfg):
-  TtSemiLepHypothesis( cfg ),
-  neutrinoSolutionType_(cfg.getParameter<int>("neutrinoSolutionType"))
+  TtSemiLepHypothesis( cfg )
 { }
 
 TtSemiLepHypGenMatch::~TtSemiLepHypGenMatch() { }

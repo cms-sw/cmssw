@@ -1,16 +1,13 @@
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombGeom.h"
-
-#include "Math/VectorUtil.h"
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombWMassMaxSumPt.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-TtSemiLepJetCombGeom::TtSemiLepJetCombGeom(const edm::ParameterSet& cfg):
+TtSemiLepJetCombWMassMaxSumPt::TtSemiLepJetCombWMassMaxSumPt(const edm::ParameterSet& cfg):
   jets_             (cfg.getParameter<edm::InputTag>("jets"             )),
   leps_             (cfg.getParameter<edm::InputTag>("leps"             )),
   maxNJets_         (cfg.getParameter<int>          ("maxNJets"         )),
-  useDeltaR_        (cfg.getParameter<bool>         ("useDeltaR"        )),
+  wMass_            (cfg.getParameter<double>       ("wMass"            )),
   useBTagging_      (cfg.getParameter<bool>         ("useBTagging"      )),
   bTagAlgorithm_    (cfg.getParameter<std::string>  ("bTagAlgorithm"    )),
   minBDiscBJets_    (cfg.getParameter<double>       ("minBDiscBJets"    )),
@@ -25,12 +22,12 @@ TtSemiLepJetCombGeom::TtSemiLepJetCombGeom(const edm::ParameterSet& cfg):
   produces<int>("NumberOfConsideredJets");
 }
 
-TtSemiLepJetCombGeom::~TtSemiLepJetCombGeom()
+TtSemiLepJetCombWMassMaxSumPt::~TtSemiLepJetCombWMassMaxSumPt()
 {
 }
 
 void
-TtSemiLepJetCombGeom::produce(edm::Event& evt, const edm::EventSetup& setup)
+TtSemiLepJetCombWMassMaxSumPt::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
   std::auto_ptr<std::vector<std::vector<int> > > pOut(new std::vector<std::vector<int> >);
   std::auto_ptr<int> pJetsConsidered(new int);
@@ -47,7 +44,8 @@ TtSemiLepJetCombGeom::produce(edm::Event& evt, const edm::EventSetup& setup)
   edm::Handle< edm::View<reco::RecoCandidate> > leps; 
   evt.getByLabel(leps_, leps);
 
-  // skip events without lepton candidate or less than 4 jets
+
+  // skip events without lepton candidate or less than 4 jets or no MET
   if(leps->empty() || jets->size() < 4){
     pOut->push_back( match );
     evt.put(pOut);
@@ -71,83 +69,79 @@ TtSemiLepJetCombGeom::produce(edm::Event& evt, const edm::EventSetup& setup)
       if((*jets)[idx].bDiscriminator(bTagAlgorithm_) > minBDiscBJets_    )cntBJets++;
     }
   }
-  
+
   // -----------------------------------------------------
-  // associate those two jets to the hadronic W boson that
-  // have the smallest distance to each other
+  // associate those jets that get closest to the W mass
+  // with their invariant mass to the hadronic W boson
   // -----------------------------------------------------
-  double minDist=-1.;
-  int lightQ   =-1;
-  int lightQBar=-1;
-  for(unsigned int idx=0; idx<maxNJets; ++idx){
+  double wDist =-1.;
+  std::vector<int> closestToWMassIndices;
+  closestToWMassIndices.push_back(-1);
+  closestToWMassIndices.push_back(-1);
+  for(unsigned idx=0; idx<maxNJets; ++idx){
     if(useBTagging_ && (!isLJet[idx] || (cntBJets<=2 && isBJet[idx]))) continue;
-    for(unsigned int jdx=(idx+1); jdx<maxNJets; ++jdx){
+    for(unsigned jdx=(idx+1); jdx<maxNJets; ++jdx){
       if(useBTagging_ && (!isLJet[jdx] || (cntBJets<=2 && isBJet[jdx]) || (cntBJets==3 && isBJet[idx] && isBJet[jdx]))) continue;
-      double dist = distance((*jets)[idx].p4(), (*jets)[jdx].p4());
-      if( minDist<0. || dist<minDist ){
-	minDist=dist;
-	lightQ   =idx;
-	lightQBar=jdx;
+      reco::Particle::LorentzVector sum = 
+	(*jets)[idx].p4()+
+	(*jets)[jdx].p4();
+      if( wDist<0. || wDist>fabs(sum.mass()-wMass_) ){
+	wDist=fabs(sum.mass()-wMass_);
+	closestToWMassIndices.clear();
+	closestToWMassIndices.push_back(idx);
+	closestToWMassIndices.push_back(jdx);
       }
     }
   }
 
-  reco::Particle::LorentzVector wHad;
-  if( isValid(lightQ, jets) && isValid(lightQBar, jets) )
-    wHad = (*jets)[lightQ].p4() + (*jets)[lightQBar].p4();
-
   // -----------------------------------------------------
-  // associate to the hadronic b quark the remaining jet
-  // that has the smallest distance to the hadronic W 
+  // associate those jets with maximum pt of the vectorial 
+  // sum to the hadronic decay chain
   // -----------------------------------------------------
-  minDist=-1.;
+  double maxPt=-1.;
   int hadB=-1;
-  if( isValid(lightQ, jets) && isValid(lightQBar, jets) ) {
-    for(unsigned int idx=0; idx<maxNJets; ++idx){
+  if( isValid(closestToWMassIndices[0], jets) && isValid(closestToWMassIndices[1], jets)) {
+    for(unsigned idx=0; idx<maxNJets; ++idx){
       if(useBTagging_ && !isBJet[idx]) continue;
       // make sure it's not used up already from the hadronic W
-      if( (int)idx!=lightQ && (int)idx!=lightQBar ) {
-	double dist = distance((*jets)[idx].p4(), wHad);
-	if( minDist<0. || dist<minDist ){
-	  minDist=dist;
+      if( (int)idx!=closestToWMassIndices[0] && (int)idx!=closestToWMassIndices[1] ){
+	reco::Particle::LorentzVector sum = 
+	  (*jets)[closestToWMassIndices[0]].p4()+
+	  (*jets)[closestToWMassIndices[1]].p4()+
+	  (*jets)[idx].p4();
+	if( maxPt<0. || maxPt<sum.pt() ){
+	  maxPt=sum.pt();
 	  hadB=idx;
 	}
       }
     }
   }
-
+  
   // -----------------------------------------------------
-  // associate to the leptonic b quark the remaining jet
-  // that has the smallest distance to the leading lepton
+  // associate the remaining jet with maximum pt of the   
+  // vectorial sum with the leading lepton with the 
+  // leptonic b quark
   // -----------------------------------------------------
-  minDist=-1.;
+  maxPt=-1.;
   int lepB=-1;
-  for(unsigned int idx=0; idx<maxNJets; ++idx){
+  for(unsigned idx=0; idx<maxNJets; ++idx){
     if(useBTagging_ && !isBJet[idx]) continue;
     // make sure it's not used up already from the hadronic decay chain
-    if( (int)idx!=lightQ && (int)idx!=lightQBar && (int)idx!=hadB ){
-      double dist = distance((*jets)[idx].p4(), (*leps)[0].p4());
-      if( minDist<0. || dist<minDist ){
-	minDist=dist;
+    if( (int)idx!=closestToWMassIndices[0] && (int)idx!=closestToWMassIndices[1] && (int)idx!=hadB) {
+      reco::Particle::LorentzVector sum = 
+	(*jets)[idx].p4()+(*leps)[ 0 ].p4();
+      if( maxPt<0. || maxPt<sum.pt() ){
+	maxPt=sum.pt();
 	lepB=idx;
       }
     }
   }
 
-  match[TtSemiLepEvtPartons::LightQ   ] = lightQ;
-  match[TtSemiLepEvtPartons::LightQBar] = lightQBar;
+  match[TtSemiLepEvtPartons::LightQ   ] = closestToWMassIndices[0];
+  match[TtSemiLepEvtPartons::LightQBar] = closestToWMassIndices[1];
   match[TtSemiLepEvtPartons::HadB     ] = hadB;
   match[TtSemiLepEvtPartons::LepB     ] = lepB;
 
   pOut->push_back( match );
   evt.put(pOut);
-}
-
-double
-TtSemiLepJetCombGeom::distance(const math::XYZTLorentzVector& v1, const math::XYZTLorentzVector& v2)
-{
-  // calculate the distance between two lorentz vectors 
-  // using DeltaR or DeltaTheta
-  if(useDeltaR_) return ROOT::Math::VectorUtil::DeltaR(v1, v2);
-  return fabs(v1.theta() - v2.theta());
 }

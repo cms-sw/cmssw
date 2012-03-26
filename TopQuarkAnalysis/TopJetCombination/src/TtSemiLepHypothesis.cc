@@ -1,4 +1,5 @@
 #include "CommonTools/CandUtils/interface/AddFourMomenta.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "TopQuarkAnalysis/TopTools/interface/MEzCalculator.h"
@@ -10,6 +11,7 @@ TtSemiLepHypothesis::TtSemiLepHypothesis(const edm::ParameterSet& cfg):
   jets_(cfg.getParameter<edm::InputTag>("jets")),
   leps_(cfg.getParameter<edm::InputTag>("leps")),
   mets_(cfg.getParameter<edm::InputTag>("mets")),
+  nJetsConsidered_(cfg.getParameter<edm::InputTag>("nJetsConsidered")),
   numberOfRealNeutrinoSolutions_(-1),
   lightQ_(0), lightQBar_(0), hadronicB_(0), 
   leptonicB_(0), neutrino_(0), lepton_(0)
@@ -19,12 +21,17 @@ TtSemiLepHypothesis::TtSemiLepHypothesis(const edm::ParameterSet& cfg):
     getMatch_ = true;
     match_ = cfg.getParameter<edm::InputTag>("match");
   }
+  if( cfg.exists("neutrinoSolutionType") )
+    neutrinoSolutionType_ = cfg.getParameter<int>("neutrinoSolutionType");
+  else
+    neutrinoSolutionType_ = -1;
   if( cfg.exists("jetCorrectionLevel") ) {
     jetCorrectionLevel_ = cfg.getParameter<std::string>("jetCorrectionLevel");
   }
   produces<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >();
   produces<int>("Key");
   produces<int>("NumberOfRealNeutrinoSolutions");
+  produces<int>("NumberOfConsideredJets");
 }
 
 /// default destructor
@@ -51,6 +58,9 @@ TtSemiLepHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
   edm::Handle<std::vector<pat::MET> > mets;
   evt.getByLabel(mets_, mets);
 
+  edm::Handle<int> nJetsConsidered;
+  evt.getByLabel(nJetsConsidered_, nJetsConsidered);
+
   std::vector<std::vector<int> > matchVec;
   if( getMatch_ ) {
     edm::Handle<std::vector<std::vector<int> > > matchHandle;
@@ -69,6 +79,7 @@ TtSemiLepHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
     pOut( new std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > );
   std::auto_ptr<int> pKey(new int);
   std::auto_ptr<int> pNeutrinoSolutions(new int);
+  std::auto_ptr<int> pJetsConsidered(new int);
 
   // go through given vector of jet combinations
   unsigned int idMatch = 0;
@@ -91,6 +102,10 @@ TtSemiLepHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
   // feed out number of real neutrino solutions
   *pNeutrinoSolutions=numberOfRealNeutrinoSolutions_;
   evt.put(pNeutrinoSolutions, "NumberOfRealNeutrinoSolutions");
+
+  // feed out number of considered jets
+  *pJetsConsidered=*nJetsConsidered;
+  evt.put(pJetsConsidered, "NumberOfConsideredJets");
 }
 
 /// reset candidate pointers before hypo build process
@@ -228,3 +243,48 @@ void TtSemiLepHypothesis::setNeutrino(const edm::Handle<std::vector<pat::MET> >&
   const math::XYZTLorentzVector p4( ptr->px(), ptr->py(), pz, sqrt(ptr->px()*ptr->px() + ptr->py()*ptr->py() + pz*pz) );
   neutrino_ = new reco::ShallowClonePtrCandidate( ptr, ptr->charge(), p4, ptr->vertex() );
 }
+
+/// minimalistic build function for simple hypotheses
+void
+TtSemiLepHypothesis::buildHypo(const edm::Handle<edm::View<reco::RecoCandidate> >& leps,
+			       const edm::Handle<std::vector<pat::MET> >& mets, 
+			       const edm::Handle<std::vector<pat::Jet> >& jets, 
+			       std::vector<int>& match)
+{
+  // -----------------------------------------------------
+  // add jets
+  // -----------------------------------------------------
+  for(unsigned idx=0; idx<match.size(); ++idx){
+    if( isValid(match[idx], jets) ){
+      switch(idx){
+      case TtSemiLepEvtPartons::LightQ:
+	setCandidate(jets, match[idx], lightQ_,    jetCorrectionLevel("wQuarkMix")); break;
+      case TtSemiLepEvtPartons::LightQBar:
+	setCandidate(jets, match[idx], lightQBar_, jetCorrectionLevel("wQuarkMix")); break;
+      case TtSemiLepEvtPartons::HadB:
+	setCandidate(jets, match[idx], hadronicB_, jetCorrectionLevel("bQuark")); break;
+      case TtSemiLepEvtPartons::LepB: 
+	setCandidate(jets, match[idx], leptonicB_, jetCorrectionLevel("bQuark")); break;
+      }
+    }
+  }
+
+  // -----------------------------------------------------
+  // add lepton
+  // -----------------------------------------------------
+  if( leps->empty() )
+    return;
+  setCandidate(leps, 0, lepton_);
+  match.push_back( 0 );
+  
+  // -----------------------------------------------------
+  // add neutrino
+  // -----------------------------------------------------
+  if( mets->empty() )
+    return;
+  if(neutrinoSolutionType_ == -1)
+    setCandidate(mets, 0, neutrino_);
+  else
+    setNeutrino(mets, leps, 0, neutrinoSolutionType_);
+}
+
