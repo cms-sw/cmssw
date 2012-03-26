@@ -3,7 +3,7 @@
 guidir=/data/ecalod-disk01/dqm-gui
 srcdir=/nfshome0/ecalpro/DQM/gui
 
-manage="$guidir/current/config/dqmgui/manage-ecal -f ecal"
+manage="$guidir/current/config/dqmgui/manage -f online"
 
 dqmenv(){
     if [ ${HOSTNAME} != "srv-S2F19-29" ]; then
@@ -19,7 +19,6 @@ dqmdeploy(){
 
     cd $guidir
     $PWD/cfg/Deploy -R cmsweb@1203h -t MYDEV -s "prep sw post" $PWD dqmgui/bare
-    cp $srcdir/scripts/manage-ecal $PWD/current/config/dqmgui/
 }
 
 ulimit -c 0
