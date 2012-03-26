@@ -267,8 +267,11 @@ HLT_Dimuon3p5_SameSign_v*                                                       
 #HLT_Tau2Mu_RegPixTrack_v*                                                                      #sr126726 -> Removed by sr(bug)92594
 HLT_DoubleMu4_JpsiTk_Displaced_v*                                                               #sr126726
 HLT_DoubleMu4_Jpsi_Displaced_v*                                                                 #sr126726
-HLT_DoubleMu4_Dimuon6_Bs_Barrel_v*                                                              #sr126726
-HLT_DoubleMu4_Dimuon7p5_Bs_v*                                                                   #sr126726
+#HLT_DoubleMu4_Dimuon6_Bs_Barrel_v*                                                             #sr126726 -removed by #sr127407
+#HLT_DoubleMu4_Dimuon7p5_Bs_v*                                                                  #sr126726 -removed by #sr127407
+HLT_DoubleMu3_4_Dimuon5_Bs_Central_v*                                                           #sr127407
+HLT_DoubleMu3p5_4_Dimuon5_Bs_Central_v*                                                         #sr127407
+HLT_DoubleMu4_Dimuon7_Bs_Forward_v*                                                             #sr127407
 HLT_DoubleMu3p5_LowMass_Displaced_v*                                                            #sr126726
 HLT_Dimuon0_Jpsi_NoVertexing_v*                                                                 #sr126726
 HLT_Dimuon5_Upsilon_v*                                                                          #sr126726
