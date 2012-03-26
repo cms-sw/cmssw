@@ -186,7 +186,7 @@ steps['Wjet_Pt_3000_3500']=gen('Wjet_Pt_3000_3500_8TeV_cfi',K9by100)
 steps['LM1_sfts']=gen('LM1_sfts_8TeV_cfi',K9by100)
 steps['QCD_FlatPt_15_3000']=gen('QCDForPF_8TeV_cfi',K9by100)
 
-baseDataSetRelease=['CMSSW_5_0_0-START50_V8-v3']
+baseDataSetRelease=['CMSSW_5_2_1-START52_V4-v1','CMSSW_5_2_1-STARTHI52_V4-v1','CMSSW_5_2_1-PU_START52_V4-v1']
 
 steps['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['QCD_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
@@ -199,6 +199,7 @@ steps['SingleMuPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt10/%s/GE
 steps['SingleMuPt100INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt100/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['SingleMuPt1000INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1000/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['TTbarINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['TTbarLeptonINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbarLepton/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['OldTTbarINPUT']={'INPUT':InputInfo(dataSet='/RelValProdTTbar/CMSSW_5_0_0_pre6-START50_V5-v1/GEN-SIM-RECO',location='STD')}
 steps['OldGenSimINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_4_4_2-START44_V7-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',location='STD')}
 steps['Wjet_Pt_80_120INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_80_120/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
@@ -272,7 +273,7 @@ steps['H130GGgluonfusionINPUT']={'INPUT':InputInfo(dataSet='/RelValH130GGgluonfu
 steps['PhotonJets_Pt_10INPUT']={'INPUT':InputInfo(dataSet='/RelValPhotonJets_Pt_10/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['QQH1352T_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_Tauola/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 
-steps['ZmumuJets_Pt_20_300INPUT']={'INPUT':InputInfo(dataSet='/RelValZmumuJets_Pt_20_300PU1/CMSSW_5_0_0_patch1-START50_V8_PU_E7TeV_FlatDist10_2011EarlyData_50ns_PoissonOOT_special_120124-v1/GEN-SIM',location='STD')}
+steps['ZmumuJets_Pt_20_300INPUT']={'INPUT':InputInfo(dataSet='/RelValZmumuJets_Pt_20_300/%s/GEN-SIM'%(baseDataSetRelease[2],),location='STD')}
 
 steps['Cosmics']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','--relval':'666000,3000','--scenario':'cosmics'},step1Defaults])
 steps['BeamHalo']=merge([{'cfg':'BeamHalo_cfi.py','--scenario':'cosmics'},K9by100,step1Defaults])
@@ -305,12 +306,12 @@ hiDefaults={'--conditions':'auto:starthi',
            '--scenario':'HeavyIons'}
 
 steps['HydjetQ_MinBias_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U500by5)])
-steps['HydjetQ_MinBias_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_2760GeV/CMSSW_5_0_0-STARTHI50_V8-v3/GEN-SIM',location='STD')}
+steps['HydjetQ_MinBias_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD')}
 steps['HydjetQ_B0_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B0_2760GeV_cfi',U80by2)])
-steps['HydjetQ_B0_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B0_2760GeV/CMSSW_5_0_0-STARTHI50_V8-v3/GEN-SIM',location='STD')}
-#steps['HydjetQ_B0_2760GeVPUINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B0_2760GeV/*/GEN-SIM')}
+steps['HydjetQ_B0_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B0_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD')}
 steps['HydjetQ_B8_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B8_2760GeV_cfi',U80by2)])
-
+#leave it out to have Hydjet ran in IB test
+#steps['HydjetQ_B8_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B0_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD')}
 
 
 
@@ -327,10 +328,6 @@ def addForAll(steps,d):
         steps[s].update(d)
 
 
-#changeRefRelease(step1,[('CMSSW_4_3_0_pre3-START43_V1-v2','CMSSW_4_3_0_pre3-START43_V1-v2'),
-#                        ('CMSSW_4_3_0_pre3-MC_43_V1-v2','CMSSW_4_3_0_pre3-MC_43_V1-v2')
-#                        ])
-                        
 
 #### fastsim section ####
 ##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
