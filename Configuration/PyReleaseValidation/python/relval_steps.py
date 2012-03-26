@@ -581,6 +581,7 @@ steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
                    '--filetype':'DQM',
                    '--data':'',
                    '--scenario':'pp'}
+steps['HARVESTDfst2']=merge([{'--filein':'file:step2_inDQM.root'},steps['HARVESTD']])
 
 steps['HARVESTDC']={'-s':'HARVESTING:dqmHarvesting',
                    '--conditions':'auto:com10',
