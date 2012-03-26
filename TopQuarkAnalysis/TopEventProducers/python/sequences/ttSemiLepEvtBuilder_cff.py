@@ -60,18 +60,22 @@ def removeTtSemiLepHypGenMatch(process):
 ## -> this works for "jets", "leps", "mets", "maxNJets"
 def setForAllTtSemiLepHypotheses(process, attribute, value):
     modules = ["findTtSemiLepJetCombGeom",
-               "ttSemiLepHypGeom",
-               "ttSemiLepHypMaxSumPtWMass",
-               "ttSemiLepHypWMassMaxSumPt",
-               "ttSemiLepHypWMassDeltaTopMass",
+               "findTtSemiLepJetCombMaxSumPtWMass",
+               "findTtSemiLepJetCombMVA",
+               "findTtSemiLepJetCombWMassDeltaTopMass",
+               "findTtSemiLepJetCombWMassMaxSumPt",
+               "hitFitTtSemiLepEventHypothesis",
+               "kinFitTtSemiLepEventHypothesis",
                "ttSemiLepJetPartonMatch",
                "ttSemiLepHypGenMatch",
-               "findTtSemiLepJetCombMVA",
-               "ttSemiLepHypMVADisc",
-               "kinFitTtSemiLepEventHypothesis",
+               "ttSemiLepHypGeom",
+               "ttSemiLepHypHitFit",
                "ttSemiLepHypKinFit",
-               "hitFitTtSemiLepEventHypothesis",
-               "ttSemiLepHypHitFit"]
+               "ttSemiLepHypMaxSumPtWMass",
+               "ttSemiLepHypMVADisc",               
+               "ttSemiLepHypWMassDeltaTopMass",
+               "ttSemiLepHypWMassMaxSumPt"
+               ]
     for obj in range(len(modules)):
         object = getattr(process, modules[obj])
         if hasattr(object, attribute):
