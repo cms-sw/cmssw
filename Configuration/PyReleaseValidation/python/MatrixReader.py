@@ -40,6 +40,7 @@ class MatrixReader(object):
                              'relval_pileup': 'PU-'  ,
                              'relval_generator': 'gen-'  ,
                              'relval_production': 'prod-'  ,
+                             'relval_ged': 'ged-'
                              }
 
         self.files = ['relval_standard' ,
@@ -47,6 +48,7 @@ class MatrixReader(object):
                       'relval_pileup',
                       'relval_generator',
                       'relval_production',
+                      'relval_ged'
                       ]
 
         self.relvalModule = None
@@ -132,6 +134,31 @@ class MatrixReader(object):
             name=wfName
             stepIndex=0
             ranStepList=[]
+
+            #first resolve INPUT possibilities
+            for (stepIr,step) in enumerate(reversed(stepList)):
+                stepName=step
+                #reversed index
+                stepI=(len(stepList)-stepIr)-1
+                if num in fromInput:
+                    #if num!=25 : continue
+                    #print stepIr,step,stepI
+                    if stepI!=0:
+                        testName='__'.join(stepList[0:stepI+1])+'INPUT'
+                    else:
+                        testName=step+'INPUT'
+                    #print "JR",stepI,stepIr,testName,stepList
+                    if testName in self.relvalModule.steps.keys():
+                        #print "JR",stepI,stepIr
+                        stepList[stepI]=testName
+                        #pop the rest in the list
+                        #print "\tmod prepop",stepList
+                        for p in range(stepI):
+                            stepList.pop(0)
+                        #print "\t\tmod",stepList
+                        break
+                                                        
+                                                    
             for (stepI,step) in enumerate(stepList):
                 stepName=step
                 if self.wm:
@@ -143,11 +170,13 @@ class MatrixReader(object):
                 if len(name) > 0 : name += '+'
                 #any step can be mirrored with INPUT
                 ## maybe we want too level deep input
+                """
                 if num in fromInput:
                     if step+'INPUT' in self.relvalModule.steps.keys():
                         stepName = step+"INPUT"
                         stepList.remove(step)
                         stepList.insert(stepIndex,stepName)
+                """    
                 name += stepName
 
                 if addCom and (not addTo or addTo[stepIndex]==1):
