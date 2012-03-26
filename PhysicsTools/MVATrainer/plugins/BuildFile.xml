@@ -6,7 +6,6 @@
 </library>
 <library file="ProcMLP.cc MLP*.cc mlp*.cc mlp_lapack.c" name="PhysicsToolsMVATrainerProcMLP">
    <flags EDM_PLUGIN="1"/>
-   <flags CFLAGS="-O1"/>
 </library>
 <library file="ProcTMVA.cc" name="PhysicsToolsMVATrainerProcTMVA">
    <use name="roottmva"/>
