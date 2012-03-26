@@ -1,4 +1,4 @@
-# "GRun" menu
+# "online" menu
 HLT_Activity_Ecal_SC7_v*
 
 HLT_IsoMu15_eta2p1_L1ETM20_v*                                                                   #added in Feb 2012 5e33 menu (sr #126183)
@@ -512,6 +512,9 @@ HLT_Photon36_R9Id90_HE10_Iso40_HBOnly_v*                                        
 HLT_Photon50_R9Id90_HE10_Iso40_HBOnly_v*                                                               #sr127257
 HLT_Photon75_R9Id90_HE10_Iso40_HBOnly_v*                                                               #sr127257
 HLT_Photon90_R9Id90_HE10_Iso40_HBOnly_v*                                                               #sr127257
+
+HLT_Ele27_WP80_WCandPt80_v*                                                                            #sr#127321
+HLT_IsoMu20_eta2p1_WCandPt80_v*                                                                        #sr#127321 
 
 HLT_BeamGas_HF_Beam1_v*                                                                         #sr126174
 HLT_BeamGas_HF_Beam2_v*                                                                         #sr126174
