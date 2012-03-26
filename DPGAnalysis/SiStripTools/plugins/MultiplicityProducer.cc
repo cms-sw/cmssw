@@ -47,18 +47,22 @@
 //
 template <class T>
 class MultiplicityProducer : public edm::EDProducer {
-   public:
-      explicit MultiplicityProducer(const edm::ParameterSet&);
-      ~MultiplicityProducer();
 
-   private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      
+public:
+  explicit MultiplicityProducer(const edm::ParameterSet&);
+  ~MultiplicityProducer();
+  
+private:
+  virtual void beginJob() ;
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void endJob() ;
+  int multiplicity(typename T::const_iterator det) const;
+  int detSetMultiplicity(typename T::const_iterator det) const;
+
       // ----------member data ---------------------------
 
   edm::InputTag m_collection;
+  bool m_clustersize;
   std::map<unsigned int, std::string> m_subdets;
   std::map<unsigned int, DetIdSelector> m_subdetsels;
 
@@ -79,6 +83,7 @@ class MultiplicityProducer : public edm::EDProducer {
 template <class T>
 MultiplicityProducer<T>::MultiplicityProducer(const edm::ParameterSet& iConfig):
   m_collection(iConfig.getParameter<edm::InputTag>("clusterdigiCollection")),
+  m_clustersize(iConfig.getUntrackedParameter<bool>("withClusterSize",false)),
   m_subdets(),m_subdetsels()
 {
 
@@ -130,16 +135,19 @@ MultiplicityProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   
   for(typename T::const_iterator det = digis->begin();det!=digis->end();++det) {
     
-    if(m_subdets.find(0)!=m_subdets.end()) (*mults)[0]+= det->size();
+    //    if(m_subdets.find(0)!=m_subdets.end()) (*mults)[0]+= det->size();
+    if(m_subdets.find(0)!=m_subdets.end()) (*mults)[0]+= multiplicity(det);
 
     DetId detid(det->detId());
     unsigned int subdet = detid.subdetId();
 
-    if(m_subdets.find(subdet)!=m_subdets.end() && !m_subdetsels[subdet].isValid() ) (*mults)[subdet] += det->size();
+    //    if(m_subdets.find(subdet)!=m_subdets.end() && !m_subdetsels[subdet].isValid() ) (*mults)[subdet] += det->size();
+    if(m_subdets.find(subdet)!=m_subdets.end() && !m_subdetsels[subdet].isValid() ) (*mults)[subdet] += multiplicity(det);
 
     for(std::map<unsigned int,DetIdSelector>::const_iterator detsel=m_subdetsels.begin();detsel!=m_subdetsels.end();++detsel) {
 
-      if(detsel->second.isValid() && detsel->second.isSelected(detid)) (*mults)[detsel->first] += det->size();
+      //      if(detsel->second.isValid() && detsel->second.isSelected(detid)) (*mults)[detsel->first] += det->size();
+      if(detsel->second.isValid() && detsel->second.isSelected(detid)) (*mults)[detsel->first] += multiplicity(det);
 
     }
 
@@ -165,6 +173,72 @@ MultiplicityProducer<T>::beginJob()
 template <class T>
 void 
 MultiplicityProducer<T>::endJob() {
+}
+
+template <class T>
+int
+MultiplicityProducer<T>::multiplicity(typename T::const_iterator det) const {
+
+  int mult = 0;
+  if(m_clustersize) {
+
+
+    //    edm::LogInfo("multiplicitywithcustersize") << "sono qua: with size";
+    mult = detSetMultiplicity(det);
+
+  }
+  else {
+
+    mult = det->size();
+    //    edm::LogInfo("multiplicitywithcustersize") << "sono qua senza size";
+
+  }
+  return mult;
+}
+
+
+template <class T>
+int
+MultiplicityProducer<T>::detSetMultiplicity(typename T::const_iterator det) const {
+
+  return det->size();
+
+}
+
+
+template <>
+int 
+MultiplicityProducer<edmNew::DetSetVector<SiStripCluster> >::detSetMultiplicity(edmNew::DetSetVector<SiStripCluster>::const_iterator det) const {
+
+  int mult = 0;
+  
+  for(edmNew::DetSet<SiStripCluster>::const_iterator clus=det->begin();clus!=det->end();++clus) {
+
+    //    edm::LogInfo("multiplicitywithcustersize") << "sono qua";
+    mult += clus->amplitudes().size();
+
+
+
+  }
+
+  return mult;
+
+}
+
+template <>
+int
+MultiplicityProducer<edmNew::DetSetVector<SiPixelCluster> >::detSetMultiplicity(edmNew::DetSetVector<SiPixelCluster>::const_iterator det) const {
+
+  int mult = 0;
+  
+  for(edmNew::DetSet<SiPixelCluster>::const_iterator clus=det->begin();clus!=det->end();++clus) {
+
+    mult += clus->size();
+
+  }
+
+  return mult;
+
 }
 
 //define this as a plug-in
