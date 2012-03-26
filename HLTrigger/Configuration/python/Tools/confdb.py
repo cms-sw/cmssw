@@ -57,12 +57,6 @@ class HLTProcess(object):
     "HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v*",
     
 # TODO: paths not supported by FastSim, but for which a recovery should be attempted
-#    "HLT_Jet160Eta2p4_Jet120Eta2p4_DiBTagIP3DFastPVLoose_v*",
-    "HLT_HT300_L1FastJet_DoubleDisplacedPFJet60_v*",
-    "HLT_HT300_L1FastJet_DoubleDisplacedPFJet60_ChgFraction10_v*",
-    "HLT_HT300_L1FastJet_SingleDisplacedPFJet60_v*",
-    "HLT_HT300_L1FastJet_SingleDisplacedPFJet60_ChgFraction10_v*",
-    "HLT_DiCentralJet20_CaloMET65_BTagCSV07_PFMHT80_v*",
 
     )
 
@@ -934,7 +928,6 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltEcalRecHitAll" )
       self.options['modules'].append( "-hltESRecHitAll" )
       # === hltPF
-      self.options['modules'].append( "-hltPFJetPixelSeeds" )
       self.options['modules'].append( "-hltPFJetCkfTrackCandidates" )
       self.options['modules'].append( "-hltPFJetCtfWithMaterialTracks" )
       self.options['modules'].append( "-hltPFlowTrackSelectionHighPurity" )
@@ -942,6 +935,9 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltDisplacedHT250L1FastJetRegionalPixelSeedGenerator" )
       self.options['modules'].append( "-hltDisplacedHT250L1FastJetRegionalCkfTrackCandidates" )
       self.options['modules'].append( "-hltDisplacedHT250L1FastJetRegionalCtfWithMaterialTracks" )     
+      self.options['modules'].append( "-hltDisplacedHT300L1FastJetRegionalPixelSeedGenerator" )
+      self.options['modules'].append( "-hltDisplacedHT300L1FastJetRegionalCkfTrackCandidates" )
+      self.options['modules'].append( "-hltDisplacedHT300L1FastJetRegionalCtfWithMaterialTracks" )     
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorbbPhiL1FastJet" )
       self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesbbPhiL1FastJet" )
       self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksbbPhiL1FastJet" )     
@@ -973,7 +969,10 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorbbPhiL1FastJetFastPV" )
       self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesbbPhiL1FastJetFastPV" )
       self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksbbPhiL1FastJetFastPV" )
-      
+      self.options['modules'].append( "-hltFastPixelBLifetimeRegionalPixelSeedGeneratorHbb" )
+      self.options['modules'].append( "-hltFastPixelBLifetimeRegionalCkfTrackCandidatesHbb" )
+      self.options['modules'].append( "-hltFastPixelBLifetimeRegionalCtfWithMaterialTracksHbb" )
+     
       self.options['modules'].append( "-hltPixelTracksForMinBias" )
       self.options['modules'].append( "-hltPixelTracksForHighMult" )
       self.options['modules'].append( "-hltRegionalPixelTracks" )
@@ -985,6 +984,9 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltFastPrimaryVertexbbPhi")
       self.options['modules'].append( "-hltPixelTracksFastPVbbPhi")
       self.options['modules'].append( "-hltPixelTracksRecoverbbPhi" )
+      self.options['modules'].append( "-hltFastPixelHitsVertexVHbb" )
+      self.options['modules'].append( "-hltFastPixelTracksVHbb" )
+      self.options['modules'].append( "-hltFastPixelTracksRecoverVHbb" )
       self.options['modules'].append( "-hltIter4Tau3MuMerged" )
       self.options['modules'].append( "hltPixelMatchElectronsActivity" )
 
