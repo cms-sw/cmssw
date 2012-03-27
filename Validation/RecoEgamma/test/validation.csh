@@ -24,18 +24,18 @@ setenv STARTUP True
 
 
 
-setenv CMSSWver1 5_2_0
-setenv CMSSWver2 5_2_1
-setenv OLDRELEASE 5_2_0
-setenv NEWRELEASE 5_2_1
+setenv CMSSWver1 5_2_1
+setenv CMSSWver2 5_2_2
+setenv OLDRELEASE 5_2_1
+setenv NEWRELEASE 5_2_2
 setenv OLDPRERELEASE 
 setenv NEWPRERELEASE 
 
 
 
 if ( $STARTUP == True) then
-setenv OLDGLOBALTAG START52_V4A-v1
-setenv NEWGLOBALTAG START52_V4-v1
+setenv OLDGLOBALTAG START52_V4-v1
+setenv NEWGLOBALTAG START52_V4-v2
 else 
 setenv OLDGLOBALTAG START50_V8-v3
 setenv NEWGLOBALTAG START50_V8-v3
@@ -64,8 +64,8 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 
 #Name of sample (affects output directory name and htmldescription only) 
 
-#setenv SAMPLE SingleGammaPt10
-setenv SAMPLE SingleGammaPt35
+setenv SAMPLE SingleGammaPt10
+#setenv SAMPLE SingleGammaPt35
 #setenv SAMPLE SingleGammaFlatPt10_100
 #setenv SAMPLE H130GGgluonfusion
 #setenv SAMPLE PhotonJets_Pt_10
