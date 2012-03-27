@@ -1729,7 +1729,10 @@ double HiggsWidthSM4(int ID, double mHrequested){
 		
 		mHstar = mHstar/7000;
 		Double_t u = log(1000*mHstar);
-		
+#if 1 	// evaluate a polynomial the proper way using Horner's method
+        // http://rosettacode.org/wiki/Horner%27s_rule_for_polynomial_evaluation
+                Double_t Z =  ((((((((((-6.4e-09 * u - 7e-09)*u - 7.15e-08)*u -5.5e-09)*u - 7.5e-08)*u - 1.6e-05)*u - 1e-05)* u - 5e-05)* u - 5.5e-04)*u -.33)*u-2)*u;
+#else   // unreasonably slow implementation
 		Double_t z1 = (-2)*u;
 		Double_t z2 = (-.33)*pow(u,2);
 		Double_t z3 = (-5.5e-04)*pow(u,3);
@@ -1741,8 +1744,10 @@ double HiggsWidthSM4(int ID, double mHrequested){
 		Double_t z9 = (-7.15e-08)*pow(u,9);
 		Double_t z10 = (-7e-09)*pow(u,10);
 		Double_t z11 = (-6.4e-09)*pow(u,11);
-		
 		Double_t Z = z1+z2+z3+z4+z5+z6+z7+z8+z9+z10+z11;
+          //printf("Zold %.9f Znew %.9f reldiff %.9f \n", Z, Znew, std::abs((Znew-Z)/(Znew+Z)));
+#endif
+
 		Double_t zz = exp(Z);
 		
 		Double_t lum = 1.2e+10*zz;
