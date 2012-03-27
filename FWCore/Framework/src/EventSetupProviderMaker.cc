@@ -4,7 +4,6 @@
 // user include files
 #include "FWCore/Framework/interface/EventSetupProviderMaker.h"
 
-#include "FWCore/Framework/interface/CommonParams.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -103,8 +102,7 @@ namespace edm {
     // ---------------------------------------------------------------
     void
     fillEventSetupProvider(EventSetupProvider& cp,
-                           ParameterSet& params,
-                           CommonParams const& common) {
+                           ParameterSet& params) {
       std::vector<std::string> providers =
         params.getParameter<std::vector<std::string> >("@all_esmodules");
 
@@ -115,10 +113,7 @@ namespace edm {
         validateEventSetupParameters(*providerPSet);
         providerPSet->registerIt();
         ModuleFactory::get()->addTo(cp,
-                                    *providerPSet,
-                                    common.processName_,
-                                    common.releaseVersion_,
-                                    common.passID_);
+                                    *providerPSet);
       }
 
       std::vector<std::string> sources =
@@ -131,10 +126,7 @@ namespace edm {
         validateEventSetupParameters(*providerPSet);
         providerPSet->registerIt();
         SourceFactory::get()->addTo(cp,
-                                    *providerPSet,
-                                    common.processName_,
-                                    common.releaseVersion_,
-                                    common.passID_);
+                                    *providerPSet);
       }
     }
 

@@ -39,10 +39,7 @@ namespace edm {
       public:
         virtual ~ComponentMakerBaseHelper() {}
       protected:
-        ComponentDescription createComponentDescription(ParameterSet const& iConfiguration,
-                                                       std::string const& iProcessName,
-                                                       ReleaseVersion const& iVersion,
-                                                       PassID const& iPass) const;
+        ComponentDescription createComponentDescription(ParameterSet const& iConfiguration) const;
       };
  
       template <class T>
@@ -50,10 +47,7 @@ namespace edm {
       public:
          typedef typename T::base_type base_type;
          virtual boost::shared_ptr<base_type> addTo(EventSetupProvider& iProvider,
-                     ParameterSet const& iConfiguration,
-                     std::string const& iProcessName,
-                     ReleaseVersion const& iVersion,
-                     PassID const& iPass) const = 0;
+                     ParameterSet const& iConfiguration) const = 0;
       protected:
 	using ComponentMakerBaseHelper::createComponentDescription;
       };
@@ -69,10 +63,7 @@ namespace edm {
 
       // ---------- const member functions ---------------------
    virtual boost::shared_ptr<base_type> addTo(EventSetupProvider& iProvider,
-                       ParameterSet const& iConfiguration,
-                       std::string const& iProcessName,
-                       ReleaseVersion const& iVersion,
-                       PassID const& iPass) const;
+                       ParameterSet const& iConfiguration) const;
    
       // ---------- static member functions --------------------
 
@@ -106,17 +97,11 @@ namespace edm {
 template< class T, class TComponent>
 boost::shared_ptr<typename ComponentMaker<T,TComponent>::base_type>
 ComponentMaker<T,TComponent>::addTo(EventSetupProvider& iProvider,
-                                        ParameterSet const& iConfiguration,
-                                        std::string const& iProcessName,
-                                        ReleaseVersion const& iVersion,
-                                        PassID const& iPass) const
+                                        ParameterSet const& iConfiguration) const
 {
    boost::shared_ptr<TComponent> component(new TComponent(iConfiguration));
    ComponentDescription description =
-       this->createComponentDescription(iConfiguration,
-                                        iProcessName,
-                                        iVersion,
-                                        iPass);
+       this->createComponentDescription(iConfiguration);
       
    this->setDescription(component.get(),description);
    this->setDescriptionForFinder(component.get(),description);

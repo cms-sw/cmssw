@@ -27,7 +27,6 @@
 
 // forward declarations
 namespace edm {
-   struct CommonParams;
    class ParameterSet;
    
    namespace eventsetup {
@@ -44,7 +43,7 @@ namespace edm {
          // ---------- static member functions --------------------
          
          // ---------- member functions ---------------------------
-         boost::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&, CommonParams const&);
+         boost::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&);
          
       private:
          EventSetupsController(EventSetupsController const&); // stop default

@@ -9,7 +9,7 @@
 // Author:      Chris Jones
 // Created:     Thu May 26 11:01:19 EDT 2005
 // Changed:     Viji Sundararajan 28-Jun-2005
-// $Id: eventsetupplugin_t.cppunit.cc,v 1.9 2008/10/31 20:37:39 wmtan Exp $
+// $Id: eventsetupplugin_t.cppunit.cc,v 1.10 2009/01/07 00:37:28 wmtan Exp $
 //
 
 // system include files
@@ -63,7 +63,7 @@ void testEventsetupplugin::finderTest()
    dummyFinderPSet.addParameter("@module_type", std::string("LoadableDummyFinder"));
    dummyFinderPSet.addParameter("@module_label", std::string(""));
    dummyFinderPSet.registerIt();
-   SourceFactory::get()->addTo(provider, dummyFinderPSet, "RECO", edm::getReleaseVersion(), edm::getPassID());
+   SourceFactory::get()->addTo(provider, dummyFinderPSet);
 
    
    ComponentDescription descFinder("LoadableDummyFinder","",true);
@@ -76,7 +76,7 @@ void testEventsetupplugin::finderTest()
    dummyProviderPSet.addParameter("@module_type",  std::string("LoadableDummyProvider"));
    dummyProviderPSet.addParameter("@module_label", std::string(""));
    dummyProviderPSet.registerIt();
-   ModuleFactory::get()->addTo(provider, dummyProviderPSet, "RECO", edm::getReleaseVersion(), edm::getPassID());
+   ModuleFactory::get()->addTo(provider, dummyProviderPSet);
 
    ComponentDescription desc("LoadableDummyProvider","",false);
    descriptions = provider.proxyProviderDescriptions();
@@ -88,7 +88,7 @@ void testEventsetupplugin::finderTest()
    dummySourcePSet.addParameter("@module_type",  std::string("LoadableDummyESSource"));
    dummySourcePSet.addParameter("@module_label", std::string(""));
    dummySourcePSet.registerIt();
-   SourceFactory::get()->addTo(provider, dummySourcePSet, "RECO", edm::getReleaseVersion(), edm::getPassID());
+   SourceFactory::get()->addTo(provider, dummySourcePSet);
    
    ComponentDescription descSource("LoadableDummyESSource","",true);
    descriptions = provider.proxyProviderDescriptions();
