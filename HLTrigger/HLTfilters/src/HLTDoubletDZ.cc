@@ -88,6 +88,9 @@ HLTDoubletDZ<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
      if (saveTags()) {
        InputTag tagOld;
+       filterproduct.addCollectionTag(originTag1);
+       LogVerbatim("HLTDoubletDZ") << " XXX " << label_ << " 1a " << originTag1.encode() << std::endl;
+
        tagOld=InputTag();
        for (size_type i1=0; i1!=n1; ++i1) {
 	 const ProductID pid(coll1_[i1].id());
@@ -98,9 +101,11 @@ HLTDoubletDZ<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
 	 if (tagOld.encode()!=tagNew.encode()) {
 	   filterproduct.addCollectionTag(tagNew);
 	   tagOld=tagNew;
-           LogVerbatim("HLTDoubletDZ") << " XXX " << label_ << " 1 " << tagNew.encode() << std::endl;
+           LogVerbatim("HLTDoubletDZ") << " XXX " << label_ << " 1b " << tagNew.encode() << std::endl;
 	 }
        }
+       filterproduct.addCollectionTag(originTag1);
+       LogVerbatim("HLTDoubletDZ") << " XXX " << label_ << " 2a " << originTag2.encode() << std::endl;
        tagOld=InputTag();
        for (size_type i2=0; i2!=n2; ++i2) {
 	 const ProductID pid(coll2_[i2].id());
@@ -111,7 +116,7 @@ HLTDoubletDZ<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
 	 if (tagOld.encode()!=tagNew.encode()) {
 	   filterproduct.addCollectionTag(tagNew);
 	   tagOld=tagNew;
-           LogVerbatim("HLTDoubletDZ") << " XXX " << label_ << " 2 " << tagNew.encode() << std::endl;
+           LogVerbatim("HLTDoubletDZ") << " XXX " << label_ << " 2b " << tagNew.encode() << std::endl;
 	 }
        }
      }
