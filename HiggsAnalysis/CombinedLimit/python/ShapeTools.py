@@ -213,7 +213,7 @@ class ShapeBuilder(ModelBuilder):
     ## -------------------------------------
     def getShape(self,channel,process,syst="",_fileCache={},_cache={},allowNoSyst=False):
         if _cache.has_key((channel,process,syst)): 
-            if self.options.verbose: print "recyling (%s,%s,%s) -> %s\n" % (channel,process,syst,_cache[(channel,process,syst)].GetName())
+            if self.options.verbose > 1: print "recyling (%s,%s,%s) -> %s\n" % (channel,process,syst,_cache[(channel,process,syst)].GetName())
             return _cache[(channel,process,syst)];
         postFix="Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         bentry = None
@@ -266,7 +266,7 @@ class ShapeBuilder(ModelBuilder):
                         norm.setAttribute("flatParam")
                     norm.SetName("shape%s_%s_%s%s_norm" % (postFix,process,channel, "_"))
                     self.out._import(norm, ROOT.RooFit.RecycleConflictNodes()) 
-                if self.options.verbose: print "import (%s,%s) -> %s\n" % (finalNames[0],objname,ret.GetName())
+                if self.options.verbose > 1: print "import (%s,%s) -> %s\n" % (finalNames[0],objname,ret.GetName())
                 return ret;
             elif self.wsp.ClassName() == "TTree":
                 ##If it is a tree we will convert it in RooDataSet . Then we can decide if we want to build a
@@ -278,7 +278,7 @@ class ShapeBuilder(ModelBuilder):
                 rds = ROOT.RooDataSet("shape%s_%s_%s%s" % (postFix,process,channel, "_"+syst if syst else ""), "shape%s_%s_%s%s" % (postFix,process,channel, "_"+syst if syst else ""),self.wsp,ROOT.RooArgSet(self.out.var(oname)),"","__WEIGHT__")
                 rds.var = oname
                 _cache[(channel,process,syst)] = rds
-                if self.options.verbose: print "import (%s,%s) -> %s\n" % (finalNames[0],wname,rds.GetName())
+                if self.options.verbose > 1: print "import (%s,%s) -> %s\n" % (finalNames[0],wname,rds.GetName())
                 return rds
             elif self.wsp.InheritsFrom("TH1"):
                 ##If it is a Histogram we will convert it in RooDataSet preserving the bins 
@@ -290,7 +290,7 @@ class ShapeBuilder(ModelBuilder):
                 self.doVar("%s[%f,%f]" % (oname,self.wsp.GetXaxis().GetXmin(),self.wsp.GetXaxis().GetXmax()))
                 rds = ROOT.RooDataHist(name, name, ROOT.RooArgList(self.out.var(oname)), self.wsp)
                 rds.var = oname
-                if self.options.verbose: stderr.write("import (%s,%s) -> %s\n" % (finalNames[0],wname,rds.GetName()))
+                if self.options.verbose > 1: stderr.write("import (%s,%s) -> %s\n" % (finalNames[0],wname,rds.GetName()))
                 _neverDelete.append(rds)
                 return rds
             else:
@@ -301,7 +301,7 @@ class ShapeBuilder(ModelBuilder):
                 if allowNoSyst: return None
                 raise RuntimeError, "Failed to find %s in file %s (from pattern %s, %s)" % (objname,finalNames[0],names[1],names[0])
             ret.SetName("shape%s_%s_%s%s" % (postFix,process,channel, "_"+syst if syst else ""))
-            if self.options.verbose: print "import (%s,%s) -> %s\n" % (finalNames[0],objname,ret.GetName())
+            if self.options.verbose > 1: print "import (%s,%s) -> %s\n" % (finalNames[0],objname,ret.GetName())
             _cache[(channel,process,syst)] = ret
             return ret
     def getData(self,channel,process,syst="",_cache={}):
@@ -349,12 +349,14 @@ class ShapeBuilder(ModelBuilder):
         if shapeAlgo == "shape": shapeAlgo = self.options.defMorph
         if "shapeL" in shapeAlgo: qrange = 0;
         elif "shapeN" in shapeAlgo: qalgo = -1;
-        if "2" in shapeAlgo:
-            if not nominalPdf.InheritsFrom("RooHistPdf"): raise RuntimeError, "Algorithms 'shape2', 'shapeL2', shapeN2' only work with histogram templates"
+        if "2a" in shapeAlgo: # old shape2
+            if not nominalPdf.InheritsFrom("RooHistPdf"):  raise RuntimeError, "Algorithms 'shape2', 'shapeL2', shapeN2' only work with histogram templates"
+            if nominalPdf.dataHist().get().getSize() != 1: raise RuntimeError, "Algorithms 'shape2', 'shapeL2', shapeN2' only work in one dimension"
             xvar = nominalPdf.dataHist().get().first()
             _cache[(channel,process)] = ROOT.VerticalInterpHistPdf("shape%s_%s_%s_morph" % (postFix,channel,process), "", xvar, pdfs, coeffs, qrange, qalgo)
-        elif "3" in shapeAlgo:
-            if not nominalPdf.InheritsFrom("RooHistPdf"): raise RuntimeError, "Algorithms 'shape3', 'shapeL3', shapeN3' only work with histogram templates"
+        elif "2" in shapeAlgo:  # new faster shape2
+            if not nominalPdf.InheritsFrom("RooHistPdf"):  raise RuntimeError, "Algorithms 'shape2', 'shapeL2', shapeN2' only work with histogram templates"
+            if nominalPdf.dataHist().get().getSize() != 1: raise RuntimeError, "Algorithms 'shape2', 'shapeL2', shapeN2' only work in one dimension"
             xvar = nominalPdf.dataHist().get().first()
             _cache[(channel,process)] = ROOT.FastVerticalInterpHistPdf("shape%s_%s_%s_morph" % (postFix,channel,process), "", xvar, pdfs, coeffs, qrange, qalgo)
         else:

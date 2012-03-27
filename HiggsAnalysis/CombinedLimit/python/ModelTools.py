@@ -19,6 +19,8 @@ class ModelBuilderBase():
             self.out.dont_delete = []
             if options.verbose == 0:
                 ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.ERROR)
+            elif options.verbose < 2:
+                ROOT.RooMsgService.instance().setGlobalKillBelow(ROOT.RooFit.WARNING)
             if os.environ.has_key('ROOFITSYS'):
                 ROOT.gSystem.AddIncludePath(" -I%s/include " % os.environ['ROOFITSYS'])
         elif options.out != None:
