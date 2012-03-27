@@ -35,6 +35,7 @@ class Datacard():
 def isVetoed(name,vetoList):
     isExcluded = False
     for pattern in vetoList:
+        if not pattern: continue 
         if re.match(pattern,name): return True
     return False
 
