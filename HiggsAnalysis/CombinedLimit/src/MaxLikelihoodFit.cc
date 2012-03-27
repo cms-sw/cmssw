@@ -9,7 +9,7 @@
 #include "RooProdPdf.h"
 #include "RooConstVar.h"
 #include "RooPlot.h"
-#include <RooMinimizer.h>
+#include "../interface/RooMinimizerOpt.h"
 #include "TCanvas.h"
 #include "TStyle.h"
 #include "TH2.h"

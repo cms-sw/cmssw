@@ -5,7 +5,7 @@
 #include "../interface/utils.h"
 #include <stdexcept>
 #include <RooRealVar.h>
-#include <RooMinimizer.h>
+#include "../interface/RooMinimizerOpt.h"
 #include <RooFitResult.h>
 #include <RooSimultaneous.h>
 #include <RooCategory.h>

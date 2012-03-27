@@ -6,7 +6,6 @@
 #include <RooAbsPdf.h>
 #include <RooFitResult.h>
 #include <RooRandom.h>
-#include <RooMinimizer.h>
 #include <RooStats/ModelConfig.h>
 #include <Math/DistFuncMathCore.h>
 #include "../interface/Combine.h"
@@ -26,7 +25,7 @@ double Asymptotic::rRelAccuracy_ = 0.005;
 std::string Asymptotic::what_ = "both"; 
 bool  Asymptotic::qtilde_ = true; 
 bool  Asymptotic::picky_ = false; 
-std::string Asymptotic::minosAlgo_ = "minos"; 
+std::string Asymptotic::minosAlgo_ = "stepping"; 
 std::string Asymptotic::minimizerAlgo_ = "Minuit2";
 float       Asymptotic::minimizerTolerance_ = 0.1;
 int         Asymptotic::minimizerStrategy_  = 0;
@@ -45,7 +44,7 @@ LimitAlgo("Asymptotic specific options") {
         ("minimizerStrategy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Stragegy for minimizer")
         ("qtilde", boost::program_options::value<bool>(&qtilde_)->default_value(qtilde_),  "Allow only non-negative signal strengths (default is true).")
         ("picky", "Abort on fit failures")
-        ("minosAlgo", boost::program_options::value<std::string>(&minosAlgo_)->default_value(minosAlgo_), "Algorithm to use to get the median expected limit: 'minos' (default, fastest), 'bisection', 'stepping' (most robust)")
+        ("minosAlgo", boost::program_options::value<std::string>(&minosAlgo_)->default_value(minosAlgo_), "Algorithm to use to get the median expected limit: 'minos' (fastest), 'bisection', 'stepping' (default, most robust)")
     ;
 }
 
@@ -340,6 +339,7 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
             double stride = rCross; bool overstepped = false;
             while (rErr > std::max(rRelAccuracy_*rCross, rAbsAccuracy_)) {
                 if (rCross >= r->getMax()) r->setMax(rCross*1.1);
+                double there = nll->getVal();
                 r->setVal(rCross);
                 bool ok = true;
                 { 
@@ -351,7 +351,7 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
                 if (verbose > 1) printf("At %s = %f:\tdelta(nll) = %.5f\n", r->GetName(), rCross, here-nll0);
                 if (fabs(here - threshold) < 0.05*minimizerTolerance_) break;
                 if (here < threshold) { 
-                    if (overstepped) stride *= 0.5;
+                    if ((threshold-here) < 0.5*fabs(threshold-there)) stride *= 0.5;
                     rCross += stride; 
                 } else { 
                     stride *= 0.5; overstepped = true;

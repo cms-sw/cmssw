@@ -4,7 +4,6 @@
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/utils.h"
 
-#include "RooMinimizer.h"
 #include <Math/MinimizerOptions.h>
 
 boost::program_options::options_description CascadeMinimizer::options_("Cascade Minimizer options");

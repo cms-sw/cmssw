@@ -361,7 +361,7 @@ double ProfiledLikelihoodTestStatOpt::minNLL(bool constrained, RooRealVar *r)
 }
 
 //============================================================ProfiledLikelihoodRatioTestStatExt
-bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizer &minim, int verbosity) 
+bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizerOpt &minim, int verbosity) 
 {
     static bool do_debug = (runtimedef::get("DEBUG_MINIM") || runtimedef::get("DEBUG_PLTSO") > 1);
     double initialNll = nll.getVal();
@@ -372,6 +372,7 @@ bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizer &minim, int verbosit
         //if (verbosity > 1) res->Print("V");
         if (status == 0 && nll.getVal() > initialNll + 0.02) {
             std::auto_ptr<RooFitResult> res(minim.save());
+            PerfCounter::add("Minimizer.save() called for false minimum"); 
             DBG(DBG_PLTestStat_main, (printf("\n  --> false minimum, status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal())))
             if (pars.get() == 0) pars.reset(nll.getParameters((const RooArgSet*)0));
             *pars = res->floatParsInit();
@@ -411,8 +412,9 @@ bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizer &minim, int verbosit
             ret = true;
             break;
         } else if (tries != maxtries) {
-            std::auto_ptr<RooFitResult> res(minim.save());
-            if (tries > 0 && res->edm() < 0.05*ROOT::Math::MinimizerOptions::DefaultTolerance()) {
+            std::auto_ptr<RooFitResult> res(do_debug ? minim.save() : 0);
+            PerfCounter::add("Minimizer.save() called for failed minimization"); 
+            if (tries > 0 && minim.edm() < 0.05*ROOT::Math::MinimizerOptions::DefaultTolerance()) {
                 DBG(DBG_PLTestStat_main, (printf("\n  --> acceptable: status %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal())))
                 if (do_debug) printf("\n  --> acceptable: status %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal());
                 COUNT_ONE("nllutils::robustMinimize: accepting fit with bad status but good EDM")
@@ -434,7 +436,7 @@ bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizer &minim, int verbosit
                 minim.setStrategy(2);
             }
         } else {
-            std::auto_ptr<RooFitResult> res(minim.save());
+            std::auto_ptr<RooFitResult> res(do_debug ? minim.save() : 0);
             DBG(DBG_PLTestStat_main, (printf("\n  --> final fail: status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal())))
             if (do_debug) printf("\n  --> final fail: status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal());
             COUNT_ONE("nllutils::robustMinimize: final fail")
@@ -443,40 +445,3 @@ bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizer &minim, int verbosit
     return ret;
 }
 
-/// This below is useless but I like it so I didn't delete it yet
-bool 
-nllutils::randomWalk(RooAbsReal &nll, RooMinimizer &minimizer, const RooArgSet &parameters, int steps, double scale) 
-{
-    std::vector<RooRealVar*> vars;  
-    std::vector<std::pair<double,double> > ranges;
-    vars.reserve(parameters.getSize());
-    ranges.reserve(parameters.getSize());
-    std::auto_ptr<TIterator> it(parameters.createIterator());
-    for (RooAbsArg *a = (RooAbsArg *) it->Next(); a != 0; a = (RooAbsArg *) it->Next()) {
-        RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-        if (rrv != 0 && !rrv->isConstant()) {
-            vars.push_back(rrv);
-            ranges.push_back(std::pair<double,double>(rrv->getMin(), rrv->getMax()));
-        }
-    }
-    double y0 = nll.getVal(); 
-    int nvar = vars.size();
-    int acc = 0;
-    for (int i = 1, nx = steps / 5; i <= steps; ++i) {
-        int j = RooRandom::integer(nvar);
-        double dx = (ranges[j].second-ranges[j].first);
-        double x0 = vars[j]->getVal(), x1 = x0 + dx*RooRandom::gaussian()*scale;
-        while (x1 > ranges[j].second) x1 -= dx;
-        while (x1 < ranges[j].first)  x1 += dx;
-        vars[j]->setVal(x1);
-        double y1 = nll.getVal();
-        if (y1 < y0 || exp(y0-y1) > RooRandom::uniform()) {
-            y0 = y1;
-            acc++;
-        } else {
-            vars[j]->setVal(x0);
-        }
-        if (i % nx == 0) scale *= 0.8;
-    }
-    return (acc > 0.1*steps);
-}

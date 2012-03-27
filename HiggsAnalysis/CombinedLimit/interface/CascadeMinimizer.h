@@ -2,11 +2,10 @@
 #define HiggsAnalysis_CombinedLimit_CascadeMinimizer_h
 
 class RooAbsReal;
-class RooMinimizer;
 class RooArgSet;
 class RooRealVar;
 #include <RooArgSet.h>
-#include <RooMinimizer.h>
+#include "../interface/RooMinimizerOpt.h"
 #include <boost/program_options.hpp>
 #include "../interface/SequentialMinimizer.h"
 
@@ -18,7 +17,7 @@ class CascadeMinimizer {
         bool minimize(int verbose=0, bool cascade=true);
         // do a new minimization, assuming a plausible initial state
         bool improve(int verbose=0, bool cascade=true);
-        RooMinimizer & minimizer() { return minimizer_; }
+        RooMinimizerOpt & minimizer() { return minimizer_; }
         RooFitResult *save() { return minimizer().save(); }
         void  setStrategy(int strategy) { strategy_ = strategy; }
         void  setErrorLevel(float errorLevel) { minimizer_.setErrorLevel(errorLevel); }
@@ -27,7 +26,7 @@ class CascadeMinimizer {
         static const boost::program_options::options_description & options() { return options_; }
     private:
         RooAbsReal & nll_;
-        RooMinimizer minimizer_;
+        RooMinimizerOpt minimizer_;
         std::auto_ptr<SequentialMinimizer> seqmin_; 
         Mode         mode_;
         int          strategy_;

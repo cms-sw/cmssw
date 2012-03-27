@@ -4,7 +4,7 @@
 #include "RooRandom.h"
 #include "RooDataSet.h"
 #include "RooFitResult.h"
-#include "RooMinimizer.h"
+#include "../interface/RooMinimizerOpt.h"
 #include "TGraph.h"
 #include "TF1.h"
 #include "TFitResult.h"
@@ -187,12 +187,17 @@ bool ProfileLikelihood::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
   while (!success) {
     ProfileLikelihoodCalculator plcB(data, *mc_s, 1.0-cl);
     std::auto_ptr<LikelihoodInterval> plInterval;
-    if (bruteForce_) {
-        std::pair<double,double> le = upperLimitBruteForce(*mc_s->GetPdf(), data, *r, mc_s->GetNuisanceParameters(), 1e-3*minimizerTolerance_, cl); 
-        limit = le.first; 
-        limitErr = le.second;
-    } else if (useMinos_) {
-        limit = upperLimitWithMinos(*mc_s->GetPdf(), data, *r, minimizerTolerance_, cl); 
+    if (useMinos_ || bruteForce_) {
+        // try first with Minos, unless brute force requested
+        if (!bruteForce_) { 
+            limit = upperLimitWithMinos(*mc_s->GetPdf(), data, *r, mc_s->GetNuisanceParameters(), minimizerTolerance_, cl); 
+        }
+        // if brute force forced, or minos failed, go with the next one
+        if (std::isnan(limit) || bruteForce_) {
+            std::pair<double,double> le = upperLimitBruteForce(*mc_s->GetPdf(), data, *r, mc_s->GetNuisanceParameters(), 1e-3*minimizerTolerance_, cl); 
+            limit = le.first; 
+            limitErr = le.second;
+        }
     } else {
         plInterval.reset(plcB.GetInterval());
         if (plInterval.get() == 0) break;
@@ -277,30 +282,38 @@ bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooStats::ModelConfig *
 }
 
 
-double ProfileLikelihood::upperLimitWithMinos(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, double tolerance, double cl) const {
-    std::auto_ptr<RooArgSet> constrainedParams(pdf.getParameters(data));
-    RooStats::RemoveConstantParameters(constrainedParams.get());
-    std::auto_ptr<RooAbsReal> nll(pdf.createNLL(data, RooFit::Constrain(*constrainedParams)));
-    RooMinimizer minim(*nll);
+double ProfileLikelihood::upperLimitWithMinos(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, double cl) const {
+    std::auto_ptr<RooAbsReal> nll(pdf.createNLL(data, RooFit::Constrain(*nuisances)));
+    RooMinimizerOpt minim(*nll);
     minim.setStrategy(0);
     minim.setPrintLevel(verbose-1);
     minim.setErrorLevel(0.5*TMath::ChisquareQuantile(cl,1));
     nllutils::robustMinimize(*nll, minim, verbose-1);
-    minim.minos(RooArgSet(poi));
+    int minosStat = minim.minos(RooArgSet(poi));
+    if (minosStat == -1) return std::numeric_limits<double>::quiet_NaN();
     std::auto_ptr<RooFitResult> res(minim.save());
+    double muhat = poi.getVal(), limit = poi.getVal() + (lowerLimit_ ? poi.getAsymErrorLo() : poi.getAsymErrorHi());
+    double nll0 = nll->getVal();
+    poi.setVal(limit);
+    double nll2 = nll->getVal();
+    if (nll2 < nll0 + 0.75 * 0.5*TMath::ChisquareQuantile(cl,1)) {
+        std::cerr << "ERROR: unprofiled likelihood gives better result than profiled one. deltaNLL = " << (nll2-nll0) << ". will try brute force." << std::endl;
+        poi.setVal(muhat);
+        return std::numeric_limits<double>::quiet_NaN();
+    }
     if (verbose > 1) res->Print("V");
-    return poi.getVal() + (lowerLimit_ ? poi.getAsymErrorLo() : poi.getAsymErrorHi());
+    return limit;
 }
 
 std::pair<double,double> ProfileLikelihood::upperLimitBruteForce(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, double cl) const {
     poi.setConstant(false);
     std::auto_ptr<RooAbsReal> nll(pdf.createNLL(data, RooFit::Constrain(*nuisances)));
-    RooMinimizer minim0(*nll);
+    RooMinimizerOpt minim0(*nll);
     minim0.setStrategy(0);
     minim0.setPrintLevel(-1);
     nllutils::robustMinimize(*nll, minim0, verbose-2);
     poi.setConstant(true);
-    RooMinimizer minim(*nll);
+    RooMinimizerOpt minim(*nll);
     minim.setPrintLevel(-1);
     if (!nllutils::robustMinimize(*nll, minim, verbose-2)) {
         std::cerr << "Initial minimization failed. Aborting." << std::endl;

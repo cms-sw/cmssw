@@ -8,17 +8,20 @@ struct RooPoisson;
 namespace toymcoptutils {
     class SinglePdfGenInfo {
         public:
-            enum Mode { Binned, Poisson, Unbinned, Counting };
+            enum Mode { Binned, BinnedNoWorkaround, Poisson, Unbinned, Counting };
             SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData = NULL, int forceEvents = 0) ;
             ~SinglePdfGenInfo() ;
             RooAbsData *generate(const RooDataSet* protoData = NULL, int forceEvents = 0) ;
             RooDataSet *generateAsimov(RooRealVar *&weightVar) ;
             const RooAbsPdf * pdf() const { return pdf_; }
+            void setCacheTemplates(bool cache) { keepHistoSpec_ = cache; }
         private:
             Mode mode_;
             RooAbsPdf *pdf_; 
             RooArgSet observables_;
             RooAbsPdf::GenSpec *spec_;
+            TH1        *histoSpec_;
+            bool        keepHistoSpec_;
             RooRealVar *weightVar_;
             RooDataSet *generateWithHisto(RooRealVar *&weightVar, bool asimov) ;
             RooDataSet *generateCountingAsimov() ;
@@ -32,6 +35,7 @@ namespace toymcoptutils {
             RooAbsData *generate(RooRealVar *&weightVar, const RooDataSet* protoData = NULL, int forceEvents = 0) ;
             RooAbsData *generateAsimov(RooRealVar *&weightVar) ;
             void setCopyData(bool copyData) { copyData_ = copyData; }
+            void setCacheTemplates(bool cache) ;
         private:
             RooAbsPdf                       *pdf_; 
             RooAbsCategoryLValue            *cat_;

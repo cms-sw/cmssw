@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-class RooMinimizer;
+class RooMinimizerOpt;
 #include <RooAbsPdf.h>
 #include <RooAbsData.h>
 #include <RooArgSet.h>
@@ -13,8 +13,7 @@ class RooMinimizer;
 #include "../interface/CachingNLL.h"
 
 namespace nllutils {
-    bool robustMinimize(RooAbsReal &nll, RooMinimizer &minimizer, int verbosity=0);
-    bool randomWalk(RooAbsReal &nll, RooMinimizer &minimizer, const RooArgSet &parameters, int steps, double initialStepSize) ;
+    bool robustMinimize(RooAbsReal &nll, RooMinimizerOpt &minimizer, int verbosity=0);
 }
 
 class ProfiledLikelihoodRatioTestStatOpt : public RooStats::TestStatistic {
