@@ -7,8 +7,19 @@
 # -N name weight
 # -c
 # Whenever -c is used, all weights are removed from mps.db
-# If neighter the options -N nor -c are specified, then the first argument is interpreted as weight.
-# Consequently, the following list will be treated as a list of job numbers to which the weight is assigned.
+# If neither the options -N nor -c are specified, then the first argument is interpreted as weight.
+# Consequently, the following list will be treated as a list of Mille jobs to which the weight is assigned.
+#
+# Examples:
+#
+# % mps_weight.pl -N ztomumu 5.7
+# Assign weight 5.7 to Mille jobs which are called "ztomumu" ("mps_setup.pl -N ztomumu ..." has to be used during job creation).
+#
+# % mps_weight.pl 6.7 3 4 102
+# Assign weight 6.7 to Mille binaries with numbers 3, 4, and 102, respectively.
+#
+# % mps_weight.pl -c
+# Remove all assigned weights.
 
 BEGIN {
 use File::Basename;
@@ -18,7 +29,7 @@ use Mpslib;
 read_db();
 
 my $confname = "";
-my @disabledjobs;
+my @weightedjobs;
 my $firstnumber = 1;
 
 my $cleanall = 0;
@@ -54,7 +65,7 @@ while (@ARGV) {
          }
        else
          {
-           push @disabledjobs, $arg;
+           push @weightedjobs, $arg;
          }
      }
    }
@@ -88,7 +99,7 @@ elsif($confname ne "")
   }
 else
   {
-    foreach my $j (@disabledjobs) {
+    foreach my $j (@weightedjobs) {
       {
         $weight =~ s/\://g;
         $weight =~ s/\,//g;
