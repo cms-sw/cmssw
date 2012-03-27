@@ -348,9 +348,8 @@ void FastVerticalInterpHistPdf::syncComponents(int dim) const {
     RooAbsPdf *pdfHi = dynamic_cast<RooAbsPdf *>(_funcList.at(2*dim+1));
     RooAbsPdf *pdfLo = dynamic_cast<RooAbsPdf *>(_funcList.at(2*dim+2));
     const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
-    std::auto_ptr<TH1> histHi(pdfHi->createHistogram("",x));
-    std::auto_ptr<TH1> histLo(pdfLo->createHistogram("",x));
-    histHi->SetDirectory(0); histLo->SetDirectory(0);
+    std::auto_ptr<TH1> histHi(pdfHi->createHistogram("",x)); histHi->SetDirectory(0); 
+    std::auto_ptr<TH1> histLo(pdfLo->createHistogram("",x)); histLo->SetDirectory(0);
 
     FastHisto hi(*histHi), lo(*histLo); 
     //printf("Un-normalized templates for dimension %d: \n", dim);  hi.Dump(); lo.Dump();
