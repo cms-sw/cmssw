@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/02/24 14:21:11 $
- *  $Revision: 1.23 $
+ *  $Date: 2012/03/27 18:01:01 $
+ *  $Revision: 1.24 $
  *
  *  \author Martin Grunewald
  *
@@ -136,8 +136,8 @@ HLTDoublet<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 
      if (saveTags()) {
        InputTag tagOld;
-       filterproduct.addCollectionTag(originTag1);
-       LogVerbatim("HLTDoublet") << " XXX " << label_ << " 1a " << originTag1.encode() << std::endl;
+       filterproduct.addCollectionTag(originTag1_);
+       LogVerbatim("HLTDoublet") << " XXX " << label_ << " 1a " << originTag1_.encode() << std::endl;
        tagOld=InputTag();
        for (size_type i1=0; i1!=n1; ++i1) {
 	 const ProductID pid(coll1_[i1].id());
@@ -151,8 +151,8 @@ HLTDoublet<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, 
 	   LogVerbatim("HLTDoublet") << " XXX " << label_ << " 1b " << tagNew.encode() << std::endl;
 	 }
        }
-       filterproduct.addCollectionTag(originTag2);
-       LogVerbatim("HLTDoublet") << " XXX " << label_ << " 2a " << originTag2.encode() << std::endl;
+       filterproduct.addCollectionTag(originTag2_);
+       LogVerbatim("HLTDoublet") << " XXX " << label_ << " 2a " << originTag2_.encode() << std::endl;
        tagOld=InputTag();
        for (size_type i2=0; i2!=n2; ++i2) {
 	 const ProductID pid(coll2_[i2].id());
