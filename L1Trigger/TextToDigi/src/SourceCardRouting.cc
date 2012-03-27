@@ -27,15 +27,15 @@ using namespace std;
 //electron arrays are eIsoRank[candidate number<4]
 //muon arrays are MIPbits[rec card number<7][region<2]
 
-void SourceCardRouting::EMUtoSFP(	unsigned short (&eIsoRank)[4],
-			unsigned short (&eIsoCardId)[4],
-			unsigned short (&eIsoRegionId)[4],
-			unsigned short (&eNonIsoRank)[4],
-			unsigned short (&eNonIsoCardId)[4],
-			unsigned short (&eNonIsoRegionId)[4],
-			unsigned short (&MIPbits)[7][2],
-			unsigned short (&Qbits)[7][2],
-			unsigned short (&SFP)[2][4] ) const{
+void SourceCardRouting::EMUtoSFP(	uint16_t (&eIsoRank)[4],
+			uint16_t (&eIsoCardId)[4],
+			uint16_t (&eIsoRegionId)[4],
+			uint16_t (&eNonIsoRank)[4],
+			uint16_t (&eNonIsoCardId)[4],
+			uint16_t (&eNonIsoRegionId)[4],
+			uint16_t (&MIPbits)[7][2],
+			uint16_t (&Qbits)[7][2],
+			uint16_t (&SFP)[2][4] ) const{
 
 SFP[0][0]=0;
 SFP[1][0]=0x8000;
@@ -60,15 +60,15 @@ for (int i=0;i<7;i++){
 //electron arrays are eIsoRank[candidate number<4]
 //muon arrays are MIPbits[rec card number<7][region<2]
 
-void SourceCardRouting::SFPtoEMU(	unsigned short (&eIsoRank)[4],
-			unsigned short (&eIsoCardId)[4],
-			unsigned short (&eIsoRegionId)[4],
-			unsigned short (&eNonIsoRank)[4],
-			unsigned short (&eNonIsoCardId)[4],
-			unsigned short (&eNonIsoRegionId)[4],
-			unsigned short (&MIPbits)[7][2],
-			unsigned short (&Qbits)[7][2],
-			unsigned short (&SFP)[2][4] ) const{
+void SourceCardRouting::SFPtoEMU(	uint16_t (&eIsoRank)[4],
+			uint16_t (&eIsoCardId)[4],
+			uint16_t (&eIsoRegionId)[4],
+			uint16_t (&eNonIsoRank)[4],
+			uint16_t (&eNonIsoCardId)[4],
+			uint16_t (&eNonIsoRegionId)[4],
+			uint16_t (&MIPbits)[7][2],
+			uint16_t (&Qbits)[7][2],
+			uint16_t (&SFP)[2][4] ) const{
 
 
 	  for (int i=0; i<7;i++){
@@ -115,12 +115,12 @@ void SourceCardRouting::SFPtoEMU(	unsigned short (&eIsoRank)[4],
 //HF arrays are HF[eta<4][HF region<2]
 //SFP arrays are SFP[cycle<2][sfp number<4]
  
-void SourceCardRouting::RC56HFtoSFP(	unsigned short (&RC)[7][2],
-			unsigned short (&RCof)[7][2],
-			unsigned short (&RCtau)[7][2],
-			unsigned short (&HF)[4][2],
-			unsigned short (&HFQ)[4][2],
-			unsigned short (&SFP)[2][4]) const{
+void SourceCardRouting::RC56HFtoSFP(	uint16_t (&RC)[7][2],
+			uint16_t (&RCof)[7][2],
+			uint16_t (&RCtau)[7][2],
+			uint16_t (&HF)[4][2],
+			uint16_t (&HFQ)[4][2],
+			uint16_t (&SFP)[2][4]) const{
 
 	SFP[0][0] = (RC[5][0]&0x3ff)|((RCof[5][0]&0x1)<<10)|((RCtau[5][0]&0x1)<<11)|((HFQ[0][0]&0x1)<<12)|((HFQ[1][0]&0x01)<<13)|((HF[0][0]&0x01)<<14);
 	SFP[1][0] = 0x8000|(RC[5][1]&0x3ff)|((RCof[5][1]&0x1)<<10)|((RCtau[5][1]&0x1)<<11)|((HFQ[2][0]&0x1)<<12)|((HFQ[3][0]&0x01)<<13)|((HF[2][0]&0x01)<<14);
@@ -139,12 +139,12 @@ void SourceCardRouting::RC56HFtoSFP(	unsigned short (&RC)[7][2],
 //HF arrays are HF[eta<4][HF region<2]
 //SFP arrays are SFP[cycle<2][sfp number<4]
  
-    void SourceCardRouting::SFPtoRC56HF(	unsigned short (&RC)[7][2],
-			unsigned short (&RCof)[7][2],
-			unsigned short (&RCtau)[7][2],
-			unsigned short (&HF)[4][2],
-			unsigned short (&HFQ)[4][2],
-			unsigned short (&SFP)[2][4]) const{
+    void SourceCardRouting::SFPtoRC56HF(	uint16_t (&RC)[7][2],
+			uint16_t (&RCof)[7][2],
+			uint16_t (&RCtau)[7][2],
+			uint16_t (&HF)[4][2],
+			uint16_t (&HFQ)[4][2],
+			uint16_t (&SFP)[2][4]) const{
 
 	RC[5][0]=SFP[0][0]&0x3ff;
 	RC[5][1]=SFP[1][0]&0x3ff;
@@ -187,10 +187,10 @@ void SourceCardRouting::RC56HFtoSFP(	unsigned short (&RC)[7][2],
 //RC arrays are RC[receiver card number<7][region<2]
 //SFP arrays are SFP[cycle<2][sfp number<4]
  
-    void SourceCardRouting::RC012toSFP(	unsigned short (&RC)[7][2],
-			unsigned short (&RCof)[7][2],
-			unsigned short (&RCtau)[7][2],
-			unsigned short (&SFP)[2][4]) const{
+    void SourceCardRouting::RC012toSFP(	uint16_t (&RC)[7][2],
+			uint16_t (&RCof)[7][2],
+			uint16_t (&RCtau)[7][2],
+			uint16_t (&SFP)[2][4]) const{
 
 	SFP[0][0] = (RC[0][0]&0x3ff)|((RCof[0][0]&0x1)<<10)|((RCtau[0][0]&0x1)<<11)|((RC[2][0]&0x7)<<12);
 	SFP[1][0] = 0x8000|(RC[0][1]&0x3ff)|((RCof[0][1]&0x1)<<10)|((RCtau[0][1]&0x1)<<11)|((RC[2][1]&0x7)<<12);
@@ -210,10 +210,10 @@ void SourceCardRouting::RC56HFtoSFP(	unsigned short (&RC)[7][2],
 //RC arrays are RC[receiver card number<7][region<2]
 //SFP arrays are SFP[cycle<2][sfp number<4]
  
-    void SourceCardRouting::SFPtoRC012(	unsigned short (&RC)[7][2],
-			unsigned short (&RCof)[7][2],
-			unsigned short (&RCtau)[7][2],
-			unsigned short (&SFP)[2][4]) const{
+    void SourceCardRouting::SFPtoRC012(	uint16_t (&RC)[7][2],
+			uint16_t (&RCof)[7][2],
+			uint16_t (&RCtau)[7][2],
+			uint16_t (&SFP)[2][4]) const{
 
 	RC[0][0]=SFP[0][0]&0x3ff;
 	RC[0][1]=SFP[1][0]&0x3ff;
@@ -239,13 +239,13 @@ void SourceCardRouting::RC56HFtoSFP(	unsigned short (&RC)[7][2],
 //RC arrays are RC[receiver card number<7][region<2]
 //SFP arrays are SFP[cycle<2][sfp number<4]
  
-    void SourceCardRouting::RC234toSFP(	unsigned short (&RC)[7][2],
-			unsigned short (&RCof)[7][2],
-			unsigned short (&RCtau)[7][2],
-			unsigned short (&sisterRC)[7][2],
-			unsigned short (&sisterRCof)[7][2],
-			unsigned short (&sisterRCtau)[7][2],
-			unsigned short (&SFP)[2][4]) const{
+    void SourceCardRouting::RC234toSFP(	uint16_t (&RC)[7][2],
+			uint16_t (&RCof)[7][2],
+			uint16_t (&RCtau)[7][2],
+			uint16_t (&sisterRC)[7][2],
+			uint16_t (&sisterRCof)[7][2],
+			uint16_t (&sisterRCtau)[7][2],
+			uint16_t (&SFP)[2][4]) const{
 
 	SFP[0][0] = (RC[3][0]&0x3ff)|((RCof[3][0]&0x1)<<10)|((RCtau[3][0]&0x1)<<11)|((RC[2][0]&0x1c0)<<6);
 	SFP[1][0] = 0x8000|(RC[3][1]&0x3ff)|((RCof[3][1]&0x1)<<10)|((RCtau[3][1]&0x1)<<11)|((RC[2][1]&0x1c0)<<6);
@@ -265,13 +265,13 @@ void SourceCardRouting::RC56HFtoSFP(	unsigned short (&RC)[7][2],
 //RC arrays are RC[receiver card number<7][region<2]
 //SFP arrays are SFP[cycle<2][sfp number<4]
  
-     void SourceCardRouting::SFPtoRC234(	unsigned short (&RC)[7][2],
-			unsigned short (&RCof)[7][2],
-			unsigned short (&RCtau)[7][2],
-			unsigned short (&sisterRC)[7][2],
-			unsigned short (&sisterRCof)[7][2],
-			unsigned short (&sisterRCtau)[7][2],
-			unsigned short (&SFP)[2][4]) const{
+     void SourceCardRouting::SFPtoRC234(	uint16_t (&RC)[7][2],
+			uint16_t (&RCof)[7][2],
+			uint16_t (&RCtau)[7][2],
+			uint16_t (&sisterRC)[7][2],
+			uint16_t (&sisterRCof)[7][2],
+			uint16_t (&sisterRCtau)[7][2],
+			uint16_t (&SFP)[2][4]) const{
 
 	RC[2][0]=(RC[2][0]&0x3f)|((SFP[0][0]&0x7000)>>6)|((SFP[0][1]&0x1000)>>3);
 	RC[3][0]=SFP[0][0]&0x3ff;
@@ -324,10 +324,10 @@ void SourceCardRouting::RC56HFtoSFP(	unsigned short (&RC)[7][2],
 //SFP arrays are SFP[cycle<2][sfp number<4]
 
     void SourceCardRouting::SFPtoVHDCI(	int RoutingMode,
-			unsigned short (&SFP)[2][4],
-			unsigned long (&VHDCI)[2][2] ) const{
+			uint16_t (&SFP)[2][4],
+			uint32_t (&VHDCI)[2][2] ) const{
 
-unsigned short sfp_reverse[2][4]={{0}};
+uint16_t sfp_reverse[2][4]={{0}};
 
 for (int i=0; i<2;i++){
 	for(int j=0; j<4;j++){
@@ -383,10 +383,10 @@ for (int i=0; i<2;i++){
 //VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
 //SFP arrays are SFP[cycle<2][sfp number<4]
     void SourceCardRouting::VHDCItoSFP(	int RoutingMode,
-			unsigned short (&SFP)[2][4],
-			unsigned long (&VHDCI)[2][2]	) const{
+			uint16_t (&SFP)[2][4],
+			uint32_t (&VHDCI)[2][2]	) const{
 
-unsigned short VHDCI_reverse[2][4]={{0}};
+uint16_t VHDCI_reverse[2][4]={{0}};
 
 for (int i=0; i<2;i++){
 	for(int j=0; j<2;j++){
@@ -462,17 +462,17 @@ for (int i=0; i<2;i++){
 //electron arrays are eIsoRank[candidate number<4]
 //muon arrays are MIPbits[rec card number<7][region<2]
 
-    void SourceCardRouting::EMUtoVHDCI(	unsigned short (&eIsoRank)[4],
-			unsigned short (&eIsoCardId)[4],
-			unsigned short (&eIsoRegionId)[4],
-			unsigned short (&eNonIsoRank)[4],
-			unsigned short (&eNonIsoCardId)[4],
-			unsigned short (&eNonIsoRegionId)[4],
-			unsigned short (&MIPbits)[7][2],
-			unsigned short (&Qbits)[7][2],
-			unsigned long (&VHDCI)[2][2] ) const{
+    void SourceCardRouting::EMUtoVHDCI(	uint16_t (&eIsoRank)[4],
+			uint16_t (&eIsoCardId)[4],
+			uint16_t (&eIsoRegionId)[4],
+			uint16_t (&eNonIsoRank)[4],
+			uint16_t (&eNonIsoCardId)[4],
+			uint16_t (&eNonIsoRegionId)[4],
+			uint16_t (&MIPbits)[7][2],
+			uint16_t (&Qbits)[7][2],
+			uint32_t (&VHDCI)[2][2] ) const{
 
-	unsigned short SFP[2][4]={{0}};
+	uint16_t SFP[2][4]={{0}};
 	EMUtoSFP(eIsoRank,eIsoCardId,eIsoRegionId,eNonIsoRank,eNonIsoCardId,eNonIsoRegionId,MIPbits,Qbits,SFP);
 	SFPtoVHDCI(0,SFP,VHDCI);
 
@@ -483,17 +483,17 @@ for (int i=0; i<2;i++){
 //electron arrays are eIsoRank[candidate number<4]
 //muon arrays are MIPbits[rec card number<7][region<2]
 
-    void SourceCardRouting::VHDCItoEMU(	unsigned short (&eIsoRank)[4],
-			unsigned short (&eIsoCardId)[4],
-			unsigned short (&eIsoRegionId)[4],
-			unsigned short (&eNonIsoRank)[4],
-			unsigned short (&eNonIsoCardId)[4],
-			unsigned short (&eNonIsoRegionId)[4],
-			unsigned short (&MIPbits)[7][2],
-			unsigned short (&Qbits)[7][2],
-			unsigned long (&VHDCI)[2][2] ) const{
+    void SourceCardRouting::VHDCItoEMU(	uint16_t (&eIsoRank)[4],
+			uint16_t (&eIsoCardId)[4],
+			uint16_t (&eIsoRegionId)[4],
+			uint16_t (&eNonIsoRank)[4],
+			uint16_t (&eNonIsoCardId)[4],
+			uint16_t (&eNonIsoRegionId)[4],
+			uint16_t (&MIPbits)[7][2],
+			uint16_t (&Qbits)[7][2],
+			uint32_t (&VHDCI)[2][2] ) const{
 
-	unsigned short SFP[2][4]={{0}};
+	uint16_t SFP[2][4]={{0}};
 	VHDCItoSFP(0,SFP,VHDCI);
 	SFPtoEMU(eIsoRank,eIsoCardId,eIsoRegionId,eNonIsoRank,eNonIsoCardId,eNonIsoRegionId,MIPbits,Qbits,SFP);
 
@@ -508,14 +508,14 @@ for (int i=0; i<2;i++){
 //HF arrays are HF[eta<4][HF region<2]
 //VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
  
-    void SourceCardRouting::RC56HFtoVHDCI(	unsigned short (&RC)[7][2],
-			unsigned short (&RCof)[7][2],
-			unsigned short (&RCtau)[7][2],
-			unsigned short (&HF)[4][2],
-			unsigned short (&HFQ)[4][2],
-			unsigned long (&VHDCI)[2][2] ) const{
+    void SourceCardRouting::RC56HFtoVHDCI(	uint16_t (&RC)[7][2],
+			uint16_t (&RCof)[7][2],
+			uint16_t (&RCtau)[7][2],
+			uint16_t (&HF)[4][2],
+			uint16_t (&HFQ)[4][2],
+			uint32_t (&VHDCI)[2][2] ) const{
 
-	unsigned short SFP[2][4]={{0}};
+	uint16_t SFP[2][4]={{0}};
   	RC56HFtoSFP(RC,RCof,RCtau,HF,HFQ,SFP);
 	SFPtoVHDCI(1,SFP,VHDCI);
 
@@ -526,14 +526,14 @@ for (int i=0; i<2;i++){
 //HF arrays are HF[eta<4][HF region<2]
 //VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
  
-    void SourceCardRouting::VHDCItoRC56HF(	unsigned short (&RC)[7][2],
-			unsigned short (&RCof)[7][2],
-			unsigned short (&RCtau)[7][2],
-			unsigned short (&HF)[4][2],
-			unsigned short (&HFQ)[4][2],
-			unsigned long (&VHDCI)[2][2] ) const{
+    void SourceCardRouting::VHDCItoRC56HF(	uint16_t (&RC)[7][2],
+			uint16_t (&RCof)[7][2],
+			uint16_t (&RCtau)[7][2],
+			uint16_t (&HF)[4][2],
+			uint16_t (&HFQ)[4][2],
+			uint32_t (&VHDCI)[2][2] ) const{
 
-	unsigned short SFP[2][4]={{0}};
+	uint16_t SFP[2][4]={{0}};
 	VHDCItoSFP(1,SFP,VHDCI);
   	SFPtoRC56HF(RC,RCof,RCtau,HF,HFQ,SFP);
 
@@ -543,12 +543,12 @@ for (int i=0; i<2;i++){
 //RC arrays are RC[receiver card number<7][region<2]
 //VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
  
-    void SourceCardRouting::RC012toVHDCI(	unsigned short (&RC)[7][2],
-			unsigned short (&RCof)[7][2],
-			unsigned short (&RCtau)[7][2],
-			unsigned long (&VHDCI)[2][2] ) const{
+    void SourceCardRouting::RC012toVHDCI(	uint16_t (&RC)[7][2],
+			uint16_t (&RCof)[7][2],
+			uint16_t (&RCtau)[7][2],
+			uint32_t (&VHDCI)[2][2] ) const{
 
-	unsigned short SFP[2][4]={{0}};
+	uint16_t SFP[2][4]={{0}};
  	RC012toSFP(RC,RCof,RCtau,SFP);
 	SFPtoVHDCI(2,SFP,VHDCI);
 }
@@ -557,12 +557,12 @@ for (int i=0; i<2;i++){
 //RC arrays are RC[receiver card number<7][region<2]
 //VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
  
-    void SourceCardRouting::VHDCItoRC012(	unsigned short (&RC)[7][2],
-			unsigned short (&RCof)[7][2],
-			unsigned short (&RCtau)[7][2],
-			unsigned long (&VHDCI)[2][2] ) const{
+    void SourceCardRouting::VHDCItoRC012(	uint16_t (&RC)[7][2],
+			uint16_t (&RCof)[7][2],
+			uint16_t (&RCtau)[7][2],
+			uint32_t (&VHDCI)[2][2] ) const{
 
-	unsigned short SFP[2][4]={{0}};
+	uint16_t SFP[2][4]={{0}};
 	VHDCItoSFP(2,SFP,VHDCI);
  	SFPtoRC012(RC,RCof,RCtau,SFP);
 
@@ -572,15 +572,15 @@ for (int i=0; i<2;i++){
 //RC arrays are RC[receiver card number<7][region<2]
 //VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
  
-    void SourceCardRouting::RC234toVHDCI(	unsigned short (&RC)[7][2],
-			unsigned short (&RCof)[7][2],
-			unsigned short (&RCtau)[7][2],
-			unsigned short (&sisterRC)[7][2],
-			unsigned short (&sisterRCof)[7][2],
-			unsigned short (&sisterRCtau)[7][2],
-			unsigned long (&VHDCI)[2][2] ) const{
+    void SourceCardRouting::RC234toVHDCI(	uint16_t (&RC)[7][2],
+			uint16_t (&RCof)[7][2],
+			uint16_t (&RCtau)[7][2],
+			uint16_t (&sisterRC)[7][2],
+			uint16_t (&sisterRCof)[7][2],
+			uint16_t (&sisterRCtau)[7][2],
+			uint32_t (&VHDCI)[2][2] ) const{
 
-	unsigned short SFP[2][4]={{0}};
+	uint16_t SFP[2][4]={{0}};
   	RC234toSFP(RC,RCof,RCtau,sisterRC,sisterRCof,sisterRCtau,SFP);
 	SFPtoVHDCI(3,SFP,VHDCI);
 
@@ -590,15 +590,15 @@ for (int i=0; i<2;i++){
 //RC arrays are RC[receiver card number<7][region<2]
 //VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
  
-     void SourceCardRouting::VHDCItoRC234(	unsigned short (&RC)[7][2],
-			unsigned short (&RCof)[7][2],
-			unsigned short (&RCtau)[7][2],
-			unsigned short (&sisterRC)[7][2],
-			unsigned short (&sisterRCof)[7][2],
-			unsigned short (&sisterRCtau)[7][2],
-			unsigned long (&VHDCI)[2][2] ) const{
+     void SourceCardRouting::VHDCItoRC234(	uint16_t (&RC)[7][2],
+			uint16_t (&RCof)[7][2],
+			uint16_t (&RCtau)[7][2],
+			uint16_t (&sisterRC)[7][2],
+			uint16_t (&sisterRCof)[7][2],
+			uint16_t (&sisterRCtau)[7][2],
+			uint32_t (&VHDCI)[2][2] ) const{
 
-	unsigned short SFP[2][4]={{0}};
+	uint16_t SFP[2][4]={{0}};
 	VHDCItoSFP(3,SFP,VHDCI);
   	SFPtoRC234(RC,RCof,RCtau,sisterRC,sisterRCof,sisterRCtau,SFP);
 
@@ -609,19 +609,19 @@ for (int i=0; i<2;i++){
 //electron arrays are eIsoRank[candidate number<4]
 //muon arrays are MIPbits[rec card number<7][region<2]
 
-    void SourceCardRouting::EMUtoSTRING(	unsigned short &logicalCardID,
-			unsigned short &eventNumber,
-			unsigned short (&eIsoRank)[4],
-			unsigned short (&eIsoCardId)[4],
-			unsigned short (&eIsoRegionId)[4],
-			unsigned short (&eNonIsoRank)[4],
-			unsigned short (&eNonIsoCardId)[4],
-			unsigned short (&eNonIsoRegionId)[4],
-			unsigned short (&MIPbits)[7][2],
-			unsigned short (&Qbits)[7][2],
+    void SourceCardRouting::EMUtoSTRING(	uint16_t &logicalCardID,
+			uint16_t &eventNumber,
+			uint16_t (&eIsoRank)[4],
+			uint16_t (&eIsoCardId)[4],
+			uint16_t (&eIsoRegionId)[4],
+			uint16_t (&eNonIsoRank)[4],
+			uint16_t (&eNonIsoCardId)[4],
+			uint16_t (&eNonIsoRegionId)[4],
+			uint16_t (&MIPbits)[7][2],
+			uint16_t (&Qbits)[7][2],
 			std::string &dataString ) const{
 
-		unsigned long VHDCI[2][2]={{0}};
+		uint32_t VHDCI[2][2]={{0}};
 		EMUtoVHDCI(eIsoRank,eIsoCardId,eIsoRegionId,eNonIsoRank,eNonIsoCardId,eNonIsoRegionId,MIPbits,Qbits,VHDCI);
 		VHDCItoSTRING (logicalCardID, eventNumber, dataString, VHDCI);
 
@@ -632,16 +632,16 @@ for (int i=0; i<2;i++){
 //HF arrays are HF[eta<4][HF region<2]
 
  
-    void SourceCardRouting::RC56HFtoSTRING(	unsigned short &logicalCardID,
-			unsigned short &eventNumber,
-			unsigned short (&RC)[7][2],
-			unsigned short (&RCof)[7][2],
-			unsigned short (&RCtau)[7][2],
-			unsigned short (&HF)[4][2],
-			unsigned short (&HFQ)[4][2],
+    void SourceCardRouting::RC56HFtoSTRING(	uint16_t &logicalCardID,
+			uint16_t &eventNumber,
+			uint16_t (&RC)[7][2],
+			uint16_t (&RCof)[7][2],
+			uint16_t (&RCtau)[7][2],
+			uint16_t (&HF)[4][2],
+			uint16_t (&HFQ)[4][2],
 			std::string &dataString ) const{
 
-		unsigned long VHDCI[2][2]={{0}};
+		uint32_t VHDCI[2][2]={{0}};
   		RC56HFtoVHDCI(RC,RCof,RCtau,HF,HFQ,VHDCI);
 		VHDCItoSTRING (logicalCardID, eventNumber, dataString, VHDCI);
 
@@ -651,14 +651,14 @@ for (int i=0; i<2;i++){
 //RC arrays are RC[receiver card number<7][region<2]
 
  
-    void SourceCardRouting::RC012toSTRING(	unsigned short &logicalCardID,
-			unsigned short &eventNumber,
-			unsigned short (&RC)[7][2],
-			unsigned short (&RCof)[7][2],
-			unsigned short (&RCtau)[7][2],
+    void SourceCardRouting::RC012toSTRING(	uint16_t &logicalCardID,
+			uint16_t &eventNumber,
+			uint16_t (&RC)[7][2],
+			uint16_t (&RCof)[7][2],
+			uint16_t (&RCtau)[7][2],
 			std::string &dataString ) const{
 
-		unsigned long VHDCI[2][2]={{0}};
+		uint32_t VHDCI[2][2]={{0}};
   		RC012toVHDCI(RC,RCof,RCtau,VHDCI);
 		VHDCItoSTRING (logicalCardID, eventNumber, dataString, VHDCI);
 
@@ -668,17 +668,17 @@ for (int i=0; i<2;i++){
 //RC arrays are RC[receiver card number<7][region<2]
 
  
-    void SourceCardRouting::RC234toSTRING(	unsigned short &logicalCardID,
-			unsigned short &eventNumber,
-			unsigned short (&RC)[7][2],
-			unsigned short (&RCof)[7][2],
-			unsigned short (&RCtau)[7][2],
-			unsigned short (&sisterRC)[7][2],
-			unsigned short (&sisterRCof)[7][2],
-			unsigned short (&sisterRCtau)[7][2],
+    void SourceCardRouting::RC234toSTRING(	uint16_t &logicalCardID,
+			uint16_t &eventNumber,
+			uint16_t (&RC)[7][2],
+			uint16_t (&RCof)[7][2],
+			uint16_t (&RCtau)[7][2],
+			uint16_t (&sisterRC)[7][2],
+			uint16_t (&sisterRCof)[7][2],
+			uint16_t (&sisterRCtau)[7][2],
 			std::string &dataString ) const{
 
-		unsigned long VHDCI[2][2]={{0}};
+		uint32_t VHDCI[2][2]={{0}};
   		RC234toVHDCI(RC,RCof,RCtau,sisterRC,sisterRCof,sisterRCtau,VHDCI);
 		VHDCItoSTRING (logicalCardID, eventNumber, dataString, VHDCI);
 
@@ -688,13 +688,13 @@ for (int i=0; i<2;i++){
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //SFP arrays are SFP[cycle<2][sfp number<4]
-    void SourceCardRouting::SFPtoSTRING(	unsigned short &logicalCardID,
-			unsigned short &eventNumber,
+    void SourceCardRouting::SFPtoSTRING(	uint16_t &logicalCardID,
+			uint16_t &eventNumber,
 			int RoutingMode,
-			unsigned short (&SFP)[2][4],
+			uint16_t (&SFP)[2][4],
 			std::string &dataString	) const{
 
-		unsigned long VHDCI[2][2]={{0}};
+		uint32_t VHDCI[2][2]={{0}};
 		SFPtoVHDCI(RoutingMode,SFP,VHDCI);
 		VHDCItoSTRING (logicalCardID, eventNumber, dataString, VHDCI);
 
@@ -704,10 +704,10 @@ for (int i=0; i<2;i++){
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
-    void SourceCardRouting::STRINGtoVHDCI(	unsigned short &logicalCardID,
-			unsigned short &eventNumber,
+    void SourceCardRouting::STRINGtoVHDCI(	uint16_t &logicalCardID,
+			uint16_t &eventNumber,
 			std::string &dataString,
-			unsigned long (&VHDCI)[2][2]	) const{
+			uint32_t (&VHDCI)[2][2]	) const{
 
 		stringstream temp;
 		
@@ -732,10 +732,10 @@ for (int i=0; i<2;i++){
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
-    void SourceCardRouting::VHDCItoSTRING(	unsigned short &logicalCardID,
-			unsigned short &eventNumber,
+    void SourceCardRouting::VHDCItoSTRING(	uint16_t &logicalCardID,
+			uint16_t &eventNumber,
 			std::string &dataString,
-			unsigned long (&VHDCI)[2][2]	) const{
+			uint32_t (&VHDCI)[2][2]	) const{
 
 		stringstream temp;
 
@@ -751,7 +751,7 @@ for (int i=0; i<2;i++){
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    void SourceCardRouting::LogicalCardIDtoRoutingMode( unsigned short &logicalCardID,
+    void SourceCardRouting::LogicalCardIDtoRoutingMode( uint16_t &logicalCardID,
 				     int &RoutingMode,
 				     int &RCTCrateNumber	) const{
 		
@@ -763,7 +763,7 @@ for (int i=0; i<2;i++){
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-   void SourceCardRouting::RoutingModetoLogicalCardID( unsigned short &logicalCardID,
+   void SourceCardRouting::RoutingModetoLogicalCardID( uint16_t &logicalCardID,
 				     int &RoutingMode,
 				     int &RCTCrateNumber	) const{
 
@@ -808,15 +808,15 @@ for (int i=0; i<2;i++){
 //HF arrays are HF[eta<4][HF region<2]
 //SFP arrays are SFP[cycle<2][sfp number<4]
     void SourceCardRouting::RCtoSFP(	int &RoutingMode,
-			unsigned short (&RC)[7][2],
-			unsigned short (&RCof)[7][2],
-			unsigned short (&RCtau)[7][2],
-			unsigned short (&sisterRC)[7][2],
-			unsigned short (&sisterRCof)[7][2],
-			unsigned short (&sisterRCtau)[7][2],
-			unsigned short (&HF)[4][2],
-			unsigned short (&HFQ)[4][2],
-			unsigned short (&SFP)[2][4] ){
+			uint16_t (&RC)[7][2],
+			uint16_t (&RCof)[7][2],
+			uint16_t (&RCtau)[7][2],
+			uint16_t (&sisterRC)[7][2],
+			uint16_t (&sisterRCof)[7][2],
+			uint16_t (&sisterRCtau)[7][2],
+			uint16_t (&HF)[4][2],
+			uint16_t (&HFQ)[4][2],
+			uint16_t (&SFP)[2][4] ){
 
 	switch(RoutingMode){
 		case 1:
@@ -839,15 +839,15 @@ for (int i=0; i<2;i++){
 //HF arrays are HF[eta<4][HF region<2]
 //SFP arrays are SFP[cycle<2][sfp number<4]
     void SourceCardRouting::SFPtoRC(	int &RoutingMode,
-			unsigned short (&RC)[7][2],
-			unsigned short (&RCof)[7][2],
-			unsigned short (&RCtau)[7][2],
-			unsigned short (&sisterRC)[7][2],
-			unsigned short (&sisterRCof)[7][2],
-			unsigned short (&sisterRCtau)[7][2],
-			unsigned short (&HF)[4][2],
-			unsigned short (&HFQ)[4][2],
-			unsigned short (&SFP)[2][4] ){
+			uint16_t (&RC)[7][2],
+			uint16_t (&RCof)[7][2],
+			uint16_t (&RCtau)[7][2],
+			uint16_t (&sisterRC)[7][2],
+			uint16_t (&sisterRCof)[7][2],
+			uint16_t (&sisterRCtau)[7][2],
+			uint16_t (&HF)[4][2],
+			uint16_t (&HFQ)[4][2],
+			uint16_t (&SFP)[2][4] ){
 
 	switch(RoutingMode){
 		case 1:
@@ -871,15 +871,15 @@ for (int i=0; i<2;i++){
 //HF arrays are HF[eta<4][HF region<2]
 //VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
     void SourceCardRouting::RCtoVHDCI(	int &RoutingMode,
-			unsigned short (&RC)[7][2],
-			unsigned short (&RCof)[7][2],
-			unsigned short (&RCtau)[7][2],
-			unsigned short (&sisterRC)[7][2],
-			unsigned short (&sisterRCof)[7][2],
-			unsigned short (&sisterRCtau)[7][2],
-			unsigned short (&HF)[4][2],
-			unsigned short (&HFQ)[4][2],
-			unsigned long (&VHDCI)[2][2]	){
+			uint16_t (&RC)[7][2],
+			uint16_t (&RCof)[7][2],
+			uint16_t (&RCtau)[7][2],
+			uint16_t (&sisterRC)[7][2],
+			uint16_t (&sisterRCof)[7][2],
+			uint16_t (&sisterRCtau)[7][2],
+			uint16_t (&HF)[4][2],
+			uint16_t (&HFQ)[4][2],
+			uint32_t (&VHDCI)[2][2]	){
 
 	switch(RoutingMode){
 		case 1:
@@ -901,15 +901,15 @@ for (int i=0; i<2;i++){
 //HF arrays are HF[eta<4][HF region<2]
 //VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
     void SourceCardRouting::VHDCItoRC(	int &RoutingMode,
-			unsigned short (&RC)[7][2],
-			unsigned short (&RCof)[7][2],
-			unsigned short (&RCtau)[7][2],
-			unsigned short (&sisterRC)[7][2],
-			unsigned short (&sisterRCof)[7][2],
-			unsigned short (&sisterRCtau)[7][2],
-			unsigned short (&HF)[4][2],
-			unsigned short (&HFQ)[4][2],
-			unsigned long (&VHDCI)[2][2]	){
+			uint16_t (&RC)[7][2],
+			uint16_t (&RCof)[7][2],
+			uint16_t (&RCtau)[7][2],
+			uint16_t (&sisterRC)[7][2],
+			uint16_t (&sisterRCof)[7][2],
+			uint16_t (&sisterRCtau)[7][2],
+			uint16_t (&HF)[4][2],
+			uint16_t (&HFQ)[4][2],
+			uint32_t (&VHDCI)[2][2]	){
 
 	switch(RoutingMode){
 		case 1:
