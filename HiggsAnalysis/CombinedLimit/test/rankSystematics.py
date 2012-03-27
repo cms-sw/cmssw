@@ -83,7 +83,9 @@ removed = dict([ (
 nMinusOnesLabelled = [ (removed[v[0]], v[1]) for v in nMinusOnes ] 
 
 pprint(nMinusOnesLabelled)
-
+g = open('nMinusOnes.json','w')
+g.write(json.dumps(nMinusOnesLabelled, indent=2))
+g.close()
 
 os.chdir(OWD)
 

@@ -4,26 +4,35 @@ from sys import argv, stdout, stderr, exit
 from optparse import OptionParser
 from pprint import pprint
 from itertools import combinations
-from os import makedirs, chdir
+import os
 import os.path
 import json
 from datetime import datetime, timedelta
 
-times = list()
-def addLap(ev):
-    global times
-    dt = datetime.now()
-    print "%s: %s" % (ev, dt)
-    times.append( (ev, dt) )
+class Timer:
+    def __init__(self):
+        self.times = list()
+    def addLap(self, ev):
+        dt = datetime.now()
+        #print "%s: %s" % (ev, dt)
+        self.times.append( (ev, dt) )
+    def printLaps(self):
+        print "Timing summary"
+        for i in range(len(self.times)-1):
+            delta = ( self.times[i+1][1] - self.times[i][1] )
+            print "From %s to %s: %s." % (self.times[i][0], self.times[i+1][0], delta)
 
-def printLaps():
-    global times
-    for i in range(len(times)-1):
-        delta = ( times[i+1][1] - times[i][1] )
-        print "From %s to %s: %s." % (times[i][0], times[i+1][0], delta)
+timer = Timer()
 
+import os, errno
+def mkdir_p(path):
+    try:
+        os.makedirs(path)
+    except OSError as exc: # Python >2.5
+        if exc.errno == errno.EEXIST:
+            pass
+        else: raise
 
-addLap("Start")
 
 # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
 argv.append( '-b-' )
@@ -35,12 +44,15 @@ from HiggsAnalysis.CombinedLimit.DatacardParser import *
 
 masses = list()
 parser = OptionParser(usage="usage: %prog [options] datacard.txt -o output \nrun with --help to get list of options")
-parser.add_option("--depth", dest="depth",  default=1,  type="int", help="Scans excluding up to N and testing only up to N nuisances.")
+parser.add_option("--depth", dest="depth",  default=1,  type="int", help="Scans excluding up to DEPTH and testing only up to DEPTH nuisances (0 means just none and all).")
+parser.add_option("--dir", dest="dir",  default='systs',  type="string", help="Output directory for results and intermediates.")
 parser.add_option("--masses", dest="masses",  default=[120],  type="string", action="callback", help="Which mass points to scan.",
                   callback = lambda option, opt_str, value, parser: masses.extend(map(lambda x: int(x), value.split(',')))
                   )
 addDatacardParserOptions(parser)
 (options, args) = parser.parse_args()
+
+timer.addLap("Start")
 
 if masses:
     options.masses = masses
@@ -60,19 +72,13 @@ else:
 
 DC = parseCard(file, options)
 
-addLap("SystStart")
+timer.addLap("SystStart")
 
 # create output directory
-import errno
-from os import makedirs, chdir
-try:
-    makedirs("systs")
-except OSError as ex:
-    if ex.errno == errno.EEXIST:
-        pass
-    else: raise
-
-chdir("systs") 
+mkdir_p(options.dir+"/log")
+mkdir_p(options.dir+"/root")
+OWD = os.getcwd()
+os.chdir(options.dir) 
 
 
 nuisances = map(lambda x: x[0], DC.systs )
@@ -101,7 +107,8 @@ g.write(json.dumps(combinationsList, sort_keys=True, indent=2))
 g.close()
 
 
-# make hash strings (yes, it is not human readable... it's life) 
+# make hash strings for each combination to use in file names
+# (yes, it is not human readable... it's life) 
 import hashlib
 import cPickle as pickle
 combinationsHash = dict(
@@ -119,14 +126,14 @@ g.close()
 # make list of jobs to run
 jobs = dict() 
 for combo in combinationsList:
-    nuisStr= '|'.join(combo)
-    fName  = 'Syst.%s' % combinationsHash[combo]
+    nuisStr = '|'.join(combo)
+    fName   = 'Syst.%s' % combinationsHash[combo]
 
-    tempOut="%s.root" % fName
-    filterCmd = "text2workspace.py %s --X-exclude-nuisance='%s' -o %s &> %s.log" % (options.fileName, nuisStr, tempOut, tempOut)
+    tempOut = "%s.root" % fName
+    filterCmd = "text2workspace.py %s --X-exclude-nuisance='%s' -o root/%s &> log/%s.log" % (options.fileName, nuisStr, tempOut, tempOut)
 
-    if os.path.isfile(tempOut):
-        print "Not queuing text2workspace for %s. (output already present)" % tempOut
+    if os.path.isfile('root/'+tempOut):
+#        print "Not queuing text2workspace job for %s. (output already present)" % tempOut
         filterCmd = ''
         
     combineCmds = list()
@@ -135,15 +142,15 @@ for combo in combinationsList:
         combineOpts = "--minosAlgo=stepping -M %s -S 1 -m %g" % (combineMethod, mass)
         combineOut = "higgsCombine%s.%s.mH%g.root" % (fName, combineMethod, mass)
 
-        combineCmd = "combine %s %s -n %s &> %s.log" % (tempOut, combineOpts, fName, combineOut)
+        combineCmd = "combine root/%s %s -n %s &> log/%s.log && mv %s root/" % (tempOut, combineOpts, fName, combineOut, combineOut)
 
-        if os.path.isfile(combineOut):
-            print "Not queuing combine for %s. (output already present)" % combineOut
+        if os.path.isfile('root/'+combineOut):
+#            print "Not queuing combine job for %s. (output already present)" % combineOut
             combineCmd = ''
 
         combineCmds.append(combineCmd)
 
-    jobs[combo] = (filterCmd, combineCmds, combineOut)
+    jobs[combo] = (filterCmd, combineCmds, 'root/'+combineOut)
 
 #pprint(jobs) 
 g = open('jobs.json','w')
@@ -155,60 +162,68 @@ g.close()
 def runCmd(cmd):
     if not cmd: return 0 
     from subprocess import call
-    print cmd
+    #print cmd
     return call(cmd, shell=True)
 
 #make a pool of workers
 from multiprocessing import Pool
 pool = Pool()
 
-addLap("Text2WorkspaceStart")
+timer.addLap("Text2WorkspaceStart")
 # run all the text2workspace in parallel
 filterCmds = map(lambda x: x[0], jobs.values())
 ret = pool.map(runCmd, filterCmds)
 if reduce(lambda x, y: x+y, ret):
     raise RunTimeError, "Non-zero return code in text2workspace. Check logs."
 
-addLap("CombineStart")
+timer.addLap("CombineStart")
 # run all the combine jobs in parallel
 combineCmds = [ item for sublist in map(lambda x: x[1], jobs.values()) for item in sublist ] 
 ret =  pool.map(runCmd, combineCmds)
 if reduce(lambda x, y: x+y, ret):
     raise RunTimeError, "Non-zero return code in combine. Check logs."
 
-addLap("ReductionStart")
-# get the limit values from the output files
-limits = dict()
-for combo in combinationsList:
-    f = ROOT.TFile(jobs[combo][2])
-    t = f.Get("limit")
+
+timer.addLap("ReductionStart")
+# harvest limit values from the output files
+limitsOut = 'limits.json'
+if os.path.isfile(limitsOut):
+#    print "Not harvesting root files. (output already present)"
+    pass
+
+else:
+    limits = dict()
+    for combo in combinationsList:
+        f = ROOT.TFile(jobs[combo][2])
+        t = f.Get("limit")
     
-    leaves = t.GetListOfLeaves()
+        leaves = t.GetListOfLeaves()
 
-    class Event(dict) :
-        pass
-    ev = Event()
-    for i in range(0,leaves.GetEntries() ) :
-        leaf = leaves.At(i)
-        name = leaf.GetName()
-        ev.__setattr__(name,leaf)
+        class Event(dict) :
+            pass
+        ev = Event()
+        for i in range(0,leaves.GetEntries() ) :
+            leaf = leaves.At(i)
+            name = leaf.GetName()
+            ev.__setattr__(name,leaf)
 
-    valDict=dict()
-    for iev in range(0,t.GetEntries()) :
-        t.GetEntry(iev)
-        valDict[int(1000*ev.quantileExpected.GetValue())] = ev.limit.GetValue()
+        valDict=dict()
+        for iev in range(0,t.GetEntries()) :
+            t.GetEntry(iev)
+            valDict[int(1000*ev.quantileExpected.GetValue())] = ev.limit.GetValue()
+        limits[combo] = valDict
 
-    limits[combo] = valDict   
+    #pprint(limits)
+    g = open(limitsOut,'w')
+    g.write(json.dumps(list(limits.items()), sort_keys=True, indent=2))
+    g.close()
 
-#pprint(limits)
-g = open('limits.json','w')
-g.write(json.dumps(list(limits.items()), sort_keys=True, indent=2))
-g.close()
+os.chdir(OWD)
 
-chdir("..")
+timer.addLap("RankingStart")
+import rankSystematics
 
-addLap("AllDone")
-
-printLaps()
+timer.addLap("AllDone")
+timer.printLaps()
     
 
