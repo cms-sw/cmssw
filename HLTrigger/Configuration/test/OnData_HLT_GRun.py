@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/GRun/V37 (CMSSW_5_2_1_HLT2)
+# /dev/CMSSW_5_2_1/GRun/V38 (CMSSW_5_2_1_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V37')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V38')
 )
 
 process.streams = cms.PSet( 
@@ -30240,8 +30240,8 @@ process.hltMu8Ele17CaloIdTCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter = cms.EDFilter(
 )
 process.hltMu8Ele17dZFilter = cms.EDFilter( "HLT2ElectronMuonDZ",
     saveTags = cms.bool( False ),
-    originTag1 = cms.InputTag( "hltOriginal1" ),
-    originTag2 = cms.InputTag( "hltOriginal2" ),
+    originTag1 = cms.InputTag( "hltPixelMatch3HitElectronsL1Seeded" ),
+    originTag2 = cms.InputTag( "hltL3MuonCandidates" ),
     MinN = cms.int32( 1 ),
     triggerType1 = cms.int32( 82 ),
     triggerType2 = cms.int32( 83 ),
@@ -32638,11 +32638,11 @@ process.hltEle20CaloIdVTCaloIsoTTrkIdTTrkIsoTL1Tau20TrackIsoFilter = cms.EDFilte
 process.hltOverlapFilterIsoEle20CaloJet5L1Tau20 = cms.EDFilter( "HLT2ElectronTau",
     saveTags = cms.bool( False ),
     MinMinv = cms.double( 0.0 ),
-    originTag2 = cms.InputTag( "hltOriginal2" ),
+    originTag2 = cms.InputTag( "hltPixelMatchElectronsL1Seeded" ),
     MinDelR = cms.double( 0.3 ),
     MinPt = cms.double( 1.0 ),
     MinN = cms.int32( 1 ),
-    originTag1 = cms.InputTag( "hltOriginal1" ),
+    originTag1 = cms.InputTag( "hltAntiKT5CaloJetsPFEt5" ),
     triggerType1 = cms.int32( 82 ),
     triggerType2 = cms.int32( 84 ),
     MaxMinv = cms.double( 14000.0 ),
@@ -32905,11 +32905,11 @@ process.hltEle20CaloIdVTCaloIsoTTrkIdTTrkIsoTL1Tau28TrackIsoFilter = cms.EDFilte
 process.hltOverlapFilterIsoEle20CaloJet5L1Tau28 = cms.EDFilter( "HLT2ElectronTau",
     saveTags = cms.bool( False ),
     MinMinv = cms.double( 0.0 ),
-    originTag2 = cms.InputTag( "hltOriginal2" ),
+    originTag2 = cms.InputTag( "hltAntiKT5CaloJetsPFEt5" ),
     MinDelR = cms.double( 0.3 ),
     MinPt = cms.double( 1.0 ),
     MinN = cms.int32( 1 ),
-    originTag1 = cms.InputTag( "hltOriginal1" ),
+    originTag1 = cms.InputTag( "hltPixelMatchElectronsL1Seeded" ),
     triggerType1 = cms.int32( 82 ),
     triggerType2 = cms.int32( 84 ),
     MaxMinv = cms.double( 14000.0 ),
@@ -33411,11 +33411,11 @@ process.hltEle20CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilterL1IsoEG18OrEG20 = cms
 process.hltOverlapFilterIsoEle18CaloJet5 = cms.EDFilter( "HLT2ElectronTau",
     saveTags = cms.bool( False ),
     MinMinv = cms.double( 0.0 ),
-    originTag2 = cms.InputTag( "hltOriginal2" ),
+    originTag2 = cms.InputTag( "hltAntiKT5CaloJetsPFEt5" ),
     MinDelR = cms.double( 0.3 ),
     MinPt = cms.double( 1.0 ),
     MinN = cms.int32( 1 ),
-    originTag1 = cms.InputTag( "hltOriginal1" ),
+    originTag1 = cms.InputTag( "hltPixelMatchElectronsL1Seeded" ),
     triggerType1 = cms.int32( 82 ),
     triggerType2 = cms.int32( 84 ),
     MaxMinv = cms.double( 14000.0 ),
@@ -33663,11 +33663,11 @@ process.hltEle22CaloIdVTCaloIsoTTrkIdTTrkIsoTTrackIsoFilterL1IsoEG20OrEG22 = cms
 process.hltOverlapFilterIsoEle22CaloJet5 = cms.EDFilter( "HLT2ElectronTau",
     saveTags = cms.bool( False ),
     MinMinv = cms.double( 0.0 ),
-    originTag2 = cms.InputTag( "hltOriginal2" ),
+    originTag2 = cms.InputTag( "hltAntiKT5CaloJetsPFEt5" ),
     MinDelR = cms.double( 0.3 ),
     MinPt = cms.double( 1.0 ),
     MinN = cms.int32( 1 ),
-    originTag1 = cms.InputTag( "hltOriginal1" ),
+    originTag1 = cms.InputTag( "hltPixelMatchElectronsL1Seeded" ),
     triggerType1 = cms.int32( 82 ),
     triggerType2 = cms.int32( 84 ),
     MaxMinv = cms.double( 14000.0 ),
