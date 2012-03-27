@@ -79,8 +79,7 @@ private:
   double xSection_, filterEff_, treeWeight;
 
   edm::InputTag recjets_,reccorjets_,genjets_,recmet_,recoPFMet_,genmet_,ht_,recoPFJets_,calotowers_,hltresults_,genEventInfo_;
-  edm::InputTag calotowersUpperR45_, calotowersLowerR45_, calotowersNoR45_;
-  edm::InputTag hltjets_, hltcorjets_, hltcorL1L2L3jets_, rho_;
+  edm::InputTag hltjets_, hltcorjets_, hltcorL1L2L3jets_;
   edm::InputTag muon_;
   edm::InputTag pfmuon_;
   std::string l1extramc_, l1extramu_;
@@ -89,7 +88,6 @@ private:
   edm::InputTag m_l1extraemn;
   edm::InputTag m_l1extrajetc;
   edm::InputTag m_l1extrajetf;
-  edm::InputTag m_l1extrajet;
   edm::InputTag m_l1extrataujet;
   edm::InputTag m_l1extramet;
   edm::InputTag m_l1extramht;
@@ -100,7 +98,7 @@ private:
 
   edm::InputTag MuCandTag2_,MuIsolTag2_,MuNoVtxCandTag2_,MuCandTag3_,MuIsolTag3_,MuTrkIsolTag3_;
   edm::InputTag oniaPixelTag_,oniaTrackTag_,DiMuVtx_,TrackerMuonTag_;
-  edm::InputTag L2Tau_, HLTTau_, PFTau_, PFTauTightCone_;
+  edm::InputTag HLTTau_, PFTau_, PFTauTightCone_;
   edm::InputTag PFJets_;
   
   //offline reco tau collection and discriminators
@@ -117,21 +115,12 @@ private:
   // btag OpenHLT input collections
   edm::InputTag m_rawBJets;
   edm::InputTag m_correctedBJets;
-  edm::InputTag m_correctedBJetsL1FastJet;
-  edm::InputTag m_pfBJets;
   edm::InputTag m_lifetimeBJetsL25;
   edm::InputTag m_lifetimeBJetsL3;
-  edm::InputTag m_lifetimeBJetsL25L1FastJet;
-  edm::InputTag m_lifetimeBJetsL3L1FastJet;
-  edm::InputTag m_lifetimePFBJetsL3;
   edm::InputTag m_lifetimeBJetsL25SingleTrack;
   edm::InputTag m_lifetimeBJetsL3SingleTrack;
-  edm::InputTag m_lifetimeBJetsL25SingleTrackL1FastJet;
-  edm::InputTag m_lifetimeBJetsL3SingleTrackL1FastJet;
   edm::InputTag m_performanceBJetsL25;
   edm::InputTag m_performanceBJetsL3;
-  edm::InputTag m_performanceBJetsL25L1FastJet;
-  edm::InputTag m_performanceBJetsL3L1FastJet;
 
   // egamma OpenHLT input collections
   edm::InputTag Electron_;
@@ -195,7 +184,7 @@ private:
   edm::InputTag VertexTagOffline0_;
 
   int errCnt;
-  static int errMax() { return 5; }
+  static int errMax() { return 100; }
 
   std::string _HistName; // Name of histogram file
   double _EtaMin,_EtaMax;

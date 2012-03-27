@@ -62,7 +62,7 @@ process.muontiming.TimingFillerParameters.DTTimingParameters.RequireBothProjecti
 process.muontiming.TimingFillerParameters.DTTimingParameters.DropTheta = True
 process.muontiming.TimingFillerParameters.DTTimingParameters.DoWireCorr = True
 process.muontiming.TimingFillerParameters.DTTimingParameters.MatchParameters.DTradius = 1.0
-process.muontiming.TimingFillerParameters.DTTimingParameters.HitError = 3
+
 
 ########################################################################
 process.nEventsBefEDM   = cms.EDProducer("EventCountProducer")

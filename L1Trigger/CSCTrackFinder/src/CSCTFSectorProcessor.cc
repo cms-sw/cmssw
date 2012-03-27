@@ -162,12 +162,8 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   firmSP_Map.insert(std::pair<int,int>(20101210,20101210));
   firmSP_Map.insert(std::pair<int,int>(20110204,20110118));
   firmSP_Map.insert(std::pair<int,int>(20110322,20110118));
-  // 2012 core with non linear dphi
+  
   firmSP_Map.insert(std::pair<int,int>(20120131,20120131));
-  firmSP_Map.insert(std::pair<int,int>(20120227,20120131));
-  //2012 core: 4 station track at |eta|>2.1 -> ME2-ME3-ME4
-  firmSP_Map.insert(std::pair<int,int>(20120313,20120313));
-  firmSP_Map.insert(std::pair<int,int>(20120319,20120313));
 }
 
 

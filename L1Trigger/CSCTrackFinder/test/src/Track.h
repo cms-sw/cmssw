@@ -52,7 +52,6 @@ namespace csctf_analysis
 	virtual int getPhiPacked() const {return -1;};
 	virtual int getChargePacked() const {return -1;};
 	virtual int getFR() const {return -1;};
-	virtual int getBX() const {return -1;};
 	virtual int getLUTAddress() const {return -1;};
 	virtual void fillSimvTFHist(const Track& simtrack, const Track& tftrack) const;
 	virtual void fillRateHist();

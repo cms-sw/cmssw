@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFMergeRankEtaQLUT
 //
 // 
-//   $Date: 2012/02/10 14:19:28 $
-//   $Revision: 1.7 $
+//   $Date: 2012/02/06 18:56:22 $
+//   $Revision: 1.6 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -63,8 +63,8 @@ unsigned L1MuGMTLFMergeRankEtaQLUT::TheLookupFunction (int idx, unsigned eta, un
 	flag =1;
     break;
   case 1: // bRPC
-    if (q==0 and fabs(etaValue)>0.7) flag=1;
-//    flag =1;
+//    if (q==0) flag=1;
+    flag =1;
     break;  
   case 2: // CSC
 //    if ( (q==2 || fabs(etaValue) < 1.2) ||  q==3) flag =1;

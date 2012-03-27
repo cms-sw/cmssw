@@ -1,6 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-import warnings
-warnings.warn('Configuration.StandardSequences.GeometryHCAL_cff is deprecated, please use Configuration.Geometry.GeometryHCAL_cff', DeprecationWarning, stacklevel=2)
+#
+# Geometry master configuration
+#
+# Ideal geometry, needed for simulation
+from Geometry.CMSCommonData.hcalOnlyGeometryXML_cfi import *
 
-from Configuration.Geometry.GeometryHCAL_cff import *
+#  Calorimeters
+from Geometry.CaloEventSetup.CaloTopology_cfi import *
+from Geometry.CaloEventSetup.CaloGeometry_cff import *
+CaloGeometryBuilder.SelectedCalos = ['HCAL', 'TOWER']
+
+

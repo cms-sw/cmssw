@@ -15,11 +15,5 @@
   <use   name="DataFormats/ParticleFlowCandidate"/>
   <use   name="DataFormats/EcalRecHit"/>
   <use   name="DataFormats/HcalRecHit"/>
-  <use   name="pythia6"/>
-  <use   name="GeneratorInterface/Core"/>
-  <use   name="GeneratorInterface/Pythia6Interface"/>
-  <use   name="roottmva"/>
-  <use   name="TauAnalysis/MCEmbeddingTools"/>
   <flags CXXFLAGS="-O0 -g3 -fno-inline"/> 
-  <flags   EDM_PLUGIN="1"/>
 </library>

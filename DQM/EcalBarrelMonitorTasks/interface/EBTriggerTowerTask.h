@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerTask.h
  *
- * $Date: 2011/08/30 09:32:03 $
- * $Revision: 1.30 $
+ * $Date: 2011/08/23 00:31:22 $
+ * $Revision: 1.29.8.1 $
  *
 */
 
@@ -29,6 +29,15 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
 
   /// Destructor
   virtual ~EBTriggerTowerTask();
+
+  /// number of trigger towers in eta
+  static const int nTTEta; 
+
+  /// number of trigger towers in phi
+  static const int nTTPhi; 
+
+  /// number of supermodules
+  static const int nSM; 
 
  protected:
 
@@ -76,6 +85,12 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
                      = edm::Handle<edm::TriggerResults>());
 
 
+  /// book monitor elements for real, or emulated digis
+  void setup( std::string const &nameext,
+	      std::string const  &folder, 
+	      bool emulated);
+  
+
   /// local event counter
   int ievt_;
 
@@ -97,8 +112,6 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
   array1 meEmulError_;
   array1 meEmulMatch_;
   array1 meVetoEmulError_;
-
-  array1 meEmulMatchIndex1D_;
 
   /// init flag
   bool init_;
@@ -133,6 +146,7 @@ class EBTriggerTowerTask : public edm::EDAnalyzer {
   std::string outputFile_;
 
   /// 1D emulator match 1D
+  MonitorElement* meEmulMatchIndex1D_;
   MonitorElement* meEmulMatchMaxIndex1D_;
 
   /// ET spectrums for the whole EB

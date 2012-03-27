@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/02/29 14:39:34 $
- *  $Revision: 1.17 $
+ *  $Date: 2012/03/01 13:40:27 $
+ *  $Revision: 1.18 $
  *
  *  \author Martin Grunewald
  *
@@ -23,7 +23,7 @@ static const edm::ParameterSet* s_dummyPSet()
 
 HLTConfigData::HLTConfigData():
   processPSet_(s_dummyPSet()),
-  processName_(""),
+  processName_(""), globalTag_(""),
   tableName_(), triggerNames_(), moduleLabels_(), saveTagsModules_(),
   triggerIndex_(), moduleIndex_(),
   hltL1GTSeeds_(),
@@ -38,7 +38,7 @@ HLTConfigData::HLTConfigData():
 
 HLTConfigData::HLTConfigData(const edm::ParameterSet* iPSet):
   processPSet_(iPSet),
-  processName_(""),
+  processName_(""), globalTag_(""),
   tableName_(), triggerNames_(), moduleLabels_(), saveTagsModules_(),
   triggerIndex_(), moduleIndex_(),
   hltL1GTSeeds_(),
@@ -62,6 +62,15 @@ void HLTConfigData::extract()
      processName_= processPSet_->getParameter<string>("@process_name");
    }
 
+   // Extract globaltag
+   globalTag_="";
+   if (processPSet_->exists("GlobalTag")) {
+     const ParameterSet& GlobalTagPSet(processPSet_->getParameterSet("GlobalTag"));
+     if (GlobalTagPSet.existsAs<std::string>("globaltag",true)) {
+       globalTag_=GlobalTagPSet.getParameter<std::string>("globaltag");
+     }
+   }
+
    // Obtain PSet containing table name (available only in 2_1_10++ files)
    if (processPSet_->existsAs<ParameterSet>("HLTConfigVersion",true)) {
      const ParameterSet& HLTPSet(processPSet_->getParameterSet("HLTConfigVersion"));
@@ -69,9 +78,11 @@ void HLTConfigData::extract()
        tableName_=HLTPSet.getParameter<string>("tableName");
      }
    }
+
    LogVerbatim("HLTConfigData") << "ProcessPSet with: "
 				<< processName_ << " "
-				<< tableName();
+				<< globalTag_ << " "
+				<< tableName_;
 
    // Extract trigger paths (= paths - end_paths)
    if (processPSet_->existsAs<ParameterSet>("@trigger_paths",true)) {
@@ -217,7 +228,8 @@ void HLTConfigData::dump(const std::string& what) const {
      cout << "HLTConfigData::dump: ProcessPSet = " << endl << *processPSet_ << endl;
    } else if (what=="ProcessName") {
      cout << "HLTConfigData::dump: ProcessName = " << processName_ << endl;
-
+   } else if (what=="GlobalTag") {
+     cout << "HLTConfigData::dump: GlobalTag = " << globalTag_ << endl;
    } else if (what=="TableName") {
      cout << "HLTConfigData::dump: TableName = " << tableName_ << endl;
    } else if (what=="Triggers") {

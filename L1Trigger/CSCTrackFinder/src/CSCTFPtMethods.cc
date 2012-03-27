@@ -3261,8 +3261,6 @@ float CSCTFPtMethods::Pt2Stn2012(int type, float eta, float dphi, int PtbyMLH, f
   int useBestMLH = PtbyMLH;
   int useBOXcut = false;
   int useDTBOXcut = true;
-  if(type == 5) useBOXcut = true; // useBOXcut for mode 5 which come from 3 station 
-  if(type == 5) type = 8; // 2-3-4 -> 2-3//
   
     if(fabs(eta) >= 2.4) eta = 2.35;  
     double PTsolv = 1.; // for muon plus hypothesis
@@ -3362,8 +3360,7 @@ float CSCTFPtMethods::Pt2Stn2012(int type, float eta, float dphi, int PtbyMLH, f
           break;
           case 13 :  //1-4
                  if(iETA1 < 9)iETA1 = 9;
-                 if(iETA1 > 11)iETA1 = 11;
-                 //if(iETA1 > 12)iETA1 = 12;
+                 if(iETA1 > 12)iETA1 = 12;
                  if(fr == 1){
                    par1[0] = A_mu14Front[0][iETA1];
                    par1[1] = A_mu14Front[1][iETA1];
@@ -3548,7 +3545,6 @@ float CSCTFPtMethods::Pt3Stn2012(int type, float eta, float dphi1, float dphi2, 
   int useBestMLH = PtbyMLH;
   int use2Stn = false;
   int use2StnDT = true;
-  if(type == 5) use2Stn = true;//switch 2 station assighment for mode = 5
   
     if(fabs(eta) >= 2.4)eta = 2.35;
     float Pt = 0.;
@@ -3806,6 +3802,7 @@ float CSCTFPtMethods::Pt3Stn2012(int type, float eta, float dphi1, float dphi2, 
               {
                 if(type == 2 || type == 3) type = 6; // 1-2-3(or 4) -> 1-2 
                 if(type == 4) type = 7; // 1-3-4 -> 1-3
+                if(type == 5) type = 8; // 2-3-4 -> 2-3
                 Pt = Pt2Stn2012(type, eta, dphi1, useBestMLH, bestLH, fr, method);
               }
             if (use2StnDT)

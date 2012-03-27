@@ -97,12 +97,9 @@ private:
         std::string gtObject1;
         std::string gtObject2;
         bool condGEq;
-        short countIndex;
-        short countThreshold;
-
-        // FIXME - Oracle / Coral pretends that chargeCorrelation is bool in OMDS
-        //         can not be - it has three values...
-        bool chargeCorrelation;
+        float countIndex;
+        float countThreshold;
+        float chargeCorrelation;
         std::string objectParameter1FK;
         std::string objectParameter2FK;
         std::string objectParameter3FK;
@@ -113,19 +110,19 @@ private:
 
     struct TableMenuObjectParameters {
         std::string opId;
-        short ptHighThreshold;
-        short ptLowThreshold;
-        bool enableMip;
-        bool enableIso;
-        bool requestIso;
-        bool energyOverflow;
+        float ptHighThreshold;
+        float ptLowThreshold;
+        float enableMip;
+        float enableIso;
+        float requestIso;
+        float energyOverflow;
         float etThreshold;
         std::string etaRange;
         std::string phiRange;
-        short phiHigh;
-        short phiLow;
+        float phiHigh;
+        float phiLow;
         std::string qualityRange;
-        bool charge;
+        float charge;
 
     };
 

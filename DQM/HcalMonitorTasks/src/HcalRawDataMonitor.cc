@@ -522,10 +522,10 @@ void HcalRawDataMonitor::analyze(const edm::Event& e, const edm::EventSetup& s){
   
   // try to get die Data
   edm::Handle<FEDRawDataCollection> rawraw;
-  //if (!(e.getByLabel(FEDRawDataCollection_,rawraw)))
-  if (!(e.getByType(rawraw)))
+  if (!(e.getByLabel(FEDRawDataCollection_,rawraw)))
+  //  if (!(e.getByType(rawraw)))
     {
-      edm::LogWarning("HcalRawDataMonitor")<<" raw data with label "<<FEDRawDataCollection_ <<" not available by type";
+      edm::LogWarning("HcalRawDataMonitor")<<" raw data with label "<<FEDRawDataCollection_ <<" not available";
       return;
     }
   edm::Handle<HcalUnpackerReport> report;  
