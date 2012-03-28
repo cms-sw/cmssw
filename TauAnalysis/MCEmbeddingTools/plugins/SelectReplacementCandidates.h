@@ -22,8 +22,6 @@
 #include "Math/VectorUtil.h"
 
 
-using namespace std;
-using namespace edm;
 
 class SelectReplacementCandidates : public edm::EDProducer {
 public:
