@@ -120,23 +120,50 @@ from  DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi import *
 # APV Phase Producer
 from DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2011_cfi import *
 
+# LogMessageMonitor ####
+from DQM.TrackingMonitor.LogMessageMonitor_cfi import *
+
+# temporary patch in order to have BXlumi 
+from RecoLuminosity.LumiProducer.lumiProducer_cff import *
+
+from PhysicsTools.SelectorUtils.pvSelector_cfi import pvSelector
+# temporary test in order to temporary produce the "goodPrimaryVertexCollection"
+goodOfflinePrimaryVertices = cms.EDFilter(
+    "PrimaryVertexObjectFilter",
+    filterParams = pvSelector.clone( minNdof = cms.double(4.0), maxZ = cms.double(24.0) ),
+    src=cms.InputTag('offlinePrimaryVertices')
+)
+
 # Sequence
 SiStripDQMTier0 = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster
     *SiStripMonitorTrackCommon*MonitorTrackResiduals
-    *TrackerCollisionTrackMonCommon
+    # temporary patch in order to have BXlumi
+    * lumiProducer
+    # temporary test in order to have the "goodPrimaryVertexCollection"
+    * goodOfflinePrimaryVertices *TrackerCollisionTrackMonCommon
+    * LogMessageMon
     *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
     *dqmInfoSiStrip)
 
 SiStripDQMTier0Common = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster
-    *SiStripMonitorTrackCommon*TrackerCollisionTrackMonCommon
+    *SiStripMonitorTrackCommon
+    # temporary patch in order to have BXlumi
+    * lumiProducer
+    # temporary test in order to have the "goodPrimaryVertexCollection"
+    * goodOfflinePrimaryVertices *TrackerCollisionTrackMonCommon
+    * LogMessageMon
     *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
     *dqmInfoSiStrip)
 
 SiStripDQMTier0MinBias = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster
-    *SiStripMonitorTrackMB*MonitorTrackResiduals*TrackerCollisionTrackMonMB
+    *SiStripMonitorTrackMB*MonitorTrackResiduals
+    * lumiProducer
+    # temporary test in order to have the "goodPrimaryVertexCollection"
+    * goodOfflinePrimaryVertices *TrackerCollisionTrackMonMB
+    * LogMessageMon
     *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
     *dqmInfoSiStrip)
 
