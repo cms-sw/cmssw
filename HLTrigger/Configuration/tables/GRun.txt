@@ -76,21 +76,21 @@ HLT_Mu20_eta2p1_TriCentralPFJet30_v*                                            
 HLT_Mu20_eta2p1_TriCentralPFJet50_40_30_v*                                                      #sr126618, sr127333
 HLT_Mu20_eta2p1_CentralPFJet30_BTagIPIter_v*                                                    #sr126618, sr127333
 
-#HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFNoPUJet30_v*						#sr127305, removed from GRun and online for now sr127452
-#HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFNoPUJet50_40_30_v*                                        #sr127305, removed from GRun and online for now sr127452
-#HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_v*				#sr127305, removed from GRun and online for now sr127452
-#HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFNoPUJet30_v*                             #sr127305, removed from GRun and online for now sr127452
-#HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralPFNoPUJet30_v*                              #sr127305, removed from GRun and online for now sr127452
-#HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v*                     #sr127305, removed from GRun and online for now sr127452
-#HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFNoPUJet50_40_30_v*                       #sr127305, removed from GRun and online for now sr127452
-#HLT_IsoMu20_eta2p1_CentralPFNoPUJet30_BTagIPIter_v*                                             #sr127305, removed from GRun and online for now sr127452
-#HLT_IsoMu20_eta2p1_CentralPFNoPUJet30_v*                                                        #sr127305, removed from GRun and online for now sr127452
-#HLT_IsoMu20_eta2p1_DiCentralPFNoPUJet30_v*                                                      #sr127305, removed from GRun and online for now sr127452
-#HLT_IsoMu20_eta2p1_TriCentralPFNoPUJet30_v*                                                     #sr127305, removed from GRun and online for now sr127452
-#HLT_IsoMu20_eta2p1_TriCentralPFNoPUJet50_40_30_v*                                               #sr127305, removed from GRun and online for now sr127452
-#HLT_Mu20_eta2p1_CentralPFNoPUJet30_BTagIPIter_v*                                                #sr127305, removed from GRun and online for now sr127452
-#HLT_Mu20_eta2p1_TriCentralPFNoPUJet30_v*                                                        #sr127305, removed from GRun and online for now sr127452
-#HLT_Mu20_eta2p1_TriCentralPFNoPUJet50_40_30_v*                                                  #sr127305, removed from GRun and online for now sr127452
+HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFNoPUJet30_v*						#sr127305
+HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFNoPUJet50_40_30_v*                                        #sr127305
+HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_v*				#sr127305
+HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFNoPUJet30_v*                             #sr127305
+HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralPFNoPUJet30_v*                              #sr127305
+HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v*                     #sr127305
+HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFNoPUJet50_40_30_v*                       #sr127305
+HLT_IsoMu20_eta2p1_CentralPFNoPUJet30_BTagIPIter_v*                                             #sr127305
+HLT_IsoMu20_eta2p1_CentralPFNoPUJet30_v*                                                        #sr127305
+HLT_IsoMu20_eta2p1_DiCentralPFNoPUJet30_v*                                                      #sr127305
+HLT_IsoMu20_eta2p1_TriCentralPFNoPUJet30_v*                                                     #sr127305
+HLT_IsoMu20_eta2p1_TriCentralPFNoPUJet50_40_30_v*                                               #sr127305
+HLT_Mu20_eta2p1_CentralPFNoPUJet30_BTagIPIter_v*                                                #sr127305
+HLT_Mu20_eta2p1_TriCentralPFNoPUJet30_v*                                                        #sr127305
+HLT_Mu20_eta2p1_TriCentralPFNoPUJet50_40_30_v*                                                  #sr127305
 
 HLT_Ele30_CaloIdVT_TrkIdT_PFJet100_PFJet25_v*                                                   #sr126292
 HLT_Ele30_CaloIdVT_TrkIdT_PFJet150_PFJet25_v*                                                   #sr126292
@@ -108,8 +108,8 @@ HLT_DoublePhoton70_v*                                                           
 HLT_DoublePhoton80_v*                                                                           #sr126292
 HLT_Photon135_v*                                                                                #sr126292
 
-#HLT_Ele30_CaloIdVT_TrkIdT_PFNoPUJet100_PFNoPUJet25_v*						#sr127353, removed from GRun and online for now sr127452
-#HLT_Ele30_CaloIdVT_TrkIdT_PFNoPUJet150_PFNoPUJet25_v*						#sr127353, removed from GRun and online for now sr127452
+HLT_Ele30_CaloIdVT_TrkIdT_PFNoPUJet100_PFNoPUJet25_v*						#sr127353
+HLT_Ele30_CaloIdVT_TrkIdT_PFNoPUJet150_PFNoPUJet25_v*						#sr127353
 
 HLT_L2Mu20_eta2p1_NoVertex_v*                                                                   #sr126302
 HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v*                                                         #sr126302
@@ -489,8 +489,8 @@ HLT_PixelTracks_Multiplicity70_v*								#sr126810
 HLT_PixelTracks_Multiplicity80_v*								#sr126810
 HLT_PixelTracks_Multiplicity90_v*								#sr126810
 
-HLT_Jet20_v*											#sr126817
-HLT_Jet50_v*											#sr126817
+HLT_Jet20_NoL1FastJet_v*									#sr126817
+HLT_Jet50_NoL1FastJet_v*									#sr126817
 HLT_Jet370_NoJetID_v*                                                                           #added in favor of HLT_Jet370
 HLT_DoubleJet20_ForwardBackward_v*								#sr126817
 HLT_DoublePhoton5_IsoVL_CEP_v*									#sr126817
