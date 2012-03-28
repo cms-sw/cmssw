@@ -66,12 +66,15 @@ bool HcalDetId::validDetId( HcalSubdetector sd,
 	   ( dp >=  1         ) &&
 	   ( ie >=  1         ) &&
 	   ( ( ( sd == HcalBarrel ) &&
-	       ( ( ie <= 17  ) &&  ( dp <=  7  ) ) ) ||
-	     (  ( sd == HcalEndcap ) &&
-		( ( ( ie == 16 ) &&
-		    ( dp >=  3 ) && ( dp <= 7  ) ) ||
-		  ( ( ie >= 17 ) && ( ie <= 29 ) &&
-		    ( dp <=  7 )               ) ) ) ||
+	       ( ( ( ie <= 15         ) &&
+		   ( dp <= maxDepthHB )    ) ||
+		 ( ( ( ie == 16 ) ) && 
+		   ( dp <= 2          )    ) ) ) ||
+	     ( ( sd == HcalEndcap ) &&
+	       ( ( ( ie >= 16 ) && ( ie <= 20 ) &&
+		   ( dp <= maxDepthHE )    ) ||
+		 ( ( ie >= 21 ) && ( ie <= 29 ) &&
+		   ( dp <= maxDepthHE )    ) ) ) ||
 	     (  ( sd == HcalOuter ) &&
 		( ie <= 15 ) &&
 		( dp ==  4 )           ) ||
@@ -163,8 +166,27 @@ int HcalDetId::hashed_index() const {
 		    2*kHBhalf + 2*kHEhalf + 2*kHOhalf + 
 		    ( ( ip - 1 )/4 )*4 + ( ( ip - 1 )/2 )*22 + 
 		    2*( ie - 29 ) + ( dp - 1 ) + zn*kHFhalf : -1 ) ) ) ) ; 
-  } else {
-    index = ((((dp-1)*4+((int)(sd)-1))*2+zn)*41+(ie-1))*72+(ip-1);
+  } else if (validDetId(sd,ie,ip,dp)) {
+    int depthHBPreLS1[15] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,2};
+    int offHBDepth[15] = {0,(maxDepthHB-2), (2*maxDepthHB-4), (3*maxDepthHB-6),
+			  (4*maxDepthHB-8),(5*maxDepthHB-10),(6*maxDepthHB-12),
+			  (7*maxDepthHB-14),(8*maxDepthHB-16),(9*maxDepthHB-18),
+			  (10*maxDepthHB-20),(11*maxDepthHB-22),(12*maxDepthHB-24),
+			  (13*maxDepthHB-26),(14*maxDepthHB-28)};
+    int depthHEPreLS1[14] = {3,1,2,2,2,2,2,2,2,2,2,3,3,2};
+    int offHEDepth[14] = {0,(maxDepthHE-4), (2*maxDepthHE-6), (3*maxDepthHE-9),
+			  (4*maxDepthHE-12),(5*maxDepthHE-15),(6*maxDepthHE-18),
+			  (7*maxDepthHE-21),(8*maxDepthHE-24),(9*maxDepthHE-27),
+			  (10*maxDepthHE-30),(11*maxDepthHE-33),(12*maxDepthHE-36),
+			  (13*maxDepthHE-39)};
+    if (sd == HcalBarrel) {
+      index = kSizeForDenseIndexingPreLS1 + (ip-1)*(15*maxDepthHB-16) +
+      offHBDepth[ie-1] + dp - depthHBPreLS1[ie-1] + ie-2 + zn*kHBHalfExtra;
+    } else if (sd == HcalEndcap) {
+      index = kSizeForDenseIndexingPreLS1 + kHBSizeExtra + 
+      (ip-1)*(5*maxDepthHE-10)+ ( ip/2 )*(9*maxDepthHE-20) + 
+      offHEDepth[ie-16] + dp - depthHEPreLS1[ie-16] + ie-17 + zn*kHEHalfExtra;
+    }
   }
 
   return index;
@@ -235,22 +257,51 @@ HcalDetId HcalDetId::detIdFromDenseIndex( uint32_t di ) {
 	}
       }
     } else {
-      ip  = (di%72) + 1;
-      in += (1-ip);
-      in /= 72;
-      ie  = (in%41) + 1;
-      in += (1-ie);
-      in /= 41;
-      int zn = in%2;
-      iz  = (zn > 0 ? -1 : 1);
-      in -= zn;
-      in /= 2;
-      int is = in%4;
-      if      (is == 1) sd = HcalEndcap;
-      else if (is == 2) sd = HcalOuter;
-      else if (is == 3) sd = HcalForward;
-      in -= is;
-      dp  = (in/4) + 1;
+      int depthHBPreLS1[15] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,2};
+      int offHBDepth[15] = {0,(maxDepthHB-2), (2*maxDepthHB-4), (3*maxDepthHB-6),
+			    (4*maxDepthHB-8),(5*maxDepthHB-10),(6*maxDepthHB-12),
+			    (7*maxDepthHB-14),(8*maxDepthHB-16),(9*maxDepthHB-18),
+			    (10*maxDepthHB-20),(11*maxDepthHB-22),(12*maxDepthHB-24),
+			    (13*maxDepthHB-26),(14*maxDepthHB-28)};
+      int depthHEPreLS1[14] = {3,1,2,2,2,2,2,2,2,2,2,3,3,2};
+      int offHEDepth[14] = {0,(maxDepthHE-4), (2*maxDepthHE-6), (3*maxDepthHE-9),
+			    (4*maxDepthHE-12),(5*maxDepthHE-15),(6*maxDepthHE-18),
+			    (7*maxDepthHE-21),(8*maxDepthHE-24),(9*maxDepthHE-27),
+			    (10*maxDepthHE-30),(11*maxDepthHE-33),(12*maxDepthHE-36),
+			    (13*maxDepthHE-39)};
+      in -= kSizeForDenseIndexingPreLS1;
+      if ( in > kHBSizeExtra - 1 ) { // Endcap
+	sd  = HcalEndcap ;
+	in -= kHBSizeExtra ;
+	iz  = (in<kHEHalfExtra ? 1 : -1 ) ;
+	in %= kHEHalfExtra; 
+	ip  = 2*(in/(19*maxDepthHE-40) ) ;
+	in %= (19*maxDepthHE-40);
+	ip += (1 + in/(14*maxDepthHE-28));
+	if ( 0 == ip%2 ) in %= (14*maxDepthHE-28);
+	for (int i=13; i>=0; i--) {
+	  int ioff = offHEDepth[i] + i - 1;
+	  if (in > ioff) {
+	    ie = i + 16;
+	    dp = in - ioff + depthHEPreLS1[i];
+	    break;
+	  }
+	}
+      } else { // Barrel
+	sd  = HcalBarrel;
+	iz  = ( in<kHBHalfExtra ? 1 : -1 );
+	in %= kHBHalfExtra; 
+	ip  = ( in/(15*maxDepthHB-16) ) + 1;
+	in %= (15*maxDepthHB-16);
+	for (int i=14; i >= 0; --i) {
+	  int ioff = offHBDepth[i] + i - 1;
+	  if (in > ioff) {
+	    ie = i + 1;
+	    dp = in - ioff + depthHBPreLS1[i];
+	    break;
+	  }
+	}
+      }
     }
     return HcalDetId( sd, iz*int(ie), ip, dp ) ;
   } else {

@@ -70,6 +70,8 @@ public:
 
   static const HcalDetId Undefined;
 
+  static const int maxDepthHB=7, maxDepthHE=7;
+
 private:
 
   enum { kHBhalf = 1296 ,
@@ -80,16 +82,20 @@ private:
   enum { kSizeForDenseIndexingPreLS1 = 2*kHcalhalf } ;
   enum { kHBSizePreLS1 = 2*kHBhalf } ;
   enum { kHESizePreLS1 = 2*kHEhalf } ;
+  enum { kHBHalfExtra  = 72*(maxDepthHB*15-16) };
+  enum { kHEHalfExtra  = 36*(maxDepthHE*19-40) };
+  enum { kHBSizeExtra  = 2*kHBHalfExtra };
+  enum { kHESizeExtra  = 2*kHEHalfExtra };
 
   static bool validDenseIndexPreLS1( uint32_t din ) { return ( din < kSizeForDenseIndexingPreLS1 ) ; }
 
 public:
 
-  enum { kSizeForDenseIndexing = 152640 } ;
-  enum { kHBSize = 16128 } ;
-  enum { kHESize = 9288 } ;
+  enum { kHBSize = kHBSizePreLS1+kHBSizeExtra } ;
+  enum { kHESize = kHESizePreLS1+kHESizeExtra } ;
   enum { kHOSize = 2*kHOhalf } ;
   enum { kHFSize = 2*kHFhalf } ;
+  enum { kSizeForDenseIndexing = kHBSize+kHESize+kHOSize+kHFSize } ;
 
 };
 
