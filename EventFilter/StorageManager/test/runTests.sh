@@ -7,6 +7,7 @@ source testSetup.sh
 tests="\
  CommandQueue_t\
  ConcurrentQueue_t\
+ ConsumerID_t\
  ConsumerRegistrationInfo_t\
  EnquingPolicyTag_t\
  MockNotifier_t\
@@ -15,16 +16,15 @@ tests="\
  ExpirableQueue_t\
  FragmentStore_t\
  I2OChain_t\
- MemoryChainDuplicate_t\
+ InitMsgCollection_t\
  MonitoredQuantity_t\
  QueueID_t\
- ResourceMonitorCollection_t \
- Sleep_t \
- StreamQueue_t \
- Time_t \
- TriggerSelector_t \
+ ResourceMonitorCollection_t\
+ Sleep_t\
+ StreamQueue_t\
+ Time_t\
+ TriggerSelector_t\
  state_machine_t\
- workloop_t\
  xhtmlmaker_t"
 
 error=0
