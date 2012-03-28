@@ -1,3 +1,4 @@
+#include "TH1D.h"
 
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -20,7 +21,7 @@ namespace evf{
     class ExceptionGenerator : public edm::EDAnalyzer, public evf::ModuleWeb
     {
     public:
-      static const int menu_items = 10;
+      static const int menu_items = 12;
       static const std::string menu[menu_items];
 						   
       explicit ExceptionGenerator( const edm::ParameterSet& );
@@ -39,7 +40,7 @@ namespace evf{
       std::string qualifier_;
       bool actionRequired_;
       std::string original_referrer_;
-
+      TH1D* timingHisto_;
     };
   }
 
