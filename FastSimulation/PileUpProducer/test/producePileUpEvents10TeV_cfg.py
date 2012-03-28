@@ -1,52 +1,28 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PileUp")
+
+process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
+process.RandomNumberGeneratorService.generator.initialSeed = 123456789
+
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(100)
 )
-process.source = cms.Source("PythiaSource",
-    pythiaPylistVerbosity = cms.untracked.int32(0),
-    # put here the efficiency of your filter (1. if no filter) dummy
-    filterEfficiency = cms.untracked.double(1.0),
+
+from Configuration.Generator.PythiaUEZ2Settings_cfi import *
+
+process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
-    # breaking news 10 TeV center of mass energy...
-    comEnergy = cms.untracked.double(10000.0),
-    # put here the cross section of your process (in pb) dummy
+    maxEventsToPrint = cms.untracked.int32(0),
+    pythiaPylistVerbosity = cms.untracked.int32(1),
+    filterEfficiency = cms.untracked.double(1.0),
     crossSection = cms.untracked.double(55000000000.0),
-    maxEventsToPrint = cms.untracked.int32(2),
+    comEnergy = cms.double(10000.0),
     PythiaParameters = cms.PSet(
-        pythiaUESettings = cms.vstring('MSTJ(11)=3     ! Choice of the fragmentation function', 
-            'MSTJ(22)=2     ! Decay those unstable particles', 
-            'PARJ(71)=10 .  ! for which ctau  10 mm', 
-            'MSTP(2)=1      ! which order running alphaS', 
-            'MSTP(33)=0     ! no K factors in hard cross sections', 
-            'MSTP(51)=10042     ! CTEQ6L1 structure function chosen', 
-            'MSTP(52)=2     ! work with LHAPDF', 
-            'MSTP(81)=1     ! multiple parton interactions 1 is Pythia default', 
-            'MSTP(82)=4     ! Defines the multi-parton model', 
-            'MSTU(21)=1     ! Check on possible errors during program execution', 
-            'PARP(82)=1.8387   ! pt cutoff for multiparton interactions', 
-            'PARP(89)=1960. ! sqrts for which PARP82 is set', 
-            'PARP(83)=0.5   ! Multiple interactions: matter distrbn parameter', 
-            'PARP(84)=0.4   ! Multiple interactions: matter distribution parameter', 
-            'PARP(90)=0.16  ! Multiple interactions: rescaling power', 
-            'PARP(67)=2.5    ! amount of initial-state radiation', 
-            'PARP(85)=1.0  ! gluon prod. mechanism in MI', 
-            'PARP(86)=1.0  ! gluon prod. mechanism in MI', 
-            'PARP(62)=1.25   ! ', 
-            'PARP(64)=0.2    ! ', 
-            'MSTP(91)=1     !', 
-            'PARP(91)=2.1   ! kt distribution', 
-            'PARP(93)=15.0  ! '),
-        # This is a vector of ParameterSet names to be read, in this order
-        # The first two are in the include files below
-        # The last one are simply my additional parameters
-        parameterSets = cms.vstring('pythiaUESettings', 
-            'pythiaMinBias', 
-            'myParameters'),
-        pythiaMinBias = cms.vstring('MSEL=0         ! User defined processes', 
+        pythiaUESettingsBlock,
+        processParameters = cms.vstring('MSEL=0         ! User defined processes', 
             'MSUB(11)=1     ! Min bias process', 
             'MSUB(12)=1     ! Min bias process', 
             'MSUB(13)=1     ! Min bias process', 
@@ -57,15 +33,29 @@ process.source = cms.Source("PythiaSource",
             'MSUB(93)=1     ! Min bias process, single diffractive', 
             'MSUB(94)=1     ! Min bias process, double diffractive', 
             'MSUB(95)=1     ! Min bias process'),
-        #    Disable the ctau check 
+        # This is a vector of ParameterSet names to be read, in this order
+        parameterSets = cms.vstring('pythiaUESettings', 
+            'processParameters', 'myParameters'),
+        #    Disable the ctau check
         myParameters = cms.vstring('PARJ(71) = -1.')
     )
 )
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    # this sets the random number seed used by Pythia
-    sourceSeed = cms.untracked.uint32(123456)
-)
+
+process.GENoutput = cms.OutputModule("PoolOutputModule",
+                                     splitLevel = cms.untracked.int32(0),
+                                     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
+                                     outputCommands = cms.untracked.vstring(
+    'drop *',
+    'keep GenRunInfoProduct_generator_*_*',
+    'keep GenEventInfoProduct_generator_*_*',
+    'keep edmHepMCProduct_generator_*_*',
+    'keep edmHepMCProduct_source_*_*', 
+    'keep GenFilterInfo_*_*_*',
+    'keep *_genParticles_*_*'
+    ),
+                                     fileName = cms.untracked.string('MinBias10TeV_GEN.root'),
+                                     )
 
 process.prodPU = cms.EDProducer("producePileUpEvents",
     PUParticleFilter = cms.PSet(
@@ -84,6 +74,16 @@ process.prodPU = cms.EDProducer("producePileUpEvents",
     BunchPileUpEventSize = cms.uint32(1000)
 )
 
-process.p = cms.Path(process.prodPU)
+outputType = 'edm'
+#outputType = 'ntuple'
+
+process.source = cms.Source("EmptySource")
+if (outputType=='edm'):
+    process.p = cms.Path(process.generator)
+    process.GENoutput_step = cms.EndPath(process.GENoutput)
+elif (outputType=='ntuple'):
+    process.p = cms.Path(process.generator*process.prodPU)
+else:
+    process.p = cms.Path(process.generator) # just run but save nothing
 
 
