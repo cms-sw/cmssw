@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik, Riccardo Bellan, Michalis Bachtis
  *
- * \version $Id: Muon.h,v 1.69 2012/03/10 21:21:46 dmytro Exp $
+ * \version $Id: Muon.h,v 1.70 2012/03/21 22:11:05 slava77 Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -208,7 +208,7 @@ namespace reco {
     bool isStandAloneMuon() const { return type_ & StandAloneMuon; }
     bool isCaloMuon() const { return type_ & CaloMuon; }
     bool isPFMuon() const {return type_ & PFMuon;} //fix me ! Has to go to type
-    bool isPPCMuon() const {return type_ & RPCMuon;}
+    bool isRPCMuon() const {return type_ & RPCMuon;}
     
   private:
     /// check overlap with another candidate
