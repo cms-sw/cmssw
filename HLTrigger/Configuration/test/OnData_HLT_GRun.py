@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/GRun/V43 (CMSSW_5_2_1_HLT2)
+# /dev/CMSSW_5_2_1/GRun/V44 (CMSSW_5_2_1_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V43')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V44')
 )
 
 process.streams = cms.PSet( 
@@ -542,7 +542,7 @@ process.datasets = cms.PSet(
     'HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_v3',
     'HLT_Ele27_WP80_CentralPFJet80_v3',
     'HLT_Ele27_WP80_PFJet30_PFJet25_Deta3_v3',
-    'HLT_Ele27_WP80_PFMT50_v13',
+    'HLT_Ele27_WP80_PFMET_MT50_v13',
     'HLT_Ele27_WP80_WCandPt80_v1',
     'HLT_Ele27_WP80_v7',
     'HLT_Ele30_CaloIdVT_TrkIdT_PFJet100_PFJet25_v2',
@@ -986,7 +986,7 @@ process.datasets = cms.PSet(
     'HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_v3',
     'HLT_Ele27_WP80_CentralPFJet80_v3',
     'HLT_Ele27_WP80_PFJet30_PFJet25_Deta3_v3',
-    'HLT_Ele27_WP80_PFMT50_v13',
+    'HLT_Ele27_WP80_PFMET_MT50_v13',
     'HLT_Ele27_WP80_WCandPt80_v1',
     'HLT_Ele27_WP80_v7',
     'HLT_Ele30_CaloIdVT_TrkIdT_PFJet100_PFJet25_v2',
@@ -1421,7 +1421,7 @@ process.datasets = cms.PSet(
     'HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_v3',
     'HLT_Ele27_WP80_CentralPFJet80_v3',
     'HLT_Ele27_WP80_PFJet30_PFJet25_Deta3_v3',
-    'HLT_Ele27_WP80_PFMT50_v13',
+    'HLT_Ele27_WP80_PFMET_MT50_v13',
     'HLT_Ele27_WP80_WCandPt80_v1',
     'HLT_Ele27_WP80_v7',
     'HLT_Ele30_CaloIdVT_TrkIdT_PFJet100_PFJet25_v2',
@@ -1782,7 +1782,7 @@ process.datasets = cms.PSet(
   SingleElectron = cms.vstring( 'HLT_Ele100_CaloIdVT_TrkIdT_v7',
     'HLT_Ele22_CaloIdL_CaloIsoVL_v2',
     'HLT_Ele27_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v7',
-    'HLT_Ele27_WP80_PFMT50_v13',
+    'HLT_Ele27_WP80_PFMET_MT50_v13',
     'HLT_Ele27_WP80_v7',
     'HLT_Ele30_CaloIdVT_TrkIdT_v2',
     'HLT_Ele32_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v7',
@@ -5369,7 +5369,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
       cms.PSet(  pathName = cms.string( "HLT_Ele27_WP80_v7" ),
         prescales = cms.vuint32( 1, 1, 4, 160, 120, 120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
       ),
-      cms.PSet(  pathName = cms.string( "HLT_Ele27_WP80_PFMT50_v13" ),
+      cms.PSet(  pathName = cms.string( "HLT_Ele27_WP80_PFMET_MT50_v13" ),
         prescales = cms.vuint32( 100, 100, 100, 80, 60, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Ele30_CaloIdVT_TrkIdT_v2" ),
@@ -26719,7 +26719,7 @@ process.hltEle27WP80TrackIsoFilter = cms.EDFilter( "HLTElectronGenericFilter",
     thrOverPtEE = cms.double( 0.05 ),
     thrOverPtEB = cms.double( 0.05 )
 )
-process.hltPreEle27WP80PFMT50 = cms.EDFilter( "HLTPrescaler",
+process.hltPreEle27WP80PFMETMT50 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -40183,7 +40183,7 @@ process.hltPreDQMForPPOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Ele27_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT15_v3',
       'HLT_Ele23_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT30_v3',
       'HLT_Ele27_WP80_v7',
-      'HLT_Ele27_WP80_PFMT50_v13',
+      'HLT_Ele27_WP80_PFMET_MT50_v13',
       'HLT_Ele30_CaloIdVT_TrkIdT_v2',
       'HLT_Ele32_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v7',
       'HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_Mass50_v2',
@@ -40663,7 +40663,7 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Ele27_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT15_v3',
       'HLT_Ele23_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT30_v3',
       'HLT_Ele27_WP80_v7',
-      'HLT_Ele27_WP80_PFMT50_v13',
+      'HLT_Ele27_WP80_PFMET_MT50_v13',
       'HLT_Ele30_CaloIdVT_TrkIdT_v2',
       'HLT_Ele32_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v7',
       'HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_Mass50_v2',
@@ -41123,7 +41123,7 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Ele27_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT15_v3',
       'HLT_Ele23_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT30_v3',
       'HLT_Ele27_WP80_v7',
-      'HLT_Ele27_WP80_PFMT50_v13',
+      'HLT_Ele27_WP80_PFMET_MT50_v13',
       'HLT_Ele30_CaloIdVT_TrkIdT_v2',
       'HLT_Ele32_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v7',
       'HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_Mass50_v2',
@@ -41475,7 +41475,7 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_v3',
   'HLT_Ele27_WP80_CentralPFJet80_v3',
   'HLT_Ele27_WP80_PFJet30_PFJet25_Deta3_v3',
-  'HLT_Ele27_WP80_PFMT50_v13',
+  'HLT_Ele27_WP80_PFMET_MT50_v13',
   'HLT_Ele27_WP80_WCandPt80_v1',
   'HLT_Ele27_WP80_v7',
   'HLT_Ele30_CaloIdVT_TrkIdT_PFJet100_PFJet25_v2',
@@ -41988,7 +41988,7 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_v3',
   'HLT_Ele27_WP80_CentralPFJet80_v3',
   'HLT_Ele27_WP80_PFJet30_PFJet25_Deta3_v3',
-  'HLT_Ele27_WP80_PFMT50_v13',
+  'HLT_Ele27_WP80_PFMET_MT50_v13',
   'HLT_Ele27_WP80_WCandPt80_v1',
   'HLT_Ele27_WP80_v7',
   'HLT_Ele30_CaloIdVT_TrkIdT_PFJet100_PFJet25_v2',
@@ -42503,7 +42503,7 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_v3',
   'HLT_Ele27_WP80_CentralPFJet80_v3',
   'HLT_Ele27_WP80_PFJet30_PFJet25_Deta3_v3',
-  'HLT_Ele27_WP80_PFMT50_v13',
+  'HLT_Ele27_WP80_PFMET_MT50_v13',
   'HLT_Ele27_WP80_WCandPt80_v1',
   'HLT_Ele27_WP80_v7',
   'HLT_Ele30_CaloIdVT_TrkIdT_PFJet100_PFJet25_v2',
@@ -42973,7 +42973,7 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_v3',
   'HLT_Ele27_WP80_CentralPFJet80_v3',
   'HLT_Ele27_WP80_PFJet30_PFJet25_Deta3_v3',
-  'HLT_Ele27_WP80_PFMT50_v13',
+  'HLT_Ele27_WP80_PFMET_MT50_v13',
   'HLT_Ele27_WP80_WCandPt80_v1',
   'HLT_Ele27_WP80_v7',
   'HLT_Ele30_CaloIdVT_TrkIdT_PFJet100_PFJet25_v2',
@@ -43956,7 +43956,7 @@ process.HLT_Ele27_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele15_CaloIdT_CaloIsoVL_tra
 process.HLT_Ele27_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT15_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG20ORL1SingleEG22 + process.hltPreEle27CaloIdTCaloIsoVLTrkIdVLTrkIsoVLHFT15 + process.HLTEle27CaloIdTTrkIdVLCaloIsoVLTrkIsoVL + process.HLTHFEM15TightSequence + process.HLTEndSequence )
 process.HLT_Ele23_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT30_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG20ORL1SingleEG22 + process.hltPreEle23CaloIdTCaloIsoVLTrkIdVLTrkIsoVLHFT30 + process.HLTEle23CaloIdTTrkIdVLCaloIsoVLTrkIsoVL + process.HLTHFEM30TightSequence + process.HLTEndSequence )
 process.HLT_Ele27_WP80_v7 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG20ORL1SingleEG22 + process.hltPreEle27WP80 + process.HLTEle27WP80Sequence + process.HLTEndSequence )
-process.HLT_Ele27_WP80_PFMT50_v13 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG20ORL1SingleEG22 + process.hltPreEle27WP80PFMT50 + process.HLTEle27WP80Sequence + process.HLTPFReconstructionSequence + process.hltPFMHTProducer + process.hltEle27WP80PFMT50PFMTFilter + process.HLTEndSequence )
+process.HLT_Ele27_WP80_PFMET_MT50_v13 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG20ORL1SingleEG22 + process.hltPreEle27WP80PFMETMT50 + process.HLTEle27WP80Sequence + process.HLTPFReconstructionSequence + process.hltPFMHTProducer + process.hltEle27WP80PFMT50PFMTFilter + process.HLTEndSequence )
 process.HLT_Ele30_CaloIdVT_TrkIdT_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG22 + process.hltPreEle30CaloIdVTTrkIdT + process.HLTEle30CaloIdVTTrkIdTSequence + process.HLTEndSequence )
 process.HLT_Ele32_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v7 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG20ORL1SingleEG22 + process.hltPreEle32CaloIdLCaloIsoVLTrkIdVLTrkIsoVL + process.HLTEle32CaloIdLCaloIsoVLTrkIdVLTrkIsoVLSequence + process.HLTEndSequence )
 process.HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_Mass50_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG22 + process.hltPreEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17Mass50 + process.HLTEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17Mass50Sequence + process.HLTEndSequence )

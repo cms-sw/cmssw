@@ -1,4 +1,4 @@
-# "online" menu
+# "GRun" menu
 HLT_Activity_Ecal_SC7_v*
 
 HLT_IsoMu15_eta2p1_L1ETM20_v*                                                                   #added in Feb 2012 5e33 menu (sr #126183)
@@ -423,9 +423,9 @@ HLT_Ele32_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*                                 
 HLT_Ele65_CaloIdVT_TrkIdT_v*                                                                    #sr126493, kept from 2011
 HLT_Ele80_CaloIdVT_TrkIdT_v*                                                                    #sr126493, kept from 2011
 HLT_Ele100_CaloIdVT_TrkIdT_v*                                                                   #sr126493, kept from 2011
-HLT_Ele27_WP80_PFMT50_v*                                                                        #sr126493, kept from 2011
+HLT_Ele27_WP80_PFMET_MT50_v*                                                                    #sr126493, kept from 2011
 #HLT_Ele32_WP70_v*                                                                              #sr126493 (dropped in sr #127291)
-#HLT_Ele32_WP70_PFMT50_v*                                                                       #sr126493 (dropped in sr #127291)
+#HLT_Ele32_WP70_PFMET_MT50_v*                                                                   #sr126493 (dropped in sr #127291)
 HLT_Ele8_CaloIdL_CaloIsoVL_v*                                                                   #sr126493, kept from 2011
 HLT_Ele17_CaloIdL_CaloIsoVL_v*                                                                  #sr126493, kept from 2011
 

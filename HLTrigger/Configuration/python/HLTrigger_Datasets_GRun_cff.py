@@ -498,7 +498,7 @@ streamA_datasetSingleElectron_selector.throw      = cms.bool(False)
 streamA_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele100_CaloIdVT_TrkIdT_v7', 
     'HLT_Ele22_CaloIdL_CaloIsoVL_v2', 
     'HLT_Ele27_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v7', 
-    'HLT_Ele27_WP80_PFMT50_v13', 
+    'HLT_Ele27_WP80_PFMET_MT50_v13', 
     'HLT_Ele27_WP80_v7', 
     'HLT_Ele30_CaloIdVT_TrkIdT_v2', 
     'HLT_Ele32_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v7', 
