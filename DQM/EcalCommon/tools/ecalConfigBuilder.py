@@ -15,10 +15,12 @@ optparser.add_option("-s", "--source", dest = "sourceFiles", default = "",
                      help = "use FILELIST (space separated) as source", metavar = "FILELIST")
 optparser.add_option("-g", "--gtag", dest = "gtag", default = "",
                      help = "global tag", metavar = "TAG")
-optparser.add_option("-r", "--runtype", dest = "runtype", default = "",
+optparser.add_option("-t", "--runtype", dest = "runtype", default = "",
                      help = "RUNTYPE=(PP|HI)", metavar = "RUNTYPE")
 optparser.add_option("-w", "--workflow", dest = "workflow", default = "",
                      help = "offline workflow", metavar = "WORKFLOW")
+optparser.add_option("-r", "--rawdata", dest = "rawdata", default = "",
+                     help = "collection name", metavar = "RAWDATA")
 
 (options, args) = optparser.parse_args()
 
@@ -54,6 +56,7 @@ filename = options.filename
 sourceFiles = re.sub(r'([^ ]+)[ ]?', r'    "file:\1",\n', options.sourceFiles)
 gtag = options.gtag
 workflow = options.workflow
+FedRawData = options.rawdata
 
 # set environments
 
@@ -668,11 +671,11 @@ process.ecalEndcapLaserTask.EcalUncalibratedRecHitCollection = "ecalUncalibHit1:
 process.ecalEndcapLedTask.EcalUncalibratedRecHitCollection = "ecalUncalibHit1:EcalUncalibRecHitsEE"
 process.ecalEndcapTestPulseTask.EcalUncalibratedRecHitCollection = "ecalUncalibHit2:EcalUncalibRecHitsEE"
 
-process.ecalBarrelLaserTask.laserWavelengths = [ 1, 4 ]
-process.ecalEndcapLaserTask.laserWavelengths = [ 1, 4 ]
+process.ecalBarrelLaserTask.laserWavelengths = [ 1, 2, 3, 4 ]
+process.ecalEndcapLaserTask.laserWavelengths = [ 1, 2, 3, 4 ]
 process.ecalEndcapLedTask.ledWavelengths = [ 1, 2 ]
-process.ecalBarrelMonitorClient.laserWavelengths = [ 1, 4 ]
-process.ecalEndcapMonitorClient.laserWavelengths = [ 1, 4 ]
+process.ecalBarrelMonitorClient.laserWavelengths = [ 1, 2, 3, 4 ]
+process.ecalEndcapMonitorClient.laserWavelengths = [ 1, 2, 3, 4 ]
 process.ecalEndcapMonitorClient.ledWavelengths = [ 1, 2 ]
 '''
 
@@ -861,6 +864,7 @@ if doOutput :
 if live and privEcal :
     customizations += '''
 process.DQM.collectorHost = "ecalod-web01.cms"
+process.DQM.collectorPort = 9190
 '''
 
 customizations += '''
@@ -892,10 +896,13 @@ elif process.runType.getRunType() == process.runType.hpu_run:
     process.EventStreamHttpReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("*"))
 '''
 
-FedRawData = 'rawDataCollector'
+if (FedRawData == '') :
+    if (configuration == 'EcalCalibration') and (daqtype == 'globalDAQ') :
+        FedRawData = 'hltEcalCalibrationRaw'
+    else :
+        FedRawData = 'rawDataCollector'
+
 HIFedRawData = 'rawDataRepacker'
-if (configuration == 'EcalCalibration') and (daqtype == 'globalDAQ') :
-    FedRawData = 'hltEcalCalibrationRaw'
     
 customizations += '''
  ## FEDRawDataCollection name ##
