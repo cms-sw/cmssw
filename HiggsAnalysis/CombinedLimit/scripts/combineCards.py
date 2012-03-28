@@ -2,6 +2,7 @@
 import re
 from sys import argv
 import os.path
+from pprint import pprint
 from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("-s", "--stat",   dest="stat",          default=False, action="store_true", help="Drop all systematics")
@@ -137,6 +138,7 @@ print "-" * 130
 if shapeLines:
     chmax = max([max(len(p),len(c)) for p,c,x in shapeLines]);
     cfmt = "%-"+str(chmax)+"s ";
+    shapeLines.sort( lambda x,y : cmp(x[0],y[0]) if x[1] == y[1] else cmp(x[1],y[1]) )
     for (process,channel,stuff) in shapeLines:
         print "shapes", cfmt % process, cfmt % channel, ' '.join(stuff);
     print "-" * 130
