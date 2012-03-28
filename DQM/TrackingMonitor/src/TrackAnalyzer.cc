@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/02/24 08:05:25 $
- *  $Revision: 1.23 $
+ *  $Date: 2012/03/28 14:05:53 $
+ *  $Revision: 1.24 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -38,6 +38,7 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
     , doThetaPlots_                        ( conf_.getParameter<bool>("doThetaPlots") )
     , doTrackPxPyPlots_                    ( conf_.getParameter<bool>("doTrackPxPyPlots") )
     , doDCAwrt000Plots_                    ( conf_.getParameter<bool>("doDCAwrt000Plots") )
+    , doLumiAnalysis_                      ( conf_.getParameter<bool>("doLumiAnalysis") )
     , doTestPlots_                         ( conf_.getParameter<bool>("doTestPlots") )
     , NumberOfRecHitsPerTrack(NULL)
     , NumberOfRecHitsFoundPerTrack(NULL)
@@ -66,6 +67,11 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
      // TESTING MEs
     , TESTDistanceOfClosestApproachToBS(NULL)
     , TESTDistanceOfClosestApproachToBSVsPhi(NULL)
+			    // add by mia in order to deal w/ LS transitions
+    , Chi2oNDF_lumiFlag(NULL)
+    , NumberOfRecHitsPerTrack_lumiFlag(NULL)
+    , GoodTrackChi2oNDF_lumiFlag(NULL)
+    , GoodTrackNumberOfRecHitsPerTrack_lumiFlag(NULL)
 
     , NumberOfTOBRecHitsPerTrack(NULL)
     , NumberOfTOBRecHitsPerTrackVsPhiProfile(NULL)
@@ -308,6 +314,34 @@ void TrackAnalyzer::beginJob(DQMStore * dqmStore_)
       
     }
     
+    // book LS analysis related histograms
+    // -----------------------------------
+    if ( doLumiAnalysis_ ) {
+      // add by Mia in order to deal w/ LS transitions  
+      dqmStore_->setCurrentFolder(MEFolderName+"/LSanalysis");
+
+      histname = "NumberOfRecHitsPerTrack_lumiFlag_";
+      NumberOfRecHitsPerTrack_lumiFlag = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, TKHitBin, TKHitMin, TKHitMax);
+      NumberOfRecHitsPerTrack_lumiFlag->setAxisTitle("Number of all RecHits of each Track");
+      NumberOfRecHitsPerTrack_lumiFlag->setAxisTitle("Number of Tracks", 2);
+
+      histname = "Chi2oNDF_lumiFlag_";
+      Chi2oNDF_lumiFlag = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, Chi2NDFBin, Chi2NDFMin, Chi2NDFMax);
+      Chi2oNDF_lumiFlag->setAxisTitle("Track #chi^{2}/ndf",1);
+      Chi2oNDF_lumiFlag->setAxisTitle("Number of Tracks"  ,2);
+
+      histname = "GoodTrackNumberOfRecHitsPerTrack_lumiFlag_";
+      GoodTrackNumberOfRecHitsPerTrack_lumiFlag = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, TKHitBin, TKHitMin, TKHitMax);
+      GoodTrackNumberOfRecHitsPerTrack_lumiFlag->setAxisTitle("Number of all RecHits of each Good Track");
+      GoodTrackNumberOfRecHitsPerTrack_lumiFlag->setAxisTitle("Number of Good Tracks", 2);
+      
+      histname = "GoodTrackChi2oNDF_lumiFlag_";
+      GoodTrackChi2oNDF_lumiFlag = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, Chi2NDFBin, Chi2NDFMin, Chi2NDFMax);
+      GoodTrackChi2oNDF_lumiFlag->setAxisTitle("Good Track #chi^{2}/ndf",1);
+      GoodTrackChi2oNDF_lumiFlag->setAxisTitle("Number of Good Tracks"  ,2);
+    }
+
+
     // book the Beam Spot related histograms
     // ---------------------------------------------------------------------------------//
     
@@ -590,6 +624,11 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   }
 
+  if ( doLumiAnalysis_ ) {
+    NumberOfRecHitsPerTrack_lumiFlag -> Fill(track.hitPattern().numberOfHits());    
+    Chi2oNDF_lumiFlag->Fill(track.normalizedChi2());
+  }
+
   if(doBSPlots_ || doAllPlots_)
     {
       edm::InputTag bsSrc = conf_.getParameter< edm::InputTag >("beamSpot");
@@ -651,9 +690,8 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }
 
     // Good Tracks plots
-
-    if ( doGoodTrackPlots_ || doAllPlots_ ) {
-      if ( track.quality(reco::TrackBase::highPurity) && track.pt() > 1. ) {
+    if ( track.quality(reco::TrackBase::highPurity) && track.pt() > 1. ) {
+      if ( doGoodTrackPlots_ || doAllPlots_ ) {
 	GoodTrackChi2oNDF->Fill(track.normalizedChi2());
 	GoodTrackChi2Prob->Fill(TMath::Prob(track.chi2(),(int)track.ndof()));
 	GoodTrackChi2oNDFVsPhi->Fill(track.phi(),track.normalizedChi2());
@@ -677,6 +715,10 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 	if ( doGoodTrackLayersVsPhiVsEtaPerTrack_ || doAllPlots_ ) 
 	  GoodTrackNumberOfLayersVsPhiVsEtaPerTrack->Fill(track.eta(),track.phi(),track.hitPattern().trackerLayersWithMeasurement());
+      }
+      if ( doLumiAnalysis_ ) {
+	GoodTrackChi2oNDF_lumiFlag                -> Fill(track.normalizedChi2()); 
+	GoodTrackNumberOfRecHitsPerTrack_lumiFlag -> Fill(track.hitPattern().numberOfHits());
       }
     }
 
@@ -1499,11 +1541,17 @@ void TrackAnalyzer::doTrackerSpecificFillHists(const reco::Track & track)
 //
 // -- Set Lumi Flag
 //
-void TrackAnalyzer::setLumiFlag() {
+void TrackAnalyzer::setLumiFlag() { 
+  /*
   if (Chi2oNDF) Chi2oNDF->setLumiFlag();
   if (NumberOfRecHitsPerTrack) NumberOfRecHitsPerTrack->setLumiFlag();
   if (GoodTrackChi2oNDF) GoodTrackChi2oNDF->setLumiFlag();
   if (GoodTrackNumberOfRecHitsPerTrack) GoodTrackNumberOfRecHitsPerTrack->setLumiFlag();
+  */
+  if ( Chi2oNDF_lumiFlag                         ) Chi2oNDF_lumiFlag                         -> setLumiFlag();
+  if ( NumberOfRecHitsPerTrack_lumiFlag          ) NumberOfRecHitsPerTrack_lumiFlag          -> setLumiFlag();
+  if ( GoodTrackChi2oNDF_lumiFlag                ) GoodTrackChi2oNDF_lumiFlag                -> setLumiFlag();
+  if ( GoodTrackNumberOfRecHitsPerTrack_lumiFlag ) GoodTrackNumberOfRecHitsPerTrack_lumiFlag -> setLumiFlag();
 }
 //
 // -- Apply SoftReset 
@@ -1513,6 +1561,15 @@ void TrackAnalyzer::doSoftReset(DQMStore * dqmStore_) {
   dqmStore_->softReset(NumberOfRecHitsPerTrack);
   dqmStore_->softReset(GoodTrackChi2oNDF);
   dqmStore_->softReset(GoodTrackNumberOfRecHitsPerTrack);
+}
+//
+// -- Apply Reset 
+//
+void TrackAnalyzer::doReset(DQMStore * dqmStore_) {
+  if ( Chi2oNDF_lumiFlag                         ) Chi2oNDF_lumiFlag                         -> Reset();
+  if ( NumberOfRecHitsPerTrack_lumiFlag          ) NumberOfRecHitsPerTrack_lumiFlag          -> Reset();
+  if ( GoodTrackChi2oNDF_lumiFlag                ) GoodTrackChi2oNDF_lumiFlag                -> Reset();
+  if ( GoodTrackNumberOfRecHitsPerTrack_lumiFlag ) GoodTrackNumberOfRecHitsPerTrack_lumiFlag -> Reset();
 }
 //
 // -- Remove SoftReset

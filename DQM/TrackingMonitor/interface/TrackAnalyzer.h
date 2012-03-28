@@ -32,7 +32,8 @@ class TrackAnalyzer
 
         virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track);
 
-        void doSoftReset(DQMStore * dqmStore_);
+        void doSoftReset  (DQMStore * dqmStore_);
+        void doReset      (DQMStore * dqmStore_);
         void undoSoftReset(DQMStore * dqmStore_);
         void setLumiFlag();
 
@@ -61,6 +62,8 @@ class TrackAnalyzer
 	bool doGoodTrackRecHitVsPhiVsEtaPerTrack_;
 	bool doGoodTrackLayersVsPhiVsEtaPerTrack_;
 	bool doGoodTrack2DChi2Plots_;
+
+	bool doLumiAnalysis_;
 
 	// ADD by Mia in order to clean the tracking MEs
 	// do not plot *Theta* and TrackPx* and TrackPy*
@@ -100,6 +103,12 @@ class TrackAnalyzer
 	// TESTING MEs
         MonitorElement* TESTDistanceOfClosestApproachToBS;
         MonitorElement* TESTDistanceOfClosestApproachToBSVsPhi;
+
+	// add by Mia in order to deal w/ LS transitions
+	MonitorElement* Chi2oNDF_lumiFlag;
+	MonitorElement* NumberOfRecHitsPerTrack_lumiFlag;
+	MonitorElement* GoodTrackChi2oNDF_lumiFlag;
+	MonitorElement* GoodTrackNumberOfRecHitsPerTrack_lumiFlag;
 
         MonitorElement* NumberOfTOBRecHitsPerTrack;
         MonitorElement* NumberOfTOBRecHitsPerTrackVsPhiProfile;
@@ -186,15 +195,15 @@ class TrackAnalyzer
                 , TrackEtaErr(NULL)
                 , TrackThetaErr(NULL)
 
-//                , NumberOfRecHitsPerTrackVsPhi(NULL)
-//                , NumberOfRecHitsPerTrackVsTheta(NULL)
-//                , NumberOfRecHitsPerTrackVsEta(NULL)
+                , NumberOfRecHitsPerTrackVsPhi(NULL)
+                , NumberOfRecHitsPerTrackVsTheta(NULL)
+                , NumberOfRecHitsPerTrackVsEta(NULL)
                 , NumberOfRecHitsPerTrackVsPhiProfile(NULL)
                 , NumberOfRecHitsPerTrackVsThetaProfile(NULL)
                 , NumberOfRecHitsPerTrackVsEtaProfile(NULL)
-//                , NumberOfLayersPerTrackVsPhi(NULL)
-//                , NumberOfLayersPerTrackVsTheta(NULL)
-//                , NumberOfLayersPerTrackVsEta(NULL)
+                , NumberOfLayersPerTrackVsPhi(NULL)
+                , NumberOfLayersPerTrackVsTheta(NULL)
+                , NumberOfLayersPerTrackVsEta(NULL)
                 , NumberOfLayersPerTrackVsPhiProfile(NULL)
                 , NumberOfLayersPerTrackVsThetaProfile(NULL)
                 , NumberOfLayersPerTrackVsEtaProfile(NULL)
