@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/GRun/V46 (CMSSW_5_2_1_HLT2)
+# /dev/CMSSW_5_2_1/GRun/V47 (CMSSW_5_2_1_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V46')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V47')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -7759,29 +7759,6 @@ hltHt650L1FastJet = cms.EDFilter( "HLTHtMhtFilter",
 hltPreHT650Track50dEdx3p6 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "gtDigis" ),
     offset = cms.uint32( 0 )
-)
-hltCaloHTMHT = cms.EDProducer( "HLTHtMhtProducer",
-    tracksLabel = cms.InputTag( "hltL3Muons" ),
-    useTracks = cms.bool( False ),
-    minPtJetHt = cms.double( 40.0 ),
-    maxEtaJetMht = cms.double( 999.0 ),
-    minNJetMht = cms.int32( 0 ),
-    jetsLabel = cms.InputTag( "hltCaloJetCorrected" ),
-    usePt = cms.bool( True ),
-    maxEtaJetHt = cms.double( 3.0 ),
-    minPtJetMht = cms.double( 30.0 ),
-    excludePFMuons = cms.bool( False ),
-    pfCandidatesLabel = cms.InputTag( "hltParticleFlow" ),
-    minNJetHt = cms.int32( 0 )
-)
-hltCaloHT650 = cms.EDFilter( "HLTHtMhtFilter",
-    saveTags = cms.bool( True ),
-    mhtLabels = cms.VInputTag( 'hltCaloHTMHT' ),
-    meffSlope = cms.vdouble( 1.0 ),
-    minMeff = cms.vdouble( 0.0 ),
-    minMht = cms.vdouble( 0.0 ),
-    htLabels = cms.VInputTag( 'hltCaloHTMHT' ),
-    minHt = cms.vdouble( 650.0 )
 )
 hltDeDxEstimatorProducer = cms.EDProducer( "DeDxEstimatorProducer",
     UseStrip = cms.bool( True ),
@@ -30875,8 +30852,8 @@ HLT_HT450_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175OrDoubleJetC56
 HLT_HT500_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175 + hltPreHT500 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHtL1FastJet + hltHt500L1FastJet + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_HT550_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175 + hltPreHT550 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHtL1FastJet + hltHt550L1FastJet + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_HT650_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175 + hltPreHT650 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHtL1FastJet + hltHt650L1FastJet + cms.SequencePlaceholder( "HLTEndSequence" ) )
-HLT_HT650_Track50_dEdx3p6_v2 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175 + hltPreHT650Track50dEdx3p6 + HLTRecoJetSequenceAK5Corrected + hltCaloHTMHT + hltCaloHT650 + HLTPFReconstructionDEDXSequence + hltDeDxEstimatorProducer + hltDeDxFilter50DEDX3p6 + cms.SequencePlaceholder( "HLTEndSequence" ) )
-HLT_HT650_Track60_dEdx3p7_v2 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175 + hltPreHT650Track60dEdx3p7 + HLTRecoJetSequenceAK5Corrected + hltCaloHTMHT + hltCaloHT650 + HLTPFReconstructionDEDXSequence + hltDeDxEstimatorProducer + hltDeDxFilter60DEDX3p7 + cms.SequencePlaceholder( "HLTEndSequence" ) )
+HLT_HT650_Track50_dEdx3p6_v2 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175 + hltPreHT650Track50dEdx3p6 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHtL1FastJet + hltHt650L1FastJet + HLTPFReconstructionDEDXSequence + hltDeDxEstimatorProducer + hltDeDxFilter50DEDX3p6 + cms.SequencePlaceholder( "HLTEndSequence" ) )
+HLT_HT650_Track60_dEdx3p7_v2 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175 + hltPreHT650Track60dEdx3p7 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHtL1FastJet + hltHt650L1FastJet + HLTPFReconstructionDEDXSequence + hltDeDxEstimatorProducer + hltDeDxFilter60DEDX3p7 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_HT750_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175 + hltPreHT750 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHtL1FastJet + hltHt750L1FastJet + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_PFHT350_v2 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175 + hltPrePFHT350 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHtL1FastJet + hltHt250L1FastJet + HLTPFReconstructionSequence + hltPFHTMET + hltPFHT350 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_PFHT650_v4 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175 + hltPrePFHT650 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHtL1FastJet + hltHt550L1FastJet + HLTPFReconstructionSequence + hltPFHTMET + hltPFHT650 + cms.SequencePlaceholder( "HLTEndSequence" ) )
