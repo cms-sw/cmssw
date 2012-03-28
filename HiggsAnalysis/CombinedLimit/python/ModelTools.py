@@ -57,9 +57,13 @@ class ModelBuilder(ModelBuilderBase):
     def __init__(self,datacard,options):
         ModelBuilderBase.__init__(self,options) 
         self.DC = datacard
+    def setPhysics(self,physicsModel):
+        self.physics = physicsModel
+        self.physics.setModelBuilder(self)
     def doModel(self):
         self.doObservables()
-        self.doParametersOfInterest()
+        self.physics.doParametersOfInterest()
+        self.physics.preProcessNuisances(self.DC.systs)
         self.doNuisances()
         self.doExpectedEvents()
         self.doIndividualModels()
@@ -73,19 +77,6 @@ class ModelBuilder(ModelBuilderBase):
     def doObservables(self):
         """create pdf_bin<X> and pdf_bin<X>_bonly for each bin"""
         raise RuntimeError, "Not implemented in ModelBuilder"
-    def doParametersOfInterest(self):
-        self.doComment(" ----- parameters of interest -----")
-        self.doComment(" --- Signal Strength --- ")
-        self.doVar("r[0,20]");
-        self.doComment(" --- set of all parameters of interest --- ")
-        self.doSet("POI","r")
-        if self.options.mass != 0:
-            self.doComment(" --- We also write the higgs mass --- ")
-            if self.out.var("MH"):
-              self.out.var("MH").removeRange()
-              self.out.var("MH").setVal(self.options.mass)
-            else:
-              self.doVar("MH[%g]" % self.options.mass); 
     def doNuisances(self):
         if len(self.DC.systs) == 0: return
         self.doComment(" ----- nuisances -----")
@@ -214,10 +205,18 @@ class ModelBuilder(ModelBuilderBase):
                 # collect multiplicative corrections
                 strexpr = ""; strargs = ""
                 gammaNorm = None; iSyst=-1
-                if self.DC.isSignal[p]:
+                scale = self.physics.getYieldScale(b,p)
+                if scale == 0:  
+                    self.doVar("n_exp_bin%s_proc_%s[%g]" % (b, p, 0))
+                    continue
+                elif scale == 1:
+                    pass
+                elif type(scale) == str: 
                     strexpr += " * @0";
-                    strargs += ", r";
+                    strargs += ", "+scale;
                     iSyst += 1
+                else:
+                    raise RuntimeError, "Physics model returned something which is neither a name, nor 0, nor 1."
                 for (n,nofloat,pdf,args,errline) in self.DC.systs:
                     if pdf.startswith("shape") and pdf.endswith("?"): # might be a lnN in disguise
                         if not self.isShapeSystematic(b,p,n): pdf = "lnN"
