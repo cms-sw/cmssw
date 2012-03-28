@@ -141,12 +141,12 @@ def DrawBranding(options, label=''):
 def FindParents(histoPath):
     root = histoPath[:histoPath.find('_')]
     par = histoPath[histoPath.find('Eff')+3:]
-    validationPlots = validation.efficiencies.plots._Parameterizable__parameterNames
+    validationPlots = validation.proc.efficiencies.plots._Parameterizable__parameterNames
     found =0
     num = ''
     den = ''
     for efficiency in validationPlots:
-        effpset = getattr(validation.efficiencies.plots,efficiency)
+        effpset = getattr(validation.proc.efficiencies.plots,efficiency)
         effName = effpset.efficiency.value()
         effNameCut = effName[effName.find('_'):effName.find('#')]
         if effNameCut in histoPath:
