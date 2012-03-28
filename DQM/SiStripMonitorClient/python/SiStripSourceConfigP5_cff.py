@@ -55,7 +55,7 @@ SiStripMonitorClusterReal.ClusterHisto = True
 SiStripMonitorClusterReal.TH1NrOfClusterizedStrips.moduleswitchon = False
 SiStripMonitorClusterReal.TH1ClusterNoise.moduleswitchon = False
 SiStripMonitorClusterReal.TH1ClusterStoN.moduleswitchon = False
-SiStripMonitorClusterReal.TH1ClusterCharge.moduleswitchon = False
+SiStripMonitorClusterReal.TH1ClusterCharge.moduleswitchon = True
 SiStripMonitorClusterReal.TH1ClusterWidth.moduleswitchon = False
 SiStripMonitorClusterReal.TH1ModuleLocalOccupancy.moduleswitchon = False
 
