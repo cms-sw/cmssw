@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/HLT/V86 (CMSSW_5_2_1_HLT2)
+# /dev/CMSSW_5_2_1/HLT/V87 (CMSSW_5_2_1_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V86')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V87')
 )
 
 streams = cms.PSet( 
@@ -28451,7 +28451,7 @@ hltPFJet25 = cms.EDFilter( "HLT1PFJet",
     triggerType = cms.int32( 84 )
 )
 hltPFTau25 = cms.EDFilter( "HLT1PFTau",
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     MinPt = cms.double( 25.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.1 ),
@@ -28461,7 +28461,7 @@ hltPFTau25 = cms.EDFilter( "HLT1PFTau",
     triggerType = cms.int32( 84 )
 )
 hltPFTau25TrackPt5 = cms.EDFilter( "HLT1PFTau",
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     MinPt = cms.double( 25.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.1 ),
@@ -28471,7 +28471,7 @@ hltPFTau25TrackPt5 = cms.EDFilter( "HLT1PFTau",
     triggerType = cms.int32( 84 )
 )
 hltPFTau25TrackPt5MediumIsolation = cms.EDFilter( "HLT1PFTau",
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     MinPt = cms.double( 25.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.1 ),
@@ -28481,7 +28481,7 @@ hltPFTau25TrackPt5MediumIsolation = cms.EDFilter( "HLT1PFTau",
     triggerType = cms.int32( 84 )
 )
 hltPFTau25TrackPt5MediumIsolationProng4 = cms.EDFilter( "HLT1PFTau",
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     MinPt = cms.double( 25.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.1 ),
@@ -28508,7 +28508,7 @@ hltIsoMuPFTauTrackPt5MediumIsolationProng4VertexFinder = cms.EDFilter( "PFTauVer
     useVertex = cms.bool( True )
 )
 hltPFTau25TrackPt5MediumIsolationProng4IsoMuVertex = cms.EDFilter( "HLT1PFTau",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     MinPt = cms.double( 25.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.1 ),
@@ -31378,7 +31378,7 @@ hltPFTau20Track = cms.EDFilter( "HLT1PFTau",
     triggerType = cms.int32( 84 )
 )
 hltPFTau20TrackLooseIso = cms.EDFilter( "HLT1PFTau",
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     MinPt = cms.double( 20.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
@@ -31405,7 +31405,7 @@ hltMuPFTauVertexFinder = cms.EDFilter( "PFTauVertexSelector",
     useVertex = cms.bool( True )
 )
 hltPFTau20MuVertex = cms.EDFilter( "HLT1PFTau",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     MinPt = cms.double( 20.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
@@ -31456,7 +31456,7 @@ hltIsoMuPFTauVertexFinder = cms.EDFilter( "PFTauVertexSelector",
     useVertex = cms.bool( True )
 )
 hltPFTau20IsoMuVertex = cms.EDFilter( "HLT1PFTau",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     MinPt = cms.double( 20.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
@@ -31578,7 +31578,7 @@ hltIsoMu20PFTauVertexFinder = cms.EDFilter( "PFTauVertexSelector",
     useVertex = cms.bool( True )
 )
 hltPFTau20IsoMu20Vertex = cms.EDFilter( "HLT1PFTau",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     MinPt = cms.double( 20.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
@@ -32153,7 +32153,7 @@ hltPFTau22Track = cms.EDFilter( "HLT1PFTau",
     triggerType = cms.int32( 84 )
 )
 hltPFTau22TrackLooseIso = cms.EDFilter( "HLT1PFTau",
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     MinPt = cms.double( 22.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
@@ -32394,7 +32394,7 @@ hltElePFTauVertexFinder = cms.EDFilter( "PFTauVertexSelector",
     useVertex = cms.bool( True )
 )
 hltPFTauEleVertex20 = cms.EDFilter( "HLT1PFTau",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     MinPt = cms.double( 20.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
@@ -32646,7 +32646,7 @@ hltIsoElePFTauVertexFinder = cms.EDFilter( "PFTauVertexSelector",
     useVertex = cms.bool( True )
 )
 hltPFTauIsoEleVertex20 = cms.EDFilter( "HLT1PFTau",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     MinPt = cms.double( 20.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
@@ -32898,7 +32898,7 @@ hltIsoEle22PFTauVertexFinder = cms.EDFilter( "PFTauVertexSelector",
     useVertex = cms.bool( True )
 )
 hltPFTauIsoEle22Vertex20 = cms.EDFilter( "HLT1PFTau",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     MinPt = cms.double( 20.0 ),
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 2.5 ),
