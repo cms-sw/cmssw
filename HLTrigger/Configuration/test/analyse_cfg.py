@@ -45,6 +45,10 @@ process.tsa = cms.Path(process.tsaAOD)#+process.tsaRAW)
 
 import HLTrigger.HLTcore.hltEventAnalyzerAOD_cfi
 process.hltAOD = HLTrigger.HLTcore.hltEventAnalyzerAOD_cfi.hltEventAnalyzerAOD.clone()
+process.hltAOD.processName = cms.string("HLT1")
+process.hltAOD.triggerResults = cms.InputTag("TriggerResults","","HLT1")
+process.hltAOD.triggerEvent   = cms.InputTag("hltTriggerSummaryAOD","","HLT1")
+
 import HLTrigger.HLTcore.hltEventAnalyzerRAW_cfi
 process.hltRAW = HLTrigger.HLTcore.hltEventAnalyzerRAW_cfi.hltEventAnalyzerRAW.clone()
 process.hlt = cms.Path(process.hltAOD)#+process.hltRAW)
@@ -52,6 +56,8 @@ process.hlt = cms.Path(process.hltAOD)#+process.hltRAW)
 
 import HLTrigger.HLTanalyzers.hlTrigReport_cfi
 process.hltReport = HLTrigger.HLTanalyzers.hlTrigReport_cfi.hlTrigReport.clone()
+process.hltReport.HLTriggerResults = cms.InputTag("TriggerResults","","HLT1")
+
 process.aom = cms.OutputModule("AsciiOutputModule")
 process.eca = cms.EDAnalyzer("EventContentAnalyzer")
 process.final = cms.EndPath(process.hltReport+process.aom)#+process.eca)
