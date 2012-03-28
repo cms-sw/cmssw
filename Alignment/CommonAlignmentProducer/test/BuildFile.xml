@@ -4,7 +4,7 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
-<library   file="GlobalPositionRcd*.cpp" name="CommonAlignmentProducerGlobalPositionRcd">
+<library   file="*Rcd*.cpp" name="CommonAlignmentProducerRcdScans">
   <use   name="CondCore/DBOutputService"/>
   <use   name="CondFormats/Alignment"/>
   <use   name="Alignment/CommonAlignment"/>
