@@ -32,7 +32,6 @@ class HLTDisplacedEgammaFilter : public HLTFilter {
       edm::InputTag rechitsEB ;
       edm::InputTag rechitsEE ;
 
-      bool EBOnly ; 
       double sMin_min ;
       double sMin_max ;
       double sMaj_min ;
