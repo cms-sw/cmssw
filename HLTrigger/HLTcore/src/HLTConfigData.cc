@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2012/03/01 13:40:27 $
- *  $Revision: 1.18 $
+ *  $Date: 2012/03/21 12:08:38 $
+ *  $Revision: 1.19 $
  *
  *  \author Martin Grunewald
  *
@@ -64,11 +64,14 @@ void HLTConfigData::extract()
 
    // Extract globaltag
    globalTag_="";
+   const ParameterSet* GlobalTagPSet(0);
    if (processPSet_->exists("GlobalTag")) {
-     const ParameterSet& GlobalTagPSet(processPSet_->getParameterSet("GlobalTag"));
-     if (GlobalTagPSet.existsAs<std::string>("globaltag",true)) {
-       globalTag_=GlobalTagPSet.getParameter<std::string>("globaltag");
-     }
+     GlobalTagPSet = &(processPSet_->getParameterSet("GlobalTag"));
+   } else if (processPSet_->exists("PoolDBESSource@GlobalTag")) {
+     GlobalTagPSet = &(processPSet_->getParameterSet("PoolDBESSource@GlobalTag"));
+   }
+   if (GlobalTagPSet && GlobalTagPSet->existsAs<std::string>("globaltag",true)) {
+       globalTag_=GlobalTagPSet->getParameter<std::string>("globaltag");
    }
 
    // Obtain PSet containing table name (available only in 2_1_10++ files)
