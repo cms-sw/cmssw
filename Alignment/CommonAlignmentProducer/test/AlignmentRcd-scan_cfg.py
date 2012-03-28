@@ -16,10 +16,10 @@ process.source = cms.Source("EmptySource",
                             firstRun = cms.untracked.uint32(1)
                             )
 
-process.GlobalTag.globaltag = 'GR_R_36X_V10A::All'
+process.GlobalTag.globaltag = 'GR_R_52_V7::All'
 
 process.AlignmentRcdScan = cms.EDAnalyzer("AlignmentRcdScan")
-process.AlignmentRcdScan.verbose = cms.untracked.bool(False)
+process.AlignmentRcdScan.verbose = cms.untracked.bool(False) #True) 
 
 process.AlignmentRcdScan.mode = cms.untracked.string('Tk')
 #process.AlignmentRcdScan.mode = cms.untracked.string('DT')
