@@ -8,7 +8,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackAnalyzer.h,v 1.12 2012/02/17 15:31:54 tosi Exp $
+// $Id: TrackAnalyzer.h,v 1.13 2012/02/17 17:22:42 tosi Exp $
 
 #include <memory>
 #include <fstream>
@@ -186,15 +186,15 @@ class TrackAnalyzer
                 , TrackEtaErr(NULL)
                 , TrackThetaErr(NULL)
 
-                , NumberOfRecHitsPerTrackVsPhi(NULL)
-                , NumberOfRecHitsPerTrackVsTheta(NULL)
-                , NumberOfRecHitsPerTrackVsEta(NULL)
+//                , NumberOfRecHitsPerTrackVsPhi(NULL)
+//                , NumberOfRecHitsPerTrackVsTheta(NULL)
+//                , NumberOfRecHitsPerTrackVsEta(NULL)
                 , NumberOfRecHitsPerTrackVsPhiProfile(NULL)
                 , NumberOfRecHitsPerTrackVsThetaProfile(NULL)
                 , NumberOfRecHitsPerTrackVsEtaProfile(NULL)
-                , NumberOfLayersPerTrackVsPhi(NULL)
-                , NumberOfLayersPerTrackVsTheta(NULL)
-                , NumberOfLayersPerTrackVsEta(NULL)
+//                , NumberOfLayersPerTrackVsPhi(NULL)
+//                , NumberOfLayersPerTrackVsTheta(NULL)
+//                , NumberOfLayersPerTrackVsEta(NULL)
                 , NumberOfLayersPerTrackVsPhiProfile(NULL)
                 , NumberOfLayersPerTrackVsThetaProfile(NULL)
                 , NumberOfLayersPerTrackVsEtaProfile(NULL)

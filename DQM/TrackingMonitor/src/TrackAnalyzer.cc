@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/02/19 12:17:47 $
- *  $Revision: 1.22 $
+ *  $Date: 2012/02/24 08:05:25 $
+ *  $Revision: 1.23 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -783,9 +783,11 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore * dqmStore_)
 
     if(doAllPlots_)
     {
+
+	//	  COMMENTED BEACUSE THERE IS ALREADY THE PROFILE !!! (blablaProfile)
+	/*
         // hit properties
         dqmStore_->setCurrentFolder(MEFolderName+"/HitProperties");
-
         // rechits
         histname = "NumberOfRecHitsPerTrackVsPhi_" + histTag;
         tkmes.NumberOfRecHitsPerTrackVsPhi = dqmStore_->bookProfile(histname, histname, PhiBin, PhiMin, PhiMax, RecHitMin, RecHitMax,"");
@@ -818,7 +820,7 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore * dqmStore_)
         tkmes.NumberOfLayersPerTrackVsEta = dqmStore_->bookProfile(histname, histname, EtaBin, EtaMin, EtaMax, RecLayMin, RecLayMax,"");
         tkmes.NumberOfLayersPerTrackVsEta->setAxisTitle("Track #eta",1);
         tkmes.NumberOfLayersPerTrackVsEta->setAxisTitle("Number of Layers of each Track",2);
-
+	*/
 
         // general properties
         dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
@@ -1126,13 +1128,15 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
             tkmes.Chi2oNDFVsPhi->Fill(phi, track.normalizedChi2());
             tkmes.Chi2oNDFVsEta->Fill(eta, track.normalizedChi2());
 
+	    // COMMENTED because there are already those quantity in blablaProfile !!
+	    /*
             // rec hits 
             tkmes.NumberOfRecHitsPerTrackVsPhi->Fill(phi,        track.hitPattern().numberOfValidHits());
 	    if (doThetaPlots_) {
 	      tkmes.NumberOfRecHitsPerTrackVsTheta->Fill(theta,    track.hitPattern().numberOfValidHits());
 	    }
             tkmes.NumberOfRecHitsPerTrackVsEta->Fill(eta,        track.hitPattern().numberOfValidHits());
-	    
+	    */	    
 
         }
 
