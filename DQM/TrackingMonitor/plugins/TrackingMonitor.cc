@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/03/06 12:34:34 $
- *  $Revision: 1.34 $
+ *  $Date: 2012/03/28 22:59:42 $
+ *  $Revision: 1.35 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -21,6 +21,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/TrackingMonitor/interface/TrackBuildingAnalyzer.h"
 #include "DQM/TrackingMonitor/interface/TrackAnalyzer.h"
+#include "DQM/TrackingMonitor/interface/VertexMonitor.h"
 #include "DQM/TrackingMonitor/plugins/TrackingMonitor.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -815,7 +816,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 		 
 		 NumberOfTracksVsGoodPVtx       -> Fill( totalNumGoodPV, totalNumTracks      );
 		 NumberOfGoodTracksVsGoodPVtx   -> Fill( totalNumGoodPV, totalNumHPPt1Tracks );
-		 FractionOfGoodTracksVsGoodPVtx -> Fill( totalNumGoodPV, fracNumHPPt1Tracks  );
+		 FractionOfGoodTracksVsGoodPVtx -> Fill( totalNumGoodPV, frac                );
 	       }
 	   }
 	   
@@ -825,7 +826,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	     
 	     NumberOfTracksVsBXlumi       -> Fill( bxlumi, totalNumTracks      );
 	     NumberOfGoodTracksVsBXlumi   -> Fill( bxlumi, totalNumHPPt1Tracks );
-	     FractionOfGoodTracksVsBXlumi -> Fill( bxlumi, fracNumHPPt1Tracks  );
+	     FractionOfGoodTracksVsBXlumi -> Fill( bxlumi, frac                );
 	   }
 	   
 	 }
