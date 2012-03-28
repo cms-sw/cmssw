@@ -40,7 +40,7 @@ allOut = limits[-1][1]
 nuisances = set(limits[-1][0])
 variations = limits[1:-1]
 
-def rel(test, ref, what='500'):    
+def rel(test, ref, what='500'): 
     return (test[what]-ref[what])/ref[what]
 
 results = [
@@ -48,43 +48,48 @@ results = [
      {
     'obs':
     {
-    'allIn': rel( limit[1],  allIn, '-1000'),
-    'allOut':rel( limit[1], allOut, '-1000')
+    'AllIn' : rel( limit[1],  allIn, '-1000'),
+    'AllOut': rel( limit[1], allOut, '-1000')
     },
     'exp':
     {
-    'allIn': rel( limit[1],  allIn, '500'),
-    'allOut':rel( limit[1], allOut, '500')
+    'AllIn' : rel( limit[1],  allIn, '500'),
+    'AllOut': rel( limit[1], allOut, '500')
     }
     }
     )
     for limit in variations ]
 
-def metric(x, ref='allIn'):
+def metric(x, ref='AllIn'):
     return max(
         (
-        abs(x['obs']['allIn']),
-        abs(x['exp']['allIn'])
+        abs(x['obs'][ref]),
+        abs(x['exp'][ref])
         )
         )
 
 #results.sort(lambda x,y: int( metric(x[1]) - metric(y[1]) ) )
-results.sort(key = lambda x: metric(x[1]), reverse=True )
+results.sort(key = lambda x: metric(x[1], 'AllIn'), reverse=True )
 
-nMinusOnes = filter(lambda x: len(x[0]) == len(nuisances)-1, results)
+Singles    = filter(lambda x: len(x[0]) == len(nuisances)-1, results)
+nMinusOnes = filter(lambda x: len(x[0]) == 1, results)
 
-removed = dict([ (
+nuisancesKept = dict([ (
     tuple(v[0]),
     str(list(
     set(nuisances)-set(v[0])
     )[0])
-               ) for v in nMinusOnes])
+               ) for v in Singles])
 
-nMinusOnesLabelled = [ (removed[v[0]], v[1]) for v in nMinusOnes ] 
+SinglesLabelled = [ (nuisancesKept[v[0]], v[1]) for v in Singles ] 
 
-pprint(nMinusOnesLabelled)
-g = open('nMinusOnes.json','w')
-g.write(json.dumps(nMinusOnesLabelled, indent=2))
+#pprint(nMinusOnesLabelled)
+g = open('Kept1.json','w')
+g.write(json.dumps(SinglesLabelled, indent=2))
+g.close()
+
+g = open('Removed1.json','w')
+g.write(json.dumps(nMinusOnes, indent=2))
 g.close()
 
 os.chdir(OWD)

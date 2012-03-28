@@ -14,13 +14,14 @@ class Timer:
         self.times = list()
     def addLap(self, ev):
         dt = datetime.now()
-        #print "%s: %s" % (ev, dt)
+        print "[Timer event at %s] %s" % (dt, ev)
         self.times.append( (ev, dt) )
     def printLaps(self):
-        print "Timing summary"
+        print "\nTotal running time: %s" % ( self.times[-1][1] - self.times[0][1] )
+        print "Breakdown:"
         for i in range(len(self.times)-1):
             delta = ( self.times[i+1][1] - self.times[i][1] )
-            print "From %s to %s: %s." % (self.times[i][0], self.times[i+1][0], delta)
+            print " [%s] to [%s]: %s sec." % (self.times[i][0], self.times[i+1][0], delta)
 
 timer = Timer()
 
@@ -52,8 +53,6 @@ parser.add_option("--masses", dest="masses",  default=[120],  type="string", act
 addDatacardParserOptions(parser)
 (options, args) = parser.parse_args()
 
-timer.addLap("Start")
-
 if masses:
     options.masses = masses
     del masses
@@ -72,7 +71,7 @@ else:
 
 DC = parseCard(file, options)
 
-timer.addLap("SystStart")
+timer.addLap("Building structures")
 
 # create output directory
 mkdir_p(options.dir+"/log")
@@ -169,14 +168,14 @@ def runCmd(cmd):
 from multiprocessing import Pool
 pool = Pool()
 
-timer.addLap("Text2WorkspaceStart")
+timer.addLap("Running text2Workspace")
 # run all the text2workspace in parallel
 filterCmds = map(lambda x: x[0], jobs.values())
 ret = pool.map(runCmd, filterCmds)
 if reduce(lambda x, y: x+y, ret):
     raise RunTimeError, "Non-zero return code in text2workspace. Check logs."
 
-timer.addLap("CombineStart")
+timer.addLap("Running combine")
 # run all the combine jobs in parallel
 combineCmds = [ item for sublist in map(lambda x: x[1], jobs.values()) for item in sublist ] 
 ret =  pool.map(runCmd, combineCmds)
@@ -184,7 +183,7 @@ if reduce(lambda x, y: x+y, ret):
     raise RunTimeError, "Non-zero return code in combine. Check logs."
 
 
-timer.addLap("ReductionStart")
+timer.addLap("Harvesting root files")
 # harvest limit values from the output files
 limitsOut = 'limits.json'
 if os.path.isfile(limitsOut):
@@ -220,10 +219,10 @@ else:
 
 os.chdir(OWD)
 
-timer.addLap("RankingStart")
+timer.addLap("Ranking results")
 import rankSystematics
 
-timer.addLap("AllDone")
+timer.addLap("All done")
 timer.printLaps()
     
 
