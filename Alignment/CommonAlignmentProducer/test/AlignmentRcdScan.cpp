@@ -1,8 +1,8 @@
 // \file AlignmentRcdScan.cpp
 //
 // \author    : Andreas Mussgiller
-// Revision   : $Revision: 1.42 $
-// last update: $Date: 2010/05/12 09:40:27 $
+// Revision   : $Revision: 1.1 $
+// last update: $Date: 2010/06/01 07:45:46 $
 // by         : $Author: mussgill $
 
 #include <string>
@@ -12,6 +12,7 @@
 #include <TMath.h>
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
