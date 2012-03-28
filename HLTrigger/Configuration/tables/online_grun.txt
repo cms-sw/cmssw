@@ -226,15 +226,15 @@ HLT_MET80_v*                                                                    
 #HLT_L1EG20_Track5_dEdx5p0_v*                                                                   #sr126412 - removed for cpu time
 #HLT_L1EG20_Track6_dEdx6p0_v*                                                                   #sr126412 - removed for cpu time
 #HLT_L1EG20_Track7_dEdx6p5_v*                                                                   #sr126412 - removed for cpu time
-HLT_L2Mu70_eta2p1_PFMHT65_v*                                                                    #sr126412
-HLT_L2Mu80_eta2p1_PFMHT70_v*                                                                    #sr126412
+HLT_L2Mu70_eta2p1_PFMET65_v*                                                                    #sr126412, renamed to *MET*
+HLT_L2Mu80_eta2p1_PFMET70_v*                                                                    #sr126412, renamed to *MET*
 HLT_HT650_Track50_dEdx3p6_v*                                                                    #sr126412
 HLT_HT650_Track60_dEdx3p7_v*                                                                    #sr126412
 
-HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_PFMHT20_v*                                         #sr126441
+HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_PFMET20_v*                                         #sr126441, renamed to *MET*
 HLT_Ele27_WP80_PFJet30_PFJet25_Deta3_v*                                                         #sr126441
 HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_v*                                                 #sr126441
-HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_PFMHT20_v*                                     #sr126441
+HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_PFMET20_v*                                     #sr126441, renamed to *MET*
 HLT_IsoMu24_eta2p1_PFJet30_PFJet25_Deta3_v*                                                     #sr126441
 HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_v*                                             #sr126441
 HLT_Mu24_eta2p1_CentralPFJet30_CentralPFJet25_v*                                                #sr126441
@@ -393,8 +393,8 @@ HLT_L1ETM40_v*                                                                  
 HLT_L1ETM70_v*                                                                                  #sr126490
 HLT_L1ETM100_v*                                                                                 #sr126490
 
-HLT_PFMHT150_v*                                                                                 #sr126491
-HLT_PFMHT180_v*                                                                                 #sr126491
+HLT_PFMET150_v*                                                                                 #sr126491, renamed to *MET*
+HLT_PFMET180_v*                                                                                 #sr126491, renamed to *MET*
 HLT_MET120_v*                                                                                   #sr126491
 HLT_MET200_v*                                                                                   #sr126491
 HLT_MET300_v*                                                                                   #sr126491

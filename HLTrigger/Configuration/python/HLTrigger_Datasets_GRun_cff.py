@@ -109,7 +109,7 @@ streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_DoubleE
     'HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFJet50_40_30_v2', 
     'HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFNoPUJet30_v2', 
     'HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFNoPUJet50_40_30_v2', 
-    'HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_PFMHT20_v3', 
+    'HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_PFMET20_v1', 
     'HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_v3', 
     'HLT_Ele27_WP80_CentralPFJet80_v3', 
     'HLT_Ele27_WP80_PFJet30_PFJet25_Deta3_v3', 
@@ -261,8 +261,8 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CentralPFJet80_
     'HLT_MET400_HBHENoiseCleaned_v2', 
     'HLT_MET400_v4', 
     'HLT_MonoCentralPFJet80_PFMETnoMu95_NHEF0p95_v1', 
-    'HLT_PFMHT150_v20', 
-    'HLT_PFMHT180_v2')
+    'HLT_PFMET150_v1', 
+    'HLT_PFMET180_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMinimumBias_selector
 streamA_datasetMinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -320,7 +320,7 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleDisplac
     'HLT_IsoMu20_eta2p1_TriCentralPFNoPUJet30_v1', 
     'HLT_IsoMu20_eta2p1_TriCentralPFNoPUJet50_40_30_v1', 
     'HLT_IsoMu20_eta2p1_WCandPt80_v1', 
-    'HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_PFMHT20_v2', 
+    'HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_PFMET20_v1', 
     'HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_v2', 
     'HLT_IsoMu24_eta2p1_PFJet30_PFJet25_Deta3_v2', 
     'HLT_L2TripleMu10_0_0_NoVertex_PFJet40Neutral_v1', 
@@ -519,8 +519,8 @@ streamA_datasetSingleMu_selector.triggerConditions = cms.vstring('HLT_IsoMu20_et
     'HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v1', 
     'HLT_L2Mu20_eta2p1_NoVertex_v1', 
     'HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v1', 
-    'HLT_L2Mu70_eta2p1_PFMHT65_v2', 
-    'HLT_L2Mu80_eta2p1_PFMHT70_v2', 
+    'HLT_L2Mu70_eta2p1_PFMET65_v1', 
+    'HLT_L2Mu80_eta2p1_PFMET70_v1', 
     'HLT_Mu12_v15', 
     'HLT_Mu15_eta2p1_v2', 
     'HLT_Mu17_v2', 
