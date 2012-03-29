@@ -242,8 +242,6 @@ class ModelBuilder(ModelBuilderBase):
                         factors.append(myname)
                     elif pdf == "gmN":
                         factors.append(n)
-                        strexpr += " * @%d " % iSyst
-                        strargs += ", %s" % n
                         if abs(errline[b][p] * args[0] - self.DC.exp[b][p]) > max(0.05 * max(self.DC.exp[b][p],1), errline[b][p]):
                             raise RuntimeError, "Values of N = %d, alpha = %g don't match with expected rate %g for systematics %s " % (
                                                     args[0], errline[b][p], self.DC.exp[b][p], n)
