@@ -22,6 +22,7 @@ class MatrixReader(object):
         self.wm=opt.wmcontrol
         self.addCommand=opt.command
         self.commandLineWf=opt.workflow
+        self.overWrite=opt.overWrite
         
         return
 
@@ -114,7 +115,11 @@ class MatrixReader(object):
             for num in fromScratch:
                 if num in fromInput:
                     fromInput.pop(num)
-                            
+        #overwrite steps
+        if self.overWrite:
+            for p in self.overWrite:
+                self.relvalModule.steps.overwrite(p)
+        
         #change the origin of dataset on the fly
         if refRel:
             self.relvalModule.changeRefRelease(

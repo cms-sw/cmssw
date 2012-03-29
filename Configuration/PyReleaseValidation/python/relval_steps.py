@@ -19,10 +19,11 @@ class Steps(dict):
             self.update({key:value})
             # make the python file named <step>.py
             #if not '--python' in value:                self[key].update({'--python':'%s.py'%(key,)})
-            
-    def overwrite(self,key,value):
-        print "overwritting step",key,"with",str(value)
-        self.update({key:value})
+
+    def overwrite(self,keypair):
+        value=self[keypair[1]]
+        print "overwritting step",keypair[0],"with",keypair[1],str(value)
+        self.update({keypair[0]:value})
         
 class WF(list):
     def __init__(self,n,l):
@@ -423,6 +424,8 @@ steps['REDIGIPU']=merge([{'-s':'reGEN,reDIGI,L1,DIGI2RAW,HLT,RAW2DIGI,L1Reco'},s
 
 
 steps['RESIM']=merge([{'-s':'reGEN,reSIM','-n':10},steps['DIGI']])
+steps['RESIMDIGI']=merge([{'-s':'reGEN,reSIM,DIGI,L1,DIGI2RAW,HLT,RAW2DIGI,L1Reco','-n':10,'--restoreRNDSeeds':'','--process':'HLT'},steps['DIGI']])
+
     
 steps['DIGIHI']=merge([{'--inputCommands':'"keep *","drop *_simEcalPreshowerDigis_*_*"','-n':10},hiDefaults,step2Defaults])
 
@@ -678,4 +681,4 @@ steps['RECODFROMRAWRECO']=merge([{'-s':'RAW2DIGI:RawToDigi_noTk,L1Reco,RECO:reco
 ### over write a few things to add PU to every sample in the standard set
 #steps.overwrite('DIGI',steps['DIGIPU1'])
 #steps.overwrite('RECO',steps['RECOPU1'])
-
+#steps.overwrite(('DIGI','RESIMDIGI'))
