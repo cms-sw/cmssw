@@ -1,18 +1,19 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/08/08 21:55:48 $
+// last change    : $Date: 2012/02/24 13:41:10 $
 // by             : $Author: flucke $
 #ifndef COMPAREMILLEPEDE_H
 #define COMPAREMILLEPEDE_H
 
+#include <TString.h>
+
 class PlotMillePede;
-
 class GFHistManager;
-class CompareMillePede
 
+class CompareMillePede
 {
  public:
   CompareMillePede(const char *fileName1, const char *fileName2, Int_t iov1 = 1, Int_t iov2 = 1,
-		   Int_t hieraLevel = 0);// iter=1/2: singlerun/merged; heiraLev: -1 ignore, 0 lowest level, etc.
+		   Int_t hieraLevel = 0);// iov1/2: which IOV ; hieraLev: -1 ignore, 0 lowest level, etc.
   virtual ~CompareMillePede();
 
   void DrawPedeParam(Option_t *option = "", unsigned int nNonRigidParam = 12);//"add": keep old canvas, "free1/2": if free param in file 1/2 
@@ -25,9 +26,9 @@ class CompareMillePede
   void DrawNumHits(Option_t *opt="");//"add": keep old canvas
 
   void DrawAbsPos(Option_t *opt="");//"start": at start (else end), "add": keep old canvas
-  void DrawSurfaceDeformations(Option_t *option, const TString &whichOne,// = "result", 
-			       unsigned int firstPar = 0, unsigned int lastPar = 11
-			       ); //"add": keep old canvases; "result"||"start"||"diff"
+  void DrawSurfaceDeformations(Option_t *option="", UInt_t firstPar=0, UInt_t lastPar=11,
+			       const TString &whichOne = "result"
+			       ); //"add": keep old canvases, "limit": use GetMaxDev(), "noVs", noDiff"; "result"||"start"||"diff"
 
   bool IsConsistent(); // check correct order of alignables, if false draw some hists
   TString DeltaPar(UInt_t iPar) const; // par_2 - par_1
@@ -46,7 +47,7 @@ class CompareMillePede
   void AddAdditionalSel(const TString &xyzrPhiNhit, Float_t min, Float_t max); // x,y,z,r,phi,Nhit
   //  const TString GetAdditionalSel () const { return fAdditionalSel;}
   void ClearAdditionalSel ();
-
+  void SetSurfDefDeltaBows(bool deltaBows); // take care: problems for false if drawing 1-sensor modules!
 
   TString TitleAdd() const;
 
