@@ -4,6 +4,7 @@ import os
 import sys
 import fileinput
 import string
+import copy
 
 #########################################################
 ########### User Defined Variables (BEGIN) ##############
@@ -120,7 +121,6 @@ def replace(map, filein, fileout):
 def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, sampleType, dofastfull):
     global Sequence, Version, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events, castorHarvestedFilesDirectory
     global cfg, macro, Tracksname
-    print 'Tag: ' + GlobalTag
     tracks_map = { 'ootb':'general_AssociatorByHitsRecoDenom','iter0':'cutsRecoZero_AssociatorByHitsRecoDenom','iter1':'cutsRecoFirst_AssociatorByHitsRecoDenom','iter2':'cutsRecoSecond_AssociatorByHitsRecoDenom','iter3':'cutsRecoThird_AssociatorByHitsRecoDenom','iter4':'cutsRecoFourth_AssociatorByHitsRecoDenom','iter5':'cutsRecoFifth_AssociatorByHitsRecoDenom','iter6':'cutsRecoSixth_AssociatorByHitsRecoDenom'}
     tracks_map_hp = { 'ootb':'cutsRecoHp_AssociatorByHitsRecoDenom','iter0':'cutsRecoZeroHp_AssociatorByHitsRecoDenom','iter1':'cutsRecoFirstHp_AssociatorByHitsRecoDenom','iter2':'cutsRecoSecondHp_AssociatorByHitsRecoDenom','iter3':'cutsRecoThirdHp_AssociatorByHitsRecoDenom','iter4':'cutsRecoFourthHp_AssociatorByHitsRecoDenom','iter5':'cutsRecoFifthHp_AssociatorByHitsRecoDenom','iter6':'cutsRecoSixthHp_AssociatorByHitsRecoDenom'}
     if(trackalgorithm=='iter0' or trackalgorithm=='ootb'):
@@ -359,8 +359,10 @@ else:
 
 NewSelection=''
 
+NewRepositoryBase = copy.copy(NewRepository)
 for algo in Algos:
     for quality in Qualities:
+        NewRepository = copy.copy(NewRepositoryBase)
         dofastfull = False
         PileUp = 'noPU'
         sampleType = 'FullSim'
@@ -373,6 +375,7 @@ for algo in Algos:
             RefSelection+='_ootb'
         do_validation(startupsamples, StartupTag, quality , algo, PileUp, sampleType, dofastfull)
 
+        NewRepository = copy.copy(NewRepositoryBase)
         PileUp = 'PU'
         sampleType = 'FullSim'
         RefSelection=RefStartupTag+'_'+PileUp
@@ -384,7 +387,7 @@ for algo in Algos:
             RefSelection+='_ootb'
         do_validation(pileupstartupsamples, StartupTag, quality , algo, PileUp, sampleType, dofastfull)
 
-        NewRepository += '/fastsim'
+        NewRepository = copy.copy(NewRepositoryBase) + '/fastim'
         PileUp = 'noPU'
         sampleType = 'FastSim'
         RefSelection=RefStartupTag+'_'+PileUp
@@ -396,8 +399,7 @@ for algo in Algos:
             RefSelection+='_ootb'
         do_validation(fastsimstartupsamples, StartupTag, quality , algo, PileUp, sampleType, dofastfull)
         
-        NewRepositoryBase = NewRepository
-        NewRepository += '/fastsim'
+        NewRepository = copy.copy(NewRepositoryBase) + '/fastsim'
         PileUp = 'PU'
         sampleType = 'FastSim'
         RefSelection=RefStartupTag+'_'+PileUp
@@ -409,7 +411,7 @@ for algo in Algos:
             RefSelection+='_ootb'
         do_validation(pileupfastsimstartupsamples, StartupTag, quality , algo, PileUp, sampleType, dofastfull)
 
-        NewRepository = NewRepositoryBase + '/fastfull'
+        NewRepository = copy.copy(NewRepositoryBase) + '/fastfull'
         dofastfull = True
         PileUp = 'noPU'
         sampleType = 'FastSim'
@@ -422,6 +424,7 @@ for algo in Algos:
             RefSelection+='_ootb'
         do_validation(fastsimstartupsamples, StartupTag, quality , algo, PileUp, sampleType, dofastfull)
 
+        NewRepository = copy.copy(NewRepositoryBase) + '/fastfull'
         PileUp = 'PU'
         sampleType = 'FastSim'
         dofastfull = True
