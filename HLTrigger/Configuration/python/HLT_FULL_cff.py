@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/HLT/V92 (CMSSW_5_2_3_HLT1)
+# /dev/CMSSW_5_2_1/HLT/V94 (CMSSW_5_2_3_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V92')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V94')
 )
 
 streams = cms.PSet( 
@@ -13,6 +13,7 @@ streams = cms.PSet(
     'Cosmics',
     'DoubleElectron',
     'DoubleMu',
+    'DoubleMuParked',
     'ElectronHad',
     'FEDMonitor',
     'ForwardTriggers',
@@ -44,9 +45,9 @@ streams = cms.PSet(
   DQM = cms.vstring( 'OnlineMonitor' ),
   DQMForHI = cms.vstring( 'OnlineMonitorHI' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
+  Express = cms.vstring( 'ExpressPhysics' ),
   ExpressForCosmics = cms.vstring( 'ExpressCosmics' ),
   ExpressForHI = cms.vstring( 'HIExpressPhysics' ),
-  ExpressForPP = cms.vstring( 'ExpressPhysics' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor',
     'OnlineHltMonitorHI' ),
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
@@ -132,6 +133,7 @@ datasets = cms.PSet(
     'HLT_Mu22_TkMu8_v3',
     'HLT_Mu8_v15',
     'HLT_TripleMu5_v16' ),
+  DoubleMuParked = cms.vstring(  ),
   EcalLaser = cms.vstring( 'HLT_EcalCalibration_v3',
     'HLT_HIEcalCalibration_v2' ),
   ElectronHad = cms.vstring( 'HLT_DoubleEle14_CaloIdT_TrkIdVL_Mass8_PFMET40_v2',

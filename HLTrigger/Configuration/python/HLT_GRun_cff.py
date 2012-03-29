@@ -1,10 +1,10 @@
-# /online/collisions/2012/5e33/v4.3/HLT/V5 (CMSSW_5_2_3_HLT1)
+# /online/collisions/2012/5e33/v4.3/HLT/V7 (CMSSW_5_2_3_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/5e33/v4.3/HLT/V5')
+  tableName = cms.string('/online/collisions/2012/5e33/v4.3/HLT/V7')
 )
 
 streams = cms.PSet( 
@@ -38,7 +38,7 @@ streams = cms.PSet(
   Calibration = cms.vstring( 'TestEnablesEcalHcalDT' ),
   DQM = cms.vstring( 'OnlineMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
-  ExpressForPP = cms.vstring( 'ExpressPhysics' ),
+  Express = cms.vstring( 'ExpressPhysics' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor' ),
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
