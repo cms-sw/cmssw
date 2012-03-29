@@ -94,7 +94,7 @@ if not live and not sourceFiles :
     optparser.error("Source file name not given for offline DQM")
     exit
 
-if central and runtype :
+if p5 and live and runtype :
     optparser.error("Cannot specify a run type for central DQM")
     exit
 
@@ -246,7 +246,7 @@ process.dqmQTestEE = cms.EDAnalyzer("QualityTester",
 )
 '''
 
-if central :
+if p5 and live :
     dqmModules += '''
 process.load("DQM.Integration.test.environment_cfi")'''
 else :
@@ -303,7 +303,7 @@ else :
     if privEcal :
         setup += 'process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG"' + "\n"
 
-if central or privEcal :
+if p5 :
     setup += '''
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(
@@ -814,8 +814,13 @@ if doOutput :
         customizations += 'process.dqmSaver.dirName = "' + dirName + '"' + "\n"
 
     if privEcal and live :
-        customizations += 'process.dqmSaver.convention = "Online"' + "\n"        
-        customizations += 'process.dqmSaver.dirName = "/data/ecalod-disk01/dqm-data/online-DQM/data"' + "\n"
+        customizations += '''
+process.dqmSaver.convention = "Online"
+process.dqmSaver.dirName = "/data/ecalod-disk01/dqm-data/online-DQM/data"
+process.dqmSaver.saveByTime = -1
+process.dqmSaver.saveByMinute = -1
+'''
+
         # temporary - remove when subsystemFolder issue is resolved
         if physics :
             customizations += 'process.dqmSaver.version = 1' + "\n"
@@ -851,7 +856,7 @@ process.source.fileNames = cms.untracked.vstring(
 ''' + sourceFiles + ''')
 '''
 
-if central :
+if p5 and live :
     customizations += '''
  ## Run type specific ##
 '''
@@ -892,7 +897,7 @@ customizations += '''
  ## FEDRawDataCollection name ##
 '''
 
-if central :
+if p5 and live :
     customizations += 'FedRawData = "' + FedRawData + '"'
     customizations += '''
 if process.runType.getRunType() == process.runType.hi_run:
@@ -922,26 +927,11 @@ if physics :
         customizations += 'process.ecalBarrelHltTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
         customizations += 'process.ecalEndcapHltTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
 
-# TEMPORARY
-if not central :
-    if not physics :
-        customizations += '''
-useSubdir = False
-process.ecalBarrelMonitorClient.produceReports = True
-process.ecalEndcapMonitorClient.produceReports = True
-process.ecalBarrelMonitorClient.reducedReports = True
-process.ecalEndcapMonitorClient.reducedReports = True'''
-    else :
-        customizations += '''
-process.ecalBarrelMonitorClient.produceReports = False
-process.ecalEndcapMonitorClient.produceReports = False'''
-#TEMPORARY
-
 if not physics :
     customizations += '''
  ## Avoid plot name clashes ##
 '''
-    if not central :
+    if not (p5 and live) :
         if (daqtype == 'localDAQ') or (daqtype == 'miniDAQ') :
             customizations += 'useSubdir = False' + "\n"
         else :
