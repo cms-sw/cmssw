@@ -5,11 +5,14 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2009/11/19 14:33:13 $
- * $Revision: 1.22 $
+ * $Date: 2010/05/30 10:01:58 $
+ * $Revision: 1.23 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.22 2009/11/19 14:33:13 puigh Exp $
+ * $Id: L1TGCT.h,v 1.23 2010/05/30 10:01:58 tapper Exp $
  * $Log: L1TGCT.h,v $
+ * Revision 1.23  2010/05/30 10:01:58  tapper
+ * Added one histogram, correlation of sum ET and HT and changed a few labels for the better.
+ *
  * Revision 1.22  2009/11/19 14:33:13  puigh
  * modify beginJob
  *
@@ -218,7 +221,8 @@ private:
   edm::InputTag gctEnergySumsSource_;
   edm::InputTag gctIsoEmSource_;
   edm::InputTag gctNonIsoEmSource_;
-
+  /// filter TriggerType
+  int filterTriggerType_;
 };
 
 #endif
