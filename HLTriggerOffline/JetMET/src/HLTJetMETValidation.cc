@@ -271,7 +271,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
   }
 
-  Handle<CaloJetCollection> caloJets,caloJetsDummy;
+  Handle<PFJetCollection> caloJets,caloJetsDummy;
   iEvent.getByLabel( CaloJetAlgorithm, caloJets );
   double calJetPt=-1.;
   double calJetEta=-999.;
@@ -280,7 +280,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if (caloJets.isValid()) { 
     //Loop over the CaloJets and fill some histograms
     int jetInd = 0;
-    for( CaloJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end(); ++ cal ) {
+    for( PFJetCollection::const_iterator cal = caloJets->begin(); cal != caloJets->end(); ++ cal ) {
       //std::cout << "CALO JET #" << jetInd << std::endl << cal->print() << std::endl;
       if (jetInd == 0){
 	calJetPt=cal->pt();
