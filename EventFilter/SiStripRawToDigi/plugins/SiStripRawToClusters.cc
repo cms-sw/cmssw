@@ -20,7 +20,7 @@ RawToClusters::RawToClusters( const edm::ParameterSet& conf ) :
   cacheId_(0),
   clusterizer_(StripClusterizerAlgorithmFactory::create(conf.getParameter<edm::ParameterSet>("Clusterizer"))),
   rawAlgos_(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"))),
-  doAPVEmulatorCheck_(conf.getParameter<bool>("DoAPVEmulatorCheck"))
+  doAPVEmulatorCheck_(conf.existsAs<bool>("DoAPVEmulatorCheck") ? conf.getParameter<bool>("DoAPVEmulatorCheck") : false)
 {
   if ( edm::isDebugEnabled() ) {
     LogTrace("SiStripRawToCluster")
@@ -59,7 +59,7 @@ RawToClusters::RawToClusters( const edm::ParameterSet& conf ) :
     // create lazy unpacker
     boost::shared_ptr<LazyUnpacker> unpacker( new LazyUnpacker( *cabling_, *clusterizer_, *rawAlgos_, *buffers ) );
 
-    //propagate the parameter doAPVEmulatorCheck_ to the unpacker.
+    // propagate the parameter doAPVEmulatorCheck_ to the unpacker.
     unpacker->doAPVEmulatorCheck(doAPVEmulatorCheck_);
 
     // create lazy getter
