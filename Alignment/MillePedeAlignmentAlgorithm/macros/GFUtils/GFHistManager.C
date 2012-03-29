@@ -3,7 +3,7 @@
 // GFHistManager
 //   Author:      Gero Flucke
 //   Date:        Feb. 10th, 2002
-//   last update: $Date: 2011/08/08 17:05:22 $  
+//   last update: $Date: 2011/08/08 17:20:24 $  
 //   by:          $Author: flucke $
 //
 
@@ -271,12 +271,18 @@ void GFHistManager::DrawReally(Int_t layer)
 	if(histsOfPad->GetEntriesFast() > 1){
 	  const Double_t max = this->MaxOfHists(histsOfPad);
 	  if(//firstHist->GetMaximumStored() != -1111. &&  ????
-	     max > firstHist->GetMaximumStored()){
+	     //max > firstHist->GetMaximumStored()){
+	     max > firstHist->GetMaximum()){
 	    firstHist->SetMaximum((fLogY[layer] ? 1.1 : 1.05) * max);
 	  }
 	  const Double_t min = this->MinOfHists(histsOfPad);
-	  if(!(gStyle->GetHistMinimumZero() && min > 0.)) {
+	  if (min < 0.) {
 	    firstHist->SetMinimum(min * 1.05);
+	  } else if (gStyle->GetHistMinimumZero()) {
+	    // nothing to do
+	  } else if (min != 0. || !fLogY[layer]) {
+	    // Do not set to zero: log scale issue!
+	    firstHist->SetMinimum(min * 0.95);
 	  }
 	}
 	if(fLogY[layer] 
@@ -455,12 +461,21 @@ void GFHistManager::Update(Int_t layer)
       if(fLegendArrays && fLegendArrays->GetSize() > layer && fLegendArrays->At(layer)){
 	this->DrawLegend(layer, histNo);
       }
-      const TH1 *h1 = this->GetHistsOf(layer, histNo)->First();
 
-      if(fLogY[layer] 
-	 && (h1->GetMinimum() > 0. 
+      if(fLogY[layer]) {
+	GFHistArray *histsOfPad = this->GetHistsOf(layer, histNo);
+	TH1 *h1 = histsOfPad->First();
+	if (h1->GetMinimumStored() == 0. && histsOfPad->GetEntriesFast() > 1
+	    && this->MinOfHists(histsOfPad) == 0.) {
+	  // trouble with log scale, but assume that 0. set in DrawReally(..)!
+	  h1->SetMinimum(-1111.);
+	}
+	if ((h1->GetMinimum() > 0. 
 	     || (h1->GetMinimum() == 0. && h1->GetMinimumStored() == -1111.))) {
-	gPad->SetLogy();
+	  gPad->SetLogy();
+	} else {
+	  gPad->SetLogy(kFALSE);
+	}
       } else {
 	gPad->SetLogy(kFALSE);
       }
