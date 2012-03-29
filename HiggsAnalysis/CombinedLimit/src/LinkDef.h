@@ -11,6 +11,8 @@
 #include "../interface/HZZ4LRooPdfs.h"
 #include "../interface/HZZ2L2QRooPdfs.h"
 #include "../interface/HGGRooPdfs.h"
+#include "../interface/SequentialMinimizer.h"
+#include "../interface/ProcessNormalization.h"
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -52,5 +54,7 @@
 #pragma link C++ class Triangle+;
 #pragma link C++ class RooLevelledExp+;
 #pragma link C++ class RooPower+;
+#pragma link C++ class cmsmath::SequentialMinimizer+;
+#pragma link C++ class ProcessNormalization+;
 
 #endif

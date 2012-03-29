@@ -61,16 +61,8 @@ bool CascadeMinimizer::improveOnce(int verbose)
 {
     std::string myType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
     std::string myAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
-    float       myTol(ROOT::Math::MinimizerOptions::DefaultTolerance());
     bool outcome = false;
-    if (myType == "Sequential") {
-        if (seqmin_.get() == 0) {
-            seqmin_.reset(new SequentialMinimizer(& nll_, mode_ == Unconstrained ? poi_ : 0));
-            outcome = seqmin_->minimize(myTol);
-        } else {
-            outcome = seqmin_->improve(myTol);
-        }
-    } else if (oldFallback_){
+    if (oldFallback_){
         outcome = nllutils::robustMinimize(nll_, minimizer_, verbose);
     } else {
         int status = minimizer_.minimize(myType.c_str(), myAlgo.c_str());
@@ -84,10 +76,11 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
     minimizer_.setPrintLevel(verbose-2);  
     minimizer_.setStrategy(strategy_);
     if (preScan_) minimizer_.minimize("Minuit2","Scan");
-    if (mode_ == Unconstrained && poiOnlyFit_) {
-        OneDimMinimizer min1D(&nll_, poi_);
-        min1D.minimize(100,ROOT::Math::MinimizerOptions::DefaultTolerance());
-    }
+    // // FIXME to be ported later
+    //if (mode_ == Unconstrained && poiOnlyFit_) {
+    //    OneDimMinimizer min1D(&nll_, poi_);
+    //    min1D.minimize(100,ROOT::Math::MinimizerOptions::DefaultTolerance());
+    //}
     return improve(verbose, cascade);
 }
 

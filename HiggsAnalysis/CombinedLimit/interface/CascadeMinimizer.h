@@ -7,7 +7,6 @@ class RooRealVar;
 #include <RooArgSet.h>
 #include "../interface/RooMinimizerOpt.h"
 #include <boost/program_options.hpp>
-#include "../interface/SequentialMinimizer.h"
 
 class CascadeMinimizer {
     public:
@@ -27,7 +26,6 @@ class CascadeMinimizer {
     private:
         RooAbsReal & nll_;
         RooMinimizerOpt minimizer_;
-        std::auto_ptr<SequentialMinimizer> seqmin_; 
         Mode         mode_;
         int          strategy_;
         RooRealVar * poi_; 
