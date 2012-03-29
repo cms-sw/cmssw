@@ -860,9 +860,6 @@ if p5 and live :
     customizations += '''
  ## Run type specific ##
 '''
-    if not physics :
-        customizations += 'useSubdir = True' + "\n"
-
     customizations += '''
 if process.runType.getRunType() == process.runType.cosmic_run :
     process.ecalMonitorEndPath.remove(process.dqmQTestEB)
@@ -870,7 +867,6 @@ if process.runType.getRunType() == process.runType.cosmic_run :
 
     if not physics :
         customizations += '''
-    useSubdir = False
     process.ecalBarrelMonitorClient.produceReports = True
     process.ecalEndcapMonitorClient.produceReports = True
     process.ecalBarrelMonitorClient.reducedReports = True
@@ -927,32 +923,22 @@ if physics :
         customizations += 'process.ecalBarrelHltTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
         customizations += 'process.ecalEndcapHltTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
 
-if not physics :
+if not physics and (daqtype == 'globalDAQ') :
     customizations += '''
  ## Avoid plot name clashes ##
+process.ecalBarrelIntegrityTask.subfolder = "Calibration"
+process.ecalBarrelOccupancyTask.subfolder = "Calibration"
+process.ecalBarrelStatusFlagsTask.subfolder = "Calibration"
+process.ecalBarrelRawDataTask.subfolder = "Calibration"
+process.ecalBarrelPedestalOnlineTask.subfolder = "Calibration"
+process.ecalEndcapIntegrityTask.subfolder = "Calibration"
+process.ecalEndcapOccupancyTask.subfolder = "Calibration"
+process.ecalEndcapStatusFlagsTask.subfolder = "Calibration"
+process.ecalEndcapRawDataTask.subfolder = "Calibration"
+process.ecalEndcapPedestalOnlineTask.subfolder = "Calibration"
+process.ecalBarrelMonitorClient.subfolder = "Calibration"
+process.ecalEndcapMonitorClient.subfolder = "Calibration"
 '''
-    if not (p5 and live) :
-        if (daqtype == 'localDAQ') or (daqtype == 'miniDAQ') :
-            customizations += 'useSubdir = False' + "\n"
-        else :
-            customizations += 'useSubdir = True' + "\n"
-
-    customizations += '''
-if useSubdir :
-    process.ecalBarrelIntegrityTask.subfolder = "Calibration"
-    process.ecalBarrelOccupancyTask.subfolder = "Calibration"
-    process.ecalBarrelStatusFlagsTask.subfolder = "Calibration"
-    process.ecalBarrelRawDataTask.subfolder = "Calibration"
-    process.ecalBarrelPedestalOnlineTask.subfolder = "Calibration"
-    process.ecalEndcapIntegrityTask.subfolder = "Calibration"
-    process.ecalEndcapOccupancyTask.subfolder = "Calibration"
-    process.ecalEndcapStatusFlagsTask.subfolder = "Calibration"
-    process.ecalEndcapRawDataTask.subfolder = "Calibration"
-    process.ecalEndcapPedestalOnlineTask.subfolder = "Calibration"
-    process.ecalBarrelMonitorClient.subfolder = "Calibration"
-    process.ecalEndcapMonitorClient.subfolder = "Calibration"
-'''
-        
 
 # write cfg file
 if filename == '' :
