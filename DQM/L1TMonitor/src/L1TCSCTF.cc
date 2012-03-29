@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2011/04/05 16:21:36 $
- * $Revision: 1.37 $
+ * $Date: 2011/12/29 20:49:26 $
+ * $Revision: 1.38 $
  * \author J. Berryhill
  *
  */
@@ -612,8 +612,8 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 					int station = (*trackStub).first.station()-1;
 					if(station != 4)
 					{
-						int endcap  = (*trackStub).first.endcap()-1;
-						int sector  = (*trackStub).first.triggerSector()-1;
+						// int endcap  = (*trackStub).first.endcap()-1;
+						// int sector  = (*trackStub).first.triggerSector()-1;
 						int cscId   = (*trackStub).first.triggerCscId()-1;
 						int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*trackStub).first);
 						int fpga    = ( subSector ? subSector-1 : station+1 );

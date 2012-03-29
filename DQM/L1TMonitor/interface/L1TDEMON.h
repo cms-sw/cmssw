@@ -66,6 +66,13 @@ class L1TDEMON : public edm::EDAnalyzer {
   int deSysCount[dedefs::DEnsys];
   int nEvtWithSys[dedefs::DEnsys];
   
+  // system status (enabled / disabled)
+  // similar to COMPARE_COLLS HardwareValidation/L1Comparator, probably a more elegant solution
+  // possible TODO
+
+  bool m_doSys[dedefs::DEnsys];
+
+
   /// monitoring elements
 
   // global

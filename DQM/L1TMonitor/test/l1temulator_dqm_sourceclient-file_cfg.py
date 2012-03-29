@@ -24,13 +24,13 @@ if l1DqmEnv == 'file' :
     #globalTagType = 'R'
     
     if globalTagType == 'HLT' :
-        globalTagValue = 'GR_H_V25'
+        globalTagValue = 'GR_H_V26'
     elif globalTagType == 'P' :
-        globalTagValue = 'GR_P_V27'
+        globalTagValue = 'GR_P_V29'
     elif globalTagType == 'E' :
-        globalTagValue = 'GR_E_V22'
+        globalTagValue = 'GR_E_V23'
     elif globalTagType == 'R' :
-        globalTagValue = 'GR_R_44_V10'
+        globalTagValue = 'GR_R_52_V4'
     else :
         print 'No valid global tag type', globalTagType
         print 'Valid types: HLT, P, E, R'
@@ -109,7 +109,8 @@ else :
     es_prefer_GlobalTag = cms.ESPrefer('GlobalTag')
 
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+#process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #-------------------------------------
 # sequences needed for L1 emulator DQM
@@ -175,7 +176,10 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 # remove a L1 trigger system from the comparator integrated in hardware validation
 # cfi file: L1Trigger.HardwareValidation.L1Comparator_cfi
 #
-# process.l1compare.COMPARE_COLLS = [1, 1, 1, 1,  1, 1, 1, 1, 1, 0, 1, 1]
+process.l1compare.COMPARE_COLLS = [
+        0,  0,  1,  1,   0,  1,  0,  0,  1,  0,  1, 0
+        ]
+    # ETP,HTP,RCT,GCT, DTP,DTF,CTP,CTF,RPC,LTC,GMT,GT
 #
 
 
