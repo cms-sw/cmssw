@@ -4,7 +4,7 @@ import re
 # get options
 optparser = OptionParser()
 optparser.add_option("-e", "--env", dest = "environment",
-                   help = "ENV=(CMSLive|PrivLive|PrivOffline|LocalTest)", metavar = "ENV")
+                   help = "ENV=(CMSLive|PrivLive|PrivOffline|LocalLive|LocalOffline)", metavar = "ENV")
 optparser.add_option("-c", "--config", dest = "config",
                    help = "CONFIG=(Physics|Calibration)", metavar = "CONFIG")
 optparser.add_option("-d", "--daqtype", dest = "daqtype", default = "globalDAQ",
@@ -29,21 +29,23 @@ if not options.environment or not options.config :
     exit
 
 env = options.environment
-if env not in set(['CMSLive', 'PrivLive', 'PrivOffline', 'LocalTest']) :
+if env not in set(['CMSLive', 'PrivLive', 'PrivOffline', 'LocalLive', 'LocalOffline']) :
     optparser.error("ENV value " + env + " not correct")
     exit
 
 configuration = ''
+physics = True
 if options.config == 'Physics' :
     configuration = 'Ecal'
 elif options.config == 'Calibration' :
     configuration = 'EcalCalibration'
+    physics = False
 else :
     optparser.error("CONFIG value not correct")
     exit
 
 daqtype = options.daqtype
-if daqtype not in set(['localDAQ', 'globalDAQ']) :
+if daqtype not in set(['localDAQ', 'globalDAQ', 'miniDAQ']) :
     optparser.error("DAQ value " + daqtype + " not correct")
     exit
 
@@ -81,12 +83,8 @@ doOutput = True
 #    doOutput = False
 
 live = False
-if (env == 'CMSLive') or (env == 'PrivLive'):
+if (env == 'CMSLive') or (env == 'PrivLive') or (env == 'LocalLive') :
     live = True
-
-onlyCalib = False
-if (daqtype == 'localDAQ') :
-    onlyCalib = True
 
 if not p5 and not gtag :
     optparser.error("Global tag must be given for non-P5 DQM cfg")
@@ -106,10 +104,6 @@ if doOutput and not live and not workflow :
 
 if workflow and not re.match('[\/][a-zA-Z0-9_]+[\/][a-zA-Z0-9_]+[\/][a-zA-Z0-9_]+', workflow) :
     optparser.error("Invalid workflow: " + workflow)
-    exit
-
-if onlyCalib and (configuration != 'EcalCalibration') :
-    optparser.error("Calibration-only setup for non calibration config")
     exit
 
 streamerInput = False
@@ -174,7 +168,7 @@ if live :
 process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi")
 '''
 
-if not (configuration == 'Ecal') :
+if not physics :
     recoModules += '''
 import RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi
 process.ecalUncalibHit1 = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi.ecalFixedAlphaBetaFitUncalibRecHit.clone()
@@ -193,7 +187,7 @@ process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi")
 process.load("DQM.EcalEndcapMonitorTasks.EcalEndcapMonitorTasks_cfi")
 '''
 
-if not central and (configuration == 'Ecal'):
+if not central and physics :
     ecalDQM += '''
 process.load("DQM.EcalBarrelMonitorTasks.EBHltTask_cfi")
 process.load("DQM.EcalEndcapMonitorTasks.EEHltTask_cfi")
@@ -276,7 +270,7 @@ if live :
 process.load("HLTrigger.special.HLTTriggerTypeFilter_cfi")
 '''
 
-if configuration == 'Ecal' :
+if physics :
     filters += '''
 process.ecalPhysicsFilter = cms.EDFilter("EcalMonitorPrescaler")
 '''
@@ -349,21 +343,21 @@ sequencePaths += '''
 process.ecalPreRecoSequence = cms.Sequence(
     process.preScaler +
 '''
-if live and (configuration == 'EcalCalibration') :
+if live :
     sequencePaths += '    process.hltTriggerTypeFilter +'
 
 sequencePaths += '''
     process.ecalEBunpacker
 )
 
-process.ecalDataSequence = cms.Sequence(
+process.ecalRecoSequence = cms.Sequence(
     process.ecalUncalibHit *
     process.ecalDetIdToBeRecovered *
     process.ecalRecHit
 )
 '''
 
-if configuration == 'Ecal' :
+if physics :
     sequencePaths += '''
 process.ecalClusterSequence = cms.Sequence(
     process.hybridClusteringSequence +
@@ -381,14 +375,7 @@ if privEcal and not live :
 
 sequencePaths += '''
     process.ecalBarrelMonitorModule +
-    process.ecalEndcapMonitorModule +'''
-
-if onlyCalib :
-    sequencePaths += '''
-    process.ecalBarrelPedestalOnlineTask +
-    process.ecalEndcapPedestalOnlineTask +'''  
-
-sequencePaths += '''
+    process.ecalEndcapMonitorModule +
     process.ecalBarrelOccupancyTask +
     process.ecalBarrelIntegrityTask +
     process.ecalEndcapOccupancyTask +
@@ -396,11 +383,13 @@ sequencePaths += '''
     process.ecalBarrelStatusFlagsTask +
     process.ecalBarrelRawDataTask +
     process.ecalEndcapStatusFlagsTask +
-    process.ecalEndcapRawDataTask
+    process.ecalEndcapRawDataTask +
+    process.ecalBarrelPedestalOnlineTask +
+    process.ecalEndcapPedestalOnlineTask
 )
 '''
 
-if configuration == 'Ecal' :
+if physics :
     sequencePaths += '''
 process.ecalMonitorSequence = cms.Sequence('''
 
@@ -415,8 +404,6 @@ process.ecalMonitorSequence = cms.Sequence('''
     process.ecalEndcapTrendTask +'''
 
     sequencePaths += '''
-    process.ecalBarrelPedestalOnlineTask +
-    process.ecalEndcapPedestalOnlineTask +
     process.ecalBarrelCosmicTask +
     process.ecalBarrelClusterTask +
     process.ecalBarrelTriggerTowerTask +
@@ -432,7 +419,7 @@ process.ecalMonitorSequence = cms.Sequence('''
 process.ecalMonitorPath = cms.Path(
     process.ecalPreRecoSequence *
     process.ecalPhysicsFilter *
-    process.ecalDataSequence *
+    process.ecalRecoSequence *
     (
     process.ecalClusterSequence +
 '''
@@ -455,7 +442,7 @@ else :
 process.ecalLaserPath = cms.Path(
     process.ecalPreRecoSequence *
     process.ecalLaserFilter *    
-    process.ecalDataSequence *
+    process.ecalRecoSequence *
     process.ecalUncalibHit1 *
     (
     process.ecalMonitorBaseSequence +
@@ -467,7 +454,7 @@ process.ecalLaserPath = cms.Path(
 process.ecalLedPath = cms.Path(
     process.ecalPreRecoSequence *
     process.ecalLedFilter *
-    process.ecalDataSequence *
+    process.ecalRecoSequence *
     process.ecalUncalibHit1 *
     (
     process.ecalMonitorBaseSequence +    
@@ -478,7 +465,7 @@ process.ecalLedPath = cms.Path(
 process.ecalPedestalPath = cms.Path(
     process.ecalPreRecoSequence *
     process.ecalPedestalFilter *    
-    process.ecalDataSequence *
+    process.ecalRecoSequence *
     (
     process.ecalMonitorBaseSequence +    
     process.ecalBarrelPedestalTask +
@@ -489,7 +476,7 @@ process.ecalPedestalPath = cms.Path(
 process.ecalTestPulsePath = cms.Path(
     process.ecalPreRecoSequence *
     process.ecalTestPulseFilter *    
-    process.ecalDataSequence *
+    process.ecalRecoSequence *
     process.ecalUncalibHit2 *
     (
     process.ecalMonitorBaseSequence +    
@@ -503,7 +490,7 @@ sequencePaths += '''
 process.ecalClientPath = cms.Path(
     process.ecalPreRecoSequence *'''
 
-if configuration == 'Ecal' :
+if physics :
     sequencePaths += '''
     process.ecalPhysicsFilter +'''
 else :
@@ -538,7 +525,7 @@ process.dqmEndPath = cms.EndPath(
 sequencePaths += '''
 process.schedule = cms.Schedule('''
 
-if configuration == 'Ecal' :
+if physics :
     sequencePaths += '''
     process.ecalMonitorPath,'''
 else :
@@ -603,7 +590,7 @@ process.ecalRecHit.EBuncalibRecHitCollection = "ecalUncalibHit:EcalUncalibRecHit
 process.ecalRecHit.EEuncalibRecHitCollection = "ecalUncalibHit:EcalUncalibRecHitsEE"
 '''
 
-if configuration == 'Ecal' :
+if physics :
     customizations += '''
 process.simEcalTriggerPrimitiveDigis.Label = "ecalEBunpacker"
 process.simEcalTriggerPrimitiveDigis.InstanceEB = "ebDigis"
@@ -624,7 +611,7 @@ customizations += '''
  ## Filters ##
 '''
 
-if configuration == 'Ecal' :
+if physics :
     customizations += '''
 process.ecalPhysicsFilter.EcalRawDataCollection = cms.InputTag("ecalEBunpacker")
 process.ecalPhysicsFilter.clusterPrescaleFactor = cms.untracked.int32(1)
@@ -663,7 +650,7 @@ customizations += '''
  ## Ecal DQM modules ##
 '''
 
-if configuration == 'EcalCalibration' :
+if not physics :
     customizations += '''
 process.ecalBarrelLaserTask.EcalUncalibratedRecHitCollection = "ecalUncalibHit1:EcalUncalibRecHitsEB"
 process.ecalBarrelTestPulseTask.EcalUncalibratedRecHitCollection = "ecalUncalibHit2:EcalUncalibRecHitsEB"
@@ -677,18 +664,6 @@ process.ecalEndcapLedTask.ledWavelengths = [ 1, 2 ]
 process.ecalBarrelMonitorClient.laserWavelengths = [ 1, 2, 3, 4 ]
 process.ecalEndcapMonitorClient.laserWavelengths = [ 1, 2, 3, 4 ]
 process.ecalEndcapMonitorClient.ledWavelengths = [ 1, 2 ]
-'''
-
-    if not onlyCalib :
-        customizations += '''
-process.ecalBarrelIntegrityTask.subfolder = "Calibration"
-process.ecalBarrelOccupancyTask.subfolder = "Calibration"
-process.ecalBarrelStatusFlagsTask.subfolder = "Calibration"
-process.ecalBarrelRawDataTask.subfolder = "Calibration"
-process.ecalEndcapIntegrityTask.subfolder = "Calibration"
-process.ecalEndcapOccupancyTask.subfolder = "Calibration"
-process.ecalEndcapStatusFlagsTask.subfolder = "Calibration"
-process.ecalEndcapRawDataTask.subfolder = "Calibration"
 '''
 
     if live :
@@ -707,7 +682,7 @@ process.ecalEndcapMonitorClient.MGPAGains = [ 12 ]
 process.ecalEndcapMonitorClient.MGPAGainsPN = [ 16 ]
 '''
 
-if (configuration == 'Ecal') and live :
+if physics and live :
     customizations += '''
 process.ecalBarrelTimingTask.useBeamStatus = cms.untracked.bool(True)
 process.ecalEndcapTimingTask.useBeamStatus = cms.untracked.bool(True)
@@ -726,27 +701,15 @@ process.ecalBarrelMonitorClient.updateTime = 4
 process.ecalEndcapMonitorClient.updateTime = 4
 '''
 
-if configuration == 'Ecal' :
+if physics :
     customizations += '''
 process.ecalBarrelMonitorClient.enabledClients = ["Integrity", "StatusFlags", "Occupancy", "PedestalOnline", "Timing", "Cosmic", "TriggerTower", "Cluster", "Summary"]
 process.ecalEndcapMonitorClient.enabledClients = ["Integrity", "StatusFlags", "Occupancy", "PedestalOnline", "Timing", "Cosmic", "TriggerTower", "Cluster", "Summary"]
 '''
 else :
-    customizations += 'process.ecalBarrelMonitorClient.enabledClients = ["Integrity", "Occupancy", '
-    if onlyCalib :
-        customizations += '"PedestalOnline", '
-        
-    customizations += '"Pedestal", "TestPulse", "Laser", "Summary"]' + "\n"
-    customizations += 'process.ecalEndcapMonitorClient.enabledClients = ["Integrity", "Occupancy", '
-    if onlyCalib :
-        customizations += '"PedestalOnline", '
-
-    customizations += '"Pedestal", "TestPulse", "Laser", "Led", "Summary"]' + "\n"
-
-    if not onlyCalib :
-        customizations += '''
-process.ecalBarrelMonitorClient.subfolder = "Calibration"
-process.ecalEndcapMonitorClient.subfolder = "Calibration"
+    customizations += '''
+process.ecalBarrelMonitorClient.enabledClients = ["Integrity", "StatusFlags", "Occupancy", "PedestalOnline", "Pedestal", "TestPulse", "Laser", "Summary"]
+process.ecalEndcapMonitorClient.enabledClients = ["Integrity", "StatusFlags", "Occupancy", "PedestalOnline","Pedestal", "TestPulse", "Laser", "Led", "Summary"]
 '''
 
     customizations += '''
@@ -822,7 +785,7 @@ customizations += '''
  ## DQM common modules ##
 '''
 
-if configuration == 'Ecal' :
+if physics :
     customizations += '''
 process.dqmEnvEB.subSystemFolder = cms.untracked.string("EcalBarrel")
 process.dqmEnvEE.subSystemFolder = cms.untracked.string("EcalEndcap")
@@ -834,7 +797,7 @@ process.dqmEnvEE.subSystemFolder = cms.untracked.string("EcalEndcap/Calibration"
 '''    
 
 if central :
-    if configuration == 'Ecal' :
+    if physics :
         customizations += '''
 process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/ecal_reference.root"
 '''
@@ -854,7 +817,9 @@ if doOutput :
         customizations += 'process.dqmSaver.convention = "Online"' + "\n"        
         customizations += 'process.dqmSaver.dirName = "/data/ecalod-disk01/dqm-data/online-DQM/data"' + "\n"
         # temporary - remove when subsystemFolder issue is resolved
-        if configuration == 'EcalCalibration' :
+        if physics :
+            customizations += 'process.dqmSaver.version = 1' + "\n"
+        else :
             customizations += 'process.dqmSaver.version = 2' + "\n"
 
     if not live :
@@ -875,7 +840,7 @@ if live :
     if privEcal :
         customizations += 'process.source.sourceURL = cms.string("http://dqm-c2d07-30.cms:22100/urn:xdaq-application:lid=30")' + "\n"
 
-    if (configuration == 'Ecal') and (daqtype == 'globalDAQ') :
+    if physics and (daqtype == 'globalDAQ') :
         customizations += 'process.source.SelectHLTOutput = cms.untracked.string("hltOutputA")' + "\n"
     else :
         customizations += 'process.source.SelectHLTOutput = cms.untracked.string("hltOutputCalibration")' + "\n"
@@ -889,15 +854,32 @@ process.source.fileNames = cms.untracked.vstring(
 if central :
     customizations += '''
  ## Run type specific ##
+'''
+    if not physics :
+        customizations += 'useSubdir = True' + "\n"
+
+    customizations += '''
 if process.runType.getRunType() == process.runType.cosmic_run :
     process.ecalMonitorEndPath.remove(process.dqmQTestEB)
-    process.ecalMonitorEndPath.remove(process.dqmQTestEE)
+    process.ecalMonitorEndPath.remove(process.dqmQTestEE)'''
+
+    if not physics :
+        customizations += '''
+    useSubdir = False
+    process.ecalBarrelMonitorClient.produceReports = True
+    process.ecalEndcapMonitorClient.produceReports = True'''
+    else :
+        customizations += '''
+    process.ecalBarrelMonitorClient.produceReports = False
+    process.ecalEndcapMonitorClient.produceReports = False'''
+
+    customizations += '''
 elif process.runType.getRunType() == process.runType.hpu_run:
     process.EventStreamHttpReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("*"))
 '''
 
 if (FedRawData == '') :
-    if (configuration == 'EcalCalibration') and (daqtype == 'globalDAQ') :
+    if not physics and (daqtype == 'globalDAQ') :
         FedRawData = 'hltEcalCalibrationRaw'
     else :
         FedRawData = 'rawDataCollector'
@@ -931,16 +913,43 @@ if live :
     customizations += 'process.ecalBarrelTrendTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
     customizations += 'process.ecalEndcapTrendTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
 
-if configuration == 'Ecal' :
+if physics :
     customizations += 'process.ecalBarrelSelectiveReadoutTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
     customizations += 'process.ecalEndcapSelectiveReadoutTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
     if not central :
         customizations += 'process.ecalBarrelHltTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
         customizations += 'process.ecalEndcapHltTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
 
+if not physics :
+    customizations += '''
+ ## Avoid plot name clashes ##
+'''
+    if not central :
+        if (daqtype == 'localDAQ') or (daqtype == 'miniDAQ') :
+            customizations += 'useSubdir = False' + "\n"
+        else :
+            customizations += 'useSubdir = True' + "\n"
+
+    customizations += '''
+if useSubdir :
+    process.ecalBarrelIntegrityTask.subfolder = "Calibration"
+    process.ecalBarrelOccupancyTask.subfolder = "Calibration"
+    process.ecalBarrelStatusFlagsTask.subfolder = "Calibration"
+    process.ecalBarrelRawDataTask.subfolder = "Calibration"
+    process.ecalBarrelPedestalOnlineTask.subfolder = "Calibration"
+    process.ecalEndcapIntegrityTask.subfolder = "Calibration"
+    process.ecalEndcapOccupancyTask.subfolder = "Calibration"
+    process.ecalEndcapStatusFlagsTask.subfolder = "Calibration"
+    process.ecalEndcapRawDataTask.subfolder = "Calibration"
+    process.ecalEndcapPedestalOnlineTask.subfolder = "Calibration"
+    process.ecalBarrelMonitorClient.subfolder = "Calibration"
+    process.ecalEndcapMonitorClient.subfolder = "Calibration"
+'''
+        
+
 # write cfg file
 if filename == '' :
-    if configuration == 'Ecal' :
+    if physics :
         c = 'ecal'
     else :
         c = 'ecalcalib'
