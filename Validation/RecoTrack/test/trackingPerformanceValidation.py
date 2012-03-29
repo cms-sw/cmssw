@@ -28,6 +28,18 @@ startupsamples= [
 'RelValQCD_FlatPt_15_3000',
 ]
 
+pileupstartupsamples = [
+'RelValTTbar'
+]
+
+fastsimstartupsamples = [
+'RelValTTbar'
+]
+
+pileupfastsimstartupsamples = [
+'RelValTTbar'
+]
+
 ### Sample version: v1,v2,etc..
 Version='v1'
 
@@ -35,12 +47,6 @@ Version='v1'
 StartupTag='START52_V4'
 
 RefStartupTag='START52_V4A'
-
-### PileUp: "PU" . No PileUp: "noPU"
-#PileUp='noPU'
-PileUp='noPU'
-
-
 
 ### Track algorithm name and quality. Can be a list.
 Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5','iter6']
@@ -93,13 +99,6 @@ macro='macro/TrackValHistoPublisher.C'
 
 
 
-### Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
-StartupReferenceSelection=RefStartupTag+'_'+PileUp
-
-
-
-
-
 
 #########################################################################
 ############ Functions
@@ -118,7 +117,7 @@ def replace(map, filein, fileout):
 ############################################
 
     
-def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
+def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, sampleType, dofastfull):
     global Sequence, Version, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events, castorHarvestedFilesDirectory
     global cfg, macro, Tracksname
     print 'Tag: ' + GlobalTag
@@ -174,7 +173,11 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
             elif( Sequence=="preproduction"):
                 harvestedfile='./DQM_V0001_R000000001__' + sample+ '-' + GlobalTag + '_preproduction_312-v1__GEN-SIM-RECO_1.root'
             elif( Sequence=="comparison_only"):
-                harvestedfile='./DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-' +GlobalTag + '-' + Version + '__DQM.root'
+                if (sampleType == 'FullSim' and PileUp == 'noPU') : harvestedfile='./DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-' +GlobalTag + '-' + Version + '__DQM.root'
+                if (sampleType == 'FullSim' and PileUp == 'PU') : harvestedfile='./DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-PU_' +GlobalTag + '-' + Version + '__DQM.root'
+                if (sampleType == 'FastSim' and PileUp == 'noPU') : harvestedfile = './DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-' +GlobalTag + '_FastSim-' + Version + '__GEN-SIM-DIGI-RECO.root'
+                if (sampleType == 'FastSim' and PileUp == 'PU') : 
+                    harvestedfile = './DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-PU_' +GlobalTag + '_FastSim_PU_2012_Startup_inTimeOnly-' + Version + '__GEN-SIM-DIGI-RECO.root'
                 #cpcmd='rfcp '+ castorHarvestedFilesDirectory +'/' + harvestedfile + ' .'
                 #returncode=os.system(cpcmd)
                 #if (returncode!=0):
@@ -182,7 +185,10 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                 #    continue
             #search the primary dataset
             cmd='dbsql "find  dataset where dataset like /'
-            cmd+=sample+'/'+NewRelease+'-'+GlobalTag+'*'+Version+'/GEN-SIM-RECO order by dataset.createdate "'
+            if (sampleType == 'FullSim' and PileUp == 'noPU'): cmd+=sample+'/'+NewRelease+'-'+GlobalTag+'*'+Version+'/GEN-SIM-RECO order by dataset.createdate "'
+            if (sampleType == 'FullSim' and PileUp == 'PU'):   cmd+=sample+'/'+NewRelease+'-PU_'+GlobalTag+'*'+Version+'/GEN-SIM-RECO order by dataset.createdate "'
+            if (sampleType == 'FastSim' and PileUp == 'noPU'): cmd+=sample+'/'+NewRelease+'-'+GlobalTag+'_FastSim-'+Version+'/GEN-SIM-DIGI-RECO order by dataset.createdate "'
+            if (sampleType == 'FastSim' and PileUp == 'PU'): cmd+=sample+'/'+NewRelease+'-PU_'+GlobalTag+'_FastSim_PU_2012_Startup_inTimeOnly-'+Version+'/GEN-SIM-DIGI-RECO order by dataset.createdate "'
             cmd+='|grep '+sample+'|grep -v test|tail -1'
             print cmd
             dataset= os.popen(cmd).readline().strip()
@@ -213,8 +219,8 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                             filenames+="'"
                     filenames+=']);\n'
 
-                    # if not harvesting find secondary file names
-                    if(Sequence!="preproduction"):
+                    # if not harvesting find secondary file names (only for FullSim samples)
+                    if(Sequence!="preproduction" and sampleType=="FullSim"):
                             cmd3='dbsql  "find dataset.parent where dataset like '+ dataset +'"|grep ' + sample
                             parentdataset=os.popen(cmd3).readline()
                             print 'Parent DataSet:  ', parentdataset, '\n'
@@ -281,17 +287,15 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                     if (Sequence=="harvesting" or Sequence=="preproduction" or Sequence=="comparison_only"):
                             #copy only the needed histograms
                             if(trackquality==""):
-                                    print "Copying DQM file"
                                     rootcommand='root -b -q -l CopySubdir.C\\('+ '\\\"'+harvestedfile+'\\\",\\\"val.' +sample+'.root\\\",\\\"'+ tracks_map[trackalgorithm]+ '\\\"\\) >& /dev/null'
                                     #rootcommand='root -b -q -l CopySubdir.C\\('+ '\\\"'+harvestedfile+'\\\",\\\"val.' +sample+'.root\\\",\\\"'+ tracks_map[trackalgorithm]+ '\\\"\\)'
                                     os.system(rootcommand)
                             elif(trackquality=="highPurity"):
-                                    print "Copying DQM file"
                                     os.system('root -b -q -l CopySubdir.C\\('+ '\\\"'+harvestedfile+'\\\",\\\"val.' +sample+'.root\\\",\\\"'+ tracks_map_hp[trackalgorithm]+ '\\\"\\) >& /dev/null')
                                     #os.system('root -b -q -l CopySubdir.C\\('+ '\\\"'+harvestedfile+'\\\",\\\"val.' +sample+'.root\\\",\\\"'+ tracks_map_hp[trackalgorithm]+ '\\\"\\)')
 
-
-                    referenceSample=RefRepository+'/'+RefRelease+'/'+RefSelection+'/'+sample+'/'+'val.'+sample+'.root'
+                    if (sampleType == 'FastSim' and dofastfull == False): referenceSample=RefRepository+'/'+RefRelease+'/fastsim/'+RefRelease+'/'+RefSelection+'/'+sample+'/'+'val.'+sample+'.root'
+                    if (sampleType == 'FullSim' or dofastfull == True): referenceSample=RefRepository+'/'+RefRelease+'/'+RefSelection+'/'+sample+'/'+'val.'+sample+'.root'
                     if os.path.isfile(referenceSample ):
                             replace_map = { 'NEW_FILE':'val.'+sample+'.root', 'REF_FILE':RefRelease+'/'+RefSelection+'/val.'+sample+'.root', 'REF_LABEL':sample, 'NEW_LABEL': sample, 'REF_RELEASE':RefRelease, 'NEW_RELEASE':NewRelease, 'REFSELECTION':RefSelection, 'NEWSELECTION':NewSelection, 'TrackValHistoPublisher': cfgFileName, 'MINEFF':mineff, 'MAXEFF':maxeff, 'MAXFAKE':maxfake}
 
@@ -357,12 +361,76 @@ NewSelection=''
 
 for algo in Algos:
     for quality in Qualities:
-        RefSelection=StartupReferenceSelection
+        dofastfull = False
+        PileUp = 'noPU'
+        sampleType = 'FullSim'
+        RefSelection=RefStartupTag+'_'+PileUp
         if( quality !=''):
             RefSelection+='_'+quality
         if(algo!=''and not(algo=='ootb' and quality !='')):
             RefSelection+='_'+algo
         if(quality =='') and (algo==''):
             RefSelection+='_ootb'
-        do_validation(startupsamples, StartupTag, quality , algo)
+        do_validation(startupsamples, StartupTag, quality , algo, PileUp, sampleType, dofastfull)
+
+        PileUp = 'PU'
+        sampleType = 'FullSim'
+        RefSelection=RefStartupTag+'_'+PileUp
+        if( quality !=''):
+            RefSelection+='_'+quality
+        if(algo!=''and not(algo=='ootb' and quality !='')):
+            RefSelection+='_'+algo
+        if(quality =='') and (algo==''):
+            RefSelection+='_ootb'
+        do_validation(pileupstartupsamples, StartupTag, quality , algo, PileUp, sampleType, dofastfull)
+
+        NewRepository += '/fastsim'
+        PileUp = 'noPU'
+        sampleType = 'FastSim'
+        RefSelection=RefStartupTag+'_'+PileUp
+        if( quality !=''):
+            RefSelection+='_'+quality
+        if(algo!=''and not(algo=='ootb' and quality !='')):
+            RefSelection+='_'+algo
+        if(quality =='') and (algo==''):
+            RefSelection+='_ootb'
+        do_validation(fastsimstartupsamples, StartupTag, quality , algo, PileUp, sampleType, dofastfull)
         
+        NewRepositoryBase = NewRepository
+        NewRepository += '/fastsim'
+        PileUp = 'PU'
+        sampleType = 'FastSim'
+        RefSelection=RefStartupTag+'_'+PileUp
+        if( quality !=''):
+            RefSelection+='_'+quality
+        if(algo!=''and not(algo=='ootb' and quality !='')):
+            RefSelection+='_'+algo
+        if(quality =='') and (algo==''):
+            RefSelection+='_ootb'
+        do_validation(pileupfastsimstartupsamples, StartupTag, quality , algo, PileUp, sampleType, dofastfull)
+
+        NewRepository = NewRepositoryBase + '/fastfull'
+        dofastfull = True
+        PileUp = 'noPU'
+        sampleType = 'FastSim'
+        RefSelection=RefStartupTag+'_'+PileUp
+        if( quality !=''):
+            RefSelection+='_'+quality
+        if(algo!=''and not(algo=='ootb' and quality !='')):
+            RefSelection+='_'+algo
+        if(quality =='') and (algo==''):
+            RefSelection+='_ootb'
+        do_validation(fastsimstartupsamples, StartupTag, quality , algo, PileUp, sampleType, dofastfull)
+
+        PileUp = 'PU'
+        sampleType = 'FastSim'
+        dofastfull = True
+        RefSelection=RefStartupTag+'_'+PileUp
+        if( quality !=''):
+            RefSelection+='_'+quality
+        if(algo!=''and not(algo=='ootb' and quality !='')):
+            RefSelection+='_'+algo
+        if(quality =='') and (algo==''):
+            RefSelection+='_ootb'
+        do_validation(pileupfastsimstartupsamples, StartupTag, quality , algo, PileUp, sampleType, dofastfull)
+
