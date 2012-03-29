@@ -32,6 +32,8 @@ class ModelBuilderBase():
             global ROOFIT_EXPR;
             ROOFIT_EXPR = "cexpr"            
     def factory_(self,X):
+        if (len(X) > 1000):
+            print "Executing factory with a string of length ",len(X)," > 1000, could trigger a bug: ",X
         ret = self.out.factory(X);
         if ret: 
             self.out.dont_delete.append(ret)
@@ -202,19 +204,21 @@ class ModelBuilder(ModelBuilderBase):
                 if self.DC.exp[b][p] == 0:
                     self.doVar("n_exp_bin%s_proc_%s[%g]" % (b, p, self.DC.exp[b][p]))
                     continue
-                # collect multiplicative corrections
-                strexpr = ""; strargs = ""
-                gammaNorm = None; iSyst=-1
+                # get model-dependent scale factor
                 scale = self.physics.getYieldScale(b,p)
                 if scale == 0:  
                     self.doVar("n_exp_bin%s_proc_%s[%g]" % (b, p, 0))
                     continue
-                elif scale == 1:
+                # collect multiplicative corrections
+                nominal   = self.DC.exp[b][p]
+                gamma     = None; #  gamma normalization (if present, DC.exp[b][p] is ignored)
+                factors   = [] # RooAbsReal multiplicative factors (including gmN)
+                logNorms  = [] # (kappa, RooAbsReal) lnN (or lnN)
+                alogNorms = [] # (kappaLo, kappaHi, RooAbsReal) asymm lnN
+                if scale == 1:
                     pass
                 elif type(scale) == str: 
-                    strexpr += " * @0";
-                    strargs += ", "+scale;
-                    iSyst += 1
+                    factors.append(scale)
                 else:
                     raise RuntimeError, "Physics model returned something which is neither a name, nor 0, nor 1."
                 for (n,nofloat,pdf,args,errline) in self.DC.systs:
@@ -224,41 +228,39 @@ class ModelBuilder(ModelBuilderBase):
                     if not errline[b].has_key(p): continue
                     if errline[b][p] == 0.0: continue
                     if pdf == "lnN" and errline[b][p] == 1.0: continue
-                    iSyst += 1
                     if pdf == "lnN" or pdf == "lnU":
                         if type(errline[b][p]) == list:
                             elow, ehigh = errline[b][p];
-                            strexpr += " * @%d" % iSyst
-                            strargs += ", AsymPow(%f,%f,%s)" % (elow, ehigh, n)
+                            alogNorms.append((elow, ehigh, n))
                         else:
-                            strexpr += " * pow(%f,@%d)" % (errline[b][p], iSyst)
-                            strargs += ", %s" % n
+                            logNorms.append((errline[b][p], n))
                     elif pdf == "gmM":
-                        strexpr += " * @%d " % iSyst
-                        strargs += ", %s" % n
+                        factors.append(n)
                     elif pdf == "trG" or pdf == "unif":
-                        strexpr += " * (1+%f*@%d) " % (errline[b][p], iSyst)
-                        strargs += ", %s" % n
+                        myname = "n_exp_shift_bin%s_proc_%s_%s" % (b,p,n)
+                        self.doObj(myname, ROOFIT_EXPR, "'1+%f*@0', %s" % (errline[b][p], n));
+                        factors.append(myname)
                     elif pdf == "gmN":
+                        factors.append(n)
                         strexpr += " * @%d " % iSyst
                         strargs += ", %s" % n
                         if abs(errline[b][p] * args[0] - self.DC.exp[b][p]) > max(0.05 * max(self.DC.exp[b][p],1), errline[b][p]):
                             raise RuntimeError, "Values of N = %d, alpha = %g don't match with expected rate %g for systematics %s " % (
                                                     args[0], errline[b][p], self.DC.exp[b][p], n)
-                        if gammaNorm != None:
+                        if gamma != None:
                             raise RuntimeError, "More than one gmN uncertainty for the same bin and process (second one is %s)" % n
-                        gammaNorm = "%g" % errline[b][p]
+                        gamma = n; nominal = errline[b][p]; factors.append(n)
                     else: raise RuntimeError, "Unsupported pdf %s" % pdf
-                # set base term (fixed or gamma)
-                if gammaNorm != None:
-                    strexpr = gammaNorm + strexpr
-                else:
-                    strexpr = str(self.DC.exp[b][p]) + strexpr
                 # optimize constants
-                if strargs != "":
-                    self.doObj("n_exp_bin%s_proc_%s" % (b,p), ROOFIT_EXPR, "'%s'%s" % (strexpr, strargs));
-                else:
+                if len(factors) + len(logNorms) + len(alogNorms) == 0:
                     self.doVar("n_exp_bin%s_proc_%s[%g]" % (b, p, self.DC.exp[b][p]))
+                else:
+                    #print "Process %s of bin %s depends on:\n\tlog-normals: %s\n\tasymm log-normals: %s\n\tother factors: %s\n" % (p,b,logNorms, alogNorms, factors)
+                    procNorm = ROOT.ProcessNormalization("n_exp_bin%s_proc_%s" % (b,p), "", nominal)
+                    for kappa, thetaName in logNorms: procNorm.addLogNormal(kappa, self.out.function(thetaName))
+                    for kappaLo, kappaHi, thetaName in alogNorms: procNorm.addAsymmLogNormal(kappaLo, kappaHi, self.out.function(thetaName))
+                    for factorName in factors: procNorm.addOtherFactor(self.out.function(factorName))
+                    self.out._import(procNorm)
     def doIndividualModels(self):
         """create pdf_bin<X> and pdf_bin<X>_bonly for each bin"""
         raise RuntimeError, "Not implemented in ModelBuilder"
