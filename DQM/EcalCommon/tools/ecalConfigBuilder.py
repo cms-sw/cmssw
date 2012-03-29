@@ -867,7 +867,9 @@ if process.runType.getRunType() == process.runType.cosmic_run :
         customizations += '''
     useSubdir = False
     process.ecalBarrelMonitorClient.produceReports = True
-    process.ecalEndcapMonitorClient.produceReports = True'''
+    process.ecalEndcapMonitorClient.produceReports = True
+    process.ecalBarrelMonitorClient.reducedReports = True
+    process.ecalEndcapMonitorClient.reducedReports = True'''
     else :
         customizations += '''
     process.ecalBarrelMonitorClient.produceReports = False
@@ -919,6 +921,21 @@ if physics :
     if not central :
         customizations += 'process.ecalBarrelHltTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
         customizations += 'process.ecalEndcapHltTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
+
+# TEMPORARY
+if not central :
+    if not physics :
+        customizations += '''
+useSubdir = False
+process.ecalBarrelMonitorClient.produceReports = True
+process.ecalEndcapMonitorClient.produceReports = True
+process.ecalBarrelMonitorClient.reducedReports = True
+process.ecalEndcapMonitorClient.reducedReports = True'''
+    else :
+        customizations += '''
+process.ecalBarrelMonitorClient.produceReports = False
+process.ecalEndcapMonitorClient.produceReports = False'''
+#TEMPORARY
 
 if not physics :
     customizations += '''
