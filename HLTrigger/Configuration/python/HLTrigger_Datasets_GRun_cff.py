@@ -80,7 +80,6 @@ streamA_datasetDoubleMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu11
     'HLT_L2DoubleMu23_NoVertex_2Cha_Angle2p5_v2', 
     'HLT_L2DoubleMu23_NoVertex_v10', 
     'HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_v2', 
-    'HLT_Mu13_Mu8_v15', 
     'HLT_Mu17_Mu8_v15', 
     'HLT_Mu17_TkMu8_v8', 
     'HLT_Mu17_v2', 
@@ -88,6 +87,19 @@ streamA_datasetDoubleMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu11
     'HLT_Mu22_TkMu8_v3', 
     'HLT_Mu8_v15', 
     'HLT_TripleMu5_v16')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetDoubleMuParked_selector
+streamA_datasetDoubleMuParked_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetDoubleMuParked_selector.l1tResults = cms.InputTag('')
+streamA_datasetDoubleMuParked_selector.throw      = cms.bool(False)
+streamA_datasetDoubleMuParked_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Jpsi_Muon_v14', 
+    'HLT_Dimuon10_Jpsi_v2', 
+    'HLT_Dimuon5_PsiPrime_v2', 
+    'HLT_Dimuon8_Jpsi_v2', 
+    'HLT_Dimuon9_PsiPrime_v8', 
+    'HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v2', 
+    'HLT_DoubleMu3p5_LowMass_Displaced_v2', 
+    'HLT_Mu13_Mu8_v15')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetElectronHad_selector
 streamA_datasetElectronHad_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -370,25 +382,18 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMuOnia_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMuOnia_selector.l1tResults = cms.InputTag('')
 streamA_datasetMuOnia_selector.throw      = cms.bool(False)
-streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Jpsi_Muon_v14', 
-    'HLT_Dimuon0_Jpsi_NoVertexing_v10', 
+streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Jpsi_NoVertexing_v10', 
     'HLT_Dimuon0_Jpsi_v13', 
     'HLT_Dimuon0_PsiPrime_v2', 
     'HLT_Dimuon0_Upsilon_Muon_v14', 
     'HLT_Dimuon0_Upsilon_v13', 
-    'HLT_Dimuon10_Jpsi_v2', 
     'HLT_Dimuon11_Upsilon_v2', 
     'HLT_Dimuon3p5_SameSign_v2', 
-    'HLT_Dimuon5_PsiPrime_v2', 
     'HLT_Dimuon5_Upsilon_v2', 
     'HLT_Dimuon7_Upsilon_v2', 
-    'HLT_Dimuon8_Jpsi_v2', 
     'HLT_Dimuon8_Upsilon_v2', 
-    'HLT_Dimuon9_PsiPrime_v8', 
     'HLT_DoubleMu3_4_Dimuon5_Bs_Central_v1', 
     'HLT_DoubleMu3p5_4_Dimuon5_Bs_Central_v1', 
-    'HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v2', 
-    'HLT_DoubleMu3p5_LowMass_Displaced_v2', 
     'HLT_DoubleMu4_Dimuon7_Bs_Forward_v1', 
     'HLT_DoubleMu4_JpsiTk_Displaced_v2', 
     'HLT_DoubleMu4_Jpsi_Displaced_v8', 

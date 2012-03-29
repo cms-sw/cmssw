@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/HLT/V94 (CMSSW_5_2_3_HLT1)
+# /dev/CMSSW_5_2_1/HLT/V97 (CMSSW_5_2_3_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V94')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V97')
 )
 
 streams = cms.PSet( 
@@ -125,7 +125,6 @@ datasets = cms.PSet(
     'HLT_L2DoubleMu23_NoVertex_2Cha_Angle2p5_v2',
     'HLT_L2DoubleMu23_NoVertex_v10',
     'HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_v2',
-    'HLT_Mu13_Mu8_v15',
     'HLT_Mu17_Mu8_v15',
     'HLT_Mu17_TkMu8_v8',
     'HLT_Mu17_v2',
@@ -133,7 +132,14 @@ datasets = cms.PSet(
     'HLT_Mu22_TkMu8_v3',
     'HLT_Mu8_v15',
     'HLT_TripleMu5_v16' ),
-  DoubleMuParked = cms.vstring(  ),
+  DoubleMuParked = cms.vstring( 'HLT_Dimuon0_Jpsi_Muon_v14',
+    'HLT_Dimuon10_Jpsi_v2',
+    'HLT_Dimuon5_PsiPrime_v2',
+    'HLT_Dimuon8_Jpsi_v2',
+    'HLT_Dimuon9_PsiPrime_v8',
+    'HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v2',
+    'HLT_DoubleMu3p5_LowMass_Displaced_v2',
+    'HLT_Mu13_Mu8_v15' ),
   EcalLaser = cms.vstring( 'HLT_EcalCalibration_v3',
     'HLT_HIEcalCalibration_v2' ),
   ElectronHad = cms.vstring( 'HLT_DoubleEle14_CaloIdT_TrkIdVL_Mass8_PFMET40_v2',
@@ -536,25 +542,18 @@ datasets = cms.PSet(
     'HLT_PFHT400_Mu5_PFMET50_v2',
     'HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFHT175_v1',
     'HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFHT225_v1' ),
-  MuOnia = cms.vstring( 'HLT_Dimuon0_Jpsi_Muon_v14',
-    'HLT_Dimuon0_Jpsi_NoVertexing_v10',
+  MuOnia = cms.vstring( 'HLT_Dimuon0_Jpsi_NoVertexing_v10',
     'HLT_Dimuon0_Jpsi_v13',
     'HLT_Dimuon0_PsiPrime_v2',
     'HLT_Dimuon0_Upsilon_Muon_v14',
     'HLT_Dimuon0_Upsilon_v13',
-    'HLT_Dimuon10_Jpsi_v2',
     'HLT_Dimuon11_Upsilon_v2',
     'HLT_Dimuon3p5_SameSign_v2',
-    'HLT_Dimuon5_PsiPrime_v2',
     'HLT_Dimuon5_Upsilon_v2',
     'HLT_Dimuon7_Upsilon_v2',
-    'HLT_Dimuon8_Jpsi_v2',
     'HLT_Dimuon8_Upsilon_v2',
-    'HLT_Dimuon9_PsiPrime_v8',
     'HLT_DoubleMu3_4_Dimuon5_Bs_Central_v1',
     'HLT_DoubleMu3p5_4_Dimuon5_Bs_Central_v1',
-    'HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v2',
-    'HLT_DoubleMu3p5_LowMass_Displaced_v2',
     'HLT_DoubleMu4_Dimuon6_Bs_Barrel_v2',
     'HLT_DoubleMu4_Dimuon7_Bs_Forward_v1',
     'HLT_DoubleMu4_Dimuon7p5_Bs_v2',
