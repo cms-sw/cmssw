@@ -10,5 +10,5 @@ hfEMClusters = cms.EDProducer("HFEMClusterProducer",
                               usePMTFlag = cms.bool(True),
                               forcePulseFlagMC=cms.bool(False),
                               usePulseFlag = cms.bool(True),
-                              correctionType = cms.int32(0)
+                              correctionType = cms.int32(1)
                               )

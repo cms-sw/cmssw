@@ -1,5 +1,5 @@
-#ifndef RECOLOCALCALO_HFCLUSTERPRODUCER_HFRECOECALCANDIDATEPRODUCER_H
-#define RECOLOCALCALO_HFCLUSTERPRODUCER_HFRECOECALCANDIDATEPRODUCER_H 1// -*- C++ -*-
+#ifndef RECOLOCALCALO_HFCLUSTERPRODUCER_HLTHFRECOECALCANDIDATEPRODUCER_H
+#define RECOLOCALCALO_HFCLUSTERPRODUCER_HLTHFRECOECALCANDIDATEPRODUCER_H 1// -*- C++ -*-
 //
 // Package:    EgammaHFProducers
 // Class:      HFRecoEcalCandidateProducers
@@ -20,15 +20,16 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoEgamma/EgammaHFProducers/interface/HFRecoEcalCandidateAlgo.h"
 #include "RecoEgamma/EgammaHFProducers/interface/HFValueStruct.h"
+
 //#include "MagneticField/Engine/interface/MagneticField.h"
 
-class HFRecoEcalCandidateProducer : public edm::EDProducer {
+class hltHFRecoEcalCandidateProducer : public edm::EDProducer {
 public:
-  explicit HFRecoEcalCandidateProducer(edm::ParameterSet const& conf);
+  explicit hltHFRecoEcalCandidateProducer(edm::ParameterSet const& conf);
   virtual void produce(edm::Event& e, edm::EventSetup const& iSetup);
 private:
- edm::InputTag hfclusters_;
-  int HFDBversion_;
+  edm::InputTag hfclusters_;
+   int HFDBversion_;
   std::vector<double> HFDBvector_;
   reco::HFValueStruct::HFValueStruct hfvars_;
   bool doPU_; 

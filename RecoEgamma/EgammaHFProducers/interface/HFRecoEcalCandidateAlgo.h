@@ -1,5 +1,6 @@
 #ifndef HFRECORECALCANDIDATEALGO_H
 #define HFRECORECALCANDIDATEALGO_H 1
+#include "RecoEgamma/EgammaHFProducers/interface/HFValueStruct.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -21,16 +22,14 @@
 
 class HFRecoEcalCandidateAlgo {
 public:
-  HFRecoEcalCandidateAlgo(bool correct, double e9e25Cut,
+  HFRecoEcalCandidateAlgo(bool correct, 
+			  double e9e25Cut,
 			  double intercept2DCut,
 			  double intercept2DSlope,
 			  const std::vector<double>& e1e9Cut,
 			  const std::vector<double>& eCOREe9Cut,
 			  const std::vector<double>& eSeLCut,
-			  int era,
-			  bool correctForPileup,
-			  const std::vector<double>& PileupSlopes,
-			  const std::vector<double>& PileupIntercepts);
+			  reco::HFValueStruct::HFValueStruct hfvv);
   
   /** Analyze the hits */
   void produce(const edm::Handle<reco::SuperClusterCollection>& SuperClusters,
@@ -53,8 +52,8 @@ public:
   double m_eSeLCutlo;
   int m_era;
   bool m_correctForPileup;
-  std::vector<double> m_PileupSlopes;
-  std::vector<double> m_PileupIntercepts;
+  reco::HFValueStruct::HFValueStruct m_hfvv;
+ 
 };
 
 #endif 

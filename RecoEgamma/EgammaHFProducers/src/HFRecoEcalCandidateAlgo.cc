@@ -23,12 +23,9 @@ HFRecoEcalCandidateAlgo::HFRecoEcalCandidateAlgo(bool correct,double e9e25Cut,do
 						 const std::vector<double>& e1e9Cut,
 						 const std::vector<double>& eCOREe9Cut,
 						 const std::vector<double>& eSeLCut,
-						 int era,
-						 bool correctForPileup,
-						 const std::vector<double>& PileupSlopes,
-						 const std::vector<double>& PileupIntercepts
+						 reco::HFValueStruct::HFValueStruct hfvv				
 ) :
-
+  
   m_correct(correct), 
   m_e9e25Cut(e9e25Cut),
   m_intercept2DCut(intercept2DCut),
@@ -39,46 +36,39 @@ HFRecoEcalCandidateAlgo::HFRecoEcalCandidateAlgo(bool correct,double e9e25Cut,do
   m_e1e9Cutlo(e1e9Cut[0]),
   m_eCOREe9Cutlo(eCOREe9Cut[0]),
   m_eSeLCutlo(eSeLCut[0]),
-  m_era(era),
-  m_correctForPileup(correctForPileup),
-  m_PileupSlopes(PileupSlopes),
-  m_PileupIntercepts(PileupIntercepts){
-
+  m_era(4), 
+  m_hfvv(hfvv)
+{
+  
 }
 
 RecoEcalCandidate HFRecoEcalCandidateAlgo::correctEPosition(const SuperCluster& original , const HFEMClusterShape& shape,int nvtx) {
-  double energyCorrect=0.7397;//.7515;
-  double etaCorrect=.00938422+0.00682824*sin(6.28318531*shape.CellEta());//.0144225-.00484597*sin(6.17851*shape.CellEta());//0.01139;
-  double phiAmpCorrect=0.00644091;//-0.006483;
-  double phiFreqCorrect=6.28318531;//6.45377;
+  double energyCorrect=0.7397;
+  double etaCorrect=.00938422+0.00682824*sin(6.28318531*shape.CellEta());
+  double phiAmpCorrect=0.00644091;
+  double phiFreqCorrect=6.28318531;
 
   double corEnergy= original.energy()/energyCorrect;
   double corEta=original.eta();
   corEta+=(original.eta()>0)?(etaCorrect):(-etaCorrect);
   double corPhi=original.phi()+phiAmpCorrect*sin(phiFreqCorrect*shape.CellPhi());
   
-  if(m_correctForPileup){
-    std::vector<double> m=m_PileupSlopes;
-
-    std::vector<double> b=m_PileupIntercepts;
-
-    double etabounds[30]={2.853,2.964,3.139,3.314,3.489,3.664,3.839,4.013,4.191,4.363,4.538,4.716,4.889,5.191};
-   
-    int ieta=99;
-    for (int kk=0;kk<12;kk++){
-     
-      if((fabs(corEta) < etabounds[kk+1])&&(fabs(corEta) > etabounds[kk])){
-	ieta = (corEta > 0)?(kk+29):(-kk-29);
-      }
+ 
+  double etabounds[30]={2.853,2.964,3.139,3.314,3.489,3.664,3.839,4.013,4.191,4.363,4.538,4.716,4.889,5.191};
+  
+  int ieta=0;
+  for (int kk=0;kk<12;kk++){
+    
+    if((fabs(corEta) < etabounds[kk+1])&&(fabs(corEta) > etabounds[kk])){
+      ieta = (corEta > 0)?(kk+29):(-kk-29);
     }
-    int neta=ieta;
-    if(ieta<0)neta=ieta+39;
-    if(ieta>0)neta=ieta-20;
-    if((neta>=0)&&(neta<=19)){
-      corEnergy=(m[neta]*1.0*(nvtx-1)+b[neta]*1.0)*corEnergy*1.0;
-    }
-  }//end vtx cor
-
+  }
+  
+  
+  corEnergy=(m_hfvv.PUSlope(ieta)*1.0*(nvtx-1)+m_hfvv.PUIntercept(ieta)*1.0)*corEnergy*1.0*m_hfvv.EnCor(ieta);
+  
+  
+  
   double corPx=corEnergy*cos(corPhi)/cosh(corEta);
   double corPy=corEnergy*sin(corPhi)/cosh(corEta);
   double corPz=corEnergy*tanh(corEta);
