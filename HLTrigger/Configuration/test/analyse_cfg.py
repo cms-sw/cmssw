@@ -14,7 +14,7 @@ process.MessageLogger.categories.append('HLTConfigProvider')
 
 from Configuration.AlCa.autoCond import autoCond
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = autoCond['startup']
+process.GlobalTag.globaltag = autoCond['startup'].split(',')[0]
 
 # process.Timing = cms.Service("Timing")
 
