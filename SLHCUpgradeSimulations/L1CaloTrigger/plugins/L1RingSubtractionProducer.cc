@@ -73,7 +73,7 @@ mOutputCollection( NULL )
 		mRingSubtractionType = mean;
 	}else if( lRingSubtractionType == "MEDIAN" ){ 
 		mRingSubtractionType = median;
-	}else{ 
+	}else{
 		mRingSubtractionType = constant;
 	}
 
@@ -83,9 +83,7 @@ mOutputCollection( NULL )
 
 
 L1RingSubtractionProducer::~L1RingSubtractionProducer(  )
-{
-
-}
+{}
 
 
 
@@ -94,6 +92,10 @@ L1RingSubtractionProducer::~L1RingSubtractionProducer(  )
 void L1RingSubtractionProducer::produce( edm::Event & aEvent,
 								   const edm::EventSetup & aSetup )
 {
+
+	if( mRingSubtractionType == constant ){
+		std::cout << "!!! WARNING !!! Constant ring subtraction is yet not implemented. A constant of 0 will be assumed !!! WARNING !!!\n" << std::endl;
+	}
 
 	aSetup.get < L1CaloTriggerSetupRcd > (  ).get( mCaloTriggerSetup );
 
@@ -217,14 +219,14 @@ void L1RingSubtractionProducer::produce( edm::Event & aEvent,
 
 double L1RingSubtractionProducer::getEcalConstant( int& iEta ){
 	//can use mCaloTriggerSetup member object to retrieve a look-up table from EventSetup
-	std::cout << "Function " << __PRETTY_FUNCTION__ << " not implemented. Returning 0 for subtraction." << std::endl;
+	//std::cout << "Function " << __PRETTY_FUNCTION__ << " not implemented. Returning 0 for subtraction." << std::endl;
 	return 0;
 }
 
 
 double L1RingSubtractionProducer::getHcalConstant( int& iEta ){
 	//can use mCaloTriggerSetup member object to retrieve a look-up table from EventSetup
-	std::cout << "Function " << __PRETTY_FUNCTION__ << " not implemented. Returning 0 for subtraction." << std::endl;
+	//std::cout << "Function " << __PRETTY_FUNCTION__ << " not implemented. Returning 0 for subtraction." << std::endl;
 	return 0;
 }
 
@@ -235,7 +237,6 @@ double L1RingSubtractionProducer::getHcalConstant( int& iEta ){
 // ------------
 void L1RingSubtractionProducer::endJob(  )
 {
-
 }
 
 

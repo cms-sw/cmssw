@@ -11,10 +11,17 @@ L1CaloTriggerSetup = cms.ESProducer("L1CaloTriggerSetupProducer",
                                     )
 
 L1CaloTowerProducer = cms.EDProducer("L1CaloTowerProducer",
-    ECALDigis = cms.InputTag("ecalDigis:EcalTriggerPrimitives"),#change
-    HCALDigis =  cms.InputTag("hcalDigis"),#change
+    ECALDigis = cms.InputTag("simEcalTriggerPrimitiveDigis"),
+    HCALDigis = cms.InputTag("simHcalTriggerPrimitiveDigis"),
     UseUpgradeHCAL = cms.bool(False) #added to allow use of Upgrade HCAL - AWR 12/05/2011
 )
+
+
+L1RingSubtractionProducer = cms.EDProducer("L1RingSubtractionProducer",
+    src = cms.InputTag("L1CaloTowerProducer"),
+	RingSubtractionType = cms.string("median") # "mean", "median" or "constant"
+)
+
 
 L1CaloRegionProducer = cms.EDProducer("L1CaloRegionProducer",
                                       src = cms.InputTag("L1CaloTowerProducer")
@@ -42,6 +49,12 @@ L1CaloJetFilter = cms.EDProducer("L1CaloJetFilter",
 
 L1CaloJetExpander = cms.EDProducer("L1CaloJetExpander",
     src = cms.InputTag("L1CaloJetFilter")
+)
+
+L1TowerJetProducer = cms.EDProducer("L1TowerJetProducer",
+    src = cms.InputTag("L1CaloTowerProducer"),
+	JetDiameter = cms.uint32(9),
+	JetShape = cms.string("circle") # "circle" or "square"
 )
 
 

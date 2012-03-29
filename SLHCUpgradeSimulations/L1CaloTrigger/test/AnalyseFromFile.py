@@ -16,21 +16,52 @@ process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTrigger_cff")
 
 process.L1CaloTriggerSetup.InputXMLFile=cms.FileInPath('SLHCUpgradeSimulations/L1CaloTrigger/data/setup.xml')
 
+
+#-------------------------------------------------------------------------------------------------------------------------
+# To use the upgraded HCAL Trigger Primitives, instead of the regular Trigger Primitives, uncomment these lines
+#-------------------------------------------------------------------------------------------------------------------------
 #process.L1CaloTowerProducer.HCALDigis = cms.InputTag("simHcalUpgradeTriggerPrimitiveDigis")
 #process.L1CaloTowerProducer.UseUpgradeHCAL = cms.bool(True)
+#-------------------------------------------------------------------------------------------------------------------------
 
-process.L1RingSubtractionProducer.RingSubtractionType = cms.string("mean") # "mean", "median" or "constant"
 
+#-------------------------------------------------------------------------------------------------------------------------
+# To configure a manually added Ring-subtraction algorithm, uncomment these lines
+#-------------------------------------------------------------------------------------------------------------------------
+#process.L1RingSubtractionProducer.RingSubtractionType = cms.string("mean") # "mean", "median" or "constant"
+#-------------------------------------------------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------------------------------------------------
+# To configure a manually added Tower-Jet algorithm, uncomment these lines
+#-------------------------------------------------------------------------------------------------------------------------
 #process.L1TowerJetProducer.src = cms.InputTag("L1CaloTowerProducer")
-process.L1TowerJetProducer.src = cms.InputTag("L1RingSubtractionProducer")
-process.L1TowerJetProducer.JetDiameter = cms.uint32(9)
-process.L1TowerJetProducer.JetShape = cms.string("circle") # "circle" or "square"
+#process.L1TowerJetProducer.src = cms.InputTag("L1RingSubtractionProducer")
+#process.L1TowerJetProducer.JetDiameter = cms.uint32(9)
+#process.L1TowerJetProducer.JetShape = cms.string("circle") # "circle" or "square"
+#-------------------------------------------------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------------------------------------------------
+# To automatically add all permutations of the Ring-Subtraction and Tower-Jet algorithms, uncomment these lines
+#-------------------------------------------------------------------------------------------------------------------------
+from SLHCUpgradeSimulations.L1CaloTrigger.AllTowerJetPermutations import *
+process.AllTowerJetPermutations = CreateAllTowerJetPermutations( process )	#We are taking advantage of the fact that the config files are python
+#-------------------------------------------------------------------------------------------------------------------------
 
 
 process.p1 = cms.Path(
 				process.L1CaloTowerProducer+
-				process.L1RingSubtractionProducer+
-                process.L1TowerJetProducer
+#-------------------------------------------------------------------------------------------------------------------------
+# To use manually added Ring-subtraction and Tower-Jet algorithms, uncomment these lines
+#-------------------------------------------------------------------------------------------------------------------------
+				#process.L1RingSubtractionProducer+
+                #process.L1TowerJetProducer
+#-------------------------------------------------------------------------------------------------------------------------
+# To use the automatically generated permutations of the Ring-subtraction and Tower-Jet algorithms, uncomment these lines
+#-------------------------------------------------------------------------------------------------------------------------
+				process.AllTowerJetPermutations
+
 			)
 
 process.source = cms.Source("PoolSource",
