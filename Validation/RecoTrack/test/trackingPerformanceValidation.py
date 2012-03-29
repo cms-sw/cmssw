@@ -10,10 +10,18 @@ import string
 
 
 ### Reference release
+<<<<<<< trackingPerformanceValidation.py
+RefRelease='CMSSW_5_2_0'
+=======
 RefRelease='CMSSW_5_2_0_pre5'
+>>>>>>> 1.34
 
 ### Relval release (set if different from $CMSSW_VERSION)
+<<<<<<< trackingPerformanceValidation.py
+NewRelease='CMSSW_5_2_0'
+=======
 NewRelease='CMSSW_5_2_0_pre6'
+>>>>>>> 1.34
 
 ### startup and ideal sample list
 
@@ -33,12 +41,21 @@ startupsamples= [
 ### This is the list of IDEAL-conditions relvals 
 startupsamples= [
 'RelValMinBias',   ### list of samples to be validated for each pre-release  
+<<<<<<< trackingPerformanceValidation.py
+#'RelValQCD_Pt_3000_3500',
+#'RelValSingleElectronPt35', 
+#'RelValTTbar', 
+#'RelValSingleMuPt10', 
+#'RelValSingleMuPt100',
+#'RelValQCD_FlatPt_15_3000',
+=======
 'RelValQCD_Pt_3000_3500',
 'RelValSingleElectronPt35', 
 'RelValTTbar', 
 'RelValSingleMuPt10', 
 'RelValSingleMuPt100',
 'RelValQCD_FlatPt_15_3000',
+>>>>>>> 1.34
 ### additional samples to be validated for each mayor release
 #'RelValQCD_Pt_80_120',
 #'RelValSingleElectronPt10', 
@@ -63,22 +80,39 @@ Version='v3'
 #Version='BX2808-v2'
 
 ### Ideal and Statup tags
+<<<<<<< trackingPerformanceValidation.py
+IdealTag='MC_52_V4A'
+StartupTag='START52_V4A'
+=======
 IdealTag='MC_52_V2'
 StartupTag='START52_V2'
+>>>>>>> 1.34
 
+<<<<<<< trackingPerformanceValidation.py
+RefIdealTag='MC_52_V4A'
+RefStartupTag='START52_V4A'
+=======
 RefIdealTag='MC_52_V1'
 RefStartupTag='START52_V1'
+>>>>>>> 1.34
 ### PileUp: "PU" . No PileUp: "noPU"
+#PileUp='noPU'
 PileUp='noPU'
-#PileUp='PU'
 
 
 
 ### Track algorithm name and quality. Can be a list.
+<<<<<<< trackingPerformanceValidation.py
+Algos= ['ootb']
+#Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5','iter6']
+Qualities=['']
+#Qualities=['', 'highPurity']
+=======
 #Algos= ['ootb']
 Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5','iter6']
 #Qualities=['']
 Qualities=['', 'highPurity']
+>>>>>>> 1.34
 
 ### Leave unchanged unless the track collection name changes
 Tracksname=''

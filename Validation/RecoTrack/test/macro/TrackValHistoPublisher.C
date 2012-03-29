@@ -1,3 +1,5 @@
+#include <string>
+
 void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 {
   //gROOT->ProcessLine(".x HistoCompare_Tracks.C");
@@ -56,6 +58,14 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  TH1F *sh4,*rh4;
  TH1F *sh5,*rh5;
  TH1F *sh6,*rh6;
+
+ TH2F *sh1_2,*rh1_2;
+ TH2F *sh2_2,*rh2_2;
+ TH2F *sh3_2,*rh3_2;
+ TH2F *sh4_2,*rh4_2;
+ TH2F *sh5_2,*rh5_2;
+ TH2F *sh6_2,*rh6_2;
+
 
  TH1F *sc1,*rc1;
  TH1F *sc2,*rc2;
@@ -382,29 +392,37 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    
 
    //===== resolutions vs eta
-   rdir->GetObject(collname1+"/phires_vs_eta_Sigma",rh1);
-   sdir->GetObject(collname2+"/phires_vs_eta_Sigma",sh1);
+   const char* ystr1 = "#sigma(#delta#phi) [rad]"; 
+   const char* ystr2 = "#sigma(#delta cot(#theta))"; 
+   const char* ystr3 = "#sigma(#delta d_{0}) [cm]"; 
+   const char* ystr4 = "#sigma(#delta z_{0}) [cm]"; 
+   const char* ystr5 = "#sigma(#delta p_{t}/p_{t})";
+   const char* xstr  = "#eta"; 
 
-   rdir->GetObject(collname1+"/cotThetares_vs_eta_Sigma",rh2);
-   sdir->GetObject(collname2+"/cotThetares_vs_eta_Sigma",sh2);
+   rdir->GetObject(collname1+"/phires_vs_eta",rh1_2);
+   sdir->GetObject(collname2+"/phires_vs_eta",sh1_2);
 
-   rdir->GetObject(collname1+"/dxyres_vs_eta_Sigma",rh3);
-   sdir->GetObject(collname2+"/dxyres_vs_eta_Sigma",sh3);
+   rdir->GetObject(collname1+"/cotThetares_vs_eta",rh2_2);
+   sdir->GetObject(collname2+"/cotThetares_vs_eta",sh2_2);
 
-   rdir->GetObject(collname1+"/dzres_vs_eta_Sigma",rh4);
-   sdir->GetObject(collname2+"/dzres_vs_eta_Sigma",sh4);
+   rdir->GetObject(collname1+"/dxyres_vs_eta",rh3_2);
+   sdir->GetObject(collname2+"/dxyres_vs_eta",sh3_2);
 
-   rdir->GetObject(collname1+"/ptres_vs_eta_Sigma",rh5);
-   sdir->GetObject(collname2+"/ptres_vs_eta_Sigma",sh5);
+   rdir->GetObject(collname1+"/dzres_vs_eta",rh4_2);
+   sdir->GetObject(collname2+"/dzres_vs_eta",sh4_2);
+
+   rdir->GetObject(collname1+"/ptres_vs_eta",rh5_2);
+   sdir->GetObject(collname2+"/ptres_vs_eta",sh5_2);
 
 
 
    canvas = new TCanvas("Tracks7","Tracks: Dxy, Dz, Theta resolution",1000,1400);
 
    plotResolutions(canvas,
-		   sh1,rh1,sh2,rh2,
-		   sh3,rh3,sh4,rh4,
-		   sh5,rh5,sh6,rh6,
+		   sh1_2,rh1_2,sh2_2,rh2_2,
+		   sh3_2,rh3_2,sh4_2,rh4_2,
+		   sh5_2,rh5_2,
+           ystr1, ystr2, ystr3, ystr4, ystr5, xstr,
 		   te,"UU",-1);
    
    // new general range
@@ -487,12 +505,6 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
 
 
-   /* plotResolutions(canvas,
-	     sh1,rh1,sh2,rh2,
-	     sh3,rh3,sh4,rh4,
-	     sh5,rh5,sh6,rh6,
-	     te,"UU",-1);
-   */
    canvas->cd();
 
    l = new TLegend(0.10,0.63,0.90,0.67);
@@ -509,21 +521,22 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    delete l;
 
    //===== resolutions vs pt
-   rdir->GetObject(collname1+"/phires_vs_pt_Sigma",rh1);
-   sdir->GetObject(collname2+"/phires_vs_pt_Sigma",sh1);
+   xstr  = "p_{t}"; 
+   rdir->GetObject(collname1+"/phires_vs_pt",rh1_2);
+   sdir->GetObject(collname2+"/phires_vs_pt",sh1_2);
 
-   rdir->GetObject(collname1+"/cotThetares_vs_pt_Sigma",rh2);
-   sdir->GetObject(collname2+"/cotThetares_vs_pt_Sigma",sh2);
+   rdir->GetObject(collname1+"/cotThetares_vs_pt",rh2_2);
+   sdir->GetObject(collname2+"/cotThetares_vs_pt",sh2_2);
 
 
-   rdir->GetObject(collname1+"/dxyres_vs_pt_Sigma",rh3);
-   sdir->GetObject(collname2+"/dxyres_vs_pt_Sigma",sh3);
+   rdir->GetObject(collname1+"/dxyres_vs_pt",rh3_2);
+   sdir->GetObject(collname2+"/dxyres_vs_pt",sh3_2);
 
-   rdir->GetObject(collname1+"/dzres_vs_pt_Sigma",rh4);
-   sdir->GetObject(collname2+"/dzres_vs_pt_Sigma",sh4);
+   rdir->GetObject(collname1+"/dzres_vs_pt",rh4_2);
+   sdir->GetObject(collname2+"/dzres_vs_pt",sh4_2);
 
-   rdir->GetObject(collname1+"/ptres_vs_pt_Sigma",rh5);
-   sdir->GetObject(collname2+"/ptres_vs_pt_Sigma",sh5);
+   rdir->GetObject(collname1+"/ptres_vs_pt",rh5_2);
+   sdir->GetObject(collname2+"/ptres_vs_pt",sh5_2);
 
 
    rh1->SetTitle("");
@@ -593,9 +606,10 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    canvas = new TCanvas("Tracks7b","Tracks: Dxy, Dz, Theta resolution",1000,1400);
 
    plotResolutions(canvas,
-	     sh1,rh1,sh2,rh2,
-	     sh3,rh3,sh4,rh4,
-	     sh5,rh5,sh6,rh6,
+	     sh1_2,rh1_2,sh2_2,rh2_2,
+	     sh3_2,rh3_2,sh4_2,rh4_2,
+	     sh5_2,rh5_2,
+           ystr1, ystr2, ystr3, ystr4, ystr5, xstr,
 		   te,"UU",-1, true);
 
    canvas->cd();
@@ -612,7 +626,6 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    l->Draw();
    canvas->Print("resolutionsPt.pdf");
    delete l;
-
 
     //===== building 2
    rdir->GetObject(collname1+"/effic_vs_phi",rh1);
@@ -1201,107 +1214,179 @@ void plotPulls(TCanvas *canvas,
 }
 
 void plotResolutions(TCanvas *canvas, 
-		     TH1F *s1,TH1F *r1, TH1F *s2,TH1F *r2, 
-		     TH1F *s3,TH1F *r3, TH1F *s4,TH1F *r4,
-		     TH1F *s5,TH1F *r5,TH1F *s6,TH1F *r6,
+		     TH2F *s1_2,TH2F *r1_2, TH2F *s2_2,TH2F *r2_2, 
+		     TH2F *s3_2,TH2F *r3_2, TH2F *s4_2,TH2F *r4_2,
+		     TH2F *s5_2,TH2F *r5_2,
+             const char* ystr1, const char* ystr2, const char* ystr3, const char* ystr4, const char* ystr5, const char* xstr,
 		     TText* te,
 		     char * option, double startingY, bool logx=false, double startingX = .1,bool fit = false){
   canvas->Divide(2,3);
 
-  s1->SetMarkerStyle(20);
-  r1->SetMarkerStyle(21);
-  s1->SetMarkerColor(2);
-  r1->SetMarkerColor(4);
-  s1->SetMarkerSize(0.7);
-  r1->SetMarkerSize(0.7);
-  s1->SetLineColor(1);
-  r1->SetLineColor(1);
+  s1_2->FitSlicesY();  
+  s2_2->FitSlicesY();  
+  s3_2->FitSlicesY();  
+  s4_2->FitSlicesY();  
+  s5_2->FitSlicesY();  
 
-  s2->SetMarkerStyle(20);
-  r2->SetMarkerStyle(21);
-  s2->SetMarkerColor(2);
-  r2->SetMarkerColor(4);
-  s2->SetMarkerSize(0.7);
-  r2->SetMarkerSize(0.7);
-  s2->SetLineColor(1);
-  r2->SetLineColor(1);
+  TH1* s1_sigma = (TH1*)gDirectory->Get((std::string(s1_2->GetName())+"_2").c_str());
+  TH1* s2_sigma = (TH1*)gDirectory->Get((std::string(s2_2->GetName())+"_2").c_str());
+  TH1* s3_sigma = (TH1*)gDirectory->Get((std::string(s3_2->GetName())+"_2").c_str());
+  TH1* s4_sigma = (TH1*)gDirectory->Get((std::string(s4_2->GetName())+"_2").c_str());
+  TH1* s5_sigma = (TH1*)gDirectory->Get((std::string(s5_2->GetName())+"_2").c_str());
+   
+  s1_sigma->SetName("s1_sigma");
+  s2_sigma->SetName("s2_sigma");
+  s3_sigma->SetName("s3_sigma");
+  s4_sigma->SetName("s4_sigma");
+  s5_sigma->SetName("s5_sigma");
+   
+  s1_sigma->SetTitle("");
+  s2_sigma->SetTitle("");
+  s3_sigma->SetTitle("");
+  s4_sigma->SetTitle("");
+  s5_sigma->SetTitle("");
+   
+  r1_2->FitSlicesY();  
+  r2_2->FitSlicesY();  
+  r3_2->FitSlicesY();  
+  r4_2->FitSlicesY();  
+  r5_2->FitSlicesY();  
 
-  s3->SetMarkerStyle(20);
-  r3->SetMarkerStyle(21);
-  s3->SetMarkerColor(2);
-  r3->SetMarkerColor(4);
-  s3->SetMarkerSize(0.7);
-  r3->SetMarkerSize(0.7);
-  s3->SetLineColor(1);
-  r3->SetLineColor(1);
+  TH1* r1_sigma = (TH1*)gDirectory->Get((std::string(r1_2->GetName())+"_2").c_str());
+  TH1* r2_sigma = (TH1*)gDirectory->Get((std::string(r2_2->GetName())+"_2").c_str());
+  TH1* r3_sigma = (TH1*)gDirectory->Get((std::string(r3_2->GetName())+"_2").c_str());
+  TH1* r4_sigma = (TH1*)gDirectory->Get((std::string(r4_2->GetName())+"_2").c_str());
+  TH1* r5_sigma = (TH1*)gDirectory->Get((std::string(r5_2->GetName())+"_2").c_str());
+   
+  r1_sigma->SetName("r1_sigma");
+  r2_sigma->SetName("r2_sigma");
+  r3_sigma->SetName("r3_sigma");
+  r4_sigma->SetName("r4_sigma");
+  r5_sigma->SetName("r5_sigma");
+   
+  r1_sigma->SetTitle("");
+  r2_sigma->SetTitle("");
+  r3_sigma->SetTitle("");
+  r4_sigma->SetTitle("");
+  r5_sigma->SetTitle("");
 
-  s4->SetMarkerStyle(20);
-  r4->SetMarkerStyle(21);
-  s4->SetMarkerColor(2);
-  r4->SetMarkerColor(4);
-  s4->SetMarkerSize(0.7);
-  r4->SetMarkerSize(0.7);
-  s4->SetLineColor(1);
-  r4->SetLineColor(1);
+  s1_sigma->GetYaxis()->SetTitle(ystr1);     
+  s2_sigma->GetYaxis()->SetTitle(ystr2);     
+  s3_sigma->GetYaxis()->SetTitle(ystr3);     
+  s4_sigma->GetYaxis()->SetTitle(ystr4);     
+  s5_sigma->GetYaxis()->SetTitle(ystr5);     
+   
+  r1_sigma->GetYaxis()->SetTitle(ystr1);     
+  r2_sigma->GetYaxis()->SetTitle(ystr2);     
+  r3_sigma->GetYaxis()->SetTitle(ystr3);     
+  r4_sigma->GetYaxis()->SetTitle(ystr4);     
+  r5_sigma->GetYaxis()->SetTitle(ystr5);     
+   
+  s1_sigma->GetXaxis()->SetTitle(xstr);     
+  s2_sigma->GetXaxis()->SetTitle(xstr);     
+  s3_sigma->GetXaxis()->SetTitle(xstr);     
+  s4_sigma->GetXaxis()->SetTitle(xstr);     
+  s5_sigma->GetXaxis()->SetTitle(xstr);     
+   
+  r1_sigma->GetXaxis()->SetTitle(xstr);     
+  r2_sigma->GetXaxis()->SetTitle(xstr);     
+  r3_sigma->GetXaxis()->SetTitle(xstr);     
+  r4_sigma->GetXaxis()->SetTitle(xstr);     
+  r5_sigma->GetXaxis()->SetTitle(xstr);     
+   
+  //TH1* s1_sigma = s1_2_2->Clone("s1_sigma");
+  //TH1* s2_sigma = s1_2_2->Clone("s2_sigma");
+  //TH1* s3_sigma = s1_2_2->Clone("s3_sigma");
+  //TH1* s4_sigma = s1_2_2->Clone("s4_sigma");
+  //TH1* s5_sigma = s1_2_2->Clone("s5_sigma");
+  //
+  //TH1* r1_sigma = r1_2_2->Clone("s1_sigma");
+  //TH1* r2_sigma = r1_2_2->Clone("s2_sigma");
+  //TH1* r3_sigma = r1_2_2->Clone("s3_sigma");
+  //TH1* r4_sigma = r1_2_2->Clone("s4_sigma");
+  //TH1* r5_sigma = r1_2_2->Clone("s5_sigma");
+
+  s1_sigma->SetMarkerStyle(20);
+  r1_sigma->SetMarkerStyle(21);
+  s1_sigma->SetMarkerColor(2);
+  r1_sigma->SetMarkerColor(4);
+  s1_sigma->SetMarkerSize(0.7);
+  r1_sigma->SetMarkerSize(0.7);
+  s1_sigma->SetLineColor(1);
+  r1_sigma->SetLineColor(1);
+
+  s2_sigma->SetMarkerStyle(20);
+  r2_sigma->SetMarkerStyle(21);
+  s2_sigma->SetMarkerColor(2);
+  r2_sigma->SetMarkerColor(4);
+  s2_sigma->SetMarkerSize(0.7);
+  r2_sigma->SetMarkerSize(0.7);
+  s2_sigma->SetLineColor(1);
+  r2_sigma->SetLineColor(1);
+
+  s3_sigma->SetMarkerStyle(20);
+  r3_sigma->SetMarkerStyle(21);
+  s3_sigma->SetMarkerColor(2);
+  r3_sigma->SetMarkerColor(4);
+  s3_sigma->SetMarkerSize(0.7);
+  r3_sigma->SetMarkerSize(0.7);
+  s3_sigma->SetLineColor(1);
+  r3_sigma->SetLineColor(1);
+
+  s4_sigma->SetMarkerStyle(20);
+  r4_sigma->SetMarkerStyle(21);
+  s4_sigma->SetMarkerColor(2);
+  r4_sigma->SetMarkerColor(4);
+  s4_sigma->SetMarkerSize(0.7);
+  r4_sigma->SetMarkerSize(0.7);
+  s4_sigma->SetLineColor(1);
+  r4_sigma->SetLineColor(1);
 
 
-  s5->SetMarkerStyle(20);
-  r5->SetMarkerStyle(21);
-  s5->SetMarkerColor(2);
-  r5->SetMarkerColor(4);
-  s5->SetMarkerSize(0.7);
-  r5->SetMarkerSize(0.7);
-  s5->SetLineColor(1);
-  r5->SetLineColor(1);
-
-  s6->SetMarkerStyle(20);
-  r6->SetMarkerStyle(21);
-  s6->SetMarkerColor(2);
-  r6->SetMarkerColor(4);
-  s6->SetMarkerSize(0.7);
-  r6->SetMarkerSize(0.7);
-  s6->SetLineColor(1);
-  r6->SetLineColor(1);
-  s6->SetLineWidth(2);
-  r6->SetLineWidth(2);
-
-
+  s5_sigma->SetMarkerStyle(20);
+  r5_sigma->SetMarkerStyle(21);
+  s5_sigma->SetMarkerColor(2);
+  r5_sigma->SetMarkerColor(4);
+  s5_sigma->SetMarkerSize(0.7);
+  r5_sigma->SetMarkerSize(0.7);
+  s5_sigma->SetLineColor(1);
+  r5_sigma->SetLineColor(1);
 
   //setStats(r1,s1, startingY, startingX, fit);
   canvas->cd(1);
   gPad->SetLogy(); 
   if(logx)gPad->SetLogx();
-  setStats(r1,s1, -1, 0, false);
-  r1->Draw();
-  s1->Draw("sames");
+  setStats(r1_sigma,s1_sigma, -1, 0, false);
+  r1_sigma->Draw();
+  s1_sigma->Draw("sames");
 
   canvas->cd(2);
   gPad->SetLogy(); 
   if(logx)gPad->SetLogx();
-  setStats(r2,s2, -1, 0, false);
-  r2->Draw();
-  s2->Draw("sames");
+  setStats(r2_sigma,s2_sigma, -1, 0, false);
+  r2_sigma->Draw();
+  s2_sigma->Draw("sames");
 
   canvas->cd(3);
   gPad->SetLogy(); 
   if(logx)gPad->SetLogx();
-  setStats(r3,s3, -1, 0, false);
-  r3->Draw();
-  s3->Draw("sames");
+  setStats(r3_sigma,s3_sigma, -1, 0, false);
+  r3_sigma->Draw();
+  s3_sigma->Draw("sames");
 
   canvas->cd(4);
   gPad->SetLogy(); 
   if(logx)gPad->SetLogx();
-  setStats(r4,s4, -1, 0, false);
-  r4->Draw();
-  s4->Draw("sames");
+  setStats(r4_sigma,s4_sigma, -1, 0, false);
+  r4_sigma->Draw();
+  s4_sigma->Draw("sames");
 
   canvas->cd(5);
   gPad->SetLogy(); 
   if(logx)gPad->SetLogx();
-  setStats(r5,s5, -1, 0, false);
-  r5->Draw();
-  s5->Draw("sames");
+  setStats(r5_sigma,s5_sigma, -1, 0, false);
+  r5_sigma->Draw();
+  s5_sigma->Draw("sames");
 
 
   //canvas->cd(6);
