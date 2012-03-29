@@ -2,7 +2,7 @@
  *
  *  \author Roberto Covarelli (CERN)
  * 
- * $Id: EgammaHLTElectronDetaDphiProducer.cc,v 1.5 2012/01/23 12:56:38 sharper Exp $
+ * $Id: EgammaHLTElectronDetaDphiProducer.cc,v 1.6 2012/02/10 15:58:43 dmytro Exp $
  *
  */
 
@@ -74,9 +74,7 @@ EgammaHLTElectronDetaDphiProducer::~EgammaHLTElectronDetaDphiProducer(){}
 //
 
 // ------------ method called to produce the data  ------------
-void
-EgammaHLTElectronDetaDphiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void EgammaHLTElectronDetaDphiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // Get the HLT filtered objects
   edm::Handle<reco::ElectronCollection> electronHandle;
@@ -97,7 +95,7 @@ EgammaHLTElectronDetaDphiProducer::produce(edm::Event& iEvent, const edm::EventS
   
   if(!useSCRefs_){
     for(reco::ElectronCollection::const_iterator iElectron = electronHandle->begin(); iElectron != electronHandle->end(); iElectron++){
-      
+  
       reco::ElectronRef eleref(reco::ElectronRef(electronHandle,iElectron - electronHandle->begin()));
       std::pair<float,float> dEtaDPhi = calDEtaDPhiSCTrk(eleref,bsPosition,theMagField.product());
       
@@ -132,26 +130,29 @@ EgammaHLTElectronDetaDphiProducer::produce(edm::Event& iEvent, const edm::EventS
   }     
 }
 
-std::pair<float,float> EgammaHLTElectronDetaDphiProducer::calDEtaDPhiSCTrk(reco::ElectronRef& eleref, const reco::BeamSpot::Point& bsPosition,const MagneticField *magField)
-{
+std::pair<float,float> EgammaHLTElectronDetaDphiProducer::calDEtaDPhiSCTrk(reco::ElectronRef& eleref, const reco::BeamSpot::Point& bsPosition,const MagneticField *magField) {
+
   const reco::SuperClusterRef theClus = eleref->superCluster();
   const math::XYZVector trackMom =  eleref->track()->momentum();
   
   math::XYZPoint SCcorrPosition(theClus->x()-bsPosition.x(), theClus->y()-bsPosition.y() , theClus->z()-eleref->track()->vz() );
   float deltaeta = fabs(SCcorrPosition.eta()-eleref->track()->eta());
-  float deltaphi;
+  float deltaphi = 999.;
   
+  bool recoveryForFailingPropagation = false;
   if (variablesAtVtx_) {
-
     reco::TrackRef track = eleref->track();
-    reco::TransientTrack tt( track, magField_);
+    reco::TransientTrack tt(track, magField_);
     TrajectoryStateOnSurface sclTSOS = tt.stateOnSurface(GlobalPoint(theClus->x(),theClus->y(),theClus->z()));
-    EleRelPointPair scAtVtx(theClus->position(), sclTSOS.globalPosition(), bsPosition) ;
-    deltaeta = fabs(scAtVtx.dEta());
-    deltaphi = fabs(scAtVtx.dPhi());
-    
-  } else if (useTrackProjectionToEcal_) { 
-    
+
+    if (sclTSOS.isValid()) {
+      EleRelPointPair scAtVtx(theClus->position(), sclTSOS.globalPosition(), bsPosition);
+      deltaeta = fabs(scAtVtx.dEta());
+      deltaphi = fabs(scAtVtx.dPhi());
+    } else {
+      recovery = true;
+    }
+  } else if (useTrackProjectionToEcal_ || recoveryForFailingPropagation) { 
     ECALPositionCalculator posCalc;
     const math::XYZPoint vertex(bsPosition.x(),bsPosition.y(),eleref->track()->vz());
     
@@ -169,14 +170,12 @@ std::pair<float,float> EgammaHLTElectronDetaDphiProducer::calDEtaDPhiSCTrk(reco:
     deltaphi = deltaphi1;
     if(deltaphi2<deltaphi1){ deltaphi = deltaphi2;}
   } else {
-    
     deltaphi=fabs(eleref->track()->outerPosition().phi()-theClus->phi());
     if(deltaphi>6.283185308) deltaphi -= 6.283185308;
-    if(deltaphi>3.141592654) deltaphi = 6.283185308-deltaphi;
+    if(deltaphi>3.141592654) deltaphi = 6.283185308-deltaphi;  
   }
   
-  return std::make_pair(deltaeta,deltaphi);
-  
+  return std::make_pair(deltaeta,deltaphi);  
 }
 
 reco::ElectronRef EgammaHLTElectronDetaDphiProducer::getEleRef(const reco::RecoEcalCandidateRef& recoEcalCandRef,const edm::Handle<reco::ElectronCollection>& electronHandle)
