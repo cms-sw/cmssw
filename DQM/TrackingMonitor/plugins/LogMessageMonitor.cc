@@ -13,7 +13,7 @@
 //
 // Original Author:  Mia Tosi,40 3-B32,+41227671609,
 //         Created:  Thu Mar  8 14:34:13 CET 2012
-// $Id$
+// $Id: LogMessageMonitor.cc,v 1.1 2012/03/28 22:59:42 tosi Exp $
 //
 //
 
@@ -49,7 +49,7 @@ LogMessageMonitor::LogMessageMonitor(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
   lumiDetails_         = new GetLumi( iConfig.getParameter<edm::ParameterSet>("BXlumiSetup") ); 
-  //  genTriggerEventFlag_ = new GenericTriggerEventFlag(iConfig);
+  genTriggerEventFlag_ = new GenericTriggerEventFlag(iConfig);
 }
 
 
@@ -59,7 +59,7 @@ LogMessageMonitor::~LogMessageMonitor()
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
   //  if ( lumiDetails_         ) delete lumiDetails_;
-  //  if ( genTriggerEventFlag_ ) delete genTriggerEventFlag_;
+  if ( genTriggerEventFlag_ ) delete genTriggerEventFlag_;
 
 }
 
@@ -74,7 +74,7 @@ LogMessageMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 {
 
   // Filter out events if Trigger Filtering is requested
-  //  if (genTriggerEventFlag_->on()&& ! genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
+  if (genTriggerEventFlag_->on()&& ! genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
   double BXlumi = lumiDetails_->getValue(iEvent);
   
@@ -185,7 +185,7 @@ LogMessageMonitor::endJob()
 void 
 LogMessageMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-  //  if ( genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( iRun, iSetup );
+  if ( genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( iRun, iSetup );
 }
 
 // ------------ method called when ending the processing of a run  ------------

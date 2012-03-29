@@ -30,6 +30,9 @@ LogMessageMon = cms.EDAnalyzer("LogMessageMonitor",
        'tobTecStepSeeds_iter6',
        'tobTecStepTrackCandidates_iter6',
        'tobTecStepTracks_iter6',
+       'photonConvTrajSeedFromSingleLeg',
+       'convTrackCandidates',
+       'convStepTracks',
     ),
     doWarningsPlots     = cms.bool(False),
 
@@ -37,10 +40,4 @@ LogMessageMon = cms.EDAnalyzer("LogMessageMonitor",
     OutputMEsInRootFile = cms.bool(False),
     OutputFileName      = cms.string('MonitorTrack.root'),
     BXlumiSetup         = BXlumiSetup.clone()
-
-## temporary solution
-#    BXlumiBin = cms.int32(100), # (400)
-#    BXlumiMin = cms.double(1),  # (2000)
-#    BXlumiMax = cms.double(10), # (6000)
-
 )    

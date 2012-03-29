@@ -2,7 +2,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/02/19 12:17:47 $
+ *  $Date: 2012/03/28 22:59:43 $
  *  $Revision: 1.1 $
  *  \author:  Mia Tosi,40 3-B32,+41227671609 
  */
@@ -54,7 +54,8 @@ VertexMonitor::VertexMonitor(const edm::ParameterSet& iConfig, edm::InputTag pri
 
 {
    //now do what ever initialization is needed
-  lumiDetails_ = new GetLumi( iConfig.getParameter<edm::ParameterSet>("BXlumiSetup") );
+  if ( doPlotsVsBXlumi_ )
+    lumiDetails_ = new GetLumi( iConfig.getParameter<edm::ParameterSet>("BXlumiSetup") );
 
 }
 
@@ -79,7 +80,10 @@ void
 VertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  double bxlumi = lumiDetails_->getValue(iEvent);
+  double bxlumi = 0.;
+  if ( doPlotsVsBXlumi_ )
+    bxlumi = lumiDetails_->getValue(iEvent);
+  std::cout << "bxlumi : " << bxlumi << std::endl;
 
   size_t totalNumPV = 0;
   size_t totalNumBADndofPV = 0;
@@ -88,6 +92,7 @@ VertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if ( pvHandle.isValid() )
     {
       totalNumPV = pvHandle->size();
+      std::cout << "totalNumPV : " << totalNumPV << std::endl;
       for (reco::VertexCollection::const_iterator pv = pvHandle->begin();
 	   pv != pvHandle->end(); ++pv) {
 	//--- count pv w/ ndof < 4 
@@ -107,14 +112,14 @@ VertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if ( selpvHandle.isValid() )
     totalNumGoodPV = selpvHandle->size();
   else return;
-
-  if ( doPlotsVsGoodPVtx_ || doAllPlots_) {
+  std::cout << "totalNumGoodPV: " << totalNumGoodPV << std::endl;
+  if ( doPlotsVsGoodPVtx_ ) {
     NumberOfPVtxVsGoodPVtx        -> Fill( totalNumGoodPV, totalNumPV        );
     NumberOfBADndofPVtxVsGoodPVtx -> Fill( totalNumGoodPV, totalNumBADndofPV );
-
   }
 
   double fracGoodPV = double(totalNumGoodPV)/double(totalNumPV);
+  std::cout << "fracGoodPV: " << fracGoodPV << std::endl;
 
   NumberOfGoodPVtx    -> Fill( totalNumGoodPV    );
   FractionOfGoodPVtx  -> Fill( fracGoodPV        );
@@ -122,45 +127,47 @@ VertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     NumberOfGoodPVtxVsBXlumi    -> Fill( bxlumi, totalNumGoodPV    );
     FractionOfGoodPVtxVsBXlumi  -> Fill( bxlumi, fracGoodPV        );
   }
-  if ( doPlotsVsGoodPVtx_ || doAllPlots_) {
+  if ( doPlotsVsGoodPVtx_ ) {
     FractionOfGoodPVtxVsGoodPVtx  -> Fill( totalNumGoodPV, fracGoodPV        );
     FractionOfGoodPVtxVsPVtx      -> Fill( totalNumPV,     fracGoodPV        );
   }
 
-  double sumpt    = 0;
-  size_t ntracks  = 0;
-  double chi2ndf  = 0.; 
-  double chi2prob = 0.;
+  if ( selpvHandle->size() ) {
+    double sumpt    = 0;
+    size_t ntracks  = 0;
+    double chi2ndf  = 0.; 
+    double chi2prob = 0.;
 
-  if (!selpvHandle->at(0).isFake()) {
+    if (!selpvHandle->at(0).isFake()) {
+      
+      reco::Vertex pv = selpvHandle->at(0);
+      
+      ntracks  = pv.tracksSize();
+      chi2ndf  = pv.normalizedChi2();
+      chi2prob = TMath::Prob(pv.chi2(),(int)pv.ndof());
+      
+      for (reco::Vertex::trackRef_iterator itrk = pv.tracks_begin();
+	   itrk != pv.tracks_end(); ++itrk) {
+	double pt = (**itrk).pt();
+	sumpt += pt*pt;
+      }
+      GoodPVtxSumPt           -> Fill( sumpt   );
+      GoodPVtxNumberOfTracks  -> Fill( ntracks );
 
-    reco::Vertex pv = selpvHandle->at(0);
-
-    ntracks  = pv.tracksSize();
-    chi2ndf  = pv.normalizedChi2();
-    chi2prob = TMath::Prob(pv.chi2(),(int)pv.ndof());
-
-    for (reco::Vertex::trackRef_iterator itrk = pv.tracks_begin();
-	 itrk != pv.tracks_end(); ++itrk) {
-      double pt = (**itrk).pt();
-      sumpt += pt*pt;
-    }
-    GoodPVtxSumPt           -> Fill( sumpt   );
-    GoodPVtxNumberOfTracks  -> Fill( ntracks );
-    if ( doPlotsVsBXlumi_ ) {
-      GoodPVtxSumPtVsBXlumi           -> Fill( bxlumi, sumpt    );
-      GoodPVtxNumberOfTracksVsBXlumi  -> Fill( bxlumi, ntracks  );
-      GoodPVtxChi2oNDFVsBXlumi        -> Fill( bxlumi, chi2ndf  );
-      GoodPVtxChi2ProbVsBXlumi        -> Fill( bxlumi, chi2prob );
-    }
-    if ( doPlotsVsGoodPVtx_ || doAllPlots_) {
-      GoodPVtxSumPtVsGoodPVtx          -> Fill( totalNumGoodPV, sumpt    );
-      GoodPVtxNumberOfTracksVsGoodPVtx -> Fill( totalNumGoodPV, ntracks  );
-      GoodPVtxChi2oNDFVsGoodPVtx       -> Fill( totalNumGoodPV, chi2ndf  );
-      GoodPVtxChi2ProbVsGoodPVtx       -> Fill( totalNumGoodPV, chi2prob );
+      if ( doPlotsVsBXlumi_ ) {
+	GoodPVtxSumPtVsBXlumi           -> Fill( bxlumi, sumpt    );
+	GoodPVtxNumberOfTracksVsBXlumi  -> Fill( bxlumi, ntracks  );
+	GoodPVtxChi2oNDFVsBXlumi        -> Fill( bxlumi, chi2ndf  );
+	GoodPVtxChi2ProbVsBXlumi        -> Fill( bxlumi, chi2prob );
+      }
+      if ( doPlotsVsGoodPVtx_ ) {
+	GoodPVtxSumPtVsGoodPVtx          -> Fill( totalNumGoodPV, sumpt    );
+	GoodPVtxNumberOfTracksVsGoodPVtx -> Fill( totalNumGoodPV, ntracks  );
+	GoodPVtxChi2oNDFVsGoodPVtx       -> Fill( totalNumGoodPV, chi2ndf  );
+	GoodPVtxChi2ProbVsGoodPVtx       -> Fill( totalNumGoodPV, chi2prob );
+      }
     }
   }
-  
 }
 
 
@@ -172,15 +179,6 @@ VertexMonitor::beginJob(DQMStore * dqmStore_)
     std::string MEFolderName   = conf_.getParameter<std::string>("PVFolderName"); 
 
     // get binning from the configuration
-    edm::ParameterSet BXlumiParameters = conf_.getParameter<edm::ParameterSet>("BXlumiSetup");
-    int    BXlumiBin   = BXlumiParameters.getParameter<int>("BXlumiBin");
-    double BXlumiMin   = BXlumiParameters.getParameter<double>("BXlumiMin");
-    double BXlumiMax   = BXlumiParameters.getParameter<double>("BXlumiMax");
-//
-//	int    BXlumiBin   = conf_.getParameter<int>("BXlumiBin");
-//	double BXlumiMin   = conf_.getParameter<double>("BXlumiMin");
-//	double BXlumiMax   = conf_.getParameter<double>("BXlumiMax");
-
     int    GoodPVtxBin   = conf_.getParameter<int>("GoodPVtxBin");
     double GoodPVtxMin   = conf_.getParameter<double>("GoodPVtxMin");
     double GoodPVtxMax   = conf_.getParameter<double>("GoodPVtxMax");
@@ -220,6 +218,11 @@ VertexMonitor::beginJob(DQMStore * dqmStore_)
     GoodPVtxNumberOfTracks->setAxisTitle("Number of events",2);
 
     if ( doPlotsVsBXlumi_ ) {
+      // get binning from the configuration
+      edm::ParameterSet BXlumiParameters = conf_.getParameter<edm::ParameterSet>("BXlumiSetup");
+      int    BXlumiBin   = BXlumiParameters.getParameter<int>("BXlumiBin");
+      double BXlumiMin   = BXlumiParameters.getParameter<double>("BXlumiMin");
+      double BXlumiMax   = BXlumiParameters.getParameter<double>("BXlumiMax");
 
       dqmStore_->setCurrentFolder(MEFolderName+"/"+label_+"/PUmonitoring/");
 
@@ -289,11 +292,11 @@ VertexMonitor::beginJob(DQMStore * dqmStore_)
       GoodPVtxChi2ProbVsBXlumi -> getTH1()->SetBit(TH1::kCanRebin);
       GoodPVtxChi2ProbVsBXlumi -> setAxisTitle("lumi BX [10^{30}Hzcm^{-2}]",1);
       GoodPVtxChi2ProbVsBXlumi -> setAxisTitle("Mean PV #chi^{2}/prob",2);
-
     }
 
-    if ( doPlotsVsGoodPVtx_ || doAllPlots_ ) {
-      dqmStore_->setCurrentFolder(MEFolderName+"/"+label_+"/PUmonitoring/");
+    if ( doPlotsVsGoodPVtx_ ) {
+
+      dqmStore_->setCurrentFolder(MEFolderName+"/"+label_+"/PUmonitoring/VsGoodPVtx");
 
       histname = "NumberOfPVtxVsGoodPVtx_" + label_;
       NumberOfPVtxVsGoodPVtx = dqmStore_->bookProfile(histname,histname, GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,0.,60.,"");
@@ -351,10 +354,8 @@ VertexMonitor::beginJob(DQMStore * dqmStore_)
       GoodPVtxChi2ProbVsGoodPVtx -> setAxisTitle("Mean PV #chi^{2}/prob",2);
 
     }
-    
-    
-
 }
+ 
 
 void 
 VertexMonitor::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)

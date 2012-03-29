@@ -10,7 +10,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackingMonitor.h,v 1.15 2012/02/17 15:32:28 tosi Exp $
+// $Id: TrackingMonitor.h,v 1.16 2012/03/28 22:59:42 tosi Exp $
 
 #include <memory>
 #include <fstream>
@@ -113,7 +113,6 @@ class TrackingMonitor : public edm::EDAnalyzer
 	// add in order to deal with LS transitions
         MonitorElement * NumberOfTracks_lumiFlag;
         MonitorElement * NumberOfGoodTracks_lumiFlag;
-        MonitorElement * FractionOfGoodTracks_lumiFlag;
 
         std::string builderName;
         edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder;

@@ -9,8 +9,13 @@ BXlumiSetup = cms.PSet(
   # the scale factor 6.37 should follow the lumi prescriptions
   # AS SOON AS THE CORRECTED LUMI WILL BE AVAILABLE IT HAS TO BE SET TO 1.
     lumiScale = cms.double(6.37),    
-    BXlumiBin = cms.int32(100), # (400)
-    BXlumiMin = cms.double(1),  # (2000)
-    BXlumiMax = cms.double(10), # (6000)
+# low PU
+#    BXlumiBin = cms.int32 (100),
+#    BXlumiMin = cms.double(1),  
+#    BXlumiMax = cms.double(10), 
+
+    BXlumiBin = cms.int32 (400),
+    BXlumiMin = cms.double(2000),
+    BXlumiMax = cms.double(6000)    
 )
 
