@@ -22,20 +22,28 @@ TtFullHadKinFitProducer::TtFullHadKinFitProducer(const edm::ParameterSet& cfg):
   constraints_                (cfg.getParameter<std::vector<unsigned> >("constraints")),
   mW_                         (cfg.getParameter<double>("mW"  )),
   mTop_                       (cfg.getParameter<double>("mTop")),
-  energyResolutionSmearFactor_(cfg.getParameter<double>("energyResolutionSmearFactor"))
+  energyResolutionSmearFactor_(cfg.getParameter<double>("energyResolutionSmearFactor")),
+  etaDependentResSmearFactor_ (cfg.getParameter<std::vector<double> >("etaDependentResSmearFactor")),
+  etaBinningForSmearFactor_   (cfg.getParameter<std::vector<double> >("etaBinningForSmearFactor"))
 {
   if(cfg.exists("udscResolutions") && cfg.exists("bResolutions")){
     udscResolutions_ = cfg.getParameter <std::vector<edm::ParameterSet> >("udscResolutions");
     bResolutions_    = cfg.getParameter <std::vector<edm::ParameterSet> >("bResolutions");
   }
   else if(cfg.exists("udscResolutions") || cfg.exists("bResolutions")){
-    if(cfg.exists("udscResolutions")) throw cms::Exception("WrongConfig") << "Parameter 'bResolutions' is needed if parameter 'udscResolutions' is defined!\n";
-    else                              throw cms::Exception("WrongConfig") << "Parameter 'udscResolutions' is needed if parameter 'bResolutions' is defined!\n";
+    if(cfg.exists("udscResolutions")) throw cms::Exception("Configuration") << "Parameter 'bResolutions' is needed if parameter 'udscResolutions' is defined!\n";
+    else                              throw cms::Exception("Configuration") << "Parameter 'udscResolutions' is needed if parameter 'bResolutions' is defined!\n";
   }
 
   // define kinematic fit interface
+  if(etaDependentResSmearFactor_.size()<2){
+    etaDependentResSmearFactor_.clear();
+    for(unsigned int i=1; i<etaBinningForSmearFactor_.size(); i++){
+      etaDependentResSmearFactor_.push_back(energyResolutionSmearFactor_);
+    }
+  }
   kinFitter = new TtFullHadKinFitter::KinFit(useBTagging_, bTags_, bTagAlgo_, minBTagValueBJet_, maxBTagValueNonBJet_,
-					     udscResolutions_, bResolutions_, energyResolutionSmearFactor_ ,
+					     udscResolutions_, bResolutions_, etaDependentResSmearFactor_, etaBinningForSmearFactor_,
 					     jetCorrectionLevel_, maxNJets_, maxNComb_,
 					     maxNrIter_, maxDeltaS_, maxF_, jetParam_, constraints_, mW_, mTop_);
 

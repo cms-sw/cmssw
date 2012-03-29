@@ -78,7 +78,9 @@ kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
     # ------------------------------------------------
     udscResolutions             = udscResolution.functions,
     bResolutions                = bjetResolution.functions,
-    energyResolutionSmearFactor = cms.double(1.)
+    energyResolutionSmearFactor = cms.double(1.),
+    etaDependentResSmearFactor  = cms.vdouble(1.0),
+    etaBinningForSmearFactor    = cms.vdouble(0.0,0.5,1.1,1.7,2.3,-1.0)
 )
 
 

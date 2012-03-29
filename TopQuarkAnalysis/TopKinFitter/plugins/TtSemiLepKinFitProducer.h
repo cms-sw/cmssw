@@ -66,6 +66,8 @@ class TtSemiLepKinFitProducer : public edm::EDProducer {
   double mTop_;
   /// smear factor for jet resolutions
   double jetEnergyResolutionSmearFactor_;
+  std::vector<double> etaDependentResSmearFactor_;
+  std::vector<double> etaBinningForSmearFactor_;
   /// config-file-based object resolutions
   std::vector<edm::ParameterSet> udscResolutions_;
   std::vector<edm::ParameterSet> bResolutions_;
@@ -112,6 +114,8 @@ TtSemiLepKinFitProducer<LeptonCollection>::TtSemiLepKinFitProducer(const edm::Pa
   mW_                      (cfg.getParameter<double>       ("mW"                  )),
   mTop_                    (cfg.getParameter<double>       ("mTop"                )),
   jetEnergyResolutionSmearFactor_(cfg.getParameter<double> ("jetEnergyResolutionSmearFactor")),
+  etaDependentResSmearFactor_(cfg.getParameter<std::vector<double> >("etaDependentResSmearFactor")),
+  etaBinningForSmearFactor_  (cfg.getParameter<std::vector<double> >("etaBinningForSmearFactor")),
   udscResolutions_(0), bResolutions_(0), lepResolutions_(0), metResolutions_(0)
 {
   if(cfg.exists("udscResolutions") && cfg.exists("bResolutions") && cfg.exists("lepResolutions") && cfg.exists("metResolutions")){
@@ -121,7 +125,7 @@ TtSemiLepKinFitProducer<LeptonCollection>::TtSemiLepKinFitProducer(const edm::Pa
     metResolutions_  = cfg.getParameter<std::vector<edm::ParameterSet> >("metResolutions" );
   }
   else if(cfg.exists("udscResolutions") || cfg.exists("bResolutions") || cfg.exists("lepResolutions") || cfg.exists("metResolutions") ){
-    throw cms::Exception("WrongConfig") << "Parameters 'udscResolutions', 'bResolutions', 'lepResolutions', 'metResolutions' should be used together.\n";
+    throw cms::Exception("Configuration") << "Parameters 'udscResolutions', 'bResolutions', 'lepResolutions', 'metResolutions' should be used together.\n";
   }
 
   fitter = new TtSemiLepKinFitter(param(jetParam_), param(lepParam_), param(metParam_), maxNrIter_, maxDeltaS_, maxF_,
@@ -294,7 +298,13 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
 	jetCombi[TtSemiLepEvtPartons::LepB     ] = (*jets)[combi[TtSemiLepEvtPartons::LepB     ]];
 
 	// do the kinematic fit
-	int status = fitter->fit(jetCombi, (*leps)[0], (*mets)[0], jetEnergyResolutionSmearFactor_);
+	if(etaDependentResSmearFactor_.size()<2){
+	  etaDependentResSmearFactor_.clear();
+	  for(unsigned int i=1; i<etaBinningForSmearFactor_.size(); i++){
+	    etaDependentResSmearFactor_.push_back(jetEnergyResolutionSmearFactor_);
+	  }
+	}
+	int status = fitter->fit(jetCombi, (*leps)[0], (*mets)[0], etaDependentResSmearFactor_, etaBinningForSmearFactor_);
 
 	if( status == 0 ) { // only take into account converged fits
 	  KinFitResult result;
@@ -393,7 +403,7 @@ TtSemiLepKinFitter::Param TtSemiLepKinFitProducer<LeptonCollection>::param(unsig
   case TtSemiLepKinFitter::kEtEtaPhi   : result=TtSemiLepKinFitter::kEtEtaPhi;   break;
   case TtSemiLepKinFitter::kEtThetaPhi : result=TtSemiLepKinFitter::kEtThetaPhi; break;
   default: 
-    throw cms::Exception("WrongConfig") 
+    throw cms::Exception("Configuration") 
       << "Chosen jet parametrization is not supported: " << val << "\n";
     break;
   }
@@ -413,7 +423,7 @@ TtSemiLepKinFitter::Constraint TtSemiLepKinFitProducer<LeptonCollection>::constr
   case TtSemiLepKinFitter::kEqualTopMasses : result=TtSemiLepKinFitter::kEqualTopMasses; break;
   case TtSemiLepKinFitter::kSumPt          : result=TtSemiLepKinFitter::kSumPt;          break;
   default: 
-    throw cms::Exception("WrongConfig") 
+    throw cms::Exception("Configuration") 
       << "Chosen fit constraint is not supported: " << val << "\n";
     break;
   }

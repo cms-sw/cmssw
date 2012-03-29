@@ -182,7 +182,7 @@ void TtSemiLepKinFitter::setupFitter()
 
 template <class LeptonType>
 int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton<LeptonType>& lepton, const pat::MET& neutrino,
-			    const double jetEnergyResolutionSmearFactor)
+			    const std::vector<double> jetEnergyResolutionSmearFactor, const std::vector<double> etaBinningForSmearFactor)
 {
   if( jets.size()<4 )
     throw edm::Exception( edm::errors::Configuration, "Cannot run the TtSemiLepKinFitter with less than 4 jets" );
@@ -212,10 +212,10 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
   // as covM contains resolution^2
   // the correction of jet energy resolutions
   // is just *jetEnergyResolutionSmearFactor^2
-  covHadP(0,0) *= jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
-  covHadQ(0,0) *= jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
-  covHadB(0,0) *= jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
-  covLepB(0,0) *= jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
+  covHadP(0,0) *= pow(covM_->getEtaDependentSmearFactor(hadP,jetEnergyResolutionSmearFactor,etaBinningForSmearFactor), 2);
+  covHadQ(0,0) *= pow(covM_->getEtaDependentSmearFactor(hadQ,jetEnergyResolutionSmearFactor,etaBinningForSmearFactor), 2);
+  covHadB(0,0) *= pow(covM_->getEtaDependentSmearFactor(hadB,jetEnergyResolutionSmearFactor,etaBinningForSmearFactor), 2);
+  covLepB(0,0) *= pow(covM_->getEtaDependentSmearFactor(lepB,jetEnergyResolutionSmearFactor,etaBinningForSmearFactor), 2);
 
   // now do the part that is fully independent of PAT features
   return fit(p4HadP, p4HadQ, p4HadB, p4LepB, p4Lepton, p4Neutrino,
@@ -225,7 +225,7 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
 
 int TtSemiLepKinFitter::fit(const TLorentzVector& p4HadP, const TLorentzVector& p4HadQ, const TLorentzVector& p4HadB, const TLorentzVector& p4LepB,
 			    const TLorentzVector& p4Lepton, const TLorentzVector& p4Neutrino, const int leptonCharge, const CovarianceMatrix::ObjectType leptonType,
-			    const double jetEnergyResolutionSmearFactor)
+			    const std::vector<double> jetEnergyResolutionSmearFactor, const std::vector<double> etaBinningForSmearFactor)
 {
   // initialize covariance matrices
   TMatrixD covHadP = covM_->setupMatrix(p4HadP, CovarianceMatrix::kUdscJet, jetParam_);
@@ -238,10 +238,10 @@ int TtSemiLepKinFitter::fit(const TLorentzVector& p4HadP, const TLorentzVector& 
   // as covM contains resolution^2
   // the correction of jet energy resolutions
   // is just *jetEnergyResolutionSmearFactor^2
-  covHadP(0,0) *= jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
-  covHadQ(0,0) *= jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
-  covHadB(0,0) *= jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
-  covLepB(0,0) *= jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
+  covHadP(0,0) *= pow(covM_->getEtaDependentSmearFactor(p4HadP,jetEnergyResolutionSmearFactor,etaBinningForSmearFactor), 2); 
+  covHadQ(0,0) *= pow(covM_->getEtaDependentSmearFactor(p4HadQ,jetEnergyResolutionSmearFactor,etaBinningForSmearFactor), 2); 
+  covHadB(0,0) *= pow(covM_->getEtaDependentSmearFactor(p4HadB,jetEnergyResolutionSmearFactor,etaBinningForSmearFactor), 2); 
+  covLepB(0,0) *= pow(covM_->getEtaDependentSmearFactor(p4LepB,jetEnergyResolutionSmearFactor,etaBinningForSmearFactor), 2); 
 
   // now do the part that is fully independent of PAT features
   return fit(p4HadP, p4HadQ, p4HadB, p4LepB, p4Lepton, p4Neutrino,
@@ -302,7 +302,8 @@ int TtSemiLepKinFitter::fit(const TLorentzVector& p4HadP, const TLorentzVector& 
   return fitter_->getStatus();
 }
 
-TtSemiEvtSolution TtSemiLepKinFitter::addKinFitInfo(TtSemiEvtSolution* asol, const double jetEnergyResolutionSmearFactor) 
+TtSemiEvtSolution TtSemiLepKinFitter::addKinFitInfo(TtSemiEvtSolution* asol, const std::vector<double> jetEnergyResolutionSmearFactor, 
+						    const std::vector<double> etaBinningForSmearFactor) 
 {
 
   TtSemiEvtSolution fitsol(*asol);
@@ -315,8 +316,8 @@ TtSemiEvtSolution TtSemiLepKinFitter::addKinFitInfo(TtSemiEvtSolution* asol, con
   jets[TtSemiLepEvtPartons::LepB     ] = fitsol.getCalLepb();
 
   // perform the fit, either using the electron or the muon
-  if(fitsol.getDecay() == "electron") fit( jets, fitsol.getCalLepe(), fitsol.getCalLepn(), jetEnergyResolutionSmearFactor);
-  if(fitsol.getDecay() == "muon"    ) fit( jets, fitsol.getCalLepm(), fitsol.getCalLepn(), jetEnergyResolutionSmearFactor);
+  if(fitsol.getDecay() == "electron") fit( jets, fitsol.getCalLepe(), fitsol.getCalLepn(), jetEnergyResolutionSmearFactor, etaBinningForSmearFactor);
+  if(fitsol.getDecay() == "muon"    ) fit( jets, fitsol.getCalLepm(), fitsol.getCalLepn(), jetEnergyResolutionSmearFactor, etaBinningForSmearFactor);
   
   // add fitted information to the solution
   if (fitter_->getStatus() == 0) {

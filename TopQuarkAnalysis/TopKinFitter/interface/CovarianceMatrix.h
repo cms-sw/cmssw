@@ -51,6 +51,11 @@ class CovarianceMatrix {
   template <class T>
     double getResolution(const pat::PATObject<T>& object, const std::string& whichResolution, const bool isBJet=false) {
     return getResolution(TLorentzVector(object.px(), object.py(), object.pz(), object.energy()), getObjectType(object, isBJet), whichResolution); }
+  /// get eta dependent smear factor for a PAT object
+  template <class T>
+    double getEtaDependentSmearFactor(const pat::PATObject<T>& object, std::vector<double> smearFactor, std::vector<double> etaBinning);
+  /// get eta dependent smear factor for a plain 4-vector
+  double getEtaDependentSmearFactor(const TLorentzVector& object, std::vector<double> smearFactor, std::vector<double> etaBinning);
 
  private:
 
@@ -133,6 +138,25 @@ CovarianceMatrix::ObjectType CovarianceMatrix::getObjectType(const pat::PATObjec
   else
     throw cms::Exception("UnsupportedObject") << "The object given is not supported!\n";
   return objType;
+}
+
+template <class T>
+double CovarianceMatrix::getEtaDependentSmearFactor(const pat::PATObject<T>& object, std::vector<double> smearFactor, std::vector<double> etaBinning)
+{
+  if(smearFactor.size()+1!=etaBinning.size())
+    throw cms::Exception("Configuration") << "The number of smear factors does not fit to the number of eta bins!\n";
+  // append 1. for jets beyond the last eta bin
+  smearFactor.push_back(1.);
+  double etaDependentSmearFactor = 1.;
+  for(unsigned int i=0; i<etaBinning.size(); i++){
+    if(etaBinning[i]<0. && i<etaBinning.size()-1)throw cms::Exception("Configuration") << "eta binning in absolut values required!\n";
+    if(std::abs(object.eta())>=etaBinning[i] && etaBinning[i]>=0.){
+      etaDependentSmearFactor=smearFactor[i];
+      if(i==etaBinning.size()-1)edm::LogWarning("CovarianceMatrix") << "object eta ("<<std::abs(object.eta())<<") beyond last eta bin ("<<etaBinning[i]<<") using smear factor 1.0!";
+    }
+    else break;
+  }
+  return etaDependentSmearFactor;
 }
 
 #endif

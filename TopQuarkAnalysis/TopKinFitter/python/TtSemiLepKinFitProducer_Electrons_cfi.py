@@ -66,7 +66,9 @@ kinFitTtSemiLepEvent = cms.EDProducer("TtSemiLepKinFitProducerElectron",
     # ------------------------------------------------
     # set correction factor for the jet resolution
     # ------------------------------------------------                                     
-    jetEnergyResolutionSmearFactor = cms.double(1.0)                                 
+    jetEnergyResolutionSmearFactor = cms.double(1.0),
+    etaDependentResSmearFactor     = cms.vdouble(1.0),
+    etaBinningForSmearFactor       = cms.vdouble(0.0,0.5,1.1,1.7,2.3,-1.0)
 )
 
 

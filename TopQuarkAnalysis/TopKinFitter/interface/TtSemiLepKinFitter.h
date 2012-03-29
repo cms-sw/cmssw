@@ -49,11 +49,11 @@ class TtSemiLepKinFitter : public TopKinFitter {
 
   /// kinematic fit interface for PAT objects
   template <class LeptonType> int fit(const std::vector<pat::Jet>& jets, const pat::Lepton<LeptonType>& leps, const pat::MET& met,
-				      const double jetResolutionSmearFactor=1.);
+				      const std::vector<double> jetResolutionSmearFactor, const std::vector<double> etaBinningForSmearFactor);
   /// kinematic fit interface for plain 4-vecs
   int fit(const TLorentzVector& p4HadP, const TLorentzVector& p4HadQ, const TLorentzVector& p4HadB, const TLorentzVector& p4LepB,
 	  const TLorentzVector& p4Lepton, const TLorentzVector& p4Neutrino, const int leptonCharge, const CovarianceMatrix::ObjectType leptonType,
-	  const double jetEnergyResolutionSmearFactor=1.);
+	  const std::vector<double> jetEnergyResolutionSmearFactor, const std::vector<double> etaBinningForSmearFactor);
   /// common core of the fit interface
   int fit(const TLorentzVector& p4HadP, const TLorentzVector& p4HadQ, const TLorentzVector& p4HadB, const TLorentzVector& p4LepB,
 	  const TLorentzVector& p4Lepton, const TLorentzVector& p4Neutrino,
@@ -73,7 +73,8 @@ class TtSemiLepKinFitter : public TopKinFitter {
   /// return neutrino candidate
   const pat::Particle fittedNeutrino() const { return (fitter_->getStatus()==0 ? fittedNeutrino_ : pat::Particle()); };
   /// add kin fit information to the old event solution (in for legacy reasons)
-  TtSemiEvtSolution addKinFitInfo(TtSemiEvtSolution* asol, const double jetResolutionSmearFactor=1.);
+  TtSemiEvtSolution addKinFitInfo(TtSemiEvtSolution* asol, const std::vector<double> jetEnergyResolutionSmearFactor, 
+				  const std::vector<double> etaBinningForSmearFactor);
   
  private:
   /// print fitter setup  
