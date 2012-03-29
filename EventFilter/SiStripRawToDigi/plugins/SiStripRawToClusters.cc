@@ -20,7 +20,7 @@ RawToClusters::RawToClusters( const edm::ParameterSet& conf ) :
   cacheId_(0),
   clusterizer_(StripClusterizerAlgorithmFactory::create(conf.getParameter<edm::ParameterSet>("Clusterizer"))),
   rawAlgos_(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"))),
-  doAPVEmulatorCheck_(conf.existsAs<bool>("DoAPVEmulatorCheck") ? conf.getParameter<bool>("DoAPVEmulatorCheck") : false)
+  doAPVEmulatorCheck_(conf.existsAs<bool>("DoAPVEmulatorCheck") ? conf.getParameter<bool>("DoAPVEmulatorCheck") : true)
 {
   if ( edm::isDebugEnabled() ) {
     LogTrace("SiStripRawToCluster")
