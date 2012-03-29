@@ -54,15 +54,10 @@ public:
 			  int             tower_iphi,
 			  int             depth       ) ;
 
-  static bool validDetIdPreLS1( HcalSubdetector subdet,
-				int             tower_ieta,
-				int             tower_iphi,
-				int             depth       ) ;
-
   // get the hashed index
   int hashed_index() const;
 
-  uint32_t denseIndex() const { return (uint32_t)(hashed_index()) ; }
+  uint32_t denseIndex() const { return hashed_index() ; }
 
   static bool validDenseIndex( uint32_t din ) { return ( din < kSizeForDenseIndexing ) ; }
 
@@ -70,7 +65,7 @@ public:
 
   static const HcalDetId Undefined;
 
-  static const int maxDepthHB=7, maxDepthHE=7;
+  static const int maxDepthHB=2, maxDepthHE=3;
 
 private:
 
@@ -79,23 +74,14 @@ private:
 	 kHOhalf = 1080 ,
 	 kHFhalf = 864  ,
 	 kHcalhalf = kHBhalf + kHEhalf + kHOhalf + kHFhalf } ;
-  enum { kSizeForDenseIndexingPreLS1 = 2*kHcalhalf } ;
-  enum { kHBSizePreLS1 = 2*kHBhalf } ;
-  enum { kHESizePreLS1 = 2*kHEhalf } ;
-  enum { kHBHalfExtra  = 72*(maxDepthHB*15-16) };
-  enum { kHEHalfExtra  = 36*(maxDepthHE*19-40) };
-  enum { kHBSizeExtra  = 2*kHBHalfExtra };
-  enum { kHESizeExtra  = 2*kHEHalfExtra };
-
-  static bool validDenseIndexPreLS1( uint32_t din ) { return ( din < kSizeForDenseIndexingPreLS1 ) ; }
 
 public:
 
-  enum { kHBSize = kHBSizePreLS1+kHBSizeExtra } ;
-  enum { kHESize = kHESizePreLS1+kHESizeExtra } ;
+  enum { kSizeForDenseIndexing = 2*kHcalhalf } ;
+  enum { kHBSize = 2*kHBhalf } ;
+  enum { kHESize = 2*kHEhalf } ;
   enum { kHOSize = 2*kHOhalf } ;
   enum { kHFSize = 2*kHFhalf } ;
-  enum { kSizeForDenseIndexing = kHBSize+kHESize+kHOSize+kHFSize } ;
 
 };
 

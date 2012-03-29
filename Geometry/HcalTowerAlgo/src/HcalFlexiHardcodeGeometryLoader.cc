@@ -16,9 +16,10 @@ HcalFlexiHardcodeGeometryLoader::HcalFlexiHardcodeGeometryLoader(const edm::Para
   MAX_HCAL_PHI = 72;
   DEGREE2RAD = M_PI / 180.;
 
-  bool relabel_=ps.getUntrackedParameter<bool>("RelabelHits",false);
+  edm::ParameterSet ps0 = ps.getParameter<edm::ParameterSet>("HcalReLabel");
+  bool relabel_= ps0.getUntrackedParameter<bool>("RelabelHits",false);
   if (relabel_) {
-    edm::ParameterSet ps1 = ps.getUntrackedParameter<edm::ParameterSet>("RelabelRules");
+    edm::ParameterSet ps1 = ps0.getUntrackedParameter<edm::ParameterSet>("RelabelRules");
     m_segmentation.resize(29);
     for (int i=0; i<29; i++) {
       char name[10];
