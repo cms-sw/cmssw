@@ -2,7 +2,7 @@
  *
  *  \author Roberto Covarelli (CERN)
  * 
- * $Id: EgammaHLTElectronDetaDphiProducer.cc,v 1.6 2012/02/10 15:58:43 dmytro Exp $
+ * $Id: EgammaHLTElectronDetaDphiProducer.cc,v 1.7 2012/03/29 13:55:39 sani Exp $
  *
  */
 
@@ -150,9 +150,9 @@ std::pair<float,float> EgammaHLTElectronDetaDphiProducer::calDEtaDPhiSCTrk(reco:
       deltaeta = fabs(scAtVtx.dEta());
       deltaphi = fabs(scAtVtx.dPhi());
     } else {
-      recovery = true;
+      recoveryForFailingPropagation = true;
     }
-  } else if (useTrackProjectionToEcal_ || recoveryForFailingPropagation) { 
+  } else if (useTrackProjectionToEcal_ or recoveryForFailingPropagation) { 
     ECALPositionCalculator posCalc;
     const math::XYZPoint vertex(bsPosition.x(),bsPosition.y(),eleref->track()->vz());
     
