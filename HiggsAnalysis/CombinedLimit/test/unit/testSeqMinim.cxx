@@ -101,7 +101,7 @@ void runPerf(const char *opt, const char *n, const char *file, const char *wsp, 
 
 
 int main(int argc, char **argv) {
-    gPluginMgr->AddHandler("ROOT::Math::Minimizer", "SeqMinimizer", "cmsmath::SequentialMinimizer", "HiggsAnalysisCombinedLimit", "SequentialMinimizer(const char *)");
+    //gPluginMgr->AddHandler("ROOT::Math::Minimizer", "SeqMinimizer", "cmsmath::SequentialMinimizer", "HiggsAnalysisCombinedLimit", "SequentialMinimizer(const char *)");
     ROOT::Math::Minimizer* min = ROOT::Math::Factory::CreateMinimizer("SeqMinimizer", "");
     assert(min != 0);
     RooRandom::randomGenerator()->SetSeed(42);

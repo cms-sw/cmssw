@@ -396,4 +396,11 @@ bool cmsmath::SequentialMinimizer::improve(int smallsteps)
     return false;
 }
 
-
+#include <TPluginManager.h>
+namespace {
+    static int load_seqmin() {
+        gPluginMgr->AddHandler("ROOT::Math::Minimizer", "SeqMinimizer", "cmsmath::SequentialMinimizer", "HiggsAnalysisCombinedLimit", "SequentialMinimizer(const char *)");
+        return 1;
+    }
+    static int loaded_seqmin = load_seqmin();
+}
