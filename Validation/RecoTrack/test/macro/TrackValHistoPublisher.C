@@ -1294,18 +1294,6 @@ void plotResolutions(TCanvas *canvas,
   r4_sigma->GetXaxis()->SetTitle(xstr);     
   r5_sigma->GetXaxis()->SetTitle(xstr);     
    
-  //TH1* s1_sigma = s1_2_2->Clone("s1_sigma");
-  //TH1* s2_sigma = s1_2_2->Clone("s2_sigma");
-  //TH1* s3_sigma = s1_2_2->Clone("s3_sigma");
-  //TH1* s4_sigma = s1_2_2->Clone("s4_sigma");
-  //TH1* s5_sigma = s1_2_2->Clone("s5_sigma");
-  //
-  //TH1* r1_sigma = r1_2_2->Clone("s1_sigma");
-  //TH1* r2_sigma = r1_2_2->Clone("s2_sigma");
-  //TH1* r3_sigma = r1_2_2->Clone("s3_sigma");
-  //TH1* r4_sigma = r1_2_2->Clone("s4_sigma");
-  //TH1* r5_sigma = r1_2_2->Clone("s5_sigma");
-
   s1_sigma->SetMarkerStyle(20);
   r1_sigma->SetMarkerStyle(21);
   s1_sigma->SetMarkerColor(2);

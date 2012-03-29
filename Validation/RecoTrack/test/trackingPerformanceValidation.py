@@ -10,91 +10,32 @@ import string
 
 
 ### Reference release
-<<<<<<< trackingPerformanceValidation.py
 RefRelease='CMSSW_5_2_0'
-=======
-RefRelease='CMSSW_5_2_0_pre5'
->>>>>>> 1.34
 
 ### Relval release (set if different from $CMSSW_VERSION)
-<<<<<<< trackingPerformanceValidation.py
-NewRelease='CMSSW_5_2_0'
-=======
-NewRelease='CMSSW_5_2_0_pre6'
->>>>>>> 1.34
+NewRelease='CMSSW_5_2_1'
 
-### startup and ideal sample list
-
-### This is the list of STARTUP-conditions relvals 
-startupsamples= [
-    'RelValTTbar', 
-    'RelValMinBias', 
-    'RelValQCD_Pt_3000_3500'
-]
-### the list can be empty if you want to skip the validation for all the samples
-#startupsamples= []
-
-### This is the list of startup relvals (with PileUP)
-#startupsamples= ['RelValTTbar_Tauola']
-
+### sample list 
 
 ### This is the list of IDEAL-conditions relvals 
 startupsamples= [
 'RelValMinBias',   ### list of samples to be validated for each pre-release  
-<<<<<<< trackingPerformanceValidation.py
-#'RelValQCD_Pt_3000_3500',
-#'RelValSingleElectronPt35', 
-#'RelValTTbar', 
-#'RelValSingleMuPt10', 
-#'RelValSingleMuPt100',
-#'RelValQCD_FlatPt_15_3000',
-=======
 'RelValQCD_Pt_3000_3500',
 'RelValSingleElectronPt35', 
 'RelValTTbar', 
 'RelValSingleMuPt10', 
 'RelValSingleMuPt100',
 'RelValQCD_FlatPt_15_3000',
->>>>>>> 1.34
-### additional samples to be validated for each mayor release
-#'RelValQCD_Pt_80_120',
-#'RelValSingleElectronPt10', 
-# 'RelValSingleMuPt1', 
-# 'RelValSinglePiPt1', 
-# 'RelValSinglePiPt10', 
-# 'RelValSinglePiPt100', 
-#    
 ]
 
-### the list can be empty if you want to skip the validation for all the samples
-idealsamples= []
-
-### This is the list of IDEAL-conditions relvals (with PileUP
-#idealsamples= ['RelValZmumuJets_Pt_20_300_GEN']
-
-
 ### Sample version: v1,v2,etc..
-Version='v3'
-#Version='LowLumiPileUp-v1'
-#Version='BX156-v2'
-#Version='BX2808-v2'
+Version='v1'
 
-### Ideal and Statup tags
-<<<<<<< trackingPerformanceValidation.py
-IdealTag='MC_52_V4A'
-StartupTag='START52_V4A'
-=======
-IdealTag='MC_52_V2'
-StartupTag='START52_V2'
->>>>>>> 1.34
+# Global tags
+StartupTag='START52_V4'
 
-<<<<<<< trackingPerformanceValidation.py
-RefIdealTag='MC_52_V4A'
 RefStartupTag='START52_V4A'
-=======
-RefIdealTag='MC_52_V1'
-RefStartupTag='START52_V1'
->>>>>>> 1.34
+
 ### PileUp: "PU" . No PileUp: "noPU"
 #PileUp='noPU'
 PileUp='noPU'
@@ -102,17 +43,8 @@ PileUp='noPU'
 
 
 ### Track algorithm name and quality. Can be a list.
-<<<<<<< trackingPerformanceValidation.py
-Algos= ['ootb']
-#Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5','iter6']
-Qualities=['']
-#Qualities=['', 'highPurity']
-=======
-#Algos= ['ootb']
 Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5','iter6']
-#Qualities=['']
 Qualities=['', 'highPurity']
->>>>>>> 1.34
 
 ### Leave unchanged unless the track collection name changes
 Tracksname=''
@@ -129,9 +61,7 @@ Tracksname=''
 #   -comparison_only
 
 
-#Sequence='comparison_only'
-Sequence='harvesting'
-#Sequence='only_validation'
+Sequence='comparison_only'
 
 
 
@@ -142,19 +72,6 @@ NewSelectionLabel=''
 ### Reference and new repository
 RefRepository = '/afs/cern.ch/cms/Physics/tracking/validation/MC'
 NewRepository = 'new' # copy output into a local folder
-
-
-### use the following repository only if you have AFS privileges and you know what you are doing
-
-### for preproduction samples:
-### RefRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/preproduction'
-### NewRepository = '/afs/cern.ch/cms/performance/tracker/activities/reconstruction/tracking_performance/preproduction'
-
-
-
-### AFS location of central harvesting output. It can be used to avoid running the harvesting by yourself
-castorHarvestedFilesDirectory='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal/CMSSW_4_2_x'
-
 
 
 ### Default Nevents
@@ -177,7 +94,6 @@ macro='macro/TrackValHistoPublisher.C'
 
 
 ### Reference directory name (the macro will search for ReferenceSelection_Quality_Algo)
-ReferenceSelection=RefIdealTag+'_'+PileUp
 StartupReferenceSelection=RefStartupTag+'_'+PileUp
 
 
@@ -206,8 +122,8 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
     global Sequence, Version, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events, castorHarvestedFilesDirectory
     global cfg, macro, Tracksname
     print 'Tag: ' + GlobalTag
-    tracks_map = { 'ootb':'general_AssociatorByHits','iter0':'cutsRecoZero_AssociatorByHits','iter1':'cutsRecoFirst_AssociatorByHits','iter2':'cutsRecoSecond_AssociatorByHits','iter3':'cutsRecoThird_AssociatorByHits','iter4':'cutsRecoFourth_AssociatorByHits','iter5':'cutsRecoFifth_AssociatorByHits','iter6':'cutsRecoSixth_AssociatorByHits'}
-    tracks_map_hp = { 'ootb':'cutsRecoHp_AssociatorByHits','iter0':'cutsRecoZeroHp_AssociatorByHits','iter1':'cutsRecoFirstHp_AssociatorByHits','iter2':'cutsRecoSecondHp_AssociatorByHits','iter3':'cutsRecoThirdHp_AssociatorByHits','iter4':'cutsRecoFourthHp_AssociatorByHits','iter5':'cutsRecoFifthHp_AssociatorByHits','iter6':'cutsRecoSixthHp_AssociatorByHits'}
+    tracks_map = { 'ootb':'general_AssociatorByHitsRecoDenom','iter0':'cutsRecoZero_AssociatorByHitsRecoDenom','iter1':'cutsRecoFirst_AssociatorByHitsRecoDenom','iter2':'cutsRecoSecond_AssociatorByHitsRecoDenom','iter3':'cutsRecoThird_AssociatorByHitsRecoDenom','iter4':'cutsRecoFourth_AssociatorByHitsRecoDenom','iter5':'cutsRecoFifth_AssociatorByHitsRecoDenom','iter6':'cutsRecoSixth_AssociatorByHitsRecoDenom'}
+    tracks_map_hp = { 'ootb':'cutsRecoHp_AssociatorByHitsRecoDenom','iter0':'cutsRecoZeroHp_AssociatorByHitsRecoDenom','iter1':'cutsRecoFirstHp_AssociatorByHitsRecoDenom','iter2':'cutsRecoSecondHp_AssociatorByHitsRecoDenom','iter3':'cutsRecoThirdHp_AssociatorByHitsRecoDenom','iter4':'cutsRecoFourthHp_AssociatorByHitsRecoDenom','iter5':'cutsRecoFifthHp_AssociatorByHitsRecoDenom','iter6':'cutsRecoSixthHp_AssociatorByHitsRecoDenom'}
     if(trackalgorithm=='iter0' or trackalgorithm=='ootb'):
         mineff='0.5'
         maxeff='1.025'
@@ -258,12 +174,12 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
             elif( Sequence=="preproduction"):
                 harvestedfile='./DQM_V0001_R000000001__' + sample+ '-' + GlobalTag + '_preproduction_312-v1__GEN-SIM-RECO_1.root'
             elif( Sequence=="comparison_only"):
-                harvestedfile='./DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-' +GlobalTag + '-v1__GEN-SIM-RECO.root'
-                cpcmd='rfcp '+ castorHarvestedFilesDirectory +'/' + harvestedfile + ' .'
-                returncode=os.system(cpcmd)
-                if (returncode!=0):
-                    print 'copy of harvested file from castor for sample ' + sample + ' failed'
-                    continue
+                harvestedfile='./DQM_V0001_R000000001__' + sample+ '__' + NewRelease+ '-' +GlobalTag + '-' + Version + '__DQM.root'
+                #cpcmd='rfcp '+ castorHarvestedFilesDirectory +'/' + harvestedfile + ' .'
+                #returncode=os.system(cpcmd)
+                #if (returncode!=0):
+                #    print 'copy of harvested file from castor for sample ' + sample + ' failed'
+                #    continue
             #search the primary dataset
             cmd='dbsql "find  dataset where dataset like /'
             cmd+=sample+'/'+NewRelease+'-'+GlobalTag+'*'+Version+'/GEN-SIM-RECO order by dataset.createdate "'
@@ -441,14 +357,6 @@ NewSelection=''
 
 for algo in Algos:
     for quality in Qualities:
-        RefSelection=ReferenceSelection
-        if( quality !=''):
-            RefSelection+='_'+quality
-        if(algo!=''and not(algo=='ootb' and quality !='')):
-            RefSelection+='_'+algo
-        if(quality =='') and (algo==''):
-            RefSelection+='_ootb'
-        do_validation(idealsamples, IdealTag, quality , algo)
         RefSelection=StartupReferenceSelection
         if( quality !=''):
             RefSelection+='_'+quality
