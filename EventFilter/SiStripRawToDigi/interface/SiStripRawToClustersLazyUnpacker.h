@@ -27,8 +27,12 @@ namespace sistrip {
     
     virtual ~RawToClustersLazyUnpacker();
     
-    virtual void fill(const uint32_t&, record_type&); 
-    
+    virtual void fill(const uint32_t&, record_type&);
+
+    inline void doAPVEmulatorCheck( bool do_APVEmulator_check) { 
+      doAPVEmulatorCheck_ = do_APVEmulator_check; 
+    };
+
   private:
     
     /// private default constructor
@@ -54,7 +58,10 @@ namespace sistrip {
     
     /// dump frequency
     bool dump_;
-    
+
+    //check that APVemulator address is the same as FEMajaddress.
+    bool doAPVEmulatorCheck_;
+
   };
   
 }

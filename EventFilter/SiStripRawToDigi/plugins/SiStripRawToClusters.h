@@ -43,6 +43,10 @@ namespace sistrip {
     uint32_t cacheId_;
     std::auto_ptr<StripClusterizerAlgorithm> clusterizer_;
     std::auto_ptr<SiStripRawProcessingAlgorithms> rawAlgos_;
+
+    //March 2012: add flag for disabling APVe check in configuration
+    bool doAPVEmulatorCheck_; 
+
   };
   
 }
