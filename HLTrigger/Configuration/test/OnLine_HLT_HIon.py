@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V48 (CMSSW_5_2_3)
+# /dev/CMSSW_5_2_1/HIon/V49 (CMSSW_5_2_3_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V48')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V49')
 )
 
 process.streams = cms.PSet( 
@@ -3960,13 +3960,14 @@ process.hltHIMET120 = cms.EDFilter( "HLT1CaloMET",
 process.hltSiStripRawToDigi = cms.EDProducer( "SiStripRawToDigiModule",
     UseDaqRegister = cms.bool( False ),
     ProductLabel = cms.InputTag( "rawDataCollector" ),
+    MarkModulesOnMissingFeds = cms.bool( True ),
     UnpackCommonModeValues = cms.bool( False ),
     AppendedBytes = cms.int32( 0 ),
     UseFedKey = cms.bool( False ),
     ErrorThreshold = cms.uint32( 7174 ),
-    UnpackBadChannels = cms.bool( False ),
-    MarkModulesOnMissingFeds = cms.bool( True ),
     TriggerFedId = cms.int32( 0 ),
+    DoAPVEmulatorCheck = cms.bool( False ),
+    UnpackBadChannels = cms.bool( False ),
     DoAllCorruptBufferChecks = cms.bool( False )
 )
 process.hltSiStripZeroSuppression = cms.EDProducer( "SiStripZeroSuppression",
