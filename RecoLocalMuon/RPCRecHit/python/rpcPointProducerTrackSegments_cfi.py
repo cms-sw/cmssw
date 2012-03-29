@@ -4,7 +4,7 @@ rpcPointProducer = cms.EDProducer("RPCPointProducer",
   incldt = cms.untracked.bool(True),
   inclcsc = cms.untracked.bool(True),
 
-  debug = cms.untracked.bool(True),
+  debug = cms.untracked.bool(False),
 
   rangestrips = cms.untracked.double(4.),
   rangestripsRB4 = cms.untracked.double(4.),
