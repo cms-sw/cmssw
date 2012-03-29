@@ -78,5 +78,6 @@ protected:
   std::auto_ptr<HcalFlagHFDigiTimeParams> produceFlagHFDigiTimeParams (const HcalFlagHFDigiTimeParamsRcd& rcd);
 
   HcalTopology::Mode mode_;
+  bool               h2mode_;
 };
 

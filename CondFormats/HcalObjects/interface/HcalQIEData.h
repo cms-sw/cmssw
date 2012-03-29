@@ -39,7 +39,7 @@ class HcalQIEData: public HcalCondObjectContainer<HcalQIECoder>
   // check if data are sorted - remove in the next version
   bool sorted () const { return true; }
   // fill values [capid][range]
-  bool addCoder (const HcalQIECoder& fCoder) { return addValues(fCoder); }
+  bool addCoder (const HcalQIECoder& fCoder, bool h2mode_ = false) { return addValues(fCoder, h2mode_); }
   // sort values by channelId - remove in the next version  
   void sort () {}
   
