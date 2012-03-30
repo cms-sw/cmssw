@@ -33,7 +33,7 @@ hltHFRecoEcalCandidateProducer::hltHFRecoEcalCandidateProducer(edm::ParameterSet
   HFDBversion_(conf.getUntrackedParameter<int>("HFDBversion",99)),//do nothing
   HFDBvector_(conf.getUntrackedParameter<std::vector<double> >("HFDBvector",defaultDB_)),
   hfvars_(HFDBversion_,HFDBvector_),
-  algo_(conf.getParameter<bool>("Correct"),
+  algo_(true,
 	conf.getParameter<double>("e9e25Cut"),
 	conf.getParameter<double>("intercept2DCut"),
 	conf.getParameter<double>("intercept2DSlope"),

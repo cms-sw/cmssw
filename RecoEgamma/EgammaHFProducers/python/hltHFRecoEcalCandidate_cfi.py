@@ -7,7 +7,6 @@ hltHFRecoEcalCandidate = cms.EDProducer("hltHFRecoEcalCandidateProducer",
                                         hfclusters = cms.InputTag("hfEMClusters"),
                                         intercept2DCut = cms.double(0.7),
                                         intercept2DSlope = cms.double(0.475),
-                                        Correct = cms.bool(True),
                                         e1e9Cut= cms.vdouble(-1,99),
                                         eCOREe9Cut= cms.vdouble(-1,99),
                                         eSeLCut= cms.vdouble(-1,99)
