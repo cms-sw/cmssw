@@ -96,7 +96,8 @@ std::vector <HcalFlexiHardcodeGeometryLoader::HBHOCellParameters> HcalFlexiHardc
 	  if (depth != m_segmentation[iring-1][i]) {
 	    depth = m_segmentation[iring-1][i];
 	    layer = i;
-	    depths.push_back(layerDepths[depth]);
+	    if (iring != 16 || depth < 3)
+	      depths.push_back(layerDepths[depth]);
 	  }
 	  if (i >= 17) break;
 	}
