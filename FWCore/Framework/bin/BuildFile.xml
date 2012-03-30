@@ -1,5 +1,6 @@
-<bin   name="cmsRunGlibC" file="cmsRun.cpp">
+<bin   name="cmsRun" file="cmsRun.cpp">
   <use   name="roothistmatrix"/>
+  <use   name="jemalloc"/>
   <use   name="boost"/>
   <use   name="boost_program_options"/>
   <use   name="boost_python"/>
@@ -11,24 +12,11 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/PythonParameterSet"/>
 </bin>
-<bin   name="cmsRunTC" file="cmsRun.cpp">
+<bin   name="cmsTCRun" file="cmsRun.cpp">
   <use   name="boost"/>
   <use   name="boost_program_options"/>
   <use   name="boost_python"/>
   <use   name="tcmalloc_minimal"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="FWCore/PluginManager"/>
-  <use   name="FWCore/ServiceRegistry"/>
-  <use   name="FWCore/Utilities"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/PythonParameterSet"/>
-</bin>
-<bin   name="cmsRun" file="cmsRun.cpp">
-  <use   name="boost"/>
-  <use   name="boost_program_options"/>
-  <use   name="boost_python"/>
-  <use   name="jemalloc"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/MessageLogger"/>
   <use   name="FWCore/PluginManager"/>
