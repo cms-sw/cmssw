@@ -15,8 +15,6 @@ optparser.add_option("-s", "--source", dest = "sourceFiles", default = "",
                      help = "use FILELIST (space separated) as source", metavar = "FILELIST")
 optparser.add_option("-g", "--gtag", dest = "gtag", default = "",
                      help = "global tag", metavar = "TAG")
-optparser.add_option("-t", "--runtype", dest = "runtype", default = "",
-                     help = "RUNTYPE=(PP|HI)", metavar = "RUNTYPE")
 optparser.add_option("-w", "--workflow", dest = "workflow", default = "",
                      help = "offline workflow", metavar = "WORKFLOW")
 optparser.add_option("-r", "--rawdata", dest = "rawdata", default = "",
@@ -47,11 +45,6 @@ else :
 daqtype = options.daqtype
 if daqtype not in set(['localDAQ', 'globalDAQ', 'miniDAQ']) :
     optparser.error("DAQ value " + daqtype + " not correct")
-    exit
-
-runtype = options.runtype
-if runtype not in set(['', 'PP', 'HI']) :
-    optparser.error("RUNTYPE value " + runtype + " not correct")
     exit
 
 filename = options.filename
@@ -92,10 +85,6 @@ if not p5 and not gtag :
 
 if not live and not sourceFiles :
     optparser.error("Source file name not given for offline DQM")
-    exit
-
-if p5 and live and runtype :
-    optparser.error("Cannot specify a run type for central DQM")
     exit
 
 if doOutput and not live and not workflow :
@@ -246,7 +235,7 @@ process.dqmQTestEE = cms.EDAnalyzer("QualityTester",
 )
 '''
 
-if p5 and live :
+if p5 :
     dqmModules += '''
 process.load("DQM.Integration.test.environment_cfi")'''
 else :
@@ -808,33 +797,41 @@ process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/ecalcalib_reference
 
 if doOutput :
     if not central :
-        customizations += 'process.dqmSaver.referenceHandling = cms.untracked.string("skip")' + "\n"
+        customizations += 'process.dqmSaver.referenceHandling = "skip"' + "\n"
 
-    if privEcal and not live :
-        customizations += 'process.dqmSaver.dirName = "' + dirName + '"' + "\n"
-
-    if privEcal and live :
+    if privEcal :
         customizations += '''
+process.dqmSaver.saveByTime = -1
+process.dqmSaver.saveByMinute = -1'''
+        if live :
+            customizations += '''
 process.dqmSaver.convention = "Online"
 process.dqmSaver.dirName = "/data/ecalod-disk01/dqm-data/online-DQM/data"
-process.dqmSaver.saveByTime = -1
-process.dqmSaver.saveByMinute = -1
 '''
-
         # temporary - remove when subsystemFolder issue is resolved
-        if physics :
-            customizations += 'process.dqmSaver.version = 1' + "\n"
+            if physics :
+                customizations += 'process.dqmSaver.version = 1' + "\n"
+            else :
+                customizations += 'process.dqmSaver.version = 2' + "\n"
+            
         else :
-            customizations += 'process.dqmSaver.version = 2' + "\n"
+            customizations += '''
+process.dqmSaver.dirName = "''' + dirName + '''"
+'''
 
     if not live :
         customizations += 'process.dqmSaver.convention = "Offline"' + "\n"
         customizations += 'process.dqmSaver.workflow = "' + workflow + '"' + "\n"
 
-if live and privEcal :
-    customizations += '''
+if privEcal :
+    if live :
+        customizations += '''
 process.DQM.collectorHost = "ecalod-web01.cms"
 process.DQM.collectorPort = 9190
+'''
+    else :
+        customizations += '''
+process.DQM.collectorHost = ""
 '''
 
 customizations += '''
@@ -856,7 +853,7 @@ process.source.fileNames = cms.untracked.vstring(
 ''' + sourceFiles + ''')
 '''
 
-if p5 and live :
+if p5 :
     customizations += '''
  ## Run type specific ##
 '''
@@ -881,29 +878,23 @@ elif process.runType.getRunType() == process.runType.hpu_run:
     process.EventStreamHttpReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("*"))
 '''
 
+HIFedRawData = 'rawDataRepacker'
 if (FedRawData == '') :
     if not physics and (daqtype == 'globalDAQ') :
         FedRawData = 'hltEcalCalibrationRaw'
     else :
         FedRawData = 'rawDataCollector'
-
-HIFedRawData = 'rawDataRepacker'
     
 customizations += '''
  ## FEDRawDataCollection name ##
+FedRawData = "''' + FedRawData + '''"
 '''
 
-if p5 and live :
-    customizations += 'FedRawData = "' + FedRawData + '"'
+if p5 and physics :
     customizations += '''
 if process.runType.getRunType() == process.runType.hi_run:
+    FedRawData = "''' + HIFedRawData + '''"
 '''
-    customizations += '    FedRawData = "' + HIFedRawData + '"' + "\n"
-else :    
-    if runtype == 'HI' :
-        customizations += 'FedRawData = "' + HIFedRawData + '"' + "\n"
-    else :
-        customizations += 'FedRawData = "' + FedRawData + '"' + "\n"
 
 customizations += '''
 process.ecalEBunpacker.InputLabel = cms.InputTag(FedRawData)

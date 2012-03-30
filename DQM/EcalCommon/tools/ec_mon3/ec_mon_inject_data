@@ -20,6 +20,8 @@ GetOptions( \%opts,
 );
 usage() if ( $opts{'help'} || $Getopt::Long::error );
 
+use File::Basename;
+
 #time after which to inject the data file
 my $inject_timeout = 10 * 60; #10 minutes in secs
 
@@ -50,6 +52,18 @@ foreach $file ( @files ) {
 
   $file =~ s/.dat//;
 
+  my ($loc, $num, $lun, $out, $fun, $fil, $ful) = split('\.', "$file.dat");
+
+  my $poolfullpath = `ls $path/$loc.$num.$ful.*.root`;
+
+  my $poolfile = "";
+  if ( $poolfullpath =~ /[.]root$/ ) {
+      $poolfile = basename($poolfullpath);
+  }
+  else {
+      print "Pool file $poolfullpath not found\n" if ( $opts{'debug'} );
+  }
+
   if ( -e "$path/$file.log" ) {
 
     print "Found inject data log file $path/$file.log\n" if ( $opts{'debug'} );
@@ -73,17 +87,22 @@ foreach $file ( @files ) {
 
           if ( ( time() - $update ) > $remove_timeout ) {
 
-            print "Removing $file.dat: " if ( $opts{'debug'} );
+	      foreach my $filename ("$file.dat", $poolfile) {
+		  if ($filename eq "") {
+		      next;
+		  }
+		  print "Removing $filename: " if ( $opts{'debug'} );
 
-            my $status = 0;
-            $status = system("rm -f $path/$file.dat") unless ( $opts{'norun'} );
-            if ( ! $status ) {
-              print "done\n" if ( $opts{'debug'} );
-            } else {
-              print "failed\n" if ( $opts{'debug'} );
-            }
-
-          }
+		  my $status = 0;
+		  $status = system("rm -f $path/$filename") unless ( $opts{'norun'} );
+		  if ( ! $status ) {
+		      print "done\n" if ( $opts{'debug'} );
+		  } else {
+		      print "failed\n" if ( $opts{'debug'} );
+		  }
+		  
+	      }
+	  }
 
         }
 
@@ -109,21 +128,7 @@ foreach $file ( @files ) {
     if ( ( time() - $update ) > $inject_timeout ) {
       print "Creating inject data log file $path/$file.log : " if ( $opts{'debug'} );
 
-      my $filesize = -s "$path/$file.dat";
-
-      my ($loc, $num, $lun, $out, $fun, $fil, $ful) = split('\.', "$file.dat");
-
       my @data0 = split(' ', read_db("P5_Co", $num));
-
-      my $ctime = (stat("$path/$file.dat"))[9];
-      $ctime = $data0[1] if ( defined($data0[1]) );
-      my $itime = time();
-
-      my @data1 = split('\.', $file);
-
-      my $runnumber = $data1[1];
-      my $lumisection = $data1[2];
-      my $counter = $data1[6];
 
       my $nevents = 0;
       $nevents = $data0[3] if ( defined($data0[3]) );
@@ -131,7 +136,9 @@ foreach $file ( @files ) {
         $nevents = $data0[4] if ( defined($data0[4]) );
       }
 
-      my $type = "streamer";
+      my $runnumber = $num;
+      my $lumisection = $lun;
+      my $counter = $ful;
 
       my $appname = "CMSSW";
 
@@ -153,23 +160,41 @@ foreach $file ( @files ) {
       my $stream = "A";
       my $producer = "ECAL_LOCAL_DAQ";
 
-      my $command = "/nfshome0/tier0/scripts/injectFileIntoTransferSystem.pl $verbose $renotify --config /nfshome0/ecalpro/DQM/.dbs.conf --path $path --filename $file.dat --filesize $filesize --ctime $ctime --itime $itime --type $type --runnumber $runnumber --lumisection $lumisection --count $counter --nevents $nevents --setuplabel $setuplabel --stream $stream --appname $appname --appversion $appversion --producer $producer";
+      foreach my $filename ("$file.dat", $poolfile) {
 
-      print "Injecting $path/$file.dat\n";
+	  my $filesize = -s "$path/$filename";
 
-      print "$command\n" if ( $opts{'debug'} );
+	  my $ctime = (stat("$path/$filename"))[9];
+	  $ctime = $data0[1] if ( defined($data0[1]) );
+	  my $itime = time();
 
-      if ( ! $opts{'norun'} ) {
+	  my $type;
+	  if ($filename eq "$file.dat") {
+	      $type = "streamer";
+	  }
+	  else {
+	      $type = "edm";
+	  }
 
-        open FILE, ">$path/$file.log";
-        print FILE "$command\n";
-        close FILE;
+	  my $command = "/nfshome0/tier0/scripts/injectFileIntoTransferSystem.pl $verbose $renotify --config /nfshome0/ecalpro/DQM/.dbs.conf --path $path --filename $filename --filesize $filesize --ctime $ctime --itime $itime --type $type --runnumber $runnumber --lumisection $lumisection --count $counter --nevents $nevents --setuplabel $setuplabel --stream $stream --appname $appname --appversion $appversion --producer $producer";
 
-        if ( ! system("$command >> $path/$file.log 2>&1") ) {
-          print "done !!!\n" if ( $opts{'debug'} );
-        } else {
-          print "failed !!!\n" if ( $opts{'debug'} );
-        }
+	  print "Injecting $path/$filename\n";
+
+	  print "$command\n" if ( $opts{'debug'} );
+
+	  if ( ! $opts{'norun'} ) {
+
+	      open FILE, ">$path/$file.log";
+	      print FILE "$command\n";
+	      close FILE;
+
+	      if ( ! system("$command >> $path/$file.log 2>&1") ) {
+		  print "done !!!\n" if ( $opts{'debug'} );
+	      } else {
+		  print "failed !!!\n" if ( $opts{'debug'} );
+	      }
+
+	  }
 
       }
 

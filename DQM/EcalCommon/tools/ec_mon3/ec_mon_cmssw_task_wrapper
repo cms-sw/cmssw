@@ -73,32 +73,51 @@ if ($config{'ec_mon_era'} eq '') {
     exit 1;
 }
 
+my $workdir = "$config{'ec_mon_master_rundir'}/dqm-data/tmp";
+my $tooldir = "/nfshome0/ecalpro/DQM/tools";
+
+my $wbmrun = $num;
+$wbmrun =~ s/^0*//;
+my $wbmcommand = 'wget -t 10 --timeout=10 -O ' . "$workdir/wbm$num" . ' "http://cmswbm2.cms/cmsdb/servlet/RunParameters?RUN=' . $wbmrun . '" 2>/dev/null; ' . "$tooldir/getWbmParam.pl" . ' "dqm_run_key_at_configure" "cosmic_run|pp_run|hi_run|hpu_run" ' . "$workdir/wbm$num";
+my $runkey = `$wbmcommand`;
+
 my $cmsenv;
 my $daq;
 my $workflow;
 
+if ($runkey eq 'cosmic_run') {
+    $workflow = '/Cosmics/';
+}
+elsif ($runkey eq 'pp_run' || $runkey eq 'hpu_run') {
+    $workflow = '/Protons/';
+}
+elsif ($runkey eq 'hi_run' ) {
+    $workflow = '/HeavyIons/';
+}
+else {
+    $workflow = '/All/';
+}
+
+$workflow .= "$config{'ec_mon_era'}/";
+
 if ( $filelists{$datatypes[0]}[0] =~ /Minidaq/ ) {
     $cmsenv = "$config{'ec_mon_swconf_dir'}/cmsenv.miniDAQ";
     $daq = 'globalDAQ';
-    $workflow = "/All/$config{'ec_mon_era'}/MiniDAQ";
+    $workflow .= "MiniDAQ";
 }
 elsif ( $config{'ec_mon_path'} =~ /localDAQ/ ) {
     $cmsenv = "$config{'ec_mon_swconf_dir'}/cmsenv.localDAQ";
     $daq = 'localDAQ';
-    $workflow = "/All/$config{'ec_mon_era'}/LocalDAQ";
+    $workflow .= "LocalDAQ";
 }
 elsif ( $config{'ec_mon_path'} =~ /globalDAQ/ ) {
     $cmsenv = "$config{'ec_mon_swconf_dir'}/cmsenv.globalDAQ";
     $daq = 'globalDAQ';
-    $workflow = "/All/$config{'ec_mon_era'}/CentralDAQ";
+    $workflow .= "CentralDAQ";
 }
 else {
     exit 1;
 }
-
-my $workdir = "$config{'ec_mon_master_rundir'}/dqm-data/tmp";
-
-my $tooldir = "/nfshome0/ecalpro/DQM/tools";
 
 foreach my $datatype (@datatypes) {
 
@@ -122,7 +141,7 @@ foreach my $datatype (@datatypes) {
 
     my $sourcelist = join(' ', @{$filelists{$datatype}});
 
-    my $task = "source $cmsenv; python $tooldir/ecalConfigBuilder.py -e PrivOffline -c $cfgtype -d $daq -w '$workflow' -f $cfgfile -s '$sourcelist' -g " . '"$globaltag"' . "; cd $workdir; time cmsRun $cfgfile";
+    my $task = "source $cmsenv; python $tooldir/ecalConfigBuilder.py -e PrivOffline -c $cfgtype -d $daq -w '$workflow' -f $cfgfile -s '$sourcelist' -g " . '"$globaltag"' . "; cd $workdir; time cmsRun $cfgfile runkey=$runkey";
 
     my $logdir = "$config{'ec_mon_master_rundir'}/dqm-data/logs";
     my $logfile = "$logdir/$loc.$num.$datatype.cmssw.log";
@@ -140,6 +159,7 @@ my $outputname = "DQM_V0001_R0$num$workflow.root";
 $outputname =~ s/\//__/g;
 
 system("mv -f $workdir/$outputname $workdir/closed/$outputname >> /dev/null 2>&1");
+system("rm -f $workdir/wbm$num");
 
 exit 0;
 
