@@ -165,13 +165,8 @@ maxInputEvents = -1 # reduce for testing
 ### Conditions
 
 # GlobalTags (w/o suffix '::All')
-# globalTagData = 'GR_R_44_V12'
-globalTagData = 'GR_R_44_V13'  # JEC2011V12
-# globalTagMC   = 'START44_V7'
-globalTagMC   = 'START44_V12'  # JEC2011V12
-# globalTagMC   = 'START44_V10D' # JEC2011V12, Fall11_Chamonix
-# globalTagMC   = 'START44_V5D'  # JEC2011V12, Fall11_R3
-# globalTagMC   = 'START44_V9C'  # JEC2011V12, Fall11_R4
+globalTagData = 'GR_R_44_V15'
+globalTagMC   = 'START44_V13'
 
 ### Output
 
