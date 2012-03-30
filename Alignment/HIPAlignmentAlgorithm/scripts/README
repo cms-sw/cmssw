@@ -36,7 +36,7 @@ $> scripts/iterator_py <NITERATIONS> myoutdir  scripts/minbiascosmicsMC09.lst
 
 Template files in HIPAlignmentAlgorithm/python/
 
-In align_tpl.py there are all the ettings that are applied to all the data 
+In align_tpl_py.txt there are all the ettings that are applied to all the data 
 samples but that should not be used during the collector job, like the APE
 values and the path of the cmsRun job. 
 
@@ -45,7 +45,7 @@ In common_cff_py.txt there are the general settings, like Global Tag & co.
 In both of them the user can add if statements in order to include special
 treatments for data sets flagged in particular ways. For example, if one
 has a Z->mumu sample and wants to apply a refit to the tracks with the 
-proper Z mass constraint, one can add in align_tpl.py the load of themodule
+proper Z mass constraint, one can add in align_tpl_py.txt the load of themodule
 that implements the mass constraint and at teh bottom the if statement
 
 if "ZMASSCONSTRAINT" = "<FLAG>":
@@ -60,7 +60,7 @@ All other settings that depend on
 the sample (which refitter to use, the track and hit selection) are moved in
 the files that end with "TrackSelection_cff_py.txt".
 
-collect_tpl.py has not been changed respect to the past. 
+collect_tpl_py.txt has not been changed respect to the past. 
 
 The usage new monitoring scripts are totally transparent to the user 
 respect to the previous revision.

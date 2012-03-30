@@ -36,8 +36,8 @@ $dataskim = basename( $datafile, ".dat" );
 system( "
 cp python/common_cff_py.txt $odir/.;
 cp python/$dataskim\TrackSelection_cff_py.txt $odir/.;
-cp python/align_tpl.py $odir/.;
-cp python/collect_tpl.py $odir/.;
+cp python/align_tpl_py.txt $odir/.;
+cp python/collect_tpl_py.txt $odir/.;
 " );
 
 
@@ -62,7 +62,7 @@ foreach $data ( @dataFileInput ) {
 	# print "$data";
 	system( "
 	mkdir $odir/job$j; 
-	cp python/align_tpl.py $odir/job$j/align_cfg.py;
+	cp python/align_tpl_py.txt $odir/job$j/align_cfg.py;
 	cp scripts/runScript.csh $odir/job$j/.;
 	" );
 	# run script
@@ -86,9 +86,9 @@ foreach $data ( @dataFileInput ) {
 
 system( "
 mkdir $odir/main/;
-cp python/initial_tpl.py $odir/main/initial_cfg.py;
-cp python/collect_tpl.py $odir/main/collect_cfg.py;
-cp python/upload_tpl.py $odir/upload_cfg.py;
+cp python/initial_tpl_py.txt $odir/main/initial_cfg.py;
+cp python/collect_tpl_py.txt $odir/main/collect_cfg.py;
+cp python/upload_tpl_py.txt $odir/upload_cfg.py;
 cp scripts/runScript.csh $odir/main/.;
 cp scripts/runControl.csh $odir/main/.;
 cp scripts/checkError.sh $odir/main/.;
