@@ -89,7 +89,7 @@ if ( @done_runs == 0 ) {
 	    $norun = "--norun";
 	}
 
-	my $status = system("$config{'ec_mon_path}/ec_mon_convert $norun $runfile");
+	my $status = system("$config{'ec_mon_path'}/ec_mon_convert $norun $runfile");
 
 	if ($status != 0 || ! -e "$statusdir/.$runfile.converted") {
 	    print "Run $runfile is not converted\n" if ($opts{'debug'});
@@ -352,20 +352,21 @@ sub usage {
     print STDERR <<INLINE_LITERAL_TEXT;
 usage: ec_mon_archive [options] [run1#run2]
 
-				 If a run range is not specified ec_mon_archive will look through all available
-				 runs.
+If a run range is not specified ec_mon_archive will look through all available
+runs.
 
-				 Options are:
-				 --conf     Needs a path name to use a ec_mon.conf from a location other
-				 than the current directory.
+Options are:
+  --conf     Needs a path name to use a ec_mon.conf from a location other
+	     than the current directory.
 
-				 --norun    Do not archive and delete the runs, just list what would be done
+  --norun    Do not archive and delete the runs, just list what would be done
 
-				 --debug
-				 INLINE_LITERAL_TEXT
+  --debug
+INLINE_LITERAL_TEXT
 
-				 exit;
-			     }
+exit;
+}
+
 
 ############################################################################
 

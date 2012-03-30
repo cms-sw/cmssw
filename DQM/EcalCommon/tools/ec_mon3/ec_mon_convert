@@ -30,8 +30,6 @@ my $workdir = "$dqmdir/tmp";
 
 exit 1 if ( -e "$dqmdir/.ec_mon_master_convert_lock$config{'ec_mon_master_name'}" );
 
-system("touch $dqmdir/.ec_mon_master_convert_lock$config{'ec_mon_master_name'}");
-
 my $run = $ARGV[0];
 
 if( -e "$statusdir/.$run.converted" ) {
@@ -47,6 +45,8 @@ if ( @datfiles == 0 ) {
     print "No files to convert for run $run\n" if ( $opts{'debug'} );
     exit 0;
 }
+
+system("touch $dqmdir/.ec_mon_master_convert_lock$config{'ec_mon_master_name'}");
 
 foreach my $file ( @datfiles ) {
 

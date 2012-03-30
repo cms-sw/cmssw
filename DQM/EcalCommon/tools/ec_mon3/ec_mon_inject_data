@@ -54,14 +54,15 @@ foreach $file ( @files ) {
 
   my ($loc, $num, $lun, $out, $fun, $fil, $ful) = split('\.', "$file.dat");
 
-  my $poolfullpath = `ls $path/$loc.$num.$ful.*.root`;
+  my $poolfullpath = `ls $path/$loc.$num.$ful.*.root 2>/dev/null`;
 
   my $poolfile = "";
   if ( $poolfullpath =~ /[.]root$/ ) {
       $poolfile = basename($poolfullpath);
+      chomp($poolfile);
   }
   else {
-      print "Pool file $poolfullpath not found\n" if ( $opts{'debug'} );
+      print "Pool file $path/$loc.$num.$ful.*.root not found\n" if ( $opts{'debug'} );
   }
 
   if ( -e "$path/$file.log" ) {
@@ -161,6 +162,9 @@ foreach $file ( @files ) {
       my $producer = "ECAL_LOCAL_DAQ";
 
       foreach my $filename ("$file.dat", $poolfile) {
+	  if ($filename eq "") {
+	      next;
+	  }
 
 	  my $filesize = -s "$path/$filename";
 
