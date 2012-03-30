@@ -843,10 +843,10 @@ if live :
         customizations += 'process.source.sourceURL = cms.string("http://dqm-c2d07-30.cms:22100/urn:xdaq-application:lid=30")' + "\n"
 
     if physics and (daqtype == 'globalDAQ') :
-        customizations += 'process.source.SelectHLTOutput = cms.untracked.string("hltOutputA")' + "\n"
+        customizations += 'process.EventStreamHttpReader.SelectHLTOutput = cms.untracked.string("hltOutputA")' + "\n"
     else :
-        customizations += 'process.source.SelectHLTOutput = cms.untracked.string("hltOutputCalibration")' + "\n"
-        customizations += 'process.source.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("HLT_EcalCalibration_v*"))' + "\n"
+        customizations += 'process.EventStreamHttpReader.SelectHLTOutput = cms.untracked.string("hltOutputCalibration")' + "\n"
+        customizations += 'process.EventStreamHttpReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("HLT_EcalCalibration_v*"))' + "\n"
         
 else :
     customizations += '''
