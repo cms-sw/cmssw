@@ -5,9 +5,8 @@ import sys
 import fileinput
 import string
 
-NewRelease='CMSSW_5_2_0_pre5'
-RefRelease='CMSSW_5_2_0_pre4'
-#RefRelease='CMSSW_5_0_0_patch1'
+NewRelease='CMSSW_6_0_0_pre1'
+RefRelease='CMSSW_5_2_2'
 #NewRelease='Summer09'
 #RefRelease='Summer09_pre1'
 
@@ -50,18 +49,18 @@ GetRefsFrom='GUI'
 
 #DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
 #DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
-DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_5_2_x/'
+DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_6_0_x/'
 #DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
 #DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
 DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_5_2_x/'
 CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
 
 # These are only needed if you copy any root file from the DQM GUI:
-NewLabel='START52_V1'
+NewLabel='START52_V4'
 if (NewCondition=='MC'):
     NewLabel='MC_52_V1'
 #RefLabel='START50_V13'
-RefLabel='START52_V1'
+RefLabel='START52_V4'
 if (RefCondition=='MC'):
     RefLabel='MC_52_V1'
 
@@ -109,13 +108,15 @@ if (RefFastSim):
 if (NewCondition=='PILEUP'):
     if (NewFastSim):
 #        NewLabel=NewLabel+'_PU_FlatDist10_2011EarlyData_50ns'
-        NewLabel='PU_'+NewLabel+'_PU_FlatDist10_2011EarlyData_50ns'
+#        NewLabel='PU_'+NewLabel+'_PU_FlatDist10_2011EarlyData_50ns'
+        NewLabel='PU_'+NewLabel+'_PU_2012_Startup_inTimeOnly'
     else:
         NewLabel='PU_'+NewLabel   # What about sticking on some kind of default ? 
 #        NewLabel=NewLabel+'_PU'
 if (RefCondition=='PILEUP'):
     if (RefFastSim):
-        RefLabel=RefLabel+'_PU_FlatDist10_2011EarlyData_50ns'
+#        RefLabel=RefLabel+'_PU_FlatDist10_2011EarlyData_50ns'
+        RefLabel='PU_'+RefLabel+'_PU_2012_Startup_inTimeOnly'
     else:
         RefLabel='PU_'+RefLabel
 #        RefLabel=RefLabel+'_PU'
