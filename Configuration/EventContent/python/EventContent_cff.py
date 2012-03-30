@@ -25,7 +25,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.48 2012/01/23 10:14:51 vlimant Exp $
+#  $Id: EventContent_cff.py,v 1.49 2012/03/27 07:47:40 fwyzard Exp $
 #
 #
 #
@@ -658,7 +658,7 @@ ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHalo_noDrop.output
 ALCARECOEventContent.outputCommands.extend(OutALCARECORpcCalHLT_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECODtCalib_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripPCLHistos_noDrop.outputCommands)
-
+ALCARECOEventContent.outputCommands.extend(OutALCARECOLumiPixels_noDrop.outputCommands)
 
 ALCARECOEventContent.outputCommands.append('drop *_MEtoEDMConverter_*_*')
 
