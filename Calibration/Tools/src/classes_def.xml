@@ -1,3 +1,17 @@
 <lcgdict>
         <class name="IC"/>
+        <class name="DS"/>
+        <class name="DSAll"/>
+        <class name="DSIsNextToBoundaryEB"/>
+        <class name="DSIsNextToProblematicEB"/>
+        <class name="DSIsNextToProblematicEE"/>
+        <class name="DSIsNextToProblematicEEPlus"/>
+        <class name="DSIsNextToProblematicEEMinus"/>
+        <class name="DSIsEndcap"/>
+        <class name="DSIsEndcapPlus"/>
+        <class name="DSIsEndcapMinus"/>
+        <class name="DSIsBarrel"/>
+        <class name="DSHasChannelStatusEB"/>
+        <class name="DSHasChannelStatusEE"/>
+        <class name="DRings"/>
 </lcgdict>

@@ -1,7 +1,7 @@
 #include "Calibration/Tools/interface/IC.h"
+#include "Calibration/Tools/interface/DRings.h"
 
 std::vector<DetId> IC::_detId;
-EcalChannelStatus IC::channelStatus;
 
 IC::IC()
 {
@@ -25,130 +25,20 @@ IC::IC()
 }
 
 
-bool IC::all(DetId id)
-{
-        return true;
-}
-
-bool IC::isBorderNeighbour(DetId id)
-{
-        return true;
-}
-
-//enum DeadKind = { kSingle, kVFE, kTower };
-
-bool IC::isDeadNeighbour(DetId id, EcalChannelStatus & chStatus)
-{
-        return true;
-}
 
 
-bool IC::isBarrel(DetId id)
-{
-        return id.subdetId() == EcalBarrel;
-}
-
-
-bool IC::isEndcap(DetId id)
-{
-        return id.subdetId() == EcalEndcap;
-}
-
-
-bool IC::isEndcapPlus(DetId id)
-{
-        if (id.subdetId() == EcalEndcap) {
-                return EEDetId(id).zside() > 0;
-        }
-        return false;
-}
-
-
-bool IC::isEndcapMinus(DetId id)
-{
-        if (id.subdetId() == EcalEndcap) {
-                return EEDetId(id).zside() < 0;
-        }
-        return false;
-}
-
-
-bool IC::isNextToBoundaryEB(DetId id)
-{
-        if (id.subdetId() == EcalBarrel) {
-                return EBDetId::isNextToBoundary(id);
-        }
-        return false;
-}
-
-
-bool IC::isNextToProblematicEB(DetId id)
-{
-        if (id.subdetId() != EcalBarrel) return false;
-        // exclude the dead themselves
-        if (channelStatus.find(id)->getStatusCode() > 6) return false;
-        for (int i = -1; i < 2; ++i) {
-                for (int j = -1; j < 2; ++j) {
-                        if (i != 0 || j != 0) {
-                                DetId tid = EBDetId::offsetBy(id, i, j);
-                                if (tid != DetId(0) && channelStatus.find(tid)->getStatusCode() > 6) return true;
-                        }
-                }
-        }
-        return false;
-}
-
-
-bool IC::isNextToProblematicEE(DetId id)
-{
-        if (id.subdetId() != EcalEndcap) return false;
-        // exclude the dead themselves
-        if (channelStatus.find(id)->getStatusCode() > 6) return false;
-        for (int i = -1; i < 2; ++i) {
-                for (int j = -1; j < 2; ++j) {
-                        if (i != 0 || j != 0) {
-                                DetId tid = EEDetId::offsetBy(id, i, j);
-                                if (tid != DetId(0) && channelStatus.find(tid)->getStatusCode() > 6) return true;
-                        }
-                }
-        }
-        return false;
-}
-
-bool IC::isNextToProblematicEEPlus(DetId id)
-{
-        if (id.subdetId() != EcalEndcap) return false;
-        return isNextToProblematicEE(id) && (EEDetId(id).zside() > 0);
-}
-
-bool IC::isNextToProblematicEEMinus(DetId id)
-{
-        if (id.subdetId() != EcalEndcap) return false;
-        return isNextToProblematicEE(id) && (EEDetId(id).zside() < 0);
-}
-
-//bool isNextToBoundaryEE(DetId id)
-//{
-//        if (id.subdetId() == EcalBarrel) {
-//                return EBDetId::isNextToBoundary(id);
-//        } else if (id.subdetId() == EcalEndcap) {
-//                return EEDetId::isNextToBoundary(id);
-//        }
-//        return false;
-//}
-
-
-void IC::constantDistribution(const IC & a, TH1F * h, bool (*selector)(DetId id))
+void IC::constantDistribution(const IC & a, TH1F * h, DS & selector, bool errors)
 {
         for (size_t i = 0; i < a.ids().size(); ++i) {
                 DetId id(a.ids()[i]);
                 if (!selector(id)) continue;
-                h->Fill(a.ic()[id]);
+                if (errors) h->Fill(a.eic()[id]);
+                else        h->Fill(a.ic()[id]);
         }
 }
 
 
-void IC::constantMap(const IC & a, TH2F * h, bool (*selector)(DetId id))
+void IC::constantMap(const IC & a, TH2F * h, DS & selector, bool errors)
 {
         for (size_t i = 0; i < a.ids().size(); ++i) {
                 DetId id(a.ids()[i]);
@@ -163,28 +53,32 @@ void IC::constantMap(const IC & a, TH2F * h, bool (*selector)(DetId id))
                         iy = EEDetId(id).iy();
                         iz = EEDetId(id).zside();
                 }
-                h->Fill(ix, iy, a.ic()[id]);
+                if (errors) h->Fill(ix, iy, a.eic()[id]);
+                else        h->Fill(ix, iy, a.ic()[id]);
         }
 }
 
 
-void IC::profileEta(const IC & a, TProfile * h, bool (*selector)(DetId id))
+void IC::profileEta(const IC & a, TProfile * h, DS & selector, bool errors)
 {
+        DRings dr;
+        dr.setEERings("eerings.dat");
         for (size_t i = 0; i < a.ids().size(); ++i) {
                 DetId id(a.ids()[i]);
                 if (!selector(id)) continue;
-                int x = 0;
-                if (id.subdetId() == EcalBarrel) {
-                        x = EBDetId(id).ieta();
-                } else if (id.subdetId() == EcalEndcap) {
-                        x = 100;
-                }
-                h->Fill(x, a.ic()[id]);
+                int x = dr.ieta(id);
+                printf("ieta %d\n", dr.ieta(id));
+                float v = a.ic()[id];
+                float e = a.eic()[id];
+                if (v < 0 || v > 2) continue;
+                if (e > 100 && v < 0) continue;
+                if (errors) h->Fill(x, e);
+                else        h->Fill(x, v);
         }
 }
 
 
-void IC::profilePhi(const IC & a, TProfile * h, bool (*selector)(DetId id))
+void IC::profilePhi(const IC & a, TProfile * h, DS & selector, bool errors)
 {
         for (size_t i = 0; i < a.ids().size(); ++i) {
                 DetId id(a.ids()[i]);
@@ -195,31 +89,45 @@ void IC::profilePhi(const IC & a, TProfile * h, bool (*selector)(DetId id))
                 } else if (id.subdetId() == EcalEndcap) {
                         //x = atan((EEDetId(id).iy() - 50) / (EEDetId(id).ix() - 50));
                 }
-                h->Fill(x, a.ic()[id]);
+                float v = a.ic()[id];
+                float e = a.eic()[id];
+                if (e > 100 && v < 0) continue;
+                if (errors) h->Fill(x, e);
+                else        h->Fill(x, v);
         }
 }
 
 
-void IC::profileSM(const IC & a, TProfile * h, bool (*selector)(DetId id))
+void IC::profileSM(const IC & a, TProfile * h, DS & selector, bool errors)
 {
+        DSIsBarrel isBarrel;
         for (size_t i = 0; i < a.ids().size(); ++i) {
                 DetId id(a.ids()[i]);
                 if (!selector(id) || !isBarrel(id)) continue;
-                h->Fill(EBDetId(id).ism(), a.ic()[id]);
+                float v = a.ic()[id];
+                float e = a.eic()[id];
+                if (e > 100 && v < 0) continue;
+                if (errors) h->Fill(EBDetId(id).ism(), e);
+                else        h->Fill(EBDetId(id).ism(), v);
         }
 }
 
 
-double IC::average(const IC & a, bool (*selector)(DetId id))
+float IC::average(const IC & a, DS & selector, bool errors)
 {
-        double ave = 0.;
+        float ave = 0.;
         int cnt = 0;
         for (size_t i = 0; i < a.ids().size(); ++i) {
                 DetId id(a.ids()[i]);
                 if (!selector(id)) continue;
+                float v = a.ic()[id];
+                float e = a.eic()[id];
+                if (e > 100 && v < 0) continue;
                 ++cnt;
-                ave += a.ic()[id];
+                if (errors) ave += e;
+                else        ave += v;
         }
+        assert(cnt != 0);
         return ave / cnt;
 }
 
@@ -301,7 +209,20 @@ void IC::smear(const IC & a, float sigma, IC & res)
 }
 
 
-void IC::dump(const IC & a, const char * fileName, bool (*selector)(DetId id))
+void IC::smear(const IC & a, IC & res)
+{
+        TRandom * r = new TRandom();
+        for (size_t i = 0; i < a.ids().size(); ++i) {
+                DetId id(a.ids()[i]);
+                float s = r->Gaus(1, a.eic()[id]);
+                res.ic().setValue(id, a.ic()[id] * s);
+                res.eic().setValue(id, a.eic()[id]);
+        }
+        delete r;
+}
+
+
+void IC::dump(const IC & a, const char * fileName, DS & selector)
 {
         FILE * fd = fopen(fileName, "w");
         if (fd == NULL) {
@@ -311,10 +232,413 @@ void IC::dump(const IC & a, const char * fileName, bool (*selector)(DetId id))
         for (size_t i = 0; i < a.ids().size(); ++i) {
                 DetId id(a.ids()[i]);
                 if (!selector(id)) continue;
-                fprintf(fd, "%d %f %f\n", id.rawId(), a.ic()[id], a.eic()[id]);
+                //fprintf(fd, "%d %f %f\n", id.rawId(), a.ic()[id], a.eic()[id]);
+                if (id.subdetId() == EcalBarrel) {
+                        EBDetId eid(id);
+                        fprintf(fd, "%d %d %d %f %f\n", eid.ieta(), eid.iphi(), 0, a.ic()[id], a.eic()[id]);
+                } else if (id.subdetId() == EcalEndcap) {
+                        EEDetId eid(id);
+                        fprintf(fd, "%d %d %d %f %f\n", eid.ix(), eid.iy(), eid.zside(), a.ic()[id], a.eic()[id]);
+                } else {
+                        fprintf(stderr, "[dump] invalid DetId: %d\n", id.rawId());
+                        exit(-1);
+                }
         }
         fclose(fd);
 }
+
+
+
+void IC::dumpXML(const IC & a, const char * fileName, DS & selector, bool errors)
+{
+        FILE * fd = fopen(fileName, "w");
+        if (fd == NULL) {
+                fprintf(stderr, "[dumpXML] cannot open file %s\n", fileName);
+                exit(-1);
+        }
+        // exactly the same spacing/new lines
+        //
+        fprintf(fd, "\n");
+        fprintf(fd, "<EcalFloatCondObjectContainer>\n");
+        fprintf(fd, "\n");
+        fprintf(fd, "  <EcalCondHeader>\n");
+        fprintf(fd, "    <method></method>\n");
+        fprintf(fd, "    <version></version>\n");
+        fprintf(fd, "    <datasource></datasource>\n");
+        fprintf(fd, "    <since>0</since>\n");
+        fprintf(fd, "    <tag></tag>\n");
+        fprintf(fd, "    <date></date>\n");
+        fprintf(fd, "  </EcalCondHeader>\n");
+        fprintf(fd, "\n");
+
+        for (size_t i = 0; i < a.ids().size(); ++i) {
+                DetId id(a.ids()[i]);
+                if (!selector(id)) continue;
+                //fprintf(fd, "%d %f %f\n", id.rawId(), a.ic()[id], a.eic()[id]);
+                if (id.subdetId() == EcalBarrel) {
+                        EBDetId eid(id);
+                        fprintf(fd, "  <cell iEta=\"%d\" iPhi=\"%d\">\n", eid.ieta(), eid.iphi());
+                        if (errors) fprintf(fd, "    <Value>%f</Value>\n", a.eic()[id]);
+                        else        fprintf(fd, "    <Value>%f</Value>\n", a.ic()[id]);
+                        fprintf(fd, "  </cell>\n");
+                        fprintf(fd, "\n");
+
+                } else if (id.subdetId() == EcalEndcap) {
+                        EEDetId eid(id);
+                        fprintf(fd, "  <cell ix=\"%d\" iy=\"%d\" zside=\"%d\">\n", eid.ix(), eid.iy(), eid.zside());
+                        if (errors) fprintf(fd, "    <Value>%f</Value>\n", a.eic()[id]);
+                        else        fprintf(fd, "    <Value>%f</Value>\n", a.ic()[id]);
+                        fprintf(fd, "  </cell>\n");
+                        fprintf(fd, "\n");
+                } else {
+                        fprintf(stderr, "[dump] invalid DetId: %d\n", id.rawId());
+                        exit(-1);
+                }
+        }
+        fprintf(fd, "</EcalFloatCondObjectContainer>\n");
+        fclose(fd);
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+
+class TEndcapRings {
+        private:
+                float iEndcapRing[100][100][2];
+        public:
+                TEndcapRings();
+                ~TEndcapRings();
+                Int_t GetEndcapRing(Int_t,Int_t,Int_t);
+                Int_t GetEndcapIeta(Int_t,Int_t,Int_t);
+
+                //ClassDef(TEndcapRings,1); //ring class
+};
+
+// default constructor, reading the map from file
+TEndcapRings::TEndcapRings() {
+        FILE *fRing;
+        fRing = fopen("eerings.dat","r");
+        std::cout << "Inizializing endcap geometry from: eerings.dat" << std::endl;
+        int ix,iy,iz,ir;
+        while(fscanf(fRing,"(%d,%d,%d) %d \n",&ix,&iy,&iz,&ir) !=EOF ) {
+                if (iz<0) iz=0;
+                iEndcapRing[ix][iy][iz] = ir;
+        }
+        return;
+}
+
+TEndcapRings::~TEndcapRings() { return;}
+
+Int_t TEndcapRings::GetEndcapRing(Int_t ix, Int_t iy, Int_t iz){
+        return iEndcapRing[ix][iy][iz];
+}
+
+Int_t TEndcapRings::GetEndcapIeta(Int_t ix, Int_t iy, Int_t iz){
+        Int_t iSide = iz;
+        if (iSide<0) iSide=0;
+        Int_t iEtaOffset = 86*iz;
+        Int_t iEta = iEtaOffset + iz*iEndcapRing[ix][iy][iSide];
+        return iEta;
+}
+
+// --- Here the calibration functions
+Double_t fCalEoP(Int_t ieta) {
+  Double_t fCal=1.;
+  if (ieta==-118) fCal = 0.963263;
+  if (ieta==-117) fCal = 0.971674;
+  if (ieta==-116) fCal = 0.9874;
+  if (ieta==-115) fCal = 1.01517;
+  if (ieta==-114) fCal = 1.00988;
+  if (ieta==-113) fCal = 1.01252;
+  if (ieta==-112) fCal = 0.996157;
+  if (ieta==-111) fCal = 0.995526;
+  if (ieta==-110) fCal = 0.992545;
+  if (ieta==-109) fCal = 0.989214;
+  if (ieta==-108) fCal = 0.996461;
+  if (ieta==-107) fCal = 0.993015;
+  if (ieta==-106) fCal = 0.983365;
+  if (ieta==-105) fCal = 0.988003;
+  if (ieta==-104) fCal = 0.991306;
+  if (ieta==-103) fCal = 0.994093;
+  if (ieta==-102) fCal = 1.00807;
+  if (ieta==-101) fCal = 0.999271;
+  if (ieta==-100) fCal = 0.994555;
+  if (ieta==-99) fCal = 1.0025;
+  if (ieta==-98) fCal = 1.00659;
+  if (ieta==-97) fCal = 1.00645;
+  if (ieta==-96) fCal = 1.0132;
+  if (ieta==-95) fCal = 0.990159;
+  if (ieta==-94) fCal = 0.979428;
+  if (ieta==-93) fCal = 0.985317;
+  if (ieta==-92) fCal = 0.991403;
+  if (ieta==-91) fCal = 0.982159;
+  if (ieta==-90) fCal = 0.968961;
+  if (ieta==-89) fCal = 0.96145;
+  if (ieta==-88) fCal = 0.968126;
+  if (ieta==-87) fCal = 0.962001;
+  if (ieta==-86) fCal = 0.951714;
+  if (ieta==-85) fCal = 1.01721;
+  if (ieta==-84) fCal = 1.01174;
+  if (ieta==-83) fCal = 1.01161;
+  if (ieta==-82) fCal = 1.00886;
+  if (ieta==-81) fCal = 1.00545;
+  if (ieta==-80) fCal = 1.00469;
+  if (ieta==-79) fCal = 1.00612;
+  if (ieta==-78) fCal = 1.00146;
+  if (ieta==-77) fCal = 1.00326;
+  if (ieta==-76) fCal = 1.00462;
+  if (ieta==-75) fCal = 1.00733;
+  if (ieta==-74) fCal = 1.00738;
+  if (ieta==-73) fCal = 1.00689;
+  if (ieta==-72) fCal = 1.00509;
+  if (ieta==-71) fCal = 1.00758;
+  if (ieta==-70) fCal = 1.01067;
+  if (ieta==-69) fCal = 1.0039;
+  if (ieta==-68) fCal = 1.00313;
+  if (ieta==-67) fCal = 1.0072;
+  if (ieta==-66) fCal = 1.00055;
+  if (ieta==-65) fCal = 1.00402;
+  if (ieta==-64) fCal = 1.00463;
+  if (ieta==-63) fCal = 1.00334;
+  if (ieta==-62) fCal = 1.00497;
+  if (ieta==-61) fCal = 1.00563;
+  if (ieta==-60) fCal = 1.00357;
+  if (ieta==-59) fCal = 0.998981;
+  if (ieta==-58) fCal = 0.999742;
+  if (ieta==-57) fCal = 1.0025;
+  if (ieta==-56) fCal = 1.00258;
+  if (ieta==-55) fCal = 1.0022;
+  if (ieta==-54) fCal = 1.00174;
+  if (ieta==-53) fCal = 1.00181;
+  if (ieta==-52) fCal = 0.999915;
+  if (ieta==-51) fCal = 1.00011;
+  if (ieta==-50) fCal = 1.00038;
+  if (ieta==-49) fCal = 0.999399;
+  if (ieta==-48) fCal = 1.00148;
+  if (ieta==-47) fCal = 1.00016;
+  if (ieta==-46) fCal = 0.999773;
+  if (ieta==-45) fCal = 0.998409;
+  if (ieta==-44) fCal = 0.997334;
+  if (ieta==-43) fCal = 0.99616;
+  if (ieta==-42) fCal = 0.996602;
+  if (ieta==-41) fCal = 0.996881;
+  if (ieta==-40) fCal = 0.997341;
+  if (ieta==-39) fCal = 0.996775;
+  if (ieta==-38) fCal = 0.997547;
+  if (ieta==-37) fCal = 0.997444;
+  if (ieta==-36) fCal = 0.999854;
+  if (ieta==-35) fCal = 0.996914;
+  if (ieta==-34) fCal = 0.996279;
+  if (ieta==-33) fCal = 0.993053;
+  if (ieta==-32) fCal = 0.996378;
+  if (ieta==-31) fCal = 0.996194;
+  if (ieta==-30) fCal = 0.99681;
+  if (ieta==-29) fCal = 0.99741;
+  if (ieta==-28) fCal = 0.996968;
+  if (ieta==-27) fCal = 0.998254;
+  if (ieta==-26) fCal = 1.00016;
+  if (ieta==-25) fCal = 1.00062;
+  if (ieta==-24) fCal = 0.995513;
+  if (ieta==-23) fCal = 0.997131;
+  if (ieta==-22) fCal = 0.998236;
+  if (ieta==-21) fCal = 1.00041;
+  if (ieta==-20) fCal = 0.9971;
+  if (ieta==-19) fCal = 0.994644;
+  if (ieta==-18) fCal = 0.99258;
+  if (ieta==-17) fCal = 0.995608;
+  if (ieta==-16) fCal = 0.996795;
+  if (ieta==-15) fCal = 0.997996;
+  if (ieta==-14) fCal = 0.994031;
+  if (ieta==-13) fCal = 0.996509;
+  if (ieta==-12) fCal = 0.993154;
+  if (ieta==-11) fCal = 0.995278;
+  if (ieta==-10) fCal = 0.995381;
+  if (ieta==-9) fCal = 0.997578;
+  if (ieta==-8) fCal = 0.995718;
+  if (ieta==-7) fCal = 0.998568;
+  if (ieta==-6) fCal = 0.997773;
+  if (ieta==-5) fCal = 0.999943;
+  if (ieta==-4) fCal = 0.999012;
+  if (ieta==-3) fCal = 1.00206;
+  if (ieta==-2) fCal = 1.00176;
+  if (ieta==-1) fCal = 1.00387;
+  if (ieta==1) fCal = 1.00107;
+  if (ieta==2) fCal = 1.00295;
+  if (ieta==3) fCal = 1.00147;
+  if (ieta==4) fCal = 1.00137;
+  if (ieta==5) fCal = 0.998867;
+  if (ieta==6) fCal = 0.996665;
+  if (ieta==7) fCal = 0.996115;
+  if (ieta==8) fCal = 0.993869;
+  if (ieta==9) fCal = 0.99454;
+  if (ieta==10) fCal = 0.997421;
+  if (ieta==11) fCal = 0.995012;
+  if (ieta==12) fCal = 0.994027;
+  if (ieta==13) fCal = 0.996042;
+  if (ieta==14) fCal = 0.995489;
+  if (ieta==15) fCal = 0.996863;
+  if (ieta==16) fCal = 0.997838;
+  if (ieta==17) fCal = 0.994613;
+  if (ieta==18) fCal = 0.995481;
+  if (ieta==19) fCal = 0.996187;
+  if (ieta==20) fCal = 0.998448;
+  if (ieta==21) fCal = 1.00074;
+  if (ieta==22) fCal = 0.9977;
+  if (ieta==23) fCal = 0.998234;
+  if (ieta==24) fCal = 0.999486;
+  if (ieta==25) fCal = 1.0009;
+  if (ieta==26) fCal = 0.998134;
+  if (ieta==27) fCal = 0.996344;
+  if (ieta==28) fCal = 0.9971;
+  if (ieta==29) fCal = 0.996177;
+  if (ieta==30) fCal = 0.99774;
+  if (ieta==31) fCal = 0.997081;
+  if (ieta==32) fCal = 0.995681;
+  if (ieta==33) fCal = 0.993957;
+  if (ieta==34) fCal = 0.99727;
+  if (ieta==35) fCal = 0.996595;
+  if (ieta==36) fCal = 0.997328;
+  if (ieta==37) fCal = 0.995289;
+  if (ieta==38) fCal = 0.994593;
+  if (ieta==39) fCal = 0.996694;
+  if (ieta==40) fCal = 0.997293;
+  if (ieta==41) fCal = 0.996981;
+  if (ieta==42) fCal = 0.998503;
+  if (ieta==43) fCal = 0.996167;
+  if (ieta==44) fCal = 0.996906;
+  if (ieta==45) fCal = 0.998366;
+  if (ieta==46) fCal = 0.99891;
+  if (ieta==47) fCal = 0.999686;
+  if (ieta==48) fCal = 0.999189;
+  if (ieta==49) fCal = 0.998509;
+  if (ieta==50) fCal = 0.999672;
+  if (ieta==51) fCal = 0.998637;
+  if (ieta==52) fCal = 1.00223;
+  if (ieta==53) fCal = 1.00144;
+  if (ieta==54) fCal = 1.00094;
+  if (ieta==55) fCal = 1.00048;
+  if (ieta==56) fCal = 1.00103;
+  if (ieta==57) fCal = 1.00056;
+  if (ieta==58) fCal = 0.995338;
+  if (ieta==59) fCal = 0.997791;
+  if (ieta==60) fCal = 1.00248;
+  if (ieta==61) fCal = 1.00579;
+  if (ieta==62) fCal = 1.00427;
+  if (ieta==63) fCal = 1.00537;
+  if (ieta==64) fCal = 1.00672;
+  if (ieta==65) fCal = 1.00257;
+  if (ieta==66) fCal = 1.0049;
+  if (ieta==67) fCal = 1.0046;
+  if (ieta==68) fCal = 1.00795;
+  if (ieta==69) fCal = 1.00395;
+  if (ieta==70) fCal = 1.01101;
+  if (ieta==71) fCal = 1.00737;
+  if (ieta==72) fCal = 1.00423;
+  if (ieta==73) fCal = 1.0072;
+  if (ieta==74) fCal = 1.00661;
+  if (ieta==75) fCal = 1.00912;
+  if (ieta==76) fCal = 1.00598;
+  if (ieta==77) fCal = 1.00861;
+  if (ieta==78) fCal = 1.00715;
+  if (ieta==79) fCal = 1.00848;
+  if (ieta==80) fCal = 1.00633;
+  if (ieta==81) fCal = 1.00914;
+  if (ieta==82) fCal = 1.01473;
+  if (ieta==83) fCal = 1.01143;
+  if (ieta==84) fCal = 1.01382;
+  if (ieta==85) fCal = 1.01723;
+  if (ieta==86) fCal = 0.971282;
+  if (ieta==87) fCal = 0.979535;
+  if (ieta==88) fCal = 0.991313;
+  if (ieta==89) fCal = 0.982041;
+  if (ieta==90) fCal = 0.982812;
+  if (ieta==91) fCal = 0.978579;
+  if (ieta==92) fCal = 0.984946;
+  if (ieta==93) fCal = 0.987141;
+  if (ieta==94) fCal = 0.992083;
+  if (ieta==95) fCal = 0.998825;
+  if (ieta==96) fCal = 1.00955;
+  if (ieta==97) fCal = 1.01208;
+  if (ieta==98) fCal = 1.01213;
+  if (ieta==99) fCal = 1.00755;
+  if (ieta==100) fCal = 1.01093;
+  if (ieta==101) fCal = 1.00523;
+  if (ieta==102) fCal = 1.01429;
+  if (ieta==103) fCal = 1.01619;
+  if (ieta==104) fCal = 1.00907;
+  if (ieta==105) fCal = 1.00662;
+  if (ieta==106) fCal = 1.00313;
+  if (ieta==107) fCal = 1.00408;
+  if (ieta==108) fCal = 1.00763;
+  if (ieta==109) fCal = 1.00456;
+  if (ieta==110) fCal = 1.00113;
+  if (ieta==111) fCal = 1.00423;
+  if (ieta==112) fCal = 1.00402;
+  if (ieta==113) fCal = 1.02568;
+  if (ieta==114) fCal = 1.02646;
+  if (ieta==115) fCal = 1.01995;
+  if (ieta==116) fCal = 0.999479;
+  if (ieta==117) fCal = 0.985867;
+  if (ieta==118) fCal = 0.96131;
+  return fCal;
+}
+
+void IC::applyEtaScale(IC & ic)
+{
+        TEndcapRings ring;
+        for (size_t i = 0; i < ic.ids().size(); ++i) {
+                DetId id(ic.ids()[i]);
+                if (id.subdetId() == EcalBarrel) {
+                        EBDetId eid(id);
+                        ic.ic().setValue(id, fCalEoP(eid.ieta()));
+                } else if (id.subdetId() == EcalEndcap) {
+                        EEDetId eid(id);
+                        ic.ic().setValue(id, fCalEoP(ring.GetEndcapIeta(eid.ix(), eid.iy(), eid.zside())));
+                        //ic.ic().setValue(id, ring.GetEndcapIeta(eid.ix(), eid.iy(), eid.zside()));
+                }
+                ic.eic().setValue(id, 1);
+        }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
+void IC::setToUnit(IC & ic)
+{
+        for (size_t i = 0; i < ic.ids().size(); ++i) {
+                DetId id(ic.ids()[i]);
+                ic.ic().setValue(id, 1.);
+        }
+}
+
+
+void IC::applyTwoCrystalEffect(IC & ic)
+{
+        for (size_t i = 0; i < ic.ids().size(); ++i) {
+                DetId id(ic.ids()[i]);
+                if (id.subdetId() == EcalBarrel) {
+                        EBDetId eid(id);
+                        float c = 1;
+                        if (eid.zside() > 0) {
+                                if (eid.iphi() % 2 == 1) c = 0.998;
+                                if (eid.iphi() % 2 == 0) c = 1.002;
+                        } else {
+                                if (eid.iphi() % 2 == 0) c = 0.998;
+                                if (eid.iphi() % 2 == 1) c = 1.002;
+                        }
+                        ic.ic().setValue(id, c * ic.ic()[id]);
+                }
+        }
+}
+
+
 
 
 void IC::readSimpleTextFile(const char * fileName, IC & ic)
@@ -339,8 +663,111 @@ void IC::readSimpleTextFile(const char * fileName, IC & ic)
 }
 
 
-//void IC::readEcalChannelStatusFromTextFile(const char * fileName, EcalChannelStatus & ch)
-void IC::readEcalChannelStatusFromTextFile(const char * fileName)
+void IC::readTextFile(const char * fileName, IC & ic)
+{
+        FILE * fd = fopen(fileName, "r");
+        if (fd == NULL) {
+                fprintf(stderr, "[readTextFile] cannot open file %s\n", fileName);
+                exit(-1);
+        }
+        char * line = NULL;
+        size_t len = 0;
+        ssize_t read;
+        int ix, iy, iz;
+        float c, e;
+        DetId id;
+        while ((read = getline(&line, &len, fd)) != EOF) {
+                if (line[0] == '#') continue;
+                sscanf(line, "%d %d %d %f %f", &ix, &iy, &iz, &c, &e);
+                if (iz == 0) id = EBDetId(ix, iy);
+                else         id = EEDetId(ix, iy, iz);
+                ic.ic().setValue(id, c);
+                ic.eic().setValue(id, e);
+        }
+        fclose(fd);
+}
+
+
+void IC::readCmscondXMLFile(const char * fileName, IC & ic)
+{
+        FILE * fd = fopen(fileName, "r");
+        if (fd == NULL) {
+                fprintf(stderr, "[readXMLFile] cannot open file %s\n", fileName);
+                exit(-1);
+        }
+        char * line = NULL;
+        size_t len = 0;
+        ssize_t read;
+        int n, nvalue = 0, nxtals = 0, cnt = 0;
+        float c;
+        char cc;
+        DetId id;
+        while ((read = getline(&line, &len, fd)) != EOF) {
+                if ((n = sscanf(line, " </Array%c", &cc)) == 1) {
+                        assert(cc == '>');
+                        assert(cnt == 61200 || cnt == 14648);
+                        nvalue = 0;
+                        cnt = 0;
+                }
+                if (nvalue && (n = sscanf(line, " <Float_t v=\"%f", &c)) == 1) {
+                        if      (nxtals == 61200) id = EBDetId::unhashIndex(cnt);
+                        else if (nxtals == 14648) id = EEDetId::unhashIndex(cnt);
+                        printf("--> %u %d %f\n", id.rawId(), cnt, c);
+                        ic.ic().setValue(id, c);
+                        ic.eic().setValue(id, 0);
+                        ++cnt;
+                } else if (nvalue) {
+                        fprintf(stderr, "[readXMLFile] problem reading line `%s'", line);
+                }
+                if ((n = sscanf(line, " <Int_t v=\"%d\"", &nxtals)) == 1) {
+                        getline(&line, &len, fd);
+                        nvalue = 1;
+                } else if ((n = sscanf(line, " <Int_t v=\"%d\"", &nxtals)) == 1) {
+                        getline(&line, &len, fd);
+                        nvalue = 1;
+                }
+        }
+}
+
+
+void IC::readXMLFile(const char * fileName, IC & ic)
+{
+        FILE * fd = fopen(fileName, "r");
+        if (fd == NULL) {
+                fprintf(stderr, "[readXMLFile] cannot open file %s\n", fileName);
+                exit(-1);
+        }
+        char * line = NULL;
+        size_t len = 0;
+        ssize_t read;
+        int ix, iy, iz;
+        int n, nvalue = 0;
+        float c;
+        DetId id;
+        while ((read = getline(&line, &len, fd)) != EOF) {
+                if (nvalue && (n = sscanf(line, " <Value>%f", &c)) == 1) {
+                        //printf("ix= %d iy= %d iz= %d --> %f\n", ix, iy, iz, c);
+                        if (iz == 0) id = EBDetId(ix, iy);
+                        else         id = EEDetId(ix, iy, iz);
+                        ic.ic().setValue(id, c);
+                        ic.eic().setValue(id, 0);
+                        nvalue = 0;
+                } else if (nvalue) {
+                        fprintf(stderr, "[readXMLFile] problem reading line `%s'", line);
+                }
+                if ((n = sscanf(line, " <cell iEta=\"%d\"", &ix)) == 1) {
+                        sscanf(line, " <cell iEta=\"%d\" iPhi=\"%d\"", &ix, &iy);
+                        iz = 0;
+                        nvalue = 1;
+                } else if ((n = sscanf(line, " <cell ix=\"%d\"", &ix)) == 1) {
+                        sscanf(line, " <cell ix=\"%d\" iy=\"%d\" zside=\"%d\"", &ix, &iy, &iz);
+                        nvalue = 1;
+                }
+        }
+}
+
+
+void IC::readEcalChannelStatusFromTextFile(const char * fileName, EcalChannelStatus & channelStatus)
 {
         FILE * fd = fopen(fileName, "r");
         if (fd == NULL) {
