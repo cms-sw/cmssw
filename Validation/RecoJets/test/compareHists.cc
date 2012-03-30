@@ -106,7 +106,9 @@ double makeGifHists (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::str
   }
   else {
     fHist->Sumw2 ();
-    fHist->Scale (fRefHist->GetSumOfWeights () / fHist->GetSumOfWeights ());
+    if(fRefHist->GetSumOfWeights()!=0){ 
+      fHist->Scale (fRefHist->GetSumOfWeights () / fHist->GetSumOfWeights ());
+      }
   }
 
   fHist->SetMarkerStyle (21);
@@ -119,8 +121,13 @@ double makeGifHists (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::str
   fHist->SetXTitle (name.c_str());
   fHist->SetTitle ("");
 
+  if(fRefHist->GetSumOfWeights ()!=0){
   fRefHist->Draw ();
   fHist->Draw ("e1p,same");
+	}
+  else{ 
+       fHist->Draw("e1p");
+      }
   std::string filename = name + ".gif";
   fCanvas->Print (filename.c_str());
   fCanvas->Update ();
