@@ -48,15 +48,15 @@ class HLTHiggsPlotter
 {
        	public:
 	      	HLTHiggsPlotter(const edm::ParameterSet & pset, const std::string & hltPath,
-				const std::string & lastFilter,
+				//const std::string & lastFilter,
 				const std::vector<unsigned int> & objectsType,
 			       	DQMStore * dbe);
 		~HLTHiggsPlotter();
 	      	void beginJob();
 	      	void beginRun(const edm::Run &, const edm::EventSetup &);
-	      	void analyze(const bool & passTrigger, const std::string & source, 
+		void analyze(const bool & isPassTrigger,const std::string & source,
 				const std::vector<MatchStruct> & matches);
-
+		
 		inline const std::string gethltpath() const { return _hltPath; }
 		
        	private:
@@ -65,10 +65,8 @@ class HLTHiggsPlotter
 				const std::string & objType, const std::string & var, 
 				const float & value);
 		
-		const std::string getTypeString(const unsigned int & objtype) const;
-
 	      	std::string _hltPath;
-		std::string _lastFilter;
+		//std::string _lastFilter;
 		std::string _hltProcessName;
 
 		std::set<unsigned int> _objectsType;

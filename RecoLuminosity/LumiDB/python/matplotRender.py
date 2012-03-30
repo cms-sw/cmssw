@@ -1,8 +1,10 @@
 '''
+This module is graphical API using pymatplotlib.
 Specs:
 -- We use matplotlib OO class level api, we do not use its high-level helper modules. Favor endured stability over simplicity. 
+-- use TkAgg for interactive mode. Beaware of Tk,pyTk installation defects in various cern distributions.
 -- PNG as default batch file format
--- we support http mode by sending string buf via meme type image/png. Sending a premade static plot to webserver is considered a uploading process instead of http dynamic graphical mode. 
+-- we support http mode by sending string buf via meme type image/png. Sending a premade static plot to webserver is considered a uploading process instead of http dynamic graphical mode. Therefore covered in this module.
 '''
 import sys,os
 import numpy,datetime
@@ -113,6 +115,14 @@ class matplotRender():
                 ypoints[label].append(sum(lumivals[0:i+1])/denomitor)#integrated lumi
             ytotal[label]=sum(lumivals)/denomitor
         xpoints=[t[0] for t in rawdata[referenceLabel]]
+        if textoutput:
+            csvreport=csvReporter.csvReporter(textoutput)
+            head=['#run','delivered','recorded']
+            csvreport.writeRow(head)
+            allruns=[int(t[0]) for t in rawdata[referenceLabel]]
+            flat.insert(0,allruns)
+            rows=zip(*flat)
+            csvreport.writeRows([list(t) for t in rows])
         ax=self.__fig.add_subplot(111)
         if yscale=='linear':
             ax.set_yscale('linear')
@@ -135,29 +145,13 @@ class matplotRender():
         ax.grid(True)
         keylist=ypoints.keys()
         keylist.sort()
-        keylist.insert(0,keylist.pop(keylist.index(referenceLabel)))#move refereceLabel to front from now on
         legendlist=[]
-        head=['#Run']
-        textsummaryhead=['#TotalRun']
-        textsummaryline=['#'+str(len(xpoints))]
         for ylabel in keylist:
             cl='k'
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.3f'%(ytotal[ylabel])+' '+unitstring)
-            textsummaryhead.append('Total'+ylabel)
-            textsummaryline.append('%.3f'%(ytotal[ylabel])+' '+unitstring)
-            head.append(ylabel)
-        if textoutput:
-            csvreport=csvReporter.csvReporter(textoutput)
-            csvreport.writeRow(head)
-            allruns=[int(t[0]) for t in rawdata[referenceLabel]]
-            flat.insert(0,allruns)
-            rows=zip(*flat)
-            csvreport.writeRows([list(t) for t in rows])
-            csvreport.writeRow(textsummaryhead)
-            csvreport.writeRow(textsummaryline)
         #font=FontProperties(size='medium',weight='demibold')
         #legend
         ax.legend(tuple(legendlist),loc='upper left')
@@ -213,6 +207,17 @@ class matplotRender():
                 ypoints[label].append(sum(lumivals[0:i+1])/denomitor)
             ytotal[label]=sum(lumivals)/denomitor
         xpoints=[t[0] for t in rawdata[referenceLabel]]#after sort
+        if textoutput:
+            csvreport=csvReporter.csvReporter(textoutput)
+            head=['#fill','run','delivered','recorded']
+            csvreport.writeRow(head)
+            allfills=[int(t[0]) for t in rawdata[referenceLabel]]
+            allruns=[int(t[1]) for t in rawdata[referenceLabel]]
+            flat.insert(0,allfills)
+            flat.insert(1,allruns)
+            rows=zip(*flat)
+            csvreport.writeRows([list(t) for t in rows])
+        
         ax=self.__fig.add_subplot(111)
         ax.set_xlabel(r'LHC Fill Number',position=(0.84,0))
         ax.set_ylabel(r'L '+unitstring,position=(0,0.9))
@@ -233,31 +238,13 @@ class matplotRender():
         ax.grid(True)
         keylist=ypoints.keys()
         keylist.sort()
-        keylist.insert(0,keylist.pop(keylist.index(referenceLabel)))#move refereceLabel to front from now on
         legendlist=[]
-        head=['#fill','run']        
-        textsummaryhead=['#TotalFill']
-        textsummaryline=['#'+str(len(xpoints))]
         for ylabel in keylist:
             cl='k'
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.3f'%(ytotal[ylabel])+' '+unitstring)
-            textsummaryhead.append('Total'+ylabel)
-            textsummaryline.append('%.3f'%(ytotal[ylabel])+' '+unitstring)
-            head.append(ylabel)
-        if textoutput:
-            csvreport=csvReporter.csvReporter(textoutput)
-            allfills=[int(t[0]) for t in rawdata[referenceLabel]]
-            allruns=[int(t[1]) for t in rawdata[referenceLabel]]
-            flat.insert(0,allfills)
-            flat.insert(1,allruns)
-            rows=zip(*flat)
-            csvreport.writeRow(head)
-            csvreport.writeRows([list(t) for t in rows])
-            csvreport.writeRow(textsummaryhead)
-            csvreport.writeRow(textsummaryline)
         #font=FontProperties(size='medium',weight='demibold')
         #annotations
         if withannotation:
@@ -286,7 +273,7 @@ class matplotRender():
         ytotal={}
         lut=lumiTime.lumiTime()
         if not minTime:
-            minTime='03/01/10 00:00:00'
+            minTime='001/10 00:00:00'
         minTime=lut.StrToDatetime(minTime,customfm='%m/%d/%y %H:%M:%S')
         if not maxTime:
             maxTime=datetime.datetime.utcnow()
@@ -325,8 +312,26 @@ class matplotRender():
                 ypoints[label].append(sum(lumivals[0:i+1])/denomitor)
             ytotal[label]=sum(lumivals)/denomitor
         xpoints=[matplotlib.dates.date2num(t[1]) for t in rawdata[referenceLabel]]
+        if textoutput:
+            csvreport=csvReporter.csvReporter(textoutput)
+            head=['#fill','run','delivered','recorded']
+            csvreport.writeRow(head)
+            allruns=[int(t[0]) for t in rawdata[referenceLabel]]
+            allstarts=[ t[1] for t in rawdata[referenceLabel]]
+            allstops=[ t[2] for t in rawdata[referenceLabel]]
+            flat.insert(0,allruns)
+            flat.insert(1,allstarts)
+            flat.insert(2,allstops)
+            rows=zip(*flat)
+            csvreport.writeRows([list(t) for t in rows])
+        
         ax=self.__fig.add_subplot(111)
-        ax.set_yscale(yscale)
+        if yscale=='linear':
+            ax.set_yscale('linear')
+        elif yscale=='log':
+            ax.set_yscale('log')
+        else:
+            raise 'unsupported yscale ',yscale
         yearStrMin=minTime.strftime('%Y')
         yearStrMax=maxTime.strftime('%Y')
         if yearStrMin==yearStrMax:
@@ -347,33 +352,13 @@ class matplotRender():
         ax.grid(True)
         keylist=ypoints.keys()
         keylist.sort()
-        keylist.insert(0,keylist.pop(keylist.index(referenceLabel)))#move refereceLabel to front from now on
         legendlist=[]
-        head=['#Run','StartTime','StopTime']
-        textsummaryhead=['#TotalRun']
-        textsummaryline=['#'+str(len(xpoints))]
         for ylabel in keylist:
             cl='k'
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.3f'%(ytotal[ylabel])+' '+unitstring)
-            textsummaryhead.append('Total'+ylabel)
-            textsummaryline.append('%.3f'%(ytotal[ylabel])+' '+unitstring)
-            head.append(ylabel)
-        if textoutput:
-            csvreport=csvReporter.csvReporter(textoutput)
-            csvreport.writeRow(head)
-            allruns=[int(t[0]) for t in rawdata[referenceLabel]]
-            allstarts=[ t[1] for t in rawdata[referenceLabel]]
-            allstops=[ t[2] for t in rawdata[referenceLabel]]
-            flat.insert(0,allruns)
-            flat.insert(1,allstarts)
-            flat.insert(2,allstops)
-            rows=zip(*flat)
-            csvreport.writeRows([list(t) for t in rows])
-            csvreport.writeRow(textsummaryhead)
-            csvreport.writeRow(textsummaryline)
         #annotations
         trans=matplotlib.transforms.BlendedGenericTransform(ax.transData,ax.transAxes)
         #print 'run boundary ',runs[0],runs[-1]
@@ -505,20 +490,13 @@ class matplotRender():
             tx.set_horizontalalignment('right')
         ax.grid(True)
         legendlist=[]
-        ax.set_ylabel(r'L '+unitstring,position=(0,0.9))
-        textsummaryhead=['#TotalDays']
-        textsummaryline=['#'+str(len(xpoints))]
+        ax.set_ylabel(r'L '+unitstring,position=(0,0.9))    
         for ylabel in labels:
             cl='k'
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' Max '+'%.3f'%(ymax[ylabel])+' '+unitstring)
-            textsummaryhead.append('Max'+ylabel)
-            textsummaryline.append('%.3f'%(ymax[ylabel])+' '+unitstring)
-        if textoutput:
-            csvreport.writeRow(textsummaryhead)
-            csvreport.writeRow(textsummaryline)
         ax.legend(tuple(legendlist),loc='upper left')
         ax.set_xbound(lower=matplotlib.dates.date2num(minTime),upper=matplotlib.dates.date2num(maxTime))
         #if withannotation:
@@ -648,19 +626,12 @@ class matplotRender():
             tx.set_horizontalalignment('right')
         ax.grid(True)
         cl=self.colormap['Max Inst']
-        textsummaryhead=['#TotalDays']
-        textsummaryline=['#'+str(len(xpoints))]
         for ylabel in labels:
             cl='k'
             if self.colormap.has_key(ylabel):
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label='Max Inst',color=cl,drawstyle='steps')
             legendlist.append('Max Inst %.3f'%(ymax[ylabel])+' '+unitstring)
-            textsummaryhead.append('Max Inst'+ylabel)
-            textsummaryline.append('%.3f'%(ymax[ylabel])+' '+unitstring)
-        if textoutput:
-            csvreport.writeRow(textsummaryhead)
-            csvreport.writeRow(textsummaryline)
         ax.legend(tuple(legendlist),loc='upper left')
         ax.set_xbound(lower=matplotlib.dates.date2num(minTime),upper=matplotlib.dates.date2num(maxTime))
         if withannotation:

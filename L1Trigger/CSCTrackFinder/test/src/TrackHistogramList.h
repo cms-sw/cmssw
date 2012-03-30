@@ -28,7 +28,6 @@ namespace csctf_analysis
   	TH1F* matchedRefPt_FWD;
   	TH1F* matchedRefPt_DT;
   	TH1F* modeOcc, *modeOccDT, *modeOccCSCOnly, *modeOccOverlap, *modeOccHighEta;
-  	TH1F* BX;
   	TH1F* FR;
   	TH1F* Eta, *signedEta, *Phi, *Phi_mod_10_endcap1,*Phi_mod_10_endcap2, *Pt, *Pz, *P, *Quality, *Radius;//,*EHalo;
   	TH1F* matchPhi, *matchPhi_mod_10_Q3_endcap1, *matchPhi_mod_10_Q2_endcap1,*matchPhi_mod_10_Q3_endcap2, *matchPhi_mod_10_Q2_endcap2;

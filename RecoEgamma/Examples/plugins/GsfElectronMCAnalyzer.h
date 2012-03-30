@@ -9,7 +9,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: GsfElectronMCAnalyzer.h,v 1.21 2011/05/20 17:17:28 wmtan Exp $
+// $Id: GsfElectronMCAnalyzer.h,v 1.20 2009/09/19 21:38:27 charlot Exp $
 //
 //
 
@@ -23,7 +23,6 @@
 
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
@@ -428,8 +427,6 @@ class GsfElectronMCAnalyzer : public edm::EDAnalyzer
   TH1F *h_ele_hcalDepth1TowerSumEt_dr04;
   TH1F *h_ele_hcalDepth2TowerSumEt_dr04;
    
-  EcalClusterFunctionBaseClass * superClusterErrorFunction;
-
   std::string outputFile_;
   edm::InputTag electronCollection_;
   edm::InputTag  mcTruthCollection_;

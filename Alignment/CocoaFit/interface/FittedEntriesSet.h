@@ -15,7 +15,7 @@
 #include <vector>
 #include "Alignment/CocoaFit/interface/FittedEntry.h"
 //#ifdef MAT_MESCHACH
-#include "Alignment/CocoaModel/interface/MatrixMeschach.h"
+#include "Alignment/CocoaFit/interface/MatrixMeschach.h"
 //typedef MatrixMeschach ALIMatrix;
 //#endif
 
@@ -24,7 +24,7 @@ class FittedEntriesSet
 
 public:
   //---------- Constructors / Destructor
-  FittedEntriesSet( MatrixMeschach AtWAMatrix );
+  FittedEntriesSet( MatrixMeschach* AtWAMatrix );
   FittedEntriesSet( std::vector<ALIstring> wl );
   //---- Average a list of FittedEntriesSet's
   FittedEntriesSet( std::vector<FittedEntriesSet*> vSets ); 
@@ -60,7 +60,7 @@ public:
   ALIstring theTime;
   std::vector< std::vector<ALIdouble> > theCorrelationMatrix;
   ALIint theMinEntryQuality;
-  MatrixMeschach theEntriesErrorMatrix;
+  MatrixMeschach* theEntriesErrorMatrix;
 };
 
 #endif

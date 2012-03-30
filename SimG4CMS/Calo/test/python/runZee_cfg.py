@@ -4,7 +4,6 @@ process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
@@ -40,14 +39,14 @@ process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('Simevent_zeer_QGSP_BERT_EML95.root')
+    fileName = cms.untracked.string('zeer_simevent.root')
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('zeer_QGSP_BERT_EML95.root')
+    fileName = cms.string('zeer_QGSP_BERT_EML.root')
 )
 
 process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits*process.electronStudy*process.rndmStore)
 process.outpath = cms.EndPath(process.o1)
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML95'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
 

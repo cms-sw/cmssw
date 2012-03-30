@@ -136,7 +136,6 @@ void Track::fillHist()
       histlist->Radius->Fill(getRadius());    
       histlist->Quality->Fill(qual);
       histlist->modeOcc->Fill(mode);
-      histlist->BX->Fill(getBX());
       histlist->FR->Fill(getFR());
       histlist->ptDenOverall->Fill(pt);
 

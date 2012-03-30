@@ -6,7 +6,7 @@
 /**\class DIPLumiProducer DIPLumiProducer.cc RecoLuminosity/LumiProducer/src/DIPLumiProducer.cc
 Description: A essource/esproducer for lumi values from DIP via runtime logger DB
 */
-// $Id: DIPLumiProducer.cc,v 1.3 2012/03/19 10:45:10 xiezhen Exp $
+// $Id: DIPLumiProducer.cc,v 1.6 2012/03/22 15:08:22 xiezhen Exp $
 
 //#include <memory>
 //#include "boost/shared_ptr.hpp"
@@ -41,7 +41,8 @@ Description: A essource/esproducer for lumi values from DIP via runtime logger D
 #include "RecoLuminosity/LumiProducer/interface/Exception.h"
 #include "RecoLuminosity/LumiProducer/interface/ConstantDef.h"
 #include "RecoLuminosity/LumiProducer/interface/DIPLumiSummary.h"
-#include "RecoLuminosity/LumiProducer/interface/DIPLumiSummaryRcd.h"
+#include "RecoLuminosity/LumiProducer/interface/DIPLumiDetail.h"
+#include "RecoLuminosity/LumiProducer/interface/DIPLuminosityRcd.h"
 #include "DIPLumiProducer.h"
 #include <iostream>
 #include <sstream>
@@ -61,56 +62,74 @@ Description: A essource/esproducer for lumi values from DIP via runtime logger D
 #include "boost/filesystem/path.hpp"
 #include "boost/filesystem/operations.hpp"
 
-DIPLumiProducer::DIPLumiProducer(const edm::ParameterSet& iConfig):m_connectStr(""),m_cachedrun(0),m_cachesize(0){
-  setWhatProduced(this);
-  findingRecord<DIPLumiSummaryRcd>();
+DIPLumiProducer::DIPLumiProducer(const edm::ParameterSet& iConfig):m_connectStr(""),m_summarycachedrun(0),m_detailcachedrun(0),m_cachesize(0){
+  setWhatProduced(this,&DIPLumiProducer::produceSummary);
+  setWhatProduced(this,&DIPLumiProducer::produceDetail);
+  findingRecord<DIPLuminosityRcd>();
   m_connectStr=iConfig.getParameter<std::string>("connect");
-  m_cachesize=iConfig.getUntrackedParameter<unsigned int>("ncacheEntries",0);
+  m_cachesize=iConfig.getUntrackedParameter<unsigned int>("ncacheEntries",5);
 }
 
-DIPLumiProducer::ReturnType
-DIPLumiProducer::produce(const DIPLumiSummaryRcd&)  
+DIPLumiProducer::ReturnSummaryType
+DIPLumiProducer::produceSummary(const DIPLuminosityRcd&)  
 { 
-  return m_result;
+  unsigned int currentrun=m_pcurrentTime->eventID().run();
+  unsigned int currentls=m_pcurrentTime->luminosityBlockNumber();
+  if(currentls==0||currentls==4294967295){ 
+    return  boost::shared_ptr<DIPLumiSummary>();
+  }
+  if(m_summarycachedrun!=currentrun){//i'm in a new run
+    fillsummarycache(currentrun,currentls);//starting ls
+  }else{ //i'm in an old run
+    if(m_summarycache.find(currentls)==m_summarycache.end()){//i'm in a uncached 
+      fillsummarycache(currentrun,currentls);//cache all ls>=currentls 
+      if(m_summarycache.find(currentls)==m_summarycache.end()){
+	return boost::shared_ptr<DIPLumiSummary>(); //really no data found
+      }
+    }
+  }
+  m_summaryresult=m_summarycache[currentls];
+  return m_summaryresult;
+}
+DIPLumiProducer::ReturnDetailType
+DIPLumiProducer::produceDetail(const DIPLuminosityRcd&)  
+{ 
+  unsigned int currentrun=m_pcurrentTime->eventID().run();
+  unsigned int currentls=m_pcurrentTime->luminosityBlockNumber();
+  if(currentls==0||currentls==4294967295){ 
+    return  boost::shared_ptr<DIPLumiDetail>();
+  }
+  if(m_detailcachedrun!=currentrun){//i'm in a new run
+    filldetailcache(currentrun,currentls);//starting ls
+  }else{ //i'm in an known run
+    if(m_detailcache.find(currentls)==m_detailcache.end()){//i'm in a unknown ls
+      filldetailcache(currentrun,currentls);//cache all ls>=currentls 
+      if(m_detailcache.find(currentls)==m_detailcache.end()){
+	return boost::shared_ptr<DIPLumiDetail>(); //really no data found
+      }
+    }
+  }
+  m_detailresult=m_detailcache[currentls];
+  return m_detailresult;
 }
 
 void 
 DIPLumiProducer::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey, 
 				 const edm::IOVSyncValue& iTime, 
 				 edm::ValidityInterval& oValidity ) {
-  oValidity=edm::ValidityInterval::invalidInterval();//default
-  unsigned int currentrun=iTime.eventID().run();
-  unsigned int currentls=iTime.luminosityBlockNumber();
-  std::cout<<"setIntervalFor run "<<currentrun<<", ls "<<currentls<<std::endl;
-  std::cout<<"cached run "<<m_cachedrun<<std::endl;
-  if(currentls==0||currentls==4294967295)return;//a fake setIntervalFor
-  if(m_cachedrun!=currentrun){//found a new run
-    clearcache();
-    m_cachedrun=currentrun;
-    fillcache(currentrun,0);//starting ls
-    m_result=m_lscache[currentls];//copy construct
-  }else{
-    if(m_lscache.find(currentls)==m_lscache.end()){//if ls not cached
-      fillcache(currentrun,currentls);//cache all ls>=currentls for this run
-      if(m_lscache.find(currentls)==m_lscache.end()){
-	std::cout<<"really no data found "<<std::endl;
-	return;
-      }
-    }
-    m_result=m_lscache[currentls];//copy construct
-  }
+  m_pcurrentTime=&iTime;
   oValidity.setFirst(iTime);
   oValidity.setLast(iTime);
 }
 
 void
-DIPLumiProducer::fillcache(unsigned int runnumber,unsigned int startlsnum){
-  std::cout<<"fillcache cached run: "<<m_cachedrun<<" tofill "<<runnumber<<" , "<<startlsnum<<std::endl;
-  m_lscache.clear();
+DIPLumiProducer::fillsummarycache(unsigned int runnumber,unsigned int startlsnum){
+  m_summarycache.clear();
+  m_summarycachedrun=runnumber;
   //
   //queries once per cache refill
   //
-  //select lumisection,startorbit,instlumi,delivlumi,livelumi from cms_runtime_logger.lumi_sections where lumisection>=:lsmin and lumisection<:lsmax and runnumber=:runnumber;
+  //select lumisection,instlumi,delivlumi,livelumi from cms_runtime_logger.lumi_sections where lumisection>=:lsmin and lumisection<:lsmax and runnumber=:runnumber;
   //
   edm::Service<lumi::service::DBService> mydbservice;
   if( !mydbservice.isAvailable() ){
@@ -135,7 +154,7 @@ DIPLumiProducer::fillcache(unsigned int runnumber,unsigned int startlsnum){
     coral::AttributeList lumisummaryBindVariables;
     lumisummaryBindVariables.extend("lsmin",typeid(unsigned int));
     lumisummaryBindVariables.extend("runnumber",typeid(unsigned int));
-    lumisummaryBindVariables["runnumber"].data<unsigned int>()=m_cachedrun;
+    lumisummaryBindVariables["runnumber"].data<unsigned int>()=m_summarycachedrun;
     lumisummaryBindVariables["lsmin"].data<unsigned int>()=lsmin;
     std::string conditionStr(" RUNNUMBER=:runnumber AND LUMISECTION>=:lsmin ");
     coral::AttributeList lumisummaryOutput;
@@ -146,7 +165,7 @@ DIPLumiProducer::fillcache(unsigned int runnumber,unsigned int startlsnum){
     lumisummaryOutput.extend("CMS_ACTIVE",typeid(unsigned short));
     if(m_cachesize!=0){
       lumisummaryBindVariables.extend("lsmax",typeid(unsigned int));
-      conditionStr=conditionStr+"AND CMSLSNUM<:lsmax";
+      conditionStr=conditionStr+"AND LUMISECTION<=:lsmax";
       lumisummaryBindVariables["lsmax"].data<unsigned int>()=lsmax;      
     }
     coral::IQuery* lumisummaryQuery=schema.newQuery();
@@ -168,13 +187,11 @@ DIPLumiProducer::fillcache(unsigned int runnumber,unsigned int startlsnum){
       float intgreclumi=row["LIVELUMISECTION"].data<float>()*1000.0;//convert to /ub
       unsigned short cmsalive=row["CMS_ACTIVE"].data<unsigned short>();
       boost::shared_ptr<DIPLumiSummary> tmpls(new DIPLumiSummary(instlumi,intgdellumi,intgreclumi,cmsalive));
-      m_lscache.insert(std::make_pair(lsnum,tmpls));
+      m_summarycache.insert(std::make_pair(lsnum,tmpls));
       ++rowcounter;
     }
     if (rowcounter==0){
       m_isNullRun=true;
-      delete lumisummaryQuery;
-      return;
     }
     delete lumisummaryQuery;
     session->transaction().commit();
@@ -186,9 +203,80 @@ DIPLumiProducer::fillcache(unsigned int runnumber,unsigned int startlsnum){
   mydbservice->disconnect(session);
 }
 void
-DIPLumiProducer::clearcache(){
-  m_lscache.clear();
-  m_cachedrun=0;
+DIPLumiProducer::filldetailcache(unsigned int runnumber,unsigned int startlsnum){
+  m_detailcache.clear();
+  m_detailcachedrun=runnumber;
+  //
+  //queries once per cache refill
+  //
+  //select lumisection,bunch,bunchlumi from cms_runtime_logger.bunch_lumi_sections where lumisection>=:lsmin and lumisection<:lsmax and runnumber=:runnumber;
+  //
+  edm::Service<lumi::service::DBService> mydbservice;
+  if( !mydbservice.isAvailable() ){
+    throw cms::Exception("Non existing service lumi::service::DBService");
+  }
+  coral::ISessionProxy* session=mydbservice->connectReadOnly(m_connectStr);
+  coral::ITypeConverter& tconverter=session->typeConverter();
+  tconverter.setCppTypeForSqlType(std::string("float"),std::string("FLOAT(63)"));
+  tconverter.setCppTypeForSqlType(std::string("unsigned int"),std::string("NUMBER(10)"));
+  unsigned int lsmin=1;
+  unsigned int lsmax=0;
+  if(startlsnum!=0){
+    lsmin=startlsnum;
+  }
+  lsmax=lsmin;
+  if(m_cachesize!=0){
+    lsmax=lsmin+m_cachesize;
+  }
+  for(unsigned int i=lsmin;i<=lsmax;++i){
+    m_detailcache.insert(std::make_pair(i,boost::shared_ptr<DIPLumiDetail>(new DIPLumiDetail)));
+  }
+  try{
+    session->transaction().start(true);
+    coral::ISchema& schema=session->nominalSchema();
+    coral::AttributeList lumidetailBindVariables;
+    lumidetailBindVariables.extend("lsmin",typeid(unsigned int));
+    lumidetailBindVariables.extend("runnumber",typeid(unsigned int));
+    lumidetailBindVariables["runnumber"].data<unsigned int>()=m_detailcachedrun;
+    lumidetailBindVariables["lsmin"].data<unsigned int>()=lsmin;
+    std::string conditionStr(" RUNNUMBER=:runnumber AND LUMISECTION>=:lsmin AND BUNCHLUMI>0 ");
+    coral::AttributeList lumidetailOutput;
+    lumidetailOutput.extend("LUMISECTION",typeid(unsigned int));
+    lumidetailOutput.extend("BUNCH",typeid(unsigned int));
+    lumidetailOutput.extend("BUNCHLUMI",typeid(float));
+    if(m_cachesize!=0){
+      lumidetailBindVariables.extend("lsmax",typeid(unsigned int));
+      conditionStr=conditionStr+"AND LUMISECTION<=:lsmax";
+      lumidetailBindVariables["lsmax"].data<unsigned int>()=lsmax;      
+    }
+    coral::IQuery* lumidetailQuery=schema.newQuery();
+    lumidetailQuery->addToTableList(std::string("BUNCH_LUMI_SECTIONS"));
+    lumidetailQuery->addToOutputList("LUMISECTION");
+    lumidetailQuery->addToOutputList("BUNCH");
+    lumidetailQuery->addToOutputList("BUNCHLUMI");
+    lumidetailQuery->setCondition(conditionStr,lumidetailBindVariables);
+    lumidetailQuery->defineOutput(lumidetailOutput);
+    coral::ICursor& lumidetailcursor=lumidetailQuery->execute();
+    unsigned int rowcounter=0;
+    while( lumidetailcursor.next() ){
+      const coral::AttributeList& row=lumidetailcursor.currentRow();
+      unsigned int lsnum=row["LUMISECTION"].data<unsigned int>();
+      unsigned int bxidx=row["BUNCH"].data<unsigned int>();
+      float bxlumi=row["BUNCHLUMI"].data<float>();//Hz/ub
+      m_detailcache[lsnum]->fillbxdata(bxidx,bxlumi);
+      ++rowcounter;
+    }
+    if (rowcounter==0){
+      m_isNullRun=true;
+    }
+    delete lumidetailQuery;
+    session->transaction().commit();
+  }catch(const coral::Exception& er){
+    session->transaction().rollback();
+    mydbservice->disconnect(session);
+    throw cms::Exception("DatabaseError ")<<er.what();
+  }
+  mydbservice->disconnect(session);
 }
 DIPLumiProducer::~DIPLumiProducer(){}
 //define this as a plug-in

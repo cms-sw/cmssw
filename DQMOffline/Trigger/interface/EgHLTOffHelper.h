@@ -177,11 +177,10 @@ namespace egHLT {
 
     void fillIsolData(const reco::GsfElectron& ele,OffEle::IsolData& isolData);
     void fillClusShapeData(const reco::GsfElectron& ele,OffEle::ClusShapeData& clusShapeData);
-    void fillHLTData(const reco::GsfElectron& ele,OffEle::HLTData& hltData);    
-
+    void fillHLTData(const reco::GsfElectron& ele,OffEle::HLTData& hltData);
+    
     void fillIsolData(const reco::Photon& pho,OffPho::IsolData& isolData);
     void fillClusShapeData(const reco::Photon& pho,OffPho::ClusShapeData& clusShapeData);
-    void fillHLTDataPho(const reco::Photon& pho,OffPho::HLTData& hltData);    
 
     //tempory debugging functions
     const trigger::TriggerEvent* trigEvt()const{return trigEvt_.product();}

@@ -1,6 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
-import warnings
-warnings.warn('Configuration.StandardSequences.GeometryTrackerOnly_cff is deprecated, please use Configuration.Geometry.GeometryTrackerOnly_cff', DeprecationWarning, stacklevel=2)
+#
+# Geometry master configuration
+#
+# Ideal geometry, needed for simulation
+from Geometry.CMSCommonData.trackerOnlyGeometryXML_cfi import *
+from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
+# Reconstruction geometry services
+#  Tracking Geometry
+from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
 
-from Configuration.Geometry.GeometryTrackerOnly_cff import *
+#Tracker
+from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
+
+#  Alignment
+from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *

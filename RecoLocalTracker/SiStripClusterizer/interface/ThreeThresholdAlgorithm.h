@@ -1,7 +1,6 @@
 #ifndef RecoLocalTracker_SiStripClusterizer_ThreeThresholdAlgorithm_h
 #define RecoLocalTracker_SiStripClusterizer_ThreeThresholdAlgorithm_h
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
-#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripApvShotCleaner.h"
 
 class ThreeThresholdAlgorithm : public StripClusterizerAlgorithm {
 
@@ -20,7 +19,7 @@ class ThreeThresholdAlgorithm : public StripClusterizerAlgorithm {
 
   template<class T> void clusterizeDetUnit_(const T&, output_t::FastFiller&);
   ThreeThresholdAlgorithm(float, float, float, unsigned, unsigned, unsigned, std::string qualityLabel,
-			  bool setDetId, bool removeApvShots=false);
+			  bool setDetId);
 
   //state of the candidate cluster
   std::vector<uint16_t> ADCs;  
@@ -42,9 +41,6 @@ class ThreeThresholdAlgorithm : public StripClusterizerAlgorithm {
 
   float ChannelThreshold, SeedThreshold, ClusterThresholdSquared;
   uint8_t MaxSequentialHoles, MaxSequentialBad, MaxAdjacentBad;
-  bool RemoveApvShots;
-
-  SiStripApvShotCleaner ApvCleaner;
 };
 
 #endif

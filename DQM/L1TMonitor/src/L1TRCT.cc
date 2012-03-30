@@ -8,6 +8,7 @@
  */
 
 #include "DQM/L1TMonitor/interface/L1TRCT.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 
 // GCT and RCT data formats
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
@@ -40,8 +41,8 @@ const float ETAMAX = 21.5;
 
 
 L1TRCT::L1TRCT(const ParameterSet & ps) :
-   rctSource_( ps.getParameter< InputTag >("rctSource") )
-
+   rctSource_( ps.getParameter< InputTag >("rctSource") ),
+   filterTriggerType_ (ps.getParameter< int >("filterTriggerType"))
 {
 
   // verbosity switch
@@ -214,7 +215,29 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   bool doEm = true; 
   bool doHd = true;
 
-  
+  // filter according trigger type
+  //  enum ExperimentType {
+  //        Undefined          =  0,
+  //        PhysicsTrigger     =  1,
+  //        CalibrationTrigger =  2,
+  //        RandomTrigger      =  3,
+  //        Reserved           =  4,
+  //        TracedEvent        =  5,
+  //        TestTrigger        =  6,
+  //        ErrorTrigger       = 15
+
+  // filter only if trigger type is greater than 0, negative values disable filtering
+  if (filterTriggerType_ >= 0) {
+    // now filter, for real data only
+    if (e.isRealData()) {
+      if (!(e.experimentType() == filterTriggerType_)) {
+        edm::LogInfo("L1TdeRCT") << "\n Event of TriggerType "
+          << e.experimentType() << " rejected" << std::endl;
+        return;
+      }
+    }
+  }
+
   e.getByLabel(rctSource_,rgn);
  
   if (!rgn.isValid()) {
@@ -232,9 +255,7 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
       if(ireg->et()>0)
       {
       rctRegionRank_->Fill(ireg->et());
-      if(ireg->et()>5){
-	rctRegionsOccEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi());
-      }
+      rctRegionsOccEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi());
       rctRegionsEtEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi(), ireg->et());
 //      rctTauVetoEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi(),
 //			      ireg->tauVeto());
@@ -278,10 +299,8 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
       rctIsoEmRank_->Fill(iem->rank());
       rctIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
 			      iem->regionId().iphi(), iem->rank());
-      if(iem->rank()>10){
-	rctIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
+      rctIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
 			       iem->regionId().iphi());
-      }
       rctEmBx_->Fill(iem->bx());
       }
     }
@@ -291,10 +310,8 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
       rctNonIsoEmRank_->Fill(iem->rank());
       rctNonIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
 				 iem->regionId().iphi(), iem->rank());
-      if(iem->rank()>10){
-	rctNonIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
+      rctNonIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
 				  iem->regionId().iphi());
-      }
       rctEmBx_->Fill(iem->bx());
       }
     }

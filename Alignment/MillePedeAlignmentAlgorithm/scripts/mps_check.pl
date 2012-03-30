@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.28 $ by $Author: flucke $
-#     $Date: 2012/02/23 09:35:47 $
+#     $Revision: 1.27 $ by $Author: jbehr $
+#     $Date: 2012/01/20 10:19:27 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -217,7 +217,6 @@ for ($i=0; $i<@JOBID; ++$i) {
     if ($quotaspace eq 1) {
       print "@JOBDIR[$i] @JOBID[$i] had quota space problem\n";
       $okStatus = "FAIL";
-      $remark = "eos quota space problem";
     }
     if ($ioprob eq 1) {
       print "@JOBDIR[$i] @JOBID[$i] had I/O problem\n";
