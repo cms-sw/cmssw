@@ -301,8 +301,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMuEG_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMuEG_selector.l1tResults = cms.InputTag('')
 streamA_datasetMuEG_selector.throw      = cms.bool(False)
-streamA_datasetMuEG_selector.triggerConditions = cms.vstring('HLT_DoubleMu5_Ele8_CaloIdT_TrkIdT_v7', 
-    'HLT_DoubleMu5_Ele8_CaloIdT_TrkIdVL_v11', 
+streamA_datasetMuEG_selector.triggerConditions = cms.vstring('HLT_DoubleMu5_Ele8_CaloIdT_TrkIdVL_v11', 
+    'HLT_DoubleMu8_Ele8_CaloIdT_TrkIdVL_v1', 
     'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v3', 
     'HLT_Mu22_Photon22_CaloIdL_v2', 
     'HLT_Mu30_Ele30_CaloIdL_v2', 

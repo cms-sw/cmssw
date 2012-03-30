@@ -180,7 +180,7 @@ HLT_DoublePhoton40_CaloIdL_Rsq0p035_v*                                          
 HLT_DoublePhoton40_CaloIdL_Rsq0p06_v*                                                           #sr126304
 HLT_Mu22_Photon22_CaloIdL_v*                                                                    #sr126304
 HLT_DoubleMu5_Ele8_CaloIdT_TrkIdVL_v*                                                           #sr126304
-HLT_DoubleMu5_Ele8_CaloIdT_TrkIdT_v*                                                            #sr126304
+#HLT_DoubleMu5_Ele8_CaloIdT_TrkIdT_v*                                                            #sr126304, removed in sr127498
 HLT_Mu8_DoubleEle8_CaloIdT_TrkIdVL_v*                                                           #sr126304
 HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Ele8_CaloIdL_TrkIdVL_v*                                            #sr126304
 HLT_DoubleMu14_Mass8_PFMET40_v*                                                                 #sr126304
@@ -210,6 +210,8 @@ HLT_DoubleEle8_CaloIdT_TrkIdVL_v*								#sr126304
 HLT_Mu8_DiJet30_v*										#sr126304
 HLT_Mu8_TriJet30_v*										#sr126304
 HLT_Mu8_QuadJet30_v*										#sr126304
+
+HLT_DoubleMu8_Ele8_CaloIdT_TrkIdVL_v*                                                           #sr127498
 
 HLT_IsoMu20_eta2p1_CentralPFJet80_v*                                                            #sr126316
 HLT_Ele27_WP80_CentralPFJet80_v*                                                                #sr126316
