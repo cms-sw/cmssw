@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/HLT/V99 (CMSSW_5_2_3_HLT2)
+# /dev/CMSSW_5_2_1/HLT/V101 (CMSSW_5_2_3_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V99')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V101')
 )
 
 streams = cms.PSet( 
@@ -38999,6 +38999,18 @@ hltAlCaPi0RecHitsFilterEBonly = cms.EDFilter( "HLTEcalResonanceFilter",
     ),
     useDBStatus = cms.bool( True )
 )
+hltAlCaPi0EBUncalibrator = cms.EDProducer( "EcalRecalibRecHitProducer",
+    doEnergyScale = cms.bool( True ),
+    doLaserCorrectionsInverse = cms.bool( True ),
+    EERecHitCollection = cms.InputTag( '','EcalRecHitsEE' ),
+    doEnergyScaleInverse = cms.bool( True ),
+    EBRecHitCollection = cms.InputTag( 'hltAlCaPi0RecHitsFilterEBonly','pi0EcalRecHitsEB' ),
+    doIntercalibInverse = cms.bool( True ),
+    doLaserCorrections = cms.bool( True ),
+    EBRecalibRecHitCollection = cms.string( "pi0EcalRecHitsEB" ),
+    doIntercalib = cms.bool( True ),
+    EERecalibRecHitCollection = cms.string( "pi0EcalRecHitsEE" )
+)
 hltPreAlCaEcalPi0EEonly = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -39067,6 +39079,18 @@ hltAlCaPi0RecHitsFilterEEonly = cms.EDFilter( "HLTEcalResonanceFilter",
       preshSeededNstrip = cms.int32( 15 )
     ),
     useDBStatus = cms.bool( True )
+)
+hltAlCaPi0EEUncalibrator = cms.EDProducer( "EcalRecalibRecHitProducer",
+    doEnergyScale = cms.bool( True ),
+    doLaserCorrectionsInverse = cms.bool( True ),
+    EERecHitCollection = cms.InputTag( 'hltAlCaPi0RecHitsFilterEEonly','pi0EcalRecHitsEE' ),
+    doEnergyScaleInverse = cms.bool( True ),
+    EBRecHitCollection = cms.InputTag( '','pi0EcalRecHitsEB' ),
+    doIntercalibInverse = cms.bool( True ),
+    doLaserCorrections = cms.bool( True ),
+    EBRecalibRecHitCollection = cms.string( "pi0EcalRecHitsEB" ),
+    doIntercalib = cms.bool( True ),
+    EERecalibRecHitCollection = cms.string( "pi0EcalRecHitsEE" )
 )
 hltPreAlCaEcalEtaEBonly = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -39137,6 +39161,18 @@ hltAlCaEtaRecHitsFilterEBonly = cms.EDFilter( "HLTEcalResonanceFilter",
     ),
     useDBStatus = cms.bool( True )
 )
+hltAlCaEtaEBUncalibrator = cms.EDProducer( "EcalRecalibRecHitProducer",
+    doEnergyScale = cms.bool( True ),
+    doLaserCorrectionsInverse = cms.bool( True ),
+    EERecHitCollection = cms.InputTag( '','etaEcalRecHitsEE' ),
+    doEnergyScaleInverse = cms.bool( True ),
+    EBRecHitCollection = cms.InputTag( 'hltAlCaEtaRecHitsFilterEBonly','etaEcalRecHitsEB' ),
+    doIntercalibInverse = cms.bool( True ),
+    doLaserCorrections = cms.bool( True ),
+    EBRecalibRecHitCollection = cms.string( "etaEcalRecHitsEB" ),
+    doIntercalib = cms.bool( True ),
+    EERecalibRecHitCollection = cms.string( "etaEcalRecHitsEE" )
+)
 hltPreAlCaEcalEtaEEonly = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -39206,6 +39242,18 @@ hltAlCaEtaRecHitsFilterEEonly = cms.EDFilter( "HLTEcalResonanceFilter",
     ),
     useDBStatus = cms.bool( True )
 )
+hltAlCaEtaEEUncalibrator = cms.EDProducer( "EcalRecalibRecHitProducer",
+    doEnergyScale = cms.bool( True ),
+    doLaserCorrectionsInverse = cms.bool( True ),
+    EERecHitCollection = cms.InputTag( 'hltAlCaEtaRecHitsFilterEEonly','etaEcalRecHitsEE' ),
+    doEnergyScaleInverse = cms.bool( True ),
+    EBRecHitCollection = cms.InputTag( '','EcalRecHitsEB' ),
+    doIntercalibInverse = cms.bool( True ),
+    doLaserCorrections = cms.bool( True ),
+    EBRecalibRecHitCollection = cms.string( "etaEcalRecHitsEB" ),
+    doIntercalib = cms.bool( True ),
+    EERecalibRecHitCollection = cms.string( "etaEcalRecHitsEE" )
+)
 hltPreAlCaEcalPhiSym = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -39221,6 +39269,18 @@ hltAlCaPhiSymStream = cms.EDFilter( "HLTEcalPhiSymFilter",
     phiSymBarrelHitCollection = cms.string( "phiSymEcalRecHitsEB" ),
     barrelHitCollection = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEB' ),
     phiSymEndcapHitCollection = cms.string( "phiSymEcalRecHitsEE" )
+)
+hltAlCaPhiSymUncalibrator = cms.EDProducer( "EcalRecalibRecHitProducer",
+    doEnergyScale = cms.bool( True ),
+    doLaserCorrectionsInverse = cms.bool( True ),
+    EERecHitCollection = cms.InputTag( 'hltAlCaPhiSymStream','phiSymEcalRecHitsEE' ),
+    doEnergyScaleInverse = cms.bool( True ),
+    EBRecHitCollection = cms.InputTag( 'hltAlCaPhiSymStream','phiSymEcalRecHitsEB' ),
+    doIntercalibInverse = cms.bool( True ),
+    doLaserCorrections = cms.bool( True ),
+    EBRecalibRecHitCollection = cms.string( "phiSymEcalRecHitsEB" ),
+    doIntercalib = cms.bool( True ),
+    EERecalibRecHitCollection = cms.string( "phiSymEcalRecHitsEE" )
 )
 hltL1sAlCaRPC = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
@@ -43152,11 +43212,11 @@ HLT_L3MuonsCosmicTracking_v8 = cms.Path( HLTBeginSequence + hltL1sTrackerCosmics
 HLT_LogMonitor_v2 = cms.Path( hltGtDigis + hltPreLogMonitor + hltLogMonitorFilter + HLTEndSequence )
 HLT_DTErrors_v3 = cms.Path( hltGtDigis + hltPreDTErrors + hltDTROMonitorFilter + hltDynAlCaDTErrors + HLTEndSequence )
 HLT_L1DoubleJet36Central_v6 = cms.Path( HLTBeginSequence + hltL1sL1DoubleJet36Central + hltPreL1DoubleJet36Central + HLTEndSequence )
-AlCa_EcalPi0EBonly_v1 = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPi0Eta + hltPreAlCaEcalPi0EBonly + HLTDoRegionalPi0EtaSequence + hltSimple3x3Clusters + hltAlCaPi0RecHitsFilterEBonly + HLTEndSequence )
-AlCa_EcalPi0EEonly_v1 = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPi0Eta + hltPreAlCaEcalPi0EEonly + HLTDoRegionalPi0EtaSequence + hltSimple3x3Clusters + hltAlCaPi0RecHitsFilterEEonly + HLTEndSequence )
-AlCa_EcalEtaEBonly_v1 = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPi0Eta + hltPreAlCaEcalEtaEBonly + HLTDoRegionalPi0EtaSequence + hltSimple3x3Clusters + hltAlCaEtaRecHitsFilterEBonly + HLTEndSequence )
-AlCa_EcalEtaEEonly_v1 = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPi0Eta + hltPreAlCaEcalEtaEEonly + HLTDoRegionalPi0EtaSequence + hltSimple3x3Clusters + hltAlCaEtaRecHitsFilterEEonly + HLTEndSequence )
-AlCa_EcalPhiSym_v9 = cms.Path( HLTBeginSequence + hltL1sZeroBias + hltPreAlCaEcalPhiSym + hltEcalRawToRecHitFacility + hltESRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRecHitAll + hltAlCaPhiSymStream + HLTEndSequence )
+AlCa_EcalPi0EBonly_v1 = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPi0Eta + hltPreAlCaEcalPi0EBonly + HLTDoRegionalPi0EtaSequence + hltSimple3x3Clusters + hltAlCaPi0RecHitsFilterEBonly + hltAlCaPi0EBUncalibrator + HLTEndSequence )
+AlCa_EcalPi0EEonly_v1 = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPi0Eta + hltPreAlCaEcalPi0EEonly + HLTDoRegionalPi0EtaSequence + hltSimple3x3Clusters + hltAlCaPi0RecHitsFilterEEonly + hltAlCaPi0EEUncalibrator + HLTEndSequence )
+AlCa_EcalEtaEBonly_v1 = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPi0Eta + hltPreAlCaEcalEtaEBonly + HLTDoRegionalPi0EtaSequence + hltSimple3x3Clusters + hltAlCaEtaRecHitsFilterEBonly + hltAlCaEtaEBUncalibrator + HLTEndSequence )
+AlCa_EcalEtaEEonly_v1 = cms.Path( HLTBeginSequence + hltL1sAlCaEcalPi0Eta + hltPreAlCaEcalEtaEEonly + HLTDoRegionalPi0EtaSequence + hltSimple3x3Clusters + hltAlCaEtaRecHitsFilterEEonly + hltAlCaEtaEEUncalibrator + HLTEndSequence )
+AlCa_EcalPhiSym_v9 = cms.Path( HLTBeginSequence + hltL1sZeroBias + hltPreAlCaEcalPhiSym + hltEcalRawToRecHitFacility + hltESRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRecHitAll + hltAlCaPhiSymStream + hltAlCaPhiSymUncalibrator + HLTEndSequence )
 AlCa_RPCMuonNoTriggers_v8 = cms.Path( HLTBeginSequence + hltL1sAlCaRPC + hltPreAlCaRPCMuonNoTriggers + hltRPCMuonNoTriggersL1Filtered0 + HLTMuonLocalRecoSequence + HLTEndSequence )
 AlCa_RPCMuonNoHits_v8 = cms.Path( HLTBeginSequence + hltL1sAlCaRPC + hltPreAlCaRPCMuonNoHits + HLTMuonLocalRecoSequence + hltRPCPointProducer + hltRPCFilter + HLTEndSequence )
 AlCa_RPCMuonNormalisation_v8 = cms.Path( HLTBeginSequence + hltL1sAlCaRPC + hltPreAlCaRPCMuonNormalisation + hltRPCMuonNormaL1Filtered0 + HLTMuonLocalRecoSequence + HLTEndSequence )
