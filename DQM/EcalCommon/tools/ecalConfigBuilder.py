@@ -333,7 +333,7 @@ process.ecalPreRecoSequence = cms.Sequence(
     process.preScaler +
 '''
 if live :
-    sequencePaths += '    process.hltTriggerTypeFilter +'
+    sequencePaths += '#    process.hltTriggerTypeFilter +'
 
 sequencePaths += '''
     process.ecalEBunpacker
@@ -846,6 +846,7 @@ if live :
         customizations += 'process.source.SelectHLTOutput = cms.untracked.string("hltOutputA")' + "\n"
     else :
         customizations += 'process.source.SelectHLTOutput = cms.untracked.string("hltOutputCalibration")' + "\n"
+        customizations += 'process.source.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring("HLT_EcalCalibration_v*"))' + "\n"
         
 else :
     customizations += '''
@@ -864,14 +865,14 @@ if process.runType.getRunType() == process.runType.cosmic_run :
 
     if not physics :
         customizations += '''
-    process.ecalBarrelMonitorClient.produceReports = True
-    process.ecalEndcapMonitorClient.produceReports = True
-    process.ecalBarrelMonitorClient.reducedReports = True
-    process.ecalEndcapMonitorClient.reducedReports = True'''
+#    process.ecalBarrelMonitorClient.produceReports = True
+#    process.ecalEndcapMonitorClient.produceReports = True
+#    process.ecalBarrelMonitorClient.reducedReports = True
+#    process.ecalEndcapMonitorClient.reducedReports = True'''
     else :
         customizations += '''
-    process.ecalBarrelMonitorClient.produceReports = False
-    process.ecalEndcapMonitorClient.produceReports = False'''
+#    process.ecalBarrelMonitorClient.produceReports = False
+#    process.ecalEndcapMonitorClient.produceReports = False'''
 
     customizations += '''
 elif process.runType.getRunType() == process.runType.hpu_run:
