@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V53 (CMSSW_5_2_3_HLT1)
+# /dev/CMSSW_5_2_1/HIon/V54 (CMSSW_5_2_3_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V53')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V54')
 )
 
 process.streams = cms.PSet( 
@@ -3966,7 +3966,7 @@ process.hltSiStripRawToDigi = cms.EDProducer( "SiStripRawToDigiModule",
     UseFedKey = cms.bool( False ),
     ErrorThreshold = cms.uint32( 7174 ),
     TriggerFedId = cms.int32( 0 ),
-    DoAPVEmulatorCheck = cms.bool( True ),
+    DoAPVEmulatorCheck = cms.bool( False ),
     UnpackBadChannels = cms.bool( False ),
     DoAllCorruptBufferChecks = cms.bool( False )
 )
@@ -5154,6 +5154,7 @@ process.hltSiStripExcludedFEDListProducer = cms.EDProducer( "SiStripExcludedFEDL
 )
 process.hltHISiStripRawToClustersFacility = cms.EDProducer( "SiStripRawToClusters",
     ProductLabel = cms.InputTag( "rawDataCollector" ),
+    DoAPVEmulatorCheck = cms.bool( False ),
     Algorithms = cms.PSet( 
       SiStripFedZeroSuppressionMode = cms.uint32( 4 ),
       CommonModeNoiseSubtractionMode = cms.string( "IteratedMedian" ),

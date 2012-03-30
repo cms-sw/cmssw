@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/HLT/V98 (CMSSW_5_2_3_HLT1)
+# /dev/CMSSW_5_2_1/HLT/V99 (CMSSW_5_2_3_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V98')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V99')
 )
 
 streams = cms.PSet( 
@@ -5735,6 +5735,7 @@ hltSiStripExcludedFEDListProducer = cms.EDProducer( "SiStripExcludedFEDListProdu
 )
 hltSiStripRawToClustersFacility = cms.EDProducer( "SiStripRawToClusters",
     ProductLabel = cms.InputTag( "rawDataCollector" ),
+    DoAPVEmulatorCheck = cms.bool( False ),
     Algorithms = cms.PSet( 
       SiStripFedZeroSuppressionMode = cms.uint32( 4 ),
       CommonModeNoiseSubtractionMode = cms.string( "Median" ),
@@ -39352,7 +39353,7 @@ hltSiStripRawToDigi = cms.EDProducer( "SiStripRawToDigiModule",
     UseFedKey = cms.bool( False ),
     ErrorThreshold = cms.uint32( 7174 ),
     TriggerFedId = cms.int32( 0 ),
-    DoAPVEmulatorCheck = cms.bool( True ),
+    DoAPVEmulatorCheck = cms.bool( False ),
     UnpackBadChannels = cms.bool( False ),
     DoAllCorruptBufferChecks = cms.bool( False )
 )
@@ -40026,6 +40027,7 @@ hltPreHIL3Mu3 = cms.EDFilter( "HLTPrescaler",
 )
 hltHISiStripRawToClustersFacility = cms.EDProducer( "SiStripRawToClusters",
     ProductLabel = cms.InputTag( "rawDataCollector" ),
+    DoAPVEmulatorCheck = cms.bool( False ),
     Algorithms = cms.PSet( 
       SiStripFedZeroSuppressionMode = cms.uint32( 4 ),
       CommonModeNoiseSubtractionMode = cms.string( "IteratedMedian" ),
