@@ -487,6 +487,8 @@ HLT_RsqMR45_Rsq0p09_v*										#sr127304
 
 HLT_FatDiPFJetMass750_DR1p1_Deta1p5_v*								#sr127088
 
+HLT_Ele5_SC5_Jpsi_Mass2to15_v*									#sr127542
+
 HLT_PixelTracks_Multiplicity70_v*								#sr126810
 HLT_PixelTracks_Multiplicity80_v*								#sr126810
 HLT_PixelTracks_Multiplicity90_v*								#sr126810
