@@ -47,7 +47,7 @@ static std::string s_referenceDirName = "Reference";
 static std::string s_collateDirName = "Collate";
 static std::string s_safe = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# ";
 
-static const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|t|qr)=(.*)</\\1>$");
+static const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|e|t|qr)=(.*)</\\1>$");
 static const lat::Regexp s_rxmeqr1 ("^st:(\\d+):([-+e.\\d]+):([^:]*):(.*)$");
 static const lat::Regexp s_rxmeqr2 ("^st\\.(\\d+)\\.(.*)$");
 
@@ -193,7 +193,7 @@ DQMStore::initializeFrom(const edm::ParameterSet& pset) {
 //////////////////////////////////////////////////////////////////////
 /// set verbose level (0 turns all non-error messages off)
 void
-DQMStore::setVerbose(unsigned level) 
+DQMStore::setVerbose(unsigned /* level */) 
 { return; }
 
 //////////////////////////////////////////////////////////////////////
@@ -393,8 +393,8 @@ DQMStore::book(const std::string &dir,
   {
     // Create it and return for initialisation.
     assert(dirs_.count(dir));
-    MonitorElement nme(&*dirs_.find(dir), name);
-    return &const_cast<MonitorElement &>(*data_.insert(nme).first);
+    MonitorElement me(&*dirs_.find(dir), name);
+    return &const_cast<MonitorElement &>(*data_.insert(me).first);
   }
 }
 
@@ -827,7 +827,7 @@ DQMStore::bookProfile(const std::string &dir, const std::string &name, TProfile 
 MonitorElement *
 DQMStore::bookProfile(const char *name, const char *title,
 		      int nchX, double lowX, double highX,
-		      int nchY, double lowY, double highY,
+		      int /* nchY */, double lowY, double highY,
 		      const char *option /* = "s" */)
 {
   return bookProfile(pwd_, name, new TProfile(name, title,
@@ -842,7 +842,7 @@ DQMStore::bookProfile(const char *name, const char *title,
 MonitorElement *
 DQMStore::bookProfile(const std::string &name, const std::string &title,
 		      int nchX, double lowX, double highX,
-		      int nchY, double lowY, double highY,
+		      int /* nchY */, double lowY, double highY,
 		      const char *option /* = "s" */)
 {
   return bookProfile(pwd_, name, new TProfile(name.c_str(), title.c_str(),
@@ -887,7 +887,7 @@ DQMStore::bookProfile(const std::string &name, const std::string &title,
 MonitorElement *
 DQMStore::bookProfile(const char *name, const char *title,
 		      int nchX, double *xbinsize,
-		      int nchY, double lowY, double highY,
+		      int /* nchY */, double lowY, double highY,
 		      const char *option /* = "s" */)
 {
   return bookProfile(pwd_, name, new TProfile(name, title,
@@ -902,7 +902,7 @@ DQMStore::bookProfile(const char *name, const char *title,
 MonitorElement *
 DQMStore::bookProfile(const std::string &name, const std::string &title,
 		      int nchX, double *xbinsize,
-		      int nchY, double lowY, double highY,
+		      int /* nchY */, double lowY, double highY,
 		      const char *option /* = "s" */)
 {
   return bookProfile(pwd_, name, new TProfile(name.c_str(), title.c_str(),
@@ -972,7 +972,7 @@ MonitorElement *
 DQMStore::bookProfile2D(const char *name, const char *title,
 			int nchX, double lowX, double highX,
 			int nchY, double lowY, double highY,
-			int nchZ, double lowZ, double highZ,
+			int /* nchZ */, double lowZ, double highZ,
 			const char *option /* = "s" */)
 {
   return bookProfile2D(pwd_, name, new TProfile2D(name, title,
@@ -989,7 +989,7 @@ MonitorElement *
 DQMStore::bookProfile2D(const std::string &name, const std::string &title,
 			int nchX, double lowX, double highX,
 			int nchY, double lowY, double highY,
-			int nchZ, double lowZ, double highZ,
+			int /* nchZ */, double lowZ, double highZ,
 			const char *option /* = "s" */)
 {
   return bookProfile2D(pwd_, name, new TProfile2D(name.c_str(), title.c_str(),
@@ -1724,6 +1724,18 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
       else if (overwrite)
 	me->Fill(value);
     }
+    else if (kind == "e")
+    {
+      MonitorElement *me = findObject(dir, label);
+      if (! me)
+      {
+	std::cout << "*** DQMStore: WARNING: no monitor element '"
+		  << label << "' in directory '"
+		  << dir << "' to be marked as efficiency plot.\n";
+	return false;
+      }
+      me->setEfficiencyFlag();
+    }
     else if (kind == "t")
     {
       MonitorElement *me = findObject(dir, label);
@@ -2036,6 +2048,10 @@ DQMStore::save(const std::string &filename,
 	for ( ; qi != qe; ++qi)
 	  TObjString(mi->qualityTagString(*qi).c_str()).Write();
       }
+
+      // Save efficiency tag, if any
+      if (mi->data_.flags & DQMNet::DQM_PROP_EFFICIENCY_PLOT)
+	TObjString(mi->effLabelString().c_str()).Write();
 
       // Save tag if any
       if (mi->data_.flags & DQMNet::DQM_PROP_TAGGED)
