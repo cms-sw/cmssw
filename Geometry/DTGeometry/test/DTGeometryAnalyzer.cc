@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/04/06 20:00:51 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/06/21 08:51:16 $
+ *  $Revision: 1.9 $
  *  \author N. Amapane - CERN
  */
 
@@ -155,12 +155,12 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
         for (int sl=1; sl<= 3 ; ++sl) {
 	  if (sl==2 && st==4) continue;
           DTSuperLayerId slid(id,sl);
-          const DTSuperLayer* sl = pDD->superLayer(slid);
-          if (!sl) cout << "ERROR sl not found " << slid << endl;
-          if (slid!=sl->id()) cout << "ERROR: got wrong sl! Cerco sl " << slid << " e trovo " << sl->id() << endl;
+          const DTSuperLayer* dtsl = pDD->superLayer(slid);
+          if (!dtsl) cout << "ERROR sl not found " << slid << endl;
+          if (slid!=dtsl->id()) cout << "ERROR: got wrong sl! Cerco sl " << slid << " e trovo " << dtsl->id() << endl;
 	  // test idToDet for superLayer
 	  const GeomDet* gdets=pDD->idToDet(slid);
-	  assert(gdets==sl);
+	  assert(gdets==dtsl);
 
           for (int l=1; l<=4; ++l) {
             DTLayerId lid(slid,l);
