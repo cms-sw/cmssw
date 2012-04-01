@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <cstring>
+#include <unistd.h>
 
 const char * fileName = "scalers.dat";
 
