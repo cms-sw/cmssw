@@ -34,16 +34,17 @@ CLHEP::HepRandomEngine* _amptRandomEngine;
 
 extern "C"
 {
-  double gen::ranart_(int *idummy)
+  float gen::ranart_(int *idummy)
   {
     if(0) idummy = idummy; 
-    return _amptRandomEngine->flat();
+    float rannum = _amptRandomEngine->flat();
+    return rannum;
   }
 }
 
 extern "C"
 {
-  double gen::ran1_(int *idummy)
+  float gen::ran1_(int *idummy)
   {
     if(0) idummy = idummy;
     return _amptRandomEngine->flat();
@@ -99,9 +100,11 @@ AMPTHadronizer::AMPTHadronizer(const ParameterSet &pset) :
     cosphi0_(1.),
     rotate_(pset.getParameter<bool>("rotateEventPlane"))
 {
+	cout << "entered constructor" << endl;
   // Default constructor
   edm::Service<RandomNumberGenerator> rng;
   _amptRandomEngine = &(rng->getEngine());
+	cout << "left constructor" << endl;
 }
 
 
@@ -169,9 +172,10 @@ HepMC::GenVertex* AMPTHadronizer::build_ampt_vertex(int i,int id)
    HepMC::GenVertex* vertex = new HepMC::GenVertex(HepMC::FourVector(0,0,0,0),id);
    return vertex;
 }
-
+//_____________________________________________________________________  
 bool AMPTHadronizer::generatePartonsAndHadronize()
 {
+	cout << "Entered generatePartonsAndHadronize()" << endl;
    // generate single event
    if(rotate_) rotateEvtPlane();
 
@@ -258,9 +262,9 @@ bool AMPTHadronizer::call_amptset(double efrm, std::string frame, std::string pr
 {
   // initialize hydjet  
    AMPTSET(efrm,frame.data(),proj.data(),targ.data(),iap,izp,iat,izt,strlen(frame.data()),strlen(proj.data()),strlen(targ.data()));
-   return true;
+	return true;
 }
-
+//______________________________________________________________________
 bool AMPTHadronizer::ampt_init(const ParameterSet &pset)
 {
     anim.isoft=amptmode_;
@@ -318,7 +322,9 @@ bool AMPTHadronizer::declareStableParticles( std::vector<int> pdg )
 
 //________________________________________________________________                                                                    
 void AMPTHadronizer::rotateEvtPlane(){
-   phi0_ = 2.*pi*gen::ranart_(0) - pi;
+   int zero = 0;
+   double test = (double)gen::ranart_(&zero);
+   phi0_ = 2.*pi*test - pi;
    sinphi0_ = sin(phi0_);
    cosphi0_ = cos(phi0_);
 }
