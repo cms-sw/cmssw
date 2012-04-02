@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V60 (CMSSW_5_2_3_HLT2)
+# /dev/CMSSW_5_2_1/HIon/V61 (CMSSW_5_2_3_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V60')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V61')
 )
 
 process.streams = cms.PSet( 
@@ -3084,7 +3084,7 @@ process.sistripconn = cms.ESProducer( "SiStripConnectivity" )
 process.DQM = cms.Service( "DQM",
     publishFrequency = cms.untracked.double( 5.0 ),
     debug = cms.untracked.bool( False ),
-    collectorPort = cms.untracked.int32( 9190 ),
+    collectorPort = cms.untracked.int32( 0 ),
     collectorHost = cms.untracked.string( "" )
 )
 process.DQMStore = cms.Service( "DQMStore",
