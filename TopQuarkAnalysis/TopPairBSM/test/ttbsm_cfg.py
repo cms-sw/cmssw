@@ -287,15 +287,19 @@ if options.release == '42x' :
 	process.isoValElectronWithPhotonsPFlow.deposits[0].deltaR = 0.3
 
 	process.pfIsolatedMuonsPFlow.combinedIsolationCut = 0.2
-
-#process.pfNoTauPFlow.enable = False
-
+elif options.release == '52x' :
+	process.pfIsolatedMuonsPFlow.isolationCut = 0.2
 
 # In order to have a coherent semileptonic channel also, add
 # some "loose" leptons to do QCD estimates.
-process.pfIsolatedMuonsLoosePFlow = process.pfIsolatedMuonsPFlow.clone(
-    combinedIsolationCut = cms.double(999.0) 
-    )
+if options.release == '42x' :
+	process.pfIsolatedMuonsLoosePFlow = process.pfIsolatedMuonsPFlow.clone(
+		combinedIsolationCut = cms.double(999.0) 
+	)
+elif options.releaze == '52x' :
+	process.pfIsolatedMuonsLoosePFlow = process.pfIsolatedMuonsPFlow.clone(
+		isolationCut = cms.double(999.0) 
+	)
 
 process.patMuonsLoosePFlow = process.patMuonsPFlow.clone(
    pfMuonSource = cms.InputTag("pfIsolatedMuonsLoosePFlow"),
@@ -316,10 +320,14 @@ process.selectedPatMuonsLoosePFlow = process.selectedPatMuonsPFlow.clone(
     )
 
 
-
-process.pfIsolatedElectronsLoosePFlow = process.pfIsolatedElectronsPFlow.clone(
-    combinedIsolationCut = cms.double(999.0) 
-    )
+if options.release == '42x' :
+	process.pfIsolatedElectronsLoosePFlow = process.pfIsolatedElectronsPFlow.clone(
+		combinedIsolationCut = cms.double(999.0) 
+	)
+elif options.release == '52x' :
+	process.pfIsolatedElectronsLoosePFlow = process.pfIsolatedElectronsPFlow.clone(
+		isolationCut = cms.double(999.0) 
+	)
 
 process.patElectronsLoosePFlow = process.patElectronsPFlow.clone(
     pfElectronSource = cms.InputTag("pfIsolatedElectronsLoosePFlow")
