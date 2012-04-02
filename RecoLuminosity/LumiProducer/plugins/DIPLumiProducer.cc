@@ -6,7 +6,7 @@
 /**\class DIPLumiProducer DIPLumiProducer.cc RecoLuminosity/LumiProducer/src/DIPLumiProducer.cc
 Description: A essource/esproducer for lumi values from DIP via runtime logger DB
 */
-// $Id: DIPLumiProducer.cc,v 1.7 2012/03/23 14:30:53 xiezhen Exp $
+// $Id: DIPLumiProducer.cc,v 1.8 2012/04/02 17:56:47 xiezhen Exp $
 
 //#include <memory>
 //#include "boost/shared_ptr.hpp"
@@ -113,6 +113,9 @@ DIPLumiProducer::produceDetail(const DIPLuminosityRcd&)
     }
   }
   m_detailresult=m_detailcache[currentls];
+  if(m_detailresult.get()==0){
+    return boost::shared_ptr<DIPLumiDetail>();
+  }
   return m_detailresult;
 }
 
