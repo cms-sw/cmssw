@@ -15,7 +15,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.35 2012/03/13 10:22:29 mverzett Exp $
+// $Id: TauTagValidation.cc,v 1.37 2012/03/20 16:30:42 mverzett Exp $
 //
 //
 // user include files
@@ -258,6 +258,10 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           std::string plotType = "_Size_";
           element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalPFCands" );
           if( element != plotMap_.end() ) element->second->Fill( thePFTau->signalPFCands().size() );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalPFChargedHadrCands" );
+          if( element != plotMap_.end() ) element->second->Fill( thePFTau->signalPFChargedHadrCands().size() );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalPFNeutrHadrCands" );
+          if( element != plotMap_.end() ) element->second->Fill( thePFTau->signalPFNeutrHadrCands().size() );
           element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFCands" );
           if( element != plotMap_.end() ) element->second->Fill( thePFTau->isolationPFCands().size() );
           element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFChargedHadrCands" );
@@ -270,6 +274,10 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           plotType = "_SumPt_";
           element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalPFCands" );
           if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->signalPFCands() ) );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalPFChargedHadrCands" );
+          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->signalPFChargedHadrCands() ) );
+          element = plotMap_.find( currentDiscriminatorLabel + plotType + "signalPFNeutrHadrCands" );
+          if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->signalPFNeutrHadrCands() ) );
           element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFCands" );
           if( element != plotMap_.end() ) element->second->Fill( getSumPt( thePFTau->isolationPFCands() ) );
           element = plotMap_.find( currentDiscriminatorLabel + plotType + "isolationPFChargedHadrCands" );
@@ -322,7 +330,7 @@ void TauTagValidation::beginJob() {
     hinfo etaHinfo = (histoSettings_.exists("eta")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("eta")) : hinfo(60, -3.0, 3.0);
     hinfo phiHinfo = (histoSettings_.exists("phi")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("phi")) : hinfo(36, -180., 180.);
     hinfo pileupHinfo = (histoSettings_.exists("pileup")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("pileup")) : hinfo(25, 0., 25.0);
-    hinfo dRHinfo = (histoSettings_.exists("deltaR")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("deltaR")) : hinfo(10, 0., 0.5);
+    //hinfo dRHinfo = (histoSettings_.exists("deltaR")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("deltaR")) : hinfo(10, 0., 0.5);
 
     // What kind of Taus do we originally have!
     
@@ -407,10 +415,17 @@ void TauTagValidation::beginJob() {
       plotType = "_Size_";
       xaxisLabel = ";size";
       yaxislabel = ";Frequency";
-      plotName = plotType + "signalPFCands";
       bins = 20;
+      plotName = plotType + "signalPFCands";
       tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
       plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+      plotName = plotType + "signalPFChargedHadrCands";
+      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
+      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+      plotName = plotType + "signalPFNeutrHadrCands";
+      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
+      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+        
       plotName = plotType + "isolationPFCands";
       tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
       plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
@@ -430,6 +445,12 @@ void TauTagValidation::beginJob() {
       yaxislabel = ";Frequency";
       bins = 20;
       plotName = plotType + "signalPFCands";
+      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 50.);
+      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+      plotName = plotType + "signalPFChargedHadrCands";
+      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 50.);
+      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+      plotName = plotType + "signalPFNeutrHadrCands";
       tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 50.);
       plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
       plotName = plotType + "isolationPFCands";
