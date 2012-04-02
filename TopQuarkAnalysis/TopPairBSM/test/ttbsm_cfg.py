@@ -15,6 +15,12 @@ options.register ('useData',
                   VarParsing.varType.int,
                   "Run this on real data")
 
+options.register ('release',
+                  '42x',
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.string,
+                  "Release to use: 42x or 52x")
+
 options.register ('hltProcess',
                   'HLT',
                   VarParsing.multiplicity.singleton,
@@ -65,36 +71,52 @@ options.parseArguments()
 if not options.useData :
 	inputJetCorrLabel = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
 
-	if not options.useSusyFilter :
+	if options.release == '42x' :
+		if not options.useSusyFilter :
+			process.source.fileNames = [
+				'/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/9AF32315-EC97-E011-8B25-0026189438B3.root',
+				'/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/18F1D3EA-E597-E011-8452-00304867BFBC.root'
+			]
+		else :
+			process.source.fileNames = [
+				'/store/mc/Summer11/SMS-T2tt_Mstop-225to1200_mLSP-50to1025_7TeV-Pythia6Z/AODSIM/PU_START42_V11_FastSim-v1/0059/00A9721F-44CB-E011-A65A-002618943869.root',
+				'/store/mc/Summer11/SMS-T2tt_Mstop-225to1200_mLSP-50to1025_7TeV-Pythia6Z/AODSIM/PU_START42_V11_FastSim-v1/0060/0001CFBE-E5CB-E011-B98A-00261894398B.root'
+			]    
+	elif options.release == '52x' :
 		process.source.fileNames = [
-			'/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/9AF32315-EC97-E011-8B25-0026189438B3.root',
-			'/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/18F1D3EA-E597-E011-8452-00304867BFBC.root'
-		]
-	else :
-		process.source.fileNames = [
-			'/store/mc/Summer11/SMS-T2tt_Mstop-225to1200_mLSP-50to1025_7TeV-Pythia6Z/AODSIM/PU_START42_V11_FastSim-v1/0059/00A9721F-44CB-E011-A65A-002618943869.root',
-			'/store/mc/Summer11/SMS-T2tt_Mstop-225to1200_mLSP-50to1025_7TeV-Pythia6Z/AODSIM/PU_START42_V11_FastSim-v1/0060/0001CFBE-E5CB-E011-B98A-00261894398B.root'
-		]    
+			'/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-RECO/START52_V5-v1/0043/18E75EC8-2B7A-E111-B784-002354EF3BDE.root',
+			'/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-RECO/START52_V5-v1/0043/42F2FCD5-FF79-E111-9A09-003048FFD736.root',
+			'/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-RECO/START52_V5-v1/0043/60C59011-FE79-E111-B86A-003048FFCB9E.root',
+			'/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-RECO/START52_V5-v1/0043/72675B06-FE79-E111-BCD2-003048FFD736.root',
+			'/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-RECO/START52_V5-v1/0043/B832091D-007A-E111-B3D2-0018F3D096C6.root',
+			'/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-RECO/START52_V5-v1/0043/C63C1406-FE79-E111-B880-003048FFD76E.root'
+			]    		
+
 else :
 	inputJetCorrLabel = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
-	process.source.fileNames = [
-	    '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/FE6792BA-9A70-E011-940A-002618943970.root',
-	    '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/FE0F23C8-9A70-E011-97A2-002618943821.root',
-            '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/FA7403C3-9A70-E011-BFE1-001A92810AA0.root',
-            '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/F4886DC3-9A70-E011-BCD1-003048679000.root',
-            '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/F232B0F1-9A70-E011-BA4E-003048678FE4.root',
-            '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/F0969EC4-9A70-E011-AAD9-003048678FC6.root',
-            '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/EEC627FE-9A70-E011-B1EA-0018F3D096C8.root',
-            '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/ECA837F0-9A70-E011-9637-002618943866.root',
-            '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/E6E258CD-9A70-E011-A3AB-001A92971B7C.root',
-            '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/E6249FB3-9A70-E011-88D9-003048678FB2.root',
-            '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/E25FFEE0-9A70-E011-BE2B-0018F3D0968A.root',
-            '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/E0D345D7-9A70-E011-BF5F-002618943957.root',
-            '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/D0EF4AC6-9A70-E011-ACD0-0026189437E8.root',
-            '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/CCFCF4BD-9A70-E011-B72A-0018F3D096B4.root',
-            '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/C68BFCEB-9A70-E011-A4BC-003048678B12.root',
-            '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/C04521C3-9A70-E011-9DC8-001A928116BC.root'
-	    ]
+	if options.release == '42x':
+		process.source.fileNames = [
+		    '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/FE6792BA-9A70-E011-940A-002618943970.root',
+		    '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/FE0F23C8-9A70-E011-97A2-002618943821.root',
+		    '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/FA7403C3-9A70-E011-BFE1-001A92810AA0.root',
+		    '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/F4886DC3-9A70-E011-BCD1-003048679000.root',
+		    '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/F232B0F1-9A70-E011-BA4E-003048678FE4.root',
+		    '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/F0969EC4-9A70-E011-AAD9-003048678FC6.root',
+		    '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/EEC627FE-9A70-E011-B1EA-0018F3D096C8.root',
+		    '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/ECA837F0-9A70-E011-9637-002618943866.root',
+		    '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/E6E258CD-9A70-E011-A3AB-001A92971B7C.root',
+		    '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/E6249FB3-9A70-E011-88D9-003048678FB2.root',
+		    '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/E25FFEE0-9A70-E011-BE2B-0018F3D0968A.root',
+		    '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/E0D345D7-9A70-E011-BF5F-002618943957.root',
+		    '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/D0EF4AC6-9A70-E011-ACD0-0026189437E8.root',
+		    '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/CCFCF4BD-9A70-E011-B72A-0018F3D096B4.root',
+		    '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/C68BFCEB-9A70-E011-A4BC-003048678B12.root',
+		    '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/C04521C3-9A70-E011-9DC8-001A928116BC.root'
+		    ]
+	elif options.release == '52x' :
+		process.source.fileNames = [
+		    '/store/relval/CMSSW_5_2_2/Jet/RECO/GR_R_52_V4_RelVal_jet2011B-v2/0252/96518387-A174-E111-95A6-001A928116E8.root'
+		    ]
 
 #process.source.eventsToProcess = cms.untracked.VEventRange( ['1:86747'] )
 
@@ -114,12 +136,18 @@ import sys
 
 
 
-# 4.2.x configuration
-fileTag = '42x'
+# 4.2.x or 52x configuration
+fileTag = options.release
 if options.useData :
-    process.GlobalTag.globaltag = cms.string( 'GR_R_42_V24::All' )
+	if fileTag == '42x' :
+		process.GlobalTag.globaltag = cms.string( 'GR_R_42_V24::All' )
+	elif fileTag == '52x' :
+		process.GlobalTag.globaltag = cms.string( 'GR_R_52_V7::All' )
 else :
-    process.GlobalTag.globaltag = cms.string( 'START42_V17::All' )
+	if fileTag == '42x' :
+		process.GlobalTag.globaltag = cms.string( 'START42_V17::All' )
+	elif fileTag == '52x' :
+		process.GlobalTag.globaltag = cms.string( 'START52_V8::All' )
 
 
 # require scraping filter
@@ -1330,8 +1358,10 @@ process.patseq.replace( process.goodOfflinePrimaryVertices,
 
 if options.useData == True :
     process.patseq.remove( process.genParticlesForJetsNoNu )
-    process.patseq.remove( process.genJetParticles )    
+    process.patseq.remove( process.genJetParticles )
+    process.patseq.remove( process.ak8GenJetsNoNu )
     process.patseq.remove( process.ca8GenJetsNoNu )
+    process.patseq.remove( process.caFilteredGenJetsNoNu )
     process.patseq.remove( process.flavorHistorySeq )
     process.patseq.remove( process.caPrunedGen )
     process.patseq.remove( process.caTopTagGen )
