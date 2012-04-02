@@ -80,10 +80,12 @@ void GBRTree::AddNode(const TMVA::DecisionTreeNode *node) {
     return;
   }
   else {    
+    int thisidx = fCutIndices.size();
     
     fCutIndices.push_back(node->GetSelector());
     fCutVals.push_back(node->GetCutValue());
-   
+    fLeftIndices.push_back(0);   
+    fRightIndices.push_back(0);
     
     TMVA::DecisionTreeNode *left;
     TMVA::DecisionTreeNode *right;
@@ -96,19 +98,20 @@ void GBRTree::AddNode(const TMVA::DecisionTreeNode *node) {
       right = (TMVA::DecisionTreeNode*)node->GetLeft();
     }
     
+    
     if (!left->GetLeft() || !left->GetRight() || left->IsTerminal()) {
-      fLeftIndices.push_back(-fResponses.size());
+      fLeftIndices[thisidx] = -fResponses.size();
     }
     else {
-      fLeftIndices.push_back(fCutIndices.size());
+      fLeftIndices[thisidx] = fCutIndices.size();
     }
     AddNode(left);
     
     if (!right->GetLeft() || !right->GetRight() || right->IsTerminal()) {
-      fRightIndices.push_back(-fResponses.size());
+      fRightIndices[thisidx] = -fResponses.size();
     }
     else {
-      fRightIndices.push_back(fCutIndices.size());
+      fRightIndices[thisidx] = fCutIndices.size();
     }
     AddNode(right);    
     
