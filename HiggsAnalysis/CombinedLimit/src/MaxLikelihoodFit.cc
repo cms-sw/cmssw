@@ -35,6 +35,7 @@ std::string MaxLikelihoodFit::signalPdfNames_     = "shapeSig*";
 std::string MaxLikelihoodFit::backgroundPdfNames_ = "shapeBkg*";
 bool        MaxLikelihoodFit::saveNormalizations_ = false;
 bool        MaxLikelihoodFit::justFit_ = false;
+bool        MaxLikelihoodFit::noErrors_ = false;
 
 
 MaxLikelihoodFit::MaxLikelihoodFit() :
@@ -49,6 +50,7 @@ MaxLikelihoodFit::MaxLikelihoodFit() :
         ("backgroundPdfNames", boost::program_options::value<std::string>(&backgroundPdfNames_)->default_value(backgroundPdfNames_), "Names of background pdfs in plots (separated by ',')")
         ("saveNormalizations",  "Save post-fit normalizations of all components of the pdfs")
         ("justFit",  "Just do the S+B fit, don't do the B-only one, don't save output file")
+        ("noErrors",  "Don't compute uncertainties on the best fit value")
    ;
 }
 
@@ -59,6 +61,7 @@ void MaxLikelihoodFit::applyOptions(const boost::program_options::variables_map 
     name_ = vm["name"].defaulted() ?  std::string() : vm["name"].as<std::string>();
     saveNormalizations_  = vm.count("saveNormalizations");
     justFit_  = vm.count("justFit");
+    noErrors_ = vm.count("noErrors");
     if (justFit_) { out_ = "none"; makePlots_ = false; saveNormalizations_ = false; }
 }
 
@@ -169,7 +172,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   r->setVal(preFitValue_); r->setConstant(false);
   if (minos_ != "all") {
     RooArgList minos; if (minos_ == "poi") minos.add(*r);
-    res_s = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/true); 
+    res_s = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/!noErrors_); 
   } else {
     CloseCoutSentry sentry(verbose < 2);
     res_s = mc_s->GetPdf()->fitTo(data, 
@@ -231,12 +234,12 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
       double loErr95 = -(do95_ && rf->hasRange("err95") ? rf->getMin("err95") - bestFitVal : 0);
 
       limit = bestFitVal;  limitErr = 0;
-      Combine::commitPoint(/*expected=*/true, /*quantile=*/0.5);
+      if (!noErrors_) Combine::commitPoint(/*expected=*/true, /*quantile=*/0.5);
       limit = bestFitVal - loErr; limitErr = 0;
-      Combine::commitPoint(/*expected=*/true, /*quantile=*/0.16);
+      if (!noErrors_) Combine::commitPoint(/*expected=*/true, /*quantile=*/0.16);
       limit = bestFitVal + hiErr; limitErr = 0;
-      Combine::commitPoint(/*expected=*/true, /*quantile=*/0.84);
-      if (do95_ && rf->hasRange("err95")) {
+      if (!noErrors_) Combine::commitPoint(/*expected=*/true, /*quantile=*/0.84);
+      if (do95_ && rf->hasRange("err95") && !noErrors_) {
         limit = rf->getMax("err95"); Combine::commitPoint(/*expected=*/true, /*quantile=*/0.975);
         limit = rf->getMin("err95"); Combine::commitPoint(/*expected=*/true, /*quantile=*/0.025);
       }

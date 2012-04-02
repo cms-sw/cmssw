@@ -1,4 +1,7 @@
 #include "../interface/FitterAlgoBase.h"
+#include <limits>
+#include <cmath>
+
 #include "RooRealVar.h"
 #include "RooArgSet.h"
 #include "RooRandom.h"
@@ -39,6 +42,9 @@ float       FitterAlgoBase::stepSize_ = 0.1;
 bool        FitterAlgoBase::robustFit_ = false;
 int         FitterAlgoBase::maxFailedSteps_ = 5;
 bool        FitterAlgoBase::do95_ = false;
+bool        FitterAlgoBase::saveNLL_ = false;
+bool        FitterAlgoBase::keepFailures_ = false;
+float       FitterAlgoBase::nllValue_ = std::numeric_limits<float>::quiet_NaN();
 
 FitterAlgoBase::FitterAlgoBase(const char *title) :
     LimitAlgo(title)
@@ -55,16 +61,23 @@ FitterAlgoBase::FitterAlgoBase(const char *title) :
         ("minimizerAlgoForMinos",      boost::program_options::value<std::string>(&minimizerAlgoForMinos_)->default_value(minimizerAlgoForMinos_), "Choice of minimizer (Minuit vs Minuit2) for profiling in robust fits")
         ("minimizerStrategyForMinos",  boost::program_options::value<int>(&minimizerStrategyForMinos_)->default_value(minimizerStrategyForMinos_),      "Stragegy for minimizer for profiling in robust fits")
         ("minimizerToleranceForMinos",  boost::program_options::value<float>(&minimizerToleranceForMinos_)->default_value(minimizerToleranceForMinos_),      "Tolerance for minimizer for profiling in robust fits")
+        ("saveNLL",  "Save the negative log-likelihood at the minimum in the output tree (note: value is relative to the pre-fit state)")
+        ("keepFailures",  "Save the results even if the fit is declared as failed (for NLL studies)")
     ;
 }
 
 void FitterAlgoBase::applyOptionsBase(const boost::program_options::variables_map &vm) 
 {
+    saveNLL_ = vm.count("saveNLL");
+    keepFailures_ = vm.count("keepFailures");
 }
 
 bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
   ProfileLikelihood::MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
   CloseCoutSentry sentry(verbose < 0);
+
+  static bool shouldCreateNLLBranch = saveNLL_;
+  if (shouldCreateNLLBranch) { Combine::addBranch("nll", &nllValue_, "nll/F"); shouldCreateNLLBranch = false; }
 
   return runSpecific(w, mc_s, mc_b, data, limit, limitErr, hint);
 }
@@ -80,11 +93,13 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooArgList
     RooFitResult *ret = 0;
     std::auto_ptr<RooAbsReal> nll(pdf.createNLL(data, constrain, RooFit::Extended(pdf.canBeExtended())));
 
+    double nll0 = nll->getVal();
     CascadeMinimizer minim(*nll, CascadeMinimizer::Unconstrained, rs.getSize() ? dynamic_cast<RooRealVar*>(rs.first()) : 0);
     minim.setStrategy(minimizerStrategy_);
     CloseCoutSentry sentry(verbose < 3);    
     bool ok = minim.minimize(verbose-1);
-    if (!ok) { std::cout << "Initial minimization failed. Aborting." << std::endl; return 0; }
+    nllValue_ =  nll->getVal() - nll0;
+    if (!ok && !keepFailures_) { std::cout << "Initial minimization failed. Aborting." << std::endl; return 0; }
     if (doHesse) minim.minimizer().hesse();
     sentry.clear();
     ret = minim.save();
