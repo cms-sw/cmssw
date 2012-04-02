@@ -16,8 +16,8 @@ DTMeantimerPatternReco2DAlgo_LinearDriftFromDB = cms.PSet(
         AlphaMaxPhi = cms.double(1.0),
         AlphaMaxTheta = cms.double(0.9),
         MaxChi2 = cms.double(4.0),
-        MaxT0 = cms.double(10.0),
-        MinT0 = cms.double(-25.0),
+        MaxT0 = cms.double(100.0),
+        MinT0 = cms.double(-100.0),
         MaxAllowedHits = cms.uint32(50),
         debug = cms.untracked.bool(False),
         # Parameters for the cleaner
