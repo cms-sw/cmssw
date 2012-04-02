@@ -9,28 +9,47 @@
 TestProposal::TestProposal(double divisor, const RooRealVar *alwaysStepMe) : 
     RooStats::ProposalFunction(),
     divisor_(1./divisor),
-    alwaysStepMe_(alwaysStepMe)
+    poiDivisor_(divisor_)
 {
+    alwaysStepMe_.add(*alwaysStepMe);
 }
      
+TestProposal::TestProposal(double divisor, const RooArgList &alwaysStepMe) : 
+    RooStats::ProposalFunction(),
+    divisor_(1./divisor),
+    poiDivisor_(divisor_),
+    alwaysStepMe_(alwaysStepMe)
+{
+    if (alwaysStepMe.getSize() > 1) poiDivisor_ /= sqrt(double(alwaysStepMe.getSize()));
+}
+ 
 
 // Populate xPrime with a new proposed point
 void TestProposal::Propose(RooArgSet& xPrime, RooArgSet& x )
 {
    RooStats::SetParameters(&x, &xPrime);
-   std::auto_ptr<TIterator> it(xPrime.createIterator());
+   RooLinkedListIter it(xPrime.iterator());
    RooRealVar* var;
    int n = xPrime.getSize(), j = floor(RooRandom::uniform()*n);
-   for (int i = 0; (var = (RooRealVar*)it->Next()) != NULL; ++i) {
-      if (i == j || 
-          (alwaysStepMe_ != 0 && (alwaysStepMe_ == var || strcmp(alwaysStepMe_->GetName(), var->GetName()) == 0) ) ) {
+   for (int i = 0; (var = (RooRealVar*)it.Next()) != NULL; ++i) {
+      if (i == j) {
+        if (alwaysStepMe_.contains(*var)) break; // don't step twice
         double val = var->getVal(), max = var->getMax(), min = var->getMin(), len = max - min;
         val += RooRandom::gaussian() * len * divisor_;
         while (val > max) val -= len;
         while (val < min) val += len;
         var->setVal(val);
-        //std::cout << "Proposing a step along " << var->GetName() << std::endl;
+        break;
       }
+   }
+   it = alwaysStepMe_.iterator();
+   for (RooRealVar *poi = (RooRealVar*)it.Next(); poi != NULL; poi = (RooRealVar*)it.Next()) {
+        RooRealVar *var = (RooRealVar*) xPrime.find(poi->GetName());
+        double val = var->getVal(), max = var->getMax(), min = var->getMin(), len = max - min;
+        val += RooRandom::gaussian() * len * poiDivisor_;
+        while (val > max) val -= len;
+        while (val < min) val += len;
+        var->setVal(val);
    }
 }
 

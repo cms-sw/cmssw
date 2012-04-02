@@ -14,6 +14,7 @@ class TestProposal : public RooStats::ProposalFunction {
    public:
       TestProposal() : RooStats::ProposalFunction() {}
       TestProposal(double divisor, const RooRealVar *alwaysStepMe=0) ;
+      TestProposal(double divisor, const RooArgList &alwaysStepMe) ;
 
       // Populate xPrime with a new proposed point
       virtual void Propose(RooArgSet& xPrime, RooArgSet& x);
@@ -32,8 +33,8 @@ class TestProposal : public RooStats::ProposalFunction {
       ClassDef(TestProposal,1) // A concrete implementation of ProposalFunction, that uniformly samples the parameter space.
 
     private:
-      double divisor_;
-      const RooRealVar * alwaysStepMe_;
+      double divisor_, poiDivisor_;
+      RooArgList alwaysStepMe_;
 };
 
 #endif
