@@ -276,14 +276,15 @@ if not options.forceCheckClosestZVertex :
 
 # Adapt fine details of top projection for top group synchronization
 
-#muons
-process.isoValMuonWithNeutralPFlow.deposits[0].deltaR = 0.3
-process.isoValMuonWithChargedPFlow.deposits[0].deltaR = 0.3
-process.isoValMuonWithPhotonsPFlow.deposits[0].deltaR = 0.3
-#electrons
-process.isoValElectronWithNeutralPFlow.deposits[0].deltaR = 0.3
-process.isoValElectronWithChargedPFlow.deposits[0].deltaR = 0.3
-process.isoValElectronWithPhotonsPFlow.deposits[0].deltaR = 0.3
+if options.release == '42x' :
+	#muons
+	process.isoValMuonWithNeutralPFlow.deposits[0].deltaR = 0.3
+	process.isoValMuonWithChargedPFlow.deposits[0].deltaR = 0.3
+	process.isoValMuonWithPhotonsPFlow.deposits[0].deltaR = 0.3
+	#electrons
+	process.isoValElectronWithNeutralPFlow.deposits[0].deltaR = 0.3
+	process.isoValElectronWithChargedPFlow.deposits[0].deltaR = 0.3
+	process.isoValElectronWithPhotonsPFlow.deposits[0].deltaR = 0.3
 
 process.pfIsolatedMuonsPFlow.combinedIsolationCut = 0.2
 
