@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2012/02/11 07:55:38 $
- *  $Revision: 1.31 $
+ *  $Date: 2012/02/12 16:19:29 $
+ *  $Revision: 1.32 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -580,10 +580,6 @@ void DQMGenericClient::computeResolution(const string& startDir, const string& n
   }
 
   const int nBin = hSrc->GetNbinsX();
-  const double xMin = hSrc->GetXaxis()->GetXmin();
-  const double xMax = hSrc->GetXaxis()->GetXmax();
-//  const double yMin = hSrc->GetYaxis()->GetXmin();
-//  const double yMax = hSrc->GetYaxis()->GetXmax();
 
   string newDir = startDir;
   string newPrefix = namePrefix;
@@ -595,22 +591,41 @@ void DQMGenericClient::computeResolution(const string& startDir, const string& n
 
   theDQM->setCurrentFolder(newDir);
 
-//   ME* meanME = theDQM->bookProfile(newPrefix+"_Mean", titlePrefix+" Mean", nBin, xMin, xMax, 10, yMin, yMax);
-//   ME* sigmaME = theDQM->bookProfile(newPrefix+"_Sigma", titlePrefix+" Sigma", nBin, xMin, xMax, 10, yMin, yMax);
-  ME* meanME = theDQM->book1D(newPrefix+"_Mean", titlePrefix+" Mean", nBin, xMin, xMax);
-  ME* sigmaME = theDQM->book1D(newPrefix+"_Sigma", titlePrefix+" Sigma", nBin, xMin, xMax);
-  meanME->setEfficiencyFlag();
-  sigmaME->setEfficiencyFlag();
-  //  ME* chi2ME  = theDQM->book1D(namePrefix+"_Chi2" , titlePrefix+" #Chi^{2}", nBin, xMin, xMax); // N/A
-
-  if (! resLimitedFit_ ) {
-    FitSlicesYTool fitTool(srcME);
-    fitTool.getFittedMeanWithError(meanME);
-    fitTool.getFittedSigmaWithError(sigmaME);
-    ////  fitTool.getFittedChisqWithError(chi2ME); // N/A
-  } else {
-    limitedFit(srcME,meanME,sigmaME);
+  float * lowedgesfloats = new float[nBin+1];
+  ME* meanME;
+  ME* sigmaME;
+  if (hSrc->GetXaxis()->GetXbins()->GetSize())
+  {
+    for (int j=0; j<nBin+1; ++j)
+      lowedgesfloats[j] = (float)hSrc->GetXaxis()->GetXbins()->GetAt(j);
+    meanME = theDQM->book1D(newPrefix+"_Mean", titlePrefix+" Mean", nBin, lowedgesfloats);
+    sigmaME = theDQM->book1D(newPrefix+"_Sigma", titlePrefix+" Sigma", nBin, lowedgesfloats);
   }
+  else
+  {
+    meanME = theDQM->book1D(newPrefix+"_Mean", titlePrefix+" Mean", nBin,
+			    hSrc->GetXaxis()->GetXmin(),
+			    hSrc->GetXaxis()->GetXmax());
+    sigmaME = theDQM->book1D(newPrefix+"_Sigma", titlePrefix+" Sigma", nBin,
+			    hSrc->GetXaxis()->GetXmin(),
+			    hSrc->GetXaxis()->GetXmax());			     
+  }
+  
+  if (meanME && sigmaME)
+  {
+    meanME->setEfficiencyFlag();
+    sigmaME->setEfficiencyFlag();
+
+    if (! resLimitedFit_ ) {
+      FitSlicesYTool fitTool(srcME);
+      fitTool.getFittedMeanWithError(meanME);
+      fitTool.getFittedSigmaWithError(sigmaME);
+      ////  fitTool.getFittedChisqWithError(chi2ME); // N/A
+    } else {
+      limitedFit(srcME,meanME,sigmaME);
+    }
+  }
+  delete[] lowedgesfloats;
 }
 
 void DQMGenericClient::normalizeToEntries(const std::string& startDir, const std::string& histName, const std::string& normHistName) 
