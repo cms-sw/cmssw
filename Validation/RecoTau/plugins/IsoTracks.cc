@@ -73,8 +73,10 @@ void IsoTracks::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
     return ;
   }
   
-  typename std::vector<reco::Track>::const_iterator dirtyTrackIt    ;
-  typename std::vector<reco::Track>::const_iterator dirtyTrackIt2   ;
+  std::vector<reco::Track>::const_iterator dirtyTrackIt    ;
+  std::vector<reco::Track>::const_iterator dirtyTrackIt2   ;
+//  typename std::vector<reco::Track>::const_iterator dirtyTrackIt    ;
+//  typename std::vector<reco::Track>::const_iterator dirtyTrackIt2   ;
   double   sumPtInCone = 0 ;
 
   for ( dirtyTrackIt = dirtyTracks->begin(); dirtyTrackIt != dirtyTracks->end(); ++dirtyTrackIt ) {

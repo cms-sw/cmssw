@@ -84,7 +84,8 @@ void MuonFromPVSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   
   
   reco::Vertex PV = VertexHandle->front();   
-  typename std::vector<reco::Muon>::const_iterator MuonIt ;
+  //typename std::vector<reco::Muon>::const_iterator MuonIt ;
+  std::vector<reco::Muon>::const_iterator MuonIt ;
 
   for (MuonIt = MuonHandle->begin(); MuonIt != MuonHandle->end(); ++MuonIt) {
     if ( MuonIt->innerTrack().isNonnull()                          &&
