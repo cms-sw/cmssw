@@ -286,7 +286,7 @@ if options.release == '42x' :
 	process.isoValElectronWithChargedPFlow.deposits[0].deltaR = 0.3
 	process.isoValElectronWithPhotonsPFlow.deposits[0].deltaR = 0.3
 
-process.pfIsolatedMuonsPFlow.combinedIsolationCut = 0.2
+	process.pfIsolatedMuonsPFlow.combinedIsolationCut = 0.2
 
 #process.pfNoTauPFlow.enable = False
 
