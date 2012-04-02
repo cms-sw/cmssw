@@ -17,6 +17,7 @@ from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 parser = OptionParser(usage="usage: %prog [options] datacard.txt -o output \nrun with --help to get list of options")
 addDatacardParserOptions(parser)
 parser.add_option("-P", "--physics-model", dest="physModel", default="HiggsAnalysis.CombinedLimit.PhysicsModel:defaultModel",  type="string", help="Physics model to use. It should be in the form (module name):(object name)")
+parser.add_option("--PO", "--physics-option", dest="physOpt", default=[],  type="string", action="append", help="Pass a given option to the physics model (can specify multiple times)")
 (options, args) = parser.parse_args()
 
 if len(args) == 0:
@@ -49,7 +50,7 @@ physics = getattr(mod, physModName)
 if mod     == None: raise RuntimeError, "Physics model module %s not found" % physModMod
 if physics == None or not isinstance(physics, PhysicsModel): 
     raise RuntimeError, "Physics model %s in module %s not found, or not inheriting from PhysicsModel" % (physModName, physModMod)
-
+physics.setPhysicsOptions(options.physOpt)
 ## Attach to the tools, and run
 MB.setPhysics(physics)
 MB.doModel()

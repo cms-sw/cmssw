@@ -555,3 +555,7 @@ void Combine::commitPoint(bool expected, float quantile) {
     tree_->Fill();
     g_quantileExpected_ = saveQuantile;
 }
+
+void Combine::addBranch(const char *name, void *address, const char *leaflist) {
+    tree_->Branch(name,address,leaflist);
+}

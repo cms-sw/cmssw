@@ -35,6 +35,8 @@ public:
   /// Save a point into the output tree. Usually if expected = false, quantile should be set to -1 (except e.g. for saveGrid option of HybridNew)
   static void commitPoint(bool expected, float quantile);
 
+  /// Add a branch to the output tree (for advanced use or debugging only)
+  static void addBranch(const char *name, void *address, const char *leaflist) ;
 private:
   bool mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) ;
   

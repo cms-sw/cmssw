@@ -20,6 +20,7 @@
 #include "../interface/Asymptotic.h"
 #include "../interface/GoodnessOfFit.h"
 #include "../interface/ChannelCompatibilityCheck.h"
+#include "../interface/MultiDimFit.h"
 #include "../interface/CascadeMinimizer.h"
 #include "../interface/ProfilingTools.h"
 #include <map>
@@ -54,6 +55,7 @@ int main(int argc, char **argv) {
   algo = new Asymptotic();  methods.insert(make_pair(algo->name(), algo));
   algo = new GoodnessOfFit();  methods.insert(make_pair(algo->name(), algo));
   algo = new ChannelCompatibilityCheck();  methods.insert(make_pair(algo->name(), algo));
+  algo = new MultiDimFit();  methods.insert(make_pair(algo->name(), algo));
   
   CascadeMinimizer::initOptions();
 
