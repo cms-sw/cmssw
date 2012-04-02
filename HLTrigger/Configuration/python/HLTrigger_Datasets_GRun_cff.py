@@ -323,7 +323,6 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleDisplac
     'HLT_DoubleMu8_Mass8_PFHT225_v3', 
     'HLT_DoubleRelIso1p0Mu5_Mass8_PFHT175_v2', 
     'HLT_DoubleRelIso1p0Mu5_Mass8_PFHT225_v2', 
-    'HLT_HcalCalibration_v3', 
     'HLT_IsoMu17_eta2p1_DiCentralPFJet30_PFHT350_PFMHT40_v3', 
     'HLT_IsoMu17_eta2p1_TriCentralPFJet30_v2', 
     'HLT_IsoMu20_eta2p1_CentralPFJet30_BTagIPIter_v2', 
