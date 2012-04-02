@@ -3,8 +3,8 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 runOnMC = True
 
-if runOnMC == False:
-    # a jet data file at CERN:
+if not runOnMC:
+    from PhysicsTools.PatAlgos.patInputFiles_cff import filesSingleMuRECO
     process.source.fileNames = filesSingleMuRECO
     process.GlobalTag.globaltag = cms.string( autoCond[ 'com10' ] )
 
@@ -20,7 +20,7 @@ from PhysicsTools.PatAlgos.tools.pfTools import *
 # otherwise both standard PAT and PF2PAT are run. In the latter case PF2PAT
 # collections have standard names + postfix (e.g. patElectronPFlow)
 postfix = "PFlow"
-jetAlgo="AK5"
+jetAlgo = "AK5"
 usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=runOnMC, postfix=postfix)
 # to run second PF2PAT+PAT with different postfix uncomment the following lines
 # and add the corresponding sequence to path
@@ -38,7 +38,7 @@ usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=runOnMC, postfix=post
 #adaptPFTaus(process,"shrinkingConePFTau",postfix=postfix)
 
 
-if runOnMC == False:
+if not runOnMC:
     # removing MC matching for standard PAT sequence
     # for the PF2PAT+PAT sequence, it is done in the usePF2PAT function
     removeMCMatchingPF2PAT( process, '' )
@@ -49,7 +49,7 @@ process.p = cms.Path(
 #    second PF2PAT
 #    + getattr(process,"patPF2PATSequence"+postfix2)
 )
-if not postfix=="":
+if not postfix == "":
     process.p += process.patDefaultSequence
 
 # Add PF2PAT output to the created file

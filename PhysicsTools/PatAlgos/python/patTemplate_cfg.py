@@ -9,7 +9,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 ## Source
-from PhysicsTools.PatAlgos.patInputFiles_cff import *
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
 process.source = cms.Source("PoolSource",
     fileNames = filesRelValProdTTbarAODSIM
 )

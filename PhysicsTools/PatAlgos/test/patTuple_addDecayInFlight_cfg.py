@@ -2,6 +2,7 @@
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 ## switch to RECO input
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarGENSIMRECO
 process.source.fileNames = filesRelValProdTTbarGENSIMRECO
 
 ## add inFlightMuons
