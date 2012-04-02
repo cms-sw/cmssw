@@ -94,3 +94,47 @@ C
          CALL cmsending(ICODE)
       ENDIF
       END
+
+C------------      
+C      
+C On 4/2/2012 - Modification by J.V.Yarba, FNAL: 
+C Makeup for old-stryle fortran tauola routines that are called by Herwig6 core code
+C
+C------------
+
+      SUBROUTINE INIETC(jakk1,jakk2,itd,ifpho)
+      COMMON / IDFC  / IDFF
+      COMMON / TAURAD / XK0DEC,ITDKRC
+      DOUBLE PRECISION            XK0DEC
+      COMMON / JAKI   /  JAK1,JAK2,JAKP,JAKM,KTOM
+      COMMON /PHOACT/ IFPHOT
+      SAVE
+C KTO=1 will denote tau+, thus :: IDFF=-15
+          IDFF=-15
+C XK0 for tau decays.
+          XK0DEC=0.01
+C radiative correction switch in tau --> e (mu) decays !
+          ITDKRC=itd
+C switches of tau+ tau- decay modes !!
+          JAK1=jakk1
+          JAK2=jakk2
+C photos activation switch
+ccc --> Note by J.V.Yarba: this is no longer relevant with tauola++
+ccc -->                    but we keep it in for historical reasons
+          IFPHOT=IFPHO
+      end
+      
+      SUBROUTINE INIPHX(XK00)
+* ----------------------------------------------------------------------
+*     INITIALISATION OF PARAMETERS
+*     USED IN QED and/or GSW ROUTINES
+* ----------------------------------------------------------------------
+      COMMON / QEDPRM /ALFINV,ALFPI,XK0
+      REAL*8           ALFINV,ALFPI,XK0
+      REAL*8 PI8,XK00
+*
+      PI8    = 4.D0*DATAN(1.D0)
+      ALFINV = 137.03604D0
+      ALFPI  = 1D0/(ALFINV*PI8)
+      XK0=XK00
+      END
