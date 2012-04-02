@@ -296,7 +296,7 @@ if options.release == '42x' :
 	process.pfIsolatedMuonsLoosePFlow = process.pfIsolatedMuonsPFlow.clone(
 		combinedIsolationCut = cms.double(999.0) 
 	)
-elif options.releaze == '52x' :
+elif options.release == '52x' :
 	process.pfIsolatedMuonsLoosePFlow = process.pfIsolatedMuonsPFlow.clone(
 		isolationCut = cms.double(999.0) 
 	)
