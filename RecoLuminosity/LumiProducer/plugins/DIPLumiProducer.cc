@@ -6,7 +6,7 @@
 /**\class DIPLumiProducer DIPLumiProducer.cc RecoLuminosity/LumiProducer/src/DIPLumiProducer.cc
 Description: A essource/esproducer for lumi values from DIP via runtime logger DB
 */
-// $Id: DIPLumiProducer.cc,v 1.8 2012/04/02 17:56:47 xiezhen Exp $
+// $Id: DIPLumiProducer.cc,v 1.9 2012/04/02 18:01:46 xiezhen Exp $
 
 //#include <memory>
 //#include "boost/shared_ptr.hpp"
@@ -76,7 +76,7 @@ DIPLumiProducer::produceSummary(const DIPLuminosityRcd&)
   unsigned int currentrun=m_pcurrentTime->eventID().run();
   unsigned int currentls=m_pcurrentTime->luminosityBlockNumber();
   if(currentls==0||currentls==4294967295){ 
-    return  boost::shared_ptr<DIPLumiSummary>();
+    return  boost::shared_ptr<DIPLumiSummary>(new DIPLumiSummary());
   }
   if(m_summarycachedrun!=currentrun){//i'm in a new run
     fillsummarycache(currentrun,currentls);//starting ls
@@ -84,13 +84,15 @@ DIPLumiProducer::produceSummary(const DIPLuminosityRcd&)
     if(m_summarycache.find(currentls)==m_summarycache.end()){//i'm in a uncached 
       fillsummarycache(currentrun,currentls);//cache all ls>=currentls 
       if(m_summarycache.find(currentls)==m_summarycache.end()){
-	return boost::shared_ptr<DIPLumiSummary>(); //really no data found
+	
+	return boost::shared_ptr<DIPLumiSummary>(new DIPLumiSummary()); //really no data found
       }
     }
   }
   m_summaryresult=m_summarycache[currentls];
+  std::cout<<*m_summaryresult<<std::endl;
   if(m_summaryresult.get()==0){
-    return boost::shared_ptr<DIPLumiSummary>();
+    return boost::shared_ptr<DIPLumiSummary>(new DIPLumiSummary());
   }
   return m_summaryresult;
 }
@@ -100,7 +102,7 @@ DIPLumiProducer::produceDetail(const DIPLuminosityRcd&)
   unsigned int currentrun=m_pcurrentTime->eventID().run();
   unsigned int currentls=m_pcurrentTime->luminosityBlockNumber();
   if(currentls==0||currentls==4294967295){ 
-    return  boost::shared_ptr<DIPLumiDetail>();
+    return  boost::shared_ptr<DIPLumiDetail>(new DIPLumiDetail());
   }
   if(m_detailcachedrun!=currentrun){//i'm in a new run
     filldetailcache(currentrun,currentls);//starting ls
@@ -108,13 +110,13 @@ DIPLumiProducer::produceDetail(const DIPLuminosityRcd&)
     if(m_detailcache.find(currentls)==m_detailcache.end()){//i'm in a unknown ls
       filldetailcache(currentrun,currentls);//cache all ls>=currentls 
       if(m_detailcache.find(currentls)==m_detailcache.end()){
-	return boost::shared_ptr<DIPLumiDetail>(); //really no data found
+	return boost::shared_ptr<DIPLumiDetail>(new DIPLumiDetail()); //really no data found
       }
     }
   }
   m_detailresult=m_detailcache[currentls];
   if(m_detailresult.get()==0){
-    return boost::shared_ptr<DIPLumiDetail>();
+    return boost::shared_ptr<DIPLumiDetail>(new DIPLumiDetail());
   }
   return m_detailresult;
 }
@@ -196,9 +198,9 @@ DIPLumiProducer::fillsummarycache(unsigned int runnumber,unsigned int startlsnum
       m_summarycache.insert(std::make_pair(lsnum,tmpls));
       ++rowcounter;
     }
-    if (rowcounter==0){
-      m_isNullRun=true;
-    }
+    //if (rowcounter==0){
+    //  m_isNullRun=true;
+    //}
     delete lumisummaryQuery;
     session->transaction().commit();
   }catch(const coral::Exception& er){
@@ -272,9 +274,9 @@ DIPLumiProducer::filldetailcache(unsigned int runnumber,unsigned int startlsnum)
       m_detailcache[lsnum]->fillbxdata(bxidx,bxlumi);
       ++rowcounter;
     }
-    if (rowcounter==0){
-      m_isNullRun=true;
-    }
+    //if (rowcounter==0){
+    //  m_isNullRun=true;
+    //}
     delete lumidetailQuery;
     session->transaction().commit();
   }catch(const coral::Exception& er){

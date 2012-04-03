@@ -7,13 +7,14 @@
 class DIPLumiSummary {
  public:
   /// default constructor
-  DIPLumiSummary(){}
+  DIPLumiSummary():m_instlumi(0.0),m_dellumi(0.0),m_reclumi(0.0),m_deadfrac(1.0),m_cmsalive(false){}
   
   /// set default constructor
   DIPLumiSummary(float instlumi,float dellumi,float reclumi,unsigned short cmsalive):m_instlumi(instlumi),m_dellumi(dellumi),m_reclumi(reclumi),m_deadfrac(1.0),m_cmsalive(cmsalive){}
     
   /// destructor
   ~DIPLumiSummary(){}
+  bool isNull()const;
   /** 
       average inst lumi,delivered HF, 
       unit Hz/ub, 

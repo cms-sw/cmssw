@@ -11,6 +11,7 @@ class DIPLumiDetail {
   typedef std::pair<std::vector<float>::const_iterator, std::vector<float>::const_iterator> ValueRange;
   /// set default constructor
   virtual ~DIPLumiDetail(){}
+  bool isNull()const;
   float lumiValue(unsigned int bx) const;
   ValueRange lumiValues()const;
   void filldata(std::vector<float>& lumivalues);

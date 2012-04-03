@@ -60,12 +60,16 @@ void TestDIPLumiProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiBlo
   }
   try{
     edm::ESHandle<DIPLumiSummary> datahandle;
+    es.getData(datahandle);
     if(datahandle.isValid()){
-      es.getData(datahandle);
       const DIPLumiSummary* mydata=datahandle.product();
-      std::cout<<*mydata<<std::endl;
+      if(!mydata->isNull()){
+	std::cout<<mydata<<std::endl;
+      }else{
+	std::cout<<"data empty"<<std::endl;
+      }
     }else{
-      std::cout<<"no valid recordd found"<<std::endl;
+      std::cout<<"no valid record found"<<std::endl;
     }
   }catch(const edm::eventsetup::NoRecordException<DIPLuminosityRcd>& er){
     std::cout<<"no data found"<<std::endl;
@@ -75,10 +79,14 @@ void TestDIPLumiProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiBlo
   //try{
   //  std::cout<<"looking at detail"<<std::endl;
   //  edm::ESHandle<DIPLumiDetail> pDetail;
-  // if(pDetail.isValid()){
   //  es.getData(pDetail);
+  // if(pDetail.isValid()){
   //    const DIPLumiDetail* ddata=pDetail.product();
-  //   std::cout<<*ddata<<std::endl;
+  //    if(!mydata->isNull()){
+  //      std::cout<<*ddata<<std::endl;
+  //    }else{
+  //	  std::cout<<"data empty"<<std::endl;
+  //    }
   //  }else{
   //    std::cout<<"no valid data found"<<std::endl;
   //  }

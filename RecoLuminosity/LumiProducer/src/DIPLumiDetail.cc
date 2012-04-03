@@ -6,6 +6,13 @@
 
 DIPLumiDetail::DIPLumiDetail():m_lumiValues(3564){
 }
+bool
+DIPLumiDetail::isNull()const{
+  if(m_lumiValues.size()==0){
+    return true;
+  }
+  return false;
+}
 float 
 DIPLumiDetail::lumiValue(unsigned int bx) const {
   return m_lumiValues[bx];

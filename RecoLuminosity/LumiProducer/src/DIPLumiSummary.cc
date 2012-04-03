@@ -3,6 +3,13 @@
 #include <iomanip>
 #include <ostream>
 #include <iostream>
+bool 
+DIPLumiSummary::isNull()const{
+  if(m_instlumi==0.0&&m_dellumi==0.0&&m_reclumi==0.0&&m_deadfrac==1.0){
+    return true;
+  }
+  return false;
+}
 float 
 DIPLumiSummary::instDelLumi() const{
   return m_instlumi;
