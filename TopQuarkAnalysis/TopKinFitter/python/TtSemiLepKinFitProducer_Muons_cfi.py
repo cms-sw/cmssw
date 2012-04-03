@@ -64,11 +64,15 @@ kinFitTtSemiLepEvent = cms.EDProducer("TtSemiLepKinFitProducerMuon",
     mTop = cms.double(173.),
 
     # ------------------------------------------------
-    # set correction factor for the jet resolution
-    # ------------------------------------------------                                     
-    jetEnergyResolutionSmearFactor = cms.double(1.0),
-    etaDependentResSmearFactor     = cms.vdouble(1.0),
-    etaBinningForSmearFactor       = cms.vdouble(0.0,0.5,1.1,1.7,2.3,-1.0)
+    # set correction factor(s) for the jet energy resolution:
+    # - (optional) eta dependence assumed to be symmetric
+    #   around eta=0, i.e. parametrized in |eta|
+    # - any negative value as last bin edge is read as "inf"
+    # - make sure that number of entries in vector with
+    #   bin edges = number of scale factors + 1
+    # ------------------------------------------------
+    jetEnergyResolutionScaleFactors = cms.vdouble(1.0),
+    jetEnergyResolutionEtaBinning = cms.vdouble(0.0,-1.0)
 )
 
 

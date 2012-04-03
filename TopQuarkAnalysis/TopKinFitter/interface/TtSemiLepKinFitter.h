@@ -43,17 +43,17 @@ class TtSemiLepKinFitter : public TopKinFitter {
 			      const std::vector<edm::ParameterSet>* udscResolutions=0, 
 			      const std::vector<edm::ParameterSet>* bResolutions   =0,
 			      const std::vector<edm::ParameterSet>* lepResolutions =0, 
-			      const std::vector<edm::ParameterSet>* metResolutions =0);
+			      const std::vector<edm::ParameterSet>* metResolutions =0,
+			      const std::vector<double>* jetEnergyResolutionScaleFactors=0,
+			      const std::vector<double>* jetEnergyResolutionEtaBinning  =0);
   /// default destructor
   ~TtSemiLepKinFitter();
 
   /// kinematic fit interface for PAT objects
-  template <class LeptonType> int fit(const std::vector<pat::Jet>& jets, const pat::Lepton<LeptonType>& leps, const pat::MET& met,
-				      const std::vector<double> jetResolutionSmearFactor, const std::vector<double> etaBinningForSmearFactor);
+  template <class LeptonType> int fit(const std::vector<pat::Jet>& jets, const pat::Lepton<LeptonType>& leps, const pat::MET& met);
   /// kinematic fit interface for plain 4-vecs
   int fit(const TLorentzVector& p4HadP, const TLorentzVector& p4HadQ, const TLorentzVector& p4HadB, const TLorentzVector& p4LepB,
-	  const TLorentzVector& p4Lepton, const TLorentzVector& p4Neutrino, const int leptonCharge, const CovarianceMatrix::ObjectType leptonType,
-	  const std::vector<double> jetEnergyResolutionSmearFactor, const std::vector<double> etaBinningForSmearFactor);
+	  const TLorentzVector& p4Lepton, const TLorentzVector& p4Neutrino, const int leptonCharge, const CovarianceMatrix::ObjectType leptonType);
   /// common core of the fit interface
   int fit(const TLorentzVector& p4HadP, const TLorentzVector& p4HadQ, const TLorentzVector& p4HadB, const TLorentzVector& p4LepB,
 	  const TLorentzVector& p4Lepton, const TLorentzVector& p4Neutrino,
@@ -73,8 +73,7 @@ class TtSemiLepKinFitter : public TopKinFitter {
   /// return neutrino candidate
   const pat::Particle fittedNeutrino() const { return (fitter_->getStatus()==0 ? fittedNeutrino_ : pat::Particle()); };
   /// add kin fit information to the old event solution (in for legacy reasons)
-  TtSemiEvtSolution addKinFitInfo(TtSemiEvtSolution* asol, const std::vector<double> jetEnergyResolutionSmearFactor, 
-				  const std::vector<double> etaBinningForSmearFactor);
+  TtSemiEvtSolution addKinFitInfo(TtSemiEvtSolution* asol);
   
  private:
   /// print fitter setup  
@@ -101,6 +100,9 @@ class TtSemiLepKinFitter : public TopKinFitter {
   const std::vector<edm::ParameterSet>* bResolutions_;
   const std::vector<edm::ParameterSet>* lepResolutions_;
   const std::vector<edm::ParameterSet>* metResolutions_;
+  /// scale factors for the jet energy resolution
+  const std::vector<double> jetEnergyResolutionScaleFactors_;
+  const std::vector<double> jetEnergyResolutionEtaBinning_;
   /// object used to construct the covariance matrices for the individual particles
   CovarianceMatrix* covM_;
   /// supported constraints

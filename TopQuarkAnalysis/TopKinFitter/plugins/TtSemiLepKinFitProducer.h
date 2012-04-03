@@ -64,10 +64,9 @@ class TtSemiLepKinFitProducer : public edm::EDProducer {
   std::vector<unsigned> constraints_;
   double mW_;
   double mTop_;
-  /// smear factor for jet resolutions
-  double jetEnergyResolutionSmearFactor_;
-  std::vector<double> etaDependentResSmearFactor_;
-  std::vector<double> etaBinningForSmearFactor_;
+  /// scale factors for jet energy resolution
+  std::vector<double> jetEnergyResolutionScaleFactors_;
+  std::vector<double> jetEnergyResolutionEtaBinning_;
   /// config-file-based object resolutions
   std::vector<edm::ParameterSet> udscResolutions_;
   std::vector<edm::ParameterSet> bResolutions_;
@@ -113,9 +112,8 @@ TtSemiLepKinFitProducer<LeptonCollection>::TtSemiLepKinFitProducer(const edm::Pa
   constraints_             (cfg.getParameter<std::vector<unsigned> >("constraints")),
   mW_                      (cfg.getParameter<double>       ("mW"                  )),
   mTop_                    (cfg.getParameter<double>       ("mTop"                )),
-  jetEnergyResolutionSmearFactor_(cfg.getParameter<double> ("jetEnergyResolutionSmearFactor")),
-  etaDependentResSmearFactor_(cfg.getParameter<std::vector<double> >("etaDependentResSmearFactor")),
-  etaBinningForSmearFactor_  (cfg.getParameter<std::vector<double> >("etaBinningForSmearFactor")),
+  jetEnergyResolutionScaleFactors_(cfg.getParameter<std::vector<double> >("jetEnergyResolutionScaleFactors")),
+  jetEnergyResolutionEtaBinning_  (cfg.getParameter<std::vector<double> >("jetEnergyResolutionEtaBinning")),
   udscResolutions_(0), bResolutions_(0), lepResolutions_(0), metResolutions_(0)
 {
   if(cfg.exists("udscResolutions") && cfg.exists("bResolutions") && cfg.exists("lepResolutions") && cfg.exists("metResolutions")){
@@ -129,7 +127,8 @@ TtSemiLepKinFitProducer<LeptonCollection>::TtSemiLepKinFitProducer(const edm::Pa
   }
 
   fitter = new TtSemiLepKinFitter(param(jetParam_), param(lepParam_), param(metParam_), maxNrIter_, maxDeltaS_, maxF_,
-				  constraints(constraints_), mW_, mTop_, &udscResolutions_, &bResolutions_, &lepResolutions_, &metResolutions_);
+				  constraints(constraints_), mW_, mTop_, &udscResolutions_, &bResolutions_, &lepResolutions_, &metResolutions_,
+				  &jetEnergyResolutionScaleFactors_, &jetEnergyResolutionEtaBinning_);
 
   produces< std::vector<pat::Particle> >("PartonsHadP");
   produces< std::vector<pat::Particle> >("PartonsHadQ");
@@ -298,13 +297,7 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
 	jetCombi[TtSemiLepEvtPartons::LepB     ] = (*jets)[combi[TtSemiLepEvtPartons::LepB     ]];
 
 	// do the kinematic fit
-	if(etaDependentResSmearFactor_.size()<2){
-	  etaDependentResSmearFactor_.clear();
-	  for(unsigned int i=1; i<etaBinningForSmearFactor_.size(); i++){
-	    etaDependentResSmearFactor_.push_back(jetEnergyResolutionSmearFactor_);
-	  }
-	}
-	int status = fitter->fit(jetCombi, (*leps)[0], (*mets)[0], etaDependentResSmearFactor_, etaBinningForSmearFactor_);
+	const int status = fitter->fit(jetCombi, (*leps)[0], (*mets)[0]);
 
 	if( status == 0 ) { // only take into account converged fits
 	  KinFitResult result;

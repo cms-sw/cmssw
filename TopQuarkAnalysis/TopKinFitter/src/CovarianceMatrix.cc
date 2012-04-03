@@ -25,7 +25,16 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet> udscReso
 }
 
 CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet> udscResolutions, const std::vector<edm::ParameterSet> bResolutions,
-				   const std::vector<edm::ParameterSet> lepResolutions, const std::vector<edm::ParameterSet> metResolutions){
+				   const std::vector<edm::ParameterSet> lepResolutions, const std::vector<edm::ParameterSet> metResolutions,
+				   const std::vector<double> jetEnergyResolutionScaleFactors, const std::vector<double> jetEnergyResolutionEtaBinning):
+  jetEnergyResolutionScaleFactors_(jetEnergyResolutionScaleFactors), jetEnergyResolutionEtaBinning_(jetEnergyResolutionEtaBinning),
+{
+  if(jetEnergyResolutionScaleFactors_.size()+1!=jetEnergyResolutionEtaBinning_.size())
+    throw cms::Exception("Configuration") << "The number of scale factors does not fit to the number of eta bins!\n";
+  for(unsigned int i=0; i<jetEnergyResolutionEtaBinning_.size(); i++)
+    if(jetEnergyResolutionEtaBinning_[i]<0. && i<jetEnergyResolutionEtaBinning_.size()-1)
+      throw cms::Exception("Configuration") << "eta binning in absolut values required!\n";
+
   for(std::vector<edm::ParameterSet>::const_iterator iSet = udscResolutions.begin(); iSet != udscResolutions.end(); ++iSet){
     if(iSet->exists("bin")) binsUdsc_.push_back(iSet->getParameter<std::string>("bin"));
     else if(udscResolutions.size()==1) binsUdsc_.push_back("");
@@ -113,13 +122,16 @@ double CovarianceMatrix::getResolution(const TLorentzVector& object, const Objec
       break;
     }
   }
+  double res = 0;
   if(selectedBin>=0){
-    if(whichResolution == "et")       return StringObjectFunction<reco::LeafCandidate>(funcEt_ ->at(selectedBin)).operator()(candidate);
-    else if(whichResolution == "eta") return StringObjectFunction<reco::LeafCandidate>(funcEta_->at(selectedBin)).operator()(candidate);
-    else if(whichResolution == "phi") return StringObjectFunction<reco::LeafCandidate>(funcPhi_->at(selectedBin)).operator()(candidate);
+    if(whichResolution == "et")       res = StringObjectFunction<reco::LeafCandidate>(funcEt_ ->at(selectedBin)).operator()(candidate);
+    else if(whichResolution == "eta") res = StringObjectFunction<reco::LeafCandidate>(funcEta_->at(selectedBin)).operator()(candidate);
+    else if(whichResolution == "phi") res = StringObjectFunction<reco::LeafCandidate>(funcPhi_->at(selectedBin)).operator()(candidate);
     else throw cms::Exception("ProgrammingError") << "Only 'et', 'eta' and 'phi' resolutions supported!\n";
   }
-  return 0;
+  if(objType==kUdscJet || objType==kBJet)
+    res *= getEtaDependentScaleFactor(object);
+  return res;
 }
 
 TMatrixD CovarianceMatrix::setupMatrix(const TLorentzVector& object, const ObjectType objType, const TopKinFitter::Param param)
@@ -301,20 +313,20 @@ TMatrixD CovarianceMatrix::setupMatrix(const TLorentzVector& object, const Objec
   return *CovM;
 }
 
-double CovarianceMatrix::getEtaDependentSmearFactor(const TLorentzVector& object, std::vector<double> smearFactor, std::vector<double> etaBinning)
+double CovarianceMatrix::getEtaDependentScaleFactor(const TLorentzVector& object)
 {
-  if(smearFactor.size()+1!=etaBinning.size())
-    throw cms::Exception("Configuration") << "The number of smear factors does not fit to the number of eta bins!\n";
-  // append 1. for jets beyond the last eta bin
-  smearFactor.push_back(1.);
-  double etaDependentSmearFactor = 1.;
-  for(unsigned int i=0; i<etaBinning.size(); i++){
-    if(etaBinning[i]<0. && i<etaBinning.size()-1)throw cms::Exception("Configuration") << "eta binning in absolut values required!\n";
-    if(std::abs(object.Eta())>=etaBinning[i] && etaBinning[i]>=0.){
-      etaDependentSmearFactor=smearFactor[i];
-      if(i==etaBinning.size()-1)edm::LogWarning("CovarianceMatrix") << "object eta ("<<std::abs(object.Eta())<<") beyond last eta bin ("<<etaBinning[i]<<") using smear factor 1.0!";
+  double etaDependentScaleFactor = 1.;
+  for(unsigned int i=0; i<jetEnergyResolutionEtaBinning_.size(); i++){
+    if(std::abs(object.Eta())>=jetEnergyResolutionEtaBinning_[i] && jetEnergyResolutionEtaBinning_[i]>=0.){
+      if(i==jetEnergyResolutionEtaBinning_.size()-1) {
+	edm::LogWarning("CovarianceMatrix") << "object eta ("<<std::abs(object.Eta())<<") beyond last eta bin ("<<jetEnergyResolutionEtaBinning_[i]<<") using scale factor 1.0!";
+	etaDependentScaleFactor=1.;
+	break;
+      }
+      etaDependentScaleFactor=jetEnergyResolutionScaleFactors_[i];
     }
-    else break;
+    else
+      break;
   }
-  return etaDependentSmearFactor;
+  return etaDependentScaleFactor;
 }
