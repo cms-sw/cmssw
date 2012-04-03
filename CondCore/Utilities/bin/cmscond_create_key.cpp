@@ -49,7 +49,7 @@ int cond::CreateKeyUtilities::execute(){
     inFile = getOptionValue<std::string>("read");
     if(!inFile.empty()){
       DecodingKey key;
-      key.init( DecodingKey::FILE_NAME, Auth::COND_KEY );
+      key.init( inFile, Auth::COND_KEY );
       key.list( std::cout );
       return 0;
     }

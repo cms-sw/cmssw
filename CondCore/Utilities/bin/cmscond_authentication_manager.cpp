@@ -11,7 +11,8 @@
 //
 #include <iostream>
 #include <fstream>
-#include <map>
+#include <iomanip>
+//#include <map>
 
 namespace coral_bridge {
   bool parseXMLAuthenticationFile( const std::string& inputFileName, 
@@ -65,7 +66,7 @@ cond::AuthenticationManager::AuthenticationManager():Utilities("cmscond_authenti
   addOption<bool>("create","","[-c a0 -u a1 -p a2] create creds db");
   addOption<bool>("init","","[-s a0 -u a1 -p a2] init db for admin");
   addOption<bool>("drop","", "[-c a0 -u a1 -p a2] drop creds db");
-  addOption<bool>("update_princ","", "[-s a0 -k a1] add/update principal");
+  addOption<bool>("update_princ","", "[-s a0 -k a1 (-a)] add/update principal");
   addOption<bool>("update_conn","", "[-s a0 -u a1 -p a2 (-l a3)] add/update connection");
   addOption<bool>("set_perm","", "[-s a0 -n a1 -r a2 -c a3 -l a4] set permission");
   addOption<bool>("unset_perm","", "[-s a0 -n a1 -r a2 -c a3] unset permission");
@@ -74,6 +75,7 @@ cond::AuthenticationManager::AuthenticationManager():Utilities("cmscond_authenti
   addOption<bool>("list_princ","","[-s arg] list principals");
   addOption<bool>("remove_princ","","[-s a0 -n a1] remove principal");
   addOption<bool>("remove_conn","","[-s a0 -l a1] remove connection");
+  addOption<bool>("admin","a","add admin privileges");
   addOption<std::string>("import","","[a0 -s a1 -n a2] import from the xml file");
   addOption<std::string>("export","","[a0 -s a1] export to the xml file");
   addOption<std::string>("service","s","service name");
@@ -132,32 +134,40 @@ int cond::AuthenticationManager::execute(){
 
   if( create ){
     std::string connectionString = getOptionValue<std::string>("connectionString");
-    std::string userName = getOptionValue<std::string>("userName");
-    std::string password = getOptionValue<std::string>("password");
+    std::string userName("");
+    if( hasOptionValue("userName") ) userName = getOptionValue<std::string>("userName");
+    std::string password("");
+    if( hasOptionValue("password") ) password = getOptionValue<std::string>("password");
     credDb.createSchema( connectionString, userName, password);
     return 0;
   }
 
-  std::string service = getOptionValue<std::string>("service");
+  std::string service(""); 
+  if( init || update_princ || update_conn || remove_princ || remove_conn || set_perm || 
+      unset_perm || import || list_conn || list_princ || list_perm || exp ){
+    service = getOptionValue<std::string>("service");
+    std::string credsStore = credDb.setUpForService( service, authPath );
+    std::cout <<"Connecting with credential repository in \""<<credsStore<<"\""<<std::endl;
+  }
   if( init ){
-    std::string userName = getOptionValue<std::string>("userName");
-    std::string password = getOptionValue<std::string>("password");
-    credDb.setUpForService( service, authPath );
+    std::string userName("");
+    if( hasOptionValue("userName") ) userName = getOptionValue<std::string>("userName");
+    std::string password("");
+    if( hasOptionValue("password") ) password = getOptionValue<std::string>("password");
     credDb.installAdmin( userName, password );
     return 0;
   }
 
   if( update_princ ){
-    credDb.setUpForService( service, authPath );
+    bool adminOpt = hasOptionValue("admin");
     std::string key = getOptionValue<std::string>("key");
     DecodingKey pk;
     pk.init( key, Auth::COND_KEY );
-    credDb.updatePrincipal( pk.principalName(), pk.principalKey() );
+    credDb.updatePrincipal( pk.principalName(), pk.principalKey(), adminOpt );
     return 0;
   }
 
   if( update_conn ){
-    credDb.setUpForService( service, authPath );
     std::string userName = getOptionValue<std::string>("userName");
     std::string password = getOptionValue<std::string>("password");
     std::string connectionLabel = schemaLabel( service, userName );
@@ -170,21 +180,18 @@ int cond::AuthenticationManager::execute(){
   }
 
   if( remove_princ ){
-    credDb.setUpForService( service, authPath );
     std::string principal = getOptionValue<std::string>("princ_name");
     credDb.removePrincipal( principal );
     return 0;
   }
 
   if( remove_conn ){
-    credDb.setUpForService( service, authPath );
     std::string connectionLabel = getOptionValue<std::string>("connectionLabel");
     credDb.removeConnection( connectionLabel );
     return 0;
   }
 
   if( set_perm ){
-    credDb.setUpForService( service, authPath );
     std::string principal = getOptionValue<std::string>("princ_name");
     std::string role = getOptionValue<std::string>("role");
     std::string connectionString = getOptionValue<std::string>("connectionString");
@@ -194,7 +201,6 @@ int cond::AuthenticationManager::execute(){
   }
 
   if( unset_perm ){
-    credDb.setUpForService( service, authPath );
     std::string principal = getOptionValue<std::string>("princ_name");
     std::string role = getOptionValue<std::string>("role");
     std::string connectionString = getOptionValue<std::string>("connectionString");
@@ -210,37 +216,86 @@ int cond::AuthenticationManager::execute(){
     if( !coral_bridge::parseXMLAuthenticationFile( fileName, source ) ){
       return 1;
     }
-    credDb.setUpForService( service, authPath );
     credDb.importForPrincipal( principal, source );
     return 0;
   }
 
   if( list_conn ){
-    credDb.setUpForService( service, authPath );
     std::map<std::string,std::pair<std::string,std::string> > data;
     credDb.listConnections( data );
     std::cout <<"Found "<<data.size()<<" connection(s)."<<std::endl;
+    std::cout <<std::endl;
+    static std::string connectionLabelH("connection label");
+    static std::string userNameH("username");
+    static std::string passwordH("password");
+    size_t connectionLabelW = connectionLabelH.size();
+    size_t userNameW = 0;
+    size_t passwordW = 0;
     for( std::map<std::string,std::pair<std::string,std::string> >::const_iterator iC = data.begin();
 	 iC != data.end(); ++iC ){
-      std::cout <<iC->first<<"  u="<<iC->second.first<<"  p="<<iC->second.second<<std::endl;
+      const std::string& userName = iC->second.first;
+      const std::string& password = iC->second.second;
+      const std::string& connectionLabel = iC->first;
+      if(connectionLabelW < connectionLabel.size() ) connectionLabelW = connectionLabel.size();
+      if(userNameW < userName.size() ) userNameW = userName.size();
+      if(passwordW < password.size() ) passwordW = password.size();
+    }
+    if( userNameW > 0 && userNameW < userNameH.size() ) userNameW = userNameH.size();
+    if( passwordW > 0 && passwordW < passwordH.size() ) passwordW = passwordH.size();
+    std::cout << std::setiosflags(std::ios_base::left);
+    std::cout <<std::setw(connectionLabelW)<<connectionLabelH;
+    if( userNameW  ) {
+      std::cout <<"  "<<std::setw(userNameW)<<userNameH;
+    }
+    if( passwordW ){
+      std::cout <<"  "<<std::setw(passwordW)<<passwordH;
+    }
+    std::cout<<std::endl;
+    std::cout << std::setfill('-');
+    std::cout <<std::setw(connectionLabelW)<<"";
+    if( userNameW  ) {
+      std::cout <<"  "<<std::setw(userNameW)<<"";
+    }
+    if( passwordW ){
+      std::cout <<"  "<<std::setw(passwordW)<<"";
+    }
+    std::cout<<std::endl;
+    std::cout << std::setfill(' ');
+    for( std::map<std::string,std::pair<std::string,std::string> >::const_iterator iC = data.begin();
+	 iC != data.end(); ++iC ){
+      const std::string& connectionLabel = iC->first;
+      const std::string& userName = iC->second.first;
+      const std::string& password = iC->second.second;
+      std::cout <<std::setw(connectionLabelW)<<connectionLabel<<"  "<<std::setw(userNameW)<<userName<<"  "<<std::setw(passwordW)<<password<<std::endl;
     }
     return 0;
   }
 
   if( list_princ ){
-    credDb.setUpForService( service, authPath );
     std::vector<std::string> data;
     credDb.listPrincipals( data );
     std::cout <<"Found "<<data.size()<<" principal(s)."<<std::endl;
+    std::cout <<std::endl;
+    static std::string principalH("principal name");
+    size_t principalW = principalH.size();
     for( std::vector<std::string>::const_iterator iP = data.begin();
 	 iP != data.end(); ++iP ){
-      std::cout <<*iP<<std::endl;
+      const std::string& principal = *iP;
+      if( principalW < principal.size() ) principalW = principal.size();
+    }
+    std::cout << std::setiosflags(std::ios_base::left);
+    std::cout <<std::setw(principalW)<<principalH<<std::endl;
+    std::cout << std::setfill('-');
+    std::cout <<std::setw(principalW)<<""<<std::endl;
+    std::cout << std::setfill(' ');
+    for( std::vector<std::string>::const_iterator iP = data.begin();
+	 iP != data.end(); ++iP ){
+      std::cout <<std::setw(principalW)<<*iP<<std::endl;
     }
     return 0;
   }
 
   if( list_perm ){
-    credDb.setUpForService( service, authPath );
     std::vector<CredentialStore::Permission> data;
     std::string pName("");
     std::string role("");
@@ -250,16 +305,42 @@ int cond::AuthenticationManager::execute(){
     if( hasOptionValue("role") ) role = getOptionValue<std::string>("role");
     credDb.selectPermissions( pName, role, conn, data );
     std::cout <<"Found "<<data.size()<<" permission(s)."<<std::endl;
+    std::cout <<std::endl;
+    static std::string connectionStringH("connection string");
+    static std::string principalH("principal name");
+    static std::string roleH("role");
+    static std::string connectionLabelH("connection label");
+    size_t connectionStringW = connectionStringH.size();
+    size_t principalW = principalH.size();
+    size_t roleW = roleH.size();
+    size_t connectionLabelW = connectionLabelH.size();
     for( std::vector<CredentialStore::Permission>::const_iterator iP = data.begin();
 	 iP != data.end(); ++iP ){
-      std::cout <<"P="<<iP->principalName<<" R="<<iP->role<<" C="<<iP->connectionString<<" L="<<iP->connectionLabel<<std::endl;
+      const std::string& connectionString = iP->connectionString;
+      if(connectionStringW < connectionString.size() ) connectionStringW = connectionString.size();
+      const std::string& principal = iP->principalName;
+      if(principalW < principal.size() ) principalW = principal.size();
+      const std::string& role = iP->role;
+      if(roleW < role.size() ) roleW = role.size();
+      const std::string& connectionLabel = iP->connectionLabel;
+      if(connectionLabelW < connectionLabel.size() ) connectionLabelW = connectionLabel.size();
+    }  
+    std::cout << std::setiosflags(std::ios_base::left);
+    std::cout <<std::setw(connectionStringW)<<connectionStringH<<"  "<<std::setw(principalW)<<principalH<<"  ";
+    std::cout <<std::setw(roleW)<<roleH<<"  "<<std::setw(connectionLabelW)<<connectionLabelH<<std::endl;
+    std::cout << std::setfill('-');
+    std::cout <<std::setw(connectionStringW)<<""<<"  "<<std::setw(principalW)<<""<<"  "<<std::setw(roleW)<<""<<"  "<<std::setw(connectionLabelW)<<""<<std::endl;
+    std::cout << std::setfill(' ');
+    for( std::vector<CredentialStore::Permission>::const_iterator iP = data.begin();
+	 iP != data.end(); ++iP ){
+      std::cout <<std::setw(connectionStringW)<<iP->connectionString<<"  "<<std::setw(principalW)<<iP->principalName<<"  ";;
+      std::cout <<std::setw(roleW)<<iP->role<<"  "<<std::setw(connectionLabelW)<<iP->connectionLabel<<std::endl;
     }
     return 0;    
   }
 
   if( exp ){
     std::string fileName = getOptionValue<std::string>("export");
-    credDb.setUpForService( service, authPath );
     coral_bridge::AuthenticationCredentialSet data;
     credDb.exportAll( data );
     std::ofstream outFile( fileName );
