@@ -119,6 +119,7 @@ ProfiledLikelihoodTestStatOpt::ProfiledLikelihoodTestStatOpt(
     RooAbsPdf &pdf, 
     const RooArgSet *nuisances, 
     const RooArgSet & params,
+    const RooArgSet & poi,
     const RooArgList &gobsParams,
     const RooArgList &gobs,
     int verbosity, 
@@ -134,13 +135,22 @@ ProfiledLikelihoodTestStatOpt::ProfiledLikelihoodTestStatOpt(
 
     params.snapshot(snap_,false);
     ((RooRealVar*)snap_.find(params.first()->GetName()))->setConstant(false);
-    poi_.add(snap_);
     if (nuisances) { nuisances_.add(*nuisances); snap_.addClone(*nuisances, /*silent=*/true); }
     params_.reset(pdf_->getParameters(observables));
     DBG(DBG_PLTestStat_ctor, (std::cout << "Observables: " << std::endl)) DBG(DBG_PLTestStat_ctor, (observables.Print("V")))
     DBG(DBG_PLTestStat_ctor, (std::cout << "All params: " << std::endl))  DBG(DBG_PLTestStat_ctor, (params_->Print("V")))
     DBG(DBG_PLTestStat_ctor, (std::cout << "Snapshot: " << std::endl))    DBG(DBG_PLTestStat_ctor, (snap_.Print("V")))
     DBG(DBG_PLTestStat_ctor, (std::cout << "POI: " << std::endl))         DBG(DBG_PLTestStat_ctor, (poi_.Print("V")))
+    RooLinkedListIter it = poi.iterator();
+    for (RooAbsArg *a = (RooAbsArg*) it.Next(); a != 0; a = (RooAbsArg*) it.Next()) {
+        // search for this poi in the parameters and in the snapshot
+        RooAbsArg *ps = snap_.find(a->GetName());   
+        RooAbsArg *pp = params_->find(a->GetName());
+        if (pp == 0) { std::cerr << "WARNING: NLL does not depend on POI " << a->GetName() << ", cannot profile" << std::endl; continue; }
+        if (ps == 0) { std::cerr << "WARNING: no snapshot for POI " << a->GetName() << ", cannot profile"  << std::endl; continue; }
+        poi_.add(*ps);
+        poiParams_.add(*pp);
+    }
 }
 
 
@@ -168,7 +178,7 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
         
     DBG(DBG_PLTestStat_pars, std::cout << "Being evaluated on " << data.GetName() << ": params after snapshot are " << std::endl)
     DBG(DBG_PLTestStat_pars, params_->Print("V"))
-    // Initialize signal strength
+    // Initialize signal strength (or the first parameter)
     RooRealVar *rIn = (RooRealVar *) poi_.first();
     RooRealVar *r   = (RooRealVar *) params_->find(rIn->GetName());
     bool canKeepNLL = createNLL(*pdf_, data);
@@ -176,9 +186,13 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
     double initialR = rIn->getVal();
 
     // Perform unconstrained minimization (denominator)
-    r->setMin(0); if (initialR == 0 || (oneSided_ != oneSidedDef)) r->removeMax(); else r->setMax(1.1*initialR); 
-    r->setVal(initialR == 0 ? 0.5 : 0.5*initialR); //best guess
-    r->setConstant(false);
+    if (poi_.getSize() == 1) {
+        r->setMin(0); if (initialR == 0 || (oneSided_ != oneSidedDef)) r->removeMax(); else r->setMax(1.1*initialR); 
+        r->setVal(initialR == 0 ? 0.5 : 0.5*initialR); //best guess
+        r->setConstant(false);
+    } else {
+        utils::setAllConstant(poiParams_,false);
+    }
     DBG(DBG_PLTestStat_pars, (std::cout << "r In: ")) DBG(DBG_PLTestStat_pars, (rIn->Print(""))) DBG(DBG_PLTestStat_pars, std::cout << std::endl)
     DBG(DBG_PLTestStat_pars, std::cout << "r before the fit: ") DBG(DBG_PLTestStat_pars, r->Print("")) DBG(DBG_PLTestStat_pars, std::cout << std::endl)
 
@@ -191,8 +205,13 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
     DBG(DBG_PLTestStat_pars, params_->Print("V"))
 
     // Prepare for constrained minimization (numerator)
-    r->setVal(initialR); 
-    r->setConstant(true);
+    if (poi_.getSize() == 1) {
+        r->setVal(initialR); 
+        r->setConstant(true);
+    } else {
+        poiParams_.assignValueOnly(poi_);
+        utils::setAllConstant(poiParams_,true);
+    }
     double thisNLL = nullNLL;
     if (initialR == 0 || oneSided_ != oneSidedDef || bestFitR < initialR) { 
         // must do constrained fit (if there's something to fit besides XS)
@@ -200,7 +219,7 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
         thisNLL = (nuisances_.getSize() > 0 ? minNLL(/*constrained=*/true, r) : nll_->getVal());
         if (thisNLL - nullNLL < -0.02) { 
             DBG(DBG_PLTestStat_main, (printf("  --> constrained fit is better... will repeat unconstrained fit\n")))
-            r->setConstant(false);
+            utils::setAllConstant(poiParams_,false);
             nullNLL = minNLL(/*constrained=*/false, r);
             bestFitR = r->getVal();
             if (bestFitR > initialR && oneSided_ == oneSidedDef) {

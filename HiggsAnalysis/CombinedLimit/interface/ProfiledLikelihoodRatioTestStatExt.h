@@ -53,7 +53,7 @@ class ProfiledLikelihoodTestStatOpt : public RooStats::TestStatistic {
         ProfiledLikelihoodTestStatOpt(const RooArgSet & observables,
                 RooAbsPdf &pdf, 
                 const RooArgSet *nuisances, 
-                const RooArgSet & params, const RooArgList &gobsParams, const RooArgList &gobs, int verbosity=0, OneSidedness oneSided = oneSidedDef) ; 
+                const RooArgSet & params, const RooArgSet & poi, const RooArgList &gobsParams, const RooArgList &gobs, int verbosity=0, OneSidedness oneSided = oneSidedDef) ; 
 
         virtual Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) ;
         virtual std::vector<Double_t> Evaluate(RooAbsData& data, RooArgSet& nullPOI, const std::vector<Double_t> &rVals) ;
@@ -67,8 +67,10 @@ class ProfiledLikelihoodTestStatOpt : public RooStats::TestStatistic {
     private:
 
         RooAbsPdf *pdf_;
-        RooArgSet snap_, poi_, nuisances_; 
-        std::auto_ptr<RooArgSet> params_;
+        RooArgSet snap_, poi_; // snapshot of parameters, and of the subset which are POI
+        std::auto_ptr<RooArgSet>  params_;
+        RooArgSet                 nuisances_; // subset of params which are nuisances (not a snapshot)
+        RooArgSet                 poiParams_; // subset of params which are POI (not a snapshot)
         std::auto_ptr<RooAbsReal> nll_;
         RooArgList gobsParams_, gobs_;
         Int_t verbosity_;

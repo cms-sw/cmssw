@@ -581,7 +581,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   w->loadSnapshot("clean");
   // realData_ = &data;  
 
-  RooArgSet  poi(*mc_s->GetParametersOfInterest());
+  RooArgSet  poi(*mc_s->GetParametersOfInterest()), params(poi);
   RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
 
   if (testStat_ != "MLZ") r->setMax(rVal); 
@@ -674,19 +674,19 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
  
 
   // create snapshots
-  RooArgSet poiZero; 
-  poiZero.addClone(*r); 
-  poiZero.setRealValue(r->GetName(), 0);
-  if (fitNuisances_) poi.add(fitMu->floatParsFinal());
-  if (fitNuisances_) poiZero.addClone(fitZero->floatParsFinal());
-  setup.modelConfig.SetSnapshot(poi);
-  setup.modelConfig_bonly.SetSnapshot(poiZero);
-  TString poiSnapName  = TString::Format("%s_%s_snapshot", setup.modelConfig.GetName(), poi.GetName());
-  TString poiZSnapName = TString::Format("%s__snapshot",   setup.modelConfig_bonly.GetName());
+  RooArgSet paramsZero; 
+  paramsZero.addClone(*r); 
+  paramsZero.setRealValue(r->GetName(), 0);
+  if (fitNuisances_) params.add(fitMu->floatParsFinal());
+  if (fitNuisances_) paramsZero.addClone(fitZero->floatParsFinal());
+  setup.modelConfig.SetSnapshot(params);
+  setup.modelConfig_bonly.SetSnapshot(paramsZero);
+  TString paramsSnapName  = TString::Format("%s_%s_snapshot", setup.modelConfig.GetName(), params.GetName());
+  TString paramsZSnapName = TString::Format("%s__snapshot",   setup.modelConfig_bonly.GetName());
   RooFit::MsgLevel level = RooMsgService::instance().globalKillBelow();
   RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
-  w->defineSet(poiSnapName,  poi ,    true);
-  w->defineSet(poiZSnapName, poiZero ,true);
+  w->defineSet(paramsSnapName,  params ,    true);
+  w->defineSet(paramsZSnapName, paramsZero ,true);
   RooMsgService::instance().setGlobalKillBelow(level);
 
   // Create pdfs without nusiances terms, can be used for LEP tests statistics and
@@ -704,7 +704,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
 
   if (testStat_ == "LEP") {
       //SLR is evaluated using the central value of the nuisance parameters, so I believe we have to put them in the snapshots
-      RooArgSet snapS; snapS.addClone(poi); 
+      RooArgSet snapS; snapS.addClone(params); 
       if (withSystematics) snapS.addClone(*mc_s->GetNuisanceParameters());
       RooArgSet snapB; snapB.addClone(snapS);
       snapS.setRealValue(r->GetName(), rVal);
@@ -724,7 +724,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   } else if (testStat_ == "TEV") {
       std::cerr << "ALERT: Tevatron test statistics not yet validated." << std::endl;
       if (optimizeTestStatistics_) {
-          setup.qvar.reset(new ProfiledLikelihoodRatioTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(), poiZero, poi));
+          setup.qvar.reset(new ProfiledLikelihoodRatioTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(), paramsZero, params));
           ((ProfiledLikelihoodRatioTestStatOpt&)*setup.qvar).setPrintLevel(verbose);
       } else {   
           setup.qvar.reset(new RatioOfProfiledLikelihoodsTestStat(*mc_s->GetPdf(), *mc_s->GetPdf(), setup.modelConfig.GetSnapshot()));
@@ -736,8 +736,8 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
           if (testStat_ == "LHCFC")   side = ProfiledLikelihoodTestStatOpt::signFlipDef;
           if (testStat_ == "Profile") side = ProfiledLikelihoodTestStatOpt::twoSidedDef;
           if (workingMode_ == MakeSignificance) r->setVal(0.0);
-          RooArgSet snapS(poi); 
-          setup.qvar.reset(new ProfiledLikelihoodTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  snapS, gobsParams,gobs, verbose, side));
+          RooArgSet snapS(params); 
+          setup.qvar.reset(new ProfiledLikelihoodTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  snapS, poi, gobsParams,gobs, verbose, side));
       } else {
           std::cerr << "ALERT: LHC test statistics without optimization not validated." << std::endl;
           setup.qvar.reset(new ProfileLikelihoodTestStat(*mc_s->GetPdf()));
@@ -749,7 +749,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
       }
   } else if (testStat_ == "MLZ") {
       if (workingMode_ == MakeSignificance) r->setVal(0.0);
-      RooArgSet snapS(poi); 
+      RooArgSet snapS(params); 
       setup.qvar.reset(new BestFitSigmaTestStat(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  snapS, verbose));
   }
 
