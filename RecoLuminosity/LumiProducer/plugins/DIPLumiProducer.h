@@ -10,6 +10,9 @@
 namespace edm{
   class IOVSyncValue;
 }
+namespace coral{
+  class ISchema;
+}
 class DIPLuminosityRcd;
 class DIPLumiSummary;
 class DIPLumiDetail;
@@ -25,11 +28,12 @@ class DIPLumiProducer: public edm::ESProducer , public edm::EventSetupRecordInte
   ReturnDetailType produceDetail(const DIPLuminosityRcd&);
   ~DIPLumiProducer();
 
-  protected:
+ protected:
   virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
                                const edm::IOVSyncValue&,
                                edm::ValidityInterval& );  
-
+ private:
+  unsigned int maxavailableLSforRun(coral::ISchema& schema,const std::string&tablename,unsigned int runnumber);
  private:
   std::string m_connectStr;
   std::map< unsigned int,boost::shared_ptr<DIPLumiSummary> > m_summarycache;

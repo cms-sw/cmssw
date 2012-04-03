@@ -64,7 +64,8 @@ void TestDIPLumiProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiBlo
     if(datahandle.isValid()){
       const DIPLumiSummary* mydata=datahandle.product();
       if(!mydata->isNull()){
-	std::cout<<mydata<<std::endl;
+	std::cout<<"from Run "<<mydata->fromRun()<<" from LS "<<mydata->fromLS()<<std::endl;
+	std::cout<<mydata->intgDelLumiByLS()<<std::endl;
       }else{
 	std::cout<<"data empty"<<std::endl;
       }
