@@ -5,7 +5,6 @@
 int main(){
   cond::KeyGenerator gen;
   for( unsigned int i = 0; i<200; i++ ){
-    
     std::string word = gen.makeWithRandomSize( 200 );
     std::string k = gen.makeWithRandomSize( 100 );
     cond::Cipher cipher0( k );

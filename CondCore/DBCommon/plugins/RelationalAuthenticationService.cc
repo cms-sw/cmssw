@@ -53,7 +53,9 @@ cond::RelationalAuthenticationService::RelationalAuthenticationService::credenti
 {
   const coral::IAuthenticationCredentials* creds = m_cache.get( connectionString );
   if( !creds ){
-    m_db.setUpForConnectionString( connectionString, m_authenticationPath );
+    std::string credsStoreConn = m_db.setUpForConnectionString( connectionString, m_authenticationPath );
+    coral::MessageStream log("cond::RelationalAuthenticationService::credentials");
+    log << coral::Debug << "Connecting to the credential repository in \"" << credsStoreConn << "\""<<coral::MessageStream::endmsg;
     m_db.selectForUser( m_cache );
   } 
   creds = m_cache.get( connectionString );
@@ -71,7 +73,9 @@ cond::RelationalAuthenticationService::RelationalAuthenticationService::credenti
 {
   const coral::IAuthenticationCredentials* creds = m_cache.get( connectionString, role );
   if( !creds ){
-    m_db.setUpForConnectionString( connectionString, m_authenticationPath );
+    std::string credsStoreConn = m_db.setUpForConnectionString( connectionString, m_authenticationPath );
+    coral::MessageStream log("cond::RelationalAuthenticationService::credentials");
+    log << coral::Debug << "Connecting to the credential repository in \"" << credsStoreConn << "\""<<coral::MessageStream::endmsg;
     m_db.selectForUser( m_cache );
   } 
   creds = m_cache.get( connectionString, role );

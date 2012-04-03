@@ -96,9 +96,9 @@ namespace cond {
   public:
 
     /// Sets the initialization parameters
-    void setUpForService( const std::string& serviceName, const std::string& authPath );
+    std::string setUpForService( const std::string& serviceName, const std::string& authPath );
 
-    void setUpForConnectionString( const std::string& connectionString, const std::string& authPath );
+    std::string setUpForConnectionString( const std::string& connectionString, const std::string& authPath );
     
     bool createSchema( const std::string& connectionString, const std::string& userName, const std::string& password );
 
@@ -106,7 +106,7 @@ namespace cond {
 
     bool installAdmin( const std::string& userName, const std::string& password );
 
-    bool updatePrincipal( const std::string& principal, const std::string& principalKey );
+    bool updatePrincipal( const std::string& principal, const std::string& principalKey, bool setAdmin=false);
 
     bool setPermission( const std::string& principal, const std::string& role, const std::string& connectionString, const std::string& connectionLabel );
 
@@ -149,6 +149,8 @@ namespace cond {
     void openSession( bool readOnly=true );
     
     void closeSession( bool commit=true );
+
+    int addUser( const std::string& principalName, const std::string& authenticationKey, const std::string& principalKey, const std::string& adminKey );
 
     bool setPermission( int principalId, const std::string& principalKey, const std::string& role, const std::string& connectionString, int connectionId, const std::string& connectionKey );
 

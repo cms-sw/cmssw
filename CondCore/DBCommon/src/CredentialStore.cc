@@ -8,6 +8,7 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/MessageStream.h"
 #include "CoralKernel/Context.h"
+#include "CoralCommon/URIParser.h"
 #include "RelationalAccess/AuthenticationCredentials.h"
 #include "RelationalAccess/IBulkOperation.h"
 #include "RelationalAccess/IConnection.h"
@@ -162,7 +163,18 @@ namespace cond {
   **/
   std::string schemaLabel( const std::string& serviceName, 
 			   const std::string& userName ){
-    return userName+"@"+serviceName;
+    std::string ret = userName;
+    if( !serviceName.empty() ){
+      ret += "@"+serviceName;
+    }
+    return ret;
+  }
+  std::string schemaLabelForCredentialStore( const std::string& connectionString ){
+    coral::URIParser parser;
+    parser.setURI( connectionString );
+    std::string serviceName = parser.hostName();
+    std::string schemaName = parser.databaseOrSchemaName();
+    return schemaLabel( serviceName, schemaName );
   }
 
   class CSScopedSession {
@@ -341,6 +353,28 @@ void cond::CredentialStore::closeSession( bool commit ){
   m_connection.reset();
 }
 
+int cond::CredentialStore::addUser( const std::string& principalName, const std::string& authenticationKey, const std::string& principalKey, const std::string& adminKey ){
+
+  coral::ISchema& schema = m_session->nominalSchema();
+  coral::ITableDataEditor& editor0 = schema.tableHandle(COND_AUTHENTICATION_TABLE).dataEditor();
+
+  ora::SequenceManager sequenceMgr( SEQUENCE_TABLE_NAME,schema );
+  int principalId = sequenceMgr.getNextId( COND_AUTHENTICATION_TABLE, true );
+    
+  Cipher cipher0( authenticationKey );
+  Cipher cipher1( adminKey );
+
+  coral::AttributeList authData;
+  editor0.rowBuffer(authData);
+  authData[ PRINCIPAL_ID_COL ].data<int>() = principalId;
+  authData[ PRINCIPAL_NAME_COL ].data<std::string>() = principalName;
+  authData[ VERIFICATION_COL ].data<std::string>() = cipher0.b64encrypt( principalName );
+  authData[ PRINCIPAL_KEY_COL ].data<std::string>() = cipher0.b64encrypt( principalKey );
+  authData[ ADMIN_KEY_COL ].data<std::string>() = cipher1.b64encrypt( principalKey );
+  editor0.insertRow( authData );
+  return principalId;
+}
+
 std::pair<std::string,std::string> cond::CredentialStore::openConnection( const std::string& connectionString ){
   coral::IHandle<coral::IRelationalService> relationalService = coral::Context::instance().query<coral::IRelationalService>();
   if ( ! relationalService.isValid() ){
@@ -364,7 +398,6 @@ void cond::CredentialStore::openSession( const std::string& schemaName, const st
 }
 
 void cond::CredentialStore::startSuperSession( const std::string& connectionString, const std::string& userName, const std::string& password ){
-  //coral::MessageStream::setMsgVerbosity( coral::Debug );
   std::pair<std::string,std::string> connTokens = openConnection( connectionString );
   openSession( connTokens.second, userName, password, false );
 }
@@ -376,7 +409,6 @@ void cond::CredentialStore::startSession( bool readMode ){
   }
   const std::string& storeConnectionString = m_serviceData->connectionString;
 
-  //coral::MessageStream::setMsgVerbosity( coral::Debug );
   std::pair<std::string,std::string> connTokens = openConnection( storeConnectionString );
 
   const std::string& userName = m_serviceData->userName;
@@ -388,7 +420,7 @@ void cond::CredentialStore::startSession( bool readMode ){
   if(!schema.existsTable(COND_AUTHENTICATION_TABLE) ||
      !schema.existsTable(COND_AUTHORIZATION_TABLE) ||
      !schema.existsTable(COND_CREDENTIAL_TABLE) ){
-    throwException("Credential database does not exists in this schema","CredentialStore::startSession");
+    throwException("Credential database does not exists in \""+storeConnectionString+"\"","CredentialStore::startSession");
   }
 
   const std::string& principalName = m_key.principalName();
@@ -410,20 +442,21 @@ void cond::CredentialStore::startSession( bool readMode ){
   
   if(!readMode ) {
 
-    /**
-    if( principalName != Auth::COND_ADMIN_GROUP ){
-      throwException( "Current user is not allowed to modifiy credentials",
+    Cipher cipher0( m_principalKey );
+    std::string adminKey = cipher0.b64decrypt( princData.adminKey );
+    if( adminKey != m_principalKey ){
+      // not admin user!
+      throwException( "Provided credentials does not allow admin operation.",
 		      "CredentialStore::openSession");
     }
-    **/
-
-    Cipher cipher( m_principalKey );
+    
     // first find the credentials for WRITING in the security tables
     std::auto_ptr<coral::IQuery> query(schema.newQuery());
     query->addToTableList(COND_AUTHORIZATION_TABLE, "AUTHO");
     query->addToTableList(COND_CREDENTIAL_TABLE, "CREDS");
     coral::AttributeList readBuff;
     readBuff.extend<std::string>("CREDS."+CONNECTION_LABEL_COL);
+    readBuff.extend<std::string>("CREDS."+CONNECTION_KEY_COL);
     readBuff.extend<std::string>("CREDS."+USERNAME_COL);
     readBuff.extend<std::string>("CREDS."+PASSWORD_COL);
     readBuff.extend<std::string>("CREDS."+VERIFICATION_KEY_COL);
@@ -435,11 +468,13 @@ void cond::CredentialStore::startSession( bool readMode ){
     whereData[ ROLE_COL ].data<std::string>() = Auth::COND_ADMIN_ROLE;
     whereData[ SCHEMA_COL ].data<std::string>() = storeConnectionString;
     std::stringstream whereClause;
-    whereClause << "AUTHO."<< P_ID_COL << " = :"<<P_ID_COL;
+    whereClause << "AUTHO."<< C_ID_COL << " = CREDS."<<CONNECTION_ID_COL;
+    whereClause << " AND AUTHO."<< P_ID_COL << " = :"<<P_ID_COL;
     whereClause << " AND AUTHO."<< ROLE_COL << " = :"<<ROLE_COL;
     whereClause << " AND AUTHO."<< SCHEMA_COL << " = :"<<SCHEMA_COL;
     query->defineOutput(readBuff);
     query->addToOutputList( "CREDS."+CONNECTION_LABEL_COL );
+    query->addToOutputList( "CREDS."+CONNECTION_KEY_COL );
     query->addToOutputList( "CREDS."+USERNAME_COL );
     query->addToOutputList( "CREDS."+PASSWORD_COL );
     query->addToOutputList( "CREDS."+VERIFICATION_KEY_COL );
@@ -451,23 +486,26 @@ void cond::CredentialStore::startSession( bool readMode ){
     if ( cursor.next() ) {
       const coral::AttributeList& row = cursor.currentRow();
       const std::string& connLabel = row[ "CREDS."+CONNECTION_LABEL_COL ].data<std::string>();
+      const std::string& encryptedConnectionKey = row[ "CREDS."+CONNECTION_KEY_COL ].data<std::string>();
+      std::string connectionKey = cipher0.b64decrypt( encryptedConnectionKey );
+      Cipher cipher1( connectionKey );
       const std::string& encryptedUserName = row[ "CREDS."+USERNAME_COL ].data<std::string>();
-      const std::string& encryptedPassword = row[ "CREDS."+USERNAME_COL ].data<std::string>();
+      const std::string& encryptedPassword = row[ "CREDS."+PASSWORD_COL ].data<std::string>();
       const std::string& verificationKey = row[ "CREDS."+VERIFICATION_KEY_COL ].data<std::string>();
-      if( cipher.b64decrypt( verificationKey ) != connLabel  ){
+      if( cipher1.b64decrypt( verificationKey ) != connLabel  ){
 	throwException( "Could not decrypt credentials.Provided key is invalid.",
-			"CredentialStore::openSession");
+			"CredentialStore::startSession");
       }
-      writeUserName = cipher.b64decrypt( encryptedUserName );
-      writePassword = cipher.b64decrypt( encryptedPassword );
+      writeUserName = cipher1.b64decrypt( encryptedUserName );
+      writePassword = cipher1.b64decrypt( encryptedPassword );
       found = true;
     }
-    m_session->transaction().commit();
-    m_session->endUserSession();
     if( ! found ){
       throwException( "Provided credentials are invalid for write access.",
 		      "CredentialStore::openSession");
     }
+    m_session->transaction().commit();
+    m_session->endUserSession();
     openSession( connTokens.second, writeUserName, writePassword, false );
 
   }
@@ -490,7 +528,7 @@ bool cond::CredentialStore::setPermission( int principalId, const std::string& p
     updateData[ AUTH_ID_COL ].data<int>() = authData.id;
     updateData[ C_ID_COL ].data<int>() = connectionId;
     updateData[ AUTH_KEY_COL ].data<std::string>() = encryptedConnectionKey;
-    std::string setCl = C_ID_COL+" = :"+C_ID_COL + " AND "+AUTH_KEY_COL+" = :"+AUTH_KEY_COL;
+    std::string setCl = C_ID_COL+" = :"+C_ID_COL + ", "+AUTH_KEY_COL+" = :"+AUTH_KEY_COL;
     std::string whereCl = AUTH_ID_COL+" = :"+AUTH_ID_COL;
     editor.updateRows( setCl,whereCl, updateData );
   } else {
@@ -528,7 +566,7 @@ std::pair<int,std::string> cond::CredentialStore::updateConnection( const std::s
   Cipher adminCipher( m_principalKey );
   std::string connectionKey("");
   coral::ITableDataEditor& editor = schema.tableHandle(COND_CREDENTIAL_TABLE).dataEditor();
-  if( found && forceUpdate ){
+  if( found ){
     
     connectionKey = adminCipher.b64decrypt( credsData.connectionKey );
     Cipher cipher( connectionKey );
@@ -536,21 +574,23 @@ std::pair<int,std::string> cond::CredentialStore::updateConnection( const std::s
     if( verificationKey != connectionLabel ){
       throwException("Decoding of connection key failed.","CredentialStore::updateConnection");
     }
-     std::string encryptedUserName = cipher.b64encrypt( userName );
-     std::string encryptedPassword = cipher.b64encrypt( password );
+    if( forceUpdate ){
+      std::string encryptedUserName = cipher.b64encrypt( userName );
+      std::string encryptedPassword = cipher.b64encrypt( password );
      
-     coral::AttributeList updateData;
-     updateData.extend<int>( CONNECTION_ID_COL );
-     updateData.extend<std::string>( USERNAME_COL );
-     updateData.extend<std::string>( PASSWORD_COL );
-     updateData[ CONNECTION_ID_COL ].data<int>() = connId;
-     updateData[ USERNAME_COL ].data<std::string>() = encryptedUserName;
-     updateData[ PASSWORD_COL ].data<std::string>() = encryptedPassword;
-     std::stringstream setCl;
-     setCl << USERNAME_COL << " = :" << USERNAME_COL;
-     setCl <<", " << PASSWORD_COL << " = :" << PASSWORD_COL;
-     std::string whereCl = CONNECTION_ID_COL+" = :"+CONNECTION_ID_COL;
-     editor.updateRows( setCl.str(),whereCl, updateData );
+      coral::AttributeList updateData;
+      updateData.extend<int>( CONNECTION_ID_COL );
+      updateData.extend<std::string>( USERNAME_COL );
+      updateData.extend<std::string>( PASSWORD_COL );
+      updateData[ CONNECTION_ID_COL ].data<int>() = connId;
+      updateData[ USERNAME_COL ].data<std::string>() = encryptedUserName;
+      updateData[ PASSWORD_COL ].data<std::string>() = encryptedPassword;
+      std::stringstream setCl;
+      setCl << USERNAME_COL << " = :" << USERNAME_COL;
+      setCl <<", " << PASSWORD_COL << " = :" << PASSWORD_COL;
+      std::string whereCl = CONNECTION_ID_COL+" = :"+CONNECTION_ID_COL;
+      editor.updateRows( setCl.str(),whereCl, updateData );
+    }
   }
   
   if(!found){
@@ -618,7 +658,7 @@ cond::CredentialStore::CredentialStore():
 cond::CredentialStore::~CredentialStore(){
 }
 
-void
+std::string
 cond::CredentialStore::setUpForService( const std::string& serviceName, 
 					const std::string& authPath ){
   if( serviceName.empty() ){
@@ -634,7 +674,7 @@ cond::CredentialStore::setUpForService( const std::string& serviceName,
   if(!boost::filesystem::exists(authPath) || !boost::filesystem::is_directory( authPath )){
     throwException( "Authentication Path is invalid.","cond::CredentialStore::setUpForService" );
   }
-  boost::filesystem::path file( DecodingKey::FILE_NAME );
+  boost::filesystem::path file( DecodingKey::FILE_PATH );
   fullPath /= file;
 
   m_key.init( fullPath.string(), Auth::COND_KEY ); 
@@ -647,9 +687,10 @@ cond::CredentialStore::setUpForService( const std::string& serviceName,
   }
   m_serviceName = serviceName;
   m_serviceData = &iK->second;
+  return m_serviceData->connectionString;
 }
 
-void 
+std::string
 cond::CredentialStore::setUpForConnectionString( const std::string& connectionString,
 						 const std::string& authPath ){
   coral::IHandle<coral::IRelationalService> relationalService = coral::Context::instance().query<coral::IRelationalService>();
@@ -660,7 +701,7 @@ cond::CredentialStore::setUpForConnectionString( const std::string& connectionSt
   coral::IRelationalDomain& domain = relationalService->domainForConnection( connectionString );
   std::pair<std::string,std::string> connTokens = domain.decodeUserConnectionString( connectionString );
   std::string& serviceName = connTokens.first;
-  setUpForService( serviceName, authPath );
+  return setUpForService( serviceName, authPath );
 }
 
 
@@ -761,6 +802,7 @@ cond::CredentialStore::drop( const std::string& connectionString, const std::str
   schema.dropIfExistsTable( COND_AUTHORIZATION_TABLE );
   schema.dropIfExistsTable( COND_CREDENTIAL_TABLE );
   schema.dropIfExistsTable( COND_AUTHENTICATION_TABLE );
+  schema.dropIfExistsTable(SEQUENCE_TABLE_NAME);
   session.close();
   return true;
 }
@@ -770,7 +812,6 @@ bool cond::CredentialStore::installAdmin( const std::string& userName, const std
     throwException( "The credential store has not been initialized.","cond::CredentialStore::installAdmin" );    
   }
   const std::string& connectionString = m_serviceData->connectionString;
-  //const std::string& principalName = Auth::COND_ADMIN_GROUP;
   const std::string& principalName = m_key.principalName();
 
   CSScopedSession session( *this );
@@ -782,29 +823,32 @@ bool cond::CredentialStore::installAdmin( const std::string& userName, const std
   bool found = selectPrincipal( schema, principalName, princData );
 
   if( found ){
-    throwException("Admin group has been installed already.","CredentialStore::installAdmin");
+    std::string msg("Principal \"");
+    msg += principalName + "\" has been installed already.";
+    throwException(msg,"CredentialStore::installAdmin");
   }
+
+  KeyGenerator gen;
+  m_principalKey = gen.make( Auth::COND_DB_KEY_SIZE );
 
   coral::ITableDataEditor& editor0 = schema.tableHandle(COND_AUTHENTICATION_TABLE).dataEditor();
 
   ora::SequenceManager sequenceMgr( SEQUENCE_TABLE_NAME,schema );
   int principalId = sequenceMgr.getNextId( COND_AUTHENTICATION_TABLE, true );
     
-  KeyGenerator gen;
-  std::string principalKey = gen.make( Auth::COND_DB_KEY_SIZE );
   Cipher cipher0( m_key.principalKey() );
-  Cipher cipher1( principalKey );
+  Cipher cipher1( m_principalKey );
 
   coral::AttributeList authData;
   editor0.rowBuffer(authData);
   authData[ PRINCIPAL_ID_COL ].data<int>() = principalId;
   authData[ PRINCIPAL_NAME_COL ].data<std::string>() = principalName;
   authData[ VERIFICATION_COL ].data<std::string>() = cipher0.b64encrypt( principalName );
-  authData[ PRINCIPAL_KEY_COL ].data<std::string>() = cipher0.b64encrypt( principalKey );
-  authData[ ADMIN_KEY_COL ].data<std::string>() = cipher1.b64encrypt( principalKey );
+  authData[ PRINCIPAL_KEY_COL ].data<std::string>() = cipher0.b64encrypt( m_principalKey );
+  authData[ ADMIN_KEY_COL ].data<std::string>() = cipher1.b64encrypt( m_principalKey );
   editor0.insertRow( authData );
 
-  std::string connLabel = schemaLabel( m_serviceName, userName );
+  std::string connLabel = schemaLabelForCredentialStore( connectionString );
   DecodingKey tmpKey;
   std::string connectionKey = gen.make( Auth::COND_DB_KEY_SIZE );
   std::string encryptedConnectionKey = cipher1.b64encrypt( connectionKey );    
@@ -813,7 +857,6 @@ bool cond::CredentialStore::installAdmin( const std::string& userName, const std
   std::string encryptedUserName = cipher2.b64encrypt( userName );
   std::string encryptedPassword = cipher2.b64encrypt( password );
   std::string encryptedLabel = cipher2.b64encrypt( connLabel );    
-  
   
   int connId = sequenceMgr.getNextId( COND_CREDENTIAL_TABLE, true );
     
@@ -846,7 +889,8 @@ bool cond::CredentialStore::installAdmin( const std::string& userName, const std
 }
 
 bool cond::CredentialStore::updatePrincipal( const std::string& principalName, 
-					     const std::string& principalKey ){
+					     const std::string& authenticationKey,
+					     bool setAdmin ){
   CSScopedSession session( *this );
   session.start( false  );
 
@@ -856,38 +900,60 @@ bool cond::CredentialStore::updatePrincipal( const std::string& principalName,
   bool found = selectPrincipal( schema, principalName, princData );
 
   Cipher adminCipher( m_principalKey );
-  Cipher cipher( principalKey );
+  Cipher cipher( authenticationKey );
   std::string verifStr = cipher.b64encrypt( principalName );
+  std::string principalKey("");
+  if( setAdmin ) principalKey = m_principalKey;
+  int principalId = princData.id;
 
   coral::ITableDataEditor& editor = schema.tableHandle(COND_AUTHENTICATION_TABLE).dataEditor();
   if( found ){
-    std::string principalKey = adminCipher.b64decrypt( princData.adminKey );
+    if( principalKey.empty() ) principalKey = adminCipher.b64decrypt( princData.adminKey );
     coral::AttributeList updateData;
     updateData.extend<int>( PRINCIPAL_ID_COL );
     updateData.extend<std::string>( VERIFICATION_COL );
     updateData.extend<std::string>( PRINCIPAL_KEY_COL );
-    updateData[ PRINCIPAL_ID_COL ].data<int>() = princData.id;
+    updateData.extend<std::string>( ADMIN_KEY_COL );
+    updateData[ PRINCIPAL_ID_COL ].data<int>() = principalId;
     updateData[ VERIFICATION_COL ].data<std::string>() = verifStr;
     updateData[ PRINCIPAL_KEY_COL ].data<std::string>() = cipher.b64encrypt( principalKey );
+    updateData[ ADMIN_KEY_COL ].data<std::string>() = adminCipher.b64encrypt( principalKey );
     std::stringstream setClause;
     setClause << VERIFICATION_COL <<" = :" <<VERIFICATION_COL <<", ";
     setClause << PRINCIPAL_KEY_COL << " = :" << PRINCIPAL_KEY_COL <<", ";
+    setClause << ADMIN_KEY_COL << " = :" << ADMIN_KEY_COL;
     std::string whereClause = PRINCIPAL_ID_COL+" = :"+PRINCIPAL_ID_COL;
     editor.updateRows( setClause.str(),whereClause, updateData );
   } else {
-    KeyGenerator gen;
-    std::string principalKey = gen.make( Auth::COND_DB_KEY_SIZE );
+    if( principalKey.empty() ) {
+      KeyGenerator gen;
+      principalKey = gen.make( Auth::COND_DB_KEY_SIZE );
+    }
+
+    coral::ITableDataEditor& editor0 = schema.tableHandle(COND_AUTHENTICATION_TABLE).dataEditor();
+
     ora::SequenceManager sequenceMgr( SEQUENCE_TABLE_NAME,schema );
-    int next = sequenceMgr.getNextId( COND_AUTHENTICATION_TABLE, true );
-    
-    coral::AttributeList insertData;
-    editor.rowBuffer(insertData);
-    insertData[ PRINCIPAL_ID_COL ].data<int>() = next;
-    insertData[ PRINCIPAL_NAME_COL ].data<std::string>() = principalName;
-    insertData[ VERIFICATION_COL ].data<std::string>() = verifStr;
-    insertData[ PRINCIPAL_KEY_COL ].data<std::string>() = cipher.b64encrypt( principalKey );;
-    insertData[ ADMIN_KEY_COL ].data<std::string>() = adminCipher.b64encrypt( principalKey );;
-    editor.insertRow( insertData );
+    principalId = sequenceMgr.getNextId( COND_AUTHENTICATION_TABLE, true );
+        
+    coral::AttributeList authData;
+    editor0.rowBuffer(authData);
+    authData[ PRINCIPAL_ID_COL ].data<int>() = principalId;
+    authData[ PRINCIPAL_NAME_COL ].data<std::string>() = principalName;
+    authData[ VERIFICATION_COL ].data<std::string>() = cipher.b64encrypt( principalName );
+    authData[ PRINCIPAL_KEY_COL ].data<std::string>() = cipher.b64encrypt( principalKey );
+    authData[ ADMIN_KEY_COL ].data<std::string>() = adminCipher.b64encrypt( principalKey );
+    editor0.insertRow( authData );
+  }
+
+  if(setAdmin){
+    std::string connString = m_serviceData->connectionString;
+    std::string connLabel = schemaLabelForCredentialStore( connString );
+    CredentialData credsData;
+    bool found = selectConnection( schema, connLabel, credsData );
+    if(!found){
+      throwException("Credential Store connection has not been defined.","CredentialStore::updatePrincipal");
+    }
+    setPermission( principalId, principalKey, Auth::COND_ADMIN_ROLE, connString, credsData.id, adminCipher.b64decrypt( credsData.connectionKey ) );
   }
 
   session.close();
@@ -1109,16 +1175,21 @@ bool cond::CredentialStore::importForPrincipal( const std::string& principal,
 
   bool imported = false;
   Cipher cipher( m_principalKey );
+  std::string princKey = cipher.b64decrypt( princData.adminKey);
 
   const std::map< std::pair<std::string,std::string>, coral::AuthenticationCredentials* >& creds = dataSource.data();
   // first import the connections
   for( std::map< std::pair<std::string,std::string>, coral::AuthenticationCredentials* >::const_iterator iConn = creds.begin(); iConn != creds.end(); ++iConn ){
     const std::string& connectionString = iConn->first.first;
+    coral::URIParser parser;
+    parser.setURI( connectionString );
+    std::string serviceName = parser.hostName();
     const std::string& role = iConn->first.second;
     std::string userName = iConn->second->valueForItem( coral::IAuthenticationCredentials::userItem() );
     std::string password = iConn->second->valueForItem( coral::IAuthenticationCredentials::passwordItem());
-    std::pair<int,std::string> conn = updateConnection( schemaLabel( m_serviceName, userName ), userName, password, false );
-    setPermission( princData.id, cipher.b64decrypt( princData.adminKey), role, connectionString, conn.first, conn.second );
+    std::pair<int,std::string> conn = updateConnection( schemaLabel( serviceName, userName ), userName, password, false );
+    Cipher cipher( m_principalKey );
+    setPermission( princData.id, princKey, role, connectionString, conn.first, conn.second );
     imported = true;
   }
   session.close();  
@@ -1234,6 +1305,9 @@ bool cond::CredentialStore::selectPermissions( const std::string& principalName,
   query->addToOutputList( "AUTHO."+SCHEMA_COL );
   query->addToOutputList( "CREDS."+CONNECTION_LABEL_COL );
   query->setCondition( whereClause.str(), whereData );
+  query->addToOrderList( "AUTHO."+SCHEMA_COL );
+  query->addToOrderList( "AUTHE."+PRINCIPAL_NAME_COL  );
+  query->addToOrderList( "AUTHO."+ROLE_COL  );
   coral::ICursor& cursor = query->execute();
   bool found = false;
   while ( cursor.next() ) {

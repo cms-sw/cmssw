@@ -93,7 +93,8 @@ std::string cond::KeyGenerator::makeWithRandomSize( size_t maxSize ){
   return make( sz );
 }
 
-const std::string cond::DecodingKey::FILE_NAME("cond_auth.key");
+const std::string cond::DecodingKey::FILE_NAME("db.key");
+const std::string cond::DecodingKey::FILE_PATH(".cms_cond/"+FILE_NAME);
 
 std::string cond::DecodingKey::templateFile(){
   std::stringstream s;
@@ -178,7 +179,7 @@ size_t cond::DecodingKey::init( const std::string& keyFileName, const std::strin
 	}
       }
     } else {
-      std::string msg = "Provided Key File \""+m_fileName+"\n is invalid.";
+      std::string msg = "Provided Key File \""+m_fileName+"\" is invalid.";
       throwException(msg,"DecodingKey::init");      
     }
   }
@@ -235,15 +236,15 @@ size_t cond::DecodingKey::createFromInputFile( const std::string& inputFileName,
 }
 
 void cond::DecodingKey::list( std::ostream& out ){
-  out << "## PRINCIPAL="<<m_principalName<<std::endl;
-  out << "## KEY="<<m_principalKey<<std::endl;
-  out << "## OWNER="<<m_owner<<std::endl;
+  out <<NAMEPREFIX<<m_principalName<<std::endl;
+  out <<KEYPREFIX<<m_principalKey<<std::endl;
+  out <<OWNERPREFIX<<m_owner<<std::endl;
   for( std::map< std::string, ServiceCredentials >::const_iterator iS = m_services.begin();
        iS != m_services.end(); iS++ ){
-    out <<"## SERVICE \""<<iS->first<<"\"";
-    out <<" Connection="<<iS->second.connectionString<<";";
-    out <<" Username="<<iS->second.userName<<";";
-    out <<" Password="<<iS->second.password<<";"<<std::endl;
+    out <<SERVICEPREFIX<<iS->first<<";";
+    out <<CONNECTIONPREFIX<<iS->second.connectionString<<";";
+    out <<USERPREFIX<<iS->second.userName<<";";
+    out <<PASSWORDPREFIX<<iS->second.password<<";"<<std::endl;
   }
 }
 

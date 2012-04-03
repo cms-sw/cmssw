@@ -34,6 +34,7 @@ namespace cond {
     public:
 
     static const std::string FILE_NAME;
+    static const std::string FILE_PATH;
     static const size_t DEFAULT_KEY_SIZE = 100;
     static std::string templateFile();
 
