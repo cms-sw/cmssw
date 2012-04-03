@@ -13,7 +13,7 @@
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: OccupancyPlotter.cc,v 1.11 2012/03/14 10:45:34 slaunwhj Exp $
+// $Id: OccupancyPlotter.cc,v 1.12 2012/03/23 11:13:54 halil Exp $
 //
 //
 
@@ -25,9 +25,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
@@ -96,12 +94,22 @@ class OccupancyPlotter : public edm::EDAnalyzer {
 
   vector< vector<string> > PDsVectorPathsVector;
 
+  // Lumi info
+  float _instLumi;
+  float _instLumi_err;
+  float _pileup;
+
   // Store the HV info
   bool dcs[25];
+  bool thisiLumiValue;
 
   // counters
   int cntevt;
   int cntBadHV;
+
+  // histograms
+  TH1F * hist_LumivsLS;
+  TH1F * hist_PUvsLS;
   
 };
 
@@ -123,6 +131,7 @@ OccupancyPlotter::OccupancyPlotter(const edm::ParameterSet& iConfig)
 
   debugPrint = false;
   outputPrint = false;
+  thisiLumiValue = false;
   cntevt=0;
   cntBadHV=0;
   if (debugPrint) std::cout << "Inside Constructor" << std::endl;
@@ -154,6 +163,7 @@ OccupancyPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 {
    using namespace edm;
    using std::string;
+   int lumisection = (int)iEvent.luminosityBlock();
 
    if (debugPrint) std::cout << "Inside analyze" << std::endl;
    ++cntevt;
@@ -166,6 +176,21 @@ OccupancyPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       return; 
    } 
    checkLumiInfo( iEvent);
+
+   if (debugPrint) std::cout << "instantaneous luminosity=" << _instLumi << " ± " << _instLumi_err << std::endl;
+
+   if (thisiLumiValue){
+     thisiLumiValue = false;
+     std::cout << "LS = " << lumisection << ", Lumi = " << _instLumi << " ± " << _instLumi_err << ", pileup = " << _pileup << std::endl;
+
+     hist_LumivsLS = dbe->get("HLT/OccupancyPlots/HLT_LumivsLS")->getTH1F();
+     hist_LumivsLS->SetBinContent(lumisection+1,_instLumi);
+     hist_LumivsLS->SetBinError(lumisection+1,_instLumi_err);
+     //
+     hist_PUvsLS = dbe->get("HLT/OccupancyPlots/HLT_PUvsLS")->getTH1F();
+     hist_PUvsLS->SetBinContent(lumisection+1,_pileup);
+
+   }
 
     // Access Trigger Results
    edm::Handle<edm::TriggerResults> triggerResults;
@@ -333,6 +358,12 @@ OccupancyPlotter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 
     if (debugPrint) std::cout <<"Found PD: " << datasetNames[i]  << std::endl;     
     setupHltMatrix(datasetNames[i],i);   
+    int maxLumisection=1000;
+    dbe->setCurrentFolder("HLT/OccupancyPlots/");
+    hist_LumivsLS = new TH1F("HLT_LumivsLS", "; Lumisection; Instantaneous Luminosity (cm^{-2} s^{-1})",maxLumisection,0,maxLumisection);
+    dbe->book1D("HLT_LumivsLS", hist_LumivsLS);
+    hist_PUvsLS = new TH1F("HLT_PUvsLS", "; Lumisection; Pileup",maxLumisection,0,maxLumisection);
+    dbe->book1D("HLT_PUvsLS", hist_PUvsLS);
 
   }// end of loop over dataset names
 
@@ -366,7 +397,7 @@ if (label != "SingleMu" && label != "SingleElectron" && label != "Jet")  PD_Fold
 dbe->setCurrentFolder(PD_Folder.c_str());
 
 h_name = "HLT_"+label+"_EtaVsPhi";
-h_title = "HLT_"+label+"_EtaVsPhi";
+h_title = "HLT_"+label+"_EtaVsPhi; eta; phi";
 h_name_1dEta = "HLT_"+label+"_1dEta";
 h_name_1dPhi = "HLT_"+label+"_1dPhi";
 h_title_1dEta = label+" Occupancy Vs Eta";
@@ -562,17 +593,17 @@ void OccupancyPlotter::checkLumiInfo (const edm::Event & jEvent) {
   LumiScalersCollection::const_iterator it3 = lumiScalers->begin();
   //unsigned int lumisection = it3->sectionNumber();
 
-  if (debugPrint) std::cout << "Instanteous Lumi is " << it3->instantLumi() << std::endl;
-  if (debugPrint) std::cout << "Instanteous Lumi Error is " <<it3->instantLumiErr() << std::endl;
+  _instLumi = it3->instantLumi();
+  _instLumi_err = it3->instantLumiErr();
+  _pileup = it3->pileup();
+
+  if (debugPrint) std::cout << "Instanteous Lumi is " << _instLumi << std::endl;
+  if (debugPrint) std::cout << "Instanteous Lumi Error is " << _instLumi_err << std::endl;
   if (debugPrint) std::cout << "Lumi Fill is " <<it3->lumiFill() << std::endl;
   if (debugPrint) std::cout << "Lumi Fill is " <<it3->lumiRun() << std::endl;
   if (debugPrint) std::cout << "Live Lumi Fill is " <<it3->liveLumiFill() << std::endl;
   if (debugPrint) std::cout << "Live Lumi Run is " <<it3->liveLumiRun() << std::endl;
-
-  if (debugPrint) std::cout << "Pileup? = " << it3->pileup() << std::endl;
-
-  // could be changed to store the lumi info somewhere or make a plot
-
+  if (debugPrint) std::cout << "Pileup? = " << _pileup << std::endl;
 
   return;
   
@@ -581,8 +612,12 @@ void OccupancyPlotter::checkLumiInfo (const edm::Event & jEvent) {
 //=========================================================
 
 // ------------ method called when starting to processes a luminosity block  ------------
-void OccupancyPlotter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+void OccupancyPlotter::beginLuminosityBlock(edm::LuminosityBlock const &lb, edm::EventSetup const&)
 {
+ unsigned int thisLumiSection = 0;
+ thisLumiSection = lb.luminosityBlock();
+ std::cout << "[OccupancyPlotter::beginLuminosityBlock] New luminosity block: " << thisLumiSection << std::endl; 
+ thisiLumiValue=true; // add the instantaneous luminosity of the first event to the LS-Lumi plot
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
