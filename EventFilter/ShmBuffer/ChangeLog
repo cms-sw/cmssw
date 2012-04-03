@@ -1,3 +1,7 @@
+2012-03-18  Andrei Spataru  <aspataru@cern.ch>
+
+	* fixed function FUShmBuffer::scheduleRawCellForDiscardServerSide
+
 2011-10-21  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-08-12

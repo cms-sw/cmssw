@@ -16,10 +16,10 @@ static const unsigned int nPartons=6;
 TtFullHadKinFitter::TtFullHadKinFitter():
   TopKinFitter(),
   b_(0), bBar_(0), lightQ_(0), lightQBar_(0), lightP_(0), lightPBar_(0),
-  udscResolutions_(0), bResolutions_(0),
   jetParam_(kEMom)
 {
   setupFitter();
+  covM=0;
 }
 
 /// used to convert vector of int's to vector of constraints (just used in TtFullHadKinFitter(int, int, double, double, std::vector<unsigned int>))
@@ -37,28 +37,24 @@ TtFullHadKinFitter::intToConstraint(std::vector<unsigned int> constraints)
 
 /// constructor initialized with build-in types as custom parameters (only included to keep TtHadEvtSolutionMaker.cc running)
 TtFullHadKinFitter::TtFullHadKinFitter(int jetParam, int maxNrIter, double maxDeltaS, double maxF,
-				       const std::vector<unsigned int> constraints, double mW, double mTop,
-				       const std::vector<edm::ParameterSet>* udscResolutions, 
-				       const std::vector<edm::ParameterSet>* bResolutions):
+				       std::vector<unsigned int> constraints, double mW, double mTop):
   TopKinFitter(maxNrIter, maxDeltaS, maxF, mW, mTop),
   b_(0), bBar_(0), lightQ_(0), lightQBar_(0), lightP_(0), lightPBar_(0),
-  udscResolutions_(udscResolutions), bResolutions_(bResolutions),
   jetParam_((Param)jetParam), constraints_(intToConstraint(constraints))
 {
   setupFitter();
+  covM=0;
 }
 
 /// constructor initialized with build-in types and class enum's custom parameters
 TtFullHadKinFitter::TtFullHadKinFitter(Param jetParam, int maxNrIter, double maxDeltaS, double maxF,
-				       std::vector<Constraint> constraints, double mW, double mTop,
-				       const std::vector<edm::ParameterSet>* udscResolutions, 
-				       const std::vector<edm::ParameterSet>* bResolutions):
+				       std::vector<Constraint> constraints, double mW, double mTop):
   TopKinFitter(maxNrIter, maxDeltaS, maxF, mW, mTop),
   b_(0), bBar_(0), lightQ_(0), lightQBar_(0), lightP_(0), lightPBar_(0),
-  udscResolutions_(udscResolutions), bResolutions_(bResolutions),
   jetParam_(jetParam), constraints_(constraints)
 {
   setupFitter();
+  covM=0;
 }
 
 /// default destructor
@@ -70,7 +66,7 @@ TtFullHadKinFitter::~TtFullHadKinFitter()
   delete lightQBar_; 
   delete lightP_; 
   delete lightPBar_;
-  delete covM_;
+  delete covM;
   for(std::map<Constraint, TFitConstraintM*>::iterator it = massConstr_.begin(); it != massConstr_.end(); ++it)
     delete it->second;
 }
@@ -175,45 +171,40 @@ TtFullHadKinFitter::setupFitter()
   for(unsigned int i=0; i<constraints_.size(); i++){
     fitter_->addConstraint(massConstr_[constraints_[i]]);
   }
-
-  // initialize helper class used to bring the resolutions into covariance matrices
-  if(udscResolutions_->size() &&  bResolutions_->size())
-    covM_ = new CovarianceMatrix(*udscResolutions_, *bResolutions_);
-  else
-    covM_ = new CovarianceMatrix();
 }
 
 /// kinematic fit interface
 int 
-TtFullHadKinFitter::fit(const std::vector<pat::Jet>& jets, const double energyResolutionSmearFactor)
+TtFullHadKinFitter::fit(const std::vector<pat::Jet>& jets, const std::vector<edm::ParameterSet> udscResolutions, const std::vector<edm::ParameterSet> bResolutions, const double energyResolutionSmearFactor = 1.)
 {
   if( jets.size()<6 ){
     throw edm::Exception( edm::errors::Configuration, "Cannot run the TtFullHadKinFitter with less than 6 jets" );
   }
 
   // get jets in right order
-  const pat::Jet& b         = jets[TtFullHadEvtPartons::B        ];
-  const pat::Jet& bBar      = jets[TtFullHadEvtPartons::BBar     ];
-  const pat::Jet& lightQ    = jets[TtFullHadEvtPartons::LightQ   ];
-  const pat::Jet& lightQBar = jets[TtFullHadEvtPartons::LightQBar];
-  const pat::Jet& lightP    = jets[TtFullHadEvtPartons::LightP   ];
-  const pat::Jet& lightPBar = jets[TtFullHadEvtPartons::LightPBar];
+  pat::Jet b         = jets[TtFullHadEvtPartons::B        ];
+  pat::Jet bBar      = jets[TtFullHadEvtPartons::BBar     ];
+  pat::Jet lightQ    = jets[TtFullHadEvtPartons::LightQ   ];
+  pat::Jet lightQBar = jets[TtFullHadEvtPartons::LightQBar];
+  pat::Jet lightP    = jets[TtFullHadEvtPartons::LightP   ];
+  pat::Jet lightPBar = jets[TtFullHadEvtPartons::LightPBar];
  
   // initialize particles
-  const TLorentzVector p4B( b.px(), b.py(), b.pz(), b.energy() );
-  const TLorentzVector p4BBar( bBar.px(), bBar.py(), bBar.pz(), bBar.energy() );
-  const TLorentzVector p4LightQ( lightQ.px(), lightQ.py(), lightQ.pz(), lightQ.energy() );
-  const TLorentzVector p4LightQBar( lightQBar.px(), lightQBar.py(), lightQBar.pz(), lightQBar.energy() );
-  const TLorentzVector p4LightP( lightP.px(), lightP.py(), lightP.pz(), lightP.energy() );
-  const TLorentzVector p4LightPBar( lightPBar.px(), lightPBar.py(), lightPBar.pz(), lightPBar.energy() );
+  TLorentzVector p4B( b.px(), b.py(), b.pz(), b.energy() );
+  TLorentzVector p4BBar( bBar.px(), bBar.py(), bBar.pz(), bBar.energy() );
+  TLorentzVector p4LightQ( lightQ.px(), lightQ.py(), lightQ.pz(), lightQ.energy() );
+  TLorentzVector p4LightQBar( lightQBar.px(), lightQBar.py(), lightQBar.pz(), lightQBar.energy() );
+  TLorentzVector p4LightP( lightP.px(), lightP.py(), lightP.pz(), lightP.energy() );
+  TLorentzVector p4LightPBar( lightPBar.px(), lightPBar.py(), lightPBar.pz(), lightPBar.energy() );
 
   // initialize covariance matrices
-  TMatrixD m1 = covM_->setupMatrix(lightQ,    jetParam_);
-  TMatrixD m2 = covM_->setupMatrix(lightQBar, jetParam_);
-  TMatrixD m3 = covM_->setupMatrix(b,         jetParam_, "bjets");
-  TMatrixD m4 = covM_->setupMatrix(lightP,    jetParam_);
-  TMatrixD m5 = covM_->setupMatrix(lightPBar, jetParam_);
-  TMatrixD m6 = covM_->setupMatrix(bBar     , jetParam_, "bjets");
+  if(!covM) covM = new CovarianceMatrix(udscResolutions, bResolutions);
+  TMatrixD m1 = covM->setupMatrix(lightQ,    jetParam_);
+  TMatrixD m2 = covM->setupMatrix(lightQBar, jetParam_);
+  TMatrixD m3 = covM->setupMatrix(b,         jetParam_, "bjets");
+  TMatrixD m4 = covM->setupMatrix(lightP,    jetParam_);
+  TMatrixD m5 = covM->setupMatrix(lightPBar, jetParam_);
+  TMatrixD m6 = covM->setupMatrix(bBar     , jetParam_, "bjets");
 
   // increase energy resolution
   m1(0,0) *= energyResolutionSmearFactor * energyResolutionSmearFactor;
@@ -255,6 +246,14 @@ TtFullHadKinFitter::fit(const std::vector<pat::Jet>& jets, const double energyRe
     fittedLightPBar_= pat::Particle(reco::LeafCandidate(0, math::XYZTLorentzVector(lightPBar_->getCurr4Vec()->X(), lightPBar_->getCurr4Vec()->Y(), lightPBar_->getCurr4Vec()->Z(), lightPBar_->getCurr4Vec()->E()), math::XYZPoint()));
   }
   return fitter_->getStatus();
+}
+
+/// kinematic fit interface
+int 
+TtFullHadKinFitter::fit(const std::vector<pat::Jet>& jets)
+{
+  const std::vector<edm::ParameterSet> emptyResolutionVector;
+  return fit(jets, emptyResolutionVector, emptyResolutionVector);
 }
 
 /// add kin fit information to the old event solution (in for legacy reasons)
@@ -346,8 +345,7 @@ TtFullHadKinFitter::KinFit::KinFit(bool useBTagging, unsigned int bTags, std::st
   invalidMatch_(false)
 {
   // define kinematic fit interface
-  fitter = new TtFullHadKinFitter(param(jetParam_), maxNrIter_, maxDeltaS_, maxF_, TtFullHadKinFitter::KinFit::constraints(constraints_), mW_, mTop_,
-				  &udscResolutions_, &bResolutions_);
+  fitter = new TtFullHadKinFitter(param(jetParam_), maxNrIter_, maxDeltaS_, maxF_, TtFullHadKinFitter::KinFit::constraints(constraints_), mW_, mTop_);
 }
 
 /// default destructor  
@@ -527,7 +525,7 @@ TtFullHadKinFitter::KinFit::fit(const std::vector<pat::Jet>& jets){
 	jetCombi[TtFullHadEvtPartons::LightPBar] = corJet(jets[combi[TtFullHadEvtPartons::LightPBar]], "wMix");
 	  
 	// do the kinematic fit
-	int status = fitter->fit(jetCombi, energyResolutionSmearFactor_);
+	int status = fitter->fit(jetCombi, udscResolutions_, bResolutions_, energyResolutionSmearFactor_);
 	  
 	if( status == 0 ) { 
 	  // fill struct KinFitResults if converged

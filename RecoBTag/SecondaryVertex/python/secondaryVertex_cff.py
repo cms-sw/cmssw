@@ -15,10 +15,6 @@ from RecoBTag.SecondaryVertex.ghostTrackVertexTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.ghostTrackES_cfi import *
 from RecoBTag.SecondaryVertex.ghostTrackBJetTags_cfi import *
 
-from RecoBTag.SecondaryVertex.secondaryVertexNegativeTagInfos_cfi import *
-from RecoBTag.SecondaryVertex.simpleSecondaryVertexNegativeHighEffBJetTags_cfi import *
-from RecoBTag.SecondaryVertex.simpleSecondaryVertexNegativeHighPurBJetTags_cfi import *
-
 # backwards compatibility
 
 simpleSecondaryVertexBJetTags = simpleSecondaryVertexHighEffBJetTags.clone()

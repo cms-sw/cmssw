@@ -35,7 +35,7 @@ function loadConfiguration() {
       DBHOST="cmsr1-v.cern.ch"
       DBNAME="cms_cond.cern.ch"
       DBUSER="cms_hltdev_writer"
-      PWHASH="7a901914acb45efc107723c6d15c1bbf"
+      PWHASH="0196d34dd35b04c0f3597dc89fbbe6e2"
       ;;
     *)
       # see $CMSSW_BASE/src/EventFilter/ConfigDB/test/runCreateConfig for other possible settings
@@ -89,7 +89,7 @@ function readPassword() {
   read -p "Enter password for DB: " -s PASSWORD
   echo
 
-  if [ "$(echo "$PASSWORD" | md5sum | cut -c1-32)" != "$PWHASH" ]; then
+  if [ "$(echo "$PASSWORD" | tr 'a-z' 'A-Z' | md5sum | cut -c1-32)" != "$PWHASH" ]; then
     echo "Incorrect password, exiting." 1>&2
     exit 1
   fi

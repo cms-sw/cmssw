@@ -22,8 +22,7 @@ create(const edm::ParameterSet& conf) {
 	       conf.getParameter<unsigned>("MaxSequentialBad"),
 	       conf.getParameter<unsigned>("MaxAdjacentBad"),
 	       conf.getParameter<std::string>("QualityLabel"),
-	       setDetId,
-	       conf.getParameter<bool>("RemoveApvShots")));
+	       setDetId));
   }
 
   if(algorithm == "OldThreeThresholdAlgorithm") {

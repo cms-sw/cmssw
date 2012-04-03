@@ -150,11 +150,11 @@ if __name__ == '__main__':
             runLumiDict = {}    
             csvDict = {}
             pieces = sepRE.split (line.strip())
-            if len (pieces) < 8: # means we are missing data; keep track of LS, lumi
+            if len (pieces) < 7: # means we are missing data; keep track of LS, lumi
                 InGap = 1
                 try:
-                    run,       lumi     = int  ( pieces[0] ), int  ( pieces[2] )
-                    delivered, recorded = float( pieces[7] ), float( pieces[8] )
+                    run,       lumi     = int  ( pieces[0] ), int  ( pieces[1] )
+                    delivered, recorded = float( pieces[6] ), float( pieces[7] )
                 except:
                     if pieces[0] != 'run':
                         print " cannot parse csv file "
@@ -166,14 +166,14 @@ if __name__ == '__main__':
                 # not an even number
             #    continue
             try:
-                run,       lumi     = int  ( pieces[0] ), int  ( pieces[2] )
-                delivered, recorded = float( pieces[7] ), float( pieces[8] )
+                run,       lumi     = int  ( pieces[0] ), int  ( pieces[1] )
+                delivered, recorded = float( pieces[6] ), float( pieces[7] )
                 xingInstLumiArray = [( int(orbit), float(lum) ) \
-                                     for orbit, lum in zip( pieces[9::2],
-                                                            pieces[10::2] ) ]
+                                     for orbit, lum in zip( pieces[8::2],
+                                                            pieces[9::2] ) ]
             except:
-                print " Bad Parsing: Check if the input format has changed"
-                print pieces[0],pieces[1],pieces[2],pieces[3],pieces[4],pieces[5],pieces[6]
+                print " Bad Parsing"
+                print pieces[0],pieces[1],pieces[2],pieces[3],pieces[4],pieces[5]
                 continue
 
             csvDict.setdefault (run, {})[lumi] = \

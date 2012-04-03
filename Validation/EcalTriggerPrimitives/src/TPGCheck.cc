@@ -5,19 +5,17 @@
 // 
 /**\class TPGCheck TPGCheck.cc Validation/TPGSimulation/src/TPGCheck.cc
 
- Description: Validation of the Ecal Trigger Primitives
+ Description: <one line class summary>
 
  Implementation:
-     Save into histograms the TPs: Et, TTF and FGVB
-     Save into a tree the Et and the corresponding TT rowId
-     while the eventId: runNb, lumiBlock and eventNb
+     <Notes on implementation>
 */
 //
 // Original Author:  Muriel Cerutti
 //         Created:  Thu Oct 26 10:47:17 CEST 2006
-// $Id: TPGCheck.cc,v 1.4 2010/09/20 15:30:22 ebecheva Exp $
-// Create a tree containing the TT rowId and the Et, 
-// it will be used for comparison with the RecHit energy
+// $Id: TPGCheck.cc,v 1.2 2009/03/27 16:38:31 ebecheva Exp $
+// $Id: TPGCheck.cc,v 1.2 2009/03/27 16:38:31 ebecheva Exp $
+//
 
 
 // system include files
@@ -38,7 +36,6 @@
 
 #include "TH1I.h"
 #include "TFile.h"
-#include "TTree.h"
 
 using namespace edm;
 using namespace std;
@@ -67,18 +64,6 @@ class TPGCheck : public edm::EDAnalyzer {
       std::string label_;
       std::string producer_;
       std::vector<std::string> ecal_parts_;
-      
-      // data for tree
-      TTree *t_;
-      RunNumber_t runNbTP;
-      LuminosityBlockNumber_t lumiBlockTP;
-      LuminosityBlockNumber_t eventNbTP;
-      
-      std::vector<unsigned int> towIdEBTP;
-      std::vector<unsigned int> towIdEETP;
-      std::vector<double> eTPADC_EB;
-      std::vector<double> eTPADC_EE;
-
 };
 
 //
@@ -91,7 +76,7 @@ TPGCheck::TPGCheck(const edm::ParameterSet& iConfig)
   ecal_parts_.push_back("Barrel");
   ecal_parts_.push_back("Endcap");
 
-  histFile_=new TFile("/tmp/ebecheva/histos.root","RECREATE");
+  histFile_=new TFile("histos.root","RECREATE");
   for (unsigned int i=0;i<2;++i) {
     // Energy
     char t[30];
@@ -109,17 +94,6 @@ TPGCheck::TPGCheck(const edm::ParameterSet& iConfig)
     ecal_fgvb_[i]=new TH1I(titleFG,"FGVB",10,0,10);
   }
   
-   // Tree containing the eventID and the eRecHit
-  t_ = new TTree("TreeETP","ETP");
-  t_->Branch("runNbTP",&runNbTP,"runNbTP/i");
-  t_->Branch("lumiBlockTP",&lumiBlockTP,"lumiBlockTP/i");
-  t_->Branch("eventNbTP",&eventNbTP,"eventNbTP/i");
-  t_->Branch("towIdEBTP",&towIdEBTP);
-  t_->Branch("towIdEETP",&towIdEETP);
-  t_->Branch("eTPADC_EB",&eTPADC_EB);
-  t_->Branch("eTPADC_EE",&eTPADC_EE);
- 
- 
   label_= iConfig.getParameter<std::string>("Label");
   producer_= iConfig.getParameter<std::string>("Producer");
   
@@ -146,48 +120,26 @@ TPGCheck::~TPGCheck()
 void
 TPGCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  runNbTP = iEvent.id().run();
-  lumiBlockTP = iEvent.id().luminosityBlock();
-  eventNbTP = iEvent.id().event();
-
+  
   // Get input
   edm::Handle<EcalTrigPrimDigiCollection> tp;
   iEvent.getByLabel(label_,producer_,tp);
-  for (unsigned int i=0;i<tp.product()->size();i++) {
-        
+  for (unsigned int i=0;i<tp.product()->size();i++) {  
     EcalTriggerPrimitiveDigi d=(*(tp.product()))[i]; 
-    
     int subdet=d.id().subDet()-1;
     // for endcap, regroup double TP-s that are generated for the 2 interior rings
     if (subdet==0) {
-      
       ecal_et_[subdet]->Fill(d.compressedEt());
-            
-      eTPADC_EB.push_back(d.compressedEt());
-      towIdEBTP.push_back(d.id().rawId());
     }
     else {
-            
       if (d.id().ietaAbs()==27 || d.id().ietaAbs()==28) {
-	if (i%2){ 
-	  ecal_et_[subdet]->Fill(d.compressedEt()*2.);
-          eTPADC_EE.push_back(d.compressedEt()*2.);
-	   towIdEETP.push_back(d.id().rawId());
-	}
+	if (i%2) ecal_et_[subdet]->Fill(d.compressedEt()*2.);
       }
-      else{ 
-        ecal_et_[subdet]->Fill(d.compressedEt());
-        eTPADC_EE.push_back(d.compressedEt());
-	towIdEETP.push_back(d.id().rawId());	
-      }
+      else ecal_et_[subdet]->Fill(d.compressedEt());
     }
-    
     ecal_tt_[subdet]->Fill(d.ttFlag());
     ecal_fgvb_[subdet]->Fill(d.fineGrain());
   }
-  
-    t_->Fill();
-      
 }
 
 

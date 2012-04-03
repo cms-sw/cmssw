@@ -12,8 +12,10 @@
  *
  */
 
-//#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+
+#include "TLorentzVector.h"
 
 #include<vector>
 
@@ -22,23 +24,43 @@
 struct MatchStruct 
 {
 	unsigned int objType;
-	const reco::Candidate * candBase;
-	MatchStruct() 
+	float pt;
+	float eta;
+	float phi;
+	const void * thepointer;
+	MatchStruct():
+		objType(0),
+		pt(0),
+		eta(0),
+		phi(0),
+		thepointer(0)
 	{
-		candBase   = 0;
 	}
-	MatchStruct(const reco::Candidate * cand, const unsigned int & obj) 
+	MatchStruct(const reco::Candidate * cand, const unsigned int & obj) :
+		objType(obj),
+		pt(cand->pt()),
+		eta(cand->eta()),
+		phi(cand->phi()),
+		thepointer(cand)
+
 	{
-		candBase = cand;
-		objType = obj;
+	}
+	// FIXME: If finally the track is disappeared, then recover the last code...
+	MatchStruct(const reco::Track * cand, const unsigned int & obj) :
+		objType(obj),
+		pt(cand->pt()),
+		eta(cand->eta()),
+		phi(cand->phi()),
+		thepointer(cand)
+	{
 	}
 	bool operator<(MatchStruct match) 
 	{      
-		return candBase->pt() < match.candBase->pt();
+		return this->pt < match.pt;
 	}
 	bool operator>(MatchStruct match) 
 	{
-		return candBase->pt() > match.candBase->pt();		    	
+		return this->pt > match.pt;		    	
 	}
 };
 
@@ -47,7 +69,7 @@ struct matchesByDescendingPt
 {
 	bool operator() (MatchStruct a, MatchStruct b) 
 	{     
-		return a.candBase->pt() > b.candBase->pt();
+		return a.pt > b.pt;
 	}
 };
 #endif

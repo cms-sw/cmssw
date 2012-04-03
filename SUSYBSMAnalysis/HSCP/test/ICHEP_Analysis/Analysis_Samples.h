@@ -10,90 +10,88 @@
 #define SID_GL900     6
 #define SID_GL1000    7
 #define SID_GL1100    8
-#define SID_GL1200    9
-#define SID_GL300N    10
-#define SID_GL400N    11
-#define SID_GL500N    12
-#define SID_GL600N    13
-#define SID_GL700N    14
-#define SID_GL800N    15
-#define SID_GL900N    16
-#define SID_GL1000N   17
-#define SID_GL1100N   18
-#define SID_GL1200N   19
-#define SID_ST130     20
-#define SID_ST200     21
-#define SID_ST300     22
-#define SID_ST400     23
-#define SID_ST500     24
-#define SID_ST600     25
-#define SID_ST700     26
-#define SID_ST800     27
-#define SID_ST130N    28
-#define SID_ST200N    29
-#define SID_ST300N    30
-#define SID_ST400N    31
-#define SID_ST500N    32
-#define SID_ST600N    33
-#define SID_ST700N    34
-#define SID_ST800N    35
-#define SID_GS100     36
-#define SID_GS126     37
-#define SID_GS156     38
-#define SID_GS200     39
-#define SID_GS247     40
-#define SID_GS308     41
-#define SID_GS370     42
-#define SID_GS432     43
-#define SID_GS494     44
-#define SID_PS100     45
-#define SID_PS126     46
-#define SID_PS156     47
-#define SID_PS200     48
-#define SID_PS247     49
-#define SID_PS308     50
-#define SID_D08K100   51
-#define SID_D08K121   52
-#define SID_D08K182   53
-#define SID_D08K242   54
-#define SID_D08K302   55
-#define SID_D08K350   56
-#define SID_D08K370   57
-#define SID_D08K390   58
-#define SID_D08K395   59
-#define SID_D08K400   60
-#define SID_D08K410   61
-#define SID_D08K420   62
-#define SID_D08K500   63
-#define SID_D12K100   64
-#define SID_D12K182   65
-#define SID_D12K302   66
-#define SID_D12K500   67
-#define SID_D12K530   68
-#define SID_D12K570   69
-#define SID_D12K590   70
-#define SID_D12K595   71
-#define SID_D12K600   72
-#define SID_D12K610   73
-#define SID_D12K620   74
-#define SID_D12K700   75
-#define SID_D16K100   76
-#define SID_D16K182   77
-#define SID_D16K302   78
-#define SID_D16K500   79
-#define SID_D16K700   80
-#define SID_D16K730   81
-#define SID_D16K770   82
-#define SID_D16K790   83
-#define SID_D16K795   84
-#define SID_D16K800   85
-#define SID_D16K820   86
-#define SID_D16K900   87
+#define SID_GL300N    9
+#define SID_GL400N    10
+#define SID_GL500N    11
+#define SID_GL600N    12
+#define SID_GL700N    13
+#define SID_GL800N    14
+#define SID_GL900N    15
+#define SID_GL1000N   16
+#define SID_GL1100N   17
+#define SID_ST130     18
+#define SID_ST200     19
+#define SID_ST300     20
+#define SID_ST400     21
+#define SID_ST500     22
+#define SID_ST600     23
+#define SID_ST700     24
+#define SID_ST800     25
+#define SID_ST130N    26
+#define SID_ST200N    27
+#define SID_ST300N    28
+#define SID_ST400N    29
+#define SID_ST500N    30
+#define SID_ST600N    31
+#define SID_ST700N    32
+#define SID_ST800N    33
+#define SID_GS100     34
+#define SID_GS126     35
+#define SID_GS156     36
+#define SID_GS200     37
+#define SID_GS247     38
+#define SID_GS308     39
+#define SID_GS370     40
+#define SID_GS432     41
+#define SID_GS494     42
+#define SID_PS100     43
+#define SID_PS126     44
+#define SID_PS156     45
+#define SID_PS200     46
+#define SID_PS247     47
+#define SID_PS308     48
+#define SID_D08K100   49
+#define SID_D08K121   50
+#define SID_D08K182   51
+#define SID_D08K242   52
+#define SID_D08K302   53
+#define SID_D08K350   54
+#define SID_D08K370   55
+#define SID_D08K390   56
+#define SID_D08K395   57
+#define SID_D08K400   58
+#define SID_D08K410   59
+#define SID_D08K420   60
+#define SID_D08K500   61
+#define SID_D12K100   62
+#define SID_D12K182   63
+#define SID_D12K302   64
+#define SID_D12K500   65
+#define SID_D12K530   66
+#define SID_D12K570   67
+#define SID_D12K590   68
+#define SID_D12K595   69
+#define SID_D12K600   70
+#define SID_D12K610   71
+#define SID_D12K620   72
+#define SID_D12K700   73
+#define SID_D16K100   74
+#define SID_D16K182   75
+#define SID_D16K302   76
+#define SID_D16K500   77
+#define SID_D16K700   78
+#define SID_D16K730   79
+#define SID_D16K770   80
+#define SID_D16K790   81
+#define SID_D16K795   82
+#define SID_D16K800   83
+#define SID_D16K820   84
+#define SID_D16K900   85
 
 
 int                  RunningPeriods = 2;
 double               IntegratedLuminosity = 4679; //3168; //2410;//2125; //2080; //1912; //1947; //1631; //976.204518023; //705.273820; //342.603275; //204.160928; //191.04;
-double               IntegratedLuminosityBeforeTriggerChange = 355.263; //353.494; // Total luminosity taken before RPC L1 trigger change (went into effect on run 165970)
+double               IntegratedLuminosityBeforeTriggerChange = 355.227; //353.494; // Total luminosity taken before RPC L1 trigger change (went into effect on run 165970)
 float                Event_Weight = 1;
 int                  MaxEntry = -1;
 
@@ -114,7 +112,7 @@ class stSignal{
 };
 
 
-void GetSignalDefinition(std::vector<stSignal>& signals, bool TkOnly=true){
+void GetSignalDefinition(std::vector<stSignal>& signals){
   signals.push_back(stSignal("Gluino", "Gluino300", "Gluino300"    , "#tilde{g} 300"                 , 300,  1, 1,  65.800000) ); //NLO
   signals.push_back(stSignal("Gluino", "Gluino400", "Gluino400"    , "#tilde{g} 400"                 , 400,  1, 1,   11.20000) ); //NLO
   signals.push_back(stSignal("Gluino", "Gluino500", "Gluino500"    , "#tilde{g} 500"                 , 500,  1, 1,   2.540000) ); //NLO
@@ -124,8 +122,8 @@ void GetSignalDefinition(std::vector<stSignal>& signals, bool TkOnly=true){
   signals.push_back(stSignal("Gluino", "Gluino900", "Gluino900"    , "#tilde{g} 900"                 , 900,  1, 1,   0.026200) ); //NLO
   signals.push_back(stSignal("Gluino", "Gluino1000", "Gluino1000"  , "#tilde{g} 1000"                ,1000,  1, 1,   0.0098700) ); //NLO
   signals.push_back(stSignal("Gluino", "Gluino1100", "Gluino1100"  , "#tilde{g} 1100"                ,1100,  1, 1,   0.0038600) ); //NLO 
-  signals.push_back(stSignal("Gluino", "Gluino1200", "Gluino1200"  , "#tilde{g} 1200"                ,1200,  1, 1,   0.0015400) ); //NLO
-  if(TkOnly) {
+  //signals.push_back(stSignal("Gluino", "Gluino1200", "Gluino1200"   , "#tilde{g} 1200"                ,1200,  1, 1,   0.004300) ); //NLO
+
   signals.push_back(stSignal("Gluino", "Gluino300N", "Gluinoneutralonly300"   , "#tilde{g} 300 CS"              , 300,  1, 1,  65.800000) ); //NLO
   signals.push_back(stSignal("Gluino", "Gluino400N", "Gluinoneutralonly400"   , "#tilde{g} 400 CS"              , 400,  1, 1,   11.20000) ); //NLO
   signals.push_back(stSignal("Gluino", "Gluino500N", "Gluinoneutralonly500"   , "#tilde{g} 500 CS"              , 500,  1, 1,   2.540000) ); //NLO
@@ -133,10 +131,10 @@ void GetSignalDefinition(std::vector<stSignal>& signals, bool TkOnly=true){
   signals.push_back(stSignal("Gluino", "Gluino700N", "Gluinoneutralonly700"   , "#tilde{g} 700 CS"              , 700,  1, 1,   0.214000) ); //NLO
   signals.push_back(stSignal("Gluino", "Gluino800N", "Gluinoneutralonly800"   , "#tilde{g} 800 CS"              , 800,  1, 1,   0.072500) ); //NLO
   signals.push_back(stSignal("Gluino", "Gluino900N", "Gluinoneutralonly900"   , "#tilde{g} 900 CS"              , 900,  1, 1,   0.026200) ); //NLO
-  signals.push_back(stSignal("Gluino", "Gluino1000N", "Gluinoneutralonly1000" , "#tilde{g} 1000 CS"             ,1000,  1, 1,   0.0098700) ); //NLO
-  signals.push_back(stSignal("Gluino", "Gluino1100N", "Gluinoneutralonly1100" , "#tilde{g} 1100 CS"             ,1100,  1, 1,   0.0038600) ); //NLO
-  signals.push_back(stSignal("Gluino", "Gluino1200N", "Gluinoneutralonly1200" , "#tilde{g} 1200 CS"             ,1200,  1, 1,   0.0015400) ); //NLO
-  }
+  signals.push_back(stSignal("Gluino", "Gluino1000N", "Gluinoneutralonly1000"  , "#tilde{g} 1000 CS"             ,1000,  1, 1,   0.0098700) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino1100N", "Gluinoneutralonly1100"  , "#tilde{g} 1100 CS"             ,1100,  1, 1,   0.0038600) ); //NLO
+  //signals.push_back(stSignal("Gluino", "Gluino1200N", "Gluinoneutralonly1200"  , "#tilde{g} 1200 CS"             ,1200,  1, 1,   ) ); //NLO
+
    //signals.push_back(stSignal("Gluino", "Gluino600Z"   , "#tilde{g} 600 Z2"              , 600,  1, 1,   0.465000) ); //NLO
    //signals.push_back(stSignal("Gluino", "Gluino700Z"   , "#tilde{g} 700 Z2"              , 700,  1, 1,   0.130000) ); //NLO
    //signals.push_back(stSignal("Gluino", "Gluino800Z"   , "#tilde{g} 800 Z2"              , 800,  1, 1,   0.039600) ); //NLO
@@ -149,7 +147,7 @@ void GetSignalDefinition(std::vector<stSignal>& signals, bool TkOnly=true){
   signals.push_back(stSignal("Stop"  , "Stop600", "stop_M-600"      , "#tilde{t}_{1} 600"             , 600,  1, 1,   0.012500) ); //NLO
   signals.push_back(stSignal("Stop"  , "Stop700", "stop_M-700"      , "#tilde{t}_{1} 700"             , 700,  1, 1,   0.003560) ); //NLO
   signals.push_back(stSignal("Stop"  , "Stop800", "stop_M-800"      , "#tilde{t}_{1} 800"             , 800,  1, 1,   0.001140) ); //NLO
-  if(TkOnly) {
+
   signals.push_back(stSignal("Stop"  , "Stop130N", "stoponlyneutral_M-130"      , "#tilde{t}_{1} 130 CS"          , 130,  1, 1, 120.000000) ); //NLO
   signals.push_back(stSignal("Stop"  , "Stop200N", "stoponlyneutral_M-200"     , "#tilde{t}_{1} 200 CS"          , 200,  1, 1,  13.000000) ); //NLO
   signals.push_back(stSignal("Stop"  , "Stop300N", "stoponlyneutral_M-300"     , "#tilde{t}_{1} 300 CS"          , 300,  1, 1,   1.310000) ); //NLO
@@ -158,7 +156,7 @@ void GetSignalDefinition(std::vector<stSignal>& signals, bool TkOnly=true){
   signals.push_back(stSignal("Stop"  , "Stop600N", "stoponlyneutral_M-600"     , "#tilde{t}_{1} 600 CS"          , 600,  1, 1,   0.012500) ); //NLO
   signals.push_back(stSignal("Stop"  , "Stop700N", "stoponlyneutral_M-700"     , "#tilde{t}_{1} 700 CS"          , 700,  1, 1,   0.003560) ); //NLO
   signals.push_back(stSignal("Stop"  , "Stop800N", "stoponlyneutral_M-800"     , "#tilde{t}_{1} 800 CS"          , 800,  1, 1,   0.001140) ); //NLO
-  }
+
   //signals.push_back(stSignal("Stop"  , "Stop300Z"     , "#tilde{t}_{1} 300 Z2"          , 300,  1, 1,   1.310000) ); //NLO
   //signals.push_back(stSignal("Stop"  , "Stop400Z"     , "#tilde{t}_{1} 400 Z2"          , 400,  1, 1,   0.218000) ); //NLO
   //signals.push_back(stSignal("Stop"  , "Stop500Z"     , "#tilde{t}_{1} 500 Z2"          , 500,  0,   0.047800) ); //NLO
@@ -240,7 +238,7 @@ void GetMCDefinition(std::vector<stMC>& MC){
    MC.push_back(stMC("MC_DYToMuMu"              ,     1.300E3  , -1, -1, 0));
    MC.push_back(stMC("MC_WJetsToLNu"            ,     2.777E4  , -1, -1, 1));
    MC.push_back(stMC("MC_TTJets"                ,     9.400E1  , -1, -1, 1));
-   //MC.push_back(stMC("MC_QCD_Pt-15to30"         ,     8.16E8  , -1, -1, 0));
+   MC.push_back(stMC("MC_QCD_Pt-15to30"         ,     8.16E8  , -1, -1, 0));
    MC.push_back(stMC("MC_QCD_Pt-30to50"         ,     5.310E7  , -1, -1, 0));
    MC.push_back(stMC("MC_QCD_Pt-50to80"         ,     6.360E6  , -1, -1, 0));
    MC.push_back(stMC("MC_QCD_Pt-80to120"        ,     7.840E5  , -1, -1, 0));
@@ -270,9 +268,8 @@ void GetMCDefinition(std::vector<stMC>& MC){
 
 void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName, int period=0){
 //  std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_08_03/";
-  //std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/jchen/11_09_13_HSCP2011EDM/";
-  //std::string BaseDirectory = "/uscmst1b_scratch/lpc1/lpcphys/jchen/HSCPEDM_11_01_11/";
-  std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/farrell3/NewDTError26Dec2011/";
+//   std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/jchen/11_09_13_HSCP2011EDM/";
+  std::string BaseDirectory = "/uscmst1b_scratch/lpc1/lpcphys/jchen/HSCPEDM_11_01_11/";
    if(SampleName=="Data"){
      inputFiles.push_back(BaseDirectory + "Data_RunA_160404_163869.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_165001_166033.root");

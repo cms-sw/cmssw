@@ -1,8 +1,9 @@
+
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2011/09/02 13:55:01 $
- * $Revision: 1.232 $
+ * $Date: 2012/03/18 15:59:29 $
+ * $Revision: 1.232.2.1 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -10,9 +11,8 @@
 
 #include <memory>
 #include <iostream>
+#include <fstream>
 #include <iomanip>
-#include <set>
-#include <sstream>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -35,22 +35,12 @@
 #include "DQM/EcalCommon/interface/LogicID.h"
 #endif
 
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-
 #include "DQM/EcalCommon/interface/Masks.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
-
 #include "DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h"
-
-#include "TString.h"
-#include "TObjString.h"
-#include "TPRegexp.h"
-#include "TObjArray.h"
 
 EBIntegrityClient::EBIntegrityClient(const edm::ParameterSet& ps) {
 
@@ -65,6 +55,8 @@ EBIntegrityClient::EBIntegrityClient(const edm::ParameterSet& ps) {
 
   // prefixME path
   prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
+
+  subfolder_ = ps.getUntrackedParameter<std::string>("subfolder", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -82,6 +74,17 @@ EBIntegrityClient::EBIntegrityClient(const edm::ParameterSet& ps) {
 
     h_[ism-1] = 0;
     hmem_[ism-1] = 0;
+
+    h01_[ism-1] = 0;
+    h02_[ism-1] = 0;
+    h03_[ism-1] = 0;
+    h04_[ism-1] = 0;
+    h05_[ism-1] = 0;
+    h06_[ism-1] = 0;
+    h07_[ism-1] = 0;
+    h08_[ism-1] = 0;
+    h09_[ism-1] = 0;
+
   }
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -95,10 +98,6 @@ EBIntegrityClient::EBIntegrityClient(const edm::ParameterSet& ps) {
   }
 
   threshCry_ = 0.01;
-
-  ievt_ = 0;
-  jevt_ = 0;
-  dqmStore_ = 0;
 
 }
 
@@ -147,21 +146,23 @@ void EBIntegrityClient::setup(void) {
 
   std::string name;
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/IntegrityErrors" );
-  dqmStore_->setCurrentFolder( prefixME_ + "/IntegrityErrors/Quality" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBIntegrityClient" );
+
+  if(subfolder_.size())
+    dqmStore_->setCurrentFolder( prefixME_ + "/EBIntegrityClient/" + subfolder_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
     if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
-    name = "IntegrityClient data integrity quality " + Numbers::sEB(ism);
+    name = "EBIT data integrity quality " + Numbers::sEB(ism);
     meg01_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
     meg01_[ism-1]->setAxisTitle("ieta", 1);
     meg01_[ism-1]->setAxisTitle("iphi", 2);
 
     if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
-    name = "IntegrityClient data integrity quality MEM " + Numbers::sEB(ism);
+    name = "EBIT data integrity quality MEM " + Numbers::sEB(ism);
     meg02_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 5, 0.,5.);
     meg02_[ism-1]->setAxisTitle("pseudo-strip", 1);
     meg02_[ism-1]->setAxisTitle("channel", 2);
@@ -213,14 +214,36 @@ void EBIntegrityClient::cleanup(void) {
       if ( h_[ism-1] )    delete h_[ism-1];
       if ( hmem_[ism-1] ) delete hmem_[ism-1];
 
+      if ( h01_[ism-1] ) delete h01_[ism-1];
+      if ( h02_[ism-1] ) delete h02_[ism-1];
+      if ( h03_[ism-1] ) delete h03_[ism-1];
+      if ( h04_[ism-1] ) delete h04_[ism-1];
+      if ( h05_[ism-1] ) delete h05_[ism-1];
+      if ( h06_[ism-1] ) delete h06_[ism-1];
+      if ( h07_[ism-1] ) delete h07_[ism-1];
+      if ( h08_[ism-1] ) delete h08_[ism-1];
+      if ( h09_[ism-1] ) delete h09_[ism-1];
     }
 
     h_[ism-1] = 0;
     hmem_[ism-1] = 0;
 
+    h01_[ism-1] = 0;
+    h02_[ism-1] = 0;
+    h03_[ism-1] = 0;
+    h04_[ism-1] = 0;
+    h05_[ism-1] = 0;
+    h06_[ism-1] = 0;
+    h07_[ism-1] = 0;
+    h08_[ism-1] = 0;
+    h09_[ism-1] = 0;
+
   }
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/IntegrityErrors" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBIntegrityClient" );
+
+  if(subfolder_.size())
+    dqmStore_->setCurrentFolder( prefixME_ + "/EBIntegrityClient/" + subfolder_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -256,27 +279,25 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     int ism = superModules_[i];
 
-    int idcc = ism + 9;
-
     if ( h00_ && h00_->GetBinContent(ism) != 0 ) {
       std::cerr << " DCC failed " << h00_->GetBinContent(ism) << " times" << std::endl;
       std::cerr << std::endl;
     }
 
-//     if ( verbose_ ) {
-//       std::cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
-//       std::cout << std::endl;
-//       UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1], true);
-//       UtilsClient::printBadChannels(meg01_[ism-1], h02_[ism-1], true);
-//       UtilsClient::printBadChannels(meg01_[ism-1], h03_[ism-1], true);
-//       UtilsClient::printBadChannels(meg01_[ism-1], h04_[ism-1], true);
-//       UtilsClient::printBadChannels(meg01_[ism-1], h05_[ism-1], true);
+    if ( verbose_ ) {
+      std::cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
+      UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1], true);
+      UtilsClient::printBadChannels(meg01_[ism-1], h02_[ism-1], true);
+      UtilsClient::printBadChannels(meg01_[ism-1], h03_[ism-1], true);
+      UtilsClient::printBadChannels(meg01_[ism-1], h04_[ism-1], true);
+      UtilsClient::printBadChannels(meg01_[ism-1], h05_[ism-1], true);
 
-//       UtilsClient::printBadChannels(meg02_[ism-1], h06_[ism-1], true);
-//       UtilsClient::printBadChannels(meg02_[ism-1], h07_[ism-1], true);
-//       UtilsClient::printBadChannels(meg02_[ism-1], h08_[ism-1], true);
-//       UtilsClient::printBadChannels(meg02_[ism-1], h09_[ism-1], true);
-//    }
+      UtilsClient::printBadChannels(meg02_[ism-1], h06_[ism-1], true);
+      UtilsClient::printBadChannels(meg02_[ism-1], h07_[ism-1], true);
+      UtilsClient::printBadChannels(meg02_[ism-1], h08_[ism-1], true);
+      UtilsClient::printBadChannels(meg02_[ism-1], h09_[ism-1], true);
+    }
 
     float num00;
 
@@ -291,8 +312,6 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     float num01, num02, num03;
 
-    std::map<uint32_t, float>::iterator mapItr;
-
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
@@ -304,24 +323,20 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(ie, ip);
 
-	int ieta = ism <= 18 ? -ie : ie;
-	int iphi = (ism <= 18 ? ip : (21 - ip)) + ((ism - 1) % 18) * 20;
-	uint32_t id(EBDetId(ieta, iphi).rawId());
+        if ( h01_[ism-1] ) {
+          num01  = h01_[ism-1]->GetBinContent(ie, ip);
+          if ( num01 > 0 ) update1 = true;
+        }
 
-	if((mapItr = gain_.find(id)) != gain_.end()){
-	  num01 = mapItr->second;
-	  if(num01 > 0) update1 = true;
-	}
+        if ( h02_[ism-1] ) {
+          num02  = h02_[ism-1]->GetBinContent(ie, ip);
+          if ( num02 > 0 ) update1 = true;
+        }
 
-	if((mapItr = chid_.find(id)) != chid_.end()){
-	  num02 = mapItr->second;
-	  if(num02 > 0) update1 = true;
-	}
-
-	if((mapItr = gainswitch_.find(id)) != gainswitch_.end()){
-	  num03 = mapItr->second;
-	  if(num03 > 0) update1 = true;
-	}
+        if ( h03_[ism-1] ) {
+          num03  = h03_[ism-1]->GetBinContent(ie, ip);
+          if ( num03 > 0 ) update1 = true;
+        }
 
         if ( update0 || update1 ) {
 
@@ -393,18 +408,15 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           }
         }
 
-	int itt = Numbers::iSC(ism, EcalBarrel, 1+5*(iet-1), 1+5*(ipt-1));
-	uint32_t id(EcalElectronicsId(idcc, itt, 1, 1).rawId());
+        if ( h04_[ism-1] ) {
+          num04  = h04_[ism-1]->GetBinContent(iet, ipt);
+          if ( num04 > 0 ) update1 = true;
+        }
 
-	if((mapItr = ttid_.find(id)) != ttid_.end()){
-	  num04 = mapItr->second;
-	  if(num04 > 0) update1 = true;
-	}
-
-	if((mapItr = ttblocksize_.find(id)) != ttblocksize_.end()){
-	  num05 = mapItr->second;
-	  if(num05 > 0) update1 = true;
-	}
+        if ( h05_[ism-1] ) {
+          num05  = h05_[ism-1]->GetBinContent(iet, ipt);
+          if ( num05 > 0 ) update1 = true;
+        }
 
         if ( update0 || update1 ) {
 
@@ -459,83 +471,74 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     float num06, num07;
 
-    for( int ife(0); ife < 2; ife++){
-      float numTotMem[5] = {-1., -1., -1., -1., -1.};
-      for ( int ixtal = 1; ixtal <= 5; ixtal++ ) {
-	if ( hmem_[ism-1] ) numTotMem[ixtal - 1] = hmem_[ism-1]->GetBinContent(ife * 5 + ixtal, 1);
-      }
+    for ( int ie = 1; ie <= 10; ie++ ) {
+      for ( int ip = 1; ip <= 5; ip++ ) {
 
-      for ( int ixtal = 1; ixtal <= 5; ixtal++ ) {
-	for ( int istrip = 1; istrip <= 5; istrip++ ) {
+        num06 = num07 = 0.;
 
-	  num06 = num07 = 0.;
+        bool update1 = false;
 
-	  bool update1 = false;
+        float numTot = -1.;
 
-	  float numTot;
-	  if(istrip % 2 == 1) numTot = numTotMem[ixtal - 1];
-	  else numTot = numTotMem[6 - ixtal];
+        if ( hmem_[ism-1] ) numTot = hmem_[ism-1]->GetBinContent(ie, ip);
 
-	  uint32_t id(EcalElectronicsId(idcc, ife + 68, istrip, ixtal).rawId());
+        if ( h06_[ism-1] ) {
+          num06  = h06_[ism-1]->GetBinContent(ie, ip);
+          if ( num06 > 0 ) update1 = true;
+        }
 
-	  if((mapItr = memchid_.find(id)) != memchid_.end()){
-	    num06 = mapItr->second;
-	    if ( num06 > 0 ) update1 = true;
-	  }
+        if ( h07_[ism-1] ) {
+          num07  = h07_[ism-1]->GetBinContent(ie, ip);
+          if ( num07 > 0 ) update1 = true;
+        }
 
-	  if((mapItr = memgain_.find(id)) != memgain_.end()){
-	    num07 = mapItr->second;
-	    if ( num07 > 0 ) update1 = true;
-	  }
+        if ( update0 || update1 ) {
 
-	  if ( update0 || update1 ) {
+          if ( ie ==1 && ip == 1 ) {
 
-	    //           if ( ie ==1 && ip == 1 ) {
+            if ( verbose_ ) {
+              std::cout << "Preparing dataset for mem of SM=" << ism << std::endl;
+              std::cout << "(" << ie << "," << ip << ") " << num06 << " " << num07 << std::endl;
+              std::cout << std::endl;
+            }
 
-	    //             if ( verbose_ ) {
-	    //               std::cout << "Preparing dataset for mem of SM=" << ism << std::endl;
-	    //               std::cout << "(" << ie << "," << ip << ") " << num06 << " " << num07 << std::endl;
-	    //               std::cout << std::endl;
-	    //             }
+          }
 
-	    //           }
+          c3.setProcessedEvents( int (numTot));
+          c3.setProblematicEvents(int (num06+num07));
+          c3.setProblemsID(int (num06) );
+          c3.setProblemsGainZero(int (num07));
+          // c3.setProblemsGainSwitch(int prob);
 
-	    c3.setProcessedEvents( int (numTot));
-	    c3.setProblematicEvents(int (num06+num07));
-	    c3.setProblemsID(int (num06) );
-	    c3.setProblemsGainZero(int (num07));
-	    // c3.setProblemsGainSwitch(int prob);
+          bool val;
 
-	    bool val;
+          val = false;
+          if ( numTot > 0 ) {
+            float errorRate1 = num00 / ( numTot + num06 + num07 );
+            if ( errorRate1 > threshCry_ )
+              val = true;
+            errorRate1 = ( num06 + num07 ) / ( numTot + num06 + num07 ) / 2.;
+            if ( errorRate1 > threshCry_ )
+              val = true;
+          } else {
+            if ( num00 > 0 )
+             val = true;
+            if ( ( num06 + num07 ) > 0 )
+              val = true;
+          }
+          c3. setTaskStatus(val);
 
-	    val = false;
-	    if ( numTot > 0 ) {
-	      float errorRate1 = num00 / ( numTot + num06 + num07 );
-	      if ( errorRate1 > threshCry_ )
-		val = true;
-	      errorRate1 = ( num06 + num07 ) / ( numTot + num06 + num07 ) / 2.;
-	      if ( errorRate1 > threshCry_ )
-		val = true;
-	    } else {
-	      if ( num00 > 0 )
-		val = true;
-	      if ( ( num06 + num07 ) > 0 )
-		val = true;
-	    }
-	    c3. setTaskStatus(val);
+          int ic = EBIntegrityClient::chNum[ (ie-1)%5 ][ (ip-1) ] + (ie-1)/5 * 25;
 
-	    int ic = 25 * ife + chNum[istrip - 1][ixtal - 1];
+          if ( econn ) {
+            ecid = LogicID::getEcalLogicID("EB_mem_channel", Numbers::iSM(ism, EcalBarrel), ic);
+            dataset3[ecid] = c3;
+          }
 
-	    if ( econn ) {
-	      ecid = LogicID::getEcalLogicID("EB_mem_channel", Numbers::iSM(ism, EcalBarrel), ic);
-	      dataset3[ecid] = c3;
-	    }
+          status = status && !val;
 
-	    status = status && !val;
+        }
 
-	  }
-
-	}
       }
     }
 
@@ -552,20 +555,20 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       if ( hmem_[ism-1] ) {
         numTot = 0.;
         for ( int ie = 1 + 5*(iet-1); ie <= 5*iet; ie++ ) {
-	  numTot += hmem_[ism-1]->GetBinContent(ie, 1);
+          for ( int ip = 1 ; ip <= 5; ip++ ) {
+            numTot += hmem_[ism-1]->GetBinContent(ie, ip);
+          }
         }
       }
 
-      uint32_t id(EcalElectronicsId(idcc, iet + 68, 1, 1).rawId());
-
-      if((mapItr = memttid_.find(id)) != memttid_.end()){
-	num08 = mapItr->second;
-	if ( num08 > 0 ) update1 = true;
+      if ( h08_[ism-1] ) {
+        num08  = h08_[ism-1]->GetBinContent(iet, 1);
+        if ( num08 > 0 ) update1 = true;
       }
 
-      if((mapItr = memblocksize_.find(id)) != memblocksize_.end()){
-	num09 = mapItr->second;
-	if ( num09 > 0 ) update1 = true;
+      if ( h09_[ism-1] ) {
+        num09  = h09_[ism-1]->GetBinContent(iet, 1);
+        if ( num09 > 0 ) update1 = true;
       }
 
       if ( update0 || update1 ) {
@@ -653,157 +656,49 @@ void EBIntegrityClient::analyze(void) {
   bits01 |= 1 << EcalDQMStatusHelper::TT_ID_ERROR;
   bits01 |= 1 << EcalDQMStatusHelper::TT_SIZE_ERROR;
 
+  std::string subdir(subfolder_.size() ? subfolder_ + "/" : "");
 
   MonitorElement* me;
 
-  gain_.clear();
-  chid_.clear();
-  gainswitch_.clear();
-  ttid_.clear();
-  ttblocksize_.clear();
-  memchid_.clear();
-  memgain_.clear();
-  memttid_.clear();
-  memblocksize_.clear();
-
-  std::vector<MonitorElement *> vme;
-  TString name;
-  TPRegexp reDetId("IntegrityTask [a-zA-Z ]+ EB ([0-9+-]+) ([0-9]+)");
-  TPRegexp reEleId("IntegrityTask [a-zA-Z ]+ FE ([0-9]+) ([0-9]+)( ([0-9]+) ([0-9]+)|)");
-  TObjArray* matches(0);
-  int ieta, iphi, idcc, iccu, istrip, ixtal;
-
-  vme = dqmStore_->getContents(prefixME_ + "/IntegrityErrors/Gain");
-
-  for(std::vector<MonitorElement *>::iterator meItr(vme.begin()); meItr != vme.end(); ++meItr){
-    if(!(*meItr)) continue;
-    name = (*meItr)->getName().c_str();
-    matches = reDetId.MatchS(name);
-    if(matches->GetEntries() != 3) continue;
-    ieta = static_cast<TObjString*>(matches->At(1))->GetString().Atoi();
-    iphi = static_cast<TObjString*>(matches->At(2))->GetString().Atoi();
-    EBDetId id(ieta, iphi);
-    gain_[id.rawId()] = (*meItr)->getBinContent(1);
-  }
-
-  vme = dqmStore_->getContents(prefixME_ + "/IntegrityErrors/ChId");
-  for(std::vector<MonitorElement *>::iterator meItr(vme.begin()); meItr != vme.end(); ++meItr){
-    if(!(*meItr)) continue;
-    name = (*meItr)->getName().c_str();
-    matches = reDetId.MatchS(name);
-    if(matches->GetEntries() != 3) continue;
-    ieta = static_cast<TObjString*>(matches->At(1))->GetString().Atoi();
-    iphi = static_cast<TObjString*>(matches->At(2))->GetString().Atoi();
-    EBDetId id(ieta, iphi);
-    chid_[id.rawId()] = (*meItr)->getBinContent(1);
-  }
-
-  vme = dqmStore_->getContents(prefixME_ + "/IntegrityErrors/GainSwitch");
-  for(std::vector<MonitorElement *>::iterator meItr(vme.begin()); meItr != vme.end(); ++meItr){
-    if(!(*meItr)) continue;
-    name = (*meItr)->getName().c_str();
-    matches = reDetId.MatchS(name);
-    if(matches->GetEntries() != 3) continue;
-    ieta = static_cast<TObjString*>(matches->At(1))->GetString().Atoi();
-    iphi = static_cast<TObjString*>(matches->At(2))->GetString().Atoi();
-    EBDetId id(ieta, iphi);
-    gainswitch_[id.rawId()] = (*meItr)->getBinContent(1);
-  }
-
-  vme = dqmStore_->getContents(prefixME_ + "/IntegrityErrors/TowerId");
-  for(std::vector<MonitorElement *>::iterator meItr(vme.begin()); meItr != vme.end(); ++meItr){
-    if(!(*meItr)) continue;
-    name = (*meItr)->getName().c_str();
-    matches = reEleId.MatchS(name);
-    if(matches->GetEntries() != 4) continue;
-    idcc = static_cast<TObjString*>(matches->At(1))->GetString().Atoi();
-    iccu = static_cast<TObjString*>(matches->At(2))->GetString().Atoi();
-    if(idcc < 10 || idcc > 45) continue;
-    EcalElectronicsId id(idcc, iccu, 1, 1);
-    ttid_[id.rawId()] = (*meItr)->getBinContent(1);
-  }
-
-  vme = dqmStore_->getContents(prefixME_ + "/IntegrityErrors/BlockSize");
-  for(std::vector<MonitorElement *>::iterator meItr(vme.begin()); meItr != vme.end(); ++meItr){
-    if(!(*meItr)) continue;
-    name = (*meItr)->getName().c_str();
-    matches = reEleId.MatchS(name);
-    if(matches->GetEntries() != 4) continue;
-    idcc = static_cast<TObjString*>(matches->At(1))->GetString().Atoi();
-    iccu = static_cast<TObjString*>(matches->At(2))->GetString().Atoi();
-    if(idcc < 10 || idcc > 45) continue;
-    EcalElectronicsId id(idcc, iccu, 1, 1);
-    ttblocksize_[id.rawId()] = (*meItr)->getBinContent(1);
-  }
-
-  vme = dqmStore_->getContents(prefixME_ + "/IntegrityErrors/MEMBlockSize");
-  for(std::vector<MonitorElement *>::iterator meItr(vme.begin()); meItr != vme.end(); ++meItr){
-    if(!(*meItr)) continue;
-    name = (*meItr)->getName().c_str();
-    matches = reEleId.MatchS(name);
-    if(matches->GetEntries() != 4) continue;
-    idcc = static_cast<TObjString*>(matches->At(1))->GetString().Atoi();
-    iccu = static_cast<TObjString*>(matches->At(2))->GetString().Atoi();
-    if(idcc < 10 || idcc > 45) continue;
-    EcalElectronicsId id(idcc, iccu, 1, 1);
-    memblocksize_[id.rawId()] = (*meItr)->getBinContent(1);
-  }
-
-  vme = dqmStore_->getContents(prefixME_ + "/IntegrityErrors/MEMTowerId");
-  for(std::vector<MonitorElement *>::iterator meItr(vme.begin()); meItr != vme.end(); ++meItr){
-    if(!(*meItr)) continue;
-    name = (*meItr)->getName().c_str();
-    matches = reEleId.MatchS(name);
-    if(matches->GetEntries() != 4) continue;
-    idcc = static_cast<TObjString*>(matches->At(1))->GetString().Atoi();
-    iccu = static_cast<TObjString*>(matches->At(2))->GetString().Atoi();
-    if(idcc < 10 || idcc > 45) continue;
-    EcalElectronicsId id(idcc, iccu, 1, 1);
-    memttid_[id.rawId()] = (*meItr)->getBinContent(1);
-  }
-
-  vme = dqmStore_->getContents(prefixME_ + "/IntegrityErrors/MEMChId");
-  for(std::vector<MonitorElement *>::iterator meItr(vme.begin()); meItr != vme.end(); ++meItr){
-    if(!(*meItr)) continue;
-    name = (*meItr)->getName().c_str();
-    matches = reEleId.MatchS(name);
-    if(matches->GetEntries() != 6) continue;
-    idcc = static_cast<TObjString*>(matches->At(1))->GetString().Atoi();
-    iccu = static_cast<TObjString*>(matches->At(2))->GetString().Atoi();
-    istrip = static_cast<TObjString*>(matches->At(4))->GetString().Atoi();
-    ixtal = static_cast<TObjString*>(matches->At(5))->GetString().Atoi();
-    if(idcc < 10 || idcc > 45) continue;
-    EcalElectronicsId id(idcc, iccu, istrip, ixtal);
-    memchid_[id.rawId()] = (*meItr)->getBinContent(1);
-  }
-
-  vme = dqmStore_->getContents(prefixME_ + "/IntegrityErrors/MEMGain");
-  for(std::vector<MonitorElement *>::iterator meItr(vme.begin()); meItr != vme.end(); ++meItr){
-    if(!(*meItr)) continue;
-    name = (*meItr)->getName().c_str();
-    matches = reEleId.MatchS(name);
-    if(matches->GetEntries() != 6) continue;
-    idcc = static_cast<TObjString*>(matches->At(1))->GetString().Atoi();
-    iccu = static_cast<TObjString*>(matches->At(2))->GetString().Atoi();
-    istrip = static_cast<TObjString*>(matches->At(4))->GetString().Atoi();
-    ixtal = static_cast<TObjString*>(matches->At(5))->GetString().Atoi();
-    if(idcc < 10 || idcc > 45) continue;
-    EcalElectronicsId id(idcc, iccu, istrip, ixtal);
-    memgain_[id.rawId()] = (*meItr)->getBinContent(1);
-  }
-
-  me = dqmStore_->get( prefixME_ + "/IntegrityErrors/IntegrityTask DCC size error EB" );
+  me = dqmStore_->get( prefixME_ + "/EBIntegrityTask/" + subdir + "EBIT DCC size error" );
   h00_ = UtilsClient::getHisto( me, cloneME_, h00_ );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    me = dqmStore_->get( prefixME_ + "/Occupancy/Digi/OccupancyTask digi occupancy " + Numbers::sEB(ism) );
+    me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/" + subdir + "EBOT digi occupancy " + Numbers::sEB(ism) );
     h_[ism-1] = UtilsClient::getHisto( me, cloneME_, h_[ism-1] );
 
-    me = dqmStore_->get( prefixME_ + "/Occupancy/MEMDigi/OccupancyTask MEM digi occupancy " + Numbers::sEB(ism) );
+    me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/" + subdir + "EBOT MEM digi occupancy " + Numbers::sEB(ism) );
     hmem_[ism-1] = UtilsClient::getHisto( me, cloneME_, hmem_[ism-1] );
+
+    me = dqmStore_->get( prefixME_ + "/EBIntegrityTask/" + subdir + "Gain/EBIT gain " + Numbers::sEB(ism) );
+    h01_[ism-1] = UtilsClient::getHisto( me, cloneME_, h01_[ism-1] );
+
+    me = dqmStore_->get( prefixME_ + "/EBIntegrityTask/" + subdir + "ChId/EBIT ChId " + Numbers::sEB(ism) );
+    h02_[ism-1] = UtilsClient::getHisto( me, cloneME_, h02_[ism-1] );
+
+    me = dqmStore_->get( prefixME_ + "/EBIntegrityTask/" + subdir + "GainSwitch/EBIT gain switch " + Numbers::sEB(ism) );
+    h03_[ism-1] = UtilsClient::getHisto( me, cloneME_, h03_[ism-1] );
+
+    me = dqmStore_->get( prefixME_ + "/EBIntegrityTask/" + subdir + "TTId/EBIT TTId " + Numbers::sEB(ism) );
+    h04_[ism-1] = UtilsClient::getHisto( me, cloneME_, h04_[ism-1] );
+
+    me = dqmStore_->get( prefixME_ + "/EBIntegrityTask/" + subdir + "TTBlockSize/EBIT TTBlockSize " + Numbers::sEB(ism) );
+    h05_[ism-1] = UtilsClient::getHisto( me, cloneME_, h05_[ism-1] );
+
+    me = dqmStore_->get( prefixME_ + "/EBIntegrityTask/" + subdir + "MemChId/EBIT MemChId " + Numbers::sEB(ism) );
+    h06_[ism-1] = UtilsClient::getHisto( me, cloneME_, h06_[ism-1] );
+
+    me = dqmStore_->get( prefixME_ + "/EBIntegrityTask/" + subdir + "MemGain/EBIT MemGain " + Numbers::sEB(ism) );
+    h07_[ism-1] = UtilsClient::getHisto( me, cloneME_, h07_[ism-1] );
+
+    me = dqmStore_->get( prefixME_ + "/EBIntegrityTask/" + subdir + "MemTTId/EBIT MemTTId " + Numbers::sEB(ism) );
+    h08_[ism-1] = UtilsClient::getHisto( me, cloneME_, h08_[ism-1] );
+
+    me = dqmStore_->get( prefixME_ + "/EBIntegrityTask/" + subdir + "MemSize/EBIT MemSize " + Numbers::sEB(ism) );
+    h09_[ism-1] = UtilsClient::getHisto( me, cloneME_, h09_[ism-1] );
 
     float num00;
 
@@ -823,8 +718,6 @@ void EBIntegrityClient::analyze(void) {
 
     float num01, num02, num03, num04, num05;
 
-    std::map<uint32_t, float>::iterator mapItr;
-
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
@@ -839,38 +732,33 @@ void EBIntegrityClient::analyze(void) {
 
         if ( h_[ism-1] ) numTot = h_[ism-1]->GetBinContent(ie, ip);
 
-	ieta = ism <= 18 ? -ie : ie;
-	iphi = (ism <= 18 ? ip : (21 - ip)) + ((ism - 1) % 18) * 20;
+        if ( h01_[ism-1] ) {
+          num01  = h01_[ism-1]->GetBinContent(ie, ip);
+          update1 = true;
+        }
 
-	EBDetId detId(ieta, iphi);
-	EcalElectronicsId eleId(Numbers::getElectronicsMapping()->getElectronicsId(detId));
-	uint32_t ebid(detId.rawId());
-	uint32_t eid(EcalElectronicsId(eleId.dccId(), eleId.towerId(), 1, 1).rawId());
+        if ( h02_[ism-1] ) {
+          num02  = h02_[ism-1]->GetBinContent(ie, ip);
+          update1 = true;
+        }
 
-	if((mapItr = gain_.find(ebid)) != gain_.end()){
-	  num01 = mapItr->second;
-	  update1 = true;
-	}
+        if ( h03_[ism-1] ) {
+          num03  = h03_[ism-1]->GetBinContent(ie, ip);
+          update1 = true;
+        }
 
-	if((mapItr = chid_.find(ebid)) != chid_.end()){
-	  num02 = mapItr->second;
-	  update1 = true;
-	}
+        int iet = 1 + ((ie-1)/5);
+        int ipt = 1 + ((ip-1)/5);
 
-	if((mapItr = gainswitch_.find(ebid)) != gainswitch_.end()){
-	  num03 = mapItr->second;
-	  update1 = true;
-	}
+        if ( h04_[ism-1] ) {
+          num04  = h04_[ism-1]->GetBinContent(iet, ipt);
+          update2 = true;
+        }
 
-	if((mapItr = ttid_.find(eid)) != ttid_.end()){
-	  num04 = mapItr->second;
-	  update2 = true;
-	}
-
-	if((mapItr = ttblocksize_.find(eid)) != ttblocksize_.end()){
-	  num05 = mapItr->second;
-	  update2 = true;
-	}
+        if ( h05_[ism-1] ) {
+          num05  = h05_[ism-1]->GetBinContent(iet, ipt);
+          update2 = true;
+        }
 
         if ( update0 || update1 || update2 ) {
 
@@ -924,32 +812,30 @@ void EBIntegrityClient::analyze(void) {
 
         float numTotmem = -1.;
 
-        if ( hmem_[ism-1] ) numTotmem = hmem_[ism-1]->GetBinContent(ie, 1);
+        if ( hmem_[ism-1] ) numTotmem = hmem_[ism-1]->GetBinContent(ie, ip);
 
-	uint32_t towerid(EcalElectronicsId(ism + 9, 69 + (ie - 1) / 5, 1, 1).rawId());
-	istrip = (ie - 1) % 5 + 1;
-	ixtal = (ie % 2) ? ip : 6 - ip;
-	uint32_t memid(EcalElectronicsId(ism + 9, 69 + (ie - 1) / 5, istrip, ixtal).rawId());
+        if ( h06_[ism-1] ) {
+          num06  = h06_[ism-1]->GetBinContent(ie, ip);
+          update1 = true;
+        }
 
-	if((mapItr = memchid_.find(memid)) != memchid_.end()){
-	  num06 = mapItr->second;
-	  update1 = true;
-	}
+        if ( h07_[ism-1] ) {
+          num07  = h07_[ism-1]->GetBinContent(ie, ip);
+          update1 = true;
+        }
 
-	if((mapItr = memgain_.find(memid)) != memgain_.end()){
-	  num07 = mapItr->second;
-	  update1 = true;
-	}
+        int iet = 1 + ((ie-1)/5);
+        int ipt = 1;
 
-	if((mapItr = memttid_.find(towerid)) != memttid_.end()){
-	  num08 = mapItr->second;
-	  update2 = true;
-	}
+        if ( h08_[ism-1] ) {
+          num08  = h08_[ism-1]->GetBinContent(iet, ipt);
+          update2 = true;
+        }
 
-	if((mapItr = memblocksize_.find(towerid)) != memblocksize_.end()){
-	  num08 = mapItr->second;
-	  update2 = true;
-	}
+        if ( h09_[ism-1] ) {
+          num09  = h09_[ism-1]->GetBinContent(iet, ipt);
+          update2 = true;
+        }
 
         if ( update0 || update1 || update2 ) {
 

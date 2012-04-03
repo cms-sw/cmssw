@@ -64,9 +64,9 @@ siStripFEDMonitor.MedianAPV1HistogramConfig = cms.untracked.PSet(
 #Error counting histograms
 siStripFEDMonitor.nFEDErrorsHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(True),
-  NBins = cms.untracked.uint32(101),
+  NBins = cms.untracked.uint32(441),
   Min = cms.untracked.double(-0.5),
-  Max = cms.untracked.double(100.5)
+  Max = cms.untracked.double(440.5)
 )
 siStripFEDMonitor.nFEDDAQProblemsHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(True),

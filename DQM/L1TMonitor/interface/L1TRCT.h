@@ -5,11 +5,14 @@
 /*
  * \file L1TRCT.h
  *
- * $Date: 2008/11/08 08:45:42 $
- * $Revision: 1.6 $
+ * $Date: 2009/11/19 14:34:14 $
+ * $Revision: 1.7 $
  * \author P. Wittich
- * $Id: L1TRCT.h,v 1.6 2008/11/08 08:45:42 asavin Exp $
+ * $Id: L1TRCT.h,v 1.7 2009/11/19 14:34:14 puigh Exp $
  * $Log: L1TRCT.h,v $
+ * Revision 1.7  2009/11/19 14:34:14  puigh
+ * modify beginJob
+ *
  * Revision 1.6  2008/11/08 08:45:42  asavin
  * changing the fine grain to HfPlusTau
  *
@@ -134,8 +137,8 @@ private:
   ofstream logFile_;
 
   edm::InputTag rctSource_;
-
-
+  /// filter TriggerType
+  int filterTriggerType_;
 };
 
 #endif

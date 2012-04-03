@@ -5,15 +5,15 @@
 // 
 /**\class HLTOfflineReproducibility HLTOfflineReproducibility.cc HLTOfflineReproducibility/src/HLTOfflineReproducibility.cc
 
- Description: compares two instances of the HLT trigger results, often online (ORIG) and rerunning the HLT offline (NEW)
+ Description: compares online and offline HLT trigger results
 
  Implementation:
-     set dqm to true to use the DQM version of the module
+     [Notes on implementation]
 */
 //
 // Original Author:  Juliette Marie Alimena,40 3-A02,+41227671577,
 //         Created:  Fri Apr 22 15:46:58 CEST 2011
-// $Id: HLTOfflineReproducibility.cc,v 1.9 2012/01/13 17:45:06 fwyzard Exp $
+// $Id: HLTOfflineReproducibility.cc,v 1.5 2011/11/15 11:18:38 fwyzard Exp $
 //
 //
 
@@ -33,7 +33,6 @@ using namespace std;
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Common/interface/HLTGlobalStatus.h"
@@ -45,9 +44,6 @@ using namespace std;
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigData.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <TMath.h>
 #include <TFile.h>
@@ -82,43 +78,40 @@ private:
   bool check(std::string process, std::string pCheck);
 
   // ----------member data ---------------------------  
-  bool dqm_;
-  DQMStore* dqms_;
-
-  edm::InputTag triggerLabelORIG_;
-  edm::InputTag triggerLabelNEW_;
+  edm::InputTag triggerLabelON_;
+  edm::InputTag triggerLabelOFF_;
   
   //Trigger Stuff
-  unsigned int nPaths_, nPathsORIG_, nPathsNEW_, nDatasets_;
+  unsigned int nPaths_, nPathsON_, nPathsOFF_, nDatasets_;
   vector<string> triggerNames_;
-  vector< vector<string> > moduleLabel_, moduleLabelORIG_, moduleLabelNEW_;
+  vector< vector<string> > moduleLabel_, moduleLabelON_, moduleLabelOFF_;
   vector<unsigned int> nModules_, nPaths_PD_;
   vector<string> datasetNames_;
   vector<vector<string> > datasetContent_;
   vector< vector< vector<bool> > > triggerNames_matched_;
 
-  string processNameORIG_;
-  string processNameNEW_;
+  string processNameON_;
+  string processNameOFF_;
   HLTConfigProvider hltConfig_;
 
   int Nfiles_;
   double Normalization_;
   bool isRealData_;
   int LumiSecNumber_; 
-  vector<int> trigger_ORIG_;
-  vector<int> trigger_NEW_;
+  vector<int> trigger_online_;
+  vector<int> trigger_offline_;
 
-  TH1F* path_ORIG_hist;
-  TH1F* path_ORIGnotNEW_hist;
-  TH1F* path_NEWnotORIG_hist;
-  TH2F* pathmodule_ORIGnotNEW_hist;
-  TH2F* pathmodule_NEWnotORIG_hist;
-  
-  vector<TH1F*> path_ORIG_hist_PD;
-  vector<TH1F*> path_ORIGnotNEW_hist_PD;
-  vector<TH1F*> path_NEWnotORIG_hist_PD;
-  vector<TH2F*> pathmodule_ORIGnotNEW_hist_PD;
-  vector<TH2F*> pathmodule_NEWnotORIG_hist_PD;
+  TH1D* path_ON_hist;
+  TH1D* path_ONnotOFF_hist;
+  TH1D* path_OFFnotON_hist;
+  TH2D* pathmodule_ONnotOFF_hist;
+  TH2D* pathmodule_OFFnotON_hist;
+
+  vector<TH1D*> path_ON_hist_PD;
+  vector<TH1D*> path_ONnotOFF_hist_PD;
+  vector<TH1D*> path_OFFnotON_hist_PD;
+  vector<TH2D*> pathmodule_ONnotOFF_hist_PD;
+  vector<TH2D*> pathmodule_OFFnotON_hist_PD;
 
 };
 
@@ -134,38 +127,34 @@ private:
 // constructors and destructor
 //
 HLTOfflineReproducibility::HLTOfflineReproducibility(const edm::ParameterSet& iConfig):  
-  dqm_                      (iConfig.getUntrackedParameter<bool>("dqm")),
-  triggerLabelORIG_         (iConfig.getUntrackedParameter<edm::InputTag>("triggerTagORIG")),
-  triggerLabelNEW_          (iConfig.getUntrackedParameter<edm::InputTag>("triggerTagNEW")), 
-  nPaths_                   (0),
-  nDatasets_                (0),
-  triggerNames_             (),
-  moduleLabel_              (),
-  nModules_                 (), 
-  nPaths_PD_                (),
-  datasetNames_             (),
-  datasetContent_           (),
-  triggerNames_matched_     (),
-  processNameORIG_          (iConfig.getParameter<std::string>("processNameORIG")),
-  processNameNEW_           (iConfig.getParameter<std::string>("processNameNEW")),
-  Nfiles_                   (iConfig.getUntrackedParameter<int>("Nfiles",0)),
-  Normalization_            (iConfig.getUntrackedParameter<double>("Norm",40.)),
-  isRealData_               (iConfig.getUntrackedParameter<bool>("isRealData",true)),
-  LumiSecNumber_            (iConfig.getUntrackedParameter<int>("LumiSecNumber",1)),
-  path_ORIG_hist            (0),
-  path_ORIGnotNEW_hist      (0),
-  path_NEWnotORIG_hist      (0),
-  pathmodule_ORIGnotNEW_hist(0),
-  pathmodule_NEWnotORIG_hist(0),
-  path_ORIG_hist_PD         (),
-  path_ORIGnotNEW_hist_PD   (),
-  path_NEWnotORIG_hist_PD   (),
-  pathmodule_ORIGnotNEW_hist_PD(),
-  pathmodule_NEWnotORIG_hist_PD()
+  triggerLabelON_       (iConfig.getUntrackedParameter<edm::InputTag>("triggerTagON")),
+  triggerLabelOFF_      (iConfig.getUntrackedParameter<edm::InputTag>("triggerTagOFF")), 
+  nPaths_               (0),
+  nDatasets_            (0),
+  triggerNames_         (),
+  moduleLabel_          (),
+  nModules_             (), 
+  nPaths_PD_            (),
+  datasetNames_         (),
+  datasetContent_       (),
+  triggerNames_matched_ (),
+  processNameON_(iConfig.getParameter<std::string>("processNameON")),
+  processNameOFF_       (iConfig.getParameter<std::string>("processNameOFF")),
+  Nfiles_               (iConfig.getUntrackedParameter<int>("Nfiles",0)),
+  Normalization_        (iConfig.getUntrackedParameter<double>("Norm",40.)),
+  isRealData_           (iConfig.getUntrackedParameter<bool>("isRealData",true)),
+  LumiSecNumber_        (iConfig.getUntrackedParameter<int>("LumiSecNumber",1)),
+  path_ON_hist          (0),
+  path_ONnotOFF_hist    (0),
+  path_OFFnotON_hist    (0),
+  pathmodule_ONnotOFF_hist(0),
+  pathmodule_OFFnotON_hist(0),
+  path_ON_hist_PD       (),
+  path_ONnotOFF_hist_PD (),
+  path_OFFnotON_hist_PD (),
+  pathmodule_ONnotOFF_hist_PD(),
+  pathmodule_OFFnotON_hist_PD()
 {
-  //now do what ever initialization is needed
-  //define parameters
-  if (dqm_) dqms_ = edm::Service<DQMStore>().operator->();
 }
 
 
@@ -186,111 +175,105 @@ HLTOfflineReproducibility::~HLTOfflineReproducibility()
 void
 HLTOfflineReproducibility::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  // if DQM was requested, check that the DQMService is available
-  if (dqm_ and not dqms_) return;
-
   using namespace edm;
   
+  //cout <<"Run/Event/Lumi block "<< iEvent.id().run()<<" "<<iEvent.id().event()<<" "<<iEvent.luminosityBlock() <<endl;
+  
   //Initialize Trigger
-  TriggerResults trORIG_;
-  Handle<TriggerResults> h_trigResORIG_;
-  iEvent.getByLabel(triggerLabelORIG_, h_trigResORIG_);
-  trORIG_ = *h_trigResORIG_;  
+  TriggerResults trON_;
+  Handle<TriggerResults> h_trigResON_;
+  iEvent.getByLabel(triggerLabelON_, h_trigResON_);
+  trON_ = *h_trigResON_;  
   
-  TriggerResults trNEW_;
-  Handle<TriggerResults> h_trigResNEW_;
-  iEvent.getByLabel(triggerLabelNEW_, h_trigResNEW_);  
-  trNEW_ = *h_trigResNEW_;
+  TriggerResults trOFF_;
+  Handle<TriggerResults> h_trigResOFF_;
+  iEvent.getByLabel(triggerLabelOFF_, h_trigResOFF_);  
+  trOFF_ = *h_trigResOFF_;
 
-  vector<string> triggerListORIG_;
-  Service<service::TriggerNamesService> tnsORIG_;
-  bool foundNamesORIG_ = tnsORIG_->getTrigPaths(trORIG_,triggerListORIG_);
-  if (!foundNamesORIG_) LogError("DataNotFound")<<"Could not get ORIG trigger names!";
-  if (trORIG_.size()!=triggerListORIG_.size()) LogError("DataNotFound")<<"Length of names and paths not the same: " << triggerListORIG_.size() << "," << trORIG_.size() << endl;  
+  vector<string> triggerListON_;
+  Service<service::TriggerNamesService> tnsON_;
+  bool foundNamesON_ = tnsON_->getTrigPaths(trON_,triggerListON_);
+  if (!foundNamesON_) cout << "Could not get trigger names!\n";
+  if (trON_.size()!=triggerListON_.size()) cout << "ERROR: length of names and paths not the same: " << triggerListON_.size() << "," << trON_.size() << endl;  
   
-  vector<string> triggerListNEW_;
-  Service<service::TriggerNamesService> tnsNEW_;
-  bool foundNamesNEW_ = tnsNEW_->getTrigPaths(trNEW_,triggerListNEW_);
-  if (!foundNamesNEW_) LogError("DataNotFound")<<"Could not get trigger names!";
-  if (trNEW_.size()!=triggerListNEW_.size()) LogError("DataNotFound")<<"Length of names and paths not the same: " << triggerListNEW_.size() << "," << trNEW_.size() << endl;  
+  vector<string> triggerListOFF_;
+  Service<service::TriggerNamesService> tnsOFF_;
+  bool foundNamesOFF_ = tnsOFF_->getTrigPaths(trOFF_,triggerListOFF_);
+  if (!foundNamesOFF_) cout << "Could not get trigger names!\n";
+  if (trOFF_.size()!=triggerListOFF_.size()) cout << "ERROR: length of names and paths not the same: " << triggerListOFF_.size() << "," << trOFF_.size() << endl;  
   
 
-  vector<bool> ORIG_accept_, NEW_accept_, fails_prescaler_; 
-  vector<int> module_indexORIG_, module_indexNEW_;
-  vector<string> module_index_labelORIG_, module_index_labelNEW_;
+  vector<bool> online_accept_, offline_accept_, fails_prescaler_; 
+  vector<int> module_indexON_, module_indexOFF_;
+  vector<string> module_index_labelON_, module_index_labelOFF_;
   
   for (unsigned int x=0; x<nPaths_; x++) {
-    ORIG_accept_.push_back(false);
-    NEW_accept_.push_back(false);
-    module_indexORIG_.push_back(-1);
-    module_indexNEW_.push_back(-1);
-    module_index_labelORIG_.push_back(" ");
-    module_index_labelNEW_.push_back(" ");
+    online_accept_.push_back(false);
+    offline_accept_.push_back(false);
+    module_indexON_.push_back(-1);
+    module_indexOFF_.push_back(-1);
+    module_index_labelON_.push_back(" ");
+    module_index_labelOFF_.push_back(" ");
     fails_prescaler_.push_back(false);
   }
-
-  //loop over ORIG trigger paths
-  for (unsigned int i=0; i<nPathsORIG_; i++) {
+  
+  //loop over online trigger paths
+  for (unsigned int i=0; i<nPathsON_; i++) {
     for (unsigned int x=0; x<nPaths_; x++) {
-      //match to list of paths that are in common to both ORIG and NEW
-      if (triggerListORIG_.at(i)==triggerNames_.at(x)) {
-	LogDebug("event")<<"triggerListORIG and triggerNames matched for 'global' path "<<x<<", "<<triggerNames_.at(x);
+      if (triggerListON_[i]==triggerNames_[x]) {
 
-	//if ORIG accepted
-	if (trORIG_.at(i).wasrun()==1 && trORIG_.at(i).accept()==1 && trORIG_.at(i).error()==0) {
-	  LogDebug("event")<<"ORIG accepted";
-	  ORIG_accept_.at(x) = true;
-	  trigger_ORIG_.at(x)++;
-	  path_ORIG_hist->Fill(x);
+	//if online accepted
+	if (trON_[i].wasrun()==1 && trON_[i].accept()==1 && trON_[i].error()==0) {
+	  online_accept_.at(x) = true;
+	  trigger_online_[x]++;
+	  path_ON_hist->Fill(x);
 	  for (unsigned int a=0; a<nDatasets_; a++) {
-	    for (unsigned int b=0; b<nPaths_PD_.at(a); b++) {
-	      if (triggerNames_matched_.at(x).at(a).at(b)){
-		path_ORIG_hist_PD.at(a)->Fill(b);
-	      }
+	    for (unsigned int b=0; b<nPaths_PD_[a]; b++) {
+	      if (triggerNames_matched_[i][a][b]) path_ON_hist_PD[a]->Fill(b);
 	    }
 	  }
 	}
 	
-	//if ORIG failed
-	if (trORIG_.at(i).accept() == 0){
-	  LogDebug("event")<<"ORIG failed";
-	  module_index_labelORIG_.at(x) = moduleLabelORIG_.at(i)[trORIG_.at(i).index()];
-	  module_indexORIG_.at(x) = hltConfig_.moduleIndex(triggerNames_.at(x),module_index_labelORIG_.at(x));
+	//if online failed
+	if (trON_[i].accept() == 0){
+	  module_index_labelON_.at(x) = moduleLabelON_[i][trON_[i].index()];
+	  module_indexON_.at(x) = hltConfig_.moduleIndex(triggerNames_[x],module_index_labelON_[x]);
 	}
 	
 	//for each path, loop over modules and find if a path fails on a prescaler
-	for (unsigned int j=0; j<nModules_.at(x); ++j) {
-	  //const string& moduleLabel_(moduleLabel.at(j));
-	  const string& moduleType = hltConfig_.moduleType(moduleLabel_.at(x).at(j));
-	  if ( (trORIG_.at(i).accept()==0 && j==trORIG_.at(i).index()) && (moduleType=="HLTPrescaler" || moduleType=="TriggerResultsFilter") ) fails_prescaler_.at(x) = true;
+	for (unsigned int j=0; j<nModules_[x]; ++j) {
+	  //const string& moduleLabel_(moduleLabel[j]);
+	  const string& moduleType = hltConfig_.moduleType(moduleLabel_[x][j]);
+	  if ( (trON_[i].accept()==0 && j==trON_[i].index()) && (moduleType=="HLTPrescaler" || moduleType=="TriggerResultsFilter") ) fails_prescaler_[x] = true;
 	}
 
       }
     }
   }
 
-  //loop over NEW trigger paths
-  for (unsigned int i=0; i<nPathsNEW_; i++) {
+
+  //loop over offline trigger paths
+  for (unsigned int i=0; i<nPathsOFF_; i++) {
     for (unsigned int x=0; x<nPaths_; x++) {
-      if (triggerListNEW_.at(i)==triggerNames_.at(x)) {
+      if (triggerListOFF_[i]==triggerNames_[x]) {
 
-	//if NEW accepted
-	if (trNEW_.at(i).wasrun()==1 && trNEW_.at(i).accept()==1 && trNEW_.at(i).error()==0) {
-	  NEW_accept_.at(x) = true;
-	  trigger_NEW_.at(x)++;
+	//if offline accepted
+	if (trOFF_[i].wasrun()==1 && trOFF_[i].accept()==1 && trOFF_[i].error()==0) {
+	  offline_accept_[x] = true;
+	  trigger_offline_[x]++;
 	}
 
-	//if NEW failed
-	if (trNEW_.at(i).accept() == 0) {
-	  module_index_labelNEW_.at(x) = moduleLabelNEW_.at(i)[trNEW_.at(i).index()];
-	  module_indexNEW_.at(x) = hltConfig_.moduleIndex(triggerNames_.at(x),module_index_labelNEW_.at(x));
+	//if offline failed
+	if (trOFF_[i].accept() == 0) {
+	  module_index_labelOFF_.at(x) = moduleLabelOFF_[i][trOFF_[i].index()];
+	  module_indexOFF_.at(x) = hltConfig_.moduleIndex(triggerNames_[x],module_index_labelOFF_[x]);
 	}
 	
 	//for each path, loop over modules and find if a path fails on a prescaler
-	for (unsigned int j=0; j<nModules_.at(x); ++j) {
-	  //const string& moduleLabel_(moduleLabel.at(j));
-	  const string& moduleType = hltConfig_.moduleType(moduleLabel_.at(x).at(j));
-	  if ( (trNEW_.at(i).accept()==0 && j==trNEW_.at(i).index()) && (moduleType=="HLTPrescaler" || moduleType=="TriggerResultsFilter") ) fails_prescaler_.at(x) = true;
+	for (unsigned int j=0; j<nModules_[x]; ++j) {
+	  //const string& moduleLabel_(moduleLabel[j]);
+	  const string& moduleType = hltConfig_.moduleType(moduleLabel_[x][j]);
+	  if ( (trOFF_[i].accept()==0 && j==trOFF_[i].index()) && (moduleType=="HLTPrescaler" || moduleType=="TriggerResultsFilter") ) fails_prescaler_[x] = true;
 	}
 
       }
@@ -298,38 +281,50 @@ HLTOfflineReproducibility::analyze(const edm::Event& iEvent, const edm::EventSet
   }
 
 
-  //check agreement between ORIG and NEW
-  //loop over trigger paths (ORIG and NEW)
+
+  //check agreement between online and offline
+  //loop over trigger paths (online and offline)
   for (unsigned int x=0; x<nPaths_; x++) {
-    if (!fails_prescaler_.at(x)){ //ignore paths that fail on a prescale
-      if(ORIG_accept_.at(x) && !NEW_accept_.at(x)){ //ORIG fires but NEW doesn't
-	path_ORIGnotNEW_hist->Fill(x);
-	pathmodule_ORIGnotNEW_hist->Fill(x,module_indexNEW_.at(x)); //module and path for where it fails NEW
-	LogInfo("EventNotReproduced")<<"Fires in ORIG but not NEW!!"<<" Path is: "<<triggerNames_.at(x)<<", last run module is: "<<module_index_labelNEW_.at(x);
+    if (!fails_prescaler_[x]){ //ignore paths that fail on a prescale
+      if(online_accept_[x] && !offline_accept_[x]){ //online fires but offline doesn't
+	path_ONnotOFF_hist->Fill(x);
+	pathmodule_ONnotOFF_hist->Fill(x,module_indexOFF_[x]); //module and path for where it fails offline
+	cout<<"  Event "<<iEvent.id().event()<<" in run "<<iEvent.id().run()<<" and luminosity block "<<iEvent.luminosityBlock()<<endl;
+	cout<<"  fires online but not offline!!"<<endl;
+	cout<<"  Path is: "<<triggerNames_[x]<<", last run module is: "<<module_index_labelOFF_[x]<<endl;
 	for (unsigned int a=0; a<nDatasets_; a++) {
-	  for (unsigned int b=0; b<nPaths_PD_.at(a); b++) {
-	    if (triggerNames_matched_.at(x).at(a).at(b)){
-	      path_ORIGnotNEW_hist_PD.at(a)->Fill(b);
-	      pathmodule_ORIGnotNEW_hist_PD.at(a)->Fill(b,module_indexNEW_.at(x)); //module and path for where it fails NEW
+	  for (unsigned int b=0; b<nPaths_PD_[a]; b++) {
+	    if (triggerNames_matched_[x][a][b]){
+	      path_ONnotOFF_hist_PD[a]->Fill(b);
+	      pathmodule_ONnotOFF_hist_PD[a]->Fill(b,module_indexOFF_[x]); //module and path for where it fails offline
 	    }
 	  }
 	}
       }
-      if(!ORIG_accept_.at(x) && NEW_accept_.at(x)){//NEW fires but ORIG doesn't
-	path_NEWnotORIG_hist->Fill(x);
-	pathmodule_NEWnotORIG_hist->Fill(x,module_indexORIG_.at(x)); //module and path for where it fails ORIG
-	LogInfo("EventNotReproduced")<<"Fires in NEW but not ORIG!!"<<" Path is: "<<triggerNames_.at(x)<<", last run module is: "<<module_index_labelORIG_.at(x)<<endl;
+      if(!online_accept_[x] && offline_accept_[x]){//offline fires but online doesn't
+	path_OFFnotON_hist->Fill(x);
+	pathmodule_OFFnotON_hist->Fill(x,module_indexON_[x]); //module and path for where it fails online
+	cout<<"  Event "<<iEvent.id().event()<<" in run "<<iEvent.id().run()<<" and luminosity block "<<iEvent.luminosityBlock()<<endl;
+	cout<<"  fires offline but not online!!"<<endl;
+	cout<<"  Path is: "<<triggerNames_[x]<<", last run module is: "<<module_index_labelON_[x]<<endl;
 	for (unsigned int a=0; a<nDatasets_; a++) {
-	  for (unsigned int b=0; b<nPaths_PD_.at(a); b++) {
-	    if (triggerNames_matched_.at(x).at(a).at(b)){
-	      path_NEWnotORIG_hist_PD.at(a)->Fill(b);
-	      pathmodule_NEWnotORIG_hist_PD.at(a)->Fill(b,module_indexORIG_.at(x)); //module and path for where it fails ORIG
+	  for (unsigned int b=0; b<nPaths_PD_[a]; b++) {
+	    if (triggerNames_matched_[x][a][b]){
+	      path_OFFnotON_hist_PD[a]->Fill(b);
+	      pathmodule_OFFnotON_hist_PD[a]->Fill(b,module_indexON_[x]); //module and path for where it fails online
 	    }
 	  }
 	}
       }
     }
+
   }//end of loop over trigger paths
+
+
+
+  //const vector<string> & moduleLabels(hltConfig_.moduleLabels(i));
+  //cout<<"triggerListON_["<<i<<"] is: "<<triggerListON_[i]<<endl;
+  
 
 }
 
@@ -354,32 +349,32 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
   void init(const edm::TriggerResults &, const edm::TriggerNames & HLTNames);
 
   bool changed(true);
-  nPathsORIG_=0, nPathsNEW_=0;
-  vector<string> triggerNamesORIG_, triggerNamesNEW_;
+  nPathsON_=0, nPathsOFF_=0;
+  vector<string> triggerNamesON_, triggerNamesOFF_;
   vector<string> temp_;
   unsigned int max_nModules_=0;
   vector<unsigned int> max_nModules_PD_, nModules_diff_;
   bool TriggerModuleNamesOK_ = true;
 
-  //---------------------------------------hltConfig for ORIG-------------------------------
-  if (hltConfig_.init(iRun,iSetup,processNameORIG_,changed)) {
+  //---------------------------------------hltConfig for online-------------------------------
+  if (hltConfig_.init(iRun,iSetup,processNameON_,changed)) {
     // if init returns TRUE, initialisation has succeeded!
     if (changed) {
-      edm::LogInfo("HLTConfigProvider")<<"hlt_Config_.init returns true for ORIG"<<endl;
+      cout<<"hlt_Config_.init returns true for online"<<endl;
       // The HLT config has actually changed wrt the previous Run, hence rebook your
       // histograms or do anything else dependent on the revised HLT config
       // check if trigger name in (new) config
-      triggerNamesORIG_ = hltConfig_.triggerNames();
+      triggerNamesON_ = hltConfig_.triggerNames();
 
       //loop over trigger paths
-      nPathsORIG_ = hltConfig_.size();
-      for (unsigned int i=0; i<nPathsORIG_; i++) {
+      nPathsON_ = hltConfig_.size();
+      for (unsigned int i=0; i<nPathsON_; i++) {
 	temp_.clear();
-	//const vector<string> & moduleLabelsORIG(hltConfig_.moduleLabels(i));
+	//const vector<string> & moduleLabelsON(hltConfig_.moduleLabels(i));
 	for (unsigned int j=0; j<hltConfig_.moduleLabels(i).size(); j++) {
 	  temp_.push_back(hltConfig_.moduleLabel(i,j));
 	}
-	moduleLabelORIG_.push_back(temp_);
+	moduleLabelON_.push_back(temp_);
       }
 
     }
@@ -387,28 +382,28 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
   else {
     // if init returns FALSE, initialisation has NOT succeeded, which indicates a problem
     // with the file and/or code and needs to be investigated!
-    edm::LogError("HLTConfigProvider")<<" HLT config extraction failure with process name " << processNameORIG_;
+    cout<<" HLT config extraction failure with process name " << processNameON_;
     // In this case, all access methods will return empty values!
   }
 
-  //-------------------hltConfig for NEW----------------------------------------
-  if (hltConfig_.init(iRun,iSetup,processNameNEW_,changed)) {
+  //-------------------hltConfig for offline----------------------------------------
+  if (hltConfig_.init(iRun,iSetup,processNameOFF_,changed)) {
     // if init returns TRUE, initialisation has succeeded!
     if (changed) {
-      edm::LogInfo("HLTConfigProvider")<<"hlt_Config_.init returns true for NEW"<<endl;
+      cout<<"hlt_Config_.init returns true for offline"<<endl;
       // The HLT config has actually changed wrt the previous Run, hence rebook your
       // histograms or do anything else dependent on the revised HLT config
       // check if trigger name in (new) config
-      triggerNamesNEW_ = hltConfig_.triggerNames();
+      triggerNamesOFF_ = hltConfig_.triggerNames();
 
       //loop over trigger paths
-      nPathsNEW_ = hltConfig_.size();
-      for (unsigned int i=0; i<nPathsNEW_; i++) {
+      nPathsOFF_ = hltConfig_.size();
+      for (unsigned int i=0; i<nPathsOFF_; i++) {
 	temp_.clear();
 	for (unsigned int j=0; j<hltConfig_.moduleLabels(i).size(); j++){
 	  temp_.push_back(hltConfig_.moduleLabel(i,j));
 	}
-	moduleLabelNEW_.push_back(temp_);
+	moduleLabelOFF_.push_back(temp_);
       }
 
     }
@@ -416,58 +411,48 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
   else {
     // if init returns FALSE, initialisation has NOT succeeded, which indicates a problem
     // with the file and/or code and needs to be investigated!
-    edm::LogError("HLTConfigProvider")<<" HLT config extraction failure with process name " << processNameNEW_;
+    cout<<" HLT config extraction failure with process name " << processNameOFF_;
     // In this case, all access methods will return empty values!
   }
 
-  //------------------compare ORIG and NEW hltConfig------------------------
-  if (nPathsORIG_==0 || nPathsNEW_==0){
-    edm::LogError("TooLittleData")<<"There are 0 paths ORIG or NEW!! There are "<<nPathsORIG_<<" paths ORIG and "<<nPathsNEW_<<" paths NEW!!!";
+  //------------------compare online and offline hltConfig------------------------
+  if (nPathsON_==0 || nPathsOFF_==0){
+    cout<<"There are 0 paths online or offline!! There are "<<nPathsON_<<" paths online and "<<nPathsOFF_<<" paths offline!!!"<<endl;
     TriggerModuleNamesOK_ = false;
   }
   else{
-    //define nPaths_ as number of paths shared between ORIG and NEW
-    if (nPathsORIG_<=nPathsNEW_) nPaths_=nPathsORIG_;
-    else nPaths_=nPathsNEW_;
+    //define nPaths_ as number of paths shared between online and offline
+    if (nPathsON_<=nPathsOFF_) nPaths_=nPathsON_;
+    else nPaths_=nPathsOFF_;
 
-    for (unsigned int i=0; i<nPathsORIG_; i++) {
-      for (unsigned int j=0; j<nPathsNEW_; j++) {
-	if (triggerNamesORIG_.at(i)==triggerNamesNEW_.at(j)){
-	  triggerNames_.push_back(triggerNamesORIG_.at(i));
-	  if (i!=j) edm::LogInfo("PathInfo")<<"Path "<<triggerNamesORIG_.at(i)<<" corresponds to path number "<<i<<" for ORIG and path number "<<j<<" for NEW";
+    for (unsigned int i=0; i<nPathsON_; i++) {
+      for (unsigned int j=0; j<nPathsOFF_; j++) {
+	if (triggerNamesON_[i]==triggerNamesOFF_[j]){
+	  triggerNames_.push_back(triggerNamesON_[i]);
+	  if (i!=j) cout<<"Path "<<triggerNamesON_[i]<<" corresponds to path number "<<i<<" for online and path number "<<j<<" for offline"<<endl;
 
-	  //define nModules_ as number of modules shared between ORIG and NEW
-	  if (moduleLabelORIG_.at(i).size()<=moduleLabelNEW_.at(j).size()){
-	    nModules_.push_back(moduleLabelORIG_.at(i).size());
-	    LogDebug("")<<"moduleLabelORIG<=moduleLabelNEW, so moduleLabelORIG_.at(i).size() is: "<<moduleLabelORIG_.at(i).size()<<" for ORIG path "<<i;
-	  }
-	  else {
-	    nModules_.push_back(moduleLabelNEW_.at(j).size());
-	    LogDebug("")<<"moduleLabelORIG>moduleLabelNEW, so moduleLabelNEW_.at(j).size() is: "<<moduleLabelNEW_.at(j).size()<<" for NEW path "<<j;
-	  }
-	  int x;
-	  if (i<=j) x=i;
-	  else x=j;
-	  LogDebug("")<<"nModules for 'global' path "<<x<<" is: "<<nModules_.at(x);
+	  //define nModules_ as number of modules shared between online and offline
+	  if (moduleLabelON_[i].size()<=moduleLabelOFF_[j].size()) nModules_.push_back(moduleLabelON_[i].size());
+	  else nModules_.push_back(moduleLabelOFF_[j].size());
 
-	  if (nModules_.at(x)>max_nModules_) max_nModules_=nModules_.at(x);
+	  if (nModules_[i]>max_nModules_) max_nModules_=nModules_[i];
 	  
-	  if (moduleLabelORIG_.at(i).size()>moduleLabelNEW_.at(j).size()) nModules_diff_.push_back(moduleLabelORIG_.at(i).size()-moduleLabelNEW_.at(j).size());
-	  else nModules_diff_.push_back(moduleLabelNEW_.at(j).size()-moduleLabelORIG_.at(i).size());
-	  LogDebug("")<<"nModules_diff is: "<<nModules_diff_.at(x)<<" for 'global' path "<<x;
+	  if (moduleLabelON_[i].size()>moduleLabelOFF_[j].size()) nModules_diff_.push_back(moduleLabelON_[i].size()-moduleLabelOFF_[j].size());
+	  else nModules_diff_.push_back(moduleLabelOFF_[j].size()-moduleLabelON_[i].size());
 
 	  temp_.clear();
-	  for (unsigned int a=0; a<moduleLabelORIG_.at(i).size(); a++) {
-	    for (unsigned int b=0; b<moduleLabelNEW_.at(j).size(); b++) {
-	      //match ORIG and NEW module labels
+	  for (unsigned int a=0; a<moduleLabelON_[i].size(); a++) {
+	    for (unsigned int b=0; b<moduleLabelOFF_[j].size(); b++) {
+	      //match online and offline module labels
 	      //since a module can be run twice per path, but not usually right after one another,
-	      //require that a and b be fairly close to each other, +/- the difference in the number of modules run NEW vs ORIG,
+	      //require that a and b be fairly close to each other, +/- the difference in the number of modules run offline vs online,
 	      //to avoid double-counting modules that are repeated later in the path
 	      //also, since we need to work with unsigned ints, a or b could also be 0, ignoring the requirement described above
-	      if ( (moduleLabelORIG_.at(i).at(a)==moduleLabelNEW_.at(j).at(b)) && ( (b<=a+nModules_diff_.at(x) && b>=a-nModules_diff_.at(x)) || (a==0 || b==0) ) ){
-		temp_.push_back(moduleLabelORIG_.at(i).at(a));
+	      if ( (moduleLabelON_[i][a]==moduleLabelOFF_[j][b]) && ( (b<=a+nModules_diff_[i] && b>=a-nModules_diff_[i]) || (a==0 || b==0) ) ){
+		temp_.push_back(moduleLabelON_[i][a]);
 		if (a!=b){
-		  edm::LogInfo("PathInfo")<<"For path "<<triggerNamesORIG_.at(i)<<" in ORIG and "<<triggerNamesNEW_.at(j)<<" in NEW:"<<"  module "<<moduleLabelORIG_.at(i).at(a)<<" corresponds to module number "<<a<<" for ORIG and module number "<<b<<" for NEW";
+		  cout<<"For path "<<triggerNamesON_[i]<<" online and "<<triggerNamesOFF_[j]<<" offline:"<<endl;
+		  cout<<"  module "<<moduleLabelON_[i][a]<<" corresponds to module number "<<a<<" for online and module number "<<b<<" for offline"<<endl;
 		}
 	      }
 	    }
@@ -487,16 +472,16 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
   if (TriggerModuleNamesOK_){
 
     //------------all paths--------------
-    edm::LogInfo("PathInfo")<<"There are "<<nPaths_<<" paths in total";
-    edm::LogInfo("PathInfo")<<"Maximum number of modules over all paths is: "<<max_nModules_;  
+    cout<<endl<<"There are "<<nPaths_<<" paths in total"<<endl;
+    cout<<"Maximum number of modules over all paths is: "<<max_nModules_<<endl;  
 
     for (unsigned int x=0; x<nPaths_; x++) {
-      trigger_ORIG_.push_back(0);
-      trigger_NEW_.push_back(0);
-      edm::LogInfo("PathInfo")<<"For "<<triggerNames_.at(x)<<" (trigger number "<<x<<"), there are "<<nModules_.at(x)<<" modules:";
-      for (unsigned int j=0; j<nModules_.at(x); j++) {
-	const string& moduleType_ = hltConfig_.moduleType(moduleLabel_.at(x).at(j));
-	edm::LogInfo("PathInfo")<<" module "<<j<<" is "<<moduleLabel_.at(x).at(j)<<" and is of type "<<moduleType_;
+      trigger_online_.push_back(0);
+      trigger_offline_.push_back(0);
+      cout<<endl<<"For "<<triggerNames_[x]<<" (trigger number "<<x<<"), there are "<<nModules_[x]<<" modules:"<<endl;
+      for (unsigned int j=0; j<nModules_[x]; j++) {
+	const string& moduleType_ = hltConfig_.moduleType(moduleLabel_[x][j]);
+	cout<<"  module "<<j<<" is "<<moduleLabel_[x][j]<<" and is of type "<<moduleType_<<endl;
       }
     }
 
@@ -514,10 +499,10 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
       temp_.clear();
       vector<string> datasetcontent_ = hltConfig_.datasetContent(a);
       nPaths_PD_.push_back(datasetcontent_.size());
-      edm::LogInfo("DatasetInfo")<<"For dataset "<<datasetNames_.at(a)<<" (dataset number "<<a<<"), there are "<<nPaths_PD_.at(a)<<" paths:";
-      for (unsigned int b=0; b<nPaths_PD_.at(a); b++) {
-	edm::LogInfo("DatasetInfo")<<" path "<<b<<" is "<<datasetcontent_.at(b);
-	temp_.push_back(datasetcontent_.at(b));
+      cout<<endl<<"For dataset "<<datasetNames_[a]<<" (dataset number "<<a<<"), there are "<<nPaths_PD_[a]<<" paths:"<<endl;
+      for (unsigned int b=0; b<nPaths_PD_[a]; b++) {
+	cout<<"  path "<<b<<" is "<<datasetcontent_[b]<<endl;
+	temp_.push_back(datasetcontent_[b]);
       }
       datasetContent_.push_back(temp_);
     }
@@ -530,10 +515,10 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
       temp1_.clear();
       for (unsigned int a=0; a<nDatasets_; a++) {
 	temp2_.clear();
-	for (unsigned int b=0; b<nPaths_PD_.at(a); b++) {
-	  if (triggerNames_.at(x)==datasetContent_.at(a).at(b)){
+	for (unsigned int b=0; b<nPaths_PD_[a]; b++) {
+	  if (triggerNames_[x]==datasetContent_[a][b]){
 	    temp2_.push_back(true);	    
-	    LogDebug("")<<"Matched trigger name is: "<<datasetContent_.at(a).at(b)<<" for dataset "<<a<<" and dataset path "<<b;
+	    //cout<<"Matched trigger name is: "<<datasetContent_[a][b]<<" for dataset "<<a<<" and dataset path "<<b<<endl;
 	  }
 	  else temp2_.push_back(false);
 	}
@@ -545,79 +530,51 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
     //if matched and # of modules is bigger than all previous ones, take that number as new maximum
     for (unsigned int x=0; x<nPaths_; x++) {
       for (unsigned int a=0; a<nDatasets_; a++) {
-	for (unsigned int b=0; b<nPaths_PD_.at(a); b++) {
-	  if (triggerNames_matched_.at(x).at(a).at(b) && nModules_.at(x)>max_nModules_PD_.at(a)) max_nModules_PD_.at(a)=nModules_.at(x);
+	for (unsigned int b=0; b<nPaths_PD_[a]; b++) {
+	  if (triggerNames_matched_[x][a][b] && nModules_[x]>max_nModules_PD_[a]) max_nModules_PD_[a]=nModules_[x];
 	}
       }
     }
 
     //for (unsigned int a=0; a<nDatasets_; a++) {
-    //LogDebug("")<<"For dataset "<<datasetNames_.at(a)<<", the max number of modules is: "<<max_nModules_PD_.at(a);
+    //cout<<"For dataset "<<datasetNames_[a]<<", the max number of modules is: "<<max_nModules_PD_[a]<<endl;
     //}
 
-  }//end if all triggers and modules match from ORIG to NEW
+  }//end if all triggers and modules match from online to offline
   
 
-  //---------------------------------------------------------------------------------------------------------- 
+  //----------------------------------------------------------------------------------------------------------
+
 
   //define histograms
 
   //all paths
-  if(dqm_){
-    if (not dqms_) return;
-    dqms_->setCurrentFolder("DQMExample/DQMSource_HLTOfflineReproducibility");
-
-    path_ORIG_hist = dqms_->book1D("path_ORIG_hist","Total Times Path Fires in ORIG",nPaths_,0,nPaths_)->getTH1F();
-    path_ORIGnotNEW_hist = dqms_->book1D("path_ORIGnotNEW_hist","Path fires in ORIG but not in NEW",nPaths_,0,nPaths_)->getTH1F();
-    path_NEWnotORIG_hist = dqms_->book1D("path_NEWnotORIG_hist","Path fires in NEW but not in ORIG",nPaths_,0,nPaths_)->getTH1F();
-    pathmodule_ORIGnotNEW_hist = dqms_->book2D("pathmodule_ORIGnotNEW_hist","Last run module index vs Path for NEW, when ORIG fired but NEW didn't",nPaths_,0,nPaths_,max_nModules_,0,max_nModules_)->getTH2F();
-    pathmodule_NEWnotORIG_hist = dqms_->book2D("pathmodule_NEWnotORIG_hist","Last run module index vs Path for ORIG, when NEW fired but ORIG didn't",nPaths_,0,nPaths_,max_nModules_,0,max_nModules_)->getTH2F();
-  }
-  else{
-    path_ORIG_hist = fs->make<TH1F>("path_ORIG_hist", "Total Times ORIG Path Fires in ORIG", nPaths_, 0, nPaths_);
-    path_ORIGnotNEW_hist = fs->make<TH1F>("path_ORIGnotNEW_hist", "Path fires in ORIG but not in NEW", nPaths_, 0, nPaths_);
-    path_NEWnotORIG_hist = fs->make<TH1F>("path_NEWnotORIG_hist", "Path fires in NEW but not in ORIG", nPaths_, 0, nPaths_);
-    pathmodule_ORIGnotNEW_hist = fs->make<TH2F>("pathmodule_ORIGnotNEW_hist", "Last run module index vs Path for NEW, when ORIG fired but NEW didn't", nPaths_, 0, nPaths_, max_nModules_, 0, max_nModules_);
-    pathmodule_NEWnotORIG_hist = fs->make<TH2F>("pathmodule_NEWnotORIG_hist", "Last run module index vs Path for ORIG, when NEW fired but ORIG didn't", nPaths_, 0, nPaths_, max_nModules_, 0, max_nModules_);
-  }
-
+  path_ON_hist = fs->make<TH1D>("path_ON_hist", "Total Times Online Path Fires", nPaths_, 0, nPaths_);
+  path_ONnotOFF_hist = fs->make<TH1D>("path_ONnotOFF_hist", "Online Path fires but Offline does not", nPaths_, 0, nPaths_);
+  path_OFFnotON_hist = fs->make<TH1D>("path_OFFnotON_hist", "Offline Path fires but Online does not", nPaths_, 0, nPaths_);
+  pathmodule_ONnotOFF_hist = fs->make<TH2D>("pathmodule_ONnotOFF_hist", "Last run module index vs Path for Offline, when Online fired but Offline didn't", nPaths_, 0, nPaths_, max_nModules_, 0, max_nModules_);
+  pathmodule_OFFnotON_hist = fs->make<TH2D>("pathmodule_OFFnotON_hist", "Last run module index vs Path for Online, when Offline fired but Online didn't", nPaths_, 0, nPaths_, max_nModules_, 0, max_nModules_);
+  
   //paths per dataset
-  char folder_name[500];
-  char path_ORIG_name[100], path_ORIGnotNEW_name[100], path_NEWnotORIG_name[100], pathmodule_ORIGnotNEW_name[100], pathmodule_NEWnotORIG_name[100];
+  char path_ON_name[100], path_ONnotOFF_name[100], path_OFFnotON_name[100], pathmodule_ONnotOFF_name[100], pathmodule_OFFnotON_name[100];
   for (unsigned int a = 0; a < nDatasets_; ++a) {
-    snprintf(path_ORIG_name,             100, "path_ORIG_hist_%s",              datasetNames_.at(a).c_str());
-    snprintf(path_ORIGnotNEW_name,       100, "path_ORIGnotNEW_hist_%s",        datasetNames_.at(a).c_str());
-    snprintf(path_NEWnotORIG_name,       100, "path_NEWnotORIG_hist_%s",        datasetNames_.at(a).c_str());
-    snprintf(pathmodule_ORIGnotNEW_name, 100, "pathmodule_ORIGnotNEW_hist_%s",  datasetNames_.at(a).c_str());
-    snprintf(pathmodule_NEWnotORIG_name, 100, "pathmodule_NEWnotORIG_hist_%s",  datasetNames_.at(a).c_str());
+    snprintf(path_ON_name,             100, "path_ON_hist_PD[%i]",              a);
+    snprintf(path_ONnotOFF_name,       100, "path_ONnotOFF_hist_PD[%i]",        a);
+    snprintf(path_OFFnotON_name,       100, "path_OFFnotON_hist_PD[%i]",        a);
+    snprintf(pathmodule_ONnotOFF_name, 100, "pathmodule_ONnotOFF_hist_PD[%i]",  a);
+    snprintf(pathmodule_OFFnotON_name, 100, "pathmodule_OFFnotON_hist_PD[%i]",  a);
 
-    TString path_ORIG_title             = "Total Times Path Fires ORIG (" + datasetNames_.at(a) + " dataset)";
-    TString path_ORIGnotNEW_title       = "Path fires in ORIG but not in NEW (" + datasetNames_.at(a) + " dataset)";
-    TString path_NEWnotORIG_title       = "Path fires in NEW but not in ORIG (" + datasetNames_.at(a) + " dataset)";
-    TString pathmodule_ORIGnotNEW_title = "Last run module index vs Path for NEW, when ORIG fired but NEW didn't (" + datasetNames_.at(a) + " dataset)";
-    TString pathmodule_NEWnotORIG_title = "Last run module index vs Path for ORIG, when NEW fired but ORIG didn't (" + datasetNames_.at(a) + " dataset)";
+    TString path_ON_title             = "Total Times Online Path Fires (" + datasetNames_[a] + " dataset)";
+    TString path_ONnotOFF_title       = "Online Path fires but Offline does not (" + datasetNames_[a] + " dataset)";
+    TString path_OFFnotON_title       = "Offline Path fires but Online does not (" + datasetNames_[a] + " dataset)";
+    TString pathmodule_ONnotOFF_title = "Last run module index vs Path for Offline, when Online fired but Offline didn't (" + datasetNames_[a] + " dataset)";
+    TString pathmodule_OFFnotON_title = "Last run module index vs Path for Online, when Offline fired but Online didn't (" + datasetNames_[a] + " dataset)";
 
-    if(dqm_){
-      sprintf(folder_name,"DQMExample/DQMSource_HLTOfflineReproducibility/%s",datasetNames_.at(a).c_str());
-      dqms_->setCurrentFolder(folder_name);
-      
-      path_ORIG_hist_PD.push_back(dqms_->book1D(path_ORIG_name,path_ORIG_title,nPaths_PD_.at(a),0,nPaths_PD_.at(a))->getTH1F());
-      path_ORIGnotNEW_hist_PD.push_back(dqms_->book1D(path_ORIGnotNEW_name,path_ORIGnotNEW_title,nPaths_PD_.at(a),0,nPaths_PD_.at(a))->getTH1F());
-      path_NEWnotORIG_hist_PD.push_back(dqms_->book1D(path_NEWnotORIG_name,path_NEWnotORIG_title,nPaths_PD_.at(a),0,nPaths_PD_.at(a))->getTH1F());
-      pathmodule_ORIGnotNEW_hist_PD.push_back(dqms_->book2D(pathmodule_ORIGnotNEW_name,pathmodule_ORIGnotNEW_title,nPaths_PD_.at(a),0,nPaths_PD_.at(a),max_nModules_PD_.at(a),0,max_nModules_PD_.at(a))->getTH2F());
-      pathmodule_NEWnotORIG_hist_PD.push_back(dqms_->book2D(pathmodule_NEWnotORIG_name,pathmodule_NEWnotORIG_title,nPaths_PD_.at(a),0,nPaths_PD_.at(a),max_nModules_PD_.at(a),0,max_nModules_PD_.at(a))->getTH2F());
-    }
-    else{
-      sprintf(folder_name,"%s",datasetNames_.at(a).c_str());
-      TFileDirectory subDir = fs->mkdir(folder_name);
-
-      path_ORIG_hist_PD.push_back(subDir.make<TH1F>(path_ORIG_name, path_ORIG_title, nPaths_PD_.at(a), 0, nPaths_PD_.at(a)));
-      path_ORIGnotNEW_hist_PD.push_back(subDir.make<TH1F>(path_ORIGnotNEW_name, path_ORIGnotNEW_title, nPaths_PD_.at(a), 0, nPaths_PD_.at(a)));
-      path_NEWnotORIG_hist_PD.push_back(subDir.make<TH1F>(path_NEWnotORIG_name, path_NEWnotORIG_title, nPaths_PD_.at(a), 0, nPaths_PD_.at(a)));
-      pathmodule_ORIGnotNEW_hist_PD.push_back(subDir.make<TH2F>(pathmodule_ORIGnotNEW_name, pathmodule_ORIGnotNEW_title, nPaths_PD_.at(a), 0, nPaths_PD_.at(a), max_nModules_PD_.at(a), 0, max_nModules_PD_.at(a)));
-      pathmodule_NEWnotORIG_hist_PD.push_back(subDir.make<TH2F>(pathmodule_NEWnotORIG_name, pathmodule_NEWnotORIG_title, nPaths_PD_.at(a), 0, nPaths_PD_.at(a), max_nModules_PD_.at(a), 0, max_nModules_PD_.at(a)));
-    }
-
+    path_ON_hist_PD.push_back(fs->make<TH1D>(path_ON_name, path_ON_title, nPaths_PD_[a], 0, nPaths_PD_[a]));
+    path_ONnotOFF_hist_PD.push_back(fs->make<TH1D>(path_ONnotOFF_name, path_ONnotOFF_title, nPaths_PD_[a], 0, nPaths_PD_[a]));
+    path_OFFnotON_hist_PD.push_back(fs->make<TH1D>(path_OFFnotON_name, path_OFFnotON_title, nPaths_PD_[a], 0, nPaths_PD_[a]));
+    pathmodule_ONnotOFF_hist_PD.push_back(fs->make<TH2D>(pathmodule_ONnotOFF_name, pathmodule_ONnotOFF_title, nPaths_PD_[a], 0, nPaths_PD_[a], max_nModules_PD_[a], 0, max_nModules_PD_[a]));
+    pathmodule_OFFnotON_hist_PD.push_back(fs->make<TH2D>(pathmodule_OFFnotON_name, pathmodule_OFFnotON_title, nPaths_PD_[a], 0, nPaths_PD_[a], max_nModules_PD_[a], 0, max_nModules_PD_[a]));
   }
   
 }
@@ -626,27 +583,25 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
 void 
 HLTOfflineReproducibility::endRun(edm::Run const&, edm::EventSetup const&)
 {
-  // if DQM was requested, check that the DQMService is available
-  if (dqm_ and not dqms_) return;
-
   //all paths
+  cout<<endl;
   for (unsigned int x=0; x<nPaths_; x++) {
-    edm::LogInfo("OrigNewFired")<<triggerNames_.at(x)<<" ORIG accepts: "<<trigger_ORIG_.at(x)<<", NEW accepts: "<<trigger_NEW_.at(x);
-    path_ORIG_hist->GetXaxis()->SetBinLabel(x+1,triggerNames_.at(x).c_str());
-    path_ORIGnotNEW_hist->GetXaxis()->SetBinLabel(x+1,triggerNames_.at(x).c_str());
-    path_NEWnotORIG_hist->GetXaxis()->SetBinLabel(x+1,triggerNames_.at(x).c_str());
-    pathmodule_ORIGnotNEW_hist->GetXaxis()->SetBinLabel(x+1,triggerNames_.at(x).c_str());
-    pathmodule_NEWnotORIG_hist->GetXaxis()->SetBinLabel(x+1,triggerNames_.at(x).c_str());
+    cout<<triggerNames_[x]<<" online accepts: "<<trigger_online_[x]<<", offline accepts: "<<trigger_offline_[x]<<endl;
+    path_ON_hist->GetXaxis()->SetBinLabel(x+1,triggerNames_[x].c_str());
+    path_ONnotOFF_hist->GetXaxis()->SetBinLabel(x+1,triggerNames_[x].c_str());
+    path_OFFnotON_hist->GetXaxis()->SetBinLabel(x+1,triggerNames_[x].c_str());
+    pathmodule_ONnotOFF_hist->GetXaxis()->SetBinLabel(x+1,triggerNames_[x].c_str());
+    pathmodule_OFFnotON_hist->GetXaxis()->SetBinLabel(x+1,triggerNames_[x].c_str());
   }
 
   //paths per dataset
   for (unsigned int a=0; a<nDatasets_; a++) {
-    for (unsigned int b=0; b<nPaths_PD_.at(a); b++) {
-      path_ORIG_hist_PD.at(a)->GetXaxis()->SetBinLabel(b+1,datasetContent_.at(a).at(b).c_str());
-      path_ORIGnotNEW_hist_PD.at(a)->GetXaxis()->SetBinLabel(b+1,datasetContent_.at(a).at(b).c_str());
-      path_NEWnotORIG_hist_PD.at(a)->GetXaxis()->SetBinLabel(b+1,datasetContent_.at(a).at(b).c_str());
-      pathmodule_ORIGnotNEW_hist_PD.at(a)->GetXaxis()->SetBinLabel(b+1,datasetContent_.at(a).at(b).c_str());
-      pathmodule_NEWnotORIG_hist_PD.at(a)->GetXaxis()->SetBinLabel(b+1,datasetContent_.at(a).at(b).c_str());
+    for (unsigned int b=0; b<nPaths_PD_[a]; b++) {
+      path_ON_hist_PD[a]->GetXaxis()->SetBinLabel(b+1,datasetContent_[a][b].c_str());
+      path_ONnotOFF_hist_PD[a]->GetXaxis()->SetBinLabel(b+1,datasetContent_[a][b].c_str());
+      path_OFFnotON_hist_PD[a]->GetXaxis()->SetBinLabel(b+1,datasetContent_[a][b].c_str());
+      pathmodule_ONnotOFF_hist_PD[a]->GetXaxis()->SetBinLabel(b+1,datasetContent_[a][b].c_str());
+      pathmodule_OFFnotON_hist_PD[a]->GetXaxis()->SetBinLabel(b+1,datasetContent_[a][b].c_str());
     }
   }
 

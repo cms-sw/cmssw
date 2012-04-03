@@ -788,7 +788,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
             begev=perlsdata[5]
             numorbit=perlsdata[6]
             startorbit=perlsdata[7]
-            timestamp=c.OrbitToTime(startTimeStr,startorbit,0)
+            timestamp=c.OrbitToUTCTimestamp(startTimeStr,startorbit,0)
             lslen=lumip.lslengthsec()
             deliveredlumi=calibratedlumi*lslen
             recordedlumi=0.0

@@ -36,7 +36,7 @@ BUFUInterface* BUFUInterface::forceNewInstance() {
 }
 
 //______________________________________________________________________________
-bool BUFUInterface::registerBU(BaseBU* bu, Logger* log) {
+bool BUFUInterface::registerBU(BaseBU* bu, Logger log) {
 	bool succeeded = false;
 	if (bu != 0) {
 		bu_ = bu;
@@ -45,9 +45,9 @@ bool BUFUInterface::registerBU(BaseBU* bu, Logger* log) {
 		succeeded = true;
 
 #ifdef BUFU_VERBOSE
-		LOG4CPLUS_INFO(*buLogger_, "BU registered to BUFU interface!");
+		LOG4CPLUS_INFO(buLogger_, "BU registered to BUFU interface!");
 		if (directConnection()) {
-			LOG4CPLUS_INFO(*buLogger_, "BU and FU : DIRECTLY CONNECTED!");
+			LOG4CPLUS_INFO(buLogger_, "BU and FU : DIRECTLY CONNECTED!");
 		}
 #endif
 
@@ -56,7 +56,7 @@ bool BUFUInterface::registerBU(BaseBU* bu, Logger* log) {
 }
 
 //______________________________________________________________________________
-bool BUFUInterface::registerFU(BaseFU* fu, Logger* log) {
+bool BUFUInterface::registerFU(BaseFU* fu, Logger log) {
 	bool succeeded = false;
 	if (fu != 0) {
 		fu_ = fu;
@@ -65,9 +65,9 @@ bool BUFUInterface::registerFU(BaseFU* fu, Logger* log) {
 		succeeded = true;
 
 #ifdef BUFU_VERBOSE
-		LOG4CPLUS_INFO(*fuLogger_, "FU registered to BUFU interface!");
+		LOG4CPLUS_INFO(fuLogger_, "FU registered to BUFU interface!");
 		if (directConnection()) {
-			LOG4CPLUS_INFO(*buLogger_, "BU and FU : DIRECTLY CONNECTED!");
+			LOG4CPLUS_INFO(buLogger_, "BU and FU : DIRECTLY CONNECTED!");
 		}
 #endif
 
@@ -153,6 +153,6 @@ void BUFUInterface::take(xdaq::ApplicationDescriptor* fuAppDesc,
 
 //______________________________________________________________________________
 BUFUInterface::BUFUInterface() :
-	bu_(0), fu_(0), buLogger_(0), fuLogger_(0), buConn_(false), fuConn_(false) {
+	bu_(0), fu_(0), /*buLogger_(0), fuLogger_(0),*/ buConn_(false), fuConn_(false) {
 
 }
