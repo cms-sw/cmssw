@@ -6,7 +6,7 @@ OutALCARECOLumiPixels_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOLumiPixels')
     ),
     outputCommands = cms.untracked.vstring( 
-        "keep *_siPixelClusters_*_*",
+        "keep *_siPixelClustersForLumi_*_*",
         'keep *_TriggerResults_*_HLT')
 )
 
