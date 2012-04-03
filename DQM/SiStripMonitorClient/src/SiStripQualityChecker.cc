@@ -200,8 +200,6 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
          it != TrackingMEsMap.end(); it++) {
       ibin++;
       std::string name = it->first;
-      std::cout << "name: " << name << std::endl;
-      std::cout << "it->second.HistoName: " << it->second.HistoName << std::endl;
       it->second.TrackingFlag = dqm_store->bookFloat("Track"+name);
       TrackSummaryReportMap->setBinLabel(ibin,name);
     }
@@ -349,18 +347,14 @@ void SiStripQualityChecker::fillTrackingStatus(DQMStore* dqm_store) {
     meVec1 = dqm_store->getContents(dqm_store->pwd()+"/GeneralProperties");
     meVec2 = dqm_store->getContents(dqm_store->pwd()+"/HitProperties");
   }
-  std::cout << "meVec1: " << meVec1.size() << std::endl;
-  std::cout << "meVec2: " << meVec2.size() << std::endl;
   std::vector<MonitorElement*> meVec(meVec1.size() + meVec2.size()); 
   std::merge(meVec1.begin(), meVec1.end(), meVec2.begin(), meVec2.end(), meVec.begin());
-  std::cout << "meVec: " << meVec.size() << std::endl;
 
   float gstatus = 1.0;
   for (std::vector<MonitorElement*>::const_iterator itME = meVec.begin(); itME != meVec.end(); itME++) {
     MonitorElement * me = (*itME);     
     if (!me) continue;     
     std::vector<QReport *> qt_reports = me->getQReports();          
-    std::cout << "qt_reports: " << qt_reports.size() << std::endl;
     if (qt_reports.size() == 0) continue;
     std::string name = me->getName();
 
@@ -372,9 +366,7 @@ void SiStripQualityChecker::fillTrackingStatus(DQMStore* dqm_store) {
       ibin++;
       std::string hname = it->second.HistoName;
       if (name.find(hname) != std::string::npos) {
-	std::cout << "hname: " << hname << " <---> " << name << std::endl;
 	status = qt_reports[0]->getQTresult();
-	std::cout << "status: " << status << std::endl;
 	it->second.TrackingFlag->Fill(status);
 	fillStatusHistogram(TrackSummaryReportMap, ibin, 1, status);
         break;
@@ -494,7 +486,6 @@ void SiStripQualityChecker::printStatusReport() {
 		    << " SToN Flag           " << fval2
 		    << " Summary Flag        " << fval3 << std::endl;
   }
-  std::cout << det_summary_str.str() << std::endl;
 }
 //
 // -- Get Module Status from Layer Level Histograms
@@ -653,14 +644,12 @@ void SiStripQualityChecker::fillTrackingStatusAtLumi(DQMStore* dqm_store){
   std::vector<MonitorElement*> meVec1;
   std::vector<MonitorElement*> meVec2;
   if (useGoodTracks_){
-    std::cout << "dqm_store->pwd(): " << dqm_store->pwd() << std::endl;
     meVec1 = dqm_store->getContents(dqm_store->pwd()+"/LSanalysis");
     //    meVec2 = dqm_store->getContents(dqm_store->pwd()+"/HitProperties/LSanalysis");
   }else{
     meVec1 = dqm_store->getContents(dqm_store->pwd()+"/GeneralProperties");
     meVec2 = dqm_store->getContents(dqm_store->pwd()+"/HitProperties");
   }
-  std::cout << "LS meVec1: " << meVec1.size() << std::endl;
   std::vector<MonitorElement*> meVec(meVec1.size() + meVec2.size()); 
   std::merge(meVec1.begin(), meVec1.end(), meVec2.begin(), meVec2.end(), meVec.begin());
 
@@ -669,7 +658,6 @@ void SiStripQualityChecker::fillTrackingStatusAtLumi(DQMStore* dqm_store){
     MonitorElement * me = (*itME);     
     if (!me) continue;     
     std::string name = me->getName();
-    std::cout << "name: " << name << std::endl;
 
     float status = -1.0; 
     int ibin = 0;
@@ -677,19 +665,15 @@ void SiStripQualityChecker::fillTrackingStatusAtLumi(DQMStore* dqm_store){
          it != TrackingMEsMap.end(); it++) {
       ibin++;
       std::string hname = it->second.HistoName+"lumiFlag_";
-      std::cout << "LS hname: " << hname << " <---> " << name;
       float lower_cut = it->second.LowerCut; 
       float upper_cut = it->second.UpperCut; 
       if (name.find(hname) != std::string::npos) {
-	std::cout << " ---> OK ";
         if (me->getMean() <= lower_cut || me->getMean() > upper_cut) status = 0.0;
         else status = 1.0; 
-	std::cout << "     ===> status: " << status <<  std::endl;
 	it->second.TrackingFlag->Fill(status);
 	fillStatusHistogram(TrackSummaryReportMap, ibin, 1, status);
         break;
       } else {
-	std::cout << " " << std::endl;
       }
     }
     if (status == -1.0) gstatus = -1.0;
