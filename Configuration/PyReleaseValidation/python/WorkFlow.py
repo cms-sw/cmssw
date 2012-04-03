@@ -15,11 +15,18 @@ class WorkFlow(object):
         nEvents = [10] + [defaultNEvents for x in xrange(len(commands)-1)]
         specs = [(c," -n %s " % n) for (c, n) in zip(commands, nEvents) if c]
         for (c, n) in specs:
-          if type(c) == str and not ' -n ' in c: 
-            c += n
-          self.cmds.append(c)
+          self.check(c, n)
         # run on real data requested
         self.input = inputInfo
+
+    def check(self, cmd=None, nEvtDefault=10):
+        if not cmd : return None
+
+        if (isinstance(cmd,str)) and ( ' -n ' not in cmd):
+            cmd+=' -n '+str(nEvtDefault)+' '
+
+        self.cmds.append(cmd)
+        return cmd
 
 class WorkFlowConnector(object):
     def __init__(self):
