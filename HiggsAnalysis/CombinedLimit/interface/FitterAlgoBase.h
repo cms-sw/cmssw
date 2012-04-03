@@ -43,8 +43,11 @@ protected:
   virtual bool runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) = 0;
 
   // utilities
-  RooFitResult *doFit(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &r,  const RooCmdArg &constrain, bool doHesse=true) ;
-  RooFitResult *doFit(RooAbsPdf &pdf, RooAbsData &data, RooArgList &rs, const RooCmdArg &constrain, bool doHesse=true) ;
+  /// Fit data with pdf, with parameters of interest in r, and specified constraint
+  /// If ndim = 1, errors on each parameter are from a 1-dim chisquare, as for a single parameter fit
+  /// If ndim > 1, errors on each parameter are from a n-dim chisquare, as for a joint estimation of N parameters 
+  RooFitResult *doFit(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &r,  const RooCmdArg &constrain, bool doHesse=true, int ndim=1) ;
+  RooFitResult *doFit(RooAbsPdf &pdf, RooAbsData &data, const RooArgList &rs, const RooCmdArg &constrain, bool doHesse=true, int ndim=1) ;
   double findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, RooRealVar &r, double level, double rStart, double rBound) ;
 };
 

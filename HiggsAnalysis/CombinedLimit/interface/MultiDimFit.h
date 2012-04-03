@@ -24,13 +24,14 @@ public:
 protected:
   virtual bool runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
 
-  enum Algo { None, Singles, Grid, RandomPoints, Contour2D };
+  enum Algo { None, Singles, Cross, Grid, RandomPoints, Contour2D };
   static Algo algo_;
 
   static std::vector<std::string>  poi_;
   static std::vector<RooRealVar*>  poiVars_;
   static std::vector<float>        poiVals_;
   static RooArgList                poiList_; 
+  static unsigned int              nOtherFloatingPoi_; // keep a count of other POIs that we're ignoring, for proper chisquare normalization
 
   // options    
   static unsigned int points_;

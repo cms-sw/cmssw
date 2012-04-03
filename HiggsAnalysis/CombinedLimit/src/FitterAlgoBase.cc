@@ -28,11 +28,15 @@
 
 
 #include <Math/MinimizerOptions.h>
+#include <Math/QuantFuncMathCore.h>
+#include <Math/ProbFunc.h>
 
 using namespace RooStats;
 
 std::string FitterAlgoBase::minimizerAlgo_ = "Minuit2";
 std::string FitterAlgoBase::minimizerAlgoForMinos_ = "Minuit2,simplex";
+#include <Math/QuantFuncMathCore.h>
+#include <Math/ProbFunc.h>
 float       FitterAlgoBase::minimizerTolerance_ = 1e-2;
 float       FitterAlgoBase::minimizerToleranceForMinos_ = 1e-4;
 int         FitterAlgoBase::minimizerStrategy_  = 1;
@@ -83,19 +87,20 @@ bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
 }
 
 
-RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &r, const RooCmdArg &constrain, bool doHesse) {
-    RooArgList rs(r);
-    return doFit(pdf, data, rs, constrain, doHesse);
-
+RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &r, const RooCmdArg &constrain, bool doHesse, int ndim) {
+    return doFit(pdf, data, RooArgList (r), constrain, doHesse, ndim);
 }
 
-RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooArgList &rs, const RooCmdArg &constrain, bool doHesse) {
+RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooArgList &rs, const RooCmdArg &constrain, bool doHesse, int ndim) {
     RooFitResult *ret = 0;
     std::auto_ptr<RooAbsReal> nll(pdf.createNLL(data, constrain, RooFit::Extended(pdf.canBeExtended())));
 
     double nll0 = nll->getVal();
+    double delta68 = 0.5*ROOT::Math::chisquared_quantile_c(1-0.68,ndim);
+    double delta95 = 0.5*ROOT::Math::chisquared_quantile_c(1-0.95,ndim);
     CascadeMinimizer minim(*nll, CascadeMinimizer::Unconstrained, rs.getSize() ? dynamic_cast<RooRealVar*>(rs.first()) : 0);
     minim.setStrategy(minimizerStrategy_);
+    minim.setErrorLevel(delta68);
     CloseCoutSentry sentry(verbose < 3);    
     bool ok = minim.minimize(verbose-1);
     nllValue_ =  nll->getVal() - nll0;
@@ -121,12 +126,14 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooArgList
 
         if (!robustFit_) {
             if (do95_) {
-                minim.setErrorLevel(1.92);
+                throw std::runtime_error("95% CL errors with Minos are not working at the moment.");
+                minim.setErrorLevel(delta95);
                 minim.improve(verbose-1);
+                minim.setErrorLevel(delta95);
                 if (minim.minimizer().minos(RooArgSet(r)) != -1) {
                     rf.setRange("err95", r.getVal() + r.getAsymErrorLo(), r.getVal() + r.getAsymErrorHi());
                 }
-                minim.setErrorLevel(0.5);
+                minim.setErrorLevel(delta68);
                 minim.improve(verbose-1);
             }
             if (minim.minimizer().minos(RooArgSet(r)) != -1) {
@@ -142,8 +149,8 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooArgList
             std::auto_ptr<RooArgSet> allpars(nll->getParameters((const RooArgSet *)0));
 
             double nll0 = nll->getVal();
-            double threshold68 = nll0 + 0.5;
-            double threshold95 = nll0 + 1.92;
+            double threshold68 = nll0 + delta68;
+            double threshold95 = nll0 + delta95;
             // search for crossings
 
             assert(!std::isnan(r0));

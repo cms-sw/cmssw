@@ -29,6 +29,7 @@ std::vector<float>        MultiDimFit::poiVals_;
 RooArgList                MultiDimFit::poiList_;
 unsigned int MultiDimFit::points_ = 50;
 bool MultiDimFit::floatOtherPOIs_ = false;
+unsigned int MultiDimFit::nOtherFloatingPoi_ = 0;
 
 
 MultiDimFit::MultiDimFit() :
@@ -50,6 +51,8 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
         algo_ = None;
     } else if (algo == "singles") {
         algo_ = Singles;
+    } else if (algo == "cross") {
+        algo_ = Cross;
     } else if (algo == "grid") {
         algo_ = Grid;
     } else if (algo == "random") {
@@ -67,18 +70,20 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     // Get PDF
     RooAbsPdf &pdf = *mc_s->GetPdf();
 
+    // Process POI not in list
+    nOtherFloatingPoi_ = 0;
     RooLinkedListIter iterP = mc_s->GetParametersOfInterest()->iterator();
     for (RooAbsArg *a = (RooAbsArg*) iterP.Next(); a != 0; a = (RooAbsArg*) iterP.Next()) {
         if (poiList_.contains(*a)) continue;
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
         if (rrv == 0) { std::cerr << "MultiDimFit: Parameter of interest " << a->GetName() << " which is not a RooRealVar will be ignored" << std::endl; continue; }
         rrv->setConstant(!floatOtherPOIs_);
+        if (floatOtherPOIs_) nOtherFloatingPoi_++;
     }
  
     // start with a best fit
-    RooArgList emptyList;
     const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooFit::NumCPU(1);
-    std::auto_ptr<RooFitResult> res(doFit(pdf, data, (algo_ == Singles ? poiList_ : emptyList), constrainCmdArg)); 
+    std::auto_ptr<RooFitResult> res(doFit(pdf, data, (algo_ == Singles ? poiList_ : RooArgList()), constrainCmdArg)); 
     if (res.get() || keepFailures_) {
         for (int i = 0, n = poi_.size(); i < n; ++i) {
             poiVals_[i] = poiVars_[i]->getVal();
@@ -104,6 +109,7 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
             }
             break;
         case Singles: if (res.get()) doSingles(*res); break;
+        case Cross: doBox(*nll, cl, "box", true); break;
         case Grid: doGrid(*nll); break;
         case RandomPoints: doRandomPoints(*nll); break;
         case Contour2D: doContour2D(*nll); break;
@@ -199,7 +205,7 @@ void MultiDimFit::doRandomPoints(RooAbsReal &nll)
             bool ok = minim.minimize(verbose-1);
             if (ok) {
                 double qN = 2*(nll.getVal() - nll0);
-                double prob = ROOT::Math::chisquared_cdf_c(qN, n);
+                double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
                 Combine::commitPoint(true, /*quantile=*/prob);
             }
         } 
@@ -212,7 +218,7 @@ void MultiDimFit::doContour2D(RooAbsReal &nll)
     RooRealVar *xv = poiVars_[0]; double x0 = poiVals_[0]; float &x = poiVals_[0];
     RooRealVar *yv = poiVars_[1]; double y0 = poiVals_[1]; float &y = poiVals_[1];
 
-    double threshold = nll.getVal() + 0.5*ROOT::Math::chisquared_quantile_c(1-cl,2);
+    double threshold = nll.getVal() + 0.5*ROOT::Math::chisquared_quantile_c(1-cl,2+nOtherFloatingPoi_);
     if (verbose>0) std::cout << "Best fit point is for " << xv->GetName() << ", "  << yv->GetName() << " =  " << x0 << ", " << y0 << std::endl;
 
     // make a box
@@ -255,9 +261,9 @@ void MultiDimFit::doContour2D(RooAbsReal &nll)
     verbose++; // restore verbosity
 }
 void MultiDimFit::doBox(RooAbsReal &nll, double cl, const char *name, bool commitPoints)  {
-    double nll0 = nll.getVal(), threshold = nll0 + 0.5*ROOT::Math::chisquared_quantile_c(1-cl,2);
-
     unsigned int n = poi_.size();
+    double nll0 = nll.getVal(), threshold = nll0 + 0.5*ROOT::Math::chisquared_quantile_c(1-cl,n+nOtherFloatingPoi_);
+
     std::vector<double> p0(n);
     for (unsigned int i = 0; i < n; ++i) {
         p0[i] = poiVars_[i]->getVal();
@@ -280,7 +286,7 @@ void MultiDimFit::doBox(RooAbsReal &nll, double cl, const char *name, bool commi
         } else {
             xMin = xv->getMin();
             for (unsigned int j = 0; j < n; ++j) poiVals_[j] = poiVars_[j]->getVal();
-            double prob = ROOT::Math::chisquared_cdf_c(2*(nll.getVal() - nll0), n);
+            double prob = ROOT::Math::chisquared_cdf_c(2*(nll.getVal() - nll0), n+nOtherFloatingPoi_);
             if (commitPoints) Combine::commitPoint(true, /*quantile=*/prob);
             if (verbose > -1) std::cout << "Minimum of " << xv->GetName() << " at " << cl << " CL for all others floating is " << xMin << " (on the boundary, p-val " << prob << ")" << std::endl;
         }
@@ -293,7 +299,7 @@ void MultiDimFit::doBox(RooAbsReal &nll, double cl, const char *name, bool commi
             if (commitPoints) Combine::commitPoint(true, /*quantile=*/1-cl);
         } else {
             xMax = xv->getMax();
-            double prob = ROOT::Math::chisquared_cdf_c(2*(nll.getVal() - nll0), n);
+            double prob = ROOT::Math::chisquared_cdf_c(2*(nll.getVal() - nll0), n+nOtherFloatingPoi_);
             for (unsigned int j = 0; j < n; ++j) poiVals_[j] = poiVars_[j]->getVal();
             if (commitPoints) Combine::commitPoint(true, /*quantile=*/prob);
             if (verbose > -1) std::cout << "Maximum of " << xv->GetName() << " at " << cl << " CL for all others floating is " << xMax << " (on the boundary, p-val " << prob << ")" << std::endl;
