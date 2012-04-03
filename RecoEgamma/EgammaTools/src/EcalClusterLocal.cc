@@ -19,7 +19,7 @@ EcalClusterLocal::EcalClusterLocal()
 EcalClusterLocal::~EcalClusterLocal()
 {}
 
-void EcalClusterLocal::localCoordsEB( const reco::BasicCluster &bclus, const edm::EventSetup &es, float &etacry, float &phicry, int &ieta, int &iphi, float &thetatilt, float &phitilt) const
+void EcalClusterLocal::localCoordsEB( const reco::CaloCluster &bclus, const edm::EventSetup &es, float &etacry, float &phicry, int &ieta, int &iphi, float &thetatilt, float &phitilt) const
 {
   
   assert(bclus.hitsAndFractions().at(0).first.subdetId()==EcalBarrel);
@@ -89,7 +89,7 @@ void EcalClusterLocal::localCoordsEB( const reco::BasicCluster &bclus, const edm
 
 }
 
-void EcalClusterLocal::localCoordsEE( const reco::BasicCluster &bclus, const edm::EventSetup &es, float &xcry, float &ycry, int &ix, int &iy, float &thetatilt, float &phitilt) const
+void EcalClusterLocal::localCoordsEE( const reco::CaloCluster &bclus, const edm::EventSetup &es, float &xcry, float &ycry, int &ix, int &iy, float &thetatilt, float &phitilt) const
 {
     
   assert(bclus.hitsAndFractions().at(0).first.subdetId()==EcalEndcap);
