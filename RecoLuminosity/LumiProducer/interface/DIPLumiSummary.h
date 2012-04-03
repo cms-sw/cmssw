@@ -7,7 +7,7 @@
 class DIPLumiSummary {
  public:
   /// default constructor
-  DIPLumiSummary():m_instlumi(0.0),m_dellumi(0.0),m_reclumi(0.0),m_deadfrac(1.0),m_cmsalive(false){}
+  DIPLumiSummary():m_runnum(0),m_ls(0),m_instlumi(0.0),m_dellumi(0.0),m_reclumi(0.0),m_deadfrac(1.0),m_cmsalive(false){}
   
   /// set default constructor
   DIPLumiSummary(float instlumi,float dellumi,float reclumi,unsigned short cmsalive):m_instlumi(instlumi),m_dellumi(dellumi),m_reclumi(reclumi),m_deadfrac(1.0),m_cmsalive(cmsalive){}
@@ -42,7 +42,18 @@ class DIPLumiSummary {
   //
   //setters
   //
+  /**
+     from which run data come from
+  **/
+  unsigned int fromRun()const;
+  /**
+     from which ls data come from
+  **/
+  unsigned int fromLS()const;
+  void setOrigin(unsigned int runnumber,unsigned int ls);
  private :
+  unsigned int m_runnum;
+  unsigned int m_ls;
   float m_instlumi;//avg inst lumi in LS
   float m_dellumi;//integrated luminosity of this ls
   float m_reclumi;

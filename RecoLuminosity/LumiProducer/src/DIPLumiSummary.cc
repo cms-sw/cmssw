@@ -5,7 +5,7 @@
 #include <iostream>
 bool 
 DIPLumiSummary::isNull()const{
-  if(m_instlumi==0.0&&m_dellumi==0.0&&m_reclumi==0.0&&m_deadfrac==1.0){
+  if(m_runnum==0 && m_ls==0){
     return true;
   }
   return false;
@@ -35,6 +35,23 @@ int
 DIPLumiSummary::cmsalive()const{
   return m_cmsalive;
 }
+unsigned int 
+DIPLumiSummary::fromRun()const{
+  return m_runnum;
+}
+/**
+   from which ls data come from
+**/
+unsigned int 
+DIPLumiSummary::fromLS()const{
+  return m_ls;
+}
+void 
+DIPLumiSummary::setOrigin(unsigned int runnumber,unsigned int ls){
+  m_runnum=runnumber;
+  m_ls=ls;
+}
+void setOrigin(unsigned int runnumber,unsigned int ls);
 std::ostream& operator<<(std::ostream& s, const DIPLumiSummary& diplumiSummary) {
   std::cout.setf(std::ios::fixed,std::ios::floatfield);
   std::cout.setf(std::ios::showpoint);

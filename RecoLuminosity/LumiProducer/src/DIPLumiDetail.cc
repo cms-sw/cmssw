@@ -4,11 +4,11 @@
 #include <ostream>
 #include <iostream>
 
-DIPLumiDetail::DIPLumiDetail():m_lumiValues(3564){
+DIPLumiDetail::DIPLumiDetail():m_runnum(0),m_ls(0),m_lumiValues(3564){
 }
 bool
 DIPLumiDetail::isNull()const{
-  if(m_lumiValues.size()==0){
+  if(m_runnum==0&&m_ls==0){
     return true;
   }
   return false;
@@ -29,7 +29,19 @@ void
 DIPLumiDetail::fillbxdata(unsigned int bxidx,float bxvalue){
   m_lumiValues[bxidx]=bxvalue;
 }
-
+unsigned int 
+DIPLumiDetail::fromRun()const{
+  return m_runnum;
+}
+unsigned int 
+DIPLumiDetail::fromLS()const{
+  return m_ls;
+}
+void
+DIPLumiDetail::setOrigin(unsigned int runnumber,unsigned int ls){
+  m_runnum=runnumber;
+  m_ls=ls;
+}
 std::ostream& operator<<(std::ostream& s, DIPLumiDetail const& diplumiDetail) {
   s << "\nDumping DIPLumiDetail\n";
   std::cout.setf(std::ios::fixed,std::ios::floatfield);

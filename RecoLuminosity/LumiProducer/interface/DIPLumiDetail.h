@@ -16,7 +16,12 @@ class DIPLumiDetail {
   ValueRange lumiValues()const;
   void filldata(std::vector<float>& lumivalues);
   void fillbxdata(unsigned int bxidx, float bxlumi);
+  unsigned int fromRun()const;
+  unsigned int fromLS()const;
+  void setOrigin(unsigned int runnumber,unsigned int ls);
  private:
+  unsigned int m_runnum;
+  unsigned int m_ls;
   std::vector<float> m_lumiValues;
 }; 
 
