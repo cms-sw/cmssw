@@ -62,14 +62,44 @@ class StrictSMLikeHiggsModel(SMLikeHiggsModel):
     def getHiggsSignalYieldScale(self,production,decay):
             return "r"
 
+class FloatingHiggsMass(SMLikeHiggsModel):
+    "assume the SM coupling but let the Higgs mass to float"
+    def __init__(self):
+        SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
+        self.mHRange = ['115','135'] # default
+    def setPhysicsOptions(self,physOptions):
+        for po in physOptions:
+            if po.startswith("higgsMassRange="):
+                self.mHRange = po.replace("modes=","").split(",")
+                if len(self.mHRange) != 2:
+                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                elif self.mHRange[0] >= self.mHRange[1]:
+                    raise RuntimeError, "Etrama for Higgs mass range defined with inverterd order. Second must be larger the first"
+    def doParametersOfInterest(self):
+        """Create POI out of signal strength and MH"""
+         # --- Signal Strength as only POI --- 
+        self.modelBuilder.doVar("r[0,20]");
+        self.modelBuilder.doVar("r_MH[%d,%s,%s]" % ((float(self.mHRange[1])+float(self.mHRange[0]))/2 ,self.mHRange[0],self.mHRange[1])) # to be fixed
+        self.modelBuilder.doSet("POI",'r,r_MH')
+    def getHiggsSignalYieldScale(self,production,decay):
+            return "r"
+
+
 class FloatingXSHiggs(SMLikeHiggsModel):
     "Float independently ggH and qqH cross sections"
     def __init__(self):
         SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
         self.modes = [ "ggH", "qqH", "VH", "ttH" ]
+        self.mHRange = []
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
             if po.startswith("modes="): self.modes = po.replace("modes=","").split(",")
+            if po.startswith("higgsMassRange="):
+                self.mHRange = po.replace("modes=","").split(",")
+                if len(self.mHRange) != 2:
+                    raise RuntimeError, "Higgs mass range definition requires two extrema"
+                elif self.mHRange[0] >= self.mHRange[1]:
+                    raise RuntimeError, "Etrama for Higgs mass range defined with inverterd order. Second must be larger the first"
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
         # --- Signal Strength as only POI --- 
@@ -77,13 +107,17 @@ class FloatingXSHiggs(SMLikeHiggsModel):
         if "qqH" in self.modes: self.modelBuilder.doVar("r_qqH[1,0,20]");
         if "VH"  in self.modes: self.modelBuilder.doVar("r_VH[1,0,20]");
         if "ttH" in self.modes: self.modelBuilder.doVar("r_ttH[1,0,20]");
-        self.modelBuilder.doSet("POI",",".join(["r_"+m for m in self.modes]))
+        poi = ",".join(["r_"+m for m in self.modes])
         # --- Higgs Mass as other parameter ----
         if self.modelBuilder.out.var("MH"):
           self.modelBuilder.out.var("MH").removeRange()
           self.modelBuilder.out.var("MH").setVal(self.options.mass)
+        elif len(self.mHRange):
+            self.modelBuilder.doVar("r_MH[%d,%s,%s]" % ((float(self.mHRange[1])+float(self.mHRange[0]))/2 ,self.mHRange[0],self.mHRange[1])) # to be fixed
+            poi+=',r_MH'
         else:
-          self.modelBuilder.doVar("MH[%g]" % self.options.mass); 
+          self.modelBuilder.doVar("MH[%g]" % self.options.mass)
+        self.modelBuilder.doSet("POI",poi)
     def getHiggsSignalYieldScale(self,production,decay):
         if production == "ggH": return ("r_ggH" if "ggH" in self.modes else 1)
         if production == "qqH": return ("r_qqH" if "qqH" in self.modes else 1)
@@ -94,3 +128,4 @@ class FloatingXSHiggs(SMLikeHiggsModel):
 defaultModel = PhysicsModel()
 strictSMLikeHiggs = StrictSMLikeHiggsModel()
 floatingXSHiggs = FloatingXSHiggs()
+floatingHiggsMass = FloatingHiggsMass()
