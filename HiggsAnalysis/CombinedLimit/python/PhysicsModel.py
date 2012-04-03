@@ -79,8 +79,8 @@ class FloatingHiggsMass(SMLikeHiggsModel):
         """Create POI out of signal strength and MH"""
          # --- Signal Strength as only POI --- 
         self.modelBuilder.doVar("r[0,20]");
-        self.modelBuilder.doVar("r_MH[%d,%s,%s]" % ((float(self.mHRange[1])+float(self.mHRange[0]))/2 ,self.mHRange[0],self.mHRange[1])) # to be fixed
-        self.modelBuilder.doSet("POI",'r,r_MH')
+        self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1])) 
+        self.modelBuilder.doSet("POI",'r,MH')
     def getHiggsSignalYieldScale(self,production,decay):
             return "r"
 
@@ -113,8 +113,8 @@ class FloatingXSHiggs(SMLikeHiggsModel):
           self.modelBuilder.out.var("MH").removeRange()
           self.modelBuilder.out.var("MH").setVal(self.options.mass)
         elif len(self.mHRange):
-            self.modelBuilder.doVar("r_MH[%d,%s,%s]" % ((float(self.mHRange[1])+float(self.mHRange[0]))/2 ,self.mHRange[0],self.mHRange[1])) # to be fixed
-            poi+=',r_MH'
+            self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
+            poi+=',MH'
         else:
           self.modelBuilder.doVar("MH[%g]" % self.options.mass)
         self.modelBuilder.doSet("POI",poi)
