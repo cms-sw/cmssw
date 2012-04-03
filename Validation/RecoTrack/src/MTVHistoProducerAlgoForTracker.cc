@@ -640,6 +640,8 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
     BinLogX(phires_vs_pt.back()->getTH2F());
     BinLogX(cotThetares_vs_pt.back()->getTH2F());
     BinLogX(ptres_vs_pt.back()->getTH2F());
+    BinLogX(h_looperpT.back()->getTH1F());
+    BinLogX(h_misidpT.back()->getTH1F());
     BinLogX(h_recopT.back()->getTH1F());
     BinLogX(h_assocpT.back()->getTH1F());
     BinLogX(h_assoc2pT.back()->getTH1F());
