@@ -34,7 +34,8 @@ void ora::SequenceManager::create( const std::string& sequenceName ){
   if( !m_table->exists() ){
     m_table->create();
   }
-  m_impl->create( sequenceName );
+  int lastId=0;
+  if(!m_table->getLastId( sequenceName, lastId ) ) m_impl->create( sequenceName );
 }
 
 int ora::SequenceManager::getNextId( const std::string& sequenceName, 
