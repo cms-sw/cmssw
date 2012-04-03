@@ -74,24 +74,36 @@ lowPtMixedTripletStepSeedLayers.TEC.skipClusters = cms.InputTag('lowPtTripletSte
 #lowPtMixedTripletStepSeedLayers.TEC.minRing = cms.int32(1)
 #lowPtMixedTripletStepSeedLayers.TEC.maxRing = cms.int32(1)
 
+#pixelPairStepSeeds.SeedComparitorPSet = cms.PSet(
+#  ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
+#  FilterAtHelixStage = cms.bool(True),
+#  FilterPixelHits = cms.bool(True),
+#  FilterStripHits = cms.bool(False),
+#  ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
+#)
+
 # to avoid 'too many clusters'
 initialStepSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 lowPtTripletStepSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
+pixelPairStepSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 
 # avoid 'number of triples exceed maximum'
 pixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
 initialStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
 lowPtTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
+# avoid 'number of pairs exceed maximum'
+pixelPairStepSeeds.OrderedHitsFactoryPSet.maxElement =  cms.uint32(0)
 
 ### modify regular tracking sequence to use upgrade version
 ### which is just the first two steps for now
-iterTracking.remove(PixelPairStep)
+#iterTracking.remove(PixelPairStep)
 iterTracking.remove(DetachedTripletStep)
 iterTracking.remove(MixedTripletStep)
 iterTracking.remove(PixelLessStep)
 iterTracking.remove(TobTecStep)
 
-newCombinedSeeds.seedCollections = cms.VInputTag(
-      cms.InputTag('initialStepSeeds'),
-      cms.InputTag('lowPtTripletStepSeeds')
-)
+#newCombinedSeeds.seedCollections = cms.VInputTag(
+#      cms.InputTag('initialStepSeeds'),
+#      cms.InputTag('lowPtTripletStepSeeds'),
+#      cms.InputTag('pixelPairStepSeeds')
+#)
