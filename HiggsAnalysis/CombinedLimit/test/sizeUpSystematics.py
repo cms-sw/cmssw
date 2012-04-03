@@ -45,11 +45,13 @@ from HiggsAnalysis.CombinedLimit.DatacardParser import *
 
 masses = list()
 parser = OptionParser(usage="usage: %prog [options] datacard.txt -o output \nrun with --help to get list of options")
-parser.add_option("--depth", dest="depth",  default=1,  type="int", help="Scans excluding up to DEPTH and testing only up to DEPTH nuisances (0 means just none and all).")
+parser.add_option("--depth", dest="depth",  default=1,  type="int", help="Scans excluding up to DEPTH and testing only up to DEPTH nuisances (0 means all in and all out if two-sided is specified).")
+parser.add_option("--two-sided", dest="twosided",  default=False,  action='store_true', help="If specified, scans both including up to DEPTH and by removing down to DEPTH.")
 parser.add_option("--dir", dest="dir",  default='systs',  type="string", help="Output directory for results and intermediates.")
 parser.add_option("--masses", dest="masses",  default=[120],  type="string", action="callback", help="Which mass points to scan.",
                   callback = lambda option, opt_str, value, parser: masses.extend(map(lambda x: int(x), value.split(',')))
                   )
+parser.add_option("--X-keep-global-nuisances", dest="keepGlobalNuisances", action="store_true", default=False, help="When excluding nuisances, do not exclude standard nuisances that are correlated CMS-wide even if their effect is small.")
 addDatacardParserOptions(parser)
 (options, args) = parser.parse_args()
 
@@ -81,28 +83,35 @@ os.chdir(options.dir)
 
 
 nuisances = map(lambda x: x[0], DC.systs )
+if options.keepGlobalNuisances:
+    nuisances = filter(lambda x: not globalNuisances.match(x), nuisances)
+
 #pprint(nuisances)
 g = open('nuisances.json','w')
 g.write(json.dumps(nuisances, sort_keys=True, indent=2))
 g.close()
 
 # the factor two is related to the fact that we do singles and nMinusOnes
-# (and pairs and nMinusTwos, etc)  
-if len(nuisances) < 2*options.depth:
+# (and pairs and nMinusTwos, etc) if twosided is specified
+maxdepth = 2*options.depth if options.twosided else options.depth   
+if len(nuisances) < maxdepth:
     raise RuntimeError, "Cannot process a depth that large."
+    
 
 # create combinations of interest
-combinationsList = list()
+combinationsToRemove = list()
 for level in xrange(options.depth+1):
-    combinationsList.extend( combinations(nuisances, level) )
-    if(level == len(nuisances)-level):
-        # center of the pascal triangle, do only one
-        continue
-    combinationsList.extend( combinations(nuisances, len(nuisances)-level) ) 
+    combinationsToRemove.extend( combinations(nuisances, level) )
+    
+    if options.twosided:
+        if(level == len(nuisances)-level):
+            # center of the pascal triangle, do only one
+            continue
+        combinationsToRemove.extend( combinations(nuisances, len(nuisances)-level) ) 
 
-#pprint(combinationsList)
-g = open('combinationsList.json','w')
-g.write(json.dumps(combinationsList, sort_keys=True, indent=2))
+#pprint(combinationsToRemove)
+g = open('combinationsToRemove.json','w')
+g.write(json.dumps(combinationsToRemove, sort_keys=True, indent=2))
 g.close()
 
 
@@ -112,7 +121,7 @@ import hashlib
 import cPickle as pickle
 combinationsHash = dict(
     [ (combination, hashlib.md5( pickle.dumps(combination) ).hexdigest() )
-      for combination in combinationsList
+      for combination in combinationsToRemove
       ]
     )
 
@@ -124,12 +133,12 @@ g.close()
     
 # make list of jobs to run
 jobs = dict() 
-for combo in combinationsList:
+for combo in combinationsToRemove:
     nuisStr = '|'.join(combo)
     fName   = 'Syst.%s' % combinationsHash[combo]
 
     tempOut = "%s.root" % fName
-    filterCmd = "text2workspace.py %s --X-exclude-nuisance='%s' -o root/%s &> log/%s.log" % (options.fileName, nuisStr, tempOut, tempOut)
+    filterCmd = "text2workspace.py --verbose=2 %s --X-exclude-nuisance='%s' -o root/%s &> log/%s.log" % (options.fileName, nuisStr, tempOut, tempOut)
 
     if os.path.isfile('root/'+tempOut):
 #        print "Not queuing text2workspace job for %s. (output already present)" % tempOut
@@ -141,7 +150,7 @@ for combo in combinationsList:
         combineOpts = "--minosAlgo=stepping -M %s -S 1 -m %g" % (combineMethod, mass)
         combineOut = "higgsCombine%s.%s.mH%g.root" % (fName, combineMethod, mass)
 
-        combineCmd = "combine root/%s %s -n %s &> log/%s.log && mv %s root/" % (tempOut, combineOpts, fName, combineOut, combineOut)
+        combineCmd = "combine --verbose=1 root/%s %s -n %s &> log/%s.log && mv %s root/" % (tempOut, combineOpts, fName, combineOut, combineOut)
 
         if os.path.isfile('root/'+combineOut):
 #            print "Not queuing combine job for %s. (output already present)" % combineOut
@@ -173,14 +182,14 @@ timer.addLap("Running text2Workspace")
 filterCmds = map(lambda x: x[0], jobs.values())
 ret = pool.map(runCmd, filterCmds)
 if reduce(lambda x, y: x+y, ret):
-    raise RunTimeError, "Non-zero return code in text2workspace. Check logs."
+    raise RuntimeError, "Non-zero return code in text2workspace. Check logs."
 
 timer.addLap("Running combine")
 # run all the combine jobs in parallel
 combineCmds = [ item for sublist in map(lambda x: x[1], jobs.values()) for item in sublist ] 
 ret =  pool.map(runCmd, combineCmds)
 if reduce(lambda x, y: x+y, ret):
-    raise RunTimeError, "Non-zero return code in combine. Check logs."
+    raise RuntimeError, "Non-zero return code in combine. Check logs."
 
 
 timer.addLap("Harvesting root files")
@@ -192,8 +201,8 @@ if os.path.isfile(limitsOut):
 
 else:
     limits = dict()
-    for combo in combinationsList:
-        f = ROOT.TFile(jobs[combo][2])
+    for combination in combinationsToRemove:
+        f = ROOT.TFile(jobs[combination][2])
         t = f.Get("limit")
     
         leaves = t.GetListOfLeaves()
@@ -210,7 +219,7 @@ else:
         for iev in range(0,t.GetEntries()) :
             t.GetEntry(iev)
             valDict[int(1000*ev.quantileExpected.GetValue())] = ev.limit.GetValue()
-        limits[combo] = valDict
+        limits[combination] = valDict
 
     #pprint(limits)
     g = open(limitsOut,'w')

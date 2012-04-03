@@ -18,6 +18,7 @@ parser.add_option("--dir", dest="dir",  default='systs',  type="string", help="O
 parser.add_option("--masses", dest="masses",  default=[120],  type="string", action="callback", help="Which mass points to scan.",
                   callback = lambda option, opt_str, value, parser: masses.extend(map(lambda x: int(x), value.split(',')))
                   )
+parser.add_option("--X-keep-global-nuisances", dest="keepGlobalNuisances", action="store_true", default=False, help="When excluding nuisances, do not exclude standard nuisances that are correlated CMS-wide even if their effect is small.")
 (options, args) = parser.parse_args()
 
 if masses:
@@ -27,12 +28,7 @@ if masses:
 OWD = os.getcwd()
 os.chdir(options.dir)
 
-#make a pool of workers
-#from multiprocessing import Pool
-#pool = Pool()
-
 limits = json.load(open('limits.json','r'))
-
 limits.sort(lambda x,y: len(x[0]) - len(y[0]))
 
 allIn  = limits[0][1]
