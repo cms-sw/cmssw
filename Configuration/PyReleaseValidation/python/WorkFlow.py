@@ -13,9 +13,9 @@ class WorkFlow(object):
         # We always run 10 events for step 0 otherwise get the defaults from
         # defaultNEvents
         nEvents = [10] + [defaultNEvents for x in xrange(len(commands)-1)]
-        specs = [(c," -n %s " % n) for (c, n) in zip(commands, nEvents) if c]
+        specs = zip(commands, nEvents)
         for (c, n) in specs:
-          self.check(c, n)
+            self.check(c, n)
         # run on real data requested
         self.input = inputInfo
 
