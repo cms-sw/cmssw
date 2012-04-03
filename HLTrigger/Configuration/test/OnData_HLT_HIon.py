@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V61 (CMSSW_5_2_3_HLT2)
+# /dev/CMSSW_5_2_1/HIon/V62 (CMSSW_5_2_3_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V61')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V62')
 )
 
 process.streams = cms.PSet( 
@@ -3416,11 +3416,11 @@ process.PrescaleService = cms.Service( "PrescaleService",
       )
     ),
     lvl1DefaultLabel = cms.string( "3e33" ),
-    lvl1Labels = cms.vstring( 'Parking5e33',
+    lvl1Labels = cms.vstring( '5e33 parking',
       '5e33',
-      '4e33',
       '3e33',
-      '2.5e33',
+      '2e33',
+      '48 bunches',
       '6000Hz',
       '5000Hz',
       '4000Hz',
@@ -3432,7 +3432,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
       'EM1',
       'EM2',
       'Cosmics',
-      'Cosmics + High Random' )
+      'Cosmics + HighRandom' )
 )
 process.UpdaterService = cms.Service( "UpdaterService",
 )

@@ -93,8 +93,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetDoubleMuParked_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetDoubleMuParked_selector.l1tResults = cms.InputTag('')
 streamA_datasetDoubleMuParked_selector.throw      = cms.bool(False)
-streamA_datasetDoubleMuParked_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Jpsi_Muon_v15', 
-    'HLT_Dimuon10_Jpsi_v3', 
+streamA_datasetDoubleMuParked_selector.triggerConditions = cms.vstring('HLT_Dimuon10_Jpsi_v3', 
     'HLT_Dimuon5_PsiPrime_v3', 
     'HLT_Dimuon8_Jpsi_v3', 
     'HLT_Dimuon9_PsiPrime_v9', 
@@ -382,7 +381,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMuOnia_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMuOnia_selector.l1tResults = cms.InputTag('')
 streamA_datasetMuOnia_selector.throw      = cms.bool(False)
-streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Jpsi_NoVertexing_v11', 
+streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Jpsi_Muon_v15', 
+    'HLT_Dimuon0_Jpsi_NoVertexing_v11', 
     'HLT_Dimuon0_Jpsi_v14', 
     'HLT_Dimuon0_PsiPrime_v3', 
     'HLT_Dimuon0_Upsilon_Muon_v15', 
