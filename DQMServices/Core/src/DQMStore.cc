@@ -393,8 +393,8 @@ DQMStore::book(const std::string &dir,
   {
     // Create it and return for initialisation.
     assert(dirs_.count(dir));
-    MonitorElement me(&*dirs_.find(dir), name);
-    return &const_cast<MonitorElement &>(*data_.insert(me).first);
+    MonitorElement nme(&*dirs_.find(dir), name);
+    return &const_cast<MonitorElement &>(*data_.insert(nme).first);
   }
 }
 
