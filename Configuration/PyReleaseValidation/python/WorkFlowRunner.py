@@ -6,7 +6,7 @@ import os,time
 from subprocess import Popen 
 
 class WorkFlowRunner(Thread):
-    def __init__(self, wf, noRun=False,dryRun=False):
+    def __init__(self, wf, noRun=False,dryRun=False,cafVeto=True):
         Thread.__init__(self)
         self.wf = wf
 
@@ -16,6 +16,7 @@ class WorkFlowRunner(Thread):
         self.npass=0
         self.noRun=noRun
         self.dryRun=dryRun
+        self.cafVeto=cafVeto
         
         self.wfDir=str(self.wf.numId)+'_'+self.wf.nameId
         return
@@ -79,7 +80,7 @@ class WorkFlowRunner(Thread):
                 self.stat.append('NOTRUN')
                 continue
             if not isinstance(com,str):
-                if com.location == 'CAF' and not onCAF:
+                if self.cafVeto and (com.location == 'CAF' and not onCAF):
                     print "You need to be no CAF to run",self.wf.numId
                     self.npass.append(0)
                     self.nfail.append(0)

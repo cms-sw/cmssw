@@ -28,7 +28,7 @@ def runSelected(opt):
         if opt.testList : print 'testListected items:', opt.testList
     else:
         mRunnerHi = MatrixRunner(mrd.workFlows, opt.nThreads)
-        ret = mRunnerHi.runTests(opt.testList,opt.dryRun)
+        ret = mRunnerHi.runTests(opt)
 
     if opt.wmcontrol:
         if ret!=0:
@@ -149,7 +149,12 @@ if __name__ == '__main__':
                       dest='dryRun',
                       default=False
                       )
-
+    parser.add_option('--noCafVeto',
+                      help='Run from any source, ignoring the CAF label',
+                      dest='cafVeto',
+                      default=True,
+                      action='store_false'
+                      )
     parser.add_option('--overWrite',
                       help='Change the content of a step for another. List of pairs.',
                       dest='overWrite',
