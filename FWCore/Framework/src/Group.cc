@@ -7,9 +7,6 @@
 
 #include <cassert>
 
-using Reflex::Type;
-using Reflex::TypeTemplate;
-
 namespace edm {
   Group::Group() {}
 
@@ -211,9 +208,9 @@ namespace edm {
     return true;
   }
 
-  Type
+  TypeID
   Group::productType() const {
-    return Type::ByTypeInfo(wrapper().interface()->wrappedTypeInfo());
+    return TypeID(wrapper().interface()->wrappedTypeInfo());
   }
 
   void

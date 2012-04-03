@@ -662,7 +662,7 @@ namespace edm {
       throwGroupNotFoundException("getForOutput", errors::LogicError, bid);
     }
     if (g->productWasDeleted()) {
-      throwProductDeletedException("getForOutput",edm::TypeID(g->productType().TypeInfo()),
+      throwProductDeletedException("getForOutput",g->productType(),
                                    g->moduleLabel(),
                                    g->productInstanceName(),
                                    g->processName());

@@ -13,8 +13,7 @@ is the storage unit of such information.
 #include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
-
-#include "Reflex/Type.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
@@ -99,7 +98,7 @@ namespace edm {
     // Return the type of the product stored in this Group.
     // We are relying on the fact that Type instances are small, and
     // so we are free to copy them at will.
-    Reflex::Type productType() const;
+    TypeID productType() const;
 
     // Retrieves the product ID of the product.
     ProductID const& productID() const {return productData().prov_.productID();}

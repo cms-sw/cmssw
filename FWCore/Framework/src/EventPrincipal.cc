@@ -199,7 +199,7 @@ namespace edm {
   static void throwProductDeletedException(ProductID const&pid, edm::EventPrincipal::ConstGroupPtr const g) {
     ProductDeletedException exception;
     exception<<"get by product ID: The product with given id: "<<pid
-    <<"\ntype: "<<edm::TypeID(g->productType().TypeInfo())
+    <<"\ntype: "<<g->productType()
     <<"\nproduct instance name: "<<g->productInstanceName()
     <<"\nprocess name: "<<g->processName()
     <<"\nwas already deleted. This is a configuration error. Please change the configuration of the module which caused this exception to state it reads this data.";
