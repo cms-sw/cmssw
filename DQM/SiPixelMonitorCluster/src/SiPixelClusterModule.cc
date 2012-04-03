@@ -81,17 +81,17 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type, bool
   if(type==0){
     SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
     // Number of clusters
-    //hid = theHistogramId->setHistoId("nclusters",id_);
-    //meNClusters_ = theDMBE->book1D(hid,"Number of Clusters",8,0.,8.);
-    //meNClusters_->setAxisTitle("Number of Clusters",1);
+    hid = theHistogramId->setHistoId("nclusters",id_);
+    meNClusters_ = theDMBE->book1D(hid,"Number of Clusters",8,0.,8.);
+    meNClusters_->setAxisTitle("Number of Clusters",1);
     // Total cluster charge in MeV
-    //hid = theHistogramId->setHistoId("charge",id_);
-    //meCharge_ = theDMBE->book1D(hid,"Cluster charge",100,0.,200.);
-    //meCharge_->setAxisTitle("Charge [kilo electrons]",1);
+    hid = theHistogramId->setHistoId("charge",id_);
+    meCharge_ = theDMBE->book1D(hid,"Cluster charge",100,0.,200.);
+    meCharge_->setAxisTitle("Charge [kilo electrons]",1);
     // Total cluster size (in pixels)
-    //hid = theHistogramId->setHistoId("size",id_);
-    //meSize_ = theDMBE->book1D(hid,"Total cluster size",30,0.,30.);
-    //meSize_->setAxisTitle("Cluster size [number of pixels]",1);
+    hid = theHistogramId->setHistoId("size",id_);
+    meSize_ = theDMBE->book1D(hid,"Total cluster size",30,0.,30.);
+    meSize_->setAxisTitle("Cluster size [number of pixels]",1);
     if(!reducedSet){
       // Lowest cluster row
       hid = theHistogramId->setHistoId("minrow",id_);
@@ -512,8 +512,8 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
       GlobalPoint clustgp = theGeomDet->surface().toGlobal( clustlp );
       //**end
       if(modon){
-	//(meCharge_)->Fill((float)charge);
-	//(meSize_)->Fill((int)size);
+	(meCharge_)->Fill((float)charge);
+	(meSize_)->Fill((int)size);
         DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
 	std::string currDir = theDMBE->pwd();
 	theDMBE->cd("Pixel/Clusters/OffTrack/");
@@ -697,7 +697,7 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
 	}
       }
     }
-    //if(modon) (meNClusters_)->Fill((float)numberOfClusters);
+    if(modon) (meNClusters_)->Fill((float)numberOfClusters);
     if(ladon && barrel) (meNClustersLad_)->Fill((float)numberOfClusters);
     if(layon && barrel) (meNClustersLay_)->Fill((float)numberOfClusters);
     if(phion && barrel) (meNClustersPhi_)->Fill((float)numberOfClusters);
