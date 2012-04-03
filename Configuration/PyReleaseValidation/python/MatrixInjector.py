@@ -73,15 +73,19 @@ class MatrixInjector(object):
             "SplittingArguments" : {"events_per_job" : 250},  #Size of jobs in terms of splitting algorithm
             #"RequestSizeEvents" : 10000,                      #Total number of events to generate
             "RequestNumEvents" : 10000,                      #Total number of events to generate
-            "Seeding" : "Automatic",                          #Random seeding method
+            "Seeding" : "AutomaticSeeding",                          #Random seeding method
             "PrimaryDataset" : None,                          #Primary Dataset to be created
+            "nowmIO": {}
             }
         self.defaultInput={
             "TaskName" : "DigiHLT",                                      #Task Name
             "ConfigCacheID" : None,                                      #Processing Config id
             "InputDataset" : None,                                       #Input Dataset to be processed
-            "SplittingAlgorithm"  : "FileBased",                        #Splitting Algorithm
-            "SplittingArguments" : {"files_per_job" : 1},               #Size of jobs in terms of splitting algorithm
+            #"SplittingAlgorithm"  : "FileBased",                        #Splitting Algorithm
+            #"SplittingArguments" : {"files_per_job" : 1},               #Size of jobs in terms of splitting algorithm
+            "SplittingAlgorithm"  : "LumiBased",                        #Splitting Algorithm
+            "SplittingArguments" : {"lumis_per_job" : 1},               #Size of jobs in terms of splitting algorithm
+            "nowmIO": {}
             }
         self.defaultTask={
             "TaskName" : None,                                 #Task Name
@@ -121,7 +125,7 @@ class MatrixInjector(object):
                                     return -12
                                 else:
                                     arg=s[2][index].split()
-                                    ns=arg[arg.index('--relval')+1].split(',')
+                                    ns=map(int,arg[arg.index('--relval')+1].split(','))
                                     chainDict['nowmTasklist'][-1]['RequestSizeEvents'] = ns[0]
                                     chainDict['nowmTasklist'][-1]['SplittingArguments']['events_per_job'] = ns[1]
                             elif nextHasDSInput:
