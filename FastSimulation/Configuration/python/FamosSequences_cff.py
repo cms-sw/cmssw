@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from FastSimulation.Configuration.CommonInputs_cff import *
 
 whatPileUp = 'light' # options: 'light' and 'mixingmodule'
+#whatPileUp = 'mixingmodule'
 
 # Conversion to GenParticleCandidates 
 from PhysicsTools.HepMCCandAlgos.genParticleCandidatesFast_cfi import *
@@ -260,6 +261,7 @@ if(whatPileUp=='mixingmodule'):
                                                   useCrossingFrame = cms.untracked.bool(True),
                                                   abortOnUnknownPDGCode = cms.untracked.bool(False)
                                                   )
+    famosSimHits.GenParticleLabel = "genParticlesFromMixingModule" 
 
 # The sole simulation sequence
 if(whatPileUp=='light'): 
