@@ -30,7 +30,7 @@ private:
  edm::InputTag hfclusters_;
   int HFDBversion_;
   std::vector<double> HFDBvector_;
-  reco::HFValueStruct::HFValueStruct hfvars_;
+  reco::HFValueStruct hfvars_;
   bool doPU_; 
   HFRecoEcalCandidateAlgo algo_;
   std::vector<double> defaultDB_; 

@@ -29,7 +29,7 @@ public:
 			  const std::vector<double>& e1e9Cut,
 			  const std::vector<double>& eCOREe9Cut,
 			  const std::vector<double>& eSeLCut,
-			  reco::HFValueStruct::HFValueStruct hfvv);
+			  reco::HFValueStruct hfvv);
   
   /** Analyze the hits */
   void produce(const edm::Handle<reco::SuperClusterCollection>& SuperClusters,
@@ -52,7 +52,7 @@ public:
   double m_eSeLCutlo;
   int m_era;
   bool m_correctForPileup;
-  reco::HFValueStruct::HFValueStruct m_hfvv;
+  reco::HFValueStruct m_hfvv;
  
 };
 
