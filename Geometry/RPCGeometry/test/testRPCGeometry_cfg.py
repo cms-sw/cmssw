@@ -1,8 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Demo")
-process.load('Configuration/StandardSequences/GeometryExtended_cff')
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.load('Configuration.Geometry.GeometryExtended_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
+process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
