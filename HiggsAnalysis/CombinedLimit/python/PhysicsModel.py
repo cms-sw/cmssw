@@ -77,9 +77,13 @@ class FloatingHiggsMass(SMLikeHiggsModel):
                     raise RuntimeError, "Etrama for Higgs mass range defined with inverterd order. Second must be larger the first"
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
-         # --- Signal Strength as only POI --- 
-        self.modelBuilder.doVar("r[0,20]");
-        self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1])) 
+        # --- Signal Strength as only POI --- 
+        self.modelBuilder.doVar("r[0,20]")
+        if self.modelBuilder.out.var("MH"):
+            self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
+            self.modelBuilder.out.var("MH").setConstant(False)
+        else:
+            self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1])) 
         self.modelBuilder.doSet("POI",'r,MH')
     def getHiggsSignalYieldScale(self,production,decay):
             return "r"
@@ -110,13 +114,18 @@ class FloatingXSHiggs(SMLikeHiggsModel):
         poi = ",".join(["r_"+m for m in self.modes])
         # --- Higgs Mass as other parameter ----
         if self.modelBuilder.out.var("MH"):
-          self.modelBuilder.out.var("MH").removeRange()
-          self.modelBuilder.out.var("MH").setVal(self.options.mass)
-        elif len(self.mHRange):
-            self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
-            poi+=',MH'
+            if len(self.mHRange):
+                self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
+                self.modelBuilder.out.var("MH").setConstant(False)
+            else:
+                self.modelBuilder.out.var("MH").removeRange()
+                self.modelBuilder.out.var("MH").setVal(self.options.mass)
         else:
-          self.modelBuilder.doVar("MH[%g]" % self.options.mass)
+            if len(self.mHRange):
+                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
+                poi+=',MH'
+            else:
+                self.modelBuilder.doVar("MH[%g]" % self.options.mass)
         self.modelBuilder.doSet("POI",poi)
     def getHiggsSignalYieldScale(self,production,decay):
         if production == "ggH": return ("r_ggH" if "ggH" in self.modes else 1)
