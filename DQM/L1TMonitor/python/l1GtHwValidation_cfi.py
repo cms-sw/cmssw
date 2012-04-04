@@ -44,11 +44,6 @@ l1GtHwValidation = cms.EDAnalyzer("L1GtHwValidation",
     
     ExcludeCondCategTypeObject = cms.VPSet(
                                         cms.PSet(
-                                                 ExcludedCondCategory = cms.string("CondCorrelation"),
-                                                 ExcludedCondType = cms.string(""),
-                                                 ExcludedL1GtObject  = cms.string("")
-                                                 ),
-                                        cms.PSet(
                                                  ExcludedCondCategory = cms.string(""),
                                                  ExcludedCondType = cms.string(""),
                                                  ExcludedL1GtObject  = cms.string("GtExternal")

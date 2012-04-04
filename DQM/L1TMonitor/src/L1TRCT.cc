@@ -1,8 +1,8 @@
 /*
  * \file L1TRCT.cc
  *
- * $Date: 2012/03/29 21:16:48 $
- * $Revision: 1.20 $
+ * $Date: 2012/03/30 10:24:07 $
+ * $Revision: 1.21 $
  * \author P. Wittich
  *
  */
@@ -102,6 +102,9 @@ void L1TRCT::beginJob(void)
 
   if (dbe) {
     dbe->setCurrentFolder("L1T/L1TRCT");
+
+    triggerType_ =
+      dbe->book1D("TriggerType", "TriggerType", 17, -0.5, 16.5);
 
     rctIsoEmEtEtaPhi_ =
 	dbe->book2D("RctEmIsoEmEtEtaPhi", "ISO EM E_{T}", ETABINS, ETAMIN,
@@ -207,14 +210,6 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
     std::cout << "L1TRCT: analyze...." << std::endl;
   }
 
-  // Get the RCT digis
-  edm::Handle < L1CaloEmCollection > em;
-  edm::Handle < L1CaloRegionCollection > rgn;
-
-  // need to change to getByLabel
-  bool doEm = true; 
-  bool doHd = true;
-
   // filter according trigger type
   //  enum ExperimentType {
   //        Undefined          =  0,
@@ -226,17 +221,36 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   //        TestTrigger        =  6,
   //        ErrorTrigger       = 15
 
+  // fill a histogram with the trigger type, for normalization fill also last bin
+  // ErrorTrigger + 1
+  double triggerType = static_cast<double> (e.experimentType()) + 0.001;
+  double triggerTypeLast = static_cast<double> (edm::EventAuxiliary::ExperimentType::ErrorTrigger)
+                          + 0.001;
+  triggerType_->Fill(triggerType);
+  triggerType_->Fill(triggerTypeLast + 1);
+
   // filter only if trigger type is greater than 0, negative values disable filtering
   if (filterTriggerType_ >= 0) {
-    // now filter, for real data only
-    if (e.isRealData()) {
-      if (!(e.experimentType() == filterTriggerType_)) {
-        edm::LogInfo("L1TdeRCT") << "\n Event of TriggerType "
-          << e.experimentType() << " rejected" << std::endl;
-        return;
+
+      // now filter, for real data only
+      if (e.isRealData()) {
+          if (!(e.experimentType() == filterTriggerType_)) {
+
+              edm::LogInfo("L1TRCT") << "\n Event of TriggerType "
+                      << e.experimentType() << " rejected" << std::endl;
+              return;
+
+          }
       }
-    }
+
   }
+
+  // Get the RCT digis
+  edm::Handle < L1CaloEmCollection > em;
+  edm::Handle < L1CaloRegionCollection > rgn;
+
+  bool doEm = true;
+  bool doHd = true;
 
   e.getByLabel(rctSource_,rgn);
  

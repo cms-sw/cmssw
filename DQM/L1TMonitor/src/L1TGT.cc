@@ -7,8 +7,8 @@
  * \author J. Berryhill, I. Mikulec
  * \author Vasile Mihai Ghete - HEPHY Vienna
  *
- * $Date$
- * $Revision$
+ * $Date: 2012/03/29 14:49:31 $
+ * $Revision: 1.22 $
  *
  */
 
@@ -229,15 +229,15 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
                     << orbitEvmFdl << " diffOrbit = " << diffOrbit
                     << " orbitEvent = " << iEvent.orbitNumber() << std::endl;
 
-            if (diffOrbit >= MaxOrbitNrDeltaTcsEvmFdl) {
-                m_monOrbitNrDeltaTcsEvmFdl->Fill(MaxOrbitNrDeltaTcsEvmFdl);
+            if (diffOrbit >= MaxOrbitNrDiffTcsFdlEvm) {
+                m_monOrbitNrDiffTcsFdlEvm->Fill(MaxOrbitNrDiffTcsFdlEvm);
 
-            } else if (diffOrbit <= -MaxOrbitNrDeltaTcsEvmFdl) {
-                m_monOrbitNrDeltaTcsEvmFdl->Fill(-MaxOrbitNrDeltaTcsEvmFdl);
+            } else if (diffOrbit <= -MaxOrbitNrDiffTcsFdlEvm) {
+                m_monOrbitNrDiffTcsFdlEvm->Fill(-MaxOrbitNrDiffTcsFdlEvm);
 
             } else {
-                m_monOrbitNrDeltaTcsEvmFdl->Fill(diffOrbit);
-                m_monOrbitNrDeltaTcsEvmFdlLs->Fill(lsNumber,
+                m_monOrbitNrDiffTcsFdlEvm->Fill(diffOrbit);
+                m_monOrbitNrDiffTcsFdlEvmLs->Fill(lsNumber,
                         diffOrbit);
 
             }
@@ -246,15 +246,15 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
 
             if (orbitTcs >= 0) {
                 // EVM_FDL error
-                m_monOrbitNrDeltaTcsEvmFdl->Fill(MaxOrbitNrDeltaTcsEvmFdl);
+                m_monOrbitNrDiffTcsFdlEvm->Fill(MaxOrbitNrDiffTcsFdlEvm);
             } else if (orbitEvmFdl >= 0) {
                 // TCS error
-                m_monOrbitNrDeltaTcsEvmFdl->Fill(-MaxOrbitNrDeltaTcsEvmFdl);
+                m_monOrbitNrDiffTcsFdlEvm->Fill(-MaxOrbitNrDiffTcsFdlEvm);
 
             } else {
                 // TCS and EVM_FDL error
-                m_monOrbitNrDeltaTcsEvmFdl->Fill(-MaxOrbitNrDeltaTcsEvmFdl);
-                m_monOrbitNrDeltaTcsEvmFdl->Fill(MaxOrbitNrDeltaTcsEvmFdl);
+                m_monOrbitNrDiffTcsFdlEvm->Fill(-MaxOrbitNrDiffTcsFdlEvm);
+                m_monOrbitNrDiffTcsFdlEvm->Fill(MaxOrbitNrDiffTcsFdlEvm);
             }
         }
 
@@ -265,15 +265,15 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
                     << " diffLs = " << diffLs << " lsEvent = "
                     << lsNumber << std::endl;
 
-            if (diffLs >= MaxLsNrDeltaTcsEvmFdl) {
-                m_monLsNrDeltaTcsEvmFdl->Fill(MaxLsNrDeltaTcsEvmFdl);
+            if (diffLs >= MaxLsNrDiffTcsFdlEvm) {
+                m_monLsNrDiffTcsFdlEvm->Fill(MaxLsNrDiffTcsFdlEvm);
 
-            } else if (diffLs <= -MaxLsNrDeltaTcsEvmFdl) {
-                m_monLsNrDeltaTcsEvmFdl->Fill(-MaxLsNrDeltaTcsEvmFdl);
+            } else if (diffLs <= -MaxLsNrDiffTcsFdlEvm) {
+                m_monLsNrDiffTcsFdlEvm->Fill(-MaxLsNrDiffTcsFdlEvm);
 
             } else {
-                m_monLsNrDeltaTcsEvmFdl->Fill(diffLs);
-                m_monLsNrDeltaTcsEvmFdlLs->Fill(lsNumber, diffLs);
+                m_monLsNrDiffTcsFdlEvm->Fill(diffLs);
+                m_monLsNrDiffTcsFdlEvmLs->Fill(lsNumber, diffLs);
 
             }
 
@@ -281,15 +281,15 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
 
             if (lsTcs >= 0) {
                 // EVM_FDL error
-                m_monLsNrDeltaTcsEvmFdl->Fill(MaxLsNrDeltaTcsEvmFdl);
+                m_monLsNrDiffTcsFdlEvm->Fill(MaxLsNrDiffTcsFdlEvm);
             } else if (lsEvmFdl >= 0) {
                 // TCS error
-                m_monLsNrDeltaTcsEvmFdl->Fill(-MaxLsNrDeltaTcsEvmFdl);
+                m_monLsNrDiffTcsFdlEvm->Fill(-MaxLsNrDiffTcsFdlEvm);
 
             } else {
                 // TCS and EVM_FDL error
-                m_monLsNrDeltaTcsEvmFdl->Fill(-MaxLsNrDeltaTcsEvmFdl);
-                m_monLsNrDeltaTcsEvmFdl->Fill(MaxLsNrDeltaTcsEvmFdl);
+                m_monLsNrDiffTcsFdlEvm->Fill(-MaxLsNrDiffTcsFdlEvm);
+                m_monLsNrDiffTcsFdlEvm->Fill(MaxLsNrDiffTcsFdlEvm);
             }
         }
 
@@ -504,6 +504,9 @@ void L1TGT::endJob() {
 // book all histograms for the module
 void L1TGT::bookHistograms() {
 
+    const int TotalNrBinsLs = 1000;
+    const double totalNrBinsLs = static_cast<double>(TotalNrBinsLs);
+
     if (m_dbe) {
         m_dbe->setCurrentFolder(m_histFolder);
 
@@ -535,13 +538,13 @@ void L1TGT::bookHistograms() {
 
         algo_bits_lumi = m_dbe->book2D("algo_bits_lumi",
                 "GT algo bit rate per lumi segment",
-                250, 0., 250., 128, -0.5, 127.5);
+                TotalNrBinsLs, 0., totalNrBinsLs, 128, -0.5, 127.5);
         algo_bits_lumi->setAxisTitle("Luminosity segment", 1);
         algo_bits_lumi->setAxisTitle("Algorithm bits", 2);
 
         tt_bits_lumi = m_dbe->book2D("tt_bits_lumi",
                 "GT tech. trig. bit rate per lumi segment",
-                250, 0., 250., 64, -0.5, 63.5);
+                TotalNrBinsLs, 0., totalNrBinsLs, 64, -0.5, 63.5);
         tt_bits_lumi->setAxisTitle("Luminosity segment", 1);
         tt_bits_lumi->setAxisTitle("Technical trigger bits", 2);
 
@@ -561,7 +564,7 @@ void L1TGT::bookHistograms() {
 
         event_lumi = m_dbe->bookProfile("event_lumi",
                 "GT Event number (from last resync) vs lumi section",
-                250, 0., 250., 100, -0.1, 1.e15, "s");
+                TotalNrBinsLs, 0., totalNrBinsLs, 100, -0.1, 1.e15, "s");
         event_lumi->setAxisTitle("Luminosity segment", 1);
         event_lumi->setAxisTitle("event number", 2);
 
@@ -572,25 +575,25 @@ void L1TGT::bookHistograms() {
 
         trigger_lumi = m_dbe->bookProfile("trigger_lumi",
                 "GT Trigger number (from start run) vs lumi section",
-                250, 0., 250., 100, -0.1, 1.e15, "s");
+                TotalNrBinsLs, 0., totalNrBinsLs, 100, -0.1, 1.e15, "s");
         trigger_lumi->setAxisTitle("Luminosity segment", 1);
         trigger_lumi->setAxisTitle("Trigger number", 2);
 
         evnum_trignum_lumi = m_dbe->bookProfile("evnum_trignum_lumi",
                 "GT Event/Trigger number ratio vs lumi section",
-                250, 0., 250., 100, -0.1, 2., "s");
+                TotalNrBinsLs, 0., totalNrBinsLs, 100, -0.1, 2., "s");
         evnum_trignum_lumi->setAxisTitle("Luminosity segment", 1);
         evnum_trignum_lumi->setAxisTitle("Event/trigger number ratio", 2);
 
         orbit_lumi = m_dbe->bookProfile("orbit_lumi",
                 "GT orbit number vs lumi section",
-                250, 0., 250., 100, -0.1, 1.e15, "s");
+                TotalNrBinsLs, 0., totalNrBinsLs, 100, -0.1, 1.e15, "s");
         orbit_lumi->setAxisTitle("Luminosity segment", 1);
         orbit_lumi->setAxisTitle("Orbit number", 2);
 
         setupversion_lumi = m_dbe->bookProfile("setupversion_lumi",
                 "GT setup version vs lumi section",
-                250, 0., 250., 100, -0.1, 1.e10, "i");
+                TotalNrBinsLs, 0., totalNrBinsLs, 100, -0.1, 1.e10, "i");
         setupversion_lumi->setAxisTitle("Luminosity segment", 1);
         setupversion_lumi->setAxisTitle("Setup version", 2);
 
@@ -624,7 +627,7 @@ void L1TGT::bookHistograms() {
 
         BST_MasterStatus = m_dbe->book2D("BST_MasterStatus",
                 "BST master status over lumi segment",
-                250, 0., 250., 6, -1., 5.);
+                TotalNrBinsLs, 0., totalNrBinsLs, 6, -1., 5.);
         BST_MasterStatus->setAxisTitle("Luminosity segment", 1);
         BST_MasterStatus->setAxisTitle("BST master status", 2);
         BST_MasterStatus->setBinLabel(2, "Master Beam 1", 2);
@@ -632,7 +635,7 @@ void L1TGT::bookHistograms() {
 
         BST_turnCountNumber = m_dbe->book2D("BST_turnCountNumber",
                 "BST turn count over lumi segment",
-                250, 0., 250., 250, 0., 4.3e9);
+                TotalNrBinsLs, 0., totalNrBinsLs, 250, 0., 4.3e9);
         BST_turnCountNumber->setAxisTitle("Luminosity segment", 1);
         BST_turnCountNumber->setAxisTitle("BST turn count number", 2);
 
@@ -642,7 +645,7 @@ void L1TGT::bookHistograms() {
 
         BST_beamMode = m_dbe->book2D("BST_beamMode",
                 "BST beam mode over lumi segment",
-                250, 0., 250., 25, 1., 26.);
+                TotalNrBinsLs, 0., totalNrBinsLs, 25, 1., 26.);
         BST_beamMode->setAxisTitle("Luminosity segment", 1);
         BST_beamMode->setAxisTitle("mode", 2);
         BST_beamMode->setBinLabel(1, "no mode", 2);
@@ -669,7 +672,7 @@ void L1TGT::bookHistograms() {
 
         BST_beamMomentum = m_dbe->book2D("BST_beamMomentum",
                 "BST beam momentum",
-                250, 0., 250., 100, 0., 7200.);
+                TotalNrBinsLs, 0., totalNrBinsLs, 100, 0., 7200.);
         BST_beamMomentum->setAxisTitle("Luminosity segment", 1);
         BST_beamMomentum->setAxisTitle("Beam momentum", 2);
 
@@ -683,19 +686,19 @@ void L1TGT::bookHistograms() {
 
         gpsfreqlum = m_dbe->book2D("gpsfreqlum",
                 "clock frequency measured by GPS",
-                250, 0., 250., 100, 39.95, 40.2);
+                TotalNrBinsLs, 0., totalNrBinsLs, 100, 39.95, 40.2);
         gpsfreqlum->setAxisTitle("Luminosity segment", 1);
         gpsfreqlum->setAxisTitle("CMS clock frequency (MHz)", 2);
 
         BST_intensityBeam1 = m_dbe->book2D("BST_intensityBeam1",
                 "intensity beam 1",
-                250, 0., 250., 100, 0., 100.);
+                TotalNrBinsLs, 0., totalNrBinsLs, 100, 0., 100.);
         BST_intensityBeam1->setAxisTitle("Luminosity segment", 1);
         BST_intensityBeam1->setAxisTitle("Beam intensity", 2);
 
         BST_intensityBeam2 = m_dbe->book2D("BST_intensityBeam2",
                 "intensity beam 2",
-                250, 0., 250., 100, 0., 100.);
+                TotalNrBinsLs, 0., totalNrBinsLs, 100, 0., 100.);
         BST_intensityBeam2->setAxisTitle("Luminosity segment", 1);
         BST_intensityBeam2->setAxisTitle("Beam intensity", 2);
 
@@ -703,7 +706,7 @@ void L1TGT::bookHistograms() {
 
         m_monL1PrescaleFactorSet = m_dbe->book2D("L1PrescaleFactorSet",
                 "Index of L1 prescale factor set",
-                500, 0., 500., 25, 0., 25.);
+                TotalNrBinsLs, 0., totalNrBinsLs, 25, 0., 25.);
         m_monL1PrescaleFactorSet->setAxisTitle("Luminosity segment", 1);
         m_monL1PrescaleFactorSet->setAxisTitle("L1 PF set index", 2);
 
@@ -718,41 +721,41 @@ void L1TGT::bookHistograms() {
         m_dbe->setCurrentFolder(m_histFolder + "/TCSvsEvmFDL");
 
         //    orbit number
-        m_monOrbitNrDeltaTcsEvmFdl = m_dbe->book1D("OrbitNrDeltaTcsEvmFdl",
+        m_monOrbitNrDiffTcsFdlEvm = m_dbe->book1D("OrbitNrDiffTcsFdlEvm",
                         "Orbit number difference (TCS - EVM_FDL)",
-                        2 * MaxOrbitNrDeltaTcsEvmFdl + 1,
-                        static_cast<float>(-(MaxOrbitNrDeltaTcsEvmFdl + 1)),
-                        static_cast<float>(MaxOrbitNrDeltaTcsEvmFdl + 1));
-        m_monOrbitNrDeltaTcsEvmFdl->setAxisTitle("Orbit number difference", 1);
-        m_monOrbitNrDeltaTcsEvmFdl->setAxisTitle("Entries/run", 2);
+                        2 * MaxOrbitNrDiffTcsFdlEvm + 1,
+                        static_cast<float>(-(MaxOrbitNrDiffTcsFdlEvm + 1)),
+                        static_cast<float>(MaxOrbitNrDiffTcsFdlEvm + 1));
+        m_monOrbitNrDiffTcsFdlEvm->setAxisTitle("Orbit number difference", 1);
+        m_monOrbitNrDiffTcsFdlEvm->setAxisTitle("Entries/run", 2);
 
-        m_monLsNrDeltaTcsEvmFdl = m_dbe->book1D("LsNrDeltaTcsEvmFdl",
+        m_monLsNrDiffTcsFdlEvm = m_dbe->book1D("LsNrDiffTcsFdlEvm",
                         "LS number difference (TCS - EVM_FDL)",
-                        2 * MaxLsNrDeltaTcsEvmFdl + 1,
-                        static_cast<float>(-(MaxLsNrDeltaTcsEvmFdl + 1)),
-                        static_cast<float>(MaxLsNrDeltaTcsEvmFdl + 1));
-        m_monLsNrDeltaTcsEvmFdl->setAxisTitle("LS number difference", 1);
-        m_monLsNrDeltaTcsEvmFdl->setAxisTitle("Entries/run", 2);
+                        2 * MaxLsNrDiffTcsFdlEvm + 1,
+                        static_cast<float>(-(MaxLsNrDiffTcsFdlEvm + 1)),
+                        static_cast<float>(MaxLsNrDiffTcsFdlEvm + 1));
+        m_monLsNrDiffTcsFdlEvm->setAxisTitle("LS number difference", 1);
+        m_monLsNrDiffTcsFdlEvm->setAxisTitle("Entries/run", 2);
 
         //    LS number
 
-        m_monOrbitNrDeltaTcsEvmFdlLs = m_dbe->book2D("OrbitNrDeltaTcsEvmFdlLs",
+        m_monOrbitNrDiffTcsFdlEvmLs = m_dbe->book2D("OrbitNrDiffTcsFdlEvmLs",
                 "Orbit number difference (TCS - EVM_FDL)",
-                500, 0., 500.,
-                2 * MaxOrbitNrDeltaTcsEvmFdl + 1,
-                static_cast<float>(-(MaxOrbitNrDeltaTcsEvmFdl + 1)),
-                static_cast<float>(MaxOrbitNrDeltaTcsEvmFdl + 1));
-        m_monOrbitNrDeltaTcsEvmFdlLs->setAxisTitle("Luminosity segment", 1);
-        m_monOrbitNrDeltaTcsEvmFdlLs->setAxisTitle("Orbit number difference (TCS - EVM_FDL)", 2);
+                TotalNrBinsLs, 0., totalNrBinsLs,
+                2 * MaxOrbitNrDiffTcsFdlEvm + 1,
+                static_cast<float>(-(MaxOrbitNrDiffTcsFdlEvm + 1)),
+                static_cast<float>(MaxOrbitNrDiffTcsFdlEvm + 1));
+        m_monOrbitNrDiffTcsFdlEvmLs->setAxisTitle("Luminosity segment", 1);
+        m_monOrbitNrDiffTcsFdlEvmLs->setAxisTitle("Orbit number difference (TCS - EVM_FDL)", 2);
 
-        m_monLsNrDeltaTcsEvmFdlLs = m_dbe->book2D("LsNrDeltaTcsEvmFdlLs",
+        m_monLsNrDiffTcsFdlEvmLs = m_dbe->book2D("LsNrDiffTcsFdlEvmLs",
                 "LS number difference (TCS - EVM_FDL)",
-                500, 0., 500.,
-                2 * MaxLsNrDeltaTcsEvmFdl + 1,
-                static_cast<float>(-(MaxLsNrDeltaTcsEvmFdl + 1)),
-                static_cast<float>(MaxLsNrDeltaTcsEvmFdl + 1));
-        m_monLsNrDeltaTcsEvmFdlLs->setAxisTitle("Luminosity segment", 1);
-        m_monLsNrDeltaTcsEvmFdlLs->setAxisTitle("LS number difference (TCS - EVM_FDL)", 2);
+                TotalNrBinsLs, 0., totalNrBinsLs,
+                2 * MaxLsNrDiffTcsFdlEvm + 1,
+                static_cast<float>(-(MaxLsNrDiffTcsFdlEvm + 1)),
+                static_cast<float>(MaxLsNrDiffTcsFdlEvm + 1));
+        m_monLsNrDiffTcsFdlEvmLs->setAxisTitle("Luminosity segment", 1);
+        m_monLsNrDiffTcsFdlEvmLs->setAxisTitle("LS number difference (TCS - EVM_FDL)", 2);
 
         m_dbe->setCurrentFolder(m_histFolder);
    }
@@ -770,8 +773,8 @@ bool L1TGT::isActive(int word, int bit) {
 }
 // static class members
 // maximum difference in orbit number
-const int L1TGT::MaxOrbitNrDeltaTcsEvmFdl = 24;
+const int L1TGT::MaxOrbitNrDiffTcsFdlEvm = 24;
 
 // maximum difference in luminosity segment number
-const int L1TGT::MaxLsNrDeltaTcsEvmFdl = 24;
+const int L1TGT::MaxLsNrDiffTcsFdlEvm = 24;
 

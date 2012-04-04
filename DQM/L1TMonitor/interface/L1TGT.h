@@ -10,8 +10,8 @@
  * \author J. Berryhill, I. Mikulec
  * \author Vasile Mihai Ghete - HEPHY Vienna
  *
- * $Date$
- * $Revision$
+ * $Date: 2012/03/29 14:49:30 $
+ * $Revision: 1.10 $
  *
  */
 
@@ -143,20 +143,20 @@ private:
     MonitorElement* m_monL1PrescaleFactorSet;
     MonitorElement* m_monL1PfIndicesPerLs;
 
-    MonitorElement* m_monOrbitNrDeltaTcsEvmFdl;
-    MonitorElement* m_monLsNrDeltaTcsEvmFdl;
+    MonitorElement* m_monOrbitNrDiffTcsFdlEvm;
+    MonitorElement* m_monLsNrDiffTcsFdlEvm;
     // maximum difference in orbit number, luminosity number
-    // histogram range: -(MaxOrbitNrDeltaTcsEvmFdl+1), (MaxOrbitNrDeltaTcsEvmFdl+1)
+    // histogram range: -(MaxOrbitNrDiffTcsFdlEvm+1), (MaxOrbitNrDiffTcsFdlEvm+1)
     //   if value is greater than the maximum difference, fill an entry in the last but one bin
     //   if value is smaller than the negative value of maximum difference, fill an entry
     //     in the second bin
     //   if no value can be retrieved for TCS, fill an entry in the first bin
     //   if no value can be retrieved for FDL, fill an entry in the last bin
-    static const int MaxOrbitNrDeltaTcsEvmFdl;
-    static const int MaxLsNrDeltaTcsEvmFdl;
+    static const int MaxOrbitNrDiffTcsFdlEvm;
+    static const int MaxLsNrDiffTcsFdlEvm;
 
-    MonitorElement* m_monOrbitNrDeltaTcsEvmFdlLs;
-    MonitorElement* m_monLsNrDeltaTcsEvmFdlLs;
+    MonitorElement* m_monOrbitNrDiffTcsFdlEvmLs;
+    MonitorElement* m_monLsNrDiffTcsFdlEvmLs;
 
     //MonitorElement* m_monDiffEvmDaqFdl;
 

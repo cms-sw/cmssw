@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2010/06/28 09:29:30 $
- * $Revision: 1.55 $
+ * $Date: 2012/03/29 21:16:48 $
+ * $Revision: 1.56 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.56  2012/03/29 21:16:48  rovere
+ * Removed all instances of hltTriggerTypeFilter from L1T DQM Code.
+ *
  * Revision 1.55  2010/06/28 09:29:30  tapper
  * Reduced number of bins.
  *
@@ -300,6 +303,9 @@ void L1TGCT::beginJob(void)
 
     dbe->setCurrentFolder("L1T/L1TGCT");
 
+    triggerType_ =
+      dbe->book1D("TriggerType", "TriggerType", 17, -0.5, 16.5);
+
     l1GctAllJetsEtEtaPhi_ = dbe->book2D("AllJetsEtEtaPhi", "CENTRAL AND FORWARD JET E_{T}",
 					JETETABINS, JETETAMIN, JETETAMAX,
                                         PHIBINS, PHIMIN, PHIMAX);
@@ -420,7 +426,43 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   if (verbose_) {
     edm::LogInfo("L1TGCT") << "L1TGCT: analyze...." << std::endl;
   }
+
   
+  // filter according trigger type
+  //  enum ExperimentType {
+  //        Undefined          =  0,
+  //        PhysicsTrigger     =  1,
+  //        CalibrationTrigger =  2,
+  //        RandomTrigger      =  3,
+  //        Reserved           =  4,
+  //        TracedEvent        =  5,
+  //        TestTrigger        =  6,
+  //        ErrorTrigger       = 15
+
+  // fill a histogram with the trigger type, for normalization fill also last bin
+  // ErrorTrigger + 1
+  double triggerType = static_cast<double> (e.experimentType()) + 0.001;
+  double triggerTypeLast = static_cast<double> (edm::EventAuxiliary::ExperimentType::ErrorTrigger)
+                          + 0.001;
+  triggerType_->Fill(triggerType);
+  triggerType_->Fill(triggerTypeLast + 1);
+
+  // filter only if trigger type is greater than 0, negative values disable filtering
+  if (filterTriggerType_ >= 0) {
+
+      // now filter, for real data only
+      if (e.isRealData()) {
+          if (!(e.experimentType() == filterTriggerType_)) {
+
+              edm::LogInfo("L1TGCT") << "\n Event of TriggerType "
+                      << e.experimentType() << " rejected" << std::endl;
+              return;
+
+          }
+      }
+
+  }
+
   // Get all the collections
   edm::Handle < L1GctEmCandCollection > l1IsoEm;
   edm::Handle < L1GctEmCandCollection > l1NonIsoEm;
@@ -446,28 +488,6 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   e.getByLabel(gctEnergySumsSource_, l1EtHad);
   e.getByLabel(gctEnergySumsSource_, l1EtTotal);
 
-  // filter according trigger type
-  //  enum ExperimentType {
-  //        Undefined          =  0,
-  //        PhysicsTrigger     =  1,
-  //        CalibrationTrigger =  2,
-  //        RandomTrigger      =  3,
-  //        Reserved           =  4,
-  //        TracedEvent        =  5,
-  //        TestTrigger        =  6,
-  //        ErrorTrigger       = 15
-
-  // filter only if trigger type is greater than 0, negative values disable filtering
-  if (filterTriggerType_ >= 0) {
-    // now filter, for real data only
-    if (e.isRealData()) {
-      if (!(e.experimentType() == filterTriggerType_)) {
-        edm::LogInfo("L1TdeRCT") << "\n Event of TriggerType "
-          << e.experimentType() << " rejected" << std::endl;
-        return;
-      }
-    }
-  }
 
   // Fill histograms
 

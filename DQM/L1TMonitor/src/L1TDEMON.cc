@@ -225,54 +225,6 @@ void L1TDEMON::beginJob(void) {
         }
     }
 
-    if (dbe && !runInFF_) {
-        /// correlation (skip if running in filter farm)
-        dbe->setCurrentFolder(histFolder_ + "/xcorr");
-        const int ncorr = 3;
-        std::string corrl[ncorr] = { "phi", "eta", "rank" };
-        for (int i = 0; i < DEnsys; i++) {
-
-            // skip if system disabled
-            if (!m_doSys[i]) {
-                continue;
-            }
-
-            for (int j = 0; j < DEnsys; j++) {
-                if (i > j) {
-                    continue;
-                }
-
-                // skip if system disabled
-                if (!m_doSys[j]) {
-                    continue;
-                }
-
-                std::string lbl("");
-                lbl.clear();
-                lbl += SystLabel[i];
-                lbl += SystLabel[j];
-                lbl += corrl[0];
-                CORR[i][j][0] = dbe->book2D(lbl.data(), lbl.data(),
-                        phiNBins[i], phiMinim[i], phiMaxim[i], phiNBins[j],
-                        phiMinim[j], phiMaxim[j]);
-                lbl.clear();
-                lbl += SystLabel[i];
-                lbl += SystLabel[j];
-                lbl += corrl[1];
-                CORR[i][j][1] = dbe->book2D(lbl.data(), lbl.data(),
-                        etaNBins[i], etaMinim[i], etaMaxim[i], etaNBins[j],
-                        etaMinim[j], etaMaxim[j]);
-                lbl.clear();
-                lbl += SystLabel[i];
-                lbl += SystLabel[j];
-                lbl += corrl[2];
-                CORR[i][j][2] = dbe->book2D(lbl.data(), lbl.data(),
-                        rnkNBins[i], rnkMinim[i], rnkMaxim[i], rnkNBins[j],
-                        rnkMinim[j], rnkMaxim[j]);
-            }
-        }
-
-    }
   
   /// labeling (temporary cosmetics added here)
     for (int i = 0; i < DEnsys; i++) {
@@ -330,28 +282,6 @@ void L1TDEMON::beginJob(void) {
         //masked [i]->setAxisTitle("trigger data word bit");
     }
 
-    for (int i = 0; i < DEnsys; i++) {
-
-        // skip if system disabled
-        if (!m_doSys[i]) {
-            continue;
-        }
-        for (int j = 0; j < DEnsys; j++) {
-
-            if (i > j)
-                continue;
-
-            // skip if system disabled
-            if (!m_doSys[j]) {
-                continue;
-            }
-
-            for (int k = 0; k < 3; k++) {
-                CORR[i][j][k]->setAxisTitle(SystLabel[i], 1);
-                CORR[i][j][k]->setAxisTitle(SystLabel[j], 2);
-            }
-        }
-    }
 
     // assertions/temporary
     assert(ETP == 0);
@@ -680,38 +610,6 @@ void L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     }//close loop over dedigi-cands
 
 
-    // done if running in filter farm
-    if (runInFF_)
-        return;
-
-    // hBxDiffAllFed hBxDiffAllFedSpread hBxOccyAllFedSpread
-
-    ///correlations: fill histograms
-    double wei = 1.;
-    for (int i = 0; i < DEnsys; i++) {
-
-        // skip if system disabled
-        if (!m_doSys[i]) {
-            continue;
-        }
-
-        for (int j = 0; j < DEnsys; j++) {
-
-            // skip if system disabled
-            if (!m_doSys[j]) {
-                continue;
-            }
-
-            if (i >= j)
-                continue;
-            for (int k = 0; k < ncorr; k++) {
-                if (LeadCandVal[i][k] != nullVal && LeadCandVal[j][k]
-                        != nullVal)
-                    CORR[i][j][k]->Fill(LeadCandVal[i][k], LeadCandVal[j][k],
-                            wei);
-            }
-        }
-    }
 
     if (verbose())
         std::cout << "L1TDEMON::analyze() end.\n" << std::flush;
