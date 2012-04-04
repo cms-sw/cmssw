@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.30 2011/07/07 09:22:44 mommsen Exp $
+// $Id: FileHandler.cc,v 1.31 2012/04/04 12:17:03 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -49,10 +49,10 @@ namespace stor {
     if ( ! fileRecord_->isOpen )
     {
       std::ostringstream msg;
-    msg << "Tried to write an event to "
-      << fileRecord_->completeFileName()
-      << "which has already been closed.";
-    XCEPT_RAISE(stor::exception::DiskWriting, msg.str());
+      msg << "Tried to write an event to "
+        << fileRecord_->completeFileName()
+        << "which has already been closed.";
+      XCEPT_RAISE(stor::exception::DiskWriting, msg.str());
     }
     
     do_writeEvent(event);
