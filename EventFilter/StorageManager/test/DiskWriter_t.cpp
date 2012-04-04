@@ -46,12 +46,14 @@ class testDiskWriter : public CppUnit::TestFixture
   typedef toolbox::mem::Reference Reference;
   CPPUNIT_TEST_SUITE(testDiskWriter);
   CPPUNIT_TEST(writeAnEvent);
+  CPPUNIT_TEST(writeManyEvents);
   CPPUNIT_TEST_SUITE_END();
 
 public:
   void setUp();
   void tearDown();
   void writeAnEvent();
+  void writeManyEvents();
 
 private:
   void createStreams();
@@ -59,31 +61,41 @@ private:
   void createInitMessage(const std::string& stream);
   stor::I2OChain getAnEvent(const std::string& stream);
   void checkLogFile();
+  bool checkNextFile(std::ifstream&, const unsigned int& fileCount);
   
-  boost::shared_ptr<SharedResources> sharedResources_;
+  static xdaq::Application* app_;
+  static boost::shared_ptr<SharedResources> sharedResources_;
   boost::scoped_ptr<DiskWriter> diskWriter_;
   boost::shared_ptr<MockAlarmHandler> alarmHandler_;
 
   std::string path;
 };
 
+xdaq::Application* testDiskWriter::app_;
+boost::shared_ptr<SharedResources> testDiskWriter::sharedResources_;
+
 void testDiskWriter::setUp()
 {
-  xdaq::Application* app = mockapps::getMockXdaqApplication();
   alarmHandler_.reset(new MockAlarmHandler());
-  sharedResources_.reset( new SharedResources() );
-  sharedResources_->configuration_.reset(new Configuration(app->getApplicationInfoSpace(), 0));
+  if (sharedResources_.get() == 0)
+  {
+    app_ = mockapps::getMockXdaqApplication();
+    sharedResources_.reset( new SharedResources() );
+    sharedResources_->configuration_.reset(new Configuration(app_->getApplicationInfoSpace(), 0));
+    sharedResources_->statisticsReporter_.reset(new StatisticsReporter(app_,sharedResources_));
+  }
+  sharedResources_->statisticsReporter_->reset();
   sharedResources_->initMsgCollection_.reset(new InitMsgCollection());
   sharedResources_->alarmHandler_ = alarmHandler_;
   sharedResources_->streamQueue_.reset(new StreamQueue(1024));
   sharedResources_->diskWriterResources_.reset(new DiskWriterResources());
-  sharedResources_->statisticsReporter_.reset(new StatisticsReporter(app,sharedResources_));
-  diskWriter_.reset(new DiskWriter(app, sharedResources_));
+  diskWriter_.reset(new DiskWriter(app_, sharedResources_));
   diskWriter_->startWorkLoop("theDiskWriter");
   
   std::ostringstream spath;
   spath << "/tmp/smtest_" << getpid();
   path = spath.str();
+  boost::filesystem::remove_all(path);
   CPPUNIT_ASSERT( boost::filesystem::create_directory(path) );
   CPPUNIT_ASSERT( boost::filesystem::create_directory(path + "/open") );
   CPPUNIT_ASSERT( boost::filesystem::create_directory(path + "/closed") );
@@ -107,7 +119,7 @@ void testDiskWriter::tearDown()
   }
   CPPUNIT_ASSERT_MESSAGE( msg.str(), alarmHandler_->noAlarmSet() );
   diskWriter_.reset();
-  //CPPUNIT_ASSERT( boost::filesystem::remove_all(path) > 0 );
+  CPPUNIT_ASSERT( boost::filesystem::remove_all(path) > 0 );
 }
 
 void testDiskWriter::writeAnEvent()
@@ -118,6 +130,22 @@ void testDiskWriter::writeAnEvent()
   stor::I2OChain eventMsg = getAnEvent(stream);
   eventMsg.tagForStream(0);
   sharedResources_->streamQueue_->enqWait(eventMsg);
+
+  destroyStreams();
+  checkLogFile();
+}
+
+void testDiskWriter::writeManyEvents()
+{
+  const std::string stream = "A";
+  createStreams();
+  createInitMessage(stream);
+  for (unsigned int i = 0; i < 12000000; ++i)
+  {
+    stor::I2OChain eventMsg = getAnEvent(stream);
+    eventMsg.tagForStream(0);
+    sharedResources_->streamQueue_->enqWait(eventMsg);
+  }
 
   destroyStreams();
   checkLogFile();
@@ -149,9 +177,13 @@ void testDiskWriter::createStreams()
     dwParams, 100,
     workerParams.DWdeqWaitTime_);
   
-  utils::sleep(workerParams.DWdeqWaitTime_);
-  utils::sleep(workerParams.DWdeqWaitTime_);
-  CPPUNIT_ASSERT( ! diskWriterResources->streamChangeOngoing() );
+  unsigned int count = 0;
+  while ( diskWriterResources->streamChangeOngoing() && count < 5 )
+  {
+    utils::sleep(workerParams.DWdeqWaitTime_);
+    ++count;
+  }
+  CPPUNIT_ASSERT( count < 5 );
 }
 
 void testDiskWriter::destroyStreams()
@@ -164,9 +196,14 @@ void testDiskWriter::destroyStreams()
   DiskWriterResourcesPtr diskWriterResources =
     sharedResources_->diskWriterResources_;
   diskWriterResources->requestStreamDestruction();
-  utils::sleep(workerParams.DWdeqWaitTime_);
-  utils::sleep(workerParams.DWdeqWaitTime_);
-  CPPUNIT_ASSERT( ! diskWriterResources->streamChangeOngoing() );
+
+  unsigned int count = 0;
+  while ( diskWriterResources->streamChangeOngoing() && count < 5 )
+  {
+    utils::sleep(workerParams.DWdeqWaitTime_);
+    ++count;
+  }
+  CPPUNIT_ASSERT( count < 5 );
 }
 
 void testDiskWriter::createInitMessage(const std::string& stream)
@@ -211,60 +248,71 @@ void testDiskWriter::checkLogFile()
   CPPUNIT_ASSERT( logfile.is_open() );
 
   std::string line;
-  boost::regex pattern;
-  boost::cmatch match;
   {
     getline(logfile,line);
-    pattern = "^Timestamp:.*run:100.*BoR$";
+    const boost::regex pattern("^Timestamp:.*run:100.*BoR$");
     std::ostringstream msg;
     msg << "BoR line of logfile " << dbfilename.str() << " is wrong: " << line;
     CPPUNIT_ASSERT_MESSAGE( msg.str(), boost::regex_search(line,pattern) );
   }
+  unsigned int fileCount = 1;
+  while ( checkNextFile(logfile,fileCount) ) ++fileCount;
   {
     getline(logfile,line);
-    pattern = "^./insertFile.pl  --FILENAME ([\\w\\.]+) --FILECOUNTER .* --CHECKSUM 0 --CHECKSUMIND 0$";
-    std::ostringstream msg;
-    msg << "Insert line of logfile " << dbfilename.str() << " is wrong: " << line;
-    CPPUNIT_ASSERT_MESSAGE( msg.str(), boost::regex_match(line.c_str(),match,pattern) );
-  }
-  const std::string filename = match[1];
-  {
-    getline(logfile,line);
-    pattern = "^./closeFile.pl.* --FILECOUNTER (\\d+) --NEVENTS (\\d+) --FILESIZE (\\d+) .*--CHECKSUM ([0-9a-f]+) --CHECKSUMIND 0$";
-    std::ostringstream msg;
-    msg << "Close line of logfile " << dbfilename.str() << " is wrong: " << line;
-    CPPUNIT_ASSERT_MESSAGE( msg.str(), boost::regex_match(line.c_str(),match,pattern) );
-  }
-  const uint32_t fileCounter = atoi(match[1].str().c_str());
-  const uint32_t eventCount = atoi(match[2].str().c_str());
-  const uint32_t fileSize = atoi(match[3].str().c_str());
-  const uint32_t adler32 = strtoul(match[4].str().c_str(), NULL, 16);
-  {
-    getline(logfile,line);
-    pattern = "^Timestamp:.*run:100.*LS:1\\s+A:1\\s+EoLS:0$";
+    const boost::regex pattern("^Timestamp:.*run:100.*LS:1\\s+A:(\\d)\\s+EoLS:0$");
+    boost::cmatch match;
     std::ostringstream msg;
     msg << "EoLS line of logfile " << dbfilename.str() << " is wrong: " << line;
-    CPPUNIT_ASSERT_MESSAGE( msg.str(), boost::regex_search(line,pattern) );
+    CPPUNIT_ASSERT_MESSAGE( msg.str(), boost::regex_match(line.c_str(),match,pattern) );
+    const uint32_t fileCountInLog = atoi(match[1].str().c_str());
+    CPPUNIT_ASSERT( fileCountInLog == fileCount );
   }
   {
     getline(logfile,line);
-    pattern = "^Timestamp:.*run:100.*LScount:1\\s+EoLScount:0\\s+LastLumi:1\\s+EoR$";
+    const boost::regex pattern("^Timestamp:.*run:100.*LScount:1\\s+EoLScount:0\\s+LastLumi:1\\s+EoR$");
     std::ostringstream msg;
     msg << "BoR line of logfile " << dbfilename.str() << " is wrong: " << line;
     CPPUNIT_ASSERT_MESSAGE( msg.str(), boost::regex_search(line,pattern) );
   }
   logfile.close();
+}
 
+bool testDiskWriter::checkNextFile(std::ifstream& logfile, const unsigned int& fileCount)
+{
+  std::string line;
+  boost::cmatch match;
+  {
+    getline(logfile,line);
+    const boost::regex pattern("^./insertFile.pl  --FILENAME ([\\w\\.]+) --FILECOUNTER .* --CHECKSUM 0 --CHECKSUMIND 0$");
+    std::ostringstream msg;
+    msg << "Insert line is wrong: " << line;
+    CPPUNIT_ASSERT_MESSAGE( msg.str(), boost::regex_match(line.c_str(),match,pattern) );
+  }
+  const std::string filename = match[1];
+  {
+    getline(logfile,line);
+    const boost::regex pattern("^./closeFile.pl.* --FILECOUNTER (\\d+) --NEVENTS (\\d+) --FILESIZE (\\d+) .* --DEBUGCLOSE (\\d+) --CHECKSUM ([0-9a-f]+) --CHECKSUMIND 0$");
+    std::ostringstream msg;
+    msg << "Close line is wrong: " << line;
+    CPPUNIT_ASSERT_MESSAGE( msg.str(), boost::regex_match(line.c_str(),match,pattern) );
+  }
+  const uint32_t fileCounter = atoi(match[1].str().c_str());
+  const uint32_t eventCount = atoi(match[2].str().c_str());
+  const uint32_t fileSize = atoi(match[3].str().c_str());
+  const uint32_t debugClose = atoi(match[4].str().c_str());
+  const uint32_t adler32 = strtoul(match[5].str().c_str(), NULL, 16);
+  
   const FilesMonitorCollection& fmc =
     sharedResources_->statisticsReporter_->getFilesMonitorCollection();
   FilesMonitorCollection::FileRecordList records;
   fmc.getFileRecords(records);
-  CPPUNIT_ASSERT( records.size() == 1 );
-  CPPUNIT_ASSERT( filename == records[0]->fileName() );
-  CPPUNIT_ASSERT( fileCounter == records[0]->fileCounter );
-  CPPUNIT_ASSERT( fileSize == records[0]->fileSize );
-  CPPUNIT_ASSERT( eventCount == records[0]->eventCount );
-  CPPUNIT_ASSERT( adler32 == records[0]->adler32 );
+  CPPUNIT_ASSERT( filename == records[fileCount-1]->fileName() );
+  CPPUNIT_ASSERT( fileCounter == records[fileCount-1]->fileCounter );
+  CPPUNIT_ASSERT( fileSize == records[fileCount-1]->fileSize );
+  CPPUNIT_ASSERT( eventCount == records[fileCount-1]->eventCount );
+  CPPUNIT_ASSERT( adler32 == records[fileCount-1]->adler32 );
+
+  return (debugClose == 4);
 }
 
 
