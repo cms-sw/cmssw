@@ -118,6 +118,7 @@ import threading
 import Queue
 
 from os import getenv
+from commands import getstatusoutput as sh
 
 try:
   from subprocess import CalledProcessError
@@ -415,7 +416,14 @@ def cmd_co(args):
       raise Exception("Error: The input contains a duplicate package with a different tag.")
     tags[package] = tag
 
-  checkoutTags(tags.items(), opts.nthreads, opts.export, opts.dryrun, opts.cvsroot)
+  removedTags = [k.strip("/").strip(".").strip("/") for (k,v) in tags.items() if v == "-" and k]
+  for tag in removedTags:
+    error, out = sh("rm -rf %s" % tag)
+    if error:
+      print out
+      exit(1)
+  addedTag = [(k,v) for (k,v) in tags.items() if v != "-"]
+  checkoutTags(addedTag, opts.nthreads, opts.export, opts.dryrun, opts.cvsroot)
 
 def cmd_corel(args):
   parser = optparse.OptionParser(usage="cmspm corel <release> [options]")
