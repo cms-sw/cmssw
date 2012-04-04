@@ -98,8 +98,7 @@ void HcalLogicalMap::printMap( unsigned int mapIOV ){
   if      (mapIOV==1) IOVlabel = "A";
   else if (mapIOV==2) IOVlabel = "B";
   else if (mapIOV==3) IOVlabel = "C";
-  else if (mapIOV==4) IOVlabel = "D";
-  else                IOVlabel = "E";
+  else                IOVlabel = "D";
 
   HBEFmapstr  = "./HCALmapHBEF_"+IOVlabel+".txt";
   HOXmapstr   = "./HCALmapHO_"+IOVlabel+".txt";
