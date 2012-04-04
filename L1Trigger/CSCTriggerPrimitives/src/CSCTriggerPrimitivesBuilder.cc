@@ -8,8 +8,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2010/08/04 10:21:24 $
-//   $Revision: 1.19 $
+//   $Date: 2010/08/04 14:50:12 $
+//   $Revision: 1.20 $
 //
 //   Modifications:
 //
@@ -179,9 +179,6 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 	      std::vector<CSCCLCTDigi> clctV = tmb->clct->readoutCLCTs();
               std::vector<int> preTriggerBXs = tmb->clct->preTriggerBXs();
 
-	      // Skip to next chamber if there are no LCTs to save.
-	      if (alctV.empty() && clctV.empty() && lctV.empty()) continue;
-
 	      // Correlated LCTs.
 	      if (!lctV.empty()) {
 		LogTrace("L1CSCTrigger")
@@ -209,7 +206,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               // Cathode LCTs pretriggers
               if (!preTriggerBXs.empty()) {
                 LogTrace("L1CSCTrigger")
-                  << "Put " << preTriggerBXs.size() << " CLCT pretriggers"
+                  << "Put " << preTriggerBXs.size() << " CLCT pretrigger"
                   << ((preTriggerBXs.size() > 1) ? "s " : " ") << "in collection\n";
                 oc_pretrig.put(std::make_pair(preTriggerBXs.begin(),preTriggerBXs.end()), detid);
               }
