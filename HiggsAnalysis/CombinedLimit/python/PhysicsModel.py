@@ -70,11 +70,12 @@ class FloatingHiggsMass(SMLikeHiggsModel):
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
             if po.startswith("higgsMassRange="):
-                self.mHRange = po.replace("modes=","").split(",")
+                self.mHRange = po.replace("higgsMassRange=","").split(",")
+                print 'The Higgs mass range:', self.mHRange
                 if len(self.mHRange) != 2:
                     raise RuntimeError, "Higgs mass range definition requires two extrema"
-                elif self.mHRange[0] >= self.mHRange[1]:
-                    raise RuntimeError, "Etrama for Higgs mass range defined with inverterd order. Second must be larger the first"
+                elif float(self.mHRange[0]) >= float(self.mHRange[1]):
+                    raise RuntimeError, "Extrama for Higgs mass range defined with inverterd order. Second must be larger the first"
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         # --- Signal Strength as only POI --- 
@@ -99,11 +100,11 @@ class FloatingXSHiggs(SMLikeHiggsModel):
         for po in physOptions:
             if po.startswith("modes="): self.modes = po.replace("modes=","").split(",")
             if po.startswith("higgsMassRange="):
-                self.mHRange = po.replace("modes=","").split(",")
+                self.mHRange = po.replace("higgsMassRange=","").split(",")
                 if len(self.mHRange) != 2:
                     raise RuntimeError, "Higgs mass range definition requires two extrema"
-                elif self.mHRange[0] >= self.mHRange[1]:
-                    raise RuntimeError, "Etrama for Higgs mass range defined with inverterd order. Second must be larger the first"
+                elif float(self.mHRange[0]) >= float(self.mHRange[1]):
+                    raise RuntimeError, "Extrama for Higgs mass range defined with inverterd order. Second must be larger the first"
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
         # --- Signal Strength as only POI --- 
