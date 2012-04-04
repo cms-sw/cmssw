@@ -256,7 +256,7 @@ bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooStats::ModelConfig *
       limit = (q0 > 0 ? sqrt(2*q0) : 0);
   } else if (useMinos_) {
       ProfiledLikelihoodTestStatOpt testStat(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(), 
-                                                   nullParamValues, RooArgList(), RooArgList(), verbose-1);
+                                                   nullParamValues, *mc_s->GetParametersOfInterest(), RooArgList(), RooArgList(), verbose-1);
       Double_t q0 = testStat.Evaluate(data, nullParamValues);
       limit = q0 > 0 ? sqrt(2*q0) : 0;
   } else {
