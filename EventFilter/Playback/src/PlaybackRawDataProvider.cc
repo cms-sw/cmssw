@@ -63,6 +63,14 @@ PlaybackRawDataProvider::~PlaybackRawDataProvider()
   }
   edm::LogInfo("PbImpl") << "Destroyed Concrete RawData Provider 0x"<< hex << (unsigned long) this << dec << endl;
   instance_=0;
+
+  postReadSem();
+  postWriteSem();
+  unlock(); 
+  sem_destroy(&lock_);
+  sem_destroy(&writeSem_);
+  sem_destroy(&readSem_);
+
 }
 
 
