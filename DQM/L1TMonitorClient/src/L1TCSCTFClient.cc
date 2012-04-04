@@ -31,6 +31,12 @@ void L1TCSCTFClient::initialize(){
   output_dir  = parameters.getUntrackedParameter<string>("output_dir","");
   prescaleLS  = parameters.getUntrackedParameter<int>("prescaleLS",-1);
   prescaleEvt = parameters.getUntrackedParameter<int>("prescaleEvt",-1);
+
+  m_runInEventLoop = parameters.getUntrackedParameter<bool>("runInEventLoop", false);
+  m_runInEndLumi = parameters.getUntrackedParameter<bool>("runInEndLumi", false);
+  m_runInEndRun = parameters.getUntrackedParameter<bool>("runInEndRun", false);
+  m_runInEndJob = parameters.getUntrackedParameter<bool>("runInEndJob", false);
+
 }
 
 //--------------------------------------------------------
@@ -53,81 +59,73 @@ void L1TCSCTFClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const 
 }
 
 void L1TCSCTFClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c){
-   dbe->setCurrentFolder(input_dir);
 
-   vector<string> meVec = dbe->getMEs();
-   for(vector<string>::const_iterator it=meVec.begin(); it!=meVec.end(); it++){
-     string full_path = input_dir + "/" + (*it);
-     MonitorElement *me =dbe->get(full_path);
-     if( !me ){
-        LogInfo("TriggerDQM")<<full_path<<" NOT FOUND.";
-        continue;
-     }
+    if (m_runInEndLumi) {
 
-     // The commented code below requires to be developed to support QT framework
-/*     std::vector<QReport *> Qtest_map = me->getQReports();
-     for(std::vector<QReport *>::const_iterator it=Qtest_map.begin(); it!=Qtest_map.end(); it++){
-        string qt_name   = (*it)->getQRName();
-        int    qt_status = (*it)->getStatus();
+        processHistograms();
+    }
 
-        switch(qt_status){
-           case dqm::qstatus::WARNING:    break;
-           case dqm::qstatus::ERROR:      break;
-           case dqm::qstatus::DISABLED:   break;
-           case dqm::qstatus::INVALID:    break;
-           case dqm::qstatus::INSUF_STAT: break;
-           default: break;
-        }
-
-//   get bad channel list
-        std::vector<dqm::me_util::Channel> badChannels=(*it)->getBadChannels();
-        for(vector<dqm::me_util::Channel>::iterator badchsit=badChannels.begin(); badchsit!=badChannels.end(); badchsit++){
-           int ix = badchsit->getBinX();
-           int iy = badchsit->getBinY();
-           (*badchsit).getContents();
-        }
-
-     }
-*/
-     //  But for now we only do a simple workaround
-     if( (*it) != "CSCTF_errors" ) continue;
-     TH1F *errors = me->getTH1F();
-     csctferrors_->getTH1F()->Reset();
-     if(!errors) continue;
-     for(int bin=1; bin<=errors->GetXaxis()->GetNbins(); bin++)
-        csctferrors_->Fill(bin-0.5,errors->GetBinContent(bin));
-   }
 }
 
 //--------------------------------------------------------
 void L1TCSCTFClient::analyze(const Event& e, const EventSetup& context){
+
    counterEvt++;
    if (prescaleEvt<1) return;
    if (prescaleEvt>0 && counterEvt%prescaleEvt!=0) return;
    
-   dbe->setCurrentFolder(input_dir);
+   // there is no loop on events in the offline harvesting step
+   // code here will not be executed offline
 
-   // The code below duplicates one from endLuminosityBlock function
-   vector<string> meVec = dbe->getMEs();
-   for(vector<string>::const_iterator it=meVec.begin(); it!=meVec.end(); it++){
-     string full_path = input_dir + "/" + (*it);
-     MonitorElement *me =dbe->get(full_path);
-     if( !me ){
-        LogError("TriggerDQM")<<full_path<<" NOT FOUND.";
-        continue;
-     }
-     //  But for now we only do a simple workaround
-     if( (*it) != "CSCTF_errors" ) continue;
-     TH1F *errors = me->getTH1F();
-     csctferrors_->getTH1F()->Reset();
-     if(!errors) continue;
-     for(int bin=1; bin<=errors->GetXaxis()->GetNbins(); bin++)
-        csctferrors_->Fill(bin-0.5,errors->GetBinContent(bin));
+   if (m_runInEventLoop) {
+
+       processHistograms();
    }
+
 }
 
 //--------------------------------------------------------
-void L1TCSCTFClient::endRun(const Run& r, const EventSetup& context){}
+void L1TCSCTFClient::endRun(const Run& r, const EventSetup& context) {
+
+    if (m_runInEndRun) {
+
+        processHistograms();
+    }
+
+}
 
 //--------------------------------------------------------
-void L1TCSCTFClient::endJob(void){}
+void L1TCSCTFClient::endJob(void){
+
+    if (m_runInEndJob) {
+
+        processHistograms();
+    }
+
+}
+
+//--------------------------------------------------------
+void L1TCSCTFClient::processHistograms() {
+
+    dbe->setCurrentFolder(input_dir);
+
+    vector<string> meVec = dbe->getMEs();
+    for(vector<string>::const_iterator it=meVec.begin(); it!=meVec.end(); it++){
+      string full_path = input_dir + "/" + (*it);
+      MonitorElement *me =dbe->get(full_path);
+      if( !me ){
+         LogInfo("TriggerDQM")<<full_path<<" NOT FOUND.";
+         continue;
+      }
+
+      //  But for now we only do a simple workaround
+      if( (*it) != "CSCTF_errors" ) continue;
+      TH1F *errors = me->getTH1F();
+      csctferrors_->getTH1F()->Reset();
+      if(!errors) continue;
+      for(int bin=1; bin<=errors->GetXaxis()->GetNbins(); bin++)
+         csctferrors_->Fill(bin-0.5,errors->GetBinContent(bin));
+    }
+
+}
+

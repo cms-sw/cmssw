@@ -7,8 +7,8 @@
  *
  * \author: Vasile Mihai Ghete   - HEPHY Vienna
  *
- * $Date$
- * $Revision$
+ * $Date: 2010/11/16 14:05:17 $
+ * $Revision: 1.19 $
  *
  */
 
@@ -46,8 +46,10 @@
 L1TEMUEventInfoClient::L1TEMUEventInfoClient(const edm::ParameterSet& parSet) :
             m_verbose(parSet.getUntrackedParameter<bool>("verbose", false)),
             m_monitorDir(parSet.getUntrackedParameter<std::string>("monitorDir", "")),
-            m_prescaleLS(parSet.getUntrackedParameter<int>("prescaleLS", -1)),
-            m_prescaleEvt(parSet.getUntrackedParameter<int>("prescaleEvt", -1)),
+            m_runInEventLoop(parSet.getUntrackedParameter<bool>("runInEventLoop", false)),
+            m_runInEndLumi(parSet.getUntrackedParameter<bool>("runInEndLumi", false)),
+            m_runInEndRun(parSet.getUntrackedParameter<bool>("runInEndRun", false)),
+            m_runInEndJob(parSet.getUntrackedParameter<bool>("runInEndJob", false)),
             m_l1Systems(parSet.getParameter<std::vector<edm::ParameterSet> >("L1Systems")),
             m_l1Objects(parSet.getParameter<std::vector<edm::ParameterSet> >("L1Objects")),
             m_maskL1Systems(parSet.getParameter<std::vector<std::string> >("MaskL1Systems")),
@@ -68,19 +70,12 @@ L1TEMUEventInfoClient::~L1TEMUEventInfoClient() {
 
 void L1TEMUEventInfoClient::initialize() {
 
-    m_counterLS = 0;
-    m_counterEvt = 0;
-
     // get back-end interface
     m_dbe = edm::Service<DQMStore>().operator->();
 
     if (m_verbose) {
         std::cout << "\nMonitor directory =             " << m_monitorDir
                 << std::endl;
-        std::cout << "DQM luminosity section prescale = " << m_prescaleLS
-                << " lumi section(s)" << std::endl;
-        std::cout << "DQM event prescale =              " << m_prescaleEvt
-                << " events(s)\n" << std::endl;
     }
 
     //
@@ -149,7 +144,7 @@ void L1TEMUEventInfoClient::initialize() {
             if (sysFolder == "") {
                 hist = "L1TEMU/" + m_systemLabel[indexSys] + "/" + hist;
             } else {
-                hist = sysFolder + hist;
+                hist = sysFolder + "/" + hist;
             }
 
             qtFullPathHists.push_back(hist);
@@ -299,6 +294,176 @@ void L1TEMUEventInfoClient::beginJob() {
 
     // get backend interface
     m_dbe = edm::Service<DQMStore>().operator->();
+
+}
+
+
+void L1TEMUEventInfoClient::beginRun(const edm::Run& run,
+        const edm::EventSetup& evSetup) {
+
+    bookHistograms();
+
+}
+
+
+void L1TEMUEventInfoClient::beginLuminosityBlock(
+        const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& evSetup) {
+
+}
+
+
+void L1TEMUEventInfoClient::analyze(const edm::Event& iEvent,
+        const edm::EventSetup& evSetup) {
+
+    // there is no loop on events in the offline harvesting step
+    // code here will not be executed offline
+
+    if (m_runInEventLoop) {
+
+        readQtResults();
+
+    }
+}
+
+
+void L1TEMUEventInfoClient::endLuminosityBlock(
+        const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& evSetup) {
+
+    if (m_runInEndLumi) {
+
+        readQtResults();
+
+        if (m_verbose) {
+
+            std::cout << "\n  L1TEMUEventInfoClient::endLuminosityBlock\n"
+                    << std::endl;
+            dumpContentMonitorElements();
+        }
+
+    }
+}
+
+
+void L1TEMUEventInfoClient::endRun(const edm::Run& run,
+        const edm::EventSetup& evSetup) {
+
+    if (m_runInEndRun) {
+
+        readQtResults();
+
+        if (m_verbose) {
+
+            std::cout << "\n  L1TEMUEventInfoClient::endRun\n" << std::endl;
+            dumpContentMonitorElements();
+        }
+
+    }
+}
+
+
+void L1TEMUEventInfoClient::endJob() {
+
+    if (m_runInEndJob) {
+
+        readQtResults();
+
+        if (m_verbose) {
+
+            std::cout << "\n  L1TEMUEventInfoClient::endRun\n" << std::endl;
+            dumpContentMonitorElements();
+        }
+    }
+}
+
+
+void L1TEMUEventInfoClient::dumpContentMonitorElements() {
+
+    std::cout << "\nSummary report " << std::endl;
+
+    // summary content
+
+    MonitorElement* me = m_dbe->get(m_meReportSummaryMap->getName());
+
+    std::cout
+            << "\nSummary content per system and object as filled in histogram\n  "
+            << m_meReportSummaryMap->getName() << std::endl;
+
+    if (!me) {
+
+        std::cout << "\nNo histogram " << m_meReportSummaryMap->getName()
+                << "\nNo summary content per system and object as filled in histogram.\n  "
+                << std::endl;
+        return;
+
+    }
+
+    TH2F* hist = me->getTH2F();
+
+    const int nBinsX = hist->GetNbinsX();
+    const int nBinsY = hist->GetNbinsY();
+    std::cout << nBinsX << " " << nBinsY;
+
+    std::vector<std::vector<int> > meReportSummaryMap(nBinsX, std::vector<int>(
+            nBinsY));
+
+//    for (int iBinX = 0; iBinX < nBinsX; iBinX++) {
+//        for (int iBinY = 0; iBinY < nBinsY; iBinY++) {
+//            meReportSummaryMap[iBinX][iBinY]
+//                    = static_cast<int>(me->GetBinContent(iBinX + 1, iBinY + 1));
+//        }
+//    }
+
+    std::cout << "\nL1 systems: " << m_nrL1Systems << " systems included\n"
+            << "\n Summary content size: " << (m_summaryContent.size())
+            << std::endl;
+
+    for (unsigned int iSys = 0; iSys < m_nrL1Systems; ++iSys) {
+
+        std::cout << std::setw(10) << m_systemLabel[iSys] << std::setw(10)
+                << m_systemLabelExt[iSys] << " \t" << m_systemMask[iSys]
+                << " \t" << std::setw(25) << " m_summaryContent["
+                << std::setw(2) << iSys << "] = " << meReportSummaryMap[0][iSys]
+                << std::endl;
+    }
+
+    std::cout << "\n L1 trigger objects: " << m_nrL1Objects
+            << " objects included\n" << std::endl;
+
+    for (unsigned int iMon = m_nrL1Systems; iMon < m_nrL1Systems
+            + m_nrL1Objects; ++iMon) {
+
+        std::cout << std::setw(20) << m_objectLabel[iMon - m_nrL1Systems]
+                << " \t" << m_objectMask[iMon - m_nrL1Systems] << " \t"
+                << std::setw(25) << " m_summaryContent[" << std::setw(2)
+                << iMon << "] = \t" << m_summaryContent[iMon] << std::endl;
+    }
+
+    std::cout << std::endl;
+
+    // quality tests
+
+    std::cout << "\nQuality test results as filled in "
+            << "\n  L1TEMU/EventInfo/reportSummaryContents\n"
+            << "\n  Total number of quality tests: "
+            << (m_meReportSummaryContent.size()) << "\n" << std::endl;
+
+    for (std::vector<MonitorElement*>::const_iterator itME =
+            m_meReportSummaryContent.begin(); itME
+            != m_meReportSummaryContent.end(); ++itME) {
+
+        std::cout << std::setw(50) << (*itME)->getName() << " \t"
+                << std::setw(25) << (*itME)->getFloatValue() << std::endl;
+
+    }
+
+    std::cout << std::endl;
+
+}
+
+
+
+void L1TEMUEventInfoClient::bookHistograms() {
+
     m_dbe->setCurrentFolder("L1TEMU/EventInfo");
 
     // remove m_meReportSummary if it exists
@@ -407,20 +572,7 @@ void L1TEMUEventInfoClient::beginJob() {
 }
 
 
-void L1TEMUEventInfoClient::beginRun(const edm::Run& run,
-        const edm::EventSetup& evSetup) {
-
-    // empty
-}
-
-
-void L1TEMUEventInfoClient::beginLuminosityBlock(
-        const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& evSetup) {
-
-}
-
-void L1TEMUEventInfoClient::endLuminosityBlock(
-        const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& evSetup) {
+void L1TEMUEventInfoClient::readQtResults() {
 
     // initialize summary content, summary sum and ReportSummaryContent float histograms
     // for all L1 systems and L1 objects
@@ -450,7 +602,7 @@ void L1TEMUEventInfoClient::endLuminosityBlock(
     int iAllMon = 0;
 
 
-    // quality tests for the luminosity section for all L1 systems
+    // quality tests for all L1 systems
 
     for (unsigned int iSys = 0; iSys < m_nrL1Systems; ++iSys) {
 
@@ -513,7 +665,6 @@ void L1TEMUEventInfoClient::endLuminosityBlock(
                         m_summarySum += sysQtResult;
                     }
 
-                    //std::cout << "\n CRASH HERE\n" << std::endl;
 
                 } else {
 
@@ -571,7 +722,7 @@ void L1TEMUEventInfoClient::endLuminosityBlock(
 
     }
 
-    // quality tests for the luminosity section for all L1 objects
+    // quality tests for all L1 objects
 
     for (unsigned int iObj = 0; iObj < m_nrL1Objects; ++iObj) {
 
@@ -713,129 +864,7 @@ void L1TEMUEventInfoClient::endLuminosityBlock(
 
     }
 
-
-    if (m_verbose) {
-
-        std::cout << "\n  L1TEMUEventInfoClient::endLuminosityBlock\n"
-                << std::endl;
-        dumpContentMonitorElements();
-    }
 }
-
-
-void L1TEMUEventInfoClient::analyze(const edm::Event& iEvent,
-        const edm::EventSetup& evSetup) {
-
-    m_counterEvt++;
-
-    if (m_prescaleEvt < 1) {
-        return;
-    }
-
-    if ((m_prescaleEvt > 0) && (m_counterEvt % m_prescaleEvt != 0)) {
-        return;
-    }
-
-}
-
-
-void L1TEMUEventInfoClient::endRun(const edm::Run& run,
-        const edm::EventSetup& evSetup) {
-    //empty
-}
-
-void L1TEMUEventInfoClient::endJob() {
-    //empty
-}
-
-void L1TEMUEventInfoClient::dumpContentMonitorElements() {
-
-    std::cout << "\nSummary report " << std::endl;
-
-    // summary content
-
-    MonitorElement* me = m_dbe->get(m_meReportSummaryMap->getName());
-
-    std::cout
-            << "\nSummary content per system and object as filled in histogram\n  "
-            << m_meReportSummaryMap->getName() << std::endl;
-
-    if (!me) {
-
-        std::cout << "\nNo histogram " << m_meReportSummaryMap->getName()
-                << "\nNo summary content per system and object as filled in histogram.\n  "
-                << std::endl;
-        return;
-
-    }
-
-    TH2F* hist = me->getTH2F();
-
-    const int nBinsX = hist->GetNbinsX();
-    const int nBinsY = hist->GetNbinsY();
-    std::cout << nBinsX << " " << nBinsY;
-
-    std::vector<std::vector<int> > meReportSummaryMap(nBinsX, std::vector<int>(
-            nBinsY));
-
-//    for (int iBinX = 0; iBinX < nBinsX; iBinX++) {
-//        for (int iBinY = 0; iBinY < nBinsY; iBinY++) {
-//            meReportSummaryMap[iBinX][iBinY]
-//                    = static_cast<int>(me->GetBinContent(iBinX + 1, iBinY + 1));
-//        }
-//    }
-
-    std::cout << "\nL1 systems: " << m_nrL1Systems << " systems included\n"
-            << "\n Summary content size: " << (m_summaryContent.size())
-            << std::endl;
-
-    for (unsigned int iSys = 0; iSys < m_nrL1Systems; ++iSys) {
-
-        std::cout << std::setw(10) << m_systemLabel[iSys] << std::setw(10)
-                << m_systemLabelExt[iSys] << " \t" << m_systemMask[iSys]
-                << " \t" << std::setw(25) << " m_summaryContent["
-                << std::setw(2) << iSys << "] = " << meReportSummaryMap[0][iSys]
-                << std::endl;
-    }
-
-    std::cout << "\n L1 trigger objects: " << m_nrL1Objects
-            << " objects included\n" << std::endl;
-
-    for (unsigned int iMon = m_nrL1Systems; iMon < m_nrL1Systems
-            + m_nrL1Objects; ++iMon) {
-
-        std::cout << std::setw(20) << m_objectLabel[iMon - m_nrL1Systems]
-                << " \t" << m_objectMask[iMon - m_nrL1Systems] << " \t"
-                << std::setw(25) << " m_summaryContent[" << std::setw(2)
-                << iMon << "] = \t" << m_summaryContent[iMon] << std::endl;
-    }
-
-    std::cout << std::endl;
-
-    // quality tests
-
-    std::cout << "\nQuality test results as filled in "
-            << "\n  L1TEMU/EventInfo/reportSummaryContents\n"
-            << "\n  Total number of quality tests: "
-            << (m_meReportSummaryContent.size()) << "\n" << std::endl;
-
-    for (std::vector<MonitorElement*>::const_iterator itME =
-            m_meReportSummaryContent.begin(); itME
-            != m_meReportSummaryContent.end(); ++itME) {
-
-        std::cout << std::setw(50) << (*itME)->getName() << " \t"
-                << std::setw(25) << (*itME)->getFloatValue() << std::endl;
-
-    }
-
-    std::cout << std::endl;
-
-}
-
-
-
-
-
 
 
 
