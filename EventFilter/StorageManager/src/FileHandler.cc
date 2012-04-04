@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.29 2011/07/05 13:25:43 mommsen Exp $
+// $Id: FileHandler.cc,v 1.30 2011/07/07 09:22:44 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -26,14 +26,13 @@ namespace stor {
   (
     FilesMonitorCollection::FileRecordPtr fileRecord,
     const DbFileHandlerPtr dbFileHandler,
-    const DiskWritingParams& dwParams,
     const uint64_t& maxFileSize
   ):
   fileRecord_(fileRecord),
   dbFileHandler_(dbFileHandler),
   firstEntry_(utils::getCurrentTime()),
   lastEntry_(firstEntry_),
-  diskWritingParams_(dwParams),
+  diskWritingParams_(dbFileHandler->getDiskWritingParams()),
   maxFileSize_(maxFileSize),
   cmsver_(edm::getReleaseVersion())
   {
@@ -92,8 +91,7 @@ namespace stor {
       << " --TYPE streamer"               
       << " --DEBUGCLOSE "   << fileRecord_->whyClosed
       << " --CHECKSUM "     << std::hex << fileRecord_->adler32
-      << " --CHECKSUMIND 0"
-      << "\n";
+      << " --CHECKSUMIND 0";
     
     dbFileHandler_->writeOld( lastEntry_, oss.str() );
   }
@@ -122,8 +120,7 @@ namespace stor {
       << " --APPNAME CMSSW"
       << " --TYPE streamer"               
       << " --CHECKSUM 0"
-      << " --CHECKSUMIND 0"
-      << "\n";
+      << " --CHECKSUMIND 0";
     
     dbFileHandler_->writeOld( firstEntry_, oss.str() );
   }
