@@ -2,22 +2,25 @@ import FWCore.ParameterSet.Config as cms
 
 from FastSimulation.Configuration.CommonInputs_cff import *
 
+whatPileUp = 'light' # options: 'light' and 'mixingmodule'
+
 # Conversion to GenParticleCandidates 
 from PhysicsTools.HepMCCandAlgos.genParticleCandidatesFast_cfi import *
 
-# Famos PileUp Producer
-from FastSimulation.PileUpProducer.PileUpProducer_cff import *
-
-# PileupSummaryInfo
-from SimGeneral.PileupInformation.AddPileupSummary_cfi import *
-addPileupInfo.PileupMixingLabel = 'famosPileUp'
-addPileupInfo.simHitLabel = 'famosSimHits'
+if(whatPileUp=='light'): 
+    # Famos PileUp Producer
+    from FastSimulation.PileUpProducer.PileUpProducer_cff import *
+    # PileupSummaryInfo
+    from SimGeneral.PileupInformation.AddPileupSummary_cfi import *
+    addPileupInfo.PileupMixingLabel = 'famosPileUp'
+    addPileupInfo.simHitLabel = 'famosSimHits'
+    # Mixing module 
+    from FastSimulation.Configuration.mixNoPU_cfi import *
+else:
+    from FastSimulation.Configuration.mixWithPU_cfi import *
 
 # Famos SimHits producer
 from FastSimulation.EventProducer.FamosSimHits_cff import *
-
-# Mixing module 
-from FastSimulation.Configuration.mixNoPU_cfi import *
 
 # Gaussian Smearing RecHit producer
 from FastSimulation.TrackingRecHitProducer.SiTrackerGaussianSmearingRecHitConverter_cfi import *
@@ -261,15 +264,48 @@ famosBTaggingSequence = cms.Sequence(
 # Tau tagging
 # All tau tagging sequences defined in FastSimulation/ParticleFlow/python
 
-# The sole simulation sequence
+
+if(whatPileUp=='mixingmodule'): 
+    # Gen Particles from Mixing Module
+    genParticlesFromMixingModule = cms.EDProducer("GenParticleProducer",
+                                                  saveBarCodes = cms.untracked.bool(True),
+                                                  src = cms.untracked.InputTag("mix","generator"),
+                                                  useCrossingFrame = cms.untracked.bool(True),
+                                                  abortOnUnknownPDGCode = cms.untracked.bool(False)
+                                                  )
+
+
+
 famosSimulationSequence = cms.Sequence(
     offlineBeamSpot+
-    famosPileUp+
-    addPileupInfo+ ###PLACEHOLDER: to be activated after Mike's fixes to SimGeneral/PileupInformation/plugin
+#    famosPileUp+
+#    addPileupInfo+ ###PLACEHOLDER: to be activated after Mike's fixes to SimGeneral/PileupInformation/plugin
+    mix+
+    genParticlesFromMixingModule+
     famosSimHits+
-    MuonSimHits+
-    mix
+    MuonSimHits#+
+#    mix
 )
+
+
+# The sole simulation sequence
+if(whatPileUp=='light'): 
+    famosSimulationSequence = cms.Sequence(
+        offlineBeamSpot+
+        famosPileUp+
+        addPileupInfo+ 
+        famosSimHits+
+        MuonSimHits+
+        mix
+        )
+else:
+    famosSimulationSequence = cms.Sequence(
+        offlineBeamSpot+
+        mix+
+        genParticlesFromMixingModule+
+        famosSimHits+
+        MuonSimHits
+        )
 
 # Famos pre-defined sequences (and self-explanatory names)
 famosWithTrackerHits = cms.Sequence(
