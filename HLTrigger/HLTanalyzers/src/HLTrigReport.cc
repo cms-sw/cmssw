@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/10/13 11:49:14 $
- *  $Revision: 1.35 $
+ *  $Date: 2012/03/30 05:57:05 $
+ *  $Revision: 1.36 $
  *
  *  \author Martin Grunewald
  *
@@ -495,6 +495,39 @@ HLTrigReport::dumpReport(std::string const & header /* = std::string() */)
 	 << right << setw(9) << "%L1sPre" << " "
          << right << setw(7) << "Rate" << " "
          << right << setw(7) << "RateHi" << " "
+	 << right << setw(7) << "Errors" << " "
+	 << "Name" << endl;
+
+  if (n>0) {
+    for (unsigned int i=0; i!=n; ++i) {
+      LogVerbatim("HLTrigReport") << "HLT-Report "
+	   << right << setw(7) << i << " "
+	   << right << setw(7) << hlWasRun_[i] << " "
+	   << right << setw(7) << hltL1s_[i] << " "
+	   << right << setw(7) << hltPre_[i] << " "
+	   << right << setw(7) << hlAccept_[i] << " "
+	   << right << setw(9) << fixed << setprecision(5)
+	   << static_cast<float>(100*hlAccept_[i])/
+	      static_cast<float>(max(hltPre_[i], 1u)) << " "
+           << right << setw(7) << fixed << setprecision(1) << scale*hlAccept_[i] << " "
+           << right << setw(7) << fixed << setprecision(1) <<
+              ((hlAccept_[refIndex_]-hlAccept_[i] > 0) ? refRate_*ROOT::Math::beta_quantile(alpha, hlAccept_[i]+1, hlAccept_[refIndex_]-hlAccept_[i]) : 0) << " "
+	   << right << setw(7) << hlErrors_[i] << " "
+	   << hlNames_[i] << endl;
+    }
+  }
+
+  LogVerbatim("HLTrigRprtTt") << endl;
+  LogVerbatim("HLTrigRprtTt") << "HLT-Report " << "---------- HLTrig Summary ------------" << endl;
+  LogVerbatim("HLTrigRprtTt") << "HLT-Report "
+	 << right << setw(7) << "HLT #" << " "
+	 << right << setw(7) << "WasRun" << " "
+	 << right << setw(7) << "L1S" << " "
+	 << right << setw(7) << "Pre" << " "
+	 << right << setw(7) << "HLT" << " "
+	 << right << setw(9) << "%L1sPre" << " "
+         << right << setw(7) << "Rate" << " "
+         << right << setw(7) << "RateHi" << " "
          << right << setw(7) << "HLTtot" << " "
          << right << setw(7) << "RateTot" << " "
 	 << right << setw(7) << "Errors" << " "
@@ -502,7 +535,7 @@ HLTrigReport::dumpReport(std::string const & header /* = std::string() */)
 
   if (n>0) {
     for (unsigned int i=0; i!=n; ++i) {
-      LogVerbatim("HLTrigReport") << "HLT-Report "
+      LogVerbatim("HLTrigRprtTt") << "HLT-Report "
 	   << right << setw(7) << i << " "
 	   << right << setw(7) << hlWasRun_[i] << " "
 	   << right << setw(7) << hltL1s_[i] << " "
