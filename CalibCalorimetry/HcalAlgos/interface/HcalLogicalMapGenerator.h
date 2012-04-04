@@ -11,7 +11,7 @@ class HcalLogicalMapGenerator {
          
     HcalLogicalMapGenerator( );
     ~HcalLogicalMapGenerator( );
-    HcalLogicalMap createMap(unsigned int mapIOV = 5);
+    HcalLogicalMap createMap(unsigned int mapIOV = 4);
 
   private:
 
