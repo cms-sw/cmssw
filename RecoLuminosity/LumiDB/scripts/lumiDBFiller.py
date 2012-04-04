@@ -34,14 +34,13 @@ def getRunsToBeUploaded(connectionString, dropbox, authpath='',minrun=180250):
     if minrun:
         command+=' --minrun '+str(minrun)
     statusAndOutput = commands.getstatusoutput(command)
-    print 'all runs in DB since ',minrun,' : ',statusAndOutput[1]
     rlist= eval(statusAndOutput[1])
     if rlist:
         lastAnalyzedRunNumber = rlist[-1]
         print 'Last run in DB: ', lastAnalyzedRunNumber
     else:
         print 'No qualified run found in DB'
-        lastAnalyzedRunNumber=minrun
+        lastAnalyzedRunNumber=int(minrun)
     # check if there are new runs to be uploaded
     #command = 'ls -ltr '+dropbox
     p=re.compile('^CMS_LUMI_RAW_\d\d\d\d\d\d\d\d_\d\d\d\d\d\d\d\d\d_\d\d\d\d_\d.root$')
@@ -60,7 +59,7 @@ def getRunsToBeUploaded(connectionString, dropbox, authpath='',minrun=180250):
         for file in files:
             if len(file.split('_'))!=7: continue
             thisrun=getRunnumberFromFileName(file)
-            #print 'this run ',thisrun
+            #print 'this run ',thisrun,lastAnalyzedRunNumber
             #if  thisrun>lastAnalyzedRunNumber and isCollisionRun(str(thisrun),authpath):
             if thisrun>lastAnalyzedRunNumber :
                 runsToBeAnalyzed[str(thisrun)] = file
