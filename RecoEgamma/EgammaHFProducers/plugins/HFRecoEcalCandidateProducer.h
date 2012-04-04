@@ -27,10 +27,7 @@ public:
   virtual void produce(edm::Event& e, edm::EventSetup const& iSetup);
 private:
   edm::InputTag hfclusters_;
-  bool CorrectForPileup_;
   HFRecoEcalCandidateAlgo algo_;
-  std::vector<double> defaultSlope_;
-  std::vector<double> defaultIntercept_; 
 };
 
 #endif

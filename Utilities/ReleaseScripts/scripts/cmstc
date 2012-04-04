@@ -303,9 +303,7 @@ def printTable(tags):
   maxSize = dict([(x, 0) for x in xrange(sizeTag)])
   for tag in tags:
     for i in xrange(sizeTag):
-      if tag[i] == None:
-          tag[i] = '-'
-      maxSize[i] = max(maxSize[i], len(tag[i]))
+      maxSize[i] = max(maxSize[i], tag[i] and len(tag[i]) or 1)
   for tag in tags:
     f = "".join("%%-%is  " % maxSize[x] for x in xrange(sizeTag))
     print f % tuple([x or "-" for x in tag])

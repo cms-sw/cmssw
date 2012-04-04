@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.53 2012/01/19 02:50:19 tjkim Exp $
+// $Id: PATElectronProducer.cc,v 1.52 2011/11/01 08:13:20 tjkim Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -588,8 +588,8 @@ void PATElectronProducer::fillElectron2( Electron& anElectron,
   for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
     if( isoDepositLabels_[j].first==pat::TrackIso ||
 	isoDepositLabels_[j].first==pat::EcalIso ||
-	isoDepositLabels_[j].first==pat::HcalIso || 
-	deposits[j]->contains(candPtrForGenMatch.id())) {
+	isoDepositLabels_[j].first==pat::HcalIso ) {
+
       anElectron.setIsoDeposit(isoDepositLabels_[j].first,
  			       (*deposits[j])[candPtrForGenMatch]);
     }
@@ -606,8 +606,7 @@ void PATElectronProducer::fillElectron2( Electron& anElectron,
   for (size_t j = 0; j<isolationValues.size(); ++j) {
     if( isolationValueLabels_[j].first==pat::TrackIso ||
 	isolationValueLabels_[j].first==pat::EcalIso ||
-	isolationValueLabels_[j].first==pat::HcalIso || 
-	isolationValues[j]->contains(candPtrForGenMatch.id())) {
+	isolationValueLabels_[j].first==pat::HcalIso ) {
       anElectron.setIsolation(isolationValueLabels_[j].first,
  			      (*isolationValues[j])[candPtrForGenMatch]);
     }

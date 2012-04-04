@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:44:19 EST 2005
-// $Id: SimTrackManager.cc,v 1.19 2009/06/10 08:20:27 fabiocos Exp $
+// $Id: SimTrackManager.cc,v 1.20 2010/03/11 16:53:38 sunanda Exp $
 //
 
 // system include files
@@ -159,10 +159,10 @@ void SimTrackManager::reallyStoreTracks(G4SimEvent * simEvent)
         }
       ig = trkH->genParticleID();
       ivertex = getOrCreateVertex(trkH,iParentID,simEvent);
-      std::map<uint32_t,std::pair<math::XYZVectorD,math::XYZTLorentzVectorD> >::const_iterator it = mapTkCaloStateInfo.find(trkH->trackID());
+      std::map<uint32_t,std::pair<math::XYZVectorD,math::XYZTLorentzVectorD> >::const_iterator cit = mapTkCaloStateInfo.find(trkH->trackID());
       std::pair<math::XYZVectorD,math::XYZTLorentzVectorD> tcinfo;
-      if (it !=  mapTkCaloStateInfo.end()){
-        tcinfo =  it->second;
+      if (cit !=  mapTkCaloStateInfo.end()){
+        tcinfo = cit->second;
       }
       simEvent->add(new G4SimTrack(trkH->trackID(),trkH->particleID(),
                                    trkH->momentum(),trkH->totalEnergy(),ivertex,ig,pm,tcinfo.first,tcinfo.second));

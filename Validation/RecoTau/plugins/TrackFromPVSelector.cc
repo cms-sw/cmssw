@@ -83,7 +83,8 @@ void TrackFromPVSelector::produce(edm::Event& iEvent,const edm::EventSetup& iSet
   }
   
   reco::Vertex PV = VertexHandle->front();   
-  typename std::vector<reco::Track>::const_iterator TrackIt ;
+  //typename std::vector<reco::Track>::const_iterator TrackIt ;
+  std::vector<reco::Track>::const_iterator TrackIt ;
 
   for (TrackIt = TrackHandle->begin(); TrackIt != TrackHandle->end(); ++TrackIt) {
     if ( fabs(TrackIt->dxy(PV.position())) < max_dxy_ &&

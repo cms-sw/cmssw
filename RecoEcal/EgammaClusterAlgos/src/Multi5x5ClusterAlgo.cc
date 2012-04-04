@@ -12,6 +12,35 @@
 #include "DataFormats/CaloRecHit/interface/CaloID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+//temporary sorter, I'm sure this must exist already in CMSSW
+template <class T1,class T2,typename Comp=std::less<T1> > struct PairSortByFirst { 
+  Comp comp;
+  bool operator()(const std::pair<T1,T2>& lhs,const std::pair<T1,T2>&rhs){return comp(lhs.first,rhs.first);}
+  bool operator()(const T1& lhs,const std::pair<T1,T2>&rhs){return comp(lhs,rhs.first);}
+  bool operator()(const std::pair<T1,T2>& lhs,const T1 &rhs){return comp(lhs.first,rhs);}
+  bool operator()(const T1& lhs,const T1 &rhs){return comp(lhs,rhs);}
+};
+
+struct EBDetIdSorter{
+  bool operator()(const EBDetId& lhs,const EBDetId& rhs){
+    if(lhs.ieta()<rhs.ieta()) return true;
+    else if(lhs.ieta()>rhs.ieta()) return false;
+    else return lhs.iphi()<rhs.iphi(); 
+  }
+};
+
+struct EEDetIdSorter{
+  bool operator()(const EEDetId& lhs,const EEDetId& rhs){
+    if(lhs.zside()<rhs.zside()) return true;
+    else if(lhs.zside()>rhs.zside()) return false;
+    else { //z is equal, onto ix
+      if(lhs.ix()<rhs.ix()) return true;
+      else if(lhs.ix()>rhs.ix()) return false;
+      else return lhs.iy()<rhs.iy();
+    }
+  }
+};
+
 // Return a vector of clusters from a collection of EcalRecHits:
 //
 std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(
@@ -173,6 +202,36 @@ void Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
 
     }  // End loop on seed crystals
 
+    
+    if(reassignSeedCrysToClusterItSeeds_){
+      std::sort(whichClusCrysBelongsTo_.begin(),whichClusCrysBelongsTo_.end(),PairSortByFirst<DetId,int>());
+      
+  
+      for(size_t clusNr=0;clusNr<protoClusters_.size();clusNr++){
+	if(!protoClusters_[clusNr].containsSeed()){
+	  const EcalRecHit& seedHit =protoClusters_[clusNr].seed();
+	  typedef std::vector<std::pair<DetId,int> >::iterator It;
+	  std::pair<It,It> result = std::equal_range(whichClusCrysBelongsTo_.begin(),whichClusCrysBelongsTo_.end(),seedHit.id(),PairSortByFirst<DetId,int>());
+	  
+	  if(result.first!=result.second) protoClusters_[result.first->second].removeHit(seedHit);
+	  protoClusters_[clusNr].addSeed();
+	  
+	}
+      }
+    }
+    
+    
+      
+    for(size_t clusNr=0;clusNr<protoClusters_.size();clusNr++){
+      const ProtoBasicCluster& protoCluster= protoClusters_[clusNr];
+      Point position;
+      position = posCalculator_.Calculate_Location(protoCluster.hits(), hits,geometry_p, geometryES_p);
+      clusters_v.push_back(reco::BasicCluster(protoCluster.energy(), position, reco::CaloID(detector_), protoCluster.hits(),
+					      reco::CaloCluster::multi5x5, protoCluster.seed().id()));
+    }
+      
+    protoClusters_.clear();
+    whichClusCrysBelongsTo_.clear();
 }
 
 void Multi5x5ClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
@@ -217,8 +276,13 @@ void Multi5x5ClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
     double seedEnergy = seedIt->energy();
     if ((seedOutside && energy>=0) || (!seedOutside && energy >= seedEnergy)) 
     {
-        clusters_v.push_back(reco::BasicCluster(energy, position, reco::CaloID(detector_), current_v, reco::CaloCluster::multi5x5, seedIt->id()));
-
+      if(reassignSeedCrysToClusterItSeeds_){ //if we're not doing this, we dont need this info so lets not bother filling it
+	for(size_t hitNr=0;hitNr<current_v.size();hitNr++) whichClusCrysBelongsTo_.push_back(std::pair<DetId,int>(current_v[hitNr].first,protoClusters_.size()));
+      }
+	protoClusters_.push_back(ProtoBasicCluster(energy,*seedIt,current_v));
+      
+      // clusters_v.push_back(reco::BasicCluster(energy, position, reco::CaloID(detector_), current_v, reco::CaloCluster::multi5x5, seedIt->id()));
+	
     // if no valid cluster was built,
     // then free up these crystals to be used in the next...
     } else {
@@ -356,3 +420,46 @@ void Multi5x5ClusterAlgo::addCrystal(const DetId &det)
 
 }
 
+bool Multi5x5ClusterAlgo::ProtoBasicCluster::removeHit(const EcalRecHit& hitToRM)
+{
+  std::vector<std::pair<DetId,float> >::iterator hitPos;
+  for(hitPos=hits_.begin();hitPos<hits_.end();hitPos++){
+    if(hitToRM.id()==hitPos->first) break;
+  }
+  if(hitPos!=hits_.end()){
+    hits_.erase(hitPos);
+    energy_-=hitToRM.energy();
+    return true;
+  }return false;
+}
+
+//now the tricky thing is to make sure we insert it in the right place in the hit vector
+//order is from -2,-2, -2,-1 to 2,2 with seed being 0,0 (eta,phi)
+bool Multi5x5ClusterAlgo::ProtoBasicCluster::addSeed()
+{
+  typedef std::vector<std::pair<DetId,float> >::iterator It;
+  std::pair<It,It> hitPos;
+ 
+  if(seed_.id().subdetId()==EcalBarrel){
+    hitPos = std::equal_range(hits_.begin(),hits_.end(),seed_.id(),PairSortByFirst<DetId,float,EBDetIdSorter>());
+  }else{
+    hitPos = std::equal_range(hits_.begin(),hits_.end(),seed_.id(),PairSortByFirst<DetId,float,EEDetIdSorter>());
+  }
+
+  if(hitPos.first==hitPos.second){//it doesnt already exist in the vec, add it
+    hits_.insert(hitPos.first,std::pair<DetId,float>(seed_.id(),1.));
+    energy_+=seed_.energy(); 
+    containsSeed_=true;
+
+    return true;
+  }else return false;
+ 
+}
+
+bool Multi5x5ClusterAlgo::ProtoBasicCluster::isSeedCrysInHits_()const
+{
+  for(size_t hitNr=0;hitNr<hits_.size();hitNr++){
+    if(seed_.id()==hits_[hitNr].first) return true;
+  }
+  return false;
+}

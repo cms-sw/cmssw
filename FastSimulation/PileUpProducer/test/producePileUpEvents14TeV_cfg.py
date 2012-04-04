@@ -42,6 +42,20 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     )
 )
 
+process.GENoutput = cms.OutputModule("PoolOutputModule",
+                                     splitLevel = cms.untracked.int32(0),
+                                     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
+                                     outputCommands = cms.untracked.vstring(
+    'drop *',
+    'keep GenRunInfoProduct_generator_*_*',
+    'keep GenEventInfoProduct_generator_*_*',
+    'keep edmHepMCProduct_generator_*_*',
+    'keep edmHepMCProduct_source_*_*', 
+    'keep GenFilterInfo_*_*_*',
+    'keep *_genParticles_*_*'
+    ),
+                                     fileName = cms.untracked.string('MinBias14TeV_GEN.root'),
+                                     )
 
 process.prodPU = cms.EDProducer("producePileUpEvents",
     PUParticleFilter = cms.PSet(
@@ -60,7 +74,14 @@ process.prodPU = cms.EDProducer("producePileUpEvents",
     BunchPileUpEventSize = cms.uint32(1000)
 )
 
+outputType = 'edm'
+#outputType = 'ntuple'
+
 process.source = cms.Source("EmptySource")
-process.p = cms.Path(process.generator*process.prodPU)
-
-
+if (outputType=='edm'):
+    process.p = cms.Path(process.generator)
+    process.GENoutput_step = cms.EndPath(process.GENoutput)
+elif (outputType=='ntuple'):
+    process.p = cms.Path(process.generator*process.prodPU)
+else:
+    process.p = cms.Path(process.generator) # just run but save nothing

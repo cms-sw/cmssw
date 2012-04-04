@@ -1,3 +1,7 @@
+2012-03-28 Remi Mommsen <Remigius.Mommsen@cern.ch>
+	* tag V03-03-00
+	* Update package documentation
+
 2011-08-22 Remi Mommsen <Remigius.Mommsen@cern.ch>
 	* tag V03-02-01
 	* Add specialization for ConsumerUtils template in SMProxy,

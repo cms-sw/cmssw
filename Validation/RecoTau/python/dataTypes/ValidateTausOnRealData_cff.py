@@ -5,12 +5,28 @@ import copy
 from RecoJets.Configuration.RecoPFJets_cff import *
 import PhysicsTools.PatAlgos.tools.helpers as helpers
 
+# kinematicSelectedTauValDenominatorRealData = cms.EDFilter( ##FIXME: this should be a filter
+#    "TauValPFJetSelector", #"GenJetSelector"
+#    src = cms.InputTag("ak5PFJets"),
+#    cut = kinematicSelectedTauValDenominatorCut,#cms.string('pt > 5. && abs(eta) < 2.5'), #Defined: Validation.RecoTau.RecoTauValidation_cfi 
+#    filter = cms.bool(False)
+# )
+
 kinematicSelectedPFJets = cms.EDFilter(
     "TauValPFJetSelector",
     src = cms.InputTag('ak5PFJets'),
     cut = cms.string("pt > 15 & abs(eta) < 2.5"),
     filter = cms.bool(False)
 	)
+
+####### this module would be nicer but crashes when reading a void collection (i.e. when no jet passes the kinematic selection)
+#
+# from RecoJets.JetProducers.ak5JetID_cfi import *
+# 
+# process.PFJetsId = cms.EDProducer("PFJetIdSelector",
+#     src     = cms.InputTag( "kinematicSelectedPFJets" ),
+#     idLevel = cms.string("LOOSE"),
+# )
 
 PFJetsId = cms.EDFilter(
     "TauValPFJetSelector",
@@ -35,11 +51,12 @@ zttLabeler = lambda module : SetValidationExtention(module, 'RealData')
 zttModifier = ApplyFunctionToSequence(zttLabeler)
 proc.TauValNumeratorAndDenominatorRealData.visit(zttModifier)
 
+#-----------------------------------------Sets binning
 binning = cms.PSet(
-    pt = cms.PSet( nbins = cms.int32(25), min = cms.double(0.), max = cms.double(250.) ), #hinfo(75, 0., 150.)
+    pt = cms.PSet( nbins = cms.int32(8), min = cms.double(0.), max = cms.double(300.) ), #hinfo(75, 0., 150.)
     eta = cms.PSet( nbins = cms.int32(4), min = cms.double(-3.), max = cms.double(3.) ), #hinfo(60, -3.0, 3.0);
     phi = cms.PSet( nbins = cms.int32(4), min = cms.double(-180.), max = cms.double(180.) ), #hinfo(36, -180., 180.);
-    pileup = cms.PSet( nbins = cms.int32(12), min = cms.double(0.), max = cms.double(24.) ),#hinfo(25, 0., 25.0);
+    pileup = cms.PSet( nbins = cms.int32(16), min = cms.double(0.), max = cms.double(80.) ),#hinfo(25, 0., 25.0);
     )
 zttModifier = ApplyFunctionToSequence(lambda m: setBinning(m,binning))
 proc.TauValNumeratorAndDenominatorRealData.visit(zttModifier)
@@ -60,6 +77,7 @@ produceDenominatorRealData = cms.Sequence(
       kinematicSelectedPFJets * 
       PFJetsId * 
       CleanedPFJets
+      #kinematicSelectedTauValDenominatorRealData
       )
 
 produceDenominator = produceDenominatorRealData

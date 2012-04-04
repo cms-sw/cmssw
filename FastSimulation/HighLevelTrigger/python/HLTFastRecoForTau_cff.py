@@ -17,6 +17,28 @@ hltRegionalPixelTracks.RegionFactoryPSet.RegionPSet = cms.PSet(
     UseVtxTks = cms.bool( False )
 )
 
+hltPixelTracksReg = FastSimulation.Tracking.HLTPixelTracksProducer_cfi.hltPixelTracks.clone()
+hltPixelTracksReg.FilterPSet.ptMin = 0.1
+hltPixelTracksReg.FilterPSet.chi2 = 50.
+hltPixelTracksReg.RegionFactoryPSet.ComponentName = "CandidateSeededTrackingRegionsProducer"
+hltPixelTracksReg.RegionFactoryPSet.RegionPSet = cms.PSet( 
+        precise = cms.bool( True ),
+        originRadius = cms.double( 0.2 ),
+        ptMin = cms.double( 0.9 ),
+        beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+        mode = cms.string( "BeamSpotSigma" ),
+        input = cms.InputTag( "hltL2TausForPixelIsolation" ),
+        maxNRegions = cms.int32( 10 ),
+        vertexCollection = cms.InputTag( "" ),
+        maxNVertices = cms.int32( 1 ),
+        zErrorBeamSpot = cms.double( 24.2 ),
+        deltaEta = cms.double( 0.5 ),
+        deltaPhi = cms.double( 0.5 ),
+        nSigmaZVertex = cms.double( 3.0 ),
+        zErrorVertex = cms.double( 0.2 ),
+        nSigmaZBeamSpot = cms.double( 4.0 )
+)
+
 
 
 # CKFTrackCandidateMaker
@@ -27,6 +49,8 @@ hltTau3MuCkfTrackCandidates.SeedProducer = cms.InputTag("hltTau3MuPixelSeedsFrom
 hltTau3MuCkfTrackCandidates.TrackProducers = []
 hltTau3MuCkfTrackCandidates.SeedCleaning = True
 hltTau3MuCkfTrackCandidates.SplitHits = False
+
+
 
 # CTF track fit with material
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi

@@ -22,6 +22,7 @@ class MatrixReader(object):
         self.wm=opt.wmcontrol
         self.addCommand=opt.command
         self.commandLineWf=opt.workflow
+        self.overWrite=opt.overWrite
         
         return
 
@@ -40,6 +41,7 @@ class MatrixReader(object):
                              'relval_pileup': 'PU-'  ,
                              'relval_generator': 'gen-'  ,
                              'relval_production': 'prod-'  ,
+                             'relval_ged': 'ged-'
                              }
 
         self.files = ['relval_standard' ,
@@ -47,6 +49,7 @@ class MatrixReader(object):
                       'relval_pileup',
                       'relval_generator',
                       'relval_production',
+                      'relval_ged'
                       ]
 
         self.relvalModule = None
@@ -87,21 +90,36 @@ class MatrixReader(object):
             return
 
         print "request for INPUT for ", useInput
-        fromInput=[]
-        if useInput=='all' and fromScratch=='all':
-            raise MatrixException("Cannot useinput for all and run scratch for all")
-        if useInput==['all']:
-            fromInput=self.relvalModule.workflows.keys()
-        elif useInput:
-            fromInput=map(float,fromInput)
-        if fromScratch=='all':
-            fromInput=[]
-        elif fromScratch:
+
+        
+        fromInput={}
+        
+        if useInput:
+            for i in useInput:
+                if ':' in i:
+                    (ik,il)=i.split(':')
+                    if ik=='all':
+                        for k in self.relvalModule.workflows.keys():
+                            fromInput[float(k)]=int(il)
+                    else:
+                        fromInput[float(ik)]=int(il)
+                else:
+                    if i=='all':
+                        for k in self.relvalModule.workflows.keys():
+                            fromInput[float(k)]=0
+                    else:
+                        fromInput[float(i)]=0
+                
+        if fromScratch:
             fromScratch=map(float,fromScratch)
             for num in fromScratch:
                 if num in fromInput:
-                    fromInput.remove(num)
-                            
+                    fromInput.pop(num)
+        #overwrite steps
+        if self.overWrite:
+            for p in self.overWrite:
+                self.relvalModule.steps.overwrite(p)
+        
         #change the origin of dataset on the fly
         if refRel:
             self.relvalModule.changeRefRelease(
@@ -132,6 +150,34 @@ class MatrixReader(object):
             name=wfName
             stepIndex=0
             ranStepList=[]
+
+            #first resolve INPUT possibilities
+            if num in fromInput:
+                ilevel=fromInput[num]
+                #print num,ilevel
+                for (stepIr,step) in enumerate(reversed(stepList)):
+                    stepName=step
+                    stepI=(len(stepList)-stepIr)-1
+                    #print stepIr,step,stepI,ilevel                    
+                    if stepI>ilevel:
+                        #print "ignoring"
+                        continue
+                    if stepI!=0:
+                        testName='__'.join(stepList[0:stepI+1])+'INPUT'
+                    else:
+                        testName=step+'INPUT'
+                    #print "JR",stepI,stepIr,testName,stepList
+                    if testName in self.relvalModule.steps.keys():
+                        #print "JR",stepI,stepIr
+                        stepList[stepI]=testName
+                        #pop the rest in the list
+                        #print "\tmod prepop",stepList
+                        for p in range(stepI):
+                            stepList.pop(0)
+                        #print "\t\tmod",stepList
+                        break
+                                                        
+                                                    
             for (stepI,step) in enumerate(stepList):
                 stepName=step
                 if self.wm:
@@ -143,11 +189,13 @@ class MatrixReader(object):
                 if len(name) > 0 : name += '+'
                 #any step can be mirrored with INPUT
                 ## maybe we want too level deep input
+                """
                 if num in fromInput:
                     if step+'INPUT' in self.relvalModule.steps.keys():
                         stepName = step+"INPUT"
                         stepList.remove(step)
                         stepList.insert(stepIndex,stepName)
+                """    
                 name += stepName
 
                 if addCom and (not addTo or addTo[stepIndex]==1):

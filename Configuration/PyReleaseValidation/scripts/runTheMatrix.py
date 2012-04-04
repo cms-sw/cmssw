@@ -46,6 +46,24 @@ def runSelected(opt):
 
 if __name__ == '__main__':
 
+    #this can get out of here
+    predefinedSet={
+        'limited' : [5.1, #FastSim ttbar
+                     8, #BH/Cosmic MC
+                     25, #MC ttbar
+                     4.22, #cosmic data
+                     4.291, #hlt data
+                     1000, #data+prompt
+                     1001, #data+express
+                     4.53, #HI data
+                     40, #HI MC
+                     ],
+        'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
+        'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
+        'muonmc' : [5.1, 124.4, 124.5, 20, 21, 22, 23, 25, 30], #MC
+        }
+        
+
     import optparse
     usage = 'usage: runTheMatrix.py --show -s '
 
@@ -69,13 +87,13 @@ if __name__ == '__main__':
                       action='store_true'
                       )
     parser.add_option('-s','--selected',
-                      help='Run a pre-defined selected matrix of wf',
+                      help='Run a pre-defined selected matrix of wf. Deprecated, please use -l limited',
                       dest='restricted',
                       default=False,
                       action='store_true'
                       )
     parser.add_option('-l','--list',
-                     help='Coma separated list of workflow to be shown or ran',
+                     help='Coma separated list of workflow to be shown or ran. Possible keys are also '+str(predefinedSet.keys())+'. and wild card like muon, or mc',
                      dest='testList',
                      default=None
                      )
@@ -99,7 +117,7 @@ if __name__ == '__main__':
                       default=False
                       )
     parser.add_option('--fromScratch',
-                      help='Coma separated list of wf to be run without recycling',
+                      help='Coma separated list of wf to be run without recycling. all is not supported as default.',
                       dest='fromScratch',
                       default=None
                        )
@@ -131,38 +149,46 @@ if __name__ == '__main__':
                       dest='dryRun',
                       default=False
                       )
-    
+
+    parser.add_option('--overWrite',
+                      help='Change the content of a step for another. List of pairs.',
+                      dest='overWrite',
+                      default=None
+                      )
     
     opt,args = parser.parse_args()
-    if opt.testList: opt.testList = map(float,opt.testList.split(','))
     if opt.restricted:
-        limitedMatrix=[5.1, #FastSim ttbar
-                       8, #BH/Cosmic MC
-                       25, #MC ttbar
-                       4.22, #cosmic data
-                       4.291, #hlt data
-                       1000, #data+prompt
-                       1001, #data+express
-                       4.53, #HI data
-                       40, #HI MC
-                       ]
-        if opt.testList:
-            opt.testList.extend(limitedMatrix)
-        else:
-            opt.testList=limitedMatrix
+        print 'Deprecated, please use -l limited'
+        if opt.testList:            opt.testList+=',limited'
+        else:            opt.testList='limited'
+        
+    if opt.testList:
+        testList=[]
+        for entry in opt.testList.split(','):
+            if not entry: continue
+            mapped=False
+            for k in predefinedSet:
+                if k.lower().startswith(entry.lower()) or k.lower().endswith(entry.lower()):
+                    testList.extend(predefinedSet[k])
+                    mapped=True
+                    break
+            if not mapped:
+                try:
+                    testList.append(float(entry))
+                except:
+                    print entry,'is not a possible selected entry'
+            
+        opt.testList = list(set(testList))
+
+
     if opt.useInput: opt.useInput = opt.useInput.split(',')
     if opt.fromScratch: opt.fromScratch = opt.fromScratch.split(',')
     if opt.nThreads: opt.nThreads=int(opt.nThreads)
 
     if opt.wmcontrol:
         performInjectionOptionTest(opt)
-        
-    # some sanity checking:
-    if opt.useInput and opt.useInput != 'all' :
-        for item in opt.useInput:
-            if opt.fromScratch and item in opt.fromScratch:
-                print 'FATAL error: request to run workflow ',item,'from scratch and using input. '
-                sys.exit(-1)
+    if opt.overWrite:
+        opt.overWrite=eval(opt.overWrite)
 
     if opt.raw and opt.show: ###prodAgent to be discontinued
         ret = showRaw(opt)

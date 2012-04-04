@@ -9,110 +9,111 @@
 #include "CondFormats/AlignmentRecord/interface/HcalAlignmentRcd.h"
 #include "Geometry/Records/interface/HcalGeometryRecord.h"
 
-class HcalGeometry : public CaloSubdetectorGeometry {
+class HcalGeometry : public CaloSubdetectorGeometry 
+{
+   public:
 
-public:
+      typedef std::vector<IdealObliquePrism> HBCellVec ;
+      typedef std::vector<IdealObliquePrism> HECellVec ;
+      typedef std::vector<IdealObliquePrism> HOCellVec ;
+      typedef std::vector<IdealZPrism>       HFCellVec ;
+
+      typedef CaloCellGeometry::CCGFloat CCGFloat ;
+      typedef CaloCellGeometry::Pt3D     Pt3D     ;
+      typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+
+      typedef HcalAlignmentRcd   AlignmentRecord ;
+      typedef HcalGeometryRecord AlignedRecord   ;
+      typedef PHcalRcd           PGeometryRecord ;
+      typedef HcalDetId          DetIdType       ;
+
+      enum { k_NumberOfCellsForCorners = HcalDetId::kSizeForDenseIndexing } ;
+
+      enum { k_NumberOfShapes = 87 } ;
+
+      enum { k_NumberOfParametersPerShape = 5 } ;
+
+      static std::string dbString() { return "PHcalRcd" ; }
+
+      virtual unsigned int numberOfShapes() const { return k_NumberOfShapes ; }
+      virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
+
+
+      HcalGeometry();
+
+      HcalGeometry(const HcalTopology * topology);
+
+      /// The HcalGeometry will delete all its cell geometries at destruction time
+      virtual ~HcalGeometry();
   
-  typedef std::vector<IdealObliquePrism> HBCellVec ;
-  typedef std::vector<IdealObliquePrism> HECellVec ;
-  typedef std::vector<IdealObliquePrism> HOCellVec ;
-  typedef std::vector<IdealZPrism>       HFCellVec ;
+      virtual const std::vector<DetId>& getValidDetIds(
+	 DetId::Detector det    = DetId::Detector ( 0 ), 
+	 int             subdet = 0 ) const;
 
-  typedef CaloCellGeometry::CCGFloat CCGFloat ;
-  typedef CaloCellGeometry::Pt3D     Pt3D     ;
-  typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
-
-  typedef HcalAlignmentRcd   AlignmentRecord ;
-  typedef HcalGeometryRecord AlignedRecord   ;
-  typedef PHcalRcd           PGeometryRecord ;
-  typedef HcalDetId          DetIdType       ;
-
-  enum { k_NumberOfCellsForCorners = HcalDetId::kSizeForDenseIndexing } ;
-
-  enum { k_NumberOfShapes = 500 } ;
-
-  enum { k_NumberOfParametersPerShape = 5 } ;
-
-  static std::string dbString() { return "PHcalRcd" ; }
-
-  virtual unsigned int numberOfShapes() const { return k_NumberOfShapes ; }
-  virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
-
-
-  HcalGeometry();
-
-  HcalGeometry(const HcalTopology * topology);
-
-  /// The HcalGeometry will delete all its cell geometries at destruction time
-  virtual ~HcalGeometry();
-  
-  virtual const std::vector<DetId>& getValidDetIds(DetId::Detector det    = DetId::Detector ( 0 ), 
-						   int             subdet = 0 ) const;
-
-  virtual DetId getClosestCell(const GlobalPoint& r) const ;
+      virtual DetId getClosestCell(const GlobalPoint& r) const ;
       
-  virtual CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
-						      double             dR ) const ;
+      virtual CaloSubdetectorGeometry::DetIdSet getCells( const GlobalPoint& r,
+							  double             dR ) const ;
 
 
-  static std::string producerTag() { return "HCAL" ; }
-  
-  static unsigned int numberOfBarrelAlignments() { return 36 ; }
+      static std::string producerTag() { return "HCAL" ; }
 
-  static unsigned int numberOfEndcapAlignments() { return 36 ; }
+      static unsigned int numberOfBarrelAlignments() { return 36 ; }
 
-  static unsigned int numberOfOuterAlignments() { return 36 ; }
+      static unsigned int numberOfEndcapAlignments() { return 36 ; }
 
-  static unsigned int numberOfForwardAlignments() { return 60 ; }
+      static unsigned int numberOfOuterAlignments() { return 36 ; }
 
-  static unsigned int numberOfAlignments() 
-    { return ( numberOfBarrelAlignments() +
-	       numberOfEndcapAlignments() +
-	       numberOfOuterAlignments() +
-	       numberOfForwardAlignments() ) ; }
+      static unsigned int numberOfForwardAlignments() { return 60 ; }
 
-  static unsigned int alignmentTransformIndexLocal( const DetId& id ) ;
+      static unsigned int numberOfAlignments() 
+      { return ( numberOfBarrelAlignments() +
+		 numberOfEndcapAlignments() +
+		 numberOfOuterAlignments() +
+		 numberOfForwardAlignments() ) ; }
 
-  static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
+      static unsigned int alignmentTransformIndexLocal( const DetId& id ) ;
 
-  static void localCorners( Pt3DVec&        lc  ,
-			    const CCGFloat* pv  , 
-			    unsigned int    i   ,
-			    Pt3D&           ref   ) ;
+      static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
 
-  virtual void newCell( const GlobalPoint& f1 ,
-			const GlobalPoint& f2 ,
-			const GlobalPoint& f3 ,
-			const CCGFloat*    parm,
-			const DetId&       detId     ) ;
-protected:
+      static void localCorners( Pt3DVec&        lc  ,
+				const CCGFloat* pv  , 
+				unsigned int    i   ,
+				Pt3D&           ref   ) ;
 
-  virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
+      virtual void newCell( const GlobalPoint& f1 ,
+			    const GlobalPoint& f2 ,
+			    const GlobalPoint& f3 ,
+			    const CCGFloat*    parm,
+			    const DetId&       detId     ) ;
+   protected:
 
-private:
+      virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
 
-  void fillDetIds() const ;
+   private:
 
-  void init() ;
+      void fillDetIds() const ;
 
-  /// helper methods for getClosestCell
-  int etaRing(HcalSubdetector bc, double abseta) const;
-  int phiBin(double phi, int etaring) const;
+      void init() ;
+
+      /// helper methods for getClosestCell
+      int etaRing(HcalSubdetector bc, double abseta) const;
+      int phiBin(double phi, int etaring) const;
 
 
-  const HcalTopology * theTopology;
-  
-  mutable std::vector<DetId> m_hbIds ;
-  mutable std::vector<DetId> m_heIds ;
-  mutable std::vector<DetId> m_hoIds ;
-  mutable std::vector<DetId> m_hfIds ;
-  mutable std::vector<DetId> m_emptyIds ;
-  bool m_ownsTopology ;
+      const HcalTopology * theTopology;
 
-  HBCellVec m_hbCellVec ;
-  HECellVec m_heCellVec ;
-  HOCellVec m_hoCellVec ;
-  HFCellVec m_hfCellVec ;
+      mutable std::vector<DetId> m_hbIds ;
+      mutable std::vector<DetId> m_heIds ;
+      mutable std::vector<DetId> m_hoIds ;
+      mutable std::vector<DetId> m_hfIds ;
+      mutable std::vector<DetId> m_emptyIds ;
+      bool m_ownsTopology ;
+
+      HBCellVec m_hbCellVec ;
+      HECellVec m_heCellVec ;
+      HOCellVec m_hoCellVec ;
+      HFCellVec m_hfCellVec ;
 };
 
 

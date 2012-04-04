@@ -1,6 +1,14 @@
 #ifndef TrackerAlignment_AlignmentPrescaler_H
 #define TrackerAlignment_AlignmentPrescaler_H
 
+#include <Riostream.h>
+#include <string>
+#include "TFile.h"
+#include "TTree.h"
+#include "TRandom3.h"
+#include "TH1F.h"
+
+
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventPrincipal.h" 
 #include "FWCore/Framework/interface/Event.h"
@@ -11,13 +19,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-
-#include <string>
-#include "TFile.h"
-#include "TTree.h"
-#include "TRandom3.h"
-#include "TH1F.h"
-
 
 class AlignmentPrescaler : public edm::EDProducer{
 

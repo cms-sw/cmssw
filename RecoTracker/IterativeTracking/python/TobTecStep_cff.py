@@ -10,7 +10,6 @@ tobTecStepClusters = cms.EDProducer("TrackClusterRemover",
     trajectories = cms.InputTag("pixelLessStepTracks"),
     overrideTrkQuals = cms.InputTag('pixelLessStepSelector','pixelLessStep'),
     TrackQuality = cms.string('highPurity'),
-    minNumberOfLayersWithMeasBeforeFiltering = cms.int32(5),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
     Common = cms.PSet(
@@ -100,8 +99,7 @@ tobTecStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder
     maxCand = 2,
     estimator = cms.string('tobTecStepChi2Est'),
     #startSeedHitsInRebuild = True
-    maxDPhiForLooperReconstruction = cms.double(2.0),
-    maxPtForLooperReconstruction = cms.double(0.7)  
+    maxPtForLooperReconstruction = cms.double(-1)  
     )
 
 # MAKING OF TRACK CANDIDATES

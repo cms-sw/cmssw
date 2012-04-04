@@ -3,9 +3,9 @@
 /** \class PhotonEnergyCorrector
  **  
  **
- **  $Id: PhotonEnergyCorrector.h,v 1.5 2012/01/16 12:15:13 nancy Exp $ 
- **  $Date: 2012/01/16 12:15:13 $ 
- **  $Revision: 1.5 $
+ **  $Id: PhotonEnergyCorrector.h,v 1.6 2012/02/14 14:33:43 nancy Exp $ 
+ **  $Date: 2012/02/14 14:33:43 $ 
+ **  $Revision: 1.6 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -22,11 +22,7 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 #include "RecoEgamma/EgammaPhotonAlgos/interface/EnergyUncertaintyPhotonSpecific.h"
-
 #include <iostream>
-
-using std::cout;
-using std::endl;
 
 class PhotonEnergyCorrector
  {

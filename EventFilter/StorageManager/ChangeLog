@@ -1,3 +1,9 @@
+2012-03-28 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-07-00
+	* Cleanup unit tests and convert all to cppunit tests
+	* Update package documentation
+
 2011-11-18 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-06-01

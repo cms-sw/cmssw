@@ -90,15 +90,15 @@ namespace sistrip {
   enum FEDChannelStatus { CHANNEL_STATUS_LOCKED=0x20,
                           CHANNEL_STATUS_IN_SYNC=0x10,
                           CHANNEL_STATUS_APV1_ADDRESS_GOOD=0x08,
-                          CHANNEL_STATUS_APV1_NO_ERROR_BIT=0x04,
-                          CHANNEL_STATUS_APV0_ADDRESS_GOOD=0x02,
-                          CHANNEL_STATUS_APV0_NO_ERROR_BIT=0x01,
-                          CHANNEL_STATUS_NO_PROBLEMS=CHANNEL_STATUS_LOCKED|
-                                                     CHANNEL_STATUS_IN_SYNC|
+                          CHANNEL_STATUS_APV0_NO_ERROR_BIT=0x04,
+			  CHANNEL_STATUS_APV0_ADDRESS_GOOD=0x02,
+                          CHANNEL_STATUS_APV1_NO_ERROR_BIT=0x01,
+			  CHANNEL_STATUS_NO_PROBLEMS=CHANNEL_STATUS_LOCKED|
+			                             CHANNEL_STATUS_IN_SYNC|
                                                      CHANNEL_STATUS_APV1_ADDRESS_GOOD|
-                                                     CHANNEL_STATUS_APV1_NO_ERROR_BIT|
+                                                     CHANNEL_STATUS_APV0_NO_ERROR_BIT|
                                                      CHANNEL_STATUS_APV0_ADDRESS_GOOD|
-                                                     CHANNEL_STATUS_APV0_NO_ERROR_BIT
+                                                     CHANNEL_STATUS_APV1_NO_ERROR_BIT
                         };
 
   //
@@ -1201,7 +1201,13 @@ namespace sistrip {
   
   inline void FEDFullDebugHeader::setAPVError(const uint8_t internalFEDChannelNum, const uint8_t apvNum, const bool value)
     {
-      setBit(internalFEDChannelNum,0+2*apvNum,!value);
+      //Discovered March 2012: two bits inverted in firmware. Decided
+      //to update documentation but keep firmware identical for
+      //backward compatibility. So status bit order is actually:
+      //apvErr1 - apvAddrErr0 - apvErr0 - apvAddrErr1 - OOS - unlocked.
+      //Before, it was: return !getBit(internalFEDChannelNum,0+2*apvNum);
+
+      setBit(internalFEDChannelNum,0+2*(1-apvNum),!value);
     }
 
   //FEDDAQHeader

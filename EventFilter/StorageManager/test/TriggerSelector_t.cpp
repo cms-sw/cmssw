@@ -1,14 +1,29 @@
-// $Id: TriggerSelector_t.cpp,v 1.1 2009/12/01 13:58:09 mommsen Exp $
+// $Id: TriggerSelector_t.cpp,v 1.2 2010/08/06 20:24:33 wmtan Exp $
 
+#include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
+#include "cppunit/extensions/HelperMacros.h"
+
+#include "DataFormats/Common/interface/HLTPathStatus.h"
 #include "EventFilter/StorageManager/interface/TriggerSelector.h"
-#include <iostream>
 
-using namespace stor;
-using namespace std;
+#include "boost/shared_ptr.hpp"
 
-int main()
+#include <string>
+#include <vector>
+
+
+class testTriggerSelector : public CppUnit::TestFixture
 {
+  CPPUNIT_TEST_SUITE(testTriggerSelector);
+  CPPUNIT_TEST(test_selector);
+  CPPUNIT_TEST_SUITE_END();
+  
+public:
+  void test_selector();
+};
 
+void testTriggerSelector::test_selector()
+{
   std::vector<std::string> fl;
   fl.push_back( "DiMuon" );
   fl.push_back( "CalibPath" );
@@ -23,9 +38,9 @@ int main()
   triggerList.push_back("DiElectron");
   triggerList.push_back("HighPT");
 
-  boost::shared_ptr<TriggerSelector> triggerSelector;
+  boost::shared_ptr<stor::TriggerSelector> triggerSelector;
 
-  triggerSelector.reset(new TriggerSelector(f2,triggerList));
+  triggerSelector.reset(new stor::TriggerSelector(f2,triggerList));
 
   edm::HLTGlobalStatus tr(4);
  
@@ -37,9 +52,16 @@ int main()
   tr[2] = fail;
   tr[3] = fail;
 
-  std::cout << "RESULT: " << triggerSelector->returnStatus(tr) << std::endl;
-
-  std::cout << "\nend of test\n";
-  return 0;
-
+  CPPUNIT_ASSERT( triggerSelector->returnStatus(tr) );
 }
+
+// This macro writes the 'main' for this test.
+CPPUNIT_TEST_SUITE_REGISTRATION(testTriggerSelector);
+
+
+/// emacs configuration
+/// Local Variables: -
+/// mode: c++ -
+/// c-basic-offset: 2 -
+/// indent-tabs-mode: nil -
+/// End: -

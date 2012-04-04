@@ -10,9 +10,8 @@
 #include "CalibMuon/DTCalibration/plugins/DTTTrigCorrection.h"
 #include "CalibMuon/DTCalibration/plugins/DTTTrigCorrectionFirst.h"
 #include "CalibMuon/DTCalibration/plugins/DTT0Calibration.h"
-//#include "CalibMuon/DTCalibration/plugins/DTT0CalibrationNew.h"
+#include "CalibMuon/DTCalibration/plugins/DTT0CalibrationNew.h"
 #include "CalibMuon/DTCalibration/plugins/DTTPDeadWriter.h"
-#include "CalibMuon/DTCalibration/plugins/DTT0Correction.h"
 #include "CalibMuon/DTCalibration/plugins/DTVDriftCalibration.h"
 #include "CalibMuon/DTCalibration/plugins/DTVDriftWriter.h"
 #include "CalibMuon/DTCalibration/plugins/DTNoiseComputation.h"
@@ -30,11 +29,6 @@
 #include "CalibMuon/DTCalibration/plugins/DTTTrigResidualCorrection.h"
 #include "CalibMuon/DTCalibration/plugins/DTTTrigMatchRPhi.h"
 #include "CalibMuon/DTCalibration/plugins/DTTTrigFillWithAverage.h"
-#include "CalibMuon/DTCalibration/plugins/DTTTrigConstantShift.h"
-
-#include "CalibMuon/DTCalibration/interface/DTT0CorrectionFactory.h"
-#include "CalibMuon/DTCalibration/plugins/DTT0FillDefaultFromDB.h"
-#include "CalibMuon/DTCalibration/plugins/DTT0FillChamberFromDB.h"
 
 #include "CalibMuon/DTCalibration/interface/DTVDriftPluginFactory.h"
 #include "CalibMuon/DTCalibration/plugins/DTVDriftMeanTimer.h"
@@ -47,9 +41,8 @@ DEFINE_FWK_MODULE(DTTTrigWriter);
 DEFINE_FWK_MODULE(DTTTrigCorrection);
 DEFINE_FWK_MODULE(DTTTrigCorrectionFirst);
 DEFINE_FWK_MODULE(DTT0Calibration);
-//DEFINE_FWK_MODULE(DTT0CalibrationNew);
+DEFINE_FWK_MODULE(DTT0CalibrationNew);
 DEFINE_FWK_MODULE(DTTPDeadWriter);
-DEFINE_FWK_MODULE(DTT0Correction);
 DEFINE_FWK_MODULE(DTVDriftCalibration);
 DEFINE_FWK_MODULE(DTVDriftWriter);
 DEFINE_FWK_MODULE(DTNoiseComputation);
@@ -62,14 +55,10 @@ DEFINE_FWK_EVENTSETUP_SOURCE(DTFakeTTrigESProducer);
 DEFINE_FWK_EVENTSETUP_SOURCE(DTFakeT0ESProducer);
 DEFINE_FWK_EVENTSETUP_SOURCE(DTFakeVDriftESProducer);
 
-DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,dtCalibration::DTTTrigT0SegCorrection,"DTTTrigT0SegCorrection");
-DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,dtCalibration::DTTTrigResidualCorrection,"DTTTrigResidualCorrection");
-DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,dtCalibration::DTTTrigMatchRPhi,"DTTTrigMatchRPhi");
-DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,dtCalibration::DTTTrigFillWithAverage,"DTTTrigFillWithAverage");
-DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,dtCalibration::DTTTrigConstantShift,"DTTTrigConstantShift");
+DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,DTTTrigT0SegCorrection,"DTTTrigT0SegCorrection");
+DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,DTTTrigResidualCorrection,"DTTTrigResidualCorrection");
+DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,DTTTrigMatchRPhi,"DTTTrigMatchRPhi");
+DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,DTTTrigFillWithAverage,"DTTTrigFillWithAverage");
 
-DEFINE_EDM_PLUGIN(DTT0CorrectionFactory,dtCalibration::DTT0FillDefaultFromDB,"DTT0FillDefaultFromDB");
-DEFINE_EDM_PLUGIN(DTT0CorrectionFactory,dtCalibration::DTT0FillChamberFromDB,"DTT0FillChamberFromDB");
-
-DEFINE_EDM_PLUGIN(DTVDriftPluginFactory,dtCalibration::DTVDriftMeanTimer,"DTVDriftMeanTimer");
-DEFINE_EDM_PLUGIN(DTVDriftPluginFactory,dtCalibration::DTVDriftSegment,"DTVDriftSegment");
+DEFINE_EDM_PLUGIN(DTVDriftPluginFactory,DTVDriftMeanTimer,"DTVDriftMeanTimer");
+DEFINE_EDM_PLUGIN(DTVDriftPluginFactory,DTVDriftSegment,"DTVDriftSegment");

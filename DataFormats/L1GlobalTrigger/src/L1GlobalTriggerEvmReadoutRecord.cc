@@ -20,7 +20,7 @@
 // system include files
 #include <iomanip>
 #include <bitset>
-
+#include <stdint.h>
 
 // user include files
 

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.375 $"
+__version__ = "$Revision: 1.377 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -433,7 +433,7 @@ class ConfigBuilder(object):
 				
 		#new output convention with a list of dict
 		outList = eval(self._options.outputDefinition)
-		for outDefDict in outList:
+		for (id,outDefDict) in enumerate(outList):
 			outDefDictStr=outDefDict.__str__()
 			if not isinstance(outDefDict,dict):
 				raise Exception("--output needs to be passed a list of dict"+self._options.outputDefinition+" is invalid")
@@ -458,10 +458,15 @@ class ConfigBuilder(object):
 						break
 			if not theModuleLabel:
 				raise Exception("cannot find a module label for specification: "+outDefDictStr)
-			
-			theFileName=self._options.dirout+anyOf(['fn','fileName'],outDefDict,theModuleLabel+'.root')
+			if id==0:
+				defaultFileName=self._options.outfile_name
+			else:
+				defaultFileName=self._options.outfile_name.replace('.root','_in'+theTier+'.root')
+				
+			theFileName=self._options.dirout+anyOf(['fn','fileName'],outDefDict,defaultFileName)
 			if not theFileName.endswith('.root'):
 				theFileName+='.root'
+				
 			if len(outDefDict.keys()):
 				raise Exception("unused keys from --output options: "+','.join(outDefDict.keys()))
 			if theStreamType=='DQMROOT': theStreamType=='DQM'
@@ -667,8 +672,20 @@ class ConfigBuilder(object):
 
         # the option can be a list of GT name and connection string
 
-        #it is insane to keep this replace in: dependency on changes in DataProcessing
-        conditions = self._options.conditions.replace("FrontierConditions_GlobalTag,",'').split(',')
+	if isinstance(self._options.conditions,tuple):
+		if self._options.custom_conditions:
+			self._options.custom_conditions+='+'+self._options.conditions[1]
+		else:
+			self._options.custom_conditions=self._options.conditions[1]
+		self._options.conditions=self._options.conditions[0]
+
+
+	if 'FrontierConditions_GlobalTag' in self._options.conditions:
+		print 'using FrontierConditions_GlobalTag in --conditions is not necessary anymore and will be deprecated soon. please update your command line'
+		self._options.conditions = self._options.conditions.replace("FrontierConditions_GlobalTag,",'')
+						
+	conditions = self._options.conditions.split(',')
+	
         gtName = str( conditions[0] )
         if len(conditions) > 1:
           connect   = str( conditions[1] )
@@ -1741,7 +1758,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.375 $"),
+                                            (version=cms.untracked.string("$Revision: 1.377 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )

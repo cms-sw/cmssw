@@ -1,6 +1,6 @@
 /** \class HLTDisplacedEgammaFilter
  *
- * $Id: HLTDisplacedEgammaFilter.cc,v 1.12 2012/01/21 14:56:57 fwyzard Exp $
+ * $Id: HLTDisplacedEgammaFilter.cc,v 1.3 2012/03/21 18:09:51 sckao Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *

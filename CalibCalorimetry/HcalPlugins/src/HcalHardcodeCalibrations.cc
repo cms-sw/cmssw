@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.28 2011/10/26 14:00:29 xiezhen Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.27 2011/07/21 16:58:17 temple Exp $
 //
 //
 
@@ -28,13 +28,13 @@ using namespace cms;
 
 namespace {
 
-std::vector<HcalGenericDetId> allCells (HcalTopology::Mode mode) {
+std::vector<HcalGenericDetId> allCells (bool h2_mode) {
   static std::vector<HcalGenericDetId> result;
   if (result.size () <= 0) {
-    HcalTopology hcaltopology(mode);
+    HcalTopology hcaltopology(h2_mode);
     for (int eta = -50; eta < 50; eta++) {
       for (int phi = 0; phi < 100; phi++) {
-	for (int depth = 1; depth <= 7; depth++) {
+	for (int depth = 1; depth < 5; depth++) {
 	  for (int det = 1; det < 5; det++) {
 	    HcalDetId cell ((HcalSubdetector) det, eta, phi, depth);
 	    if (hcaltopology.valid(cell)) result.push_back (cell);
@@ -76,14 +76,7 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
 {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::HcalHardcodeCalibrations->...";
   //parsing record parameters
-  bool h2mode=iConfig.getUntrackedParameter<bool>("H2Mode",false);
-  bool slhcmode=iConfig.getUntrackedParameter<bool>("SLHCMode",false);
-  bool h2hemode=iConfig.getUntrackedParameter<bool>("H2HEMode",false);
-  if (h2hemode)      mode_=HcalTopology::md_H2HE;
-  else if (slhcmode) mode_=HcalTopology::md_SLHC;
-  else if (h2mode)   mode_=HcalTopology::md_H2;
-  else               mode_=HcalTopology::md_LHC;
-
+  h2mode_=iConfig.getUntrackedParameter<bool>("H2Mode",false);
   std::vector <std::string> toGet = iConfig.getUntrackedParameter <std::vector <std::string> > ("toGet");
   for(std::vector <std::string>::iterator objectName = toGet.begin(); objectName != toGet.end(); ++objectName ) {
     bool all = *objectName == "all";
@@ -192,24 +185,22 @@ HcalHardcodeCalibrations::setIntervalFor( const edm::eventsetup::EventSetupRecor
 
 std::auto_ptr<HcalPedestals> HcalHardcodeCalibrations::producePedestals (const HcalPedestalsRcd&) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::producePedestals-> ...";
-  std::auto_ptr<HcalPedestals> result (new HcalPedestals ());
-  if (mode_!=HcalTopology::md_LHC) result->setSlowMode(true);
-  std::vector <HcalGenericDetId> cells = allCells(mode_);
+  std::auto_ptr<HcalPedestals> result (new HcalPedestals (false));
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalPedestal item = HcalDbHardcode::makePedestal (*cell);
-    result->addValues(item);
+    result->addValues(item,h2mode_);
   }
   return result;
 }
 
 std::auto_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::producePedestalWidths (const HcalPedestalWidthsRcd&) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::producePedestalWidths-> ...";
-  std::auto_ptr<HcalPedestalWidths> result (new HcalPedestalWidths ());
-  if (mode_!=HcalTopology::md_LHC) result->setSlowMode(true);
-  std::vector <HcalGenericDetId> cells = allCells(mode_);
+  std::auto_ptr<HcalPedestalWidths> result (new HcalPedestalWidths (false));
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalPedestalWidth item = HcalDbHardcode::makePedestalWidth (*cell);
-    result->addValues(item);
+    result->addValues(item,h2mode_);
   }
   return result;
 }
@@ -217,11 +208,10 @@ std::auto_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::producePedestalWidth
 std::auto_ptr<HcalGains> HcalHardcodeCalibrations::produceGains (const HcalGainsRcd&) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceGains-> ...";
   std::auto_ptr<HcalGains> result (new HcalGains ());
-  if (mode_!=HcalTopology::md_LHC) result->setSlowMode(true);
-  std::vector <HcalGenericDetId> cells = allCells(mode_);
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalGain item = HcalDbHardcode::makeGain (*cell);
-    result->addValues(item);
+    result->addValues(item,h2mode_);
   }
   return result;
 }
@@ -229,11 +219,10 @@ std::auto_ptr<HcalGains> HcalHardcodeCalibrations::produceGains (const HcalGains
 std::auto_ptr<HcalGainWidths> HcalHardcodeCalibrations::produceGainWidths (const HcalGainWidthsRcd&) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceGainWidths-> ...";
   std::auto_ptr<HcalGainWidths> result (new HcalGainWidths ());
-  if (mode_!=HcalTopology::md_LHC) result->setSlowMode(true);
-  std::vector <HcalGenericDetId> cells = allCells(mode_);
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalGainWidth item = HcalDbHardcode::makeGainWidth (*cell);
-    result->addValues(item);
+    result->addValues(item,h2mode_);
   }
   return result;
 }
@@ -241,11 +230,10 @@ std::auto_ptr<HcalGainWidths> HcalHardcodeCalibrations::produceGainWidths (const
 std::auto_ptr<HcalQIEData> HcalHardcodeCalibrations::produceQIEData (const HcalQIEDataRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceQIEData-> ...";
   std::auto_ptr<HcalQIEData> result (new HcalQIEData ());
-  if (mode_!=HcalTopology::md_LHC) result->setSlowMode(true);
-  std::vector <HcalGenericDetId> cells = allCells(mode_);
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalQIECoder coder = HcalDbHardcode::makeQIECoder (*cell);
-    result->addCoder (coder);
+    result->addCoder (coder,h2mode_);
   }
   return result;
 }
@@ -253,11 +241,10 @@ std::auto_ptr<HcalQIEData> HcalHardcodeCalibrations::produceQIEData (const HcalQ
 std::auto_ptr<HcalChannelQuality> HcalHardcodeCalibrations::produceChannelQuality (const HcalChannelQualityRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceChannelQuality-> ...";
   std::auto_ptr<HcalChannelQuality> result (new HcalChannelQuality ());
-  if (mode_!=HcalTopology::md_LHC) result->setSlowMode(true);
-  std::vector <HcalGenericDetId> cells = allCells(mode_);
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalChannelStatus item(cell->rawId(),0);
-    result->addValues(item);
+    result->addValues(item,h2mode_);
   }
   return result;
 }
@@ -266,11 +253,10 @@ std::auto_ptr<HcalChannelQuality> HcalHardcodeCalibrations::produceChannelQualit
 std::auto_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const HcalRespCorrsRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceRespCorrs-> ...";
   std::auto_ptr<HcalRespCorrs> result (new HcalRespCorrs ());
-  if (mode_!=HcalTopology::md_LHC) result->setSlowMode(true);
-  std::vector <HcalGenericDetId> cells = allCells(mode_);
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalRespCorr item(cell->rawId(),1.0);
-    result->addValues(item);
+    result->addValues(item,h2mode_);
   }
   return result;
 }
@@ -278,11 +264,10 @@ std::auto_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const H
 std::auto_ptr<HcalLUTCorrs> HcalHardcodeCalibrations::produceLUTCorrs (const HcalLUTCorrsRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceLUTCorrs-> ...";
   std::auto_ptr<HcalLUTCorrs> result (new HcalLUTCorrs ());
-  if (mode_!=HcalTopology::md_LHC) result->setSlowMode(true);
-  std::vector <HcalGenericDetId> cells = allCells(mode_);
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalLUTCorr item(cell->rawId(),1.0);
-    result->addValues(item);
+    result->addValues(item,h2mode_);
   }
   return result;
 }
@@ -290,11 +275,10 @@ std::auto_ptr<HcalLUTCorrs> HcalHardcodeCalibrations::produceLUTCorrs (const Hca
 std::auto_ptr<HcalPFCorrs> HcalHardcodeCalibrations::producePFCorrs (const HcalPFCorrsRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::producePFCorrs-> ...";
   std::auto_ptr<HcalPFCorrs> result (new HcalPFCorrs ());
-  if (mode_!=HcalTopology::md_LHC) result->setSlowMode(true);
-  std::vector <HcalGenericDetId> cells = allCells(mode_);
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalPFCorr item(cell->rawId(),1.0);
-    result->addValues(item);
+    result->addValues(item,h2mode_);
   }
   return result;
 }
@@ -302,11 +286,10 @@ std::auto_ptr<HcalPFCorrs> HcalHardcodeCalibrations::producePFCorrs (const HcalP
 std::auto_ptr<HcalTimeCorrs> HcalHardcodeCalibrations::produceTimeCorrs (const HcalTimeCorrsRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceTimeCorrs-> ...";
   std::auto_ptr<HcalTimeCorrs> result (new HcalTimeCorrs ());
-  if (mode_!=HcalTopology::md_LHC) result->setSlowMode(true);
-  std::vector <HcalGenericDetId> cells = allCells(mode_);
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalTimeCorr item(cell->rawId(),0.0);
-    result->addValues(item);
+    result->addValues(item,h2mode_);
   }
   return result;
 }
@@ -314,11 +297,10 @@ std::auto_ptr<HcalTimeCorrs> HcalHardcodeCalibrations::produceTimeCorrs (const H
 std::auto_ptr<HcalZSThresholds> HcalHardcodeCalibrations::produceZSThresholds (const HcalZSThresholdsRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceZSThresholds-> ...";
   std::auto_ptr<HcalZSThresholds> result (new HcalZSThresholds ());
-  if (mode_!=HcalTopology::md_LHC) result->setSlowMode(true);
-  std::vector <HcalGenericDetId> cells = allCells(mode_);
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalZSThreshold item(cell->rawId(),0);
-    result->addValues(item);
+    result->addValues(item,h2mode_);
   }
   return result;
 }
@@ -327,11 +309,10 @@ std::auto_ptr<HcalZSThresholds> HcalHardcodeCalibrations::produceZSThresholds (c
 std::auto_ptr<HcalL1TriggerObjects> HcalHardcodeCalibrations::produceL1TriggerObjects (const HcalL1TriggerObjectsRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceL1TriggerObjects-> ...";
   std::auto_ptr<HcalL1TriggerObjects> result (new HcalL1TriggerObjects ());
-  if (mode_!=HcalTopology::md_LHC) result->setSlowMode(true);
-  std::vector <HcalGenericDetId> cells = allCells(mode_);
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalL1TriggerObject item(cell->rawId(),0., 1., 0);
-    result->addValues(item);
+    result->addValues(item,h2mode_);
   }
   // add tag and algo values
   result->setTagString("hardcoded");
@@ -353,11 +334,10 @@ std::auto_ptr<HcalElectronicsMap> HcalHardcodeCalibrations::produceElectronicsMa
 std::auto_ptr<HcalValidationCorrs> HcalHardcodeCalibrations::produceValidationCorrs (const HcalValidationCorrsRcd& rcd) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceValidationCorrs-> ...";
   std::auto_ptr<HcalValidationCorrs> result (new HcalValidationCorrs ());
-  if (mode_!=HcalTopology::md_LHC) result->setSlowMode(true);
-  std::vector <HcalGenericDetId> cells = allCells(mode_);
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalValidationCorr item(cell->rawId(),1.0);
-    result->addValues(item);
+    result->addValues(item,h2mode_);
   }
   return result;
 }
@@ -369,11 +349,10 @@ std::auto_ptr<HcalLutMetadata> HcalHardcodeCalibrations::produceLutMetadata (con
   result->setRctLsb( 0.25 );
   result->setNominalGain( 0.177 );
 
-  if (mode_!=HcalTopology::md_LHC) result->setSlowMode(true);
-  std::vector <HcalGenericDetId> cells = allCells(mode_);
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalLutMetadatum item(cell->rawId(),1.0,1,1);
-    result->addValues(item);
+    result->addValues(item,h2mode_);
   }
   return result;
 }
@@ -396,30 +375,27 @@ std::auto_ptr<HcalDcsMap> HcalHardcodeCalibrations::produceDcsMap (const HcalDcs
 std::auto_ptr<HcalRecoParams> HcalHardcodeCalibrations::produceRecoParams (const HcalRecoParamsRcd&) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceRecoParams-> ...";
   std::auto_ptr<HcalRecoParams> result (new HcalRecoParams ());
-  if (mode_!=HcalTopology::md_LHC) result->setSlowMode(true);
-  std::vector <HcalGenericDetId> cells = allCells(mode_);
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalRecoParam item = HcalDbHardcode::makeRecoParam (*cell);
-    result->addValues(item);
+    result->addValues(item,h2mode_);
   }
   return result;
 }
 std::auto_ptr<HcalTimingParams> HcalHardcodeCalibrations::produceTimingParams (const HcalTimingParamsRcd&) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceTimingParams-> ...";
   std::auto_ptr<HcalTimingParams> result (new HcalTimingParams ());
-  if (mode_!=HcalTopology::md_LHC) result->setSlowMode(true);
-  std::vector <HcalGenericDetId> cells = allCells(mode_);
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalTimingParam item = HcalDbHardcode::makeTimingParam (*cell);
-    result->addValues(item);
+    result->addValues(item,h2mode_);
   }
   return result;
 }
 std::auto_ptr<HcalLongRecoParams> HcalHardcodeCalibrations::produceLongRecoParams (const HcalLongRecoParamsRcd&) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceLongRecoParams-> ...";
   std::auto_ptr<HcalLongRecoParams> result (new HcalLongRecoParams ());
-  if (mode_!=HcalTopology::md_LHC) result->setSlowMode(true);
-  std::vector <HcalGenericDetId> cells = allCells(mode_);
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   std::vector <unsigned int> mSignal; 
   mSignal.push_back(4); 
   mSignal.push_back(5); 
@@ -432,7 +408,7 @@ std::auto_ptr<HcalLongRecoParams> HcalHardcodeCalibrations::produceLongRecoParam
     if (cell->isHcalZDCDetId())
       {
 	HcalLongRecoParam item(cell->rawId(),mSignal,mNoise);
-	result->addValues(item);
+	result->addValues(item,h2mode_);
       }
   }
   return result;
@@ -441,11 +417,10 @@ std::auto_ptr<HcalLongRecoParams> HcalHardcodeCalibrations::produceLongRecoParam
 std::auto_ptr<HcalMCParams> HcalHardcodeCalibrations::produceMCParams (const HcalMCParamsRcd&) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceMCParams-> ...";
   std::auto_ptr<HcalMCParams> result (new HcalMCParams ());
-  if (mode_!=HcalTopology::md_LHC) result->setSlowMode(true);
-  std::vector <HcalGenericDetId> cells = allCells(mode_);
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalMCParam item(cell->rawId(),0);
-    result->addValues(item);
+    result->addValues(item,h2mode_);
   }
   return result;
 }
@@ -454,8 +429,7 @@ std::auto_ptr<HcalMCParams> HcalHardcodeCalibrations::produceMCParams (const Hca
 std::auto_ptr<HcalFlagHFDigiTimeParams> HcalHardcodeCalibrations::produceFlagHFDigiTimeParams (const HcalFlagHFDigiTimeParamsRcd&) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceFlagHFDigiTimeParams-> ...";
   std::auto_ptr<HcalFlagHFDigiTimeParams> result (new HcalFlagHFDigiTimeParams ());
-  if (mode_!=HcalTopology::md_LHC) result->setSlowMode(true);
-  std::vector <HcalGenericDetId> cells = allCells(mode_);
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   
   std::vector<double> coef;
   coef.push_back(0.93);
@@ -470,7 +444,7 @@ std::auto_ptr<HcalFlagHFDigiTimeParams> HcalHardcodeCalibrations::produceFlagHFD
 				 40., // min energy threshold
 				 coef // coefficients
 				 );
-    result->addValues(item);
+    result->addValues(item,h2mode_);
   }
   return result;
 } // produceFlagHFDigiTimeParams;

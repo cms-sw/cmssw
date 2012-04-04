@@ -440,12 +440,12 @@ void STAnalyzer::analyzeSATrack(const Event & event,
         for (int sl=1; sl<=3; ++sl) {
           if (sl==2 && cc==4) continue;
           DTSuperLayerId slid(chid, sl);
-          const DTSuperLayer* sl = dtGeom->superLayer(slid);
+          const DTSuperLayer* dtsl = dtGeom->superLayer(slid);
           if (hitsPerSL[slid]==0) {
             //cout << "Hits missing in " << slid << endl;
-            missingHit(dtGeom, segs2d, sl, innerTSOS, false);
+            missingHit(dtGeom, segs2d, dtsl, innerTSOS, false);
           } else {
-            missingHit(dtGeom, segs2d, sl, innerTSOS, true);
+            missingHit(dtGeom, segs2d, dtsl, innerTSOS, true);
             nSL++;
             nSLPerCh++;
             //cout << "Hits in " << slid << " = " << hitsPerSL[slid]<< endl;

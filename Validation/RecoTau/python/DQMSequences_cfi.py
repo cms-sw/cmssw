@@ -165,7 +165,11 @@ pfTauRunDQMValidationTauPlusX = cms.Sequence(
 ##     efficienciesRealData+
 ##     normalizePlotsRealMuonsData
 ##     )
-runTauEffSingleMu = runTauEffMu
+runTauEffSingleMu =  cms.Sequence(
+    efficienciesRealMuonsData+
+    efficienciesRealData+
+    normalizePlotsRealMuonsData
+    )       
 
 runTauEffJet = TauEfficienciesRealData
 runTauEffMutiJet = runTauEffJet

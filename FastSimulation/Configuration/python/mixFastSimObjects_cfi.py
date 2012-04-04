@@ -29,7 +29,7 @@ mixSimVertices = cms.PSet(
     type = cms.string('SimVertex')
 )
 mixHepMCProducts = cms.PSet(
-    input = cms.VInputTag(cms.InputTag("generator")),
+    input = cms.VInputTag(cms.InputTag("famosSimHits")),
     type = cms.string('HepMCProduct')
 )
 

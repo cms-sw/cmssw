@@ -28,13 +28,37 @@ typedef std::map<DetId, EcalRecHit> RecHitsMap;
 class Multi5x5ClusterAlgo 
 {
     public:
+  //the 5x5 clustering algo by default makes basic clusters which may not contain their seed crystal if they are close by to other clusters 
+  //however we would like to post-fix the basic clusters to ensure they always contain their seed crystal
+  //so we define a proto basic cluster class which contains all the information which would be in a basic cluster 
+  //which allows the addition of its seed and the removal of a seed of another cluster easily
+  class ProtoBasicCluster {
+    float energy_;
+    EcalRecHit seed_;
+    std::vector<std::pair<DetId,float> > hits_;
+    bool containsSeed_;
+  public:
+    ProtoBasicCluster();
+    ProtoBasicCluster(float iEnergy,const EcalRecHit& iSeed,std::vector<std::pair<DetId,float> >& iHits):energy_(iEnergy),seed_(iSeed){hits_.swap(iHits);containsSeed_=isSeedCrysInHits_();}
+    
+    float energy()const{return energy_;}
+    const EcalRecHit& seed()const{return seed_;}
+    const std::vector<std::pair<DetId,float> >& hits()const{return hits_;}
+    bool containsSeed()const{return containsSeed_;}
 
+    bool removeHit(const EcalRecHit& hitToRM);
+    bool addSeed();
+  private:
+    bool isSeedCrysInHits_()const; 
 
-        Multi5x5ClusterAlgo() {
+  };
+    
+
+  Multi5x5ClusterAlgo() {
         }
 
-        Multi5x5ClusterAlgo(double ebst, double ecst, std::vector<int> v_chstatus, const PositionCalc& posCalc) : 
-            ecalBarrelSeedThreshold(ebst), ecalEndcapSeedThreshold(ecst),  v_chstatus_(v_chstatus) {
+  Multi5x5ClusterAlgo(double ebst, double ecst, std::vector<int> v_chstatus, const PositionCalc& posCalc,bool reassignSeedCrysToClusterItSeeds=false) : 
+	  ecalBarrelSeedThreshold(ebst), ecalEndcapSeedThreshold(ecst),  v_chstatus_(v_chstatus) ,reassignSeedCrysToClusterItSeeds_(reassignSeedCrysToClusterItSeeds) {
                 posCalculator_ = posCalc;
                 std::sort( v_chstatus_.begin(), v_chstatus_.end() );
             }
@@ -74,6 +98,8 @@ class Multi5x5ClusterAlgo
         // The vector of seeds:
         std::vector<EcalRecHit> seeds;
 
+        std::vector<std::pair<DetId,int> > whichClusCrysBelongsTo_;
+
         // The set of used DetID's
         std::set<DetId> used_s;
         std::set<DetId> canSeed_s; // set of crystals not to be added but which can seed
@@ -85,9 +111,13 @@ class Multi5x5ClusterAlgo
 
         // The vector of clusters
         std::vector<reco::BasicCluster> clusters_v;
-
+        std::vector<ProtoBasicCluster> protoClusters_; 
         // recHit flag to be excluded from seeding
-        std::vector<int> v_chstatus_;
+        std::vector<int> v_chstatus_; 
+
+        bool reassignSeedCrysToClusterItSeeds_; //the seed of the 5x5 crystal is sometimes in another basic cluster, however we may want to put it back into the cluster it seeds
+
+ 
 
         void mainSearch(const EcalRecHitCollection* hits,
                 const CaloSubdetectorGeometry *geometry_p,

@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerClient.h
  *
- * $Date: 2010/01/25 21:12:25 $
- * $Revision: 1.36 $
+ * $Date: 2009/11/20 20:51:25 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -96,7 +96,9 @@ MonitorElement* mel01_[18];
 MonitorElement* mel02_[18];
 MonitorElement* meo01_[18];
 
-TH2F* o01_[18];
+TH2F* l01_[18];
+TH2F* l02_[18];
+TH3F* o01_[18];
 
 MonitorElement* me_o01_[18];
 MonitorElement* me_o02_[18];

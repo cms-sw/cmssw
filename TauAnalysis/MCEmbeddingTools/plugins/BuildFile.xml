@@ -20,6 +20,5 @@
   <use   name="GeneratorInterface/Pythia6Interface"/>
   <use   name="roottmva"/>
   <use   name="TauAnalysis/MCEmbeddingTools"/>
-  <flags CXXFLAGS="-O0 -g3 -fno-inline"/> 
   <flags   EDM_PLUGIN="1"/>
 </library>

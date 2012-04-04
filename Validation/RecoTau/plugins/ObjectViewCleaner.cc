@@ -37,6 +37,7 @@
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 

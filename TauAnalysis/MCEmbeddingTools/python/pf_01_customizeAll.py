@@ -356,7 +356,7 @@ def customise(process):
   # xxx
   process.gsfElectrons = cms.EDProducer("GSFElectronsMixer",
       col1 = cms.InputTag("gsfElectronsORG"),
-      col2 = cms.InputTag("gsfElectrons","","HLT"),
+      col2 = cms.InputTag("gsfElectrons","","RECO"),
   )
   #'''
 

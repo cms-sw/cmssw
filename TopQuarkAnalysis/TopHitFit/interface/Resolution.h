@@ -1,5 +1,5 @@
 //
-// $Id: Resolution.h,v 1.1 2011/05/26 09:46:53 mseidel Exp $
+// $Id: Resolution.h,v 1.7 2011/02/02 23:22:24 haryo Exp $
 //
 // File: hitfit/Resolution.h
 // Purpose: Calculate resolutions for a quantity.
@@ -18,7 +18,7 @@
 //
 // In addition, we have an `inverse' flag.  If that is set,
 // we take the inverse of p before doing the above calculation
-// (and for p, `sigma(p)' is regarded as actually sigma(1/p)).
+// (and `sigma(x)' is regarded as actually sigma(1/x)).
 //
 // We encode the resolution parameters into a string, from which these
 // objects get initialized.  The format is
@@ -181,7 +181,7 @@ public:
    */
   double sigma (double p) const;
 
-  // Given a value X, measured for an object with momentum P,
+  // Given a value X, measured for an object with momentum P, 
   // pick a new value from a Gaussian distribution
   // described by this resolution --- with mean X and width sigma(P).
   /**

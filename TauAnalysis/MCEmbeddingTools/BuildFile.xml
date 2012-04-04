@@ -19,7 +19,6 @@
 <use   name="pythia6"/>
 <use   name="GeneratorInterface/Pythia6Interface"/>
 <use   name="GeneratorInterface/Core"/>
-<flags CXXFLAGS="-O0 -g3 -fno-inline"/> 
 <export>
   <lib   name="1"/>
 </export>

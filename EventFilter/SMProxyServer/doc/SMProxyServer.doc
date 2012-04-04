@@ -15,32 +15,21 @@
 \section desc Description
 <!-- Short description of what this package is supposed to provide -->
 
-(THE PACKAGE ADMINISTATOR SHOULD REPLACE THIS SENTENCE WITH HAND-WRITTEN DOCUMENTATION SAYING WHAT THE PACKAGE DOES.)
+The XDAQ application SMProxyServer is provided by this package.
+
+The Storage Manager Proxy Server is used in the CMS online system.
+It acts as intermediary between the StorageManager and the online consumers,
+serving events and DQM histograms via HTTP requests.
+
 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
-- Configuration
-- ConnectionID
-- DQMArchiver
-- DQMEventMsg
-- DataManager
-- DataRetrieverMonitorCollection
-- EventMsg
-- EventQueueCollection
-- EventRetriever
-- Exception
-- SMPSWebPageHelper
-- SMProxyServer
-- StateMachine
-- States
-- StatisticsReporter
+- smproxy::SMProxyServer
 
 
 \subsection pluginai Plugins
 <!-- List the plugins that are provided for use in other packages (if any) -->
-
-
 
 
 \subsection modules Modules
@@ -49,14 +38,14 @@
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
-Unknown
+None. The main functionality is tested in the stor::StorageManager package.
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
-Unknown
+Stable
 
 <hr>
 Last updated:
-@DATE@  Author: computer-generated.
+@DATE@  Author: <a href="mailto:remigius.mommsen@cern.ch">Remi Mommsen</a>
 */
 

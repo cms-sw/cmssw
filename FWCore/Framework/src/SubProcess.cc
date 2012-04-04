@@ -95,10 +95,10 @@ namespace edm {
     ServiceRegistry::Operate operate(serviceToken_);
 
     // intialize miscellaneous items
-    boost::shared_ptr<CommonParams> common(items.initMisc(*processParameterSet));
+    items.initMisc(*processParameterSet);
 
     // intialize the event setup provider
-    esp_ = esController.makeProvider(*processParameterSet, *common);
+    esp_ = esController.makeProvider(*processParameterSet);
 
     // intialize the Schedule
     schedule_ = items.initSchedule(*processParameterSet,subProcessParameterSet.get());

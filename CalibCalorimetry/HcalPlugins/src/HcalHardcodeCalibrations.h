@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Oct 21, 2005
-// $Id: HcalHardcodeCalibrations.h,v 1.18 2011/10/26 14:00:29 xiezhen Exp $
+// $Id: HcalHardcodeCalibrations.h,v 1.17 2011/06/24 22:15:53 temple Exp $
 //
 // ESSource to generate default HCAL calibration objects 
 //
@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
+
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 class ParameterSet;
 
@@ -77,6 +77,6 @@ protected:
   std::auto_ptr<HcalMCParams> produceMCParams (const HcalMCParamsRcd& rcd);
   std::auto_ptr<HcalFlagHFDigiTimeParams> produceFlagHFDigiTimeParams (const HcalFlagHFDigiTimeParamsRcd& rcd);
 
-  HcalTopology::Mode mode_;
+  bool h2mode_;
 };
 

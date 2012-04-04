@@ -90,7 +90,8 @@ void GsfElectronFromPVSelector::produce(edm::Event& iEvent,const edm::EventSetup
   
   
   reco::Vertex PV = VertexHandle->front();   
-  typename std::vector<reco::GsfElectron>::const_iterator GsfElectronIt ;
+  std::vector<reco::GsfElectron>::const_iterator GsfElectronIt ;
+//  typename std::vector<reco::GsfElectron>::const_iterator GsfElectronIt ;
 
   for (GsfElectronIt = GsfElectronHandle->begin(); GsfElectronIt != GsfElectronHandle->end(); ++GsfElectronIt) {
     

@@ -353,7 +353,6 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.hcalDepth2OverEcal = HoE2;
     showerShape.hcalDepth1OverEcalBc = hcalDepth1OverEcalBc;
     showerShape.hcalDepth2OverEcalBc = hcalDepth2OverEcalBc;
-    showerShape.hcalTowersBehindClusters =  TowersBehindClus;
     newCandidate.setShowerShapeVariables ( showerShape ); 
 
     /// get ecal photon specific corrected energy 

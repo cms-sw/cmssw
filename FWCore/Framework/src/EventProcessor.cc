@@ -337,8 +337,7 @@ namespace edm {
   // ---------------------------------------------------------------
   boost::shared_ptr<EDLooperBase>
   fillLooper(eventsetup::EventSetupProvider& cp,
-                         ParameterSet& params,
-                         CommonParams const& common) {
+                         ParameterSet& params) {
     boost::shared_ptr<EDLooperBase> vLooper;
 
     std::vector<std::string> loopers = params.getParameter<std::vector<std::string> >("@all_loopers");
@@ -356,10 +355,7 @@ namespace edm {
       ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
       providerPSet->registerIt();
       vLooper = eventsetup::LooperFactory::get()->addTo(cp,
-                                                        *providerPSet,
-                                                        common.processName_,
-                                                        common.releaseVersion_,
-                                                        common.passID_);
+                                                        *providerPSet);
       }
       return vLooper;
 
@@ -629,10 +625,10 @@ namespace edm {
     boost::shared_ptr<CommonParams> common(items.initMisc(*parameterSet));
 
     // intialize the event setup provider
-    esp_ = espController->makeProvider(*parameterSet, *common);
+    esp_ = espController->makeProvider(*parameterSet);
 
     // initialize the looper, if any
-    looper_ = fillLooper(*esp_, *parameterSet, *common);
+    looper_ = fillLooper(*esp_, *parameterSet);
     if(looper_) {
       looper_->setActionTable(items.act_table_.get());
       looper_->attachTo(*items.actReg_);
