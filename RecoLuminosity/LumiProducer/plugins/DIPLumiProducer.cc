@@ -6,7 +6,7 @@
 /**\class DIPLumiProducer DIPLumiProducer.cc RecoLuminosity/LumiProducer/src/DIPLumiProducer.cc
 Description: A essource/esproducer for lumi values from DIP via runtime logger DB
 */
-// $Id: DIPLumiProducer.cc,v 1.11 2012/04/03 18:37:59 xiezhen Exp $
+// $Id: DIPLumiProducer.cc,v 1.12 2012/04/03 19:54:06 xiezhen Exp $
 
 //#include <memory>
 //#include "boost/shared_ptr.hpp"
@@ -85,6 +85,9 @@ DIPLumiProducer::produceSummary(const DIPLuminosityRcd&)
       fillsummarycache(currentrun,currentls);// 
     }
   }
+  if(m_summarycache.empty()){
+    return boost::shared_ptr<DIPLumiSummary>(new DIPLumiSummary());
+  }
   if(m_summarycache.find(currentls)==m_summarycache.end()){
     std::vector<unsigned int> v;
     for(std::map<unsigned int,boost::shared_ptr<DIPLumiSummary> >::iterator it=m_summarycache.begin();it!=m_summarycache.end();++it){
@@ -113,6 +116,9 @@ DIPLumiProducer::produceDetail(const DIPLuminosityRcd&)
     if(m_detailcache.find(currentls)==m_detailcache.end()){//i'm in a unknown ls
       filldetailcache(currentrun,currentls);//cache all ls>=currentls 
     }
+  }
+  if(m_detailcache.empty()){
+    return boost::shared_ptr<DIPLumiDetail>(new DIPLumiDetail());
   }
   if(m_detailcache.find(currentls)==m_detailcache.end()){
     std::vector<unsigned int> v;
@@ -168,6 +174,11 @@ DIPLumiProducer::fillsummarycache(unsigned int runnumber,unsigned int currentlsn
     unsigned int maxavailableLS=maxavailableLSforRun(schema,std::string("LUMI_SECTIONS"),m_summarycachedrun);
     if(maxavailableLS!=0 && maxavailableLS<currentlsnum){
       lsmax=maxavailableLS;
+    }else if(maxavailableLS==0){
+      //this run not existing (yet)
+      session->transaction().commit();
+      mydbservice->disconnect(session);
+      return;
     }
     if(m_cachesize!=0){
       lsmin=(lsmax-m_cachesize)>0 ? (lsmax-m_cachesize+1) : 1;
@@ -200,10 +211,22 @@ DIPLumiProducer::fillsummarycache(unsigned int runnumber,unsigned int currentlsn
     while( lumisummarycursor.next() ){
       const coral::AttributeList& row=lumisummarycursor.currentRow();
       unsigned int lsnum=row["LUMISECTION"].data<unsigned int>();
-      float instlumi=row["INSTLUMI"].data<float>();//Hz/ub
-      float intgdellumi=row["DELIVLUMISECTION"].data<float>()*1000.0;//convert to /ub
-      float intgreclumi=row["LIVELUMISECTION"].data<float>()*1000.0;//convert to /ub
-      unsigned short cmsalive=row["CMS_ACTIVE"].data<unsigned short>();
+      float instlumi=0.0;
+      if(!row["INSTLUMI"].isNull()){
+	instlumi=row["INSTLUMI"].data<float>();//Hz/ub
+      }
+      float intgdellumi=0.0;
+      if(!row["DELIVLUMISECTION"].isNull()){
+	intgdellumi=row["DELIVLUMISECTION"].data<float>()*1000.0;//convert to /ub
+      }
+      float intgreclumi=0.0;
+      if(!row["LIVELUMISECTION"].isNull()){
+	intgreclumi=row["LIVELUMISECTION"].data<float>()*1000.0;//convert to /ub
+      }
+      unsigned short cmsalive=0;
+      if(!row["CMS_ACTIVE"].isNull()){
+	cmsalive=row["CMS_ACTIVE"].data<unsigned short>();
+      }
       boost::shared_ptr<DIPLumiSummary> tmpls(new DIPLumiSummary(instlumi,intgdellumi,intgreclumi,cmsalive));
       tmpls->setOrigin(m_summarycachedrun,lsnum);
       //std::cout<<"filling "<<lsnum<<std::endl;
@@ -269,6 +292,11 @@ DIPLumiProducer::filldetailcache(unsigned int runnumber,unsigned int currentlsnu
     unsigned int maxavailableLS=maxavailableLSforRun(schema,std::string("BUNCH_LUMI_SECTIONS"),m_summarycachedrun);
     if(maxavailableLS!=0 &&maxavailableLS<currentlsnum ){
       lsmax=maxavailableLS;
+    }else if(maxavailableLS==0){
+      //this run not existing (yet)
+      session->transaction().commit();
+      mydbservice->disconnect(session);
+      return;
     }
     if(m_cachesize!=0){
       lsmin=(lsmax-m_cachesize)>0 ? (lsmax-m_cachesize+1) : 1;
@@ -300,9 +328,14 @@ DIPLumiProducer::filldetailcache(unsigned int runnumber,unsigned int currentlsnu
 	m_detailcache.insert(std::make_pair(lsnum,boost::shared_ptr<DIPLumiDetail>(new DIPLumiDetail)));
 	m_detailcache[lsnum]->setOrigin(m_detailcachedrun,lsnum);
       }
-      unsigned int bxidx=row["BUNCH"].data<unsigned int>();
-      float bxlumi=row["BUNCHLUMI"].data<float>();//Hz/ub
-      m_detailcache[lsnum]->fillbxdata(bxidx,bxlumi);
+      if(!row["BUNCH"].isNull()){
+	unsigned int bxidx=row["BUNCH"].data<unsigned int>();
+	float bxlumi=0.0;
+	if(!row["BUNCHLUMI"].isNull()){
+	  bxlumi=row["BUNCHLUMI"].data<float>();//Hz/ub
+	}
+	m_detailcache[lsnum]->fillbxdata(bxidx,bxlumi);
+      }
     }
     delete lumidetailQuery;
     session->transaction().commit();
