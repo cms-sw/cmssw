@@ -322,7 +322,6 @@ class TEndcapRings {
 TEndcapRings::TEndcapRings() {
         FILE *fRing;
         fRing = fopen("eerings.dat","r");
-        std::cout << "Inizializing endcap geometry from: eerings.dat" << std::endl;
         int ix,iy,iz,ir;
         while(fscanf(fRing,"(%d,%d,%d) %d \n",&ix,&iy,&iz,&ir) !=EOF ) {
                 if (iz<0) iz=0;
