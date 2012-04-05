@@ -102,6 +102,8 @@ class Process(object):
     def __init__(self,name):
         """The argument 'name' will be the name applied to this Process"""
         self.__dict__['_Process__name'] = name
+        if not name.isalnum():
+            raise RuntimeError("Error: The process name is an empty string or contains non-alphanumeric characters")
         self.__dict__['_Process__filters'] = {}
         self.__dict__['_Process__producers'] = {}
         self.__dict__['_Process__source'] = None
@@ -167,6 +169,8 @@ class Process(object):
     def name_(self):
         return self.__name
     def setName_(self,name):
+        if not name.isalnum():
+            raise RuntimeError("Error: The process name is an empty string or contains non-alphanumeric characters")
         self.__dict__['_Process__name'] = name
     process = property(name_,setName_, doc="name of the process")
     def producers_(self):
