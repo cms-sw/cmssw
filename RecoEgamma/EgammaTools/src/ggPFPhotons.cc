@@ -3,6 +3,7 @@
 ggPFPhotons::ggPFPhotons(
 			 reco::Photon phot,
 			 edm::Handle<reco::PhotonCollection>& pfPhotons,
+			 edm::Handle<reco::GsfElectronCollection>& pfElectrons,
 			 edm::Handle<EcalRecHitCollection>& EBReducedRecHits,
 			 edm::Handle<EcalRecHitCollection>& EEReducedRecHits,
 			 edm::Handle<EcalRecHitCollection>& ESRecHits,
@@ -19,6 +20,7 @@ ggPFPhotons::ggPFPhotons(
   geomEnd_(geomEnd),
   beamSpotHandle_(beamSpotHandle),
   matchPFReco_(false),
+  isPFEle_(false),
   isConv_(false),
   hasSLConv_(false)
 {
@@ -33,7 +35,22 @@ ggPFPhotons::ggPFPhotons(
       break;
     }
   }
-  
+  reco::GsfElectronCollection::const_iterator pfele=pfElectrons->begin();
+  for(;pfele!=pfElectrons->end();++pfele){
+    if(pfele->superCluster().isNull())continue;
+    
+      if(pfele->superCluster()==matchedPhot_.superCluster()){
+      if(pfele->pflowSuperCluster().isNull())continue;
+	
+      PFElectron_= *(pfele);
+      matchPFReco_=true;
+      isPFEle_=true;
+      break;
+    }
+      
+  } 
+
+    
 }
 ggPFPhotons::~ggPFPhotons(){;}
 
@@ -44,6 +61,11 @@ std::pair<float, float> ggPFPhotons::SLPoint(){
   std::pair<float, float> SLPoint(0,0);
   TVector3 bs(beamSpotHandle_->position().x(),beamSpotHandle_->position().y(),
 	      beamSpotHandle_->position().z());
+  if(isPFEle_){
+    isConv_=true;
+    SLPoint=pfTks.gsfTrackProj(PFElectron_.gsfTrack());
+    return SLPoint;
+  }
   SLPoint=pfTks.SLCombZVtx(PFPhoton_, hasSLConv_);
   isConv_=pfTks.isConv();//bool to flag if there are conv tracks
   return SLPoint; 
@@ -53,7 +75,8 @@ void ggPFPhotons::fillPFClusters(){
   //PFClusterCollection object with appropriate variables:
   ggPFClusters PFClusterCollection(PFPhoton_, EBReducedRecHits_, EEReducedRecHits_, geomBar_,   geomEnd_);
   //fill PFClusters
-  PFClusters_=PFClusterCollection.getPFClusters(*(PFPhoton_.pfSuperCluster()));
+  if(isPFEle_)PFClusters_=PFClusterCollection.getPFClusters(*(PFElectron_.pflowSuperCluster()));
+  else PFClusters_=PFClusterCollection.getPFClusters(*(PFPhoton_.pfSuperCluster()));
   //fill PFClusters with Cluster energy from Rechits inside SC
   PFSCFootprintClusters_.clear();
   for(unsigned int i=0; i<PFClusters_.size(); ++i){
@@ -116,7 +139,9 @@ void ggPFPhotons::fillPFClusters(){
 
   //fill ES Clusters
   ggPFESClusters PFPSClusterCollection(ESRecHits_);
-  vector<reco::PreshowerCluster>PFPS=PFPSClusterCollection.getPFESClusters(*(PFPhoton_.pfSuperCluster()));
+  vector<reco::PreshowerCluster>PFPS;
+  if(isPFEle_)PFPS=PFPSClusterCollection.getPFESClusters(*((PFElectron_.pflowSuperCluster())));
+  else PFPS=PFPSClusterCollection.getPFESClusters(*(PFPhoton_.pfSuperCluster()));
   float PFPS1=0;
   float PFPS2=0;
   for(unsigned int i=0; i<PFPS.size(); ++i){

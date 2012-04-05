@@ -159,15 +159,7 @@ std::pair<float,float> ggPFTracks::TrackProj(
   std::pair<float,float> ZProj(0,0);
   
   if(gsf.isNonnull()){//if there is a gsf track then use this for track projection Plenty of inner hits
-    
-    float theta =gsf->innerMomentum().theta();
-    
-    float tkz=gsf->innerPosition().Z();
-    float tkR=sqrt(gsf->innerPosition().X()* gsf->innerPosition().X()+ gsf->innerPosition().Y()* gsf->innerPosition().Y());
-    float thetErr=gsf->thetaError();
-    float Z=tkz-tkR/tan(theta);
-    float Zerr=((-1*(cos(theta)*cos(theta))/(sin(theta)* sin(theta))-1)*tkR*thetErr);
-    ZProj.first=Z; ZProj.second=Zerr;
+    ZProj=gsfTrackProj(gsf);
     return ZProj;
   }
   
@@ -202,6 +194,24 @@ std::pair<float,float> ggPFTracks::TrackProj(
 
 //this function combines the results from the Track Projection and SC pointing 
 //can also use conversion pairs and gsf tracks, even when there is no Single leg
+std::pair<float,float> ggPFTracks::gsfTrackProj(
+						reco::GsfTrackRef gsf
+						){
+  //if there is a gsf track then use this for track projection Plenty of inner hits
+  
+  float theta =gsf->innerMomentum().theta();
+  
+  float tkz=gsf->innerPosition().Z();
+  float tkR=sqrt(gsf->innerPosition().X()* gsf->innerPosition().X()+ gsf->innerPosition().Y()* gsf->innerPosition().Y());
+  float thetErr=gsf->thetaError();
+  float Z=tkz-tkR/tan(theta);
+  float Zerr=((-1*(cos(theta)*cos(theta))/(sin(theta)* sin(theta))-1)*tkR*thetErr);
+  std::pair<float,float> ZProj(0,0);
+  ZProj.first=Z; ZProj.second=Zerr;
+  return ZProj;
+  
+}
+
 std::pair<float,float> ggPFTracks::CombZVtx(
 			   reco::SuperClusterRef sc, 
 			   reco::GsfTrackRef gsf,

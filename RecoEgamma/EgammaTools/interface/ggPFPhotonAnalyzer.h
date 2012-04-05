@@ -35,6 +35,7 @@ class ggPFPhotonAnalyzer : public edm::EDAnalyzer {
  private:
   edm::InputTag   PFPhotonTag_;
   edm::InputTag   recoPhotonTag_;
+  edm::InputTag   PFElectronTag_;
   edm::InputTag ebReducedRecHitCollection_;
   edm::InputTag eeReducedRecHitCollection_;
   edm::InputTag esRecHitCollection_;

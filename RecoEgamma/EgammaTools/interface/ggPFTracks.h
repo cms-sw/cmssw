@@ -33,6 +33,9 @@ class ggPFTracks{
 		    vector<edm::RefToBase<reco::Track> > &SLTracks, 
 		    reco::ConversionRefVector &SLconversions
 		    );
+  std::pair<float,float> gsfTrackProj(
+				      reco::GsfTrackRef gsf
+				      );
   std::pair<float,float> TrackProj(
 				   bool isEb,
 				   reco::GsfTrackRef gsf,

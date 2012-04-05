@@ -20,6 +20,7 @@ class ggPFPhotons  {
   explicit ggPFPhotons(
 		       reco::Photon phot,
 		       edm::Handle<reco::PhotonCollection>& pfPhotons,
+		       edm::Handle<reco::GsfElectronCollection>& pfElectrons,
 		       edm::Handle<EcalRecHitCollection>& EBReducedRecHits,
 		       edm::Handle<EcalRecHitCollection>& EEReducedRecHits,
 		       edm::Handle<EcalRecHitCollection>& ESRecHits,
@@ -32,6 +33,7 @@ class ggPFPhotons  {
   bool MatchPFReco(){ return matchPFReco_;}
   bool isConv(){ return isConv_;}
   bool hasSLConv(){return hasSLConv_;}
+  bool isPFEle(){return isPFEle_;}
   float PFPS1(){return PFPreShower1_;}
   float PFPS2(){return PFPreShower2_;}
   float MustE(){return EinMustache_;}
@@ -51,6 +53,7 @@ class ggPFPhotons  {
  private:
   reco::Photon matchedPhot_;
   Handle<reco::PhotonCollection> pfPhotons_;
+  Handle<reco::GsfElectronCollection> pfElectrons_;
   Handle<EcalRecHitCollection>  EBReducedRecHits_;
   Handle<EcalRecHitCollection>  EEReducedRecHits_;
   Handle<EcalRecHitCollection> ESRecHits_;
@@ -58,9 +61,11 @@ class ggPFPhotons  {
   const CaloSubdetectorGeometry* geomEnd_;
   Handle<BeamSpot> beamSpotHandle_;
   reco::Photon PFPhoton_;
+  reco::GsfElectron PFElectron_;
   bool matchPFReco_;
   bool isConv_;
   bool hasSLConv_;
+  bool isPFEle_;
   std::vector<reco::CaloCluster>PFClusters_;
   std::vector<reco::CaloCluster>PFSCFootprintClusters_;
   float EinMustache_;

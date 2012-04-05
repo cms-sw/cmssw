@@ -5,6 +5,7 @@
 
 ggPFPhotonAnalyzer::ggPFPhotonAnalyzer(const edm::ParameterSet& iConfig){
   PFPhotonTag_=iConfig.getParameter<InputTag>("PFPhotons");
+  PFElectronTag_=iConfig.getParameter<InputTag>("PFElectrons");
   recoPhotonTag_=iConfig.getParameter<InputTag>("Photons");
   ebReducedRecHitCollection_=iConfig.getParameter<InputTag>("ebReducedRecHitCollection");
   eeReducedRecHitCollection_=iConfig.getParameter<InputTag>("eeReducedRecHitCollection");
@@ -40,10 +41,12 @@ void ggPFPhotonAnalyzer::beginRun(const edm::Run & r, const edm::EventSetup & c)
 void ggPFPhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& es){
   Handle<reco::PhotonCollection> PFPhotons;
   Handle<reco::PhotonCollection> recoPhotons;
+  Handle<reco::GsfElectronCollection> PFElectrons;
   PhotonCollection::const_iterator iPfPho;
   PhotonCollection::const_iterator iPho;
   iEvent.getByLabel(PFPhotonTag_, PFPhotons);
   iEvent.getByLabel(recoPhotonTag_, recoPhotons);
+  iEvent.getByLabel(PFElectronTag_,PFElectrons);
   //for PFPhoton Constructor:
   edm::ESHandle<CaloGeometry> pG;
   es.get<CaloGeometryRecord>().get(pG);
@@ -60,6 +63,7 @@ void ggPFPhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByLabel(beamSpotCollection_,beamSpotHandle);
   for(reco::PhotonCollection::const_iterator iPho = recoPhotons->begin(); iPho!=recoPhotons->end(); ++iPho) {
     ggPFPhotons ggPFPhoton(*iPho, PFPhotons,
+			   PFElectrons,
 			   EBReducedRecHits,
 			   EEReducedRecHits,
 			   ESRecHits,
