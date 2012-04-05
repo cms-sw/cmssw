@@ -13,7 +13,7 @@
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: OccupancyPlotter.cc,v 1.12 2012/03/23 11:13:54 halil Exp $
+// $Id: OccupancyPlotter.cc,v 1.13 2012/04/03 09:54:48 halil Exp $
 //
 //
 
@@ -556,7 +556,7 @@ bool OccupancyPlotter::checkDcsInfo (const edm::Event & jEvent) {
       if (!dcsStatusItr->ready(DcsStatus::TOB))    dcs[20]=false;
       if (!dcsStatusItr->ready(DcsStatus::TECp))   dcs[21]=false;
       if (!dcsStatusItr->ready(DcsStatus::TECm))   dcs[22]=false;
-      if (!dcsStatusItr->ready(DcsStatus::CASTOR)) dcs[23]=false;
+//      if (!dcsStatusItr->ready(DcsStatus::CASTOR)) dcs[23]=false;
     }
 
 
