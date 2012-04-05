@@ -23,6 +23,7 @@
 #include "../interface/MultiDimFit.h"
 #include "../interface/CascadeMinimizer.h"
 #include "../interface/ProfilingTools.h"
+#include "../interface/GenerateOnly.h"
 #include <map>
 
 using namespace std;
@@ -56,6 +57,7 @@ int main(int argc, char **argv) {
   algo = new GoodnessOfFit();  methods.insert(make_pair(algo->name(), algo));
   algo = new ChannelCompatibilityCheck();  methods.insert(make_pair(algo->name(), algo));
   algo = new MultiDimFit();  methods.insert(make_pair(algo->name(), algo));
+  algo = new GenerateOnly();  methods.insert(make_pair(algo->name(), algo));
   
   CascadeMinimizer::initOptions();
 
@@ -244,8 +246,6 @@ int main(int argc, char **argv) {
         runtimedef::set(name, ivalue);
     }
   }
-
-
 
   try {
      combiner.run(datacard, dataset, limit, limitErr, iToy, t, runToys);
