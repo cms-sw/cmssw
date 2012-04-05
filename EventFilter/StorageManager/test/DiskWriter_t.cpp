@@ -48,7 +48,7 @@ class testDiskWriter : public CppUnit::TestFixture
   typedef toolbox::mem::Reference Reference;
   CPPUNIT_TEST_SUITE(testDiskWriter);
   CPPUNIT_TEST(writeAnEvent);
-  //CPPUNIT_TEST(writeManyEvents);
+  CPPUNIT_TEST(writeManyEvents);
   CPPUNIT_TEST(writeManyStreams);
   CPPUNIT_TEST(writeSameEventToAllStreams);
   CPPUNIT_TEST_SUITE_END();
@@ -139,7 +139,7 @@ void testDiskWriter::tearDown()
   }
   CPPUNIT_ASSERT_MESSAGE( msg.str(), alarmHandler_->noAlarmSet() );
   diskWriter_.reset();
-  //CPPUNIT_ASSERT( boost::filesystem::remove_all(path) > 0 );
+  CPPUNIT_ASSERT( boost::filesystem::remove_all(path) > 0 );
 }
 
 void testDiskWriter::writeAnEvent()
