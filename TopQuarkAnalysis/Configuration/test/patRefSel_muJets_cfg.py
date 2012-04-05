@@ -84,15 +84,11 @@ from TopQuarkAnalysis.Configuration.patRefSel_refMuJets import *
 #jetCutPF               = ''
 #jetMuonsDRPF           = 0.1
 
-# Trigger selection according to run range resp. MC sample:
-# lower range limits for data available as suffix;
-# available are: 000000, 147196, 160404, 163270, 173236, 175832 (default)
-# sample name for MC available as suffix;
-# available are: Summer11, Fall11 (default)
-#triggerSelectionData       = triggerSelection_175832
-#triggerObjectSelectionData = triggerObjectSelection_175832
-#triggerSelectionMC       = triggerSelection_Fall11
-#triggerObjectSelectionMC = triggerObjectSelection_Fall11
+# Trigger and trigger object
+#triggerSelectionData       = ''
+#triggerObjectSelectionData = ''
+#triggerSelectionMC       = ''
+#triggerObjectSelectionMC = ''
 
 ### Particle flow
 ### takes effect only, if 'runPF2PAT' = True
@@ -143,24 +139,7 @@ useL7Parton     = False
 
 # list of input files
 useRelVals = True # if 'False', "inputFiles" is used
-inputFiles = [ '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/179/411/E6068DCF-61FE-E011-B2C4-0019B9F72CE5.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/04C16888-52FB-E011-8321-0030486730C6.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/06B5F82F-57FB-E011-93CD-001D09F23A84.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/14675371-FBFA-E011-92EE-00215AEDFCCC.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/160F73C0-BAFA-E011-ADD0-001D09F2A465.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/2C9D2B89-B3FA-E011-AF19-001D09F24303.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/3A176EDF-BFFA-E011-90EA-003048CFB40C.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/4A2BDEC2-51FB-E011-9A27-BCAEC532971A.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/4AA63498-50FB-E011-A4E4-0025B32035BC.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/66B2E464-C0FA-E011-AFD8-BCAEC5329702.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/6C4DF9D2-BFFA-E011-BDCC-0019B9F709A4.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/6E3F588A-C4FA-E011-A20F-001D09F2527B.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/ACD7155F-B6FA-E011-95A9-BCAEC5329726.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/AEB720EB-46FB-E011-A1BE-003048F117F6.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/B4353A8A-C4FA-E011-BE51-0019B9F709A4.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/CCE2406E-FBFA-E011-9BCB-BCAEC53296FC.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/D8F22FD9-B2FA-E011-8D39-BCAEC518FF8A.root '
-             ] # overwritten, if "useRelVals" is 'True'
+inputFiles = [] # overwritten, if "useRelVals" is 'True'
 
 # maximum number of events
 maxInputEvents = -1 # reduce for testing
@@ -168,8 +147,8 @@ maxInputEvents = -1 # reduce for testing
 ### Conditions
 
 # GlobalTags (w/o suffix '::All')
-globalTagData = 'GR_R_44_V15'  # JEC2011V12
-globalTagMC   = 'START44_V13'  # JEC2011V12
+globalTagData = 'GR_R_52_V7'
+globalTagMC   = 'START52_V9'
 
 ### Output
 
@@ -209,17 +188,17 @@ process.load( "TopQuarkAnalysis.Configuration.patRefSel_inputModule_cfi" )
 if useRelVals:
   from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
   if runOnMC:
-    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_4_2'
+    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_2_3'
                                      , relVal        = 'RelValTTbar'
-                                     , globalTag     = 'START44_V7'
+                                     , globalTag     = 'START52_V5'
                                      , maxVersions   = 1
                                      )
   else:
-    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_4_2'
+    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_2_2'
                                      , relVal        = 'SingleMu'
                                      , dataTier      = 'RECO'
-                                     , globalTag     = 'GR_R_44_V7_RelVal_mu2011A'
-                                     , maxVersions   = 1
+                                     , globalTag     = 'GR_R_52_V4_RelVal_mu2011B'
+                                     , maxVersions   = 2
                                      )
 process.source.fileNames = inputFiles
 process.maxEvents.input  = maxInputEvents
@@ -247,7 +226,10 @@ process.out.SelectEvents.SelectEvents = []
 if runOnMC:
   triggerSelection = triggerSelectionMC
 else:
-  triggerSelection = triggerSelectionData
+  if useRelVals:
+    triggerSelection = triggerSelectionDataRelVals
+  else:
+    triggerSelection = triggerSelectionData
 from TopQuarkAnalysis.Configuration.patRefSel_triggerSelection_cff import triggerResults
 process.step0a = triggerResults.clone(
   triggerConditions = [ triggerSelection ]
@@ -260,8 +242,7 @@ process.step0b = process.goodOfflinePrimaryVertices.clone( filter = True )
 ### Event cleaning
 process.load( 'TopQuarkAnalysis.Configuration.patRefSel_eventCleaning_cff' )
 process.step0c = cms.Sequence(
-  process.HBHENoiseFilter
-+ process.scrapingFilter
+  process.eventCleaning
 )
 
 
@@ -326,19 +307,18 @@ if runPF2PAT:
            , jetCorrections = ( jecSetPF
                               , jecLevels
                               )
+           , pvCollection   = cms.InputTag( pfVertices )
            )
   applyPostfix( process, 'pfNoPileUp'  , postfix ).enable = usePFnoPU
   applyPostfix( process, 'pfNoMuon'    , postfix ).enable = useNoMuon
   applyPostfix( process, 'pfNoElectron', postfix ).enable = useNoElectron
   applyPostfix( process, 'pfNoJet'     , postfix ).enable = useNoJet
   applyPostfix( process, 'pfNoTau'     , postfix ).enable = useNoTau
-  applyPostfix( process, 'pfPileUp', postfix ).Vertices = cms.InputTag( pfVertices )
   if useL1FastJet:
     applyPostfix( process, 'pfPileUp'   , postfix ).checkClosestZVertex = False
     applyPostfix( process, 'pfPileUpIso', postfix ).checkClosestZVertex = usePfIsoLessCHS
     applyPostfix( process, 'pfJets', postfix ).doAreaFastjet = True
     applyPostfix( process, 'pfJets', postfix ).doRhoFastjet  = False
-  applyPostfix( process, 'pfMuonsFromVertex'    , postfix ).vertices = cms.InputTag( pfVertices )
   applyPostfix( process, 'pfMuonsFromVertex'    , postfix ).d0Cut    = pfD0Cut
   applyPostfix( process, 'pfMuonsFromVertex'    , postfix ).dzCut    = pfDzCut
   applyPostfix( process, 'pfSelectedMuons'      , postfix ).cut = pfMuonSelectionCut
@@ -354,17 +334,21 @@ if runPF2PAT:
     applyPostfix( process, 'patMuons', postfix ).isolationValues.pfPUChargedHadrons = cms.InputTag( 'muPFIsoValuePU03' + postfix )
     applyPostfix( process, 'patMuons', postfix ).isolationValues.pfPhotons          = cms.InputTag( 'muPFIsoValueGamma03' + postfix )
     applyPostfix( process, 'patMuons', postfix ).isolationValues.pfChargedHadrons   = cms.InputTag( 'muPFIsoValueCharged03' + postfix )
-  applyPostfix( process, 'pfElectronsFromVertex'    , postfix ).vertices = cms.InputTag( pfVertices )
   applyPostfix( process, 'pfElectronsFromVertex'    , postfix ).d0Cut    = pfD0Cut
   applyPostfix( process, 'pfElectronsFromVertex'    , postfix ).dzCut    = pfDzCut
   applyPostfix( process, 'pfSelectedElectrons'      , postfix ).cut = pfElectronSelectionCut
   applyPostfix( process, 'pfIsolatedElectrons'      , postfix ).isolationCut = pfElectronCombIsoCut
   if pfElectronIsoConeR03:
-    applyPostfix( process, 'isoValElectronWithCharged', postfix ).deposits[0].deltaR = 0.3
-    applyPostfix( process, 'isoValElectronWithNeutral', postfix ).deposits[0].deltaR = 0.3
-    applyPostfix( process, 'isoValElectronWithPhotons', postfix ).deposits[0].deltaR = 0.3
-  applyPostfix( process, 'patElectrons', postfix ).pvSrc = cms.InputTag( pfVertices )
-  applyPostfix( process, 'patMuons', postfix ).pvSrc = cms.InputTag( pfVertices )
+    applyPostfix( process, 'pfIsolatedElectrons', postfix ).isolationValueMapsCharged  = cms.VInputTag( cms.InputTag( 'elPFIsoValueCharged03' + postfix )
+                                                                                                       )
+    applyPostfix( process, 'pfIsolatedElectrons', postfix ).deltaBetaIsolationValueMap = cms.InputTag( 'elPFIsoValuePU03' + postfix )
+    applyPostfix( process, 'pfIsolatedElectrons', postfix ).isolationValueMapsNeutral  = cms.VInputTag( cms.InputTag( 'elPFIsoValueNeutral03' + postfix )
+                                                                                                      , cms.InputTag( 'elPFIsoValueGamma03'   + postfix )
+                                                                                                      )
+    applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfNeutralHadrons   = cms.InputTag( 'elPFIsoValueNeutral03' + postfix )
+    applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfPUChargedHadrons = cms.InputTag( 'elPFIsoValuePU03' + postfix )
+    applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfPhotons          = cms.InputTag( 'elPFIsoValueGamma03' + postfix )
+    applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfChargedHadrons   = cms.InputTag( 'elPFIsoValueCharged03' + postfix )
 
 from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import *
 
@@ -544,23 +528,13 @@ if runPF2PAT:
 
   ### Jets
 
-  applyPostfix( process, 'patJetCorrFactors', postfix ).primaryVertices = cms.InputTag( pfVertices )
-  if usePFnoPU:
-    kt6PFJetsPFChs = kt6PFJetsChs.clone( src = cms.InputTag( 'pfNoElectron' + postfix ) )
-    setattr( process, 'kt6PFJetsChs' + postfix, kt6PFJetsPFChs )
-    getattr( process, 'patPF2PATSequence' + postfix).replace( getattr( process, 'patJetCorrFactors' + postfix )
-                                                            , getattr( process, 'kt6PFJetsChs' + postfix ) * getattr( process, 'patJetCorrFactors' + postfix )
-                                                            )
-    if useL1FastJet:
-      applyPostfix( process, 'patJetCorrFactors', postfix ).rho = cms.InputTag( 'kt6PFJetsChs' + postfix, 'rho' )
-  else:
-    kt6PFJetsPF = kt6PFJets.clone( doRhoFastjet = True )
-    setattr( process, 'kt6PFJets' + postfix, kt6PFJetsPF )
-    getattr( process, 'patPF2PATSequence' + postfix).replace( getattr( process, 'patJetCorrFactors' + postfix )
-                                                            , getattr( process, 'kt6PFJets' + postfix ) * getattr( process, 'patJetCorrFactors' + postfix )
-                                                            )
-    if useL1FastJet:
-      applyPostfix( process, 'patJetCorrFactors', postfix ).rho = cms.InputTag( 'kt6PFJets' + postfix, 'rho' )
+  kt6PFJetsPF = kt6PFJets.clone( doRhoFastjet = True )
+  setattr( process, 'kt6PFJets' + postfix, kt6PFJetsPF )
+  getattr( process, 'patPF2PATSequence' + postfix).replace( getattr( process, 'pfNoElectron' + postfix )
+                                                          , getattr( process, 'pfNoElectron' + postfix ) * getattr( process, 'kt6PFJets' + postfix )
+                                                          )
+  if useL1FastJet:
+    applyPostfix( process, 'patJetCorrFactors', postfix ).rho = cms.InputTag( 'kt6PFJets' + postfix, 'rho' )
   process.out.outputCommands.append( 'keep double_kt6PFJets' + postfix + '_*_' + process.name_() )
 
   goodPatJetsPF = goodPatJets.clone( src = cms.InputTag( 'selectedPatJets' + postfix ) )
@@ -658,7 +632,10 @@ if addTriggerMatching:
   if runOnMC:
     triggerObjectSelection = triggerObjectSelectionMC
   else:
-    triggerObjectSelection = triggerObjectSelectionData
+    if useRelVals:
+      triggerObjectSelection = triggerObjectSelectionDataRelVals
+    else:
+      triggerObjectSelection = triggerObjectSelectionData
   ### Trigger matching configuration
   from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import patTrigger
   from TopQuarkAnalysis.Configuration.patRefSel_triggerMatching_cfi import patMuonTriggerMatch
@@ -737,8 +714,7 @@ if runStandardPAT:
     process.p += process.goodOfflinePrimaryVertices
     if useGoodVertex:
       process.p += process.step0b
-    if not runOnMC:
-      process.p += process.step0c
+    process.p += process.step0c
     process.p += process.eidCiCSequence
     if useL1FastJet and useRelVals:
       process.p += process.ak5CaloJetSequence
@@ -796,8 +772,7 @@ if runStandardPAT:
     pAddPF += process.goodOfflinePrimaryVertices
     if useGoodVertex:
       pAddPF += process.step0b
-    if not runOnMC:
-      pAddPF += process.step0c
+    pAddPF += process.step0c
     pAddPF += process.eidCiCSequence
     if useL1FastJet:
       pAddPF += process.ak5PFJets
@@ -865,8 +840,7 @@ if runPF2PAT:
   pPF += process.goodOfflinePrimaryVertices
   if useGoodVertex:
     pPF += process.step0b
-  if not runOnMC:
-    pPF += process.step0c
+  pPF += process.step0c
   pPF += process.eidCiCSequence
   pPF += getattr( process, 'patPF2PATSequence' + postfix )
   pPF += getattr( process, 'patAddOnSequence' + postfix )
