@@ -44,11 +44,19 @@ namespace edm {
     switchOverEntry_(-1),
     learningEntries_(learningEntries),
     cacheSize_(cacheSize),
+    treeAutoFlush_(tree_ ? tree_->GetAutoFlush() : 0),
     rootDelayedReader_(new RootDelayedReader(*this, filePtr)),
     branchEntryInfoBranch_(metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : (tree_ ? getProductProvenanceBranch(tree_, branchType_) : 0)),
     infoTree_(dynamic_cast<TTree*>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : 0)) // backward compatibility
     {
       assert(tree_);
+      // On merged files in older releases of ROOT, the autoFlush setting is always negative; we must guess.
+      // TODO: On newer merged files, we should be able to get this from the cluster iterator.
+      if (treeAutoFlush_ < 0) {
+        // The "+1" is here to avoid divide-by-zero in degenerate cases.
+        Long64_t averageEventSizeBytes = tree_->GetZipBytes() / (tree_->GetEntries()+1) + 1;
+        treeAutoFlush_ = cacheSize_/averageEventSizeBytes+1;
+      }
       setTreeMaxVirtualSize(maxVirtualSize);
       setCacheSize(cacheSize);
   }
@@ -146,6 +154,18 @@ namespace edm {
   void
   RootTree::setEntryNumber(EntryNumber theEntryNumber) {
     filePtr_->SetCacheRead(treeCache_.get());
+
+    // Detect a backward skip.  If the skip is sufficiently large, we roll the dice and reset the treeCache.
+    // This will cause some amount of over-reading: we pre-fetch all the events in some prior cluster.
+    // However, because reading one event in the cluster is supposed to be equivalent to reading all events in the cluster,
+    // we're not incurring additional over-reading - we're just doing it more efficiently.
+    // NOTE: Constructor guarantees treeAutoFlush_ is positive, even if TTree->GetAutoFlush() is negative.
+    if ((theEntryNumber < static_cast<EntryNumber>(entryNumber_-treeAutoFlush_)) &&
+        (treeCache_) && (!treeCache_->IsLearning()) && (entries_ > 0) && (switchOverEntry_ >= 0)) {
+      treeCache_->SetEntryRange(theEntryNumber, entries_);
+      treeCache_->FillBuffer();
+    }
+
     entryNumber_ = theEntryNumber;
     tree_->LoadTree(entryNumber_);
     filePtr_->SetCacheRead(0);

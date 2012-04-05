@@ -147,6 +147,7 @@ namespace edm {
     EntryNumber switchOverEntry_;
     unsigned int learningEntries_;
     unsigned int cacheSize_;
+    long int treeAutoFlush_;
     std::unique_ptr<DelayedReader> rootDelayedReader_;
 
     TBranch* branchEntryInfoBranch_; //backwards compatibility
