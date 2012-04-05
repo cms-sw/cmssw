@@ -48,7 +48,6 @@ AOutput
 ALCAP0Output
 ALCAPHISYMOutput
 CalibrationOutput
-DQMForPPOutput
 EcalCalibrationOutput
 ExpressForCosmicsOutput
 HLTDQMOutput

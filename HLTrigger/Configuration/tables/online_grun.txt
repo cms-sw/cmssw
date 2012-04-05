@@ -569,7 +569,6 @@ AlCa_LumiPixels_v*
 AlCa_LumiPixels_Random_v*
 AlCa_LumiPixels_ZeroBias_v*
 
-
 DQM_FEDIntegrity_v*
 HLTriggerFirstPath
 HLTriggerFinalPath
@@ -579,7 +578,6 @@ ALCAP0Output
 ALCAPHISYMOutput
 ALCALUMIPIXELSOutput
 CalibrationOutput
-DQMForPPOutput
 EcalCalibrationOutput
 #ExpressForCosmicsOutput                                                                         # only in 'GRun' and 'cosmics', not in 'online'
 ExpressOutput
