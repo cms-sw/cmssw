@@ -2,6 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.recoLayer0.stringResolutionProvider_cfi import *
 
+print "*** Including object resolutions derived from Spring10 MC for:"
+print "*** - electrons   - muons   - udscJetsCalo   - bJetsCalo   - caloMET"
+print "***                         - udscJetsPF     - bJetsPF     - pfMET"
+print "*** Please make sure that you are really using resolutions that are suited for the objects in your analysis!"
+
 ## electron resolutions
 elecResolution = stringResolution.clone(parametrization = 'EtEtaPhi',
                                         functions = cms.VPSet(
