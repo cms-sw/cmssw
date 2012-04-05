@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V63 (CMSSW_5_2_3_HLT2)
+# /dev/CMSSW_5_2_1/HIon/V64 (CMSSW_5_2_3_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V63')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V64')
 )
 
 process.streams = cms.PSet( 
@@ -6577,7 +6577,7 @@ process.hltL1sL1SingleJet20CentralNotBptx = cms.EDFilter( "HLTLevel1GTSeed",
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1TechTriggerSeeding = cms.bool( False )
 )
-process.hltPreHIJetE30NoBPTX = cms.EDFilter( "HLTPrescaler",
+process.hltPreJetE30NoBPTX = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -6731,7 +6731,7 @@ process.hltL1BeamHaloAntiCoincidence3BX = cms.EDFilter( "HLTLevel1Activity",
     daqPartitions = cms.uint32( 1 ),
     bunchCrossings = cms.vint32( 0, 1, -1 )
 )
-process.hltPreHIJetE50NoBPTX3BXNoHalo = cms.EDFilter( "HLTPrescaler",
+process.hltPreJetE50NoBPTX3BXNoHalo = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -8458,8 +8458,8 @@ process.HLT_HIJet80_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1Si
 process.HLT_HIJet95_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet68BptxAND + process.hltPreHIJet95 + process.HLTHIRecoJetSequenceIC5Corrected + process.hltHI1jet95 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
 process.HLT_HIDiJet55_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet36BptxAND + process.hltPreHIDiJet55 + process.HLTHIRecoJetSequenceIC5Corrected + process.hltHIDiJet55and55 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
 process.HLT_HIJet65_Jet55_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet36BptxAND + process.hltPreHIJet65Jet55 + process.HLTHIRecoJetSequenceIC5Corrected + process.hltHIDiJet55and55 + process.hltHI1jet65 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
-process.HLT_HIJetE30_NoBPTX_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet20CentralNotBptx + process.hltPreHIJetE30NoBPTX + process.HLTStoppedHSCPLocalHcalReco + process.HLTStoppedHSCPJetSequence + process.hltStoppedHSCP1CaloJetEnergy30 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
-process.HLT_HIJetE50_NoBPTX3BX_NoHalo_v3 = cms.Path( process.HLTBeginSequenceAntiBPTX + process.hltL1sL1SingleJet32CentralNotBptx + process.hltL1BeamHaloAntiCoincidence3BX + process.hltPreHIJetE50NoBPTX3BXNoHalo + process.HLTStoppedHSCPLocalHcalReco + process.hltStoppedHSCPHpdFilter + process.HLTStoppedHSCPJetSequence + process.hltStoppedHSCP1CaloJetEnergy50 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
+process.HLT_HIJetE30_NoBPTX_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet20CentralNotBptx + process.hltPreJetE30NoBPTX + process.HLTStoppedHSCPLocalHcalReco + process.HLTStoppedHSCPJetSequence + process.hltStoppedHSCP1CaloJetEnergy30 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
+process.HLT_HIJetE50_NoBPTX3BX_NoHalo_v3 = cms.Path( process.HLTBeginSequenceAntiBPTX + process.hltL1sL1SingleJet32CentralNotBptx + process.hltL1BeamHaloAntiCoincidence3BX + process.hltPreJetE50NoBPTX3BXNoHalo + process.HLTStoppedHSCPLocalHcalReco + process.hltStoppedHSCPHpdFilter + process.HLTStoppedHSCPJetSequence + process.hltStoppedHSCP1CaloJetEnergy50 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
 process.HLT_HIActivityHF_Coincidence3_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1GlobalDecision + process.hltPreHIActivityHFCoincidence3 + process.hltHcalDigis + process.hltHfreco + process.hltHcalSimpleRecHitFilterCoincidence + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
 process.HLT_HIActivityHF_Single3_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1GlobalDecision + process.hltPreHIActivityHFSingle3 + process.hltHcalDigis + process.hltHfreco + process.hltHcalSimpleRecHitFilter + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
 process.HLT_HIClusterVertexCompatibility_v4 = cms.Path( process.HLTBeginSequence + process.hltL1sL1GlobalDecision + process.hltPreHIClusterVertexCompatibility + process.HLTDoHILocalPixelSequence + process.hltHIPixelClusterShapeFilter + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
