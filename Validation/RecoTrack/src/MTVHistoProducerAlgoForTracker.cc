@@ -432,7 +432,7 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
   h_assoc2dz.push_back( dbe_->book1D("num_assoc(recoToSim)_dz","N of associated (recoToSim) tracks vs dz",nintDz,minDz,maxDz) );
   h_simuldz.push_back( dbe_->book1D("num_simul_dz","N of simulated tracks vs dz",nintDz,minDz,maxDz) );
   h_looperdz.push_back( dbe_->book1D("num_duplicate_dz","N of associated (recoToSim) looper tracks vs dz",nintDz,minDz,maxDz) );
-  h_misiddz.push_back( dbe_->book1D("num_chargemisid_dz","N of associated (recoToSim) charge misIDed tracks vs dz",nintDz,minDz,maxDz) );
+  h_misiddz.push_back( dbe_->book1D("num_chargemisid_versus_dz","N of associated (recoToSim) charge misIDed tracks vs dz",nintDz,minDz,maxDz) );
   
   h_assocvertpos.push_back( dbe_->book1D("num_assoc(simToReco)_vertpos",
 					 "N of associated tracks (simToReco) vs transverse vert position",	 
