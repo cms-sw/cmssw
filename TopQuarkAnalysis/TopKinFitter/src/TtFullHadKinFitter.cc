@@ -353,7 +353,7 @@ TtFullHadKinFitter::KinFit::KinFit(bool useBTagging, unsigned int bTags, std::st
 {
   // define kinematic fit interface
   fitter = new TtFullHadKinFitter(param(jetParam_), maxNrIter_, maxDeltaS_, maxF_, TtFullHadKinFitter::KinFit::constraints(constraints_), mW_, mTop_,
-				  &udscResolutions_, &bResolutions_);
+				  &udscResolutions_, &bResolutions_, &jetEnergyResolutionScaleFactors_, &jetEnergyResolutionEtaBinning_);
 }
 
 /// default destructor  
