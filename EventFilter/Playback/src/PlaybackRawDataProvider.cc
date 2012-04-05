@@ -37,6 +37,8 @@ PlaybackRawDataProvider::PlaybackRawDataProvider(const ParameterSet& iConfig)
   , writeIndex_(0)
   , readIndex_(0)
   , freeToEof_(false)
+  , filesClosed_(false)
+  , destroying_(false)
 {
   queueSize_=iConfig.getUntrackedParameter<unsigned int>("queueSize",32);
   sem_init(&lock_,0,1);
@@ -64,13 +66,14 @@ PlaybackRawDataProvider::~PlaybackRawDataProvider()
   edm::LogInfo("PbImpl") << "Destroyed Concrete RawData Provider 0x"<< hex << (unsigned long) this << dec << endl;
   instance_=0;
 
+  destroying_=true;
   postReadSem();
   postWriteSem();
   unlock(); 
   sem_destroy(&lock_);
   sem_destroy(&writeSem_);
   sem_destroy(&readSem_);
-
+  usleep(10000);
 }
 
 
@@ -126,19 +129,25 @@ void PlaybackRawDataProvider::beginJob()
   
 }
 
-
 //______________________________________________________________________________
 void PlaybackRawDataProvider::endJob()
 {
   edm::LogInfo("Summary")<<count_<<" events read."<<endl;
 }
 
+//______________________________________________________________________________
+void PlaybackRawDataProvider::respondToCloseInputFile(edm::FileBlock const& fb)
+{
+  filesClosed_ = true;
+}
 
 //______________________________________________________________________________
 FEDRawDataCollection* PlaybackRawDataProvider::getFEDRawData()
 {
   FEDRawDataCollection* result = 0;
   waitReadSem();
+  //do not read data if destructor is called
+  if (destroying_) return 0;
   lock();
   result = eventQueue_[readIndex_];
   eventQueue_[readIndex_]=0;
@@ -157,6 +166,8 @@ FEDRawDataCollection* PlaybackRawDataProvider::getFEDRawData(unsigned int& runNu
 
   FEDRawDataCollection* result = 0;
   waitReadSem();
+  //do not read data if destructor is called
+  if (destroying_) return 0;
   lock();
   runNumber=runNumber_[readIndex_];
   evtNumber=evtNumber_[readIndex_];
@@ -194,6 +205,11 @@ void PlaybackRawDataProvider::setFreeToEof()
   freeToEof_ = true; 
   //  cout << "  PlaybackRawDataProvider::setFreeToEof() call postReadSem" << endl;  
   postWriteSem(); 
+}
+
+bool PlaybackRawDataProvider::areFilesClosed()
+{
+  return filesClosed_;
 }
 ////////////////////////////////////////////////////////////////////////////////
 // framework module implementation macro
