@@ -41,17 +41,21 @@ class TtFullHadKinFitter : public TopKinFitter {
   TtFullHadKinFitter(int jetParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<unsigned int> constraints,
 		     double mW=80.4, double mTop=173.,
 		     const std::vector<edm::ParameterSet>* udscResolutions=0, 
-		     const std::vector<edm::ParameterSet>* bResolutions   =0);
+		     const std::vector<edm::ParameterSet>* bResolutions   =0,
+		     const std::vector<double>* jetEnergyResolutionScaleFactors=0,
+		     const std::vector<double>* jetEnergyResolutionEtaBinning  =0);
   /// constructor initialized with built-in types and class enum's custom parameters
   TtFullHadKinFitter(Param jetParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<Constraint> constraints,
 		     double mW=80.4, double mTop=173.,
 		     const std::vector<edm::ParameterSet>* udscResolutions=0, 
-		     const std::vector<edm::ParameterSet>* bResolutions   =0);
+		     const std::vector<edm::ParameterSet>* bResolutions   =0,
+		     const std::vector<double>* jetEnergyResolutionScaleFactors=0,
+		     const std::vector<double>* jetEnergyResolutionEtaBinning  =0);
   /// default destructor
   ~TtFullHadKinFitter();
 
   /// kinematic fit interface
-  int fit(const std::vector<pat::Jet>& jets, const std::vector<double> energyResolutionSmearFactor, const std::vector<double> etaBinningForSmearFactor);
+  int fit(const std::vector<pat::Jet>& jets);
   /// return fitted b quark candidate
   const pat::Particle fittedB() const { return (fitter_->getStatus()==0 ? fittedB_ : pat::Particle()); };
   /// return fitted b quark candidate
@@ -88,6 +92,9 @@ class TtFullHadKinFitter : public TopKinFitter {
   /// resolutions
   const std::vector<edm::ParameterSet>* udscResolutions_;
   const std::vector<edm::ParameterSet>* bResolutions_;
+  /// scale factors for the jet energy resolution
+  const std::vector<double>* jetEnergyResolutionScaleFactors_;
+  const std::vector<double>* jetEnergyResolutionEtaBinning_;
   /// supported constraints
   std::map<Constraint, TFitConstraintM*> massConstr_;
   /// output particles
@@ -126,13 +133,13 @@ class TtFullHadKinFitter : public TopKinFitter {
   class KinFit {
 
   public:
-    
+
     /// default constructor  
     KinFit();
     /// special constructor  
     KinFit(bool useBTagging, unsigned int bTags, std::string bTagAlgo, double minBTagValueBJet, double maxBTagValueNonBJet,
-	   std::vector<edm::ParameterSet> udscResolutions, std::vector<edm::ParameterSet> bResolutions, std::vector<double> energyResolutionSmearFactor,
-	   std::vector<double> etaBinningForSmearFactor, std::string jetCorrectionLevel, int maxNJets, int maxNComb,
+	   std::vector<edm::ParameterSet> udscResolutions, std::vector<edm::ParameterSet> bResolutions, std::vector<double> jetEnergyResolutionScaleFactors,
+	   std::vector<double> jetEnergyResolutionEtaBinning, std::string jetCorrectionLevel, int maxNJets, int maxNComb,
 	   unsigned int maxNrIter, double maxDeltaS, double maxF, unsigned int jetParam, std::vector<unsigned> constraints, double mW, double mTop);
     /// default destructor  
     ~KinFit();
@@ -147,11 +154,11 @@ class TtFullHadKinFitter : public TopKinFitter {
     }
     /// set resolutions
     void setResolutions(std::vector<edm::ParameterSet> udscResolutions, std::vector<edm::ParameterSet> bResolutions,
-			std::vector<double> energyResolutionSmearFactor, std::vector<double> etaBinningForSmearFactor){
+			std::vector<double> jetEnergyResolutionScaleFactors, std::vector<double> jetEnergyResolutionEtaBinning){
       udscResolutions_       = udscResolutions;
       bResolutions_          = bResolutions;
-      energyResolutionSmearFactor_ = energyResolutionSmearFactor;
-      etaBinningForSmearFactor_    = etaBinningForSmearFactor;
+      jetEnergyResolutionScaleFactors_ = jetEnergyResolutionScaleFactors;
+      jetEnergyResolutionEtaBinning_   = jetEnergyResolutionEtaBinning;
     }
     /// set parameters for fitter
     void setFitter(int maxNJets, unsigned int maxNrIter, double maxDeltaS, double maxF,
@@ -217,9 +224,9 @@ class TtFullHadKinFitter : public TopKinFitter {
     double maxBTagValueNonBJet_;
     /// store the resolutions for the jets
     std::vector<edm::ParameterSet> udscResolutions_, bResolutions_;
-    /// smearing factor for jet energy resolutions
-    std::vector<double> energyResolutionSmearFactor_;
-    std::vector<double> etaBinningForSmearFactor_;
+    /// scale factors for the jet energy resolution
+    std::vector<double> jetEnergyResolutionScaleFactors_;
+    std::vector<double> jetEnergyResolutionEtaBinning_;
     /// correction level for jets
     std::string jetCorrectionLevel_;
     /// maximal number of jets (-1 possible to indicate 'all')

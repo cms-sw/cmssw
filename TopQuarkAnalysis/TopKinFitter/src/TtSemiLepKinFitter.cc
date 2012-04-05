@@ -30,8 +30,7 @@ TtSemiLepKinFitter::TtSemiLepKinFitter(Param jetParam, Param lepParam, Param met
 				       const std::vector<edm::ParameterSet>* lepResolutions,
 				       const std::vector<edm::ParameterSet>* metResolutions,
 				       const std::vector<double>* jetEnergyResolutionScaleFactors,
-				       const std::vector<double>* jetEnergyResolutionEtaBinning);
-):
+				       const std::vector<double>* jetEnergyResolutionEtaBinning):
   TopKinFitter(maxNrIter, maxDeltaS, maxF, mW, mTop),
   hadB_(0), hadP_(0), hadQ_(0), lepB_(0), lepton_(0), neutrino_(0),
   udscResolutions_(udscResolutions), bResolutions_(bResolutions), lepResolutions_(lepResolutions), metResolutions_(metResolutions),
@@ -214,14 +213,6 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
   TMatrixD covLepton   = covM_->setupMatrix(lepton  , lepParam_);
   TMatrixD covNeutrino = covM_->setupMatrix(neutrino, metParam_);
 
-  // as covM contains resolution^2
-  // the correction of jet energy resolutions
-  // is just *jetEnergyResolutionSmearFactor^2
-  covHadP(0,0) *= pow(covM_->getEtaDependentSmearFactor(hadP), 2);
-  covHadQ(0,0) *= pow(covM_->getEtaDependentSmearFactor(hadQ), 2);
-  covHadB(0,0) *= pow(covM_->getEtaDependentSmearFactor(hadB), 2);
-  covLepB(0,0) *= pow(covM_->getEtaDependentSmearFactor(lepB), 2);
-
   // now do the part that is fully independent of PAT features
   return fit(p4HadP, p4HadQ, p4HadB, p4LepB, p4Lepton, p4Neutrino,
 	     covHadP, covHadQ, covHadB, covLepB, covLepton, covNeutrino,
@@ -238,14 +229,6 @@ int TtSemiLepKinFitter::fit(const TLorentzVector& p4HadP, const TLorentzVector& 
   TMatrixD covLepB = covM_->setupMatrix(p4LepB, CovarianceMatrix::kBJet, jetParam_);
   TMatrixD covLepton   = covM_->setupMatrix(p4Lepton  , leptonType             , lepParam_);
   TMatrixD covNeutrino = covM_->setupMatrix(p4Neutrino, CovarianceMatrix::kMet , metParam_);
-
-  // as covM contains resolution^2
-  // the correction of jet energy resolutions
-  // is just *jetEnergyResolutionSmearFactor^2
-  covHadP(0,0) *= pow(covM_->getEtaDependentSmearFactor(p4HadP), 2); 
-  covHadQ(0,0) *= pow(covM_->getEtaDependentSmearFactor(p4HadQ), 2); 
-  covHadB(0,0) *= pow(covM_->getEtaDependentSmearFactor(p4HadB), 2); 
-  covLepB(0,0) *= pow(covM_->getEtaDependentSmearFactor(p4LepB), 2); 
 
   // now do the part that is fully independent of PAT features
   return fit(p4HadP, p4HadQ, p4HadB, p4LepB, p4Lepton, p4Neutrino,

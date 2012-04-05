@@ -17,6 +17,7 @@ TtFullHadKinFitter::TtFullHadKinFitter():
   TopKinFitter(),
   b_(0), bBar_(0), lightQ_(0), lightQBar_(0), lightP_(0), lightPBar_(0),
   udscResolutions_(0), bResolutions_(0),
+  jetEnergyResolutionScaleFactors_(0), jetEnergyResolutionEtaBinning_(0),
   jetParam_(kEMom)
 {
   setupFitter();
@@ -39,10 +40,14 @@ TtFullHadKinFitter::intToConstraint(std::vector<unsigned int> constraints)
 TtFullHadKinFitter::TtFullHadKinFitter(int jetParam, int maxNrIter, double maxDeltaS, double maxF,
 				       const std::vector<unsigned int> constraints, double mW, double mTop,
 				       const std::vector<edm::ParameterSet>* udscResolutions, 
-				       const std::vector<edm::ParameterSet>* bResolutions):
+				       const std::vector<edm::ParameterSet>* bResolutions,
+				       const std::vector<double>* jetEnergyResolutionScaleFactors,
+				       const std::vector<double>* jetEnergyResolutionEtaBinning):
   TopKinFitter(maxNrIter, maxDeltaS, maxF, mW, mTop),
   b_(0), bBar_(0), lightQ_(0), lightQBar_(0), lightP_(0), lightPBar_(0),
   udscResolutions_(udscResolutions), bResolutions_(bResolutions),
+  jetEnergyResolutionScaleFactors_(jetEnergyResolutionScaleFactors),
+  jetEnergyResolutionEtaBinning_(jetEnergyResolutionEtaBinning),
   jetParam_((Param)jetParam), constraints_(intToConstraint(constraints))
 {
   setupFitter();
@@ -52,10 +57,14 @@ TtFullHadKinFitter::TtFullHadKinFitter(int jetParam, int maxNrIter, double maxDe
 TtFullHadKinFitter::TtFullHadKinFitter(Param jetParam, int maxNrIter, double maxDeltaS, double maxF,
 				       std::vector<Constraint> constraints, double mW, double mTop,
 				       const std::vector<edm::ParameterSet>* udscResolutions, 
-				       const std::vector<edm::ParameterSet>* bResolutions):
+				       const std::vector<edm::ParameterSet>* bResolutions,
+				       const std::vector<double>* jetEnergyResolutionScaleFactors,
+				       const std::vector<double>* jetEnergyResolutionEtaBinning):
   TopKinFitter(maxNrIter, maxDeltaS, maxF, mW, mTop),
   b_(0), bBar_(0), lightQ_(0), lightQBar_(0), lightP_(0), lightPBar_(0),
   udscResolutions_(udscResolutions), bResolutions_(bResolutions),
+  jetEnergyResolutionScaleFactors_(jetEnergyResolutionScaleFactors),
+  jetEnergyResolutionEtaBinning_(jetEnergyResolutionEtaBinning),
   jetParam_(jetParam), constraints_(constraints)
 {
   setupFitter();
@@ -178,15 +187,16 @@ TtFullHadKinFitter::setupFitter()
 
   // initialize helper class used to bring the resolutions into covariance matrices
   if(udscResolutions_->size() &&  bResolutions_->size())
-    covM_ = new CovarianceMatrix(*udscResolutions_, *bResolutions_);
+    covM_ = new CovarianceMatrix(*udscResolutions_, *bResolutions_,
+				 *jetEnergyResolutionScaleFactors_,
+				 *jetEnergyResolutionEtaBinning_);
   else
     covM_ = new CovarianceMatrix();
 }
 
 /// kinematic fit interface
 int 
-TtFullHadKinFitter::fit(const std::vector<pat::Jet>& jets, const std::vector<double> energyResolutionSmearFactor,
-			const std::vector<double> etaBinningForSmearFactor)
+TtFullHadKinFitter::fit(const std::vector<pat::Jet>& jets)
 {
   if( jets.size()<6 ){
     throw edm::Exception( edm::errors::Configuration, "Cannot run the TtFullHadKinFitter with less than 6 jets" );
@@ -215,14 +225,6 @@ TtFullHadKinFitter::fit(const std::vector<pat::Jet>& jets, const std::vector<dou
   TMatrixD m4 = covM_->setupMatrix(lightP,    jetParam_);
   TMatrixD m5 = covM_->setupMatrix(lightPBar, jetParam_);
   TMatrixD m6 = covM_->setupMatrix(bBar     , jetParam_, "bjets");
-
-  // increase energy resolution
-  m1(0,0) *= pow(covM_->getEtaDependentSmearFactor(lightQ,    energyResolutionSmearFactor,etaBinningForSmearFactor), 2);
-  m2(0,0) *= pow(covM_->getEtaDependentSmearFactor(lightQBar, energyResolutionSmearFactor,etaBinningForSmearFactor), 2);
-  m3(0,0) *= pow(covM_->getEtaDependentSmearFactor(b,         energyResolutionSmearFactor,etaBinningForSmearFactor), 2);
-  m4(0,0) *= pow(covM_->getEtaDependentSmearFactor(lightP,    energyResolutionSmearFactor,etaBinningForSmearFactor), 2);
-  m5(0,0) *= pow(covM_->getEtaDependentSmearFactor(lightPBar, energyResolutionSmearFactor,etaBinningForSmearFactor), 2);
-  m6(0,0) *= pow(covM_->getEtaDependentSmearFactor(bBar,      energyResolutionSmearFactor,etaBinningForSmearFactor), 2);
 
   // set the kinematics of the objects to be fitted
   b_        ->setIni4Vec(&p4B        );
@@ -273,10 +275,7 @@ TtFullHadKinFitter::addKinFitInfo(TtHadEvtSolution * asol)
   jets[TtFullHadEvtPartons::LightPBar] = fitsol.getCalHadk();
   jets[TtFullHadEvtPartons::BBar     ] = fitsol.getCalHadbbar();
 
-  std::vector<double> sF; sF.push_back(1.);
-  std::vector<double> eD; eD.push_back(0.); eD.push_back(5.);
-
-  fit( jets, sF, eD );
+  fit( jets);
 
   // add fitted information to the solution
   if (fitter_->getStatus() == 0) {
@@ -304,8 +303,8 @@ TtFullHadKinFitter::KinFit::KinFit() :
   maxBTagValueNonBJet_(3.41),
   udscResolutions_(std::vector<edm::ParameterSet>(0)),
   bResolutions_(std::vector<edm::ParameterSet>(0)),
-  energyResolutionSmearFactor_(0),
-  etaBinningForSmearFactor_(0),
+  jetEnergyResolutionScaleFactors_(0),
+  jetEnergyResolutionEtaBinning_(0),
   jetCorrectionLevel_("L3Absolute"),
   maxNJets_(-1),
   maxNComb_(1),
@@ -327,7 +326,7 @@ TtFullHadKinFitter::KinFit::KinFit() :
 /// special constructor  
 TtFullHadKinFitter::KinFit::KinFit(bool useBTagging, unsigned int bTags, std::string bTagAlgo, double minBTagValueBJet, double maxBTagValueNonBJet,
 				   std::vector<edm::ParameterSet> udscResolutions, std::vector<edm::ParameterSet> bResolutions,
-				   std::vector<double> energyResolutionSmearFactor, std::vector<double> etaBinningForSmearFactor,
+				   std::vector<double> jetEnergyResolutionScaleFactors, std::vector<double> jetEnergyResolutionEtaBinning,
 				   std::string jetCorrectionLevel, int maxNJets, int maxNComb,
 				   unsigned int maxNrIter, double maxDeltaS, double maxF, unsigned int jetParam, std::vector<unsigned> constraints, double mW, double mTop) :
   useBTagging_(useBTagging),
@@ -337,8 +336,8 @@ TtFullHadKinFitter::KinFit::KinFit(bool useBTagging, unsigned int bTags, std::st
   maxBTagValueNonBJet_(maxBTagValueNonBJet),
   udscResolutions_(udscResolutions),
   bResolutions_(bResolutions),
-  energyResolutionSmearFactor_(energyResolutionSmearFactor),
-  etaBinningForSmearFactor_(etaBinningForSmearFactor),
+  jetEnergyResolutionScaleFactors_(jetEnergyResolutionScaleFactors),
+  jetEnergyResolutionEtaBinning_(jetEnergyResolutionEtaBinning),
   jetCorrectionLevel_(jetCorrectionLevel),
   maxNJets_(maxNJets),
   maxNComb_(maxNComb),
@@ -534,7 +533,7 @@ TtFullHadKinFitter::KinFit::fit(const std::vector<pat::Jet>& jets){
 	jetCombi[TtFullHadEvtPartons::LightPBar] = corJet(jets[combi[TtFullHadEvtPartons::LightPBar]], "wMix");
 	  
 	// do the kinematic fit
-	int status = fitter->fit(jetCombi, energyResolutionSmearFactor_, etaBinningForSmearFactor_);
+	int status = fitter->fit(jetCombi);
 	  
 	if( status == 0 ) { 
 	  // fill struct KinFitResults if converged

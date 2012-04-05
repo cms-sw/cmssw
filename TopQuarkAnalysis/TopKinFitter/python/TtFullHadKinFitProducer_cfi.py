@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from TopQuarkAnalysis.TopObjectResolutions.stringResolutions_etEtaPhi_Spring10_cff import *
+from TopQuarkAnalysis.TopObjectResolutions.stringResolutions_etEtaPhi_cff import *
 
 kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
     jets = cms.InputTag("selectedPatJets"),
@@ -78,9 +78,17 @@ kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
     # ------------------------------------------------
     udscResolutions             = udscResolution.functions,
     bResolutions                = bjetResolution.functions,
-    energyResolutionSmearFactor = cms.double(1.),
-    etaDependentResSmearFactor  = cms.vdouble(1.0),
-    etaBinningForSmearFactor    = cms.vdouble(0.0,0.5,1.1,1.7,2.3,-1.0)
+
+    # ------------------------------------------------
+    # set correction factor(s) for the jet energy resolution:
+    # - (optional) eta dependence assumed to be symmetric
+    #   around eta=0, i.e. parametrized in |eta|
+    # - any negative value as last bin edge is read as "inf"
+    # - make sure that number of entries in vector with
+    #   bin edges = number of scale factors + 1
+    # ------------------------------------------------
+    jetEnergyResolutionScaleFactors = cms.vdouble(1.0),
+    jetEnergyResolutionEtaBinning = cms.vdouble(0.0,-1.0)
 )
 
 

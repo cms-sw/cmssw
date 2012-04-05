@@ -22,9 +22,8 @@ TtFullHadKinFitProducer::TtFullHadKinFitProducer(const edm::ParameterSet& cfg):
   constraints_                (cfg.getParameter<std::vector<unsigned> >("constraints")),
   mW_                         (cfg.getParameter<double>("mW"  )),
   mTop_                       (cfg.getParameter<double>("mTop")),
-  energyResolutionSmearFactor_(cfg.getParameter<double>("energyResolutionSmearFactor")),
-  etaDependentResSmearFactor_ (cfg.getParameter<std::vector<double> >("etaDependentResSmearFactor")),
-  etaBinningForSmearFactor_   (cfg.getParameter<std::vector<double> >("etaBinningForSmearFactor"))
+  jetEnergyResolutionScaleFactors_(cfg.getParameter<std::vector<double> >("jetEnergyResolutionScaleFactors")),
+  jetEnergyResolutionEtaBinning_  (cfg.getParameter<std::vector<double> >("jetEnergyResolutionEtaBinning"))
 {
   if(cfg.exists("udscResolutions") && cfg.exists("bResolutions")){
     udscResolutions_ = cfg.getParameter <std::vector<edm::ParameterSet> >("udscResolutions");
@@ -36,15 +35,9 @@ TtFullHadKinFitProducer::TtFullHadKinFitProducer(const edm::ParameterSet& cfg):
   }
 
   // define kinematic fit interface
-  if(etaDependentResSmearFactor_.size()<2){
-    etaDependentResSmearFactor_.clear();
-    for(unsigned int i=1; i<etaBinningForSmearFactor_.size(); i++){
-      etaDependentResSmearFactor_.push_back(energyResolutionSmearFactor_);
-    }
-  }
   kinFitter = new TtFullHadKinFitter::KinFit(useBTagging_, bTags_, bTagAlgo_, minBTagValueBJet_, maxBTagValueNonBJet_,
-					     udscResolutions_, bResolutions_, etaDependentResSmearFactor_, etaBinningForSmearFactor_,
-					     jetCorrectionLevel_, maxNJets_, maxNComb_,
+					     udscResolutions_, bResolutions_, jetEnergyResolutionScaleFactors_, 
+					     jetEnergyResolutionEtaBinning_, jetCorrectionLevel_, maxNJets_, maxNComb_,
 					     maxNrIter_, maxDeltaS_, maxF_, jetParam_, constraints_, mW_, mTop_);
 
   // produces the following collections

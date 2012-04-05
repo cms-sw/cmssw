@@ -3,7 +3,10 @@
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet> udscResolutions, const std::vector<edm::ParameterSet> bResolutions){
+CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet> udscResolutions, const std::vector<edm::ParameterSet> bResolutions,
+				   const std::vector<double> jetEnergyResolutionScaleFactors, const std::vector<double> jetEnergyResolutionEtaBinning):
+  jetEnergyResolutionScaleFactors_(jetEnergyResolutionScaleFactors), jetEnergyResolutionEtaBinning_(jetEnergyResolutionEtaBinning)
+{
   for(std::vector<edm::ParameterSet>::const_iterator iSet = udscResolutions.begin(); iSet != udscResolutions.end(); ++iSet){
     if(iSet->exists("bin")) binsUdsc_.push_back(iSet->getParameter<std::string>("bin"));
     else if(udscResolutions.size()==1) binsUdsc_.push_back("");
@@ -27,7 +30,7 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet> udscReso
 CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet> udscResolutions, const std::vector<edm::ParameterSet> bResolutions,
 				   const std::vector<edm::ParameterSet> lepResolutions, const std::vector<edm::ParameterSet> metResolutions,
 				   const std::vector<double> jetEnergyResolutionScaleFactors, const std::vector<double> jetEnergyResolutionEtaBinning):
-  jetEnergyResolutionScaleFactors_(jetEnergyResolutionScaleFactors), jetEnergyResolutionEtaBinning_(jetEnergyResolutionEtaBinning),
+  jetEnergyResolutionScaleFactors_(jetEnergyResolutionScaleFactors), jetEnergyResolutionEtaBinning_(jetEnergyResolutionEtaBinning)
 {
   if(jetEnergyResolutionScaleFactors_.size()+1!=jetEnergyResolutionEtaBinning_.size())
     throw cms::Exception("Configuration") << "The number of scale factors does not fit to the number of eta bins!\n";
@@ -129,8 +132,6 @@ double CovarianceMatrix::getResolution(const TLorentzVector& object, const Objec
     else if(whichResolution == "phi") res = StringObjectFunction<reco::LeafCandidate>(funcPhi_->at(selectedBin)).operator()(candidate);
     else throw cms::Exception("ProgrammingError") << "Only 'et', 'eta' and 'phi' resolutions supported!\n";
   }
-  if(objType==kUdscJet || objType==kBJet)
-    res *= getEtaDependentScaleFactor(object);
   return res;
 }
 
@@ -157,18 +158,21 @@ TMatrixD CovarianceMatrix::setupMatrix(const TLorentzVector& object, const Objec
       case TopKinFitter::kEtEtaPhi : 
 	if(!binsUdsc_.size()){
 	  CovM3(0,0) = pow(jetRes.et (pt, eta, res::HelperJet::kUds), 2);
+	  CovM3(0,0)*= pow(getEtaDependentScaleFactor(object)       , 2);
 	  CovM3(1,1) = pow(jetRes.eta(pt, eta, res::HelperJet::kUds), 2);
 	  CovM3(2,2) = pow(jetRes.phi(pt, eta, res::HelperJet::kUds), 2);
 	}
 	else{
-	  CovM3(0,0) = pow(getResolution(object, objType, "et") , 2); 
-	  CovM3(1,1) = pow(getResolution(object, objType, "eta"), 2); 
+	  CovM3(0,0) = pow(getResolution(object, objType, "et") , 2);
+	  CovM3(0,0)*= pow(getEtaDependentScaleFactor(object)   , 2);
+	  CovM3(1,1) = pow(getResolution(object, objType, "eta"), 2);
 	  CovM3(2,2) = pow(getResolution(object, objType, "phi"), 2);
 	}   
 	CovM = &CovM3;
 	break;
       case TopKinFitter::kEtThetaPhi :
 	CovM3(0,0) = pow(jetRes.et   (pt, eta, res::HelperJet::kUds), 2);
+	CovM3(0,0)*= pow(getEtaDependentScaleFactor(object)         , 2);
 	CovM3(1,1) = pow(jetRes.theta(pt, eta, res::HelperJet::kUds), 2);
 	CovM3(2,2) = pow(jetRes.phi  (pt, eta, res::HelperJet::kUds), 2);
 	CovM = &CovM3;
@@ -191,11 +195,13 @@ TMatrixD CovarianceMatrix::setupMatrix(const TLorentzVector& object, const Objec
       case TopKinFitter::kEtEtaPhi : 
 	if(!binsUdsc_.size()){
 	  CovM3(0,0) = pow(jetRes.et (pt, eta, res::HelperJet::kB), 2);
+	  CovM3(0,0)*= pow(getEtaDependentScaleFactor(object)     , 2);
 	  CovM3(1,1) = pow(jetRes.eta(pt, eta, res::HelperJet::kB), 2);
 	  CovM3(2,2) = pow(jetRes.phi(pt, eta, res::HelperJet::kB), 2);
 	}
 	else{
 	  CovM3(0,0) = pow(getResolution(object, objType, "et") , 2); 
+	  CovM3(0,0)*= pow(getEtaDependentScaleFactor(object)   , 2);
 	  CovM3(1,1) = pow(getResolution(object, objType, "eta"), 2); 
 	  CovM3(2,2) = pow(getResolution(object, objType, "phi"), 2);
 	}   
@@ -203,6 +209,7 @@ TMatrixD CovarianceMatrix::setupMatrix(const TLorentzVector& object, const Objec
 	break;
       case TopKinFitter::kEtThetaPhi :
 	CovM3(0,0) = pow(jetRes.et   (pt, eta, res::HelperJet::kB), 2);
+	CovM3(0,0)*= pow(getEtaDependentScaleFactor(object)       , 2);
 	CovM3(1,1) = pow(jetRes.theta(pt, eta, res::HelperJet::kB), 2);
 	CovM3(2,2) = pow(jetRes.phi  (pt, eta, res::HelperJet::kB), 2);
 	CovM = &CovM3;

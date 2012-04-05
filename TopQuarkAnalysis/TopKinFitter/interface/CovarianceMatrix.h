@@ -33,7 +33,8 @@ class CovarianceMatrix {
   /// default constructor
   CovarianceMatrix(){};
   /// constructor for the fully-hadronic channel
-  CovarianceMatrix(const std::vector<edm::ParameterSet> udscResolutions, const std::vector<edm::ParameterSet> bResolutions);
+  CovarianceMatrix(const std::vector<edm::ParameterSet> udscResolutions, const std::vector<edm::ParameterSet> bResolutions,
+		   const std::vector<double> jetEnergyResolutionScaleFactors, const std::vector<double> jetEnergyResolutionEtaBinning);
   /// constructor for the lepton+jets channel
   CovarianceMatrix(const std::vector<edm::ParameterSet> udscResolutions, const std::vector<edm::ParameterSet> bResolutions,
 		   const std::vector<edm::ParameterSet> lepResolutions, const std::vector<edm::ParameterSet> metResolutions,
@@ -68,6 +69,9 @@ class CovarianceMatrix {
   /// determine type for a given PAT object
   template <class T>
     ObjectType getObjectType(const pat::PATObject<T>& object, const bool isBJet=false);
+  /// get eta dependent smear factor for a PAT object
+  template <class T>
+    double getEtaDependentScaleFactor(const pat::PATObject<T>& object);
   /// get eta-dependent scale factor for a plain 4-vector
   double getEtaDependentScaleFactor(const TLorentzVector& object);
 
@@ -84,6 +88,8 @@ TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<T>& object, const To
     switch(param){
     case TopKinFitter::kEtEtaPhi :
       CovM3(0,0) = pow(object.resolEt(resolutionProvider) , 2);
+      if( dynamic_cast<const reco::Jet*>(&object) )
+	CovM3(0,0)*=getEtaDependentScaleFactor(object);	
       if( dynamic_cast<const reco::MET*>(&object) )
 	CovM3(1,1) = pow(9999., 2);
       else
@@ -93,6 +99,8 @@ TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<T>& object, const To
       break;
     case TopKinFitter::kEtThetaPhi :
       CovM3(0,0) = pow(object.resolEt(resolutionProvider)   , 2);
+      if( dynamic_cast<const reco::Jet*>(&object) )
+	CovM3(0,0)*=getEtaDependentScaleFactor(object);	
       CovM3(1,1) = pow(object.resolTheta(resolutionProvider), 2);
       CovM3(2,2) = pow(object.resolPhi(resolutionProvider)  , 2);
       CovM = &CovM3;
@@ -139,6 +147,25 @@ CovarianceMatrix::ObjectType CovarianceMatrix::getObjectType(const pat::PATObjec
   else
     throw cms::Exception("UnsupportedObject") << "The object given is not supported!\n";
   return objType;
+}
+
+template <class T>
+double CovarianceMatrix::getEtaDependentScaleFactor(const pat::PATObject<T>& object)
+{
+  double etaDependentScaleFactor = 1.;
+  for(unsigned int i=0; i<jetEnergyResolutionEtaBinning_.size(); i++){
+    if(std::abs(object.eta())>=jetEnergyResolutionEtaBinning_[i] && jetEnergyResolutionEtaBinning_[i]>=0.){
+      if(i==jetEnergyResolutionEtaBinning_.size()-1) {
+	edm::LogWarning("CovarianceMatrix") << "object eta ("<<std::abs(object.eta())<<") beyond last eta bin ("<<jetEnergyResolutionEtaBinning_[i]<<") using scale factor 1.0!";
+	etaDependentScaleFactor=1.;
+	break;
+      }
+      etaDependentScaleFactor=jetEnergyResolutionScaleFactors_[i];
+    }
+    else
+      break;
+  }
+  return etaDependentScaleFactor;
 }
 
 #endif

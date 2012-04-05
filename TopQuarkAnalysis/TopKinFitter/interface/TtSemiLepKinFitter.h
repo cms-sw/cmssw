@@ -101,8 +101,8 @@ class TtSemiLepKinFitter : public TopKinFitter {
   const std::vector<edm::ParameterSet>* lepResolutions_;
   const std::vector<edm::ParameterSet>* metResolutions_;
   /// scale factors for the jet energy resolution
-  const std::vector<double> jetEnergyResolutionScaleFactors_;
-  const std::vector<double> jetEnergyResolutionEtaBinning_;
+  const std::vector<double>* jetEnergyResolutionScaleFactors_;
+  const std::vector<double>* jetEnergyResolutionEtaBinning_;
   /// object used to construct the covariance matrices for the individual particles
   CovarianceMatrix* covM_;
   /// supported constraints
