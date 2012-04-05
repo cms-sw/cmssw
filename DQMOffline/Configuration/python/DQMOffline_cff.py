@@ -73,7 +73,8 @@ DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
                                  alcaBeamMonitor *
                                  castorSources *
                                  piZeroAnalysis *
-                                 dqmPhysics
+                                 dqmPhysics *
+                                 pvMonitor
                                 )
 DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  DQMMessageLogger *
@@ -84,8 +85,9 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  alcaBeamMonitor *
                                  castorSources *
                                  piZeroAnalysis *
-                                 dqmPhysics
-                                )
+                                 dqmPhysics *
+                                 pvMonitor
+                                 )
 DQMOfflineMuon = cms.Sequence( dtSources *
                                rpcTier0Source *
                                cscSources *
