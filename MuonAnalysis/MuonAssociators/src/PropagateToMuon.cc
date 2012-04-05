@@ -103,12 +103,12 @@ PropagateToMuon::startingState(const reco::Track &tk) const {
         }
     }
     switch (state) {
-        case Innermost: return TrajectoryStateTransform().innerFreeState(  tk, magfield_.product()); 
-        case Outermost: return TrajectoryStateTransform().outerFreeState(  tk, magfield_.product()); 
+        case Innermost: return trajectoryStateTransform::innerFreeState(  tk, magfield_.product()); 
+        case Outermost: return trajectoryStateTransform::outerFreeState(  tk, magfield_.product()); 
 
         case AtVertex:  
         default:
-            return TrajectoryStateTransform().initialFreeState(tk, magfield_.product()); 
+            return trajectoryStateTransform::initialFreeState(tk, magfield_.product()); 
     }
     
 }

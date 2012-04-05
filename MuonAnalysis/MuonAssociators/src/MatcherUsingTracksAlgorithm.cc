@@ -265,9 +265,9 @@ MatcherUsingTracksAlgorithm::startingState(const reco::Candidate &reco, WhichTra
             ret = FreeTrajectoryState();
         } else {
             switch (whichState) {
-                case AtVertex:  ret = TrajectoryStateTransform().initialFreeState(*tk, magfield_.product()); break;
-                case Innermost: ret = TrajectoryStateTransform().innerFreeState(  *tk, magfield_.product()); break;
-                case Outermost: ret = TrajectoryStateTransform().outerFreeState(  *tk, magfield_.product()); break;
+                case AtVertex:  ret = trajectoryStateTransform::initialFreeState(*tk, magfield_.product()); break;
+                case Innermost: ret = trajectoryStateTransform::innerFreeState(  *tk, magfield_.product()); break;
+                case Outermost: ret = trajectoryStateTransform::outerFreeState(  *tk, magfield_.product()); break;
             }
         }
     } else {
@@ -285,8 +285,8 @@ MatcherUsingTracksAlgorithm::targetState(const reco::Candidate &reco, WhichTrack
     reco::TrackRef tk = getTrack(reco, whichTrack);
     if (tk.isNonnull()) {
         switch (whichState) {
-            case Innermost: ret = TrajectoryStateTransform().innerStateOnSurface(  *tk, *geometry_, magfield_.product()); break;
-            case Outermost: ret = TrajectoryStateTransform().outerStateOnSurface(  *tk, *geometry_, magfield_.product()); break;
+            case Innermost: ret = trajectoryStateTransform::innerStateOnSurface(  *tk, *geometry_, magfield_.product()); break;
+            case Outermost: ret = trajectoryStateTransform::outerStateOnSurface(  *tk, *geometry_, magfield_.product()); break;
             default: break; // just to make gcc happy
         }
     }
