@@ -11,10 +11,10 @@ import copy
 
 
 ### Reference release
-RefRelease='CMSSW_5_2_1'
+RefRelease='CMSSW_5_2_2'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_5_2_2'
+NewRelease='CMSSW_6_0_0_pre1'
 
 ### sample list 
 
@@ -121,8 +121,8 @@ def replace(map, filein, fileout):
 def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, sampleType, dofastfull):
     global Sequence, Version, RefSelection, RefRepository, NewSelection, NewRepository, defaultNevents, Events, castorHarvestedFilesDirectory
     global cfg, macro, Tracksname
-    tracks_map = { 'ootb':'general_AssociatorByHits','iter0':'cutsRecoZero_AssociatorByHits','iter1':'cutsRecoFirst_AssociatorByHits','iter2':'cutsRecoSecond_AssociatorByHits','iter3':'cutsRecoThird_AssociatorByHits','iter4':'cutsRecoFourth_AssociatorByHits','iter5':'cutsRecoFifth_AssociatorByHits','iter6':'cutsRecoSixth_AssociatorByHits'}
-    tracks_map_hp = { 'ootb':'cutsRecoHp_AssociatorByHits','iter0':'cutsRecoZeroHp_AssociatorByHits','iter1':'cutsRecoFirstHp_AssociatorByHits','iter2':'cutsRecoSecondHp_AssociatorByHits','iter3':'cutsRecoThirdHp_AssociatorByHits','iter4':'cutsRecoFourthHp_AssociatorByHits','iter5':'cutsRecoFifthHp_AssociatorByHits','iter6':'cutsRecoSixthHp_AssociatorByHits'}
+    tracks_map = { 'ootb':'general_AssociatorByHitsRecoDenom','iter0':'cutsRecoZero_AssociatorByHitsRecoDenom','iter1':'cutsRecoFirst_AssociatorByHitsRecoDenom','iter2':'cutsRecoSecond_AssociatorByHitsRecoDenom','iter3':'cutsRecoThird_AssociatorByHitsRecoDenom','iter4':'cutsRecoFourth_AssociatorByHitsRecoDenom','iter5':'cutsRecoFifth_AssociatorByHitsRecoDenom','iter6':'cutsRecoSixth_AssociatorByHitsRecoDenom'}
+    tracks_map_hp = { 'ootb':'cutsRecoHp_AssociatorByHitsRecoDenom','iter0':'cutsRecoZeroHp_AssociatorByHitsRecoDenom','iter1':'cutsRecoFirstHp_AssociatorByHitsRecoDenom','iter2':'cutsRecoSecondHp_AssociatorByHitsRecoDenom','iter3':'cutsRecoThirdHp_AssociatorByHitsRecoDenom','iter4':'cutsRecoFourthHp_AssociatorByHitsRecoDenom','iter5':'cutsRecoFifthHp_AssociatorByHitsRecoDenom','iter6':'cutsRecoSixthHp_AssociatorByHitsRecoDenom'}
     if(trackalgorithm=='iter0' or trackalgorithm=='ootb'):
         mineff='0.5'
         maxeff='1.025'
