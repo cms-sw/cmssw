@@ -39,24 +39,30 @@
   void
   TFileAdaptor::addType(TPluginManager* mgr, char const* type, int altType /*=0*/) {
 
-    mgr->AddHandler("TFile",
-                    type,
-                    "TStorageFactoryFile",
-                    "IOPoolTFileAdaptor",
-                    "TStorageFactoryFile(char const*,Option_t*,char const*,Int_t)");
-
     // HACK:
     // The ROOT plug-in manager does not understand loading plugins with different
     // signatures.  So, because TXNetSystem is registered with a different constructor
     // than all the other plugins, we must match its interface in order to override
     // it.
     if (altType == 0) {
+      mgr->AddHandler("TFile",
+                      type,
+                      "TStorageFactoryFile",
+                      "IOPoolTFileAdaptor",
+                      "TStorageFactoryFile(char const*,Option_t*,char const*,Int_t)");
+
       mgr->AddHandler("TSystem",
                       type,
                       "TStorageFactorySystem",
                       "IOPoolTFileAdaptor",
                       "TStorageFactorySystem()");
     } else if (altType == 1) {
+      mgr->AddHandler("TFile",
+                      type,
+                      "TStorageFactoryFile",
+                      "IOPoolTFileAdaptor",
+                      "TStorageFactoryFile(char const*,Option_t*,char const*,Int_t, Int_t, Bool_t)");
+
       mgr->AddHandler("TSystem",
                       type,
                       "TStorageFactorySystem",
@@ -180,7 +186,7 @@
     if (!native("lstore"))    addType(mgr, "^lstore:");
     // This is ready to go from a code point-of-view.
     // Waiting on the validation "OK" from Computing.
-    //if (!native("root"))      addType(mgr, "^root:", 1); // See comments in addType
+    if (!native("root"))      addType(mgr, "^root:", 1); // See comments in addType
   }
 
   void
