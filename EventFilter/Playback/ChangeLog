@@ -1,5 +1,5 @@
 2012-04-05  Srecko Morovic <srecko.morovic@cern.ch>
-	* tag V00-02-01
+	* tag V00-02-07
 	* added method are files closed to support BU waiting for
 	EventProcessor finish with the file reading (and be stoppable)
 	* proper releasing and destruction of semaphores in destructor, flag
