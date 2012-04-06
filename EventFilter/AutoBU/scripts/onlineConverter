@@ -20,7 +20,7 @@ die $usage if @ARGV<2;
 if (!-e $converter_jar)
 {
     print "\nBuilding $converter_jar ...\n";
-    `ant`;
+    `ant converter`;
 
     if (-e $converter_jar)
     {
@@ -36,6 +36,7 @@ $classpath = $classpath . ":$confdbbase/ext/mysql-connector-java-5.0.5-bin.jar";
 $classpath = $classpath . ":$confdbbase/ext/ojdbc14.jar";
 
 # start the GUI
+#print @ARGV
 system ("java -classpath $classpath confdb.converter.OnlineConverter --ep @ARGV | csplit - /#/; mv xx01 EP.py; rm xx00;"); 
 system ("java -classpath $classpath confdb.converter.OnlineConverter --sm @ARGV | csplit - /#/ > SM.py; mv xx01 SM.py; rm xx00;"); 
 exit 0;

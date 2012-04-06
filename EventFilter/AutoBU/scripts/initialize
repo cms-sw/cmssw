@@ -19,6 +19,8 @@ print "\n============================================================\n";
 
 # run number
 my $runNumber = 10;
+my $forceEvType = 99;
+my $smOut = 2;
 
 # flags to indicate setup, defaults
 my $doPB  = 0;
@@ -42,9 +44,9 @@ my $replay = "false";
 # execution parameters
 my $egAction = -1;
 my $egQualif =  0;
-
+my $startAll =  0;
 # hostname, default
-my $hostname = `hostname`;
+my $hostname = `hostname -f`;
 chop($hostname);
 my $user     = $ENV{"USER"};
 
@@ -122,7 +124,10 @@ my $usage =
     "\t-replay              (loop on playback input     [default: single pass  ])\n" .
     "\t-fork <n>            (fork n EP processes        [default: no fork      ])\n" .
     "\t-emulateLS <n>       (emulate LS every n events  [default: LS from data ])\n" .
-    "\t-runNumber <n>       (assign run number n        [default: 10           ])\n\n";
+    "\t-forceEvType <n>     (emulate event type         [default: no force     ])\n" .
+    "\t-smOut  <n>          (hltBoolEnd pass:1,fail:0   [default: no change    ])\n" .
+    "\t-runNumber <n>       (assign run number n        [default: 10           ])\n" .
+    "\t-startAll            (configure and enable all   [default: off          ])\n\n";
 
 die $usage if($ARGV[0] eq "-help");
 
@@ -140,7 +145,8 @@ foreach $param (@ARGV) {
     elsif ($param    eq "-cfgDB")    { $doSM=1; $DBcfg   ="fillme";}
     elsif ($DBcfg    eq "fillme")    { $DBcfg   =$param;  }
     elsif ($PBfile   eq "fillme")    { $PBfile  =$param;  }
-    elsif ($param    eq "-playback") { $doPB=1;$PBfile="fillme";$emulateLS=0 }
+#    elsif ($param    eq "-playback") { $doPB=1;$PBfile="fillme";$emulateLS=0 }
+    elsif ($param    eq "-playback") { $doPB=1;$PBfile="fillme"; }
     elsif ($doEP     == -1)          { $doEP    =$param; }
     elsif ($param    eq "-noEP")     { $doEP    =    -1; }
     elsif ($param    eq "-drop")     { $doEP=0;$doSM=0;$doDQM=0;}
@@ -161,6 +167,12 @@ foreach $param (@ARGV) {
     elsif ($emulateLS    eq "fillme")    { $emulateLS   =$param; }
     elsif ($param    eq "-runNumber")        { $runNumber="fillme"; }
     elsif ($runNumber    eq "fillme")    { $runNumber   =$param; }
+    elsif ($param    eq "-forceEvType")  { $forceEvType="fillme"; }
+    elsif ($forceEvType eq "fillme")     { $forceEvType=$param; }
+    elsif ($param    eq "-smOut")        { $smOut="fillme"; }
+    elsif ($smOut eq "fillme")           { $smOut=$param; }
+    elsif ($param eq "-startAll")        { $startAll=1; }
+
     else { die ("Unknown parameter $param!\n"); }
 }
 
@@ -204,8 +216,16 @@ if ($DBcfg) {
 #    if(!-e "$ConfDBperl/onlineConverter") {die "DB retrieval of HLT menu not available from $ConfDBperl\n";}
     system("$onlineConverterCmd -d cms_rcms.cern.ch -h cmsonr1-v.cms -u CMS_HLT_R -c $DBcfg");
     if($emulateLS){
-	system("csplit EP.py /readerPlugin/; cat xx00 > EPP.py; echo \"    evtsPerLS = cms.untracked.uint32($emulateLS),\" >> EPP.py; echo \"    useEventCounter = cms.untracked.bool(True),\" >> EPP.py; cat xx01 >> EPP.py; mv EPP.py EP.py");
+#	system("csplit EP.py /readerPlugin/; cat xx00 > EPP.py; echo \"    evtsPerLS = cms.untracked.uint32($emulateLS),\" >> EPP.py; echo \"    useEventCounter = cms.untracked.bool(True),\" >> EPP.py; cat xx01 >> EPP.py; mv EPP.py EP.py");
+	system("csplit EP.py /readerPlugin/; cat xx00 > EPP.py; echo \"    evtsPerLS = cms.untracked.uint32($emulateLS),\" >> EPP.py; cat xx01 >> EPP.py; mv EPP.py EP.py; echo \"process.source.useEventCounter = cms.untracked.bool(True) \" >> EP.py ;");
     }
+    if ($forceEvType!=99) {
+	    #system("echo  \"process.hltTriggerType.SelectedTriggerType = $forceEvType \" >> EP.py ;");
+        system("echo  \"process.source.fakeEventType = cms.untracked.uint32($forceEvType) \" >> EP.py ;");
+    }
+    if ($smOut==1) { system("echo \"process.hltBoolEnd.result=cms.bool(True)\">>EP.py;") };
+    if ($smOut==0) { system("echo \"process.hltBoolEnd.result=cms.bool(False)\">>EP.py;") };
+
     $EPcfg = "$pwd/EP.py";
     $SMcfg = "$pwd/SM.py";
 }
@@ -297,10 +317,14 @@ if ($doSM) { push (@apps,$SMappname); push (@apps,$SMlocalid); push (@apps,0); }
 
 my @BUproperties = ("runNumber","unsignedInt",$runNumber,
 		    "replay","boolean",$replay,
-		    "queueSize","unsignedInt","256",
+		    "queueSize","unsignedInt","512",
+#		    "queueSize","unsignedInt","4096",
+#		    "queueSize","unsignedInt","8192",
 		    "fedSizeMean","unsignedInt","16",
 		    "crc","boolean","false",
-		    "useFixedFedSize","boolean","true",
+#		    "useFixedFedSize","boolean","true",
+		    "useFixedFedSize","boolean","false",
+#		    "mode","string","PLAYBACK",#
 		    "overwriteEvtId","boolean","true",
 		    "eventBufferSize","unsignedInt","0x400000");
 
@@ -308,6 +332,10 @@ my @BUproperties = ("runNumber","unsignedInt",$runNumber,
 my @PBproperties = ("parameterSet",      "string","file:$PBcfg",
 		    "hasSharedMemory",   "boolean","false",
 		    "hasPrescaleService","boolean","false",
+#disabled because it is patch to FUEP
+#		    "delayedStartSecs","unsignedInt", "10",
+		    "nbSubProcesses","unsignedInt", 0,
+		    "timeoutOnStop", "unsignedInt", 20,
 		    "isRunNumberSetter", "boolean","false");
 
 
@@ -316,18 +344,22 @@ my @RBproperties = ("runNumber",   "unsignedInt",$runNumber,
 		    "doCrcCheck",  "unsignedInt","0",
 		    "processKillerEnabled","boolean","false",
 		    "monSleepSec", "unsignedInt","5",
-		    "nbRawCells",  "unsignedInt","32",
+		    "nbRawCells",  "unsignedInt","64",
 		    "nbRecoCells", "unsignedInt","8",
 		    "nbDqmCells",  "unsignedInt","8",
 		    "rawCellSize", "unsignedInt","0x400000",
 		    "recoCellSize","unsignedInt","0x800000",
                     "dqmCellSize", "unsignedInt","0x800000");
 
+my @PTproperties = ();
+
 if (!$doEP) { push (@RBproperties,"doDropEvents","boolean","true"); }
 
 my @EPproperties = ("parameterSet",  "string",      "file:$EPcfg",
 		    "runNumber",     "unsignedInt", $runNumber,
 		    "autoRestartSlaves","boolean","true",
+#disabled because it is patch to FUEP
+#		    "delayedStartSecs","unsignedInt", "250",
 		    "nbSubProcesses","unsignedInt", $forkProcesses);
 if($doID) { 
     push (@EPproperties,"iDieUrl","string","http://$hostname:$IDport/urn:xdaq-application:lid=$IDlocalid");
@@ -339,7 +371,7 @@ if (!$doSM) { push (@EPproperties,"outputEnabled","boolean","false"); }
 my @SMproperties = ("STparameterSet",          "string",     "file:$SMcfg",
 		    "runNumber",               "unsignedInt",$runNumber,
 		    "filePath",                "string",     "$SMout",
-		    "fileCatalog",             "string",     "summaryCatalog.txt",
+		    #"fileCatalog",             "string",     "summaryCatalog.txt",
 		    "setupLabel",              "string",     "test",
 		    "lumiSectionTimeOut",      "double",     "1",
 		    "fileClosingTestInterval", "integer",    "1");
@@ -365,6 +397,7 @@ if ($doSM) { print XML makeXmlUnicast($SMappname); }
 print XML makeXmlAppTrailer(1,$RBlibpath,$RBlibname);
 if ($doSM) {
     print XML makeXmlAppHeader(1,$PTappname,$PTlocalid);
+    print XML makeXmlAppProperties($PTappname,@PTproperties);
     print XML makeXmlAppTrailer(1,$PTlibpath,$PTlibname);
 }
 print XML makeXmlContextTrailer();
@@ -387,6 +420,7 @@ if ($doSM) {
     print XML makeXmlUnicast($RBappname);
     print XML makeXmlAppTrailer(1,$SMlibpath,$SMlibname);
     print XML makeXmlAppHeader(1,$PTappname,$PTlocalid);
+    print XML makeXmlAppProperties($PTappname,@PTproperties);
     print XML makeXmlAppTrailer(1,$PTlibpath,$PTlibname);
     print XML makeXmlContextTrailer();
 }
@@ -453,29 +487,54 @@ print "make control scripts ...\n";
 # configure
 open (CTL,">configure") or die ("Can't open file: $!\n");
 print CTL "#!/usr/bin/perl\n\n";
-if ($doSM) {
-    if( $useAtcp ){
-	print CTL makeCtlCommand("Configure",$PTappname,"SMPT",$hostname,$SMport,1);
-	print CTL makeCtlCommand("Enable",$PTappname,"SMPT",$hostname,$SMport,1);
-    }
-    print CTL makeCtlCommand("Configure",$SMappname,"SM",$hostname,$SMport,1);
-}
-if ($doPB) {
-    print CTL makeCtlCommand("Configure",$EPappname,"PB",$hostname,$BUport,30);
-    print CTL makeCtlCommand("Enable",   $EPappname,"PB",$hostname,$BUport,5);
-}
+print CTL "use State;\n";
+print CTL "use Time::HiRes qw(usleep);\n\n";
+
 if( $useAtcp ){
-    print CTL makeCtlCommand("Configure",$PTappname,"BUPT",$hostname,$BUport,1);
-    print CTL makeCtlCommand("Enable",$PTappname,"BUPT",$hostname,$BUport,1);
+        print CTL  makeWaitCommand("Halted","ATCPPB");
+	print CTL makeCtlCommand("Configure",$PTappname,"BUPT",$hostname,$BUport,0);
+        print CTL  makeWaitCommand("Ready","ATCPPB");
+	if ($doSM) {
+                print CTL  makeWaitCommand("Halted","ATCPSM");
+	        print CTL makeCtlCommand("Configure",$PTappname,"SMPT",$hostname,$SMport,0);
+                print CTL  makeWaitCommand("Ready","ATCPSM");
+        }
+	print CTL makeCtlCommand("Enable",$PTappname,"BUPT",$hostname,$BUport,0);
+	if ($doSM) {
+		print CTL makeCtlCommand("Enable",$PTappname,"SMPT",$hostname,$SMport,0);
+	}
 }
-print CTL makeCtlCommand("Configure",$BUappname,"BU",$hostname,$BUport,0);
-print CTL makeCtlCommand("Configure",$RBappname,"RB",$hostname,$BUport,0);
+if ($doSM) {
+    print CTL  makeWaitCommand("Halted","SM");
+    print CTL makeCtlCommand("Configure",$SMappname,"SM",$hostname,$SMport,0);
+    print CTL  makeWaitCommand("Ready","SM");
+}
+
+if ($doPB) {
+}
+
 if ($doEP) {
     for ($i=0;$i<$doEP;$i++) {
 	$port = $EPport + $i;
 	$appabrev = "EP".$i;
+	if ($i eq 0) { print CTL  makeWaitCommand("Halted","EP"); }
 	print CTL makeCtlCommand("Configure",$EPappname,$appabrev,$hostname,$port,0);
     }
+}
+if ($doPB) {
+    print CTL  makeWaitCommand("Halted","PB");
+    print CTL makeCtlCommand("Configure",$EPappname,"PB",$hostname,$BUport,0);
+    print CTL  makeWaitCommand("Ready","PB");
+    print CTL makeCtlCommand("Enable",   $EPappname,"PB",$hostname,$BUport,0);
+}
+print CTL  makeWaitCommand("Halted","BU");
+print CTL makeCtlCommand("Configure",$BUappname,"BU",$hostname,$BUport,0);
+print CTL  makeWaitCommand("Ready","BU");
+print CTL  makeWaitCommand("Halted","RB");
+print CTL makeCtlCommand("Configure",$RBappname,"RB",$hostname,$BUport,0);
+print CTL  makeWaitCommand("Ready","RB");
+if ($doEP==1) {
+    print CTL  makeWaitCommand("Ready","EP");
 }
 close (CTL);
 `chmod +x configure`;
@@ -506,18 +565,37 @@ close (CTL);
 # stop
 open (CTL,">stop") or die ("Can't open file: $!\n");
 print CTL "#!/usr/bin/perl\n\n";
-print CTL makeCtlCommand("Stop",$BUappname,"BU",$hostname,$BUport,10);
-print CTL makeCtlCommand("Stop",$RBappname,"RB",$hostname,$BUport,0);
+print CTL "use State;\n";
+print CTL "use Time::HiRes qw(usleep);\n\n";
+
+print CTL makeCtlCommand("Stop",$BUappname,"BU",$hostname,$BUport,1);
+print CTL  makeWaitCommand("Ready","BU");
+print CTL makeCtlCommand("Stop",$RBappname,"RB",$hostname,$BUport,1);
+print CTL  makeWaitCommand("Ready","RB");
 if ($doEP) {
     for ($i=0;$i<$doEP;$i++) {
 	$port = $EPport + $i;
 	$appabrev = "EP".$i;
-	print CTL makeCtlCommand("Stop",$EPappname,$appabrev,$hostname,$port,0);
+	print CTL makeCtlCommand("Stop",$EPappname,$appabrev,$hostname,$port,1);
+        if ($doEP==1) {
+          print CTL  makeWaitCommand("Ready","EP");
+	}
     }
 }
 if ($doSM) {
-    print CTL "`sleep 20`;\n\n";
-    print CTL makeCtlCommand("Stop",$SMappname,"SM",$hostname,$SMport,0);
+    #print CTL "`sleep 20`;\n\n";
+    print CTL makeCtlCommand("Stop",$SMappname,"SM",$hostname,$SMport,1);
+    print CTL  makeWaitCommand("Ready","SM");
+}
+if ($doPB) {
+    print CTL makeCtlCommand("Stop",$EPappname,"PB",$hostname,$BUport,1);
+    print CTL  makeWaitCommand("Ready","PB");
+    print CTL makeCtlCommand("Halt",$EPappname,"PB",$hostname,$BUport,1);
+    print CTL  makeWaitCommand("Halted","PB");
+    print CTL makeCtlCommand("Configure",$EPappname,"PB",$hostname,$BUport,1);
+    print CTL  makeWaitCommand("Ready","PB");
+    print CTL makeCtlCommand("Enable",$EPappname,"PB",$hostname,$BUport,1);
+    print CTL  makeWaitCommand("Enabled","PB");
 }
 close (CTL);
 `chmod +x stop`;
@@ -525,21 +603,31 @@ close (CTL);
 # halt
 open (CTL,">halt") or die ("Can't open file: $!\n");
 print CTL "#!/usr/bin/perl\n\n";
+print CTL "use State;\n";
+print CTL "use Time::HiRes qw(usleep);\n\n";
+
 print CTL makeCtlCommand("Halt",$BUappname,"BU",$hostname,$BUport,0);
+print CTL  makeWaitCommand("Halted","BU");
 print CTL makeCtlCommand("Halt",$RBappname,"RB",$hostname,$BUport,0);
+print CTL  makeWaitCommand("Halted","RB");
 if ($doPB) {
     print CTL makeCtlCommand("Halt",$EPappname,"PB",$hostname,$BUport,1);
+    print CTL  makeWaitCommand("Halted","PB");
 }
 if ($doEP) {
     for ($i=0;$i<$doEP;$i++) {
 	$port = $EPport + $i;
 	$appabrev = "EP".$i;
 	print CTL makeCtlCommand("Halt",$EPappname,$appabrev,$hostname,$port,0);
+        if ($doEP==1) {
+    		print CTL  makeWaitCommand("Halted","EP");
+	}
     }
 }
 if ($doSM) {
     print CTL "`sleep 1`;\n\n";
     print CTL makeCtlCommand("Halt",$SMappname,"SM",$hostname,$SMport,0);
+    print CTL  makeWaitCommand("Halted","SM");
 }
 close (CTL);
 `chmod +x halt`;
@@ -575,6 +663,12 @@ for ($i=0;$i<$doEP;$i++) {
 }
 
 @proc = `pgrep -u $user xdaq.exe`;
+
+if ($startAll) {
+`sleep 2`;
+system("./configure");
+system("./enable");
+}
 
 # destroy
 open (CTL,">destroy") or die ("Can't open file: $!\n");
@@ -778,7 +872,8 @@ sub makeCfgFuPython
 
     $result = $result . "process.source = cms.Source(\"DaqSource\",\n";
     $result = $result . "    readerPluginName    = cms.untracked.string(\'FUShmReader\'),\n";
-    $result = $result . "    evtsPerLS           = cms.untracked.uint32($emulateLS)\n";
+    $result = $result . "    evtsPerLS           = cms.untracked.uint32($emulateLS),\n";
+    $result = $result . "    useEventCounter = cms.untracked.bool(True)\n";
     $result = $result . "    )\n\n";
     
 #    $result = $result . "process.DQMStore = cms.Service (\"DQMStore\") \n\n";
@@ -787,6 +882,7 @@ sub makeCfgFuPython
     }
     $result = $result . "process.MessageLogger = cms.Service (\"MessageLogger\",\n";
     $result = $result . "    destinations = cms.untracked.vstring(\'cout\', \'log4cplus\', \'cerr\'),\n";
+#    $result = $result . "    destinations = cms.untracked.vstring(\'cout\', \'cerr\'),\n";
     $result = $result . "    cout = cms.untracked.PSet (\n" .
 			"    optionalPSet = cms.untracked.bool(True),\n" .
 	                "    threshold = cms.untracked.string(\'WARNING\'),\n" .
@@ -898,14 +994,15 @@ sub makeCfgFuPython
     $result = $result . "process.p1 = cms.Path(process.ps1*process.m1*process.a1 )\n";
     $result = $result . "process.p2 = cms.Path(process.ps2*process.m2*process.a2 )\n";
     $result = $result . "process.p3 = cms.Path(process.ps3*process.m3*process.a3 )\n";
-
     if ($doDQM) {
 	$result = $result . "process.p4 = cms.Path( process.dqm )\n";
     }
 
-    $result = $result . "process.ep1 = cms.EndPath( process.out1 )\n\n";
-    $result = $result . "process.ep2 = cms.EndPath( process.out2 )\n\n";
-    $result = $result . "process.ep3 = cms.EndPath( process.out3 )\n\n";
+    if ($smOut > 0) {
+      $result = $result . "process.ep1 = cms.EndPath( process.out1 )\n\n";
+      $result = $result . "process.ep2 = cms.EndPath( process.out2 )\n\n";
+      $result = $result . "process.ep3 = cms.EndPath( process.out3 )\n\n";
+    }
     
     return $result;
 }
@@ -1061,11 +1158,11 @@ sub makeCfgPlaybackPython
     $result = $result . "    destinations = cms.untracked.vstring(\'cout\', \'log4cplus\', \'cerr\'),\n";
     $result = $result . "    cout = cms.untracked.PSet (\n" .
 			"    optionalPSet = cms.untracked.bool(True),\n" .
-	                "    threshold = cms.untracked.string(\'WARNING\'),\n" .
+	                "    threshold = cms.untracked.string(\'INFO\'),\n" .
 			"    FwkReport = cms.untracked.PSet(\n" .
 			"        optionalPSet = cms.untracked.bool(False),\n" .
 			"        reportEvery = cms.untracked.int32(10000000),\n" .
-			"        limit = cms.untracked.int32(1)\n" .
+#			"        limit = cms.untracked.int32(1)\n" .
 			"        ),\n" .
 			"    ),\n";
     $result = $result . "    cerr = cms.untracked.PSet (\n" .
@@ -1338,7 +1435,9 @@ sub makeCtlDestroy()
 	$qk2 = 0x00000089 + $i;
 	$result = $result . "`ipcrm -Q $qk1`;\n";
 	$result = $result . "`ipcrm -Q $qk2`;\n";
-    }	
+    }
+    $result = $result . "`rm xx00`;\n";
+    $result = $result . "`rm xx01`;\n";
     $result = $result . "print \"XDAQ session destroyed!\\n\";\n\n";
     $result = $result . "`rm destroy`;\n";
     
@@ -1347,6 +1446,41 @@ sub makeCtlDestroy()
 
 
 ################################################################################
+
+sub makeWaitCommand
+{
+    my ($state,$appbrev) = (@_);
+    my $result = "";
+    my $result = $result."\nprint \"===============================================\n\";";
+    my $result = $result."\nprint \"Waiting for ".$appbrev."\";";
+    $result = $result."my \$outcome=0;\n";
+    $result = $result."while (\$outcome eq 0) {\n";
+    $result = $result."  print \".\";\n";
+    if ($state eq "Halted") {
+      $result = $result."  if ( State::is_".$appbrev."_initialised) {\n";
+    }
+    if ($state eq "Enabled") {
+      $result = $result."  if ( State::is_".$appbrev."_enabled) {\n";
+    }
+    elsif ($state eq "Ready") {
+      $result = $result."  if ( State::is_".$appbrev."_ready)  {\n";
+    }
+    $result = $result."    \$outcome=1;\n";
+    $result = $result."  }\n";
+    $result = $result."  if (State::is_".$appbrev."_failed) {\n";
+    $result = $result."    \$outcome=2;\n";
+    $result = $result."  }\n";
+    $result = $result."  usleep(500000);\n";
+    $result = $result."}\n";
+    $result = $result."if (\$outcome eq 2) {print \"FAILURE reaching STATE ".$state." \n\";}\n";
+    $result = $result."else {print \"OK\n\";}";
+
+    $result = $result."usleep(500000);\n";
+    $result = $result."\nprint \"===============================================\n\n\";\n\n";
+    return $result;
+
+}
+
 sub makeCtlCommand
 {
     my ($cmd,$appname,$appabrev,$host,$port,$sleep) = (@_);
