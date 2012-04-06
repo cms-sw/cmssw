@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidateT.h,v 1.12 2009/03/27 18:14:46 hegner Exp $
+ * \version $Id: CompositeRefCandidateT.h,v 1.13 2009/11/02 21:46:53 srappocc Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -53,7 +53,7 @@ namespace reco {
     virtual size_t numberOfMothers() const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
     virtual const Candidate * daughter(size_type) const;
-    using reco::LeafCandidate::daughter; // avoid hiding the base
+    using LeafCandidate::daughter; // avoid hiding the base
     /// return mother at a given position, i = 0, ... numberOfMothers() - 1 (read only mode)
     virtual const Candidate * mother(size_type = 0) const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
