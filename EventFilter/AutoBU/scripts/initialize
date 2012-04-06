@@ -124,8 +124,8 @@ my $usage =
     "\t-replay              (loop on playback input     [default: single pass  ])\n" .
     "\t-fork <n>            (fork n EP processes        [default: no fork      ])\n" .
     "\t-emulateLS <n>       (emulate LS every n events  [default: LS from data ])\n" .
-    "\t-forceEvType <n>     (emulate event type         [default: no force     ])\n" .
-    "\t-smOut  <n>          (hltBoolEnd pass:1,fail:0   [default: no change    ])\n" .
+#    "\t-forceEvType <n>     (emulate event type         [default: no force     ])\n" .
+#    "\t-smOut  <n>          (hltBoolEnd pass:1,fail:0   [default: no change    ])\n" .
     "\t-runNumber <n>       (assign run number n        [default: 10           ])\n" .
     "\t-startAll            (configure and enable all   [default: off          ])\n\n";
 
@@ -510,9 +510,6 @@ if ($doSM) {
     print CTL  makeWaitCommand("Ready","SM");
 }
 
-if ($doPB) {
-}
-
 if ($doEP) {
     for ($i=0;$i<$doEP;$i++) {
 	$port = $EPport + $i;
@@ -542,11 +539,13 @@ close (CTL);
 # enable
 open (CTL,">enable") or die ("Can't open file: $!\n");
 print CTL "#!/usr/bin/perl\n\n";
+
+print CTL makeCtlCommand("Enable",$BUappname,"BU",$hostname,$BUport,0);
+
+print CTL makeCtlCommand("Enable",$RBappname,"RB",$hostname,$BUport,0);
 if ($doSM) {
     print CTL makeCtlCommand("Enable",$SMappname,"SM",$hostname,$SMport,1);
 }
-print CTL makeCtlCommand("Enable",$RBappname,"RB",$hostname,$BUport,0);
-print CTL makeCtlCommand("Enable",$BUappname,"BU",$hostname,$BUport,0);
 if ($doEP) {
     for ($i=0;$i<$doEP;$i++) {
 	$port = $EPport + $i;
@@ -570,6 +569,18 @@ print CTL "use Time::HiRes qw(usleep);\n\n";
 
 print CTL makeCtlCommand("Stop",$BUappname,"BU",$hostname,$BUport,1);
 print CTL  makeWaitCommand("Ready","BU");
+
+if ($doPB) {
+  print CTL makeCtlCommand("Stop",$EPappname,"PB",$hostname,$BUport,1);
+  print CTL  makeWaitCommand("Ready","PB");
+  print CTL makeCtlCommand("Halt",$EPappname,"PB",$hostname,$BUport,1);
+  print CTL  makeWaitCommand("Halted","PB");
+  print CTL makeCtlCommand("Configure",$EPappname,"PB",$hostname,$BUport,1);
+  print CTL  makeWaitCommand("Ready","PB");
+  print CTL makeCtlCommand("Enable",$EPappname,"PB",$hostname,$BUport,1);
+  print CTL  makeWaitCommand("Enabled","PB");
+}
+
 print CTL makeCtlCommand("Stop",$RBappname,"RB",$hostname,$BUport,1);
 print CTL  makeWaitCommand("Ready","RB");
 if ($doEP) {
@@ -587,16 +598,16 @@ if ($doSM) {
     print CTL makeCtlCommand("Stop",$SMappname,"SM",$hostname,$SMport,1);
     print CTL  makeWaitCommand("Ready","SM");
 }
-if ($doPB) {
-    print CTL makeCtlCommand("Stop",$EPappname,"PB",$hostname,$BUport,1);
-    print CTL  makeWaitCommand("Ready","PB");
-    print CTL makeCtlCommand("Halt",$EPappname,"PB",$hostname,$BUport,1);
-    print CTL  makeWaitCommand("Halted","PB");
-    print CTL makeCtlCommand("Configure",$EPappname,"PB",$hostname,$BUport,1);
-    print CTL  makeWaitCommand("Ready","PB");
-    print CTL makeCtlCommand("Enable",$EPappname,"PB",$hostname,$BUport,1);
-    print CTL  makeWaitCommand("Enabled","PB");
-}
+#if ($doPB) {
+#    print CTL makeCtlCommand("Stop",$EPappname,"PB",$hostname,$BUport,1);
+#    print CTL  makeWaitCommand("Ready","PB");
+#    print CTL makeCtlCommand("Halt",$EPappname,"PB",$hostname,$BUport,1);
+#    print CTL  makeWaitCommand("Halted","PB");
+#    print CTL makeCtlCommand("Configure",$EPappname,"PB",$hostname,$BUport,1);
+#    print CTL  makeWaitCommand("Ready","PB");
+#    print CTL makeCtlCommand("Enable",$EPappname,"PB",$hostname,$BUport,1);
+#    print CTL  makeWaitCommand("Enabled","PB");
+#}
 close (CTL);
 `chmod +x stop`;
 
@@ -608,12 +619,12 @@ print CTL "use Time::HiRes qw(usleep);\n\n";
 
 print CTL makeCtlCommand("Halt",$BUappname,"BU",$hostname,$BUport,0);
 print CTL  makeWaitCommand("Halted","BU");
-print CTL makeCtlCommand("Halt",$RBappname,"RB",$hostname,$BUport,0);
-print CTL  makeWaitCommand("Halted","RB");
 if ($doPB) {
     print CTL makeCtlCommand("Halt",$EPappname,"PB",$hostname,$BUport,1);
     print CTL  makeWaitCommand("Halted","PB");
 }
+print CTL makeCtlCommand("Halt",$RBappname,"RB",$hostname,$BUport,0);
+print CTL  makeWaitCommand("Halted","RB");
 if ($doEP) {
     for ($i=0;$i<$doEP;$i++) {
 	$port = $EPport + $i;
