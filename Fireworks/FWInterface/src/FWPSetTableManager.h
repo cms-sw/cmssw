@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Feb 28 17:06:50 CET 2011
-// $Id: FWPSetTableManager.h,v 1.7 2011/03/04 16:30:16 amraktad Exp $
+// $Id: FWPSetTableManager.h,v 1.8 2011/03/04 18:53:10 amraktad Exp $
 //
 
 // system include files
@@ -101,6 +101,7 @@ public:
    virtual bool rowIsSelected(int row) const;
 
    virtual void implSort(int, bool);
+   virtual bool cellDataIsSortable() const { return false ; }
 
    virtual void updateFilter(const char *filter);
 
