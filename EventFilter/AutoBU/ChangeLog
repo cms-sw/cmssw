@@ -1,4 +1,9 @@
 2012-04-06  Srecko Morovic  <srecko.morovic@cern.ch>
+	* tag V01-00-04-02
+	* oops, previous tag contained slightly older version of the script,
+	fixed that now. script for the new AutoBU will go into MAIN branch
+
+2012-04-06  Srecko Morovic  <srecko.morovic@cern.ch>
 	* tag V01-00-04
 	* branching point before replacing HEAD with new AutoBU
 	* new script which waits for 
