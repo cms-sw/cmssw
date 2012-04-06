@@ -112,9 +112,9 @@ if __name__ == '__main__':
                         scale=HLTlumiInfo[1]/PUlumiInfo[0]
 
                     if scale > 1.001:
+                        scale=1.01  # HLT integrated values are wrong, punt
                         print 'Run %d, LS %d, HLT Scale (%f) larger than one - please check!' % (run, LSnumber, scale)
-                        scale=1.01  # HLT integrated values are wrong, punt                        
-
+                        
                     newIntLumi = HLTlumiInfo[1]
                     newRmsLumi = scale*PUlumiInfo[1]
                     newInstLumi = scale*PUlumiInfo[2]

@@ -18,7 +18,6 @@ bool getCollection(const edm::Event & event, std::vector<MissingCollectionInfo> 
     if (not valid) {
         missing.push_back( std::make_pair(description, & name) );
         handle.clear();
-	//	std::cout << "not valid "<< description << " " << name << std::endl;
     }
     return valid;
 }
@@ -31,32 +30,28 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     // variables. Example as follows:
     std::cout << " Beginning HLTAnalyzer Analysis " << std::endl;
 
-    hltjets_            = conf.getParameter<edm::InputTag> ("hltjets");
-    hltcorjets_         = conf.getParameter<edm::InputTag> ("hltcorjets");    
-    hltcorL1L2L3jets_   = conf.getParameter<edm::InputTag> ("hltcorL1L2L3jets");    
-    rho_                = edm::InputTag("hltKT6CaloJets", "rho");    
-    recjets_            = conf.getParameter<edm::InputTag> ("recjets");
-    reccorjets_         = conf.getParameter<edm::InputTag> ("reccorjets");
-    genjets_            = conf.getParameter<edm::InputTag> ("genjets");
-    recmet_             = conf.getParameter<edm::InputTag> ("recmet");
-    recoPFMet_          = conf.getParameter<edm::InputTag> ("pfmet"); 
-    genmet_             = conf.getParameter<edm::InputTag> ("genmet");
-    ht_                 = conf.getParameter<edm::InputTag> ("ht");
-    recoPFJets_         = conf.getParameter<edm::InputTag> ("recoPFJets"); 
-    calotowers_         = conf.getParameter<edm::InputTag> ("calotowers");
-    calotowersUpperR45_ = conf.getParameter<edm::InputTag> ("calotowersUpperR45");
-    calotowersLowerR45_ = conf.getParameter<edm::InputTag> ("calotowersLowerR45");
-    calotowersNoR45_    = conf.getParameter<edm::InputTag> ("calotowersNoR45");
-    muon_               = conf.getParameter<edm::InputTag> ("muon");
-    pfmuon_             = conf.getParameter<edm::InputTag> ("pfmuon");
-    mctruth_            = conf.getParameter<edm::InputTag> ("mctruth");
-    genEventInfo_       = conf.getParameter<edm::InputTag> ("genEventInfo");
-    simhits_            = conf.getParameter<edm::InputTag> ("simhits");
-    xSection_           = conf.getUntrackedParameter<double> ("xSection",1.);
-    filterEff_          = conf.getUntrackedParameter<double> ("filterEff",1.);
-    firstLumi_          = conf.getUntrackedParameter<int> ("firstLumi",0);
-    lastLumi_           = conf.getUntrackedParameter<int> ("lastLumi",-1);
-    towerThreshold_     = conf.getParameter<double>("caloTowerThreshold");
+    hltjets_          = conf.getParameter<edm::InputTag> ("hltjets");
+    hltcorjets_       = conf.getParameter<edm::InputTag> ("hltcorjets");    
+    hltcorL1L2L3jets_ = conf.getParameter<edm::InputTag> ("hltcorL1L2L3jets");    
+    recjets_          = conf.getParameter<edm::InputTag> ("recjets");
+    reccorjets_       = conf.getParameter<edm::InputTag> ("reccorjets");
+    genjets_          = conf.getParameter<edm::InputTag> ("genjets");
+    recmet_           = conf.getParameter<edm::InputTag> ("recmet");
+    recoPFMet_        = conf.getParameter<edm::InputTag> ("pfmet"); 
+    genmet_           = conf.getParameter<edm::InputTag> ("genmet");
+    ht_               = conf.getParameter<edm::InputTag> ("ht");
+    recoPFJets_       = conf.getParameter<edm::InputTag> ("recoPFJets"); 
+    calotowers_       = conf.getParameter<edm::InputTag> ("calotowers");
+    muon_             = conf.getParameter<edm::InputTag> ("muon");
+    pfmuon_           = conf.getParameter<edm::InputTag> ("pfmuon");
+    mctruth_          = conf.getParameter<edm::InputTag> ("mctruth");
+    genEventInfo_     = conf.getParameter<edm::InputTag> ("genEventInfo");
+    simhits_          = conf.getParameter<edm::InputTag> ("simhits");
+    xSection_         = conf.getUntrackedParameter<double> ("xSection",1.);
+    filterEff_        = conf.getUntrackedParameter<double> ("filterEff",1.);
+    firstLumi_        = conf.getUntrackedParameter<int> ("firstLumi",0);
+    lastLumi_         = conf.getUntrackedParameter<int> ("lastLumi",-1);
+    towerThreshold_   = conf.getParameter<double>("caloTowerThreshold");
        
     // keep this separate from l1extramc_ as needed by FastSim:
     //    This is purposefully done this way to allow FastSim to run with OpenHLT: 
@@ -72,7 +67,6 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     m_l1extraemn      = edm::InputTag(l1extramc_, "NonIsolated");
     m_l1extrajetc     = edm::InputTag(l1extramc_, "Central");
     m_l1extrajetf     = edm::InputTag(l1extramc_, "Forward");
-    m_l1extrajet      = edm::InputTag("gctInternJetProducer","Internal","ANALYSIS");
     m_l1extrataujet   = edm::InputTag(l1extramc_, "Tau");
     m_l1extramet      = edm::InputTag(l1extramc_, "MET");
     m_l1extramht      = edm::InputTag(l1extramc_, "MHT");
@@ -93,7 +87,6 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     oniaPixelTag_        = conf.getParameter<edm::InputTag> ("OniaPixelTag");
     oniaTrackTag_        = conf.getParameter<edm::InputTag> ("OniaTrackTag");
     DiMuVtx_             = conf.getParameter<edm::InputTag> ("DiMuVtx");
-    L2Tau_               = conf.getParameter<edm::InputTag> ("L2Tau");
     HLTTau_              = conf.getParameter<edm::InputTag> ("HLTTau");
     PFTau_               = conf.getParameter<edm::InputTag> ("HLTPFTau");
     PFTauTightCone_      = conf.getParameter<edm::InputTag> ("HLTPFTauTightCone");
@@ -116,21 +109,12 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     // btag OpenHLT input collections
     m_rawBJets                = conf.getParameter<edm::InputTag>("CommonBJetsL2");
     m_correctedBJets          = conf.getParameter<edm::InputTag>("CorrectedBJetsL2");
-    m_correctedBJetsL1FastJet = conf.getParameter<edm::InputTag>("CorrectedBJetsL2L1FastJet");
-    m_pfBJets                 = conf.getParameter<edm::InputTag>("PFlowBJetsL2");
-    m_lifetimeBJetsL25             = conf.getParameter<edm::InputTag>("LifetimeBJetsL25");
-    m_lifetimeBJetsL3              = conf.getParameter<edm::InputTag>("LifetimeBJetsL3");
-    m_lifetimeBJetsL25L1FastJet    = conf.getParameter<edm::InputTag>("LifetimeBJetsL25L1FastJet");
-    m_lifetimeBJetsL3L1FastJet     = conf.getParameter<edm::InputTag>("LifetimeBJetsL3L1FastJet");
-    m_lifetimePFBJetsL3            = conf.getParameter<edm::InputTag>("LifetimePFlowBJetsL3");
-    m_lifetimeBJetsL25SingleTrack  = conf.getParameter<edm::InputTag>("LifetimeBJetsL25SingleTrack");
-    m_lifetimeBJetsL3SingleTrack   = conf.getParameter<edm::InputTag>("LifetimeBJetsL3SingleTrack");
-    m_lifetimeBJetsL25SingleTrackL1FastJet  = conf.getParameter<edm::InputTag>("LifetimeBJetsL25SingleTrackL1FastJet");
-    m_lifetimeBJetsL3SingleTrackL1FastJet   = conf.getParameter<edm::InputTag>("LifetimeBJetsL3SingleTrackL1FastJet");
-    m_performanceBJetsL25          = conf.getParameter<edm::InputTag>("PerformanceBJetsL25");
-    m_performanceBJetsL3           = conf.getParameter<edm::InputTag>("PerformanceBJetsL3");
-    m_performanceBJetsL25L1FastJet = conf.getParameter<edm::InputTag>("PerformanceBJetsL25L1FastJet");
-    m_performanceBJetsL3L1FastJet  = conf.getParameter<edm::InputTag>("PerformanceBJetsL3L1FastJet");
+    m_lifetimeBJetsL25        = conf.getParameter<edm::InputTag>("LifetimeBJetsL25");
+    m_lifetimeBJetsL3         = conf.getParameter<edm::InputTag>("LifetimeBJetsL3");
+    m_lifetimeBJetsL25SingleTrack = conf.getParameter<edm::InputTag>("LifetimeBJetsL25SingleTrack");
+    m_lifetimeBJetsL3SingleTrack  = conf.getParameter<edm::InputTag>("LifetimeBJetsL3SingleTrack");
+    m_performanceBJetsL25     = conf.getParameter<edm::InputTag>("PerformanceBJetsL25");
+    m_performanceBJetsL3      = conf.getParameter<edm::InputTag>("PerformanceBJetsL3");
     
     // egamma OpenHLT input collections
     Electron_                 = conf.getParameter<edm::InputTag> ("Electron");
@@ -250,14 +234,10 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<reco::CaloJetCollection>              hltjets;
     edm::Handle<reco::CaloJetCollection>              hltcorjets;
     edm::Handle<reco::CaloJetCollection>              hltcorL1L2L3jets;
-    edm::Handle<double>                               rho;
     edm::Handle<reco::CaloJetCollection>              recjets;
     edm::Handle<reco::CaloJetCollection>              reccorjets;
     edm::Handle<reco::GenJetCollection>               genjets;
     edm::Handle<CaloTowerCollection>                  caloTowers;
-    edm::Handle<CaloTowerCollection>                  caloTowersCleanerUpperR45;
-    edm::Handle<CaloTowerCollection>                  caloTowersCleanerLowerR45;
-    edm::Handle<CaloTowerCollection>                  caloTowersCleanerNoR45;
     edm::Handle<reco::CaloMETCollection>              recmet;
     edm::Handle<reco::PFMETCollection>                recoPFMet;
     edm::Handle<reco::GenMETCollection>               genmet;
@@ -272,8 +252,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<edm::TriggerResults>                  hltresults;
     edm::Handle<l1extra::L1EmParticleCollection>      l1extemi, l1extemn;
     edm::Handle<l1extra::L1MuonParticleCollection>    l1extmu;
-    edm::Handle<l1extra::L1JetParticleCollection>     l1extjetc, l1extjetf, l1extjet, l1exttaujet;
-    //edm::Handle<l1extra::L1JetParticleCollection>     l1extjetc, l1extjetf, l1exttaujet;
+    edm::Handle<l1extra::L1JetParticleCollection>     l1extjetc, l1extjetf, l1exttaujet;
     edm::Handle<l1extra::L1EtMissParticleCollection>  l1extmet,l1extmht;
     edm::Handle<L1GlobalTriggerReadoutRecord>         l1GtRR;
     edm::Handle< L1GctHFBitCountsCollection >         gctBitCounts ;
@@ -284,7 +263,6 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<reco::VertexCollection>               dimuvtxcands3;
     edm::Handle<reco::MuonCollection>                 trkmucands;
     edm::Handle<edm::ValueMap<bool> >                 isoMap2,  isoMap3, isoTrk10Map3;
-    edm::Handle<reco::CaloJetCollection>              l2taus;
     edm::Handle<reco::HLTTauCollection>               taus;
     edm::Handle<reco::PFTauCollection>                pftaus;
     edm::Handle<reco::PFTauCollection>                pftausTightCone;
@@ -304,21 +282,12 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     // btag OpenHLT input collections
     edm::Handle<edm::View<reco::Jet> >                hRawBJets;
     edm::Handle<edm::View<reco::Jet> >                hCorrectedBJets;
-    edm::Handle<edm::View<reco::Jet> >                hCorrectedBJetsL1FastJet;
-    edm::Handle<edm::View<reco::Jet> >                hPFBJets;
     edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL25;
-    edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL3L1FastJet;
-    edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL25L1FastJet;
     edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL3;
-    edm::Handle<reco::JetTagCollection>               hLifetimePFBJetsL3;
     edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL25SingleTrack;
     edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL3SingleTrack;
-    edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL25SingleTrackL1FastJet;
-    edm::Handle<reco::JetTagCollection>               hLifetimeBJetsL3SingleTrackL1FastJet;
     edm::Handle<reco::JetTagCollection>               hPerformanceBJetsL25;
     edm::Handle<reco::JetTagCollection>               hPerformanceBJetsL3;
-    edm::Handle<reco::JetTagCollection>               hPerformanceBJetsL25L1FastJet;
-    edm::Handle<reco::JetTagCollection>               hPerformanceBJetsL3L1FastJet;
     
     // egamma OpenHLT input collections
     edm::Handle<reco::GsfElectronCollection>          electrons;
@@ -398,18 +367,18 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::InputTag BSProducer_(std::string("hltOnlineBeamSpot"));
     
     // get EventSetup stuff needed for the AlCa pi0 path
-    //    edm::ESHandle< EcalElectronicsMapping > ecalmapping;
-    //    iSetup.get< EcalMappingRcd >().get(ecalmapping);
-   
-    //    edm::ESHandle<CaloGeometry> geoHandle;
-    //    iSetup.get<CaloGeometryRecord>().get(geoHandle); 
-   
-    //    edm::ESHandle<CaloTopology> pTopology;
-    //    iSetup.get<CaloTopologyRecord>().get(pTopology);
-   
-    //    edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
-    //    iSetup.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
-   
+    edm::ESHandle< EcalElectronicsMapping > ecalmapping;
+    iSetup.get< EcalMappingRcd >().get(ecalmapping);
+    
+    edm::ESHandle<CaloGeometry> geoHandle;
+    iSetup.get<CaloGeometryRecord>().get(geoHandle); 
+    
+    edm::ESHandle<CaloTopology> pTopology;
+    iSetup.get<CaloTopologyRecord>().get(pTopology);
+    
+    edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
+    iSetup.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
+    
     
     // extract the collections from the event, check their validity and log which are missing
     std::vector<MissingCollectionInfo> missing;
@@ -423,7 +392,6 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, hltjets,         hltjets_,           kHLTjets );
     getCollection( iEvent, missing, hltcorjets,      hltcorjets_,        kHLTCorjets );
     getCollection( iEvent, missing, hltcorL1L2L3jets,hltcorL1L2L3jets_,  kHLTCorL1L2L3jets );
-    getCollection( iEvent, missing, rho,             rho_,               kRho );
     getCollection( iEvent, missing, recjets,         recjets_,           kRecjets );
     getCollection( iEvent, missing, reccorjets,      reccorjets_,        kRecCorjets );
     getCollection( iEvent, missing, genjets,         genjets_,           kGenjets );
@@ -431,14 +399,10 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, recoPFMet,       recoPFMet_,         kPFMet );
     getCollection( iEvent, missing, genmet,          genmet_,            kGenmet );
     getCollection( iEvent, missing, caloTowers,      calotowers_,        kCaloTowers );
-    getCollection( iEvent, missing, caloTowersCleanerUpperR45, calotowersUpperR45_,        kCaloTowersUpperR45 );
-    getCollection( iEvent, missing, caloTowersCleanerLowerR45, calotowersLowerR45_,        kCaloTowersLowerR45 );
-    getCollection( iEvent, missing, caloTowersCleanerNoR45,    calotowersNoR45_,           kCaloTowersNoR45 );
     getCollection( iEvent, missing, ht,              ht_,                kHt );
     getCollection( iEvent, missing, recoPFJets,      recoPFJets_,        kRecoPFJets );   
     getCollection( iEvent, missing, muon,            muon_,              kMuon );
     getCollection( iEvent, missing, pfmuon,          pfmuon_,            kpfMuon );
-    getCollection( iEvent, missing, l2taus,          L2Tau_,             kTaus );
     getCollection( iEvent, missing, taus,            HLTTau_,            kTaus );
     getCollection( iEvent, missing, pftaus,          PFTau_,		 kPFTaus );
     getCollection( iEvent, missing, pftausTightCone, PFTauTightCone_,    kPFTausTightCone );
@@ -457,7 +421,6 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, l1extmu,         m_l1extramu,        kL1extmu );
     getCollection( iEvent, missing, l1extjetc,       m_l1extrajetc,      kL1extjetc );
     getCollection( iEvent, missing, l1extjetf,       m_l1extrajetf,      kL1extjetf );
-    getCollection( iEvent, missing, l1extjet,        m_l1extrajet,       kL1extjet );
     getCollection( iEvent, missing, l1exttaujet,     m_l1extrataujet,    kL1exttaujet );
     getCollection( iEvent, missing, l1extmet,        m_l1extramet,       kL1extmet );
     getCollection( iEvent, missing, l1extmht,        m_l1extramht,       kL1extmht );
@@ -478,23 +441,14 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, isoMap2,         MuIsolTag2_,        kIsoMap2 );
     getCollection( iEvent, missing, isoMap3,         MuIsolTag3_,        kIsoMap3 );
     getCollection( iEvent, missing, isoTrk10Map3,    MuTrkIsolTag3_,     kIsoTrk10Map3 ); 
-    getCollection( iEvent, missing, hRawBJets,                    m_rawBJets,                     kBTagJets );
-    getCollection( iEvent, missing, hCorrectedBJets,              m_correctedBJets,               kBTagCorrectedJets );
-    getCollection( iEvent, missing, hCorrectedBJetsL1FastJet,     m_correctedBJetsL1FastJet,      kBTagCorrectedJetsL1FastJet );
-    getCollection( iEvent, missing, hPFBJets,                     m_pfBJets,                      kBTagPFJets );
-    getCollection( iEvent, missing, hLifetimeBJetsL25,            m_lifetimeBJetsL25,             kBTagLifetimeBJetsL25 );
-    getCollection( iEvent, missing, hLifetimeBJetsL3,             m_lifetimeBJetsL3,              kBTagLifetimeBJetsL3 );
-    getCollection( iEvent, missing, hLifetimeBJetsL25L1FastJet,   m_lifetimeBJetsL25L1FastJet,    kBTagLifetimeBJetsL25L1FastJet );
-    getCollection( iEvent, missing, hLifetimeBJetsL3L1FastJet,    m_lifetimeBJetsL3L1FastJet,     kBTagLifetimeBJetsL3L1FastJet );
-    getCollection( iEvent, missing, hLifetimePFBJetsL3,           m_lifetimePFBJetsL3,            kBTagLifetimePFBJetsL3 );
-    getCollection( iEvent, missing, hLifetimeBJetsL25SingleTrack, m_lifetimeBJetsL25SingleTrack,  kBTagLifetimeBJetsL25SingleTrack );
-    getCollection( iEvent, missing, hLifetimeBJetsL3SingleTrack,  m_lifetimeBJetsL3SingleTrack,   kBTagLifetimeBJetsL3SingleTrack );
-    getCollection( iEvent, missing, hLifetimeBJetsL25SingleTrackL1FastJet, m_lifetimeBJetsL25SingleTrackL1FastJet,  kBTagLifetimeBJetsL25SingleTrackL1FastJet );
-    getCollection( iEvent, missing, hLifetimeBJetsL3SingleTrackL1FastJet,  m_lifetimeBJetsL3SingleTrackL1FastJet,   kBTagLifetimeBJetsL3SingleTrackL1FastJet );
-    getCollection( iEvent, missing, hPerformanceBJetsL25,         m_performanceBJetsL25,          kBTagPerformanceBJetsL25 );
-    getCollection( iEvent, missing, hPerformanceBJetsL3,          m_performanceBJetsL3,           kBTagPerformanceBJetsL3 );
-    getCollection( iEvent, missing, hPerformanceBJetsL25L1FastJet,m_performanceBJetsL25L1FastJet, kBTagPerformanceBJetsL25L1FastJet );
-    getCollection( iEvent, missing, hPerformanceBJetsL3L1FastJet, m_performanceBJetsL3L1FastJet,  kBTagPerformanceBJetsL3L1FastJet );
+    getCollection( iEvent, missing, hRawBJets,                m_rawBJets,                 kBTagJets );
+    getCollection( iEvent, missing, hCorrectedBJets,          m_correctedBJets,           kBTagCorrectedJets );
+    getCollection( iEvent, missing, hLifetimeBJetsL25,        m_lifetimeBJetsL25,         kBTagLifetimeBJetsL25 );
+    getCollection( iEvent, missing, hLifetimeBJetsL3,         m_lifetimeBJetsL3,          kBTagLifetimeBJetsL3 );
+    getCollection( iEvent, missing, hLifetimeBJetsL25SingleTrack,        m_lifetimeBJetsL25SingleTrack,         kBTagLifetimeBJetsL25SingleTrack );
+    getCollection( iEvent, missing, hLifetimeBJetsL3SingleTrack,         m_lifetimeBJetsL3SingleTrack,          kBTagLifetimeBJetsL3SingleTrack );
+    getCollection( iEvent, missing, hPerformanceBJetsL25,     m_performanceBJetsL25,      kBTagPerformanceBJetsL25 );
+    getCollection( iEvent, missing, hPerformanceBJetsL3,      m_performanceBJetsL3,       kBTagPerformanceBJetsL3 );
     getCollection( iEvent, missing, electrons,                Electron_,                  kElectrons );
     getCollection( iEvent, missing, photons,                  Photon_,                    kPhotons );
     getCollection( iEvent, missing, ActivityCandsHandle, ECALActivity_,                    kECALActivity);       
@@ -571,7 +525,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     if (not missing.empty() and (errCnt < errMax())) {
         errCnt++;
         std::stringstream out;       
-        out <<  "OpenHLT analyser - missing collections (This message is for information only. RECO collections will always be missing when running on RAW, MC collections will always be missing when running on data):";
+        out <<  "OpenHLT analyser - missing collections:";
         BOOST_FOREACH(const MissingCollectionInfo & entry, missing)
         out << "\n\t" << entry.first << ": " << entry.second->encode();
         edm::LogPrint("OpenHLT") << out.str() << std::endl; 
@@ -584,14 +538,12 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 			  hltjets,
 			  hltcorjets,
                     	  hltcorL1L2L3jets,
-                    	  rho,
                           recjets,
                           reccorjets,
                           genjets,
                           recmet,
                           genmet,
                           ht,
-                          l2taus,
                           taus,
                           pftaus,
                           pftausTightCone,
@@ -606,9 +558,6 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 			  theRecoPFTauDiscrAgainstElec,
                           recoPFJets, 
                           caloTowers,
-			  caloTowersCleanerUpperR45,
-			  caloTowersCleanerLowerR45,
-			  caloTowersCleanerNoR45,
 			  recoPFMet,
                           towerThreshold_,
                           _MinPtGammas,
@@ -701,7 +650,6 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
                           l1extmu,
                           l1extjetc,
                           l1extjetf,
-			  l1extjet,
                           l1exttaujet,
                           l1extmet,
                           l1extmht,
@@ -715,21 +663,12 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     bjet_analysis_.analyze(
                            hRawBJets, 
                            hCorrectedBJets,
-                           hCorrectedBJetsL1FastJet,
-                           hPFBJets, 
                            hLifetimeBJetsL25,
                            hLifetimeBJetsL3,
-                           hLifetimeBJetsL25L1FastJet,
-                           hLifetimeBJetsL3L1FastJet,
-                           hLifetimePFBJetsL3,
                            hLifetimeBJetsL25SingleTrack,
                            hLifetimeBJetsL3SingleTrack,
-                           hLifetimeBJetsL25SingleTrackL1FastJet,
-                           hLifetimeBJetsL3SingleTrackL1FastJet,
                            hPerformanceBJetsL25,
                            hPerformanceBJetsL3,
-                           hPerformanceBJetsL25L1FastJet,
-                           hPerformanceBJetsL3L1FastJet,
                            HltTree);
 
     vrt_analysisHLT_.analyze(

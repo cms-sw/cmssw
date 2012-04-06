@@ -1307,26 +1307,6 @@ sub makeCtlDestroy()
 	$result = $result . "`$cmd`;\n\n";
     }
     $result = $result . "print \"remove files and dirs ...\n\";\n\n";
-#
-# Check if the process is still running
-#
-    $result = $result . "print \"Testing if xdaq is running...\\n\";\n";
-    $result = $result . "my \$number = \"0\";\n";
-    $result = $result . "my \$retries = \"0\";\n";
-    $result = $result . "\$number=`ps aux | grep -c xdaq`;\n";
-    $result = $result . "while (\$number >= 5)\n";
-    $result = $result . "{\n";
-    $result = $result . "print \"XDAQ RUNNING! \\n\";\n";
-    $result = $result . "if (\$retries >= 2 ){\n";
-    $result = $result . "print \"->Killing XDAQ! \\n\";\n";
-    $result = $result . "`killall -9 xdaq.exe`; }\n";
-    $result = $result . "print \"..sleeping for 1 second... \\n\";\n";
-    $result = $result . "`sleep 1`;\n";
-    $result = $result . "\$number=`ps aux | grep -c xdaq`;\n";
-    $result = $result . "\$retries= \$retries + 1;\n";
-    $result = $result . "}";
-    $result = $result . "print \"XDAQ is not running (anymore) \\n\";\n";
-##
     $result = $result . "`rm -rf cfg/ soap/ xml/ flash/ log/ $SMout " .
 	"configure enable halt stop gennums.txt summaryCatalog.txt test.root log4cplus.log`;\n\n";
     $result = $result . "print \"FUShmCleanUp_t ...\\n\";\n\n";

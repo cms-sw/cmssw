@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/07/06 15:08:38 $
- *  $Revision: 1.34 $
+ *  $Date: 2011/10/13 11:49:14 $
+ *  $Revision: 1.35 $
  *
  *  \author Martin Grunewald
  *
@@ -522,9 +522,9 @@ HLTrigReport::dumpReport(std::string const & header /* = std::string() */)
 
     // now for each dataset
     for (size_t ds=0; ds<hlIndex_.size(); ++ds) {
-      LogVerbatim("HLTrigReport") << endl;
-      LogVerbatim("HLTrigReport") << "HLT-Report " << "---------- Dataset Summary: " << datasetNames_[ds] << " ------------" << hlAllTotDS_[ds] << endl;
-      LogVerbatim("HLTrigReport") << "HLT-Report "
+      LogVerbatim("HLTrigRprtPD") << endl;
+      LogVerbatim("HLTrigRprtPD") << "HLT-Report " << "---------- Dataset Summary: " << datasetNames_[ds] << " ------------" << hlAllTotDS_[ds] << endl;
+      LogVerbatim("HLTrigRprtPD") << "HLT-Report "
          << right << setw(7) << "HLT #" << " "
          << right << setw(7) << "WasRun" << " "
          << right << setw(7) << "L1S" << " "
@@ -538,7 +538,7 @@ HLTrigReport::dumpReport(std::string const & header /* = std::string() */)
          << right << setw(7) << "Errors" << " "
          << "Name" << endl;
       for (size_t p=0; p<hlIndex_[ds].size(); ++p) {
-        LogVerbatim("HLTrigReport") << "HLT-Report "
+        LogVerbatim("HLTrigRprtPD") << "HLT-Report "
            << right << setw(7) << p << " "
            << right << setw(7) << hlWasRun_[hlIndex_[ds][p]] << " "
            << right << setw(7) << hltL1s_[hlIndex_[ds][p]] << " "
@@ -559,9 +559,9 @@ HLTrigReport::dumpReport(std::string const & header /* = std::string() */)
 
     // now for each stream
     for (size_t s=0; s<dsIndex_.size(); ++s) {
-      LogVerbatim("HLTrigReport") << endl;
-      LogVerbatim("HLTrigReport") << "HLT-Report " << "---------- Stream Summary: " << streamNames_[s] << " ------------" << dsAllTotS_[s] << endl;
-      LogVerbatim("HLTrigReport") << "HLT-Report "
+      LogVerbatim("HLTrigRprtST") << endl;
+      LogVerbatim("HLTrigRprtST") << "HLT-Report " << "---------- Stream Summary: " << streamNames_[s] << " ------------" << dsAllTotS_[s] << endl;
+      LogVerbatim("HLTrigRprtST") << "HLT-Report "
          << right << setw(10) << "Dataset #" << " "
          << right << setw(10) << "Individual" << " "
          << right << setw(10) << "Total" << " "
@@ -571,7 +571,7 @@ HLTrigReport::dumpReport(std::string const & header /* = std::string() */)
          << "Name" << endl;
       for (size_t ds=0;ds<dsIndex_[s].size(); ++ds) {
         unsigned int acceptedDS = hlAccTotDS_[dsIndex_[s][ds]][hlIndex_[dsIndex_[s][ds]].size()-1];
-        LogVerbatim("HLTrigReport") << "HLT-Report "
+        LogVerbatim("HLTrigRprtST") << "HLT-Report "
            << right << setw(10) << ds << " "
            << right << setw(10) << acceptedDS << " "
            << right << setw(10) << dsAccTotS_[s][ds] << " "

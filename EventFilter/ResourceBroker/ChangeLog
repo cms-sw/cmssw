@@ -1,37 +1,18 @@
-2011-10-21  Emilio Meschi  <emilio.meschi@cern.ch>
+2012-03-28  Andrei Spataru  <aspataru@cern.ch>
 
-	* tag V00-16-14
-	* handle case where all EP slaves stuck and shmem is full
-	* promote timeout of EP processing to ERROR level
+	* tag V01-00-02
+	* fixed Rule 1 code violations
 
-2011-09-27  Emilio Meschi  <emilio.meschi@cern.ch>
+2012-03-26  Andrei Spataru  <aspataru@cern.ch>
 
-	* tag V00-16-13 (12 used by e ulisse for compiler compat)
-	* hopefully fix handling of oversize or otherwise corrupt events
+	* tag V01-00-01
+	* SOAP response is now synchronous
+	* send allocate when empty raw cells > 0
 
-2011-06-08  Emilio Meschi  <emilio.meschi@cern.ch>
+2012-03-16  Andrei Spataru  <aspataru@cern.ch>
 
-	* tag V00-16-11
-	* fix bug in discard at end of run
-
-2011-05-20  Emilio Meschi  <emilio.meschi@cern.ch>
-
-	* tag V00-16-10
-	* ooops
-	
-2011-05-20  Emilio Meschi  <emilio.meschi@cern.ch>
-
-	* tag V00-16-09
-	* fix small event state inconsistency appearing as rare 
-	assert failure in "STOPPING"
-	
-2011-05-11  Emilio Meschi  <emilio.meschi@cern.ch>
-
-	* tag V00-16-08
-	* added USEDLS to tag discarded EOL events
-	* added counters to monitor EOL messages
-	* out of sequence EOL messages generate warning
-	* large skipped EOL interval bring to failed state
+	* tag V01-00-00
+	* replaced FSM with boost::statechart
 
 2011-04-15  Emilio Meschi  <emilio.meschi@cern.ch>
 

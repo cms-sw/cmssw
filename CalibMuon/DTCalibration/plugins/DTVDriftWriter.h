@@ -5,8 +5,8 @@
  *  Instantiates configurable algo plugin to
  *  compute and write vDrift DB.
  * 
- *  $Date: 2010/11/18 20:58:24 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/11/17 17:54:23 $
+ *  $Revision: 1.2 $
  *  Author of original version: M. Giunta
  *  \author A. Vilela Pereira 
  */
@@ -19,9 +19,7 @@
 
 class DTMtime;
 class DTGeometry;
-namespace dtCalibration {
-  class DTVDriftBaseAlgo;
-}
+class DTVDriftBaseAlgo;
 
 class DTVDriftWriter : public edm::EDAnalyzer {
 public:
@@ -39,7 +37,7 @@ private:
   const DTMtime* mTimeMap_;
   edm::ESHandle<DTGeometry> dtGeom_;
 
-  dtCalibration::DTVDriftBaseAlgo* vDriftAlgo_; 
+  DTVDriftBaseAlgo* vDriftAlgo_; 
 };
 #endif
 

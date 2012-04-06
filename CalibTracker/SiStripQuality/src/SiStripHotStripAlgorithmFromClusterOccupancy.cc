@@ -234,16 +234,16 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::iterativeSearch(pHisto& histo
   size_t startingSize=vect.size();
   long double diff=1.-prob_; 
   
-  size_t Nbins     = histo._th1f->GetNbinsX();
-  size_t ibinStart = 1; 
-  size_t ibinStop  = Nbins+1; 
+  int Nbins     = histo._th1f->GetNbinsX();
+  int ibinStart = 1; 
+  int ibinStop  = Nbins+1; 
   int MaxEntry  = (int)histo._th1f->GetMaximum();
 
   std::vector<long double> vPoissonProbs(MaxEntry+1,0);
   long double meanVal=1.*histo._NEntries/(1.*Nbins-histo._NEmptyBins); 
   evaluatePoissonian(vPoissonProbs,meanVal);
 
-  for (size_t i=ibinStart; i<ibinStop; ++i){
+  for (Int_t i=ibinStart; i<ibinStop; ++i){
     unsigned int entries= (unsigned int)histo._th1f->GetBinContent(i);
 
     if (ishot[(apv*128)+i-1]==0){

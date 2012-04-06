@@ -12,10 +12,7 @@ namespace egHLT {
   
   namespace trigTools {
     TrigCodes::TrigBitSet getFiltersPassed(const std::vector<std::pair<std::string,int> >& filters,const trigger::TriggerEvent* trigEvt,const std::string& hltTag);
-    
     template<class T> void setFiltersObjPasses(std::vector<T>& objs,const std::vector<std::string>& filters,const std::vector<std::pair<std::string,std::string> >& l1PreAndSeedFilters,const TrigCodes::TrigBitSet& evtTrigBits,const trigger::TriggerEvent* trigEvt,const std::string& hltTag );
-    
-    template<class T, class U> void fillHLTposition(T& obj,U& hltData,const std::vector<std::string>& filters,const trigger::TriggerEvent* trigEvt,const std::string& hltTag );
     int getMinNrObjsRequiredByFilter(const std::string& filterName); //slow function, call at begin job and cache results
 
     //reads hlt config and works out which are the active last filters stored in trigger summary, is sorted
@@ -96,38 +93,6 @@ namespace egHLT {
     for(size_t partNr=0;partNr<particles.size();partNr++) particles[partNr].setTrigBits(partTrigBits[partNr]);
     
   }
-
-
- template <class T, class U>
-  void trigTools::fillHLTposition(T& particle,
-				  U& hltData,
-				  const std::vector<std::string>& filters,
-				  const trigger::TriggerEvent* trigEvt,
-				  const std::string& hltTag)
-{
-  std::vector<TrigCodes::TrigBitSet> partTrigBits(1);
-  const double maxDeltaR=0.1;
-  for(size_t filterNrInVec=0;filterNrInVec<filters.size();filterNrInVec++){
-    size_t filterNrInEvt = trigEvt->filterIndex(edm::InputTag(filters[filterNrInVec],"",hltTag).encode());
-    //const TrigCodes::TrigBitSet filterCode = TrigCodes::getCode(filters[filterNrInVec].c_str()); 
-    if(filterNrInEvt<trigEvt->sizeFilters()){ //filter found in event, something passes it
-      const trigger::Keys& trigKeys = trigEvt->filterKeys(filterNrInEvt);  //trigger::Keys is actually a vector<uint16_t> holding the position of trigger objects in the trigger collection passing the filter
-      const trigger::TriggerObjectCollection & trigObjColl(trigEvt->getObjects());
-      for(trigger::Keys::const_iterator keyIt=trigKeys.begin();keyIt!=trigKeys.end();++keyIt){
-	float trigObjEta = trigObjColl[*keyIt].eta();
-	float trigObjPhi = trigObjColl[*keyIt].phi();
-	float trigObjEt = trigObjColl[*keyIt].et();
-	if (reco::deltaR(particle.superCluster()->eta(),particle.superCluster()->phi(),trigObjEta,trigObjPhi) < maxDeltaR){
-	  hltData.HLTeta=trigObjEta;
-	  hltData.HLTphi=trigObjPhi;
-	  hltData.HLTeT=trigObjEt;
-	}//end dR<maxDeltaR trig obj match test
-      }//end loop over all objects passing filter`
-    }//end check if filter is present
-  }//end check if path has fired in the event
-}//end loop over all filters 
-  
-}//end namespace declaration
-
+}  
 #endif
   
