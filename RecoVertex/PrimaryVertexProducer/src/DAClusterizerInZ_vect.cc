@@ -219,7 +219,7 @@ double DAClusterizerInZ_vect::update(double beta, track_t & gtracks,
 	}
 
 	// now update z and pk
-	auto kernel_calc_z = [ &delta, &sumpi, nv, verbose_, useRho0 ] (vertex_t & vertices )
+	auto kernel_calc_z = [ &delta, &sumpi, nv, this, useRho0 ] (vertex_t & vertices )
 	{
 		// does not vectorizes
 		for (unsigned int ivertex = 0; ivertex < nv; ++ ivertex )
@@ -235,7 +235,7 @@ double DAClusterizerInZ_vect::update(double beta, track_t & gtracks,
 			else {
 				edm::LogInfo("sumw") << "invalid sum of weights in fit: " << vertices._sw[ivertex]
 				<< endl;
-				if (verbose_) {
+				if (this->verbose_) {
 					LogDebug("DAClusterizerinZ_vectorized")  << " a cluster melted away ?  pk=" << vertices._pk[ ivertex ] << " sumw="
 					<< vertices._sw[ivertex] << endl;
 				}
