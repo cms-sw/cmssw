@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from FastSimulation.Configuration.mixFastSimObjects_cfi import *
 #from FastSimulation.Configuration.mixOnlyGenParticles_cfi import *
 
-mix = cms.EDProducer("MixingModule",
+mixGenPU = cms.EDProducer("MixingModule",
     LabelPlayback = cms.string(''),
     maxBunch = cms.int32(0),
     minBunch = cms.int32(0),

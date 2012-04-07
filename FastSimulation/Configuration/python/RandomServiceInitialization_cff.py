@@ -44,6 +44,11 @@ RandomNumberGeneratorService = cms.Service(
         initialSeed = cms.untracked.uint32(918273), # intentionally the same as famosPileUp
         engineName = cms.untracked.string('TRandom3')
     ),
+
+    mixGenPU = cms.PSet(
+        initialSeed = cms.untracked.uint32(918273), # intentionally the same as famosPileUp
+        engineName = cms.untracked.string('TRandom3')
+    ),
     
 
     famosSimHits = cms.PSet(
