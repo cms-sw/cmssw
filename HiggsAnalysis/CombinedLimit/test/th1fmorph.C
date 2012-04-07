@@ -1,21 +1,28 @@
-#include "TH1F.h"
-#include "TROOT.h"
-
 #include <iostream>
-#include <cmath>
-
+#include <math.h>
+#include "TH1F.h"
+#include <TROOT.h>
 using namespace std;
 
 TH1F *th1fmorph(Char_t *chname="TH1F-interpolated", 
-                Char_t *chtitle="Interpolated histogram",
-                TH1F *hist1=0,TH1F *hist2=0,
-                Double_t par1=0,Double_t par2=0,Double_t parinterp=0,
-                Double_t morphedhistnorm=1,
-                Int_t idebug=1)
+		Char_t *chtitle="Interpolated histogram",
+		TH1F *hist1=0,TH1F *hist2=0,
+		Double_t par1=0,Double_t par2=1,Double_t parinterp=0,
+		Double_t morphedhistnorm=-1,
+		Int_t idebug=0)
 {
   //--------------------------------------------------------------------------
   // Author           : Alex Read 
-  // Version 0.2 of ROOT implementation, 08.05.2011
+  // Version 0.3 of ROOT implementation, 08.05.2011
+  //
+  // Changes 0.3->0.31 17.07.2011:
+  //    o Squashed bug that gave errors for histograms with holes.
+  // Changes 0.2->0.3 11.08.2011:
+  //    o Include files to make compilation with ACLIC, g++ possible
+  //    o Give defaults for arguments, fix misplaced declarations, etc.
+  //    o Compilation with g++ also works
+  //    o Allow to choose between specified or interpolated normalization
+  //    o Correct default debug output
   // *
   // *      Perform a linear interpolation between two histograms as a function
   // *      of the characteristic parameter of the distribution.
@@ -54,7 +61,10 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
   // *                   interpolate to. 
   // * 
   // * morphedhistnorm : The normalization of the interpolated histogram 
-  // *                   (default is 1.0).  
+  // *                   (default is -1). If the normalization is given
+  // *                   as <=0 it is computed as from the linear interpolation
+  // *                   between the 2 input histograms, otherwise is it taken
+  // *                   from the provided value.
   // * 
   // * idebug          : Default is zero, no internal information displayed. 
   // *                   Values between 1 and increase the verbosity of 
@@ -95,12 +105,12 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
     cout << nb2 << " " << xmin2 << " " << xmax2 << endl;
   }
 
-  // ......The weights (wt1,wt2) are the complements of the "distances" between 
-  //       the values of the parameters at the histograms and the desired 
-  //       interpolation point. For example, wt1=0, wt2=1 means that the 
-  //       interpolated histogram should be identical to input histogram 2.
-  //       Check that they make sense. If par1=par2 then we can choose any
-  //       valid set of wt1,wt2 so why not take the average?
+// ......The weights (wt1,wt2) are the complements of the "distances" between 
+//       the values of the parameters at the histograms and the desired 
+//       interpolation point. For example, wt1=0, wt2=1 means that the 
+//       interpolated histogram should be identical to input histogram 2.
+//       Check that they make sense. If par1=par2 then we can choose any
+//       valid set of wt1,wt2 so why not take the average?
 
   Double_t wt1,wt2;
   if (par2 != par1) {
@@ -117,7 +127,7 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
   if (wt1 < 0 || wt1 > 1. || wt2 < 0. || wt2 > 1. || fabs(1-(wt1+wt2)) 
       > 1.0e-4) {
     cout << "Warning! th1fmorph: This is an extrapolation!! Weights are "
-         << wt1 << " and " << wt2 << " (sum=" << wt1+wt2 << ")" << endl;
+	 << wt1 << " and " << wt2 << " (sum=" << wt1+wt2 << ")" << endl;
   }
   if (idebug >= 1) cout << "th1morph - Weights: " << wt1 << " " << wt2 << endl;
 
@@ -126,8 +136,7 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
   //      assignments instead of computation when input binnings
   //      are identical to assure best possible precision.
 
-  Double_t xminn=0;
-  Double_t xmaxn=0;
+  Double_t xminn=-1,xmaxn=-1;
   Int_t nbn=0;
   Double_t wtmin;
 
@@ -161,32 +170,32 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
     }
   }
   if (idebug >= 1) cout << "New hist: " << nbn << " " << xminn << " " 
-                        << xmaxn << endl;
+			<< xmaxn << endl;
 
   // Treatment for empty histograms: Return an empty histogram
   // with interpolated bins.
 
   if (hist1->GetSum() <= 0 || hist2->GetSum() <=0 ) {
     cout << "Warning! th1morph detects an empty input histogram. Empty interpolated histogram returned: " 
-         <<endl << "         " << chname << " - " << chtitle << endl;
+	 <<endl << "         " << chname << " - " << chtitle << endl;
     TH1F *morphedhist = (TH1F *)gROOT->FindObject(chname);
     if (morphedhist) delete morphedhist;
     morphedhist = new TH1F(chname,chtitle,nbn,xminn,xmaxn);
     return(morphedhist);
   }
   if (idebug >= 1) cout << "Input histogram content sums: " 
-                        << hist1->GetSum() << " " << hist2->GetSum() << endl;
-  // *         
-  // *......Extract the single precision histograms into double precision arrays
-  // *      for the interpolation computation. The offset is because sigdis(i)
-  // *      describes edge i (there are nbins+1 of them) while dist1/2
-  // *      describe bin i. Be careful, ROOT does not use C++ convention to
-  // *      number bins: dist1[ibin] is content of bin ibin where ibin runs from
-  // *      1 to nbins. We allocate some extra space for the derived distributions
-  // *      because there may be as many as nb1+nb2+2 edges in the intermediate 
-  // *      interpolated cdf described by xdisn[i] (position of edge i) and 
-  // *      sigdisn[i] (cummulative probability up this edge) before we project 
-  // *      into the final binning.
+			<< hist1->GetSum() << " " << hist2->GetSum() << endl;
+// *         
+// *......Extract the single precision histograms into double precision arrays
+// *      for the interpolation computation. The offset is because sigdis(i)
+// *      describes edge i (there are nbins+1 of them) while dist1/2
+// *      describe bin i. Be careful, ROOT does not use C++ convention to
+// *      number bins: dist1[ibin] is content of bin ibin where ibin runs from
+// *      1 to nbins. We allocate some extra space for the derived distributions
+// *      because there may be as many as nb1+nb2+2 edges in the intermediate 
+// *      interpolated cdf described by xdisn[i] (position of edge i) and 
+// *      sigdisn[i] (cummulative probability up this edge) before we project 
+// *      into the final binning.
 
   Float_t *dist1=hist1->GetArray(); 
   Float_t *dist2=hist2->GetArray();
@@ -215,10 +224,10 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
     }
   }
   
-  //......Normalize the distributions to 1 to obtain pdf's and integrate 
-  //      (sum) to obtain cdf's.
+//......Normalize the distributions to 1 to obtain pdf's and integrate 
+//      (sum) to obtain cdf's.
 
-  Double_t total = 0;
+  Double_t total = 0, norm1, norm2;
   for(Int_t i=0;i<nb1+1;i++) {
     total += sigdis1[i];
   }
@@ -226,6 +235,7 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
   for(Int_t i=1;i<nb1+1;i++) {
     sigdis1[i] = sigdis1[i]/total + sigdis1[i-1];
   }
+  norm1 = total;
   
   total = 0.;
   for(Int_t i=0;i<nb2+1;i++) {
@@ -235,14 +245,15 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
   for(Int_t i=1;i<nb2+1;i++) {
     sigdis2[i] = sigdis2[i]/total + sigdis2[i-1];
   }
+  norm2 = total;
 
-  // *
-  // *......We are going to step through all the edges of both input
-  // *      cdf's ordered by increasing value of y. We start at the
-  // *      lower edge, but first we should identify the upper ends of the
-  // *      curves. These (ixl1, ixl2) are the first point in each cdf from 
-  // *      above that has the same integral as the last edge.
-  // *
+// *
+// *......We are going to step through all the edges of both input
+// *      cdf's ordered by increasing value of y. We start at the
+// *      lower edge, but first we should identify the upper ends of the
+// *      curves. These (ixl1, ixl2) are the first point in each cdf from 
+// *      above that has the same integral as the last edge.
+// *
 
   Int_t ix1l = nb1;
   Int_t ix2l = nb2;
@@ -253,9 +264,9 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
     ix2l = ix2l - 1;
   }
 
-  // *
-  // *......Step up to the beginnings of the curves. These (ix1, ix2) are the
-  // *      first non-zero points from below.
+// *
+// *......Step up to the beginnings of the curves. These (ix1, ix2) are the
+// *      first non-zero points from below.
 
   Int_t ix1 = -1;
   do {
@@ -291,9 +302,9 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
   sigdisn[nx3] = 0;
   if(idebug >= 1) {
     cout << "First interpolated point: " << xdisn[nx3] << " " 
-         << sigdisn[nx3] << endl;
+	 << sigdisn[nx3] << endl;
     cout << "                          " << x1 << " <= " << x << " <= " 
-         << x2 << endl;
+	 << x2 << endl;
   }
 
   //......Loop over the remaining point in both curves. Getting the last
@@ -301,17 +312,21 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
   //      precision.
 
   if (idebug >= 1) {
-    cout << "----BEFORE while with ix1=" << ix1 << ", ix1l=" << ix1l 
-         << ", ix2=" << ix2 << ", ix2l=" << ix2l << endl;
+      cout << "----BEFORE while with ix1=" << ix1 << ", ix1l=" << ix1l 
+	   << ", ix2=" << ix2 << ", ix2l=" << ix2l << endl;
+      for(Int_t i=ix1;i<=ix1l;i++) {cout << "   1: " << i << " " << sigdis1[i] << endl;}
+      for(Int_t i=ix2;i<=ix2l;i++) {cout << "   2: " << i << " " << sigdis2[i] << endl;}
   }
 
   Double_t yprev = -1; // The probability y of the previous point, it will 
                        //get updated and used in the loop.
-  Double_t y = 0;
-  while((ix1 < ix1l) | (ix2 < ix2l)) {
+  Double_t y,x20,x21,y20,y21; // Interpolation points along cdfs 0,1,2
+  Double_t x10,x11,y10,y11;
+
+  while(ix1 < ix1l | ix2 < ix2l) {
     if (idebug >= 1 ) cout << "----Top of while with ix1=" << ix1 
-                           << ", ix1l=" << ix1l << ", ix2=" << ix2 
-                           << ", ix2l=" << ix2l << endl;
+			   << ", ix1l=" << ix1l << ", ix2=" << ix2 
+			   << ", ix2l=" << ix2l << endl;
 
     //......Increment to the next lowest point. Step up to the next
     //      kink in case there are several empty (flat in the integral)
@@ -319,61 +334,68 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
 
     Int_t i12type = -1; // Tells which input distribution we need to 
                         // see next point of.
+
     if ((sigdis1[ix1+1] <= sigdis2[ix2+1] || ix2 == ix2l) && ix1 < ix1l) {
       ix1 = ix1 + 1;
-      while(sigdis1[ix1+1] <= sigdis1[ix1] && ix1 < ix1l) {
-        ix1 = ix1 + 1;
+      // try to fix empty bin holes!!!!
+      //      while(sigdis1[ix1+1] <= sigdis1[ix1] && ix1 < ix1l) {
+      // 	ix1 = ix1 + 1;
+      //      }
+      //empty bin fix??? while(sigdis1[ix1+1] <= sigdis1[ix1] && ix1 < ix1l) {
+      while(sigdis1[ix1+1] < sigdis1[ix1] && ix1 < ix1l) {
+ 	ix1 = ix1 + 1;
       }
       i12type = 1;
     } else if (ix2 < ix2l) {
       ix2 = ix2 + 1;
-      while(sigdis2[ix2+1] <= sigdis2[ix2] && ix2 < ix2l) {
-        ix2 = ix2 + 1;
+      //empty bin fix ?? while(sigdis2[ix2+1] <= sigdis2[ix2] && ix2 < ix2l) {
+      while(sigdis2[ix2+1] < sigdis2[ix2] && ix2 < ix2l) {
+ 	ix2 = ix2 + 1;
       }
       i12type = 2;
     }
     if (i12type == 1) {
       if (idebug >= 3) {
-        cout << "Pair for i12type=1: " << sigdis2[ix2] << " " 
-             << sigdis1[ix1] << " " << sigdis2[ix2+1] << endl;
+	cout << "Pair for i12type=1: " << ix1 << " " << ix2 << " " << sigdis2[ix2] << " " 
+	     << sigdis1[ix1] << " " << sigdis2[ix2+1] << endl;
       }
       x1 = xmin1 + double(ix1)*dx1 ;
       y = sigdis1[ix1];
-      Double_t x20 = double(ix2)*dx2 + xmin2;
-      Double_t x21 = x20 + dx2;
-      Double_t y20 = sigdis2[ix2];
-      Double_t y21 = sigdis2[ix2+1];
+      x20 = double(ix2)*dx2 + xmin2;
+      x21 = x20 + dx2;
+      y20 = sigdis2[ix2];
+      y21 = sigdis2[ix2+1];
 
       //......Calculate where the cummulative probability y in distribution 1
       //      intersects between the 2 points from distribution 2 which 
       //      bracket it.
 
       if (y21 > y20) {
-        x2 = x20 + (x21-x20)*(y-y20)/(y21-y20);
+	x2 = x20 + (x21-x20)*(y-y20)/(y21-y20);
       } 
       else {
-        x2 = x20;
+	x2 = x20;
       }
     } else {
       if (idebug >= 3) {
-        cout << "Pair for i12type=2: " << sigdis1[ix1] << " " << sigdis2[ix2] 
-             << " " << sigdis1[ix1+1] << endl;
+	cout << "Pair for i12type=2: " << sigdis1[ix1] << " " << sigdis2[ix2] 
+	     << " " << sigdis1[ix1+1] << endl;
       }
       x2 = xmin2 + double(ix2)*dx2 ;
       y = sigdis2[ix2];
-      Double_t x10 = double(ix1)*dx1 + xmin1;
-      Double_t x11 = x10 + dx1;
-      Double_t y10 = sigdis1[ix1];
-      Double_t y11 = sigdis1[ix1+1];
+      x10 = double(ix1)*dx1 + xmin1;
+      x11 = x10 + dx1;
+      y10 = sigdis1[ix1];
+      y11 = sigdis1[ix1+1];
 
       //......Calculate where the cummulative probability y in distribution 2
       //      intersects between the 2 points from distribution 1 which 
       //      brackets it.
 
       if (y11 > y10) {
-        x1 = x10 + (x11-x10)*(y-y10)/(y11-y10);
+	x1 = x10 + (x11-x10)*(y-y10)/(y11-y10);
       } else {
-        x1 = x10;
+	x1 = x10;
       }
     }
 
@@ -384,25 +406,25 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
     //      a structure to make the code more object-oriented and readable.
 
     x = wt1*x1 + wt2*x2;
-    if (y > yprev) {
+    if (y >= yprev) { // bugfix for empty bins?!?!?!?!
       nx3 = nx3+1;
       if (idebug >= 1) {
-        cout << " ---> y > yprev: i12type=" << i12type << ", nx3=" 
-             << nx3 << ", x= " << x << ", y=" << y << ", yprev=" << yprev 
-             << endl;
+	cout << " ---> y > yprev: i12type=" << i12type << ", nx3=" 
+	     << nx3 << ", x= " << x << ", y=" << y << ", yprev=" << yprev 
+	     << endl;
       }
       yprev = y;
       xdisn[nx3] = x;
       sigdisn[nx3] = y;
       if(idebug >= 1) {
-        cout << "    ix1=" << ix1 << ", ix2= " << ix2 << ", i12type= " 
-             << i12type << ", sigdis1[ix1]=" << sigdis1[ix1] << endl;
-        cout << "        " << ", nx3=" << nx3 << ", x=" << x << ", y= " 
-             << sigdisn[nx3] << endl;
+	cout << "    ix1=" << ix1 << ", ix2= " << ix2 << ", i12type= " 
+	     << i12type << ", sigdis1[ix1]=" << sigdis1[ix1] << endl;
+	cout << "        " << ", nx3=" << nx3 << ", x=" << x << ", y= " 
+	     << sigdisn[nx3] << endl;
       }
     }
   }
-  if (idebug >=3) for (Int_t i=0;i<nx3;i++) {
+  if (idebug >=3) for (Int_t i=0;i<=nx3;i++) {
     cout << " nx " << i << " " << xdisn[i] << " " << sigdisn[i] << endl;
   }
 
@@ -419,11 +441,11 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
   Int_t ix = nbn;
 
   if (idebug >= 1) cout << "------> Any final bins to set? " << x << " " 
-                        << xdisn[nx3] << endl;
+			<< xdisn[nx3] << endl;
   while(x >= xdisn[nx3]) {
     sigdisf[ix] = sigdisn[nx3];
     if (idebug >= 2) cout << "   Setting final bins" << ix << " " << x 
-                          << " " << sigdisf[ix] << endl;
+			  << " " << sigdisf[ix] << endl;
     ix = ix-1;
     x = xminn + double(ix)*dx;
   }
@@ -444,7 +466,7 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
   while(x <= xdisn[0]) {
     sigdisf[ix] = sigdisn[0];
     if (idebug >= 1) cout << "   Setting initial bins " << ix << " " << x 
-                          << " " << xdisn[1] << " " << sigdisf[ix] << endl;
+			  << " " << xdisn[1] << " " << sigdisf[ix] << endl;
     ix = ix+1;
     x = xminn + double(ix+1)*dx;
   }
@@ -465,27 +487,28 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
       y = 1.;
     } else {
       while(xdisn[ix3+1] <= x && ix3 < 2*nbn) {
-        ix3 = ix3 + 1;
+	ix3 = ix3 + 1;
       }
       if (xdisn[ix3+1]-x > 1.1*dx2) { // Empty bin treatment
-        y = sigdisn[ix3+1];
+	y = sigdisn[ix3+1]; //y = sigdisn[ix3+1];
+	if(idebug>=1) cout << "Empty bin treatment " << ix3+1 << " " << y << " " << sigdisn[ix3+2] << " " << sigdisn[ix3-1] << endl;  
       }
       else if (xdisn[ix3+1] > xdisn[ix3]) { // Normal bins
-        y = sigdisn[ix3] + (sigdisn[ix3+1]-sigdisn[ix3])
-          *(x-xdisn[ix3])/(xdisn[ix3+1]-xdisn[ix3]);
+	y = sigdisn[ix3] + (sigdisn[ix3+1]-sigdisn[ix3])
+	  *(x-xdisn[ix3])/(xdisn[ix3+1]-xdisn[ix3]);
       } else {  // Is this ever used?
-        y = 0;
-        cout << "Warning - th1fmorph: This probably shoudn't happen! " 
-             << endl;
-        cout << "Warning - th1fmorph: Zero slope solving x(y)" << endl;
+	y = 0;
+	cout << "Warning - th1fmorph: This probably shoudn't happen! " 
+	     << endl;
+	cout << "Warning - th1fmorph: Zero slope solving x(y)" << endl;
       }
     }
     sigdisf[ix] = y;
     if (idebug >= 3) {
       cout << ix << ", ix3=" << ix3 << ", xdisn=" << xdisn[ix3] << ", x=" 
-           << x << ", next xdisn=" << xdisn[ix3+1] << endl;
+	   << x << ", next xdisn=" << xdisn[ix3+1] << endl;
       cout << "   cdf n=" << sigdisn[ix3] << ", y=" << y << ", next point=" 
-           << sigdisn[ix3+1] << endl;
+	   << sigdisn[ix3+1] << endl;
     }
   }
 
@@ -495,11 +518,22 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
   TH1F *morphedhist = (TH1F *)gROOT->FindObject(chname);
   if (morphedhist) delete morphedhist;
   morphedhist = new TH1F(chname,chtitle,nbn,xminn,xmaxn);
+ 
+  Double_t norm = morphedhistnorm;
+  // norm1, norm2, wt1, wt2 are computed before the interpolation
+  if (norm <= 0) {
+    if (norm1 == norm2) {
+      norm = norm1;
+    } else {
+      norm   = wt1*norm1   + wt2*norm2;
+    }
+  }
 
-  for(ix=nbn-1;ix>-1;ix--) {
-    x = xminn + double(ix)*dx;
-    y =  sigdisf[ix+1]-sigdisf[ix];
-    morphedhist->SetBinContent(ix+1,y*morphedhistnorm);
+  for(Int_t ixx=nbn-1;ixx>-1;ixx--) {
+    x = xminn + double(ixx)*dx;
+    y =  sigdisf[ixx+1]-sigdisf[ixx];
+    if (y<0) cout << "huh??? " << ixx << " " << sigdisf[ixx] << " " << sigdisf[ixx+1] << endl;
+    morphedhist->SetBinContent(ixx+1,y*norm);
   }
   
   //......Clean up the temporary arrays we allocated.
@@ -508,6 +542,6 @@ TH1F *th1fmorph(Char_t *chname="TH1F-interpolated",
   delete sigdisn; delete xdisn; delete sigdisf;
 
   //......All done, return the result.
-
+  morphedhist->Draw("same");
   return(morphedhist);
 }
