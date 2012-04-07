@@ -542,7 +542,7 @@ void findHotPixels::analyze(const  edm::Event& ev, const edm::EventSetup& es) {
   } // loop over feds
 
   if(countPixels>0) {
-    //cout<<"EVENT: "<<countEvents<<" "<<eventId<<" pixels "<<countPixels<<" errors "<<countErrors<<endl;
+    cout<<"EVENT: "<<countEvents<<" "<<eventId<<" pixels "<<countPixels<<" errors "<<countErrors<<endl;
     sumPixels += countPixels;
     countEvents++;
     //int dummy=0;

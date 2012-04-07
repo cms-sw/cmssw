@@ -929,8 +929,8 @@ void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es)
 	} else if(status<0) {  // error word
 	  countErrorsInFed++;
 	  //if( status == -6 || status == -5) 
-	  //cout<<" For FED "<<fedId<<" Event "<<eventId<<"/"
-	  //<<countAllEvents<<" chan "<<fedChannel<<" status "<<status<<endl;
+	  cout<<" For FED "<<fedId<<" Event "<<eventId<<"/"
+	  <<countAllEvents<<" chan "<<fedChannel<<" status "<<status<<endl;
 	  status=abs(status);
 	  // 2 - wrong channel
 	  // 3 - wrong pix or dcol 
