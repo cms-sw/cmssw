@@ -1,7 +1,3 @@
-  HLT_Menu
-
-HcalHPDNoise:
-
 Jet:
   HLT_Jet20_NoL1FastJet_v1
   HLT_PFJet40_v3
@@ -401,8 +397,6 @@ DoubleMu:
   HLT_TripleMu5_v17
   HLT_DoubleMu5_IsoMu5_v16
 
-AlCaPhiSym:
-
 Tau:
   HLT_LooseIsoPFTau35_Trk20_Prong1_v2
   HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v2
@@ -424,8 +418,6 @@ PhotonHad:
   HLT_Photon40_CaloIdL_RsqMR45_Rsq0p09_MR150_v1
   HLT_Photon40_CaloIdL_RsqMR50_Rsq0p09_MR150_v1
 
-AlCaP0:
-
 DoubleMuParked:
   HLT_DoubleMu3p5_LowMass_Displaced_v3
   HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v3
@@ -434,8 +426,6 @@ DoubleMuParked:
   HLT_Dimuon9_PsiPrime_v9
   HLT_Dimuon10_Jpsi_v3
   HLT_Mu13_Mu8_v16
-
-AlCaLumiPixels:
 
 MET:
   HLT_MonoCentralPFJet80_PFMETnoMu95_NHEF0p95_v2
@@ -473,5 +463,3 @@ Commissioning:
   HLT_BeamGas_HF_Beam2_v4
   HLT_IsoTrackHE_v14
   HLT_IsoTrackHB_v13
-
-Cosmics:
