@@ -6,7 +6,7 @@ if [[ "$#" == "0" ]]; then
     exit 1;
 fi
 
-export WORKINGDIR=/afs/cern.ch/user/c/cctrack/scratch0/TKMap/AndreaTests
+export WORKINGDIR=/afs/cern.ch/user/c/cctrack/scratch0/TKMap
 
 #echo " Moving to CMSSW release"
 #cd /afs/cern.ch/user/c/cctrack/scratch0/TKMap/CMSSW_4_2_3/src
@@ -122,7 +122,7 @@ file_path="/tmp/"
 
 # overwrite destination for tests
 
-    dest=AndreaTests
+#    dest=AndreaTests
 
 #    ssh cmstacuser@cmstac05 "mkdir -p /storage/data2/SiStrip/event_display/Data2011/${dest}/${nnn}/${Run_numb} 2> /dev/null"
  mkdir -p /data/users/event_display/Data2012/${dest}/${nnn}/${Run_numb} 2> /dev/null
