@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from FastSimulation.Configuration.CommonInputs_cff import *
 
-#whatPileUp = 'light' # options: 'light' and 'mixingmodule'
-whatPileUp = 'mixingmodule'
+whatPileUp = 'light' # options: 'light' and 'mixingmodule'
+#whatPileUp = 'mixingmodule'
 
 # Conversion to GenParticleCandidates 
 from PhysicsTools.HepMCCandAlgos.genParticleCandidatesFast_cfi import *
