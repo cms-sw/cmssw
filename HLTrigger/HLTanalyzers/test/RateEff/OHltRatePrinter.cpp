@@ -324,8 +324,8 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu)
          hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);
 
       outFile << "| !"<< menu->GetTriggerName(i) << " | !" << tempTrigSeeds
-	//            << " | " << tempTrigSeedPrescales << " | "
-	      << " | " << "-" << " | "
+	      << " | " << tempTrigSeedPrescales << " | "
+	//	      << " | " << "-" << " | "
             << (int)(menu->GetPrescale(i) * hltPrescaleCorrection) << " | "
             << Rate[i] << "+-" << RateErr[i] << " | " << cumulRate << " | "
             << menu->GetEventsize(i) << " | " << cuThru << " | " << endl;
@@ -1006,8 +1006,8 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu)
          hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);
 
       outFile << "\\color{blue}" << tempTrigName << " & " << tempTrigSeeds
-	//            << " & " << tempTrigSeedPrescales << " & "
-	      << " & " << "-" << " & "
+	      << " & " << tempTrigSeedPrescales << " & "
+	//	      << " & " << "-" << " & "
             << (int)(menu->GetPrescale(i) * hltPrescaleCorrection) << " & "
             << Rate[i] << " {$\\pm$ " << RateErr[i] << "} & " << cumulRate
             << " & " << menu->GetEventsize(i) << " & " << cuThru << "\\\\"
