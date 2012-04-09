@@ -8,9 +8,9 @@
  *
  * \authors Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.1 $
  *
- * $Id: SysShiftMETcorrInputProducer.h,v 1.2 2011/10/14 10:14:35 veelken Exp $
+ * $Id: SysShiftMETcorrInputProducer.h,v 1.1 2012/04/03 11:51:22 veelken Exp $
  *
  */
 
@@ -38,6 +38,7 @@ class SysShiftMETcorrInputProducer : public edm::EDProducer
   std::string moduleLabel_;
 
   edm::InputTag src_; // PFCandidate input collection
+  edm::InputTag srcVertices_; // Vertex input collection
 
   TFormula* corrPx_;
   TFormula* corrPy_;
