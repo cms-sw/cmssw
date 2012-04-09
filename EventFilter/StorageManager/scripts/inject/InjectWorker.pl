@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.83 2012/02/14 17:15:42 babar Exp $
+# $Id: InjectWorker.pl,v 1.84 2012/02/15 18:27:21 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -155,6 +155,8 @@ POE::Session->create(
         close_file            => \&close_file,
         shutdown              => \&shutdown,
         heartbeat             => \&heartbeat,
+        switch_file           => \&switch_file,
+        set_rotate_alarm      => \&set_rotate_alarm,
         setup_lock            => \&setup_lock,
         sig_child             => \&sig_child,
         sig_abort             => \&sig_abort,
@@ -174,6 +176,26 @@ exit 0;
 # time routine for SQL commands timestamp
 sub gettimestamp($) {
     return strftime "%Y-%m-%d %H:%M:%S", localtime $_[0];
+}
+
+# Switches logfiles daily
+sub switch_file {
+    $kernel->yield('set_rotate_alarm');
+    for my $category (qw( InjectWorker Notify )) {
+        my $log = Log::Log4perl->get_logger($category);
+        $log->file_switch( get_logfile($category) );
+    }
+}
+
+# Pseudo-hack to rotate files daily
+sub set_rotate_alarm {
+    my $kernel = $_[KERNEL];
+    my ( $sec, $min, $hour ) = localtime;
+    my $wakeme = time + 86400 + 60 - ( $sec + 60 * ( $min + 60 * $hour ) );
+    $kernel->call( 'logger',
+        info => strftime( "Set alarm for %Y-%m-%d %H:%M:%S", localtime $wakeme )
+    );
+    $kernel->alarm_set( switch_file => $wakeme );
 }
 
 # POE events
@@ -200,6 +222,9 @@ sub start {
 
     # Print a heartbeat regularly
     $kernel->delay( heartbeat => $heartbeat );
+
+    # Rotate logfiles daily
+    $kernel->yield('set_rotate_alarm');
 
     $kernel->call( 'logger', info => "Entering main while loop now" );
 }
@@ -571,7 +596,8 @@ sub update_db {
           );                                 #skip if NoTransfer option is set
 
     my $errflag = 0;
-    my $rows = $heap->{sths}->{$handler}->execute(@bind_params) or $errflag = 1;
+    my $rows    = $heap->{sths}->{$handler}->execute(@bind_params)
+      or $errflag = 1;
 
     $rows = 'undef' unless defined $rows;
     if ($errflag) {
@@ -746,7 +772,7 @@ sub start_hook {
 
 # Creates a new wheel to start the hook
 sub next_hook {
-    my ( $kernel, $heap, $args ) = @_[ KERNEL, HEAP, ARG0 ];
+    my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
     while ( keys( %{ $heap->{task} } ) < $maxhooks ) {
         my $args = shift @{ $heap->{task_list} };
         last unless defined $args;
