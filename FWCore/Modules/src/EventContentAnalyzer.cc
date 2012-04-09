@@ -373,8 +373,10 @@ namespace edm {
              continue;
          }
          if(getData_) {
+           std::string class_and_label = friendlyName + "_" + modLabel;
            if(getModuleLabels_.empty() ||
-             binary_search_all(getModuleLabels_, modLabel)) {
+             binary_search_all(getModuleLabels_, modLabel) ||
+             binary_search_all(getModuleLabels_, class_and_label)) {
              try {
                GenericHandle handle(className);
              } catch(edm::Exception const&) {
