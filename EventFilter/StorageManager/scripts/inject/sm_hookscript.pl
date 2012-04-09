@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: sm_hookscript.pl,v 1.21 2010/06/23 08:37:36 babar Exp $
+# $Id: sm_hookscript.pl,v 1.25 2012/03/16 20:14:53 babar Exp $
 ################################################################################
 
 # XXX This should be converted into a POE::Wheel object so it's asynchronous
@@ -65,6 +65,14 @@ if ( $stream eq "EcalCalibration" || $stream =~ '_EcalNFS$' ) {
     $delete   = 1;
 }
 
+# special treatment for Error, so HLT DOC can read them
+elsif ( $stream eq "Error" ) {
+    $nfsserver = $ENV{SM_LOOKAREA};
+    $target    = $ENV{SM_LOOKAREA} . '/Error';
+    $parallel  = 5;
+    $retries   = 2;                              # Retry once
+}
+
 # copy one file per instance to look area
 elsif ( $nfsserver = $ENV{'SM_LA_NFS'} ) {
     if (   $lumisection % $lookmodulo == ( ( $lookfreq * $instance ) + 1 )
@@ -85,7 +93,7 @@ if ( $nfsserver && $target ) {
 }
 
 # delete if NoTransfer option is set or it's EcalCalibration
-if ( $delete || $stream =~ '_NoTransfer$' ) {
+if ( $delete ) {
     unlink $filepathname;
     $filepathname =~ s/\.dat$/.ind/;
     unlink $filepathname;
