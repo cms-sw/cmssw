@@ -1,10 +1,10 @@
-# /online/collisions/2012/5e33/v4.10/HLT/V4 (CMSSW_5_2_3_HLT4)
+# /online/collisions/2012/5e33/v4.10/HLT/V5 (CMSSW_5_2_3_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/5e33/v4.10/HLT/V4')
+  tableName = cms.string('/online/collisions/2012/5e33/v4.10/HLT/V5')
 )
 
 streams = cms.PSet( 

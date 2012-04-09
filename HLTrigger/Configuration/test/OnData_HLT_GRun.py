@@ -1,11 +1,11 @@
-# /online/collisions/2012/5e33/v4.10/HLT/V4 (CMSSW_5_2_3_HLT4)
+# /online/collisions/2012/5e33/v4.10/HLT/V5 (CMSSW_5_2_3_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/5e33/v4.10/HLT/V4')
+  tableName = cms.string('/online/collisions/2012/5e33/v4.10/HLT/V5')
 )
 
 process.streams = cms.PSet( 
@@ -4313,7 +4313,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 1, 1, 2, 3, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Photon20_CaloIdVL_v2" ),
-        prescales = cms.vuint32( 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
+        prescales = cms.vuint32( 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Photon20_CaloIdVL_IsoL_v14" ),
         prescales = cms.vuint32( 100, 100, 1200, 4000, 800, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
@@ -5045,7 +5045,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Random_v2" ),
-        prescales = cms.vuint32( 600, 200, 200, 200, 600, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 10000 )
+        prescales = cms.vuint32( 200, 200, 200, 200, 200, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 10000 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_L1SingleMuOpen_AntiBPTX_v5" ),
         prescales = cms.vuint32( 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
