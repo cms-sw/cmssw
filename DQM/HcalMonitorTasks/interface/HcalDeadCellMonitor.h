@@ -25,8 +25,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2011/08/03 13:58:18 $
-  * $Revision: 1.56 $
+  * $Date: 2012/03/22 12:39:40 $
+  * $Revision: 1.57 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -111,6 +111,7 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
   int is_RBX_loss_;
   int rbxlost[156];
   int alarmer_counter_;
+  bool is_stable_beam;
   bool hbhedcsON, hfdcsON;
   unsigned int NumBadHB, NumBadHE, NumBadHO, NumBadHF, NumBadHFLUMI, NumBadHO0, NumBadHO12;
   edm::InputTag digiLabel_;
