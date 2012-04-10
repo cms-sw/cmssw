@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/HLT/V148 (CMSSW_5_2_3_HLT4)
+# /dev/CMSSW_5_2_1/HLT/V157 (CMSSW_5_2_3_HLT4)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V148')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V157')
 )
 
 streams = cms.PSet( 
@@ -197,15 +197,9 @@ datasets = cms.PSet(
     'HLT_ZeroBias_v6' ),
   ExpressPhysics = cms.vstring( 'HLT_DoublePhoton80_v5',
     'HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v16',
-    'HLT_HT2000_v2',
-    'HLT_Jet370_NoL1FastJet_v2',
-    'HLT_Jet800_NoL1FastJet_v2',
-    'HLT_MET200_v10',
     'HLT_MET400_v5',
     'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v5',
     'HLT_Mu17_Mu8_v16',
-    'HLT_Mu200_eta2p1_v6',
-    'HLT_Photon400_v6',
     'HLT_Photon75_CaloIdVL_IsoL_v16',
     'HLT_ZeroBias_v6' ),
   FEDMonitor = cms.vstring( 'HLT_DTErrors_v3' ),
