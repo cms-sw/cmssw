@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 dtT0WireCalibration = cms.EDAnalyzer("DTT0Calibration",
+    # Set to true to correct t0's from chamber mean
+    # Otherwise write absolute t0's (to be corrected in a second step) 
+    correctByChamberMean = cms.bool(True),
     # Cells for which you want the histos (default = None)
     cellsWithHisto = cms.untracked.vstring(),
     # Label to retrieve DT digis from the event

@@ -35,6 +35,8 @@
 #include "CalibMuon/DTCalibration/interface/DTT0CorrectionFactory.h"
 #include "CalibMuon/DTCalibration/plugins/DTT0FillDefaultFromDB.h"
 #include "CalibMuon/DTCalibration/plugins/DTT0FillChamberFromDB.h"
+#include "CalibMuon/DTCalibration/plugins/DTT0WireInChamberReferenceCorrection.h"
+#include "CalibMuon/DTCalibration/plugins/DTT0AbsoluteReferenceCorrection.h"
 
 #include "CalibMuon/DTCalibration/interface/DTVDriftPluginFactory.h"
 #include "CalibMuon/DTCalibration/plugins/DTVDriftMeanTimer.h"
@@ -70,6 +72,8 @@ DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,dtCalibration::DTTTrigConstantShift,"
 
 DEFINE_EDM_PLUGIN(DTT0CorrectionFactory,dtCalibration::DTT0FillDefaultFromDB,"DTT0FillDefaultFromDB");
 DEFINE_EDM_PLUGIN(DTT0CorrectionFactory,dtCalibration::DTT0FillChamberFromDB,"DTT0FillChamberFromDB");
+DEFINE_EDM_PLUGIN(DTT0CorrectionFactory,dtCalibration::DTT0WireInChamberReferenceCorrection,"DTT0WireInChamberReferenceCorrection");
+DEFINE_EDM_PLUGIN(DTT0CorrectionFactory,dtCalibration::DTT0AbsoluteReferenceCorrection,"DTT0AbsoluteReferenceCorrection");
 
 DEFINE_EDM_PLUGIN(DTVDriftPluginFactory,dtCalibration::DTVDriftMeanTimer,"DTVDriftMeanTimer");
 DEFINE_EDM_PLUGIN(DTVDriftPluginFactory,dtCalibration::DTVDriftSegment,"DTVDriftSegment");
