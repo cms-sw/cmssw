@@ -23,3 +23,8 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="PhysicsTools/PatUtils"/>
 <use   name="PhysicsTools/PatAlgos"/>
+<use   name="CalibFormats/HcalObjects"/>
+<use   name="CalibCalorimetry/HcalAlgos"/>
+<use   name="CondFormats/HcalObjects"/>
+<use   name="DataFormats/HcalRecHit"/>
+<use   name="RecoLocalCalo/HcalRecAlgos"/>

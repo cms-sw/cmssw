@@ -24,6 +24,8 @@ private:
   int _acceptedEvt;
 
   int _passPt;
+  int _passForwardPt;
+  int _passCentralPt;
   int _passNTrks;
   int _passEMF;
   int _passNJets;
@@ -51,6 +53,16 @@ private:
   int _passHBHETime;
   int _passHFFlagged;
   int _passHFHighEnergy;
+  int _passGoodBunch;
+  int _passBadBunch;
+
+  int _passFBFN;
+  int _passFBSN;
+  int _passFBTN;
+
+  int _passR45;
+  int _passTS4TS5;
+  int _passR45Collision;
 
   int _NoiseResult[10];
 

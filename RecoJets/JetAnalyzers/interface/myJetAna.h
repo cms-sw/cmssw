@@ -16,6 +16,11 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+
+
 // class TFile;
 
 /****
@@ -52,11 +57,21 @@ private:
   void analyze ( const edm::Event& , const edm::EventSetup& );
   void endJob();
 
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+
   std::string CaloJetAlgorithm;
   std::string GenJetAlgorithm;
   edm::InputTag theTriggerResultsLabel;
   std::string JetCorrectionService;
 
+
+  // Channel quality/reconstruction information
+  //  HcalChannelQuality*  chanquality_;
+  //  const HcalQIEShape*  shape_;
+  //  int hfFirstTimeSlice_ = 3;
+  const HcalQIEShape*  shape_;
+
+  edm::ESHandle<HcalDbService> conditions;
 
   // --- Passed selection cuts
   TH1F *h_pt;
@@ -99,6 +114,7 @@ private:
   TH1F *HBTimeTh1;
   TH1F *HBTimeTh2;
   TH1F *HBTimeTh3;
+  TH1F *HBTimeTh4;
   TH1F *HBTimeThR;
   TH1F *HBTimeTh1R;
   TH1F *HBTimeTh2R;
@@ -108,11 +124,24 @@ private:
   TH1F *HBTimeThFlagged;
   TH1F *HBTimeTh1Flagged;
   TH1F *HBTimeTh2Flagged;
+  TH1F *HBTimeTh3Flagged;
 
   TH1F *HBTimeFlagged2;
   TH1F *HBTimeThFlagged2;
   TH1F *HBTimeTh1Flagged2;
   TH1F *HBTimeTh2Flagged2;
+  TH1F *HBTimeTh3Flagged2;
+
+  TH1F *HBTimeTh3Flagged3;
+  TH1F *HBTimeTh3Flagged3Clean;
+
+  TH1F *HBTimeTh3Flagged3FN;
+  TH1F *HBTimeTh3Flagged3SN;
+  TH1F *HBTimeTh3Flagged3TN;
+
+  TH1F *HBTimeTh4Flagged3FN;
+  TH1F *HBTimeTh4Flagged3SN;
+  TH1F *HBTimeTh4Flagged3TN;
 
   TH1F *HBTimeX;
   TH1F *HBTimeY;
@@ -128,6 +157,7 @@ private:
   TH1F *HETimeTh1;
   TH1F *HETimeTh2;
   TH1F *HETimeTh3;
+  TH1F *HETimeTh4;
   TH1F *HETimeThR;
   TH1F *HETimeTh1R;
   TH1F *HETimeTh2R;
@@ -137,11 +167,24 @@ private:
   TH1F *HETimeThFlagged;
   TH1F *HETimeTh1Flagged;
   TH1F *HETimeTh2Flagged;
+  TH1F *HETimeTh3Flagged;
 
   TH1F *HETimeFlagged2;
   TH1F *HETimeThFlagged2;
   TH1F *HETimeTh1Flagged2;
   TH1F *HETimeTh2Flagged2;
+  TH1F *HETimeTh3Flagged2;
+
+  TH1F *HETimeTh3Flagged3;
+  TH1F *HETimeTh3Flagged3Clean;
+
+  TH1F *HETimeTh3Flagged3FN;
+  TH1F *HETimeTh3Flagged3SN;
+  TH1F *HETimeTh3Flagged3TN;
+
+  TH1F *HETimeTh4Flagged3FN;
+  TH1F *HETimeTh4Flagged3SN;
+  TH1F *HETimeTh4Flagged3TN;
 
   TH1F *HETimeX;
   TH1F *HETimeY;
@@ -155,6 +198,7 @@ private:
   TH1F *HFEne;
   TH1F *HFEneFlagged;
   TH1F *HFEneFlagged2;
+  TH1F *HFEneFlagged3;
   TH1F *HFEneTh;
   TH1F *HFEneTh1;
   TH1F *HFTimePMT0;
@@ -168,15 +212,23 @@ private:
   TH1F *HFTimeTh1Flagged2;
   TH1F *HFTimeTh2Flagged2;
   TH1F *HFTimeTh3Flagged2;
+  TH1F *HFTimeTh4Flagged2;
   TH1F *HFTimeFlagged3;
   TH1F *HFTimeThFlagged3;
   TH1F *HFTimeTh1Flagged3;
   TH1F *HFTimeTh2Flagged3;
   TH1F *HFTimeTh3Flagged3;
+  TH1F *HFTimeTh4Flagged3;
   TH1F *HFTimeTh;
   TH1F *HFTimeTh1;
   TH1F *HFTimeTh2;
   TH1F *HFTimeTh3;
+  TH1F *HFTimeTh4;
+  TH1F *HFTimeThPass;
+  TH1F *HFTimeTh1Pass;
+  TH1F *HFTimeTh2Pass;
+  TH1F *HFTimeTh3Pass;
+  TH1F *HFTimeTh4Pass;
   TH1F *HFTimeThR;
   TH1F *HFTimeTh1R;
   TH1F *HFTimeTh2R;
@@ -220,6 +272,7 @@ private:
   TH2F *HBTvsE;
   TH2F *HETvsE;
   TH2F *HFTvsE;
+  TH2F *HFTvsEPass;
   TH2F *HFTvsEFlagged;
   TH2F *HFTvsEFlagged2;
   TH2F *HFTvsEThr;
@@ -233,6 +286,12 @@ private:
   TH1F *HOEneTh1;
   TH1F *HOTime;
   TH1F *HOTimeTh;
+  TH1F *HFPhiNewPMTFlagged;
+  TH1F *HFPhiFlagged;
+  TH1F *HFPhiFlaggedEta29;
+  TH1F *HFPhiFlaggedEta30;
+  TH1F *HFPhiFlaggedEta31;
+
   TH1F *HFEtaFlagged;
   TH1F *HFEtaFlaggedL;
   TH1F *HFEtaFlaggedLN;
@@ -245,6 +304,7 @@ private:
   TH2F *HEocc;
   TH2F *HFocc;
   TH2F *HFoccTime;
+  TH2F *HFEtaPhiFlagged;
   TH2F *HFEtaPhiNFlagged;
   TH2F *HFoccFlagged;
   TH2F *HFoccFlagged2;
@@ -252,6 +312,10 @@ private:
   TH2F *HBoccOOT;
   TH2F *HEoccOOT;
   TH2F *HFoccOOT;
+  TH2F *HBHEFBSpike;
+  TH2F *HBHEFBFlat;
+  TH2F *HBHEFBTriangle;
+  TH2F *HBHETS4TS5;
   TH1F *HOSEne;
   TH1F *HOSTime;
   TH1F *HOHEne;
@@ -320,6 +384,12 @@ private:
 
   TH1F *SumEt;
   TH1F *MET;
+  TH1F *MET_All;
+  TH1F *MET_FBSN;
+  TH1F *MET_FBTN;
+  TH1F *MET_FBFN;
+  TH1F *MET_FBTNR;
+  TH1F *MET_FBFNR;
   TH1F *OERMET;
   TH1F *MET_Tower;
   TH1F *MET_RBX;
@@ -395,6 +465,12 @@ private:
   TH1F *h_etaCal;
   TH1F *h_phiCal;
 
+  TH1F *bad_ptCal;
+  TH1F *bad_etaCal;
+  TH1F *bad_phiCal;
+
+
+
   TH1F *h_ptGen; 
   TH1F *h_etaGen; 
   TH1F *h_phiGen;
@@ -446,6 +522,9 @@ private:
 
   TH1F *HFRecHitEne;
   TH1F *HFRecHitEneClean;
+  TH1F *HFRecHitEneCleanTopological;
+  TH1F *HFRecHitEneCleanPulseShape;
+  TH1F *HFRecHitEneOnlyPulseShape;
   TH1F *HFRecHitTime;
 
   TH1F *HFLongShortPhi;
@@ -460,6 +539,109 @@ private:
 
   TH1F *HFLongShortNHits;
   TH1F *HFDigiTimeNHits;
+
+  TH1F *ADC1;
+  TH1F *ADC2;
+  TH1F *ADC3;
+  TH1F *ADC1E1000;
+  TH1F *ADC2E1000;
+  TH1F *ADC3E1000;
+  TH1F *ADC1F;
+  TH1F *ADC2F;
+  TH1F *ADC3F;
+  TH1F *ADC1E1000F;
+  TH1F *ADC2E1000F;
+  TH1F *ADC3E1000F;
+
+  TH2F *ADC1vsE;
+  TH2F *ADC2vsE;
+  TH2F *ADC3vsE;
+  TH2F *ADC1vsEF;
+  TH2F *ADC2vsEF;
+  TH2F *ADC3vsEF;
+
+  TH2F *HFRatVsTS4;
+  TH2F *HFPulseShapeVsTS5;
+  TH2F *HFPulseShapeVsTS6;
+
+  TProfile *HFPulseShapeFPX;
+  TProfile *HFPulseShapeFP;
+  TProfile *HFPulseShapeFT;
+  TProfile *HFPulseShapeP;
+
+  TH2F *HFPS4VsPS6E0;
+  TH2F *HFPS4VsPS6E0F;
+  TH2F *HFPS4VsPS6E10;
+  TH2F *HFPS4VsPS6E10F;
+
+  TH2F *HFPulseShape1;
+  TH2F *HFPulseShape2;
+  TH2F *HFPulseShape3;
+  TH2F *HFPulseShape1F;
+  TH2F *HFPulseShape2F;
+  TH2F *HFPulseShape3F;
+  TH2F *HFPulseShape1FT;
+  TH2F *HFPulseShape1FTE;
+  TH2F *HFPulseShape2FT;
+  TH2F *HFPulseShape3FT;
+  TH2F *HFPulseShape1FP;
+  TH2F *HFPulseShape1FPE;
+  TH2F *HFPulseShape2FP;
+  TH2F *HFPulseShape3FP;
+  TH2F *HFPulseShape1C;
+  TH2F *HFPulseShape2C;
+  TH2F *HFPulseShape3C;
+
+  TH1F *HFPS1A;
+  TH1F *HFPS1ATh2;
+  TH1F *HFPS1ATh3;
+  TH1F *HFPS1ATh4;
+  TH1F *HFPS1ATh5;
+  TH1F *HFPS2ATh2;
+  TH1F *HFPS2ATh3;
+  TH1F *HFPS2ATh4;
+  TH1F *HFPS2ATh5;
+  TH1F *HFPS3ATh2;
+  TH1F *HFPS3ATh3;
+  TH1F *HFPS3ATh4;
+  TH1F *HFPS3ATh5;
+  TH1F *HFPS1C;
+  TH1F *HFPS1CTh2;
+  TH1F *HFPS1CTh3;
+  TH1F *HFPS1CTh4;
+  TH1F *HFPS1CTh5;
+  TH1F *HFPS2CTh2;
+  TH1F *HFPS2CTh3;
+  TH1F *HFPS2CTh4;
+  TH1F *HFPS2CTh5;
+  TH1F *HFPS3CTh2;
+  TH1F *HFPS3CTh3;
+  TH1F *HFPS3CTh4;
+  TH1F *HFPS3CTh5;
+  TH1F *HFPS1CTim1;
+  TH1F *HFPS1CTim2;
+  TH1F *HFPS1CEne;
+  TH1F *HFPS1F;
+  TH1F *HFPS1FT;
+  TH1F *HFPS1FP;
+
+  TH1F *HFPS2A;
+  TH1F *HFPS2C;
+  TH1F *HFPS2CTim1;
+  TH1F *HFPS2CTim2;
+  TH1F *HFPS2CEne;
+  TH1F *HFPS2F;
+  TH1F *HFPS2FT;
+  TH1F *HFPS2FP;
+
+  TH1F *HFPS3A;
+  TH1F *HFPS3C;
+  TH1F *HFPS3CTim1;
+  TH1F *HFPS3CTim2;
+  TH1F *HFPS3CEne;
+  TH1F *HFPS3F;
+  TH1F *HFPS3FT;
+  TH1F *HFPS3FP;
 
   TH2F *HFvsZ;
   TH2F *EBvHB;
@@ -479,6 +661,150 @@ private:
   TProfile *HFTimeVsiEtaM5;
   TProfile *HFTimeVsiEtaP20;
   TProfile *HFTimeVsiEtaM20;
+
+  TH1F *BunchCrossing;
+  TH1F *OddBunchCrossing;
+  TH1F *EvenBunchCrossing;
+  TH1F *BadBunchCrossing;
+  TH1F *GoodBunchCrossing;
+  TH1F *CentralBunchCrossing;
+  TH1F *OKBunchCrossing;
+
+  TProfile *HFFlaggedLVsE;
+  TProfile *HFFlaggedPVsE;
+  TProfile *HFFlaggedLVsE1;
+  TProfile *HFFlaggedPVsE1;
+
+
+  TProfile *HFMEFlaggedVsE;
+  TProfile *HFMECleanVsE;
+  TProfile *HFPEFlaggedVsE;
+  TProfile *HFPECleanVsE;
+
+  TProfile *HFRecHitsVsNVtx;
+  TProfile *HFRecHitsFlaggedVsNVtx;
+
+  TH1F *NVTX;
+  TH1F *NVTX_R45;
+  TH1F *NVTX_NoiseSummary;
+  TH1F *NVTX_MaxHPD;
+  TH1F *NVTX_NoOther;
+  TH1F *NVTX_MaxZero;
+
+  TH1F *NVTXMET200;
+  TH1F *NVTX_R45MET200;
+  TH1F *NVTX_NoiseSummaryMET200;
+  TH1F *NVTX_MaxHPDMET200;
+  TH1F *NVTX_NoOtherMET200;
+  TH1F *NVTX_MaxZeroMET200;
+
+  TH1F *NHFRecHits;
+
+  TH1F *HBHENFlagged;
+  TH2F *HBHEFlaggedVsJet;
+
+  TH1F *HBHEJetHadEneFlagged;
+  TH1F *HBHEJetHadEne;
+
+  TProfile *NHBHEFlaggedVsNVtx;
+
+  TH1F *RingRat;
+  TProfile *RatVsRun;
+
+  TProfile *PSAVsRun;
+  TProfile *PSCVsRun;
+
+
+  TH2F     *R45VsE_HB;
+  TH2F     *R45VsE_HE;
+
+  TH2F     *R45VsE;
+  TH2F     *R45VsE_Flagged;
+  TH2F     *R45VsE_Clean;
+  TH2F     *R45VsE_Spike;
+  TH2F     *R45VsE_Flat;
+  TH2F     *R45VsE_Triangle;
+  TH2F     *R45VsE_SpikeEx;
+  TH2F     *R45VsE_FlatEx;
+  TH2F     *R45VsE_TriangleEx;
+
+  TH2F     *R45VsE_HEM15;
+  TH2F     *R45VsE_HEM15G;
+  TH2F     *R45VsE_HEM15B;
+  TH2F     *R45VsE_HEP18;
+  TH2F     *R45VsE_HBP14;
+  TH2F     *R45VsE_HBP14G;
+  TH2F     *R45VsE_HBP14B;
+  TH2F     *R45VsE_HBM14;
+
+  TH2F     *R45VsE_HBM13;
+  TH2F     *R45VsE_HBM15;
+  TH2F     *R45VsE_HBP13;
+  TH2F     *R45VsE_HBP15;
+
+  TH2F     *R45VsE_AllGood;
+  TH1F     *R45_HEM15;
+  TH1F     *R45_HEM15G;
+  TH1F     *R45_HEM15B;
+  TH1F     *R45_HEP18;
+  TH1F     *R45_HBP14;
+  TH1F     *R45_HBP14G;
+  TH1F     *R45_HBP14B;
+  TH1F     *R45_HBM14;
+  TH1F     *R45_AllGood;
+  TH1F     *R45_HB_AllGood;
+  TH1F     *R45_HE_AllGood;
+
+  TH1F     *R45_HBM13;
+  TH1F     *R45_HBM15;
+  TH1F     *R45_HBP13;
+  TH1F     *R45_HBP15;
+
+
+  TH1F     *R45_All;
+  TH1F     *R45_Flagged;
+  TH1F     *R45_Clean;
+  TH1F     *R45_Clean_300;
+  TH1F     *R45_Spike;
+  TH1F     *R45_Flat;
+  TH1F     *R45_Triangle;
+  TH1F     *R45_Spike_300;
+  TH1F     *R45_Flat_300;
+  TH1F     *R45_Triangle_300;
+  TH1F     *R45_Spike_300Ex;
+  TH1F     *R45_Flat_300Ex;
+  TH1F     *R45_Triangle_300Ex;
+  TH1F     *R45_100;
+  TH1F     *R45_200;
+  TH1F     *R45_300;
+  TH1F     *R45RBXFrac;
+  TH1F     *R45RBXFrac_Flagged;
+  TH1F     *R45BadRBXFrac;
+  TH1F     *R45BadRBXFrac_Flagged;
+
+  TProfile *TS4TS5VsPhi_HBP;
+  TProfile *TS4TS5VsPhi_HBM;
+  TProfile *TS4TS5VsPhi_HEP;
+  TProfile *TS4TS5VsPhi_HEM;
+
+  TProfile *TS4TS5VsRBX;
+  TProfile *TS4TS5VsHPD;
+
+  TH1F     *RecHit_numTS4TS5NoiseChannels;
+  TH1F     *Noise_numTS4TS5NoiseChannels;
+  TH1F     *Noise_numFlatNoiseChannels;
+  TH1F     *Noise_numSpikeNoiseChannels;
+  TH1F     *Noise_numTriangleNoiseChannels;
+
+  TH1F     *Noise_numTS4TS5NoiseChannelsFlagged;
+  TH1F     *Noise_numFlatNoiseChannelsFlagged;
+  TH1F     *Noise_numSpikeNoiseChannelsFlagged;
+  TH1F     *Noise_numTriangleNoiseChannelsFlagged;
+
+  TH1F     *Noise_maxHPDHits;
+  TH1F     *Noise_maxRBXHits;
+
+
 };
 
 #endif
