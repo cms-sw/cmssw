@@ -63,7 +63,7 @@ std::pair<float, float> ggPFPhotons::SLPoint(){
 	      beamSpotHandle_->position().z());
   if(isPFEle_){
     isConv_=true;
-    SLPoint=pfTks.gsfTrackProj(PFElectron_.gsfTrack());
+    SLPoint=pfTks.gsfElectronProj(PFElectron_);
     return SLPoint;
   }
   SLPoint=pfTks.SLCombZVtx(PFPhoton_, hasSLConv_);

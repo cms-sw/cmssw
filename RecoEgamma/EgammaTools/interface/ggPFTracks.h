@@ -36,6 +36,9 @@ class ggPFTracks{
   std::pair<float,float> gsfTrackProj(
 				      reco::GsfTrackRef gsf
 				      );
+  std::pair<float,float> gsfElectronProj(
+					 reco::GsfElectron gsf
+					 );
   std::pair<float,float> TrackProj(
 				   bool isEb,
 				   reco::GsfTrackRef gsf,

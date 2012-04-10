@@ -212,6 +212,24 @@ std::pair<float,float> ggPFTracks::gsfTrackProj(
   
 }
 
+std::pair<float,float> ggPFTracks::gsfElectronProj(
+						   reco::GsfElectron gsf
+						   ){
+  //if there is a gsf electron then use this for track projection Plenty of inner hits
+  
+  float theta =gsf.trackMomentumAtVtx().theta();
+  
+  float tkz=gsf.trackPositionAtVtx().Z();
+  float tkR=sqrt(gsf.trackPositionAtVtx().X()* gsf.trackPositionAtVtx().X()+ gsf.trackPositionAtVtx().Y()* gsf.trackPositionAtVtx().Y());
+  float thetErr=gsf.gsfTrack()->thetaError();
+  float Z=tkz-tkR/tan(theta);
+  float Zerr=((-1*(cos(theta)*cos(theta))/(sin(theta)* sin(theta))-1)*tkR*thetErr);
+  std::pair<float,float> ZProj(0,0);
+  ZProj.first=Z; ZProj.second=Zerr;
+  return ZProj;
+  
+}
+
 std::pair<float,float> ggPFTracks::CombZVtx(
 			   reco::SuperClusterRef sc, 
 			   reco::GsfTrackRef gsf,
