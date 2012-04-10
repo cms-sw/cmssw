@@ -87,7 +87,7 @@ process.famosSimHits.SimulateTracking = True
 # Parameterized magnetic field
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # Number of pileup events per crossing
-process.famosPileUp.PileUpSimulator.averageNumber = 0.0
+#process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 
 # Apply Tracker misalignment
 process.famosSimHits.ApplyAlignment = True

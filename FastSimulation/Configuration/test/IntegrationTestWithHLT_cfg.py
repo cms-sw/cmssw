@@ -75,7 +75,7 @@ process.famosSimHits.SimulateTracking = True
 # Parameterized magnetic field
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # Number of pileup events per crossing
-process.famosPileUp.PileUpSimulator.averageNumber = 0.0
+#process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 
 # Get frontier conditions   - not applied in the HCAL, see below
 from Configuration.AlCa.autoCond import autoCond
