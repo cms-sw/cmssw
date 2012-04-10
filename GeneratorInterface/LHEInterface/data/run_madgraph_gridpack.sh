@@ -51,11 +51,21 @@ ln -sf `which gfortran` g77
 PATH=`pwd`:${PATH}
 
 tar xzf ${name}_gridpack.tar.gz ; rm -f ${name}_gridpack.tar.gz ; cd madevent
+## compile according to MG version 1.3.30 or 1.4.3 
 
-# run the production stage
+version=`cat MGMEVersion.txt | grep -c "1.4"`
+
+if [ "$version" -eq "0" ] ; then
+
+echo "Version of MG is < 1.4 Will compile"
 ./bin/compile
 ./bin/clean4grid
+fi
+
 cd ..
+
+
+# run the production stage
 ./run.sh ${nevt} ${rnum}
 
 file="events"
@@ -103,7 +113,8 @@ fi
 if [ "${decay}" == true ] ; then
 
     echo "%MSG-MG5 Running DECAY..."
-	sed 's/  5 0.000000 # b : 0.0/  5  4.700000 # b/' ${file}.lhe > ${file}_in.lhe ; rm -f ${file}.lhe
+#changed this from 4.7 -> 4.8
+    sed 's/  5 0.000000 # b : 0.0/  5  4.800000 # b/' ${file}.lhe > ${file}_in.lhe ; rm -f ${file}.lhe
 
 	# if you want to do not-inclusive top-decays you have to modify the switch in the decay_1.in and decay_2.in
 	for (( i = 1; i <=2; i++)) ; do
