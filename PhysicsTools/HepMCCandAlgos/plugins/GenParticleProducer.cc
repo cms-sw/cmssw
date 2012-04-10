@@ -5,7 +5,7 @@
  * Convert HepMC GenEvent format into a collection of type
  * CandidateCollection containing objects of type GenParticle
  *
- * \version $Id: GenParticleProducer.cc,v 1.17 2010/10/20 23:23:45 wmtan Exp $
+ * \version $Id: GenParticleProducer.cc,v 1.18 2012/04/10 10:15:26 rwolf Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -21,7 +21,6 @@
 
 namespace edm { class ParameterSet; }
 namespace HepMC { class GenParticle; class GenEvent; }
-
 
 class GenParticleProducer : public edm::EDProducer {
  public:
@@ -43,6 +42,7 @@ class GenParticleProducer : public edm::EDProducer {
   /// source collection name  
   edm::InputTag src_;
   std::vector<std::string> vectorSrc_;
+  std::string mixLabel_;
 
   /// whether the first event was looked at
   bool firstEvent_; 
@@ -100,9 +100,10 @@ GenParticleProducer::GenParticleProducer( const ParameterSet & cfg ) :
   if(doSubEvent_){
      vectorSrc_ = cfg.getParameter<std::vector<std::string> >( "srcVector" );
      //     produces<SubEventMap>();
-  }else if(useCF_) src_ = cfg.getUntrackedParameter<InputTag>( "src" , InputTag("mix","generator"));
-  else src_ = cfg.getParameter<InputTag>( "src" );
-  
+  }else if(useCF_) {
+    mixLabel_ = cfg.getParameter<std::string>( "mix" );
+    src_ = cfg.getUntrackedParameter<InputTag>( "src" , InputTag(mixLabel_,"generator"));
+  } else src_ = cfg.getParameter<InputTag>( "src" );
 }
 
 GenParticleProducer::~GenParticleProducer() { 
@@ -155,7 +156,7 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 
    if(useCF_){
       Handle<CrossingFrame<HepMCProduct> > cf;
-      evt.getByLabel(InputTag("mix","generator"),cf);
+      evt.getByLabel(InputTag(mixLabel_,"generator"),cf);
       cfhepmcprod = new MixCollection<HepMCProduct>(cf.product());
       npiles = cfhepmcprod->size();
       for(unsigned int icf = 0; icf < npiles; ++icf){
