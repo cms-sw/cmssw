@@ -27,12 +27,13 @@ namespace sistrip {
       const FEDFEHeader* feHeader() const;
       //check that a FE unit is enabled, has a good majority address and, if in full debug mode, that it is present
       bool feGood(const uint8_t internalFEUnitNum) const;
+      bool feGoodWithoutAPVEmulatorCheck(const uint8_t internalFEUnitNum) const;
       //check that a FE unit is present in the data.
       //The high order byte of the FEDStatus register in the tracker special header is used in APV error mode.
       //The FE length from the full debug header is used in full debug mode.
       bool fePresent(uint8_t internalFEUnitNum) const;
       //check that a channel is present in data, found, on a good FE unit and has no errors flagged in status bits
-      virtual bool channelGood(const uint8_t internalFEDannelNum) const;
+      virtual bool channelGood(const uint8_t internalFEDannelNum, const bool doAPVeCheck=true) const;
 
       //functions to check buffer. All return true if there is no problem.
       //minimum checks to do before using buffer
@@ -138,6 +139,11 @@ namespace sistrip {
   inline bool FEDBuffer::feGood(const uint8_t internalFEUnitNum) const
     {
       return ( !majorityAddressErrorForFEUnit(internalFEUnitNum) && !feOverflow(internalFEUnitNum) && fePresent(internalFEUnitNum) );
+    }
+
+  inline bool FEDBuffer::feGoodWithoutAPVEmulatorCheck(const uint8_t internalFEUnitNum) const
+    {
+      return ( !feOverflow(internalFEUnitNum) && fePresent(internalFEUnitNum) );
     }
   
   inline bool FEDBuffer::fePresent(uint8_t internalFEUnitNum) const

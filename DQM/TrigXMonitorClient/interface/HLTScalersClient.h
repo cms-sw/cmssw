@@ -2,15 +2,9 @@
 // 
 // Client class for HLT Scalers module.
 // 
-// $Id: HLTScalersClient.h,v 1.15 2011/04/13 22:23:14 slaunwhj Exp $
+// $Id: HLTScalersClient.h,v 1.13 2010/03/17 20:56:18 wittich Exp $
 
 // $Log: HLTScalersClient.h,v $
-// Revision 1.15  2011/04/13 22:23:14  slaunwhj
-// pd rate monitoring
-//
-// Revision 1.14  2010/04/02 20:48:11  wittich
-// updates to scale entries by received number of FU's
-//
 // Revision 1.13  2010/03/17 20:56:18  wittich
 // Check for good updates based on mergeCount values
 // add code for rates normalized per FU
@@ -71,16 +65,6 @@ public:
 //   typedef std::pair<int,double> CountLS_t;
 //   //typedef std::deque<CountLS_t> CountLSFifo_t;
 //   typedef std::map<int,double> CountLSFifo_t;
-
-
-
-//printout zerobias
-  double totalNum;
-  double lastLS;
-  //double totalLS = 0;
-  //double * Num[200];
-  //for ( int i = 0; i<200, i++) Num[i]=0;
-
 
   // helper data structures - slightly modified stl objects
   class CountLS_t: public std::pair<int,double>
@@ -204,17 +188,9 @@ private:
   MonitorElement *currentNormRate_;
   std::vector<MonitorElement*> rateNormHistories_; 
   std::vector<MonitorElement*> hltCurrentNormRate_;
-
-  // JMS vector of MEs to store PD rates
-  std::vector<MonitorElement*> hltPdRate_;
-  std::vector<MonitorElement*> hltPdCount_;
-  // also keep track of the counts per lumi recently
-  std::vector<CountLSFifo_t> recentPdCountsPerLS_;
-  
   
   bool first_, missingPathNames_;
   std::string folderName_;
-  
   unsigned int kRateIntegWindow_;
   std::string processName_;
   //HLTConfigProvider hltConfig_;

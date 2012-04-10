@@ -35,38 +35,14 @@
 
 
 
-   <!--
-   <class name="edm::reftobase::BaseHolder<ewk::DiLeptonRefBaseCandidatePtr>" />
-   <class name="edm::reftobase::IndirectVectorHolder<ewk::DiLeptonRefBaseCandidatePtr>" />
-
+   <!-- 
+   <class name="edm::reftobase::BaseHolder<reco::WMuNuCandidatePtr>" />
+   <class name="edm::reftobase::IndirectVectorHolder<reco::WMuNuCandidatePtr>" />
+ 
     -->
-
-    <!-- JV testing -->
-   <class name="edm::Ptr<pat::Muon>"/>
-   <class name="edm::PtrVector<pat::Muon>"/>
-   <class name="edm::Wrapper<edm::PtrVector<pat::Muon> >"/>
-   <class name="edm::Wrapper<edm::RefToBaseVector<pat::Muon> >" />
-   <class name="edm::RefToBaseVector<pat::Muon>" />
-   <class name="edm::reftobase::BaseVectorHolder<pat::Muon>" />
-
-   <class name="edm::Ptr<pat::Photon>"/>
-   <class name="edm::PtrVector<pat::Photon>"/>
-   <class name="edm::Wrapper<edm::PtrVector<pat::Photon> >"/>
-   <class name="edm::Wrapper<edm::RefToBaseVector<pat::Photon> >" />
-   <class name="edm::RefToBaseVector<pat::Photon>" />
-   <class name="edm::reftobase::BaseVectorHolder<pat::Photon>" />
-
-<!--   <class name="edm::Wrapper<std::vector<edm::Ref<std::vector<pat::Muon>,pat::Muon,edm::refhelper::FindUsingAdvance<std::vector<pat::Muon>,pat::Muon> > > >" />
-   <class name="std::vector<edm::Ref<std::vector<pat::Muon>,pat::Muon,edm::refhelper::FindUsingAdvance<std::vector<pat::Muon>,pat::Muon> > >" />-->
-
-   <!-- the following does not compile
-   <class name="std::vector<edm::Ref<pat::MuonCollection> >" />
-   <class name="edm::Wrapper<std::vector<edm::Ref<pat::MuonCollection> > >" />
-   <class name="std::vector<edm::Ref<std::vector<pat::Muon> > >" />
-   <class name="edm::Wrapper<std::vector<edm::Ref<std::vector<pat::Muon> > > >" />
-   -->
-
+ 
+  
 
 </lcgdict>
-
+ 
 

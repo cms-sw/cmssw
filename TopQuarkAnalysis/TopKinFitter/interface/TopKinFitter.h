@@ -34,15 +34,13 @@ class TopKinFitter {
   int fitNrIter() const { return fitter_->getNbIter(); };
   /// return fit probability
   double fitProb() const { return TMath::Prob(fitter_->getS(), fitter_->getNDF()); };
-  /// allows to change the verbosity of the TKinFitter
-  void setVerbosity(const int verbosityLevel) { fitter_->setVerbosity(verbosityLevel); };
-
+  
  protected:
   /// convert Param to human readable form
   std::string param(const Param& param) const;
   
  protected:
-  /// kinematic fitter
+  // kinematic fitter
   TKinFitter* fitter_;
   /// maximal allowed number of iterations to be used for the fit
   int maxNrIter_;

@@ -7,7 +7,6 @@ from RecoLuminosity.LumiDB import argparse,lumiTime,CommonUtil,lumiCalcAPI,lumiC
 MINFILL=1800
 MAXFILL=9999
 allfillname='allfills.txt'
-runtofilldqmfile='runtofill_dqm.txt'
 
 def listfilldir(indir):
     fillnamepat=r'^[0-9]{4}$'
@@ -42,7 +41,7 @@ if __name__ == '__main__':
     # parse arguments
     parser.add_argument('-c',dest='connect',action='store',required=False,help='connect string to lumiDB,optional',default='oracle://cms_orcoff_prod/cms_lumi_prod')
     parser.add_argument('-P',dest='authpath',action='store',required=True,help='authentication.xml dir')
-    parser.add_argument('-i',dest='inputdir',action='store',required=False,help='input dir to runtofill_dqm.txt',default='.')
+    parser.add_argument('-i',dest='inputdir',action='store',required=False,help='output dir',default='.')
     parser.add_argument('-o',dest='outputdir',action='store',required=False,help='output dir',default='.')
     parser.add_argument('-f','--fill',dest='fillnum',action='store',required=False,help='specific fill',default=None)
     parser.add_argument('--norm',dest='norm',action='store',required=False,help='norm',default='pp7TeV')
@@ -113,7 +112,7 @@ if __name__ == '__main__':
             #print line.strip()
             line=line.strip()
             lineList=line.split(',')
-            runnum=int(lineList[0].split(':')[0])
+            runnum=int(lineList[0])
             if not stablefillmap.has_key(runnum):
                 stablefillmap[runnum]=([],[])
             timestamp=lineList[2]

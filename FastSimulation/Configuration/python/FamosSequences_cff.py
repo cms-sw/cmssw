@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from FastSimulation.Configuration.CommonInputs_cff import *
 
+# Primary vertex smearing.
+from IOMC.EventVertexGenerators.VtxSmearedGauss_cfi import *
+
 # Conversion to GenParticleCandidates 
 from PhysicsTools.HepMCCandAlgos.genParticleCandidatesFast_cfi import *
 
@@ -62,8 +65,8 @@ reducedRecHits = cms.Sequence ( reducedEcalRecHitsSequence * reducedHcalRecHitsS
 from RecoJets.Configuration.CaloTowersRec_cff import *
 
 # Particle Flow (all interactions with ParticleFlow are dealt with in the following configuration)
-#from FastSimulation.ParticleFlow.ParticleFlowFastSim_cff import *
-from FastSimulation.ParticleFlow.ParticleFlowFastSimNeutralHadron_cff import *
+from FastSimulation.ParticleFlow.ParticleFlowFastSim_cff import *
+#from FastSimulation.ParticleFlow.ParticleFlowFastSimNeutralHadron_cff import *
 
 
 # Reco Jets and MET

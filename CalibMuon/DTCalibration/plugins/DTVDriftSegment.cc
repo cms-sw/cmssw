@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/19 14:02:08 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/11/18 21:38:41 $
+ *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 
@@ -30,8 +30,6 @@
 
 using namespace std;
 using namespace edm;
-
-namespace dtCalibration {
 
 DTVDriftSegment::DTVDriftSegment(const ParameterSet& pset):
   nSigmas_( pset.getUntrackedParameter<unsigned int>("nSigmasFitRange", 1) ) {
@@ -119,4 +117,3 @@ string DTVDriftSegment::getHistoName(const DTSuperLayerId& slId) {
   return (slId.superLayer() != 2)?("hRPhiVDriftCorr" + chHistoName):("hRZVDriftCorr" + chHistoName);
 }
 
-} // namespace

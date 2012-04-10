@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2011/10/30 15:01:25 $
- * $Revision: 1.112 $
+ * $Date: 2011/09/02 13:55:01 $
+ * $Revision: 1.110 $
  * \author G. Della Ricca
  *
 */
@@ -84,16 +84,9 @@ EBTimingClient::EBTimingClient(const edm::ParameterSet& ps) {
   meTimeSummaryMapProjEta_ = 0;
   meTimeSummaryMapProjPhi_ = 0;
 
-  nHitThreshold_ = ps.getUntrackedParameter<int>("timingNHitThrehold", 5);
   expectedMean_ = 0.0;
   discrepancyMean_ = 2.0;
   RMSThreshold_ = 6.0;
-
-
-  ievt_ = 0;
-  jevt_ = 0;
-  dqmStore_ = 0;
-
 
 }
 
@@ -142,46 +135,42 @@ void EBTimingClient::setup(void) {
 
   std::string name;
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/Timing" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBTimingClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    dqmStore_->setCurrentFolder( prefixME_ + "/Timing/Quality" );
     if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
-    name = "TimingClient timing quality " + Numbers::sEB(ism);
+    name = "EBTMT timing quality " + Numbers::sEB(ism);
     meg01_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
     meg01_[ism-1]->setAxisTitle("ieta", 1);
     meg01_[ism-1]->setAxisTitle("iphi", 2);
 
-//     if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );
-//     name = "TimingClient timing " + Numbers::sEB(ism);
-//     mea01_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
-//     mea01_[ism-1]->setAxisTitle("channel", 1);
-//     mea01_[ism-1]->setAxisTitle("time (ns)", 2);
+    if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );
+    name = "EBTMT timing " + Numbers::sEB(ism);
+    mea01_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
+    mea01_[ism-1]->setAxisTitle("channel", 1);
+    mea01_[ism-1]->setAxisTitle("time (ns)", 2);
 
-    dqmStore_->setCurrentFolder( prefixME_ + "/Timing/Mean" );
     if ( mep01_[ism-1] ) dqmStore_->removeElement( mep01_[ism-1]->getName() );
-    name = "TimingClient timing mean " + Numbers::sEB(ism);
+    name = "EBTMT timing mean " + Numbers::sEB(ism);
     mep01_[ism-1] = dqmStore_->book1D(name, name, 100, -25.0, 25.0);
     mep01_[ism-1]->setAxisTitle("mean (ns)", 1);
 
-    dqmStore_->setCurrentFolder( prefixME_ + "/Timing/RMS" );
     if ( mer01_[ism-1] ) dqmStore_->removeElement( mer01_[ism-1]->getName() );
-    name = "TimingClient timing rms " + Numbers::sEB(ism);
+    name = "EBTMT timing rms " + Numbers::sEB(ism);
     mer01_[ism-1] = dqmStore_->book1D(name, name, 100, 0.0, 10.0);
     mer01_[ism-1]->setAxisTitle("rms (ns)", 1);
 
   }
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/Timing/Mean" );
-  name = "TimingClient timing eta EB";
+  name = "EBTMT timing projection eta";
   meTimeSummaryMapProjEta_ = dqmStore_->bookProfile(name, name, 34, -85., 85., -20., 20., "");
   meTimeSummaryMapProjEta_->setAxisTitle("jeta", 1);
   meTimeSummaryMapProjEta_->setAxisTitle("time (ns)", 2);
 
-  name = "TimingClient timing phi EB";
+  name = "EBTMT timing projection phi";
   meTimeSummaryMapProjPhi_ = dqmStore_->bookProfile(name, name, 72, 0., 360., -20., 20., "");
   meTimeSummaryMapProjPhi_->setAxisTitle("jphi", 1);
   meTimeSummaryMapProjPhi_->setAxisTitle("time (ns)", 2);
@@ -231,26 +220,28 @@ void EBTimingClient::cleanup(void) {
 
   }
 
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBTimingClient" );
+
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getFullname() );
+    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
     meg01_[ism-1] = 0;
 
-    if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getFullname() );
+    if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );
     mea01_[ism-1] = 0;
 
-    if ( mep01_[ism-1] ) dqmStore_->removeElement( mep01_[ism-1]->getFullname() );
+    if ( mep01_[ism-1] ) dqmStore_->removeElement( mep01_[ism-1]->getName() );
     mep01_[ism-1] = 0;
 
-    if ( mer01_[ism-1] ) dqmStore_->removeElement( mer01_[ism-1]->getFullname() );
+    if ( mer01_[ism-1] ) dqmStore_->removeElement( mer01_[ism-1]->getName() );
     mer01_[ism-1] = 0;
 
   }
 
-  if ( meTimeSummaryMapProjEta_ ) dqmStore_->removeElement( meTimeSummaryMapProjEta_->getFullname() );
-  if ( meTimeSummaryMapProjPhi_ ) dqmStore_->removeElement( meTimeSummaryMapProjPhi_->getFullname() );
+  if ( meTimeSummaryMapProjEta_ ) dqmStore_->removeElement( meTimeSummaryMapProjEta_->getName() );
+  if ( meTimeSummaryMapProjPhi_ ) dqmStore_->removeElement( meTimeSummaryMapProjPhi_->getName() );
 
 }
 
@@ -283,7 +274,7 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
         bool update01;
 
-        update01 = UtilsClient::getBinStatistics(h01_[ism-1], ie, ip, num01, mean01, rms01, nHitThreshold_);
+        update01 = UtilsClient::getBinStatistics(h01_[ism-1], ie, ip, num01, mean01, rms01);
         // Task timing map is shifted of +50 ns for graphical reasons. Shift back it.
         mean01 -= 50.;
 
@@ -359,11 +350,11 @@ void EBTimingClient::analyze(void) {
 
     int ism = superModules_[i];
 
-    me = dqmStore_->get( prefixME_ + "/Timing/Profile/TimingTask timing " + Numbers::sEB(ism) );
+    me = dqmStore_->get( prefixME_ + "/EBTimingTask/EBTMT timing " + Numbers::sEB(ism) );
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    me = dqmStore_->get( prefixME_ + "/Timing/VsAmplitude/TimingTask timing vs amplitude " + Numbers::sEB(ism) );
+    me = dqmStore_->get( prefixME_ + "/EBTimingTask/EBTMT timing vs amplitude " + Numbers::sEB(ism) );
     h02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
@@ -383,7 +374,7 @@ void EBTimingClient::analyze(void) {
         float mean01;
         float rms01;
 
-        update01 = UtilsClient::getBinStatistics(h01_[ism-1], ie, ip, num01, mean01, rms01, nHitThreshold_);
+        update01 = UtilsClient::getBinStatistics(h01_[ism-1], ie, ip, num01, mean01, rms01, 3.);
         // Task timing map is shifted of +50 ns for graphical reasons. Shift back it.
         mean01 -= 50.;
 

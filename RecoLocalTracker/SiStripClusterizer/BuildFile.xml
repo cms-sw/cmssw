@@ -1,7 +1,6 @@
 <use   name="DataFormats/Common"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/SiStripDigi"/>
 <use   name="DataFormats/SiStripCluster"/>
 <use   name="DataFormats/SiStripDetId"/>
 <use   name="CondFormats/DataRecord"/>
@@ -9,5 +8,5 @@
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="CalibTracker/Records"/>
 <export>
-  <lib name="1"/>
+  <lib   name="1"/>
 </export>

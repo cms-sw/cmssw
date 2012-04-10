@@ -70,8 +70,8 @@ from DQM.L1TMonitor.L1TRate_cfi import *
 #
 
 # filter used by RCT and GCT DQM modules
-from HLTrigger.special.HLTTriggerTypeFilter_cfi import *
-hltTriggerTypeFilter.SelectedTriggerType = 1
+#from HLTrigger.special.HLTTriggerTypeFilter_cfi import *
+#hltTriggerTypeFilter.SelectedTriggerType = 1
 
 # scaler modules (SM and SCAL) - it uses DQM.TrigXMonitor
 #
@@ -92,12 +92,12 @@ l1s.dqmFolder = cms.untracked.string("L1T/L1Scalers_SM")
 # FIXME - talk with them about
 
 l1tRctSeq = cms.Sequence(
-                    hltTriggerTypeFilter * 
+#                    hltTriggerTypeFilter * 
                     l1tRct
                     )
 
 l1tGctSeq = cms.Sequence(
-                    hltTriggerTypeFilter * 
+#                    hltTriggerTypeFilter * 
                     l1tGct
                     )
 # for L1ExtraDQM, one must run GGT and GMT/GT unpacker and L1Extra producer 

@@ -48,8 +48,10 @@ class HLTHiggsValidator : public edm::EDAnalyzer
 
 		//! Input from configuration file
 		edm::ParameterSet _pset;
+		//! the names of the subanalysis
 		std::vector<std::string> _analysisnames;
 		
+		//! The instances of the class which do the real work
 		std::vector<HLTHiggsSubAnalysis> _analyzers;
 				
 		//! The container with all the collections needed
@@ -60,5 +62,3 @@ class HLTHiggsValidator : public edm::EDAnalyzer
 };
 
 #endif
-
-//DEFINE_FWK_MODULE(HLTHiggsValidator);

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: OccupancyPlotter.cc,v 1.10 2011/12/19 17:44:16 abrinke1 Exp $
+// $Id: OccupancyPlotter.cc,v 1.13 2012/04/03 09:54:48 halil Exp $
 //
 //
 
@@ -25,9 +25,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
@@ -96,9 +94,22 @@ class OccupancyPlotter : public edm::EDAnalyzer {
 
   vector< vector<string> > PDsVectorPathsVector;
 
+  // Lumi info
+  float _instLumi;
+  float _instLumi_err;
+  float _pileup;
+
   // Store the HV info
   bool dcs[25];
+  bool thisiLumiValue;
 
+  // counters
+  int cntevt;
+  int cntBadHV;
+
+  // histograms
+  TH1F * hist_LumivsLS;
+  TH1F * hist_PUvsLS;
   
 };
 
@@ -120,7 +131,9 @@ OccupancyPlotter::OccupancyPlotter(const edm::ParameterSet& iConfig)
 
   debugPrint = false;
   outputPrint = false;
-
+  thisiLumiValue = false;
+  cntevt=0;
+  cntBadHV=0;
   if (debugPrint) std::cout << "Inside Constructor" << std::endl;
 
   plotDirectoryName = iConfig.getUntrackedParameter<std::string>("dirname", "HLT/Test");
@@ -150,13 +163,34 @@ OccupancyPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 {
    using namespace edm;
    using std::string;
+   int lumisection = (int)iEvent.luminosityBlock();
 
    if (debugPrint) std::cout << "Inside analyze" << std::endl;
-
-
+   ++cntevt;
+   if (cntevt % 10000 == 0) std::cout << "[OccupancyPlotter::analyze] Received event " << cntevt << std::endl;
    // === Check the HV and the lumi
    bool highVoltageOK = checkDcsInfo ( iEvent );
+   if (!highVoltageOK) {
+      if (debugPrint) std::cout << "Skipping event: DCS problem\n";
+      ++cntBadHV;
+      return; 
+   } 
    checkLumiInfo( iEvent);
+
+   if (debugPrint) std::cout << "instantaneous luminosity=" << _instLumi << " ± " << _instLumi_err << std::endl;
+
+   if (thisiLumiValue){
+     thisiLumiValue = false;
+     std::cout << "LS = " << lumisection << ", Lumi = " << _instLumi << " ± " << _instLumi_err << ", pileup = " << _pileup << std::endl;
+
+     hist_LumivsLS = dbe->get("HLT/OccupancyPlots/HLT_LumivsLS")->getTH1F();
+     hist_LumivsLS->SetBinContent(lumisection+1,_instLumi);
+     hist_LumivsLS->SetBinError(lumisection+1,_instLumi_err);
+     //
+     hist_PUvsLS = dbe->get("HLT/OccupancyPlots/HLT_PUvsLS")->getTH1F();
+     hist_PUvsLS->SetBinContent(lumisection+1,_pileup);
+
+   }
 
     // Access Trigger Results
    edm::Handle<edm::TriggerResults> triggerResults;
@@ -324,6 +358,12 @@ OccupancyPlotter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 
     if (debugPrint) std::cout <<"Found PD: " << datasetNames[i]  << std::endl;     
     setupHltMatrix(datasetNames[i],i);   
+    int maxLumisection=1000;
+    dbe->setCurrentFolder("HLT/OccupancyPlots/");
+    hist_LumivsLS = new TH1F("HLT_LumivsLS", "; Lumisection; Instantaneous Luminosity (cm^{-2} s^{-1})",maxLumisection,0,maxLumisection);
+    dbe->book1D("HLT_LumivsLS", hist_LumivsLS);
+    hist_PUvsLS = new TH1F("HLT_PUvsLS", "; Lumisection; Pileup",maxLumisection,0,maxLumisection);
+    dbe->book1D("HLT_PUvsLS", hist_PUvsLS);
 
   }// end of loop over dataset names
 
@@ -332,6 +372,7 @@ OccupancyPlotter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 // ------------ method called when ending the processing of a run  ------------
 void OccupancyPlotter::endRun(edm::Run const&, edm::EventSetup const&)
 {
+   std::cout << "[OccupancyPlotter::endRun] Total events received=" << cntevt << ", events with HV problem=" << cntBadHV << std::endl;
 }
 
 void OccupancyPlotter::setupHltMatrix(std::string label, int iPD) {
@@ -356,7 +397,7 @@ if (label != "SingleMu" && label != "SingleElectron" && label != "Jet")  PD_Fold
 dbe->setCurrentFolder(PD_Folder.c_str());
 
 h_name = "HLT_"+label+"_EtaVsPhi";
-h_title = "HLT_"+label+"_EtaVsPhi";
+h_title = "HLT_"+label+"_EtaVsPhi; eta; phi";
 h_name_1dEta = "HLT_"+label+"_1dEta";
 h_name_1dPhi = "HLT_"+label+"_1dPhi";
 h_title_1dEta = label+" Occupancy Vs Eta";
@@ -471,17 +512,20 @@ bool OccupancyPlotter::checkDcsInfo (const edm::Event & jEvent) {
   edm::Handle<DcsStatusCollection> dcsStatus;
   if ( ! jEvent.getByLabel("hltScalersRawToDigi", dcsStatus) )
     {
-      if (debugPrint) std::cout  << "Could not get scalersRawToDigi by label" ;
+      std::cout  << "[OccupancyPlotter::checkDcsInfo] Could not get scalersRawToDigi by label\n" ;
       for (int i=0;i<24;i++) dcs[i]=false;
       return false;
-    }
+    }//if (debugPrint) 
 
   if ( ! dcsStatus.isValid() ) 
     {
-      if (debugPrint) std::cout  << "scalersRawToDigi not valid" ;
+      std::cout  << "[OccupancyPlotter::checkDcsInfo] scalersRawToDigi not valid\n" ;
       for (int i=0;i<24;i++) dcs[i]=false; // info not available: set to false
       return false;
     }
+  
+  // initialize all to "true"
+  for (int i=0; i<24; i++) dcs[i]=true;
   
   for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); 
        dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) 
@@ -504,7 +548,7 @@ bool OccupancyPlotter::checkDcsInfo (const edm::Event & jEvent) {
       if (!dcsStatusItr->ready(DcsStatus::HBHEb))  dcs[12]=false;
       if (!dcsStatusItr->ready(DcsStatus::HBHEc))  dcs[13]=false; 
       if (!dcsStatusItr->ready(DcsStatus::HF))     dcs[14]=false;
-      if (!dcsStatusItr->ready(DcsStatus::HO))     dcs[15]=false;
+//      if (!dcsStatusItr->ready(DcsStatus::HO))     dcs[15]=false; // ignore HO
       if (!dcsStatusItr->ready(DcsStatus::BPIX))   dcs[16]=false;
       if (!dcsStatusItr->ready(DcsStatus::FPIX))   dcs[17]=false;
       if (!dcsStatusItr->ready(DcsStatus::RPC))    dcs[18]=false;
@@ -512,13 +556,20 @@ bool OccupancyPlotter::checkDcsInfo (const edm::Event & jEvent) {
       if (!dcsStatusItr->ready(DcsStatus::TOB))    dcs[20]=false;
       if (!dcsStatusItr->ready(DcsStatus::TECp))   dcs[21]=false;
       if (!dcsStatusItr->ready(DcsStatus::TECm))   dcs[22]=false;
-      if (!dcsStatusItr->ready(DcsStatus::CASTOR)) dcs[23]=false;
+//      if (!dcsStatusItr->ready(DcsStatus::CASTOR)) dcs[23]=false;
     }
 
 
   // now we should add some logic that tests the HV status
-  
-  return true;
+  bool decision = true;
+  for (int i=0; i<24; i++) decision=decision && dcs[i];
+  if (debugPrint) {
+     std::cout << "[OccupancyPlotter::checkDcsInfo] DCS Status:";
+     for (int i=0; i<24; i++) std::cout << dcs[i] << "-";
+     std::cout << "; Decision: " << decision << std::endl;
+  }
+  //std::cout << "; Decision: " << decision << std::endl;
+  return decision;
   
 }
 
@@ -542,17 +593,17 @@ void OccupancyPlotter::checkLumiInfo (const edm::Event & jEvent) {
   LumiScalersCollection::const_iterator it3 = lumiScalers->begin();
   //unsigned int lumisection = it3->sectionNumber();
 
-  if (debugPrint) std::cout << "Instanteous Lumi is " << it3->instantLumi() << std::endl;
-  if (debugPrint) std::cout << "Instanteous Lumi Error is " <<it3->instantLumiErr() << std::endl;
+  _instLumi = it3->instantLumi();
+  _instLumi_err = it3->instantLumiErr();
+  _pileup = it3->pileup();
+
+  if (debugPrint) std::cout << "Instanteous Lumi is " << _instLumi << std::endl;
+  if (debugPrint) std::cout << "Instanteous Lumi Error is " << _instLumi_err << std::endl;
   if (debugPrint) std::cout << "Lumi Fill is " <<it3->lumiFill() << std::endl;
   if (debugPrint) std::cout << "Lumi Fill is " <<it3->lumiRun() << std::endl;
   if (debugPrint) std::cout << "Live Lumi Fill is " <<it3->liveLumiFill() << std::endl;
   if (debugPrint) std::cout << "Live Lumi Run is " <<it3->liveLumiRun() << std::endl;
-
-  if (debugPrint) std::cout << "Pileup? = " << it3->pileup() << std::endl;
-
-  // could be changed to store the lumi info somewhere or make a plot
-
+  if (debugPrint) std::cout << "Pileup? = " << _pileup << std::endl;
 
   return;
   
@@ -561,8 +612,12 @@ void OccupancyPlotter::checkLumiInfo (const edm::Event & jEvent) {
 //=========================================================
 
 // ------------ method called when starting to processes a luminosity block  ------------
-void OccupancyPlotter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+void OccupancyPlotter::beginLuminosityBlock(edm::LuminosityBlock const &lb, edm::EventSetup const&)
 {
+ unsigned int thisLumiSection = 0;
+ thisLumiSection = lb.luminosityBlock();
+ std::cout << "[OccupancyPlotter::beginLuminosityBlock] New luminosity block: " << thisLumiSection << std::endl; 
+ thisiLumiValue=true; // add the instantaneous luminosity of the first event to the LS-Lumi plot
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
