@@ -7,7 +7,7 @@ runfillmapdir="/afs/cern.ch/cms/lumi/ppfills2012"
 outdir="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_GLOBAL/LHCFILES"
 logpath="/afs/cern.ch/cms/lumi/"
 logfile="specificLumi-2012pp.log"
-minfill=2355
+minfill=2454
 norm="pp8TeV"
 
 dbConnectionString="oracle://cms_orcoff_prod/cms_lumi_prod"
@@ -20,15 +20,15 @@ touch "$logpath/$logfile"
 
 date >> "$logpath/$logfile"
 
-echo "dumpFill.py -c $dbConnectionString -P $authdir -o $runfillmapdir --amodetag PROTOPHYS --minfill $minfill" >> "$logpath/$logfile"
+echo "dumpFill.py -c $dbConnectionString -P $authdir -o $runfillmapdir --amodetag PROTPHYS --minfill $minfill" >> "$logpath/$logfile"
 
-dumpFill.py -c $dbConnectionString -P $authdir -o $runfillmapdir --amodetag PROTOPHYS --minfill $minfill
+dumpFill.py -c $dbConnectionString -P $authdir -o $runfillmapdir --amodetag PROTPHYS --minfill $minfill
 
 date >> "$logpath/$logfile"
 
-echo "summaryLumi.py -c $dbConnectionString -P $authdir -i $runfillmapdir -o $outdir --amodetag PROTOPHYS --norm $norm --minfill $minfill" >> "$logpath/$logfile"
+echo "summaryLumi.py -c $dbConnectionString -P $authdir -i $runfillmapdir -o $outdir --amodetag PROTPHYS --norm $norm --minfill $minfill" >> "$logpath/$logfile"
 
-summaryLumi.py -c $dbConnectionString -P $authdir -i $runfillmapdir -o $outdir --amodetag PROTOPHYS --norm $norm --minfill $minfill >> "$logpath/$logfile" 
+summaryLumi.py -c $dbConnectionString -P $authdir -i $runfillmapdir -o $outdir --amodetag PROTPHYS --norm $norm --minfill $minfill >> "$logpath/$logfile" 
 
 date >> "$logpath/$logfile"
 
