@@ -26,5 +26,4 @@
 <use   name="CalibFormats/HcalObjects"/>
 <use   name="CalibCalorimetry/HcalAlgos"/>
 <use   name="CondFormats/HcalObjects"/>
-<use   name="DataFormats/HcalRecHit"/>
 <use   name="RecoLocalCalo/HcalRecAlgos"/>
