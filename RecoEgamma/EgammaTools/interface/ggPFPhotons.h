@@ -38,6 +38,7 @@ class ggPFPhotons  {
   float PFPS2(){return PFPreShower2_;}
   float MustE(){return EinMustache_;}
   float MustEOut(){return MustacheEOut_;}
+  float MustEtOut(){return MustacheEtOut_;}
   float PFLowE(){return PFLowClusE_;}
   double PFdEta(){return dEtaLowestC_;}
   double PFdPhi(){return dPhiLowestC_;}
@@ -63,13 +64,14 @@ class ggPFPhotons  {
   reco::Photon PFPhoton_;
   reco::GsfElectron PFElectron_;
   bool matchPFReco_;
+  bool isPFEle_;
   bool isConv_;
   bool hasSLConv_;
-  bool isPFEle_;
   std::vector<reco::CaloCluster>PFClusters_;
   std::vector<reco::CaloCluster>PFSCFootprintClusters_;
   float EinMustache_;
   float MustacheEOut_;
+  float MustacheEtOut_;
   float PFPreShower1_;
   float PFPreShower2_;
   float PFLowClusE_;

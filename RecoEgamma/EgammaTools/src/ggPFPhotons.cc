@@ -99,11 +99,14 @@ void ggPFPhotons::fillPFClusters(){
     MustacheE=MustacheE+PFSCFootprintClusters_[index].energy();
   }
   float MustacheEOut=0;
+  float MustacheEtOut=0;
   for(unsigned int i=0; i<outsideMust.size(); ++i){
     unsigned int index=outsideMust[i];
     MustacheEOut=MustacheEOut+PFClusters_[index].energy();
+    MustacheEtOut=MustacheEtOut+PFClusters_[index].energy()*sin(PFClusters_[index].position().theta());
   }
   MustacheEOut_=MustacheEOut;
+  MustacheEtOut_=MustacheEtOut;
   EinMustache_=MustacheE;
   //find lowest energy Cluster
   std::multimap<float, unsigned int>::iterator it;
