@@ -17,7 +17,7 @@ static const unsigned int kDecayChannels = 3;
 
 TtDecayChannelSelector::TtDecayChannelSelector(const edm::ParameterSet& cfg):
   invert_ ( cfg.getParameter<bool>("invert" ) ),
-  allowLepton_(false), allow1Prong_(false), 
+  allowElectron_(false), allowMuon_(false), allow1Prong_(false), 
   allow3Prong_(false)
 {
   // tau decays are not restricted if this PSet does not exist at all
@@ -26,11 +26,13 @@ TtDecayChannelSelector::TtDecayChannelSelector(const edm::ParameterSet& cfg):
   if(restrictTauDecays_){
     edm::ParameterSet allowedTauDecays = cfg.getParameter<edm::ParameterSet>("restrictTauDecays");
     // tau decays are not restricted if none of the following parameters exists
-    restrictTauDecays_=(allowedTauDecays.existsAs<bool>("leptonic"  )|| 
+    restrictTauDecays_=(allowedTauDecays.existsAs<bool>("electron"  )|| 
+			allowedTauDecays.existsAs<bool>("muon"  )|| 
 			allowedTauDecays.existsAs<bool>("oneProng"  )|| 
 			allowedTauDecays.existsAs<bool>("threeProng") );
     // specify the different possible restrictions of the tau decay channels
-    allowLepton_ = (allowedTauDecays.existsAs<bool>("leptonic"  ) ? allowedTauDecays.getParameter<bool>("leptonic"  ) : false); 
+    allowElectron_ = (allowedTauDecays.existsAs<bool>("electron"  ) ? allowedTauDecays.getParameter<bool>("electron"  ) : false);
+    allowMuon_ = (allowedTauDecays.existsAs<bool>("muon"  ) ? allowedTauDecays.getParameter<bool>("muon"  ) : false);
     allow1Prong_ = (allowedTauDecays.existsAs<bool>("oneProng"  ) ? allowedTauDecays.getParameter<bool>("oneProng"  ) : false); 
     allow3Prong_ = (allowedTauDecays.existsAs<bool>("threeProng") ? allowedTauDecays.getParameter<bool>("threeProng") : false);
   }
@@ -206,7 +208,8 @@ TtDecayChannelSelector::countProngs(const reco::Candidate& part) const
 bool
 TtDecayChannelSelector::tauDecay(const reco::Candidate& tau) const
 {
-  bool leptonic = false;
+  bool electronTau = false;
+  bool muonTau = false;
   unsigned int nch = 0;
   // loop on tau decays, check for an elec
   // or muon and count charged particles
@@ -217,12 +220,15 @@ TtDecayChannelSelector::tauDecay(const reco::Candidate& tau) const
     if(daughter->pdgId()==tau.pdgId()){
       return tauDecay(*daughter);
     }
-    // check for leptons
-    leptonic |= (std::abs(daughter->pdgId())==TopDecayID::elecID || std::abs(daughter->pdgId())==TopDecayID::muonID);
+    // check for electron from tau decay
+    electronTau |= (std::abs(daughter->pdgId())==TopDecayID::elecID);
+    // check for muon from tau decay
+    muonTau |= (std::abs(daughter->pdgId())==TopDecayID::muonID);
     // count charged particles
     nch += countProngs(*daughter);
   }
-  return ((allowLepton_ &&  leptonic)          ||
-	  (allow1Prong_ && !leptonic && nch==1)||
-	  (allow3Prong_ && !leptonic && nch==3));
+  return ((allowElectron_ &&  electronTau)          ||
+	  (allowMuon_ && muonTau)||
+	  (allow1Prong_ && !electronTau && !muonTau && nch==1)||
+	  (allow3Prong_ && !electronTau && !muonTau && nch==3));
 }
