@@ -110,7 +110,7 @@ void trigTools::getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<
   for(size_t pathNr=0;pathNr<hltConfig.size();pathNr++){
     const std::string& pathName = hltConfig.triggerName(pathNr);
     if(pathName.find("HLT_")==0){ //hlt path as they all start with HLT_XXXX
-      if((pathName.find("Photon")==4 || pathName.find("Ele")==4 || pathName.find("EG")==4)// e/g paths, pho or ele always come first
+      if((pathName.find("Photon")==4 || pathName.find("Ele")==4 || pathName.find("EG")==4 || pathName.find("Activity")==4 || pathName.find("Physics")==4)// e/g paths, pho or ele always come first
 	 && (pathName.find("Jet")==pathName.npos && pathName.find("Muon")==pathName.npos 
 	     && pathName.find("Tau")==pathName.npos && pathName.find("HT")==pathName.npos 
 	     && pathName.find("MR")==pathName.npos && pathName.find("LEITI")==pathName.npos 
@@ -134,7 +134,7 @@ void trigTools::getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<
 		 || filter==filters.size()-1 ){
 		activeFilters.push_back(filters[filter]); //saves all modules with saveTags=true
 		//std::cout<<"  Module Name: "<<filters[filter]<<" filter#: "<<int(filter)<<"/"<<filters.size()<<" ncandcut: "<<trigTools::getMinNrObjsRequiredByFilter(filters[filter])<<std::endl;
-		if(pathName.find("Photon")!=pathName.npos){
+		if(pathName.find("Photon")!=pathName.npos || pathName.find("Activity")!=pathName.npos || pathName.find("Physics")!=pathName.npos ){
 		  activePhoFilters.push_back(filters[filter]);//saves all "Photon" paths into photon set
 		  int posPho = pathName.find("Pho")+1;
 		  if( pathName.find("Pho",posPho)!=pathName.npos || pathName.find("SC",posPho)!=pathName.npos ){
@@ -143,7 +143,7 @@ void trigTools::getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<
 		    //std::cout<<"Pho2LegPath: "<<pathName<<std::endl;
 		  }
 		}
-		if(pathName.find("Ele")!=pathName.npos){
+		if(pathName.find("Ele")!=pathName.npos || pathName.find("Activity")!=pathName.npos || pathName.find("Physics")!=pathName.npos ){
 		  activeEleFilters.push_back(filters[filter]);//saves all "Ele" paths into electron set
 		  int posEle = pathName.find("Ele")+1;
 		  if( pathName.find("Ele",posEle)!=pathName.npos || pathName.find("SC",posEle)!=pathName.npos ){

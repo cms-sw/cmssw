@@ -3,9 +3,10 @@ import FWCore.ParameterSet.Config as cms
 egHLTOffDQMBinData = cms.PSet (
     err = cms.PSet(nr=cms.int32(101),min=cms.double(-0.5),max=cms.double(100.5)),
     #---Morse----------
+    energy = cms.PSet(nr=cms.int32(60),min=cms.double(0.),max=cms.double(300.)),
     #et = cms.PSet(nr=cms.int32(11),min=cms.double(-5.),max=cms.double(105.)),
     et = cms.PSet(nr=cms.int32(80),min=cms.double(-5.),max=cms.double(155.)),
-    HLTet = cms.PSet(nr=cms.int32(80),min=cms.double(-5.),max=cms.double(155.)),
+    HLTenergy = cms.PSet(nr=cms.int32(60),min=cms.double(0.),max=cms.double(300.)),
     HLTeta =cms.PSet(nr=cms.int32(30),min=cms.double(-3.),max=cms.double(3.)),
     HLTphi =cms.PSet(nr=cms.int32(16),min=cms.double(-3.14),max=cms.double(3.14)),
     #--------------
@@ -24,7 +25,7 @@ egHLTOffDQMBinData = cms.PSet (
     minr9=cms.PSet(nr=cms.int32(24),min=cms.double(-0.1),max=cms.double(1.1)),
     maxr9=cms.PSet(nr=cms.int32(24),min=cms.double(-0.1),max=cms.double(1.1)),
     nVertex=cms.PSet(nr=cms.int32(22),min=cms.double(-1.),max=cms.double(21.)),
-    deltaEt=cms.PSet(nr=cms.int32(30),min=cms.double(-15.),max=cms.double(15.)),
+    deltaE=cms.PSet(nr=cms.int32(50),min=cms.double(-50.),max=cms.double(50.)),
     #---------
     isolEm=cms.PSet(nr=cms.int32(22),min=cms.double(-1),max=cms.double(10)),
     isolHad=cms.PSet(nr=cms.int32(22),min=cms.double(-1),max=cms.double(10)),

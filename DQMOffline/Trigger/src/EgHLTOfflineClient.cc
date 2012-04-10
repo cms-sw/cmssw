@@ -49,6 +49,7 @@ EgHLTOfflineClient::EgHLTOfflineClient(const edm::ParameterSet& iConfig):dbe_(NU
   phoEffTags_ = iConfig.getParameter<std::vector<std::string> >("phoEffTags");
   phoTrigTPEffVsVars_ = iConfig.getParameter<std::vector<std::string> >("phoTrigTPEffVsVars");
   phoLooseTightTrigEffVsVars_ =  iConfig.getParameter<std::vector<std::string> >("phoLooseTightTrigEffVsVars");
+  phoHLTvOfflineVars_ = iConfig.getParameter<std::vector<std::string> >("phoHLTvOfflineVars");
   
   runClientEndLumiBlock_ = iConfig.getParameter<bool>("runClientEndLumiBlock");
   runClientEndRun_ = iConfig.getParameter<bool>("runClientEndRun");
@@ -97,7 +98,7 @@ void EgHLTOfflineClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
       std::vector<std::string> activePho2LegFilters;
       egHLT::trigTools::getActiveFilters(hltConfig,activeFilters,activeEleFilters,activeEle2LegFilters,activePhoFilters,activePho2LegFilters);
       
-      egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeFilters);
+      egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeEleFilters);
       egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNames2Leg_,activeEle2LegFilters);
       egHLT::trigTools::filterInactiveTriggers(phoHLTFilterNames_,activePhoFilters);
       egHLT::trigTools::filterInactiveTightLooseTriggers(eleTightLooseTrigNames_,activeEleFilters);
@@ -173,6 +174,8 @@ void EgHLTOfflineClient::runClient_()
 	createN1EffHists(phoHLTFilterNames_[filterNr],phoHLTFilterNames_[filterNr]+"_pho_"+phoEffTags_[effNr],regions[regionNr],phoN1EffVars_);
 	createSingleEffHists(phoHLTFilterNames_[filterNr],phoHLTFilterNames_[filterNr]+"_pho_"+phoEffTags_[effNr],regions[regionNr],phoSingleEffVars_);
 	createTrigTagProbeEffHistsNewAlgo(phoHLTFilterNames_[filterNr],regions[regionNr],phoTrigTPEffVsVars_,"pho");
+	createHLTvsOfflineHists(phoHLTFilterNames_[filterNr],phoHLTFilterNames_[filterNr]+"_pho_passFilter",regions[regionNr],phoHLTvOfflineVars_);
+
 	//--------------
       }
     }
@@ -192,18 +195,21 @@ void EgHLTOfflineClient::runClient_()
 }
 
 void EgHLTOfflineClient::createHLTvsOfflineHists(const std::string& filterName,const std::string& baseName,const std::string& region,const std::vector<std::string>& varNames){
-  //need to do Et manually to get SC Et
-  MonitorElement* numer = dbe_->get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_HLTet"+"_"+region);
-  MonitorElement* denom = dbe_->get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_etSC"+"_"+region);
+  //need to do Energy manually to get SC Energy
+  /*
+  MonitorElement* numer = dbe_->get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_HLTenergy"+"_"+region);
+  MonitorElement* denom = dbe_->get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_energy"+"_"+region);
+
   if(numer!=NULL && denom!=NULL){
-    std::string effHistName(baseName+"_HLToverOfflineSC_et_"+region);//std::cout<<"hltVSoffline:  "<<effHistName<<std::endl;
+    std::string effHistName(baseName+"_HLToverOfflineSC_energy_"+region);//std::cout<<"hltVSoffline:  "<<effHistName<<std::endl;
     std::string effHistTitle(effHistName);
     if(region=="eb" || region=="ee"){
-      if(region=="eb") effHistTitle = "Barrel "+baseName+" HLToverOfflineSC E_{T}";
-      if(region=="ee") effHistTitle = "Endcap "+baseName+" HLToverOfflineSC E_{T}";
+      if(region=="eb") effHistTitle = "Barrel "+baseName+" HLToverOfflineSC Energy";
+      if(region=="ee") effHistTitle = "Endcap "+baseName+" HLToverOfflineSC Energy";
       FillHLTvsOfflineHist(filterName,effHistName,effHistTitle,numer,denom);	
     }
   }//end Et
+  */
   //now eta, phi automatically
   for(size_t varNr=0;varNr<varNames.size();varNr++){
     MonitorElement* numer = dbe_->get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_HLT"+varNames[varNr]+"_"+region);

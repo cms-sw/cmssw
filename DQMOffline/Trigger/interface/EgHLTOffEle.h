@@ -66,7 +66,7 @@ namespace egHLT {
       //math::XYZTLorentzVector p4;
       float HLTeta;
       float HLTphi;
-      float HLTeT;
+      float HLTenergy;
     };
     
   public:
@@ -183,9 +183,9 @@ namespace egHLT {
     //const math::XYZTLorentzVector& HLTp4()const{return hltData_.p4;}
     float hltPhi()const{return hltData_.HLTphi;}
     float hltEta()const{return hltData_.HLTeta;}
-    float hltEt()const{return hltData_.HLTeT;}
+    float hltEnergy()const{return hltData_.HLTenergy;}
     //Diference between HLT Et and reco SC Et
-    float DeltaEt()const{return (hltData_.HLTeT - etSC());}
+    float DeltaE()const{return (hltEnergy() - caloEnergy());}
 
     //ctf track accessor and validatity checker
     reco::TrackRef ctfTrack()const{return gsfEle_->closestCtfTrackRef();} //in theory lightweight (if they follow good design),return by value

@@ -116,11 +116,11 @@ namespace egHLT {
       for(trigger::Keys::const_iterator keyIt=trigKeys.begin();keyIt!=trigKeys.end();++keyIt){
 	float trigObjEta = trigObjColl[*keyIt].eta();
 	float trigObjPhi = trigObjColl[*keyIt].phi();
-	float trigObjEt = trigObjColl[*keyIt].et();
+	float trigObjE = trigObjColl[*keyIt].energy();
 	if (reco::deltaR(particle.superCluster()->eta(),particle.superCluster()->phi(),trigObjEta,trigObjPhi) < maxDeltaR){
 	  hltData.HLTeta=trigObjEta;
 	  hltData.HLTphi=trigObjPhi;
-	  hltData.HLTeT=trigObjEt;
+	  hltData.HLTenergy=trigObjE;
 	}//end dR<maxDeltaR trig obj match test
       }//end loop over all objects passing filter`
     }//end check if filter is present

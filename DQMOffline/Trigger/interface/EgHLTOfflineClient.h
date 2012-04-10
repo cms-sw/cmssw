@@ -61,7 +61,8 @@ class EgHLTOfflineClient : public edm::EDAnalyzer {
   std::vector<std::string> eleLooseTightTrigEffVsVars_;
   std::vector<std::string> phoLooseTightTrigEffVsVars_;
 				
-  std::vector<std::string> eleHLTvOfflineVars_;
+  std::vector<std::string> eleHLTvOfflineVars_;  
+  std::vector<std::string> phoHLTvOfflineVars_;
 		
   bool runClientEndLumiBlock_;
   bool runClientEndRun_;
