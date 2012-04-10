@@ -258,9 +258,8 @@ if(whatPileUp=='mixingmodule'):
     # Gen Particles from Mixing Module
     genParticlesFromMixingModule = cms.EDProducer("GenParticleProducer",
                                                   saveBarCodes = cms.untracked.bool(True),
-#                                                  src = cms.untracked.InputTag("mixGenPU","generator"),#ignored?
                                                   useCrossingFrame = cms.untracked.bool(True),
-                                                  mixLabel = cms.string("mixGenPU"),                          
+                                                  mix = cms.string("mixGenPU"),                          
                                                   abortOnUnknownPDGCode = cms.untracked.bool(False)
                                                   )
     famosSimHits.GenParticleLabel = "genParticlesFromMixingModule" 
