@@ -539,7 +539,7 @@ HLT_L1Tech_HCAL_HF_single_channel_v*
 #HLT_L1Tech_DT_GlobalOR_v*                                                                       # only in 'GRun' and 'cosmics', not in 'online'
 HLT_ZeroBias_v*
 HLT_Physics_v*
-#DST_Physics_v*                                                                                 #dropped by A.B. (email 7MAR - but keep in master)
+DST_Physics_v*
 HLT_DTCalibration_v*
 HLT_EcalCalibration_v*
 HLT_HcalCalibration_v*
