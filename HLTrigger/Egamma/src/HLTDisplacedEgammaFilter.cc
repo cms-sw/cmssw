@@ -1,6 +1,6 @@
 /** \class HLTDisplacedEgammaFilter
  *
- * $Id: HLTDisplacedEgammaFilter.cc,v 1.3 2012/03/21 18:09:51 sckao Exp $
+ * $Id: HLTDisplacedEgammaFilter.cc,v 1.6 2012/03/28 06:04:57 gruen Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -42,6 +42,7 @@ HLTDisplacedEgammaFilter::HLTDisplacedEgammaFilter(const edm::ParameterSet& iCon
   rechitsEB  = iConfig.getParameter< edm::InputTag > ("RecHitsEB");
   rechitsEE  = iConfig.getParameter< edm::InputTag > ("RecHitsEE");
   
+  EBOnly       = iConfig.getParameter<bool> ("EBOnly") ;
   sMin_min     = iConfig.getParameter<double> ("sMin_min");
   sMin_max     = iConfig.getParameter<double> ("sMin_max");
   sMaj_min     = iConfig.getParameter<double> ("sMaj_min");
@@ -66,12 +67,13 @@ void HLTDisplacedEgammaFilter::fillDescriptions(edm::ConfigurationDescriptions& 
    desc.add<edm::InputTag>("inputTrack",edm::InputTag("hltL1SeededEgammaRegionalCTFFinalFitWithMaterial"));
    desc.add<bool>("relaxed",false);
    desc.add<int>("ncandcut",1);
+   desc.add<bool>("EBOnly",false);
    desc.add<double>("sMin_min",0.1);
-   desc.add<double>("sMin_max",0.3);
+   desc.add<double>("sMin_max",0.4);
    desc.add<double>("sMaj_min",0.0);
    desc.add<double>("sMaj_max",999.0);
-   desc.add<double>("seedTimeMin", -2.0);
-   desc.add<double>("seedTimeMax", 25.0);
+   desc.add<double>("seedTimeMin", -25.0);
+   desc.add<double>("seedTimeMax",  25.0);
    desc.add<int>("maxTrackCut", 0);
    desc.add<double>("trackPtCut", 3.0);
    desc.add<double>("trackdRCut", 0.5);
@@ -116,6 +118,8 @@ HLTDisplacedEgammaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
   for (unsigned int i=0; i<recoecalcands.size(); i++) {
     
     ref = recoecalcands[i] ;
+    if ( EBOnly &&  fabs( ref->eta() ) >= 1.479  ) continue ;
+
 
     // S_Minor Cuts from the seed cluster
     reco::CaloClusterPtr SCseed = ref->superCluster()->seed() ;
