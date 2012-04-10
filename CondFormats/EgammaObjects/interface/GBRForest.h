@@ -18,7 +18,7 @@
 
 #include <vector>
 #include "GBRTree.h"
-
+#include <stdio.h>
 
   namespace TMVA {
     class MethodBDT;
@@ -34,7 +34,10 @@
        
        double GetResponse(const float* vector) const;
       
+       void SetInitialResponse(double response) { fInitialResponse = response; }
+       
        std::vector<GBRTree> &Trees() { return fTrees; }
+       const std::vector<GBRTree> &Trees() const { return fTrees; }
        
     protected:
       double               fInitialResponse;
