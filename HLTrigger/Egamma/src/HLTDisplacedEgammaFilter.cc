@@ -1,6 +1,6 @@
 /** \class HLTDisplacedEgammaFilter
  *
- * $Id: HLTDisplacedEgammaFilter.cc,v 1.7 2012/04/10 17:37:40 sckao Exp $
+ * $Id: HLTDisplacedEgammaFilter.cc,v 1.9 2012/04/11 08:54:12 gruen Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -118,12 +118,12 @@ HLTDisplacedEgammaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
   for (unsigned int i=0; i<recoecalcands.size(); i++) {
     
     ref = recoecalcands[i] ;
-    if ( EBOnly &&  fabs( ref->eta() ) >= 1.479  ) continue ;
+    if ( EBOnly &&  std::abs( ref->eta() ) >= 1.479  ) continue ;
 
 
     // S_Minor Cuts from the seed cluster
     reco::CaloClusterPtr SCseed = ref->superCluster()->seed() ;
-    const EcalRecHitCollection* rechits = ( fabs( ref->eta() ) < 1.479 ) ? rechitsEB_.product() : rechitsEE_.product() ;
+    const EcalRecHitCollection* rechits = ( std::abs( ref->eta() ) < 1.479 ) ? rechitsEB_.product() : rechitsEE_.product() ;
 
     Cluster2ndMoments moments = EcalClusterTools::cluster2ndMoments(*SCseed, *rechits);
     float sMin =  moments.sMin  ;
