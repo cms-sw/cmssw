@@ -55,8 +55,11 @@ private:
  
   MonitorElement* nClusME_;
   MonitorElement* intLumiVsLSME_;
+  MonitorElement* nClusVsLSME_;
+  MonitorElement* corrIntLumiAndClusVsLSME_; 
 
-  float _intLumi;
+  float intLumi_;
+  int nLumi_;
   unsigned long long m_cacheID_;
 };
 
