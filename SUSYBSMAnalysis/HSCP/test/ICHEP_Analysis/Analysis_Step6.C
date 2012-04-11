@@ -306,12 +306,12 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 
    TGraph* GMStauXSec = MakePlot(NULL,NULL,TkPattern,"","GMSB Stau        ", 0, "GMStau100"    , "GMStau126"    , "GMStau156"    , "GMStau200"    , "GMStau247"    , "GMStau308", "GMStau370", "GMStau432", "GMStau494"    );
    TGraph* PPStauXSec = MakePlot(NULL,NULL,TkPattern,"","Pair Prod. Stau  ", 0, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247"    , "PPStau308");
+
    TGraph* DCRho08HyperKXSec = MakePlot(NULL,NULL,TkPattern,"","DiChamp    Rho08  ", 0,  "DCRho08HyperK100"    , "DCRho08HyperK121"    , "DCRho08HyperK182"    , "DCRho08HyperK242"    , "DCRho08HyperK302",    "DCRho08HyperK350"    ,    "DCRho08HyperK370"    , "DCRho08HyperK390"    ,  "DCRho08HyperK395"    ,  "DCRho08HyperK400"    ,  "DCRho08HyperK410"    ,    "DCRho08HyperK420"    ,  "DCRho08HyperK500");  
 
    TGraph* DCRho12HyperKXSec = MakePlot(NULL,NULL,TkPattern,"","DiChamp    Rho12  ", 0, "DCRho12HyperK100"    , "DCRho12HyperK182"    , "DCRho12HyperK302"    , "DCRho12HyperK500" , "DCRho12HyperK530"  , "DCRho12HyperK570"     ,"DCRho12HyperK590"     , "DCRho12HyperK595" , "DCRho12HyperK600"   , "DCRho12HyperK610"    ,"DCRho12HyperK620"    ,"DCRho12HyperK700");
 
    TGraph* DCRho16HyperKXSec = MakePlot(NULL,NULL,TkPattern,"","DiChamp    Rho16  ", 0, "DCRho16HyperK100"    , "DCRho16HyperK182"    , "DCRho16HyperK302"    , "DCRho16HyperK500"    , "DCRho16HyperK700" , "DCRho16HyperK730" , "DCRho16HyperK770"   , "DCRho16HyperK790"     , "DCRho16HyperK795" , "DCRho16HyperK800"     , "DCRho16HyperK810"     ,"DCRho16HyperK820"    ,"DCRho16HyperK900");
-
 
    double ThGluinoMass [100]; double ThGluinoXSec [100];  double ThGluinoLow  [100]; double ThGluinoHigh [100]; double ThGluinoErrLow  [100];  double ThGluinoErrHigh [100];
    int ThGluinoN = ReadXSection("gluino_XSec.txt", ThGluinoMass,ThGluinoXSec,ThGluinoLow,ThGluinoHigh, ThGluinoErrLow, ThGluinoErrHigh);
@@ -483,23 +483,23 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    if(syst!="")return;
 
 
-   GluinoXSec      ->SetLineColor(4);  GluinoXSec      ->SetMarkerColor(4);   GluinoXSec      ->SetLineWidth(1);   GluinoXSec      ->SetLineStyle(3);  GluinoXSec      ->SetMarkerStyle(1);
+   GluinoXSec      ->SetLineColor(4);  GluinoXSec      ->SetMarkerColor(4);   GluinoXSec      ->SetLineWidth(5);   GluinoXSec      ->SetLineStyle(3);  GluinoXSec      ->SetMarkerStyle(1);
    Mu_Obs_GluinoF1 ->SetLineColor(4);  Mu_Obs_GluinoF1 ->SetMarkerColor(4);   Mu_Obs_GluinoF1 ->SetLineWidth(2);   Mu_Obs_GluinoF1 ->SetLineStyle(1);  Mu_Obs_GluinoF1 ->SetMarkerStyle(22);
    Mu_Obs_GluinoF5 ->SetLineColor(4);  Mu_Obs_GluinoF5 ->SetMarkerColor(4);   Mu_Obs_GluinoF5 ->SetLineWidth(2);   Mu_Obs_GluinoF5 ->SetLineStyle(1);  Mu_Obs_GluinoF5 ->SetMarkerStyle(23);
    Mu_Obs_GluinoNF1->SetLineColor(4);  Mu_Obs_GluinoNF1->SetMarkerColor(4);   Mu_Obs_GluinoNF1->SetLineWidth(2);   Mu_Obs_GluinoNF1->SetLineStyle(1);  Mu_Obs_GluinoNF1->SetMarkerStyle(26);
    Tk_Obs_GluinoF1 ->SetLineColor(4);  Tk_Obs_GluinoF1 ->SetMarkerColor(4);   Tk_Obs_GluinoF1 ->SetLineWidth(2);   Tk_Obs_GluinoF1 ->SetLineStyle(1);  Tk_Obs_GluinoF1 ->SetMarkerStyle(22);
    Tk_Obs_GluinoF5 ->SetLineColor(4);  Tk_Obs_GluinoF5 ->SetMarkerColor(4);   Tk_Obs_GluinoF5 ->SetLineWidth(2);   Tk_Obs_GluinoF5 ->SetLineStyle(1);  Tk_Obs_GluinoF5 ->SetMarkerStyle(23);
    Tk_Obs_GluinoNF1->SetLineColor(4);  Tk_Obs_GluinoNF1->SetMarkerColor(4);   Tk_Obs_GluinoNF1->SetLineWidth(2);   Tk_Obs_GluinoNF1->SetLineStyle(1);  Tk_Obs_GluinoNF1->SetMarkerStyle(26);
-   StopXSec        ->SetLineColor(2);  StopXSec        ->SetMarkerColor(2);   StopXSec        ->SetLineWidth(1);   StopXSec        ->SetLineStyle(2);  StopXSec        ->SetMarkerStyle(1);
+   StopXSec        ->SetLineColor(2);  StopXSec        ->SetMarkerColor(2);   StopXSec        ->SetLineWidth(5);   StopXSec        ->SetLineStyle(2);  StopXSec        ->SetMarkerStyle(1);
    Mu_Obs_Stop     ->SetLineColor(2);  Mu_Obs_Stop     ->SetMarkerColor(2);   Mu_Obs_Stop     ->SetLineWidth(2);   Mu_Obs_Stop     ->SetLineStyle(1);  Mu_Obs_Stop     ->SetMarkerStyle(21);
    Mu_Obs_StopN    ->SetLineColor(2);  Mu_Obs_StopN    ->SetMarkerColor(2);   Mu_Obs_StopN    ->SetLineWidth(2);   Mu_Obs_StopN    ->SetLineStyle(1);  Mu_Obs_StopN    ->SetMarkerStyle(25);
    Tk_Obs_Stop     ->SetLineColor(2);  Tk_Obs_Stop     ->SetMarkerColor(2);   Tk_Obs_Stop     ->SetLineWidth(2);   Tk_Obs_Stop     ->SetLineStyle(1);  Tk_Obs_Stop     ->SetMarkerStyle(21);
    Tk_Obs_StopN    ->SetLineColor(2);  Tk_Obs_StopN    ->SetMarkerColor(2);   Tk_Obs_StopN    ->SetLineWidth(2);   Tk_Obs_StopN    ->SetLineStyle(1);  Tk_Obs_StopN    ->SetMarkerStyle(25);
-   GMStauXSec      ->SetLineColor(1);  GMStauXSec      ->SetMarkerColor(1);   GMStauXSec      ->SetLineWidth(1);   GMStauXSec      ->SetLineStyle(1);  GMStauXSec      ->SetMarkerStyle(1);
-   PPStauXSec      ->SetLineColor(6);  PPStauXSec      ->SetMarkerColor(6);   PPStauXSec      ->SetLineWidth(1);   PPStauXSec      ->SetLineStyle(4);  PPStauXSec      ->SetMarkerStyle(1);
-   DCRho08HyperKXSec      ->SetLineColor(4);  DCRho08HyperKXSec      ->SetMarkerColor(4);   DCRho08HyperKXSec      ->SetLineWidth(1);   DCRho08HyperKXSec      ->SetLineStyle(3);  DCRho08HyperKXSec      ->SetMarkerStyle(1);
-   DCRho12HyperKXSec      ->SetLineColor(2);  DCRho12HyperKXSec      ->SetMarkerColor(2);   DCRho12HyperKXSec      ->SetLineWidth(1);   DCRho12HyperKXSec      ->SetLineStyle(2);  DCRho12HyperKXSec      ->SetMarkerStyle(1);
-   DCRho16HyperKXSec      ->SetLineColor(1);  DCRho16HyperKXSec      ->SetMarkerColor(1);   DCRho16HyperKXSec      ->SetLineWidth(1);   DCRho16HyperKXSec      ->SetLineStyle(1);  DCRho16HyperKXSec      ->SetMarkerStyle(1);
+   GMStauXSec      ->SetLineColor(1);  GMStauXSec      ->SetMarkerColor(1);   GMStauXSec      ->SetLineWidth(5);   GMStauXSec      ->SetLineStyle(1);  GMStauXSec      ->SetMarkerStyle(1);
+   PPStauXSec      ->SetLineColor(6);  PPStauXSec      ->SetMarkerColor(6);   PPStauXSec      ->SetLineWidth(5);   PPStauXSec      ->SetLineStyle(4);  PPStauXSec      ->SetMarkerStyle(1);
+   DCRho08HyperKXSec      ->SetLineColor(4);  DCRho08HyperKXSec      ->SetMarkerColor(4);   DCRho08HyperKXSec      ->SetLineWidth(5);   DCRho08HyperKXSec      ->SetLineStyle(3);  DCRho08HyperKXSec      ->SetMarkerStyle(1);
+   DCRho12HyperKXSec      ->SetLineColor(2);  DCRho12HyperKXSec      ->SetMarkerColor(2);   DCRho12HyperKXSec      ->SetLineWidth(5);   DCRho12HyperKXSec      ->SetLineStyle(2);  DCRho12HyperKXSec      ->SetMarkerStyle(1);
+   DCRho16HyperKXSec      ->SetLineColor(1);  DCRho16HyperKXSec      ->SetMarkerColor(1);   DCRho16HyperKXSec      ->SetLineWidth(5);   DCRho16HyperKXSec      ->SetLineStyle(1);  DCRho16HyperKXSec      ->SetMarkerStyle(1);
 
 
    Mu_Obs_GMStau   ->SetLineColor(1);  Mu_Obs_GMStau   ->SetMarkerColor(1);   Mu_Obs_GMStau   ->SetLineWidth(2);   Mu_Obs_GMStau   ->SetLineStyle(1);  Mu_Obs_GMStau   ->SetMarkerStyle(23);
@@ -537,15 +537,15 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    PPStauXSecErr  ->Draw("f");
    MGMu->Draw("same");
    MGMu->SetTitle("");
-   MGMu->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
+   MGMu->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
    MGMu->GetYaxis()->SetTitle("#sigma (pb)");
    MGMu->GetYaxis()->SetTitleOffset(1.70);
    MGMu->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    
    DrawPreliminary(IntegratedLuminosity);
-   TLegend* LEGMu = new TLegend(0.42,0.65,0.63,0.90);   
+   TLegend* LEGMu = new TLegend(0.45,0.65,0.65,0.90);   
 //   LEGMu->SetHeader("95% C.L. Limits");
-   LEGMu->SetHeader("Tk + TOF");
+   LEGMu->SetHeader("Tracker + TOF");
    LEGMu->SetFillColor(0); 
    LEGMu->SetBorderSize(0);
    LEGMu->AddEntry(Mu_Obs_GluinoF5 , "gluino; 50% #tilde{g}g"    ,"LP");
@@ -555,9 +555,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 //   LEGMu->AddEntry(Mu_Obs_StopN    , "stop; ch. suppr.","LP");
    LEGMu->AddEntry(Mu_Obs_PPStau   , "Pair Prod. stau"       ,"LP");
    LEGMu->AddEntry(Mu_Obs_GMStau   , "GMSB stau"       ,"LP");
-   LEGMu->Draw();
+   //LEGMu->Draw();
 
-   TLegend* LEGTh = new TLegend(0.15,0.7,0.42,0.9);
+   TLegend* LEGTh = new TLegend(0.15,0.7,0.48,0.9);
    LEGTh->SetHeader("Theoretical Prediction");
    LEGTh->SetFillColor(0);
    LEGTh->SetBorderSize(0);
@@ -576,6 +576,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGTh->AddEntry(StauThLeg   ,"GMSB stau   (NLO)" ,"LF");
 
    LEGTh->Draw();
+   LEGMu->Draw();
 
 //   c1->SetGridx(true);
 //   c1->SetGridy(true);
@@ -605,16 +606,16 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    PPStauXSecErr  ->Draw("f");
    MGTk->Draw("same");
    MGTk->SetTitle("");
-   MGTk->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
+   MGTk->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
    MGTk->GetYaxis()->SetTitle("#sigma (pb)");
    MGTk->GetYaxis()->SetTitleOffset(1.70);
    MGTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    
    DrawPreliminary(IntegratedLuminosity);
    
-   TLegend* LEGTk = new TLegend(0.42,0.58,0.77,0.9);
+   TLegend* LEGTk = new TLegend(0.45,0.58,0.795,0.9);
 //   LEGTk->SetHeader("95% C.L. Limits");
-   LEGTk->SetHeader("Tk - Only");
+   LEGTk->SetHeader("Tracker - Only");
    LEGTk->SetFillColor(0); 
    LEGTk->SetBorderSize(0);
    LEGTk->AddEntry(Tk_Obs_GluinoF5 , "gluino; 50% #tilde{g}g"    ,"LP");
@@ -624,9 +625,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGTk->AddEntry(Tk_Obs_StopN    , "stop; ch. suppr.","LP");
    LEGTk->AddEntry(Tk_Obs_PPStau   , "Pair Prod. stau"       ,"LP");
    LEGTk->AddEntry(Tk_Obs_GMStau   , "GMSB stau"       ,"LP");
-   LEGTk->Draw();
+   //LEGTk->Draw();
 
    LEGTh->Draw();
+   LEGTk->Draw();
 
 //   c1->SetGridx(true);
 //   c1->SetGridy(true);
@@ -649,36 +651,37 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 //   DCRho16HyperKXSecErr  ->Draw("f");
    MGDCMu->Draw("same");
    MGDCMu->SetTitle("");
-   MGDCMu->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
+   MGDCMu->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
    MGDCMu->GetYaxis()->SetTitle("#sigma (pb)");
    MGDCMu->GetYaxis()->SetTitleOffset(1.70);
    MGDCMu->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    
    DrawPreliminary(IntegratedLuminosity);
    
-   TLegend* LEGDCMu = new TLegend(0.50,0.65,0.77,0.9);
-   LEGDCMu->SetHeader("Tk + TOF");
+   TLegend* LEGDCMu = new TLegend(0.50,0.65,0.80,0.9);
+   LEGDCMu->SetHeader("Tracker + TOF");
    LEGDCMu->SetFillColor(0); 
    LEGDCMu->SetBorderSize(0);
-   LEGDCMu->AddEntry(Mu_Obs_DCRho08HyperK   , "Hyperk #tilde{#rho} = 0.8 TeV"       ,"LP");
-   LEGDCMu->AddEntry(Mu_Obs_DCRho12HyperK   , "Hyperk #tilde{#rho} = 1.2 TeV"       ,"LP");
-   LEGDCMu->AddEntry(Mu_Obs_DCRho16HyperK   , "Hyperk #tilde{#rho} = 1.6 TeV"       ,"LP");
-   LEGDCMu->Draw();
+   LEGDCMu->AddEntry(Mu_Obs_DCRho08HyperK   , "Hyper-K, #tilde{#rho} = 0.8 TeV"       ,"LP");
+   LEGDCMu->AddEntry(Mu_Obs_DCRho12HyperK   , "Hyper-K, #tilde{#rho} = 1.2 TeV"       ,"LP");
+   LEGDCMu->AddEntry(Mu_Obs_DCRho16HyperK   , "Hyper-K, #tilde{#rho} = 1.6 TeV"       ,"LP");
+   //LEGDCMu->Draw();
 
-   TLegend* LEGDCTh = new TLegend(0.15,0.7,0.46,0.9);
+   TLegend* LEGDCTh = new TLegend(0.15,0.7,0.49,0.9);
    LEGDCTh->SetHeader("Theoretical Prediction");
    LEGDCTh->SetFillColor(0);
    LEGDCTh->SetBorderSize(0);
    TGraph* DCRho08HyperKThLeg = (TGraph*) DCRho08HyperKXSec->Clone("DCRho08HyperKThLeg");
    DCRho08HyperKThLeg->SetFillColor(GluinoXSecErr->GetFillColor());
-   LEGDCTh->AddEntry(DCRho08HyperKThLeg   ,"Hyperk #tilde{#rho} = 0.8 TeV   (LO)" ,"L");
+   LEGDCTh->AddEntry(DCRho08HyperKThLeg   ,"Hyper-K, #tilde{#rho} = 0.8 TeV   (LO)" ,"L");
    TGraph* DCRho12HyperKThLeg = (TGraph*) DCRho12HyperKXSec->Clone("DCRho12HyperKThLeg");
    DCRho12HyperKThLeg->SetFillColor(GluinoXSecErr->GetFillColor());
-   LEGDCTh->AddEntry(DCRho12HyperKThLeg   ,"Hyperk #tilde{#rho} = 1.2 TeV   (LO)" ,"L");
+   LEGDCTh->AddEntry(DCRho12HyperKThLeg   ,"Hyper-K, #tilde{#rho} = 1.2 TeV   (LO)" ,"L");
    TGraph* DCRho16HyperKThLeg = (TGraph*) DCRho16HyperKXSec->Clone("DCRho16HyperKThLeg");
    DCRho16HyperKThLeg->SetFillColor(GluinoXSecErr->GetFillColor());
-   LEGDCTh->AddEntry(DCRho16HyperKThLeg   ,"Hyperk #tilde{#rho} = 1.6 TeV   (LO)" ,"L");
+   LEGDCTh->AddEntry(DCRho16HyperKThLeg   ,"Hyper-K, #tilde{#rho} = 1.6 TeV   (LO)" ,"L");
    LEGDCTh->Draw();
+   LEGDCMu->Draw();
    SaveCanvas(c1, outpath, string("MuDCExclusion"));
    c1->SetLogy(true);
    SaveCanvas(c1, outpath, string("MuDCExclusionLog"));
@@ -698,20 +701,20 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 //   DCRho16HyperKXSecErr  ->Draw("f");
    MGDCTk->Draw("same");
    MGDCTk->SetTitle("");
-   MGDCTk->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
+   MGDCTk->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
    MGDCTk->GetYaxis()->SetTitle("#sigma (pb)");
    MGDCTk->GetYaxis()->SetTitleOffset(1.70);
    MGDCTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    DrawPreliminary(IntegratedLuminosity);
-   
-   TLegend* LEGDCTk = new TLegend(0.50,0.65,0.77,0.90);
+
+   TLegend* LEGDCTk = new TLegend(0.50,0.65,0.80,0.90);
 //   LEGDCTk->SetHeader("95% C.L. Limits");
-   LEGDCTk->SetHeader("Tk - Only");
+   LEGDCTk->SetHeader("Tracker - Only");
    LEGDCTk->SetFillColor(0); 
    LEGDCTk->SetBorderSize(0);
-   LEGDCTk->AddEntry(Tk_Obs_DCRho08HyperK   , "Hyperk #tilde{#rho} = 0.8 TeV"       ,"LP");
-   LEGDCTk->AddEntry(Tk_Obs_DCRho12HyperK   , "Hyperk #tilde{#rho} = 1.2 TeV"       ,"LP");
-   LEGDCTk->AddEntry(Tk_Obs_DCRho16HyperK   , "Hyperk #tilde{#rho} = 1.6 TeV"       ,"LP");
+   LEGDCTk->AddEntry(Tk_Obs_DCRho08HyperK   , "Hyper-K, #tilde{#rho} = 0.8 TeV"       ,"LP");
+   LEGDCTk->AddEntry(Tk_Obs_DCRho12HyperK   , "Hyper-K, #tilde{#rho} = 1.2 TeV"       ,"LP");
+   LEGDCTk->AddEntry(Tk_Obs_DCRho16HyperK   , "Hyper-K, #tilde{#rho} = 1.6 TeV"       ,"LP");
    LEGDCTk->Draw();
 
    LEGDCTh->Draw();
@@ -1247,7 +1250,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    double Eff=toReturn.Eff;
    double NData=toReturn.NData;
 
-   CLMResults =  roostats_limit(IntegratedLuminosity, IntegratedLuminosity*0.045, Eff, Eff*signalUncertainty,NPred, NPredErr, NData, false, 1, "cls", "", 12345);
+   CLMResults =  roostats_limit(IntegratedLuminosity, IntegratedLuminosity*0.022, Eff, Eff*signalUncertainty,NPred, NPredErr, NData, false, 1, "cls", "", 12345);
 
    double ExpLimit=CLMResults.GetExpectedLimit();
    double ExpLimitup    = CLMResults.GetOneSigmaHighRange();
@@ -1554,7 +1557,7 @@ void DrawModelLimitWithBand(string InputPattern, string inputmodel)
       Models.push_back("DCRho08HyperK410");
       Models.push_back("DCRho08HyperK420");
       Models.push_back("DCRho08HyperK500");
-      modelname="Hyperk #tilde{#rho} = 0.8 TeV (LO)";
+      modelname="Hyper-K, #tilde{#rho} = 0.8 TeV (LO)";
    }
    else if(inputmodel == "DCRho12"){
       Models.push_back("DCRho12HyperK100"); 
@@ -1569,7 +1572,7 @@ void DrawModelLimitWithBand(string InputPattern, string inputmodel)
       Models.push_back("DCRho12HyperK610");
       Models.push_back("DCRho12HyperK620");
       Models.push_back("DCRho12HyperK700");
-      modelname="Hyperk #tilde{#rho} = 1.2 TeV (LO)";
+      modelname="Hyper-K, #tilde{#rho} = 1.2 TeV (LO)";
    }
    else if(inputmodel == "DCRho16"){
       Models.push_back("DCRho16HyperK100");
@@ -1584,7 +1587,7 @@ void DrawModelLimitWithBand(string InputPattern, string inputmodel)
       Models.push_back("DCRho16HyperK800");
       Models.push_back("DCRho16HyperK820");
       Models.push_back("DCRho16HyperK900");
-      modelname="Hyperk #tilde{#rho} = 1.6 TeV (LO)";
+      modelname="Hyper-K, #tilde{#rho} = 1.6 TeV (LO)";
    }
    else{cout<<"no model specified"<<endl;}
 
@@ -1639,7 +1642,7 @@ void DrawModelLimitWithBand(string InputPattern, string inputmodel)
    ExpErr  ->Draw("f");
    MG->Draw("same");
    MG->SetTitle("");
-   MG->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
+   MG->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
    MG->GetYaxis()->SetTitle("#sigma (pb)");
    MG->GetYaxis()->SetTitleOffset(1.70);
    MG->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
@@ -1647,8 +1650,8 @@ void DrawModelLimitWithBand(string InputPattern, string inputmodel)
    
    TLegend* LEG = new TLegend(0.40,0.65,0.8,0.90);
    string headerstr;
-   headerstr = "95% C.L. Limits (Tk + TOF)";
-   if(IsTkOnly) headerstr = "95% C.L. Limits (Tracker - Only)";
+   headerstr = "95% CL Limits (Tracker + TOF)";
+   if(IsTkOnly) headerstr = "95% CL Limits (Tracker - Only)";
    LEG->SetHeader(headerstr.c_str());
    LEG->SetFillColor(0); 
    LEG->SetBorderSize(0);
@@ -1768,7 +1771,7 @@ std::vector<string> GetModels(string inputmodel)
       Models.push_back("DCRho08HyperK410");
       Models.push_back("DCRho08HyperK420");
       Models.push_back("DCRho08HyperK500");
-      modelname="Hyperk #tilde{#rho} = 0.8 TeV (LO)";
+      modelname="Hyper-K, #tilde{#rho} = 0.8 TeV (LO)";
    }
    else if(inputmodel == "DCRho12"){
       Models.push_back("DCRho12HyperK100"); 
@@ -1783,7 +1786,7 @@ std::vector<string> GetModels(string inputmodel)
       Models.push_back("DCRho12HyperK610");
       Models.push_back("DCRho12HyperK620");
       Models.push_back("DCRho12HyperK700");
-      modelname="Hyperk #tilde{#rho} = 1.2 TeV (LO)";
+      modelname="Hyper-K, #tilde{#rho} = 1.2 TeV (LO)";
    }
    else if(inputmodel == "DCRho16"){
       Models.push_back("DCRho16HyperK100");
@@ -1798,7 +1801,7 @@ std::vector<string> GetModels(string inputmodel)
       Models.push_back("DCRho16HyperK800");
       Models.push_back("DCRho16HyperK820");
       Models.push_back("DCRho16HyperK900");
-      modelname="Hyperk #tilde{#rho} = 1.6 TeV (LO)";
+      modelname="Hyper-K, #tilde{#rho} = 1.6 TeV (LO)";
    }
    else{cout<<"no model specified"<<endl;}
    return Models;
@@ -1829,13 +1832,13 @@ string GetModelName(string inputmodel)
       modelname="Pair Prod. stau";
    }
    else if(inputmodel == "DCRho08"){
-      modelname="Hyperk #tilde{#rho} = 0.8 TeV";
+      modelname="Hyper-K, #tilde{#rho} = 0.8 TeV";
    }
    else if(inputmodel == "DCRho12"){
-      modelname="Hyperk #tilde{#rho} = 1.2 TeV";
+      modelname="Hyper-K, #tilde{#rho} = 1.2 TeV";
    }
    else if(inputmodel == "DCRho16"){
-      modelname="Hyperk #tilde{#rho} = 1.6 TeV";
+      modelname="Hyper-K, #tilde{#rho} = 1.6 TeV";
    }
    else{cout<<"no model specified"<<endl;}
    return modelname;
@@ -1851,37 +1854,58 @@ void DrawRatioBands(string InputPattern, string inputmodel)
    if(IsTkOnly) prefix ="Tk";
 
    std::vector<string> TModels;
+   std::vector<bool> isNeutral;
    if(inputmodel == "Gluino"){
-      TModels.push_back("Gluinof1");
-      TModels.push_back("Gluinof5");
-      if(IsTkOnly) TModels.push_back("GluinoN");
+     TModels.push_back("Gluinof1");
+     isNeutral.push_back(false);
+     TModels.push_back("Gluinof5");
+     isNeutral.push_back(false);
+     TModels.push_back("GluinoN");
+     isNeutral.push_back(true);
    }
 
    else if(inputmodel == "Stop"){
-      TModels.push_back("Stop");
-      if(IsTkOnly) TModels.push_back("StopN");
+     TModels.push_back("Stop");
+     isNeutral.push_back(false);
+     TModels.push_back("StopN");
+     isNeutral.push_back(true);
    }
 
    else if(inputmodel == "Stau"){
       TModels.push_back("GMStau");
+      isNeutral.push_back(false);
       TModels.push_back("PPStau");
+      isNeutral.push_back(false);
    }
    else if(inputmodel == "Hyperk"){
       TModels.push_back("DCRho08");
+      isNeutral.push_back(false);
       TModels.push_back("DCRho12");
+      isNeutral.push_back(false);
       TModels.push_back("DCRho16");
+      isNeutral.push_back(false);
    }
    else if(inputmodel == "All"){
       TModels.push_back("Gluinof1");
+      isNeutral.push_back(false);
       TModels.push_back("Gluinof5");
-      if(IsTkOnly) TModels.push_back("GluinoN");
+      isNeutral.push_back(false);
+      TModels.push_back("GluinoN");
+      isNeutral.push_back(true);
       TModels.push_back("Stop");
-      if(IsTkOnly) TModels.push_back("StopN");
+      isNeutral.push_back(false);
+      TModels.push_back("StopN");
+      isNeutral.push_back(true);
       TModels.push_back("GMStau");
+      isNeutral.push_back(false);
       TModels.push_back("PPStau");
+      isNeutral.push_back(false);
       TModels.push_back("DCRho08");
+      isNeutral.push_back(false);
       TModels.push_back("DCRho12");
+      isNeutral.push_back(false);
       TModels.push_back("DCRho16");
+      isNeutral.push_back(false);
    }
 
 
@@ -1893,7 +1917,7 @@ void DrawRatioBands(string InputPattern, string inputmodel)
 
 
 
-   TCanvas* c1 = new TCanvas("c1", "c1",600,600);
+   TCanvas* c1 = new TCanvas("c1", "c1",600,800);
 
    TGraph** graphAtheory = new TGraph*[TModels.size()];
    TGraph** graphAobs =  new TGraph*[TModels.size()];
@@ -1903,15 +1927,12 @@ void DrawRatioBands(string InputPattern, string inputmodel)
    TPad** padA= new  TPad*[TModels.size()];
    string  ModelNames[TModels.size()];
    double step, top;
-   if(IsTkOnly) {
-     top= 1.0/(TModels.size()+2);
-     step=(1.0-2.*top)/(TModels.size());
-   }
-   else {
-     top=1.0/(TModels.size()+4);
-     step=(1.-2.*top)/(TModels.size());
-   }
+
+   top= 1.0/(TModels.size()+2);
+   step=(1.0-2.*top)/(TModels.size());
+
    for(int k=0;k<TModels.size();k++){
+     if(!IsTkOnly && isNeutral[k]) continue;
      TPad* pad;
      //TPad* pad = new TPad(Form("pad%i",k),Form("ExpErr%i",k),0.1,1-(k+2)*step,0.9,1-step*(k+1));//lower left x, y, topright x, y
      if(k<(TModels.size()-1)) {
@@ -1919,7 +1940,8 @@ void DrawRatioBands(string InputPattern, string inputmodel)
        pad->SetBottomMargin(0.);
      }
      else {
-       pad = new TPad(Form("pad%i",k),Form("ExpErr%i",k),0.1,1-2*top-(k+1)*step+0.00001,0.9,1-top-step*(k));//lower left x, y, topright x, y
+       pad = new TPad(Form("pad%i",k),Form("ExpErr%i",k),0.1,0.0,0.9,1-top-step*(k));//lower left x, y, topright x, y
+       //pad = new TPad(Form("pad%i",k),Form("ExpErr%i",k),0.1,1-2*top-(k+1)*step+0.00001,0.9,1-top-step*(k));//lower left x, y, topright x, y
        pad->SetBottomMargin(top/(step+top));
      }
       pad->SetLeftMargin(0.1);
@@ -1930,6 +1952,7 @@ void DrawRatioBands(string InputPattern, string inputmodel)
    }
 
    for(int k=0;k<TModels.size();k++){
+     if(!IsTkOnly && isNeutral[k]) continue;
       std::vector<string> Models = GetModels(TModels[k]);
       ModelNames[k]=GetModelName(TModels[k]);
 
@@ -1986,47 +2009,62 @@ void DrawRatioBands(string InputPattern, string inputmodel)
       MG->Draw("A");
       if(k==0){
 	TLegend* LEG;
-	if(IsTkOnly) LEG = new TLegend(0.11,0.01,0.7,0.99);
-	else LEG = new TLegend(0.11,0.01,0.5,0.99);
+	LEG = new TLegend(0.13,0.01,0.32,0.99);
          string headerstr;
-         headerstr = " Tk + TOF";
-         if(IsTkOnly) headerstr = " Tk - Only";
+         headerstr = "Tracker + TOF";
+         if(IsTkOnly) headerstr = "Tracker - Only";
          LEG->SetHeader(headerstr.c_str());
          LEG->SetFillColor(0); 
          LEG->SetBorderSize(0);
          LEG->AddEntry(ExpAErr[0], "Expected #pm 1#sigma","F");
-         LEG->AddEntry(Exp2SigmaAErr[0], "Expected #pm 2#sigma "       ,"F");
-         LEG->AddEntry(graphAobs[0],"Observed" ,"LP");
+         //LEG->AddEntry(Exp2SigmaAErr[0], "Expected #pm 2#sigma","F");
+         //LEG->AddEntry(graphAobs[0],"Observed" ,"LP");
          LEG->SetMargin(0.1);
          LEG->Draw();
       }  
+
+      if(k==1){
+        TLegend* LEG;
+        LEG = new TLegend(0.13,0.01,0.32,0.99);
+	string headerstr;
+	//headerstr = "Tracker + TOF";
+	//if(IsTkOnly) headerstr = "Tracker - Only";
+	//LEG->SetHeader(headerstr.c_str());
+	LEG->SetFillColor(0);
+	LEG->SetBorderSize(0);
+	//LEG->AddEntry(ExpAErr[0], "Expected #pm 1#sigma","F");
+	LEG->AddEntry(Exp2SigmaAErr[0], "Expected #pm 2#sigma","F");
+	LEG->AddEntry(graphAobs[0],"Observed" ,"LP");
+	LEG->SetMargin(0.1);
+	LEG->Draw();
+      }
 
       Exp2SigmaAErr[k]->Draw("f");
       ExpAErr[k]  ->Draw("f");
       MG->Draw("same");
       MG->SetTitle("");
       if(k==TModels.size()-1) {
-         MG->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
+         MG->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
          MG->GetXaxis()->SetTitleSize(0.2);
          MG->GetXaxis()->SetLabelSize(0.2);
       }
 
       TPaveText *pt;
       if(IsTkOnly) {
-	if(k!=TModels.size()-1) pt = new TPaveText(0.62, 0.6, 0.95, 0.87,"LBNDC");
-	else pt = new TPaveText(0.62, 0.82, 0.95, 0.935,"LBNDC");
+      if(k!=TModels.size()-1) pt = new TPaveText(0.45, 0.6, 0.95, 0.87,"LBNDC");
+      else pt = new TPaveText(0.45, 0.82, 0.95, 0.935,"LBNDC");
       }
       else {
-	  if(k!=TModels.size()-1) pt = new TPaveText(0.65, 0.7, 0.95, 0.85,"LBNDC");
-	  else pt = new TPaveText(0.65, 0.85, 0.95, 0.925,"LBNDC");
-	}
+	if(k!=TModels.size()-1) pt = new TPaveText(0.55, 0.6, 0.95, 0.87,"LBNDC");
+	else pt = new TPaveText(0.55, 0.82, 0.95, 0.935,"LBNDC");
+      }
+
       pt->SetBorderSize(0);
       pt->SetLineWidth(0);
       pt->SetFillColor(kWhite);
       TText *text = pt->AddText(ModelNames[k].c_str()); 
       text ->SetTextAlign(12);
       text ->SetTextSize(0.3);
-      if(IsTkOnly) text ->SetTextSize(0.3);
       if(k==TModels.size()-1) text ->SetTextSize(0.5*text ->GetTextSize());
       pt->Draw();
       
@@ -2035,9 +2073,9 @@ void DrawRatioBands(string InputPattern, string inputmodel)
 
       MG->GetYaxis()->SetRangeUser(0.001,2.99);
       MG->GetYaxis()->SetNdivisions(303, "Z");
-      MG->GetYaxis()->SetLabelSize(0.2);
+      MG->GetYaxis()->SetLabelSize(0.3);
       if(k==(TModels.size()-1)) {
-	MG->GetYaxis()->SetLabelSize(0.1);
+	MG->GetYaxis()->SetLabelSize(0.15);
 
       }
 
@@ -2045,12 +2083,12 @@ void DrawRatioBands(string InputPattern, string inputmodel)
    c1->cd();
    DrawPreliminary(IntegratedLuminosity);
 
-   TPaveText *pt = new TPaveText(0.1, 0.01, 0.15, 0.85,"NDC");
-   string tmp = "95% C.L. Limits (Relative to Expected Limit)";
+   TPaveText *pt = new TPaveText(0.1, 0., 0.15, 0.7,"NDC");
+   string tmp = "95% CL Limits (Relative to Expected Limit)";
    TText *text = pt->AddText(tmp.c_str()); 
-   text ->SetTextAlign(11);
+   text ->SetTextAlign(12);
    text ->SetTextAngle(90);
-   text ->SetTextSize(0.025);
+   text ->SetTextSize(0.04);
    pt->SetBorderSize(0);
    pt->SetFillColor(0);
    pt->Draw();

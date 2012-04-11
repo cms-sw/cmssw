@@ -113,8 +113,8 @@ void Analysis_Step5()
 
    //SelectionPlot(InputDir, CutIndex);
    //PredictionAndControlPlot(InputDir, CutIndex);
-   //GetSystematicOnPrediction(InputDir);
-   return;
+   GetSystematicOnPrediction(InputDir);
+   //return;
 
    InputDir = "Results/dedxASmi/combined/Eta15/PtMin45/Type0/";   CutIndex = 11;/*65;*//*39;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
    CutIndex=50;
@@ -370,7 +370,7 @@ void GetSystematicOnPrediction(string InputPattern){
    MGTOF->GetYaxis()->SetRangeUser(10,1E6);
    LEG->Draw();
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"TOF_Value","true");
+   SaveCanvas(c1,SavePath,"TOF_Value");
    delete c1;
 
    c1 = new TCanvas("c1", "c1",600,600);
@@ -388,7 +388,7 @@ void GetSystematicOnPrediction(string InputPattern){
    MGI->GetYaxis()->SetRangeUser(10,1E6);
    LEG->Draw();
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"I_Value","true");
+   SaveCanvas(c1,SavePath,"I_Value");
    delete c1;
 
    c1 = new TCanvas("c1", "c1",600,600);
@@ -406,7 +406,7 @@ void GetSystematicOnPrediction(string InputPattern){
    MGP->GetYaxis()->SetRangeUser(10,1E6);
    LEG->Draw();
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"P_Value","true");
+   SaveCanvas(c1,SavePath,"P_Value");
    delete c1;
 
 
@@ -430,7 +430,7 @@ void GetSystematicOnPrediction(string InputPattern){
       graph_s->GetYaxis()->SetTitleOffset(1.70);
       graph_s->GetXaxis()->SetTitle(Title.c_str());
       graph_s->Draw("AC*");
-      SaveCanvas(c1,SavePath,Name+"Sigma","true");
+      SaveCanvas(c1,SavePath,Name+"Sigma");
       delete c1;
 
 
@@ -444,7 +444,7 @@ void GetSystematicOnPrediction(string InputPattern){
       graph_d->GetYaxis()->SetTitleOffset(1.70);
       graph_d->GetXaxis()->SetTitle(Title.c_str());
       graph_d->Draw("AC*");
-      SaveCanvas(c1,SavePath,Name+"Dist","true");
+      SaveCanvas(c1,SavePath,Name+"Dist");
       delete c1;
 
       c1 = new TCanvas("c1","c1", 600, 600);
@@ -485,7 +485,7 @@ void GetSystematicOnPrediction(string InputPattern){
           LEG->AddEntry(graph_sum3, "I_{as}>0.10 & 1/#beta>1.10", "L");
           LEG->Draw();
       }
-      SaveCanvas(c1,SavePath,Name+"Sum","true");
+      SaveCanvas(c1,SavePath,Name+"Sum");
       delete c1;
 
 
@@ -529,7 +529,7 @@ void GetSystematicOnPrediction(string InputPattern){
           LEG->AddEntry(graph_stat3, "I_{as}>0.10 & 1/#beta>1.10", "L");
           LEG->Draw();
       }
-      SaveCanvas(c1,SavePath,Name+"Stat","true");
+      SaveCanvas(c1,SavePath,Name+"Stat");
       delete c1;
 
 
@@ -573,7 +573,7 @@ void GetSystematicOnPrediction(string InputPattern){
           LEG->AddEntry(graph_statB3, "I_{as}>0.10 & 1/#beta>1.10", "L");
           LEG->Draw();
       }
-      SaveCanvas(c1,SavePath,Name+"StatB","true");
+      SaveCanvas(c1,SavePath,Name+"StatB");
       delete c1;
 
 
@@ -625,7 +625,7 @@ void GetSystematicOnPrediction(string InputPattern){
       }
 
 
-      SaveCanvas(c1,SavePath,Name+"Syst","true");
+      SaveCanvas(c1,SavePath,Name+"Syst");
       delete c1;
 
 
@@ -698,7 +698,7 @@ void SignalMassPlot(string InputPattern, unsigned int CutIndex){
       Mass->SetMarkerStyle(Marker[0]);
       Mass->Draw("HIST E1");
       c1->SetLogy(true);
-      SaveCanvas(c1,SavePath,signals[s].Name,"true");   
+      SaveCanvas(c1,SavePath,signals[s].Name);   
       delete c1;
    }
 }
@@ -1460,7 +1460,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    c1 = new TCanvas("c1","c1,",600,600);
 
    char YAxisLegend[1024];
-   sprintf(YAxisLegend,"Tracks / %2.0f GeV/c^{2}",Data->GetXaxis()->GetBinWidth(1));
+   sprintf(YAxisLegend,"Tracks / %2.0f GeV/#font[12]{c}^{2}",Data->GetXaxis()->GetBinWidth(1));
 
    TH1D* PredErr = (TH1D*) Pred->Clone("PredErr");
    TH1D* MCPredErr = (TH1D*) MCPred->Clone("MCPredErr");
@@ -1482,7 +1482,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    PredErr->GetXaxis()->SetNdivisions(505);
    PredErr->SetTitle("");
    PredErr->SetStats(kFALSE);
-   PredErr->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
+   PredErr->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
    PredErr->GetYaxis()->SetTitle(YAxisLegend);
    PredErr->GetYaxis()->SetTitleOffset(1.50);
    PredErr->SetMaximum(Max);
@@ -1534,22 +1534,24 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    Data->SetFillColor(0);
    Data->Draw("E1 same");
 
-   leg = new TLegend(0.79,0.93,0.40,0.68);
+   //leg = new TLegend(0.69,0.93,0.40,0.68);
+   if(IsTkOnly) leg = new TLegend(0.82,0.93,0.25,0.66);
+   else leg = new TLegend(0.79,0.93,0.25,0.66);
    leg->SetHeader(LegendFromType(InputPattern).c_str());
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
    TH1D* PredLeg = (TH1D*) Pred->Clone("RescLeg");
    PredLeg->SetFillColor(PredErr->GetFillColor());
    PredLeg->SetFillStyle(PredErr->GetFillStyle());
-   leg->AddEntry(Data, "Data"        ,"P");
+   leg->AddEntry(Data, "Observed"        ,"P");
    leg->AddEntry(PredLeg, "Data-based SM prediction"  ,"PF");
    //leg->AddEntry(MC, "Simulation"  ,"LF");
    TH1D* MCPredLeg = (TH1D*) MCPred->Clone("RescMCLeg");
    MCPredLeg->SetFillColor(MCPredErr->GetFillColor());
    MCPredLeg->SetFillStyle(MCPredErr->GetFillStyle());
    leg->AddEntry(MCPredLeg, "SM prediction (MC)"  ,"PF");
-   if(IsTkOnly)leg->AddEntry(Signal, "MC - Gluino (M=600 GeV/c^{2})"        ,"F");
-   else        leg->AddEntry(Signal, "MC - Stau (M=156 GeV/c^{2})"        ,"F");
+   if(IsTkOnly)leg->AddEntry(Signal, "MC - Gluino (M=600 GeV/#font[12]{c}^{2})"        ,"F");
+   else        leg->AddEntry(Signal, "MC - Stau (M=156 GeV/#font[12]{c}^{2})"        ,"F");
    leg->Draw();
 
    DrawPreliminary(IntegratedLuminosity);
@@ -1645,7 +1647,7 @@ void MassPredictionTight(string InputPattern, unsigned int CutIndex, string Hist
    PredErr->GetXaxis()->SetNdivisions(505);
    PredErr->SetTitle("");
    PredErr->SetStats(kFALSE);
-   PredErr->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
+   PredErr->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
    PredErr->GetYaxis()->SetTitle(YAxisLegend);
    PredErr->GetYaxis()->SetTitleOffset(1.50);
    PredErr->SetMaximum(Max);
@@ -1694,9 +1696,9 @@ void MassPredictionTight(string InputPattern, unsigned int CutIndex, string Hist
    PredLeg->SetFillStyle(PredErr->GetFillStyle());
    leg->AddEntry(Data, "Data"        ,"P");
    leg->AddEntry(PredLeg, "Data-based prediction"  ,"PF");
-   if(IsTkOnly)leg->AddEntry(Signal, "MC - Stau (M=156 GeV/c^{2})"        ,"F");
-   else        leg->AddEntry(Signal, "MC - Stau (M=247 GeV/c^{2})"        ,"F");
-   leg->AddEntry(Gluino800, "MC - Gluino (M=800 GeV/c^{2})"        ,"F");
+   if(IsTkOnly)leg->AddEntry(Signal, "MC - Stau (M=156 GeV/#font[12]{c}^{2})"        ,"F");
+   else        leg->AddEntry(Signal, "MC - Stau (M=247 GeV/#font[12]{c}^{2})"        ,"F");
+   leg->AddEntry(Gluino800, "MC - Gluino (M=800 GeV/#font[12]{c}^{2})"        ,"F");
    leg->Draw();
 
    DrawPreliminary(IntegratedLuminosity);
