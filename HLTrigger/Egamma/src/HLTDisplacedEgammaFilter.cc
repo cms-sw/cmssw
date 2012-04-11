@@ -69,11 +69,11 @@ void HLTDisplacedEgammaFilter::fillDescriptions(edm::ConfigurationDescriptions& 
    desc.add<int>("ncandcut",1);
    desc.add<bool>("EBOnly",false);
    desc.add<double>("sMin_min",0.1);
-   desc.add<double>("sMin_max",0.3);
+   desc.add<double>("sMin_max",0.4);
    desc.add<double>("sMaj_min",0.0);
    desc.add<double>("sMaj_max",999.0);
-   desc.add<double>("seedTimeMin", -2.0);
-   desc.add<double>("seedTimeMax", 25.0);
+   desc.add<double>("seedTimeMin", -25.0);
+   desc.add<double>("seedTimeMax",  25.0);
    desc.add<int>("maxTrackCut", 0);
    desc.add<double>("trackPtCut", 3.0);
    desc.add<double>("trackdRCut", 0.5);
@@ -118,7 +118,8 @@ HLTDisplacedEgammaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
   for (unsigned int i=0; i<recoecalcands.size(); i++) {
     
     ref = recoecalcands[i] ;
-    if ( EBOnly &&  std::abs( ref->eta() ) >= 1.479  ) continue ;
+    if ( EBOnly &&  fabs( ref->eta() ) >= 1.479  ) continue ;
+
 
     // S_Minor Cuts from the seed cluster
     reco::CaloClusterPtr SCseed = ref->superCluster()->seed() ;
