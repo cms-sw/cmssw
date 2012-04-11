@@ -136,16 +136,14 @@ process.RawToDigi.remove("siStripDigis")
 process.RawToDigi.remove("scalersRawToDigi")
 process.RawToDigi.remove("castorDigis")
 
+# L1HvVal + emulator monitoring path
+process.l1HwValEmulatorMonitorPath = cms.Path(process.l1HwValEmulatorMonitor)
+
 # for RCT at P5, read FED vector from OMDS
 if ( l1DqmEnv != 'file' ) : 
     process.load("L1TriggerConfig.RCTConfigProducers.l1RCTOmdsFedVectorProducer_cfi")
     process.valRctDigis.getFedsFromOmds = cms.bool(True)
  
-
-
-# L1HvVal + emulator monitoring path
-process.l1HwValEmulatorMonitorPath = cms.Path(process.l1HwValEmulatorMonitor)
-
 #
 process.l1EmulatorMonitorClientPath = cms.Path(process.l1EmulatorMonitorClient)
 
@@ -170,17 +168,25 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 #
 # process.L1HardwareValidation.remove("deCsctf")
 #
+process.L1HardwareValidation.remove(process.deDt)
 
 
 #
 # remove a L1 trigger system from the comparator integrated in hardware validation
 # cfi file: L1Trigger.HardwareValidation.L1Comparator_cfi
+# remove (consistently) the same systems from L1TDEMON
+# cfi file: DQM.L1TMonitor.L1TDEMON_cfi
 #
-process.l1compare.COMPARE_COLLS = [
-        0,  0,  1,  1,   0,  1,  0,  0,  1,  0,  1, 0
-        ]
-    # ETP,HTP,RCT,GCT, DTP,DTF,CTP,CTF,RPC,LTC,GMT,GT
+# 
+# process.l1compare.COMPARE_COLLS = [
+#        0,  0,  1,  1,   0,  1,  0,  0,  1,  0,  1, 0
+#        ]
+#    # ETP,HTP,RCT,GCT, DTP,DTF,CTP,CTF,RPC,LTC,GMT,GT
 #
+# process.l1demon.COMPARE_COLLS = [
+#        0,  0,  1,  1,   0,  1,  0,  0,  1,  0,  1, 0
+#        ]
+#    # ETP,HTP,RCT,GCT, DTP,DTF,CTP,CTF,RPC,LTC,GMT,GT
 
 
 #
@@ -230,6 +236,48 @@ process.l1compare.COMPARE_COLLS = [
 # turn on verbosity in L1TEMUEventInfoClient
 #
 # process.l1EmulatorEventInfoClient.verbose = cms.untracked.bool(True)
+
+
+print "Running with run type = ", process.runType.getRunType()
+process.castorDigis.InputLabel = cms.InputTag("rawDataCollector")
+process.csctfDigis.producer = cms.InputTag("rawDataCollector")
+process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataCollector")
+process.ecalDigis.InputLabel = cms.InputTag("rawDataCollector")
+process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataCollector")
+process.gctDigis.inputLabel = cms.InputTag("rawDataCollector")
+process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataCollector")
+process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataCollector")
+process.hcalDigis.InputLabel = cms.InputTag("rawDataCollector")
+process.l1compare.FEDsourceEmul = cms.untracked.InputTag("rawDataCollector")
+process.l1compare.FEDsourceData = cms.untracked.InputTag("rawDataCollector")
+process.muonCSCDigis.InputObjects = cms.InputTag("rawDataCollector")
+process.muonDTDigis.inputLabel = cms.InputTag("rawDataCollector")
+process.muonRPCDigis.InputLabel = cms.InputTag("rawDataCollector")
+process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
+process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
+process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
+
+#--------------------------------------------------
+# Heavy Ion Specific Fed Raw Data Collection Label
+#--------------------------------------------------
+if (process.runType.getRunType() == process.runType.hi_run):
+    process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
+    process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataRepacker")
+    process.ecalDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
+    process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
+    process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
+    process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataRepacker")
+    process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.l1compare.FEDsourceEmul = cms.untracked.InputTag("rawDataRepacker")
+    process.l1compare.FEDsourceData = cms.untracked.InputTag("rawDataRepacker")
+    process.muonCSCDigis.InputObjects = cms.InputTag("rawDataRepacker")
+    process.muonDTDigis.inputLabel = cms.InputTag("rawDataRepacker")
+    process.muonRPCDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
 
 
 

@@ -247,11 +247,6 @@ void L1TDEMON::beginJob(void) {
 
         for (int j = 0; j < nerr; j++) {
 
-            // skip if system disabled
-            if (!m_doSys[j]) {
-                continue;
-            }
-
             errortype[i]->setBinLabel(j + 1, errLabel[j]);
         }
     }
