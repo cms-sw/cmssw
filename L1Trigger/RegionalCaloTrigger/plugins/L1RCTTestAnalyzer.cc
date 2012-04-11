@@ -204,7 +204,8 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		   {
 		     std::cout << "rgnPhi not assigned (still " << rgnPhi << ") -- Weird card number! " << card ;
 		   }
-		 unsigned short phi_bin = ((crate % 9) * 2) + rgnPhi;
+
+		 //unsigned short phi_bin = ((crate % 9) * 2) + rgnPhi;
 		 short eta_bin = (card/2) * 2 + 1;
 		 if (card < 6)
 		   {
