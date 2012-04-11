@@ -2,8 +2,8 @@
  * \file DQMLumiMonitor.cc
  * \author S. Dutta
  * Last Update:
- * $Date: 2012/03/29 06:21:16 $
- * $Revision: 1.1 $
+ * $Date: 2012/04/11 07:16:50 $
+ * $Revision: 1.2 $
  * $Author: dutta $
  *
  * Description: Pixel Luminosity Monitoring 
@@ -124,7 +124,7 @@ void DQMLumiMonitor::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, e
       edm::LogInfo("PixelLumiMonotor") <<" Luminosity in this Lumi Section " << intLumi_ ;
       intLumiVsLSME_->Fill(nLumi_, intLumi_);
     }else{  
-      edm::LogError("PixelLumiMonotor") << "Empty data found"!;
+      edm::LogError("PixelLumiMonotor") << "Empty data found !";
     } 
   } else {
     edm::LogError("PixelLumiMonotor") << "No valid data found!";
