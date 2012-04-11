@@ -19,6 +19,7 @@ RefVector: A template for a vector of interproduct references.
 #include "DataFormats/Common/interface/RefVectorTraits.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 #include <stdexcept>
 #include <vector>
@@ -55,7 +56,7 @@ namespace edm {
     RefVector() : refVector_() {}
     RefVector(RefVector const& rh) : refVector_(rh.refVector_){}
 #if defined(__GXX_EXPERIMENTAL_CXX0X__)
-    RefVector(RefVector && rh) : refVector_(std::move(rh.refVector_)){}
+    RefVector(RefVector && rh)  noexcept : refVector_(std::move(rh.refVector_)){}
 #endif
 
     RefVector(ProductID const& iId) : refVector_(iId) {}
@@ -132,12 +133,12 @@ namespace edm {
     void clear() {refVector_.clear();}
 
     /// Swap two vectors.
-    void swap(RefVector<C, T, F> & other);
+    void swap(RefVector<C, T, F> & other)  noexcept;
 
     /// Copy assignment.
     RefVector& operator=(RefVector const& rhs);
 #if defined(__GXX_EXPERIMENTAL_CXX0X__)
-    RefVector& operator=(RefVector  && rhs) { 
+    RefVector& operator=(RefVector  && rhs)  noexcept { 
       refVector_ = std::move(rhs.refVector_);
       return *this;
     }
@@ -158,7 +159,7 @@ namespace edm {
   template<typename C, typename T, typename F>
   inline
   void
-  RefVector<C, T, F>::swap(RefVector<C, T, F> & other) {
+  RefVector<C, T, F>::swap(RefVector<C, T, F> & other) noexcept {
     refVector_.swap(other.refVector_);
   }
 
@@ -174,7 +175,7 @@ namespace edm {
   template<typename C, typename T, typename F>
   inline
   void
-  swap(RefVector<C, T, F> & a, RefVector<C, T, F> & b) {
+  swap(RefVector<C, T, F> & a, RefVector<C, T, F> & b)  noexcept {
     a.swap(b);
   }
 
