@@ -27,7 +27,7 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(False)
+    wantSummary = cms.untracked.bool(True)
 )
 
 ## configure geometry & conditions
@@ -42,16 +42,14 @@ process.GlobalTag.globaltag = autoCond['mc']
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 ## do event filtering on generator level
-process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
-process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEventFilters_cff")
+process.load("TopQuarkAnalysis.TopSkimming.ttDecayChannelFilters_cff")
 
 ## std sequence to produce the kinematic fit for full hadronic events
 process.load("TopQuarkAnalysis.TopKinFitter.TtFullHadKinFitProducer_cfi")
 
 ## process path
-process.p = cms.Path(process.patDefaultSequence   *
-                     process.makeGenEvt           *
-                     process.ttFullHadronicFilter *
+process.p = cms.Path(process.ttFullHadronicFilter *
+                     process.patDefaultSequence   *
                      process.kinFitTtFullHadEvent
                      )
 
