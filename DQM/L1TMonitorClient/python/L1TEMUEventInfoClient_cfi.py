@@ -92,7 +92,7 @@ l1temuEventInfoClient = cms.EDAnalyzer("L1TEMUEventInfoClient",
                         SystemFolder = cms.string(""),
                         QualityTestName = cms.vstring("L1EmulatorCSCTPGErrorFlagQT"),
                         QualityTestHist = cms.vstring("CTPErrorFlag"),
-                        QualityTestSummaryEnabled = cms.vuint32(1)                       
+                        QualityTestSummaryEnabled = cms.vuint32(0)                       
                         ),
                     cms.PSet(
                         SystemLabel = cms.string("CSCTF"),
