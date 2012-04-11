@@ -17,6 +17,7 @@
 #include <functional>
 #include <typeinfo>
 #include <vector>
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 namespace edm {
   class ProductID;
@@ -104,10 +105,10 @@ namespace edm {
     OwnVector(size_type);
     OwnVector(OwnVector const&);
 #if defined(__GXX_EXPERIMENTAL_CXX0X__)
-    OwnVector(OwnVector&&);
+    OwnVector(OwnVector&&) noexcept;
 #endif
 
-    ~OwnVector();
+    ~OwnVector() noexcept;
 
     iterator begin();
     iterator end();
@@ -120,7 +121,7 @@ namespace edm {
 
     OwnVector<T, P>& operator=(OwnVector<T, P> const&);
 #if defined(__GXX_EXPERIMENTAL_CXX0X__)
-    OwnVector<T, P>& operator=(OwnVector<T, P>&&);
+    OwnVector<T, P>& operator=(OwnVector<T, P>&&) noexcept;
 #endif
 
 
@@ -143,7 +144,7 @@ namespace edm {
     void sort(S s);
     void sort();
 
-    void swap(OwnVector<T, P>& other);
+    void swap(OwnVector<T, P>& other) noexcept;
 
     void fillView(ProductID const& id,
                   std::vector<void const*>& pointers,
@@ -162,7 +163,7 @@ namespace edm {
     CMS_CLASS_VERSION(11)
 
   private:
-    void destroy();
+    void destroy() noexcept;
     template<typename O>
     struct Ordering {
       Ordering(O const& c) : comp(c) { }
@@ -196,13 +197,13 @@ namespace edm {
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__)
   template<typename T, typename P>
-  inline OwnVector<T, P>::OwnVector(OwnVector<T, P>&& o)  {
+  inline OwnVector<T, P>::OwnVector(OwnVector<T, P>&& o)  noexcept{
     data_.swap(o.data_);
   }
 #endif
 
   template<typename T, typename P>
-  inline OwnVector<T, P>::~OwnVector() {
+  inline OwnVector<T, P>::~OwnVector() noexcept {
     destroy();
   }
 
@@ -215,7 +216,7 @@ namespace edm {
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__)
   template<typename T, typename P>
-  inline OwnVector<T, P>& OwnVector<T, P>::operator=(OwnVector<T, P>&& o) {
+  inline OwnVector<T, P>& OwnVector<T, P>::operator=(OwnVector<T, P>&& o) noexcept {
     data_.swap(o.data_);
     return *this;
   }
@@ -354,7 +355,7 @@ namespace edm {
   }
 
   template<typename T, typename P>
-  inline void OwnVector<T, P>::destroy() {
+  inline void OwnVector<T, P>::destroy() noexcept {
     typename base::const_iterator b = data_.begin(), e = data_.end();
     for(typename base::const_iterator i = b; i != e; ++ i)
       delete * i;
@@ -396,7 +397,7 @@ namespace edm {
   }
 
   template<typename T, typename P>
-  inline void OwnVector<T, P>::swap(OwnVector<T, P>& other) {
+  inline void OwnVector<T, P>::swap(OwnVector<T, P>& other) noexcept {
     data_.swap(other.data_);
   }
 
@@ -428,7 +429,7 @@ namespace edm {
   }
 
   template<typename T, typename P>
-  inline void swap(OwnVector<T, P>& a, OwnVector<T, P>& b) {
+  inline void swap(OwnVector<T, P>& a, OwnVector<T, P>& b) noexcept {
     a.swap(b);
   }
 
