@@ -170,7 +170,7 @@ void OHltPileupRateFitter::fitForPileup(
     }
 
   // Total rate
-  TCanvas* cTotalRateFit = new TCanvas("cTotalRateFit","cTotalRateFit",0,0,1200,1000);
+  TCanvas* cTotalRateFit = new TCanvas("cTotalRateFit","cTotalRateFit",0,0,6000,1000);
   vTotalRateGraph->SetMarkerColor(4);
   vTotalRateGraph->SetMarkerStyle(20);
   vTotalRateGraph->Draw("ap");

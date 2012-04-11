@@ -125,8 +125,8 @@ class ConfdbToOpenHLT:
 
         # Use edmConfigFromDB to get a temporary HLT configuration that determines the prescales applied online 
         # We assume this is always from ORCOFF...
-        #        referencemenuconfigcommand = "edmConfigFromDB --orcoff --configName " + self.refconfigname + " --cff >& refhltmenu.py"
-        referencemenuconfigcommand = "edmConfigFromDB --configName " + self.configname + " --cff >& refhltmenu.py"
+        referencemenuconfigcommand = "edmConfigFromDB --orcoff --configName " + self.refconfigname + " --cff >& refhltmenu.py"
+        #        referencemenuconfigcommand = "edmConfigFromDB --configName " + self.configname + " --cff >& refhltmenu.py"
         os.system(referencemenuconfigcommand)
     
         # Setup a fake process and load the HLT configuration for the reference menu

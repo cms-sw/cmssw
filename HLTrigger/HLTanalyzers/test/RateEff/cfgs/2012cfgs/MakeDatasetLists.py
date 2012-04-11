@@ -5,7 +5,7 @@
 import os, string, sys, posix, tokenize, array, getopt
 
 def main(argv):
-    menufilename = "hltmenu_extractedhltmenu_2012_520_onlineV4p2_V6_prompt.cfg"
+    menufilename = "hltmenu_extractedhltmenu_2012_cdaq_5e33_v4p6_V4_unprescaled2.cfg"
     #    pdfilename = "PathsByPhysicsGroup_5E33_2012.list"
     #    versionedpdfilename = "Versioned_PathsByPhysicsGroup_5E33_2012.list"
     pdfilename = "Datasets_5E33_2012.list"
