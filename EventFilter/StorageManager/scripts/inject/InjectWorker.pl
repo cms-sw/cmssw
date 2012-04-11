@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.84 2012/02/15 18:27:21 babar Exp $
+# $Id: InjectWorker.pl,v 1.85 2012/04/09 13:43:13 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -180,6 +180,7 @@ sub gettimestamp($) {
 
 # Switches logfiles daily
 sub switch_file {
+    my $kernel = $_[KERNEL];
     $kernel->yield('set_rotate_alarm');
     for my $category (qw( InjectWorker Notify )) {
         my $log = Log::Log4perl->get_logger($category);
