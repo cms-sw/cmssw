@@ -13,6 +13,7 @@
 #include "TrackingTools/PatternTools/interface/bqueue.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 /** A class for detailed particle trajectory representation.
  *  It is used during trajectory building to "grow" a trajectory.
@@ -142,7 +143,7 @@ public:
   }
   
 
-  TempTrajectory(TempTrajectory && rh) :
+  TempTrajectory(TempTrajectory && rh) noexcept :
     theSeed(std::move(rh.theSeed)),
     theData(std::move(rh.theData)),
     theChiSquared(rh.theChiSquared), 
@@ -153,7 +154,7 @@ public:
     theNLoops(rh.theNLoops)
    {}
 
-  TempTrajectory & operator=(TempTrajectory && rh) {
+  TempTrajectory & operator=(TempTrajectory && rh) noexcept {
     using std::swap;
     swap(theSeed,rh.theSeed);
     swap(theData,rh.theData);

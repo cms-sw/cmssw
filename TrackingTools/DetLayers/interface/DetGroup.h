@@ -21,13 +21,13 @@ class DetGroupElement {
 
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
   DetGroupElement(DetGroupElement const & rhs) : det_(rhs.det_), state_(rhs.state_){}
-  DetGroupElement(DetGroupElement && rhs) : det_(rhs.det_), state_(std::move(rhs.state_)){}
+  DetGroupElement(DetGroupElement && rhs)  noexcept : det_(rhs.det_), state_(std::move(rhs.state_)){}
   DetGroupElement & operator=(DetGroupElement const & rhs) {
      det_=rhs.det_;
      state_ = rhs.state_;
      return *this;
   }
-  DetGroupElement & operator=(DetGroupElement && rhs) {
+  DetGroupElement & operator=(DetGroupElement && rhs)  noexcept {
      det_=rhs.det_;
      state_ = std::move(rhs.state_);
      return *this;
@@ -54,14 +54,14 @@ public:
   DetGroup() {}
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
   DetGroup(DetGroup const & rhs) : Base(rhs), index_(rhs.index_), indexSize_(rhs.indexSize_)  {}
-  DetGroup(DetGroup && rhs) : Base(std::forward<Base>(rhs)), index_(rhs.index_), indexSize_(rhs.indexSize_)  {}
+  DetGroup(DetGroup && rhs)  noexcept : Base(std::forward<Base>(rhs)), index_(rhs.index_), indexSize_(rhs.indexSize_)  {}
   DetGroup & operator=(DetGroup const & rhs) {
     Base::operator=(rhs);
     index_ =  rhs.index_;
     indexSize_ = rhs.indexSize_;
     return *this;
   }
-  DetGroup & operator=(DetGroup && rhs) { 
+  DetGroup & operator=(DetGroup && rhs) noexcept { 
     Base::operator=(std::forward<Base>(rhs)); 
     index_ =  rhs.index_;
     indexSize_ = rhs.indexSize_;

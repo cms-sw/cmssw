@@ -5,6 +5,7 @@
 #include "boost/intrusive_ptr.hpp" 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include<algorithm>
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class DetLayer;
 
@@ -138,14 +139,14 @@ public:
   }
 
 
-  TrajectoryMeasurement( TrajectoryMeasurement && rh) :
+  TrajectoryMeasurement( TrajectoryMeasurement && rh)  noexcept:
     theFwdPredictedState(std::move(rh.theFwdPredictedState)),
     theBwdPredictedState(std::move(rh.theBwdPredictedState)),
     theUpdatedState(std::move(rh.theUpdatedState)),
     theRecHit(std::move(rh.theRecHit)), theLayer(rh.theLayer),
     theEstimate(rh.theEstimate) {}
 
-  TrajectoryMeasurement & operator=( TrajectoryMeasurement && rh) {
+  TrajectoryMeasurement & operator=( TrajectoryMeasurement && rh)  noexcept{
     using std::swap;
     swap(theFwdPredictedState,rh.theFwdPredictedState);
     swap(theBwdPredictedState,rh.theBwdPredictedState);
