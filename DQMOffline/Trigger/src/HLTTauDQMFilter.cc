@@ -116,11 +116,11 @@ int HLTTauDQMFilter::leadingHT() const {
 HLTTauDQMFilter const& HLTTauDQMFilter::select( HLTTauDQMFilter const& filter, bool& swapped ) {
     if ( filter.initialPrescale() > 0 ) {
         if ( filter.initialPrescale() <= initialPrescale() ) {
-            if ( leadingTau() < filter.leadingTau() ) {
+            if ( leadingTau() > filter.leadingTau() ) {
                 swapped = true;
                 return filter;
             } else if ( leadingTau() == filter.leadingTau() ) {
-                if ( leadingMuon() < filter.leadingMuon() || leadingElectron() < filter.leadingElectron() || leadingMET() < filter.leadingMET() || leadingQuadJet() < filter.leadingQuadJet() || leadingPFMHT() < filter.leadingPFMHT() || leadingHT() < filter.leadingHT() ) {
+                if ( leadingMuon() > filter.leadingMuon() || leadingElectron() > filter.leadingElectron() || leadingMET() > filter.leadingMET() || leadingQuadJet() > filter.leadingQuadJet() || leadingPFMHT() > filter.leadingPFMHT() || leadingHT() > filter.leadingHT() ) {
                     swapped = true;
                     return filter;
                 }
@@ -132,7 +132,7 @@ HLTTauDQMFilter const& HLTTauDQMFilter::select( HLTTauDQMFilter const& filter, b
 }
 
 void HLTTauDQMFilter::regexSearch() {
-    boost::regex exprTau("([a-zA-Z]*?)IsoPFTau([0-9]+)"); 
+    boost::regex exprTau("([a-zA-Z]*?)IsoPFTau([0-9]+)_"); 
     boost::smatch what;
     std::string::const_iterator start = name_.begin();
     std::string::const_iterator end = name_.end();
