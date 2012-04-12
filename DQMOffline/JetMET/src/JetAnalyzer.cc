@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/03/19 18:22:24 $
- *  $Revision: 1.28 $
+ *  $Date: 2012/03/23 18:24:44 $
+ *  $Revision: 1.29 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -116,7 +116,7 @@ void JetAnalyzer::beginJob(DQMStore * dbe) {
   mEFrac        = dbe->book1D("EFrac",        "EFrac",                120,   -0.1,    1.1);
 
 
-  // NPV profiles
+  // Book NPV profiles
   //----------------------------------------------------------------------------
   mPt_profile           = dbe->bookProfile("Pt_profile",           "pt",                nbinsPV, PVlow, PVup,   ptBin,  ptMin,  ptMax);
   mEta_profile          = dbe->bookProfile("Eta_profile",          "eta",               nbinsPV, PVlow, PVup,  etaBin, etaMin, etaMax);
@@ -127,6 +127,20 @@ void JetAnalyzer::beginJob(DQMStore * dbe) {
 
   if (makedijetselection != 1)
     mNJets_profile = dbe->bookProfile("NJets_profile", "number of jets", nbinsPV, PVlow, PVup, 100, 0, 100);
+
+
+  // Set NPV profiles x-axis title
+  //----------------------------------------------------------------------------
+  mPt_profile          ->setAxisTitle("nvtx",1);
+  mEta_profile         ->setAxisTitle("nvtx",1);
+  mPhi_profile         ->setAxisTitle("nvtx",1);
+  mConstituents_profile->setAxisTitle("nvtx",1);
+  mHFrac_profile       ->setAxisTitle("nvtx",1);
+  mEFrac_profile       ->setAxisTitle("nvtx",1);
+
+  if (makedijetselection != 1) {
+    mNJets_profile->setAxisTitle("nvtx",1);
+  }
 
 
   //mE                       = dbe->book1D("E", "E", eBin, eMin, eMax);
@@ -368,7 +382,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      //  if (msigmaPhi)  msigmaPhi->Fill(sqrt((caloJets.at(1)).phiphiMoment()));
 
 
-	      // NPV profiles
+	      // Fill NPV profiles
 	      //----------------------------------------------------------------
 	      for (int ijet=0; ijet<2; ijet++) {
 
@@ -609,7 +623,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if (mEFrac)        mEFrac->Fill (jet->emEnergyFraction());
 	  
 
-	  // NPV profiles
+	  // Fill NPV profiles
 	  //--------------------------------------------------------------------
 	  if (mPt_profile)           mPt_profile          ->Fill(numPV, jet->pt());
 	  if (mEta_profile)          mEta_profile         ->Fill(numPV, jet->eta());

@@ -193,13 +193,13 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #
     DijetAnalysis = cleanedJetDQMParameters.clone(
         makedijetselection = cms.int32(1),
-        ptThreshold = cms.double(8.),
+        ptThreshold = cms.double(20.),
         fillJIDPassFrac   = cms.int32(1)
     ),
 
     PFDijetAnalysis = cleanedJetDQMParameters.clone(
         makedijetselection = cms.int32(1),
-        ptThreshold = cms.double(10.),
+        ptThreshold = cms.double(20.),
         fillJIDPassFrac   = cms.int32(1)
     ),
 
@@ -217,7 +217,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     # For PF jetAnalysis
     #
     pfJetAnalysis = jetDQMParameters.clone(
-    ptThreshold = cms.double(10.),
+    ptThreshold = cms.double(20.),
     TightCHFMin = cms.double(0.0),
     TightNHFMax = cms.double(1.0),
     TightCEFMax = cms.double(1.0),
@@ -236,7 +236,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     # For Cleaned PF jetAnalysis
     #
     CleanedpfJetAnalysis = cleanedJetDQMParameters.clone(
-    ptThreshold = cms.double(3.)
+    ptThreshold = cms.double(20.)
     ),
 
     #

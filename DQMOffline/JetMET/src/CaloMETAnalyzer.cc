@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/03/21 15:49:53 $
- *  $Revision: 1.64 $
+ *  $Date: 2012/03/23 18:24:44 $
+ *  $Revision: 1.65 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -403,13 +403,22 @@ void CaloMETAnalyzer::bookMonitorElementTriggered(std::string DirName, bool bLum
   hCaloMETNoHF->setAxisTitle("MET (No HF) [GeV]",1);
 
 
-  // NPV profiles
+  // Book NPV profiles
   //----------------------------------------------------------------------------
   hCaloMEx_profile     = _dbe->bookProfile("METTask_CaloMEx_profile",     "MEx [GeV]",     nbinsPV, PVlow, PVup, 100, -500,  500);
   hCaloMEy_profile     = _dbe->bookProfile("METTask_CaloMEy_profile",     "MEy [GeV]",     nbinsPV, PVlow, PVup, 100, -500,  500); 
   hCaloMET_profile     = _dbe->bookProfile("METTask_CaloMET_profile",     "MET [GeV]",     nbinsPV, PVlow, PVup, 100,    0, 1000); 
   hCaloMETNoHF_profile = _dbe->bookProfile("METTask_CaloMETNoHF_profile", "METNoHF [GeV]", nbinsPV, PVlow, PVup, 100,    0, 1000); 
   hCaloSumET_profile   = _dbe->bookProfile("METTask_CaloSumET_profile",   "SumET [GeV]",   nbinsPV, PVlow, PVup, 200,    0, 2000); 
+
+
+  // Set NPV profiles x-axis title
+  //----------------------------------------------------------------------------
+  hCaloMEx_profile    ->setAxisTitle("nvtx",1);
+  hCaloMEy_profile    ->setAxisTitle("nvtx",1);
+  hCaloMET_profile    ->setAxisTitle("nvtx",1);
+  hCaloMETNoHF_profile->setAxisTitle("nvtx",1);
+  hCaloSumET_profile  ->setAxisTitle("nvtx",1);
 
 
   hCaloMET_logx   = _dbe->book1D("METTask_CaloMET_logx",   "log(MET) [GeV]",   40, -1, 7);
@@ -1488,7 +1497,7 @@ void CaloMETAnalyzer::fillMonitorElementTriggered(const edm::Event& iEvent, std:
     hCaloSumET_logx = _dbe->get(DirName+"/"+"METTask_CaloSumET_logx");    if (hCaloSumET_logx  && hCaloSumET_logx->getRootObject() ) hCaloSumET_logx->Fill(log10(caloSumET));
 
 
-    // NPV profiles
+    // Fill NPV profiles
     //--------------------------------------------------------------------------
     hCaloMEx_profile     = _dbe->get(DirName + "/METTask_CaloMEx_profile");
     hCaloMEy_profile     = _dbe->get(DirName + "/METTask_CaloMEy_profile");

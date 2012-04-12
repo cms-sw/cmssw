@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/03/23 15:13:47 $
- *  $Revision: 1.42 $
+ *  $Date: 2012/03/23 18:24:44 $
+ *  $Revision: 1.43 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -304,7 +304,7 @@ void PFMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fa
   }
 
 
-  // NPV profiles
+  // Book NPV profiles
   //----------------------------------------------------------------------------
   mePfMEx_profile   = _dbe->bookProfile("METTask_PfMEx_profile",   "MEx [GeV]",   nbinsPV, PVlow, PVup, 100, -500,  500);
   mePfMEy_profile   = _dbe->bookProfile("METTask_PfMEy_profile",   "MEy [GeV]",   nbinsPV, PVlow, PVup, 100, -500,  500); 
@@ -316,6 +316,20 @@ void PFMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fa
   mePfChargedEMFraction_profile  = _dbe->bookProfile("METTask_PfChargedEMFraction_profile",  "PF charged EM fraction",  nbinsPV, PVlow, PVup, 50, 0, 1);
   mePfChargedHadFraction_profile = _dbe->bookProfile("METTask_PfChargedHadFraction_profile", "PF charged HAD fraction", nbinsPV, PVlow, PVup, 50, 0, 1);
   mePfMuonFraction_profile       = _dbe->bookProfile("METTask_PfMuonFraction_profile",       "PF muon fraction",        nbinsPV, PVlow, PVup, 50, 0, 1);
+
+
+  // Set NPV profiles x-axis title
+  //----------------------------------------------------------------------------
+  mePfMEx_profile  ->setAxisTitle("nvtx",1);
+  mePfMEy_profile  ->setAxisTitle("nvtx",1);
+  mePfMET_profile  ->setAxisTitle("nvtx",1);
+  mePfSumET_profile->setAxisTitle("nvtx",1);
+
+  mePfNeutralEMFraction_profile ->setAxisTitle("nvtx",1);
+  mePfNeutralHadFraction_profile->setAxisTitle("nvtx",1);
+  mePfChargedEMFraction_profile ->setAxisTitle("nvtx",1);
+  mePfChargedHadFraction_profile->setAxisTitle("nvtx",1);
+  mePfMuonFraction_profile      ->setAxisTitle("nvtx",1);
 }
 
 
@@ -1016,7 +1030,7 @@ void PFMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string Dir
     } // _allhist
 
 
-    // NPV profiles
+    // Fill NPV profiles
     //--------------------------------------------------------------------------
     mePfMEx_profile   = _dbe->get(DirName + "/METTask_PfMEx_profile");
     mePfMEy_profile   = _dbe->get(DirName + "/METTask_PfMEy_profile");

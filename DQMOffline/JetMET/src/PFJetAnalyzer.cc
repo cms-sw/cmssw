@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/03/19 18:22:25 $
- *  $Revision: 1.22 $
+ *  $Date: 2012/03/23 18:24:44 $
+ *  $Revision: 1.23 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -114,7 +114,7 @@ void PFJetAnalyzer::beginJob(DQMStore * dbe) {
   mEFrac                   = dbe->book1D("EFrac", "EFrac", 120, -0.1, 1.1);
 
 
-  // NPV profiles
+  // Book NPV profiles
   //----------------------------------------------------------------------------
   mPt_profile           = dbe->bookProfile("Pt_profile",           "pt",                nbinsPV, PVlow, PVup,  ptBin,  ptMin,  ptMax);
   mEta_profile          = dbe->bookProfile("Eta_profile",          "eta",               nbinsPV, PVlow, PVup, etaBin, etaMin, etaMax);
@@ -122,6 +122,16 @@ void PFJetAnalyzer::beginJob(DQMStore * dbe) {
   mConstituents_profile = dbe->bookProfile("Constituents_profile", "# of constituents", nbinsPV, PVlow, PVup,     50,      0,    100);
   mHFrac_profile        = dbe->bookProfile("HFrac_profile",        "Hfrac",             nbinsPV, PVlow, PVup,    120,   -0.1,    1.1);
   mEFrac_profile        = dbe->bookProfile("EFrac_profile",        "Efrac",             nbinsPV, PVlow, PVup,    120,   -0.1,    1.1);
+
+
+  // Set NPV profiles x-axis title
+  //----------------------------------------------------------------------------
+  mPt_profile          ->setAxisTitle("nvtx",1);
+  mEta_profile         ->setAxisTitle("nvtx",1);
+  mPhi_profile         ->setAxisTitle("nvtx",1);
+  mConstituents_profile->setAxisTitle("nvtx",1);
+  mHFrac_profile       ->setAxisTitle("nvtx",1);
+  mEFrac_profile       ->setAxisTitle("nvtx",1);
 
 
   //mE                       = dbe->book1D("E", "E", eBin, eMin, eMax);
@@ -354,7 +364,7 @@ void PFJetAnalyzer::beginJob(DQMStore * dbe) {
   mMuonMultiplicity    = dbe->book1D("mMuonMultiplicity",    "muon multiplicity",     100, 0, 100);
 
   
-  // NPV profiles
+  // Book NPV profiles
   //----------------------------------------------------------------------------
   mChargedHadronEnergy_profile = dbe->bookProfile("mChargedHadronEnergy_profile", "charged HAD energy",   nbinsPV, PVlow, PVup, 100, 0, 100);
   mNeutralHadronEnergy_profile = dbe->bookProfile("mNeutralHadronEnergy_profile", "neutral HAD energy",   nbinsPV, PVlow, PVup, 100, 0, 100);
@@ -367,6 +377,22 @@ void PFJetAnalyzer::beginJob(DQMStore * dbe) {
 
   if (makedijetselection != 1) {
     mNJets_profile = dbe->bookProfile("NJets_profile", "number of jets", nbinsPV, PVlow, PVup, 100, 0, 100);
+  }
+
+
+  // Set NPV profiles x-axis title
+  //----------------------------------------------------------------------------
+  mChargedHadronEnergy_profile->setAxisTitle("nvtx",1);
+  mNeutralHadronEnergy_profile->setAxisTitle("nvtx",1);
+  mChargedEmEnergy_profile    ->setAxisTitle("nvtx",1);
+  mChargedMuEnergy_profile    ->setAxisTitle("nvtx",1);
+  mNeutralEmEnergy_profile    ->setAxisTitle("nvtx",1);
+  mChargedMultiplicity_profile->setAxisTitle("nvtx",1);
+  mNeutralMultiplicity_profile->setAxisTitle("nvtx",1);
+  mMuonMultiplicity_profile   ->setAxisTitle("nvtx",1);
+
+  if (makedijetselection != 1) {
+    mNJets_profile->setAxisTitle("nvtx",1);
   }
 
 
@@ -543,7 +569,7 @@ void PFJetAnalyzer::analyze(const edm::Event&            iEvent,
 	      if (mNeutralFraction) mNeutralFraction->Fill (pfJets.at(1).neutralMultiplicity()/pfJets.at(1).nConstituents());
 
 
-	      //NPV profiles
+	      // Fill NPV profiles
 	      //----------------------------------------------------------------
 	      for (int iJet=0; iJet<2; iJet++) {
 
@@ -969,7 +995,7 @@ void PFJetAnalyzer::analyze(const edm::Event&            iEvent,
 	if (mNeutralFraction) mNeutralFraction->Fill (jet->neutralMultiplicity()/jet->nConstituents());
 
 
-        // NPV profiles
+        // Fill NPV profiles
 	//----------------------------------------------------------------------
         if (mPt_profile)           mPt_profile          ->Fill(numPV, jet->pt());
         if (mEta_profile)          mEta_profile         ->Fill(numPV, jet->eta());
