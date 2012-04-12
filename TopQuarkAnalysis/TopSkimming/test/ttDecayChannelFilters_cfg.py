@@ -4,6 +4,7 @@ process = cms.Process("TEST")
 
 ## add message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.categories.append('ParticleListDrawer')
 process.MessageLogger.categories.append('TtDecayChannelSelector')
 process.MessageLogger.cerr.TtDecayChannelSelector = cms.untracked.PSet(
     limit = cms.untracked.int32(-1)
@@ -12,7 +13,8 @@ process.MessageLogger.cerr.TtDecayChannelSelector = cms.untracked.PSet(
 ## define input
 from TopQuarkAnalysis.TopEventProducers.tqafInputFiles_cff import relValTTbar
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(relValTTbar)
+    fileNames = cms.untracked.vstring(relValTTbar),
+    skipEvents = cms.untracked.uint32(0)
 )
 
 ## define maximal number of events to loop over
@@ -42,6 +44,10 @@ process.load("TopQuarkAnalysis.TopSkimming.ttDecayChannelFilters_cff")
 #process.ttFullLeptonicFilter.allowedTopDecays.decayBranchB.tau = True
 #process.ttFullLeptonicFilter.restrictTauDecays.electron = cms.bool(True)
 #process.ttFullLeptonicFilter.restrictTauDecays.muon     = cms.bool(True)
+
+## produce printout of particle listings (for debugging)
+#process.load("TopQuarkAnalysis.TopEventProducers.sequences.printGenParticles_cff")
+#process.printDecaySubset.maxEventsToPrint = 1
 
 ## paths
 process.p1 = cms.Path(process.ttFullHadronicFilter)
