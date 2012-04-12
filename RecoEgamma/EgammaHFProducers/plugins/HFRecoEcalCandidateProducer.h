@@ -27,7 +27,6 @@ public:
   virtual void produce(edm::Event& e, edm::EventSetup const& iSetup);
 private:
   edm::InputTag hfclusters_;
-  bool CorrectForPileup_;
   HFRecoEcalCandidateAlgo algo_;
 };
 

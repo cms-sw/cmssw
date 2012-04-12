@@ -8,7 +8,6 @@
 #include <functional>
 #include <stdlib.h>
 #include <string.h>
-#include <set>
 
 #include "HLTrigger/HLTanalyzers/interface/HLTJets.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -76,7 +75,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     jhcorL1L2L3calemf = new float[kMaxJetCal]; 
     jhcorL1L2L3caln90 = new float[kMaxJetCal]; 
     jhcorL1L2L3caln90hits = new float[kMaxJetCal]; 
-   
+    
     jrcalpt = new float[kMaxJetCal];
     jrcalphi = new float[kMaxJetCal];
     jrcaleta = new float[kMaxJetCal];
@@ -106,13 +105,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     towem = new float[kMaxTower];
     towhd = new float[kMaxTower];
     towoe = new float[kMaxTower];
-    towR45upper = new int[kMaxTower];
-    towR45lower = new int[kMaxTower];
-    towR45none = new int[kMaxTower];
     const int kMaxTau = 500;
-    l2tauPt    = new float[kMaxTau];
-    l2tauEta   = new float[kMaxTau];
-    l2tauPhi   = new float[kMaxTau];
     l2tauemiso = new float[kMaxTau];
     l25tauPt = new float[kMaxTau];
     l3tautckiso = new int[kMaxTau];
@@ -127,7 +120,6 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     ohpfTauPt          =  new float[kMaxPFTau];
     ohpfTauJetPt       =  new float[kMaxPFTau];
     ohpfTauLeadTrackPt =  new float[kMaxPFTau];
-    ohpfTauLeadTrackVtxZ = new float[kMaxPFTau];
     ohpfTauLeadPionPt  =  new float[kMaxPFTau];
     ohpfTauTrkIso      =  new float[kMaxPFTau];
     ohpfTauGammaIso    =  new float[kMaxPFTau];
@@ -165,12 +157,6 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     pfJetPhi         = new float[kMaxPFJet];
     pfJetPt         = new float[kMaxPFJet];
     pfJetE         = new float[kMaxPFJet];
-    pfJetneutralHadronEnergyFraction = new float[kMaxPFJet];
-    pfJetchargedHadronFraction = new float[kMaxPFJet];
-    pfJetneutralMultiplicity = new float[kMaxPFJet];
-    pfJetchargedMultiplicity = new float[kMaxPFJet];
-    pfJetneutralEMFraction = new float[kMaxPFJet];
-    pfJetchargedEMFraction = new float[kMaxPFJet];
 
 
     const int kMaxTauIso = 5000;
@@ -268,8 +254,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("ohJetCorL1L2L3CalEMF",jhcorL1L2L3calemf,"ohJetCorL1L2L3CalEMF[NohJetCorL1L2L3Cal]/F");
     HltTree->Branch("ohJetCorL1L2L3CalN90",jhcorL1L2L3caln90,"ohJetCorL1L2L3CalN90[NohJetCorL1L2L3Cal]/F");
     HltTree->Branch("ohJetCorL1L2L3CalN90hits",jhcorL1L2L3caln90hits,"ohJetCorL1L2L3CalN90hits[NohJetCorL1L2L3Cal]/F");
-    HltTree->Branch("rho",&jrho,"rho/D");
-   
+
     //ccla GenJets
     HltTree->Branch("recoJetGenPt",jgenpt,"recoJetGenPt[NrecoJetGen]/F");
     HltTree->Branch("recoJetGenPhi",jgenphi,"recoJetGenPhi[NrecoJetGen]/F");
@@ -283,10 +268,6 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("recoTowEm",towem,"recoTowEm[NrecoTowCal]/F");
     HltTree->Branch("recoTowHad",towhd,"recoTowHad[NrecoTowCal]/F");
     HltTree->Branch("recoTowOE",towoe,"recoTowOE[NrecoTowCal]/F");
-    HltTree->Branch("recoTowHCalNoiseR45Upper",towR45upper,"recoTowHCalNoiseR45Upper[NrecoTowCal]/I");
-    HltTree->Branch("recoTowHCalNoiseR45Lower",towR45lower,"recoTowHCalNoiseR45Lower[NrecoTowCal]/I");
-    HltTree->Branch("recoTowHCalNoiseR45None",towR45none,"recoTowHCalNoiseR45None[NrecoTowCal]/I");
-
     HltTree->Branch("recoMetCal",&mcalmet,"recoMetCal/F");
     HltTree->Branch("recoMetCalPhi",&mcalphi,"recoMetCalPhi/F");
     HltTree->Branch("recoMetCalSum",&mcalsum,"recoMetCalSum/F");
@@ -304,12 +285,6 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     
     
     // Taus
-    nohl2tau = 0;
-    HltTree->Branch("NohTauL2",&nohl2tau,"NohTauL2/I");
-    HltTree->Branch("ohTauL2Pt",l2tauPt,"ohTauL2Pt[NohTauL2]/F");
-    HltTree->Branch("ohTauL2Eta",l2tauEta,"ohTauL2Eta[NohTauL2]/F");
-    HltTree->Branch("ohTauL2Phi",l2tauPhi,"ohTauL2Phi[NohTauL2]/F");
-
     nohtau = 0;
     HltTree->Branch("NohTau",&nohtau,"NohTau/I");
     HltTree->Branch("ohTauEta",tauEta,"ohTauEta[NohTau]/F");
@@ -327,7 +302,6 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("ohpfTauEta",ohpfTauEta,"ohpfTauEta[NohpfTau]/F");
     HltTree->Branch("ohpfTauPhi",ohpfTauPhi,"ohpfTauPhi[NohpfTau]/F");
     HltTree->Branch("ohpfTauLeadTrackPt",ohpfTauLeadTrackPt,"ohpfTauLeadTrackPt[NohpfTau]/F");
-    HltTree->Branch("ohpfTauLeadTrackVtxZ",ohpfTauLeadTrackVtxZ,"ohpfTauLeadTrackVtxZ[NohpfTau]/F");
     HltTree->Branch("ohpfTauLeadPionPt",ohpfTauLeadPionPt,"ohpfTauLeadPionPt[NohpfTau]/F");
     HltTree->Branch("ohpfTauTrkIso",ohpfTauTrkIso,"ohpfTauTrkIso[NohpfTau]/F");
     HltTree->Branch("ohpfTauGammaIso",ohpfTauGammaIso,"ohpfTauGammaIso[NohpfTau]/F");
@@ -374,12 +348,6 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("pfJetE",pfJetE,"pfJetE[NohPFJet]/F");
     HltTree->Branch("pfJetEta",pfJetEta,"pfJetEta[NohPFJet]/F");
     HltTree->Branch("pfJetPhi",pfJetPhi,"pfJetPhi[NohPFJet]/F");
-    HltTree->Branch("pfJetneutralHadronEnergyFraction",pfJetneutralHadronEnergyFraction,"pfJetneutralHadronEnergyFraction[NohPFJet]/F");
-    HltTree->Branch("pfJetchargedHadronFraction",pfJetchargedHadronFraction,"pfJetchargedHadronFraction[NohPFJet]/F");
-    HltTree->Branch("pfJetneutralMultiplicity",pfJetneutralMultiplicity,"pfJetneutralMultiplicity[NohPFJet]/F");
-    HltTree->Branch("pfJetchargedMultiplicity",pfJetchargedMultiplicity,"pfJetchargedMultiplicity[NohPFJet]/F");
-    HltTree->Branch("pfJetneutralEMFraction",pfJetneutralEMFraction,"pfJetneutralEMFraction[NohPFJet]/F");
-    HltTree->Branch("pfJetchargedEMFraction",pfJetchargedEMFraction,"pfJetchargedEMFraction[NohPFJet]/F");
 
     //RECO PFJets
     HltTree->Branch("nrpj",&nrpj,"nrpj/I");
@@ -401,14 +369,12 @@ void HLTJets::analyze(edm::Event const& iEvent,
 		      const edm::Handle<reco::CaloJetCollection>      & ohcalojets,
                       const edm::Handle<reco::CaloJetCollection>      & ohcalocorjets,
 		      const edm::Handle<reco::CaloJetCollection>      & ohcalocorL1L2L3jets,
-		      const edm::Handle< double >                     & rho,
 		      const edm::Handle<reco::CaloJetCollection>      & rcalojets,
 		      const edm::Handle<reco::CaloJetCollection>      & rcalocorjets,
                       const edm::Handle<reco::GenJetCollection>       & genjets,
                       const edm::Handle<reco::CaloMETCollection>      & recmets,
                       const edm::Handle<reco::GenMETCollection>       & genmets,
                       const edm::Handle<reco::METCollection>          & ht,
-                      const edm::Handle<reco::CaloJetCollection>      & l2taujets,
                       const edm::Handle<reco::HLTTauCollection>       & taujets,
                       const edm::Handle<reco::PFTauCollection>        & pfTaus,
                       const edm::Handle<reco::PFTauCollection>        & pfTausTightCone,
@@ -423,9 +389,6 @@ void HLTJets::analyze(edm::Event const& iEvent,
 		      const edm::Handle<reco::PFTauDiscriminator>	      & theRecoPFTauDiscrAgainstMuon,
                       const edm::Handle<reco::PFJetCollection>        & recoPFJets,
 		      const edm::Handle<CaloTowerCollection>          & caloTowers,
-		      const edm::Handle<CaloTowerCollection>          & caloTowersCleanerUpperR45,
-		      const edm::Handle<CaloTowerCollection>          & caloTowersCleanerLowerR45,
-		      const edm::Handle<CaloTowerCollection>          & caloTowersCleanerNoR45,
 		      const edm::Handle<reco::PFMETCollection>        & pfmets, 
                       double thresholdForSavingTowers, 
                       double		    minPtCH,
@@ -436,7 +399,6 @@ void HLTJets::analyze(edm::Event const& iEvent,
     
     //initialize branch variables
     nhjetcal=0; nhcorjetcal=0;nhcorL1L2L3jetcal=0; njetgen=0;ntowcal=0;
-    jrho = 0;
     mcalmet=0.; mcalphi=0.;
     mgenmet=0.; mgenphi=0.;
     htcalet=0.,htcalphi=0.,htcalsum=0.;
@@ -454,7 +416,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
       int jrcal=0;
       for ( cjiter i=mycalojets.begin(); i!=mycalojets.end(); i++) {
     
-    	if (i->pt()>_CalJetMin && i->energy()>0.){
+    	if (i->pt()>_CalJetMin){
     	  jrcalpt[jrcal] = i->pt();
     	  jrcalphi[jrcal] = i->phi();
     	  jrcaleta[jrcal] = i->eta();
@@ -478,7 +440,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
       int jrcal=0;
       for ( cjiter i=mycalojets.begin(); i!=mycalojets.end(); i++) {
     
-    	if (i->pt()>_CalJetMin && i->energy()>0.){
+    	if (i->pt()>_CalJetMin){
     	  jrcorcalpt[jrcal] = i->pt();
     	  jrcorcalphi[jrcal] = i->phi();
     	  jrcorcaleta[jrcal] = i->eta();
@@ -502,7 +464,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
         int jhcal=0;
         for ( cjiter i=mycalojets.begin(); i!=mycalojets.end(); i++) {
             
-            if (i->pt()>_CalJetMin && i->energy()>0.){
+            if (i->pt()>_CalJetMin){
                 jhcalpt[jhcal] = i->pt();
                 jhcalphi[jhcal] = i->phi();
                 jhcaleta[jhcal] = i->eta();
@@ -527,7 +489,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
         int jhcorcal=0;
         for ( ccorjiter i=mycalocorjets.begin(); i!=mycalocorjets.end(); i++) {
             
-            if (i->pt()>_CalJetMin && i->energy()>0.){
+            if (i->pt()>_CalJetMin){
                 jhcorcalpt[jhcorcal] = i->pt();
                 jhcorcalphi[jhcorcal] = i->phi();
                 jhcorcaleta[jhcorcal] = i->eta();
@@ -552,7 +514,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
         int jhcorL1L2L3cal=0;
         for ( ccorL1L2L3jiter i=mycalocorL1L2L3jets.begin(); i!=mycalocorL1L2L3jets.end(); i++) {
             
-            if (i->pt()>_CalJetMin && i->energy()>0.){
+            if (i->pt()>_CalJetMin){
                 jhcorL1L2L3calpt[jhcorL1L2L3cal] = i->pt();
                 jhcorL1L2L3calphi[jhcorL1L2L3cal] = i->phi();
                 jhcorL1L2L3caleta[jhcorL1L2L3cal] = i->eta();
@@ -566,65 +528,28 @@ void HLTJets::analyze(edm::Event const& iEvent,
             
         }
         nhcorL1L2L3jetcal = jhcorL1L2L3cal;
-   }
- else {nhcorL1L2L3jetcal = 0;}
+    }
+    else {nhcorL1L2L3jetcal = 0;}
 
- if (rho.isValid()){
-   jrho = *rho;
- }
- else {
-
-   if (_Debug) std::cout << "rho not found" << std::endl;
- }
-
- std::set<unsigned int> towersUpper;
- std::set<unsigned int> towersLower;
- std::set<unsigned int> towersNone;
-
- bool towersUpperValid=false;
- bool towersLowerValid=false;
- bool towersNoneValid=false;
- if( caloTowersCleanerUpperR45.isValid() ){
-   towersUpperValid = true;
-   for( CaloTowerCollection::const_iterator tow = caloTowersCleanerUpperR45->begin(); tow != caloTowersCleanerUpperR45->end(); tow++){
-     towersUpper.insert(tow->id().denseIndex());
-   }
- }
- if( caloTowersCleanerLowerR45.isValid() ){
-   towersLowerValid = true;
-   for( CaloTowerCollection::const_iterator tow = caloTowersCleanerLowerR45->begin(); tow != caloTowersCleanerLowerR45->end(); tow++){
-     towersLower.insert(tow->id().denseIndex());
-   }
- }
- if( caloTowersCleanerNoR45.isValid() ){
-   towersNoneValid = true;
-   for( CaloTowerCollection::const_iterator tow = caloTowersCleanerNoR45->begin(); tow != caloTowersCleanerNoR45->end(); tow++){
-     towersNone.insert(tow->id().denseIndex());
-   }
- }
- if (caloTowers.isValid()) {
-   //    ntowcal = caloTowers->size();
-   int jtow = 0;
-   for ( CaloTowerCollection::const_iterator tower=caloTowers->begin(); tower!=caloTowers->end(); tower++) {
-     if(tower->energy() > thresholdForSavingTowers)
-       {
-	 towet[jtow] = tower->et();
-	 toweta[jtow] = tower->eta();
-	 towphi[jtow] = tower->phi();
-	 towen[jtow] = tower->energy();
-	 towem[jtow] = tower->emEnergy();
-	 towhd[jtow] = tower->hadEnergy();
-	 towoe[jtow] = tower->outerEnergy();
-	 // noise filters: true = no noise, false = noise
-	 if(towersUpperValid) {if(towersUpper.find(tower->id().denseIndex()) == towersUpper.end()) towR45upper[jtow]=true; else towR45upper[jtow]=false;}
-	 if(towersLowerValid) {if(towersLower.find(tower->id().denseIndex()) == towersLower.end()) towR45lower[jtow]=true; else towR45lower[jtow]=false;}
-	 if(towersNoneValid) {if(towersNone.find(tower->id().denseIndex()) == towersNone.end()) towR45none[jtow]=true; else towR45none[jtow]=false;}
-	 jtow++;
-       }
-   }
-   ntowcal = jtow;
- }
- else {ntowcal = 0;}
+    if (caloTowers.isValid()) {
+        //    ntowcal = caloTowers->size();
+        int jtow = 0;
+        for ( CaloTowerCollection::const_iterator tower=caloTowers->begin(); tower!=caloTowers->end(); tower++) {
+            if(tower->energy() > thresholdForSavingTowers)
+            {
+                towet[jtow] = tower->et();
+                toweta[jtow] = tower->eta();
+                towphi[jtow] = tower->phi();
+                towen[jtow] = tower->energy();
+                towem[jtow] = tower->emEnergy();
+                towhd[jtow] = tower->hadEnergy();
+                towoe[jtow] = tower->outerEnergy();
+                jtow++;
+            }
+        }
+        ntowcal = jtow;
+    }
+    else {ntowcal = 0;}
     
     if (recmets.isValid()) {
         typedef reco::CaloMETCollection::const_iterator cmiter;
@@ -689,21 +614,6 @@ void HLTJets::analyze(edm::Event const& iEvent,
     
     
     /////////////////////////////// Open-HLT Taus ///////////////////////////////
-    if (l2taujets.isValid()) {
-        nohl2tau = l2taujets->size();
-        reco::CaloJetCollection l2taus = *l2taujets;
-        std::sort(l2taus.begin(),l2taus.end(),GetPFPtGreater());
-        int itau=0;
-        for(reco::CaloJetCollection::const_iterator i = l2taus.begin(); 
-                                                   i!= l2taus.end(); ++i){
-            l2tauPt[itau]  = i->pt();
-            l2tauEta[itau] = i->eta();
-            l2tauPhi[itau] = i->phi();
-            itau++;
-        }
-    }else{
-      nohl2tau = 0;
-    }
     if (taujets.isValid()) {      
         nohtau = taujets->size();
         reco::HLTTauCollection mytaujets;
@@ -756,13 +666,11 @@ void HLTJets::analyze(edm::Event const& iEvent,
             else 
                 ohpfTauLeadPionPt[ipftau] = -999.0;
 
-            if((i->leadPFChargedHadrCand()).isNonnull()){
+            if((i->leadPFChargedHadrCand()).isNonnull())
                 ohpfTauLeadTrackPt[ipftau] = i->leadPFChargedHadrCand()->pt();
-                ohpfTauLeadTrackVtxZ[ipftau] = i->leadPFChargedHadrCand()->vertex().z(); 
-            }else{
+            else
                 ohpfTauLeadTrackPt[ipftau] = -999.0;
-                ohpfTauLeadTrackVtxZ[ipftau] = -999.0;  
-            }
+  
 
             float maxPtTrkIso = 0;
             for (unsigned int iTrk = 0; iTrk < i->isolationPFChargedHadrCands().size(); iTrk++)
@@ -973,14 +881,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
             pfJetPhi[ipfJet] = i->phi();
             pfJetPt[ipfJet] = i->pt();           
 	    pfJetE[ipfJet] = i->energy();
-            pfJetneutralHadronEnergyFraction[ipfJet]=i->neutralHadronEnergyFraction();
-            pfJetchargedHadronFraction[ipfJet] = i->chargedHadronEnergyFraction ();
-            pfJetneutralMultiplicity[ipfJet] = i->neutralMultiplicity ();
-            pfJetchargedMultiplicity[ipfJet] = i->chargedMultiplicity ();
-            pfJetneutralEMFraction[ipfJet] = i->neutralEmEnergyFraction ();
-            pfJetchargedEMFraction[ipfJet] = i->chargedEmEnergyFraction ();
-	    //std::cout << "jet pT = " << i->pt() << " ; neutralHadronEnergyFraction = " << i->neutralHadronEnergyFraction() << std::endl;
-
+            
 	    if (i->pt() > 40. && abs(i->eta())<3.0)
 	      pfHT  += i -> pt();
 	    if (i->pt() > 30.){

@@ -12,9 +12,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.4 $
  *
- * $Id: PFJetMETcorrInputProducerT.h,v 1.6 2011/12/16 13:23:42 veelken Exp $
+ * $Id: PFJetMETcorrInputProducerT.h,v 1.4 2011/10/14 10:14:35 veelken Exp $
  *
  */
 
@@ -41,7 +41,7 @@
 
 namespace PFJetMETcorrInputProducer_namespace
 {
-  template <typename T, typename Textractor>
+  template <typename T>
   class InputTypeCheckerT
   {
     public:
@@ -62,7 +62,7 @@ namespace PFJetMETcorrInputProducer_namespace
   };
 }
 
-template <typename T, typename Textractor>
+template <typename T>
 class PFJetMETcorrInputProducerT : public edm::EDProducer  
 {
  public:
@@ -140,11 +140,10 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
     for ( int jetIndex = 0; jetIndex < numJets; ++jetIndex ) {
       const T& rawJet = jets->at(jetIndex);
       
-      static PFJetMETcorrInputProducer_namespace::InputTypeCheckerT<T, Textractor> checkInputType;
+      static PFJetMETcorrInputProducer_namespace::InputTypeCheckerT<T> checkInputType;
       checkInputType(rawJet);
       
-      double emEnergyFraction = rawJet.chargedEmEnergyFraction() + rawJet.neutralEmEnergyFraction();
-      if ( skipEM_ && emEnergyFraction > skipEMfractionThreshold_ ) continue;
+      if ( skipEM_ && rawJet.photonEnergyFraction() > skipEMfractionThreshold_ ) continue;
       
       static PFJetMETcorrInputProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
       reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(rawJet);
@@ -213,7 +212,7 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 
   std::string offsetCorrLabel_; // e.g. 'ak5PFJetL1Fastjet'
   std::string jetCorrLabel_;    // e.g. 'ak5PFJetL1FastL2L3' (MC) / 'ak5PFJetL1FastL2L3Residual' (Data)
-  Textractor jetCorrExtractor_;
+  JetCorrExtractorT<T> jetCorrExtractor_;
 
   double jetCorrEtaMax_; // do not use JEC factors for |eta| above this threshold (recommended default = 4.7),
                          // in order to work around problem with CMSSW_4_2_x JEC factors at high eta,

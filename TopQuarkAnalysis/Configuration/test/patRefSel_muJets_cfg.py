@@ -86,13 +86,13 @@ from TopQuarkAnalysis.Configuration.patRefSel_refMuJets import *
 
 # Trigger selection according to run range resp. MC sample:
 # lower range limits for data available as suffix;
-# available are: 000000, 147196, 160404, 163270, 173236, 175832 (default)
+# available are: 000000, 147196, 160404, 163270 (default)
 # sample name for MC available as suffix;
-# available are: Summer11, Fall11 (default)
-#triggerSelectionData       = triggerSelection_175832
-#triggerObjectSelectionData = triggerObjectSelection_175832
-#triggerSelectionMC       = triggerSelection_Fall11
-#triggerObjectSelectionMC = triggerObjectSelection_Fall11
+# available are: Summer11 (default)
+#triggerSelectionData       = triggerSelection_163270
+#triggerObjectSelectionData = triggerObjectSelection_163270
+#triggerSelectionMC       = triggerSelection_Summer11
+#triggerObjectSelectionMC = triggerObjectSelection_Summer11
 
 ### Particle flow
 ### takes effect only, if 'runPF2PAT' = True
@@ -101,8 +101,7 @@ postfix = 'PF' # needs to be a non-empty string, if 'runStandardPAT' = True
 
 # subtract charged hadronic pile-up particles (from wrong PVs)
 # effects also JECs
-usePFnoPU       = True # before any top projection
-usePfIsoLessCHS = True # switch to new PF isolation with L1Fastjet CHS
+usePFnoPU = True # before any top projection
 
 # other switches for PF top projections (default: all 'True')
 useNoMuon     = True # before electron top projection
@@ -118,13 +117,13 @@ useNoTau      = True # before MET top projection
 # muons
 #pfMuonSelectionCut = 'pt > 5.'
 useMuonCutBasePF = False # use minimal (veto) muon selection cut on top of 'pfMuonSelectionCut'
-#pfMuonIsoConeR03 = False
+#pfMuonIsoConeR   = 0.4
 #pfMuonCombIsoCut = 0.2
 # electrons
 #pfElectronSelectionCut  = 'pt > 5. && gsfTrackRef.isNonnull && gsfTrackRef.trackerExpectedHitsInner.numberOfLostHits < 2'
-useElectronCutBasePF  = False # use minimal (veto) electron selection cut on top of 'pfElectronSelectionCut'
-#pfElectronnIsoConeR03 = False
-#pfElectronCombIsoCut  = 0.2
+useElectronCutBasePF = False # use minimal (veto) electron selection cut on top of 'pfElectronSelectionCut'
+#pfElectronIsoConeR   = 0.3
+#pfElectronCombIsoCut = 0.2
 
 ### JEC levels
 
@@ -136,30 +135,21 @@ useL1Offset     = False # needs useL1FastJet being off, error otherwise
 useL2Relative   = True
 useL3Absolute   = True
 useL2L3Residual = True  # takes effect only on data
-useL5Flavor     = False
-useL7Parton     = False
+useL5Flavor     = True
+useL7Parton     = True
 
 ### Input
 
 # list of input files
 useRelVals = True # if 'False', "inputFiles" is used
-inputFiles = [ '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/179/411/E6068DCF-61FE-E011-B2C4-0019B9F72CE5.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/04C16888-52FB-E011-8321-0030486730C6.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/06B5F82F-57FB-E011-93CD-001D09F23A84.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/14675371-FBFA-E011-92EE-00215AEDFCCC.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/160F73C0-BAFA-E011-ADD0-001D09F2A465.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/2C9D2B89-B3FA-E011-AF19-001D09F24303.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/3A176EDF-BFFA-E011-90EA-003048CFB40C.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/4A2BDEC2-51FB-E011-9A27-BCAEC532971A.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/4AA63498-50FB-E011-A4E4-0025B32035BC.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/66B2E464-C0FA-E011-AFD8-BCAEC5329702.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/6C4DF9D2-BFFA-E011-BDCC-0019B9F709A4.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/6E3F588A-C4FA-E011-A20F-001D09F2527B.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/ACD7155F-B6FA-E011-95A9-BCAEC5329726.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/AEB720EB-46FB-E011-A1BE-003048F117F6.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/B4353A8A-C4FA-E011-BE51-0019B9F709A4.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/CCE2406E-FBFA-E011-9BCB-BCAEC53296FC.root'
-             , '/store/data/Run2011B/MuHad/AOD/PromptReco-v1/000/178/866/D8F22FD9-B2FA-E011-8D39-BCAEC518FF8A.root '
+inputFiles = [ '/store/data/Run2011A/MuHad/AOD/PromptReco-v4/000/165/129/42DDEE9E-7B81-E011-AF29-003048F024DC.root'
+             , '/store/data/Run2011A/MuHad/AOD/PromptReco-v4/000/165/103/8AF0C4CD-EE80-E011-96B1-003048F1BF68.root'
+             , '/store/data/Run2011A/MuHad/AOD/PromptReco-v4/000/165/102/1298E7B3-CF80-E011-86E9-001617E30F4C.root'
+             , '/store/data/Run2011A/MuHad/AOD/PromptReco-v4/000/165/099/16D66DF0-D07F-E011-A922-003048F118C4.root'
+             , '/store/data/Run2011A/MuHad/AOD/PromptReco-v4/000/165/098/66526A73-DA7F-E011-84B4-003048F1BF68.root'
+             , '/store/data/Run2011A/MuHad/AOD/PromptReco-v4/000/165/093/2E545F72-C27F-E011-8CC1-003048D2C1C4.root'
+             , '/store/data/Run2011A/MuHad/AOD/PromptReco-v4/000/165/088/DED0B748-E47F-E011-9C6E-0030487C6A66.root'
+             , '/store/data/Run2011A/MuHad/AOD/PromptReco-v4/000/165/071/283C53A0-C37F-E011-A06F-0030487CD6D8.root'
              ] # overwritten, if "useRelVals" is 'True'
 
 # maximum number of events
@@ -168,13 +158,8 @@ maxInputEvents = -1 # reduce for testing
 ### Conditions
 
 # GlobalTags (w/o suffix '::All')
-#globalTagData = 'GR_R_44_V12'
-globalTagData = 'GR_R_44_V13'  # JEC2011V12
-#globalTagMC   = 'START44_V7'
-globalTagMC   = 'START44_V12'  # JEC2011V12
-#globalTagMC   = 'START44_V10D' # JEC2011V12, Fall11_Chamonix
-#globalTagMC   = 'START44_V5D'  # JEC2011V12, Fall11_R3
-#globalTagMC   = 'START44_V9C'  # JEC2011V12, Fall11_R4
+globalTagData = 'GR_R_42_V19' # default for CMSSW_4_2_8 RelVals: 'GR_R_42_V14'
+globalTagMC   = 'START42_V13' # default for CMSSW_4_2_8 RelVals: 'START42_V12'
 
 ### Output
 
@@ -214,17 +199,17 @@ process.load( "TopQuarkAnalysis.Configuration.patRefSel_inputModule_cfi" )
 if useRelVals:
   from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
   if runOnMC:
-    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_4_2'
+    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_2_8'
                                      , relVal        = 'RelValTTbar'
-                                     , globalTag     = 'START44_V7'
-                                     , maxVersions   = 1
+                                     , globalTag     = 'START42_V12'
+                                     , numberOfFiles = -1
                                      )
   else:
-    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_4_2'
-                                     , relVal        = 'SingleMu'
+    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_2_8'
+                                     , relVal        = 'Mu'
                                      , dataTier      = 'RECO'
-                                     , globalTag     = 'GR_R_44_V7_RelVal_mu2011A'
-                                     , maxVersions   = 1
+                                     , globalTag     = 'GR_R_42_V14_mu2010B'
+                                     , numberOfFiles = -1
                                      )
 process.source.fileNames = inputFiles
 process.maxEvents.input  = maxInputEvents
@@ -339,35 +324,25 @@ if runPF2PAT:
   applyPostfix( process, 'pfNoTau'     , postfix ).enable = useNoTau
   applyPostfix( process, 'pfPileUp', postfix ).Vertices = cms.InputTag( pfVertices )
   if useL1FastJet:
-    applyPostfix( process, 'pfPileUp'   , postfix ).checkClosestZVertex = False
-    applyPostfix( process, 'pfPileUpIso', postfix ).checkClosestZVertex = usePfIsoLessCHS
+    applyPostfix( process, 'pfPileUp', postfix ).checkClosestZVertex = False
     applyPostfix( process, 'pfJets', postfix ).doAreaFastjet = True
     applyPostfix( process, 'pfJets', postfix ).doRhoFastjet  = False
   applyPostfix( process, 'pfMuonsFromVertex'    , postfix ).vertices = cms.InputTag( pfVertices )
   applyPostfix( process, 'pfMuonsFromVertex'    , postfix ).d0Cut    = pfD0Cut
   applyPostfix( process, 'pfMuonsFromVertex'    , postfix ).dzCut    = pfDzCut
   applyPostfix( process, 'pfSelectedMuons'      , postfix ).cut = pfMuonSelectionCut
-  applyPostfix( process, 'pfIsolatedMuons'      , postfix ).isolationCut = pfMuonCombIsoCut
-  if pfMuonIsoConeR03:
-    applyPostfix( process, 'pfIsolatedMuons', postfix ).isolationValueMapsCharged  = cms.VInputTag( cms.InputTag( 'muPFIsoValueCharged03' + postfix )
-                                                                                                  )
-    applyPostfix( process, 'pfIsolatedMuons', postfix ).deltaBetaIsolationValueMap = cms.InputTag( 'muPFIsoValuePU03' + postfix )
-    applyPostfix( process, 'pfIsolatedMuons', postfix ).isolationValueMapsNeutral  = cms.VInputTag( cms.InputTag( 'muPFIsoValueNeutral03' + postfix )
-                                                                                                  , cms.InputTag( 'muPFIsoValueGamma03' + postfix )
-                                                                                                  )
-    applyPostfix( process, 'patMuons', postfix ).isolationValues.pfNeutralHadrons   = cms.InputTag( 'muPFIsoValueNeutral03' + postfix )
-    applyPostfix( process, 'patMuons', postfix ).isolationValues.pfPUChargedHadrons = cms.InputTag( 'muPFIsoValuePU03' + postfix )
-    applyPostfix( process, 'patMuons', postfix ).isolationValues.pfPhotons          = cms.InputTag( 'muPFIsoValueGamma03' + postfix )
-    applyPostfix( process, 'patMuons', postfix ).isolationValues.pfChargedHadrons   = cms.InputTag( 'muPFIsoValueCharged03' + postfix )
+  applyPostfix( process, 'isoValMuonWithCharged', postfix ).deposits[0].deltaR = pfMuonIsoConeR
+  applyPostfix( process, 'isoValMuonWithNeutral', postfix ).deposits[0].deltaR = pfMuonIsoConeR
+  applyPostfix( process, 'isoValMuonWithPhotons', postfix ).deposits[0].deltaR = pfMuonIsoConeR
+  applyPostfix( process, 'pfIsolatedMuons'      , postfix ).combinedIsolationCut = pfMuonCombIsoCut
   applyPostfix( process, 'pfElectronsFromVertex'    , postfix ).vertices = cms.InputTag( pfVertices )
   applyPostfix( process, 'pfElectronsFromVertex'    , postfix ).d0Cut    = pfD0Cut
   applyPostfix( process, 'pfElectronsFromVertex'    , postfix ).dzCut    = pfDzCut
   applyPostfix( process, 'pfSelectedElectrons'      , postfix ).cut = pfElectronSelectionCut
-  applyPostfix( process, 'pfIsolatedElectrons'      , postfix ).isolationCut = pfElectronCombIsoCut
-  if pfElectronIsoConeR03:
-    applyPostfix( process, 'isoValElectronWithCharged', postfix ).deposits[0].deltaR = 0.3
-    applyPostfix( process, 'isoValElectronWithNeutral', postfix ).deposits[0].deltaR = 0.3
-    applyPostfix( process, 'isoValElectronWithPhotons', postfix ).deposits[0].deltaR = 0.3
+  applyPostfix( process, 'isoValElectronWithCharged', postfix ).deposits[0].deltaR = pfElectronIsoConeR
+  applyPostfix( process, 'isoValElectronWithNeutral', postfix ).deposits[0].deltaR = pfElectronIsoConeR
+  applyPostfix( process, 'isoValElectronWithPhotons', postfix ).deposits[0].deltaR = pfElectronIsoConeR
+  applyPostfix( process, 'pfIsolatedElectrons'      , postfix ).combinedIsolationCut = pfElectronCombIsoCut
   applyPostfix( process, 'patElectrons', postfix ).pvSrc = cms.InputTag( pfVertices )
   applyPostfix( process, 'patMuons', postfix ).pvSrc = cms.InputTag( pfVertices )
 

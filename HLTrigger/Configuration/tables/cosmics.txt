@@ -44,11 +44,10 @@ AlCa_RPCMuonNoHits_v*
 AlCa_RPCMuonNormalisation_v*
 DQM_FEDIntegrity_v*
 HLTriggerFinalPath
-AForPPOutput
+AOutput
 ALCAP0Output
 ALCAPHISYMOutput
 CalibrationOutput
-DQMForPPOutput
 EcalCalibrationOutput
 ExpressForCosmicsOutput
 HLTDQMOutput

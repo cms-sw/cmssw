@@ -66,15 +66,28 @@ DQMOfflinePhysics = cms.Sequence( dqmPhysics )
 
 DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
                                  DQMMessageLogger *
-                                 SiStripDQMTier0 *
+                                 SiStripDQMTier0Common *
                                  siPixelOfflineDQM_source *
                                  l1TriggerDqmOffline *
                                  triggerOfflineDQMSource *
                                  alcaBeamMonitor *
                                  castorSources *
                                  piZeroAnalysis *
-                                 dqmPhysics
+                                 dqmPhysics *
+                                 pvMonitor
                                 )
+DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
+                                 DQMMessageLogger *
+                                 SiStripDQMTier0MinBias *
+                                 siPixelOfflineDQM_source *
+                                 l1TriggerDqmOffline *
+                                 triggerOfflineDQMSource *
+                                 alcaBeamMonitor *
+                                 castorSources *
+                                 piZeroAnalysis *
+                                 dqmPhysics *
+                                 pvMonitor
+                                 )
 DQMOfflineMuon = cms.Sequence( dtSources *
                                rpcTier0Source *
                                cscSources *
@@ -87,14 +100,3 @@ DQMOfflineEcal = cms.Sequence( ecal_dqm_source_offline *
                              )
 DQMOfflineJetMET = cms.Sequence( jetMETDQMOfflineSource )
 
-DQMStepOne_Common = cms.Sequence( DQMOfflineCommon )
-
-DQMStepOne_Common_Muon = cms.Sequence( DQMOfflineCommon*DQMOfflineMuon)
-
-DQMStepOne_Common_Hcal_JetMET = cms.Sequence(DQMOfflineCommon*DQMOfflineHcal*DQMOfflineJetMET)
-
-DQMStepOne_Common_Ecal = cms.Sequence(DQMOfflineCommon*DQMOfflineEcal)
-
-DQMStepOne_Common_Ecal_Hcal_Muon = cms.Sequence(DQMOfflineCommon*DQMOfflineEcal*DQMOfflineHcal*DQMOfflineMuon)
-                                   
-DQMStepOne_Common_Muon_JetMET = cms.Sequence(DQMOfflineCommon*DQMOfflineMuon*DQMOfflineJetMET)

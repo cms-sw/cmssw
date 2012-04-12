@@ -42,6 +42,10 @@ namespace sistrip {
     uint32_t cacheId_;
     bool extractCm_;    
     bool doFullCorruptBufferChecks_;
+
+    //March 2012: add flag for disabling APVe check in configuration
+    bool doAPVEmulatorCheck_; 
+
   };
   
 }
