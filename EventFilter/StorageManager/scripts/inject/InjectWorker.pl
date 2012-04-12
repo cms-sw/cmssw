@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.85 2012/04/09 13:43:13 babar Exp $
+# $Id: InjectWorker.pl,v 1.86 2012/04/11 12:10:05 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -182,9 +182,10 @@ sub gettimestamp($) {
 sub switch_file {
     my $kernel = $_[KERNEL];
     $kernel->yield('set_rotate_alarm');
-    for my $category (qw( InjectWorker Notify )) {
+    my %categoryLogPrefix = ( InjectWorker => 'log', Notify => 'notify' );
+    for my $category ( keys %categoryLogPrefix ) {
         my $log = Log::Log4perl->get_logger($category);
-        $log->file_switch( get_logfile($category) );
+        $log->file_switch( get_logfile( $categoryLogPrefix{$category} ) );
     }
 }
 
@@ -192,11 +193,11 @@ sub switch_file {
 sub set_rotate_alarm {
     my $kernel = $_[KERNEL];
     my ( $sec, $min, $hour ) = localtime;
-    my $wakeme = time + 86400 + 60 - ( $sec + 60 * ( $min + 60 * $hour ) );
+    my $wakeme = time + 86400 + 1 - ( $sec + 60 * ( $min + 60 * $hour ) );
     $kernel->call( 'logger',
         info => strftime( "Set alarm for %Y-%m-%d %H:%M:%S", localtime $wakeme )
     );
-    $kernel->alarm_set( switch_file => $wakeme );
+    $kernel->alarm( switch_file => $wakeme );
 }
 
 # POE events
