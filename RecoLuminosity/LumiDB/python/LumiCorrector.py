@@ -17,6 +17,17 @@ class LumiCorrector(object):
         self.AfterglowMap_[1041]=0.979 
         self.AfterglowMap_[1179]=0.977 
         self.AfterglowMap_[1317]=0.975
+        self.pixelAfterglowMap_={}
+        self.pixelAfterglowMap_[213]=0.989 
+        self.pixelAfterglowMap_[321]=0.989 
+        self.pixelAfterglowMap_[423]=0.985 
+        self.pixelAfterglowMap_[597]=0.983 
+        self.pixelAfterglowMap_[700]=0.980 
+        self.pixelAfterglowMap_[873]=0.980 
+        self.pixelAfterglowMap_[1041]=0.976 
+        self.pixelAfterglowMap_[1179]=0.974 
+        self.pixelAfterglowMap_[1317]=0.972
+        
     def AfterglowFactor(self,nBXs):
         Afterglow = 1.0
         for bxthreshold,correction in self.AfterglowMap_.items():
@@ -24,12 +35,21 @@ class LumiCorrector(object):
                 Afterglow = correction
                 return Afterglow
         return Afterglow
+    
     def TotalCorrectionFactor(self,TotLumi_noNorm,nBXs):
         if nBXs==0: return 1.0
         AvgLumi = self.PUNorm_*TotLumi_noNorm/nBXs
         return self.Norm_*self.AfterglowFactor(nBXs)/(1 + self.Alpha1_*AvgLumi + self.Alpha2_*AvgLumi*AvgLumi)
     
+    def PixelAfterglowFactor(self,nBXs):
+        Afterglow = 1.0
+        for bxthreshold,correction in self.pixelAfterglowMap_.items():
+            if nBXs >= bxthreshold :
+                Afterglow = correction
+                return Afterglow
+        return Afterglow
 if __name__=='__main__':
     lcorr=LumiCorrector()
     print lcorr.AfterglowFactor(500)
     print lcorr.TotalCorrectionFactor(0.3,700)
+    print lcorr.PixelAfterglowFactor(500)
