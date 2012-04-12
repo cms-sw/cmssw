@@ -387,11 +387,7 @@ class MatrixReader(object):
             else:
                 self.nameList[nameId] = val
 
-            if num in [4.17, 4.29, 4.6, 26.0, 1000.0]:
-              defaultNEvents = 100
-            else:
-              defaultNEvents = 10
-            self.workFlows.append(WorkFlow(num, name, defaultNEvents, commands=commands))
+            self.workFlows.append(WorkFlow(num, name, commands=commands))
 
         return
 

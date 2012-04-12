@@ -5,19 +5,22 @@ import re
 
 class WorkFlow(object):
 
-    def __init__(self, num, nameID, defaultNEvents, inputInfo=[], commands=[]):
+    def __init__(self, num, nameID, inputInfo=None, commands=None):
 
         self.numId  = num
         self.nameId = nameID
         self.cmds = []
-        # We always run 10 events for step 0 otherwise get the defaults from
-        # defaultNEvents
-        nEvents = [10] + [defaultNEvents for x in xrange(len(commands)-1)]
-        specs = zip(commands, nEvents)
-        for (c, n) in specs:
-            self.check(c, n)
-        # run on real data requested
+
+        if commands:
+            for (i,c) in enumerate(commands):
+                nToRun=10 + (i!=0)*90
+                self.check(c,nToRun)
+        
+
+        # run on real data requested:
         self.input = inputInfo
+
+        return
 
     def check(self, cmd=None, nEvtDefault=10):
         if not cmd : return None
@@ -27,6 +30,7 @@ class WorkFlow(object):
 
         self.cmds.append(cmd)
         return cmd
+
 
 class WorkFlowConnector(object):
     def __init__(self):
