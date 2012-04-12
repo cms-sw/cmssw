@@ -12,9 +12,9 @@ egHLTOffDQMSource = cms.EDAnalyzer("EgHLTOfflineSource",
                                  binData = cms.PSet(egHLTOffDQMBinData,),
 
                                  #products we need
-                                 triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","TEST"),
-                                 hltTag = cms.string("TEST"),
-                                 TrigResults = cms.InputTag("TriggerResults","","TEST"),
+                                 triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
+                                 hltTag = cms.string("HLT"),
+                                 TrigResults = cms.InputTag("TriggerResults","","HLT"),
                                  filterInactiveTriggers = cms.bool(True),
                                  EndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
                                  BarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
