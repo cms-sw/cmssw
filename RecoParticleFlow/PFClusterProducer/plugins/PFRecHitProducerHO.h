@@ -110,7 +110,8 @@ void
   // --- Thresholds on Rings +/-1, +/-2 hit energies
   double thresholdR1_;
 
-
+  // Maximum allowed severity of HO rechits.  Hits above the given severity level will be rejected.  Default max value is 9 (the same as used for accepting hits in the default Hcal caloTowers)
+  int HOMaxAllowedSev_;
 };
 
 #endif
