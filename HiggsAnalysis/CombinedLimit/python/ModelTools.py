@@ -3,7 +3,7 @@ import re, os, os.path
 from sys import stderr, stdout
 from math import *
 ROOFIT_EXPR = "expr"
-N_OBS_MAX   = 10000
+N_OBS_MAX   = 100000
 
 class ModelBuilderBase():
     """This class defines the basic stuff for a model builder, and it's an interface on top of RooWorkspace::factory or HLF files"""

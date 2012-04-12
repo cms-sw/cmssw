@@ -13,6 +13,7 @@
 #include "../interface/HGGRooPdfs.h"
 #include "../interface/SequentialMinimizer.h"
 #include "../interface/ProcessNormalization.h"
+#include "../interface/RooSpline1D.h"
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -56,5 +57,6 @@
 #pragma link C++ class RooPower+;
 #pragma link C++ class cmsmath::SequentialMinimizer+;
 #pragma link C++ class ProcessNormalization+;
+#pragma link C++ class RooSpline1D+;
 
 #endif
