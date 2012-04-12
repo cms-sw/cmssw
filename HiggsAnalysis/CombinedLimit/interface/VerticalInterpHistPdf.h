@@ -60,7 +60,7 @@ protected:
   inline double smoothStepFunc(double x) const { 
     if (fabs(x) >= _smoothRegion) return x > 0 ? +1 : -1;
     double xnorm = x/_smoothRegion, xnorm2 = xnorm*xnorm;
-    return 0.125 * xnorm * (xnorm2 * (3.*xnorm - 10.) + 15);
+    return 0.125 * xnorm * (xnorm2 * (3.*xnorm2 - 10.) + 15);
   }
 };
 
@@ -117,7 +117,7 @@ protected:
   inline double smoothStepFunc(double x) const { 
     if (fabs(x) >= _smoothRegion) return x > 0 ? +1 : -1;
     double xnorm = x/_smoothRegion, xnorm2 = xnorm*xnorm;
-    return 0.125 * xnorm * (xnorm2 * (3.*xnorm - 10.) + 15);
+    return 0.125 * xnorm * (xnorm2 * (3.*xnorm2 - 10.) + 15);
   }
 };
 
