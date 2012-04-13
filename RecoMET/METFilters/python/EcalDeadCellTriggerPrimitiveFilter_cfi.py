@@ -9,6 +9,7 @@ EcalDeadCellTriggerPrimitiveFilter = cms.EDFilter(
     taggingMode = cms.bool( False ),
     
     debug = cms.bool( False ),
+    verbose = cms.int32( 1 ),
     
     tpDigiCollection = cms.InputTag("ecalTPSkim"),
     etValToBeFlagged = cms.double(63.75),

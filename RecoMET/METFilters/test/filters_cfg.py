@@ -40,7 +40,7 @@ if options.files:
    process.source.fileNames = options.files
 else:
    process.source.fileNames = [
-'file:/uscms_data/d3/lhx/tasks/recipes/METScanning/CMSSW_5_2_3_patch1/src/METScanning/METdefaultTree/test/HT_2012/pickEvents_cat02/pickevents_merged.root'
+'file:/uscms_data/d3/lhx/tasks/recipes/METScanning/CMSSW_5_2_3_patch1/src/METScanning/METdefaultTree/test/HT_2012/pickEvents_cat02/AOD/pickevents_merged.root'
    ]
 
 process.source.inputCommands = cms.untracked.vstring( "keep *", "drop *_MEtoEDMConverter_*_*" )
@@ -137,11 +137,10 @@ process.load("RecoMET.METFilters.hcalLaserEventFilter_cfi")
 
 ##____________________________________________________________________________||
 process.load('RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi')
+process.EcalDeadCellTriggerPrimitiveFilter.debug = cms.bool(True)
 
 ##____________________________________________________________________________||
 process.load('RecoMET.METFilters.EcalDeadCellBoundaryEnergyFilter_cfi')
-process.EcalDeadCellBoundaryEnergyFilter.recHitsEB = cms.InputTag("reducedEcalRecHitsEB")
-process.EcalDeadCellBoundaryEnergyFilter.recHitsEE = cms.InputTag("reducedEcalRecHitsEE")
 
 process.load('RecoMET.METFilters.jetIDFailureFilter_cfi')
 process.jetIDFailure.MinJetPt  = cms.double(30.0)
