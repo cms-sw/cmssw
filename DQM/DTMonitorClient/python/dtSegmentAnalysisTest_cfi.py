@@ -14,7 +14,9 @@ segmentTest = cms.EDAnalyzer("DTSegmentAnalysisTest",
                              topHistoFolder = cms.untracked.string("DT/02-Segments"),
                              # hlt DQM mode
                              hltDQMMode = cms.untracked.bool(False),
-                             nEventsCert = cms.untracked.int32(1000)
+                             nEventsCert = cms.untracked.int32(1000),
+                             maxPhiHit = cms.untracked.int32(7),
+                             maxPhiZHit = cms.untracked.int32(11),
                              )
 
 

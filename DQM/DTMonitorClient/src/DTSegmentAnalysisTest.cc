@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/06/10 13:50:12 $
- *  $Revision: 1.33 $
+ *  $Date: 2011/06/14 08:53:04 $
+ *  $Revision: 1.34 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -58,6 +58,8 @@ DTSegmentAnalysisTest::DTSegmentAnalysisTest(const ParameterSet& ps){
   // hlt DQM mode
   hltDQMMode = ps.getUntrackedParameter<bool>("hltDQMMode",false);
   nMinEvts  = ps.getUntrackedParameter<int>("nEventsCert", 5000);
+  maxPhiHit  = ps.getUntrackedParameter<int>("maxPhiHit", 7);
+  maxPhiZHit  = ps.getUntrackedParameter<int>("maxPhiZHit", 11);
 
 }
 
@@ -177,8 +179,8 @@ void DTSegmentAnalysisTest::performClientDiagnostic() {
       if(sector == 14) sector=10;
       
       
-      if((chID.station()!=4 && hNHits_root->GetMaximumBin() != 12)||
-	 (chID.station()==4 &&  hNHits_root->GetMaximumBin() != 8)){
+      if((chID.station()!=4 && hNHits_root->GetMaximumBin() < maxPhiZHit)||
+	 (chID.station()==4 &&  hNHits_root->GetMaximumBin() < maxPhiHit)){
 	summaryHistos[chID.wheel()]->setBinContent(sector, chID.station(),1);
 	if(summary_histo_root->GetBinContent(sector, chID.wheel()+3)<1)
 	  summaryHistos[3]->setBinContent(sector, chID.wheel()+3,1);  
