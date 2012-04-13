@@ -87,6 +87,18 @@ def customise(process):
     ## removing large memory usage module if we don't need it
     process.pdigi.remove(process.mergedtruth)
 
+    if hasattr(process,'dqmoffline_step'):
+         print 'removing some dqm modules'
+         process.dqmoffline_step.remove(process.SiPixelTrackResidualSource)
+         process.dqmoffline_step.remove(process.jetMETAnalyzer)
+         process.dqmoffline_step.remove(process.hltMonMuBits)
+         process.dqmoffline_step.remove(process.vbtfAnalyzer)
+         process.dqmoffline_step.remove(process.hltResults)
+         process.dqmoffline_step.remove(process.egHLTOffDQMSource)
+         process.dqmoffline_step.remove(process.globalAnalyzer)
+         process.dqmoffline_step.remove(process.jetMETHLTOfflineSource)
+
+
     return(process)
 
 
