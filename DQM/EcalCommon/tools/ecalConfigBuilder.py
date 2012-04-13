@@ -71,9 +71,13 @@ if (env == 'PrivLive') or (env == 'PrivOffline') :
 
 p5 = privEcal or central
 
+local = False
+if (env == 'LocalOffline') or (env == 'LocalLive') :
+    local = True
+
 doOutput = True
-#if (env == 'PrivLive') :
-#    doOutput = False
+if (env == 'LocalLive') :
+    doOutput = False
 
 live = False
 if (env == 'CMSLive') or (env == 'PrivLive') or (env == 'LocalLive') :
@@ -218,7 +222,7 @@ process.load("DQMServices.Core.DQM_cfg")
 
 process.dqmQTestEB = cms.EDAnalyzer("QualityTester",
   reportThreshold = cms.untracked.string("red"),
-  prescaleFactor = cms.untracked.int32(0),
+  prescaleFactor = cms.untracked.int32(1),
   qtList = cms.untracked.FileInPath("DQM/EcalBarrelMonitorModule/test/data/EcalBarrelQualityTests.xml"),
   getQualityTestsFromFile = cms.untracked.bool(True),
   qtestOnEndLumi = cms.untracked.bool(True),
@@ -227,7 +231,7 @@ process.dqmQTestEB = cms.EDAnalyzer("QualityTester",
 
 process.dqmQTestEE = cms.EDAnalyzer("QualityTester",
   reportThreshold = cms.untracked.string("red"),
-  prescaleFactor = cms.untracked.int32(0),
+  prescaleFactor = cms.untracked.int32(1),
   qtList = cms.untracked.FileInPath("DQM/EcalEndcapMonitorModule/test/data/EcalEndcapQualityTests.xml"),
   getQualityTestsFromFile = cms.untracked.bool(True),
   qtestOnEndLumi = cms.untracked.bool(True),
@@ -823,14 +827,19 @@ process.dqmSaver.dirName = "''' + dirName + '''"
         customizations += 'process.dqmSaver.convention = "Offline"' + "\n"
         customizations += 'process.dqmSaver.workflow = "' + workflow + '"' + "\n"
 
-if privEcal :
-    if live :
+if live :
+    if privEcal :
         customizations += '''
 process.DQM.collectorHost = "ecalod-web01.cms"
 process.DQM.collectorPort = 9190
 '''
-    else :
+    elif local :
         customizations += '''
+process.DQM.collectorHost = "localhost"
+process.DQM.collectorPort = 8061
+'''
+else :
+    customizations += '''
 process.DQM.collectorHost = ""
 '''
 
@@ -841,6 +850,8 @@ if live :
     customizations += 'process.source.consumerName = cms.untracked.string("' + configuration + ' DQM Consumer")' + "\n"
     if privEcal :
         customizations += 'process.source.sourceURL = cms.string("http://dqm-c2d07-30.cms:22100/urn:xdaq-application:lid=30")' + "\n"
+    elif local :
+        customizations += 'process.source.sourceURL = cms.string("http://localhost:22100/urn:xdaq-application:lid=30")' + "\n"
 
     if physics and (daqtype == 'globalDAQ') :
         customizations += 'process.EventStreamHttpReader.SelectHLTOutput = cms.untracked.string("hltOutputA")' + "\n"
@@ -943,6 +954,8 @@ if filename == '' :
         e = 'live'
     elif privEcal and live :
         e = 'privlive'
+    elif live :
+        e = 'locallive'
     else :
         e = 'data'
 
