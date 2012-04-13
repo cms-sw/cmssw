@@ -20,7 +20,7 @@ using namespace edm;
 using namespace std;
 
 enum CdOrientation {
-    north, east, south, west
+    north, east, south, west, none
 };
 
 template<class EcalDetId> class EcalBoundaryInfoCalculator {
@@ -228,13 +228,15 @@ private:
                 next = theNavi->west();
                 break;
             }
+        default:
+	   	break;
         }
         return next;
     }
 
     CdOrientation goBackOneCell(CdOrientation currDirection, EcalDetId prev) {
         map<CdOrientation, CdOrientation>::iterator oIt = oppositeDirs.find(currDirection);
-        CdOrientation oppDirection;
+        CdOrientation oppDirection=none;
         if (oIt != oppositeDirs.end()) {
             oppDirection = oIt->second;
             theEcalNav->setHome(prev);
@@ -250,7 +252,7 @@ private:
         if (reverseOrientation)
             turnMap = prevDirs;
         map<CdOrientation, CdOrientation>::iterator nIt = turnMap.find(currDirection);
-        CdOrientation nextDirection;
+        CdOrientation nextDirection=none;
         if (nIt != turnMap.end())
             nextDirection = (*nIt).second;
         else
@@ -264,7 +266,7 @@ private:
         if (reverseOrientation)
             turnMap = nextDirs;
         map<CdOrientation, CdOrientation>::iterator nIt = turnMap.find(currDirection);
-        CdOrientation nextDirection;
+        CdOrientation nextDirection=none;
         if (nIt != turnMap.end())
             nextDirection = (*nIt).second;
         else
