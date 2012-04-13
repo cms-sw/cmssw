@@ -2,24 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 from FastSimulation.Configuration.CommonInputs_cff import *
 
-whatPileUp = 'light' # options: 'light' and 'mixingmodule'
-#whatPileUp = 'mixingmodule'
-
 # Conversion to GenParticleCandidates 
 from PhysicsTools.HepMCCandAlgos.genParticleCandidatesFast_cfi import *
 
-# Mixing module 
-from FastSimulation.Configuration.mixNoPU_cfi import *
-if(whatPileUp=='light'): 
-    # Famos PileUp Producer
-    from FastSimulation.PileUpProducer.PileUpProducer_cff import *
-    # PileupSummaryInfo
-    from SimGeneral.PileupInformation.AddPileupSummary_cfi import *
-    addPileupInfo.PileupMixingLabel = 'famosPileUp'
-    addPileupInfo.simHitLabel = 'famosSimHits'
-else:
-    # Mixing module again (for GEN particles this time)
-    from FastSimulation.Configuration.mixWithPU_cfi import *
+# Pile-up options: FAMOS-style or with the Mixing Module
+from FastSimulation.Configuration.MixingFamos_cff import *
+#from FastSimulation.Configuration.MixingFull_cff import *
 
 # Famos SimHits producer
 from FastSimulation.EventProducer.FamosSimHits_cff import *
@@ -254,35 +242,14 @@ famosBTaggingSequence = cms.Sequence(
 
 
 
-if(whatPileUp=='mixingmodule'): 
-    # Gen Particles from Mixing Module
-    genParticlesFromMixingModule = cms.EDProducer("GenParticleProducer",
-                                                  saveBarCodes = cms.untracked.bool(True),
-                                                  useCrossingFrame = cms.untracked.bool(True),
-                                                  mix = cms.string("mixGenPU"),                          
-                                                  abortOnUnknownPDGCode = cms.untracked.bool(False)
-                                                  )
-    famosSimHits.GenParticleLabel = "genParticlesFromMixingModule" 
-
 # The sole simulation sequence
-if(whatPileUp=='light'): 
-    famosSimulationSequence = cms.Sequence(
-        offlineBeamSpot+
-        famosPileUp+
-        addPileupInfo+ 
-        famosSimHits+
-        MuonSimHits+
-        mix
-        )
-else:
-    famosSimulationSequence = cms.Sequence(
-        offlineBeamSpot+
-        mixGenPU+
-        genParticlesFromMixingModule+
-        famosSimHits+
-        MuonSimHits+
-        mix
-        )
+famosSimulationSequence = cms.Sequence(
+    offlineBeamSpot+
+    famosMixing+
+    famosSimHits+
+    MuonSimHits+
+    mix
+    )
 
 # Famos pre-defined sequences (and self-explanatory names)
 famosWithTrackerHits = cms.Sequence(
