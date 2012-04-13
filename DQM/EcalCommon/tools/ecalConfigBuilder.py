@@ -827,21 +827,20 @@ process.dqmSaver.dirName = "''' + dirName + '''"
         customizations += 'process.dqmSaver.convention = "Offline"' + "\n"
         customizations += 'process.dqmSaver.workflow = "' + workflow + '"' + "\n"
 
-if live :
-    if privEcal :
+if local :
+    customizations += '''
+process.DQM.collectorHost = "localhost"
+process.DQM.collectorPort = 8061
+'''
+elif live and privEcal :
         customizations += '''
 process.DQM.collectorHost = "ecalod-web01.cms"
 process.DQM.collectorPort = 9190
 '''
-    elif local :
-        customizations += '''
-process.DQM.collectorHost = "localhost"
-process.DQM.collectorPort = 8061
-'''
-else :
+elif not p5 :
     customizations += '''
 process.DQM.collectorHost = ""
-'''
+'''        
 
 customizations += '''
  ## Source ##
