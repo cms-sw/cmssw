@@ -1,4 +1,4 @@
-import re
+import re,string
 def findUniqueSeed(hltPath,ExprStr):
     '''
     given a hltpath and its L1SeedExpression, find the L1 bit name
@@ -39,7 +39,7 @@ def findUniqueSeed(hltPath,ExprStr):
         if r.find('NOT ')!=-1 : #we don't know what to do with NOT
             return None
     #the result we return the first one
-    return result[0]
+    return '"'+string.strip(result[0]).replace('\"','')+'"'
 
 if __name__=='__main__':
     print findUniqueSeed("HLT_ForwardBSC","36 OR 37")

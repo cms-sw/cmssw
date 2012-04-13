@@ -663,17 +663,18 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
        
         for name in sorted(totefflumiDict):
             lname=pathmap[name]
-            if lname=='n/a':
-                continue
-            (efflumival,efflumiunit)=CommonUtil.guessUnit(totefflumiDict[name]*scalefactor)
             totrecordedinrun=recordedPerpathPerrun[name][run]
-            (totrecval,totrecunit)=CommonUtil.guessUnit(totrecordedinrun*scalefactor)
             hprescs=list(set(hprescdict[name]))
-            lprescs=list(set(lprescdict[lname]))
             hprescStr='('+','.join(['%d'%(x) for x in hprescs])+')'
-            lprescStr='('+','.join(['%d'%(x) for x in lprescs])+')'
-            cleanlname=lname.replace('"','')
-            result.append([str(run)+':'+str(fillnum),selectedlsStr,'%.3f'%(totrecval)+'('+totrecunit+')',name+hprescStr,cleanlname+lprescStr,'%.3f'%(efflumival)+'('+efflumiunit+')'])
+            (totrecval,totrecunit)=CommonUtil.guessUnit(totrecordedinrun*scalefactor)
+            if lname=='n/a':
+                result.append([str(run)+':'+str(fillnum),selectedlsStr,'%.3f'%(totrecval)+'('+totrecunit+')',name+hprescStr,lname,'n/a'])
+            else:
+                (efflumival,efflumiunit)=CommonUtil.guessUnit(totefflumiDict[name]*scalefactor)
+                lprescs=list(set(lprescdict[lname]))
+                lprescStr='('+','.join(['%d'%(x) for x in lprescs])+')'
+                cleanlname=lname.replace('"','')
+                result.append([str(run)+':'+str(fillnum),selectedlsStr,'%.3f'%(totrecval)+'('+totrecunit+')',name+hprescStr,cleanlname+lprescStr,'%.3f'%(efflumival)+'('+efflumiunit+')'])
     labels = [('Run:Fill','SelectedLS','Recorded','HLTpath(Presc)','L1bit(Presc)','Effective')]
     print ' ==  = '
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
