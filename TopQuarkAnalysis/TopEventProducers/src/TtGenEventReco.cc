@@ -1,8 +1,5 @@
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
-#include "TopQuarkAnalysis/TopEventProducers/interface/TopDecaySubset.h"
+
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtGenEventReco.h"
 
 TtGenEventReco::TtGenEventReco(const edm::ParameterSet& cfg):
