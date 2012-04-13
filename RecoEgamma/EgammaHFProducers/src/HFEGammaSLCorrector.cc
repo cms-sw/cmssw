@@ -10,7 +10,7 @@ namespace hf_egamma {
 	}
 
 	double eSeLCorrected(double es, double el, int era){
-		double pc,px,py;
+		double pc=0.0,px=0.0,py=0.0;
 
 		switch (era) {	
 			case (0): //Data 41
