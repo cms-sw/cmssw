@@ -1,5 +1,5 @@
 //
-// $Id: TriggerObjectStandAlone.cc,v 1.13 2011/06/27 23:08:45 vadler Exp $
+// $Id: TriggerObjectStandAlone.cc,v 1.14 2011/10/26 17:01:25 vadler Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
@@ -152,8 +152,8 @@ void TriggerObjectStandAlone::addPathOrAlgorithm( const std::string & name, bool
     }
     // Status update
     if ( index < pathNames_.size() ) {
-      pathLastFilterAccepted_.at( index ) = pathLastFilterAccepted;
-      pathL3FilterAccepted_.at( index )   = pathL3FilterAccepted;
+      pathLastFilterAccepted_.at( index ) = pathLastFilterAccepted_.at( index ) || pathLastFilterAccepted;
+      pathL3FilterAccepted_.at( index )   = pathL3FilterAccepted_.at( index )   || pathL3FilterAccepted;
     }
   }
 }
