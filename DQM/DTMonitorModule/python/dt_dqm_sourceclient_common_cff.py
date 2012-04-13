@@ -23,7 +23,8 @@ gtDigis.DaqGtInputTag = 'rawDataCollector'
 # filter on HLT paths:
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import *
 triggerResultsFilter.l1tResults = 'gtDigis'
-triggerResultsFilter.triggerConditions = cms.vstring( 'HLT_Mu*', 'HLT_DoubleMu*' )
+triggerResultsFilter.throw = False
+triggerResultsFilter.triggerConditions = cms.vstring( 'HLT_Mu*', 'HLT_DoubleMu*', 'HLT_L1SingleMu*' )
 
 # Scalers info
 from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
