@@ -274,8 +274,8 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
         # read candidate relations
         for name,mother,ref,propertyType in objects:
             if hasattr(mother,"numberOfDaughters") and hasattr(mother,"daughter"):
-                for n in range(mother.numberOfDaughters()):
-                    try:
+                try:
+                    for n in range(mother.numberOfDaughters()):
                         daughter=mother.daughter(n)
                         found=False
                         for na,da,re,st in objects:
@@ -288,8 +288,8 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
                         if not id(daughter) in self._edmMotherRelations.keys():
                             self._edmMotherRelations[id(daughter)]=[]
                         self._edmMotherRelations[id(daughter)]+=[mother]
-                    except Exception, message:
-                        logging.error("Cannot read candidate relations: "+str(message))
+                except Exception, message:
+                    logging.error("Cannot read candidate relations: "+str(message))
         return objects
 
     def _propertyType(self,value):
