@@ -125,6 +125,10 @@ class TrendPlot:
         self.__config.get(self.__section, "relativePath")
         
         self.__y.append(y)        
+        ##To turn off Errors, uncomment below...
+        ##yErr    = (0.0,0.0)
+        ##ySysErr = (0.0,0.0)
+
         self.__yErrLow.append(yErr[0])
         self.__yErrHigh.append(yErr[1])
         self.__ySysErrLow.append(sqrt(yErr[0]**2+ySysErr[0]**2))
@@ -311,23 +315,26 @@ def getReferenceRun(config, runs):
       config.set("reference","name", directories[0])
       file.Close()
 
-def getRunsFromDQM(config, runMask="all"):
+def getRunsFromDQM(config, mask, pd, mode, runMask="all"):
     from src.dqmjson import dqm_get_samples
     serverUrl = config.get("dqmServer","url")
-    selectionMask = config.get("dqmServer","mask")
     dataType = config.get("dqmServer","type")
 
-
-    masks = re.split('[,]',selectionMask)
-    print "masks = ", masks
-    print "masks = ", masks
-    print "masks[0] = ", masks[0]
-    #if len(masks)>0 : print "masks[1] = ", masks[1]
+    json = dqm_get_samples(serverUrl, mask, dataType)
+    masks = []
+    for runNr, dataset in json:
+        if dataset not in masks: masks.append(dataset)
+    for m in masks:
+        print m
     
     result = {}
     for mask in masks :
         json = dqm_get_samples(serverUrl, mask, dataType)
         for runNr, dataset in json:
+            if pd == 'Cosmics' and mode != 'ALL':
+              ##For this to run correctly, I need autoRunDecoDetector.py checked out (UserCode/TkDQM/Tools)
+                if checkStripMode(runNr) != mode:
+                    continue
             if eval(runMask,{"all":True,"run":runNr}):
                 result[runNr] = (serverUrl, runNr, dataset)
     if not result :
@@ -365,7 +372,7 @@ def getHistoFromDQM(serverUrl, runNr, dataset, histoPath):
         #json = dqm_get_json( serverUrl, runNr, dataset, splitPath(histoPath)[0], rootContent=True)
         json = dqm_get_json( serverUrl, runNr, dataset, splitPath(path)[0], rootContent=True)
         #print "===> if this crashes you might consider changing the relativePats in ./cfg/trendPlotsTracker.py"
-        print "test = ", splitPath(path)[1] in json
+        #print "test = ", splitPath(path)[1] in json
         #if splitPath(histoPath)[1] in json :
         if splitPath(path)[1] in json :
             print "path in json = ", path
@@ -405,6 +412,27 @@ def initStyle(config):
       pageSize = [int(i) for i in pageSize.split("x")]
       gStyle.SetPaperSize(pageSize[0],pageSize[1])
 
+def checkStripMode(runNo):
+    Output = ['PEAK','DECO','MIXED']
+    Runs = []
+    try :
+        fin = open("StripReadoutMode4Cosmics.txt","r")
+        lines = fin.readlines()
+        fin.close()
+    except :
+        print "No file"
+        return "NONE"
+    for i in range(len(lines)):
+        Runs.append(re.split(",",lines[i][1:-2]))
+    for i in range(len(Runs)):
+        for pair in Runs[i]:
+            if pair.find(":") > -1:
+                pair = pair.replace("'","")
+                fromrun = re.split(":",pair)[0]
+                tillrun = re.split(":",pair)[1]
+                if int(runNo) > int(fromrun) and int(runNo) < int(tillrun):
+                    return Output[i]
+    return "NONE"
 
 def main(argv=None):
     import sys
@@ -421,6 +449,16 @@ def main(argv=None):
                       help="path to output plots. If it does not exsist it is created")
     parser.add_option("-r", "--runs", dest="runs", default="all", 
                       help="mask for the run (full boolean and math capabilities e.g. run > 10 and run *2 < -1)")
+    parser.add_option("-D", "--dataset", dest="dset", default="Jet",
+                      help="mask for the primary dataset (default is Jet), e.g. Cosmics, MinimumBias")
+    parser.add_option("-E", "--epoch", dest="epoch", default="Run2011",
+                      help="mask for the data-taking epoch (default is Run2011), e.g. Run2012, Run2011A, etc.")
+    parser.add_option("-R", "--reco", dest="reco", default="Prompt",
+                      help="mask for the reconstruction type (default is Prompt), e.g. 08Nov2011, etc.")
+    parser.add_option("-t", "--tag", dest="tag", default="v*",
+                      help="mask for the reco dataset tag (default is v*), e.g. v5")
+    parser.add_option("-s", "--state", dest="state", default="ALL",
+                      help="mask for strip state, options are ALL, PEAK, DECO, or MIXED -- only applicable if dataset is 'Cosmics'")
     (opts, args) = parser.parse_args(argv)
     if opts.config ==[]:
         opts.config = "trendPlots.ini"
@@ -429,7 +467,9 @@ def main(argv=None):
     
     initStyle(config)
 
-    runs = getRunsFromDQM(config, opts.runs)
+    dsetmask = ".*/" + opts.dset +"/"+opts.epoch+".*"+opts.reco+"*.*"+opts.tag
+    print dsetmask
+    runs = getRunsFromDQM(config, dsetmask, opts.dset, opts.state, opts.runs)
     if not runs : raise StandardError, "*** Number of runs matching run/mask/etc criteria is equal to zero!!!"
 
     print "runs= ", runs
@@ -446,7 +486,10 @@ def main(argv=None):
     cacheFile.write(str(cache))
     cacheFile.close()
 
-    outPath = config.get("output","defautlOutputPath")
+    outPath = "fig/"+opts.reco+"/"+opts.epoch+"/"+opts.dset
+    if opts.dset == 'Cosmics':
+        outPath = outPath + "/" + opts.state
+    ##outPath = config.get("output","defautlOutputPath")
     if not opts.outPath == None: outPath  = opts.outPath
     if not os.path.exists(outPath): os.makedirs(outPath)
     makeSummary = config.getboolean("output","makeSummary")
