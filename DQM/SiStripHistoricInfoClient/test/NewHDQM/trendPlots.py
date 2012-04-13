@@ -451,8 +451,8 @@ def main(argv=None):
                       help="mask for the run (full boolean and math capabilities e.g. run > 10 and run *2 < -1)")
     parser.add_option("-D", "--dataset", dest="dset", default="Jet",
                       help="mask for the primary dataset (default is Jet), e.g. Cosmics, MinimumBias")
-    parser.add_option("-E", "--epoch", dest="epoch", default="Run2011",
-                      help="mask for the data-taking epoch (default is Run2011), e.g. Run2012, Run2011A, etc.")
+    parser.add_option("-E", "--epoch", dest="epoch", default="Run2012",
+                      help="mask for the data-taking epoch (default is Run2012), e.g. Run2011B, Run2011A, etc.")
     parser.add_option("-R", "--reco", dest="reco", default="Prompt",
                       help="mask for the reconstruction type (default is Prompt), e.g. 08Nov2011, etc.")
     parser.add_option("-t", "--tag", dest="tag", default="v*",
