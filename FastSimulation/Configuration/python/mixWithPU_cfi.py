@@ -87,7 +87,7 @@ mixGenPU = cms.EDProducer("MixingModule",
                           OOT_type = cms.untracked.string('None'),  ## generate OOT with a Poisson matching the number chosen for in-time
                           #OOT_type = cms.untracked.string('fixed'),  ## generate OOT with a fixed distribution
                           #intFixed_OOT = cms.untracked.int32(2),
-                          fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/g/giamman/scratch0/fastsim/pu/CMSSW_5_2_0/src/EDM_MinBias8TeV.root'),
+                          fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/g/giamman/public/federica/MinBias8TeV_GEN.root'),
                           ),
     mixObjects = cms.PSet(
 #        mixSH = cms.PSet(
