@@ -43,9 +43,14 @@ class Mean(BaseMetric):
     def calculate(self, histo):
         return (histo.GetMean(), histo.GetMeanError())
 
+class MeanY(BaseMetric):
+    def calculate(self, histo):
+        sumw     = histo.GetSumOfWeights()
+        nentries = histo.GetEntries()
+        return (sumw/nentries if nentries else 0, 0) 
+
 #class WeightedMeanY(BaseMetric):
 #    def calculate(self, histo):
-        
 
 class MeanDiff(BaseMetric):
     def calculate(self, histo):
@@ -56,6 +61,11 @@ class MeanDiff(BaseMetric):
 class Count(BaseMetric):
     def calculate(self, histo):
         return ( histo.GetEntries(), 0)
+
+class MaxBin(BaseMetric):
+    def calculate(self, histo):
+        bin = histo.GetMaximumBin()
+        return ( histo.GetBinCenter(bin), 0) 
 
 class BinCount(BaseMetric):
     def __init__(self,  name, noError = False):
@@ -70,8 +80,17 @@ class BinCount(BaseMetric):
         error = 0
         if not self.__noError:
             error = sqrt(histo.GetBinContent(binNr))
-        return ( histo.GetBinContent(binNr), error)        
+        return ( histo.GetBinContent(binNr), error)
 
+class BinsCount(BaseMetric):
+    def __init__(self, startBin):
+        self.__loBin = startBin
+
+    def calculate(self, histo):
+        from math import sqrt
+        sum=float(0.0)
+        for bin in range(self.__loBin,histo.GetNbinsX()+1) : sum+=histo.GetBinContent(bin)
+        return ( sum, sqrt(1/sum)*sum if sum else 0)   
 
 class NormBinCount(BaseMetric):
     def __init__(self,  name, norm = None):
