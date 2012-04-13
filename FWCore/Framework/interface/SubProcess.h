@@ -226,6 +226,7 @@ namespace edm {
     std::auto_ptr<ESInfo>                         esInfo_;
     std::auto_ptr<SubProcess>                     subProcess_;
     bool                                          cleaningUpAfterException_;
+    std::unique_ptr<ParameterSet>                 processParameterSet_;
   };
 
   // free function

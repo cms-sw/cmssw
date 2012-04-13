@@ -48,60 +48,61 @@ namespace edm {
       historyAppender_(new HistoryAppender),
       esInfo_(0),
       subProcess_(),
-      cleaningUpAfterException_(false) {
+      cleaningUpAfterException_(false),
+      processParameterSet_() {
 
     std::string const maxEvents("maxEvents");
     std::string const maxLumis("maxLuminosityBlocks");
 
-    std::auto_ptr<ParameterSet> processParameterSet = parameterSet.popParameterSet(std::string("process")); 
+    processParameterSet_.reset(parameterSet.popParameterSet(std::string("process")).release()); 
 
     // if this process has a maxEvents or maxLuminosityBlocks parameter set, remove them.
-    if(processParameterSet->exists(maxEvents)) {
-      processParameterSet->popParameterSet(maxEvents);
+    if(processParameterSet_->exists(maxEvents)) {
+      processParameterSet_->popParameterSet(maxEvents);
     }
-    if(processParameterSet->exists(maxLumis)) {
-      processParameterSet->popParameterSet(maxLumis);
+    if(processParameterSet_->exists(maxLumis)) {
+      processParameterSet_->popParameterSet(maxLumis);
     }
 
     // if the top level process has a maxEvents or maxLuminosityBlocks parameter set, add them to this process.
     if(topLevelParameterSet.exists(maxEvents)) {
-      processParameterSet->addUntrackedParameter<ParameterSet>(maxEvents, topLevelParameterSet.getUntrackedParameterSet(maxEvents));
+      processParameterSet_->addUntrackedParameter<ParameterSet>(maxEvents, topLevelParameterSet.getUntrackedParameterSet(maxEvents));
     }
     if(topLevelParameterSet.exists(maxLumis)) {
-      processParameterSet->addUntrackedParameter<ParameterSet>(maxLumis, topLevelParameterSet.getUntrackedParameterSet(maxLumis));
+      processParameterSet_->addUntrackedParameter<ParameterSet>(maxLumis, topLevelParameterSet.getUntrackedParameterSet(maxLumis));
     }
 
     // If this process has a subprocess, pop the subprocess parameter set out of the process parameter set
 
-    boost::shared_ptr<ParameterSet> subProcessParameterSet(popSubProcessParameterSet(*processParameterSet).release());
+    boost::shared_ptr<ParameterSet> subProcessParameterSet(popSubProcessParameterSet(*processParameterSet_).release());
   
     ScheduleItems items(*parentProductRegistry);
 
-    ParameterSet const& optionsPset(processParameterSet->getUntrackedParameterSet("options", ParameterSet()));
+    ParameterSet const& optionsPset(processParameterSet_->getUntrackedParameterSet("options", ParameterSet()));
     IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter", true));
 
     //initialize the services
     ServiceToken iToken;
 
     // get any configured services.
-    std::auto_ptr<std::vector<ParameterSet> > serviceSets = processParameterSet->popVParameterSet(std::string("services")); 
+    std::auto_ptr<std::vector<ParameterSet> > serviceSets = processParameterSet_->popVParameterSet(std::string("services")); 
 
-    ServiceToken newToken = items.initServices(*serviceSets, *processParameterSet, token, iLegacy, false);
+    ServiceToken newToken = items.initServices(*serviceSets, *processParameterSet_, token, iLegacy, false);
     parentActReg.connectToSubProcess(*items.actReg_);
-    serviceToken_ = items.addCPRandTNS(*processParameterSet, newToken);
+    serviceToken_ = items.addCPRandTNS(*processParameterSet_, newToken);
 
 
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
     // intialize miscellaneous items
-    items.initMisc(*processParameterSet);
+    items.initMisc(*processParameterSet_);
 
     // intialize the event setup provider
-    esp_ = esController.makeProvider(*processParameterSet);
+    esp_ = esController.makeProvider(*processParameterSet_);
 
     // intialize the Schedule
-    schedule_ = items.initSchedule(*processParameterSet,subProcessParameterSet.get());
+    schedule_ = items.initSchedule(*processParameterSet_,subProcessParameterSet.get());
 
     // set the items
     act_table_ = items.act_table_;
