@@ -2,8 +2,8 @@
  * \file DQMLumiMonitor.cc
  * \author S. Dutta
  * Last Update:
- * $Date: 2012/04/11 07:16:50 $
- * $Revision: 1.2 $
+ * $Date: 2012/04/11 07:56:56 $
+ * $Revision: 1.3 $
  * $Author: dutta $
  *
  * Description: Pixel Luminosity Monitoring 
@@ -94,16 +94,18 @@ void DQMLumiMonitor::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
 void DQMLumiMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)  {
 
   //Access Pixel Clusters
-  edm::Handle< SiPixelClusterCollectionNew > siPixelClusters;
+  edm::Handle< edmNew::DetSetVector<SiPixelCluster> > siPixelClusters;
+  //  edm::Handle< SiPixelClusterCollectionNew > siPixelClusters;
   iEvent.getByLabel(pixelClusterInputTag_, siPixelClusters);
   
   if(!siPixelClusters.isValid()) {
     edm::LogError("PixelLumiMonotor") << "Could not find Cluster Collection " << pixelClusterInputTag_;
     return;
   }
-  nClusME_->Fill(siPixelClusters->size());
-  if (nLumi_ != -1) nClusVsLSME_->Fill(nLumi_, siPixelClusters->size());
-  if (intLumi_ != -1 || nLumi_ != -1) corrIntLumiAndClusVsLSME_->Fill(nLumi_, intLumi_, siPixelClusters->size());
+  unsigned int nClusterPix   = (*siPixelClusters).dataSize(); 
+  nClusME_->Fill(nClusterPix);
+  if (nLumi_ != -1) nClusVsLSME_->Fill(nLumi_, nClusterPix);
+  if (intLumi_ != -1 || nLumi_ != -1) corrIntLumiAndClusVsLSME_->Fill(nLumi_, intLumi_, nClusterPix);
 }
 
 void DQMLumiMonitor::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& eSetup){
