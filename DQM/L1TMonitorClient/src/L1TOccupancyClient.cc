@@ -30,12 +30,13 @@ using namespace edm;
 //____________________________________________________________________________
 L1TOccupancyClient::L1TOccupancyClient(const edm::ParameterSet& ps){
 
-  if(verbose_){cout << "[L1TOccupancyClient:] Called constructor" << endl;}
   
   // Get parameters
   parameters_ = ps;
   verbose_    = ps.getParameter<bool>                      ("verbose");
   tests_      = ps.getParameter<std::vector<ParameterSet> >("testParams");
+
+  if(verbose_){cout << "[L1TOccupancyClient:] Called constructor" << endl;}
 
   // Get back-end interface
   dbe_      = Service<DQMStore>().operator->();   

@@ -10,8 +10,15 @@ import FWCore.ParameterSet.Config as cms
 
 l1temuEventInfoClient = cms.EDAnalyzer("L1TEMUEventInfoClient",
     monitorDir = cms.untracked.string(''),
-    prescaleLS = cms.untracked.int32(-1),
-    prescaleEvt = cms.untracked.int32(1),
+    
+    # decide when to run and update the results of the quality tests
+    # retrieval of quality test results must be consistent with the event / LS / Run execution
+    # 
+    runInEventLoop=cms.untracked.bool(False),
+    runInEndLumi=cms.untracked.bool(True),
+    runInEndRun=cms.untracked.bool(True),
+    runInEndJob=cms.untracked.bool(False),
+
     #
     # for each L1 system, give:
     #     - SystemLabel:  system label
@@ -25,7 +32,7 @@ l1temuEventInfoClient = cms.EDAnalyzer("L1TEMUEventInfoClient",
     # in the emulator column (left column)
     L1Systems = cms.VPSet(
                     cms.PSet(
-                        SystemLabel = cms.string("ECAL"),
+                        SystemLabel = cms.string("ECAL_TPG"),
                         HwValLabel = cms.string("ETP"),
                         SystemMask  = cms.uint32(0),
                         SystemFolder = cms.string(""),
@@ -34,7 +41,7 @@ l1temuEventInfoClient = cms.EDAnalyzer("L1TEMUEventInfoClient",
                         QualityTestSummaryEnabled = cms.vuint32(0)                       
                         ),
                     cms.PSet(
-                        SystemLabel = cms.string("HCAL"),
+                        SystemLabel = cms.string("HCAL_TPG"),
                         HwValLabel = cms.string("HTP"),
                         SystemMask  = cms.uint32(0),
                         SystemFolder = cms.string(""),
@@ -61,7 +68,7 @@ l1temuEventInfoClient = cms.EDAnalyzer("L1TEMUEventInfoClient",
                         QualityTestSummaryEnabled = cms.vuint32(1)                       
                         ),
                     cms.PSet(
-                        SystemLabel = cms.string("DTTPG"),
+                        SystemLabel = cms.string("DT_TPG"),
                         HwValLabel = cms.string("DTP"),
                         SystemMask  = cms.uint32(0),
                         SystemFolder = cms.string(""),
@@ -79,13 +86,13 @@ l1temuEventInfoClient = cms.EDAnalyzer("L1TEMUEventInfoClient",
                         QualityTestSummaryEnabled = cms.vuint32(1)                       
                         ),
                     cms.PSet(
-                        SystemLabel = cms.string("CSCTPG"),
+                        SystemLabel = cms.string("CSC_TPG"),
                         HwValLabel = cms.string("CTP"),
                         SystemMask  = cms.uint32(0),
                         SystemFolder = cms.string(""),
                         QualityTestName = cms.vstring("L1EmulatorCSCTPGErrorFlagQT"),
                         QualityTestHist = cms.vstring("CTPErrorFlag"),
-                        QualityTestSummaryEnabled = cms.vuint32(1)                       
+                        QualityTestSummaryEnabled = cms.vuint32(0)                       
                         ),
                     cms.PSet(
                         SystemLabel = cms.string("CSCTF"),

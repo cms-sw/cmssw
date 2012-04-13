@@ -197,13 +197,6 @@ void JPTJetAnalyzer::analyze(const edm::Event&      event,
 			     double&                pt3,
 			     const int              numPV)
 {
-  int npvbin = -1;
-  if      (numPV <  5) npvbin = 0;
-  else if (numPV < 10) npvbin = 1;
-  else if (numPV < 15) npvbin = 2;
-  else if (numPV < 25) npvbin = 3;
-  else                 npvbin = 4;
-  
   //update the track propagator and strip noise calculator
   trackPropagator_->update(eventSetup);
   sOverNCalculator_->update(eventSetup);
@@ -272,14 +265,6 @@ void JPTJetAnalyzer::analyze(const edm::Event&      event,
       fillHistogram(JetDeltaEta_,deltaEta);
       fillHistogram(JetDeltaPhi_,deltaPhi);
       fillHistogram(JetPhiVsEta_,jptJet.phi(),jptJet.eta());
-
-
-      // NPV binned
-      //------------------------------------------------------------------------
-      fillHistogram(JetPt_npv [npvbin], jptJet.pt());
-      fillHistogram(JetEta_npv[npvbin], jptJet.eta());
-      fillHistogram(JetPhi_npv[npvbin], jptJet.phi());
-
 
 
       const uint16_t totalTracks = jptJet.chargedMultiplicity();
@@ -451,15 +436,6 @@ void JPTJetAnalyzer::bookHistograms(DQMStore* dqm)
   JetfHPD_     = bookHistogram("fHPD","Jet fHPD","fHPD",dqm);
   JetResEMF_   = bookHistogram("ResEMF","Jet restricted EM fraction","restricted EMF",dqm);
   JetfRBX_     = bookHistogram("fRBX","Jet fRBX","fRBX",dqm);
-  
-
-  // NPV binned
-  //----------------------------------------------------------------------------
-  for (int bin=0; bin<_npvRanges; ++bin) {
-    JetPt_npv [bin] = bookHistogram(Form("Pt_npvBin%d",  bin), "jet p_{T}" + _npvs[bin], "p_{T} /GeV/c", dqm);
-    JetEta_npv[bin] = bookHistogram(Form("Eta_npvBin%d", bin), "jet #eta"  + _npvs[bin], "#eta",         dqm);
-    JetPhi_npv[bin] = bookHistogram(Form("Phi_npvBin%d", bin), "jet #phi"  + _npvs[bin], "#phi",         dqm);
-  }
 
 
   TrackSiStripHitStoNHisto_            = bookHistogram("TrackSiStripHitStoN","Signal to noise of track SiStrip hits","S/N",dqm);

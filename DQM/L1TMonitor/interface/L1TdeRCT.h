@@ -7,11 +7,14 @@
  *
  * Version 0.0. A.Savin 2008/04/26
  *
- * $Date: 2011/10/13 09:29:16 $
- * $Revision: 1.14 $
+ * $Date: 2011/10/24 14:41:23 $
+ * $Revision: 1.15 $
  * \author P. Wittich
- * $Id: L1TdeRCT.h,v 1.14 2011/10/13 09:29:16 swanson Exp $
+ * $Id: L1TdeRCT.h,v 1.15 2011/10/24 14:41:23 asavin Exp $
  * $Log: L1TdeRCT.h,v $
+ * Revision 1.15  2011/10/24 14:41:23  asavin
+ * L1TdeRCT includes bit histos + cut of 2 GeV on EcalTPG hist
+ *
  * Revision 1.14  2011/10/13 09:29:16  swanson
  * Added exper bit monitoring
  *
@@ -139,6 +142,9 @@ private:
 
   // begin GT decision information
   MonitorElement *triggerAlgoNumbers_;
+
+  // trigger type information
+  MonitorElement *triggerType_;
 
   // begin region information
   MonitorElement *rctRegDataOcc1D_;
@@ -335,6 +341,9 @@ private:
   edm::InputTag gtDigisLabel_;
   std::string gtEGAlgoName_; // name of algo to determine EG trigger threshold
   int doubleThreshold_; // value of ET at which to make 2-D eff plot
+
+  /// filter TriggerType
+  int filterTriggerType_;
 
 
   int trigCount,notrigCount;

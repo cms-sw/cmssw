@@ -28,12 +28,6 @@
 
 //#define DebugLog
 
-template <class T>
-bool any(const std::vector<T> & v, const T &what)
-{
-  return std::find(v.begin(), v.end(), what) != v.end();
-}
-
 ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
 	       SensitiveDetectorCatalog & clg, 
 	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
@@ -160,7 +154,7 @@ double ECalSD::getEnergyDeposit(G4Step * aStep) {
       }
     }
     G4LogicalVolume* lv   = aStep->GetPreStepPoint()->GetTouchable()->GetVolume(0)->GetLogicalVolume();
-    if (useWeight && !any(noWeight,lv)) {
+    if (useWeight && std::count(noWeight.begin(),noWeight.end(),lv) == 0) {
       weight *= curve_LY(aStep);
       if (useBirk) {
 	if (useBirkL3) weight *= getBirkL3(aStep);
@@ -184,9 +178,9 @@ int ECalSD::getTrackID(G4Track* aTrack) {
   bool flag(false);
   if (storeTrack) {
     G4LogicalVolume* lv  = preStepPoint->GetTouchable()->GetVolume(0)->GetLogicalVolume();
-    if (any(useDepth1,lv)) {
+    if (std::count(useDepth1.begin(),useDepth1.end(),lv) != 0) {
       flag = true;
-    } else if (any(useDepth2,lv)) {
+    } else if (std::count(useDepth2.begin(),useDepth2.end(),lv) != 0) {
       flag = true;
     }
   }
@@ -202,8 +196,8 @@ int ECalSD::getTrackID(G4Track* aTrack) {
 uint16_t ECalSD::getDepth(G4Step * aStep) {
   G4LogicalVolume* lv   = aStep->GetPreStepPoint()->GetTouchable()->GetVolume(0)->GetLogicalVolume();
   uint16_t ret = 0;
-  if (any(useDepth1,lv))      ret = 1;
-  else if (any(useDepth2,lv)) ret = 2;
+  if (std::count(useDepth1.begin(),useDepth1.end(),lv) != 0)      ret = 1;
+  else if (std::count(useDepth2.begin(),useDepth2.end(),lv) != 0) ret = 2;
   else if (storeRL) ret = getRadiationLength(aStep);
 #ifdef DebugLog
   LogDebug("EcalSim") << "Volume " << lv->GetName() << " Depth " << ret;
@@ -248,7 +242,6 @@ void ECalSD::setNumberingScheme(EcalNumberingScheme* scheme) {
   }
 }
 
-
 void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
 
   G4String attribute = "ReadOutName";
@@ -262,29 +255,39 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
   std::vector<G4LogicalVolume*> lvused;
   const G4LogicalVolumeStore *  lvs = G4LogicalVolumeStore::GetInstance();
   std::vector<G4LogicalVolume *>::const_iterator lvcite;
-  std::map<std::string, G4LogicalVolume *> nameMap;
-  for (auto lvi = lvs->begin(), lve = lvs->end(); lvi != lve; ++lvi)
-    nameMap.insert(std::make_pair((*lvi)->GetName(), *lvi));
-
   bool dodet=true;
+  std::string lvnamx, lvnamy, lvname;  
   while (dodet) {
     const std::string &matname = fv.logicalPart().material().name().name();
-    const std::string &lvname = fv.logicalPart().name().name();
-    G4LogicalVolume* lv = nameMap[lvname];
+    lvname = fv.logicalPart().name().name();
+    G4LogicalVolume* lv=0;
+    for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
+      if (!strcmp((*lvcite)->GetName().c_str(), lvname.c_str())) {
+	lv = (*lvcite);
+	break;
+      }
+    }
     if (depth1Name != " ") {
       if (strncmp(lvname.c_str(), depth1Name.c_str(), 4) == 0) {
-	if (!any(useDepth1, lv)) {
+	if (std::count(useDepth1.begin(),useDepth1.end(),lv) == 0) {
  	  useDepth1.push_back(lv);
 #ifdef DebugLog
 	  LogDebug("EcalSim") << "ECalSD::initMap Logical Volume " << lvname
 			      <<" in Depth 1 volume list";
 #endif
 	}
-	G4LogicalVolume* lvr = nameMap[lvname + "_refl"];
-	if (lvr != 0 && !any(useDepth1, lvr)) {
+	lvnamx = lvname + "_refl";
+	G4LogicalVolume* lvr = 0;
+	for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
+	  if (!strcmp((*lvcite)->GetName().c_str(), lvnamx.c_str())) {
+	    lvr = (*lvcite);
+	    break;
+	  }
+	}
+	if (lvr != 0 && std::count(useDepth1.begin(),useDepth1.end(),lvr)==0) {
 	  useDepth1.push_back(lvr);
 #ifdef DebugLog
-	  LogDebug("EcalSim") << "ECalSD::initMap Logical Volume " << lvname << "_refl"
+	  LogDebug("EcalSim") << "ECalSD::initMap Logical Volume " << lvnamx
 			      <<" in Depth 1 volume list";
 #endif
 	}
@@ -292,26 +295,33 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
     }
     if (depth2Name != " ") {
       if (strncmp(lvname.c_str(), depth2Name.c_str(), 4) == 0) {
-	if (!any(useDepth2, lv)) {
+	if (std::count(useDepth2.begin(),useDepth2.end(),lv) == 0) {
 	  useDepth2.push_back(lv);
 #ifdef DebugLog
 	  LogDebug("EcalSim") << "ECalSD::initMap Logical Volume " << lvname
 			      <<" in Depth 2 volume list";
 #endif
 	}
-	G4LogicalVolume* lvr = nameMap[lvname + "_refl"];
-	if (lvr != 0 && !any(useDepth2,lvr)) {
+	lvnamy = lvname + "_refl";
+	G4LogicalVolume* lvr = 0;
+	for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
+	  if (!strcmp((*lvcite)->GetName().c_str(), lvnamy.c_str())) {
+	    lvr = (*lvcite);
+	    break;
+	  }
+	}
+	if (lvr != 0 && std::count(useDepth2.begin(),useDepth2.end(),lvr)==0) {
 	  useDepth2.push_back(lvr);
 #ifdef DebugLog
-	  LogDebug("EcalSim") << "ECalSD::initMap Logical Volume " << lvname << "_refl"
+	  LogDebug("EcalSim") << "ECalSD::initMap Logical Volume " << lvnamy
 			      <<" in Depth 2 volume list";
 #endif
 	}
       }
     }
     if (lv != 0) {
-      if (crystalMat.size() == matname.size() && !strcmp(crystalMat.c_str(), matname.c_str())) {
-	if (!any(lvused,lv)) {
+      if (strcmp(crystalMat.c_str(), matname.c_str()) == 0) {
+	if (std::count(lvused.begin(),lvused.end(),lv) == 0) {
 	  lvused.push_back(lv);
 	  const DDSolid & sol  = fv.logicalPart().solid();
 	  const std::vector<double> & paras = sol.parameters();
@@ -324,21 +334,35 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
 	  if (sol.shape() == ddtrap) {
 	    double dz = 2*paras[0];
 	    xtalLMap.insert(std::pair<G4LogicalVolume*,double>(lv,dz));
-	    lv = nameMap[lvname + "_refl"];
+	    lvname += "_refl";
+	    lv = 0;
+	    for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
+	      if (!strcmp((*lvcite)->GetName().c_str(), lvname.c_str())) {
+		lv = (*lvcite);
+		break;
+	      }
+	    } 
 	    if (lv != 0)
 	      xtalLMap.insert(std::pair<G4LogicalVolume*,double>(lv,dz));
 	  }
 	}
       } else {
-	if (!any(noWeight,lv)) {
+	if (std::count(noWeight.begin(),noWeight.end(),lv) == 0) {
 	  noWeight.push_back(lv);
 #ifdef DebugLog
 	  LogDebug("EcalSim") << "ECalSD::initMap Logical Volume " << lvname
 			      << " Material " << matname <<" in noWeight list";
 #endif
 	}
-	lv = nameMap[lvname];
-	if (lv != 0 && !any(noWeight,lv)) {
+	lvname += "_refl";
+	lv = 0;
+	for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
+	  if (!strcmp((*lvcite)->GetName().c_str(), lvname.c_str())) {
+	    lv = (*lvcite);
+	    break;
+	  }
+	}
+	if (lv != 0 && std::count(noWeight.begin(),noWeight.end(),lv) == 0) {
 	  noWeight.push_back(lv);
 #ifdef DebugLog
 	  LogDebug("EcalSim") << "ECalSD::initMap Logical Volume " << lvname

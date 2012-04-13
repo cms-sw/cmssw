@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/03/06 11:39:22 $
- *  $Revision: 1.27 $
+ *  $Date: 2012/03/23 18:24:44 $
+ *  $Revision: 1.29 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -106,33 +106,43 @@ void JetAnalyzer::beginJob(DQMStore * dbe) {
   _fHPDMaxTight = parameters.getParameter<double>("fHPDMaxTight");
   _resEMFMinTight = parameters.getParameter<double>("resEMFMinTight");
 
-  
-  // Generic Jet Parameters
-  mPt                      = dbe->book1D("Pt",  "Pt", ptBin, ptMin, ptMax);
-  mEta                     = dbe->book1D("Eta", "Eta", etaBin, etaMin, etaMax);
-  mPhi                     = dbe->book1D("Phi", "Phi", phiBin, phiMin, phiMax);
-  mConstituents            = dbe->book1D("Constituents", "# of Constituents", 50, 0, 100);
-  mHFrac                   = dbe->book1D("HFrac", "HFrac", 120, -0.1, 1.1);
-  mEFrac                   = dbe->book1D("EFrac", "EFrac", 120, -0.1, 1.1);
+
+  // Generic jet parameters
+  mPt           = dbe->book1D("Pt",           "pt",                 ptBin,  ptMin,  ptMax);
+  mEta          = dbe->book1D("Eta",          "eta",               etaBin, etaMin, etaMax);
+  mPhi          = dbe->book1D("Phi",          "phi",               phiBin, phiMin, phiMax);
+  mConstituents = dbe->book1D("Constituents", "# of constituents",     50,      0,    100);
+  mHFrac        = dbe->book1D("HFrac",        "HFrac",                120,   -0.1,    1.1);
+  mEFrac        = dbe->book1D("EFrac",        "EFrac",                120,   -0.1,    1.1);
 
 
-  // NPV binned
+  // Book NPV profiles
   //----------------------------------------------------------------------------
-  for (int bin=0; bin<_npvRanges; ++bin) {
+  mPt_profile           = dbe->bookProfile("Pt_profile",           "pt",                nbinsPV, PVlow, PVup,   ptBin,  ptMin,  ptMax);
+  mEta_profile          = dbe->bookProfile("Eta_profile",          "eta",               nbinsPV, PVlow, PVup,  etaBin, etaMin, etaMax);
+  mPhi_profile          = dbe->bookProfile("Phi_profile",          "phi",               nbinsPV, PVlow, PVup,  phiBin, phiMin, phiMax);
+  mConstituents_profile = dbe->bookProfile("Constituents_profile", "# of constituents", nbinsPV, PVlow, PVup,      50,      0,    100);
+  mHFrac_profile        = dbe->bookProfile("HFrac_profile",        "HFrac",             nbinsPV, PVlow, PVup,     120,   -0.1,    1.1);
+  mEFrac_profile        = dbe->bookProfile("EFrac_profile",        "EFrac",             nbinsPV, PVlow, PVup,     120,   -0.1,    1.1);
 
-    mPt_npv          [bin] = dbe->book1D(Form("Pt_npvBin%d",           bin), "Pt"                + _npvs[bin],  ptBin,  ptMin,  ptMax);
-    mEta_npv         [bin] = dbe->book1D(Form("Eta_npvBin%d",          bin), "Eta"               + _npvs[bin], etaBin, etaMin, etaMax);
-    mPhi_npv         [bin] = dbe->book1D(Form("Phi_npvBin%d",          bin), "Phi"               + _npvs[bin], phiBin, phiMin, phiMax);
-    mConstituents_npv[bin] = dbe->book1D(Form("Constituents_npvBin%d", bin), "# of constituents" + _npvs[bin],     50,      0,    100);
-    mHFrac_npv       [bin] = dbe->book1D(Form("HFrac_npvBin%d",        bin), "HFrac"             + _npvs[bin],    120,   -0.1,    1.1);
-    mEFrac_npv       [bin] = dbe->book1D(Form("EFrac_npvBin%d",        bin), "EFrac"             + _npvs[bin],    120,   -0.1,    1.1);
-
-    if (makedijetselection != 1)
-      mNJets_npv[bin] = dbe->book1D(Form("NJets_npvBin%d", bin), "number of jets" + _npvs[bin], 100, 0, 100);
- }
+  if (makedijetselection != 1)
+    mNJets_profile = dbe->bookProfile("NJets_profile", "number of jets", nbinsPV, PVlow, PVup, 100, 0, 100);
 
 
-  //
+  // Set NPV profiles x-axis title
+  //----------------------------------------------------------------------------
+  mPt_profile          ->setAxisTitle("nvtx",1);
+  mEta_profile         ->setAxisTitle("nvtx",1);
+  mPhi_profile         ->setAxisTitle("nvtx",1);
+  mConstituents_profile->setAxisTitle("nvtx",1);
+  mHFrac_profile       ->setAxisTitle("nvtx",1);
+  mEFrac_profile       ->setAxisTitle("nvtx",1);
+
+  if (makedijetselection != 1) {
+    mNJets_profile->setAxisTitle("nvtx",1);
+  }
+
+
   //mE                       = dbe->book1D("E", "E", eBin, eMin, eMax);
   //mP                       = dbe->book1D("P", "P", pBin, pMin, pMax);
   //  mMass                    = dbe->book1D("Mass", "Mass", 100, 0, 25);
@@ -277,17 +287,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   bool emfcleanTight=true;
 
   srand( iEvent.id().event() % 10000);
-  
-
-  int npvbin = -1;
-  if      (numPV <  5) npvbin = 0;
-  else if (numPV < 10) npvbin = 1;
-  else if (numPV < 15) npvbin = 2;
-  else if (numPV < 25) npvbin = 3;
-  else                 npvbin = 4;
 
 
-  if(makedijetselection==1){
+  if (makedijetselection == 1) {
     //Dijet selection - careful: the pT is uncorrected!
     //if(makedijetselection==1 && caloJets.size()>=2){
     if(caloJets.size()>=2){
@@ -380,16 +382,16 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      //  if (msigmaPhi)  msigmaPhi->Fill(sqrt((caloJets.at(1)).phiphiMoment()));
 
 
-	      // NPV binned
+	      // Fill NPV profiles
 	      //----------------------------------------------------------------
 	      for (int ijet=0; ijet<2; ijet++) {
 
-		if (mPt_npv          [npvbin]) mPt_npv          [npvbin]->Fill((caloJets.at(ijet)).pt());
-		if (mEta_npv         [npvbin]) mEta_npv         [npvbin]->Fill((caloJets.at(ijet)).eta());
-		if (mPhi_npv         [npvbin]) mPhi_npv         [npvbin]->Fill((caloJets.at(ijet)).phi());
-		if (mConstituents_npv[npvbin]) mConstituents_npv[npvbin]->Fill((caloJets.at(ijet)).nConstituents());
-		if (mHFrac_npv       [npvbin]) mHFrac_npv       [npvbin]->Fill((caloJets.at(ijet)).energyFractionHadronic());
-		if (mEFrac_npv       [npvbin]) mEFrac_npv       [npvbin]->Fill((caloJets.at(ijet)).emEnergyFraction());
+		if (mPt_profile)           mPt_profile          ->Fill(numPV, (caloJets.at(ijet)).pt());
+		if (mEta_profile)          mEta_profile         ->Fill(numPV, (caloJets.at(ijet)).eta());
+		if (mPhi_profile)          mPhi_profile         ->Fill(numPV, (caloJets.at(ijet)).phi());
+		if (mConstituents_profile) mConstituents_profile->Fill(numPV, (caloJets.at(ijet)).nConstituents());
+		if (mHFrac_profile)        mHFrac_profile       ->Fill(numPV, (caloJets.at(ijet)).energyFractionHadronic());
+		if (mEFrac_profile)        mEFrac_profile       ->Fill(numPV, (caloJets.at(ijet)).emEnergyFraction());
 	      }
 	    }
 
@@ -621,14 +623,14 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if (mEFrac)        mEFrac->Fill (jet->emEnergyFraction());
 	  
 
-	  // NPV binned
+	  // Fill NPV profiles
 	  //--------------------------------------------------------------------
-	  if (mPt_npv          [npvbin]) mPt_npv          [npvbin]->Fill(jet->pt());
-	  if (mEta_npv         [npvbin]) mEta_npv         [npvbin]->Fill(jet->eta());
-	  if (mPhi_npv         [npvbin]) mPhi_npv         [npvbin]->Fill(jet->phi());
-	  if (mConstituents_npv[npvbin]) mConstituents_npv[npvbin]->Fill(jet->nConstituents());
-	  if (mHFrac_npv       [npvbin]) mHFrac_npv       [npvbin]->Fill(jet->energyFractionHadronic());
-	  if (mEFrac_npv       [npvbin]) mEFrac_npv       [npvbin]->Fill(jet->emEnergyFraction());
+	  if (mPt_profile)           mPt_profile          ->Fill(numPV, jet->pt());
+	  if (mEta_profile)          mEta_profile         ->Fill(numPV, jet->eta());
+	  if (mPhi_profile)          mPhi_profile         ->Fill(numPV, jet->phi());
+	  if (mConstituents_profile) mConstituents_profile->Fill(numPV, jet->nConstituents());
+	  if (mHFrac_profile)        mHFrac_profile       ->Fill(numPV, jet->energyFractionHadronic());
+	  if (mEFrac_profile)        mEFrac_profile       ->Fill(numPV, jet->emEnergyFraction());
 
 
 	  if (fabs(jet->eta()) <= 1.3) {
@@ -689,11 +691,12 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	}
       }//pt cut
     }
+
     if (mNJets) mNJets->Fill (numofjets);
     if (mDPhi && dphi>-998.) mDPhi->Fill (dphi);
 
 
-    if (mNJets_npv[npvbin]) mNJets_npv[npvbin]->Fill(numofjets);
+    if (mNJets_profile) mNJets_profile->Fill(numPV, numofjets);
 
 
   }//not dijet

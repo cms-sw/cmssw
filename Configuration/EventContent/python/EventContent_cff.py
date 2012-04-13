@@ -21,9 +21,11 @@ import FWCore.ParameterSet.Config as cms
 #
 #  RAWSIMHLT (RAWSIM + HLTDEBUG)
 #
+#  RAWRECOSIMHLT, RAWRECODEBUGHLT  
+#
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.47 2012/01/20 11:52:45 vlimant Exp $
+#  $Id: EventContent_cff.py,v 1.49 2012/03/27 07:47:40 fwyzard Exp $
 #
 #
 #
@@ -163,6 +165,26 @@ RAWSIMEventContent = cms.PSet(
 #
 #
 RAWSIMHLTEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
+)
+#
+#
+# RAWRECOSIMHLT Data Tier definition
+#
+#
+RAWRECOSIMHLTEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
+)
+#
+#
+# RAWRECODEBUGHLT Data Tier definition
+#
+#
+RAWRECODEBUGHLTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
@@ -400,8 +422,11 @@ RECOEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 RECOEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
 RECOEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 
-RAWRECOEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 RAWRECOEventContent.outputCommands.extend(RECOEventContent.outputCommands)
+RAWRECOEventContent.outputCommands.extend(cms.untracked.vstring(
+    'keep FEDRawDataCollection_rawDataCollector_*_*',
+    'keep FEDRawDataCollection_source_*_*'
+))
 
 AODEventContent.outputCommands.extend(RecoLocalTrackerAOD.outputCommands)
 AODEventContent.outputCommands.extend(RecoLocalMuonAOD.outputCommands)
@@ -492,6 +517,22 @@ AODSIMEventContent.outputCommands.extend(RecoGenJetsAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(RecoGenMETAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(SimGeneralAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(MEtoEDMConverterAOD.outputCommands)
+
+RAWRECOSIMHLTEventContent.outputCommands.extend(RAWRECOEventContent.outputCommands) 
+RAWRECOSIMHLTEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)
+RAWRECOSIMHLTEventContent.outputCommands.extend(RecoGenMETRECO.outputCommands)
+RAWRECOSIMHLTEventContent.outputCommands.extend(RecoGenJetsRECO.outputCommands)
+RAWRECOSIMHLTEventContent.outputCommands.extend(SimG4CoreRECO.outputCommands)
+RAWRECOSIMHLTEventContent.outputCommands.extend(SimTrackerRECO.outputCommands)
+RAWRECOSIMHLTEventContent.outputCommands.extend(SimMuonRECO.outputCommands)
+RAWRECOSIMHLTEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
+RAWRECOSIMHLTEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
+RAWRECOSIMHLTEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
+RAWRECOSIMHLTEventContent.outputCommands.extend(HLTDebugRAW.outputCommands) 
+
+RAWRECODEBUGHLTEventContent.outputCommands.extend(RAWRECOSIMHLTEventContent.outputCommands) 
+RAWRECODEBUGHLTEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
+RAWRECODEBUGHLTEventContent.outputCommands.extend(SimTrackerDEBUG.outputCommands)
 
 FEVTEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
@@ -617,7 +658,7 @@ ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHalo_noDrop.output
 ALCARECOEventContent.outputCommands.extend(OutALCARECORpcCalHLT_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECODtCalib_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripPCLHistos_noDrop.outputCommands)
-
+ALCARECOEventContent.outputCommands.extend(OutALCARECOLumiPixels_noDrop.outputCommands)
 
 ALCARECOEventContent.outputCommands.append('drop *_MEtoEDMConverter_*_*')
 

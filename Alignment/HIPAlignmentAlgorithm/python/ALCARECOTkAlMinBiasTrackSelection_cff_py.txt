@@ -1,45 +1,26 @@
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(7500)
+    input = cms.untracked.int32(-1)
 )
 
 import RecoTracker.TrackProducer.TrackRefitters_cff
 process.TrackRefitter1 = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone()
-#process.TrackRefitter1.src = '<SKIM>'
-process.TrackRefitter1.src = 'initialAlignmentTrackSelector'
-
-
-#initial track selector ( new )
-import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
-process.initialAlignmentTrackSelector = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
-process.initialAlignmentTrackSelector.src = '<SKIM>'
-process.initialAlignmentTrackSelector.filter = True
-process.initialAlignmentTrackSelector.applyBasicCuts = True
-
-process.initialAlignmentTrackSelector.pMin    = 4.0
-process.initialAlignmentTrackSelector.ptMin   = 0.0
-process.initialAlignmentTrackSelector.etaMin  = -999.
-process.initialAlignmentTrackSelector.etaMax  = 999.
-process.initialAlignmentTrackSelector.nHitMin = 0
-process.initialAlignmentTrackSelector.nHitMin2D = 0
-process.initialAlignmentTrackSelector.chi2nMax = 1000.0
-process.initialAlignmentTrackSelector.applyMultiplicityFilter = True
-process.initialAlignmentTrackSelector.maxMultiplicity = 1000
-process.initialAlignmentTrackSelector.applyNHighestPt = False
-
+process.TrackRefitter1.src = '<SKIM>'
 
 # parameters for alignmentHitFilter
 process.TrackerTrackHitFilter.src = 'TrackRefitter1'
 process.TrackerTrackHitFilter.commands = cms.vstring("keep PXB","keep PXE","keep TIB","keep TID","keep TOB","keep TEC")
-process.TrackerTrackHitFilter.minimumHits = 5
+process.TrackerTrackHitFilter.minimumHits = 6
 process.TrackerTrackHitFilter.replaceWithInactiveHits = True
 process.TrackerTrackHitFilter.stripAllInvalidHits = False
 process.TrackerTrackHitFilter.rejectBadStoNHits = True
-process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 12.0")
+process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")
 process.TrackerTrackHitFilter.useTrajectories= True
 process.TrackerTrackHitFilter.rejectLowAngleHits= True
-process.TrackerTrackHitFilter.TrackAngleCut= 0.17 #~10 degrees
+process.TrackerTrackHitFilter.TrackAngleCut= 0.17 #~20 degrees
 process.TrackerTrackHitFilter.usePixelQualityFlag= True
 # process.TrackerTrackHitFilter.PxlCorrClusterChargeCut=10000.0
+##process.AlignmentHitFilter.
+
 
 
 # track producer to be run after the alignment hit filter
@@ -58,16 +39,49 @@ process.AlignmentTrackSelector.src = 'ctfProducerCustomised'
 # track selection for sample in filename...
 process.AlignmentTrackSelector.filter = True
 process.AlignmentTrackSelector.applyBasicCuts = True
-process.AlignmentTrackSelector.pMin    = 6.0
-process.AlignmentTrackSelector.ptMin   = 0.0
+process.AlignmentTrackSelector.pMin    = 3.0
+process.AlignmentTrackSelector.pMax    = 9999.
+process.AlignmentTrackSelector.ptMin   = 2.0
+process.AlignmentTrackSelector.ptMax   = 9999.
 process.AlignmentTrackSelector.etaMin  = -999.
 process.AlignmentTrackSelector.etaMax  = 999.
-process.AlignmentTrackSelector.nHitMin = 8
-process.AlignmentTrackSelector.nHitMin2D = 2
-process.AlignmentTrackSelector.chi2nMax = 9999.
+process.AlignmentTrackSelector.nHitMin = 6
+process.AlignmentTrackSelector.nHitMin2D = 1
+process.AlignmentTrackSelector.chi2nMax = 6.
 process.AlignmentTrackSelector.applyMultiplicityFilter = True
-process.AlignmentTrackSelector.maxMultiplicity = 30
+process.AlignmentTrackSelector.maxMultiplicity = 100
 process.AlignmentTrackSelector.applyNHighestPt = False
+#process.AlignmentTrackSelector.nHighestPt = 1
+process.AlignmentTrackSelector.seedOnlyFrom = 0 
+process.AlignmentTrackSelector.applyIsolationCut = False
+process.AlignmentTrackSelector.minHitIsolation = 0.8
+process.AlignmentTrackSelector.applyChargeCheck = False
+process.AlignmentTrackSelector.minHitChargeStrip = 50.
 
+# Reject outliers
+## include  "TrackingTools/TrackFitters/data/RungeKuttaKFFittingSmootherESProducer.cfi"
+process.KFFittingSmootherWithOutliersRejectionAndRK.EstimateCut=15.0   ## If you use TrackRefitter
+process.KFFittingSmootherWithOutliersRejectionAndRK.MinNumberOfHits=6
+
+#process.AlignmentTrackSelector.minHitsPerSubDet.inTIB = 0
+#process.AlignmentTrackSelector.minHitsPerSubDet.inTOB = 0
+#process.AlignmentTrackSelector.minHitsPerSubDet.inBPIX = 2
+#process.AlignmentTrackSelector.minHitsPerSubDet.inFPIX = 1
+#process.AlignmentTrackSelector.minHitsPerSubDet.inPIXEL = 2
+
+
+#process.doConstraint=cms.EDProducer("BeamSpotConstraintProducer")
+process.doConstraint=cms.EDProducer("VertexConstraintProducer")
+process.doConstraint.srcTrk=cms.InputTag('AlignmentTrackSelector')
+process.doConstraint.srcVtx=cms.InputTag('offlinePrimaryVertices')
+
+
+process.TrackRefitter2 = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone()
 process.TrackRefitter2 = process.TrackRefitter1.clone()
 process.TrackRefitter2.src = 'AlignmentTrackSelector'
+process.TrackRefitter2.TrajectoryInEvent = True
+process.TrackRefitter2.TTRHBuilder = "WithAngleAndTemplate"
+
+if 'MBVertex'=='<FLAG>':
+    process.TrackRefitter2.constraint = cms.string('vertex')
+    process.TrackRefitter2.srcConstr  = cms.InputTag('doConstraint')

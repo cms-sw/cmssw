@@ -1,8 +1,8 @@
 /*
  * Payload definition(s): Current (RPCObImon), High Voltage (RPCObVmon), Chamber Status (RPCObStatus) 
  *
- *  $Date: 2011/08/12 17:05:09 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/11/10 12:20:23 $
+ *  $Revision: 1.17 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -11,52 +11,56 @@
 #include <vector>
 
 class RPCObImon {
- public:
-  struct I_Item {
-    int detid;
-    float value;
-    unsigned int unixtime ;
-  };
-  RPCObImon(){}
-  virtual ~RPCObImon(){}
-  std::vector<I_Item> ObImon_rpc;
-};
+    public:
+      struct I_Item {
+        int dpid;
+        float value;
+        int day;
+        int time;
+      };
+    RPCObImon(){}
+    virtual ~RPCObImon(){}
+    std::vector<I_Item> ObImon_rpc;
+   };
 
 class RPCObVmon {
- public:
-  struct V_Item {
-    int detid;
-    float value;
-    unsigned int unixtime ;
-  };
-  RPCObVmon(){}
-  virtual ~RPCObVmon(){}
-  std::vector<V_Item> ObVmon_rpc;
-};
+    public:
+      struct V_Item {
+        int dpid;
+        float value;
+        int day;
+        int time;
+      };
+    RPCObVmon(){}
+    virtual ~RPCObVmon(){}
+    std::vector<V_Item> ObVmon_rpc;
+   };
 
 class RPCObStatus {
- public:
-  struct S_Item {
-    int detid;
-    float value;
-    unsigned int unixtime ;
-  };
-  RPCObStatus(){}
-  virtual ~RPCObStatus(){}
-  std::vector<S_Item> ObStatus_rpc;
-};
+    public:
+      struct S_Item {
+        int dpid;
+        float value;
+        int day;
+        int time;
+      };
+    RPCObStatus(){}
+    virtual ~RPCObStatus(){}
+    std::vector<S_Item> ObStatus_rpc;
+   };
 
 class RPCObTemp {
- public:
-  struct T_Item {
-    int detid;
-    float value;
-    unsigned int unixtime ;
-  };
-  RPCObTemp(){}
-  virtual ~RPCObTemp(){}
-  std::vector<T_Item> ObTemp_rpc;
-};
+    public:
+      struct T_Item {
+        int dpid;
+        float value;
+        int day;
+        int time;
+      };
+    RPCObTemp(){}
+    virtual ~RPCObTemp(){}
+    std::vector<T_Item> ObTemp_rpc;
+   };
 
 #endif
 

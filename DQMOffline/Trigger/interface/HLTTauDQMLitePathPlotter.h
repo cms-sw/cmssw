@@ -48,7 +48,7 @@ private:
     MonitorElement *accepted_events_matched;
     MonitorElement *ref_events;
     
-    std::vector<MonitorElement*> mass_distribution;
+    std::map<std::string, MonitorElement*> mass_distribution;
     
     //MonitorElements for objects
     MonitorElement *tauEt;

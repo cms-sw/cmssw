@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 
-phPFIsoValueCharged03PFId = cms.EDProducer("CandIsolatorFromDeposits",
+phPFIsoValueCharged03 = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(
             cms.PSet(
             src = cms.InputTag("phPFIsoDepositCharged"),
@@ -15,7 +15,7 @@ phPFIsoValueCharged03PFId = cms.EDProducer("CandIsolatorFromDeposits",
      )
 )
 
-phPFIsoValueChargedAll03PFId = cms.EDProducer("CandIsolatorFromDeposits",
+phPFIsoValueChargedAll03 = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(
             cms.PSet(
             src = cms.InputTag("phPFIsoDepositChargedAll"),
@@ -28,7 +28,7 @@ phPFIsoValueChargedAll03PFId = cms.EDProducer("CandIsolatorFromDeposits",
    )
 )
 
-phPFIsoValueGamma03PFId = cms.EDProducer("CandIsolatorFromDeposits",
+phPFIsoValueGamma03 = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(
             cms.PSet(
             src = cms.InputTag("phPFIsoDepositGamma"),
@@ -41,7 +41,7 @@ phPFIsoValueGamma03PFId = cms.EDProducer("CandIsolatorFromDeposits",
    )
 )
 
-phPFIsoValueNeutral03PFId = cms.EDProducer("CandIsolatorFromDeposits",
+phPFIsoValueNeutral03 = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(
             cms.PSet(
             src = cms.InputTag("phPFIsoDepositNeutral"),
@@ -54,7 +54,7 @@ phPFIsoValueNeutral03PFId = cms.EDProducer("CandIsolatorFromDeposits",
  )
 )
 
-phPFIsoValuePU03PFId = cms.EDProducer("CandIsolatorFromDeposits",
+phPFIsoValuePU03 = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(
             cms.PSet(
             src = cms.InputTag("phPFIsoDepositPU"),
@@ -69,7 +69,7 @@ phPFIsoValuePU03PFId = cms.EDProducer("CandIsolatorFromDeposits",
 
 
 
-phPFIsoValueCharged04PFId = cms.EDProducer("CandIsolatorFromDeposits",
+phPFIsoValueCharged04 = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(
             cms.PSet(
             src = cms.InputTag("phPFIsoDepositCharged"),
@@ -85,7 +85,7 @@ phPFIsoValueCharged04PFId = cms.EDProducer("CandIsolatorFromDeposits",
 
 
 
-phPFIsoValueChargedAll04PFId = cms.EDProducer("CandIsolatorFromDeposits",
+phPFIsoValueChargedAll04 = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(
             cms.PSet(
             src = cms.InputTag("phPFIsoDepositChargedAll"),
@@ -98,7 +98,7 @@ phPFIsoValueChargedAll04PFId = cms.EDProducer("CandIsolatorFromDeposits",
    )
 )
 
-phPFIsoValueGamma04PFId = cms.EDProducer("CandIsolatorFromDeposits",
+phPFIsoValueGamma04 = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(
             cms.PSet(
             src = cms.InputTag("phPFIsoDepositGamma"),
@@ -112,7 +112,7 @@ phPFIsoValueGamma04PFId = cms.EDProducer("CandIsolatorFromDeposits",
 )
 
 
-phPFIsoValueNeutral04PFId = cms.EDProducer("CandIsolatorFromDeposits",
+phPFIsoValueNeutral04 = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(
             cms.PSet(
             src = cms.InputTag("phPFIsoDepositNeutral"),
@@ -125,7 +125,7 @@ phPFIsoValueNeutral04PFId = cms.EDProducer("CandIsolatorFromDeposits",
  )
 
 )
-phPFIsoValuePU04PFId = cms.EDProducer("CandIsolatorFromDeposits",
+phPFIsoValuePU04 = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(
             cms.PSet(
             src = cms.InputTag("phPFIsoDepositPU"),
@@ -139,15 +139,15 @@ phPFIsoValuePU04PFId = cms.EDProducer("CandIsolatorFromDeposits",
 )
 
 photonPFIsolationValuesSequence = (
-    phPFIsoValueCharged03PFId+
-    phPFIsoValueChargedAll03PFId+
-    phPFIsoValueGamma03PFId+
-    phPFIsoValueNeutral03PFId+
-    phPFIsoValuePU03PFId+
+    phPFIsoValueCharged03+
+    phPFIsoValueChargedAll03+
+    phPFIsoValueGamma03+
+    phPFIsoValueNeutral03+
+    phPFIsoValuePU03+
     ############################## 
-    phPFIsoValueCharged04PFId+
-    phPFIsoValueChargedAll04PFId+
-    phPFIsoValueGamma04PFId+
-    phPFIsoValueNeutral04PFId+
-    phPFIsoValuePU04PFId
+    phPFIsoValueCharged04+
+    phPFIsoValueChargedAll04+
+    phPFIsoValueGamma04+
+    phPFIsoValueNeutral04+
+    phPFIsoValuePU04
     )

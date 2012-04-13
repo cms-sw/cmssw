@@ -69,10 +69,7 @@ bool EmissionVetoHook::doVetoMIStep(int, const Pythia8::Event &e) {
 
 // For subsequent ISR/FSR emissions, find the pT of the shower
 // emission and veto as necessary
-bool EmissionVetoHook::doVetoISREmission(int, const Pythia8::Event &e, int iSys) {
-  // Must be radiation from the hard system
-  if (iSys != 0) return false;
-
+bool EmissionVetoHook::doVetoISREmission(int, const Pythia8::Event &e) {
   // ISR - next shower emission is given status 43
   int i;
   for (i = e.size() - 1; i > last; i--)
@@ -95,10 +92,7 @@ bool EmissionVetoHook::doVetoISREmission(int, const Pythia8::Event &e, int iSys)
   return false;
 }
 
-bool EmissionVetoHook::doVetoFSREmission(int, const Pythia8::Event &e, int iSys, bool) {
-  // Must be radiation from the hard system
-  if (iSys != 0) return false;
-
+bool EmissionVetoHook::doVetoFSREmission(int, const Pythia8::Event &e) {
   // FSR - shower emission will have status 51 and not be t/tbar
   int i;
   for (i = e.size() - 1; i > last; i--)

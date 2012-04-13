@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/03/14 08:05:03 $
- *  $Revision: 1.8 $
+ *  $Date: 2012/03/21 12:08:38 $
+ *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
@@ -62,6 +62,9 @@ HLTEventAnalyzerAOD::beginRun(edm::Run const & iRun, edm::EventSetup const& iSet
 	  hltConfig_.dump("Triggers");
 	}
       }
+      hltConfig_.dump("ProcessName");
+      hltConfig_.dump("GlobalTag");
+      hltConfig_.dump("TableName");
       hltConfig_.dump("Streams");
       hltConfig_.dump("Datasets");
       hltConfig_.dump("PrescaleTable");

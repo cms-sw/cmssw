@@ -9,15 +9,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
-
-/*#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
-#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"*/
 
 #include "HLTriggerOffline/Higgs/interface/HLTHiggsPlotter.h"
 #include "HLTriggerOffline/Higgs/interface/HLTHiggsSubAnalysis.h"
@@ -31,11 +26,9 @@
 
 HLTHiggsPlotter::HLTHiggsPlotter(const edm::ParameterSet & pset,
 		const std::string & hltPath,
-		const std::string & lastfilter,
 		const std::vector<unsigned int> & objectsType,
 	       	DQMStore * dbe) :
 	_hltPath(hltPath),
-	_lastFilter(lastfilter),
 	_hltProcessName(pset.getParameter<std::string>("hltProcessName")),
 	_objectsType(std::set<unsigned int>(objectsType.begin(),objectsType.end())),
 	_nObjects(objectsType.size()),
@@ -48,11 +41,9 @@ HLTHiggsPlotter::HLTHiggsPlotter(const edm::ParameterSet & pset,
 			it != _objectsType.end(); ++it)
 	{
 		// Some parameters extracted from the .py
-		std::string objStr = this->getTypeString( *it );
+		std::string objStr = EVTColContainer::getTypeString( *it );
 		_cutMinPt[*it] = pset.getParameter<double>( std::string(objStr+"_cutMinPt").c_str() );
 		_cutMaxEta[*it] = pset.getParameter<double>( std::string(objStr+"_cutMaxEta").c_str() );
-		_cutMotherId[*it] = pset.getParameter<unsigned int>( std::string(objStr+"_cutMotherId").c_str() );
-		_cutsDr[*it] = pset.getParameter<std::vector<double> >( std::string(objStr+"_cutDr").c_str() );
 	}
 }
 
@@ -69,9 +60,6 @@ void HLTHiggsPlotter::beginJob()
 
 void HLTHiggsPlotter::beginRun(const edm::Run & iRun, const edm::EventSetup & iSetup)
 {
-	static int runNumber = 0;
-      	runNumber++;
-
 	for(std::set<unsigned int>::iterator it = _objectsType.begin(); 
 			it != _objectsType.end(); ++it)
 	{
@@ -79,7 +67,7 @@ void HLTHiggsPlotter::beginRun(const edm::Run & iRun, const edm::EventSetup & iS
 		sources[0] = "gen";
 		sources[1] = "rec";
 
-		const std::string objTypeStr = this->getTypeString(*it);
+		const std::string objTypeStr = EVTColContainer::getTypeString(*it);
 	  
 		for(size_t i = 0; i < sources.size(); i++) 
 		{
@@ -92,33 +80,61 @@ void HLTHiggsPlotter::beginRun(const edm::Run & iRun, const edm::EventSetup & iS
 	}
 }
 
-void HLTHiggsPlotter::analyze(const bool & isPassTrigger, const std::string & source,
-	       	const std::vector<MatchStruct> & matches)
+void HLTHiggsPlotter::analyze(const bool & isPassTrigger,const std::string & source,
+		const std::vector<MatchStruct> & matches)
 {
 	if( ! isPassTrigger )
 	{
 		return;
 	}
-
+	std::map<unsigned int,int> countobjects;
+	// Initializing the count of the used object
+	for(std::set<unsigned int>::iterator co = _objectsType.begin();
+			co != _objectsType.end(); ++co)
+	{
+		countobjects[*co] = 0;
+	}
+	
+	int counttotal = 0;
+	const int totalobjectssize2 = 2*countobjects.size();
 	// Fill the histos if pass the trigger (just the two with higher pt)
 	for(size_t j = 0; j < matches.size(); ++j)
 	{
-		std::string objTypeStr = this->getTypeString(matches[j].objType);
+		// Is this object owned by this trigger? If not we are not interested...
+		if( _objectsType.find( matches[j].objType) == _objectsType.end() )
+		{
+			 continue;
+		}
 
-		float pt  = matches[j].candBase->pt();
-		float eta = matches[j].candBase->eta();
-		float phi = matches[j].candBase->phi();
+   		const unsigned int objType = matches[j].objType;
+		const std::string objTypeStr = EVTColContainer::getTypeString(matches[j].objType);
+		
+		float pt  = matches[j].pt;
+		float eta = matches[j].eta;
+		float phi = matches[j].phi;
 		this->fillHist(isPassTrigger,source,objTypeStr,"Eta",eta);
 		this->fillHist(isPassTrigger,source,objTypeStr,"Phi",phi);
-		if( j == 0 )
+		if( countobjects[objType] == 0 )
 		{
 			this->fillHist(isPassTrigger,source,objTypeStr,"MaxPt1",pt);
+			// Filled the high pt ...
+			++(countobjects[objType]);
+			++counttotal;
 		}
-		else if( j == 1 )
+		else if( countobjects[objType] == 1 )
 		{
 			this->fillHist(isPassTrigger,source,objTypeStr,"MaxPt2",pt);
-			break;
+			// Filled the second high pt ...
+			++(countobjects[objType]);
+			++counttotal;
 		}
+		else
+		{
+			if( counttotal == totalobjectssize2 ) 
+			{
+				break;
+			}
+		}				
 	}
 }
 
@@ -173,34 +189,3 @@ void HLTHiggsPlotter::fillHist(const bool & passTrigger, const std::string & sou
 }
 
 
-//! 
-const std::string HLTHiggsPlotter::getTypeString(const unsigned int & objtype) const
-{
-	std::string objTypestr("Mu");
-
-	if( objtype == HLTHiggsSubAnalysis::ELEC )
-	{
-		objTypestr = "Ele";
-	}
-	else if( objtype == HLTHiggsSubAnalysis::PHOTON )
-	{
-		objTypestr = "Photon";
-	}
-	else if( objtype == HLTHiggsSubAnalysis::JET )
-	{
-		objTypestr = "Jet";
-	}
-	else if( objtype == HLTHiggsSubAnalysis::PFJET )
-	{
-		objTypestr = "PFJet";
-	}
-	else if( objtype == HLTHiggsSubAnalysis::CALOMET )
-	{
-		objTypestr = "ET";
-	}
-	/*else
-	{ ERROR FIXME
-	}*/
-
-	return objTypestr;
-}

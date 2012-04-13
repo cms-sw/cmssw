@@ -72,11 +72,10 @@ void SiPixelHLTSource::beginJob(){
 
 void SiPixelHLTSource::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
   LogInfo ("PixelDQM") << " SiPixelHLTSource::beginJob - Initialisation ... " << std::endl;
-  
+  iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
   if(firstRun){
     eventNo = 0;
     // Build map
-    iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
     // Book Monitoring Elements
     bookMEs();
     firstRun = false;

@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQMOffline.JetMET.jptDQMConfig_cff import *     #parameters for jpt analyzer
-from DQMOffline.JetMET.jetDQMConfig_cff import *     #parameters for all jet analyzers
-from DQMOffline.JetMET.metDQMConfig_cff import *     #parameters for all met analyzers
-from DQMOffline.JetMET.jetMETDQMCleanup_cff import * #parameters for event cleanup
+from DQMOffline.JetMET.jptDQMConfig_cff import *      # parameters for jpt analyzer
+from DQMOffline.JetMET.jetDQMConfig_cff import *      # parameters for all jet analyzers
+from DQMOffline.JetMET.metDQMConfig_cff import *      # parameters for all met analyzers
+from DQMOffline.JetMET.jetMETDQMCleanup_cff import *  # parameters for event cleanup
 
 jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
 
@@ -67,7 +67,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #                                                                   
     DoCaloMETAnalysis            = cms.untracked.bool(True),
     DoTcMETAnalysis              = cms.untracked.bool(True),
-    DoMuCorrMETAnalysis          = cms.untracked.bool(True),
+    DoMuCorrMETAnalysis          = cms.untracked.bool(False),
     DoPfMETAnalysis              = cms.untracked.bool(True),
     DoHTMHTAnalysis              = cms.untracked.bool(False),
 
@@ -138,8 +138,8 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
      # For tcMETAnalysis
      #
      tcMETAnalysis = metDQMParameters.clone(
-         METCollectionLabel     = cms.InputTag("tcMet"),
-         Source                 = cms.string("TcMET"),
+         METCollectionLabel = cms.InputTag("tcMet"),
+         Source             = cms.string("TcMET"),
          InputTrackLabel    = cms.InputTag("generalTracks"),
          InputMuonLabel     = cms.InputTag("muons"),
          InputElectronLabel = cms.InputTag("gsfElectrons"),
@@ -193,13 +193,13 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #
     DijetAnalysis = cleanedJetDQMParameters.clone(
         makedijetselection = cms.int32(1),
-        ptThreshold = cms.double(8.),
+        ptThreshold = cms.double(20.),
         fillJIDPassFrac   = cms.int32(1)
     ),
 
     PFDijetAnalysis = cleanedJetDQMParameters.clone(
         makedijetselection = cms.int32(1),
-        ptThreshold = cms.double(10.),
+        ptThreshold = cms.double(20.),
         fillJIDPassFrac   = cms.int32(1)
     ),
 
@@ -217,7 +217,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     # For PF jetAnalysis
     #
     pfJetAnalysis = jetDQMParameters.clone(
-    ptThreshold = cms.double(10.),
+    ptThreshold = cms.double(20.),
     TightCHFMin = cms.double(0.0),
     TightNHFMax = cms.double(1.0),
     TightCEFMax = cms.double(1.0),
@@ -236,7 +236,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     # For Cleaned PF jetAnalysis
     #
     CleanedpfJetAnalysis = cleanedJetDQMParameters.clone(
-    ptThreshold = cms.double(3.)
+    ptThreshold = cms.double(20.)
     ),
 
     #
