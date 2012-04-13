@@ -403,6 +403,7 @@ int EcalDeadCellDeltaRFilter::dPhiToMETfunc(const std::vector<reco::Jet> &jetTVe
      }
   }
 
+  if( minIdx == -1 ){} // removing a stupid compiling WARNING that minIdx NOT used.
 //  if( minIdx == -1 ) return 0;
 //  closeToMETjetsVec.push_back(jetTVec[minIdx]);
 

@@ -14,8 +14,8 @@ import FWCore.ParameterSet.Config as cms
 #For Filter Mode events are rejected if a dead cluster has a boundary energy of at least 'cutBoundEnergyDeadCellsEB/EE'
 
 EcalDeadCellBoundaryEnergyFilter = cms.EDFilter('EcalDeadCellBoundaryEnergyFilter',
-	recHitsEB = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-	recHitsEE = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+	recHitsEB = cms.InputTag("reducedEcalRecHitsEB"),
+	recHitsEE = cms.InputTag("reducedEcalRecHitsEE"),
 	FilterAlgo= cms.untracked.string("FilterMode"),
 	#### the following parameters skimGap, skimDead are only used in TuningMode
 	#### switch bool to True to turn on filter: only Events with chosen signature pass, otherwise all events pass
