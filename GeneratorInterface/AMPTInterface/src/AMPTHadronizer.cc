@@ -100,11 +100,9 @@ AMPTHadronizer::AMPTHadronizer(const ParameterSet &pset) :
     cosphi0_(1.),
     rotate_(pset.getParameter<bool>("rotateEventPlane"))
 {
-	cout << "entered constructor" << endl;
   // Default constructor
   edm::Service<RandomNumberGenerator> rng;
   _amptRandomEngine = &(rng->getEngine());
-	cout << "left constructor" << endl;
 }
 
 
@@ -175,7 +173,6 @@ HepMC::GenVertex* AMPTHadronizer::build_ampt_vertex(int i,int id)
 //_____________________________________________________________________  
 bool AMPTHadronizer::generatePartonsAndHadronize()
 {
-	cout << "Entered generatePartonsAndHadronize()" << endl;
    // generate single event
    if(rotate_) rotateEvtPlane();
 
@@ -208,7 +205,6 @@ bool AMPTHadronizer::get_particles(HepMC::GenEvent *evt )
       if(!evt->signal_process_vertex()) evt->set_signal_process_vertex(vertice);
 
       const unsigned int knumpart = hbt.nlast;
-//      cout<<"# of particles "<<knumpart<<" "<<hbt.nlast<<endl;
       for (unsigned int ipart = 0; ipart<knumpart; ipart++) {
          int mid = 0;
          particles.push_back(build_ampt(ipart,ipart+1));
@@ -217,8 +213,7 @@ bool AMPTHadronizer::get_particles(HepMC::GenEvent *evt )
          LogDebug("DecayChain")<<"Mother index : "<<mid;
       }
       
-//      LogDebug("AMPT")<<"Number of particles in vector "<<particles.size();
-//      cout<<"Number of particles in vector "<<particles.size();
+      LogDebug("AMPT")<<"Number of particles in vector "<<particles.size();
 
       for (unsigned int ipart = 0; ipart<particles.size(); ipart++) {
 	 HepMC::GenParticle* part = particles[ipart];
