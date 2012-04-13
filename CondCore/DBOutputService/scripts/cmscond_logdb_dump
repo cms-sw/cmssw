@@ -21,6 +21,8 @@ class logDBReader:
         """
         self.__parser=OptionParser()
         self.__connectstring=''
+        self.__destDb=''
+        self.__tag=''
         self.__user=''
         self.__password=''
         self.__authpath=''
@@ -32,11 +34,15 @@ class logDBReader:
         """
         usage = "usage: \%prog [options] \n"
         self.__parser.add_option("-c","--connect",action="store",dest="connectstring",type="string",help="connection string to the log DB")
+        self.__parser.add_option("-d","--destination",action="store",dest="destDb",type="string",help="connection string to the destination DB to filter")
+        self.__parser.add_option("-t","--tag",action="store",dest="tag",type="string",help="IOV tag to filter")
         self.__parser.add_option("-u","--user",action="store",dest="user",type="string",help="user name")
         self.__parser.add_option("-p","--password",action="store",dest="password",type="string",help="password")
         self.__parser.add_option("-P","--path",action="store",dest="authpath",type="string",help="path to authentication.xml")
         self.__parser.add_option("-v","--verbose",action="store_true",dest="verbose",help="verbose mode")
         self.__parser.set_defaults(connectstring='')
+        self.__parser.set_defaults(destDb='')
+        self.__parser.set_defaults(tag='')
         self.__parser.set_defaults(verbose=False)
         self.__parser.set_defaults(connectstring='')
         self.__parser.set_defaults(user='')
@@ -45,8 +51,18 @@ class logDBReader:
         (options, args) = self.__parser.parse_args()
         self.__verbose=self.__parser.values.verbose
         self.__connectstring=self.__parser.values.connectstring
+        if not self.__connectstring:
+            raise ValueError("Please provide a valid connection string")
         if self.__parser.values.verbose is True:
             print 'connectstring: ',self.__connectstring
+        if len(self.__parser.values.destDb) !=0 :
+            self.__destDb=self.__parser.values.destDb
+            if self.__parser.values.verbose is True:
+                print 'destination Database: ',self.__destDb
+        if len(self.__parser.values.tag) !=0 :
+            self.__tag=self.__parser.values.tag
+            if self.__parser.values.verbose is True:
+                print 'tag: ',self.__tag
         if len(self.__parser.values.user) !=0 :
             self.__user=self.__parser.values.user
             if self.__parser.values.verbose is True:
@@ -59,6 +75,7 @@ class logDBReader:
             self.__authpath=self.__parser.values.authpath
             if self.__parser.values.verbose is True:
                 print 'authpath: ',self.__authpath
+    
     def dumpAll(self):
         """
         Dump the content of the log 
@@ -71,7 +88,6 @@ class logDBReader:
         svc = coral.ConnectionService()
         config=svc.configuration()
         if len(self.__authpath)!=0:
-            print 'self.__authpath',self.__authpath
             os.environ["CORAL_AUTH_PATH"]=self.__authpath
             config.setDefaultAuthenticationService('CORAL/Services/XMLAuthenticationService')
         else:
@@ -83,7 +99,7 @@ class logDBReader:
         try:
             session.transaction().start(True)
             schema = session.nominalSchema()
-            query = schema.tableHandle('COND_LOG_TABLE').newQuery()
+            query = schema.tableHandle(self.__logtableName).newQuery()
             for currentRow in iter(query.execute()):
                 print str(currentRow) 
             session.transaction().commit()
@@ -92,7 +108,97 @@ class logDBReader:
         except Exception, e:
             print str(e)
             del session
+    
+    
+    def dumpTag(self):
+        """
+        Dump the content of the log filtering by IOV tag
+        """
+        #context = coral.Context()
+        #if self.__verbose is True:
+        #    context.setVerbosityLevel( 'DEBUG' )
+        #else:
+        #    context.setVerbosityLevel( 'ERROR' )
+        svc = coral.ConnectionService()
+        config=svc.configuration()
+        if len(self.__authpath)!=0:
+            os.environ["CORAL_AUTH_PATH"]=self.__authpath
+            config.setDefaultAuthenticationService('CORAL/Services/XMLAuthenticationService')
+        else:
+            os.environ["CORAL_AUTH_USER"]=self.__user
+            os.environ["CORAL_AUTH_PASSWORD"]=self.__password
+            config.setDefaultAuthenticationService('CORAL/Services/EnvironmentAuthenticationService')
+            
+        session=svc.connect(self.__connectstring,accessMode=coral.access_ReadOnly )
+        try:
+            conditionstring = "IOVTAG = :iovtag"
+            session.transaction().start(True)
+            schema = session.nominalSchema()
+            query = schema.tableHandle(self.__logtableName).newQuery()
+            queryBind = coral.AttributeList()
+            queryBind.extend("iovtag", "string")
+            queryBind["iovtag"].setData(self.__tag)
+            query.setCondition (conditionstring,queryBind)
+            for currentRow in iter(query.execute()):
+                print str(currentRow) 
+            session.transaction().commit()
+            del query
+            del session
+        except Exception, e:
+            print str(e)
+            del session
+
+    def dumpDestDb(self):
+        """
+        Dump the content of the log filtering by destination Database and IOV tag
+        """
+        #context = coral.Context()
+        #if self.__verbose is True:
+        #    context.setVerbosityLevel( 'DEBUG' )
+        #else:
+        #    context.setVerbosityLevel( 'ERROR' )
+        svc = coral.ConnectionService()
+        config=svc.configuration()
+        if len(self.__authpath)!=0:
+            os.environ["CORAL_AUTH_PATH"]=self.__authpath
+            config.setDefaultAuthenticationService('CORAL/Services/XMLAuthenticationService')
+        else:
+            os.environ["CORAL_AUTH_USER"]=self.__user
+            os.environ["CORAL_AUTH_PASSWORD"]=self.__password
+            config.setDefaultAuthenticationService('CORAL/Services/EnvironmentAuthenticationService')
+            
+        session=svc.connect(self.__connectstring,accessMode=coral.access_ReadOnly )
+        try:
+            conditionstring = "DESTINATIONDB = :destdb"
+            session.transaction().start(True)
+            schema = session.nominalSchema()
+            query = schema.tableHandle(self.__logtableName).newQuery()
+            queryBind = coral.AttributeList()
+            queryBind.extend("destdb", "string")
+            queryBind["destdb"].setData(self.__destDb)
+            if self.__tag:
+                 conditionstring += " AND IOVTAG = :iovtag"
+                 queryBind.extend("iovtag", "string")
+                 queryBind["iovtag"].setData(self.__tag)
+            query.setCondition (conditionstring,queryBind)
+            for currentRow in iter(query.execute()):
+                print str(currentRow) 
+            session.transaction().commit()
+            del query
+            del session
+        except Exception, e:
+            print str(e)
+            del session
+    
+    def dump(self):
+        if(self.__destDb):
+            self.dumpDestDb()
+        elif self.__tag:
+            self.dumpTag()
+        else:
+            self.dumpAll()
+
 if __name__ == "__main__":
     dumper=logDBReader()
     dumper.parsecmdln()
-    dumper.dumpAll()
+    dumper.dump()
