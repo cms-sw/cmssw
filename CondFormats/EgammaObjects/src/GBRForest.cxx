@@ -18,9 +18,15 @@ GBRForest::~GBRForest()
 }
 
 //_______________________________________________________________________
-GBRForest::GBRForest(const TMVA::MethodBDT *bdt) : 
-  fInitialResponse(bdt->GetBoostWeights().front())
+GBRForest::GBRForest(const TMVA::MethodBDT *bdt)
 {
+  
+  if (bdt->DoRegression()) {
+    fInitialResponse = bdt->GetBoostWeights().front();
+  }
+  else {
+    fInitialResponse = 0.;
+  }
   
   const std::vector<TMVA::DecisionTree*> &forest = bdt->GetForest();
   fTrees.reserve(forest.size());

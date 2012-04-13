@@ -18,6 +18,7 @@
 
 #include <vector>
 #include "GBRTree.h"
+#include <math.h>
 #include <stdio.h>
 
   namespace TMVA {
@@ -33,7 +34,8 @@
        virtual ~GBRForest();
        
        double GetResponse(const float* vector) const;
-      
+       double GetClassifier(const float* vector) const;
+       
        void SetInitialResponse(double response) { fInitialResponse = response; }
        
        std::vector<GBRTree> &Trees() { return fTrees; }
@@ -53,5 +55,11 @@ inline double GBRForest::GetResponse(const float* vector) const {
   }
   return response;
 }
-  
+
+//_______________________________________________________________________
+inline double GBRForest::GetClassifier(const float* vector) const {
+  double response = GetResponse(vector);
+  return 2.0/(1.0+exp(-2.0*response))-1; //MVA output between -1 and 1
+}
+
 #endif
