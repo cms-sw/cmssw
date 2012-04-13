@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: NotifyWorker.pl,v 1.7 2011/02/04 13:35:05 babar Exp $
+# $Id: NotifyWorker.pl,v 1.8 2011/10/05 09:21:28 babar Exp $
 # --
 # NotifyWoker.pl
 # Monitors a directory, and sends notifications to Tier0
@@ -75,6 +75,8 @@ POE::Session->create(
         notify_tier0     => \&notify_tier0,
         shutdown         => \&shutdown,
         heartbeat        => \&heartbeat,
+        switch_file      => \&switch_file,
+        set_rotate_alarm => \&set_rotate_alarm,
         setup_lock       => \&setup_lock,
         sig_child        => \&sig_child,
         sig_abort        => \&sig_abort,
@@ -96,6 +98,33 @@ sub gettimestamp($) {
     return strftime "%Y-%m-%d %H:%M:%S", localtime time;
 }
 
+# Switches logfiles daily
+sub switch_file {
+    my $kernel = $_[KERNEL];
+    $kernel->yield('set_rotate_alarm');
+    my %appenderPrefix = (
+        InjectLogfile       => 'log',
+        NotificationLogfile => 'notify',
+        NotifyLogfile       => 'lognotify'
+    );
+    my $appList = Log::Log4perl->appenders();
+    for my $appender ( keys %$appList ) {
+        my $app = $appList->{$appender};
+        $app->file_switch( get_logfile( $appenderPrefix{$appender} ) );
+    }
+}
+
+# Pseudo-hack to rotate files daily
+sub set_rotate_alarm {
+    my $kernel = $_[KERNEL];
+    my ( $sec, $min, $hour ) = localtime;
+    my $wakeme = time + 86400 + 1 - ( $sec + 60 * ( $min + 60 * $hour ) );
+    $kernel->call( 'logger',
+        info => strftime( "Set alarm for %Y-%m-%d %H:%M:%S", localtime $wakeme )
+    );
+    $kernel->alarm( switch_file => $wakeme );
+}
+
 # POE events
 sub start {
     my ( $kernel, $heap, $session ) = @_[ KERNEL, HEAP, SESSION ];
@@ -115,10 +144,13 @@ sub start {
     $kernel->select_read( $inotify_FH, "inotify_poll" );
 
     # Save offset files regularly
-    $kernel->alarm( save_offsets => time() + $savedelay );
+    $kernel->delay( save_offsets => $savedelay );
 
     # Print a heartbeat regularly
-    $kernel->alarm( heartbeat => time() + $heartbeat );
+    $kernel->delay( heartbeat => $heartbeat );
+
+    # Rotate logfiles daily
+    $kernel->yield('set_rotate_alarm');
 
     $kernel->post( 'logger', info => "Entering main while loop now" );
 }
@@ -357,7 +389,7 @@ sub heartbeat {
     $message .=
       ' Kernel has ' . $kernel->get_event_count() . ' events to process';
     $kernel->post( 'logger', info => $message );
-    $kernel->delay( heartbeat => +$heartbeat );
+    $kernel->delay( heartbeat => $heartbeat );
 }
 
 # Do something with all POE events which are not caught

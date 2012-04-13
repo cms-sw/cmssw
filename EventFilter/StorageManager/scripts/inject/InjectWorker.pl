@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.86 2012/04/11 12:10:05 babar Exp $
+# $Id: InjectWorker.pl,v 1.87 2012/04/12 21:14:32 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -182,10 +182,15 @@ sub gettimestamp($) {
 sub switch_file {
     my $kernel = $_[KERNEL];
     $kernel->yield('set_rotate_alarm');
-    my %categoryLogPrefix = ( InjectWorker => 'log', Notify => 'notify' );
-    for my $category ( keys %categoryLogPrefix ) {
-        my $log = Log::Log4perl->get_logger($category);
-        $log->file_switch( get_logfile( $categoryLogPrefix{$category} ) );
+    my %appenderPrefix = (
+        InjectLogfile       => 'log',
+        NotificationLogfile => 'notify',
+        NotifyLogfile       => 'lognotify'
+    );
+    my $appList = Log::Log4perl->appenders();
+    for my $appender ( keys %$appList ) {
+        my $app = $appList->{$appender};
+        $app->file_switch( get_logfile( $appenderPrefix{$appender} ) );
     }
 }
 
@@ -1172,7 +1177,7 @@ sub heartbeat {
     $message .=
       ' Kernel has ' . $kernel->get_event_count() . ' events to process';
     $kernel->call( 'logger', info => $message );
-    $kernel->delay( heartbeat => +$heartbeat );
+    $kernel->delay( heartbeat => $heartbeat );
 }
 
 # Do something with all POE events which are not caught
