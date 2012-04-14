@@ -20,8 +20,8 @@
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
-  <class name="pat::Electron"  ClassVersion="10">
-   <version ClassVersion="10" checksum="1662079993"/>
+  <class name="pat::Electron"  ClassVersion="15">
+   <version ClassVersion="15" checksum="990589145"/>
   </class>
   <class name="pat::Muon"  ClassVersion="11">
    <version ClassVersion="11" checksum="489577659"/>
@@ -123,6 +123,9 @@
   <class name="pat::Hemisphere"  ClassVersion="10">
    <version ClassVersion="10" checksum="2908192056"/>
   </class>
+  <class name="pat::Conversion"  ClassVersion="11">
+   <version ClassVersion="11" checksum="1239840459"/>
+  </class>
 
   <!-- PAT Object Ptrs  -->
   <class name="edm::Ptr<pat::Electron>" />
@@ -130,6 +133,7 @@
   <class name="edm::Ptr<pat::Tau>" />
   <class name="edm::Ptr<pat::Jet>" />
   <class name="edm::Ptr<pat::MET>" />
+  <class name="edm::Ptr<pat::Conversion>" />
 
   <!-- PAT Object Collections -->
   <class name="std::vector<pat::Electron>" />
@@ -144,6 +148,7 @@
   <class name="std::vector<pat::PFParticle>" />
   <class name="std::vector<pat::GenericParticle>" />
   <class name="std::vector<pat::Hemisphere>" />
+  <class name="std::vector<pat::Conversion>" />
 
   <!-- PAT Object Collection Iterators -->
   <class name="std::vector<pat::Electron>::const_iterator" />
@@ -158,6 +163,7 @@
   <class name="std::vector<pat::PFParticle>::const_iterator" />
   <class name="std::vector<pat::GenericParticle>::const_iterator" />
   <class name="std::vector<pat::Hemisphere>::const_iterator" />
+  <class name="std::vector<pat::Conversion>::const_iterator" />
 
   <!-- PAT Object Collection Wrappers -->
   <class name="edm::Wrapper<std::vector<pat::Electron> >" />
@@ -172,6 +178,7 @@
   <class name="edm::Wrapper<std::vector<pat::PFParticle> >" />
   <class name="edm::Wrapper<std::vector<pat::GenericParticle> >" />
   <class name="edm::Wrapper<std::vector<pat::Hemisphere> >" />
+  <class name="edm::Wrapper<std::vector<pat::Conversion> >" />
 
   <!-- PAT Object References -->
   <class name="pat::ElectronRef" />
@@ -186,6 +193,7 @@
   <class name="pat::PFParticleRef" />
   <class name="pat::GenericParticleRef" />
   <class name="pat::HemisphereRef" />
+  <class name="pat::ConversionRef" />
 
   <!-- PAT Object Ref Vectors -->
   <class name="pat::ElectronRefVector" />
@@ -199,6 +207,7 @@
   <class name="pat::PFParticleRefVector" />
   <class name="pat::GenericParticleRefVector" />
   <class name="pat::HemisphereRefVector" />
+  <class name="pat::ConversionRefVector" />
 
   <!-- PAT Object Ref Vector Wrappers -->
   <class name="edm::Wrapper<pat::ElectronRefVector>" />
@@ -212,6 +221,7 @@
   <class name="edm::Wrapper<pat::PFParticleRefVector>" />
   <class name="edm::Wrapper<pat::GenericParticleRefVector>" />
   <class name="edm::Wrapper<pat::HemisphereRefVector>" />
+  <class name="edm::Wrapper<pat::ConversionRefVector>" />
 
   <!-- RefToBase<Candidate> from PATObjects -->
     <!-- With direct Holder -->

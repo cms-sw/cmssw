@@ -17,6 +17,7 @@
 #include "DataFormats/PatCandidates/interface/PFParticle.h"
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
 #include "DataFormats/PatCandidates/interface/Hemisphere.h"
+#include "DataFormats/PatCandidates/interface/Conversion.h"
 
 #include "DataFormats/PatCandidates/interface/StringMap.h"
 #include "DataFormats/PatCandidates/interface/EventHypothesis.h"
@@ -65,6 +66,7 @@ namespace {
   std::vector<pat::PFParticle>::const_iterator	    v_p_pfp_ci;
   std::vector<pat::GenericParticle>::const_iterator v_p_gp_ci;
   std::vector<pat::Hemisphere>::const_iterator	    v_p_h_ci;
+  std::vector<pat::Conversion>::const_iterator      v_p_c_ci;
 
   /*   PAT Object Collection Wrappers   */
   edm::Wrapper<std::vector<pat::Electron> >	    w_v_p_e;
@@ -79,6 +81,7 @@ namespace {
   edm::Wrapper<std::vector<pat::PFParticle> >	    w_v_p_pfp;
   edm::Wrapper<std::vector<pat::GenericParticle> >  w_v_p_gp;
   edm::Wrapper<std::vector<pat::Hemisphere> >	    w_v_p_h;
+  edm::Wrapper<std::vector<pat::Conversion> >       w_v_p_c;
 
   /*   PAT Object References   */
   pat::ElectronRef	    p_r_e;
@@ -92,6 +95,7 @@ namespace {
   pat::PFParticleRef	    p_r_pgp;
   pat::GenericParticleRef   p_r_gp;
   pat::HemisphereRef	    p_r_h;
+  pat::ConversionRef        p_r_c;
 
   /*   PAT Object Ref Vector Wrappers   */
   edm::Wrapper<pat::ElectronRefVector>	        p_rv_e;
@@ -105,6 +109,7 @@ namespace {
   edm::Wrapper<pat::PFParticleRefVector>	p_rv_pgp;
   edm::Wrapper<pat::GenericParticleRefVector>   p_rv_gp;
   edm::Wrapper<pat::HemisphereRefVector>	p_rv_h;
+  edm::Wrapper<pat::ConversionRefVector>        p_rv_c;
 
   /*   RefToBase<Candidate> from PATObjects   */
     /*   With direct Holder   */
@@ -118,6 +123,7 @@ namespace {
   edm::reftobase::Holder<reco::Candidate, pat::CompositeCandidateRef>	rb_cand_h_p_cc;
   edm::reftobase::Holder<reco::Candidate, pat::PFParticleRef>	 	rb_cand_h_p_pfp;
   edm::reftobase::Holder<reco::Candidate, pat::GenericParticleRef>	rb_cand_h_p_gp;
+  edm::reftobase::Holder<reco::Candidate, pat::ConversionRef>           rb_cand_h_p_c;
     /*   With indirect holder (RefHolder)   */
   edm::reftobase::RefHolder<pat::ElectronRef>	 	rb_rh_p_e;
   edm::reftobase::RefHolder<pat::MuonRef>	 	rb_rh_p_mu;
@@ -129,6 +135,7 @@ namespace {
   edm::reftobase::RefHolder<pat::CompositeCandidateRef>	rb_rh_p_cc;
   edm::reftobase::RefHolder<pat::PFParticleRef>	 	rb_rh_p_pfp;
   edm::reftobase::RefHolder<pat::GenericParticleRef>    rb_rh_p_gp;
+  edm::reftobase::RefHolder<pat::ConversionRef>         rb_rh_p_c;
     /*   With direct VectorHolder   */
   /*   RefToBaseVector<Candidate> from PATObjects, not yet provided. Useful?   */
   /*
@@ -310,6 +317,7 @@ namespace {
   edm::Ptr<pat::Jet> ptr_Jet;
   edm::Ptr<pat::MET> ptr_MET;
   edm::Ptr<pat::Electron> ptr_Electron;
+  edm::Ptr<pat::Conversion> ptr_Conversion;
   edm::Ptr<pat::Muon> ptr_Muon;
   edm::Ptr<pat::Tau> ptr_Tau;
 

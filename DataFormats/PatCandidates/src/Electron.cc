@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.27 2011/10/22 10:30:41 sprenger Exp $
+// $Id: Electron.cc,v 1.28 2012/01/30 22:25:48 rwolf Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -317,4 +317,11 @@ void Electron::setDB(double dB, double edB, IpType type){
     cachedIP_[type] = true;
   }
 }
- 
+
+/// Set additional missing mva input variables for new mva ID : 14/04/2012 
+void Electron::setMvaVariables( double r9, double sigmaIphiIphi, double sigmaIetaIphi, double ip3d){
+  r9_ = r9;
+  sigmaIphiIphi_ = sigmaIphiIphi;
+  sigmaIetaIphi_ = sigmaIetaIphi;
+  ip3d_ = ip3d;
+} 

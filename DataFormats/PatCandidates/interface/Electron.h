@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.36 2011/10/22 10:30:41 sprenger Exp $
+// $Id: Electron.h,v 1.37 2012/01/30 22:25:47 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.36 2011/10/22 10:30:41 sprenger Exp $
+  \version  $Id: Electron.h,v 1.37 2012/01/30 22:25:47 rwolf Exp $
 */
 
 
@@ -154,6 +154,22 @@ namespace pat {
       /// pipe operator (introduced to use pat::Electron with PFTopProjectors)
       friend std::ostream& reco::operator<<(std::ostream& out, const pat::Electron& obj);
 
+      /// additional mva input variables
+      /// R9 variable
+      double r9() const { return r9_; };
+      /// sigmaIPhiPhi
+      double sigmaIphiIphi() const { return sigmaIphiIphi_; };    
+      /// sigmaIEtaIPhi
+      double sigmaIetaIphi() const { return sigmaIetaIphi_; };    
+      /// ip3d
+      double ip3d() const { return ip3d_; }
+      /// set missing mva input variables 
+      void setMvaVariables( double r9, double sigmaIphiIphi, double sigmaIetaIphi, double ip3d );
+
+      /// vertex fit combined with missing number of hits method
+      bool passConversionVeto() { return passConversionVeto_; }
+      void setPassConversionVeto( bool flag ) { passConversionVeto_ = flag; }
+
     protected:
       /// init impact parameter defaults (for use in a constructor)
       void initImpactParameters();
@@ -199,6 +215,15 @@ namespace pat {
       double  dB_;
       /// Impact paramater uncertainty at the primary vertex
       double  edB_;
+
+      /// additional missing mva variables : 14/04/2012
+      double r9_;
+      double sigmaIphiIphi_;
+      double sigmaIetaIphi_;    
+      double ip3d_;
+
+      /// conversion veto 
+      bool passConversionVeto_;
 
       // ---- cached impact parameters ----
       /// True if the IP (former dB) has been cached
