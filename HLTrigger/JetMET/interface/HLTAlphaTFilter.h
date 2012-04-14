@@ -31,6 +31,7 @@ class HLTAlphaTFilter : public HLTFilter {
       edm::InputTag inputJetTagFastJet_; // input tag identifying a second collection of jets
       std::vector<double> minPtJet_;
       std::vector<double> etaJet_;
+      unsigned int maxNJets_;
       double minHt_;
       double minAlphaT_;
       int triggerType_;

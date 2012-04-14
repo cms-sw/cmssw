@@ -1,9 +1,9 @@
 /** \class HLTAlphaTFilter
-*
-*
-*  \author Bryn Mathias
-*
-*/
+ *
+ *
+ *  \author Bryn Mathias
+ *
+ */
 
 #include "HLTrigger/JetMET/interface/HLTAlphaTFilter.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -36,19 +36,20 @@ HLTAlphaTFilter<T>::HLTAlphaTFilter(const edm::ParameterSet& iConfig) : HLTFilte
   inputJetTagFastJet_  = iConfig.getParameter< edm::InputTag > ("inputJetTagFastJet"); 
   minPtJet_            = iConfig.getParameter<std::vector<double> > ("minPtJet"); 
   etaJet_              = iConfig.getParameter<std::vector<double> > ("etaJet"); 
+  maxNJets_            = iConfig.getParameter<int> ("maxNJets"); 
   minHt_               = iConfig.getParameter<double> ("minHt"); 
   minAlphaT_           = iConfig.getParameter<double> ("minAlphaT");
   triggerType_         = iConfig.getParameter<int>("triggerType");
-// sanity checks
+  // sanity checks
   
   if (       (minPtJet_.size()    !=  etaJet_.size())
-  || (  (minPtJet_.size()<1) || (etaJet_.size()<1) )
-  || ( ((minPtJet_.size()<2) || (etaJet_.size()<2))))
-  {
-  edm::LogError("HLTAlphaTFilter") << "inconsistent module configuration!";
-  }
+	     || (  (minPtJet_.size()<1) || (etaJet_.size()<1) )
+	     || ( ((minPtJet_.size()<2) || (etaJet_.size()<2))))
+    {
+      edm::LogError("HLTAlphaTFilter") << "inconsistent module configuration!";
+    }
 
-//register your products
+  //register your products
 }
 
 template<typename T>
@@ -76,7 +77,7 @@ void HLTAlphaTFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descri
     temp1.push_back(9999.0);
     desc.add<std::vector<double> >("etaJet",temp1);
   }
-
+  desc.add<int>("maxNJets",15);
   desc.add<double>("minHt",0.0);
   desc.add<double>("minAlphaT",0.0);
   desc.add<int>("triggerType",trigger::TriggerJet);
@@ -98,7 +99,7 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
   typedef vector<T> TCollection;
   typedef Ref<TCollection> TRef;
 
-// The filter object
+  // The filter object
   if (saveTags()) filterproduct.addCollectionTag(inputJetTag_);  
 
   TRef ref;
@@ -117,60 +118,67 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
 
 
 
-// look at all candidates,  check cuts and add to filter object
+  // look at all candidates,  check cuts and add to filter object
   int n(0), flag(0);
   double htFast = 0.;
+  unsigned int njets(0);
 
-if(recojets->size() > 1){
-  // events with at least two jets, needed for alphaT
-  // Make a vector of Lorentz Jets for the AlphaT calcualtion
-  std::vector<LorentzV> jets;
-  typename TCollection::const_iterator ijet     = recojets->begin();
-  typename TCollection::const_iterator ijetFast = recojetsFastJet->begin();
-  typename TCollection::const_iterator jjet     = recojets->end(); 
+  if(recojets->size() > 1){
+    // events with at least two jets, needed for alphaT
+    // Make a vector of Lorentz Jets for the AlphaT calcualtion
+    std::vector<LorentzV> jets;
+    typename TCollection::const_iterator ijet     = recojets->begin();
+    typename TCollection::const_iterator ijetFast = recojetsFastJet->begin();
+    typename TCollection::const_iterator jjet     = recojets->end(); 
 
 
 
-  for( ; ijet != jjet; ijet++, ijetFast++ ) {
-    if( flag == 1) break;
-    // Do Some Jet selection!
-    if( std::abs(ijet->eta()) > etaJet_.at(0) ) continue;
-    if( ijet->et() < minPtJet_.at(1) ) continue;
+    for( ; ijet != jjet; ijet++, ijetFast++ ) {
+      if( flag == 1) break;
+      // Do Some Jet selection!
+      if( std::abs(ijet->eta()) > etaJet_.at(0) ) continue;
+      if( ijet->et() < minPtJet_.at(0) ) continue;
+      njets++;
 
-      if( std::abs(ijetFast->eta()) < etaJet_.at(0) ){
-      if( ijetFast->et() > minPtJet_.at(1) ) {
-    // Add to HT
-        htFast += ijetFast->et();
-      }
-     }      
+      if (njets > maxNJets_) //to keep timing reasonable - if too many jets passing pt / eta cuts, just accept the event
+	flag = 1;
+
+      else {
+
+	if( std::abs(ijetFast->eta()) < etaJet_.at(1) ){
+	  if( ijetFast->et() > minPtJet_.at(1) ) {
+	    // Add to HT
+	    htFast += ijetFast->et();
+	  }
+	}      
     
-    // Add to JetVector    
-    LorentzV JetLVec(ijet->pt(),ijet->eta(),ijet->phi(),ijet->mass());
-    jets.push_back( JetLVec );
-    double aT = AlphaT()(jets);
-    if(htFast > minHt_ && aT > minAlphaT_){
-      // set flat to one so that we don't carry on looping though the jets
-        flag = 1;
+	// Add to JetVector    
+	LorentzV JetLVec(ijet->pt(),ijet->eta(),ijet->phi(),ijet->mass());
+	jets.push_back( JetLVec );
+	double aT = AlphaT()(jets);
+	if(htFast > minHt_ && aT > minAlphaT_){
+	  // set flat to one so that we don't carry on looping though the jets
+	  flag = 1;
+	}
+      }
+
     }
-  }
 
-
-
-  if (flag==1) {
-    for (typename TCollection::const_iterator recojet = recojets->begin(); recojet!=jjet; recojet++) {
-      if (recojet->et() > minPtJet_.at(0)) {
-        ref = TRef(recojets,distance(recojets->begin(),recojet));
-        filterproduct.addObject(triggerType_,ref);
-        n++;
+    if (flag==1) {
+      for (typename TCollection::const_iterator recojet = recojets->begin(); recojet!=jjet; recojet++) {
+	if (recojet->et() > minPtJet_.at(0)) {
+	  ref = TRef(recojets,distance(recojets->begin(),recojet));
+	  filterproduct.addObject(triggerType_,ref);
+	  n++;
+	}
       }
     }
-  }
-}// events with at least two jet
+  }// events with at least two jet
 
-// filter decision
-bool accept(n>0);
-
+  // filter decision
+  bool accept(n>0);
 
 
-return accept;
+
+  return accept;
 }
