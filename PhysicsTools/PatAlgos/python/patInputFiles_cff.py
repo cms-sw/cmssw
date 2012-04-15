@@ -15,7 +15,7 @@ filesRelValProdTTbarGENSIMRECO = cms.untracked.vstring(
                         , relVal        = 'RelValProdTTbar'
                         , globalTag     = 'START52_V4A'
                         , dataTier      = 'GEN-SIM-RECO'
-                        , maxVersions   = 3
+                        , maxVersions   = 1
                         , numberOfFiles = 1
                         )
     )
@@ -24,7 +24,7 @@ filesSingleMuRECO = cms.untracked.vstring(
                         , relVal        = 'SingleMu'
                         , dataTier      = 'RECO'
                         , globalTag     = 'GR_R_52_V4_RelVal_mu2011B'
-                        , maxVersions   = 3
+                        , maxVersions   = 1
                         , numberOfFiles = 1
                         )
     )
