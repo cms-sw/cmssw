@@ -36,7 +36,7 @@ HLTAlphaTFilter<T>::HLTAlphaTFilter(const edm::ParameterSet& iConfig) : HLTFilte
   inputJetTagFastJet_  = iConfig.getParameter< edm::InputTag > ("inputJetTagFastJet"); 
   minPtJet_            = iConfig.getParameter<std::vector<double> > ("minPtJet"); 
   etaJet_              = iConfig.getParameter<std::vector<double> > ("etaJet"); 
-  maxNJets_            = iConfig.getParameter<int> ("maxNJets"); 
+  maxNJets_            = iConfig.getParameter<unsigned int> ("maxNJets"); 
   minHt_               = iConfig.getParameter<double> ("minHt"); 
   minAlphaT_           = iConfig.getParameter<double> ("minAlphaT");
   triggerType_         = iConfig.getParameter<int>("triggerType");
@@ -77,7 +77,7 @@ void HLTAlphaTFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descri
     temp1.push_back(9999.0);
     desc.add<std::vector<double> >("etaJet",temp1);
   }
-  desc.add<int>("maxNJets",15);
+  desc.add<unsigned int>("maxNJets",32);
   desc.add<double>("minHt",0.0);
   desc.add<double>("minAlphaT",0.0);
   desc.add<int>("triggerType",trigger::TriggerJet);
