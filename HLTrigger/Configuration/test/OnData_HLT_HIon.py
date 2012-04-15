@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V75 (CMSSW_5_2_3_HLT5)
+# /dev/CMSSW_5_2_1/HIon/V77 (CMSSW_5_2_3_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V75')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V77')
 )
 
 process.streams = cms.PSet( 
@@ -3054,18 +3054,18 @@ process.MessageLogger = cms.Service( "MessageLogger",
       default = cms.untracked.PSet(  limit = cms.untracked.int32( 0 ) ),
       FwkJob = cms.untracked.PSet(  limit = cms.untracked.int32( 10000000 ) )
     ),
-    suppressWarning = cms.untracked.vstring( 'hltL3MuonsOIState',
-      'hltPixelVertices3DbbPhi',
-      'hltSiPixelDigis',
+    suppressWarning = cms.untracked.vstring( 'hltOnlineBeamSpot',
+      'hltL3MuonsOIState',
       'hltPixelTracksForHighMult',
-      'hltSiPixelClusters',
-      'hltLightPFTracks',
-      'hltPixelTracks',
-      'hltOnlineBeamSpot',
-      'hltL3MuonsOIHit',
       'hltHITPixelTracksHE',
       'hltHITPixelTracksHB',
-      'hltL3MuonsIOHit' ),
+      'hltSiPixelClusters',
+      'hltLightPFTracks',
+      'hltPixelVertices3DbbPhi',
+      'hltL3MuonsIOHit',
+      'hltPixelTracks',
+      'hltSiPixelDigis',
+      'hltL3MuonsOIHit' ),
     errors = cms.untracked.PSet( 
       threshold = cms.untracked.string( "INFO" ),
       placeholder = cms.untracked.bool( True ),
@@ -3087,7 +3087,11 @@ process.MessageLogger = cms.Service( "MessageLogger",
       'cout',
       'cerr' ),
     threshold = cms.untracked.string( "INFO" ),
-    suppressError = cms.untracked.vstring( 'hltOnlineBeamSpot' )
+    suppressError = cms.untracked.vstring( 'hltOnlineBeamSpot',
+      'hltL3MuonCandidates',
+      'hltL3TkTracksFromL2OIState',
+      'hltL3TkTracksFromL2IOHit',
+      'hltL3TkTracksFromL2OIHit' )
 )
 process.MicroStateService = cms.Service( "MicroStateService",
 )

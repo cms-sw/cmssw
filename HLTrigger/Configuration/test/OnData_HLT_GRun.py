@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/GRun/V75 (CMSSW_5_2_3_HLT5)
+# /dev/CMSSW_5_2_1/GRun/V77 (CMSSW_5_2_3_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V75')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V77')
 )
 
 process.streams = cms.PSet( 
@@ -3745,18 +3745,18 @@ process.MessageLogger = cms.Service( "MessageLogger",
       default = cms.untracked.PSet(  limit = cms.untracked.int32( 0 ) ),
       FwkJob = cms.untracked.PSet(  limit = cms.untracked.int32( 10000000 ) )
     ),
-    suppressWarning = cms.untracked.vstring( 'hltL3MuonsOIState',
-      'hltPixelVertices3DbbPhi',
-      'hltSiPixelDigis',
+    suppressWarning = cms.untracked.vstring( 'hltOnlineBeamSpot',
+      'hltL3MuonsOIState',
       'hltPixelTracksForHighMult',
-      'hltSiPixelClusters',
-      'hltLightPFTracks',
-      'hltPixelTracks',
-      'hltOnlineBeamSpot',
-      'hltL3MuonsOIHit',
       'hltHITPixelTracksHE',
       'hltHITPixelTracksHB',
-      'hltL3MuonsIOHit' ),
+      'hltSiPixelClusters',
+      'hltLightPFTracks',
+      'hltPixelVertices3DbbPhi',
+      'hltL3MuonsIOHit',
+      'hltPixelTracks',
+      'hltSiPixelDigis',
+      'hltL3MuonsOIHit' ),
     errors = cms.untracked.PSet( 
       threshold = cms.untracked.string( "INFO" ),
       placeholder = cms.untracked.bool( True ),
@@ -3778,7 +3778,11 @@ process.MessageLogger = cms.Service( "MessageLogger",
       'cout',
       'cerr' ),
     threshold = cms.untracked.string( "INFO" ),
-    suppressError = cms.untracked.vstring( 'hltOnlineBeamSpot' )
+    suppressError = cms.untracked.vstring( 'hltOnlineBeamSpot',
+      'hltL3MuonCandidates',
+      'hltL3TkTracksFromL2OIState',
+      'hltL3TkTracksFromL2IOHit',
+      'hltL3TkTracksFromL2OIHit' )
 )
 process.MicroStateService = cms.Service( "MicroStateService",
 )
@@ -12376,6 +12380,7 @@ process.hltPreHT200AlphaT0p57 = cms.EDFilter( "HLTPrescaler",
 )
 process.hltHT200AlphaT0p57 = cms.EDFilter( "HLTAlphaTCaloJetFilter",
     saveTags = cms.bool( False ),
+    maxNJets = cms.uint32( 15 ),
     inputJetTag = cms.InputTag( "hltCaloJetCorrected" ),
     inputJetTagFastJet = cms.InputTag( "hltCaloJetL1FastJetCorrected" ),
     minAlphaT = cms.double( 0.57 ),
@@ -12416,6 +12421,7 @@ process.hltPreHT250AlphaT0p55 = cms.EDFilter( "HLTPrescaler",
 )
 process.hltHT250AlphaT0p55 = cms.EDFilter( "HLTAlphaTCaloJetFilter",
     saveTags = cms.bool( False ),
+    maxNJets = cms.uint32( 15 ),
     inputJetTag = cms.InputTag( "hltCaloJetCorrected" ),
     inputJetTagFastJet = cms.InputTag( "hltCaloJetL1FastJetCorrected" ),
     minAlphaT = cms.double( 0.55 ),
@@ -12431,6 +12437,7 @@ process.hltPreHT250AlphaT0p57 = cms.EDFilter( "HLTPrescaler",
 )
 process.hltHT250AlphaT0p57 = cms.EDFilter( "HLTAlphaTCaloJetFilter",
     saveTags = cms.bool( False ),
+    maxNJets = cms.uint32( 15 ),
     inputJetTag = cms.InputTag( "hltCaloJetCorrected" ),
     inputJetTagFastJet = cms.InputTag( "hltCaloJetL1FastJetCorrected" ),
     minAlphaT = cms.double( 0.57 ),
@@ -12897,6 +12904,7 @@ process.hltPreHT300AlphaT0p53 = cms.EDFilter( "HLTPrescaler",
 )
 process.hltHT300AlphaT0p53 = cms.EDFilter( "HLTAlphaTCaloJetFilter",
     saveTags = cms.bool( False ),
+    maxNJets = cms.uint32( 15 ),
     inputJetTag = cms.InputTag( "hltCaloJetCorrected" ),
     inputJetTagFastJet = cms.InputTag( "hltCaloJetL1FastJetCorrected" ),
     minAlphaT = cms.double( 0.53 ),
@@ -12912,6 +12920,7 @@ process.hltPreHT300AlphaT0p54 = cms.EDFilter( "HLTPrescaler",
 )
 process.hltHT300AlphaT0p54 = cms.EDFilter( "HLTAlphaTCaloJetFilter",
     saveTags = cms.bool( False ),
+    maxNJets = cms.uint32( 15 ),
     inputJetTag = cms.InputTag( "hltCaloJetCorrected" ),
     inputJetTagFastJet = cms.InputTag( "hltCaloJetL1FastJetCorrected" ),
     minAlphaT = cms.double( 0.54 ),
@@ -13124,6 +13133,7 @@ process.hltPreHT350AlphaT0p52 = cms.EDFilter( "HLTPrescaler",
 )
 process.hltHT350AlphaT0p52 = cms.EDFilter( "HLTAlphaTCaloJetFilter",
     saveTags = cms.bool( False ),
+    maxNJets = cms.uint32( 15 ),
     inputJetTag = cms.InputTag( "hltCaloJetCorrected" ),
     inputJetTagFastJet = cms.InputTag( "hltCaloJetL1FastJetCorrected" ),
     minAlphaT = cms.double( 0.52 ),
@@ -13139,6 +13149,7 @@ process.hltPreHT350AlphaT0p53 = cms.EDFilter( "HLTPrescaler",
 )
 process.hltHT350AlphaT0p53 = cms.EDFilter( "HLTAlphaTCaloJetFilter",
     saveTags = cms.bool( False ),
+    maxNJets = cms.uint32( 15 ),
     inputJetTag = cms.InputTag( "hltCaloJetCorrected" ),
     inputJetTagFastJet = cms.InputTag( "hltCaloJetL1FastJetCorrected" ),
     minAlphaT = cms.double( 0.53 ),
@@ -13167,6 +13178,7 @@ process.hltPreHT400AlphaT0p51 = cms.EDFilter( "HLTPrescaler",
 )
 process.hltHT400AlphaT0p51 = cms.EDFilter( "HLTAlphaTCaloJetFilter",
     saveTags = cms.bool( False ),
+    maxNJets = cms.uint32( 15 ),
     inputJetTag = cms.InputTag( "hltCaloJetCorrected" ),
     inputJetTagFastJet = cms.InputTag( "hltCaloJetL1FastJetCorrected" ),
     minAlphaT = cms.double( 0.51 ),
@@ -13182,6 +13194,7 @@ process.hltPreHT400AlphaT0p52 = cms.EDFilter( "HLTPrescaler",
 )
 process.hltHT400AlphaT0p52 = cms.EDFilter( "HLTAlphaTCaloJetFilter",
     saveTags = cms.bool( False ),
+    maxNJets = cms.uint32( 15 ),
     inputJetTag = cms.InputTag( "hltCaloJetCorrected" ),
     inputJetTagFastJet = cms.InputTag( "hltCaloJetL1FastJetCorrected" ),
     minAlphaT = cms.double( 0.52 ),
@@ -13197,6 +13210,7 @@ process.hltPreHT450AlphaT0p51 = cms.EDFilter( "HLTPrescaler",
 )
 process.hltHT450AlphaT0p51 = cms.EDFilter( "HLTAlphaTCaloJetFilter",
     saveTags = cms.bool( False ),
+    maxNJets = cms.uint32( 15 ),
     inputJetTag = cms.InputTag( "hltCaloJetCorrected" ),
     inputJetTagFastJet = cms.InputTag( "hltCaloJetL1FastJetCorrected" ),
     minAlphaT = cms.double( 0.51 ),
@@ -38771,6 +38785,18 @@ process.hltLogMonitorFilter = cms.EDFilter( "HLTLogMonitorFilter",
     saveTags = cms.bool( False ),
     default_threshold = cms.uint32( 10 ),
     categories = cms.VPSet( 
+      cms.PSet(  name = cms.string( "TooManyTriplets" ),
+        threshold = cms.uint32( 0 )
+      ),
+      cms.PSet(  name = cms.string( "Muon" ),
+        threshold = cms.uint32( 0 )
+      ),
+      cms.PSet(  name = cms.string( "RecoMuon" ),
+        threshold = cms.uint32( 0 )
+      ),
+      cms.PSet(  name = cms.string( "L3MuonCandidateProducer" ),
+        threshold = cms.uint32( 0 )
+      )
     )
 )
 process.hltPreDTErrors = cms.EDFilter( "HLTPrescaler",
