@@ -10,7 +10,7 @@ class CombinedSeedComparitor : public SeedComparitor {
         CombinedSeedComparitor(const edm::ParameterSet &cfg) ;
         virtual ~CombinedSeedComparitor() ; 
         virtual void init(const edm::EventSetup& es) ;
-        virtual bool compatible(const SeedingHitSet  &hits, const TrackingRegion & region) ;
+        virtual bool compatible(const SeedingHitSet  &hits, const TrackingRegion & region) const ;
         virtual bool compatible(const TrajectorySeed &seed) const ;
         virtual bool compatible(const TrajectoryStateOnSurface &,  
                 const TransientTrackingRecHit::ConstRecHitPointer &hit) const ;
@@ -56,9 +56,9 @@ CombinedSeedComparitor::init(const edm::EventSetup& es) {
 }
 
 bool
-CombinedSeedComparitor::compatible(const SeedingHitSet  &hits, const TrackingRegion & region)
+CombinedSeedComparitor::compatible(const SeedingHitSet  &hits, const TrackingRegion & region) const
 {
-    typedef boost::ptr_vector<SeedComparitor>::iterator ITC;
+    typedef boost::ptr_vector<SeedComparitor>::const_iterator ITC;
     for (ITC it = comparitors_.begin(), ed = comparitors_.end(); it != ed; ++it) {
         bool pass = it->compatible(hits, region);
         if (isAnd_ != pass) return pass; // break on failures if doing an AND, and on successes if doing an OR
