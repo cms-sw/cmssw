@@ -245,7 +245,8 @@ void EcalDeadCellTriggerPrimitiveFilter::loadEventInfoForFilter(const edm::Event
      }
   }
   else if( hastpDigiCollection_ ){ useTPmethod_ = true; useHITmethod_ = false; }
-  else if( majorV >=4 && minorV >=2 ){ useTPmethod_ = false; useHITmethod_ = true; }
+//  else if( majorV >=4 && minorV >=2 ){ useTPmethod_ = false; useHITmethod_ = true; }
+  else if( majorV >=5 || (majorV==4 && minorV >=2) ){ useTPmethod_ = false; useHITmethod_ = true; }
   else{ useTPmethod_ = false; useHITmethod_ = false; 
      if( debug_ ){
         std::cout<<"\nWARNING ... TP filter can ONLY be used in AOD after 42X"<<std::endl;
