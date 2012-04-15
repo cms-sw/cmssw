@@ -171,7 +171,7 @@ process.out.outputCommands = cms.untracked.vstring('drop *', *patEventContentNoC
 #                                         ##
 #   process.source.fileNames =  ...       ##  (e.g. 'file:AOD.root')
 #                                         ##
-process.maxEvents.input = 100
+process.maxEvents.input = 1000
 #                                         ##
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #                                         ##
