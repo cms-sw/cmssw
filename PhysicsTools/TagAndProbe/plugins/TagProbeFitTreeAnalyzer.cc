@@ -40,6 +40,9 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
   } else if (pset.existsAs<uint32_t>("binsForMassPlots")) {
     fitter.setBinsForMassPlots(pset.getParameter<uint32_t>("binsForMassPlots"));
   }
+  if (pset.existsAs<bool>("saveDistributionsPlot")) {
+     fitter.setSaveDistributionsPlot(pset.getParameter<bool>("saveDistributionsPlot"));
+  }
 
   if (pset.existsAs<std::string>("WeightVariable")) {
     fitter.setWeightVar(pset.getParameter<std::string>("WeightVariable"));
