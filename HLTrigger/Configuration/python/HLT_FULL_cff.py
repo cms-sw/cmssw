@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/HLT/V172 (CMSSW_5_2_3_HLT6)
+# /dev/CMSSW_5_2_1/HLT/V174 (CMSSW_5_2_3_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V172')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V174')
 )
 
 streams = cms.PSet( 
@@ -16258,7 +16258,7 @@ hltDimuon0or33L2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
     MinNstations = cms.vint32( 0 )
 )
 hltTauTo2MuL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     ChargeOpt = cms.int32( 0 ),
     MaxPtMin = cms.vdouble( 1.0E125 ),
     FastAccept = cms.bool( False ),
@@ -17891,7 +17891,7 @@ hltPreMu5L2Mu3Jpsi = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 hltMu5L2Mu3L1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     CSCTFtag = cms.InputTag( "unused" ),
     PreviousCandTag = cms.InputTag( "hltL1sL1DoubleMu0erHighQ" ),
     MinPt = cms.double( 0.0 ),
@@ -17902,7 +17902,7 @@ hltMu5L2Mu3L1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     ExcludeSingleSegmentCSC = cms.bool( False )
 )
 hltMu5L2Mu3L2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
     PreviousCandTag = cms.InputTag( "hltMu5L2Mu3L1Filtered0" ),
@@ -17923,7 +17923,7 @@ hltMu5L2Mu3L2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
 )
 hltMu5L2Mu3L3Filtered5 = cms.EDFilter( "HLTMuonL3PreFilter",
     MaxNormalizedChi2 = cms.double( 9999.0 ),
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     PreviousCandTag = cms.InputTag( "hltMu5L2Mu3L2PreFiltered0" ),
     MinNmuonHits = cms.int32( 0 ),
     MinN = cms.int32( 1 ),
@@ -17965,7 +17965,7 @@ hltPreMu5Track2Jpsi = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 hltMu5TrackJpsiL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     CSCTFtag = cms.InputTag( "unused" ),
     PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu3" ),
     MinPt = cms.double( 0.0 ),
@@ -17976,7 +17976,7 @@ hltMu5TrackJpsiL1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
     ExcludeSingleSegmentCSC = cms.bool( False )
 )
 hltMu5TrackJpsiL2Filtered3 = cms.EDFilter( "HLTMuonL2PreFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     MaxDr = cms.double( 9999.0 ),
     CutOnChambers = cms.bool( False ),
     PreviousCandTag = cms.InputTag( "hltMu5TrackJpsiL1Filtered0" ),
@@ -17997,7 +17997,7 @@ hltMu5TrackJpsiL2Filtered3 = cms.EDFilter( "HLTMuonL2PreFilter",
 )
 hltMu5TrackJpsiL3Filtered3 = cms.EDFilter( "HLTMuonL3PreFilter",
     MaxNormalizedChi2 = cms.double( 9999.0 ),
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     PreviousCandTag = cms.InputTag( "hltMu5TrackJpsiL2Filtered3" ),
     MinNmuonHits = cms.int32( 0 ),
     MinN = cms.int32( 1 ),
@@ -18030,7 +18030,7 @@ hltMuTrackJpsiPixelTrackCands = cms.EDProducer( "ConcreteChargedCandidateProduce
     particleType = cms.string( "mu-" )
 )
 hltMu5Track1JpsiPixelMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter",
-    saveTags = cms.bool( False ),
+    saveTags = cms.bool( True ),
     MaxDCAMuonTrack = cms.double( 99999.9 ),
     PreviousCandTag = cms.InputTag( "hltMu5TrackJpsiL3Filtered3" ),
     TrackTag = cms.InputTag( "hltMuTrackJpsiPixelTrackCands" ),
