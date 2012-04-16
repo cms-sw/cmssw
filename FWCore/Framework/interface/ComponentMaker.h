@@ -32,6 +32,7 @@
 namespace edm {
    namespace eventsetup {
       class EventSetupProvider;
+      class EventSetupsController;
       class DataProxyProvider;
     
       class ComponentMakerBaseHelper
@@ -39,17 +40,17 @@ namespace edm {
       public:
         virtual ~ComponentMakerBaseHelper() {}
       protected:
+        void logInfoWhenSharing(ParameterSet const& iConfiguration) const;
         ComponentDescription createComponentDescription(ParameterSet const& iConfiguration) const;
       };
  
       template <class T>
-      class ComponentMakerBase : private ComponentMakerBaseHelper {
+      class ComponentMakerBase : public ComponentMakerBaseHelper {
       public:
          typedef typename T::base_type base_type;
-         virtual boost::shared_ptr<base_type> addTo(EventSetupProvider& iProvider,
-                     ParameterSet const& iConfiguration) const = 0;
-      protected:
-	using ComponentMakerBaseHelper::createComponentDescription;
+         virtual boost::shared_ptr<base_type> addTo(EventSetupsController& esController,
+                                                    EventSetupProvider& iProvider,
+                                                    ParameterSet const& iConfiguration) const = 0;
       };
       
    template <class T, class TComponent>
@@ -62,8 +63,9 @@ namespace edm {
    typedef typename T::base_type base_type;
 
       // ---------- const member functions ---------------------
-   virtual boost::shared_ptr<base_type> addTo(EventSetupProvider& iProvider,
-                       ParameterSet const& iConfiguration) const;
+   virtual boost::shared_ptr<base_type> addTo(EventSetupsController& esController,
+                                              EventSetupProvider& iProvider,
+                                              ParameterSet const& iConfiguration) const;
    
       // ---------- static member functions --------------------
 
@@ -96,17 +98,29 @@ namespace edm {
 
 template< class T, class TComponent>
 boost::shared_ptr<typename ComponentMaker<T,TComponent>::base_type>
-ComponentMaker<T,TComponent>::addTo(EventSetupProvider& iProvider,
-                                        ParameterSet const& iConfiguration) const
+ComponentMaker<T,TComponent>::addTo(EventSetupsController& esController,
+                                    EventSetupProvider& iProvider,
+                                    ParameterSet const& iConfiguration) const
 {
+   boost::shared_ptr<typename T::base_type> const* alreadyMadeComponent = T::getAlreadyMadeComponent(esController, iConfiguration);
+
+   if (alreadyMadeComponent) {
+      this->logInfoWhenSharing(iConfiguration);
+      boost::shared_ptr<TComponent> component(boost::static_pointer_cast<TComponent, typename T::base_type>(*alreadyMadeComponent));
+      T::addTo(iProvider, component);
+      return component;
+   }
+
    boost::shared_ptr<TComponent> component(new TComponent(iConfiguration));
    ComponentDescription description =
        this->createComponentDescription(iConfiguration);
-      
+
    this->setDescription(component.get(),description);
    this->setDescriptionForFinder(component.get(),description);
    this->setPostConstruction(component.get(),iConfiguration);
    T::addTo(iProvider, component);
+   T::putComponent(esController, iConfiguration, component);
+
    return component;
 }
    }

@@ -9,7 +9,7 @@
 // Author:      Chris Jones
 // Created:     Thu May 26 11:01:19 EDT 2005
 // Changed:     Viji Sundararajan 28-Jun-2005
-// $Id: eventsetupplugin_t.cppunit.cc,v 1.10 2009/01/07 00:37:28 wmtan Exp $
+// $Id: eventsetupplugin_t.cppunit.cc,v 1.11 2012/03/27 19:52:30 wdd Exp $
 //
 
 // system include files
@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/src/EventSetupsController.h"
 
 using namespace edm::eventsetup;
 
@@ -56,14 +57,14 @@ void testEventsetupplugin::finderTest()
 
 {
    doInit();
-   
+   EventSetupsController esController;
    EventSetupProvider provider;
    
    edm::ParameterSet dummyFinderPSet;
    dummyFinderPSet.addParameter("@module_type", std::string("LoadableDummyFinder"));
    dummyFinderPSet.addParameter("@module_label", std::string(""));
    dummyFinderPSet.registerIt();
-   SourceFactory::get()->addTo(provider, dummyFinderPSet);
+   SourceFactory::get()->addTo(esController, provider, dummyFinderPSet);
 
    
    ComponentDescription descFinder("LoadableDummyFinder","",true);
@@ -76,7 +77,7 @@ void testEventsetupplugin::finderTest()
    dummyProviderPSet.addParameter("@module_type",  std::string("LoadableDummyProvider"));
    dummyProviderPSet.addParameter("@module_label", std::string(""));
    dummyProviderPSet.registerIt();
-   ModuleFactory::get()->addTo(provider, dummyProviderPSet);
+   ModuleFactory::get()->addTo(esController, provider, dummyProviderPSet);
 
    ComponentDescription desc("LoadableDummyProvider","",false);
    descriptions = provider.proxyProviderDescriptions();
@@ -88,7 +89,7 @@ void testEventsetupplugin::finderTest()
    dummySourcePSet.addParameter("@module_type",  std::string("LoadableDummyESSource"));
    dummySourcePSet.addParameter("@module_label", std::string(""));
    dummySourcePSet.registerIt();
-   SourceFactory::get()->addTo(provider, dummySourcePSet);
+   SourceFactory::get()->addTo(esController, provider, dummySourcePSet);
    
    ComponentDescription descSource("LoadableDummyESSource","",true);
    descriptions = provider.proxyProviderDescriptions();

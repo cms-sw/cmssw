@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 19:27:44 EDT 2005
-// $Id: ModuleFactory.cc,v 1.4 2005/08/15 02:15:05 chrjones Exp $
+// $Id: ModuleFactory.cc,v 1.5 2007/04/13 10:39:42 wmtan Exp $
 //
 
 // system include files
@@ -30,6 +30,17 @@ namespace edm {
       void ModuleMakerTraits::addTo(EventSetupProvider& iProvider, boost::shared_ptr<DataProxyProvider> iComponent) 
       {
          iProvider.add(iComponent);
+      }
+
+      boost::shared_ptr<ModuleMakerTraits::base_type> const*
+      ModuleMakerTraits::getAlreadyMadeComponent(EventSetupsController const&,
+                                                 ParameterSet const&) {
+         return 0;
+      }
+
+      void ModuleMakerTraits::putComponent(EventSetupsController&,
+                                           ParameterSet const&,
+                                           boost::shared_ptr<base_type> const&) {
       }
    }
 }

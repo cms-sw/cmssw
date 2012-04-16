@@ -101,7 +101,8 @@ namespace edm {
 
     // ---------------------------------------------------------------
     void
-    fillEventSetupProvider(EventSetupProvider& cp,
+    fillEventSetupProvider(EventSetupsController& esController,
+                           EventSetupProvider& cp,
                            ParameterSet& params) {
       std::vector<std::string> providers =
         params.getParameter<std::vector<std::string> >("@all_esmodules");
@@ -112,7 +113,8 @@ namespace edm {
         ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
         validateEventSetupParameters(*providerPSet);
         providerPSet->registerIt();
-        ModuleFactory::get()->addTo(cp,
+        ModuleFactory::get()->addTo(esController,
+                                    cp,
                                     *providerPSet);
       }
 
@@ -125,7 +127,8 @@ namespace edm {
         ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
         validateEventSetupParameters(*providerPSet);
         providerPSet->registerIt();
-        SourceFactory::get()->addTo(cp,
+        SourceFactory::get()->addTo(esController,
+                                    cp,
                                     *providerPSet);
       }
     }

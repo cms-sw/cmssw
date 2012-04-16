@@ -31,9 +31,11 @@
 
 namespace edm {
    class EventSetupRecordIntervalFinder;
+   class ParameterSet;
 
    namespace eventsetup {
       class DataProxyProvider;
+      class EventSetupsController;
       
       template<class T>
          void addProviderTo(EventSetupProvider& iProvider, boost::shared_ptr<T> iComponent, const DataProxyProvider*) 
@@ -62,6 +64,12 @@ namespace edm {
                iProvider.add(pFinder);
             }
                
+         static boost::shared_ptr<base_type> const* getAlreadyMadeComponent(EventSetupsController const& esController,
+                                                                       ParameterSet const& iConfiguration);
+
+         static void putComponent(EventSetupsController& esController,
+                                  ParameterSet const& iConfiguration,
+                                  boost::shared_ptr<base_type> const& component);
       };
       template< class TType>
          struct SourceMaker : public ComponentMaker<edm::eventsetup::SourceMakerTraits,TType> {};

@@ -28,14 +28,22 @@
 
 // forward declarations
 namespace edm {
+   class ParameterSet;
+
    namespace eventsetup {
       class DataProxyProvider;
+      class EventSetupsController;
 
       struct ModuleMakerTraits {
          typedef DataProxyProvider base_type;
         
          static std::string name();
          static void addTo(EventSetupProvider& iProvider, boost::shared_ptr<DataProxyProvider> iComponent) ;
+         static boost::shared_ptr<base_type> const* getAlreadyMadeComponent(EventSetupsController const& esController,
+                                                                       ParameterSet const& iConfiguration);
+         static void putComponent(EventSetupsController& esController,
+                                  ParameterSet const& iConfiguration,
+                                  boost::shared_ptr<base_type> const& component);
       };
       template< class TType>
          struct ModuleMaker : public ComponentMaker<edm::eventsetup::ModuleMakerTraits,TType> {};

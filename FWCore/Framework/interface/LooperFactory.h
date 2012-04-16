@@ -30,9 +30,13 @@
 namespace edm {
    class EDLooperBase;
    class EventSetupRecordIntervalFinder;
+   class ParameterSet;
 
    namespace eventsetup {
+
       class DataProxyProvider;
+      class EventSetupsController;
+
       namespace looper {
       template<class T>
          void addProviderTo(EventSetupProvider& iProvider, boost::shared_ptr<T> iComponent, const DataProxyProvider*) 
@@ -86,7 +90,12 @@ namespace edm {
                looper::addProviderTo(iProvider, iComponent, static_cast<const T*>(0));
                looper::addFinderTo(iProvider, iComponent, static_cast<const T*>(0));
             }
-               
+
+         static boost::shared_ptr<base_type> const* getAlreadyMadeComponent(EventSetupsController const& esController,
+                                                                       ParameterSet const& iConfiguration);               
+         static void putComponent(EventSetupsController& esController,
+                                  ParameterSet const& iConfiguration,
+                                  boost::shared_ptr<base_type> const& component);
       };
       template< class TType>
          struct LooperMaker : public ComponentMaker<edm::eventsetup::LooperMakerTraits,TType> {};
