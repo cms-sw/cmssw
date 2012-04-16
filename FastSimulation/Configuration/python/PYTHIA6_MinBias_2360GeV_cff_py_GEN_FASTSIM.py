@@ -10,7 +10,7 @@ process = cms.Process('HLT')
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('FastSimulation.Configuration.RandomServiceInitialization_cff')
+process.load("IOMC.RandomEngine.IOMC_cff")
 process.load('FastSimulation.PileUpProducer.PileUpSimulator10TeV_cfi')
 process.load('FastSimulation.Configuration.FamosSequences_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
@@ -22,7 +22,7 @@ process.load('FastSimulation.Configuration.CommonInputs_cff')
 process.load('FastSimulation.Configuration.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('PYTHIA6-MinBias at 2200GeV'),
     name = cms.untracked.string('$Source: /cvs/CMSSW/CMSSW/FastSimulation/Configuration/python/PYTHIA6_MinBias_2360GeV_cff_py_GEN_FASTSIM.py,v $')
 )

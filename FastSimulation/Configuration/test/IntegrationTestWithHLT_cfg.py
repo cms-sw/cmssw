@@ -11,7 +11,7 @@ process.maxEvents = cms.untracked.PSet(
 process.DQMStore = cms.Service( "DQMStore")
 
 # Include the RandomNumberGeneratorService definition
-process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
+process.load("IOMC.RandomEngine.IOMC_cff")
 
 # Generate ttbar events
 process.load("Configuration.Generator.TTbar_cfi")

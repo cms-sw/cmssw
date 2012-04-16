@@ -1,4 +1,6 @@
-# The following comments couldn't be translated into the new config version:
+# This FastSim-specific configuration is not needed anymore; this will be soon deprecated, please replace it with:
+# process.load("IOMC.RandomEngine.IOMC_cff")
+
 
 # Set random seeds. 
 
