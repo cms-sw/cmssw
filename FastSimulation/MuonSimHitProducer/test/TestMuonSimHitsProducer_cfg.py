@@ -9,7 +9,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
 # Include the RandomNumberGeneratorService definition
-process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
+process.load("IOMC.RandomEngine.IOMC_cff")
 
 # Famos sequences (Frontier conditions)
 process.load("Configuration.StandardSequences.MagneticField_cff")
