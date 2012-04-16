@@ -97,6 +97,7 @@ addMixingScenario("FS_FlatDist10_2011EarlyData_50ns",{'file': 'FastSimulation.Pi
 addMixingScenario("FS_E7TeV_Fall2011_Reprocess_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E7TeV_Fall2011_Reprocess_inTimeOnly_cff'})
 addMixingScenario("FS_E7TeV_ProbDist_2011Data_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E7TeV_ProbDist_2011Data_inTimeOnly_cff'})
 addMixingScenario("FS_2012_Startup_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_2012_Startup_inTimeOnly_cff'})
+addMixingScenario("FS_mix_2012_Startup_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.mix_2012_Startup_inTimeOnly_cff'})
 
 ##slhc section
 addMixingScenario("SLHC_LowLumiPileUp_Phase1_R39F16",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_cff'})
