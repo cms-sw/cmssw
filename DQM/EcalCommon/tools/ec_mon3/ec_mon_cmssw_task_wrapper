@@ -51,7 +51,12 @@ else {
     my $daqdir = "$config{'ec_mon_master_rundir'}/daq-data";
     my $trashdir = "$config{'ec_mon_master_rundir'}/daq-data/trash";
 
-    foreach my $datatype ('A', 'Calibration') {
+    my @checktypes = qw(A Calibration);
+    if ( $config{'ec_mon_path'} =~ /localDAQ/ ) {
+	@checktypes = qw(A);
+    }
+
+    foreach my $datatype (@checktypes) {
 	@{$filelists{$datatype}} = map {"$daqdir/" . $_} split('\n', ec_mon_filelist("$daqdir/", $num, $datatype, 1));
 
 	if (@{$filelists{$datatype}} == 0){
