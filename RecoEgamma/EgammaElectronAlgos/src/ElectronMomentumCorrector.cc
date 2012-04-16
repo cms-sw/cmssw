@@ -21,7 +21,7 @@
  * \author Ivica Puljak - FESB, Split
  * \author Stephanie Baffioni - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: ElectronMomentumCorrector.cc,v 1.20 2011/12/09 18:29:12 chamont Exp $
+ * \version $Id: ElectronMomentumCorrector.cc,v 1.21 2012/01/25 21:59:19 chamont Exp $
  *
  ****************************************************************************/
 
@@ -34,7 +34,7 @@ void ElectronMomentumCorrector::correct( reco::GsfElectron & electron, Trajector
     return ;
    }
 
-  math::XYZTLorentzVector newMomentum = electron.p4() ; // default
+  //math::XYZTLorentzVector newMomentum = electron.p4() ; // default
   int elClass = electron.classification() ;
 
   // irrelevant classification
@@ -45,35 +45,64 @@ void ElectronMomentumCorrector::correct( reco::GsfElectron & electron, Trajector
     return ;
    }
 
+
+  //=======================================================================================
+  // cluster energy
+  //=======================================================================================
+
   float scEnergy = electron.correctedEcalEnergy() ;
-  float errorEnergy_ = electron.correctedEcalEnergyError() ;
+  float errorEnergy = electron.correctedEcalEnergyError() ;
 
+
+  //=======================================================================================
+  // track  momentum
+  //=======================================================================================
+
+  // basic values
   float trackMomentum  = electron.trackMomentumAtVtx().R() ;
-  float errorTrackMomentum = 999. ;
+  //float errorTrackMomentum = 999. ;
 
-  // retreive momentum error
-  MultiGaussianState1D qpState(MultiGaussianStateTransform::multiState1D(vtxTsos,0));
-  GaussianSumUtilities1D qpUtils(qpState);
-  errorTrackMomentum = trackMomentum*trackMomentum*sqrt(qpUtils.mode().variance());
+  // tracker momentum scale corrections (Mykhailo Dalchenko)
+  double scale=1.;
+  if (electron.isEB()){
+    if (elClass==0) {scale = 1./(0.00104*sqrt(trackMomentum)+1);}
+    if (elClass==1) {scale = 1./(0.0017*sqrt(trackMomentum)+0.9986);}
+    if (elClass==3) {scale = 1./(1.004 - 0.00021*trackMomentum);}
+    if (elClass==4) {scale = 0.995;}
+  } else if (electron.isEE()){
+    if (elClass==3){scale = 1./(1.01432-0.00201872*trackMomentum+0.0000142621*trackMomentum*trackMomentum);}
+    if (elClass==4){scale = 1./(0.996859-0.000345347*trackMomentum);}
+  }
+  if (scale<0.) scale = 1.;  // CC added protection
+  trackMomentum = trackMomentum*scale ;
+
+  // error (must be done after trackMomentum rescaling)
+  MultiGaussianState1D qpState(MultiGaussianStateTransform::multiState1D(vtxTsos,0)) ;
+  GaussianSumUtilities1D qpUtils(qpState) ;
+  float errorTrackMomentum = trackMomentum*trackMomentum*sqrt(qpUtils.mode().variance()) ;
+
+
+  //=======================================================================================
+  // combination
+  //=======================================================================================
 
   float finalMomentum = electron.p4().t(); // initial
   float finalMomentumError = 999.;
 
-
   // first check for large errors
 
-  if (errorTrackMomentum/trackMomentum > 0.5 && errorEnergy_/scEnergy <= 0.5) {
-    finalMomentum = scEnergy;    finalMomentumError = errorEnergy_;
+  if (errorTrackMomentum/trackMomentum > 0.5 && errorEnergy/scEnergy <= 0.5) {
+    finalMomentum = scEnergy;    finalMomentumError = errorEnergy;
    }
-  else if (errorTrackMomentum/trackMomentum <= 0.5 && errorEnergy_/scEnergy > 0.5){
+  else if (errorTrackMomentum/trackMomentum <= 0.5 && errorEnergy/scEnergy > 0.5){
     finalMomentum = trackMomentum;  finalMomentumError = errorTrackMomentum;
    }
-  else if (errorTrackMomentum/trackMomentum > 0.5 && errorEnergy_/scEnergy > 0.5){
-    if (errorTrackMomentum/trackMomentum < errorEnergy_/scEnergy) {
+  else if (errorTrackMomentum/trackMomentum > 0.5 && errorEnergy/scEnergy > 0.5){
+    if (errorTrackMomentum/trackMomentum < errorEnergy/scEnergy) {
       finalMomentum = trackMomentum; finalMomentumError = errorTrackMomentum;
      }
     else{
-      finalMomentum = scEnergy; finalMomentumError = errorEnergy_;
+      finalMomentum = scEnergy; finalMomentumError = errorEnergy;
      }
   }
 
@@ -83,13 +112,13 @@ void ElectronMomentumCorrector::correct( reco::GsfElectron & electron, Trajector
      // calculate E/p and corresponding error
     float eOverP = scEnergy / trackMomentum;
     float errorEOverP = sqrt(
-			     (errorEnergy_/trackMomentum)*(errorEnergy_/trackMomentum) +
+			     (errorEnergy/trackMomentum)*(errorEnergy/trackMomentum) +
 			     (scEnergy*errorTrackMomentum/trackMomentum/trackMomentum)*
 			     (scEnergy*errorTrackMomentum/trackMomentum/trackMomentum));
 
 //    if ( eOverP  > 1 + 2.5*errorEOverP )
 //     {
-//      finalMomentum = scEnergy; finalMomentumError = errorEnergy_;
+//      finalMomentum = scEnergy; finalMomentumError = errorEnergy;
 //      if ((elClass==reco::GsfElectron::GOLDEN) && electron.isEB() && (eOverP<1.15))
 //        {
 //          if (scEnergy<15) {finalMomentum = trackMomentum ; finalMomentumError = errorTrackMomentum;}
@@ -97,7 +126,7 @@ void ElectronMomentumCorrector::correct( reco::GsfElectron & electron, Trajector
 //     }
 //    else if ( eOverP < 1 - 2.5*errorEOverP )
 //     {
-//      finalMomentum = scEnergy; finalMomentumError = errorEnergy_;
+//      finalMomentum = scEnergy; finalMomentumError = errorEnergy;
 //      if (elClass==reco::GsfElectron::SHOWERING)
 //       {
 //	      if (electron.isEB())
@@ -126,33 +155,33 @@ void ElectronMomentumCorrector::correct( reco::GsfElectron & electron, Trajector
     if (eleIsNotInCombination)
      {
       if (eOverP > 1)
-       { finalMomentum = scEnergy ; finalMomentumError = errorEnergy_ ; }
+       { finalMomentum = scEnergy ; finalMomentumError = errorEnergy ; }
       else
        {
         if (elClass == reco::GsfElectron::GOLDEN)
-         { finalMomentum = scEnergy; finalMomentumError = errorEnergy_; }
+         { finalMomentum = scEnergy; finalMomentumError = errorEnergy; }
         if (elClass == reco::GsfElectron::BIGBREM)
          {
           if (scEnergy<36)
            { finalMomentum = trackMomentum ; finalMomentumError = errorTrackMomentum ; }
           else
-           { finalMomentum = scEnergy ; finalMomentumError = errorEnergy_ ; }
+           { finalMomentum = scEnergy ; finalMomentumError = errorEnergy ; }
          }
         if (elClass == reco::GsfElectron::BADTRACK)
-         { finalMomentum = scEnergy; finalMomentumError = errorEnergy_ ; }
+         { finalMomentum = scEnergy; finalMomentumError = errorEnergy ; }
         if (elClass == reco::GsfElectron::SHOWERING)
          {
           if (scEnergy<30)
            { finalMomentum = trackMomentum ; finalMomentumError = errorTrackMomentum; }
           else
-           { finalMomentum = scEnergy; finalMomentumError = errorEnergy_;}
+           { finalMomentum = scEnergy; finalMomentumError = errorEnergy;}
          }
         if (elClass == reco::GsfElectron::GAP)
          {
           if (scEnergy<60)
            { finalMomentum = trackMomentum ; finalMomentumError = errorTrackMomentum ; }
           else
-           { finalMomentum = scEnergy; finalMomentumError = errorEnergy_ ; }
+           { finalMomentum = scEnergy; finalMomentumError = errorEnergy ; }
          }
        }
      }
@@ -160,23 +189,26 @@ void ElectronMomentumCorrector::correct( reco::GsfElectron & electron, Trajector
     else
      {
       // combination
-      finalMomentum = (scEnergy/errorEnergy_/errorEnergy_ + trackMomentum/errorTrackMomentum/errorTrackMomentum) /
-        (1/errorEnergy_/errorEnergy_ + 1/errorTrackMomentum/errorTrackMomentum);
-      float finalMomentumVariance = 1 / (1/errorEnergy_/errorEnergy_ + 1/errorTrackMomentum/errorTrackMomentum);
+      finalMomentum = (scEnergy/errorEnergy/errorEnergy + trackMomentum/errorTrackMomentum/errorTrackMomentum) /
+        (1/errorEnergy/errorEnergy + 1/errorTrackMomentum/errorTrackMomentum);
+      float finalMomentumVariance = 1 / (1/errorEnergy/errorEnergy + 1/errorTrackMomentum/errorTrackMomentum);
       finalMomentumError = sqrt(finalMomentumVariance);
      }
 
   }
 
+
+  //=======================================================================================
+  // final set
+  //=======================================================================================
+
   math::XYZTLorentzVector oldMomentum = electron.p4() ;
-  newMomentum = math::XYZTLorentzVector
+  math::XYZTLorentzVector newMomentum = math::XYZTLorentzVector
    ( oldMomentum.x()*finalMomentum/oldMomentum.t(),
      oldMomentum.y()*finalMomentum/oldMomentum.t(),
      oldMomentum.z()*finalMomentum/oldMomentum.t(),
      finalMomentum ) ;
 
-
-  // final set
   electron.correctMomentum(newMomentum,errorTrackMomentum,finalMomentumError);
 
  }
