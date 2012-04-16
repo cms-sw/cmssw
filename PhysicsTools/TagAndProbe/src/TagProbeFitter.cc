@@ -272,7 +272,7 @@ string TagProbeFitter::calculateEfficiency(string dirName, vector<string> effCat
       data.addColumn( efficiencyCategory );
   }
   //setup the pdf category
-  RooMappedCategory pdfCategory("_pdfCategory_", "_pdfCategory_", allCats, (binToPDFmap.size()>0)?binToPDFmap[0].c_str():"");
+  RooMappedCategory pdfCategory("_pdfCategory_", "_pdfCategory_", allCats, (binToPDFmap.size()>0)?binToPDFmap[0].c_str():"all");
   for(unsigned int i = 1; i<binToPDFmap.size(); i+=2){
     pdfCategory.map(binToPDFmap[i].c_str(), binToPDFmap[i+1].c_str());
   }
@@ -410,7 +410,7 @@ string TagProbeFitter::calculateEfficiency(string dirName, vector<string> effCat
 
 void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar& efficiency){
   //if pdfName is empty skip the fit
-  if(pdfName == ""){
+  if(pdfName == "all"){
     return;
   }
   //create the simultaneous pdf of name pdfName
