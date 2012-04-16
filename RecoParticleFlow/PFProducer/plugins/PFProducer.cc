@@ -425,21 +425,34 @@ PFProducer::beginRun(edm::Run & run,
   */
   
   if(useRegressionFromDB_) {
-    edm::ESHandle<GBRForest> readerPFLC;
-    edm::ESHandle<GBRForest> readerPFGC;
+    edm::ESHandle<GBRForest> readerPFLCEB;
+    edm::ESHandle<GBRForest> readerPFLCEE;    
+    edm::ESHandle<GBRForest> readerPFGCEB;
+    edm::ESHandle<GBRForest> readerPFGCEEHR9;
+    edm::ESHandle<GBRForest> readerPFGCEELR9;
     edm::ESHandle<GBRForest> readerPFRes;
-    es.get<GBRWrapperRcd>().get("PFLCCorrection",readerPFLC);
-    es.get<GBRWrapperRcd>().get("PFGlobalCorrection",readerPFGC);
-    es.get<GBRWrapperRcd>().get("PFResolution",readerPFRes);
-    ReaderLC_ = readerPFLC.product();//&readerPFLC->GetForest();
-    ReaderGC_ = readerPFGC.product();//&readerPFGC->GetForest();
-    ReaderRes_ = readerPFRes.product();//&readerPFRes->GetForest();
+    es.get<GBRWrapperRcd>().get("PFLCorrectionBar",readerPFLCEB);
+    ReaderLCEB_=readerPFLCEB.product();
+    es.get<GBRWrapperRcd>().get("PFLCorrectionEnd",readerPFLCEE);
+    ReaderLCEE_=readerPFLCEE.product();
+    es.get<GBRWrapperRcd>().get("PFGCorrectionBar",readerPFGCEB);	
+    ReaderGCBarrel_=readerPFGCEB.product();
+    es.get<GBRWrapperRcd>().get("PFGCorrectionEndHighR9",readerPFGCEEHR9);
+    ReaderGCEndCapHighr9_=readerPFGCEEHR9.product();
+    es.get<GBRWrapperRcd>().get("PFGCorrectionEndLowR9",readerPFGCEELR9);
+    ReaderGCEndCapLowr9_=readerPFGCEELR9.product();
+    es.get<GBRWrapperRcd>().get("PFEcalResolution",readerPFRes);
+    ReaderEcalRes_=readerPFRes.product();
+    
+    /*
     LogDebug("PFProducer")<<"setting regressions from DB "<<endl;
+    */
   } 
 
-  if(usePFPhotons_)
-    pfAlgo_->setPFPhotonRegWeights(ReaderLC_, ReaderGC_, ReaderRes_);
-
+    if(usePFPhotons_){
+      //pfAlgo_->setPFPhotonRegWeights(ReaderLC_, ReaderGC_, ReaderRes_);
+      pfAlgo_->setPFPhotonRegWeights(ReaderLCEB_,ReaderLCEE_,ReaderGCBarrel_,ReaderGCEndCapHighr9_, ReaderGCEndCapLowr9_, ReaderEcalRes_ );
+    }
 }
 
 

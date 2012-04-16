@@ -290,7 +290,9 @@ void PFElectronTranslator::createBasicCluster(const reco::PFBlockElement & PFBE,
 //  std::cout << " # hits " << myPFCluster.hitsAndFractions().size() << std::endl;
 
 //  basicClusters.push_back(reco::CaloCluster(myPFCluster.energy(),
-  basicClusters.push_back(reco::CaloCluster(coCandidate.rawEcalEnergy(),
+  basicClusters.push_back(reco::CaloCluster(
+					    myPFCluster.energy(),
+					    //coCandidate.rawEcalEnergy(),
 					    myPFCluster.position(),
 					    myPFCluster.caloID(),
 					    myPFCluster.hitsAndFractions(),

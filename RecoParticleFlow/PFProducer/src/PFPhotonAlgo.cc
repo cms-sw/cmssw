@@ -1,7 +1,7 @@
 //
 // Original Authors: Fabian Stoeckli: fabian.stoeckli@cern.ch
 //                   Nicholas Wardle: nckw@cern.ch
-//                   Rishi Patel rpatel@cern.ch
+//                   Rishi Patel rpatel@cern.ch(ongoing developer and maintainer)
 //
 
 #include "RecoParticleFlow/PFProducer/interface/PFPhotonAlgo.h"
@@ -13,10 +13,10 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFPhotonClusters.h"
 #include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include <TFile.h>
@@ -131,7 +131,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     std::vector<reco::TrackRef>singleLegRef;
     std::vector<float>MVA_values(0);
     std::vector<float>MVALCorr;
-    std::vector<const CaloCluster*>PFClusters;
+    std::vector<CaloCluster>PFClusters;
     reco::ConversionRefVector ConversionsRef_;
     isActive = *(actIter);
     //cout << " Found a SuperCluster.  Energy " ;
@@ -139,7 +139,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     //std::cout << sc->superClusterRef()->energy () << " Track/Ecal/Hcal Iso " << sc->trackIso()<< " " << sc->ecalIso() ;
     //std::cout << " " << sc->hcalIso() <<std::endl;
     if (!(sc->fromPhoton()))continue;
-
+    
     // check the status of the SC Element... 
     // ..... I understand it should *always* be active, since PFElectronAlgo does not touch this (yet?) RISHI: YES
     if( !isActive ) {
@@ -154,7 +154,9 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 				  ecalAssoPFClusters,
 				  reco::PFBlockElement::ECAL,
 				  reco::PFBlock::LINKTEST_ALL );
-    
+    //R9 of SuperCluster and RawE
+    PFPhoR9_=sc->photonRef()->r9();
+    E3x3_=PFPhoR9_*(sc->superClusterRef()->rawEnergy());
     // loop over the ECAL clusters linked to the iEle 
     if( ! ecalAssoPFClusters.size() ) {
       // This SC element has NO ECAL elements asigned... *SHOULD NOT HAPPEN*
@@ -174,7 +176,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
       //      float ClustRawEnergy = clusterRef->energy();
       //      float ClustEta = clusterRef->position().eta();
       //      float ClustPhi = clusterRef->position().phi();
-
+      
       // initialize the vectors for the PS energies
       vector<double> ps1Ene(0);
       vector<double> ps2Ene(0);
@@ -182,10 +184,10 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
       double ps2=0;  
       hasSingleleg=false;  
       hasConvTrack=false;
-
+      
       /*
-      cout << " My cluster index " << itecal->second 
-	   << " energy " <<  ClustRawEnergy
+	cout << " My cluster index " << itecal->second 
+	<< " energy " <<  ClustRawEnergy
 	   << " eta " << ClustEta
 	   << " phi " << ClustPhi << endl;
       */
@@ -227,7 +229,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	  if(closecheck.begin()->second ==itecal->second)isClosest=true;  
 	  if(!hasSingleleg)mva_reject++;  
 	}  
-	 
+	
 	if(mva_reject>0 &&  isClosest)useIt=false;  
 	//if(mva_reject==1 && isClosest)useIt=false;
 	if( !useIt ) continue;    // Go to next ECAL cluster within SC
@@ -592,26 +594,14 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	}  
       AddClusters.clear();
       float EE=thePFEnergyCalibration_->energyEm(*clusterRef,ps1Ene,ps2Ene,false)+addedCalibEne;
-      PFClusters.push_back(&*clusterRef);
+      PFClusters.push_back(*clusterRef);
       if(useReg_){
-	if(clusterRef->layer()==PFLayer::ECAL_BARREL){
-	  float LocCorr=EvaluateLCorrMVA(clusterRef);
-	  EE=LocCorr*clusterRef->energy()+addedCalibEne;
-	}
-	else{
-	  EE = thePFEnergyCalibration_->energyEm(*clusterRef,ps1Ene,ps2Ene,false)+addedCalibEne; 
-	  MVALCorr.push_back(thePFEnergyCalibration_->energyEm(*clusterRef,ps1Ene,ps2Ene,false));
-	}	
+	float LocCorr=EvaluateLCorrMVA(clusterRef);
+	EE=LocCorr*clusterRef->energy()+addedCalibEne;
       }
       else{
-	if(clusterRef->layer()==PFLayer::ECAL_BARREL){
-	  float LocCorr=EvaluateLCorrMVA(clusterRef);
-	  MVALCorr.push_back(LocCorr*clusterRef->energy());
-	    }
-	else{
-	  
-	  MVALCorr.push_back(thePFEnergyCalibration_->energyEm(*clusterRef,ps1Ene,ps2Ene,false));	  
-	}
+	float LocCorr=EvaluateLCorrMVA(clusterRef);
+	MVALCorr.push_back(LocCorr*clusterRef->energy());
       }
       
       //cout<<"Original Energy "<<EE<<"Added Energy "<<addedCalibEne<<endl;
@@ -636,9 +626,9 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     std::vector<double>AddedPS2(0);
     
     EarlyConversion(    
-   	    tempElectronCandidates,
-    	    sc
-    	    );   
+		    tempElectronCandidates,
+		    sc
+		    );   
     
     if(AddFromElectron_.size()>0)
       {	
@@ -704,30 +694,19 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 		      }
 		  }
 		
-	      //energy calibration 
+		//energy calibration 
 		float EE=thePFEnergyCalibration_->
 		  energyEm(*clusterRef,AddedPS1,AddedPS2,false);
-		PFClusters.push_back(&*clusterRef);
+		PFClusters.push_back(*clusterRef);
 		if(useReg_){
-		  if(clusterRef->layer()==PFLayer::ECAL_BARREL){
-		    float LocCorr=EvaluateLCorrMVA(clusterRef);
-		    EE=LocCorr*clusterRef->energy();	  
-		    MVALCorr.push_back(LocCorr*clusterRef->energy());
-		  }
-		  else {
-		    EE=thePFEnergyCalibration_->energyEm(*clusterRef,AddedPS1,AddedPS2,false);
-		    MVALCorr.push_back(EE);
-		  }
+		  float LocCorr=EvaluateLCorrMVA(clusterRef);
+		  EE=LocCorr*clusterRef->energy();	  
+		  MVALCorr.push_back(LocCorr*clusterRef->energy());
+		  
 		}
 		else{
-		  if(clusterRef->layer()==PFLayer::ECAL_BARREL){
-		    float LocCorr=EvaluateLCorrMVA(clusterRef);
-		    MVALCorr.push_back(LocCorr*clusterRef->energy());
-		  }
-		  else{
-		    
-		    MVALCorr.push_back(thePFEnergyCalibration_->energyEm(*clusterRef, AddedPS1,AddedPS2,false));	  
-		  }
+		  float LocCorr=EvaluateLCorrMVA(clusterRef);
+		  MVALCorr.push_back(LocCorr*clusterRef->energy());
 		}
 		
 		Elec_energy    += EE;
@@ -813,11 +792,11 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     isvalid_ = true;
     // push back the candidate into the collection ...
     //Add Elements from Electron
-	for(std::vector<unsigned int>::const_iterator it = 
-	      AddFromElectron_.begin();
-	    it != AddFromElectron_.end(); ++it)photonCand.addElementInBlock(blockRef,*it);
-
-
+    for(std::vector<unsigned int>::const_iterator it = 
+	  AddFromElectron_.begin();
+	it != AddFromElectron_.end(); ++it)photonCand.addElementInBlock(blockRef,*it);
+    
+    
     // ... and lock all elemts used
     for(std::vector<unsigned int>::const_iterator it = elemsToLock.begin();
 	it != elemsToLock.end(); ++it)
@@ -841,33 +820,41 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	  }
 	active[*it] = false;	
       }
-    //Do Global Corrections here:
-   float GCorr=EvaluateGCorrMVA(photonCand);
-    if(useReg_){
-    math::XYZTLorentzVector photonCorrMomentum(GCorr*photonEnergy_* photonDirection.X(),
-					       GCorr*photonEnergy_* photonDirection.Y(),
-					       GCorr*photonEnergy_* photonDirection.Z(),
-					       GCorr * photonEnergy_           );
-    photonCand.setP4(photonCorrMomentum);
-    }
+    PFPhoECorr_=0;
     // here add the extra information
     PFCandidatePhotonExtra myExtra(sc->superClusterRef());
-    //Mustache ID variables
-    int excl=0;
-    float Mustache_et_out=0; 
-    Mustache Must;
-    Must.MustacheID(PFClusters, excl, Mustache_et_out);
-    myExtra.setMustache_Et(Mustache_et_out);
-    myExtra.setExcludedClust(excl);
-    //Store regressed energy
-    myExtra.setMVAGlobalCorrE(GCorr * photonEnergy_);
-    float Res=EvaluateResMVA(photonCand);
-    myExtra.SetPFPhotonRes(Res*1.253);
+    //Store Locally Contained PF Cluster regressed energy
     for(unsigned int l=0; l<MVALCorr.size(); ++l)
       {
 	myExtra.addLCorrClusEnergy(MVALCorr[l]);
+	PFPhoECorr_=PFPhoECorr_+MVALCorr[l];//total Locally corrected energy
       }
-
+    TotPS1_=ps1TotEne;
+    TotPS2_=ps2TotEne;
+    //Do Global Corrections here:
+    float GCorr=EvaluateGCorrMVA(photonCand, PFClusters);
+    if(useReg_){
+      math::XYZTLorentzVector photonCorrMomentum(GCorr*PFPhoECorr_* photonDirection.X(),
+						 GCorr*PFPhoECorr_* photonDirection.Y(),
+						 GCorr*PFPhoECorr_* photonDirection.Z(),
+						 GCorr * photonEnergy_           );
+      photonCand.setP4(photonCorrMomentum);
+    }
+    //Mustache ID variables
+    Mustache Must;
+    Must.FillMustacheVar(PFClusters);
+    int excluded= Must.OutsideMust();
+    float MustacheEt=Must.MustacheEtOut();
+    myExtra.setMustache_Et(MustacheEt);
+    myExtra.setExcludedClust(excluded);
+    if(fabs(photonCand.eta()<1.4446))
+      myExtra.setMVAGlobalCorrE(GCorr * PFPhoECorr_);
+    else if(PFPhoR9_>0.94)
+      myExtra.setMVAGlobalCorrE(GCorr * PFPhoECorr_);
+    else myExtra.setMVAGlobalCorrE(GCorr * photonEnergy_);
+    float Res=EvaluateResMVA(photonCand, PFClusters);
+    myExtra.SetPFPhotonRes(Res);
+    
     //    Daniele example for mvaValues
     //    do the same for single leg trackRef and convRef
     for(unsigned int ic = 0; ic < MVA_values.size(); ic++)
@@ -892,25 +879,66 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
   return;
 }
 
-float PFPhotonAlgo::EvaluateResMVA(reco::PFCandidate photon){
+float PFPhotonAlgo::EvaluateResMVA(reco::PFCandidate photon, std::vector<reco::CaloCluster>PFClusters){
   float BDTG=1;
   PFPhoEta_=photon.eta();
   PFPhoPhi_=photon.phi();
-  PFPhoEt_=photon.pt();
-  //recalculate R9 from sum PFClusterEnergy and E3x3 from Highest PFCluster Energy
+  PFPhoE_=photon.energy();
+  //fill Material Map:
+  int ix = X0_sum->GetXaxis()->FindBin(PFPhoEta_);
+  int iy = X0_sum->GetYaxis()->FindBin(PFPhoPhi_);
+  x0inner_= X0_inner->GetBinContent(ix,iy);
+  x0middle_=X0_middle->GetBinContent(ix,iy);
+  x0outer_=X0_outer->GetBinContent(ix,iy);
   SCPhiWidth_=photon.superClusterRef()->phiWidth();
-  SCEtaWidth_=photon.superClusterRef()->etaWidth();  
-  //get from track with min R;
-  RConv_=130;
-  float ClustSumEt=0;
-  std::vector<float>Clust_E(0);
-  std::vector<float>Clust_Et(0);
-  std::vector<float>Clust_Eta(0);
-  std::vector<float>Clust_Phi(0);
-  std::vector<reco::PFClusterRef> PFClusRef(0);
-  std::vector<const CaloCluster*> PFclusters;
-  //Multimap to sort clusters by energy
-  std::multimap<float, int>Clust;
+  SCEtaWidth_=photon.superClusterRef()->etaWidth();
+  Mustache Must;
+  std::vector<unsigned int>insideMust;
+  std::vector<unsigned int>outsideMust;
+  std::multimap<float, unsigned int>OrderedClust;
+  Must.FillMustacheVar(PFClusters);
+  MustE_=Must.MustacheE();
+  LowClusE_=Must.LowestMustClust();
+  PFPhoR9Corr_=E3x3_/MustE_;
+  Must.MustacheClust(PFClusters,insideMust, outsideMust );
+  for(unsigned int i=0; i<insideMust.size(); ++i){
+    int index=insideMust[i];
+    OrderedClust.insert(make_pair(PFClusters[index].energy(),index));
+  }
+  std::multimap<float, unsigned int>::iterator it;
+  it=OrderedClust.begin();
+  unsigned int lowEindex=(*it).second;
+  std::multimap<float, unsigned int>::reverse_iterator rit;
+  rit=OrderedClust.rbegin();
+  unsigned int highEindex=(*rit).second;
+  if(insideMust.size()>1){
+    dEta_=fabs(PFClusters[highEindex].eta()-PFClusters[lowEindex].eta());
+    dPhi_=asin(PFClusters[highEindex].phi()-PFClusters[lowEindex].phi());
+  }
+  else{
+    dEta_=0;
+    dPhi_=0;
+    LowClusE_=0;
+  }
+  //calculate RMS for All clusters and up until the Next to Lowest inside the Mustache
+  RMSAll_=ClustersPhiRMS(PFClusters, PFPhoPhi_);
+  std::vector<reco::CaloCluster>PFMustClusters;
+  if(insideMust.size()>2){
+    for(unsigned int i=0; i<insideMust.size(); ++i){
+      unsigned int index=insideMust[i];
+      if(index==lowEindex)continue;
+      PFMustClusters.push_back(PFClusters[index]);
+    }
+  }
+  else{
+    for(unsigned int i=0; i<insideMust.size(); ++i){
+      unsigned int index=insideMust[i];
+      PFMustClusters.push_back(PFClusters[index]);
+    }    
+  }
+  RMSMust_=ClustersPhiRMS(PFMustClusters, PFPhoPhi_);
+  //then use cluster Width for just one PFCluster
+  RConv_=310;
   PFCandidate::ElementsInBlocks eleInBlocks = photon.elementsInBlocks();
   for(unsigned i=0; i<eleInBlocks.size(); i++)
     {
@@ -922,143 +950,99 @@ float PFPhotonAlgo::EvaluateResMVA(reco::PFCandidate photon){
 	float R=sqrt(element.trackRef()->innerPosition().X()*element.trackRef()->innerPosition().X()+element.trackRef()->innerPosition().Y()*element.trackRef()->innerPosition().Y());
 	if(RConv_>R)RConv_=R;
       }
-      
-      if(element.type()==reco::PFBlockElement::ECAL){
-	reco::PFClusterRef ClusterRef = element.clusterRef();
-	//PFClusRef.push_back(ClusterRef);
-	//clusters.push_back(ClusterRef);
-	Clust_E.push_back(ClusterRef->energy());
-	Clust_Et.push_back(ClusterRef->pt());	
-	ClustSumEt=ClustSumEt+ClusterRef->pt();
-	Clust_Eta.push_back(ClusterRef->eta());
-	Clust_Phi.push_back(ClusterRef->phi());
-	PFclusters.push_back(&*ClusterRef);
-      }
-      
-      if(element.type()==reco::PFBlockElement::GSF)
-	{
-	  //elements[indexInBlock].GsftrackRef();
-	  //  RConv_=sqrt(element.trackRef()->innerPosition().X()*element.trackRef()->innerPosition().X() + element.trackRef()->innerPosition().Y()*element.trackRef()->innerPosition().Y());
-	}
-      
+      else continue;
     }
-  
-  nPFClus_=Clust_Et.size();
-  
-  //std::vector<int>included(0);
-  //included=getPFMustacheClus(nPFClus_, Clust_Et, Clust_Eta, Clust_Phi);
-  //if(included.size()>0)excluded_=nPFClus_-included.size();
-  //else excluded_=0;
-  //cout<<"initial excluded "<<excluded_<<endl;
-  float Mustache_Et_out=0;
-  int PFClus=0;
-  Mustache Must;
-  Must.MustacheID(PFclusters, PFClus, Mustache_Et_out);
-  excluded_=PFClus;
-  //order the clusters by energy
-  //  float Mustache_Et=0;
-  float ClusSum=0;
-  for(unsigned int i=0; i<Clust_E.size(); ++i)
-    {
-      
-      Clust.insert(make_pair(Clust_E[i], i));
-      //Mustache_Et=Mustache_Et+Clust_Et[i];
-      ClusSum=ClusSum+Clust_E[i];
-    }
-  Mustache_EtRatio_=(Mustache_Et_out)/ClustSumEt;
-  std::multimap<float, int>::reverse_iterator it;
-  it=Clust.rbegin();
-  int max_c=(*it).second;
-  it=Clust.rend();
-  int min_c=(*it).second;
-  if(nPFClus_>1)LowClusE_=Clust_E[min_c];
-  else LowClusE_=0;
-  if(nPFClus_>1){
-    dEta_=fabs(Clust_Eta[max_c]-Clust_Eta[min_c]);
-    dPhi_=acos(cos(Clust_Phi[max_c]-Clust_Phi[min_c]));
-  }
-  else{
-    dEta_=0;
-    dPhi_=0;
-  }
-  
-  float dRmin=999;
-  float SCphi=photon.superClusterRef()->position().phi();
-  float SCeta=photon.superClusterRef()->position().eta();
-  for(unsigned i=0; i<eleInBlocks.size(); i++)
-    {
-      PFBlockRef blockRef = eleInBlocks[i].first;
-      unsigned indexInBlock = eleInBlocks[i].second;
-      const edm::OwnVector< reco::PFBlockElement >&  elements=eleInBlocks[i].first->elements();
-      const reco::PFBlockElement& element = elements[indexInBlock];
-      if(element.type()==reco::PFBlockElement::ECAL){
-	reco::PFClusterRef ClusterRef = element.clusterRef();
-	float eta=ClusterRef->position().eta();
-	float phi=ClusterRef->position().phi();
-	float dR=deltaR(SCeta, SCphi, eta, phi);
-	if(dR<dRmin){
-	  dRmin=dR;
-	  fill5x5Map(ClusterRef);
-	  PFPhoR9_=e3x3_/ClusSum;
-	}
-      }
-    } 
-  //fill Material Map:
-  int ix = X0_sum->GetXaxis()->FindBin(PFPhoEta_);
-  int iy = X0_sum->GetYaxis()->FindBin(PFPhoPhi_);
-  x0inner_= X0_inner->GetBinContent(ix,iy);
-  x0middle_=X0_middle->GetBinContent(ix,iy);
-  x0outer_=X0_outer->GetBinContent(ix,iy);
-  
-  float GC_Var[16];
+  float GC_Var[17];
   GC_Var[0]=PFPhoEta_;
   GC_Var[1]=PFPhoEt_;
-  GC_Var[2]=PFPhoR9_;
+  GC_Var[2]=PFPhoR9Corr_;
   GC_Var[3]=PFPhoPhi_;
   GC_Var[4]=SCEtaWidth_;
   GC_Var[5]=SCPhiWidth_;
   GC_Var[6]=x0inner_;  
   GC_Var[7]=x0middle_;
   GC_Var[8]=x0outer_;
-  GC_Var[9]=nPFClus_;
-  GC_Var[10]=RConv_;
-  GC_Var[11]=LowClusE_;
-  GC_Var[12]=dEta_;
-  GC_Var[13]=dPhi_;
-  GC_Var[14]=excluded_;
-  GC_Var[15]= Mustache_EtRatio_;
+  GC_Var[9]=RConv_;
+  GC_Var[10]=LowClusE_;
+  GC_Var[11]=RMSMust_;
+  GC_Var[12]=RMSAll_;
+  GC_Var[13]=dEta_;
+  GC_Var[14]=dPhi_;
+  GC_Var[15]=nVtx_;
+  GC_Var[16]=MustE_;
   
   BDTG=ReaderRes_->GetResponse(GC_Var);
   //  cout<<"Res "<<BDTG<<endl;
   
   //  cout<<"BDTG Parameters X0"<<x0inner_<<", "<<x0middle_<<", "<<x0outer_<<endl;
-  // cout<<"Et, Eta, Phi "<<PFPhoEt_<<", "<<PFPhoEta_<<", "<<PFPhoPhi_<<endl;
+  //  cout<<"Et, Eta, Phi "<<PFPhoEt_<<", "<<PFPhoEta_<<", "<<PFPhoPhi_<<endl;
   // cout<<"PFPhoR9 "<<PFPhoR9_<<endl;
   // cout<<"R "<<RConv_<<endl;
   
   return BDTG;
-
+   
 }
 
-float PFPhotonAlgo::EvaluateGCorrMVA(reco::PFCandidate photon){
+float PFPhotonAlgo::EvaluateGCorrMVA(reco::PFCandidate photon, std::vector<CaloCluster>PFClusters){
   float BDTG=1;
   PFPhoEta_=photon.eta();
   PFPhoPhi_=photon.phi();
-  PFPhoEt_=photon.pt();
-  //recalculate R9 from sum PFClusterEnergy and E3x3 from Highest PFCluster Energy
+  PFPhoE_=photon.energy();
+    //fill Material Map:
+  int ix = X0_sum->GetXaxis()->FindBin(PFPhoEta_);
+  int iy = X0_sum->GetYaxis()->FindBin(PFPhoPhi_);
+  x0inner_= X0_inner->GetBinContent(ix,iy);
+  x0middle_=X0_middle->GetBinContent(ix,iy);
+  x0outer_=X0_outer->GetBinContent(ix,iy);
   SCPhiWidth_=photon.superClusterRef()->phiWidth();
-  SCEtaWidth_=photon.superClusterRef()->etaWidth();  
-  //get from track with min R;
-  RConv_=130;
-  float ClustSumEt=0;
-  std::vector<float>Clust_E(0);
-  std::vector<float>Clust_Et(0);
-  std::vector<float>Clust_Eta(0);
-  std::vector<float>Clust_Phi(0);
-  std::vector<reco::PFClusterRef> PFClusRef(0);
-  std::vector<const CaloCluster*> PFclusters;
-  //Multimap to sort clusters by energy
-  std::multimap<float, int>Clust;
+  SCEtaWidth_=photon.superClusterRef()->etaWidth();
+  Mustache Must;
+  std::vector<unsigned int>insideMust;
+  std::vector<unsigned int>outsideMust;
+  std::multimap<float, unsigned int>OrderedClust;
+  Must.FillMustacheVar(PFClusters);
+  MustE_=Must.MustacheE();
+  LowClusE_=Must.LowestMustClust();
+  PFPhoR9Corr_=E3x3_/MustE_;
+  Must.MustacheClust(PFClusters,insideMust, outsideMust );
+  for(unsigned int i=0; i<insideMust.size(); ++i){
+    int index=insideMust[i];
+    OrderedClust.insert(make_pair(PFClusters[index].energy(),index));
+  }
+  std::multimap<float, unsigned int>::iterator it;
+  it=OrderedClust.begin();
+  unsigned int lowEindex=(*it).second;
+  std::multimap<float, unsigned int>::reverse_iterator rit;
+  rit=OrderedClust.rbegin();
+  unsigned int highEindex=(*rit).second;
+  if(insideMust.size()>1){
+    dEta_=fabs(PFClusters[highEindex].eta()-PFClusters[lowEindex].eta());
+    dPhi_=asin(PFClusters[highEindex].phi()-PFClusters[lowEindex].phi());
+  }
+  else{
+    dEta_=0;
+    dPhi_=0;
+    LowClusE_=0;
+  }
+  //calculate RMS for All clusters and up until the Next to Lowest inside the Mustache
+  RMSAll_=ClustersPhiRMS(PFClusters, PFPhoPhi_);
+  std::vector<reco::CaloCluster>PFMustClusters;
+  if(insideMust.size()>2){
+    for(unsigned int i=0; i<insideMust.size(); ++i){
+      unsigned int index=insideMust[i];
+      if(index==lowEindex)continue;
+      PFMustClusters.push_back(PFClusters[index]);
+    }
+  }
+  else{
+    for(unsigned int i=0; i<insideMust.size(); ++i){
+      unsigned int index=insideMust[i];
+      PFMustClusters.push_back(PFClusters[index]);
+    }    
+  }
+  RMSMust_=ClustersPhiRMS(PFMustClusters, PFPhoPhi_);
+  //then use cluster Width for just one PFCluster
+  RConv_=310;
   PFCandidate::ElementsInBlocks eleInBlocks = photon.elementsInBlocks();
   for(unsigned i=0; i<eleInBlocks.size(); i++)
     {
@@ -1070,389 +1054,227 @@ float PFPhotonAlgo::EvaluateGCorrMVA(reco::PFCandidate photon){
 	float R=sqrt(element.trackRef()->innerPosition().X()*element.trackRef()->innerPosition().X()+element.trackRef()->innerPosition().Y()*element.trackRef()->innerPosition().Y());
 	if(RConv_>R)RConv_=R;
       }
-      
-      if(element.type()==reco::PFBlockElement::ECAL){
-	reco::PFClusterRef ClusterRef = element.clusterRef();
-	//PFClusRef.push_back(ClusterRef);
-	//clusters.push_back(ClusterRef);
-	Clust_E.push_back(ClusterRef->energy());
-	Clust_Et.push_back(ClusterRef->pt());	
-	ClustSumEt=ClustSumEt+ClusterRef->pt();
-	Clust_Eta.push_back(ClusterRef->eta());
-	Clust_Phi.push_back(ClusterRef->phi());
-	PFclusters.push_back(&*ClusterRef);
-      }
-      
-      if(element.type()==reco::PFBlockElement::GSF)
-	{
-	  //elements[indexInBlock].GsftrackRef();
-	  //  RConv_=sqrt(element.trackRef()->innerPosition().X()*element.trackRef()->innerPosition().X() + element.trackRef()->innerPosition().Y()*element.trackRef()->innerPosition().Y());
-	}
-      
+      else continue;
     }
-  
-  nPFClus_=Clust_Et.size();
-  
-  //std::vector<int>included(0);
-  //included=getPFMustacheClus(nPFClus_, Clust_Et, Clust_Eta, Clust_Phi);
-  //if(included.size()>0)excluded_=nPFClus_-included.size();
-  //else excluded_=0;
-  //cout<<"initial excluded "<<excluded_<<endl;
-  float Mustache_Et_out=0;
-  int PFClus=0;
-  Mustache Must;
-  Must.MustacheID(PFclusters, PFClus, Mustache_Et_out);
-  excluded_=PFClus;
-  //order the clusters by energy
-  //  float Mustache_Et=0;
-  float ClusSum=0;
-  for(unsigned int i=0; i<Clust_E.size(); ++i)
-    {
-      
-      Clust.insert(make_pair(Clust_E[i], i));
-      //Mustache_Et=Mustache_Et+Clust_Et[i];
-      ClusSum=ClusSum+Clust_E[i];
-    }
-  Mustache_EtRatio_=(Mustache_Et_out)/ClustSumEt;
-  std::multimap<float, int>::reverse_iterator it;
-  it=Clust.rbegin();
-  int max_c=(*it).second;
-  it=Clust.rend();
-  int min_c=(*it).second;
-  if(nPFClus_>1)LowClusE_=Clust_E[min_c];
-  else LowClusE_=0;
-  if(nPFClus_>1){
-    dEta_=fabs(Clust_Eta[max_c]-Clust_Eta[min_c]);
-    dPhi_=acos(cos(Clust_Phi[max_c]-Clust_Phi[min_c]));
+  //cout<<"Nvtx "<<nVtx_<<endl;
+  if(fabs(PFPhoEta_)<1.4446){
+    float GC_Var[17];
+    GC_Var[0]=PFPhoEta_;
+    GC_Var[1]=PFPhoECorr_;
+    GC_Var[2]=PFPhoR9Corr_;
+    GC_Var[3]=SCEtaWidth_;
+    GC_Var[4]=SCPhiWidth_;
+    GC_Var[5]=PFPhoPhi_;
+    GC_Var[6]=x0inner_;
+    GC_Var[7]=x0middle_;
+    GC_Var[8]=x0outer_;
+    GC_Var[9]=RConv_;
+    GC_Var[10]=LowClusE_;
+    GC_Var[11]=RMSMust_;
+    GC_Var[12]=RMSAll_;
+    GC_Var[13]=dEta_;
+    GC_Var[14]=dPhi_;
+    GC_Var[15]=nVtx_;
+    GC_Var[16]=MustE_;
+    BDTG=ReaderGCEB_->GetResponse(GC_Var);
   }
+  else if(PFPhoR9_>0.94){
+    float GC_Var[19];
+    GC_Var[0]=PFPhoEta_;
+    GC_Var[1]=PFPhoECorr_;
+    GC_Var[2]=PFPhoR9Corr_;
+    GC_Var[3]=SCEtaWidth_;
+    GC_Var[4]=SCPhiWidth_;
+    GC_Var[5]=PFPhoPhi_;
+    GC_Var[6]=x0inner_;
+    GC_Var[7]=x0middle_;
+    GC_Var[8]=x0outer_;
+    GC_Var[9]=RConv_;
+    GC_Var[10]=LowClusE_;
+    GC_Var[11]=RMSMust_;
+    GC_Var[12]=RMSAll_;
+    GC_Var[13]=dEta_;
+    GC_Var[14]=dPhi_;
+    GC_Var[15]=nVtx_;
+    GC_Var[16]=TotPS1_;
+    GC_Var[17]=TotPS2_;
+    GC_Var[18]=MustE_;
+    BDTG=ReaderGCEEhR9_->GetResponse(GC_Var);
+  }
+  
   else{
-    dEta_=0;
-    dPhi_=0;
+    float GC_Var[19];
+    GC_Var[0]=PFPhoEta_;
+    GC_Var[1]=PFPhoE_;
+    GC_Var[2]=PFPhoR9Corr_;
+    GC_Var[3]=SCEtaWidth_;
+    GC_Var[4]=SCPhiWidth_;
+    GC_Var[5]=PFPhoPhi_;
+    GC_Var[6]=x0inner_;
+    GC_Var[7]=x0middle_;
+    GC_Var[8]=x0outer_;
+    GC_Var[9]=RConv_;
+    GC_Var[10]=LowClusE_;
+    GC_Var[11]=RMSMust_;
+    GC_Var[12]=RMSAll_;
+    GC_Var[13]=dEta_;
+    GC_Var[14]=dPhi_;
+    GC_Var[15]=nVtx_;
+    GC_Var[16]=TotPS1_;
+    GC_Var[17]=TotPS2_;
+    GC_Var[18]=MustE_;
+    BDTG=ReaderGCEElR9_->GetResponse(GC_Var);
   }
-  float dRmin=999;
-  float SCphi=photon.superClusterRef()->position().phi();
-  float SCeta=photon.superClusterRef()->position().eta();
-  for(unsigned i=0; i<eleInBlocks.size(); i++)
-    {
-      PFBlockRef blockRef = eleInBlocks[i].first;
-      unsigned indexInBlock = eleInBlocks[i].second;
-      const edm::OwnVector< reco::PFBlockElement >&  elements=eleInBlocks[i].first->elements();
-      const reco::PFBlockElement& element = elements[indexInBlock];
-      if(element.type()==reco::PFBlockElement::ECAL){
-	reco::PFClusterRef ClusterRef = element.clusterRef();
-	float eta=ClusterRef->position().eta();
-	float phi=ClusterRef->position().phi();
-	float dR=deltaR(SCeta, SCphi, eta, phi);
-	if(dR<dRmin){
-	  dRmin=dR;
-	  fill5x5Map(ClusterRef);
-	  PFPhoR9_=e3x3_/ClusSum;
-	}
-      }
-    } 
+  //cout<<"GC "<<BDTG<<endl;
 
-  //fill Material Map:
-  int ix = X0_sum->GetXaxis()->FindBin(PFPhoEta_);
-  int iy = X0_sum->GetYaxis()->FindBin(PFPhoPhi_);
-  x0inner_= X0_inner->GetBinContent(ix,iy);
-  x0middle_=X0_middle->GetBinContent(ix,iy);
-  x0outer_=X0_outer->GetBinContent(ix,iy);
-
-  float GC_Var[16];
-  GC_Var[0]=PFPhoEta_;
-  GC_Var[1]=PFPhoEt_;
-  GC_Var[2]=PFPhoR9_;
-  GC_Var[3]=PFPhoPhi_;
-  GC_Var[4]=SCEtaWidth_;
-  GC_Var[5]=SCPhiWidth_;
-  GC_Var[6]=x0inner_;  
-  GC_Var[7]=x0middle_;
-  GC_Var[8]=x0outer_;
-  GC_Var[9]=nPFClus_;
-  GC_Var[10]=RConv_;
-  GC_Var[11]=LowClusE_/photon.energy();
-  GC_Var[12]=dEta_;
-  GC_Var[13]=dPhi_;
-  GC_Var[14]=excluded_;
-  GC_Var[15]= Mustache_EtRatio_;
-  
-
-  BDTG=ReaderGC_->GetResponse(GC_Var);
-  //  cout<<"GC "<<BDTG<<endl;  
-  
-  //  cout<<"BDTG Parameters X0"<<x0inner_<<", "<<x0middle_<<", "<<x0outer_<<endl;
-  // cout<<"Et, Eta, Phi "<<PFPhoEt_<<", "<<PFPhoEta_<<", "<<PFPhoPhi_<<endl;
-  // cout<<"PFPhoR9 "<<PFPhoR9_<<endl;
-  // cout<<"R "<<RConv_<<endl;
-  
   return BDTG;
+  
+}
 
+double PFPhotonAlgo::ClustersPhiRMS(std::vector<reco::CaloCluster>PFClusters, float PFPhoPhi){
+  double PFClustPhiRMS=0;
+  double delPhi2=0;
+  double delPhiSum=0;
+  double ClusSum=0;
+  for(unsigned int c=0; c<PFClusters.size(); ++c){
+    delPhi2=(acos(cos(PFPhoPhi-PFClusters[c].phi()))* acos(cos(PFPhoPhi-PFClusters[c].phi())) )+delPhi2;
+    delPhiSum=delPhiSum+ acos(cos(PFPhoPhi-PFClusters[c].phi()))*PFClusters[c].energy();
+    ClusSum=ClusSum+PFClusters[c].energy();
+  }
+  double meandPhi=delPhiSum/ClusSum;
+  PFClustPhiRMS=sqrt(fabs(delPhi2/ClusSum - (meandPhi*meandPhi)));
+  
+  return PFClustPhiRMS;
 }
 
 float PFPhotonAlgo::EvaluateLCorrMVA(reco::PFClusterRef clusterRef ){
   float BDTG=1;
+  PFPhotonClusters ClusterVar(clusterRef);
+  std::pair<double, double>ClusCoor=ClusterVar.GetCrysCoor();
+  std::pair<int, int>ClusIndex=ClusterVar.GetCrysIndex();
+  //Local Coordinates:
+  if(clusterRef->layer()==PFLayer:: ECAL_BARREL ){//is Barrel
+    PFCrysEtaCrack_=ClusterVar.EtaCrack();
+    CrysEta_=ClusCoor.first;
+    CrysPhi_=ClusCoor.second;
+    CrysIEta_=ClusIndex.first;
+    CrysIPhi_=ClusIndex.second;
+  }
+  else{
+    CrysX_=ClusCoor.first;
+    CrysY_=ClusCoor.second;
+  }
+  //Shower Shape Variables:
+  eSeed_= ClusterVar.E5x5Element(0, 0)/clusterRef->energy();
+  etop_=ClusterVar.E5x5Element(0,1)/clusterRef->energy();
+  ebottom_=ClusterVar.E5x5Element(0,-1)/clusterRef->energy();
+  eleft_=ClusterVar.E5x5Element(-1,0)/clusterRef->energy();
+  eright_=ClusterVar.E5x5Element(1,0)/clusterRef->energy();
+  e1x3_=(ClusterVar.E5x5Element(0,0)+ClusterVar.E5x5Element(0,1)+ClusterVar.E5x5Element(0,-1))/clusterRef->energy();
+  e3x1_=(ClusterVar.E5x5Element(0,0)+ClusterVar.E5x5Element(-1,0)+ClusterVar.E5x5Element(1,0))/clusterRef->energy();
+  e1x5_=ClusterVar.E5x5Element(0,0)+ClusterVar.E5x5Element(0,-2)+ClusterVar.E5x5Element(0,-1)+ClusterVar.E5x5Element(0,1)+ClusterVar.E5x5Element(0,2);
   
-  GetCrysCoordinates(clusterRef);
-  fill5x5Map(clusterRef);
+  e2x5Top_=(ClusterVar.E5x5Element(-2,2)+ClusterVar.E5x5Element(-1, 2)+ClusterVar.E5x5Element(0, 2)
+	    +ClusterVar.E5x5Element(1, 2)+ClusterVar.E5x5Element(2, 2)
+	    +ClusterVar.E5x5Element(-2,1)+ClusterVar.E5x5Element(-1,1)+ClusterVar.E5x5Element(0,1)
+	    +ClusterVar.E5x5Element(1,1)+ClusterVar.E5x5Element(2,1))/clusterRef->energy();
+  e2x5Bottom_=(ClusterVar.E5x5Element(-2,-2)+ClusterVar.E5x5Element(-1,-2)+ClusterVar.E5x5Element(0,-2)
+	       +ClusterVar.E5x5Element(1,-2)+ClusterVar.E5x5Element(2,-2)
+	       +ClusterVar.E5x5Element(-2,1)+ClusterVar.E5x5Element(-1,1)
+	       +ClusterVar.E5x5Element(0,1)+ClusterVar.E5x5Element(1,1)+ClusterVar.E5x5Element(2,1))/clusterRef->energy();
+  e2x5Left_= (ClusterVar.E5x5Element(-2,-2)+ClusterVar.E5x5Element(-2,-1)
+	      +ClusterVar.E5x5Element(-2,0)
+	       +ClusterVar.E5x5Element(-2,1)+ClusterVar.E5x5Element(-2,2)
+	      +ClusterVar.E5x5Element(-1,-2)+ClusterVar.E5x5Element(-1,-1)+ClusterVar.E5x5Element(-1,0)
+	      +ClusterVar.E5x5Element(-1,1)+ClusterVar.E5x5Element(-1,2))/clusterRef->energy();
+  
+  e2x5Right_ =(ClusterVar.E5x5Element(2,-2)+ClusterVar.E5x5Element(2,-1)
+	       +ClusterVar.E5x5Element(2,0)+ClusterVar.E5x5Element(2,1)+ClusterVar.E5x5Element(2,2)
+	       +ClusterVar.E5x5Element(1,-2)+ClusterVar.E5x5Element(1,-1)+ClusterVar.E5x5Element(1,0)
+	       +ClusterVar.E5x5Element(1,1)+ClusterVar.E5x5Element(1,2))/clusterRef->energy();
+  float centerstrip=ClusterVar.E5x5Element(0,0)+ClusterVar.E5x5Element(0, -2)
+    +ClusterVar.E5x5Element(0,-1)+ClusterVar.E5x5Element(0,1)+ClusterVar.E5x5Element(0,2);
+  float rightstrip=ClusterVar.E5x5Element(1, 0)+ClusterVar.E5x5Element(1,1)
+    +ClusterVar.E5x5Element(1,2)+ClusterVar.E5x5Element(1,-1)+ClusterVar.E5x5Element(1,-2);
+  float leftstrip=ClusterVar.E5x5Element(-1,0)+ClusterVar.E5x5Element(-1,-1)+ClusterVar.E5x5Element(-1,2)
+    +ClusterVar.E5x5Element(-1,1)+ClusterVar.E5x5Element(-1,2);
+  
+  if(rightstrip>leftstrip)e2x5Max_=rightstrip+centerstrip;
+  else e2x5Max_=leftstrip+centerstrip;
+  e2x5Max_=e2x5Max_/clusterRef->energy();
+  //GetCrysCoordinates(clusterRef);
+  //fill5x5Map(clusterRef);
   VtxZ_=primaryVertex_.z();
   ClusPhi_=clusterRef->position().phi(); 
   ClusEta_=fabs(clusterRef->position().eta());
   EB=fabs(clusterRef->position().eta())/clusterRef->position().eta();
   logPFClusE_=log(clusterRef->energy());
-   float LC_Var[20];
-   LC_Var[0]=VtxZ_;
-   LC_Var[1]=EB;
-   LC_Var[2]=ClusEta_;
-   LC_Var[3]=ClusPhi_;
-   LC_Var[4]=logPFClusE_;
-   LC_Var[5]=eSeed_;
-   LC_Var[6]=ClusR9_;
-   LC_Var[7]=e1x3_;
-   LC_Var[8]=e3x1_;
-   LC_Var[9]=Clus5x5ratio_;
-   LC_Var[10]=e1x5_;
-   LC_Var[11]=e2x5Max_;
-   LC_Var[12]=e2x5Top_;
-   LC_Var[13]=e2x5Bottom_;
-   LC_Var[14]=e2x5Left_;
-   LC_Var[15]=e2x5Right_;
-   LC_Var[16]=CrysEta_;
-   LC_Var[17]=CrysPhi_;
-   LC_Var[18]=PFCrysPhiCrack_;
-   LC_Var[19]=PFCrysEtaCrack_;
-   BDTG=ReaderLC_->GetResponse(LC_Var);   
-   //   cout<<"LC "<<BDTG<<endl;  
+  if(ClusEta_<1.4446){
+    float LC_Var[26];
+    LC_Var[0]=VtxZ_;
+    LC_Var[1]=EB;
+    LC_Var[2]=ClusEta_;
+    LC_Var[3]=ClusPhi_;
+    LC_Var[4]=logPFClusE_;
+    LC_Var[5]=eSeed_;
+    //top bottom left right
+    LC_Var[6]=etop_;
+    LC_Var[7]=ebottom_;
+    LC_Var[8]=eleft_;
+    LC_Var[9]=eright_;
+    LC_Var[10]=ClusR9_;
+    LC_Var[11]=e1x3_;
+    LC_Var[12]=e3x1_;
+    LC_Var[13]=Clus5x5ratio_;
+    LC_Var[14]=e1x5_;
+    LC_Var[15]=e2x5Max_;
+    LC_Var[16]=e2x5Top_;
+    LC_Var[17]=e2x5Bottom_;
+    LC_Var[18]=e2x5Left_;
+    LC_Var[19]=e2x5Right_;
+    LC_Var[20]=CrysEta_;
+    LC_Var[21]=CrysPhi_;
+    float CrysIphiMod2=CrysIPhi_%2;
+    float CrysIetaMod5=CrysIEta_%5;
+    float CrysIphiMod20=CrysIPhi_%20;
+    LC_Var[22]=CrysIphiMod2;
+    LC_Var[23]=CrysIetaMod5;
+    LC_Var[24]=CrysIphiMod20;   
+    LC_Var[25]=PFCrysEtaCrack_;
+    BDTG=ReaderLCEB_->GetResponse(LC_Var);   
+    //cout<<"LC "<<BDTG<<endl;  
+  }
+  else{
+    float LC_Var[22];
+    LC_Var[0]=VtxZ_;
+    LC_Var[1]=EB;
+    LC_Var[2]=ClusEta_;
+    LC_Var[3]=ClusPhi_;
+    LC_Var[4]=logPFClusE_;
+    LC_Var[5]=eSeed_;
+    //top bottom left right
+    LC_Var[6]=etop_;
+    LC_Var[7]=ebottom_;
+    LC_Var[8]=eleft_;
+    LC_Var[9]=eright_;
+    LC_Var[10]=ClusR9_;
+    LC_Var[11]=e1x3_;
+    LC_Var[12]=e3x1_;
+    LC_Var[13]=Clus5x5ratio_;
+    LC_Var[14]=e1x5_;
+    LC_Var[15]=e2x5Max_;
+    LC_Var[16]=e2x5Top_;
+    LC_Var[17]=e2x5Bottom_;
+    LC_Var[18]=e2x5Left_;
+    LC_Var[19]=e2x5Right_;
+    LC_Var[20]=CrysX_;
+    LC_Var[21]=CrysY_;
+    BDTG=ReaderLCEE_->GetResponse(LC_Var);   
+    //cout<<"LC "<<BDTG<<endl;  
+  }
    return BDTG;
   
 }
-
-
-void PFPhotonAlgo::GetCrysCoordinates(reco::PFClusterRef clusterRef){
-  // Commented by Florian. Source of warnings as not used 
-  //  float PFSeedEta=99;
-  float PFSeedPhi=99;
-  float PFSeedTheta=99;
-  double PFSeedE=0;
-  //  unsigned int SeedDetId=-1;
-  // float seedPhi=0;
-  //  float seedEta=0;
-  DetId idseed;
-  const std::vector< reco::PFRecHitFraction >& PFRecHits=
-    clusterRef->recHitFractions();
-  for ( std::vector< reco::PFRecHitFraction >::const_iterator it = PFRecHits.begin();
-	it != PFRecHits.end(); ++it){
-    const PFRecHitRef& RefPFRecHit = it->recHitRef();
-    unsigned index=it-PFRecHits.begin();
-    float frac=clusterRef->hitsAndFractions()[index].second;
-    float E= RefPFRecHit->energy()* frac;
-    if(E>PFSeedE){
-      //      SeedDetId=RefPFRecHit.index();
-      PFSeedE=E;  
-      //      PFSeedEta=RefPFRecHit->positionREP().eta(); 
-      PFSeedPhi=RefPFRecHit->positionREP().phi();
-      PFSeedTheta=RefPFRecHit->positionREP().theta();
-      RefPFRecHit->positionREP().theta();
-      idseed = RefPFRecHit->detId();
-    }
-  }
-  EBDetId EBidSeed=EBDetId(idseed.rawId());
-  CrysIEta_=EBidSeed.ieta();
-  CrysIPhi_=EBidSeed.iphi();
-  
-  //Crystal Coordinates:
-  double Pi=TMath::Pi();
-  float Phi=clusterRef->position().phi(); 
-  //  float Eta=clusterRef->position().eta();
-  double Theta = -(clusterRef->position().theta())+0.5* Pi;
-  double PhiCentr = TVector2::Phi_mpi_pi(PFSeedPhi);
-  double PhiWidth = (Pi/180.);
-  double PhiCry = (TVector2::Phi_mpi_pi(Phi-PhiCentr))/PhiWidth;
-  double ThetaCentr = -PFSeedTheta+0.5*Pi;
-  double ThetaWidth = (Pi/180.)*cos(ThetaCentr);
-  
-  //cout<<"Clust Theta "<<Theta<<" Crys Theta "<<ThetaCentr<<endl;
-  //cout<<" Width "<< ThetaWidth<<endl;
-  double EtaCry = (Theta-ThetaCentr)/ThetaWidth; 
-  CrysEta_=EtaCry;
-  CrysPhi_=PhiCry;
- 
-  //check Module and crack:
-  int iphi=CrysIPhi_;
-  int phimod=iphi%20;
-  if(phimod>1)PFCrysPhiCrack_=2;
-  else PFCrysPhiCrack_=phimod; //should be 0, 1
-  
-  if(abs(CrysIEta_)==1 || abs(CrysIEta_)==2 )
-    PFCrysEtaCrack_=abs(CrysIEta_);
-  if(abs(CrysIEta_)>2 && abs(CrysIEta_)<24)
-    PFCrysEtaCrack_=3;
-  if(abs(CrysIEta_)==24)
-    PFCrysEtaCrack_=4;
-  if(abs(CrysIEta_)==25)
-	PFCrysEtaCrack_=5;
-      if(abs(CrysIEta_)==26)
-	PFCrysEtaCrack_=6;
-      if(abs(CrysIEta_)==27)
-		PFCrysEtaCrack_=7;
-      if(abs(CrysIEta_)>27 &&  abs(CrysIEta_)<44)
-	PFCrysEtaCrack_=8;
-      if(abs(CrysIEta_)==44)
-		PFCrysEtaCrack_=9;
-      if(abs(CrysIEta_)==45)
-	PFCrysEtaCrack_=10;
-      if(abs(CrysIEta_)==46)
-		PFCrysEtaCrack_=11;
-      if(abs(CrysIEta_)==47)
-	PFCrysEtaCrack_=12;
-      if(abs(CrysIEta_)>47 &&  abs(CrysIEta_)<64)
-	PFCrysEtaCrack_=13;
-      if(abs(CrysIEta_)==64)
-	PFCrysEtaCrack_=14;
-      if(abs(CrysIEta_)==65)
-	PFCrysEtaCrack_=15;
-      if(abs(CrysIEta_)==66)
-	PFCrysEtaCrack_=16;
-      if(abs(CrysIEta_)==67)
-	PFCrysEtaCrack_=17;
-      if(abs(CrysIEta_)>67 &&  abs(CrysIEta_)<84)
-	PFCrysEtaCrack_=18;
-      if(abs(CrysIEta_)==84)
-	PFCrysEtaCrack_=19;
-      if(abs(CrysIEta_)==85)
-	PFCrysEtaCrack_=20;
-      
-}
-
-void PFPhotonAlgo::fill5x5Map(reco::PFClusterRef clusterRef){
-
-  // commented out by Florian. Not used in the code
-  //  float PFSeedEta=99;
-  //  float PFSeedPhi=99;
-  double PFSeedE=0;
-  //  unsigned int SeedDetId=-1;
-  //  float seedPhi=0;
-  //float seedEta=0;
-  DetId idseed;
-  const std::vector< reco::PFRecHitFraction >& PFRecHits=
-    clusterRef->recHitFractions();
-  for ( std::vector< reco::PFRecHitFraction >::const_iterator it = PFRecHits.begin();
-	it != PFRecHits.end(); ++it){
-    const PFRecHitRef& RefPFRecHit = it->recHitRef();
-    unsigned index=it-PFRecHits.begin();
-    //DetId id=eclusterRef->hitsAndFractions()[index].first;
-    float frac=clusterRef->hitsAndFractions()[index].second;
-    float E= RefPFRecHit->energy()* frac;
-    if(E>PFSeedE){
-      //      SeedDetId=RefPFRecHit.index();
-      PFSeedE=E;  
-      //      PFSeedEta=RefPFRecHit->positionREP().eta(); 
-      //      PFSeedPhi=RefPFRecHit->positionREP().phi(); 
-      idseed = RefPFRecHit->detId();
-    }
-  }
-  
-  
-  //initialize 5x5 map
-  for(int i=0; i<5; ++i)
-    for(int j=0; j<5; ++j)e5x5Map[i][j]=0;
-  float E3x3=0;
-  float E5x5=0;
-  //  int count=0;
-  for ( std::vector< reco::PFRecHitFraction >::const_iterator it = PFRecHits.begin();
-	it != PFRecHits.end(); ++it){
-    unsigned index=it-PFRecHits.begin();
-    const PFRecHitRef& RefPFRecHit = it->recHitRef();
-    float frac=clusterRef->hitsAndFractions()[index].second;
-    DetId id = RefPFRecHit->detId();
-    if(idseed.subdetId()==EcalBarrel){
-      int deta=EBDetId::distanceEta(id,idseed);
-      int dphi=EBDetId::distancePhi(id,idseed);	
-      EBDetId EBidSeed=EBDetId(idseed.rawId());
-      if(abs(dphi)<=1 && abs(deta)<=1)
-	{
-	  E3x3=E3x3+(RefPFRecHit->energy()*frac);
-	}
-      if(abs(dphi)<=2 && abs(deta)<=2)
-	{
-	  //center the array on [2][2] to be the Seed
-	  //deta and deta are unsigned so you want to recompute 
-	  //to get top bottom left right 
-	  EBDetId EBid=EBDetId(id.rawId());
-	  //note this is actually opposite to make it consistent to the lazy tools left right which inverts them
-	  int i=EBidSeed.ieta()-EBid.ieta();
-	  
-	  int j=EBid.iphi()-EBidSeed.iphi();
-	  int iEta=i+2;
-	  int iPhi=j+2;
-	  
-	  e5x5Map[iEta][iPhi]=RefPFRecHit->energy()*frac;
-	  E5x5=E5x5+(RefPFRecHit->energy()*frac);
-	}
-    }
-    if(idseed.subdetId()==EcalEndcap){
-      //dx and dy are unsigned so you want to recompute 
-      //to get top bottom left right 
-      int dx=EEDetId::distanceX(id,idseed);
-      int dy=EEDetId::distanceY(id,idseed);
-      EEDetId EEidSeed=EEDetId(idseed.rawId());
-      //dx and dy are unsigned so you want to recompute 
-      //to get top bottom left right 
-      if(abs(dx)<=1 && abs(dy)<=1)
-	{
-	  E3x3=E3x3+(RefPFRecHit->energy()*frac);
-	}
-      if(abs(dx)<=2 && abs(dy)<=2)
-	{
-	  EEDetId EEid=EEDetId(id.rawId());
-	  int i=EEid.ix()-EEidSeed.ix();
-	  int j=EEid.iy()-EEidSeed.iy();
-	  //center the array on [2][2] to be the Seed
-	  int ix=i+2;
-	  int iy=j+2;
-	  e5x5Map[ix][iy]=RefPFRecHit->energy()*frac;
-	  E5x5=E5x5+(RefPFRecHit->energy()*frac);
-	}
-    }
-    
-  }
-  e3x3_=E3x3;
-  ClusR9_=E3x3/clusterRef->energy();
-  Clus5x5ratio_=E5x5/clusterRef->energy();
-  eSeed_= e5x5Map[2][2]/clusterRef->energy();
-  e1x3_=(e5x5Map[2][2]+e5x5Map[1][2]+e5x5Map[3][2])/clusterRef->energy();
-  e3x1_=(e5x5Map[2][2]+e5x5Map[2][1]+e5x5Map[2][3])/clusterRef->energy();
-  e1x5_=e5x5Map[2][2]+e5x5Map[2][0]+e5x5Map[2][1]+e5x5Map[2][3]+e5x5Map[2][4];
-  e2x5Top_=(e5x5Map[0][4]+e5x5Map[1][4]+e5x5Map[2][4]
-	    +e5x5Map[3][4]+e5x5Map[4][4]
-    +e5x5Map[0][3]+e5x5Map[1][3]+e5x5Map[2][3]
-	    +e5x5Map[3][3]+e5x5Map[4][3])/clusterRef->energy();
-  
-  e2x5Bottom_=(e5x5Map[0][0]+e5x5Map[1][0]+e5x5Map[2][0]
-	       +e5x5Map[3][0]+e5x5Map[4][0]
-	       +e5x5Map[0][1]+e5x5Map[1][1]
-	       +e5x5Map[2][1]+e5x5Map[3][1]+e5x5Map[4][1])/clusterRef->energy();
-  e2x5Left_= ( e5x5Map[0][1]+e5x5Map[0][1]
-	       +e5x5Map[0][2]+e5x5Map[0][3]+e5x5Map[0][4]
-	       +e5x5Map[1][0]+e5x5Map[1][1]+e5x5Map[1][2]
-	       +e5x5Map[1][3]+e5x5Map[1][4])/clusterRef->energy();
-  
-  e2x5Right_ =(e5x5Map[4][0]+e5x5Map[4][1]
-	       +e5x5Map[4][2]+e5x5Map[4][3]+e5x5Map[4][4]
-	       +e5x5Map[3][0]+e5x5Map[3][1]+e5x5Map[3][2]
-	       +e5x5Map[3][3]+e5x5Map[3][4])/clusterRef->energy(); 
-  float centerstrip=e5x5Map[2][2]+e5x5Map[2][0]
-    +e5x5Map[2][1]+e5x5Map[2][3]+e5x5Map[2][4];
-  float rightstrip=e5x5Map[3][2]+e5x5Map[3][0]
-    +e5x5Map[3][1]+e5x5Map[3][3]+e5x5Map[3][4];
-  float leftstrip=e5x5Map[1][2]+e5x5Map[1][0]+e5x5Map[1][1]
-    +e5x5Map[1][3]+e5x5Map[1][4];
-  if(rightstrip>leftstrip)e2x5Max_=rightstrip+centerstrip;
-  else e2x5Max_=leftstrip+centerstrip;
-  e2x5Max_=e2x5Max_/clusterRef->energy();
-}
-
-
-
 
 bool PFPhotonAlgo::EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, const reco::Vertex& primaryvtx, unsigned int track_index)  
 {  
@@ -1535,7 +1357,6 @@ void PFPhotonAlgo::EarlyConversion(
 	      if(ElecscRef.isNonnull()){
 		//finally see if it matches:
 		reco::SuperClusterRef PhotscRef=sc->superClusterRef();
-		
 		if(PhotscRef==ElecscRef)
 		  {
 		    match_ind.push_back(count);

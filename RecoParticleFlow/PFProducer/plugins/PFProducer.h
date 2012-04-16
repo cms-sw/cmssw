@@ -68,6 +68,12 @@ class PFProducer : public edm::EDProducer {
   const GBRForest * ReaderGC_;
   const GBRForest* ReaderLC_;
   const GBRForest* ReaderRes_;
+  const GBRForest* ReaderLCEB_;
+  const GBRForest* ReaderLCEE_;
+  const GBRForest* ReaderGCBarrel_;
+  const GBRForest* ReaderGCEndCapHighr9_;
+  const GBRForest* ReaderGCEndCapLowr9_;
+  const GBRForest* ReaderEcalRes_;
   // what about e/g electrons ?
   bool useEGammaElectrons_;
 
