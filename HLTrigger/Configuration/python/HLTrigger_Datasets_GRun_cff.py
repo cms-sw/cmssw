@@ -261,10 +261,10 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMET_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMET_selector.l1tResults = cms.InputTag('')
 streamA_datasetMET_selector.throw      = cms.bool(False)
-streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CentralPFJet80_CaloMET50_dPhi1_PFMHT80_HBHENoiseFiltered_v5', 
-    'HLT_DiCentralJet20_BTagIP_MET65_HBHENoiseFiltered_dPhi1_v4', 
+streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CentralPFJet80_CaloMET50_dPhi1_PFMHT80_HBHENoiseCleaned_v1', 
+    'HLT_DiCentralJet20_BTagIP_MET65_HBHENoiseCleaned_dPhi1_v1', 
     'HLT_DiCentralJet20_CaloMET65_BTagCSV07_PFMHT80_v4', 
-    'HLT_DiCentralPFJet30_CaloMET50_dPhi1_PFMHT80_HBHENoiseFiltered_v5', 
+    'HLT_DiCentralPFJet30_CaloMET50_dPhi1_PFMHT80_HBHENoiseCleaned_v1', 
     'HLT_DiCentralPFJet30_PFMHT80_v7', 
     'HLT_DiCentralPFJet50_PFMET80_v5', 
     'HLT_DiPFJet40_PFMETnoMu65_MJJ600VBF_LeadingJets_v4', 
@@ -362,7 +362,7 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleDisplac
     'HLT_Mu20_eta2p1_TriCentralPFNoPUJet50_40_30_v4', 
     'HLT_Mu24_eta2p1_CentralPFJet30_CentralPFJet25_v5', 
     'HLT_Mu24_eta2p1_PFJet30_PFJet25_Deta3_v5', 
-    'HLT_Mu40_FJHT200_v4', 
+    'HLT_Mu40_HT200_v1', 
     'HLT_Mu40_PFHT350_v5', 
     'HLT_Mu60_PFHT350_v5', 
     'HLT_Mu8_DiJet30_v4', 
@@ -490,7 +490,7 @@ streamA_datasetPhotonHad_selector.triggerConditions = cms.vstring('HLT_Photon40_
     'HLT_Photon40_CaloIdL_RsqMR40_Rsq0p09_MR150_v3', 
     'HLT_Photon40_CaloIdL_RsqMR45_Rsq0p09_MR150_v3', 
     'HLT_Photon40_CaloIdL_RsqMR50_Rsq0p09_MR150_v3', 
-    'HLT_Photon60_CaloIdL_FJHT300_v3', 
+    'HLT_Photon60_CaloIdL_HT300_v1', 
     'HLT_Photon60_CaloIdL_MHT70_v7', 
     'HLT_Photon70_CaloIdXL_PFHT400_v4', 
     'HLT_Photon70_CaloIdXL_PFHT500_v4', 
