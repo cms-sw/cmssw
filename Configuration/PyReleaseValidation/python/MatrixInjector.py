@@ -112,10 +112,13 @@ class MatrixInjector(object):
                 if x[0]==n:
                     #print "found",n,s[3]
                     chainDict['RequestString']='RV'+s[1].split('+')[0]
-                    for (index,step) in enumerate(s[3]):
+                    index=0
+                    for step in s[3]:
                         if 'INPUT' in step or (not isinstance(s[2][index],str)):
                             nextHasDSInput=s[2][index]
                         else:
+                            if 'HARVEST' in step:
+                                continue
                             if (index==0):
                                 #first step and not input -> gen part
                                 chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultScratch))
@@ -147,7 +150,8 @@ class MatrixInjector(object):
                                 return -15
                             chainDict['nowmTasklist'][-1]['ConfigCacheID']='%s/%s.py'%(dir,step)
                             chainDict['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT']
-                            
+                        index+=1
+                        
             #wrap up for this one
             #print 'wrapping up'
             chainDict['TaskChain']=len(chainDict['nowmTasklist'])
