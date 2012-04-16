@@ -98,18 +98,22 @@ lowPtMixedTripletStepSeedLayers.TEC.minRing = cms.int32(1)
 lowPtMixedTripletStepSeedLayers.TEC.maxRing = cms.int32(1)
 
 #--->
-# disconnect merger for stepOne to have triplets
+# disconnect merger for stepOne and step 2 to have triplets merged
 lowPtTripletStepSeeds.SeedMergerPSet.mergeTriplets = cms.bool(False)
+pixelPairStepSeeds.SeedMergerPSet.mergeTriplets = cms.bool(False)
 #<---
 
 # to avoid 'too many clusters'
 initialStepSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 lowPtTripletStepSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
+pixelPairStepSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 
 # avoid 'number of triples exceed maximum'
 pixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
 initialStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
 lowPtTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(0)
+# avoid 'number of pairs exceed maximum'
+pixelPairStepSeeds.OrderedHitsFactoryPSet.maxElement =  cms.uint32(0)
 
 # iterative tracking cuts renormalization (alpha's reduced by 7% 
 # to take into account the corresponding increase in number_of_layers)
@@ -145,14 +149,15 @@ lowPtTripletStepSelector.trackSelectors[2].d0_par2 = cms.vdouble(0.372, 4.0) # 0
 ### modify regular tracking sequence to use upgrade version
 ### so we can use regular reconstruction step
 ## remove tracking steps 2-5 to speed up the job
-iterTracking.remove(PixelPairStep)
+#iterTracking.remove(PixelPairStep)
 iterTracking.remove(DetachedTripletStep)
 iterTracking.remove(MixedTripletStep)
 iterTracking.remove(PixelLessStep)
 iterTracking.remove(TobTecStep)
 
-newCombinedSeeds.seedCollections = cms.VInputTag(
-      cms.InputTag('initialStepSeeds'),
-      cms.InputTag('lowPtTripletStepSeeds')
-)
+#newCombinedSeeds.seedCollections = cms.VInputTag(
+#      cms.InputTag('initialStepSeeds'),
+#      cms.InputTag('lowPtTripletStepSeeds'),
+#      cms.InputTag('pixelPairStepSeeds')
+#)
 

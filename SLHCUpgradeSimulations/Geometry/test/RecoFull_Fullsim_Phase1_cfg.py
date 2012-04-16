@@ -11,8 +11,8 @@ process = cms.Process('RECO')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-#process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load("SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R30F12_cff")
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+#process.load("SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R30F12_cff")
 process.load("SLHCUpgradeSimulations.Geometry.Phase1_R30F12_cmsSimIdealGeometryXML_cff")
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('SLHCUpgradeSimulations.Geometry.Digi_Phase1_R30F12_cff')
@@ -26,7 +26,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.13 $'),
+    version = cms.untracked.string('$Revision: 1.14 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -80,11 +80,11 @@ process.Timing =  cms.Service("Timing")
 #process.MessageLogger.destinations = cms.untracked.vstring("detailedInfo_fullph1geom")
 
 ### if pileup we need to set the number
-process.mix.input.nbPileupEvents = cms.PSet(
-  averageNumber = cms.double(50.0)
-)
+#process.mix.input.nbPileupEvents = cms.PSet(
+#  averageNumber = cms.double(50.0)
+#)
 ### if doing inefficiency at <PU>=50
-process.simSiPixelDigis.AddPixelInefficiency = 20
+#process.simSiPixelDigis.AddPixelInefficiency = 20
 ## also for strips TIB inefficiency if we want
 ## TIB1,2 inefficiency at 20%
 #process.simSiStripDigis.Inefficiency = 20
@@ -124,18 +124,18 @@ process.MeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
 process.MeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
 process.MeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
 process.MeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
-process.lowPtTripletStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
-process.lowPtTripletStepMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
-process.lowPtTripletStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
-process.lowPtTripletStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
-process.lowPtTripletStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
-process.lowPtTripletStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
-process.pixelPairStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
-process.pixelPairStepMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
-process.pixelPairStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
-process.pixelPairStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
-process.pixelPairStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
-process.pixelPairStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
+#process.lowPtTripletStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+#process.lowPtTripletStepMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
+#process.lowPtTripletStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
+#process.lowPtTripletStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
+#process.lowPtTripletStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
+#process.lowPtTripletStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
+#process.pixelPairStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+#process.pixelPairStepMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
+#process.pixelPairStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
+#process.pixelPairStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
+#process.pixelPairStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
+#process.pixelPairStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
 process.detachedTripletStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 process.detachedTripletStepMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
 process.detachedTripletStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
