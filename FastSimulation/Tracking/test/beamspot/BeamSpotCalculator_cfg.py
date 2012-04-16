@@ -8,7 +8,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # Include the RandomNumberGeneratorService definition
-process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
+process.load("IOMC.RandomEngine.IOMC_cff")
 
 # Generate ttbar events
 process.load("Configuration.Generator.QCD_Pt_80_120_cfi")

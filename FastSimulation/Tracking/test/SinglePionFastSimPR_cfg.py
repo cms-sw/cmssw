@@ -9,7 +9,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 # import of standard configurations
-process.load('FastSimulation/Configuration/RandomServiceInitialization_cff')
+process.load("IOMC.RandomEngine.IOMC_cff")
 process.load('FastSimulation.PileUpProducer.PileUpSimulator10TeV_cfi')
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load('Configuration/StandardSequences/Generator_cff')
@@ -40,7 +40,7 @@ process.famosPileUp.VertexGenerator = process.Early10TeVCollisionVtxSmearingPara
 process.GlobalTag.globaltag = 'IDEAL_31X::All'
 
 # Include the RandomNumberGeneratorService definition
-process.load("FastSimulation/Configuration/RandomServiceInitialization_cff")
+process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed= ==seed1==
 #process.RandomNumberGeneratorService.theSource.initialSeed= 1414
 

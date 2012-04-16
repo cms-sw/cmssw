@@ -13,7 +13,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 #)
 
 # Include the RandomNumberGeneratorService definition
-process.load("FastSimulation/Configuration/RandomServiceInitialization_cff")
+process.load("IOMC.RandomEngine.IOMC_cff")
 
 # Generate H -> ZZ -> l+l- l'+l'- (l,l'=e or mu), with mH=200GeV/c2
 #process.load("Configuration.Generator.H200ZZ4L_cfi")
