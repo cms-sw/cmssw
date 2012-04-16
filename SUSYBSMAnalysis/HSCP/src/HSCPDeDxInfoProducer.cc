@@ -282,10 +282,10 @@ void HSCPDeDxInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
                 FillInfo(DeDxTools::GetCluster(sistripsimplehit), trajState,sistripsimplehit->geographicalId(), hscpDeDxInfo);       
   	        hscpDeDxInfo.shapetest.push_back(DeDxTools::shapeSelection(DeDxTools::GetCluster(sistripsimplehit)->amplitudes()));
          }else if(sistripmatchedhit){
-                FillInfo(DeDxTools::GetCluster(sistripmatchedhit->monoHit()), trajState, sistripmatchedhit->monoHit()->geographicalId(), hscpDeDxInfo);
-	         hscpDeDxInfo.shapetest.push_back(DeDxTools::shapeSelection(DeDxTools::GetCluster(sistripmatchedhit->monoHit())->amplitudes()));
+                FillInfo(DeDxTools::GetCluster(sistripmatchedhit->monoHit()), trajState, sistripmatchedhit->monoId(), hscpDeDxInfo);
+	        hscpDeDxInfo.shapetest.push_back(DeDxTools::shapeSelection(DeDxTools::GetCluster(sistripmatchedhit->monoHit())->amplitudes()));
            
-                FillInfo(DeDxTools::GetCluster(sistripmatchedhit->stereoHit()), trajState,sistripmatchedhit->stereoHit()->geographicalId(), hscpDeDxInfo);
+                FillInfo(DeDxTools::GetCluster(sistripmatchedhit->stereoHit()), trajState,sistripmatchedhit->stereoId(), hscpDeDxInfo);
                  hscpDeDxInfo.shapetest.push_back(true);
          }else if(sistripsimple1dhit){ 
 	        FillInfo(DeDxTools::GetCluster(sistripsimple1dhit), trajState, sistripsimple1dhit->geographicalId(), hscpDeDxInfo);
