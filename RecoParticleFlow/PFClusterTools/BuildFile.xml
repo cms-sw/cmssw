@@ -1,6 +1,7 @@
 <use   name="CondFormats/PhysicsToolsObjects"/>
 <use   name="DataFormats/ParticleFlowReco"/>
 <use   name="DataFormats/Math"/>
+<use   name="DataFormats/EcalDetId"/>
 <use   name="boost"/>
 <use   name="rootphysics"/>
 <use   name="rootrflx"/>
