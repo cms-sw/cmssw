@@ -60,32 +60,11 @@ def customise(process):
                         )
     process.regionalCosmicTracks.TTRHBuilder = cms.string('WithTrackAngle')
 
-    process.ReadLocalMeasurement = cms.EDAnalyzer("StdHitNtuplizer",
-                                                  src = cms.InputTag("siPixelRecHits"),
-                                                  stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHit"),
-                                                  rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
-                                                  matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-                                                  ### if using simple (non-iterative) or old (as in 1_8_4) tracking
-                                                  trackProducer = cms.InputTag("generalTracks"),
-                                                  OutputFile = cms.string("stdgrechitfullph1g_ntuple.root"),
-                                                  ### for using track hit association
-                                                  associatePixel = cms.bool(True),
-                                                  associateStrip = cms.bool(False),
-                                                  associateRecoTracks = cms.bool(False),
-                                                  ROUList = cms.vstring('g4SimHitsTrackerHitsPixelBarrelLowTof',
-                                                                        'g4SimHitsTrackerHitsPixelBarrelHighTof',
-                                                                        'g4SimHitsTrackerHitsPixelEndcapLowTof',
-                                                                        'g4SimHitsTrackerHitsPixelEndcapHighTof')
-                                                  )
-
     ### back to standard job commands ##################################################
     process.DigiToRaw.remove(process.castorRawData)
 
     process.DigiToRaw.remove(process.siPixelRawData)
     process.RawToDigi.remove(process.siPixelDigis)
-
-    ## removing large memory usage module if we don't need it
-    process.pdigi.remove(process.mergedtruth)
 
     if hasattr(process,'dqmoffline_step'):
          print 'removing some dqm modules'
