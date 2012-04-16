@@ -80,8 +80,8 @@ process.prodPU = cms.EDProducer("producePileUpEvents",
     BunchPileUpEventSize = cms.uint32(1000)
 )
 
-outputType = 'edm'
-#outputType = 'ntuple'
+#outputType = 'edm'
+outputType = 'ntuple'
 
 process.source = cms.Source("EmptySource")
 if (outputType=='edm'):
