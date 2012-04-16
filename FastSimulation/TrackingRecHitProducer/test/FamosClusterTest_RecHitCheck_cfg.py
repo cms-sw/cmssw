@@ -9,7 +9,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.load("Configuration.StandardSequences.Services_cff")
 # Include the RandomNumberGeneratorService definition
-process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
+process.load("IOMC.RandomEngine.IOMC_cff")
 
 process.load("FastSimulation/Configuration/CommonInputs_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")

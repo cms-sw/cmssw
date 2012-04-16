@@ -5,7 +5,7 @@ process = cms.Process("ana")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("FastSimulation.Configuration.CommonInputs_cff")
 process.load("FastSimulation.Configuration.FamosSequences_cff")
-process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
+process.load("IOMC.RandomEngine.IOMC_cff")
 process.load("FastSimulation.Configuration.mixNoPU_cfi")
 
 process.GlobalTag.globaltag = "MC_31X_V2::All"
