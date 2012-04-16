@@ -6,8 +6,8 @@ from FastSimulation.Configuration.CommonInputs_cff import *
 from PhysicsTools.HepMCCandAlgos.genParticleCandidatesFast_cfi import *
 
 # Pile-up options: FAMOS-style or with the Mixing Module
-#from FastSimulation.Configuration.MixingFamos_cff import *
-from FastSimulation.Configuration.MixingFull_cff import *
+from FastSimulation.Configuration.MixingFamos_cff import *
+#from FastSimulation.Configuration.MixingFull_cff import *
 
 # Famos SimHits producer
 from FastSimulation.EventProducer.FamosSimHits_cff import *
