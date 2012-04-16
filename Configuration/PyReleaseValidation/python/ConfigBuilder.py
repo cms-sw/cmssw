@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.378 $"
+__version__ = "$Revision: 1.379 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1339,6 +1339,8 @@ class ConfigBuilder(object):
                   raise Exception('unsupported feature')
             if sequence is 'GT':
                   self.loadAndRemember('Configuration/StandardSequences/SimL1EmulatorRepack_GT_cff')
+		  if self._options.scenario == 'HeavyIons':
+			  self.renameInputTagsInSequence("SimL1Emulator","rawDataCollector","rawDataRepacker")
                   self.scheduleSequence('SimL1Emulator','L1simulation_step')
 
 
@@ -1759,7 +1761,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.378 $"),
+                                            (version=cms.untracked.string("$Revision: 1.379 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
