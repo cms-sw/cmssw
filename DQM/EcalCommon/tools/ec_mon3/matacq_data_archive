@@ -95,7 +95,7 @@ if ( @matacq_files == 0 ) {
           print LOGFILE localtime()." - matacq_data_archive: problems moving $matacq_data_dir/$file.dat to $matacq_data_dir/empty/\n";
           close LOGFILE;
 
-          system("rm $matacq_data_dir/.matacq_data_archive_lock'}");
+          system("rm $matacq_data_dir/.matacq_data_archive_lock");
           exit 1;
 
         }
@@ -136,7 +136,7 @@ if ( @matacq_files == 0 ) {
           print LOGFILE localtime()." - matacq_data_archive: problems moving $matacq_data_dir/$file.dat to $matacq_data_dir/trash/\n";
           close LOGFILE;
 
-          system("rm $matacq_data_dir/.matacq_data_archive_lock'}");
+          system("rm $matacq_data_dir/.matacq_data_archive_lock");
           exit 1;
 
         }

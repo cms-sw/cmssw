@@ -84,12 +84,18 @@ if ( @done_runs == 0 ) {
 
     foreach $runfile ( @done_runs ) {
 
+	$runfile =~ s/ *$//;
+
 	my $norun = "";
 	if ($opts{'norun'}) {
 	    $norun = "--norun";
 	}
+	my $debug = "";
+	if ($opts{'debug'}){
+	    $debug = "--debug";
+	}
 
-	my $status = system("$config{'ec_mon_path'}/ec_mon_convert $norun $runfile");
+	my $status = system("$config{'ec_mon_path'}/ec_mon_convert $norun $debug $runfile");
 
 	if ($status != 0 || ! -e "$statusdir/.$runfile.converted") {
 	    print "Run $runfile is not converted\n" if ($opts{'debug'});
@@ -102,7 +108,7 @@ if ( @done_runs == 0 ) {
 
 	foreach $run ( @datfiles ) {
 
-	    $run =~ s/.dat//;
+	    $run =~ s/[.]dat//;
 	    $run =~ s/ *$//;
 
 	    ($loc, $num, $lun, $out, $fun, $fil, $ful) = split('\.', "$run");
