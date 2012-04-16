@@ -7,6 +7,12 @@ process.RandomNumberGeneratorService.generator.initialSeed = 123456789
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
+# for the beamspot
+process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['startup']
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100000)
 )
@@ -101,7 +107,7 @@ outputType = 'edm'
 
 process.source = cms.Source("EmptySource")
 if (outputType=='edm'):
-    process.p = cms.Path(process.generator)
+    process.p = cms.Path(process.generator+process.offlineBeamSpot)
     process.GENoutput_step = cms.EndPath(process.GENoutput)
 elif (outputType=='ntuple'):
     process.p = cms.Path(process.generator*process.prodPU)

@@ -10,8 +10,8 @@ void create_cff_from_histo(TString input="pudist.root",TString output="MyPileup_
 
   ofstream out(output);
 
-  out << "from FastSimulation.Configuration.RandomServiceInitialization_cff import *" << endl;
-  out << "from FastSimulation.PileUpProducer.PileUpSimulator7TeV_cfi import *" << endl;
+  out << "from IOMC.RandomEngine.IOMC_cff import *" << endl;
+  out << "from FastSimulation.PileUpProducer.PileUpSimulator8TeV_cfi import *" << endl;
   out << "from FastSimulation.Configuration.FamosSequences_cff import famosPileUp" << endl;
   out << "famosPileUp.PileUpSimulator = PileUpSimulatorBlock.PileUpSimulator" << endl;
   out << "famosPileUp.PileUpSimulator.usePoisson = False" << endl;
