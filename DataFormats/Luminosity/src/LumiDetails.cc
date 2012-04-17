@@ -44,7 +44,7 @@ LumiDetails::lumiVersion() const {
 
 bool
 LumiDetails::isValid() const {
-  return (m_lumiVersion != "-1");
+  return m_allValues.size()!=0;
 }
 
 void
@@ -153,9 +153,14 @@ LumiDetails::algoNames() {
   return m_algoNames;
 }
 
+std::vector<std::string> const&
+LumiDetails::dipalgoNames() {
+  m_algoNames.push_back(std::string("DIP"));
+  return m_algoNames;
+}
 bool
 LumiDetails::isProductEqual(LumiDetails const& lumiDetails) const {
-
+  
   if (m_lumiVersion == lumiDetails.m_lumiVersion &&
       m_algoToFirstIndex == lumiDetails.m_algoToFirstIndex &&
       m_allValues == lumiDetails.m_allValues &&
@@ -189,10 +194,15 @@ std::ostream& operator<<(std::ostream& s, LumiDetails const& lumiDetails) {
   
   s << "\nDumping LumiDetails\n";
   s << std::setw(12) << "lumi version " << lumiDetails.lumiVersion() << "\n";
-
-  std::vector<std::string>::const_iterator algo = lumiDetails.algoNames().begin();
-  std::vector<std::string>::const_iterator algoEnd = lumiDetails.algoNames().end();
-
+  std::vector<std::string>::const_iterator algo;
+  std::vector<std::string>::const_iterator algoEnd;
+  if(lumiDetails.lumiVersion()!=std::string("DIP")){
+    algo = lumiDetails.algoNames().begin();
+    algoEnd = lumiDetails.algoNames().end();
+  }else{
+    algo = lumiDetails.dipalgoNames().begin();
+    algoEnd = lumiDetails.dipalgoNames().end();
+  }
   LumiDetails::AlgoType i = 0;
 
   for( ; algo != algoEnd; ++algo, ++i) {
