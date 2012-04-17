@@ -147,9 +147,9 @@ void SiStripBadChannelsDQM::addBadStrips(const unsigned int aDetId,
 					 const unsigned short aFlag)
 {
   unsigned int lBadStripRange;
-  unsigned short lFirstBadStrip=aApvNum*128;
-  unsigned short lConsecutiveBadStrips=128;
-  
+  unsigned short lFirstBadStrip=0;                                                                                                                                               
+  unsigned short lConsecutiveBadStrips=aApvNum*128;
+
   lBadStripRange = obj_->encode(lFirstBadStrip,lConsecutiveBadStrips,aFlag);
   
   LogTrace("SiStripBadChannelsDQM") << "[SiStripBadChannelsDQM::addBadStrips] ---- Adding : detid " << aDetId
