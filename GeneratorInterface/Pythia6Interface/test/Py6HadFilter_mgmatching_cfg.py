@@ -25,10 +25,13 @@ process.MessageLogger.destinations = ['cerr']
 process.MessageLogger.statistics = []
 process.MessageLogger.fwkJobReports = []
 
-#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(50))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 process.source = cms.Source("LHESource",
     fileNames = cms.untracked.vstring('file:ttbar_5flavours_xqcut20_10TeV.lhe')
+    # fileNames = cms.untracked.vstring('file:/storage/local/data1/condor/mrenna/lhe/7TeV_Zbb_run45040_unweighted_events_qcut13_mgPostv2.lhe')
+    # fileNames = cms.untracked.vstring('file:/storage/local/data1/condor/mrenna/lhe/7TeV_ttbarjets_run621_unweighted_events_qcut40_mgPost.lhe')
+    # fileNames = cms.untracked.vstring('file:/storage/local/data1/condor/mrenna/lhe/7TeV_avjets_run50000_unweighted_events_qcut15_mgPost.lhe')
 )
 
 process.generator = cms.EDFilter("Pythia6HadronizerFilter",
@@ -50,14 +53,16 @@ process.generator = cms.EDFilter("Pythia6HadronizerFilter",
     jetMatching = cms.untracked.PSet(
        scheme = cms.string("Madgraph"),
        mode = cms.string("auto"),	# soup, or "inclusive" / "exclusive"
-       MEMAIN_etaclmax = cms.double(5.0),
-       MEMAIN_qcut = cms.double(30.0),
+       MEMAIN_etaclmax = cms.double(5), # -1. for other samples, to pick it up from LHE file
+       MEMAIN_qcut = cms.double(30.),   # -1. for other samples, to pickup from LHE
        MEMAIN_minjets = cms.int32(-1),
        MEMAIN_maxjets = cms.int32(-1),
-       MEMAIN_showerkt = cms.double(0),   # use 1=yes only for pt-ordered showers !
+       MEMAIN_showerkt = cms.double(0),  # use 1=yes only for pt-ordered showers !
        MEMAIN_nqmatch = cms.int32(5), #PID of the flavor until which the QCD radiation are kept in the matching procedure; 
                                       # if nqmatch=4, then all showered partons from b's are NOT taken into account
-				      # Note (JY): I'm not sure what the default is, but -1 results in a throw...
+				      # Note (JVY): for most cases it should stay 5 or can be set to -1 (if provided
+				      #             in the LHE file; otherwise the job will throw); however, for bbar
+				      #             it should be set to 4 (see above), unless it's given in the LHE
        MEMAIN_excres = cms.string(""),
        outTree_flag = cms.int32(0)        # 1=yes, write out the tree for future sanity check
     )    
