@@ -74,9 +74,17 @@
   <use name="xerces-c"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+<library file="ExpressLumiProducer.cc" name="ExpressLumiProducer">
+  <use name="RecoLuminosity/LumiProducer"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="DataFormats/Provenance"/>
+  <use name="DataFormats/Luminosity"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
 <library file="DIPLumiProducer.cc" name="DIPLumiProducer">
   <use name="RecoLuminosity/LumiProducer"/>
   <use name="FWCore/PluginManager"/>
   <use name="xerces-c"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
