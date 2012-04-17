@@ -83,17 +83,9 @@ addMixingScenario("2012_Startup_50ns_PoissonOOTPU",{'file': 'SimGeneral.MixingMo
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 
 ##fastsim section
-#addMixingScenario("FS_NoPileUp",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_cff', 'N': 0})
-#addMixingScenario("FS_156BxLumiPileUp",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_cff', 'N': 2})
-#addMixingScenario("FS_HighLumiPileUp",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_cff', 'N': 20})
-#addMixingScenario("FS_InitialPileUp",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_cff', 'N': 3.8})
-#addMixingScenario("FS_LowLumiPileUp",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_cff', 'N': 7.1})
 addMixingScenario("FS_NoPileUp",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_NoPileUp_cff'})
-addMixingScenario("FS_156BxLumiPileUp",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_156BxLumiPileUp_cff'})
-addMixingScenario("FS_HighLumiPileUp",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_HighLumiPileUp_cff'})
-addMixingScenario("FS_InitialPileUp",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_InitialPileUp_cff'})
 addMixingScenario("FS_LowLumiPileUp",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_LowLumiPileUp_cff'})
-addMixingScenario("FS_FlatDist10_2011EarlyData_50ns",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_FlatDist10_2011EarlyData_50ns_cff'})
+addMixingScenario("FS_FlatDist10_2011EarlyData_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_FlatDist10_2011EarlyData_inTimeOnly_cff'})
 addMixingScenario("FS_E7TeV_Fall2011_Reprocess_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E7TeV_Fall2011_Reprocess_inTimeOnly_cff'})
 addMixingScenario("FS_E7TeV_ProbDist_2011Data_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E7TeV_ProbDist_2011Data_inTimeOnly_cff'})
 addMixingScenario("FS_2012_Startup_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_2012_Startup_inTimeOnly_cff'})
