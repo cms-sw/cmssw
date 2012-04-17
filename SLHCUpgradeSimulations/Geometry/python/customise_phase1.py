@@ -77,6 +77,14 @@ def customise(process):
          process.dqmoffline_step.remove(process.globalAnalyzer)
          process.dqmoffline_step.remove(process.jetMETHLTOfflineSource)
 
+    if hasattr(process,'validation_step'):
+        process.validation_step.remove(process.hltHITval)
+        process.validation_step.remove(process.HLTSusyExoVal)
+        process.validation_step.remove(process.relvalMuonBits)
+    else:
+    ## removing large memory usage module if we don't need it
+        process.pdigi.remove(process.mergedtruth)
+
 
     return(process)
 
@@ -95,7 +103,7 @@ def customise_pu50_25ns(process):
     
 
 ### if doing inefficiency at <PU>=50
-    #process.simSiPixelDigis.AddPixelInefficiency = 20
+    process.simSiPixelDigis.AddPixelInefficiency = 20
     ## also for strips TIB inefficiency if we want
     ## TIB1,2 inefficiency at 20%
     #process.simSiStripDigis.Inefficiency = 20

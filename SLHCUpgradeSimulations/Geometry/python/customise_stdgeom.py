@@ -49,18 +49,6 @@ def customise(process):
     process.mixedTripletStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
     process.pixelLessStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
     process.tobTecStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
-#this lines different
-#    process.muons.TrackerKinkFinderParameters.TrackerRecHitBuilder = cms.string('WithTrackAngle')
-#    # The SeedMergerPSet should be added to the following file for Phase 1
-#    # RecoTracker/SpecialSeedGenerators/python/CombinatorialSeedGeneratorForCosmicsRegionalReconstruction_cfi.py
-#    # but pixel layers are not used here for cosmic TODO: need Maria and Jan to do appropriate thing here
-#    process.regionalCosmicTrackerSeeds.SeedMergerPSet = cms.PSet(
-#                mergeTriplets = cms.bool(False),
-#                        ttrhBuilderLabel = cms.string( "PixelTTRHBuilderWithoutAngle" ),
-#                        addRemainingTriplets = cms.bool(False),
-#                        layerListName = cms.string( "PixelSeedMergerQuadruplets" )
-#                        )
-#    process.regionalCosmicTracks.TTRHBuilder = cms.string('WithTrackAngle')
 
     ### back to standard job commands ##################################################
     process.DigiToRaw.remove(process.castorRawData)
@@ -69,20 +57,27 @@ def customise(process):
 #    process.DigiToRaw.remove(process.siPixelRawData)
 #    process.RawToDigi.remove(process.siPixelDigis)
 
+
 #this line different
     process.pdigi.remove(process.addPileupInfo)
     
     if hasattr(process,'dqmoffline_step'):
-         print 'removing some dqm modules'
-         process.dqmoffline_step.remove(process.SiPixelTrackResidualSource)
-         process.dqmoffline_step.remove(process.jetMETAnalyzer)
-         process.dqmoffline_step.remove(process.hltMonMuBits)
-         process.dqmoffline_step.remove(process.vbtfAnalyzer)
-         process.dqmoffline_step.remove(process.hltResults)
-         process.dqmoffline_step.remove(process.egHLTOffDQMSource)
-         process.dqmoffline_step.remove(process.globalAnalyzer)
-         process.dqmoffline_step.remove(process.jetMETHLTOfflineSource)
+        process.dqmoffline_step.remove(process.SiPixelTrackResidualSource)
+        process.dqmoffline_step.remove(process.jetMETAnalyzer)
+        process.dqmoffline_step.remove(process.hltMonMuBits)
+        process.dqmoffline_step.remove(process.vbtfAnalyzer)
+        process.dqmoffline_step.remove(process.hltResults)
+        process.dqmoffline_step.remove(process.egHLTOffDQMSource)
+        process.dqmoffline_step.remove(process.globalAnalyzer)
+        process.dqmoffline_step.remove(process.jetMETHLTOfflineSource)
 
+    if hasattr(process,'validation_step'):
+        process.validation_step.remove(process.hltHITval)
+        process.validation_step.remove(process.HLTSusyExoVal)
+        process.validation_step.remove(process.relvalMuonBits)
+    else:
+    ## removing large memory usage module if we don't need it
+        process.pdigi.remove(process.mergedtruth)
 
     return(process)
 
@@ -101,7 +96,7 @@ def customise_pu50_25ns(process):
     
 
 ### if doing inefficiency at <PU>=50
-    #process.simSiPixelDigis.AddPixelInefficiency = 20
+    process.simSiPixelDigis.AddPixelInefficiency = 20
     ## also for strips TIB inefficiency if we want
     ## TIB1,2 inefficiency at 20%
     #process.simSiStripDigis.Inefficiency = 20
