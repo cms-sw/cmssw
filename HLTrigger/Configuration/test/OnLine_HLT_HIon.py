@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V82 (CMSSW_5_2_3_HLT6)
+# /dev/CMSSW_5_2_1/HIon/V83 (CMSSW_5_2_3_HLT6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V82')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V83')
 )
 
 process.streams = cms.PSet( 
@@ -8173,7 +8173,13 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltPFTau35_*_*',
       'keep *_hltPFTauEleVertex20_*_*',
       'keep *_hltTriggerSummaryAOD_*_*',
-      'keep *_hltTriggerSummaryRAW_*_*' )
+      'keep *_hltTriggerSummaryRAW_*_*',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep FEDRawDataCollection_rawDataRepacker_*_*',
+      'keep FEDRawDataCollection_source_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEventWithRefs_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
 )
 
 process.HLTL1UnpackerSequence = cms.Sequence( process.hltGtDigis + process.hltGctDigis + process.hltL1GtObjectMap + process.hltL1extraParticles )

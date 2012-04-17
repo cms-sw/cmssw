@@ -229,6 +229,7 @@ HLTDebugRAW   = cms.PSet(
         'keep *_hltTriggerSummaryRAW_*_*',
         'keep DcsStatuss_hltScalersRawToDigi_*_*',
         'keep FEDRawDataCollection_rawDataCollector_*_*',
+        'keep FEDRawDataCollection_rawDataRepacker_*_*',
         'keep FEDRawDataCollection_source_*_*',
         'keep FEDRawDataCollection_virginRawDataRepacker_*_*',
         'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
@@ -265,6 +266,7 @@ HLTDebugRAW   = cms.PSet(
         'keep recoTracks_hltHIL3TkTracksFromL2OIHit_*_*',
         'keep recoTracks_hltHIL3TkTracksFromL2OIState_*_*',
         'keep recoTracks_hltHIL3TkTracksFromL2_*_*',
+        'keep triggerTriggerEventWithRefs_*_*_*',
         'keep triggerTriggerEvent_*_*_*'
     ) )
 )
@@ -460,6 +462,7 @@ HLTDebugFEVT  = cms.PSet(
         'keep *_hltTriggerSummaryRAW_*_*',
         'keep DcsStatuss_hltScalersRawToDigi_*_*',
         'keep FEDRawDataCollection_rawDataCollector_*_*',
+        'keep FEDRawDataCollection_rawDataRepacker_*_*',
         'keep FEDRawDataCollection_source_*_*',
         'keep FEDRawDataCollection_virginRawDataRepacker_*_*',
         'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
@@ -496,6 +499,7 @@ HLTDebugFEVT  = cms.PSet(
         'keep recoTracks_hltHIL3TkTracksFromL2OIHit_*_*',
         'keep recoTracks_hltHIL3TkTracksFromL2OIState_*_*',
         'keep recoTracks_hltHIL3TkTracksFromL2_*_*',
+        'keep triggerTriggerEventWithRefs_*_*_*',
         'keep triggerTriggerEvent_*_*_*'
     ) )
 )
