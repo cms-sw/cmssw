@@ -13,8 +13,8 @@ def numberOfEvents(file):
 	return tree.GetEntries()	
 
 
-globaltag = "GR_P_V13" 
-path = "/castor/cern.ch/user/m/mgalanti/calibrationtree/GR11"
+globaltag = "GR_P_V32" 
+path = "/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/GR12/" #"/castor/cern.ch/user/m/mgalanti/calibrationtree/GR11"
 firstRun = 0
 #lastRun  = 182890
 lastRun  = 0
@@ -62,7 +62,7 @@ if(automatic==True and NTotalEvents<2500000):	#ask at least 5M events to perform
 name = "Run_"+str(firstRun)+"_to_"+str(lastRun); 
 	
 oldDirectory = "7TeVData"
-newDirectory = "testData_"+name;
+newDirectory = "Data_"+name;
 os.system("mkdir -p " + newDirectory);
 os.system("cp " + oldDirectory + "/* " + newDirectory+"/.");
 os.system("sed -i 's/XXX_CALIBTREE_XXX/"+calibTreeList.replace('\n','\\n').replace('/','\/')+"/g' "+newDirectory+"/*_cfg.py")
