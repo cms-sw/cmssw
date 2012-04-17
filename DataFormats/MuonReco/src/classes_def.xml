@@ -37,12 +37,13 @@
   </class>
   <class name="reco::MuonChamberMatch" ClassVersion="11">
    <version ClassVersion="11" checksum="541727491"/>
+   <version ClassVersion="10" checksum="4050071853"/>
   </class>
   <class name="reco::MuonSegmentMatch" ClassVersion="10">
    <version ClassVersion="10" checksum="754193003"/>
   </class>
-  <class name="reco::MuonRPCHitMatch" ClassVersion="0">
-   <version ClassVersion="0" checksum="4193465224"/>
+  <class name="reco::MuonRPCHitMatch" ClassVersion="10">
+   <version ClassVersion="10" checksum="4193465224"/>
   </class>
   <class name="std::vector<reco::MuonChamberMatch>"/>
   <class name="std::vector<reco::MuonSegmentMatch>"/>
