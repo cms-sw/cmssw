@@ -188,7 +188,7 @@ foreach $file ( @files ) {
 
 	  if ( ! $opts{'norun'} ) {
 
-	      open FILE, ">$path/$file.log";
+	      open FILE, ">>$path/$file.log";
 	      print FILE "$command\n";
 	      close FILE;
 
