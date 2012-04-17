@@ -1,4 +1,21 @@
 <use   name="DataFormats/Common"/>
+<use   name="DataFormats/EgammaCandidates"/>
+<use   name="DataFormats/L1GlobalTrigger"/>
+<use   name="DataFormats/RecoCandidate"/>
+<use   name="DataFormats/Scalers"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/VertexReco"/>
+<use   name="L1Trigger/GlobalTriggerAnalyzer"/>
+<use   name="MagneticField/Records"/>
+<use   name="MagneticField/Engine"/>
+<use   name="HLTrigger/HLTcore"/>
+<use   name="RecoEgamma/EgammaTools"/>
+<use   name="RecoVertex/KinematicFit"/>
+<use   name="RecoVertex/KinematicFitPrimitives"/>
+<use   name="rootrflx"/>
+<use   name="TrackingTools/TransientTrack"/>
+<use   name="TrackingTools/IPTools"/>
+<use   name="TrackingTools/Records"/>
 <use   name="FWCore/Framework"/>
 <export>
   <lib   name="1"/>
