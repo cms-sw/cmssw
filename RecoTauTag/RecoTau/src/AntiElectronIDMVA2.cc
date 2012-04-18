@@ -42,14 +42,14 @@ void AntiElectronIDMVA2::Initialize(std::string methodName,
 
 
   TMVA::Reader *readerwoG_BL = new TMVA::Reader( "!Color:!Silent:Error" );  
-  readerwoG_BL->AddVariable("Elec_Pt",&Elec_Pt_);   
-  readerwoG_BL->AddVariable("Elec_AbsEta",&Elec_AbsEta_);
+  // forv2readerwoG_BL->AddVariable("Elec_Pt",&Elec_Pt_);   
+  // forv2readerwoG_BL->AddVariable("Elec_AbsEta",&Elec_AbsEta_);
   readerwoG_BL->AddVariable("Elec_EtotOverPin",&Elec_EtotOverPin_);
-  readerwoG_BL->AddVariable("Elec_EarlyBrem",&Elec_EarlyBrem_);
+  // forv2readerwoG_BL->AddVariable("Elec_EarlyBrem",&Elec_EarlyBrem_);
   readerwoG_BL->AddVariable("Elec_LateBrem",&Elec_LateBrem_);
   readerwoG_BL->AddVariable("Elec_Fbrem",&Elec_Fbrem_);
   readerwoG_BL->AddVariable("Elec_Chi2KF",&Elec_Chi2KF_);
-  readerwoG_BL->AddVariable("Elec_NumHits",&Elec_NumHits_);
+  // forv2readerwoG_BL->AddVariable("Elec_NumHits",&Elec_NumHits_);
   readerwoG_BL->AddVariable("Elec_GSFTrackResol",&Elec_GSFTrackResol_);
   readerwoG_BL->AddVariable("Elec_GSFTracklnPt",&Elec_GSFTracklnPt_);
   readerwoG_BL->AddVariable("Elec_GSFTrackEta",&Elec_GSFTrackEta_);
@@ -66,11 +66,11 @@ void AntiElectronIDMVA2::Initialize(std::string methodName,
 
 
   TMVA::Reader *readerwGwoGSF_BL = new TMVA::Reader( "!Color:!Silent:Error" ); 
-  readerwGwoGSF_BL->AddVariable("Elec_Pt",&Elec_Pt_);   
-  readerwGwoGSF_BL->AddVariable("Elec_AbsEta",&Elec_AbsEta_);
+  // forv2readerwGwoGSF_BL->AddVariable("Elec_Pt",&Elec_Pt_);   
+  // forv2readerwGwoGSF_BL->AddVariable("Elec_AbsEta",&Elec_AbsEta_);
   readerwGwoGSF_BL->AddVariable("Elec_EtotOverPin",&Elec_EtotOverPin_);
   readerwGwoGSF_BL->AddVariable("Elec_EgammaOverPdif",&Elec_EgammaOverPdif_);
-  readerwGwoGSF_BL->AddVariable("Elec_EarlyBrem",&Elec_EarlyBrem_);
+  // forv2readerwGwoGSF_BL->AddVariable("Elec_EarlyBrem",&Elec_EarlyBrem_);
   readerwGwoGSF_BL->AddVariable("Elec_LateBrem",&Elec_LateBrem_);
   readerwGwoGSF_BL->AddVariable("Elec_Fbrem",&Elec_Fbrem_);
   readerwGwoGSF_BL->AddVariable("Elec_Chi2GSF",&Elec_Chi2GSF_);
@@ -92,8 +92,8 @@ void AntiElectronIDMVA2::Initialize(std::string methodName,
   readerwGwoGSF_BL->BookMVA("BDT",oneProng1pi0woGSF_BL);   
   
   TMVA::Reader *readerwGwGSFwoPFMVA_BL = new TMVA::Reader( "!Color:!Silent:Error" ); 
-  readerwGwGSFwoPFMVA_BL->AddVariable("Elec_Pt",&Elec_Pt_);   
-  readerwGwGSFwoPFMVA_BL->AddVariable("Elec_AbsEta",&Elec_AbsEta_);
+  // forv2readerwGwGSFwoPFMVA_BL->AddVariable("Elec_Pt",&Elec_Pt_);   
+  // forv2readerwGwGSFwoPFMVA_BL->AddVariable("Elec_AbsEta",&Elec_AbsEta_);
   readerwGwGSFwoPFMVA_BL->AddVariable("Elec_Fbrem",&Elec_Fbrem_);
   readerwGwGSFwoPFMVA_BL->AddVariable("Elec_Chi2KF",&Elec_Chi2KF_);
   readerwGwGSFwoPFMVA_BL->AddVariable("Elec_Chi2GSF",&Elec_Chi2GSF_);
@@ -115,8 +115,8 @@ void AntiElectronIDMVA2::Initialize(std::string methodName,
   readerwGwGSFwoPFMVA_BL->BookMVA("BDT",oneProng1pi0wGSFwoPfEleMva_BL); 
   
   TMVA::Reader *readerwGwGSFwPFMVA_BL = new TMVA::Reader( "!Color:!Silent:Error" ); 
-  readerwGwGSFwPFMVA_BL->AddVariable("Elec_Pt",&Elec_Pt_);   
-  readerwGwGSFwPFMVA_BL->AddVariable("Elec_AbsEta",&Elec_AbsEta_);
+  // forv2readerwGwGSFwPFMVA_BL->AddVariable("Elec_Pt",&Elec_Pt_);   
+  // forv2readerwGwGSFwPFMVA_BL->AddVariable("Elec_AbsEta",&Elec_AbsEta_);
   readerwGwGSFwPFMVA_BL->AddVariable("Elec_EtotOverPin",&Elec_EtotOverPin_);
   readerwGwGSFwPFMVA_BL->AddVariable("Elec_EeOverPout",&Elec_EeOverPout_);
   readerwGwGSFwPFMVA_BL->AddVariable("Elec_EarlyBrem",&Elec_EarlyBrem_);
@@ -142,14 +142,14 @@ void AntiElectronIDMVA2::Initialize(std::string methodName,
   //////////////////
 
   TMVA::Reader *readerwoG_EC = new TMVA::Reader( "!Color:!Silent:Error" ); 
-  readerwoG_EC->AddVariable("Elec_Pt",&Elec_Pt_);   
-  readerwoG_EC->AddVariable("Elec_AbsEta",&Elec_AbsEta_);
+  // forv2readerwoG_EC->AddVariable("Elec_Pt",&Elec_Pt_);   
+  // forv2readerwoG_EC->AddVariable("Elec_AbsEta",&Elec_AbsEta_);
   readerwoG_EC->AddVariable("Elec_EtotOverPin",&Elec_EtotOverPin_);
-  readerwoG_EC->AddVariable("Elec_EarlyBrem",&Elec_EarlyBrem_);
+  // forv2readerwoG_EC->AddVariable("Elec_EarlyBrem",&Elec_EarlyBrem_);
   readerwoG_EC->AddVariable("Elec_LateBrem",&Elec_LateBrem_);
   readerwoG_EC->AddVariable("Elec_Fbrem",&Elec_Fbrem_);
   readerwoG_EC->AddVariable("Elec_Chi2KF",&Elec_Chi2KF_);
-  readerwoG_EC->AddVariable("Elec_NumHits",&Elec_NumHits_);
+  // forv2readerwoG_EC->AddVariable("Elec_NumHits",&Elec_NumHits_);
   readerwoG_EC->AddVariable("Elec_GSFTrackResol",&Elec_GSFTrackResol_);
   readerwoG_EC->AddVariable("Elec_GSFTracklnPt",&Elec_GSFTracklnPt_);
   readerwoG_EC->AddVariable("Elec_GSFTrackEta",&Elec_GSFTrackEta_);
@@ -165,11 +165,11 @@ void AntiElectronIDMVA2::Initialize(std::string methodName,
   readerwoG_EC->BookMVA("BDT",oneProng0Pi0_EC);
   
   TMVA::Reader *readerwGwoGSF_EC = new TMVA::Reader( "!Color:!Silent:Error" );
-  readerwGwoGSF_EC->AddVariable("Elec_Pt",&Elec_Pt_);   
-  readerwGwoGSF_EC->AddVariable("Elec_AbsEta",&Elec_AbsEta_);
+  // forv2readerwGwoGSF_EC->AddVariable("Elec_Pt",&Elec_Pt_);   
+  // forv2readerwGwoGSF_EC->AddVariable("Elec_AbsEta",&Elec_AbsEta_);
   readerwGwoGSF_EC->AddVariable("Elec_EtotOverPin",&Elec_EtotOverPin_);
   readerwGwoGSF_EC->AddVariable("Elec_EgammaOverPdif",&Elec_EgammaOverPdif_);
-  readerwGwoGSF_EC->AddVariable("Elec_EarlyBrem",&Elec_EarlyBrem_);
+  // forv2readerwGwoGSF_EC->AddVariable("Elec_EarlyBrem",&Elec_EarlyBrem_);
   readerwGwoGSF_EC->AddVariable("Elec_LateBrem",&Elec_LateBrem_);
   readerwGwoGSF_EC->AddVariable("Elec_Fbrem",&Elec_Fbrem_);
   readerwGwoGSF_EC->AddVariable("Elec_Chi2GSF",&Elec_Chi2GSF_);
@@ -191,8 +191,8 @@ void AntiElectronIDMVA2::Initialize(std::string methodName,
   readerwGwoGSF_EC->BookMVA("BDT",oneProng1pi0woGSF_EC); 
 
   TMVA::Reader *readerwGwGSFwoPFMVA_EC = new TMVA::Reader( "!Color:!Silent:Error" );   
-  readerwGwGSFwoPFMVA_EC->AddVariable("Elec_Pt",&Elec_Pt_);   
-  readerwGwGSFwoPFMVA_EC->AddVariable("Elec_AbsEta",&Elec_AbsEta_);
+  // forv2readerwGwGSFwoPFMVA_EC->AddVariable("Elec_Pt",&Elec_Pt_);   
+  // forv2readerwGwGSFwoPFMVA_EC->AddVariable("Elec_AbsEta",&Elec_AbsEta_);
   readerwGwGSFwoPFMVA_EC->AddVariable("Elec_Fbrem",&Elec_Fbrem_);
   readerwGwGSFwoPFMVA_EC->AddVariable("Elec_Chi2KF",&Elec_Chi2KF_);
   readerwGwGSFwoPFMVA_EC->AddVariable("Elec_Chi2GSF",&Elec_Chi2GSF_);
@@ -214,8 +214,8 @@ void AntiElectronIDMVA2::Initialize(std::string methodName,
   readerwGwGSFwoPFMVA_EC->BookMVA("BDT",oneProng1pi0wGSFwoPfEleMva_EC); 
 
   TMVA::Reader *readerwGwGSFwPFMVA_EC = new TMVA::Reader( "!Color:!Silent:Error" ); 
-  readerwGwGSFwPFMVA_EC->AddVariable("Elec_Pt",&Elec_Pt_);   
-  readerwGwGSFwPFMVA_EC->AddVariable("Elec_AbsEta",&Elec_AbsEta_);
+  // forv2readerwGwGSFwPFMVA_EC->AddVariable("Elec_Pt",&Elec_Pt_);   
+  // forv2readerwGwGSFwPFMVA_EC->AddVariable("Elec_AbsEta",&Elec_AbsEta_);
   readerwGwGSFwPFMVA_EC->AddVariable("Elec_EtotOverPin",&Elec_EtotOverPin_);
   readerwGwGSFwPFMVA_EC->AddVariable("Elec_EeOverPout",&Elec_EeOverPout_);
   readerwGwGSFwPFMVA_EC->AddVariable("Elec_EarlyBrem",&Elec_EarlyBrem_);
