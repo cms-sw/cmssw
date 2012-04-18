@@ -18,9 +18,9 @@
 ///
 ///  \author    : Andreas Mussgiller
 ///  date       : December 2010
-///  $Revision: 1.2 $
-///  $Date: 2011/01/05 14:09:02 $
-///  (last update by $Author: mussgill $)
+///  $Revision: 1.3 $
+///  $Date: 2011/02/11 11:16:28 $
+///  (last update by $Author: flucke $)
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
@@ -30,7 +30,7 @@
 class PixelGeomDetType;
 class BoundPlane;
 
-class ProxyPixelTopology : public PixelTopology {
+class ProxyPixelTopology GCC11_FINAL : public PixelTopology {
 public:
 
   ProxyPixelTopology( PixelGeomDetType* type, BoundPlane * bp );

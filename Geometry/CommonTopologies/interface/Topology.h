@@ -36,6 +36,9 @@ class GeomDetType;
  *  Concrete implementations should overwrite this where appropiate.
  */
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
+
 class Topology {
 public:
   typedef Basic2DVector<double> Vector2D;

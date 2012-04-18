@@ -23,9 +23,9 @@
 ///
 ///  \author    : Andreas Mussgiller
 ///  date       : November 2010
-///  $Revision: 1.1 $
-///  $Date: 2011/01/03 10:35:23 $
-///  (last update by $Author: mussgill $)
+///  $Revision: 1.2 $
+///  $Date: 2011/02/11 11:16:28 $
+///  (last update by $Author: flucke $)
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
@@ -35,7 +35,7 @@
 class StripGeomDetType;
 class BoundPlane;
 
-class ProxyStripTopology : public StripTopology {
+class ProxyStripTopology GCC11_FINAL : public StripTopology {
 public:
 
   ProxyStripTopology(StripGeomDetType* type, BoundPlane * bp);
