@@ -35,28 +35,11 @@ def customise(process):
     process.MeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
     process.MeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
 
-    process.detachedTripletStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
-    process.detachedTripletStepMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
-    process.detachedTripletStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
-    process.detachedTripletStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
-    process.detachedTripletStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
-    process.detachedTripletStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
-    process.mixedTripletStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
-    process.mixedTripletStepMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
-    process.mixedTripletStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
-    process.mixedTripletStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
-    process.mixedTripletStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
-    process.mixedTripletStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
-    process.pixelLessStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
-    process.tobTecStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
-
     ### back to standard job commands ##################################################
     process.DigiToRaw.remove(process.castorRawData)
 
-#this lines different
-#    process.DigiToRaw.remove(process.siPixelRawData)
-#    process.RawToDigi.remove(process.siPixelDigis)
-
+    ### remove a slow module for cosmics
+    process.reconstruction_step.remove(process.regionalCosmicCkfTrackCandidates)
 
 #this line different
     process.pdigi.remove(process.addPileupInfo)
@@ -83,6 +66,19 @@ def customise(process):
 
 
 #pileup specific stuff here
+def customise_pu25_25ns(process):
+
+    process=customise(process)
+
+    process.load("SLHCUpgradeSimulations.Geometry.mixLowLumPU_stdgeom_cff")
+
+### set the number of pileup
+    process.mix.input.nbPileupEvents = cms.PSet(
+        averageNumber = cms.double(25.0)
+        )
+    return (process)
+
+
 def customise_pu50_25ns(process):
 
     process=customise(process)
