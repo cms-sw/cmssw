@@ -23,7 +23,7 @@
  * to the local coordinate origin, set the final ctor argument appropriately. <BR>
  */
 
-class RadialStripTopology GCC11_FINAL : public StripTopology {
+class RadialStripTopology : public StripTopology {
  public:
 
   /** 
