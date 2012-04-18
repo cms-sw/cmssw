@@ -14,7 +14,7 @@
 //
 // Original Author:  Matthias Geisler,32 4-B20,+41227676487,
 //         Created:  Thu Dec  1 16:07:41 CET 2011
-// $Id: PFCand_NoPU_WithAM.h,v 1.1 2011/12/05 15:03:41 mgeisler Exp $
+// $Id: PFCand_NoPU_WithAM.h,v 1.1 2012/04/17 11:53:55 mgeisler Exp $
 //
 //
 
@@ -43,28 +43,11 @@ class PFCand_NoPU_WithAM : public edm::EDProducer {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual bool TrackMatch(reco::TrackRef,reco::TrackRef);
-      virtual void endJob() ;
-      
-      virtual void beginRun(edm::Run&, edm::EventSetup const&);
-      virtual void endRun(edm::Run&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 
       // ----------member data ---------------------------
 
-      edm::InputTag input_PFCandidates_;
-      edm::InputTag input_VertexCollection_;
-      edm::InputTag input_VertexTrackAssociationMap_;
-
-      edm::InputTag ConversionsCollection_;
-
-      edm::InputTag KshortCollection_;
-      edm::InputTag LambdaCollection_;
-
-      edm::InputTag NIVertexCollection_;
+      edm::InputTag input_VertexPFCandAssociationMap_;
 };
 
 
