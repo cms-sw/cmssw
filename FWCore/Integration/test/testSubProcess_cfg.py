@@ -37,7 +37,7 @@ copyProcess.DoodadESSource = cms.ESSource("DoodadESSource"
 
 # ---------------------------------------------------------------
 
-prodProcess = cms.Process("SECOND")
+prodProcess = cms.Process("PROD")
 copyProcess.subProcess = cms.SubProcess(prodProcess)
 
 prodProcess.DoodadESSource = cms.ESSource("DoodadESSource"
@@ -57,7 +57,13 @@ prodProcess.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
     verbose = cms.untracked.bool(True)
 )
 
+prodProcess.noPut = cms.EDProducer("ThingWithMergeProducer",
+    noPut = cms.untracked.bool(True)
+)
+
 prodProcess.path1 = cms.Path(prodProcess.get)
+
+prodProcess.path2 = cms.Path(prodProcess.noPut)
 
 # ---------------------------------------------------------------
 
@@ -71,7 +77,7 @@ copy2Process.DoodadESSource = cms.ESSource("DoodadESSource"
 
 # ---------------------------------------------------------------
 
-prod2Process = cms.Process("PROD")
+prod2Process = cms.Process("PROD2")
 copy2Process.subProcess = cms.SubProcess(prod2Process)
 prod2Process.DoodadESSource = cms.ESSource("DoodadESSource"
                                            , appendToDataLabel = cms.string('abc')
@@ -79,11 +85,6 @@ prod2Process.DoodadESSource = cms.ESSource("DoodadESSource"
 )
 
 prod2Process.WhatsItESProducer = cms.ESProducer("WhatsItESProducer")
-#process.bWhatsItESProducer = cms.ESProducer("WhatsItESProducer", appendToDataLabel = cms.string('b'))
-#process.cWhatsItESProducer = cms.ESProducer("WhatsItESProducer", appendToDataLabel = cms.string('c'))
-#process.dWhatsItESProducer = cms.ESProducer("WhatsItESProducer", appendToDataLabel = cms.string('d'))
-
-
 
 prod2Process.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer")
 
@@ -92,13 +93,17 @@ prod2Process.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer")
 prod2Process.testmerge = cms.EDAnalyzer("TestMergeResults",
 
     expectedProcessHistoryInRuns = cms.untracked.vstring(
-        'SECOND',            # Run 1
-        'PROD',
-        'SECOND',            # Run 2
-        'PROD',
-        'SECOND',            # Run 3
-        'PROD'
+        'PROD',            # Run 1
+        'PROD2',
+        'PROD',            # Run 2
+        'PROD2',
+        'PROD',            # Run 3
+        'PROD2'
     )
+)
+
+prod2Process.dependsOnNoPut = cms.EDProducer("ThingWithMergeProducer",
+    labelsToGet = cms.untracked.vstring('noPut')
 )
 
 prod2Process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
@@ -178,5 +183,7 @@ prod2Process.path1 = cms.Path(prod2Process.thingWithMergeProducer)
 prod2Process.path2 = cms.Path(prod2Process.test*prod2Process.testmerge)
 
 prod2Process.path3 = cms.Path(prod2Process.get)
+
+prod2Process.path4 = cms.Path(prod2Process.dependsOnNoPut)
 
 prod2Process.endPath1 = cms.EndPath(prod2Process.out)
