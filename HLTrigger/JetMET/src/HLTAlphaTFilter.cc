@@ -5,24 +5,22 @@
  *
  */
 
-#include "HLTrigger/JetMET/interface/HLTAlphaTFilter.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include <vector>
+#include <typeinfo>
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include <vector>
-// #include <algorithm>
-// #include <functional>
-// #include <numeric>
-#include "TLorentzVector.h"
-#include <typeinfo>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "HLTrigger/JetMET/interface/HLTAlphaTFilter.h"
+#include "HLTrigger/JetMET/interface/AlphaT.h"
 
 typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > LorentzV  ;
 
