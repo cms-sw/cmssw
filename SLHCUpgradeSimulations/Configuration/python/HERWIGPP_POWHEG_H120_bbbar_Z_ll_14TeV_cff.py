@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-# Modified from Configuration/GenProduction/python/HERWIGPP_POWHEG_H120_bbbar_Z_ll_7TeV_cff.py
-# Use with Tags V01-00-77 or newer of Configuration/GenProduction
+# Modified from Configuration/GenProduction/python/EightTeV/HERWIGPP_POWHEG_H120_bbbar_Z_ll_8TeV_cff.py
 
 from Configuration.Generator.HerwigppDefaults_cfi import *
 
@@ -11,13 +10,13 @@ generator = cms.EDFilter(
 
     parameterSets = cms.vstring(
     'cm14TeV',
-    'powhegDefaults',
+    'powhegNewDefaults',
     'HbbZllParameters',
     'basicSetup',
     'setParticlesStableForDetector',
     ),
     
-    powhegDefaults = cms.vstring(
+    powhegNewDefaults = cms.vstring(
     '# Need to use an NLO PDF',
     'cp /Herwig/Partons/MRST-NLO /cmsPDFSet',
     '# and strong coupling',
@@ -60,7 +59,7 @@ generator = cms.EDFilter(
     
     'set /Herwig/Particles/h0:NominalMass 120.*GeV',
     'set /Herwig/Particles/h0/h0->b,bbar;:OnOff On',
-    'set /Herwig/Particles/h0/h0->b,bbar;:BranchingRatio 0.6649',
+    'set /Herwig/Particles/h0/h0->b,bbar;:BranchingRatio 0.7195',
     'set /Herwig/Particles/h0/h0->W+,W-;:OnOff Off',
     'set /Herwig/Particles/h0/h0->tau-,tau+;:OnOff Off',
     'set /Herwig/Particles/h0/h0->g,g;:OnOff Off',
@@ -89,7 +88,7 @@ generator = cms.EDFilter(
 
 
 configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('\$Revision: 1.2 $'),
-    name = cms.untracked.string('\$Source: SLHCUpgradeSimulations/Geometry/python/HERWIGPP_POWHEG_H120_bbbar_Z_ll_14TeV_cff.py,v $'),
+    version = cms.untracked.string('\$Revision: 1.1 $'),
+    name = cms.untracked.string('\$Source: /cvs/CMSSW/CMSSW/SLHCUpgradeSimulations/Configuration/python/HERWIGPP_POWHEG_H120_bbbar_Z_ll_14TeV_cff.py,v $'),
 	annotation = cms.untracked.string('HERWIGPP/POWHEG: (H->bb)(Z->ll), m(H)=120 GeV, l=e or mu')
 )

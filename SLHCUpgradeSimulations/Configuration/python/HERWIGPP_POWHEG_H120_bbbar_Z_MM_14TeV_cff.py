@@ -11,13 +11,13 @@ generator = cms.EDFilter(
 
     parameterSets = cms.vstring(
     'cm14TeV',
-    'powhegDefaults',
+    'powhegNewDefaults',
     'HbbZllParameters',
     'basicSetup',
     'setParticlesStableForDetector',
     ),
     
-    powhegDefaults = cms.vstring(
+    powhegNewDefaults = cms.vstring(
     '# Need to use an NLO PDF',
     'cp /Herwig/Partons/MRST-NLO /cmsPDFSet',
     '# and strong coupling',
