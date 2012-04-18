@@ -194,16 +194,17 @@ if __name__ == '__main__':
         iline = jline = 0
         totlines = len(tmplistiov)
         for line in tmplistiov:
-	
-            if line.find('since') != -1:
+            #print line
+            if line.find('Since') != -1: # capitalized in 44X
                 passline = True
                 jline = iline
-            if passline and iline > jline and iline < totlines-1:
+	    #print "passline: "+str(passline)+" iline= "+str(iline)+"  jline= "+str(jline)+" totlines= "+str(totlines)
+            if passline and iline > jline+1 and iline < totlines-2: # have to skip a line
                 linedata = line.split()
 	        #print linedata
                 aIOV = IOV()
                 aIOV.since = int(linedata[0])
-                aIOV.till = int(linedata[1])
+                aIOV.till = int(linedata[3])
                 iovlist.append( aIOV )
             iline += 1
     
