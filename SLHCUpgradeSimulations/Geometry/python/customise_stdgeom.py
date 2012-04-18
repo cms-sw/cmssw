@@ -39,7 +39,7 @@ def customise(process):
     process.DigiToRaw.remove(process.castorRawData)
 
     ### remove a slow module for cosmics
-    process.reconstruction_step.remove(process.regionalCosmicCkfTrackCandidates)
+    #process.reconstruction_step.remove(process.regionalCosmicCkfTrackCandidates)
 
 #this line different
     process.pdigi.remove(process.addPileupInfo)
@@ -53,11 +53,13 @@ def customise(process):
         process.dqmoffline_step.remove(process.egHLTOffDQMSource)
         process.dqmoffline_step.remove(process.globalAnalyzer)
         process.dqmoffline_step.remove(process.jetMETHLTOfflineSource)
-
+        ##
+        process.dqmoffline_step.remove(process.TrackerCollisionTrackMon)
     if hasattr(process,'validation_step'):
         process.validation_step.remove(process.hltHITval)
         process.validation_step.remove(process.HLTSusyExoVal)
         process.validation_step.remove(process.relvalMuonBits)
+        process.validation_step.remove(process.hltMuonValidator)
     else:
     ## removing large memory usage module if we don't need it
         process.pdigi.remove(process.mergedtruth)
@@ -66,7 +68,7 @@ def customise(process):
 
 
 #pileup specific stuff here
-def customise_pu25_25ns(process):
+def customise_pu15_25ns(process):
 
     process=customise(process)
 
@@ -74,7 +76,7 @@ def customise_pu25_25ns(process):
 
 ### set the number of pileup
     process.mix.input.nbPileupEvents = cms.PSet(
-        averageNumber = cms.double(25.0)
+        averageNumber = cms.double(15.0)
         )
     return (process)
 
