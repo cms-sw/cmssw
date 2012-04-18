@@ -1,5 +1,6 @@
 #ifndef ggPFClusters_h
 #define ggPFClusters_h
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -10,6 +11,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include <memory>
@@ -50,6 +52,7 @@ class ggPFClusters  {
   virtual void Fill5x5Map(std::vector< std::pair<DetId, float> >& bcCells, bool isEB);
   virtual DetId FindSeed(std::vector< std::pair<DetId, float> >& bcCells, bool isEB);  
   virtual std::pair<float, float>ClusterWidth(vector<reco::CaloCluster>& PFClust);
+  double LocalEnergyCorrection(const GBRForest *ReaderLCEB, const GBRForest *ReaderLCEE, reco::CaloCluster PFClust, float beamspotZ);
  private:
  Handle<EcalRecHitCollection>  EBReducedRecHits_;
  Handle<EcalRecHitCollection>  EEReducedRecHits_;

@@ -12,6 +12,10 @@ ggPFPhotonAnalyzer::ggPFPhotonAnalyzer(const edm::ParameterSet& iConfig){
   esRecHitCollection_=iConfig.getParameter<InputTag>("esRecHitCollection");
   beamSpotCollection_ =iConfig.getParameter<InputTag>("BeamSpotCollection");
   
+  TFile *fgbr1 = new TFile("/afs/cern.ch/work/r/rpatel/public/TMVARegressionBarrelLC.root","READ");
+  TFile *fgbr2 = new TFile("/afs/cern.ch/work/r/rpatel/public/TMVARegressionEndCapLC.root","READ");
+  PFLCBarrel_=(const GBRForest*)fgbr1->Get("PFLCorrEB");
+  PFLCEndcap_=(const GBRForest*)fgbr2->Get("PFLCorrEE");
   tf1=new TFile("PF_test.root", "RECREATE");
   pf=new TTree("pf", "PFPhotons");
   pfclus=new TTree("pflcus", "PFClusters");
@@ -28,7 +32,7 @@ ggPFPhotonAnalyzer::ggPFPhotonAnalyzer(const edm::ParameterSet& iConfig){
   pf->Branch("PFClusRMSMust", &PFClusRMSMust_, "PFClusRMSMust/F"); 
   pf->Branch("VtxZ", &VtxZ_, "VtxZ/F"); 
   pf->Branch("VtxZErr", &VtxZErr_, "VtxZErr/F"); 
-  
+  pf->Branch("PFPhoECorr", &PFPhoECorr_, "PFPhoECorr/F"); 
 }
 
 ggPFPhotonAnalyzer::~ggPFPhotonAnalyzer(){}
@@ -95,7 +99,8 @@ void ggPFPhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
       PFdPhi_=ggPFPhoton.PFdPhi();
       PFClusRMS_=ggPFPhoton.PFClusRMSTot();
       PFClusRMSMust_=ggPFPhoton.PFClusRMSMust();
-      ggPFPhoton.PFClusters();
+      std::vector<reco::CaloCluster>PFC=ggPFPhoton.PFClusters();
+      PFPhoECorr_=ggPFPhoton.getPFPhoECorr(PFC, PFLCBarrel_, PFLCEndcap_);
       pf->Fill();
     }
   }

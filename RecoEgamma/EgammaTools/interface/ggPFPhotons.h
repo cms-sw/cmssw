@@ -49,6 +49,7 @@ class ggPFPhotons  {
   //for Vertex
   std::pair<float, float> SLPoint();
   void fillPFClusters();
+  double getPFPhoECorr( std::vector<reco::CaloCluster>PFClusters, const GBRForest *ReaderLCEB, const GBRForest *ReaderLCEE);
   std::pair<double, double>CalcRMS(vector<reco::CaloCluster> PFClust, reco::Photon PFPhoton);
   //for filling PFCluster Variables
  private:
@@ -79,5 +80,6 @@ class ggPFPhotons  {
   double dPhiLowestC_;
   double PFClPhiRMS_;
   double PFClPhiRMSMust_;  
+  double PFPhoLocallyCorrE_;
 };
 #endif

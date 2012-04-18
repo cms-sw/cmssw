@@ -458,3 +458,164 @@ std::pair<float, float> ggPFClusters::ClusterWidth(
   widths=make_pair(etaWidth, phiWidth);
   return widths;
 }
+
+double ggPFClusters::LocalEnergyCorrection(const GBRForest *ReaderLCEB, const GBRForest *ReaderLCEE,reco::CaloCluster PFClust,float beamspotZ ){
+  
+  //double Coor=1;
+  double PFClustCorr=PFClust.energy();
+  float ClusEta=PFClust.eta();
+  float ClusE=PFClust.energy();
+  float ClusPhi=PFClust.phi();
+  
+  std::vector<float>inputs;
+  std::vector< std::pair<DetId, float> >bcCells=PFClust.hitsAndFractions();
+  bool isEb;
+  DetId seedXtalId = bcCells[0].first ;
+  int detector = seedXtalId.subdetId();
+  if(detector==1)isEb=true;
+  else isEb=false;
+  //Shower Shape Variables:
+  Fill5x5Map(bcCells, isEb);
+  float Eseed=get5x5Element(0, 0, bcCells, isEb);
+  
+  float Etop=get5x5Element(0, 1, bcCells, isEb);
+  float Ebottom=get5x5Element(0, -1, bcCells, isEb);
+  float Eleft=get5x5Element(-1, 0, bcCells, isEb);
+  float Eright=get5x5Element(1, 0, bcCells, isEb);
+  float E5x5=0; float E3x3=0;
+  for(int i=-2; i<3; ++i)
+    for(int j=-2; j<3; ++j){
+      float e=get5x5Element(i, j, bcCells, isEb);
+      if(abs(i)<2)E3x3=E3x3+e;
+      E5x5=e+E5x5;
+    }
+  //Fill5x5Map(bcCells, isEb);
+  float E3x1=e5x5_[2][2]+e5x5_[1][2]+e5x5_[3][2];
+  float E1x3=e5x5_[2][2]+e5x5_[2][1]+e5x5_[2][3];
+  float E1x5=e5x5_[2][2]+e5x5_[2][0]+e5x5_[2][1]+e5x5_[2][3]+e5x5_[2][4];
+  
+  float E2x5Top=e5x5_[0][4]+e5x5_[1][4]+e5x5_[2][4]+e5x5_[3][4]+e5x5_[4][4]
+    +e5x5_[0][3]+e5x5_[1][3]+e5x5_[2][3]+e5x5_[3][3]+e5x5_[4][3];
+  //add up bottom edge of 5x5 2 rows
+  float E2x5Bottom=e5x5_[0][0]+e5x5_[1][0]+e5x5_[2][0]+e5x5_[3][0]+e5x5_[4][0]
+    +e5x5_[0][1]+e5x5_[1][1]+e5x5_[2][1]+e5x5_[3][1]+e5x5_[4][1];
+  //add up left edge of 5x5 2 rows
+  float E2x5Left=e5x5_[0][1]+e5x5_[0][1]+e5x5_[0][2]+e5x5_[0][3]+e5x5_[0][4]
+    +e5x5_[1][0]+e5x5_[1][1]+e5x5_[1][2]+e5x5_[1][3]+e5x5_[1][4];
+  //add up right edge of 5x5 2 rows
+  float E2x5Right=e5x5_[4][0]+e5x5_[4][1]+e5x5_[4][2]+e5x5_[4][3]+e5x5_[4][4]
+    +e5x5_[3][0]+e5x5_[3][1]+e5x5_[3][2]+e5x5_[3][3]+e5x5_[3][4];
+  //find max 2x5 from the center
+  float centerstrip=e5x5_[2][2]+e5x5_[2][0]+e5x5_[2][1]+e5x5_[2][3]+e5x5_[2][4];
+  float rightstrip=e5x5_[3][2]+e5x5_[3][0]+e5x5_[3][1]+e5x5_[3][3]+e5x5_[3][4];
+  float leftstrip=e5x5_[1][2]+e5x5_[1][0]+e5x5_[1][1]+e5x5_[1][3]+e5x5_[1][4];
+  float E2x5Max=0;
+  if(rightstrip>leftstrip)E2x5Max=rightstrip+centerstrip;
+  else E2x5Max=leftstrip+centerstrip;
+  //get Local Coordinates
+  if(isEb){
+    float etacry; float phicry; int ieta; int iphi; float thetatilt; float phitilt;
+    int iEtaCrack=3;
+    if(abs(ieta)==1 || abs(ieta)==2 )
+      iEtaCrack=abs(ieta);
+    if(abs(ieta)>2 && abs(ieta)<24)
+      iEtaCrack=3;
+    if(abs(ieta)==24)
+      iEtaCrack=4;
+    if(abs(ieta)==25)
+      iEtaCrack=5;
+    if(abs(ieta)==26)
+      iEtaCrack=6;
+    if(abs(ieta)==27)
+      iEtaCrack=7;
+    if(abs(ieta)>27 &&  abs(ieta)<44)
+      iEtaCrack=8;
+    if(abs(ieta)==44)
+      iEtaCrack=9;
+    if(abs(ieta)==45)
+      iEtaCrack=10;
+    if(abs(ieta)==46)
+      iEtaCrack=11;
+    if(abs(ieta)==47)
+      iEtaCrack=12;
+    if(abs(ieta)>47 &&  abs(ieta)<64)
+      iEtaCrack=13;
+    if(abs(ieta)==64)
+      iEtaCrack=14;
+    if(abs(ieta)==65)
+      iEtaCrack=15;
+    if(abs(ieta)==66)
+      iEtaCrack=16;
+    if(abs(ieta)==67)
+      iEtaCrack=17;
+    if(abs(ieta)>67 &&  abs(ieta)<84)
+      iEtaCrack=18;
+    if(abs(ieta)==84)
+      iEtaCrack=19;
+    if(abs(ieta)==85)
+      iEtaCrack=20;
+    localCoordsEB(PFClust, etacry, phicry, ieta, iphi, thetatilt, phitilt);
+    inputs.push_back(beamspotZ);
+    inputs.push_back(ClusEta/fabs(ClusEta));
+    inputs.push_back(fabs(ClusEta));
+    inputs.push_back(fabs(ClusPhi));
+    inputs.push_back(log(ClusE));
+    inputs.push_back((Eseed/ClusE));
+    inputs.push_back((Etop/ClusE));
+    inputs.push_back((Ebottom/ClusE));
+    inputs.push_back((Eleft/ClusE));
+    inputs.push_back((Eright/ClusE));
+    inputs.push_back(E3x3/ClusE);
+    inputs.push_back(E1x3/ClusE);
+    inputs.push_back(E3x1/ClusE);
+    inputs.push_back(E5x5/ClusE);
+    inputs.push_back(E1x5/ClusE);
+    inputs.push_back(E2x5Max/ClusE);
+    inputs.push_back(E2x5Top/ClusE);
+    inputs.push_back(E2x5Bottom/ClusE);
+    inputs.push_back(E2x5Left/ClusE);
+    inputs.push_back(E2x5Right/ClusE);
+    inputs.push_back(etacry);
+    inputs.push_back(phicry);
+    inputs.push_back(iphi%2);
+    inputs.push_back(ieta%5);
+    inputs.push_back(iphi%20);
+    inputs.push_back(iEtaCrack);
+    int size=inputs.size();
+    float PFInputs[26];
+    for(int i=0; i<size; ++i)PFInputs[i]=inputs[i];
+    PFClustCorr= ReaderLCEB->GetResponse(PFInputs)*ClusE;
+  }
+  else{    
+    float xcry; float ycry; int ix; int iy; float thetatilt; float phitilt;
+    localCoordsEE(PFClust, xcry, ycry, ix, iy, thetatilt, phitilt);
+    inputs.push_back(beamspotZ);
+    inputs.push_back(ClusEta/fabs(ClusEta));
+    inputs.push_back(fabs(ClusEta));
+    inputs.push_back(fabs(ClusPhi));
+    inputs.push_back(log(ClusE));
+    inputs.push_back((Eseed/ClusE));
+    inputs.push_back((Etop/ClusE));
+    inputs.push_back((Ebottom/ClusE));
+    inputs.push_back((Eleft/ClusE));
+    inputs.push_back((Eright/ClusE));
+    inputs.push_back(E3x3/ClusE);
+    inputs.push_back(E1x3/ClusE);
+    inputs.push_back(E3x1/ClusE);
+    inputs.push_back(E5x5/ClusE);
+    inputs.push_back(E1x5/ClusE);
+    inputs.push_back(E2x5Max/ClusE);
+    inputs.push_back(E2x5Top/ClusE);
+    inputs.push_back(E2x5Bottom/ClusE);
+    inputs.push_back(E2x5Left/ClusE);
+    inputs.push_back(E2x5Right/ClusE);
+    inputs.push_back(xcry);
+    inputs.push_back(ycry);
+    int size=inputs.size();
+    float PFInputs[22];
+    for(int i=0; i<size; ++i)PFInputs[i]=inputs[i];
+    PFClustCorr= ReaderLCEE->GetResponse(PFInputs) *ClusE;
+  }
+  
+  return PFClustCorr;
+}

@@ -187,4 +187,21 @@ std::pair<double, double> ggPFPhotons::CalcRMS(vector<reco::CaloCluster> PFClust
   return RMS;
 }
 
-
+double ggPFPhotons::getPFPhoECorr( std::vector<reco::CaloCluster>PFClusters, const GBRForest *ReaderLCEB, const GBRForest *ReaderLCEE){
+  TVector3 bs(beamSpotHandle_->position().x(),beamSpotHandle_->position().y(),
+	      beamSpotHandle_->position().z());
+  float beamspotZ=bs.Z();
+  //PFClusterCollection object with appropriate variables:
+  ggPFClusters PFClusterCollection(PFPhoton_, EBReducedRecHits_, EEReducedRecHits_, geomBar_,   geomEnd_);
+  //fill PFClusters
+  PFClusters_.clear();
+  if(isPFEle_)PFClusters_=PFClusterCollection.getPFClusters(*(PFElectron_.pflowSuperCluster()));
+  else PFClusters_=PFClusterCollection.getPFClusters(*(PFPhoton_.pfSuperCluster()));
+  float ECorr=0;
+  for(unsigned int i=0; i<PFClusters_.size();++i){
+    ECorr=ECorr+PFClusterCollection.LocalEnergyCorrection(ReaderLCEB, ReaderLCEE, PFClusters_[i], beamspotZ);
+  }
+  PFPhoLocallyCorrE_=ECorr;
+  
+  return PFPhoLocallyCorrE_;
+}

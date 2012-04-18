@@ -42,6 +42,8 @@ class ggPFPhotonAnalyzer : public edm::EDAnalyzer {
   edm::InputTag beamSpotCollection_;
   const CaloSubdetectorGeometry* geomBar_;
   const CaloSubdetectorGeometry* geomEnd_;
+  const GBRForest* PFLCBarrel_;
+  const GBRForest* PFLCEndcap_;
   TFile *tf1;
   TTree* pf;
   TTree* pfclus;
@@ -58,5 +60,6 @@ class ggPFPhotonAnalyzer : public edm::EDAnalyzer {
   float PFClusRMSMust_;
   float VtxZ_;
   float VtxZErr_;
+  float PFPhoECorr_;
 };
 #endif
