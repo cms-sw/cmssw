@@ -5,153 +5,56 @@
 #include <functional>
 #include <vector>
 
+
 class AlphaT {
 public:
+  template <class T>
+  AlphaT(std::vector<T const *> const & p4, bool use_et = true);
 
-  // -----------------------------------------------------------------------------
-  //
-  struct fabs_less {
-    bool operator()( const double x, const double y ) const { return std::abs(x) < std::abs(y); }
-  };
+  template <class T>
+  AlphaT(std::vector<T> const & p4, bool use_et = true);
 
-  // -----------------------------------------------------------------------------
-  //
-  template<class LorentzV>
-  double operator()( const std::vector<LorentzV const *>& p4,
-         bool use_et = true ) const {
+private:
+  std::vector<double> et_;
+  std::vector<double> px_;
+  std::vector<double> py_;
 
-    if ( p4.size() == 0 ) { return 0; }
+public:
+  inline double value(void) const;
+  inline double value(std::vector<bool> & jet_sign) const;
 
-    std::vector<double> et;
-    std::vector<double> px;
-    std::vector<double> py;
-
-    std::transform( p4.begin(), p4.end(), back_inserter(et), ( use_et ? std::mem_fun(&LorentzV::Et) : std::mem_fun(&LorentzV::Pt) ) );
-    std::transform( p4.begin(), p4.end(), back_inserter(px), std::mem_fun(&LorentzV::Px) );
-    std::transform( p4.begin(), p4.end(), back_inserter(py), std::mem_fun(&LorentzV::Py) );
-
-    std::vector<bool> pseudo_jet1;
-    return value( et, px, py, pseudo_jet1, false );
-  }
-
-  // -----------------------------------------------------------------------------
-  //
-  template<class LorentzV>
-  double operator()( const std::vector<LorentzV const *>& p4,
-         std::vector<bool>& pseudo_jet1,
-         bool use_et = true ) const {
-
-    if ( p4.size() == 0 ) { return 0; }
-
-    std::vector<double> et;
-    std::vector<double> px;
-    std::vector<double> py;
-
-    std::transform( p4.begin(), p4.end(), back_inserter(et), std::mem_fun( use_et ? &LorentzV::Et : &LorentzV::Pt ) );
-    std::transform( p4.begin(), p4.end(), back_inserter(px), std::mem_fun(&LorentzV::Px) );
-    std::transform( p4.begin(), p4.end(), back_inserter(py), std::mem_fun(&LorentzV::Py) );
-
-    pseudo_jet1.clear();
-    return value( et, px, py, pseudo_jet1, true );
-
-  }
-
-  // -----------------------------------------------------------------------------
-  //
-  template<class LorentzV>
-  double operator()( const std::vector<LorentzV>& p4,
-         bool use_et = true ) const {
-
-    if ( p4.size() == 0 ) { return 0; }
-
-    std::vector<double> et;
-    std::vector<double> px;
-    std::vector<double> py;
-
-    std::transform( p4.begin(), p4.end(), back_inserter(et), std::mem_fun_ref( use_et ? &LorentzV::Et : &LorentzV::Pt ) );
-    std::transform( p4.begin(), p4.end(), back_inserter(px), std::mem_fun_ref(&LorentzV::Px) );
-    std::transform( p4.begin(), p4.end(), back_inserter(py), std::mem_fun_ref(&LorentzV::Py) );
-
-    std::vector<bool> pseudo_jet1;
-    return value( et, px, py, pseudo_jet1, false );
-  }
-
-
-  // -----------------------------------------------------------------------------
-  //
-  template<class LorentzV>
-  double operator()( const std::vector<LorentzV>& p4,
-         std::vector<bool>& pseudo_jet1,
-         bool use_et = true ) const {
-
-    if ( p4.size() == 0 ) { return 0; }
-
-    std::vector<double> et;
-    std::vector<double> px;
-    std::vector<double> py;
-
-    std::transform( p4.begin(), p4.end(), back_inserter(et), std::mem_fun_ref( use_et ? &LorentzV::Et : &LorentzV::Pt ) );
-    std::transform( p4.begin(), p4.end(), back_inserter(px), std::mem_fun_ref(&LorentzV::Px) );
-    std::transform( p4.begin(), p4.end(), back_inserter(py), std::mem_fun_ref(&LorentzV::Py) );
-
-    pseudo_jet1.clear();
-    return value( et, px, py, pseudo_jet1, true );
-
-  }
-
-protected:
-
-  // -----------------------------------------------------------------------------
-  //
-  double value( const std::vector<double>& et,
-           const std::vector<double>& px,
-           const std::vector<double>& py,
-           std::vector<bool>& pseudo_jet1,
-           bool list = true ) const {
-
-    // Clear pseudo-jet container
-    pseudo_jet1.clear();
-    pseudo_jet1.resize(et.size());
-
-    // check the size of the input collection
-    if (et.size() == 0)
-      // empty jet collection, return AlphaT = 0
-      return 0.;
-
-    if (et.size() > (unsigned int) std::numeric_limits<unsigned int>::digits)
-      // too many jets, return AlphaT = a very large number
-      return std::numeric_limits<double>::max();
-
-    // Momentum sums in transverse plane
-    const double sum_et = std::accumulate( et.begin(), et.end(), 0. );
-    const double sum_px = std::accumulate( px.begin(), px.end(), 0. );
-    const double sum_py = std::accumulate( py.begin(), py.end(), 0. );
-
-    // Minimum Delta Et for two pseudo-jets
-    double min_delta_sum_et = sum_et;
-
-    for (unsigned int i = 0; i < (1U << (et.size() - 1)); i++) { //@@ iterate through different combinations
-      double delta_sum_et = 0.;
-      for (unsigned int j = 0; j < et.size(); ++j) { //@@ iterate through jets
-        if (i & (1U << j))
-          delta_sum_et -= et[j];
-        else
-          delta_sum_et += et[j];
-      }
-      delta_sum_et = std::abs(delta_sum_et);
-      if (delta_sum_et < min_delta_sum_et) {
-        min_delta_sum_et = delta_sum_et;
-        if (list) {
-          for (unsigned int j = 0; j < et.size(); ++j)
-            pseudo_jet1[j] = ((i & (1U << j)) == 0);
-        }
-      }
-    }
-
-    // Alpha_T
-    return (0.5 * (sum_et - min_delta_sum_et) / sqrt( sum_et*sum_et - (sum_px*sum_px+sum_py*sum_py) ));  
-  }
-
+private:
+  double value_(std::vector<bool> * jet_sign) const;
 };
+
+
+// -----------------------------------------------------------------------------
+template<class T>
+AlphaT::AlphaT(std::vector<T const *> const & p4, bool use_et /* = true */) {
+  std::transform( p4.begin(), p4.end(), back_inserter(et_), ( use_et ? std::mem_fun(&T::Et) : std::mem_fun(&T::Pt) ) );
+  std::transform( p4.begin(), p4.end(), back_inserter(px_), std::mem_fun(&T::Px) );
+  std::transform( p4.begin(), p4.end(), back_inserter(py_), std::mem_fun(&T::Py) );
+}
+
+// -----------------------------------------------------------------------------
+template<class T>
+AlphaT::AlphaT(std::vector<T> const & p4, bool use_et /* = true */) {
+  std::transform( p4.begin(), p4.end(), back_inserter(et_), std::mem_fun_ref( use_et ? &T::Et : &T::Pt ) );
+  std::transform( p4.begin(), p4.end(), back_inserter(px_), std::mem_fun_ref(&T::Px) );
+  std::transform( p4.begin(), p4.end(), back_inserter(py_), std::mem_fun_ref(&T::Py) );
+}
+
+
+// -----------------------------------------------------------------------------
+inline
+double AlphaT::value(void) const {
+  return value_(0);
+}
+
+// -----------------------------------------------------------------------------
+inline
+double AlphaT::value(std::vector<bool> & jet_sign) const {
+  return value_(& jet_sign);
+}
 
 #endif // HLTrigger_JetMET_AlphaT_h

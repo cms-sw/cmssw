@@ -153,7 +153,7 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
 	// Add to JetVector    
 	LorentzV JetLVec(ijet->pt(),ijet->eta(),ijet->phi(),ijet->mass());
 	jets.push_back( JetLVec );
-	double aT = AlphaT()(jets);
+	double aT = AlphaT(jets).value();
 	if(htFast > minHt_ && aT > minAlphaT_){
 	  // set flat to one so that we don't carry on looping though the jets
 	  flag = 1;
