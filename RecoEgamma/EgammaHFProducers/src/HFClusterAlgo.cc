@@ -5,7 +5,7 @@
 #include <list> 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
-
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 using namespace std;
 using namespace reco;
 /** \class HFClusterAlgo
@@ -193,6 +193,19 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
   int de, dp, phiWrap;
   double l_1e=0;
   GlobalPoint sp=geom.getPosition(seedid);
+  const CaloCellGeometry* ccg=geom.getGeometry(seedid); 
+  const CaloCellGeometry::CornersVec& scorns=ccg->getCorners();
+  double seedmnEta=99;
+  double seedMXeta=0;
+  for(size_t sc=0;sc<scorns.size();sc++){
+    // printf("vector #%i eta=%0.3f z=%0.2f\n",(int)sc,scorns[sc].eta(),scorns[sc].z());
+    if(fabs(scorns[sc].z())<1200){
+      if(fabs(scorns[sc].eta())<seedmnEta)seedmnEta=fabs(scorns[sc].eta());
+      if(fabs(scorns[sc].eta())>seedMXeta)seedMXeta=fabs(scorns[sc].eta());
+    }
+  }
+  // printf(" min eta=%0.3f max eta=%0.3f \n",seedmnEta,seedMXeta);
+  
   std::vector<double> coreCanid;
   std::vector<double>::const_iterator ci;
   HFRecHitCollection::const_iterator i,is,il;
@@ -350,15 +363,8 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
     phi-=2*M_PI;
   
   //calculate cell phi and cell eta
-  static const double HFEtaBounds[14] = {2.853, 2.964, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889, 5.191};
-  double RcellEta = fabs(eta);
   double Cphi = (phi>0.)?(fmod((phi),0.087*2)/(0.087*2)):((fmod((phi),0.087*2)/(0.087*2))+1.0);
-  double Rbin = -1.0;
-  for (int icell = 0; icell < 12; icell++ ){
-    if ( (RcellEta>HFEtaBounds[icell]) && (RcellEta<HFEtaBounds[icell+1]) )
-      Rbin = (RcellEta - HFEtaBounds[icell])/(HFEtaBounds[icell+1] - HFEtaBounds[icell]);
-  }
-  double Ceta=Rbin;
+  double Ceta= (fabs(eta)- seedmnEta)/(seedMXeta-seedmnEta);
   
   while (phi< -M_PI)
     phi+=2*M_PI;
