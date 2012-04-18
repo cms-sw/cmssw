@@ -5,7 +5,8 @@
 #include <functional>
 #include <vector>
 
-struct AlphaT {
+class AlphaT {
+public:
 
   // -----------------------------------------------------------------------------
   //
@@ -29,8 +30,8 @@ struct AlphaT {
     std::transform( p4.begin(), p4.end(), back_inserter(px), std::mem_fun(&LorentzV::Px) );
     std::transform( p4.begin(), p4.end(), back_inserter(py), std::mem_fun(&LorentzV::Py) );
 
-    return value( et, px, py );
-
+    std::vector<bool> pseudo_jet1;
+    return value( et, px, py, pseudo_jet1, false );
   }
 
   // -----------------------------------------------------------------------------
@@ -45,13 +46,13 @@ struct AlphaT {
     std::vector<double> et;
     std::vector<double> px;
     std::vector<double> py;
-    pseudo_jet1.clear();
 
     std::transform( p4.begin(), p4.end(), back_inserter(et), std::mem_fun( use_et ? &LorentzV::Et : &LorentzV::Pt ) );
     std::transform( p4.begin(), p4.end(), back_inserter(px), std::mem_fun(&LorentzV::Px) );
     std::transform( p4.begin(), p4.end(), back_inserter(py), std::mem_fun(&LorentzV::Py) );
 
-    return value( et, px, py, pseudo_jet1 );
+    pseudo_jet1.clear();
+    return value( et, px, py, pseudo_jet1, true );
 
   }
 
@@ -71,8 +72,8 @@ struct AlphaT {
     std::transform( p4.begin(), p4.end(), back_inserter(px), std::mem_fun_ref(&LorentzV::Px) );
     std::transform( p4.begin(), p4.end(), back_inserter(py), std::mem_fun_ref(&LorentzV::Py) );
 
-    return value( et, px, py );
-
+    std::vector<bool> pseudo_jet1;
+    return value( et, px, py, pseudo_jet1, false );
   }
 
 
@@ -93,17 +94,20 @@ struct AlphaT {
     std::transform( p4.begin(), p4.end(), back_inserter(px), std::mem_fun_ref(&LorentzV::Px) );
     std::transform( p4.begin(), p4.end(), back_inserter(py), std::mem_fun_ref(&LorentzV::Py) );
 
-    return value( et, px, py, pseudo_jet1 );
+    pseudo_jet1.clear();
+    return value( et, px, py, pseudo_jet1, true );
 
   }
 
+protected:
+
   // -----------------------------------------------------------------------------
   //
-  static double value( const std::vector<double>& et,
+  double value( const std::vector<double>& et,
            const std::vector<double>& px,
            const std::vector<double>& py,
            std::vector<bool>& pseudo_jet1,
-           bool list = true ) {
+           bool list = true ) const {
 
     // Clear pseudo-jet container
     pseudo_jet1.clear();
@@ -119,9 +123,9 @@ struct AlphaT {
       return std::numeric_limits<double>::max();
 
     // Momentum sums in transverse plane
-    const double sum_et = accumulate( et.begin(), et.end(), 0. );
-    const double sum_px = accumulate( px.begin(), px.end(), 0. );
-    const double sum_py = accumulate( py.begin(), py.end(), 0. );
+    const double sum_et = std::accumulate( et.begin(), et.end(), 0. );
+    const double sum_px = std::accumulate( px.begin(), px.end(), 0. );
+    const double sum_py = std::accumulate( py.begin(), py.end(), 0. );
 
     // Minimum Delta Et for two pseudo-jets
     double min_delta_sum_et = sum_et;
@@ -146,15 +150,6 @@ struct AlphaT {
 
     // Alpha_T
     return (0.5 * (sum_et - min_delta_sum_et) / sqrt( sum_et*sum_et - (sum_px*sum_px+sum_py*sum_py) ));  
-  }
-
-  // -----------------------------------------------------------------------------
-  //
-  static double value( const std::vector<double>& et,
-           const std::vector<double>& px,
-           const std::vector<double>& py ) {
-    std::vector<bool> pseudo_jet1;
-    return value( et, px, py, pseudo_jet1, false );
   }
 
 };
