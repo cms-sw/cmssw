@@ -232,42 +232,6 @@ PF_PU_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-PF_PU_AssoMap::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-PF_PU_AssoMap::endJob() 
-{
-}
-
-// ------------ method called when starting to processes a run  ------------
-void 
-PF_PU_AssoMap::beginRun(edm::Run&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a run  ------------
-void 
-PF_PU_AssoMap::endRun(edm::Run&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void 
-PF_PU_AssoMap::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void 
-PF_PU_AssoMap::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 PF_PU_AssoMap::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
