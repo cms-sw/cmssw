@@ -1,6 +1,10 @@
 #ifndef HLTrigger_JetMET_AlphaT_h
 #define HLTrigger_JetMET_AlphaT_h
 
+#include <algorithm>
+#include <functional>
+#include <vector>
+
 struct AlphaT {
 
   // -----------------------------------------------------------------------------
@@ -21,9 +25,9 @@ struct AlphaT {
     std::vector<double> px;
     std::vector<double> py;
 
-    transform( p4.begin(), p4.end(), back_inserter(et), ( use_et ? std::mem_fun(&LorentzV::Et) : std::mem_fun(&LorentzV::Pt) ) );
-    transform( p4.begin(), p4.end(), back_inserter(px), std::mem_fun(&LorentzV::Px) );
-    transform( p4.begin(), p4.end(), back_inserter(py), std::mem_fun(&LorentzV::Py) );
+    std::transform( p4.begin(), p4.end(), back_inserter(et), ( use_et ? std::mem_fun(&LorentzV::Et) : std::mem_fun(&LorentzV::Pt) ) );
+    std::transform( p4.begin(), p4.end(), back_inserter(px), std::mem_fun(&LorentzV::Px) );
+    std::transform( p4.begin(), p4.end(), back_inserter(py), std::mem_fun(&LorentzV::Py) );
 
     return value( et, px, py );
 
@@ -43,9 +47,9 @@ struct AlphaT {
     std::vector<double> py;
     pseudo_jet1.clear();
 
-    transform( p4.begin(), p4.end(), back_inserter(et), std::mem_fun( use_et ? &LorentzV::Et : &LorentzV::Pt ) );
-    transform( p4.begin(), p4.end(), back_inserter(px), std::mem_fun(&LorentzV::Px) );
-    transform( p4.begin(), p4.end(), back_inserter(py), std::mem_fun(&LorentzV::Py) );
+    std::transform( p4.begin(), p4.end(), back_inserter(et), std::mem_fun( use_et ? &LorentzV::Et : &LorentzV::Pt ) );
+    std::transform( p4.begin(), p4.end(), back_inserter(px), std::mem_fun(&LorentzV::Px) );
+    std::transform( p4.begin(), p4.end(), back_inserter(py), std::mem_fun(&LorentzV::Py) );
 
     return value( et, px, py, pseudo_jet1 );
 
@@ -63,9 +67,9 @@ struct AlphaT {
     std::vector<double> px;
     std::vector<double> py;
 
-    transform( p4.begin(), p4.end(), back_inserter(et), std::mem_fun_ref( use_et ? &LorentzV::Et : &LorentzV::Pt ) );
-    transform( p4.begin(), p4.end(), back_inserter(px), std::mem_fun_ref(&LorentzV::Px) );
-    transform( p4.begin(), p4.end(), back_inserter(py), std::mem_fun_ref(&LorentzV::Py) );
+    std::transform( p4.begin(), p4.end(), back_inserter(et), std::mem_fun_ref( use_et ? &LorentzV::Et : &LorentzV::Pt ) );
+    std::transform( p4.begin(), p4.end(), back_inserter(px), std::mem_fun_ref(&LorentzV::Px) );
+    std::transform( p4.begin(), p4.end(), back_inserter(py), std::mem_fun_ref(&LorentzV::Py) );
 
     return value( et, px, py );
 
@@ -85,9 +89,9 @@ struct AlphaT {
     std::vector<double> px;
     std::vector<double> py;
 
-    transform( p4.begin(), p4.end(), back_inserter(et), std::mem_fun_ref( use_et ? &LorentzV::Et : &LorentzV::Pt ) );
-    transform( p4.begin(), p4.end(), back_inserter(px), std::mem_fun_ref(&LorentzV::Px) );
-    transform( p4.begin(), p4.end(), back_inserter(py), std::mem_fun_ref(&LorentzV::Py) );
+    std::transform( p4.begin(), p4.end(), back_inserter(et), std::mem_fun_ref( use_et ? &LorentzV::Et : &LorentzV::Pt ) );
+    std::transform( p4.begin(), p4.end(), back_inserter(px), std::mem_fun_ref(&LorentzV::Px) );
+    std::transform( p4.begin(), p4.end(), back_inserter(py), std::mem_fun_ref(&LorentzV::Py) );
 
     return value( et, px, py, pseudo_jet1 );
 
