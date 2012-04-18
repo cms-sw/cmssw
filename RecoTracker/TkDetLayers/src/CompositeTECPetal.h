@@ -14,7 +14,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class CompositeTECPetal : public TECPetal{
+class CompositeTECPetal GCC11_FINAL : public TECPetal{
  public:
   CompositeTECPetal(std::vector<const TECWedge*>& innerWedges,
 		    std::vector<const TECWedge*>& outerWedges);

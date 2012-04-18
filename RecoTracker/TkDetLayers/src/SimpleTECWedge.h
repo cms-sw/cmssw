@@ -10,7 +10,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class SimpleTECWedge : public TECWedge{
+class SimpleTECWedge GCC11_FINAL : public TECWedge{
  public:
   SimpleTECWedge(const GeomDet* theDet);
 

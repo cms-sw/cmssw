@@ -12,6 +12,8 @@
 
 #include <vector>
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
 class MeasurementEstimator; 
 
 class GeometricSearchDet {

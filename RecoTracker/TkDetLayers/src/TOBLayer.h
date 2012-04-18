@@ -12,7 +12,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TOBLayer : public RodBarrelLayer, public GeometricSearchDetWithGroups{
+class TOBLayer GCC11_FINAL : public RodBarrelLayer, public GeometricSearchDetWithGroups{
  public:
   typedef PeriodicBinFinderInPhi<double>   BinFinderType;
 

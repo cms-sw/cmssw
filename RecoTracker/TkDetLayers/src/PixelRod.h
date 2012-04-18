@@ -9,7 +9,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class PixelRod : public DetRodOneR{
+class PixelRod GCC11_FINAL : public DetRodOneR{
  public:
     typedef PeriodicBinFinderInZ<float>   BinFinderType;
 

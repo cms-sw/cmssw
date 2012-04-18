@@ -11,7 +11,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TIDRing : public GeometricSearchDetWithGroups{
+class TIDRing GCC11_FINAL : public GeometricSearchDetWithGroups{
  public:
   TIDRing(std::vector<const GeomDet*>& innerDets,
 	  std::vector<const GeomDet*>& outerDets);
