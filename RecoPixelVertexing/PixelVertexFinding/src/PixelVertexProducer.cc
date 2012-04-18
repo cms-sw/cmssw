@@ -125,7 +125,7 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	we(2,2)=10000;
 	vertexes->push_back(reco::Vertex(bs.position(), we,0.,0.,0));
 	
-	edm::LogWarning("PixelVertexProducer") <<"No vertices found. Beamspot with invalid errors " << bse.matrix() << std::endl
+	edm::LogInfo("PixelVertexProducer") <<"No vertices found. Beamspot with invalid errors " << bse.matrix() << std::endl
 					       << "Will put Vertex derived from dummy-fake BeamSpot into Event.\n"
 					       << (*vertexes)[0].x() << "\n"
 					       << (*vertexes)[0].y() << "\n"
@@ -134,7 +134,7 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	vertexes->push_back(reco::Vertex(bs.position(),
 					 bs.rotatedCovariance3D(),0.,0.,0));
 	
-	edm::LogWarning("PixelVertexProducer") << "No vertices found. Will put Vertex derived from BeamSpot into Event:\n"
+	edm::LogInfo("PixelVertexProducer") << "No vertices found. Will put Vertex derived from BeamSpot into Event:\n"
 					       << (*vertexes)[0].x() << "\n"
 					       << (*vertexes)[0].y() << "\n"
 					       << (*vertexes)[0].z() << "\n";
