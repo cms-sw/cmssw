@@ -56,6 +56,13 @@ const double kMass = 0.497;
 const double piMass = 0.1396;
 
   typedef AssociationMap<OneToManyWithQuality< VertexCollection, TrackCollection, float> > TrackVertexAssMap;
+  typedef AssociationMap<OneToManyWithQuality< VertexCollection, PFCandidateCollection, float> > PFCandVertexAssMap;
+
+  typedef pair<PFCandidateRef, float> PFCandQualityPair;
+  typedef vector< PFCandQualityPair > PFCandQualityPairVector;
+
+  typedef pair <VertexRef, float>  VertexPtsumPair;
+  typedef vector< VertexPtsumPair > VertexPtsumVector;
 
   typedef math::XYZTLorentzVector LorentzVector;
 
@@ -96,7 +103,7 @@ PFCand_NoPU_WithAM_Algos::FindClosestInZ(double ztrack, Handle<VertexCollection>
 /*************************************************************************************/
 
 bool
-PFCand_NoPU_WithAM_Algos::Match(const PFCandidatePtr pfc, const RecoCandidate* rc)
+PFCand_NoPU_WithAM_Algos::Match(const PFCandidateRef pfc, const RecoCandidate* rc)
 {
 
 	return (
@@ -115,22 +122,22 @@ PFCand_NoPU_WithAM_Algos::Match(const PFCandidatePtr pfc, const RecoCandidate* r
 /*************************************************************************************/
 
 bool
-PFCand_NoPU_WithAM_Algos::ComesFromConversion(const PFCandidatePtr candptr, Handle<ConversionCollection> convCollH, Handle<VertexCollection> vtxcollH, VertexRef* primVtxRef)
+PFCand_NoPU_WithAM_Algos::ComesFromConversion(const PFCandidateRef candref, Handle<ConversionCollection> convCollH, Handle<VertexCollection> vtxcollH, VertexRef* primVtxRef)
 {
 
 	Conversion* gamma = new Conversion();
 
-	if(candptr->gsfElectronRef().isNull()) return false;
+	if(candref->gsfElectronRef().isNull()) return false;
 
 	for(unsigned int convcoll_ite=0; convcoll_ite<convCollH->size(); convcoll_ite++){
 	
-	  if(ConversionTools::matchesConversion(*(candptr->gsfElectronRef()),convCollH->at(convcoll_ite))){
+	  if(ConversionTools::matchesConversion(*(candref->gsfElectronRef()),convCollH->at(convcoll_ite))){
 	
 	    *gamma = convCollH->at(convcoll_ite);
 
 	    double ztrackfirst = gamma->conversionVertex().z();
 	    double radius = gamma->conversionVertex().position().rho();
-	    double tracktheta = candptr->theta();
+	    double tracktheta = candref->theta();
 	    if(gamma->nTracks()==2) tracktheta = gamma->pairMomentum().theta();
 
 	    double ztrack = ztrackfirst - (radius/tan(tracktheta));
@@ -152,12 +159,12 @@ PFCand_NoPU_WithAM_Algos::ComesFromConversion(const PFCandidatePtr candptr, Hand
 /*************************************************************************************/
 
 VertexRef
-PFCand_NoPU_WithAM_Algos::FindPFCandVertex(const PFCandidatePtr candptr, Handle<VertexCollection> vtxcollH)
+PFCand_NoPU_WithAM_Algos::FindPFCandVertex(const PFCandidateRef candref, Handle<VertexCollection> vtxcollH)
 {
 
-	double ztrackfirst = candptr->vertex().z();
-	double radius = candptr->vertex().rho();
-	double tracktheta = candptr->momentum().theta();
+	double ztrackfirst = candref->vertex().z();
+	double radius = candref->vertex().rho();
+	double tracktheta = candref->momentum().theta();
 
 	double ztrack = ztrackfirst - (radius/tan(tracktheta));
 
@@ -171,7 +178,7 @@ PFCand_NoPU_WithAM_Algos::FindPFCandVertex(const PFCandidatePtr candptr, Handle<
 /*************************************************************************************/
 
 bool
-PFCand_NoPU_WithAM_Algos::ComesFromV0Decay(const PFCandidatePtr candptr, Handle<VertexCompositeCandidateCollection> vertCompCandCollKshortH, Handle<VertexCompositeCandidateCollection> vertCompCandCollLambdaH, Handle<VertexCollection> vtxcollH, VertexRef* primVtxRef)
+PFCand_NoPU_WithAM_Algos::ComesFromV0Decay(const PFCandidateRef candref, Handle<VertexCompositeCandidateCollection> vertCompCandCollKshortH, Handle<VertexCompositeCandidateCollection> vertCompCandCollLambdaH, Handle<VertexCollection> vtxcollH, VertexRef* primVtxRef)
 {
 
 	//the part for the reassociation of particles from Kshort decays
@@ -180,7 +187,7 @@ PFCand_NoPU_WithAM_Algos::ComesFromV0Decay(const PFCandidatePtr candptr, Handle<
 	  const RecoCandidate *dauCand1 = dynamic_cast<const RecoCandidate*>(iKS->daughter(0));
 	  const RecoCandidate *dauCand2 = dynamic_cast<const RecoCandidate*>(iKS->daughter(1));
 
-	  if(PFCand_NoPU_WithAM_Algos::Match(candptr,dauCand1) || PFCand_NoPU_WithAM_Algos::Match(candptr,dauCand2)){
+	  if(PFCand_NoPU_WithAM_Algos::Match(candref,dauCand1) || PFCand_NoPU_WithAM_Algos::Match(candref,dauCand2)){
 
             double ztrackfirst = iKS->vertex().z();
 	    double radius = iKS->vertex().rho();
@@ -202,7 +209,7 @@ PFCand_NoPU_WithAM_Algos::ComesFromV0Decay(const PFCandidatePtr candptr, Handle<
 	  const RecoCandidate *dauCand1 = dynamic_cast<const RecoCandidate*>(iLambda->daughter(0));
 	  const RecoCandidate *dauCand2 = dynamic_cast<const RecoCandidate*>(iLambda->daughter(1));
 
-	  if(PFCand_NoPU_WithAM_Algos::Match(candptr,dauCand1) || PFCand_NoPU_WithAM_Algos::Match(candptr,dauCand2)){
+	  if(PFCand_NoPU_WithAM_Algos::Match(candref,dauCand1) || PFCand_NoPU_WithAM_Algos::Match(candref,dauCand2)){
 
             double ztrackfirst = iLambda->vertex().z();
 	    double radius = iLambda->vertex().rho();
@@ -227,7 +234,7 @@ PFCand_NoPU_WithAM_Algos::ComesFromV0Decay(const PFCandidatePtr candptr, Handle<
 /*************************************************************************************/
 
 VertexRef
-PFCand_NoPU_WithAM_Algos::FindNIVertex(const PFCandidatePtr candptr, PFDisplacedVertex displVtx, Handle<VertexCollection> vtxcollH, bool oneDim, const edm::EventSetup& iSetup)
+PFCand_NoPU_WithAM_Algos::FindNIVertex(const PFCandidateRef candref, PFDisplacedVertex displVtx, Handle<VertexCollection> vtxcollH, bool oneDim, const edm::EventSetup& iSetup)
 {
 
 	TrackCollection refittedTracks = displVtx.refittedTracks();
@@ -240,9 +247,9 @@ PFCand_NoPU_WithAM_Algos::FindNIVertex(const PFCandidatePtr candptr, PFDisplaced
 
 	    if(displVtx.isIncomingTrack(retrackbaseref)){
 
-	      double ztrackfirst = candptr->vertex().z();
-	      double radius = candptr->vertex().rho();
-	      double tracktheta = candptr->theta();
+	      double ztrackfirst = candref->vertex().z();
+	      double radius = candref->vertex().rho();
+	      double tracktheta = candref->theta();
 
               double ztrack = ztrackfirst - (radius/tan(tracktheta));
 
@@ -254,7 +261,7 @@ PFCand_NoPU_WithAM_Algos::FindNIVertex(const PFCandidatePtr candptr, PFDisplaced
 
 	}
 	
-	return PFCand_NoPU_WithAM_Algos::FindPFCandVertex(candptr,vtxcollH);
+	return PFCand_NoPU_WithAM_Algos::FindPFCandVertex(candref,vtxcollH);
 
 }
 
@@ -264,7 +271,7 @@ PFCand_NoPU_WithAM_Algos::FindNIVertex(const PFCandidatePtr candptr, PFDisplaced
 /*************************************************************************************/
 
 bool
-PFCand_NoPU_WithAM_Algos::ComesFromNI(const PFCandidatePtr candptr, Handle<PFDisplacedVertexCollection> displVertexCollH, PFDisplacedVertex* displVtx, const edm::EventSetup& iSetup)
+PFCand_NoPU_WithAM_Algos::ComesFromNI(const PFCandidateRef candref, Handle<PFDisplacedVertexCollection> displVertexCollH, PFDisplacedVertex* displVtx, const edm::EventSetup& iSetup)
 {
 
 	ESHandle<TransientTrackBuilder> theTTB;
@@ -273,18 +280,18 @@ PFCand_NoPU_WithAM_Algos::ComesFromNI(const PFCandidatePtr candptr, Handle<PFDis
 	ESHandle<MagneticField> bFieldHandle;
 	iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
 
-	GlobalVector trkMomentum = GlobalVector( candptr->momentum().x(),
-		          		         candptr->momentum().y(),
-				     	   	 candptr->momentum().z() );
+	GlobalVector trkMomentum = GlobalVector( candref->momentum().x(),
+		          		         candref->momentum().y(),
+				     	   	 candref->momentum().z() );
 
-	const math::XYZPoint interactionPoint = candptr->vertex();
+	const math::XYZPoint interactionPoint = candref->vertex();
 	const math::XYZVector primaryVector( trkMomentum.x(),trkMomentum.y(),trkMomentum.z() );
 	const TrackBase::CovarianceMatrix covMat;
 
     	float chi = 0.;				      
     	float ndf = 0.;
 
-	Track primary = Track(chi,ndf,interactionPoint,primaryVector,candptr->charge(),covMat);
+	Track primary = Track(chi,ndf,interactionPoint,primaryVector,candref->charge(),covMat);
 	TransientTrack genTrkTT(primary, &(*bFieldHandle) );
 
   	double IpMin = 10.;
@@ -322,4 +329,81 @@ PFCand_NoPU_WithAM_Algos::ComesFromNI(const PFCandidatePtr candptr, Handle<PFDis
 	if(IpMin<0.5) return true;
 
 	return false;
+}
+
+
+/*****************************************************************************************/
+/* function to sort the vertices in the AssociationMap by the sum of (pT - pT_Error)**2  */ 
+/*****************************************************************************************/
+
+auto_ptr<PFCandVertexAssMap>   
+PFCand_NoPU_WithAM_Algos::SortAssociationMap(PFCandVertexAssMap* pfcvertexassInput) 
+{
+	//create a new PFCandVertexAssMap for the Output which will be sorted
+     	auto_ptr<PFCandVertexAssMap> pfcvertexassOutput(new PFCandVertexAssMap() );
+
+	//Create and fill a vector of pairs of vertex and the summed (pT)**2 of the pfcandidates associated to the vertex 
+	VertexPtsumVector vertexptsumvector;
+
+	//loop over all vertices in the association map
+        for(PFCandVertexAssMap::const_iterator assomap_ite=pfcvertexassInput->begin(); assomap_ite!=pfcvertexassInput->end(); assomap_ite++){
+
+	  const VertexRef assomap_vertexref = assomap_ite->key;
+  	  const PFCandQualityPairVector pfccoll = assomap_ite->val;
+
+	  float ptsum = 0;
+ 
+	  PFCandidateRef pfcandref;
+
+	  //get the pfcandidates associated to the vertex and calculate the pT**2
+	  for(unsigned int pfccoll_ite=0; pfccoll_ite<pfccoll.size(); pfccoll_ite++){
+
+	    pfcandref = pfccoll[pfccoll_ite].first;
+	    double man_pT = pfcandref->pt();
+	    if(man_pT>0.) ptsum+=man_pT*man_pT;
+
+	  }
+
+	  vertexptsumvector.push_back(make_pair(assomap_vertexref,ptsum));
+
+	}
+
+	while (vertexptsumvector.size()!=0){
+
+	  VertexRef vertexref_highestpT;
+	  float highestpT = 0.;
+	  int highestpT_index = 0;
+
+	  for(unsigned int vtxptsumvec_ite=0; vtxptsumvec_ite<vertexptsumvector.size(); vtxptsumvec_ite++){
+ 
+ 	    if(vertexptsumvector[vtxptsumvec_ite].second>highestpT){
+
+	      vertexref_highestpT = vertexptsumvector[vtxptsumvec_ite].first;
+	      highestpT = vertexptsumvector[vtxptsumvec_ite].second;
+	      highestpT_index = vtxptsumvec_ite;
+	
+	    }
+
+	  }
+	  
+	  //loop over all vertices in the association map
+          for(PFCandVertexAssMap::const_iterator assomap_ite=pfcvertexassInput->begin(); assomap_ite!=pfcvertexassInput->end(); assomap_ite++){
+
+	    const VertexRef assomap_vertexref = assomap_ite->key;
+  	    const PFCandQualityPairVector pfccoll = assomap_ite->val;
+
+	    //if the vertex from the association map the vertex with the highest pT 
+	    //insert all associated pfcandidates in the output Association Map
+	    if(assomap_vertexref==vertexref_highestpT) 
+	      for(unsigned int pfccoll_ite=0; pfccoll_ite<pfccoll.size(); pfccoll_ite++) 
+	        pfcvertexassOutput->insert(assomap_vertexref,pfccoll[pfccoll_ite]);
+ 
+	  }
+
+	  vertexptsumvector.erase(vertexptsumvector.begin()+highestpT_index);	
+
+	}
+
+  	return pfcvertexassOutput;
+
 }
