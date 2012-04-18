@@ -102,34 +102,46 @@ void PFRecoTauDiscriminationAgainstElectronMVA2::beginEvent(const edm::Event& ev
 
 double PFRecoTauDiscriminationAgainstElectronMVA2::discriminate(const PFTauRef& thePFTauRef)
 {
-  double mva          = -1.0;
-  double workingPoint =  0.0;
-  double deltaRMin = 999.;
+  double mva = +99.;
+  double workingPoint = 0.;
   if( (*thePFTauRef).leadPFChargedHadrCand().isNonnull()) {
     for ( reco::GsfElectronCollection::const_iterator theGsfElectron = gsfElectrons_->begin();
 	  theGsfElectron != gsfElectrons_->end(); ++theGsfElectron ) {
-      double deltaREleTau = deltaR((*theGsfElectron).eta(),(*theGsfElectron).phi(),(*thePFTauRef).eta(),(*thePFTauRef).phi());
-      if(deltaREleTau<deltaRMin)deltaRMin = deltaREleTau;
-      if(deltaREleTau<0.3){
- 	mva = mva_->MVAValue( *thePFTauRef, *theGsfElectron );
-	workingPoint =
-	  ((*thePFTauRef).signalPFChargedHadrCands().size()==3 ||
-	   (fabs((*thePFTauRef).eta())<1.5 && ((*thePFTauRef).signalPFGammaCands().size())<=0 && mva > minMVA1prongBL_) ||
-	   (fabs((*thePFTauRef).eta())<1.5 && ((*thePFTauRef).signalPFGammaCands().size())>0  && (((*thePFTauRef).leadPFChargedHadrCand())->gsfTrackRef()).isNonnull()<0.5 && mva > minMVA1prongStripsWOgsfBL_) ||
-	   (fabs((*thePFTauRef).eta())<1.5 && ((*thePFTauRef).signalPFGammaCands().size())>0  && (((*thePFTauRef).leadPFChargedHadrCand())->gsfTrackRef()).isNonnull()>0.5 && TMath::Max((*theGsfElectron).mvaOutput().mva,float(-1.0))<-0.1 && mva > minMVA1prongStripsWgsfWOpfEleMvaBL_) ||
-	   (fabs((*thePFTauRef).eta())<1.5 && ((*thePFTauRef).signalPFGammaCands().size())>0  && (((*thePFTauRef).leadPFChargedHadrCand())->gsfTrackRef()).isNonnull()>0.5 && TMath::Max((*theGsfElectron).mvaOutput().mva,float(-1.0))>-0.1 && mva > minMVA1prongStripsWgsfWpfEleMvaBL_) ||
-	   (fabs((*thePFTauRef).eta())>1.5 && ((*thePFTauRef).signalPFGammaCands().size())<=0 && mva > minMVA1prongEC_) ||
-	   (fabs((*thePFTauRef).eta())>1.5 && ((*thePFTauRef).signalPFGammaCands().size())>0  && (((*thePFTauRef).leadPFChargedHadrCand())->gsfTrackRef()).isNonnull()<0.5 && mva > minMVA1prongStripsWOgsfEC_) ||
-	   (fabs((*thePFTauRef).eta())>1.5 && ((*thePFTauRef).signalPFGammaCands().size())>0  && (((*thePFTauRef).leadPFChargedHadrCand())->gsfTrackRef()).isNonnull()>0.5 && TMath::Max((*theGsfElectron).mvaOutput().mva,float(-1.0))<-0.1 && mva > minMVA1prongStripsWgsfWOpfEleMvaEC_) ||
-	   (fabs((*thePFTauRef).eta())>1.5 && ((*thePFTauRef).signalPFGammaCands().size())>0  && (((*thePFTauRef).leadPFChargedHadrCand())->gsfTrackRef()).isNonnull()>0.5 && TMath::Max((*theGsfElectron).mvaOutput().mva,float(-1.0))>-0.1 && mva > minMVA1prongStripsWgsfWpfEleMvaEC_) ) ? 1.0 : 0.0;
-	
+      if ( theGsfElectron->pt() > 10. ) { // CV: only take electrons above some minimal energy/Pt into account...
+	double deltaREleTau = deltaR(theGsfElectron->p4(), thePFTauRef->p4());
+	if ( deltaREleTau < 0.3 ) {
+	  mva = TMath::Min(mva, mva_->MVAValue(*thePFTauRef, *theGsfElectron));
+	  workingPoint = 0.;
+
+	  size_t numSignalPFGammaCands = thePFTauRef->signalPFGammaCands().size();
+	  bool hasGsfTrack = thePFTauRef->leadPFChargedHadrCand()->gsfTrackRef().isNonnull();
+	  bool isPFElectron = (theGsfElectron->mvaOutput().mva > -0.1);
+
+	  if ( thePFTauRef->signalPFChargedHadrCands().size() == 1 ) {
+	    double mvaCut = 999.;
+	    if ( TMath::Abs(thePFTauRef->eta()) < 1.5 ) { // Barrel
+	      if      ( numSignalPFGammaCands == 0                                  ) mvaCut = minMVA1prongBL_;
+	      else if ( numSignalPFGammaCands >= 1 && !hasGsfTrack                  ) mvaCut = minMVA1prongStripsWOgsfBL_;
+	      else if ( numSignalPFGammaCands >= 1 &&  hasGsfTrack && !isPFElectron ) mvaCut = minMVA1prongStripsWgsfWOpfEleMvaBL_;
+	      else if ( numSignalPFGammaCands >= 1 &&  hasGsfTrack &&  isPFElectron ) mvaCut = minMVA1prongStripsWgsfWpfEleMvaBL_;
+	    } else { // Endcap
+	      if      ( numSignalPFGammaCands == 0                                  ) mvaCut = minMVA1prongEC_;
+	      else if ( numSignalPFGammaCands >= 1 && !hasGsfTrack                  ) mvaCut = minMVA1prongStripsWOgsfEC_;
+	      else if ( numSignalPFGammaCands >= 1 &&  hasGsfTrack && !isPFElectron ) mvaCut = minMVA1prongStripsWgsfWOpfEleMvaEC_;
+	      else if ( numSignalPFGammaCands >= 1 &&  hasGsfTrack &&  isPFElectron ) mvaCut = minMVA1prongStripsWgsfWpfEleMvaEC_;
+	    }
+	    workingPoint = (mva > mvaCut);
+	  } else {
+	    workingPoint = 1.;
+	  } 
+	}
       }
     }
   }
 
-  //std::cout << "<PFRecoTauDiscriminationAgainstElectronMVA2::discriminate>:" << std::endl;
-  //std::cout << " tau: Pt = " << thePFTauRef->pt() << ", eta = " << thePFTauRef->eta() << ", phi = " << thePFTauRef->phi() << std::endl;
-  //std::cout << " mva = " << mva << ": workingPoint = " << workingPoint << std::endl;
+  std::cout << "<PFRecoTauDiscriminationAgainstElectronMVA2::discriminate>:" << std::endl;
+  std::cout << " tau: Pt = " << thePFTauRef->pt() << ", eta = " << thePFTauRef->eta() << ", phi = " << thePFTauRef->phi() << std::endl;
+  std::cout << " mva = " << mva << ": workingPoint = " << workingPoint << std::endl;
   
   return ( returnMVA_ ? mva : workingPoint );
 }
