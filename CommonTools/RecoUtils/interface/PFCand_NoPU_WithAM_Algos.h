@@ -14,7 +14,7 @@
 //
 // Original Author:  Matthias Geisler,32 4-B20,+41227676487,
 //         Created:  Thu Dec  1 16:07:41 CET 2011
-// $Id: PFCand_NoPU_WithAM_Algos.h,v 1.1 2011/12/05 15:04:18 mgeisler Exp $
+// $Id: PFCand_NoPU_WithAM_Algos.h,v 1.1 2012/04/17 11:54:46 mgeisler Exp $
 //
 //
 
@@ -49,6 +49,7 @@ using namespace std;
 using namespace reco;
 
   typedef AssociationMap<OneToManyWithQuality< VertexCollection, TrackCollection, float> > TrackVertexAssMap;
+  typedef AssociationMap<OneToManyWithQuality< VertexCollection, PFCandidateCollection, float> > PFCandVertexAssMap;
 
 class PFCand_NoPU_WithAM_Algos{
  public:
@@ -57,22 +58,25 @@ class PFCand_NoPU_WithAM_Algos{
    static VertexRef FindClosestInZ(double, Handle<VertexCollection>);
 
    //function to compare two pfcandidates
-   static bool Match(const PFCandidatePtr, const RecoCandidate*);
+   static bool Match(const PFCandidateRef, const RecoCandidate*);
 
    //function to find out if the track comes from a gamma conversion
-   static bool ComesFromConversion(const PFCandidatePtr, Handle<ConversionCollection>, Handle<VertexCollection>, VertexRef*);  
+   static bool ComesFromConversion(const PFCandidateRef, Handle<ConversionCollection>, Handle<VertexCollection>, VertexRef*);  
 
    //function to find the best vertex for a pfCandidate 
-   static VertexRef FindPFCandVertex(const PFCandidatePtr, Handle<VertexCollection>);   
+   static VertexRef FindPFCandVertex(const PFCandidateRef, Handle<VertexCollection>);   
 
    //function to find out if the track comes from a V0 decay
-   static bool ComesFromV0Decay(const PFCandidatePtr, Handle<VertexCompositeCandidateCollection>, 
+   static bool ComesFromV0Decay(const PFCandidateRef, Handle<VertexCompositeCandidateCollection>, 
 	 	 	  	Handle<VertexCompositeCandidateCollection>, Handle<VertexCollection>, VertexRef*); 
 
    //function to find out if the track comes from a nuclear interaction
-   static bool ComesFromNI(const PFCandidatePtr, Handle<PFDisplacedVertexCollection>, PFDisplacedVertex*, const edm::EventSetup&);
+   static bool ComesFromNI(const PFCandidateRef, Handle<PFDisplacedVertexCollection>, PFDisplacedVertex*, const edm::EventSetup&);
    
-   static VertexRef FindNIVertex(const PFCandidatePtr, PFDisplacedVertex, Handle<VertexCollection>, bool, const edm::EventSetup&);  
+   static VertexRef FindNIVertex(const PFCandidateRef, PFDisplacedVertex, Handle<VertexCollection>, bool, const edm::EventSetup&);  
+
+   //function to sort the vertices in the AssociationMap by the sum of (pT - pT_Error)**2
+   static auto_ptr<PFCandVertexAssMap> SortAssociationMap(PFCandVertexAssMap*);
 
  protected:
   //protected functions 
