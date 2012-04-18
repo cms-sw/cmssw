@@ -59,9 +59,10 @@ namespace lumi{
       short instlumiquality;
       short lumisectionquality;
       short cmsalive;
+      unsigned int ncollidingbunches;
       std::string beammode;
       float beamenergy;
-      short nlivebx;
+      short nlivebx;//how much is in the beamintensity vector
       short* bxindex;
       float* beamintensity_1;
       float* beamintensity_2;
@@ -425,7 +426,7 @@ lumi::Lumi2DB::writeAllLumiDataToSchema2(
 			    float bgev,
 			    lumi::Lumi2DB::LumiResult::iterator lumiBeg,
 			    lumi::Lumi2DB::LumiResult::iterator lumiEnd	){
-
+  std::cout<<"writeAllLumiDataToSchema2"<<std::endl;
   coral::AttributeList summaryData;
   summaryData.extend("DATA_ID",typeid(unsigned long long));
   summaryData.extend("RUNNUM",typeid(unsigned int));
@@ -450,6 +451,7 @@ lumi::Lumi2DB::writeAllLumiDataToSchema2(
   summaryData.extend("BXLUMIVALUE_ET",typeid(coral::Blob));
   summaryData.extend("BXLUMIERROR_ET",typeid(coral::Blob));
   summaryData.extend("BXLUMIQUALITY_ET",typeid(coral::Blob));
+  summaryData.extend("NCOLLIDINGBUNCHES",typeid(unsigned int));
 
   unsigned long long& data_id=summaryData["DATA_ID"].data<unsigned long long>();
   unsigned int& lumirunnum = summaryData["RUNNUM"].data<unsigned int>();
@@ -474,6 +476,7 @@ lumi::Lumi2DB::writeAllLumiDataToSchema2(
   coral::Blob& bxlumivalue_occ2=summaryData["BXLUMIVALUE_OCC2"].data<coral::Blob>();
   coral::Blob& bxlumierror_occ2=summaryData["BXLUMIERROR_OCC2"].data<coral::Blob>();
   coral::Blob& bxlumiquality_occ2=summaryData["BXLUMIQUALITY_OCC2"].data<coral::Blob>();
+  unsigned int& ncollidingbunches = summaryData["NCOLLIDINGBUNCHES"].data<unsigned int>();
 
   lumi::Lumi2DB::LumiResult::const_iterator lumiIt;
   coral::IBulkOperation* summaryInserter=0;
@@ -508,6 +511,7 @@ lumi::Lumi2DB::writeAllLumiDataToSchema2(
   std::cout<<"inserting lumirundata "<<std::endl;
   revisionDML.insertLumiRunData(session->nominalSchema(),lumirundata);
   std::cout<<"inserting lslumi data"<<std::endl;
+  summaryData.toOutputStream(std::cout);
   for(lumiIt=lumiBeg;lumiIt!=lumiEnd;++lumiIt,++lumiindx){
     if(!session->transaction().isActive()){ 
       session->transaction().start(false);
@@ -530,6 +534,7 @@ lumi::Lumi2DB::writeAllLumiDataToSchema2(
     beamenergy = lumiIt->beamenergy;
     numorbit = lumiIt->numorbit;
     startorbit = lumiIt->startorbit;
+    ncollidingbunches = lumiIt->ncollidingbunches;
     short nlivebx=lumiIt->nlivebx;
     //std::cout<<"nlivebx "<<nlivebx<<std::endl;
     if(nlivebx!=0){
@@ -719,6 +724,9 @@ lumi::Lumi2DB::retrieveBeamIntensity(HCAL_HLX::DIP_COMBINED_DATA* dataPtr, Lumi2
       b.nlivebx=a;
    }
 }
+/**
+   retrieve lumi per ls data from root file
+ **/
 void 
 lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   lumi::Lumi2DB::LumiResult lumiresult;
@@ -817,7 +825,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
       h.cmsalive=0;
     }
     ++ncmslumi;
-    
+    h.ncollidingbunches=lumiheader->numBunches;
     h.bxET.reserve(lumi::N_BX);
     h.bxOCC1.reserve(lumi::N_BX);
     h.bxOCC2.reserve(lumi::N_BX);
