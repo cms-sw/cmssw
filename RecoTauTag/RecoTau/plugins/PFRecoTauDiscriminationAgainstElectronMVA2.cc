@@ -15,8 +15,10 @@ using namespace reco;
 
 class PFRecoTauDiscriminationAgainstElectronMVA2 : public PFTauDiscriminationProducerBase  {
 public:
-  explicit PFRecoTauDiscriminationAgainstElectronMVA2(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig) {
-    
+  explicit PFRecoTauDiscriminationAgainstElectronMVA2(const edm::ParameterSet& iConfig)
+    : PFTauDiscriminationProducerBase(iConfig),
+      mva_(0)
+  {    
     method_                                     = iConfig.getParameter<std::string>("method");
     inputFileName1prongBL_                      = iConfig.getParameter<edm::FileInPath>("inputFileName1prongBL");
     inputFileName1prongStripsWOgsfBL_           = iConfig.getParameter<edm::FileInPath>("inputFileName1prongStripsWOgsfBL");
@@ -91,20 +93,18 @@ private:
   double minMVA1prongStripsWgsfWpfEleMvaEC_ ;
   edm::InputTag srcGsfElectrons_;
   edm::Handle<reco::GsfElectronCollection> gsfElectrons_;
- 
-};
+ };
 
 void PFRecoTauDiscriminationAgainstElectronMVA2::beginEvent(const edm::Event& evt, const edm::EventSetup& es)
 {
   evt.getByLabel(srcGsfElectrons_, gsfElectrons_);
 }
 
-
 double PFRecoTauDiscriminationAgainstElectronMVA2::discriminate(const PFTauRef& thePFTauRef)
 {
   double mva          = -1.0;
   double workingPoint =  0.0;
-  float deltaRMin = 999;
+  double deltaRMin = 999.;
   if( (*thePFTauRef).leadPFChargedHadrCand().isNonnull()) {
     for ( reco::GsfElectronCollection::const_iterator theGsfElectron = gsfElectrons_->begin();
 	  theGsfElectron != gsfElectrons_->end(); ++theGsfElectron ) {
@@ -127,9 +127,11 @@ double PFRecoTauDiscriminationAgainstElectronMVA2::discriminate(const PFTauRef& 
     }
   }
 
-  return ( returnMVA_ ? mva : workingPoint);
-
-  }
-
+  //std::cout << "<PFRecoTauDiscriminationAgainstElectronMVA2::discriminate>:" << std::endl;
+  //std::cout << " tau: Pt = " << thePFTauRef->pt() << ", eta = " << thePFTauRef->eta() << ", phi = " << thePFTauRef->phi() << std::endl;
+  //std::cout << " mva = " << mva << ": workingPoint = " << workingPoint << std::endl;
+  
+  return ( returnMVA_ ? mva : workingPoint );
+}
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstElectronMVA2);
