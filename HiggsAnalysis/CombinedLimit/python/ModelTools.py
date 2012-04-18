@@ -247,7 +247,7 @@ class ModelBuilder(ModelBuilderBase):
                                                     args[0], errline[b][p], self.DC.exp[b][p], n)
                         if gamma != None:
                             raise RuntimeError, "More than one gmN uncertainty for the same bin and process (second one is %s)" % n
-                        gamma = n; nominal = errline[b][p]; factors.append(n)
+                        gamma = n; nominal = errline[b][p]; 
                     else: raise RuntimeError, "Unsupported pdf %s" % pdf
                 # optimize constants
                 if len(factors) + len(logNorms) + len(alogNorms) == 0:
