@@ -21,7 +21,7 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     debug = cms.untracked.bool(False),
 
     # Use HO clusters in PF hadron reconstruction
-    useHO = cms.bool(False),                                 
+    useHO = cms.bool(True),                                 
 
     # Use electron identification in PFAlgo
     usePFElectrons = cms.bool(True),
