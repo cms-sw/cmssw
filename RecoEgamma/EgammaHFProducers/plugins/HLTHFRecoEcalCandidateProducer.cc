@@ -24,11 +24,11 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
-#include "RecoEgamma/EgammaHFProducers/plugins/hltHFRecoEcalCandidateProducer.h"
+#include "RecoEgamma/EgammaHFProducers/plugins/HLTHFRecoEcalCandidateProducer.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-hltHFRecoEcalCandidateProducer::hltHFRecoEcalCandidateProducer(edm::ParameterSet const& conf):
+HLTHFRecoEcalCandidateProducer::HLTHFRecoEcalCandidateProducer(edm::ParameterSet const& conf):
   hfclusters_(conf.getParameter<edm::InputTag>("hfclusters")),
   HFDBversion_(conf.getUntrackedParameter<int>("HFDBversion",99)),//do nothing
   HFDBvector_(conf.getUntrackedParameter<std::vector<double> >("HFDBvector",defaultDB_)),
@@ -47,7 +47,7 @@ hltHFRecoEcalCandidateProducer::hltHFRecoEcalCandidateProducer(edm::ParameterSet
 
 } 
 
-void hltHFRecoEcalCandidateProducer::produce(edm::Event & e, edm::EventSetup const& iSetup) {  
+void HLTHFRecoEcalCandidateProducer::produce(edm::Event & e, edm::EventSetup const& iSetup) {  
   
   
   edm::Handle<reco::SuperClusterCollection> super_clus;

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # HF RecoEcalCandidate Producer
 #Values for specific electron cuts and "DataBase" version/vector format below code
-hltHFRecoEcalCandidate = cms.EDProducer("hltHFRecoEcalCandidateProducer",
+HLTHFRecoEcalCandidate = cms.EDProducer("HLTHFRecoEcalCandidateProducer",
                                         e9e25Cut = cms.double(0.94),
                                         hfclusters = cms.InputTag("hfEMClusters"),
                                         intercept2DCut = cms.double(0.7),
@@ -14,7 +14,7 @@ hltHFRecoEcalCandidate = cms.EDProducer("hltHFRecoEcalCandidateProducer",
                                         )
                                        
 
-#Electron Cuts for hlt
+#Electron Cuts for HLT
 ##                                      tight cut
 ##                                      intercept2DCut = cms.double(0.7),
 ##                                      intercept2DSlope = cms.double(0.475),

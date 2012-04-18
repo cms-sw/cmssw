@@ -23,9 +23,9 @@
 
 //#include "MagneticField/Engine/interface/MagneticField.h"
 
-class hltHFRecoEcalCandidateProducer : public edm::EDProducer {
+class HLTHFRecoEcalCandidateProducer : public edm::EDProducer {
 public:
-  explicit hltHFRecoEcalCandidateProducer(edm::ParameterSet const& conf);
+  explicit HLTHFRecoEcalCandidateProducer(edm::ParameterSet const& conf);
   virtual void produce(edm::Event& e, edm::EventSetup const& iSetup);
 private:
   edm::InputTag hfclusters_;
