@@ -27,7 +27,7 @@ process.selectedPrimaryVertexQuality = cms.EDFilter("VertexSelector",
 	filter = cms.bool(False),
 )
 
-### AssociationMap-specific includes		
+### GeneralTrack AssociationMap-specific includes		
 from CommonTools.RecoUtils.pf_pu_assomap_cfi import Tracks2Vertex
 		
 process.Tracks2VertexAM = Tracks2Vertex.clone(
@@ -36,18 +36,26 @@ process.Tracks2VertexAM = Tracks2Vertex.clone(
 	VertexAssUseAbsDistance = cms.untracked.bool(True),
 )
 		
+### PFCandidate AssociationMap-specific includes
+from CommonTools.RecoUtils.pfcand_assomap_cfi import PFCandAssoMap
+		
+process.PFCand2VertexAM = PFCandAssoMap.clone(
+          VertexCollection = cms.InputTag('selectedPrimaryVertexQuality'),
+          VertexTrackAssociationMap = cms.InputTag('Tracks2VertexAM'),
+)
+		
 ### PFCandidateCollection-specific includes
 from CommonTools.RecoUtils.pfcand_nopu_witham_cfi import FirstVertexPFCandidates
 		
 process.PFCand = FirstVertexPFCandidates.clone(
-          VertexCollection = cms.InputTag('selectedPrimaryVertexQuality'),
-          VertexTrackAssociationMap = cms.InputTag('Tracks2VertexAM'),
+          VertexPFCandAssociationMap = cms.InputTag('PFCand2VertexAM'),
 )
 
   
 process.p = cms.Path(  
 	  process.selectedPrimaryVertexQuality
 	* process.Tracks2VertexAM
+	* process.PFCand2VertexAM
 	* process.PFCand
 )
 		
