@@ -149,30 +149,30 @@ class SimpleAllocHashMultiMap {
             row = 0;
             std::cout << "  Key Items " << std::endl;
             for (typename std::list<KeyItem *>::iterator it = keyRows_.begin(), last = keyRows_.end(); it != last; ++it, ++row) {
-                KeyItem *last = *it + keyRowSize_;
+                KeyItem *lastI = *it + keyRowSize_;
                 std::cout << "   Key Row " << row <<  " (of size  " << keyRowSize_ << ")" << std::endl;
-                for (KeyItem *p = *it; p != last; ++p) {
+                for (KeyItem *p = *it; p != lastI; ++p) {
                     std::cout << "      @ " << p << " [" << p->key << ", @" << p->value <<"], next = " << p->next << std::endl;
                     if ((it == currentKeyRow_) && (p == nextKeyItem_ - 1)) {
                         std::cout << "      ^^^ this was the last valid item." << std::endl;
                         last = 0; break;
                     }
                 }
-                if (last == 0) break;
+                if (lastI == 0) break;
             }
             row = 0;
             std::cout << "  Value Items " << std::endl;
             for (typename std::list<ValueItem *>::iterator it = valueRows_.begin(), last = valueRows_.end(); it != last; ++it, ++row) {
-                ValueItem *last = *it + valueRowSize_;
+                ValueItem *lastI = *it + valueRowSize_;
                 std::cout << "   Value Row " << row <<  " (of size  " << valueRowSize_ << ")" << std::endl;
-                for (ValueItem *p = *it; p != last; ++p) {
+                for (ValueItem *p = *it; p != lastI; ++p) {
                     std::cout << "      @ " << p << " [" << p->value <<"], next = " << p->next << std::endl;
                     if ((it == currentValueRow_) && (p == nextValueItem_ - 1)) {
                         std::cout << "      ^^^ this was the last valid item." << std::endl;
                         last = 0; break;
                     }
                 }
-                if (last == 0) break;
+                if (lastI == 0) break;
             }
             std::cout << "  End of dump" << std::endl; 
             

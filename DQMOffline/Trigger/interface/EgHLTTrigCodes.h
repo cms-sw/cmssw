@@ -21,7 +21,7 @@ namespace egHLT {
   class TrigCodes {
     
   public:
-    static const int maxNrBits_=64;
+    static const int maxNrBits_=128;
     typedef std::bitset<maxNrBits_> TrigBitSet;
     
     class TrigBitSetMap {

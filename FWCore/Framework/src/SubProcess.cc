@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
+#include "FWCore/ParameterSet/interface/IllegalParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -67,6 +68,9 @@ namespace edm {
     boost::shared_ptr<ParameterSet> subProcessParameterSet(popSubProcessParameterSet(*processParameterSet).release());
   
     ScheduleItems items(*parentProductRegistry);
+
+    ParameterSet const& optionsPset(processParameterSet->getUntrackedParameterSet("options", ParameterSet()));
+    IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter", true));
 
     //initialize the services
     ServiceToken iToken;

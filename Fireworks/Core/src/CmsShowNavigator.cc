@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.107 2011/03/04 21:11:41 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.108 2011/03/09 12:14:27 amraktad Exp $
 //
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -76,7 +76,7 @@ CmsShowNavigator::openFile(const std::string& fileName)
    FWFileEntry* newFile = 0;
    try
    {
-      newFile = new FWFileEntry(fileName);
+      newFile = new FWFileEntry(fileName, m_main.getVersionCheck());
    }
    catch (std::exception& iException)
    {
@@ -123,7 +123,7 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool checkFileQueueSiz
    FWFileEntry* newFile  = 0;
    try
    {
-      newFile = new FWFileEntry(fileName);
+      newFile = new FWFileEntry(fileName, m_main.getVersionCheck());
    }
    catch(std::exception& iException)
    {

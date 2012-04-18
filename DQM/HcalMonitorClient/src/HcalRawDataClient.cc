@@ -16,8 +16,8 @@
 /*
  * \file HcalRawDataClient.cc
  * 
- * $Date: 2011/03/04 19:02:19 $
- * $Revision: 1.9 $
+ * $Date: 2011/04/12 18:25:42 $
+ * $Revision: 1.11 $
  * \author J. St. John
  * \brief Hcal Raw Data Client class
  */
@@ -51,6 +51,7 @@ HcalRawDataClient::HcalRawDataClient(std::string myname, const edm::ParameterSet
 						ps.getUntrackedParameter<int>("minevents",1));
 
   excludeHORing2_       = ps.getUntrackedParameter<bool>("excludeHOring2_backup",false);
+  Online_                = ps.getUntrackedParameter<bool>("online",false);
 
   ProblemCells=0;
   ProblemCellsByDepth=0;
@@ -217,7 +218,7 @@ void HcalRawDataClient::endJob(){}
 
 void HcalRawDataClient::stashHDI(int thehash, HcalDetId thehcaldetid) {
   //Let's not allow indexing off the array...
-  if ((thehash<0)||(thehash>(NUMDCCS*NUMSPGS*HTRCHANMAX)))return;
+  if ((thehash<0)||(thehash>=(NUMDCCS*NUMSPGS*HTRCHANMAX)))return;
   //...but still do the job requested.
   hashedHcalDetId_[thehash] = thehcaldetid;
 }

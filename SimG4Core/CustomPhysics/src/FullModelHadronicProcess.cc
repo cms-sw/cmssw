@@ -119,7 +119,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
 
   if(cloudParticle->GetDefinition() == 0) 
      {
-      std::cout << "FullModelHadronicProcess::PostStepDoIt  Definition of particle cloud not available!!" << std::endl;
+      std::cout << "ToyModelHadronicProcess::PostStepDoIt  Definition of particle cloud not available!!" << std::endl;
      }
   /*
   std::cout<<"Incoming particle was "<<IncidentRhadron->GetDefinition()->GetParticleName()<<". Corresponding cloud is "<<cloudParticle->GetDefinition()->GetParticleName()<<std::endl;
@@ -172,14 +172,15 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
     }
   
   // calculate black track energies
-  if(ek > 0.) {  tkin = targetNucleus.EvaporationEffects( ek );  ek -= tkin; } // AR_NEWCODE_IMPORT
+  
+  tkin = targetNucleus.EvaporationEffects( ek );
+  ek -= tkin;
   if(ek+gluinoMomentum.e()-gluinoMomentum.m()<=0.1*MeV||ek<=0.) {
     //Very rare event...
     G4cout<<"Kinetic energy is sick"<<G4endl;
     G4cout<<"Full R-hadron: "<<(ek+gluinoMomentum.e()-gluinoMomentum.m())/MeV<<" MeV" <<G4endl;
     G4cout<<"Quark system: "<<ek/MeV<<" MeV"<<G4endl;
-//    aParticleChange.ProposeTrackStatus( fStopAndKill ); // AR_NEWCODE_IMPORT
-    aParticleChange.ProposeTrackStatus( fStopButAlive ); // AR_NEWCODE_IMPORT
+    aParticleChange.ProposeTrackStatus( fStopAndKill );
     return &aParticleChange;
   }
   OrgPart->SetKineticEnergy( ek );
@@ -247,7 +248,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
 	  outgoingCloud=tempCust->GetCloud();
 	  if(outgoingCloud == 0) 
 	    {
-	      std::cout << "FullModelHadronicProcess::PostStepDoIt  Definition of outgoing particle cloud not available!!" << std::endl;
+	      std::cout << "ToyModelHadronicProcess::PostStepDoIt  Definition of outgoing particle cloud not available!!" << std::endl;
 	    }
 	  /*
 	  std::cout<<"Outgoing Rhadron is: "<<outgoingRhadron->GetParticleName()<<std::endl;
@@ -513,7 +514,10 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
       
       G4double aE = sqrt(p*p+(outgoingRhadron->GetPDGMass()*outgoingRhadron->GetPDGMass()) );
       e_kin = aE - outgoingRhadron->GetPDGMass();
-      /* AR_NEWCODE_IMPORT 
+      /*
+      G4cout<<"New momentum: "<<m/GeV<<" GeV"<<G4endl;
+      G4cout<<"Kinetic energy: "<<e_kin/GeV<<" GeV"<<G4endl;
+      */
       if(e_kin>e_kin_0) {
 	G4cout<<"ALAAAAARM!!!"<<G4endl;
 	G4cout<<"Energy loss: "<<(e_kin_0-e_kin)/GeV<<" GeV (should be positive)"<<G4endl;
@@ -528,7 +532,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
       if(std::abs(e_kin-e_kin_0)>100*GeV) {
 	G4cout<<"Diff. too big"<<G4endl;
       }
-          */
+
     }
   
   //    return G4VDiscreteProcess::PostStepDoIt( aTrack, aStep);

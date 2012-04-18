@@ -768,9 +768,9 @@
                 <SetOptStat>emruo</SetOptStat>
                 <Title>Plus Endcap CLCT0 BXN - CLCT_L1A BXN difference</Title>
                 <Type>h1</Type>
-                <XBins>32</XBins>
-                <XMax>16</XMax>
-                <XMin>-16</XMin>
+                <XBins>30</XBins>
+                <XMax>-140</XMax>
+                <XMin>-170</XMin>
                 <XTitle>CLCT0 BXN - CLCT_L1A BXN</XTitle>
                 <YTitle>Number of events</YTitle>
                 <Name>Plus_endcap_CLCT0_dTime</Name>
@@ -782,9 +782,9 @@
                 <SetOptStat>emruo</SetOptStat>
                 <Title>Minus Endcap CLCT0 BXN - CLCT_L1A BXN difference</Title>
                 <Type>h1</Type>
-                <XBins>32</XBins>
-                <XMax>16</XMax>
-                <XMin>-16</XMin>
+                <XBins>30</XBins>
+                <XMax>-140</XMax>
+                <XMin>-170</XMin>
                 <XTitle>CLCT0 BXN - CLCT_L1A BXN</XTitle>
                 <YTitle>Number of events</YTitle>
                 <Name>Minus_endcap_CLCT0_dTime</Name>

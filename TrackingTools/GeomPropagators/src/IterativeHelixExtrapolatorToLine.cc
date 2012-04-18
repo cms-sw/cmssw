@@ -31,26 +31,6 @@ IterativeHelixExtrapolatorToLine::IterativeHelixExtrapolatorToLine
   theCosTheta = pz/p;
   theSinTheta = pt/p;
 }
-
-
- /** Propagation status (true if valid) and (signed) path length
-   *  along the helix from the starting point to the closest approach.
-   *  to the point. The starting point is given in the constructor.
-   */
-  std::pair<bool,double> IterativeHelixExtrapolatorToLine::pathLength (const GlobalPoint& point) const {
-    return genericPathLength(point);
-  }
-
-  /** Propagation status (true if valid) and (signed) path length
-   *  along the helix from the starting point to the closest approach
-   *  to the line. The starting point is given in the constructor.
-   */
-  std::pair<bool,double> IterativeHelixExtrapolatorToLine::pathLength (const Line& line) const {
-    return genericPathLength(line);
-  }
-
-
-
 //
 // Propagation status and path length to intersection
 //

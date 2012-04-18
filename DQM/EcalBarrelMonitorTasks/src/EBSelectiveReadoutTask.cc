@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2011/03/03 22:05:50 $
- * $Revision: 1.52 $
+ * $Date: 2011/08/23 00:25:32 $
+ * $Revision: 1.53.2.1 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -210,118 +210,118 @@ void EBSelectiveReadoutTask::setup(void) {
 
   init_ = true;
 
-  char histo[200];
+  std::string name;
 
   if ( dqmStore_ ) {
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EBSelectiveReadoutTask");
 
-    sprintf(histo, "EBSRT tower event size");
-    EBTowerSize_ = dqmStore_->bookProfile2D(histo, histo, 72, 0, 72, 34, -17, 17, 100, 0, 200, "s");
+    name = "EBSRT tower event size";
+    EBTowerSize_ = dqmStore_->bookProfile2D(name, name, 72, 0, 72, 34, -17, 17, 100, 0, 200, "s");
     EBTowerSize_->setAxisTitle("jphi", 1);
     EBTowerSize_->setAxisTitle("jeta", 2);
 
-    sprintf(histo, "EBSRT TT flag mismatch");
-    EBTTFMismatch_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
+    name = "EBSRT TT flag mismatch";
+    EBTTFMismatch_ = dqmStore_->book2D(name, name, 72, 0, 72, 34, -17, 17);
     EBTTFMismatch_->setAxisTitle("jphi", 1);
     EBTTFMismatch_->setAxisTitle("jeta", 2);
 
-    sprintf(histo, "EBSRT DCC event size");
-    EBDccEventSize_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 200., "s");
+    name = "EBSRT DCC event size";
+    EBDccEventSize_ = dqmStore_->bookProfile(name, name, 36, 1, 37, 100, 0., 200., "s");
     EBDccEventSize_->setAxisTitle("event size (kB)", 2);
     for (int i = 0; i < 36; i++) {
-      EBDccEventSize_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+      EBDccEventSize_->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
-    sprintf(histo, "EBSRT event size vs DCC");
-    EBDccEventSizeMap_ = dqmStore_->book2D(histo, histo, 36, xbins, 88, ybins);
+    name = "EBSRT event size vs DCC";
+    EBDccEventSizeMap_ = dqmStore_->book2D(name, name, 36, xbins, 88, ybins);
     EBDccEventSizeMap_->setAxisTitle("event size (kB)", 2);
     for (int i = 0; i < 36; i++) {
-      EBDccEventSizeMap_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+      EBDccEventSizeMap_->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
-    sprintf(histo, "EBSRT readout unit with SR forced");
-    EBReadoutUnitForcedBitMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
+    name = "EBSRT readout unit with SR forced";
+    EBReadoutUnitForcedBitMap_ = dqmStore_->book2D(name, name, 72, 0, 72, 34, -17, 17);
     EBReadoutUnitForcedBitMap_->setAxisTitle("jphi", 1);
     EBReadoutUnitForcedBitMap_->setAxisTitle("jeta", 2);
     EBReadoutUnitForcedBitMap_->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EBSRT full readout SR Flags");
-    EBFullReadoutSRFlagMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
+    name = "EBSRT full readout SR Flags";
+    EBFullReadoutSRFlagMap_ = dqmStore_->book2D(name, name, 72, 0, 72, 34, -17, 17);
     EBFullReadoutSRFlagMap_->setAxisTitle("jphi", 1);
     EBFullReadoutSRFlagMap_->setAxisTitle("jeta", 2);
     EBFullReadoutSRFlagMap_->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EBSRT full readout SR Flags Number");
-    EBFullReadoutSRFlagCount_ = dqmStore_->book1D(histo, histo, 200, 0., 200.);
+    name = "EBSRT full readout SR Flags Number";
+    EBFullReadoutSRFlagCount_ = dqmStore_->book1D(name, name, 200, 0., 200.);
     EBFullReadoutSRFlagCount_->setAxisTitle("Readout Units number", 1);
 
-    sprintf(histo, "EBSRT zero suppression 1 SR Flags");
-    EBZeroSuppression1SRFlagMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
+    name = "EBSRT zero suppression 1 SR Flags";
+    EBZeroSuppression1SRFlagMap_ = dqmStore_->book2D(name, name, 72, 0, 72, 34, -17, 17);
     EBZeroSuppression1SRFlagMap_->setAxisTitle("jphi", 1);
     EBZeroSuppression1SRFlagMap_->setAxisTitle("jeta", 2);
     EBZeroSuppression1SRFlagMap_->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EBSRT high interest TT Flags");
-    EBHighInterestTriggerTowerFlagMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
+    name = "EBSRT high interest TT Flags";
+    EBHighInterestTriggerTowerFlagMap_ = dqmStore_->book2D(name, name, 72, 0, 72, 34, -17, 17);
     EBHighInterestTriggerTowerFlagMap_->setAxisTitle("jphi", 1);
     EBHighInterestTriggerTowerFlagMap_->setAxisTitle("jeta", 2);
     EBHighInterestTriggerTowerFlagMap_->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EBSRT medium interest TT Flags");
-    EBMediumInterestTriggerTowerFlagMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
+    name = "EBSRT medium interest TT Flags";
+    EBMediumInterestTriggerTowerFlagMap_ = dqmStore_->book2D(name, name, 72, 0, 72, 34, -17, 17);
     EBMediumInterestTriggerTowerFlagMap_->setAxisTitle("jphi", 1);
     EBMediumInterestTriggerTowerFlagMap_->setAxisTitle("jeta", 2);
     EBMediumInterestTriggerTowerFlagMap_->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EBSRT low interest TT Flags");
-    EBLowInterestTriggerTowerFlagMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
+    name = "EBSRT low interest TT Flags";
+    EBLowInterestTriggerTowerFlagMap_ = dqmStore_->book2D(name, name, 72, 0, 72, 34, -17, 17);
     EBLowInterestTriggerTowerFlagMap_->setAxisTitle("jphi", 1);
     EBLowInterestTriggerTowerFlagMap_->setAxisTitle("jeta", 2);
     EBLowInterestTriggerTowerFlagMap_->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EBSRT TT Flags");
-    EBTTFlags_ = dqmStore_->book1D(histo, histo, 8, 0., 8.);
+    name = "EBSRT TT Flags";
+    EBTTFlags_ = dqmStore_->book1D(name, name, 8, 0., 8.);
     EBTTFlags_->setAxisTitle("TT Flag value", 1);
 
-    sprintf(histo, "EBSRT ZS Flagged Fully Readout");
-    EBCompleteZSMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
+    name = "EBSRT ZS Flagged Fully Readout";
+    EBCompleteZSMap_ = dqmStore_->book2D(name, name, 72, 0, 72, 34, -17, 17);
     EBCompleteZSMap_->setAxisTitle("jphi", 1);
     EBCompleteZSMap_->setAxisTitle("jeta", 2);
     EBCompleteZSMap_->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EBSRT ZS Flagged Fully Readout Number");
-    EBCompleteZSCount_ = dqmStore_->book1D(histo, histo, 20, 0., 20.);
+    name = "EBSRT ZS Flagged Fully Readout Number";
+    EBCompleteZSCount_ = dqmStore_->book1D(name, name, 20, 0., 20.);
     EBCompleteZSCount_->setAxisTitle("Readout Units number", 1);
 
-    sprintf(histo, "EBSRT FR Flagged Dropped Readout");
-    EBDroppedFRMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
+    name = "EBSRT FR Flagged Dropped Readout";
+    EBDroppedFRMap_ = dqmStore_->book2D(name, name, 72, 0, 72, 34, -17, 17);
     EBDroppedFRMap_->setAxisTitle("jphi", 1);
     EBDroppedFRMap_->setAxisTitle("jeta", 2);
     EBDroppedFRMap_->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EBSRT FR Flagged Dropped Readout Number");
-    EBDroppedFRCount_ = dqmStore_->book1D(histo, histo, 20, 0., 20.);
+    name = "EBSRT FR Flagged Dropped Readout Number";
+    EBDroppedFRCount_ = dqmStore_->book1D(name, name, 20, 0., 20.);
     EBDroppedFRCount_->setAxisTitle("Readout Units number", 1);
 
-    sprintf(histo, "EBSRT event size");
-    EBEventSize_ = dqmStore_->book1D(histo, histo, 100, 0, 200);
+    name = "EBSRT event size";
+    EBEventSize_ = dqmStore_->book1D(name, name, 100, 0, 200);
     EBEventSize_->setAxisTitle("event size (kB)",1);
 
-    sprintf(histo, "EBSRT high interest payload");
-    EBHighInterestPayload_ =  dqmStore_->book1D(histo, histo, 100, 0, 200);
+    name = "EBSRT high interest payload";
+    EBHighInterestPayload_ =  dqmStore_->book1D(name, name, 100, 0, 200);
     EBHighInterestPayload_->setAxisTitle("event size (kB)",1);
 
-    sprintf(histo, "EBSRT low interest payload");
-    EBLowInterestPayload_ =  dqmStore_->book1D(histo, histo, 100, 0, 200);
+    name = "EBSRT low interest payload";
+    EBLowInterestPayload_ =  dqmStore_->book1D(name, name, 100, 0, 200);
     EBLowInterestPayload_->setAxisTitle("event size (kB)",1);
 
-    sprintf(histo, "EBSRT high interest ZS filter output");
-    EBHighInterestZsFIR_ = dqmStore_->book1D(histo, histo, 60, -30, 30);
+    name = "EBSRT high interest ZS filter output";
+    EBHighInterestZsFIR_ = dqmStore_->book1D(name, name, 60, -30, 30);
     EBHighInterestZsFIR_->setAxisTitle("ADC counts*4",1);
 
-    sprintf(histo, "EBSRT low interest ZS filter output");
-    EBLowInterestZsFIR_ = dqmStore_->book1D(histo, histo, 60, -30, 30);
+    name = "EBSRT low interest ZS filter output";
+    EBLowInterestZsFIR_ = dqmStore_->book1D(name, name, 60, -30, 30);
     EBLowInterestZsFIR_->setAxisTitle("ADC counts*4",1);
 
   }

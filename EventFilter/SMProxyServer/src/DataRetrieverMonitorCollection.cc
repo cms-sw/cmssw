@@ -1,4 +1,4 @@
-// $Id: DataRetrieverMonitorCollection.cc,v 1.1.4.2 2011/03/07 12:01:12 mommsen Exp $
+// $Id: DataRetrieverMonitorCollection.cc,v 1.2 2011/03/07 15:41:55 mommsen Exp $
 /// @file: DataRetrieverMonitorCollection.cc
 
 #include <string>
@@ -15,11 +15,13 @@ namespace smproxy {
   
   DataRetrieverMonitorCollection::DataRetrieverMonitorCollection
   (
-    const stor::utils::Duration_t& updateInterval
+    const stor::utils::Duration_t& updateInterval,
+    stor::AlarmHandlerPtr alarmHandler
   ) :
   MonitorCollection(updateInterval),
-  totalSize_(updateInterval, boost::posix_time::seconds(60)),
   updateInterval_(updateInterval),
+  alarmHandler_(alarmHandler),
+  totals_(updateInterval),
   eventTypeMqMap_(updateInterval)
   {}
   
@@ -39,10 +41,9 @@ namespace smproxy {
     
     eventTypeMqMap_.insert(regPtr);
     
-    connectionMqMap_.insert(ConnectionMqMap::value_type(regPtr->sourceURL(),
-        stor::MonitoredQuantityPtr(
-          new stor::MonitoredQuantity(updateInterval_, boost::posix_time::seconds(60))
-        )
+    connectionMqMap_.insert(ConnectionMqMap::value_type(
+        regPtr->sourceURL(),
+        EventMQPtr(new EventMQ(updateInterval_))
       ));
     
     return nextConnectionId_;
@@ -66,7 +67,7 @@ namespace smproxy {
   bool DataRetrieverMonitorCollection::getEventTypeStatsForConnection
   (
     const ConnectionID& connectionId,
-    EventTypeStats& stats
+    EventTypePerConnectionStats& stats
   )
   {
     boost::mutex::scoped_lock sl(statsMutex_);
@@ -76,7 +77,7 @@ namespace smproxy {
     
     stats.regPtr = pos->second->regPtr_;
     stats.connectionStatus = pos->second->connectionStatus_;
-    pos->second->size_.getStats(stats.sizeStats);
+    pos->second->eventMQ_->getStats(stats.eventStats);
     
     return true;
   }
@@ -94,7 +95,7 @@ namespace smproxy {
     if ( retrieverPos == retrieverMqMap_.end() ) return false;
     
     const double sizeKB = static_cast<double>(size) / 1024;
-    retrieverPos->second->size_.addSample(sizeKB);
+    retrieverPos->second->eventMQ_->size_.addSample(sizeKB);
     
     const stor::RegPtr regPtr = retrieverPos->second->regPtr_;
     
@@ -102,10 +103,36 @@ namespace smproxy {
     
     const std::string sourceURL = regPtr->sourceURL();
     ConnectionMqMap::const_iterator connectionPos = connectionMqMap_.find(sourceURL);
-    connectionPos->second->addSample(sizeKB);
+    connectionPos->second->size_.addSample(sizeKB);
     
-    totalSize_.addSample(sizeKB);
+    totals_.size_.addSample(sizeKB);
     
+    return true;
+  }
+  
+  
+  bool DataRetrieverMonitorCollection::receivedCorruptedEvent
+  (
+    const ConnectionID& connectionId
+  )
+  {
+    boost::mutex::scoped_lock sl(statsMutex_);
+    
+    RetrieverMqMap::const_iterator retrieverPos = retrieverMqMap_.find(connectionId);
+    if ( retrieverPos == retrieverMqMap_.end() ) return false;
+    
+    retrieverPos->second->eventMQ_->corruptedEvents_.addSample(1);
+    
+    const stor::RegPtr regPtr = retrieverPos->second->regPtr_;
+    
+    eventTypeMqMap_.receivedCorruptedEvent(regPtr);
+    
+    const std::string sourceURL = regPtr->sourceURL();
+    ConnectionMqMap::const_iterator connectionPos = connectionMqMap_.find(sourceURL);
+    connectionPos->second->corruptedEvents_.addSample(1);
+    
+    totals_.corruptedEvents_.addSample(1);
+
     return true;
   }
   
@@ -127,7 +154,7 @@ namespace smproxy {
     
     eventTypeMqMap_.getStats(stats.eventTypeStats);
     
-    totalSize_.getStats(stats.sizeStats);
+    totals_.getStats(stats.totals);
   }
   
   
@@ -139,14 +166,17 @@ namespace smproxy {
     for (ConnectionMqMap::const_iterator it = connectionMqMap_.begin(),
            itEnd = connectionMqMap_.end(); it != itEnd; ++it)
     {
-      stor::MonitoredQuantity::Stats stats;
+      EventStats stats;
       it->second->getStats(stats);
       cs.insert(ConnectionStats::value_type(it->first, stats));
     }
   }
   
   
-  void DataRetrieverMonitorCollection::getStatsByEventTypes(EventTypeStatList& etsl) const
+  void DataRetrieverMonitorCollection::getStatsByEventTypesPerConnection
+  (
+    EventTypePerConnectionStatList& etsl
+  ) const
   {
     boost::mutex::scoped_lock sl(statsMutex_);
     etsl.clear();
@@ -155,13 +185,50 @@ namespace smproxy {
            itEnd = retrieverMqMap_.end(); it != itEnd; ++it)
     {
       const DataRetrieverMQPtr mq = it->second;
-      EventTypeStats stats;
+      EventTypePerConnectionStats stats;
       stats.regPtr = mq->regPtr_;
       stats.connectionStatus = mq->connectionStatus_;
-      mq->size_.getStats(stats.sizeStats);
+      mq->eventMQ_->getStats(stats.eventStats);
       etsl.push_back(stats);
     }
     std::sort(etsl.begin(), etsl.end());
+  }
+  
+  
+  void DataRetrieverMonitorCollection::configureAlarms(AlarmParams const& alarmParams)
+  {
+    alarmParams_ = alarmParams;
+  }
+  
+  
+  void DataRetrieverMonitorCollection::sendAlarms()
+  {
+    if ( ! alarmParams_.sendAlarms_ ) return;
+    
+    checkForCorruptedEvents();
+  }
+  
+  
+  void DataRetrieverMonitorCollection::checkForCorruptedEvents()
+  {
+    const std::string alarmName = "CorruptedEvents";
+    
+    EventStats eventStats;
+    totals_.getStats(eventStats);
+    const double corruptedEventRate =
+      eventStats.corruptedEventsStats.getValueRate(stor::MonitoredQuantity::RECENT);
+    if ( corruptedEventRate > alarmParams_.corruptedEventRate_ )
+    {
+      std::ostringstream msg;
+      msg << "Received " << corruptedEventRate << " Hz of corrupted events from StorageManagers.";
+      XCEPT_DECLARE(exception::CorruptedEvents, ex, msg.str());
+      alarmHandler_->raiseAlarm(alarmName, stor::AlarmHandler::ERROR, ex);
+    }
+    else if ( corruptedEventRate < (alarmParams_.corruptedEventRate_ * 0.9) )
+      // avoid revoking the alarm if we're close to the limit
+    {
+      alarmHandler_->revokeAlarm(alarmName);
+    }
   }
   
   
@@ -169,12 +236,12 @@ namespace smproxy {
   {
     boost::mutex::scoped_lock sl(statsMutex_);
     
-    totalSize_.calculateStatistics();
+    totals_.calculateStatistics();
     
     for (RetrieverMqMap::const_iterator it = retrieverMqMap_.begin(),
            itEnd = retrieverMqMap_.end(); it != itEnd; ++it)
     {
-      it->second->size_.calculateStatistics();
+      it->second->eventMQ_->calculateStatistics();
     }
     
     for (ConnectionMqMap::const_iterator it = connectionMqMap_.begin(),
@@ -184,13 +251,15 @@ namespace smproxy {
     }
     
     eventTypeMqMap_.calculateStatistics();
+
+    sendAlarms();
   }
   
   
   void DataRetrieverMonitorCollection::do_reset()
   {
     boost::mutex::scoped_lock sl(statsMutex_);
-    totalSize_.reset();
+    totals_.reset();
     retrieverMqMap_.clear();
     connectionMqMap_.clear();
     eventTypeMqMap_.clear();
@@ -217,6 +286,16 @@ namespace smproxy {
   }
   
   
+  bool DataRetrieverMonitorCollection::EventTypeMqMap::
+  receivedCorruptedEvent(const stor::RegPtr consumer)
+  {
+    return (
+      receivedCorruptedEvent(boost::dynamic_pointer_cast<stor::EventConsumerRegistrationInfo>(consumer)) ||
+      receivedCorruptedEvent(boost::dynamic_pointer_cast<stor::DQMEventConsumerRegistrationInfo>(consumer))
+    );
+  }
+  
+  
   void DataRetrieverMonitorCollection::EventTypeMqMap::
   getStats(SummaryStats::EventTypeStatList& eventTypeStats) const
   {
@@ -226,19 +305,21 @@ namespace smproxy {
     for (EventMap::const_iterator it = eventMap_.begin(),
            itEnd = eventMap_.end(); it != itEnd; ++it)
     {
-      stor::MonitoredQuantity::Stats etStats;
-      it->second->getStats(etStats);
+      EventStats eventStats;
+      it->second->size_.getStats(eventStats.sizeStats);
+      it->second->corruptedEvents_.getStats(eventStats.corruptedEventsStats);
       eventTypeStats.push_back(
-        std::make_pair(it->first, etStats));
+        std::make_pair(it->first, eventStats));
     }
     
     for (DQMEventMap::const_iterator it = dqmEventMap_.begin(),
            itEnd = dqmEventMap_.end(); it != itEnd; ++it)
     {
-      stor::MonitoredQuantity::Stats etStats;
-      it->second->getStats(etStats);
+      EventStats eventStats;
+      it->second->size_.getStats(eventStats.sizeStats);
+      it->second->corruptedEvents_.getStats(eventStats.corruptedEventsStats);
       eventTypeStats.push_back(
-        std::make_pair(it->first, etStats));
+        std::make_pair(it->first, eventStats));
     }
   }
   
@@ -249,12 +330,14 @@ namespace smproxy {
     for (EventMap::iterator it = eventMap_.begin(),
            itEnd = eventMap_.end(); it != itEnd; ++it)
     {
-      it->second->calculateStatistics();
+      it->second->size_.calculateStatistics();
+      it->second->corruptedEvents_.calculateStatistics();
     }
     for (DQMEventMap::iterator it = dqmEventMap_.begin(),
            itEnd = dqmEventMap_.end(); it != itEnd; ++it)
     {
-      it->second->calculateStatistics();
+      it->second->size_.calculateStatistics();
+      it->second->corruptedEvents_.calculateStatistics();
     }
   }
   
@@ -272,9 +355,8 @@ namespace smproxy {
   {
     if ( eventConsumer == 0 ) return false;
     eventMap_.insert(EventMap::value_type(eventConsumer,
-        stor::MonitoredQuantityPtr(
-          new stor::MonitoredQuantity( updateInterval_, boost::posix_time::seconds(60) )
-        )));
+        EventMQPtr( new EventMQ(updateInterval_) )
+      ));
     return true;
   }
   
@@ -284,9 +366,8 @@ namespace smproxy {
   {
     if ( dqmEventConsumer == 0 ) return false;
     dqmEventMap_.insert(DQMEventMap::value_type(dqmEventConsumer,
-        stor::MonitoredQuantityPtr(
-          new stor::MonitoredQuantity( updateInterval_, boost::posix_time::seconds(60) )
-        )));
+        EventMQPtr( new EventMQ(updateInterval_) )
+      ));
     return true;
   }
   
@@ -296,7 +377,7 @@ namespace smproxy {
   {
     if ( eventConsumer == 0 ) return false;
     EventMap::const_iterator pos = eventMap_.find(eventConsumer);
-    pos->second->addSample(sizeKB);
+    pos->second->size_.addSample(sizeKB);
     return true;
   }
   
@@ -306,12 +387,33 @@ namespace smproxy {
   {
     if ( dqmEventConsumer == 0 ) return false;
     DQMEventMap::const_iterator pos = dqmEventMap_.find(dqmEventConsumer);
-    pos->second->addSample(sizeKB);
+    pos->second->size_.addSample(sizeKB);
     return true;
   }
   
   
-  bool DataRetrieverMonitorCollection::EventTypeStats::operator<(const EventTypeStats& other) const
+  bool DataRetrieverMonitorCollection::EventTypeMqMap::
+  receivedCorruptedEvent(const stor::EventConsRegPtr eventConsumer)
+  {
+    if ( eventConsumer == 0 ) return false;
+    EventMap::const_iterator pos = eventMap_.find(eventConsumer);
+    pos->second->corruptedEvents_.addSample(1);
+    return true;
+  }
+  
+  
+  bool DataRetrieverMonitorCollection::EventTypeMqMap::
+  receivedCorruptedEvent(const stor::DQMEventConsRegPtr dqmEventConsumer)
+  {
+    if ( dqmEventConsumer == 0 ) return false;
+    DQMEventMap::const_iterator pos = dqmEventMap_.find(dqmEventConsumer);
+    pos->second->corruptedEvents_.addSample(1);
+    return true;
+  }
+  
+  
+  bool DataRetrieverMonitorCollection::EventTypePerConnectionStats::
+  operator<(const EventTypePerConnectionStats& other) const
   {
     if ( regPtr->sourceURL() != other.regPtr->sourceURL() )
       return ( regPtr->sourceURL() < other.regPtr->sourceURL() );
@@ -334,6 +436,36 @@ namespace smproxy {
   }
   
   
+  DataRetrieverMonitorCollection::EventMQ::EventMQ
+  (
+    const stor::utils::Duration_t& updateInterval
+  ):
+  size_(updateInterval, boost::posix_time::seconds(60)),
+  corruptedEvents_(updateInterval, boost::posix_time::seconds(60))
+  {}
+
+
+  void DataRetrieverMonitorCollection::EventMQ::getStats(EventStats& stats) const
+  {
+    size_.getStats(stats.sizeStats);
+    corruptedEvents_.getStats(stats.corruptedEventsStats);
+  }
+  
+  
+  void DataRetrieverMonitorCollection::EventMQ::calculateStatistics()
+  {
+    size_.calculateStatistics();
+    corruptedEvents_.calculateStatistics();
+  }
+  
+  
+  void DataRetrieverMonitorCollection::EventMQ::reset()
+  {
+    size_.reset();
+    corruptedEvents_.reset();
+  }
+  
+  
   DataRetrieverMonitorCollection::DataRetrieverMQ::DataRetrieverMQ
   (
     const stor::RegPtr regPtr,
@@ -341,7 +473,7 @@ namespace smproxy {
   ):
   regPtr_(regPtr),
   connectionStatus_(UNKNOWN),
-  size_(updateInterval, boost::posix_time::seconds(60))
+  eventMQ_(new EventMQ(updateInterval))
   {}
   
 } // namespace smproxy

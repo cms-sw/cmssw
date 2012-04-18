@@ -144,6 +144,7 @@ private:
   bool nonModule_debugEnabled;
   bool nonModule_infoEnabled;
   bool nonModule_warningEnabled;  
+  bool nonModule_errorEnabled;  
   
 };  // MessageLogger
 

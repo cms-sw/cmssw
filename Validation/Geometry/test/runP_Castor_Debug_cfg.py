@@ -31,17 +31,11 @@ process.MessageLogger = cms.Service("MessageLogger",
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        G4cerr = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        G4cout = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         MaterialBudget = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         )
     ),
-    categories = cms.untracked.vstring('G4cerr','G4cout','MaterialBudget'),
+    categories = cms.untracked.vstring('MaterialBudget'),
     destinations = cms.untracked.vstring('cout')
 )
 
@@ -53,8 +47,8 @@ process.source = cms.Source("EmptySource",
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
         PartID = cms.vint32(14),
-        MinEta = cms.double(-5.65),
-        MaxEta = cms.double(-5.55),
+        MinEta = cms.double(5.0),
+        MaxEta = cms.double(7.0),
         MinPhi = cms.double(-3.14159265359),
         MaxPhi = cms.double(3.14159265359),
         MinE   = cms.double(10.0),
@@ -85,25 +79,12 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         DoHCAL       = cms.untracked.bool(False),
         NBinPhi      = cms.untracked.int32(180),
         NBinEta      = cms.untracked.int32(100),
-        EtaLow       = cms.untracked.double(-7.0),
-        EtaHigh      = cms.untracked.double(-5.0),
+        EtaLow       = cms.untracked.double(5.0),
+        EtaHigh      = cms.untracked.double(7.0),
         RMax         = cms.untracked.double(1.0),
         ZMax         = cms.untracked.double(18.0)
     ),
-    type = cms.string('MaterialBudgetHcal')),
-cms.PSet(
-    CheckForHighEtPhotons = cms.untracked.bool(False),
-    TrackMin     = cms.untracked.int32(0),
-    TrackMax     = cms.untracked.int32(999999999),
-    TrackStep    = cms.untracked.int32(1),
-    EventMin     = cms.untracked.int32(0),
-    EventMax     = cms.untracked.int32(0),
-    EventStep    = cms.untracked.int32(1),
-    PDGids       = cms.untracked.vint32(),
-    VerboseLevel = cms.untracked.int32(0),
-    G4Verbose    = cms.untracked.bool(True),
-    DEBUG        = cms.untracked.bool(False),
-    type      = cms.string('TrackingVerboseAction')
+    type = cms.string('MaterialBudgetHcal')
 ))
 
 

@@ -1,7 +1,7 @@
 #ifndef _TRACKER_CURVILINEARTRAJECTORYERROR_H_
 #define _TRACKER_CURVILINEARTRAJECTORYERROR_H_
 
-#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/Math/interface/Error.h"
 
 /** Parametrization of the error matrix in the curvilinear frame.
@@ -37,6 +37,14 @@ public:
   /** Constructing class from a full covariance matrix. The sequence of the parameters is
    *  the same as the one described above.
    */
+
+  CurvilinearTrajectoryError(const AlgebraicSymMatrix& aCovarianceMatrix) :
+    theCovarianceMatrix(asSMatrix<5>(aCovarianceMatrix)) {}
+
+  /** Constructing class from a full covariance matrix. The sequence of the parameters is
+   *  the same as the one described above.
+   */
+
   CurvilinearTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix) :
     theCovarianceMatrix(aCovarianceMatrix) { }
 
@@ -49,6 +57,15 @@ public:
 
   /** Returning the covariance matrix.
    */
+
+  const AlgebraicSymMatrix matrix_old() const {
+    return asHepMatrix(theCovarianceMatrix);
+  }
+
+  /** Returning the covariance matrix.
+   */
+
+  //const AlgebraicSymMatrix55 &matrix() const {
   const AlgebraicSymMatrix55 &matrix() const {
     return theCovarianceMatrix;
   }

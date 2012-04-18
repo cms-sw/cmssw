@@ -108,7 +108,7 @@ RefCountedKinematicTree LagrangeParentParticleFitter::fit(RefCountedKinematicTre
 //replacing the  vertex with its refitted version
   GlobalPoint nvPos(param.vector()(1), param.vector()(2), param.vector()(3)); 
   AlgebraicSymMatrix nvMatrix = er.matrix().sub(1,3);
-  GlobalError nvError(asSMatrix<3>(nvMatrix));
+  GlobalError nvError(nvMatrix);
   VertexState vState(nvPos, nvError, 1.0);
   KinematicVertexFactory vFactory;
   RefCountedKinematicVertex nVertex = vFactory.vertex(vState, inVertex,chi,ndf);
@@ -262,7 +262,7 @@ std::vector<RefCountedKinematicTree>  LagrangeParentParticleFitter::fit(std::vec
 //replacing the  vertex with its refitted version
   GlobalPoint nvPos(param.position()); 
   AlgebraicSymMatrix nvMatrix = asHepMatrix<7>(er.matrix()).sub(1,3);
-  GlobalError nvError(asSMatrix<3>(nvMatrix));
+  GlobalError nvError(nvMatrix);
   VertexState vState(nvPos, nvError, 1.0);
   KinematicVertexFactory vFactory;
   RefCountedKinematicVertex nVertex = vFactory.vertex(vState,inVertex,chi(j),ndf(j));

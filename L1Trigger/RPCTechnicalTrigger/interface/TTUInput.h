@@ -1,4 +1,4 @@
-// $Id: TTUInput.h,v 1.7 2009/08/19 15:04:01 aosorio Exp $
+// $Id: TTUInput.h,v 1.6 2009/06/17 15:27:24 aosorio Exp $
 #ifndef INTERFACE_TTUINPUT_H 
 #define INTERFACE_TTUINPUT_H 1
 
@@ -51,7 +51,9 @@ public:
   void reset();
   
   int m_bx;
+  
   int m_wheelId;
+  
   bool m_hasHits;
   
   std::bitset<6>  * input_sec;

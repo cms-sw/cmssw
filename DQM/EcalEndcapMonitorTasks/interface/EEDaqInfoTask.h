@@ -4,8 +4,8 @@
 /*
  * \file EEDaqInfoTask.h
  *
- * $Date: 2010/08/08 08:46:05 $
- * $Revision: 1.132 $
+ * $Date: 2010/08/08 08:56:00 $
+ * $Revision: 1.4 $
  * \author E. Di Marco
  *
 */
@@ -13,6 +13,8 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
 class EEDaqInfoTask: public edm::EDAnalyzer{
 
@@ -52,10 +54,13 @@ void reset(void);
 
 /// Cleanup
 void cleanup(void);
+
+ static const int DccId_[18];
+ static const int nTowerMax_;
   
 private:
 
-void fillMonitorElements(int ready[40][20]);
+ void fillMonitorElements(int ready[40][20], const EcalElectronicsMapping *);
   
 DQMStore* dqmStore_;
 
@@ -73,5 +78,9 @@ int readyRun[40][20];
 int readyLumi[40][20];
 
 };
+
+const int EEDaqInfoTask::DccId_[18] = {1,2,3,4,5,6,7,8,9,
+				       46,47,48,49,50,51,52,53,54};
+const int EEDaqInfoTask::nTowerMax_ = 44;
 
 #endif

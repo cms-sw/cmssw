@@ -3,9 +3,9 @@
 /** \class ConversionTrackCandidateProducer
  **  
  **
- **  $Id: ConversionTrackCandidateProducer.h,v 1.14 2009/03/04 21:19:55 nancy Exp $ 
- **  $Date: 2009/03/04 21:19:55 $ 
- **  $Revision: 1.14 $
+ **  $Id: ConversionTrackCandidateProducer.h,v 1.15 2009/05/12 16:46:05 nancy Exp $ 
+ **  $Date: 2009/05/12 16:46:05 $ 
+ **  $Revision: 1.15 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -30,6 +30,9 @@
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 class OutInConversionSeedFinder;
 class InOutConversionSeedFinder;
@@ -70,10 +73,26 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   edm::InputTag scIslandEndcapProducer_;
   edm::ParameterSet conf_;
   edm::InputTag hcalTowers_;
+  edm::InputTag barrelecalCollection_;
+  edm::InputTag endcapecalCollection_;
+
+
  
   double hOverEConeSize_;
   double maxHOverE_;
   double minSCEt_;
+  double isoConeR_   ;   
+  double isoInnerConeR_ ;
+  double isoEtaSlice_   ;
+  double isoEtMin_      ;
+  double isoEMin_       ;
+  bool   vetoClusteredHits_ ;
+  bool   useNumXtals_;
+  int severityLevelCut_;
+  std::vector<int> v_chstatus_;
+  double ecalIsoCut_offset_;
+  double ecalIsoCut_slope_;
+
 
   edm::ESHandle<CaloGeometry> theCaloGeom_;  
 
@@ -90,12 +109,17 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   std::vector<edm::Ref<reco::SuperClusterCollection> > vecOfSCRefForOutIn;  
   std::vector<edm::Ref<reco::SuperClusterCollection> > vecOfSCRefForInOut;  
   
-  void buildCollections( const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
-			 const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
-			 const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
-			 TrackCandidateCollection& outInTracks,
-			 TrackCandidateCollection& inOutTracks,
-			 std::vector<edm::Ptr<reco::CaloCluster> >& vecRecOI,
+  void buildCollections(bool detector, 
+			const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
+			const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
+			edm::Handle<EcalRecHitCollection> ecalRecHitHandle, 
+			CaloRecHitMetaCollectionV* metaEcalRecHits,
+			const EcalSeverityLevelAlgo* sevLev,
+			edm::ESHandle<EcalChannelStatus>  chStatus,
+			const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
+			TrackCandidateCollection& outInTracks,
+			TrackCandidateCollection& inOutTracks,
+			std::vector<edm::Ptr<reco::CaloCluster> >& vecRecOI,
 			 std::vector<edm::Ptr<reco::CaloCluster> >& vecRecIO
 );
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Emilia Lubenova Becheva
 //         Created:  Wed Apr 22 16:54:31 CEST 2009
-// $Id: SecSourceAnalyzer.h,v 1.1 2009/04/24 13:35:34 ebecheva Exp $
+// $Id: SecSourceAnalyzer.h,v 1.2 2010/04/30 12:48:18 ebecheva Exp $
 //
 //
 
@@ -68,6 +68,7 @@ class SecSourceAnalyzer : public edm::EDAnalyzer {
       boost::shared_ptr<PileUp> input_;
 
       std::vector<EventPrincipalVector> pileup_[5];
+      std::vector< float > TrueNumInteractions_[5];
        
       InputTag tag_;
  

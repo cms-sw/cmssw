@@ -1,165 +1,82 @@
-
-/*********************************/
-/*********************************/
-/**                             **/
-/** Stacked Tracker Simulations **/
-/**        Andrew W. Rose       **/
-/**             2008            **/
-/**                             **/
-/*********************************/
-/*********************************/
+/// ////////////////////////////////////////
+/// Stacked Tracker Simulations          ///
+/// Written by:                          ///
+/// Andrew W. Rose                       ///
+/// 2008                                 ///
+///                                      ///
+/// Changed by:                          ///
+/// Nicola Pozzobon                      ///
+/// UNIPD                                ///
+/// 2010, Oct; 2011 July                 ///
+///                                      ///
+/// Added feature:                       ///
+/// Included L1Tracks                    ///
+/// Removed (NOT commented) TTHits       ///
+/// (Maybe in the future they will be    ///
+/// reintroduced in the framework...)    ///
+/// Adapted to the new approach          ///
+/// ////////////////////////////////////////
 
 #ifndef STACKED_TRACKER_TYPES_H
 #define STACKED_TRACKER_TYPES_H
 
-#include "SimDataFormats/SLHC/interface/TrackTriggerHit.h"
-
-#include "SimDataFormats/SLHC/interface/LocalStub.h"
-#include "SimDataFormats/SLHC/interface/GlobalStub.h"
-#include "SimDataFormats/SLHC/interface/Tracklet.h"
+/// Specific Data Formats for Tracking Trigger
+#include "SimDataFormats/SLHC/interface/L1TkCluster.h"
+#include "SimDataFormats/SLHC/interface/L1TkStub.h"
+#include "SimDataFormats/SLHC/interface/L1TkTracklet.h"
 #include "SimDataFormats/SLHC/interface/L1Track.h"
 
+/// Standard CMS Formats
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/Ptr.h"
-
-typedef edm::DetSetVector< TrackTriggerHit > 											TrackTriggerHitCollection;
 
 namespace cmsUpgrades{
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//The reference types
-	typedef edm::Ref< edm::PSimHitContainer >											Ref_PSimHit_;
-	typedef edm::Ref< edm::DetSetVector<PixelDigi> , PixelDigi >						Ref_PixelDigi_;
+  /// The reference types
+  typedef edm::Ref< edm::PSimHitContainer >                      Ref_PSimHit_;
+  typedef edm::Ref< edm::DetSetVector<PixelDigi> , PixelDigi >   Ref_PixelDigi_;
 
+  /// Cluster data types
+  typedef L1TkCluster< Ref_PSimHit_ >            L1TkCluster_PSimHit_;
+  typedef L1TkCluster< Ref_PixelDigi_ >          L1TkCluster_PixelDigi_;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//SimHit type LocalStub
-	typedef LocalStub< Ref_PSimHit_ >													LocalStub_PSimHit_;
+  typedef std::vector< L1TkCluster_PSimHit_ >    L1TkCluster_PSimHit_Collection;
+  typedef std::vector< L1TkCluster_PixelDigi_ >  L1TkCluster_PixelDigi_Collection;
 
-//SimHit type LocalStub Collections
-	typedef std::vector		< LocalStub_PSimHit_ >										LocalStub_PSimHit_Collection;
-/*    typedef edm::Ref		< LocalStub_PSimHit_Collection , LocalStub_PSimHit_ >		LocalStub_PSimHit_Ref;
-    typedef edm::RefProd	< LocalStub_PSimHit_Collection >							LocalStub_PSimHit_RefProd;
-    typedef edm::RefVector	< LocalStub_PSimHit_Collection , LocalStub_PSimHit_ >		LocalStub_PSimHit_RefVector;*/
+  typedef std::map< std::pair<StackedTrackerDetId,int>, L1TkCluster_PSimHit_Collection >    L1TkCluster_PSimHit_Map;
+  typedef std::map< std::pair<StackedTrackerDetId,int>, L1TkCluster_PixelDigi_Collection >  L1TkCluster_PixelDigi_Map;
 
-//SimHit type GlobalStub
-	typedef GlobalStub< Ref_PSimHit_ >													GlobalStub_PSimHit_;
+  typedef edm::Ptr< L1TkCluster_PSimHit_ >             L1TkCluster_PSimHit_Pointer;
+  typedef edm::Ptr< L1TkCluster_PixelDigi_ >           L1TkCluster_PixelDigi_Pointer;
 
-//SimHit type GlobalStub Collections
-	typedef std::vector		< GlobalStub_PSimHit_ >										GlobalStub_PSimHit_Collection;
-/*    typedef edm::Ref		< GlobalStub_PSimHit_Collection , GlobalStub_PSimHit_ >		GlobalStub_PSimHit_Ref;
-    typedef edm::RefProd	< GlobalStub_PSimHit_Collection >							GlobalStub_PSimHit_RefProd;
-    typedef edm::RefVector	< GlobalStub_PSimHit_Collection , GlobalStub_PSimHit_ >		GlobalStub_PSimHit_RefVector;*/
+  typedef std::vector< L1TkCluster_PSimHit_Pointer >   L1TkCluster_PSimHit_Pointer_Collection;
+  typedef std::vector< L1TkCluster_PixelDigi_Pointer > L1TkCluster_PixelDigi_Pointer_Collection;
 
-//SimHit type Tracklet
-	typedef Tracklet< Ref_PSimHit_ >													Tracklet_PSimHit_;
+  /// Stub data types
+  typedef L1TkStub< Ref_PSimHit_ >            L1TkStub_PSimHit_;
+  typedef L1TkStub< Ref_PixelDigi_ >          L1TkStub_PixelDigi_;
 
-//SimHit type Tracklet Collections
-	typedef std::vector		< Tracklet_PSimHit_ >										Tracklet_PSimHit_Collection;
-/*    typedef edm::Ref		< Tracklet_PSimHit_Collection , Tracklet_PSimHit_ >			Tracklet_PSimHit_Ref;
-    typedef edm::RefProd	< Tracklet_PSimHit_Collection >								Tracklet_PSimHit_RefProd;
-    typedef edm::RefVector	< Tracklet_PSimHit_Collection , Tracklet_PSimHit_ >			Tracklet_PSimHit_RefVector;*/
+  typedef std::vector< L1TkStub_PSimHit_ >    L1TkStub_PSimHit_Collection;
+  typedef std::vector< L1TkStub_PixelDigi_ >  L1TkStub_PixelDigi_Collection;
 
+  /// Tracklet data types
+  typedef L1TkTracklet< Ref_PSimHit_ >            L1TkTracklet_PSimHit_;
+  typedef L1TkTracklet< Ref_PixelDigi_ >          L1TkTracklet_PixelDigi_;
 
-//SimHit type L1Track
-        typedef L1Track< Ref_PSimHit_ >                                                                                                        L1Track_PSimHit_;
+  typedef std::vector< L1TkTracklet_PSimHit_ >    L1TkTracklet_PSimHit_Collection;
+  typedef std::vector< L1TkTracklet_PixelDigi_ >  L1TkTracklet_PixelDigi_Collection;
 
-//SimHit type L1Track Collections
-        typedef std::vector             < L1Track_PSimHit_ >                                                                           L1Track_PSimHit_Collection;
+  /// L1Track data types
+  typedef L1Track< Ref_PSimHit_ >            L1Track_PSimHit_;
+  typedef L1Track< Ref_PixelDigi_ >          L1Track_PixelDigi_;
 
+  typedef std::vector< L1Track_PSimHit_ >    L1Track_PSimHit_Collection;
+  typedef std::vector< L1Track_PixelDigi_ >  L1Track_PixelDigi_Collection;
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//PixelDigi type LocalStub
-	typedef LocalStub< Ref_PixelDigi_ >													LocalStub_PixelDigi_;
-
-//PixelDigi type LocalStub Collections
-	typedef std::vector		< LocalStub_PixelDigi_ >									LocalStub_PixelDigi_Collection;
-/*    typedef edm::Ref		< LocalStub_PixelDigi_Collection , LocalStub_PixelDigi_ >	LocalStub_PixelDigi_Ref;
-    typedef edm::RefProd	< LocalStub_PixelDigi_Collection >							LocalStub_PixelDigi_RefProd;
-    typedef edm::RefVector	< LocalStub_PixelDigi_Collection , LocalStub_PixelDigi_ >	LocalStub_PixelDigi_RefVector;*/
-
-//PixelDigi type GlobalStub
-	typedef GlobalStub< Ref_PixelDigi_ >												GlobalStub_PixelDigi_;
-
-//PixelDigi type GlobalStub Collections
-	typedef std::vector		< GlobalStub_PixelDigi_ >									GlobalStub_PixelDigi_Collection;
-/*    typedef edm::Ref		< GlobalStub_PixelDigi_Collection , GlobalStub_PixelDigi_ >	GlobalStub_PixelDigi_Ref;
-    typedef edm::RefProd	< GlobalStub_PixelDigi_Collection >							GlobalStub_PixelDigi_RefProd;
-    typedef edm::RefVector	< GlobalStub_PixelDigi_Collection , GlobalStub_PixelDigi_ >	GlobalStub_PixelDigi_RefVector;*/
-
-//PixelDigi type Tracklet
-	typedef Tracklet< Ref_PixelDigi_ >													Tracklet_PixelDigi_;
-
-//PixelDigi type Tracklet Collections
-	typedef std::vector		< Tracklet_PixelDigi_ >										Tracklet_PixelDigi_Collection;
-/*    typedef edm::Ref		< Tracklet_PixelDigi_Collection , Tracklet_PixelDigi_ >		Tracklet_PixelDigi_Ref;
-    typedef edm::RefProd	< Tracklet_PixelDigi_Collection >							Tracklet_PixelDigi_RefProd;
-    typedef edm::RefVector	< Tracklet_PixelDigi_Collection , Tracklet_PixelDigi_ >		Tracklet_PixelDigi_RefVector;*/
-
-//PixelDigi type Tracklet
-        typedef L1Track< Ref_PixelDigi_ >                                                                                                      L1Track_PixelDigi_;
-
-//PixelDigi type Tracklet Collections
-        typedef std::vector             < L1Track_PixelDigi_ >                                                                         L1Track_PixelDigi_Collection;
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Finally the TTHit type
-typedef edm::Ref< edm::DetSetVector< TrackTriggerHit > , TrackTriggerHit >				Ref_TTHit_;
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//TTHit type LocalStub
-	typedef LocalStub< Ref_TTHit_ >														LocalStub_TTHit_;
-
-//TTHit type LocalStub Collections
-	typedef std::vector		< LocalStub_TTHit_ >										LocalStub_TTHit_Collection;
-/*    typedef edm::Ref		< LocalStub_TTHit_Collection , LocalStub_TTHit_ >			LocalStub_TTHit_Ref;
-    typedef edm::RefProd	< LocalStub_TTHit_Collection >								LocalStub_TTHit_RefProd;
-    typedef edm::RefVector	< LocalStub_TTHit_Collection , LocalStub_TTHit_ >			LocalStub_TTHit_RefVector;*/
-
-//TTHit type GlobalStub
-	typedef GlobalStub< Ref_TTHit_ >													GlobalStub_TTHit_;
-
-//TTHit type GlobalStub Collections
-	typedef std::vector		< GlobalStub_TTHit_ >										GlobalStub_TTHit_Collection;
-/*    typedef edm::Ref		< GlobalStub_TTHit_Collection , GlobalStub_TTHit_ >			GlobalStub_TTHit_Ref;
-    typedef edm::RefProd	< GlobalStub_TTHiti_Collection >							GlobalStub_TTHit_RefProd;
-    typedef edm::RefVector	< GlobalStub_TTHit_Collection , GlobalStub_TTHit_ >			GlobalStub_TTHit_RefVector;*/
-
-//TTHit type Tracklet
-	typedef Tracklet< Ref_TTHit_ >														Tracklet_TTHit_;
-
-//TTHit type Tracklet Collections
-	typedef std::vector		< Tracklet_TTHit_ >											Tracklet_TTHit_Collection;
-/*    typedef edm::Ref		< Tracklet_TTHit_Collection , Tracklet_TTHit_ >				Tracklet_TTHit_Ref;
-    typedef edm::RefProd	< Tracklet_TTHit_Collection >								Tracklet_TTHit_RefProd;
-    typedef edm::RefVector	< Tracklet_TTHit_Collection , Tracklet_TTHit_ >				Tracklet_TTHit_RefVector;*/
-
-
-
-    // Cluster data types
-    typedef std::vector<Ref_PSimHit_> Cluster_PSimHit;
-    typedef std::vector<Ref_PixelDigi_> Cluster_PixelDigi;
-    typedef std::vector<Ref_TTHit_> Cluster_TTHit;
-    
-    typedef std::vector<Cluster_PSimHit> Cluster_PSimHit_Collection;
-    typedef std::vector<Cluster_PixelDigi> Cluster_PixelDigi_Collection;
-    typedef std::vector<Cluster_TTHit> Cluster_TTHit_Collection;
-
-    typedef std::map<std::pair<StackedTrackerDetId,int>,Cluster_PSimHit_Collection> Cluster_PSimHit_Map;
-    typedef std::map<std::pair<StackedTrackerDetId,int>,Cluster_PixelDigi_Collection> Cluster_PixelDigi_Map;
-    typedef std::map<std::pair<StackedTrackerDetId,int>,Cluster_TTHit_Collection> Cluster_TTHit_Map;
 }
 #endif
+
 

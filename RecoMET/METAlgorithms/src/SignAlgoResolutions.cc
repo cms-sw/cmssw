@@ -14,12 +14,15 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignAlgoResolutions.cc,v 1.6 2009/11/23 14:38:07 fblekman Exp $
+// $Id: SignAlgoResolutions.cc,v 1.8 2011/05/23 11:43:15 akhukhun Exp $
 //
 //
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
+
 
 #include <math.h>
 
@@ -88,9 +91,10 @@ metsig::SigInputObj  metsig::SignAlgoResolutions::evalPF(const reco::PFCandidate
 
   double d_et=0, d_phi=0; //d_phi here is the error on phi component of the et
   reco::TrackRef trackRef = candidate->trackRef();
-  if(!trackRef.isNull() && type!=2){
-    d_et = trackRef->ptError();
+  if(!trackRef.isNull()){
     d_phi = et*trackRef->phiError();
+    d_et  = (type==2) ?  ElectronPtResolution(candidate) : trackRef->ptError();
+    //if(type==2) std::cout << eval(thetype,ET,et,phi,eta) << "    " << trackRef->ptError() << "    "<< ElectronPtResolution(candidate) << std::endl;
   }
   else{
     d_et = eval(thetype,ET,et,phi,eta);
@@ -119,6 +123,9 @@ metsig::SignAlgoResolutions::evalPFJet(const reco::PFJet *jet) const{
 	jdeltapphi = jpt*jdphi[ieta][ipt];
     }
     else{
+	//use the resolution functions at |eta|=5 to avoid crash for jets with large eta.
+	if(jeta>5) jeta=5;
+	if(jeta<-5) jeta=-5;
 	TF1* fPtEta  = ptResol_->parameterEta("sigma",jeta);
 	TF1* fPhiEta = phiResol_->parameterEta("sigma",jeta);
 	jdeltapt   = jpt>ptResolThreshold_ ? jpt*fPtEta->Eval(jpt)  : jpt*fPtEta->Eval(ptResolThreshold_);
@@ -404,3 +411,14 @@ metsig::SignAlgoResolutions::initializeJetResolutions( const edm::ParameterSet &
     phiResol_ = new JetResolution(phiFileName,false);
   }
 }
+
+double 
+metsig::SignAlgoResolutions::ElectronPtResolution(const reco::PFCandidate *c) const{
+
+    double eta = c->eta();
+    double energy = c->energy();
+    double dEnergy = pfresol_->getEnergyResolutionEm(energy, eta);
+
+    return dEnergy/cosh(eta);
+}
+

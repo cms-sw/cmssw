@@ -1,5 +1,5 @@
 //
-// $Id: TriggerPath.cc,v 1.8 2010/12/15 19:44:28 vadler Exp $
+// $Id: TriggerPath.cc,v 1.6 2010/12/16 18:39:17 vadler Exp $
 //
 
 
@@ -20,7 +20,8 @@ TriggerPath::TriggerPath() :
   run_(),
   accept_(),
   error_(),
-  lastActiveFilterSlot_()
+  lastActiveFilterSlot_(),
+  l3Filters_( 0 )
 {
   modules_.clear();
   filterIndices_.clear();
@@ -35,7 +36,8 @@ TriggerPath::TriggerPath( const std::string & name ) :
   run_(),
   accept_(),
   error_(),
-  lastActiveFilterSlot_()
+  lastActiveFilterSlot_(),
+  l3Filters_( 0 )
 {
   modules_.clear();
   filterIndices_.clear();
@@ -43,14 +45,15 @@ TriggerPath::TriggerPath( const std::string & name ) :
 
 
 // Constructor from values
-TriggerPath::TriggerPath( const std::string & name, unsigned index, unsigned prescale, bool run, bool accept, bool error, unsigned lastActiveFilterSlot ) :
+TriggerPath::TriggerPath( const std::string & name, unsigned index, unsigned prescale, bool run, bool accept, bool error, unsigned lastActiveFilterSlot, unsigned l3Filters ) :
   name_( name ),
   index_( index ),
   prescale_( prescale ),
   run_( run ),
   accept_( accept ),
   error_( error ),
-  lastActiveFilterSlot_( lastActiveFilterSlot )
+  lastActiveFilterSlot_( lastActiveFilterSlot ),
+  l3Filters_( l3Filters )
 {
   modules_.clear();
   filterIndices_.clear();

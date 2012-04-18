@@ -448,6 +448,7 @@ void HcalBeamMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
 	      if (id.depth()==1) --ring1totalchannels_;
 	      else if (id.depth()==2) --ring2totalchannels_;
 	    }
+	  delete mystatus;
 	} // if ((id.depth()==1) ...
     } // for (unsigned int i=0;...)
     
@@ -587,7 +588,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	      HBtotalE+=HBHEiter->energy();
 	      
 	      index=ieta+ETA_OFFSET_HB;
-	      if (index<0 || index> HBETASIZE) continue;
+	      if (index<0 || index>= HBETASIZE) continue;
 	      HB_weightedX[index]+=HBHEiter->energy()*cos(PI*iphi/36.);
 	      HB_weightedY[index]+=HBHEiter->energy()*sin(PI*iphi/36.);
 	      HB_energy[index]+=HBHEiter->energy();
@@ -600,7 +601,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	      HEtotalE+=HBHEiter->energy();
 	      
 	      index=ieta+ETA_OFFSET_HE;
-	      if (index<0 || index> HEETASIZE) continue;
+	      if (index<0 || index>= HEETASIZE) continue;
 	      HE_weightedX[index]+=HBHEiter->energy()*cos(PI*iphi/36.);
 	      HE_weightedY[index]+=HBHEiter->energy()*sin(PI*iphi/36.);
 	      HE_energy[index]+=HBHEiter->energy();
@@ -613,7 +614,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	{
 	  if (i==0) continue;
 	  int index = i+ETA_OFFSET_HB;
-	  if (index<0 || index> HBETASIZE) continue;
+	  if (index<0 || index>= HBETASIZE) continue;
 	  if (HB_energy[index]==0) continue;
 	  double moment=pow(HB_weightedX[index],2)+pow(HB_weightedY[index],2);
 	  moment=pow(moment,0.5);
@@ -631,7 +632,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	  if (i==0) continue;
 	  if (i>-1*ETA_BOUND_HE && i <ETA_BOUND_HE) continue;
 	  int index = i + ETA_OFFSET_HE;
-	  if (index<0 || index> HEETASIZE) continue;
+	  if (index<0 || index>= HEETASIZE) continue;
 	  if (HE_energy[index]==0) continue;
 	  double moment=pow(HE_weightedX[index],2)+pow(HE_weightedY[index],2);
 	  moment=pow(moment,0.5);
@@ -670,7 +671,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	  HOtotalE+=HOiter->energy();
 
 	  int index=ieta+ETA_OFFSET_HO;
-	  if (index<0 || index>HOETASIZE) continue;
+	  if (index<0 || index>= HOETASIZE) continue;
 	  HO_weightedX[index]+=HOiter->energy()*cos(PI*iphi/36.);
 	  HO_weightedY[index]+=HOiter->energy()*sin(PI*iphi/36.);
 	  HO_energy[index]+=HOiter->energy();
@@ -680,7 +681,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	{
 	  if (i==0) continue;
 	  int index = i + ETA_OFFSET_HO;
-	  if (index < 0 || index> HOETASIZE) continue;
+	  if (index < 0 || index>= HOETASIZE) continue;
 	  if (HO_energy[index]==0) continue;
 	  double moment=pow(HO_weightedX[index],2)+pow(HO_weightedY[index],2);
 	  moment=pow(moment,0.5);
@@ -867,7 +868,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	    HFtotalE+=HFiter->energy();
 
 	    int index=ieta+ETA_OFFSET_HF;
-	    if (index<0 || index>HFETASIZE) continue;
+	    if (index<0 || index>= HFETASIZE) continue;
 	    HF_weightedX[index]+=HFiter->energy()*cos(PI*iphi/36.);
 	    HF_weightedY[index]+=HFiter->energy()*sin(PI*iphi/36.);
 	    HF_energy[index]+=HFiter->energy();
@@ -905,7 +906,7 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 	    if (i==0) continue;
 	    if (i>-1*ETA_BOUND_HF && i <ETA_BOUND_HF) continue;
 	    int index = i + ETA_OFFSET_HF;
-	    if (index<0 || index>HFETASIZE) continue;
+	    if (index<0 || index>= HFETASIZE) continue;
 	    if (HF_energy[index]==0) continue;
 	    double moment=pow(HF_weightedX[index],2)+pow(HF_weightedY[index],2);
 	    moment=pow(moment,0.5);
@@ -1265,8 +1266,8 @@ void HcalBeamMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     ring2status=0;
   else
     ring2status=1-1.*badring2/ring2totalchannels_;
-  HFlumi_Ring2Status_vs_LS->Fill(currentLS,ring2status);
-
+  HFlumi_Ring2Status_vs_LS->Fill(currentLS,ring2status);  
+  
   // Good status:  ring1 and ring2 status both > 90%
   int totalstatus=0;
   if (ring1status>0.9 && ring2status>0.9)

@@ -25,7 +25,7 @@ HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const edm::ParameterSet& ps,bool ref)
 
   //Declare DQM Store
   DQMStore* store = &*edm::Service<DQMStore>();
-
+  
   if(store)
     {
       //Create the histograms
@@ -95,44 +95,39 @@ HLTTauDQMPathPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 	    }
 	}
-      //lepton reference
-      if(refC.size()>1) {
-	if(refC[1].size()<nTriggeredLeptons_[0] && refC[2].size()<nTriggeredLeptons_[0])
-	  {
+    //lepton reference
+    unsigned int highPtElectrons=0;
+    unsigned int highPtMuons=0;
+    if(refC.size()>1){	  	
+	  	for(size_t j = 0;j<refC[1].size();++j)
+	    	{
+	      	if((refC[1])[j].Et()>refLeptonPt_)	      
+			highPtElectrons++;
+	    	}
+	}
+	if(refC.size()>2){
+	  	for(size_t j = 0;j<refC[2].size();++j)
+	    	{
+	      	if((refC[2])[j].Et()>refLeptonPt_)	      
+				highPtMuons++;
+	    	}
+	}
+	if(highPtElectrons<nTriggeredLeptons_[0]&&LeptonType_[1]==82)
+	{
+	      lepton_ok = false;
+	}
+	if(highPtMuons<nTriggeredLeptons_[0]&&LeptonType_[1]==83)
+	{
 	    lepton_ok = false;
-	  }
-	else  {
-	  unsigned int highPtElectrons=0;
-	  unsigned int highPtMuons=0;
-	  for(size_t j = 0;j<refC[1].size();++j)
-	    {
-	      if((refC[1])[j].Et()>refLeptonPt_)
-	      
-		highPtElectrons++;
-	    }
-	  for(size_t j = 0;j<refC[2].size();++j)
-	    {
-	      if((refC[2])[j].Et()>refLeptonPt_)
-	      
-		highPtMuons++;
-	    }
-	  if(highPtElectrons<nTriggeredLeptons_[0]&&LeptonType_[1]==82)
-	    {
-	      lepton_ok = false;
-	    }
-	  if(highPtMuons<nTriggeredLeptons_[0]&&LeptonType_[1]==83)
-	    {
-	      lepton_ok = false;
-	    }
 	}
 	if(lepton_ok&&tau_ok)
 	  {
 	    accepted_events_matched->Fill(0.5);
 	    isGoodReferenceEvent=true;
 	  }
-      }
 
-    }
+
+}
 
 
   Handle<TriggerEventWithRefs> trigEv;

@@ -1,5 +1,5 @@
 //
-// $Id: Muon.cc,v 1.27 2010/09/14 15:15:15 kukartse Exp $
+// $Id: Muon.cc,v 1.28 2010/09/29 13:24:25 wreece Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -36,7 +36,6 @@ Muon::Muon() :
   initImpactParameters();
 }
 
-
 /// constructor from reco::Muon
 Muon::Muon(const reco::Muon & aMuon) :
     Lepton<reco::Muon>(aMuon),
@@ -61,7 +60,6 @@ Muon::Muon(const reco::Muon & aMuon) :
 {
   initImpactParameters();
 }
-
 
 /// constructor from ref to reco::Muon
 Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
@@ -88,7 +86,6 @@ Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
   initImpactParameters();
 }
 
-
 /// constructor from ref to reco::Muon
 Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     Lepton<reco::Muon>(aMuonRef),
@@ -114,11 +111,26 @@ Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
   initImpactParameters();
 }
 
-
 /// destructor
 Muon::~Muon() {
 }
 
+std::ostream& 
+reco::operator<<(std::ostream& out, const pat::Muon& obj) 
+{
+  if(!out) return out;
+  
+  out << "\tpat::Muon: ";
+  out << std::setiosflags(std::ios::right);
+  out << std::setiosflags(std::ios::fixed);
+  out << std::setprecision(3);
+  out << " E/pT/eta/phi " 
+      << obj.energy()<<"/"
+      << obj.pt()<<"/"
+      << obj.eta()<<"/"
+      << obj.phi();
+  return out; 
+}
 
 // initialize impact parameter container vars
 void Muon::initImpactParameters() {

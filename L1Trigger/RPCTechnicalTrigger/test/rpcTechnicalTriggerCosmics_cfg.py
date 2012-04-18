@@ -2,26 +2,19 @@ import FWCore.ParameterSet.Config as cms
 import os
 
 maxevts   = 1000
-
-# 3_4_X
-globaltag = 'STARTUP3X_V14::All'
-inputfile  = '/store/relval/CMSSW_3_4_1/RelValCosmics/GEN-SIM-RECO/STARTUP3X_V14-v1/0004/4AE3BADD-B6ED-DE11-A3DF-000423D9863C.root'
-
-# 3_5_X
-globaltag = 'START3X_V24::All'
-inputfile  = '/store/relval/CMSSW_3_5_4/RelValCosmics/GEN-SIM-RECO/START3X_V24-v1/0004/0442F039-2D2C-DF11-B4B2-00261894380A.root'
-
-# 3_6_X
-globaltag = 'START36_V2::All'
-inputfile  = '/store/relval/CMSSW_3_6_0_pre3/RelValCosmics/GEN-SIM-RECO/START36_V2-v2/0001/7CA0414B-1C31-DF11-B599-0030487A3232.root'
+globaltag = 'STARTUP31X_V2::All'
+globaltag = 'STARTUP3XY_V9::All'
+inputfile = '/store/relval/CMSSW_3_1_2/RelValCosmics/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP31X_V2-v1/0007/C481562D-9278-DE11-8CA2-000423D9517C.root'
 
 process   = cms.Process("RPCTechnicalTrigger")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.categories = ['*']
 process.MessageLogger.destinations = ['cout']
-process.MessageLogger.cout = cms.untracked.PSet( threshold = cms.untracked.string('DEBUG'),
-                                                 INFO = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) )
+process.MessageLogger.cout = cms.untracked.PSet(
+    	threshold = cms.untracked.string('DEBUG'),
+	INFO = cms.untracked.PSet(
+        limit = cms.untracked.int32(-1) ) )
 
 #.. Geometry and Global Tags
 process.load("Configuration.StandardSequences.Geometry_cff")
