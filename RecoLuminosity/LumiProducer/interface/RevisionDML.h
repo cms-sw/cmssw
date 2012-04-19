@@ -28,6 +28,7 @@ namespace lumi{
       std::string source;
       unsigned int runnumber;
       float bgev;
+      unsigned int ncollidingbunches;
     };
     class TrgEntry : public Entry{
       public:
