@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/TracksWithHits.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/QuadrupletSeedMerger.h"
 
 class PixelFitter;
 class PixelTrackCleaner;
@@ -24,8 +25,9 @@ public:
 
 private:
   edm::ParameterSet theConfig;
+  QuadrupletSeedMerger* theMerger_;
   const PixelFitter       * theFitter;
-        PixelTrackFilter  * theFilter;
+  const PixelTrackFilter  * theFilter;
         PixelTrackCleaner * theCleaner;
         OrderedHitsGenerator * theGenerator;
         TrackingRegionProducer* theRegionProducer;

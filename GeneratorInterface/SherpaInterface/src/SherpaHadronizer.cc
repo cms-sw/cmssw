@@ -28,7 +28,6 @@ public:
   SherpaHadronizer(const edm::ParameterSet &params);
   ~SherpaHadronizer();
   
-  bool readSettings( int ) { return true; }
   bool initializeForInternalPartons();
   bool declareStableParticles(const std::vector<int> &pdgIds);
   bool declareSpecialSettings( const std::vector<std::string> ) { return true; }

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.235 2011/02/23 14:07:03 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.243 2011/07/16 02:51:48 amraktad Exp $
 
 
 //
@@ -46,10 +46,9 @@
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWViewType.h"
-#include "Fireworks/Core/interface/FWViewManagerManager.h"
+#include "Fireworks/Core/interface/FWGeometryTableView.h"
 #include "Fireworks/Core/interface/FWJobMetadataManager.h"
 #include "Fireworks/Core/interface/FWInvMassDialog.h"
-#include "Fireworks/Core/interface/FWGeometryBrowser.h"
 
 #include "Fireworks/Core/interface/FWConfiguration.h"
 
@@ -108,7 +107,6 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
    m_viewPopup(0),
    m_commonPopup(0),
    m_invMassDialog(0),
-   m_geoBrowser(0),
    m_helpPopup(0),
    m_shortcutPopup(0),
    m_helpGLPopup(0),
@@ -144,11 +142,17 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
                                                 width,
                                                 height,
                                                 this);
-      m_cmsShowMainFrame->SetWindowName("CmsShow");
       m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
+    
+      /*
+        int mlist[FWViewType::kTypeSize] = {FWViewType::kRhoPhi, FWViewType::kRhoZ, FWViewType::k3D, FWViewType::kISpy, FWViewType::kLego, FWViewType::kLegoHF, FWViewType::kGlimpse, 
+        FWViewType::kTable, FWViewType::kTableL1, FWViewType::kTableHLT,
+        FWViewType::kGeometryTable,
+        FWViewType::kRhoPhiPF, FWViewType::kLegoPFECAL}; */
+
       for (int i = 0 ; i < FWViewType::kTypeSize; ++i)
       {
-         bool separator = (i == FWViewType::kGlimpse || i == FWViewType::kTableHLT);
+         bool separator = (i == FWViewType::kGlimpse || i == FWViewType::kTableHLT || i ==  FWViewType::kLegoPFECAL);
          CSGAction* action = m_cmsShowMainFrame->createNewViewerAction(FWViewType::idToName(i), separator);
          action->activated.connect(boost::bind(&FWGUIManager::newViewSlot, this, FWViewType::idToName(i)));
       }
@@ -156,8 +160,6 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       m_detailViewManager  = new FWDetailViewManager(m_context->colorManager());
       m_contextMenuHandler = new FWModelContextMenuHandler(m_context->selectionManager(), m_detailViewManager, m_context->colorManager(), this);
 
-      m_geoBrowser = new FWGeometryBrowser(getGUIManager());
-      m_cmsShowMainFrame->bindCSGActionKeys(m_geoBrowser);
 
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
       getAction(cmsshow::sExportAllImages)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImagesOfAllViews));
@@ -172,7 +174,6 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       getAction(cmsshow::sShowCommonInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showCommonPopup));
 
       getAction(cmsshow::sShowInvMassDialog)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showInvMassDialog));
-      getAction(cmsshow::sShowGeometryTable)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showGeometryBrowser));
 
       getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
       assert(getAction(cmsshow::sHelp) != 0);
@@ -709,13 +710,6 @@ FWGUIManager::showInvMassDialog()
 }
 
 void
-FWGUIManager::showGeometryBrowser()
-{
-  m_geoBrowser->browse();
-   m_geoBrowser->MapRaised();
-}
-
-void
 FWGUIManager::createHelpPopup ()
 {
    if (m_helpPopup == 0) {
@@ -761,7 +755,7 @@ FWGUIManager::showSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY, FWVie
    }
 }
 
- //
+//
 // const member functions
 //
 
@@ -1035,12 +1029,19 @@ addAreaInfoTo(areaInfo& pInfo,
 void
 FWGUIManager::addTo(FWConfiguration& oTo) const
 {
-   Int_t cfgVersion=2;
+   Int_t cfgVersion=3;
 
    FWConfiguration mainWindow(cfgVersion);
    float leftWeight, rightWeight;
    addWindowInfoTo(m_cmsShowMainFrame, mainWindow);
    {
+      // write summary view weight
+      {
+         std::stringstream ss;
+         ss << m_cmsShowMainFrame->getSummaryViewWeight();
+         mainWindow.addKeyValue("summaryWeight",FWConfiguration(ss.str()));
+      }
+
       // write proportions of horizontal pack (can be standalone item outside main frame)
       if ( m_viewPrimPack->GetPack()->GetList()->GetSize() > 2)
       {
@@ -1150,14 +1151,6 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       }
    }
    oTo.addKeyValue(kControllers,controllers,true);
-
-   //______________________________________________________________________________
-   // geometry 
-   FWConfiguration rootGeo;
-   {
-     m_geoBrowser->addTo(rootGeo);
-   }
-   oTo.addKeyValue("geo-browser",rootGeo,true);
 }
 
 //----------------------------------------------------------------
@@ -1192,9 +1185,14 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    // set from view reading area info nd view info
    float_t leftWeight =1;
    float_t rightWeight=1;
-   if ( mw->version() == 2 ) {
+   if ( mw->version() >= 2 ) {
       leftWeight = atof(mw->valueForKey("leftWeight")->value().c_str());
       rightWeight = atof(mw->valueForKey("rightWeight")->value().c_str());
+   }
+
+   if ( mw->version() >= 3 ) {
+      float summaryWeight = atof(mw->valueForKey("summaryWeight")->value().c_str());
+      m_cmsShowMainFrame->setSummaryViewWeight(summaryWeight);       
    }
 
    TEveWindowSlot* primSlot = (leftWeight > 0) ? m_viewPrimPack->NewSlotWithWeight(leftWeight) : 0;
@@ -1279,13 +1277,20 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
       }
    }
 
-   // disable fist docked view
+
+   for(ViewMap_i it = m_viewMap.begin(); it != m_viewMap.end(); ++it)
+   {
+      if (it->second->typeId() == FWViewType::kGeometryTable)
+      {
+         FWGeometryTableView* gv = ( FWGeometryTableView*)it->second;
+         gv->populate3DViewsFromConfig();
+      }
+   }
+
+   // disable first docked view
    checkSubviewAreaIconState(0);
 
-  //______________________________________________________________________________
-  const FWConfiguration* rootGeo = iFrom.valueForKey("geo-browser");
-  if (rootGeo)     
-     m_geoBrowser->setFrom(*rootGeo);
+ 
 }
 
 void

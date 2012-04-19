@@ -8,8 +8,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: stenson $
-// $Date: 2010/05/03 23:47:08 $
-// $Revision: 1.26 $
+// $Date: 2012/02/19 20:21:34 $
+// $Revision: 1.29 $
 //
 
 #include <memory>
@@ -42,7 +42,7 @@
 
 namespace cms
 {
-  
+  // VI January 2012   to be migrated to omnicluster (or firstCluster)
   edm::ProductID clusterProduct( const TrackingRecHit *hit){
     edm::ProductID pID;
     //cast it into the proper class	and find productID
@@ -110,6 +110,8 @@ namespace cms
     bool use_sharesInput = true;
     if ( epsilon > 0.0 )use_sharesInput = false;
     double shareFrac =  conf_.getParameter<double>("ShareFrac");
+    double foundHitBonus = conf_.getParameter<double>("FoundHitBonus");
+    double lostHitPenalty = conf_.getParameter<double>("LostHitPenalty");
   
     bool promoteQuality = conf_.getParameter<bool>("promoteTrackQuality");
     bool allowFirstHitShare = conf_.getParameter<bool>("allowFirstHitShare");
@@ -320,39 +322,25 @@ namespace cms
 	int newQualityMask = (qualityMaskT1 | track2->qualityMask()); // take OR of trackQuality 
 	int nhit1 = track->numberOfValidHits();
 	int nhit2 = track2->numberOfValidHits();
-	//std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->numberOfValidHits() << " "  << track2->numberOfValidHits() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
         if ( (noverlap-firstoverlap) > (std::min(nhit1,nhit2)-firstoverlap)*shareFrac ) {
-          if ( nhit1 > nhit2 ){
+	  double score1 = foundHitBonus*nhit1 - lostHitPenalty*track->numberOfLostHits() - track->chi2();
+	  double score2 = foundHitBonus*nhit2 - lostHitPenalty*track2->numberOfLostHits() - track2->chi2();
+	  const double almostSame = 1.001;
+          if ( score1 > almostSame * score2 ){
             selected2[j]=0; 
 	    selected1[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
-            //std::cout << " removing L2 trk in pair " << std::endl;
-          }else{
-            if ( nhit1 < nhit2 ){
+          }else if ( score2 > almostSame * score1 ){
               selected1[i]=0; 
 	      selected2[j]=10+newQualityMask;  // add 10 to avoid the case where mask = 1
-              //std::cout << " removing L1 trk in pair " << std::endl;
-            }else{
-              //std::cout << " removing worst chisq in pair " << track->normalizedChi2() << " " << track2->normalizedChi2() << std::endl;
-              const double almostSame = 1.001;
-              if (track->normalizedChi2() > almostSame * track2->normalizedChi2()) {
-		selected1[i]=0;
-		selected2[j]=10+newQualityMask; // add 10 to avoid the case where mask = 1
-	      }else if (track2->normalizedChi2() > almostSame * track->normalizedChi2()) {
-		selected2[j]=0;
-		selected1[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
-              }else{
-		// If tracks from both iterations are virtually identical, choose the one from the first iteration.
-		//		std::cout<<"MERGE "<<track->algo()<<" "<<track2->algo()<<" "<<track->normalizedChi2()<<" "<<track2->normalizedChi2()<<" "<<(track->normalizedChi2()-track2->normalizedChi2())/track->normalizedChi2()<<std::endl;
-                if (track->algo() <= track2->algo()) {
-		  selected2[j]=0;
-		  selected1[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
-                }else{
-  		  selected1[i]=0;
-		  selected2[j]=10+newQualityMask; // add 10 to avoid the case where mask = 1
-                }
-	      }
-            }//end fi > or = fj
-          }//end fi < fj
+	  }else{
+	    if (track->algo() <= track2->algo()) {
+	      selected2[j]=0;
+	      selected1[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
+	    }else{
+	      selected1[i]=0;
+	      selected2[j]=10+newQualityMask; // add 10 to avoid the case where mask = 1
+            }
+          }
         }//end got a duplicate
       }//end track2 loop
     }//end track loop

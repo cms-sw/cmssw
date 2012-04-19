@@ -1,8 +1,7 @@
-
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.cc,v 1.9 2011/02/23 16:50:56 kovitang Exp $
+// $Id: JPTJetTester.cc,v 1.7 2010/06/16 19:06:12 srappocc Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -37,8 +36,6 @@
 
 #include <cmath>
 
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-
 using namespace edm;
 using namespace reco;
 using namespace std;
@@ -57,7 +54,6 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
     mGenEnergyFractionThreshold (iConfig.getParameter<double>("genEnergyFractionThreshold")),
     mReverseEnergyFractionThreshold (iConfig.getParameter<double>("reverseEnergyFractionThreshold")),
     mRThreshold (iConfig.getParameter<double>("RThreshold")),
-     JetCorrectionService  (iConfig.getParameter<std::string>  ("JetCorrectionService"  )),
     mTurnOnEverything (iConfig.getUntrackedParameter<std::string>("TurnOnEverything",""))
 {
     numberofevents
@@ -110,11 +106,6 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
     = mHBEne = mHBTime = mHEEne = mHETime = mHFEne = mHFTime = mHOEne = mHOTime
     = mEBEne = mEBTime = mEEEne = mEETime 
     = mPthat_80 = mPthat_3000
-
-      //Corr Jet
-    = mCorrJetPt = mCorrJetPt =mCorrJetPt_80 = mCorrJetPt_3000 =mCorrJetEta =mCorrJetPhi =mpTRatio
-      = mpTRatioB_d = mpTRatioE_d = mpTRatioF_d
-      = mpTRatio_60_120_d = mpTRatio_200_300_d = mpTRatio_600_900_d = mpTRatio_2700_3500_d
     = 0;
   
   DQMStore* dbe = &*edm::Service<DQMStore>();
@@ -275,14 +266,6 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
     //
     mPthat_80            = dbe->book1D("Pthat_80", "Pthat_80", 100, 40.0, 160.0); 
     mPthat_3000          = dbe->book1D("Pthat_3000", "Pthat_3000", 100, 2500.0, 4000.0); 
-
-    //Corr
-    mCorrJetPt  = dbe->book1D("CorrPt", "CorrPt", 100, 0, 50);
-    mCorrJetPt_80 = dbe->book1D("CorrPt_80", "CorrPt_80", 100, 0, 140);
-    mCorrJetPt_3000  = dbe->book1D("CorrPt_3000", "CorrPt_3000", 100, 0, 4000);
-    mCorrJetEta = dbe->book1D("CorrEta", "CorrEta", 100, -5, 5);
-    mCorrJetPhi = dbe->book1D("CorrPhi", "CorrPhi", 70, -3.5, 3.5);
-
     //
     double log10PtMin = 0.5; //=3.1622766
     double log10PtMax = 3.75; //=5623.41325
@@ -407,24 +390,6 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
 					    100, 0, 2);
     mpTScale1D_2700_3500 = dbe->book1D("pTScale1D_2700_3500", "pTScale_distribution_for_2700<pt<3500",
 					    100, 0, 2);
-
- ///////////Corr profile//////////////
-    mpTRatio = dbe->bookProfile("pTRatio", "pTRatio",
-                                log10PtBins, log10PtMin, log10PtMax, 100, 0.,5., " ");
-    mpTRatioB_d = dbe->bookProfile("pTRatioB_d", "pTRatio_d_0<|eta|<1.3",
-                                   log10PtBins, log10PtMin, log10PtMax, 0, 5, " ");
-    mpTRatioE_d = dbe->bookProfile("pTRatioE_d", "pTRatio_d_1.3<|eta|<3.0",
-                                   log10PtBins, log10PtMin, log10PtMax, 0, 5, " ");
-    mpTRatioF_d = dbe->bookProfile("pTRatioF_d", "pTRatio_d_3.0<|eta|<5.0",
-                                   log10PtBins, log10PtMin, log10PtMax, 0, 5, " ");
-    mpTRatio_60_120_d    = dbe->bookProfile("pTRatio_60_120_d", "pTRatio_d_60<pT<120",
-                                          etaBins, etaMin, etaMax, 0., 5., " ");
-    mpTRatio_200_300_d   = dbe->bookProfile("pTRatio_200_300_d", "pTRatio_d_200<pT<300",
-                                          etaBins, etaMin, etaMax, 0., 5., " ");
-    mpTRatio_600_900_d   = dbe->bookProfile("pTRatio_600_900_d", "pTRatio_d_600<pT<900",
-                                          etaBins, etaMin, etaMax, 0., 5., " ");
-mpTRatio_2700_3500_d = dbe->bookProfile("pTRatio_2700_3500_d", "pTRatio_d_2700<pt<3500",
-                                          etaBins, etaMin, etaMax, 0., 5., " ");
   } // if (dbe)
 
   if (mOutputFile.empty ()) {
@@ -772,48 +737,6 @@ void JPTJetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
   if (nJet == 2) {
     if (mMjj) mMjj->Fill( (p4tmp[0]+p4tmp[1]).mass() );
     if (mMjj_3000) mMjj_3000->Fill( (p4tmp[0]+p4tmp[1]).mass() );
-  }
-
- // Correction jets
-  const JetCorrector* corrector = JetCorrector::getJetCorrector (JetCorrectionService,mSetup);
-
-  for (JPTJetCollection::const_iterator jet = jptJets->begin(); jet !=jptJets ->end(); jet++) 
-  {
- 
-      JPTJet  correctedJet = *jet;
-      //double scale = corrector->correction(jet->p4()); 
-      double scale = corrector->correction(*jet);
-      correctedJet.scaleEnergy(scale); 
-      mCorrJetPt->Fill(correctedJet.pt());
-      mCorrJetPt_80->Fill(correctedJet.pt());
-      mCorrJetPt_3000->Fill(correctedJet.pt());      
-      mCorrJetEta->Fill(correctedJet.eta());
-      mCorrJetPhi->Fill(correctedJet.phi());
-      mpTRatio->Fill(log10(jet->pt()),correctedJet.pt()/jet->pt());
-
-       if (fabs(jet->eta())<1.3) {
-           mpTRatioB_d->Fill(log10(jet->pt()), correctedJet.pt()/jet->pt());
-      }
-
-     if (fabs(jet->eta())>1.3 && fabs(jet->eta())<3.0) {
-        mpTRatioE_d->Fill (log10(jet->pt()), correctedJet.pt()/jet->pt());
-     }
-     if (fabs(jet->eta())>3.0 && fabs(jet->eta())<5.0) {
-        mpTRatioF_d->Fill (log10(jet->pt()), correctedJet.pt()/jet->pt());
-    }
-     if (jet->pt()>60.0 && jet->pt()<120.0) {
-    mpTRatio_60_120_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
-  }
-   if (jet->pt()>200.0 && jet->pt()<300.0) {
-    mpTRatio_200_300_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
-  }
-   if (jet->pt()>600.0 && jet->pt()<900.0) {
-    mpTRatio_600_900_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
-  }
-   if (jet->pt()>2700.0 && jet->pt()<3500.0) {
-    mpTRatio_2700_3500_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
-  }
-
   }
 
   // Count Jets above Pt cut

@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 TauMCProducer  = cms.EDProducer("HLTTauMCProducer",
                               GenParticles  = cms.untracked.InputTag("genParticles"),
-                              ptMinTau      = cms.untracked.double(10),
-                              ptMinMuon     = cms.untracked.double(3),
-                              ptMinElectron = cms.untracked.double(5),
+                              ptMinTau      = cms.untracked.double(15),
+                              ptMinMuon     = cms.untracked.double(15),
+                              ptMinElectron = cms.untracked.double(15),
                               BosonID       = cms.untracked.vint32(23,24,25,32,33,34,35,36,37),
                               EtaMax        = cms.untracked.double(2.5)
 )
@@ -20,7 +20,7 @@ TauRelvalRefProducer = cms.EDProducer("HLTTauRefProducer",
                                                     cms.InputTag("hpsPFTauDiscriminationByLooseIsolation")
                                    ),
                                    doPFTaus = cms.untracked.bool(True),
-                                   ptMin = cms.untracked.double(10.0),
+                                   ptMin = cms.untracked.double(15.0),
                                    PFTauProducer = cms.untracked.InputTag("hpsPFTauProducer")
                                    ),
                                 Electrons = cms.untracked.PSet(
@@ -31,7 +31,7 @@ TauRelvalRefProducer = cms.EDProducer("HLTTauRefProducer",
                                    doElectrons = cms.untracked.bool(True),
                                    TrackCollection = cms.untracked.InputTag("generalTracks"),
                                    OuterConeDR = cms.untracked.double(0.6),
-                                   ptMin = cms.untracked.double(10.0),
+                                   ptMin = cms.untracked.double(15.0),
                                    doTrackIso = cms.untracked.bool(True),
                                    ptMinTrack = cms.untracked.double(1.5),
                                    lipMinTrack = cms.untracked.double(0.2),
@@ -52,7 +52,7 @@ TauRelvalRefProducer = cms.EDProducer("HLTTauRefProducer",
                                 Muons = cms.untracked.PSet(
                                        doMuons = cms.untracked.bool(True),
                                        MuonCollection = cms.untracked.InputTag("muons"),
-                                       ptMin = cms.untracked.double(5.0)
+                                       ptMin = cms.untracked.double(15.0)
                                 ),
                                 
                                 Photons = cms.untracked.PSet(

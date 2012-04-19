@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.28 2010/07/07 09:08:48 depasse Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.26 2010/01/29 10:45:28 fra Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -84,11 +84,6 @@
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
-#include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/AlignmentRecord/interface/EBAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/EEAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/ESAlignmentRcd.h"
-
 // forward declarations
 
 namespace edm{
@@ -141,13 +136,6 @@ public:
 
   virtual std::auto_ptr<EcalMappingElectronics> produceEcalMappingElectronics( const EcalMappingElectronicsRcd& );
   virtual std::auto_ptr<EcalMappingElectronics> getMappingFromConfiguration( const EcalMappingElectronicsRcd& );
-
-  //  virtual std::auto_ptr<EcalAlignmentEB> produceEcalAlignmentEB( const EcalAlignmentEBRcd& );
-  //  virtual std::auto_ptr<EcalAlignmentEE> produceEcalAlignmentEE( const EcalAlignmentEERcd& );
-  //  virtual std::auto_ptr<EcalAlignmentES> produceEcalAlignmentES( const EcalAlignmentESRcd& );
-  virtual std::auto_ptr<Alignments> produceEcalAlignmentEB( const EBAlignmentRcd& );
-  virtual std::auto_ptr<Alignments> produceEcalAlignmentEE( const EEAlignmentRcd& );
-  virtual std::auto_ptr<Alignments> produceEcalAlignmentES( const ESAlignmentRcd& );
 
 protected:
   //overriding from ContextRecordIntervalFinder
@@ -238,11 +226,6 @@ private:
   std::string channelStatusFile_ ;
   std::string trgChannelStatusFile_ ;
   std::string mappingFile_ ;
-  std::string EBAlignmentFile_;
-  std::string EEAlignmentFile_;
-  std::string ESAlignmentFile_;
-  std::string EBLaserAlphaFile_;
-  std::string EELaserAlphaFile_;
 
   int nTDCbins_;
 
@@ -269,13 +252,6 @@ private:
   bool producedEcalClusterEnergyCorrectionParameters_;
   bool producedEcalClusterEnergyUncertaintyParameters_;
   bool producedEcalMappingElectronics_;
-  bool producedEcalAlignmentEB_;
-  bool producedEcalAlignmentEE_;
-  bool producedEcalAlignmentES_;
-  bool getEBAlignmentFromFile_;
-  bool getEEAlignmentFromFile_;
-  bool getESAlignmentFromFile_;
-  bool getLaserAlphaFromFile_;
 
   int    verbose_; // verbosity
 

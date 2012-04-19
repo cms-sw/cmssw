@@ -68,7 +68,7 @@ class L1CaloTriggerSetupProducer : public edm::ESProducer {
   void config(L1CaloTriggerSetup&); //Configure
 
 
-  edm::FileInPath inputFile_;
+  edm::FileInPath mInputfile;
   xercesc::XercesDOMParser *m_ConfigFileParser; //Main Parser object
 
 
@@ -130,7 +130,7 @@ using namespace std;
 
 L1CaloTriggerSetupProducer::L1CaloTriggerSetupProducer(const edm::ParameterSet& iConfig)
 {
-  inputFile_ = iConfig.getParameter<edm::FileInPath>("InputXMLFile");
+  mInputfile = iConfig.getParameter<edm::FileInPath>("InputXMLFile");
 
    //the following line is needed to tell the framework what
    // data is being produced
@@ -158,7 +158,7 @@ L1CaloTriggerSetupProducer::produce(const L1CaloTriggerSetupRcd& iRecord)
    using namespace edm::es;
 
    L1CaloTriggerSetup *setup = new L1CaloTriggerSetup();
-   std::string filePath = inputFile_.fullPath();
+   std::string filePath = mInputfile.fullPath();
 
    edm::LogInfo ("INFO") << "Configuration File:"<<filePath << endl;
 

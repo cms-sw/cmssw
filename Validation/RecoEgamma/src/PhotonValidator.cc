@@ -55,8 +55,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 //
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
@@ -81,8 +79,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2011/03/27 16:48:59 $ 
- **  $Revision: 1.75 $
+ **  $Date: 2011/03/10 19:18:01 $ 
+ **  $Revision: 1.74 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -681,18 +679,7 @@ void  PhotonValidator::beginJob() {
     h_r9_[2][0] = dbe_->book1D(histname+"All",   " r9: All Ecal",r9Bin,r9Min, r9Max) ;
     h_r9_[2][1] = dbe_->book1D(histname+"Barrel"," r9: Barrel ",r9Bin,r9Min, r9Max) ;
     h_r9_[2][2] = dbe_->book1D(histname+"Endcap"," r9: Endcap ",r9Bin,r9Min, r9Max) ;
-    //////
-    histname = "EtR9Less093";
-    h_EtR9Less093_[0][0] = dbe_->book1D(histname+"All",   " r9 < 0.94 or 0.95 : All Ecal",etBin,etMin, etMax);
-    h_EtR9Less093_[0][1] = dbe_->book1D(histname+"Barrel"," r9 < 0.94 : Barrel ",etBin,etMin, etMax);
-    h_EtR9Less093_[0][2] = dbe_->book1D(histname+"Endcap"," r9 < 0.95 : Endcap ",etBin,etMin, etMax);
-    histname = "EtR9Less093Conv";
-    h_EtR9Less093_[1][0] = dbe_->book1D(histname+"All",   " r9 < 0.94, 0.95 and good conv : All Ecal",etBin,etMin, etMax);
-    h_EtR9Less093_[1][1] = dbe_->book1D(histname+"Barrel"," r9 < 0.94 and good conv : Barrel ",etBin,etMin, etMax);
-    h_EtR9Less093_[1][2] = dbe_->book1D(histname+"Endcap"," r9 < 0.95 and good conv : Endcap ",etBin,etMin, etMax);
-
-
-    /////    //
+    //
     histname="R9VsEta";
     h2_r9VsEta_[0] = dbe_->book2D(histname+"All"," All photons r9 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
     h2_r9VsEta_[1] = dbe_->book2D(histname+"Unconv"," All photons r9 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
@@ -847,13 +834,13 @@ void  PhotonValidator::beginJob() {
     h_phoERes_[0][1] = dbe_->book1D(histname+"Barrel"," Photon rec/true Energy: Barrel ",resBin,resMin, resMax);
     h_phoERes_[0][2] = dbe_->book1D(histname+"Endcap"," Photon rec/true Energy: Endcap ",resBin,resMin, resMax);
 
-    h_phoERes_[1][0] = dbe_->book1D(histname+"unconvAll"," Photon rec/true Energy if r9>0.94, 0.95: All ecal ", resBin,resMin, resMax);
-    h_phoERes_[1][1] = dbe_->book1D(histname+"unconvBarrel"," Photon rec/true Energy if r9>0.94: Barrel ",resBin,resMin, resMax);
-    h_phoERes_[1][2] = dbe_->book1D(histname+"unconvEndcap"," Photon rec/true Energyif r9>0.95: Endcap ",resBin,resMin, resMax);
+    h_phoERes_[1][0] = dbe_->book1D(histname+"unconvAll"," Photon rec/true Energy if r9>0.93: All ecal ", resBin,resMin, resMax);
+    h_phoERes_[1][1] = dbe_->book1D(histname+"unconvBarrel"," Photon rec/true Energy if r9>0.93: Barrel ",resBin,resMin, resMax);
+    h_phoERes_[1][2] = dbe_->book1D(histname+"unconvEndcap"," Photon rec/true Energyif r9>0.93: Endcap ",resBin,resMin, resMax);
 
-    h_phoERes_[2][0] = dbe_->book1D(histname+"convAll"," Photon rec/true Energy if r9<0.0.94, 0.95: All ecal ", resBin,resMin, resMax);
-    h_phoERes_[2][1] = dbe_->book1D(histname+"convBarrel"," Photon rec/true Energyif r9<0.94: Barrel ",resBin,resMin, resMax);
-    h_phoERes_[2][2] = dbe_->book1D(histname+"convEndcap"," Photon rec/true Energyif r9<0.95: Endcap ",resBin,resMin, resMax);
+    h_phoERes_[2][0] = dbe_->book1D(histname+"convAll"," Photon rec/true Energy if r9<0.93: All ecal ", resBin,resMin, resMax);
+    h_phoERes_[2][1] = dbe_->book1D(histname+"convBarrel"," Photon rec/true Energyif r9<0.93: Barrel ",resBin,resMin, resMax);
+    h_phoERes_[2][2] = dbe_->book1D(histname+"convEndcap"," Photon rec/true Energyif r9<0.93: Endcap ",resBin,resMin, resMax);
   
 
     histname="eResVsEta";
@@ -927,9 +914,6 @@ void  PhotonValidator::beginJob() {
 
 
     dbe_->setCurrentFolder("EgammaV/PhotonValidator/ConversionInfo");
-
-    histname="nOfflineVtx";
-    h_nRecoVtx_ = dbe_->book1D(histname,"# of Offline Vertices",30, -0.5, 29.5);
 
     histname="nConv";
     h_nConv_[0][0] = dbe_->book1D(histname+"All","Number Of Conversions per isolated candidates per events: All Ecal  ",10,-0.5, 9.5);
@@ -1369,9 +1353,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   // get the geometry from the event setup:
   esup.get<CaloGeometryRecord>().get(theCaloGeom_);
 
-  edm::Handle<reco::VertexCollection> vtxH;
-  e.getByLabel("offlinePrimaryVertices", vtxH);
-  h_nRecoVtx_ ->Fill (float(vtxH->size()));
 
   // Transform Track into TransientTrack (needed by the Vertex fitter)
   edm::ESHandle<TransientTrackBuilder> theTTB;
@@ -1980,18 +1961,17 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       }
 
 
-      if ( (r9>0.94 && phoIsInBarrel) ||   (r9>0.95 && phoIsInEndcap)  )  {
+      if ( r9 > 0.93 )  {
 	h_phoERes_[1][0]->Fill( photonE / (*mcPho).fourMomentum().e() );
 	if ( ! isRunCentrally_ ) h2_eResVsEt_[0][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;  
 	p_eResVsEt_[0][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ; 
 	p_eResVsEta_[1]->Fill (mcEta_,photonE/ (*mcPho).fourMomentum().e()  ) ;     
 
-      } else if ( ( r9 <= 0.94&& phoIsInBarrel) ||  ( r9 <= 0.95&& phoIsInEndcap)  ) {  
+      } else if ( r9 <= 0.93 ) {  
 	h_phoERes_[2][0]->Fill(photonE / (*mcPho).fourMomentum().e() );
 	if ( ! isRunCentrally_ ) h2_eResVsEt_[0][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	p_eResVsEt_[0][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	p_eResVsEta_[2]->Fill (mcEta_,photonE/ (*mcPho).fourMomentum().e()  ) ;     
-	h_EtR9Less093_[0][0] ->Fill ( photonEt );
       }
 	
     
@@ -2029,16 +2009,15 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	p_eResVsEt_[1][0]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 
       
-	if ( r9 > 0.94 ) {  
+	if ( r9 > 0.93 ) {  
 	  h_phoERes_[1][1]->Fill(  photonE  / (*mcPho).fourMomentum().e() );
 	  if ( ! isRunCentrally_ ) h2_eResVsEt_[1][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;  
 	  p_eResVsEt_[1][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	}
-	if ( r9 <= 0.94 )  { 
+	if ( r9 <= 0.93 )  { 
 	  h_phoERes_[2][1]->Fill( photonE / (*mcPho).fourMomentum().e() );
 	  if ( ! isRunCentrally_ ) h2_eResVsEt_[1][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;  
 	  p_eResVsEt_[1][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
-	  h_EtR9Less093_[0][1] ->Fill ( photonEt );
 	}
       }
       if ( phoIsInEndcap ) {
@@ -2069,17 +2048,16 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	if ( ! isRunCentrally_ ) h2_eResVsEt_[2][0]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;  
 	p_eResVsEt_[2][0]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 
-	if ( r9 > 0.95 ) {  
+	if ( r9 > 0.93 ) {  
 
 	  h_phoERes_[1][2]->Fill( photonE / (*mcPho).fourMomentum().e() );
 	  if ( ! isRunCentrally_ ) h2_eResVsEt_[2][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;  
 	  p_eResVsEt_[2][1]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	}
-	if ( r9 <= 0.95 ) {
+	if ( r9 <= 0.93 ) {
 	  h_phoERes_[2][2]->Fill( photonE / (*mcPho).fourMomentum().e() );
 	  if ( ! isRunCentrally_ ) h2_eResVsEt_[2][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
 	  p_eResVsEt_[2][2]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;  
-	  h_EtR9Less093_[0][2] ->Fill ( photonEt );
 	}
       }
       
@@ -2290,7 +2268,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 		  h_SimConvTwoMTracksAndVtxPGT0005_[2]->Fill( mcConvR_ ); 
 		  h_SimConvTwoMTracksAndVtxPGT0005_[3]->Fill( mcConvZ_ );
 		  h_SimConvTwoMTracksAndVtxPGT0005_[4]->Fill(  (*mcPho).fourMomentum().et()); 
-
 		  
 		}
 		
@@ -2299,13 +2276,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 		  h_convPhi_[0]->Fill( aConv->caloCluster()[0]->phi() );
 		  h_convERes_[0][0]->Fill( aConv->caloCluster()[0]->energy() / (*mcPho).fourMomentum().e() );
 		  if ( ! isRunCentrally_ ) h_r9VsNofTracks_[0][0]->Fill( r9, aConv->nTracks() ) ; 
-
-		  
-		  h_EtR9Less093_[1][0] ->Fill ( photonEt );		
-		  if ( phoIsInBarrel ) h_EtR9Less093_[1][1] ->Fill ( photonEt );		
-		  if ( phoIsInEndcap ) h_EtR9Less093_[1][2] ->Fill ( photonEt );		
-
-
 		  
 		  if ( phoIsInBarrel )  {
 		    h_convERes_[0][1]->Fill(aConv->caloCluster()[0]->energy() / (*mcPho).fourMomentum().e() );

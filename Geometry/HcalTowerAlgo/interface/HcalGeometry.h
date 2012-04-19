@@ -18,7 +18,7 @@ class HcalGeometry : public CaloSubdetectorGeometry
 
       enum { k_NumberOfCellsForCorners = HcalDetId::kSizeForDenseIndexing } ;
 
-      enum { k_NumberOfShapes = 87 } ;
+      enum { k_NumberOfShapes = 500 } ;
 
       enum { k_NumberOfParametersPerShape = 5 } ;
 

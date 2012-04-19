@@ -1,138 +1,51 @@
-<!-- ========= modified by Emmanuele ======= -->
-
 <lcgdict>
 
 <!-- ========================================================================================= -->
-<!-- ================================== TRACKING TRIGGER INCLUDES =================================== -->
+<!-- ==================================== CALO TRIGGER INCLUDES ==================================== -->
 <!-- ========================================================================================= -->
-         <class pattern="std::set<*>"/>  
+<class name="L1CaloTriggerSetup"/>
 
-<!-- Never used to be a problem... -->
-	 <class pattern="edm::Ref<*>"/>
-	 <class pattern="edm::Ptr<*>"/>
+ <class name="l1slhc::L1CaloTower"/>
+ <class name="std::vector<l1slhc::L1CaloTower>"/>
+ <class name="l1slhc::L1CaloTowerCollection"/>
+ <class name="edm::Wrapper<l1slhc::L1CaloTowerCollection>"/>
 
-<!-- Emmanuele -->
-	 <class pattern="edm::Wrapper<edm::Ref<*> >"/>
-
-
-<!--	<class pattern="TrackTriggerHit"/>
-	<class pattern="edm::DetSet<TrackTriggerHit>"/>
-	<class pattern="std::vector<TrackTriggerHit>"/>
-	<class pattern="edm::DetSetVector<TrackTriggerHit>"/>
-	<class pattern="std::vector<edm::DetSet<TrackTriggerHit> >"/>
-	<class pattern="edm::Wrapper< edm::DetSet<TrackTriggerHit> >" splitLevel="0"/>
-	<class pattern="edm::Wrapper< std::vector<edm::DetSet<TrackTriggerHit> > >" splitLevel="0"/>
-	<class pattern="edm::Wrapper< edm::DetSetVector<TrackTriggerHit> >" splitLevel="0"/> Emmanuele -->
-
-<!-- ========================================================================== -->
-<!-- LocalStub -->
-        <class pattern="cmsUpgrades::LocalStub*"/>
-        <class pattern="std::vector<cmsUpgrades::LocalStub*>"/>
-        <class pattern="edm::Wrapper<std::vector<cmsUpgrades::LocalStub*>>"/>
-
-<!-- ========================================================================== -->
-<!-- GlobalStub -->
-	 <class pattern="cmsUpgrades::GlobalStub*"/>
-	 <class pattern="std::vector<cmsUpgrades::GlobalStub*>"/>
-	 <class pattern="edm::Wrapper<std::vector<cmsUpgrades::GlobalStub*>>"/>
-
-<!-- ========================================================================== -->
-<!-- Tracklet -->
-	 <class pattern="cmsUpgrades::Tracklet*"/>
-	 <class pattern="std::vector<cmsUpgrades::Tracklet*>"/>
-	 <class pattern="edm::Wrapper<std::vector<cmsUpgrades::Tracklet*>>"/>
-
-<!-- ========================================================================== -->
-<!-- L1Track -->
-         <class pattern="cmsUpgrades::L1Track*"/>
-         <class pattern="std::vector<cmsUpgrades::L1Track*>"/>
-         <class pattern="edm::Wrapper<std::vector<cmsUpgrades::L1Track*>>"/>
-
-<!-- ========================================================================== -->
-
-<!-- Cluster Types -->
-
-<!-- Emmanuele: changing clusters
-     <class pattern="cmsUpgrades::Cluster*"/>
-     <class name="std::pair<cmsUpgrades::StackedTrackerDetId,int>"/>
-     <class pattern="edm::Wrapper<cmsUpgrades::Cluster*>"/>
-     <class pattern="std::pair<unsigned int,*>"/>
--->
-
-	<class pattern="std::vector<std::vector<cmsUpgrades::Ref_PixelDigi_> >"/>
-
-        <class pattern="cmsUpgrades::Cluster*"/>        
-	<class pattern="edm::Wrapper<cmsUpgrades::Cluster*>"/>
-
-        <class pattern="std::vector<cmsUpgrades::Cluster*>"/> 
-        <class pattern="edm::Wrapper<std::vector<cmsUpgrades::Cluster*> >"/> 
-
-        <class pattern="std::pair<cmsUpgrades::StackedTrackerDetId,int>"/>
-        <class pattern="edm::Wrapper<std::pair<cmsUpgrades::StackedTrackerDetId,int> >"/>
-
-	<class pattern="std::map<std::pair<cmsUpgrades::StackedTrackerDetId,int>,*>"/>
-	<class pattern="edm::Wrapper<std::map<std::pair<cmsUpgrades::StackedTrackerDetId,int>,*> >"/>
-	<class pattern="std::pair<unsigned int,*>"/>
-<!-- ========================================================================== -->
+ <class name="l1slhc::L1CaloTowerRef"/>
+ <class name="l1slhc::L1CaloTowerRefVector"/>
+ <class name="edm::Wrapper<l1slhc::L1CaloTowerRefVector>"/>
 
 
-<!-- ============= -->
-<!--   Barrel DT   -->
-<!-- ============= -->
+ <class name="l1slhc::L1CaloRegion"/>
+ <class name="std::vector<l1slhc::L1CaloRegion>"/>
+ <class name="l1slhc::L1CaloRegionRef"/>
+ <class name="l1slhc::L1CaloRegionRefVector"/>
+ <class name="l1slhc::L1CaloRegionCollection"/>
+ <class name="edm::Wrapper<l1slhc::L1CaloRegionRefVector>"/>
+ <class name="edm::Wrapper<l1slhc::L1CaloRegionCollection>"/>
 
-  <class name="DTTrigData" />
+ <class name="l1slhc::L1CaloCluster"/>
+ <class name="std::vector<l1slhc::L1CaloCluster>"/>
+ <class name="l1slhc::L1CaloClusterCollection"/>
+ <class name="edm::Wrapper<l1slhc::L1CaloClusterCollection>"/>
 
-  <class name="DTBtiTrigData" />
-  <class name="DTBtiTrigger" />
-  <class name="edm::Wrapper<DTBtiTrigger>" />
-  <class name="std::vector<DTBtiTrigger>" />
-  <class name="edm::Wrapper<std::vector<DTBtiTrigger> >" />
 
-  <class name="DTChambPhSegm" />
-  <class name="DTTSPhiTrigger" />
-  <class name="edm::Wrapper<DTTSPhiTrigger>" />
-  <class name="std::vector<DTTSPhiTrigger>" />
-  <class name="edm::Wrapper<std::vector<DTTSPhiTrigger> >" />
+ <class name="l1slhc::L1CaloJet"/>
+ <class name="std::vector<l1slhc::L1CaloJet>"/>
+ <class name="l1slhc::L1CaloJetCollection"/>
+ <class name="edm::Wrapper<l1slhc::L1CaloJetCollection>"/>
 
-  <class name="DTTracoTrigData" />
-
-  <class name="DTStubMatchPt" />
-  <class name="edm::Wrapper<DTStubMatchPt>" />
-  <class name="std::vector<DTStubMatchPt>" />
-  <class name="edm::Wrapper<std::vector<DTStubMatchPt> >" />
-  <class name="DTStubMatchPtVariety" />
-  <class name="DTStubMatchPtAlgorithms" />
-
-  <class name="DTStubMatch" />
-  <class name="edm::Wrapper<DTStubMatch>" />
-  <class name="std::vector<DTStubMatch*>" />
-  <class name="edm::Wrapper<std::vector<DTStubMatch*> >" />
-
-  <class name="DTStubMatchesCollection"/>
-  <class name="edm::Wrapper<DTStubMatchesCollection>" />
-  <class name="TrackerStub" />
-  <class name="lt_stub" />
-  <class name="edm::Wrapper<TrackerStub>" />
-  <class name="edm::Wrapper<lt_stub>" />
-  <class name="std::vector<TrackerStub*>" />
-  <class name="edm::Wrapper<std::vector<TrackerStub*> >" />
-<!--
-  <class name="std::set<TrackerStub*, lt_stub>" />
-  <class name="edm::Wrapper<std::set<TrackerStub*, lt_stub> >" />
--->
-  <class name="DTSeededTracklet" />
-  <class name="edm::Wrapper<DTSeededTracklet>" />
-  <class name="std::vector<DTSeededTracklet*>" />
-  <class name="edm::Wrapper<std::vector<DTSeededTracklet*> >" />
-  <class name="DTSeededTrackletsCollection"/>
-  <class name="edm::Wrapper<DTSeededTrackletsCollection>" />
-
-<!-- End Barrel DT -->
-
+ <class name="l1slhc::L1TowerJet"/>
+ <class name="std::vector<l1slhc::L1TowerJet>"/>
+ <class name="l1slhc::L1TowerJetCollection"/>
+ <class name="edm::Wrapper<l1slhc::L1TowerJetCollection>"/>
 
 <!-- ========================================================================================= -->
 <!-- ========================================================================================= -->
 <!-- ========================================================================================= -->
+
+
+
+
 
 </lcgdict>
 

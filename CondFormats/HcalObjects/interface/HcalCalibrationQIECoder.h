@@ -25,7 +25,7 @@ class HcalCalibrationQIECoder {
   // 32 values 
   const float* minCharges () const;
   void setMinCharge (unsigned fBin, float fValue);
-  void setMinCharges (const float fValue [32]);
+  void setMinCharges (const float fValue [64]);
   uint32_t rawId () const {return mId;}
  private:
   uint32_t mId;
@@ -61,6 +61,38 @@ class HcalCalibrationQIECoder {
   float bin29;
   float bin30;
   float bin31;
+  float bin32;
+  float bin33;
+  float bin34;
+  float bin35;
+  float bin36;
+  float bin37;
+  float bin38;
+  float bin39;
+  float bin40;
+  float bin41;
+  float bin42;
+  float bin43;
+  float bin44;
+  float bin45;
+  float bin46;
+  float bin47;
+  float bin48;
+  float bin49;
+  float bin50;
+  float bin51;
+  float bin52;
+  float bin53;
+  float bin54;
+  float bin55;
+  float bin56;
+  float bin57;
+  float bin58;
+  float bin59;
+  float bin60;
+  float bin61;
+  float bin62;
+  float bin63;
   const float* base () const {return &bin0;}
   float* base () {return &bin0;}
 };

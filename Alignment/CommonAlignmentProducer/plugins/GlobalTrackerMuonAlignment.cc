@@ -16,7 +16,7 @@
 // Original Author:  Alexandre Spiridonov
 //         Created:  Fri Oct 16 15:59:05 CEST 2009
 //
-// $Id: GlobalTrackerMuonAlignment.cc,v 1.4 2010/10/13 12:24:01 mussgill Exp $
+// $Id: GlobalTrackerMuonAlignment.cc,v 1.3 2010/05/11 18:44:04 spiridon Exp $
 //
 
 // system include files
@@ -2981,12 +2981,12 @@ GlobalTrackerMuonAlignment::trackFitter(reco::TrackRef alongTr, reco::TransientT
   if(direction == alongMomentum) firstTSOS = alongTTr.innermostMeasurementState();
   else                           firstTSOS = alongTTr.outermostMeasurementState();
 
-  AlgebraicSymMatrix55 CovLoc;
-  CovLoc(0,0) = 1.   * firstTSOS.localError().matrix()(0,0);
-  CovLoc(1,1) = 10.  * firstTSOS.localError().matrix()(1,1);
-  CovLoc(2,2) = 10.  * firstTSOS.localError().matrix()(2,2);
-  CovLoc(3,3) = 100. * firstTSOS.localError().matrix()(3,3);
-  CovLoc(4,4) = 100. * firstTSOS.localError().matrix()(4,4);
+  AlgebraicSymMatrix CovLoc(5,1);
+  CovLoc(1,1) = 1.   * firstTSOS.localError().matrix()(0,0);
+  CovLoc(2,2) = 10.  * firstTSOS.localError().matrix()(1,1);
+  CovLoc(3,3) = 10.  * firstTSOS.localError().matrix()(2,2);
+  CovLoc(4,4) = 100. * firstTSOS.localError().matrix()(3,3);
+  CovLoc(5,5) = 100. * firstTSOS.localError().matrix()(4,4);
   TrajectoryStateOnSurface initialTSOS(firstTSOS.localParameters(), LocalTrajectoryError(CovLoc),
 				       firstTSOS.surface(), &*magneticField_);
   TrajectoryStateTransform transformer;
@@ -3078,12 +3078,12 @@ GlobalTrackerMuonAlignment::muonFitter(reco::TrackRef alongTr, reco::TransientTr
   if(direction == alongMomentum) firstTSOS = alongTTr.innermostMeasurementState();
   else                           firstTSOS = alongTTr.outermostMeasurementState();
 
-  AlgebraicSymMatrix55 CovLoc;
-  CovLoc(0,0) = 1.   * firstTSOS.localError().matrix()(0,0);
-  CovLoc(1,1) = 10.  * firstTSOS.localError().matrix()(1,1);
-  CovLoc(2,2) = 10.  * firstTSOS.localError().matrix()(2,2);
-  CovLoc(3,3) = 100. * firstTSOS.localError().matrix()(3,3);
-  CovLoc(4,4) = 100. * firstTSOS.localError().matrix()(4,4);
+  AlgebraicSymMatrix CovLoc(5,1);
+  CovLoc(1,1) = 1.   * firstTSOS.localError().matrix()(0,0);
+  CovLoc(2,2) = 10.  * firstTSOS.localError().matrix()(1,1);
+  CovLoc(3,3) = 10.  * firstTSOS.localError().matrix()(2,2);
+  CovLoc(4,4) = 100. * firstTSOS.localError().matrix()(3,3);
+  CovLoc(5,5) = 100. * firstTSOS.localError().matrix()(4,4);
   TrajectoryStateOnSurface initialTSOS(firstTSOS.localParameters(), LocalTrajectoryError(CovLoc),
 				       firstTSOS.surface(), &*magneticField_);
   TrajectoryStateTransform transformer;

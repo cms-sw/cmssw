@@ -19,19 +19,18 @@ class EcalTPGSlidingWindow;
  class EcalFenixStripFormatEB {
   
  private:
-  int inputsFGVB_;
   int inputPeak_;
   int input_;
   uint32_t shift_;
   //  int buffer_;
 
-  int setInput(int input, int inputPeak, int inputsFGVB);
+  int setInput(int input, int inputPeak);
   int process();
 
  public:
   EcalFenixStripFormatEB();
   virtual ~EcalFenixStripFormatEB();
-  virtual void  process(std::vector<int> &, std::vector<int> &, std::vector<int> &, std::vector<int> &) ;
+  virtual void  process(std::vector<int> &, std::vector<int> &, std::vector<int> &) ;
   void setParameters(uint32_t&, const EcalTPGSlidingWindow*&);
 };
 #endif

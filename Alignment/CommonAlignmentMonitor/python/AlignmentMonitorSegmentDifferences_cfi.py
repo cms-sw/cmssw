@@ -7,7 +7,5 @@ AlignmentMonitorSegmentDifferences = cms.untracked.PSet(
     allowTIDTEC = cms.bool(True),
     minDT13Hits = cms.int32(8),
     minDT2Hits = cms.int32(4),
-    minCSCHits = cms.int32(6),
-    doDT = cms.bool(True),
-    doCSC = cms.bool(True)
-)
+    minCSCHits = cms.int32(6)
+    )

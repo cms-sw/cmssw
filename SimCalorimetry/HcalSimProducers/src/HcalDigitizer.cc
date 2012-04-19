@@ -2,13 +2,16 @@
 #include "SimCalorimetry/HcalSimProducers/src/HcalTestHitGenerator.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalShapes.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HFShape.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/ZDCShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitCorrection.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameterMap.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMHitResponse.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDIonFeedbackSim.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -18,6 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloShapeIntegrator.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
@@ -28,15 +32,12 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseGenerator.h"
-#include "CondFormats/HcalObjects/interface/HcalCholeskyMatrix.h"
-#include "CondFormats/HcalObjects/interface/HcalCholeskyMatrices.h"
 #include <boost/foreach.hpp>
-using namespace std;
 
 namespace HcalDigitizerImpl {
 
   template<typename SIPMDIGITIZER>
-  void fillSiPMCells(const vector<int> & siPMCells, SIPMDIGITIZER * siPMDigitizer)
+  void fillSiPMCells(const std::vector<int> & siPMCells, SIPMDIGITIZER * siPMDigitizer)
   {
     std::vector<DetId> siPMDetIds;
     siPMDetIds.reserve(siPMCells.size());
@@ -51,7 +52,7 @@ namespace HcalDigitizerImpl {
   // if both exist, assume the SiPM one has cells filled, and
   // assign the rest to the HPD
   template<typename HPDDIGITIZER, typename SIPMDIGITIZER>
-  void fillCells(const vector<DetId>& allCells,
+  void fillCells(const std::vector<DetId>& allCells,
                  HPDDIGITIZER * hpdDigitizer,
                  SIPMDIGITIZER * siPMDigitizer)
   {
@@ -80,23 +81,32 @@ namespace HcalDigitizerImpl {
 HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps) 
 : theGeometry(0),
   theParameterMap(new HcalSimParameterMap(ps)),
-  theShapes(new HcalShapes()),
+  theHcalShape(0),
+  theSiPMShape(0),
+  theHFShape(new HFShape()),
+  theZDCShape(new ZDCShape()),
+  theHcalIntegratedShape(0),
+  theSiPMIntegratedShape(0),
+  theHFIntegratedShape(new CaloShapeIntegrator(theHFShape)),
+  theZDCIntegratedShape(new CaloShapeIntegrator(theZDCShape)),
   theHBHEResponse(0),
   theHBHESiPMResponse(0),
   theHOResponse(0),   
   theHOSiPMResponse(0),
-  theHFResponse(new CaloHitResponse(theParameterMap, theShapes)),
-  theZDCResponse(new CaloHitResponse(theParameterMap, theShapes)),
+  theHFResponse(new CaloHitResponse(theParameterMap, theHFIntegratedShape)),
+  theZDCResponse(new CaloHitResponse(theParameterMap, theZDCIntegratedShape)),
   theHBHEAmplifier(0),
   theHFAmplifier(0),
   theHOAmplifier(0),
   theZDCAmplifier(0),
   theIonFeedback(0),
   theCoderFactory(0),
+  theUpgradeCoderFactory(0),
   theHBHEElectronicsSim(0),
   theHFElectronicsSim(0),
   theHOElectronicsSim(0),
   theZDCElectronicsSim(0),
+  theUpgradeElectronicsSim(0),
   theHBHEHitFilter(),
   theHFHitFilter(ps.getParameter<bool>("doHFWindow")),
   theHOHitFilter(),
@@ -111,6 +121,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   theHOSiPMDigitizer(0),
   theHFDigitizer(0),
   theZDCDigitizer(0),
+  theUpgradeDigitizer(0),
   theHBHEDetIds(),
   theHOHPDDetIds(),
   theHOSiPMDetIds(),
@@ -133,6 +144,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   double HFtp = ps.getParameter<double>("HFTuningParameter");
   double HOtp = ps.getParameter<double>("HOTuningParameter");
 
+
   // need to make copies, because they might get different noise generators
   theHBHEAmplifier = new HcalAmplifier(theParameterMap, doNoise);
   theHFAmplifier = new HcalAmplifier(theParameterMap, doNoise);
@@ -148,10 +160,15 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   theHOAmplifier->setUseOldHO(useOldNoiseHO);
 
   theCoderFactory = new HcalCoderFactory(HcalCoderFactory::DB);
+  theUpgradeCoderFactory = new HcalCoderFactory(HcalCoderFactory::UPGRADE);
+
   theHBHEElectronicsSim = new HcalElectronicsSim(theHBHEAmplifier, theCoderFactory);
   theHFElectronicsSim = new HcalElectronicsSim(theHFAmplifier, theCoderFactory);
   theHOElectronicsSim = new HcalElectronicsSim(theHOAmplifier, theCoderFactory);
   theZDCElectronicsSim = new HcalElectronicsSim(theZDCAmplifier, theCoderFactory);
+
+  theUpgradeElectronicsSim = new HcalElectronicsSim(theHBHEAmplifier, 
+						    theUpgradeCoderFactory);
 
   // a code of 1 means make all cells SiPM
   std::vector<int> hbSiPMCells(ps.getParameter<edm::ParameterSet>("hb").getParameter<std::vector<int> >("siPMCells"));
@@ -162,28 +179,49 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   bool doHOHPD = (theHOSiPMCode != 1);
   bool doHBHESiPM = !hbSiPMCells.empty();
   bool doHOSiPM = (theHOSiPMCode != 0);
+
+  /*
+  std::cout << " SimCalorimetry/HcalSimProducers/src/HcalDigitizer.cc : "
+	    << " doHBHESiPM = " << doHBHESiPM << std::endl;
+  */
+
+  if(doHBHEHPD || doHOHPD )
+  {
+    theHcalShape = new HcalShape();
+    theHcalIntegratedShape = new CaloShapeIntegrator(theHcalShape);
+  }
+  if(doHBHESiPM || doHOSiPM )
+  {
+    theSiPMShape = new HcalSiPMShape();
+    theSiPMIntegratedShape = new CaloShapeIntegrator(theSiPMShape);
+  }
+
   if(doHBHEHPD)
   {
-    theHBHEResponse = new CaloHitResponse(theParameterMap, theShapes);
+    theHBHEResponse = new CaloHitResponse(theParameterMap, theHcalIntegratedShape);
     theHBHEResponse->setHitFilter(&theHBHEHitFilter);
     theHBHEDigitizer = new HBHEDigitizer(theHBHEResponse, theHBHEElectronicsSim, doEmpty);
   }
   if(doHOHPD) 
   {
-    theHOResponse = new CaloHitResponse(theParameterMap, theShapes);
+    theHOResponse = new CaloHitResponse(theParameterMap, theHcalIntegratedShape);
     theHOResponse->setHitFilter(&theHOHitFilter);
     theHODigitizer = new HODigitizer(theHOResponse, theHOElectronicsSim, doEmpty);
   }
 
   if(doHBHESiPM)
   {
-    theHBHESiPMResponse = new HcalSiPMHitResponse(theParameterMap, theShapes);
+    theHBHESiPMResponse = new HcalSiPMHitResponse(theParameterMap, theSiPMShape, theSiPMIntegratedShape);
     theHBHESiPMResponse->setHitFilter(&theHBHEHitFilter);
-    theHBHESiPMDigitizer = new HBHEDigitizer(theHBHESiPMResponse, theHBHEElectronicsSim, doEmpty);
+    theHBHESiPMDigitizer = new HBHEDigitizer(theHBHESiPMResponse, 
+					     theHBHEElectronicsSim, doEmpty);
+    theUpgradeDigitizer = new UpgradeDigitizer(theHBHESiPMResponse, 
+					       theUpgradeElectronicsSim, 
+					       doEmpty);
   }
   if(doHOSiPM)
   {
-    theHOSiPMResponse = new HcalSiPMHitResponse(theParameterMap, theShapes);
+    theHOSiPMResponse = new HcalSiPMHitResponse(theParameterMap, theSiPMShape, theSiPMIntegratedShape);
     theHOSiPMResponse->setHitFilter(&theHOSiPMHitFilter);
     theHOSiPMDigitizer = new HODigitizer(theHOSiPMResponse, theHOElectronicsSim, doEmpty);
   }
@@ -193,6 +231,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   {
     HcalDigitizerImpl::fillSiPMCells(hbSiPMCells, theHBHESiPMDigitizer);
   }
+
 
   theHFResponse->setHitFilter(&theHFHitFilter);
   theZDCResponse->setHitFilter(&theZDCHitFilter);
@@ -211,6 +250,12 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   theHFDigitizer = new HFDigitizer(theHFResponse, theHFElectronicsSim, doEmpty);
   theZDCDigitizer = new ZDCDigitizer(theZDCResponse, theZDCElectronicsSim, doEmpty);
 
+  edm::ParameterSet ps0 = ps.getParameter<edm::ParameterSet>("HcalReLabel");
+  relabel_ = ps0.getUntrackedParameter<bool>("RelabelHits");
+  if (relabel_) {
+    theRelabeller=new HcalHitRelabeller(ps0.getUntrackedParameter<edm::ParameterSet>("RelabelRules"));
+  }	
+	
   bool doHPDNoise = ps.getParameter<bool>("doHPDNoise");
   if(doHPDNoise) {
     //edm::ParameterSet hpdNoisePset = ps.getParameter<edm::ParameterSet>("HPDNoiseLibrary");
@@ -221,11 +266,12 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
 
   if(ps.getParameter<bool>("doIonFeedback") && theHBHEResponse)
   {
-    theIonFeedback = new HPDIonFeedbackSim(ps, theShapes);
+    theIonFeedback = new HPDIonFeedbackSim(ps);
     theHBHEResponse->setPECorrection(theIonFeedback);
     if(ps.getParameter<bool>("doThermalNoise"))
     {
       theHBHEAmplifier->setIonFeedbackSim(theIonFeedback);
+      theIonFeedback->setShape(theHcalIntegratedShape);
     }
   }
 
@@ -235,6 +281,8 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
     if(theHBHESiPMDigitizer) theHBHESiPMDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
     if(theHODigitizer) theHODigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
     if(theHOSiPMDigitizer) theHOSiPMDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
+    if (theUpgradeDigitizer) 
+      theUpgradeDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
     theHFDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
     theZDCDigitizer->setNoiseHitGenerator(theNoiseHitGenerator);
   }
@@ -252,6 +300,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   if(theHBHESiPMDigitizer) theHBHESiPMDigitizer->setRandomEngine(engine);
   if(theHODigitizer) theHODigitizer->setRandomEngine(engine);
   if(theHOSiPMDigitizer) theHOSiPMDigitizer->setRandomEngine(engine);
+  if (theUpgradeDigitizer) theUpgradeDigitizer->setRandomEngine(engine);
   if(theIonFeedback) theIonFeedback->setRandomEngine(engine);
   theHFDigitizer->setRandomEngine(engine);
   theZDCDigitizer->setRandomEngine(engine);
@@ -259,6 +308,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps)
   if (theHitCorrection!=0) theHitCorrection->setRandomEngine(engine);
 
   hitsProducer_ = ps.getParameter<std::string>("hitsProducer");
+
 }
 
 
@@ -269,7 +319,16 @@ HcalDigitizer::~HcalDigitizer() {
   delete theHOSiPMDigitizer;
   delete theHFDigitizer;
   delete theZDCDigitizer;
+  delete theUpgradeDigitizer;
   delete theParameterMap;
+  delete theHcalShape;
+  delete theSiPMShape;
+  delete theHFShape;
+  delete theZDCShape;
+  delete theHcalIntegratedShape;
+  delete theSiPMIntegratedShape;
+  delete theHFIntegratedShape;
+  delete theZDCIntegratedShape;
   delete theHBHEResponse;
   delete theHBHESiPMResponse;
   delete theHOResponse;
@@ -280,11 +339,13 @@ HcalDigitizer::~HcalDigitizer() {
   delete theHFElectronicsSim;
   delete theHOElectronicsSim;
   delete theZDCElectronicsSim;
+  delete theUpgradeElectronicsSim;
   delete theHBHEAmplifier;
   delete theHFAmplifier;
   delete theHOAmplifier;
   delete theZDCAmplifier;
   delete theCoderFactory;
+  delete theUpgradeCoderFactory;
   delete theHitCorrection;
   delete theNoiseGenerator;
 }
@@ -331,9 +392,10 @@ void HcalDigitizer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   theHFAmplifier->setDbService(conditions.product());
   theHOAmplifier->setDbService(conditions.product());
   theZDCAmplifier->setDbService(conditions.product());
-
-  theCoderFactory->setDbService(conditions.product());
+  theUpgradeElectronicsSim->setDbService(conditions.product());
   theParameterMap->setDbService(conditions.product());
+  theCoderFactory->setDbService(conditions.product());
+  theUpgradeCoderFactory->setDbService(conditions.product());
 
    edm::ESHandle<HcalCholeskyMatrices> refCholesky;
    eventSetup.get<HcalCholeskyMatricesRcd>().get(refCholesky);
@@ -352,9 +414,14 @@ void HcalDigitizer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   theHOAmplifier->setADCPeds(myADCPedestals);
 
 
+  // get the correct geometry
+  checkGeometry(eventSetup);
+  
   // Step A: Get Inputs
   edm::Handle<CrossingFrame<PCaloHit> > cf, zdccf;
-
+//  std::auto_ptr<MixCollection<PCaloHit> > col;
+		
+	
   // test access to SimHits for HcalHits and ZDC hits
   const std::string zdcHitsName(hitsProducer_+"ZDCHITS");
   e.getByLabel("mix", zdcHitsName , zdccf);
@@ -370,7 +437,14 @@ void HcalDigitizer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   e.getByLabel("mix", hcalHitsName ,cf);
   MixCollection<PCaloHit> * col = 0 ;
   if(cf.isValid()){
-    col = new MixCollection<PCaloHit>(cf.product());
+    if (relabel_) {
+      // Relabel PCaloHits
+      theRelabeller->process(*(cf.product()));
+      col=new MixCollection<PCaloHit>(theRelabeller->getCrossingFrame());
+    } else {
+      col=new MixCollection<PCaloHit>(cf.product());
+    }
+    //    col = new MixCollection<PCaloHit>(cf.product());
   }else{
     edm::LogInfo("HcalDigitizer") << "We don't have HCAL hit collection available ";
     isHCAL = false;
@@ -382,18 +456,21 @@ void HcalDigitizer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
     if(isHCAL)
       theHitCorrection->fillChargeSums(*col);
   }
-
   // Step B: Create empty output
+
   std::auto_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection());
   std::auto_ptr<HODigiCollection> hoResult(new HODigiCollection());
   std::auto_ptr<HFDigiCollection> hfResult(new HFDigiCollection());
   std::auto_ptr<ZDCDigiCollection> zdcResult(new ZDCDigiCollection());
+  std::auto_ptr<HcalUpgradeDigiCollection> 
+    upgradeResult(new HcalUpgradeDigiCollection());
 
   // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
   if(isHCAL&&hbhegeo)
   {
     if(theHBHEDigitizer) theHBHEDigitizer->run(*col, *hbheResult);
     if(theHBHESiPMDigitizer) theHBHESiPMDigitizer->run(*col, *hbheResult);
+    if (theUpgradeDigitizer) theUpgradeDigitizer->run(*col, *upgradeResult);
   }
   if(isHCAL&&hogeo)
   {
@@ -408,31 +485,20 @@ void HcalDigitizer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   edm::LogInfo("HcalDigitizer") << "HCAL HBHE digis : " << hbheResult->size();
   edm::LogInfo("HcalDigitizer") << "HCAL HO digis   : " << hoResult->size();
   edm::LogInfo("HcalDigitizer") << "HCAL HF digis   : " << hfResult->size();
-  edm::LogInfo("HcalDigitizer") << "HCAL ZDC digis   : " << zdcResult->size();
+  edm::LogInfo("HcalDigitizer") << "HCAL ZDC digis  : " << zdcResult->size();
+  edm::LogInfo("HcalDigitizer") << "HCAL upgrade digis : " 
+				<< upgradeResult->size();
+
+  if (col) delete col;
+  if (colzdc) delete colzdc;
+
   // Step D: Put outputs into event
   e.put(hbheResult);
   e.put(hoResult);
   e.put(hfResult);
   e.put(zdcResult);
-
-  if(theHitCorrection) {
-    theHitCorrection->clear();
-  }
+  e.put(upgradeResult);
 }
-
-
-void HcalDigitizer::beginRun(const edm::EventSetup & es)
-{
-  checkGeometry(es);
-  theShapes->beginRun(es);
-}
-
-
-void HcalDigitizer::endRun()
-{
-  theShapes->endRun();
-}
-
 
 void HcalDigitizer::checkGeometry(const edm::EventSetup & eventSetup) {
   // TODO find a way to avoid doing this every event
@@ -444,8 +510,10 @@ void HcalDigitizer::checkGeometry(const edm::EventSetup & eventSetup) {
     theGeometry = &*geometry;
     updateGeometry();
   }
-}
+  // pass it to Relabeller
+  theRelabeller->setGeometry(theGeometry);
 
+}
 
 void  HcalDigitizer::updateGeometry()
 {
@@ -456,29 +524,68 @@ void  HcalDigitizer::updateGeometry()
   theHFResponse->setGeometry(theGeometry);
   theZDCResponse->setGeometry(theGeometry);
 
-  const vector<DetId>& hbCells = theGeometry->getValidDetIds(DetId::Hcal, HcalBarrel);
-  const vector<DetId>& heCells = theGeometry->getValidDetIds(DetId::Hcal, HcalEndcap);
-  const vector<DetId>& hoCells = theGeometry->getValidDetIds(DetId::Hcal, HcalOuter);
-  const vector<DetId>& hfCells = theGeometry->getValidDetIds(DetId::Hcal, HcalForward);
-  const vector<DetId>& zdcCells = theGeometry->getValidDetIds(DetId::Calo, HcalZDCDetId::SubdetectorId);
-  //const vector<DetId>& hcalTrigCells = geometry->getValidDetIds(DetId::Hcal, HcalTriggerTower);
-  //const vector<DetId>& hcalCalib = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
+  const std::vector<DetId>& hbCells = theGeometry->getValidDetIds(DetId::Hcal, HcalBarrel);
+
+  /*
+   std::cout << " ===== HcalDigitizer::updateGeometry: valid HB cells" << std::endl;
+
+  for (unsigned int i = 0; i < hbCells.size(); i++) {
+
+    HcalDetId cell(hbCells[i]); 
+    int depth = cell.depth();
+    int iphi  = cell.iphi();
+    int ieta  = cell.ieta();
+    int sub   = cell.subdet();
+
+    std::cout << "sub, ieta, iphi, depth = "  
+	      <<  sub << ", " << ieta << ", " << iphi << ", " << depth 
+	      << std::endl; 
+  }
+  */
+
+  const std::vector<DetId>& heCells = theGeometry->getValidDetIds(DetId::Hcal, HcalEndcap);
+
+  /*  
+  std::cout << " ===== HcalDigitizer::updateGeometry: valid HE cells" << std::endl;
+
+  for (unsigned int i = 0; i < heCells.size(); i++) {
+
+    HcalDetId cell(heCells[i]); 
+    int depth = cell.depth();
+    int iphi  = cell.iphi();
+    int ieta  = cell.ieta();
+    int sub   = cell.subdet();
+
+    std::cout << "sub, ieta, iphi, depth = "  
+	      <<  sub << ", " << ieta << ", " << iphi << ", " << depth 
+	      << std::endl; 
+
+  }
+ 
+  */
+
+  const std::vector<DetId>& hoCells = theGeometry->getValidDetIds(DetId::Hcal, HcalOuter);
+  const std::vector<DetId>& hfCells = theGeometry->getValidDetIds(DetId::Hcal, HcalForward);
+  const std::vector<DetId>& zdcCells = theGeometry->getValidDetIds(DetId::Calo, HcalZDCDetId::SubdetectorId);
+  //const std::vector<DetId>& hcalTrigCells = geometry->getValidDetIds(DetId::Hcal, HcalTriggerTower);
+  //const std::vector<DetId>& hcalCalib = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
   //std::cout<<"HcalDigitizer::CheckGeometry number of cells: "<<zdcCells.size()<<std::endl;
+
   if(zdcCells.empty()) zdcgeo = false;
   if(hbCells.empty() && heCells.empty()) hbhegeo = false;
   if(hoCells.empty()) hogeo = false;
   if(hfCells.empty()) hfgeo = false;
   // combine HB & HE
 
-
   theHBHEDetIds = hbCells;
   theHBHEDetIds.insert(theHBHEDetIds.end(), heCells.begin(), heCells.end());
 
   HcalDigitizerImpl::fillCells(theHBHEDetIds, theHBHEDigitizer, theHBHESiPMDigitizer);
-  //HcalDigitizerImpl::fillCells(hoCells, theHODigitizer, theHOSiPMDigitizer);
+
   buildHOSiPMCells(hoCells);
   theHFDigitizer->setDetIds(hfCells);
   theZDCDigitizer->setDetIds(zdcCells); 
+  if(theUpgradeDigitizer) theUpgradeDigitizer->setDetIds(theHBHEDetIds);
 }
 
 

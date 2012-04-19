@@ -36,7 +36,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
 	 p.getParameter<edm::ParameterSet>("HCalSD").getParameter<int>("TimeSliceUnit"),
 	 p.getParameter<edm::ParameterSet>("HCalSD").getParameter<bool>("IgnoreTrackID")), 
   numberingFromDDD(0), numberingScheme(0), showerLibrary(0), hfshower(0), 
-  showerParam(0), showerPMT(0), showerBundle(0){
+  showerParam(0), showerPMT(0), showerBundle(0), darkening(0) {
 
   //static SimpleConfigurable<bool>   on1(false, "HCalSD:UseBirkLaw");
   //static SimpleConfigurable<double> bk1(0.013, "HCalSD:BirkC1");
@@ -63,6 +63,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   useHF            = m_HC.getUntrackedParameter<bool>("UseHF",true);
   bool forTBH2     = m_HC.getUntrackedParameter<bool>("ForTBH2",false);
   useLayerWt       = m_HC.getUntrackedParameter<bool>("UseLayerWt",false);
+  lumiDarkening    = m_HC.getUntrackedParameter<double>("LumiDarkening",0.0);
   std::string file = m_HC.getUntrackedParameter<std::string>("WtFile","None");
 
 #ifdef DebugLog
@@ -90,7 +91,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
 			  << " ions below " << kmaxIon << " MeV\n"
 			  << "         Threshold for storing hits in HB: "
 			  << eminHitHB << " HE: " << eminHitHE << " HO: "
-			  << eminHitHO << " HF: " << eminHitHF;
+			  << eminHitHO << " HF: " << eminHitHF << "\n"
+			  << "Luminosity for Darkening " << lumiDarkening;
 
   numberingFromDDD = new HcalNumberingFromDDD(name, cpv);
   HcalNumberingScheme* scheme;
@@ -299,6 +301,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     hit_[i] = time_[i]= dist_[i] = 0;
   }
 
+  if (lumiDarkening > 0) darkening = new HEDarkening();
+
 #ifdef DebugLog
   edm::Service<TFileService> tfile;
 
@@ -337,6 +341,7 @@ HCalSD::~HCalSD() {
   if (showerParam)      delete showerParam;
   if (showerPMT)        delete showerPMT;
   if (showerBundle)     delete showerBundle;
+  if (darkening)        delete darkening;
 }
 
 bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
@@ -432,6 +437,21 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
     int lay   = (touch->GetReplicaNumber(0)/10)%100 + 1;
     G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
     weight = layerWeight(det+3, hitPoint, depth, lay);
+  }
+
+  if (darkening !=0 && det == 1) {
+    int lay = (touch->GetReplicaNumber(0)/10)%100 + 1;
+    G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
+    float r = sqrt((hitPoint.x())*(hitPoint.x())+(hitPoint.y())*(hitPoint.y()))/cm;
+    LogDebug("HcalSim") << "HCalSD:Darkening >>>  position: "<< hitPoint 
+			<< "    lay: " << lay << "   R: " << r << " cm ";
+
+    float normalized_lumi = darkening->int_lumi(lumiDarkening);
+    float dose_acquired   = darkening->dose(lay-2,r); // NB: diff. layer count
+    weight *= darkening->degradation(normalized_lumi * dose_acquired);
+    LogDebug("HcalSim") << "HCalSD:         >>> norm_Lumi: " << normalized_lumi
+			<< "  dose: " << dose_acquired
+			<< "    coefficient = " << weight;
   }
 
   if (suppressHeavy) {

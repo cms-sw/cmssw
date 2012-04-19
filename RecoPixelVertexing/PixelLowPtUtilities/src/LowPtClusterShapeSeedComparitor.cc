@@ -11,6 +11,7 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
@@ -117,15 +118,16 @@ vector<GlobalPoint> LowPtClusterShapeSeedComparitor::getGlobalPoss
 }
 
 /*****************************************************************************/
-bool LowPtClusterShapeSeedComparitor::compatible(const SeedingHitSet &hits,
-					    const edm::EventSetup &es)
+void LowPtClusterShapeSeedComparitor::init(const edm::EventSetup& es) {
+  es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter", theShapeFilter);
+}
+
+bool LowPtClusterShapeSeedComparitor::compatible(const SeedingHitSet &hits, const TrackingRegion &)
 //(const reco::Track* track, const vector<const TrackingRecHit *> & recHits) const
 {
 
-  // Get cluster shape hit filter
-  edm::ESHandle<ClusterShapeHitFilter> shape;
-  es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter",shape);
-  theFilter = shape.product();
+  const ClusterShapeHitFilter * filter = theShapeFilter.product();
+  assert(filter != 0 && "LowPtClusterShapeSeedComparitor: init(EventSetup) method was not called");
 
   const TransientTrackingRecHit::ConstRecHitContainer & thits = hits.container();
 
@@ -170,7 +172,7 @@ bool LowPtClusterShapeSeedComparitor::compatible(const SeedingHitSet &hits,
 					       <<"global direction:"<< globalDirs[i];
 
 
-    if(! theFilter->isCompatible(*pixelRecHit, globalDirs[i]) )
+    if(! filter->isCompatible(*pixelRecHit, globalDirs[i]) )
     {
       LogTrace("LowPtClusterShapeSeedComparitor")
          << " clusShape is not compatible"

@@ -25,7 +25,6 @@ mix = cms.EDProducer("MixingModule",
             sigmaInel = cms.double(80.0),
             Lumi = cms.double(10.0)
         ),
-        seed = cms.int32(1234567),
         type = cms.string('poisson'),
 	sequential = cms.untracked.bool(False),
         fileNames = FileNames 

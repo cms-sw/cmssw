@@ -1,5 +1,6 @@
 <bin   name="cmsRun" file="cmsRun.cpp">
   <use   name="roothistmatrix"/>
+  <use   name="jemalloc"/>
   <use   name="boost"/>
   <use   name="boost_program_options"/>
   <use   name="boost_python"/>

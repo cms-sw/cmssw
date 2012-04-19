@@ -8,6 +8,7 @@ CkfBaseTrajectoryFilter_block = cms.PSet(
     minimumNumberOfHits = cms.int32(5),
 # What is this ?
     chargeSignificance = cms.double(-1.0),
+    #chargeSignificance = cms.double(3.0),
 
 #--- Cuts applied after each new hit added to trajectory
 # Apply Pt cut to trajectories with at least this many hits,
@@ -16,9 +17,15 @@ CkfBaseTrajectoryFilter_block = cms.PSet(
     nSigmaMinPt = cms.double(5.0),
     minHitsMinPt = cms.int32(3),
 # Cuts on number of hits on tracks.
-    maxLostHits = cms.int32(1),
+    #maxLostHits = cms.int32(1),
+    maxLostHits = cms.int32(999), #filter replaced by maxLostHitsFraction
     maxConsecLostHits = cms.int32(1),
-    maxNumberOfHits = cms.int32(100)
+    maxNumberOfHits = cms.int32(100),
+
+# Cuts on fraction of lost hits on track
+    maxLostHitsFraction = cms.double(1./10),
+    constantValueForLostHitsFractionFilter = cms.double(1.),
+
 )
 ChargeSignificanceTrajectoryFilter_block = cms.PSet(
     ComponentType = cms.string('ChargeSignificanceTrajectoryFilter'),

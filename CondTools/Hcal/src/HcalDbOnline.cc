@@ -1,7 +1,6 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbOnline.cc,v 1.20 2009/11/18 23:03:16 lsexton Exp $
 //
 #include <limits>
 #include <string>
@@ -391,8 +390,8 @@ bool HcalDbOnline::getObject (HcalCalibrationQIEData* fObject, const std::string
 	int phi = rset->getInt (index++);
 	int depth = rset->getInt (index++);
 	std::string subdet = rset->getString (index++);
-	float values [32];
-	for (unsigned bin = 0; bin < 32; bin++) values [bin] = rset->getFloat (index++);
+	float values [64];
+	for (unsigned bin = 0; bin < 64; bin++) values [bin] = rset->getFloat (index++);
 	
 	HcalSubdetector sub = hcalSubdet (subdet);
 	HcalDetId id (sub, z * eta, phi, depth);

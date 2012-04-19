@@ -12,6 +12,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 class MagneticField;
+class CurvilinearTrajectoryParameters;
 class GlobalTrajectoryParameters;
 class CurvilinearTrajectoryError;
 class FreeTrajectoryState;
@@ -37,16 +38,16 @@ class GhostTrackPrediction {
 	                     const GlobalError &priorError,
 	                     const GlobalVector &direction,
 	                     double coneRadius);
-
 	GhostTrackPrediction(const GlobalPoint &priorPosition, 
 	                     const GlobalError &priorError,
 	                     const GlobalVector &direction,
 	                     const GlobalError &directionError)
 	{ init(priorPosition, priorError, direction, directionError); }
 
+	GhostTrackPrediction(const CurvilinearTrajectoryParameters &trajectory,
+	                     const CurvilinearTrajectoryError &error);
 	GhostTrackPrediction(const GlobalTrajectoryParameters &trajectory,
 	                     const CurvilinearTrajectoryError &error);
-
 	GhostTrackPrediction(const Track &track);
 
 	double z() const { return prediction_[0]; }
@@ -77,6 +78,7 @@ class GhostTrackPrediction {
 
 	CartesianError cartesianError(double lambda = 0.) const;
 
+	CurvilinearTrajectoryParameters curvilinearTrajectory() const;
 	GlobalTrajectoryParameters globalTrajectory(
 				const MagneticField *fieldProvider) const;
 	CurvilinearTrajectoryError curvilinearError() const;

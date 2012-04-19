@@ -9,8 +9,8 @@
     
     coder which uses DB services to convert to fC
     $Author: ratnikov
-    $Date: 2006/01/06 17:52:24 $
-    $Revision: 1.4 $
+    $Date: 2011/01/21 22:24:37 $
+    $Revision: 1.5.6.1 $
 */
 
 class HcalQIECoder;
@@ -31,6 +31,9 @@ public:
   virtual void fC2adc(const CaloSamples& clf, ZDCDataFrame& df, int fCapIdOffset) const;
   virtual void fC2adc(const CaloSamples& clf, HcalCalibDataFrame& df, int fCapIdOffset) const;
  private:
+  virtual void adc2fC(const HcalUpgradeDataFrame& df, CaloSamples& lf) const { }
+  virtual void fC2adc(const CaloSamples& clf, HcalUpgradeDataFrame& df, int fCapIdOffset) const { }
+
   template <class Digi> void adc2fC_ (const Digi& df, CaloSamples& clf) const;
   template <class Digi> void fC2adc_ (const CaloSamples& clf, Digi& df, int fCapIdOffset) const;
 

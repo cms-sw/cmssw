@@ -209,18 +209,4 @@ namespace csc {
 		  << std::endl;
       }
   }
-
-  unsigned L1Track::modeExtended(void) const
-  {
-    unsigned modeExt = mode(); 
-    unsigned fr = (m_ptAddress>>21)&0x1;
-
-    if (modeExt ==11 && fr==1)
-	modeExt = 17;
-    else if (modeExt==12 && fr==1)
-	modeExt = 18;
-    else if (modeExt==14 && fr==1)
-	modeExt = 16;
-    return modeExt;
-  }
 }

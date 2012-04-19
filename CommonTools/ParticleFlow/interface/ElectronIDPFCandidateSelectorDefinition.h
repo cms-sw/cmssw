@@ -1,12 +1,12 @@
-#ifndef PhysicsTools_PFCandProducer_ElectronIDPFCandidateSelectorDefinition
-#define PhysicsTools_PFCandProducer_ElectronIDPFCandidateSelectorDefinition
+#ifndef CommonTools_ParticleFlow_ElectronIDPFCandidateSelectorDefinition
+#define CommonTools_ParticleFlow_ElectronIDPFCandidateSelectorDefinition
 
 /**
    \class    pf2pat::ElectronIDPFCandidateSelectorDefinition ElectronIDPFCandidateSelectorDefinition.h "CommonTools/ParticleFlow/interface/ElectronIDPFCandidateSelectorDefinition.h"
    \brief    Selects PFCandidates basing on cuts provided with string cut parser
 
    \author   Giovanni Petrucciani
-   \version  $Id: ElectronIDPFCandidateSelectorDefinition.h,v 1.1 2010/09/30 12:35:50 gpetrucc Exp $
+   \version  $Id: ElectronIDPFCandidateSelectorDefinition.h,v 1.1 2011/01/28 20:56:44 srappocc Exp $
 */
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"

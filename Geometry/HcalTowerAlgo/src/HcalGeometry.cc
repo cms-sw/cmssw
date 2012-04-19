@@ -242,7 +242,7 @@ HcalGeometry::getCells( const GlobalPoint& r,
 
 	       const int idep_lo     ( 1 == is ? 4 : 1 ) ;
 	       const int idep_hi     ( 1 == is ? 4 :
-				       ( 2 == is ? 3 : 2 ) ) ;
+				       ( 3 == is ? 2 : 7 ) ) ;
 	       for( int ieta ( ieta_lo ) ; ieta <= ieta_hi ; ++ieta ) // over eta limits
 	       {
 		  if( ieta != 0 )

@@ -47,6 +47,7 @@ class HBHENoiseFilterResultProducer : public edm::EDProducer {
       // ----------member data ---------------------------
 
       // parameters
+      edm::InputTag label_;
       double minRatio_, maxRatio_;
       int minHPDHits_, minRBXHits_, minHPDNoOtherHits_;
       int minZeros_;
@@ -54,6 +55,8 @@ class HBHENoiseFilterResultProducer : public edm::EDProducer {
       double maxRBXEMF_;
       int minNumIsolatedNoiseChannels_;
       double minIsolatedNoiseSumE_, minIsolatedNoiseSumEt_;
+
+      bool useTS4TS5_;
 };
 
 
@@ -64,6 +67,7 @@ class HBHENoiseFilterResultProducer : public edm::EDProducer {
 HBHENoiseFilterResultProducer::HBHENoiseFilterResultProducer(const edm::ParameterSet& iConfig)
 {
   //now do what ever initialization is needed
+  label_ = iConfig.getParameter<edm::InputTag>("label"),
   minRatio_ = iConfig.getParameter<double>("minRatio");
   maxRatio_ = iConfig.getParameter<double>("maxRatio");
   minHPDHits_ = iConfig.getParameter<int>("minHPDHits");
@@ -76,6 +80,7 @@ HBHENoiseFilterResultProducer::HBHENoiseFilterResultProducer(const edm::Paramete
   minNumIsolatedNoiseChannels_ = iConfig.getParameter<int>("minNumIsolatedNoiseChannels");
   minIsolatedNoiseSumE_ = iConfig.getParameter<double>("minIsolatedNoiseSumE");
   minIsolatedNoiseSumEt_ = iConfig.getParameter<double>("minIsolatedNoiseSumEt");  
+  useTS4TS5_ = iConfig.getParameter<bool>("useTS4TS5");
 
   produces<bool>("HBHENoiseFilterResult");
 }
@@ -99,7 +104,7 @@ HBHENoiseFilterResultProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
   // get the Noise summary object
   edm::Handle<HcalNoiseSummary> summary_h;
-  iEvent.getByType(summary_h);
+  iEvent.getByLabel(label_, summary_h);
   if(!summary_h.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound) << " could not find HcalNoiseSummary.\n";
     return;
@@ -120,6 +125,7 @@ HBHENoiseFilterResultProducer::produce(edm::Event& iEvent, const edm::EventSetup
   if(summary.numIsolatedNoiseChannels()>=minNumIsolatedNoiseChannels_) result=false;
   if(summary.isolatedNoiseSumE()>=minIsolatedNoiseSumE_) result=false;
   if(summary.isolatedNoiseSumEt()>=minIsolatedNoiseSumEt_) result=false;
+  if(useTS4TS5_ == true && summary.HasBadRBXTS4TS5() == true) result = false;
 
   std::auto_ptr<bool> pOut(new bool);
   *pOut=result;

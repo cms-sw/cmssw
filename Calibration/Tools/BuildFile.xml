@@ -19,6 +19,7 @@
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/Records"/>
 <use   name="TrackPropagation/SteppingHelixPropagator"/>
+<flags   LCGDICT_ARGS="--deep"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2010/06/14 15:00:40 $
- * $Revision: 1.32 $
+ * $Date: 2010/08/08 08:46:09 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
 */
@@ -84,15 +84,15 @@ void EEPedestalOnlineTask::setup(void){
 
   init_ = true;
 
-  char histo[200];
+  std::string name;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalOnlineTask");
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalOnlineTask/Gain12");
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EEPOT pedestal %s G12", Numbers::sEE(i+1).c_str());
-      mePedMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      name = "EEPOT pedestal " + Numbers::sEE(i+1) + " G12";
+      mePedMapG12_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
       mePedMapG12_[i]->setAxisTitle("ix", 1);
       if ( i+1 >= 1 && i+1 <= 9 ) mePedMapG12_[i]->setAxisTitle("101-ix", 1);
       mePedMapG12_[i]->setAxisTitle("iy", 2);

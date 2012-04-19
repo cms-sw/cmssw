@@ -1,0 +1,469 @@
+#!/usr/bin/env python
+"""CMS TagCollector command-line tool. Feedback and Help: mojedasa@cern.ch
+
+Available commands:
+   tags, diff, difflast, tagset, search, pendingappr, ibs, lastib, pkghist,
+   comment, sign, signall, rejectsign, approve, bypass, rejectappr, remove,
+   pendingpkgs, approvepkgs, cmsdisttags, cmsdistdiff
+
+Common commands:
+   tags         Prints all tags of up to 4 releases.
+   diff         Same, but only tags that differ.
+ ^ difflast     Same, but only print tags of the last release given.
+                (useful for executing 'addpkg -f' later on).
+
+   tagset       Prints the tags of one tagset, given its ID.
+   tagsetinfo   Prints the information of one tagset, given its ID.
+                Includes the tags as well.
+
+ * search       Searches for releases, packages, tagsets, users and categories
+                and prints anything that matches.
+                Searching for users includes the full names and emails.
+                Returns at most 10 results per type of result
+                (e.g. 10 releases + 10 packages + ...).
+
+ ^ tagsappr     Prints Pending Approval tags of one or more releases,
+                one or more tagsets, or both (i.e. it joins all the tags).
+                Prints an error if several tags appear for a single package
+                if the '-m' flag is not specified.
+                Suitable for piping to addpkg (note: at the moment,
+                addpkg does not read from stdin, use "-f" instead).
+                Optional parameter: '-m' ('--multiple').
+                   Allows multiple tags for a single package.
+
+Integration Build commands:
+   ibs          Prints the list of latest IBs for active releases
+                with creation timestamps, time ordered.
+                Optional parameter: Filter.
+   lastib       Prints the last IB given a filter.
+                Note: Only IBs for active releases are returned.
+
+Miscellaneous commands:
+ ^ pkghist      Prints the recent history of a package, i.e.:
+                   * Prints recent CVS tags.
+                   * Prints the first line of the description of the tag
+                     if it was published in TagCollector.
+                   * Prints the releases where the tag is, if any.
+
+Tagset commands:
+   > Common commands:
+ * comment      Comment one or more tagsets.
+                Mandatory parameter: '-c' ('--comment').
+
+   > Pending Signatures queue commands:
+ * sign         Sign one or more tagsets, for L2s.
+                Optional parameter: '-c' ('--comment').
+ * signall      Sign all signatures of one or more tagsets,
+                for top-level admins.
+                Optional parameter: '-c' ('--comment').
+ * rejectsign   Reject one or more tagsets from the Pending Signatures queue,
+                for L2s, Release Managers or authors of the tagsets.
+                Optional parameter: '-c' ('--comment').
+
+   > Pending Approval queue commands:
+ * approve      Approve one or more tagsets, for Release Managers.
+                Optional parameter: '-c' ('--comment').
+ * bypass       Same, but bypass (i.e. skip signatures), for Release Managers.
+                Optional parameter: '-c' ('--comment').
+ * rejectappr   Reject one or more tagsets from the Pending Approval queue,
+                for Release Managers.
+                Optional parameter: '-c' ('--comment').
+
+   > History (i.e. stack of the release) commands:
+ * remove       Remove one or more tagsets, for Release Managers.
+                Optional parameter: '-c' ('--comment').
+
+New Package Request commands:
+   pendingpkgs  Prints the list of packages pending approval in TC.
+                Optional parameter: '-v' ('--verbose').
+ * approvepkgs  Approves packages in TC and **creates them in CVS**.
+
+CMSDIST (i.e. externals) commands:
+   cmsdisttags  Prints all CMSDIST's tags of up to 4 CVS tags.
+   cmsdistdiff  Same, but only tags that differ.
+
+--
+
+Commands that require signing in are marked with *.
+
+Experimental commands are marked with ^ (i.e. their output/name/arguments may
+change in the future with high probability, feedback is welcomed).
+
+If you want to create scripts based on the output of this script,
+please consider using the cmstc.py Python API directly instead.
+
+Examples:
+   cmstc tags          CMSSW_4_1_X
+   cmstc tags          CMSSW_4_1_2 CMSSW_4_1_X
+   cmstc diff          CMSSW_4_1_2 CMSSW_4_1_X
+   cmstc diff          CMSSW_4_1_X CMSSW_4_2_X CMSSW_4_3_X
+   cmstc difflast      CMSSW_4_1_2 CMSSW_4_1_X
+
+   cmstc tagset        12345
+   cmstc tagsetinfo    98765
+
+   cmstc search        4_4
+   cmstc search        align
+   cmstc search        2011-01-01
+   cmstc search        miguel
+
+   cmstc tagsappr      CMSSW_4_1_X
+   cmstc tagsappr      12345 98765
+   cmstc tagsappr      CMSSW_4_1_X 12345 98765
+
+   cmstc ibs
+   cmstc ibs           4_2
+   cmstc lastib        4_2
+
+   cmstc pkghist       DQM/BeamMonitor
+
+   cmstc sign          12345 98765
+   cmstc approve       -c "this is the comment" 12345 98765
+   cmstc bypass        12345
+   cmstc ...
+
+   cmstc pendingpkgs
+   cmstc pendingpkgs   -v
+   cmstc approvepkgs   TESTSubSystem/TestPackage9 TESTSubSystem/TestPackage10
+
+   cmstc cmsdisttags   CMSSW_4_1_0_pre1
+   cmstc cmsdistdiff   CMSSW_4_1_0_pre1 CMSSW_4_1_0_pre2
+"""
+
+__author__ = "Miguel Ojeda"
+__copyright__ = "Copyright 2010-2011, CERN CMS"
+__credits__ = ["Miguel Ojeda"]
+__license__ = "Unknown"
+__maintainer__ = "Miguel Ojeda"
+__email__ = "mojedasa@cern.ch"
+__status__ = "Staging"
+
+import cmstc
+import sys
+import optparse
+import subprocess
+import re
+
+def _system(args):
+	print "Running:", ' '.join(args)
+	subprocess.check_call(args)
+
+def _popen(args):
+	p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True)
+	r = p.communicate()[0]
+	if p.returncode != 0:
+		raise subprocess.CalledProcessError(p.returncode, ' '.join(args))
+	return r
+
+def _createCVSPackage(package, admins, developers):
+	admins = ','.join(admins)
+	developers = ','.join(developers)
+	return _system(['CreateCVSPackage.pl', '--package=' + package, '--admin=' + admins, '--developers=' + developers])
+
+def _queryCVS(args):
+	return _popen(['cvs', '-q'] + args)
+
+def _queryCVSHeaders(args):
+	return _queryCVS(['rlog', '-h'] + args)
+
+def _queryCVSDiff(old_rev, new_rev, args):
+	return _queryCVS(['rdiff', '-u', '-r' + old_rev, '-r' + new_rev] + args)
+
+def queryCVSDiff(old_tag, new_tag, package):
+	return _queryCVSDiff(old_tag, new_tag, [package])
+
+def queryCVSCheckout(tag, args):
+	return _queryCVS(['co', '-p', '-r', tag] + args)
+
+def _getRequire(l):
+	if len(l) != 2 or l[0] != 'Requires:':
+		return None
+	external = l[1]
+	if 'toolfile' in external:
+		external = external.rsplit('-', 1)
+		if len(external) != 2 or external[1] != 'toolfile':
+			return None
+		return external[0]
+	return external
+
+def _getExternalSpecFilename(external):
+	return 'COMP/CMSDIST/' + external + '.spec'
+
+def getCMSDIST(tag = 'HEAD'):
+	s = queryCVSCheckout(tag, ['COMP/CMSDIST/cmssw-tool-conf.spec']).splitlines()
+	externals = set([])
+	for l in s:
+		l = l.split()
+		external = _getRequire(l)
+		if not external:
+			continue
+		externals.add(external)
+	ret = {}
+	new_externals = externals
+	while True:
+		if len(new_externals) == 0:
+			break
+		s = queryCVSCheckout(tag, [_getExternalSpecFilename(e) for e in new_externals]).splitlines()
+		new_externals = set([])
+		for l in s:
+			l = l.split()
+			if len(l) == 5 and l[0] == '###' and l[1] == 'RPM' and (l[2] == 'external' or l[2] == 'cms' or l[2] == 'lcg'):
+				external = l[3]
+				version = l[4]
+				if external in ret:
+					if version != ret[external]:
+						raise "Collision"
+					continue
+				ret[external] = version
+				continue
+			external = _getRequire(l)
+			if not external or external in ret or external in new_externals:
+				continue
+			new_externals.add(external)
+	return ret
+
+def getCMSDISTs(tags, diff):
+	cmsdists = {}
+	for tag in tags:
+		cmsdists[tag] = getCMSDIST(tag)
+	externals = set([])
+	for cmsdist in cmsdists:
+		externals = externals.union(set(cmsdists[cmsdist].keys()))
+	ret = []
+	for external in externals:
+		x = [external]
+		y = set([])
+		same = False
+		for tag in tags:
+			if external in cmsdists[tag]:
+				z = cmsdists[tag][external]
+			else:
+				z = None
+			x.append(z)
+			y.add(z)
+		if diff and len(y) == 1:
+			continue
+		ret.append(tuple(x))
+	return sorted(ret)
+
+def getPackageCVSTags(package_name, limit = 10):
+	s = _queryCVSHeaders([package_name + '/.admin/developers',]).split('\n')
+	r = re.compile("^.*(V[-0-9]+):.*$")
+	tags = set([])
+	for l in s:
+		if len(tags) >= limit:
+			break
+		m = r.match(l)
+		if not m:
+			continue
+		tags.add(m.groups()[0])
+	return sorted(tags, reverse=True)
+
+_maxtaglen = len('V01-01-01-01  ')
+
+def formatTag(tag, maxlen = _maxtaglen):
+	return tag + ' ' * (maxlen - len(tag))
+
+def printTags(tags, maxlen = _maxtaglen):
+	for tag in tags:
+		l = ""
+		for t in tag[1:]:
+			if not t:
+				t = '-'
+			l += formatTag(t, maxlen)
+		print l + tag[0]
+
+def printIBs(ibs):
+	for ib in ibs:
+		print ib[1], ib[0]
+
+def printIBsLast(ibs):
+	for ib in ibs:
+		print ib[0]
+
+def cmd_tags(releases):
+	printTags(cmstc.TagCollector().getReleasesTags(releases))
+
+def cmd_diff(releases):
+	printTags(cmstc.TagCollector().getReleasesTags(releases, True))
+
+def cmd_difflast(releases):
+	a = cmstc.TagCollector().getReleasesTags(releases, True)
+	printTags([(x[0], x[-1]) for x in a])
+
+def cmd_tagset(tagset):
+	if len(tagset) != 1:
+		raise Exception("Error: Expected a tagset.")
+	tagset = tagset[0]
+	printTags(cmstc.TagCollector().getTagsetTags(tagset))
+
+def cmd_tagsetinfo(tagset):
+	if len(tagset) != 1:
+		raise Exception("Error: Expected a tagset.")
+	tagset = tagset[0]
+	information = cmstc.TagCollector().getTagsetInformation(tagset)
+	print '   Tagset: ', information['id']
+	print '  Release: ', information['release_name']
+	print '    State: ', information['state']
+	print '   Author: ', information['author']
+	print
+	print 'Tagset:'
+	printTags(cmstc.TagCollector().getTagsetTags(tagset))
+	print
+	print 'Description:'
+	print information['description']
+
+def cmd_search(term):
+	if len(term) != 1:
+		raise Exception("Error: Expected a single word.")
+	term = term[0]
+	tc = cmstc.TagCollector()
+	tc.signInInteractive()
+	results = tc.search(term)
+	for result in results:
+		print ' '*(10 - len(result['type'])) + result['type'] + '  ' + result['value']
+
+def cmd_tagsappr(args):
+	parser = optparse.OptionParser()
+	parser.add_option("-m", "--multiple", action="store_true", dest="multiple", default=False)
+	(opts, args) = parser.parse_args(args)
+	multiple = opts.multiple
+	if len(args) < 1:
+		raise Exception("Error: Expected at least a tagset ID or release name.")
+	printTags(sorted(cmstc.TagCollector().getPendingApprovalTags(args, multiple)))
+
+def cmd_ibs(filt):
+	if filt:
+		filt = filt[0]
+	else:
+		filt = ''
+	printIBs(cmstc.TagCollector().getIBs(filt))
+
+def cmd_lastib(filt):
+	if len(filt) != 1:
+		raise Exception("Error: Expected a filter (single word).")
+	filt = filt[0]
+	printIBsLast(cmstc.TagCollector().getIBs(filt, 1))
+
+def cmd_pkghist(package):
+	if len(package) != 1:
+		raise Exception("Error: Expected a package (single word).")
+	package = package[0]
+	tc = cmstc.TagCollector()
+	tags = tc.getPackageTags(package)
+	cvstags = getPackageCVSTags(package)
+	for cvstag in cvstags:
+		tagdescription = ''
+		tagreleases = ()
+		if cvstag in tags:
+			tagdescription = tc.getPackageTagDescriptionFirstLine(package, cvstag)
+			tagreleases = tc.getPackageTagReleases(package, cvstag)
+		print formatTag(cvstag) + tagdescription
+		for tagrelease in tagreleases:
+			print ' ' * _maxtaglen + tagrelease
+
+def tagset_cmd(args, command):
+	parser = optparse.OptionParser()
+	parser.add_option("-c", "--comment", dest="comment", default='')
+	(opts, args) = parser.parse_args(args)
+	tagset_ids = args
+	comment = opts.comment
+	if len(tagset_ids) < 1:
+		raise Exception("Error: Expected at least one tagset ID.")
+	print 'Tagset IDs:', tagset_ids
+	print '   Comment: "' + comment + '"'
+	tc = cmstc.TagCollector()
+	tc.signInInteractive()
+	getattr(tc, command)(tagset_ids, comment)
+
+def cmd_comment(args):
+	tagset_cmd(args, 'commentTagsets')
+
+def cmd_sign(args):
+	tagset_cmd(args, 'signTagsets')
+
+def cmd_signall(args):
+	tagset_cmd(args, 'signTagsetsAll')
+
+def cmd_rejectsign(args):
+	tagset_cmd(args, 'rejectTagsetsPendingSignatures')
+
+def cmd_approve(args):
+	tagset_cmd(args, 'approveTagsets')
+
+def cmd_bypass(args):
+	tagset_cmd(args, 'bypassTagsets')
+
+def cmd_rejectappr(args):
+	tagset_cmd(args, 'rejectTagsetsPendingApproval')
+
+def cmd_remove(args):
+	tagset_cmd(args, 'removeTagsets')
+
+def cmd_pendingpkgs(args):
+	parser = optparse.OptionParser()
+	parser.add_option("-v", "--verbose", action="store_true", dest="verbose", default=False)
+	(opts, args) = parser.parse_args(args)
+	packages = cmstc.TagCollector().getPackagesPendingApproval()
+	if not opts.verbose:
+		packages = sorted([p[0] for p in packages])
+		for package in packages:
+			print package
+		return
+	for package in packages:
+		print "    Package:", package[0]
+		print "Description:", package[1].splitlines()[0][:60], '(...)'
+		print "  Requested:", package[2]
+		print
+
+def cmd_approvepkgs(packages):
+	if len(packages) < 1:
+		return
+	tc = cmstc.TagCollector()
+	tc.signInInteractive()
+	pending_packages = tc.getPackagesPendingApproval()
+	pending_packages = frozenset([p[0] for p in pending_packages])
+	for package in packages:
+		print "Package", package
+		if package not in pending_packages:
+			raise Exception("Error: The package is not pending approval.")
+		print "Getting list of admins and developers from TC..."
+		(developers, admins) = tc.getPackageManagersRequested(package)
+		if len(developers) < 1:
+			raise Exception("Error: No developers?!")
+		if len(admins) < 1:
+			raise Exception("Error: No admins?!")
+		print "      Admins =", ','.join(admins)
+		print "  Developers =", ','.join(developers)
+		print "Getting list of admins and developers from TC... DONE"
+		print "Creating package in CVS..."
+		_createCVSPackage(package, admins, developers)
+		print "Creating package in CVS... DONE"
+		print "Approving package in TC..."
+		tc.approvePackage(package)
+		print "Approving package in TC... DONE"
+	tc.signOut()
+
+def cmd_cmsdisttags(cvstags):
+	printTags(getCMSDISTs(cvstags, False), 20)
+
+def cmd_cmsdistdiff(cvstags):
+	printTags(getCMSDISTs(cvstags, True), 20)
+
+def main():
+	try:
+		args = sys.argv[1:]
+		cmd = globals()['cmd_' + args[0]]
+	except:
+		print __doc__
+		sys.exit(-1)
+
+	try:
+		cmd(args[1:])
+	except Exception as e:
+		print "Exception:", e
+		sys.exit(-1)
+
+if __name__ == "__main__":
+	main()
+

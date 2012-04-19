@@ -1,4 +1,4 @@
-// $Id: Photon.cc,v 1.22 2011/02/25 22:13:38 dlange Exp $
+// $Id: Photon.cc,v 1.23 2011/03/08 17:54:09 chamont Exp $
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 

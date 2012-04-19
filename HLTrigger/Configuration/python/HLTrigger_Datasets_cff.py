@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V1
+# /online/collisions/2011/5e32/v6.2/HLT/V4
 
 import FWCore.ParameterSet.Config as cms
 

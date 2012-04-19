@@ -5,41 +5,32 @@ from RecoTracker.Configuration.RecoTracker_cff import *
 from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
 
 #First Step
-from RecoTracker.IterativeTracking.FirstStep_cff import *
-newClusters.pixelClusters = cms.InputTag('siClusterTranslator')
-newClusters.stripClusters = cms.InputTag('siClusterTranslator')
-newStripRecHits.StripCPE = cms.string('FastStripCPE')
-newPixelRecHits.CPE = cms.string('FastPixelCPE')
-newMeasurementTracker.StripCPE = cms.string('FastStripCPE')
-newMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
+from RecoTracker.IterativeTracking.LowPtTripletStep_cff import *
+lowPtTripletStepClusters.pixelClusters = cms.InputTag('siClusterTranslator')
+lowPtTripletStepClusters.stripClusters = cms.InputTag('siClusterTranslator')
+#lowPtTripletStepMeasurementTracker.StripCPE = cms.string('FastStripCPE')
+#lowPtTripletStepMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
 
 #Second Step
-from RecoTracker.IterativeTracking.SecStep_cff import *
-secPixelRecHits.CPE = cms.string('FastPixelCPE')
-secStripRecHits.StripCPE = cms.string('FastStripCPE')
-secMeasurementTracker.StripCPE = cms.string('FastStripCPE')
-secMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
+from RecoTracker.IterativeTracking.PixelPairStep_cff import *
+#pixelPairStepMeasurementTracker.StripCPE = cms.string('FastStripCPE')
+#pixelPairStepMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
+
 
 #Third Step
-from RecoTracker.IterativeTracking.ThStep_cff import *
-thPixelRecHits.CPE = cms.string('FastPixelCPE')
-thStripRecHits.StripCPE = cms.string('FastStripCPE')
-thMeasurementTracker.StripCPE = cms.string('FastStripCPE')
-thMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
+from RecoTracker.IterativeTracking.DetachedTripletStep_cff import *
+#detachedTripletStepMeasurementTracker.StripCPE = cms.string('FastStripCPE')
+#detachedTripletStepMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
 
 #Fourth Step
 from RecoTracker.IterativeTracking.PixelLessStep_cff import *
-fourthPixelRecHits.CPE = cms.string('FastPixelCPE')
-fourthStripRecHits.StripCPE = cms.string('FastStripCPE')
-fourthMeasurementTracker.StripCPE = cms.string('FastStripCPE')
-fourthMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
+#pixelLessStepMeasurementTracker.StripCPE = cms.string('FastStripCPE')
+#pixelLessStepMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
 
 #Fifth Step
 from RecoTracker.IterativeTracking.TobTecStep_cff import *
-fifthPixelRecHits.CPE = cms.string('FastPixelCPE')
-fifthStripRecHits.StripCPE = cms.string('FastStripCPE')
-fifthMeasurementTracker.StripCPE = cms.string('FastStripCPE')
-fifthMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
+#tobTecStepMeasurementTracker.StripCPE = cms.string('FastStripCPE')
+#tobTecStepMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
 
 #Strips
 import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
@@ -80,11 +71,11 @@ MeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
 
 #Making sure not to use the Seed Comparitor
 ##from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import* 
-newSeedFromTriplets.SeedComparitorPSet.ComponentName = 'none'
-secTriplets.SeedComparitorPSet.ComponentName = 'none'
-
+initialStepSeeds.SeedComparitorPSet.ComponentName = 'none'
+lowPtTripletStepSeeds.SeedComparitorPSet.ComponentName = 'none'
+detachedTripletStepSeeds.SeedComparitorPSet.ComponentName = 'none'
 
 siClusterTranslator = cms.EDProducer("SiClusterTranslator")
 
-translationAndTracking_wodEdx = cms.Sequence(siClusterTranslator*siPixelRecHits*siStripMatchedRecHits*iterTracking*trackCollectionMerging*newCombinedSeeds)
+translationAndTracking_wodEdx = cms.Sequence(siClusterTranslator*siPixelRecHits*siStripMatchedRecHits*ckftracks_wodEdX)
 translationAndTracking = cms.Sequence(siClusterTranslator*siPixelRecHits*siStripMatchedRecHits*ckftracks)

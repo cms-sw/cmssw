@@ -5,6 +5,9 @@ import FWCore.ParameterSet.Config as cms
 #
 #--- Dummy replacements of HLT modules ---#
 import FastSimulation.HighLevelTrigger.DummyModule_cfi
+
+hltScalersRawToDigi = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+
 hltEcalPreshowerDigis = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltEcalRawToRecHitFacility = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltESRawToRecHitFacility = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
@@ -44,6 +47,16 @@ hltPFJetPixelSeeds = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule
 hltBLifetimeRegionalPixelSeedGenerator = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltBLifetimeRegionalPixelSeedGeneratorSingleTop = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltBLifetimeRegionalPixelSeedGeneratorEleJetSingleTop = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltBLifetimeRegionalPixelSeedGeneratorIsoEleJetSingleTop = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltBLifetimeRegionalPixelSeedGeneratorRA2b = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltBLifetimeRegionalPixelSeedGeneratorRAzr = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltBLifetimeRegionalPixelSeedGeneratorHbb = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltBLifetimeRegionalPixel3DSeedGeneratorJet30Hbb = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltBLifetimeRegionalPixel3D1stTrkSeedGeneratorJet20Hbb = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltBLifetimeBTagIP3D1stTrkRegionalPixelSeedGeneratorJet20Hbb = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltBLifetimeDiBTagIP3D1stTrkRegionalPixelSeedGeneratorJet20Hbb = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltBLifetimeRegionalPixelSeedGeneratorbbPhi = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltBLifetimeRegionalPixelSeedGeneratorGammaB = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 
 hltMumuPixelSeedFromL2Candidate = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltMumukPixelSeedFromL2Candidate = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
@@ -69,5 +82,4 @@ hltSiPixelDigis = cms.Sequence(pixeltrackerlocalreco)
 hltSiPixelClusters = cms.Sequence(pixeltrackerlocalreco)
 hltSiPixelRecHits = cms.Sequence(pixeltrackerlocalreco)
 HLTDoLocalStripSequence = cms.Sequence(striptrackerlocalreco)
-
 HLTTrackReconstructionForJets = cms.Sequence( HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltPFJetCtfWithMaterialTracks)

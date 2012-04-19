@@ -8,8 +8,6 @@
 
 #include <TMatrixD.h>
 
-#include <cstddef>
-using std::ptrdiff_t;
 #include <HepMC/GenEvent.h>
 #include <HepMC/SimpleVector.h>
 
