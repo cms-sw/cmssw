@@ -1,5 +1,5 @@
 //
-// $Id: TtGenEvent.cc,v 1.30 2010/01/05 22:33:10 rwolf Exp $
+// $Id: TtGenEvent.cc,v 1.31 2010/10/15 22:44:30 wmtan Exp $
 //
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -13,6 +13,24 @@ TtGenEvent::TtGenEvent(reco::GenParticleRefProd& decaySubset, reco::GenParticleR
 {
   parts_ = decaySubset;
   initPartons_= initSubset;
+}
+
+bool
+TtGenEvent::fromGluonFusion() const
+{
+  const reco::GenParticleCollection& initPartsColl = *initPartons_;
+  if(initPartsColl.size()!=2)
+    throw edm::Exception( edm::errors::LogicError, "Unexpected size of GenParticleCollection initSubset!" );
+  const unsigned int idA = std::abs(initPartsColl[0].pdgId());
+  const unsigned int idB = std::abs(initPartsColl[1].pdgId());
+  if(idA==21 && idB==21)
+    // gluon-gluon fusion
+    return true;
+  else if(idA<(unsigned)TopDecayID::tID && idB<(unsigned)TopDecayID::tID)
+    // qqbar annihilation
+    return false;
+  else
+    throw edm::Exception( edm::errors::LogicError, "Unexpected pdgIDs in GenParticleCollection initSubset!" );
 }
 
 WDecay::LeptonType 

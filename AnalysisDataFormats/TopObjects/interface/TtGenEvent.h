@@ -28,6 +28,8 @@ class TtGenEvent: public TopGenEvent {
 
   /// check if the event can be classified as ttbar
   bool isTtBar() const {return (top() && topBar());}
+  /// check if the tops were produced from a pair of gluons or from a pair of quarks
+  bool fromGluonFusion() const;
   /// check if the event can be classified as full hadronic
   bool isFullHadronic(bool excludeTauLeptons=false) const { return isTtBar() ? isNumberOfLeptons(excludeTauLeptons, 0) : false;}
   /// check if the event can be classified as semi-laptonic
