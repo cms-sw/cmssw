@@ -129,35 +129,38 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
     typename TCollection::const_iterator ijetFast = recojetsFastJet->begin();
     typename TCollection::const_iterator jjet     = recojets->end(); 
 
-
-
     for( ; ijet != jjet; ijet++, ijetFast++ ) {
       if( flag == 1) break;
       // Do Some Jet selection!
-      if( std::abs(ijet->eta()) > etaJet_.at(0) ) continue;
-      if( ijet->et() < minPtJet_.at(0) ) continue;
-      njets++;
+      if (std::abs(ijet->eta()) > etaJet_.at(0)) 
+        continue;
 
-      if (njets > maxNJets_) //to keep timing reasonable - if too many jets passing pt / eta cuts, just accept the event
+      if (ijet->et() < minPtJet_.at(0)) 
+        continue;
+
+      ++njets;
+
+      if (njets > maxNJets_)    // to keep timing reasonable - if too many jets passing pt / eta cuts, just accept the event
 	flag = 1;
 
       else {
 
-	if( std::abs(ijetFast->eta()) < etaJet_.at(1) ){
-	  if( ijetFast->et() > minPtJet_.at(1) ) {
-	    // Add to HT
-	    htFast += ijetFast->et();
-	  }
+	if (std::abs(ijetFast->eta()) < etaJet_.at(1) and ijetFast->et() > minPtJet_.at(1)) {
+	  // Add to HT
+	  htFast += ijetFast->et();
 	}      
     
 	// Add to JetVector    
 	LorentzV JetLVec(ijet->pt(),ijet->eta(),ijet->phi(),ijet->mass());
 	jets.push_back( JetLVec );
-	double aT = AlphaT(jets).value();
-	if(htFast > minHt_ && aT > minAlphaT_){
-	  // set flat to one so that we don't carry on looping though the jets
-	  flag = 1;
-	}
+        if (htFast > minHt_) {
+          AlphaT aT(jets);
+          // approximate_value() is always greater than value(), but much faster to compute, so it should be checked first
+          if (aT.approximate_value() > minAlphaT_ and aT.value() > minAlphaT_) {
+	    // set flag to one so that we don't carry on looping though the jets
+	    flag = 1;
+	  }
+        }
       }
 
     }
@@ -175,8 +178,6 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
 
   // filter decision
   bool accept(n>0);
-
-
 
   return accept;
 }
