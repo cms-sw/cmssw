@@ -159,7 +159,8 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
   // 29 - Bobby's medium Quality: using fw 2012_01_31. Switch to Global Log(L). Non-Linear dphi binning. 
   // 30 - Bobby's loose Quality: using fw 2012_01_31. Switch to Global Log(L). Non-Linear dphi binning. 
   // 31 - Bobby's tight Quality: using fw 2012_01_31. Switch to Global Log(L). Non-Linear dphi binning. 
-  pt_method = pset.getUntrackedParameter<unsigned>("PtMethod",29);
+  // 32 - Bobby's medium Quality+ {tight only mode5 at eta > 2.1}: using fw 2012_01_31. Switch to Global Log(L). Non-Linear dphi binning. 
+  pt_method = pset.getUntrackedParameter<unsigned>("PtMethod",32);
   //std::cout << "pt_method from pset " << std::endl; 
   // what does this mean???
   lowQualityFlag = pset.getUntrackedParameter<unsigned>("LowQualityFlag",4);
@@ -310,7 +311,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
  int PtbyMLH = false;
   
   //***************************************************//
-  if(pt_method >= 29 && pt_method <= 31)
+  if(pt_method >= 29 && pt_method <= 32)
     {
         // using fw 2012_01_31. Switch to Global Log(L). Non-Linear dphi binning.
       PtbyMLH = 0x1 & (getPtbyMLH >> (int)mode);
@@ -355,7 +356,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
       ptR_rear  = ptMethods.Pt3Stn2012(int(mode), etaR, dphi12R, dphi23R, PtbyMLH, bestLH, 0, int(pt_method));    
       bestLH_rear = bestLH;
       
-      if((pt_method == 29 || pt_method == 30 || pt_method == 31) && mode != 5 && etaR > 2.1)//exclude mode without ME11a
+      if((pt_method == 29 || pt_method == 32 || pt_method == 30 || pt_method == 31) && mode != 5 && etaR > 2.1)//exclude mode without ME11a
         {
             float dphi12Rmin = dphi12R - Pi*10/180/3; // 10/3 degrees 
             float dphi12Rmax = dphi12R + Pi*10/180/3; // 10/3 degrees
@@ -444,7 +445,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
       bestLH_front = bestLH;
       ptR_rear  = ptMethods.Pt2Stn2012(int(mode), etaR, dphi12R, PtbyMLH, bestLH, 0, int(pt_method));
       bestLH_rear = bestLH;
-      if((pt_method == 29 || pt_method == 30 || pt_method == 31) && etaR > 2.1)//exclude tracks without ME11a 
+      if((pt_method == 29 || pt_method == 32 || pt_method == 30 || pt_method == 31) && etaR > 2.1)//exclude tracks without ME11a 
         {
           float dphi12Rmin = fabs(fabs(dphi12R) - Pi*10/180/3); // 10/3 degrees 
           float ptR_front_min = ptMethods.Pt2Stn2012(int(mode), etaR, dphi12Rmin,  PtbyMLH, bestLH, 1, int(pt_method));
@@ -1333,29 +1334,33 @@ unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode, con
     switch (mode) {
     case 2:
       quality = 3;
-      if(pt_method > 10 && eta < 3) quality = 1; //eta < 1.2  
+      if(pt_method > 10 && eta < 3) quality = 1; //eta < 1.2
+      if(pt_method == 32 && eta >= 12) quality = 2; // eta > 2.1  
       break;
     case 3:
     case 4:
       /// DEA try increasing quality
       //        quality = 2;
       quality = 3;
+      if(pt_method == 32 && eta >= 12) quality = 2; // eta > 2.1  
       break;
     case 5:
       quality = 1;
       if (isBeamStartConf && eta >= 12 && pt_method < 20) // eta > 2.1
 	quality = 3;
-      if(pt_method == 27 || pt_method == 28 || pt_method == 29 || pt_method == 30) quality = 3;// all mode = 5 set to quality 3 due to a lot dead ME1/1a stations
+      if(pt_method == 27 || pt_method == 28 || pt_method == 29 || pt_method == 32 || pt_method == 30) quality = 3;// all mode = 5 set to quality 3 due to a lot dead ME1/1a stations
       break;
     case 6:
       if (eta>=3) // eta > 1.2
 	quality = 2;
       else
 	quality = 1;
+      if(pt_method == 32 && eta >= 12) quality = 1; // eta > 2.1  
       break;
     case 7:
       quality = 2;
       if(pt_method > 10 && eta < 3) quality = 1; //eta < 1.2  
+      if(pt_method == 32 && eta >= 12) quality = 1; // eta > 2.1  
       break;
     case 8:
     case 9:
@@ -1382,6 +1387,7 @@ unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode, con
       break;
     case 13:
       quality = 2;
+      if(pt_method == 32 && eta >= 12) quality = 1; // eta > 2.1  
       break;
     case 14:
       quality = 2;
