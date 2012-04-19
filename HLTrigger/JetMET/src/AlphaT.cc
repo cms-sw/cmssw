@@ -18,7 +18,7 @@ double AlphaT::value_(std::vector<bool> * jet_sign) const {
     return std::numeric_limits<double>::max();
 
   // Minimum Delta Et for two pseudo-jets - start the computation from an approximate value
-  double min_delta_sum_et = approximate_value_(jet_sign);
+  double min_delta_sum_et = sum_et_;
 
   for (unsigned int i = 0; i < (1U << (et_.size() - 1)); i++) { //@@ iterate through different combinations
     double delta_sum_et = 0.;
