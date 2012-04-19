@@ -102,7 +102,7 @@ def CreateTheShellFile(argv):
 	        shell_file.write('   TString dummy = makeshared.ReplaceAll("-W ", "");\n')
                 shell_file.write('   TString dummy = makeshared.ReplaceAll("-Wshadow ", "");\n')
 	        shell_file.write('   gSystem->SetMakeSharedLib(makeshared);\n')
-		shell_file.write('   gSystem->SetIncludePath( "-I$ROOFITSYS/include" );\n')  
+		#shell_file.write('   gSystem->SetIncludePath( "-I$ROOFITSYS/include" );\n')  
                 shell_file.write('   .x %s+' % argv[1] + function_argument + '\n')
 #                shell_file.write("root -l -b -q %s" % argv[1] + "+'%s'\n" % function_argument)
 	        shell_file.write('   .q\n')
