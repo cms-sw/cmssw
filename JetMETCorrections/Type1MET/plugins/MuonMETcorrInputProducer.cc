@@ -4,6 +4,7 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
 
 MuonMETcorrInputProducer::MuonMETcorrInputProducer(const edm::ParameterSet& cfg)
