@@ -9,8 +9,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
 
-#include "TauAnalysis/TauIdEfficiency/interface/tauPtResAuxFunctions.h"
-
 #include <TMath.h>
 
 typedef edm::AssociationMap<edm::OneToManyWithQuality<reco::VertexCollection, reco::PFCandidateCollection, float> > 
@@ -47,8 +45,6 @@ Type0PFMETcorrInputProducer::~Type0PFMETcorrInputProducer()
 
 void Type0PFMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-  //std::cout << "<Type0PFMETcorrInputProducer::produce>:" << std::endl;
-
   edm::Handle<reco::VertexCollection> hardScatterVertex;
   evt.getByLabel(srcHardScatterVertex_, hardScatterVertex);
 
@@ -79,29 +75,20 @@ void Type0PFMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup
 	if ( pfCandidate.particleId() == reco::PFCandidate::h  ||
 	     pfCandidate.particleId() == reco::PFCandidate::e  ||
 	     pfCandidate.particleId() == reco::PFCandidate::mu ) {
-	  //std::cout << "adding " << getPFCandidateType(pfCandidate) << ": Pt = " << pfCandidate.pt() << "," 
-	  //	      << " eta = " << pfCandidate.eta() << ", phi = " << pfCandidate.phi() 
-	  //	      << " (px = " << pfCandidate.px() << ", py = " << pfCandidate.py() << ")" << std::endl;
 	  sumChargedPFCandP4_vertex += pfCandidate.p4();
 	}
       }
-      
-      //std::cout << "vertex: z = " << vertex->position().z() << " --> sumChargedPFCand: "
-      //	  << " px = " << sumChargedPFCandP4_vertex.px() << ", py = " << sumChargedPFCandP4_vertex.py() << std::endl;
       
       double pt = sumChargedPFCandP4_vertex.pt();
       double phi = sumChargedPFCandP4_vertex.phi();
       double ptCorr = correction_->Eval(pt);
       double pxCorr = TMath::Cos(phi)*ptCorr;
       double pyCorr = TMath::Sin(phi)*ptCorr;
-      //std::cout << "correction (vertex): px = " << pxCorr << ", py = " << pyCorr << std::endl;
 
       pfMEtCorrection->mex += pxCorr;
       pfMEtCorrection->mey += pyCorr;
     }
   }
-
-  //std::cout << "--> correction: px = " << pfMEtCorrection->mex << ", py = " << pfMEtCorrection->mey << std::endl;
 
   evt.put(pfMEtCorrection);
 }
