@@ -37,8 +37,11 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
   theConfig(par),
   theMuonCollectionLabel(par.getParameter<InputTag>("inputMuonCollection")),
   optOutputIsoDeposits(par.getParameter<bool>("OutputMuIsoDeposits")),
-  useRhoCorrectedCaloDeps(par.getParameter<bool>("UseRhoCorrectedCaloDeposits")),
-  theCaloDepsLabel(par.getParameter<InputTag>("CaloDepositsLabel")),
+  useRhoCorrectedCaloDeps(par.existsAs<bool>("UseRhoCorrectedCaloDeposits") ? 
+			  par.getParameter<bool>("UseRhoCorrectedCaloDeposits") : false),
+  theCaloDepsLabel(par.existsAs<InputTag>("CaloDepositsLabel") ? 
+		   par.getParameter<InputTag>("CaloDepositsLabel") :
+		   InputTag("hltL3CaloMuonCorrectedIsolations")),
   caloExtractor(0),
   trkExtractor(0),
   theTrackPt_Min(-1),
@@ -153,17 +156,24 @@ void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventS
   std::vector<IsoDeposit> trkDeps(nMuons);
   
 
-  IsoDeposit::Vetos caloVetos(nMuons);  
-  std::vector<IsoDeposit> caloDeps(nMuons);
-  std::vector<float> caloCorrDeps(nMuons, 0.);  // if calo deposits with corrections available
-  
+  // IsoDeposit::Vetos caloVetos(nMuons);  
+  // std::vector<IsoDeposit> caloDeps(nMuons);
+  // std::vector<float> caloCorrDeps(nMuons, 0.);  // if calo deposits with corrections available
+
+  IsoDeposit::Vetos caloVetos;  
+  std::vector<IsoDeposit> caloDeps;
+  std::vector<float> caloCorrDeps;  // if calo deposits with corrections available
+
+  if(useRhoCorrectedCaloDeps) {
+    caloCorrDeps.resize(nMuons, 0.);
+  }
+  else {
+    caloVetos.resize(nMuons);
+    caloDeps.resize(nMuons);
+  }
   
   std::vector<double> combinedRelativeDeps(nMuons, 0.);
-
   std::vector<bool> combinedRelativeIsos(nMuons, false);
-
-  
-
 
   for (unsigned int i=0; i<nMuons; i++) {
     
