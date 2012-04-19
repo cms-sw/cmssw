@@ -54,7 +54,12 @@ class CvCfHiggs(SMLikeHiggsModel):
         ## Coefficient for couplings to photons
         #      arXiv 1202.3144v2, below eq. 2.6:  2/9*cF - 1.04*cV, and then normalize to SM 
         #      FIXME: this should be replaced with the proper MH dependency
-        self.modelBuilder.factory_("expr::CvCf_cgamma(\"-0.271*@0+1.27*@1\",CF,CV)") 
+        #self.modelBuilder.factory_("expr::CvCf_cgamma(\"-0.271*@0+1.27*@1\",CF,CV)")
+        #
+        # Taylor series around MH=125 to (MH-125)^2 in Horner polynomial form
+        self.modelBuilder.factory_('expr::CvCf_cgamma("\
+        @0*(1.2259236555204187 + (0.00216740776385032 - 0.000013693587140986294*@2)*@2) +\
+        @1*(-0.22592365552041888 + (-0.002167407763850317 + 0.000013693587140986278*@2)*@2)",CV,CF,MH)')
         ## partial witdhs, normalized to the SM one, for decays scaling with F, V and total (ignoring small modes)
         for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop" ]: self.SMH.makeBR(d)
         self.modelBuilder.factory_("expr::CvCf_Gscal_sumf(\"@0*@0*(@1+@2+@3+@4+@5)\", CF, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hgluglu)") 
