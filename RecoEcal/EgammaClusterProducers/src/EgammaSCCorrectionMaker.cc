@@ -54,8 +54,13 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
   
   // set correction algo parameters
   applyEnergyCorrection_ = ps.getParameter<bool>("applyEnergyCorrection");
-  applyCrackCorrection_ = ps.getParameter<bool>("applyCrackCorrection");
+  applyCrackCorrection_  = ps.getParameter<bool>("applyCrackCorrection");
+  applyLocalContCorrection_= ps.getParameter<bool>("applyLocalContCorrection");
+
   energyCorrectorName_ = ps.getParameter<std::string>("energyCorrectorName");
+  crackCorrectorName_  = ps.getParameter<std::string>("crackCorrectorName");
+  localContCorrectorName_= ps.getParameter<std::string>("localContCorrectorName");
+
   modeEB_ =  ps.getParameter<int>("modeEB");
   modeEE_ =  ps.getParameter<int>("modeEE");
 
@@ -78,18 +83,26 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
     //energyCorrectionFunction_ = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", ps);
   else
     energyCorrectionFunction_=0;
+
   if (applyCrackCorrection_ )
-    crackCorrectionFunction_ = EcalClusterFunctionFactory::get()->create("EcalClusterCrackCorrection", ps);
+    crackCorrectionFunction_ = EcalClusterFunctionFactory::get()->create(crackCorrectorName_, ps);
   else
     crackCorrectionFunction_=0;
 
   
+  if (applyLocalContCorrection_ )
+    localContCorrectionFunction_ = EcalClusterFunctionFactory::get()->create(localContCorrectorName_, ps);
+  else
+    localContCorrectionFunction_=0;
+
 }
 
 EgammaSCCorrectionMaker::~EgammaSCCorrectionMaker()
 {
-  if (energyCorrectionFunction_) delete energyCorrectionFunction_;
-  if (crackCorrectionFunction_) delete crackCorrectionFunction_;
+  if (energyCorrectionFunction_)    delete energyCorrectionFunction_;
+  if (crackCorrectionFunction_)     delete crackCorrectionFunction_;
+  if (localContCorrectionFunction_) delete localContCorrectionFunction_;
+
   delete energyCorrector_;
 }
 
@@ -106,6 +119,10 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
   if(applyCrackCorrection_) 
     crackCorrectionFunction_->init(es);
   
+
+  // initialize containemnt correction class
+  if(applyLocalContCorrection_) 
+    localContCorrectionFunction_->init(es);
 
   // get the collection geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
@@ -156,23 +173,33 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
   reco::SuperClusterCollection::const_iterator aClus;
   for(aClus = rawClusters->begin(); aClus != rawClusters->end(); aClus++)
     {
-      reco::SuperCluster enecorrClus,crackcorrClus;
+      reco::SuperCluster enecorrClus,crackcorrClus,localContCorrClus;
+
+      if (applyLocalContCorrection_)
+	localContCorrClus = 
+	  energyCorrector_->applyLocalContCorrection(*aClus,localContCorrectionFunction_);
+      else
+	localContCorrClus = *aClus;
+
+      
+      if(applyCrackCorrection_)
+	crackcorrClus=energyCorrector_->applyCrackCorrection(localContCorrClus,crackCorrectionFunction_);
+      else 
+	crackcorrClus=localContCorrClus;
+
 
       if(applyEnergyCorrection_) 
-        enecorrClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_, geometry_p, energyCorrectionFunction_, energyCorrectorName_, modeEB_, modeEE_);
+        enecorrClus = energyCorrector_->applyCorrection(crackcorrClus, *hitCollection, sCAlgo_, geometry_p, energyCorrectionFunction_, energyCorrectorName_, modeEB_, modeEE_);
       else
-	enecorrClus=*aClus;
+	enecorrClus=crackcorrClus;
 
-      if(applyCrackCorrection_)
-	crackcorrClus=energyCorrector_->applyCrackCorrection(enecorrClus,crackCorrectionFunction_);
-      else 
-	crackcorrClus=enecorrClus;
 
       if(crackcorrClus.energy()*sin(crackcorrClus.position().theta())>etThresh_) {
 	
 	corrClusters->push_back(crackcorrClus);
       }
     }
+
   // Put collection of corrected SuperClusters into the event
   evt.put(corrClusters, outputCollection_);   
   

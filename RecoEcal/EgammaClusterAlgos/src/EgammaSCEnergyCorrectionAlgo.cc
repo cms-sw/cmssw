@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.46 2011/07/18 18:05:40 argiro Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.47 2011/11/15 10:36:53 argiro Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -251,3 +251,28 @@ EgammaSCEnergyCorrectionAlgo::applyCrackCorrection(const reco::SuperCluster &cl,
   return corrCl;
 }
 
+
+// apply local containment correction
+// Assume that the correction function provides correction for the seed Basic Cluster
+
+reco::SuperCluster 
+EgammaSCEnergyCorrectionAlgo::
+applyLocalContCorrection(const reco::SuperCluster &cl,
+			 EcalClusterFunctionBaseClass* localContCorrectionFunction){
+
+
+  const EcalRecHitCollection  dummy;
+
+  const reco::CaloClusterPtr & seedBC =  cl.seed();
+  float seedBCene = seedBC->energy();  
+  float correctedSeedBCene = localContCorrectionFunction->getValue(*seedBC,dummy) * seedBCene;
+
+
+  reco::SuperCluster correctedSC = cl;
+  correctedSC.setEnergy(cl.energy() - seedBCene + correctedSeedBCene);
+  
+  return correctedSC;
+
+
+
+}
