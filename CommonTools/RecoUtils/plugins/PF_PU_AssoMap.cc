@@ -154,7 +154,7 @@ PF_PU_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if(vtxcollH->size()==0) return;	
 	  	
 	//loop over all tracks in the track collection	
-  	for(unsigned int index_trck = 0;  index_trck < vtxcollH->size(); ++index_trck){
+  	for(unsigned int index_trck = 0;  index_trck < trkcollH->size(); ++index_trck){
 
  	  TrackRef trackref = TrackRef(trkcollH,index_trck);
 	  VertexTrackQuality VtxTrkQualAss;
