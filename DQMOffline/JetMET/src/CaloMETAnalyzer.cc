@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/04/12 15:42:57 $
- *  $Revision: 1.66 $
+ *  $Date: 2012/04/19 09:57:57 $
+ *  $Revision: 1.67 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -313,7 +313,7 @@ void CaloMETAnalyzer::bookMonitorElementTriggered(std::string DirName, bool bLum
   hCaloMET        = _dbe->book1D("METTask_CaloMET",        "METTask_CaloMET",        200,    0, 1000); 
   hCaloMET1       = _dbe->book1D("METTask_CaloMET1",       "METTask_CaloMET1",        80,    0,  200);
   hCaloMETNoHF    = _dbe->book1D("METTask_CaloMETNoHF",    "METTask_CaloMETNoHF",    200,    0, 1000); 
-  hCaloSumET      = _dbe->book1D("METTask_CaloSumET",      "METTask_CaloSumET",      800,    0, 4000); 
+  hCaloSumET      = _dbe->book1D("METTask_CaloSumET",      "METTask_CaloSumET",      400,    0, 4000); 
   hCaloMETSig     = _dbe->book1D("METTask_CaloMETSig",     "METTask_CaloMETSig",      51,    0,   51);
   hCaloMETPhi     = _dbe->book1D("METTask_CaloMETPhi",     "METTask_CaloMETPhi",      60, -3.2,  3.2); 
   hCaloMETPhi020  = _dbe->book1D("METTask_CaloMETPhi020",  "METTask_CaloMETPhi020",   60, -3.2,  3.2);
@@ -339,7 +339,7 @@ void CaloMETAnalyzer::bookMonitorElementTriggered(std::string DirName, bool bLum
   hCaloMEy_profile     = _dbe->bookProfile("METTask_CaloMEy_profile",     "MEy [GeV]",     nbinsPV, PVlow, PVup, 200, -500,  500); 
   hCaloMET_profile     = _dbe->bookProfile("METTask_CaloMET_profile",     "MET [GeV]",     nbinsPV, PVlow, PVup, 200,    0, 1000); 
   hCaloMETNoHF_profile = _dbe->bookProfile("METTask_CaloMETNoHF_profile", "METNoHF [GeV]", nbinsPV, PVlow, PVup, 200,    0, 1000); 
-  hCaloSumET_profile   = _dbe->bookProfile("METTask_CaloSumET_profile",   "SumET [GeV]",   nbinsPV, PVlow, PVup, 800,    0, 4000); 
+  hCaloSumET_profile   = _dbe->bookProfile("METTask_CaloSumET_profile",   "SumET [GeV]",   nbinsPV, PVlow, PVup, 400,    0, 4000); 
 
 
   // Set NPV profiles x-axis title

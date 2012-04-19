@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/04/12 15:42:58 $
- *  $Revision: 1.44 $
+ *  $Date: 2012/04/19 09:57:58 $
+ *  $Revision: 1.45 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -257,7 +257,7 @@ void PFMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fa
   mePfMEx        = _dbe->book1D("METTask_PfMEx",        "METTask_PfMEx",        200, -500,  500); 
   mePfMEy        = _dbe->book1D("METTask_PfMEy",        "METTask_PfMEy",        200, -500,  500); 
   mePfMET        = _dbe->book1D("METTask_PfMET",        "METTask_PfMET",        200,    0, 1000); 
-  mePfSumET      = _dbe->book1D("METTask_PfSumET",      "METTask_PfSumET",      800,    0, 4000); 
+  mePfSumET      = _dbe->book1D("METTask_PfSumET",      "METTask_PfSumET",      400,    0, 4000); 
   mePfMETSig     = _dbe->book1D("METTask_PfMETSig",     "METTask_PfMETSig",      51,    0,   51);
   mePfMETPhi     = _dbe->book1D("METTask_PfMETPhi",     "METTask_PfMETPhi",      60, -3.2,  3.2);
   mePfMET_logx   = _dbe->book1D("METTask_PfMET_logx",   "METTask_PfMET_logx",    40,   -1,    7);
@@ -301,7 +301,7 @@ void PFMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fa
   mePfMEx_profile   = _dbe->bookProfile("METTask_PfMEx_profile",   "MEx [GeV]",   nbinsPV, PVlow, PVup, 200, -500,  500);
   mePfMEy_profile   = _dbe->bookProfile("METTask_PfMEy_profile",   "MEy [GeV]",   nbinsPV, PVlow, PVup, 200, -500,  500); 
   mePfMET_profile   = _dbe->bookProfile("METTask_PfMET_profile",   "MET [GeV]",   nbinsPV, PVlow, PVup, 200,    0, 1000); 
-  mePfSumET_profile = _dbe->bookProfile("METTask_PfSumET_profile", "SumET [GeV]", nbinsPV, PVlow, PVup, 800,    0, 4000); 
+  mePfSumET_profile = _dbe->bookProfile("METTask_PfSumET_profile", "SumET [GeV]", nbinsPV, PVlow, PVup, 400,    0, 4000); 
 
   mePfNeutralEMFraction_profile  = _dbe->bookProfile("METTask_PfNeutralEMFraction_profile",  "PF neutral EM fraction",  nbinsPV, PVlow, PVup, 50, 0, 1);
   mePfNeutralHadFraction_profile = _dbe->bookProfile("METTask_PfNeutralHadFraction_profile", "PF neutral HAD fraction", nbinsPV, PVlow, PVup, 50, 0, 1);

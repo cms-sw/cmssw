@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/25 11:03:23 $
- *  $Revision: 1.7 $
+ *  $Date: 2012/04/19 09:57:57 $
+ *  $Revision: 1.8 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -163,7 +163,7 @@ void MuCorrMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlo
   meMuCorrMEx    = _dbe->book1D("METTask_MuCorrMEx",    "METTask_MuCorrMEx"   , 200, -500,  500);
   meMuCorrMEy    = _dbe->book1D("METTask_MuCorrMEy",    "METTask_MuCorrMEy"   , 200, -500,  500);
   meMuCorrMET    = _dbe->book1D("METTask_MuCorrMET",    "METTask_MuCorrMET"   , 200,    0, 1000);
-  meMuCorrSumET  = _dbe->book1D("METTask_MuCorrSumET",  "METTask_MuCorrSumET" , 800,    0, 4000);
+  meMuCorrSumET  = _dbe->book1D("METTask_MuCorrSumET",  "METTask_MuCorrSumET" , 400,    0, 4000);
   meMuCorrMETSig = _dbe->book1D("METTask_MuCorrMETSig", "METTask_MuCorrMETSig",  51,    0,   51);
   meMuCorrMETPhi = _dbe->book1D("METTask_MuCorrMETPhi", "METTask_MuCorrMETPhi",  60, -3.2,  3.2);
 

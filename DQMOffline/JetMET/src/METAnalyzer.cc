@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/10/10 14:43:31 $
- *  $Revision: 1.44 $
+ *  $Date: 2012/04/19 09:57:57 $
+ *  $Revision: 1.45 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -261,7 +261,7 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
   hMEx        = _dbe->book1D("METTask_MEx",        "METTask_MEx",        200, -500,  500);
   hMEy        = _dbe->book1D("METTask_MEy",        "METTask_MEy",        200, -500,  500);
   hMET        = _dbe->book1D("METTask_MET",        "METTask_MET",        200,    0, 1000); 
-  hSumET      = _dbe->book1D("METTask_SumET",      "METTask_SumET",      800,    0, 8000); 
+  hSumET      = _dbe->book1D("METTask_SumET",      "METTask_SumET",      400,    0, 4000); 
   hMETSig     = _dbe->book1D("METTask_METSig",     "METTask_METSig",      51,    0,   51);
   hMETPhi     = _dbe->book1D("METTask_METPhi",     "METTask_METPhi",      60, -3.2,  3.2); 
   hMET_logx   = _dbe->book1D("METTask_MET_logx",   "METTask_MET_logx",    40,   -1,    7);
