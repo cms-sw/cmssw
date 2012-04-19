@@ -9,18 +9,17 @@ class SMHiggsBuilder:
         if datadir == None:
             datadir = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/sm"
         self.datadir = datadir
-	self.energy = '7TeV' ### This should not be hardcoded
-	self.xspath = os.path.join(self.datadir,'xs',self.energy)
 	self.brpath = os.path.join(self.datadir,'br')
-    def makeXS(self,process):
-        if process == "ggH": self.textToSpline("SM_XS_ggH", os.path.join(self.xspath, self.energy+"-ggH.txt") );
-        if process == "qqH": self.textToSpline("SM_XS_qqH", os.path.join(self.xspath, self.energy+"-vbfH.txt") );
-        if process == "ttH": self.textToSpline("SM_XS_ttH", os.path.join(self.xspath, self.energy+"-ttH.txt") );
-        if process == "WH":  self.textToSpline("SM_XS_WH",  os.path.join(self.xspath, self.energy+"-WH.txt") );
-        if process == "ZH":  self.textToSpline("SM_XS_ZH",  os.path.join(self.xspath, self.energy+"-ZH.txt") );
+    def makeXS(self,process, energy='7TeV'):
+	self.xspath = os.path.join(self.datadir, 'xs', energy)
+        if process == "ggH": self.textToSpline("SM_XS_ggH_"+energy, os.path.join(self.xspath, energy+"-ggH.txt") );
+        if process == "qqH": self.textToSpline("SM_XS_qqH_"+energy, os.path.join(self.xspath, energy+"-vbfH.txt") );
+        if process == "ttH": self.textToSpline("SM_XS_ttH_"+energy, os.path.join(self.xspath, energy+"-ttH.txt") );
+        if process == "WH":  self.textToSpline("SM_XS_WH_"+energy,  os.path.join(self.xspath, energy+"-WH.txt") );
+        if process == "ZH":  self.textToSpline("SM_XS_ZH_"+energy,  os.path.join(self.xspath, energy+"-ZH.txt") );
         if process == "VH":  
-            makeXS("WH"); makeXS("ZH");
-            self.modelBuilder.factory_('sum::SM_XS_VH(SM_XS_WH,SM_XS_ZH)')
+            makeXS("WH", energy); makeXS("ZH", energy);
+            self.modelBuilder.factory_('sum::SM_XS_VH_'+energy+'(SM_XS_WH_'+energy+',SM_XS_ZH_'+energy+')')
     def makeTotalWidth(self):
         self.textToSpline("SM_GammaTot", self.datadir+"YR-BR.txt", ycol=6);
     def makeBR(self,decay):

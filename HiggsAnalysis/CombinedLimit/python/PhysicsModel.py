@@ -39,7 +39,7 @@ class PhysicsModel:
 ### This base class implements signal yields by production and decay mode
 ### Specific models can be obtained redefining getHiggsSignalYieldScale
 class SMLikeHiggsModel(PhysicsModel):
-    def getHiggsSignalYieldScale(self,production,decay):
+    def getHiggsSignalYieldScale(self, production, decay, energy):
             raise RuntimeError, "Not implemented"
     def getYieldScale(self,bin,process):
         "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds "
@@ -49,17 +49,28 @@ class SMLikeHiggsModel(PhysicsModel):
         if "_" in process: (processSource, decaySource) = process.split("_")
         if processSource not in ["ggH", "qqH", "VH", "WH", "ZH", "ttH"]:
             raise RuntimeError, "Validation Error: signal process %s not among the allowed ones." % processSource
+
         foundDecay = None
         for D in [ "hww", "hzz", "hgg", "htt", "hbb" ]:
             if D in decaySource:
                 if foundDecay: raise RuntimeError, "Validation Error: decay string %s contains multiple known decay names" % decaySource
                 foundDecay = D
         if not foundDecay: raise RuntimeError, "Validation Error: decay string %s does not contain any known decay name" % decaySource
-        return self.getHiggsSignalYieldScale(processSource,foundDecay)
+
+        foundEnergy = None
+        for D in [ '7TeV', '8TeV', '14TeV' ]:
+            if D in decaySource:
+                if foundEnergy: raise RuntimeError, "Validation Error: decay string %s contains multiple known energies" % decaySource
+                foundEnergy = D
+        if not foundEnergy:
+            foundEnergy = '7TeV' ## To ensure backward compatibility
+            print "Warning: decay string %s does not contain any known energy, assuming %s" % (decaySource, foundEnergy)
+
+        return self.getHiggsSignalYieldScale(processSource, foundDecay, foundEnergy)
 
 class StrictSMLikeHiggsModel(SMLikeHiggsModel):
     "Doesn't do anything more, but validates that the signal process names are correct"
-    def getHiggsSignalYieldScale(self,production,decay):
+    def getHiggsSignalYieldScale(self,production,decay, energy):
             return "r"
 
 class FloatingHiggsMass(SMLikeHiggsModel):
@@ -86,7 +97,7 @@ class FloatingHiggsMass(SMLikeHiggsModel):
         else:
             self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1])) 
         self.modelBuilder.doSet("POI",'r,MH')
-    def getHiggsSignalYieldScale(self,production,decay):
+    def getHiggsSignalYieldScale(self,production,decay, energy):
             return "r"
 
 
@@ -128,7 +139,7 @@ class FloatingXSHiggs(SMLikeHiggsModel):
             else:
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass)
         self.modelBuilder.doSet("POI",poi)
-    def getHiggsSignalYieldScale(self,production,decay):
+    def getHiggsSignalYieldScale(self,production,decay, energy):
         if production == "ggH": return ("r_ggH" if "ggH" in self.modes else 1)
         if production == "qqH": return ("r_qqH" if "qqH" in self.modes else 1)
         if production == "ttH": return ("r_ttH" if "ttH" in self.modes else 1)
