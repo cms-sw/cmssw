@@ -50,7 +50,6 @@ namespace cond {
     void swapOId( ora::ITokenWriter& writer ) const {
       if( !m_oid.isInvalid() ){
         const_cast<IOVElement*>(this)->m_wrapper = writer.write( m_oid );
-        const_cast<IOVElement*>(this)->m_oid.reset();
       }
     }
 
