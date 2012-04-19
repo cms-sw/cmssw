@@ -12,9 +12,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.7 $
  *
- * $Id: PFJetMETcorrInputProducerT.h,v 1.6 2011/12/16 13:23:42 veelken Exp $
+ * $Id: PFJetMETcorrInputProducerT.h,v 1.7 2012/02/13 14:18:40 veelken Exp $
  *
  */
 
@@ -215,11 +215,7 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
   std::string jetCorrLabel_;    // e.g. 'ak5PFJetL1FastL2L3' (MC) / 'ak5PFJetL1FastL2L3Residual' (Data)
   Textractor jetCorrExtractor_;
 
-  double jetCorrEtaMax_; // do not use JEC factors for |eta| above this threshold (recommended default = 4.7),
-                         // in order to work around problem with CMSSW_4_2_x JEC factors at high eta,
-                         // reported in
-                         //  https://hypernews.cern.ch/HyperNews/CMS/get/jes/270.html
-                         //  https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/1259/1.html
+  double jetCorrEtaMax_; // do not use JEC factors for |eta| above this threshold
 
   double type1JetPtThreshold_; // threshold to distinguish between jets entering Type 1 MET correction
                                // and jets entering "unclustered energy" sum
