@@ -228,7 +228,7 @@ class TrendPlot:
               else:
                 showUpTo  = int(xMode[len("runNumbers"):])
                 if showUpTo >= nRuns:   showEvery = nRuns
-                else:                   showEvery = nRuns / showUpTo
+                else:                   showEvery = showUpTo
             except ValueError:
               raise StandardError, "Bad xMode syntax: %s" % xMode
             axis = graph.GetXaxis()
