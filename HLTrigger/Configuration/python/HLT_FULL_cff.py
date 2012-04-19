@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/HLT/V194 (CMSSW_5_2_3_HLT6)
+# /dev/CMSSW_5_2_1/HLT/V195 (CMSSW_5_2_3_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V194')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V195')
 )
 
 streams = cms.PSet( 
@@ -14074,6 +14074,7 @@ hltL3MuonCombRelIsolationsIso1p0 = cms.EDProducer( "L3MuonCombinedRelativeIsolat
     ),
     OutputMuIsoDeposits = cms.bool( True ),
     TrackPt_Min = cms.double( -1.0 ),
+    CaloDepositsLabel = cms.InputTag( "hltL3CaloMuonCorrectedIsolations" ),
     CaloExtractorPSet = cms.PSet( 
       DR_Veto_H = cms.double( 0.1 ),
       Vertex_Constraint_Z = cms.bool( False ),
@@ -14089,6 +14090,7 @@ hltL3MuonCombRelIsolationsIso1p0 = cms.EDProducer( "L3MuonCombinedRelativeIsolat
       Weight_H = cms.double( 1.0 )
     ),
     inputMuonCollection = cms.InputTag( "hltL3Muons" ),
+    UseRhoCorrectedCaloDeposits = cms.bool( False ),
     TrkExtractorPSet = cms.PSet( 
       DR_VetoPt = cms.double( 0.025 ),
       Diff_z = cms.double( 0.2 ),
@@ -14209,6 +14211,7 @@ hltL3MuonCombRelIsolations = cms.EDProducer( "L3MuonCombinedRelativeIsolationPro
     ),
     OutputMuIsoDeposits = cms.bool( True ),
     TrackPt_Min = cms.double( -1.0 ),
+    CaloDepositsLabel = cms.InputTag( "hltL3CaloMuonCorrectedIsolations" ),
     CaloExtractorPSet = cms.PSet( 
       DR_Veto_H = cms.double( 0.1 ),
       Vertex_Constraint_Z = cms.bool( False ),
@@ -14224,6 +14227,7 @@ hltL3MuonCombRelIsolations = cms.EDProducer( "L3MuonCombinedRelativeIsolationPro
       Weight_H = cms.double( 1.0 )
     ),
     inputMuonCollection = cms.InputTag( "hltL3Muons" ),
+    UseRhoCorrectedCaloDeposits = cms.bool( False ),
     TrkExtractorPSet = cms.PSet( 
       DR_VetoPt = cms.double( 0.025 ),
       Diff_z = cms.double( 0.2 ),
