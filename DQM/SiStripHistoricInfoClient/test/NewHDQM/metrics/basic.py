@@ -160,6 +160,21 @@ class Fraction(BaseMetric):
         B = T-s
         return ( s/T if T else 0,
                  sqrt( s*s*B + B*B*s ) / (T*T) if s and B else 1/T if T else 0)
+
+class Fraction1(BaseMetric): 
+    def __init__(self, low, high):
+        self.__low = low
+        self.__high = high
+
+    def calculate(self, histo):
+        from math import sqrt
+        s = histo.Integral(histo.FindBin( self.__low),
+                           histo.FindBin( self.__high))
+        T = histo.Integral()
+        B = T-s
+        return ( B/T if T else 0,
+                 sqrt( s*s*B + B*B*s ) / (T*T) if s and B else 1/T if T else 0)
+
     
 class FractionInBin(BaseMetric):
     def __init__(self, bin):
