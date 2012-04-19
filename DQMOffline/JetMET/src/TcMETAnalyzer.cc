@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/10 13:25:31 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/03/25 11:03:38 $
+ *  $Revision: 1.7 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -159,14 +159,13 @@ void TcMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fa
   if (_verbose) std::cout << "booMonitorElement " << DirName << std::endl;
   _dbe->setCurrentFolder(DirName);
  
-  meNevents              = _dbe->book1D("METTask_Nevents", "METTask_Nevents"   ,1,0,1);
-  meTcMEx                = _dbe->book1D("METTask_TcMEx",   "METTask_TcMEx"   ,500,-500,500);
-  meTcMEy                = _dbe->book1D("METTask_TcMEy",   "METTask_TcMEy"   ,500,-500,500);
-  meTcEz                 = _dbe->book1D("METTask_TcEz",    "METTask_TcEz"    ,500,-500,500);
-  meTcMETSig             = _dbe->book1D("METTask_TcMETSig","METTask_TcMETSig",51,0,51);
-  meTcMET                = _dbe->book1D("METTask_TcMET",   "METTask_TcMET"   ,500,0,1000);
-  meTcMETPhi             = _dbe->book1D("METTask_TcMETPhi","METTask_TcMETPhi",80,-TMath::Pi(),TMath::Pi());
-  meTcSumET              = _dbe->book1D("METTask_TcSumET", "METTask_TcSumET" ,500,0,2000);
+  meTcMEx    = _dbe->book1D("METTask_TcMEx",    "METTask_TcMEx",    200, -500,  500);
+  meTcMEy    = _dbe->book1D("METTask_TcMEy",    "METTask_TcMEy",    200, -500,  500);
+  meTcEz     = _dbe->book1D("METTask_TcEz",     "METTask_TcEz",     200, -500,  500);
+  meTcMETSig = _dbe->book1D("METTask_TcMETSig", "METTask_TcMETSig",  51,    0,   51);
+  meTcMET    = _dbe->book1D("METTask_TcMET",    "METTask_TcMET",    200,    0, 1000);
+  meTcMETPhi = _dbe->book1D("METTask_TcMETPhi", "METTask_TcMETPhi",  60, -3.2,  3.2);
+  meTcSumET  = _dbe->book1D("METTask_TcSumET",  "METTask_TcSumET",  800,    0, 4000);
 
   meTcNeutralEMFraction  = _dbe->book1D("METTask_TcNeutralEMFraction", "METTask_TcNeutralEMFraction" ,50,0.,1.);
   meTcNeutralHadFraction = _dbe->book1D("METTask_TcNeutralHadFraction","METTask_TcNeutralHadFraction",50,0.,1.);

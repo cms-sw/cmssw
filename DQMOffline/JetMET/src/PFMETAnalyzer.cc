@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/03/23 18:24:44 $
- *  $Revision: 1.43 $
+ *  $Date: 2012/04/12 15:42:58 $
+ *  $Revision: 1.44 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -249,30 +249,28 @@ void PFMETAnalyzer::bookMESet(std::string DirName)
 // ***********************************************************
 void PFMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=false)
 {
-
   if (_verbose) std::cout << "booMonitorElement " << DirName << std::endl;
-  _dbe->setCurrentFolder(DirName);
- 
-  //meNevents              = _dbe->book1D("METTask_Nevents", "METTask_Nevents"   ,1,0,1);
-  mePfMEx                = _dbe->book1D("METTask_PfMEx",   "METTask_PfMEx"   ,200,-500,500); 
-  mePfMEx->setAxisTitle("MEx [GeV]",1);
-  mePfMEy                = _dbe->book1D("METTask_PfMEy",   "METTask_PfMEy"   ,200,-500,500); 
-  mePfMEy->setAxisTitle("MEy [GeV]",1);
-  //mePfEz                 = _dbe->book1D("METTask_PfEz",    "METTask_PfEz"    ,500,-500,500);
-  //mePfEz->setAxisTitle("MEz [GeV]",1);
-  mePfMETSig             = _dbe->book1D("METTask_PfMETSig","METTask_PfMETSig",51,0,51);
-  mePfMETSig->setAxisTitle("METSig",1);
-  mePfMET                = _dbe->book1D("METTask_PfMET",   "METTask_PfMET"   ,200,0,1000); 
-  mePfMET->setAxisTitle("MET [GeV]",1);
-  mePfMETPhi             = _dbe->book1D("METTask_PfMETPhi","METTask_PfMETPhi",60,-TMath::Pi(),TMath::Pi());
-  mePfMETPhi->setAxisTitle("METPhi [rad]",1);
-  mePfSumET              = _dbe->book1D("METTask_PfSumET", "METTask_PfSumET" ,400,0,2000); 
-  mePfSumET->setAxisTitle("SumET [GeV]",1);
 
-  mePfMET_logx           = _dbe->book1D("METTask_PfMET_logx",   "METTask_PfMET_logx"   ,40,-1.,7.);
-  mePfMET_logx->setAxisTitle("log(MET) [GeV]",1);
-  mePfSumET_logx         = _dbe->book1D("METTask_PfSumET_logx", "METTask_PfSumET_logx" ,40,-1.,7.);
-  mePfSumET_logx->setAxisTitle("log(SumET) [GeV]",1);
+  _dbe->setCurrentFolder(DirName);
+
+ 
+  mePfMEx        = _dbe->book1D("METTask_PfMEx",        "METTask_PfMEx",        200, -500,  500); 
+  mePfMEy        = _dbe->book1D("METTask_PfMEy",        "METTask_PfMEy",        200, -500,  500); 
+  mePfMET        = _dbe->book1D("METTask_PfMET",        "METTask_PfMET",        200,    0, 1000); 
+  mePfSumET      = _dbe->book1D("METTask_PfSumET",      "METTask_PfSumET",      800,    0, 4000); 
+  mePfMETSig     = _dbe->book1D("METTask_PfMETSig",     "METTask_PfMETSig",      51,    0,   51);
+  mePfMETPhi     = _dbe->book1D("METTask_PfMETPhi",     "METTask_PfMETPhi",      60, -3.2,  3.2);
+  mePfMET_logx   = _dbe->book1D("METTask_PfMET_logx",   "METTask_PfMET_logx",    40,   -1,    7);
+  mePfSumET_logx = _dbe->book1D("METTask_PfSumET_logx", "METTask_PfSumET_logx",  40,   -1,    7);
+
+  mePfMEx       ->setAxisTitle("MEx [GeV]",        1);
+  mePfMEy       ->setAxisTitle("MEy [GeV]",        1);
+  mePfMET       ->setAxisTitle("MET [GeV]",        1);
+  mePfSumET     ->setAxisTitle("SumET [GeV]",      1);
+  mePfMETSig    ->setAxisTitle("METSig",           1);
+  mePfMETPhi    ->setAxisTitle("METPhi [rad]",     1);
+  mePfMET_logx  ->setAxisTitle("log(MET) [GeV]",   1);
+  mePfSumET_logx->setAxisTitle("log(SumET) [GeV]", 1);
 
   mePfNeutralEMFraction  = _dbe->book1D("METTask_PfNeutralEMFraction", "METTask_PfNeutralEMFraction" ,50,0.,1.);
   mePfNeutralEMFraction->setAxisTitle("Pf Neutral EM Fraction",1);
@@ -285,12 +283,6 @@ void PFMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fa
   mePfMuonFraction       = _dbe->book1D("METTask_PfMuonFraction",      "METTask_PfMuonFraction"      ,50,0.,1.);
   mePfMuonFraction->setAxisTitle("Pf Muon Fraction",1);
 
-  //mePfMETIonFeedbck      = _dbe->book1D("METTask_PfMETIonFeedbck", "METTask_PfMETIonFeedbck" ,500,0,1000);
-  //mePfMETIonFeedbck->setAxisTitle("MET [GeV]",1);
-  //mePfMETHPDNoise        = _dbe->book1D("METTask_PfMETHPDNoise",   "METTask_PfMETHPDNoise"   ,500,0,1000);
-  //mePfMETHPDNoise->setAxisTitle("MET [GeV]",1);
-  //mePfMETRBXNoise        = _dbe->book1D("METTask_PfMETRBXNoise",   "METTask_PfMETRBXNoise"   ,500,0,1000);
-  //mePfMETRBXNoise->setAxisTitle("MET [GeV]",1);
 
   if (_allhist){
     if (bLumiSecPlot){
@@ -306,10 +298,10 @@ void PFMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fa
 
   // Book NPV profiles
   //----------------------------------------------------------------------------
-  mePfMEx_profile   = _dbe->bookProfile("METTask_PfMEx_profile",   "MEx [GeV]",   nbinsPV, PVlow, PVup, 100, -500,  500);
-  mePfMEy_profile   = _dbe->bookProfile("METTask_PfMEy_profile",   "MEy [GeV]",   nbinsPV, PVlow, PVup, 100, -500,  500); 
-  mePfMET_profile   = _dbe->bookProfile("METTask_PfMET_profile",   "MET [GeV]",   nbinsPV, PVlow, PVup, 100,    0, 1000); 
-  mePfSumET_profile = _dbe->bookProfile("METTask_PfSumET_profile", "SumET [GeV]", nbinsPV, PVlow, PVup, 200,    0, 2000); 
+  mePfMEx_profile   = _dbe->bookProfile("METTask_PfMEx_profile",   "MEx [GeV]",   nbinsPV, PVlow, PVup, 200, -500,  500);
+  mePfMEy_profile   = _dbe->bookProfile("METTask_PfMEy_profile",   "MEy [GeV]",   nbinsPV, PVlow, PVup, 200, -500,  500); 
+  mePfMET_profile   = _dbe->bookProfile("METTask_PfMET_profile",   "MET [GeV]",   nbinsPV, PVlow, PVup, 200,    0, 1000); 
+  mePfSumET_profile = _dbe->bookProfile("METTask_PfSumET_profile", "SumET [GeV]", nbinsPV, PVlow, PVup, 800,    0, 4000); 
 
   mePfNeutralEMFraction_profile  = _dbe->bookProfile("METTask_PfNeutralEMFraction_profile",  "PF neutral EM fraction",  nbinsPV, PVlow, PVup, 50, 0, 1);
   mePfNeutralHadFraction_profile = _dbe->bookProfile("METTask_PfNeutralHadFraction_profile", "PF neutral HAD fraction", nbinsPV, PVlow, PVup, 50, 0, 1);

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/03/10 13:25:31 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/03/25 11:03:23 $
+ *  $Revision: 1.7 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -152,33 +152,33 @@ void MuCorrMETAnalyzer::bookMESet(std::string DirName)
 
 }
 
+
 // ***********************************************************
 void MuCorrMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=false)
 {
-
   if (_verbose) std::cout << "booMonitorElement " << DirName << std::endl;
+
   _dbe->setCurrentFolder(DirName);
- 
-  meNevents              = _dbe->book1D("METTask_Nevents", "METTask_Nevents"   ,1,0,1);
-  meMuCorrMEx                = _dbe->book1D("METTask_MuCorrMEx",   "METTask_MuCorrMEx"   ,500,-500,500);
-  meMuCorrMEy                = _dbe->book1D("METTask_MuCorrMEy",   "METTask_MuCorrMEy"   ,500,-500,500);
-  meMuCorrEz                 = _dbe->book1D("METTask_MuCorrEz",    "METTask_MuCorrEz"    ,500,-500,500);
-  meMuCorrMETSig             = _dbe->book1D("METTask_MuCorrMETSig","METTask_MuCorrMETSig",51,0,51);
-  meMuCorrMET                = _dbe->book1D("METTask_MuCorrMET",   "METTask_MuCorrMET"   ,500,0,1000);
-  meMuCorrMETPhi             = _dbe->book1D("METTask_MuCorrMETPhi","METTask_MuCorrMETPhi",80,-TMath::Pi(),TMath::Pi());
-  meMuCorrSumET              = _dbe->book1D("METTask_MuCorrSumET", "METTask_MuCorrSumET" ,500,0,2000);
 
-  meMuCorrMETIonFeedbck      = _dbe->book1D("METTask_MuCorrMETIonFeedbck", "METTask_MuCorrMETIonFeedbck" ,500,0,1000);
-  meMuCorrMETHPDNoise        = _dbe->book1D("METTask_MuCorrMETHPDNoise",   "METTask_MuCorrMETHPDNoise"   ,500,0,1000);
-  meMuCorrMETRBXNoise        = _dbe->book1D("METTask_MuCorrMETRBXNoise",   "METTask_MuCorrMETRBXNoise"   ,500,0,1000);
+  meMuCorrMEx    = _dbe->book1D("METTask_MuCorrMEx",    "METTask_MuCorrMEx"   , 200, -500,  500);
+  meMuCorrMEy    = _dbe->book1D("METTask_MuCorrMEy",    "METTask_MuCorrMEy"   , 200, -500,  500);
+  meMuCorrMET    = _dbe->book1D("METTask_MuCorrMET",    "METTask_MuCorrMET"   , 200,    0, 1000);
+  meMuCorrSumET  = _dbe->book1D("METTask_MuCorrSumET",  "METTask_MuCorrSumET" , 800,    0, 4000);
+  meMuCorrMETSig = _dbe->book1D("METTask_MuCorrMETSig", "METTask_MuCorrMETSig",  51,    0,   51);
+  meMuCorrMETPhi = _dbe->book1D("METTask_MuCorrMETPhi", "METTask_MuCorrMETPhi",  60, -3.2,  3.2);
 
-  if (_allhist){
-    if (bLumiSecPlot){
-      meMuCorrMExLS              = _dbe->book2D("METTask_MuCorrMEx_LS","METTask_MuCorrMEx_LS",200,-200,200,50,0.,500.);
-      meMuCorrMEyLS              = _dbe->book2D("METTask_MuCorrMEy_LS","METTask_MuCorrMEy_LS",200,-200,200,50,0.,500.);
+  meMuCorrMETIonFeedbck = _dbe->book1D("METTask_MuCorrMETIonFeedbck", "METTask_MuCorrMETIonFeedbck", 200, 0, 1000);
+  meMuCorrMETHPDNoise   = _dbe->book1D("METTask_MuCorrMETHPDNoise",   "METTask_MuCorrMETHPDNoise",   200, 0, 1000);
+  meMuCorrMETRBXNoise   = _dbe->book1D("METTask_MuCorrMETRBXNoise",   "METTask_MuCorrMETRBXNoise",   200, 0, 1000);
+
+  if (_allhist) {
+    if (bLumiSecPlot) {
+      meMuCorrMExLS = _dbe->book2D("METTask_MuCorrMEx_LS","METTask_MuCorrMEx_LS", 200, -200, 200, 50, 0, 500);
+      meMuCorrMEyLS = _dbe->book2D("METTask_MuCorrMEy_LS","METTask_MuCorrMEy_LS", 200, -200, 200, 50, 0, 500);
     }
   }
 }
+
 
 // ***********************************************************
 void MuCorrMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
@@ -539,10 +539,11 @@ void MuCorrMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string
     if (!selectWMuonEvent(iEvent)) return;
   }
   
-// Reconstructed MET Information
+
+  // Reconstructed MET Information
   double mucorrSumET  = muCorrmet.sumEt();
   double mucorrmetSig = muCorrmet.mEtSig();
-  double mucorrEz     = muCorrmet.e_longitudinal();
+  //  double mucorrEz     = muCorrmet.e_longitudinal();
   double mucorrmet    = muCorrmet.pt();
   double mucorrMEx    = muCorrmet.px();
   double mucorrMEy    = muCorrmet.py();
@@ -565,7 +566,6 @@ void MuCorrMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string
     meMuCorrMETPhi = _dbe->get(DirName+"/"+"METTask_MuCorrMETPhi"); if (meMuCorrMETPhi && meMuCorrMETPhi->getRootObject()) meMuCorrMETPhi->Fill(mucorrmetPhi);
     meMuCorrSumET  = _dbe->get(DirName+"/"+"METTask_MuCorrSumET");  if (meMuCorrSumET  && meMuCorrSumET->getRootObject())  meMuCorrSumET->Fill(mucorrSumET);
     meMuCorrMETSig = _dbe->get(DirName+"/"+"METTask_MuCorrMETSig"); if (meMuCorrMETSig && meMuCorrMETSig->getRootObject()) meMuCorrMETSig->Fill(mucorrmetSig);
-    meMuCorrEz     = _dbe->get(DirName+"/"+"METTask_MuCorrEz");     if (meMuCorrEz     && meMuCorrEz->getRootObject())     meMuCorrEz->Fill(mucorrEz);
 
     meMuCorrMETIonFeedbck = _dbe->get(DirName+"/"+"METTask_MuCorrMETIonFeedbck");  if (meMuCorrMETIonFeedbck && meMuCorrMETIonFeedbck->getRootObject()) meMuCorrMETIonFeedbck->Fill(mucorrmet);
     meMuCorrMETHPDNoise   = _dbe->get(DirName+"/"+"METTask_MuCorrMETHPDNoise");    if (meMuCorrMETHPDNoise   && meMuCorrMETHPDNoise->getRootObject())   meMuCorrMETHPDNoise->Fill(mucorrmet);

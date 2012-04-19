@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/10/10 13:45:50 $
- *  $Revision: 1.43 $
+ *  $Date: 2011/10/10 14:43:31 $
+ *  $Revision: 1.44 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -253,37 +253,29 @@ void METAnalyzer::bookMESet(std::string DirName)
 // ***********************************************************
 void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=false)
 {
-
   if (_verbose) std::cout << "bookMonitorElement " << DirName << std::endl;
+
   _dbe->setCurrentFolder(DirName);
- 
-  //hNevents            = _dbe->book1D("METTask_Nevents", "METTask_Nevents"   ,1,0,1);
-  hMEx                = _dbe->book1D("METTask_MEx",   "METTask_MEx"   ,200,-500,500);
-  hMEx->setAxisTitle("MEx [GeV]",1);
-  hMEy                = _dbe->book1D("METTask_MEy",   "METTask_MEy"   ,200,-500,500);
-  hMEy->setAxisTitle("MEy [GeV]",1);
-  //hEz                 = _dbe->book1D("METTask_Ez",    "METTask_Ez"    ,500,-500,500);
-  //hEz->setAxisTitle("MEz [GeV]",1);
-  hMETSig             = _dbe->book1D("METTask_METSig","METTask_METSig",51,0,51);
-  hMETSig->setAxisTitle("CaloMETSig",1);
-  hMET                = _dbe->book1D("METTask_MET",   "METTask_MET"   ,200,0,1000); 
-  hMET->setAxisTitle("MET [GeV]",1);
-  hMETPhi             = _dbe->book1D("METTask_METPhi","METTask_METPhi",60,-TMath::Pi(),TMath::Pi()); 
-  hMETPhi->setAxisTitle("METPhi [rad]",1);
-  hSumET              = _dbe->book1D("METTask_SumET", "METTask_SumET" ,400,0,2000); 
-  hSumET->setAxisTitle("SumET [GeV]",1);
 
-  hMET_logx           = _dbe->book1D("METTask_MET_logx",   "METTask_MET_logx"   ,40,-1.,7.);
-  hMET_logx->setAxisTitle("log(MET) [GeV]",1);
-  hSumET_logx         = _dbe->book1D("METTask_SumET_logx", "METTask_SumET_logx" ,40,-1.,7.);
-  hSumET_logx->setAxisTitle("log(SumET) [GeV]",1);
 
-  //hMETIonFeedbck      = _dbe->book1D("METTask_METIonFeedbck", "METTask_METIonFeedbck" ,500,0,1000);
-  //hMETIonFeedbck->setAxisTitle("MET [GeV]",1);
-  //hMETHPDNoise        = _dbe->book1D("METTask_METHPDNoise",   "METTask_METHPDNoise"   ,500,0,1000);
-  //hMETHPDNoise->setAxisTitle("MET [GeV]",1);
-  //hMETRBXNoise        = _dbe->book1D("METTask_METRBXNoise",   "METTask_METRBXNoise"   ,500,0,1000);
-  //hMETRBXNoise->setAxisTitle("MET [GeV]",1);
+  hMEx        = _dbe->book1D("METTask_MEx",        "METTask_MEx",        200, -500,  500);
+  hMEy        = _dbe->book1D("METTask_MEy",        "METTask_MEy",        200, -500,  500);
+  hMET        = _dbe->book1D("METTask_MET",        "METTask_MET",        200,    0, 1000); 
+  hSumET      = _dbe->book1D("METTask_SumET",      "METTask_SumET",      800,    0, 8000); 
+  hMETSig     = _dbe->book1D("METTask_METSig",     "METTask_METSig",      51,    0,   51);
+  hMETPhi     = _dbe->book1D("METTask_METPhi",     "METTask_METPhi",      60, -3.2,  3.2); 
+  hMET_logx   = _dbe->book1D("METTask_MET_logx",   "METTask_MET_logx",    40,   -1,    7);
+  hSumET_logx = _dbe->book1D("METTask_SumET_logx", "METTask_SumET_logx",  40,   -1,    7);
+
+  hMEx       ->setAxisTitle("MEx [GeV]",        1);
+  hMEy       ->setAxisTitle("MEy [GeV]",        1);
+  hMET       ->setAxisTitle("MET [GeV]",        1);
+  hSumET     ->setAxisTitle("SumET [GeV]",      1);
+  hMETSig    ->setAxisTitle("CaloMETSig",       1);
+  hMETPhi    ->setAxisTitle("METPhi [rad]",     1);
+  hMET_logx  ->setAxisTitle("log(MET) [GeV]",   1);
+  hSumET_logx->setAxisTitle("log(SumET) [GeV]", 1);
+
 
   if (_allhist){
     if (bLumiSecPlot){
