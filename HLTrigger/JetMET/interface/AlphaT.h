@@ -29,7 +29,7 @@ public:
   inline double value(std::vector<bool> & jet_sign) const;
 
   // return an approximate value of AlphaT
-  // by construction, this shuld be always greather than, or equal to, the actual AlphaT value
+  // by construction, this shuld be always lower than, or equal to, the actual AlphaT value
   inline double approximate_value(void) const;
   inline double approximate_value(std::vector<bool> & jet_sign) const;
 

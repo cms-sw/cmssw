@@ -43,6 +43,8 @@ double AlphaT::value_(std::vector<bool> * jet_sign) const {
 }
 
 
+// return an approximate value of AlphaT
+// by construction, this shuld be always lower than, or equal to, the actual AlphaT value
 double AlphaT::approximate_value_(std::vector<bool> * jet_sign) const {
 
   // Clear pseudo-jet container

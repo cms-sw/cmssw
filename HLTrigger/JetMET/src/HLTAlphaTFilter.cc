@@ -28,18 +28,18 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > LorentzV  ;
 // constructors and destructor
 //
 template<typename T>
-HLTAlphaTFilter<T>::HLTAlphaTFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTAlphaTFilter<T>::HLTAlphaTFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
-  inputJetTag_         = iConfig.getParameter< edm::InputTag > ("inputJetTag"); 
-  inputJetTagFastJet_  = iConfig.getParameter< edm::InputTag > ("inputJetTagFastJet"); 
-  minPtJet_            = iConfig.getParameter<std::vector<double> > ("minPtJet"); 
-  etaJet_              = iConfig.getParameter<std::vector<double> > ("etaJet"); 
-  maxNJets_            = iConfig.getParameter<unsigned int> ("maxNJets"); 
-  minHt_               = iConfig.getParameter<double> ("minHt"); 
+  inputJetTag_         = iConfig.getParameter< edm::InputTag > ("inputJetTag");
+  inputJetTagFastJet_  = iConfig.getParameter< edm::InputTag > ("inputJetTagFastJet");
+  minPtJet_            = iConfig.getParameter<std::vector<double> > ("minPtJet");
+  etaJet_              = iConfig.getParameter<std::vector<double> > ("etaJet");
+  maxNJets_            = iConfig.getParameter<unsigned int> ("maxNJets");
+  minHt_               = iConfig.getParameter<double> ("minHt");
   minAlphaT_           = iConfig.getParameter<double> ("minAlphaT");
   triggerType_         = iConfig.getParameter<int>("triggerType");
   // sanity checks
-  
+
   if (       (minPtJet_.size()    !=  etaJet_.size())
 	     || (  (minPtJet_.size()<1) || (etaJet_.size()<1) )
 	     || ( ((minPtJet_.size()<2) || (etaJet_.size()<2))))
@@ -56,7 +56,7 @@ HLTAlphaTFilter<T>::~HLTAlphaTFilter(){}
 template<typename T>
 void HLTAlphaTFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  makeHLTFilterDescription(desc); 
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltMCJetCorJetIcone5HF07"));
   desc.add<edm::InputTag>("inputJetTagFastJet",edm::InputTag("hltMCJetCorJetIcone5HF07"));
 
@@ -98,7 +98,7 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
   typedef Ref<TCollection> TRef;
 
   // The filter object
-  if (saveTags()) filterproduct.addCollectionTag(inputJetTag_);  
+  if (saveTags()) filterproduct.addCollectionTag(inputJetTag_);
 
   TRef ref;
   // Get the Candidates
@@ -112,51 +112,45 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
   Handle<TCollection> recojetsFastJet;
   iEvent.getByLabel(inputJetTagFastJet_,recojetsFastJet);
 
-
-
-
-
   // look at all candidates,  check cuts and add to filter object
   int n(0), flag(0);
-  double htFast = 0.;
-  unsigned int njets(0);
 
-  if(recojets->size() > 1){
-    // events with at least two jets, needed for alphaT
-    // Make a vector of Lorentz Jets for the AlphaT calcualtion
+  if (recojets->size() > 1) {
+    // events with at least two jets, needed for AlphaT
+    unsigned int njets  = 0;
+    double       htFast = 0.;
+    // make a vector of Lorentz Jets for the AlphaT calcualtion
     std::vector<LorentzV> jets;
     typename TCollection::const_iterator ijet     = recojets->begin();
     typename TCollection::const_iterator ijetFast = recojetsFastJet->begin();
-    typename TCollection::const_iterator jjet     = recojets->end(); 
+    typename TCollection::const_iterator jjet     = recojets->end();
 
-    for( ; ijet != jjet; ijet++, ijetFast++ ) {
-      if( flag == 1) break;
-      // Do Some Jet selection!
-      if (std::abs(ijet->eta()) > etaJet_.at(0)) 
-        continue;
+    for ( ; ijet != jjet; ++ijet, ++ijetFast) {
+      if (flag == 1)
+        break;
 
-      if (ijet->et() < minPtJet_.at(0)) 
+      // Jet selection
+      if (std::abs(ijet->eta()) > etaJet_.at(0) or ijet->et() < minPtJet_.at(0))
         continue;
 
       ++njets;
-
-      if (njets > maxNJets_)    // to keep timing reasonable - if too many jets passing pt / eta cuts, just accept the event
+      if (njets > maxNJets_) {
+        // to keep timing reasonable - if too many jets passing pt / eta cuts, just accept the event
 	flag = 1;
-
-      else {
-
+      } else {
+        // compute HT and AlphaT
 	if (std::abs(ijetFast->eta()) < etaJet_.at(1) and ijetFast->et() > minPtJet_.at(1)) {
-	  // Add to HT
+	  // add to HT
 	  htFast += ijetFast->et();
-	}      
-    
-	// Add to JetVector    
+        }
+
+	// add to JetVector
 	LorentzV JetLVec(ijet->pt(),ijet->eta(),ijet->phi(),ijet->mass());
 	jets.push_back( JetLVec );
         if (htFast > minHt_) {
           AlphaT aT(jets);
-          // approximate_value() is always greater than value(), but much faster to compute, so it should be checked first
-          if (aT.approximate_value() > minAlphaT_ and aT.value() > minAlphaT_) {
+          // approximate_value() is always <= than value(), but much faster to compute, so it should be checked first
+          if (aT.approximate_value() > minAlphaT_ or aT.value() > minAlphaT_) {
 	    // set flag to one so that we don't carry on looping though the jets
 	    flag = 1;
 	  }
@@ -174,7 +168,8 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
 	}
       }
     }
-  }// events with at least two jet
+
+  } // events with at least two jet
 
   // filter decision
   bool accept(n>0);
