@@ -331,13 +331,24 @@ namespace edm {
     for(Selections::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
       Group const* parentGroup = parentPrincipal.getGroup((*it)->branchID(), false, false);
       if(parentGroup != 0) {
-        // Make copy of parent group data
-        ProductData parentData = parentGroup->productData();
+        ProductData const& parentData = parentGroup->productData();
         Group const* group = principal.getGroup((*it)->branchID(), false, false);
         if(group != 0) {
-          // Swap copy with this group data
           ProductData& thisData = const_cast<ProductData&>(group->productData());
-          thisData.swap(parentData);
+          //Propagate the per event(run)(lumi) data for this product to the subprocess.
+          //First, the product itself.
+          thisData.wrapper_ = parentData.wrapper_;
+          // Then the product ID and the ProcessHistory 
+          thisData.prov_.setProductID(parentData.prov_.productID());
+          thisData.prov_.setProcessHistoryID(parentData.prov_.processHistoryID());
+          // Then the store, in case the product needs reading in a subprocess.
+          thisData.prov_.setStore(parentData.prov_.store());
+          // And last, the other per event provenance.
+          if(parentData.prov_.productProvenanceValid()) {
+            thisData.prov_.setProductProvenance(*parentData.prov_.productProvenance());
+          } else {
+            thisData.prov_.resetProductProvenance();
+          }
           // Sets unavailable flag, if known that product is not available
           (void)group->productUnavailable();
         }
