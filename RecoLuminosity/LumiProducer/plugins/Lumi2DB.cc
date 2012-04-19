@@ -59,7 +59,6 @@ namespace lumi{
       short instlumiquality;
       short lumisectionquality;
       short cmsalive;
-      unsigned int ncollidingbunches;
       std::string beammode;
       float beamenergy;
       short nlivebx;//how much is in the beamintensity vector
@@ -88,7 +87,7 @@ namespace lumi{
     void parseSourceString(lumi::Lumi2DB::LumiSource& result)const;
     void retrieveBeamIntensity(HCAL_HLX::DIP_COMBINED_DATA* dataPtr, Lumi2DB::beamData&b)const;
     void writeAllLumiData(coral::ISessionProxy* session,unsigned int irunnumber,const std::string& ilumiversion,LumiResult::iterator lumiBeg,LumiResult::iterator lumiEnd);
-    void writeAllLumiDataToSchema2(coral::ISessionProxy* session,const std::string& source,unsigned int runnumber,float bgev,LumiResult::iterator lumiBeg,LumiResult::iterator lumiEnd);
+    void writeAllLumiDataToSchema2(coral::ISessionProxy* session,const std::string& source,unsigned int runnumber,float bgev,unsigned int ncollidingbunches,LumiResult::iterator lumiBeg,LumiResult::iterator lumiEnd);
     void writeBeamIntensityOnly(coral::ISessionProxy* session,unsigned int irunnumber,const std::string& ilumiversion,LumiResult::iterator lumiBeg,LumiResult::iterator lumiEnd);
     bool isLumiDataValid(LumiResult::iterator lumiBeg,LumiResult::iterator lumiEnd);
     float applyCalibration(float varToCalibrate) const;
@@ -424,6 +423,7 @@ lumi::Lumi2DB::writeAllLumiDataToSchema2(
 			    const std::string& source,
 			    unsigned int irunnumber,
 			    float bgev,
+			    unsigned int ncollidingbunches,
 			    lumi::Lumi2DB::LumiResult::iterator lumiBeg,
 			    lumi::Lumi2DB::LumiResult::iterator lumiEnd	){
   std::cout<<"writeAllLumiDataToSchema2"<<std::endl;
@@ -451,7 +451,6 @@ lumi::Lumi2DB::writeAllLumiDataToSchema2(
   summaryData.extend("BXLUMIVALUE_ET",typeid(coral::Blob));
   summaryData.extend("BXLUMIERROR_ET",typeid(coral::Blob));
   summaryData.extend("BXLUMIQUALITY_ET",typeid(coral::Blob));
-  summaryData.extend("NCOLLIDINGBUNCHES",typeid(unsigned int));
 
   unsigned long long& data_id=summaryData["DATA_ID"].data<unsigned long long>();
   unsigned int& lumirunnum = summaryData["RUNNUM"].data<unsigned int>();
@@ -476,7 +475,6 @@ lumi::Lumi2DB::writeAllLumiDataToSchema2(
   coral::Blob& bxlumivalue_occ2=summaryData["BXLUMIVALUE_OCC2"].data<coral::Blob>();
   coral::Blob& bxlumierror_occ2=summaryData["BXLUMIERROR_OCC2"].data<coral::Blob>();
   coral::Blob& bxlumiquality_occ2=summaryData["BXLUMIQUALITY_OCC2"].data<coral::Blob>();
-  unsigned int& ncollidingbunches = summaryData["NCOLLIDINGBUNCHES"].data<unsigned int>();
 
   lumi::Lumi2DB::LumiResult::const_iterator lumiIt;
   coral::IBulkOperation* summaryInserter=0;
@@ -497,21 +495,20 @@ lumi::Lumi2DB::writeAllLumiDataToSchema2(
   lumirundata.source=source;
   lumirundata.runnumber=irunnumber;
   lumirundata.bgev=bgev;
+  lumirundata.ncollidingbunches=ncollidingbunches;
   lumirundata.entry_id=revisionDML.getEntryInBranchByName(session->nominalSchema(),lumi::LumiNames::lumidataTableName(),runnumberStr,branch_name);
-  std::cout<<"entry_id "<<lumirundata.entry_id<<std::endl;
+  //std::cout<<"entry_id "<<lumirundata.entry_id<<std::endl;
   if(lumirundata.entry_id==0){
     revisionDML.bookNewEntry(session->nominalSchema(),LumiNames::lumidataTableName(),lumirundata);
-    std::cout<<"lumirundata revision_id "<<lumirundata.revision_id<<" entry_id "<<lumirundata.entry_id<<" data_id "<<lumirundata.data_id<<std::endl;
+    //std::cout<<"lumirundata revision_id "<<lumirundata.revision_id<<" entry_id "<<lumirundata.entry_id<<" data_id "<<lumirundata.data_id<<std::endl;
     revisionDML.addEntry(session->nominalSchema(),LumiNames::lumidataTableName(),lumirundata,branch_id,branch_name);
   }else{
     revisionDML.bookNewRevision(session->nominalSchema(),LumiNames::lumidataTableName(),lumirundata);
-    std::cout<<"lumirundata revision_id "<<lumirundata.revision_id<<" entry_id "<<lumirundata.entry_id<<" data_id "<<lumirundata.data_id<<std::endl;
+    //std::cout<<"lumirundata revision_id "<<lumirundata.revision_id<<" entry_id "<<lumirundata.entry_id<<" data_id "<<lumirundata.data_id<<std::endl;
     revisionDML.addRevision(session->nominalSchema(),LumiNames::lumidataTableName(),lumirundata,branch_id,branch_name);
   }
-  std::cout<<"inserting lumirundata "<<std::endl;
   revisionDML.insertLumiRunData(session->nominalSchema(),lumirundata);
-  std::cout<<"inserting lslumi data"<<std::endl;
-  summaryData.toOutputStream(std::cout);
+  //summaryData.toOutputStream(std::cout);
   for(lumiIt=lumiBeg;lumiIt!=lumiEnd;++lumiIt,++lumiindx){
     if(!session->transaction().isActive()){ 
       session->transaction().start(false);
@@ -534,7 +531,6 @@ lumi::Lumi2DB::writeAllLumiDataToSchema2(
     beamenergy = lumiIt->beamenergy;
     numorbit = lumiIt->numorbit;
     startorbit = lumiIt->startorbit;
-    ncollidingbunches = lumiIt->ncollidingbunches;
     short nlivebx=lumiIt->nlivebx;
     //std::cout<<"nlivebx "<<nlivebx<<std::endl;
     if(nlivebx!=0){
@@ -815,6 +811,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   //
   //hardcode the first LS is always alive
   //
+  unsigned int ncollidingbunches=0;
   for(size_t i=0;i<nentries;++i){
     lumi::Lumi2DB::PerLumiData h;
     h.cmsalive=1;
@@ -825,7 +822,9 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
       h.cmsalive=0;
     }
     ++ncmslumi;
-    h.ncollidingbunches=lumiheader->numBunches;
+    if(ncmslumi==1){//just take the first ls
+      ncollidingbunches=lumiheader->numBunches;
+    }
     h.bxET.reserve(lumi::N_BX);
     h.bxOCC1.reserve(lumi::N_BX);
     h.bxOCC2.reserve(lumi::N_BX);
@@ -952,7 +951,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
        }
     }
     std::cout<<"writing all lumi data to lumisummary_V2 table "<<std::endl;
-    writeAllLumiDataToSchema2(session,m_source,runnumber,bgev,lumiresult.begin(),lumiresult.end());
+    writeAllLumiDataToSchema2(session,m_source,runnumber,bgev,ncollidingbunches,lumiresult.begin(),lumiresult.end());
     std::cout<<"done"<<std::endl;
     cleanTemporaryMemory(lumiresult.begin(),lumiresult.end());
     delete session;
