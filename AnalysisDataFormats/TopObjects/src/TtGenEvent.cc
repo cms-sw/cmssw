@@ -1,5 +1,5 @@
 //
-// $Id: TtGenEvent.cc,v 1.31 2010/10/15 22:44:30 wmtan Exp $
+// $Id: TtGenEvent.cc,v 1.32 2012/04/19 09:20:14 snaumann Exp $
 //
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -7,12 +7,13 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-
 /// default contructor from decaySubset and initSubset
 TtGenEvent::TtGenEvent(reco::GenParticleRefProd& decaySubset, reco::GenParticleRefProd& initSubset)
 {
   parts_ = decaySubset;
   initPartons_= initSubset;
+  if(top() && topBar())
+    topPair_ = math::XYZTLorentzVector(top()->p4()+topBar()->p4());
 }
 
 bool
