@@ -33,7 +33,7 @@ class SMHiggsBuilder:
         if decay == "hss": self.textToSpline("SM_BR_hss", os.path.join(self.brpath, "BR1.txt"), ycol=4);
         if decay == "hcc": self.textToSpline("SM_BR_hcc", os.path.join(self.brpath, "BR1.txt"), ycol=5);
         if decay == "hgluglu": self.textToSpline("SM_BR_hgluglu", os.path.join(self.brpath, "BR.txt"),   ycol=1);
-        if decay == "htoptop": self.textToSpline("SM_BR_htoptop", os.path.join(self.brpathr, "BR1.txt"), ycol=6);
+        if decay == "htoptop": self.textToSpline("SM_BR_htoptop", os.path.join(self.brpath, "BR1.txt"), ycol=6);
     def makePartialWidth(self,decay):
         self.makeTotalWidth(); 
         self.makeBR(decay);
