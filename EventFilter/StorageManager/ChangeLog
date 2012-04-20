@@ -5,6 +5,7 @@
 	* Handle case that INIT messages are sent by the master EP and
 	  not from the slaves. I.e. the number of init messages may be
 	  less than the number of EPs sending events.
+	* Add unit test for DiskWriter thread
 
 2012-03-28 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
