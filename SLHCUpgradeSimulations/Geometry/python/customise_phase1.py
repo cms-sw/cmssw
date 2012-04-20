@@ -52,21 +52,25 @@ def customise(process):
     process.DigiToRaw.remove(process.siPixelRawData)
     process.RawToDigi.remove(process.siPixelDigis)
 
-    if hasattr(process,'dqmoffline_step'):
-         print 'removing some dqm modules'
-         process.dqmoffline_step.remove(process.SiPixelTrackResidualSource)
-         process.dqmoffline_step.remove(process.jetMETAnalyzer)
-         process.dqmoffline_step.remove(process.hltMonMuBits)
-         process.dqmoffline_step.remove(process.vbtfAnalyzer)
-         process.dqmoffline_step.remove(process.hltResults)
-         process.dqmoffline_step.remove(process.egHLTOffDQMSource)
-         process.dqmoffline_step.remove(process.globalAnalyzer)
-         process.dqmoffline_step.remove(process.jetMETHLTOfflineSource)
 
+    if hasattr(process,'dqmoffline_step'):
+        process.dqmoffline_step.remove(process.SiPixelTrackResidualSource)
+        process.dqmoffline_step.remove(process.jetMETAnalyzer)
+        process.dqmoffline_step.remove(process.hltMonMuBits)
+        process.dqmoffline_step.remove(process.vbtfAnalyzer)
+        process.dqmoffline_step.remove(process.hltResults)
+        process.dqmoffline_step.remove(process.egHLTOffDQMSource)
+        process.dqmoffline_step.remove(process.globalAnalyzer)
+        process.dqmoffline_step.remove(process.jetMETHLTOfflineSource)
+        ##
+        process.dqmoffline_step.remove(process.TrackerCollisionTrackMon)
     if hasattr(process,'validation_step'):
         process.validation_step.remove(process.hltHITval)
         process.validation_step.remove(process.HLTSusyExoVal)
         process.validation_step.remove(process.relvalMuonBits)
+        process.validation_step.remove(process.hltMuonValidator)
+        #this takes forever - seems like an infinite loop that I didnt debug yet
+        process.validation_step.remove(process.pixelDigisValid)
     else:
     ## removing large memory usage module if we don't need it
         process.pdigi.remove(process.mergedtruth)
