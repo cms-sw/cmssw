@@ -81,6 +81,14 @@ class TtGenEvent: public TopGenEvent {
   /// get anti-neutrino for semi-leptonic or full leptonic decays
   const reco::GenParticle* neutrinoBar(bool excludeTauLeptons=false) const;
 
+  /// return combined 4-vector of top and topBar
+  const math::XYZTLorentzVector* topPair() const { return isTtBar() ? &topPair_ : 0; };
+
+ protected:
+
+  /// combined 4-vector of top and topBar
+  math::XYZTLorentzVector topPair_;
+
  private:
 
   /// check whether the number of leptons among the daughters of the W boson is nlep
