@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -25,7 +26,10 @@ class PFIsoReaderDemo : public edm::EDAnalyzer
   typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsoDepositVals;
 
  private:
-
+  
+  bool printPhotons_;
+  bool printElectrons_;
+  
   void plotIsoDeposits(const IsoDepositMaps & depmap, const reco::GsfElectronRef & ref,
 		       double&, double&, double&) ;
   
@@ -33,21 +37,35 @@ class PFIsoReaderDemo : public edm::EDAnalyzer
   edm::Service<TFileService> fileservice_;
 
   edm::InputTag inputTagGsfElectrons_;
+  edm::InputTag inputTagPhotons_;
   edm::InputTag inputTagPFCandidateMap_;
   std::vector<edm::InputTag> inputTagIsoDepElectrons_;
-  std::vector<edm::InputTag> inputTagIsoValElectronsNoPFId_;
+  std::vector<edm::InputTag> inputTagIsoDepPhotons_;
+  //  std::vector<edm::InputTag> inputTagIsoValElectronsNoPFId_;
   std::vector<edm::InputTag> inputTagIsoValElectronsPFId_;   
+  std::vector<edm::InputTag> inputTagIsoValPhotonsPFId_;   
 
   // Control histos
-  TH1F* chargedBarrel_   ; 
-  TH1F* photonBarrel_    ; 
-  TH1F* neutralBarrel_   ; 
+  TH1F* chargedBarrelElectrons_   ; 
+  TH1F* photonBarrelElectrons_    ; 
+  TH1F* neutralBarrelElectrons_   ; 
     
-  TH1F* chargedEndcaps_  ; 
-  TH1F* photonEndcaps_   ; 
-  TH1F* neutralEndcaps_  ; 
+  TH1F* chargedEndcapsElectrons_  ; 
+  TH1F* photonEndcapsElectrons_   ; 
+  TH1F* neutralEndcapsElectrons_  ; 
 
-  TH1F* sumBarrel_       ;
-  TH1F* sumEndcaps_      ;
+  TH1F* sumBarrelElectrons_       ;
+  TH1F* sumEndcapsElectrons_      ;
+
+  TH1F* chargedBarrelPhotons_   ; 
+  TH1F* photonBarrelPhotons_    ; 
+  TH1F* neutralBarrelPhotons_   ; 
+    
+  TH1F* chargedEndcapsPhotons_  ; 
+  TH1F* photonEndcapsPhotons_   ; 
+  TH1F* neutralEndcapsPhotons_  ; 
+
+  TH1F* sumBarrelPhotons_       ;
+  TH1F* sumEndcapsPhotons_      ;
 };
 #endif

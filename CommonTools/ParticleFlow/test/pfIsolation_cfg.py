@@ -9,13 +9,7 @@ process.maxEvents = cms.untracked.PSet(
 )
  
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-'/store/relval/CMSSW_5_1_2/RelValZEE/GEN-SIM-RECO/PU_START50_V15A-v1/0003/C61C71DC-8061-E111-AAEB-0025B32036D2.root',
-'/store/relval/CMSSW_5_1_2/RelValZEE/GEN-SIM-RECO/PU_START50_V15A-v1/0003/C49AC4E5-7F61-E111-8FB2-003048F1C836.root',
-'/store/relval/CMSSW_5_1_2/RelValZEE/GEN-SIM-RECO/PU_START50_V15A-v1/0003/C27CBF93-7E61-E111-AB30-003048F024C2.root',
-'/store/relval/CMSSW_5_1_2/RelValZEE/GEN-SIM-RECO/PU_START50_V15A-v1/0003/B46B6A67-8D61-E111-82C0-003048F118AA.root',
-'/store/relval/CMSSW_5_1_2/RelValZEE/GEN-SIM-RECO/PU_START50_V15A-v1/0003/36B93F53-7F61-E111-AA27-002481E0D524.root'
-    ))
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_5_2_0/RelValH130GGgluonfusion/GEN-SIM-RECO/START52_V4A-v1/0248/5AEAC282-0B69-E111-A973-003048FF9AA6.root'))
    
 
 # Tae Jeong, could you please remove these from the PF2PAT sequence?
@@ -25,32 +19,41 @@ process.source = cms.Source("PoolSource",
 
 # process.load("CommonTools.ParticleFlow.PFBRECO_cff")
 
-from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFMuonIso
+from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFMuonIso, setupPFPhotonIso
 process.eleIsoSequence = setupPFElectronIso(process, 'gsfElectrons')
 process.muIsoSequence = setupPFMuonIso(process, 'muons')
+process.phoIsoSequence = setupPFPhotonIso(process, 'photons')
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string("histo.root") )
 
-process.elePFIsoReader = cms.EDAnalyzer("PFIsoReaderDemo",
-                                        Electrons = cms.InputTag('gsfElectrons'),
-                                        PFCandidateMap = cms.InputTag('particleFlow:electrons'),
-                                        IsoDepElectron = cms.VInputTag(cms.InputTag('elPFIsoDepositChargedPFIso'),
-                                                                       cms.InputTag('elPFIsoDepositGammaPFIso'),
-                                                                       cms.InputTag('elPFIsoDepositNeutralPFIso')),
-                                        IsoValElectronPF = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIdPFIso'),
-                                                                         cms.InputTag('elPFIsoValueGamma03PFIdPFIso'),
-                                                                         cms.InputTag('elPFIsoValueNeutral03PFIdPFIso')),
-                                        IsoValElectronNoPF = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03NoPFIdPFIso'),
-                                                                           cms.InputTag('elPFIsoValueGamma03NoPFIdPFIso'),
-                                                                           cms.InputTag('elPFIsoValueNeutral03NoPFIdPFIso'))
-                                        )
+process.pfIsoReader = cms.EDAnalyzer("PFIsoReaderDemo",
+                                     Electrons = cms.InputTag('gsfElectrons'),
+                                     Photons = cms.InputTag('photons'),
+                                     PFCandidateMap = cms.InputTag('particleFlow:electrons'),
+                                     PrintElectrons = cms.bool(True),
+                                     PrintPhotons = cms.bool(True),
+                                     IsoDepElectron = cms.VInputTag(cms.InputTag('elPFIsoDepositChargedPFIso'),
+                                                                    cms.InputTag('elPFIsoDepositGammaPFIso'),
+                                                                    cms.InputTag('elPFIsoDepositNeutralPFIso')),
+                                     IsoValElectronPF = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIdPFIso'),
+                                                                     cms.InputTag('elPFIsoValueGamma03PFIdPFIso'),
+                                                                     cms.InputTag('elPFIsoValueNeutral03PFIdPFIso')),
+                                     IsoDepPhoton = cms.VInputTag(cms.InputTag('phPFIsoDepositChargedPFIso'),
+                                                                  cms.InputTag('phPFIsoDepositGammaPFIso'),
+                                                                  cms.InputTag('phPFIsoDepositNeutralPFIso')),
+                                     IsoValPhoton = cms.VInputTag(cms.InputTag('phPFIsoValueCharged03PFIdPFIso'),
+                                                                  cms.InputTag('phPFIsoValueGamma03PFIdPFIso'),
+                                                                  cms.InputTag('phPFIsoValueNeutral03PFIdPFIso'))
+
+)
 
 process.p = cms.Path(
     # process.pfNoPileUpSequence +
     process.pfParticleSelectionSequence + 
     process.eleIsoSequence + 
     process.muIsoSequence+
-    process.elePFIsoReader
+    process.phoIsoSequence+
+    process.pfIsoReader
     )
 
 

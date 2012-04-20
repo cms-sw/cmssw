@@ -7,31 +7,52 @@
 #include "CommonTools/ParticleFlow/test/PFIsoReaderDemo.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 PFIsoReaderDemo::PFIsoReaderDemo(const edm::ParameterSet& iConfig)
 {
   inputTagGsfElectrons_ = iConfig.getParameter<edm::InputTag>("Electrons");
-  inputTagPFCandidateMap_ = iConfig.getParameter< edm::InputTag>("PFCandidateMap");   
-  inputTagIsoDepElectrons_ = iConfig.getParameter< std::vector<edm::InputTag> >("IsoDepElectron");
+  inputTagPhotons_ = iConfig.getParameter<edm::InputTag>("Photons");
 
+  // not needed at the moment
+  inputTagPFCandidateMap_ = iConfig.getParameter< edm::InputTag>("PFCandidateMap");   
+
+  inputTagIsoDepElectrons_ = iConfig.getParameter< std::vector<edm::InputTag> >("IsoDepElectron");
+  inputTagIsoDepPhotons_ = iConfig.getParameter< std::vector<edm::InputTag> >("IsoDepPhoton");
   // No longer needed. e/g recommendation (04/04/12)
   //  inputTagIsoValElectronsNoPFId_ = iConfig.getParameter< std::vector<edm::InputTag> >("IsoValElectronNoPF");
   inputTagIsoValElectronsPFId_   = iConfig.getParameter< std::vector<edm::InputTag> >("IsoValElectronPF");   
+  inputTagIsoValPhotonsPFId_   = iConfig.getParameter< std::vector<edm::InputTag> >("IsoValPhoton");   
+
+  printElectrons_ = iConfig.getParameter<bool>("PrintElectrons");
+  printPhotons_ = iConfig.getParameter<bool>("PrintPhotons");
 
   // Control plots
-  TFileDirectory dir = fileservice_->mkdir("PFISO");
-  chargedBarrel_    = dir.make<TH1F>("chargedBarrel",";Sum pT/pT" ,100,0,4);
-  photonBarrel_     = dir.make<TH1F>("photonBarrel",";Sum pT/pT", 100,0,4);
-  neutralBarrel_    = dir.make<TH1F>("neutralBarrel",";Sum pT/pT", 100,0,4);
+  TFileDirectory dir = fileservice_->mkdir("PF ISO");
+  chargedBarrelElectrons_    = dir.make<TH1F>("chargedBarrelElectrons",";Sum pT/pT" ,100,0,4);
+  photonBarrelElectrons_     = dir.make<TH1F>("photonBarrelElectrons",";Sum pT/pT", 100,0,4);
+  neutralBarrelElectrons_    = dir.make<TH1F>("neutralBarrelElectrons",";Sum pT/pT", 100,0,4);
   		      
-  chargedEndcaps_   = dir.make<TH1F>("chargedEndcaps",";Sum pT/pT",100,0,4);
-  photonEndcaps_    = dir.make<TH1F>("photonEndcaps",";Sum pT/pT",100,0,4);
-  neutralEndcaps_   = dir.make<TH1F>("neutralEndcaps",";Sum pT/pT",100,0,4);
+  chargedEndcapsElectrons_   = dir.make<TH1F>("chargedEndcapsElectrons",";Sum pT/pT",100,0,4);
+  photonEndcapsElectrons_    = dir.make<TH1F>("photonEndcapsElectrons",";Sum pT/pT",100,0,4);
+  neutralEndcapsElectrons_   = dir.make<TH1F>("neutralEndcapsElectrons",";Sum pT/pT",100,0,4);
   		      
-  sumBarrel_        = dir.make<TH1F>("allbarrel",";Sum pT/pT",100,0,4);
-  sumEndcaps_       = dir.make<TH1F>("allendcaps",";Sum pT/pT",100,0,4);
+  sumBarrelElectrons_        = dir.make<TH1F>("allbarrelElectrons",";Sum pT/pT",100,0,4);
+  sumEndcapsElectrons_       = dir.make<TH1F>("allendcapsElectrons",";Sum pT/pT",100,0,4);
+
+  chargedBarrelPhotons_    = dir.make<TH1F>("chargedBarrelPhotons",";Sum pT/pT" ,100,0,4);
+  photonBarrelPhotons_     = dir.make<TH1F>("photonBarrelPhotons",";Sum pT/pT", 100,0,4);
+  neutralBarrelPhotons_    = dir.make<TH1F>("neutralBarrelPhotons",";Sum pT/pT", 100,0,4);
+  		      
+  chargedEndcapsPhotons_   = dir.make<TH1F>("chargedEndcapsPhotons",";Sum pT/pT",100,0,4);
+  photonEndcapsPhotons_    = dir.make<TH1F>("photonEndcapsPhotons",";Sum pT/pT",100,0,4);
+  neutralEndcapsPhotons_   = dir.make<TH1F>("neutralEndcapsPhotons",";Sum pT/pT",100,0,4);
+  		      
+  sumBarrelPhotons_        = dir.make<TH1F>("allbarrelPhotons",";Sum pT/pT",100,0,4);
+  sumEndcapsPhotons_       = dir.make<TH1F>("allendcapsPhotons",";Sum pT/pT",100,0,4);
+
 }
 
 PFIsoReaderDemo::~PFIsoReaderDemo(){;}
@@ -42,7 +63,7 @@ PFIsoReaderDemo::beginRun(edm::Run const&, edm::EventSetup const& ){;}
 void PFIsoReaderDemo::analyze(const edm::Event & iEvent,const edm::EventSetup & c)
 {
   edm::Handle<reco::GsfElectronCollection> gsfElectronH;
-  bool found=iEvent.getByLabel(inputTagGsfElectrons_,gsfElectronH);
+  bool found = iEvent.getByLabel(inputTagGsfElectrons_,gsfElectronH);
   if(!found ) {
     std::ostringstream  err;
     err<<" cannot get GsfElectrons: "
@@ -50,6 +71,17 @@ void PFIsoReaderDemo::analyze(const edm::Event & iEvent,const edm::EventSetup & 
     edm::LogError("PFIsoReaderDemo")<<err.str();
     throw cms::Exception( "MissingProduct", err.str());
   }  
+
+  edm::Handle<reco::PhotonCollection> photonH;
+  found = iEvent.getByLabel(inputTagPhotons_,photonH);
+  if(!found ) {
+    std::ostringstream  err;
+    err<<" cannot get Photons: "
+       <<inputTagGsfElectrons_<<std::endl;
+    edm::LogError("PFIsoReaderDemo")<<err.str();
+    throw cms::Exception( "MissingProduct", err.str());
+  }  
+  
 
   // get the iso deposits. 3 (charged hadrons, photons, neutral hadrons)
   unsigned nTypes=3;
@@ -59,75 +91,91 @@ void PFIsoReaderDemo::analyze(const edm::Event & iEvent,const edm::EventSetup & 
     iEvent.getByLabel(inputTagIsoDepElectrons_[j], electronIsoDep[j]);
   }
 
-  IsoDepositVals electronIsoValPFId(nTypes);
 
-  // No longer needed. e/g recommendation (04/04/12)
-  //  IsoDepositVals electronIsoValNoPFId(nTypes);
+  IsoDepositMaps photonIsoDep(nTypes);
+  for (size_t j = 0; j<inputTagIsoDepPhotons_.size(); ++j) {
+    iEvent.getByLabel(inputTagIsoDepPhotons_[j], photonIsoDep[j]);
+  }
+
+  IsoDepositVals electronIsoValPFId(nTypes);
+  IsoDepositVals photonIsoValPFId(nTypes);
+  // just renaming
+  const IsoDepositVals * electronIsoVals = &electronIsoValPFId;
 
   for (size_t j = 0; j<inputTagIsoValElectronsPFId_.size(); ++j) {
     iEvent.getByLabel(inputTagIsoValElectronsPFId_[j], electronIsoValPFId[j]);
   }
 
-
-  // No longer needed. e/g recommendation (04/04/12)
-
-  //for (size_t j = 0; j<inputTagIsoValElectronsPFId_.size(); ++j) {
-  //  iEvent.getByLabel(inputTagIsoValElectronsNoPFId_[j], electronIsoValNoPFId[j]);
-  //}
-  //
-  //
-  // PFCandidateMap
-  // edm::Handle<edm::ValueMap<reco::PFCandidatePtr> >ValMapH;
-  //  iEvent.getByLabel(inputTagPFCandidateMap_,ValMapH);
-  //  const edm::ValueMap<reco::PFCandidatePtr> & myValMap(*ValMapH); 
-  //  for (size_t j = 0; j<inputTagIsoValElectronsPFId_.size(); ++j) {
-  //    iEvent.getByLabel(inputTagIsoValElectronsNoPFId_[j], electronIsoValNoPFId[j]);
-  //  }
+  for (size_t j = 0; j<inputTagIsoValPhotonsPFId_.size(); ++j) {
+    iEvent.getByLabel(inputTagIsoValPhotonsPFId_[j], photonIsoValPFId[j]);
+  }
 
 
   // Electrons - from reco 
-  unsigned nele=gsfElectronH->size();
-
-  for(unsigned iele=0; iele<nele;++iele) {
-    reco::GsfElectronRef myElectronRef(gsfElectronH,iele);
-
-
-    //    No longer needed. e/g recommendation (04/04/12)
-    // Get the PFCandidate
-    //    const reco::PFCandidatePtr pfElePtr(myValMap[myElectronRef]); 
-    //    unsigned pfId= pfElePtr.isNonnull();
-    //    unsigned pfId=(myElectronRef->passingMvaPreselection()) ? 1 : 0 ;
-    // Get the PFCandidate
-    //    const reco::PFCandidatePtr pfElePtr(myValMap[myElectronRef]); 
-   //    unsigned pfId= pfElePtr.isNonnull();
-   //    unsigned pfId=(myElectronRef->passingMvaPreselection()) ? 1 : 0 ;
-   // const IsoDepositVals * electronIsoVals =  (pfId) ? &electronIsoValPFId : &electronIsoValNoPFId ;
-
-    const IsoDepositVals * electronIsoVals = &electronIsoValPFId;
-
-    double charged =  (*(*electronIsoVals)[0])[myElectronRef];
-    double photon = (*(*electronIsoVals)[1])[myElectronRef];
-    double neutral = (*(*electronIsoVals)[2])[myElectronRef];
-
-    std::cout << " run " << iEvent.id().run() << " lumi " << iEvent.id().luminosityBlock() << " event " << iEvent.id().event();
-    std::cout << " pt " <<  myElectronRef->pt() << " eta " << myElectronRef->eta() << " phi " << myElectronRef->phi() << " charge " << myElectronRef->charge()<< " : ";
-    std::cout << " ChargedIso " << charged ;
-    std::cout << " PhotonIso " <<  photon ;
-    std::cout << " NeutralHadron Iso " << neutral << std::endl;
+  if(printElectrons_) {
+    unsigned nele=gsfElectronH->size();
     
-    if(myElectronRef->isEB()) {
-      chargedBarrel_ ->Fill(charged/myElectronRef->pt());
-      photonBarrel_->Fill(photon/myElectronRef->pt());
-      neutralBarrel_->Fill(neutral/myElectronRef->pt());
-      sumBarrel_->Fill((charged+photon+neutral)/myElectronRef->pt());
-    } else {
-      chargedEndcaps_ ->Fill(charged/myElectronRef->pt());
-      photonEndcaps_->Fill(photon/myElectronRef->pt());
-      neutralEndcaps_->Fill(neutral/myElectronRef->pt());
-      sumEndcaps_->Fill((charged+photon+neutral)/myElectronRef->pt());
-    }
+    for(unsigned iele=0; iele<nele;++iele) {
+      reco::GsfElectronRef myElectronRef(gsfElectronH,iele);
       
+      double charged =  (*(*electronIsoVals)[0])[myElectronRef];
+      double photon = (*(*electronIsoVals)[1])[myElectronRef];
+      double neutral = (*(*electronIsoVals)[2])[myElectronRef];
+      
+      std::cout << "Electron: " << " run " << iEvent.id().run() << " lumi " << iEvent.id().luminosityBlock() << " event " << iEvent.id().event();
+      std::cout << " pt " <<  myElectronRef->pt() << " eta " << myElectronRef->eta() << " phi " << myElectronRef->phi() << " charge " << myElectronRef->charge()<< " : ";
+      std::cout << " ChargedIso " << charged ;
+      std::cout << " PhotonIso " <<  photon ;
+      std::cout << " NeutralHadron Iso " << neutral << std::endl;
+      
+      if(myElectronRef->isEB()) {
+	chargedBarrelElectrons_ ->Fill(charged/myElectronRef->pt());
+	photonBarrelElectrons_->Fill(photon/myElectronRef->pt());
+	neutralBarrelElectrons_->Fill(neutral/myElectronRef->pt());
+	sumBarrelElectrons_->Fill((charged+photon+neutral)/myElectronRef->pt());
+      } else {
+	chargedEndcapsElectrons_ ->Fill(charged/myElectronRef->pt());
+	photonEndcapsElectrons_->Fill(photon/myElectronRef->pt());
+	neutralEndcapsElectrons_->Fill(neutral/myElectronRef->pt());
+	sumEndcapsElectrons_->Fill((charged+photon+neutral)/myElectronRef->pt());
+      }
+    }
   }
+
+ // Photons - from reco 
+  const IsoDepositVals * photonIsoVals = &photonIsoValPFId;
+
+  if(printPhotons_) {
+    unsigned npho=photonH->size();
+    
+    for(unsigned ipho=0; ipho<npho;++ipho) {
+      reco::PhotonRef myPhotonRef(photonH,ipho);
+      
+      double charged =  (*(*photonIsoVals)[0])[myPhotonRef];
+      double photon = (*(*photonIsoVals)[1])[myPhotonRef];
+      double neutral = (*(*photonIsoVals)[2])[myPhotonRef];
+      
+      std::cout << "Photon: " << " run " << iEvent.id().run() << " lumi " << iEvent.id().luminosityBlock() << " event " << iEvent.id().event();
+      std::cout << " pt " <<  myPhotonRef->pt() << " eta " << myPhotonRef->eta() << " phi " << myPhotonRef->phi() << " charge " << myPhotonRef->charge()<< " : ";
+      std::cout << " ChargedIso " << charged ;
+      std::cout << " PhotonIso " <<  photon ;
+      std::cout << " NeutralHadron Iso " << neutral << std::endl;
+      
+      if(myPhotonRef->isEB()) {
+	chargedBarrelPhotons_ ->Fill(charged/myPhotonRef->pt());
+	photonBarrelPhotons_->Fill(photon/myPhotonRef->pt());
+	neutralBarrelPhotons_->Fill(neutral/myPhotonRef->pt());
+	sumBarrelPhotons_->Fill((charged+photon+neutral)/myPhotonRef->pt());
+      } else {
+	chargedEndcapsPhotons_ ->Fill(charged/myPhotonRef->pt());
+	photonEndcapsPhotons_->Fill(photon/myPhotonRef->pt());
+	neutralEndcapsPhotons_->Fill(neutral/myPhotonRef->pt());
+	sumEndcapsPhotons_->Fill((charged+photon+neutral)/myPhotonRef->pt());
+      }
+    }
+  }
+
+
 }
   
 
