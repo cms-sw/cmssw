@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2012/03/21 15:49:52 $
- *  $Revision: 1.32 $
+ *  $Date: 2012/03/23 18:24:43 $
+ *  $Revision: 1.33 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -129,14 +129,14 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   GenericTriggerEventFlag * _LowPtJetEventFlag;
   GenericTriggerEventFlag * _MinBiasEventFlag;
   GenericTriggerEventFlag * _HighMETEventFlag;
-  GenericTriggerEventFlag * _LowMETEventFlag;
+  //  GenericTriggerEventFlag * _LowMETEventFlag;
   GenericTriggerEventFlag * _EleEventFlag;
   GenericTriggerEventFlag * _MuonEventFlag;
 
   std::vector<std::string> highPtJetExpr_;
   std::vector<std::string> lowPtJetExpr_;
   std::vector<std::string> highMETExpr_;
-  std::vector<std::string> lowMETExpr_;
+  //  std::vector<std::string> lowMETExpr_;
   std::vector<std::string> muonExpr_;
   std::vector<std::string> elecExpr_;
   std::vector<std::string> minbiasExpr_;
@@ -166,7 +166,7 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   int _trig_LowPtJet;
   int _trig_MinBias;
   int _trig_HighMET;
-  int _trig_LowMET;
+  //  int _trig_LowMET;
   int _trig_Ele;
   int _trig_Muon;
   int _trig_PhysDec;
@@ -174,7 +174,7 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   double _highPtJetThreshold;
   double _lowPtJetThreshold;
   double _highMETThreshold;
-  double _lowMETThreshold;
+  //  double _lowMETThreshold;
 
   // Et threshold for MET plots
   double _etThreshold;
@@ -224,7 +224,7 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   MonitorElement* hTriggerName_LowPtJet;
   MonitorElement* hTriggerName_MinBias;
   MonitorElement* hTriggerName_HighMET;
-  MonitorElement* hTriggerName_LowMET;
+  //  MonitorElement* hTriggerName_LowMET;
   MonitorElement* hTriggerName_Ele;
   MonitorElement* hTriggerName_Muon;
 

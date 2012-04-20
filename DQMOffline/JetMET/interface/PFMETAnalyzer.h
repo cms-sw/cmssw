@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFMET
  *
- *  $Date: 2012/03/23 15:13:47 $
- *  $Revision: 1.26 $
+ *  $Date: 2012/03/23 18:24:43 $
+ *  $Revision: 1.27 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -126,14 +126,14 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   GenericTriggerEventFlag * _LowPtJetEventFlag;
   GenericTriggerEventFlag * _MinBiasEventFlag;
   GenericTriggerEventFlag * _HighMETEventFlag;
-  GenericTriggerEventFlag * _LowMETEventFlag;
+  //  GenericTriggerEventFlag * _LowMETEventFlag;
   GenericTriggerEventFlag * _EleEventFlag;
   GenericTriggerEventFlag * _MuonEventFlag;
 
   std::vector<std::string> highPtJetExpr_;
   std::vector<std::string> lowPtJetExpr_;
   std::vector<std::string> highMETExpr_;
-  std::vector<std::string> lowMETExpr_;
+  //  std::vector<std::string> lowMETExpr_;
   std::vector<std::string> muonExpr_;
   std::vector<std::string> elecExpr_;
   std::vector<std::string> minbiasExpr_;
@@ -163,7 +163,7 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   int _trig_LowPtJet;
   int _trig_MinBias;
   int _trig_HighMET;
-  int _trig_LowMET;
+  //  int _trig_LowMET;
   int _trig_Ele;
   int _trig_Muon;
   int _trig_PhysDec;
@@ -206,7 +206,7 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   MonitorElement* meTriggerName_LowPtJet;
   MonitorElement* meTriggerName_MinBias;
   MonitorElement* meTriggerName_HighMET;
-  MonitorElement* meTriggerName_LowMET;
+  //  MonitorElement* meTriggerName_LowMET;
   MonitorElement* meTriggerName_Ele;
   MonitorElement* meTriggerName_Muon;
   MonitorElement* meTriggerName_PhysDec;

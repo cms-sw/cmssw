@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/04/19 09:57:57 $
- *  $Revision: 1.67 $
+ *  $Date: 2012/04/19 11:51:48 $
+ *  $Revision: 1.68 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -38,7 +38,7 @@ CaloMETAnalyzer::CaloMETAnalyzer(const edm::ParameterSet& pSet) {
   edm::ParameterSet lowptjetparms  = parameters.getParameter<edm::ParameterSet>("lowPtJetTrigger" );
   edm::ParameterSet minbiasparms   = parameters.getParameter<edm::ParameterSet>("minBiasTrigger"  );
   edm::ParameterSet highmetparms   = parameters.getParameter<edm::ParameterSet>("highMETTrigger"  );
-  edm::ParameterSet lowmetparms    = parameters.getParameter<edm::ParameterSet>("lowMETTrigger"   );
+  //  edm::ParameterSet lowmetparms    = parameters.getParameter<edm::ParameterSet>("lowMETTrigger"   );
   edm::ParameterSet eleparms       = parameters.getParameter<edm::ParameterSet>("eleTrigger"      );
   edm::ParameterSet muonparms      = parameters.getParameter<edm::ParameterSet>("muonTrigger"     );
 
@@ -47,14 +47,14 @@ CaloMETAnalyzer::CaloMETAnalyzer(const edm::ParameterSet& pSet) {
   _LowPtJetEventFlag  = new GenericTriggerEventFlag( lowptjetparms  );
   _MinBiasEventFlag   = new GenericTriggerEventFlag( minbiasparms   );
   _HighMETEventFlag   = new GenericTriggerEventFlag( highmetparms   );
-  _LowMETEventFlag    = new GenericTriggerEventFlag( lowmetparms    );
+  //  _LowMETEventFlag    = new GenericTriggerEventFlag( lowmetparms    );
   _EleEventFlag       = new GenericTriggerEventFlag( eleparms       );
   _MuonEventFlag      = new GenericTriggerEventFlag( muonparms      );
 
   highPtJetExpr_ = highptjetparms.getParameter<std::vector<std::string> >("hltPaths");
   lowPtJetExpr_  = lowptjetparms .getParameter<std::vector<std::string> >("hltPaths");
   highMETExpr_   = highmetparms  .getParameter<std::vector<std::string> >("hltPaths");
-  lowMETExpr_    = lowmetparms   .getParameter<std::vector<std::string> >("hltPaths");
+  //  lowMETExpr_    = lowmetparms   .getParameter<std::vector<std::string> >("hltPaths");
   muonExpr_      = muonparms     .getParameter<std::vector<std::string> >("hltPaths");
   elecExpr_      = eleparms      .getParameter<std::vector<std::string> >("hltPaths");
   minbiasExpr_   = minbiasparms  .getParameter<std::vector<std::string> >("hltPaths");
@@ -68,7 +68,7 @@ CaloMETAnalyzer::~CaloMETAnalyzer() {
   delete _LowPtJetEventFlag;
   delete _MinBiasEventFlag;
   delete _HighMETEventFlag;
-  delete _LowMETEventFlag;
+  //  delete _LowMETEventFlag;
   delete _EleEventFlag;
   delete _MuonEventFlag;
 
@@ -142,7 +142,7 @@ void CaloMETAnalyzer::beginJob(DQMStore * dbe) {
   _highPtJetThreshold = parameters.getParameter<double>("HighPtJetThreshold"); // High Pt Jet threshold
   _lowPtJetThreshold = parameters.getParameter<double>("LowPtJetThreshold"); // Low Pt Jet threshold
   _highMETThreshold = parameters.getParameter<double>("HighMETThreshold"); // High MET threshold
-  _lowMETThreshold = parameters.getParameter<double>("LowMETThreshold"); // Low MET threshold
+  //  _lowMETThreshold = parameters.getParameter<double>("LowMETThreshold"); // Low MET threshold
 
   //
   jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
@@ -229,10 +229,10 @@ void CaloMETAnalyzer::bookMESet(std::string DirName)
     hTriggerName_HighMET = _dbe->bookString("triggerName_HighMET", highMETExpr_[0]);
   }
 
-  if ( _LowMETEventFlag->on() ) {
-    bookMonitorElementTriggered(DirName+"/"+"LowMET",false);
-    hTriggerName_LowMET = _dbe->bookString("triggerName_LowMET", lowMETExpr_[0]);
-  }
+  //  if ( _LowMETEventFlag->on() ) {
+  //    bookMonitorElementTriggered(DirName+"/"+"LowMET",false);
+  //    hTriggerName_LowMET = _dbe->bookString("triggerName_LowMET", lowMETExpr_[0]);
+  //  }
 
   if ( _EleEventFlag->on() ) {
     bookMonitorElementTriggered(DirName+"/"+"Ele",false);
@@ -398,7 +398,7 @@ void CaloMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
   if ( _LowPtJetEventFlag ->on() ) _LowPtJetEventFlag ->initRun( iRun, iSetup );
   if ( _MinBiasEventFlag  ->on() ) _MinBiasEventFlag  ->initRun( iRun, iSetup );
   if ( _HighMETEventFlag  ->on() ) _HighMETEventFlag  ->initRun( iRun, iSetup );
-  if ( _LowMETEventFlag   ->on() ) _LowMETEventFlag   ->initRun( iRun, iSetup );
+  //  if ( _LowMETEventFlag   ->on() ) _LowMETEventFlag   ->initRun( iRun, iSetup );
   if ( _EleEventFlag      ->on() ) _EleEventFlag      ->initRun( iRun, iSetup );
   if ( _MuonEventFlag     ->on() ) _MuonEventFlag     ->initRun( iRun, iSetup );
 
@@ -408,8 +408,8 @@ void CaloMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
     lowPtJetExpr_  = _LowPtJetEventFlag->expressionsFromDB(_LowPtJetEventFlag->hltDBKey(),   iSetup);
   if (_HighMETEventFlag->on() && _HighMETEventFlag->expressionsFromDB(_HighMETEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
     highMETExpr_   = _HighMETEventFlag->expressionsFromDB(_HighMETEventFlag->hltDBKey(),     iSetup);
-  if (_LowMETEventFlag->on() && _LowMETEventFlag->expressionsFromDB(_LowMETEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
-    lowMETExpr_    = _LowMETEventFlag->expressionsFromDB(_LowMETEventFlag->hltDBKey(),       iSetup);
+  //  if (_LowMETEventFlag->on() && _LowMETEventFlag->expressionsFromDB(_LowMETEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
+  //    lowMETExpr_    = _LowMETEventFlag->expressionsFromDB(_LowMETEventFlag->hltDBKey(),       iSetup);
   if (_MuonEventFlag->on() && _MuonEventFlag->expressionsFromDB(_MuonEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
     muonExpr_      = _MuonEventFlag->expressionsFromDB(_MuonEventFlag->hltDBKey(),           iSetup);
   if (_EleEventFlag->on() && _EleEventFlag->expressionsFromDB(_EleEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
@@ -464,8 +464,8 @@ void CaloMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup
 	makeRatePlot(DirName+"/"+"triggerName_MinBias",totltime);
       if ( _HighMETEventFlag->on() ) 
 	makeRatePlot(DirName+"/"+"triggerName_HighMET",totltime);
-      if ( _LowMETEventFlag->on() ) 
-	makeRatePlot(DirName+"/"+"triggerName_LowMET",totltime);
+      //      if ( _LowMETEventFlag->on() ) 
+      //	makeRatePlot(DirName+"/"+"triggerName_LowMET",totltime);
       if ( _EleEventFlag->on() ) 
 	makeRatePlot(DirName+"/"+"triggerName_Ele",totltime);
       if ( _MuonEventFlag->on() ) 
@@ -529,7 +529,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   _trig_LowPtJet=0;
   _trig_MinBias=0;
   _trig_HighMET=0;
-  _trig_LowMET=0;
+  //  _trig_LowMET=0;
   _trig_Ele=0;
   _trig_Muon=0;
   _trig_PhysDec=0;
@@ -559,8 +559,8 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  _trig_LowPtJet=true;
         else if (triggerNames.triggerName(i).find(highMETExpr_[0].substr(0,highMETExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
 	  _trig_HighMET=true;
-        else if (triggerNames.triggerName(i).find(lowMETExpr_[0].substr(0,lowMETExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
-	  _trig_LowMET=true;
+	//        else if (triggerNames.triggerName(i).find(lowMETExpr_[0].substr(0,lowMETExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
+	//	  _trig_LowMET=true;
         else if (triggerNames.triggerName(i).find(muonExpr_[0].substr(0,muonExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
 	  _trig_Muon=true;
         else if (triggerNames.triggerName(i).find(elecExpr_[0].substr(0,elecExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
@@ -1124,8 +1124,8 @@ void CaloMETAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
     fillMonitorElementTriggered(iEvent,DirName,"MinBias",calomet,calometnohf,false);
   if (_trig_HighMET)
     fillMonitorElementTriggered(iEvent,DirName,"HighMET",calomet,calometnohf,false);
-  if (_trig_LowMET)
-    fillMonitorElementTriggered(iEvent,DirName,"LowMET",calomet,calometnohf,false);
+  //  if (_trig_LowMET)
+  //    fillMonitorElementTriggered(iEvent,DirName,"LowMET",calomet,calometnohf,false);
   if (_trig_Ele)
     fillMonitorElementTriggered(iEvent,DirName,"Ele",calomet,calometnohf,false);
   if (_trig_Muon) {
@@ -1142,27 +1142,8 @@ void CaloMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string D
 {
   fillMonitorElementTriggered(iEvent, DirName, TriggerTypeName, calomet, calometnohf, bLumiSecPlot);
 
-  /*
-  if (TriggerTypeName=="HighPtJet") {
-    if (!selectHighPtJetEvent(iEvent)) return;
-  }
-  else if (TriggerTypeName=="LowPtJet") {
-    if (!selectLowPtJetEvent(iEvent)) return;
-  }
-  else if (TriggerTypeName=="HighMET") {
-    if (calomet.pt()<_highMETThreshold) return;
-  }
-  else if (TriggerTypeName=="LowMET") {
-    if (calomet.pt()<_lowMETThreshold) return;
-  }
-  else if (TriggerTypeName=="Ele") {
-    if (!selectWElectronEvent(iEvent)) return;
-  }
-  else if (TriggerTypeName=="Muon") {
-    if (!selectWMuonEvent(iEvent)) return;
-  }
-  */
-  double caloSumET  = calomet.sumEt();
+  double caloSumET = calomet.sumEt();
+
   /*
   double caloMETSig = calomet.mEtSig();
   //double caloEz     = calomet.e_longitudinal();
@@ -1306,9 +1287,9 @@ void CaloMETAnalyzer::fillMonitorElementTriggered(const edm::Event& iEvent, std:
   else if (TriggerTypeName=="HighMET") {
     if (calomet.pt()<_highMETThreshold) return;
   }
-  else if (TriggerTypeName=="LowMET") {
-    if (calomet.pt()<_lowMETThreshold) return;
-  }
+  //  else if (TriggerTypeName=="LowMET") {
+  //    if (calomet.pt()<_lowMETThreshold) return;
+  //  }
   else if (TriggerTypeName=="Ele") {
     if (!selectWElectronEvent(iEvent)) return;
   }

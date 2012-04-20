@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for MET (Mu corrected/TcMET)
  *
- *  $Date: 2011/10/10 13:45:58 $
- *  $Revision: 1.23 $
+ *  $Date: 2011/10/10 14:43:38 $
+ *  $Revision: 1.24 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -132,14 +132,14 @@ class METAnalyzer : public METAnalyzerBase {
   GenericTriggerEventFlag * _LowPtJetEventFlag;
   GenericTriggerEventFlag * _MinBiasEventFlag;
   GenericTriggerEventFlag * _HighMETEventFlag;
-  GenericTriggerEventFlag * _LowMETEventFlag;
+  //  GenericTriggerEventFlag * _LowMETEventFlag;
   GenericTriggerEventFlag * _EleEventFlag;
   GenericTriggerEventFlag * _MuonEventFlag;
 
   std::vector<std::string> highPtJetExpr_;
   std::vector<std::string> lowPtJetExpr_;
   std::vector<std::string> highMETExpr_;
-  std::vector<std::string> lowMETExpr_;
+  //  std::vector<std::string> lowMETExpr_;
   std::vector<std::string> muonExpr_;
   std::vector<std::string> elecExpr_;
   std::vector<std::string> minbiasExpr_;
@@ -169,7 +169,7 @@ class METAnalyzer : public METAnalyzerBase {
   int _trig_LowPtJet;
   int _trig_MinBias;
   int _trig_HighMET;
-  int _trig_LowMET;
+  //  int _trig_LowMET;
   int _trig_Ele;
   int _trig_Muon;
   int _trig_PhysDec;
@@ -178,7 +178,7 @@ class METAnalyzer : public METAnalyzerBase {
   double _highPtJetThreshold;
   double _lowPtJetThreshold;
   double _highMETThreshold;
-  double _lowMETThreshold;
+  //  double _lowMETThreshold;
 
   // Et threshold for MET plots
   double _etThreshold;
@@ -219,7 +219,7 @@ class METAnalyzer : public METAnalyzerBase {
   MonitorElement* hTriggerName_LowPtJet;
   MonitorElement* hTriggerName_MinBias;
   MonitorElement* hTriggerName_HighMET;
-  MonitorElement* hTriggerName_LowMET;
+  //  MonitorElement* hTriggerName_LowMET;
   MonitorElement* hTriggerName_Ele;
   MonitorElement* hTriggerName_Muon;
 

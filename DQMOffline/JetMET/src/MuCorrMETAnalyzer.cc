@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/04/19 09:57:57 $
- *  $Revision: 1.8 $
+ *  $Date: 2012/04/19 11:51:50 $
+ *  $Revision: 1.9 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -47,7 +47,7 @@ void MuCorrMETAnalyzer::beginJob(DQMStore * dbe) {
   _hlt_HighPtJet = parameters.getParameter<std::string>("HLT_HighPtJet");
   _hlt_LowPtJet  = parameters.getParameter<std::string>("HLT_LowPtJet");
   _hlt_HighMET   = parameters.getParameter<std::string>("HLT_HighMET");
-  _hlt_LowMET    = parameters.getParameter<std::string>("HLT_LowMET");
+  //  _hlt_LowMET    = parameters.getParameter<std::string>("HLT_LowMET");
   _hlt_Ele       = parameters.getParameter<std::string>("HLT_Ele");
   _hlt_Muon      = parameters.getParameter<std::string>("HLT_Muon");
 
@@ -69,7 +69,7 @@ void MuCorrMETAnalyzer::beginJob(DQMStore * dbe) {
   _highPtMuCorrJetThreshold = parameters.getParameter<double>("HighPtMuCorrJetThreshold"); // High Pt Jet threshold
   _lowPtMuCorrJetThreshold = parameters.getParameter<double>("LowPtMuCorrJetThreshold");   // Low Pt Jet threshold
   _highMuCorrMETThreshold = parameters.getParameter<double>("HighMuCorrMETThreshold");     // High MET threshold
-  _lowMuCorrMETThreshold = parameters.getParameter<double>("LowMuCorrMETThreshold");       // Low MET threshold
+  //  _lowMuCorrMETThreshold = parameters.getParameter<double>("LowMuCorrMETThreshold");       // Low MET threshold
 
   //
   jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
@@ -135,10 +135,10 @@ void MuCorrMETAnalyzer::bookMESet(std::string DirName)
     meTriggerName_HighMET = _dbe->bookString("triggerName_HighMET", _hlt_HighMET);
   }
 
-  if (_hlt_LowMET.size()){
-    bookMonitorElement(DirName+"/"+"LowMET",false);
-    meTriggerName_LowMET = _dbe->bookString("triggerName_LowMET", _hlt_LowMET);
-  }
+  //  if (_hlt_LowMET.size()){
+  //    bookMonitorElement(DirName+"/"+"LowMET",false);
+  //    meTriggerName_LowMET = _dbe->bookString("triggerName_LowMET", _hlt_LowMET);
+  //  }
 
   if (_hlt_Ele.size()){
     bookMonitorElement(DirName+"/"+"Ele",false);
@@ -226,7 +226,7 @@ void MuCorrMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSet
       if (_hlt_HighPtJet.size()) makeRatePlot(DirName+"/"+_hlt_HighPtJet,totltime);
       if (_hlt_LowPtJet.size())  makeRatePlot(DirName+"/"+_hlt_LowPtJet,totltime);
       if (_hlt_HighMET.size())   makeRatePlot(DirName+"/"+_hlt_HighMET,totltime);
-      if (_hlt_LowMET.size())    makeRatePlot(DirName+"/"+_hlt_LowMET,totltime);
+      //      if (_hlt_LowMET.size())    makeRatePlot(DirName+"/"+_hlt_LowMET,totltime);
       if (_hlt_Ele.size())       makeRatePlot(DirName+"/"+_hlt_Ele,totltime);
       if (_hlt_Muon.size())      makeRatePlot(DirName+"/"+_hlt_Muon,totltime);
 
@@ -279,8 +279,9 @@ void MuCorrMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   _trig_HighPtJet=0;
   _trig_LowPtJet=0;
   _trig_HighMET=0;
-  _trig_LowMET=0;
-  if(&triggerResults) {   
+  //  _trig_LowMET=0;
+
+  if (&triggerResults) {   
 
     /////////// Analyzing HLT Trigger Results (TriggerResults) //////////
 
@@ -314,7 +315,7 @@ void MuCorrMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     if (_verbose) std::cout << _hlt_HighPtJet << " " << triggerNames.triggerIndex(_hlt_HighPtJet) << std::endl;
     if (_verbose) std::cout << _hlt_LowPtJet  << " " << triggerNames.triggerIndex(_hlt_LowPtJet)  << std::endl;
     if (_verbose) std::cout << _hlt_HighMET   << " " << triggerNames.triggerIndex(_hlt_HighMET)   << std::endl;
-    if (_verbose) std::cout << _hlt_LowMET    << " " << triggerNames.triggerIndex(_hlt_LowMET)    << std::endl;
+    //    if (_verbose) std::cout << _hlt_LowMET    << " " << triggerNames.triggerIndex(_hlt_LowMET)    << std::endl;
     if (_verbose) std::cout << _hlt_Ele       << " " << triggerNames.triggerIndex(_hlt_Ele)       << std::endl;
     if (_verbose) std::cout << _hlt_Muon      << " " << triggerNames.triggerIndex(_hlt_Muon)      << std::endl;
 
@@ -327,8 +328,8 @@ void MuCorrMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     if (triggerNames.triggerIndex(_hlt_HighMET)   != triggerNames.size() &&
         triggerResults.accept(triggerNames.triggerIndex(_hlt_HighMET)))   _trig_HighMET=1;
 
-    if (triggerNames.triggerIndex(_hlt_LowMET)    != triggerNames.size() &&
-        triggerResults.accept(triggerNames.triggerIndex(_hlt_LowMET)))    _trig_LowMET=1;
+    //    if (triggerNames.triggerIndex(_hlt_LowMET)    != triggerNames.size() &&
+    //        triggerResults.accept(triggerNames.triggerIndex(_hlt_LowMET)))    _trig_LowMET=1;
 
     if (triggerNames.triggerIndex(_hlt_Ele)       != triggerNames.size() &&
         triggerResults.accept(triggerNames.triggerIndex(_hlt_Ele)))       _trig_Ele=1;
@@ -509,7 +510,7 @@ void MuCorrMETAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
   if (_hlt_HighPtJet.size() && _trig_HighPtJet) fillMonitorElement(iEvent,DirName,"HighPtJet",muCorrmet,false);
   if (_hlt_LowPtJet.size() && _trig_LowPtJet) fillMonitorElement(iEvent,DirName,"LowPtJet",muCorrmet,false);
   if (_hlt_HighMET.size() && _trig_HighMET) fillMonitorElement(iEvent,DirName,"HighMET",muCorrmet,false);
-  if (_hlt_LowMET.size() && _trig_LowMET) fillMonitorElement(iEvent,DirName,"LowMET",muCorrmet,false);
+  //  if (_hlt_LowMET.size() && _trig_LowMET) fillMonitorElement(iEvent,DirName,"LowMET",muCorrmet,false);
   if (_hlt_Ele.size() && _trig_Ele) fillMonitorElement(iEvent,DirName,"Ele",muCorrmet,false);
   if (_hlt_Muon.size() && _trig_Muon) fillMonitorElement(iEvent,DirName,"Muon",muCorrmet,false);
 }
@@ -529,9 +530,9 @@ void MuCorrMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string
   else if (TriggerTypeName=="HighMET") {
     if (muCorrmet.pt()<_highMuCorrMETThreshold) return;
   }
-  else if (TriggerTypeName=="LowMET") {
-    if (muCorrmet.pt()<_lowMuCorrMETThreshold) return;
-  }
+  //  else if (TriggerTypeName=="LowMET") {
+  //    if (muCorrmet.pt()<_lowMuCorrMETThreshold) return;
+  //  }
   else if (TriggerTypeName=="Ele") {
     if (!selectWElectronEvent(iEvent)) return;
   }
