@@ -8,19 +8,6 @@
 // Authors: I.Naranjo
 //--------------------------------------------------------------------------------------------------
 
-/*
-  OLD
-  proposed WP:    epsilonB ~ 18%  epsilonS ~ 91% wrt signal taus passing discr. ag. electrons Medium. 
-  bool pass = 
-  (abs(TauEta)<1.5 && TauSignalPFGammaCands==0 && MVAValue(...)>0.054) ||
-  (abs(TauEta)<1.5 && TauSignalPFGammaCands>0  && TauHasGsf>0.5 && MVAValue(...)>0.060) ||
-  (abs(TauEta)<1.5 && TauSignalPFGammaCands>0  && TauHasGsf<0.5 && MVAValue(...)>0.054) ||
-  (abs(TauEta)>1.5 && TauSignalPFGammaCands==0 && MVAValue(...)>0.060) ||
-  (abs(TauEta)>1.5 && TauSignalPFGammaCands>0  && TauHasGsf>0.5 && MVAValue(...)>0.053) ||
-  (abs(TauEta)>1.5 && TauSignalPFGammaCands>0  && TauHasGsf<0.5 && MVAValue(...)>0.049);
-*/
-
-
 #ifndef RECOTAUTAG_RECOTAU_AntiElectronIDMVA2_H
 #define RECOTAUTAG_RECOTAU_AntiElectronIDMVA2_H
 
@@ -37,26 +24,24 @@
 
 #include <vector>
 
-using namespace std;
-
-class AntiElectronIDMVA2 {
+class AntiElectronIDMVA2 
+{
   public:
 
     AntiElectronIDMVA2();
     ~AntiElectronIDMVA2(); 
 
-    void   Initialize(std::string methodName,
-		      std::string oneProngNoEleMatch_BL,
-		      std::string oneProng0Pi0_BL,
-		      std::string oneProng1pi0woGSF_BL,
-		      std::string oneProng1pi0wGSFwoPfEleMva_BL,
-		      std::string oneProng1pi0wGSFwPfEleMva_BL,
-		      std::string oneProngNoEleMatch_EC,
-		      std::string oneProng0Pi0_EC,
-		      std::string oneProng1pi0woGSF_EC,
-		      std::string oneProng1pi0wGSFwoPfEleMva_EC,
-		      std::string oneProng1pi0wGSFwPfEleMva_EC
-		      );
+    void Initialize(std::string methodName,
+		    std::string oneProngNoEleMatch_BL,
+		    std::string oneProng0Pi0_BL,
+		    std::string oneProng1pi0woGSF_BL,
+		    std::string oneProng1pi0wGSFwoPfEleMva_BL,
+		    std::string oneProng1pi0wGSFwPfEleMva_BL,
+		    std::string oneProngNoEleMatch_EC,
+		    std::string oneProng0Pi0_EC,
+		    std::string oneProng1pi0woGSF_EC,
+		    std::string oneProng1pi0wGSFwoPfEleMva_EC,
+		    std::string oneProng1pi0wGSFwPfEleMva_EC);
 
     // RECOMMENDED:
     double MVAValue(Float_t TauEta,
@@ -69,10 +54,9 @@ class AntiElectronIDMVA2 {
 		    Float_t TauHasGsf, 
 		    Float_t TauVisMass,  
 		    Float_t TauEmFraction,
-		    vector<Float_t>* GammasdEta, 
-		    vector<Float_t>* GammasdPhi,
-		    vector<Float_t>* GammasPt,
-		    Float_t TauLeadPFChargedHadrMva,
+		    const std::vector<Float_t>& GammasdEta, 
+		    const std::vector<Float_t>& GammasdPhi,
+		    const std::vector<Float_t>& GammasPt,
 		    Float_t ElecEta,
 		    Float_t ElecPhi,
 		    Float_t ElecPt,
@@ -83,17 +67,13 @@ class AntiElectronIDMVA2 {
 		    Float_t ElecPout,
 		    Float_t ElecEarlyBrem,
 		    Float_t ElecLateBrem,
-		    Float_t ElecLogsihih,
-		    Float_t ElecDeltaEta,
-		    Float_t ElecHoHplusE,
 		    Float_t ElecFbrem,
 		    Float_t ElecChi2KF,
 		    Float_t ElecChi2GSF,
 		    Float_t ElecNumHits,
 		    Float_t ElecGSFTrackResol,
 		    Float_t ElecGSFTracklnPt,
-		    Float_t ElecGSFTrackEta
-		    );
+		    Float_t ElecGSFTrackEta);
 
     double MVAValue(Float_t TauEta,
 		    Float_t TauPhi,
@@ -108,7 +88,6 @@ class AntiElectronIDMVA2 {
 		    Float_t GammaEtaMom,
 		    Float_t GammaPhiMom,
 		    Float_t GammaEnFrac,
-		    Float_t TauLeadPFChargedHadrMva,
 		    Float_t ElecEta,
 		    Float_t ElecPhi,
 		    Float_t ElecPt,
@@ -119,21 +98,19 @@ class AntiElectronIDMVA2 {
 		    Float_t ElecPout,
 		    Float_t ElecEarlyBrem,
 		    Float_t ElecLateBrem,
-		    Float_t ElecLogsihih,
-		    Float_t ElecDeltaEta,
-		    Float_t ElecHoHplusE,
 		    Float_t ElecFbrem,
 		    Float_t ElecChi2KF,
 		    Float_t ElecChi2GSF,
 		    Float_t ElecNumHits,
 		    Float_t ElecGSFTrackResol,
 		    Float_t ElecGSFTracklnPt,
-		    Float_t ElecGSFTrackEta
-		    );
+		    Float_t ElecGSFTrackEta);
 
+    // CV: this function can be called for all categories
     double MVAValue(const reco::PFTau& thePFTau, 
-		    const reco::GsfElectron& theGsfEle
-		    );
+		    const reco::GsfElectron& theGsfEle);
+    // CV: this function can be called for category 1 only !!
+    double MVAValue(const reco::PFTau& thePFTau);
 
  private:
 
@@ -145,42 +122,39 @@ class AntiElectronIDMVA2 {
     Float_t GammadPhi_;
     Float_t GammadPt_;
 
-    float Tau_AbsEta_;
-    float Tau_Pt_;
-    float Tau_HasGsf_; 
-    float Tau_EmFraction_; 
-    float Tau_NumChargedCands_;
-    float Tau_NumGammaCands_; 
-    float Tau_HadrHoP_; 
-    float Tau_HadrEoP_; 
-    float Tau_VisMass_; 
-    float Tau_GammaEtaMom_;
-    float Tau_GammaPhiMom_;
-    float Tau_GammaEnFrac_;
-    float Tau_HadrMva_; 
+    Float_t Tau_AbsEta_;
+    Float_t Tau_Pt_;
+    Float_t Tau_HasGsf_; 
+    Float_t Tau_EmFraction_; 
+    Float_t Tau_NumChargedCands_;
+    Float_t Tau_NumGammaCands_; 
+    Float_t Tau_HadrHoP_; 
+    Float_t Tau_HadrEoP_; 
+    Float_t Tau_VisMass_; 
+    Float_t Tau_GammaEtaMom_;
+    Float_t Tau_GammaPhiMom_;
+    Float_t Tau_GammaEnFrac_;
+    Float_t Tau_HadrMva_; 
 
-    float Elec_AbsEta_;
-    float Elec_Pt_;
-    float Elec_PFMvaOutput_;
-    float Elec_Ee_;
-    float Elec_Egamma_;
-    float Elec_Pin_;
-    float Elec_Pout_;
-    float Elec_EtotOverPin_;
-    float Elec_EeOverPout_;
-    float Elec_EgammaOverPdif_;
-    float Elec_EarlyBrem_;//
-    float Elec_LateBrem_;//
-    float Elec_Logsihih_;
-    float Elec_DeltaEta_;
-    float Elec_HoHplusE_;
-    float Elec_Fbrem_;
-    float Elec_Chi2KF_;
-    float Elec_Chi2GSF_;
-    float Elec_NumHits_;
-    float Elec_GSFTrackResol_;
-    float Elec_GSFTracklnPt_;
-    float Elec_GSFTrackEta_;
+    Float_t Elec_AbsEta_;
+    Float_t Elec_Pt_;
+    Float_t Elec_PFMvaOutput_;
+    Float_t Elec_Ee_;
+    Float_t Elec_Egamma_;
+    Float_t Elec_Pin_;
+    Float_t Elec_Pout_;
+    Float_t Elec_EtotOverPin_;
+    Float_t Elec_EeOverPout_;
+    Float_t Elec_EgammaOverPdif_;
+    Float_t Elec_EarlyBrem_;
+    Float_t Elec_LateBrem_;
+    Float_t Elec_Fbrem_;
+    Float_t Elec_Chi2KF_;
+    Float_t Elec_Chi2GSF_;
+    Float_t Elec_NumHits_;
+    Float_t Elec_GSFTrackResol_;
+    Float_t Elec_GSFTracklnPt_;
+    Float_t Elec_GSFTrackEta_;
 };
 
 #endif
