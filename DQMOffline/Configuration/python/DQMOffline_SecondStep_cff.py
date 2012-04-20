@@ -70,8 +70,7 @@ DQMHarvestCommon = cms.Sequence(dqmDcsInfoClient *
                                  triggerOfflineDQMClient *
                                  hltOfflineDQMClient *
                                  dqmFEDIntegrityClient *
-                                 alcaBeamMonitorClient *
-                                 SusyPostProcessorSequence
+                                 alcaBeamMonitorClient 
                                 )
 DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmDcsInfoClient *
                                  SiStripOfflineDQMClient *
@@ -80,8 +79,7 @@ DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmDcsInfoClient *
                                  triggerOfflineDQMClient *
                                  hltOfflineDQMClient *
                                  dqmFEDIntegrityClient *
-                                 alcaBeamMonitorClient *
-                                 SusyPostProcessorSequence
+                                 alcaBeamMonitorClient 
                                 )
 
 DQMHarvestMuon = cms.Sequence( dtClients *
