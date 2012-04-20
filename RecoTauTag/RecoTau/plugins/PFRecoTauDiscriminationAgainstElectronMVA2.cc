@@ -19,29 +19,29 @@ public:
     : PFTauDiscriminationProducerBase(iConfig),
       mva_(0)
   {    
-    method_                                     = iConfig.getParameter<std::string>("method");
-    inputFileName1prongNoEleMatchBL_            = iConfig.getParameter<edm::FileInPath>("inputFileName1prongNoEleMatchBL");
-    inputFileName1prongBL_                      = iConfig.getParameter<edm::FileInPath>("inputFileName1prongBL");
-    inputFileName1prongStripsWOgsfBL_           = iConfig.getParameter<edm::FileInPath>("inputFileName1prongStripsWOgsfBL");
-    inputFileName1prongStripsWgsfWOpfEleMvaBL_  = iConfig.getParameter<edm::FileInPath>("inputFileName1prongStripsWgsfWOpfEleMvaBL");
-    inputFileName1prongStripsWgsfWpfEleMvaBL_   = iConfig.getParameter<edm::FileInPath>("inputFileName1prongStripsWgsfWpfEleMvaBL");
-    inputFileName1prongNoEleMatchEC_            = iConfig.getParameter<edm::FileInPath>("inputFileName1prongNoEleMatchEC");
-    inputFileName1prongEC_                      = iConfig.getParameter<edm::FileInPath>("inputFileName1prongEC");
-    inputFileName1prongStripsWOgsfEC_           = iConfig.getParameter<edm::FileInPath>("inputFileName1prongStripsWOgsfEC");
-    inputFileName1prongStripsWgsfWOpfEleMvaEC_  = iConfig.getParameter<edm::FileInPath>("inputFileName1prongStripsWgsfWOpfEleMvaEC");
-    inputFileName1prongStripsWgsfWpfEleMvaEC_   = iConfig.getParameter<edm::FileInPath>("inputFileName1prongStripsWgsfWpfEleMvaEC");
+    method_                                    = iConfig.getParameter<std::string>("method");
+    inputFileName1prongNoEleMatchBL_           = iConfig.getParameter<edm::FileInPath>("inputFileName1prongNoEleMatchBL");
+    inputFileName1prongBL_                     = iConfig.getParameter<edm::FileInPath>("inputFileName1prongBL");
+    inputFileName1prongStripsWOgsfBL_          = iConfig.getParameter<edm::FileInPath>("inputFileName1prongStripsWOgsfBL");
+    inputFileName1prongStripsWgsfWOpfEleMvaBL_ = iConfig.getParameter<edm::FileInPath>("inputFileName1prongStripsWgsfWOpfEleMvaBL");
+    inputFileName1prongStripsWgsfWpfEleMvaBL_  = iConfig.getParameter<edm::FileInPath>("inputFileName1prongStripsWgsfWpfEleMvaBL");
+    inputFileName1prongNoEleMatchEC_           = iConfig.getParameter<edm::FileInPath>("inputFileName1prongNoEleMatchEC");
+    inputFileName1prongEC_                     = iConfig.getParameter<edm::FileInPath>("inputFileName1prongEC");
+    inputFileName1prongStripsWOgsfEC_          = iConfig.getParameter<edm::FileInPath>("inputFileName1prongStripsWOgsfEC");
+    inputFileName1prongStripsWgsfWOpfEleMvaEC_ = iConfig.getParameter<edm::FileInPath>("inputFileName1prongStripsWgsfWOpfEleMvaEC");
+    inputFileName1prongStripsWgsfWpfEleMvaEC_  = iConfig.getParameter<edm::FileInPath>("inputFileName1prongStripsWgsfWpfEleMvaEC");
 
-    returnMVA_                           = iConfig.getParameter<bool>("returnMVA");
-    minMVA1prongNoEleMatchBL_            = iConfig.getParameter<double>("minMVA1prongNoEleMatchBL");
-    minMVA1prongBL_                      = iConfig.getParameter<double>("minMVA1prongBL");
-    minMVA1prongStripsWOgsfBL_           = iConfig.getParameter<double>("minMVA1prongStripsWOgsfBL");
-    minMVA1prongStripsWgsfWOpfEleMvaBL_  = iConfig.getParameter<double>("minMVA1prongStripsWgsfWOpfEleMvaBL");
-    minMVA1prongStripsWgsfWpfEleMvaBL_   = iConfig.getParameter<double>("minMVA1prongStripsWgsfWpfEleMvaBL");
-    minMVA1prongNoEleMatchEC_            = iConfig.getParameter<double>("minMVA1prongNoEleMatchEC");
-    minMVA1prongEC_                      = iConfig.getParameter<double>("minMVA1prongEC");
-    minMVA1prongStripsWOgsfEC_           = iConfig.getParameter<double>("minMVA1prongStripsWOgsfEC");
-    minMVA1prongStripsWgsfWOpfEleMvaEC_  = iConfig.getParameter<double>("minMVA1prongStripsWgsfWOpfEleMvaEC");
-    minMVA1prongStripsWgsfWpfEleMvaEC_   = iConfig.getParameter<double>("minMVA1prongStripsWgsfWpfEleMvaEC");
+    returnMVA_                          = iConfig.getParameter<bool>("returnMVA");
+    minMVA1prongNoEleMatchBL_           = iConfig.getParameter<double>("minMVA1prongNoEleMatchBL");
+    minMVA1prongBL_                     = iConfig.getParameter<double>("minMVA1prongBL");
+    minMVA1prongStripsWOgsfBL_          = iConfig.getParameter<double>("minMVA1prongStripsWOgsfBL");
+    minMVA1prongStripsWgsfWOpfEleMvaBL_ = iConfig.getParameter<double>("minMVA1prongStripsWgsfWOpfEleMvaBL");
+    minMVA1prongStripsWgsfWpfEleMvaBL_  = iConfig.getParameter<double>("minMVA1prongStripsWgsfWpfEleMvaBL");
+    minMVA1prongNoEleMatchEC_           = iConfig.getParameter<double>("minMVA1prongNoEleMatchEC");
+    minMVA1prongEC_                     = iConfig.getParameter<double>("minMVA1prongEC");
+    minMVA1prongStripsWOgsfEC_          = iConfig.getParameter<double>("minMVA1prongStripsWOgsfEC");
+    minMVA1prongStripsWgsfWOpfEleMvaEC_ = iConfig.getParameter<double>("minMVA1prongStripsWgsfWOpfEleMvaEC");
+    minMVA1prongStripsWgsfWpfEleMvaEC_  = iConfig.getParameter<double>("minMVA1prongStripsWgsfWpfEleMvaEC");
 
     srcGsfElectrons_ = iConfig.getParameter<edm::InputTag>("srcGsfElectrons");
 
@@ -110,7 +110,8 @@ double PFRecoTauDiscriminationAgainstElectronMVA2::discriminate(const PFTauRef& 
       if ( theGsfElectron->pt() > 10. ) { // CV: only take electrons above some minimal energy/Pt into account...
 	double deltaREleTau = deltaR(theGsfElectron->p4(), thePFTauRef->p4());
 	if ( deltaREleTau < 0.3 ) {
-	  mva_match = mva_->MVAValue(*thePFTauRef, *theGsfElectron);
+	  double mva_match = mva_->MVAValue(*thePFTauRef, *theGsfElectron);
+          double workingPoint_match = 0.;
 	  
 	  size_t numSignalPFGammaCands = thePFTauRef->signalPFGammaCands().size();
 	  bool hasGsfTrack = thePFTauRef->leadPFChargedHadrCand()->gsfTrackRef().isNonnull();
@@ -143,14 +144,14 @@ double PFRecoTauDiscriminationAgainstElectronMVA2::discriminate(const PFTauRef& 
   }
 
   if ( !isGsfElectronMatched ) {
-    mva = mva_->MVAValue(*thePFTauRef, *theGsfElectron);
+    mva = mva_->MVAValue(*thePFTauRef);
     double mvaCut = 999.;
     if ( TMath::Abs(thePFTauRef->eta()) < 1.5 ) { // Barrel
       mvaCut = minMVA1prongNoEleMatchBL_;
     } else { // Endcap
       mvaCut = minMVA1prongNoEleMatchEC_;
     }
-    workingPoint = (mva_match > mvaCut); 	
+    workingPoint = (mva > mvaCut); 	
   }	
 
   //std::cout << "<PFRecoTauDiscriminationAgainstElectronMVA2::discriminate>:" << std::endl;
