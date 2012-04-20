@@ -91,8 +91,8 @@ void RenderHisto( TObject * obj, TCanvas * canvas )
 
 int electronValidation()
  {
-  TString DBS_SAMPLE = gSystem->Getenv("DD_SAMPLE") ;
-  TString DBS_COND = gSystem->Getenv("DD_COND") ;
+  TString DBS_SAMPLE = gSystem->Getenv("DBS_SAMPLE") ;
+  TString DBS_COND = gSystem->Getenv("DBS_COND") ;
 
   TString val_ref_file_name = gSystem->Getenv("VAL_REF_FILE") ;
   TString val_new_file_name = gSystem->Getenv("VAL_NEW_FILE") ;
@@ -104,7 +104,7 @@ int electronValidation()
 
   TString val_web = gSystem->Getenv("VAL_WEB") ;
   TString val_web_sub_dir = gSystem->Getenv("VAL_WEB_SUB_DIR") ;
-  TString val_web_url = gSystem->Getenv("VAL_URL") ;
+  TString val_web_url = gSystem->Getenv("VAL_WEB_URL") ;
 
   std::string val_web_path = val_web+"/"+val_new_release+"/Electrons/vs"+val_ref_release+"/"+val_web_sub_dir ;
   std::string val_web_url_path = val_web_url+"/"+val_new_release+"/Electrons/vs"+val_ref_release+"/"+val_web_sub_dir ;

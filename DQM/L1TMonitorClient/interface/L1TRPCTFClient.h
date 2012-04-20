@@ -56,6 +56,9 @@ private:
 
   void initialize();
   
+  void processHistograms();
+
+
   MonitorElement * m_phipackedbad;
   MonitorElement * m_phipackeddead;
   MonitorElement * m_deadChannels;
@@ -72,6 +75,13 @@ private:
   int prescaleEvt_;    ///prescale on number of events
 
   bool verbose_;
+
+  bool m_runInEventLoop;
+  bool m_runInEndLumi;
+  bool m_runInEndRun;
+  bool m_runInEndJob;
+
+
 
 };
 

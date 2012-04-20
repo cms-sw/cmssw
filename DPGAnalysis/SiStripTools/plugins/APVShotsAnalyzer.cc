@@ -44,8 +44,8 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 
-#include "DQM/SiStripCommon/interface/APVShotFinder.h"
-#include "DQM/SiStripCommon/interface/APVShot.h"
+#include "DPGAnalysis/SiStripTools/interface/APVShotFinder.h"
+#include "DPGAnalysis/SiStripTools/interface/APVShot.h"
 
 //******** Single include for the TkMap *************
 #include "DQM/SiStripCommon/interface/TkHistoMap.h" 

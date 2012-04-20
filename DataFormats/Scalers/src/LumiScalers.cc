@@ -42,7 +42,7 @@ LumiScalers::LumiScalers() :
    startOrbit_(0),
    numOrbits_(0),
    pileup_(0.0),
-   pileupRMS_(0.0)
+   spare_(0.0)
 { 
 }
 
@@ -109,13 +109,13 @@ LumiScalers::LumiScalers(const unsigned char * rawData)
       struct ScalersEventRecordRaw_v6 * raw6 
 	= (struct ScalersEventRecordRaw_v6 *)rawData;
       float * fspare = (float *) raw6->spare;
-      pileup_    = fspare[ScalersRaw::I_SPARE_PILEUP_v7];
-      pileupRMS_ = fspare[ScalersRaw::I_SPARE_PILEUPRMS_v7];
+      pileup_ = fspare[ScalersRaw::I_SPARE_PILEUP_v7];
+      spare_  = fspare[ScalersRaw::I_SPARE_SPARE_v7];
     }
     else
     {
-      pileup_    = (float)0.0;
-      pileupRMS_ = (float)0.0;
+      pileup_ = (float)0.0;
+      spare_  = (float)0.0;
     }
   }
 }
@@ -203,8 +203,7 @@ std::ostream& operator<<(std::ostream& s, const LumiScalers& c)
     s << line << std::endl;
   }
 
-  sprintf(line,"            Pileup: %f  PileupRMS: %f", 
-	  c.pileup(), c.pileupRMS());
+  sprintf(line,"            Pileup: %f      Spare: %f", c.pileup(), c.spare());
   s << line << std::endl;
 
   return s;

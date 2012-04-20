@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+import FastSimulation.HighLevelTrigger.DummyModule_cfi
+
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
+
 hltPixelTracks = cms.EDProducer("PixelTracksProducer",
     FitterPSet = cms.PSet(
         ComponentName = cms.string('PixelFitterByHelixProjections'),
@@ -21,4 +24,14 @@ hltPixelTracks = cms.EDProducer("PixelTracksProducer",
     )
 )
 
+hltFastPixelHitsVertex = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltFastPixelTracks = hltPixelTracks.clone()
+hltFastPixelTracksRecover = hltPixelTracks.clone()
 
+hltFastPrimaryVertexbbPhi = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltPixelTracksFastPVbbPhi = hltPixelTracks.clone()
+hltPixelTracksRecoverbbPhi = hltPixelTracks.clone()
+
+hltFastPixelHitsVertexVHbb = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltFastPixelTracksVHbb = hltPixelTracks.clone()
+hltFastPixelTracksRecoverVHbb = hltPixelTracks.clone()

@@ -100,23 +100,11 @@ StandardMatchingParameters = cms.PSet(
    chainCuts                    = cms.bool(False) #Decide whether to chain discriminators or not
 )
 
-GenericTriggerSelectionParameters = cms.PSet(
-   andOr          = cms.bool( False ),#specifies the logical combination of the single filters' (L1, HLT and DCS) decisions at top level (True=OR)
-   dbLabel        = cms.string("PFTauDQMTrigger"),#specifies the label under which the DB payload is available from the ESSource or Global Tag
-   andOrHlt       = cms.bool(True),#specifies the logical combination of the single HLT paths' decisions (True=OR)
-   hltInputTag    = cms.InputTag("TriggerResults::HLT"),
-   #hltDBKey       = cms.string('jetmet_highptjet'),#Tag of the record in the database, where IOV-based HLT paths are found. This record overwrites the configuration parameter hltPaths
-   hltPaths       = cms.vstring('HLT_IsoMu*_eta*_LooseIsoPFTau*_v*','HLT_DoubleIsoPFTau*_Trk*_eta*_v*'),#Lists logical expressions of HLT paths, which should have accepted the event (fallback in case DB unaccessible)
-   errorReplyHlt  = cms.bool(False),#specifies the desired return value of the HLT filter and the single HLT path filter in case of certain errors
-   verbosityLevel = cms.uint32(20) #0: complete silence (default), needed for T0 processing;
-)
-
 proc.PFTausHighEfficiencyLeadingPionBothProngs = cms.EDAnalyzer("TauTagValidation",
    StandardMatchingParameters,
-   GenericTriggerSelection = GenericTriggerSelectionParameters,
-   ExtensionName           = cms.string("LeadingPion"),
-   TauProducer             = cms.InputTag('shrinkingConePFTauProducer'),
-   discriminators          = cms.VPSet(
+   ExtensionName                = cms.string("LeadingPion"),
+   TauProducer                  = cms.InputTag('shrinkingConePFTauProducer'),
+   discriminators               = cms.VPSet(
     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByLeadingTrackFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByLeadingPionPtCut"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)), #not plotted
     cms.PSet( discriminator = cms.string("shrinkingConePFTauDiscriminationByTrackIsolationUsingLeadingPion"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
@@ -146,7 +134,7 @@ proc.RunHPSValidation.discriminators = cms.VPSet(
    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseMuonRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumMuonRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightMuonRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVAElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVAElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
 )
 
 proc.TauValNumeratorAndDenominator = cms.Sequence(
@@ -180,7 +168,7 @@ proc.efficiencies = cms.EDAnalyzer(
 
 proc.normalizePlots = cms.EDAnalyzer(
    "DQMHistNormalizer",
-   plotNamesToNormalize = cms.vstring('*_pTRatio_*','*_Size_*','*_SumPt_*','*_dRTauRefJet*'),
+   plotNamesToNormalize = cms.vstring('*_pTRatio_*','*_Size_*','*_SumPt_*'),
    reference = cms.string('*_pTRatio_allHadronic')
    )
 
@@ -532,13 +520,3 @@ def SetPlotOnlyStepByStep(myPlottingSequence):
 
 def SetValidationExtention(module, extension):
     module.ExtensionName = module.ExtensionName.value()+extension
-
-def setBinning(module,pset):
-    if module._TypedParameterizable__type == 'TauTagValidation':
-        module.histoSettings = pset
-
-def setTrigger(module,pset):
-   if hasattr(module,'_TypedParameterizable__type') and module._TypedParameterizable__type == 'TauTagValidation':
-      setattr(module,'turnOnTrigger',cms.bool(True)) #Turns on trigger (in case is off)
-      for item in pset.parameters_().items():
-         setattr(module.GenericTriggerSelection,item[0],item[1])

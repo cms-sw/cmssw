@@ -11,4 +11,4 @@ pfMET = pfMet.clone(alias="pfMET")
 # It requires that MET is produced at the end.
 pfMET.jets = cms.InputTag("pfJets")
 
-# print 'PF2PAT: Jet collection used for pfMET significance: ', pfMET.jets 
+print 'PF2PAT: Jet collection used for pfMET significance: ', pfMET.jets 

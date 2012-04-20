@@ -2,8 +2,8 @@
  * \file DQMProvInfo.cc
  * \author A.Raval / A.Meyer - DESY
  * Last Update:
- * $Date: 2010/09/20 15:25:20 $
- * $Revision: 1.29 $
+ * $Date: 2011/11/23 14:24:50 $
+ * $Revision: 1.30 $
  * $Author: lilopera $
  *
  */
@@ -80,7 +80,7 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
   reportSummaryMap_->setBinLabel(24,"CASTOR",2);
   reportSummaryMap_->setBinLabel(25,"ZDC",2);
   reportSummaryMap_->setBinLabel(26,"PhysDecl",2);
-  reportSummaryMap_->setBinLabel(27,"7 TeV",2);
+  reportSummaryMap_->setBinLabel(27,"8 TeV",2);
   reportSummaryMap_->setBinLabel(28,"Stable B",2);
   reportSummaryMap_->setBinLabel(29,"Valid",2);
   reportSummaryMap_->setAxisTitle("Luminosity Section");
@@ -232,7 +232,7 @@ DQMProvInfo::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventS
   }
   
   // fill 7 TeV bit in y bin 27
-  if (momentum_ == 3500) 
+  if (momentum_ == 3500 || momentum_ == 4000 ) 
   {
     reportSummary_->Fill(1.); 
     reportSummaryMap_->setBinContent(nlumi,26+1,1.);

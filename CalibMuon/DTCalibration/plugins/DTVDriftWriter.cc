@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/19 14:02:08 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/11/18 21:38:41 $
+ *  $Revision: 1.10 $
  *  Author of original version: M. Giunta
  *  \author A. Vilela Pereira
  */
@@ -81,7 +81,7 @@ void DTVDriftWriter::endJob() {
 
         // Compute vDrift
         try{
-           dtCalibration::DTVDriftData vDriftData = vDriftAlgo_->compute(slId);
+           DTVDriftData vDriftData = vDriftAlgo_->compute(slId);
            float vDriftNew = vDriftData.vdrift;
            float resolutionNew = vDriftData.resolution; 
            // vdrift is cm/ns , resolution is cm

@@ -60,7 +60,9 @@ namespace sistrip {
     inline void extractCm( bool );
     
     inline void doFullCorruptBufferChecks( bool );
-    
+
+    inline void doAPVEmulatorCheck( bool );
+
   private:
     
     /// fill DetSetVectors using registries
@@ -125,6 +127,7 @@ namespace sistrip {
     bool quiet_;
     bool extractCm_;    
     bool doFullCorruptBufferChecks_;
+    bool doAPVEmulatorCheck_;
     uint32_t errorThreshold_;
     
     /// registries
@@ -179,6 +182,8 @@ void sistrip::RawToDigiUnpacker::useDaqRegister( bool use ) { useDaqRegister_ = 
 void sistrip::RawToDigiUnpacker::extractCm( bool extract_cm ) { extractCm_ = extract_cm; }
 
 void sistrip::RawToDigiUnpacker::doFullCorruptBufferChecks( bool do_full_corrupt_buffer_checks ) { doFullCorruptBufferChecks_ = do_full_corrupt_buffer_checks; }
+
+void sistrip::RawToDigiUnpacker::doAPVEmulatorCheck( bool do_APVEmulator_check) { doAPVEmulatorCheck_ = do_APVEmulator_check; }
 
 #endif // EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 

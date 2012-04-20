@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("Alignment")
 
-# "including" common configuration
-<COMMON>
+# "including" common configuration <COMMON>
 
 process.source = cms.Source("EmptySource")
 

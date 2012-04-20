@@ -109,15 +109,15 @@ if __name__ == '__main__':
                     HLTlumiInfo = lslist[LSnumber]
                     scale = 0
                     if PUlumiInfo[0] > 0.:
-                        scale=HLTlumiInfo[1]/PUlumiInfo[0]
+                        scale=HLTlumiInfo[1]/PUlumiInfo[0] # rescale to HLT recorded Lumi
 
                     if scale > 1.001:
                         print 'Run %d, LS %d, HLT Scale (%f) larger than one - please check!' % (run, LSnumber, scale)
                         scale=1.01  # HLT integrated values are wrong, punt                        
 
-                    newIntLumi = HLTlumiInfo[1]
-                    newRmsLumi = scale*PUlumiInfo[1]
-                    newInstLumi = scale*PUlumiInfo[2]
+                    newIntLumi = scale*PUlumiInfo[0]
+                    newRmsLumi = PUlumiInfo[1]
+                    newInstLumi = PUlumiInfo[2]
                     if scale == 0:
                         newInstLumi = PUlumiInfo[2]  # keep non-zero value, with zero weight
                                                      # to avoid spike at zero interactions

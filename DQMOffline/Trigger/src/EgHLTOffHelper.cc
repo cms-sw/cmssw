@@ -337,22 +337,7 @@ void OffHelper::fillHLTData(const reco::GsfElectron& ele,OffEle::HLTData& hltDat
     hltData.invEInvP = 999;
 
   }
-
-  //Now get HLT p4 from triggerobject
-  trigTools::fillHLTposition(ele,hltData,hltFiltersUsed_,trigEvt_.product(),hltTag_);
-  //trigTools::fillHLTposition(phos(),hltFiltersUsed_,l1PreAndSeedFilters_,evtTrigBits,trigEvt_.product(),hltTag_); 
 }
-
-
-void OffHelper::fillHLTDataPho(const reco::Photon& pho,OffPho::HLTData& hltData)
-{
-  //Now get HLT p4 from triggerobject
-  trigTools::fillHLTposition(pho,hltData, hltFiltersUsed_,trigEvt_.product(),hltTag_);
-  //trigTools::fillHLTposition(phos(),hltFiltersUsed_,l1PreAndSeedFilters_,evtTrigBits,trigEvt_.product(),hltTag_); 
-}
-
-
-
 
 //this function coverts Photons to a format which more useful to me
 int OffHelper::fillOffPhoVec(std::vector<OffPho>& egHLTOffPhos)
@@ -366,11 +351,8 @@ int OffHelper::fillOffPhoVec(std::vector<OffPho>& egHLTOffPhos)
   
     fillIsolData(*phoIter,isolData);
     fillClusShapeData(*phoIter,clusShapeData);
-   
-    OffPho::HLTData hltData;
-    fillHLTDataPho(*phoIter,hltData); 
-
-    egHLTOffPhos.push_back(OffPho(*phoIter,clusShapeData,isolData,hltData));
+ 
+    egHLTOffPhos.push_back(OffPho(*phoIter,clusShapeData,isolData));
     OffPho& pho =  egHLTOffPhos.back();
     pho.setCutCode(phoCuts_.getCutCode(pho));
     pho.setLooseCutCode(phoLooseCuts_.getCutCode(pho));
