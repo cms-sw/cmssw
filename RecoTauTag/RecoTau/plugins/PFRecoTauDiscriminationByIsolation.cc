@@ -82,7 +82,7 @@ class PFRecoTauDiscriminationByIsolation :
         vertexAssociator_.reset(
             new tau::RecoTauVertexAssociator(qualityCutsPSet_));
 
-        applyDeltaBeta_ = pset.exists("applyDeltaBetaCorrection") ? 
+        applyDeltaBeta_ = pset.exists("applyDeltaBetaCorrection") ?
           pset.getParameter<bool>("applyDeltaBetaCorrection") : false;
 
         if (applyDeltaBeta_) {
@@ -234,9 +234,12 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) {
   // Let the quality cuts know which the vertex to use when applying selections
   // on dz, etc.
   qcuts_->setPV(pv);
+  qcuts_->setLeadTrack(*pfTau->leadPFChargedHadrCand());
   if (applyDeltaBeta_) {
     pileupQcutsGeneralQCuts_->setPV(pv);
+    pileupQcutsGeneralQCuts_->setLeadTrack(*pfTau->leadPFChargedHadrCand());
     pileupQcutsPUTrackSelection_->setPV(pv);
+    pileupQcutsPUTrackSelection_->setLeadTrack(*pfTau->leadPFChargedHadrCand());
   }
   // Load the tracks if they are being used.
   if (includeTracks_) {
