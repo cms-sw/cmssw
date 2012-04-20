@@ -16,7 +16,7 @@
 
 #include <iostream>
 
-DQMHistEffProducer::cfgEntryPlot::cfgEntryPlot(const edm::ParameterSet& cfg)
+TauDQMHistEffProducer::cfgEntryPlot::cfgEntryPlot(const edm::ParameterSet& cfg)
 {
   //std::cout << "<cfgEntryPlot::cfgEntryPlot>:" << std::endl;
 
@@ -30,7 +30,7 @@ DQMHistEffProducer::cfgEntryPlot::cfgEntryPlot(const edm::ParameterSet& cfg)
   //std::cout << " efficiency = " << efficiency_ << std::endl;
 }
 
-DQMHistEffProducer::cfgEntryPlot::cfgEntryPlot(const std::string& numerator, const std::string& denominator, const std::string& efficiency)
+TauDQMHistEffProducer::cfgEntryPlot::cfgEntryPlot(const std::string& numerator, const std::string& denominator, const std::string& efficiency)
   : numerator_(numerator), denominator_(denominator), efficiency_(efficiency)
 {
   //std::cout << "<cfgEntryPlot::cfgEntryPlot>:" << std::endl;
@@ -43,9 +43,9 @@ DQMHistEffProducer::cfgEntryPlot::cfgEntryPlot(const std::string& numerator, con
 //-----------------------------------------------------------------------------------------------------------------------
 //
 
-DQMHistEffProducer::DQMHistEffProducer(const edm::ParameterSet& cfg)
+TauDQMHistEffProducer::TauDQMHistEffProducer(const edm::ParameterSet& cfg)
 {
-  //std::cout << "<DQMHistEffProducer::DQMHistEffProducer>:" << std::endl;
+  //std::cout << "<TauDQMHistEffProducer::TauDQMHistEffProducer>:" << std::endl;
   
   edm::ParameterSet plots = cfg.getParameter<edm::ParameterSet>("plots");
   std::vector<std::string> plotNames = plots.getParameterNamesForType<edm::ParameterSet>();
@@ -69,7 +69,7 @@ DQMHistEffProducer::DQMHistEffProducer(const edm::ParameterSet& cfg)
 	if ( !errorFlag ) {
 	  cfgEntryPlot_.push_back(cfgEntryPlot(modNumerator, modDenominator, modEfficiency));
 	} else {
-	  edm::LogError("DQMHistEffProducer") << " Failed to decode histogram names for plotName = " << (*plotName) 
+	  edm::LogError("TauDQMHistEffProducer") << " Failed to decode histogram names for plotName = " << (*plotName) 
 					      << " --> skipping !!";
 	}
       }
@@ -77,19 +77,19 @@ DQMHistEffProducer::DQMHistEffProducer(const edm::ParameterSet& cfg)
   }
 }
 
-DQMHistEffProducer::~DQMHistEffProducer() 
+TauDQMHistEffProducer::~TauDQMHistEffProducer() 
 {
 //--- nothing to be done yet
 }
 
-void DQMHistEffProducer::analyze(const edm::Event&, const edm::EventSetup&)
+void TauDQMHistEffProducer::analyze(const edm::Event&, const edm::EventSetup&)
 {
 //--- nothing to be done yet
 }
 
-void DQMHistEffProducer::endRun(const edm::Run& r, const edm::EventSetup& c)
+void TauDQMHistEffProducer::endRun(const edm::Run& r, const edm::EventSetup& c)
 {
-  //std::cout << "<DQMHistEffProducer::endJob>:" << std::endl;
+  //std::cout << "<TauDQMHistEffProducer::endJob>:" << std::endl;
 
 //--- check that DQMStore service is available
   if ( !edm::Service<DQMStore>().isAvailable() ) {
@@ -133,7 +133,7 @@ void DQMHistEffProducer::endRun(const edm::Run& r, const edm::EventSetup& c)
 	  if(dqmStore.dirExists(effHistogramDirectory))
 	    dqmStore.setCurrentFolder(effHistogramDirectory);
 	  else
-	    std::cout<<"DQMHistEffProducer:: Directory: "<<effHistogramDirectory<<" does not exist!"<<std::endl;
+	    std::cout<<"TauDQMHistEffProducer:: Directory: "<<effHistogramDirectory<<" does not exist!"<<std::endl;
 	}
       
       MonitorElement* histoEfficiency = dqmStore.book1D(effHistogramName, effHistogramName, 
@@ -159,4 +159,4 @@ void DQMHistEffProducer::endRun(const edm::Run& r, const edm::EventSetup& c)
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE(DQMHistEffProducer);
+DEFINE_FWK_MODULE(TauDQMHistEffProducer);

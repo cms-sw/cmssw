@@ -12,35 +12,35 @@
 
 #include <iostream>
 
-DQMSimpleFileSaver::DQMSimpleFileSaver(const edm::ParameterSet& cfg)
+TauDQMSimpleFileSaver::TauDQMSimpleFileSaver(const edm::ParameterSet& cfg)
 {
-  //std::cout << "<DQMSimpleFileSaver::DQMSimpleFileSaver>:" << std::endl;
+  //std::cout << "<TauDQMSimpleFileSaver::TauDQMSimpleFileSaver>:" << std::endl;
 
   cfgError_ = 0;
 
   outputFileName_ = cfg.getParameter<std::string>("outputFileName");
   if ( outputFileName_ == "" ) {
-    edm::LogError("DQMSimpleFileSaver") << " No outputFileName specified --> histograms will NOT be saved !!";
+    edm::LogError("TauDQMSimpleFileSaver") << " No outputFileName specified --> histograms will NOT be saved !!";
     cfgError_ = 1;
   } else if ( outputFileName_.find(".root") == std::string::npos ) {
-    edm::LogError("DQMSimpleFileSaver") << " Invalid outputFileName = " << outputFileName_ << " --> histograms will NOT be saved !!";
+    edm::LogError("TauDQMSimpleFileSaver") << " Invalid outputFileName = " << outputFileName_ << " --> histograms will NOT be saved !!";
     cfgError_ = 1;
   }
 }
 
-DQMSimpleFileSaver::~DQMSimpleFileSaver() 
+TauDQMSimpleFileSaver::~TauDQMSimpleFileSaver() 
 {
 // nothing to be done yet...
 }
 
-void DQMSimpleFileSaver::analyze(const edm::Event&, const edm::EventSetup&)
+void TauDQMSimpleFileSaver::analyze(const edm::Event&, const edm::EventSetup&)
 {
 // nothing to be done yet...
 }
 
-void DQMSimpleFileSaver::endJob()
+void TauDQMSimpleFileSaver::endJob()
 {
-  std::cout << "<DQMSimpleFileSaver::endJob>:" << std::endl;
+  std::cout << "<TauDQMSimpleFileSaver::endJob>:" << std::endl;
 
 //--- check that configuration parameters contain no errors
   if ( cfgError_ ) {
@@ -60,4 +60,4 @@ void DQMSimpleFileSaver::endJob()
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE(DQMSimpleFileSaver);
+DEFINE_FWK_MODULE(TauDQMSimpleFileSaver);

@@ -1,12 +1,12 @@
-#ifndef ElectroWeakAnalysis_EWKTau_DQMHistPlotter_h
-#define ElectroWeakAnalysis_EWKTau_DQMHistPlotter_h
+#ifndef TauDQMHistPlotter_h
+#define TauDQMHistPlotter_h
 
-/** \class EWKTauEffHistogramPlotter
+/** \class TauDQMHistPlotter
  *  
  *  Class to plot histograms and create a postscript file
  *
- *  $Date: 2008/12/19 19:05:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/04/06 12:22:36 $
+ *  $Revision: 1.2 $
  *  \author Christian Veelken, UC Davis
  */
 
@@ -26,7 +26,7 @@
 #include <vector>
 #include <map>
 
-class DQMHistPlotter : public edm::EDAnalyzer
+class TauDQMHistPlotter : public edm::EDAnalyzer
 {
   typedef std::vector<std::string> vstring;
 
@@ -157,8 +157,8 @@ class DQMHistPlotter : public edm::EDAnalyzer
   };
 
  public:
-  explicit DQMHistPlotter(const edm::ParameterSet&);
-  virtual ~DQMHistPlotter();
+  explicit TauDQMHistPlotter(const edm::ParameterSet&);
+  virtual ~TauDQMHistPlotter();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob(){}  
   virtual void endRun(const edm::Run& r, const edm::EventSetup& c);
