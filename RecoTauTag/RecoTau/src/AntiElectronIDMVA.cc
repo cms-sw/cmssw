@@ -105,7 +105,7 @@ double AntiElectronIDMVA::MVAValue(Float_t TauEta, Float_t TauPt,
 				   Float_t TauLeadPFChargedHadrMva, 
 				   Float_t TauLeadPFChargedHadrHoP, Float_t TauLeadPFChargedHadrEoP, 
 				   Float_t TauHasGsf, Float_t TauVisMass,  Float_t TauEmFraction,
-				   std::vector<Float_t>* GammasdEta, std::vector<Float_t>* GammasdPhi, std::vector<Float_t>* GammasPt
+				   vector<Float_t>* GammasdEta, vector<Float_t>* GammasdPhi, vector<Float_t>* GammasPt
 				   ){
 
   if (!isInitialized_) { 
@@ -257,9 +257,9 @@ double AntiElectronIDMVA::MVAValue(const reco::PFTauRef& thePFTauRef){
   TauLeadPFChargedHadrEoP_ = ((*thePFTauRef).leadPFChargedHadrCand())->ecalEnergy()/(*thePFTauRef).leadPFChargedHadrCand()->p();
   TauEmFraction_           = TMath::Max((*thePFTauRef).emFraction(),float(0.0));
 
-  std::vector<float> GammasdEta;
-  std::vector<float> GammasdPhi;
-  std::vector<float> GammasPt;
+  vector<float> GammasdEta;
+  vector<float> GammasdPhi;
+  vector<float> GammasPt;
 
   for(unsigned int k = 0 ; k < ((*thePFTauRef).signalPFGammaCands()).size() ; k++){
     reco::PFCandidateRef gamma = ((*thePFTauRef).signalPFGammaCands()).at(k);

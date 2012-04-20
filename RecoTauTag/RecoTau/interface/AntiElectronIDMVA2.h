@@ -9,6 +9,7 @@
 //--------------------------------------------------------------------------------------------------
 
 /*
+  OLD
   proposed WP:    epsilonB ~ 18%  epsilonS ~ 91% wrt signal taus passing discr. ag. electrons Medium. 
   bool pass = 
   (abs(TauEta)<1.5 && TauSignalPFGammaCands==0 && MVAValue(...)>0.054) ||
@@ -45,10 +46,12 @@ class AntiElectronIDMVA2 {
     ~AntiElectronIDMVA2(); 
 
     void   Initialize(std::string methodName,
+		      std::string oneProngNoEleMatch_BL,
 		      std::string oneProng0Pi0_BL,
 		      std::string oneProng1pi0woGSF_BL,
 		      std::string oneProng1pi0wGSFwoPfEleMva_BL,
 		      std::string oneProng1pi0wGSFwPfEleMva_BL,
+		      std::string oneProngNoEleMatch_EC,
 		      std::string oneProng0Pi0_EC,
 		      std::string oneProng1pi0woGSF_EC,
 		      std::string oneProng1pi0wGSFwoPfEleMva_EC,
@@ -136,7 +139,7 @@ class AntiElectronIDMVA2 {
 
     Bool_t isInitialized_;
     std::string methodName_;
-    TMVA::Reader* fTMVAReader_[8];
+    TMVA::Reader* fTMVAReader_[10];
 
     Float_t GammadEta_;
     Float_t GammadPhi_;
