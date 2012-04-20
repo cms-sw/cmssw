@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessor.cc,v 1.17 2011/04/21 09:48:30 mommsen Exp $
+// $Id: DQMEventProcessor.cc,v 1.18 2011/11/08 10:48:40 mommsen Exp $
 /// @file: DQMEventProcessor.cc
 
 #include "toolbox/task/WorkLoopFactory.h"
@@ -20,7 +20,7 @@ namespace stor {
   
   template<>  
   DQMEventMsgView
-  DQMEventStore<I2OChain,InitMsgCollection,AlarmHandler>::
+  DQMEventStore<I2OChain,DataSenderMonitorCollection,AlarmHandler>::
   getDQMEventView(I2OChain const& dqmEvent)
   {
     tempEventArea_.clear();
@@ -41,8 +41,8 @@ namespace stor {
     app->getApplicationDescriptor(),
     sr->dqmEventQueueCollection_,
     sr->statisticsReporter_->getDQMEventMonitorCollection(),
-    sr->initMsgCollection_.get(),
-    &stor::InitMsgCollection::maxMsgCount,
+    &sr->statisticsReporter_->getDataSenderMonitorCollection(),
+    &stor::DataSenderMonitorCollection::getConnectedEPs,
     sr->alarmHandler_.get(),
     &stor::AlarmHandler::moveToFailedState,
     sr->alarmHandler_

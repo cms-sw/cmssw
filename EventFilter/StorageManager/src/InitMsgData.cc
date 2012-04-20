@@ -1,4 +1,4 @@
-// $Id: InitMsgData.cc,v 1.7.6.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: InitMsgData.cc,v 1.8 2011/03/07 15:31:32 mommsen Exp $
 /// @file: InitMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -75,20 +75,6 @@ namespace stor
       return adler32_;
     }
 
-    uint32_t InitMsgData::do_outputModuleId() const
-    {
-      if ( !headerOkay() )
-      {
-        std::stringstream msg;
-        msg << "An output module ID can not be determined from a ";
-        msg << "faulty or incomplete INIT message.";
-        XCEPT_RAISE(stor::exception::IncompleteInitMessage, msg.str());
-      }
-      
-      if (! headerFieldsCached_) {cacheHeaderFields();}
-      return outputModuleId_;
-    }
-
     std::string InitMsgData::do_outputModuleLabel() const
     {
       if ( !headerOkay() )
@@ -101,6 +87,20 @@ namespace stor
       
       if (! headerFieldsCached_) {cacheHeaderFields();}
       return outputModuleLabel_;
+    }
+
+    uint32_t InitMsgData::do_outputModuleId() const
+    {
+      if ( !headerOkay() )
+      {
+        std::stringstream msg;
+        msg << "An output module ID can not be determined from a ";
+        msg << "faulty or incomplete INIT message.";
+        XCEPT_RAISE(stor::exception::IncompleteInitMessage, msg.str());
+      }
+      
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return outputModuleId_;
     }
 
     void InitMsgData::do_hltTriggerNames(Strings& nameList) const
@@ -163,6 +163,7 @@ namespace stor
         hltTid_ = smMsg->hltTid;
         fuProcessId_ = smMsg->fuProcID;
         fuGuid_ = smMsg->fuGUID;
+        nExpectedEPs_ = smMsg->nExpectedEPs;
       }
     }
 
@@ -204,8 +205,8 @@ namespace stor
       headerSize_ = msgView->headerSize();
       headerLocation_ = msgView->startAddress();
       adler32_ = msgView->adler32_chksum();
-      outputModuleId_ = msgView->outputModuleId();
       outputModuleLabel_ = msgView->outputModuleLabel();
+      outputModuleId_ = msgView->outputModuleId();
       msgView->hltTriggerNames(hltTriggerNames_);
       msgView->hltTriggerSelections(hltTriggerSelections_);
       msgView->l1TriggerNames(l1TriggerNames_);

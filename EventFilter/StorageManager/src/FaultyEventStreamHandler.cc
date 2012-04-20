@@ -1,4 +1,4 @@
-// $Id: FaultyEventStreamHandler.cc,v 1.3 2011/03/07 15:31:32 mommsen Exp $
+// $Id: FaultyEventStreamHandler.cc,v 1.4 2012/04/04 12:17:02 mommsen Exp $
 /// @file: FaultyEventStreamHandler.cc
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -47,9 +47,7 @@ namespace stor {
     try
     {
       InitMsgSharedPtr initMsgView =
-        initMsgCollection_->getElementForOutputModule(
-          initMsgCollection_->getOutputModuleName( event.outputModuleId() )
-        );
+        initMsgCollection_->getElementForOutputModuleId( event.outputModuleId() );
       
       newFileHandler.reset(
         new EventFileHandler(initMsgView, fileRecord, dbFileHandler_, 0)

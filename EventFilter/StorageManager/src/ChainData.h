@@ -1,4 +1,4 @@
-// $Id: ChainData.h,v 1.18 2011/03/08 18:34:11 mommsen Exp $
+// $Id: ChainData.h,v 1.19 2011/08/31 20:12:00 wmtan Exp $
 /// @file: ChainData.h
 
 #ifndef CHAINDATA_H
@@ -105,6 +105,7 @@ namespace stor
       std::string hltURL() const;
       std::string hltClassName() const;
       uint32_t outputModuleId() const;
+      uint32_t nExpectedEPs() const;
 
       std::string outputModuleLabel() const;
       void hltTriggerNames(Strings& nameList) const;
@@ -198,8 +199,9 @@ namespace stor
       virtual inline unsigned char* do_fragmentLocation(unsigned char* dataLoc) const { return dataLoc; }
       virtual inline uint32_t do_adler32Checksum() const { return 0; }
 
-      virtual uint32_t do_outputModuleId() const;
       virtual std::string do_outputModuleLabel() const;
+      virtual uint32_t do_outputModuleId() const;
+      virtual uint32_t do_nExpectedEPs() const;
       virtual void do_hltTriggerNames(Strings& nameList) const;
       virtual void do_hltTriggerSelections(Strings& nameList) const;
       virtual void do_l1TriggerNames(Strings& nameList) const;
@@ -241,8 +243,9 @@ namespace stor
       inline unsigned char* do_fragmentLocation(unsigned char* dataLoc) const;
       inline uint32_t do_adler32Checksum() const;
 
-      uint32_t do_outputModuleId() const;
       std::string do_outputModuleLabel() const;
+      uint32_t do_outputModuleId() const;
+      uint32_t do_nExpectedEPs() const { return nExpectedEPs_; };
       void do_hltTriggerNames(Strings& nameList) const;
       void do_hltTriggerSelections(Strings& nameList) const;
       void do_l1TriggerNames(Strings& nameList) const;
@@ -258,6 +261,7 @@ namespace stor
       mutable unsigned char* headerLocation_;
       mutable uint32_t adler32_;
       mutable uint32_t outputModuleId_;
+      mutable uint32_t nExpectedEPs_;
       mutable std::string outputModuleLabel_;
       mutable Strings hltTriggerNames_;
       mutable Strings hltTriggerSelections_;
