@@ -8,3 +8,5 @@
 <use   name="CalibFormats/HcalObjects"/>
 <use   name="RecoLocalCalo/HcalRecAlgos"/>
 <use   name="Geometry/CSCGeometry"/>
+<use   name="PhysicsTools/SelectorUtils"/>
+
