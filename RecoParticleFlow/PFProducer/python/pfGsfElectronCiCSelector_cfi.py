@@ -20,5 +20,5 @@ electronsCiCLoose = cms.EDFilter("EleIdCutBased",
                                  version = cms.string(""),
                                  verticesCollection = cms.InputTag('offlinePrimaryVertices'),
                                  reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
-                                 reducedEndcapRecHitCollection = cms.InputTag("recucedEcalRecHitsEE"),
+                                 reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
                                  )
