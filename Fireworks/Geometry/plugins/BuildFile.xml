@@ -1,6 +1,9 @@
 <library file="DisplayGeom.cc" name="FireworksDisplayGeomPlugin">
 	<use name="FWCore/Framework"/>
 	<use name="Fireworks/Geometry"/>
+	<use name="Fireworks/Eve"/>
+        <lib name="Eve"/>
+        <lib name="Geom"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
 
