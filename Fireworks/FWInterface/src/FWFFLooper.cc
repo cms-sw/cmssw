@@ -533,7 +533,7 @@ void FWFFLooper::doBeginLuminosityBlock(edm::LuminosityBlockPrincipal& iLB, edm:
 {
    try {
       m_geomWatcher.check(iES);
-   } check (...) {}
+   } catch (...) {}
    
    EDLooperBase::doBeginLuminosityBlock(iLB, iES);
 }
