@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Jul  8 00:40:50 CEST 2011
-// $Id: FWGeometryTableViewManager.h,v 1.6.2.1 2012/01/04 02:39:45 amraktad Exp $
+// $Id: FWGeometryTableViewManager.h,v 1.7 2012/02/22 03:45:57 amraktad Exp $
 //
 
 class FWViewBase;
@@ -43,7 +43,8 @@ public:
    TList*  getListOfVolumes() const;
    TGeoNode* getTopTGeoNode();
 
-   static TGeoManager* getGeoMangeur() { return s_geoManager; }
+   static TGeoManager* getGeoMangeur();
+   static void setGeoManagerRuntime(TGeoManager*);
 
 protected:
    // dummy functions of FWViewManagerBase
@@ -59,7 +60,7 @@ private:
 
    static TGeoManager *s_geoManager;
    std::string m_fileName;
-   void initGeoManager();
+   void setGeoManagerFromFile();
 };
 
 
