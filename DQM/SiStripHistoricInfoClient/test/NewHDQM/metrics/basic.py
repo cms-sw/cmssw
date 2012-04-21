@@ -147,6 +147,21 @@ class Ratio(BaseMetric):
         return (  s / B if B else 0,
                   sqrt( s + s*s/B ) / B if s and B else 1/B if B else 0 )
 
+class Ratio1(BaseMetric):
+    def __init__(self,  low, high):
+        self.__low = low
+        self.__high = high
+
+    def calculate(self, histo):
+        from math import sqrt
+        s = histo.Integral(histo.FindBin( self.__low),
+                           histo.FindBin( self.__high))
+        Nbins = histo.GetSize()
+        T = histo.Integral(0,Nbins)
+        B = T-s
+        return (  B / s if s else 0,
+                  sqrt( B + B*B/s ) / s if s and B else 1/s if s else 0 )
+
 class Fraction(BaseMetric):
     def __init__(self, low, high):
         self.__low = low
@@ -170,7 +185,10 @@ class Fraction1(BaseMetric):
         from math import sqrt
         s = histo.Integral(histo.FindBin( self.__low),
                            histo.FindBin( self.__high))
-        T = histo.Integral()
+        print "AAA",self.__high,self.__high+1
+        Nbins = histo.GetSize()
+#        T = histo.Integral(0,self.__high+1)
+        T = histo.Integral(0,Nbins)
         B = T-s
         return ( B/T if T else 0,
                  sqrt( s*s*B + B*B*s ) / (T*T) if s and B else 1/T if T else 0)
