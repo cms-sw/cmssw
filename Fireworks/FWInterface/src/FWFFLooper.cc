@@ -300,10 +300,11 @@ void
 FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
    // Check DisplayGeomRecord changes.
-   // std::cerr << "beginRun check call BEGIN\n";
-   m_geomWatcher.check(iSetup);
-   // std::cerr << "beginRun check call END\n";
-
+   try {
+      m_geomWatcher.check(iSetup);
+   }
+   catch (...) {}
+   
    // If the geometry was not picked up from a file, we try to get it from the
    // EventSetup!
    // FIXME: we need to check we execute only once because the view managers
@@ -381,9 +382,10 @@ FWFFLooper::duringLoop(const edm::Event &event,
                        edm::ProcessingController &controller)
 {
    // Check DisplayGeomRecord changes.
-   // std::cerr << "check duringLoop BEGIN \n";
-   m_geomWatcher.check(es);
-   // std::cerr << "check duringLoop END \n";
+   try { 
+      m_geomWatcher.check(es);
+   } catch (...) {}
+   
 
    m_isLastEvent = controller.forwardState() == edm::ProcessingController::kAtLastEvent;
    m_isFirstEvent = controller.reverseState() == edm::ProcessingController::kAtFirstEvent;
@@ -529,14 +531,20 @@ FWFFLooper::requestChanges(const std::string &moduleLabel, const edm::ParameterS
 
 void FWFFLooper::doBeginLuminosityBlock(edm::LuminosityBlockPrincipal& iLB, edm::EventSetup const& iES)
 {
-   m_geomWatcher.check(iES);
+   try {
+      m_geomWatcher.check(iES);
+   } check (...) {}
+   
    EDLooperBase::doBeginLuminosityBlock(iLB, iES);
 }
 
 void FWFFLooper::doEndLuminosityBlock(edm::LuminosityBlockPrincipal& iLB, edm::EventSetup const& iES)
 {
-    m_geomWatcher.check(iES);
-    EDLooperBase::doEndLuminosityBlock(iLB, iES);
+   try {
+      m_geomWatcher.check(iES);
+   }  catch (...) {}
+   
+   EDLooperBase::doEndLuminosityBlock(iLB, iES);
 }
 
 //______________________________________________________________________________
