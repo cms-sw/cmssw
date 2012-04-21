@@ -8,6 +8,7 @@
 
 #include "Fireworks/Core/src/FWDialogBuilder.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 #include "FWCore/Framework/interface/ScheduleInfo.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -184,6 +185,11 @@ FWPathsPopup::postProcessEvent(edm::Event const& event, edm::EventSetup const& e
 
    // Get the last process name from the process history:
    // this should be the one specified in the cfg file
+ 
+   if (event.processHistory().empty()) {
+      fwLog(fwlog::kInfo) << "Path GUI:: no process history available.\n";
+      return;
+   }
    edm::ProcessHistory::const_iterator pi = event.processHistory().end() - 1;
    std::string processName = pi->processName();
    
