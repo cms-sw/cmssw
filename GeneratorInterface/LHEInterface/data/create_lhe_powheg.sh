@@ -168,8 +168,12 @@ cat powheg.input
 ../pwhg_main &> log_${process}_${seed}.txt
 #remove the spurious random seed output that is non LHE standard 
 cat pwgevents.lhe | grep -v "Random number generator exit values" > ${file}_final.lhe
-cp ${file}_final.lhe $WORKDIR/.
+ls -l ${file}_final.lhe
+pwd
+cp ${file}_final.lhe ${WORKDIR}/.
+cp ${file}_final.lhe ${WORKDIR}/${file}_final.lhe
+cp ${file}_final.lhe ${WORKDIR}/output.lhe
 
-echo "Output ready with log_${process}_${seed}.txt and ${file}_final.lhe at `pwd`"
+echo "Output ready with log_${process}_${seed}.txt and ${file}_final.lhe at `pwd` and $WORKDIR"
 echo "End of job on " `date`
 exit 0;
