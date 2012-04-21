@@ -505,7 +505,7 @@ particle_flow	sumPtTrackIsoForEgammaSC_endcap   4.0
 particle_flow	nTrackIsoForEgammaSC              2
 particle_flow   coneTrackIsoForEgammaSC          0.3
 // Pre-selected electrons
-particle_flow   egammaElectrons         electronsCiCLoose
+particle_flow   egammaElectrons   mvaElectrons 
 //particle_flow   egammaElectrons         dummy
 
 // PF Converted Bremsstrahlung recovery and EG supercluster
