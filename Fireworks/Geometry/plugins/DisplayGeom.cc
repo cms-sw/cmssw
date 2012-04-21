@@ -50,15 +50,20 @@ protected:
 private:
    virtual void beginJob() ;
    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
    virtual void endJob() ;
 
    edm::Service<EveService>  m_eve;
+
    TEveElement   *m_geomList;
+
    edm::ESWatcher<DisplayGeomRecord> m_geomWatcher;
 
    void remakeGeometry(const DisplayGeomRecord& dgRec);
 
 };
+
+DEFINE_FWK_MODULE(DisplayGeom);
 
 DisplayGeom::DisplayGeom(const edm::ParameterSet& iConfig):
    m_eve(),
@@ -104,10 +109,11 @@ TEveGeoTopNode* DisplayGeom::make_node(const TString& path, Int_t vis_level, Boo
 void
 DisplayGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   printf("DisplayGeom::analyze\n");
-
    if (m_eve)
    {
+      // Remake geometry if it has changed.
+      m_geomWatcher.check(iSetup);
+
       // Add a test obj
       if (!gRandom)
          gRandom = new TRandom(0);
