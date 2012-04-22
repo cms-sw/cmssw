@@ -15,7 +15,7 @@ skimRecoContent.outputCommands.append("drop *_*_*_SKIM")
 from Configuration.Skimming.PDWG_EXODisplacedPhoton_cff import *
 EXODisplacedPhotonPath = cms.Path(EXODisplacedPhoton)
 SKIMStreamEXODisplacedPhoton = cms.FilteredStream(
-    responsible = 'PDWG',
+    responsible = 'EXO',
     name = 'EXODisplacedPhoton',
     paths = (EXODisplacedPhotonPath),
     content = skimRecoContent.outputCommands,
