@@ -7,8 +7,8 @@
  *
  *  Implementation of QTestConfigurationParser
  *
- *  $Date: 2008/05/15 08:20:22 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/11/11 17:01:11 $
+ *  $Revision: 1.5 $
  *  \author Ilaria Segoni
  */
 using namespace xercesc;
@@ -51,12 +51,12 @@ bool QTestConfigurationParser::qtestsConfig(){
 	std::string testActivationOFF="false";
 
 	unsigned int qtestTagsNum  = 
- 	   doc->getElementsByTagName(qtxml::_toDOMS("QTEST"))->getLength();
+	  doc()->getElementsByTagName(qtxml::_toDOMS("QTEST"))->getLength();
 
 	for (unsigned int i=0; i<qtestTagsNum; ++i){
 		/// Get Node
 		DOMNode* qtestNode = 
-			doc->getElementsByTagName(qtxml::_toDOMS("QTEST"))->item(i);
+		  doc()->getElementsByTagName(qtxml::_toDOMS("QTEST"))->item(i);
 	
 	
 		///Get QTEST name
@@ -149,13 +149,13 @@ bool QTestConfigurationParser::monitorElementTestsMap(){
 	std::string testOFF="false";
 	
 	unsigned int linkTagsNum  = 
- 	   doc->getElementsByTagName(qtxml::_toDOMS("LINK"))->getLength();
+	  doc()->getElementsByTagName(qtxml::_toDOMS("LINK"))->getLength();
 
 
 	for (unsigned int i=0; i<linkTagsNum; ++i){
 	
 		DOMNode* linkNode = 
-			doc->getElementsByTagName(qtxml::_toDOMS("LINK"))->item(i);
+		  doc()->getElementsByTagName(qtxml::_toDOMS("LINK"))->item(i);
 		///Get ME name
 		if (! linkNode){
 			return true;

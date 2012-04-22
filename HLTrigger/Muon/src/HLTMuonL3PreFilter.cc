@@ -23,10 +23,6 @@
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
 //
 // constructors and destructor
 //
@@ -46,7 +42,7 @@ HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig) :
    max_Dz_    (iConfig.getParameter<double> ("MaxDz")),
    min_Pt_    (iConfig.getParameter<double> ("MinPt")),
    nsigma_Pt_  (iConfig.getParameter<double> ("NSigmaPt")), 
-   saveTag_  (iConfig.getUntrackedParameter<bool> ("SaveTag")) 
+   saveTag_  (iConfig.getUntrackedParameter<bool> ("SaveTag",false)) 
 {
 
    LogDebug("HLTMuonL3PreFilter")
@@ -66,23 +62,6 @@ HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig) :
 
 HLTMuonL3PreFilter::~HLTMuonL3PreFilter()
 {
-}
-
-void
-HLTMuonL3PreFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot"));
-  desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL3MuonCandidates"));
-  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltDiMuonL2PreFiltered0"));
-  desc.add<int>("MinN",1);
-  desc.add<double>("MaxEta",2.5);
-  desc.add<int>("MinNhits",0);
-  desc.add<double>("MaxDr",2.0);
-  desc.add<double>("MaxDz",9999.0);
-  desc.add<double>("MinPt",3.0);
-  desc.add<double>("NSigmaPt",0.0);
-  desc.addUntracked<bool>("SaveTag",false);
-  descriptions.add("hltMuonL3PreFilter",desc);
 }
 
 //

@@ -8,6 +8,7 @@
 class TrackingRegion;
 class SeedCreator;
 class SeedingHitSet;
+class SeedComparitor;
 
 namespace edm { class Event; class EventSetup; }
 
@@ -20,6 +21,7 @@ public:
   virtual const TrajectorySeed *  trajectorySeed(TrajectorySeedCollection & seedCollection,
 						 const SeedingHitSet & hits,
 						 const TrackingRegion & region,
-						 const edm::EventSetup& es) = 0;
+						 const edm::EventSetup& es,
+                                                 const SeedComparitor *filter) = 0;
 };
 #endif 

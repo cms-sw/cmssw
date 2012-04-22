@@ -29,7 +29,12 @@
 
 HFRecoEcalCandidateProducer::HFRecoEcalCandidateProducer(edm::ParameterSet const& conf):
   hfclusters_(conf.getParameter<edm::InputTag>("hfclusters")),
-  algo_(conf.getParameter<bool>("Correct"),conf.getParameter<double>("e9e25Cut"),conf.getParameter<double>("intercept2DCut")){
+  algo_(conf.getParameter<bool>("Correct"),
+	conf.getParameter<double>("e9e25Cut"),
+	conf.getParameter<double>("intercept2DCut"),
+	conf.getParameter<std::vector<double> >("e1e9Cut"),
+	conf.getParameter<std::vector<double> >("eCOREe9Cut"),
+	conf.getParameter<std::vector<double> >("eSeLCut")) {
 
   produces<reco::RecoEcalCandidateCollection>();
 

@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2010/01/13 11:25:57 $
- *  $Revision: 1.2 $
+ *  $Date: 2011/05/20 08:55:49 $
+ *  $Revision: 1.6 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -28,7 +28,7 @@
 
 #include<string>
 #include<map>
-#include<fstream>
+//#include<fstream>
 
 //class RPCDetId;
 /* class TFile; */
@@ -112,83 +112,25 @@ class RPCEfficiency : public edm::EDAnalyzer {
       virtual void beginRun(const edm::Run&, const edm::EventSetup&);
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      std::map<std::string, MonitorElement*> bookDetUnitSeg(RPCDetId & detId,int nstrips, std::string folder);
+      void bookDetUnitSeg(RPCDetId & detId,int nstrips, std::string folder, std::map<std::string, MonitorElement*> & );
       virtual void endRun(const edm::Run& r, const edm::EventSetup& iSetup);
       std::map<DTStationIndex,std::set<RPCDetId> > rollstoreDT;
       std::map<CSCStationIndex,std::set<RPCDetId> > rollstoreCSC;
    
-   /*    edm::ESHandle<RPCGeometry> rpcGeo; */
-/*       edm::ESHandle<DTGeometry> dtGeo; */
-/*       edm::ESHandle<CSCGeometry> cscGeo; */
-
+      /*       edm::ESHandle<RPCGeometry> rpcGeo; */
+      /*       edm::ESHandle<DTGeometry> dtGeo; */
+      /*       edm::ESHandle<CSCGeometry> cscGeo; */
+      
       MonitorElement * statistics;
 
       //Distance Strip
-      MonitorElement * DistBorderClu1La1;
-      MonitorElement * DistBorderClu1La2;
-      MonitorElement * DistBorderClu1La3;
-      MonitorElement * DistBorderClu1La4;
-      MonitorElement * DistBorderClu1La5;
-      MonitorElement * DistBorderClu1La6;
-
-      MonitorElement * DistBorderClu2La1;
-      MonitorElement * DistBorderClu2La2;
-      MonitorElement * DistBorderClu2La3;
-      MonitorElement * DistBorderClu2La4;
-      MonitorElement * DistBorderClu2La5;
-      MonitorElement * DistBorderClu2La6;
-
-      MonitorElement * DistBorderClu3La1;
-      MonitorElement * DistBorderClu3La2;
-      MonitorElement * DistBorderClu3La3;
-      MonitorElement * DistBorderClu3La4;
-      MonitorElement * DistBorderClu3La5;
-      MonitorElement * DistBorderClu3La6;
-      
-      //Ang Dependence
-      MonitorElement * AngClu1La1;
-      MonitorElement * AngClu1La2;
-      MonitorElement * AngClu1La3;
-      MonitorElement * AngClu1La4;
-      MonitorElement * AngClu1La5;
-      MonitorElement * AngClu1La6;
-
-      MonitorElement * AngClu2La1;
-      MonitorElement * AngClu2La2;
-      MonitorElement * AngClu2La3;
-      MonitorElement * AngClu2La4;
-      MonitorElement * AngClu2La5;
-      MonitorElement * AngClu2La6;
-
-      MonitorElement * AngClu3La1;
-      MonitorElement * AngClu3La2;
-      MonitorElement * AngClu3La3;
-      MonitorElement * AngClu3La4;
-      MonitorElement * AngClu3La5;
-      MonitorElement * AngClu3La6;
+   
+    
       
       //Residuals
-
-      MonitorElement * hGlobalResClu1La1;
-      MonitorElement * hGlobalResClu1La2;
-      MonitorElement * hGlobalResClu1La3;
-      MonitorElement * hGlobalResClu1La4;
-      MonitorElement * hGlobalResClu1La5;
-      MonitorElement * hGlobalResClu1La6;
-
-      MonitorElement * hGlobalResClu2La1;
-      MonitorElement * hGlobalResClu2La2;
-      MonitorElement * hGlobalResClu2La3;
-      MonitorElement * hGlobalResClu2La4;
-      MonitorElement * hGlobalResClu2La5;
-      MonitorElement * hGlobalResClu2La6;
-
-      MonitorElement * hGlobalResClu3La1;
-      MonitorElement * hGlobalResClu3La2;
-      MonitorElement * hGlobalResClu3La3;
-      MonitorElement * hGlobalResClu3La4;
-      MonitorElement * hGlobalResClu3La5;
-      MonitorElement * hGlobalResClu3La6;
+      MonitorElement * hGlobalResClu1La[6];
+      MonitorElement * hGlobalResClu2La[6];
+      MonitorElement * hGlobalResClu3La[6];
 
       //Endcap  
       MonitorElement * hGlobalResClu1R3C;
@@ -215,12 +157,12 @@ class RPCEfficiency : public edm::EDAnalyzer {
  private:
       std::vector<std::map<RPCDetId, int> > counter;
       std::vector<int> totalcounter;
-      std::ofstream ofrej;
+      //   std::ofstream ofrej;
       bool incldt;
       bool incldtMB4;
       bool inclcsc;
       bool debug;
-      bool paper;
+      //   bool paper;
       bool inves;
       double rangestrips;
       double rangestripsRB4;
@@ -228,19 +170,19 @@ class RPCEfficiency : public edm::EDAnalyzer {
       double MaxD;
       double MaxDrb4;
       int dupli;
-      //      std::string muonRPCDigis;
+  
+    //      std::string muonRPCDigis;
       edm::InputTag cscSegments;
       edm::InputTag dt4DSegments;
       edm::InputTag RPCRecHitLabel_;
+
       std::string folderPath;
-      std::string rejected;
+      //   std::string rejected;
       std::string rollseff;
       
       std::map<int, std::map<std::string, MonitorElement*> >  meCollection;
       
       bool EffSaveRootFile;
       std::string EffRootFileName;
-      std::string nameInLog;
-
       DQMStore * dbe;
 };

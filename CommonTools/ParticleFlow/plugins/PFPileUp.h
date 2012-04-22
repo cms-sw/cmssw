@@ -58,6 +58,9 @@ class PFPileUp : public edm::EDProducer {
   /// verbose ?
   bool   verbose_;
 
+  /// use the closest z vertex if a track is not in a vertex
+  bool   checkClosestZVertex_;
+
 };
 
 #endif

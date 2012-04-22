@@ -1,6 +1,6 @@
 // Original author: Brock Tweedie (JHU)
 // Ported to CMSSW by: Sal Rappoccio (JHU)
-// $Id: CATopJetAlgorithm.cc,v 1.7 2010/03/23 21:02:09 srappocc Exp $
+// $Id: CATopJetAlgorithm.cc,v 1.8 2010/11/29 22:32:18 jdolen Exp $
 
 #include "RecoJets/JetAlgorithms/interface/CATopJetAlgorithm.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -10,7 +10,6 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/angle.h"
 
-
 using namespace std;
 using namespace reco;
 using namespace edm;
@@ -19,8 +18,7 @@ using namespace edm;
 //  Run the algorithm
 //  ------------------
 void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles, 
-							vector<CompoundPseudoJet> & hardjetsOutput,
-							edm::EventSetup const & c )  
+			     vector<CompoundPseudoJet> & hardjetsOutput )  
 {
 	if ( verbose_ ) cout << "Welcome to CATopSubJetAlgorithm::run" << endl;
 	
@@ -64,22 +62,28 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
 	
 	
 	// Define strategy, recombination scheme, and jet definition
-	fastjet::Strategy strategy = fastjet::Best;
-	fastjet::RecombinationScheme recombScheme = fastjet::E_scheme;
-	
-	// pick algorithm
-	fastjet::JetAlgorithm algorithm = static_cast<fastjet::JetAlgorithm>( algorithm_ );
-	
-	fastjet::JetDefinition jetDef( algorithm, 
-								  rBins_[sumEtBinId], recombScheme, strategy);
+	fastjet::JetDefinition jetDef( fjJetDefinition_->jet_algorithm(), 
+				       rBins_[sumEtBinId], 
+				       fjJetDefinition_->recombination_scheme(), 
+				       fjJetDefinition_->strategy() );
 	
 	if ( verbose_ ) cout << "About to do jet clustering in CA" << endl;
 	// run the jet clustering
-	fastjet::ClusterSequence clusterSeq(cell_particles, jetDef);
+
+	//cluster the jets with the jet definition jetDef:
+	// run algorithm
+	boost::shared_ptr<fastjet::ClusterSequence> fjClusterSeq;
+	if ( !doAreaFastjet_ ) {
+	  fjClusterSeq = boost::shared_ptr<fastjet::ClusterSequence>( new fastjet::ClusterSequence( cell_particles, jetDef ) );
+	} else if (voronoiRfact_ <= 0) {
+	  fjClusterSeq = boost::shared_ptr<fastjet::ClusterSequence>( new fastjet::ClusterSequenceArea( cell_particles, jetDef , *fjActiveArea_ ) );
+	} else {
+	  fjClusterSeq = boost::shared_ptr<fastjet::ClusterSequence>( new fastjet::ClusterSequenceVoronoiArea( cell_particles, jetDef , fastjet::VoronoiAreaSpec(voronoiRfact_) ) );
+	}
 	
 	if ( verbose_ ) cout << "Getting inclusive jets" << endl;
 	// Get the transient inclusive jets
-	vector<fastjet::PseudoJet> inclusiveJets = clusterSeq.inclusive_jets(ptMin_);
+	vector<fastjet::PseudoJet> inclusiveJets = fjClusterSeq->inclusive_jets(ptMin_);
 	
 	if ( verbose_ ) cout << "Getting central jets" << endl;
 	// Find the transient central jets
@@ -103,8 +107,8 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
 	
 	// Loop over central jets, attempt to find substructure
 	vector<fastjet::PseudoJet>::iterator jetIt = centralJets.begin(),
-    centralJetsBegin = centralJets.begin(),
-    centralJetsEnd = centralJets.end();
+	  centralJetsBegin = centralJets.begin(),
+	  centralJetsEnd = centralJets.end();
 	if ( verbose_ )cout<<"Loop over jets"<<endl;
 	int i=0;
 	for ( ; jetIt != centralJetsEnd; ++jetIt ) {
@@ -126,7 +130,7 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
 		if ( verbose_ ) cout << "Doing decomposition 1" << endl;
 		fastjet::PseudoJet ja, jb;
 		vector<fastjet::PseudoJet> leftovers1;
-		bool hardBreak1 = decomposeJet(localJet,clusterSeq,cell_particles,ptHard,nCellMin,deltarcut,ja,jb,leftovers1);
+		bool hardBreak1 = decomposeJet(localJet,*fjClusterSeq,cell_particles,ptHard,nCellMin,deltarcut,ja,jb,leftovers1);
 		leftoversAll.insert(leftoversAll.end(),leftovers1.begin(),leftovers1.end());
 		
 		// stage 2:  secondary decomposition.  look for when the hard subjets found above further decluster into two hard sub-subjets
@@ -136,14 +140,14 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
 		fastjet::PseudoJet jaa, jab;
 		vector<fastjet::PseudoJet> leftovers2a;
 		bool hardBreak2a = false;
-		if (hardBreak1)  hardBreak2a = decomposeJet(ja,clusterSeq,cell_particles,ptHard,nCellMin,deltarcut,jaa,jab,leftovers2a);
+		if (hardBreak1)  hardBreak2a = decomposeJet(ja,*fjClusterSeq,cell_particles,ptHard,nCellMin,deltarcut,jaa,jab,leftovers2a);
 		leftoversAll.insert(leftoversAll.end(),leftovers2a.begin(),leftovers2a.end());
 		// jb -> jba+jbb ?
 		if ( verbose_ ) cout << "Doing decomposition 2. ja->jba+jbb?" << endl;
 		fastjet::PseudoJet jba, jbb;
 		vector<fastjet::PseudoJet> leftovers2b;
 		bool hardBreak2b = false;
-		if (hardBreak1)  hardBreak2b = decomposeJet(jb,clusterSeq,cell_particles,ptHard,nCellMin,deltarcut,jba,jbb,leftovers2b);
+		if (hardBreak1)  hardBreak2b = decomposeJet(jb,*fjClusterSeq,cell_particles,ptHard,nCellMin,deltarcut,jba,jbb,leftovers2b);
 		leftoversAll.insert(leftoversAll.end(),leftovers2b.begin(),leftovers2b.end());
 		
 		// NOTE:  it might be good to consider some checks for whether these subjets can be further decomposed.  e.g., the above procedure leaves
@@ -154,44 +158,44 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
 		if ( verbose_ ) cout << "Done with decomposition" << endl;
 
  		if ( verbose_ ) cout<<"hardBreak1 = "<<hardBreak1<<endl;
-        if ( verbose_ ) cout<<"hardBreak2a = "<<hardBreak2a<<endl;
-        if ( verbose_ ) cout<<"hardBreak2b = "<<hardBreak2b<<endl;
+		if ( verbose_ ) cout<<"hardBreak2a = "<<hardBreak2a<<endl;
+		if ( verbose_ ) cout<<"hardBreak2b = "<<hardBreak2b<<endl;
             
-        fastjet::PseudoJet hardA = blankJet, hardB = blankJet, hardC = blankJet, hardD = blankJet;
-        if (!hardBreak1) { 
-			hardA = localJet;  
-			hardB = blankJet;  
-			hardC = blankJet; 
-			hardD = blankJet; 
-			if(verbose_)cout<<"Hardbreak failed. Save subjet1=localJet"<<endl;
+		fastjet::PseudoJet hardA = blankJet, hardB = blankJet, hardC = blankJet, hardD = blankJet;
+		if (!hardBreak1) { 
+		  hardA = localJet;  
+		  hardB = blankJet;  
+		  hardC = blankJet; 
+		  hardD = blankJet; 
+		  if(verbose_)cout<<"Hardbreak failed. Save subjet1=localJet"<<endl;
 		} 
-        if (hardBreak1 && !hardBreak2a && !hardBreak2b) { 
-			hardA = ja;  
-			hardB = jb;  
-			hardC = blankJet; 
-			hardD = blankJet; 
-			if(verbose_)cout<<"First decomposition succeeded, both second decompositions failed. Save subjet1=ja subjet2=jb"<<endl;
+		if (hardBreak1 && !hardBreak2a && !hardBreak2b) { 
+		  hardA = ja;  
+		  hardB = jb;  
+		  hardC = blankJet; 
+		  hardD = blankJet; 
+		  if(verbose_)cout<<"First decomposition succeeded, both second decompositions failed. Save subjet1=ja subjet2=jb"<<endl;
 		}
-        if (hardBreak1 && hardBreak2a && !hardBreak2b) { 
-			hardA = jaa; 
-			hardB = jab; 
-			hardC = jb; 
-			hardD = blankJet; 
-			if(verbose_)cout<<"First decomposition succeeded, ja split succesfully, jb did not split. Save subjet1=jaa subjet2=jab subjet3=jb"<<endl;
+		if (hardBreak1 && hardBreak2a && !hardBreak2b) { 
+		  hardA = jaa; 
+		  hardB = jab; 
+		  hardC = jb; 
+		  hardD = blankJet; 
+		  if(verbose_)cout<<"First decomposition succeeded, ja split succesfully, jb did not split. Save subjet1=jaa subjet2=jab subjet3=jb"<<endl;
 		}
-        if (hardBreak1 && !hardBreak2a &&  hardBreak2b) { 
-			hardA = jba; 
-			hardB = jbb; 
-			hardC = ja; 
-			hardD = blankJet; 
-			if(verbose_)cout<<"First decomposition succeeded, jb split succesfully, ja did not split. Save subjet1=jba subjet2=jbb subjet3=ja"<<endl;
+		if (hardBreak1 && !hardBreak2a &&  hardBreak2b) { 
+		  hardA = jba; 
+		  hardB = jbb; 
+		  hardC = ja; 
+		  hardD = blankJet; 
+		  if(verbose_)cout<<"First decomposition succeeded, jb split succesfully, ja did not split. Save subjet1=jba subjet2=jbb subjet3=ja"<<endl;
 		}
-        if (hardBreak1 && hardBreak2a &&  hardBreak2b) { 
-			hardA = jaa; 
-			hardB = jab; 
-			hardC = jba; 
-			hardD = jbb; 
-			if(verbose_)cout<<"First decomposition and both secondary decompositions succeeded. Save subjet1=jaa subjet2=jab subjet3=jba subjet4=jbb"<<endl;
+		if (hardBreak1 && hardBreak2a &&  hardBreak2b) { 
+		  hardA = jaa; 
+		  hardB = jab; 
+		  hardC = jba; 
+		  hardD = jbb; 
+		  if(verbose_)cout<<"First decomposition and both secondary decompositions succeeded. Save subjet1=jaa subjet2=jab subjet3=jba subjet4=jbb"<<endl;
 		}
 		
 		// check if we are left with >= 3 hard subjets
@@ -223,7 +227,7 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
 			//       if ( (*itSubJet).user_index() >= 0 && (*itSubJet).user_index() < cell_particles.size() )
 			
 			// Get the transient subjet constituents from fastjet
-			vector<fastjet::PseudoJet> subjetFastjetConstituents = clusterSeq.constituents( *itSubJet );
+			vector<fastjet::PseudoJet> subjetFastjetConstituents = fjClusterSeq->constituents( *itSubJet );
 			
 			// Get the indices of the constituents
 			vector<int> constituents;
@@ -242,10 +246,12 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
 			subjetsOutput.push_back( CompoundPseudoSubJet( *itSubJet, constituents ) );
 		}
 		
+
+		double fatJetArea = (doAreaFastjet_) ?
+		  ((fastjet::ClusterSequenceArea&)*fjClusterSeq).area(*jetIt) : 0.0;
 		
 		// Make a CompoundPseudoJet object to hold this hard jet, and the subjets that make it up
-		hardjetsOutput.push_back( CompoundPseudoJet( *jetIt, subjetsOutput ) );
-		
+		hardjetsOutput.push_back( CompoundPseudoJet( *jetIt,fatJetArea,subjetsOutput));		
 	}
 }
 

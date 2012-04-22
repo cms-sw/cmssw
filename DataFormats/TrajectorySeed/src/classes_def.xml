@@ -1,10 +1,10 @@
 <lcgdict>
-  <class name="TrajectorySeed"/>
+  <class name="TrajectorySeed" />
   <class name="edm::RefToBase<TrajectorySeed>"/>
-  <class name="edm::reftobase::BaseHolder<TrajectorySeed>"/>
-  <class name="edm::reftobase::IndirectHolder<TrajectorySeed>"/>
+  <class name="edm::reftobase::BaseHolder<TrajectorySeed>" />
+  <class name="edm::reftobase::IndirectHolder<TrajectorySeed>" />
 
-  <class name="std::vector<TrajectorySeed>"/>
+  <class name="std::vector<TrajectorySeed>" />
   <class name="edm::Wrapper<std::vector<TrajectorySeed> >" splitLevel="0"/>
   <class name="edm::Ref<std::vector<TrajectorySeed>,TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<TrajectorySeed>,TrajectorySeed> >"/>
   <class name="edm::RefProd<std::vector<TrajectorySeed> >"/>
@@ -14,10 +14,4 @@
 
   <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<TrajectorySeed>,TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<TrajectorySeed>,TrajectorySeed> > >"/>
   <class name="edm::reftobase::Holder<TrajectorySeed,edm::Ref<std::vector<TrajectorySeed>,TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<TrajectorySeed>,TrajectorySeed> > >"/>
-
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,edm::RefProd<std::vector<TrajectorySeed> > >"/>
-  <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::Track>,std::vector<TrajectorySeed>,unsigned int> >">
-       <field name="transientMap_" transient="true"/>
-  </class>
-  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::Track>,std::vector<TrajectorySeed>,unsigned int> > >"/>
 </lcgdict>

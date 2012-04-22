@@ -1,5 +1,5 @@
 
-DIR=hpstancMLPNoTransform
+DIR=hpstanc
 
 # Directories
 TRANS=${DIR}/transform
@@ -7,10 +7,7 @@ DB=${DIR}/db
 LOG=${DIR}/log
 EVAL=${DIR}/eval
 XML=${DIR}/xml
-CRABDIR=${DIR}/crab
 DATADIR=/data2/friis/MVATraining/
-RECOTAUDATA=${CMSSW_BASE}/src/RecoTauTag/RecoTau/data/
-RECOTAUPYTHON=${CMSSW_BASE}/src/RecoTauTag/RecoTau/python/
 
 all: ${EVAL}/eval.pdf traincontrol
 
@@ -20,38 +17,6 @@ clean:
 	rm -f ${DB}/*
 	rm -f ${LOG}/*
 	rm -f ${TRANS}/*
-
-
-#################################################################
-#  Evaluating performance on the grid
-#################################################################
-
-crabclean:
-	rm -rf ${CRABDIR}/*
-
-crabsetup: ${CRABDIR}/crab_signal.cfg ${CRABDIR}/crab_background.cfg
-
-${CRABDIR}/eval.pdf: ${CRABDIR}/signal_result.root ${CRABDIR}/background_result.root make_eval_plots.py
-	./make_eval_plots.py $@ ${CRABDIR}/signal_result.root ${CRABDIR}/background_result.root
-
-${CRABDIR}/signal_result.root: ${CRABDIR}/crabdir_signal
-	hadd $@ $</res/*root
-
-${CRABDIR}/background_result.root: ${CRABDIR}/crabdir_background
-	hadd $@ $</res/*root
-
-${CRABDIR}/crab_signal.cfg ${CRABDIR}/crab_background.cfg: build_crab_cfg.py ${DB}/computers.db ${TRANS}/transforms.py evaluate_CRAB_cfg.py
-	@echo "Creating crab.cfg for evaluation"
-	mkdir -p ${DIR}/crab
-	# Make copies of the transform and DB in a place crab will pick them up
-	cp ${PWD}/${DB}/computers.db ${RECOTAUDATA}/computers_${DIR}.db
-	cp ${PWD}/${TRANS}/transforms.py ${RECOTAUPYTHON}/transforms_${DIR}.py
-	./build_crab_cfg.py -db computers_${DIR}.db -transform transforms_${DIR} -dir ${CRABDIR}
-
-
-#################################################################
-#  Evaluating performance locally
-#################################################################
 
 # Combine the signal and background evaluation
 ${EVAL}/eval.pdf: make_eval_plots.py ${EVAL}/eval_signal.root ${EVAL}/eval_background.root
@@ -74,9 +39,9 @@ ${EVAL}/eval_background.root: evaluate_cfg.py ${DB}/computers.db ${TRANS}/transf
 
 # Merge all of the indifividual transforms into a single file that can be read
 # by RecoTauMVATransform
-${TRANS}/transforms.py: mergeTransforms.py ${TRANS}/transform_1prong0pi0.py ${TRANS}/transform_1prong1pi0.py ${TRANS}/transform_1prong2pi0.py ${TRANS}/transform_3prong0pi0.py
+${TRANS}/transforms.py: ${TRANS}/transform_1prong0pi0.py ${TRANS}/transform_1prong1pi0.py ${TRANS}/transform_1prong2pi0.py ${TRANS}/transform_3prong0pi0.py 
 	mkdir -p ${TRANS}
-	./mergeTransforms.py $@ ${TRANS}/transform_1prong0pi0.py ${TRANS}/transform_1prong1pi0.py ${TRANS}/transform_1prong2pi0.py ${TRANS}/transform_3prong0pi0.py
+	./mergeTransforms.py $@ $^
 
 # Compute transforms for the individual decay modes
 ${TRANS}/transform_%.py: ${TRANS}/signal_transform_%.root ${TRANS}/background_transform_%.root computeTransform.py
@@ -84,16 +49,16 @@ ${TRANS}/transform_%.py: ${TRANS}/signal_transform_%.root ${TRANS}/background_tr
 	./computeTransform.py -s ${TRANS}/signal_transform_$*.root \
 	  -b ${TRANS}/background_transform_$*.root -o $@
 
-${TRANS}/signal_transform_%.root: ${DB}/computers.db evaluateMode_cfg.py signalfiles.list
+${TRANS}/signal_transform_%.root: ${DB}/computers.db evaluateMode_cfg.py signalfiles.test
 	mkdir -p ${TRANS}
-	./evaluateMode_cfg.py inputFiles_load=signalfiles.list db=$< outputFile=$@  \
+	./evaluateMode_cfg.py inputFiles_load=signalfiles.test db=$< outputFile=$@  \
 	  signal=1 \
 	  tracks=`echo $* | sed "s|[^0-9]*\([0-9]\)prong\([0-9]\)pi0|\1|"` \
 	  pizeros=`echo $* | sed "s|[^0-9]*\([0-9]\)prong\([0-9]\)pi0|\2|"` 
 
-${TRANS}/background_transform_%.root: ${DB}/computers.db evaluateMode_cfg.py backgroundfiles.list
+${TRANS}/background_transform_%.root: ${DB}/computers.db evaluateMode_cfg.py backgroundfiles.test
 	mkdir -p ${TRANS}
-	./evaluateMode_cfg.py inputFiles_load=backgroundfiles.list db=$< outputFile=$@ \
+	./evaluateMode_cfg.py inputFiles_load=backgroundfiles.test db=$< outputFile=$@ \
 	  signal=0 \
 	  tracks=`echo $* | sed "s|[^0-9]*\([0-9]\)prong\([0-9]\)pi0|\1|"` \
 	  pizeros=`echo $* | sed "s|[^0-9]*\([0-9]\)prong\([0-9]\)pi0|\2|"` 
@@ -112,16 +77,12 @@ ${DB}/computers.db: ${DB}/1prong0pi0.mva ${DB}/1prong1pi0.mva ${DB}/1prong2pi0.m
 	rm -f $@
 	./merge_dbs.py $@ $^
 
-${DB}/1prong2pi0.mva: ${DB}/1prong1pi0.mva
-	echo "TWO PRONG HACK"
-	cp ${DB}/1prong1pi0.mva ${DB}/1prong2pi0.mva
-
 # Switch formats
 ${DB}/%.mva: ${DB}/%.db
 	mkdir -p ${DB}
 	./dump_db.py $^
 
-${EVAL}/%/correlations.png: ./training_control_plots.py ${DB}/%.mva
+${EVAL}/%/correlations.png: ./training_control_plots.py ${DB}/%.db
 	mkdir -p ${EVAL}
 	./training_control_plots.py train/train_$*_${DIR}_output.root ${EVAL}/$*
 
@@ -141,9 +102,6 @@ ${DB}/%.db: ${XML}/%.xml signalfiles.list backgroundfiles.list train_cfg.py
 #################################################################
 #  Defining sample lists
 #################################################################
-
-# Or do it on the command line
-#  cat files.list | perl -MList::Util -e 'print List::Util::shuffle <>' | grep bkg  | awk 'NR % 5 == 0' >!  backgroundfiles.test
 
 signalfiles.list:
 	ls ${DATADIR}/signal/signal_training*.root \

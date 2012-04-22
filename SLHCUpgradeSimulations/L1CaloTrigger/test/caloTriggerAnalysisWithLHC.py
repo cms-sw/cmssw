@@ -11,8 +11,12 @@ process.maxEvents = cms.untracked.PSet(
 process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 
 
+EventType = "BJets_Pt_50_120_7TeV" #"ZEE" #"TTbar" #"PhotonJet_Pt_120_170" 
+
 # Generate event
-process.load("SLHCUpgradeSimulations.L1CaloTrigger.QQH1352T_cfi")
+#process.load("SLHCUpgradeSimulations.L1CaloTrigger.QQH1352T_cfi")
+process.load("Configuration.Generator."+EventType+"_cfi")
+
 
 # Common inputs, with fake conditions
 process.load("FastSimulation.Configuration.CommonInputs_cff")
@@ -30,10 +34,135 @@ process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 
 # HLT paths - defined by configDB
 # This one is created on the fly by FastSimulation/Configuration/test/IntegrationTestWithHLT_py.csh
-process.load("FastSimulation.Configuration.HLT_8E29_cff")
+process.load("FastSimulation.Configuration.HLT_GRun_cff")
 
 # Only event accepted by L1 + HLT are reconstructed
-process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)
+#process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)
+process.HLTEndSequence = cms.Sequence()
+
+from FastSimulation.Configuration.HLT_GRun_cff import *
+
+
+process.HLTSchedule = cms.Schedule( *(
+	HLTriggerFirstPath,
+	HLT_L1Jet6U,
+	HLT_L1Jet10U,
+	HLT_Jet15U,
+	HLT_Jet30U,
+	HLT_Jet50U,
+	HLT_Jet70U,
+	HLT_Jet100U,
+	HLT_DiJetAve15U,
+	HLT_DiJetAve30U,
+	HLT_DiJetAve50U,
+	HLT_DiJetAve70U,
+	HLT_DoubleJet15U_ForwardBackward,
+	HLT_DoubleJet25U_ForwardBackward,
+	HLT_ExclDiJet30U,
+	HLT_QuadJet15U,
+	HLT_QuadJet20U,
+	HLT_QuadJet25U,
+	HLT_L1ETT100,
+	HLT_EcalOnly_SumEt160,
+	HLT_L1MET20,
+	HLT_MET45,
+	HLT_MET65,
+	HLT_MET100,
+	HLT_HT100U,
+	HLT_HT120U,
+	HLT_HT140U,
+	HLT_L1SingleEG2,
+	HLT_L1SingleEG5,
+	HLT_L1SingleEG8,
+	HLT_L1DoubleEG5,
+	HLT_Ele10_SW_L1R,
+	HLT_Ele12_SW_TightEleId_L1R,
+	HLT_Ele12_SW_TightEleIdIsol_L1R,
+	HLT_Ele12_SW_TightEleIdIsol_NoDEtaInEE_L1R,
+	HLT_Ele17_SW_L1R,
+	HLT_Ele17_SW_CaloEleId_L1R,
+	HLT_Ele17_SW_LooseEleId_L1R,
+	HLT_Ele17_SW_EleId_L1R,
+	HLT_Ele22_SW_CaloEleId_L1R,
+	HLT_Ele40_SW_L1R,
+	HLT_DoubleEle10_SW_L1R,
+	HLT_Photon10_Cleaned_L1R,
+	HLT_Photon15_Cleaned_L1R,
+	HLT_Photon20_NoHE_L1R,
+	HLT_Photon20_Cleaned_L1R,
+	HLT_Photon30_Cleaned_L1R,
+	HLT_Photon50_NoHE_L1R,
+	HLT_Photon50_NoHE_Cleaned_L1R,
+	HLT_DoublePhoton5_CEP_L1R,
+	HLT_DoublePhoton5_L1R,
+	HLT_DoublePhoton10_L1R,
+	HLT_DoublePhoton15_L1R,
+	HLT_DoublePhoton17_L1R,
+	HLT_SingleIsoTau20_Trk5_MET20,
+	HLT_SingleIsoTau20_Trk15_MET20,
+	HLT_SingleIsoTau30_Trk5_MET20,
+	HLT_SingleIsoTau30_Trk5_L120or30,
+	HLT_DoubleIsoTau15_OneLeg_Trk5,
+	HLT_DoubleIsoTau15_Trk5,
+#	HLT_Activity_CSC,
+#	HLT_L1MuOpen,
+#	HLT_L1MuOpen_DT,
+#	HLT_L1Mu,
+#	HLT_L1Mu20,
+#	HLT_L2Mu0_NoVertex,
+#	HLT_L2Mu0,
+#	HLT_L2Mu3,
+#	HLT_L2Mu9,
+#	HLT_L2Mu25,
+#	HLT_Mu3,
+#	HLT_Mu5,
+#	HLT_Mu7,
+#	HLT_Mu9,
+#	HLT_Mu11,
+#	HLT_IsoMu9,
+#	HLT_Mu20_NoVertex,
+#	HLT_L1DoubleMuOpen,
+#	HLT_L2DoubleMu0,
+#	HLT_DoubleMu0,
+#	HLT_DoubleMu3,
+#	HLT_Mu0_L1MuOpen,
+#	HLT_Mu3_L1MuOpen,
+#	HLT_Mu5_L1MuOpen,
+#	HLT_Mu0_L2Mu0,
+#	HLT_Mu5_L2Mu0,
+#	HLT_BTagMu_Jet10U,
+#	HLT_BTagMu_Jet20U,
+#	HLT_StoppedHSCP,
+#	HLT_L2Mu5_Photon9_L1R,
+#	HLT_Mu5_Photon9_Cleaned_L1R,
+#	HLT_ZeroBias,
+#	HLT_ZeroBiasPixel_SingleTrack,
+#	HLT_MinBiasPixel_SingleTrack,
+#	HLT_MultiVertex6,
+#	HLT_MultiVertex8_L1ETT60,
+#	HLT_L1_BptxXOR_BscMinBiasOR,
+#	HLT_L1Tech_BSC_minBias_OR,
+#	HLT_L1Tech_BSC_minBias,
+#	HLT_L1Tech_BSC_halo,
+#	HLT_L1Tech_BSC_halo_forPhysicsBackground,
+#	HLT_L1Tech_BSC_HighMultiplicity,
+#	HLT_L1Tech_RPC_TTU_RBst1_collisions,
+#	HLT_L1Tech_HCAL_HF,
+#	HLT_TrackerCosmics,
+#	HLT_RPCBarrelCosmics,
+#	HLT_PixelTracks_Multiplicity70,
+#	HLT_PixelTracks_Multiplicity85,
+#	HLT_PixelTracks_Multiplicity100,
+#	HLT_GlobalRunHPDNoise,
+#	HLT_TechTrigHCALNoise,
+#	HLT_L1_BPTX,
+#	HLT_L1_BPTX_MinusOnly,
+#	HLT_L1_BPTX_PlusOnly,
+	HLT_LogMonitor,
+	DQM_TriggerResults,
+	HLTriggerFinalPath
+))
+
 
 # Schedule the HLT paths
 process.schedule = cms.Schedule()
@@ -74,48 +203,47 @@ process.misalignedCSCGeometry.applyAlignment = True
 # process.caloRecHits.RecHitsFactory.HCAL.Refactor_mean = 1.0
 # process.caloRecHits.RecHitsFactory.HCAL.fileNameHcal = "hcalmiscalib_0.0.xml"
 
-process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTriggerAnalysisCalibrated_cfi")
+#process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTriggerAnalysisCalibrated_cfi")
 
 # Famos with everything !
 #Load Scales
 process.load("L1TriggerConfig.L1ScalesProducers.L1CaloInputScalesConfig_cff")
 process.load("L1TriggerConfig.L1ScalesProducers.L1CaloScalesConfig_cff")
-process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTrigger_cff")
+#process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTrigger_cff")
 process.ecalRecHit.doDigis = True
 process.hbhereco.doDigis = True
 process.horeco.doDigis = True
 process.hfreco.doDigis = True
 
-process.p1 = cms.Path(process.generator+
-                      process.famosWithEverything+
-                      process.simEcalTriggerPrimitiveDigis+
-                      process.simHcalTriggerPrimitiveDigis+
-                      process.SLHCCaloTrigger+
-                      process.mcSequence+
-                      process.analysisSequenceCalibrated
-)
+#process.p1 = cms.Path(process.generator+
+#                      process.famosWithEverything
+#                      process.simEcalTriggerPrimitiveDigis+
+#                      process.simHcalTriggerPrimitiveDigis+
+                    #  process.SLHCCaloTrigger+
+                    #  process.mcSequence+
+                    #  process.analysisSequenceCalibrated
+#)
 
 #process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithEverything)
-process.source = cms.Source("EmptySource")
-process.simulation = cms.Sequence(process.generator*process.simulationWithFamos)
-
-process.schedule.append(process.p1)
+#process.schedule.append(process.p1)
 # END OF SLHC STUFF
 
 # To write out events
 process.load("FastSimulation.Configuration.EventContent_cff")
 process.o1 = cms.OutputModule("PoolOutputModule",
                               outputCommands = cms.untracked.vstring('drop *_*_*_*',
-                                                                     'keep *_L1Calo*_*_*',
-                                                                     'keep *_*SLHCL1ExtraParticles*_*_*',
-                                                                     'keep *_*l1extraParticles*_*_*',
                                                                      'keep *_genParticles_*_*',
-                                                                     'keep recoGen*_*_*_*',
                                                                      'keep *_simEcalTriggerPrimitiveDigis_*_*',
-                                                                     'keep *_simHcalTriggerPrimitiveDigis_*_*' 
+                                                                     'keep *_simHcalTriggerPrimitiveDigis_*_*', 
+                                                                     'keep L1Calo*_*_*_*',
+                                                                     'keep L1Gct*_*_*_*',
+                                                                     'keep *_*l1extraParticles*_*_*'
+#                                                                     'keep *_*SLHCL1ExtraParticles*_*_*',
+#                                                                     'keep recoGen*_*_*_*',
+
                                                                      ),
                      
-                              fileName = cms.untracked.string('SLHC_LHC_Output.root')
+                              fileName = cms.untracked.string(EventType+'.root')
                               )
 process.outpath = cms.EndPath(process.o1)
 

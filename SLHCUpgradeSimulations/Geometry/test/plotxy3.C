@@ -3,7 +3,7 @@
   MyCanvas->Divide(2,1);
   MyCanvas->cd(1);MyCanvas_1->Divide(1,2);MyCanvas_1->cd(1);
   StripNtuple->Draw("strip_recHit.gy:strip_recHit.gx", "strip_recHit.subid == 3 || strip_recHit.subid == 5");
-  PixelNtuple->Draw("pixel_recHit.gy:pixel_recHit.gx", "abs(pixel_recHit.gz) < 30","same");
+  PixelNtuple->Draw("pixel_recHit.gy:pixel_recHit.gx", "abs(pixel_recHit.gz) < 29","same");
      htemp->SetYTitle("Y (cm)");htemp->SetXTitle("X (cm)");htemp->SetTitle("Tracker hits |z|<30 (cm)");
   MyCanvas_1->cd(2);
 //  StripNtuple->Draw("strip_recHit.gy:strip_recHit.gx", "strip_recHit.gx < 30 && strip_recHit.gx>10 && strip_recHit.gy<30 && strip_recHit.gy>10");

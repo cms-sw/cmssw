@@ -20,22 +20,23 @@
 setenv TYPE Photons
 setenv RUNTYPE Central
 #setenv RUNTYPE Local
-setenv STARTUP False
+setenv STARTUP True
 
 setenv CMSSWver1 4_2_0
 setenv CMSSWver2 4_2_0
 setenv OLDRELEASE 4_2_0
 setenv NEWRELEASE 4_2_0
-setenv OLDPRERELEASE pre7
-setenv NEWPRERELEASE pre8
+setenv OLDPRERELEASE pre4
+setenv NEWPRERELEASE pre5
+
 
 
 if ( $STARTUP == True) then
-setenv OLDGLOBALTAG START42_V6-v2
-setenv NEWGLOBALTAG START42_V7-v1
+setenv OLDGLOBALTAG START42_V1-v1
+setenv NEWGLOBALTAG START42_V3-v1
 else
-setenv OLDGLOBALTAG MC_42_V6-v2
-setenv NEWGLOBALTAG MC_42_V7-v1
+setenv OLDGLOBALTAG MC_42_V1-v1
+setenv NEWGLOBALTAG MC_42_V3-v1
 endif
 
 
@@ -58,11 +59,11 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 
 #Name of sample (affects output directory name and htmldescription only) 
 
-setenv SAMPLE SingleGammaPt10IDEAL
+#setenv SAMPLE SingleGammaPt10IDEAL
 #setenv SAMPLE SingleGammaPt35IDEAL
 #setenv SAMPLE SingleGammaFlatPt10_100
 #setenv SAMPLE H130GGgluonfusionSTARTUP
-#setenv SAMPLE PhotonJets_Pt_10STARTUP
+setenv SAMPLE PhotonJets_Pt_10STARTUP
 #setenv SAMPLE GammaJets_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_80_120STARTUP
 
@@ -93,8 +94,8 @@ if ( $RUNTYPE == Local ) then
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt10.root
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.root
 else if ( $RUNTYPE == Central ) then
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt10__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
-setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt10__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt10__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt10__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
 
 endif
 
@@ -107,8 +108,8 @@ setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.r
 
 else if ( $RUNTYPE == Central ) then
 
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt35__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
-setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt35__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt35__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt35__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
 
 endif
 
@@ -130,8 +131,8 @@ setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_H130GGgluonfusion
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_H130GGgluonfusion.root
 else if ( $RUNTYPE == Central ) then
 
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
-setenv NEWFILE ${WorkDir2}/DQM_V0002_R000000001__RelValH130GGgluonfusion__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
 
 endif
 
@@ -145,7 +146,7 @@ setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_PhotonJets_Pt_10.
 else if ( $RUNTYPE == Central ) then
 
 setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValPhotonJets_Pt_10__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
-setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValPhotonJets_Pt_10__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValPhotonJets_Pt_10__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
 
 endif
 
@@ -153,7 +154,7 @@ else if ($SAMPLE ==  GammaJets_Pt_80_120STARTUP) then
 
 if ( $RUNTYPE == Local ) then
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_GammaJets_Pt_80_120.root
-setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_DQM.root
+setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_GammaJets_Pt_80_120.root
 endif
 
 else if ($SAMPLE == QCD_Pt_80_120STARTUP) then 

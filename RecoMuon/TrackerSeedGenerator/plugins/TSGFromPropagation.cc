@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2010/08/09 19:05:57 $
- *  $Revision: 1.36 $
+ *  $Date: 2010/09/06 18:44:33 $
+ *  $Revision: 1.37 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -11,13 +11,14 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
+
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
 
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "RecoTracker/MeasurementDet/interface/TkStripMeasurementDet.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 

@@ -1,3 +1,4 @@
+#ifdef SLHC_DT_TRK_DFENABLE
 
 #include "SimDataFormats/SLHC/interface/TrackTriggerHit.h"
 
@@ -38,3 +39,4 @@ std::ostream& operator << (std::ostream& os, const TrackTriggerHit& hit) {
   return os;
 }
 
+#endif

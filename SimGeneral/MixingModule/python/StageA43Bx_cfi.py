@@ -22,7 +22,6 @@ mix = cms.EDProducer("MixingModule",
             sigmaInel = cms.double(80.0),
             Lumi = cms.double(0.0061)
         ),
-        seed = cms.int32(1234567),
         type = cms.string('poisson'),
 	sequential = cms.untracked.bool(False),
         fileNames = cms.untracked.vstring('/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/00233C31-5806-DD11-9DDC-001617DBD5B2.root', 

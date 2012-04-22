@@ -1,8 +1,8 @@
 /*
  * \file EBHltTask.cc
  *
- * $Date: 2010/08/08 08:46:05 $
- * $Revision: 1.15 $
+ * $Date: 2011/08/23 00:25:31 $
+ * $Revision: 1.16.4.1 $
  * \author G. Della Ricca
  *
 */
@@ -104,19 +104,19 @@ void EBHltTask::setup(void){
 
   init_ = true;
 
-  char histo[200];
+  std::string name;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/" + folderName_);
 
-    sprintf(histo, "FEDEntries");
-    meEBFedsOccupancy_ = dqmStore_->book1D(histo, histo, 36, 610, 646);
+    name = "FEDEntries";
+    meEBFedsOccupancy_ = dqmStore_->book1D(name, name, 36, 610, 646);
 
-    sprintf(histo, "FEDFatal");
-    meEBFedsSizeErrors_ = dqmStore_->book1D(histo, histo, 36, 610, 646);
+    name = "FEDFatal";
+    meEBFedsSizeErrors_ = dqmStore_->book1D(name, name, 36, 610, 646);
 
-    sprintf(histo, "FEDNonFatal");
-    meEBFedsIntegrityErrors_ = dqmStore_->book1D(histo, histo, 36, 610, 646);
+    name = "FEDNonFatal";
+    meEBFedsIntegrityErrors_ = dqmStore_->book1D(name, name, 36, 610, 646);
 
   }
 
@@ -177,8 +177,6 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     }
 
   } else {
-
-//    edm::LogWarning("EBHltTask") << EBDetIdCollection0_ << " not available";
 
   }
 

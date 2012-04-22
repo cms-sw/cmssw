@@ -37,6 +37,7 @@ multi5x5BasicClusters = cms.EDProducer("Multi5x5ClusterProducer",
         ecalRecHitFlag_kLeadingEdgeRecovered,
         ecalRecHitFlag_kNeighboursRecovered,
         ecalRecHitFlag_kTowerRecovered,
-        ecalRecHitFlag_kDead
+        ecalRecHitFlag_kDead,
+        ecalRecHitFlag_kWeird,
     )
 )

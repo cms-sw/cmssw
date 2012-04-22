@@ -102,7 +102,6 @@
   <class name="edm::Association<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > >" />
   <class name="edm::Wrapper<edm::Association<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > > >" />
 
-  <class name="std::vector<edm::Ref<std::vector<reco::CompositeCandidate>,reco::CompositeCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::CompositeCandidate>,reco::CompositeCandidate> > >"/>
   <class name="reco::CompositeCandidateCollection" />
   <class name="edm::Wrapper<reco::CompositeCandidateCollection>" />
   <class name="edm::reftobase::Holder<reco::Candidate, reco::CompositeCandidateRef>" />

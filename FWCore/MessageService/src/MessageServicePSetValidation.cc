@@ -8,7 +8,6 @@
 //
 // Original Author:  M. Fischler
 //         Created:  Wed May 20 2009
-// $Id: MessageServicePSetValidation.cc,v 1.4 2010/07/24 14:15:31 wmtan Exp $
 //
 // Change log
 //
@@ -196,13 +195,19 @@ suppressionLists ( ParameterSet const & pset )
     flaws << "MessageLogger" << " PSet: \n"
 	  << "Use of wildcard (*) in suppressWarning is not supported\n";
   }
+  suppressError = check<vString>
+  	(pset, "MessageLogger", "suppressError");
+  if (wildcard(suppressError)) {
+    flaws << "MessageLogger" << " PSet: \n"
+	  << "Use of wildcard (*) in suppressError is not supported\n";
+  }
 
 } // suppressionLists
 
 
 void 
 edm::service::MessageServicePSetValidation:: 
-vStringsCheck ( ParameterSet const & pset,std::string const & psetName ) 
+vStringsCheck ( ParameterSet const & pset,std::string const & /*psetName*/ ) 
 {
   vString vStrings = pset.getParameterNamesForType <vString> (false); 
   vString::const_iterator end = vStrings.end();
@@ -236,6 +241,7 @@ allowedVstring (std::string const & s)
   if (s == "suppressInfo") 	return true;
   if (s == "suppressDebug") 	return true;
   if (s == "suppressWarning") 	return true;
+  if (s == "suppressError") 	return true;
   return false;
 }  // allowedVstring
 
@@ -347,6 +353,7 @@ keywordCheck(std::string const & word)
   if (word == "suppressInfo") 	return false;
   if (word == "suppressDebug") 	return false;
   if (word == "suppressWarning")return false;
+  if (word == "suppressError")  return false;
   if (word == "threshold") 	return false;
   if (word == "ERROR") 		return false;
   if (word == "WARNING") 	return false;
