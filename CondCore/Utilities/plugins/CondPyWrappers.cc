@@ -189,39 +189,53 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
   class_<std::vector<int> >("VInt")
     .def(vector_indexing_suite<std::vector<int> >())
     ;
-   
+
+  enum_<cond::TimeType>("timetype")
+    .value("runnumber",cond::runnumber)
+    .value("timestamp",cond::timestamp)
+    .value("lumiid",cond::lumiid)
+    .value("hash",cond::hash)
+    .value("userid",cond::userid)
+    ;
+  
   class_<cond::IOVElementProxy>("IOVElement", init<>())
+    .def(init<cond::Time_t, cond::Time_t, std::string>())
     .def("since", &cond::IOVElementProxy::since)
     .def("till", &cond::IOVElementProxy::till)
     .def("payloadToken", &cond::IOVElementProxy::token, return_value_policy<copy_const_reference>())
     ;
   
-  enum_<cond::TimeType>("timetype")
-    .value("runnumber",cond::runnumber)
-    .value("timestamp",cond::timestamp)
-    .value("lumiid",cond::lumiid)
-    .value("userid",cond::userid)
+  class_<cond::IOVRange>("IOVRange", init<>())
+    .def("front", &cond::IOVRange::front)
+    .def("back", &cond::IOVRange::back)
+    .def("size", &cond::IOVRange::size)
+    .add_property("elements", boost::python::range(&cond::IOVRange::begin, &cond::IOVRange::end))
     ;
   
   class_<cond::IOVProxy>("IOV", init<>())
-    .def("size", &cond::IOVProxy::size)
-    .def("range", &cond::IOVProxy::range)
+    .def("token", &cond::IOVProxy::token, return_value_policy<copy_const_reference>())
     .def("head", &cond::IOVProxy::head)
     .def("tail", &cond::IOVProxy::tail)
+    .def("range", &cond::IOVProxy::range)
+    .def("rangeHead", &cond::IOVProxy::rangeHead)
+    .def("rangeTail", &cond::IOVProxy::rangeTail)
+    .def("size", &cond::IOVProxy::size)
     .def("timetype", &cond::IOVProxy::timetype)
+    .def("firstSince", &cond::IOVProxy::firstSince)
+    .def("lastTill", &cond::IOVProxy::lastTill)
+    .def("payloadClasses", payloadContainers)
     .def("comment", &cond::IOVProxy::comment)
     .def("revision",&cond::IOVProxy::revision)
     .def("timestamp",&cond::IOVProxy::timestamp)
-    .def("payloadClasses", payloadContainers)
-    .add_property("elements", boost::python::range( &cond::IOVProxy::begin,  &cond::IOVProxy::end))
+    .add_property("elements", boost::python::range(&cond::IOVProxy::begin, &cond::IOVProxy::end))
     ;
-  
   
   class_<cond::FWIncantation>("FWIncantation", init<>());
   
   class_<cond::CondDB>("CondDB", init<>())
     .def("allTags", &cond::CondDB::allTags)
     .def("iov", &cond::CondDB::iov)
+    .def("iovToken", &cond::CondDB::iovToken)
     .def("iovWithLib", &cond::CondDB::iovWithLib)
     .def("payLoad", &cond::CondDB::payLoad)
     .def("payloadModules",payloadModules)
