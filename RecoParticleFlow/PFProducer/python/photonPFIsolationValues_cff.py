@@ -8,7 +8,7 @@ phPFIsoValueCharged03PFId = cms.EDProducer("CandIsolatorFromDeposits",
             src = cms.InputTag("phPFIsoDepositCharged"),
             deltaR = cms.double(0.3),
             weight = cms.string('1'),
-            vetos = cms.vstring('Threshold(0.0)'),
+            vetos = cms.vstring(),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
             )
@@ -21,7 +21,7 @@ phPFIsoValueChargedAll03PFId = cms.EDProducer("CandIsolatorFromDeposits",
             src = cms.InputTag("phPFIsoDepositChargedAll"),
             deltaR = cms.double(0.3),
             weight = cms.string('1'),
-            vetos = cms.vstring('Threshold(0.0)'),
+            vetos = cms.vstring(),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
      )
@@ -34,7 +34,7 @@ phPFIsoValueGamma03PFId = cms.EDProducer("CandIsolatorFromDeposits",
             src = cms.InputTag("phPFIsoDepositGamma"),
             deltaR = cms.double(0.3),
             weight = cms.string('1'),
-            vetos = cms.vstring('Threshold(0.5)'),
+            vetos = cms.vstring('EcalEndcaps:ConeVeto(0.005)'),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
       )
@@ -47,7 +47,7 @@ phPFIsoValueNeutral03PFId = cms.EDProducer("CandIsolatorFromDeposits",
             src = cms.InputTag("phPFIsoDepositNeutral"),
             deltaR = cms.double(0.3),
             weight = cms.string('1'),
-            vetos = cms.vstring('Threshold(0.5)'),
+            vetos = cms.vstring(),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
     )
@@ -60,7 +60,7 @@ phPFIsoValuePU03PFId = cms.EDProducer("CandIsolatorFromDeposits",
             src = cms.InputTag("phPFIsoDepositPU"),
             deltaR = cms.double(0.3),
             weight = cms.string('1'),
-            vetos = cms.vstring('Threshold(0.5)'),
+            vetos = cms.vstring(),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
       )
@@ -75,7 +75,7 @@ phPFIsoValueCharged04PFId = cms.EDProducer("CandIsolatorFromDeposits",
             src = cms.InputTag("phPFIsoDepositCharged"),
             deltaR = cms.double(0.4),
             weight = cms.string('1'),
-            vetos = cms.vstring('Threshold(0.0)'),
+            vetos = cms.vstring(),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
             )
@@ -91,7 +91,7 @@ phPFIsoValueChargedAll04PFId = cms.EDProducer("CandIsolatorFromDeposits",
             src = cms.InputTag("phPFIsoDepositChargedAll"),
             deltaR = cms.double(0.4),
             weight = cms.string('1'),
-            vetos = cms.vstring('Threshold(0.0)'),
+            vetos = cms.vstring(),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
      )
@@ -104,7 +104,7 @@ phPFIsoValueGamma04PFId = cms.EDProducer("CandIsolatorFromDeposits",
             src = cms.InputTag("phPFIsoDepositGamma"),
             deltaR = cms.double(0.4),
             weight = cms.string('1'),
-            vetos = cms.vstring('Threshold(0.5)'),
+            vetos = cms.vstring('EcalEndcaps:ConeVeto(0.015)'),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
       )
@@ -118,7 +118,7 @@ phPFIsoValueNeutral04PFId = cms.EDProducer("CandIsolatorFromDeposits",
             src = cms.InputTag("phPFIsoDepositNeutral"),
             deltaR = cms.double(0.4),
             weight = cms.string('1'),
-            vetos = cms.vstring('Threshold(0.5)'),
+            vetos = cms.vstring(),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
     )
@@ -131,7 +131,7 @@ phPFIsoValuePU04PFId = cms.EDProducer("CandIsolatorFromDeposits",
             src = cms.InputTag("phPFIsoDepositPU"),
             deltaR = cms.double(0.4),
             weight = cms.string('1'),
-            vetos = cms.vstring('Threshold(0.5)'),
+            vetos = cms.vstring(),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
       )
