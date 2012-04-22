@@ -2,10 +2,27 @@ import FWCore.ParameterSet.Config as cms
 
 from DPGAnalysis.Skims.Skims_DPG_cff import skimContent
 
+
 from Configuration.EventContent.EventContent_cff import RECOEventContent
 skimRecoContent = RECOEventContent.clone()
 skimRecoContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
 skimRecoContent.outputCommands.append("drop *_*_*_SKIM")
+
+
+#####################
+
+
+from Configuration.Skimming.PDWG_EXODisplacedPhoton_cff import *
+EXODisplacedPhotonPath = cms.Path(EXODisplacedPhoton)
+SKIMStreamEXODisplacedPhoton = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EXODisplacedPhoton',
+    paths = (EXODisplacedPhotonPath),
+    content = skimRecoContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RECO') 
+    )
+
 
 #####################
 
