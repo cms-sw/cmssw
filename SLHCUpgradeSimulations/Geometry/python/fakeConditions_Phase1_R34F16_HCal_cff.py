@@ -13,7 +13,12 @@ from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 from Configuration.StandardSequences.SimIdeal_cff import *
 from Configuration.StandardSequences.Generator_cff import *
 # use hardcoded values
-es_hardcode.toGet.extend(['Gains', 'Pedestals', 'PedestalWidths', 'QIEData', 'ElectronicsMap','ChannelQuality','RespCorrs','ZSThresholds','LutMetadata','L1TriggerObjects','TimeCorrs','PFCorrs','LUTCorrs'])
+es_hardcode.toGet.extend(['Gains', 'Pedestals', 'PedestalWidths', 'QIEData', 
+                          'ElectronicsMap','ChannelQuality','RespCorrs',
+                          'ZSThresholds',
+                          'LutMetadata',
+                          'L1TriggerObjects','TimeCorrs','PFCorrs','LUTCorrs',
+                          'RecoParams'])
 es_hardcode.H2Mode = cms.untracked.bool(False)
 es_hardcode.SLHCMode = cms.untracked.bool(True)
 es_prefer_hcalHardcode = cms.ESPrefer("HcalHardcodeCalibrations", "es_hardcode")
