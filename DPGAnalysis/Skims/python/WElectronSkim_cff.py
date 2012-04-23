@@ -7,13 +7,14 @@ import FWCore.ParameterSet.Config as cms
 ##  \___\___/|_| |_|___/\__\__,_|_| |_|\__|___/
 ##                                              
 
-HLTPath = "HLT_Ele"
+HLTPath = "HLT_Ele*"
 HLTProcessName = "HLT"
 
 #electron cuts
 ELECTRON_ET_CUT_MIN = 10.0
 TAG_ELECTRON_ET_CUT_MIN = 20.0
-W_ELECTRON_ET_CUT_MIN = 30.0
+W_ELECTRON_ET_CUT_MIN = 27.0
+ELECTRON_COLL = "gsfElectrons"
 ELECTRON_CUTS = "(abs(superCluster.eta)<2.5) && (ecalEnergy*sin(superClusterPosition.theta)>" + str(ELECTRON_ET_CUT_MIN) + ")"
 
 #met, mt cuts for W selection
@@ -28,7 +29,7 @@ MT_CUT_MIN = 50.
 ##  
 #  GsfElectron ################ 
 goodElectrons = cms.EDFilter("GsfElectronRefSelector",
-    src = cms.InputTag( 'gsfElectrons' ),
+    src = cms.InputTag( ELECTRON_COLL ),
     cut = cms.string( ELECTRON_CUTS )    
 )
 
@@ -67,6 +68,28 @@ cut = cms.string(
     )
 )
 
+PassingWP80 = goodElectrons.clone(
+cut = cms.string(
+    goodElectrons.cut.value() +
+    " && (gsfTrack.trackerExpectedHitsInner.numberOfHits==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))" 
+    " && (ecalEnergy*sin(superClusterPosition.theta)>" + str(ELECTRON_ET_CUT_MIN) + ")"
+    " && ((isEB"
+    " && ( dr03TkSumPt/p4.Pt <0.12 && dr03EcalRecHitSumEt/p4.Pt < 0.09 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )" #wrt std WP80 relaxing iso cuts to WP90 
+    " && (sigmaIetaIeta<0.01)"
+    " && ( -0.06<deltaPhiSuperClusterTrackAtVtx<0.06 )"
+    " && ( -0.004<deltaEtaSuperClusterTrackAtVtx<0.004 )"
+    " && (hadronicOverEm<0.04)"
+    ")"
+    " || (isEE"
+    " && ( dr03TkSumPt/p4.Pt <0.05 && dr03EcalRecHitSumEt/p4.Pt < 0.06 && dr03HcalTowerSumEt/p4.Pt  < 0.03 )"
+    " && (sigmaIetaIeta<0.03)"
+    " && ( -0.03<deltaPhiSuperClusterTrackAtVtx<0.03 )" 
+    " && ( -0.007<deltaEtaSuperClusterTrackAtVtx<0.007 )"
+    " && (hadronicOverEm<0.025) "
+    "))"
+    )
+) 
+
                          
 ##    _____     _                         __  __       _       _     _             
 ##   |_   _| __(_) __ _  __ _  ___ _ __  |  \/  | __ _| |_ ___| |__ (_)_ __   __ _ 
@@ -77,8 +100,8 @@ cut = cms.string(
 ##   
 # Trigger  ##################
 PassingHLT = cms.EDProducer("trgMatchGsfElectronProducer",    
-    InputProducer = cms.InputTag( 'gsfElectrons' ),                          
-    hltTags = cms.untracked.string("HLT_Ele"),
+    InputProducer = cms.InputTag( ELECTRON_COLL ),                          
+    hltTags = cms.untracked.string( HLTPath ),
     triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","",HLTProcessName),
     triggerResultsTag = cms.untracked.InputTag("TriggerResults","",HLTProcessName)   
 )
@@ -91,12 +114,12 @@ PassingHLT = cms.EDProducer("trgMatchGsfElectronProducer",
 ##              |___/
 ## 
 WElecTagHLT = PassingHLT.clone(
-    InputProducer = cms.InputTag( "PassingWP90" )
+    InputProducer = cms.InputTag( "PassingWP80" )
     )
 
 ele_sequence = cms.Sequence(
     goodElectrons +
-    PassingWP90 +
+    PassingWP80 +
     WElecTagHLT
     )
 
@@ -113,7 +136,7 @@ MT="sqrt(2*daughter(0).pt*daughter(1).pt*(1 - cos(daughter(0).phi - daughter(1).
 elecMet = cms.EDProducer("CandViewShallowCloneCombiner",
     decay = cms.string("pfMet WElecTagHLT"), # charge coniugate states are implied
     checkCharge = cms.bool(False),                           
-    cut   = cms.string(("daughter(0).pt > %f && daughter(0).pt > %f && "+MT+" > %f") % (MET_CUT_MIN, W_ELECTRON_ET_CUT_MIN, MT_CUT_MIN))
+    cut   = cms.string(("daughter(0).pt > %f && daughter(1).pt > %f && "+MT+" > %f") % (MET_CUT_MIN, W_ELECTRON_ET_CUT_MIN, MT_CUT_MIN))
 )
 elecMetCounter = cms.EDFilter("CandViewCountFilter",
                                     src = cms.InputTag("elecMet"),
@@ -124,7 +147,7 @@ elecMetFilter = cms.Sequence(elecMet * elecMetCounter)
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 WEnuHltFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     throw = cms.bool(False),
-    HLTPaths = ["HLT_Ele*"]
+    HLTPaths = [HLTPath]
     )
 
 elecMetSeq = cms.Sequence( WEnuHltFilter * ele_sequence * elecMetFilter )
