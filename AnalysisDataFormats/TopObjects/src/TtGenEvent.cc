@@ -1,5 +1,5 @@
 //
-// $Id: TtGenEvent.cc,v 1.32 2012/04/19 09:20:14 snaumann Exp $
+// $Id: TtGenEvent.cc,v 1.33 2012/04/20 11:27:09 snaumann Exp $
 //
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -7,7 +7,7 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-/// default contructor from decaySubset and initSubset
+/// default constructor from decaySubset and initSubset
 TtGenEvent::TtGenEvent(reco::GenParticleRefProd& decaySubset, reco::GenParticleRefProd& initSubset)
 {
   parts_ = decaySubset;
@@ -20,18 +20,20 @@ bool
 TtGenEvent::fromGluonFusion() const
 {
   const reco::GenParticleCollection& initPartsColl = *initPartons_;
-  if(initPartsColl.size()!=2)
-    throw edm::Exception( edm::errors::LogicError, "Unexpected size of GenParticleCollection initSubset!" );
-  const unsigned int idA = std::abs(initPartsColl[0].pdgId());
-  const unsigned int idB = std::abs(initPartsColl[1].pdgId());
-  if(idA==21 && idB==21)
-    // gluon-gluon fusion
-    return true;
-  else if(idA<(unsigned)TopDecayID::tID && idB<(unsigned)TopDecayID::tID)
-    // qqbar annihilation
-    return false;
-  else
-    throw edm::Exception( edm::errors::LogicError, "Unexpected pdgIDs in GenParticleCollection initSubset!" );
+  if(initPartsColl.size()==2)
+    if(initPartsColl[0].pdgId()==21 && initPartsColl[1].pdgId()==21)
+      return true;
+  return false;
+}
+
+bool
+TtGenEvent::fromQuarkAnnihilation() const
+{
+  const reco::GenParticleCollection& initPartsColl = *initPartons_;
+  if(initPartsColl.size()==2)
+    if(std::abs(initPartsColl[0].pdgId())<(unsigned)TopDecayID::tID && initPartsColl[0].pdgId()==-initPartsColl[1].pdgId())
+      return true;
+  return false;
 }
 
 WDecay::LeptonType 
