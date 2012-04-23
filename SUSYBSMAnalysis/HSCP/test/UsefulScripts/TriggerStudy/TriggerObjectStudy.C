@@ -143,7 +143,8 @@ void TriggerObjectStudy()
    TH2D* HNOS  = new TH2D("NOS",";NOS_{hlt};NOH_{offline}",10,0,10, 10, 0,10);
 
    vector<string> fileNames;
-   fileNames.push_back("../../BuildHSCParticles/Data20122/HSCP.root");
+   fileNames.push_back("root://eoscms//eos/cms/store/cmst3/user/querten/12_04_17_HSCP_EDM/Data_190XXX.root");
+   fileNames.push_back("root://eoscms//eos/cms/store/cmst3/user/querten/12_04_17_HSCP_EDM/Data_191XXX.root");
    fwlite::ChainEvent ev(fileNames);
    int N   = 0;
    int Nmu = 0;
@@ -156,29 +157,29 @@ void TriggerObjectStudy()
    //DuplicatesClass Duplicates;
    //Duplicates.Clear();
 
+   printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");
+   printf("Looping on %10s        :","");
+   int TreeStep = ev.size()/50;if(TreeStep==0)TreeStep=1;
    for(Long64_t e=0;e<ev.size();e++){
+      if(e%TreeStep==0){printf(".");fflush(stdout);}
       ev.to(e);       
+
+//      printf("e=%i Run=%i Lumi=%i Event=%i BX=%i  Orbit=%i Store=%i\n",e,ev.eventAuxiliary().run(),ev.eventAuxiliary().luminosityBlock(),ev.eventAuxiliary().event(),ev.eventAuxiliary().luminosityBlock(),ev.eventAuxiliary().orbitNumber(),ev.eventAuxiliary().storeNumber());
+
       edm::TriggerResultsByName tr = ev.triggerResultsByName("HLT");      if(!tr.isValid())continue;
 //     for(unsigned int i=0;i<tr.size();i++){
 //         printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
 //      }fflush(stdout);
 
       //if(Duplicates.isDuplicate(ev.eventAuxiliary().run(),ev.eventAuxiliary().event())){continue;}
-
-      bool accept=false;
-      if(tr.accept("HLT_Mu40_eta2p1_Track50_dEdx3p6_v3")){Nmu++; accept=true;}
-      if(tr.accept("HLT_HT650_Track50_dEdx3p6_v4")){Nht++; accept=true;}
-      if(tr.accept("HLT_MET80_Track50_dEdx3p6_v3")){Nmet++; accept=true;}
       N++;
- 
-      if(!accept)continue;     
       Ntriggered++;
-
 
       fwlite::Handle< trigger::TriggerEvent > trEvHandle;
       trEvHandle.getByLabel(ev,"hltTriggerSummaryAOD");
-      trigger::TriggerEvent trEv = *trEvHandle;
+      if(!trEvHandle.isValid())continue;
 
+      trigger::TriggerEvent trEv = *trEvHandle;
 //      for(unsigned int i=0;i<trEvHandle->sizeFilters();i++){
 //         if(strncmp(trEvHandle->filterTag(i).label().c_str(),"hltL1",5)==0)continue;
 //         printf("%i - %s\n",i,trEvHandle->filterTag(i).label().c_str());
@@ -214,8 +215,6 @@ void TriggerObjectStudy()
       dEdxMNSTCollH.getByLabel(ev, "dedxNSTHarm2");
       if(!dEdxMNSTCollH.isValid()){printf("Invalid dEdx Mass collection\n");continue;}
 
-
-
       double mindR = 999;
       int index=-1;
       for(unsigned int c=0;c<hscpColl.size();c++){
@@ -229,7 +228,7 @@ void TriggerObjectStudy()
       }
 
       if(mindR>0.3 || index<0){
-         printf("unmatched: isMuon=%1i pt=%7.2f eta=%+6.2f phi=%+6.2f  dEdx=%6.2f NOH=%2i  NOM=%2i  NOS=%2i\n",(int)isMuon, hlt_pt,hlt_eta,hlt_phi,hlt_dEdx, hlt_NOH, hlt_NOM, hlt_NOS);
+//         printf("unmatched: isMuon=%1i pt=%7.2f eta=%+6.2f phi=%+6.2f  dEdx=%6.2f NOH=%2i  NOM=%2i  NOS=%2i\n",(int)isMuon, hlt_pt,hlt_eta,hlt_phi,hlt_dEdx, hlt_NOH, hlt_NOM, hlt_NOS);
          continue;
       }
       Nhscp++;
@@ -241,7 +240,7 @@ void TriggerObjectStudy()
       const DeDxData& dedxMSObj  = dEdxMSCollH->get(track.key());
       const DeDxData& dedxMNSTObj  = dEdxMNSTCollH->get(track.key());
 
-      printf("  matched: isMuon=%1i pt=%7.2f(%7.2f) eta=%+6.2f(%+6.2f) phi=%+6.2f(%+6.2f)  dEdx=%6.2f(%6.2f Ih=%6.2f Ias=%6.2f) NOH=%2i(%2i)  NOM=%2i(%2i)  NOS=%2i(%2i)\n",(int)isMuon, hlt_pt, track->pt(),hlt_eta, track->eta(),hlt_phi,track->phi(),hlt_dEdx, dedxMNSTObj.dEdx(), dedxMObj.dEdx(), dedxSObj.dEdx(), hlt_NOH, track->found(), hlt_NOM, dedxMNSTObj.numberOfMeasurements(), hlt_NOS, dedxMNSTObj.numberOfSaturatedMeasurements());
+//      printf("  matched: isMuon=%1i pt=%7.2f(%7.2f) eta=%+6.2f(%+6.2f) phi=%+6.2f(%+6.2f)  dEdx=%6.2f(%6.2f Ih=%6.2f Ias=%6.2f) NOH=%2i(%2i)  NOM=%2i(%2i)  NOS=%2i(%2i)\n",(int)isMuon, hlt_pt, track->pt(),hlt_eta, track->eta(),hlt_phi,track->phi(),hlt_dEdx, dedxMNSTObj.dEdx(), dedxMObj.dEdx(), dedxSObj.dEdx(), hlt_NOH, track->found(), hlt_NOM, dedxMNSTObj.numberOfMeasurements(), hlt_NOS, dedxMNSTObj.numberOfSaturatedMeasurements());
 
 
       HEta ->Fill(hlt_eta, track->eta());
@@ -253,18 +252,14 @@ void TriggerObjectStudy()
       HNOH ->Fill(hlt_NOH, track->found());
       HNOM ->Fill(hlt_NOM, dedxMNSTObj.numberOfMeasurements());
       HNOS ->Fill(hlt_NOS, dedxMNSTObj.numberOfSaturatedMeasurements());
- 
+   }printf("\n");
 
-
-   }
    printf("Nmu /N = %8i/%8i = %6.2f%%\n",Nmu ,N,(100.0*Nmu )/N);
    printf("Nmt /N = %8i/%8i = %6.2f%%\n",Nht ,N,(100.0*Nht )/N);
    printf("Nmet/N = %8i/%8i = %6.2f%%\n",Nmet,N,(100.0*Nmet)/N);
    printf("Nhscp=%8i Nhlt=%8i NTriggeredEvents=%8i\n",Nhscp ,Nhlt, Ntriggered);
 
-
    OutputHisto->Write();
    OutputHisto->Close();
-
 }
 
