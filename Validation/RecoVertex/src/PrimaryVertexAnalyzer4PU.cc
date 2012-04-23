@@ -9,7 +9,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-
 // associator stuff
 #include "DataFormats/Math/interface/deltaPhi.h"
 
@@ -138,6 +137,7 @@ PrimaryVertexAnalyzer4PU::PrimaryVertexAnalyzer4PU(const ParameterSet& iConfig):
   defaultCollections.push_back("offlinePrimaryVertices");
   defaultCollections.push_back("offlinePrimaryVerticesWithBS");
   vertexCollectionLabels_=iConfig.getUntrackedParameter< std::vector<std::string> >("vertexCollections", defaultCollections);
+  nCompareCollections_=iConfig.getUntrackedParameter<int>("compareCollections", 0);  //-1= compare all, >0 dump n events
   
   currentLS_=-1;
   zmatch_=iConfig.getUntrackedParameter<double>("zmatch", 0.0500);
@@ -173,6 +173,10 @@ PrimaryVertexAnalyzer4PU::~PrimaryVertexAnalyzer4PU()
 std::map<std::string, TH1*>  PrimaryVertexAnalyzer4PU::bookVertexHistograms(){
   std::map<std::string, TH1*> h;
 
+
+  const int nbinzdiffrec=400.;
+
+
   // release validation histograms used in DoCompare.C
   add(h, new TH1F("nbtksinvtx","reconstructed tracks in vertex",40,-0.5,39.5)); 
   add(h, new TH1F("nbtksinvtxPU","reconstructed tracks in vertex",40,-0.5,39.5)); 
@@ -190,7 +194,15 @@ std::map<std::string, TH1*>  PrimaryVertexAnalyzer4PU::bookVertexHistograms(){
   add(h, new TH1F("vtxcxy2Fake","xy-beam compatibility",100,0.,50.));
   add(h, new TH1F("ntpfake", "fake vertices",10, 0., 10.));
   add(h, new TH1F("ntpfake4","fake vertices with ndof>4",  10, 0., 10.));
-  add(h, new TH1F("ndofFake", "ndof of fake vertices", 100, 0., 100.));
+  add(h, new TH1F("ndofFake", "ndof of fake vertices", 50, 0., 100.));
+  add(h, new TH1F("ntpfound", "found vertices",100, 0., 100.));
+  add(h, new TH1F("ntpfound4","found vertices with ndof>4",  100, 0., 100.));
+  add(h, new TH1F("zdiffrec4found","z-distance between truth-matched ndof>4 vertices",nbinzdiffrec,-2., 2.));
+  add(h, new TH1F("zdiffrec4fake","z-distance between truth-matched and fake ndof>4 vertices",nbinzdiffrec,-2., 2.));
+  add(h,  new TProfile("effvsnrectp","efficiency vs # truth matched rec tracks",50, 0., 50., 0, 1.));
+  add(h,  new TProfile("effvsngentp","efficiency vs # tracking particles with tracker hits",50, 0., 50., 0, 1.));
+  add(h,  new TProfile("effsigvsnrectp","signal efficiency vs # truth matched rec tracks",50, 0., 100., 0, 1.));
+  add(h,  new TProfile("effsigvsngentp","signal efficiency vs # tracking particles with tracker hits",50, 0., 100., 0, 1.));
 
   add(h, new TH1F("vtxndf","degrees of freedom",               5000,0.,1000.));
   add(h, new TH1F("vtxndfc","expected lower ndof of two",      5000,0.,1000.));
@@ -266,10 +278,12 @@ std::map<std::string, TH1*>  PrimaryVertexAnalyzer4PU::bookVertexHistograms(){
   h["zdistancetag"] = new TH1F("zdistancetag","z-distance between tagged and generated",100, -0.1, 0.1);
   h["abszdistancetag"] = new TH1F("abszdistancetag","z-distance between tagged and generated",1000, 0., 1.0);
   h["abszdistancetagcum"] = new TH1F("abszdistancetagcum","z-distance between tagged and generated",1000, 0., 1.0);
+
   add(h, new TH1F("zdistancenearest","z-distance between generated nearest rec",100, -0.1, 0.1));
   add(h, new TH1F("abszdistancenearest","z-distance between generated and nearest rec",1000, 0., 1.0));
   add(h, new TH1F("abszdistancenearestcum","z-distance between generated and nearest rec",1000, 0., 1.0));
   add(h, new TH1F("indexnearest","index of nearest rec vertex", 20, 0., 20.));
+
   h["puritytag"]    = new TH1F("puritytag","purity of primary vertex tags",2, -0.5, 1.5);
   h["effvsptsq"]    = new TProfile("effvsptsq","efficiency vs ptsq",20, 0., 10000., 0, 1.);
   h["effvsnsimtrk"] = new TProfile("effvsnsimtrk","efficiency vs # simtracks",50, 0., 50., 0, 1.);
@@ -369,14 +383,14 @@ std::map<std::string, TH1*>  PrimaryVertexAnalyzer4PU::bookVertexHistograms(){
   add(h, new TProfile("zvsls","z vs ls",200, 0., 2000., -20., 20.));
   add(h, new TProfile("zbeamvsls","zbeam vs ls",200, 0., 2000., -20., 20.));
 
-  const int nbinzdiffrec=400.;
   add(h, new TH1F("zdiffrec","z-distance between vertices",nbinzdiffrec,-20., 20.));
+  add(h, new TH1F("zdiffrechr","z-distance between vertices",nbinzdiffrec,-2., 2.));
   add(h, new TH1F("zdiffrec2","z-distance between ndof>2 vertices",nbinzdiffrec,-20., 20.));
   add(h, new TH1F("zdiffrec3","z-distance between ndof>3 vertices",nbinzdiffrec,-20., 20.));
   add(h, new TH1F("zdiffrec4","z-distance between ndof>4 vertices",nbinzdiffrec,-20., 20.));
   add(h, new TH1F("zdiffrec4hr","z-distance between ndof>4 vertices",nbinzdiffrec,-2., 2.));
   add(h, new TH1F("zdiffrec4tag","z-distance tagged - other ndof>4 vertices",nbinzdiffrec,-20., 20.));
-  add(h, new TH1F("zdiffrec4taghr","z-distanc tagged - other ndof>4 vertices",nbinzdiffrec,-2., 2.));
+  add(h, new TH1F("zdiffrec4taghr","z-distance tagged - other ndof>4 vertices",nbinzdiffrec,-2., 2.));
   add(h, new TH1F("zdiffrec5","z-distance between ndof>5 vertices",nbinzdiffrec,-20., 20.));
   add(h, new TH1F("zdiffrec6","z-distance between ndof>6 vertices",nbinzdiffrec,-20., 20.));
   add(h, new TH1F("zdiffrec7","z-distance between ndof>7 vertices",nbinzdiffrec,-20., 20.));
@@ -396,6 +410,28 @@ std::map<std::string, TH1*>  PrimaryVertexAnalyzer4PU::bookVertexHistograms(){
   add(h, new TH2F("pzvspz2","prob(z) of multiple vertices",100, 0.,1.,100,0., 1.));
   add(h, new TH2F("zvszrec4","z positions of multiple vertices",100,-20., 20., 100,-20., 20.));
   add(h, new TH2F("pzvspz4","prob(z) of multiple vertices",100, 0.,1.,100,0., 1.));
+
+  add(h, new TH1F("dzreccentral","z-distance between vertices",100,0., 2.));
+  add(h, new TProfile("ndofcentral","<ndof> vs z-distance between vertices",100,0., 2., 0., 500.));
+  add(h, new TProfile("ndoflocentral","lower ndof vs z-distance between vertices",100,0., 2., 0., 500.));
+  add(h, new TProfile("ndofhicentral","higher ndof vs z-distance between vertices",100,0., 2., 0., 500.));
+  add(h, new TProfile("ndofsumcentral","sum of ndof vs z-distance between vertices",100,0., 2., 0., 500.));
+
+  add(h, new TProfile("n0dz","n vs dz ",200,0., 2., 0., 1.));
+  add(h, new TProfile("n1dz","n vs dz ",200,0., 2., 0., 1.));
+  add(h, new TProfile("n2dz","n vs dz ",200,0., 2., 0., 1.));
+  add(h, new TProfile("n3dz","n vs dz ",200,0., 2., 0., 1.));
+  add(h, new TProfile("n4dz","n vs dz ",200,0., 2., 0., 1.));
+  add(h, new TProfile("n0dz0","n vs dz ",200,0., 2., 0., 1.));
+  add(h, new TProfile("n1dz0","n vs dz ",200,0., 2., 0., 1.));
+  add(h, new TProfile("n2dz0","n vs dz ",200,0., 2., 0., 1.));
+  add(h, new TProfile("n3dz0","n vs dz ",200,0., 2., 0., 1.));
+  add(h, new TProfile("n4dz0","n vs dz ",200,0., 2., 0., 1.));
+
+  add(h, new TH2F("nc00","nc00",400, -2., 2., 400, -2., 2.));
+  add(h, new TH2F("nc10","nc10",400, -2., 2., 400, -2., 2.));
+  add(h, new TH2F("nc01","nc01",400, -2., 2., 400, -2., 2.));
+  add(h, new TH2F("nc11","nc11",400, -2., 2., 400, -2., 2.));
 
   add(h, new TH1F("zdiffsimmerge","z distance of merged or lost simulated vertices",100, -5., 5.));
   add(h, new TH1F("zdiffsimfound","z distance of found simulated vertices",1000, -10., 10));
@@ -508,23 +544,7 @@ std::map<std::string, TH1*>  PrimaryVertexAnalyzer4PU::bookVertexHistograms(){
   add(h, new TH2F("nbtksinvtx4vsL","reconstructed tracks in vertex(ndof>4)",50, 0., 2.5, 80,-0.5,79.5)); 
   add(h, new TH2F("Npixvsnrecvtx4","# of pixel clusters vs reconstructed vertices (ndof>4)",  30, -0.5, 29.5, 100, 0., 10000.));
   add(h, new TProfile("Npixvsnrecvtx4prof","# of pixel clusters vs reconstructed vertices(ndof>4)",  30, -0.5, 29.5, 0., 10000.));
-//   add(h, new TH2F("nrecvtx4vsNpix","# of reconstructed vertices vs npix", 100, 0., 10000., 30, -0.5, 29.5));
-//   const int nvbin=127;
-//   double xvbin[nvbin+1]={0,1,2,3,4,5,6,7,8,9,
-// 			 10,11,12,13,14,15,16,17,18,19,
-// 			 20,30,40,50,60,70,80,90,
-// 		             100, 200, 300, 400, 500, 600, 700, 800, 900,
-// 		       1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,
-// 		       2000,2100,2200,2300,2400,2500,2600,2700,2800,2900,
-// 		       3000,3100,3200,3300,3400,3500,3600,3700,3800,3900,
-// 		       4000,4100,4200,4300,4400,4500,4600,4700,4800,4900,
-// 		       5000,5100,5200,5300,5400,5500,5600,5700,5800,5900,
-// 		       6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,
-// 		       7000,7100,7200,7300,7400,7500,7600,7700,7800,7900,
-// 		       8000,8100,8200,8300,8400,8500,8600,8700,8800,8900,
-// 		       9000,9100,9200,9300,9400,9500,9600,9700,9800,9900,10000};
-//   //for(int i=0; i<nvbin; i++){ cout <<i << " " <<  xvbin[i] << " " << xvbin[i+1] << " " << (xvbin[i] < xvbin[i+1]) << endl; }
-//   add(h, new TProfile("nrecvtx4vsNpixprof","# of reconstructed vertices (ndof>4) vs npix", nvbin, xvbin, 0, 100));
+
 
   h["nsimtrk"]->StatOverflows(kTRUE);
   h["nsimtrkPU"]->StatOverflows(kTRUE);
@@ -1473,6 +1493,8 @@ void PrimaryVertexAnalyzer4PU::fillTrackHistos(std::map<std::string, TH1*> & h, 
       //
       int longesthit=0, nbarrel=0;
       for(trackingRecHit_iterator hit=t.recHitsBegin(); hit!=t.recHitsEnd(); hit++){
+	//bool valid=((**hit).getType()&0xf) ==0; // kludgde needed for reading 52 data with pre1?
+	//if (valid  && (**hit).geographicalId().det() == DetId::Tracker ){
 	if ((**hit).isValid()   && (**hit).geographicalId().det() == DetId::Tracker ){
 	  bool barrel = (**hit).geographicalId().subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
 	  //bool barrel = DetId::DetId((**hit).geographicalId()).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
@@ -2070,10 +2092,13 @@ std::vector< edm::RefToBase<reco::Track> >  PrimaryVertexAnalyzer4PU::getTruthMa
 
 
 
+
+
+
+
 /********************************************************************************************************/
 std::vector<PrimaryVertexAnalyzer4PU::SimEvent> PrimaryVertexAnalyzer4PU::getSimEvents
 (
- // const Event& iEvent, const EventSetup& iSetup,
  edm::Handle<TrackingParticleCollection>  TPCollectionH,
  edm::Handle<TrackingVertexCollection>  TVCollectionH,
  edm::Handle<View<Track> > trackCollectionH
@@ -2188,20 +2213,12 @@ std::vector<PrimaryVertexAnalyzer4PU::SimEvent> PrimaryVertexAnalyzer4PU::getSim
 
   
   //AdaptiveVertexFitter theFitter;
-  //cout << "SimEvents " << simEvt.size()  <<  endl;
   for(unsigned int i=0; i<simEvt.size(); i++){
 
     if(simEvt[i].tkprim.size()>0){
 
       getTc(simEvt[i].tkprimsel, simEvt[i].Tc, simEvt[i].chisq, simEvt[i].dzmax, simEvt[i].dztrim, simEvt[i].m4m2);
-//       TransientVertex v = theFitter.vertex(simEvt[i].tkprim, vertexBeamSpot_);
-//       if (v.isValid()){
-// 	simEvt[i].xfit=v.position().x();
-// 	simEvt[i].yfit=v.position().y();
-// 	simEvt[i].zfit=v.position().z();
       simEvt[i].zfit=-99;
-// 	//	if (simEvt[i].z<-80.){simEvt[i].z=v.position().z();} // for now
-//       }
     }else{
       simEvt[i].Tc=0; simEvt[i].chisq=0; simEvt[i].dzmax=0; simEvt[i].dztrim=0; simEvt[i].m4m2=0; simEvt[i].zfit=-99;
     }
@@ -2741,6 +2758,16 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
 
 
 
+  instBXLumi_= -1.;
+  edm::Handle<LumiDetails> lumiDetails;
+  if (iEvent.getLuminosityBlock().getByLabel("lumiProducer",lumiDetails)){
+    instBXLumi_ = lumiDetails->lumiValue(LumiDetails::kOCC1,iEvent.bunchCrossing());
+  }else{
+    // cout << "no lumi ?" << endl;
+  }
+  
+
+
  
   // for the associator
   Handle<View<Track> > trackCollectionH;
@@ -2869,7 +2896,7 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
 
 
   hsimPV["nsimvtx"]->Fill(simpv.size());
-  cerr << "Timecheck> "<< event_ << " " << run_ <<" "   << simpv.size() << endl;
+  //cerr << "Timecheck> "<< event_ << " " << run_ <<" "   << simpv.size() << endl;
   for(std::vector<simPrimaryVertex>::iterator vsim=simpv.begin();
        vsim!=simpv.end(); vsim++){
     if(vsim->type==1){
@@ -2925,7 +2952,9 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
     }
   }
 
-  compare(simEvt);
+  if( (nCompareCollections_<0) || (eventcounter_< nCompareCollections_) ){
+    compareCollections(simEvt, simpv );
+  }
 
   // print summary info 
   if((dumpThisEvent_ && (dumpcounter_<ndump_)) ||(verbose_ && (eventcounter_<ndump_)) ||(autoDumpCounter_-->0)){
@@ -3085,16 +3114,21 @@ void PrimaryVertexAnalyzer4PU::printEventSummary(std::map<std::string, TH1*> & h
 
 
 /***************************************************************************************/
-void PrimaryVertexAnalyzer4PU::compare(vector<SimEvent> & simEvt){
+void PrimaryVertexAnalyzer4PU::compareCollections(vector<SimEvent> & simEvt, std::vector<simPrimaryVertex> & simpv){
+/***************************************************************************************
+prints a side-by-side comparison of the selected vertex collections
+simulated vertices are shown if they are available
+***************************************************************************************/
+  
 
-  if (simEvt.size()==0){return;}// FIXME, may also be useful to compare pure reco collections
+  bool debug=false;
 
   unsigned int ncoll=vertexCollectionLabels_.size();
  
-  cout << "----compare-----------------------" << endl;
+  cout << "----compareCollections------------------------" << endl;
   cout << "event counter = " << eventcounter_ << "   ";
   cout << "run " << run_ << "    event " << event_ << endl;
-  cout << "---------------------------" << endl;
+  cout << "----------------------------------------------" << endl;
   
   cout << setw(15) <<  "   simulated    ";
 
@@ -3109,92 +3143,283 @@ void PrimaryVertexAnalyzer4PU::compare(vector<SimEvent> & simEvt){
   int differences=0;
 
   // build the table
-  vector< pair<double, pair<int, int> > > row;  // < z :  <collection, idx> >  (collection=-1 == MC)
   
-  // fill in sim vertices
-  unsigned int suppressed=0;
-  for(unsigned int idx=0; idx<simEvt.size(); idx++){
-    if(simEvt[idx].nChTP>0){
-      row.push_back( make_pair(simEvt[idx].z, make_pair(-1, idx) ));
-    }else{
-      suppressed++;
+  //typedef pair< double, vector< int > > row_t;
+  vector< pair< double,  int  * > > row;  
+
+
+  // if we don't have simEvt with truth matching (TrackingParticles)
+  // put in sim vertices
+  if(simEvt.size()==0){
+    for(unsigned int idx=0; idx<simpv.size(); idx++){
+      int * v = new int[ncoll+1];
+      for(unsigned int j=0; j<ncoll+1; j++){v[j]=-1;}
+      v[ncoll]=idx;
+      row.push_back( make_pair(simpv[idx].z, v ) );
     }
-      
   }
 
-  // fill in unmatched rec vertices
+  // unmatched rec vertices from all collections
   for(unsigned int icol=0; icol<ncoll; icol++){
     reco::VertexCollection * recVtxs = recVtxs_[vertexCollectionLabels_[icol]];
     if (recVtxs){
       for(unsigned int idx=0; idx<recVtxs->size(); idx++){
 	if(recvmatch_[vertexCollectionLabels_[icol]][idx].sim<0){
-	  row.push_back( make_pair( recVtxs->at(idx).z(), make_pair(icol, idx) ) );
+	  int * v = new int[ncoll+1];
+	  for(unsigned int j=0; j<ncoll+1; j++){v[j]=-1;}
+	  v[icol]=idx;
+	  row.push_back( make_pair( recVtxs->at(idx).z(), v));
 	}
       }
     }
   }
-    // sort  the whole thing
-  stable_sort(row.begin(), row.end());
 
 
-  for(unsigned int irow=0; irow<row.size(); irow++){
-    double z=row[irow].first;
-    int icol=row[irow].second.first;
-    int idx0=row[irow].second.second;
-    unsigned int nrec=0;
-    if(icol<0){
-      // sim vertex, print it with the matched recvertices
-      cout << fixed << setw(10) << setprecision(4) << z << " [" 
-	   << setw(3) << simEvt[idx0].nChTP << ","
-	   << setw(3) << simEvt[idx0].tk.size() << "]";
-      if(idx0==0){ cout << "*" ;}else{ cout << " ";}
+  if(row.size()>1){
+
+    if(debug){
+      cout << "dump    size="<< row.size() <<endl;
+      for(unsigned int irow=0; irow<row.size(); irow++){
+	cout << setw(2) << irow << ")";
+	cout << setw(8)<< setprecision(4)  << fixed << row[irow].first;
+	if(row[irow].second==NULL) continue;
+	for(unsigned int i=0; i<ncoll+1; i++){
+	  cout << setw(6) << row[irow].second[i];
+	}
+	cout << endl;
+      }
+      cout <<endl;
+    }
+    
+
+    // join rows
+    int join=0;
+    while(join>=0){
+      if(row.size()>1) {stable_sort(row.begin(), row.end());}
+      
+      if(debug){
+	cout << "dump before joining  size="<< row.size() <<endl;
+	for(unsigned int irow=0; irow<row.size(); irow++){
+	  cout << setw(2) << irow << ")";
+	  cout << setw(8)<< setprecision(4)  << fixed << row[irow].first;
+	  if( !(row[irow].second==NULL)){
+	    for(unsigned int i=0; i<ncoll+1; i++){
+	      cout << setw(6) << row[irow].second[i];
+	    }
+	  }
+	  cout << endl;
+	}
+	cout <<endl;
+      }
+      
+      double dzmin=0.1;
+      join=-1;
+      for(unsigned int irow=0; irow<row.size()-1; irow++){
+	if( (row[irow].second==NULL) || (row[irow+1].second==NULL) )continue;
+	if( (row[irow+1].first-row[irow].first)<dzmin){
+	  bool joinable=true;
+	  for(unsigned int i=0; i<ncoll+1; i++){
+	    if( (row[irow].second[i]>=0) && (row[irow+1].second[i]>=0) ) joinable=false;
+	  }
+	  if (joinable){
+	    join=irow;
+	    dzmin=fabs(row[irow+1].first-row[irow].first);
+	  }
+	}
+      }
+      
+      if(join>=0){
+	if(debug) cout << "joining " << join << endl;
+	if( (row[join].second==NULL) || (row[join+1].second==NULL) ){cout << " bad join=" << join << endl;}
+	if(join>=int(row.size())){ cout << " row pointers screwed up " << join << "   " << row.size() << endl;}
+	//join
+	for(unsigned int i=0; i<ncoll+1; i++){
+	  if( (row[join].second[i]<0) && (row[join+1].second[i]>=0) ){ 
+	    row[join].second[i] = row[join+1].second[i];
+	    if(i==ncoll) row[join].first=row[join+1].first;
+	  }
+	}
+	
+	//row z
+	if (row[join].second[ncoll]<0){
+	  double zrow=0; int nv=0;
+	  for(unsigned int i=0; i<ncoll; i++){
+	    int iv=row[join].second[i];
+	    if(iv>int(recVtxs_[vertexCollectionLabels_[i]]->size())) {cout << "illegal vertex index "<< iv << "    join=" << join << endl; }
+	    if (iv>=0){
+	      reco::VertexCollection * recVtxs = recVtxs_[vertexCollectionLabels_[i]];
+	      zrow+=recVtxs->at(iv).z();
+	      nv++;
+	    }
+	  }
+	  if(nv>0){
+	    row[join].first=zrow/nv;
+	  }else{
+	    // hmmm
+	  }
+	}
+	//delete swallowed row
+	if(debug) cout  << "deleting row " << join+1 << "  row size= " << row.size() <<  "  ncoll= " << ncoll << endl;
+	delete [] row[join+1].second;
+	row[join+1].second=NULL;
+	row.erase(row.begin()+(join+1));
+
+	if(debug){
+	  cout << "dump after joining  "<< join << " with " << join+1 <<endl;
+	  for(unsigned int irow=0; irow<row.size(); irow++){
+	    cout << setw(2) << irow << ")";
+	    cout << setw(8)<< setprecision(4)  << fixed << row[irow].first;
+	    if( !(row[irow].second==NULL)){
+	      for(unsigned int i=0; i<ncoll+1; i++){
+		cout << setw(6) << row[irow].second[i];
+	    }
+	    }
+	    cout << endl;
+	  }
+	  cout <<endl;
+	}
+
+      }
+    }
+    
+    if(debug){
+      cout << "dump after joining  size="<< row.size() <<endl;
+      for(unsigned int irow=0; irow<row.size(); irow++){
+	cout << setw(2) << irow << ")";
+	cout << setw(8)<< setprecision(4)  << fixed << row[irow].first;
+	if( !(row[irow].second==NULL)){
+	  for(unsigned int i=0; i<ncoll+1; i++){
+	    cout << setw(6) << row[irow].second[i];
+	  }
+	}
+	cout << endl;
+      }
+      cout <<endl;
+    }
+    
+  }// handle un-matched vertices and simpv's
+
+
+
+  // fill in sim vertices and matched rec vertices
+  unsigned int suppressed=0;
+  for(unsigned int idx=0; idx<simEvt.size(); idx++){
+    if(simEvt[idx].nChTP>0){
+      int * v = new int[ncoll+1];
+      for(unsigned int j=0; j<ncoll+1; j++){v[j]=-1;}
       for( unsigned int jcol=0; jcol<ncoll; jcol++){
 	reco::VertexCollection * recVtxs = recVtxs_[vertexCollectionLabels_[jcol]];
-	if (recVtxs==NULL) continue;
-	int nm=0;
-	for(unsigned int idx=0; idx<recVtxs->size(); idx++){
-	  if(recvmatch_[vertexCollectionLabels_[jcol]][idx].sim==idx0){
-	    cout << fixed << setw(10) << setprecision(4) << recVtxs->at(idx).z()
-		 << " (" << setw(5)<< setprecision(1) << recVtxs->at(idx).ndof()  << ")";
-	    nm++;
-	    nrec++;
+	if ( !(recVtxs==NULL)){
+	  int i=-1;
+	  for(unsigned int j=0; j<recVtxs->size(); j++){
+	    if(recvmatch_[vertexCollectionLabels_[jcol]][j].sim==int(idx)){
+	      i=j;
+	    }
 	  }
-	}
-	if(nm==0){
-	  cout << "       -          ";
+	  v[jcol]=i;
 	}
       }
-      if((nrec>0)&&(nrec<ncoll)){ differences++;}
+      v[ncoll]=idx; // the sim vertex
+      row.push_back(make_pair(simEvt[idx].z, v));
+    }else{
+      suppressed++;
+    }
+  }
 
+
+  if(row.size()>1){  stable_sort(row.begin(), row.end()); }
+
+  if(debug){
+    cout << "final dump  size="<< row.size() <<endl;
+    for(unsigned int irow=0; irow<row.size(); irow++){
+      cout << setw(2) << irow << ")";
+      cout << setw(8)<< setprecision(4)  << fixed << row[irow].first;
+      if(!(row[irow].second==NULL)){
+	for(unsigned int i=0; i<ncoll+1; i++){
+	  cout << setw(6) << row[irow].second[i];
+	}
+      }
+      cout << endl;
+    }
+    cout <<endl;
+    cout << "done" << endl;
+  }
+
+  // readable dump
+  for(unsigned int irow=0; irow<row.size(); irow++){
+    
+    if(row[irow].second==NULL) continue;
+
+    double z=row[irow].first;
+    //bool fake=false;
+
+    int * v=row[irow].second;
+    int idx0=v[ncoll];
+    //    cout << idx0 << endl;
+
+    if(idx0<0){
+      // no sim vertex
+      cout << "%                    ";
+      //fake=true;
     }else{
 
-      // no sim vertex for a recvertex
-      cout << "                     ";
-      unsigned int skipto=irow;
-      // collect entries from different collections
-      for( unsigned int jcol=0; jcol<ncoll; jcol++){
-	unsigned int jrow=irow;
-	bool found=false;
-	while( (jrow<row.size()) && (row[jrow].second.first>=0)  && (fabs(row[jrow].first-z)<0.1)){
-	  skipto=jrow;
-	  if(int(jcol)==int(row[jrow].second.first)){
-	    reco::VertexCollection * recVtxs = recVtxs_[vertexCollectionLabels_[jcol]];
-	    cout << fixed << setw(10) << setprecision(4) << row[jrow].first;
-	    cout  << " (" << setw(5)<< setprecision(1) << recVtxs->at(row[jrow].second.second).ndof()  << ")";
-	    found=true;
-	    nrec++;
-	  }
-	  jrow++;
+      if(simEvt.size()>0){
+	// sim vertex
+	cout << fixed << setw(10) << setprecision(4) << z << " [" 
+	     << setw(3) << simEvt[idx0].nChTP << ","
+	     << setw(3) << simEvt[idx0].tk.size() << "]";
+	if(idx0==0){ cout << "*" ;}else{ cout << " ";}
+      }else{
+	cout << fixed << setw(10) << setprecision(4) << z << " [" 
+	     << setw(3) << simpv[idx0].nGenTrk << "]    ";
+	if(idx0==0){ cout << "*" ;}else{ cout << " ";}
+      }
+
+    }
+
+    // count collections that  have a rec vertex for this sim vertex (for reporting)
+    unsigned int nrec=0;
+    for( unsigned int jcol=0; jcol<ncoll; jcol++){
+      if(v[jcol]>=0){nrec++;}
+    }
+    if((nrec>0)&&(nrec<ncoll)){ differences++;}
+
+
+    for( unsigned int jcol=0; jcol<ncoll; jcol++){
+      int idx=v[jcol];
+      if(idx>=0){
+	reco::VertexCollection * recVtxs = recVtxs_[vertexCollectionLabels_[jcol]];
+	if (! (recVtxs==NULL)){
+	  cout << fixed << setw(10) << setprecision(4) << recVtxs->at(idx).z()
+	       << " (" << setw(5)<< setprecision(1) << recVtxs->at(idx).ndof()  << ")";
+	}else{
+	  cout << "                  ";
 	}
-	if(!found){
+      }else{
+	if(idx0<0){
+	  // no sim vertex, "fake not not found" (found by others)
 	  cout << "       +          ";
+	}else{
+	  if(nrec==0){
+		cout << "       -          ";
+	  }else{
+	    cout << "      ---         ";// missed one (found by others)
+	  }
 	}
       }
-      irow=skipto;
-      if(nrec<ncoll){ differences++;}
     }
     cout << endl;
   }
+
+
+  for(unsigned int irow=0; irow<row.size(); irow++){
+    
+    if( !(row[irow].second==NULL)){
+      delete [] row[irow].second;
+      row[irow].second=NULL;
+    }
+  }
+
 
   if(differences>0){cout << "the collections differ,  " << differences << "  differences " << endl;}
   if(suppressed>0){cout << suppressed << "  sim vertices without tracker hits suppressed " << endl;}
@@ -3204,138 +3429,6 @@ void PrimaryVertexAnalyzer4PU::compare(vector<SimEvent> & simEvt){
 
 
 
-
-/***************************************************************************************/
-void PrimaryVertexAnalyzer4PU::compare(std::vector<simPrimaryVertex> & simpv){
-
-  if (simpv.size()==0) return;
-//   struct Sim{
-//     unsigned int idx;
-//     map<unsigned int, unsigned int> rec;
-//   };
-
-//   // sort all vertices in z
-//   vector< pair<double, Sim >   z;
-//   for(unsigned int idx=0; idx<simpv.size(); idx++){
-//     Sim sim;
-//     sim.idx=idx;
-//     sim.rec.clear();
-//     zsimv.push_back(make_pair(simpv[idx].z, sim));
-//   }
-
-//   int icol=0;
-//   for(std::vector<std::string>::const_iterator vCollection=vertexCollectionLabels_.begin(); 
-//       vCollection!=vertexCollectionLabels_.end(); vCollection++){
-//     for(unsigned int idx=0; idx<recVtxs_[*vCollection]->size(); idx++){
-//       zrecv.push_back( make_pair(recVtxs_[*vCollection]->at(idx).z(),make_pair(icol, idx) ));
-//     }
-//     icol++;
-//   }
-//   stable_sort(z.begin(), z.end(),lt);
-
-
-//   vector< pair<double, vector<pair<int, unsigned int> > >  z;
-
-//   cout << "---------------------------" << endl;
-//   cout << "event counter = " << eventcounter_ << "   " << message << endl;
-//   cout << "run " << run_ << "    event " << event_ << endl;
-//   cout << "---------------------------" << endl;
-
-
-
-//  for(std::vector<std::string>::const_iterator vCollection=vertexCollectionLabels_.begin(); 
-//      vCollection!=vertexCollectionLabels_.end(); vCollection++){
-//   vector< pair<double,unsigned int> >  zrecv;
-//   for(unsigned int idx=0; idx<recVtxs->size(); idx++){
-//     zrecv.push_back( make_pair(recVtxs->at(idx).z(),idx) );
-//   }
-//   stable_sort(zrecv.begin(),zrecv.end(),lt);
-   
-//  }
-
-
- 
-
-
-
-//   unsigned int idxrec=0;
-//   unsigned int idxsim=0;
-//   double zmatch=0.05;
-//   cout.precision(4);
-
-//   cout << "  rec " <<  "             "  <<  " sim " << endl;
-//   while((idxrec<recVtxs->size())||(idxsim<simpv.size())){
-
-//     string signal=" ";
-//     string tag=" ";
-//     if ((idxsim<simpv.size()) && (zsimv[idxsim].second==0)){
-//       signal="*";
-//     }
-//     if ((idxrec<recVtxs->size()) && (zrecv[idxrec].second==0)){
-//       tag="*";
-//     }
-
-//     double ndof=0;
-//     if(idxrec<recVtxs->size()){
-//       ndof=recVtxs->at(zrecv[idxrec].second).ndof();
-//     }
-
-//     if( (idxrec<recVtxs->size()) && (idxsim<simpv.size()) 
-// 	&& (abs(zrecv[idxrec].first-zsimv[idxsim].first)<(zmatch+recVtxs->at(zrecv[idxrec].second).zError()))
-// 	&& (((idxsim+1)==simpv.size())||(fabs(zrecv[idxrec].first-zsimv[idxsim].first)<fabs(zrecv[idxrec].first-zsimv[idxsim+1].first)))
-// 	&& (((idxrec+1)==recVtxs->size())||(fabs(zrecv[idxrec].first-zsimv[idxsim].first)<fabs(zrecv[idxrec+1].first-zsimv[idxsim].first)))
-// 	){
-//       cout <<  setw(8) <<  setprecision(4) << fixed << zrecv[idxrec].first << tag
-// 	   <<"   <->    " <<setw(8) << fixed <<  zsimv[idxsim].first
-// 	   << signal
-// 	   << setw(4) <<  simpv[zsimv[idxsim].second].nGenTrk
-//       << " (ndof=" << fixed << setw(5)  << setprecision(1) << ndof  << ")" ;
-//       if(zsimv[idxsim].second==0){
-// 	if(tag==" "){ 
-// 	  cout << "  signal vertex not tagged" << endl;
-// 	}else{
-// 	  cout << "  signal vertex found and tagged" << endl;
-// 	}
-//       }else{
-// 	cout << endl;
-//       }
-
-
-//       idxrec++;
-//       idxsim++;
-
-//     }else if (   ((idxrec<recVtxs->size()) && (idxsim<simpv.size())&& (zrecv[idxrec].first<zsimv[idxsim].first))
-// 	      || ((idxrec<recVtxs->size()) && (idxsim==simpv.size())) ){
-//       //if ((ndof>4)&&(zrecv[idxrec].first<-0.5)&&(zrecv[idxrec].first>-1.)){ cout << "FFFake " << message << endl; dumpThisEvent_=true;}
-//       //if (ndof>4){ dumpThisEvent_=true;}
-//       cout <<  setw(8) << setprecision(4) << fixed << zrecv[idxrec].first << tag
-// 	   << "                      "
-// 	   << "  (ndof=" << fixed << setw(5)  << setprecision(1) << ndof  << ")" 
-// 	   << "   fake " << endl;
-//       idxrec++;
-
-//     }else if (    ((idxrec<recVtxs->size()) && (idxsim<simpv.size()) && (zrecv[idxrec].first>zsimv[idxsim].first))
-// 	       || ((idxrec==recVtxs->size()) && (idxsim<simpv.size())) ){
-//       cout << "         " <<  "   <->    " <<  setw(8) << setprecision(4) << fixed << zsimv[idxsim].first 
-// 	   << signal
-// 	   << setw(4) <<  simpv[zsimv[idxsim].second].nGenTrk;
-//       if (simpv[zsimv[idxsim].second].nGenTrk>2){
-// 	if(zsimv[idxsim].second==0){
-// 	   cout << "                lost signal vertex" << endl;
-// 	}else{
-// 	   cout << "                lost PU" << endl;
-// 	}
-//       }else{
-// 	cout<< endl;
-//       }
-//       idxsim++;
-//     }else{
-// 		    cout << "what else?" << endl;	
-// 		    break;
-//     }
-//   }
-}
-/***************************************************************************************/
 
 
 
@@ -3430,7 +3523,7 @@ void PrimaryVertexAnalyzer4PU::printEventSummary(std::map<std::string, TH1*> & h
 
     nmatch[itsim->second]=0;  // highest number of truth-matched tracks of ev found in a recvtx
     wnmatch[itsim->second]=0;  // highest sum of weights of truth-matched tracks of ev found in a recvtx
-    double matchpurity=0,matchwpurity=0;//,matchpurity2=0;
+    double matchpurity=0;//,matchwpurity=0;//,matchpurity2=0;
 
 
     // compare this sim vertex to all recvertices:
@@ -3449,7 +3542,11 @@ void PrimaryVertexAnalyzer4PU::printEventSummary(std::map<std::string, TH1*> & h
 	   if(RTe.vz()==RTv.vz()) {n++; wt+=v->trackWeight(*tv);}
 	}
       }
-      cout << setw(7) << int(n)<< " ";
+      if(n>0){
+	cout << setw(7) << int(n)<< " ";
+      }else{
+	cout << "        ";
+      }
 
       // consider for matching if reasonably close in z
       double deltaz=fabs(v->z()-itsim->first);
@@ -3460,7 +3557,7 @@ void PrimaryVertexAnalyzer4PU::printEventSummary(std::map<std::string, TH1*> & h
 	  rvmatch[itsim->second]=itrec->second;
 	  //matchpurity2=matchpurity;
 	    matchpurity=n/truthMatchedVertexTracks[itrec->second];
-	    matchwpurity=wt/truthMatchedVertexTracks[itrec->second];
+	    //matchwpurity=wt/truthMatchedVertexTracks[itrec->second];
 	}
 	
 	if(n > purity[itrec->second]){
@@ -3713,7 +3810,8 @@ std::vector<PrimaryVertexAnalyzer4PU::RSmatch>  PrimaryVertexAnalyzer4PU::tpmatc
   for(unsigned int iv=0; iv<recVtxs->size(); iv++){
     if ((recvmatch[iv].sim<0)&&(recvmatch[iv].maxwos>0)){
       unsigned int cand=recvmatch[iv].wosmatch;
-      if((simEvt.at(cand).rec<0)&&(simEvt.at(cand).nwosmatch==1)){
+      if((simEvt.at(cand).rec<0)&&(simEvt.at(cand).nwosmatch==1)
+	 &&(fabs(simEvt.at(cand).z-recVtxs->at(iv).z())<1.0 ))  {  // reject insanely misreconstructed  vertices
 	recvmatch[iv].matchQuality=1;
 	recvmatch[iv].sim=cand;
 	simEvt.at(cand).rec=iv;
@@ -3728,9 +3826,7 @@ std::vector<PrimaryVertexAnalyzer4PU::RSmatch>  PrimaryVertexAnalyzer4PU::tpmatc
     if((simEvt.at(iev).rec<0)&&(simEvt.at(iev).nwosmatch>1)){
       unsigned int nt=0, iv=0;
       for(map<unsigned int,unsigned int>::iterator rv=simEvt.at(iev).recvnt.begin(); rv!=simEvt.at(iev).recvnt.end(); rv++){
-	//cout << (*rv).first << " (" << setw(8) << setprecision(4) << recVtxs->at((*rv).first).z() 
-	//     << ") :" << setw(2) << (*rv).second << "       "  << iv << ", " << nt << endl;
-	if( (*rv).second > nt)  {
+	if( ((*rv).second > nt) && (fabs(simEvt.at(iev).z-recVtxs->at((*rv).first).z())<1.0 )) {
 	  nt=(*rv).second;
 	  iv=(*rv).first;
 	}
@@ -3747,38 +3843,74 @@ std::vector<PrimaryVertexAnalyzer4PU::RSmatch>  PrimaryVertexAnalyzer4PU::tpmatc
   }
 
 
-
   // second chance, track counting match
   for(unsigned int iv=0; iv<recVtxs->size(); iv++){
     if ((recvmatch[iv].sim<0)&&(recvmatch[iv].maxnt>0)){
       unsigned int cand=recvmatch[iv].ntmatch;
-      if((simEvt.at(cand).rec<0)&&(simEvt.at(cand).nntmatch==1)){
+      if((simEvt.at(cand).rec<0)&&(simEvt.at(cand).nntmatch==1)
+	 &&(fabs(simEvt.at(cand).z-recVtxs->at(iv).z())<1.0 ))  {  // reject insanely misreconstructed  vertices
 	recvmatch[iv].matchQuality=5;
 	recvmatch[iv].sim=cand;
 	simEvt.at(cand).rec=iv;
 	simEvt.at(cand).matchQuality=5;
-      }else if((simEvt.at(cand).rec<0)&&(simEvt.at(cand).nntmatch>1)){
- 	// two rec vertices are dominated by one sim vertex, assign the one with more tracks
-	for(unsigned int jv=0; jv<recVtxs->size(); jv++){
-	  if((recvmatch[jv].sim<0)&&(recvmatch[jv].maxnt>0)&&(recvmatch[jv].ntmatch==cand)){
-	    if((recvmatch[jv].maxnt>recvmatch[iv].maxnt)){ 
-	      recvmatch[jv].matchQuality=6;
-	      recvmatch[iv].matchQuality=99;
-	      recvmatch[jv].sim=cand;
-	      simEvt.at(cand).rec=iv;
-	      simEvt.at(cand).matchQuality=6;
-	    }else{
-	      recvmatch[iv].matchQuality=6;
-	      recvmatch[jv].matchQuality=99;
-	      recvmatch[iv].sim=cand;
-	      simEvt.at(cand).rec=iv;
-	      simEvt.at(cand).matchQuality=6;
- 	    }
-	  }
-	}
       }
     }
   }
+
+
+  // when two or more rec vertices are dominated by one sim vertex, assign the rec vertex with more tracks (from that sim vertex) to the sim
+  for(unsigned int iev=0; iev<simEvt.size(); iev++){
+    if((simEvt.at(iev).rec<0)&&(simEvt.at(iev).nntmatch>1)){
+      unsigned int nt=0, iv=0;
+      for(map<unsigned int,unsigned int>::iterator rv=simEvt.at(iev).recvnt.begin(); rv!=simEvt.at(iev).recvnt.end(); rv++){
+	if( (*rv).second > nt)  {
+	  nt=(*rv).second;
+	  iv=(*rv).first;
+	}
+      }
+      if(nt>0){
+	recvmatch[iv].matchQuality=6;
+	recvmatch[iv].sim=iev;
+	simEvt.at(iev).rec=iv;
+	simEvt.at(iev).matchQuality=6;
+      }else{
+	cout << "BUG" << endl;
+      }
+    }
+  }
+
+
+//   // second chance, track counting match
+//   for(unsigned int iv=0; iv<recVtxs->size(); iv++){
+//     if ((recvmatch[iv].sim<0)&&(recvmatch[iv].maxnt>0)){
+//       unsigned int cand=recvmatch[iv].ntmatch;
+//       if((simEvt.at(cand).rec<0)&&(simEvt.at(cand).nntmatch==1)){
+// 	recvmatch[iv].matchQuality=5;
+// 	recvmatch[iv].sim=cand;
+// 	simEvt.at(cand).rec=iv;
+// 	simEvt.at(cand).matchQuality=5;
+//       }else if((simEvt.at(cand).rec<0)&&(simEvt.at(cand).nntmatch>1)){
+//  	// two rec vertices are dominated by one sim vertex, assign the one with more tracks
+// 	for(unsigned int jv=0; jv<recVtxs->size(); jv++){
+// 	  if((recvmatch[jv].sim<0)&&(recvmatch[jv].maxnt>0)&&(recvmatch[jv].ntmatch==cand)){
+// 	    if((recvmatch[jv].maxnt>recvmatch[iv].maxnt)){ 
+// 	      recvmatch[jv].matchQuality=6;
+// 	      recvmatch[iv].matchQuality=99;
+// 	      recvmatch[jv].sim=cand;
+// 	      simEvt.at(cand).rec=iv;
+// 	      simEvt.at(cand).matchQuality=6;
+// 	    }else{
+// 	      recvmatch[iv].matchQuality=6;
+// 	      recvmatch[jv].matchQuality=99;
+// 	      recvmatch[iv].sim=cand;
+// 	      simEvt.at(cand).rec=iv;
+// 	      simEvt.at(cand).matchQuality=6;
+//  	    }
+// 	  }
+// 	}
+//       }
+//     }
+//   }
 
 
 
@@ -3841,6 +3973,7 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollectionTP(std::map<std::string, T
   //
   unsigned int ntpfake=0;
   unsigned int ntpfake4=0;
+  unsigned int ntpfound=0, ntpfound4=0;
   for(unsigned int iv=0; iv<recVtxs->size(); iv++){
     unsigned int q=recvmatch[iv].matchQuality;
     double z=recVtxs->at(iv).z();
@@ -3876,10 +4009,44 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollectionTP(std::map<std::string, T
 	      << std::endl;
     }else{
       Fill(h, "vtxcxy2Matched", c2xy);
+      ntpfound++;
+      if(recVtxs->at(iv).ndof()>4){ ntpfound4++;}
     }
+
+    for(unsigned int jv=0; jv<recVtxs->size(); jv++){
+      if(!(jv==iv)){
+	unsigned int q2=recvmatch[jv].matchQuality;
+	if((q2>0)&&(q2<99)&&(q2>0)&&(q2<99)){
+	  Fill(h, "zdiffrec4found", recVtxs->at(iv).z()- recVtxs->at(jv).z());
+	}else{
+	  Fill(h, "zdiffrec4fake", recVtxs->at(iv).z()- recVtxs->at(jv).z());
+	}
+      }
+    }
+
   }
   Fill(h, "ntpfake", float(ntpfake));
   Fill(h, "ntpfake4", float(ntpfake4));
+  Fill(h, "ntpfound", float(ntpfound));
+  Fill(h, "ntpfound4", float(ntpfound4));
+
+  for(unsigned int iev=0; iev<simEvt.size(); iev++){
+    float w=0.;
+    if(simEvt.at(iev).rec>=0){
+      w=1.;
+    }
+    Fill(h, "effvsnrectp", float(simEvt.at(iev).tk.size()), w);
+    Fill(h, "effvsngentp", float(simEvt.at(iev).nChTP), w);
+    if((w==0)&&(simEvt.at(iev).tk.size()>20)){
+      cout << "Houston " << iev << "  z=" << simEvt.at(iev).z << " ntk=" << simEvt.at(iev).tk.size() << "  nChTP=" <<  simEvt.at(iev).tk.size();
+      cout << message << endl;
+	dumpThisEvent_=true;
+    }
+    if(iev==0){
+      Fill(h, "effsigvsnrectp", float(simEvt.at(iev).tk.size()), w);
+      Fill(h, "effsigvsngentp", float(simEvt.at(iev).nChTP), w);
+    }
+  }
 
 
   for(vector<SimEvent>::iterator ev=simEvt.begin(); ev!=simEvt.end(); ev++){
@@ -3932,6 +4099,12 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollectionTP(std::map<std::string, T
     
   }
 
+
+  /*****************  this code is obsolete *************************
+      use recvmatch[iv]    to find the sim vertex matched to a rec vertex
+      use simEvt.rec       to find the rec vertex matched to a sim vertex
+  */
+ 
   // --------------------------------------- fill the track assignment matrix ----------------------
   for(vector<SimEvent>::iterator ev=simEvt.begin(); ev!=simEvt.end(); ev++){
     ev->ntInRecVz.clear();  // just in case
@@ -4000,7 +4173,6 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollectionTP(std::map<std::string, T
       // note: sometimes fakes are not really fakes because the "main" vertex was swallowed by a neighbor
       nfake++;
       if( v->ndof()>4) {nfake4++;}
-      if (v->ndof()>6){ cout << "FAKE " << message << " matchedbyw=" << matchedw <<  endl; dumpThisEvent_=true;}
       cout << " fake rec vertex at z=" <<  setprecision(4) << v->z() << "+/-" << v->zError() << setprecision(2)  <<  "   chi2 ="<< v->chi2() << "   ndof="<< v->ndof() << " w=";
       for(trackit_t t=v->tracks_begin(); t!=v->tracks_end(); t++){ 
 	cout << setw(4) << setprecision(2) << v->trackWeight(*t) << " ";
@@ -4952,7 +5124,9 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
 
   //  properties of (valid) vertices
   double ndof2=-10,ndof1=-10, zndof1=0, zndof2=0;
-
+  unsigned int zcentral4[400]={0};
+  unsigned int zcentral0[400]={0};
+  
   for(reco::VertexCollection::const_iterator v=recVtxs->begin(); 
       v!=recVtxs->end(); ++v){
     if(v->isFake()){ Fill(h,"isFake",1.);}else{ Fill(h,"isFake",0.);}
@@ -5122,6 +5296,8 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
       }
     }// ndof>5
 
+
+
     if(v->ndof()>8){
       Fill(h,"xrec8",v->position().x());
       Fill(h,"yrec8",v->position().y());
@@ -5170,6 +5346,14 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
 //       TransientTrack  tt = theB_->build(*t);
 //     }
 
+    double z0=v->position().z()-vertexBeamSpot_.z0();
+    if (fabs(z0)<2.){
+      unsigned int vbin=int(100.*(z0+2.));
+      if(vbin<400){
+	zcentral0[vbin]++;
+	if(v->ndof()>4)zcentral4[vbin]++;
+      }
+    }
         
     //  properties of (valid) neighbour vertices
     reco::VertexCollection::const_iterator v1=v;     v1++;
@@ -5177,14 +5361,31 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
       if((v1->isFake())||(v1->ndof()<-1)) continue;
       npair_++;
       Fill(h,"zdiffrec",v->position().z()-v1->position().z());
+      Fill(h,"zdiffrechr",v->position().z()-v1->position().z());
 
 
-      double z0=v->position().z()-vertexBeamSpot_.z0();
       double z1=v1->position().z()-vertexBeamSpot_.z0();
-      
+
       // lower ndof of the pair
       double ndoflow=v1->ndof();
-      if(v1->ndof()>v->ndof()) ndoflow=v->ndof();
+      double ndofhi=v->ndof();
+      if(v1->ndof()>v->ndof()){
+	ndofhi=v1->ndof();
+	ndoflow=v->ndof();
+      }else{
+	ndofhi=v->ndof();
+	ndoflow=v1->ndof();
+      }
+      
+      // central vertices, avoid acceptance issues
+      if ((ndoflow>4)&&(fabs(z0)<1.)){
+	Fill(h, "dzreccentral", fabs(z0-z1));
+	Fill(h, "ndofcentral",   fabs(z0-z1), v->ndof());
+	Fill(h, "ndoflocentral", fabs(z0-z1), ndoflow);
+	Fill(h, "ndofhicentral", fabs(z0-z1), ndofhi);
+	Fill(h, "ndofsumcentral", fabs(z0-z1), ndofhi+ndoflow);
+      }
+
 
       double zbar=0.5*(z1+z0);
       double zbarp=(0.5*(z1+z0)-vertexBeamSpot_.z0())/sigmaZ_;
@@ -5229,6 +5430,7 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
 	  Fill(h,"zdiffrec4tag",z1-z0);
 	  Fill(h,"zdiffrec4taghr",z1-z0);
 	}
+
       }
       
       if ((v->ndof()>5) && (v1->ndof()>5)){
@@ -5278,103 +5480,51 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
     }						
     if(fabs(deltaz)>2.0) Fill(h,"vtxndfIso",v->ndof());
     
-//     // test track links, use reconstructed vertices
-//     bool problem = false;
-//     Fill(h,"nans",1.,isnan(v->position().x())*1.);
-//     Fill(h,"nans",2.,isnan(v->position().y())*1.);
-//     Fill(h,"nans",3.,isnan(v->position().z())*1.);
-    
-//     int index = 3;
-//       for (int i = 0; i != 3; i++) {
-// 	for (int j = i; j != 3; j++) {
-// 	  index++;
-// 	  Fill(h,"nans",index*1., isnan(v->covariance(i, j))*1.);
-// 	  if (isnan(v->covariance(i, j))) problem = true;
-// 	  // in addition, diagonal element must be positive
-// 	  if (j == i && v->covariance(i, j) < 0) {
-// 	    Fill(h,"nans",index*1., 1.);
-// 	    problem = true;
-// 	  }
-// 	}
-//       }
-      
-//       try {
-// 	for(trackit_t t = v->tracks_begin(); 
-// 	    t!=v->tracks_end(); t++) {
-// 	  // illegal charge
-// 	  if ( (**t).charge() < -1 || (**t).charge() > 1 ) {
-// 	    Fill(h,"tklinks",0.);
-// 	  }
-// 	  else {
-// 	    Fill(h,"tklinks",1.);
-// 	  }
-// 	}
-//       } catch (...) {
-// 	// exception thrown when trying to use linked track
-// 	Fill(h,"tklinks",0.);
-//       }
-
-//       if (problem) {
-// 	// analyze track parameter covariance definiteness
-// 	double data[25];
-// 	try {
-// 	  int itk = 0;
-// 	  for(trackit_t t = v->tracks_begin(); 
-// 	      t!=v->tracks_end(); t++) {
-// 	    std::cout << "Track " << itk++ << std::endl;
-// 	    int i2 = 0;
-// 	    for (int i = 0; i != 5; i++) {
-// 	      for (int j = 0; j != 5; j++) {
-// 		data[i2] = (**t).covariance(i, j);
-// 		std::cout << std:: scientific << data[i2] << " ";
-// 		i2++;
-// 	      }
-// 	      std::cout << std::endl;
-// 	    }
-// 	    gsl_matrix_view m 
-// 	      = gsl_matrix_view_array (data, 5, 5);
-	    
-// 	    gsl_vector *eval = gsl_vector_alloc (5);
-// 	    gsl_matrix *evec = gsl_matrix_alloc (5, 5);
-	    
-// 	    gsl_eigen_symmv_workspace * w = 
-// 	      gsl_eigen_symmv_alloc (5);
-	    
-// 	    gsl_eigen_symmv (&m.matrix, eval, evec, w);
-	    
-// 	    gsl_eigen_symmv_free (w);
-	    
-// 	    gsl_eigen_symmv_sort (eval, evec, 
-// 				  GSL_EIGEN_SORT_ABS_ASC);
-	    
-// 	    // print sorted eigenvalues
-// 	  {
-// 	    int i;
-// 	    for (i = 0; i < 5; i++) {
-// 	      double eval_i 
-// 		= gsl_vector_get (eval, i);
-// 	      gsl_vector_view evec_i 
-// 		= gsl_matrix_column (evec, i);
-	      
-// 	      printf ("eigenvalue = %g\n", eval_i);
-// 	      //	      printf ("eigenvector = \n");
-// 	      //	      gsl_vector_fprintf (stdout, 
-// 	      //				  &evec_i.vector, "%g");
-// 	    }
-// 	  }
-// 	  }
-// 	}
-//       catch (...) {
-// 	// exception thrown when trying to use linked track
-// 	break;
-//       }// catch()
-//       }// if (problem)
 
 
       
   }  // vertex loop (v)
 
 
+
+  for(unsigned int i=1; i<200; i++){
+    double dz=0.01*i;
+    unsigned int offs=99-int(i/2);
+    for(unsigned int j=0; j<200; j++){
+      //cout <<  setprecision(3) << dz << "  " << offs+j << " " << offs+j+i << " n=" << zcentral4[offs+j]+zcentral4[offs+j+i] << endl;
+      unsigned int n=zcentral4[offs+j]+zcentral4[offs+j+i];
+      if(n==0){ Fill(h, "n0dz",dz,1.); }else{ Fill(h, "n0dz",dz,0.); }
+      if(n==1){ Fill(h, "n1dz",dz,1.); }else{ Fill(h, "n1dz",dz,0.); }
+      if(n==2){ Fill(h, "n2dz",dz,1.); }else{ Fill(h, "n2dz",dz,0.); }
+      if(n==3){ Fill(h, "n3dz",dz,1.); }else{ Fill(h, "n3dz",dz,0.); }
+      if(n>=4){ Fill(h, "n4dz",dz,1.); }else{ Fill(h, "n4dz",dz,0.); }
+
+      n=zcentral0[offs+j]+zcentral0[offs+j+i];
+      if(n==0){ Fill(h, "n0dz0",dz,1.); }else{ Fill(h, "n0dz0",dz,0.); }
+      if(n==1){ Fill(h, "n1dz0",dz,1.); }else{ Fill(h, "n1dz0",dz,0.); }
+      if(n==2){ Fill(h, "n2dz0",dz,1.); }else{ Fill(h, "n2dz0",dz,0.); }
+      if(n==3){ Fill(h, "n3dz0",dz,1.); }else{ Fill(h, "n3dz0",dz,0.); }
+      if(n>=4){ Fill(h, "n4dz0",dz,1.); }else{ Fill(h, "n4dz0",dz,0.); }
+    }
+  }
+
+  for(unsigned int i=0; i<400; i++){
+    for(unsigned int j=0; j<400; j++){
+      if(zcentral4[i]>0){
+	if(zcentral4[j]==0){
+	  Fill(h, "nc10", (int(i)-200)*0.01+0.001, (int(j)-200)*0.01+0.001);
+	}else{
+	  Fill(h, "nc11", (int(i)-200)*0.01+0.001, (int(j)-200)*0.01+0.001);
+	}
+      }else{
+	if(zcentral4[j]==0){
+	  Fill(h, "nc00", (int(i)-200)*0.01+0.001, (int(j)-200)*0.01+0.001);
+	}else{
+	  Fill(h, "nc01", (int(i)-200)*0.01+0.001, (int(j)-200)*0.01+0.001);
+	}
+      }
+    }
+  }
 
 
 }

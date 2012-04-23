@@ -138,7 +138,6 @@ public:
   SimEvent(){
     //event=-1;
     type=0;
-    nrecTrack=0;
     nChTP=0;
     z=-99;
     zfit=-99;
@@ -160,7 +159,6 @@ public:
   int type;         // 0=not filled, 1=full (e.g. from TrackingParticles), 2=partially filled (from PileUpSummary)
   double x,y,z;
   double xfit,yfit,zfit;
-  int nrecTrack;
   int nChTP;
    //int event;
   unsigned int key;  // =index
@@ -426,8 +424,7 @@ private:
 
   reco::VertexCollection * vertexFilter( edm::Handle<reco::VertexCollection> , bool filter);
 
-  void compare(std::vector<simPrimaryVertex> & simpv);
-  void compare(std::vector<SimEvent> & simEvt);
+  void compareCollections(std::vector<SimEvent> & simEvt, std::vector<simPrimaryVertex> & simpv);
 
   void history(const edm::Handle<edm::View<reco::Track> > & tracks,const size_t trackindex=10000);
   std::string particleString(int) const;
@@ -441,6 +438,7 @@ private:
     HepMC::GenVertex::particles_out_const_iterator,
     HepMC::GenVertex::particles_out_const_iterator
   ) const;
+
 
 
   // ----------member data ---------------------------
@@ -472,6 +470,7 @@ private:
   bool dumpSignalVsTag_;
   int eventSummaryCounter_;
   int nEventSummary_;
+  int nCompareCollections_;
 
   // from the event setup
   int run_;
