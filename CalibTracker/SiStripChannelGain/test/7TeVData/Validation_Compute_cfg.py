@@ -8,6 +8,11 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
+#this block is there to solve issue related to SiStripQualityRcd
+process.load("CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi")
+process.load("CalibTracker.SiStripESProducers.fake.SiStripDetVOffFakeESSource_cfi")
+process.es_prefer_fakeSiStripDetVOff = cms.ESPrefer("SiStripDetVOffFakeESSource","siStripDetVOffFakeESSource")
+
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet( threshold = cms.untracked.string('ERROR')  ),
     destinations = cms.untracked.vstring('cout')
@@ -26,7 +31,6 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'XXX_GT_XXX::All'
-process.prefer("GlobalTag")
 
 process.load("CalibTracker.SiStripChannelGain.computeGain_cff")
 process.SiStripCalibValidation.InputFiles          = cms.vstring(

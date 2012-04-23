@@ -7,6 +7,11 @@ process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
+#this block is there to solve issue related to SiStripQualityRcd
+process.load("CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi")
+process.load("CalibTracker.SiStripESProducers.fake.SiStripDetVOffFakeESSource_cfi")
+process.es_prefer_fakeSiStripDetVOff = cms.ESPrefer("SiStripDetVOffFakeESSource","siStripDetVOffFakeESSource")
+
 
 process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
