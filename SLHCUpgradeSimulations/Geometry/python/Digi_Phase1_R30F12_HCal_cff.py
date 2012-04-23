@@ -38,6 +38,7 @@ simSiPixelDigis.DeadModules_DB = False
 simSiPixelDigis.NumPixelBarrel = cms.int32(4)
 simSiPixelDigis.NumPixelEndcap = cms.int32(3)
 simSiPixelDigis.AddPixelInefficiency = -1
+
 #
 # HCal Modifications
 #
@@ -49,26 +50,29 @@ simHcalDigis.HOlevel = -1000
 #turn on SiPMs in HO
 hcalSimParameters.ho.siPMCode = 1
 hcalSimParameters.ho.pixels = cms.int32(2500)
-hcalSimParameters.ho.photoelectronsToAnalog = cms.vdouble(3.0)
+hcalSimParameters.ho.photoelectronsToAnalog = cms.vdouble([3.0]*16)
 
 #turn on SiPMs in HB/HE
 hcalSimParameters.hb.siPMCells = [1]
-hcalSimParameters.hb.pixels = cms.int32(4500*4)
+hcalSimParameters.hb.pixels = cms.int32(4500*4*2)
 hcalSimParameters.hb.photoelectronsToAnalog = cms.vdouble(10.0)
 hcalSimParameters.he.pixels = cms.int32(4500*4)
 hcalSimParameters.he.photoelectronsToAnalog = cms.vdouble(10.0)
 
+#turn on SLHC topology
+#HcalTopologyIdealEP.SLHCMode = cms.untracked.bool(True)
+
 #turn on hit relabeling and set depth segmentation
-simHcalUnsuppressedDigis.RelabelHits = cms.untracked.bool(True)
-simHcalUnsuppressedDigis.RelabelRules = cms.untracked.PSet(
-    # Eta1 = cms.untracked.vint32(1,1,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4),
-    Eta1 = cms.untracked.vint32(1,2,2,2,2,3,3,3,3,4,4,4,4,4,4,4,4,5,5),
-    #Eta17 = cms.untracked.vint32(1,1,1,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4)
-    Eta17 = cms.untracked.vint32(1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,5,5,5,5,5)
+HcalReLabel.RelabelHits = cms.untracked.bool(True)
+HcalReLabel.RelabelRules = cms.untracked.PSet(
+    Eta1 = cms.untracked.vint32(1,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,4,4),
+    Eta16 = cms.untracked.vint32(1,1,1,1,2,2,2,2,3,3,3,3,3,3,3,3),
+    Eta17 = cms.untracked.vint32(1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,5)
     )
 
 #
 doAllDigi = cms.Sequence(trDigi+calDigi+muonDigi)
 pdigi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*trackingParticles)
 pdigi.remove(simHcalTriggerPrimitiveDigis)
+pdigi.remove(simHcalTTPDigis)
 pdigi.remove(simCastorDigis)
