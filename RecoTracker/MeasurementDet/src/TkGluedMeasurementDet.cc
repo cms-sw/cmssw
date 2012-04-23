@@ -14,8 +14,7 @@
 #include <iostream>
 
 #include <typeinfo>
-
-// #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 
 using namespace std;

@@ -25,7 +25,7 @@ namespace edm {
     explicit PileUp(ParameterSet const& pset, int const minb, int const maxb, double averageNumber, TH1F* const histo, const bool playback);
     ~PileUp();
 
-    void readPileUp(std::vector<EventPrincipalVector> & result,std::vector<std::vector<edm::EventID> > &ids);
+    void readPileUp(std::vector<EventPrincipalVector> & result,std::vector<std::vector<edm::EventID> > &ids, std::vector<float>& TrueBXCount);
 
     double averageNumber() const {return averageNumber_;}
     bool poisson() const {return poisson_;}

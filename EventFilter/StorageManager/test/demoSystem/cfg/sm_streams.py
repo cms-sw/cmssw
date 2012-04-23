@@ -6,21 +6,21 @@ process.source = cms.Source("FragmentInput")
 
 process.out1 = cms.OutputModule("EventStreamFileWriter",
                                 streamLabel = cms.string('A'),
-                                maxSize = cms.int32(20),
+                                maxSize = cms.int32(1024),
                                 SelectHLTOutput = cms.untracked.string('hltOutputDQM'),
-                                fractionToDisk = cms.untracked.double( 0.0 )
+                                fractionToDisk = cms.untracked.double( 1.0 )
                                 )
 
 process.out2 = cms.OutputModule("EventStreamFileWriter",
                                 streamLabel = cms.string('B'),
-                                maxSize = cms.int32(40),
+                                maxSize = cms.int32(1024),
                                 SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('DiMuon', 'CalibPath', 'DiElectron', 'HighPT') ),
                                 SelectHLTOutput = cms.untracked.string('PhysicsOModule')
                                 )
 
 process.out3 = cms.OutputModule("EventStreamFileWriter",
                                 streamLabel = cms.string('C'),
-                                maxSize = cms.int32(60),
+                                maxSize = cms.int32(512),
                                 SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('DiMuon', 'CalibPath', 'DiElectron', 'HighPT') ),
                                 SelectHLTOutput = cms.untracked.string('PhysicsOModule'),
                                 fractionToDisk = cms.untracked.double( 0.5 )

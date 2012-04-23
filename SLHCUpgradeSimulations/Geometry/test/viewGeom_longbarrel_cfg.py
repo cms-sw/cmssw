@@ -2,8 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from FWCore.MessageLogger.MessageLogger_cfi import *
 process = cms.Process("IGUANA")
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("SLHCUpgradeSimulations.Geometry.longbarrel_cmsIdealGeometryXML_cff")
+process.load("SLHCUpgradeSimulations.Geometry.Longbarrel_cmsSimIdealGeometryXML_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 

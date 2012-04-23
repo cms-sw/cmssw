@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2009/10/31 02:00:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2009/10/15 14:28:38 $
+ *  $Revision: 1.1 $
  *  \author Haiyun.Teng - Peking University
  *
  */
@@ -1087,7 +1087,7 @@ RPCSeedPattern::weightedTrajectorySeed RPCSeedPattern::createFakeSeed(int& isGoo
     AlgebraicSymMatrix mat(5,0);
     mat = best->parametersError().similarityT(best->projectionMatrix());
     mat[0][0] = meanSpt;
-    LocalTrajectoryError error(asSMatrix<5>(mat));
+    LocalTrajectoryError error(mat);
 
     edm::ESHandle<MagneticField> Field;
     eSetup.get<IdealMagneticFieldRecord>().get(Field);
@@ -1232,7 +1232,7 @@ LocalTrajectoryError RPCSeedPattern::getSpecialAlgorithmErrorMatrix(const ConstM
         mat[0][0] = (dP * dP) / (Momentum.mag() * Momentum.mag() * Momentum.mag() * Momentum.mag());
         mat[1][1] = dXdZ * dXdZ;
         mat[2][2] = dYdZ * dYdZ;
-        Error = LocalTrajectoryError(asSMatrix<5>(mat));
+        Error = LocalTrajectoryError(mat);
     }
     else {
         AlgebraicSymMatrix mat0(5, 0);
@@ -1324,7 +1324,7 @@ LocalTrajectoryError RPCSeedPattern::getSpecialAlgorithmErrorMatrix(const ConstM
         mat[0][0] = (dP * dP) / (Momentum.mag() * Momentum.mag() * Momentum.mag() * Momentum.mag());
         mat[1][1] = dXdZ * dXdZ;
         mat[2][2] = dYdZ * dYdZ;
-        Error = LocalTrajectoryError(asSMatrix<5>(mat));
+        Error = LocalTrajectoryError(mat);
     }
     return Error;
 }

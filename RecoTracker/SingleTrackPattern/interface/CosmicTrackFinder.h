@@ -84,7 +84,7 @@ namespace cms
     edm::ParameterSet conf_;
     std::string geometry;
     bool trinevents;
-    bool useHitsSplitting_;
+    //bool useHitsSplitting_;
   };
 }
 

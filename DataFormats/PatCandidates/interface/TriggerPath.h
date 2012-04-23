@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerPath
 //
-// $Id: TriggerPath.h,v 1.8 2010/12/16 18:39:17 vadler Exp $
+// $Id: TriggerPath.h,v 1.10 2011/05/24 15:56:25 vadler Exp $
 //
 /**
   \class    pat::TriggerPath TriggerPath.h "DataFormats/PatCandidates/interface/TriggerPath.h"
@@ -18,7 +18,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerPath
 
   \author   Volker Adler
-  \version  $Id: TriggerPath.h,v 1.8 2010/12/16 18:39:17 vadler Exp $
+  \version  $Id: TriggerPath.h,v 1.10 2011/05/24 15:56:25 vadler Exp $
 */
 
 
@@ -66,6 +66,9 @@ namespace pat {
       std::vector< unsigned > filterIndices_;
       /// Index of the last active filter in the list of modules
       unsigned lastActiveFilterSlot_;
+      /// Number of modules identified as L3 filters by the 'saveTags' parameter
+      /// available starting from CMSSW_4_2_3
+      unsigned l3Filters_;
       /// List of L1 seeds and their decisions
       L1SeedCollection l1Seeds_;
 
@@ -78,7 +81,7 @@ namespace pat {
       /// Constructor from path name only
       TriggerPath( const std::string & name );
       /// Constructor from values
-      TriggerPath( const std::string & name, unsigned index, unsigned prescale, bool run, bool accept, bool error, unsigned lastActiveFilterSlot );
+      TriggerPath( const std::string & name, unsigned index, unsigned prescale, bool run, bool accept, bool error, unsigned lastActiveFilterSlot, unsigned l3Filters = 0 );
 
       /// Destructor
       virtual ~TriggerPath() {};
@@ -99,6 +102,8 @@ namespace pat {
       void setError( bool error ) { error_ = error; };
       /// Set the index of the last active filter
       void setLastActiveFilterSlot( unsigned lastActiveFilterSlot ) { lastActiveFilterSlot_ = lastActiveFilterSlot; };
+      /// Set the number of modules identified as L3 filter
+      void setL3Filters( unsigned l3Filters ) { l3Filters_ = l3Filters; };
       /// Add a new module label
       void addModule( const std::string & name ) { modules_.push_back( name ); };
       /// Add a new trigger fillter collection index
@@ -120,6 +125,12 @@ namespace pat {
       bool wasError() const { return error_; };
       /// Get the index of the last active filter
       unsigned lastActiveFilterSlot() const { return lastActiveFilterSlot_; };
+      /// Get the number of modules identified as L3 filter
+      /// available starting from CMSSW_4_2_3
+      unsigned l3Filters() const { return l3Filters_; };
+      /// Determines, if the path is a x-trigger, based on the number of modules identified as L3 filter
+      /// available starting from CMSSW_4_2_3
+      bool xTrigger() const { return ( l3Filters_ > 2 ); };
       /// Get all module labels
       std::vector< std::string > modules() const { return modules_; };
       /// Get all trigger fillter collection indeces

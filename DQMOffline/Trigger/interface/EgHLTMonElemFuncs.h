@@ -28,15 +28,16 @@ namespace egHLT {
   namespace MonElemFuncs {
     
     
-    void initStdEleHists(std::vector<MonElemManagerBase<OffEle>*>& histVec,const std::string& baseName,const BinData& bins); 
-    void initStdPhoHists(std::vector<MonElemManagerBase<OffPho>*>& histVec,const std::string& baseName,const BinData& bins); 
-    void initStdEffHists(std::vector<MonElemWithCutBase<OffEle>*>& histVec,const std::string& baseName,int nrBins,double xMin,double xMax,float (OffEle::*vsVarFunc)()const,const CutMasks& masks); 
-    void initStdEffHists(std::vector<MonElemWithCutBase<OffEle>*>& histVec,const std::string& baseName,const BinData::Data1D& bins,float (OffEle::*vsVarFunc)()const,const CutMasks& masks);
-    void initStdEffHists(std::vector<MonElemWithCutBase<OffPho>*>& histVec,const std::string& baseName,int nrBins,double xMin,double xMax,float (OffPho::*vsVarFunc)()const,const CutMasks& masks);   
-    void initStdEffHists(std::vector<MonElemWithCutBase<OffPho>*>& histVec,const std::string& baseName,const BinData::Data1D& bins,float (OffPho::*vsVarFunc)()const,const CutMasks& masks);
+    void initStdEleHists(std::vector<MonElemManagerBase<OffEle>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData& bins); 
+    void initStdPhoHists(std::vector<MonElemManagerBase<OffPho>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData& bins); 
+    void initStdEffHists(std::vector<MonElemWithCutBase<OffEle>*>& histVec,const std::string& filterName,const std::string& baseName,int nrBins,double xMin,double xMax,float (OffEle::*vsVarFunc)()const,const CutMasks& masks); 
+    void initStdEffHists(std::vector<MonElemWithCutBase<OffEle>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData::Data1D& bins,float (OffEle::*vsVarFunc)()const,const CutMasks& masks);
+    void initStdEffHists(std::vector<MonElemWithCutBase<OffPho>*>& histVec,const std::string& filterName,const std::string& baseName,int nrBins,double xMin,double xMax,float (OffPho::*vsVarFunc)()const,const CutMasks& masks);   
+    void initStdEffHists(std::vector<MonElemWithCutBase<OffPho>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData::Data1D& bins,float (OffPho::*vsVarFunc)()const,const CutMasks& masks);
 
     //we own the passed in pointer
-    void initStdEleCutHists(std::vector<MonElemWithCutBase<OffEle>*>& histVec,const std::string& baseName,const BinData& bins,EgHLTDQMCut<OffEle>* cut=NULL);
+    void initStdEleCutHists(std::vector<MonElemWithCutBase<OffEle>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData& bins,EgHLTDQMCut<OffEle>* cut=NULL);
+    void initStdPhoCutHists(std::vector<MonElemWithCutBase<OffPho>*>& histVec,const std::string& filterName,const std::string& baseName,const BinData& bins,EgHLTDQMCut<OffPho>* cut=NULL);
 
 
     
@@ -61,8 +62,12 @@ namespace egHLT {
     void initTightLooseDiObjTrigHistsTrigCuts(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins);
     void initTightLooseDiObjTrigHistsTrigCuts(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins);
 
-    //ele only
+    //ele only (Now for pho also!)
     void initTrigTagProbeHists(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string> filterNames,int cutMask,const BinData& bins);
+    void initTrigTagProbeHists(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::vector<std::string> filterNames,int cutMask,const BinData& bins);
+    void initTrigTagProbeHist(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::string filterName,int cutMask,const BinData& bins);
+    void initTrigTagProbeHist(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::string filterName,int cutMask,const BinData& bins);
+    void initTrigTagProbeHist_2Leg(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::string filterName,int cutMask,const BinData& bins);
   
 
     template<class T,typename varType> void addStdHist(std::vector<MonElemManagerBase<T>*>& histVec,const std::string& name,const std::string& title,
@@ -103,6 +108,7 @@ namespace egHLT {
     template<class T> void initTightLooseTrigHists(std::vector<MonElemContainer<T>*>& monElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins,const std::string& objName)
       {
 	for(size_t trigNr=0;trigNr<tightLooseTrigs.size();trigNr++){
+	  //dbe_->SetCurrentFolder(dirName_+"/"+tightLooseTrigs[trigNr]);
 	  std::vector<std::string> splitString;
 	  boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(std::string(":")));
 	  if(splitString.size()!=2) continue; //format incorrect
@@ -114,6 +120,7 @@ namespace egHLT {
 	  if(trigNr!=tightLooseTrigs.size()-2) addTightLooseTrigHist(monElems,tightTrig,looseTrig,objName,bins);
 	  else addTightLooseTrigHist(monElems,tightTrig,looseTrig,objName,bins);
 	}
+	//dbe_->SetCurrentFolder(dirName_);
       }
     
 

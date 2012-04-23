@@ -215,13 +215,15 @@ PFBlockAlgo::packLinks( reco::PFBlock& block,
   const edm::OwnVector< reco::PFBlockElement >& els = block.elements();
   
   block.bookLinkData();
-
+  unsigned elsize = els.size();
+  unsigned ilStart = 0;
   //First Loop: update all link data
-  for( unsigned i1=0; i1<els.size(); i1++ ) {
-    for( unsigned i2=0; i2<els.size(); i2++ ) {
+  for( unsigned i1=0; i1<elsize; ++i1 ) {
+    //for( unsigned i2=0; i2<els.size(); i2++ ) {
+    for( unsigned i2=0; i2<i1; ++i2 ) {
       
       // no reflexive link
-      if( i1==i2 ) continue;
+      //if( i1==i2 ) continue;
       
       double dist = -1;
       
@@ -231,12 +233,13 @@ PFBlockAlgo::packLinks( reco::PFBlock& block,
 
       // are these elements already linked ?
       // this can be optimized
-
-      for( unsigned il=0; il<links.size(); il++ ) {
-	if( (links[il].element1() == i1 && 
-	     links[il].element2() == i2) || 
-	    (links[il].element1() == i2 && 
-	     links[il].element2() == i1) ) { // yes
+      unsigned linksize = links.size();
+      for( unsigned il = ilStart; il<linksize; ++il ) {
+	// The following three lines exploits the increasing-element2 ordering of links.
+	if ( links[il].element2() < i1 ) ilStart = il;
+	if ( links[il].element2() > i1 ) break;
+	if( (links[il].element1() == i2 &&
+             links[il].element2() == i1) ) {  // yes
 	  
 	  dist = links[il].dist();
 	  linked = true;
@@ -1076,14 +1079,12 @@ PFBlockAlgo::goodPtResolution( const reco::TrackRef& trackref) {
     Algo = 4;
     break;
   default:
-    Algo = 5;
+    Algo = useIterTracking_ ? 5 : 0;
     break;
   }
 
   // Protection against 0 momentum tracks
   if ( P < 0.05 ) return false;
-
-  if(useIterTracking_){
 
   // Temporary : Reject all tracking iteration beyond 5th step. 
   if ( Algo > 4 ) return false;
@@ -1115,7 +1116,6 @@ PFBlockAlgo::goodPtResolution( const reco::TrackRef& trackref) {
     return false;
   }
 
-  }
   /*
   std::cout << "Track Accepted : ";
   std::cout << ", P = " << P 

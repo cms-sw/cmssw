@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.43 2010/11/21 20:52:24 amraktad Exp $
+// $Id: CmsShowMainFrame.h,v 1.44 2011/02/24 10:02:24 eulisse Exp $
 //
 
 // system include files
@@ -101,6 +101,9 @@ public:
    void showFWorksInfo();
 
    void bindCSGActionKeys(const TGMainFrame* f) const;
+
+   void setSummaryViewWeight(float);
+   float getSummaryViewWeight() const;
 
    ClassDef(CmsShowMainFrame, 0);
 

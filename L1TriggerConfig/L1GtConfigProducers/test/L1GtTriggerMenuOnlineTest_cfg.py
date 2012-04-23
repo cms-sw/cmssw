@@ -35,7 +35,7 @@ if (useKey == 'ObjectKey') :
     process.L1TriggerKeyDummy.objectKeys = cms.VPSet(cms.PSet(
         record = cms.string('L1GtTriggerMenuRcd'),
         type = cms.string('L1GtTriggerMenu'),
-        key = cms.string('L1Menu_Commissioning2009_v7/L1T_Scales_20080926_startup/Imp0/0x100f')
+        key = cms.string('L1Menu_Commissioning2009_v6/L1T_Scales_20080926_startup/Imp0/0x100e')
         ))
     
 elif (useKey == 'SubsystemKey') :

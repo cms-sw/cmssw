@@ -11,11 +11,11 @@ process = cms.Process('RECO')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-#process.load('Configuration.StandardSequences.MixingNoPileUp_cff')
-process.load("SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_cff")
-process.load("SLHCUpgradeSimulations.Geometry.PhaseI_cmsSimIdealGeometryXML_R39F16_cff")
+#process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load("SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R30F12_cff")
+process.load("SLHCUpgradeSimulations.Geometry.Phase1_R30F12_cmsSimIdealGeometryXML_cff")
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('SLHCUpgradeSimulations.Geometry.Digi_Phase1_cff')
+process.load('SLHCUpgradeSimulations.Geometry.Digi_Phase1_R30F12_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
@@ -26,7 +26,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.13 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -39,22 +39,19 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-#    fileNames = cms.untracked.vstring(
-#    '/store/relval/CMSSW_3_6_3_SLHC1/RelValFourMuons/GEN-SIM-RAW/DESIGN_36_V10-v1/0021/F8F01ED5-B1BC-DF11-AABF-0026189438BC.root',
-#    '/store/relval/CMSSW_3_6_3_SLHC1/RelValFourMuons/GEN-SIM-RAW/DESIGN_36_V10-v1/0021/38041CE5-60BC-DF11-85EC-002618943970.root'  )
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_6_3_SLHC1/RelValTTbar/GEN-SIM/DESIGN_36_V10_UpSimGeometry_special-v1/0031/F6363EDF-12CB-DF11-9206-0030486792F0.root')
-#    fileNames = cms.untracked.vstring(
-#    '/store/relval/CMSSW_3_6_3_SLHC1/RelValTTbar/GEN-SIM/DESIGN_36_V10_UpSimGeometry_special-v1/0031/B083C3B3-02CB-DF11-8196-00261894392B.root')
-#    fileNames = cms.untracked.vstring(
-#    '/store/relval/CMSSW_3_6_3_SLHC1_patch1/RelValTTbar/GEN-SIM/DESIGN_36_V10_PU_LowLumiPileUp_Gauss_special-v1/0666/F4E4B87D-D100-E011-A900-003048678FAE.root')
+       '/store/mc/Summer12/TTbar_Tauola_14TeV/GEN-SIM/DESIGN42_V17_SLHCTk-v1/0000/4815ECA9-255E-E111-A0C9-00151796D774.root',
+       '/store/mc/Summer12/TTbar_Tauola_14TeV/GEN-SIM/DESIGN42_V17_SLHCTk-v1/0000/56C5D376-CC5D-E111-8393-0024E86E8D9A.root',
+       '/store/mc/Summer12/TTbar_Tauola_14TeV/GEN-SIM/DESIGN42_V17_SLHCTk-v1/0000/74EC88AA-E45D-E111-AD1A-0026B94E27FD.root',
+       '/store/mc/Summer12/TTbar_Tauola_14TeV/GEN-SIM/DESIGN42_V17_SLHCTk-v1/0000/8C2D3998-155E-E111-B75C-00266CF2454C.root',
+       '/store/mc/Summer12/TTbar_Tauola_14TeV/GEN-SIM/DESIGN42_V17_SLHCTk-v1/0000/B6409F8D-DC5D-E111-8DDB-0026B94D1B16.root'
+    )
 )
-
 # Output definition
 process.output = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
-    #outputCommands = process.RECOSIMEventContent.outputCommands,
-    outputCommands = cms.untracked.vstring('keep *','drop *_mix_*_*'),
+    outputCommands = process.RECOSIMEventContent.outputCommands,
+    #outputCommands = cms.untracked.vstring('keep *','drop *_mix_*_*'),
     fileName = cms.untracked.string('file:reco.root'),
     dataset = cms.untracked.PSet(
         dataTier = cms.untracked.string('GEN-SIM-RECO'),
@@ -74,10 +71,9 @@ process.output = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'DESIGN_36_V10::All'
+process.GlobalTag.globaltag = 'DESIGN42_V17::All'
 
 ### PhaseI Geometry and modifications ###############################################
-#process.load("SLHCUpgradeSimulations.Geometry.PhaseI_cmsSimIdealGeometryXML_R39F16_cff")
 process.Timing =  cms.Service("Timing")
 ## no playback when doing digis
 #process.mix.playback = True
@@ -97,8 +93,7 @@ process.simSiPixelDigis.AddPixelInefficiency = 20
 ## TIB1,2 inefficiency at 99% (i.e. dead)
 #process.simSiStripDigis.Inefficiency = 40
 
-process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_cff")
-process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R39F16_cff")
+process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R30F12_cff")
 process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
 process.load("SLHCUpgradeSimulations.Geometry.upgradeTracking_phase1_cff")
 
@@ -113,41 +108,62 @@ process.PixelCPEGenericESProducer.DoCosmics = False
 
 ## CPE for other steps
 process.siPixelRecHits.CPE = cms.string('PixelCPEGeneric')
-process.newPixelRecHits.CPE = cms.string('PixelCPEGeneric')
-process.secPixelRecHits.CPE = cms.string('PixelCPEGeneric')
-process.thPixelRecHits.CPE = cms.string('PixelCPEGeneric')
-process.preFilterZeroStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
-process.preFilterStepOneTracks.TTRHBuilder = cms.string('WithTrackAngle')
-process.secWithMaterialTracks.TTRHBuilder = cms.string('WithTrackAngle')
-process.thWithMaterialTracks.TTRHBuilder = cms.string('WithTrackAngle')
-process.fourthWithMaterialTracks.TTRHBuilder = cms.string('WithTrackAngle')
-process.fifthWithMaterialTracks.TTRHBuilder = cms.string('WithTrackAngle')
+process.initialStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+process.lowPtTripletStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+process.pixelPairStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+process.detachedTripletStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+process.mixedTripletStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+process.pixelLessStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+process.tobTecStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
 
 # Need these lines to stop some errors about missing siStripDigis collections.
 # should add them to fakeConditions_Phase1_cff
+process.MeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+process.MeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
+process.MeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
 process.MeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
 process.MeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
 process.MeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
-process.newMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
-process.newMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
-process.newMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
-process.newMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
-process.newMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
-process.newMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
-process.secMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
-process.secMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
-process.secMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
-process.secMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
-process.secMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
-process.secMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
-process.thMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
-process.thMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
-process.thMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
-process.thMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
-process.thMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
-process.thMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
-process.fourthMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
-process.fifthMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+process.lowPtTripletStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+process.lowPtTripletStepMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
+process.lowPtTripletStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
+process.lowPtTripletStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
+process.lowPtTripletStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
+process.lowPtTripletStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
+process.pixelPairStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+process.pixelPairStepMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
+process.pixelPairStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
+process.pixelPairStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
+process.pixelPairStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
+process.pixelPairStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
+process.detachedTripletStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+process.detachedTripletStepMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
+process.detachedTripletStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
+process.detachedTripletStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
+process.detachedTripletStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
+process.detachedTripletStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
+process.mixedTripletStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+process.mixedTripletStepMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
+process.mixedTripletStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
+process.mixedTripletStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
+process.mixedTripletStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
+process.mixedTripletStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
+process.pixelLessStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+process.tobTecStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+
+process.muons.TrackerKinkFinderParameters.TrackerRecHitBuilder = cms.string('WithTrackAngle')
+# The SeedMergerPSet should be added to the following file for Phase 1
+# RecoTracker/SpecialSeedGenerators/python/CombinatorialSeedGeneratorForCosmicsRegionalReconstruction_cfi.py
+# but pixel layers are not used here for cosmic TODO: need Maria and Jan to do appropriate thing here
+process.regionalCosmicTrackerSeeds.SeedMergerPSet = cms.PSet(
+	mergeTriplets = cms.bool(False),
+	ttrhBuilderLabel = cms.string( "PixelTTRHBuilderWithoutAngle" ),
+	addRemainingTriplets = cms.bool(False),
+	layerListName = cms.string( "PixelSeedMergerQuadruplets" )
+	)
+process.regionalCosmicTracks.TTRHBuilder = cms.string('WithTrackAngle')
+
+#################################
 
 process.ReadLocalMeasurement = cms.EDAnalyzer("StdHitNtuplizer",
    src = cms.InputTag("siPixelRecHits"),
@@ -167,16 +183,18 @@ process.ReadLocalMeasurement = cms.EDAnalyzer("StdHitNtuplizer",
                          'g4SimHitsTrackerHitsPixelEndcapHighTof')
 )
 process.anal = cms.EDAnalyzer("EventContentAnalyzer")
-## already in fake conditions don't add here (might overide?)
-#process.load("RecoVertex.BeamSpotProducer.BeamSpotFakeParameters_cfi")
 
 ## need this at the end as the validation config redefines random seed with just mix
-process.load("IOMC.RandomEngine.IOMC_cff")
+#process.load("IOMC.RandomEngine.IOMC_cff")
 
 ### back to standard job commands ##################################################
+process.DigiToRaw.remove(process.castorRawData)
 
 process.DigiToRaw.remove(process.siPixelRawData)
 process.RawToDigi.remove(process.siPixelDigis)
+
+## removing large memory usage module if we don't need it
+process.pdigi.remove(process.mergedtruth)
 
 process.digitisation_step = cms.Path(process.pdigi)
 process.L1simulation_step = cms.Path(process.SimL1Emulator)
@@ -188,20 +206,11 @@ process.L1Reco_step = cms.Path(process.L1Reco)
 
 process.reconstruction_step 	= cms.Path(process.reconstruction)
 process.mix_step 		= cms.Path(process.mix)
-#process.reconstruction_step 	= cms.Path(process.trackerlocalreco*
-#						process.offlineBeamSpot+
-#                                                process.recopixelvertexing*process.ckftracks_wodEdXandSteps4and5)
 process.debug_step 		= cms.Path(process.anal)
-#process.validation_step 	= cms.Path(process.cutsTPEffic*
-#						process.cutsTPFake*
-#						process.slhcTracksValidation)
 process.user_step 		= cms.Path(process.ReadLocalMeasurement)
 process.endjob_step 		= cms.Path(process.endOfProcess)
 process.out_step 		= cms.EndPath(process.output)
 
 # Schedule definition
-#process.schedule = cms.Schedule(process.reconstruction_step,process.endjob_step,process.out_step)
-#process.schedule = cms.Schedule(process.mix_step,process.reconstruction_step,process.validation_step,process.user_step,process.endjob_step,process.out_step)
-#process.schedule = cms.Schedule(process.mix_step,process.digi2raw_step,process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.endjob_step,process.out_step)
 process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step,process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.endjob_step,process.out_step)
 

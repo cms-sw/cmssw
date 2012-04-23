@@ -20,7 +20,7 @@ RootDelayedReader.h // used by ROOT input sources
 #include <string>
 
 namespace edm {
-  class InputFile;
+  class RootFile;
   class RootTree;
 
   //------------------------------------------------------------
@@ -36,8 +36,8 @@ namespace edm {
     RootDelayedReader(EntryNumber const& entry,
       boost::shared_ptr<BranchMap const> bMap,
       RootTree const& tree,
-      boost::shared_ptr<InputFile> filePtr,
-      FileFormatVersion const& fileFormatVersion);
+      FileFormatVersion const& fileFormatVersion,
+      boost::shared_ptr<RootFile> filePtr);
 
     virtual ~RootDelayedReader();
 
@@ -51,9 +51,9 @@ namespace edm {
     EntryNumber const entryNumber_;
     boost::shared_ptr<BranchMap const> branches_;
     // NOTE: filePtr_ appears to be unused, but is needed to prevent
-    // the InputFile containing the branch from being reclaimed.
+    // the file containing the branch from being reclaimed.
     RootTree const& tree_;
-    boost::shared_ptr<InputFile> filePtr_;
+    boost::shared_ptr<RootFile> filePtr_;
     boost::shared_ptr<DelayedReader> nextReader_;
     FileFormatVersion fileFormatVersion_;
   }; // class RootDelayedReader

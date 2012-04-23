@@ -1,24 +1,29 @@
 import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.VarParsing import VarParsing
+
 
 process = cms.Process("HLTMuonOfflineAnalysis")
 
+#### Load packages
 process.load("DQMOffline.Trigger.MuonOffline_Trigger_cff")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 process.load("DQMServices.Components.DQMStoreStats_cfi")
 
+#### Process command-line arguments
+options = VarParsing('analysis')
+options.setDefault('inputFiles', '/store/data/Run2011A/DoubleMu/AOD/PromptReco-v6/000/174/084/9AFB5D3D-11D1-E011-82EF-003048F110BE.root')
+options.setDefault('outputFile', 'muonTest.root')
+
+options.parseArguments()
+
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(50)
+    input = cms.untracked.int32(options.maxEvents)
 )
 
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),
-    fileNames = cms.untracked.vstring(
-        '/store/relval/CMSSW_3_11_0_pre2/RelValZMM/GEN-SIM-RECO/START310_V3-v1/0058/6670ED8D-DA14-E011-9C6F-0026189437E8.root',
-        '/store/relval/CMSSW_3_11_0_pre2/RelValZMM/GEN-SIM-RECO/START310_V3-v1/0055/DC47F951-7714-E011-BE46-001A92971BBE.root',
-        '/store/relval/CMSSW_3_11_0_pre2/RelValZMM/GEN-SIM-RECO/START310_V3-v1/0055/2EA2784A-7114-E011-802E-001A92971BBE.root',
-        '/store/relval/CMSSW_3_11_0_pre2/RelValZMM/GEN-SIM-RECO/START310_V3-v1/0055/0035ACDF-7A14-E011-B15B-001A92810AB2.root',
-    ),
+    fileNames = cms.untracked.vstring(options.inputFiles),
 )
 
 process.DQMStore = cms.Service("DQMStore")
@@ -37,7 +42,7 @@ process.out = cms.OutputModule("PoolOutputModule",
         'drop *', 
         'keep *_MEtoEDMConverter_*_*'
     ),
-    fileName = cms.untracked.string('muonTest.root'),
+    fileName = cms.untracked.string(options.outputFile),
 )
 
 process.analyzerpath = cms.Path(

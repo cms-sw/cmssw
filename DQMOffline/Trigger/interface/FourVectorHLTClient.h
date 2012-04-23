@@ -7,7 +7,7 @@
    version: 01
    date:  28 Oct 2008
 */
-//$Id: FourVectorHLTClient.h,v 1.9 2009/12/18 20:44:50 wmtan Exp $
+//$Id: FourVectorHLTClient.h,v 1.10 2010/03/25 08:39:17 rekovic Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -68,6 +68,8 @@ private:
 
   void initialize();
   void calculateRatio(TH1F* effHist, TH1F* denHist); 
+  TString removeVersions(TString histVersion);
+
   TH1F * get1DHisto(std::string meName, DQMStore * dbi);
   TH2F * get2DHisto(std::string meName, DQMStore * dbi);
   TProfile2D * get2DProfile(std::string meName, DQMStore * dbi);

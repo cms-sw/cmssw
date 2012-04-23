@@ -29,7 +29,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedFromProtoTrack.h"
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include <vector>

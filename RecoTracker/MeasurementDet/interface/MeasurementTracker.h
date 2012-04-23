@@ -121,6 +121,7 @@ public:
 
   void initializePixelStatus (const SiPixelQuality *stripQuality, const SiPixelFedCabling *pixelCabling, int qualityFlags, int qualityDebugFlags) const;
 
+  void getInactiveStrips(const edm::Event& event,std::vector<uint32_t> & rawInactiveDetIds) const;
 };
 
 #endif

@@ -2,7 +2,7 @@
 #define _TRACKER_LOCALTRAJECTORYERROR_H_
 
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
-#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -21,16 +21,17 @@
 class LocalTrajectoryError {
 public:
   // construct
-  LocalTrajectoryError(){}
+  LocalTrajectoryError();
   // destruct
-  ~LocalTrajectoryError(){}
+  ~LocalTrajectoryError();
 
   /** Constructing class from a full covariance matrix. The sequence of the parameters is
    *  the same as the one described above.
    */
 
-  LocalTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix):
-    theCovarianceMatrix(aCovarianceMatrix), theWeightMatrixPtr() { }
+  LocalTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix);
+
+  LocalTrajectoryError(const AlgebraicSymMatrix& aCovarianceMatrix);
 
   /** Constructing class from standard deviations of the individual parameters, making
    *  the covariance matrix diagonal. The sequence of the input parameters is sigma(x), sigma(y),
@@ -50,9 +51,14 @@ public:
     return theCovarianceMatrix;
   }
 
-  /** Returns the inverse of covariance matrix.
+  /** Returns the covariance matrix.
    */
- const AlgebraicSymMatrix55 &weightMatrix() const;
+
+  const AlgebraicSymMatrix matrix_old() const {
+    return asHepMatrix(theCovarianceMatrix);
+  }
+
+  const AlgebraicSymMatrix55 &weightMatrix() const;
 
 
   /** Enables the multiplication of the covariance matrix with the scalar "factor".

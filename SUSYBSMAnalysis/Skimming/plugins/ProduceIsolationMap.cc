@@ -13,7 +13,7 @@
 //
 // Original Author:  Loic Quertenmont
 //         Created:  Wed Nov 10 16:41:46 CDT 2010
-// $Id: ProduceIsolationMap.cc,v 1.1 2010/04/14 14:30:38 jiechen Exp $
+// $Id: ProduceIsolationMap.cc,v 1.2 2010/12/16 01:39:45 jiechen Exp $
 //
 //
 
@@ -59,7 +59,7 @@
 
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPIsolation.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-
+#include "DataFormats/Math/interface/deltaR.h"
 #include <iostream>
 
 //

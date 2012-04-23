@@ -64,7 +64,7 @@ ELfwkJobReport::ELfwkJobReport()
 }  // ELfwkJobReport()
 
 
-ELfwkJobReport::ELfwkJobReport( std::ostream & os_ , bool emitAtStart )
+ELfwkJobReport::ELfwkJobReport( std::ostream & os_ , bool /*emitAtStart*/ )
 : ELdestination       (       )
 , os                  ( &os_, do_nothing_deleter() )
 , charsOnLine         ( 0     )
@@ -90,7 +90,7 @@ ELfwkJobReport::ELfwkJobReport( std::ostream & os_ , bool emitAtStart )
 }  // ELfwkJobReport()
 
 
-ELfwkJobReport::ELfwkJobReport( const ELstring & fileName, bool emitAtStart )
+ELfwkJobReport::ELfwkJobReport( const ELstring & fileName, bool /*emitAtStart*/ )
 : ELdestination       (       )
 , os                  ( new std::ofstream( fileName.c_str() , std::ios/*_base*/::app), close_and_delete())
 , charsOnLine         ( 0     )
@@ -295,7 +295,7 @@ void ELfwkJobReport::finish()   {
 // Output methods:
 // ----------------------------------------------------------------------
 
-void ELfwkJobReport::emitToken( const ELstring & s, bool nl )  {
+void ELfwkJobReport::emitToken( const ELstring & s, bool /*nl*/ )  {
 
   #ifdef ELfwkJobReport_EMIT_TRACE
     std::cerr << "[][][] in emit:  charsOnLine is " << charsOnLine << '\n';

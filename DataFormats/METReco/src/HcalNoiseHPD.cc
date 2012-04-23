@@ -9,7 +9,6 @@
 
 #include "DataFormats/METReco/interface/HcalNoiseHPD.h"
 
-#include "TMath.h"
 
 using namespace reco;
 
