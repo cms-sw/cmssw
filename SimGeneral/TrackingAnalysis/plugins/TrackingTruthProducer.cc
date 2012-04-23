@@ -81,6 +81,16 @@ TrackingTruthProducer::TrackingTruthProducer(const edm::ParameterSet & config) :
         produces<TrackingVertexCollection>("MergedTrackTruth");
         produces<TrackingParticleCollection>("MergedTrackTruth");
     }
+    m_trackingVertexBinMins[ 0 ] = 0. ;
+    m_trackingVertexBinMins[ 1 ] = 100. ;
+    m_trackingVertexBinMins[ 2 ] = 192. ;
+    m_trackingVertexBinMins[ 3 ] = 196. ;
+    m_trackingVertexBinMins[ 4 ] = 198. ;
+    m_trackingVertexBinMins[ 5 ] = 200. ;
+    m_trackingVertexBinMins[ 6 ] = 203. ;
+    m_trackingVertexBinMins[ 7 ] = 207. ;
+    m_trackingVertexBinMins[ 8 ] = 220. ;
+    m_trackingVertexBinMins[ 9 ] = 275. ;
 }
 
 
@@ -482,6 +492,17 @@ void TrackingTruthProducer::createTrackingTruth()
     // Define map between parent simtrack and tv indexes
     std::map<int,std::size_t> vetoedSimVertexes;
 
+    //std::cout << "NUMBER SIMTRACKS " << simTracks_->size() << std::endl ;
+    int setCount = 0 ;
+    m_vertexCounter = 0 ;
+    m_noMatchVertexCounter = 0 ;
+
+    // Clear vertex bins
+    for( int i = 0 ; i < 10 ; ++i )
+      {
+        m_trackingVertexBins[ i ].clear() ;
+      }
+
     for (int simTrackIndex = 0; simTrackIndex != simTracks_->size(); ++simTrackIndex)
     {
         // Check if the simTrack is excluded (includes non traceable and recovered by history)
@@ -556,6 +577,7 @@ void TrackingTruthProducer::createTrackingTruth()
                 if ( !vetoSimVertex )
                 {
                     // Set the tv by using simvertex
+		    ++setCount ;
                     trackingVertexIndex = setTrackingVertex(*parentSimVertex, trackingVertex);
 
                     // Check if a new vertex needs to be created
@@ -565,6 +587,18 @@ void TrackingTruthProducer::createTrackingTruth()
                         trackingVertexIndex = trackingVertexes_->size();
                         // Push the new tv in to the collection
                         trackingVertexes_->push_back(trackingVertex);
+
+                        // Find the distance bin for this vertex
+                        double distance = trackingVertex.position().P() ;
+                        for( int i = 9 ; i >= 0 ; --i )
+                          {
+                            if( distance >= m_trackingVertexBinMins[ i ] )
+                              {
+                                m_trackingVertexBins[ i ].push_back( trackingVertexIndex ) ;
+                                break ;
+                              }
+                          }
+
                     }
                     else
                     {
@@ -625,6 +659,16 @@ void TrackingTruthProducer::createTrackingTruth()
             while (!currentSimTrack->noVertex());
         }
     }
+
+    //std::cout << "NUMBER CALLS SETTRACKINGVERTEX " << setCount << std::endl ;
+    //std::cout << "FINAL NUMBER VERTEXES " << trackingVertexes_->size() << std::endl ;
+    //std::cout << "NUMBER VERTEX ITERATIONS " << m_vertexCounter << std::endl ;
+    //std::cout << "NUMBER VERTEX NO MATCH " << m_noMatchVertexCounter << std::endl ;
+
+    //for( int i = 0 ; i < 10 ; ++i )
+    //  {
+    //    std::cout << "NUMBER VERTEXES BIN " << i << " = " << m_trackingVertexBins[ i ].size() << std::endl ;
+    //  }
 }
 
 
@@ -755,20 +799,80 @@ int TrackingTruthProducer::setTrackingVertex(
 {
     LorentzVector const & position = simVertex.position();
 
-    // Look for close by vertexes
-    for (std::size_t trackingVertexIndex = 0; trackingVertexIndex < trackingVertexes_->size(); ++trackingVertexIndex)
-    {
-        // Calculate the distance
-        double distance = (position - trackingVertexes_->at(trackingVertexIndex).position()).P();
-        // If the distance is under a given cut return the trackingVertex index (vertex merging)
-        if (distance <= distanceCut_)
-        {
-            // Add simvertex to the pre existent tv
-            trackingVertexes_->at(trackingVertexIndex).addG4Vertex(simVertex);
-            // return tv index
-            return trackingVertexIndex;
-        }
-    }
+    // Find tracking vertex bin
+    double simDist = position.P() ;
+    int bin = -1 ;
+    for( int i = 9 ; i >= 0 ; --i )
+      {
+        if( simDist >= m_trackingVertexBinMins[ i ] )
+          {
+            bin = i ;
+            break ;
+          }
+      }
+
+    if( bin > -1 )
+      {
+        // Look for close by vertexes in this bin, starting at end
+        for( std::size_t ivtx = m_trackingVertexBins[ bin ].size() ; ivtx > 0 ; --ivtx )
+          {
+            std::size_t trackingVertexIndex = m_trackingVertexBins[ bin ].at( ivtx-1 ) ;
+            ++m_vertexCounter ;
+
+            // Calculate the distance
+            double distance = (position - trackingVertexes_->at(trackingVertexIndex).position()).P();
+            // If the distance is under a given cut return the trackingVertex index (vertex merging)
+            if (distance <= distanceCut_)
+              {
+                // Add simvertex to the pre existent tv
+                trackingVertexes_->at(trackingVertexIndex).addG4Vertex(simVertex);
+
+                // std::cout << "MATCHED VERTEX " << trackingVertexIndex-1 << " OF " << trackingVertexes_->size() << ", POSITION (" << position.x() << ", " << position.y() << ", " << position.z() << ") r = " << position.P() << std::endl ;
+
+                // return tv index
+                return trackingVertexIndex;
+              }
+          }
+    
+        // If no match found, check if we are close to a neighboring bin
+        int nbin = -1 ;
+        if( bin != 0 && fabs( simDist - m_trackingVertexBinMins[ bin ] ) <= distanceCut_ )
+          {
+            nbin = bin - 1 ;
+          }
+        else if( bin != 9 && fabs( simDist - m_trackingVertexBinMins[ bin + 1 ] ) <= distanceCut_ )
+          {
+            nbin = bin + 1 ;
+          }
+
+        if( nbin > -1 )
+          {
+            // std::cout << "CHECKING NEIGHBORING BIN " << bin << " -> " << nbin << std::endl ;
+
+            // Look for close by vertexes in this bin, starting at end
+            for( std::size_t ivtx = m_trackingVertexBins[ nbin ].size() ; ivtx > 0 ; --ivtx )
+              {
+                std::size_t trackingVertexIndex = m_trackingVertexBins[ nbin ].at( ivtx-1 ) ;
+                ++m_vertexCounter ;
+
+                // Calculate the distance
+                double distance = (position - trackingVertexes_->at(trackingVertexIndex).position()).P();
+                // If the distance is under a given cut return the trackingVertex index (vertex merging)
+                if (distance <= distanceCut_)
+                  {
+                    // Add simvertex to the pre existent tv
+                    trackingVertexes_->at(trackingVertexIndex).addG4Vertex(simVertex);
+
+                    // std::cout << "MATCHED VERTEX " << trackingVertexIndex-1 << " OF " << trackingVertexes_->size() << ", POSITION (" << position.x() << ", " << position.y() << ", " << position.z() << ") r = " << position.P() << std::endl ;
+
+                    // return tv index
+                    return trackingVertexIndex;
+                  }
+              }
+          }
+      }
+
+    ++m_noMatchVertexCounter ;
 
     // Get the event if from the simvertex
     EncodedEventId simVertexEventId = simVertex.eventId();

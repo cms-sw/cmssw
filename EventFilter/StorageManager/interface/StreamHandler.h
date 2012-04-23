@@ -1,4 +1,4 @@
-// $Id: StreamHandler.h,v 1.13.6.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: StreamHandler.h,v 1.14 2011/03/07 15:31:32 mommsen Exp $
 /// @file: StreamHandler.h 
 
 #ifndef EventFilter_StorageManager_StreamHandler_h
@@ -24,8 +24,8 @@ namespace stor {
    * Abstract class to handle one stream written to disk.
    *
    * $Author: mommsen $
-   * $Revision: 1.13.6.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.14 $
+   * $Date: 2011/03/07 15:31:32 $
    */
   
   class StreamHandler
@@ -50,15 +50,11 @@ namespace stor {
 
     /**
      * Close all files which belong to the given lumi section
-     */    
-    void closeFilesForLumiSection(const uint32_t lumiSection);
-
-    /**
-     * Close all files which belong to the given lumi section
      * and print number of files for this lumi section into
      * the passed string.
+     * Returns true if at least one file was closed.
      */    
-    void closeFilesForLumiSection(const uint32_t& lumiSection, std::string&);
+    bool closeFilesForLumiSection(const uint32_t& lumiSection, std::string&);
 
     /**
      * Write the event to the stream file

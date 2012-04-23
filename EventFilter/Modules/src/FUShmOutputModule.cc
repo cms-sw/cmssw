@@ -4,7 +4,7 @@
      the resource broker to send to the Storage Manager.
      See the CMS EvF Storage Manager wiki page for further notes.
 
-   $Id: FUShmOutputModule.cc,v 1.11 2008/10/14 13:19:50 biery Exp $
+   $Id: FUShmOutputModule.cc,v 1.12 2011/01/19 13:19:02 meschi Exp $
 */
 
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
@@ -40,7 +40,6 @@ namespace edm
    * Initialize the static variables for the filter unit identifiers.
    */
   bool FUShmOutputModule::fuIdsInitialized_ = false;
-  uint32 FUShmOutputModule::fuProcId_ = 0;
   uint32 FUShmOutputModule::fuGuidValue_ = 0;
 
   FUShmOutputModule::FUShmOutputModule(edm::ParameterSet const& ps):
@@ -61,8 +60,6 @@ namespace edm
       Bytef* buf = (Bytef*)guidString.data();
       crc = crc32(crc, buf, guidString.length());
       fuGuidValue_ = crc;
-
-      fuProcId_ = getpid();
     }
   }
   
@@ -91,7 +88,7 @@ namespace edm
       uint32 dmoduleId = dummymsg.outputModuleId();
 
       //bool ret = shmBuffer_->writeRecoInitMsg(dmoduleId, buffer, size);
-      bool ret = sm_sharedmemory.getShmBuffer()->writeRecoInitMsg(dmoduleId, fuProcId_, fuGuidValue_, buffer, size);
+      bool ret = sm_sharedmemory.getShmBuffer()->writeRecoInitMsg(dmoduleId, getpid(), fuGuidValue_, buffer, size);
       if(!ret) edm::LogError("FUShmOutputModule") << " Error writing preamble to ShmBuffer";
     }
   }
@@ -113,7 +110,7 @@ namespace edm
       unsigned int outModId = eventView.outModId();
       FDEBUG(10) << "FUShmOutputModule: event size = " << size << std::endl;
       //bool ret = shmBuffer_->writeRecoEventData(runid, eventid, outModId, buffer, size);
-      bool ret = sm_sharedmemory.getShmBuffer()->writeRecoEventData(runid, eventid, outModId, fuProcId_, fuGuidValue_, buffer, size);
+      bool ret = sm_sharedmemory.getShmBuffer()->writeRecoEventData(runid, eventid, outModId, getpid(), fuGuidValue_, buffer, size);
       if(!ret) edm::LogError("FUShmOutputModule") << " Error with writing data to ShmBuffer";
     }
   }

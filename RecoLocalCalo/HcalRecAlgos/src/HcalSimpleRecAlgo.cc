@@ -17,11 +17,15 @@ HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPul
 HcalSimpleRecAlgo::HcalSimpleRecAlgo() : 
   correctForTimeslew_(false), setForData_(false) { }
 
+
 void HcalSimpleRecAlgo::initPulseCorr(int toadd) {
   if (correctForPulse_) {    
-    pulseCorr_=std::auto_ptr<HcalPulseContainmentCorrection>(new HcalPulseContainmentCorrection(toadd,phaseNS_,MaximumFractionalError));
+    if (pulseCorr_[toadd].get()==0) {
+      pulseCorr_[toadd]=std::auto_ptr<HcalPulseContainmentCorrection>(new HcalPulseContainmentCorrection(toadd,phaseNS_,MaximumFractionalError));
+    }
   }
 }
+
 
 void HcalSimpleRecAlgo::setForData () { setForData_ = true;}
 
@@ -110,7 +114,7 @@ namespace HcalSimpleRecAlgoImpl {
 HBHERecHit HcalSimpleRecAlgo::reconstruct(const HBHEDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<HBHEDataFrame,HBHERecHit>(digi,coder,calibs,
 							       first,toadd,correctForTimeslew_,
-							       pulseCorr_.get(),
+							       pulseCorr_[toadd].get(),
 							       HcalTimeSlew::Medium,
                                                                setForData_);
 }
@@ -119,7 +123,7 @@ HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int 
   return HcalSimpleRecAlgoImpl::reco<HODataFrame,HORecHit>(digi,coder,calibs,
 							   first,toadd,
 							   correctForTimeslew_,
-							   pulseCorr_.get(),
+							   pulseCorr_[toadd].get(),
 							   HcalTimeSlew::Slow,
                                                            setForData_);
 }
@@ -127,7 +131,7 @@ HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int 
 HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<HcalCalibDataFrame,HcalCalibRecHit>(digi,coder,calibs,
 									 first,toadd,correctForTimeslew_,
-									 pulseCorr_.get(),
+									 pulseCorr_[toadd].get(),
 									 HcalTimeSlew::Fast,
                                                                          setForData_ );
 }

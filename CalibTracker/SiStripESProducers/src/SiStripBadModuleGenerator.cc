@@ -103,21 +103,10 @@ void SiStripBadModuleGenerator::selectDetectors(const std::vector<uint32_t>& Det
       subDet=SiStripDetId::TOB;
     else if (iBadComponent->getParameter<std::string>("SubDet")=="TEC")
       subDet=SiStripDetId::TEC;
-    std::vector<uint32_t> genericBadDetIds( iBadComponent->getUntrackedParameter<std::vector<uint32_t> >("detidList", std::vector<uint32_t>()) );
     
-    bool anySubDet = true;
-    if( genericBadDetIds.empty() ) anySubDet = false;
-
-    std::cout << "genericBadDetIds.size() = " << genericBadDetIds.size() << std::endl;
-
     uint32_t startDet=DetId(DetId::Tracker,subDet).rawId();
     uint32_t stopDet=DetId(DetId::Tracker,subDet+1).rawId();
-
-    if( anySubDet ) {
-      startDet=DetId(DetId::Tracker,SiStripDetId::TIB).rawId();
-      stopDet=DetId(DetId::Tracker,SiStripDetId::TEC+1).rawId();      
-    }
-
+    
     std::vector<uint32_t>::const_iterator iter=lower_bound(DetIds.begin(),DetIds.end(),startDet);
     std::vector<uint32_t>::const_iterator iterEnd=lower_bound(DetIds.begin(),DetIds.end(),stopDet);
 
@@ -160,12 +149,7 @@ void SiStripBadModuleGenerator::selectDetectors(const std::vector<uint32_t>& Det
 			   iBadComponent->getParameter<uint32_t>("ster"),
 			   iBadComponent->getParameter<uint32_t>("detid")
 			   );
-      if( anySubDet ) {
-	std::cout << "AnySubDet" << *iter << std::endl;
-	if( std::find(genericBadDetIds.begin(), genericBadDetIds.end(), *iter) == genericBadDetIds.end() ) resp = false;
-	else resp = true;
-      }
-   
+      
       if(resp)
 	list.push_back(*iter);      
     }

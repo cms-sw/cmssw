@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTriggerTableViewManager.cc,v 1.5 2011/01/26 11:47:07 amraktad Exp $
+// $Id: FWTriggerTableViewManager.cc,v 1.6 2011/02/16 18:38:36 amraktad Exp $
 //
 
 // system include files
@@ -40,7 +40,6 @@ FWTriggerTableViewManager::FWTriggerTableViewManager(FWGUIManager* iGUIMgr) :
 FWTriggerTableViewManager::~FWTriggerTableViewManager()
 {
 }
-
 
 class FWViewBase*
 FWTriggerTableViewManager::buildView(TEveWindowSlot* iParent, const std::string& type)

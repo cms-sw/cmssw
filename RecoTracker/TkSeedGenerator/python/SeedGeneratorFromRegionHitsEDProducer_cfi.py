@@ -28,9 +28,9 @@ seedGeneratorFromRegionHitsEDProducer = cms.EDProducer("SeedGeneratorFromRegionH
 ##add a protection for too many clusters in the event.
 ClusterCheckPSet = cms.PSet(
                  doClusterCheck = cms.bool(True),
-                 MaxNumberOfCosmicClusters = cms.uint32(50000),
+                 MaxNumberOfCosmicClusters = cms.uint32(150000),
                  ClusterCollectionLabel = cms.InputTag("siStripClusters"),
-                 MaxNumberOfPixelClusters = cms.uint32(10000),
+                 MaxNumberOfPixelClusters = cms.uint32(20000),
                  PixelClusterCollectionLabel = cms.InputTag("siPixelClusters")
                  ),
 )

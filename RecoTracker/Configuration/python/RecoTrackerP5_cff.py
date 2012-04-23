@@ -80,3 +80,7 @@ ckfTrackCandidatesP5.useHitsSplitting = True
 rsTrackCandidatesP5.SplitMatchedHits = True
 
 
+
+# REGIONAL RECONSTRUCTION
+from RecoTracker.Configuration.RecoTrackerNotStandard_cff import regionalCosmicTrackerSeeds,regionalCosmicCkfTrackCandidates,regionalCosmicTracks,regionalCosmicTracksSeq
+regionalCosmicTrackerSeeds.RegionInJetsCheckPSet = cms.PSet( doJetsExclusionCheck   = cms.bool( False ) )

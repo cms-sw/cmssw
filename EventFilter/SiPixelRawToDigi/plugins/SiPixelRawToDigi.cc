@@ -106,7 +106,6 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
     // quality info for dead pixel modules or ROCs
     edm::ESHandle<SiPixelQuality> qualityInfo;
     es.get<SiPixelQualityRcd>().get( qualityInfo );
-    if (badPixelInfo_) delete badPixelInfo_;
     badPixelInfo_ = qualityInfo.product();
     if (!badPixelInfo_) {
       edm::LogError("**SiPixelRawToDigi**")<<" Configured to use SiPixelQuality, but SiPixelQuality not present"<<endl;

@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2011/02/14 08:01:29 $
- * $Revision: 1.73 $
+ * $Date: 2011/08/30 09:28:42 $
+ * $Revision: 1.78 $
  * \author G. Della Ricca
  *
 */
@@ -44,6 +44,8 @@ EETimingTask::EETimingTask(const edm::ParameterSet& ps){
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
+  energyThreshold_ = ps.getUntrackedParameter<double>("energyThreshold", 3.);
+
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
 
@@ -57,8 +59,6 @@ EETimingTask::EETimingTask(const edm::ParameterSet& ps){
     meTimeAmpliSummary_[i] = 0;
     meTimeSummary1D_[i] = 0;
     meTimeSummaryMap_[i] = 0;
-    meTimeSummaryMapProjEta_[i] = 0;
-    meTimeSummaryMapProjPhi_[i] = 0;
   }
 
   meTimeDelta_ = 0;
@@ -110,8 +110,6 @@ void EETimingTask::reset(void) {
     if ( meTimeAmpliSummary_[i] ) meTimeAmpliSummary_[i]->Reset();
     if ( meTimeSummary1D_[i] ) meTimeSummary1D_[i]->Reset();
     if ( meTimeSummaryMap_[i] ) meTimeSummaryMap_[i]->Reset();
-    if ( meTimeSummaryMapProjEta_[i] )  meTimeSummaryMapProjEta_[i]->Reset();
-    if ( meTimeSummaryMapProjPhi_[i] )  meTimeSummaryMapProjPhi_[i]->Reset();
   }
 
   if ( meTimeDelta_ ) meTimeDelta_->Reset();
@@ -123,88 +121,83 @@ void EETimingTask::setup(void){
 
   init_ = true;
 
-  char histo[200];
+  std::string name;
+
+  //for timing vs amplitude plots
+  const int nbinsE = 25;
+  const float minlogE = -0.5;
+  const float maxlogE = 2.;
+  float binEdgesE[nbinsE + 1];
+  for(int i = 0; i <= nbinsE; i++)
+    binEdgesE[i] = std::pow(10., minlogE + (maxlogE - minlogE) / nbinsE * i);
+
+  const int nbinsT = 200;
+  const float minT = -50.;
+  const float maxT = 50.;
+  float binEdgesT[nbinsT + 1];
+  for(int i = 0; i <= nbinsT; i++)
+    binEdgesT[i] = minT + (maxT - minT) / nbinsT * i;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EETimingTask");
 
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EETMT timing 1D %s", Numbers::sEE(i+1).c_str());
-      meTime_[i] = dqmStore_->book1D(histo, histo, 50, -50., 50.);
+      name = "EETMT timing 1D " + Numbers::sEE(i+1);
+      meTime_[i] = dqmStore_->book1D(name, name, 50, -25., 25.);
       meTime_[i]->setAxisTitle("time (ns)", 1);
       dqmStore_->tag(meTime_[i], i+1);
 
-      sprintf(histo, "EETMT timing %s", Numbers::sEE(i+1).c_str());
-      meTimeMap_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 25., 75., "s");
+      name = "EETMT timing " + Numbers::sEE(i+1);
+      meTimeMap_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., -20.+shiftProf2D, 20.+shiftProf2D, "s");
       meTimeMap_[i]->setAxisTitle("ix", 1);
       if ( i+1 >= 1 && i+1 <= 9 ) meTimeMap_[i]->setAxisTitle("101-ix", 1);
       meTimeMap_[i]->setAxisTitle("iy", 2);
       meTimeMap_[i]->setAxisTitle("time (ns)", 3);
       dqmStore_->tag(meTimeMap_[i], i+1);
 
-      sprintf(histo, "EETMT timing vs amplitude %s", Numbers::sEE(i+1).c_str());
-      meTimeAmpli_[i] = dqmStore_->book2D(histo, histo, 100, 0., 10., 50, -50., 50.);
+      name = "EETMT timing vs amplitude " + Numbers::sEE(i+1);
+      meTimeAmpli_[i] = dqmStore_->book2D(name, name, nbinsE, binEdgesE, nbinsT, binEdgesT);
       meTimeAmpli_[i]->setAxisTitle("energy (GeV)", 1);
       meTimeAmpli_[i]->setAxisTitle("time (ns)", 2);
       dqmStore_->tag(meTimeAmpli_[i], i+1);
     }
 
-    sprintf(histo, "EETMT timing vs amplitude summary EE -");
-    meTimeAmpliSummary_[0] = dqmStore_->book2D(histo, histo, 100, 0., 10., 50, -50., 50.);
+    name = "EETMT timing vs amplitude summary EE -";
+    meTimeAmpliSummary_[0] = dqmStore_->book2D(name, name, nbinsE, binEdgesE, nbinsT, binEdgesT);
     meTimeAmpliSummary_[0]->setAxisTitle("energy (GeV)", 1);
     meTimeAmpliSummary_[0]->setAxisTitle("time (ns)", 2);
 
-    sprintf(histo, "EETMT timing vs amplitude summary EE +");
-    meTimeAmpliSummary_[1] = dqmStore_->book2D(histo, histo, 100, 0., 10., 50, -50., 50.);
+    name = "EETMT timing vs amplitude summary EE +";
+    meTimeAmpliSummary_[1] = dqmStore_->book2D(name, name, nbinsE, binEdgesE, nbinsT, binEdgesT);
     meTimeAmpliSummary_[1]->setAxisTitle("energy (GeV)", 1);
     meTimeAmpliSummary_[1]->setAxisTitle("time (ns)", 2);
 
-    sprintf(histo, "EETMT timing 1D summary EE -");
-    meTimeSummary1D_[0] = dqmStore_->book1D(histo, histo, 50, -50., 50.);
+    name = "EETMT timing 1D summary EE -";
+    meTimeSummary1D_[0] = dqmStore_->book1D(name, name, 50, -25., 25.);
     meTimeSummary1D_[0]->setAxisTitle("time (ns)", 1);
 
-    sprintf(histo, "EETMT timing 1D summary EE +");
-    meTimeSummary1D_[1] = dqmStore_->book1D(histo, histo, 50, -50., 50.);
+    name = "EETMT timing 1D summary EE +";
+    meTimeSummary1D_[1] = dqmStore_->book1D(name, name, 50, -25., 25.);
     meTimeSummary1D_[1]->setAxisTitle("time (ns)", 1);
 
-    sprintf(histo, "EETMT timing map EE -");
-    meTimeSummaryMap_[0] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 50, 25., 75., "s");
+    name = "EETMT timing map EE -";
+    meTimeSummaryMap_[0] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., -20.+shiftProf2D, 20.+shiftProf2D, "s");
     meTimeSummaryMap_[0]->setAxisTitle("ix'", 1);
     meTimeSummaryMap_[0]->setAxisTitle("101-iy'", 2);
     meTimeSummaryMap_[0]->setAxisTitle("time (ns)", 3);
 
-    sprintf(histo, "EETMT timing map EE +");
-    meTimeSummaryMap_[1] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 50, 25., 75., "s");
+    name = "EETMT timing map EE +";
+    meTimeSummaryMap_[1] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., -20.+shiftProf2D, 20.+shiftProf2D, "s");
     meTimeSummaryMap_[1]->setAxisTitle("ix'", 1);
     meTimeSummaryMap_[1]->setAxisTitle("iy'", 2);
     meTimeSummaryMap_[1]->setAxisTitle("time (ns)", 3);
 
-    sprintf(histo, "EETMT timing projection eta EE -");
-    meTimeSummaryMapProjEta_[0] = dqmStore_->bookProfile(histo, histo, 20, -3.0, -1.479, 50, -50., 50., "s");
-    meTimeSummaryMapProjEta_[0]->setAxisTitle("eta", 1);
-    meTimeSummaryMapProjEta_[0]->setAxisTitle("time (ns)", 2);
-
-    sprintf(histo, "EETMT timing projection eta EE +");
-    meTimeSummaryMapProjEta_[1] = dqmStore_->bookProfile(histo, histo, 20, 1.479, 3.0, 50, -50., 50., "s");
-    meTimeSummaryMapProjEta_[1]->setAxisTitle("phi", 1);
-    meTimeSummaryMapProjEta_[1]->setAxisTitle("time (ns)", 2);
-
-    sprintf(histo, "EETMT timing projection phi EE -");
-    meTimeSummaryMapProjPhi_[0] = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 50, -50., 50., "s");
-    meTimeSummaryMapProjPhi_[0]->setAxisTitle("phi", 1);
-    meTimeSummaryMapProjPhi_[0]->setAxisTitle("time (ns)", 2);
-
-    sprintf(histo, "EETMT timing projection phi EE +");
-    meTimeSummaryMapProjPhi_[1] = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 50, -50., 50., "s");
-    meTimeSummaryMapProjPhi_[1]->setAxisTitle("phi", 1);
-    meTimeSummaryMapProjPhi_[1]->setAxisTitle("time (ns)", 2);
-
-    sprintf(histo, "EETMT timing EE+ - EE-");
-    meTimeDelta_ = dqmStore_->book1D(histo, histo, 100, -3., 3.);
+    name = "EETMT timing EE+ - EE-";
+    meTimeDelta_ = dqmStore_->book1D(name, name, 100, -3., 3.);
     meTimeDelta_->setAxisTitle("time (ns)", 1);
 
-    sprintf(histo, "EETMT timing EE+ vs EE-");
-    meTimeDelta2D_ = dqmStore_->book2D(histo, histo, 50, -50., 50., 50, -50., 50.);
+    name = "EETMT timing EE+ vs EE-";
+    meTimeDelta2D_ = dqmStore_->book2D(name, name, 50, -25., 25., 50, -25., 25.);
     meTimeDelta2D_->setAxisTitle("EE+ average time (ns)", 1);
     meTimeDelta2D_->setAxisTitle("EE- average time (ns)", 2);
 
@@ -240,11 +233,6 @@ void EETimingTask::cleanup(void){
       if ( meTimeSummaryMap_[i] ) dqmStore_->removeElement( meTimeSummaryMap_[i]->getName() );
       meTimeSummaryMap_[i] = 0;
 
-      if ( meTimeSummaryMapProjEta_[i] ) dqmStore_->removeElement( meTimeSummaryMapProjEta_[i]->getName() );
-      meTimeSummaryMapProjEta_[i] = 0;
-
-      if ( meTimeSummaryMapProjPhi_[i] ) dqmStore_->removeElement( meTimeSummaryMapProjPhi_[i]->getName() );
-      meTimeSummaryMapProjPhi_[i] = 0;
     }
 
     if ( meTimeDelta_ ) dqmStore_->removeElement( meTimeDelta_->getName() );
@@ -362,25 +350,15 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       uint32_t sev = sevlv->severityLevel(id, *hits );
 
-      const GlobalPoint& pos = pGeometry_->getGeometry(id)->getPosition();
-
-      float theta = pos.theta();
-      float eta = pos.eta();
-      float phi = pos.phi();
-
-      float et = hitItr->energy() * std::abs(sin(theta));
-
       if ( (flag == EcalRecHit::kGood || flag == EcalRecHit::kOutOfTime) && sev != EcalSeverityLevelAlgo::kWeird ) {
         if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
         if ( meTimeAmpliSummary_[iz] ) meTimeAmpliSummary_[iz]->Fill(xval, yval);
-        if ( et > 0.600 ) {
-          if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval+50.);
+        if ( hitItr->energy() > energyThreshold_ ) {
+          if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval+shiftProf2D);
           if ( meTime ) meTime->Fill(yval);
           if ( meTimeSummary1D_[iz] ) meTimeSummary1D_[iz]->Fill(yval);
 
-          if ( meTimeSummaryMap_[iz] ) meTimeSummaryMap_[iz]->Fill(xix, xiy, yval+50.);
-          if ( meTimeSummaryMapProjEta_[iz] ) meTimeSummaryMapProjEta_[iz]->Fill(eta, yval);
-          if ( meTimeSummaryMapProjPhi_[iz] ) meTimeSummaryMapProjPhi_[iz]->Fill(phi, yval);
+          if ( meTimeSummaryMap_[iz] ) meTimeSummaryMap_[iz]->Fill(id.ix()-0.5, xiy, yval+shiftProf2D);
 
           sumTime_hithr[iz] += yval;
           n_hithr[iz]++;

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2010/08/30 13:14:07 $
- * $Revision: 1.226 $
+ * $Date: 2011/08/30 09:33:51 $
+ * $Revision: 1.228 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,6 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsDat.h"
@@ -188,7 +189,7 @@ void EBPedestalClient::endRun(void) {
 
 void EBPedestalClient::setup(void) {
 
-  char histo[200];
+  std::string name;
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EBPedestalClient" );
 
@@ -198,133 +199,133 @@ void EBPedestalClient::setup(void) {
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
       if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
-      sprintf(histo, "EBPT pedestal quality G01 %s", Numbers::sEB(ism).c_str());
-      meg01_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      name = "EBPT pedestal quality G01 " + Numbers::sEB(ism);
+      meg01_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       meg01_[ism-1]->setAxisTitle("ieta", 1);
       meg01_[ism-1]->setAxisTitle("iphi", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
       if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
-      sprintf(histo, "EBPT pedestal quality G06 %s", Numbers::sEB(ism).c_str());
-      meg02_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      name = "EBPT pedestal quality G06 " + Numbers::sEB(ism);
+      meg02_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       meg02_[ism-1]->setAxisTitle("ieta", 1);
       meg02_[ism-1]->setAxisTitle("iphi", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
       if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
-      sprintf(histo, "EBPT pedestal quality G12 %s", Numbers::sEB(ism).c_str());
-      meg03_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      name = "EBPT pedestal quality G12 " + Numbers::sEB(ism);
+      meg03_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       meg03_[ism-1]->setAxisTitle("ieta", 1);
       meg03_[ism-1]->setAxisTitle("iphi", 2);
     }
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
       if ( meg04_[ism-1] ) dqmStore_->removeElement( meg04_[ism-1]->getName() );
-      sprintf(histo, "EBPT pedestal quality PNs G01 %s", Numbers::sEB(ism).c_str());
-      meg04_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+      name = "EBPT pedestal quality PNs G01 " + Numbers::sEB(ism);
+      meg04_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg04_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg04_[ism-1]->setAxisTitle("channel", 2);
     }
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
       if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getName() );
-      sprintf(histo, "EBPT pedestal quality PNs G16 %s", Numbers::sEB(ism).c_str());
-      meg05_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+      name = "EBPT pedestal quality PNs G16 " + Numbers::sEB(ism);
+      meg05_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg05_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg05_[ism-1]->setAxisTitle("channel", 2);
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
       if ( mep01_[ism-1] ) dqmStore_->removeElement( mep01_[ism-1]->getName() );
-      sprintf(histo, "EBPT pedestal mean G01 %s", Numbers::sEB(ism).c_str());
-      mep01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 150., 250.);
+      name = "EBPT pedestal mean G01 " + Numbers::sEB(ism);
+      mep01_[ism-1] = dqmStore_->book1D(name, name, 100, 150., 250.);
       mep01_[ism-1]->setAxisTitle("mean", 1);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
       if ( mep02_[ism-1] ) dqmStore_->removeElement( mep02_[ism-1]->getName() );
-      sprintf(histo, "EBPT pedestal mean G06 %s", Numbers::sEB(ism).c_str());
-      mep02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 150., 250.);
+      name = "EBPT pedestal mean G06 " + Numbers::sEB(ism);
+      mep02_[ism-1] = dqmStore_->book1D(name, name, 100, 150., 250.);
       mep02_[ism-1]->setAxisTitle("mean", 1);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
       if ( mep03_[ism-1] ) dqmStore_->removeElement( mep03_[ism-1]->getName() );
-      sprintf(histo, "EBPT pedestal mean G12 %s", Numbers::sEB(ism).c_str());
-      mep03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 150., 250.);
+      name = "EBPT pedestal mean G12 " + Numbers::sEB(ism);
+      mep03_[ism-1] = dqmStore_->book1D(name, name, 100, 150., 250.);
       mep03_[ism-1]->setAxisTitle("mean", 1);
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
       if ( mer01_[ism-1] ) dqmStore_->removeElement( mer01_[ism-1]->getName() );
-      sprintf(histo, "EBPT pedestal rms G01 %s", Numbers::sEB(ism).c_str());
-      mer01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EBPT pedestal rms G01 " + Numbers::sEB(ism);
+      mer01_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mer01_[ism-1]->setAxisTitle("rms", 1);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
       if ( mer02_[ism-1] ) dqmStore_->removeElement( mer02_[ism-1]->getName() );
-      sprintf(histo, "EBPT pedestal rms G06 %s", Numbers::sEB(ism).c_str());
-      mer02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EBPT pedestal rms G06 " + Numbers::sEB(ism);
+      mer02_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mer02_[ism-1]->setAxisTitle("rms", 1);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
       if ( mer03_[ism-1] ) dqmStore_->removeElement( mer03_[ism-1]->getName() );
-      sprintf(histo, "EBPT pedestal rms G12 %s", Numbers::sEB(ism).c_str());
-      mer03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EBPT pedestal rms G12 " + Numbers::sEB(ism);
+      mer03_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mer03_[ism-1]->setAxisTitle("rms", 1);
     }
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
       if ( mer04_[ism-1] ) dqmStore_->removeElement( mer04_[ism-1]->getName() );
-      sprintf(histo, "EBPDT PNs pedestal rms %s G01", Numbers::sEB(ism).c_str());
-      mer04_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EBPDT PNs pedestal rms " + Numbers::sEB(ism) + " G01"; 
+      mer04_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mer04_[ism-1]->setAxisTitle("rms", 1);
     }
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
       if ( mer05_[ism-1] ) dqmStore_->removeElement( mer05_[ism-1]->getName() );
-      sprintf(histo, "EBPDT PNs pedestal rms %s G16", Numbers::sEB(ism).c_str());
-      mer05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EBPDT PNs pedestal rms " + Numbers::sEB(ism) + " G16";
+      mer05_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mer05_[ism-1]->setAxisTitle("rms", 1);
     }
 
 #ifdef COMMON_NOISE_ANALYSIS
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
       if ( mes01_[ism-1] ) dqmStore_->removeElement( mes01_[ism-1]->getName() );
-      sprintf(histo, "EBPT pedestal 3sum G01 %s", Numbers::sEB(ism).c_str());
-      mes01_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      name = "EBPT pedestal 3sum G01 " + Numbers::sEB(ism);
+      mes01_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       mes01_[ism-1]->setAxisTitle("ieta", 1);
       mes01_[ism-1]->setAxisTitle("iphi", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
       if ( mes02_[ism-1] ) dqmStore_->removeElement( mes02_[ism-1]->getName() );
-      sprintf(histo, "EBPT pedestal 3sum G06 %s", Numbers::sEB(ism).c_str());
-      mes02_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      name = "EBPT pedestal 3sum G06 " + Numbers::sEB(ism);
+      mes02_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       mes02_[ism-1]->setAxisTitle("ieta", 1);
       mes02_[ism-1]->setAxisTitle("iphi", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
       if ( mes03_[ism-1] ) dqmStore_->removeElement( mes03_[ism-1]->getName() );
-      sprintf(histo, "EBPT pedestal 3sum G12 %s", Numbers::sEB(ism).c_str());
-      mes03_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      name = "EBPT pedestal 3sum G12 " + Numbers::sEB(ism);
+      mes03_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       mes03_[ism-1]->setAxisTitle("ieta", 1);
       mes03_[ism-1]->setAxisTitle("iphi", 2);
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
       if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getName() );
-      sprintf(histo, "EBPT pedestal 5sum G01 %s", Numbers::sEB(ism).c_str());
-      met01_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      name = "EBPT pedestal 5sum G01 " + Numbers::sEB(ism);
+      met01_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       met01_[ism-1]->setAxisTitle("ieta", 1);
       met01_[ism-1]->setAxisTitle("iphi", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
       if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getName() );
-      sprintf(histo, "EBPT pedestal 5sum G06 %s", Numbers::sEB(ism).c_str());
-      met02_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      name = "EBPT pedestal 5sum G06 " + Numbers::sEB(ism);
+      met02_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       met02_[ism-1]->setAxisTitle("ieta", 1);
       met02_[ism-1]->setAxisTitle("iphi", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
       if ( met03_[ism-1] ) dqmStore_->removeElement( met03_[ism-1]->getName() );
-      sprintf(histo, "EBPT pedestal 5sum G12 %s", Numbers::sEB(ism).c_str());
-      met03_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      name = "EBPT pedestal 5sum G12 " + Numbers::sEB(ism);
+      met03_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       met03_[ism-1]->setAxisTitle("ieta", 1);
       met03_[ism-1]->setAxisTitle("iphi", 2);
     }
@@ -707,8 +708,6 @@ void EBPedestalClient::analyze(void) {
   bits03 |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR;
   bits03 |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_RMS_ERROR;
 
-  char histo[200];
-
   MonitorElement* me;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -717,91 +716,80 @@ void EBPedestalClient::analyze(void) {
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBPedestalTask/Gain01/EBPT pedestal %s G01").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
-      h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
+      me = dqmStore_->get(prefixME_ + "/EBPedestalTask/Gain01/EBPT pedestal " + Numbers::sEB(ism) + " G01");
+      h01_[ism-1] = UtilsClient::getHisto( me, cloneME_, h01_[ism-1] );
 
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBPedestalTask/Gain06/EBPT pedestal %s G06").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
-      h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
+      me = dqmStore_->get(prefixME_ + "/EBPedestalTask/Gain06/EBPT pedestal " + Numbers::sEB(ism) + " G06");
+      h02_[ism-1] = UtilsClient::getHisto( me, cloneME_, h02_[ism-1] );
 
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBPedestalTask/Gain12/EBPT pedestal %s G12").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
-      h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
+      me = dqmStore_->get(prefixME_ + "/EBPedestalTask/Gain12/EBPT pedestal " + Numbers::sEB(ism) + " G12");
+      h03_[ism-1] = UtilsClient::getHisto( me, cloneME_, h03_[ism-1] );
 
     }
 
 #ifdef COMMON_NOISE_ANALYSIS
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBPedestalTask/Gain01/EBPT pedestal 3sum %s G01").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
-      j01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, j01_[ism-1] );
+      me = dqmStore_->get(prefixME_ + "/EBPedestalTask/Gain01/EBPT pedestal 3sum " + Numbers::sEB(ism) + " G01");
+      j01_[ism-1] = UtilsClient::getHisto( me, cloneME_, j01_[ism-1] );
 
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBPedestalTask/Gain06/EBPT pedestal 3sum %s G06").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
-      j02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, j02_[ism-1] );
+      me = dqmStore_->get(prefixME_ + "/EBPedestalTask/Gain06/EBPT pedestal 3sum " + Numbers::sEB(ism) + " G06");
+      j02_[ism-1] = UtilsClient::getHisto( me, cloneME_, j02_[ism-1] );
 
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBPedestalTask/Gain12/EBPT pedestal 3sum %s G12").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
-      j03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, j03_[ism-1] );
+      me = dqmStore_->get(prefixME_ + "/EBPedestalTask/Gain12/EBPT pedestal 3sum " + Numbers::sEB(ism) + " G12");
+      j03_[ism-1] = UtilsClient::getHisto( me, cloneME_, j03_[ism-1] );
 
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBPedestalTask/Gain01/EBPT pedestal 5sum %s G01").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
-      k01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, k01_[ism-1] );
+      me = dqmStore_->get(prefixME_ + "/EBPedestalTask/Gain01/EBPT pedestal 5sum " + Numbers::sEB(ism) + " G01");
+      k01_[ism-1] = UtilsClient::getHisto( me, cloneME_, k01_[ism-1] );
 
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBPedestalTask/Gain06/EBPT pedestal 5sum %s G06").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
-      k02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, k02_[ism-1] );
+      me = dqmStore_->get(prefixME_ + "/EBPedestalTask/Gain06/EBPT pedestal 5sum " + Numbers::sEB(ism) + " G06");
+      k02_[ism-1] = UtilsClient::getHisto( me, cloneME_, k02_[ism-1] );
 
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBPedestalTask/Gain12/EBPT pedestal 5sum %s G12").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
-      k03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, k03_[ism-1] );
+      me = dqmStore_->get(prefixME_ + "/EBPedestalTask/Gain12/EBPT pedestal 5sum " + Numbers::sEB(ism) + " G12");
+      k03_[ism-1] = UtilsClient::getHisto( me, cloneME_, k03_[ism-1] );
 
     }
 #endif
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBPedestalTask/PN/Gain01/EBPDT PNs pedestal %s G01").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
-      i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
+      me = dqmStore_->get(prefixME_ + "/EBPedestalTask/PN/Gain01/EBPDT PNs pedestal " + Numbers::sEB(ism) + " G01");
+      i01_[ism-1] = UtilsClient::getHisto( me, cloneME_, i01_[ism-1] );
 
     }
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 6) != MGPAGainsPN_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBPedestalTask/PN/Gain16/EBPDT PNs pedestal %s G16").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
-      i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
+      me = dqmStore_->get(prefixME_ + "/EBPedestalTask/PN/Gain16/EBPDT PNs pedestal " + Numbers::sEB(ism) + " G16");
+      i02_[ism-1] = UtilsClient::getHisto( me, cloneME_, i02_[ism-1] );
 
     }
 

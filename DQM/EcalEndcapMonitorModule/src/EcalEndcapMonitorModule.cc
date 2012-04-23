@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2010/08/08 08:46:08 $
- * $Revision: 1.83 $
+ * $Date: 2011/06/27 08:31:54 $
+ * $Revision: 1.85 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -244,7 +244,7 @@ void EcalEndcapMonitorModule::setup(void){
 
   if ( meRunType_ ) meRunType_->Fill(-1);
 
-  char histo[20];
+  std::string name;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EcalInfo");
@@ -278,8 +278,8 @@ void EcalEndcapMonitorModule::setup(void){
     if ( enableEventDisplay_ ) {
       dqmStore_->setCurrentFolder(prefixME_ + "/EcalEvent");
       for (int i = 0; i < 18; i++) {
-        sprintf(histo, "EEMM event %s", Numbers::sEE(i+1).c_str());
-        meEvent_[i] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+	name = "EEMM event " + Numbers::sEE(i+1);
+        meEvent_[i] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
         meEvent_[i]->setAxisTitle("ix", 1);
         if ( i+1 >= 1 && i+1 <= 9 ) meEvent_[i]->setAxisTitle("101-ix", 1);
         meEvent_[i]->setAxisTitle("iy", 2);
@@ -355,9 +355,9 @@ void EcalEndcapMonitorModule::endJob(void) {
   if ( debug_ ) std::cout << "EcalEndcapMonitorModule: endJob, ievt = " << ievt_ << std::endl;
 
   if ( dqmStore_ ) {
-    meStatus_ = dqmStore_->get(prefixME_ + "/EventInfo/STATUS");
-    meRun_ = dqmStore_->get(prefixME_ + "/EventInfo/RUN");
-    meEvt_ = dqmStore_->get(prefixME_ + "/EventInfo/EVT");
+    meStatus_ = dqmStore_->get(prefixME_ + "/EcalInfo/STATUS");
+    meRun_ = dqmStore_->get(prefixME_ + "/EcalInfo/RUN");
+    meEvt_ = dqmStore_->get(prefixME_ + "/EcalInfo/EVT");
   }
 
   // end-of-run

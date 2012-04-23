@@ -12,7 +12,6 @@ const char * kRecoPFJets                  = "reco particle flow jets";
 const char * kMuon                        = "muon candidates";
 const char * kTaus                        = "tau candidates";
 const char * kPFTaus                      = "pftau candidates";
-const char * kPFTausTightCone             = "pftau candidates tight cone";
 const char * kPFJets                      = "particle flow jets";
 const char * kRecoPFTaus                            = "reco pftau candidates";
 const char * ktheRecoPFTauDiscrByTanCOnePercent     = "reco PFTau Discriminator By TanC One Percent"; 

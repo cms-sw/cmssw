@@ -2,20 +2,25 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GeometryTest")
 
-# Number of events to be processed
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-#process.load("FastSimulation.Configuration.CommonInputsFake_cff") For 226
 process.load("FastSimulation.Configuration.CommonInputs_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_31X_V8::All'
-# Pick your geometry, Comment them all out for current geometry
+process.GlobalTag.globaltag = 'DESIGN42_V11::All'
+# Pick your geometry
 #process.load("SLHCUpgradeSimulations.Geometry.hybrid_cmsIdealGeometryXML_cff")
-process.load("SLHCUpgradeSimulations.Geometry.longbarrel_cmsIdealGeometryXML_cff")
-#wqprocess.load("SLHCUpgradeSimulations.Geometry.PhaseI_cmsSimIdealGeometryXML_cff")
+#process.load('SLHCUpgradeSimulations.Geometry.Longbarrel_cmsSimIdealGeometryXML_cff')
+process.load("SLHCUpgradeSimulations.Geometry.Phase1_R39F16_cmsSimIdealGeometryXML_cff")
+#process.load('Configuration.StandardSequences.GeometryExtended_cff')
 
+process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetExtraESModule",
+                                                           fromDDD = cms.bool( True )
+                                                           )
+
+process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
+process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource")
 
 process.source = cms.Source("EmptySource")
 

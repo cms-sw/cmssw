@@ -85,12 +85,6 @@
   <class name="reco::TaggingVariableListRefVector"/>
   <class name="edm::Wrapper<reco::TaggingVariableListCollection>"/>
 
-  <!-- Dictionary for the association in SVTagInfoProxy-->
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::SecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::Vertex> > >" persistent="false"/>
-  <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::SecondaryVertexTagInfo>, std::vector<reco::Vertex>, unsigned int > >" persistent="false">
-    <field name="transientMap_" transient="true" />
-  </class>
-
   <class name="reco::TrackTauImpactParameterAssociation"/>
   <class name="reco::TrackTauImpactParameterAssociationCollection">
     <field name="transientMap_" transient="true"/>

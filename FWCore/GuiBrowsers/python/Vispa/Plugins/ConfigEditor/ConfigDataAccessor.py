@@ -83,12 +83,17 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if isinstance(pth, list):
             for i in pth:
                 self._readRecursive(next_mother, i)
-	if hasattr(sqt,"_SequenceCollection"):
+        if hasattr(sqt,"_SequenceCollection"):
             # since CMSSW_3_11_X
             if isinstance(pth, (sqt._ModuleSequenceType)):
+              if isinstance(pth._seq, (sqt._SequenceCollection)):
                 for o in pth._seq._collection:
                     self._readRecursive(next_mother, o)
-	else:
+              else:
+                  self._readRecursive(next_mother, pth._seq)
+            elif isinstance(pth, sqt._UnarySequenceOperator):
+                self._readRecursive(next_mother, pth._operand)
+        else:
             # for backwards-compatibility with CMSSW_3_10_X
             for i in dir(pth):
                 o = getattr(pth, i)
@@ -398,14 +403,23 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if hasattr(object, "parameters_"):
             this_parameters = object.parameters_().items()
         elif hasattr(object, "_seq"):
-            this_parameters = [('sequence', object._seq.dumpSequencePython())]
+            if hasattr(object._seq,"dumpSequencePython"):
+                this_parameters = [('sequence', object._seq.dumpSequencePython())]
+            else:
+                this_parameters = [('sequence', 'WARNING: object was removed from a sequence.')]
         if hasattr(object, "tarlabel_"):
             this_parameters += [('tarlabel', object.tarlabel_())]
         return this_parameters
 
     def _addInputTag(self, value, this_key, this_inputtags):
         """ Add alls inputtags of value to a list """
-        if isinstance(value, list):
+        if isinstance(value, cms.VInputTag):
+            for i in range(len(value)):
+                if type(value[i])==str:
+                    self._addInputTag(cms.InputTag(value[i]), this_key+"["+str(i)+"]", this_inputtags)
+                else:
+                    self._addInputTag(value[i], this_key+"["+str(i)+"]", this_inputtags)
+        elif isinstance(value, list):
             for i in value:
                 self._addInputTag(i, this_key, this_inputtags)
         if hasattr(value, "parameters_"):
@@ -428,10 +442,10 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
     def inputTags(self, object):
         """ Make list of inputtags from parameter dict """
         if not object in self._inputTagsDict.keys():
-	    try:
+            try:
                 self._inputTagsDict[object]=self._readInputTagsRecursive(self.parameters(object))
-	    except TypeError:
-	        return []
+            except TypeError:
+                return []
         return self._inputTagsDict[object]
 
     def uses(self, object):

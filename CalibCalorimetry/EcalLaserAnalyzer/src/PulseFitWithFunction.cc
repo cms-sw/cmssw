@@ -1,7 +1,7 @@
 /* 
  *  \class PulseFitWithFunction
  *
- *  $Date: 2009/06/02 12:55:20 $
+ *  $Date: 2007/07/27 18:08:04 $
  *  \author: Patrick Jarry - CEA/Saclay
  */
 
@@ -18,7 +18,6 @@
 // ===========================================================
 
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/PulseFitWithFunction.h>
-#include <CalibCalorimetry/EcalLaserAnalyzer/interface/TFParams.h>
 
 #include <iostream>
 #include "TMath.h"
@@ -26,23 +25,13 @@
 //ClassImp(PulseFitWithFunction)
 
 
-// Default constructor...
+// Constructor...
 PulseFitWithFunction::PulseFitWithFunction()
 { 
  
   fNsamples               =  0;
   fNum_samp_bef_max       =  0;
   fNum_samp_after_max     =  0;
-  fEcalPart               = "EB";
-  fPJ = new TFParams() ;
-}
-
-// Constructor...
-PulseFitWithFunction::PulseFitWithFunction( string ecalPart )
-{ 
-  PulseFitWithFunction();
-  fEcalPart               =  ecalPart;
-  
 }
 
 // Destructor
@@ -54,6 +43,13 @@ PulseFitWithFunction::~PulseFitWithFunction()
 
 void PulseFitWithFunction::init(int n_samples,int samplb,int sampla,int niter,double alfa,double beta)
 {
+  //printf("\n");
+  //printf(" =========================================================\n");
+  //printf(" ==     Initialising the function fit method            ==\n");
+  //printf(" ==          PulseFitWithFunction::init                 ==\n");
+  //printf(" ==                                                     ==\n");
+
+  
   fNsamples   = n_samples ;
   fAlpha_laser = alfa;
   fBeta_laser = beta ;
@@ -62,48 +58,56 @@ void PulseFitWithFunction::init(int n_samples,int samplb,int sampla,int niter,do
   fNb_iter = niter ;
   fNum_samp_bef_max = samplb ;
   fNum_samp_after_max = sampla  ;
- 
+  //printf(" ==  # samples used = %3d                               ==\n",fNsamples);
+  //printf(" ==  #sample before max= %1d and #sample after maximum= %1d ==\n",fNum_samp_bef_max,fNum_samp_after_max);
+  //printf(" ==           alpha= %5.4f       beta= %5.4f          ==\n",fAlpha_laser,fBeta_laser);
+  //printf(" =========================================================\n\n");
   return ;
  }
 
 // Compute the amplitude using as input the Crystaldata  
 double PulseFitWithFunction::doFit(double *adc)
 {
- 
-  double parout[3]; // amp_max ;
+  double parout[4]; // amp_max ;
+    //double amp_parab , tim_parab ;
   double chi2;
-  
-  // first one has to get starting point first with parabolic fun //
-  
-  double denom=0.;
-  denom=fPJ->parab(&adc[0],3,fNsamples, parout);
-
+  //int imax ;
+//
+// first  one has to get starting point first with parabolic fun// //  
+  Fit_parab(&adc[0],3,fNsamples,parout) ;
   amp_parab = parout[0] ;
   tim_parab = parout[1] ;
   imax = (int)parout[2] ;
-  amp_max = adc[imax] ;
+  amp_max = parout[3] ;
+  //printf("amp_parab= %f tim_parab=%f amp_max=%f imax=%d\n",amp_parab,tim_parab,amp_max,imax); 
   fNumber_samp_max=imax ;
+//
   
   if(amp_parab < 1.) {
-    tim_parab = (double)imax ;
-    amp_parab = amp_max ;
+     tim_parab = (double)imax ;
+      amp_parab = amp_max ;
   }
-  
+//
   fValue_tim_max= tim_parab ;
   fFunc_max= amp_parab ;
   fTim_max=tim_parab ;
-  
 
-  //  here to fit maximum amplitude and time of arrival ...
-  chi2 = Fit_electronic( 0, &adc[0], 8.) ;
-  
-  // adc is an array to be filled with samples
-  // 0 is for Laser (1 for electron)  
-  // 8 is for sigma of pedestals 
-  // which (can be computed)
-  
-  return chi2 ; 
-  
+//  here to fit maximum amplitude and time of arrival ...
+
+  chi2 = Fit_electronic(0,&adc[0],8.) ;
+                                   // adc is an array to be filled with samples
+                                   // 0 is for Laser (1 for electron)  
+                                   // 8 is for sigma of pedestals 
+                                   // which (can be computed)
+
+
+  //  double amplitude = fAmp_fitted_max ; // amplitude fitted 
+  // double time = fTim_fitted_max ; // time fitted
+
+ 
+
+  return chi2 ; // return amplitude fitted
+
 }
 
 //-----------------------------------------------------------------------
@@ -116,42 +120,37 @@ double PulseFitWithFunction::Fit_electronic(int data , double* adc_to_fit , doub
   // the maximum amplitude ( fAmp_fitted_max ) and the time of
   // the maximum amplitude ( fTim_fitted_max) 
   // initialization of parameters
-  
   double chi2=0;
-  double d_am, d_tm ;
-  
+  double d_alpha, d_beta ;
   // first initialize parameters fAlpha and fBeta ( depending of beam or laser)
-  
   fAlpha = fAlpha_laser ;
-  fBeta  = fBeta_laser ;
+  fBeta = fBeta_laser ;
   if(data == 1) { 
     fAlpha = fAlpha_beam ;
     fBeta = fBeta_beam ;
   }
-  
+  //
   fAmp_fitted_max = 0. ;
   fTim_fitted_max = 0. ;
   double un_sur_sigma = 1./fSigma_ped ;
   double variation_func_max = 0. ;
   double variation_tim_max = 0. ;
-  
+  //
   if(fValue_tim_max > 20. || fValue_tim_max  < 3.) {
-    fValue_tim_max = fNumber_samp_max ;
+	  fValue_tim_max = fNumber_samp_max ;
   }
   int num_fit_min =(int)(fValue_tim_max - fNum_samp_bef_max) ;
   int num_fit_max =(int)(fValue_tim_max + fNum_samp_after_max) ;
-  
+  //
+
   if( sigmas_sample > 0. ) un_sur_sigma = 1./sigmas_sample;
   else un_sur_sigma = 1.;
-  
+
   double func,delta ;
-
-  // Loop on iterations        
-
+  //          Loop on iterations        
   for (int iter=0 ; iter < fNb_iter ; iter ++) {
    
-    // Initialization inside iteration loop !
-
+    //          initialization inside iteration loop !
     chi2 = 0. ;
     double d11 = 0. ;
     double d12 = 0. ;
@@ -161,47 +160,44 @@ double PulseFitWithFunction::Fit_electronic(int data , double* adc_to_fit , doub
     fFunc_max += variation_func_max ;
     fTim_max += variation_tim_max ;
     int nsamp_used = 0 ;
-    
+    //
+   
     // Then we loop on samples to be fitted
-    
-    double par[4],tsig[1];
-    par[0] =  fFunc_max ;
-    par[1] =  fTim_max ;
-    par[2] =  fAlpha ;
-    par[3] =  fBeta ;
-    
-    for( int i = num_fit_min ; i < num_fit_max+1 ; i++) {
 
+
+    for( int i = num_fit_min ; i < num_fit_max+1 ; i++) {
+      // calculate function to be fitted
+     
+      func = Electronic_shape( (double)i  ) ;
+      
+      // then calculate derivatives of function to be fitted
       double dt =(double)i - fTim_max ;
-      double alpha_beta = fAlpha*fBeta; 
-      
-      // calculate function to be fitted and derivatives
-      tsig[0] =(double)i  ;
-      
-      if( fEcalPart == "EB" ){
-	func = fPJ->pulseShapepj( tsig , par );
-	if(dt > -alpha_beta)  {
-	  d_am=un_sur_sigma*fPJ->dpulseShapepj_dam(tsig , par);
-	  d_tm=un_sur_sigma*fPJ->dpulseShapepj_dtm(tsig , par);
-	}else continue;
-      }else{
-	func = fPJ->lastShape( tsig , par );	
-	if(dt > -alpha_beta)  {
-	  d_am=un_sur_sigma*fPJ->dlastShape_dam(tsig , par);
-	  d_tm=un_sur_sigma*fPJ->dlastShape_dtm(tsig , par);
-	}else continue;
-      }
-            
+      double alpha_beta = fAlpha*fBeta  ;
+     
+     if(dt > -alpha_beta)  {      
+      double dt_sur_beta = dt/fBeta ;
+	 
+      double variable = (double)1. + dt/alpha_beta ;
+	  double expo = TMath::Exp(-dt_sur_beta) ;	 
+	 
+	  double puissance = TMath::Power(variable,fAlpha) ;
+      d_alpha=un_sur_sigma*puissance*expo ;
+      d_beta=fFunc_max*d_alpha*dt_sur_beta/(alpha_beta*variable) ;
+     }
+      else {
+	continue ;
+     }
+     
       nsamp_used ++ ; // number of samples used inside the fit
       // compute matrix elements D (symetric --> d12 = d21 )
-      d11 += d_am*d_am ;
-      d12 += d_am*d_tm ;
-      d22 += d_tm*d_tm ;
+      d11 += d_alpha*d_alpha ;
+      d12 += d_alpha*d_beta ;
+      d22 += d_beta*d_beta ;
       // compute delta
       delta = (adc_to_fit[i]-func)*un_sur_sigma ;
       // compute vector elements Z
-      z1 += delta*d_am ;
-      z2 += delta*d_tm ;
+      z1 += delta*d_alpha ;
+      z2 += delta*d_beta ;
       chi2 += delta * delta ;
     } //             end of loop on samples  
     double denom = d11*d22-d12*d12 ;
@@ -228,63 +224,60 @@ double PulseFitWithFunction::Fit_electronic(int data , double* adc_to_fit , doub
 //-----------------------------------------------------------------------
 //----------------------------------------------------------------------
 
-// double  PulseFitWithFunction::Electronic_shape(double tim)
-// {
-//   // electronic function (from simulation) to fit ECAL pulse shape
-
-
-//   double func_electronic,dtsbeta,variable,puiss;
-//   double albet = fAlpha*fBeta ;
-//   if( albet <= 0 ) return( (Double_t)0. );
-//   double dt = tim-fTim_max ;
-//   if(dt > -albet)  {
-//     dtsbeta=dt/fBeta ;
-//     variable=1.+dt/albet ;
-// 	puiss=TMath::Power(variable,fAlpha);
-// 	func_electronic=fFunc_max*puiss*TMath::Exp(-dtsbeta);
-//   }
-//   else func_electronic = 0. ;
-//   //
-//   return func_electronic ;
-// }
-
-// void PulseFitWithFunction::Fit_parab(Double_t *ampl,Int_t nmin,Int_t nmax,Double_t *parout)
-// {
-// /* Now we calculate the parabolic adjustement in order to get        */
-// /*    maximum and time max                                           */
+double  PulseFitWithFunction::Electronic_shape(double tim)
+{
+  // electronic function (from simulation) to fit ECAL pulse shape
+  double func_electronic,dtsbeta,variable,puiss;
+  double albet = fAlpha*fBeta ;
+  if( albet <= 0 ) return( (Double_t)0. );
+  double dt = tim-fTim_max ;
+  if(dt > -albet)  {
+    dtsbeta=dt/fBeta ;
+    variable=1.+dt/albet ;
+	puiss=TMath::Power(variable,fAlpha);
+	func_electronic=fFunc_max*puiss*TMath::Exp(-dtsbeta);
+  }
+  else func_electronic = 0. ;
+  //
+  return func_electronic ;
+}
+void PulseFitWithFunction::Fit_parab(Double_t *ampl,Int_t nmin,Int_t nmax,Double_t *parout)
+{
+/* Now we calculate the parabolic adjustement in order to get        */
+/*    maximum and time max                                           */
  
-//   double denom,dt,amp1,amp2,amp3 ;
-//   double ampmax = 0. ;				
-//   int imax = 0 ;
-//   int k ;
-// /*
-//                                                                    */	  
-//   for ( k = nmin ; k < nmax ; k++) {
-//     //printf("ampl[%d]=%f\n",k,ampl[k]);
-//     if (ampl[k] > ampmax ) {
-//       ampmax = ampl[k] ;
-//       imax = k ;
-//     }
-//   }
-// 	amp1 = ampl[imax-1] ;
-// 	amp2 = ampl[imax] ;
-// 	amp3 = ampl[imax+1] ;
-// 	denom=2.*amp2-amp1-amp3  ;
-// /* 	       					             */	      
-// 	if(denom>0.){
-// 	  dt =0.5*(amp3-amp1)/denom  ;
-// 	}
-// 	else {
-// 	  //printf("denom =%f\n",denom)  ;
-// 	  dt=0.5  ;
-// 	}
-// /* 						                     */	       
-// /* ampmax correspond au maximum d'amplitude parabolique et dt        */
-// /* decalage en temps par rapport au sample maximum soit k + dt       */
+  double denom,dt,amp1,amp2,amp3 ;
+  double ampmax = 0. ;				
+  int imax = 0 ;
+  int k ;
+/*
+                                                                   */	  
+  for ( k = nmin ; k < nmax ; k++) {
+    //printf("ampl[%d]=%f\n",k,ampl[k]);
+    if (ampl[k] > ampmax ) {
+      ampmax = ampl[k] ;
+      imax = k ;
+    }
+  }
+	amp1 = ampl[imax-1] ;
+	amp2 = ampl[imax] ;
+	amp3 = ampl[imax+1] ;
+	denom=2.*amp2-amp1-amp3  ;
+/* 	       					             */	      
+	if(denom>0.){
+	  dt =0.5*(amp3-amp1)/denom  ;
+	}
+	else {
+	  //printf("denom =%f\n",denom)  ;
+	  dt=0.5  ;
+	}
+/* 						                     */	       
+/* ampmax correspond au maximum d'amplitude parabolique et dt        */
+/* decalage en temps par rapport au sample maximum soit k + dt       */
 		
-// 	parout[0] =amp2+(amp3-amp1)*dt*0.25 ;
-// 	parout[1] = (double)imax + dt ;
-//         parout[2] = (double)imax ;
-// 	parout[3] = ampmax ;
-// return ;
-// }
+	parout[0] =amp2+(amp3-amp1)*dt*0.25 ;
+	parout[1] = (double)imax + dt ;
+        parout[2] = (double)imax ;
+	parout[3] = ampmax ;
+return ;
+}

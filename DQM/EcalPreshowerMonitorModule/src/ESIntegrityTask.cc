@@ -407,9 +407,9 @@ void ESIntegrityTask::calculateDIFraction(void){
 	for (int y=0; y<40; ++y) {
           float val = meDIErrors_[i][j]->getBinContent(x+1, y+1);
           if (fed_[i][j][x][y] == -1) continue;
-	  nGlobalErrors += val/ievt_;
+	  if (ievt_ != 0) nGlobalErrors += val/ievt_;
 	  nValidChannels++;
-	  nGlobalErrorsES += val/ievt_;
+	  if (ievt_ != 0) nGlobalErrorsES += val/ievt_;
 	  nValidChannelsES++;
 	}
       }

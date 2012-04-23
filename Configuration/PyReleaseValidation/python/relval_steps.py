@@ -1,5 +1,4 @@
 
-    
 class InputInfo(object):
     def __init__(self,label,dataSet,run=0,files=1000,events=2000000,location='CAF') :
         self.run = run
@@ -73,28 +72,23 @@ K9by25={'--relval':'9000,25'}
 K9by50={'--relval':'9000,50'}
 K9by100={'--relval':'9000,100'}
 K9by250={'--relval':'9000,250'}
-K25by250={'--relval':'25000,250'}
 
-def gen(fragment,howMuch):
-    global step1Defaults
-    return merge([{'cfg':fragment},howMuch,step1Defaults])
-
-step1['MinBias']=gen('MinBias_7TeV_cfi',K9by100)
-step1['QCD_Pt_3000_3500']=gen('QCD_Pt_3000_3500_7TeV_cfi',K9by25)
-step1['QCD_Pt_80_120']=gen('QCD_Pt_80_120_7TeV_cfi',K9by50)
-step1['SingleElectronPt10']=gen('SingleElectronPt10_cfi',K9by250)
-step1['SingleElectronPt35']=gen('SingleElectronPt35_cfi',K9by250)
-step1['SingleGammaPt10']=gen('SingleGammaPt10_cfi',K9by100)
-step1['SingleGammaPt35']=gen('SingleGammaPt35_cfi',K9by100)
-step1['SingleMuPt10']=gen('SingleMuPt10_cfi',K25by250)
-step1['SingleMuPt100']=gen('SingleMuPt100_cfi',K9by250)
-step1['SingleMuPt1000']=gen('SingleMuPt1000_cfi',K9by100)
-step1['TTbar']=gen('TTbar_Tauola_7TeV_cfi',K9by50)
-step1['ZEE']=gen('ZEE_7TeV_cfi',K9by100)
-step1['Wjet_Pt_80_120']=gen('Wjet_Pt_80_120_7TeV_cfi',K9by100)
-step1['Wjet_Pt_3000_3500']=gen('Wjet_Pt_3000_3500_7TeV_cfi',K9by100)
-step1['LM1_sfts']=gen('LM1_sfts_7TeV_cfi',K9by100)
-step1['QCD_FlatPt_15_3000']=gen('QCDForPF_7TeV_cfi',K9by100)
+step1['MinBias']=merge([{'cfg':'MinBias_7TeV_cfi'},K9by100,step1Defaults])
+step1['QCD_Pt_3000_3500']=merge([{'cfg':'QCD_Pt_3000_3500_7TeV_cfi'},K9by25,step1Defaults])
+step1['QCD_Pt_80_120']=merge([{'cfg':'QCD_Pt_80_120_7TeV_cfi'},K9by50,step1Defaults])
+step1['SingleElectronPt10']=merge([{'cfg':'SingleElectronPt10_cfi'},K9by250,step1Defaults])
+step1['SingleElectronPt35']=merge([{'cfg':'SingleElectronPt35_cfi'},K9by250,step1Defaults])
+step1['SingleGammaPt10']=merge([{'cfg':'SingleGammaPt10_cfi'},K9by100,step1Defaults])
+step1['SingleGammaPt35']=merge([{'cfg':'SingleGammaPt35_cfi'},K9by100,step1Defaults])
+step1['SingleMuPt10']=merge([{'cfg':'SingleMuPt10_cfi','--relval':'25000,250'},step1Defaults])
+step1['SingleMuPt100']=merge([{'cfg':'SingleMuPt100_cfi','--relval':'9000,250'},step1Defaults])
+step1['SingleMuPt1000']=merge([{'cfg':'SingleMuPt1000_cfi'},K9by100,step1Defaults])
+step1['TTbar']=merge([{'cfg':'TTbar_Tauola_7TeV_cfi'},K9by50,step1Defaults])
+step1['ZEE']=merge([{'cfg':'ZEE_7TeV_cfi'},K9by100,step1Defaults])
+step1['Wjet_Pt_80_120']=merge([{'cfg':'Wjet_Pt_80_120_7TeV_cfi'},K9by100,step1Defaults])
+step1['Wjet_Pt_3000_3500']=merge([{'cfg':'Wjet_Pt_3000_3500_7TeV_cfi'},K9by100,step1Defaults])
+step1['LM1_sfts']=merge([{'cfg':'LM1_sfts_7TeV_cfi'},K9by100,step1Defaults])
+step1['QCD_FlatPt_15_3000']=merge([{'cfg':'QCDForPF_7TeV_cfi'},K9by100,step1Defaults])
 
 step1['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='MinBiasrv',location='STD')}
 step1['QCD_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='QCD_Pt_3000_3500rv',location='STD')}
@@ -113,55 +107,21 @@ step1['Wjet_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_3000_
 step1['LM1_sftsINPUT']={'INPUT':InputInfo(dataSet='/RelValLM1_sfts/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='LM1_sftsrv',location='STD')}
 step1['QCD_FlatPt_15_3000INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000/CMSSW_4_2_0_pre2-MC_311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='QCD_FlatPt_15_3000rv',location='STD')}
 
-## high stat step1
-K700by280={'--relval': '70000,280'}
-K250by100={'--relval': '25000,100'}
-K3250000by1300000={'--relval': '325000000,1300000'}
-K250by250={'--relval': '25000,250'}
-K110000by45000={'--relval': '11000000,45000'}
-K562by225={'--relval': '56250,225'}
-
-ecalHcal={
-    '-s':'GEN,SIM,DIGI,DIGI2RAW,RAW2DIGI,L1Reco,RECO',
-    '--datatier':'GEN-SIM-DIGI-RAW-RECO',
-    '--geometry':'ECALHCAL',
-    '--eventcontent':'FEVTDEBUG',
-    '--customise':'Validation/Configuration/ECALHCAL.customise',
-    '--beamspot':'NoSmear'}
-step1['SingleElectronE120EHCAL']=merge([{'cfg':'SingleElectronE120EHCAL_cfi'},ecalHcal,K25by250,step1Defaults])
-step1['SinglePiE50HCAL']=merge([{'cfg':'SinglePiE50HCAL_cfi'},ecalHcal,K25by250,step1Defaults])
-
-step1['MinBiasHS']=gen('MinBias_7TeV_cfi',K25by250)
-step1['InclusiveppMuX']=gen('InclusiveppMuX_7TeV_cfi',K110000by45000)
-step1['SingleElectronFlatPt5To100']=gen('SingleElectronFlatPt5To100_cfi',K250by250)
-step1['SinglePiPt1']=gen('SinglePiPt1_cfi',K250by250)
-step1['SingleMuPt1']=gen('SingleMuPt1_cfi',K250by250)
-step1['ZPrime5000Dijet']=gen('ZPrime5000JJ_7TeV_cfi',K250by100)
-step1['SinglePi0E10']=gen('SinglePi0E10_cfi',K250by100)
-step1['SinglePiPt10']=gen('SinglePiPt10_cfi',K250by250)
-step1['SingleGammaFlatPt10To100']=gen('SingleGammaFlatPt10To100_cfi',K250by250)
-step1['SingleTauPt50Pythia']=gen('SingleTaupt_50_cfi',K250by100)
-step1['SinglePiPt100']=gen('SinglePiPt100_cfi',K250by250)
-
-
-def genS(fragment,howMuch):
-    global step1Defaults,stCond
-    return merge([{'cfg':fragment},stCond,howMuch,step1Defaults])
-
-step1['MinBias2']=genS('MinBias_7TeV_cfi',K9by100)
-step1['Higgs200ChargedTaus']=genS('H200ChargedTaus_Tauola_7TeV_cfi',K9by100)
-step1['QCD_Pt_3000_3500_2']=genS('QCD_Pt_3000_3500_7TeV_cfi',K9by25)
-step1['QCD_Pt_80_120_2']=genS('QCD_Pt_80_120_7TeV_cfi',K9by50)
-step1['JpsiMM']=genS('JpsiMM_7TeV_cfi',{'--relval':'65250,725'})
-step1['TTbar2']=genS('TTbar_Tauola_7TeV_cfi',K9by50)
-step1['WE']=genS('WE_7TeV_cfi',K9by100)
-step1['WM']=genS('WM_7TeV_cfi',K9by100)
-step1['ZEE2']=genS('ZEE_7TeV_cfi',K9by100)
-step1['ZMM']=genS('ZMM_7TeV_cfi',{'--relval':'18000,200'})
-step1['ZTT']=genS('ZTT_Tauola_All_hadronic_7TeV_cfi',K9by100)
-step1['H130GGgluonfusion']=genS('H130GGgluonfusion_7TeV_cfi',K9by100)
-step1['PhotonJets_Pt_10']=genS('PhotonJet_Pt_10_7TeV_cfi',K9by100)
-step1['QQH1352T_Tauola']=genS('QQH1352T_Tauola_7TeV_cfi',K9by100)
+   
+step1['MinBias2']=merge([{'cfg':'MinBias_7TeV_cfi'},stCond,K9by100,step1Defaults])
+step1['Higgs200ChargedTaus']=merge([{'cfg':'H200ChargedTaus_Tauola_7TeV_cfi'},stCond,K9by100,step1Defaults])
+step1['QCD_Pt_3000_3500_2']=merge([{'cfg':'QCD_Pt_3000_3500_7TeV_cfi'},K9by25,stCond,step1Defaults])
+step1['QCD_Pt_80_120_2']=merge([{'cfg':'QCD_Pt_80_120_7TeV_cfi'},K9by50,stCond,step1Defaults])
+step1['JpsiMM']=merge([{'cfg':'JpsiMM_7TeV_cfi','--relval':'65250,725'},stCond,step1Defaults])
+step1['TTbar2']=merge([{'cfg':'TTbar_Tauola_7TeV_cfi'},K9by50,stCond,step1Defaults])
+step1['WE']=merge([{'cfg':'WE_7TeV_cfi'},K9by100,stCond,step1Defaults])
+step1['WM']=merge([{'cfg':'WM_7TeV_cfi'},K9by100,stCond,step1Defaults])
+step1['ZEE2']=merge([{'cfg':'ZEE_7TeV_cfi'},K9by100,stCond,step1Defaults])
+step1['ZMM']=merge([{'cfg':'ZMM_7TeV_cfi','--relval':'18000,200'},stCond,step1Defaults])
+step1['ZTT']=merge([{'cfg':'ZTT_Tauola_All_hadronic_7TeV_cfi'},K9by100,stCond,step1Defaults])
+step1['H130GGgluonfusion']=merge([{'cfg':'H130GGgluonfusion_7TeV_cfi'},K9by100,stCond,step1Defaults])
+step1['PhotonJets_Pt_10']=merge([{'cfg':'PhotonJet_Pt_10_7TeV_cfi'},K9by100,stCond,step1Defaults])
+step1['QQH1352T_Tauola']=merge([{'cfg':'QQH1352T_Tauola_7TeV_cfi'},K9by100,stCond,step1Defaults])
 
 step1['MinBias2INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='MinBiasrv',location='STD')}
 step1['Higgs200ChargedTausINPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus/CMSSW_4_2_0_pre2-START311_V1-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',label='Higgs200ChargedTausrv',location='STD')}
@@ -178,22 +138,6 @@ step1['QQH1352T_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_Tauola
 
 step1['Cosmics']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','--relval':'666000,7400','--scenario':'cosmics'},step1Defaults])
 step1['BeamHalo']=merge([{'cfg':'BeamHalo_cfi.py','--scenario':'cosmics'},K9by100,step1Defaults])
-
-step1['QCD_Pt_50_80']=genS('QCD_Pt_50_80_7TeV_cfi',K250by100)
-step1['QCD_Pt_15_20']=genS('QCD_Pt_15_20_7TeV_cfi',K250by100)
-step1['QQH120Inv']=genS('QQH120Inv_7TeV_cfi',K250by100)
-step1['JpsiMM_Pt_20_inf']=genS('JpsiMM_Pt_20_inf_7TeV_cfi',K700by280)
-step1['QCD_Pt_120_170']=genS('QCD_Pt_120_170_7TeV_cfi',K250by100)
-step1['H165WW2L']=genS('H165WW2L_Tauola_7TeV_cfi',K250by100)
-step1['UpsMM']=genS('UpsMM_7TeV_cfi',K562by225)
-step1['RSGrav']=genS('RS750_quarks_and_leptons_7TeV_cff',K250by100)
-step1['bJpsiX']=genS('bJpsiX_7TeV_cfi',K3250000by1300000)
-step1['QCD_Pt_30_50']=genS('QCD_Pt_30_50_7TeV_cfi',K250by100)
-step1['H200ZZ4L']=genS('H200ZZ4L_Tauola_7TeV_cfi',K250by100)
-step1['LM9p']=genS('LM9p_7TeV_cff',K250by100)
-step1['QCD_Pt_20_30']=genS('QCD_Pt_20_30_7TeV_cfi',K250by100)
-step1['QCD_Pt_170_230']=genS('QCD_Pt_170_230_7TeV_cfi',K250by100)
-
 
 
 
@@ -215,89 +159,16 @@ changeRefRelease(step1,[('CMSSW_4_2_0_pre2-START311_V1-v1','CMSSW_4_2_0_pre4-STA
 
 #### fastsim section ####
 ##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
-step1FastDefaults =merge([{'-s':'GEN,FASTSIM,HLT:GRun,VALIDATION',
-                           '--eventcontent':'FEVTDEBUGHLT',
-                           '--datatier':'GEN-SIM-DIGI-RECO',
-                           '--relval':'27000,1000'},
-                          step1Defaults])
+step1FastDefaults =merge([{'-s':'GEN,FASTSIM,HLT:GRun,VALIDATION', '--eventcontent':'FEVTDEBUGHLT','--datatier':'GEN-SIM-DIGI-RECO','--relval':'27000,1000'},step1Defaults])
 K100byK1={'--relval':'100000,1000'}
 step1['TTbarFS1']=merge([{'cfg':'TTbar_Tauola_7TeV_cfi'},K100byK1,step1FastDefaults])
 step1['TTbarFS2']=merge([{'cfg':'TTbar_Tauola_7TeV_cfi'},K100byK1,stCond,step1FastDefaults])
-step1['SingleMuPt1FS']=merge([{'cfg':'SingleMuPt1_cfi'},step1FastDefaults])
 step1['SingleMuPt10FS']=merge([{'cfg':'SingleMuPt10_cfi'},step1FastDefaults])
 step1['SingleMuPt100FS']=merge([{'cfg':'SingleMuPt100_cfi'},step1FastDefaults])
-step1['SinglePiPt1FS']=merge([{'cfg':'SinglePiPt1_cfi'},step1FastDefaults])
-step1['SinglePiPt10FS']=merge([{'cfg':'SinglePiPt10_cfi'},step1FastDefaults])
-step1['SinglePiPt100FS']=merge([{'cfg':'SinglePiPt100_cfi'},step1FastDefaults])
 step1['ZEEFS1']=merge([{'cfg':'ZEE_7TeV_cfi'},K100byK1,step1FastDefaults])
 step1['ZEEFS2']=merge([{'cfg':'ZEE_7TeV_cfi'},K100byK1,stCond,step1FastDefaults])
-step1['ZTTFS1']=merge([{'cfg':'ZTT_Tauola_OneLepton_OtherHadrons_7TeV_cfi'},K100byK1,step1FastDefaults])
-step1['ZTTFS2']=merge([{'cfg':'ZTT_Tauola_OneLepton_OtherHadrons_7TeV_cfi'},K100byK1,stCond,step1FastDefaults])
 step1['QCDFlatPt153000FS']=merge([{'cfg':'QCDForPF_7TeV_cfi'},step1FastDefaults])
-step1['QCD_Pt_80_120FS']=merge([{'cfg':'QCD_Pt_80_120_7TeV_cfi'},K100byK1,stCond,step1FastDefaults])
-step1['QCD_Pt_3000_3500FS']=merge([{'cfg':'QCD_Pt_3000_3500_7TeV_cfi'},K100byK1,stCond,step1FastDefaults])
 step1['H130GGgluonfusionFS']=merge([{'cfg':'H130GGgluonfusion_7TeV_cfi'},step1FastDefaults])
-step1['SingleGammaFlatPt10To10FS']=merge([{'cfg':'SingleGammaFlatPt10To100_cfi'},K100byK1,step1FastDefaults])
-
-#### generator test section ####
-step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
-                         '--relval':'1000000,20000',
-                         '--eventcontent':'RAWSIM',
-                         '--datatier':'GEN'},
-                        step1Defaults])
-def genvalid(fragment,d,suffix='',fi=''):
-    import copy
-    c=copy.copy(d)
-    if suffix:
-        c['-s']=c['-s'].replace('genvalid','genvalid_'+suffix)
-    if fi:
-        c['--filein']='mcdb:%d'%(fi,)
-    c['cfg']=fragment
-    return c
-    
-step1['QCD_Pt-30_7TeV_herwigpp']=genvalid('QCD_Pt_30_7TeV_herwigpp_cff',step1GenDefaults,'qcd')
-step1['DYToLL_M-50_TuneZ2_7TeV_pythia6-tauola']=genvalid('DYToLL_M_50_TuneZ2_7TeV_pythia6_tauola_cff',step1GenDefaults,'dy')
-step1['QCD_Pt-30_TuneZ2_7TeV_pythia6']=genvalid('QCD_Pt_30_TuneZ2_7TeV_pythia6_cff',step1GenDefaults,'qcd')
-step1['QCD_Pt-30_7TeV_pythia8']=genvalid('QCD_Pt_30_7TeV_pythia8_cff',step1GenDefaults,'qcd')
-step1['GluGluTo2Jets_M-100_7TeV_exhume']=genvalid('GluGluTo2Jets_M_100_7TeV_exhume_cff',step1GenDefaults,'qcd')
-step1['TT_TuneZ2_7TeV_pythia6-evtgen']=genvalid('TT_TuneZ2_7TeV_pythia6_evtgen_cff',step1GenDefaults)
-step1['MinBias_TuneZ2_7TeV_pythia6']=genvalid('MinBias_TuneZ2_7TeV_pythia6_cff',step1GenDefaults,'qcd')
-step1['WToLNu_TuneZ2_7TeV_pythia6-tauola']=genvalid('WToLNu_TuneZ2_7TeV_pythia6_tauola_cff',step1GenDefaults,'w')
-step1['QCD_Pt-30_7TeV_herwig6']=genvalid('QCD_Pt_30_7TeV_herwig6_cff',step1GenDefaults,'qcd')
-step1['MinBias_7TeV_pythia8']=genvalid('MinBias_7TeV_pythia8_cff',step1GenDefaults,'qcd')
-
-step1['DYToMuMu_M-20_7TeV_mcatnlo']=genvalid('DYToMuMu_M_20_7TeV_mcatnlo_cff',step1GenDefaults,'dy',664)
-step1['TT_7TeV_mcatnlo']=genvalid('TT_7TeV_mcatnlo_cff',step1GenDefaults,'',346)
-step1['WminusToENu_7TeV_mcatnlo']=genvalid('WminusToENu_7TeV_mcatnlo_cff',step1GenDefaults,'w',666)
-step1['WminusToMuNu_7TeV_mcatnlo']=genvalid('WminusToMuNu_7TeV_mcatnlo_cff',step1GenDefaults,'w',668)
-step1['WplusToENu_7TeV_mcatnlo']=genvalid('WplusToENu_7TeV_mcatnlo_cff',step1GenDefaults,'w',665)
-step1['WplusToMuNu_7TeV_mcatnlo']=genvalid('WplusToMuNu_7TeV_mcatnlo_cff',step1GenDefaults,'w',667)
-step1['QCD_Ht-100To250_TuneD6T_7TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchTuneD6T_7TeV_madgraph_tauola_cff',step1GenDefaults,'qcd',546)
-step1['QCD_Ht-250To500_TuneD6T_7TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchTuneD6T_7TeV_madgraph_tauola_cff',step1GenDefaults,'qcd',592)
-step1['QCD_Ht-500To1000_TuneD6T_7TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchTuneD6T_7TeV_madgraph_tauola_cff',step1GenDefaults,'qcd',594)
-step1['TTJets_TuneD6T_7TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchTuneD6T_7TeV_madgraph_tauola_cff',step1GenDefaults,'',846)
-step1['WJetsLNu_TuneD6T_7TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchTuneD6T_7TeV_madgraph_tauola_cff',step1GenDefaults,'w',882)
-step1['ZJetsLNu_TuneD6T_7TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchTuneD6T_7TeV_madgraph_tauola_cff',step1GenDefaults,'dy',851)
-step1['QCD2Jets_Pt-40To120_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2_7TeV_alpgen_tauola_cff',step1GenDefaults,'qcd',785)
-step1['QCD3Jets_Pt-40To120_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2_7TeV_alpgen_tauola_cff',step1GenDefaults,'qcd',786)
-step1['QCD4Jets_Pt-40To120_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2_7TeV_alpgen_tauola_cff',step1GenDefaults,'qcd',787)
-step1['QCD5Jets_Pt-40To120_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2_7TeV_alpgen_tauola_cff',step1GenDefaults,'qcd',832)
-step1['TT0Jets_Et-40_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et48ExclTuneZ2_7TeV_alpgen_tauola_cff',step1GenDefaults,'',472)
-step1['TT1Jets_Et-40_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et48ExclTuneZ2_7TeV_alpgen_tauola_cff',step1GenDefaults,'',475)
-step1['TT2Jets_Et-40_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et48ExclTuneZ2_7TeV_alpgen_tauola_cff',step1GenDefaults,'',478)
-step1['TT3Jets_Et-40_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et48ExclTuneZ2_7TeV_alpgen_tauola_cff',step1GenDefaults,'',481)
-step1['W0Jets_Pt-0To100_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2_7TeV_alpgen_tauola_cff',step1GenDefaults,'w',397)
-step1['W1Jets_Pt-0To100_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2_7TeV_alpgen_tauola_cff',step1GenDefaults,'w',398)
-step1['W2Jets_Pt-0To100_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2_7TeV_alpgen_tauola_cff',step1GenDefaults,'w',399)
-step1['W3Jets_Pt-0To100_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2_7TeV_alpgen_tauola_cff',step1GenDefaults,'w',400)
-step1['Z0Jets_Pt-0To100_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2_7TeV_alpgen_tauola_cff',step1GenDefaults,'dy',440)
-step1['Z1Jets_Pt-0To100_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2_7TeV_alpgen_tauola_cff',step1GenDefaults,'dy',441)
-step1['Z2Jets_Pt-0To100_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2_7TeV_alpgen_tauola_cff',step1GenDefaults,'dy',442)
-step1['Z3Jets-Pt_0To100_TuneZ2_7TeV_alpgen_tauola']=genvalid('Hadronizer_Et20ExclTuneZ2_7TeV_alpgen_tauola_cff',step1GenDefaults,'dy',443)
-
-
-step1['ZmumuJets_Pt_20_300']=gen('ZmumuJets_Pt_20_300_GEN_7TeV_cfg',K250by100)
-
 ##########################
 
 
@@ -313,9 +184,8 @@ step2Defaults = { 'cfg'           : 'step2',
 step2 = {}
 
 step2['DIGIPROD1']=merge([{'--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Defaults])
-step2['DIGI']=merge([step2Defaults])
-#step2['DIGI1']=merge([step2Defaults])
-#step2['DIGI2']=merge([stCond,step2Defaults])
+step2['DIGI1']=merge([step2Defaults])
+step2['DIGI2']=merge([stCond,step2Defaults])
 step2['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},stCond,step2Defaults])
 
 #add this line when testing from an input file that is not strictly GEN-SIM
@@ -343,6 +213,7 @@ step2['RECOCOSD']=merge([{'--scenario':'cosmics',
 
 
 
+
 # step3 
 step3Defaults = { 'cfg'           : 'step3',
                   '-s'            : 'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
@@ -355,8 +226,8 @@ step3Defaults = { 'cfg'           : 'step3',
 
 step3 = {}
 
-step3['RECO']=merge([step3Defaults])
-#step3['RECO2']=merge([stCond,step3Defaults])
+step3['RECO1']=merge([step3Defaults])
+step3['RECO2']=merge([stCond,step3Defaults])
 step3['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Defaults])
 step3['RECOMU']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu+DtCalib','--datatier':'GEN-SIM-RECO','--eventcontent':'RECOSIM'},stCond,step3Defaults])
 step3['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu','--datatier':'GEN-SIM-RECO','--eventcontent':'RECOSIM','--scenario':'cosmics'},stCond,step3Defaults])
@@ -380,7 +251,9 @@ step4Defaults = { 'cfg'           : 'step4',
                   '-n'            : 1000,
                   '--filein'      : 'file:reco.root',
                   '--conditions'  : 'auto:mc',
+                  '--no_exec'     : '',
                   '--datatier'    : 'ALCARECO',
+                  '--oneoutput'   : '',
                   '--eventcontent': 'ALCARECO',
                   }
 step4 = {}
@@ -393,13 +266,6 @@ step4['ALCAMU']=merge([{'-s':'ALCA:MuAlOverlaps+TkAlMuonIsolated+TkAlZMuMu'},stC
 step4['ALCACOS']=merge([{'-s':'ALCA:TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCosmics'},stCond,step4Defaults])
 step4['ALCABH']=merge([{'-s':'ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo'},stCond,step4Defaults])
 
-step2['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','cfg':'step2'},step4Defaults])
-step2['HARVGEN']={'-s':'HARVESTING:genHarvesting',
-                  '--harvesting':'AtJobEnd',
-                  '--conditions':'auto:mc',
-                  '--mc':'',
-                  '--filein':'file:raw.root'}
-                 
 
 #### for special wfs ###
 step1['TTbar_REDIGI_RERECO']=merge([{'cfg':'TTbar_Tauola_7TeV_cfi',

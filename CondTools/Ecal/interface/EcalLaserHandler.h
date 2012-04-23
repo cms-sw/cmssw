@@ -84,7 +84,7 @@ namespace popcon
     std::string m_name;
     std::string m_maxtime; 
     bool        m_debug;
-    bool        m_fake;
+    
   };
 }
 #endif

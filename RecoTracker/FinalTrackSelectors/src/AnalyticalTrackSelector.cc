@@ -9,7 +9,8 @@ using reco::modules::AnalyticalTrackSelector;
 AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg ) :
   src_( cfg.getParameter<edm::InputTag>( "src" ) ),
   beamspot_( cfg.getParameter<edm::InputTag>( "beamspot" ) ),
-  vertices_( cfg.getParameter<edm::InputTag>( "vertices" ) ),
+  useVertices_( cfg.getParameter<bool>( "useVertices" ) ),
+  vertices_( useVertices_ ? cfg.getParameter<edm::InputTag>( "vertices" ) : edm::InputTag("NONE")),
   copyExtras_(cfg.getUntrackedParameter<bool>("copyExtras", false)),
   copyTrajectories_(cfg.getUntrackedParameter<bool>("copyTrajectories", false)),
   keepAllTracks_( cfg.exists("keepAllTracks") ?
@@ -18,8 +19,8 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
   setQualityBit_( false ),
   qualityToSet_( TrackBase::undefQuality ),
   // parameters for vertex selection
-  vtxNumber_( cfg.getParameter<int32_t>("vtxNumber") ),
-  vertexCut_(cfg.getParameter<std::string>("vertexCut")),
+  vtxNumber_( useVertices_ ? cfg.getParameter<int32_t>("vtxNumber") : 0),
+  vertexCut_( useVertices_ ? cfg.getParameter<std::string>("vertexCut") : ""),
   //  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
   res_par_(cfg.getParameter< std::vector<double> >("res_par") ),
   chi2n_par_( cfg.getParameter<double>("chi2n_par") ),
@@ -91,11 +92,13 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
 	
   // Select good primary vertices for use in subsequent track selection
   edm::Handle<reco::VertexCollection> hVtx;
-  evt.getByLabel(vertices_, hVtx);
   std::vector<Point> points;
-  selectVertices(*hVtx, points);
-  // Debug 
-  LogDebug("SelectVertex") << points.size() << " good pixel vertices";
+  if (useVertices_) {
+      evt.getByLabel(vertices_, hVtx);
+      selectVertices(*hVtx, points);
+      // Debug 
+      LogDebug("SelectVertex") << points.size() << " good pixel vertices";
+  }
 
   // Get tracks 
   evt.getByLabel( src_, hSrcTrack );

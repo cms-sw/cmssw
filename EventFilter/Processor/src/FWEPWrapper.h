@@ -213,6 +213,7 @@ namespace evf{
     xdata::UnsignedInteger32         lumiSectionIndex_;
     xdata::UnsignedInteger32         prescaleSetIndex_;
     xdata::UnsignedInteger32         lastLumiPrescaleIndex_;
+    xdata::UnsignedInteger32         lastLumiUsingEol_;
     xdata::Boolean                   lsTimedOut_;
     xdata::Boolean                   lsToBeRecovered_;
 

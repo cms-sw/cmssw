@@ -211,7 +211,7 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
 			       lepB_->getCurr4Vec()->Y(), lepB_->getCurr4Vec()->Z(), lepB_->getCurr4Vec()->E()), math::XYZPoint()));
 
     // read back lepton kinematics
-    fittedLepton_= pat::Particle(reco::LeafCandidate(lepton.charge(), math::XYZTLorentzVector(lepton_->getCurr4Vec()->X(),
+    fittedLepton_= pat::Particle(reco::LeafCandidate(0, math::XYZTLorentzVector(lepton_->getCurr4Vec()->X(),
 				 lepton_->getCurr4Vec()->Y(), lepton_->getCurr4Vec()->Z(), lepton_->getCurr4Vec()->E()), math::XYZPoint()));
 
     // read back the MET kinematics

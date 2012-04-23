@@ -145,8 +145,5 @@ DEFINE_FWK_MODULE(SiStripBaseDelayDummyPrinter);
 typedef DummyCondObjPrinter<SiStripDelay,SiStripDelayRcd> SiStripDelayDummyPrinter;
 DEFINE_FWK_MODULE(SiStripDelayDummyPrinter);
 
-typedef DummyCondObjPrinter<SiStripLorentzAngle,SiStripLorentzAngleDepRcd> SiStripLorentzAngleDepDummyPrinter;
-DEFINE_FWK_MODULE(SiStripLorentzAngleDepDummyPrinter);
-
 typedef DummyCondObjPrinter<SiStripConfObject,SiStripConfObjectRcd> SiStripConfObjectDummyPrinter;
 DEFINE_FWK_MODULE(SiStripConfObjectDummyPrinter);

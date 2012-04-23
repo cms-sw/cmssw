@@ -1,6 +1,15 @@
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryError.h"
 #include "DataFormats/Math/interface/invertPosDefMatrix.h"
 
+LocalTrajectoryError::LocalTrajectoryError() {}
+
+LocalTrajectoryError::~LocalTrajectoryError() {}
+
+LocalTrajectoryError::LocalTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix) :
+  theCovarianceMatrix(aCovarianceMatrix), theWeightMatrixPtr() { }
+
+LocalTrajectoryError::LocalTrajectoryError(const AlgebraicSymMatrix& aCovarianceMatrix) :
+  theCovarianceMatrix(asSMatrix<5>(aCovarianceMatrix)), theWeightMatrixPtr() {}
 
 
 LocalTrajectoryError::

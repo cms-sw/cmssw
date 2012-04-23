@@ -25,14 +25,14 @@ setenv CMSSWver1 4_2_0
 setenv CMSSWver2 4_2_0
 setenv OLDRELEASE 4_2_0
 setenv NEWRELEASE 4_2_0
-setenv OLDPRERELEASE pre7
-setenv NEWPRERELEASE pre8
+setenv OLDPRERELEASE pre4
+setenv NEWPRERELEASE pre5
 
 
 
 if ( $STARTUP == True) then
-setenv OLDGLOBALTAG START42_V6-v2
-setenv NEWGLOBALTAG START42_V7-v1
+setenv OLDGLOBALTAG START42_V1-v1
+setenv NEWGLOBALTAG START42_V3-v1
 else
 setenv OLDGLOBALTAG MC_42_V1-v1
 setenv NEWGLOBALTAG MC_42_V3-v1
@@ -62,9 +62,8 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 #Name of sample (affects output directory name and htmldescription only) 
 #setenv SAMPLE SingleGammaPt10IDEAL
 #setenv SAMPLE SingleGammaPt35IDEAL
-#setenv SAMPLE QCD_Pt_80_120STARTUP
+setenv SAMPLE QCD_Pt_80_120STARTUP
 #setenv SAMPLE QCD_Pt_20_30STARTUP
-setenv SAMPLE H130GGgluonfusionSTARTUP
 
 if ( $RUNTYPE == Central ) then
 setenv HISTOPATHNAME_Efficiencies DQMData/Run\ 1/EgammaV/Run\ summary/ConversionValidator/EfficienciesAndFakeRate
@@ -117,8 +116,8 @@ if ( $RUNTYPE == Local ) then
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_H130GGgluonfusion.root
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_H130GGgluonfusion.root
 else if ( $RUNTYPE == Central ) then
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
-setenv NEWFILE ${WorkDir2}/DQM_V0002_R000000001__RelValH130GGgluonfusion__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
 endif
 
 
@@ -147,8 +146,8 @@ if ( $RUNTYPE == Local ) then
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_QCD_Pt_80_120.root
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
 else if ( $RUNTYPE == Central ) then
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValQCD_Pt_80_120__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
-setenv NEWFILE ${WorkDir2}/DQM_V0002_R000000001__RelValQCD_Pt_80_120__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValQCD_Pt_80_120__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValQCD_Pt_80_120__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
 endif
 
 else if ($SAMPLE == QCD_Pt_20_30STARTUP) then 

@@ -1,4 +1,4 @@
-// $Id: XHTMLMaker.cc,v 1.10.4.1 2011/03/07 11:33:06 mommsen Exp $
+// $Id: XHTMLMaker.cc,v 1.11 2011/03/07 15:31:32 mommsen Exp $
 /// @file: XHTMLMaker.cc
 
 #include "EventFilter/StorageManager/interface/XHTMLMaker.h"
@@ -235,6 +235,16 @@ void XHTMLMaker::addInt( Node* parent, const unsigned long long& value )
 {
     ostringstream tmpString;
     tmpString << value;
+    addText( parent, tmpString.str() );
+}
+
+/////////////////////////////////////
+//// Add a unsigned long as hex: ////
+/////////////////////////////////////
+void XHTMLMaker::addHex( Node* parent, const unsigned long& value )
+{
+    ostringstream tmpString;
+    tmpString << "0x" << std::hex << value;
     addText( parent, tmpString.str() );
 }
 

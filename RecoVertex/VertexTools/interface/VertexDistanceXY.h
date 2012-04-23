@@ -12,7 +12,7 @@ class VertexDistanceXY : public VertexDistance {
 
 public:
 
-  VertexDistanceXY()  {}
+  VertexDistanceXY() : theNullMatrix(3, 0) {}
 
   /**
    * The signed distance is computed using a vector
@@ -37,7 +37,7 @@ public:
 
 private:
 
-  AlgebraicSymMatrix22 theNullMatrix;
+  AlgebraicSymMatrix theNullMatrix;
 
   virtual Measurement1D distance(const GlobalPoint & vtx1Position, 
 				 const GlobalError & vtx1PositionError, 
