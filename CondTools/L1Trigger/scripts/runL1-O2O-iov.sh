@@ -2,16 +2,20 @@
 
 xflag=0
 pflag=0
-while getopts 'xph' OPTION
+fflag=0
+while getopts 'xpfh' OPTION
   do
   case $OPTION in
       x) xflag=1
           ;;
       p) pflag=1
 	  ;;
+      f) fflag=1
+	  ;;
       h) echo "Usage: [-x] runnum tsckey"
           echo "  -x: write to ORCON instead of sqlite file"
           echo "  -p: centrally installed release, not on local machine"
+	  echo "  -f: force IOV update"
           exit
           ;;
   esac
@@ -32,6 +36,11 @@ fi
 eval `scramv1 run -sh`
 export TNS_ADMIN=/nfshome0/popcondev/conddb
 
+if [ ${fflag} -eq 1 ]
+    then
+    forceUpdate="forceUpdate=1"
+fi
+
 if [ ${xflag} -eq 0 ]
     then
     echo "Writing to sqlite_file:l1config.db instead of ORCON."
@@ -48,7 +57,7 @@ if [ ${xflag} -eq 0 ]
 	fi
     fi
 
-    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteIOVOnline_cfg.py tscKey=${tsckey} runNumber=${runnum} outputDBConnect=sqlite_file:l1config.db outputDBAuth=. logTransactions=0 print
+    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteIOVOnline_cfg.py ${forceUpdate} tscKey=${tsckey} runNumber=${runnum} outputDBConnect=sqlite_file:l1config.db outputDBAuth=. logTransactions=0 print
     o2ocode=$?
     if [ ${o2ocode} -eq 0 ]
 	then
@@ -90,7 +99,7 @@ else
 #    fi
 
     echo "`date` : setting TSC IOVs"
-    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteIOVOnline_cfg.py tscKey=${tsckey} runNumber=${runnum} outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb_taskWriters/L1T print
+    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteIOVOnline_cfg.py ${forceUpdate} tscKey=${tsckey} runNumber=${runnum} outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb_taskWriters/L1T print
     o2ocode2=$?
     if [ ${o2ocode2} -eq 0 ]
 	then

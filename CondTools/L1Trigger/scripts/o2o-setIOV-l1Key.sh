@@ -5,7 +5,8 @@
 nflag=0
 oflag=0
 pflag=0
-while getopts 'noph' OPTION
+fflag=0
+while getopts 'nopfh' OPTION
   do
   case $OPTION in
       n) nflag=1
@@ -14,10 +15,13 @@ while getopts 'noph' OPTION
           ;;
       p) pflag=1
 	  ;;
+      f) fflag=1
+	  ;;
       h) echo "Usage: [-n] runnum L1_KEY"
           echo "  -n: no RS"
           echo "  -o: overwrite RS keys"
           echo "  -p: centrally installed release, not on local machine"
+	  echo "  -f: force IOV update"
           exit
           ;;
   esac
@@ -83,7 +87,12 @@ if [ -f o2o-tscKey.lock ]
     echo "Resuming process." >> tmp.log 2>&1
 fi
 
-$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-iov.sh -x ${centralRel} ${run} ${tscKey} >> tmp.log 2>&1
+if [ ${fflag} -eq 1 ]
+    then
+    forceUpdate="-f"
+fi
+
+$CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-iov.sh -x ${centralRel} ${forceUpdate} ${run} ${tscKey} >> tmp.log 2>&1
 o2ocode1=$?
 
 o2ocode2=0
@@ -96,7 +105,7 @@ fi
 if [ ${nflag} -eq 0 ]
     then
     echo "`date` : setting RS keys and IOVs" >> tmp.log 2>&1
-    $CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-rs-keysFromL1Key.sh -x ${overwrite} ${centralRel} ${run} ${l1Key} >> tmp.log 2>&1
+    $CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-rs-keysFromL1Key.sh -x ${overwrite} ${centralRel} ${forceUpdate} ${run} ${l1Key} >> tmp.log 2>&1
     o2ocode2=$?
 fi
 

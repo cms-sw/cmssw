@@ -4,7 +4,8 @@ xflag=0
 oflag=0
 pflag=0
 gflag=0
-while getopts 'xopgh' OPTION
+fflag=0
+while getopts 'xopgfh' OPTION
   do
   case $OPTION in
       x) xflag=1
@@ -15,11 +16,14 @@ while getopts 'xopgh' OPTION
           ;;
       g) gflag=1
 	  ;;
+      f) fflag=1
+	  ;;
       h) echo "Usage: [-x] tsckey runnum"
           echo "  -x: write to ORCON instead of sqlite file"
 	  echo "  -o: overwrite keys"
           echo "  -p: centrally installed release, not on local machine"
 	  echo "  -g: GT RS records only"
+	  echo "  -f: force IOV update"
           exit
 	  ;;
   esac
@@ -52,10 +56,15 @@ else
     rsflag="-r"
 fi
 
+if [ ${fflag} -eq 1 ]
+    then
+    forceUpdate="forceUpdate=1"
+fi
+
 if [ ${xflag} -eq 0 ]
     then
     echo "Writing to sqlite_file:l1config.db instead of ORCON."
-    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSOnline_cfg.py runNumber=${runnum} outputDBConnect=sqlite_file:l1config.db outputDBAuth=. ${overwrite} logTransactions=0 `$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh ${rsflag} ${l1Key}` keysFromDB=0 print
+    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSOnline_cfg.py runNumber=${runnum} outputDBConnect=sqlite_file:l1config.db outputDBAuth=. ${overwrite} ${forceUpdate} logTransactions=0 `$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh ${rsflag} ${l1Key}` keysFromDB=0 print
     o2ocode=$?
     if [ ${o2ocode} -ne 0 ]
 	then
@@ -72,7 +81,7 @@ if [ ${xflag} -eq 0 ]
 	fi
     fi
 else
-    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSOnline_cfg.py runNumber=${runnum} outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb_taskWriters/L1T ${overwrite} `$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh ${rsflag} ${l1Key}` keysFromDB=0 print
+    cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/L1ConfigWriteRSOnline_cfg.py runNumber=${runnum} outputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T outputDBAuth=/nfshome0/popcondev/conddb_taskWriters/L1T ${overwrite} ${forceUpdate} `$CMSSW_BASE/src/CondTools/L1Trigger/scripts/getKeys.sh ${rsflag} ${l1Key}` keysFromDB=0 print
     o2ocode=$?
     if [ ${o2ocode} -ne 0 ]
 	then
