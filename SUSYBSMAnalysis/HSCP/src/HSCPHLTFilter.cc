@@ -100,7 +100,7 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //      printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
 //   }fflush(stdout);
 
-
+/*
    edm::Handle< trigger::TriggerEvent > trEvHandle;
    iEvent.getByLabel("hltTriggerSummaryAOD", trEvHandle);
    trigger::TriggerEvent trEv = *trEvHandle;
@@ -239,9 +239,12 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if(MuonTrigger1Mask<0 && MuonTrigger1) return false;
    if(PFMetTriggerMask<0 && PFMetTrigger) return false;
 
-
    bool d =  (MuonTrigger1 | PFMetTrigger);
-   /* printf("%i\n",d);*/return d;
+    printf("%i\n",d);
+   return d;
+*/
+  return true;
+
 
 }
 
