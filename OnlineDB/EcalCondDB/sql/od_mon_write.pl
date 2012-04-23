@@ -1,4 +1,4 @@
-# remove this line before using
+# remove this line before using!!!!
 #!/usr/bin/perl
 
 # od_mon_write.pl
@@ -8,13 +8,23 @@
 # fill the DB table OD_MON_DAT.
 # The file containing the SQL commands is /tmp/od_mon_dat.sql 
 #
+# Can also run in a completely automatic mode (read last entry from
+# DB, process existing new data and update DB. 
+#
 # Usage: run this script according to instructions, then 
 #        log on DB sqlplus cms_ecal_cond@cms_omds_lb and 
 #        issue the command > @/tmp/od_mon_dat
 # 
 # 2012 vers. 1.0
+# 2012 vers. 2.0: process automatically new files
 
 use Getopt::Long;
+use strict;
+use DBI;
+
+my $ME = $0;
+$ME =~ s/^\..//g;
+$ME = '[' . $ME . ']';
 
 # 
 # get options
@@ -23,47 +33,90 @@ my $help;
 my $debug = 0;
 my $sm;
 my $after;
-$result = GetOptions("verbose=n" => \$debug, "after=s" => \$after, 
-		     "debug=n" => \$debug, "sm=s" => \$sm, "help" => \$help);
+my $auto;
+my $nmax = -1;
+my $pw;
+my $result = GetOptions("verbose=n" => \$debug, "after=s" => \$after, 
+			"debug=n" => \$debug, "sm=s" => \$sm, "help" => \$help,
+			"auto" => \$auto, "nmax=i" => \$nmax, "pw=s" => \$pw);
+
+#
+# Oracle connection
+#
+my $ORACLE_HOME = `pwd`;
+my $ORACLE_SID  = 'INT2R_LB';
+my $ORACLE_PW   = $pw;
+
+$ENV{ORACLE_HOME} = $ORACLE_HOME;
+$ENV{ORACLE_SID}  = $ORACLE_SID;
+my $CONNECT_STRING = 'dbi:Oracle:' . $ORACLE_SID;
+my $dbh = DBI->connect($CONNECT_STRING,
+		       'CMS_ECAL_COND', 
+		       $ORACLE_PW) || 
+    die "Can't connect to $ORACLE_SID";
+
+$dbh->{AutoCommit}    = 0;
+$dbh->{RaiseError}    = 1;
+$dbh->{ora_check_sql} = 0;
+$dbh->{RowCacheSize}  = 16;
+my $sql = '';
 
 if ($help) {
     help();
     exit 0;
 }
+
+if ($auto) {
+    # 
+    # get the last timestamp in the DB 
+    #
+    my $sql = "SELECT TO_CHAR(MAX(RUN_START), 'YYYY-MM-DD HH24:MI:SS') " .
+	"FROM OD_MON_DAT";
+    my $sth = $dbh->prepare($sql);
+    $sth->execute();
+    my $last_timestamp = '1970-01-01 00:00:00';
+    while (my @row = $sth->fetchrow_array()) {
+	$last_timestamp = $row[0];    
+    }
+    $after = $last_timestamp;
+    print "$ME Analyzing data taken after $last_timestamp\n";
+} 
+
 #
 # check format
 #
 `/bin/touch -d '1970-01-01 00:00:00' /tmp/od_mon_write.now`;
 if ($after) {
     if ($after !~ m/[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}/) {
-	print "ERROR: date format not recognized (use YYY-MM-DD HH24:MI:SS)\n";
+	print "$ME ERROR: date format not recognized (use YYY-MM-DD HH24:MI:SS)\n";
 	exit -1;
     }
-    $cmd = "/bin/touch -d '" . $after . "' /tmp/od_mon_write.now";
+    my $cmd = "/bin/touch -d '" . $after . "' /tmp/od_mon_write.now";
     `$cmd`;
-}
+} 
 
 if (($debug < 0) || ($debug > 2)) {
-    print "ERROR: verbose level can be either 0, 1 or 2.\n";
+    print "$ME ERROR: verbose level can be either 0, 1 or 2.\n";
 }
+
 #
-# prepare
+# prepare: read valid channels from the map and build a hash
 #
 open VL, "/nfshome0/vlassov/delays/endcap/fibmaptr.txt";
-@buffer = <VL>;
+my @buffer = <VL>;
 close VL;
-@validChannels;
-foreach $line (@buffer) {
+my @validChannels;
+foreach my $line (@buffer) {
     chomp $line;
     if ($line =~ m/^6/) {
-	@l = split / +/, $line;
-	$n = @l;
-	$fed = $l[0];
-	for ($i = 11; $i <$n; $i++) {
-	    $ccu = $l[$i];
-	    $ch = $fed * 1000 + $ccu;
+	my @l = split / +/, $line;
+	my $n = @l;
+	my $fed = $l[0];
+	for (my $i = 11; $i <$n; $i++) {
+	    my $ccu = $l[$i];
+	    my $ch = $fed * 1000 + $ccu;
 	    if ($debug >= 2) {
-		print "Found valid channel: $ch\n"; 
+		print "$ME Found valid channel: $ch\n"; 
 	    }
 	    push @validChannels, $ch;
 	}
@@ -74,23 +127,25 @@ foreach $line (@buffer) {
 # list directories
 #
 open OUT, ">/tmp/od_mon_dat.sql";
-$lscmd = "ls -d1 /data/ecalod-disk01/dcu-data/ccs-data/*";
-$slscmd = $lscmd;
+my $lscmd = "ls -d1 /data/ecalod-disk01/dcu-data/ccs-data/*"; #list command
+my $slscmd = $lscmd; #list command for specific SM (set below)
 if ($sm) {
     $slscmd .= "/" . $sm;
 }
-@dirs = `$slscmd`;
-foreach $dir (@dirs) {
-    #
-    # list files
-    #
+
+#
+# scan directories
+#
+my $nStatements = 0;
+my @dirs = `$slscmd`;
+foreach my $dir (@dirs) {
     if ($debug >= 1) {
-	print "$dir\n";
+	print "$ME Listing files in $dir\n";
     }
     chomp $dir;
-    $fed =$dir;
+    my $fed =$dir;
     $fed =~ s/^.*E(B|E)//; # remove the first characters and get the FED number
-    $prefix = "EB";
+    my $prefix = "EB";
     if ($dir =~ m/EB/) {
 	if ($fed < 0) {
 	    $fed = 610 - $fed - 1;
@@ -105,44 +160,51 @@ foreach $dir (@dirs) {
 	    $fed = 646 + (+ $fed + 2) % 9;
 	}
     }
-    $lsfcmd = "/usr/bin/find $dir -type f -cnewer /tmp/od_mon_write.now";
-    @files = `$lsfcmd`;
-    foreach $file (@files) {
+    #
+    # find files newer than the last enrty in the DB (or according to the
+    # --after option)
+    #
+    my $lsfcmd = "/usr/bin/find $dir -type f -cnewer /tmp/od_mon_write.now";
+    #
+    # list files to read
+    #
+    my @files = `$lsfcmd`;
+    foreach my $file (@files) {
 	# 
 	# read files
 	#
 	chomp $file;
 	if ($debug >= 1) {
-	    print "  $file\n";
+	    print "$ME   Analyzing $file\n";
 	}
 	open IN, $file;
-	@buffer = <IN>;
+	my @buffer = <IN>;
 	close IN;
 	#
 	# clear hashes
 	#
-	%word1;
-	%word2;
+	my %word1;
+	my %word2;
 	for (keys %word1) {
 	    delete $word1{$_};
 	}
 	for (keys %word2) {
 	    delete $word2{$_};
 	}
-	$timestamp;
-	foreach $line (@buffer) {
+	my $timestamp;
+	foreach my $line (@buffer) {
 	    #
 	    # analyze eache line of the file
 	    #
 	    if ($debug >= 2) {
-		print "     " . $line;
+		print "$ME      " . $line;
 	    }
 	    chomp $line;
 	    if ($line =~ m/TimeStamp=/) {
 		#
 		# get the timestamp and reformat it
 		#
-		($dummy, $timestamp) = split / +/, $line;
+		(my $dummy, $timestamp) = split / +/, $line;
 		$timestamp =~ s/h/:/;
 		$timestamp =~ s/m/:/;
 		$timestamp =~ s/s/:/;
@@ -155,35 +217,36 @@ foreach $dir (@dirs) {
 		# get CCU and 2 words if the line starts with a number 
 		#
 		$line =~ s/^ +//;
-		($ccu, $w1, $w2) = split / +/, $line;
+		(my $ccu, my $w1, my $w2) = split / +/, $line;
 		$word1{$ccu} = hex($w1);
 		$word2{$ccu} = hex($w2);
 	    } 
 	}
 	#
 	# get the current date and time in the plain format
-	$daytime = $timestamp;
-	$daytime =~ s/( |-)//g;
-	$mafter = $after;
-	$mafter =~ s/( |-)//g;
+	#
+	my $daytime = $timestamp;
+	$daytime =~ s/( |-|:)//g;
+	my $mafter = $after;
+	$mafter =~ s/( |-|:)//g;
 	if ((($after) && ($daytime > $mafter)) || 
 	    (!$after)) {
-	    foreach $key (keys %word1) {
+	    foreach my $key (keys %word1) {
 		#
 		# loop on all CCU's 
 		#
 		if ($debug >= 2) {
-		    print "    key: $key\n"; 
+		    print "$ME     key: $key\n"; 
 		}
 		if (($key != 0) && ($key != 71)) {
 		    #
 		    # special CCU numbers
 		    #
-		    $ccu = $key;
-		    $w20 = $word2{0}; # this is the DAQ state when data got
-		    $w171 = $word2{71}; # ccs board status 1 
-		    $w271 = $word2{71}; # ccs board status 2
-		    $w2k = $word2{$key};
+		    my $ccu = $key;
+		    my $w20 = $word2{0}; # this is the DAQ state when data got
+		    my $w171 = $word2{71}; # ccs board status 1 
+		    my $w271 = $word2{71}; # ccs board status 2
+		    my $w2k = $word2{$key};
 		    #
 		    # not all data have a third column, i.e. a 2nd word
 		    #
@@ -211,38 +274,51 @@ foreach $dir (@dirs) {
 			"NAME = MAPS_TO), " . 
 			$w20 . ", " . $word1{$key} . ", " .
 			$w2k . ", " . $w171 . ", " .
-			$w271 . ", DEFAULT);";
+			$w271 . ", DEFAULT)";
 		    #
 		    # check if this is a valid channel
 		    #
-		    $ch = $fed * 1000 + $ccu;
-		    @found = grep(/$ch/, @validChannels);
-		    $nFound = @found;
+		    my $ch = $fed * 1000 + $ccu;
+		    my @found = grep(/$ch/, @validChannels);
+		    my $nFound = @found;
 		    if ($nFound > 0) {
-			print OUT "$sql\n";
+			if ($auto) {
+			    my $sth = $dbh->prepare($sql);
+			    $sth->execute();
+			} else {
+			    print OUT "$sql;\n";
+			}
+			$nStatements++;
+			if (($nmax >= 0) && ($nStatements >= $nmax)) {
+			    $dbh->disconnect();
+			    exit 0; # not very well structured, in fact...
+			}
 		    }
 		    if ($debug >= 2) {
-			print "$sql\n";
+			print "$ME $sql\n";
 			#
 			# print just one SQL command
 			#
 			$debug = 1;
 		    }
 		    if (($debug >= 0) && ($nFound <= 0)) {
-			print "*** IGNORED: ";
-			print "$file $fed $ccu --> $ch " . $found[0] . "\n";
+			print "$ME *** IGNORED: ";
+			print "$ME $file $fed $ccu --> $ch " . $found[0] . "\n";
 		    }
 		}
 	    }
 	} else {
 	    if ($debug >= 1) {
-		print "    *** SKIP\n";
+		print "$ME     *** SKIP (already in DB)\n";
 	    }
 	}
     }
 }
 
+print "$ME Inserted $nStatements rows in DB\n";
+
 close OUT;
+$dbh->disconnect();
 exit 0;
 
 sub help() {
