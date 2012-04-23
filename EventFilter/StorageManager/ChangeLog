@@ -1,3 +1,9 @@
+2012-04-23 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-09-00
+	* Add reconnect method for event server (from Srecko).
+	* Use EPs instead of FUs on SM hyperdaq page.
+
 2012-04-20 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-08-00
