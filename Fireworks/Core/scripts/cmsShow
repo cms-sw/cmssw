@@ -98,8 +98,10 @@ setupEnv()
      export ROOTSYS=$CMSSW_BASE/external/root 
      export LD_LIBRARY_PATH=${CMSSW_BASE}/lib:${CMSSW_BASE}/external/gcc/lib64:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib:$LD_LIBRARY_PATH
      export DYLD_FALLBACK_LIBRARY_PATH=${LD_LIBRARY_PATH}
+     if [ -n "$DYLD_LIBRARY_PATH" ]; then
+        unset DYLD_LIBRARY_PATH
+     fi
      export PATH=${ROOTSYS}/bin:$PATH
-
      # move cmsShow.exe to libexec
      SHELLDIR=$SHELLDIR/libexec
    fi
