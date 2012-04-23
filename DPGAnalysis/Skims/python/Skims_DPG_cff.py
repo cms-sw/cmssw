@@ -318,3 +318,19 @@ SKIMStreamHighMET   = cms.FilteredStream(
             )
 
 #####################
+
+
+#####################
+
+from DPGAnalysis.Skims.ZHbbSkim_cff import *
+ZHbbSkimPath = cms.Path(ZHbbSkim)
+SKIMStreamZHbbSkim = cms.FilteredStream(
+    responsible = 'BTV',
+    name = 'ZHbbSkim',
+    paths = (ZHbbSkimPath),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+
+
