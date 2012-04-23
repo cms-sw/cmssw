@@ -79,6 +79,7 @@ class TrendPlot:
     
     def addRun(self, serverUrl, runNr, dataset):
         from math import sqrt
+        from ROOT import TH1
         self.__count = self.__count + 1
         histoPath = self.__config.get(self.__section, "relativePath")
 
@@ -105,8 +106,14 @@ class TrendPlot:
         try:
             if self.__cache == None or cacheLocation not in self.__cache:
                 histo = getHistoFromDQM( serverUrl, runNr, dataset, histoPath)
+                Entr=0
+                Entr=histo.GetEntries()
                 print "###############    GOT HISTO #################" 
-                (y, yErr) = self.__metric(histo, cacheLocation)
+                print "SEVA",runNr,Entr
+                y=0
+                yErr    = (0.0,0.0)
+                if Entr>self.__threshold:
+                       (y, yErr) = self.__metric(histo, cacheLocation)
             elif cacheLocation in self.__cache:
                 (y, yErr) = self.__metric(None, cacheLocation)
         except StandardError as msg :
@@ -187,6 +194,7 @@ class TrendPlot:
 
         xErr = array("d",[0 for i in range(n)])
         print "__x = ", self.__x
+        print "__y = ", self.__y
         graph = TGraphAsymmErrors(n, self.__x, self.__y, xErr, xErr, self.__yErrLow,self.__yErrHigh)
         graph.SetLineWidth(2)
         graph.SetFillColor(0)
@@ -315,13 +323,18 @@ def getReferenceRun(config, runs):
       config.set("reference","name", directories[0])
       file.Close()
 
-def getRunsFromDQM(config, mask, pd, mode, runMask="all"):
+#def getRunsFromDQM(config, mask, pd, mode, runMask="all"):
+def getRunsFromDQM(config, mask, pd, mode, runMask="all",runlistfile=[]):
     from src.dqmjson import dqm_get_samples
     serverUrl = config.get("dqmServer","url")
     dataType = config.get("dqmServer","type")
 
     json = dqm_get_samples(serverUrl, mask, dataType)
     masks = []
+    if runlistfile==[]:
+        print "JOS VECE SRANJE"
+    else:
+       runs1 = [x.strip() for x in open(runlistfile,"r")]
     for runNr, dataset in json:
         if dataset not in masks: masks.append(dataset)
     for m in masks:
@@ -335,8 +348,15 @@ def getRunsFromDQM(config, mask, pd, mode, runMask="all"):
               ##For this to run correctly, I need autoRunDecoDetector.py checked out (UserCode/TkDQM/Tools)
                 if checkStripMode(runNr) != mode:
                     continue
-            if eval(runMask,{"all":True,"run":runNr}):
-                result[runNr] = (serverUrl, runNr, dataset)
+            if runlistfile==[]:
+                if eval(runMask,{"all":True,"run":runNr}):
+                    result[runNr] = (serverUrl, runNr, dataset)
+            else:
+                 for run_temp in runs1:
+#                        print "aaaaaaaa",runNr,run_temp
+                        if int(run_temp)==int(runNr):
+                                print "test1=",run_temp,runNr
+                                result[runNr] = (serverUrl, runNr, dataset)
     if not result :
         print "*** WARNING: YOUR REQUEST DOESNT MATCH ANY EXISTING DATASET ***"
         print "-> check your settings in ./cfg/trendPlots.py"
@@ -459,6 +479,7 @@ def main(argv=None):
                       help="mask for the reco dataset tag (default is v*), e.g. v5")
     parser.add_option("-s", "--state", dest="state", default="ALL",
                       help="mask for strip state, options are ALL, PEAK, DECO, or MIXED -- only applicable if dataset is 'Cosmics'")
+    parser.add_option("-L", "--list", dest="list", type="string", default=[] , action="store")
     (opts, args) = parser.parse_args(argv)
     if opts.config ==[]:
         opts.config = "trendPlots.ini"
@@ -469,10 +490,12 @@ def main(argv=None):
 
     dsetmask = ".*/" + opts.dset +"/"+opts.epoch+".*"+opts.reco+"*.*"+opts.tag
     print dsetmask
-    runs = getRunsFromDQM(config, dsetmask, opts.dset, opts.state, opts.runs)
+#    runs = getRunsFromDQM(config, dsetmask, opts.dset, opts.state, opts.runs)
+    runs = getRunsFromDQM(config, dsetmask, opts.dset, opts.state, opts.runs,opts.list)
     if not runs : raise StandardError, "*** Number of runs matching run/mask/etc criteria is equal to zero!!!"
 
     print "runs= ", runs
+    print "runssss= ", runs
 
     print "got %s run between %s and %s"%(len(runs), min(runs.keys()), max(runs.keys()))
 #    getReferenceRun(config, runs)
