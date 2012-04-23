@@ -500,10 +500,10 @@ float EcalClusterLazyTools::BasicClusterTime(const reco::BasicCluster &cluster, 
 {
   
   std::vector<std::pair<DetId, float> > clusterComponents = (cluster).hitsAndFractions() ;
-  std::cout << "BC has this many components: " << clusterComponents.size() << std::endl; // GF debug
+  //std::cout << "BC has this many components: " << clusterComponents.size() << std::endl; // GF debug
   
   const EcalRecHitCollection *recHits = getEcalRecHitCollection( cluster );
-  std::cout << "BasicClusterClusterTime - rechits are this many: " << recHits->size() << std::endl; // GF debug
+  //std::cout << "BasicClusterClusterTime - rechits are this many: " << recHits->size() << std::endl; // GF debug
   
   
   float weightedTsum   = 0;
