@@ -48,7 +48,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(-1)
         ),
         HcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
+            limit = cms.untracked.int32(0)
         ),
         EcalSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
@@ -80,10 +80,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(20)
 )
 
-process.source = cms.Source("EmptySource",
-    firstRun        = cms.untracked.uint32(1),
-    firstEvent      = cms.untracked.uint32(1)
-)
+process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
@@ -96,7 +93,8 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
         MaxE   = cms.double(100.01)
     ),
     Verbosity       = cms.untracked.int32(0),
-    AddAntiParticle = cms.bool(False)
+    AddAntiParticle = cms.bool(False),
+    firstRun        = cms.untracked.uint32(1)
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
@@ -111,11 +109,7 @@ process.Tracer = cms.Service("Tracer")
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 
-process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('PionHcalTestAnalysis.root')
-)
-
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
 process.g4SimHits.G4Commands = ['/tracking/verbose 1']
 process.common_maximum_timex = cms.PSet(
     MaxTrackTime  = cms.double(1000.0),
@@ -125,7 +119,6 @@ process.common_maximum_timex = cms.PSet(
 process.g4SimHits.StackingAction = cms.PSet(
     process.common_heavy_suppression,
     process.common_maximum_timex,
-    KillDeltaRay  = cms.bool(False),
     TrackNeutrino = cms.bool(False),
     KillHeavy     = cms.bool(False),
     SaveFirstLevelSecondary = cms.untracked.bool(True),
@@ -158,7 +151,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     HcalTestAnalysis = cms.PSet(
         Eta0 = cms.double(0.0),
         LayerGrouping = cms.int32(1),
-        FileName = cms.string('PionHcalTestAnalysis.root'),
+        FileName = cms.string('HcalTestAnalysis.root'),
         Names = cms.vstring('HcalHits',
             'EcalHitsEB',
             'EcalHitsEE'),

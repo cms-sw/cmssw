@@ -11,8 +11,8 @@ namespace cms {
 
   /** \class HcalRecHitDump
       
-  $Date: 2007/10/03 01:45:49 $
-  $Revision: 1.10 $
+  $Date: 2010/02/25 00:30:00 $
+  $Revision: 1.11 $
   \author J. Mans - Minnesota
   */
   class HcalRecHitDump : public edm::EDAnalyzer {
@@ -24,82 +24,30 @@ namespace cms {
   HcalRecHitDump::HcalRecHitDump(edm::ParameterSet const& conf) {
   }
   
+  template<typename COLL> void analyzeT(edm::Event const& e, const char * name=0) {
+    try {
+      std::vector<edm::Handle<COLL> > colls;
+      e.getManyByType(colls);
+      typename std::vector<edm::Handle<COLL> >::iterator i;
+      for (i=colls.begin(); i!=colls.end(); i++) {
+        for (typename COLL::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++)
+          cout << *j << std::endl;
+      }
+    } catch (...) {
+      if(name) cout << "No " << name << " RecHits." << endl;
+    }
+  }
+
   void HcalRecHitDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
+    analyzeT<HBHERecHitCollection>(e, "HB/HE"); 
+    analyzeT<HFRecHitCollection>(e, "HF");
+    analyzeT<HORecHitCollection>(e, "HO");
+    analyzeT<HcalCalibRecHitCollection>(e);
+    analyzeT<ZDCRecHitCollection>(e);
+    analyzeT<CastorRecHitCollection>(e);
+    analyzeT<HcalUpgradeRecHitCollection>(e, "HcalUpgrade");
+
     edm::Handle<HcalSourcePositionData> spd;
-
-    try {
-      std::vector<edm::Handle<HBHERecHitCollection> > colls;
-      e.getManyByType(colls);
-      std::vector<edm::Handle<HBHERecHitCollection> >::iterator i;
-      for (i=colls.begin(); i!=colls.end(); i++) {
-	for (HBHERecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) 
-	  cout << *j << std::endl;
-      }
-    } catch (...) {
-      cout << "No HB/HE RecHits." << endl;
-    }
-    
-    try {
-      std::vector<edm::Handle<HFRecHitCollection> > colls;
-      e.getManyByType(colls);
-      std::vector<edm::Handle<HFRecHitCollection> >::iterator i;
-      for (i=colls.begin(); i!=colls.end(); i++) {
-	for (HFRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) 
-	  cout << *j << std::endl;
-      }
-    } catch (...) {
-      cout << "No HF RecHits." << endl;
-    }
-    
-    try {
-      std::vector<edm::Handle<HORecHitCollection> > colls;
-      e.getManyByType(colls);
-      std::vector<edm::Handle<HORecHitCollection> >::iterator i;
-      for (i=colls.begin(); i!=colls.end(); i++) {
-	for (HORecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) 
-	  cout << *j << std::endl;
-      }
-    } catch (...) {
-      cout << "No HO RecHits." << endl;
-    }
-
-    try {
-      std::vector<edm::Handle<HcalCalibRecHitCollection> > colls;
-      e.getManyByType(colls);
-      std::vector<edm::Handle<HcalCalibRecHitCollection> >::iterator i;
-      for (i=colls.begin(); i!=colls.end(); i++) {
-	for (HcalCalibRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) 
-	  cout << *j << std::endl;
-      }
-    } catch (...) {
-      //      cout << "No Calib RecHits." << endl;
-    }
-
-    try {
-      std::vector<edm::Handle<ZDCRecHitCollection> > colls;
-      e.getManyByType(colls);
-      std::vector<edm::Handle<ZDCRecHitCollection> >::iterator i;
-      for (i=colls.begin(); i!=colls.end(); i++) {
-	for (ZDCRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) 
-	  cout << *j << std::endl;
-      }
-    } catch (...) {
-      //      cout << "No ZDC RecHits." << endl;
-    }
-
-    try {
-      std::vector<edm::Handle<CastorRecHitCollection> > colls;
-      e.getManyByType(colls);
-      std::vector<edm::Handle<CastorRecHitCollection> >::iterator i;
-      for (i=colls.begin(); i!=colls.end(); i++) {
-	for (CastorRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) 
-	  cout << *j << std::endl;
-      }
-    } catch (...) {
-      //      cout << "No Castor RecHits." << endl;
-    }
-
-
     try {
       e.getByType(spd);
       cout << *spd << std::endl;

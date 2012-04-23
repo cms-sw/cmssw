@@ -1,8 +1,23 @@
+2011-05-09 Remi Mommsen <Remigius.Mommsen@cern.ch>
+	* tag V03-02-00
+	* Don't fail if we receive a corrupted event from the SM.
+	* Keep track of how many events were corrupted and raise
+	  a sentinel alarm if there's a too high rate.
+
+2011-04-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
+	* tag V03-01-00
+	* Merge changes from tag V02-01-00 (branch_3_10_x)
+	  into trunk.
+
 2011-03-29 Remi Mommsen <Remigius.Mommsen@cern.ch>
 	* tag V03-00-00
 	* Merge new SMPS based on tag V02-00-02 (branch_3_10_x)
 	  into trunk.
 	* This tag requires IOPool/Streamer V07-01-00 or later.
+
+2011-04-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
+	* tag V02-01-00
+	* Adjust to API change in DQMEventStore in SM V07-03-00.
 
 2011-03-29 Remi Mommsen <Remigius.Mommsen@cern.ch>
 	* tag V02-00-02

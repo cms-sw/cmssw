@@ -192,7 +192,12 @@ class CkfDebugger {
     LogTrace("CkfDebugger") << "R(-1)=" << R ;
     LogTrace("CkfDebugger") << "chi2=" << ROOT::Math::Similarity(r,R) ;
     double pullX=(-r[0])*sqrt(R(0,0));
-    double pullY=(-r[1])*sqrt(R(1,1));
+    double r_1 = 0;
+    if ( VecD::Dim() >= 2 )
+      {
+	r_1 = r[1];
+      }
+    double pullY=(-r_1)*sqrt(R(1,1));
     LogTrace("CkfDebugger") << "pullX=" << pullX ;
     LogTrace("CkfDebugger") << "pullY=" << pullY ;
     return  std::pair<double,double>(pullX,pullY);

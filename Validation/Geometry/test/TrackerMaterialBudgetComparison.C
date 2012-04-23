@@ -60,9 +60,6 @@ using namespace std;
 
 // Main
 TrackerMaterialBudgetComparison(TString detector) {
-
-  gROOT->SetStyle("Plain");
-
   // detector
   theDetector = detector;
   if(
@@ -119,12 +116,12 @@ TrackerMaterialBudgetComparison(TString detector) {
   // plots
   createPlots("x_vs_eta");
   createPlots("x_vs_phi");
-  createPlots("x_vs_R");
+  //  createPlots("x_vs_R");
   createPlots("l_vs_eta");
   createPlots("l_vs_phi");
-  createPlots("l_vs_R");
-  create2DPlots("x_vs_eta_vs_phi");
-  create2DPlots("l_vs_eta_vs_phi");
+  //  createPlots("l_vs_R");
+  //  create2DPlots("x_vs_eta_vs_phi");
+  //  create2DPlots("l_vs_eta_vs_phi");
   create2DPlots("x_vs_z_vs_R");
   create2DPlots("l_vs_z_vs_R");
   create2DPlots("x_vs_z_vs_Rsum");
@@ -435,18 +432,16 @@ void createPlots(TString plot) {
   
   // Store Comparison
   can_comparison.Update();
-  //  can_comparison.SaveAs( Form( "%s/%s_Comparison_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can_comparison.SaveAs( Form( "%s/%s_Comparison_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //  can_comparison.SaveAs( Form( "%s/%s_Comparison_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can_comparison.SaveAs( Form( "%s/%s_Comparison_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  can_comparison.SaveAs( Form( "%s/%s_Comparison_%s.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can_comparison.SaveAs( Form( "%s/%s_Comparison_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
   // Store Ratio
   can_ratio.Update();
-  //  can_ratio.SaveAs( Form( "%s/%s_ComparisonRatio_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can_ratio.SaveAs( Form( "%s/%s_ComparisonRatio_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //  can_ratio.SaveAs( Form( "%s/%s_ComparisonRatio_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can_ratio.SaveAs( Form( "%s/%s_ComparisonRatio_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  can_ratio.SaveAs( Form( "%s/%s_ComparisonRatio_%s.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can_ratio.SaveAs( Form( "%s/%s_ComparisonRatio_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
 }
@@ -456,8 +451,7 @@ void create2DPlots(TString plot) {
   TString abscissaName = "dummy";
   TString ordinateName = "dummy";
   Int_t zLog = 0;
-  Int_t iDrawEta = 0; //draw Eta values
-  Int_t iRebin = 0; //Rebin
+  Int_t zCol = 0; // 0 linear grayscale, 1 quadratic grayscale
   Double_t histoMin = -1.;
   Double_t histoMax = -1.;
   if(plot.CompareTo("x_vs_eta_vs_phi") == 0) {
@@ -465,61 +459,44 @@ void create2DPlots(TString plot) {
     abscissaName = TString("#eta");
     ordinateName = TString("#varphi");
     quotaName    = TString("x/X_{0}");
-    iRebin = 1;
-    histoMin = 0.8;
-    histoMax = 1.2;
   } else if(plot.CompareTo("l_vs_eta_vs_phi") == 0) {
     plotNumber = 1030;
     abscissaName = TString("#eta");
     ordinateName = TString("#varphi");
     quotaName    = TString("x/#lambda_{0}");
-    iRebin = 1;
-    histoMin = 0.8;
-    histoMax = 1.2;
   } else if(plot.CompareTo("x_vs_z_vs_Rsum") == 0) {
     plotNumber = 50;
     abscissaName = TString("z [mm]");
     ordinateName = TString("R [mm]");
     quotaName    = TString("#Sigmax/X_{0}");
-    iDrawEta = 1;
-    zLog = 0; // was 1
-    //    histoMin = 0.4762;
-    //    histoMax = 2.1;
-    histoMin = 0.8;
-    histoMax = 1.2;
+    zLog = 1;
+    zCol = 1;
+    histoMin = 0.4762;
+    histoMax = 2.1;
   } else if(plot.CompareTo("x_vs_z_vs_R") == 0) {
     plotNumber = 60;
     abscissaName = TString("z [mm]");
     ordinateName = TString("R [mm]");
     quotaName    = TString("1/X_{0}");
-    iDrawEta = 1;
-    zLog = 0; // was 1
-    histoMin = 0.8;
-    histoMax = 1.2;
-    //    histoMin = 1E-4;
-    //    histoMax = 1E+4;
+    zLog = 1;
+    histoMin = 1E-4;
+    histoMax = 1E+4;
   } else if(plot.CompareTo("l_vs_z_vs_Rsum") == 0) {
     plotNumber = 1050;
     abscissaName = TString("z [mm]");
     ordinateName = TString("R [mm]");
     quotaName    = TString("#Sigmax/#lambda_{0}");
-    iDrawEta = 1;
-    zLog = 0; // was 1
-    histoMin = 0.8;
-    histoMax = 1.2;
-    //    histoMin = 0.4762;
-    //    histoMax = 2.1;
+    zLog = 1;
+    histoMin = 0.4762;
+    histoMax = 2.1;
   } else if(plot.CompareTo("l_vs_z_vs_R") == 0) {
     plotNumber = 1060;
     abscissaName = TString("z [mm]");
     ordinateName = TString("R [mm]");
     quotaName    = TString("1/#lambda_{0}");
-    iDrawEta = 1;
-    zLog = 0; // was 1
-    histoMin = 0.8;
-    histoMax = 1.2;
-    //    histoMin = 1E-4;
-    //    histoMax = 1E+4;
+    zLog = 1;
+    histoMin = 1E-4;
+    histoMax = 1E+4;
   } else {
     cout << " error: chosen plot name not known " << plot << endl;
     return;
@@ -602,26 +579,15 @@ void create2DPlots(TString plot) {
   //
   
   // Create "null" histo
-  Double_t minX = 1.03*hist_x0_total_new->GetXaxis()->GetXmin();
-  Double_t maxX = 1.03*hist_x0_total_new->GetXaxis()->GetXmax();
-  Double_t minY = 1.03*hist_x0_total_new->GetYaxis()->GetXmin();
-  Double_t maxY = 1.03*hist_x0_total_new->GetYaxis()->GetXmax();
-
-  //  TH2F *frame = new TH2F("frame","",10,-3100.,3100.,10,-50.,1400.); 
-  TH2F *frame = new TH2F("frame","",10,minX,maxX,10,minY,maxY); 
+  TH2F *frame = new TH2F("frame","",10,-3100.,3100.,10,-50.,1400.); 
   frame->SetMinimum(0.1);
   frame->SetMaximum(10.);
   frame->GetXaxis()->SetTickLength(frame->GetXaxis()->GetTickLength()*0.50);
   frame->GetYaxis()->SetTickLength(frame->GetXaxis()->GetTickLength()/4.);
 
   // Ratio
-  if (iRebin){
-    hist_x0_total_old->Rebin2D();
-    hist_x0_total_new->Rebin2D();
-  }
   TH2D* histo_ratio = new TH2D(*hist_x0_total_new);
-  //  TString hist2dTitle = Form( "Material Budget Ratio (New/Old) (%s) ",quotaName.Data() ) + theDetector + Form( ";%s;%s;%s",abscissaName.Data(),ordinateName.Data(),quotaName.Data() );
-  TString hist2dTitle(quotaName+" "+theDetector+" Ratio vs. Reference;"+abscissaName+";"+ordinateName+";"+quotaName);
+  TString hist2dTitle = Form( "Material Budget Ratio (New/Old) (%s) ",quotaName.Data() ) + theDetector + Form( ";%s;%s;%s",abscissaName.Data(),ordinateName.Data(),quotaName.Data() );
   frame->SetTitle(hist2dTitle);
   frame->SetTitleOffset(0.5,"Y");
   histo_ratio->Divide(hist_x0_total_old);
@@ -638,10 +604,7 @@ void create2DPlots(TString plot) {
   can.SetLeftMargin(0.04);
   can.SetRightMargin(0.06);
   can.SetFillColor(kWhite);
-  can.SetBorderMode(0);
   gStyle->SetOptStat(0);
-  gStyle->SetTitleFillColor(0);
-  gStyle->SetTitleBorderSize(0);
   //
   
   // Draw
@@ -650,7 +613,7 @@ void create2DPlots(TString plot) {
   // Log?
   can.SetLogz(zLog);
 
-  // Dummy draw to generate the 'palette' object
+  // Draw in colors
   frame->Draw();
   histo_ratio->Draw("COLZsame");
 
@@ -667,7 +630,7 @@ void create2DPlots(TString plot) {
   palette->GetAxis()->SetTickSize(.01);
   if ( zLog==1 ) {  palette->GetAxis()->SetLabelOffset(-0.0045); }
   palette->GetAxis()->SetTitle("");
-  TLatex *paletteTitle = new TLatex(1.12*maxX,maxY,quotaName); 
+  TLatex *paletteTitle = new TLatex(3450.,1400.,quotaName); 
   paletteTitle->SetTextAngle(90.);
   paletteTitle->SetTextSize(0.05);
   paletteTitle->SetTextAlign(31);
@@ -682,26 +645,52 @@ void create2DPlots(TString plot) {
     palette->GetAxis()->SetNoExponent(kTRUE);
   }
 
-  makeColorTableRB();
 
-  histo_ratio->SetContour(255);      
-  //  gStyle->SetPalette(100,colors);
+  // Color plots not optimized... skipping for now
+  //  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s_col.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s_col.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s_col.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //
+  
+  // Double color palette
+  Int_t ncol = 50;
+  Int_t colors[100]; 
+  TColor *col; 
+  Double_t dg=1/(Double_t)(ncol-1);
+  Double_t gray=0.;
 
-  //  frame->Draw();
-  //  histo_ratio->Draw("COLZsame");
+  for (Int_t i=0; i<ncol; i++) {     
+    colors[i]= i+100; 
+    col = gROOT->GetColor(colors[i]);  
+    if ( zCol == 0. ) { col->SetRGB(gray, gray, 1.); }
+    if ( zCol == 1. ) { col->SetRGB(gray*gray, gray*gray, 1.); }
+//    cout << i << " " << gray << "\n";
+    gray = gray+dg;
+  }
+  gray = 1.;
+  for (Int_t i=ncol; i<2*ncol; i++) {     
+    colors[i]= i+100; 
+    col = gROOT->GetColor(colors[i]);  
+    if ( zCol == 0. ) { col->SetRGB(1., gray, gray); }
+    if ( zCol == 1. ) { col->SetRGB(1., gray*gray, gray*gray); }
+//    cout << i << " " << gray << "\n";;
+    gray = gray-dg;
+  }
+
+  histo_ratio->SetContour(100);      
+  gStyle->SetPalette(100,colors);
   
   // Store
   can.Update();
 
   //Add eta labels
-  if( iDrawEta ) drawEtaValues();
+  drawEtaValues();
 
   can.Modified();
 
-  //  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_ComparisonRatio_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
 
   // restore properties
@@ -762,16 +751,3 @@ void drawEtaValues(){
 
 }
 
-void makeColorTableRB(){
-
-  const Int_t NRGBs = 3;
-  const Int_t NCont = 255;
-  Double_t stops[NRGBs] = { 0.00, 0.50, 1.00 };
-  Double_t red[NRGBs]   = { 0.00, .90, 1.00 };
-  Double_t green[NRGBs] = { 0.00, .90, 0.00 };
-  Double_t blue[NRGBs]  = { 1.00, .90, 0.00 };
-
-  TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
-  gStyle->SetNumberContours(NCont);
-
-}

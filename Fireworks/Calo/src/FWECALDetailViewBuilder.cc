@@ -6,6 +6,7 @@
 #include "TEveViewer.h"
 #include "TEveCalo.h"
 #include "TAxis.h"
+#include "TMath.h"
 #include "THLimitsFinder.h"
 #include "TLatex.h"
 
@@ -38,13 +39,29 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
          edm::InputTag tag("ecalRecHit", "EcalRecHitsEB");
          m_event->getByLabel(tag, handle_hits);
 	 if (handle_hits.isValid())
+         {
 	    hits = &*handle_hits;
+         }
       }
       catch (...)
       {
-         fwLog(fwlog::kWarning) <<"no barrel ECAL rechits are available, "
-            "showing crystal location but not energy" << std::endl;
+         fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: Failed to access EcalRecHitsEB collection." << std::endl;
       }
+      if ( ! handle_hits.isValid()) {
+         try{
+            edm::InputTag tag("reducedEcalRecHitsEB");
+            m_event->getByLabel(tag, handle_hits);
+            if (handle_hits.isValid())
+            {
+               hits = &*handle_hits;
+            }
+
+         }
+         catch (...)
+         {
+            fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: Failed to access reducedEcalRecHitsEB collection." << std::endl;
+         }
+      }   
    }
    else
    {
@@ -57,8 +74,23 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
       }
       catch (...)
       {
-         fwLog(fwlog::kWarning) <<"no endcap ECAL rechits are available, "
-            "showing crystal location but not energy" << std::endl;
+         fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: Failed to access ecalRecHitsEE collection." << std::endl;
+      }
+
+      if ( ! handle_hits.isValid()) {
+         try {
+            edm::InputTag tag("reducedEcalRecHitsEE");
+            m_event->getByLabel(tag, handle_hits);
+            if (handle_hits.isValid())
+            {
+               hits = &*handle_hits;
+            }
+
+         }
+         catch (...)
+         {     
+            fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: Failed to access reducedEcalRecHitsEE collection." << std::endl;
+         }
       }
    }
      
@@ -71,59 +103,84 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
    }
 
    if( handle_hits.isValid() ) 
-      // fill
+   {
       fillData( hits, data );
+   }
 
    // axis
    Double_t etaMin(0), etaMax(0), phiMin(0), phiMax(0);
-   // it's hard to define properly visible area in X-Y,
-   // so we rely on auto limits
+   if (data->Empty())
+   {
+      fwLog(fwlog::kWarning) <<"FWECALDetailViewBuilder::build():: No hits found in " << Form("FWECALDetailViewBuilder::build():: No hits found in eta[%f] phi[%f] region", m_eta, m_phi)<<".\n";
+
+      // add dummy background
+      float x = m_size*TMath::DegToRad();
+      if (fabs(m_eta) < 1.5) {
+         etaMin = m_eta -x;
+         etaMax = m_eta +x;
+         phiMin = m_phi -x;
+         phiMax = m_phi +x;
+         data->AddTower(etaMin, etaMax, phiMin, phiMax);
+      }
+      else
+      {
+         float theta = TEveCaloData::EtaToTheta(m_eta);
+         float r = TMath::Tan(theta) * 290;
+         phiMin = r * TMath::Cos(m_phi - x) -300;
+         phiMax = r * TMath::Cos(m_phi + x) + 300;
+         etaMin = r * TMath::Sin(m_phi - x) - 300;
+         etaMax = r * TMath::Sin(m_phi + x) + 300;
+         data->AddTower(TMath::Min(etaMin, etaMax), TMath::Max(etaMin, etaMax),
+                        TMath::Min(phiMin, phiMax), TMath::Max(phiMin, phiMax));
+
+      }
+      data->FillSlice(0, 0.1);      
+   }
+
+ 
+   TAxis* eta_axis = 0;
+   TAxis* phi_axis = 0; 
    data->GetEtaLimits(etaMin, etaMax);
    data->GetPhiLimits(phiMin, phiMax);
-   Double_t bl, bh, bw;
-   Int_t bn, n = 20;
-   THLimitsFinder::Optimize(etaMin, etaMax, n, bl, bh, bn, bw);
-   data->SetEtaBins( new TAxis(bn, bl, bh));
-   THLimitsFinder::Optimize(phiMin, phiMax, n, bl, bh, bn, bw);
-   data->SetPhiBins( new TAxis(bn, bl, bh));
+   //  printf("data rng %f %f %f %f\n",etaMin, etaMax, phiMin, phiMax );
 
-   // make tower grid
-   std::vector<double> etaBinsWithinLimits;
-   etaBinsWithinLimits.push_back(etaMin);
-   for (unsigned int i=0; i<83; ++i)
-      if ( fw3dlego::xbins[i] > etaMin && fw3dlego::xbins[i] < etaMax )
-         etaBinsWithinLimits.push_back(fw3dlego::xbins[i]);
-   etaBinsWithinLimits.push_back(etaMax);
-   Double_t* eta_bins = new Double_t[etaBinsWithinLimits.size()];
-   for (unsigned int i=0; i<etaBinsWithinLimits.size(); ++i)
-      eta_bins[i] = etaBinsWithinLimits[i];
-
-   std::vector<double> phiBinsWithinLimits;
-   phiBinsWithinLimits.push_back(phiMin);
-   for ( double phi = -M_PI; phi < M_PI; phi += M_PI/36 )
-      if ( phi > phiMin && phi < phiMax ) // it's stupid, I know, but I'm lazy right now
-         phiBinsWithinLimits.push_back(phi);
-   phiBinsWithinLimits.push_back(phiMax);
-   Double_t* phi_bins = new Double_t[phiBinsWithinLimits.size()];
-   for (unsigned int i=0; i<phiBinsWithinLimits.size(); ++i)
-      phi_bins[i] = phiBinsWithinLimits[i];
    if (fabs(m_eta) > 1.5) {
-      data->GetEtaBins()->SetTitle("X[cm]");
-      data->GetPhiBins()->SetTitle("Y[cm]");
-      data->GetPhiBins()->SetTitleSize(0.03);
-      data->GetEtaBins()->SetTitleSize(0.03);
+      eta_axis = new TAxis(10, etaMin, etaMax);
+      phi_axis = new TAxis(10, phiMin, phiMax);
+      eta_axis->SetTitle("X[cm]");
+      phi_axis->SetTitle("Y[cm]");
+      phi_axis->SetTitleSize(0.05);
+      eta_axis->SetTitleSize(0.05);
    } else {
-      data->SetEtaBins(new TAxis(etaBinsWithinLimits.size()-1,eta_bins));
-      data->SetPhiBins(new TAxis(phiBinsWithinLimits.size()-1,phi_bins));
-      data->GetEtaBins()->SetTitleFont(122);
-      data->GetEtaBins()->SetTitle("h");
-      data->GetPhiBins()->SetTitleFont(122);
-      data->GetPhiBins()->SetTitle("f");
-      data->GetPhiBins()->SetTitleSize(0.05);
-      data->GetEtaBins()->SetTitleSize(0.05);
+      std::vector<double> etaBinsWithinLimits;
+      etaBinsWithinLimits.push_back(etaMin);
+      for (unsigned int i=0; i<83; ++i)
+         if ( fw3dlego::xbins[i] > etaMin && fw3dlego::xbins[i] < etaMax )
+            etaBinsWithinLimits.push_back(fw3dlego::xbins[i]);
+      etaBinsWithinLimits.push_back(etaMax);
+
+      std::vector<double> phiBinsWithinLimits;
+      phiBinsWithinLimits.push_back(phiMin);
+      for ( double phi = -M_PI; phi < M_PI; phi += M_PI/36 )
+         if ( phi > phiMin && phi < phiMax )
+            phiBinsWithinLimits.push_back(phi);
+      phiBinsWithinLimits.push_back(phiMax);
+
+      eta_axis = new TAxis((int)etaBinsWithinLimits.size() -1, &etaBinsWithinLimits[0]);
+      phi_axis = new TAxis((int)phiBinsWithinLimits.size() -1, &phiBinsWithinLimits[0]);
+
+      eta_axis->SetTitleFont(122);
+      eta_axis->SetTitle("h");
+      eta_axis->SetTitleSize(0.07);
+      phi_axis->SetTitleFont(122);
+      phi_axis->SetTitle("f");
+      phi_axis->SetTitleSize(0.07);
    }
-   delete [] eta_bins;
-   delete [] phi_bins;
+   eta_axis->SetNdivisions(510);
+   phi_axis->SetNdivisions(510);
+   data->SetEtaBins(eta_axis);
+   data->SetPhiBins(phi_axis);
+
 
    // lego
    TEveCaloLego *lego = new TEveCaloLego(data);
@@ -298,6 +355,7 @@ FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
 	     minEta >= ( m_eta - barrelCR ) && maxEta <= ( m_eta + barrelCR ))
 	 {
 	    data->AddTower( minEta, maxEta, minPhi, maxPhi );
+            // printf("EB add %f %f %f %f \n",minEta, maxEta, minPhi, maxPhi );
 	    data->FillSlice( slice, size );
 	 }
 	 // otherwise in the EE
@@ -327,6 +385,7 @@ FWECALDetailViewBuilder::fillData( const EcalRecHitCollection *hits,
 	       if( y - maxY > 0.01 ) maxY = y;
 	    }
 	    data->AddTower( minX, maxX, minY, maxY );
+            // printf("EE add %f %f %f %f \n",minX, maxX, minY, maxY );
 	 }
 	 data->FillSlice( slice, size );
       }

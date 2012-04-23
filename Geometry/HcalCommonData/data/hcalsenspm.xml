@@ -224,8 +224,8 @@
    <Parameter name="gparHF"   value="1115.0*cm"/>
    <Parameter name="gparHF"   value="0.375*cm"/>
    <Parameter name="gparHF"   value="1137.0*cm"/>
-   <Parameter name="Layer0Wt" value="0.5"/>
-   <Parameter name="Layer0Wt" value="0.5"/>
+   <Parameter name="Layer0Wt" value="1.2"/>
+   <Parameter name="Layer0Wt" value="1.2"/>
    <Parameter name="HBGains"  value="117.0"/>
    <Parameter name="HBGains"  value="117.0"/>
    <Parameter name="HBGains"  value="117.0"/>

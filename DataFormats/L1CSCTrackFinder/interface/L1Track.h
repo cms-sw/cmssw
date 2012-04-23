@@ -100,8 +100,6 @@ namespace csc{
 	  void setStationIds(const unsigned& me1, const unsigned& me2,
 			 const unsigned& me3, const unsigned& me4,
 			 const unsigned& mb1);
-
-          unsigned modeExtended(void) const;
     private:
 
       std::string m_name;

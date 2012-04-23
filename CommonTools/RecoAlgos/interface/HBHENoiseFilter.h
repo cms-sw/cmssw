@@ -29,6 +29,7 @@ class HBHENoiseFilter : public edm::EDFilter {
       // ----------member data ---------------------------
 
       // parameters
+      edm::InputTag label_;
       double minRatio_, maxRatio_;
       int minHPDHits_, minRBXHits_, minHPDNoOtherHits_;
       int minZeros_;
@@ -36,6 +37,7 @@ class HBHENoiseFilter : public edm::EDFilter {
       double maxRBXEMF_;
       int minNumIsolatedNoiseChannels_;
       double minIsolatedNoiseSumE_, minIsolatedNoiseSumEt_;
+      bool useTS4TS5_;
 };
 
 #endif

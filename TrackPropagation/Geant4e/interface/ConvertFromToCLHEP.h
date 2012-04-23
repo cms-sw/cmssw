@@ -13,7 +13,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometrySurface/interface/TkRotation.h"
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/Migration.h"
 
 //Geant4
 #include "G4ErrorFreeTrajState.hh"

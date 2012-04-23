@@ -2,7 +2,6 @@
 #include "DataFormats/Common/interface/RefCore.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "TROOT.h"
-#include "TStreamerInfo.h"
 #include <ostream>
 #include <cassert>
 #include <iostream>
@@ -36,7 +35,9 @@ namespace edm {
       cl_->ReadBuffer(R__b, objp);
       RefCore* obj = static_cast<RefCore *>(objp);
       obj->setProductGetter(prodGetter_);
-      obj->setProductPtr(0);
+      //Now ProductGetter and ProductPtr share the same internal pointer
+      // so only need to set one
+      //obj->setProductPtr(0); 
     } else {
       assert("RefCore streamer is obsolete" == 0);
     }
@@ -60,6 +61,9 @@ namespace edm {
 #else
       R__b.ReadVersion();
 #endif
+      CheckTransientOnWrite* obj = static_cast<CheckTransientOnWrite *>(objp);
+      obj->transient_ = false;
+      obj->cacheIsProductPtr_ = false;
     } else {
       //std::cout <<"writing CheckTransientOnWrite"<<std::endl;
       TVirtualStreamerInfo* sinfo = cl_->GetStreamerInfo();
@@ -69,8 +73,7 @@ namespace edm {
           << "RefCoreStreamer: transient Ref or Ptr cannot be made persistent.";
       }
 #if 1
-      Version_t version = 3;
-      R__b << version;
+      R__b << cl_->GetClassVersion();
 #else
       R__b.WriteVersion(cl_, kFALSE);
 #endif

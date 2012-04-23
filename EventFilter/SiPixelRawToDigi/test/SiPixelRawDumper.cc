@@ -436,7 +436,7 @@ void SiPixelRawDumper::beginJob() {
 void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es) {
 
   // Access event information
-  int run       = ev.id().run();
+  //int run       = ev.id().run();
   int event     = ev.id().event();
   int lumiBlock = ev.luminosityBlock();
   int bx        = ev.bunchCrossing();

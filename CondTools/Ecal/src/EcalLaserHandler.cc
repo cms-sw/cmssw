@@ -16,22 +16,15 @@ popcon::EcalLaserHandler::EcalLaserHandler(const edm::ParameterSet & ps)
   std::cout << "EcalLaser Source handler constructor\n" << std::endl;
 
   m_sequences = 1;
-  m_fake = true;
 
   m_sid= ps.getParameter<std::string>("OnlineDBSID");
   m_user= ps.getParameter<std::string>("OnlineDBUser");
   m_pass= ps.getParameter<std::string>("OnlineDBPassword");
   m_debug=ps.getParameter<bool>("debug");
-  m_fake=ps.getParameter<bool>("fake");
   m_sequences=static_cast<unsigned int>(atoi( ps.getParameter<std::string>("sequences").c_str()));
   m_maxtime=ps.getParameter<std::string>("maxtime").c_str();
   std::cout << "Starting O2O process on DB: " << m_sid
 	    << " User: "<< m_user << std::endl;
-  if (m_fake) {
-    std::cout << "*******************************************" << std::endl;
-    std::cout << "This is a fake run. No change to offline DB" << std::endl;
-    std::cout << "*******************************************" << std::endl;
-  }
 }
 
 popcon::EcalLaserHandler::~EcalLaserHandler()
@@ -67,7 +60,7 @@ bool popcon::EcalLaserHandler::checkAPDPN(const EcalLaserAPDPNRatios::EcalLaserA
   if ((current.p1 < 0) || (current.p2 < 0) || (current.p3 < 0)) {
     ret = false;
     notifyProblems(old, current, hashedIndex, "Negative values");
-  } else if ((current.p1 > 10) || (current.p2 > 10) || (current.p3 > 10)) {
+  } else if ((current.p1 > 10) || (current.p2 > 10) || (current.p3 > 0)) {
     ret = false;
     notifyProblems(old, current, hashedIndex, "Values too large");
   } else if (((diff(old.p1, current.p1) > 0.2) && (old.p1 != 0) && (old.p1 != 1)) ||
@@ -165,8 +158,8 @@ void popcon::EcalLaserHandler::getNewObjects()
   // here popcon tells us which is the last since of the last object in the 
   // offline DB
   max_since=tagInfo().lastInterval.first;
-  //  Tm max_since_tm((max_since >> 32)*1000000);
   Tm max_since_tm(max_since);
+
   // get the last object in the orcoff
   edm::Timestamp t_min= edm::Timestamp(18446744073709551615ULL);
 
@@ -178,16 +171,13 @@ void popcon::EcalLaserHandler::getNewObjects()
     payload->getTimeMap();
   std::cout << "payload->getTimeMap():  OK " << std::endl;
   std::cout << "Last Object in Offline DB has SINCE = "  << max_since
-	    << " -> " << max_since_tm.microsTime() 
-	    << " (" << max_since_tm << ")"
+	    << " (" << max_since_tm.str() << ")"
 	    << " and  SIZE = " << tagInfo().size
 	    << std::endl;
   // loop through light modules and determine the minimum date among the
   // available channels
-  if (m_debug) {
-    dumpBarrelPayload(laserRatiosMap);
-    dumpEndcapPayload(laserRatiosMap);
-  }
+  dumpBarrelPayload(laserRatiosMap);
+  dumpEndcapPayload(laserRatiosMap);
   for (int i=0; i<92; i++) {
     EcalLaserAPDPNRatios::EcalLaserTimeStamp timestamp = laserTimeMap[i];
     if( t_min > timestamp.t1) {
@@ -197,9 +187,7 @@ void popcon::EcalLaserHandler::getNewObjects()
   
   std::cout <<"WOW: we just retrieved the last valid record from DB "
 	    << std::endl;
-  //  std::cout <<"Its tmin is "<< Tm((t_min.value() >> 32)*1000000)
-  std::cout <<"Its tmin is "<< Tm(t_min.value())
-	    << std::endl;
+  std::cout <<"Its tmin is "<< Tm(t_min.value()).str() << std::endl;
 
   // connect to the database 
   try {
@@ -283,14 +271,14 @@ void popcon::EcalLaserHandler::getNewObjects()
   // sextuple (p1, p2, p3, t1, t2, t3)
   Tm tmax;
   tmax.setToString(m_maxtime);
-  //  Tm tmin = Tm((t_min.value() >> 32)*1000000);
   Tm tmin = Tm(t_min.value());
-
-  if (tmax <= (tmin + 12000)) {
-    // 3 days buffer
-    tmax += 86400 * 3;
-  }
+  // GO DEBUGGING
+  Tm tgo;
+  tgo.setToString("2011-02-24 23:59:59");
   
+  if (tmin.microsTime() < tgo.microsTime()) {
+    tmin.setToMicrosTime(tgo.microsTime());
+  }
   std::map<int, std::map<int, LMFSextuple> > d = 
     data.getCorrections(tmin, tmax, m_sequences);
   // sice must be equal to the number of different SEQ_ID's found
@@ -303,53 +291,43 @@ void popcon::EcalLaserHandler::getNewObjects()
     std::cout << "==== SEQ_ID: " << iseq->first 
 	      << " contains " << iseq->second.size() << " crystals" 
 	      << std::endl << std::flush;
-    // iterate over crystals, but skip those sequences with wrong number of crystals
-    if (iseq->second.size() == (61200 + 14648)) {
-      std::map<int, LMFSextuple>::const_iterator is = iseq->second.begin();
-      std::map<int, LMFSextuple>::const_iterator es = iseq->second.end();
-      EcalLaserAPDPNRatios* apdpns_popcon = new EcalLaserAPDPNRatios();         
-      Time_t t_last = 18446744073709551615ULL;
-      while (is != es) {
-	EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdpnpair_temp;
-	apdpnpair_temp.p1 = is->second.p[0];
-	apdpnpair_temp.p2 = is->second.p[1];
-	apdpnpair_temp.p3 = is->second.p[2];
-	EcalLaserAPDPNRatios::EcalLaserTimeStamp timestamp_temp;
-	timestamp_temp.t1 = edm::Timestamp(is->second.t[0].microsTime());
-	timestamp_temp.t2 = edm::Timestamp(is->second.t[1].microsTime());
-	timestamp_temp.t3 = edm::Timestamp(is->second.t[2].microsTime());
-	apdpns_popcon->setValue(detids[is->first], apdpnpair_temp);
-	if (logicId2Lmr.find(is->first) != logicId2Lmr.end()) {
-	  int hashedIndex = logicId2Lmr[is->first] - 1;
-	  if ((hashedIndex >= 0) && (hashedIndex <= 91)) {
-	    apdpns_popcon->setTime( hashedIndex , timestamp_temp);
-	    if (t_last > timestamp_temp.t1.value()) {
-	      t_last = timestamp_temp.t1.value();
-	    }
-	  } else {
-	    std::stringstream ss;
-	    ss << "LOGIC_ID: " << is->first << " LMR: " << hashedIndex + 1
-	       << " Out of range";
-	    throw(std::runtime_error("[EcalLaserHandler::getNewObjects]" +
-				     ss.str()));
-	  }
+    // iterate over crystals
+    std::map<int, LMFSextuple>::const_iterator is = iseq->second.begin();
+    std::map<int, LMFSextuple>::const_iterator es = iseq->second.end();
+    EcalLaserAPDPNRatios* apdpns_popcon = new EcalLaserAPDPNRatios();         
+    Time_t t_last = t_min.value(); 
+    while (is != es) {
+      EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdpnpair_temp;
+      apdpnpair_temp.p1 = is->second.p[0];
+      apdpnpair_temp.p2 = is->second.p[1];
+      apdpnpair_temp.p3 = is->second.p[2];
+      EcalLaserAPDPNRatios::EcalLaserTimeStamp timestamp_temp;
+      timestamp_temp.t1 = edm::Timestamp(is->second.t[0].microsTime());
+      timestamp_temp.t2 = edm::Timestamp(is->second.t[1].microsTime());
+      timestamp_temp.t3 = edm::Timestamp(is->second.t[2].microsTime());
+      apdpns_popcon->setValue(detids[is->first], apdpnpair_temp);
+      if (logicId2Lmr.find(is->first) != logicId2Lmr.end()) {
+	int hashedIndex = logicId2Lmr[is->first] - 1;
+	if ((hashedIndex >= 0) && (hashedIndex <= 91)) {
+	  apdpns_popcon->setTime( hashedIndex , timestamp_temp);
+	  t_last = timestamp_temp.t1.value();
 	} else {
+	  std::stringstream ss;
+	  ss << "LOGIC_ID: " << is->first << " LMR: " << hashedIndex + 1
+	     << " Out of range";
+	  throw(std::runtime_error("[EcalLaserHandler::getNewObjects]" +
+				   ss.str()));
+	}
+      } else {
 	  std::stringstream ss;
 	  ss << "LOGIC_ID: " << is->first << " Cannot determine LMR";
 	  throw(std::runtime_error("[EcalLaserHandler::getNewObjects]" +
 				   ss.str()));
-	}
-	is++;
-	if (m_fake) {
-	  delete apdpns_popcon;
-	}
       }
-      if ((iseq->second.size() > 0) && (!m_fake)) {
-	m_to_transfer.push_back(std::make_pair(apdpns_popcon, 
-					       Tm(t_last).cmsNanoSeconds()));
-      } 
-    } else {
-      // Here we should put a warning
+      is++;
+    }
+    if (iseq->second.size() > 0) {
+      m_to_transfer.push_back(std::make_pair(apdpns_popcon, t_last));
     }
     iseq++;
   }

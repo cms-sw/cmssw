@@ -30,22 +30,23 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
 	  ps.getParameter<std::vector<double> >("weights"),
 	  ps.getParameter<int>("latency"),
 	  ps.getParameter<uint32_t>("FG_threshold"),
-     ps.getParameter<uint32_t>("ZS_threshold"),
+	  ps.getParameter<uint32_t>("ZS_threshold"),
 	  ps.getParameter<int>("numberOfSamples"),
 	  ps.getParameter<int>("numberOfPresamples"),
-     ps.getParameter<uint32_t>("MinSignalThreshold"),
-     ps.getParameter<uint32_t>("PMTNoiseThreshold")
-   ),
+	  ps.getParameter<uint32_t>("MinSignalThreshold"),
+	  ps.getParameter<uint32_t>("PMTNoiseThreshold")
+	  ),
   inputLabel_(ps.getParameter<std::vector<edm::InputTag> >("inputLabel"))
 {
-   runZS = ps.getUntrackedParameter<bool>("RunZS", false);
-   runFrontEndFormatError = ps.getUntrackedParameter<bool>("FrontEndFormatError", false);
-   produces<HcalTrigPrimDigiCollection>();
-   theAlgo.setPeakFinderAlgorithm(ps.getUntrackedParameter<int>("PeakFinderAlgorithm", 2));
+  runZS = ps.getUntrackedParameter<bool>("RunZS", false);
+  runFrontEndFormatError = ps.getUntrackedParameter<bool>("FrontEndFormatError", false);
+  produces<HcalTrigPrimDigiCollection>();
+  theAlgo.setPeakFinderAlgorithm(ps.getUntrackedParameter<int>("PeakFinderAlgorithm", 2));
 }
 
 
 void HcalTrigPrimDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
+
   edm::Handle<HBHEDigiCollection> hbheDigis;
   edm::Handle<HFDigiCollection>   hfDigis;
 
@@ -58,6 +59,7 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& e, const edm::EventSetup& eve
 
   edm::ESHandle<CaloTPGTranscoder> outTranscoder;
   eventSetup.get<CaloTPGRecord>().get(outTranscoder);
+
   outTranscoder->setup(eventSetup,CaloTPGTranscoder::HcalTPG);
 
   edm::ESHandle<HcalLutMetadata> lutMetadata;

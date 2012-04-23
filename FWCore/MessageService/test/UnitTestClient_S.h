@@ -70,7 +70,7 @@ class UTC_SUMMARY
 {
 public:
   explicit
-    UTC_SUMMARY( edm::ParameterSet const & p)
+    UTC_SUMMARY( edm::ParameterSet const &)
   { 
   }
 

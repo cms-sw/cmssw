@@ -16,7 +16,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:51 CET 2006
-// $Id: SiStripHistoId.h,v 1.2 2008/03/03 11:50:41 maborgia Exp $
+// $Id: SiStripHistoId.h,v 1.3 2009/02/18 14:28:02 maborgia Exp $
 //
 
 #include <string>
@@ -39,9 +39,6 @@ class SiStripHistoId
       SiStripHistoId(const SiStripHistoId&); // stop default
       const SiStripHistoId& operator=(const SiStripHistoId&); // stop default
       std::string returnIdPart(std::string histoid, uint32_t whichpart);
-      // ---------- member data --------------------------------
-      std::string separator1;
-      std::string separator2;
 };
 
 #endif

@@ -15,7 +15,6 @@ class CastorSimpleReconstructor : public edm::EDProducer {
     public:
       explicit CastorSimpleReconstructor(const edm::ParameterSet& ps);
       virtual ~CastorSimpleReconstructor();
-      virtual void beginRun(edm::Run&r, edm::EventSetup const & es);
       virtual void produce(edm::Event& e, const edm::EventSetup& c);
     private:      
       CastorSimpleRecAlgo reco_;
@@ -23,10 +22,6 @@ class CastorSimpleReconstructor : public edm::EDProducer {
       int subdet_;
       //      HcalOtherSubdetector subdetOther_;
       edm::InputTag inputLabel_;
-
-      std::string confLabel_;
-      int firstSample_;
-      int samplesToAdd_;
 };
 
 #endif

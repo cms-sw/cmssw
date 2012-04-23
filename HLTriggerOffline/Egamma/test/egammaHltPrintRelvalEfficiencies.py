@@ -126,6 +126,13 @@ parser.add_option("--ignore-zero-eff",
                   help="Print only information about paths which have at least one entry in the bin of the last module in the overview histogram. Note that this also excludes those paths excluded by --ignore-empty .",
                   )
 
+parser.add_option("--no-split-names",
+                  dest="split_names",
+                  action='store_false',
+                  default = True,
+                  help="Do not split module names.",
+                  )
+
 
 (options, ARGV) = parser.parse_args()
 
@@ -149,12 +156,33 @@ if top_dir == None:
     sys.exit(1)
 
 
+#--------------------
+# determine the length of the longest path name (for nice printout)
+#--------------------
+
+maxPathNameLen = None
+allPathNames = []
+
 for path_key in top_dir.GetListOfKeys():
 
-    path_name = path_key.GetName()
+    pathName = path_key.GetName()
 
     if len(options.selected_paths) != 0 and not path_name in options.selected_paths:
         continue
+
+    # further checks which are done in the next
+    # loop are not repeated here.
+    # so we might get a maximum number of characters
+    # which is slightly too high (but the code here
+    # is more readable)
+
+    allPathNames.append(pathName)
+
+    maxPathNameLen = max(maxPathNameLen, len(pathName))
+
+#--------------------
+
+for path_name in allPathNames:
 
     path_dir = top_dir.Get(path_name)
 
@@ -174,7 +202,7 @@ for path_key in top_dir.GetListOfKeys():
     num_modules = total_eff_histo.GetNbinsX() - 2
 
     total = total_eff_histo.GetBinContent(num_modules)
-    num_gen_events = total_eff_histo.GetBinContent(num_modules + 1)
+    num_gen_events = total_eff_histo.GetBinContent(num_modules + 2)
 
     if num_gen_events == 0 and options.ignore_empty_paths:
         continue
@@ -196,7 +224,7 @@ for path_key in top_dir.GetListOfKeys():
     if not options.summary_mode:
         print "----------------------------------------"
 
-    print "PATH: %-60s" % path_name,
+    print ("PATH: %-" + str(maxPathNameLen) + "s") % path_name,
 
     if num_gen_events > 0:
         print "(%.1f%% eff.)" % (100 * total / float(num_gen_events)),
@@ -222,12 +250,24 @@ for path_key in top_dir.GetListOfKeys():
 
         module_name = total_eff_histo.GetXaxis().GetBinLabel(i+1)
 
+        if options.split_names:
+            module_name = splitAtCapitalization(module_name)
+
         events = total_eff_histo.GetBinContent(i+1)
 
-        print "  %-90s: %5d events" % (splitAtCapitalization(module_name), events),
+        
+
+
+        print "  %-90s: %5d events" % (module_name, events),
 
         if previous_module_output > 0:
-            print "(%5.1f%% eff.)" % (100 * events / float(previous_module_output)),
+            eff = 100 * events / float(previous_module_output)
+            print "(%5.1f%% eff.)" % (eff),
+            if eff > 100.:
+                if module_name.find("Unseeded") >= 0:
+                    print ">100% Unseeded Filter",
+                else:
+                    print "ERROR",
 
         print
                                      

@@ -19,7 +19,7 @@
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromRegionHits.h"
-
+#include "RecoPixelVertexing/PixelTriplets/interface/QuadrupletSeedMerger.h"
 
 SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
     const edm::ParameterSet& cfg) 
@@ -69,14 +69,24 @@ void SeedGeneratorFromRegionHitsEDProducer::beginRun(edm::Run &run, const edm::E
 
 void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
-  std::auto_ptr<TrajectorySeedCollection> result(new TrajectorySeedCollection());
+  std::auto_ptr<TrajectorySeedCollection> triplets(new TrajectorySeedCollection());
+  std::auto_ptr<TrajectorySeedCollection> quadruplets( new TrajectorySeedCollection() );
+
+  // seed merger & its settings
+  QuadrupletSeedMerger theMerger( es );
+  edm::ParameterSet mergerPSet = theConfig.getParameter<edm::ParameterSet>( "SeedMergerPSet" );
+  theMerger.setTTRHBuilderLabel( mergerPSet.getParameter<std::string>( "ttrhBuilderLabel" ) );
+  theMerger.setMergeTriplets( mergerPSet.getParameter<bool>( "mergeTriplets" ) );
+  theMerger.setAddRemainingTriplets( mergerPSet.getParameter<bool>( "addRemainingTriplets" ) );
+  theMerger.setLayerListName( mergerPSet.getParameter<std::string>( "layerListName" ) );
+
 
   //protection for big ass events...
   size_t clustsOrZero = theClusterCheck.tooManyClusters(ev);
   if (clustsOrZero){
     if (!theSilentOnClusterCheck)
 	edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.\n";
-    ev.put(result);
+    ev.put(triplets);
     return ;
   }
 
@@ -88,12 +98,19 @@ void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::E
     const TrackingRegion & region = **ir;
 
     // make job
-    theGenerator->run(*result, region, ev,es);
+    theGenerator->run(*triplets, region, ev,es);
+
+    // make quadruplets
+    // (TODO: can partly be propagated to the merger)
+    TrajectorySeedCollection const& tempQuads = theMerger.mergeTriplets( *triplets, region, es, theConfig ); //@@
+    for( TrajectorySeedCollection::const_iterator qIt = tempQuads.begin(); qIt < tempQuads.end(); ++qIt ) {
+      quadruplets->push_back( *qIt );
+    }
   }
 
   // clear memory
   for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) delete (*ir);
 
   // put to event
-  ev.put(result);
+  ev.put(quadruplets);
 }

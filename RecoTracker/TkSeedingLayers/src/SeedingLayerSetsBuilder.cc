@@ -13,9 +13,6 @@
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "RecoTracker/TkDetLayers/interface/PixelForwardLayer.h"
-#include "RecoTracker/TkDetLayers/interface/TOBLayer.h"
-#include "RecoTracker/TkDetLayers/interface/TIBLayer.h"
 
 #include "HitExtractorPIX.h"
 #include "HitExtractorSTRP.h"
@@ -101,11 +98,20 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
           layer.useStereoRecHits = false;
       }
       if (cfgLayer.exists("skipClusters")){
-	LogDebug("SeedingLayerSetsBuilder")<<" ready for skipping (1)";
+	LogDebug("SeedingLayerSetsBuilder")<<layer.name<<" ready for skipping (1)";
 	layer.clustersToSkip = cfgLayer.getParameter<edm::InputTag>("skipClusters");
 	layer.skipClusters=true;
       }else{
 	layer.skipClusters=false;
+      }
+      if (layer.skipClusters){
+	if (cfgLayer.exists("useProjection")){
+	  LogDebug("SeedingLayerSetsBuilder")<<layer.name<<" will project partially masked matched rechit";
+	  layer.useProjection=cfgLayer.getParameter<bool>("useProjection");
+	}
+	else{
+	  layer.useProjection=false;
+	}
       }
       layer.hitBuilder  = cfgLayer.getParameter<string>("TTRHBuilder");
 
@@ -280,11 +286,16 @@ SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es) cons
           if (layer.useStereoRecHits)  extSTRP.useStereoHits(layer.stereoRecHits);
           if (layer.useRingSelector)   extSTRP.useRingSelector(layer.minRing,layer.maxRing);
 	  extSTRP.useSimpleRphiHitsCleaner(layer.useSimpleRphiHitsCleaner);
+	  if (layer.skipClusters && !layer.useProjection)
+	    extSTRP.setNoProjection();
           extractor = extSTRP.clone();
         }
 	if (layer.skipClusters) {
-	  LogDebug("SeedingLayerSetsBuilder")<<" ready for skipping (2)";
+	  LogDebug("SeedingLayerSetsBuilder")<<layer.name<<" ready for skipping (2)";
 	  extractor->useSkipClusters(layer.clustersToSkip);
+	}
+	else{
+	  LogDebug("SeedingLayerSetsBuilder")<<layer.name<<" not skipping ";
 	}
 
         edm::ESHandle<TransientTrackingRecHitBuilder> builder;

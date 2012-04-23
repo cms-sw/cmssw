@@ -79,9 +79,8 @@ void TPNtuplizer::endJob()
   tfile_->Close();
 }
 
-void TPNtuplizer::beginJob(const edm::EventSetup& es)
+void TPNtuplizer::beginRun(Run const&, EventSetup const& es)
 {
-  std::cout << " TPNtuplizer::beginJob" << std::endl;
   std::string outputFile = conf_.getParameter<std::string>("OutputFile");
  
   tfile_ = new TFile ( outputFile.c_str() , "RECREATE" );

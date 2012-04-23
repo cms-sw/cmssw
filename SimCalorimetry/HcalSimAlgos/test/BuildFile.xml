@@ -10,6 +10,7 @@
   </bin>
   <bin   file="readHPDLibrary.cc">
   </bin>
+  <bin file="HcalUpgradeTest.cpp"/>
   <library   file="HcalSignalGeneratorTest.cpp" name="HcalSignalGeneratorTest">
     <flags   EDM_PLUGIN="1"/>
   </library>

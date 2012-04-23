@@ -2,8 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # esmodule creating  records + corresponding empty essource
 EcalTrigPrimESProducer = cms.ESProducer("EcalTrigPrimESProducer",
-    DatabaseFile = cms.untracked.string('TPG_beamv5_MC_startup.txt.gz'),
-    WriteInFile = cms.bool(False)
+    DatabaseFile = cms.untracked.string('TPG_startup.txt.gz')
 )
 
 tpparams = cms.ESSource("EmptyESSource",
@@ -90,9 +89,4 @@ tpparams14 = cms.ESSource("EmptyESSource",
     firstValid = cms.vuint32(1)
 )
 
-tpparams15 = cms.ESSource("EmptyESSource",
-    recordName = cms.string('EcalTPGSpikeRcd'),
-    iovIsRunNotTime = cms.bool(True),
-    firstValid = cms.vuint32(1)
-)
 
