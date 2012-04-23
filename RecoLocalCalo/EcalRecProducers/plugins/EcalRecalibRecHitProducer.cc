@@ -1,9 +1,9 @@
 /** \class EcalRecalibRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecalibRecHitProducer.cc,v 1.5 2011/09/22 17:32:18 meridian Exp $
- *  $Date: 2011/09/22 17:32:18 $
- *  $Revision: 1.5 $
+ *  $Id: EcalRecalibRecHitProducer.cc,v 1.6 2012/03/06 23:53:34 ferriff Exp $
+ *  $Date: 2012/03/06 23:53:34 $
+ *  $Revision: 1.6 $
  *  \author Federico Ferri, University of Milano Bicocca and INFN
  *
  **/
@@ -127,6 +127,13 @@ void EcalRecalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
         edm::ESHandle<EcalLaserDbService> pLaser;
         es.get<EcalLaserDbRecord>().get( pLaser );
 
+	
+	if(doEnergyScaleInverse_){
+	  agc_eb = 1.0/agc_eb;
+	  agc_ee = 1.0/agc_ee;
+	}
+
+
         if (EBRecHits) {
                 // loop over uncalibrated rechits to make calibrated ones
                 for(EBRecHitCollection::const_iterator it  = EBRecHits->begin(); it != EBRecHits->end(); ++it) {
@@ -151,10 +158,7 @@ void EcalRecalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
 
                         // make the rechit and put in the output collection
                         // must implement op= for EcalRecHit
-
-			if(doEnergyScaleInverse_){
-			  agc_eb = 1.0/agc_eb;
-			}
+			
 			if(doIntercalibInverse_){
 			  icalconst = 1.0/icalconst;
 			}
@@ -194,9 +198,6 @@ void EcalRecalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
                         // must implement op= for EcalRecHit
                         //EcalRecHit aHit( EEalgo_->makeRecHit(*it, icalconst * lasercalib) );
 
-			if(doEnergyScaleInverse_){
-			  agc_ee = 1.0/agc_ee;
-			}
 			if(doIntercalibInverse_){
 			  icalconst = 1.0/icalconst;
 			}

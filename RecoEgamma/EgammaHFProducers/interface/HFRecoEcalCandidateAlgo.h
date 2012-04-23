@@ -23,38 +23,28 @@ class HFRecoEcalCandidateAlgo {
 public:
   HFRecoEcalCandidateAlgo(bool correct, double e9e25Cut,
 			  double intercept2DCut,
-			  double intercept2DSlope,
 			  const std::vector<double>& e1e9Cut,
 			  const std::vector<double>& eCOREe9Cut,
-			  const std::vector<double>& eSeLCut,
-			  int era,
-			  bool correctForPileup,
-			  const std::vector<double>& PileupSlopes,
-			  const std::vector<double>& PileupIntercepts);
+			  const std::vector<double>& eSeLCut);
   
   /** Analyze the hits */
   void produce(const edm::Handle<reco::SuperClusterCollection>& SuperClusters,
 	       const reco::HFEMClusterShapeAssociationCollection& AssocShapes,
-	       reco::RecoEcalCandidateCollection& RecoECand,
-	       int nvtx);
+	       reco::RecoEcalCandidateCollection& RecoECand);
   
   
  private:
-  reco::RecoEcalCandidate correctEPosition(const reco::SuperCluster& original, const reco::HFEMClusterShape& shape, int nvtx);
+  reco::RecoEcalCandidate correctEPosition(const reco::SuperCluster& original, const reco::HFEMClusterShape& shape);
+  
   bool m_correct;
   double m_e9e25Cut;
   double m_intercept2DCut;
-  double m_intercept2DSlope;
   double m_e1e9Cuthi;
   double m_eCOREe9Cuthi;
   double m_eSeLCuthi;
   double m_e1e9Cutlo;
   double m_eCOREe9Cutlo;
   double m_eSeLCutlo;
-  int m_era;
-  bool m_correctForPileup;
-  std::vector<double> m_PileupSlopes;
-  std::vector<double> m_PileupIntercepts;
 };
 
 #endif 

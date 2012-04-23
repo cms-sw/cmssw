@@ -35,7 +35,6 @@ def ComputeLimits(InputPattern, syst):
         LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino900_f1"' , '"Gluino900"', 0.3029 / 0.3029 , 0.4955 / 0.4955 , 0.2015 / 0.2015   , syst])
         LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino1000_f1"', '"Gluino1000"',0.3029 / 0.3029 , 0.4955 / 0.4955 , 0.2015 / 0.2015   , syst])
         LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino1100_f1"', '"Gluino1100"',0.3029 / 0.3029 , 0.4955 / 0.4955 , 0.2015 / 0.2015   , syst])
-        LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino1200_f1"', '"Gluino1200"',0.3029 / 0.3029 , 0.4955 / 0.4955 , 0.2015 / 0.2015   , syst])
 
         LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino300_f5"' , '"Gluino300"', 0.5739 / 0.3029 , 0.3704 / 0.4955 , 0.0557 / 0.2015   , syst])
         LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino400_f5"' , '"Gluino400"', 0.5739 / 0.3029 , 0.3704 / 0.4955 , 0.0557 / 0.2015   , syst])
@@ -46,7 +45,6 @@ def ComputeLimits(InputPattern, syst):
         LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino900_f5"' , '"Gluino900"', 0.5739 / 0.3029 , 0.3704 / 0.4955 , 0.0557 / 0.2015   , syst])
         LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino1000_f5"', '"Gluino1000"',0.5739 / 0.3029 , 0.3704 / 0.4955 , 0.0557 / 0.2015   , syst])
         LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino1100_f5"', '"Gluino1100"',0.5739 / 0.3029 , 0.3704 / 0.4955 , 0.0557 / 0.2015   , syst])
-        LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino1200_f5"', '"Gluino1200"',0.5739 / 0.3029 , 0.3704 / 0.4955 , 0.0557 / 0.2015   , syst])
 
 #        LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino300N_f0"', '"Gluino300N"', 0.2524 / 0.3029 , 0.4893 / 0.4955 , 0.2583 / 0.2015   , syst])
 #        LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino400N_f0"', '"Gluino400N"', 0.2524 / 0.3029 , 0.4893 / 0.4955 , 0.2583 / 0.2015   , syst])
@@ -66,7 +64,6 @@ def ComputeLimits(InputPattern, syst):
         LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino900N_f1"', '"Gluino900N"', 0.3029 / 0.3029 , 0.4955 / 0.4955 , 0.2015 / 0.2015   , syst])
         LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino1000N_f1"','"Gluino1000N"',0.3029 / 0.3029 , 0.4955 / 0.4955 , 0.2015 / 0.2015   , syst])
         LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino1100N_f1"','"Gluino1100N"',0.3029 / 0.3029 , 0.4955 / 0.4955 , 0.2015 / 0.2015   , syst])
-        LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino1200N_f1"','"Gluino1200N"',0.3029 / 0.3029 , 0.4955 / 0.4955 , 0.2015 / 0.2015   , syst])
 
 #        LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino300N_f5"', '"Gluino300N"', 0.5739 / 0.3029 , 0.3704 / 0.4955 , 0.0557 / 0.2015   , syst])
 #        LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"Gluino400N_f5"', '"Gluino400N"', 0.5739 / 0.3029 , 0.3704 / 0.4955 , 0.0557 / 0.2015   , syst])

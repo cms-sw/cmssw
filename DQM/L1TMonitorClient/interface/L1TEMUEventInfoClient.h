@@ -15,8 +15,8 @@
  *    Re-designed and fully rewritten class.
  *    Original version and authors: see CVS history
  *
- * $Date$
- * $Revision$
+ * $Date: 2010/11/16 14:05:17 $
+ * $Revision: 1.9 $
  *
  */
 
@@ -57,12 +57,12 @@ private:
     /// begin run
     void beginRun(const edm::Run&, const edm::EventSetup&);
 
-    /// analyze
-    void analyze(const edm::Event&, const edm::EventSetup&);
-
     /// begin luminosity block
     void beginLuminosityBlock(const edm::LuminosityBlock&,
             const edm::EventSetup&);
+
+    /// analyze
+    void analyze(const edm::Event&, const edm::EventSetup&);
 
     /// end luminosity block
     void
@@ -80,8 +80,12 @@ private:
 
     bool m_verbose;
     std::string m_monitorDir;
-    int m_prescaleLS; /// units of lumi sections
-    int m_prescaleEvt; /// prescale on number of events
+
+    bool m_runInEventLoop;
+    bool m_runInEndLumi;
+    bool m_runInEndRun;
+    bool m_runInEndJob;
+
     std::vector<edm::ParameterSet> m_l1Systems;
     std::vector<edm::ParameterSet> m_l1Objects;
     std::vector<std::string> m_maskL1Systems;
@@ -94,6 +98,12 @@ private:
 
     /// dump the content of the monitoring elements defined in this module
     void dumpContentMonitorElements();
+
+    /// book histograms
+    void bookHistograms();
+
+    /// read quality test results
+    void readQtResults();
 
     /// number of L1 trigger systems
     size_t m_nrL1Systems;
@@ -142,8 +152,6 @@ private:
 
     DQMStore* m_dbe;
 
-    int m_counterLS; ///counter
-    int m_counterEvt; ///counter
 
 };
 

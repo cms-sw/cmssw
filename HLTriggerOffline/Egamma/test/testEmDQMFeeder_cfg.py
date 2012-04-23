@@ -2,9 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("dqmFeeder")
 
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'START52_V1::All'
-
 process.load("FWCore.MessageService.MessageLogger_cfi")
 # suppress printout of error messages on every event when a collection is missing in the event
 process.MessageLogger.categories.append("EmDQMInvalidRefs")

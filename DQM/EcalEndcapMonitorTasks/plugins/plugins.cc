@@ -1,6 +1,12 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "DQM/EcalEndcapMonitorTasks/interface/EEBeamHodoTask.h"
+DEFINE_FWK_MODULE(EEBeamHodoTask);
+
+#include "DQM/EcalEndcapMonitorTasks/interface/EEBeamCaloTask.h"
+DEFINE_FWK_MODULE(EEBeamCaloTask);
+
 #include "DQM/EcalEndcapMonitorTasks/interface/EEClusterTask.h"
 DEFINE_FWK_MODULE(EEClusterTask);
 

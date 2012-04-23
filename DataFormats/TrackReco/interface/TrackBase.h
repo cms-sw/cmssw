@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.85 2012/03/14 16:32:25 mangano Exp $
+ * \version $Id: TrackBase.h,v 1.80 2011/02/10 17:51:27 vlimant Exp $
  *
  */
 
@@ -100,7 +100,7 @@ namespace reco {
     /// constructor from fit parameters and error matrix
     TrackBase( double chi2, double ndof, const Point & referencePoint,
 	       const Vector & momentum, int charge, const CovarianceMatrix &,
-	       TrackAlgorithm=undefAlgorithm, TrackQuality quality=undefQuality,signed char nloops=0);
+	       TrackAlgorithm=undefAlgorithm, TrackQuality quality=undefQuality);
     /// virtual destructor   
     ~TrackBase();
     /// chi-squared of the fit
@@ -284,14 +284,19 @@ namespace reco {
 
     int qualityMask() const { return quality_; }
     void setQualityMask(int qualMask) {quality_ = qualMask;}
-
-   
-    void setNLoops(signed char value) { nLoops_=value;}
-
-    bool isLooper() const { return (nLoops_>0);}
-    signed char nLoops() const {return nLoops_;}
-   
   private:
+    /// chi-squared
+    float chi2_;
+    /// number of degrees of freedom
+    float ndof_;
+     /// innermost (reference) point on track
+    Point vertex_;
+    /// momentum vector at innermost point
+    Vector momentum_;
+    /// electric charge
+    char charge_;
+    /// perigee 5x5 covariance matrix
+    float covariance_[ covarianceSize ];
     /// hit pattern
     HitPattern hitPattern_;
     /// hit pattern used for expected crossed layers after the last trajectory's hit
@@ -299,27 +304,10 @@ namespace reco {
     /// hit pattern used for expected crossed layers before the first trajectory's hit
     HitPattern trackerExpectedHitsOuter_;
 
-    /// perigee 5x5 covariance matrix
-    float covariance_[ covarianceSize ];
-    /// chi-squared
-    float chi2_;
-     /// innermost (reference) point on track
-    Point vertex_;
-    /// momentum vector at innermost point
-    Vector momentum_;
-
-    /// number of degrees of freedom
-    float ndof_;
-
-    /// electric charge
-    char charge_;
     /// track algorithm
     uint8_t algorithm_;
     /// track quality
     uint8_t quality_;
-
-    /// number of loops made during the building of the trajectory of a looper particle
-    signed char nLoops_; ///I use signed char because I don't expect more than 128 loops and I could use a negative value for a special purpose
 
   };
 

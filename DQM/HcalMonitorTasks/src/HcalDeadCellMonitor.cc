@@ -371,6 +371,8 @@ void HcalDeadCellMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c
   if (mergeRuns_==false)
     this->reset();
 
+  doReset_ = true;
+
   // Get known dead cells for this run
   KnownBadCells_.clear();
   if (badChannelStatusMask_>0)
@@ -399,6 +401,8 @@ void HcalDeadCellMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c
 void HcalDeadCellMonitor::reset()
 {
   if (debug_>1) std::cout <<"HcalDeadCellMonitor::reset()"<<std::endl;
+  doReset_ = false;
+
   HcalBaseDQMonitor::reset();
   zeroCounters();
   deadevt_=0;
@@ -413,7 +417,7 @@ void HcalDeadCellMonitor::reset()
 
   for (unsigned int depth=0;depth<DigiPresentByDepth.depth.size();++depth)
     DigiPresentByDepth.depth[depth]->Reset();
-  
+
   // Mark HORing2 channels as present  (fill with a 2, rather than a 1, to distinguish between this setting and actual presence)
   if (excludeHORing2_==true && DigiPresentByDepth.depth.size()>3)
     {
@@ -574,6 +578,7 @@ void HcalDeadCellMonitor::endRun(const edm::Run& run, const edm::EventSetup& c)
   // Or should we require an absolute lower bound?
   // We can always run this test; we'll use the summary client to implement a lower bound before calculating reportSummary values
   if (endLumiProcessed_==false) fillNevents_problemCells(); // always check for never-present cells
+
   return;
 }
 
@@ -587,6 +592,10 @@ void HcalDeadCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 {
   if (!IsAllowedCalibType()) return;
   endLumiProcessed_=false;
+
+  if(doReset_) 
+    this->reset();
+
   Nevents->Fill(0,1); // count all events of allowed calibration type, even if their lumi block is not in the right order
   if (LumiInOrder(e.luminosityBlock())==false) return;
   // try to get rechits and digis

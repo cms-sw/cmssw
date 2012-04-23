@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWPFTauProxyBuilder.cc,v 1.15 2010/10/22 14:34:44 amraktad Exp $
+// $Id: FWPFTauProxyBuilder.cc,v 1.16 2010/11/05 10:54:33 amraktad Exp $
 //
 
 // system include files
@@ -22,6 +22,7 @@
 #include "Fireworks/Calo/interface/FWTauProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWViewType.h"
+#include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 
 
@@ -53,7 +54,6 @@ FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* p
    for( reco::PFTauCollection::const_iterator it = pfTaus->begin(), itEnd = pfTaus->end(); it != itEnd; ++it)
    { 
       TEveCompound* comp = createCompound();
-
       if (viewType == FWViewType::kLego)
       {
          fireworks::addCircle( (*it).eta(), (*it).phi(), 0.5, 20, comp, this );
@@ -61,28 +61,35 @@ FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* p
       else
       {
          // prepare phi-list and theta range
-         const reco::PFTauTagInfo *tauTagInfo = dynamic_cast<const reco::PFTauTagInfo*>( (*it).pfTauTagInfoRef().get() );
-         const reco::PFJet *jet = dynamic_cast<const reco::PFJet*>( tauTagInfo->pfjetRef().get() );
-         m_minTheta =  100;
-         m_maxTheta = -100;
-         std::vector<double> phis;
-         std::vector <const reco::Candidate*> candidates = jet->getJetConstituentsQuick();
-         for( std::vector<const reco::Candidate*>::const_iterator candidate = candidates.begin(), candidateEnd = candidates.end();
-              candidate != candidateEnd; ++candidate )
-         {
-            double itheta = (*candidate)->theta();
-            if( itheta > m_maxTheta ) m_maxTheta = itheta;
-            if( itheta < m_minTheta ) m_minTheta = itheta;
+         try {
+            const reco::PFTauTagInfo *tauTagInfo = dynamic_cast<const reco::PFTauTagInfo*>( (*it).pfTauTagInfoRef().get() );
+            const reco::PFJet *jet = dynamic_cast<const reco::PFJet*>( tauTagInfo->pfjetRef().get() );
+            m_minTheta =  100;
+            m_maxTheta = -100;
+            std::vector<double> phis;
+            std::vector <const reco::Candidate*> candidates = jet->getJetConstituentsQuick();
+            for( std::vector<const reco::Candidate*>::const_iterator candidate = candidates.begin(), candidateEnd = candidates.end();
+                 candidate != candidateEnd; ++candidate )
+            {
+               double itheta = (*candidate)->theta();
+               if( itheta > m_maxTheta ) m_maxTheta = itheta;
+               if( itheta < m_minTheta ) m_minTheta = itheta;
 
-            m_phis.push_back( (*candidate)->phi() );
-         }
-         if( m_minTheta > m_maxTheta ) {	
-            m_minTheta = 0;
-            m_maxTheta = 0;
-         }
+               m_phis.push_back( (*candidate)->phi() );
+            }
+            if( m_minTheta > m_maxTheta ) {	
+               m_minTheta = 0;
+               m_maxTheta = 0;
+            }
 
-         buildBaseTau(*it, *jet, comp, viewType, vc);
-         m_phis.clear();
+            buildBaseTau(*it, jet, comp, viewType, vc);
+            m_phis.clear();
+         }
+         catch (std::exception&  e)
+         { 
+            fwLog(fwlog::kInfo) << "FWPFTauProxyBuilder missing PFTauTagInfo. Skip drawing of jets.\n";
+            buildBaseTau(*it, 0, comp, viewType, vc);         
+         }
       }
       setupAddElement( comp, product );
    }

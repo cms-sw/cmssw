@@ -188,7 +188,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
     for (ID it = digis.begin(); it != digis.end(); it++) {
       uint32_t detid = it->first;
       edm::DetSet<PixelDigi>& detSet = collection->find_or_insert(detid);
-      detSet.data = it->second;
+      detSet.data.insert(detSet.data.end(), it->second.begin(), it->second.end());
     }
 
     //pack errors into collection
@@ -200,7 +200,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 	  nodeterrors.insert( nodeterrors.end(), errors[errordetid].begin(), errors[errordetid].end() );
 	} else {
 	  edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection->find_or_insert(errordetid);
-	  errorDetSet.data = is->second;
+	  errorDetSet.data.insert(errorDetSet.data.end(), is->second.begin(), is->second.end());
 	  // Fill detid of the detectors where there is error AND the error number is listed
 	  // in the configurable error list in the job option cfi.
 	  // Code needs to be here, because there can be a set of errors for each 

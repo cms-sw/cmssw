@@ -5,7 +5,7 @@ import RecoJets.JetProducers.ic5PFJets_cfi
 
 def jetAlgo( algo ):
     
-    # print 'PF2PAT: selecting jet algorithm ', algo
+    print 'PF2PAT: selecting jet algorithm ', algo
     
     if algo == 'IC5':
 #allPfJets = RecoJets.JetProducers.ic5PFJets_cfi.iterativeCone5PFJets.clone()

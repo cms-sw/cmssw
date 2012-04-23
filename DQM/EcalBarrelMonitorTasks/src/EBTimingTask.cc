@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2011/10/30 15:01:26 $
- * $Revision: 1.74 $
+ * $Date: 2011/09/15 20:59:51 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  *
 */
@@ -25,6 +25,9 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
+
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -63,8 +66,6 @@ EBTimingTask::EBTimingTask(const edm::ParameterSet& ps){
 
   stableBeamsDeclared_ = false;
 
-  ievt_ = 0;
-
 }
 
 EBTimingTask::~EBTimingTask(){
@@ -76,8 +77,8 @@ void EBTimingTask::beginJob(void){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/Timing");
-    dqmStore_->rmdir(prefixME_ + "/Timing");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTimingTask");
+    dqmStore_->rmdir(prefixME_ + "/EBTimingTask");
   }
 
 }
@@ -132,59 +133,42 @@ void EBTimingTask::setup(void){
     binEdgesT[i] = minT + (maxT - minT) / nbinsT * i;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/Timing");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTimingTask");
 
-    name = "TimingTask timing all 1D EB";
-    meTimeSummary1D_ = dqmStore_->book1D(name, name, 50, -25., 25.);
-    meTimeSummary1D_->setAxisTitle("time (ns)", 1);
-
-    name = "TimingTask timing EB";
-    meTimeSummaryMap_ = dqmStore_->bookProfile2D(name, name, 72, 0., 360., 34, -85, 85, -7.+shiftProf2D_, 7.+shiftProf2D_, "s");
-    meTimeSummaryMap_->setAxisTitle("jphi", 1);
-    meTimeSummaryMap_->setAxisTitle("jeta", 2);
-    meTimeSummaryMap_->setAxisTitle("time (ns)", 3);
-
-    name = "TimingTask timing vs amplitude all EB";
-    meTimeAmpliSummary_ = dqmStore_->book2D(name, name, nbinsE, binEdgesE, nbinsT, binEdgesT);
-    meTimeAmpliSummary_->setAxisTitle("energy (GeV)", 1);
-    meTimeAmpliSummary_->setAxisTitle("time (ns)", 2);
-
-    name = "TimingTask timing EB+ - EB-";
-    meTimeDelta_ = dqmStore_->book1D(name, name, 100, -3., 3.);
-    meTimeDelta_->setAxisTitle("time (ns)", 1);
-
-    name = "TimingTask timing EB+ vs EB-";
-    meTimeDelta2D_ = dqmStore_->book2D(name, name, 25, -25., 25., 25, -25., 25.);
-    meTimeDelta2D_->setAxisTitle("EB+ average time (ns)", 1);
-    meTimeDelta2D_->setAxisTitle("EB- average time (ns)", 2);
-
-    dqmStore_->setCurrentFolder(prefixME_ + "/Timing/Distribution");
     for (int i = 0; i < 36; i++) {
-      name = "TimingTask timing 1D " + Numbers::sEB(i+1);
+      name = "EBTMT timing 1D " + Numbers::sEB(i+1);
       meTime_[i] = dqmStore_->book1D(name, name, 50, -25., 25.);
       meTime_[i]->setAxisTitle("time (ns)", 1);
       dqmStore_->tag(meTime_[i], i+1);
-    }
 
-    dqmStore_->setCurrentFolder(prefixME_ + "/Timing/Profile");
-    for (int i = 0; i < 36; i++) {
-      name = "TimingTask timing " + Numbers::sEB(i+1);
-      meTimeMap_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., -25.+shiftProf2D_, 25.+shiftProf2D_, "s");
+      name = "EBTMT timing " + Numbers::sEB(i+1);
+      meTimeMap_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., -20.+shiftProf2D_, 20.+shiftProf2D_, "s");
       meTimeMap_[i]->setAxisTitle("ieta", 1);
       meTimeMap_[i]->setAxisTitle("iphi", 2);
       meTimeMap_[i]->setAxisTitle("time (ns)", 3);
       dqmStore_->tag(meTimeMap_[i], i+1);
-    }
 
-    dqmStore_->setCurrentFolder(prefixME_ + "/Timing/VsAmplitude");
-    for (int i = 0; i < 36; i++) {
-      name = "TimingTask timing v amplitude " + Numbers::sEB(i+1);
+      name = "EBTMT timing vs amplitude " + Numbers::sEB(i+1);
       meTimeAmpli_[i] = dqmStore_->book2D(name, name, nbinsE, binEdgesE, nbinsT, binEdgesT);
       meTimeAmpli_[i]->setAxisTitle("energy (GeV)", 1);
       meTimeAmpli_[i]->setAxisTitle("time (ns)", 2);
       dqmStore_->tag(meTimeAmpli_[i], i+1);
     }
 
+    name = "EBTMT timing vs amplitude summary";
+    meTimeAmpliSummary_ = dqmStore_->book2D(name, name, nbinsE, binEdgesE, nbinsT, binEdgesT);
+    meTimeAmpliSummary_->setAxisTitle("energy (GeV)", 1);
+    meTimeAmpliSummary_->setAxisTitle("time (ns)", 2);
+
+    name = "EBTMT timing 1D summary";
+    meTimeSummary1D_ = dqmStore_->book1D(name, name, 50, -25., 25.);
+    meTimeSummary1D_->setAxisTitle("time (ns)", 1);
+
+    name = "EBTMT timing map";
+    meTimeSummaryMap_ = dqmStore_->bookProfile2D(name, name, 72, 0., 360., 34, -85, 85, -20.+shiftProf2D_, 20.+shiftProf2D_, "s");
+    meTimeSummaryMap_->setAxisTitle("jphi", 1);
+    meTimeSummaryMap_->setAxisTitle("jeta", 2);
+    meTimeSummaryMap_->setAxisTitle("time (ns)", 3);
 
   }
 
@@ -195,25 +179,26 @@ void EBTimingTask::cleanup(void){
   if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTimingTask");
 
     for ( int i = 0; i < 36; i++ ) {
-      if ( meTime_[i] ) dqmStore_->removeElement( meTime_[i]->getFullname() );
+      if ( meTime_[i] ) dqmStore_->removeElement( meTime_[i]->getName() );
       meTime_[i] = 0;
 
-      if ( meTimeMap_[i] ) dqmStore_->removeElement( meTimeMap_[i]->getFullname() );
+      if ( meTimeMap_[i] ) dqmStore_->removeElement( meTimeMap_[i]->getName() );
       meTimeMap_[i] = 0;
 
-      if ( meTimeAmpli_[i] ) dqmStore_->removeElement( meTimeAmpli_[i]->getFullname() );
+      if ( meTimeAmpli_[i] ) dqmStore_->removeElement( meTimeAmpli_[i]->getName() );
       meTimeAmpli_[i] = 0;
     }
 
-    if ( meTimeAmpliSummary_ ) dqmStore_->removeElement( meTimeAmpliSummary_->getFullname() );
+    if ( meTimeAmpliSummary_ ) dqmStore_->removeElement( meTimeAmpliSummary_->getName() );
     meTimeAmpliSummary_ = 0;
 
-    if ( meTimeSummary1D_ ) dqmStore_->removeElement( meTimeSummary1D_->getFullname() );
+    if ( meTimeSummary1D_ ) dqmStore_->removeElement( meTimeSummary1D_->getName() );
     meTimeSummary1D_ = 0;
 
-    if ( meTimeSummaryMap_ ) dqmStore_->removeElement( meTimeSummaryMap_->getFullname() );
+    if ( meTimeSummaryMap_ ) dqmStore_->removeElement( meTimeSummaryMap_->getName() );
     meTimeSummaryMap_ = 0;
 
   }
@@ -290,8 +275,8 @@ void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     }
   }
 
-  float tmean[] = {0., 0.};
-  float nhits[] = {0., 0.};
+  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
+  c.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
 
   edm::Handle<EcalRecHitCollection> hits;
 
@@ -307,7 +292,6 @@ void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       int ic = id.ic();
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
-      int iz = id.zside() < 0 ? 0 : 1;
 
       int ism = Numbers::iSM( id );
 
@@ -336,11 +320,11 @@ void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       float xval = hitItr->energy();
       float yval = hitItr->time();
 
-      // it's no use to use severitylevel to detect spikes (SeverityLevelAlgo simply uses RecHit flag for spikes)
-      uint32_t mask = 0xffffffff ^ ((0x1 << EcalRecHit::kGood) | (0x1 << EcalRecHit::kOutOfTime));
+      uint32_t flag = hitItr->recoFlag();
 
-      // chi2-based cut not applied for now
-      if( !hitItr->checkFlagMask(mask) ){ // not not good = good
+      uint32_t sev = sevlv->severityLevel(id, *hits);
+
+      if ( (flag == EcalRecHit::kGood || flag == EcalRecHit::kOutOfTime) && sev != EcalSeverityLevel::kWeird ) {
         if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
         if ( meTimeAmpliSummary_ ) meTimeAmpliSummary_->Fill(xval, yval);
 
@@ -352,17 +336,9 @@ void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
           float xebeta = id.ieta() - 0.5 * id.zside();
           float xebphi = id.iphi() - 0.5;
           if ( meTimeSummaryMap_ ) meTimeSummaryMap_->Fill(xebphi, xebeta, yval+shiftProf2D_);
-
-	  tmean[iz] += yval;
-	  nhits[iz]++;
         }
 
       }
-    }
-
-    if(nhits[0] > 0. && nhits[1] > 0.){
-      if ( meTimeDelta_ ) meTimeDelta_->Fill( tmean[1]/nhits[1] - tmean[0]/nhits[0] );
-      if ( meTimeDelta2D_ ) meTimeDelta2D_->Fill( tmean[1]/nhits[1], tmean[0]/nhits[0] );
     }
 
   } else {

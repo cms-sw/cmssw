@@ -55,6 +55,13 @@ TStorageFactorySystem::AccessPathName(const char *name, EAccessMode /* mode */)
 }
 
 Int_t
+TStorageFactorySystem::Unlink(const char */*name*/)
+{
+  Error("Unlink", "Unsupported");
+  return 1;
+}
+
+Int_t
 TStorageFactorySystem::GetPathInfo(const char *name, FileStat_t &info)
 {
   info.fDev = 0;

@@ -45,17 +45,12 @@ initialStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilde
     trajectoryFilterName = 'initialStepTrajectoryFilter',
     alwaysUseInvalidHits = True,
     maxCand = 3,
-    estimator = cms.string('initialStepChi2Est'),
-    maxPtForLooperReconstruction = cms.double(-1) 
+    estimator = cms.string('initialStepChi2Est')
     )
 
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 initialStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('initialStepSeeds'),
-    ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
-
     TrajectoryBuilder = 'initialStepTrajectoryBuilder',
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
@@ -66,7 +61,6 @@ import RecoTracker.TrackProducer.TrackProducer_cfi
 initialStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'initialStepTrackCandidates',
     AlgorithmName = cms.string('iter0'),
-    Fitter = cms.string('FlexibleKFFittingSmoother')
     )
 
 # Final selection
