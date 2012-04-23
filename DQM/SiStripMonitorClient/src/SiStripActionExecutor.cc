@@ -103,8 +103,8 @@ void SiStripActionExecutor::createTkMap(const edm::ParameterSet & tkmapPset,
 // -- create tracker map for offline
 //
 void SiStripActionExecutor::createOfflineTkMap(const edm::ParameterSet & tkmapPset,
-					const edm::ESHandle<SiStripFedCabling>& fedcabling, DQMStore* dqm_store, std::string& map_type) {
-  if (tkMapCreator_) tkMapCreator_->createForOffline(tkmapPset, fedcabling, dqm_store, map_type);
+					DQMStore* dqm_store, std::string& map_type) {
+  if (tkMapCreator_) tkMapCreator_->createForOffline(tkmapPset, dqm_store, map_type);
 }
 
 //

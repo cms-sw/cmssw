@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V80 (CMSSW_5_2_3_HLT6)
+# /dev/CMSSW_5_2_1/HIon/V85 (CMSSW_5_2_3_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V80')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V85')
 )
 
 process.streams = cms.PSet( 
@@ -8139,28 +8139,39 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_HIZeroBiasXOR_v3',
   'HLT_HIZeroBias_v3' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltDoublePFTau45Track5IsolationProng4_*_*',
-      'keep *_hltDoublePFTau45Track5Isolation_*_*',
-      'keep *_hltDoublePFTau45Track5_*_*',
-      'keep *_hltDoublePFTauIso45Track_*_*',
-      'keep *_hltEle20CaloIdVTCaloIsoTTrkIdTTrkIsoTL1JetTrackIsoFilter_*_*',
-      'keep *_hltFilterDoublePFTau45Trk5LeadTrack5IsolationL1HLTMatched_*_*',
-      'keep *_hltL1MatchedLooseIsoPFTau20_*_*',
+      'keep *_hltDoublePFTau25TrackPt5MediumIsolationProng4L1HLTMatched_*_*',
+      'keep *_hltDoublePFTau25TrackPt5MediumIsolationProng4_*_*',
+      'keep *_hltDoublePFTau25TrackPt5MediumIsolation_*_*',
+      'keep *_hltDoublePFTau25TrackPt5_*_*',
+      'keep *_hltDoublePFTau25_*_*',
+      'keep *_hltEle20CaloIdVTTrkIdTDphiFilter_*_*',
+      'keep *_hltL1extraParticlesCentral_*_*',
+      'keep *_hltL1extraParticlesNonIsolated_*_*',
+      'keep *_hltL1extraParticlesTau_*_*',
       'keep *_hltL1extraParticles_*_*',
       'keep *_hltL1sDoubleTauJet44erorDoubleJetC64_*_*',
+      'keep *_hltL1sL1EG18er_*_*',
       'keep *_hltL1sL1ETM36or40_*_*',
-      'keep *_hltL1sL1SingleEG18erJetCCen28Tau20dPhi1_*_*',
-      'keep *_hltL1sMu12Eta2p1ETM20_*_*',
-      'keep *_hltOverlapFilterIsoEle20LooseIsoPFTau20L1Jet_*_*',
+      'keep *_hltL1sMu16Eta2p1_*_*',
+      'keep *_hltL3crIsoL1sMu16Eta2p1L1f0L2f16QL3f18QL3crIsoFiltered10_*_*',
+      'keep *_hltOverlapFilterEle20LooseIsoPFTau20_*_*',
+      'keep *_hltOverlapFilterIsoMu18LooseIsoPFTau20_*_*',
+      'keep *_hltOverlapFilterIsoMu18PFTau25TrackPt5Prong4_*_*',
+      'keep *_hltPFTau20IsoMuVertex_*_*',
       'keep *_hltPFTau20TrackLooseIso_*_*',
       'keep *_hltPFTau20Track_*_*',
       'keep *_hltPFTau20_*_*',
-      'keep *_hltPFTau35TrackPt20LooseIsoProng4_*_*',
+      'keep *_hltPFTau25TrackPt5MediumIsolationProng4IsoMuVertex_*_*',
+      'keep *_hltPFTau25TrackPt5MediumIsolationProng4_*_*',
+      'keep *_hltPFTau25TrackPt5MediumIsolation_*_*',
+      'keep *_hltPFTau25TrackPt5_*_*',
+      'keep *_hltPFTau25_*_*',
+      'keep *_hltPFTau35TrackPt20LooseIsoProng2_*_*',
       'keep *_hltPFTau35TrackPt20LooseIso_*_*',
       'keep *_hltPFTau35TrackPt20_*_*',
       'keep *_hltPFTau35Track_*_*',
       'keep *_hltPFTau35_*_*',
-      'keep *_hltPFTauIsoEleL1JetVertex20_*_*',
+      'keep *_hltPFTauEleVertex20_*_*',
       'keep *_hltTriggerSummaryAOD_*_*',
       'keep *_hltTriggerSummaryRAW_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',

@@ -104,7 +104,7 @@ public:
   
   bool operator==(const DDBase & b) const { return prep_ == b.prep_; }
   // true, if registered or defined
-  operator bool() const { return prep_ ? prep_->second : false; }
+  operator bool() const { return isValid(); }
   
   bool operator<(const DDBase & b) const { return prep_ < b.prep_; }
   bool operator>(const DDBase & b) const { return prep_ > b.prep_; }

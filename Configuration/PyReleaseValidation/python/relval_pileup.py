@@ -22,3 +22,4 @@ workflows[302]=['Pyquen_ZeemumuJets_pt10_2760GeV',['HydjetQ_MinBias_2760GeVINPUT
 
 #fastsim
 workflows[400]=['TTbar',['TTbarFSPU']]
+workflows[401]=['TTbar',['TTbarFSPU2']]

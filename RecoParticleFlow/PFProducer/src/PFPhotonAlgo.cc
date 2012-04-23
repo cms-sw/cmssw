@@ -42,7 +42,25 @@ PFPhotonAlgo::PFPhotonAlgo(std::string mvaweightfile,
   useReg_(useReg),
   thePFEnergyCalibration_(thePFEnergyCalibration),
   sumPtTrackIsoForPhoton_(sumPtTrackIsoForPhoton),
-  sumPtTrackIsoSlopeForPhoton_(sumPtTrackIsoSlopeForPhoton)
+  sumPtTrackIsoSlopeForPhoton_(sumPtTrackIsoSlopeForPhoton),
+  nlost(0.0), nlayers(0.0),
+  chi2(0.0), STIP(0.0), del_phi(0.0),HoverPt(0.0), EoverPt(0.0), track_pt(0.0),
+  mvaValue(0.0),
+  CrysPhi_(0.0), CrysEta_(0.0),  VtxZ_(0.0), ClusPhi_(0.0), ClusEta_(0.0),
+  ClusR9_(0.0), Clus5x5ratio_(0.0),  PFCrysEtaCrack_(0.0), logPFClusE_(0.0), e3x3_(0.0),
+  CrysIPhi_(0), CrysIEta_(0),
+  CrysX_(0.0), CrysY_(0.0),
+  EB(0.0),
+  eSeed_(0.0), e1x3_(0.0),e3x1_(0.0), e1x5_(0.0), e2x5Top_(0.0),  e2x5Bottom_(0.0), e2x5Left_(0.0),  e2x5Right_(0.0),
+  etop_(0.0), ebottom_(0.0), eleft_(0.0), eright_(0.0),
+  e2x5Max_(0.0),
+  PFPhoEta_(0.0), PFPhoPhi_(0.0), PFPhoR9_(0.0), PFPhoR9Corr_(0.0), SCPhiWidth_(0.0), SCEtaWidth_(0.0), 
+  PFPhoEt_(0.0), RConv_(0.0), PFPhoEtCorr_(0.0), PFPhoE_(0.0), PFPhoECorr_(0.0), MustE_(0.0), E3x3_(0.0),
+  dEta_(0.0), dPhi_(0.0), LowClusE_(0.0), RMSAll_(0.0), RMSMust_(0.0), nPFClus_(0.0),
+  TotPS1_(0.0), TotPS2_(0.0),
+  nVtx_(0.0),
+  x0inner_(0.0), x0middle_(0.0), x0outer_(0.0),
+  excluded_(0.0), Mustache_EtRatio_(0.0), Mustache_Et_out_(0.0)
 {  
     primaryVertex_=primary;  
     //Book MVA  

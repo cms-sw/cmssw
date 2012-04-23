@@ -1,4 +1,4 @@
-// $Id: FRDFileHandler.h,v 1.13 2011/03/07 15:31:31 mommsen Exp $
+// $Id: FRDFileHandler.h,v 1.12.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: FRDFileHandler.h 
 
 #ifndef EventFilter_StorageManager_FRDFileHandler_h
@@ -21,8 +21,8 @@ namespace stor {
    * FED Raw Data (FRD) format.
    *
    * $Author: mommsen $
-   * $Revision: 1.13 $
-   * $Date: 2011/03/07 15:31:31 $
+   * $Revision: 1.12.4.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
   
   class FRDFileHandler : public FileHandler
@@ -32,6 +32,7 @@ namespace stor {
     (
       FilesMonitorCollection::FileRecordPtr,
       const DbFileHandlerPtr,
+      const DiskWritingParams&,
       const uint64_t& maxFileSize
     );
 

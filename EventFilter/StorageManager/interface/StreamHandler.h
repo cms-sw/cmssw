@@ -1,4 +1,4 @@
-// $Id: StreamHandler.h,v 1.15 2011/06/20 16:38:51 mommsen Exp $
+// $Id: StreamHandler.h,v 1.14 2011/03/07 15:31:32 mommsen Exp $
 /// @file: StreamHandler.h 
 
 #ifndef EventFilter_StorageManager_StreamHandler_h
@@ -24,8 +24,8 @@ namespace stor {
    * Abstract class to handle one stream written to disk.
    *
    * $Author: mommsen $
-   * $Revision: 1.15 $
-   * $Date: 2011/06/20 16:38:51 $
+   * $Revision: 1.14 $
+   * $Date: 2011/03/07 15:31:32 $
    */
   
   class StreamHandler
@@ -136,7 +136,7 @@ namespace stor {
     const SharedResourcesPtr sharedResources_;
     const StatisticsReporterPtr statReporter_;
     const StreamsMonitorCollection::StreamRecordPtr streamRecord_;
-    const DiskWritingParams& diskWritingParams_;
+    const DiskWritingParams diskWritingParams_;
     const DbFileHandlerPtr dbFileHandler_;
 
     typedef std::vector<FileHandlerPtr> FileHandlers;

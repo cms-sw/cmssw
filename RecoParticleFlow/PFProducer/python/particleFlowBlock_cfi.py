@@ -8,7 +8,7 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     debug = cms.untracked.bool(False),
 
     # Link tracks and HCAL clusters to HO clusters
-    useHO = cms.bool(False),
+    useHO = cms.bool(True),
 
     # input clusters
     PFClustersECAL = cms.InputTag("particleFlowClusterECAL"),

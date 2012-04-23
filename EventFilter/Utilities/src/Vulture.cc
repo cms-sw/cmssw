@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <fstream>
 
 #ifdef __APPLE__
 /* getline implementation is copied from glibc. */
@@ -132,10 +133,15 @@ namespace evf{
     , stopped_(-1)
     , handicapped_(false)
   {
-    // create command file for gdb
-    FILE *outf = fopen("/tmp/vulture.cmd","w");
-    fprintf(outf,"where\n");
-    fclose(outf);
+    // create command file for gdb, if not already there
+	std::ifstream vulture("/tmp/vulture.cmd");
+	if (!vulture.good())
+	{
+		FILE *outf = fopen("/tmp/vulture.cmd","w");
+		fprintf(outf,"where\n");
+		fclose(outf);
+	}
+
   }
   
   Vulture::~Vulture()

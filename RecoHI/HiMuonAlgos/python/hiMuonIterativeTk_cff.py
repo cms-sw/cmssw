@@ -21,29 +21,22 @@ hiRegitMuGeneralTracks = RecoTracker.FinalTrackSelectors.MergeTrackCollections_c
     selectedTrackQuals = cms.VInputTag(cms.InputTag("hiRegitMuInitialStepSelector","hiRegitMuInitialStep"),
                                        cms.InputTag("hiRegitMuLowPtTripletStepSelector","hiRegitMuLowPtTripletStep"),
                                        cms.InputTag("hiRegitMuPixelPairStepSelector","hiRegitMuPixelPairStep"),
-                                       cms.InputTag("hiRegitMuDetachedTripletStepSelector","hiRegitMuDetachedTripletStep"),
-                                       cms.InputTag("hiRegitMuMixedTripletStepSelector","hiRegitMuMixedTripletStep"),
+                                       cms.InputTag("hiRegitMuDetachedTripletStep"),
+                                       cms.InputTag("hiRegitMuMixedTripletStep"),
                                        cms.InputTag("hiRegitMuPixelLessStepSelector","hiRegitMuPixelLessStep"),
                                        cms.InputTag("hiRegitMuTobTecStepSelector","hiRegitMuTobTecStep")
-                                       ),
+                                       )
     )
 
-from RecoHI.HiTracking.MergeRegit_cff import *
-hiGeneralAndRegitMuTracks = RecoHI.HiTracking.MergeRegit_cff.hiGeneralAndRegitTracks.clone(
-    TrackProducer2 = 'hiRegitMuGeneralTracks'
-    )
-
-
-hiRegitMuTracking = cms.Sequence(hiRegitMuonInitialStep
-                                 *hiRegitMuonLowPtTripletStep
-                                 *hiRegitMuonPixelPairStep
-                                 *hiRegitMuonDetachedTripletStep
-                                 *hiRegitMuonMixedTripletStep
-                                 *hiRegitMuonPixelLessStep
-                                 *hiRegitMuonTobTecStep
-                                 *hiRegitMuGeneralTracks
-                                 *hiGeneralAndRegitMuTracks
-                                 )
+hiRegitMuonIterTracking = cms.Sequence(hiRegitMuonInitialStep*
+                            hiRegitMuonLowPtTripletStep*
+                            hiRegitMuonPixelPairStep*
+                            hiRegitMuonDetachedTripletStep*
+                            hiRegitMuonMixedTripletStep*
+                            hiRegitMuonPixelLessStep*
+                            hiRegitMuonTobTecStep*
+                            hiRegitMuGeneralTracks
+                            )
 
 
 

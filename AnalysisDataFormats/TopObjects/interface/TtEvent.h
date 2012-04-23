@@ -70,10 +70,6 @@ class TtEvent {
   unsigned int numberOfAvailableHypos(const std::string& key) const { return numberOfAvailableHypos( hypoClassKeyFromString(key) ); };
   /// return number of available hypotheses within a given hypothesis class
   unsigned int numberOfAvailableHypos(const HypoClassKey& key) const { return isHypoAvailable(key) ? evtHyp_.find(key)->second.size() : 0; };
-  /// return number of jets that were considered when building a given hypothesis
-  int numberOfConsideredJets(const std::string& key) const { return numberOfConsideredJets(hypoClassKeyFromString(key) ); };
-  /// return number of jets that were considered when building a given hypothesis
-  int numberOfConsideredJets(const HypoClassKey& key) const { return (isHypoAvailable(key) ? nJetsConsidered_.find(key)->second : -1); };
   /// return the vector of jet lepton combinatorics for a given hypothesis and class
   std::vector<int> jetLeptonCombination(const std::string& key, const unsigned& cmb=0) const { return jetLeptonCombination(hypoClassKeyFromString(key), cmb); };
   /// return the vector of jet lepton combinatorics for a given hypothesis and class
@@ -112,8 +108,6 @@ class TtEvent {
   void setGenEvent(const edm::Handle<TtGenEvent>& evt) { genEvt_=edm::RefProd<TtGenEvent>(evt); };
   /// add new hypotheses
   void addEventHypo(const HypoClassKey& key, HypoCombPair hyp) { evtHyp_[key].push_back(hyp); };
-  /// set number of jets considered when building a given hypothesis
-  void setNumberOfConsideredJets(const HypoClassKey& key, unsigned int nJets) { nJetsConsidered_[key]=nJets; };
   /// set sum pt of kGenMatch hypothesis
   void setGenMatchSumPt(const std::vector<double>& val) {genMatchSumPt_=val;};
   /// set sum dr of kGenMatch hypothesis
@@ -144,8 +138,6 @@ class TtEvent {
   /// map of hypotheses; for each HypoClassKey a vector of 
   /// hypothesis and their lepton jet combinatorics are kept
   std::map<HypoClassKey, std::vector<HypoCombPair> > evtHyp_;
-  /// number of jets considered when building the hypotheses
-  std::map<HypoClassKey, int> nJetsConsidered_;
   
   /// result of kinematic fit
   std::vector<double> fitChi2_;        

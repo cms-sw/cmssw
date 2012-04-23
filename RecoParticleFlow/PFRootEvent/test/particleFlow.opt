@@ -474,9 +474,12 @@ particle_flow   useReg		  0
 
 // Daniele and Rishi: To be changed
 particle_flow   convID_mvaWeightFile    /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionAug0411.txt
-particle_flow mvaWeightFileRegLC	/afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFClusterLCorr_14Dec2011.root
-particle_flow mvaWeightFileRegGC        /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFGlobalCorr_14Dec2011.root
-particle_flow mvaWeightFileRegRes        /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFRes_14Dec2011.root
+particle_flow mvaWeightFileRegLCEB	/afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/TMVARegressionBarrelLC_17Apr2012.root
+particle_flow mvaWeightFileRegLCEE	/afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/TMVARegressionEndCapLC_17Apr2012.root
+particle_flow mvaWeightFileRegGCEB        /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/TMVARegressionBarrelGC_17Apr2012.root
+particle_flow mvaWeightFileRegGCEEHr9        /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/TMVARegressionEndCapGCHr9_17Apr2012.root
+particle_flow mvaWeightFileRegGCEELr9        /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/TMVARegressionEndCapGCLr9_17Apr2012.root
+particle_flow mvaWeightFileRegRes        /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/TMVARegressionRes_17Apr2012.root
 particle_flow X0Map                                  /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/allX0histos.root
 
 particle_flow sumPtTrackIsoForPhoton   2.0

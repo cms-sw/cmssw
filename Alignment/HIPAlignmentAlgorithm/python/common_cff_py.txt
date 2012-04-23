@@ -1,8 +1,10 @@
 from CondCore.DBCommon.CondDBSetup_cfi import *
 
 # loading magnetic field and geometry
-process.load('Configuration.StandardSequences.GeometryExtended_cff')
-process.load("Configuration.StandardSequences.MagneticField_cff")
+# process.load("MagneticField.Engine.uniformMagneticField_cfi")
+process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Configuration.StandardSequences.GeometryIdeal_cff")
 
 # loading the alignment producer
 process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
@@ -13,33 +15,30 @@ process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 if 'COSMICS'=='<FLAG>':
-   process.GlobalTag.globaltag='GR_R_42_V21::All'
+   process.GlobalTag.globaltag='GR10_P_V2COS::All' 
 else :
-   process.GlobalTag.globaltag='GR_R_42_V21::All'
- 
+   process.GlobalTag.globaltag = 'GR10_P_V4::All'
+
+process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
+
 process.load("FWCore.MessageService.MessageLogger_cfi")
+MessageLogger = cms.Service("MessageLogger",
+							cout = cms.untracked.PSet(
+													  threshold = cms.untracked.string('WARNING')
+													  ),
+							destinations = cms.untracked.vstring('cout')
+)
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 # configure magnetic field
-# process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 # configure the database file - use survey one for default
 from CondCore.DBCommon.CondDBSetup_cfi import *
 
-#### for ideal geometry
-## process.trackerAlignment = cms.ESSource("PoolDBESSource",
-##                                         CondDBSetup,
-##                                         timetype = cms.string('runnumber'),
-##                                         toGet = cms.VPSet(cms.PSet(
-##                                                 record = cms.string('TrackerAlignmentRcd'),
-##                                                 tag = cms.string('TrackerIdealGeometry210_mc')
-##                                                 )),
-##                                         connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X')
-##                                         )
 
-### end for ideal geometry
-
-### for global tag geometry 
+#### for CRAFT10 geometry
+#### examples of other default geometries can be found in previous revisions on CVS
 process.trackerAlignment = cms.ESSource("PoolDBESSource",
                                         CondDBSetup,
                                         timetype = cms.string('runnumber'),
@@ -48,53 +47,34 @@ process.trackerAlignment = cms.ESSource("PoolDBESSource",
                                                 tag = cms.string('Alignments')
                                                 )),
 
-					connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HIP/covarell/CMSSW_4_2_2/src/Alignment/HIPAlignmentAlgorithm/payloads/GR_42.db')
+					connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/results/SYSTEMATICS_ICHEP/200um/dr_vs_r_RADIAL/ICHEP2010_radial_MPcosmics_realigned.db')
+
                                         )
+
+
 
 process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
 
 
-############ Load APE separately
-
-######## Zero APE
-from CondCore.DBCommon.CondDBSetup_cfi import *
-process.ZeroAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
-                                        connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
-                                        timetype = cms.string("runnumber"),
-                                        toGet = cms.VPSet(
-                                                          cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
-                                                                   tag = cms.string('TrackerIdealGeometryErrors210_mc')
-                                                                   ))
-                                        )
-process.es_prefer_ZeroAPE = cms.ESPrefer("PoolDBESSource", "ZeroAPE")
 
 
+########### Load APE separately
 ####### CRAFT10 APE
-# process.trackerAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
-# 		                  connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/PayLoads/CRAFT09/TrackerAlignmentErr_2009_v2_prompt/131425-infty/TrackerAlignmentErr_2009_v2_prompt.db'),
-# 
-#                                   timetype = cms.string("runnumber"),
-#                                   toGet = cms.VPSet(
-#                                         cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
-#                                                  tag = cms.string('AlignmentErrors')
-#                                                 ))
-#                                         )
-# process.es_prefer_TrackerAPE = cms.ESPrefer("PoolDBESSource", "trackerAPE")
+process.trackerAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
+		                  connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/PayLoads/CRAFT09/TrackerAlignmentErr_2009_v2_prompt/131425-infty/TrackerAlignmentErr_2009_v2_prompt.db'),
+
+                                  timetype = cms.string("runnumber"),
+                                  toGet = cms.VPSet(
+                                        cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
+                                                 tag = cms.string('AlignmentErrors')
+                                                ))
+                                        )
+process.es_prefer_TrackerAPE = cms.ESPrefer("PoolDBESSource", "trackerAPE")
 
 
 process.AlignmentProducer.applyDbAlignment = True
 
 
-### Set parameters to align (all modules in this example)
-
-process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
-                                                    alignParams = cms.vstring(
-                                                                 'PixelHalfBarrelDets,111111',
-                                                                 'PXECDets,111111',
-                                                                 'TrackerTIBModuleUnit,101001',
-                                                                 'TrackerTOBModuleUnit,101001',
-                                                                 'TrackerTIDModuleUnit,101001',
-                                                                 'TrackerTECModuleUnit,101001',
-                                                                 ),
-)
+### Set parameters to align
+process.AlignmentProducer.ParameterBuilder.Selector.alignParams = ['AllDets,111111']
 

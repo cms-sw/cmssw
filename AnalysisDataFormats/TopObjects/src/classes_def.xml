@@ -9,7 +9,8 @@
    <version ClassVersion="10" checksum="4112324732"/>
   </class>
   <class name="TtEvent"  ClassVersion="11">
-   <version ClassVersion="11" checksum="1688727696"/>
+   <version ClassVersion="11" checksum="18886569"/>
+   <version ClassVersion="10" checksum="4122898693"/>
   </class>
   <class name="TtFullLeptonicEvent"  ClassVersion="10">
    <version ClassVersion="10" checksum="1854988496"/>

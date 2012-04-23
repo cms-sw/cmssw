@@ -1310,8 +1310,11 @@ void PFRootEventManager::readOptions(const char* file,
   bool usePFPhotons = true;
   bool useReg=false;
   string mvaWeightFileConvID = "";
-  string mvaWeightFileRegLC="";
-  string mvaWeightFileRegGC="";
+  string mvaWeightFileRegLCEB="";
+  string mvaWeightFileRegLCEE="";    
+  string mvaWeightFileRegGCEB="";
+  string mvaWeightFileRegGCEEhr9="";
+  string mvaWeightFileRegGCEElr9="";
   string mvaWeightFileRegRes="";
   string X0Map="";
   double mvaConvCut=-1.;
@@ -1321,8 +1324,11 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow", "conv_mvaCut", mvaConvCut);
   options_->GetOpt("particle_flow", "useReg", useReg);
   options_->GetOpt("particle_flow", "convID_mvaWeightFile", mvaWeightFileConvID);
-  options_->GetOpt("particle_flow", "mvaWeightFileRegLC", mvaWeightFileRegLC);
-  options_->GetOpt("particle_flow", "mvaWeightFileRegGC", mvaWeightFileRegGC);
+  options_->GetOpt("particle_flow", "mvaWeightFileRegLCEB", mvaWeightFileRegLCEB);
+  options_->GetOpt("particle_flow", "mvaWeightFileRegLCEE", mvaWeightFileRegLCEE);
+  options_->GetOpt("particle_flow", "mvaWeightFileRegGCEB", mvaWeightFileRegGCEB);
+  options_->GetOpt("particle_flow", "mvaWeightFileRegGCEEHr9", mvaWeightFileRegGCEEhr9);
+  options_->GetOpt("particle_flow", "mvaWeightFileRegGCEElr9", mvaWeightFileRegGCEElr9);
   options_->GetOpt("particle_flow", "mvaWeightFileRegRes", mvaWeightFileRegRes);
   options_->GetOpt("particle_flow", "X0Map", X0Map);
   options_->GetOpt("particle_flow","sumPtTrackIsoForPhoton",sumPtTrackIsoForPhoton);
@@ -1331,12 +1337,19 @@ void PFRootEventManager::readOptions(const char* file,
 
   if( usePFPhotons ) { 
     // PFPhoton options -----------------------------
-    TFile *fgbr = new TFile(mvaWeightFileRegGC.c_str(),"READ");
-    const GBRForest * ReaderGC  =(const GBRForest*)fgbr->Get("GBRForest");
-    TFile *fgbr2 = new TFile(mvaWeightFileRegLC.c_str(),"READ");
-    const GBRForest* ReaderLC  = (const GBRForest*)fgbr2->Get("GBRForest");
-    TFile *fgbr3 = new TFile(mvaWeightFileRegRes.c_str(),"READ");
-    const GBRForest* ReaderRes  = (const GBRForest*)fgbr3->Get("GBRForest");
+    TFile *infile_PFLCEB = new TFile(mvaWeightFileRegLCEB.c_str(),"READ");
+    TFile *infile_PFLCEE = new TFile(mvaWeightFileRegLCEE.c_str(),"READ");
+    TFile *infile_PFGCEB = new TFile(mvaWeightFileRegGCEB.c_str(),"READ");
+    TFile *infile_PFGCEEhR9 = new TFile(mvaWeightFileRegGCEEhr9.c_str(),"READ");
+    TFile *infile_PFGCEElR9 = new TFile(mvaWeightFileRegGCEElr9.c_str(),"READ");
+    TFile *infile_PFRes = new TFile(mvaWeightFileRegRes.c_str(),"READ");
+   
+    const GBRForest *gbrLCBar = (GBRForest*)infile_PFLCEB->Get("PFLCorrEB");
+    const GBRForest *gbrLCEnd = (GBRForest*)infile_PFLCEE->Get("PFLCorrEE");
+    const GBRForest *gbrGCEB = (GBRForest*)infile_PFGCEB->Get("PFGCorrEB");
+    const GBRForest *gbrGCEEhr9 = (GBRForest*)infile_PFGCEEhR9->Get("PFGCorrEEHr9");
+    const GBRForest *gbrGCEElr9 = (GBRForest*)infile_PFGCEElR9->Get("PFGCorrEELr9");
+    const GBRForest *gbrRes = (GBRForest*)infile_PFRes->Get("PFRes");
     try { 
       pfAlgo_.setPFPhotonParameters
 	(usePFPhotons,
@@ -1348,7 +1361,11 @@ void PFRootEventManager::readOptions(const char* file,
 	 sumPtTrackIsoForPhoton,
 	 sumPtTrackIsoSlopeForPhoton
 	 );
-      pfAlgo_.setPFPhotonRegWeights(ReaderLC, ReaderGC, ReaderRes);
+      pfAlgo_.setPFPhotonRegWeights(gbrLCBar, gbrLCEnd,gbrGCEB,
+				    gbrGCEEhr9,gbrGCEElr9,
+				    gbrRes
+				    );
+      
     }
     catch( std::exception& err ) {
       cerr<<"exception setting PFAlgo Photon parameters: "

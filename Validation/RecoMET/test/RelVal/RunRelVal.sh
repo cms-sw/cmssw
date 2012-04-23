@@ -11,7 +11,7 @@
 
 # user input area:
 
-dirlist="TTbar"
+dirlist="QCDFlat TTbar"
 
 CaloMetList="met metNoHF metHO metNoHFHO metOpt metOptNoHF metOptHO metOptNoHFHO"
 tcMetList="tcMet"
@@ -19,14 +19,14 @@ GenMetList="genMetTrue genMetCalo genMetCaloAndNonPrompt"
 CaloTowerList="SchemeB"
 MCaloTowerList="SchemeB Optimized"
 
-datadirRef="/uscms_data/d3/samantha/METRelValTesting_new/CMSSW_5_2_2/src/Validation/RecoMET/test/FullSim/PU/"
-datadirNew="/uscms_data/d3/samantha/METRelValTesting_new/CMSSW_5_2_2/src/Validation/RecoMET/test/FullSim/STD/"
+datadirRef="/uscms_data/d3/samantha/METRelValTesting_new/CMSSW_5_0_0/src/Validation/RecoMET/test/FullSim/500"
+datadirNew="/uscms_data/d3/samantha/METRelValTesting_new/CMSSW_5_0_0/src/Validation/RecoMET/test/FullSim/500g4emtest"
 
 release_ref="500"
 release_new="500_g4emtest"
 
-cond_ref="522"
-cond_new="522 PU"
+cond_ref="500"
+cond_new="500_g4emtest"
 
 # error handling
 
@@ -212,9 +212,9 @@ for i in $dirlist; do
 
   if [ -e $newRoot ]; then
 	  echo "Found $newRoot"
+	  exit
   else
 	  echo "NOT FOUND!! $newRoot"
-	  exit
   fi
 
   #========Run MET Validation=============#

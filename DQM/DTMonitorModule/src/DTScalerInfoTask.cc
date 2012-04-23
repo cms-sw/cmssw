@@ -1,7 +1,7 @@
 /*
  * \file DTScalerInfoTask.cc
  * 
- * $Date: 2011/10/19 10:05:54 $
+ * $Date: 2011/06/10 13:23:26 $
  * $Revision: 1.1 $
  * \author C. Battilana - CIEMAT
  *
@@ -106,15 +106,9 @@ void DTScalerInfoTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   //retrieve the luminosity
   edm::Handle<LumiScalersCollection> lumiScalers;
-  if(!e.getByLabel(theScalerTag, lumiScalers)) {
-    LogError("") << "[DTScalerInfoTask]: collection "<<theScalerTag<<" does not exist.";
-    return; 
-  } 
-
-  if( lumiScalers->size() != 0 ) {
-    LumiScalersCollection::const_iterator lumiIt = lumiScalers->begin();
-    trendHistos["AvgLumivsLumiSec"]->accumulateValueTimeSlot(lumiIt->instantLumi());
-  }  
+  e.getByLabel(theScalerTag, lumiScalers);
+  LumiScalersCollection::const_iterator lumiIt = lumiScalers->begin();
+  trendHistos["AvgLumivsLumiSec"]->accumulateValueTimeSlot(lumiIt->instantLumi());
 
 }
 

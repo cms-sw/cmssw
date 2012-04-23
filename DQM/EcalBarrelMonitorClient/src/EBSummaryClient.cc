@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2011/11/15 17:21:29 $
- * $Revision: 1.226 $
+ * $Date: 2012/03/18 17:20:52 $
+ * $Revision: 1.223.2.5 $
  * \author G. Della Ricca
  *
 */
@@ -22,28 +22,24 @@
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #endif
 
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 #include "DQM/EcalCommon/interface/Masks.h"
 
 #include "DQM/EcalBarrelMonitorClient/interface/EBStatusFlagsClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBOccupancyClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h"
 
 #include "DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h"
-
-#include "TString.h"
-#include "TPRegexp.h"
-#include "TObjArray.h"
-#include "TObjString.h"
 
 EBSummaryClient::EBSummaryClient(const edm::ParameterSet& ps) {
 
@@ -62,6 +58,8 @@ EBSummaryClient::EBSummaryClient(const edm::ParameterSet& ps) {
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
+  produceReports_ = ps.getUntrackedParameter<bool>("produceReports", true);
+
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
   for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
@@ -78,8 +76,6 @@ EBSummaryClient::EBSummaryClient(const edm::ParameterSet& ps) {
   MGPAGainsPN_.reserve(2);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGainsPN_.push_back(i);
   MGPAGainsPN_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGainsPN", MGPAGainsPN_);
-
-  enabledClients_ = ps.getUntrackedParameter<std::vector<std::string> >("enabledClients");
 
   // summary maps
   meIntegrity_            = 0;
@@ -167,14 +163,7 @@ EBSummaryClient::EBSummaryClient(const edm::ParameterSet& ps) {
 
   }
 
-  timingNHitThreshold_ = ps.getUntrackedParameter<int>("timingNHitThreshold", 5);
-  synchErrorThreshold_ = ps.getUntrackedParameter<int>("synchErrorThreshold", 5);
-
-
-  ievt_ = 0;
-  jevt_ = 0;
-  dqmStore_ = 0;
-
+  synchErrorThreshold_ = 0.0;
 
 }
 
@@ -221,158 +210,185 @@ void EBSummaryClient::endRun(void) {
 
 void EBSummaryClient::setup(void) {
 
+  bool integrityClient(false);
+  bool occupancyClient(false);
+  bool statusFlagsClient(false);
+  bool pedestalOnlineClient(false);
+  bool laserClient(false);
+  bool pedestalClient(false);
+  bool testPulseClient(false);
+  bool timingClient(false);
+  bool triggerTowerClient(false);
+
+  for(unsigned i = 0; i < clients_.size(); i++){
+
+    if(dynamic_cast<EBIntegrityClient*>(clients_[i])) integrityClient = true;
+    if(dynamic_cast<EBOccupancyClient*>(clients_[i])) occupancyClient = true;
+    if(dynamic_cast<EBStatusFlagsClient*>(clients_[i])) statusFlagsClient = true;
+    if(dynamic_cast<EBPedestalOnlineClient*>(clients_[i])) pedestalOnlineClient = true;
+    if(dynamic_cast<EBLaserClient*>(clients_[i])) laserClient = true;
+    if(dynamic_cast<EBPedestalClient*>(clients_[i])) pedestalClient = true;
+    if(dynamic_cast<EBTestPulseClient*>(clients_[i])) testPulseClient = true;
+    if(dynamic_cast<EBTimingClient*>(clients_[i])) timingClient = true;
+    if(dynamic_cast<EBTriggerTowerClient*>(clients_[i])) triggerTowerClient = true;
+
+  }
+
   std::string name;
 
-  std::vector<std::string>::iterator clBegin(enabledClients_.begin()), clEnd(enabledClients_.end());
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBSummaryClient" );
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/Summary" );
+  if(integrityClient){
+    if(produceReports_){
+      if ( meIntegrity_ ) dqmStore_->removeElement( meIntegrity_->getName() );
+      name = "EBIT integrity quality summary";
+      meIntegrity_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
+      meIntegrity_->setAxisTitle("jphi", 1);
+      meIntegrity_->setAxisTitle("jeta", 2);
 
-  if (std::find(clBegin, clEnd, "Integrity") != clEnd) {
-
-    if ( meIntegrity_ ) dqmStore_->removeElement( meIntegrity_->getName() );
-    name = "Summary integrity quality EB";
-    meIntegrity_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
-    meIntegrity_->setAxisTitle("jphi", 1);
-    meIntegrity_->setAxisTitle("jeta", 2);
-
-    if ( meIntegrityErr_ ) dqmStore_->removeElement( meIntegrityErr_->getName() );
-    name = "Summary integrity quality errors EB";
-    meIntegrityErr_ = dqmStore_->book1D(name, name, 36, 1, 37);
-    for (int i = 0; i < 36; i++) {
-      meIntegrityErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+      if ( meIntegrityErr_ ) dqmStore_->removeElement( meIntegrityErr_->getName() );
+      name = "EBIT integrity quality errors summary";
+      meIntegrityErr_ = dqmStore_->book1D(name, name, 36, 1, 37);
+      for (int i = 0; i < 36; i++) {
+	meIntegrityErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+      }
     }
+    else{
+      if ( meIntegrityPN_ ) dqmStore_->removeElement( meIntegrityPN_->getName() );
+      name = "EBIT PN integrity quality summary";
+      meIntegrityPN_ = dqmStore_->book2D(name, name, 90, 0., 90., 20, -10., 10.);
+      meIntegrityPN_->setAxisTitle("jchannel", 1);
+      meIntegrityPN_->setAxisTitle("jpseudo-strip", 2);
+    }
+  }
 
-    if ( meIntegrityPN_ ) dqmStore_->removeElement( meIntegrityPN_->getName() );
-    name = "Summary PN integrity quality EB";
-    meIntegrityPN_ = dqmStore_->book2D(name, name, 90, 0., 90., 20, -10., 10.);
-    meIntegrityPN_->setAxisTitle("jchannel", 1);
-    meIntegrityPN_->setAxisTitle("jpseudo-strip", 2);
+  if(occupancyClient){
+    if(produceReports_){
+      if ( meOccupancy_ ) dqmStore_->removeElement( meOccupancy_->getName() );
+      name = "EBOT digi occupancy summary";
+      meOccupancy_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
+      meOccupancy_->setAxisTitle("jphi", 1);
+      meOccupancy_->setAxisTitle("jeta", 2);
+
+      if ( meOccupancy1D_ ) dqmStore_->removeElement( meOccupancy1D_->getName() );
+      name = "EBOT digi occupancy summary 1D";
+      meOccupancy1D_ = dqmStore_->book1D(name, name, 36, 1, 37);
+      for (int i = 0; i < 36; i++) {
+	meOccupancy1D_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+      }
+
+      if( meRecHitEnergy_ ) dqmStore_->removeElement( meRecHitEnergy_->getName() );
+      name = "EBOT energy summary";
+      meRecHitEnergy_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
+      meRecHitEnergy_->setAxisTitle("jphi", 1);
+      meRecHitEnergy_->setAxisTitle("jeta", 2);
+    }
+    else{
+      if ( meOccupancyPN_ ) dqmStore_->removeElement( meOccupancyPN_->getName() );
+      name = "EBOT PN digi occupancy summary";
+      meOccupancyPN_ = dqmStore_->book2D(name, name, 90, 0., 90., 20, -10., 10.);
+      meOccupancyPN_->setAxisTitle("jchannel", 1);
+      meOccupancyPN_->setAxisTitle("jpseudo-strip", 2);
+    }
 
   }
 
-  if (std::find(clBegin, clEnd, "Occupancy") != clEnd) {
-
-    if ( meOccupancy_ ) dqmStore_->removeElement( meOccupancy_->getName() );
-    name = "Summary digi occupancy EB";
-    meOccupancy_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
-    meOccupancy_->setAxisTitle("jphi", 1);
-    meOccupancy_->setAxisTitle("jeta", 2);
-
-    if ( meOccupancy1D_ ) dqmStore_->removeElement( meOccupancy1D_->getName() );
-    name = "Summary digi occupancy 1D EB";
-    meOccupancy1D_ = dqmStore_->book1D(name, name, 36, 1, 37);
-    for (int i = 0; i < 36; i++) {
-      meOccupancy1D_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
-    }
-
-    if ( meOccupancyPN_ ) dqmStore_->removeElement( meOccupancyPN_->getName() );
-    name = "Summary PN digi occupancy EB";
-    meOccupancyPN_ = dqmStore_->book2D(name, name, 90, 0., 90., 20, -10., 10.);
-    meOccupancyPN_->setAxisTitle("jchannel", 1);
-    meOccupancyPN_->setAxisTitle("jpseudo-strip", 2);
-
-  }
-
-  if (std::find(clBegin, clEnd, "StatusFlags") != clEnd) {
-
+  if(statusFlagsClient){
     if ( meStatusFlags_ ) dqmStore_->removeElement( meStatusFlags_->getName() );
-    name = "Summary front-end status quality EB";
-    meStatusFlags_ = dqmStore_->book2D(name, name, 72, 0., 360., 34, -85., 85.);
+    name = "EBSFT front-end status summary";
+    meStatusFlags_ = dqmStore_->book2D(name, name, 72, 0., 72., 34, -17., 17.);
     meStatusFlags_->setAxisTitle("jphi'", 1);
     meStatusFlags_->setAxisTitle("jeta'", 2);
 
     if ( meStatusFlagsErr_ ) dqmStore_->removeElement( meStatusFlagsErr_->getName() );
-    name = "Summary front-end status errors EB";
+    name = "EBSFT front-end status errors summary";
     meStatusFlagsErr_ = dqmStore_->book1D(name, name, 36, 1, 37);
     for (int i = 0; i < 36; i++) {
       meStatusFlagsErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
-
   }
 
-  if (std::find(clBegin, clEnd, "PedestalOnline") != clEnd) {
-
+  if(pedestalOnlineClient){
     if ( mePedestalOnline_ ) dqmStore_->removeElement( mePedestalOnline_->getName() );
-    name = "Summary presample quality EB";
+    name = "EBPOT pedestal quality summary G12";
     mePedestalOnline_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
     mePedestalOnline_->setAxisTitle("jphi", 1);
     mePedestalOnline_->setAxisTitle("jeta", 2);
 
     if ( mePedestalOnlineErr_ ) dqmStore_->removeElement( mePedestalOnlineErr_->getName() );
-    name = "Summary presample quality errors EB";
+    name = "EBPOT pedestal quality errors summary G12";
     mePedestalOnlineErr_ = dqmStore_->book1D(name, name, 36, 1, 37);
     for (int i = 0; i < 36; i++) {
       mePedestalOnlineErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
 
     if ( mePedestalOnlineRMSMap_ ) dqmStore_->removeElement( mePedestalOnlineRMSMap_->getName() );
-    name = "Summary presample rms EB";
+    name = "EBPOT pedestal G12 RMS map";
     mePedestalOnlineRMSMap_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
     mePedestalOnlineRMSMap_->setAxisTitle("jphi", 1);
     mePedestalOnlineRMSMap_->setAxisTitle("jeta", 2);
 
     if ( mePedestalOnlineMean_ ) dqmStore_->removeElement( mePedestalOnlineMean_->getName() );
-    name = "Summary presample mean EB";
+    name = "EBPOT pedestal G12 mean";
     mePedestalOnlineMean_ = dqmStore_->bookProfile(name, name, 36, 1, 37, 100, 150., 250.);
     for (int i = 0; i < 36; i++) {
       mePedestalOnlineMean_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
 
     if ( mePedestalOnlineRMS_ ) dqmStore_->removeElement( mePedestalOnlineRMS_->getName() );
-    name = "Summary presample rms 1D EB";
+    name = "EBPOT pedestal G12 rms";
     mePedestalOnlineRMS_ = dqmStore_->bookProfile(name, name, 36, 1, 37, 100, 0., 10.);
     for (int i = 0; i < 36; i++) {
       mePedestalOnlineRMS_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
-
   }
 
-  if (std::find(clBegin, clEnd, "Laser") != clEnd) {
+  if(laserClient){
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
       if ( meLaserL1_ ) dqmStore_->removeElement( meLaserL1_->getName() );
-      name = "Summary laser quality L1 EB";
+      name = "EBLT laser quality summary L1";
       meLaserL1_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
       meLaserL1_->setAxisTitle("jphi", 1);
       meLaserL1_->setAxisTitle("jeta", 2);
 
       if ( meLaserL1Err_ ) dqmStore_->removeElement( meLaserL1Err_->getName() );
-      name = "Summary laser quality L1 errors EB";
+      name = "EBLT laser quality errors summary L1";
       meLaserL1Err_ = dqmStore_->book1D(name, name, 36, 1, 37);
       for (int i = 0; i < 36; i++) {
 	meLaserL1Err_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
       }
 
       if ( meLaserL1PN_ ) dqmStore_->removeElement( meLaserL1PN_->getName() );
-      name = "Summary laser PN quality L1 EB";
+      name = "EBLT PN laser quality summary L1";
       meLaserL1PN_ = dqmStore_->book2D(name, name, 90, 0., 90., 20, -10., 10.);
       meLaserL1PN_->setAxisTitle("jchannel", 1);
       meLaserL1PN_->setAxisTitle("jpseudo-strip", 2);
 
       if ( meLaserL1PNErr_ ) dqmStore_->removeElement( meLaserL1PNErr_->getName() );
-      name = "Summary laser PN quality L1 errors EB";
+      name = "EBLT PN laser quality errors summary L1";
       meLaserL1PNErr_ = dqmStore_->book1D(name, name, 36, 1, 37);
       for (int i = 0; i < 36; i++) {
 	meLaserL1PNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
       }
 
       if ( meLaserL1Ampl_ ) dqmStore_->removeElement( meLaserL1Ampl_->getName() );
-      name = "Summary laser amplitude L1 EB";
+      name = "EBLT laser L1 amplitude summary";
       meLaserL1Ampl_ = dqmStore_->bookProfile(name, name, 36, 1, 37, 4096, 0., 4096., "s");
       for (int i = 0; i < 36; i++) {
 	meLaserL1Ampl_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
       }
 
       if ( meLaserL1Timing_ ) dqmStore_->removeElement( meLaserL1Timing_->getName() );
-      name = "Summary laser timing L1 EB";
+      name = "EBLT laser L1 timing summary";
       meLaserL1Timing_ = dqmStore_->bookProfile(name, name, 36, 1, 37, 100, 0., 10., "s");
       for (int i = 0; i < 36; i++) {
 	meLaserL1Timing_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
       }
 
       if ( meLaserL1AmplOverPN_ ) dqmStore_->removeElement( meLaserL1AmplOverPN_->getName() );
-      name = "Summary laser APD over PN L1 EB";
+      name = "EBLT laser L1 amplitude over PN summary";
       meLaserL1AmplOverPN_ = dqmStore_->bookProfile(name, name, 36, 1, 37, 4096, 0., 4096.*12., "s");
       for (int i = 0; i < 36; i++) {
 	meLaserL1AmplOverPN_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
@@ -383,47 +399,47 @@ void EBSummaryClient::setup(void) {
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
       if ( meLaserL2_ ) dqmStore_->removeElement( meLaserL2_->getName() );
-      name = "Summary laser quality L2 EB";
+      name = "EBLT laser quality summary L2";
       meLaserL2_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
       meLaserL2_->setAxisTitle("jphi", 1);
       meLaserL2_->setAxisTitle("jeta", 2);
 
       if ( meLaserL2Err_ ) dqmStore_->removeElement( meLaserL2Err_->getName() );
-      name = "Summary laser quality L2 errors EB";
+      name = "EBLT laser quality errors summary L2";
       meLaserL2Err_ = dqmStore_->book1D(name, name, 36, 1, 37);
       for (int i = 0; i < 36; i++) {
 	meLaserL2Err_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
       }
 
       if ( meLaserL2PN_ ) dqmStore_->removeElement( meLaserL2PN_->getName() );
-      name = "Summary laser PN quality L2 EB";
+      name = "EBLT PN laser quality summary L2";
       meLaserL2PN_ = dqmStore_->book2D(name, name, 90, 0., 90., 20, -10., 10.);
       meLaserL2PN_->setAxisTitle("jchannel", 1);
       meLaserL2PN_->setAxisTitle("jpseudo-strip", 2);
 
       if ( meLaserL2PNErr_ ) dqmStore_->removeElement( meLaserL2PNErr_->getName() );
-      name = "Summary laser PN quality L2 errors EB";
+      name = "EBLT PN laser quality errors summary L2";
       meLaserL2PNErr_ = dqmStore_->book1D(name, name, 36, 1, 37);
       for (int i = 0; i < 36; i++) {
 	meLaserL2PNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
       }
 
       if ( meLaserL2Ampl_ ) dqmStore_->removeElement( meLaserL2Ampl_->getName() );
-      name = "Summary laser amplitude L2 EB";
+      name = "EBLT laser L2 amplitude summary";
       meLaserL2Ampl_ = dqmStore_->bookProfile(name, name, 36, 1, 37, 4096, 0., 4096., "s");
       for (int i = 0; i < 36; i++) {
 	meLaserL2Ampl_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
       }
 
       if ( meLaserL2Timing_ ) dqmStore_->removeElement( meLaserL2Timing_->getName() );
-      name = "Summary laser timing L2 EB";
+      name = "EBLT laser L2 timing summary";
       meLaserL2Timing_ = dqmStore_->bookProfile(name, name, 36, 1, 37, 100, 0., 10., "s");
       for (int i = 0; i < 36; i++) {
 	meLaserL2Timing_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
       }
 
       if ( meLaserL2AmplOverPN_ ) dqmStore_->removeElement( meLaserL2AmplOverPN_->getName() );
-      name = "Summary laser APD over PN L2 EB";
+      name = "EBLT laser L2 amplitude over PN summary";
       meLaserL2AmplOverPN_ = dqmStore_->bookProfile(name, name, 36, 1, 37, 4096, 0., 4096.*12., "s");
       for (int i = 0; i < 36; i++) {
 	meLaserL2AmplOverPN_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
@@ -434,47 +450,47 @@ void EBSummaryClient::setup(void) {
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
       if ( meLaserL3_ ) dqmStore_->removeElement( meLaserL3_->getName() );
-      name = "Summary laser quality L3 EB";
+      name = "EBLT laser quality summary L3";
       meLaserL3_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
       meLaserL3_->setAxisTitle("jphi", 1);
       meLaserL3_->setAxisTitle("jeta", 2);
 
       if ( meLaserL3Err_ ) dqmStore_->removeElement( meLaserL3Err_->getName() );
-      name = "Summary laser quality L3 errors EB";
+      name = "EBLT laser quality errors summary L3";
       meLaserL3Err_ = dqmStore_->book1D(name, name, 36, 1, 37);
       for (int i = 0; i < 36; i++) {
 	meLaserL3Err_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
       }
 
       if ( meLaserL3PN_ ) dqmStore_->removeElement( meLaserL3PN_->getName() );
-      name = "Summary laser PN quality L3 EB";
+      name = "EBLT PN laser quality summary L3";
       meLaserL3PN_ = dqmStore_->book2D(name, name, 90, 0., 90., 20, -10., 10.);
       meLaserL3PN_->setAxisTitle("jchannel", 1);
       meLaserL3PN_->setAxisTitle("jpseudo-strip", 2);
 
       if ( meLaserL3PNErr_ ) dqmStore_->removeElement( meLaserL3PNErr_->getName() );
-      name = "Summary laser PN quality L3 errors EB";
+      name = "EBLT PN laser quality errors summary L3";
       meLaserL3PNErr_ = dqmStore_->book1D(name, name, 36, 1, 37);
       for (int i = 0; i < 36; i++) {
 	meLaserL3PNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
       }
 
       if ( meLaserL3Ampl_ ) dqmStore_->removeElement( meLaserL3Ampl_->getName() );
-      name = "Summary laser amplitude L3 EB";
+      name = "EBLT laser L3 amplitude summary";
       meLaserL3Ampl_ = dqmStore_->bookProfile(name, name, 36, 1, 37, 4096, 0., 4096., "s");
       for (int i = 0; i < 36; i++) {
 	meLaserL3Ampl_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
       }
 
       if ( meLaserL3Timing_ ) dqmStore_->removeElement( meLaserL3Timing_->getName() );
-      name = "Summary laser timing L3 EB";
+      name = "EBLT laser L3 timing summary";
       meLaserL3Timing_ = dqmStore_->bookProfile(name, name, 36, 1, 37, 100, 0., 10., "s");
       for (int i = 0; i < 36; i++) {
 	meLaserL3Timing_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
       }
 
       if ( meLaserL3AmplOverPN_ ) dqmStore_->removeElement( meLaserL3AmplOverPN_->getName() );
-      name = "Summary laser APD over PN L3 EB";
+      name = "EBLT laser L3 amplitude over PN summary";
       meLaserL3AmplOverPN_ = dqmStore_->bookProfile(name, name, 36, 1, 37, 4096, 0., 4096.*12., "s");
       for (int i = 0; i < 36; i++) {
 	meLaserL3AmplOverPN_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
@@ -485,62 +501,60 @@ void EBSummaryClient::setup(void) {
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
       if ( meLaserL4_ ) dqmStore_->removeElement( meLaserL4_->getName() );
-      name = "Summary laser quality L4 EB";
+      name = "EBLT laser quality summary L4";
       meLaserL4_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
       meLaserL4_->setAxisTitle("jphi", 1);
       meLaserL4_->setAxisTitle("jeta", 2);
 
       if ( meLaserL4Err_ ) dqmStore_->removeElement( meLaserL4Err_->getName() );
-      name = "Summary laser quality L4 errors EB";
+      name = "EBLT laser quality errors summary L4";
       meLaserL4Err_ = dqmStore_->book1D(name, name, 36, 1, 37);
       for (int i = 0; i < 36; i++) {
 	meLaserL4Err_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
       }
 
       if ( meLaserL4PN_ ) dqmStore_->removeElement( meLaserL4PN_->getName() );
-      name = "Summary laser PN quality L4 EB";
+      name = "EBLT PN laser quality summary L4";
       meLaserL4PN_ = dqmStore_->book2D(name, name, 90, 0., 90., 20, -10., 10.);
       meLaserL4PN_->setAxisTitle("jchannel", 1);
       meLaserL4PN_->setAxisTitle("jpseudo-strip", 2);
 
       if ( meLaserL4PNErr_ ) dqmStore_->removeElement( meLaserL4PNErr_->getName() );
-      name = "Summary laser PN quality L4 errors EB";
+      name = "EBLT PN laser quality errors summary L4";
       meLaserL4PNErr_ = dqmStore_->book1D(name, name, 36, 1, 37);
       for (int i = 0; i < 36; i++) {
 	meLaserL4PNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
       }
 
       if ( meLaserL4Ampl_ ) dqmStore_->removeElement( meLaserL4Ampl_->getName() );
-      name = "Summary laser amplitude L4 EB";
+      name = "EBLT laser L4 amplitude summary";
       meLaserL4Ampl_ = dqmStore_->bookProfile(name, name, 36, 1, 37, 4096, 0., 4096., "s");
       for (int i = 0; i < 36; i++) {
 	meLaserL4Ampl_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
       }
 
       if ( meLaserL4Timing_ ) dqmStore_->removeElement( meLaserL4Timing_->getName() );
-      name = "Summary laser timing L4 EB";
+      name = "EBLT laser L4 timing summary";
       meLaserL4Timing_ = dqmStore_->bookProfile(name, name, 36, 1, 37, 100, 0., 10., "s");
       for (int i = 0; i < 36; i++) {
 	meLaserL4Timing_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
       }
 
       if ( meLaserL4AmplOverPN_ ) dqmStore_->removeElement( meLaserL4AmplOverPN_->getName() );
-      name = "Summary laser APD over PN L4 EB";
+      name = "EBLT laser L4 amplitude over PN summary";
       meLaserL4AmplOverPN_ = dqmStore_->bookProfile(name, name, 36, 1, 37, 4096, 0., 4096.*12., "s");
       for (int i = 0; i < 36; i++) {
 	meLaserL4AmplOverPN_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
       }
 
     }
-
   }
 
-  if (std::find(clBegin, clEnd, "Pedestal") != clEnd) {
-
+  if(pedestalClient){
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
 
       if( mePedestalG01_ ) dqmStore_->removeElement( mePedestalG01_->getName() );
-      name = "Summary pedestal quality G01 EB";
+      name = "EBPT pedestal quality G01 summary";
       mePedestalG01_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
       mePedestalG01_->setAxisTitle("jphi", 1);
       mePedestalG01_->setAxisTitle("jeta", 2);
@@ -550,7 +564,7 @@ void EBSummaryClient::setup(void) {
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
 
       if( mePedestalG06_ ) dqmStore_->removeElement( mePedestalG06_->getName() );
-      name = "Summary pedestal quality G06 EB";
+      name = "EBPT pedestal quality G06 summary";
       mePedestalG06_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
       mePedestalG06_->setAxisTitle("jphi", 1);
       mePedestalG06_->setAxisTitle("jeta", 2);
@@ -560,7 +574,7 @@ void EBSummaryClient::setup(void) {
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
 
       if( mePedestalG12_ ) dqmStore_->removeElement( mePedestalG12_->getName() );
-      name = "Summary pedestal quality G12 EB";
+      name = "EBPT pedestal quality G12 summary";
       mePedestalG12_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
       mePedestalG12_->setAxisTitle("jphi", 1);
       mePedestalG12_->setAxisTitle("jeta", 2);
@@ -570,7 +584,7 @@ void EBSummaryClient::setup(void) {
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
 
       if( mePedestalPNG01_ ) dqmStore_->removeElement( mePedestalPNG01_->getName() );
-      name = "Summary PN pedestal quality G01 EB";
+      name = "EBPT PN pedestal quality G01 summary";
       mePedestalPNG01_ = dqmStore_->book2D(name, name, 90, 0., 90., 20, -10, 10.);
       mePedestalPNG01_->setAxisTitle("jchannel", 1);
       mePedestalPNG01_->setAxisTitle("jpseudo-strip", 2);
@@ -580,21 +594,19 @@ void EBSummaryClient::setup(void) {
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
 
       if( mePedestalPNG16_ ) dqmStore_->removeElement( mePedestalPNG16_->getName() );
-      name = "Summary PN pedestal quality G16 EB";
+      name = "EBPT PN pedestal quality G16 summary";
       mePedestalPNG16_ = dqmStore_->book2D(name, name, 90, 0., 90., 20, -10, 10.);
       mePedestalPNG16_->setAxisTitle("jchannel", 1);
       mePedestalPNG16_->setAxisTitle("jpseudo-strip", 2);
 
     }
-
   }
 
-  if (std::find(clBegin, clEnd, "TestPulse") != clEnd) {
-
+  if(testPulseClient){
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
 
       if( meTestPulseG01_ ) dqmStore_->removeElement( meTestPulseG01_->getName() );
-      name = "Summary test pulse quality G01 EB";
+      name = "EBTPT test pulse quality G01 summary";
       meTestPulseG01_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
       meTestPulseG01_->setAxisTitle("jphi", 1);
       meTestPulseG01_->setAxisTitle("jeta", 2);
@@ -604,7 +616,7 @@ void EBSummaryClient::setup(void) {
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
 
       if( meTestPulseG06_ ) dqmStore_->removeElement( meTestPulseG06_->getName() );
-      name = "Summary test pulse quality G06 EB";
+      name = "EBTPT test pulse quality G06 summary";
       meTestPulseG06_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
       meTestPulseG06_->setAxisTitle("jphi", 1);
       meTestPulseG06_->setAxisTitle("jeta", 2);
@@ -614,7 +626,7 @@ void EBSummaryClient::setup(void) {
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
 
       if( meTestPulseG12_ ) dqmStore_->removeElement( meTestPulseG12_->getName() );
-      name = "Summary test pulse quality G12 EB";
+      name = "EBTPT test pulse quality G12 summary";
       meTestPulseG12_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
       meTestPulseG12_->setAxisTitle("jphi", 1);
       meTestPulseG12_->setAxisTitle("jeta", 2);
@@ -624,7 +636,7 @@ void EBSummaryClient::setup(void) {
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
 
       if( meTestPulsePNG01_ ) dqmStore_->removeElement( meTestPulsePNG01_->getName() );
-      name = "Summary PN test pulse quality G01 EB";
+      name = "EBTPT PN test pulse quality G01 summary";
       meTestPulsePNG01_ = dqmStore_->book2D(name, name, 90, 0., 90., 20, -10., 10.);
       meTestPulsePNG01_->setAxisTitle("jchannel", 1);
       meTestPulsePNG01_->setAxisTitle("jpseudo-strip", 2);
@@ -634,7 +646,7 @@ void EBSummaryClient::setup(void) {
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
 
       if( meTestPulsePNG16_ ) dqmStore_->removeElement( meTestPulsePNG16_->getName() );
-      name = "Summary PN test pulse quality G16 EB";
+      name = "EBTPT PN test pulse quality G16 summary";
       meTestPulsePNG16_ = dqmStore_->book2D(name, name, 90, 0., 90., 20, -10., 10.);
       meTestPulsePNG16_->setAxisTitle("jchannel", 1);
       meTestPulsePNG16_->setAxisTitle("jpseudo-strip", 2);
@@ -644,7 +656,7 @@ void EBSummaryClient::setup(void) {
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
 
       if( meTestPulseAmplG01_ ) dqmStore_->removeElement( meTestPulseAmplG01_->getName() );
-      name = "Summary test pulse amplitude G01 EB";
+      name = "EBTPT test pulse amplitude G01 summary";
       meTestPulseAmplG01_ = dqmStore_->bookProfile(name, name, 36, 1, 37, 4096, 0., 4096.*12., "s");
       for (int i = 0; i < 36; i++) {
 	meTestPulseAmplG01_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
@@ -655,7 +667,7 @@ void EBSummaryClient::setup(void) {
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
 
       if( meTestPulseAmplG06_ ) dqmStore_->removeElement( meTestPulseAmplG06_->getName() );
-      name = "Summary test pulse amplitude G06 EB";
+      name = "EBTPT test pulse amplitude G06 summary";
       meTestPulseAmplG06_ = dqmStore_->bookProfile(name, name, 36, 1, 37, 4096, 0., 4096.*12., "s");
       for (int i = 0; i < 36; i++) {
 	meTestPulseAmplG06_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
@@ -666,46 +678,34 @@ void EBSummaryClient::setup(void) {
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
 
       if( meTestPulseAmplG12_ ) dqmStore_->removeElement( meTestPulseAmplG12_->getName() );
-      name = "Summary test pulse amplitude G12 EB";
+      name = "EBTPT test pulse amplitude G12 summary";
       meTestPulseAmplG12_ = dqmStore_->bookProfile(name, name, 36, 1, 37, 4096, 0., 4096.*12., "s");
       for (int i = 0; i < 36; i++) {
 	meTestPulseAmplG12_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
       }
 
     }
-
   }
 
-  if (std::find(clBegin, clEnd, "Cosmic") != clEnd) {
-
-    if( meRecHitEnergy_ ) dqmStore_->removeElement( meRecHitEnergy_->getName() );
-    name = "Summary rec hit energy EB";
-    meRecHitEnergy_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
-    meRecHitEnergy_->setAxisTitle("jphi", 1);
-    meRecHitEnergy_->setAxisTitle("jeta", 2);
-
-  }
-
-  if (std::find(clBegin, clEnd, "Timing") != clEnd) {
-
+  if(timingClient){
     if( meTiming_ ) dqmStore_->removeElement( meTiming_->getName() );
-    name = "Summary timing quality EB";
+    name = "EBTMT timing quality summary";
     meTiming_ = dqmStore_->book2D(name, name, 72, 0., 360., 34, -85., 85.);
     meTiming_->setAxisTitle("jphi", 1);
     meTiming_->setAxisTitle("jeta", 2);
 
     if( meTimingMean1D_ ) dqmStore_->removeElement( meTimingMean1D_->getName() );
-    name = "Summary timing mean 1D EB";
+    name = "EBTMT timing mean 1D summary";
     meTimingMean1D_ = dqmStore_->book1D(name, name, 100, -25., 25.);
     meTimingMean1D_->setAxisTitle("mean (ns)", 1);
 
     if( meTimingRMS1D_ ) dqmStore_->removeElement( meTimingRMS1D_->getName() );
-    name = "Summary timing rms 1D EB";
+    name = "EBTMT timing rms 1D summary";
     meTimingRMS1D_ = dqmStore_->book1D(name, name, 100, 0.0, 10.0);
     meTimingRMS1D_->setAxisTitle("rms (ns)", 1);
 
     if ( meTimingMean_ ) dqmStore_->removeElement( meTimingMean_->getName() );
-    name = "Summary timing mean EB";
+    name = "EBTMT timing mean";
     meTimingMean_ = dqmStore_->bookProfile(name, name, 36, 1, 37, -20., 20.,"");
     for (int i = 0; i < 36; i++) {
       meTimingMean_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
@@ -713,55 +713,49 @@ void EBSummaryClient::setup(void) {
     meTimingMean_->setAxisTitle("mean (ns)", 2);
 
     if ( meTimingRMS_ ) dqmStore_->removeElement( meTimingRMS_->getName() );
-    name = "Summary timing rms EB";
+    name = "EBTMT timing rms";
     meTimingRMS_ = dqmStore_->bookProfile(name, name, 36, 1, 37, 100, 0., 10.,"");
     for (int i = 0; i < 36; i++) {
       meTimingRMS_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
     meTimingRMS_->setAxisTitle("rms (ns)", 2);
-
   }
 
-  if (std::find(clBegin, clEnd, "TriggerTower") != clEnd) {
-
+  if(triggerTowerClient){
     if( meTriggerTowerEt_ ) dqmStore_->removeElement( meTriggerTowerEt_->getName() );
-    name = "Summary TP Et EB";
-    meTriggerTowerEt_ = dqmStore_->book2D(name, name, 72, 0., 360., 34, -85., 85.);
+    name = "EBTTT Et trigger tower summary";
+    meTriggerTowerEt_ = dqmStore_->book2D(name, name, 72, 0., 72., 34, -17., 17.);
     meTriggerTowerEt_->setAxisTitle("jphi'", 1);
     meTriggerTowerEt_->setAxisTitle("jeta'", 2);
 
     if( meTriggerTowerEmulError_ ) dqmStore_->removeElement( meTriggerTowerEmulError_->getName() );
-    name = "Summary TP emul error quality EB";
-    meTriggerTowerEmulError_ = dqmStore_->book2D(name, name, 72, 0., 360., 34, -85., 85.);
+    name = "EBTTT emulator error quality summary";
+    meTriggerTowerEmulError_ = dqmStore_->book2D(name, name, 72, 0., 72., 34, -17., 17.);
     meTriggerTowerEmulError_->setAxisTitle("jphi'", 1);
     meTriggerTowerEmulError_->setAxisTitle("jeta'", 2);
 
     if( meTriggerTowerTiming_ ) dqmStore_->removeElement( meTriggerTowerTiming_->getName() );
-    name = "Summary TP timing EB";
-    meTriggerTowerTiming_ = dqmStore_->book2D(name, name, 72, 0., 360., 34, -85., 85.);
+    name = "EBTTT Trigger Primitives Timing summary";
+    meTriggerTowerTiming_ = dqmStore_->book2D(name, name, 72, 0., 72., 34, -17., 17.);
     meTriggerTowerTiming_->setAxisTitle("jphi'", 1);
     meTriggerTowerTiming_->setAxisTitle("jeta'", 2);
     meTriggerTowerTiming_->setAxisTitle("TP data matching emulator", 3);
 
     if( meTriggerTowerNonSingleTiming_ ) dqmStore_->removeElement( meTriggerTowerNonSingleTiming_->getName() );
-    name = "Summary TP non single timing errors EB";
-    meTriggerTowerNonSingleTiming_ = dqmStore_->book2D(name, name, 72, 0., 360., 34, -85., 85.);
+    name = "EBTTT Trigger Primitives Non Single Timing summary";
+    meTriggerTowerNonSingleTiming_ = dqmStore_->book2D(name, name, 72, 0., 72., 34, -17., 17.);
     meTriggerTowerNonSingleTiming_->setAxisTitle("jphi'", 1);
     meTriggerTowerNonSingleTiming_->setAxisTitle("jeta'", 2);
     meTriggerTowerNonSingleTiming_->setAxisTitle("fraction", 3);
-
   }
 
-  if(meIntegrity_ && mePedestalOnline_ && meTiming_ && meStatusFlags_) {
-
+  if(meIntegrity_ && mePedestalOnline_ && meTiming_ && meStatusFlags_ && meTriggerTowerEmulError_){
     if( meGlobalSummary_ ) dqmStore_->removeElement( meGlobalSummary_->getName() );
-    name = "Summary global quality EB";
+    name = "EB global summary";
     meGlobalSummary_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
     meGlobalSummary_->setAxisTitle("jphi", 1);
     meGlobalSummary_->setAxisTitle("jeta", 2);
-
   }
-
 }
 
 void EBSummaryClient::cleanup(void) {
@@ -782,190 +776,192 @@ void EBSummaryClient::cleanup(void) {
 
   }
 
-  if ( meIntegrity_ ) dqmStore_->removeElement( meIntegrity_->getFullname() );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBSummaryClient" );
+
+  if ( meIntegrity_ ) dqmStore_->removeElement( meIntegrity_->getName() );
   meIntegrity_ = 0;
 
-  if ( meIntegrityErr_ ) dqmStore_->removeElement( meIntegrityErr_->getFullname() );
+  if ( meIntegrityErr_ ) dqmStore_->removeElement( meIntegrityErr_->getName() );
   meIntegrityErr_ = 0;
 
-  if ( meIntegrityPN_ ) dqmStore_->removeElement( meIntegrityPN_->getFullname() );
+  if ( meIntegrityPN_ ) dqmStore_->removeElement( meIntegrityPN_->getName() );
   meIntegrityPN_ = 0;
 
-  if ( meOccupancy_ ) dqmStore_->removeElement( meOccupancy_->getFullname() );
+  if ( meOccupancy_ ) dqmStore_->removeElement( meOccupancy_->getName() );
   meOccupancy_ = 0;
 
-  if ( meOccupancy1D_ ) dqmStore_->removeElement( meOccupancy1D_->getFullname() );
+  if ( meOccupancy1D_ ) dqmStore_->removeElement( meOccupancy1D_->getName() );
   meOccupancy1D_ = 0;
 
-  if ( meOccupancyPN_ ) dqmStore_->removeElement( meOccupancyPN_->getFullname() );
+  if ( meOccupancyPN_ ) dqmStore_->removeElement( meOccupancyPN_->getName() );
   meOccupancyPN_ = 0;
 
-  if ( meStatusFlags_ ) dqmStore_->removeElement( meStatusFlags_->getFullname() );
+  if ( meStatusFlags_ ) dqmStore_->removeElement( meStatusFlags_->getName() );
   meStatusFlags_ = 0;
 
-  if ( meStatusFlagsErr_ ) dqmStore_->removeElement( meStatusFlagsErr_->getFullname() );
+  if ( meStatusFlagsErr_ ) dqmStore_->removeElement( meStatusFlagsErr_->getName() );
   meStatusFlagsErr_ = 0;
 
-  if ( mePedestalOnline_ ) dqmStore_->removeElement( mePedestalOnline_->getFullname() );
+  if ( mePedestalOnline_ ) dqmStore_->removeElement( mePedestalOnline_->getName() );
   mePedestalOnline_ = 0;
 
-  if ( mePedestalOnlineErr_ ) dqmStore_->removeElement( mePedestalOnlineErr_->getFullname() );
+  if ( mePedestalOnlineErr_ ) dqmStore_->removeElement( mePedestalOnlineErr_->getName() );
   mePedestalOnlineErr_ = 0;
 
-  if ( mePedestalOnlineMean_ ) dqmStore_->removeElement( mePedestalOnlineMean_->getFullname() );
+  if ( mePedestalOnlineMean_ ) dqmStore_->removeElement( mePedestalOnlineMean_->getName() );
   mePedestalOnlineMean_ = 0;
 
-  if ( mePedestalOnlineRMS_ ) dqmStore_->removeElement( mePedestalOnlineRMS_->getFullname() );
+  if ( mePedestalOnlineRMS_ ) dqmStore_->removeElement( mePedestalOnlineRMS_->getName() );
   mePedestalOnlineRMS_ = 0;
 
-  if ( mePedestalOnlineRMSMap_ ) dqmStore_->removeElement( mePedestalOnlineRMSMap_->getFullname() );
+  if ( mePedestalOnlineRMSMap_ ) dqmStore_->removeElement( mePedestalOnlineRMSMap_->getName() );
   mePedestalOnlineRMSMap_ = 0;
 
-  if ( meLaserL1_ ) dqmStore_->removeElement( meLaserL1_->getFullname() );
+  if ( meLaserL1_ ) dqmStore_->removeElement( meLaserL1_->getName() );
   meLaserL1_ = 0;
 
-  if ( meLaserL1Err_ ) dqmStore_->removeElement( meLaserL1Err_->getFullname() );
+  if ( meLaserL1Err_ ) dqmStore_->removeElement( meLaserL1Err_->getName() );
   meLaserL1Err_ = 0;
 
-  if ( meLaserL1Ampl_ ) dqmStore_->removeElement( meLaserL1Ampl_->getFullname() );
+  if ( meLaserL1Ampl_ ) dqmStore_->removeElement( meLaserL1Ampl_->getName() );
   meLaserL1Ampl_ = 0;
 
-  if ( meLaserL1Timing_ ) dqmStore_->removeElement( meLaserL1Timing_->getFullname() );
+  if ( meLaserL1Timing_ ) dqmStore_->removeElement( meLaserL1Timing_->getName() );
   meLaserL1Timing_ = 0;
 
-  if ( meLaserL1AmplOverPN_ ) dqmStore_->removeElement( meLaserL1AmplOverPN_->getFullname() );
+  if ( meLaserL1AmplOverPN_ ) dqmStore_->removeElement( meLaserL1AmplOverPN_->getName() );
   meLaserL1AmplOverPN_ = 0;
 
-  if ( meLaserL1PN_ ) dqmStore_->removeElement( meLaserL1PN_->getFullname() );
+  if ( meLaserL1PN_ ) dqmStore_->removeElement( meLaserL1PN_->getName() );
   meLaserL1PN_ = 0;
 
-  if ( meLaserL1PNErr_ ) dqmStore_->removeElement( meLaserL1PNErr_->getFullname() );
+  if ( meLaserL1PNErr_ ) dqmStore_->removeElement( meLaserL1PNErr_->getName() );
   meLaserL1PNErr_ = 0;
 
-  if ( meLaserL2_ ) dqmStore_->removeElement( meLaserL2_->getFullname() );
+  if ( meLaserL2_ ) dqmStore_->removeElement( meLaserL2_->getName() );
   meLaserL2_ = 0;
 
-  if ( meLaserL2Err_ ) dqmStore_->removeElement( meLaserL2Err_->getFullname() );
+  if ( meLaserL2Err_ ) dqmStore_->removeElement( meLaserL2Err_->getName() );
   meLaserL2Err_ = 0;
 
-  if ( meLaserL2Ampl_ ) dqmStore_->removeElement( meLaserL2Ampl_->getFullname() );
+  if ( meLaserL2Ampl_ ) dqmStore_->removeElement( meLaserL2Ampl_->getName() );
   meLaserL2Ampl_ = 0;
 
-  if ( meLaserL2Timing_ ) dqmStore_->removeElement( meLaserL2Timing_->getFullname() );
+  if ( meLaserL2Timing_ ) dqmStore_->removeElement( meLaserL2Timing_->getName() );
   meLaserL2Timing_ = 0;
 
-  if ( meLaserL2AmplOverPN_ ) dqmStore_->removeElement( meLaserL2AmplOverPN_->getFullname() );
+  if ( meLaserL2AmplOverPN_ ) dqmStore_->removeElement( meLaserL2AmplOverPN_->getName() );
   meLaserL2AmplOverPN_ = 0;
 
-  if ( meLaserL2PN_ ) dqmStore_->removeElement( meLaserL2PN_->getFullname() );
+  if ( meLaserL2PN_ ) dqmStore_->removeElement( meLaserL2PN_->getName() );
   meLaserL2PN_ = 0;
 
-  if ( meLaserL2PNErr_ ) dqmStore_->removeElement( meLaserL2PNErr_->getFullname() );
+  if ( meLaserL2PNErr_ ) dqmStore_->removeElement( meLaserL2PNErr_->getName() );
   meLaserL2PNErr_ = 0;
 
-  if ( meLaserL3_ ) dqmStore_->removeElement( meLaserL3_->getFullname() );
+  if ( meLaserL3_ ) dqmStore_->removeElement( meLaserL3_->getName() );
   meLaserL3_ = 0;
 
-  if ( meLaserL3Err_ ) dqmStore_->removeElement( meLaserL3Err_->getFullname() );
+  if ( meLaserL3Err_ ) dqmStore_->removeElement( meLaserL3Err_->getName() );
   meLaserL3Err_ = 0;
 
-  if ( meLaserL3Ampl_ ) dqmStore_->removeElement( meLaserL3Ampl_->getFullname() );
+  if ( meLaserL3Ampl_ ) dqmStore_->removeElement( meLaserL3Ampl_->getName() );
   meLaserL3Ampl_ = 0;
 
-  if ( meLaserL3Timing_ ) dqmStore_->removeElement( meLaserL3Timing_->getFullname() );
+  if ( meLaserL3Timing_ ) dqmStore_->removeElement( meLaserL3Timing_->getName() );
   meLaserL3Timing_ = 0;
 
-  if ( meLaserL3AmplOverPN_ ) dqmStore_->removeElement( meLaserL3AmplOverPN_->getFullname() );
+  if ( meLaserL3AmplOverPN_ ) dqmStore_->removeElement( meLaserL3AmplOverPN_->getName() );
   meLaserL3AmplOverPN_ = 0;
 
-  if ( meLaserL3PN_ ) dqmStore_->removeElement( meLaserL3PN_->getFullname() );
+  if ( meLaserL3PN_ ) dqmStore_->removeElement( meLaserL3PN_->getName() );
   meLaserL3PN_ = 0;
 
-  if ( meLaserL3PNErr_ ) dqmStore_->removeElement( meLaserL3PNErr_->getFullname() );
+  if ( meLaserL3PNErr_ ) dqmStore_->removeElement( meLaserL3PNErr_->getName() );
   meLaserL3PNErr_ = 0;
 
-  if ( meLaserL4_ ) dqmStore_->removeElement( meLaserL4_->getFullname() );
+  if ( meLaserL4_ ) dqmStore_->removeElement( meLaserL4_->getName() );
   meLaserL4_ = 0;
 
-  if ( meLaserL4Err_ ) dqmStore_->removeElement( meLaserL4Err_->getFullname() );
+  if ( meLaserL4Err_ ) dqmStore_->removeElement( meLaserL4Err_->getName() );
   meLaserL4Err_ = 0;
 
-  if ( meLaserL4Ampl_ ) dqmStore_->removeElement( meLaserL4Ampl_->getFullname() );
+  if ( meLaserL4Ampl_ ) dqmStore_->removeElement( meLaserL4Ampl_->getName() );
   meLaserL4Ampl_ = 0;
 
-  if ( meLaserL4Timing_ ) dqmStore_->removeElement( meLaserL4Timing_->getFullname() );
+  if ( meLaserL4Timing_ ) dqmStore_->removeElement( meLaserL4Timing_->getName() );
   meLaserL4Timing_ = 0;
 
-  if ( meLaserL4AmplOverPN_ ) dqmStore_->removeElement( meLaserL4AmplOverPN_->getFullname() );
+  if ( meLaserL4AmplOverPN_ ) dqmStore_->removeElement( meLaserL4AmplOverPN_->getName() );
   meLaserL4AmplOverPN_ = 0;
 
-  if ( meLaserL4PN_ ) dqmStore_->removeElement( meLaserL4PN_->getFullname() );
+  if ( meLaserL4PN_ ) dqmStore_->removeElement( meLaserL4PN_->getName() );
   meLaserL4PN_ = 0;
 
-  if ( meLaserL4PNErr_ ) dqmStore_->removeElement( meLaserL4PNErr_->getFullname() );
+  if ( meLaserL4PNErr_ ) dqmStore_->removeElement( meLaserL4PNErr_->getName() );
   meLaserL4PNErr_ = 0;
 
-  if ( mePedestalG01_ ) dqmStore_->removeElement( mePedestalG01_->getFullname() );
+  if ( mePedestalG01_ ) dqmStore_->removeElement( mePedestalG01_->getName() );
   mePedestalG01_ = 0;
 
-  if ( mePedestalG06_ ) dqmStore_->removeElement( mePedestalG06_->getFullname() );
+  if ( mePedestalG06_ ) dqmStore_->removeElement( mePedestalG06_->getName() );
   mePedestalG06_ = 0;
 
-  if ( mePedestalG12_ ) dqmStore_->removeElement( mePedestalG12_->getFullname() );
+  if ( mePedestalG12_ ) dqmStore_->removeElement( mePedestalG12_->getName() );
   mePedestalG12_ = 0;
 
-  if ( meTestPulseG01_ ) dqmStore_->removeElement( meTestPulseG01_->getFullname() );
+  if ( meTestPulseG01_ ) dqmStore_->removeElement( meTestPulseG01_->getName() );
   meTestPulseG01_ = 0;
 
-  if ( meTestPulseG06_ ) dqmStore_->removeElement( meTestPulseG06_->getFullname() );
+  if ( meTestPulseG06_ ) dqmStore_->removeElement( meTestPulseG06_->getName() );
   meTestPulseG06_ = 0;
 
-  if ( meTestPulseG12_ ) dqmStore_->removeElement( meTestPulseG12_->getFullname() );
+  if ( meTestPulseG12_ ) dqmStore_->removeElement( meTestPulseG12_->getName() );
   meTestPulseG12_ = 0;
 
-  if ( meTestPulseG01_ ) dqmStore_->removeElement( meTestPulseG01_->getFullname() );
+  if ( meTestPulseG01_ ) dqmStore_->removeElement( meTestPulseG01_->getName() );
   meTestPulseG01_ = 0;
 
-  if ( meTestPulseAmplG01_ ) dqmStore_->removeElement( meTestPulseAmplG01_->getFullname() );
+  if ( meTestPulseAmplG01_ ) dqmStore_->removeElement( meTestPulseAmplG01_->getName() );
   meTestPulseAmplG01_ = 0;
 
-  if ( meTestPulseAmplG06_ ) dqmStore_->removeElement( meTestPulseAmplG06_->getFullname() );
+  if ( meTestPulseAmplG06_ ) dqmStore_->removeElement( meTestPulseAmplG06_->getName() );
   meTestPulseAmplG06_ = 0;
 
-  if ( meTestPulseAmplG12_ ) dqmStore_->removeElement( meTestPulseAmplG12_->getFullname() );
+  if ( meTestPulseAmplG12_ ) dqmStore_->removeElement( meTestPulseAmplG12_->getName() );
   meTestPulseAmplG12_ = 0;
 
-  if ( meRecHitEnergy_ ) dqmStore_->removeElement( meRecHitEnergy_->getFullname() );
+  if ( meRecHitEnergy_ ) dqmStore_->removeElement( meRecHitEnergy_->getName() );
   meRecHitEnergy_ = 0;
 
-  if ( meTiming_ ) dqmStore_->removeElement( meTiming_->getFullname() );
+  if ( meTiming_ ) dqmStore_->removeElement( meTiming_->getName() );
   meTiming_ = 0;
 
-  if ( meTimingMean1D_ ) dqmStore_->removeElement( meTimingMean1D_->getFullname() );
+  if ( meTimingMean1D_ ) dqmStore_->removeElement( meTimingMean1D_->getName() );
   meTimingMean1D_ = 0;
 
-  if ( meTimingRMS1D_ ) dqmStore_->removeElement( meTimingRMS1D_->getFullname() );
+  if ( meTimingRMS1D_ ) dqmStore_->removeElement( meTimingRMS1D_->getName() );
   meTimingRMS1D_ = 0;
 
-  if ( meTimingMean_ ) dqmStore_->removeElement( meTimingMean_->getFullname() );
+  if ( meTimingMean_ ) dqmStore_->removeElement( meTimingMean_->getName() );
   meTimingMean_ = 0;
 
-  if ( meTimingRMS_ ) dqmStore_->removeElement( meTimingRMS_->getFullname() );
+  if ( meTimingRMS_ ) dqmStore_->removeElement( meTimingRMS_->getName() );
   meTimingRMS_ = 0;
 
-  if ( meTriggerTowerEt_ ) dqmStore_->removeElement( meTriggerTowerEt_->getFullname() );
+  if ( meTriggerTowerEt_ ) dqmStore_->removeElement( meTriggerTowerEt_->getName() );
   meTriggerTowerEt_ = 0;
 
-  if ( meTriggerTowerEmulError_ ) dqmStore_->removeElement( meTriggerTowerEmulError_->getFullname() );
+  if ( meTriggerTowerEmulError_ ) dqmStore_->removeElement( meTriggerTowerEmulError_->getName() );
   meTriggerTowerEmulError_ = 0;
 
-  if ( meTriggerTowerTiming_ ) dqmStore_->removeElement( meTriggerTowerTiming_->getFullname() );
+  if ( meTriggerTowerTiming_ ) dqmStore_->removeElement( meTriggerTowerTiming_->getName() );
   meTriggerTowerTiming_ = 0;
 
-  if ( meTriggerTowerNonSingleTiming_ ) dqmStore_->removeElement( meTriggerTowerNonSingleTiming_->getFullname() );
+  if ( meTriggerTowerNonSingleTiming_ ) dqmStore_->removeElement( meTriggerTowerNonSingleTiming_->getName() );
   meTriggerTowerNonSingleTiming_ = 0;
 
-  if ( meGlobalSummary_ ) dqmStore_->removeElement( meGlobalSummary_->getFullname() );
+  if ( meGlobalSummary_ ) dqmStore_->removeElement( meGlobalSummary_->getName() );
   meGlobalSummary_ = 0;
 
 }
@@ -1011,7 +1007,7 @@ void EBSummaryClient::analyze(void) {
 
       if ( meRecHitEnergy_ ) meRecHitEnergy_->setBinContent( ipx, iex, 0. );
 
-      if ( meGlobalSummary_ ) meGlobalSummary_->setBinContent( ipx, iex, 6. );
+      if(meIntegrity_ && mePedestalOnline_ && meTiming_ && meStatusFlags_ && meTriggerTowerEmulError_ && meGlobalSummary_ ) meGlobalSummary_->setBinContent( ipx, iex, 6. );
 
     }
   }
@@ -1114,12 +1110,7 @@ void EBSummaryClient::analyze(void) {
   if ( meTriggerTowerTiming_ ) meTriggerTowerTiming_->setEntries( 0 );
   if ( meTriggerTowerNonSingleTiming_ ) meTriggerTowerNonSingleTiming_->setEntries( 0 );
 
-  if (meGlobalSummary_) meGlobalSummary_->setEntries( 0 );
-
-  MonitorElement *me(0);
-  me = dqmStore_->get(prefixME_ + "/Timing/TimingTask timing EB");
-  TProfile2D *htmt(0);
-  htmt = UtilsClient::getHisto(me, false, htmt);
+  if(meIntegrity_ && mePedestalOnline_ && meTiming_ && meStatusFlags_ && meTriggerTowerEmulError_ && meGlobalSummary_ ) meGlobalSummary_->setEntries( 0 );
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
@@ -1134,28 +1125,33 @@ void EBSummaryClient::analyze(void) {
     EBTimingClient* ebtmc = dynamic_cast<EBTimingClient*>(clients_[i]);
     EBTriggerTowerClient* ebtttc = dynamic_cast<EBTriggerTowerClient*>(clients_[i]);
 
+    MonitorElement *me;
     MonitorElement *me_01, *me_02, *me_03;
     MonitorElement *me_04, *me_05;
     //    MonitorElement *me_f[6], *me_fg[2];
     TH2F* h2;
+    TH2F* h3;
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
       int ism = superModules_[i];
 
-      me = dqmStore_->get( prefixME_ + "/Energy/Profile/RecHitTask energy " + Numbers::sEB(ism) );
+      me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT rec hit energy " + Numbers::sEB(ism) );
       hot01_[ism-1] = UtilsClient::getHisto( me, cloneME_, hot01_[ism-1] );
 
-      me = dqmStore_->get( prefixME_ + "/Pedestal/Presample/PedestalTask presample G12 " + Numbers::sEB(ism) );
+      me = dqmStore_->get( prefixME_ + "/EBPedestalOnlineTask/Gain12/EBPOT pedestal " + Numbers::sEB(ism) + " G12" );
       hpot01_[ism-1] = UtilsClient::getHisto( me, cloneME_, hpot01_[ism-1] );
 
-      me = dqmStore_->get( prefixME_ + "/TriggerPrimitives/Et/TrigPrimTask Et " + Numbers::sEB(ism) );
+      me = dqmStore_->get( prefixME_ + "/EBTriggerTowerTask/EBTTT Et map Real Digis " + Numbers::sEB(ism) );
       httt01_[ism-1] = UtilsClient::getHisto( me, cloneME_, httt01_[ism-1] );
 
-      me = dqmStore_->get( prefixME_ + "/Timing/Profile/TimingTask timing " + Numbers::sEB(ism) );
+      me = dqmStore_->get( prefixME_ + "/EBTimingTask/EBTMT timing " + Numbers::sEB(ism) );
       htmt01_[ism-1] = UtilsClient::getHisto( me, cloneME_, htmt01_[ism-1] );
 
-      me = dqmStore_->get( prefixME_ + "/RawData/RawDataTask FE-DCC L1A mismatch EB" );
+      me = dqmStore_->get( prefixME_ + "/EcalInfo/EBMM DCC" );
+      norm01_ = UtilsClient::getHisto( me, cloneME_, norm01_ );
+
+      me = dqmStore_->get( prefixME_ + "/EBRawDataTask/EBRDT L1A FE errors" );
       synch01_ = UtilsClient::getHisto( me, cloneME_, synch01_ );
 
       for ( int ie = 1; ie <= 85; ie++ ) {
@@ -1180,8 +1176,8 @@ void EBSummaryClient::analyze(void) {
                 ipx = 1+(20-ip)+20*(ism-19);
               }
 
-              meIntegrity_->setBinContent( ipx, iex, xval );
-              if( xval == 0 ) meIntegrityErr_->Fill( ism );
+              if(meIntegrity_) meIntegrity_->setBinContent( ipx, iex, xval );
+              if( xval == 0 && meIntegrityErr_) meIntegrityErr_->Fill( ism );
 
             }
 
@@ -1202,8 +1198,8 @@ void EBSummaryClient::analyze(void) {
                 ipx = 1+(20-ip)+20*(ism-19);
               }
 
-              meOccupancy_->setBinContent( ipx, iex, xval );
-              if ( xval != 0 ) meOccupancy1D_->Fill( ism, xval );
+              if(meOccupancy_) meOccupancy_->setBinContent( ipx, iex, xval );
+              if ( xval != 0 && meOccupancy1D_) meOccupancy1D_->Fill( ism, xval );
 
             }
 
@@ -1431,7 +1427,7 @@ void EBSummaryClient::analyze(void) {
               ipx = 1+(20-ip)+20*(ism-19);
             }
 
-            meRecHitEnergy_->setBinContent( ipx, iex, xval );
+            if(meRecHitEnergy_) meRecHitEnergy_->setBinContent( ipx, iex, xval );
 
           }
 
@@ -1439,7 +1435,7 @@ void EBSummaryClient::analyze(void) {
 
             float num02, mean02, rms02;
 
-	    bool update02 = UtilsClient::getBinStatistics(htmt01_[ism-1], ie, ip, num02, mean02, rms02, timingNHitThreshold_);
+	    bool update02 = UtilsClient::getBinStatistics(htmt01_[ism-1], ie, ip, num02, mean02, rms02, 3.);
 
             if ( update02 ) {
 
@@ -1460,62 +1456,6 @@ void EBSummaryClient::analyze(void) {
         }
       }
 
-      std::vector<float> festatus(17 * 4, 0.);
-      if ( ebsfc ) {
-	TString name;
-	TPRegexp pattern("FEStatusTask Error FE ([0-9]+) ([0-9]+)");
-	int idcc, iccu;
-
-	std::vector<MonitorElement *> vme(dqmStore_->getContents(prefixME_ + "/FEStatus/Errors"));
-	for(std::vector<MonitorElement *>::iterator meItr(vme.begin()); meItr != vme.end(); ++meItr){
-	  if(!(*meItr)) continue;
-	  name = (*meItr)->getName().c_str();
-	  TObjArray* matches(pattern.MatchS(name));
-	  if(matches->GetEntries() == 0) continue;
-	  idcc = static_cast<TObjString*>(matches->At(1))->GetString().Atoi();
-	  iccu = static_cast<TObjString*>(matches->At(2))->GetString().Atoi();
-	  if(idcc != ism + 9) continue;
-	  festatus[iccu - 1] = (*meItr)->getBinContent(1);
-	}
-      }
-
-      std::vector<float> ttstatus(68, 0.);
-      if (ebtttc) {
-	TString name;
-	TPRegexp pattern("TrigPrimClient non single timing TT ([0-9]+) ([0-9]+)");
-	int itcc, itt;
-
-	std::vector<MonitorElement *> vme(dqmStore_->getContents(prefixME_ + "/TriggerPrimitives/EmulationErrors/Timing"));
-	for(std::vector<MonitorElement *>::iterator meItr(vme.begin()); meItr != vme.end(); ++meItr){
-	  if(!(*meItr)) continue;
-	  name = (*meItr)->getName().c_str();
-	  TObjArray* matches(pattern.MatchS(name));
-	  if(matches->GetEntries() == 0) continue;
-	  itcc = static_cast<TObjString*>(matches->At(1))->GetString().Atoi();
-	  itt = static_cast<TObjString*>(matches->At(2))->GetString().Atoi();
-	  if(itcc != 36 + ism) continue;
-
-	  int ieta(ism <= 18 ? 17 - (itt - 1) / 4 : 18 + (itt - 1) / 4);
-	  int iphi(((ism - 1) % 18) * 4 + (itt - 1) % 4 + 1);
-
-	  meTriggerTowerNonSingleTiming_->setBinContent(iphi, ieta, (*meItr)->getBinContent(1));
-	}
-
-	TPRegexp patternEt("TrigPrimTask emulation Et mismatch TT ([0-9]+) ([0-9]+)");
-	vme = dqmStore_->getContents(prefixME_ + "/TriggerPrimitives/EmulationErrors/Et");
-	for(std::vector<MonitorElement *>::iterator meItr(vme.begin()); meItr != vme.end(); ++meItr){
-	  if(!(*meItr)) continue;
-	  name = (*meItr)->getName().c_str();
-	  TObjArray* matches(patternEt.MatchS(name));
-	  if(matches->GetEntries() == 0) continue;
-	  itcc = static_cast<TObjString*>(matches->At(1))->GetString().Atoi();
-	  itt = static_cast<TObjString*>(matches->At(2))->GetString().Atoi();
-	  if(itcc != ism + 36) continue;
-	  ttstatus[itt - 1] = (*meItr)->getBinContent(1);
-	}
-      }
-
-
       for (int ie = 1; ie <= 17; ie++ ) {
         for (int ip = 1; ip <= 4; ip++ ) {
 
@@ -1532,7 +1472,7 @@ void EBSummaryClient::analyze(void) {
 
           if ( ebsfc ) {
 
-            me = dqmStore_->get(prefixME_ + "/Occupancy/OccupancyTask DCC occupancy EB");
+            me = dqmStore_->get(prefixME_ + "/EcalInfo/EBMM DCC");
 
             float xval = 6;
 
@@ -1543,34 +1483,19 @@ void EBSummaryClient::analyze(void) {
 
             }
 
-//             me = ebsfc->meh01_[ism-1];
+            me = ebsfc->meh01_[ism-1];
 
-//             if ( me ) {
+            if ( me ) {
 
-//               if ( me->getBinContent( ie, ip ) > 0 ) xval = 0;
+              if ( me->getBinContent( ie, ip ) > 0 ) xval = 0;
 
-	    if(festatus[(ie - 1) * 4 + ip - 1] > 0) xval = 0;
+              meStatusFlags_->setBinContent( ipx, iex, xval );
 
-	    meStatusFlags_->setBinContent( ipx, iex, xval );
+              if ( me->getBinError( ie, ip ) > 0 && me->getBinError( ie, ip ) < 0.1 ) UtilsClient::maskBinContent( meStatusFlags_, ipx, iex );
 
-//               if ( me->getBinError( ie, ip ) > 0 && me->getBinError( ie, ip ) < 0.1 ) UtilsClient::maskBinContent( meStatusFlags_, ipx, iex );
+              if ( xval == 0 ) meStatusFlagsErr_->Fill( ism );
 
-	    uint32_t mask(0x1 << EcalDQMStatusHelper::STATUS_FLAG_ERROR);
-
-	    for(int localEta(1); localEta <= 5; localEta++){
-	      for(int localPhi(1); localPhi <= 5; localPhi++){
-		if(Masks::maskChannel(ism, (ie-1)*5+localEta, (ip-1)*5+localPhi, mask, EcalBarrel)){
-		  UtilsClient::maskBinContent( meStatusFlags_, ipx, iex );
-		  break;
-		}
-	      }
-	    }
-
-	    if ( xval == 0 ) meStatusFlagsErr_->Fill( ism );
-
-//             }
-
-
+            }
 
           }
 
@@ -1602,39 +1527,38 @@ void EBSummaryClient::analyze(void) {
 
             }
 
-//             me = ebtttc->me_o02_[ism-1];
+            me = ebtttc->me_o02_[ism-1];
 
-//             if ( me ) {
+            if ( me ) {
 
-//               float xval = me->getBinContent( ie, ip );
+              float xval = me->getBinContent( ie, ip );
 
-//               if ( xval != 0. ) {
-//                 meTriggerTowerNonSingleTiming_->setBinContent( ipx, iex, xval );
-//               }
+              if ( xval != 0. ) {
+                meTriggerTowerNonSingleTiming_->setBinContent( ipx, iex, xval );
+              }
 
-//             }
+            }
 
-	    float xval = 2;
-	    if( mean01 > 0. ) {
+            float xval = 2;
+            if( mean01 > 0. ) {
 
-//               h2 = ebtttc->l01_[ism-1];
-//               h3 = ebtttc->l02_[ism-1];
+              h2 = ebtttc->l01_[ism-1];
+              h3 = ebtttc->l02_[ism-1];
 
-//               if ( h2 && h3 ) {
+              if ( h2 && h3 ) {
 
-//                 // float emulErrorVal = h2->GetBinContent( ie, ip ) + h3->GetBinContent( ie, ip );
-//                 float emulErrorVal = h2->GetBinContent( ie, ip );
+                // float emulErrorVal = h2->GetBinContent( ie, ip ) + h3->GetBinContent( ie, ip );
+                float emulErrorVal = h2->GetBinContent( ie, ip );
 
-//                 if( emulErrorVal!=0 && hadNonZeroInterest ) xval = 0;
-	      if(ttstatus[(ie - 1) * 4 + ip - 1] > 0 && hadNonZeroInterest) xval = 0.;
-//               }
+                if( emulErrorVal!=0 && hadNonZeroInterest ) xval = 0;
 
-	      if ( xval!=0 && hadNonZeroInterest ) xval = 1;
+              }
 
-//             }
-	    }
+              if ( xval!=0 && hadNonZeroInterest ) xval = 1;
 
-	    meTriggerTowerEmulError_->setBinContent( ipx, iex, xval );
+            }
+
+            meTriggerTowerEmulError_->setBinContent( ipx, iex, xval );
 
           }
 
@@ -1642,42 +1566,38 @@ void EBSummaryClient::analyze(void) {
 
 	    if( htmt01_[ism-1] ){
 
-	      float num(0.);
-	      bool mask(false);
+	      float ent, cont, err;
+	      float num, sum, sumw2;
+	      num = sum = sumw2 = 0.;
+	      bool mask = false;
 
 	      for(int ce=1; ce<=5; ce++){
 		for(int cp=1; cp<=5; cp++){
 
 		  int scie = (ie - 1) * 5 + ce;
 		  int scip = (ip - 1) * 5 + cp; 
-		  num += htmt01_[ism-1]->GetBinEntries(htmt01_[ism-1]->GetBin( scie, scip ));
+		  int bin = htmt01_[ism-1]->GetBin( scie, scip );
 
-		  if( Masks::maskChannel(ism, scie, scip, chWarnBit, EcalBarrel) ) mask = true;
+		  // htmt01_ are booked with option "s" -> error = RMS not RMS/sqrt(N)
+		  ent = htmt01_[ism-1]->GetBinEntries( bin );
+		  cont = htmt01_[ism-1]->GetBinContent( bin ) - 50.;
+		  err = htmt01_[ism-1]->GetBinError( bin );
+
+		  num += ent;
+		  sum += cont * ent;
+		  sumw2 += (err * err + cont * cont) * ent;
+
+		  if( ent > 3. && (std::abs(cont) > 2. || err > 6.) && Masks::maskChannel(ism, scie, scip, chWarnBit, EcalBarrel) ) mask = true;
 		}
 	      }
 
-	      float nHitThreshold(timingNHitThreshold_ * 18.);
-
-	      bool update01(false);
-	      float num01, mean01, rms01;
-	      update01 = UtilsClient::getBinStatistics(htmt, ipx, iex, num01, mean01, rms01, nHitThreshold);
-
-	      mean01 -= 50.;
-
-	      if(!update01){
-		mean01 = 0.;
-		rms01 = 0.;
-	      }
-
-
-	      update01 |= num > 1.3 * nHitThreshold; // allow 10% outliers
-
 	      float xval = 2.;
-	      // there is not much point to make both single channel & TT hit threshold configurable
-	      if( update01 ){
+	      if( num > 10. ){
 
-		// quality BAD if large mean, large rms, or large outliers (num: # events in +-20ns time window)
-		if( std::abs(mean01) > 2. || rms01 > 6. || num > 1.3 * num01 ) xval = 0.;
+		float mean = sum / num;
+		float rms = std::sqrt( sumw2 / num - mean * mean );
+
+		if( std::abs(mean) > 2. || rms > 6. ) xval = 0.;
 		else xval = 1.;
 
 	      }
@@ -1715,14 +1635,14 @@ void EBSummaryClient::analyze(void) {
             if( me_04 ) {
 
               float xval = me_04->getBinContent(i,j);
-              meIntegrityPN_->setBinContent( ipseudostripx, ichanx, xval );
+              if(meIntegrityPN_) meIntegrityPN_->setBinContent( ipseudostripx, ichanx, xval );
 
             }
 
             if ( h2 ) {
 
               float xval = h2->GetBinContent(i,1);
-              meOccupancyPN_->setBinContent( ipseudostripx, ichanx, xval );
+              if(meOccupancyPN_) meOccupancyPN_->setBinContent( ipseudostripx, ichanx, xval );
 
             }
 
@@ -2010,6 +1930,7 @@ void EBSummaryClient::analyze(void) {
   } // loop on clients
 
   // The global-summary
+
   int nGlobalErrors = 0;
   int nGlobalErrorsEB[36];
   int nValidChannels = 0;
@@ -2023,7 +1944,7 @@ void EBSummaryClient::analyze(void) {
   for ( int iex = 1; iex <= 170; iex++ ) {
     for ( int ipx = 1; ipx <= 360; ipx++ ) {
 
-      if(meIntegrity_ && mePedestalOnline_ && meTiming_ && meStatusFlags_ && meTriggerTowerEmulError_) {
+      if(meIntegrity_ && mePedestalOnline_ && meTiming_ && meStatusFlags_ && meTriggerTowerEmulError_ && meGlobalSummary_) {
 
         int ism = (ipx-1)/20 + 1 ;
         if ( iex>85 ) ism+=18;
@@ -2036,7 +1957,7 @@ void EBSummaryClient::analyze(void) {
         float val_po = mePedestalOnline_->getBinContent(ipx,iex);
         float val_tm = meTiming_->getBinContent(ipt,iet);
         float val_sf = meStatusFlags_->getBinContent((ipx-1)/5+1,(iex-1)/5+1);
-	// float val_ee = meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1); // removed from the global summary temporarily
+        // float val_ee = meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1); // removed from the global summary temporarily
         float val_ee = 1;
 
         // combine all the available wavelenghts in unique laser status
@@ -2090,9 +2011,12 @@ void EBSummaryClient::analyze(void) {
         // are reverted back to yellow
         float iEntries=0;
 
-        if(synch01_) {
-	  float synchErrors = synch01_->GetBinContent(ism);
-          if(synchErrors > synchErrorThreshold_) xval=0;
+        if(norm01_ && synch01_) {
+          float frac_synch_errors = 0.;
+          float norm = norm01_->GetBinContent(ism);
+          if(norm > 0) frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm);
+          float val_sy = (frac_synch_errors <= synchErrorThreshold_);
+          if(val_sy==0) xval=0;
         }
 
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
@@ -2112,7 +2036,7 @@ void EBSummaryClient::analyze(void) {
           xval=2;
         }
 
-        if(meGlobalSummary_) meGlobalSummary_->setBinContent( ipx, iex, xval );
+        meGlobalSummary_->setBinContent( ipx, iex, xval );
 
         if ( xval >= 0 && xval <= 5 ) {
           if ( xval != 2 && xval != 5 ) ++nValidChannels;
@@ -2134,28 +2058,14 @@ void EBSummaryClient::analyze(void) {
     }
   }
 
+  MonitorElement* me;
+
   float reportSummary = -1.0;
-  float nEB(61200.);
   if ( nValidChannels != 0 )
     reportSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
-  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary EB");
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
   if ( me )
     me->Fill(reportSummary);
-  else
-    nEB = 0.;
-
-  // workaround for new EB+EE configuration
-  float eeSummary(0.);
-  float nEE(14648.);
-  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary EE");
-  if (me)
-    eeSummary = me->getFloatValue();
-  else
-    nEE = 0.;
-
-  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
-  if (me)
-    me->Fill((reportSummary * nEB + eeSummary * nEE) / (nEB + nEE));
 
   for (int i = 0; i < 36; i++) {
     float reportSummaryEB = -1.0;
@@ -2165,47 +2075,47 @@ void EBSummaryClient::analyze(void) {
     if ( me ) me->Fill(reportSummaryEB);
   }
 
-  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap EB");
-  MonitorElement* mecomb(dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap"));
-  if ( me && meGlobalSummary_) {
+  if(meGlobalSummary_){
 
-    int nValidChannelsTT[72][34];
-    int nGlobalErrorsTT[72][34];
-    for ( int iettx = 0; iettx < 34; iettx++ ) {
-      for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
-        nValidChannelsTT[ipttx][iettx] = 0;
-        nGlobalErrorsTT[ipttx][iettx] = 0;
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
+    if ( me ) {
+
+      int nValidChannelsTT[72][34];
+      int nGlobalErrorsTT[72][34];
+      for ( int iettx = 0; iettx < 34; iettx++ ) {
+	for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
+	  nValidChannelsTT[ipttx][iettx] = 0;
+	  nGlobalErrorsTT[ipttx][iettx] = 0;
+	}
       }
-    }
 
-    for ( int iex = 1; iex <= 170; iex++ ) {
-      for ( int ipx = 1; ipx <= 360; ipx++ ) {
+      for ( int iex = 1; iex <= 170; iex++ ) {
+	for ( int ipx = 1; ipx <= 360; ipx++ ) {
 
-        int iettx = (iex-1)/5+1;
-        int ipttx = (ipx-1)/5+1;
+	  int iettx = (iex-1)/5+1;
+	  int ipttx = (ipx-1)/5+1;
 
-        float xval = meGlobalSummary_->getBinContent( ipx, iex );
+	  float xval = meGlobalSummary_->getBinContent( ipx, iex );
 
-        if ( xval >= 0 && xval <= 5 ) {
-          if ( xval != 2 && xval != 5 ) ++nValidChannelsTT[ipttx-1][iettx-1];
-          if ( xval == 0 ) ++nGlobalErrorsTT[ipttx-1][iettx-1];
-        }
+	  if ( xval >= 0 && xval <= 5 ) {
+	    if ( xval != 2 && xval != 5 ) ++nValidChannelsTT[ipttx-1][iettx-1];
+	    if ( xval == 0 ) ++nGlobalErrorsTT[ipttx-1][iettx-1];
+	  }
 
+	}
       }
-    }
 
-    for ( int iettx = 0; iettx < 34; iettx++ ) {
-      for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
+      for ( int iettx = 0; iettx < 34; iettx++ ) {
+	for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
 
-        float xval = -1.0;
-        if ( nValidChannelsTT[ipttx][iettx] != 0 )
-          xval = 1.0 - float(nGlobalErrorsTT[ipttx][iettx])/float(nValidChannelsTT[ipttx][iettx]);
+	  float xval = -1.0;
+	  if ( nValidChannelsTT[ipttx][iettx] != 0 )
+	    xval = 1.0 - float(nGlobalErrorsTT[ipttx][iettx])/float(nValidChannelsTT[ipttx][iettx]);
 
-        me->setBinContent( ipttx+1, iettx+1, xval );
-	if(mecomb)
-	  mecomb->setBinContent(ipttx + 1, iettx + 21, xval);
-
+	  me->setBinContent( ipttx+1, iettx+1, xval );
+	}
       }
+
     }
 
   }

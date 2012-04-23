@@ -1,4 +1,4 @@
-// $Id: TestHelper.h,v 1.9 2011/07/27 12:01:56 mommsen Exp $
+// $Id: TestHelper.h,v 1.8 2011/02/17 16:06:07 mommsen Exp $
 
 #ifndef StorageManager_TestHelper_h
 #define StorageManager_TestHelper_h
@@ -301,7 +301,7 @@ namespace stor
                      eventNumber, lumiNumber, outputModuleId, 0,
                      l1Bits, &hltBits[0], hltBitCount, adler32_chksum, host_name);
 
-      eventBuilder.setOrigDataSize(78); // no compression
+      eventBuilder.setOrigDataSize(78);
       eventBuilder.setEventLength(sizeof(test_value_event));
       std::copy(&test_value_event[0],&test_value_event[0]+sizeof(test_value_event),
                 eventBuilder.eventAddr());

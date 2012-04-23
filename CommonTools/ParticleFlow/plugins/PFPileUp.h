@@ -16,6 +16,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+#include "CommonTools/ParticleFlow/interface/PFPileUpAlgo.h"
 
 /**\class PFPileUp 
 \brief Identifies pile-up candidates from a collection of PFCandidates, and 
@@ -23,6 +24,8 @@ produces the corresponding collection of PileUpCandidates.
 
 \author Colin Bernet
 \date   february 2008
+\updated Florian Beaudette 30/03/2012
+
 */
 
 
@@ -41,10 +44,7 @@ class PFPileUp : public edm::EDProducer {
 
  private:
   
-  reco::VertexRef 
-    chargedHadronVertex(const edm::Handle<reco::VertexCollection>& vertices, 
-			const reco::PFCandidate& pfcand ) const;
-
+  PFPileUpAlgo    pileUpAlgo_;
   
   /// PFCandidates to be analyzed
   edm::InputTag   inputTagPFCandidates_;

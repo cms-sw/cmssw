@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseTask.h
  *
- * $Date: 2009/10/26 17:33:47 $
- * $Revision: 1.33 $
+ * $Date: 2009/08/02 15:46:37 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -72,8 +72,6 @@ edm::InputTag EcalPnDiodeDigiCollection_;
 edm::InputTag EcalUncalibratedRecHitCollection_;
 std::vector<int> MGPAGains_;
 std::vector<int> MGPAGainsPN_;
-
- MonitorElement *meOccupancy_;
 
 MonitorElement* meShapeMapG01_[36];
 MonitorElement* meShapeMapG06_[36];

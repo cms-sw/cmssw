@@ -8,7 +8,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackAnalyzer.h,v 1.13 2012/02/17 17:22:42 tosi Exp $
+// $Id: TrackAnalyzer.h,v 1.12 2012/02/17 15:31:54 tosi Exp $
 
 #include <memory>
 #include <fstream>
@@ -32,8 +32,7 @@ class TrackAnalyzer
 
         virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track);
 
-        void doSoftReset  (DQMStore * dqmStore_);
-        void doReset      (DQMStore * dqmStore_);
+        void doSoftReset(DQMStore * dqmStore_);
         void undoSoftReset(DQMStore * dqmStore_);
         void setLumiFlag();
 
@@ -62,8 +61,6 @@ class TrackAnalyzer
 	bool doGoodTrackRecHitVsPhiVsEtaPerTrack_;
 	bool doGoodTrackLayersVsPhiVsEtaPerTrack_;
 	bool doGoodTrack2DChi2Plots_;
-
-	bool doLumiAnalysis_;
 
 	// ADD by Mia in order to clean the tracking MEs
 	// do not plot *Theta* and TrackPx* and TrackPy*
@@ -103,12 +100,6 @@ class TrackAnalyzer
 	// TESTING MEs
         MonitorElement* TESTDistanceOfClosestApproachToBS;
         MonitorElement* TESTDistanceOfClosestApproachToBSVsPhi;
-
-	// add by Mia in order to deal w/ LS transitions
-	MonitorElement* Chi2oNDF_lumiFlag;
-	MonitorElement* NumberOfRecHitsPerTrack_lumiFlag;
-	MonitorElement* GoodTrackChi2oNDF_lumiFlag;
-	MonitorElement* GoodTrackNumberOfRecHitsPerTrack_lumiFlag;
 
         MonitorElement* NumberOfTOBRecHitsPerTrack;
         MonitorElement* NumberOfTOBRecHitsPerTrackVsPhiProfile;
