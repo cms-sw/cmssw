@@ -175,28 +175,29 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
     {
       reco::SuperCluster enecorrClus,crackcorrClus,localContCorrClus;
 
+
+
+      if(applyCrackCorrection_)
+	crackcorrClus=energyCorrector_->applyCrackCorrection(*aClus,crackCorrectionFunction_);
+      else 
+	crackcorrClus=*aClus;
+
       if (applyLocalContCorrection_)
 	localContCorrClus = 
-	  energyCorrector_->applyLocalContCorrection(*aClus,localContCorrectionFunction_);
+	  energyCorrector_->applyLocalContCorrection(crackcorrClus,localContCorrectionFunction_);
       else
-	localContCorrClus = *aClus;
-
+	localContCorrClus = crackcorrClus;
       
-      if(applyCrackCorrection_)
-	crackcorrClus=energyCorrector_->applyCrackCorrection(localContCorrClus,crackCorrectionFunction_);
-      else 
-	crackcorrClus=localContCorrClus;
-
 
       if(applyEnergyCorrection_) 
-        enecorrClus = energyCorrector_->applyCorrection(crackcorrClus, *hitCollection, sCAlgo_, geometry_p, energyCorrectionFunction_, energyCorrectorName_, modeEB_, modeEE_);
+        enecorrClus = energyCorrector_->applyCorrection(localContCorrClus, *hitCollection, sCAlgo_, geometry_p, energyCorrectionFunction_, energyCorrectorName_, modeEB_, modeEE_);
       else
-	enecorrClus=crackcorrClus;
+	enecorrClus=localContCorrClus;
 
 
-      if(crackcorrClus.energy()*sin(crackcorrClus.position().theta())>etThresh_) {
+      if(enecorrClus.energy()*sin(enecorrClus.position().theta())>etThresh_) {
 	
-	corrClusters->push_back(crackcorrClus);
+	corrClusters->push_back(enecorrClus);
       }
     }
 
