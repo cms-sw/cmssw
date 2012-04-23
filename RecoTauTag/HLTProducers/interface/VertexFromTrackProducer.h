@@ -44,6 +44,8 @@ public:
   // access to config
   edm::ParameterSet config() const { return theConfig; }
   edm::InputTag trackLabel;
+  edm::InputTag triggerFilterElectronsSrc;
+  edm::InputTag triggerFilterMuonsSrc;
   edm::InputTag vertexLabel;
   edm::InputTag beamSpotLabel;
   
@@ -52,6 +54,7 @@ private:
   bool fIsRecoCandidate;
   bool fUseBeamSpot;
   bool fUseVertex;
+  bool fUseTriggerFilterElectrons, fUseTriggerFilterMuons;
   edm::ParameterSet theConfig;
   bool fVerbose;
 };
