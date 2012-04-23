@@ -10,7 +10,7 @@
 A TransientTrackingRecHit for the SiTrackerMultiRecHit
 */
 
-class TSiTrackerMultiRecHit : public TransientTrackingRecHit {
+class TSiTrackerMultiRecHit GCC11_FINAL : public TransientTrackingRecHit {
 public:
   //virtual ~TSiTrackerMultiRecHit() {delete theHitData;}
   virtual ~TSiTrackerMultiRecHit() {}

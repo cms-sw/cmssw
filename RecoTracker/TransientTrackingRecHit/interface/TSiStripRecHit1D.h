@@ -7,7 +7,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 #include "DataFormats/Common/interface/RefGetter.h"
 
-class TSiStripRecHit1D : public TransientTrackingRecHit{
+class TSiStripRecHit1D GCC11_FINAL : public TransientTrackingRecHit{
 public:
 
   typedef SiStripRecHit1D::ClusterRef SiStripClusterRef;

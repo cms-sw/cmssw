@@ -11,7 +11,7 @@
 
 // class GeomDetUnit;
 
-class TSiPixelRecHit : public TransientTrackingRecHit {
+class TSiPixelRecHit GCC11_FINAL : public TransientTrackingRecHit {
 public:
 
   typedef SiPixelRecHit::ClusterRef clusterRef;

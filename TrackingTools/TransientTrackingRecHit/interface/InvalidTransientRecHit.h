@@ -6,7 +6,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
-class InvalidTransientRecHit : public TransientTrackingRecHitByValue<InvalidTrackingRecHit> {
+class InvalidTransientRecHit GCC11_FINAL : public TransientTrackingRecHitByValue<InvalidTrackingRecHit> {
 public:
   typedef TransientTrackingRecHitByValue<InvalidTrackingRecHit> Base;
   typedef TrackingRecHit::Type Type;

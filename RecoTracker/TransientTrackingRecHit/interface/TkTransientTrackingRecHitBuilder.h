@@ -8,7 +8,7 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 
-class TkTransientTrackingRecHitBuilder : public TransientTrackingRecHitBuilder {
+class TkTransientTrackingRecHitBuilder GCC11_FINAL : public TransientTrackingRecHitBuilder {
   
  public:
   TkTransientTrackingRecHitBuilder (const TrackingGeometry* trackingGeometry, 

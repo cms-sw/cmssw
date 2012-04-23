@@ -9,7 +9,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-class TSiStripRecHit2DLocalPos : public TransientTrackingRecHit{
+class TSiStripRecHit2DLocalPos GCC11_FINAL : public TransientTrackingRecHit{
 public:
   
   typedef SiStripRecHit2D::ClusterRef SiStripClusterRef;

@@ -8,7 +8,7 @@
 
 class SiStripRecHit2D;
 
-class ProjectedRecHit2D : public GenericTransientTrackingRecHit {
+class ProjectedRecHit2D GCC11_FINAL : public GenericTransientTrackingRecHit {
 public:
 
   virtual void getKfComponents( KfComponentsHolder & holder ) const {
