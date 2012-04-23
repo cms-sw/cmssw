@@ -14,6 +14,7 @@ from DQM.CSCMonitorModule.csc_dqm_offlineclient_collisions_cff import *
 from DQM.EcalPreshowerMonitorClient.es_dqm_client_offline_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitorClient_cff import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
+from Validation.RecoTau.DQMSequences_cfi import *
 
 DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                              ecal_dqm_client_offline *
@@ -45,7 +46,8 @@ DQMOffline_SecondStep_PrePOG = cms.Sequence( muonQualityTests *
                                              hltOfflineDQMClient *
                                              bTagCollectorSequence *
                                              alcaBeamMonitorClient *
-                                             SusyPostProcessorSequence )
+                                             SusyPostProcessorSequence *
+                                             runTauEff)
 
 DQMOffline_SecondStepPOG = cms.Sequence( dqmRefHistoRootFileGetter *
                                          DQMOffline_SecondStep_PrePOG *
@@ -70,7 +72,8 @@ DQMHarvestCommon = cms.Sequence(dqmDcsInfoClient *
                                  triggerOfflineDQMClient *
                                  hltOfflineDQMClient *
                                  dqmFEDIntegrityClient *
-                                 alcaBeamMonitorClient 
+                                 alcaBeamMonitorClient *
+                                 runTauEff
                                 )
 DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmDcsInfoClient *
                                  SiStripOfflineDQMClient *
@@ -79,7 +82,8 @@ DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmDcsInfoClient *
                                  triggerOfflineDQMClient *
                                  hltOfflineDQMClient *
                                  dqmFEDIntegrityClient *
-                                 alcaBeamMonitorClient 
+                                 alcaBeamMonitorClient *
+                                 runTauEff
                                 )
 
 DQMHarvestMuon = cms.Sequence( dtClients *
