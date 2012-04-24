@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.37 2012/01/30 22:25:47 rwolf Exp $
+// $Id: Electron.h,v 1.38 2012/04/14 02:06:05 tjkim Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.37 2012/01/30 22:25:47 rwolf Exp $
+  \version  $Id: Electron.h,v 1.38 2012/04/14 02:06:05 tjkim Exp $
 */
 
 
@@ -145,8 +145,8 @@ namespace pat {
       /// Uncertainty on the corresponding impact parameter
       double edB(IpType type = None) const;
       /// Set impact parameter of a certain type and its uncertainty
-      void setDB(double dB, double edB, IpType type = None);    
-      
+      void setDB(double dB, double edB, IpType type = None);
+
       // ---- Momentum estimate specific methods ----
       const LorentzVector & ecalDrivenMomentum() const {return ecalDrivenMomentum_;}
       void setEcalDrivenMomentum(const Candidate::LorentzVector& mom) {ecalDrivenMomentum_=mom;}
@@ -158,16 +158,16 @@ namespace pat {
       /// R9 variable
       double r9() const { return r9_; };
       /// sigmaIPhiPhi
-      double sigmaIphiIphi() const { return sigmaIphiIphi_; };    
+      double sigmaIphiIphi() const { return sigmaIphiIphi_; };
       /// sigmaIEtaIPhi
-      double sigmaIetaIphi() const { return sigmaIetaIphi_; };    
+      double sigmaIetaIphi() const { return sigmaIetaIphi_; };
       /// ip3d
       double ip3d() const { return ip3d_; }
-      /// set missing mva input variables 
+      /// set missing mva input variables
       void setMvaVariables( double r9, double sigmaIphiIphi, double sigmaIetaIphi, double ip3d );
 
       /// vertex fit combined with missing number of hits method
-      bool passConversionVeto() { return passConversionVeto_; }
+      bool passConversionVeto() const { return passConversionVeto_; }
       void setPassConversionVeto( bool flag ) { passConversionVeto_ = flag; }
 
     protected:
@@ -219,17 +219,17 @@ namespace pat {
       /// additional missing mva variables : 14/04/2012
       double r9_;
       double sigmaIphiIphi_;
-      double sigmaIetaIphi_;    
+      double sigmaIetaIphi_;
       double ip3d_;
 
-      /// conversion veto 
+      /// conversion veto
       bool passConversionVeto_;
 
       // ---- cached impact parameters ----
       /// True if the IP (former dB) has been cached
-      std::vector<bool>    cachedIP_;  
+      std::vector<bool>    cachedIP_;
       /// Impact parameter at the primary vertex,
-      std::vector<double>  ip_;        
+      std::vector<double>  ip_;
       /// Impact parameter uncertainty as recommended by the tracking group
       std::vector<double>  eip_;
   };
