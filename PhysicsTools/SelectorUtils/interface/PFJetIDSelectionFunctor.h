@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: PFJetIDSelectionFunctor.h,v 1.20 2011/04/27 20:39:42 srappocc Exp $
+  \version  $Id: PFJetIDSelectionFunctor.h,v 1.21 2012/04/24 07:20:57 veelken Exp $
 */
 
 
@@ -240,10 +240,21 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       }
     } // end if pat jet
     else if ( pfJet != 0 ) {
-      chf = pfJet->chargedHadronEnergyFraction();
-      nhf = ( pfJet->neutralHadronEnergy() + pfJet->HFHadronEnergy() ) / pfJet->energy();
-      cef = pfJet->chargedEmEnergyFraction();
-      nef = pfJet->neutralEmEnergyFraction();
+      // CV: need to compute energy fractions in a way that works for corrected as well as for uncorrected PFJets
+      double jetEnergyUncorrected = 
+	pfJet->chargedHadronEnergy() 
+       + pfJet->neutralHadronEnergy()
+       + pfJet->photonEnergy()
+       + pfJet->electronEnergy()
+       + pfJet->muonEnergy()
+       + pfJet->HFHadronEnergy()
+       + pfJet->HFEMEnergy();
+      if ( jetEnergyUncorrected > 0. ) {
+	chf = pfJet->chargedHadronEnergy() / jetEnergyUncorrected;
+        nhf = ( pfJet->neutralHadronEnergy() + pfJet->HFHadronEnergy() ) / jetEnergyUncorrected;
+        cef = pfJet->chargedEmEnergy() / jetEnergyUncorrected;
+        nef = pfJet->neutralEmEnergy() / jetEnergyUncorrected;
+      }
       nch = pfJet->chargedMultiplicity();
       nconstituents = pfJet->numberOfDaughters();
     } // end if PF jet
@@ -286,6 +297,10 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     if ( ignoreCut(indexCEF_)           || ( cef < cut(indexCEF_, double()) || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexCEF_);
     if ( ignoreCut(indexCHF_)           || ( chf > cut(indexCHF_, double()) || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexCHF_);
     if ( ignoreCut(indexNCH_)           || ( nch > cut(indexNCH_, int())    || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexNCH_);    
+
+    //std::cout << "<PFJetIDSelectionFunctor::firstDataCuts>:" << std::endl;
+    //std::cout << " jet: Pt = " << jet.pt() << ", eta = " << jet.eta() << ", phi = " << jet.phi() << std::endl;
+    //ret.print(std::cout);
 
     setIgnored( ret );
     return (bool)ret;
