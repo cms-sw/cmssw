@@ -20,7 +20,7 @@ process.TFileService = cms.Service("TFileService", fileName = cms.string("summar
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
 
 process.demo = cms.EDAnalyzer('ClusterAnalyzer',
-                              clusterSum    = cms.InputTag('ClusterSummaryProducer')
+                              clusterSum    = cms.InputTag('clusterSummaryProducer')
 )
 
 

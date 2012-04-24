@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Segala
 //         Created:  Wed Feb 23 17:36:23 CST 2011
-// $Id: ClusterAnalyzer.cc,v 1.1 2012/01/24 18:00:23 msegala Exp $
+// $Id: ClusterAnalyzer.cc,v 1.2 2012/02/02 18:17:38 msegala Exp $
 //
 //
 
@@ -86,6 +86,8 @@ class ClusterAnalyzer : public edm::EDAnalyzer {
       std::string ProvInfoPixels;
       std::string ProvInfoPixels_vars;
 
+      bool doStrips;
+      bool doPixels;
 };
 
 
@@ -119,22 +121,49 @@ ClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
      //  Provenance Information
      const Provenance& prov = iEvent.getProvenance(class_.id());
      edm::ParameterSet pSet=getParameterSet( prov.psetID() );   
-     ProvInfo = pSet.getParameter<string>("stripModule");
-     cout << "From provenance infomation the selected strip modules are = "<< ProvInfo << endl;
 
-     ProvInfo_vars = pSet.getParameter<string>("stripVariables");
-     cout << "From provenance infomation the avaliable strip variables are = "<< ProvInfo_vars << endl;
+     ProvInfo = "";
+     ProvInfo_vars = "";
+     ProvInfoPixels = "";
+     ProvInfoPixels_vars = "";
+
+     std::string ProvString = "";
+     std::string VarString = "";
+       
+     doStrips = pSet.getParameter<bool>("doStrips");
+     doPixels = pSet.getParameter<bool>("doPixels");
+
+     if (doStrips){
+       ProvInfo = pSet.getParameter<string>("stripModule");
+       cout << "From provenance infomation the selected strip modules are = "<< ProvInfo << endl;
+       ProvInfo_vars = pSet.getParameter<string>("stripVariables");
+       cout << "From provenance infomation the avaliable strip variables are = "<< ProvInfo_vars << endl;
+
+     }
+     if (doPixels){
+       ProvInfoPixels = pSet.getParameter<string>("pixelModule");
+       cout << "From provenance infomation the selected pixel modules are = "<< ProvInfoPixels << endl;
+       ProvInfoPixels_vars = pSet.getParameter<string>("pixelVariables");
+       cout << "From provenance infomation the avaliable pixel variables are = "<< ProvInfoPixels_vars << endl;
+     }
 
 
-     ProvInfoPixels = pSet.getParameter<string>("pixelModule");
-     cout << "From provenance infomation the selected pixel modules are = "<< ProvInfoPixels << endl;
-
-     ProvInfoPixels_vars = pSet.getParameter<string>("pixelVariables");
-     cout << "From provenance infomation the avaliable pixel variables are = "<< ProvInfoPixels_vars << endl;
+     if (doStrips && doPixels) {
+       ProvString = ProvInfo + "," + ProvInfoPixels;
+       VarString = ProvInfo_vars + "," + ProvInfoPixels_vars;
+     }
+     else if (doStrips && !doPixels) {
+       ProvString = ProvInfo;
+       VarString = ProvInfo_vars;
+     }
+     else if (!doStrips && doPixels) {
+       ProvString = ProvInfoPixels;
+       VarString = ProvInfoPixels_vars;
+     }
      
      // Define the Modules to get the summary info out of  
-     v_moduleTypes = class_ -> DecodeProvInfo( ProvInfo + "," + ProvInfoPixels );
-     v_variables = class_ -> DecodeProvInfo( ProvInfo_vars + "," + ProvInfoPixels_vars );
+     v_moduleTypes = class_ -> DecodeProvInfo( ProvString );
+     v_variables = class_ -> DecodeProvInfo( VarString );
 
    }
    
@@ -199,7 +228,6 @@ ClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
      }
      else{
-
        histos1D_[ (tmpstr + "nclusters").c_str() ] -> Fill( class_ -> GetGenericVariable("pHits", *mod) );
        histos1D_[ (tmpstr + "avgSize").c_str()   ] -> Fill( class_ -> GetGenericVariable("pSize", *mod)/class_ -> GetGenericVariable("pHits", *mod) );
        histos1D_[ (tmpstr + "avgCharge").c_str() ] -> Fill( class_ -> GetGenericVariable("pCharge", *mod)/class_ -> GetGenericVariable("pHits", *mod) );

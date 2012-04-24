@@ -194,11 +194,12 @@ void
 ClusterSummaryProducer::beginJob()
 {
    
-  decodeInput(v_stripModuleTypes,stripModules.c_str());
-  decodeInput(v_stripVariables,stripVariables.c_str());  
-  decodeInput(v_pixelModuleTypes,pixelModules.c_str());
-  decodeInput(v_pixelVariables,pixelVariables.c_str());  
+  if (doStrips) decodeInput(v_stripModuleTypes,stripModules.c_str());
+  if (doStrips) decodeInput(v_stripVariables,stripVariables.c_str());  
+  if (doPixels) decodeInput(v_pixelModuleTypes,pixelModules.c_str());
+  if (doPixels) decodeInput(v_pixelVariables,pixelVariables.c_str());  
 
+  if (doStrips){
   if (verbose){
     std::cout << "+++++++++++++++++++++++++++++++ "  << std::endl;
     std::cout << "FOR STRIPS: "  << std::endl;
@@ -215,7 +216,9 @@ ClusterSummaryProducer::beginJob()
     v_userContent.push_back(v_stripVariables[ii]);
   }
   if (verbose) std::cout << std::endl;
-
+  }
+  
+  if (doPixels){
   if (verbose){
     std::cout << "FOR PIXELS: " << std::endl;
     std::cout << "Getting info on " ;
@@ -232,7 +235,7 @@ ClusterSummaryProducer::beginJob()
   }
   if (verbose) std::cout << std::endl;
   if (verbose) std::cout << "+++++++++++++++++++++++++++++++ "  << std::endl;
-  
+  }
 
   //Create the summary info for output 
   cCluster.SetUserContent(v_userContent);
