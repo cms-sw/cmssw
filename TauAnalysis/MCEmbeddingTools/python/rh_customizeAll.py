@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import FWCore.ParameterSet.Config as cms
-import os
+
 
 def customise(process):
    
-  inputProcess="HLT"  # some automagic check possible?
+  
 
   process._Process__name="EmbeddedRECO"
   process.TFileService = cms.Service("TFileService",  fileName = cms.string("histo_embedded.root")          )
@@ -120,34 +120,30 @@ def customise(process):
 
 
 
-  setFromCL = False
   if not hasattr(process,"doNotParse"):
     import sys
     if hasattr(sys, "argv") == True:
       if not sys.argv[0].endswith('cmsDriver.py'):
         options.parseArguments()
-        setFromCL = True
   else :
     print "CL parsing disabled!"
 
-  
-  if setFromCL:
-    print "Setting mdtau to ", options.mdtau
-    process.generator.ZTauTau.TauolaOptions.InputCards.mdtau = options.mdtau 
-    process.newSource.ZTauTau.TauolaOptions.InputCards.mdtau = options.mdtau
-    process.generator.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = options.mdtau 
-    process.newSource.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = options.mdtau 
+  print "Setting mdtau to ", options.mdtau
+  process.generator.ZTauTau.TauolaOptions.InputCards.mdtau = options.mdtau 
+  process.newSource.ZTauTau.TauolaOptions.InputCards.mdtau = options.mdtau
+  process.generator.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = options.mdtau 
+  process.newSource.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = options.mdtau 
 
-    print "Setting minVisibleTransverseMomentum to ", options.minVisibleTransverseMomentum
-    process.newSource.ZTauTau.minVisibleTransverseMomentum = cms.untracked.string(options.minVisibleTransverseMomentum)
-    process.generator.ZTauTau.minVisibleTransverseMomentum = cms.untracked.string(options.minVisibleTransverseMomentum)
+  print "Setting minVisibleTransverseMomentum to ", options.minVisibleTransverseMomentum
+  process.newSource.ZTauTau.minVisibleTransverseMomentum = cms.untracked.string(options.minVisibleTransverseMomentum)
+  process.generator.ZTauTau.minVisibleTransverseMomentum = cms.untracked.string(options.minVisibleTransverseMomentum)
 
-    print "Setting transformationMode to ", options.transformationMode
-    process.generator.ZTauTau.transformationMode = cms.untracked.int32(options.transformationMode)
-    process.newSource.ZTauTau.transformationMode = cms.untracked.int32(options.transformationMode)
+  print "Setting transformationMode to ", options.transformationMode
+  process.generator.ZTauTau.transformationMode = cms.untracked.int32(options.transformationMode)
+  process.newSource.ZTauTau.transformationMode = cms.untracked.int32(options.transformationMode)
 
-  if setFromCL and options.overrideBeamSpot != 0  :
-    print "options.overrideBeamSpot", options.overrideBeamSpot
+  print "options.overrideBeamSpot", options.overrideBeamSpot
+  if options.overrideBeamSpot != 0:
     bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v21_offline") # 42x data PR gt
     # bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v18_offline") # 41x data PR gt
     # bs = cms.string("BeamSpotObjects_2009_LumiBased_v17_offline") # 38x data gt
@@ -164,7 +160,7 @@ def customise(process):
   else:
     print "BeamSpot in globaltag not changed"
 
-  if setFromCL and options.useJson !=  0:
+  if options.useJson !=  0:
     print "Enabling json usage"
     import PhysicsTools.PythonAnalysis.LumiList as LumiList
     import FWCore.ParameterSet.Types as CfgTypes
@@ -178,8 +174,8 @@ def customise(process):
   process.generalTracksORG = process.generalTracks.clone()
 
   process.generalTracks = cms.EDProducer("RecoTracksMixer",
-      trackCol1 = cms.InputTag("generalTracksORG","","EmbeddedRECO"),
-      trackCol2 = cms.InputTag("removedInputMuons","tracks")
+      trackCol1 = cms.InputTag("removedInputMuons","tracks"),
+      trackCol2 = cms.InputTag("generalTracksORG","","EmbeddedRECO")
   )  
 
   for p in process.paths:
@@ -190,75 +186,12 @@ def customise(process):
   # We can try mixing seeds or keep std::vector<Trajectory> from Zmumu event and
   # try mixing it. 
   # note - later approach may have no sense. Different geometries...
-  process.trackerDrivenElectronSeedsORG = process.trackerDrivenElectronSeeds.clone()
-  process.trackerDrivenElectronSeedsORG.TkColList = cms.VInputTag(cms.InputTag("generalTracksORG"))
-
-  process.trackerDrivenElectronSeeds = cms.EDProducer("ElectronSeedTrackRefUpdater",
-    PreIdLabel = process.trackerDrivenElectronSeedsORG.PreIdLabel,
-    PreGsfLabel = process.trackerDrivenElectronSeedsORG.PreGsfLabel,
-    targetTracks = cms.InputTag("generalTracks"),
-    inSeeds = cms.InputTag("trackerDrivenElectronSeedsORG", process.trackerDrivenElectronSeedsORG.PreGsfLabel.value()),
-    inPreId = cms.InputTag("trackerDrivenElectronSeedsORG", process.trackerDrivenElectronSeedsORG.PreIdLabel.value()),
-  )
-
-  for p in process.paths:
-    pth = getattr(process,p)
-    if "trackerDrivenElectronSeeds" in pth.moduleNames():
-        pth.replace(process.trackerDrivenElectronSeeds, process.trackerDrivenElectronSeedsORG*process.trackerDrivenElectronSeeds)
-
-
-  # hack photonCore:
-  process.trackerDrivenElectronSeedsMerged = cms.EDProducer("ElectronSeedTrackRefUpdaterAndMerger",
-   PreIdLabel = process.trackerDrivenElectronSeedsORG.PreIdLabel,
-   PreGsfLabel = process.trackerDrivenElectronSeedsORG.PreGsfLabel,
-   targetTracks = cms.InputTag("generalTracks"),
-   inSeeds1 = cms.InputTag("trackerDrivenElectronSeedsORG", process.trackerDrivenElectronSeeds.PreGsfLabel.value()),
-   inPreId1 = cms.InputTag("trackerDrivenElectronSeedsORG", process.trackerDrivenElectronSeeds.PreIdLabel.value()),
-   inSeeds2 = cms.InputTag("trackerDrivenElectronSeeds", process.trackerDrivenElectronSeeds.PreGsfLabel.value()),
-   inPreId2 = cms.InputTag("trackerDrivenElectronSeeds", process.trackerDrivenElectronSeeds.PreIdLabel.value())
-  )
-
-  process.electronMergedSeedsPhotonCoreHack = cms.EDProducer("ElectronSeedMerger",
-    EcalBasedSeeds = cms.InputTag("ecalDrivenElectronSeeds"),
-    TkBasedSeeds = cms.InputTag("trackerDrivenElectronSeedsMerged","SeedsForGsf")
-  )
-
-  process.photonCore.pixelSeedProducer = cms.string('electronMergedSeedsPhotonCoreHack')
-
-
-  for p in process.paths:
-    pth = getattr(process,p)
-    if "photonCore" in pth.moduleNames():
-        pth.replace(process.photonCore, 
-                    process.trackerDrivenElectronSeedsMerged * process.electronMergedSeedsPhotonCoreHack *process.photonCore)
-
-
-
-
-  # mix gsfTracks
-  process.electronGsfTracksORG = process.electronGsfTracks.clone()
-  process.electronGsfTracks = cms.EDProducer("GsfTrackMixer", 
-      col1 = cms.InputTag("electronGsfTracksORG","","EmbeddedRECO"),
-      col2= cms.InputTag("electronGsfTracks","", inputProcess),
-  )
-
-  # TODO: in 42x conversions seem not be used anywhere during reco. What about ana?
-  # what about 52X?
-  process.gsfConversionTrackProducer.TrackProducer = cms.string('electronGsfTracksORG')
-
-  for p in process.paths:
-    pth = getattr(process,p)
-    if "electronGsfTracks" in pth.moduleNames():
-        pth.replace(process.electronGsfTracks, process.electronGsfTracksORG*process.electronGsfTracks)
-
-
-
-
+  process.trackerDrivenElectronSeeds.TkColList = cms.VInputTag(cms.InputTag("generalTracksORG"))
 
   '''
   process.electronMergedSeedsORG = process.electronMergedSeeds.clone()
   process.electronMergedSeeds = cms.EDProducer("ElectronSeedsMixer",
-      col1 = cms.InputTag("electronMergedSeeds","", inputProcess),
+      col1 = cms.InputTag("electronMergedSeeds","","RECO"),
       col2 = cms.InputTag("electronMergedSeedsORG","","EmbeddedRECO")
   )
   for p in process.paths:
@@ -273,7 +206,7 @@ def customise(process):
   process.gsfElectronsORG = process.gsfElectrons.clone()
   process.gsfElectrons = cms.EDProducer("GSFElectronsMixer",
       col1 = cms.InputTag("gsfElectronsORG"),
-      col2 = cms.InputTag("gsfElectrons","",inputProcess),
+      col2 = cms.InputTag("gsfElectrons","","RECO"),
   )
   for p in process.paths:
     pth = getattr(process,p)
@@ -306,7 +239,7 @@ def customise(process):
   process.castorreco = cms.EDProducer("CastorRHMixer",
        cleaningAlgo = cms.string("CaloCleanerAllCrossed"),
        cleaningConfig = clConfig,
-       todo = cms.VPSet(cms.PSet ( colZmumu = cms.InputTag("castorreco","", inputProcess  ), colTauTau = cms.InputTag("castorrecoORG" )  ))
+       todo = cms.VPSet(cms.PSet ( colZmumu = cms.InputTag("castorreco","","RECO"  ), colTauTau = cms.InputTag("castorrecoORG" )  ))
   )
 
   for p in process.paths:
@@ -320,10 +253,10 @@ def customise(process):
          #cleaningAlgo = cms.string("CaloCleanerMVA"), 
          cleaningConfig = clConfig,
          todo = cms.VPSet(
-              cms.PSet ( colZmumu = cms.InputTag("ecalRecHit","EcalRecHitsEB", inputProcess ), 
+              cms.PSet ( colZmumu = cms.InputTag("ecalRecHit","EcalRecHitsEB","RECO"  ), 
                          colTauTau = cms.InputTag("ecalRecHitORG","EcalRecHitsEB" )  ),
 
-              cms.PSet ( colZmumu = cms.InputTag("ecalRecHit","EcalRecHitsEE", inputProcess  ), 
+              cms.PSet ( colZmumu = cms.InputTag("ecalRecHit","EcalRecHitsEE","RECO"  ), 
                          colTauTau = cms.InputTag("ecalRecHitORG","EcalRecHitsEE" )  )
          )
   )
@@ -339,7 +272,7 @@ def customise(process):
          cleaningAlgo = cms.string("CaloCleanerAllCrossed"),
          cleaningConfig = clConfig,
          todo = 
-           cms.VPSet(cms.PSet ( colZmumu = cms.InputTag( "hbhereco","", inputProcess  ), colTauTau = cms.InputTag("hbherecoORG","" )))
+           cms.VPSet(cms.PSet ( colZmumu = cms.InputTag( "hbhereco","","RECO"  ), colTauTau = cms.InputTag("hbherecoORG","" )))
   )
   for p in process.paths:
     pth = getattr(process,p)
@@ -352,7 +285,7 @@ def customise(process):
          cleaningAlgo = cms.string("CaloCleanerAllCrossed"),
          cleaningConfig = clConfig,
          todo =
-           cms.VPSet(cms.PSet ( colZmumu = cms.InputTag( "hfreco","", inputProcess  ), colTauTau = cms.InputTag("hfrecoORG","" )))
+           cms.VPSet(cms.PSet ( colZmumu = cms.InputTag( "hfreco","","RECO"  ), colTauTau = cms.InputTag("hfrecoORG","" )))
   )
   for p in process.paths:
     pth = getattr(process,p)
@@ -366,7 +299,7 @@ def customise(process):
          cleaningAlgo = cms.string("CaloCleanerAllCrossed"),
          cleaningConfig = clConfig,
          todo =
-           cms.VPSet(cms.PSet ( colZmumu = cms.InputTag( "horeco","", inputProcess  ), colTauTau = cms.InputTag("horecoORG","" )))
+           cms.VPSet(cms.PSet ( colZmumu = cms.InputTag( "horeco","","RECO"  ), colTauTau = cms.InputTag("horecoORG","" )))
   )
   for p in process.paths:
     pth = getattr(process,p)
@@ -414,12 +347,8 @@ def customise(process):
   # keep orginal collections, needed for PF2PAT - generalTracksORG, not sure for others 
   process.RECOSIMoutput.outputCommands.extend(['keep *_*ORG_*_*'])
 
-  #xxx process.globalMuons.TrackerCollectionLabel = cms.InputTag("generalTracksORG")
-  #xxx process.globalSETMuons.TrackerCollectionLabel = cms.InputTag("generalTracksORG")
-  #print "TODO: add xcheck, that this is not changed"
-  #process.muons.inputCollectionLabels = cms.VInputTag(cms.InputTag("generalTracksORG"), 
-  #                             cms.InputTag("globalMuons"), 
-  #                             cms.InputTag("standAloneMuons","UpdatedAtVtx"))
+  process.globalMuons.TrackerCollectionLabel = cms.InputTag("generalTracksORG")
+  process.globalSETMuons.TrackerCollectionLabel = cms.InputTag("generalTracksORG")
 
 
   skimEnabled = False
@@ -427,16 +356,7 @@ def customise(process):
       print "Enabling Zmumu skim"
       skimEnabled = True
       #process.load("TauAnalysis/Skimming/goldenZmmSelectionVBTFrelPFIsolation_cfi")
-
-      
-      cmssw_ver = os.environ["CMSSW_VERSION"]
-      if cmssw_ver.find("CMSSW_4_2") != -1:
-        print
-        print "Using legacy version of Zmumu skim. Note, that muon isolation is disabled"
-        print
-        process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelectionLegacy_cff")
-      else:
-        process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelection_cff")
+      process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelection_cff")
       process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
       # we are allready selecting events from generation step, so following way is ok
@@ -448,6 +368,10 @@ def customise(process):
       #)
 
 
+  print "TODO: add xcheck, that this is not changed"
+  process.muons.inputCollectionLabels = cms.VInputTag(cms.InputTag("generalTracksORG"), 
+                               cms.InputTag("globalMuons"), 
+                               cms.InputTag("standAloneMuons","UpdatedAtVtx"))
 
 
   if not skimEnabled:

@@ -66,6 +66,13 @@ class L1TDEMON : public edm::EDAnalyzer {
   int deSysCount[dedefs::DEnsys];
   int nEvtWithSys[dedefs::DEnsys];
   
+  // system status (enabled / disabled)
+  // similar to COMPARE_COLLS HardwareValidation/L1Comparator, probably a more elegant solution
+  // possible TODO
+
+  bool m_doSys[dedefs::DEnsys];
+
+
   /// monitoring elements
 
   // global
@@ -90,8 +97,6 @@ class L1TDEMON : public edm::EDAnalyzer {
   MonitorElement* deword[dedefs::DEnsys];
   MonitorElement* masked[dedefs::DEnsys];
 
-  // subsytem correlations
-  MonitorElement* CORR[dedefs::DEnsys][dedefs::DEnsys][3];
 };
 
 #endif

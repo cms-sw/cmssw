@@ -18,7 +18,7 @@
 [oval run] VAL_COMMENT = No electron code change.
 [oval run] STORE_RELEASE = ${VAL_NEW_RELEASE}
 [oval run] VAL_WEB = /afs/cern.ch/cms/Physics/egamma/www/validation
-[oval run] VAL_URL = http://cmsdoc.cern.ch/Physics/egamma/www/validation
+[oval run] VAL_WEB_URL = http://cmsdoc.cern.ch/Physics/egamma/www/validation
 [oval run] STORE_WEB = ${VAL_WEB}
 [oval run] TEST_AFS_DIR = /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation
 [oval run] DBS_COND = ${TEST_GLOBAL_TAG}*FastSim*-v2
@@ -111,7 +111,7 @@ dataset has 50 files:
 [oval diff] VAL_COMMENT = No electron code change.
 [oval diff] STORE_RELEASE = ${VAL_NEW_RELEASE}
 [oval diff] VAL_WEB = /afs/cern.ch/cms/Physics/egamma/www/validation
-[oval diff] VAL_URL = http://cmsdoc.cern.ch/Physics/egamma/www/validation
+[oval diff] VAL_WEB_URL = http://cmsdoc.cern.ch/Physics/egamma/www/validation
 [oval diff] STORE_WEB = ${VAL_WEB}
 [oval diff] TEST_AFS_DIR = /afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/Validation
 [oval diff] DBS_COND = ${TEST_GLOBAL_TAG}*FastSim*-v2

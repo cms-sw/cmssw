@@ -70,8 +70,16 @@ DQMHarvestCommon = cms.Sequence(dqmDcsInfoClient *
                                  triggerOfflineDQMClient *
                                  hltOfflineDQMClient *
                                  dqmFEDIntegrityClient *
-                                 alcaBeamMonitorClient *
-                                 SusyPostProcessorSequence
+                                 alcaBeamMonitorClient 
+                                )
+DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmDcsInfoClient *
+                                 SiStripOfflineDQMClient *
+                                 PixelOfflineDQMClientNoDataCertification *
+                                 l1TriggerDqmOfflineClient *
+                                 triggerOfflineDQMClient *
+                                 hltOfflineDQMClient *
+                                 dqmFEDIntegrityClient *
+                                 alcaBeamMonitorClient 
                                 )
 
 DQMHarvestMuon = cms.Sequence( dtClients *
@@ -86,14 +94,3 @@ DQMHarvestHcal = cms.Sequence( hcalOfflineDQMClient )
 
 DQMHarvestJetMET = cms.Sequence( SusyPostProcessorSequence )
                                              
-DQMStepTwo_Common = cms.Sequence( DQMHarvestCommon )
-
-DQMStepTwo_Common_Muon = cms.Sequence( DQMHarvestCommon * DQMHarvestMuon)
-
-DQMStepTwo_Common_Hcal_JetMET = cms.Sequence( DQMHarvestCommon * DQMHarvestHcal * DQMHarvestJetMET)
-
-DQMStepTwo_Common_Ecal = cms.Sequence( DQMHarvestCommon * DQMHarvestEcal) 
-
-DQMStepTwo_Common_Ecal_Hcal_Muon = cms.Sequence( DQMHarvestCommon * DQMHarvestEcal * DQMHarvestHcal * DQMHarvestMuon)
-                                   
-DQMStepTwo_Common_Muon_JetMET = cms.Sequence( DQMHarvestCommon * DQMHarvestMuon * DQMHarvestJetMET)

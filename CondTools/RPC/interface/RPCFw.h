@@ -16,9 +16,9 @@
 #include "CondTools/RPC/interface/RPCVmonSH.h"
 #include "CondTools/RPC/interface/RPCStatusSH.h"
 #include "CondTools/RPC/interface/RPCTempSH.h"
+#include "CondFormats/RPCObjects/interface/RPCObCond.h"
 #include "CondTools/RPC/interface/RPCGasSH.h"
 #include "CondTools/RPC/interface/RPCIDMapSH.h"
-#include "CondFormats/RPCObjects/interface/RPCObCond.h"
 #include "CondFormats/RPCObjects/interface/RPCObFebmap.h"
 #include "CondFormats/RPCObjects/interface/RPCObUXC.h"
 #include "CondFormats/RPCObjects/interface/RPCObGasMix.h"
@@ -38,8 +38,12 @@ public:
   virtual ~RPCFw();
   void run();
 
-  coral::TimeStamp UTtoCT(long long utime);
-  unsigned int CTtoUT(const coral::TimeStamp& time);
+  coral::TimeStamp UTtoT(long long utime);
+  unsigned long long TtoUT(coral::TimeStamp time);
+
+  coral::TimeStamp tMIN;
+  coral::TimeStamp tMAX;
+  unsigned long long N_IOV;
 
   std::vector<RPCObImon::I_Item> createIMON(long long since, long long till);
   std::vector<RPCObVmon::V_Item> createVMON(long long from, long long till); 
@@ -50,21 +54,12 @@ public:
   std::vector<RPCObFebmap::Feb_Item> createFEB(long long since, long long till);	
   std::vector<RPCObUXC::Item> createUXC(long long since, long long till);
   std::vector<RPCObGasMix::Item> createMix(long long since, long long till);
-  void setSuptype(int test_suptype);
-
- private:  
-  unsigned int detId(int pvssId);
+  bool isMajor(coral::TimeStamp fir, coral::TimeStamp sec);
   
 private:
-  coral::TimeStamp tMIN;
-  coral::TimeStamp tMAX;
   std::string m_connectionString;
   std::string m_userName;
   std::string m_password;
- private:
-  //  int _pvssId;
-  std::map<int, unsigned int> pvssTodetId;
-  int _suptype;
 };
 
 #endif

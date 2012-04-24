@@ -294,6 +294,22 @@ def getPackageCVSTags(package_name, limit = 10):
     tags.add(m.groups()[0])
   return sorted(tags, reverse=True)
 
+# Prints a formatted table from a list of tuples.
+def printTable(tags):
+  if not tags:
+    return
+  sizeTag = len(tags[0])
+  # Get the maximum size for all the fields.
+  maxSize = dict([(x, 0) for x in xrange(sizeTag)])
+  for tag in tags:
+    for i in xrange(sizeTag):
+      if tag[i] == None:
+          tag[i] = '-'
+      maxSize[i] = max(maxSize[i], len(tag[i]))
+  for tag in tags:
+    f = "".join("%%-%is  " % maxSize[x] for x in xrange(sizeTag))
+    print f % tuple([x or "-" for x in tag])
+
 def printTags(tags):
   if not tags:
     return
@@ -378,7 +394,7 @@ def cmd_tagset(args):
         elif number(version) > number(allTags[name]):
           allTags[name] = version
   allTags = allTags.items()
-  printTags(allTags) 
+  printTable(allTags) 
   if not opts.doAdd:
     return
   for (name, version) in allTags:

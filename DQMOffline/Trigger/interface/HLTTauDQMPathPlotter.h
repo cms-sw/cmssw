@@ -19,6 +19,8 @@
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
 
 class HLTTauDQMPathPlotter : public HLTTauDQMPlotter {
 public:

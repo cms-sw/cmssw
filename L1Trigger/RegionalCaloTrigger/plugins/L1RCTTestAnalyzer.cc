@@ -34,6 +34,17 @@ L1RCTTestAnalyzer::L1RCTTestAnalyzer(const edm::ParameterSet& iConfig) :
    //now do what ever initialization is needed
 
   edm::Service<TFileService> fs;
+
+  emTree = fs->make<TTree>("emTree","L1 RCT EM tree");
+//   emTree->Branch("emRank",emRank,"emRank/I");
+//   emTree->Branch("emIeta",emIeta,"emIeta/I");
+//   emTree->Branch("emIphi",emIphi,"emIphi/I");
+//   emTree->Branch("emIso" ,emIso ,"emIso/I");
+  emTree->Branch("emRank",&emRank);
+  emTree->Branch("emIeta",&emIeta);
+  emTree->Branch("emIphi",&emIphi);
+  emTree->Branch("emIso" ,&emIso);
+
   h_emRank = fs->make<TH1F>( "emRank", "emRank", 64, 0., 64. );
   h_emRankOutOfTime = fs->make<TH1F>( "emRankOutOfTime", "emRankOutOfTime",
 				      64, 0., 64. );
@@ -113,6 +124,9 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    iEvent.getByLabel(ecalDigisLabel, ecalColl);
    iEvent.getByLabel(hcalDigisLabel, hcalColl);
 
+   // for sorting later
+   L1CaloEmCollection * myL1EmColl = new L1CaloEmCollection;
+
    for (ecal=ecalColl->begin(); ecal!=ecalColl->end(); ecal++)
      {
        for (unsigned short sample = 0; sample < (*ecal).size(); sample++)
@@ -132,10 +146,15 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
    if(showEmCands)
      {
-       std::cout << std::endl << "L1 RCT EmCand objects" << std::endl;
+       //       std::cout << std::endl << "L1 RCT EmCand objects" << std::endl;
      }
    for (em=rctEmCands->begin(); em!=rctEmCands->end(); em++){
      //  std::cout << "(Analyzer)\n" << (*em) << std::endl;
+
+     L1CaloEmCand * myL1EmCand = new L1CaloEmCand(*em);
+     (*myL1EmColl).push_back(*myL1EmCand);
+     delete myL1EmCand;
+
      h_emCandTimeSample->Fill((*em).bx());
      if ((*em).bx() == 0)
        {
@@ -167,7 +186,7 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	   {
 	     if ((*em).rank() > 0)
 	       {
-		 std::cout << std::endl << "rank: " << (*em).rank();
+		 //		 std::cout << std::endl << "rank: " << (*em).rank();
 		 unsigned short rgnPhi = 999;
 		 unsigned short rgn = (unsigned short) (*em).rctRegion();
 		 unsigned short card = (unsigned short) (*em).rctCard();
@@ -185,7 +204,8 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		   {
 		     std::cout << "rgnPhi not assigned (still " << rgnPhi << ") -- Weird card number! " << card ;
 		   }
-		 unsigned short phi_bin = ((crate % 9) * 2) + rgnPhi;
+
+		 //unsigned short phi_bin = ((crate % 9) * 2) + rgnPhi;
 		 short eta_bin = (card/2) * 2 + 1;
 		 if (card < 6)
 		   {
@@ -197,7 +217,7 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		   }
 		 n_emcands++;
 		 
-		   std::cout << /* "rank: " << (*em).rank() << */ "  eta_bin: " << eta_bin << "  phi_bin: " << phi_bin << ".  crate: " << crate << "  card: " << card << "  region: " << rgn << ".  isolated: " << (*em).isolated();
+		 //		   std::cout << /* "rank: " << (*em).rank() << */ "  eta_bin: " << eta_bin << "  phi_bin: " << phi_bin << ".  crate: " << crate << "  card: " << card << "  region: " << rgn << ".  isolated: " << (*em).isolated();
 	       }
 	   }
        }
@@ -208,8 +228,23 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    }
    if(showEmCands)
      {
-       std::cout << std::endl;
+       //       std::cout << std::endl;
      }
+
+   // next: SORT THESE GUYS so they're entered into the tree highest first
+//    std::sort(rctEmCands->begin(),rctEmCands->end(),compareEmCands);
+//    for (em=rctEmCands->begin(); em!=rctEmCands->end(); em++)
+   std::sort(myL1EmColl->begin(),myL1EmColl->end(),compareEmCands);
+   std::reverse(myL1EmColl->begin(),myL1EmColl->end()); // whoops!
+   for (em=myL1EmColl->begin(); em!=myL1EmColl->end(); em++)
+     {
+       emRank.push_back( (*em).rank() );
+       emIeta.push_back( (*em).regionId().ieta() );
+       emIphi.push_back( (*em).regionId().iphi() );
+       emIso.push_back( (*em).isolated() );
+     }
+   emTree->Fill();
+
 
    if(showRegionSums)
      {
@@ -241,4 +276,16 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
        std::cout << std::endl;
      }
 
+   emRank.clear();
+   emIeta.clear();
+   emIphi.clear();
+   emIso.clear();
+
+   delete myL1EmColl;
+}
+
+bool
+L1RCTTestAnalyzer::compareEmCands(const L1CaloEmCand& cand1, const L1CaloEmCand& cand2)
+{
+  return (cand1.rank() < cand2.rank());
 }

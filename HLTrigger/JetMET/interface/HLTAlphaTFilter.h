@@ -1,5 +1,5 @@
-#ifndef HLTAlphaTFilter_h
-#define HLTAlphaTFilter_h
+#ifndef HLTrigger_JetMET_HLTAlphaTFilter_h
+#define HLTrigger_JetMET_HLTAlphaTFilter_h
 
 /** \class HLTAlphaTFilter
  *
@@ -27,10 +27,11 @@ class HLTAlphaTFilter : public HLTFilter {
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
       
    private:
-      edm::InputTag inputJetTag_; // input tag identifying jets
-      edm::InputTag inputJetTagFastJet_; // input tag identifying a second collection of jets
+      edm::InputTag inputJetTag_;           // input tag identifying jets
+      edm::InputTag inputJetTagFastJet_;    // input tag identifying a second collection of jets
       std::vector<double> minPtJet_;
       std::vector<double> etaJet_;
+      unsigned int maxNJets_;
       double minHt_;
       double minAlphaT_;
       int triggerType_;
@@ -140,6 +141,16 @@ struct AlphaT {
 
     // Clear pseudo-jet container
     pseudo_jet1.clear();
+    pseudo_jet1.resize(et.size());
+
+    // check the size of the input collection
+    if (et.size() == 0)
+      // empty jet collection, return AlphaT = 0
+      return 0.;
+
+    if (et.size() > (unsigned int) std::numeric_limits<unsigned int>::digits)
+      // too many jets, return AlphaT = a very large number
+      return std::numeric_limits<double>::max();
 
     // Momentum sums in transverse plane
     const double sum_et = accumulate( et.begin(), et.end(), 0. );
@@ -147,27 +158,28 @@ struct AlphaT {
     const double sum_py = accumulate( py.begin(), py.end(), 0. );
 
     // Minimum Delta Et for two pseudo-jets
-    double min_delta_sum_et = -1.;
-    for ( unsigned i=0; i < unsigned(1<<(et.size()-1)); i++ ) { //@@ iterate through different combinations
+    double min_delta_sum_et = sum_et;
+
+    for (unsigned int i = 0; i < (1U << (et.size() - 1)); i++) { //@@ iterate through different combinations
       double delta_sum_et = 0.;
-      std::vector<bool> jet;
-      for ( unsigned j=0; j < et.size(); j++ ) { //@@ iterate through jets
-  delta_sum_et += et[j] * ( 1 - 2 * (int(i>>j)&1) );
-  if ( list ) { jet.push_back( (int(i>>j)&1) == 0 ); }
+      for (unsigned int j = 0; j < et.size(); ++j) { //@@ iterate through jets
+        if (i & (1U << j))
+          delta_sum_et -= et[j];
+        else
+          delta_sum_et += et[j];
       }
-      if ( ( std::abs(delta_sum_et) < min_delta_sum_et || min_delta_sum_et < 0. ) ) {
-  min_delta_sum_et = std::abs(delta_sum_et);
-  if ( list && jet.size() == et.size() ) {
-    pseudo_jet1.resize(jet.size());
-    std::copy( jet.begin(), jet.end(), pseudo_jet1.begin() );
-  }
+      delta_sum_et = std::abs(delta_sum_et);
+      if (delta_sum_et < min_delta_sum_et) {
+        min_delta_sum_et = delta_sum_et;
+        if (list) {
+          for (unsigned int j = 0; j < et.size(); ++j)
+            pseudo_jet1[j] = ((i & (1U << j)) == 0);
+        }
       }
     }
-    if ( min_delta_sum_et < 0. ) { return 0.; }
 
     // Alpha_T
-    return ( 0.5 * ( sum_et - min_delta_sum_et ) / sqrt( sum_et*sum_et - (sum_px*sum_px+sum_py*sum_py) ) );
-
+    return (0.5 * (sum_et - min_delta_sum_et) / sqrt( sum_et*sum_et - (sum_px*sum_px+sum_py*sum_py) ));  
   }
 
   // -----------------------------------------------------------------------------
@@ -186,4 +198,4 @@ struct AlphaT {
 
 
 
-#endif //HLTAlphaTFilter_h
+#endif // HLTrigger_JetMET_HLTAlphaTFilter_h

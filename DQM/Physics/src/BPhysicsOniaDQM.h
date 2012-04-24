@@ -6,8 +6,8 @@
  *
  *  DQM offline for quarkonia
  *
- *  $Date: 2010/11/11 17:33:03 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/11/08 22:39:00 $
+ *  $Revision: 1.5.4.2 $
  *  \author S. Bolognesi, Eric - CERN
  */
 
@@ -81,9 +81,9 @@ class BPhysicsOniaDQM : public edm::EDAnalyzer {
   MonitorElement* trkSigNoCut;
   MonitorElement* trkBkgNoCut;
 
-  //   MonitorElement* JPsiGlbYdLumi;
-  //   MonitorElement* JPsiStaYdLumi;
-  //   MonitorElement* JPsiTrkYdLumi;
+  MonitorElement* JPsiGlbYdLumi;
+  MonitorElement* JPsiStaYdLumi;
+  MonitorElement* JPsiTrkYdLumi;
 
   //Yield of dimuon objects
   int jpsiGlbSigPerLS;

@@ -130,6 +130,7 @@ namespace edm {
           if(!checkMatchingBranches(inputBranch, outputBranch)) {
             LogInfo("FastCloning")
               << "Fast Cloning disabled because a data member has been added to split branch: " << inputBranch->GetName() << "\n.";
+            return false;
           }
         }
       }

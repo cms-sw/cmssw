@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
-<Configuration xmlns="http://www.cern.ch/cms/CDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="CMSConfiguration" version="0" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/CDLSchema.xsd">
-	<Include name="test">
-		<File name="Geometry/CMSCommonData/data/materials.xml" url="."/>
-		<File name="Geometry/CMSCommonData/data/rotations.xml" url="."/>
-		<File name="Geometry/EcalTestBeam/data/ecal_TB.xml" url="."/>
-		<File name="Geometry/CMSCommonData/data/cms.xml" url="."/>
-		<File name="Geometry/EcalSimData/data/ecalsens_MTCC.xml" url="."/>
-		<File name="Geometry/HcalSimData/data/CaloUtil.xml" url="."/>
-		<File name="Geometry/EcalSimData/data/EcalProdCuts.xml" url="."/>
-	</Include>
-	<Root fileName="cms.xml" logicalPartName="OCMS"/>
+<Configuration xmlns="." xmlns:xsi="." xsi:schemaLocation= "." name="CMSConfiguration" version="0">
+<Include name="test">
+ <File name="Geometry/CMSCommonData/data/materials.xml"            url="."/>
+ <File name="Geometry/CMSCommonData/data/rotations.xml"            url="."/>
+ <File name="Geometry/EcalTestBeam/data/ecal_TB.xml"               url="."/>
+ <File name="Geometry/CMSCommonData/data/cms.xml"                  url="."/>
+ <File name="Geometry/EcalSimData/data/ecalsens_MTCC.xml"          url="."/>
+ <File name="Geometry/HcalSimData/data/CaloUtil.xml"               url="."/>
+ <File name="Geometry/EcalSimData/data/EcalProdCuts.xml"           url="."/>
+</Include>
+<Root fileName="cms.xml" logicalPartName="OCMS"/>
 </Configuration>

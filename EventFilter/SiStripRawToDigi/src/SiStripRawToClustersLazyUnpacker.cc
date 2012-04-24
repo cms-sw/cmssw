@@ -13,7 +13,8 @@ namespace sistrip {
     rawAlgos_(&rpAlgos),
     buffers_(),
     rawToDigi_(0,0,0,0,0,0,0,0),
-    dump_(dump)
+    dump_(dump),
+    doAPVEmulatorCheck_(true)
   {
     buffers_.assign(1024,static_cast<sistrip::FEDBuffer*>(0));
   }
@@ -109,7 +110,8 @@ namespace sistrip {
 
 	// check channel
         const uint8_t fedCh = iconn->fedCh();
-	if (!buffer->channelGood(fedCh)) {
+
+	if (!buffer->channelGood(fedCh,doAPVEmulatorCheck_)) {
           if (edm::isDebugEnabled()) {
             std::ostringstream ss;
             ss << "Problem unpacking channel " << fedCh << " on FED " << fedId;
@@ -229,4 +231,5 @@ namespace sistrip {
     }
   }
 
-}  
+  
+}
