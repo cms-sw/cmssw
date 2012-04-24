@@ -18,7 +18,7 @@ TOPElePlusJets.triggerConditions = cms.vstring(
 'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFNoPUJet50_40_30_v*',
 'HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFNoPUJet30_v*',
 'HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFNoPUJet50_40_30_v*',
-'HLT_Ele25_CaloIdL_*PF*_v*'
+'HLT_Ele25_CaloIdL_**'
 )
 TOPElePlusJets.hltResults = cms.InputTag( "TriggerResults", "", "HLT" )
 TOPElePlusJets.l1tResults = cms.InputTag("")
