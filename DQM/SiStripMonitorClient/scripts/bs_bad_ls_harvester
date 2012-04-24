@@ -1,0 +1,94 @@
+#!/bin/bash
+
+#setup vars
+
+IDIR=$1
+RUN_NUMBER=$2
+BS_CERT=$IDIR"/Certification_BS_run_"$RUN_NUMBER".txt"
+HARVESTING_FILE="bs_bad_ls_summary.harvest"
+HARVESTING_EXISTS=0
+HARVESTING_CREATED="bs_bad_ls_summary.created"
+
+#check if certification file found for this run
+if [ -f $BS_CERT ]
+    then
+    #all OK, check if the summary file exists
+    if [ -f $HARVESTING_FILE ]
+	then
+	HARVESTING_EXISTS=1
+    fi
+else
+    if [ ! -f $HARVESTING_FILE ]
+	then
+	if [ ! -f $HARVESTING_CREATED ]
+	    then
+	    echo "harvesting creation date" > $HARVESTING_CREATED
+	fi	
+	exit
+    fi
+fi
+
+#check if bad LS found in the currently processed run (0 = not found , >0 = found)
+#if yes, add to the summary file (if summary file does not exist, create one)
+
+if  [ -f $BS_CERT ]
+    then
+    ISBAD=`grep BAD $BS_CERT | wc -l`
+    
+    if [ "$ISBAD" -gt 0 ]
+	then
+	if [ "$HARVESTING_EXISTS" -eq 1 ]    
+	    then
+#check if run already saved in the summary file
+	    RUN_HARVESTED=`grep $RUN_NUMBER $HARVESTING_FILE | wc -l`
+	    if [ "$RUN_HARVESTED" -eq 0 ]
+		then
+		TEMP_FILE="cat.temp"
+		cat $HARVESTING_FILE $BS_CERT > $TEMP_FILE
+		echo "" >> $TEMP_FILE
+		mv $TEMP_FILE $HARVESTING_FILE
+	    fi
+	else
+	    cp $BS_CERT $HARVESTING_FILE
+	    echo "" >> $HARVESTING_FILE
+	    if [ ! -f $HARVESTING_CREATED ]
+		then
+		echo "harvesting creation date" > $HARVESTING_CREATED
+	    fi
+	fi
+    fi
+fi
+
+
+#decide to send (or not yet) the email
+#if $SEND_EMAIL=0, do not send yet, if > 0 send (summary file older than x days
+SEND_EMAIL=`find $HARVESTING_CREATED -mtime +1 | wc -l`
+if [ "$SEND_EMAIL" -eq 0 ]
+    then
+    SEND_EMAIL=`find $HARVESTING_CREATED -mtime 1 | wc -l`
+fi
+
+if [ "$SEND_EMAIL" -gt 0 -a "$HARVESTING_EXISTS" -eq 1 ]
+#if [ "$SEND_EMAIL" -gt 0 ]
+then
+    SUBJECT="Beamspot Bad LS Notification"
+# Email To ?
+#    EMAIL="burkett@fnal.gov,Leonard.Spiegel@cern.ch,vimartin@fnal.gov,threus@cern.ch"
+    EMAIL="threus@cern.ch"
+# Email text/message
+    EMAILMESSAGE="bs_bad_ls_summary.email"
+    cp $HARVESTING_FILE $EMAILMESSAGE
+    echo "This is an automated email sent periodically and only if a run with a bad beamspot LS was identified." >> $EMAILMESSAGE
+# send email using /bin/mail
+    /bin/mail -s "$SUBJECT" "$EMAIL" < $EMAILMESSAGE
+    
+#need to delete the summary file after being sent
+
+    rm $EMAILMESSAGE
+    rm $HARVESTING_FILE
+    
+#update date when last sent email (to send again in next x days)
+    
+    touch $HARVESTING_CREATED
+    
+fi

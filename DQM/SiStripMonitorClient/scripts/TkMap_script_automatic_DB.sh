@@ -22,11 +22,11 @@ do
 
 # copy of the file
     nnn=`echo $Run_numb | awk '{print substr($0,0,4)}'` 
-    curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/Commissioning12/'${1}'/000'${nnn}'xx/' > index.html
+    curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/Run2012/'${1}'/000'${nnn}'xx/' > index.html
 #    wget --no-check-certificate 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/HIRun2011/'${1}'/000'${nnn}'xx/' -O index.html
     dqmFileName=`cat index.html | grep ${Run_numb} | grep "_DQM.root" | sed 's/.*>\(.*\)<\/a.*/\1/' `
     echo ' dqmFileName = ['$dqmFileName']'
-    curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/Commissioning12/${1}/000${nnn}xx/${dqmFileName} > /tmp/${dqmFileName}
+    curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/Run2012/${1}/000${nnn}xx/${dqmFileName} > /tmp/${dqmFileName}
     checkFile=`ls /tmp/${dqmFileName} | grep ${Run_numb}`
 
 ##check if the full run is completely saved (Info/Run summary/ProvInfo/ runIsComplete flag == 1? 
@@ -90,21 +90,21 @@ file_path="/tmp/"
     echo " Creating the lumisection certification:"
 ##    root.exe -l -b -q   "ls_cert.C+(0.95,0.95,\"${file_path}/$dqmFileName\")"
 
-#    ls_cert 0.95 0.95 ${file_path}/$dqmFileName
+    ls_cert 0.95 0.95 ${file_path}/$dqmFileName
 
-#    mv Certification_run_* $Run_numb/$1
+    mv Certification_run_* $Run_numb/$1
 
 ## Producing the PrimaryVertex/BeamSpot quality test by LS..
     if [ "${1}" == "MinimumBias" -o "${1}" == "Jet" ]; then	
 	echo " Creating the BeamSpot Calibration certification summary:"
 ##	root.exe -l -b -q   "lsbs_cert.C+(\"${file_path}/$dqmFileName\")"
 
-#       lsbs_cert  ${file_path}/$dqmFileName
+	lsbs_cert  ${file_path}/$dqmFileName
 
-#	mv Certification_BS_run_* $Run_numb/$1
+	mv Certification_BS_run_* $Run_numb/$1
     fi
 ## .. and harvest the bad beamspot LS with automatic emailing (if in period and if bad LS found)
-#    ./bs_bad_ls_harvester $Run_numb/$1 $Run_numb
+    bs_bad_ls_harvester $Run_numb/$1 $Run_numb
 
 ## Producing the Module difference for ExpressStream
     if [ "${1}" == "StreamExpress" -o "${1}" == "StreamExpressCosmics" ]; then	
