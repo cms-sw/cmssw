@@ -64,7 +64,7 @@ generator.src = inputColl
 from TrackingTools.TrackAssociator.default_cfi import *
 anaDeposits = cms.EDProducer('MuonCaloCleaner',
    TrackAssociatorParameterBlock,
-   selectedMuons = cms.InputTag("removedInputMuons"),
+   selectedMuons = inputColl,
    useCombinedCandidate = cms.untracked.bool(True)
 )
  

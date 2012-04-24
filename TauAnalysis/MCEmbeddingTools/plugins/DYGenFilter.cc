@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Fruboes
 //         Created:  Mon Dec  5 16:42:11 CET 2011
-// $Id$
+// $Id: DYGenFilter.cc,v 1.1 2012/02/17 13:46:39 fruboes Exp $
 //
 //
 
@@ -55,6 +55,8 @@ class DYGenFilter : public edm::EDFilter {
   
       // ----------member data ---------------------------
       int pdgCode_;
+      double etaMax_;
+      double ptMin_;
 };
 
 //
@@ -72,6 +74,8 @@ DYGenFilter::DYGenFilter(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
   pdgCode_ = abs(iConfig.getUntrackedParameter<int>("code"));
+  etaMax_ = iConfig.getUntrackedParameter<double>("etaMax");
+  ptMin_ = iConfig.getUntrackedParameter<double>("ptMin");
 
 }
 
@@ -104,14 +108,15 @@ DYGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   it = genh->GetEvent()->particles_begin();
   itE = genh->GetEvent()->particles_end();
 
-  float maxEta = 2.4;
+  float etaMax_ = 2.4;
 
   //std::cout << "-------------" << std::endl;
   std::vector<float> pts(2,0);
   for(;it!=itE;++it){
     int pdg = abs( (*it)->pdg_id() ) ;
     if (pdg != pdgCode_) continue;
-    if ( abs((*it)->momentum().eta() )>maxEta) continue;
+    if ( abs((*it)->momentum().eta() )>etaMax_) continue;
+    if ( (*it)->momentum().perp() < ptMin_ ) continue;
     int charge = pdg/(*it)->pdg_id();
     float pt = (*it)->momentum().perp();
     //std::cout << charge << " " << pt << std::endl;
@@ -123,7 +128,7 @@ DYGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
  
   bool ret = true;
-  if ( pts[0]<20 || pts[1]<20) ret =false;
+  if ( pts[0]<ptMin_ || pts[1]<ptMin_) ret =false;
   //std::cout << "XXX " << pts[0] << " " << pts[1] <<  " " << ret << std::endl;
   return ret;
 }

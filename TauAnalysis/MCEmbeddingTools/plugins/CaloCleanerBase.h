@@ -5,16 +5,20 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
+
+
 #include <map>
 class CaloCleanerBase 
 {
 
   public:
     virtual ~CaloCleanerBase(){};
-    void setEvent(edm::Event& iEvent);
+    virtual void setEvent(edm::Event& iEvent);
 
     virtual std::string name() = 0;
 
+    /// returns energy correction for rechit. Negative value - remove rh completely.
     virtual float cleanRH(DetId det, float energy) = 0;
 
 
@@ -26,10 +30,13 @@ class CaloCleanerBase
     edm::Event * iEvent_;
     CaloCleanerBase(const edm::ParameterSet& config);
 
-    edm::InputTag col1;
-    edm::InputTag col2;
-    edm::Handle< TLenMap > h1;
-    edm::Handle< TLenMap > h2;
+    edm::InputTag colPlus;
+    edm::InputTag colMinus;
+    edm::Handle< TLenMap > hPlus;
+    edm::Handle< TLenMap > hMinus;
+
+    edm::InputTag muons_;
+    edm::Handle< std::vector< reco::CompositeCandidate > > ZmumuHandle_;
 
 };
 

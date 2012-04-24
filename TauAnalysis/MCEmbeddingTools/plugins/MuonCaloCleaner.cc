@@ -46,6 +46,7 @@ Implementation:
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 //
 // class decleration
@@ -74,7 +75,7 @@ class MuonCaloCleaner : public edm::EDProducer {
       TrackDetectorAssociator trackAssociator_;
       TrackAssociatorParameters parameters_;
       
-
+      edm::Event * iEvent_ ;
       // ----------member data ---------------------------
 };
 
@@ -117,6 +118,9 @@ MuonCaloCleaner::~MuonCaloCleaner()
 void
 MuonCaloCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
+  iEvent_ = &iEvent;
+
   using namespace edm;
   using namespace reco;
   std::auto_ptr<  std::map< uint32_t , float> > retPtrPlus(new std::map< uint32_t , float>) ;
@@ -128,6 +132,11 @@ MuonCaloCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::vector< const reco::Muon * > toBeAdded;
   
   if (_useCombinedCandidate){
+    std::cout << " xxx Trying to use comb cand" << std::endl;
+
+    edm::Handle< std::vector<reco::Muon> > muonsHandle;
+    iEvent.getByLabel(edm::InputTag("muons"), muonsHandle); 
+
     edm::Handle< std::vector< reco::CompositeCandidate > > combCandidatesHandle;
     if (  iEvent.getByLabel(_inputCol, combCandidatesHandle) 
 	  && combCandidatesHandle->size()>0 ) 
@@ -135,8 +144,17 @@ MuonCaloCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       for (size_t idx = 0; idx < combCandidatesHandle->at(0).numberOfDaughters(); ++idx)	{
 	const Muon * mu = dynamic_cast <const Muon *> (combCandidatesHandle->at(0).daughter(idx));
 	if (mu == 0) {
-	  std::cout << "XXX cannot cast" << std::endl;
-	  return;
+          for (size_t i=0; i<muonsHandle->size();++i){
+              if (!muonsHandle->at(i).isGlobalMuon()) continue;
+              if (deltaR(combCandidatesHandle->at(0).daughter(idx)->p4(), muonsHandle->at(i) )< 0.01){
+                 mu = &muonsHandle->at(i);
+                 break;
+              }
+          } 
+  	  if (mu == 0) { // still nothing
+  	    std::cout << "MuonCaloCleaner::produce:  XXX cannot cast or match muon" << std::endl;
+	    return;
+          }
 	  
 	}
 	toBeAdded.push_back(mu);
@@ -155,9 +173,8 @@ MuonCaloCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   
   if (toBeAdded.size() != 2){
-      //std::cout << "XXX size wrong" << toBeAdded.size() << std::endl;
+      //std::cout << "XXX toBeAddedSize wrong" << toBeAdded.size() << std::endl;
       //return;
-
   }
   
   for (size_t i = 0; i < toBeAdded.size(); ++i) {
@@ -204,7 +221,7 @@ void MuonCaloCleaner::fillMap(const TrackDetMatchInfo & info,
   todo["es"] = &(info.crossedPreshowerIds);
     
     
-  /*
+  //*
   BOOST_FOREACH( TMyStore::value_type &entry, todo ){
     // get trajectory depending on detector type;
     std::vector<GlobalPoint> trajectory;
@@ -220,6 +237,8 @@ void MuonCaloCleaner::fillMap(const TrackDetMatchInfo & info,
       it = trackAssociator_.cachedTrajectory_.getHOTrajectory().begin();
       itE =  trackAssociator_.cachedTrajectory_.getHOTrajectory().end();
     } else if (entry.first=="es") {
+      //std::cout << "Doing ES: " << trackAssociator_.cachedTrajectory_.getPreshowerTrajectory().size() << std::endl;
+      //std::cout << "ES size : " << todo["es"].size() << std::endl;
       it = trackAssociator_.cachedTrajectory_.getPreshowerTrajectory().begin();
       itE = trackAssociator_.cachedTrajectory_.getPreshowerTrajectory().end();
     } else {
@@ -235,6 +254,8 @@ void MuonCaloCleaner::fillMap(const TrackDetMatchInfo & info,
     itDet =  entry.second->begin();
     itDetE = entry.second->end();
     for (;itDet!=itDetE;++itDet){
+      //if (entry.first=="es") std::cout << " XVAV " << std::endl;
+
       if (itDet->rawId()==0) continue;
       const CaloSubdetectorGeometry* subDetGeom = 
 	    trackAssociator_.theCaloGeometry_->getSubdetectorGeometry(*itDet);
@@ -259,12 +280,13 @@ void MuonCaloCleaner::fillMap(const TrackDetMatchInfo & info,
 		
 		bool inside = myGeo->inside(steppingPoint);
 		if (inside) ++stepsInsideLocal;
-		//std::cout << " " << steppingX
-		//    << " " << steppingY
-		//    << " " << steppingZ
-		//    << " " << inside
-		//    << std::endl;
-		//
+                if (false && entry.first=="es") {
+		  std::cout << " " << steppingX
+		      << " " << steppingY
+  		      << " " << steppingZ
+		      << " " << inside
+		      << std::endl;
+		}
 	      }
 	      distInside += float(stepsInsideLocal)/float(steps + 1)*dist;
 	}
@@ -275,7 +297,7 @@ void MuonCaloCleaner::fillMap(const TrackDetMatchInfo & info,
     }// end detID iteration
   }// end hcal/ecal/ho iteration
     
-  */
+  // */
   
   
 }
@@ -293,6 +315,23 @@ void MuonCaloCleaner::storeDeps(const TrackDetMatchInfo & info,
 
   BOOST_FOREACH(const HORecHit * rh, info.crossedHORecHits)
     (*retPtrDeposits)[rh->detid().rawId()]=rh->energy();
+
+  // no better way :)
+  edm::Handle< ESRecHitCollection  > hESRh;
+  iEvent_->getByLabel(edm::InputTag("ecalPreshowerRecHit","EcalRecHitsES"), hESRh);
+
+  //BOOST_FOREACH(const EcalRecHit  rh, *hESRh)
+  //     std::cout << "ES  " << rh.detid().rawId() << " " << rh.energy() << std::endl;
+
+  BOOST_FOREACH(const DetId  & det, info.crossedPreshowerIds ){
+     if (  hESRh->find(det)!=hESRh->end()  ) {
+           (*retPtrDeposits)[det.rawId()]=hESRh->find(det)->energy(); 
+     }
+     else {
+       //std::cout << "XXX cannot find ES rh " << det.rawId() << std::endl;
+     }
+  }
+
 
     
 }

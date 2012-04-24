@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Fri Apr  9 12:15:56 CEST 2010
-// $Id: CaloRecHitMixer.h,v 1.2 2012/02/07 15:56:18 fruboes Exp $
+// $Id: CaloRecHitMixer.h,v 1.3 2012/03/01 16:22:23 fruboes Exp $
 //
 //
 
@@ -60,10 +60,12 @@ class CaloRecHitMixer : public edm::EDProducer {
       //typedef std::vector< TMyType > TMyTypeCol;
       typedef  edm::SortedCollection< TMyType > TMyTypeCol;
  
-      bool isRecHitKosher(const TMyType & rh);
       TMyType merge(const TMyType & rh1, const TMyType & rh2);
       TMyType mergeHCAL(const TMyType & rh1, const TMyType & rh2);
-     
+ 
+      TMyType cleanRH(const TMyType & rh, float energy);
+      TMyType cleanHCAL(const TMyType & rh, float energy);
+    
 
 
 
@@ -169,7 +171,6 @@ CaloRecHitMixer<TMyType>::produce(edm::Event& iEvent, const edm::EventSetup& iSe
               itT != (*it)->end(); 
               ++itT)
         {
-          if ( !isRecHitKosher(*itT) ) continue;
           uint32_t rawId = itT->detid().rawId();
           bool detIdPresentInMap =  (myMap.find(rawId) != myMap.end());
 
@@ -177,19 +178,28 @@ CaloRecHitMixer<TMyType>::produce(edm::Event& iEvent, const edm::EventSetup& iSe
             if ( detIdPresentInMap ) {
                throw cms::Exception("Whooops! Rechit allready in map!\n");
             }
-            float en = caloCleaner_->cleanRH(rawId, itT->energy()  );
-            // xxx temporary ugly hack
-	    if ( en ==  0){  // not crossed by muon
-              myMap[rawId]=*itT;
-            }  else {
-              //std::cout << "XXX rechit evaporated. " << rawId << " " <<  itT->energy() << std::endl;
+
+            float correction = caloCleaner_->cleanRH(rawId, itT->energy()  );
+	    if (  correction ==  0){  
+               myMap[rawId]=*itT;
+            }
+	    if (  correction <  0)  // crossed by muon, remove completely
+            {
+            } 
+            else 
+            {
+              TMyType cleanedRH = cleanRH(*itT, correction);
+              if (cleanedRH.energy()>0) myMap[rawId] = cleanedRH;
             }
              
             // do cleaning here !
 
           // TODO: do similar xcheck to above: given rh should be present in collection only once
           } else {  // this is tautau collection
-            if (!detIdPresentInMap) myMap[rawId]=*itT; // given detId not in map, add new entry
+            if (!detIdPresentInMap)  {
+              // potentiall problem - this cell may be switched off/bad in hw. We know nothing about it...
+              myMap[rawId]=*itT; // given detId not in map, add new entry
+            }
             else {    // merge two rechits
                     /*
                     edm::Provenance prov=iEvent.getProvenance(it->id());
@@ -238,15 +248,6 @@ CaloRecHitMixer<TMyType>::endJob() {
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
-template <typename TMyType>
-bool CaloRecHitMixer<TMyType>::isRecHitKosher(const TMyType & rh){
-  return true;
-}
-
-template <>
-bool CaloRecHitMixer<EcalRecHit>::isRecHitKosher(const EcalRecHit & rh){
-  return true;
-}
 
 
 
@@ -268,9 +269,9 @@ TMyType CaloRecHitMixer<TMyType>::merge(const TMyType & rh1, const TMyType & rh2
 
   // is time calculation good this way?
   // xxx
-  //TMyType rhRet( rh1.detid(), rh1.energy()+rh2.energy(), rh2.time() );
+  TMyType rhRet( rh1.detid(), rh1.energy()+rh2.energy(), rh2.time() );
   //std::cout << "XXX generic " << rh1.energy() << " " << rh2.energy() << std::endl;
-  TMyType rhRet(rh2);
+  //TMyType rhRet(rh2);
   return rhRet;
 }
 
@@ -285,7 +286,8 @@ EcalRecHit CaloRecHitMixer<EcalRecHit>::merge(const EcalRecHit & rhZmumu, const 
   //
 
   //*
-  EcalRecHit rhRet(rhZmumu.detid(), rhZmumu.energy()+rhTauTau.energy(), rhTauTau.time(), rhTauTau.flags(), rhTauTau.checkFlagMask(0xFFFF) );
+  //EcalRecHit rhRet(rhZmumu.detid(), rhZmumu.energy()+rhTauTau.energy(), rhTauTau.time(), rhTauTau.flags(), rhTauTau.checkFlagMask(0xFFFF) );
+  EcalRecHit rhRet(rhZmumu.detid(), rhZmumu.energy()+rhTauTau.energy(), rhTauTau.time(), rhTauTau.flags(), rhZmumu.checkFlagMask(0xFFFF) );
   return rhRet;
   // */
   // std::cout << "XXX ecal " << rhZmumu.energy() << " " << rhTauTau.energy() << std::endl;
@@ -303,7 +305,8 @@ TMyType CaloRecHitMixer<TMyType>::mergeHCAL(const TMyType & rhZmumu, const TMyTy
   TMyType rhRet(rhZmumu.detid(), rhZmumu.energy()+rhTauTau.energy(), rhTauTau.time());
 
   // for now - take flags from Zmumu (data), since it is more likely to show problems than MC
-  rhRet.setFlags(rhTauTau.flags());
+  //rhRet.setFlags(rhTauTau.flags());
+  rhRet.setFlags(rhZmumu.flags());
 
   rhRet.setAux(rhTauTau.aux()); // 4_2_6 - aux seems not to be used anywere (LXR search), 
                                 // only in  Validation/HcalRecHits/src/HcalRecHitsValidation.cc
@@ -334,6 +337,66 @@ HFRecHit CaloRecHitMixer<HFRecHit>::merge(const HFRecHit & rhZmumu, const HFRecH
 
 
 
+
+template <typename TMyType> TMyType CaloRecHitMixer<TMyType>::cleanRH(const TMyType & rh, float energy){
+
+  float newEn = rh.energy()-energy;
+  if (newEn<0) newEn = 0;
+  TMyType rhRet( rh.detid(), newEn, rh.time() );
+
+  return  rhRet;
+}
+
+
+template <>
+EcalRecHit CaloRecHitMixer<EcalRecHit>::cleanRH(const EcalRecHit & rh, float energy){
+
+  float newEn = rh.energy()-energy;
+  if (newEn<0) newEn = 0;
+  //*
+  EcalRecHit rhRet(rh.detid(), newEn, rh.time(), rh.flags(), rh.checkFlagMask(0xFFFF) );
+  return rhRet;
+}
+
+
+
+// for the moment dont care about flags, aux
+template < typename TMyType >
+TMyType CaloRecHitMixer<TMyType>::cleanHCAL(const TMyType & rh, float energy){
+
+
+  float newEn = rh.energy()-energy;
+  if (newEn<0) newEn = 0;
+  TMyType rhRet(rh.detid(), newEn, rh.time());
+  
+  rhRet.setFlags(rh.flags());
+  
+  rhRet.setAux(rh.aux()); // 4_2_6 - aux seems not to be used anywere (LXR search), 
+                                // only in  Validation/HcalRecHits/src/HcalRecHitsValidation.cc
+                                // same for 5_0_0
+
+  return rhRet;
+  
+
+}
+
+template <>
+HBHERecHit CaloRecHitMixer<HBHERecHit>::cleanRH(const HBHERecHit & rh, float energy){
+  return cleanHCAL(rh, energy);
+}
+
+template <>
+HORecHit CaloRecHitMixer<HORecHit>::cleanRH(const HORecHit & rh, float energy){
+  return cleanHCAL(rh, energy);
+
+}
+
+
+template <>
+HFRecHit CaloRecHitMixer<HFRecHit>::cleanRH(const HFRecHit & rh, float energy){
+  return cleanHCAL(rh, energy);
+
+}
 
 
 

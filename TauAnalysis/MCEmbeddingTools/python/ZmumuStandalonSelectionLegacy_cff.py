@@ -24,9 +24,7 @@ goodVertex = cms.EDFilter("VertexSelector",
 )
 
 
-
-'''
-muonsWithPFIso = cms.EDProducer("MuonWithPFIsoProducer",
+muonsWithPFIso = cms.EDProducer("MuonWithPFIsoProducerCopy",
          MuonTag = cms.untracked.InputTag("muons")
        , PfTag = cms.untracked.InputTag("pfNoPileUp")
        , UsePfMuonsOnly = cms.untracked.bool(False)
@@ -34,9 +32,8 @@ muonsWithPFIso = cms.EDProducer("MuonWithPFIsoProducer",
        , GammaIsoVeto = cms.untracked.double(0.07)
        , NeutralHadronIsoVeto = cms.untracked.double(0.1)
 )
-'''
 
-#patMuons.muonSource = cms.InputTag("muonsWithPFIso")
+patMuons.muonSource = cms.InputTag("muonsWithPFIso")
 
 goodMuons = cms.EDFilter("PATMuonSelector",
   src = cms.InputTag("patMuons"),
@@ -54,8 +51,8 @@ goodMuons = cms.EDFilter("PATMuonSelector",
 goodMuonsPFIso =cms.EDFilter("PATMuonSelector",
   src = cms.InputTag("goodMuons"),
   #cut = cms.string("iso03.sumPt/pt < 0.1 "  ),
-  #cut = cms.string("trackIso() < 0.1*pt "  ),
-  cut = cms.string("trackIso() < 1000*pt "  ),# temporarly disable isolation
+  cut = cms.string("trackIso() < 0.1*pt "  ),
+  #cut = cms.string("trackIso() < 11110.1*pt "  ),
   filter = cms.bool(False)
 )
 
@@ -77,16 +74,19 @@ goldenZmumuCandidatesGe2IsoMuons.decay = cms.string("goodMuonsPFIso@+ goodMuonsP
 
 
 goldenZmumuFilter = cms.EDFilter("CandViewCountFilter",
-    src = cms.InputTag("goldenZmumuCandidatesGe0IsoMuons"), # loose selection 
-    #src = cms.InputTag("goldenZmumuCandidatesGe1IsoMuons"),  # tight selection                            
+    #src = cms.InputTag("goldenZmumuCandidatesGe0IsoMuons"), # loose selection 
+    src = cms.InputTag("goldenZmumuCandidatesGe1IsoMuons"),  # tight selection                            
     minNumber = cms.uint32(1)
 )
+
+print "Zmumu skim will use: ", goldenZmumuFilter.src
+
 
 
 goldenZmumuSelectionSequence = cms.Sequence(
   goodVertex
   * pfNoPileUpSequence 
-  #* muonsWithPFIso 
+  * muonsWithPFIso
   * patMuons 
   * goodMuons
   * goodMuonsPFIso 

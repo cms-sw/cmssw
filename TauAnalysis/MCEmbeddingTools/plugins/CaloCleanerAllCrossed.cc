@@ -10,10 +10,12 @@ CaloCleanerAllCrossed::CaloCleanerAllCrossed(const edm::ParameterSet& config)
 float CaloCleanerAllCrossed::cleanRH(DetId det, float energy)
 {
 
-  if ( h1->find(det.rawId()) != h1->end() || h2->find(det.rawId()) != h2->end()  )
-      return 0;
+  // = remove completely
+  if ( hPlus->find(det.rawId()) != hPlus->end() || hMinus->find(det.rawId()) != hMinus->end()  )
+      return -1;
 
-  return energy;
+  // = do nothing with rh
+  return 0;
 
 }
 

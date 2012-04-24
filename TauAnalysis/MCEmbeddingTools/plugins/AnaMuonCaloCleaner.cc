@@ -39,6 +39,8 @@
 
 #include <boost/foreach.hpp>
 
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+
 
 //
 // class declaration
@@ -133,6 +135,7 @@ AnaMuonCaloCleaner::AnaMuonCaloCleaner(const edm::ParameterSet& iConfig):
     treeStorageMap_[name]["pt"] = -999;
     treeStorageMap_[name]["p"] = -999;
     treeStorageMap_[name]["eta"] = -999;
+    treeStorageMap_[name]["phi"] = -999;
     treeStorageMap_[name]["len"] = -999;
     treeStorageMap_[name]["val"] = -999;
     treeStorageMap_[name]["charge"] = -999;
@@ -151,7 +154,7 @@ void
 AnaMuonCaloCleaner::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  std::cout << "------------------------------\n";
+  //std::cout << "------------------------------\n";
   edm::Handle< std::vector<reco::Muon> > muonsHandle;
   iEvent.getByLabel(_inputCol, muonsHandle); 
     
@@ -164,7 +167,7 @@ AnaMuonCaloCleaner::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
     
   if (myMu==0){
-//     std::cout << " XXX AnaMuonCaloCleaner says whoooops" << std::endl;
+    // std::cout << " XXX AnaMuonCaloCleaner says whoooops" << std::endl;
     return;
   }
   
@@ -181,21 +184,25 @@ AnaMuonCaloCleaner::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     DetId det(entry.first);
     float len = entry.second;
     float val = 0;
+    std::string name =getKey(det);
     if (hDeposits->find(entry.first) != hDeposits->end())
       val = (hDeposits->find(entry.first))->second;
-    //float val = (*hDeposits)[entry.first];
-    std::string name =getKey(det);
-    std::cout << "XX " << len << " " << val << std::endl;
+    //else 
+    //  std::cout << "Whoops! empty "<< len << " " << name  << std::endl;
+
+    //std::cout << "XX " << name << " " << det.rawId() << " " << len << " " << val << std::endl;
     histoMap_[name]->Fill(len,val);
     treeStorageMap_[name]["pt"] = myMu->pt();
     treeStorageMap_[name]["p"] = myMu->p();
     treeStorageMap_[name]["eta"] = myMu->eta();
+    treeStorageMap_[name]["phi"] = myMu->phi();
     treeStorageMap_[name]["len"] = len;
     treeStorageMap_[name]["val"] = val;
     treeStorageMap_[name]["charge"] = myMu->charge();
     treeMap_[name]->Fill();
   }
 
+  // edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >    "ecalRecHit"                "EcalRecHitsEE"   "HLT"          EcalRecHitsSorted_ecalRecHit_EcalRecHitsEE_HLT
 
 
 
@@ -212,7 +219,7 @@ std::vector<std::string> AnaMuonCaloCleaner::getAllKeys(){
   BOOST_FOREACH(TMyMainMap::value_type & entry, detMap_){
     BOOST_FOREACH(TMySubMap::mapped_type::value_type & subEntry, subDetMap_[entry.first]){
       std::string name = "H_"+entry.second+"_"+subEntry.second;
-      std::cout << "XX " << name << std::endl;
+      //std::cout << "XX " << name << std::endl;
       ret.push_back(name);
     }
     
