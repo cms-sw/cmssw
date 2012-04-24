@@ -115,6 +115,8 @@ class stSignal{
 
 
 void GetSignalDefinition(std::vector<stSignal>& signals, bool TkOnly=true){
+  //2011 7TeV Signals
+/*
   signals.push_back(stSignal("Gluino", "Gluino300", "Gluino300"    , "MC - #tilde{g} 300 GeV/#font[12]{c}^{2}"                 , 300,  1, 1,  65.800000) ); //NLO
   signals.push_back(stSignal("Gluino", "Gluino400", "Gluino400"    , "MC - #tilde{g} 400 GeV/#font[12]{c}^{2}"                 , 400,  1, 1,   11.20000) ); //NLO
   signals.push_back(stSignal("Gluino", "Gluino500", "Gluino500"    , "MC - #tilde{g} 500 GeV/#font[12]{c}^{2}"                 , 500,  1, 1,   2.540000) ); //NLO
@@ -220,7 +222,7 @@ void GetSignalDefinition(std::vector<stSignal>& signals, bool TkOnly=true){
   signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK810" , "DCRho16HyperK810"  , "DICHAMP #tilde{K} 810 GeV/#font[12]{c}^{2}"  , 810,  1, 1, 0.000140664) ); //LO 
   signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK820" , "DCRho16HyperK820"  , "DICHAMP #tilde{K} 820 GeV/#font[12]{c}^{2}"  , 820,  1, 1, 0.000097929923655) ); //LO 
   signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK900" , "DCRho16HyperK900"  , "DICHAMP #tilde{K} 900 GeV/#font[12]{c}^{2}"  , 900,  1, 1, 0.000013146066) ); //LO       
-
+*/
 }
 
 struct stMC{
@@ -235,66 +237,70 @@ struct stMC{
 };
 
 void GetMCDefinition(std::vector<stMC>& MC){
-
-   MC.push_back(stMC("MC_DYToTauTau"            ,     1.300E3  , -1, -1, 0));
-   MC.push_back(stMC("MC_DYToMuMu"              ,     1.300E3  , -1, -1, 0));
-   MC.push_back(stMC("MC_WJetsToLNu"            ,     2.777E4  , -1, -1, 1));
-   MC.push_back(stMC("MC_TTJets"                ,     9.400E1  , -1, -1, 1));
-   //MC.push_back(stMC("MC_QCD_Pt-15to30"         ,     8.16E8  , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-30to50"         ,     5.310E7  , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-50to80"         ,     6.360E6  , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-80to120"        ,     7.840E5  , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-120to170"       ,     1.150E5  , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-170to300"       ,     2.430E4  , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-300to470"       ,     1.170E3  , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-470to600"       ,     7.020E1  , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-600to800"       ,     1.560E1  , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-800to1000"      ,     1.84     , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-1000to1400"     ,     3.320E-1 , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-1400to1800"     ,     1.090E-2 , -1, -1, 0));
-   MC.push_back(stMC("MC_QCD_Pt-1800"           ,     3.580E-4 , -1, -1, 0));
-   MC.push_back(stMC("MC_ZJetToMuMu_Pt-0to15"   ,     4.280E3  , -1, -1, 0));
-   MC.push_back(stMC("MC_ZJetToMuMu_Pt-15to20"  ,     1.450E2  , -1, -1, 0));
-   MC.push_back(stMC("MC_ZJetToMuMu_Pt-20to30"  ,     1.310E2  , -1, -1, 0));
-   MC.push_back(stMC("MC_ZJetToMuMu_Pt-30to50"  ,     8.400E1  , -1, -1, 0));
-   MC.push_back(stMC("MC_ZJetToMuMu_Pt-50to80"  ,     3.220E1  , -1, -1, 0));
-   MC.push_back(stMC("MC_ZJetToMuMu_Pt-80to120" ,     9.98     , -1, -1, 0));
-   MC.push_back(stMC("MC_ZJetToMuMu_Pt-120to170",     2.73     , -1, -1, 0));
-   MC.push_back(stMC("MC_ZJetToMuMu_Pt-170to230",     7.21E-1  , -1, -1, 0));
-   MC.push_back(stMC("MC_ZJetToMuMu_Pt-230to300",     1.94E-1  , -1, -1, 0));
-   MC.push_back(stMC("MC_ZJetToMuMu_Pt-300"     ,     7.59E-2  , -1, -1, 0));
-   MC.push_back(stMC("MC_ZZ"                    ,     4.287    , -1, -1, 1));
-   MC.push_back(stMC("MC_WW"                    ,     2.783E1  , -1, -1, 1));
-   MC.push_back(stMC("MC_WZ"                    ,     1.47E1   , -1, -1, 1));
+     //2011 7TeV MC
+//   MC.push_back(stMC("MC_DYToTauTau"            ,     1.300E3  , -1, -1, 0));
+//   MC.push_back(stMC("MC_DYToMuMu"              ,     1.300E3  , -1, -1, 0));
+//   MC.push_back(stMC("MC_WJetsToLNu"            ,     2.777E4  , -1, -1, 1));
+//   MC.push_back(stMC("MC_TTJets"                ,     9.400E1  , -1, -1, 1));
+// //MC.push_back(stMC("MC_QCD_Pt-15to30"         ,     8.16E8  , -1, -1, 0));
+//   MC.push_back(stMC("MC_QCD_Pt-30to50"         ,     5.310E7  , -1, -1, 0));
+//   MC.push_back(stMC("MC_QCD_Pt-50to80"         ,     6.360E6  , -1, -1, 0));
+//   MC.push_back(stMC("MC_QCD_Pt-80to120"        ,     7.840E5  , -1, -1, 0));
+//   MC.push_back(stMC("MC_QCD_Pt-120to170"       ,     1.150E5  , -1, -1, 0));
+//   MC.push_back(stMC("MC_QCD_Pt-170to300"       ,     2.430E4  , -1, -1, 0));
+//   MC.push_back(stMC("MC_QCD_Pt-300to470"       ,     1.170E3  , -1, -1, 0));
+//   MC.push_back(stMC("MC_QCD_Pt-470to600"       ,     7.020E1  , -1, -1, 0));
+//   MC.push_back(stMC("MC_QCD_Pt-600to800"       ,     1.560E1  , -1, -1, 0));
+//   MC.push_back(stMC("MC_QCD_Pt-800to1000"      ,     1.84     , -1, -1, 0));
+//   MC.push_back(stMC("MC_QCD_Pt-1000to1400"     ,     3.320E-1 , -1, -1, 0));
+//   MC.push_back(stMC("MC_QCD_Pt-1400to1800"     ,     1.090E-2 , -1, -1, 0));
+//   MC.push_back(stMC("MC_QCD_Pt-1800"           ,     3.580E-4 , -1, -1, 0));
+//   MC.push_back(stMC("MC_ZJetToMuMu_Pt-0to15"   ,     4.280E3  , -1, -1, 0));
+//   MC.push_back(stMC("MC_ZJetToMuMu_Pt-15to20"  ,     1.450E2  , -1, -1, 0));
+//   MC.push_back(stMC("MC_ZJetToMuMu_Pt-20to30"  ,     1.310E2  , -1, -1, 0));
+//   MC.push_back(stMC("MC_ZJetToMuMu_Pt-30to50"  ,     8.400E1  , -1, -1, 0));
+//   MC.push_back(stMC("MC_ZJetToMuMu_Pt-50to80"  ,     3.220E1  , -1, -1, 0));
+//   MC.push_back(stMC("MC_ZJetToMuMu_Pt-80to120" ,     9.98     , -1, -1, 0));
+//   MC.push_back(stMC("MC_ZJetToMuMu_Pt-120to170",     2.73     , -1, -1, 0));
+//   MC.push_back(stMC("MC_ZJetToMuMu_Pt-170to230",     7.21E-1  , -1, -1, 0));
+//   MC.push_back(stMC("MC_ZJetToMuMu_Pt-230to300",     1.94E-1  , -1, -1, 0));
+//   MC.push_back(stMC("MC_ZJetToMuMu_Pt-300"     ,     7.59E-2  , -1, -1, 0));
+//   MC.push_back(stMC("MC_ZZ"                    ,     4.287    , -1, -1, 1));
+//   MC.push_back(stMC("MC_WW"                    ,     2.783E1  , -1, -1, 1));
+//   MC.push_back(stMC("MC_WZ"                    ,     1.47E1   , -1, -1, 1));
 }
 
 void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName, int period=0){
 //  std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_08_03/";
   //std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/jchen/11_09_13_HSCP2011EDM/";
   //std::string BaseDirectory = "/uscmst1b_scratch/lpc1/lpcphys/jchen/HSCPEDM_11_01_11/";
-  std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/farrell3/NewDTError26Dec2011/";
+  std::string BaseDirectory = "root://eoscms//eos/cms/store/cmst3/user/querten/12_04_17_HSCP_EDM/";
    if(SampleName=="Data"){
-     inputFiles.push_back(BaseDirectory + "Data_RunA_160404_163869.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_165001_166033.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_166034_166500.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_166501_166893.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_166894_167151.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_167153_167913.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_170826_171500.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_171501_172619.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_172620_172790.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_172791_172802.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_172803_172900.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_172901_173243.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_173244_173692.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_175860_176099.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_176100_176309.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_176467_176800.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_176801_177053.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_177074_177783.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_177788_178380.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_178420_179411.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_179434_180252.root");
+       //2011 7TeV Data
+//     inputFiles.push_back(BaseDirectory + "Data_RunA_160404_163869.root");
+//     inputFiles.push_back(BaseDirectory + "Data_RunA_165001_166033.root");
+//     inputFiles.push_back(BaseDirectory + "Data_RunA_166034_166500.root");
+//     inputFiles.push_back(BaseDirectory + "Data_RunA_166501_166893.root");
+//     inputFiles.push_back(BaseDirectory + "Data_RunA_166894_167151.root");
+//     inputFiles.push_back(BaseDirectory + "Data_RunA_167153_167913.root");
+//     inputFiles.push_back(BaseDirectory + "Data_RunA_170826_171500.root");
+//     inputFiles.push_back(BaseDirectory + "Data_RunA_171501_172619.root");
+//     inputFiles.push_back(BaseDirectory + "Data_RunA_172620_172790.root");
+//     inputFiles.push_back(BaseDirectory + "Data_RunA_172791_172802.root");
+//     inputFiles.push_back(BaseDirectory + "Data_RunA_172803_172900.root");
+//     inputFiles.push_back(BaseDirectory + "Data_RunA_172901_173243.root");
+//     inputFiles.push_back(BaseDirectory + "Data_RunA_173244_173692.root");
+//     inputFiles.push_back(BaseDirectory + "Data_RunA_175860_176099.root");
+//     inputFiles.push_back(BaseDirectory + "Data_RunA_176100_176309.root");
+//     inputFiles.push_back(BaseDirectory + "Data_RunA_176467_176800.root");
+//     inputFiles.push_back(BaseDirectory + "Data_RunA_176801_177053.root");
+//     inputFiles.push_back(BaseDirectory + "Data_RunA_177074_177783.root");
+//     inputFiles.push_back(BaseDirectory + "Data_RunA_177788_178380.root");
+//     inputFiles.push_back(BaseDirectory + "Data_RunA_178420_179411.root");
+//     inputFiles.push_back(BaseDirectory + "Data_RunA_179434_180252.root");
+
+     inputFiles.push_back(BaseDirectory + "Data_190XXX.root");
+     inputFiles.push_back(BaseDirectory + "Data_191XXX.root");
    }else if(SampleName.find("MC_",0)<std::string::npos){
      inputFiles.push_back(BaseDirectory + SampleName + ".root");
    }else{
