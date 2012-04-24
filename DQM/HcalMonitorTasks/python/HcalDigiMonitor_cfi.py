@@ -31,7 +31,7 @@ hcalDigiMonitor=cms.EDAnalyzer("HcalDigiMonitor",
                                                                                     "HLT_ZeroBias"),
                                
                                # disable testing of HO ring 2
-                               excludeHORing2  = cms.untracked.bool(True),
+                               excludeHORing2  = cms.untracked.bool(False),
                                excludeHO1P02          = cms.untracked.bool(True),
                                excludeBadQPLL         = cms.untracked.bool(True),
 
