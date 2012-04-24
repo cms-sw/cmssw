@@ -40,7 +40,7 @@ if options.files:
    process.source.fileNames = options.files
 else:
    process.source.fileNames = [
-'file:/uscms_data/d3/lhx/tasks/recipes/METScanning/CMSSW_5_2_3_patch1/src/METScanning/METdefaultTree/test/HT_2012/pickEvents_cat02/AOD/pickevents_merged.root'
+'file:pickevents_merged.root'
    ]
 
 process.source.inputCommands = cms.untracked.vstring( "keep *", "drop *_MEtoEDMConverter_*_*" )
@@ -177,11 +177,20 @@ process.load('RecoMET.METFilters.greedyMuonPFCandidateFilter_cfi')
 #    getattr(process,"patPF2PATSequence"+postfix)
 #)
 
+process.load('RecoMET/METAnalyzers/CSCHaloFilter_cfi')
+
+process.rejectRecov = cms.EDFilter(
+  "RecovRecHitFilter",
+  EERecHitSource = cms.InputTag("reducedEcalRecHitsEE"),
+  MinRecovE = cms.double(30),
+  TaggingMode=cms.bool(False)
+)
+
 process.Vertex = cms.Path(process.goodOfflinePrimaryVertices*getattr(process,"patPF2PATSequence"+postfix)*~process.primaryVertexFilter)
 process.Scraping = cms.Path(~process.noscraping)
-#process.HBHENoise = cms.Path(~process.HBHENoiseFilter)
-#process.CSCTightHalo = cms.Path(~process.CSCTightHaloFilter)
-#process.RecovRecHit = cms.Path(process.RecovRecHitFilter)
+process.HBHENoise = cms.Path(~process.HBHENoiseFilter)
+process.CSCTightHalo = cms.Path(~process.CSCTightHaloFilter)
+process.RecovRecHit = cms.Path(~process.rejectRecov)
 
 process.HCALLaser = cms.Path(~process.hcalLaserEventFilter)
 process.ECALDeadCellTP = cms.Path(~process.EcalDeadCellTriggerPrimitiveFilter)

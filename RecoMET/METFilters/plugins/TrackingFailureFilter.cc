@@ -58,10 +58,18 @@ bool TrackingFailureFilter::filter(edm::Event & iEvent, const edm::EventSetup & 
   }
   double sumpt = 0;
   if (vtxs->size() > 0) {
-    const reco::Vertex * vtx = &((*vtxs)[0]);
+//    const reco::Vertex * vtx = &((*vtxs)[0]);
     for (std::vector<reco::Track>::const_iterator tr = tracks->begin(); tr != tracks->end(); ++tr) {
-      if (fabs(tr->dz(vtx->position())) > dzTrVtxMax_) continue;
-      if (fabs(tr->dxy(vtx->position())) > dxyTrVtxMax_) continue;
+      bool associateToPV = false;
+      for(int iv=0; iv<(int)vtxs->size(); iv++){
+         const reco::Vertex * pervtx = &((*vtxs)[iv]);
+         if( fabs(tr->dz(pervtx->position())) <= dzTrVtxMax_ && fabs(tr->dxy(pervtx->position())) <= dxyTrVtxMax_ ){
+            associateToPV = true;
+         }
+      }
+//      if (fabs(tr->dz(vtx->position())) > dzTrVtxMax_) continue;
+//      if (fabs(tr->dxy(vtx->position())) > dxyTrVtxMax_) continue;
+      if( !associateToPV ) continue;
       sumpt += tr->pt();
     }
   }
