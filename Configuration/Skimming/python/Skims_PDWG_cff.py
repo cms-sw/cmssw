@@ -86,6 +86,8 @@ SKIMStreamDiJet = cms.FilteredStream(
 from Configuration.Skimming.PDWG_TauSkim_cff import *
 tauSkimBy1Path = cms.Path( tauSkim1Sequence )
 tauSkimBy2Path = cms.Path( tauSkim2Sequence )
+mutauSkimPath  = cms.Path( mutauSkimSequence )
+mutauMETSkimPath  = cms.Path( mutauMETSkimSequence )
 SKIMStreamTau = cms.FilteredStream(
     responsible = 'PDWG',
     name = 'Tau',
@@ -95,9 +97,25 @@ SKIMStreamTau = cms.FilteredStream(
     dataTier = cms.untracked.string('RAW-RECO')
     )
 SKIMStreamDiTau = cms.FilteredStream(
-    responsible = 'PDWG',
-    name = 'Tau',
+    responsible = 'Tau POG',
+    name = 'DiTau',
     paths = (tauSkimBy2Path),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+SKIMStreamMuTau = cms.FilteredStream(
+    responsible = 'Tau POG',
+    name = 'MuTau',
+    paths = (mutauSkimPath),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+SKIMStreamMuTauMET = cms.FilteredStream(
+    responsible = 'Tau POG',
+    name = 'MuTauMET',
+    paths = (mutauMETSkimPath),
     content = skimContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
