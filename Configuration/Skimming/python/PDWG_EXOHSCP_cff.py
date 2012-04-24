@@ -19,8 +19,12 @@ HSCPTrigger.HLTPaths = [
             "HLT_L2Mu70_eta2p1_PFMET65", "HLT_L2Mu80_eta2p1_PFMET70"
             "HLT_*L2Mu*_NoBPTX"
 		]
-
 hltSeq = cms.Sequence(HSCPTrigger)  
+
+HSCPdEdxTrigger = HSCPTrigger.clone()
+HSCPdEdxTrigger.HLTPaths = [
+            "HLT_*_dEdx*"]
+hltdEdxSeq = cms.Sequence(HSCPdEdxTrigger) 
 
 #REFIT THE TRACK COLLECTION --> THIS IS NEEDED TO COMPUTE DEDX
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
@@ -79,6 +83,8 @@ HSCPEventFilter = cms.EDFilter("HSCPEventFilter",
      filter = cms.bool(True)
 )
 
+eventSelSeq = cms.Sequence(TrackRefitterSkim + dedxSkimNPHarm2 + HSCPEventFilter)
+
 # AFTER THIS POINT... WE DONT SELECT EVENT ANYMORE... WE ONLY CLEAN OBJECT COLLECTION TO KEEP ONLY THE OBJECTS WE ARE GOING TO USE OFFLINE (REDUCE EVENT SIZE)
 
 
@@ -105,7 +111,7 @@ generalTracksSkim = cms.EDFilter("HSCPTrackSelectorModule",
 		 muonSource = cms.InputTag("muons"),
 	)
 
-trackerSeq = cms.Sequence(TrackRefitterSkim + dedxSkimNPHarm2 + HSCPEventFilter + generalTracksSkim)
+trackerSeq = cms.Sequence(generalTracksSkim)
 
 from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
 from TrackingTools.TrackAssociator.default_cfi import *
@@ -192,7 +198,8 @@ HSCPIsolation05 = HSCPIsolation01.clone()
 HSCPIsolation05.IsolationConeDR  = cms.double(0.5)
 
 #final sequence
-exoticaHSCPSeq = cms.Sequence(beginSeq+hltSeq+trackerSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05)
+exoticaHSCPSeq = cms.Sequence(beginSeq+hltSeq+eventSelSeq+trackerSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05)
+exoticaHSCPdEdxSeq = cms.Sequence(beginSeq+hltdEdxSeq+trackerSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05)
 
 EXOHSCPSkim_EventContent=cms.PSet(
     outputCommands = cms.untracked.vstring(

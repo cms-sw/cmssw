@@ -138,14 +138,16 @@ skimAodContent.outputCommands.append("drop *_*_*_SKIM")
 
 from Configuration.Skimming.PDWG_EXOHSCP_cff import *
 EXOHSCPPath = cms.Path(exoticaHSCPSeq)
+EXOHSCPDEDXPath = cms.Path(exoticaHSCPdEdxSeq)
 SKIMStreamEXOHSCP = cms.FilteredStream(
     responsible = 'EXO',
     name = 'EXOHSCP',
-    paths = (EXOHSCPPath),
+    paths = (EXOHSCPPath,EXOHSCPDEDXPath),
     content = EXOHSCPSkim_EventContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('USER')
     )
+
 
 from Configuration.Skimming.PDWG_HWWSkim_cff import *
 HWWmmPath = cms.Path(diMuonSequence)
