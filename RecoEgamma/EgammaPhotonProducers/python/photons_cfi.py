@@ -3,9 +3,10 @@ import FWCore.ParameterSet.Config as cms
 from RecoEgamma.PhotonIdentification.isolationCalculator_cfi import *
 from RecoEgamma.PhotonIdentification.mipVariable_cfi import *
 from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
+from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 #
 # producer for photons
-# $Id: photons_cfi.py,v 1.42 2011/12/01 17:44:58 nancy Exp $
+# $Id: photons_cfi.py,v 1.43 2012/03/23 19:09:26 askew Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
     photonCoreProducer = cms.InputTag("photonCore"),
@@ -73,7 +74,7 @@ photons = cms.EDProducer("PhotonProducer",
     RecHitSeverityToBeExcluded = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
 
 
-
+RecHitFlagToBeExcludedEE = multi5x5BasicClustersCleaned.RecHitFlagToBeExcluded,
 
 
 )
