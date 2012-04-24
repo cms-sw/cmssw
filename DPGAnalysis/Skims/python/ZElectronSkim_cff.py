@@ -5,9 +5,9 @@ HLTProcessName = "HLT"
 
 ### cut on electron tag
 #TAG_ELECTRON_ET_CUT_MIN = 20.0
-ELECTRON_ET_CUT_MIN     = 20.0
+ELECTRON_ET_CUT_MIN     = 10.0
 
-MASS_CUT_MIN = 50.
+MASS_CUT_MIN = 30.
 
 
 
