@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: PFJetIDSelectionFunctor.h,v 1.19 2011/03/24 14:51:20 srappocc Exp $
+  \version  $Id: PFJetIDSelectionFunctor.h,v 1.20 2011/04/27 20:39:42 srappocc Exp $
 */
 
 
@@ -161,13 +161,20 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   // Accessor from *CORRECTED* 4-vector, EMF, and Jet ID. 
   // This can be used with reco quantities. 
   // 
-  bool operator()( reco::PFJet const & jet, 
-		   pat::strbitset & ret )  
+  bool operator()( const reco::PFJet & jet, pat::strbitset & ret )  
   {
     if ( version_ == FIRSTDATA ) return firstDataCuts( jet, ret );
     else {
       return false;
     }
+  }
+
+  bool operator()( const reco::PFJet & jet )
+  {
+    retInternal_.set(false);
+    operator()(jet, retInternal_);
+    setIgnored(retInternal_);
+    return (bool)retInternal_;
   }
   
   // 
@@ -176,7 +183,6 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   bool firstDataCuts( reco::Jet const & jet,
 		      pat::strbitset & ret) 
   {    
-
     ret.set(false);
 
     // cache some variables
@@ -193,7 +199,6 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     reco::BasicJet const * basicJet = dynamic_cast<reco::BasicJet const *>(&jet);
 
     if ( patJet != 0 ) {
-
       if ( patJet->isPFJet() ) {
 	chf = patJet->chargedHadronEnergyFraction();
 	nhf = ( patJet->neutralHadronEnergy() + patJet->HFHadronEnergy() ) / patJet->energy();
