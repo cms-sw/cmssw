@@ -26,6 +26,35 @@ SKIMStreamEXODisplacedPhoton = cms.FilteredStream(
 
 #####################
 
+
+from Configuration.Skimming.PDWG_TOPElePlusJets_cff import *
+TOPElePlusJetsPath = cms.Path(TOPElePlusJets)
+SKIMStreamTOPElePlusJets = cms.FilteredStream(
+    responsible = 'TOP',
+    name = 'TOPElePlusJets',
+    paths = (TOPElePlusJetsPath),
+    content = skimRecoContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+
+#####################
+
+
+from Configuration.Skimming.PDWG_TOPMuPlusJets_cff import *
+TOPMuPlusJetsPath = cms.Path(TOPMuPlusJets)
+SKIMStreamTOPMuPlusJets = cms.FilteredStream(
+    responsible = 'TOP',
+    name = 'TOPMuPlusJets',
+    paths = (TOPMuPlusJetsPath),
+    content = skimRecoContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+
+
+#####################
+
 from Configuration.Skimming.PDWG_DiJetAODSkim_cff import *
 diJetAveSkimPath = cms.Path(DiJetAveSkim_Trigger)
 SKIMStreamDiJet = cms.FilteredStream(
