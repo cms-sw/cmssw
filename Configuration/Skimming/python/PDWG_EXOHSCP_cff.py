@@ -55,9 +55,9 @@ dedxSkimNPHarm2 = cms.EDProducer("DeDxEstimatorProducer",
 
 #CHECK IF THE EVENT SHOULD BE KEPT OR NOT FOR HSCP
 #THREE CASES
-#1) HighPT+HighDEdx Tracks are kept
-#2) HighPT SA Muon are kept
-#3) DoubleMu Events are kept
+#1) Events with HighPT+HighDEdx Tracks are kept
+#2) Events with HighPT SA Muon are kept
+#3) Events with DoubleMu are kept
 HSCPEventFilter = cms.EDFilter("HSCPEventFilter",
      inputMuonCollection = cms.InputTag("muons"),
      inputTrackCollection = cms.InputTag("TrackRefitterSkim"),
@@ -97,21 +97,24 @@ eventSelSeq = cms.Sequence(TrackRefitterSkim + dedxSkimNPHarm2 + HSCPEventFilter
 generalTracksSkim = cms.EDFilter("HSCPTrackSelectorModule",
 		 src = cms.InputTag("TrackRefitterSkim"),
 		 filter = cms.bool(False),
-								 
-		 #part related to HSCPTrackSelectorOnly
+
+		 #Keep all muon tracks what ever it's pT
+		 muonSource = cms.InputTag("muons"),	
+
+	         #Keep all inner tracks with pt>TRACK_PT whatever it's dEdx
 		 trackerTrackPtMin = cms.double(TRACK_PT),
-		 usededx = cms.bool(True),
+		 usededx = cms.bool(False),
 		 InputDedx = cms.InputTag("dedxSkimNPHarm2"),
-		 InnerTrackdEdxRightMin = cms.double(2.8),
-		 InnerTrackdEdxLeftMax = cms.double(3.0),
-		 InnerMuondEdxRightMin = cms.double(99999.0),
-		 InnerMuondEdxLeftMax = cms.double(-99999.0),
+		 InnerTrackdEdxRightMin = cms.double(-99999.0),
+		 InnerTrackdEdxLeftMax = cms.double(99999.0),
+		 InnerMuondEdxRightMin = cms.double(-99999.0),
+		 InnerMuondEdxLeftMax = cms.double(99999.0),
 		 dEdxMeasurementsMinForMuonTrack = cms.uint32(0),
                  dEdxMeasurementsMinForInnerTrack = cms.uint32(4),							 
-		 muonSource = cms.InputTag("muons"),
 	)
 
 trackerSeq = cms.Sequence(generalTracksSkim)
+
 
 from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
 from TrackingTools.TrackAssociator.default_cfi import *
