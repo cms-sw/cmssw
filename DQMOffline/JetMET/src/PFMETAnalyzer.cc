@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/04/19 11:51:50 $
- *  $Revision: 1.46 $
+ *  $Date: 2012/04/20 14:37:48 $
+ *  $Revision: 1.47 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -405,7 +405,24 @@ void PFMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, 
       if ( _MuonEventFlag->on() ) 
 	makeRatePlot(DirName+"/"+"triggerName_Muon",totltime);
     }
+
+
+  // Fit ME{x,y}
+  //------------------------------------------------------------------------
+  for (std::vector<std::string>::const_iterator ic = _FolderNames.begin();
+       ic != _FolderNames.end(); ic++) {
+
+    std::string DirName;
+    DirName = dirName+*ic;
+
+    mePfMEx = _dbe->get(DirName + "/METTask_PfMEx");
+    mePfMEy = _dbe->get(DirName + "/METTask_PfMEy");
+
+    if (mePfMEx && mePfMEx->kind() == MonitorElement::DQM_KIND_TH1F) mePfMEx->getTH1F()->Fit("gaus", "q");
+    if (mePfMEy && mePfMEy->kind() == MonitorElement::DQM_KIND_TH1F) mePfMEy->getTH1F()->Fit("gaus", "q");
+  }
 }
+
 
 // ***********************************************************
 void PFMETAnalyzer::makeRatePlot(std::string DirName, double totltime)
@@ -988,13 +1005,12 @@ void PFMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string Dir
   if (_verbose) std::cout << "_etThreshold = " << _etThreshold << std::endl;
   if (pfSumET>_etThreshold){
     
-    mePfMEx    = _dbe->get(DirName+"/"+"METTask_PfMEx");    if (mePfMEx    && mePfMEx->getRootObject())    mePfMEx->Fill(pfMEx);
-    mePfMEy    = _dbe->get(DirName+"/"+"METTask_PfMEy");    if (mePfMEy    && mePfMEy->getRootObject())    mePfMEy->Fill(pfMEy);
-    mePfMET    = _dbe->get(DirName+"/"+"METTask_PfMET");    if (mePfMET    && mePfMET->getRootObject())    mePfMET->Fill(pfMET);
-    mePfMETPhi = _dbe->get(DirName+"/"+"METTask_PfMETPhi"); if (mePfMETPhi && mePfMETPhi->getRootObject()) mePfMETPhi->Fill(pfMETPhi);
-    mePfSumET  = _dbe->get(DirName+"/"+"METTask_PfSumET");  if (mePfSumET  && mePfSumET->getRootObject())  mePfSumET->Fill(pfSumET);
-    mePfMETSig = _dbe->get(DirName+"/"+"METTask_PfMETSig"); if (mePfMETSig && mePfMETSig->getRootObject()) mePfMETSig->Fill(pfMETSig);
-    //mePfEz     = _dbe->get(DirName+"/"+"METTask_PfEz");     if (mePfEz     && mePfEz->getRootObject())     mePfEz->Fill(pfEz);
+    mePfMEx    = _dbe->get(DirName + "/METTask_PfMEx");    if (mePfMEx    && mePfMEx->getRootObject())    mePfMEx->Fill(pfMEx);
+    mePfMEy    = _dbe->get(DirName + "/METTask_PfMEy");    if (mePfMEy    && mePfMEy->getRootObject())    mePfMEy->Fill(pfMEy);
+    mePfMET    = _dbe->get(DirName + "/METTask_PfMET");    if (mePfMET    && mePfMET->getRootObject())    mePfMET->Fill(pfMET);
+    mePfMETPhi = _dbe->get(DirName + "/METTask_PfMETPhi"); if (mePfMETPhi && mePfMETPhi->getRootObject()) mePfMETPhi->Fill(pfMETPhi);
+    mePfSumET  = _dbe->get(DirName + "/METTask_PfSumET");  if (mePfSumET  && mePfSumET->getRootObject())  mePfSumET->Fill(pfSumET);
+    mePfMETSig = _dbe->get(DirName + "/METTask_PfMETSig"); if (mePfMETSig && mePfMETSig->getRootObject()) mePfMETSig->Fill(pfMETSig);
 
     mePfMET_logx    = _dbe->get(DirName+"/"+"METTask_PfMET_logx");    if (mePfMET_logx    && mePfMET_logx->getRootObject())    mePfMET_logx->Fill(log10(pfMET));
     mePfSumET_logx  = _dbe->get(DirName+"/"+"METTask_PfSumET_logx");  if (mePfSumET_logx  && mePfSumET_logx->getRootObject())  mePfSumET_logx->Fill(log10(pfSumET));

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/04/19 11:51:48 $
- *  $Revision: 1.68 $
+ *  $Date: 2012/04/20 14:37:08 $
+ *  $Revision: 1.69 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -472,7 +472,23 @@ void CaloMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup
 	makeRatePlot(DirName+"/"+"triggerName_Muon",totltime);
     }
 
+
+  // Fit ME{x,y}
+  //------------------------------------------------------------------------
+  for (std::vector<std::string>::const_iterator ic = _FolderNames.begin();
+       ic != _FolderNames.end(); ic++) {
+
+    std::string DirName;
+    DirName = dirName+*ic;
+
+    hCaloMEx = _dbe->get(DirName + "/METTask_CaloMEx");
+    hCaloMEy = _dbe->get(DirName + "/METTask_CaloMEy");
+
+    if (hCaloMEx && hCaloMEx->kind() == MonitorElement::DQM_KIND_TH1F) hCaloMEx->getTH1F()->Fit("gaus", "q");
+    if (hCaloMEy && hCaloMEy->kind() == MonitorElement::DQM_KIND_TH1F) hCaloMEy->getTH1F()->Fit("gaus", "q");
+  }
 }
+
 
 // ***********************************************************
 void CaloMETAnalyzer::makeRatePlot(std::string DirName, double totltime)

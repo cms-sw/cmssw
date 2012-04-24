@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/04/19 11:52:21 $
- *  $Revision: 1.9 $
+ *  $Date: 2012/04/20 14:37:48 $
+ *  $Revision: 1.10 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -236,7 +236,24 @@ void TcMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, 
       if (_hlt_Muon.size())      makeRatePlot(DirName+"/"+_hlt_Muon,totltime);
 
     }
+
+
+  // Fit ME{x,y}
+  //------------------------------------------------------------------------
+  for (std::vector<std::string>::const_iterator ic = _FolderNames.begin();
+       ic != _FolderNames.end(); ic++) {
+
+    std::string DirName;
+    DirName = dirName+*ic;
+
+    meTcMEx = _dbe->get(DirName + "/METTask_TcMEx");
+    meTcMEy = _dbe->get(DirName + "/METTask_TcMEy");
+
+    if (meTcMEx && meTcMEx->kind() == MonitorElement::DQM_KIND_TH1F) meTcMEx->getTH1F()->Fit("gaus", "q");
+    if (meTcMEy && meTcMEy->kind() == MonitorElement::DQM_KIND_TH1F) meTcMEy->getTH1F()->Fit("gaus", "q");
+  }
 }
+
 
 // ***********************************************************
 void TcMETAnalyzer::makeRatePlot(std::string DirName, double totltime)
@@ -585,6 +602,7 @@ void TcMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string Dir
     } // _allhist
   } // et threshold cut
 }
+
 
 // ***********************************************************
 bool TcMETAnalyzer::selectHighPtJetEvent(const edm::Event& iEvent){
