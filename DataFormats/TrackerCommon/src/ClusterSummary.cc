@@ -409,12 +409,6 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsStripSelected(int DetId){
 
 
 
-
-
-
-
-
-
 std::pair<int,int> ClusterSummary::ModuleSelection::IsPixelSelected(int detid){
 
   // true if the module mod is among the selected modules.  
@@ -425,30 +419,102 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsPixelSelected(int detid){
   unsigned int detType=detId.det(); // det type, pixel=1
   unsigned int subdetid=detId.subdetId(); //subdetector type, barrel=1, foward=2
 
-  //std::cout<<"Det: "<<detId.rawId()<<" "<<detId.null()<<" "<<detType<<" "<<subid<<std::endl;  
-
   if(detType!=1) return std::make_pair(0,99999); // look only at pixels
 
+  std::string::size_type result = geosearch.find("_");
 
-  /****
-       Check the full TOB, TIB, TID, TEC modules
-  ****/
-    
-  if(subdetid == 1 && geosearch.compare("BPIX")==0 ) {
-    isselected = 1;
-    enumVal = ClusterSummary::BPIX;
-  }
-  else if(subdetid == 2 && geosearch.compare("FPIX")==0 ) {
-    isselected = 1;
-    enumVal = ClusterSummary::FPIX;
-  }
-  else if( geosearch.compare("PIXEL")==0) {
-    isselected = 1;
-    enumVal = ClusterSummary::PIXEL;
-  }
+  if(result != std::string::npos) { 
+  
+    std::string modStr = geosearch; //Convert to string to use needed methods	 
+    size_t pos = modStr.find("_", 0); //find the '_'
+    std::string Mod = modStr.substr(0, pos); //find the module
+    std::string Layer = modStr.substr(pos+1, modStr.length()); //find the Layer
 
+    std::stringstream ss(Layer);
+    int layer_id = 0;
+	 
+    ss >> layer_id;
+
+    /****
+	 Check the Layers of the Barrel
+    ****/
+
+    if (subdetid == 1 && Mod == "BPIX"){
+	   
+      PXBDetId pdetId = PXBDetId(detid);
+      // Barell layer = 1,2,3
+      int layer=pdetId.layer();
+
+      if (layer_id == layer){
+
+	if (layer_id == 1) enumVal = ClusterSummary::BPIX_1;
+	else if (layer_id == 2) enumVal = ClusterSummary::BPIX_2;
+	else if (layer_id == 3) enumVal = ClusterSummary::BPIX_3;
+
+	isselected = 1;
+      }
+    } 
+
+    /****
+	 Check the Disk of the endcaps
+    ****/
+    else if (subdetid == 2 && Mod == "FPIX"){
+      
+      PXFDetId pdetId = PXFDetId(detid);
+      int disk=pdetId.disk(); //1,2,3
+
+      if (layer_id == disk){
+
+	if (disk == 1) enumVal = ClusterSummary::FPIX_1;
+	else if (disk == 2) enumVal = ClusterSummary::FPIX_2;
+	else if (disk == 3) enumVal = ClusterSummary::FPIX_3;
+
+	isselected = 1;
+	
+      }
+    }
+
+    /****
+	 Check the sides of each Disk of the endcaps
+    ****/
+
+    else if (subdetid == 2 && Mod == "FPIXM"){
+      
+      PXFDetId pdetId = PXFDetId(detid);
+      int side=pdetId.side(); //size=1 for -z, 2 for +z
+      int disk=pdetId.disk(); //1,2,3
+
+      if (layer_id == disk && side == 1 ){
+
+	if (disk == 1) enumVal = ClusterSummary::FPIXM_1;
+	else if (disk == 2) enumVal = ClusterSummary::FPIXM_2;
+	else if (disk == 3) enumVal = ClusterSummary::FPIXM_3;
+
+	isselected = 1;
+	
+      }
+    }
+
+    else if (subdetid == 2 && Mod == "FPIXP"){
+      
+      PXFDetId pdetId = PXFDetId(detid);
+      int side=pdetId.side(); //size=1 for -z, 2 for +z
+      int disk=pdetId.disk(); //1,2,3
+
+      if (layer_id == disk && side == 2){
+
+	if (disk == 1) enumVal = ClusterSummary::FPIXP_1;
+	else if (disk == 2) enumVal = ClusterSummary::FPIXP_2;
+	else if (disk == 3) enumVal = ClusterSummary::FPIXP_3;
+
+	isselected = 1;
+	
+      }
+    }
+  }
+   
   /****
-       Check the top and bottom for the TEC and TID
+       Check the top and bottom of the endcaps
   ****/
 
   else if( subdetid == 2 && geosearch.compare("FPIXM")==0 ) {
@@ -473,7 +539,24 @@ std::pair<int,int> ClusterSummary::ModuleSelection::IsPixelSelected(int detid){
     }    
   }
 
-  
+
+  /****
+       Check the full Barrel and Endcaps
+  ****/
+    
+  else if(subdetid == 1 && geosearch.compare("BPIX")==0 ) {
+    isselected = 1;
+    enumVal = ClusterSummary::BPIX;
+  }
+  else if(subdetid == 2 && geosearch.compare("FPIX")==0 ) {
+    isselected = 1;
+    enumVal = ClusterSummary::FPIX;
+  }
+  else if( geosearch.compare("PIXEL")==0) {
+    isselected = 1;
+    enumVal = ClusterSummary::PIXEL;
+  }
+
 
   return  std::make_pair(isselected, enumVal);
 }

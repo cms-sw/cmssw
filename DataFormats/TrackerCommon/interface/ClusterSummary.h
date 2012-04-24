@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Segala
 //         Created:  Wed Feb 23 17:36:23 CST 2011
-// $Id: ClusterSummary.h,v 1.1 2012/01/24 17:56:49 msegala Exp $
+// $Id: ClusterSummary.h,v 1.2 2012/02/02 18:19:10 msegala Exp $
 //
 //
 
@@ -81,16 +81,6 @@ The number of variables for each module is stored within iterator_
    // Tell ClusterSummary which Tracker Partitions you want summary information from
    Cluster.SetUserModules( mod ) 
 
-   // Fill Summary ARRAYS with the summary information
-   Cluster.SetNType( mod );
-   Cluster.SetClusterSize( mod, Summaryinfo.clusterSize() );
-   Cluster.SetClusterCharge( mod, Summaryinfo.charge() );
-
-   //++++++++++++++++++++++//
-   These methods are obsolete and you should use the SetGenericVariable() methods
-   //++++++++++++++++++++++//
-
-   --or--
 
    //Fill generic vector to hold any variables. You can fill the vector based on the name of the variables or the location of the variable within userContent
    cCluster.SetGenericVariable( "sHits", mod_pair2, 1 );
@@ -138,30 +128,35 @@ class ClusterSummary {
 
  public:
   
-  ClusterSummary():genericVariablesTmp_(6, std::vector<double>(80,0) ){}
+  ClusterSummary():genericVariablesTmp_(6, std::vector<double>(100,0) ){}
 
   // Enum for each partition within Tracer
   enum CMSTracker { TRACKER = 0,
 		    TIB = 1,
-		    TIB_1 = 11, TIB_2 = 12, TIB_3 = 13, TIB_4 = 14,
+		    TIB_1 = 11, TIB_2 = 12, TIB_3 = 13, TIB_4 = 14, //TIB layer 1-4
 		    TOB = 2,
-		    TOB_1 = 21, TOB_2 = 22, TOB_3 = 23, TOB_4 = 24, TOB_5 = 25, TOB_6 = 26,
+		    TOB_1 = 21, TOB_2 = 22, TOB_3 = 23, TOB_4 = 24, TOB_5 = 25, TOB_6 = 26,  //TOB layer 1-6
 		    TID = 3,
-		    TIDM = 31, TIDP = 32, 
-		    TIDM_1 = 311, TIDM_2 = 312, TIDM_3 = 313,
-		    TIDP_1 = 321, TIDP_2 = 322, TIDP_3 = 323,
-		    TIDMR_1 = 3110, TIDMR_2 = 3120, TIDMR_3 = 3130,
-		    TIDPR_1 = 3210, TIDPR_2 = 3220, TIDPR_3 = 3230,
+		    TIDM = 31, TIDP = 32,  //TID minus and plus
+		    TIDM_1 = 311, TIDM_2 = 312, TIDM_3 = 313, //TID minus layer 1-3
+		    TIDP_1 = 321, TIDP_2 = 322, TIDP_3 = 323, //TID plus layer 1-3
+		    TIDMR_1 = 3110, TIDMR_2 = 3120, TIDMR_3 = 3130, //TID minus ring 1-3
+		    TIDPR_1 = 3210, TIDPR_2 = 3220, TIDPR_3 = 3230, //TID plus ring 1-3
 		    TEC = 4,
-		    TECM = 41, TECP = 42, 
-		    TECM_1 = 411, TECM_2 = 412, TECM_3 = 413, TECM_4 = 414, TECM_5 = 415, TECM_6 = 416, TECM_7 = 417, TECM_8 = 418, TECM_9 = 419,
-		    TECP_1 = 421, TECP_2 = 422, TECP_3 = 423, TECP_4 = 424, TECP_5 = 425, TECP_6 = 426, TECP_7 = 427, TECP_8 = 428, TECP_9 = 429, 
-		    TECMR_1 = 4110, TECMR_2 = 4120, TECMR_3 = 4130, TECMR_4 = 4140, TECMR_5 = 4150, TECMR_6 = 4160, TECMR_7 = 4170, 
-		    TECPR_1 = 4210, TECPR_2 = 4220, TECPR_3 = 4230, TECPR_4 = 4240, TECPR_5 = 4250, TECPR_6 = 4260, TECPR_7 = 4270,  
+		    TECM = 41, TECP = 42,  //TEC minus and plus
+		    TECM_1 = 411, TECM_2 = 412, TECM_3 = 413, TECM_4 = 414, TECM_5 = 415, TECM_6 = 416, TECM_7 = 417, TECM_8 = 418, TECM_9 = 419, //TEC minus layer 1-9
+		    TECP_1 = 421, TECP_2 = 422, TECP_3 = 423, TECP_4 = 424, TECP_5 = 425, TECP_6 = 426, TECP_7 = 427, TECP_8 = 428, TECP_9 = 429, //TEC plus layer 1-9 
+		    TECMR_1 = 4110, TECMR_2 = 4120, TECMR_3 = 4130, TECMR_4 = 4140, TECMR_5 = 4150, TECMR_6 = 4160, TECMR_7 = 4170, //TEC minus ring 1-9
+		    TECPR_1 = 4210, TECPR_2 = 4220, TECPR_3 = 4230, TECPR_4 = 4240, TECPR_5 = 4250, TECPR_6 = 4260, TECPR_7 = 4270, //TEC plus ring 1-9
 		    PIXEL = 5,
-                    FPIX = 6, 
-		    FPIXM = 61, FPIXP = 62,
-                    BPIX = 7};
+                    FPIX = 6, // Pixel endcaps
+		    FPIX_1 = 61,FPIX_2 = 62,FPIX_3 = 63, // Endcaps disks 1-3
+		    FPIXM = 611, FPIXP = 612,  // Pixel endcaps minus and plus side
+		    FPIXM_1 = 6110, FPIXM_2 = 6120, FPIXM_3 = 6130, // Endcap minus disk 1-3  
+		    FPIXP_1 = 6210, FPIXP_2 = 6220, FPIXP_3 = 6230, // Endcap plus disk 1-3  
+		    BPIX = 7, //Pixel barrel
+		    BPIX_1 = 71, BPIX_2 = 72, BPIX_3 = 73 //Pixel barrel layer 1-3
+  };
 
   // Enum which describes the ordering of the summary variables inside vector variables_
   enum VariablePlacement{ NMODULES = 0,
