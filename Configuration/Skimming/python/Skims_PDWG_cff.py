@@ -12,6 +12,21 @@ skimRecoContent.outputCommands.append("drop *_*_*_SKIM")
 #####################
 
 
+from Configuration.Skimming.ChiB_SD_cff import *
+upsilonHLTPath = cms.Path(upsilonHLT)
+SKIMStreamChiB_SD = cms.FilteredStream(
+    responsible = 'EXO',
+    name = 'ChiB_SD',
+    paths = (upsilonHLTPath),
+    content = skimRecoContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RECO') 
+    )
+
+
+#####################
+
+
 from Configuration.Skimming.PDWG_EXODisplacedPhoton_cff import *
 EXODisplacedPhotonPath = cms.Path(EXODisplacedPhoton)
 SKIMStreamEXODisplacedPhoton = cms.FilteredStream(
