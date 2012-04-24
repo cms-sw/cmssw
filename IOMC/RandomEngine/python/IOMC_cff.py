@@ -92,74 +92,11 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
         initialSeed = cms.untracked.uint32(11),
         engineName = cms.untracked.string('HepJamesRandom')
     ),
-
-#
-# FastSim numbers
-# integrated since 6.0
-#
-    famosPileUp = cms.PSet(
-        initialSeed = cms.untracked.uint32(918273),
-        engineName = cms.untracked.string('TRandom3')
-    ),
-
-    mixGenPU = cms.PSet(
-        initialSeed = cms.untracked.uint32(918273), # intentionally the same as famosPileUp
-        engineName = cms.untracked.string('TRandom3')
-    ),
-    
-
-    famosSimHits = cms.PSet(
-        initialSeed = cms.untracked.uint32(13579),
-        engineName = cms.untracked.string('TRandom3')
-    ),
-
-    siTrackerGaussianSmearingRecHits = cms.PSet(
-        initialSeed = cms.untracked.uint32(24680),
-        engineName = cms.untracked.string('TRandom3')
-    ),
-
-    ecalRecHit = cms.PSet(
-        initialSeed = cms.untracked.uint32(654321),
-        engineName = cms.untracked.string('TRandom3')
-    ),
-
-    ecalPreshowerRecHit = cms.PSet(
-        initialSeed = cms.untracked.uint32(6541321),
-        engineName = cms.untracked.string('TRandom3')
-    ),
-
-    hbhereco = cms.PSet(
-        initialSeed = cms.untracked.uint32(541321),
-        engineName = cms.untracked.string('TRandom3')
-    ),
-
-    horeco = cms.PSet(
-        initialSeed = cms.untracked.uint32(541321),
-        engineName = cms.untracked.string('TRandom3')
-    ),
-
-    hfreco = cms.PSet(
-        initialSeed = cms.untracked.uint32(541321),
-        engineName = cms.untracked.string('TRandom3')
-    ),
-    
-    paramMuons = cms.PSet(
-        initialSeed = cms.untracked.uint32(54525),
-        engineName = cms.untracked.string('TRandom3')
-    ),
-
-    l1ParamMuons = cms.PSet(
-        initialSeed = cms.untracked.uint32(6453209),
-        engineName = cms.untracked.string('TRandom3')
-    ),
-
-    MuonSimHits = cms.PSet(
-        initialSeed = cms.untracked.uint32(987346),
-        engineName = cms.untracked.string('TRandom3')
+    # filter for simulated beam spot
+    simBeamSpotFilter = cms.PSet(
+        initialSeed = cms.untracked.uint32(87654321),
+        engineName = cms.untracked.string('HepJamesRandom')
     )
-
-
-
     # to save the status of the last event (useful for crashes)
     ,saveFileName = cms.untracked.string('')
     # to restore the status of the last event, 
