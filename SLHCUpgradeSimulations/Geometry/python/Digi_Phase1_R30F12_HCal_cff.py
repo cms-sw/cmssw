@@ -59,6 +59,7 @@ hcalSimParameters.hb.photoelectronsToAnalog = cms.vdouble(10.0)
 hcalSimParameters.he.pixels = cms.int32(4500*4)
 hcalSimParameters.he.photoelectronsToAnalog = cms.vdouble(10.0)
 
+simHcalUnsuppressedDigis.hb.pixels = cms.int32(4500*4*2)
 #turn on SLHC topology
 #HcalTopologyIdealEP.SLHCMode = cms.untracked.bool(True)
 
