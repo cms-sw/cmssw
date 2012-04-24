@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.42 2012/03/23 19:11:40 askew Exp $ 
- **  $Date: 2012/03/23 19:11:40 $ 
- **  $Revision: 1.42 $
+ **  $Id: PhotonProducer.h,v 1.43 2012/04/24 13:52:10 arun Exp $ 
+ **  $Date: 2012/04/24 13:52:10 $ 
+ **  $Revision: 1.43 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -85,18 +85,6 @@ class PhotonProducer : public edm::EDProducer {
   std::vector<int> flagsexcl_;
   std::vector<int> flagsexclEE_;
   std::vector<int> severitiesexcl_;
-//  std::vector<int> severitiesexclEE_;
-float e1x5;
-float e2x5;
-float e3x3;
-float e5x5;
-    //
-//    std::vector<float> cov =  EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry); 
-std::vector<float> cov;
-  //  float sigmaEtaEta = sqrt(cov[0]);
-//    std::vector<float> locCov =  EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology)); 
-std::vector<float> locCov;
-  //
 
 
   double hOverEConeSize_;

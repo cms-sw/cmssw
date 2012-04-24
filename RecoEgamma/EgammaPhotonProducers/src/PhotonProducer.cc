@@ -282,6 +282,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
   float minR9=0;
 
 
+  std::vector<int> flags_;
 
   for(unsigned int lSC=0; lSC < photonCoreHandle->size(); lSC++) {
 
@@ -298,12 +299,14 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
 	preselCutValues = preselCutValuesBarrel_;
         minR9=minR9Barrel_;
         hits=  ecalBarrelHits;
+       flags_ = flagsexcl_;
       }
     else if  (subdet==EcalEndcap) 
       { 
 	preselCutValues = preselCutValuesEndcap_;
         minR9=minR9Endcap_;
 	hits=  ecalEndcapHits;
+       flags_ = flagsexclEE_;
       }
     else
       { edm::LogWarning("")<<"PhotonProducer: do not know if it is a barrel or endcap SuperCluster" ; }
@@ -335,31 +338,13 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     float maxXtal =   EcalClusterTools::eMax( *(scRef->seed()), &(*hits) );
     //AA
     //Change these to consider severity level of hits
-  if (subdet==EcalBarrel) {
-    e1x5    =   EcalClusterTools::e1x5(  *(scRef->seed()), &(*hits), &(*topology), flagsexcl_, severitiesexcl_, sevLv); 
-    e2x5    =   EcalClusterTools::e2x5Max(  *(scRef->seed()), &(*hits), &(*topology),flagsexcl_, severitiesexcl_, sevLv ); 
-    e3x3    =   EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology), flagsexcl_, severitiesexcl_, sevLv);
-    e5x5    =   EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology),flagsexcl_, severitiesexcl_, sevLv); 
-    //
-//    std::vector<float> cov =  EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry); 
-      cov =  EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry,flagsexcl_, severitiesexcl_, sevLv);
-//    float sigmaEtaEta = sqrt(cov[0]);
-//    std::vector<float> locCov =  EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology)); 
-     locCov =  EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology),flagsexcl_, severitiesexcl_, sevLv);
-}
+float e1x5    =   EcalClusterTools::e1x5(  *(scRef->seed()), &(*hits), &(*topology), flags_, severitiesexcl_, sevLv);
+float e2x5    =   EcalClusterTools::e2x5Max(  *(scRef->seed()), &(*hits), &(*topology),flags_, severitiesexcl_, sevLv );    
+float e3x3    =   EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology), flags_, severitiesexcl_, sevLv);
+float e5x5    =   EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology),flags_, severitiesexcl_, sevLv);   
+      std::vector<float> cov =  EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry,flags_, severitiesexcl_, sevLv);
+      std::vector<float> locCov =  EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology),flags_, severitiesexcl_, sevLv);
 
-  if (subdet==EcalEndcap) {
-     e1x5    =   EcalClusterTools::e1x5(  *(scRef->seed()), &(*hits), &(*topology), flagsexclEE_, severitiesexcl_, sevLv);
-     e2x5    =   EcalClusterTools::e2x5Max(  *(scRef->seed()), &(*hits), &(*topology),flagsexclEE_, severitiesexcl_, sevLv );
-     e3x3    =   EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology), flagsexclEE_, severitiesexcl_, sevLv);
-     e5x5    =   EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology),flagsexclEE_, severitiesexcl_, sevLv);
-    //
-//    std::vector<float> cov =  EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry); 
-     cov =  EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry,flagsexclEE_, severitiesexcl_, sevLv);
-  //  float sigmaEtaEta = sqrt(cov[0]);
-//    std::vector<float> locCov =  EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology)); 
-   locCov =  EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology),flagsexclEE_, severitiesexcl_, sevLv);
-}
 
     float sigmaEtaEta = sqrt(cov[0]);
     float sigmaIetaIeta = sqrt(locCov[0]);
