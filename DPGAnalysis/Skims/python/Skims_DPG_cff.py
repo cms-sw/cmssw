@@ -279,7 +279,7 @@ SKIMStreamTkSD = cms.FilteredStream(
 from DPGAnalysis.Skims.WElectronSkim_cff import *
 WElectronPath = cms.Path( elecMetSeq )
 SKIMStreamWElectron = cms.FilteredStream(
-    responsible = 'Egamma POG',
+    responsible = 'ECAL DPG',
     name = 'WElectron',
     paths = ( WElectronPath ),
     content = skimContent.outputCommands,
@@ -290,13 +290,13 @@ SKIMStreamWElectron = cms.FilteredStream(
 #####################
 
 from DPGAnalysis.Skims.ZElectronSkim_cff import *
-ZElectronPathPhoton = cms.Path( tagPhotonSeq )
-ZElectronPathTrack = cms.Path( tagTrackSeq )
+#ZElectronPathPhoton = cms.Path( tagPhotonSeq )
+#ZElectronPathTrack = cms.Path( tagTrackSeq )
 ZElectronPathGsf = cms.Path( tagGsfSeq )
 SKIMStreamZElectron = cms.FilteredStream(
-    responsible = 'Egamma POG',
+    responsible = 'ECAL DPG',
     name = 'ZElectron',
-    paths = ( ZElectronPathPhoton, ZElectronPathTrack, ZElectronPathGsf ),
+    paths = ( ZElectronPathGsf ),
     content = skimContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
