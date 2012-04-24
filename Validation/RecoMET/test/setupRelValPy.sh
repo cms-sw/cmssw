@@ -9,7 +9,7 @@ Directory=${current_area}/FullSim/
 mkdir $Directory -p
 
 #======= Define list of samples that you will be validating ========#
-dirlist="TTbar QCD"
+dirlist="TTbar"
 
 #======= Define list of modules that will be run for each sample ========#
 RunPath="fileSaver, calotoweroptmaker, analyzeRecHits, analyzecaloTowers, analyzeGenMET, analyzeGenMETFromGenJets, analyzeHTMET, analyzeCaloMET, analyzeTCMET,OB analyzePFMET"
@@ -117,8 +117,8 @@ process.p = cms.Path(process.fileSaver*
                 #     process.analyzeHTMET*
                      process.analyzeCaloMET*
                      process.analyzePFMET*
-                     process.analyzeTCMET*
-                #     process.analyzeMuonCorrectedCaloMET
+                     process.analyzeTCMET
+					 # * process.analyzeMuonCorrectedCaloMET
 )
 process.schedule = cms.Schedule(process.p)
 
