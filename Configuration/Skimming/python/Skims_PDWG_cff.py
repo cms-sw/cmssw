@@ -110,7 +110,7 @@ skimAodContent.outputCommands.append("drop *_*_*_SKIM")
 from Configuration.Skimming.PDWG_EXOHSCP_cff import *
 EXOHSCPPath = cms.Path(exoticaHSCPSeq)
 SKIMStreamEXOHSCP = cms.FilteredStream(
-    responsible = 'PDWG',
+    responsible = 'EXO',
     name = 'EXOHSCP',
     paths = (EXOHSCPPath),
     content = EXOHSCPSkim_EventContent.outputCommands,
