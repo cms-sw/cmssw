@@ -624,6 +624,8 @@ double
 PFEnergyCalibration::CorrBarrel(double E, double eta) {
 
   //Energy dependency
+  /*
+  //YM Parameters 52XX:
   static double p0=1.00000e+00;
   static double p1=3.27753e+01;
   static double p2=2.28552e-02;
@@ -632,10 +634,18 @@ PFEnergyCalibration::CorrBarrel(double E, double eta) {
   static double p5=1.47824e+00;
   static double p6=1.09e-02;
   static double p7=4.19343e+01;
-
+  */
+  static double p0 = 0.9944;
+  static double p1 = 9.827;
+  static double p2 = 1.503;
+  static double p3 = 1.196;
+  static double p4 = 0.3349;
+  static double p5 = 0.89;
+  static double p6 = 0.004361;
+  static double p7 = 51.51;
   //Eta dependency
   static double p8=2.705593e-03;
-
+  
   double result = (p0+1/(p1+p2*TMath::Power(E,p3))+p4*TMath::Exp(-E/p5)+p6*TMath::Exp(-E*E/(p7*p7)))*(1+p8*eta*eta);
 
   return result;

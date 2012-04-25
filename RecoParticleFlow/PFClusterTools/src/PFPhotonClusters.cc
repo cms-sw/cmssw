@@ -15,7 +15,7 @@ PFPhotonClusters::PFPhotonClusters(PFClusterRef PFClusterRef):
   for(int i=0; i<5; ++i)
     for(int j=0; j<5; ++j)e5x5_[i][j]=0;
   FillClusterShape();
-  //FillClusterWidth();
+  FillClusterWidth();
 }
 
 void PFPhotonClusters::SetSeed(){
