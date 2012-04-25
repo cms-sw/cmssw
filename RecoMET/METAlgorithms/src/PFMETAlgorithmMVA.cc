@@ -8,6 +8,8 @@
 #include <TFile.h>
 #include <TMath.h>
 
+#include <iomanip>
+
 enum MVAType { kBaseline = 0 };
 
 GBRForest* loadMVA(const edm::FileInPath& inputFileName, const std::string& mvaName)
@@ -15,8 +17,9 @@ GBRForest* loadMVA(const edm::FileInPath& inputFileName, const std::string& mvaN
   if ( !inputFileName.isLocal()) throw cms::Exception("PFMETAlgorithmMVA::loadMVA") 
     << " Failed to find File = " << inputFileName << " !!\n";
   TFile* inputFile = new TFile(inputFileName.fullPath().data());
-
-  GBRForest* mva = dynamic_cast<GBRForest*>(inputFile->Get(mvaName.data()));
+  
+  //GBRForest* mva = dynamic_cast<GBRForest*>(inputFile->Get(mvaName.data())); // CV: dynamic_cast<GBRForest*> fails for some reason ?!
+  GBRForest* mva = (GBRForest*)inputFile->Get(mvaName.data());
   if ( !mva )
     throw cms::Exception("PFMETAlgorithmMVA::loadMVA")
       << " Failed to load MVA = " << mvaName.data() << " from file = " << inputFileName.fullPath().data() << " !!\n";
@@ -98,14 +101,14 @@ void PFMETAlgorithmMVA::setInput(const std::vector<reco::Candidate::LorentzVecto
 
   std::vector<mvaMEtUtilities::JetInfo> jets_cleaned = utils_.cleanJets(jets, leptons);
 
-  CommonMETData pfRecoil_data  = utils_.computePFRecoil(sumLeptons, pfCandidates, dZcut_);
-  CommonMETData tkRecoil_data  = utils_.computeTrackRecoil(sumLeptons, pfCandidates, dZcut_);
-  CommonMETData npuRecoil_data = utils_.computeNoPURecoil(sumLeptons, pfCandidates, jets_cleaned, dZcut_);
-  CommonMETData pucRecoil_data = utils_.computePUCRecoil(sumLeptons, pfCandidates, jets_cleaned, dZcut_);
+  CommonMETData pfRecoil_data  = utils_.computeNegPFRecoil(sumLeptons, pfCandidates, dZcut_);
+  CommonMETData tkRecoil_data  = utils_.computeNegTrackRecoil(sumLeptons, pfCandidates, dZcut_);
+  CommonMETData npuRecoil_data = utils_.computeNegNoPURecoil(sumLeptons, pfCandidates, jets_cleaned, dZcut_);
+  CommonMETData pucRecoil_data = utils_.computeNegPUCRecoil(sumLeptons, pfCandidates, jets_cleaned, dZcut_);
   CommonMETData puMEt_data     = utils_.computePUMEt(pfCandidates, jets_cleaned, dZcut_);
 
-  reco::Candidate::LorentzVector jet1P4 = utils_.leadJetP4(jets);
-  reco::Candidate::LorentzVector jet2P4 = utils_.subleadJetP4(jets);
+  reco::Candidate::LorentzVector jet1P4 = utils_.leadJetP4(jets_cleaned);
+  reco::Candidate::LorentzVector jet2P4 = utils_.subleadJetP4(jets_cleaned);
 
   double pfSumEt       = pfRecoil_data.sumet;
   double pfU           = pfRecoil_data.met;
@@ -128,8 +131,8 @@ void PFMETAlgorithmMVA::setInput(const std::vector<reco::Candidate::LorentzVecto
   double jet2Pt        = jet2P4.pt();
   double jet2Eta       = jet2P4.eta();
   double jet2Phi       = jet2P4.phi();
-  double numJetsPtGt30 = utils_.numJetsAboveThreshold(jets, 30.);
-  double numJets       = jets.size();
+  double numJetsPtGt30 = utils_.numJetsAboveThreshold(jets_cleaned, 30.);
+  double numJets       = jets_cleaned.size();
   double numVertices   = vertices.size();
 
   setInput(pfSumEt, pfU, pfPhi,
@@ -195,12 +198,16 @@ void PFMETAlgorithmMVA::evaluateMVA()
 
   // compute MET
   double U      = pfU_*mvaOutputU_;
+  //std::cout << "U = " << U << std::endl;
   double Phi    = pfPhi_ + mvaOutputDPhi_;
   if ( U < 0. ) Phi += TMath::Pi();
   double cosPhi = cos(Phi);
   double sinPhi = sin(Phi);
+  //std::cout << "Phi = " << Phi << ": cos(Phi) = " << cosPhi << ", sin(Phi) = " << sinPhi << std::endl;
   double metPx  = U*cosPhi - sumLeptonPx_; // CV: U is actually minus the hadronic recoil in the event
   double metPy  = U*sinPhi - sumLeptonPy_;
+  //std::cout << "U*cosPhi = " << (U*cosPhi) << ", sum(leptons) Px = " << sumLeptonPx_ << " --> metPx = " << metPx << std::endl;
+  //std::cout << "U*sinPhi = " << (U*sinPhi) << ", sum(leptons) Py = " << sumLeptonPy_ << " --> metPy = " << metPy << std::endl;
   double metPt  = sqrt(metPx*metPx + metPy*metPy);
   mvaMEt_.SetCoordinates(metPx, metPy, 0., metPt);
 
@@ -242,6 +249,8 @@ void PFMETAlgorithmMVA::evaluateU()
   mvaInputU_[23] = numJetsPtGt30_;
   mvaInputU_[24] = pfPhi_ + mvaOutputDPhi_;
   mvaOutputU_    = mvaReaderU_->GetResponse(mvaInputU_);
+  //std::cout << "<PFMETAlgorithmMVA::evaluateU>:" << std::endl;
+  //std::cout << " mvaOutputU = " << mvaOutputU_ << std::endl;
 }
 
 void PFMETAlgorithmMVA::evaluateDPhi() 
@@ -270,6 +279,8 @@ void PFMETAlgorithmMVA::evaluateDPhi()
   mvaInputDPhi_[21] = numJets_;
   mvaInputDPhi_[22] = numJetsPtGt30_;
   mvaOutputDPhi_    = mvaReaderDPhi_->GetResponse(mvaInputDPhi_);
+  //std::cout << "<PFMETAlgorithmMVA::evaluateDPhi>:" << std::endl;
+  //std::cout << " mvaOutputDPhi = " << mvaOutputDPhi_ << std::endl;
 }
 
 void PFMETAlgorithmMVA::evaluateCovU1() 
@@ -301,6 +312,8 @@ void PFMETAlgorithmMVA::evaluateCovU1()
   mvaInputCovU1_[24] = pfPhi_ + mvaOutputDPhi_;
   mvaInputCovU1_[25] = mvaOutputU_;
   mvaOutputCovU1_    = mvaReaderCovU1_->GetResponse(mvaInputCovU1_);
+  //std::cout << "<PFMETAlgorithmMVA::evaluateCovU1>:" << std::endl;
+  //std::cout << " mvaOutputCovU1 = " << mvaOutputCovU1_ << std::endl;
 }
 
 void PFMETAlgorithmMVA::evaluateCovU2() 
@@ -332,5 +345,28 @@ void PFMETAlgorithmMVA::evaluateCovU2()
   mvaInputCovU2_[24] = pfPhi_ + mvaOutputDPhi_;
   mvaInputCovU2_[25] = mvaOutputU_;
   mvaOutputCovU2_    = mvaReaderCovU2_->GetResponse(mvaInputCovU2_);
+  //std::cout << "<PFMETAlgorithmMVA::evaluateCovU2>:" << std::endl;
+  //std::cout << " mvaOutputCovU2 = " << mvaOutputCovU2_ << std::endl;
+}
+//-------------------------------------------------------------------------------
+
+//-------------------------------------------------------------------------------
+void PFMETAlgorithmMVA::print(std::ostream& stream) const
+{
+  stream << "<PFMETAlgorithmMVA::print>:" << std::endl;
+  stream << " PF: sumEt = " << pfSumEt_ << ", U = " << pfU_ << ", phi = " << pfPhi_ << std::endl;
+  stream << " TK: sumEt = " << tkSumEt_ << ", U = " << tkU_ << ", phi = " << tkPhi_ << std::endl;
+  stream << " NPU: sumEt = " << npuSumEt_ << ", U = " << npuU_ << ", phi = " << npuPhi_ << std::endl;
+  stream << " PU: sumEt = " << puSumEt_ << ", MEt = " << puMEt_ << ", phi = " << puPhi_ << std::endl;
+  stream << " PUC: sumEt = " << pucSumEt_ << ", U = " << pucU_ << ", phi = " << pucPhi_ << std::endl;
+  stream << " jet1: Pt = " << jet1Pt_ << ", eta = " << jet1Eta_ << ", phi = " << jet1Phi_ << std::endl;
+  stream << " jet2: Pt = " << jet2Pt_ << ", eta = " << jet2Eta_ << ", phi = " << jet2Phi_ << std::endl;
+  stream << " num. jets = " << numJets_ << " (" << numJetsPtGt30_ << " with Pt > 30 GeV)" << std::endl;
+  stream << " num. vertices = " << numVertices_ << std::endl;
+  stream << " MVA output: U = " << mvaOutputU_ << ", dPhi = " << mvaOutputDPhi_ << "," 
+	 << " covU1 = " << mvaOutputCovU1_ << ", covU2 = " << mvaOutputCovU2_ << std::endl;
+  stream << " sum(leptons): Pt = " << sqrt(sumLeptonPx_*sumLeptonPx_ + sumLeptonPy_*sumLeptonPy_) << ","
+	 << " phi = " << atan2(sumLeptonPy_, sumLeptonPx_) << " "
+	 << "(Px = " << sumLeptonPx_ << ", Py = " << sumLeptonPy_ << ")" << std::endl;
 }
 //-------------------------------------------------------------------------------

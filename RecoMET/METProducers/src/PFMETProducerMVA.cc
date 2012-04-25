@@ -22,6 +22,47 @@
 
 using namespace reco;
 
+namespace
+{
+  template <typename T>
+  std::string format_vT(const std::vector<T>& vT)
+  {
+    std::ostringstream os;
+  
+    os << "{ ";
+
+    unsigned numEntries = vT.size();
+    for ( unsigned iEntry = 0; iEntry < numEntries; ++iEntry ) {
+      os << vT[iEntry];
+      if ( iEntry < (numEntries - 1) ) os << ", ";
+    }
+
+    os << " }";
+  
+    return os.str();
+  }
+
+  std::string format_vInputTag(const std::vector<edm::InputTag>& vit)
+  {
+    std::vector<std::string> vit_string;
+    for ( std::vector<edm::InputTag>::const_iterator vit_i = vit.begin();
+	  vit_i != vit.end(); ++vit_i ) {
+      vit_string.push_back(vit_i->label());
+    }
+    return format_vT(vit_string);
+  }
+
+  void printJets(std::ostream& stream, const reco::PFJetCollection& jets)
+  {
+    unsigned numJets = jets.size();
+    for ( unsigned iJet = 0; iJet < numJets; ++iJet ) {
+      const reco::Candidate::LorentzVector& jetP4 = jets.at(iJet).p4();
+      stream << " #" << iJet << ": Pt = " << jetP4.pt() << "," 
+	     << " eta = " << jetP4.eta() << ", phi = " << jetP4.phi() << std::endl;
+    }
+  }
+}
+
 PFMETProducerMVA::PFMETProducerMVA(const edm::ParameterSet& cfg) 
   : mvaMEtAlgo_(cfg),
     looseJetIdAlgo_(0)
@@ -43,6 +84,19 @@ PFMETProducerMVA::PFMETProducerMVA(const edm::ParameterSet& cfg)
   cfgPFJetIdAlgo.addParameter<std::string>("quality", "LOOSE");
   looseJetIdAlgo_ = new PFJetIDSelectionFunctor(cfgPFJetIdAlgo);
 
+  verbosity_ = ( cfg.exists("verbosity") ) ?
+    cfg.getParameter<int>("verbosity") : 0;
+
+  if ( verbosity_ ) {
+    std::cout << "<PFMETProducerMVA::PFMETProducerMVA>:" << std::endl;
+    std::cout << " srcCorrJets = " << srcCorrJets_.label() << std::endl;
+    std::cout << " srcUncorrJets = " << srcUncorrJets_.label() << std::endl;
+    std::cout << " srcPFCandidates = " << srcPFCandidates_.label() << std::endl;
+    std::cout << " srcVertices = " << srcVertices_.label() << std::endl;
+    std::cout << " srcLeptons = " << format_vInputTag(srcLeptons_) << std::endl;
+    std::cout << " srcRho = " << srcVertices_.label() << std::endl;
+  }
+
   produces<reco::PFMETCollection>();
 }
 
@@ -52,7 +106,7 @@ PFMETProducerMVA::~PFMETProducerMVA()
 }
 
 void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es) 
-{  
+{ 
   // get jets (corrected and uncorrected)
   edm::Handle<reco::PFJetCollection> corrJets;
   evt.getByLabel(srcCorrJets_, corrJets);
@@ -97,6 +151,7 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
   CommonMETData pfMEt_data;
   metAlgo_.run(pfCandidates_view, &pfMEt_data, globalThreshold_);
   reco::PFMET pfMEt = pfMEtSpecificAlgo_.addInfo(pfCandidates_view, pfMEt_data);
+  reco::Candidate::LorentzVector pfMEtP4_original = pfMEt.p4();
 
   // compute objects specific to MVA based MET reconstruction
   std::vector<mvaMEtUtilities::JetInfo> jetInfo = computeJetInfo(*uncorrJets, *corrJets, *vertices, hardScatterVertex, *rho);
@@ -109,6 +164,22 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
 
   pfMEt.setP4(mvaMEtAlgo_.getMEt());
   pfMEt.setSignificanceMatrix(mvaMEtAlgo_.getMEtCov());
+
+  if ( verbosity_ ) {
+    std::cout << "<PFMETProducerMVA::produce>:" << std::endl;
+    std::cout << " PFMET: Pt = " << pfMEtP4_original.pt() << ", phi = " << pfMEtP4_original.phi() << " "
+	      << "(Px = " << pfMEtP4_original.px() << ", Py = " << pfMEtP4_original.py() << ")" << std::endl;
+    std::cout << " MVA MET: Pt = " << pfMEt.pt() << ", phi = " << pfMEt.phi() << " "
+	      << "(Px = " << pfMEt.px() << ", Py = " << pfMEt.py() << ")" << std::endl;
+    std::cout << " Cov:" << std::endl;
+    mvaMEtAlgo_.getMEtCov().Print();
+    mvaMEtAlgo_.print(std::cout);
+    //std::cout << "corrJets:" << std::endl;
+    //printJets(std::cout, *corrJets);
+    //std::cout << "uncorrJets:" << std::endl;
+    //printJets(std::cout, *uncorrJets);
+    std::cout << std::endl;
+  }
 
   // add PFMET object to the event
   std::auto_ptr<reco::PFMETCollection> pfMEtCollection(new reco::PFMETCollection());
@@ -128,27 +199,37 @@ std::vector<mvaMEtUtilities::JetInfo> PFMETProducerMVA::computeJetInfo(const rec
 	uncorrJet != uncorrJets.end(); ++uncorrJet ) {
     for ( reco::PFJetCollection::const_iterator corrJet = corrJets.begin();
 	  corrJet != corrJets.end(); ++corrJet ) {
-      if ( uncorrJet->jetArea() != corrJet->jetArea()        ) continue;
+      // match corrected and uncorrected jets
+      if ( uncorrJet->jetArea() != corrJet->jetArea() ) continue;
       if ( !(fabs(uncorrJet->eta() - corrJet->eta()) < 0.01) ) continue;
-      if ( !(corrJet->pt() > minCorrJetPt_)                  ) continue; 
-      pat::strbitset dummy;
-      bool passesLooseJetId = (*looseJetIdAlgo_)(*corrJet);
-      if ( !passesLooseJetId                                 ) continue; 
-      double jetEnCorrFactor = corrJet->pt()/uncorrJet->pt();
-      mvaMEtUtilities::JetInfo jetInfo;
-      jetInfo.p4_            = corrJet->p4();
-      //jetInfo.mva_           = mvaJetIdAlgo_.computeIdVariables(&(*corrJet), jetEnCorrFactor, hardScatterVertex, vertices, true).mva();
-      // CV: maybe better divide by uncorrected energy ?
-      //    (corrected jet energy can be negative sometimes)
-      jetInfo.neutralEnFrac_ = (corrJet->neutralEmEnergy() + corrJet->neutralHadronEnergy())/corrJet->energy();
 
-      // PH: apply rho correction
-      //    (following with Jet MET convenors use rho correction only below 10 GeV)
-      // CV: why apply rho correction, jet energies are already corrected by L1Fastjet + L2 + L3 (+ L2L3Residual), no ?
-      if ( corrJet->pt() < 10. ) {
-	jetInfo.p4_ *= std::max((corrJet->pt() - rho*corrJet->jetArea())/corrJet->pt(), 0.); // CV: needs to be uncorrJet->energy
-	                                                                                     //     instead of corrJet->pt ?
+      // check that jet passes loose PFJet id.
+      bool passesLooseJetId = (*looseJetIdAlgo_)(*corrJet);
+      if ( !passesLooseJetId ) continue; 
+
+      // compute jet energy correction factor
+      // (= ratio of corrected/uncorrected jet Pt)
+      double jetEnCorrFactor = corrJet->pt()/uncorrJet->pt();
+
+      mvaMEtUtilities::JetInfo jetInfo;
+
+      // PH: don't apply jet energy corrections for jets of uncorrected Pt < 10 GeV,
+      //     following recommendation of JetMET convenors for Type 1 corrected PFMET
+      //    (only apply rho correction)
+      if ( corrJet->pt() > 10. ) {
+	jetInfo.p4_ = corrJet->p4();
+      } else {
+	jetInfo.p4_ = uncorrJet->p4();
+	if ( uncorrJet->pt() > 0. ) jetInfo.p4_ *= std::max((uncorrJet->pt() - rho*uncorrJet->jetArea())/uncorrJet->pt(), 0.);
       }
+
+      // check that jet Pt used to compute MVA based jet id. is above threshold
+      if ( !(jetInfo.p4_.pt() > minCorrJetPt_) ) continue;
+
+      //jetInfo.mva_ = mvaJetIdAlgo_.computeIdVariables(&(*corrJet), jetEnCorrFactor, hardScatterVertex, vertices, true).mva();
+
+      jetInfo.neutralEnFrac_ = (uncorrJet->neutralEmEnergy() + uncorrJet->neutralHadronEnergy())/uncorrJet->energy();
+
       retVal.push_back(jetInfo);
       break;
     }

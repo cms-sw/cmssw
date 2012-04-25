@@ -27,6 +27,7 @@
 
 #include <string>
 #include <vector>
+#include <ostream>
 
 class PFMETAlgorithmMVA 
 {
@@ -50,6 +51,8 @@ class PFMETAlgorithmMVA
   double getCovU1() const { return mvaOutputCovU1_; }
   double getCovU2() const { return mvaOutputCovU2_; }
   
+  void print(std::ostream&) const;
+
  protected:
 
   void setInput(double, double, double,

@@ -76,6 +76,8 @@ namespace reco
 
     PFJetIDSelectionFunctor* looseJetIdAlgo_;
     //PileupJetIdAlgo mvaJetIdAlgo_;
+
+    int verbosity_;
   };
 }
 

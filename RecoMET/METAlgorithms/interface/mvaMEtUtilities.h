@@ -56,10 +56,10 @@ class mvaMEtUtilities
   CommonMETData computePUMEt(const std::vector<pfCandInfo>&, const std::vector<JetInfo>&, double);
   CommonMETData computePUCMEt(const std::vector<pfCandInfo>&, const std::vector<JetInfo>&, double);
   
-  CommonMETData computePFRecoil(const CommonMETData&, const std::vector<pfCandInfo>&, double);
-  CommonMETData computeTrackRecoil(const CommonMETData&, const std::vector<pfCandInfo>&, double);
-  CommonMETData computeNoPURecoil(const CommonMETData&, const std::vector<pfCandInfo>&, const std::vector<JetInfo>&, double);
-  CommonMETData computePUCRecoil(const CommonMETData&, const std::vector<pfCandInfo>&, const std::vector<JetInfo>&, double);
+  CommonMETData computeNegPFRecoil(const CommonMETData&, const std::vector<pfCandInfo>&, double);
+  CommonMETData computeNegTrackRecoil(const CommonMETData&, const std::vector<pfCandInfo>&, double);
+  CommonMETData computeNegNoPURecoil(const CommonMETData&, const std::vector<pfCandInfo>&, const std::vector<JetInfo>&, double);
+  CommonMETData computeNegPUCRecoil(const CommonMETData&, const std::vector<pfCandInfo>&, const std::vector<JetInfo>&, double);
   
  protected:
 
