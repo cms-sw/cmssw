@@ -1328,7 +1328,7 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow", "mvaWeightFileRegLCEE", mvaWeightFileRegLCEE);
   options_->GetOpt("particle_flow", "mvaWeightFileRegGCEB", mvaWeightFileRegGCEB);
   options_->GetOpt("particle_flow", "mvaWeightFileRegGCEEHr9", mvaWeightFileRegGCEEhr9);
-  options_->GetOpt("particle_flow", "mvaWeightFileRegGCEElr9", mvaWeightFileRegGCEElr9);
+  options_->GetOpt("particle_flow", "mvaWeightFileRegGCEELr9", mvaWeightFileRegGCEElr9);
   options_->GetOpt("particle_flow", "mvaWeightFileRegRes", mvaWeightFileRegRes);
   options_->GetOpt("particle_flow", "X0Map", X0Map);
   options_->GetOpt("particle_flow","sumPtTrackIsoForPhoton",sumPtTrackIsoForPhoton);
