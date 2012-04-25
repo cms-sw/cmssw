@@ -103,7 +103,9 @@ AlignmentTrackSelector = cms.EDFilter("AlignmentTrackSelectorModule",
         applyAcoplanarityFilter = cms.bool(False),
         applyMissingETFilter = cms.bool(False),
 
-        numberOfCandidates = cms.uint32(1)
+        numberOfCandidates = cms.uint32(1),
+        applySecThreshold = cms.bool(False),
+        secondThreshold = cms.double(6.0)
     ),
     trackQualities = cms.vstring(), # take all if empty
     iterativeTrackingSteps = cms.vstring(), # take all if empty
