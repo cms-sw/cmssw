@@ -2,7 +2,7 @@
 
 export PATH=/afs/cern.ch/cms/common:${PATH}
 if [[ "$#" == "0" ]]; then
-    echo "usage: 'TkMap_script_automatic.sh Cosmics|MinimumBias|StreamExpress|StreamExpressCosmics runNumber1 runNumber2...'";
+    echo "usage: 'TkMap_script_automatic.sh Cosmics|MinimumBias|StreamExpress runNumber1 runNumber2...'";
     exit 1;
 fi
 
@@ -72,8 +72,12 @@ file_path="/tmp/"
 
     mv *.png $Run_numb/$1
 
-    cat /afs/cern.ch/user/c/cctrack/scratch0/TKMap/scripts/index_template_TKMap.html | sed -e "s@RunNumber@$Run_numb@g" > $Run_numb/$1/index.html
-
+    if [ "${1}" == "Cosmics" ]; then 
+	cat /afs/cern.ch/user/c/cctrack/scratch0/TKMap/scripts/index_template_TKMap_cosmics.html | sed -e "s@RunNumber@$Run_numb@g" > $Run_numb/$1/index.html
+    else
+	cat /afs/cern.ch/user/c/cctrack/scratch0/TKMap/scripts/index_template_TKMap.html | sed -e "s@RunNumber@$Run_numb@g" > $Run_numb/$1/index.html
+    fi
+    
     echo " Check TrackerMap on $Run_numb/$1 folder"
 
     nnn=`echo ${Run_numb} | awk '{print substr($0,0,3)}'`
@@ -133,10 +137,9 @@ file_path="/tmp/"
     scp -r ${Run_numb}/$1 cctrack@vocms01:/data/users/event_display/Data2012/${dest}/${nnn}/${Run_numb}/
 
     rm -f *svg
-#    rm -rf ${Run_numb}
-#    rm -f SiStripDQM_OfflineTkMap_cfg_$Run_numb.py
-#    rm -f logfile_${Run_numb}.txt
-
-#    rm ${file_path}/$dqmFileName
+    rm -rf ${Run_numb}
+    rm -f SiStripDQM_OfflineTkMap_cfg_$Run_numb.py
+    rm -f logfile_${Run_numb}.txt
+    rm ${file_path}/$dqmFileName
 
 done
