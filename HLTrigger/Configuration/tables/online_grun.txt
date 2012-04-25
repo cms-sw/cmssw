@@ -522,14 +522,18 @@ HLT_Mu7_Ele7_CaloIdT_CaloIsoVL_v*								#sr126853
 
 #HLT_Photon22_R9Id90_HE10_Iso40_v*								#sr126852 (renamed by #sr127257)
 
-HLT_Photon22_R9Id90_HE10_Iso40_EBOnly_v*								#sr127257
-HLT_Photon36_R9Id90_HE10_Iso40_EBOnly_v*                                                               #sr127257
-HLT_Photon50_R9Id90_HE10_Iso40_EBOnly_v*                                                               #sr127257
-HLT_Photon75_R9Id90_HE10_Iso40_EBOnly_v*                                                               #sr127257
-HLT_Photon90_R9Id90_HE10_Iso40_EBOnly_v*                                                               #sr127257
+HLT_Photon22_R9Id90_HE10_Iso40_EBOnly_v*							#sr127257
+HLT_Photon36_R9Id90_HE10_Iso40_EBOnly_v*                                                        #sr127257
+HLT_Photon50_R9Id90_HE10_Iso40_EBOnly_v*                                                        #sr127257
+HLT_Photon75_R9Id90_HE10_Iso40_EBOnly_v*                                                        #sr127257
+HLT_Photon90_R9Id90_HE10_Iso40_EBOnly_v*                                                        #sr127257
 
-HLT_Ele27_WP80_WCandPt80_v*                                                                            #sr#127321
-HLT_IsoMu20_eta2p1_WCandPt80_v*                                                                        #sr#127321 
+HLT_Ele27_WP80_WCandPt80_v*                                                                     #sr#127321
+HLT_IsoMu20_eta2p1_WCandPt80_v*                                                                 #sr#127321 
+
+HLT_DiJet35_MJJ650_AllJets_DEta3p5_VBF_v*							#sr127987
+HLT_DiJet35_MJJ700_AllJets_DEta3p5_VBF_v*							#sr127987
+HLT_DiJet35_MJJ750_AllJets_DEta3p5_VBF_v*							#sr127987
 
 HLT_BeamGas_HF_Beam1_v*                                                                         #sr126174
 HLT_BeamGas_HF_Beam2_v*                                                                         #sr126174
