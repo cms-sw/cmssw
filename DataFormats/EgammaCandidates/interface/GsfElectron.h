@@ -355,10 +355,12 @@ class GsfElectron : public RecoCandidate
     struct ShowerShape
      {
       float sigmaEtaEta ;        // weighted cluster rms along eta and inside 5x5 (absolute eta)
-      float sigmaIetaIeta ;      // weighted cluster rms along eta and inside 5x5 (new, Xtal eta)
+      float sigmaIetaIeta ;      // weighted cluster rms along eta and inside 5x5 (Xtal eta)
+      float sigmaIphiIphi ;      // weighted cluster rms along phi and inside 5x5 (Xtal phi)
       float e1x5 ;               // energy inside 1x5 in etaxphi around the seed Xtal
       float e2x5Max ;            // energy inside 2x5 in etaxphi around the seed Xtal (max bwt the 2 possible sums)
       float e5x5 ;               // energy inside 5x5 in etaxphi around the seed Xtal
+      float r9 ;                 // ratio of the 3x3 energy and supercluster energy
       float hcalDepth1OverEcal ; // hcal over ecal seed cluster energy using 1st hcal depth (using hcal towers within a cone)
       float hcalDepth2OverEcal ; // hcal over ecal seed cluster energy using 2nd hcal depth (using hcal towers within a cone)
       std::vector<CaloTowerDetId> hcalTowersBehindClusters ; //
@@ -366,8 +368,10 @@ class GsfElectron : public RecoCandidate
       float hcalDepth2OverEcalBc ; // hcal over ecal seed cluster energy using 2nd hcal depth (using hcal towers behind clusters)
       ShowerShape()
        : sigmaEtaEta(std::numeric_limits<float>::infinity()),
-	     sigmaIetaIeta(std::numeric_limits<float>::infinity()),
+       sigmaIetaIeta(std::numeric_limits<float>::infinity()),
+       sigmaIphiIphi(std::numeric_limits<float>::infinity()),
 	     e1x5(0.), e2x5Max(0.), e5x5(0.),
+	     r9(-std::numeric_limits<float>::infinity()),
        hcalDepth1OverEcal(0.), hcalDepth2OverEcal(0.),
        hcalDepth1OverEcalBc(0.), hcalDepth2OverEcalBc(0.)
        {}
@@ -376,9 +380,11 @@ class GsfElectron : public RecoCandidate
     // accessors
     float sigmaEtaEta() const { return showerShape_.sigmaEtaEta ; }
     float sigmaIetaIeta() const { return showerShape_.sigmaIetaIeta ; }
+    float sigmaIphiIphi() const { return showerShape_.sigmaIphiIphi ; }
     float e1x5() const { return showerShape_.e1x5 ; }
     float e2x5Max() const { return showerShape_.e2x5Max ; }
     float e5x5() const { return showerShape_.e5x5 ; }
+    float r9() const { return showerShape_.r9 ; }
     float hcalDepth1OverEcal() const { return showerShape_.hcalDepth1OverEcal ; }
     float hcalDepth2OverEcal() const { return showerShape_.hcalDepth2OverEcal ; }
     float hcalOverEcal() const { return hcalDepth1OverEcal() + hcalDepth2OverEcal() ; }
@@ -539,8 +545,9 @@ class GsfElectron : public RecoCandidate
      {
       int status ; // see PFCandidateElectronExtra::StatusFlag
       float mva ;
+      float mvaByPassForIsolated ; // complementary MVA used in preselection
       MvaOutput()
-       : status(-1), mva(-999999999.)
+       : status(-1), mva(-999999999.), mvaByPassForIsolated(-999999999.)
        {}
      } ;
 
@@ -576,7 +583,7 @@ class GsfElectron : public RecoCandidate
     // accessors
     bool ecalDriven() const ; // return true if ecalDrivenSeed() and passingCutBasedPreselection()
     bool passingCutBasedPreselection() const { return passCutBasedPreselection_ ; }
-    bool passingMvaPreselection() const { return passMvaPreslection_ ; }
+    bool passingPflowPreselection() const { return passPflowPreselection_ ; }
     bool ambiguous() const { return ambiguous_ ; }
     GsfTrackRefVector::size_type ambiguousGsfTracksSize() const { return ambiguousGsfTracks_.size() ; }
     GsfTrackRefVector::const_iterator ambiguousGsfTracksBegin() const { return ambiguousGsfTracks_.begin() ; }
@@ -584,16 +591,21 @@ class GsfElectron : public RecoCandidate
 
     // setters
     void setPassCutBasedPreselection( bool flag ) { passCutBasedPreselection_ = flag ; }
-    void setPassMvaPreselection( bool flag ) { passMvaPreslection_ = flag ; }
+    void setPassPflowPreselection( bool flag ) { passPflowPreselection_ = flag ; }
     void setAmbiguous( bool flag ) { ambiguous_ = flag ; }
     void clearAmbiguousGsfTracks() { ambiguousGsfTracks_.clear() ; }
     void addAmbiguousGsfTrack( const reco::GsfTrackRef & t ) { ambiguousGsfTracks_.push_back(t) ; }
+
+    // backward compatibility
+    void setPassMvaPreselection( bool flag ) { passMvaPreslection_ = flag ; }
+    bool passingMvaPreselection() const { return passMvaPreslection_ ; }
 
   private:
 
     // attributes
     bool passCutBasedPreselection_ ;
-    bool passMvaPreslection_ ;
+    bool passPflowPreselection_ ;
+    bool passMvaPreslection_ ; // to be removed : passPflowPreslection_
     bool ambiguous_ ;
     GsfTrackRefVector ambiguousGsfTracks_ ; // ambiguous gsf tracks
 

@@ -117,7 +117,8 @@
   <class name="reco::GsfElectron::FiducialFlags" ClassVersion="10">
    <version ClassVersion="10" checksum="2564471186"/>
   </class>
-  <class name="reco::GsfElectron::ShowerShape" ClassVersion="10">
+  <class name="reco::GsfElectron::ShowerShape" ClassVersion="11">
+   <version ClassVersion="11" checksum="3451347438"/>
    <version ClassVersion="10" checksum="3070677812"/>
   </class>
   <class name="reco::GsfElectron::IsolationVariables" ClassVersion="10">
@@ -136,16 +137,20 @@
    <version ClassVersion="10" checksum="4270399196"/>
   </class>
   <class name="reco::GsfElectron::MvaInput" ClassVersion="11">
-   <version ClassVersion="10" checksum="2786166332"/>
    <version ClassVersion="11" checksum="2106253688"/>
+   <version ClassVersion="10" checksum="2786166332"/>
   </class>
-  <class name="reco::GsfElectron::MvaOutput" ClassVersion="10">
+  <class name="reco::GsfElectron::MvaOutput" ClassVersion="12">
+   <version ClassVersion="12" checksum="3102257169"/>
+   <version ClassVersion="11" checksum="1838996036"/>
    <version ClassVersion="10" checksum="2145829729"/>
   </class>
   <class name="reco::GsfElectron::ClassificationVariables" ClassVersion="11">
    <version ClassVersion="11" checksum="2094185381"/>
   </class>
-  <class name="reco::GsfElectron" ClassVersion="11">
+  <class name="reco::GsfElectron" ClassVersion="13">
+   <version ClassVersion="13" checksum="2991498573"/>
+   <version ClassVersion="12" checksum="2835360780"/>
    <version ClassVersion="11" checksum="1755683850"/>
   </class>
   <class name="std::vector<reco::GsfElectron>"/>  

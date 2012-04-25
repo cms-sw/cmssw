@@ -10,6 +10,7 @@ GsfElectronCoreRef GsfElectron::core() const { return core_ ; }
 void GsfElectron::init()
  {
   passCutBasedPreselection_ = false ;
+  passPflowPreselection_ = false ;
   passMvaPreslection_ = false ;
   ambiguous_ = true ;
   class_ = UNKNOWN ;
