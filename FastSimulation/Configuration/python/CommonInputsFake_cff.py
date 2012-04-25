@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 
 # Primary vertex smearing.
-fastsimPrimaryVertex = 'Realistic8TeV'
+fastsimPrimaryVertex = 'Realistic8TeV2012'
 from IOMC.EventVertexGenerators.VtxSmearedGauss_cfi import *
 
 # The Geometries
