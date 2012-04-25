@@ -1103,7 +1103,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
       double NPredErr    = pow(NPred*RescaleError,2);
       for(int i=MassPredProj->GetXaxis()->FindBin(MinRange); i<=MassPredProj->GetXaxis()->FindBin(MaxRange) ;i++){NPredErr+=pow(MassPredProj->GetBinError(i),2);}NPredErr=sqrt(NPredErr);
 
-      if(isnan(NPred))continue;
+      if(isnan((float)NPred))continue;
       if(NPred<=0){continue;} //Is <=0 only when prediction failed or is not meaningful (i.e. WP=(0,0,0) )
 //    if(NPred<1E-4){continue;} //This will never be the selection which gives the best expected limit (cutting too much on signal) --> Slowdown computation for nothing...
       if(NPred>1000){continue;}  //When NPred is too big, expected limits just take an infinite time! 
