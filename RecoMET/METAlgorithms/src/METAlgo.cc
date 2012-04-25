@@ -40,10 +40,10 @@ METAlgo::~METAlgo() {}
 //void METAlgo::run(const CandidateCollection *input, CommonMETData *met, double globalThreshold) 
 void METAlgo::run(edm::Handle<edm::View<Candidate> > input, CommonMETData *met, double globalThreshold) 
 { 
+  double sum_px = 0.0;
+  double sum_py = 0.0;
+  double sum_pz = 0.0;
   double sum_et = 0.0;
-  double sum_ex = 0.0;
-  double sum_ey = 0.0;
-  double sum_ez = 0.0;
   // Loop over Candidate Objects and calculate MET and related quantities
   /*
   CandidateCollection::const_iterator candidate;
@@ -54,23 +54,22 @@ void METAlgo::run(edm::Handle<edm::View<Candidate> > input, CommonMETData *met, 
     const Candidate *candidate = &((*input)[candidate_i]);
     if( candidate->et() > globalThreshold  )
       {
-	double phi   = candidate->phi();
 	double theta = candidate->theta();
 	double e     = candidate->energy();
 	double et    = e*sin(theta);
-	sum_ez += e*cos(theta);
+	sum_px += candidate->px();
+	sum_py += candidate->py();
+	sum_pz += candidate->pz();
 	sum_et += et;
-	sum_ex += et*cos(phi);
-	sum_ey += et*sin(phi);
       }
   }
-  met->mex   = -sum_ex;
-  met->mey   = -sum_ey;
-  met->mez   = -sum_ez;
-  met->met   = sqrt( sum_ex*sum_ex + sum_ey*sum_ey );
+  met->mex   = -sum_px;
+  met->mey   = -sum_py;
+  met->mez   = -sum_pz;
+  met->met   = sqrt( sum_px*sum_px + sum_py*sum_py );
   // cout << "MET = " << met->met << endl;
   met->sumet = sum_et;
-  met->phi   = atan2( -sum_ey, -sum_ex ); // since MET is now a candidate,
+  met->phi   = atan2( -sum_py, -sum_px ); // since MET is now a candidate,
 }                                         // this is no longer needed
 //------------------------------------------------------------------------
 
