@@ -9,7 +9,6 @@
 #include "Rtypes.h"
 #include "TGFrame.h"
 #include "TGButton.h"
-
 #include "Fireworks/Core/interface/FWViewType.h"
 #ifndef __CINT__
 #include "Fireworks/Core/interface/FWViewBase.h"
@@ -41,7 +40,6 @@ class FWColorPopup;
 class FWColorManager;
 class FWGeoTopNode;
 class FWParameterBase;
-
 
 class FWGeometryTableViewBase
 #ifndef __CINT__
@@ -100,7 +98,8 @@ public:
    void checkExpandLevel();
 
    int getTopNodeIdx() const { return TMath::Max((int)m_topNodeIdx.value(), 0); }
-
+  
+   void transparencyChanged();
 protected:
 
 #ifndef __CINT__      

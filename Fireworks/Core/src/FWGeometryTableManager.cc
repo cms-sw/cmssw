@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 20:31:25 CET 2012
-// $Id: FWGeometryTableManager.cc,v 1.44 2012/02/22 03:45:59 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.45 2012/02/22 23:03:47 amraktad Exp $
 //
 
 // system include files
@@ -48,11 +48,16 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
    FWTextTreeCellRenderer* renderer = &m_renderer;
    if (m_row_to_index.empty()) return renderer;
 
-
    int unsortedRow =  m_row_to_index[iSortedRowNumber];
    if (unsortedRow < 0) printf("!!!!!!!!!!!!!!!! error %d %d \n",unsortedRow,  iSortedRowNumber);
 
+   // editor state
+   //
+   m_renderer.showEditor(unsortedRow == m_editTransparencyIdx && iCol == kTranspColumn);
 
+
+   // selection state
+   //
    const NodeInfo& data = m_entries[unsortedRow];
    TGeoNode& gn = *data.m_node;
    bool isSelected = data.testBit(kHighlighted) ||  data.testBit(kSelected);
@@ -71,6 +76,8 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
    }
 
 
+   // set column content
+   //
    if (iCol == kNameColumn)
    {
       renderer->setData(cellName(data), isSelected); 
@@ -98,6 +105,11 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
          // m_colorBoxRenderer.setData(data.m_node->GetVolume()->GetLineColor(), isSelected);
          m_colorBoxRenderer.setData(data.m_color, isSelected);
          return  &m_colorBoxRenderer;
+      }
+      else if (iCol == kTranspColumn )
+      {
+         renderer->setData(Form("%d", 100 -data.m_transparency), isSelected);
+         return renderer;
       }
       else if (iCol == kVisSelfColumn )
       {
@@ -138,6 +150,7 @@ void FWGeometryTableManager::importChildren(int parent_idx)
       data.m_level =  parentLevel + 1;
       data.m_parent = parent_idx;
       data.m_color =  data.m_node->GetVolume()->GetLineColor();
+      data.m_transparency =  data.m_node->GetVolume()->GetTransparency();
       if (data.m_level <=  m_browser->getAutoExpand()) data.setBit(kExpanded);
       
  
@@ -259,6 +272,8 @@ void FWGeometryTableManager::loadGeometry( TGeoNode* iGeoTopNode, TObjArray* iVo
    topNodeInfo.m_node   = iGeoTopNode;
    topNodeInfo.m_level  = 0;
    topNodeInfo.m_parent = -1;
+   topNodeInfo.m_color =  iGeoTopNode->GetVolume()->GetLineColor();
+   topNodeInfo.m_transparency = iGeoTopNode->GetVolume()->GetTransparency();
    topNodeInfo.setBitVal(kExpanded, m_browser->getAutoExpand());
    topNodeInfo.setBitVal(kVisNodeSelf, m_browser->drawTopNode());
 
