@@ -30,15 +30,15 @@ public:
   virtual MeasurementError 
   measurementError(const LocalPoint&, const LocalError&) const;
 
-  virtual int channel(const LocalPoint&) const;
+  virtual int channel(const LocalPoint& lp) const {  return std::min(int(strip(lp)),theNumberOfStrips-1); }
 
-  virtual float pitch() const; 
+  virtual float pitch() const { return thePitch; }
 
-  virtual float localPitch(const LocalPoint&) const;
+  virtual float localPitch(const LocalPoint&) const { return thePitch;}
   
-  virtual float stripAngle(float strip) const;
+  virtual float stripAngle(float strip) const {  return 0;}
 
-  virtual int nstrips() const; 
+  virtual int nstrips() const { return theNumberOfStrips;}
 
   virtual float stripLength() const {return theStripLength;}
 
