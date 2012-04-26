@@ -7,6 +7,7 @@
   <use   name="DataFormats/METReco"/>
   <use   name="DataFormats/TrackReco"/>
   <use   name="DataFormats/VertexReco"/>
+  <use   name="PhysicsTools/IsolationAlgos"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/MessageLogger"/>
   <use   name="FWCore/ParameterSet"/>
