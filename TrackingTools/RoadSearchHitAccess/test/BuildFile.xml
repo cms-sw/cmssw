@@ -8,6 +8,7 @@
 <use   name="DataFormats/DetId"/>
 <use   name="RecoTracker/RingRecord"/>
 <use   name="DataFormats/FEDRawData"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
 <library   file="*.cc" name="TrackingToolsRoadSearchHitDumper">
   <flags   EDM_PLUGIN="1"/>
 </library>
