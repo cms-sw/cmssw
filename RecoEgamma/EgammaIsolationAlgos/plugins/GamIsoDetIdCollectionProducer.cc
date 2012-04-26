@@ -37,23 +37,26 @@ GamIsoDetIdCollectionProducer::GamIsoDetIdCollectionProducer(const edm::Paramete
             etCandCut_(iConfig.getParameter<double> ("etCandCut")),
             outerRadius_(iConfig.getParameter<double>("outerRadius")),
             innerRadius_(iConfig.getParameter<double>("innerRadius")),
-            interestingDetIdCollection_(iConfig.getParameter<std::string>("interestingDetIdCollection")),
-            severityLevelCut_(iConfig.getParameter<int>("severityLevelCut"))
-            //severityRecHitThreshold_(iConfig.getParameter<double>("severityRecHitThreshold")),
-            //spIdString_(iConfig.getParameter<std::string>("spikeIdString")),
-            //spIdThreshold_(iConfig.getParameter<double>("spikeIdThreshold")),
+            interestingDetIdCollection_(iConfig.getParameter<std::string>("interestingDetIdCollection"))
    {
-
      const std::vector<std::string> flagnames = 
-       iConfig.getParameter<std::vector<std::string> >("recHitFlagsToBeExcluded");
-
-     v_chstatus_=     StringToEnumValue<EcalRecHit::Flags>(flagnames);
-
-//     if     ( !spIdString_.compare("kE1OverE9") )                  spId_ = EcalSeverityLevelAlgo::kE1OverE9;
-//     else if( !spIdString_.compare("kSwissCross") )                spId_ = EcalSeverityLevelAlgo::kSwissCross;
-//     else if( !spIdString_.compare("kSwissCrossBordersIncluded") ) spId_ = EcalSeverityLevelAlgo::kSwissCrossBordersIncluded;
-//     else                                                          spId_ = EcalSeverityLevelAlgo::kSwissCross;
-    
+       iConfig.getParameter<std::vector<std::string> >("RecHitFlagToBeExcluded");
+     
+     const std::vector<std::string> flagnamesEE =
+       iConfig.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEE");
+     
+     flagsexcl_= 
+       StringToEnumValue<EcalRecHit::Flags>(flagnames);
+     
+     flagsexclEE_=
+       StringToEnumValue<EcalRecHit::Flags>(flagnamesEE);
+     
+     const std::vector<std::string> severitynames = 
+       iConfig.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcluded");
+     
+     severitiesexcl_= 
+       StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynames);
+     
     //register your products
     produces< DetIdCollection > (interestingDetIdCollection_) ;
 }
@@ -86,8 +89,8 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
     const CaloGeometry* caloGeom = pG.product();
 
     //Get the channel status from the db
-    edm::ESHandle<EcalChannelStatus> chStatus;
-    iSetup.get<EcalChannelStatusRcd>().get(chStatus);
+    //edm::ESHandle<EcalChannelStatus> chStatus;
+    //iSetup.get<EcalChannelStatusRcd>().get(chStatus);
 
     edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
     iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
@@ -114,35 +117,36 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
             CaloRecHitMetaCollectionV::const_iterator recIt;
             for (recIt = chosen->begin(); recIt!= chosen->end () ; ++recIt) { // Select RecHits 
 
-                if ( fabs(recIt->energy()) < energyCut_) continue;  //dont fill if below E noise value
+                if ( (recIt->energy()) < energyCut_) continue;  //dont fill if below E noise value
 
                 double et = recIt->energy() *
                             caloGeom->getPosition(recIt->detid()).perp() /
                             caloGeom->getPosition(recIt->detid()).mag();
                 
-                if ( fabs(et) < etCut_) continue;  //dont fill if below ET noise value
+                if ( et < etCut_) continue;  //dont fill if below ET noise value
 
-                //make sure we have a barrel rechit                                     
-                //call the severity level method                                        
-                //passing the EBDetId                                                   
-                //the rechit collection in order to calculate the swiss crss            
-                //and the EcalChannelRecHitRcd                                          
-                //only consider rechits with ET >                                       
-                //the SpikeId method (currently kE1OverE9 or kSwissCross)               
-                //cut value for above                                                   
-                //then if the severity level is too high, we continue to the next rechit
-                if(recHitsLabel_.instance() == "EcalRecHitsEB" && 
-                   sevLevel->severityLevel(EBDetId(recIt->detid()), *recHitsH)>= severityLevelCut_) continue;                                  
-                //                       *chStatus,                                 
-                  //                        severityRecHitThreshold_,                 
-                //    spId_,                                    
-                  //      spIdThreshold_                            
-                  //  ) >= severityLevelCut_) continue;              
+		bool isBarrel = false;
+		if (fabs(caloGeom->getPosition(recIt->detid()).eta() < 1.479)) 
+		  isBarrel = true;
 
-                //Check based on flags to protect from recovered channels from non-read towers
-                //Assumption is that v_chstatus_ is empty unless doFlagChecks() has been called
-                std::vector<int>::const_iterator vit = std::find( v_chstatus_.begin(), v_chstatus_.end(),  ((EcalRecHit*)(&*recIt))->recoFlag() );
-                if ( vit != v_chstatus_.end() ) continue; // the recHit has to be excluded from the iso sum
+		int severityFlag = sevLevel->severityLevel(((EcalRecHit*)(&*recIt))->detid(), *recHitsH);
+		std::vector<int>::const_iterator sit = std::find(severitiesexcl_.begin(),
+								 severitiesexcl_.end(),
+								 severityFlag);
+
+		if (sit!= severitiesexcl_.end())
+		  continue;
+
+		std::vector<int>::const_iterator vit;
+		if (isBarrel) {
+		  vit = std::find(flagsexcl_.begin(), flagsexcl_.end(), ((EcalRecHit*)(&*recIt))->recoFlag());
+		  if (vit != flagsexcl_.end())
+		    continue;
+		} else {
+		  vit = std::find(flagsexclEE_.begin(), flagsexclEE_.end(), ((EcalRecHit*)(&*recIt))->recoFlag());
+		  if (vit != flagsexclEE_.end())
+		    continue;
+		}
 
                 if(std::find(detIdCollection->begin(),detIdCollection->end(),recIt->detid()) == detIdCollection->end()) 
                     detIdCollection->push_back(recIt->detid());

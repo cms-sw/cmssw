@@ -216,11 +216,11 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit,
             if ( vit != v_chstatus_.end() ) continue; // the recHit has to be excluded from the iso sum
 
 
-            if(   fabs(et) > etMin_ 
-                    && fabs(energy) > energyMin_  //Changed to fabs
-                    && fabs(eta-caloeta) > intStrip_ 
-                    && (eta-caloeta)*(eta-caloeta) + phiDiff*phiDiff >r2 ) {
-
+            if(et > etMin_ 
+	       && energy > energyMin_  //Changed to fabs - then changed back to energy
+	       && fabs(eta-caloeta) > intStrip_ 
+	       && (eta-caloeta)*(eta-caloeta) + phiDiff*phiDiff >r2 ) {
+	      
                 deposit.addDeposit( Direction(eta, phi), (useEt_ ? et : energy) );
 
             }

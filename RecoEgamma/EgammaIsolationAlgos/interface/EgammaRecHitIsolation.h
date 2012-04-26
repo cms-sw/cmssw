@@ -46,33 +46,44 @@ class EgammaRecHitIsolation {
 
   void setUseNumCrystals(bool b=true) { useNumCrystals_ = b; }
   void setVetoClustered(bool b=true) { vetoClustered_ = b; }
-  void doSpikeRemoval(const EcalRecHitCollection *const recHits, 
-                      const EcalChannelStatus *const chStatus,
-                      const int &severityLevelCut = 3 /*0 - 4*/
+  void doSpikeRemoval(const EcalRecHitCollection *const recHits,
+		      const std::vector<int> v
+                      //const EcalChannelStatus *const chStatus,
+                      //const int &severityLevelCut = 3 /*0 - 4*/
                       //const float &sevRecHitThresh = 5.0, /*GeV*/
                       //const EcalSeverityLevelAlgo::SpikeId &id = EcalSeverityLevelAlgo::kSwissCross, /*kE1OverE9=0 or kSwissCross=1*/
                       //const float &spIdThresh = 0.95
                       ) { 
     ecalBarHits_ = recHits; 
-    chStatus_ = chStatus;
-    severityLevelCut_ = severityLevelCut;
+    //chStatus_ = chStatus;
+    //severityLevelCut_ = severityLevelCut;
     //severityRecHitThreshold_ = sevRecHitThresh;
     //spId_ = id;
     //spIdThreshold_ = spIdThresh;
+    severitiesexcl_.clear();
+    severitiesexcl_.insert(severitiesexcl_.begin(), v.begin(), v.end());
+    std::sort(severitiesexcl_.begin(), severitiesexcl_.end() );
   }
 
   void doFlagChecks(const std::vector<int> v) {
-    v_chstatus_.clear();
-    v_chstatus_.insert(v_chstatus_.begin(),v.begin(),v.end());
-    std::sort( v_chstatus_.begin(), v_chstatus_.end() );
+    flags_.clear();
+    flags_.insert(flags_.begin(), v.begin(), v.end());
+    std::sort(flags_.begin(), flags_.end() );
   }
+
+  void doSeverityChecks(const std::vector<int> v) {
+    severitiesexcl_.clear();
+    severitiesexcl_.insert(severitiesexcl_.begin(), v.begin(), v.end());
+    std::sort(severitiesexcl_.begin(), severitiesexcl_.end() );
+  }
+
 
   //destructor 
   ~EgammaRecHitIsolation() ;
   
  private:
-  double getSum_(const reco::Candidate *,bool returnEt )const;
-  double getSum_(const reco::SuperCluster *,bool returnEt )const;
+  double getSum_(const reco::Candidate *, bool returnEt ) const;
+  double getSum_(const reco::SuperCluster *, bool returnEt ) const;
 
   double extRadius_ ;
   double intRadius_ ;
@@ -88,12 +99,13 @@ class EgammaRecHitIsolation {
   bool useNumCrystals_;
   bool vetoClustered_;
   const EcalRecHitCollection *ecalBarHits_;
-  const EcalChannelStatus *chStatus_;
-  int severityLevelCut_;
+  //const EcalChannelStatus *chStatus_;
+  std::vector<int> severitiesexcl_;
+  //int severityLevelCut_;
   //float severityRecHitThreshold_;
   //EcalSeverityLevelAlgo::SpikeId spId_;
   //float spIdThreshold_;
-  std::vector<int> v_chstatus_;
+  std::vector<int> flags_;
 
   const CaloSubdetectorGeometry* subdet_[2]; // barrel+endcap
 };
