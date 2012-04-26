@@ -38,35 +38,6 @@ SKIMStreamEXODisplacedPhoton = cms.FilteredStream(
     dataTier = cms.untracked.string('RECO') 
     )
 
-
-#####################
-
-
-from Configuration.Skimming.PDWG_TOPElePlusJets_cff import *
-TOPElePlusJetsPath = cms.Path(TOPElePlusJets)
-SKIMStreamTOPElePlusJets = cms.FilteredStream(
-    responsible = 'TOP',
-    name = 'TOPElePlusJets',
-    paths = (TOPElePlusJetsPath),
-    content = skimRecoContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('AOD')
-    )
-
-#####################
-
-
-from Configuration.Skimming.PDWG_TOPMuPlusJets_cff import *
-TOPMuPlusJetsPath = cms.Path(TOPMuPlusJets)
-SKIMStreamTOPMuPlusJets = cms.FilteredStream(
-    responsible = 'TOP',
-    name = 'TOPMuPlusJets',
-    paths = (TOPMuPlusJetsPath),
-    content = skimRecoContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('AOD')
-    )
-
 #####################
 
 from Configuration.Skimming.PDWG_TauSkim_cff import *
@@ -114,16 +85,7 @@ skimAodContent = AODEventContent.clone()
 skimAodContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
 skimAodContent.outputCommands.append("drop *_*_*_SKIM")
 
-#from Configuration.Skimming.PDWG_DoublePhotonSkim_cff import *
-#diphotonSkimPath = cms.Path(diphotonSkimSequence)
-#SKIMStreamDoublePhoton = cms.FilteredStream(
-#    responsible = 'PDWG',
-#    name = 'DoublePhoton',
-#    paths = (diphotonSkimPath),
-#    content = skimAodContent.outputCommands,
-#    selectEvents = cms.untracked.PSet(),
-#    dataTier = cms.untracked.string('AOD')
-#    )
+#####################
 
 from Configuration.Skimming.PDWG_EXOHSCP_cff import *
 EXOHSCPPath = cms.Path(exoticaHSCPSeq)
@@ -138,6 +100,35 @@ SKIMStreamEXOHSCP = cms.FilteredStream(
     )
 
 
+#####################
+
+
+from Configuration.Skimming.PDWG_TOPElePlusJets_cff import *
+TOPElePlusJetsPath = cms.Path(TOPElePlusJets)
+SKIMStreamTOPElePlusJets = cms.FilteredStream(
+    responsible = 'TOP',
+    name = 'TOPElePlusJets',
+    paths = (TOPElePlusJetsPath),              
+    content = skimAodContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+
+#####################
+
+
+from Configuration.Skimming.PDWG_TOPMuPlusJets_cff import *
+TOPMuPlusJetsPath = cms.Path(TOPMuPlusJets)
+SKIMStreamTOPMuPlusJets = cms.FilteredStream(
+    responsible = 'TOP',
+    name = 'TOPMuPlusJets',
+    paths = (TOPMuPlusJetsPath),              
+    content = skimAodContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+
+#####################
 
 
 from Configuration.Skimming.PDWG_HZZSkim_cff import *
@@ -252,6 +243,19 @@ SKIMStreamHLTZEROBIASSIGSD = cms.FilteredStream(
 #    responsible = 'PDWG',
 #    name = 'EXOHPTE',
 #    paths = (exoHPTEPath),
+#    content = skimAodContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('AOD')
+#    )
+
+#####################
+
+#from Configuration.Skimming.PDWG_DoublePhotonSkim_cff import *
+#diphotonSkimPath = cms.Path(diphotonSkimSequence)
+#SKIMStreamDoublePhoton = cms.FilteredStream(
+#    responsible = 'PDWG',
+#    name = 'DoublePhoton',
+#    paths = (diphotonSkimPath),
 #    content = skimAodContent.outputCommands,
 #    selectEvents = cms.untracked.PSet(),
 #    dataTier = cms.untracked.string('AOD')
