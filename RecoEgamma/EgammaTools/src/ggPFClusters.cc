@@ -5,8 +5,13 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "TMath.h"
+/*
+class by Rishi Patel rpatel@ cern.ch
+*/
+
+
 ggPFClusters::ggPFClusters(
-			   reco::Photon PFPhoton,
+			   //   reco::Photon PFPhoton,
 			   edm::Handle<EcalRecHitCollection>& EBReducedRecHits,
 			   edm::Handle<EcalRecHitCollection>& EEReducedRecHits,
 			   const CaloSubdetectorGeometry* geomBar,

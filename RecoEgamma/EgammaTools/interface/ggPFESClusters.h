@@ -17,12 +17,15 @@ class ggPFESClusters{
  public:
   
   explicit ggPFESClusters(			   
-			  edm::Handle<EcalRecHitCollection>& ESRecHits
+			  edm::Handle<EcalRecHitCollection>& ESRecHits,
+			  const CaloSubdetectorGeometry* geomEnd
 			  );
   virtual ~ggPFESClusters();
   virtual vector<reco::PreshowerCluster>getPFESClusters(reco::SuperCluster sc);
-  
+  double getLinkDist(reco::PreshowerCluster clusterPS, reco::CaloCluster
+		     clusterECAL);
  private:
   Handle<EcalRecHitCollection>ESRecHits_;
+  const CaloSubdetectorGeometry* geomEnd_;
 };
 #endif

@@ -24,7 +24,7 @@ class ggPFClusters  {
  public:
   
   explicit ggPFClusters(
-			reco::Photon PFPhoton,
+			//		reco::Photon PFPhoton,
 			edm::Handle<EcalRecHitCollection>& EBReducedRecHits,
 			edm::Handle<EcalRecHitCollection>& EEReducedRecHits,
 			const CaloSubdetectorGeometry* geomBar,

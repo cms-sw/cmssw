@@ -7,7 +7,7 @@
 #include "RecoEgamma/EgammaTools/interface/ggPFClusters.h"
 #include "RecoEgamma/EgammaTools/interface/ggPFESClusters.h"
 #include "RecoEgamma/EgammaTools/interface/ggPFTracks.h"
-#include "RecoEgamma/EgammaTools/interface/Mustache.h"
+#include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
 #include <memory>
 using namespace edm;
 using namespace std;

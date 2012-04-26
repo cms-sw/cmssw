@@ -1,5 +1,8 @@
 #include "RecoEgamma/EgammaTools/interface/ggPFPhotons.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+/*
+Class by Rishi Patel rpatel@cern.ch
+*/
 ggPFPhotons::ggPFPhotons(
 			 reco::Photon phot,
 			 edm::Handle<reco::PhotonCollection>& pfPhotons,
@@ -39,9 +42,9 @@ ggPFPhotons::ggPFPhotons(
   for(;pfele!=pfElectrons->end();++pfele){
     if(pfele->superCluster().isNull())continue;
     
-      if(pfele->superCluster()==matchedPhot_.superCluster()){
+    if(pfele->superCluster()==matchedPhot_.superCluster()){
       if(pfele->pflowSuperCluster().isNull())continue;
-	
+      
       PFElectron_= *(pfele);
       matchPFReco_=true;
       isPFEle_=true;
@@ -73,11 +76,14 @@ std::pair<float, float> ggPFPhotons::SLPoint(){
 
 void ggPFPhotons::fillPFClusters(){
   //PFClusterCollection object with appropriate variables:
-  ggPFClusters PFClusterCollection(PFPhoton_, EBReducedRecHits_, EEReducedRecHits_, geomBar_,   geomEnd_);
+  
+  ggPFClusters PFClusterCollection(EBReducedRecHits_, EEReducedRecHits_, geomBar_,   geomEnd_);
+  
   //fill PFClusters
   if(isPFEle_)PFClusters_=PFClusterCollection.getPFClusters(*(PFElectron_.pflowSuperCluster()));
   else PFClusters_=PFClusterCollection.getPFClusters(*(PFPhoton_.pfSuperCluster()));
   //fill PFClusters with Cluster energy from Rechits inside SC
+  
   PFSCFootprintClusters_.clear();
   for(unsigned int i=0; i<PFClusters_.size(); ++i){
     float SCFootPrintE=PFClusterCollection.getPFSuperclusterOverlap(PFClusters_[i],matchedPhot_);
@@ -85,12 +91,17 @@ void ggPFPhotons::fillPFClusters(){
     PFSCFootprintClusters_.push_back(calo);
   }
   //Mustache Variables:
+  
+  
   Mustache Must;
   std::vector<unsigned int> insideMust;
   std::vector<unsigned int> outsideMust;
-  Must.MustacheID(PFClusters_, insideMust, outsideMust);
+  Must.MustacheClust(PFClusters_, insideMust, outsideMust);
+ 
+  //Must.MustacheID(PFClusters_, insideMust, outsideMust);
   // cout<<"Inside "<<insideMust.size()<<", Total"<<PFClusters_.size()<<endl;
   //sum MustacheEnergy and order clusters by Energy:
+  
   std::multimap<float, unsigned int>OrderedClust;
   float MustacheE=0;
   for(unsigned int i=0; i<insideMust.size(); ++i){
@@ -98,6 +109,7 @@ void ggPFPhotons::fillPFClusters(){
     OrderedClust.insert(make_pair(PFClusters_[index].energy(), index));
     MustacheE=MustacheE+PFSCFootprintClusters_[index].energy();
   }
+  
   float MustacheEOut=0;
   float MustacheEtOut=0;
   for(unsigned int i=0; i<outsideMust.size(); ++i){
@@ -108,6 +120,7 @@ void ggPFPhotons::fillPFClusters(){
   MustacheEOut_=MustacheEOut;
   MustacheEtOut_=MustacheEtOut;
   EinMustache_=MustacheE;
+  
   //find lowest energy Cluster
   std::multimap<float, unsigned int>::iterator it;
   it=OrderedClust.begin();
@@ -118,6 +131,7 @@ void ggPFPhotons::fillPFClusters(){
   dEtaLowestC_=PFSCFootprintClusters_[lowEindex].eta()-PFPhoton_.eta();
   dPhiLowestC_=deltaPhi(PFSCFootprintClusters_[lowEindex].phi(),PFPhoton_.phi());
   //RMS Of All PFClusters inside SuperCluster:
+  
   std::pair<double, double> RMS=CalcRMS(PFSCFootprintClusters_, PFPhoton_);
   PFClPhiRMS_=RMS.second;
   std::vector<CaloCluster>MustacheNLClust;
@@ -139,8 +153,9 @@ void ggPFPhotons::fillPFClusters(){
     PFClPhiRMSMust_=matchedPhot_.superCluster()->phiWidth();
     PFClPhiRMS_=PFClPhiRMSMust_;
   }
-
+  
   //fill ES Clusters
+  /*
   ggPFESClusters PFPSClusterCollection(ESRecHits_);
   vector<reco::PreshowerCluster>PFPS;
   if(isPFEle_)PFPS=PFPSClusterCollection.getPFESClusters(*((PFElectron_.pflowSuperCluster())));
@@ -153,10 +168,7 @@ void ggPFPhotons::fillPFClusters(){
   }
   PFPreShower1_=PFPS1;
   PFPreShower2_=PFPS2;
-  //Local Coordinates 
-  
-  //Shower Shape
-  
+  */
 }
 
 std::pair<double, double> ggPFPhotons::CalcRMS(vector<reco::CaloCluster> PFClust, reco::Photon PFPhoton){
@@ -192,14 +204,19 @@ double ggPFPhotons::getPFPhoECorr( std::vector<reco::CaloCluster>PFClusters, con
 	      beamSpotHandle_->position().z());
   float beamspotZ=bs.Z();
   //PFClusterCollection object with appropriate variables:
-  ggPFClusters PFClusterCollection(PFPhoton_, EBReducedRecHits_, EEReducedRecHits_, geomBar_,   geomEnd_);
+  ggPFClusters PFClusterCollection(EBReducedRecHits_, EEReducedRecHits_, geomBar_,   geomEnd_);
   //fill PFClusters
   PFClusters_.clear();
   if(isPFEle_)PFClusters_=PFClusterCollection.getPFClusters(*(PFElectron_.pflowSuperCluster()));
   else PFClusters_=PFClusterCollection.getPFClusters(*(PFPhoton_.pfSuperCluster()));
+  Mustache Must;
+  std::vector<unsigned int> insideMust;
+  std::vector<unsigned int> outsideMust;
+  Must.MustacheClust(PFClusters_, insideMust, outsideMust);
   float ECorr=0;
-  for(unsigned int i=0; i<PFClusters_.size();++i){
-    ECorr=ECorr+PFClusterCollection.LocalEnergyCorrection(ReaderLCEB, ReaderLCEE, PFClusters_[i], beamspotZ);
+  for(unsigned int i=0; i<insideMust.size();++i){
+    unsigned int index=insideMust[i];
+    ECorr=ECorr+PFClusterCollection.LocalEnergyCorrection(ReaderLCEB, ReaderLCEE, PFClusters_[index], beamspotZ);
   }
   PFPhoLocallyCorrE_=ECorr;
   
