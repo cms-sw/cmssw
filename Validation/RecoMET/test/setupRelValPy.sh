@@ -113,7 +113,7 @@ process.fileSaver = cms.EDAnalyzer(\"METFileSaver\",
 ) 
 process.p = cms.Path(process.fileSaver*
                 #     process.analyzeGenMET*
-                #     process.analyzeGenMETFromGenJets*
+                     process.analyzeGenMETFromGenJets*
                 #     process.analyzeHTMET*
                      process.analyzeCaloMET*
                      process.analyzePFMET*
