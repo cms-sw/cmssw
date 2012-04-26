@@ -13,6 +13,7 @@
 #include "TSystem.h"
 #include <iterator>
 #include <cerrno>
+#include <boost/algorithm/string.hpp>
 
 /** @var DQMStore::verbose_
     Universal verbose flag for DQM. */
@@ -113,6 +114,144 @@ template <class T>
 void
 initQCriterion(std::map<std::string, QCriterion *(*)(const std::string &)> &m)
 { m[T::getAlgoName()] = &makeQCriterion<T>; }
+
+
+/////////////////////////////////////////////////////////////
+fastmatch::fastmatch (std::string const& _fastString) :
+  fastString_ (_fastString),  matching_ (UseFull)
+{
+  try
+  {
+    regexp_ = NULL;
+    regexp_ = new lat::Regexp(fastString_, 0, lat::Regexp::Wildcard);
+    regexp_->study();
+  }
+  catch (lat::Error &e)
+  {
+    delete regexp_;
+    raiseDQMError("DQMStore", "Invalid wildcard pattern '%s' in quality"
+                  " test specification", fastString_.c_str());
+  }
+
+  // count stars ( "*" )
+  size_t starCount = 0;
+  int pos = -1;
+  while (true)
+  {
+    pos = fastString_.find("*", pos + 1 );
+    if ((size_t)pos == std::string::npos)
+      break;
+    starCount ++;
+  }
+
+  // investigate for heuristics
+  if ((fastString_.find('"') != std::string::npos)  ||
+      (fastString_.find(']') != std::string::npos)  ||
+      (fastString_.find('?') != std::string::npos)  ||
+      (fastString_.find('\\') != std::string::npos) ||
+      (starCount > 2))
+  {
+    // no fast version can be used
+    return;
+  }
+
+  // match for pattern "*MyString" and "MyString*"
+  if (starCount == 1)
+  {
+    if (boost::algorithm::starts_with(fastString_, "*"))
+    {
+      matching_ = OneStarStart;
+      fastString_.erase(0,1);
+      return;
+    }
+
+    if (boost::algorithm::ends_with(fastString_, "*"))
+    {
+      matching_ = OneStarEnd;
+      fastString_.erase(fastString_.length()-1,1);
+      return;
+    }
+  }
+
+  // match for pattern "*MyString*"
+  if (starCount == 2)
+  {
+    if (boost::algorithm::starts_with(fastString_, "*") &&
+        boost::algorithm::ends_with(fastString_, "*"))
+    {
+      matching_ = TwoStar;
+      fastString_.erase(0,1);
+      fastString_.erase(fastString_.size() - 1, 1);
+      return;
+    }
+  }
+}
+
+fastmatch::~fastmatch()
+{
+  if (regexp_ != NULL)
+    delete regexp_;
+}
+
+bool fastmatch::compare_strings_reverse(std::string const& pattern,
+					std::string const& input) const
+{
+  if (input.size() < pattern.size())
+    return false;
+
+  // compare the two strings character by character for equalness:
+  // this does not create uneeded copies of std::string. The
+  // boost::algorithm implementation does
+  std::string::const_reverse_iterator rit_pattern = pattern.rbegin();
+  std::string::const_reverse_iterator rit_input = input.rbegin();
+
+  for (; rit_pattern < pattern.rend(); rit_pattern++, rit_input++)
+  {
+    if (*rit_pattern != *rit_input)
+      // found a difference, fail
+      return false;
+  }
+  return true;
+}
+
+bool fastmatch::compare_strings(std::string const& pattern,
+				std::string const& input) const
+{
+  if (input.size() < pattern.size())
+    return false;
+
+  // compare the two strings character by character for equalness:
+  // this does not create uneeded copies of std::string. The
+  // boost::algorithm implementation does.
+  std::string::const_iterator rit_pattern = pattern.begin();
+  std::string::const_iterator rit_input = input.begin();
+
+  for (; rit_pattern < pattern.end(); rit_pattern++, rit_input++)
+  {
+    if (*rit_pattern != *rit_input)
+      // found a difference, fail
+      return false;
+  }
+  return true;
+}
+
+bool fastmatch::match(std::string const& s) const
+{
+  switch (matching_)
+  {
+  case OneStarStart:
+    return compare_strings_reverse(fastString_, s);
+
+  case OneStarEnd:
+    return compare_strings(fastString_, s);
+
+  case TwoStar:
+    return (s.find(fastString_) != std::string::npos);
+
+  default:
+    return regexp_->match(s);
+  }
+}
 
 //////////////////////////////////////////////////////////////////////
 DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
@@ -346,8 +485,10 @@ DQMStore::book(const std::string &dir, const std::string &name,
     QTestSpecs::iterator qi = qtestspecs_.begin();
     QTestSpecs::iterator qe = qtestspecs_.end();
     for ( ; qi != qe; ++qi)
-      if (qi->first->match(path))
-        me->addQReport(qi->second);
+    {
+    	if ( qi->first->match(path) )
+    		me->addQReport(qi->second);
+    }
 
     // Assign reference if we have one.
     std::string refdir;
@@ -2448,22 +2589,10 @@ DQMStore::useQTestByMatch(const std::string &pattern, const std::string &qtname)
     raiseDQMError("DQMStore", "Cannot apply non-existent quality test '%s'",
                   qtname.c_str());
 
-  // Clean the path
-  lat::Regexp *rx = 0;
-  try
-  {
-    rx = new lat::Regexp(pattern, 0, lat::Regexp::Wildcard);
-    rx->study();
-  }
-  catch (lat::Error &e)
-  {
-    delete rx;
-    raiseDQMError("DQMStore", "Invalid wildcard pattern '%s' in quality"
-		  " test specification", pattern.c_str());
-  }
+  fastmatch * fm = new fastmatch( pattern );
 
   // Record the test for future reference.
-  QTestSpec qts(rx, qc);
+  QTestSpec qts(fm, qc);
   qtestspecs_.push_back(qts);
 
   // Apply the quality test.
@@ -2475,7 +2604,7 @@ DQMStore::useQTestByMatch(const std::string &pattern, const std::string &qtname)
   {
     path.clear();
     mergePath(path, *mi->data_.dirname, mi->data_.objname);
-    if (rx->match(path))
+    if (fm->match(path))
     {
       ++cases;
       const_cast<MonitorElement &>(*mi).addQReport(qts.second);

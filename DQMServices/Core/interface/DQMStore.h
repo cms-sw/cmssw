@@ -32,6 +32,34 @@ class TH3F;
 class TProfile;
 class TProfile2D;
 
+/** Implements RegEx patterns which occur often in a high-performant
+    mattern. For all other expressions, the full RegEx engine is used.
+    Note: this class can only be used for lat::Regexp::Wildcard-like
+    patterns.  */
+class fastmatch
+{
+private:
+  enum MatchingHeuristicEnum { UseFull, OneStarStart, OneStarEnd, TwoStar };
+
+public:
+  fastmatch (std::string const& _fastString);
+  ~fastmatch();
+
+  bool match (std::string const& s) const;
+
+private:
+  // checks if two strings are equal, starting at the back of the strings
+  bool compare_strings_reverse (std::string const& pattern,
+				std::string const& input) const;
+  // checks if two strings are equal, starting at the front of the strings
+  bool compare_strings (std::string const& pattern,
+			std::string const& input) const;
+
+  lat::Regexp * regexp_;
+  std::string fastString_;
+  MatchingHeuristicEnum matching_;
+};
+
 class DQMStore
 {
 public:
@@ -46,7 +74,7 @@ public:
     KeepRunDirs,
     StripRunDirs
   };
-  
+
   //-------------------------------------------------------------------------
   // ---------------------- Constructors ------------------------------------
   DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry&);
@@ -407,7 +435,7 @@ private:
 
   //-------------------------------------------------------------------------------
   //-------------------------------------------------------------------------------
-  typedef std::pair<lat::Regexp *, QCriterion *>			QTestSpec;
+  typedef std::pair<fastmatch *, QCriterion *>			QTestSpec;
   typedef std::list<QTestSpec>						QTestSpecs;
   typedef std::set<MonitorElement>					MEMap;
   typedef std::map<std::string, QCriterion *>				QCMap;
