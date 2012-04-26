@@ -1,12 +1,12 @@
 <lcgdict>
-  <class name="reco::HitPattern" ClassVersion="10">
-   <version ClassVersion="10" checksum="1621684703"/>
+  <class name="reco::HitPattern" ClassVersion="11">
+   <version ClassVersion="11" checksum="1621684703"/>
   </class>
   <class name="reco::TrackResiduals" ClassVersion="10">
    <version ClassVersion="10" checksum="2022291691"/>
   </class>
-  <class name="reco::TrackBase" ClassVersion="11">
-   <version ClassVersion="11" checksum="2704717983"/>
+  <class name="reco::TrackBase" ClassVersion="12">
+   <version ClassVersion="12" checksum="2704717983"/>
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
     <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
    <version ClassVersion="10" checksum="3019978065"/>
