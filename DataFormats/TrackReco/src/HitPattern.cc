@@ -99,19 +99,15 @@ void HitPattern::appendHit(const TrackingRecHit & hit){
     hits.push_back(&hit);
    
   if (detid == DetId::Muon) {
-    
+
     if (subdet == (uint32_t) MuonSubdetId::DT){
-      
+
       // DT rechit (granularity 2)
       if(hit.dimension() == 1)
 	hits.push_back(&hit);
       
-      // 2D segment (granularity 1 OR MB4 segment)
-      else if(hit.dimension() == 2)
-	hits = hit.recHits();  // load 1D hits (2D --> 1D)
-      
       // 4D segment (granularity 0) 
-      else if(hit.dimension() == 4){
+      else if(hit.dimension() > 1){ // Both 2 and 4 dim cases. MB4s have 2D, but formatted in 4D segments 
 	std::vector<const TrackingRecHit*> seg2D = hit.recHits(); // 4D --> 2D
 	// load 1D hits (2D --> 1D)
 	for(std::vector<const TrackingRecHit*>::const_iterator it = seg2D.begin(); it != seg2D.end(); ++it){
