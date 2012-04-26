@@ -67,20 +67,6 @@ SKIMStreamTOPMuPlusJets = cms.FilteredStream(
     dataTier = cms.untracked.string('AOD')
     )
 
-
-#####################
-
-from Configuration.Skimming.PDWG_DiJetAODSkim_cff import *
-diJetAveSkimPath = cms.Path(DiJetAveSkim_Trigger)
-SKIMStreamDiJet = cms.FilteredStream(
-    responsible = 'PDWG',
-    name = 'DiJet',
-    paths = (diJetAveSkimPath),
-    content = DiJetAveSkim_EventContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('USER')
-    )
-
 #####################
 
 from Configuration.Skimming.PDWG_TauSkim_cff import *
@@ -122,36 +108,6 @@ SKIMStreamMuTauMET = cms.FilteredStream(
     )
 
 
-#####################
-
-from Configuration.Skimming.PDWG_HSCP_SD_cff import *
-HSCPSDPath = cms.Path(HSCPSD)
-SKIMStreamHSCPSD = cms.FilteredStream(
-    responsible = 'PDWG',
-    name = 'HSCPSD',
-    paths = (HSCPSDPath),
-    content = skimRecoContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RECO')
-    )
-
-#####################
-
-from Configuration.Skimming.PDWG_DiPhoton_SD_cff import *
-CaloIdIsoPhotonPairsPath = cms.Path(CaloIdIsoPhotonPairsFilter)
-R9IdPhotonPairsPath = cms.Path(R9IdPhotonPairsFilter)
-MixedCaloR9IdPhotonPairsPath = cms.Path(MixedCaloR9IdPhotonPairsFilter)
-MixedR9CaloIdPhotonPairsPath = cms.Path(MixedR9CaloIdPhotonPairsFilter)
-
-SKIMStreamDiPhoton = cms.FilteredStream(
-    responsible = 'PDWG',
-    name = 'DiPhoton',
-    paths = (CaloIdIsoPhotonPairsPath,R9IdPhotonPairsPath,MixedCaloR9IdPhotonPairsPath,MixedR9CaloIdPhotonPairsPath),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
-
 
 from Configuration.EventContent.EventContent_cff import AODEventContent
 skimAodContent = AODEventContent.clone()
@@ -182,18 +138,6 @@ SKIMStreamEXOHSCP = cms.FilteredStream(
     )
 
 
-from Configuration.Skimming.PDWG_HWWSkim_cff import *
-HWWmmPath = cms.Path(diMuonSequence)
-HWWeePath = cms.Path(diElectronSequence)
-HWWemPath = cms.Path(EleMuSequence)
-SKIMStreamHWW = cms.FilteredStream(
-        responsible = 'PDWG',
-        name = 'HWW',
-        paths = (HWWmmPath,HWWeePath,HWWemPath),
-        content = skimAodContent.outputCommands,
-        selectEvents = cms.untracked.PSet(),
-        dataTier = cms.untracked.string('AOD')
-        )
 
 
 from Configuration.Skimming.PDWG_HZZSkim_cff import *
@@ -209,17 +153,6 @@ SKIMStreamHZZ = cms.FilteredStream(
         dataTier = cms.untracked.string('AOD')
         )
 
-
-from Configuration.Skimming.PDWG_EXOHPTE_cff import *
-exoHPTEPath = cms.Path(exoDiHPTESequence)
-SKIMStreamEXOHPTE = cms.FilteredStream(
-    responsible = 'PDWG',
-    name = 'EXOHPTE',
-    paths = (exoHPTEPath),
-    content = skimAodContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('AOD')
-    )
 
 #####################
 # For the Data on Data Mixing in TSG
@@ -252,6 +185,78 @@ SKIMStreamHLTZEROBIASSIGSD = cms.FilteredStream(
 
 ####################
    
+
+#####################
+
+#from Configuration.Skimming.PDWG_HSCP_SD_cff import *
+#HSCPSDPath = cms.Path(HSCPSD)
+#SKIMStreamHSCPSD = cms.FilteredStream(
+#    responsible = 'PDWG',
+#    name = 'HSCPSD',
+#    paths = (HSCPSDPath),
+#    content = skimRecoContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('RECO')
+#    )
+
+#####################
+
+#from Configuration.Skimming.PDWG_DiJetAODSkim_cff import *
+#diJetAveSkimPath = cms.Path(DiJetAveSkim_Trigger)
+#SKIMStreamDiJet = cms.FilteredStream(
+#    responsible = 'PDWG',
+#    name = 'DiJet',
+#    paths = (diJetAveSkimPath),
+#    content = DiJetAveSkim_EventContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('USER')
+#    )
+
+#####################
+
+#from Configuration.Skimming.PDWG_DiPhoton_SD_cff import *
+#CaloIdIsoPhotonPairsPath = cms.Path(CaloIdIsoPhotonPairsFilter)
+#R9IdPhotonPairsPath = cms.Path(R9IdPhotonPairsFilter)
+#MixedCaloR9IdPhotonPairsPath = cms.Path(MixedCaloR9IdPhotonPairsFilter)
+#MixedR9CaloIdPhotonPairsPath = cms.Path(MixedR9CaloIdPhotonPairsFilter)
+#
+#SKIMStreamDiPhoton = cms.FilteredStream(
+#    responsible = 'PDWG',
+#    name = 'DiPhoton',
+#    paths = (CaloIdIsoPhotonPairsPath,R9IdPhotonPairsPath,MixedCaloR9IdPhotonPairsPath,MixedR9CaloIdPhotonPairsPath),
+#    content = skimContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('RAW-RECO')
+#    )
+
+#####################
+
+#from Configuration.Skimming.PDWG_HWWSkim_cff import *
+#HWWmmPath = cms.Path(diMuonSequence)
+#HWWeePath = cms.Path(diElectronSequence)
+#HWWemPath = cms.Path(EleMuSequence)
+#SKIMStreamHWW = cms.FilteredStream(
+#        responsible = 'PDWG',
+#        name = 'HWW',
+#        paths = (HWWmmPath,HWWeePath,HWWemPath),
+#        content = skimAodContent.outputCommands,
+#        selectEvents = cms.untracked.PSet(),
+#        dataTier = cms.untracked.string('AOD')
+#        )
+
+#####################
+
+#from Configuration.Skimming.PDWG_EXOHPTE_cff import *
+#exoHPTEPath = cms.Path(exoDiHPTESequence)
+#SKIMStreamEXOHPTE = cms.FilteredStream(
+#    responsible = 'PDWG',
+#    name = 'EXOHPTE',
+#    paths = (exoHPTEPath),
+#    content = skimAodContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('AOD')
+#    )
+
 
 
 ## exo skims
