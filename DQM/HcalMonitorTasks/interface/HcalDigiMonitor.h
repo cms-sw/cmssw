@@ -5,6 +5,12 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 
@@ -18,8 +24,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2011/09/27 11:50:45 $
-  * $Revision: 1.68 $
+  * $Date: 2012/04/09 12:57:31 $
+  * $Revision: 1.69 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -145,6 +151,7 @@ private:  ///Methods, variables accessible only within class code
   EtaPhiHists DigiErrorsBadFibBCNOff;
 
   MonitorElement* DigiSize;
+  MonitorElement* DigiExpectedSize;
   int baddigis[85][72][4]; // sum of individual digi problems
   int badcapID[85][72][4];
   int baddigisize[85][72][4];
@@ -208,6 +215,7 @@ private:  ///Methods, variables accessible only within class code
   DigiHists hbHists, heHists, hfHists, hoHists;
 
   edm::InputTag digiLabel_;
+  edm::InputTag FEDRawDataCollection_;
 
   edm::ESHandle<HcalDbService> conditions_;
 

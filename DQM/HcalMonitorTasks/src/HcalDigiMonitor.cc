@@ -29,6 +29,7 @@ HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps)
   NLumiBlocks_           = ps.getUntrackedParameter<int>("NLumiBlocks",4000);
   makeDiagnostics_       = ps.getUntrackedParameter<bool>("makeDiagnostics",false);
   digiLabel_             = ps.getUntrackedParameter<edm::InputTag>("digiLabel");
+  FEDRawDataCollection_  = ps.getUntrackedParameter<edm::InputTag>("FEDRawDataCollection");
   hfRechitLabel_        = ps.getUntrackedParameter<edm::InputTag>("hfRechitLabel");
   shapeThresh_           = ps.getUntrackedParameter<int>("shapeThresh",20);
   //shapeThresh_ is used for plotting pulse shapes for all digis with pedestal-subtracted ADC sum > shapeThresh_;
@@ -243,6 +244,13 @@ void HcalDigiMonitor::setup()
   DigiSize->setBinLabel(4,"HF",1);
   DigiSize->setAxisTitle("Subdetector",1);
   DigiSize->setAxisTitle("Digi Size",2);
+  
+  DigiExpectedSize = dbe_->book2D("Digi Expected Size", "Digi Expected Size",3,0,3,20,-0.5,19.5);
+  DigiExpectedSize->setBinLabel(1,"HBHE",1);
+  DigiExpectedSize->setBinLabel(2,"HO",1);
+  DigiExpectedSize->setBinLabel(3,"HF",1);
+  DigiExpectedSize->setAxisTitle("Subdetector",1);
+  DigiExpectedSize->setAxisTitle("Digi Expected Size from HTR",2);
   
   dbe_->setCurrentFolder(subdir_+"bad_digis/badfibBCNoff");
   SetupEtaPhiHists(DigiErrorsBadFibBCNOff," Digis with non-zero Fiber Orbit Msg Idle BCN Offsets", "");
@@ -535,6 +543,47 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
       edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" unpacker report not available";
       return;
     }
+  // try to get Raw Data
+  edm::Handle<FEDRawDataCollection> rawraw;
+  if (!(e.getByLabel(FEDRawDataCollection_,rawraw)))
+    {
+      edm::LogWarning("HcalRawDataMonitor")<<" raw data with label "<<FEDRawDataCollection_<<" not available";
+      return;
+    }
+
+  // get the DCC header & trailer (or bail out)
+  // this needs to be done better, for now basically getting only one number per HBHE/HO/HF
+  // will create a map (dccid, spigot) -> DetID to be used in process_Digi later
+  for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++) {
+    const FEDRawData& fed = rawraw->FEDData(i);
+    if (fed.size()<12) continue;  //At least the size of headers and trailers of a DCC.    
+
+    const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fed.data());
+    if(!dccHeader) return;
+
+    HcalHTRData htr;  
+    for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {    
+      if (!dccHeader->getSpigotPresent(spigot)) continue;
+      
+      // Load the given decoder with the pointer and length from this spigot.
+      // i.e.     initialize htr, within dcc raw data size.
+      dccHeader->getSpigotData(spigot, htr, fed.size()); 
+      
+      int NTS = htr.getNDD(); //number time slices, in precision channels
+      int dccid=dccHeader->getSourceId();
+      
+      if(dccid==720 && (spigot==12 || spigot==13)) continue; // calibration HTR
+      if(dccid==722 && (spigot==12 || spigot==13)) continue; // ZDC HTR
+
+      int subdet = -1;
+      
+      if(dccid >= 700 && dccid<=717)  { subdet = 0; mindigisizeHBHE_ = NTS; maxdigisizeHBHE_ = NTS; } // HBHE
+      if(dccid >= 718 && dccid<=723)  { subdet = 2; mindigisizeHF_ = NTS; maxdigisizeHF_ = NTS; }     // HF
+      if(dccid >= 724 && dccid<=731)  { subdet = 1; mindigisizeHO_ = NTS; maxdigisizeHO_ = NTS; }     // HO
+      
+      DigiExpectedSize->Fill(subdet,int(NTS),1);
+    }
+  }
 
   // all objects grabbed; event is good
   if (debug_>1) std::cout <<"\t<HcalDigiMonitor::analyze>  Processing good event! event # = "<<ievt_<<std::endl;
@@ -811,6 +860,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   DigiOccupancyVME->update();
   DigiOccupancySpigot->update();
   DigiSize->update();
+  DigiExpectedSize->update();
 
   // // Fill problems vs. lumi block plots
   // ProblemsVsLB->Fill(currentLS,count_bad);
@@ -855,6 +905,8 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
       shapeThresh=shapeThreshHB_;
       mindigisize=mindigisizeHBHE_;
       maxdigisize=maxdigisizeHBHE_;
+
+      // std::cout<<"HBHE "<<mindigisizeHBHE_<<" "<<maxdigisizeHBHE_<<std::endl;
     }
   else if (digi.id().subdet()==HcalEndcap)
     {
@@ -873,11 +925,12 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
       shapeThresh=shapeThreshHF_;
       mindigisize=mindigisizeHF_;
       maxdigisize=maxdigisizeHF_;
+      // std::cout<<"HF "<<mindigisizeHBHE_<<" "<<maxdigisizeHBHE_<<std::endl;
     }
   int iEta = digi.id().ieta();
   int iPhi = digi.id().iphi();
   int iDepth = digi.id().depth();
-  int calcEta = CalcEtaBin(digi.id().subdet(),iEta,iDepth);
+  int calcEta = CalcEtaBin(digi.id().subdet(),iEta,iDepth);  
 
   // Check that digi size is correct
   if (digi.size()<mindigisize || digi.size()>maxdigisize)

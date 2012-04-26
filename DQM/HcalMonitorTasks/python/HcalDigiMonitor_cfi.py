@@ -12,7 +12,8 @@ hcalDigiMonitor=cms.EDAnalyzer("HcalDigiMonitor",
                                skipOutOfOrderLS       = cms.untracked.bool(False),
                                NLumiBlocks            = cms.untracked.int32(4000),
                                makeDiagnostics        = cms.untracked.bool(False),
-                               
+                               FEDRawDataCollection = cms.untracked.InputTag("rawDataCollector"),
+
                                # Digi Monitor Info
                                digiLabel              = cms.untracked.InputTag("hcalDigis"),
                                # Shape thresh are sum of ADC counts above nominal pedestal of 3*10=30
