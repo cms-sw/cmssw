@@ -18,16 +18,16 @@
 ///
 ///  \author    : Andreas Mussgiller
 ///  date       : December 2010
-///  $Revision: 1.3 $
-///  $Date: 2011/02/11 11:16:28 $
-///  (last update by $Author: flucke $)
+///  $Revision: 1.4 $
+///  $Date: 2012/04/18 09:47:32 $
+///  (last update by $Author: innocent $)
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
-class PixelGeomDetType;
 class BoundPlane;
 
 class ProxyPixelTopology GCC11_FINAL : public PixelTopology {
@@ -63,9 +63,9 @@ public:
   virtual std::pair<float,float> pixel( const LocalPoint& p,
 					const Topology::LocalTrackAngles &ltp ) const; 
   
-  virtual std::pair<float,float> pitch() const;
-  virtual int nrows() const;
-  virtual int ncolumns() const;
+  virtual std::pair<float,float> pitch() const { return specificTopology().pitch(); }
+  virtual int nrows() const { return specificTopology().nrows(); }
+  virtual int ncolumns() const { return specificTopology().ncolumns(); }
 
   virtual float localX( const float mpX ) const;
   virtual float localX( const float mpX, const Topology::LocalTrackPred &trkPred ) const;
@@ -95,8 +95,9 @@ public:
     return specificTopology().isItEdgePixel(ixbin, iybin);
   }
 
-  virtual const GeomDetType& type() const;
-  virtual PixelGeomDetType& specificType() const;
+  virtual const GeomDetType& type() const { return *theType;}
+
+  virtual PixelGeomDetType& specificType() const { return *theType; }
 
   const SurfaceDeformation * surfaceDeformation() const { 
     return theSurfaceDeformation.operator->();
@@ -105,7 +106,8 @@ public:
 
 private:
   
-  virtual const PixelTopology& specificTopology() const;
+  virtual const PixelTopology& specificTopology() const { return specificType().specificTopology(); }
+
   /// Internal method to get correction of the position from SurfaceDeformation,
   /// must not be called if 'theSurfaceDeformation' is a null pointer.
   SurfaceDeformation::Local2DVector

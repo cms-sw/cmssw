@@ -8,7 +8,7 @@
 /**
  * StripGeomDetType is the abstract class for SiStripGeomDetType.
  */
-class StripGeomDetType : public GeomDetType
+class StripGeomDetType GCC11_FINAL : public GeomDetType
 {
 
 public:
@@ -23,9 +23,9 @@ public:
   }
 
   // Access to topologies
-  virtual const Topology&  topology() const;
+  virtual const Topology&  topology() const { return *theTopology;}
   
-  virtual const  TopologyType& specificTopology() const;
+  virtual const  TopologyType& specificTopology() const { return *theTopology;}
 
   void setTopology( TopologyType* topol);
 

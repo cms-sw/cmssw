@@ -23,16 +23,15 @@
 ///
 ///  \author    : Andreas Mussgiller
 ///  date       : November 2010
-///  $Revision: 1.2 $
-///  $Date: 2011/02/11 11:16:28 $
-///  (last update by $Author: flucke $)
+///  $Revision: 1.3 $
+///  $Date: 2012/04/18 09:47:32 $
+///  (last update by $Author: innocent $)
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-
-class StripGeomDetType;
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 class BoundPlane;
 
 class ProxyStripTopology GCC11_FINAL : public StripTopology {
@@ -40,56 +39,56 @@ public:
 
   ProxyStripTopology(StripGeomDetType* type, BoundPlane * bp);
 
-  virtual LocalPoint localPosition( const MeasurementPoint& mp ) const;
+  virtual LocalPoint localPosition( const MeasurementPoint& mp ) const { return specificTopology().localPosition(mp);}
   /// conversion taking also the predicted track state 
   virtual LocalPoint localPosition( const MeasurementPoint& mp, const Topology::LocalTrackPred &trkPred ) const;
 
-  virtual LocalPoint localPosition( float strip ) const;
+  virtual LocalPoint localPosition( float strip ) const {return specificTopology().localPosition(strip);}
   /// conversion taking also the predicted track state
   virtual LocalPoint localPosition( float strip, const Topology::LocalTrackPred &trkPred) const;
 
-  virtual LocalError localError( float strip, float stripErr2 ) const;
+  virtual LocalError localError( float strip, float stripErr2 ) const {return specificTopology().localError(strip, stripErr2);}
   /// conversion taking also the predicted track state
   virtual LocalError localError( float strip, float stripErr2, const Topology::LocalTrackPred &trkPred) const;
 
   virtual LocalError localError( const MeasurementPoint& mp,
-				 const MeasurementError& me) const;
+				 const MeasurementError& me) const { return specificTopology().localError(mp, me);}
   /// conversion taking also the predicted track state
   virtual LocalError localError( const MeasurementPoint& mp,
 				 const MeasurementError& me,
 				 const Topology::LocalTrackPred &trkPred) const;
   
-  virtual MeasurementPoint measurementPosition( const LocalPoint& lp) const;
+  virtual MeasurementPoint measurementPosition( const LocalPoint& lp) const  {return specificTopology().measurementPosition(lp);}
   virtual MeasurementPoint measurementPosition( const LocalPoint &lp, 
 						const Topology::LocalTrackAngles &dir) const;
 
   virtual MeasurementError measurementError( const LocalPoint& lp,
-					     const LocalError& le ) const;
+					     const LocalError& le ) const { return specificTopology().measurementError(lp, le); }
   virtual MeasurementError measurementError( const LocalPoint &lp, const LocalError &le,
 					     const Topology::LocalTrackAngles &dir) const;
   
-  virtual int channel( const LocalPoint& lp) const;
+  virtual int channel( const LocalPoint& lp) const {return specificTopology().channel(lp);}
   virtual int channel( const LocalPoint &lp, const Topology::LocalTrackAngles &dir) const;
   
-  virtual float strip( const LocalPoint& lp) const;
+  virtual float strip( const LocalPoint& lp) const { return specificTopology().strip(lp);}
   /// conversion taking also the track state (LocalTrajectoryParameters)
   virtual float strip( const LocalPoint& lp, const Topology::LocalTrackAngles &dir ) const;
 
-  virtual float pitch() const;
-  virtual float localPitch( const LocalPoint& lp) const;
+  virtual float pitch() const { return specificTopology().pitch(); }
+  virtual float localPitch( const LocalPoint& lp) const { return specificTopology().localPitch(lp);}
   /// conversion taking also the angle from the track state (LocalTrajectoryParameters)
   virtual float localPitch( const LocalPoint& lp, const Topology::LocalTrackAngles &dir ) const;
   
-  virtual float stripAngle( float strip ) const;
+  virtual float stripAngle( float strip ) const { return specificTopology().stripAngle(strip);}
 
-  virtual int nstrips() const;
+  virtual int nstrips() const {return specificTopology().nstrips();}
   
-  virtual float stripLength() const;
-  virtual float localStripLength(const LocalPoint& lp) const;
+  virtual float stripLength() const {return specificTopology().stripLength();}
+  virtual float localStripLength(const LocalPoint& lp) const { return specificTopology().localStripLength(lp);}
   virtual float localStripLength( const LocalPoint& lp, const Topology::LocalTrackAngles &dir ) const;
   
-  virtual const GeomDetType& type() const;
-  virtual StripGeomDetType& specificType() const;
+  virtual const GeomDetType& type() const  { return *theType;}
+  virtual StripGeomDetType& specificType() const  { return *theType;}
 
   const SurfaceDeformation * surfaceDeformation() const {
     return theSurfaceDeformation.operator->();
@@ -98,7 +97,7 @@ public:
 
 private:
   
-  virtual const StripTopology& specificTopology() const;
+  virtual const StripTopology& specificTopology() const {return specificType().specificTopology();}
   /// Internal method to get correction of the position from SurfaceDeformation,
   /// must not be called if 'theSurfaceDeformation' is a null pointer.
   SurfaceDeformation::Local2DVector
