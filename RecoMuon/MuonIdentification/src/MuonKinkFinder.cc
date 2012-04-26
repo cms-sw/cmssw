@@ -18,7 +18,7 @@ void MuonKinkFinder::init(const edm::EventSetup &iSetup) {
 bool MuonKinkFinder::fillTrkKink(reco::MuonQuality & quality, const reco::Track &track) const {
     std::vector<Trajectory> traj  = refitter_.transform(track);
     if (traj.size() != 1) {
-        quality.trkKink = -1.0;
+        quality.trkKink = 999;
         quality.tkKink_position = math::XYZPoint(0,0,0);
         return false;
     }
@@ -42,6 +42,7 @@ bool MuonKinkFinder::fillTrkKink(reco::MuonQuality & quality, const Trajectory &
             quality.tkKink_position = math::XYZPoint(pos.x(), pos.y(), pos.z());
         }
     }
+    if (!found) quality.trkKink = 999;
     return found;
 }
 
