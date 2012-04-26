@@ -17,7 +17,7 @@ import DQM.EcalBarrelMonitorClient.CertificationClient_cfi as ecalCertificationC
 from DQM.EcalBarrelMonitorTasks.EcalMonitorTask_cfi import ecalMonitorTaskPaths
 
 ecalMonitorClientPaths = dict(
-    CertificationClient = ecalCertiricationClient.certificationClientPaths
+    CertificationClient = ecalCertificationClient.certificationClientPaths
 )
 
 ecalMonitorClientSources = dict(ecalMonitorClientPaths)

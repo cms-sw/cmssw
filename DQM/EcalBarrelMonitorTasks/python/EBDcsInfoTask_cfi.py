@@ -38,5 +38,5 @@ ecalBarrelDcsInfoTask = cms.EDAnalyzer("EcalDQMonitorTask",
     verbosity = cms.untracked.int32(0)
 )
 
-ecalBarrelDaqInfoTask.taskParameters.TowerStatusTask.doDAQInfo = False
-ecalBarrelDaqInfoTask.taskParameters.TowerStatusTask.doDAQInfo = True
+ecalBarrelDcsInfoTask.taskParameters.TowerStatusTask.doDAQInfo = False
+ecalBarrelDcsInfoTask.taskParameters.TowerStatusTask.doDAQInfo = True

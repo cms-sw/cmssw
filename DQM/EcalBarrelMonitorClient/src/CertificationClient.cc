@@ -46,10 +46,11 @@ namespace ecaldqm {
   CertificationClient::producePlots()
   {
     MEs_[kCertificationMap]->reset(1.);
-    for(unsigned dccid(1); dccid <= 54; dccid)
+    for(unsigned dccid(1); dccid <= 54; dccid++)
       MEs_[kCertificationContents]->fill(dccid, 1.);
 
-    MEs_[kCertification]->fill(1.);
+    float cert(1.);
+    MEs_[kCertification]->fill(cert);
   }
 
   /*static*/
