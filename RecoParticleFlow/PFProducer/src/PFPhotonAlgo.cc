@@ -733,6 +733,12 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 		ElectronZ      +=  EE * clusterRef->position().Z();
 		
 	      }
+	    if(elements[*it].type()==reco::PFBlockElement::TRACK){
+	      reco::TrackRef t_ref=elements[*it].trackRef();
+	      singleLegRef.push_back(t_ref);
+	      EvaluateSingleLegMVA(blockRef,  primaryVertex_, *it);  
+	      MVA_values.push_back(mvaValue);	      
+	    }
 	  }
 	
       }
