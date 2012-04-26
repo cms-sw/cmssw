@@ -3,9 +3,9 @@
 /** \class ConversionTrackCandidateProducer
  **  
  **
- **  $Id: ConversionTrackCandidateProducer.h,v 1.15 2009/05/12 16:46:05 nancy Exp $ 
- **  $Date: 2009/05/12 16:46:05 $ 
- **  $Revision: 1.15 $
+ **  $Id: ConversionTrackCandidateProducer.h,v 1.16 2011/07/22 02:12:08 nancy Exp $ 
+ **  $Date: 2011/07/22 02:12:08 $ 
+ **  $Revision: 1.16 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -88,15 +88,17 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   double isoEMin_       ;
   bool   vetoClusteredHits_ ;
   bool   useNumXtals_;
-  int severityLevelCut_;
-  std::vector<int> v_chstatus_;
+  //int severityLevelCut_;
+  std::vector<int> flagsexcl_;
+  std::vector<int> flagsexclEE_;
+  std::vector<int> severitiesexcl_;
   double ecalIsoCut_offset_;
   double ecalIsoCut_slope_;
 
 
   edm::ESHandle<CaloGeometry> theCaloGeom_;  
 
-  const NavigationSchool*       theNavigationSchool_;
+  const NavigationSchool*     theNavigationSchool_;
   OutInConversionSeedFinder*  theOutInSeedFinder_;
   OutInConversionTrackFinder* theOutInTrackFinder_;
   InOutConversionSeedFinder*  theInOutSeedFinder_;

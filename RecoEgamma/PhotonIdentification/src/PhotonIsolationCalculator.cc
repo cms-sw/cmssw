@@ -43,7 +43,7 @@
 #include <TMath.h>
 
 
-void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
+void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf, std::vector<int> flagsEB, std::vector<int> flagsEE, std::vector<int> severities) {
 
 
   trackInputTag_ = conf.getParameter<edm::InputTag>("trackProducer");
@@ -157,28 +157,17 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf) {
   hcalIsoEndcapRadiusB_.push_back( conf.getParameter<double>("HcalDepth2TowerThreshEB_Endcap") );
 
   //Pick up the variables for the spike removal
-  severityLevelCut_        = conf.getParameter<int>("severityLevelCut");
+  //severityLevelCut_        = conf.getParameter<int>("severityLevelCut");
   //severityRecHitThreshold_ = conf.getParameter<double>("severityRecHitThreshold");
   //spikeIdThreshold_        = conf.getParameter<double>("spikeIdThreshold");
   
-  const std::vector<std::string> flagnames = 
-    conf.getParameter<std::vector<std::string> >("recHitFlagsToBeExcluded");
-  
-  v_chstatus_= StringToEnumValue<EcalRecHit::Flags>(flagnames);
-  
+  //const std::vector<std::string> flagnames = 
+  //  conf.getParameter<std::vector<std::string> >("recHitFlagsToBeExcluded");
+  // StringToEnumValue<EcalRecHit::Flags>(flagnames);
 
-  //Need to figure out which algo to use
-  //if(!conf.getParameter<std::string>("spikeIdString").compare("kE1OverE9") )   {
-  //  spId_ = EcalSeverityLevelAlgo::kE1OverE9;
-  //} else if(!conf.getParameter<std::string>("spikeIdString").compare("kSwissCross") ) {
-  //  spId_ = EcalSeverityLevelAlgo::kSwissCross;
-  //} else if(!conf.getParameter<std::string>("spikeIdString").compare("kSwissCrossBordersIncluded") ) {
-  //  spId_ = EcalSeverityLevelAlgo::kSwissCrossBordersIncluded;
-  //} else {
-  //  spId_ = EcalSeverityLevelAlgo::kSwissCrossBordersIncluded;
-  //   edm::LogWarning("PhotonIsolationCalculator|SpikeRemovalForIsolation")
-  //     << "Cannot find the requested method. kSwissCross set instead.";
-  //}
+  flagsEB_      = flagsEB;
+  flagsEE_      = flagsEE;
+  severityExcl_ = severities;
 }
 
 
@@ -602,8 +591,8 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
 
   phoIsoEB.setVetoClustered(vetoClusteredHits);
   phoIsoEB.setUseNumCrystals(useNumXtals);
-  phoIsoEB.doSpikeRemoval(ecalhitsCollEB.product(),chStatus.product(),severityLevelCut_);//,severityRecHitThreshold_,spId_,spikeIdThreshold_);
-  phoIsoEB.doFlagChecks(v_chstatus_);
+  phoIsoEB.doSpikeRemoval(ecalhitsCollEB.product(), severityExcl_); //chStatus.product(),severityLevelCut_);//,severityRecHitThreshold_,spId_,spikeIdThreshold_);
+  phoIsoEB.doFlagChecks(flagsEB_);
   double ecalIsolEB = phoIsoEB.getEtSum(photon);
   
   EgammaRecHitIsolation phoIsoEE(RCone,
@@ -618,15 +607,14 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   
   phoIsoEE.setVetoClustered(vetoClusteredHits);
   phoIsoEE.setUseNumCrystals(useNumXtals);
-  phoIsoEE.doFlagChecks(v_chstatus_);
+  phoIsoEB.doSpikeRemoval(ecalhitsCollEE.product(), severityExcl_); //chStatus.product(),severityLevelCut_);//,severityRecHitThreshold_,spId_,spikeIdThreshold_);
+  phoIsoEE.doFlagChecks(flagsEE_);
 
   double ecalIsolEE = phoIsoEE.getEtSum(photon);
   //  delete phoIso;
   double ecalIsol = ecalIsolEB + ecalIsolEE;
   
   return ecalIsol;
-  
-
 }
 
 double PhotonIsolationCalculator::calculateHcalTowerIso(const reco::Photon* photon,

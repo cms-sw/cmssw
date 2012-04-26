@@ -19,7 +19,10 @@ public:
 
   virtual ~PhotonIsolationCalculator(){};
 
-  void setup(const edm::ParameterSet& conf);
+  void setup(const edm::ParameterSet& conf,
+	     std::vector<int> flagsEB_,
+	     std::vector<int> flagsEE_,
+	     std::vector<int> severities_);
 
   void calculate(const reco::Photon*, 
 		 const edm::Event&, const edm::EventSetup& es,
@@ -127,11 +130,13 @@ public:
   double trackLipRadiusA_;
   double trackD0RadiusA_;
 
-  int    severityLevelCut_;
+  //int    severityLevelCut_;
   //float  severityRecHitThreshold_;
   //float  spikeIdThreshold_;
   //EcalSeverityLevelAlgo::SpikeId spId_;
-  std::vector<int> v_chstatus_;
+  std::vector<int> flagsEB_;
+  std::vector<int> flagsEE_;
+  std::vector<int> severityExcl_;
   //EcalSeverityLevelAlgo::SpikeId spId_;
 
 

@@ -126,7 +126,8 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 
 }
 
-PhotonProducer::~PhotonProducer() {
+PhotonProducer::~PhotonProducer() 
+{
 
   //delete energyCorrectionF;
 }
@@ -137,17 +138,13 @@ void  PhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & theEventSet
 
     thePhotonIsolationCalculator_ = new PhotonIsolationCalculator();
     edm::ParameterSet isolationSumsCalculatorSet = conf_.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet"); 
-    thePhotonIsolationCalculator_->setup(isolationSumsCalculatorSet);
-   
+    thePhotonIsolationCalculator_->setup(isolationSumsCalculatorSet, flagsexcl_, flagsexclEE_, severitiesexcl_);
+
     thePhotonMIPHaloTagger_ = new PhotonMIPHaloTagger();
     edm::ParameterSet mipVariableSet = conf_.getParameter<edm::ParameterSet>("mipVariableSet"); 
     thePhotonMIPHaloTagger_->setup(mipVariableSet);
     thePhotonEnergyCorrector_ = new PhotonEnergyCorrector(conf_);
     thePhotonEnergyCorrector_ -> init(theEventSetup); 
-
-
-
-
 }
 
 void  PhotonProducer::endRun (edm::Run& r, edm::EventSetup const & theEventSetup) {

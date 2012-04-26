@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 #  configuration for producer of converted photons
-#  $Id: conversionTrackCandidates_cfi.py,v 1.32 2011/07/22 02:39:25 nancy Exp $
+#  $Id: conversionTrackCandidates_cfi.py,v 1.33 2012/02/23 08:49:58 nancy Exp $
 #
 # stripCPE
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
@@ -25,6 +25,8 @@ from RecoEgamma.EgammaPhotonProducers.trajectoryCleanerBySharedHitsForConversion
 from RecoEgamma.EgammaPhotonProducers.propAlongMomentumWithMaterialForElectrons_cfi import *
 from RecoEgamma.EgammaPhotonProducers.propOppoMomentumWithMaterialForElectrons_cfi import *
 
+from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
+from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 
 conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
 #    beamSpot = cms.InputTag("offlineBeamSpot"),
@@ -55,22 +57,27 @@ conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
     isoEMin = cms.double(0.08),
     vetoClusteredHits  = cms.bool(False),
     useNumXstals = cms.bool(True),
-    severityLevelCut = cms.int32(4),
+    #severityLevelCut = cms.int32(4),
     ecalIsoCut_offset =  cms.double(999999999),
     ecalIsoCut_slope  =  cms.double(0.),                                                   
 
 #    ecalIsoCut_offset =  cms.double(4.2),
 #    ecalIsoCut_slope =  cms.double(0.003),                                                   
 #
-      recHitFlagsToBeExcluded = cms.vstring(
-        'kFaultyHardware',
-        'kPoorCalib',
+    #recHitFlagsToBeExcluded = cms.vstring(
+    #    'kFaultyHardware',
+    #    'kPoorCalib',
 #        ecalRecHitFlag_kSaturated,
 #        ecalRecHitFlag_kLeadingEdgeRecovered,
 #        ecalRecHitFlag_kNeighboursRecovered,
-        'kTowerRecovered',
-        'kDead'
-    ),
+   #     'kTowerRecovered',
+   #     'kDead'
+   # ),
+
+    RecHitFlagToBeExcluded = cleanedHybridSuperClusters.RecHitFlagToBeExcluded,
+    RecHitSeverityToBeExcluded = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
+    RecHitFlagToBeExcludedEE = multi5x5BasicClustersCleaned.RecHitFlagToBeExcluded,
+                                              
                                         
     fractionShared = cms.double(0.5),
     TrajectoryBuilder = cms.string('TrajectoryBuilderForConversions'),

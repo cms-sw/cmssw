@@ -100,10 +100,10 @@ isolationSumsCalculator = cms.PSet(
     EcalRecHitThreshEB_Endcap        = cms.double(0.0),
     EcalRecHitThreshEtB_Endcap       = cms.double(0.110),
 
-    severityLevelCut = cms.int32(4),
-    severityRecHitThreshold = cms.double(5.0),
-    spikeIdString = cms.string('kSwissCrossBordersIncluded'),
-    spikeIdThreshold = cms.double(0.95),
+    #severityLevelCut = cms.int32(4),
+    #severityRecHitThreshold = cms.double(5.0),
+    #spikeIdString = cms.string('kSwissCrossBordersIncluded'),
+    #spikeIdThreshold = cms.double(0.95),
 
     #Hcal towers
     HcalTowerInnerRadiusA_Endcap       = cms.double(0.15),
@@ -126,15 +126,17 @@ isolationSumsCalculator = cms.PSet(
     HcalDepth2TowerOuterRadiusB_Endcap = cms.double(0.3),
     HcalDepth2TowerThreshEB_Endcap     = cms.double(0.0),
 
-    recHitFlagsToBeExcluded = cms.vstring(
-        'kFaultyHardware',
-        'kPoorCalib',
-#        ecalRecHitFlag_kSaturated,
-#        ecalRecHitFlag_kLeadingEdgeRecovered,
-#        ecalRecHitFlag_kNeighboursRecovered,
-        'kTowerRecovered',
-        'kDead'
-    ),
+    #recHitFlagsToBeExcluded = cms.vstring(
+    #    'kFaultyHardware',
+    #    'kPoorCalib',
+    #    ecalRecHitFlag_kSaturated,
+    #    ecalRecHitFlag_kLeadingEdgeRecovered,
+    #    ecalRecHitFlag_kNeighboursRecovered,
+    #    'kTowerRecovered',
+    #    'kDead'
+    #),
+
+    
 
 
 )

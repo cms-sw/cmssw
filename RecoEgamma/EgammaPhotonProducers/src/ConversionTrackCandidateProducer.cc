@@ -86,14 +86,28 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
   isoEMin_           = conf_.getParameter<double>("isoEMin");
   vetoClusteredHits_ = conf_.getParameter<bool>("vetoClusteredHits");
   useNumXtals_       = conf_.getParameter<bool>("useNumXstals");
-  severityLevelCut_  = conf_.getParameter<int>("severityLevelCut");
+  //severityLevelCut_  = conf_.getParameter<int>("severityLevelCut");
   ecalIsoCut_offset_ = conf_.getParameter<double>("ecalIsoCut_offset");
   ecalIsoCut_slope_  = conf_.getParameter<double>("ecalIsoCut_slope");
 
+  //Flags and Severities to be excluded from photon calculations
   const std::vector<std::string> flagnames = 
-    conf_.getParameter<std::vector<std::string> >("recHitFlagsToBeExcluded");
-  
-  v_chstatus_= StringToEnumValue<EcalRecHit::Flags>(flagnames);
+    config.getParameter<std::vector<std::string> >("RecHitFlagToBeExcluded");
+
+  const std::vector<std::string> flagnamesEE =
+    config.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEE");
+
+  flagsexcl_= 
+    StringToEnumValue<EcalRecHit::Flags>(flagnames);
+
+  flagsexclEE_=
+    StringToEnumValue<EcalRecHit::Flags>(flagnamesEE);
+
+  const std::vector<std::string> severitynames = 
+    config.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcluded");
+
+  severitiesexcl_= 
+    StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynames);
 
 
   // Register the product
@@ -139,9 +153,6 @@ void  ConversionTrackCandidateProducer::beginRun (edm::Run& r , edm::EventSetup 
   
   // get the In Out Track Finder
   theInOutTrackFinder_ = new InOutConversionTrackFinder ( theEventSetup, conf_  );
-
-
-
 }
 
 
@@ -262,7 +273,7 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
 
   if ( validEndcapBCHandle && validEndcapSCHandle ) {
     isBarrel=false;
-    buildCollections(isBarrel,scEndcapHandle, bcEndcapHandle, ecalhitsCollEE, &(*RecHitsEE),  sevLevel, &(*chStatus), hcalTowersHandle, *outInTrackCandidate_p,*inOutTrackCandidate_p,caloPtrVecOutIn_,caloPtrVecInOut_ );
+    buildCollections(isBarrel, scEndcapHandle, bcEndcapHandle, ecalhitsCollEE, &(*RecHitsEE),  sevLevel, &(*chStatus), hcalTowersHandle, *outInTrackCandidate_p,*inOutTrackCandidate_p,caloPtrVecOutIn_,caloPtrVecInOut_ );
   }
 
 
@@ -336,8 +347,8 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
     double scEt = sc->energy()/cosh(sc->eta());  
     const CaloTowerCollection* hcalTowersColl = hcalTowersHandle.product();
     EgammaTowerIsolation towerIso(hOverEConeSize_,0.,0.,-1,hcalTowersColl) ;
-    double HoE=towerIso.getTowerESum(sc)/sc->energy();
-    if (HoE>=maxHOverE_)  continue;
+    double HoE = towerIso.getTowerESum(sc)/sc->energy();
+    if (HoE >= maxHOverE_)  continue;
 
     //// Apply also ecal isolation
     EgammaRecHitIsolation ecalIso(isoConeR_,     
@@ -352,11 +363,14 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
 
     ecalIso.setVetoClustered(vetoClusteredHits_);
     ecalIso.setUseNumCrystals(useNumXtals_);
-    if ( isBarrel ) ecalIso.doSpikeRemoval(ecalRecHitHandle.product(),chStatus.product(),severityLevelCut_);
-    ecalIso.doFlagChecks(v_chstatus_);
+    if (isBarrel) 
+      ecalIso.doFlagChecks(flagsexcl_);
+    else 
+      ecalIso.doFlagChecks(flagsexclEE_);
+    ecalIso.doSpikeRemoval(ecalRecHitHandle.product(), severitiesexcl_);//chStatus.product(), severityLevelCut_);
+
     double ecalIsolation = ecalIso.getEtSum(sc);
     if ( ecalIsolation >   ecalIsoCut_offset_ + ecalIsoCut_slope_*scEt ) continue;
-
 
     // Now launch the seed finding
     theOutInSeedFinder_->setCandidate(pClus->energy(), GlobalPoint(pClus->position().x(),pClus->position().y(),pClus->position().z() ) );
@@ -386,15 +400,6 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
       caloPtrVecInOut_.push_back(aClus);
       //     std::cout  << "ConversionTrackCandidateProducer Barrel InOut Tracks Number of hits " << (*it).foundHits() << "\n"; 
     }
-
-
-
-
-    
-
   }
-
-
-
 }
 
