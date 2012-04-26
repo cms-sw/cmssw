@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Dec  9 16:14:56 CET 2009
-// $Id: HepMCSplitter.cc,v 1.1 2012/04/25 14:21:13 fruboes Exp $
+// $Id: HepMCSplitter.cc,v 1.2 2012/04/26 09:39:09 fruboes Exp $
 //
 //
 
@@ -353,8 +353,8 @@ HepMCSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if (_doZtautau) {
     std::auto_ptr<edm::HepMCProduct> prodTauTau(new edm::HepMCProduct());  
-    std::cout << "===================================== " << iEvent.id() << std::endl;
-    evtTauTau->print();
+//     std::cout << "===================================== " << iEvent.id() << std::endl;
+//     evtTauTau->print();
     prodTauTau->addHepMCData( evtTauTau.release() );
     if (_doUe ) iEvent.put( prodTauTau, "Ztautau");
     else iEvent.put( prodTauTau);
