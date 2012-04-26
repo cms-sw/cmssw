@@ -46,23 +46,12 @@ class EgammaRecHitIsolation {
 
   void setUseNumCrystals(bool b=true) { useNumCrystals_ = b; }
   void setVetoClustered(bool b=true) { vetoClustered_ = b; }
-  void doSpikeRemoval(const EcalRecHitCollection *const recHits,
-		      const std::vector<int> v
-                      //const EcalChannelStatus *const chStatus,
-                      //const int &severityLevelCut = 3 /*0 - 4*/
-                      //const float &sevRecHitThresh = 5.0, /*GeV*/
-                      //const EcalSeverityLevelAlgo::SpikeId &id = EcalSeverityLevelAlgo::kSwissCross, /*kE1OverE9=0 or kSwissCross=1*/
-                      //const float &spIdThresh = 0.95
-                      ) { 
+  void doSeverityChecks(const EcalRecHitCollection *const recHits,
+			const std::vector<int> v) { 
     ecalBarHits_ = recHits; 
-    //chStatus_ = chStatus;
-    //severityLevelCut_ = severityLevelCut;
-    //severityRecHitThreshold_ = sevRecHitThresh;
-    //spId_ = id;
-    //spIdThreshold_ = spIdThresh;
     severitiesexcl_.clear();
     severitiesexcl_.insert(severitiesexcl_.begin(), v.begin(), v.end());
-    std::sort(severitiesexcl_.begin(), severitiesexcl_.end() );
+    std::sort(severitiesexcl_.begin(), severitiesexcl_.end());
   }
 
   void doFlagChecks(const std::vector<int> v) {
@@ -70,13 +59,6 @@ class EgammaRecHitIsolation {
     flags_.insert(flags_.begin(), v.begin(), v.end());
     std::sort(flags_.begin(), flags_.end() );
   }
-
-  void doSeverityChecks(const std::vector<int> v) {
-    severitiesexcl_.clear();
-    severitiesexcl_.insert(severitiesexcl_.begin(), v.begin(), v.end());
-    std::sort(severitiesexcl_.begin(), severitiesexcl_.end() );
-  }
-
 
   //destructor 
   ~EgammaRecHitIsolation() ;

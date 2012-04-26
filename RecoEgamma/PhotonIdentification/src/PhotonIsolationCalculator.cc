@@ -43,8 +43,7 @@
 #include <TMath.h>
 
 
-void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf, std::vector<int> flagsEB, std::vector<int> flagsEE, std::vector<int> severities) {
-
+void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf, std::vector<int> flagsEB, std::vector<int> flagsEE, std::vector<int> severitiesEB, std::vector<int> severitiesEE) {
 
   trackInputTag_ = conf.getParameter<edm::InputTag>("trackProducer");
   beamSpotProducerTag_ = conf.getParameter<edm::InputTag>("beamSpotProducer");
@@ -58,6 +57,7 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf, std::vector
   //
   vetoClusteredEcalHits_ = conf.getParameter<bool>("vetoClustered");
   useNumCrystals_ = conf.getParameter<bool>("useNumCrystals");
+
   /// Isolation parameters for barrel and for two different cone sizes
   trkIsoBarrelRadiusA_.push_back(  conf.getParameter<double>("TrackConeOuterRadiusA_Barrel") );
   trkIsoBarrelRadiusA_.push_back(  conf.getParameter<double>("TrackConeInnerRadiusA_Barrel") ) ;
@@ -157,27 +157,19 @@ void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf, std::vector
   hcalIsoEndcapRadiusB_.push_back( conf.getParameter<double>("HcalDepth2TowerThreshEB_Endcap") );
 
   //Pick up the variables for the spike removal
-  //severityLevelCut_        = conf.getParameter<int>("severityLevelCut");
-  //severityRecHitThreshold_ = conf.getParameter<double>("severityRecHitThreshold");
-  //spikeIdThreshold_        = conf.getParameter<double>("spikeIdThreshold");
-  
-  //const std::vector<std::string> flagnames = 
-  //  conf.getParameter<std::vector<std::string> >("recHitFlagsToBeExcluded");
-  // StringToEnumValue<EcalRecHit::Flags>(flagnames);
-
   flagsEB_      = flagsEB;
   flagsEE_      = flagsEE;
-  severityExcl_ = severities;
+  severityExclEB_ = severitiesEB;
+  severityExclEE_ = severitiesEE;
 }
 
 
 void PhotonIsolationCalculator::calculate(const reco::Photon* pho,
-				     const edm::Event& e,
-				     const edm::EventSetup& es,
-				     reco::Photon::FiducialFlags& phofid, 
-				     reco::Photon::IsolationVariables& phoisolR1, 
-				     reco::Photon::IsolationVariables& phoisolR2){
-
+					  const edm::Event& e,
+					  const edm::EventSetup& es,
+					  reco::Photon::FiducialFlags& phofid, 
+					  reco::Photon::IsolationVariables& phoisolR1, 
+					  reco::Photon::IsolationVariables& phoisolR2) {
 
   //Get fiducial flags. This does not really belong here
   bool isEBPho     = false;
@@ -561,10 +553,6 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   const EcalRecHitCollection* rechitsCollectionEE_ = ecalhitsCollEE.product();
   const EcalRecHitCollection* rechitsCollectionEB_ = ecalhitsCollEB.product();
 
-  //Get the channel status from the db
-  //edm::ESHandle<EcalChannelStatus> chStatus;
-  //iSetup.get<EcalChannelStatusRcd>().get(chStatus);
-
   edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
   iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
   const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
@@ -590,7 +578,7 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
 
   phoIsoEB.setVetoClustered(vetoClusteredHits);
   phoIsoEB.setUseNumCrystals(useNumXtals);
-  phoIsoEB.doSpikeRemoval(ecalhitsCollEB.product(), severityExcl_); //chStatus.product(),severityLevelCut_);//,severityRecHitThreshold_,spId_,spikeIdThreshold_);
+  phoIsoEB.doSeverityChecks(ecalhitsCollEB.product(), severityExclEB_);
   phoIsoEB.doFlagChecks(flagsEB_);
   double ecalIsolEB = phoIsoEB.getEtSum(photon);
   
@@ -606,7 +594,7 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   
   phoIsoEE.setVetoClustered(vetoClusteredHits);
   phoIsoEE.setUseNumCrystals(useNumXtals);
-  phoIsoEE.doSpikeRemoval(ecalhitsCollEE.product(), severityExcl_); //chStatus.product(),severityLevelCut_);//,severityRecHitThreshold_,spId_,spikeIdThreshold_);
+  phoIsoEE.doSeverityChecks(ecalhitsCollEE.product(), severityExclEE_); 
   phoIsoEE.doFlagChecks(flagsEE_);
 
   double ecalIsolEE = phoIsoEE.getEtSum(photon);

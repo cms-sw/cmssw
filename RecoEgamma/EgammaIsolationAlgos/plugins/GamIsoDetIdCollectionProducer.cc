@@ -39,29 +39,37 @@ GamIsoDetIdCollectionProducer::GamIsoDetIdCollectionProducer(const edm::Paramete
             innerRadius_(iConfig.getParameter<double>("innerRadius")),
             interestingDetIdCollection_(iConfig.getParameter<std::string>("interestingDetIdCollection"))
    {
-     const std::vector<std::string> flagnames = 
-       iConfig.getParameter<std::vector<std::string> >("RecHitFlagToBeExcluded");
+
+     const std::vector<std::string> flagnamesEB = 
+       iConfig.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEB");
      
      const std::vector<std::string> flagnamesEE =
        iConfig.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEE");
      
-     flagsexcl_= 
-       StringToEnumValue<EcalRecHit::Flags>(flagnames);
+     flagsexclEB_= 
+       StringToEnumValue<EcalRecHit::Flags>(flagnamesEB);
      
      flagsexclEE_=
        StringToEnumValue<EcalRecHit::Flags>(flagnamesEE);
      
-     const std::vector<std::string> severitynames = 
-       iConfig.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcluded");
+     const std::vector<std::string> severitynamesEB = 
+       iConfig.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcludedEB");
      
-     severitiesexcl_= 
-       StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynames);
+     severitiesexclEB_= 
+       StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEB);
+
+     const std::vector<std::string> severitynamesEE = 
+       iConfig.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcludedEE");
+     
+     severitiesexclEE_= 
+       StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEE);
      
     //register your products
     produces< DetIdCollection > (interestingDetIdCollection_) ;
 }
 
-GamIsoDetIdCollectionProducer::~GamIsoDetIdCollectionProducer() {}
+GamIsoDetIdCollectionProducer::~GamIsoDetIdCollectionProducer() 
+{}
 
 void GamIsoDetIdCollectionProducer::beginJob () 
 {}
@@ -87,10 +95,6 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
     edm::ESHandle<CaloGeometry> pG;
     iSetup.get<CaloGeometryRecord>().get(pG);    
     const CaloGeometry* caloGeom = pG.product();
-
-    //Get the channel status from the db
-    //edm::ESHandle<EcalChannelStatus> chStatus;
-    //iSetup.get<EcalChannelStatusRcd>().get(chStatus);
 
     edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
     iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
@@ -130,17 +134,21 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
 		  isBarrel = true;
 
 		int severityFlag = sevLevel->severityLevel(((EcalRecHit*)(&*recIt))->detid(), *recHitsH);
-		std::vector<int>::const_iterator sit = std::find(severitiesexcl_.begin(),
-								 severitiesexcl_.end(),
-								 severityFlag);
-
-		if (sit!= severitiesexcl_.end())
-		  continue;
+		std::vector<int>::const_iterator sit;
+		if (isBarrel) {
+		  sit = std::find(severitiesexclEB_.begin(), severitiesexclEB_.end(), severityFlag);
+		  if (sit!= severitiesexclEB_.end())
+		    continue;
+		} else {
+		  sit = std::find(severitiesexclEE_.begin(), severitiesexclEE_.end(), severityFlag);
+		  if (sit!= severitiesexclEE_.end())
+		    continue;
+		}
 
 		std::vector<int>::const_iterator vit;
 		if (isBarrel) {
-		  vit = std::find(flagsexcl_.begin(), flagsexcl_.end(), ((EcalRecHit*)(&*recIt))->recoFlag());
-		  if (vit != flagsexcl_.end())
+		  vit = std::find(flagsexclEB_.begin(), flagsexclEB_.end(), ((EcalRecHit*)(&*recIt))->recoFlag());
+		  if (vit != flagsexclEB_.end())
 		    continue;
 		} else {
 		  vit = std::find(flagsexclEE_.begin(), flagsexclEE_.end(), ((EcalRecHit*)(&*recIt))->recoFlag());

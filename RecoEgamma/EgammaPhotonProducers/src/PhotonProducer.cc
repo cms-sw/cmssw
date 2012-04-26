@@ -64,23 +64,29 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 
   //AA
   //Flags and Severities to be excluded from photon calculations
-  const std::vector<std::string> flagnames = 
-    config.getParameter<std::vector<std::string> >("RecHitFlagToBeExcluded");
+  const std::vector<std::string> flagnamesEB = 
+    config.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEB");
 
   const std::vector<std::string> flagnamesEE =
     config.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEE");
 
-  flagsexcl_= 
-    StringToEnumValue<EcalRecHit::Flags>(flagnames);
+  flagsexclEB_= 
+    StringToEnumValue<EcalRecHit::Flags>(flagnamesEB);
 
   flagsexclEE_=
     StringToEnumValue<EcalRecHit::Flags>(flagnamesEE);
 
-  const std::vector<std::string> severitynames = 
-    config.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcluded");
+  const std::vector<std::string> severitynamesEB = 
+    config.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcludedEB");
 
-  severitiesexcl_= 
-    StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynames);
+  severitiesexclEB_= 
+    StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEB);
+
+  const std::vector<std::string> severitynamesEE = 
+    config.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcludedEE");
+
+  severitiesexclEE_= 
+    StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEE);
 
   //AA
 
@@ -138,7 +144,7 @@ void  PhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & theEventSet
 
     thePhotonIsolationCalculator_ = new PhotonIsolationCalculator();
     edm::ParameterSet isolationSumsCalculatorSet = conf_.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet"); 
-    thePhotonIsolationCalculator_->setup(isolationSumsCalculatorSet, flagsexcl_, flagsexclEE_, severitiesexcl_);
+    thePhotonIsolationCalculator_->setup(isolationSumsCalculatorSet, flagsexclEB_, flagsexclEE_, severitiesexclEB_, severitiesexclEE_);
 
     thePhotonMIPHaloTagger_ = new PhotonMIPHaloTagger();
     edm::ParameterSet mipVariableSet = conf_.getParameter<edm::ParameterSet>("mipVariableSet"); 
@@ -153,8 +159,6 @@ void  PhotonProducer::endRun (edm::Run& r, edm::EventSetup const & theEventSetup
   delete thePhotonMIPHaloTagger_;
   delete thePhotonEnergyCorrector_;
 }
-
-
 
 
 void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
@@ -279,7 +283,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
   float minR9=0;
 
 
-  std::vector<int> flags_;
+  std::vector<int> flags_, severitiesexcl_;
 
   for(unsigned int lSC=0; lSC < photonCoreHandle->size(); lSC++) {
 
@@ -291,22 +295,21 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     int subdet = scRef->seed()->hitsAndFractions()[0].first.subdetId();
     subDetGeometry =  theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, subdet);
 
-    if (subdet==EcalBarrel) 
-      { 
-	preselCutValues = preselCutValuesBarrel_;
-        minR9=minR9Barrel_;
-        hits=  ecalBarrelHits;
-       flags_ = flagsexcl_;
-      }
-    else if  (subdet==EcalEndcap) 
-      { 
-	preselCutValues = preselCutValuesEndcap_;
-        minR9=minR9Endcap_;
-	hits=  ecalEndcapHits;
-       flags_ = flagsexclEE_;
-      }
-    else
-      { edm::LogWarning("")<<"PhotonProducer: do not know if it is a barrel or endcap SuperCluster" ; }
+    if (subdet==EcalBarrel) { 
+      preselCutValues = preselCutValuesBarrel_;
+      minR9 = minR9Barrel_;
+      hits = ecalBarrelHits;
+      flags_ = flagsexclEB_;
+      severitiesexcl_ = severitiesexclEB_;
+    } else if  (subdet==EcalEndcap)  { 
+      preselCutValues = preselCutValuesEndcap_;
+      minR9 = minR9Endcap_;
+      hits = ecalEndcapHits;
+      flags_ = flagsexclEE_;
+      severitiesexcl_ = severitiesexclEE_;
+    } else {
+      edm::LogWarning("")<<"PhotonProducer: do not know if it is a barrel or endcap SuperCluster"; 
+    }
 
     
     // SC energy preselection
@@ -335,19 +338,17 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     float maxXtal =   EcalClusterTools::eMax( *(scRef->seed()), &(*hits) );
     //AA
     //Change these to consider severity level of hits
-float e1x5    =   EcalClusterTools::e1x5(  *(scRef->seed()), &(*hits), &(*topology), flags_, severitiesexcl_, sevLv);
-float e2x5    =   EcalClusterTools::e2x5Max(  *(scRef->seed()), &(*hits), &(*topology),flags_, severitiesexcl_, sevLv );    
-float e3x3    =   EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology), flags_, severitiesexcl_, sevLv);
-float e5x5    =   EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology),flags_, severitiesexcl_, sevLv);   
-      std::vector<float> cov =  EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry,flags_, severitiesexcl_, sevLv);
-      std::vector<float> locCov =  EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology),flags_, severitiesexcl_, sevLv);
-
-
+    float e1x5    =   EcalClusterTools::e1x5(  *(scRef->seed()), &(*hits), &(*topology), flags_, severitiesexcl_, sevLv);
+    float e2x5    =   EcalClusterTools::e2x5Max(  *(scRef->seed()), &(*hits), &(*topology),flags_, severitiesexcl_, sevLv );    
+    float e3x3    =   EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology), flags_, severitiesexcl_, sevLv);
+    float e5x5    =   EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology),flags_, severitiesexcl_, sevLv);   
+    std::vector<float> cov =  EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry,flags_, severitiesexcl_, sevLv);
+    std::vector<float> locCov =  EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology),flags_, severitiesexcl_, sevLv);
+      
     float sigmaEtaEta = sqrt(cov[0]);
     float sigmaIetaIeta = sqrt(locCov[0]);
-
-
     float r9 =e3x3/(scRef->rawEnergy());
+
     // compute position of ECAL shower
     math::XYZPoint caloPosition;
     if (r9>minR9) {
@@ -355,7 +356,6 @@ float e5x5    =   EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topolog
     } else {
       caloPosition = scRef->position();
     }
-
 
     //// energy determination -- Default to create the candidate. Afterwards corrections are applied
     double photonEnergy=1.;
@@ -371,8 +371,6 @@ float e5x5    =   EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topolog
     reco::Photon newCandidate(p4, caloPosition, coreRef, vtx);
     //std::cout << " standard p4 before " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
     //std::cout << " type " <<newCandidate.getCandidateP4type() <<  " standard p4 after " << newCandidate.p4() << " energy " << newCandidate.energy() << std::endl;
-
-
 
     // Calculate fiducial flags and isolation variable. Blocked are filled from the isolationCalculator
     reco::Photon::FiducialFlags fiducialFlags;

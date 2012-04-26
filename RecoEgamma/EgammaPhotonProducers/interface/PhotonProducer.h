@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.43 2012/04/24 13:52:10 arun Exp $ 
- **  $Date: 2012/04/24 13:52:10 $ 
- **  $Revision: 1.43 $
+ **  $Id: PhotonProducer.h,v 1.44 2012/04/24 15:03:41 arun Exp $ 
+ **  $Date: 2012/04/24 15:03:41 $ 
+ **  $Revision: 1.44 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -64,11 +64,7 @@ class PhotonProducer : public edm::EDProducer {
 			    int& iSC,
 			    const EcalSeverityLevelAlgo * sevLv);
 
-
-
- 
-
-  //  std::string PhotonCoreCollection_;
+  // std::string PhotonCoreCollection_;
   std::string PhotonCollection_;
   edm::InputTag photonCoreProducer_;
   edm::InputTag barrelEcalHits_;
@@ -82,9 +78,10 @@ class PhotonProducer : public edm::EDProducer {
   //AA
   //Flags and severities to be excluded from calculations
   
-  std::vector<int> flagsexcl_;
+  std::vector<int> flagsexclEB_;
   std::vector<int> flagsexclEE_;
-  std::vector<int> severitiesexcl_;
+  std::vector<int> severitiesexclEB_;
+  std::vector<int> severitiesexclEE_;
 
 
   double hOverEConeSize_;
@@ -103,12 +100,9 @@ class PhotonProducer : public edm::EDProducer {
 
   PositionCalc posCalculator_;
 
-
   edm::ESHandle<CaloGeometry> theCaloGeom_;
   edm::ESHandle<CaloTopology> theCaloTopo_;
  
-
-
   bool validPixelSeeds_;
   PhotonIsolationCalculator* thePhotonIsolationCalculator_;
 

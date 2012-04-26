@@ -80,14 +80,12 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
     double phiclus = pclu.phi();
     double r2 = intRadius_*intRadius_;
     
-        
     std::vector< std::pair<DetId, float> >::const_iterator rhIt;
     
     for(int subdetnr=0; subdetnr<=1 ; subdetnr++){  // look in barrel and endcap
       CaloSubdetectorGeometry::DetIdSet chosen = subdet_[subdetnr]->getCells(pclu,extRadius_);// select cells around cluster
       CaloRecHitMetaCollectionV::const_iterator j = caloHits_->end();
       for (CaloSubdetectorGeometry::DetIdSet::const_iterator  i = chosen.begin ();i != chosen.end (); ++i){ //loop selected cells
-	
 	j = caloHits_->find(*i); // find selected cell among rechits
 	if(j != caloHits_->end()) { // add rechit only if available 
 	  const  GlobalPoint & position = theCaloGeom_.product()->getPosition(*i);
@@ -96,7 +94,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
 	  double etaDiff = eta - etaclus;
 	  double phiDiff= reco::deltaPhi(phi,phiclus);
 	  double energy = j->energy();
-	  
+
 	  if(useNumCrystals_) {
 	    if(fabs(etaclus) < 1.479) {  // Barrel num crystals, crystal width = 0.0174
 	      if (fabs(etaDiff) < 0.0174*etaSlice_) 
@@ -115,7 +113,6 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
 	    if (etaDiff*etaDiff + phiDiff*phiDiff < r2) 
 	      continue; // jurassic exclusion cone cut
 	  }
-	  
 	  //Check if RecHit is in SC
 	  if(vetoClustered_) {
 	    
@@ -140,10 +137,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
 	  
 	  
 	  
-	  
-	  
-	  
-	  
+	  //std::cout << "detid " << ((EcalRecHit*)(&*j))->detid() << std::endl;
 	  int severityFlag = sevLevel_->severityLevel(((EcalRecHit*)(&*j))->detid(), *ecalBarHits_);
 	  std::vector<int>::const_iterator sit = std::find(severitiesexcl_.begin(), 
 							   severitiesexcl_.end(), 
@@ -152,21 +146,11 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
 	  if (sit!= severitiesexcl_.end())
 	    continue;
 	  
-	  
-	  
-	  //if( severitiesexcl_!=-1 && ecalBarHits_ && 
-	  //    sevLevel_->severityLevel(EBDetId(j->detid()), *ecalBarHits_) >= severitiesexcl_) 
-	  //  continue;                    
-	  
 	  std::vector<int>::const_iterator vit = std::find(flags_.begin(), 
 							   flags_.end(),
 							   ((EcalRecHit*)(&*j))->recoFlag());
 	  if (vit != flags_.end()) 
 	    continue;
-	  
-	  
-	  
-	  
 	  
 	  
 	  

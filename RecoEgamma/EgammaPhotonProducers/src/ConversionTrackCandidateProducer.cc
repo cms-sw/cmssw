@@ -49,10 +49,7 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
   theOutInTrackFinder_(0), 
   theInOutSeedFinder_(0),
   theInOutTrackFinder_(0)
-{
-
-
-  
+{  
   //std::cout << "ConversionTrackCandidateProducer CTOR " << "\n";
   nEvt_=0;  
    
@@ -86,28 +83,33 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
   isoEMin_           = conf_.getParameter<double>("isoEMin");
   vetoClusteredHits_ = conf_.getParameter<bool>("vetoClusteredHits");
   useNumXtals_       = conf_.getParameter<bool>("useNumXstals");
-  //severityLevelCut_  = conf_.getParameter<int>("severityLevelCut");
-  ecalIsoCut_offset_ = conf_.getParameter<double>("ecalIsoCut_offset");
+   ecalIsoCut_offset_ = conf_.getParameter<double>("ecalIsoCut_offset");
   ecalIsoCut_slope_  = conf_.getParameter<double>("ecalIsoCut_slope");
 
   //Flags and Severities to be excluded from photon calculations
-  const std::vector<std::string> flagnames = 
-    config.getParameter<std::vector<std::string> >("RecHitFlagToBeExcluded");
+  const std::vector<std::string> flagnamesEB = 
+    config.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEB");
 
   const std::vector<std::string> flagnamesEE =
     config.getParameter<std::vector<std::string> >("RecHitFlagToBeExcludedEE");
 
-  flagsexcl_= 
-    StringToEnumValue<EcalRecHit::Flags>(flagnames);
+  flagsexclEB_= 
+    StringToEnumValue<EcalRecHit::Flags>(flagnamesEB);
 
   flagsexclEE_=
     StringToEnumValue<EcalRecHit::Flags>(flagnamesEE);
 
-  const std::vector<std::string> severitynames = 
-    config.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcluded");
+  const std::vector<std::string> severitynamesEB = 
+    config.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcludedEB");
 
-  severitiesexcl_= 
-    StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynames);
+  severitiesexclEB_= 
+    StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEB);
+
+  const std::vector<std::string> severitynamesEE = 
+    config.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcludedEE");
+
+  severitiesexclEE_= 
+    StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesEE);
 
 
   // Register the product
@@ -248,11 +250,6 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   theEvent.getByLabel(endcapecalCollection_, ecalhitsCollEE);
   theEvent.getByLabel(barrelecalCollection_, ecalhitsCollEB);
 
-
-  //Get the channel status from the db
-  edm::ESHandle<EcalChannelStatus> chStatus;
-  theEventSetup.get<EcalChannelStatusRcd>().get(chStatus);
-
   edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
   theEventSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
   const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
@@ -269,13 +266,12 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
 
   bool isBarrel=true;
   if ( validBarrelBCHandle && validBarrelSCHandle ) 
-    buildCollections(isBarrel, scBarrelHandle, bcBarrelHandle, ecalhitsCollEB, &(*RecHitsEB), sevLevel,  &(*chStatus), hcalTowersHandle, *outInTrackCandidate_p,*inOutTrackCandidate_p,caloPtrVecOutIn_,caloPtrVecInOut_ );
+    buildCollections(isBarrel, scBarrelHandle, bcBarrelHandle, ecalhitsCollEB, &(*RecHitsEB), sevLevel, hcalTowersHandle, *outInTrackCandidate_p, *inOutTrackCandidate_p, caloPtrVecOutIn_, caloPtrVecInOut_);
 
   if ( validEndcapBCHandle && validEndcapSCHandle ) {
-    isBarrel=false;
-    buildCollections(isBarrel, scEndcapHandle, bcEndcapHandle, ecalhitsCollEE, &(*RecHitsEE),  sevLevel, &(*chStatus), hcalTowersHandle, *outInTrackCandidate_p,*inOutTrackCandidate_p,caloPtrVecOutIn_,caloPtrVecInOut_ );
+    isBarrel=false; 
+    buildCollections(isBarrel, scEndcapHandle, bcEndcapHandle, ecalhitsCollEE, &(*RecHitsEE), sevLevel, hcalTowersHandle, *outInTrackCandidate_p, *inOutTrackCandidate_p, caloPtrVecOutIn_, caloPtrVecInOut_);
   }
-
 
 
   //  std::cout  << "  ConversionTrackCandidateProducer  caloPtrVecOutIn_ size " <<  caloPtrVecOutIn_.size() << " caloPtrVecInOut_ size " << caloPtrVecInOut_.size()  << "\n"; 
@@ -322,7 +318,7 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
 							edm::Handle<EcalRecHitCollection> ecalRecHitHandle, 
 							CaloRecHitMetaCollectionV* ecalRecHits,
 							const EcalSeverityLevelAlgo* sevLevel,
-							edm::ESHandle<EcalChannelStatus>  chStatus,
+							//edm::ESHandle<EcalChannelStatus>  chStatus,
 							//const EcalChannelStatus* chStatus,
 							const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
 							TrackCandidateCollection& outInTrackCandidates,
@@ -363,11 +359,13 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
 
     ecalIso.setVetoClustered(vetoClusteredHits_);
     ecalIso.setUseNumCrystals(useNumXtals_);
-    if (isBarrel) 
-      ecalIso.doFlagChecks(flagsexcl_);
-    else 
+    if (isBarrel) {
+      ecalIso.doFlagChecks(flagsexclEB_);
+      ecalIso.doSeverityChecks(ecalRecHitHandle.product(), severitiesexclEB_);
+    } else {
       ecalIso.doFlagChecks(flagsexclEE_);
-    ecalIso.doSpikeRemoval(ecalRecHitHandle.product(), severitiesexcl_);//chStatus.product(), severityLevelCut_);
+      ecalIso.doSeverityChecks(ecalRecHitHandle.product(), severitiesexclEE_);
+    }
 
     double ecalIsolation = ecalIso.getEtSum(sc);
     if ( ecalIsolation >   ecalIsoCut_offset_ + ecalIsoCut_slope_*scEt ) continue;
@@ -378,13 +376,11 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
 
     std::vector<Trajectory> theOutInTracks= theOutInTrackFinder_->tracks(theOutInSeedFinder_->seeds(),  outInTrackCandidates);    
 
- 
     theInOutSeedFinder_->setCandidate(pClus->energy(), GlobalPoint(pClus->position().x(),pClus->position().y(),pClus->position().z() ) );  
     theInOutSeedFinder_->setTracks(  theOutInTracks );   
     theInOutSeedFinder_->makeSeeds(  bcHandle);
     
     std::vector<Trajectory> theInOutTracks= theInOutTrackFinder_->tracks(theInOutSeedFinder_->seeds(),  inOutTrackCandidates); 
-
 
     // Debug
     //   std::cout  << "ConversionTrackCandidateProducer  theOutInTracks.size() " << theOutInTracks.size() << " theInOutTracks.size() " << theInOutTracks.size() <<  " Event pointer to out in track size barrel " << outInTrackCandidates.size() << " in out track size " << inOutTrackCandidates.size() <<   "\n";

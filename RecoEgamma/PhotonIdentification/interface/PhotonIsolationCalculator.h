@@ -22,7 +22,8 @@ public:
   void setup(const edm::ParameterSet& conf,
 	     std::vector<int> flagsEB_,
 	     std::vector<int> flagsEE_,
-	     std::vector<int> severities_);
+	     std::vector<int> severitiesEB_,
+	     std::vector<int> severitiesEE_);
 
   void calculate(const reco::Photon*, 
 		 const edm::Event&, const edm::EventSetup& es,
@@ -130,15 +131,10 @@ public:
   double trackLipRadiusA_;
   double trackD0RadiusA_;
 
-  //int    severityLevelCut_;
-  //float  severityRecHitThreshold_;
-  //float  spikeIdThreshold_;
-  //EcalSeverityLevelAlgo::SpikeId spId_;
   std::vector<int> flagsEB_;
   std::vector<int> flagsEE_;
-  std::vector<int> severityExcl_;
-  //EcalSeverityLevelAlgo::SpikeId spId_;
-
+  std::vector<int> severityExclEB_;
+  std::vector<int> severityExclEE_;
 
   double photonEcalRecHitConeInnerRadiusB_;
   double photonEcalRecHitConeOuterRadiusB_;
@@ -160,9 +156,6 @@ public:
   double isolationtrackEtaSliceB_;
   double trackLipRadiusB_;
   double trackD0RadiusB_;
-
-
-
-  };
+};
 
 #endif // PhotonIsolationCalculator_H

@@ -13,7 +13,8 @@ interestingEleIsoDetId = cms.EDProducer("EleIsoDetIdCollectionProducer",
     innerRadius = cms.double(0.0),
     interestingDetIdCollection = cms.string(''),
 
-    RecHitFlagToBeExcluded = cleanedHybridSuperClusters.RecHitFlagToBeExcluded,
-    RecHitSeverityToBeExcluded = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
+    RecHitFlagToBeExcludedEB = cleanedHybridSuperClusters.RecHitFlagToBeExcluded,
+    RecHitSeverityToBeExcludedEB = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
     RecHitFlagToBeExcludedEE = multi5x5BasicClustersCleaned.RecHitFlagToBeExcluded,
+    RecHitSeverityToBeExcludedEE = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
 )

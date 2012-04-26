@@ -3,9 +3,9 @@
 /** \class ConversionTrackCandidateProducer
  **  
  **
- **  $Id: ConversionTrackCandidateProducer.h,v 1.16 2011/07/22 02:12:08 nancy Exp $ 
- **  $Date: 2011/07/22 02:12:08 $ 
- **  $Revision: 1.16 $
+ **  $Id: ConversionTrackCandidateProducer.h,v 1.17 2012/04/26 14:14:28 sani Exp $ 
+ **  $Date: 2012/04/26 14:14:28 $ 
+ **  $Revision: 1.17 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -46,8 +46,6 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
 
   ConversionTrackCandidateProducer (const edm::ParameterSet& ps);
   ~ConversionTrackCandidateProducer();
-
-
   
   virtual void beginRun (edm::Run &, edm::EventSetup const & es);
   virtual void endRun (edm::Run &, edm::EventSetup const & es);
@@ -75,8 +73,6 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   edm::InputTag hcalTowers_;
   edm::InputTag barrelecalCollection_;
   edm::InputTag endcapecalCollection_;
-
-
  
   double hOverEConeSize_;
   double maxHOverE_;
@@ -88,10 +84,12 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   double isoEMin_       ;
   bool   vetoClusteredHits_ ;
   bool   useNumXtals_;
-  //int severityLevelCut_;
-  std::vector<int> flagsexcl_;
+
+  std::vector<int> flagsexclEB_;
   std::vector<int> flagsexclEE_;
-  std::vector<int> severitiesexcl_;
+  std::vector<int> severitiesexclEB_;
+  std::vector<int> severitiesexclEE_;
+
   double ecalIsoCut_offset_;
   double ecalIsoCut_slope_;
 
@@ -117,14 +115,12 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
 			edm::Handle<EcalRecHitCollection> ecalRecHitHandle, 
 			CaloRecHitMetaCollectionV* metaEcalRecHits,
 			const EcalSeverityLevelAlgo* sevLev,
-			edm::ESHandle<EcalChannelStatus>  chStatus,
+			//edm::ESHandle<EcalChannelStatus>  chStatus,
 			const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
 			TrackCandidateCollection& outInTracks,
 			TrackCandidateCollection& inOutTracks,
 			std::vector<edm::Ptr<reco::CaloCluster> >& vecRecOI,
-			 std::vector<edm::Ptr<reco::CaloCluster> >& vecRecIO
-);
-
+			std::vector<edm::Ptr<reco::CaloCluster> >& vecRecIO);
 
 };
 #endif

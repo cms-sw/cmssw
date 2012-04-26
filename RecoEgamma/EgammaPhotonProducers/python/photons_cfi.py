@@ -6,7 +6,7 @@ from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
 from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 #
 # producer for photons
-# $Id: photons_cfi.py,v 1.43 2012/03/23 19:09:26 askew Exp $
+# $Id: photons_cfi.py,v 1.44 2012/04/24 13:53:34 arun Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
     photonCoreProducer = cms.InputTag("photonCore"),
@@ -70,13 +70,10 @@ photons = cms.EDProducer("PhotonProducer",
                                   X0           = cms.double(0.89)
                                  ),                  
 
-    RecHitFlagToBeExcluded = cleanedHybridSuperClusters.RecHitFlagToBeExcluded,
-    RecHitSeverityToBeExcluded = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
-
-
-RecHitFlagToBeExcludedEE = multi5x5BasicClustersCleaned.RecHitFlagToBeExcluded,
-
-
+    RecHitFlagToBeExcludedEB = cleanedHybridSuperClusters.RecHitFlagToBeExcluded,
+    RecHitSeverityToBeExcludedEB = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
+    RecHitFlagToBeExcludedEE = multi5x5BasicClustersCleaned.RecHitFlagToBeExcluded,
+    RecHitSeverityToBeExcludedEE = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
 )
 
 
