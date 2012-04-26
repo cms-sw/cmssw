@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2010/09/02 13:25:27 $
- *  $Revision: 1.86 $
+ *  $Date: 2011/01/10 00:17:45 $
+ *  $Revision: 1.87 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -217,12 +217,11 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     }
     
     // Fill the track extra with the rec hit (persistent-)reference
-    size_t i = 0;
     for (Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
 	 recHit != transHits.end(); ++recHit) {
       TrackingRecHit *singleHit = (**recHit).hit()->clone();
-      track.setHitPattern( *singleHit, i ++ );
-      if(theUpdatingAtVtx && updateResult.first) updateResult.second.setHitPattern( *singleHit, i-1 ); // i was already incremented
+      track.appendHitPattern( *singleHit);
+      if(theUpdatingAtVtx && updateResult.first) updateResult.second.appendHitPattern(*singleHit);
       recHitCollection->push_back( singleHit );  
       // set the TrackingRecHitRef (persitent reference of the tracking rec hits)
       trackExtra.add(TrackingRecHitRef(recHitCollectionRefProd, recHitsIndex++ ));
@@ -499,12 +498,11 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     pair<bool,reco::Track> updateResult(false,reco::Track());
             
     // Fill the track extra with the rec hit (persistent-)reference
-    size_t i = 0;
     for (Trajectory::RecHitContainer::const_iterator recHit = transHits.begin();
 	 recHit != transHits.end(); ++recHit) {
 	TrackingRecHit *singleHit = (**recHit).hit()->clone();
-	track.setHitPattern( *singleHit, i ++ );
-	if(theUpdatingAtVtx && updateResult.first) updateResult.second.setHitPattern( *singleHit, i-1 ); // i was already incremented
+	track.appendHitPattern( *singleHit);
+	if(theUpdatingAtVtx && updateResult.first) updateResult.second.appendHitPattern( *singleHit); // i was already incremented
 	recHitCollection->push_back( singleHit );  
 	// set the TrackingRecHitRef (persitent reference of the tracking rec hits)
 	trackExtra.add(TrackingRecHitRef(recHitCollectionRefProd, recHitsIndex++ ));
