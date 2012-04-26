@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Dec  9 16:14:56 CET 2009
-// $Id: HepMCSplitter.cc,v 1.5 2011/06/24 13:52:42 aburgmei Exp $
+// $Id: HepMCSplitter.cc,v 1.1 2012/04/25 14:21:13 fruboes Exp $
 //
 //
 
@@ -60,7 +60,10 @@ class HepMCSplitter : public edm::EDProducer {
       
       int cntStableParticles(const HepMC::GenEvent * evtUE);
       // ----------member data ---------------------------
-        edm::InputTag _input;
+      edm::InputTag _input;
+      std::vector<std::string> _todo;
+      bool _doUe;
+      bool _doZtautau;
 };
 
 //
@@ -76,11 +79,30 @@ class HepMCSplitter : public edm::EDProducer {
 // constructors and destructor
 //
 HepMCSplitter::HepMCSplitter(const edm::ParameterSet& iConfig):
-   _input(iConfig.getParameter<edm::InputTag>("input") )
+      _input(iConfig.getParameter<edm::InputTag>("input") ),
+      _todo(iConfig.getParameter< std::vector<std::string> >("todo"))
 {
 
-  produces<edm::HepMCProduct>("UE");
-  produces<edm::HepMCProduct>("Ztautau");
+  // Oscar producer uses string, not input tag :(
+  
+  
+  _doUe =   std::find(_todo.begin(), _todo.end(), "UE")!=_todo.end();
+  _doZtautau =   std::find(_todo.begin(), _todo.end(), "Ztautau")!=_todo.end();
+  
+  
+  if (_todo.size()==1 ) {
+    produces<edm::HepMCProduct>();
+    
+    if (!_doUe && !_doZtautau )
+      throw cms::Exception("") << "todo wrong - select from Ztautau and UE \n";
+  } else if (_todo.size()==2 ) {
+    produces<edm::HepMCProduct>("Ztautau");
+    produces<edm::HepMCProduct>("UE");
+    if (!_doUe || !_doZtautau )
+      throw cms::Exception("") << "todo wrong - select from Ztautau and UE \n";
+  } else {
+    throw cms::Exception("") << "todo wrong\n";
+  }
 }
 
 HepMCSplitter::~HepMCSplitter()
@@ -164,8 +186,10 @@ HepMCSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //std::cout << " Z vertices identified "  << barcodesZ.size() << std::endl;
 
   // prepare final products
-  HepMC::GenEvent * evtUE = new HepMC::GenEvent;
-  HepMC::GenEvent * evtTauTau = new HepMC::GenEvent;
+  //     std::auto_ptr<edm::HepMCProduct> prodTauTau(new edm::HepMCProduct());  
+
+  std::auto_ptr<HepMC::GenEvent> evtUE(new HepMC::GenEvent());
+  std::auto_ptr<HepMC::GenEvent> evtTauTau(new HepMC::GenEvent());
   
   // Copy the vertices
   itVtx = prodIn->GetEvent()->vertices_begin();
@@ -299,8 +323,8 @@ HepMCSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //   std::cout << "XXXXXXXXXXXXXXXXXX" << std::endl;
   
   int orgCnt = cntStableParticles(prodIn->GetEvent());
-  int tautauCnt = cntStableParticles(evtTauTau);
-  int UEcnt = cntStableParticles(evtUE);
+  int tautauCnt = cntStableParticles(evtTauTau.get());
+  int UEcnt = cntStableParticles(evtUE.get());
   if (orgCnt != tautauCnt + UEcnt){
     std::cout << " XXX Warning - wrong num particles - ORG: " 
       <<  orgCnt
@@ -320,14 +344,21 @@ HepMCSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //   std::cout << "EV EU \n";
   //   evtUE->print();
   
+  if (_doUe){
+    std::auto_ptr<edm::HepMCProduct> prodUE(new edm::HepMCProduct());  
+    prodUE->addHepMCData( evtUE.release() );
+    if (_doZtautau) iEvent.put( prodUE, "UE");
+    else iEvent.put( prodUE);
+  }
 
-  std::auto_ptr<edm::HepMCProduct> prodUE(new edm::HepMCProduct());  
-  prodUE->addHepMCData( evtUE );
-  iEvent.put( prodUE, "UE");
-
-  std::auto_ptr<edm::HepMCProduct> prodTauTau(new edm::HepMCProduct());  
-  prodTauTau->addHepMCData( evtTauTau );
-  iEvent.put( prodTauTau, "Ztautau");
+  if (_doZtautau) {
+    std::auto_ptr<edm::HepMCProduct> prodTauTau(new edm::HepMCProduct());  
+    std::cout << "===================================== " << iEvent.id() << std::endl;
+    evtTauTau->print();
+    prodTauTau->addHepMCData( evtTauTau.release() );
+    if (_doUe ) iEvent.put( prodTauTau, "Ztautau");
+    else iEvent.put( prodTauTau);
+  }
 
   
 }
