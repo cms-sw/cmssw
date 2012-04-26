@@ -25,8 +25,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2012/03/22 12:39:40 $
-  * $Revision: 1.57 $
+  * $Date: 2012/04/09 12:56:19 $
+  * $Revision: 1.58 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -88,9 +88,9 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
   EtaPhiHists  RecHitPresentByDepth;
 
   // Problems vs. lumi block
-  MonitorElement *ProblemsVsLB, *ProblemsVsLB_HB, *ProblemsVsLB_HE, *ProblemsVsLB_HO, *ProblemsVsLB_HF;
-  MonitorElement *RBX_loss_VS_LB;
+  MonitorElement *ProblemsVsLB, *ProblemsVsLB_HB, *ProblemsVsLB_HE, *ProblemsVsLB_HO, *ProblemsVsLB_HO2, *ProblemsVsLB_HF;
   MonitorElement *ProblemsInLastNLB_HBHEHF_alarm;
+  MonitorElement *ProblemsInLastNLB_HO01_alarm;
   MonitorElement *NumberOfNeverPresentDigis, *NumberOfNeverPresentDigisHB, *NumberOfNeverPresentDigisHE, *NumberOfNeverPresentDigisHO, *NumberOfNeverPresentDigisHF;
   MonitorElement *NumberOfRecentMissingDigis, *NumberOfRecentMissingDigisHB, *NumberOfRecentMissingDigisHE, *NumberOfRecentMissingDigisHO, *NumberOfRecentMissingDigisHF;
   MonitorElement *NumberOfRecentMissingRecHits, *NumberOfRecentMissingRecHitsHB, *NumberOfRecentMissingRecHitsHE, *NumberOfRecentMissingRecHitsHO, *NumberOfRecentMissingRecHitsHF;
@@ -111,9 +111,10 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
   int is_RBX_loss_;
   int rbxlost[156];
   int alarmer_counter_;
+  int alarmer_counterHO01_;
   bool is_stable_beam;
-  bool hbhedcsON, hfdcsON;
-  unsigned int NumBadHB, NumBadHE, NumBadHO, NumBadHF, NumBadHFLUMI, NumBadHO0, NumBadHO12;
+  bool hbhedcsON, hfdcsON, hodcsON;
+  unsigned int NumBadHB, NumBadHE, NumBadHO, NumBadHO01, NumBadHO2, NumBadHF, NumBadHFLUMI, NumBadHO0, NumBadHO12;
   edm::InputTag digiLabel_;
   edm::InputTag hbheRechitLabel_, hoRechitLabel_, hfRechitLabel_;
 
