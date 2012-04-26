@@ -34,7 +34,7 @@ phPFIsoValueGamma03PFId = cms.EDProducer("CandIsolatorFromDeposits",
             src = cms.InputTag("phPFIsoDepositGamma"),
             deltaR = cms.double(0.3),
             weight = cms.string('1'),
-            vetos = cms.vstring('ConeVeto(0.05)'),
+            vetos = cms.vstring('EcalEndcaps:ConeVeto(0.05)'),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
       )
@@ -104,7 +104,7 @@ phPFIsoValueGamma04PFId = cms.EDProducer("CandIsolatorFromDeposits",
             src = cms.InputTag("phPFIsoDepositGamma"),
             deltaR = cms.double(0.4),
             weight = cms.string('1'),
-            vetos = cms.vstring('ConeVeto(0.05)'),
+            vetos = cms.vstring('EcalEndcaps:ConeVeto(0.05)'),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
       )
