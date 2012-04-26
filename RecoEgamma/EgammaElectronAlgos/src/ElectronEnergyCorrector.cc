@@ -1,5 +1,6 @@
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronEnergyCorrector.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/EnergyUncertaintyElectronSpecific.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
@@ -18,61 +19,47 @@
  *
  ****************************************************************************/
 
-float energyError( float E, float * par )
- { return sqrt( pow(par[0]/sqrt(E),2) + pow(par[1]/E,2) + pow(par[2],2) ) ; }
-
-float barrelEnergyError( float E, int elClass )
+void ElectronEnergyCorrector::classBasedParameterizationUncertainty( reco::GsfElectron & electron )
  {
-  // steph third sigma
-  float parEB[5][3] =
-   {
-     { 2.46e-02,  1.97e-01, 5.23e-03},          // golden
-     { 9.99e-07,  2.80e-01, 5.69e-03},          // big brem
-     { 9.37e-07,  2.32e-01, 5.82e-03},          // narrow
-     { 7.30e-02,  1.95e-01, 1.30e-02},          // showering
-     { 9.25e-06,  2.84e-01, 8.77e-03}           // nominal --> gap
-   } ;
-
-  return energyError(E,parEB[elClass]) ;
- }
-
-float endcapEnergyError( float E, int elClass )
- {
-  // steph third sigma
-  float parEE[5][3] =
-   {
-     { 1.25841e-01, 7.01145e-01, 2.81884e-11},  // golden
-     { 1.25841e-01, 7.01145e-01, 2.81884e-11},  // big brem = golden
-     { 1.25841e-01, 7.01145e-01, 2.81884e-11},  // narrow = golden
-     { 1.63634e-01, 1.11307e+00, 3.64770e-03},  // showering
-     {         .02,         .15,        .005}   // nominal --> gap
-   } ;
-  return energyError(E,parEE[elClass]) ;
- }
-
-// this parametrisation is used in case no function is given for the SC errors or in case of pure
-// tracker driven electron
-void ElectronEnergyCorrector::correctEcalEnergyError( reco::GsfElectron & electron )
- {
+  EnergyUncertaintyElectronSpecific uncertainty ;
   double energyError = 999. ;
-  double scEnergy = electron.superCluster()->energy() ;
-  int eleClass = electron.classification() ;
-  if (electron.isEB())
-   { energyError =  scEnergy*barrelEnergyError(scEnergy,eleClass) ; }
-  else if (electron.isEE())
-   { energyError =  scEnergy*endcapEnergyError(scEnergy,eleClass) ; }
-  else
-   { edm::LogWarning("ElectronEnergyCorrector::setEnergyError")<<"nor barrel neither endcap electron !" ; }
-  energyError *= (electron.correctedEcalEnergy()/scEnergy) ;
+  double ecalEnergy = electron.correctedEcalEnergy() ;
+  double eleEta = electron.superCluster()->eta() ;
+  double brem = electron.superCluster()->etaWidth()/electron.superCluster()->phiWidth() ;
+  energyError =  uncertainty.computeElectronEnergyUncertainty(electron.classification(),eleEta,brem,ecalEnergy) ;
   electron.setCorrectedEcalEnergyError(energyError) ;
  }
 
-void ElectronEnergyCorrector::correctEcalEnergy
- ( reco::GsfElectron & electron, const reco::BeamSpot & bs/*, bool applyEcalEnergyCorrection*/ )
+float energyError( float E, float * par )
+ { return sqrt( pow(par[0]/sqrt(E),2) + pow(par[1]/E,2) + pow(par[2],2) ) ; }
+
+void ElectronEnergyCorrector::simpleParameterizationUncertainty( reco::GsfElectron & electron )
+ {
+  double error = 999. ;
+  double ecalEnergy = electron.correctedEcalEnergy() ;
+
+  if (electron.isEB())
+   {
+    float parEB[3] = { 5.24e-02,  2.01e-01, 1.00e-02} ;
+    error =  ecalEnergy*energyError(ecalEnergy,parEB) ;
+   }
+  else if (electron.isEE())
+   {
+    float parEE[3] = { 1.46e-01, 9.21e-01, 1.94e-03} ;
+    error =  ecalEnergy*energyError(ecalEnergy,parEE) ;
+   }
+  else
+   { edm::LogWarning("ElectronEnergyCorrector::simpleParameterizationUncertainty")<<"nor barrel neither endcap electron !" ; }
+
+  electron.setCorrectedEcalEnergyError(error) ;
+ }
+
+void ElectronEnergyCorrector::classBasedParameterizationEnergy
+ ( reco::GsfElectron & electron, const reco::BeamSpot & bs )
  {
   if (electron.isEcalEnergyCorrected())
    {
-	  edm::LogWarning("ElectronEnergyCorrector::correctEcalEnergy")<<"already done" ;
+	  edm::LogWarning("ElectronEnergyCorrector::classBasedParameterizationEnergy")<<"already done" ;
 	  return ;
    }
 
@@ -80,39 +67,9 @@ void ElectronEnergyCorrector::correctEcalEnergy
   if ( (elClass <= reco::GsfElectron::UNKNOWN) ||
 	     (elClass>reco::GsfElectron::GAP) )
    {
-	  edm::LogWarning("ElectronEnergyCorrector::correctEcalEnergy")<<"unexpected classification" ;
+	  edm::LogWarning("ElectronEnergyCorrector::classBasedParameterizationEnergy")<<"unexpected classification" ;
 	  return ;
    }
-
-// old corrections, not used anymore
-/*
-  // If not gap, f(eta) correction ;
-  if ( electron.isGap() )
-   { return ; }
-
-  double scEnergy = electron.superCluster()->energy() ;
-  float newEnergy = scEnergy ;
-  double scEta = EleRelPoint(electron.caloPosition(),bs.position()).eta() ;
-  if (electron.isEB()) // barrel
-   {
-    if ( (elClass==reco::GsfElectron::GOLDEN) ||
-         (elClass==reco::GsfElectron::BIGBREM) )
-     { newEnergy = scEnergy/fEtaBarrelGood(scEta) ; }
-    else if (elClass==reco::GsfElectron::SHOWERING)
-     { newEnergy = scEnergy/fEtaBarrelBad(scEta) ; }
-   }
-  else if (electron.isEE()) // endcap
-   {
-    double ePreshower = electron.superCluster()->preshowerEnergy() ;
-    if ( (elClass==reco::GsfElectron::GOLDEN) ||
-         (elClass==reco::GsfElectron::BIGBREM) )
-     { newEnergy = (scEnergy-ePreshower)/fEtaEndcapGood(scEta)+ePreshower ; }
-    else if (elClass==reco::GsfElectron::SHOWERING)
-     { newEnergy = (scEnergy-ePreshower)/fEtaEndcapBad(scEta)+ePreshower ; }
-   }
-  else
-   { edm::LogWarning("ElectronEnergyCorrector::computeNewEnergy")<<"nor barrel neither endcap electron !" ; }
-*/
 
   // new corrections from N. Chanon et al., taken from EcalClusterCorrectionObjectSpecific.cc
   float corr = 1.;
@@ -133,7 +90,7 @@ void ElectronEnergyCorrector::correctEcalEnergy
     energy = electron.superCluster()->rawEnergy()+electron.superCluster()->preshowerEnergy();
    }
   else
-   { edm::LogWarning("ElectronEnergyCorrector::correctEcalEnergy")<<"nor barrel neither endcap electron !" ; }
+   { edm::LogWarning("ElectronEnergyCorrector::classBasedParameterizationEnergy")<<"nor barrel neither endcap electron !" ; }
 
   corr = fBremEta(electron.superCluster()->phiWidth()/electron.superCluster()->etaWidth(), electron.superCluster()->eta(), 0,elClass);
 
@@ -141,7 +98,7 @@ void ElectronEnergyCorrector::correctEcalEnergy
 
   if (electron.isEB()) { corr2 = corr * fEt(et, 0,elClass) ; }
   else if (electron.isEE()) { corr2 = corr * fEnergy(energy/corr, 1,elClass) ; }
-  else { edm::LogWarning("ElectronEnergyCorrector::correctEcalEnergy")<<"nor barrel neither endcap electron !" ; }
+  else { edm::LogWarning("ElectronEnergyCorrector::classBasedParameterizationEnergy")<<"nor barrel neither endcap electron !" ; }
 
   newEnergy = energy/corr2;
 
@@ -233,74 +190,74 @@ float ElectronEnergyCorrector::fBremEta
 
   float xcorr[nBinsEta][reco::GsfElectron::GAP+1] =
    {
-     { 1.00227,  1.00227,  1.00227,  1.00227,  1.00227  },
-     { 1.00252,  1.00252,  1.00252,  1.00252,  1.00252  },
-     { 1.00225,  1.00225,  1.00225,  1.00225,  1.00225  },
-     { 1.00159,  1.00159,  1.00159,  1.00159,  1.00159  },
-     { 0.999475, 0.999475, 0.999475, 0.999475, 0.999475 },
-     { 0.997203, 0.997203, 0.997203, 0.997203, 0.997203 },
-     { 0.993886, 0.993886, 0.993886, 0.993886, 0.993886 },
-     { 0.971262, 0.971262, 0.971262, 0.971262, 0.971262 },
-     { 0.975922, 0.975922, 0.975922, 0.975922, 0.975922 },
-     { 0.979087, 0.979087, 0.979087, 0.979087, 0.979087 },
-     { 0.98495,  0.98495,  0.98495,  0.98495,  0.98495  },
-     { 0.98781,  0.98781,  0.98781,  0.98781,  0.98781  },
-     { 0.989546, 0.989546, 0.989546, 0.989546, 0.989546 },
-     { 0.989638, 0.989638, 0.989638, 0.989638, 0.989638 }
+    { 1.00227,  1.00227,  1.00227,  1.00227,  1.00227  },
+    { 1.00252,  1.00252,  1.00252,  1.00252,  1.00252  },
+    { 1.00225,  1.00225,  1.00225,  1.00225,  1.00225  },
+    { 1.00159,  1.00159,  1.00159,  1.00159,  1.00159  },
+    { 0.999475, 0.999475, 0.999475, 0.999475, 0.999475 },
+    { 0.997203, 0.997203, 0.997203, 0.997203, 0.997203 },
+    { 0.993886, 0.993886, 0.993886, 0.993886, 0.993886 },
+    { 0.971262, 0.971262, 0.971262, 0.971262, 0.971262 },
+    { 0.975922, 0.975922, 0.975922, 0.975922, 0.975922 },
+    { 0.979087, 0.979087, 0.979087, 0.979087, 0.979087 },
+    { 0.98495,  0.98495,  0.98495,  0.98495,  0.98495  },
+    { 0.98781,  0.98781,  0.98781,  0.98781,  0.98781  },
+    { 0.989546, 0.989546, 0.989546, 0.989546, 0.989546 },
+    { 0.989638, 0.989638, 0.989638, 0.989638, 0.989638 }
    } ;
 
   float par0[nBinsEta][reco::GsfElectron::GAP+1] =
    {
-     { 0.994949, 1.00718, 1.00718, 1.00556, 1.00718 },
-     { 1.009,  1.00713,  1.00713,  1.00248,  1.00713 },
-     { 0.999395, 1.00641,  1.00641,  1.00293,  1.00641 },
-     { 0.988662, 1.00761,  1.001,  0.99972,  1.00761 },
-     { 0.998443, 1.00682,  1.001,  1.00282, 1.00682 },
-     { 1.00285,  1.0073,  1.001,  1.00396,  1.0073 },
-     { 0.993053, 1.00462,  1.01341,  1.00184,  1.00462 },
-     { 1.10561,  0.972798, 1.02835,  0.995218, 0.972798 },
-     { 0.893741, 0.981672, 0.98982,  1.01712,  0.981672 },
-     { 0.911123, 0.98251,  1.03466,  1.00824,  0.98251 },
-     { 0.981931, 0.986123, 0.954295, 1.0202,  0.986123 },
-     { 0.905634, 0.990124, 0.928934, 0.998492, 0.990124 },
-     { 0.919343, 0.990187, 0.967526, 0.963923, 0.990187 },
-     { 0.844783, 0.99372,  0.923808, 0.953001, 0.99372 }
+     { 0.987737, 0.987737, 0.97824,  1.01909,   1.00718 },
+     { 0.992735, 0.992735, 1.00651,  1.01909,   1.00713 },
+     { 0.995447, 0.995447, 0.991318, 1.0184,    1.00641 },
+     { 1.00328,  1.00328,  1.00758,  0.989159,  1.00761 },
+     { 0.993716, 0.993716, 0.979244, 1.05678,   1.00682 },
+     { 1.00796,  1.00796,  1.11168,  1.01785,   1.0073  },
+     { 0.978547, 0.978547, 0.782987, 0.996132,  1.00462 },
+     { 0.972798, 0.972798, 0.972798, 0.972798, 0.972798 },
+     { 0.981672, 0.981672, 0.981672, 0.981672, 0.981672 },
+     { 0.98251 , 0.98251 , 0.98251 , 0.98251 , 0.98251  },
+     { 0.986123, 0.986123, 0.986123, 0.986123, 0.986123 },
+     { 0.990124, 0.990124, 0.990124, 0.990124, 0.990124 },
+     { 0.990187, 0.990187, 0.990187, 0.990187, 0.990187 },
+     { 0.99372 , 0.99372 , 0.99372 , 0.99372 , 0.99372  }
    } ;
 
   float par1[nBinsEta][reco::GsfElectron::GAP+1] =
    {
-     { 0.0111034, -0.00187886, -0.00187886, -0.00289304, -0.00187886 },
-     { -0.00969012, -0.00227574, -0.00227574, -0.00182187, -0.00227574 },
-     { 0.00389454,  -0.00259935,  -0.00259935, -0.00211059, -0.00259935 },
-     { 0.017095, -0.00433692, -0.00302335, -0.00241385, -0.00433692 },
-     { -0.00049009, -0.00551324,  -0.00302335, -0.00532352, -0.00551324 },
-     { -0.00252723, -0.00799669,  -0.00302335, -0.00823109, -0.00799669 },
-     { 0.00332567,  -0.00870057,  -0.0170581,  -0.011482,  -0.00870057 },
-     { -0.213285,  -0.000771577, -0.036007,  -0.0187526,  -0.000771577 },
-     { 0.1741,  -0.00202028,  -0.0233995,  -0.0302066,  -0.00202028 },
-     { 0.152794,  0.00441308,  -0.0468563,  -0.0158817,  0.00441308 },
-     { 0.0351465,  0.00832913,  0.0358028,  -0.0233262,  0.00832913 },
-     { 0.185781,  0.00742879,  0.08858,  0.00568078,  0.00742879 },
-     { 0.153088,  0.0094608,  0.0489979,  0.0491897,  0.0094608 },
-     { 0.296681,  0.00560406,  0.106492,  0.0652007,  0.00560406 }
+     { 0.0211232,  0.0211232,     0.0200981,    -0.0165033,  -0.00187886 },
+     { 0.0132634,  0.0132634,     -0.00404441,  -0.0165033,  -0.00227574 },
+     { 0.00914973, 0.00914973,    0.0121044,    -0.015315,   -0.00259935 },
+     { -0.00185513, -0.00185513,  -0.00358261,  0.00854764,  -0.00433692 },
+     { 0.00680977, 0.00680977,    0.0229892,    -0.0709498,  -0.00551324 },
+     { -0.0103503, -0.0103503,    -0.0954333,   -0.0218312,  -0.00799669 },
+     { 0.0198188,  0.0198188,     0.188263,     -0.00748124, -0.00870057 },
+     { -0.000771577, -0.000771577, -0.000771577, -0.000771577, -0.000771577 },
+     { -0.00202028 , -0.00202028 , -0.00202028 , -0.00202028 , -0.00202028  },
+     { 0.00441308  , 0.00441308  , 0.00441308  , 0.00441308  , 0.00441308   },
+     { 0.00832913  , 0.00832913  , 0.00832913  , 0.00832913  , 0.00832913   },
+     { 0.00742879  , 0.00742879  , 0.00742879  , 0.00742879  , 0.00742879   },
+     { 0.0094608   , 0.0094608   , 0.0094608   , 0.0094608   , 0.0094608    },
+     { 0.00560406  , 0.00560406  , 0.00560406  , 0.00560406  , 0.00560406   }
    } ;
 
   float par2[nBinsEta][reco::GsfElectron::GAP+1] =
    {
-     { -0.00330844, 0, 0, 5.62441e-05,  0 },
-     { 0.00329373,  0,  0,  -0.000113883,  0 },
-     { -0.00104661,  0,  0,  -0.000152794,  0 },
-     { -0.0060409,  0,  -0.000257724, -0.000202099,  0 },
-     { -0.000742866, 0,  -0.000257724, -2.06003e-05,  0 },
-     { -0.00205425,  0,  -0.000257724, 3.84179e-05,   0 },
-     { -0.00350757,  0,  0.000590483,  0.000323723,   0 },
-     { 0.0794596,  -0.00276696, 0.00205854,  0.000356716,   -0.00276696 },
-     { -0.092436,  -0.00471028, 0.00062096,  0.00088347,   -0.00471028 },
-     { -0.0855029,  -0.00809139, 0.00284102,  -0.00366903,   -0.00809139 },
-     { -0.0306209,  -0.00944584, -0.0145892,  -0.00176969,   -0.00944584 },
-     { -0.0996414,  -0.00960462, -0.0328264,  -0.00983844,   -0.00960462 },
-     { -0.0784107,  -0.010172,  -0.0256722,  -0.0215133,   -0.010172 },
-     { -0.145815,  -0.00943169, -0.0414525,  -0.027087,   -0.00943169 }
+     { -0.00653788, -0.00653788,  -0.00408167,   0.0032172,     0 },
+     { -0.00405187, -0.00405187,  0.000669508,   0.0032172,     0 },
+     { -0.0028242,  -0.0028242,   -0.00381642,   0.00241369,    0 },
+     { -0.000491565,-0.000491565, -0.000215741,  -0.0026585,    0 },
+     { -0.00235393, -0.00235393,  -0.00896144,   0.019303,      0 },
+     { 0.000584956, 0.000584956,  0.0179373,     0.00291216,    0 },
+     { -0.00717285, -0.00717285,  -0.0447474,    -0.000420271,  0 },
+     { -0.00276696, -0.00276696, -0.00276696, -0.00276696, -0.00276696 },
+     { -0.00471028, -0.00471028, -0.00471028, -0.00471028, -0.00471028 },
+     { -0.00809139, -0.00809139, -0.00809139, -0.00809139, -0.00809139 },
+     { -0.00944584, -0.00944584, -0.00944584, -0.00944584, -0.00944584 },
+     { -0.00960462, -0.00960462, -0.00960462, -0.00960462, -0.00960462 },
+     { -0.010172  , -0.010172  , -0.010172  , -0.010172  , -0.010172   },
+     { -0.00943169, -0.00943169, -0.00943169, -0.00943169, -0.00943169 }
    } ;
 
   float sigmaPhiSigmaEtaMin[reco::GsfElectron::GAP+1] = { 0.8, 0.8, 0.8, 0.8, 0.8 } ;
@@ -352,10 +309,10 @@ float ElectronEnergyCorrector::fEt(float ET, int algorithm, reco::GsfElectron::C
    {
     float par[reco::GsfElectron::GAP+1][5] =
      {
-       { 0.974327, 0.996127, 5.99401e-05, 0.159813, -3.80392 },
-       { 0.97213, 0.999528, 5.61192e-06, 0.0143269, -17.1776 },
-       { 0.940666, 0.988894, 0.00017474, 0.25603, -4.58153 },
-       { 0.969526, 0.98572, 0.000193842, 4.21548, -1.37159 },
+       { 0.974507, 1.16569, -0.000884133, 0.161423, -125.356 },
+       { 0.974507, 1.16569, -0.000884133, 0.161423, -125.356 },
+       { 0.96449, 0.991457, 0.000237869, 0.159983, -4.38755 },
+       { 0.97956, 0.883959, 0.000782834, -0.106388, -124.394 },
        { 0.97213, 0.999528, 5.61192e-06, 0.0143269, -17.1776 }
      } ;
     if ( ET > 200 ) { ET =200 ; }
@@ -390,10 +347,10 @@ float ElectronEnergyCorrector::fEnergy(float E, int algorithm, reco::GsfElectron
   else if (algorithm==1) // Electrons EE
    {
     float par0[reco::GsfElectron::GAP+1] = { 400, 400, 400, 400, 400 } ;
-    float par1[reco::GsfElectron::GAP+1] = { 0.999545, 0.982475, 0.986217, 0.996763, 0.982475 } ;
-    float par2[reco::GsfElectron::GAP+1] = { 1.26568e-05, 4.95413e-05, 5.02161e-05, 2.8485e-06, 4.95413e-05 } ;
-    float par3[reco::GsfElectron::GAP+1] = { 0.0696757, 0.16886, 0.115317, 0.12098, 0.16886 } ;
-    float par4[reco::GsfElectron::GAP+1] = { -54.3468, -30.1517, -26.3805, -62.0538, -30.1517 } ;
+    float par1[reco::GsfElectron::GAP+1] = { 0.982475, 0.982475, 0.982475, 0.982475, 0.982475 } ;
+    float par2[reco::GsfElectron::GAP+1] = { 4.95413e-05, 4.95413e-05, 4.95413e-05, 4.95413e-05, 4.95413e-05 } ;
+    float par3[reco::GsfElectron::GAP+1] = { 0.16886, 0.16886, 0.16886, 0.16886, 0.16886 } ;
+    float par4[reco::GsfElectron::GAP+1] = { -30.1517, -30.1517, -30.1517, -30.1517, -30.1517 } ;
 
     if ( E > par0[cl] ) { E = par0[cl] ; }
     if ( E < 0 ) { return 1. ; }

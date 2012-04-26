@@ -75,7 +75,9 @@ class GsfElectronAlgo {
       bool applyPreselection ;
       // if true, electron level escale corrections are
       // used on top of the cluster level corrections
-      bool applyEcalEnergyCorrection ;
+      bool ecalDrivenEcalEnergyFromClassBasedParameterization ;
+      bool ecalDrivenEcalErrorFromClassBasedParameterization ;
+      bool pureTrackerDrivenEcalErrorFromSimpleParameterization ;
       // ambiguity solving
       bool applyAmbResolution  ; // if not true, ambiguity solving is not applied
       unsigned ambSortingStrategy  ; // 0:isBetter, 1:isInnerMost

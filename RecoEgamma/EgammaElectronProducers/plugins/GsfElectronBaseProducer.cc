@@ -46,7 +46,9 @@ void GsfElectronBaseProducer::fillDescription( edm::ParameterSetDescription & de
   // steering
   desc.add<bool>("useGsfPfRecTracks",true) ;
   desc.add<bool>("applyPreselection",false) ;
-  desc.add<bool>("applyEcalEnergyCorrection",false) ;
+  desc.add<bool>("ecalDrivenEcalEnergyFromClassBasedParameterization",false) ;
+  desc.add<bool>("ecalDrivenEcalErrorFromClassBasedParameterization",false) ;
+  desc.add<bool>("pureTrackerDrivenEcalErrorFromSimpleParameterization",false) ;
   desc.add<bool>("applyAmbResolution",false) ;
   desc.add<unsigned>("ambSortingStrategy",1) ;
   desc.add<unsigned>("ambClustersOverlapStrategy",1) ;
@@ -162,7 +164,9 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
 
   strategyCfg_.useGsfPfRecTracks = cfg.getParameter<bool>("useGsfPfRecTracks") ;
   strategyCfg_.applyPreselection = cfg.getParameter<bool>("applyPreselection") ;
-  strategyCfg_.applyEcalEnergyCorrection = cfg.getParameter<bool>("applyEcalEnergyCorrection") ;
+  strategyCfg_.ecalDrivenEcalEnergyFromClassBasedParameterization = cfg.getParameter<bool>("ecalDrivenEcalEnergyFromClassBasedParameterization") ;
+  strategyCfg_.ecalDrivenEcalErrorFromClassBasedParameterization = cfg.getParameter<bool>("ecalDrivenEcalErrorFromClassBasedParameterization") ;
+  strategyCfg_.pureTrackerDrivenEcalErrorFromSimpleParameterization = cfg.getParameter<bool>("pureTrackerDrivenEcalErrorFromSimpleParameterization") ;
   strategyCfg_.applyAmbResolution = cfg.getParameter<bool>("applyAmbResolution") ;
   strategyCfg_.ambSortingStrategy = cfg.getParameter<unsigned>("ambSortingStrategy") ;
   strategyCfg_.ambClustersOverlapStrategy = cfg.getParameter<unsigned>("ambClustersOverlapStrategy") ;
@@ -295,6 +299,11 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
     superClusterErrorFunction
      = EcalClusterFunctionFactory::get()->create(superClusterErrorFunctionName,cfg) ;
    }
+  else
+  {
+   superClusterErrorFunction
+    = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyUncertaintyObjectSpecific",cfg) ;
+  }
   EcalClusterFunctionBaseClass * crackCorrectionFunction = 0 ;
   std::string crackCorrectionFunctionName
    = cfg.getParameter<std::string>("crackCorrectionFunction") ;

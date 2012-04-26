@@ -1169,7 +1169,8 @@ void GsfElectronAlgo::createElectron()
      ( eleCharge,eleChargeInfo,electronData_->coreRef,
        tcMatching, tkExtra, ctfInfo,
        fiducialFlags,showerShape,
-       conversionVars) ;
+       conversionVars ) ;
+  ele->setCorrectedEcalEnergyError(generalData_->superClusterErrorFunction->getValue(*(ele->superCluster()),0)) ;
   ele->setP4(GsfElectron::P4_FROM_SUPER_CLUSTER,momentum,0,true) ;
 
 
@@ -1195,17 +1196,28 @@ void GsfElectronAlgo::createElectron()
   // classification and corrections
   //====================================================
 
-  ElectronClassification theClassifier;
-  theClassifier.classify(*ele);
+  // classification
+  ElectronClassification theClassifier ;
+  theClassifier.classify(*ele) ;
+
+  // ecal energy
   ElectronEnergyCorrector theEnCorrector(generalData_->crackCorrectionFunction) ;
-  if (!generalData_->superClusterErrorFunction)
-   { theEnCorrector.correctEcalEnergyError(*ele) ; }
-  else
-   { ele->setCorrectedEcalEnergyError(generalData_->superClusterErrorFunction->getValue(*(ele->superCluster()),0)) ; }
   if (ele->core()->ecalDrivenSeed())
    {
-    if (generalData_->strategyCfg.applyEcalEnergyCorrection)
-     { theEnCorrector.correctEcalEnergy(*ele,*eventData_->beamspot) ; }
+    if (generalData_->strategyCfg.ecalDrivenEcalEnergyFromClassBasedParameterization)
+     { theEnCorrector.classBasedParameterizationEnergy(*ele,*eventData_->beamspot) ; }
+    if (generalData_->strategyCfg.ecalDrivenEcalErrorFromClassBasedParameterization)
+     { theEnCorrector.classBasedParameterizationUncertainty(*ele) ; }
+   }
+  else
+   {
+    if (generalData_->strategyCfg.pureTrackerDrivenEcalErrorFromSimpleParameterization)
+     { theEnCorrector.simpleParameterizationUncertainty(*ele) ; }
+   }
+
+  // momentum
+  if (ele->core()->ecalDrivenSeed())
+   {
     ElectronMomentumCorrector theMomCorrector;
     theMomCorrector.correct(*ele,electronData_->vtxTSOS);
    }
