@@ -324,9 +324,9 @@ SKIMStreamHighMET   = cms.FilteredStream(
 
 from DPGAnalysis.Skims.ZHbbSkim_cff import *
 ZHbbSkimPath = cms.Path(ZHbbSkim)
-SKIMStreamZHbbSkim = cms.FilteredStream(
+SKIMStreamZHbb = cms.FilteredStream(
     responsible = 'BTV',
-    name = 'ZHbbSkim',
+    name = 'ZHbb',
     paths = (ZHbbSkimPath),
     content = skimContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
