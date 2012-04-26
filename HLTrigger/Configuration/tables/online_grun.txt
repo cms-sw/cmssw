@@ -388,13 +388,16 @@ HLT_IsoMu20_eta2p1_v*                                                           
 
 #HLT_DiCentralJet20_BTagIP_MET65_v*                                                             #sr126490 - later dropped in 127238
 #HLT_DiCentralJet20_BTagIP_MET65_HBHENoiseFiltered_dPhi1_v*					#sr127238
-HLT_DiCentralJet20_BTagIP_MET65_HBHENoiseCleaned_dPhi1_v*					#(renamed)
-HLT_DiCentralPFJet30_PFMHT80_v*                                                                 #sr126490
-#HLT_DiCentralPFJet30_CaloMET50_dPhi1_PFMHT80_HBHENoiseFiltered_v*                              #sr126490
-HLT_DiCentralPFJet30_CaloMET50_dPhi1_PFMHT80_HBHENoiseCleaned_v*                                #(renamed)
-#HLT_CentralPFJet80_CaloMET50_dPhi1_PFMHT80_HBHENoiseFiltered_v*                                #sr126490
-HLT_CentralPFJet80_CaloMET50_dPhi1_PFMHT80_HBHENoiseCleaned_v*                                  #(renamed)
-HLT_DiCentralJet20_CaloMET65_BTagCSV07_PFMHT80_v*                                               #sr127360
+#HLT_DiCentralJet20_BTagIP_MET65_HBHENoiseCleaned_dPhi1_v*					#(renamed)- later dropped in 128167
+#HLT_DiCentralPFJet30_PFMHT80_v*                                                                #sr126490 - later dropped in 128167
+#HLT_DiCentralPFJet30_CaloMET50_dPhi1_PFMHT80_HBHENoiseCleaned_v*                               #(renamed)- later dropped in 128167
+#HLT_CentralPFJet80_CaloMET50_dPhi1_PFMHT80_HBHENoiseCleaned_v*                                 #(renamed)- later dropped in 128167
+#HLT_DiCentralJet20_CaloMET65_BTagCSV07_PFMHT80_v*                                              #sr126490 - later renamed in 128167
+HLT_DiCentralPFJet30_PFMET80_BTagCSV07_v*	                                                #(renamed in 128167)
+
+HLT_DiCentralJetSumpT100_dPhi05_DiCentralPFJet60_25_PFMET100_HBHENoiseCleaned_v* 		#sr128167
+HLT_DiCentralPFJet30_PFMET80_v*									#sr128167
+
 HLT_L1ETM30_v*                                                                                  #sr126490
 HLT_L1ETM40_v*                                                                                  #sr126490
 HLT_L1ETM70_v*                                                                                  #sr126490
