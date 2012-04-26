@@ -27,6 +27,7 @@
 //#define VDT_RESTRICT __restrict__
 #define VDT_RESTRICT
 
+#define VDT_FORCE_INLINE __attribute__((always_inline)) inline 
 
 namespace vdt {
 
@@ -175,7 +176,7 @@ typedef union {
 //------------------------------------------------------------------------------
 
 /// Converts an unsigned long long to a double
-inline double ll2d(unsigned long long x) {
+VDT_FORCE_INLINE double ll2d(unsigned long long x) {
   ieee754 tmp;
   tmp.ll=x;
   return tmp.d;
@@ -184,7 +185,7 @@ inline double ll2d(unsigned long long x) {
 //------------------------------------------------------------------------------
 
 /// Converts a double to an unsigned long long
-inline unsigned long long d2ll(double x) {
+VDT_FORCE_INLINE unsigned long long d2ll(double x) {
   ieee754 tmp;
   tmp.d=x;
   return tmp.ll;
@@ -192,7 +193,7 @@ inline unsigned long long d2ll(double x) {
 
 //------------------------------------------------------------------------------
 /// Like frexp but vectorising and the exponent is a double.
-inline double getMantExponent(double x, double& fe){
+VDT_FORCE_INLINE double getMantExponent(double x, double& fe){
   
   unsigned long long n = d2ll(x);
   
@@ -222,7 +223,7 @@ inline double getMantExponent(double x, double& fe){
 // Exp -------------------------------------------------------------------------
 // Vectorises in a loop without any change in 4.7
 /// Exponential Function
-inline double fast_exp(double x){
+VDT_FORCE_INLINE double fast_exp(double x){
 
     double initial_x = x;
 
@@ -275,7 +276,7 @@ inline double fast_exp(double x){
 
 // Log -------------------------------------------------------------------------
 
-inline double fast_log(double x){
+VDT_FORCE_INLINE double fast_log(double x){
 
     double input_x=x;
 
@@ -341,7 +342,7 @@ inline double fast_log(double x){
 
 //------------------------------------------------------------------------------
 /// Sin defined between -2pi and 2pi
-inline double fast_sin(double x){
+VDT_FORCE_INLINE double fast_sin(double x){
 
   int sign = 1;
 
@@ -409,7 +410,7 @@ inline double fast_sin(double x){
 
 //------------------------------------------------------------------------------
 
-inline double fast_asin(double x){
+VDT_FORCE_INLINE double fast_asin(double x){
 
   int sign=1;
   double a = x; //necessary for linear approx
@@ -497,7 +498,7 @@ inline double fast_asin(double x){
 
     
 /// Cos defined between -2pi and 2pi
-inline double fast_cos(double x){
+VDT_FORCE_INLINE double fast_cos(double x){
 
   x = std::abs(x);
 
@@ -560,7 +561,7 @@ inline double fast_cos(double x){
   }
 
 // Acos ------------------------------------------------------------------------
-inline double fast_acos(double x){
+VDT_FORCE_INLINE double fast_acos(double x){
   double z;
  
 //   z = PIO4 - fast_asin(x);
@@ -575,7 +576,7 @@ inline double fast_acos(double x){
 
 // Tangent  --------------------------------------------------------------------
 /// Sin defined between -2pi and 2pi
-inline double fast_tan( double x ){
+VDT_FORCE_INLINE double fast_tan( double x ){
 /* DP
  * Some of the ifs had to be skipped and replaced by calculations. This allowed 
  * the vectorisation but introduced a loss of performance. 
@@ -660,7 +661,7 @@ inline double fast_tan( double x ){
 
 // Atan -------------------------------------------------------------------------
 // REMEMBER pi/2 == inf!!
-inline double fast_atan(double x){
+VDT_FORCE_INLINE double fast_atan(double x){
 
     /* make argument positive and save the sign */
     int sign = 1;
@@ -742,7 +743,7 @@ inline double fast_atan(double x){
 
 // Taken from from quake and remixed :-)
 
-inline double fast_isqrt_general(double x, const unsigned short ISQRT_ITERATIONS) { 
+VDT_FORCE_INLINE double fast_isqrt_general(double x, const unsigned short ISQRT_ITERATIONS) { 
 
   double x2 = x * 0.5;
   double y  = x;
@@ -761,18 +762,18 @@ inline double fast_isqrt_general(double x, const unsigned short ISQRT_ITERATIONS
 //------------------------------------------------------------------------------
 
 // Four iterations
-inline double fast_isqrt(double x) {return fast_isqrt_general(x,4);} 
+VDT_FORCE_INLINE double fast_isqrt(double x) {return fast_isqrt_general(x,4);} 
 
 // Two iterations
-inline double fast_approx_isqrt(double x) {return fast_isqrt_general(x,3);}
+VDT_FORCE_INLINE double fast_approx_isqrt(double x) {return fast_isqrt_general(x,3);}
 
 //------------------------------------------------------------------------------
 
-inline double std_isqrt (double x) {return 1./std::sqrt(x);}
+VDT_FORCE_INLINE double std_isqrt (double x) {return 1./std::sqrt(x);}
 
 //------------------------------------------------------------------------------
 
-inline double fast_inv (double x) {
+VDT_FORCE_INLINE double fast_inv (double x) {
     double sign = 1;
     if( x < 0.0 ) {
         x = - x;
@@ -782,7 +783,7 @@ inline double fast_inv (double x) {
     return y*y*sign;
     }
 
-inline double fast_approx_inv (double x) {
+VDT_FORCE_INLINE double fast_approx_inv (double x) {
     double sign = 1;
     if( x < 0.0 ) {
         x = - x;
@@ -791,14 +792,14 @@ inline double fast_approx_inv (double x) {
     double y=fast_approx_isqrt(x); 
     return y*y*sign;}
 
-inline double std_inv (double x) {return 1./x;}
+VDT_FORCE_INLINE double std_inv (double x) {return 1./x;}
 
 //------------------------------------------------------------------------------
 // Some preprocessor in order to avoid a lot of error prone repetitions
 // CMS_VECTORIZE_VERBOSE is a preprocessor variable in a preprocessor function
 
 // Fast vector functions 
-#define FAST_VECT_FUNC(NAME) void NAME##_vect(double const * VDT_RESTRICT input , double * VDT_RESTRICT outupt, const unsigned int arr_size) { \
+#define FAST_VECT_FUNC(NAME) __attribute__((always_inline)) inline void NAME##_vect(double const * VDT_RESTRICT input , double * VDT_RESTRICT outupt, const unsigned int arr_size) { \
   for (unsigned int i=0;i<arr_size;++i) \
     outupt[i] = NAME ( input[i] ) CMS_VECTORIZE_VERBOSE; \
     }
@@ -847,7 +848,7 @@ FAST_VECT_FUNC(fast_approx_inv)
 
 //------------------------------------------------------------------------------
 // Reference vector functions
-#define VECT_FUNC(NAME) void std_##NAME##_vect(double const * VDT_RESTRICT input , double* VDT_RESTRICT outupt, const unsigned int arr_size) { \
+#define VECT_FUNC(NAME) __attribute__((always_inline)) inline void std_##NAME##_vect(double const * VDT_RESTRICT input , double* VDT_RESTRICT outupt, const unsigned int arr_size) { \
   for (unsigned int i=0;i<arr_size;++i) \
     outupt[i] = std::NAME ( input[i] ) CMS_VECTORIZE_VERBOSE; \
     }
@@ -868,7 +869,7 @@ VECT_FUNC(tan)
 
 VECT_FUNC(atan)
 
-void std_isqrt_vect(double const * VDT_RESTRICT input , 
+VDT_FORCE_INLINE void std_isqrt_vect(double const * VDT_RESTRICT input , 
                     double* VDT_RESTRICT output, 
                     const unsigned int arr_size) CMS_VECTORIZE_VERBOSE{
   //Profitability threshold = 6
@@ -876,7 +877,7 @@ void std_isqrt_vect(double const * VDT_RESTRICT input ,
     output[i] = vdt::std_isqrt(input[i]);
   }
 
-void std_inv_vect(double const * VDT_RESTRICT input , 
+VDT_FORCE_INLINE void std_inv_vect(double const * VDT_RESTRICT input , 
                     double* VDT_RESTRICT output, 
                     const unsigned int arr_size) CMS_VECTORIZE_VERBOSE{
   //Profitability threshold = 6
