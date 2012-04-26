@@ -905,8 +905,6 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
       shapeThresh=shapeThreshHB_;
       mindigisize=mindigisizeHBHE_;
       maxdigisize=maxdigisizeHBHE_;
-
-      // std::cout<<"HBHE "<<mindigisizeHBHE_<<" "<<maxdigisizeHBHE_<<std::endl;
     }
   else if (digi.id().subdet()==HcalEndcap)
     {
@@ -925,7 +923,6 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
       shapeThresh=shapeThreshHF_;
       mindigisize=mindigisizeHF_;
       maxdigisize=maxdigisizeHF_;
-      // std::cout<<"HF "<<mindigisizeHBHE_<<" "<<maxdigisizeHBHE_<<std::endl;
     }
   int iEta = digi.id().ieta();
   int iPhi = digi.id().iphi();
