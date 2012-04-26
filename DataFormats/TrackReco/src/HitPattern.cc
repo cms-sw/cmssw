@@ -114,8 +114,10 @@ void HitPattern::appendHit(const TrackingRecHit & hit){
       else if(hit.dimension() == 4){
 	std::vector<const TrackingRecHit*> seg2D = hit.recHits(); // 4D --> 2D
 	// load 1D hits (2D --> 1D)
-	for(std::vector<const TrackingRecHit*>::const_iterator it = seg2D.begin(); it != seg2D.end(); ++it)	  
-	  copy((*it)->recHits().begin(),(*it)->recHits().end(),back_inserter(hits));
+	for(std::vector<const TrackingRecHit*>::const_iterator it = seg2D.begin(); it != seg2D.end(); ++it){
+	  std::vector<const TrackingRecHit*> hits1D =  (*it)->recHits();
+	  copy(hits1D.begin(),hits1D.end(),back_inserter(hits));
+	}
       }
     }
 
