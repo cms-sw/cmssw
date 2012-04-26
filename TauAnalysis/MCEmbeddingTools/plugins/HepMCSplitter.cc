@@ -12,10 +12,35 @@
 */
 //
 // Original Author:  Tomasz Maciej Frueboes
-//         Created:  Wed Dec  9 16:14:56 CET 2009
-// $Id: HepMCSplitter.cc,v 1.2 2012/04/26 09:39:09 fruboes Exp $
 //
 //
+
+/*
+Usage.
+
+1) Add to prodFilterSequence two modules:
+
+process.genUE = cms.EDProducer("HepMCSplitter",
+    input = cms.InputTag("generator"),
+    todo = cms.vstring("UE")
+)
+
+process.genZtautau = cms.EDProducer("HepMCSplitter",
+    input = cms.InputTag("generator"),
+    todo = cms.vstring("Ztautau")
+)
+
+process.ProductionFilterSequence = cms.Sequence(process.generator+process.tfFilter + process.genUE + process.genZtautau)
+
+2) Replace "generator" with desired part, eg:
+
+process.mix.mixObjects.mixHepMC.input = cms.VInputTag(cms.InputTag("genZtautau"))
+process.g4SimHits.Generator.HepMCProductLabel = cms.string("genZtautau")
+process.mergedtruth.HepMCDataLabels.remove("generator")
+process.mergedtruth.HepMCDataLabels.extend(["genZtautau"])
+# Note - above was done for python wo vtx smearing
+
+*/
 
 
 // system include files
