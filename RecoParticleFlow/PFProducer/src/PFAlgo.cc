@@ -482,7 +482,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
   std::vector<reco::PFCandidate> tempElectronCandidates;
   tempElectronCandidates.clear();
   if (usePFElectrons_) {
-    if (pfele_->isElectronValidCandidate(blockref,active)){
+    if (pfele_->isElectronValidCandidate(blockref,active, primaryVertex_ )){
       // if there is at least a valid candidate is get the vector of pfcandidates
       const std::vector<reco::PFCandidate> PFElectCandidates_(pfele_->getElectronCandidates());
       for ( std::vector<reco::PFCandidate>::const_iterator ec=PFElectCandidates_.begin();   ec != PFElectCandidates_.end(); ++ec )tempElectronCandidates.push_back(*ec);

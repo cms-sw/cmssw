@@ -82,7 +82,8 @@ PFElectronAlgo::PFElectronAlgo(const double mvaEleCut,
   tmvaReader_->BookMVA("BDT",mvaWeightFileEleID.c_str());
 }
 void PFElectronAlgo::RunPFElectron(const reco::PFBlockRef&  blockRef,
-				   std::vector<bool>& active){
+				   std::vector<bool>& active,
+				   const reco::Vertex & primaryVertex) {
 
   // the maps are initialized 
   AssMap associatedToGsf;
@@ -100,7 +101,7 @@ void PFElectronAlgo::RunPFElectron(const reco::PFBlockRef&  blockRef,
   // associated to each gsf track
   bool blockHasGSF = SetLinks(blockRef,associatedToGsf,
 			      associatedToBrems,associatedToEcal,
-			      active);
+			      active, primaryVertex);
   
   // check if there is at least a gsf track in the block. 
   if (blockHasGSF) {
@@ -113,7 +114,7 @@ void PFElectronAlgo::RunPFElectron(const reco::PFBlockRef&  blockRef,
     lockExtraKf_.assign(associatedToGsf.size(),true);
 
     // The FinalID is run and BDToutput values is assigned 
-    SetIDOutputs(blockRef,associatedToGsf,associatedToBrems,associatedToEcal);  
+    SetIDOutputs(blockRef,associatedToGsf,associatedToBrems,associatedToEcal,primaryVertex);  
 
     // For each GSF track that pass the BDT configurable cut a pf candidate electron is created. 
     // This function finds also the best estimation of the initial electron 4-momentum.
@@ -131,7 +132,8 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 			      AssMap& associatedToGsf_,
 			      AssMap& associatedToBrems_,
 			      AssMap& associatedToEcal_,     
-			      std::vector<bool>& active){
+			      std::vector<bool>& active,
+				  const reco::Vertex & primaryVertex) {
   unsigned int CutIndex = 100000;
   double CutGSFECAL = 10000. ;  
   // no other cut are not used anymore. We use the default of PFBlockAlgo
@@ -217,7 +219,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
       cout<<block<<endl;
     }      
 
-
+    
     for(unsigned int iEle=0; iEle<trackIs.size(); iEle++) {
       std::multimap<double, unsigned int> gsfElems;
       block.associatedElements( trackIs[iEle],  linkData,
@@ -226,10 +228,10 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 				reco::PFBlock::LINKTEST_ALL );
       if(gsfElems.size() == 0){
 	// This means that the considered kf is *not* associated
-        // to any gsf track
+	// to any gsf track
 	std::multimap<double, unsigned int> ecalKfElems;
 	block.associatedElements( trackIs[iEle],linkData,
-	 			  ecalKfElems,
+				  ecalKfElems,
 				  reco::PFBlockElement::ECAL,
 				  reco::PFBlock::LINKTEST_ALL );
 	if(ecalKfElems.size() > 0) { 
@@ -246,7 +248,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	      const reco::PFBlockElementGsfTrack * GsfEl  =  
 		dynamic_cast<const reco::PFBlockElementGsfTrack*>((&elements[gsfIs[iGsf]]));
 	      if(GsfEl->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)) continue;
-
+	      
 	      std::multimap<double, unsigned int> ecalGsfElems;
 	      block.associatedElements( gsfIs[iGsf],linkData,
 					ecalGsfElems,
@@ -264,17 +266,24 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	      const reco::PFBlockElementTrack * kfEle =  
 		dynamic_cast<const reco::PFBlockElementTrack*>((&elements[(trackIs[iEle])])); 	
 	      reco::TrackRef refKf = kfEle->trackRef();
-	      // add nExHits = 0
+	      
 	      int nexhits = refKf->trackerExpectedHitsInner().numberOfLostHits();  
-
+	      
 	      unsigned int Algo = 0;
 	      if (refKf.isNonnull()) 
 		Algo = refKf->algo(); 
-	      // if(Algo < 9) {
-	      if(Algo < 9 && nexhits == 0) {
-		localactive[ecalKf_index] = false;
+	      
+	      bool trackIsFromPrimaryVertex = false;
+	      for (Vertex::trackRef_iterator trackIt = primaryVertex.tracks_begin(); trackIt != primaryVertex.tracks_end(); ++trackIt) {
+		if ( (*trackIt).castTo<TrackRef>() == refKf ) {
+		  trackIsFromPrimaryVertex = true;
+		  break;
+		}
 	      }
-	      else {
+	      
+	      if(Algo < 9 && nexhits == 0 && trackIsFromPrimaryVertex) {
+		localactive[ecalKf_index] = false;
+	      } else {
 		fifthStepKfTrack_.push_back(make_pair(ecalKf_index,trackIs[iEle]));
 	      }
 	    }
@@ -282,7 +291,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	}
       } // gsfElems.size()
     } // loop on kf tracks
-
+    
 
     // start loop on gsf tracks
     for(unsigned int iEle=0; iEle<gsfIs.size(); iEle++) {  
@@ -1412,7 +1421,8 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 					AssMap& associatedToGsf_,
 					AssMap& associatedToBrems_,
-					AssMap& associatedToEcal_){
+					AssMap& associatedToEcal_,
+					const reco::Vertex & primaryVertex){
   //PFEnergyCalibration pfcalib_;  
   const reco::PFBlock& block = *blockRef;
   PFBlock::LinkData linkData =  block.linkData();     
@@ -1728,7 +1738,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	    dphi_normalsc = dphi_normalsc - 2.*M_PI;
 	  dphi_normalsc = fabs(dphi_normalsc);
 	
-  
+	  
 	  if(ecalGsf_index < 100000) {
 	    vector<unsigned int> assoecalgsf_index = associatedToEcal_.find(ecalGsf_index)->second;
 	    for(unsigned int itrk =0; itrk<assoecalgsf_index.size();itrk++) {
@@ -1741,26 +1751,35 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 		// will be locked and can not be associated to the ecal elements 
 		//if(kfTk->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)) continue;
 		
-
+		
 		reco::TrackRef trackref =  kfTk->trackRef();
 		unsigned int Algo = whichTrackAlgo(trackref);
 		// iter0, iter1, iter2, iter3 = Algo < 3
 		// algo 4,5,6,7
 		int nexhits = trackref->trackerExpectedHitsInner().numberOfLostHits();  
+		
+		bool trackIsFromPrimaryVertex = false;
+		for (Vertex::trackRef_iterator trackIt = primaryVertex.tracks_begin(); trackIt != primaryVertex.tracks_end(); ++trackIt) {
+		  if ( (*trackIt).castTo<TrackRef>() == trackref ) {
+		    trackIsFromPrimaryVertex = true;
+		    break;
+		  }
+		}
+		
 		// probably we could now remove the algo request?? 
-		if(Algo < 3 && nexhits == 0) {
-		  //if(Algo < 3) {
+		if(Algo < 3 && nexhits == 0 && trackIsFromPrimaryVertex) {
+		  //if(Algo < 3) 
 		  if(DebugIDOutputs) 
 		    cout << " The ecalGsf cluster is not isolated: >0 KF extra with algo < 3" << endl;
-
+		  
 		  float p_trk = trackref->p();
-
+		  
 		  // expected number of inner hits
-		
+		  
 		  if(DebugIDOutputs) 
 		    cout << "  p_trk " <<  p_trk
 			 << " nexhits " << nexhits << endl;
-
+		  
 		  SumExtraKfP += p_trk;
 		  iextratrack++;
 		  // Check if these extra tracks are HCAL linked
@@ -1777,7 +1796,8 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	    }
 	  }
 	  if( iextratrack > 0) {
-	    if(iextratrack > 3 || HOverHE > 0.05 || (SumExtraKfP/Ene_ecalgsf) > 1. 
+	    //if(iextratrack > 3 || HOverHE > 0.05 || (SumExtraKfP/Ene_ecalgsf) > 1. 
+	    if(iextratrack > 3 || Ene_hcalgsf > 10 || (SumExtraKfP/Ene_ecalgsf) > 1. 
 	       || (ETtotal > 50. && iextratrack > 1 && (Ene_hcalgsf/Ene_ecalgsf) > 0.1) ) {
 	      if(DebugIDOutputs) 
 		cout << " *****This electron candidate is discarded: Non isolated  # tracks "		
@@ -1788,7 +1808,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 		     << " ETtotal " << ETtotal
 		     << " Ene_hcalgsf/Ene_ecalgsf " << Ene_hcalgsf/Ene_ecalgsf
 		     << endl;
-
+	      
 	      BDToutput_[cgsf] = mvaValue-2.;
 	      lockExtraKf_[cgsf] = false;
 	    }
@@ -1799,7 +1819,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	      if( fabs(1.-EGsfPoutMode) < 0.5 && 
 		  (itrackHcalLinked == iextratrack) && 
 		  kf_index < 100000 ) {
-
+		
 		BDToutput_[cgsf] = mvaValue;
 		lockExtraKf_[cgsf] = false;
 		if(DebugIDOutputs)

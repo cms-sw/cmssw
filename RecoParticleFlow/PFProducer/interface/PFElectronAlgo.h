@@ -47,10 +47,11 @@ class PFElectronAlgo {
   
   //check candidate validity
   bool isElectronValidCandidate(const reco::PFBlockRef&  blockRef,
-				std::vector<bool>&  active)
+				std::vector<bool>&  active,
+				const reco::Vertex & primaryVertex)
   {
     isvalid_=false;
-    RunPFElectron(blockRef,active);
+    RunPFElectron(blockRef,active, primaryVertex);
     return isvalid_;};
   
   //get electron PFCandidate
@@ -69,7 +70,8 @@ class PFElectronAlgo {
   typedef  std::map< unsigned int, std::vector<unsigned int> >  AssMap;
 
   void RunPFElectron(const reco::PFBlockRef&  blockRef,
-		     std::vector<bool>& active);
+		     std::vector<bool>& active,
+			 const reco::Vertex & primaryVertex);
 
   unsigned int FindClosestElement(const unsigned int iele,
 			  std::multimap<double, unsigned int>& Elems, 
@@ -81,12 +83,14 @@ class PFElectronAlgo {
 		AssMap& associatedToGsf_,
 		AssMap& associatedToBrems_,
 		AssMap& associatedToEcal_,
-		std::vector<bool>& active);
+		std::vector<bool>& active,
+		const reco::Vertex & primaryVertex);
   
   void SetIDOutputs(const reco::PFBlockRef&  blockRef,
 		    AssMap& associatedToGsf_,
 		    AssMap& associatedToBrems_,
-		    AssMap& associatedToEcal_);
+		    AssMap& associatedToEcal_,
+			const reco::Vertex & primaryVertex);
   
   void SetCandidates(const reco::PFBlockRef&  blockRef,
 		     AssMap& associatedToGsf_,
