@@ -14,9 +14,9 @@ skimRecoContent.outputCommands.append("drop *_*_*_SKIM")
 
 from Configuration.Skimming.ChiB_SD_cff import *
 upsilonHLTPath = cms.Path(upsilonHLT)
-SKIMStreamChiB_SD = cms.FilteredStream(
-    responsible = 'EXO',
-    name = 'ChiB_SD',
+SKIMStreamChiB = cms.FilteredStream(
+    responsible = 'BPH',
+    name = 'ChiB',
     paths = (upsilonHLTPath),
     content = skimRecoContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
