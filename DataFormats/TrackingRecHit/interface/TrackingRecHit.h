@@ -6,6 +6,7 @@
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class TrackingRecHit {
 public:

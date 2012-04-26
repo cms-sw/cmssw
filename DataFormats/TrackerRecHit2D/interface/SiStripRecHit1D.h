@@ -7,7 +7,7 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
-class SiStripRecHit1D : public TrackerSingleRecHit { 
+class SiStripRecHit1D GCC11_FINAL : public TrackerSingleRecHit { 
 public:
 
  

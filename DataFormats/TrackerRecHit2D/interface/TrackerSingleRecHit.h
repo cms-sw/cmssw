@@ -44,7 +44,7 @@ public:
 		      ClusterRegionalRef const& clus) :  Base(p,e,id, trackerHitRTTI::single), cluster_(clus){}
   
   // used by trackMerger (to be improved)
-  virtual OmniClusterRef const & firstClusterRef() const { return cluster_;}
+  virtual OmniClusterRef const & firstClusterRef() const  GCC11_FINAL { return cluster_;}
 
   OmniClusterRef const & omniClusterRef() const { return cluster_;}
   OmniClusterRef const & omniCluster() const { return cluster_;}
@@ -75,7 +75,7 @@ public:
 
 
 
-  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
+  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const  GCC11_FINAL;
 
 
   bool sharesInput(TrackerSingleRecHit const & other) const {

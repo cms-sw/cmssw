@@ -5,7 +5,7 @@
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
-class InvalidTrackingRecHit : public TrackingRecHit {
+class InvalidTrackingRecHit GCC11_FINAL : public TrackingRecHit {
 public:
   typedef TrackingRecHit::Type Type;
 

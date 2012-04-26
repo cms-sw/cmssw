@@ -3,7 +3,7 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
-class SiStripMatchedRecHit2D : public BaseTrackerRecHit {
+class SiStripMatchedRecHit2D GCC11_FINAL : public BaseTrackerRecHit {
  public:
   typedef BaseTrackerRecHit Base;
 
