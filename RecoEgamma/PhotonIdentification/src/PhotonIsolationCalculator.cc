@@ -554,17 +554,16 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   
   edm::Handle<EcalRecHitCollection> ecalhitsCollEB;
   edm::Handle<EcalRecHitCollection> ecalhitsCollEE;
-
   iEvent.getByLabel(endcapecalCollection_, ecalhitsCollEE);
-  
+ 
   iEvent.getByLabel(barrelecalCollection_, ecalhitsCollEB);
  
   const EcalRecHitCollection* rechitsCollectionEE_ = ecalhitsCollEE.product();
   const EcalRecHitCollection* rechitsCollectionEB_ = ecalhitsCollEB.product();
 
   //Get the channel status from the db
-  edm::ESHandle<EcalChannelStatus> chStatus;
-  iSetup.get<EcalChannelStatusRcd>().get(chStatus);
+  //edm::ESHandle<EcalChannelStatus> chStatus;
+  //iSetup.get<EcalChannelStatusRcd>().get(chStatus);
 
   edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
   iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
@@ -607,7 +606,7 @@ double PhotonIsolationCalculator::calculateEcalRecHitIso(const reco::Photon* pho
   
   phoIsoEE.setVetoClustered(vetoClusteredHits);
   phoIsoEE.setUseNumCrystals(useNumXtals);
-  phoIsoEB.doSpikeRemoval(ecalhitsCollEE.product(), severityExcl_); //chStatus.product(),severityLevelCut_);//,severityRecHitThreshold_,spId_,spikeIdThreshold_);
+  phoIsoEE.doSpikeRemoval(ecalhitsCollEE.product(), severityExcl_); //chStatus.product(),severityLevelCut_);//,severityRecHitThreshold_,spId_,spikeIdThreshold_);
   phoIsoEE.doFlagChecks(flagsEE_);
 
   double ecalIsolEE = phoIsoEE.getEtSum(photon);
