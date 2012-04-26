@@ -6,8 +6,8 @@
 
 /** \class HcalTrigPrimMonitor
   *  
-  * $Date: 2010/10/21 12:12:15 $
-  * $Revision: 1.24 $
+  * $Date: 2011/08/03 16:18:36 $
+  * $Revision: 1.25 $
   * \author W. Fisher - FNAL
   */
 
@@ -58,10 +58,21 @@ class HcalTrigPrimMonitor: public HcalBaseDQMonitor {
       MonitorElement* errorflag[2];
       std::map<ErrorFlag, MonitorElement*> problem_map[2];
 
+      // Index: [isZS], for OOT TPs
+      MonitorElement* good_tps_oot[2];
+      MonitorElement* bad_tps_oot[2];
+      MonitorElement* errorflag_oot[2];
+      std::map<ErrorFlag, MonitorElement*> problem_map_oot[2];
+
       // Index: [isZS][isHF]
       MonitorElement* tp_corr[2][2];
       MonitorElement* fg_corr[2][2];
       std::map<ErrorFlag, MonitorElement*> problem_et[2][2];
+
+      // Index: [isZS][isHF], for OOT TPs
+      MonitorElement* tp_corr_oot[2][2];
+      MonitorElement* fg_corr_oot[2][2];
+      std::map<ErrorFlag, MonitorElement*> problem_et_oot[2][2];
 
       MonitorElement* TPOccupancy_;
       MonitorElement* TPOccupancyEta_;
