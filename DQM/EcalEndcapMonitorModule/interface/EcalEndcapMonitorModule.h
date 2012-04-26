@@ -71,9 +71,14 @@ bool isPhysics_;
 int ievt_;
 
 edm::InputTag EcalRawDataCollection_;
+edm::InputTag EEDigiCollection_;
+edm::InputTag EcalRecHitCollection_;
+edm::InputTag EcalTrigPrimDigiCollection_;
 
 bool verbose_;
 bool debug_;
+
+bool enableEventDisplay_;
 
 DQMStore* dqmStore_;
 
@@ -89,6 +94,15 @@ MonitorElement* meRun_;
 MonitorElement* meEvt_;
 
 MonitorElement* meRunType_;
+MonitorElement* meEvtType_;
+
+MonitorElement* meEEDCC_;
+
+MonitorElement* meEEdigis_[2];
+MonitorElement* meEEhits_[2];
+MonitorElement* meEEtpdigis_[2];
+
+MonitorElement* meEvent_[18];
 
 bool init_;
 

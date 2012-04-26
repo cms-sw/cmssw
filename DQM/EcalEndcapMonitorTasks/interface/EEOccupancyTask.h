@@ -4,8 +4,8 @@
 /*
  * \file EEOccupancyTask.h
  *
- * $Date: 2010/08/11 14:21:54 $
- * $Revision: 1.28 $
+ * $Date: 2012/03/18 17:20:59 $
+ * $Revision: 1.28.8.1 $
  * \author G. Della Ricca
  *
 */
@@ -69,6 +69,8 @@ DQMStore* dqmStore_;
 
 std::string prefixME_;
 
+ std::string subfolder_;
+
 bool enableCleanup_;
 
 bool mergeRuns_;
@@ -84,27 +86,29 @@ enum runClassification { notdata, physics, testpulse, laser, led, pedestal };
 MonitorElement* meEvent_[18];
 MonitorElement* meOccupancy_[18];
 MonitorElement* meOccupancyMem_[18];
+MonitorElement* meEERecHitEnergy_[18];
+MonitorElement* meSpectrum_[18];
 
- MonitorElement *meDCCOccupancy_;
+MonitorElement* meEERecHitSpectrum_[2];
 MonitorElement* meEEDigiOccupancy_[2];
 MonitorElement* meEEDigiOccupancyProEta_[2];
 MonitorElement* meEEDigiOccupancyProPhi_[2];
- MonitorElement* meEEDigiNumber_;
- MonitorElement* meEEDigiNumberPerFED_;
 MonitorElement* meEERecHitOccupancy_[2];
 MonitorElement* meEERecHitOccupancyProEta_[2];
 MonitorElement* meEERecHitOccupancyProPhi_[2];
 MonitorElement* meEERecHitOccupancyThr_[2];
 MonitorElement* meEERecHitOccupancyProEtaThr_[2];
 MonitorElement* meEERecHitOccupancyProPhiThr_[2];
-MonitorElement* meEERecHitNumber_;
-MonitorElement* meEERecHitNumberPerFED_;
 MonitorElement* meEETrigPrimDigiOccupancy_[2];
 MonitorElement* meEETrigPrimDigiOccupancyProEta_[2];
 MonitorElement* meEETrigPrimDigiOccupancyProPhi_[2];
 MonitorElement* meEETrigPrimDigiOccupancyThr_[2];
 MonitorElement* meEETrigPrimDigiOccupancyProEtaThr_[2];
 MonitorElement* meEETrigPrimDigiOccupancyProPhiThr_[2];
+MonitorElement* meEETestPulseDigiOccupancy_[2];
+MonitorElement* meEELaserDigiOccupancy_[2];
+MonitorElement* meEELedDigiOccupancy_[2];
+MonitorElement* meEEPedestalDigiOccupancy_[2];
 
 float recHitEnergyMin_;
 float trigPrimEtMin_;

@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2011/09/15 21:02:09 $
- * $Revision: 1.267 $
+ * $Date: 2012/03/16 14:46:40 $
+ * $Revision: 1.267.2.4 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -196,6 +196,8 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const edm::ParameterSet& ps)
     std::cout << " prefixME path is '" << prefixME_ << "'" << std::endl;
   }
 
+  produceReports_ = ps.getUntrackedParameter<bool>("produceReports", true);
+
   // enableCleanup switch
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -218,7 +220,7 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const edm::ParameterSet& ps)
   if ( verbose_ ) {
     std::cout << " Selected SMs:" << std::endl;
     for ( unsigned int i = 0; i < superModules_.size(); i++ ) {
-      std::cout << " " << superModules_[i];
+      std::cout << " " << std::setw(2) << std::setfill('0') << superModules_[i];
     }
     std::cout << std::endl;
   }
@@ -634,8 +636,6 @@ void EcalEndcapMonitorClient::beginJob(void) {
 
   last_run_ = -1;
 
-  last_event_ = 0;
-
   subrun_  = -1;
 
   if ( debug_ ) std::cout << "EcalEndcapMonitorClient: beginJob" << std::endl;
@@ -662,52 +662,6 @@ void EcalEndcapMonitorClient::beginJob(void) {
 
   if ( summaryClient_ ) summaryClient_->beginJob();
 
-  // summary for DQM GUI
-
-  std::vector<std::string>::iterator clBegin(enabledClients_.begin()), clEnd(enabledClients_.end());
-  if(std::find(clBegin, clEnd, "Integrity") != clEnd &&
-     std::find(clBegin, clEnd, "PedestalOnline") != clEnd &&
-     std::find(clBegin, clEnd, "Timing") != clEnd &&
-     std::find(clBegin, clEnd, "StatusFlags") != clEnd) {
-
-    MonitorElement* me;
-
-    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
-
-    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary EE");
-    if ( me ) {
-      dqmStore_->removeElement(me->getName());
-    }
-    me = dqmStore_->bookFloat("reportSummary EE");
-    me->Fill(-1.0);
-
-    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
-
-    for (int i = 0; i < 18; i++) {
-      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/EcalEndcap_" + Numbers::sEE(i+1) );
-      if ( me ) {
-	dqmStore_->removeElement(me->getName());
-      }
-      me = dqmStore_->bookFloat("EcalEndcap_" + Numbers::sEE(i+1));
-      me->Fill(-1.0);
-    }
-
-    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
-
-    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap EE");
-    if ( me ) {
-      dqmStore_->removeElement(me->getName());
-    }
-    me = dqmStore_->book2D("reportSummaryMap EE", "Ecal Report Summary Map EE", 40, 0., 200., 20, 0., 100);
-    for ( int jx = 1; jx <= 40; jx++ ) {
-      for ( int jy = 1; jy <= 20; jy++ ) {
-	me->setBinContent( jx, jy, -1.0 );
-      }
-    }
-    me->setAxisTitle("ix / ix+100", 1);
-    me->setAxisTitle("iy", 2);
-
-  }
 }
 
 void EcalEndcapMonitorClient::beginRun(void) {
@@ -758,6 +712,49 @@ void EcalEndcapMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup&
     std::cout << std::endl;
   }
 
+  // summary for DQM GUI
+
+  if(produceReports_){
+
+    MonitorElement* me;
+
+    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
+    if ( me ) {
+      dqmStore_->removeElement(me->getName());
+    }
+    me = dqmStore_->bookFloat("reportSummary");
+    me->Fill(-1.0);
+
+    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
+
+    for (int i = 0; i < 18; i++) {
+      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/EcalEndcap_" + Numbers::sEE(i+1) );
+      if ( me ) {
+	dqmStore_->removeElement(me->getName());
+      }
+      me = dqmStore_->bookFloat("EcalEndcap_" + Numbers::sEE(i+1));
+      me->Fill(-1.0);
+    }
+
+    dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
+    if ( me ) {
+      dqmStore_->removeElement(me->getName());
+    }
+
+    me = dqmStore_->book2D("reportSummaryMap", "EcalEndcap Report Summary Map", 40, 0., 200., 20, 0., 100);
+    for ( int jx = 1; jx <= 40; jx++ ) {
+      for ( int jy = 1; jy <= 20; jy++ ) {
+	me->setBinContent( jx, jy, -1.0 );
+      }
+    }
+    me->setAxisTitle("ix / ix+100", 1);
+    me->setAxisTitle("iy", 2);
+  }
+
   run_ = r.id().run();
   evt_ = 0;
 
@@ -776,6 +773,7 @@ void EcalEndcapMonitorClient::endJob(void) {
     }
 
     forced_update_ = true;
+
     this->analyze();
 
     if ( begin_run_ && ! end_run_ ) {
@@ -787,6 +785,7 @@ void EcalEndcapMonitorClient::endJob(void) {
       }
 
       forced_status_ = true;
+
       this->analyze();
       this->endRun();
 
@@ -873,11 +872,13 @@ void EcalEndcapMonitorClient::endRun(const edm::Run& r, const edm::EventSetup& c
     std::cout << std::endl;
   }
 
+
   this->analyze();
 
   if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
 
     forced_update_ = true;
+
     this->analyze();
 
     if ( ! mergeRuns_ ) {
@@ -899,7 +900,7 @@ void EcalEndcapMonitorClient::endRun(const edm::Run& r, const edm::EventSetup& c
 
     MonitorElement* me;
 
-    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary EE");
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
     if ( me ) me->Fill(-1.0);
 
     for (int i = 0; i < 18; i++) {
@@ -907,7 +908,7 @@ void EcalEndcapMonitorClient::endRun(const edm::Run& r, const edm::EventSetup& c
       if ( me ) me->Fill(-1.0);
     }
 
-    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap EE");
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
     for ( int jx = 1; jx <= 40; jx++ ) {
       for ( int jy = 1; jy <= 20; jy++ ) {
         if ( me ) me->setBinContent( jx, jy, -1.0 );
@@ -948,6 +949,7 @@ void EcalEndcapMonitorClient::endLuminosityBlock(const edm::LuminosityBlock& l, 
   if ( run_ != -1 && evt_ != -1 && runType_ != -1 ) {
 
     forced_update_ = true;
+
     this->analyze();
 
   }
@@ -1293,17 +1295,7 @@ void EcalEndcapMonitorClient::writeDb(void) {
 
   float nevt = -1.;
 
-  if(dqmStore_){
-    MonitorElement *me(dqmStore_->get(prefixME_ + "/EventInfo/processedEvents"));
-    if(me){
-      std::stringstream ss;
-      int processedEvents;
-      ss << me->valueString();
-      ss >> processedEvents;
-      nevt = processedEvents - last_event_;
-      last_event_ = processedEvents;
-    }
-  }
+  if ( h_ ) nevt = h_->GetSumOfWeights();
 
   md.setNumEvents(int(nevt));
   md.setMonRunOutcomeDef(monRunOutcomeDef);
@@ -1381,17 +1373,7 @@ void EcalEndcapMonitorClient::endRunDb(void) {
 
   float nevt = -1.;
 
-  if(dqmStore_){
-    MonitorElement *me(dqmStore_->get(prefixME_ + "/EventInfo/processedEvents"));
-    if(me){
-      std::stringstream ss;
-      int processedEvents;
-      ss << me->valueString();
-      ss >> processedEvents;
-      nevt = processedEvents - last_event_;
-      last_event_ = processedEvents;
-    }
-  }
+  if ( h_ ) nevt = h_->GetSumOfWeights();
 
   rd.setNumEvents(int(nevt));
 
@@ -1501,7 +1483,7 @@ void EcalEndcapMonitorClient::analyze(void) {
     if ( debug_ ) std::cout << "Found '" << prefixME_ << "/EcalInfo/EVT'" << std::endl;
   }
 
-  me = dqmStore_->get(prefixME_ + "/RawData/EventType/RawDataTask event type EE");
+  me = dqmStore_->get(prefixME_ + "/EcalInfo/EVTTYPE");
   h_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
 
   me = dqmStore_->get(prefixME_ + "/EcalInfo/RUNTYPE");
@@ -1762,7 +1744,9 @@ void EcalEndcapMonitorClient::analyze(const edm::Event& e, const edm::EventSetup
   evt_ = e.id().event();
 
   if ( prescaleFactor_ > 0 ) {
-    if ( jevt_ % prescaleFactor_ == 0 ) this->analyze();
+    if ( jevt_ % prescaleFactor_ == 0 ){
+      this->analyze();
+    }
   }
 
 }
@@ -1783,17 +1767,14 @@ void EcalEndcapMonitorClient::softReset(bool flag) {
     }
   }
 
-  mes = dqmStore_->getContents(prefixME_ + "/RawData/EventType");
-  std::vector<MonitorElement *> mesFED(dqmStore_->getContents(prefixME_ + "/RawData/EventType/FED"));
-  mes.insert(mes.end(), mesFED.begin(), mesFED.end());
-  for(std::vector<MonitorElement *>::iterator meItr(mes.begin()); meItr != mes.end(); ++meItr){
-    if ( *meItr ) {
-      if ( flag ) {
-	dqmStore_->softReset(*meItr);
-      } else {
-	dqmStore_->disableSoftReset(*meItr);
-      }
+  MonitorElement* me = dqmStore_->get(prefixME_ + "/EcalInfo/EVTTYPE");
+  if ( me ) {
+    if ( flag ) {
+      dqmStore_->softReset(me);
+    } else {
+      dqmStore_->disableSoftReset(me);
     }
   }
+
 }
 

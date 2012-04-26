@@ -21,12 +21,6 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
 
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
-#include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
-
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
-
 #include "DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h"
 
 EETriggerTowerClient::EETriggerTowerClient(const edm::ParameterSet& ps) {
@@ -55,8 +49,10 @@ EETriggerTowerClient::EETriggerTowerClient(const edm::ParameterSet& ps) {
 
     int ism = superModules_[i];
 
+    l01_[ism-1] = 0;
     o01_[ism-1] = 0;
 
+    mel01_[ism-1] = 0;
     meo01_[ism-1] = 0;
 
   }
@@ -69,10 +65,6 @@ EETriggerTowerClient::EETriggerTowerClient(const edm::ParameterSet& ps) {
     me_o02_[ism-1] = 0;
 
   }
-
-  ievt_ = 0;
-  jevt_ = 0;
-  dqmStore_ = 0;
 
 }
 
@@ -121,26 +113,26 @@ void EETriggerTowerClient::setup(void) {
 
   std::string name;
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/TriggerPrimitives/Timing" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EETriggerTowerClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
     if ( me_o01_[ism-1] ) dqmStore_->removeElement( me_o01_[ism-1]->getName() );
-    name = "TrigPrimClient Timing " + Numbers::sEE(ism);
+    name = "EETTT Trigger Primitives Timing " + Numbers::sEE(ism);
     me_o01_[ism-1] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     me_o01_[ism-1]->setAxisTitle("ix", 1);
     if ( ism >= 1 && ism <= 9 ) me_o01_[ism-1]->setAxisTitle("101-ix", 1);
     me_o01_[ism-1]->setAxisTitle("iy", 2);
 
-//     if ( me_o02_[ism-1] ) dqmStore_->removeElement( me_o02_[ism-1]->getName() );
-//     name = "TrigPrimClient Non Single Timing " + Numbers::sEE(ism);
-//     me_o02_[ism-1] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
-//     me_o02_[ism-1]->setAxisTitle("ix", 1);
-//     if ( ism >= 1 && ism <= 9 ) me_o02_[ism-1]->setAxisTitle("101-ix", 1);
-//     me_o02_[ism-1]->setAxisTitle("iy", 2);
-//     me_o02_[ism-1]->setAxisTitle("fraction", 3);
+    if ( me_o02_[ism-1] ) dqmStore_->removeElement( me_o02_[ism-1]->getName() );
+    name = "EETTT Non Single Timing " + Numbers::sEE(ism);
+    me_o02_[ism-1] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    me_o02_[ism-1]->setAxisTitle("ix", 1);
+    if ( ism >= 1 && ism <= 9 ) me_o02_[ism-1]->setAxisTitle("101-ix", 1);
+    me_o02_[ism-1]->setAxisTitle("iy", 2);
+    me_o02_[ism-1]->setAxisTitle("fraction", 3);
 
   }
 
@@ -164,9 +156,11 @@ void EETriggerTowerClient::cleanup(void) {
     int ism = superModules_[i];
 
     if ( cloneME_ ) {
+      if ( l01_[ism-1] ) delete l01_[ism-1];
       if ( o01_[ism-1] ) delete o01_[ism-1];
     }
 
+    l01_[ism-1] = 0;
     o01_[ism-1] = 0;
 
     mel01_[ism-1] = 0;
@@ -174,13 +168,15 @@ void EETriggerTowerClient::cleanup(void) {
 
   }
 
+  dqmStore_->setCurrentFolder( prefixME_ + "/EETriggerTowerClient" );
+
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( me_o01_[ism-1] ) dqmStore_->removeElement( me_o01_[ism-1]->getFullname() );
+    if ( me_o01_[ism-1] ) dqmStore_->removeElement( me_o01_[ism-1]->getName() );
     me_o01_[ism-1] = 0;
-    if ( me_o02_[ism-1] ) dqmStore_->removeElement( me_o02_[ism-1]->getFullname() );
+    if ( me_o02_[ism-1] ) dqmStore_->removeElement( me_o02_[ism-1]->getName() );
     me_o02_[ism-1] = 0;
 
   }
@@ -191,6 +187,18 @@ void EETriggerTowerClient::cleanup(void) {
 bool EETriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    if ( verbose_ ) {
+      std::cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
+      UtilsClient::printBadChannels(mel01_[ism-1], UtilsClient::getHisto<TH2F*>(mel01_[ism-1]), true);
+    }
+
+  }
 
   return true;
 
@@ -206,75 +214,51 @@ void EETriggerTowerClient::analyze(void) {
   }
 
   MonitorElement* me;
-  std::string name;
-  std::stringstream ss;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
-    int zside(ism <= 9 ? -1 : 1);
 
-    me = dqmStore_->get( prefixME_ + "/TriggerPrimitives/EmulMatching/TrigPrimTask matching index " + Numbers::sEE(ism) );
+    me = dqmStore_->get( prefixME_ + "/EETriggerTowerTask/EETTT EmulError " + Numbers::sEE(ism) );
+    l01_[ism-1] = UtilsClient::getHisto( me, cloneME_, l01_[ism-1] );
+    mel01_[ism-1] = me;
+
+    me = dqmStore_->get( prefixME_ + "/EETriggerTowerTask/EETTT EmulFineGrainVetoError " + Numbers::sEE(ism) );
+    l02_[ism-1] = UtilsClient::getHisto( me, cloneME_, l02_[ism-1] );
+    mel02_[ism-1] = me;
+
+    me = dqmStore_->get( prefixME_ + "/EETriggerTowerTask/EETTT EmulMatch " + Numbers::sEE(ism) );
     o01_[ism-1] = UtilsClient::getHisto( me, cloneME_, o01_[ism-1] );
     meo01_[ism-1] = me;
 
     if ( me_o01_[ism-1] ) me_o01_[ism-1]->Reset();
     if ( me_o02_[ism-1] ) me_o02_[ism-1]->Reset();
 
-    if ( o01_[ism-1] ) {
-      for (int ix = 1; ix <= 50; ix++) {
-	for (int iy = 1; iy <= 50; iy++) {
+    for (int ix = 1; ix <= 50; ix++) {
+      for (int iy = 1; iy <= 50; iy++) {
 
-	  int jx(ix + Numbers::ix0EE(ism));
-	  int jy(iy + Numbers::iy0EE(ism));
-	  if(zside < 0) jx = 101 - jx;
-	  
-	  if(!EEDetId::validDetId(jx, jy, zside)) continue;
-
-	  EEDetId id(jx, jy, zside);
-	  if(Numbers::iSM(id) != (unsigned)ism) continue;
-
+        if ( o01_[ism-1] ) {
           // find the most frequent TP timing that matches the emulator
           float index=-1;
           double max=0;
           double total=0;
-
-	  EcalTriggerElectronicsId teid(Numbers::getElectronicsMapping()->getTriggerElectronicsId(id));
-	  int itcc(teid.tccId());
-	  int itt(teid.ttId());
-
-	  int xitt;
-	  if(itcc <= 18){ //inner EE-
-	    xitt = ((itcc-1) % 2) * 24 + itt;
-	  }else if(itcc <= 36){ //outer EE-
-	    xitt = 48 + ((itcc-1) % 2) * 16 + itt;
-	  }else if(itcc <= 90){ //outer EE+
-	    xitt = 48 + ((itcc-1) % 2) * 16 + itt;
-	  }else{
-	    xitt = ((itcc-1) % 2) * 24 + itt;
-	  }
-
-          for (int j = -1; j<6; j++) {
-            double sampleEntries = o01_[ism-1]->GetBinContent(xitt, j+2);
+          for (int j=0; j<6; j++) {
+            double sampleEntries = o01_[ism-1]->GetBinContent(ix, iy, j+1);
             if(sampleEntries > max) {
-              index = j;
+              index=j;
               max = sampleEntries;
             }
             total += sampleEntries;
           }
           if ( max > 0 ) {
-	    me_o01_[ism-1]->setBinContent(ix, iy, index );
+            if ( index == 0 ) {
+              me_o01_[ism-1]->setBinContent(ix, iy, -1);
+            } else {
+              me_o01_[ism-1]->setBinContent(ix, iy, index );
+            }
           }
-
-	  if ((int)total != (int)max) {
-	    ss.str("");
-	    ss << "TT " << itcc << " " << itt;
-	    name = "TrigPrimClient non single timing " + ss.str();
-	    dqmStore_->setCurrentFolder(prefixME_ + "/TriggerPrimitives/EmulationErrors/Timing");
-	    me = dqmStore_->book1D(name, name, 1, 0., 1.);
-	    me->setBinContent(1, 1.0 - max / total);
-	  }
-
+          double fraction = (total > 0) ? 1.0 - max/total : 0.;
+          if ( me_o02_[ism-1] ) me_o02_[ism-1]->setBinContent(ix, iy, fraction);
         }
 
       }

@@ -72,11 +72,6 @@ EBClusterClient::EBClusterClient(const edm::ParameterSet& ps) {
   s01_[1] = 0;
   s01_[2] = 0;
 
-  ievt_ = 0;
-  jevt_ = 0;
-
-  dqmStore_ = 0;
-
 }
 
 EBClusterClient::~EBClusterClient() {
@@ -228,28 +223,28 @@ void EBClusterClient::analyze(void) {
   me = dqmStore_->get( prefixME_ + "/EBClusterTask/EBCLT BC size map" );
   h04_ = UtilsClient::getHisto( me, cloneME_, h04_ );
 
-  me = dqmStore_->get( prefixME_ + "/EBClusterTask/EBCLT BC energy eta" );
+  me = dqmStore_->get( prefixME_ + "/EBClusterTask/EBCLT BC energy projection eta" );
   h02ProjEta_[0] = UtilsClient::getHisto( me, cloneME_, h02ProjEta_[0] );
 
-  me = dqmStore_->get( prefixME_ + "/EBClusterTask/EBCLT BC energy phi" );
+  me = dqmStore_->get( prefixME_ + "/EBClusterTask/EBCLT BC energy projection phi" );
   h02ProjPhi_[0] = UtilsClient::getHisto( me, cloneME_, h02ProjPhi_[0] );
 
-  me = dqmStore_->get( prefixME_ + "/EBClusterTask/EBCLT BC ET eta" );
+  me = dqmStore_->get( prefixME_ + "/EBClusterTask/EBCLT BC ET projection eta" );
   h02ProjEta_[1] = UtilsClient::getHisto( me, cloneME_, h02ProjEta_[1] );
 
-  me = dqmStore_->get( prefixME_ + "/EBClusterTask/EBCLT BC ET phi" );
+  me = dqmStore_->get( prefixME_ + "/EBClusterTask/EBCLT BC ET projection phi" );
   h02ProjPhi_[1] = UtilsClient::getHisto( me, cloneME_, h02ProjPhi_[1] );
 
-  me = dqmStore_->get( prefixME_ + "/EBClusterTask/EBCLT BC number eta" );
+  me = dqmStore_->get( prefixME_ + "/EBClusterTask/EBCLT BC number projection eta" );
   h03ProjEta_ = UtilsClient::getHisto( me, cloneME_, h03ProjEta_ );
 
-  me = dqmStore_->get( prefixME_ + "/EBClusterTask/EBCLT BC number phi" );
+  me = dqmStore_->get( prefixME_ + "/EBClusterTask/EBCLT BC number projection phi" );
   h03ProjPhi_ = UtilsClient::getHisto( me, cloneME_, h03ProjPhi_ );
 
-  me = dqmStore_->get( prefixME_ + "/EBClusterTask/EBCLT BC size eta" );
+  me = dqmStore_->get( prefixME_ + "/EBClusterTask/EBCLT BC size projection eta" );
   h04ProjEta_ = UtilsClient::getHisto( me, cloneME_, h04ProjEta_ );
 
-  me = dqmStore_->get( prefixME_ + "/EBClusterTask/EBCLT BC size phi" );
+  me = dqmStore_->get( prefixME_ + "/EBClusterTask/EBCLT BC size projection phi" );
   h04ProjPhi_ = UtilsClient::getHisto( me, cloneME_, h04ProjPhi_ );
 
   me = dqmStore_->get( prefixME_ + "/EBClusterTask/EBCLT SC energy" );

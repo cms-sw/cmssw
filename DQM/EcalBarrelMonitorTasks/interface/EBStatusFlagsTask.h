@@ -4,8 +4,8 @@
 /*
  * \file EBStatusFlagsTask.h
  *
- * $Date: 2010/03/05 18:22:17 $
- * $Revision: 1.9 $
+ * $Date: 2012/03/20 20:26:47 $
+ * $Revision: 1.9.16.1 $
  * \author G. Della Ricca
  *
 */
@@ -67,11 +67,15 @@ DQMStore* dqmStore_;
 
 std::string prefixME_;
 
+ std::string subfolder_;
+
 bool enableCleanup_;
 
 bool mergeRuns_;
 
 edm::InputTag EcalRawDataCollection_;
+
+MonitorElement* meEvtType_[36];
 
 MonitorElement* meFEchErrors_[36][3];
 MonitorElement* meFEchErrorsByLumi_;

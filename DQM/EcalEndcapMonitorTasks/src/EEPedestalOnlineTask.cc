@@ -43,8 +43,6 @@ EEPedestalOnlineTask::EEPedestalOnlineTask(const edm::ParameterSet& ps){
     mePedMapG12_[i] = 0;
   }
 
-  ievt_ = 0;
-
 }
 
 EEPedestalOnlineTask::~EEPedestalOnlineTask(){
@@ -56,8 +54,8 @@ void EEPedestalOnlineTask::beginJob(void){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/Pedestal/Presample");
-    dqmStore_->rmdir(prefixME_ + "/Pedestal/Presample");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalOnlineTask");
+    dqmStore_->rmdir(prefixME_ + "/EEPedestalOnlineTask");
   }
 
 }
@@ -89,10 +87,11 @@ void EEPedestalOnlineTask::setup(void){
   std::string name;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/Pedestal/Presample");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalOnlineTask");
 
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalOnlineTask/Gain12");
     for (int i = 0; i < 18; i++) {
-      name = "PedestalTask presample G12 " + Numbers::sEE(i+1);
+      name = "EEPOT pedestal " + Numbers::sEE(i+1) + " G12";
       mePedMapG12_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
       mePedMapG12_[i]->setAxisTitle("ix", 1);
       if ( i+1 >= 1 && i+1 <= 9 ) mePedMapG12_[i]->setAxisTitle("101-ix", 1);
@@ -109,8 +108,11 @@ void EEPedestalOnlineTask::cleanup(void){
   if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalOnlineTask");
+
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalOnlineTask/Gain12");
     for ( int i = 0; i < 18; i++ ) {
-      if ( mePedMapG12_[i] ) dqmStore_->removeElement( mePedMapG12_[i]->getFullname() );
+      if ( mePedMapG12_[i] ) dqmStore_->removeElement( mePedMapG12_[i]->getName() );
       mePedMapG12_[i] = 0;
     }
 

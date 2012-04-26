@@ -6,3 +6,6 @@
 <library   file="plugins.cc" name="DQMEcalCommonPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library file="EcalDQMBinningService.cc" name="DQMEcalCommonEcalDQMBinningService">
+   <flags EDM_PLUGIN="1"/>
+</library>

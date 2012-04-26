@@ -54,11 +54,12 @@ void EBDcsInfoTask::beginJob(void){
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
 
-    name = "DCSSummary EB";
+    name = "DCSSummary";
     meEBDcsFraction_ = dqmStore_->bookFloat(name);
     meEBDcsFraction_->Fill(0.0);
 
-    meEBDcsActiveMap_ = dqmStore_->book2D("DCSSummaryMap EB", "Ecal DCS Summary Map EB", 72, 0., 72., 34, 0., 34.);
+    name = "DCSSummaryMap";
+    meEBDcsActiveMap_ = dqmStore_->book2D(name, name, 72, 0., 72., 34, 0., 34.);
     meEBDcsActiveMap_->setAxisTitle("jphi", 1);
     meEBDcsActiveMap_->setAxisTitle("jeta", 2);
 

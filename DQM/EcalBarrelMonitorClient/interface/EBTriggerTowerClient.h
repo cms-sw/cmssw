@@ -92,8 +92,12 @@ std::vector<int> superModules_;
 
 DQMStore* dqmStore_;
 
+MonitorElement* mel01_[36];
+MonitorElement* mel02_[36];
 MonitorElement* meo01_[36];
-TH2F* o01_[36];
+TH2F* l01_[36];
+TH2F* l02_[36];
+TH3F* o01_[36];
 
 MonitorElement* me_o01_[36];
 MonitorElement* me_o02_[36];

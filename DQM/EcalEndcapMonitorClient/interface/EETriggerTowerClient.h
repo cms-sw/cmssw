@@ -96,7 +96,9 @@ MonitorElement* mel01_[18];
 MonitorElement* mel02_[18];
 MonitorElement* meo01_[18];
 
-TH2F* o01_[18];
+TH2F* l01_[18];
+TH2F* l02_[18];
+TH3F* o01_[18];
 
 MonitorElement* me_o01_[18];
 MonitorElement* me_o02_[18];

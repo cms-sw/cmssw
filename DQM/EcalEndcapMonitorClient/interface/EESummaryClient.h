@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2011/10/30 15:01:26 $
- * $Revision: 1.51 $
+ * $Date: 2012/03/18 17:20:56 $
+ * $Revision: 1.50.2.3 $
  * \author G. Della Ricca
  *
 */
@@ -14,7 +14,6 @@
 #include <string>
 
 #include "TROOT.h"
-#include "TH1F.h"
 #include "TProfile2D.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -78,7 +77,6 @@ int ievt_;
 int jevt_;
 
 float synchErrorThreshold_;
-float timingNHitThreshold_;
 
 bool cloneME_;
 
@@ -89,13 +87,13 @@ std::string prefixME_;
 
 bool enableCleanup_;
 
+ bool produceReports_;
+
 std::vector<int> superModules_;
 std::vector<int> laserWavelengths_;
 std::vector<int> ledWavelengths_;
 std::vector<int> MGPAGains_;
 std::vector<int> MGPAGainsPN_;
-
- std::vector<std::string> enabledClients_;
 
 std::vector<EEClient*> clients_;
 
@@ -188,7 +186,7 @@ TProfile2D* hot01_[18];
 TProfile2D* hpot01_[18];
 TProfile2D* httt01_[18];
 TProfile2D* htmt01_[18];
-TH1F *synch01_;
+TH1F* norm01_, *synch01_;
 
 };
 

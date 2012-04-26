@@ -122,10 +122,6 @@ class Numbers {
 
   static bool validEESc( const unsigned ism, const unsigned ix, const unsigned iy );
 
-  static unsigned nCCUs(const unsigned ism);
-
-  static unsigned nTTs(const unsigned itcc);
-
   static const EcalElectronicsMapping* getElectronicsMapping();
 
   // temporary - this is not really an "id conversion" - must find a better place to implement

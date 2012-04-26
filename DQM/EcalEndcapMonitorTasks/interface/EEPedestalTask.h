@@ -71,8 +71,6 @@ edm::InputTag EcalPnDiodeDigiCollection_;
 std::vector<int> MGPAGains_;
 std::vector<int> MGPAGainsPN_;
 
- MonitorElement *meOccupancy_[2];
-
 MonitorElement* mePedMapG01_[18];
 MonitorElement* mePedMapG06_[18];
 MonitorElement* mePedMapG12_[18];

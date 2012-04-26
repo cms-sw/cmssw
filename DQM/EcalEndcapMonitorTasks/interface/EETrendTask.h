@@ -102,7 +102,8 @@ class EETrendTask: public edm::EDAnalyzer{
   MonitorElement* nSuperClusterMinutely_;
   MonitorElement* nSuperClusterSizeMinutely_;
   MonitorElement* nIntegrityErrorMinutely_;
-  MonitorElement* nFEDEERawDataMinutely_;
+  MonitorElement* nFEDEEminusRawDataMinutely_;
+  MonitorElement* nFEDEEplusRawDataMinutely_;
   MonitorElement* nEESRFlagMinutely_;
 
   MonitorElement* nEEDigiHourly_;
@@ -114,7 +115,8 @@ class EETrendTask: public edm::EDAnalyzer{
   MonitorElement* nSuperClusterHourly_;
   MonitorElement* nSuperClusterSizeHourly_;
   MonitorElement* nIntegrityErrorHourly_;
-  MonitorElement* nFEDEERawDataHourly_;
+  MonitorElement* nFEDEEminusRawDataHourly_;
+  MonitorElement* nFEDEEplusRawDataHourly_;
   MonitorElement* nEESRFlagHourly_;
 
   bool init_;

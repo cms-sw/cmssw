@@ -66,11 +66,6 @@ EBCosmicClient::EBCosmicClient(const edm::ParameterSet& ps) {
 
   }
 
-  ievt_ = 0;
-  jevt_ = 0;
-
-  dqmStore_ = 0;
-
 }
 
 EBCosmicClient::~EBCosmicClient() {

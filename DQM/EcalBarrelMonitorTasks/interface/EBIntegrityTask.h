@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityTask.h
  *
- * $Date: 2010/03/05 18:22:17 $
- * $Revision: 1.30 $
+ * $Date: 2012/03/18 17:20:52 $
+ * $Revision: 1.30.16.1 $
  * \author G. Della Ricca
  *
  */
@@ -14,7 +14,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 
 class MonitorElement;
 class DQMStore;
@@ -69,6 +68,8 @@ DQMStore* dqmStore_;
 
 std::string prefixME_;
 
+ std::string subfolder_;
+
 bool enableCleanup_;
 
 bool mergeRuns_;
@@ -88,12 +89,12 @@ edm::InputTag EcalElectronicsIdCollection6_;
 MonitorElement* meIntegrityChId[36];
 MonitorElement* meIntegrityGain[36];
 MonitorElement* meIntegrityGainSwitch[36];
-MonitorElement* meIntegrityTowerId[36];
-MonitorElement* meIntegrityBlockSize[36];
+MonitorElement* meIntegrityTTId[36];
+MonitorElement* meIntegrityTTBlockSize[36];
 MonitorElement* meIntegrityMemChId[36];
 MonitorElement* meIntegrityMemGain[36];
-MonitorElement* meIntegrityMemTowerId[36];
-MonitorElement* meIntegrityMemBlockSize[36];
+MonitorElement* meIntegrityMemTTId[36];
+MonitorElement* meIntegrityMemTTBlockSize[36];
 MonitorElement* meIntegrityDCCSize;
 MonitorElement* meIntegrityErrorsByLumi;
 

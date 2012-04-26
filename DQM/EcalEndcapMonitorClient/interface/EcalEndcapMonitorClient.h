@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2010/11/03 11:46:57 $
- * $Revision: 1.61 $
+ * $Date: 2012/03/16 14:46:38 $
+ * $Revision: 1.61.6.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -108,6 +108,8 @@ bool enableCleanup_;
 
 std::string prefixME_;
 
+ bool produceReports_;
+
 std::string inputFile_;
 std::string referenceFile_;
  
@@ -170,8 +172,6 @@ bool forced_status_;
 bool forced_update_;
 
 int last_run_;
-
-int last_event_;
  
 TH1F* h_;
 

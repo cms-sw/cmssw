@@ -57,11 +57,12 @@ void EBDaqInfoTask::beginJob(void){
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
 
-    name = "DAQSummary EB";
+    name = "DAQSummary";
     meEBDaqFraction_ = dqmStore_->bookFloat(name);
     meEBDaqFraction_->Fill(0.0);
 
-    meEBDaqActiveMap_ = dqmStore_->book2D("DAQSummaryMap EB", "Ecal DAQ Summary Map EB", 72, 0., 72., 34, 0., 34.);
+    name = "DAQSummaryMap";
+    meEBDaqActiveMap_ = dqmStore_->book2D(name, name, 72, 0., 72., 34, 0., 34.);
     meEBDaqActiveMap_->setAxisTitle("jphi", 1);
     meEBDaqActiveMap_->setAxisTitle("jeta", 2);
 

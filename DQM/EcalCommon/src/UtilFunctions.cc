@@ -226,16 +226,13 @@ namespace ecaldqm {
     else if(name.Contains("TH2")) {
       if(pre) {
 	mean = ((TH2F*)cur)->GetEntries() - ((TH2F*)pre)->GetEntries();
-	if(mean < 0) return;
 	rms = std::sqrt(mean);
       }
       else {
 	mean = ((TH2F*)cur)->GetEntries();
-	if(mean < 0) return;
 	rms = std::sqrt(mean);
       }
       float nxybins = ((TH2F*)cur)->GetNbinsX()*((TH2F*)cur)->GetNbinsY();
-      if(nxybins < 1.) nxybins = 1.;
       mean /= nxybins;
       rms /= nxybins;
     }

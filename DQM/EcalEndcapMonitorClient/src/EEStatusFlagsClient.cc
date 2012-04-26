@@ -71,10 +71,6 @@ EEStatusFlagsClient::EEStatusFlagsClient(const edm::ParameterSet& ps) {
 
   }
 
-  ievt_ = 0;
-  jevt_ = 0;
-  dqmStore_ = 0;
-
 }
 
 EEStatusFlagsClient::~EEStatusFlagsClient() {
@@ -186,43 +182,43 @@ void EEStatusFlagsClient::analyze(void) {
     if ( debug_ ) std::cout << "EEStatusFlagsClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
-//   uint32_t bits01 = 0;
-//   bits01 |= 1 << EcalDQMStatusHelper::STATUS_FLAG_ERROR;
+  uint32_t bits01 = 0;
+  bits01 |= 1 << EcalDQMStatusHelper::STATUS_FLAG_ERROR;
 
-//   MonitorElement* me;
+  MonitorElement* me;
 
-//   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-//     int ism = superModules_[i];
+    int ism = superModules_[i];
 
-//     me = dqmStore_->get( prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT front-end status " + Numbers::sEE(ism) );
-//     h01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
-//     meh01_[ism-1] = me;
+    me = dqmStore_->get( prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT front-end status " + Numbers::sEE(ism) );
+    h01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
+    meh01_[ism-1] = me;
 
-//     me = dqmStore_->get( prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT front-end status bits " + Numbers::sEE(ism) );
-//     h02_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h02_[ism-1] );
-//     meh02_[ism-1] = me;
+    me = dqmStore_->get( prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT front-end status bits " + Numbers::sEE(ism) );
+    h02_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h02_[ism-1] );
+    meh02_[ism-1] = me;
 
-//     me = dqmStore_->get( prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT MEM front-end status " + Numbers::sEE(ism) );
-//     h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
-//     meh03_[ism-1] = me;
+    me = dqmStore_->get( prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT MEM front-end status " + Numbers::sEE(ism) );
+    h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
+    meh03_[ism-1] = me;
 
-//     for ( int ix = 1; ix <= 50; ix++ ) {
-//       for ( int iy = 1; iy <= 50; iy++ ) {
-//         if ( Masks::maskChannel(ism, ix, iy, bits01, EcalEndcap) ) {
-//           if ( meh01_[ism-1] ) meh01_[ism-1]->setBinError( ix, iy, 0.01 );
-//         }
-//       }
-//     }
+    for ( int ix = 1; ix <= 50; ix++ ) {
+      for ( int iy = 1; iy <= 50; iy++ ) {
+        if ( Masks::maskChannel(ism, ix, iy, bits01, EcalEndcap) ) {
+          if ( meh01_[ism-1] ) meh01_[ism-1]->setBinError( ix, iy, 0.01 );
+        }
+      }
+    }
 
-//     for ( int i = 1; i <= 10; i++ ) {
-//       if ( Masks::maskPn(ism, i, bits01, EcalEndcap) ) {
-//         int it = (i-1)/5 + 1;
-//         if ( meh03_[ism-1] ) meh03_[ism-1]->setBinError( it, 1, 0.01 );
-//       }
-//     }
+    for ( int i = 1; i <= 10; i++ ) {
+      if ( Masks::maskPn(ism, i, bits01, EcalEndcap) ) {
+        int it = (i-1)/5 + 1;
+        if ( meh03_[ism-1] ) meh03_[ism-1]->setBinError( it, 1, 0.01 );
+      }
+    }
 
-//   }
+  }
 
 }
 

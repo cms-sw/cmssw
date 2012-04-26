@@ -73,8 +73,6 @@ edm::InputTag EcalUncalibratedRecHitCollection_;
 std::vector<int> MGPAGains_;
 std::vector<int> MGPAGainsPN_;
 
- MonitorElement *meOccupancy_;
-
 MonitorElement* meShapeMapG01_[36];
 MonitorElement* meShapeMapG06_[36];
 MonitorElement* meShapeMapG12_[36];

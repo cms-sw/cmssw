@@ -76,10 +76,6 @@ EEOccupancyClient::EEOccupancyClient(const edm::ParameterSet& ps) {
     h02ProjPhi_[1][i] = 0;
   }
 
-  ievt_ = 0;
-  jevt_ = 0;
-  dqmStore_ = 0;
-
 }
 
 EEOccupancyClient::~EEOccupancyClient() {

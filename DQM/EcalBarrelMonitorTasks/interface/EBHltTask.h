@@ -4,8 +4,8 @@
 /*
  * \file EBHltTask.h
  *
- * $Date: 2012/02/28 16:38:10 $
- * $Revision: 1.7 $
+ * $Date: 2010/03/26 11:24:49 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -84,6 +84,7 @@ bool enableCleanup_;
 
 bool mergeRuns_;
 
+edm::InputTag EBDetIdCollection0_;
 edm::InputTag EBDetIdCollection1_;
 edm::InputTag EBDetIdCollection2_;
 edm::InputTag EBDetIdCollection3_;

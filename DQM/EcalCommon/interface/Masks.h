@@ -17,8 +17,6 @@
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
-#include "CommonTools/Utils/interface/Exception.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/EcalObjects/interface/EcalDQMChannelStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalDQMTowerStatus.h"
@@ -30,9 +28,9 @@ class Masks {
 
   static void initMasking( const edm::EventSetup& setup, bool verbose = false );
 
-  static bool maskChannel( int ism, int i1, int i2, uint32_t bits, const EcalSubdetector subdet ) throw( cms::Exception );
+  static bool maskChannel( int ism, int i1, int i2, uint32_t bits, const EcalSubdetector subdet ) throw( std::runtime_error );
 
-  static bool maskPn( int ism, int i1, uint32_t bits, const EcalSubdetector subdet ) throw( cms::Exception );
+  static bool maskPn( int ism, int i1, uint32_t bits, const EcalSubdetector subdet ) throw( std::runtime_error );
 
 private:
 

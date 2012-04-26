@@ -108,7 +108,6 @@ MonitorElement* mer01_[36];
 
 // Quality check on crystals, one per each gain
 
-float nHitThreshold_;
 float expectedMean_;
 float discrepancyMean_;
 float RMSThreshold_;

@@ -109,6 +109,7 @@ static EcalLogicID getEcalLogicID( const char* name,
   }
 
   throw( std::runtime_error( "Unknown 'name': " + std::string( name ) ) );
+  return( EcalLogicID( std::string( "" ), EcalLogicID::NULLID ) );
 
 }
 

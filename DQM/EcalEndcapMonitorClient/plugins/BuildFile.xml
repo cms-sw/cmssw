@@ -2,46 +2,4 @@
   <use   name="DQM/EcalEndcapMonitorClient"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="../src/*.cc" name="DQMEcalEndcapMonitorCommon">
-  <use   name="DQM/EcalCommon"/>
-  <use   name="DQMServices/Core"/>
-  <use   name="DataFormats/EcalDetId"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/ServiceRegistry"/>
-  <use   name="OnlineDB/EcalCondDB"/>
-  <use   name="rootcore"/>
-  <flags   CPPDEFINES="WITH_ECAL_COND_DB"/>
-  <flags   EDM_PLUGIN="0"/>
-</library>
-<library   file="EcalEndcapMonitorXdaqClient.cc" name="DQMEcalEndcapMonitorXdaqClientPlugins">
-  <lib   name="DQMEcalEndcapMonitorCommon"/>
-  <use   name="DQM/EcalCommon"/>
-  <use   name="DQMServices/Core"/>
-  <use   name="DataFormats/EcalDetId"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/ServiceRegistry"/>
-  <use   name="rootcore"/>
-  <use   name="EventFilter/Utilities"/>
-  <use   name="xdaq"/>
-  <use   name="OnlineDB/EcalCondDB"/>
-  <flags   CPPDEFINES="WITH_ECAL_COND_DB"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="EcalEndcapMonitorDbClient.cc" name="DQMEcalEndcapMonitorDbClientPlugins">
-  <lib   name="DQMEcalEndcapMonitorCommon"/>
-  <use   name="DQM/EcalCommon"/>
-  <use   name="DQMServices/Core"/>
-  <use   name="DataFormats/EcalDetId"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/ServiceRegistry"/>
-  <use   name="rootcore"/>
-  <use   name="OnlineDB/EcalCondDB"/>
-  <flags   CPPDEFINES="WITH_ECAL_COND_DB"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
+

@@ -71,8 +71,6 @@ edm::InputTag EcalPnDiodeDigiCollection_;
 edm::InputTag EcalUncalibratedRecHitCollection_;
 std::vector<int> laserWavelengths_;
 
- MonitorElement *meOccupancy_;
-
 MonitorElement* meShapeMapL1_[36];
 MonitorElement* meAmplMapL1_[36];
 MonitorElement* meTimeMapL1_[36];

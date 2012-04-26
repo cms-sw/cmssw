@@ -4,8 +4,8 @@
 /*
  * \file EEIntegrityClient.h
  *
- * $Date: 2010/02/14 20:56:24 $
- * $Revision: 1.30 $
+ * $Date: 2012/03/18 15:59:30 $
+ * $Revision: 1.30.16.1 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -84,6 +84,8 @@ bool debug_;
 
 std::string prefixME_;
 
+ std::string subfolder_;
+
 bool enableCleanup_;
 
 std::vector<int> superModules_;
@@ -107,8 +109,6 @@ MonitorElement* meg02_[18];
 
 TH2F* h_[18];
 TH2F* hmem_[18];
-
- std::map<uint32_t, float> gain_, chid_, gainswitch_, ttid_, ttblocksize_, memchid_, memgain_, memttid_, memblocksize_;
 
 // Quality criteria for data integrity
 
