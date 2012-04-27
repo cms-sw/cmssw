@@ -11,7 +11,8 @@ Sequences for HPS taus
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi                      import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackFinding_cfi            import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectron_cfi                  import *
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronMVA_cfi                  import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronMVA_cfi               import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronMVA2_cfi               import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi                      import *
 
 # Load helper functions to change the source of the discriminants
@@ -24,7 +25,6 @@ hpsPFTauDiscriminationByDecayModeFinding = hpsSelectionDiscriminator.clone(
     PFTauProducer = cms.InputTag('hpsPFTauProducer')
     )
 
-
 # Define decay mode prediscriminant
 requireDecayMode = cms.PSet(
     BooleanOperator = cms.string("and"),
@@ -33,7 +33,6 @@ requireDecayMode = cms.PSet(
         cut = cms.double(0.5)
     )
 )
-
 
 # First apply only charged isolation
 hpsPFTauDiscriminationByLooseChargedIsolation = pfRecoTauDiscriminationByIsolation.clone(
@@ -288,6 +287,79 @@ hpsPFTauDiscriminationByMVAElectronRejection.Prediscriminants.electronMedium = \
             cut = cms.double(0.5)
         )
 
+hpsPFTauDiscriminationByMVA2rawElectronRejection = pfRecoTauDiscriminationAgainstElectronMVA2.clone(
+    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    Prediscriminants = requireDecayMode.clone(),
+)
+
+# Additionally require that the MVA2 electrons pass electron loose
+# (this discriminator was used on the training sample)
+hpsPFTauDiscriminationByMVA2rawElectronRejection.Prediscriminants.electronLoose = \
+        cms.PSet(
+            Producer = cms.InputTag('hpsPFTauDiscriminationByLooseElectronRejection'),
+            cut = cms.double(0.5)
+        )
+
+hpsPFTauDiscriminationByMVA2LooseElectronRejection = hpsPFTauDiscriminationByMVA2rawElectronRejection.clone(
+    returnMVA = cms.bool(False),
+    # define 95% signal efficiency WP
+    minMVA1prongNoEleMatchBL           = cms.double(-0.101727),
+    minMVA1prongBL                     = cms.double(-0.130411),
+    minMVA1prongStripsWOgsfBL          = cms.double(-0.110745),
+    minMVA1prongStripsWgsfWOpfEleMvaBL = cms.double(-0.11647),
+    minMVA1prongStripsWgsfWpfEleMvaBL  = cms.double(-0.134414),
+    minMVA1prongNoEleMatchEC           = cms.double(-0.169389),
+    minMVA1prongEC                     = cms.double(-0.140327),
+    minMVA1prongStripsWOgsfEC          = cms.double(-0.102089),
+    minMVA1prongStripsWgsfWOpfEleMvaEC = cms.double(-0.14057),
+    minMVA1prongStripsWgsfWpfEleMvaEC  = cms.double(-0.0975809)
+)
+
+hpsPFTauDiscriminationByMVA2MediumElectronRejection = hpsPFTauDiscriminationByMVA2rawElectronRejection.clone(
+    returnMVA = cms.bool(False),
+    # define 85% signal efficiency WP
+    minMVA1prongNoEleMatchBL           = cms.double(-0.0727222),
+    minMVA1prongBL                     = cms.double(-0.072778),
+    minMVA1prongStripsWOgsfBL          = cms.double(-0.137213),
+    minMVA1prongStripsWgsfWOpfEleMvaBL = cms.double(-0.0948499),
+    minMVA1prongStripsWgsfWpfEleMvaBL  = cms.double(-0.0600284),
+    minMVA1prongNoEleMatchEC           = cms.double(-0.084118),
+    minMVA1prongEC                     = cms.double(+0.0648186),
+    minMVA1prongStripsWOgsfEC          = cms.double(-0.0804441),
+    minMVA1prongStripsWgsfWOpfEleMvaEC = cms.double(-0.0227585),
+    minMVA1prongStripsWgsfWpfEleMvaEC  = cms.double(-0.116097)
+)
+
+hpsPFTauDiscriminationByMVA2TightElectronRejection = hpsPFTauDiscriminationByMVA2rawElectronRejection.clone(
+    returnMVA = cms.bool(False),
+    # define 75% signal efficiency WP
+    minMVA1prongNoEleMatchBL           = cms.double(-0.126102),
+    minMVA1prongBL                     = cms.double(-0.0458154),
+    minMVA1prongStripsWOgsfBL          = cms.double(-0.137043),
+    minMVA1prongStripsWgsfWOpfEleMvaBL = cms.double(+0.0332071),
+    minMVA1prongStripsWgsfWpfEleMvaBL  = cms.double(-0.0448832),
+    minMVA1prongNoEleMatchEC           = cms.double(-0.0177012),
+    minMVA1prongEC                     = cms.double(+0.189192),
+    minMVA1prongStripsWOgsfEC          = cms.double(-0.0444424),
+    minMVA1prongStripsWgsfWOpfEleMvaEC = cms.double(-0.0938333),
+    minMVA1prongStripsWgsfWpfEleMvaEC  = cms.double(+0.144127)
+)
+
+hpsPFTauDiscriminationByMVA2VTightElectronRejection = hpsPFTauDiscriminationByMVA2rawElectronRejection.clone(
+    returnMVA = cms.bool(False),
+    # define 70% signal efficiency WP
+    minMVA1prongNoEleMatchBL           = cms.double(-0.133868),
+    minMVA1prongBL                     = cms.double(-0.0295349),
+    minMVA1prongStripsWOgsfBL          = cms.double(-0.00930688),
+    minMVA1prongStripsWgsfWOpfEleMvaBL = cms.double(-0.0949625),
+    minMVA1prongStripsWgsfWpfEleMvaBL  = cms.double(+0.832122),
+    minMVA1prongNoEleMatchEC           = cms.double(-0.00877876),
+    minMVA1prongEC                     = cms.double(+0.275851),
+    minMVA1prongStripsWOgsfEC          = cms.double(-0.0145072),
+    minMVA1prongStripsWgsfWOpfEleMvaEC = cms.double(+0.515682),
+    minMVA1prongStripsWgsfWpfEleMvaEC  = cms.double(-0.0634265)
+)
+
 # Define the HPS selection discriminator used in cleaning
 hpsSelectionDiscriminator.PFTauProducer = cms.InputTag("combinatoricRecoTaus")
 
@@ -344,6 +416,11 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByMediumElectronRejection*
     hpsPFTauDiscriminationByTightElectronRejection*
     hpsPFTauDiscriminationByMVAElectronRejection*
+    hpsPFTauDiscriminationByMVA2rawElectronRejection*
+    hpsPFTauDiscriminationByMVA2LooseElectronRejection*
+    hpsPFTauDiscriminationByMVA2MediumElectronRejection*
+    hpsPFTauDiscriminationByMVA2TightElectronRejection*
+    hpsPFTauDiscriminationByMVA2VTightElectronRejection*
     hpsPFTauDiscriminationByLooseMuonRejection*
     hpsPFTauDiscriminationByMediumMuonRejection*
     hpsPFTauDiscriminationByTightMuonRejection
