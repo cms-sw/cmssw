@@ -168,10 +168,10 @@ unsigned char* readClob (Clob &clob, int size)
     memset (buffer, buf, size);
     
     instream->readBuffer ((char*)buffer, size);
-    std::cout << "remember to delete the char* at the end of the program ";
-       for (int i = 0; i < size; ++i)
-       std::cout << (char) buffer[i];
-     std::cout << std::endl;
+    //std::cout << "remember to delete the char* at the end of the program ";
+    //  for (int i = 0; i < size; ++i)
+    // std::cout << (char) buffer[i];
+    // std::cout << std::endl;
     
 
     clob.closeStream (instream);

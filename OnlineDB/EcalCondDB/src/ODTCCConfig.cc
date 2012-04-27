@@ -212,42 +212,42 @@ void ODTCCConfig::fetchData(ODTCCConfig * result)
     //
 
     Clob clob1 = rset->getClob (8);
-    cout << "Opening the clob in Read only mode" << endl;
+    //  cout << "Opening the clob in Read only mode" << endl;
     clob1.open (OCCI_LOB_READONLY);
     int clobLength=clob1.length ();
-    cout << "Length of the clob1 is: " << clobLength << endl;
+    // cout << "Length of the clob1 is: " << clobLength << endl;
     unsigned char* buffer = readClob (clob1, clobLength);
     clob1.close ();
-    cout<< "the clob buffer is:"<<endl;  
-    for (int i = 0; i < clobLength; ++i)
-      cout << (char) buffer[i];
-    cout << endl;
+    // cout<< "the clob buffer is:"<<endl;  
+    //for (int i = 0; i < clobLength; ++i)
+    //cout << (char) buffer[i];
+    //cout << endl;
     result->setTCCClob(buffer );
 
     Clob clob2 = rset->getClob (9);
-    cout << "Opening the clob in Read only mode" << endl;
+    //cout << "Opening the clob in Read only mode" << endl;
     clob2.open (OCCI_LOB_READONLY);
     clobLength=clob2.length ();
-    cout << "Length of the clob2 is: " << clobLength << endl;
+    //cout << "Length of the clob2 is: " << clobLength << endl;
     unsigned char* buffer2 = readClob (clob2, clobLength);
     clob2.close ();
-    cout<< "the clob buffer is:"<<endl;  
-    for (int i = 0; i < clobLength; ++i)
-      cout << (char) buffer2[i];
-    cout << endl;
+    //cout<< "the clob buffer is:"<<endl;  
+    //for (int i = 0; i < clobLength; ++i)
+    // cout << (char) buffer2[i];
+    //cout << endl;
     result->setLUTClob(buffer2 );
 
     Clob clob3 = rset->getClob (10);
-    cout << "Opening the clob in Read only mode" << endl;
+    //cout << "Opening the clob in Read only mode" << endl;
     clob3.open (OCCI_LOB_READONLY);
     clobLength=clob3.length ();
-    cout << "Length of the clob3 is: " << clobLength << endl;
+    //cout << "Length of the clob3 is: " << clobLength << endl;
     unsigned char* buffer3 = readClob (clob3, clobLength);
     clob3.close ();
-    cout<< "the clob buffer is:"<<endl;  
-    for (int i = 0; i < clobLength; ++i)
-      cout << (char) buffer3[i];
-    cout << endl;
+    //cout<< "the clob buffer is:"<<endl;  
+    //for (int i = 0; i < clobLength; ++i)
+    // cout << (char) buffer3[i];
+    //cout << endl;
     result->setSLBClob(buffer3 );
 
   } catch (SQLException &e) {
