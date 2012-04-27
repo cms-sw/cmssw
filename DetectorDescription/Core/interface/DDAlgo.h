@@ -2,19 +2,15 @@
 #define DDAlgo_h
 
 #include <iostream>
-//#include "DetectorDescription/Core/interface/DDRegistered.h"
+
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Base/interface/DDAlgoPar.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDBase.h"
-
-// Let's take AlgoPos to be the implementation class of DDAlgo-interface
-//#include "DetectorDescription/ExprAlgo/interface/AlgoPos.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"
 
 class DDAlgo;
 class AlgoPos;
-//namespace DDI { class DDAlgoPos; }
 
 std::ostream & operator<<(std::ostream &, const DDAlgo &);
 
@@ -69,7 +65,6 @@ public:
   /*! double valued user parameter, values already evaluated from expressions*/
   const parE_type & parE() const;
   
-/*   static void clear(); */
 private:  
   DDAlgo(const DDName &, AlgoPos*);
   

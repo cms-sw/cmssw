@@ -1,8 +1,3 @@
-//#include "DetectorDescription/Core/src/test_core.h"
-
-//#include <time.h>
-//#include <sys/times.h>
-
 // Two modules of CLHEP are partly used in DDD
 // . unit definitions (such as m, cm, GeV, ...) of module CLHEP/Units
 // . rotation matrices and translation std::vectors of module CLHEP/Vector
@@ -10,34 +5,16 @@
 //   DDD/DDCore/interface/DDTransform.h
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-
-// Interface
 /*
   Doc!
 */
-//#include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
-//#include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-//#include "DetectorDescription/Core/interface/DDExpandedView.h"
-//#include "DetectorDescription/Core/interface/DDNodes.h"
-//#include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
 #include "DetectorDescription/Core/interface/DDName.h"
-//#include "DetectorDescription/Core/interface/DDAlgo.h"
-//#include "DetectorDescription/Core/interface/DDInit.h"
-//#include "DetectorDescription/Core/interface/DDScope.h"
-//#include "DetectorDescription/Core/interface/DDFilter.h"
-//#include "DetectorDescription/Core/interface/DDQuery.h"
-//#include "DetectorDescription/Core/interface/DDFilteredView.h"
-//#include "DetectorDescription/Core/interface/DDNumberingScheme.h"
 
-//#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
-//#include "Solid.h"
-
-//#include <typeinfo>
 #include <fstream>
 #include <string>
 #include <set>
