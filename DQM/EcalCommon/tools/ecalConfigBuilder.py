@@ -302,6 +302,10 @@ process.maxEvents = cms.untracked.PSet(
 )
 '''
 
+frontier='frontier://FrontierProd/'
+if p5 :
+    frontier='frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/'
+
 if not gtag :
     setup += '''
 process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
@@ -311,20 +315,19 @@ else :
     setup += 'process.GlobalTag.globaltag = "' + gtag + '::All"' + "\n"
 
     if privEcal :
-        setup += 'process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG"' + "\n"
+        setup += 'process.GlobalTag.connect = "' + frontier + 'CMS_COND_31X_GLOBALTAG"' + "\n"
 
-if p5 :
-    setup += '''
+setup += '''
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(
         record = cms.string("EcalDQMChannelStatusRcd"),
         tag = cms.string("EcalDQMChannelStatus_v1_hlt"),
-        connect = cms.untracked.string("frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_34X_ECAL")
+        connect = cms.untracked.string("''' + frontier + '''CMS_COND_34X_ECAL")
     ),
     cms.PSet(
         record = cms.string("EcalDQMTowerStatusRcd"),
         tag = cms.string("EcalDQMTowerStatus_v1_hlt"),
-        connect = cms.untracked.string("frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_34X_ECAL")
+        connect = cms.untracked.string("''' + frontier + '''CMS_COND_34X_ECAL")
     )
 )
 '''
@@ -739,14 +742,15 @@ process.ecalEndcapMonitorClient.updateTime = 4
         customizations += '''
 process.ecalBarrelMonitorClient.enabledClients = ["Integrity", "StatusFlags", "Occupancy", "PedestalOnline", "Timing", "Cosmic", "TriggerTower", "Cluster", "Summary"]
 process.ecalEndcapMonitorClient.enabledClients = ["Integrity", "StatusFlags", "Occupancy", "PedestalOnline", "Timing", "Cosmic", "TriggerTower", "Cluster", "Summary"]
+
+process.ecalBarrelMonitorClient.reducedReports = False
+process.ecalEndcapMonitorClient.reducedReports = False
 '''
     else :
         customizations += '''
 process.ecalBarrelMonitorClient.enabledClients = ["Integrity", "StatusFlags", "Occupancy", "PedestalOnline", "Pedestal", "TestPulse", "Laser", "Summary"]
 process.ecalEndcapMonitorClient.enabledClients = ["Integrity", "StatusFlags", "Occupancy", "PedestalOnline","Pedestal", "TestPulse", "Laser", "Led", "Summary"]
-'''
 
-    customizations += '''
 process.ecalBarrelMonitorClient.produceReports = False
 process.ecalEndcapMonitorClient.produceReports = False
 '''
