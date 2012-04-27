@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V89 (CMSSW_5_2_3_HLT9)
+# /dev/CMSSW_5_2_1/HIon/V91 (CMSSW_5_2_3_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V89')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V91')
 )
 
 process.streams = cms.PSet( 
@@ -871,10 +871,10 @@ process.hltESPAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProd
 process.hltESPBwdAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "hltESPBwdAnalyticalPropagator" ),
-  PropagationDirection = cms.string( '""oppositeToMomentum"' )
+  PropagationDirection = cms.string( "oppositeToMomentum" )
 )
 process.hltESPBwdElectronPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
-  PropagationDirection = cms.string( '"oppositeToMomentum""' ),
+  PropagationDirection = cms.string( "oppositeToMomentum" ),
   ComponentName = cms.string( "hltESPBwdElectronPropagator" ),
   Mass = cms.double( 5.11E-4 ),
   ptMin = cms.double( -1.0 ),
@@ -2028,7 +2028,7 @@ process.hltESPTrajectoryFilterForElectrons = cms.ESProducer( "TrajectoryFilterES
     maxNumberOfHits = cms.int32( -1 ),
     maxConsecLostHits = cms.int32( 1 ),
     nSigmaMinPt = cms.double( 5.0 ),
-    minimumNumberOfHits = cms.int32( 3 ),
+    minimumNumberOfHits = cms.int32( 5 ),
     chargeSignificance = cms.double( -1.0 )
   ),
   ComponentName = cms.string( "hltESPTrajectoryFilterForElectrons" )
