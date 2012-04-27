@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Jul  8 00:40:37 CEST 2011
-// $Id: FWGeometryTableViewManager.cc,v 1.7 2012/02/22 03:45:59 amraktad Exp $
+// $Id: FWGeometryTableViewManager.cc,v 1.8 2012/04/21 00:30:22 amraktad Exp $
 //
 
 #include <boost/bind.hpp>
@@ -17,6 +17,7 @@
 #include "TSystem.h"
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
+#include "TEveManager.h"
 
 #include "Fireworks/Core/interface/FWGeometryTableViewManager.h"
 #include "Fireworks/Core/src/FWGeometryTableView.h"
@@ -101,7 +102,6 @@ FWGeometryTableViewManager::setGeoManagerRuntime(TGeoManager* x)
 }
 
 //______________________________________________________________________________
-
 void
 FWGeometryTableViewManager::setGeoManagerFromFile()
 { 
@@ -110,7 +110,7 @@ FWGeometryTableViewManager::setGeoManagerFromFile()
    gGeoManager = 0;
    
    TFile* file = FWGeometry::findFile( m_fileName.c_str() );
-
+   gEve->RegisterGeometryAlias("Default", file->GetName());
    try 
    {
       if ( ! file )
