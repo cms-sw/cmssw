@@ -78,13 +78,14 @@ void FWEveDetectorGeo::paintChildNodesRecurse (FWGeometryTableManagerBase::Entri
          if ( ((FWGeometryTableManager*)tableManager())->getVisibility(*it))
             paintShape(*it, cnt , nm, m_browser->getVolumeMode() );
 
-         if  ( ((FWGeometryTableManager*)tableManager())->getVisibilityChld(*it) && ( it->m_level < m_maxLevel  || it->testBit(FWGeometryTableManagerBase::kExpanded) )) {
+         if  ( ((FWGeometryTableManager*)tableManager())->getVisibilityChld(*it) && ( it->m_level < m_maxLevel)) {
             paintChildNodesRecurse(it,cnt , nm);
          }
 
       }
       else
       {
+         ((FWGeometryTableManager*)tableManager())->assertNodeFilterCache(*it);
          if ( ((FWGeometryTableManager*)tableManager())->getVisibility(*it))
             paintShape(*it,cnt , nm, m_browser->getVolumeMode()  );
 
