@@ -130,6 +130,7 @@ class GsfElectronAlgo {
 
       // BDT output (if available)
       double minMVA ;
+      double minMvaByPassForIsolated ;
 
       // transverse impact parameter wrt beam spot
       double maxTIP ;
@@ -219,13 +220,12 @@ class GsfElectronAlgo {
     void createElectron() ;
 
     void setCutBasedPreselectionFlag( reco::GsfElectron * ele, const reco::BeamSpot & ) ;
-    void setMvaPreselectionFlag( reco::GsfElectron * ele ) ;
+    void setPflowPreselectionFlag( reco::GsfElectron * ele ) ;
     bool isPreselected( reco::GsfElectron * ele ) ;
     void calculateShowerShape( const reco::SuperClusterRef &, bool pflow, reco::GsfElectron::ShowerShape & ) ;
 
     // associations
     const reco::SuperClusterRef getTrSuperCluster( const reco::GsfTrackRef & trackRef ) ;
-
  } ;
 
 #endif // GsfElectronAlgo_H

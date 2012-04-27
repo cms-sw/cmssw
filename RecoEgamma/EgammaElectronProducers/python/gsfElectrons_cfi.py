@@ -66,6 +66,7 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     maxTIP = cms.double(999999999.),
     seedFromTEC = cms.bool(True),
     minMVA = cms.double(-0.4),
+    minMvaByPassForIsolated = cms.double(-0.4),
 
     # preselection parameters (tracker driven only electrons)    
     minSCEtBarrelPflow = cms.double(0.0),
@@ -96,6 +97,7 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     isFiducialPflow = cms.bool(False),
     maxTIPPflow = cms.double(999999999.),
     minMVAPflow = cms.double(-0.4),
+    minMvaByPassForIsolatedPflow = cms.double(-0.4),
     
     # Isolation algos configuration
     intRadiusBarrelTk = cms.double(0.015), 
@@ -206,6 +208,7 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     seedFromTEC = cms.bool(True),
     maxTIP = cms.double(999999999.),
     minMVA = cms.double(-0.1),
+    minMvaByPassForIsolated = cms.double(-0.1),
 
     # preselection parameters (tracker driven only electrons)    
     minSCEtBarrelPflow = cms.double(0.0),
@@ -236,6 +239,7 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     isFiducialPflow = cms.bool(False),
     maxTIPPflow = cms.double(999999999.),
     minMVAPflow = cms.double(-0.1),
+    minMvaByPassForIsolatedPflow = cms.double(-0.1),
     
     # Isolation algos configuration
     intRadiusBarrelTk = cms.double(0.015), 

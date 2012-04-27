@@ -34,8 +34,8 @@ GsfElectronCoreProducer::GsfElectronCoreProducer( const edm::ParameterSet & conf
  {
   edCoresTag_ = config.getParameter<edm::InputTag>("ecalDrivenGsfElectronCoresTag") ;
   pfCoresTag_ = config.getParameter<edm::InputTag>("pflowGsfElectronCoresTag") ;
-  pfSuperClustersTag_ = config.getParameter<edm::InputTag>("pfSuperClusters") ;
-  pfSuperClusterTrackMapTag_ = config.getParameter<edm::InputTag>("pfSuperClusterTrackMap") ;
+//  pfSuperClustersTag_ = config.getParameter<edm::InputTag>("pfSuperClusters") ;
+//  pfSuperClusterTrackMapTag_ = config.getParameter<edm::InputTag>("pfSuperClusterTrackMap") ;
  }
 
 void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup & setup )
@@ -49,8 +49,8 @@ void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup
   // event input
   event.getByLabel(edCoresTag_,edCoresH_) ;
   event.getByLabel(pfCoresTag_,pfCoresH_) ;
-  event.getByLabel(pfSuperClustersTag_,pfClustersH_) ;
-  event.getByLabel(pfSuperClusterTrackMapTag_,pfClusterTracksH_) ;
+//  event.getByLabel(pfSuperClustersTag_,pfClustersH_) ;
+//  event.getByLabel(pfSuperClusterTrackMapTag_,pfClusterTracksH_) ;
 
   // loop on pure tracker driven tracks
   if (useGsfPfRecTracks_)

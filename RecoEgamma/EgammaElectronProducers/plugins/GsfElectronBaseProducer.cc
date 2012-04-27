@@ -198,6 +198,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   cutsCfg_.isEndcaps = cfg.getParameter<bool>("isEndcaps") ;
   cutsCfg_.isFiducial = cfg.getParameter<bool>("isFiducial") ;
   cutsCfg_.minMVA = cfg.getParameter<double>("minMVA") ;
+  cutsCfg_.minMvaByPassForIsolated = cfg.getParameter<double>("minMvaByPassForIsolated") ;
   cutsCfg_.maxTIP = cfg.getParameter<double>("maxTIP") ;
   cutsCfg_.seedFromTEC = cfg.getParameter<bool>("seedFromTEC") ;
 
@@ -230,6 +231,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   cutsCfgPflow_.isEndcaps = cfg.getParameter<bool>("isEndcapsPflow") ;
   cutsCfgPflow_.isFiducial = cfg.getParameter<bool>("isFiducialPflow") ;
   cutsCfgPflow_.minMVA = cfg.getParameter<double>("minMVAPflow") ;
+  cutsCfgPflow_.minMvaByPassForIsolated = cfg.getParameter<double>("minMvaByPassForIsolatedPflow") ;
   cutsCfgPflow_.maxTIP = cfg.getParameter<double>("maxTIPPflow") ;
   cutsCfgPflow_.seedFromTEC = true ; // not applied for pflow
 

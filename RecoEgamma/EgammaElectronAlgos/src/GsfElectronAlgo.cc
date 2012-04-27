@@ -529,9 +529,11 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
   std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,reducedRecHits,topology) ;
   showerShape.sigmaEtaEta = sqrt(covariances[0]) ;
   showerShape.sigmaIetaIeta = sqrt(localCovariances[0]) ;
+  if (!isnan(localCovariances[2])) showerShape.sigmaIphiIphi = sqrt(localCovariances[2]) ;
   showerShape.e1x5 = EcalClusterTools::e1x5(seedCluster,reducedRecHits,topology)  ;
   showerShape.e2x5Max = EcalClusterTools::e2x5Max(seedCluster,reducedRecHits,topology)  ;
   showerShape.e5x5 = EcalClusterTools::e5x5(seedCluster,reducedRecHits,topology) ;
+  showerShape.r9 = EcalClusterTools::e3x3(seedCluster,reducedRecHits,topology)/theClus->rawEnergy() ;
 
   if (pflow)
    {
@@ -861,7 +863,7 @@ void GsfElectronAlgo::addPflowInfo()
      }
 
     // Preselection
-    setMvaPreselectionFlag(*el) ;
+    setPflowPreselectionFlag(*el) ;
 
     // Shower Shape of pflow cluster
     if (!((*el)->pflowSuperCluster().isNull()))
@@ -870,7 +872,7 @@ void GsfElectronAlgo::addPflowInfo()
       calculateShowerShape((*el)->pflowSuperCluster(),true,pflowShowerShape) ;
       (*el)->setPfShowerShape(pflowShowerShape) ;
      }
-    else if ((*el)->passingMvaPreselection())
+    else if ((*el)->passingPflowPreselection())
      { edm::LogError("GsfElectronCoreProducer")<<"Preselected tracker driven GsfTrack with no associated pflow SuperCluster." ; }
 
     // PfBrem
@@ -892,7 +894,7 @@ void GsfElectronAlgo::addPflowInfo()
  }
 
 bool GsfElectronAlgo::isPreselected( GsfElectron * ele )
- { return (ele->passingCutBasedPreselection()||ele->passingMvaPreselection()) ; }
+ { return (ele->passingCutBasedPreselection()||ele->passingPflowPreselection()) ; }
 
 void GsfElectronAlgo::removeNotPreselectedElectrons()
  {
@@ -993,15 +995,35 @@ void GsfElectronAlgo::setCutBasedPreselectionFlag( GsfElectron * ele, const reco
   ele->setPassCutBasedPreselection(true) ;
  }
 
-void GsfElectronAlgo::setMvaPreselectionFlag( GsfElectron * ele )
+void GsfElectronAlgo::setPflowPreselectionFlag( GsfElectron * ele )
  {
   ele->setPassMvaPreselection(false) ;
+
   if (ele->core()->ecalDrivenSeed())
-   { if (ele->mva()>=generalData_->cutsCfg.minMVA) ele->setPassMvaPreselection(true) ; }
+   { if (ele->mvaOutput().mva>=generalData_->cutsCfg.minMVA) ele->setPassMvaPreselection(true) ; }
   else
-   { if (ele->mva()>=generalData_->cutsCfgPflow.minMVA) ele->setPassMvaPreselection(true) ; }
+   { if (ele->mvaOutput().mva>=generalData_->cutsCfgPflow.minMVA) ele->setPassMvaPreselection(true) ; }
+
   if (ele->passingMvaPreselection())
-   { LogTrace("GsfElectronAlgo") << "Mva criterion is satisfied" ; }
+   { LogTrace("GsfElectronAlgo") << "Main mva criterion is satisfied" ; }
+
+  ele->setPassPflowPreselection(ele->passingMvaPreselection()) ;
+
+//  ele->setPassPflowPreselection(false) ;
+//  if (ele->core()->ecalDrivenSeed())
+//   {
+//    if ((ele->mvaOutput().mva>=generalData_->cutsCfg.minMVA) ||
+//        (ele->mvaOutput().mvaByPassForIsolated>=generalData_->cutsCfg.minMvaByPassForIsolated))
+//      ele->setPassPflowPreselection(true) ;
+//   }
+//  else
+//   {
+//    if ((ele->mvaOutput().mva>=generalData_->cutsCfgPflow.minMVA) ||
+//        (ele->mvaOutput().mvaByPassForIsolated>=generalData_->cutsCfgPflow.minMvaByPassForIsolated))
+//      ele->setPassPflowPreselection(true) ;
+//   }
+//  if (ele->passingPflowPreselection())
+//   { LogTrace("GsfElectronAlgo") << "Mva criteria are satisfied" ; }
  }
 
 void GsfElectronAlgo::createElectron()
