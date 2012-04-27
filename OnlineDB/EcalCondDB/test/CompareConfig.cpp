@@ -73,24 +73,37 @@ public:
       ec_cyc1.setSequenceId(seq_id1);
       econn->fetchConfigSet(&ec_cyc1);
       int cyc_id=ec_cyc1.getId();
+
+      if(ec_cyc1.getCycleNum()==icy){
       ec_cyc1.printout();
 
-      int dcc_id=ec_cyc1.getDCCId();
-      if(dcc_id!=0) {
+	std::cout<<"----------CYCLE---------"<<icy<<"-------------"<<std::endl;
+	std::cout<<"----------CYCLE---------"<<icy<<"-------------"<<std::endl;
+	std::cout<<"----------CYCLE---------"<<icy<<"-------------"<<std::endl;
+	std::cout<<"----------CYCLE---------"<<icy<<"-------------"<<std::endl;
 
-	ODDCCConfig dcc_prime;
-	dcc_prime.setId(dcc_id);
-	econn->fetchConfigSet(&dcc_prime);
-	dcc_prime.printout();
-	unsigned char * buffer_dcc=dcc_prime.getDCCClob();
-	cout<< "the DCC clob buffer is:"<<endl;
-	std::cout<< "DCC CLOB:"<<buffer_dcc<< std::endl;
-	cout << "Done." << endl << endl << endl;
-	delete [] buffer_dcc;
-      }
+	int dcc_id=ec_cyc1.getDCCId();
+	if(dcc_id!=0) {
+	std::cout<<"------------DCC--------------"<<std::endl;
+	std::cout<<"------------DCC--------------"<<std::endl;
+	std::cout<<"------------DCC--------------"<<std::endl;
+	  
+	  ODDCCConfig dcc_prime;
+	  dcc_prime.setId(dcc_id);
+	  econn->fetchConfigSet(&dcc_prime);
+	  dcc_prime.printout();
+	  unsigned char * buffer_dcc=dcc_prime.getDCCClob();
+	  cout<< "the DCC clob buffer is:"<<endl;
+	  std::cout<< "DCC CLOB:"<<buffer_dcc<< std::endl;
+	  cout << "Done." << endl << endl << endl;
+	  delete [] buffer_dcc;
+	}
 
       int ccs_id=ec_cyc1.getCCSId();
       if(ccs_id!=0) {
+	std::cout<<"------------CCS--------------"<<std::endl;
+	std::cout<<"------------CCS--------------"<<std::endl;
+	std::cout<<"------------CCS--------------"<<std::endl;
 
 	ODCCSConfig ccs_prime;
 	ccs_prime.setId(ccs_id);
@@ -100,6 +113,10 @@ public:
       int jbh4_id=ec_cyc1.getJBH4Id();
       if(jbh4_id!=0) {
 
+	std::cout<<"------------JBH4--------------"<<std::endl;
+	std::cout<<"------------JBH4--------------"<<std::endl;
+	std::cout<<"------------JBH4--------------"<<std::endl;
+
 	ODJBH4Config jbh4_prime;
 	jbh4_prime.setId(jbh4_id);
 	econn->fetchConfigSet(&jbh4_prime);
@@ -107,6 +124,10 @@ public:
       }
       int dcu_id=ec_cyc1.getDCUId();
       if(dcu_id!=0) {
+	std::cout<<"------------DCU--------------"<<std::endl;
+	std::cout<<"------------DCU--------------"<<std::endl;
+	std::cout<<"------------DCU--------------"<<std::endl;
+
 
 	ODDCUConfig dcu_prime;
 	dcu_prime.setId(dcu_id);
@@ -116,6 +137,10 @@ public:
 
       int las_id=ec_cyc1.getLaserId();
       if(las_id!=0) {
+	std::cout<<"------------Laser--------------"<<std::endl;
+	std::cout<<"------------Laser--------------"<<std::endl;
+	std::cout<<"------------Laser--------------"<<std::endl;
+
 	ODLaserConfig las_prime ;
 	las_prime.setId(las_id);
 	econn->fetchConfigSet(&las_prime);
@@ -129,20 +154,31 @@ public:
 
       int tcc_id=ec_cyc1.getTCCId();
       if(tcc_id!=0) {
+	std::cout<<"------------TCC--------------"<<std::endl;
+	std::cout<<"------------TCC--------------"<<std::endl;
+	std::cout<<"------------TCC--------------"<<std::endl;
+
 	ODTCCConfig tcc_prime ;
 	tcc_prime.setId(tcc_id);
 	econn->fetchConfigSet(&tcc_prime);
 	tcc_prime.printout();
+
+
 	unsigned char * buffer_dcc=tcc_prime.getTCCClob();
 	cout<< "the TCC clob buffer is:"<<endl;
 	std::cout<< "TCC CLOB:"<<buffer_dcc<< std::endl;
 	cout << "Done." << endl << endl << endl;
 	delete [] buffer_dcc;
+
+
 	unsigned char * buffer_lut=tcc_prime.getLUTClob();
 	cout<< "the TCC-LUT clob buffer is:"<<endl;
 	std::cout<< "TCC-LUT CLOB:"<<buffer_lut<< std::endl;
 	cout << "Done." << endl << endl << endl;
 	delete [] buffer_lut;
+
+
+
 	unsigned char * buffer_slb=tcc_prime.getSLBClob();
 	cout<< "the TCC-SLB clob buffer is:"<<endl;
 	std::cout<< "TCC-SLB CLOB:"<<buffer_slb<< std::endl;
@@ -151,6 +187,10 @@ public:
       }
       int ttcci_id=ec_cyc1.getTTCCIId();
       if(ttcci_id!=0) {
+	std::cout<<"------------TTCCI--------------"<<std::endl;
+	std::cout<<"------------TTCCI--------------"<<std::endl;
+	std::cout<<"------------TTCCI--------------"<<std::endl;
+
 	ODTTCciConfig tcc_prime ;
 	tcc_prime.setId(ttcci_id);
 	econn->fetchConfigSet(&tcc_prime);
@@ -164,6 +204,9 @@ public:
 
       int ttcf_id=ec_cyc1.getTTCFId();
       if(ttcf_id!=0) {
+	std::cout<<"------------TTCF--------------"<<std::endl;
+	std::cout<<"------------TTCF--------------"<<std::endl;
+	std::cout<<"------------TTCF--------------"<<std::endl;
 	ODTTCFConfig ttcf_prime ;
 	ttcf_prime.setId(ttcf_id);
 	econn->fetchConfigSet(&ttcf_prime);
@@ -181,6 +224,9 @@ public:
 
       int ltc_id=ec_cyc1.getLTCId();
       if(ltc_id!=0) {
+	std::cout<<"------------LTC--------------"<<std::endl;
+	std::cout<<"------------LTC--------------"<<std::endl;
+	std::cout<<"------------LTC--------------"<<std::endl;
 	ODLTCConfig tcc_prime ;
 	tcc_prime.setId(ltc_id);
 	econn->fetchConfigSet(&tcc_prime);
@@ -195,6 +241,10 @@ public:
 
       int lts_id=ec_cyc1.getLTSId();
       if(lts_id!=0) {
+	std::cout<<"------------LTS--------------"<<std::endl;
+	std::cout<<"------------LTS--------------"<<std::endl;
+	std::cout<<"------------LTS--------------"<<std::endl;
+ 
 	ODLTSConfig lts_prime ;
 	lts_prime.setId(lts_id);
 	econn->fetchConfigSet(&lts_prime);
@@ -203,6 +253,10 @@ public:
 
       int srp_id=ec_cyc1.getSRPId();
       if(srp_id!=0) {
+	std::cout<<"------------SRP--------------"<<std::endl;
+	std::cout<<"------------SRP--------------"<<std::endl;
+	std::cout<<"------------SRP--------------"<<std::endl;
+ 
 	ODSRPConfig srp_prime ;
 	srp_prime.setId(srp_id);
 	econn->fetchConfigSet(&srp_prime);
@@ -217,16 +271,14 @@ public:
 
       int tccee_id=ec_cyc1.getTCCEEId();
       if(tccee_id!=0) {
+	std::cout<<"------------TCCEE--------------"<<std::endl;
+	std::cout<<"------------TCCEE--------------"<<std::endl;
+	std::cout<<"------------TCCEE--------------"<<std::endl;
+ 
 	ODTCCEEConfig tccee_prime ;
 	tccee_prime.setId(tccee_id);
 	econn->fetchConfigSet(&tccee_prime);
-	std::cout<<"------------TCCEE--------------"<<std::endl;
-	std::cout<<"------------TCCEE--------------"<<std::endl;
-	std::cout<<"------------TCCEE--------------"<<std::endl;
 	tccee_prime.printout();
-	std::cout<<"------------TCCEE--------------"<<std::endl;
-	std::cout<<"------------TCCEE--------------"<<std::endl;
-	std::cout<<"------------TCCEE--------------"<<std::endl;
 
 	unsigned char * buffer_lut=tccee_prime.getLUTClob();
 	cout<< "the TCCEE-LUT clob buffer is:"<<endl;
@@ -234,9 +286,7 @@ public:
 	cout << "Done." << endl << endl << endl;
 	delete [] buffer_lut;
 
-	std::cout<<"------------TCCEE--------------"<<std::endl;
-	std::cout<<"------------TCCEE--------------"<<std::endl;
-	std::cout<<"------------TCCEE--------------"<<std::endl;
+
 
 
 	unsigned char * buffer_slb=tccee_prime.getSLBClob();
@@ -244,23 +294,19 @@ public:
 	std::cout<< "TCCEE-SLB CLOB:"<<buffer_slb<< std::endl;
 	cout << "Done." << endl << endl << endl;
 	delete [] buffer_slb;
-	std::cout<<"------------TCCEE--------------"<<std::endl;
-	std::cout<<"------------TCCEE--------------"<<std::endl;
-	std::cout<<"------------TCCEE--------------"<<std::endl;
+
 
 	unsigned char * buffer_dcc=tccee_prime.getTCCClob();
 	cout<< "the TCCEE clob buffer is:"<<endl;
 	std::cout<< "TCCEE CLOB:"<<buffer_dcc<< std::endl;
 	cout << "Done." << endl << endl << endl;
 	delete [] buffer_dcc;
-	std::cout<<"------------TCCEE--------------"<<std::endl;
-	std::cout<<"------------TCCEE--------------"<<std::endl;
-	std::cout<<"------------TCCEE--------------"<<std::endl;
+
 
       }
 
+      }
     }
-    
 
 
     /*

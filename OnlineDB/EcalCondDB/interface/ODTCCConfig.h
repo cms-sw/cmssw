@@ -48,12 +48,14 @@ class ODTCCConfig : public IODConfig {
 
   void setParameters(std::map<std::string,std::string> my_keys_map);
   inline void printout() { 
+    std::cout <<"TCC start parameters >>" << std::endl;
     std::cout <<"TCC >>" << "TCCConfigurationFile " <<  getTCCConfigurationFile()<< std::endl;
     std::cout <<"TCC >>" << "LUTConfigurationFile " <<  getLUTConfigurationFile()<< std::endl;
     std::cout <<"TCC >>" << "SLBConfigurationFile " <<  getSLBConfigurationFile()<< std::endl;
     std::cout <<"TCC >>" << "TestPatternFileUrl " <<  getTestPatternFileUrl()<< std::endl;
     std::cout <<"TCC >>" << "NTestPatternsToLoad " <<  getNTestPatternsToLoad()<< std::endl;
     std::cout <<"TCC >>" << "SLBLatency " <<  getSLBLatency()<< std::endl;
+    std::cout <<"TCC end parameters >>" << std::endl;
     
   }
 
