@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.378 $"
+__version__ = "$Revision: 1.372.2.2 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -14,12 +14,13 @@ class Options:
 # the canonical defaults
 defaultOptions = Options()
 defaultOptions.datamix = 'DataOnSim'
+from Configuration.StandardSequences.Mixing import MixingDefaultKey
 defaultOptions.isMC=False
 defaultOptions.isData=True
 defaultOptions.step=''
-defaultOptions.pileup='NoPileUp'
+defaultOptions.pileup=MixingDefaultKey
 defaultOptions.pileup_input = None
-defaultOptions.geometry = 'SimDB'
+defaultOptions.geometry = 'DB'
 defaultOptions.geometryExtendedOptions = ['ExtendedGFlash','Extended','NoCastor']
 defaultOptions.magField = '38T'
 defaultOptions.conditions = None
@@ -377,7 +378,7 @@ class ConfigBuilder(object):
 					count+=1
 					
 		
-		## allow comma separated input eventcontent
+		##allow comma separated input eventcontent
 		if not hasattr(self.process.source,'inputCommands'): self.process.source.inputCommands=cms.untracked.vstring()
 		for evct in self._options.inputEventContent.split(','):
 			if evct=='': continue
@@ -433,7 +434,7 @@ class ConfigBuilder(object):
 				
 		#new output convention with a list of dict
 		outList = eval(self._options.outputDefinition)
-		for (id,outDefDict) in enumerate(outList):
+		for outDefDict in outList:
 			outDefDictStr=outDefDict.__str__()
 			if not isinstance(outDefDict,dict):
 				raise Exception("--output needs to be passed a list of dict"+self._options.outputDefinition+" is invalid")
@@ -458,18 +459,13 @@ class ConfigBuilder(object):
 						break
 			if not theModuleLabel:
 				raise Exception("cannot find a module label for specification: "+outDefDictStr)
-			if id==0:
-				defaultFileName=self._options.outfile_name
-			else:
-				defaultFileName=self._options.outfile_name.replace('.root','_in'+theTier+'.root')
-				
-			theFileName=self._options.dirout+anyOf(['fn','fileName'],outDefDict,defaultFileName)
+			
+			theFileName=self._options.dirout+anyOf(['fn','fileName'],outDefDict,theModuleLabel+'.root')
 			if not theFileName.endswith('.root'):
 				theFileName+='.root'
-				
 			if len(outDefDict.keys()):
 				raise Exception("unused keys from --output options: "+','.join(outDefDict.keys()))
-			if theStreamType=='DQMROOT': theStreamType='DQM'
+			if theStreamType=='DQMROOT': theStreamType=='DQM'
 			if theStreamType=='ALL':
 				theEventContent = cms.PSet(outputCommands = cms.untracked.vstring('keep *'))
 			else:
@@ -612,10 +608,6 @@ class ConfigBuilder(object):
         try:
 		if len(self.stepMap):
 			self.loadAndRemember(self.GeometryCFF)
-			if 'SIM' in self.stepMap or 'reSIM' in self.stepMap:
-				self.loadAndRemember(self.SimGeometryCFF)
-				if self.geometryDBLabel:
-					self.executeAndRemember('process.XMLFromDBSource.label = cms.string("%s")'%(self.geometryDBLabel))
         except ImportError:
                 print "Geometry option",self._options.geometry,"unknown."
                 raise
@@ -678,12 +670,12 @@ class ConfigBuilder(object):
 		else:
 			self._options.custom_conditions=self._options.conditions[1]
 		self._options.conditions=self._options.conditions[0]
-
-
+			
+        #it is insane to keep this replace in: dependency on changes in DataProcessing
 	if 'FrontierConditions_GlobalTag' in self._options.conditions:
 		print 'using FrontierConditions_GlobalTag in --conditions is not necessary anymore and will be deprecated soon. please update your command line'
 		self._options.conditions = self._options.conditions.replace("FrontierConditions_GlobalTag,",'')
-						
+
 	conditions = self._options.conditions.split(',')
 	
         gtName = str( conditions[0] )
@@ -846,6 +838,10 @@ class ConfigBuilder(object):
         self.CFWRITERDefaultCFF = "Configuration/StandardSequences/CrossingFrameWriter_cff"
         self.REPACKDefaultCFF="Configuration/StandardSequences/DigiToRaw_Repack_cff"
 
+        # synchronize the geometry configuration and the FullSimulation sequence to be used
+        if self._options.geometry not in defaultOptions.geometryExtendedOptions:
+            self.SIMDefaultCFF="Configuration/StandardSequences/SimIdeal_cff"
+
         if "DATAMIX" in self.stepMap.keys():
             self.DATAMIXDefaultCFF="Configuration/StandardSequences/DataMixer"+self._options.datamix+"_cff"
             self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDM_cff"
@@ -960,57 +956,22 @@ class ConfigBuilder(object):
         self.magFieldCFF = self.magFieldCFF.replace("__",'_')
 
         # the geometry
-	self.GeometryCFF='Configuration/StandardSequences/GeometryRecoDB_cff'
-	self.geometryDBLabel=None
-	simGeometry=''
+	if self._options.isData and 'HLT' in self.stepMap:
+		## temporary solution for HLT on data and pre-loading conditions. Should be solved with Geometry migration
+		self._options.geometry = 'RecoDB'
+		
         if 'FASTSIM' in self.stepMap:
                 if 'start' in self._options.conditions.lower():
                         self.GeometryCFF='FastSimulation/Configuration/Geometries_START_cff'
                 else:
                         self.GeometryCFF='FastSimulation/Configuration/Geometries_MC_cff'
         else:
-		def inGeometryKeys(opt):
-			from Configuration.StandardSequences.GeometryConf import GeometryConf
-			if opt in GeometryConf:
-				return GeometryConf[opt]
-			else:
-				return opt
+                if self._options.gflash==True:
+                        self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'GFlash_cff'
+                else:
+                        self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff'
 
-		geoms=self._options.geometry.split(',')
-		if len(geoms)==1: geoms=inGeometryKeys(geoms[0]).split(',')
-		if len(geoms)==2:
-			#may specify the reco geometry
-			if '/' in geoms[1] or '_cff' in geoms[1]:
-				self.GeometryCFF=geoms[1]
-			else:
-				self.GeometryCFF='Configuration/StandardSequences/Geometry'+geoms[1]+'_cff'
-
-		if (geoms[0].startswith('DB:')):
-			self.SimGeometryCFF='Configuration/StandardSequences/GeometrySimDB_cff'
-			self.geometryDBLabel=geoms[0][3:]
-			print "with DB:"
-		else:
-			if '/' in geoms[0] or '_cff' in geoms[0]:
-								self.SimGeometryCFF=geoms[0]
-			else:
-				simGeometry=geoms[0]
-				if self._options.gflash==True:
-					self.SimGeometryCFF='Configuration/StandardSequences/Geometry'+geoms[0]+'GFlash_cff'
-				else:
-					self.SimGeometryCFF='Configuration/StandardSequences/Geometry'+geoms[0]+'_cff'
-
-	# synchronize the geometry configuration and the FullSimulation sequence to be used
-        if simGeometry not in defaultOptions.geometryExtendedOptions:
-		self.SIMDefaultCFF="Configuration/StandardSequences/SimIdeal_cff"
-	    
         # Mixing
-	if self._options.pileup=='default':
-		from Configuration.StandardSequences.Mixing import MixingDefaultKey,MixingFSDefaultKey
-		if 'FASTSIM' in self.stepMap:
-			self._options.pileup=MixingFSDefaultKey
-		else:
-			self._options.pileup=MixingDefaultKey
-			
 	#not driven by a default cff anymore
 	if self._options.isData:
 		self._options.pileup=None
@@ -1023,7 +984,7 @@ class ConfigBuilder(object):
 
 	if self._options.slhc:
 		if 'stdgeom' not in self._options.slhc:
-			self.SimGeometryCFF='SLHCUpgradeSimulations.Geometry.%s_cmsSimIdealGeometryXML_cff'%(self._options.slhc,)
+			self.GeometryCFF='SLHCUpgradeSimulations.Geometry.%s_cmsSimIdealGeometryXML_cff'%(self._options.slhc,)
 		self.DIGIDefaultCFF='SLHCUpgradeSimulations/Geometry/Digi_%s_cff'%(self._options.slhc,)
 		if self._options.pileup!=defaultOptions.pileup:
 			self._options.pileup='SLHC_%s_%s'%(self._options.pileup,self._options.slhc)
@@ -1344,11 +1305,6 @@ class ConfigBuilder(object):
 
     def prepare_HLT(self, sequence = None):
         """ Enrich the schedule with the HLT simulation step"""
-        loadDir='HLTrigger'
-        fastSim=False
-        if 'FASTSIM' in self.stepMap.keys():
-                fastSim=True
-                loadDir='FastSimulation'
         if not sequence:
                 print "no specification of the hlt menu has been given, should never happen"
                 raise  Exception('no HLT sequence provided')
@@ -1364,7 +1320,10 @@ class ConfigBuilder(object):
                         optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.iteritems())
                         self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
                 else:
-                        self.loadAndRemember('%s/Configuration/HLT_%s_cff' % (loadDir, sequence))
+                        if 'FASTSIM' in self.stepMap:
+                            self.loadAndRemember('HLTrigger/Configuration/HLT_%s_Famos_cff' % sequence)
+                        else:
+                            self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
 
 	if self._options.name!='HLT':
 		self.additionalCommands.append('from HLTrigger.Configuration.CustomConfigs import ProcessName')
@@ -1374,7 +1333,7 @@ class ConfigBuilder(object):
 		
         self.schedule.append(self.process.HLTSchedule)
         [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
-        if (fastSim and 'HLT' in self.stepMap.keys()):
+        if ('FASTSIM' in self.stepMap and 'HLT' in self.stepMap):
                 self.finalizeFastSimHLT()
 
 
@@ -1751,15 +1710,14 @@ class ConfigBuilder(object):
         beamspotName = 'process.%sVtxSmearingParameters' %(self._options.beamspot)
         self.executeAndRemember(beamspotName+'.type = cms.string("%s")'%(beamspotType))
         self.executeAndRemember('process.famosSimHits.VertexGenerator = '+beamspotName)
-	if hasattr(self.process,'famosPileUp'):
-		self.executeAndRemember('process.famosPileUp.VertexGenerator = '+beamspotName)
+        self.executeAndRemember('process.famosPileUp.VertexGenerator = '+beamspotName)
 
 
 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.378 $"),
+                                            (version=cms.untracked.string("$Revision: 1.372.2.2 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )

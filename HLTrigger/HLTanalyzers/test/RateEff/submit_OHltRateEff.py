@@ -35,8 +35,6 @@ parser.add_option("-r","--run-locally",dest="runlocally",default=False,
 
 parser.add_option("-m","--merge-results",dest="mergeresults",default="directory",type="string",
                   help="merge lumiscalefactor results into one text file")
-parser.add_option("-n","--merge-filename",dest="merge_texfile",default="merged_OHlt_log.tex",type="string",
-                  help="merge tex filename")
 
 print _legend,'parsing command line options...',
 (options, args) = parser.parse_args()
@@ -51,18 +49,16 @@ print 'done'
 ##################
 # Run Settings
 ##################
-simulate         = False      # if True generates test to run overy only 1000ev, else run all events
+simulate         = True      # if True generates test to run overy only 1000ev, else run all events
 
-useLSF           = False
-lumiScaleFactor  = [5.345]
-#lumiScaleFactor  = [187.32]   #changed format, input exactly what you want # 3,4]     # [3,4,5] can just list more , this is used in merging too!  - currently 3 is the most that fits on a page... 
+lumiScaleFactor  = [3,4]     # [3,4,5] can just list more , this is used in merging too!  - currently 3 is the most that fits on a page... 
 doPreScales      = True      # do the different HLT/L1 prescales as well as lumiScaleFactors (if false do only lumi) -procedure: append  "#*[ PS1, PS2 ,...]" to the line for the trigger in <file>.cfg : e.g see cfgs/2011cfgs/multicol_template.cfg
 
 # Prescales run as follows: 1) will run nominal, 2) then replace the nominal prescale with the first column PS1 for the triggers that have PS1 and runs this 3) repeats for PS2 etc until reaches the max number of columns. Note that the prescale replacement list does NOT need to be same length for different triggers 
 
 
 # one of "runlocally or submitjobs" must be to true to run the code (not important when merging)
-runlocally      = True        # run locally  
+runlocally      = True      # run locally  
 runinparallel   = True       # relevant if running locally -- run in series or parallel, equivalent of appending ampserand to command i.e. ./OHltRateEff <filename>.cfg &
 
 # batch submission
@@ -79,9 +75,9 @@ submitqueue     = "8nh"      # submit to which q? 8nh is good  or 8nm if testing
 ####################
 # Merge Settings
 ####################
-mergePreScale   = False      # merge prescales? If false, will merge the lumiScaleFactors (all of them that appear in lumiScaleFactor array) 
-doPreScaleQ     = 4         # how many prescales to merge, this must be <= the number of prescales run over (has to be >=1)... (1 is just the nominal case)
-PreScaleLumiI   = 0          # if mergePreScale is True, then need to pick one lumi to do i.e. specify place 0,1,2... in lumiScaleFactor [0,1,2...], 0 will select the first lumiSF originally specified
+mergePreScale   = True      # merge prescales? If false, will merge the lumiScaleFactors (all of them that appear in lumiScaleFactor array) 
+doPreScaleQ     = 3          # how many prescales to merge, this must be <= the number of prescales run over (has to be >=1)... (1 is just the nominal case)
+PreScaleLumiI   = 1          # if mergePreScale is True, then need to pick one lumi to do i.e. specify place 0,1,2... in lumiScaleFactor [0,1,2...], 0 will select the first lumiSF originally specified
 
 
 #############################################################################
@@ -142,10 +138,8 @@ if (runinparallel and (runlocally or options.runlocally)) and not mergelogs:
 # Main Code
 #
 #################################################
-changedNames = []
 if runcode:
-    if useLSF:
-        os.system("echo "+_legend+" LumiScaleFactors to run : "+str(lumiScaleFactor))
+    os.system("echo "+_legend+" LumiScaleFactors to run : "+str(lumiScaleFactor))
     os.system("echo "+_legend+" Going to run ...        : "+str(nEv)+" ev per ScaleFactor")
     from datetime import datetime
     d = datetime.now()
@@ -153,7 +147,7 @@ if runcode:
     _dir = str(options.cfgfile).replace("/","_")
     _dir = _dir.replace('cfgs_','')
     _dir = _dir.replace(".cfg","")
-    _dir = _dir+'_'+dt
+    _dir = _dir+dt
     if not os.path.exists('./results/'):
         os.makedirs('./results/')
     os.system('mkdir results/'+_dir)
@@ -171,9 +165,7 @@ if runcode:
         for line in tempOhltin:
             line=line.replace('nEntries','nEntries                  = '+str(nEv)+'; ##')
             line=line.replace('nPrintStatusEvery','nPrintStatusEvery= '+str(nPrint)+'; ##')
-            if useLSF:
-                line=line.replace('lumiScaleFactor','lumiScaleFactor    = '+str(i)+'; ##')
-                
+            line=line.replace('lumiScaleFactor','lumiScaleFactor    = '+str(i/3.)+'; ##')
             #need counter of how many prescales
             if "#*" in line and "[" in line and "]" in line:
                 PsExists = True
@@ -194,7 +186,6 @@ if runcode:
 
             for line in tempOhltinPS:                
                 if "#*" in line and "[" in line and "]" in line:
-                    changedNames.append(line[line.find('"')+1:line.find(",")-1])
                     psBraceB = line.find('[')
                     psBraceE = line.find(']')
 
@@ -236,20 +227,18 @@ if runcode:
 
                             line = line[:psBraceCB]+line[psBraceM+1:psBraceE]+line[psBraceCE:]
                 tempOhltoutPS.write(line)
+
         if runlocally or options.runlocally:
             print _legend,"running "+str(len(lumiScaleFactor))+" lumiScaleFactors - "+str(filecounter+1) +"/"+str(len(lumiScaleFactor))
-            #            print _legend,'list of prescales changed',changedNames
-            os.system("echo "+_legend+"changedName list: "+str(changedNames)+" > results/"+_dir+"/tempOHlt_log_"+str(filecounter)+"_sf_0_psf.log "+ampersand)
-            os.system("./OHltRateEff ./results/"+_dir+"/tempOHlt_cfg_"+str(filecounter)+"_sf_0_psf.cfg >> results/"+_dir+"/tempOHlt_log_"+str(filecounter)+"_sf_0_psf.log "+ampersand)
-
+            os.system("./OHltRateEff ./results/"+_dir+"/tempOHlt_cfg_"+str(filecounter)+"_sf_0_psf.cfg > results/"+_dir+"/tempOHlt_log_"+str(filecounter)+"_sf_0_psf.log "+ampersand)
+             
             if doPreScales:
                 print _legend,"will run n different prescale settings n = "+str(psCounter+1)
                 for psf in range(1,psCounter+1):
                     print _legend,"@",str(filecounter*(psCounter+1)+psf+1) +"/"+str(len(lumiScaleFactor)*(psCounter+1))
+                    
                     os.system("./OHltRateEff ./results/"+_dir+"/tempOHlt_cfg_"+str(filecounter)+"_sf_"+str(psf)+"_psf.cfg > results/"+_dir+"/tempOHlt_log_"+str(filecounter)+"_sf_"+str(psf)+"_psf.log "+ampersand)
 
-    
-                    
         #########################
         #Sumbits to condor/lsf
         #########################
@@ -319,52 +308,18 @@ if runcode:
                     tempsubmitfileP[psf].write("cp tempOHlt_log_"+str(filecounter)+"_sf_"+str(psf)+"_psf.log  ${CODE_SRC}/src/HLTrigger/HLTanalyzers/test/RateEff/results/"+_dir+"/tempOHlt_log_"+str(filecounter)+"_sf_"+str(psf)+"_psf.log \n")
                     os.system("bsub -q "+submitqueue+" tempSubmit"+str(filecounter)+"_"+str(psf)+".job")
                 os.chdir('../../')
-
-    
+                
                 
 #######################
 #
 # Merge the log files 
 #
 #######################
-def splitTables(_texfile):
-    filetosplit     = open(_texfile)
-    outfiletemp     = open('tempoutfile.tex','w')
-    linecounter     = 0
-    
-    for line in filetosplit:
-        if 'tabular' in line:
-            savetabularline = line
-        if 'Name' in line:
-            savetitleline  = line
-        if ('+-' in line) or ('*' in line):
-            linecounter = linecounter + 1
-
-        if linecounter == 38:
-            linecounter = 0
-            outfiletemp.write("\\hline\n\\end{tabular}\n")
-            outfiletemp.write("\\end{sidewaystable}\n\n\\begin{sidewaystable}[ht]\n")
-            outfiletemp.write(savetabularline)
-            outfiletemp.write('\\hline\n')
-            outfiletemp.write(savetitleline+'\\\\\n\\hline')
-        outfiletemp.write(line)
-    outfiletemp.close()
-    filetosplit.close()
-    
-    os.system('mv tempoutfile.tex '+_texfile)
-                                                                                                                                                                    
-def ifPrescaleChanged(_changedList,_name):
-    if _name in _chanedList:
-        return True
-    else:
-        return False 
-
  
 if mergelogs:
     filecounter = -1
-    mergedlog = open('./'+options.merge_texfile,'w')
-    #    os.system("echo "+_legend+" creating merged_OHlt_log.tex in ./ folder ...")
-    print _legend, 'creating ./'+options.merge_texfile,' texfile...'
+    mergedlog = open('./merged_OHlt_log.tex','w')
+    os.system("echo "+_legend+" creating merged_OHlt_log.tex in ./ folder ...")    
     mergedlog.write('\\documentclass[prb]{revtex4} \n \\usepackage[UKenglish]{babel}\n \\usepackage{rotating} \n  \\setlength{\\textheight}{270mm} \n    \\begin{document} \n')
     mergedlog.write('\\begin{sidewaystable}[ht] \n \\begin{tabular}{|c|')
 
@@ -396,7 +351,7 @@ if mergelogs:
     mergedlog.write("Name ")
     if mergePreScale:
         for i in range(0,doPreScaleQ):
-            mergedlog.write("& ("+str(i)+") PreSc. (HLT*L1) & ("+str(i)+") Indiv. ["+str(lumiScaleFactor[PreScaleLumiI])+"] & ("+str(i)+") Cumul. ["+str(lumiScaleFactor[PreScaleLumiI])+"e33]")
+            mergedlog.write("& ("+str(i)+") PreSc. (HLT*L1) & ("+str(i)+") Indiv. ["+str(lumiScaleFactor[PreScaleLumiI])+"e33] & ("+str(i)+") Cumul. ["+str(lumiScaleFactor[PreScaleLumiI])+"e33]")
         
     else:
         mergedlog.write(" & Prescale (HLT*L1)")
@@ -420,8 +375,8 @@ if mergelogs:
     filecounter =-1
     linecounter =-1
     reachEnd = False
-
-    for n in range(0,10000): #number of triggers...a little rough but ok, will automatically break at end
+  
+    for n in range(0,5000): #number of triggers...a little rough but ok, will automatically break at end
         filecounter = -1
         linecounter = 0        
         
@@ -459,7 +414,6 @@ if mergelogs:
                     
                 if "Trigger Rates" in line:
                     boLog = True
-
                 if boLog:
                     if "-----------------------------" in line:
                         boMenu = True
@@ -507,8 +461,3 @@ if mergelogs:
     mergedlog.write('}  \n  \\end{sidewaystable}')
     mergedlog.write('\n \\end{document}')
     os.system("echo "+_legend +" file created in current dir... tex it!")
-
-
-    mergedlog.close()
-    splitTables(options.merge_texfile)
-

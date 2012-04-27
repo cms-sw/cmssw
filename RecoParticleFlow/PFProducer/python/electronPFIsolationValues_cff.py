@@ -8,7 +8,7 @@ elPFIsoValueCharged03PFId = cms.EDProducer("CandIsolatorFromDeposits",
             src = cms.InputTag("elPFIsoDepositCharged"),
             deltaR = cms.double(0.3),
             weight = cms.string('1'),
-            vetos = cms.vstring('EcalEndcaps:ConeVeto(0.015)'),
+            vetos = cms.vstring('Threshold(0.0)'),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
             )
@@ -21,7 +21,7 @@ elPFIsoValueChargedAll03PFId = cms.EDProducer("CandIsolatorFromDeposits",
             src = cms.InputTag("elPFIsoDepositChargedAll"),
             deltaR = cms.double(0.3),
             weight = cms.string('1'),
-            vetos = cms.vstring('EcalEndcaps:ConeVeto(0.015)'),
+            vetos = cms.vstring('Threshold(0.0)'),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
      )
@@ -34,7 +34,7 @@ elPFIsoValueGamma03PFId = cms.EDProducer("CandIsolatorFromDeposits",
             src = cms.InputTag("elPFIsoDepositGamma"),
             deltaR = cms.double(0.3),
             weight = cms.string('1'),
-            vetos = cms.vstring('EcalEndcaps:ConeVeto(0.08)'),
+            vetos = cms.vstring('Threshold(0.5)'),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
       )
@@ -47,7 +47,7 @@ elPFIsoValueNeutral03PFId = cms.EDProducer("CandIsolatorFromDeposits",
             src = cms.InputTag("elPFIsoDepositNeutral"),
             deltaR = cms.double(0.3),
             weight = cms.string('1'),
-            vetos = cms.vstring(),
+            vetos = cms.vstring('Threshold(0.5)'),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
     )
@@ -60,7 +60,7 @@ elPFIsoValuePU03PFId = cms.EDProducer("CandIsolatorFromDeposits",
             src = cms.InputTag("elPFIsoDepositPU"),
             deltaR = cms.double(0.3),
             weight = cms.string('1'),
-            vetos = cms.vstring('EcalEndcaps:ConeVeto(0.015)'),
+            vetos = cms.vstring('Threshold(0.5)'),
             skipDefaultVeto = cms.bool(True),
             mode = cms.string('sum')
       )

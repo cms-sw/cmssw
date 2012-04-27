@@ -3,6 +3,7 @@
 
 #include <string>
 #include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
 //! wrapper around a DDAlgorithm
 /** used from DDParser for setting up, initializing, and executing an DDAlgorithm */
@@ -25,10 +26,10 @@ class DDAlgorithmHandler
                   const DDVectorArguments & vArgs,
                   const DDMapArguments & mArgs,
                   const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & svArgs);
+		  const DDStringVectorArguments & svArgs) throw (DDException);
 
   //! executes the wrapped algorithm algo_; some pre- and post-processing (exception handling)
-  void execute( DDCompactView& );
+  void execute( DDCompactView& ) throw (DDException);
 
  
  private:

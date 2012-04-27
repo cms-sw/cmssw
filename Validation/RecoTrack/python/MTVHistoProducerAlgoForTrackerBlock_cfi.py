@@ -27,11 +27,11 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     useLogPt=cms.untracked.bool(True),
     #                               
     minHit = cms.double(-0.5),                            
-    maxHit = cms.double(40.5),
-    nintHit = cms.int32(41),
+    maxHit = cms.double(34.5),
+    nintHit = cms.int32(35),
     #
-    minPhi = cms.double(-3.1416),
-    maxPhi = cms.double(3.1416),
+    minPhi = cms.double(-3.15),
+    maxPhi = cms.double(3.15),
     nintPhi = cms.int32(36),
     #
     minDxy = cms.double(-40),

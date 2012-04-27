@@ -62,7 +62,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         #        please select "SimG4Core/Physics/DummyPhysics" for type
         #        and turn ON DummyEMPhysics
         #
-        type = cms.string('SimG4Core/Physics/QGSP_FTFP_BERT_EML95msc93'),
+        type = cms.string('SimG4Core/Physics/QGSP_FTFP_BERT_EML'),
         DummyEMPhysics = cms.bool(False),
         CutsPerRegion = cms.bool(True),
         DefaultCutValue = cms.double(1.0), ## cuts in cm
@@ -211,8 +211,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         UseHF               = cms.untracked.bool(True),
         ForTBH2             = cms.untracked.bool(False),
         UseLayerWt          = cms.untracked.bool(False),
-        WtFile              = cms.untracked.string('None'),
-        LumiDarkening       = cms.untracked.double(1.0)
+        WtFile              = cms.untracked.string('None')
     ),
     CaloTrkProcessing = cms.PSet(
         TestBeam   = cms.bool(False),

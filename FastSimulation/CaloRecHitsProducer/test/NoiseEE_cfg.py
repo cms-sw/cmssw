@@ -13,7 +13,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 #)
 
 # Include the RandomNumberGeneratorService definition
-process.load("FastSimulation/Configuration/RandomServiceInitialization_cff")
+process.load("IOMC.RandomEngine.IOMC_cff")
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 #process.source = cms.Source("PoolSource",
 #                            fileNames = cms.untracked.vstring(

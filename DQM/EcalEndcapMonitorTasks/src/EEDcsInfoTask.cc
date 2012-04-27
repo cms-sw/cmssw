@@ -1,8 +1,8 @@
 /*
  * \file EEDcsInfoTask.cc
  *
- * $Date: 2011/08/30 09:28:42 $
- * $Revision: 1.20 $
+ * $Date: 2011/06/27 12:16:03 $
+ * $Revision: 1.18.4.1 $
  * \author E. Di Marco
  *
 */
@@ -58,10 +58,11 @@ void EEDcsInfoTask::beginJob(void){
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
 
-    meEEDcsFraction_ = dqmStore_->bookFloat( "DCSSummary EE" );
+    meEEDcsFraction_ = dqmStore_->bookFloat( "DCSSummary" );
     meEEDcsFraction_->Fill(0.0);
 
-    meEEDcsActiveMap_ = dqmStore_->book2D("DCSSummaryMap EE", "Ecal DCS Summary Map EE", 40, 0., 200., 20, 0., 100.);
+    name = "DCSSummaryMap";
+    meEEDcsActiveMap_ = dqmStore_->book2D(name, name, 40, 0., 200., 20, 0., 100.);
     meEEDcsActiveMap_->setAxisTitle("ix / ix+100", 1);
     meEEDcsActiveMap_->setAxisTitle("iy", 2);
 

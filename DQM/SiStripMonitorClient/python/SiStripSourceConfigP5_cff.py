@@ -55,7 +55,7 @@ SiStripMonitorClusterReal.ClusterHisto = True
 SiStripMonitorClusterReal.TH1NrOfClusterizedStrips.moduleswitchon = False
 SiStripMonitorClusterReal.TH1ClusterNoise.moduleswitchon = False
 SiStripMonitorClusterReal.TH1ClusterStoN.moduleswitchon = False
-SiStripMonitorClusterReal.TH1ClusterCharge.moduleswitchon = True
+SiStripMonitorClusterReal.TH1ClusterCharge.moduleswitchon = False
 SiStripMonitorClusterReal.TH1ClusterWidth.moduleswitchon = False
 SiStripMonitorClusterReal.TH1ModuleLocalOccupancy.moduleswitchon = False
 
@@ -116,12 +116,12 @@ SiStripMonitorTrack_hi.Mod_On           = True
 #MonitorTrackResiduals_rs.Mod_On                    = False
 
 # Clone for General Track (for Collision data)
-import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
-MonitorTrackResiduals_gentk = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
-MonitorTrackResiduals_gentk.Tracks                 = 'generalTracks'
-MonitorTrackResiduals_gentk.trajectoryInput        = 'generalTracks'
-MonitorTrackResiduals_gentk.OutputMEsInRootFile    = False
-MonitorTrackResiduals_gentk.Mod_On                 = False
+#import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
+#MonitorTrackResiduals_gentk = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
+#MonitorTrackResiduals_gentk.Tracks                 = 'generalTracks'
+#MonitorTrackResiduals_gentk.trajectoryInput        = 'generalTracks'
+#MonitorTrackResiduals_gentk.OutputMEsInRootFile    = False
+#MonitorTrackResiduals_gentk.Mod_On                 = False
 
 # Clone for Heavy Ion Tracks (for HI Collisions)
 #import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi

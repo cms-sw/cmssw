@@ -1,6 +1,3 @@
-#include <string>
-
-
 void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 {
   //gROOT->ProcessLine(".x HistoCompare_Tracks.C");
@@ -53,24 +50,16 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
  TCanvas *canvas;
 
- TH1 *sh1,*rh1;
- TH1 *sh2,*rh2;
- TH1 *sh3,*rh3;
- TH1 *sh4,*rh4;
- TH1 *sh5,*rh5;
- TH1 *sh6,*rh6;
+ TH1F *sh1,*rh1;
+ TH1F *sh2,*rh2;
+ TH1F *sh3,*rh3;
+ TH1F *sh4,*rh4;
+ TH1F *sh5,*rh5;
+ TH1F *sh6,*rh6;
 
- TH2F *sh1_2,*rh1_2;
- TH2F *sh2_2,*rh2_2;
- TH2F *sh3_2,*rh3_2;
- TH2F *sh4_2,*rh4_2;
- TH2F *sh5_2,*rh5_2;
- TH2F *sh6_2,*rh6_2;
-
-
- TH1 *sc1,*rc1;
- TH1 *sc2,*rc2;
- TH1 *sc3,*rc3;
+ TH1F *sc1,*rc1;
+ TH1F *sc2,*rc2;
+ TH1F *sc3,*rc3;
 
  bool hit=1;
  bool chi2=1;
@@ -83,10 +72,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
  //////////////////////////////////////
  if (ctf){
    //===== building
-   //rdir->GetObject(collname1+"/effic",rh1);
-   //sdir->GetObject(collname2+"/effic",sh1);
-   rh1 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(simToReco)_eta"), (TH1*)rdir->Get(collname1+"/num_simul_eta"), "effic_vs_eta_r", "efficiency vs #eta", true);    
-   sh1 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(simToReco)_eta"), (TH1*)sdir->Get(collname2+"/num_simul_eta"), "effic_vs_eta_s", "efficiency vs #eta", true);    
+   rdir->GetObject(collname1+"/effic",rh1);
+   sdir->GetObject(collname2+"/effic",sh1);
    rh1->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
    sh1->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
    rh1->GetXaxis()->SetTitle("#eta");
@@ -95,10 +82,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh1->GetYaxis()->SetTitleOffset(1.2);
 //   rh1->GetYaxis()->SetRangeUser(0.5,1.025);
 //   sh1->GetYaxis()->SetRangeUser(0.5,1.025);
-   //rdir->GetObject(collname1+"/fakerate",rh2);
-   //sdir->GetObject(collname2+"/fakerate",sh2);
-   rh2 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(recoToSim)_eta"), (TH1*)rdir->Get(collname1+"/num_reco_eta"), "fakerate_vs_eta_r", "fake vs p_{t}", false);    
-   sh2 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(recoToSim)_eta"), (TH1*)sdir->Get(collname2+"/num_reco_eta"), "fakerate_vs_eta_s", "fake vs p_{t}", false);    
+   rdir->GetObject(collname1+"/fakerate",rh2);
+   sdir->GetObject(collname2+"/fakerate",sh2);
    rh2->GetYaxis()->SetRangeUser(0.,MAXFAKE);
    sh2->GetYaxis()->SetRangeUser(0.,MAXFAKE);
    rh2->GetXaxis()->SetTitle("#eta");
@@ -109,10 +94,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 //   sh2->GetYaxis()->SetRangeUser(0.,.70);
 
 
-   //rdir->GetObject(collname1+"/efficPt",rh3);
-   //sdir->GetObject(collname2+"/efficPt",sh3);
-   rh3 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(simToReco)_pT"), (TH1*)rdir->Get(collname1+"/num_simul_pT"), "effic_vs_pT_r", "efficiency vs p_{t}", true);    
-   sh3 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(simToReco)_pT"), (TH1*)sdir->Get(collname2+"/num_simul_pT"), "effic_vs_pT_s", "efficiency vs p_{t}", true);    
+   rdir->GetObject(collname1+"/efficPt",rh3);
+   sdir->GetObject(collname2+"/efficPt",sh3);
    rh3->GetXaxis()->SetRangeUser(0,300);
    sh3->GetXaxis()->SetRangeUser(0,300);
    rh3->GetXaxis()->SetTitle("p_{t}");
@@ -120,10 +103,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh3->GetYaxis()->SetTitleSize(0.05);
    rh3->GetYaxis()->SetTitleOffset(1.2);
    rh3->SetTitle("");
-   //rdir->GetObject(collname1+"/fakeratePt",rh4);
-   //sdir->GetObject(collname2+"/fakeratePt",sh4);
-   rh4 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(recoToSim)_pT"), (TH1*)rdir->Get(collname1+"/num_reco_pT"), "fakerate_vs_pT_r", "fake vs p_{t}", false);    
-   sh4 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(recoToSim)_pT"), (TH1*)sdir->Get(collname2+"/num_reco_pT"), "fakerate_vs_pT_s", "fake vs p_{t}", false);    
+   rdir->GetObject(collname1+"/fakeratePt",rh4);
+   sdir->GetObject(collname2+"/fakeratePt",sh4);
    rh4->SetTitle("");
    rh4->GetXaxis()->SetTitle("p_{t}");
    rh4->GetYaxis()->SetTitle("fakrate vs p_{t}");
@@ -135,20 +116,16 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    sh4->GetXaxis()->SetRangeUser(0.2,300);
 
 
-   //rdir->GetObject(collname1+"/effic_vs_hit",rh5);
-   //sdir->GetObject(collname2+"/effic_vs_hit",sh5);
-   rh5 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(simToReco)_hit"), (TH1*)rdir->Get(collname1+"/num_simul_hit"), "effic_vs_hit_r", "efficiency vs hit", true);    
-   sh5 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(simToReco)_hit"), (TH1*)sdir->Get(collname2+"/num_simul_hit"), "effic_vs_hit_s", "efficiency vs hit", true);    
+   rdir->GetObject(collname1+"/effic_vs_hit",rh5);
+   sdir->GetObject(collname2+"/effic_vs_hit",sh5);
    rh5->GetXaxis()->SetTitle("hits");
    rh5->GetYaxis()->SetTitle("efficiency vs hits");
    rh5->GetYaxis()->SetTitleSize(0.05);
    rh5->GetYaxis()->SetTitleOffset(1.2);
    //rh3->GetXaxis()->SetRangeUser(0,30);
    //sh3->GetXaxis()->SetRangeUser(0,30);
-   //rdir->GetObject(collname1+"/fakerate_vs_hit",rh6);
-   //sdir->GetObject(collname2+"/fakerate_vs_hit",sh6);
-   rh6 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(recoToSim)_hit"), (TH1*)rdir->Get(collname1+"/num_reco_hit"), "fakerate_vs_hit_r", "fake vs hit", false);    
-   sh6 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(recoToSim)_hit"), (TH1*)sdir->Get(collname2+"/num_reco_hit"), "fakerate_vs_hit_s", "fake vs hit", false);    
+   rdir->GetObject(collname1+"/fakerate_vs_hit",rh6);
+   sdir->GetObject(collname2+"/fakerate_vs_hit",sh6);
    rh6->GetYaxis()->SetRangeUser(0.,1.0);
    rh6->GetYaxis()->SetRangeUser(0.,1.0);
    rh6->GetXaxis()->SetTitle("hits");
@@ -172,8 +149,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    //rh6->GetXaxis()->SetRangeUser(0,10);
    //sh6->GetXaxis()->SetRangeUser(0,10);
 
-   TH1 * r[6]={rh1,rh2,rh3,rh4,rh5,rh6};
-   TH1 * s[6]={sh1,sh2,sh3,sh4,sh5,sh6};
+   TH1F * r[6]={rh1,rh2,rh3,rh4,rh5,rh6};
+   TH1F * s[6]={sh1,sh2,sh3,sh4,sh5,sh6};
 
    plotBuilding(canvas,s, r,6,
 		te,"UU",-1, 1, false, 0xC);
@@ -196,112 +173,6 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    canvas->Print("building.pdf");   
    delete l;
 
-   /*
-   // Duplicates (1)
-   rdir->GetObject(collname1+"/duplicatesRate",rh1);
-   sdir->GetObject(collname2+"/duplicatesRate",sh1);
-   rh1->GetYaxis()->SetRangeUser(0, 0.4);
-   sh1->GetYaxis()->SetRangeUser(0, 0.4);
-   rh1->GetXaxis()->SetTitle("#eta");
-   rh1->GetYaxis()->SetTitle("duplicates rate vs #eta");
-   rh1->GetYaxis()->SetTitleSize(0.05);
-   rh1->GetYaxis()->SetTitleOffset(1.2);
-//   rh1->GetYaxis()->SetRangeUser(0.5,1.025);
-//   sh1->GetYaxis()->SetRangeUser(0.5,1.025);
-   rdir->GetObject(collname1+"/chargeMisIdRate",rh2);
-   sdir->GetObject(collname2+"/chargeMisIdRate",sh2);
-   rh2->GetYaxis()->SetRangeUser(0.,0.1);
-   sh2->GetYaxis()->SetRangeUser(0.,0.1);
-   rh2->GetXaxis()->SetTitle("#eta");
-   rh2->GetYaxis()->SetTitle("charge mis-id rate vs #eta");
-   rh2->GetYaxis()->SetTitleSize(0.05);
-   rh2->GetYaxis()->SetTitleOffset(1.2);
-//   rh2->GetYaxis()->SetRangeUser(0.,.70);
-//   sh2->GetYaxis()->SetRangeUser(0.,.70);
-
-
-   rdir->GetObject(collname1+"/duplicatesRate_Pt",rh3);
-   sdir->GetObject(collname2+"/duplicatesRate_Pt",sh3);
-   rh3->GetXaxis()->SetRangeUser(0,300);
-   sh3->GetXaxis()->SetRangeUser(0,300);
-   rh3->GetXaxis()->SetTitle("p_{t}");
-   rh3->GetYaxis()->SetTitle("duplicates rate vs p_{t}");
-   rh3->GetYaxis()->SetTitleSize(0.05);
-   rh3->GetYaxis()->SetTitleOffset(1.2);
-   rh3->GetYaxis()->SetRangeUser(0.,0.1);
-   sh3->GetYaxis()->SetRangeUser(0.,0.1);
-   rh3->SetTitle("");
-
-   rdir->GetObject(collname1+"/chargeMisIdRate_Pt",rh4);
-   sdir->GetObject(collname2+"/chargeMisIdRate_Pt",sh4);
-   rh4->SetTitle("");
-   rh4->GetXaxis()->SetTitle("p_{t}");
-   rh4->GetYaxis()->SetTitle("charge mis-id rate vs p_{t}");
-   rh4->GetYaxis()->SetTitleSize(0.05);
-   rh4->GetYaxis()->SetTitleOffset(1.2);
-   rh4->GetYaxis()->SetRangeUser(0.,.1);
-   sh4->GetYaxis()->SetRangeUser(0.,.1);
-   rh4->GetXaxis()->SetRangeUser(0.2,300);
-   sh4->GetXaxis()->SetRangeUser(0.2,300);
-
-
-   rdir->GetObject(collname1+"/duplicatesRate_hit",rh5);
-   sdir->GetObject(collname2+"/duplicatesRate_hit",sh5);
-   rh5->GetXaxis()->SetTitle("hits");
-   rh5->GetYaxis()->SetTitle("duplicates rate vs hits");
-   rh5->GetYaxis()->SetTitleSize(0.05);
-   rh5->GetYaxis()->SetTitleOffset(1.2);
-   //rh3->GetXaxis()->SetRangeUser(0,30);
-   //sh3->GetXaxis()->SetRangeUser(0,30);
-   rdir->GetObject(collname1+"/chargeMisIdRate_hit",rh6);
-   sdir->GetObject(collname2+"/chargeMisIdRate_hit",sh6);
-   rh6->GetYaxis()->SetRangeUser(0.,0.05);
-   rh6->GetYaxis()->SetRangeUser(0.,0.05);
-   rh6->GetXaxis()->SetTitle("hits");
-   rh6->GetYaxis()->SetTitle("charge mis-id rate vs hits");
-   rh6->GetYaxis()->SetTitleSize(0.05);
-   rh6->GetYaxis()->SetTitleOffset(1.2);
-
-   //rdir->GetObject(collname1+"/num_reco_pT",rh6);
-   //sdir->GetObject(collname2+"/num_reco_pT",sh6);
-
-
-
-   canvas = new TCanvas("Duplicates and Charge Mis-IDed Tracks","Tracks: duplicates and charge mis-id rate",1000,1400);
-
-
-   //NormalizeHistograms(rh2,sh2);
-   //NormalizeHistograms(rh6,sh6);
-   //rh1->GetYaxis()->SetRangeUser(8,24);
-   //sh1->GetYaxis()->SetRangeUser(8,24);
-
-   //rh6->GetXaxis()->SetRangeUser(0,10);
-   //sh6->GetXaxis()->SetRangeUser(0,10);
-
-   TH1 * r[6]={rh1,rh2,rh3,rh4,rh5,rh6};
-   TH1 * s[6]={sh1,sh2,sh3,sh4,sh5,sh6};
-
-   plotBuilding(canvas,s, r,6,
-        te,"UU",-1, 1, false, 0xC);
-
-   canvas->cd();
-   //TPaveText* text = new TPaveText(0.25,0.72,0.75,0.77,"prova");
-   //text->SetFillColor(0);
-   //text->SetTextColor(1);
-   //text->Draw();
-   l = new TLegend(0.10,0.64,0.90,0.69);
-   l->SetTextSize(0.016);
-   l->SetLineColor(1);
-   l->SetLineWidth(1);
-   l->SetLineStyle(1);
-   l->SetFillColor(0);
-   l->SetBorderSize(3);
-   l->AddEntry(rh1,refLabel,"LPF");
-   l->AddEntry(sh1,newLabel,"LPF");
-   l->Draw();
-   canvas->Print("duplicatesAndChargeMisId.pdf");
-   delete l;
-   */
 
    // ====== hits and pt
 
@@ -508,42 +379,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
 
 
-   const char* ystr1 = "#sigma(#delta#phi) [rad]"; 
-   const char* ystr2 = "#sigma(#delta cot(#theta))"; 
-   const char* ystr3 = "#sigma(#delta d_{0}) [cm]"; 
-   const char* ystr4 = "#sigma(#delta z_{0}) [cm]"; 
-   const char* ystr5 = "#sigma(#delta p_{t}/p_{t})";
-   const char* xstr  = "#eta"; 
-
    
-   //===== resolutions vs eta
-   rdir->GetObject(collname1+"/phires_vs_eta",rh1_2);
-   sdir->GetObject(collname2+"/phires_vs_eta",sh1_2);
 
-   rdir->GetObject(collname1+"/cotThetares_vs_eta",rh2_2);
-   sdir->GetObject(collname2+"/cotThetares_vs_eta",sh2_2);
-
-   rdir->GetObject(collname1+"/dxyres_vs_eta",rh3_2);
-   sdir->GetObject(collname2+"/dxyres_vs_eta",sh3_2);
-
-   rdir->GetObject(collname1+"/dzres_vs_eta",rh4_2);
-   sdir->GetObject(collname2+"/dzres_vs_eta",sh4_2);
-
-   rdir->GetObject(collname1+"/ptres_vs_eta",rh5_2);
-   sdir->GetObject(collname2+"/ptres_vs_eta",sh5_2);
-
-
-
-   canvas = new TCanvas("Tracks7","Tracks: Dxy, Dz, Theta resolution",1000,1400);
-
-   plotResolutions(canvas,
-		   sh1_2,rh1_2,sh2_2,rh2_2,
-		   sh3_2,rh3_2,sh4_2,rh4_2,
-		   sh5_2,rh5_2,
-           ystr1, ystr2, ystr3, ystr4, ystr5, xstr,
-		   te,"UU",-1);
-
-   /*
    //===== resolutions vs eta
    rdir->GetObject(collname1+"/phires_vs_eta_Sigma",rh1);
    sdir->GetObject(collname2+"/phires_vs_eta_Sigma",sh1);
@@ -564,14 +401,12 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
    canvas = new TCanvas("Tracks7","Tracks: Dxy, Dz, Theta resolution",1000,1400);
 
-   plotResolutionsDirect(canvas,
-           sh1,rh1,sh2,rh2,
-           sh3,rh3,sh4,rh4,
-           sh5,rh5,sh6,rh6,
-           te,"UU",-1);
-   */   
-
-
+   plotResolutions(canvas,
+		   sh1,rh1,sh2,rh2,
+		   sh3,rh3,sh4,rh4,
+		   sh5,rh5,sh6,rh6,
+		   te,"UU",-1);
+   
    // new general range
    rh1->GetYaxis()->SetRangeUser(0.000009,0.01);
    sh1->GetYaxis()->SetRangeUser(0.000009,0.01);
@@ -652,6 +487,12 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
 
 
+   /* plotResolutions(canvas,
+	     sh1,rh1,sh2,rh2,
+	     sh3,rh3,sh4,rh4,
+	     sh5,rh5,sh6,rh6,
+	     te,"UU",-1);
+   */
    canvas->cd();
 
    l = new TLegend(0.10,0.63,0.90,0.67);
@@ -668,22 +509,21 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    delete l;
 
    //===== resolutions vs pt
-   xstr  = "p_{t}"; 
-   rdir->GetObject(collname1+"/phires_vs_pt",rh1_2);
-   sdir->GetObject(collname2+"/phires_vs_pt",sh1_2);
+   rdir->GetObject(collname1+"/phires_vs_pt_Sigma",rh1);
+   sdir->GetObject(collname2+"/phires_vs_pt_Sigma",sh1);
 
-   rdir->GetObject(collname1+"/cotThetares_vs_pt",rh2_2);
-   sdir->GetObject(collname2+"/cotThetares_vs_pt",sh2_2);
+   rdir->GetObject(collname1+"/cotThetares_vs_pt_Sigma",rh2);
+   sdir->GetObject(collname2+"/cotThetares_vs_pt_Sigma",sh2);
 
 
-   rdir->GetObject(collname1+"/dxyres_vs_pt",rh3_2);
-   sdir->GetObject(collname2+"/dxyres_vs_pt",sh3_2);
+   rdir->GetObject(collname1+"/dxyres_vs_pt_Sigma",rh3);
+   sdir->GetObject(collname2+"/dxyres_vs_pt_Sigma",sh3);
 
-   rdir->GetObject(collname1+"/dzres_vs_pt",rh4_2);
-   sdir->GetObject(collname2+"/dzres_vs_pt",sh4_2);
+   rdir->GetObject(collname1+"/dzres_vs_pt_Sigma",rh4);
+   sdir->GetObject(collname2+"/dzres_vs_pt_Sigma",sh4);
 
-   rdir->GetObject(collname1+"/ptres_vs_pt",rh5_2);
-   sdir->GetObject(collname2+"/ptres_vs_pt",sh5_2);
+   rdir->GetObject(collname1+"/ptres_vs_pt_Sigma",rh5);
+   sdir->GetObject(collname2+"/ptres_vs_pt_Sigma",sh5);
 
 
    rh1->SetTitle("");
@@ -753,10 +593,9 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    canvas = new TCanvas("Tracks7b","Tracks: Dxy, Dz, Theta resolution",1000,1400);
 
    plotResolutions(canvas,
-	     sh1_2,rh1_2,sh2_2,rh2_2,
-	     sh3_2,rh3_2,sh4_2,rh4_2,
-	     sh5_2,rh5_2,
-           ystr1, ystr2, ystr3, ystr4, ystr5, xstr,
+	     sh1,rh1,sh2,rh2,
+	     sh3,rh3,sh4,rh4,
+	     sh5,rh5,sh6,rh6,
 		   te,"UU",-1, true);
 
    canvas->cd();
@@ -774,21 +613,18 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    canvas->Print("resolutionsPt.pdf");
    delete l;
 
+
     //===== building 2
-   //rdir->GetObject(collname1+"/effic_vs_phi",rh1);
-   //sdir->GetObject(collname2+"/effic_vs_phi",sh1);
-   rh1 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(simToReco)_phi"), (TH1*)rdir->Get(collname1+"/num_simul_phi"), "effic_vs_phi_r", "efficiency vs #phi", true);    
-   sh1 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(simToReco)_phi"), (TH1*)sdir->Get(collname2+"/num_simul_phi"), "effic_vs_phi_s", "efficiency vs #phi", true);    
+   rdir->GetObject(collname1+"/effic_vs_phi",rh1);
+   sdir->GetObject(collname2+"/effic_vs_phi",sh1);
    rh1->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
    sh1->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
    rh1->GetXaxis()->SetTitle("#phi");
    rh1->GetYaxis()->SetTitle("efficiency vs #phi");
    rh1->GetYaxis()->SetTitleSize(0.05);
    rh1->GetYaxis()->SetTitleOffset(1.2);
-   //rdir->GetObject(collname1+"/fakerate_vs_phi",rh2);
-   //sdir->GetObject(collname2+"/fakerate_vs_phi",sh2);
-   rh2 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(recoToSim)_phi"), (TH1*)rdir->Get(collname1+"/num_reco_phi"), "fakerate_vs_phi_r", "fake vs phi", false);    
-   sh2 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(recoToSim)_phi"), (TH1*)sdir->Get(collname2+"/num_reco_phi"), "fakerate_vs_phi_s", "fake vs phi", false);    
+   rdir->GetObject(collname1+"/fakerate_vs_phi",rh2);
+   sdir->GetObject(collname2+"/fakerate_vs_phi",sh2);
    rh2->GetXaxis()->SetTitle("#phi");
    rh2->GetYaxis()->SetTitle("fakerate vs #phi");
    rh2->GetYaxis()->SetRangeUser(0.,MAXFAKE);
@@ -798,10 +634,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
 
 
-   //rdir->GetObject(collname1+"/effic_vs_dxy",rh3);
-   //sdir->GetObject(collname2+"/effic_vs_dxy",sh3);
-   rh3 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(simToReco)_dxy"), (TH1*)rdir->Get(collname1+"/num_simul_dxy"), "effic_vs_dxy_r", "efficiency vs dxy", true);    
-   sh3 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(simToReco)_dxy"), (TH1*)sdir->Get(collname2+"/num_simul_dxy"), "effic_vs_dxy_s", "efficiency vs dxy", true);    
+   rdir->GetObject(collname1+"/effic_vs_dxy",rh3);
+   sdir->GetObject(collname2+"/effic_vs_dxy",sh3);
    rh3->GetXaxis()->SetTitle("dxy");
    rh3->GetYaxis()->SetTitle("efficiency vs dxy");
    rh3->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
@@ -809,10 +643,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh3->GetYaxis()->SetTitleSize(0.05);
    rh3->GetYaxis()->SetTitleOffset(1.2);
    rh3->SetTitle("");
-   //rdir->GetObject(collname1+"/fakerate_vs_dxy",rh4);
-   //sdir->GetObject(collname2+"/fakerate_vs_dxy",sh4);
-   rh4 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(recoToSim)_dxy"), (TH1*)rdir->Get(collname1+"/num_reco_dxy"), "fakerate_vs_dxy_r", "fake vs dxy", false);    
-   sh4 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(recoToSim)_dxy"), (TH1*)sdir->Get(collname2+"/num_reco_dxy"), "fakerate_vs_dxy_s", "fake vs dxy", false);    
+   rdir->GetObject(collname1+"/fakerate_vs_dxy",rh4);
+   sdir->GetObject(collname2+"/fakerate_vs_dxy",sh4);
    rh4->SetTitle("");
    rh4->GetXaxis()->SetTitle("dxy");
    rh4->GetYaxis()->SetTitle("fakerate vs dxy");
@@ -822,10 +654,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    sh4->GetYaxis()->SetRangeUser(0.,MAXFAKE);
 
 
-   //rdir->GetObject(collname1+"/effic_vs_dz",rh5);
-   //sdir->GetObject(collname2+"/effic_vs_dz",sh5);
-   rh5 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(simToReco)_dz"), (TH1*)rdir->Get(collname1+"/num_simul_dz"), "effic_vs_dz_r", "efficiency vs dz", true);    
-   sh5 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(simToReco)_dz"), (TH1*)sdir->Get(collname2+"/num_simul_dz"), "effic_vs_dz_s", "efficiency vs dz", true);    
+   rdir->GetObject(collname1+"/effic_vs_dz",rh5);
+   sdir->GetObject(collname2+"/effic_vs_dz",sh5);
    rh5->GetXaxis()->SetTitle("dz");
    rh5->GetYaxis()->SetTitle("efficiency vs dz");
    rh5->GetYaxis()->SetTitleSize(0.05);
@@ -834,8 +664,6 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    sh5->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
    rdir->GetObject(collname1+"/fakerate_vs_dz",rh6);
    sdir->GetObject(collname2+"/fakerate_vs_dz",sh6);
-   rh6 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(recoToSim)_dz"), (TH1*)rdir->Get(collname1+"/num_reco_dz"), "fakerate_vs_dz_r", "fake vs dz", false);    
-   sh6 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(recoToSim)_dz"), (TH1*)sdir->Get(collname2+"/num_reco_dz"), "fakerate_vs_dz_s", "fake vs dz", false);    
    rh6->GetYaxis()->SetRangeUser(0.,1.0);
    rh6->GetYaxis()->SetRangeUser(0.,1.0);
    rh6->GetXaxis()->SetTitle("dz");
@@ -845,8 +673,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
    canvas = new TCanvas("Tracks8","Tracks: efficiency & fakerate",1000,1400);
 
-   TH1 * r[6]={rh1,rh2,rh3,rh4,rh5,rh6};
-   TH1 * s[6]={sh1,sh2,sh3,sh4,sh5,sh6};
+   TH1F * r[6]={rh1,rh2,rh3,rh4,rh5,rh6};
+   TH1F * s[6]={sh1,sh2,sh3,sh4,sh5,sh6};
 
    plotBuilding(canvas,s, r,6,
 		te,"UU",-1);
@@ -865,92 +693,9 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    canvas->Print("building2.pdf");   
    delete l;
 
-    /*
-    //===== Duplicates and Charge Mis-ID 2
-   rdir->GetObject(collname1+"/duplicatesRate_phi",rh1);
-   sdir->GetObject(collname2+"/duplicatesRate_phi",sh1);
-   rh1->GetYaxis()->SetRangeUser(0, 0.1);
-   sh1->GetYaxis()->SetRangeUser(0, 0.1);
-   rh1->GetXaxis()->SetTitle("#phi");
-   rh1->GetYaxis()->SetTitle("duplicates rate vs #phi");
-   rh1->GetYaxis()->SetTitleSize(0.05);
-   rh1->GetYaxis()->SetTitleOffset(1.2);
-   rdir->GetObject(collname1+"/chargeMisIdRate_phi",rh2);
-   sdir->GetObject(collname2+"/chargeMisIdRate_phi",sh2);
-   rh2->GetXaxis()->SetTitle("#phi");
-   rh2->GetYaxis()->SetTitle("charge mis-id rate vs #phi");
-   rh2->GetYaxis()->SetRangeUser(0.,0.1);
-   sh2->GetYaxis()->SetRangeUser(0.,0.1);
-   rh2->GetYaxis()->SetTitleSize(0.05);
-   rh2->GetYaxis()->SetTitleOffset(1.2);
-
-
-
-   rdir->GetObject(collname1+"/duplicatesRate_dxy",rh3);
-   sdir->GetObject(collname2+"/duplicatesRate_dxy",sh3);
-   rh3->GetXaxis()->SetTitle("dxy");
-   rh3->GetYaxis()->SetTitle("duplicates rate vs dxy");
-   rh3->GetYaxis()->SetRangeUser(0, 0.2);
-   sh3->GetYaxis()->SetRangeUser(0, 0.2);
-   rh3->GetYaxis()->SetTitleSize(0.05);
-   rh3->GetYaxis()->SetTitleOffset(1.2);
-   rh3->SetTitle("");
-   rdir->GetObject(collname1+"/chargeMisIdRate_dxy",rh4);
-   sdir->GetObject(collname2+"/chargeMisIdRate_dxy",sh4);
-   rh4->SetTitle("");
-   rh4->GetXaxis()->SetTitle("dxy");
-   rh4->GetYaxis()->SetTitle("charge mis-id rate vs dxy");
-   rh4->GetYaxis()->SetTitleSize(0.05);
-   rh4->GetYaxis()->SetTitleOffset(1.2);
-   rh4->GetYaxis()->SetRangeUser(0.,0.1);
-   sh4->GetYaxis()->SetRangeUser(0.,0.1);
-
-
-   rdir->GetObject(collname1+"/duplicatesRate_dz",rh5);
-   sdir->GetObject(collname2+"/duplicatesRate_dz",sh5);
-   rh5->GetXaxis()->SetTitle("dz");
-   rh5->GetYaxis()->SetTitle("duplicates rate vs dz");
-   rh5->GetYaxis()->SetTitleSize(0.05);
-   rh5->GetYaxis()->SetTitleOffset(1.2);
-   rh5->GetYaxis()->SetRangeUser(0, 0.1);
-   sh5->GetYaxis()->SetRangeUser(0, 0.1);
-   rdir->GetObject(collname1+"/chargeMisIdRate_dz",rh6);
-   sdir->GetObject(collname2+"/chargeMisIdRate_dz",sh6);
-   rh6->GetYaxis()->SetRangeUser(0.,0.1);
-   rh6->GetYaxis()->SetRangeUser(0.,0.1);
-   rh6->GetXaxis()->SetTitle("dz");
-   rh6->GetYaxis()->SetTitle("charge mis-id rate vs dz");
-   rh6->GetYaxis()->SetTitleSize(0.05);
-   rh6->GetYaxis()->SetTitleOffset(1.2);
-
-   canvas = new TCanvas("Duplicates and Charge MisIDed Tracks 2","Tracks: duplicates and charge mis-id rate",1000,1400);
-
-   TH1 * r[6]={rh1,rh2,rh3,rh4,rh5,rh6};
-   TH1 * s[6]={sh1,sh2,sh3,sh4,sh5,sh6};
-
-   plotBuilding(canvas,s, r,6,
-        te,"UU",-1);
-
-   canvas->cd();
-   l = new TLegend(0.10,0.64,0.90,0.69);
-   l->SetTextSize(0.016);
-   l->SetLineColor(1);
-   l->SetLineWidth(1);
-   l->SetLineStyle(1);
-   l->SetFillColor(0);
-   l->SetBorderSize(3);
-   l->AddEntry(rh1,refLabel,"LPF");
-   l->AddEntry(sh1,newLabel,"LPF");
-   l->Draw();
-   canvas->Print("duplicatesAndChargeMisId2.pdf");
-   delete l;
-   */
-
     //===== building 3
    rdir->GetObject(collname1+"/effic_vs_vertpos",rh1);
    sdir->GetObject(collname2+"/effic_vs_vertpos",sh1);
-   //rh1 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(simToReco)_vertpos"), (TH1*)rdir->Get(collname1+"/num_simul_vertpos"), "effic_vs_vertpos_r", "efficiency vs vertpos", true);    
-   //sh1 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(simToReco)_vertpos"), (TH1*)sdir->Get(collname2+"/num_simul_vertpos"), "effic_vs_vertpos_s", "efficiency vs vertpos", true);    
    rh1->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
    sh1->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
    rh1->GetXaxis()->SetTitle("TP vert xy pos");
@@ -960,8 +705,6 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
    rdir->GetObject(collname1+"/effic_vs_zpos",rh2);
    sdir->GetObject(collname2+"/effic_vs_zpos",sh2);
-   //rh2 = getEfficiency((TH1*)rdir->Get(collname1+"/num_assoc(simToReco)_zpos"), (TH1*)rdir->Get(collname1+"/num_simul_zpos"), "effic_vs_zpos_r", "efficiency vs zpos", true);    
-   //sh2 = getEfficiency((TH1*)sdir->Get(collname2+"/num_assoc(simToReco)_zpos"), (TH1*)sdir->Get(collname2+"/num_simul_zpos"), "effic_vs_zpos_s", "efficiency vs zpos", true);    
    rh2->GetXaxis()->SetTitle("TP vert z pos");
    rh2->GetYaxis()->SetTitle("efficiency vs  vert z pos");
    rh2->GetYaxis()->SetRangeUser(MINEFF,MAXEFF);
@@ -972,8 +715,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
    canvas = new TCanvas("Tracks9","Tracks: efficiency & fakerate",1000,1400);
 
-   TH1 * r[2]={rh1,rh2};
-   TH1 * s[2]={sh1,sh2};
+   TH1F * r[2]={rh1,rh2};
+   TH1F * s[2]={sh1,sh2};
 
    plotBuilding(canvas,s, r,2,
 		te,"UU",-1);
@@ -1071,8 +814,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh5->GetXaxis()->SetTitle("Number of Pileup Vertices");
    rh6->GetXaxis()->SetTitle("Number of Pileup Vertices");
 
-   TH1 * r[6]={rh1,rh2,rh3,rh4,rh5,rh6};
-   TH1 * s[6]={sh1,sh2,sh3,sh4,sh5,sh6};
+   TH1F * r[6]={rh1,rh2,rh3,rh4,rh5,rh6};
+   TH1F * s[6]={sh1,sh2,sh3,sh4,sh5,sh6};
 
    plotBuilding(canvas,s, r,6,
                 te,"UU",-1);
@@ -1117,8 +860,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh2->GetXaxis()->SetTitle("Primary Interaction Vertex Z (cm)");
    rh3->GetXaxis()->SetTitle("Primary Interaction Vertex Z (cm)");
 
-   TH1 * r[3]={rh1,rh2,rh3};
-   TH1 * s[3]={sh1,sh2,sh3};
+   TH1F * r[3]={rh1,rh2,rh3};
+   TH1F * s[3]={sh1,sh2,sh3};
 
    plotBuilding(canvas,s, r,3,
                 te,"UU",-1);
@@ -1166,8 +909,8 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    rh3->GetXaxis()->SetTitle("Number of Pileup Vertices (In time)");
    rh4->GetXaxis()->SetTitle("Number of Pileup Vertices (In time)");
 
-   TH1 * r[4]={rh1,rh2,rh3,rh3};
-   TH1 * s[4]={sh1,sh2,sh3,sh3};
+   TH1F * r[4]={rh1,rh2,rh3,rh3};
+   TH1F * s[4]={sh1,sh2,sh3,sh3};
 
    plotBuilding(canvas,s, r,4,
                 te,"UU",-1);
@@ -1191,7 +934,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 }
 
 
-void NormalizeHistograms(TH1* h1, TH1* h2)
+void NormalizeHistograms(TH1F* h1, TH1F* h2)
 {
   if (h1==0 || h2==0) return;
   float scale1 = -9999.9;
@@ -1211,8 +954,8 @@ void NormalizeHistograms(TH1* h1, TH1* h2)
 
 
 void plot4histos(TCanvas *canvas, 
-		TH1 *s1,TH1 *r1, TH1 *s2,TH1 *r2, 
-		TH1 *s3,TH1 *r3, TH1 *s4,TH1 *r4,
+		TH1F *s1,TH1F *r1, TH1F *s2,TH1F *r2, 
+		TH1F *s3,TH1F *r3, TH1F *s4,TH1F *r4,
 		TText* te,
 	       char * option, double startingY, double startingX = .1,bool fit = false){
   canvas->Divide(2,2);
@@ -1287,7 +1030,7 @@ void plot4histos(TCanvas *canvas,
 
 }
 
-void plotBuilding(TCanvas *canvas, TH1 **s, TH1 **r, int n,TText* te,
+void plotBuilding(TCanvas *canvas, TH1F **s, TH1F **r, int n,TText* te,
 		  char * option, double startingY, double startingX = .1,bool fit = false, unsigned int logx=0){
   canvas->Divide(2,(n+1)/2); //this should work also for odd n
   for(int i=0; i<n;i++){
@@ -1344,9 +1087,9 @@ void plotBuilding(TCanvas *canvas, TH1 **s, TH1 **r, int n,TText* te,
 }
 
 void plotPulls(TCanvas *canvas, 
-	       TH1 *s1,TH1 *r1, TH1 *s2,TH1 *r2, 
-	       TH1 *s3,TH1 *r3, TH1 *s4,TH1 *r4,
-	       TH1 *s5,TH1 *r5,TH1 *s6,TH1 *r6,
+	       TH1F *s1,TH1F *r1, TH1F *s2,TH1F *r2, 
+	       TH1F *s3,TH1F *r3, TH1F *s4,TH1F *r4,
+	       TH1F *s5,TH1F *r5,TH1F *s6,TH1F *r6,
 	       TText* te,
 	       char * option, double startingY, double startingX = .1,bool fit = false){
   canvas->Divide(2,3);
@@ -1457,255 +1200,12 @@ void plotPulls(TCanvas *canvas,
   s6->Draw("sames");
 }
 
-TH1* getEfficiency(TH1* numer, TH1* denom, const char* name, const char* title, bool isEff) {
-    TH1* efficiencyHist = denom->Clone(name);
-    efficiencyHist->SetTitle(title);
-
-    for (int iBinX = 1; iBinX < denom->GetNbinsX()+1; iBinX++){
-        float numerVal = numer->GetBinContent(iBinX);
-        float denomVal = denom->GetBinContent(iBinX);
-
-        float effVal = 0;
-        if (!isEff) effVal = denomVal ? (1 - numerVal / denomVal) : 0;
-        else effVal = denomVal ? numerVal / denomVal : 0;
-
-        float errVal = (denomVal && (effVal <=1)) ? sqrt(effVal*(1-effVal)/denomVal) : 0;
-
-        efficiencyHist->SetBinContent(iBinX, effVal);
-        efficiencyHist->SetBinError(iBinX, errVal);
-    }
-
-    return efficiencyHist; 
-}
-
-
 void plotResolutions(TCanvas *canvas, 
-		     TH2F *s1_2,TH2F *r1_2, TH2F *s2_2,TH2F *r2_2, 
-		     TH2F *s3_2,TH2F *r3_2, TH2F *s4_2,TH2F *r4_2,
-		     TH2F *s5_2,TH2F *r5_2,
-             const char* ystr1, const char* ystr2, const char* ystr3, const char* ystr4, const char* ystr5, const char* xstr,
+		     TH1F *s1,TH1F *r1, TH1F *s2,TH1F *r2, 
+		     TH1F *s3,TH1F *r3, TH1F *s4,TH1F *r4,
+		     TH1F *s5,TH1F *r5,TH1F *s6,TH1F *r6,
 		     TText* te,
 		     char * option, double startingY, bool logx=false, double startingX = .1,bool fit = false){
-  canvas->Divide(2,3);
-
-  s1_2->FitSlicesY();  
-  s2_2->FitSlicesY();  
-  s3_2->FitSlicesY();  
-  s4_2->FitSlicesY();  
-  s5_2->FitSlicesY();  
-
-  TH1* s1_sigma = (TH1*)gDirectory->Get((std::string(s1_2->GetName())+"_2").c_str());
-  TH1* s2_sigma = (TH1*)gDirectory->Get((std::string(s2_2->GetName())+"_2").c_str());
-  TH1* s3_sigma = (TH1*)gDirectory->Get((std::string(s3_2->GetName())+"_2").c_str());
-  TH1* s4_sigma = (TH1*)gDirectory->Get((std::string(s4_2->GetName())+"_2").c_str());
-  TH1* s5_sigma = (TH1*)gDirectory->Get((std::string(s5_2->GetName())+"_2").c_str());
-   
-  s1_sigma->SetName("s1_sigma");
-  s2_sigma->SetName("s2_sigma");
-  s3_sigma->SetName("s3_sigma");
-  s4_sigma->SetName("s4_sigma");
-  s5_sigma->SetName("s5_sigma");
-   
-  s1_sigma->SetTitle("");
-  s2_sigma->SetTitle("");
-  s3_sigma->SetTitle("");
-  s4_sigma->SetTitle("");
-  s5_sigma->SetTitle("");
-   
-  r1_2->FitSlicesY();  
-  r2_2->FitSlicesY();  
-  r3_2->FitSlicesY();  
-  r4_2->FitSlicesY();  
-  r5_2->FitSlicesY();  
-
-  TH1* r1_sigma = (TH1*)gDirectory->Get((std::string(r1_2->GetName())+"_2").c_str());
-  TH1* r2_sigma = (TH1*)gDirectory->Get((std::string(r2_2->GetName())+"_2").c_str());
-  TH1* r3_sigma = (TH1*)gDirectory->Get((std::string(r3_2->GetName())+"_2").c_str());
-  TH1* r4_sigma = (TH1*)gDirectory->Get((std::string(r4_2->GetName())+"_2").c_str());
-  TH1* r5_sigma = (TH1*)gDirectory->Get((std::string(r5_2->GetName())+"_2").c_str());
-   
-  r1_sigma->SetName("r1_sigma");
-  r2_sigma->SetName("r2_sigma");
-  r3_sigma->SetName("r3_sigma");
-  r4_sigma->SetName("r4_sigma");
-  r5_sigma->SetName("r5_sigma");
-   
-  r1_sigma->SetTitle("");
-  r2_sigma->SetTitle("");
-  r3_sigma->SetTitle("");
-  r4_sigma->SetTitle("");
-  r5_sigma->SetTitle("");
-
-  s1_sigma->GetYaxis()->SetTitle(ystr1);     
-  s2_sigma->GetYaxis()->SetTitle(ystr2);     
-  s3_sigma->GetYaxis()->SetTitle(ystr3);     
-  s4_sigma->GetYaxis()->SetTitle(ystr4);     
-  s5_sigma->GetYaxis()->SetTitle(ystr5);     
-   
-  r1_sigma->GetYaxis()->SetTitle(ystr1);     
-  r2_sigma->GetYaxis()->SetTitle(ystr2);     
-  r3_sigma->GetYaxis()->SetTitle(ystr3);     
-  r4_sigma->GetYaxis()->SetTitle(ystr4);     
-  r5_sigma->GetYaxis()->SetTitle(ystr5);     
-   
-  s1_sigma->GetXaxis()->SetTitle(xstr);     
-  s2_sigma->GetXaxis()->SetTitle(xstr);     
-  s3_sigma->GetXaxis()->SetTitle(xstr);     
-  s4_sigma->GetXaxis()->SetTitle(xstr);     
-  s5_sigma->GetXaxis()->SetTitle(xstr);     
-   
-  r1_sigma->GetXaxis()->SetTitle(xstr);     
-  r2_sigma->GetXaxis()->SetTitle(xstr);     
-  r3_sigma->GetXaxis()->SetTitle(xstr);     
-  r4_sigma->GetXaxis()->SetTitle(xstr);     
-  r5_sigma->GetXaxis()->SetTitle(xstr);     
-   
-  //TH1* s1_sigma = s1_2_2->Clone("s1_sigma");
-  //TH1* s2_sigma = s1_2_2->Clone("s2_sigma");
-  //TH1* s3_sigma = s1_2_2->Clone("s3_sigma");
-  //TH1* s4_sigma = s1_2_2->Clone("s4_sigma");
-  //TH1* s5_sigma = s1_2_2->Clone("s5_sigma");
-  //
-  //TH1* r1_sigma = r1_2_2->Clone("s1_sigma");
-  //TH1* r2_sigma = r1_2_2->Clone("s2_sigma");
-  //TH1* r3_sigma = r1_2_2->Clone("s3_sigma");
-  //TH1* r4_sigma = r1_2_2->Clone("s4_sigma");
-  //TH1* r5_sigma = r1_2_2->Clone("s5_sigma");
-
-  s1_sigma->SetMarkerStyle(20);
-  r1_sigma->SetMarkerStyle(21);
-  s1_sigma->SetMarkerColor(2);
-  r1_sigma->SetMarkerColor(4);
-  s1_sigma->SetMarkerSize(0.7);
-  r1_sigma->SetMarkerSize(0.7);
-  s1_sigma->SetLineColor(1);
-  r1_sigma->SetLineColor(1);
-
-  s2_sigma->SetMarkerStyle(20);
-  r2_sigma->SetMarkerStyle(21);
-  s2_sigma->SetMarkerColor(2);
-  r2_sigma->SetMarkerColor(4);
-  s2_sigma->SetMarkerSize(0.7);
-  r2_sigma->SetMarkerSize(0.7);
-  s2_sigma->SetLineColor(1);
-  r2_sigma->SetLineColor(1);
-
-  s3_sigma->SetMarkerStyle(20);
-  r3_sigma->SetMarkerStyle(21);
-  s3_sigma->SetMarkerColor(2);
-  r3_sigma->SetMarkerColor(4);
-  s3_sigma->SetMarkerSize(0.7);
-  r3_sigma->SetMarkerSize(0.7);
-  s3_sigma->SetLineColor(1);
-  r3_sigma->SetLineColor(1);
-
-  s4_sigma->SetMarkerStyle(20);
-  r4_sigma->SetMarkerStyle(21);
-  s4_sigma->SetMarkerColor(2);
-  r4_sigma->SetMarkerColor(4);
-  s4_sigma->SetMarkerSize(0.7);
-  r4_sigma->SetMarkerSize(0.7);
-  s4_sigma->SetLineColor(1);
-  r4_sigma->SetLineColor(1);
-
-
-  s5_sigma->SetMarkerStyle(20);
-  r5_sigma->SetMarkerStyle(21);
-  s5_sigma->SetMarkerColor(2);
-  r5_sigma->SetMarkerColor(4);
-  s5_sigma->SetMarkerSize(0.7);
-  r5_sigma->SetMarkerSize(0.7);
-  s5_sigma->SetLineColor(1);
-  r5_sigma->SetLineColor(1);
-
-  r1_sigma->GetYaxis()->SetRangeUser(0.000009,0.01);
-  s1_sigma->GetYaxis()->SetRangeUser(0.000009,0.01);
-  r2_sigma->GetYaxis()->SetRangeUser(0.00009,0.03);
-  s2_sigma->GetYaxis()->SetRangeUser(0.00009,0.03);
-  r3_sigma->GetYaxis()->SetRangeUser(0.00009,0.05);  
-  s3_sigma->GetYaxis()->SetRangeUser(0.00009,0.05);
-  r4_sigma->GetYaxis()->SetRangeUser(0.0009,0.1);  
-  s4_sigma->GetYaxis()->SetRangeUser(0.0009,0.1);
-
-  r1_sigma->GetYaxis()->SetTitleSize(0.05);
-  r1_sigma->GetYaxis()->SetTitleOffset(1.2);
-  r1_sigma->GetXaxis()->SetTitleSize(0.07);
-  r1_sigma->GetXaxis()->SetTitleOffset(0.6);
-
-  r2_sigma->GetYaxis()->SetTitleSize(0.05);
-  r2_sigma->GetYaxis()->SetTitleOffset(1.2);
-  r2_sigma->GetXaxis()->SetTitleSize(0.07);
-  r2_sigma->GetXaxis()->SetTitleOffset(0.6);
-
-  r3_sigma->GetYaxis()->SetTitleSize(0.05);
-  r3_sigma->GetYaxis()->SetTitleOffset(1.2);
-  r3_sigma->GetXaxis()->SetTitleSize(0.07);
-  r3_sigma->GetXaxis()->SetTitleOffset(0.6);
-
-  r4_sigma->GetYaxis()->SetTitleSize(0.05);
-  r4_sigma->GetYaxis()->SetTitleOffset(1.2);
-  r4_sigma->GetXaxis()->SetTitleSize(0.07);
-  r4_sigma->GetXaxis()->SetTitleOffset(0.6);
-
-  r5_sigma->GetYaxis()->SetTitleSize(0.05);
-  r5_sigma->GetYaxis()->SetTitleOffset(1.2);
-  r5_sigma->GetXaxis()->SetTitleSize(0.07);
-  r5_sigma->GetXaxis()->SetTitleOffset(0.6);
-
-
-  //setStats(r1,s1, startingY, startingX, fit);
-  canvas->cd(1);
-  gPad->SetLogy(); 
-  if(logx)gPad->SetLogx();
-  setStats(r1_sigma,s1_sigma, -1, 0, false);
-  r1_sigma->Draw();
-  s1_sigma->Draw("sames");
-
-  canvas->cd(2);
-  gPad->SetLogy(); 
-  if(logx)gPad->SetLogx();
-  setStats(r2_sigma,s2_sigma, -1, 0, false);
-  r2_sigma->Draw();
-  s2_sigma->Draw("sames");
-
-  canvas->cd(3);
-  gPad->SetLogy(); 
-  if(logx)gPad->SetLogx();
-  setStats(r3_sigma,s3_sigma, -1, 0, false);
-  r3_sigma->Draw();
-  s3_sigma->Draw("sames");
-
-  canvas->cd(4);
-  gPad->SetLogy(); 
-  if(logx)gPad->SetLogx();
-  setStats(r4_sigma,s4_sigma, -1, 0, false);
-  r4_sigma->Draw();
-  s4_sigma->Draw("sames");
-
-  canvas->cd(5);
-  gPad->SetLogy(); 
-  if(logx)gPad->SetLogx();
-  setStats(r5_sigma,s5_sigma, -1, 0, false);
-  r5_sigma->Draw();
-  s5_sigma->Draw("sames");
-
-
-  //canvas->cd(6);
-  //r6->Draw();
-  //s6->Draw("sames");
-
-
-
-
-
-}
-
-void plotResolutionsDirect(TCanvas *canvas, 
-             TH1 *s1,TH1 *r1, TH1 *s2,TH1 *r2, 
-             TH1 *s3,TH1 *r3, TH1 *s4,TH1 *r4,
-             TH1 *s5,TH1 *r5,TH1 *s6,TH1 *r6,
-             TText* te,
-             char * option, double startingY, bool logx=false, double startingX = .1,bool fit = false){
   canvas->Divide(2,3);
 
   s1->SetMarkerStyle(20);
@@ -1809,7 +1309,11 @@ void plotResolutionsDirect(TCanvas *canvas,
   //s6->Draw("sames");
 
 
+
+
+
 }
+
 
 void setStats(TH1* s,TH1* r, double startingY, double startingX = .1,bool fit){
   if (startingY<0){
@@ -1817,7 +1321,7 @@ void setStats(TH1* s,TH1* r, double startingY, double startingX = .1,bool fit){
     r->SetStats(0);
   } else {
     //gStyle->SetOptStat(1001);
-    s->SetStats(1);
+	s->SetStats(1);
     r->SetStats(1);
 
     if (fit){
@@ -1852,13 +1356,12 @@ void setStats(TH1* s,TH1* r, double startingY, double startingX = .1,bool fit){
     st2->SetTextColor(4);
   }
 }
-  
+
 void fixRangeY(TH1* r,TH1* s){
-  double ymin = (r->GetBinContent(r->GetMinimumBin()) < s->GetBinContent(s->GetMinimumBin())) ?
+  double ymin = (r->GetBinContent(r->GetMinimumBin()) < s->GetBinContent(s->GetMinimumBin())) ? 
     r->GetBinContent(r->GetMinimumBin()) : s->GetBinContent(s->GetMinimumBin());
   double ymax = (r->GetBinContent(r->GetMaximumBin()) > s->GetBinContent(s->GetMaximumBin())) ?
     r->GetBinContent(r->GetMaximumBin()) : s->GetBinContent(s->GetMaximumBin());
   r->GetYaxis()->SetRangeUser(ymin*0.9,ymax*1.1);
   s->GetYaxis()->SetRangeUser(ymin*0.9,ymax*1.1);
 }
-

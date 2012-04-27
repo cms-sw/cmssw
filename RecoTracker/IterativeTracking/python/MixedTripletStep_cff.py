@@ -10,7 +10,6 @@ mixedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
     trajectories = cms.InputTag("detachedTripletStepTracks"),
     overrideTrkQuals = cms.InputTag('detachedTripletStep'),
     TrackQuality = cms.string('highPurity'),
-    minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
     Common = cms.PSet(
@@ -161,19 +160,13 @@ mixedTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
     propagatorOpposite = cms.string('mixedTripletStepPropagatorOpposite'),
     clustersToSkip = cms.InputTag('mixedTripletStepClusters'),
     maxCand = 2,
-    estimator = cms.string('mixedTripletStepChi2Est'),
-    maxDPhiForLooperReconstruction = cms.double(2.0),
-    maxPtForLooperReconstruction = cms.double(0.7) 
+    estimator = cms.string('mixedTripletStepChi2Est')
     )
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 mixedTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('mixedTripletStepSeeds'),
-    ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    #onlyPixelHitsForSeedCleaner = cms.bool(True),
-
     TrajectoryBuilder = 'mixedTripletStepTrajectoryBuilder',
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
@@ -182,8 +175,7 @@ mixedTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.
 import RecoTracker.TrackProducer.TrackProducer_cfi
 mixedTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     AlgorithmName = cms.string('iter4'),
-    src = 'mixedTripletStepTrackCandidates',
-    Fitter = cms.string('FlexibleKFFittingSmoother')
+    src = 'mixedTripletStepTrackCandidates'
 )
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.

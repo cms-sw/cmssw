@@ -385,11 +385,3 @@
   <use   name="Utilities/Timing"/>
   <use   name="xerces-c"/>
 </bin>
-<bin name="calibValidation" file="calibValidation.cc">
-        <use name="Calibration/Tools"/>
-        <use name="CondFormats/EcalObjects"/>
-        <use name="DataFormats/EcalDetId"/>
-        <use name="DataFormats/DetId"/>
-        <use name="rootcore"/>
-        <use name="rootgraphics"/>
-</bin>

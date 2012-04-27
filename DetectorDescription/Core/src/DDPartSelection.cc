@@ -1,5 +1,6 @@
 #include "DetectorDescription/Base/interface/Singleton.h"
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 
@@ -329,8 +330,8 @@ void DDTokenize(const std::string & sel, std::vector<DDPartSelRegExpLevel> &  pa
     textVec.push_back(txt);
     if (braceOpen) {
       if (tkn!="]")
-        throw cms::Exception("DDException") << "PartSelector: syntaxerror in " << sel 
-         << "\ncheck the braces!";
+        throw DDException(std::string("PartSelector: syntaxerror in ") + sel + 
+	                  std::string("\ncheck the braces!") );
       else
         braceOpen=false;
     }		
@@ -355,13 +356,15 @@ void DDTokenize(const std::string & sel, std::vector<DDPartSelRegExpLevel> &  pa
   // now some spaghetti code 
   std::string nm = "blabla" ; // std::string("PartSelector=") + ns() + std::string(":") + name();
   if (textVec[0] != "")
-    throw cms::Exception("DDException") << nm << " selection must not start with a LogicalPart-name"; 
+    throw DDException( nm 
+                      +std::string(" selection must not start with a LogicalPart-name")); 
   
   if ((toksVec[0] != "//"))
-    throw cms::Exception("DDException") << nm << " selection must start with '//' !"; 
+    throw DDException( nm 
+                      +std::string(" selection must start with '//' !")); 
   
   if (textVec.size() < 2)
-    throw cms::Exception("DDException") << nm << " internal error [textVec.size()<2]!";
+    throw DDException( nm + std::string(" internal error [textVec.size()<2]!"));
     
   std::vector<std::string>::iterator tk_it = toksVec.begin();
   std::vector<std::string>::iterator tx_it = textVec.begin(); ++tx_it;
@@ -468,14 +471,14 @@ void DDTokenize(const std::string & sel, std::vector<DDPartSelRegExpLevel> &  pa
     }
     
     // any
-    throw cms::Exception("DDException") << nm << " syntax error in:\n" << sel 
-     << "\n  tkn=" << *tk_it << "  txt=" << *tx_it;		      	    	    
+    throw DDException( nm + std::string(" syntax error in:\n") + sel + 
+                            std::string("\n  tkn=") + *tk_it + std::string("  txt=")+ *tx_it);		      	    	    
   }
   //FIXME: DDPartSelectorImpl::tokenize : prototype has restricted support for selection std::string (code below restricts)
   ddselection_type tmp = path.back().selectionType_;
   if (tmp==ddunknown || tmp==ddanynode || tmp==ddanychild ) 
-        throw cms::Exception("DDException") << "PartSelector: last element in selection std::string in " << sel 
-                                            << "\nmust address a distinct LogicalPart or PosPart!";
+        throw DDException(std::string("PartSelector: last element in selection std::string in ") + sel + 
+	                  std::string("\nmust address a distinct LogicalPart or PosPart!") );
 }
 
 

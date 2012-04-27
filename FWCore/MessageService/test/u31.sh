@@ -4,7 +4,7 @@ pushd $LOCAL_TMP_DIR
 
 status=0
   
-rm -f u23_infos.log 
+rm -f u31_infos.log 
 
 cmsRun -p $LOCAL_TEST_DIR/u31_cfg.py || exit $?
  

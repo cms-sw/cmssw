@@ -45,7 +45,7 @@ double		   MinCandidateMass = 100;
 
 char		   TypeMode         = 0; //0 = All Candidates
 					 //1 = Muon Candidates	
-std::string        MODE="COMPILE";         
+
 
 
 void InitdEdx(std::string dEdxS_Label_){

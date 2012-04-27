@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/10/13 15:40:20 $
- *  $Revision: 1.19 $
+ *  $Date: 2009/03/03 13:07:49 $
+ *  $Revision: 1.17 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -26,17 +26,11 @@ MagGeometry::MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer 
 			 std::vector<MagESector *> tes,
 			 std::vector<MagVolume6Faces*> tbv,
 			 std::vector<MagVolume6Faces*> tev) : 
-  lastVolume(0), theBLayers(tbl), theESectors(tes), theBVolumes(tbv), theEVolumes(tev), geometryVersion(0)
+  lastVolume(0), theBLayers(tbl), theESectors(tes), theBVolumes(tbv), theEVolumes(tev)
 {
   
   cacheLastVolume = config.getUntrackedParameter<bool>("cacheLastVolume", true);
-
-  // FIXME: wait geometryVersion to be propagated to all cfgs.
-  if (config.exists("geometryVersion")) {
-    geometryVersion = config.getParameter<int>("geometryVersion");
-  } else {
-    geometryVersion = 90322;
-  }  
+  v_85l = (config.getParameter<std::string>("version")=="grid_85l_030919");
 
   vector<double> rBorders;
 
@@ -58,8 +52,7 @@ MagGeometry::MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer 
 
   //FIXME assume sectors are already sorted in phi
   //FIXME: PeriodicBinFinderInPhi gets *center* of first bin
-  int nEBins = theESectors.size();
-  theEndcapBinFinder = new PeriodicBinFinderInPhi<float>(theESectors.front()->minPhi()+Geom::pi()/nEBins, nEBins);
+  theEndcapBinFinder = new PeriodicBinFinderInPhi<float>(theESectors.front()->minPhi()+Geom::pi()/12., 12);
 
 }
 
@@ -83,10 +76,22 @@ MagGeometry::~MagGeometry(){
 GlobalVector MagGeometry::fieldInTesla(const GlobalPoint & gp) const {
   MagVolume * v = 0;
 
-  
-  v = findVolume(gp);
-  if (v!=0) {
-    return v->fieldInTesla(gp);
+  // Map version 85l is Z-symmetric; -> implement Z reflection
+  if (v_85l && gp.z()>0) { 
+    GlobalPoint gpSym(gp.x(), gp.y(), -gp.z());
+    // Check volume cache
+    v = findVolume(gpSym);
+
+    if (v!=0) {
+      GlobalVector bresult = v->fieldInTesla(gpSym);
+      return GlobalVector(-bresult.x(), -bresult.y(), bresult.z());
+    }
+    
+  } else { // No reflection
+    v = findVolume(gp);
+    if (v!=0) {
+      return v->fieldInTesla(gp);
+    }
   }
   
   // Fall-back case: no volume found
@@ -191,14 +196,19 @@ bool MagGeometry::inBarrel(const GlobalPoint& gp) const {
   float R = gp.perp();
 
   // FIXME: Get these dimensions from the builder. 
-  if (geometryVersion>=90812) {
-    return (Z<350. ||
-	    (R>172.4 && Z<633.89) || 
-	    (R>308.755 && Z<662.01));    
+  // For this we can wait the next generation of tables, when the picture 
+  // may be more complicated
+  if (v_85l){
+    return (Z<634.49 || (R>308.755 && Z<661.01));
   } else {
     return (Z<350. ||
 	    (R>172.4 && Z<633.29) || 
 	    (R>308.755 && Z<661.01));
   }
+}
+
+
+bool MagGeometry::isZSymmetric() const {
+  return v_85l;
 }
 

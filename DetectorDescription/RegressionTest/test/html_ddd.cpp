@@ -8,6 +8,7 @@
 #include "DetectorDescription/RegressionTest/interface/DDHtmlFormatter.h"
 #include "DetectorDescription/Core/src/LogicalPart.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
 #include <iostream>
 #include <string>
@@ -129,7 +130,7 @@ int main(int argc, char *argv[])
     return 0;
   
   }
-  catch (cms::Exception& e) // DDD-Exceptions are simple string for the Prototype
+  catch (DDException& e) // DDD-Exceptions are simple string for the Prototype
     {
       std::cerr << "DDD-PROBLEM:" << std::endl 
 		<< e << std::endl;

@@ -6,8 +6,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "CommonTools/Utils/interface/StringToEnumValue.h"
-
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -24,10 +22,6 @@
 
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
-
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonProducer.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
@@ -62,22 +56,6 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   posCalculator_ = PositionCalc(posCalcParameters);
 
 
-  //AA
-  //Flags and Severities to be excluded from photon calculations
-  const std::vector<std::string> flagnames = 
-    config.getParameter<std::vector<std::string> >("RecHitFlagToBeExcluded");
-
-  flagsexcl_= 
-    StringToEnumValue<EcalRecHit::Flags>(flagnames);
-
-  const std::vector<std::string> severitynames = 
-    config.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcluded");
-
-  severitiesexcl_= 
-    StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynames);
-  //AA
-
-  //
 
   // Parameters for the position calculation:
   //  std::map<std::string,double> providedParameters;
@@ -140,7 +118,6 @@ void  PhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & theEventSet
 
 
 
-
 }
 
 void  PhotonProducer::endRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
@@ -192,12 +169,6 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   }
   if( validEcalRecHits) endcapRecHits = *(endcapHitHandle.product());
 
-  //AA
-  //Get the severity level object
-  edm::ESHandle<EcalSeverityLevelAlgo> sevLv;
-  theEventSetup.get<EcalSeverityLevelAlgoRcd>().get(sevLv);
-  //
-
 
 // get Hcal towers collection 
   Handle<CaloTowerCollection> hcalTowersHandle;
@@ -244,8 +215,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 			 //vtx,
 			 vertexCollection,
 			 outputPhotonCollection,
-			 iSC,
-			 sevLv.product());
+			 iSC);
  
 
   // put the product in the event
@@ -264,8 +234,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
 					  const edm::Handle<CaloTowerCollection> & hcalTowersHandle, 
 					  // math::XYZPoint & vtx,
                                           reco::VertexCollection & vertexCollection,
-					  reco::PhotonCollection & outputPhotonCollection, int& iSC,
-					  const EcalSeverityLevelAlgo * sevLv) {
+					  reco::PhotonCollection & outputPhotonCollection, int& iSC) {
   
   const CaloGeometry* geometry = theCaloGeom_.product();
   const CaloSubdetectorGeometry* subDetGeometry =0 ;
@@ -301,7 +270,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     else
       { edm::LogWarning("")<<"PhotonProducer: do not know if it is a barrel or endcap SuperCluster" ; }
 
-    
+            
     // SC energy preselection
     if (scRef->energy()/cosh(scRef->eta()) <= preselCutValues[0] ) continue;
     // calculate HoE
@@ -326,19 +295,13 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
 
 
     float maxXtal =   EcalClusterTools::eMax( *(scRef->seed()), &(*hits) );
-    //AA
-    //Change these to consider severity level of hits
-    float e1x5    =   EcalClusterTools::e1x5(  *(scRef->seed()), &(*hits), &(*topology), flagsexcl_, severitiesexcl_, sevLv); 
-    float e2x5    =   EcalClusterTools::e2x5Max(  *(scRef->seed()), &(*hits), &(*topology),flagsexcl_, severitiesexcl_, sevLv ); 
-    float e3x3    =   EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology), flagsexcl_, severitiesexcl_, sevLv);
-    float e5x5    =   EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology),flagsexcl_, severitiesexcl_, sevLv); 
-    //
-
-//    std::vector<float> cov =  EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry); 
-      std::vector<float> cov =  EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry,flagsexcl_, severitiesexcl_, sevLv);
+    float e1x5    =   EcalClusterTools::e1x5(  *(scRef->seed()), &(*hits), &(*topology)); 
+    float e2x5    =   EcalClusterTools::e2x5Max(  *(scRef->seed()), &(*hits), &(*topology)); 
+    float e3x3    =   EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology)); 
+    float e5x5    =   EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology)); 
+    std::vector<float> cov =  EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry); 
     float sigmaEtaEta = sqrt(cov[0]);
-//    std::vector<float> locCov =  EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology)); 
-std::vector<float> locCov =  EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology),flagsexcl_, severitiesexcl_, sevLv);
+    std::vector<float> locCov =  EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology)); 
     float sigmaIetaIeta = sqrt(locCov[0]);
 
 
@@ -390,7 +353,6 @@ std::vector<float> locCov =  EcalClusterTools::localCovariances( *(scRef->seed()
     showerShape.hcalDepth2OverEcal = HoE2;
     showerShape.hcalDepth1OverEcalBc = hcalDepth1OverEcalBc;
     showerShape.hcalDepth2OverEcalBc = hcalDepth2OverEcalBc;
-    showerShape.hcalTowersBehindClusters =  TowersBehindClus;
     newCandidate.setShowerShapeVariables ( showerShape ); 
 
     /// get ecal photon specific corrected energy 

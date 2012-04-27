@@ -3,7 +3,7 @@ import copy
 
 def CreatePlotEntry(analyzer, discriminatorLabel=None, step=True):
     """CreatePlotEntry(analyzer, discriminatorLabel)\n
-    Creates a PSet with the informations used by DQMHistEffProducer\n
+    Creates a PSet with the informations used by TauDQMHistEffProducer\n
     where to find the numerator and denominator\n
     where to put the new plot and how to name it\n
     which variables control"""
@@ -128,7 +128,7 @@ def DisableQCuts(sequence):
 
 def SetPlotSequence(sequence):
     """SetSequence(seqence)\n
-    This Function return a PSet of the sequence given to be used by DQMHistEffProducer"""
+    This Function return a PSet of the sequence given to be used by TauDQMHistEffProducer"""
     pset = cms.PSet()
     scanner = Scanner()
     sequence.visit(scanner)
@@ -167,7 +167,7 @@ def SpawnPSet(lArgument, subPset):
 
 def SetpByStep(analyzer, plotPset, useOnly):
     """SetpByStep(analyzer, plotPset) --> PSet\n
-     This function produces the parameter set stepBystep for the EDAnalyzer DQMHistPlotter starting from the PSet produced for DQMHistEffProducer and the analyzer to plot"""
+     This function produces the parameter set stepBystep for the EDAnalyzer TauDQMHistPlotter starting from the PSet produced for TauDQMHistEffProducer and the analyzer to plot"""
     standardEfficiencyOverlay = cms.PSet(
         parameter = cms.vstring('pt', 'eta', 'phi', 'pileup'),
         title = cms.string('TauId step by step efficiencies'),
@@ -212,7 +212,7 @@ def SetpByStep(analyzer, plotPset, useOnly):
 
 def SpawnDrawJobs(analyzer, plotPset, useOnly=None):
     """SpwnDrawJobs(analyzer, plotPset) --> cms.PSet\n
-    This function produces the parameter set drawJobs for the EDAnalyzer DQMHistPlotter starting from the PSet produced for DQMHistEffProducer and the analyzer to plot"""
+    This function produces the parameter set drawJobs for the EDAnalyzer TauDQMHistPlotter starting from the PSet produced for TauDQMHistEffProducer and the analyzer to plot"""
     standardEfficiencyParameters = cms.PSet(
         parameter = cms.vstring('pt', 'eta', 'phi', 'pileup'),
         xAxis = cms.string('#PAR#'),

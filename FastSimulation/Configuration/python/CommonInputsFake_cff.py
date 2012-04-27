@@ -1,16 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
-
-# Primary vertex smearing.
-fastsimPrimaryVertex = 'Realistic8TeV'
-from IOMC.EventVertexGenerators.VtxSmearedGauss_cfi import *
-
-# The Geometries
-from FastSimulation.Configuration.Geometries_cff import *
-
-#The Magnetic Field ESProducer's 
-from FastSimulation.ParticlePropagator.MagneticFieldMapESProducer_cfi import *
+from FastSimulation.Configuration.CommonInputs_cff.py import *
 
 # The muon digi calibration
 from CalibMuon.Configuration.DT_FakeConditions_cff import *

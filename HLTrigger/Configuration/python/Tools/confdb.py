@@ -57,6 +57,8 @@ class HLTProcess(object):
     "HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v*",
     
 # TODO: paths not supported by FastSim, but for which a recovery should be attempted
+    "HLT_Ele80_CaloIdVT_GsfTrkIdT_v*",
+    "HLT_Ele90_CaloIdVT_GsfTrkIdT_v*",
 
     )
 

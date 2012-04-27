@@ -197,7 +197,8 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   if ( params.exists("emissionVeto") )
   {   
     fEmissionVetoHook = new EmissionVetoHook(0);
-  }
+    pythia->setUserHooksPtr( fEmissionVetoHook );
+  }  
 
   int NHooks=0;
   if(fReweightUserHook) NHooks++;
@@ -209,19 +210,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
 
   if(fReweightUserHook) pythia->setUserHooksPtr(fReweightUserHook);
   if(fJetMatchingHook) pythia->setUserHooksPtr(fJetMatchingHook);
-  if(fEmissionVetoHook) {
-    cout << "Turning on Emission Veto Hook" << endl;
-    int nversion = (int)(1000.*(pythia->settings.parm("Pythia:versionNumber") - 8.));
-    if(nversion < 157) {
-      cout << "obsolete pythia8 version for this Emission Veto code" << endl;
-      cout << "Please update pythia8 version using the instructions here:" << endl;
-      cout << "https://twiki.cern.ch/twiki/bin/view/CMS/Pythia8Interface" << endl;
-      cout << "or try to use tag V00-01-28 of this interface" << endl;
-      throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
-        <<" Obsolete pythia8 version for this Emission Veto code\n";
-    }
-    pythia->setUserHooksPtr(fEmissionVetoHook);
-  }
+  if(fEmissionVetoHook) pythia->setUserHooksPtr(fEmissionVetoHook);
 }
 
 

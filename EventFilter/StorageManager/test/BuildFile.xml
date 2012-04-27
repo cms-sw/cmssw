@@ -86,8 +86,4 @@
   <bin   file="TriggerSelector_t.cpp">
     <use   name="cppunit"/>
   </bin>
-  <bin   file="DiskWriter_t.cpp">
-    <flags NO_TESTRUN="1"/>
-    <use   name="cppunit"/>
-  </bin>
 </environment>

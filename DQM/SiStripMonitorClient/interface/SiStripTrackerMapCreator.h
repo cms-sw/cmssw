@@ -27,9 +27,7 @@ class SiStripTrackerMapCreator {
   void create(const edm::ParameterSet & tkmapPset, 
 	      const edm::ESHandle<SiStripFedCabling>& fedcabling, 
               DQMStore* dqm_store, std::string& htype);
-  void createForOffline(const edm::ParameterSet & tkmapPset, 
-			const edm::ESHandle<SiStripFedCabling>& fedcabling,
-			DQMStore* dqm_store, std::string& htype);
+  void createForOffline(const edm::ParameterSet & tkmapPset, DQMStore* dqm_store, std::string& htype);
 
 
  private:
@@ -38,7 +36,6 @@ class SiStripTrackerMapCreator {
   void paintTkMapFromHistogram(DQMStore* dqm_store, MonitorElement* me, std::string& map_type);
   void setTkMapFromHistogram(DQMStore* dqm_store, std::string& htype);
   void setTkMapRange(std::string& map_type);
-  void setTkMapRangeOffline();
   uint16_t getDetectorFlagAndComment(DQMStore* dqm_store, uint32_t det_id, std::ostringstream& comment);
 
   TrackerMap* trackerMap_;
@@ -46,7 +43,6 @@ class SiStripTrackerMapCreator {
 
   float tkMapMax;
   float tkMapMin;
-  bool tkMapLog;
   int   nDet;
   TkDetMap* tkDetMap_;
 };

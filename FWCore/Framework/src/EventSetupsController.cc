@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jan 12 14:30:44 CST 2011
-// $Id: EventSetupsController.cc,v 1.1 2011/01/13 00:33:11 chrjones Exp $
+// $Id$
 //
 
 // system include files
@@ -60,11 +60,11 @@ EventSetupsController::EventSetupsController()
 // member functions
 //
 boost::shared_ptr<EventSetupProvider> 
-EventSetupsController::makeProvider(ParameterSet& iPSet)
+EventSetupsController::makeProvider(ParameterSet& iPSet, const CommonParams& iParams)
 {
    boost::shared_ptr<EventSetupProvider> returnValue(makeEventSetupProvider(iPSet) );
 
-   fillEventSetupProvider(*returnValue, iPSet);
+   fillEventSetupProvider(*returnValue, iPSet, iParams);
    
    providers_.push_back(returnValue);
    

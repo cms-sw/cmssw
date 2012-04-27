@@ -22,6 +22,9 @@ PFTauQualityCuts = cms.PSet(
         maxTrackChi2                 = cms.double(100.),
         maxTransverseImpactParameter = cms.double(0.03),
         maxDeltaZ                    = cms.double(0.2),
+        # Optionally cut on DZ to lead track
+        # This option only works for isolation, not signal!
+        # maxDeltaZToLeadTrack         = cms.double(0.2),
         minTrackVertexWeight         = cms.double(-1), # Tracks weight in vertex
         minTrackPixelHits            = cms.uint32(0),
         minTrackHits                 = cms.uint32(8),

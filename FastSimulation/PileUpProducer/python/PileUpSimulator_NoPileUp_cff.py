@@ -1,5 +1,6 @@
-from FastSimulation.Configuration.RandomServiceInitialization_cff import *
-from FastSimulation.PileUpProducer.PileUpSimulator7TeV_cfi import *
-from FastSimulation.Configuration.FamosSequences_cff import famosPileUp
-famosPileUp.PileUpSimulator = PileUpSimulatorBlock.PileUpSimulator
+from FastSimulation.PileUpProducer.PileUpSimulator8TeV_cfi import PileUpSimulatorBlock as block8TeV
+from FastSimulation.Configuration.MixingFamos_cff import *
+
+#define the PU scenario itself
+famosPileUp.PileUpSimulator = block8TeV.PileUpSimulator
 famosPileUp.PileUpSimulator.averageNumber = 0.000000

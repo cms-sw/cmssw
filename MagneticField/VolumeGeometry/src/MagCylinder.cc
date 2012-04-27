@@ -10,7 +10,7 @@ MagCylinder::MagCylinder( const PositionType& pos,
 			  DDSolidShape shape,
 			  const std::vector<VolumeSide>& faces,
 			  const MagneticFieldProvider<float> * mfp)
-  : MagVolume(pos,rot,shape,mfp), theFaces(faces), theZmin(0.), theZmax(0.), theInnerR(0.), theOuterR(0.)
+  : MagVolume(pos,rot,shape,mfp), theFaces(faces), theInnerR(0)
 {
   using SurfaceOrientation::GlobalFace;
 

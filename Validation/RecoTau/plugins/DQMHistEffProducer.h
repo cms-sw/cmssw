@@ -1,12 +1,12 @@
-#ifndef ElectroWeakAnalysis_EWKTau_DQMHistEffProducer_h
-#define ElectroWeakAnalysis_EWKTau_DQMHistEffProducer_h
+#ifndef TauDQMHistEffProducer_h
+#define TauDQMHistEffProducer_h
 
-/** \class DQMHistEffProducer
+/** \class TauDQMHistEffProducer
  *  
  *  Class to produce efficiency histograms by dividing nominator by denominator histograms
  *
- *  $Date: 2008/12/19 19:05:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/04/06 12:20:33 $
+ *  $Revision: 1.2 $
  *  \author Christian Veelken, UC Davis
  */
 
@@ -21,7 +21,7 @@
 #include <string>
 #include <vector>
 
-class DQMHistEffProducer : public edm::EDAnalyzer
+class TauDQMHistEffProducer : public edm::EDAnalyzer
 {
   struct cfgEntryPlot
   {
@@ -33,8 +33,8 @@ class DQMHistEffProducer : public edm::EDAnalyzer
   };
 
  public:
-  explicit DQMHistEffProducer(const edm::ParameterSet&);
-  virtual ~DQMHistEffProducer();
+  explicit TauDQMHistEffProducer(const edm::ParameterSet&);
+  virtual ~TauDQMHistEffProducer();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob(){}
   virtual void endRun(const edm::Run& r, const edm::EventSetup& c);

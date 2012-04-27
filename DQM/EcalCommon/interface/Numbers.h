@@ -5,8 +5,8 @@
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.40 $
-  \date $Date: 2011/09/15 21:01:27 $
+  \version $Revision: 1.39 $
+  \date $Date: 2011/08/30 09:06:12 $
 */
 
 #include <string>
@@ -121,10 +121,6 @@ class Numbers {
   static bool validEE( const unsigned ism, const unsigned ix, const unsigned iy );
 
   static bool validEESc( const unsigned ism, const unsigned ix, const unsigned iy );
-
-  static unsigned nCCUs(const unsigned ism);
-
-  static unsigned nTTs(const unsigned itcc);
 
   static const EcalElectronicsMapping* getElectronicsMapping();
 

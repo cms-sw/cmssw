@@ -13,7 +13,7 @@
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: OccupancyPlotter.cc,v 1.14 2012/04/05 19:52:43 halil Exp $
+// $Id: OccupancyPlotter.cc,v 1.13 2012/04/03 09:54:48 halil Exp $
 //
 //
 
@@ -416,20 +416,17 @@ Double_t PhiMaxFine = 33.0*TMath::Pi()/32.0;
 //Double_t eta_bins[] = {-2.610,-2.175,-1.740,-1.305,-0.870,-0.435,0,0.435,0.870,1.305,1.740,2.175,2.610};
 //Double_t phi_bins[] = {-TMath::Pi(),-3*TMath::Pi()/4,-TMath::Pi()/2,-TMath::Pi()/4,0,TMath::Pi()/4,TMath::Pi()/2,3*TMath::Pi()/4,TMath::Pi()};
 
- if (label!="MET") { 
-    TH2F * hist_EtaVsPhi = new
-                TH2F(h_name.c_str(),h_title.c_str(),numBinsEta,-EtaMax,EtaMax,numBinsPhi,-PhiMax,PhiMax);
-    TH1F * hist_1dEta = new
-                TH1F(h_name_1dEta.c_str(),h_title_1dEta.c_str(),numBinsEtaFine,-EtaMax,EtaMax);
-    hist_EtaVsPhi->SetMinimum(0); 
-    hist_1dEta->SetMinimum(0);
-   dbe->book1D(h_name_1dEta.c_str(),hist_1dEta);
-   dbe->book2D(h_name.c_str(),hist_EtaVsPhi);
- }
- TH1F * hist_1dPhi = new
-                TH1F(h_name_1dPhi.c_str(),h_title_1dPhi.c_str(),numBinsPhiFine,-PhiMaxFine,PhiMaxFine);
+ TH2F * hist_EtaVsPhi = new TH2F(h_name.c_str(),h_title.c_str(),numBinsEta,-EtaMax,EtaMax,numBinsPhi,-PhiMax,PhiMax);
+ TH1F * hist_1dEta = new TH1F(h_name_1dEta.c_str(),h_title_1dEta.c_str(),numBinsEtaFine,-EtaMax,EtaMax);
+ TH1F * hist_1dPhi = new TH1F(h_name_1dPhi.c_str(),h_title_1dPhi.c_str(),numBinsPhiFine,-PhiMaxFine,PhiMaxFine);
+
+ hist_EtaVsPhi->SetMinimum(0);
+ hist_1dEta->SetMinimum(0);
  hist_1dPhi->SetMinimum(0);
- dbe->book1D(h_name_1dPhi.c_str(),hist_1dPhi);
+
+dbe->book2D(h_name.c_str(),hist_EtaVsPhi);
+dbe->book1D(h_name_1dEta.c_str(),hist_1dEta);
+dbe->book1D(h_name_1dPhi.c_str(),hist_1dPhi);
 
   for (unsigned int iPath = 0; iPath < PDsVectorPathsVector[iPD].size(); iPath++) { 
     pathName = PDsVectorPathsVector[iPD][iPath];
@@ -440,9 +437,7 @@ Double_t PhiMaxFine = 33.0*TMath::Pi()/32.0;
     Path_Folder = TString("HLT/OccupancyPlots/"+label+"/Paths");
     dbe->setCurrentFolder(Path_Folder.c_str());
 
-    // We don't want eta of MET PD to be histogrammed
-    if (label!="MET")
-        dbe->book1D(h_name_1dEtaPath.c_str(),h_title_1dEtaPath.c_str(),numBinsEtaFine,-EtaMax,EtaMax);
+    dbe->book1D(h_name_1dEtaPath.c_str(),h_title_1dEtaPath.c_str(),numBinsEtaFine,-EtaMax,EtaMax);
     dbe->book1D(h_name_1dPhiPath.c_str(),h_title_1dPhiPath.c_str(),numBinsPhiFine,-PhiMaxFine,PhiMaxFine);
   
     if (debugPrint) std::cout << "book1D for " << pathName << std::endl;
@@ -477,25 +472,17 @@ if (label != "SingleMu" && label != "SingleElectron" && label != "Jet") {
   if (debugPrint) std::cout << "fullPathToME = " << std::endl;
 
   MonitorElement * ME_2d = dbe->get(fullPathToME);
-  
   MonitorElement * ME_1dEta = dbe->get(fullPathToME1dEta);
-  MonitorElement * ME_1dEtaPath = dbe->get(fullPathToME1dEtaPath);
-  
   MonitorElement * ME_1dPhi = dbe->get(fullPathToME1dPhi);  
+  MonitorElement * ME_1dEtaPath = dbe->get(fullPathToME1dEtaPath);
   MonitorElement * ME_1dPhiPath = dbe->get(fullPathToME1dPhiPath);
 
   if (debugPrint) std::cout << "MonitorElement * " << std::endl;
 
-  TH2F * hist_2d;
-  TH1F * hist_1dEta;
-  TH1F * hist_1dEtaPath;
-
-  if (label!="MET"){
-    hist_1dEta = ME_1dEta->getTH1F();
-    hist_1dEtaPath = ME_1dEtaPath->getTH1F();
-    hist_2d = ME_2d->getTH2F();
-  }
+  TH2F * hist_2d = ME_2d->getTH2F();
+  TH1F * hist_1dEta = ME_1dEta->getTH1F();
   TH1F * hist_1dPhi = ME_1dPhi->getTH1F();
+  TH1F * hist_1dEtaPath = ME_1dEtaPath->getTH1F();
   TH1F * hist_1dPhiPath = ME_1dPhiPath->getTH1F();
 
   if (debugPrint) std::cout << "TH2F *" << std::endl;
@@ -506,13 +493,11 @@ if (label != "SingleMu" && label != "SingleElectron" && label != "Jet") {
   //for (int ii=i; ii<3; ++ii) hist_2d->Fill(Eta,Phi); //Scales narrow bins in Barrel/Endcap border region
 
   if(first_count) {
-    hist_1dPhi->Fill(Phi);
-    if (label!="MET") {
-      hist_1dEta->Fill(Eta); 
-      hist_2d->Fill(Eta,Phi); }
-  }
-  if (label!="MET") hist_1dEtaPath->Fill(Eta); 
-  hist_1dPhiPath->Fill(Phi);
+    hist_1dEta->Fill(Eta);
+    hist_1dPhi->Fill(Phi); 
+    hist_2d->Fill(Eta,Phi); }
+    hist_1dEtaPath->Fill(Eta); 
+    hist_1dPhiPath->Fill(Phi);
 
  if (debugPrint) std::cout << "hist->Fill" << std::endl;
 

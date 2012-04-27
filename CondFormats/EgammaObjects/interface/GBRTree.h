@@ -26,6 +26,7 @@
 #include <vector>
 #include <map>
 
+
   namespace TMVA {
     class DecisionTree;
     class DecisionTreeNode;
@@ -40,24 +41,6 @@
        virtual ~GBRTree();
        
        double GetResponse(const float* vector) const;
-       int TerminalIndex(const float *vector) const;
-       
-       std::vector<float> &Responses() { return fResponses; }       
-       const std::vector<float> &Responses() const { return fResponses; }
-       
-       std::vector<unsigned char> &CutIndices() { return fCutIndices; }
-       const std::vector<unsigned char> &CutIndices() const { return fCutIndices; }
-       
-       std::vector<float> &CutVals() { return fCutVals; }
-       const std::vector<float> &CutVals() const { return fCutVals; }
-       
-       std::vector<int> &LeftIndices() { return fLeftIndices; }
-       const std::vector<int> &LeftIndices() const { return fLeftIndices; } 
-       
-       std::vector<int> &RightIndices() { return fRightIndices; }
-       const std::vector<int> &RightIndices() const { return fRightIndices; }
-       
-
        
     protected:      
         unsigned int CountIntermediateNodes(const TMVA::DecisionTreeNode *node);
@@ -82,7 +65,6 @@ inline double GBRTree::GetResponse(const float* vector) const {
   float cutval = fCutVals[0];
   
   while (true) {
-     
     if (vector[cutindex] > cutval) {
       index = fRightIndices[index];
     }
@@ -96,35 +78,6 @@ inline double GBRTree::GetResponse(const float* vector) const {
     }
     else {
       return fResponses[-index];
-    }
-    
-  }
-  
-
-}
-
-//_______________________________________________________________________
-inline int GBRTree::TerminalIndex(const float* vector) const {
-  
-  int index = 0;
-  
-  unsigned char cutindex = fCutIndices[0];
-  float cutval = fCutVals[0];
-  
-  while (true) {
-    if (vector[cutindex] > cutval) {
-      index = fRightIndices[index];
-    }
-    else {
-      index = fLeftIndices[index];
-    }
-    
-    if (index>0) {
-      cutindex = fCutIndices[index];
-      cutval = fCutVals[index];
-    }
-    else {
-      return (-index);
     }
     
   }
