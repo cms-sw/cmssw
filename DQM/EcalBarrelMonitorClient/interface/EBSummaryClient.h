@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2012/03/18 17:20:49 $
- * $Revision: 1.57.8.3 $
+ * $Date: 2012/04/13 17:59:42 $
+ * $Revision: 1.57.8.5 $
  * \author G. Della Ricca
  *
 */
@@ -85,9 +85,13 @@ bool debug_;
 
 std::string prefixME_;
 
+ std::string subfolder_;
+
 bool enableCleanup_;
 
  bool produceReports_;
+
+ bool reducedReports_;
 
 std::vector<int> superModules_;
 std::vector<int> laserWavelengths_;
@@ -171,6 +175,8 @@ TProfile2D* hpot01_[36];
 TProfile2D* httt01_[36];
 TProfile2D* htmt01_[36];
 TH1F* norm01_, *synch01_;
+
+ int timingNHitThreshold_;
 
 };
 

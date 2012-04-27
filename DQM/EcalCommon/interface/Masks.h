@@ -5,8 +5,8 @@
   \file Masks.h
   \brief channel masking
   \author G. Della Ricca
-  \version $Revision: 1.7 $
-  \date $Date: 2010/08/20 19:09:03 $
+  \version $Revision: 1.8 $
+  \date $Date: 2012/02/28 16:38:13 $
 */
 
 #include <string>
@@ -16,6 +16,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+
+#include "CommonTools/Utils/interface/Exception.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/EcalObjects/interface/EcalDQMChannelStatus.h"
@@ -28,9 +30,9 @@ class Masks {
 
   static void initMasking( const edm::EventSetup& setup, bool verbose = false );
 
-  static bool maskChannel( int ism, int i1, int i2, uint32_t bits, const EcalSubdetector subdet ) throw( std::runtime_error );
+  static bool maskChannel( int ism, int i1, int i2, uint32_t bits, const EcalSubdetector subdet ) throw( cms::Exception );
 
-  static bool maskPn( int ism, int i1, uint32_t bits, const EcalSubdetector subdet ) throw( std::runtime_error );
+  static bool maskPn( int ism, int i1, uint32_t bits, const EcalSubdetector subdet ) throw( cms::Exception );
 
 private:
 

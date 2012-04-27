@@ -4,8 +4,8 @@
 /*
  * \file EBTimingClient.h
  *
- * $Date: 2011/08/30 09:34:53 $
- * $Revision: 1.35 $
+ * $Date: 2012/04/13 17:59:42 $
+ * $Revision: 1.35.2.1 $
  * \author G. Della Ricca
  *
 */
@@ -111,6 +111,8 @@ MonitorElement* mer01_[36];
 float expectedMean_;
 float discrepancyMean_;
 float RMSThreshold_;
+
+ int nHitThreshold_;
 
 };
 

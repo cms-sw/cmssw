@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2011/09/15 21:02:09 $
- * $Revision: 1.111 $
+ * $Date: 2012/04/13 17:59:46 $
+ * $Revision: 1.111.2.1 $
  * \author G. Della Ricca
  *
 */
@@ -57,6 +57,8 @@ EETimingClient::EETimingClient(const edm::ParameterSet& ps) {
   for ( unsigned int i = 1; i <= 18; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
+  nHitThreshold_ = ps.getUntrackedParameter<int>("timingNHitThreshold", 5);
+
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
@@ -88,11 +90,9 @@ EETimingClient::EETimingClient(const edm::ParameterSet& ps) {
   meTimeSummaryMapProjPhi_[0] = 0;
   meTimeSummaryMapProjPhi_[1] = 0;
 
-  expectedMean_ = 0.0;
-  discrepancyMean_ = 3.;
-  RMSThresholdLowEta_ = 4.;
-  RMSThresholdHighEta_ = 10.;
-
+  expectedMean_ = 0.;
+  meanThreshold_ = 3.;
+  rmsThreshold_ = 6.;
 }
 
 EETimingClient::~EETimingClient() {
@@ -309,7 +309,7 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
         bool update01;
 
-        update01 = UtilsClient::getBinStatistics(h01_[ism-1], ix, iy, num01, mean01, rms01);
+        update01 = UtilsClient::getBinStatistics(h01_[ism-1], ix, iy, num01, mean01, rms01, nHitThreshold_);
         // Task timing map is shifted of +50 ns for graphical reasons. Shift back it.
         mean01 -= 50.;
 
@@ -456,7 +456,7 @@ void EETimingClient::analyze(void) {
         float mean01;
         float rms01;
 
-        update01 = UtilsClient::getBinStatistics(h01_[ism-1], ix, iy, num01, mean01, rms01, 3.);
+        update01 = UtilsClient::getBinStatistics(h01_[ism-1], ix, iy, num01, mean01, rms01, nHitThreshold_);
         // Task timing map is shifted of +50 ns for graphical reasons. Shift back it.
         mean01 -= 50.;
 
@@ -464,15 +464,10 @@ void EETimingClient::analyze(void) {
 
 	  EEDetId id(jx, jy, -1 + iz * 2);
 
-	  float eta = Numbers::eta(id);
+          float val(1.);
 
-          float val;
+          if ( std::abs(mean01 - expectedMean_) > meanThreshold_ || rms01 > rmsThreshold_ ) val = 0.;
 
-          val = 1.;
-          if ( std::abs(mean01 - expectedMean_) > discrepancyMean_ )
-            val = 0.;
-          if ( rms01 > (std::abs(eta) > 2.6 ? RMSThresholdHighEta_ : RMSThresholdLowEta_) )
-            val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ix, iy, val);
 
           int ic = Numbers::icEE(ism, jx, jy);
@@ -487,7 +482,7 @@ void EETimingClient::analyze(void) {
             if ( mer01_[ism-1] ) mer01_[ism-1]->Fill(rms01);
           }
 
-	  if( meTimeSummaryMapProjEta_[iz] ) meTimeSummaryMapProjEta_[iz]->Fill(eta, mean01);
+	  if( meTimeSummaryMapProjEta_[iz] ) meTimeSummaryMapProjEta_[iz]->Fill(Numbers::eta(id), mean01);
 	  if( meTimeSummaryMapProjPhi_[iz] ) meTimeSummaryMapProjPhi_[iz]->Fill(Numbers::phi(id), mean01);
 
         }

@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2012/03/16 14:46:40 $
- * $Revision: 1.267.2.4 $
+ * $Date: 2012/03/30 09:35:32 $
+ * $Revision: 1.267.2.5 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -197,6 +197,10 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const edm::ParameterSet& ps)
   }
 
   produceReports_ = ps.getUntrackedParameter<bool>("produceReports", true);
+
+  if (produceReports_){
+    std::cout << " producing reportSummaries" << std::endl;
+  }
 
   // enableCleanup switch
 

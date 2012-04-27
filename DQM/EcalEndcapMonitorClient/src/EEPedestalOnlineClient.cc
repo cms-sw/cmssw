@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2012/03/18 17:20:57 $
- * $Revision: 1.114.2.2 $
+ * $Date: 2012/03/29 22:30:23 $
+ * $Revision: 1.114.2.4 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -49,6 +49,8 @@ EEPedestalOnlineClient::EEPedestalOnlineClient(const edm::ParameterSet& ps) {
 
   // prefixME path
   prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
+
+  subfolder_ = ps.getUntrackedParameter<std::string>("subfolder", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -132,6 +134,9 @@ void EEPedestalOnlineClient::setup(void) {
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EEPedestalOnlineClient" );
 
+  if(subfolder_.size())
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalOnlineClient/" + subfolder_);
+
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
@@ -202,6 +207,9 @@ void EEPedestalOnlineClient::cleanup(void) {
   }
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EEPedestalOnlineClient" );
+
+  if(subfolder_.size())
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalOnlineClient/" + subfolder_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -324,13 +332,15 @@ void EEPedestalOnlineClient::analyze(void) {
   bits03 |= 1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR;
   bits03 |= 1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR;
 
+  std::string subdir(subfolder_.size() ? subfolder_ + "/" : "");
+
   MonitorElement* me;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    me = dqmStore_->get( prefixME_ + "/EEPedestalOnlineTask/Gain12/EEPOT pedestal " + Numbers::sEE(ism) + " G12" );
+    me = dqmStore_->get( prefixME_ + "/EEPedestalOnlineTask/" + subdir + "Gain12/EEPOT pedestal " + Numbers::sEE(ism) + " G12" );
     h03_[ism-1] = UtilsClient::getHisto( me, cloneME_, h03_[ism-1] );
 
     if ( meg03_[ism-1] ) meg03_[ism-1]->Reset();

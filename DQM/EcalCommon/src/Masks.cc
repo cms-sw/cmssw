@@ -1,11 +1,11 @@
-// $Id: Masks.cc,v 1.15 2011/10/07 16:56:24 yiiyama Exp $
+// $Id: Masks.cc,v 1.16 2012/02/28 16:38:13 yiiyama Exp $
 
 /*!
   \file Masks.cc
   \brief channel masking
   \author G. Della Ricca
-  \version $Revision: 1.15 $
-  \date $Date: 2011/10/07 16:56:24 $
+  \version $Revision: 1.16 $
+  \date $Date: 2012/02/28 16:38:13 $
 */
 
 #include <sstream>
@@ -57,7 +57,7 @@ void Masks::initMasking( const edm::EventSetup& setup, bool verbose ) {
 
 //-------------------------------------------------------------------------
 
-bool Masks::maskChannel( int ism, int i1, int i2, uint32_t bits, const EcalSubdetector subdet ) throw( std::runtime_error ) {
+bool Masks::maskChannel( int ism, int i1, int i2, uint32_t bits, const EcalSubdetector subdet ) throw( cms::Exception ) {
 
   bool mask = false;
 
@@ -99,7 +99,7 @@ bool Masks::maskChannel( int ism, int i1, int i2, uint32_t bits, const EcalSubde
 
     std::ostringstream s;
     s << "Invalid subdetector: subdet = " << subdet;
-    throw( std::runtime_error( s.str() ) );
+    throw( cms::Exception( s.str() ) );
 
   }
 
@@ -109,7 +109,7 @@ bool Masks::maskChannel( int ism, int i1, int i2, uint32_t bits, const EcalSubde
 
 //-------------------------------------------------------------------------
 
-bool Masks::maskPn( int ism, int i1, uint32_t bits, const EcalSubdetector subdet ) throw( std::runtime_error ) {
+bool Masks::maskPn( int ism, int i1, uint32_t bits, const EcalSubdetector subdet ) throw( cms::Exception ) {
 
   bool mask = false;
 
@@ -197,7 +197,7 @@ bool Masks::maskPn( int ism, int i1, uint32_t bits, const EcalSubdetector subdet
 
     std::ostringstream s;
     s << "Invalid subdetector: subdet = " << subdet;
-    throw( std::runtime_error( s.str() ) );
+    throw( cms::Exception( s.str() ) );
 
   }
 
