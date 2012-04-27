@@ -5,7 +5,7 @@ hlt_selector.throw = cms.bool(False)
 TauSkimMuTauMETHLT = hlt_selector.clone()
 TauSkimMuTauMETHLT.TriggerResultsTag = cms.InputTag('TriggerResults', '', 'HLT')
 TauSkimMuTauMETHLT.andOr=cms.bool(True)
-TauSkimMuTauMETHLT.HLTPaths = cms.vstring("HLT_IsoMu15_eta2p1_L1ETM20_v*")
+TauSkimMuTauMETHLT.HLTPaths = cms.vstring("HLT_IsoMu15_eta2p1_L1ETM20_v*", "HLT_IsoMu15Rho_eta2p1_L1ETM20_v*")
 
 TauSkimPFTausSelected = cms.EDFilter("PFTauSelector",
    src = cms.InputTag("hpsPFTauProducer"),
