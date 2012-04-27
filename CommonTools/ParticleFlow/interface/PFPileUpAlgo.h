@@ -31,12 +31,12 @@ class PFPileUpAlgo {
   
   const reco::PFCandidateCollection & getPFCandidatesFromVtx() const {return pfCandidatesFromVtx_;}
 
- private:
-  
   int chargedHadronVertex(const reco::VertexCollection& vertices, 
 			const reco::PFCandidate& pfcand ) const;
 
-  
+
+ private  :
+
   /// use the closest z vertex if a track is not in a vertex
   bool   checkClosestZVertex_;
   
