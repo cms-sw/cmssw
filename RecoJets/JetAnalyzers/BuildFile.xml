@@ -6,7 +6,6 @@
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/Records"/>
 <use   name="DataFormats/JetReco"/>
-<use   name="DataFormats/PatCandidates"/>
 <use   name="DataFormats/HepMCCandidate"/>
 <use   name="DataFormats/CaloTowers"/>
 <use   name="DataFormats/HcalRecHit"/>
@@ -23,7 +22,3 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="PhysicsTools/PatUtils"/>
 <use   name="PhysicsTools/PatAlgos"/>
-<use   name="CalibFormats/HcalObjects"/>
-<use   name="CalibCalorimetry/HcalAlgos"/>
-<use   name="CondFormats/HcalObjects"/>
-<use   name="RecoLocalCalo/HcalRecAlgos"/>

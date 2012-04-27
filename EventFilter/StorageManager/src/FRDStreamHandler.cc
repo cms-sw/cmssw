@@ -1,4 +1,4 @@
-// $Id: FRDStreamHandler.cc,v 1.7 2011/03/07 15:31:32 mommsen Exp $
+// $Id: FRDStreamHandler.cc,v 1.6.10.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: FRDStreamHandler.cc
 
 #include "EventFilter/StorageManager/interface/ErrorStreamConfigurationInfo.h"
@@ -29,7 +29,7 @@ namespace stor {
     FilesMonitorCollection::FileRecordPtr fileRecord = getNewFileRecord(event);
     
     FileHandlerPtr newFileHandler(
-      new FRDFileHandler(fileRecord, dbFileHandler_, getMaxFileSize())
+      new FRDFileHandler(fileRecord, dbFileHandler_, diskWritingParams_, getMaxFileSize())
     );
     fileHandlers_.push_back(newFileHandler);
     

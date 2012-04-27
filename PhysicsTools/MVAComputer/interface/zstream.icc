@@ -8,7 +8,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: zstream.icc,v 1.4 2011/05/23 13:41:03 eulisse Exp $
+// $Id: zstream.icc,v 1.3 2008/03/16 11:37:29 saout Exp $
 //
 
 #include <iostream>
@@ -36,7 +36,7 @@ basic_ozstreambuf<Item_t, Traits_t, Allocator_t>::basic_ozstreambuf(
 
 	err = deflateInit(&zipStream, level);
 
-	this->setp(&buffer.front(), &buffer.back());
+	setp(&buffer.front(), &buffer.back());
 }
 
 template<typename Item_t, typename Traits_t, typename Allocator_t>
@@ -69,7 +69,7 @@ basic_ozstreambuf<Item_t, Traits_t, Allocator_t>::overflow(
 		w++;
 	}
 	if (zipToStream(pbase(), w)) {
-		this->setp(pbase(), epptr());
+		setp(pbase(), epptr());
 		return c;
 	}
 	return traits_type::eof();

@@ -22,11 +22,11 @@ namespace gen
 {
 
   extern "C" {
-    float ranart_(int*);
+    double ranart_(int*);
   }
 
   extern "C" {
-    float ran1_(int*);
+    double ran1_(int*);
   }
 
   class AMPTHadronizer : public BaseHadronizer {

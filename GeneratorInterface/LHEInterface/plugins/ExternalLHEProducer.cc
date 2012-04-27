@@ -13,13 +13,12 @@ Implementation:
 //
 // Original Author:  Brian Paul Bockelman,8 R-018,+41227670861,
 //         Created:  Fri Oct 21 11:37:26 CEST 2011
-// $Id: ExternalLHEProducer.cc,v 1.5 2011/11/14 12:50:28 fabiocos Exp $
+// $Id: ExternalLHEProducer.cc,v 1.4 2011/11/14 08:55:03 fabiocos Exp $
 //
 //
 
 
 // system include files
-#include <cstdio>
 #include <memory>
 #include <vector>
 #include <string>

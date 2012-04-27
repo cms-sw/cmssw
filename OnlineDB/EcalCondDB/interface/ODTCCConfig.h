@@ -35,10 +35,6 @@ class ODTCCConfig : public IODConfig {
   inline void setNTestPatternsToLoad(int id) { m_ntest = id; }
   inline int getNTestPatternsToLoad() const { return m_ntest; }
 
-  inline void setSLBLatency(int id) { m_slb = id; }
-  inline int getSLBLatency() const { return m_slb; }
-
-
   inline void setTCCClob(unsigned char* x) { m_tcc_clob = x; }
   inline unsigned char* getTCCClob() const { return m_tcc_clob; }
 
@@ -71,7 +67,6 @@ class ODTCCConfig : public IODConfig {
   std::string  m_slb_file;
   std::string  m_test_url;
   int  m_ntest;
-  int m_slb;
   unsigned int m_size;
 };
 

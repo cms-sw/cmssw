@@ -8,7 +8,7 @@ associated with a common DetId with a DetId instance, holding the
 common DetId value. The collected objects may or may not contain their
 own copy of the common DetId.
 
-$Id: DetSet.h,v 1.16 2011/09/09 08:43:17 eulisse Exp $
+$Id: DetSet.h,v 1.15 2011/03/08 18:47:15 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -16,7 +16,6 @@ $Id: DetSet.h,v 1.16 2011/09/09 08:43:17 eulisse Exp $
 #include <stdint.h>
 #include <stddef.h>
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 namespace edm {
   typedef uint32_t det_id_type;
@@ -48,9 +47,9 @@ namespace edm {
       return * this;
     }
 
-    DetSet(DetSet<T> && rh) noexcept : id(rh.id), data(std::move(rh.data)){}
+    DetSet(DetSet<T> && rh) : id(rh.id), data(std::move(rh.data)){}
     
-    DetSet<T> & operator=(DetSet<T> && rh)  noexcept {
+    DetSet<T> & operator=(DetSet<T> && rh)  {
       id = rh.id;
       data.swap(rh.data);
       return * this;
@@ -68,7 +67,7 @@ namespace edm {
     void reserve(size_t s) { data.reserve(s); }
     void push_back(const T & t) { data.push_back(t); }
     void clear() { data.clear(); }
-    void swap(DetSet<T> & other) noexcept;
+    void swap(DetSet<T> & other);
 
     det_id_type detId() const { return id; }
 
@@ -109,7 +108,7 @@ namespace edm {
   template <class T>
   inline
   void
-  DetSet<T>::swap(DetSet<T> & other) noexcept {
+  DetSet<T>::swap(DetSet<T> & other) {
     data.swap(other.data);
     std::swap(id, other.id);
   }

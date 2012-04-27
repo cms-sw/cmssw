@@ -114,7 +114,7 @@ binning = cms.PSet(
     pt = cms.PSet( nbins = cms.int32(10), min = cms.double(0.), max = cms.double(100.) ), #hinfo(75, 0., 150.)
     eta = cms.PSet( nbins = cms.int32(4), min = cms.double(-3.), max = cms.double(3.) ), #hinfo(60, -3.0, 3.0);
     phi = cms.PSet( nbins = cms.int32(4), min = cms.double(-180.), max = cms.double(180.) ), #hinfo(36, -180., 180.);
-    pileup = cms.PSet( nbins = cms.int32(6), min = cms.double(0.), max = cms.double(24.) ),#hinfo(25, 0., 25.0);
+    pileup = cms.PSet( nbins = cms.int32(18), min = cms.double(0.), max = cms.double(72.) ),#hinfo(25, 0., 25.0);
     )
 zttModifier = ApplyFunctionToSequence(lambda m: setBinning(m,binning))
 proc.TauValNumeratorAndDenominatorRealElectronsData.visit(zttModifier)

@@ -1,4 +1,4 @@
-//$Id: Utils.cc,v 1.19 2011/03/07 15:31:32 mommsen Exp $
+//$Id: Utils.cc,v 1.18.4.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: Utils.cc
 
 #include "EventFilter/StorageManager/interface/Exception.h"
@@ -87,7 +87,7 @@ namespace stor
       int retVal = stat(path.c_str(), &results);
       #endif
 
-      if( retVal != 0 )
+      if( retVal !=0 )
       {
         std::ostringstream msg;
         msg << "Directory " << path << " does not exist: " << strerror(errno);

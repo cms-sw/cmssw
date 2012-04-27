@@ -1,4 +1,4 @@
-// $Id: EventStreamHandler.cc,v 1.9 2011/11/17 17:35:40 mommsen Exp $
+// $Id: EventStreamHandler.cc,v 1.8 2011/03/07 15:31:32 mommsen Exp $
 /// @file: EventStreamHandler.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -40,7 +40,8 @@ namespace stor {
     FilesMonitorCollection::FileRecordPtr fileRecord = getNewFileRecord(event);
     
     FileHandlerPtr newFileHandler(
-      new EventFileHandler(initMsgView_, fileRecord, dbFileHandler_, getMaxFileSize())
+      new EventFileHandler(initMsgView_, fileRecord, dbFileHandler_,
+        diskWritingParams_, getMaxFileSize())
     );
     fileHandlers_.push_back(newFileHandler);
     

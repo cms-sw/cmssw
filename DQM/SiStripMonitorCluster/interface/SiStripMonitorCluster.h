@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.38 2011/11/01 15:53:32 fiori Exp $
+// $Id: SiStripMonitorCluster.h,v 1.39 2012/02/20 18:10:18 borrell Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -92,7 +92,6 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   MonitorElement* StripNoise3Cycle;
   MonitorElement* NumberOfPixelClus;
   MonitorElement* NumberOfStripClus;
-  MonitorElement* RatioOfPixelAndStripClus;
 
  private:
 

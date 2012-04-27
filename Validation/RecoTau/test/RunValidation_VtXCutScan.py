@@ -166,7 +166,7 @@ if options.gridJob:
       print "ERROR: CRAB output file not matching the grid one!\nexiting..."
       sys.exit()
 
-process.saveTauEff = cms.EDAnalyzer("DQMSimpleFileSaver",
+process.saveTauEff = cms.EDAnalyzer("TauDQMSimpleFileSaver",
   outputFileName = cms.string(outputFileName)
 )
 

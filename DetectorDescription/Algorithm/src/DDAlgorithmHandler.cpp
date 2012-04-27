@@ -22,7 +22,7 @@ DDAlgorithmHandler::initialize( const std::string & algoName,
 				const DDVectorArguments & vArgs,
 				const DDMapArguments & mArgs,
 				const DDStringArguments & sArgs,
-				const DDStringVectorArguments & svArgs )
+				const DDStringVectorArguments & svArgs ) throw ( DDException )
 {
   std::pair<std::string,std::string> algoNmNs = DDSplit(algoName);
   algoname_ = algoName;
@@ -34,7 +34,7 @@ DDAlgorithmHandler::initialize( const std::string & algoName,
 }
 
 void
-DDAlgorithmHandler::execute( DDCompactView& cpv )
+DDAlgorithmHandler::execute( DDCompactView& cpv ) throw ( DDException )
 {
   algo_->execute( cpv );
 }

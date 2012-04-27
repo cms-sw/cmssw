@@ -6,6 +6,7 @@
 
 // forward declarations
 namespace edm {
+  struct CommonParams;
   class ParameterSet;
   namespace eventsetup {
     class EventSetupProvider;
@@ -15,7 +16,8 @@ namespace edm {
 
     void
     fillEventSetupProvider(EventSetupProvider& cp,
-                           ParameterSet& params);
+                           ParameterSet& params,
+                           CommonParams const& common);
 
     void
     validateEventSetupParameters(ParameterSet& pset);

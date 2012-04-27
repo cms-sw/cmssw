@@ -13,7 +13,7 @@
 //
 // Original Author:  Camilo Andres Carrillo Montoya,40 2-B15,+41227671625,
 //         Created:  Mon Aug 30 18:35:05 CEST 2010
-// $Id: SimHitShifter.cc,v 1.1 2011/11/18 03:52:58 jiechen Exp $
+// $Id: SimHitShifter.cc,v 1.9 2011/11/17 01:23:42 carrillo Exp $
 //
 //
 
@@ -117,11 +117,7 @@ class SimHitShifter : public edm::EDProducer {
 
 
    private:
-
-      bool ShiftAmplitude;
-      double AmplitudeShiftSize;
-      bool ShiftTiming;
-      std::string ShiftFileName; 
+      std::string ShiftFileName;
       virtual void beginJob(const edm::Run&, const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
@@ -130,10 +126,10 @@ class SimHitShifter : public edm::EDProducer {
 
 SimHitShifter::SimHitShifter(const edm::ParameterSet& iConfig)
 {
-//  std::cout<<"in the constructor"<<std::endl;
+  std::cout<<"in the constructor"<<std::endl;
   
   ShiftFileName  = iConfig.getUntrackedParameter<std::string>("ShiftFileName","/afs/cern.ch/user/c/carrillo/simhits/CMSSW_3_5_8_patch2/src/simhitshifter/SimHitShifter/Merged_Muon_RawId_Shift.txt");
-
+ 
   //iSetup.get<MuonGeometryRecord>().get(rpcGeo);
 
   std::ifstream ifin(ShiftFileName.c_str());
@@ -141,7 +137,7 @@ SimHitShifter::SimHitShifter(const edm::ParameterSet& iConfig)
   int rawId;
   float offset;
 
-//  std::cout<<"In the constructor, The name of the file is "<<ShiftFileName.c_str()<<std::endl;
+  std::cout<<"In the constructor, The name of the file is "<<ShiftFileName.c_str()<<std::endl;
 
   if(!ifin) std::cout<<"Problem reading the map rawId shift "<<ShiftFileName.c_str()<<std::endl;
   assert(ifin);
@@ -149,13 +145,9 @@ SimHitShifter::SimHitShifter(const edm::ParameterSet& iConfig)
   while (ifin.good()){
     ifin >>rawId >>offset;
     shiftinfo[rawId]=offset;
-    //std::cout<<"rawId ="<<rawId<<" offset="<<offset<<std::endl;
+    std::cout<<"rawId ="<<rawId<<" offset="<<offset<<std::endl;
   }
-
-   ShiftTiming   = iConfig.getUntrackedParameter<bool>("ShiftTiming");
-   ShiftAmplitude   = iConfig.getUntrackedParameter<bool>("ShiftAmplitude");
-   AmplitudeShiftSize = iConfig.getUntrackedParameter<double>("AmplitudeShiftSize");
-
+  
   produces<edm::PSimHitContainer>("MuonCSCHits");
   produces<edm::PSimHitContainer>("MuonDTHits");
   produces<edm::PSimHitContainer>("MuonRPCHits");
@@ -194,100 +186,84 @@ void SimHitShifter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
      if(simdetid.det()!=DetId::Muon) continue;
 
      float newtof = 0;
-     float newamplitude =0;
     
      if(simdetid.det()==DetId::Muon &&  simdetid.subdetId()== MuonSubdetId::RPC){//Only RPCs
        //std::cout<<"\t\t We have an RPC Sim Hit! in t="<<(*iHit).timeOfFlight()<<" DetId="<<(*iHit).detUnitId()<<std::endl;
        if(shiftinfo.find(simdetid.rawId())==shiftinfo.end()){
-          // std::cout<<"RPC Warning the RawId = "<<simdetid.det()<<" | "<<simdetid.rawId()<<"is not in the map"<<std::endl;
+	 std::cout<<"RPC Warning the RawId = "<<simdetid.det()<<" | "<<simdetid.rawId()<<"is not in the map"<<std::endl;
 	 newtof = (*iHit).timeOfFlight();
        }else{
-          newtof = (*iHit).timeOfFlight();
-          newamplitude = (*iHit).energyLoss();
-          if(ShiftTiming) newtof = (*iHit).timeOfFlight()+shiftinfo[simdetid.rawId()];
-          if(ShiftAmplitude) newamplitude = (*iHit).energyLoss()*(1+AmplitudeShiftSize);
+	 newtof = (*iHit).timeOfFlight()+shiftinfo[simdetid.rawId()];
        }
        
        PSimHit hit((*iHit).entryPoint(),(*iHit).exitPoint(),(*iHit).pabs(),
 		   newtof,
-		   newamplitude,(*iHit).particleType(),simdetid,(*iHit). trackId(),(*iHit).thetaAtEntry(),(*iHit).phiAtEntry(),(*iHit).processType());
+		   (*iHit).energyLoss(),(*iHit).particleType(),simdetid,(*iHit). trackId(),(*iHit).thetaAtEntry(),(*iHit).phiAtEntry(),(*iHit).processType());
        prpc->push_back(hit);
      }
      else if(simdetid.det()==DetId::Muon &&  simdetid.subdetId()== MuonSubdetId::DT){//Only DTs
        int RawId = simdetid.rawId(); 
-//       std::cout<<"We found a DT simhit the RawId in Dec is";
-//       std::cout<<dec<<RawId<<std::endl;
-//       std::cout<<"and in oct"<<std::endl;
-//       std::cout<<oct<<RawId<< std::endl;
-//       std::cout<<"once masked in oct "<<std::endl;
+       std::cout<<"We found a DT simhit the RawId in Dec is";
+       std::cout<<dec<<RawId<<std::endl;
+       std::cout<<"and in oct"<<std::endl;
+       std::cout<<oct<<RawId<< std::endl;
+       std::cout<<"once masked in oct "<<std::endl;
        int compressedRawId = RawId/8/8/8/8/8;
-//       std::cout<<compressedRawId<<std::endl;
-//       std::cout<<"extendedRawId"<<std::endl;
+       std::cout<<compressedRawId<<std::endl;
+       std::cout<<"extendedRawId"<<std::endl;
        int extendedRawId = compressedRawId*8*8*8*8*8;
-//       std::cout<<extendedRawId<<std::endl;
-//       std::cout<<"converted again in decimal"<<std::endl;
-//       std::cout<<dec<<extendedRawId<<std::endl;
+       std::cout<<extendedRawId<<std::endl;
+       std::cout<<"converted again in decimal"<<std::endl;
+       std::cout<<dec<<extendedRawId<<std::endl;
        
        if(shiftinfo.find(extendedRawId)==shiftinfo.end()){
 	 //std::cout<<"DT Warning the RawId = "<<extendedRawId<<"is not in the map"<<std::endl;
 	 newtof = (*iHit).timeOfFlight();
        }else{
-          newtof = (*iHit).timeOfFlight();
-          newamplitude = (*iHit).energyLoss();
-          if(ShiftTiming) newtof = (*iHit).timeOfFlight()+shiftinfo[simdetid.rawId()];
-          if(ShiftAmplitude) newamplitude = (*iHit).energyLoss()*(1+AmplitudeShiftSize);
-          //newtof = (*iHit).timeOfFlight()+shiftinfo[extendedRawId];
-//          std::cout<<"RawId = "<<extendedRawId<<"is in the map "<<(*iHit).timeOfFlight()<<" "<<newtof<<std::endl;
+	 newtof = (*iHit).timeOfFlight()+shiftinfo[extendedRawId];
+	 std::cout<<"RawId = "<<extendedRawId<<"is in the map "<<(*iHit).timeOfFlight()<<" "<<newtof<<std::endl;
        }
        
-//       std::cout<<"\t\t We have an DT Sim Hit! in t="<<(*iHit).timeOfFlight()<<" DetId="<<(*iHit).detUnitId()<<std::endl;
+       std::cout<<"\t\t We have an DT Sim Hit! in t="<<(*iHit).timeOfFlight()<<" DetId="<<(*iHit).detUnitId()<<std::endl;
        PSimHit hit((*iHit).entryPoint(),(*iHit).exitPoint(),(*iHit).pabs(),
 		   newtof,
-		   newamplitude,(*iHit).particleType(),simdetid,(*iHit). trackId(),(*iHit).thetaAtEntry(),(*iHit).phiAtEntry(),(*iHit).processType());
+		   (*iHit).energyLoss(),(*iHit).particleType(),simdetid,(*iHit). trackId(),(*iHit).thetaAtEntry(),(*iHit).phiAtEntry(),(*iHit).processType());
        pdt->push_back(hit);
      }
      else if(simdetid.det()==DetId::Muon &&  simdetid.subdetId()== MuonSubdetId::CSC){//Only CSCs
-//       std::cout<<"\t\t We have an CSC Sim Hit! in t="<<(*iHit).timeOfFlight()<<" DetId="<<(*iHit).detUnitId()<<std::endl;
+       //std::cout<<"\t\t We have an CSC Sim Hit! in t="<<(*iHit).timeOfFlight()<<" DetId="<<(*iHit).detUnitId()<<std::endl;
        
        CSCDetId TheCSCDetId = CSCDetId(simdetid);
        CSCDetId TheChamberDetId = TheCSCDetId.chamberId();
        
        if(shiftinfo.find(TheChamberDetId.rawId())==shiftinfo.end()){
-//	 std::cout<<"The RawId is not in the map,perhaps it is on the CSCs station 1 ring 4"<<std::endl;
+	 std::cout<<"The RawId is not in the map,perhaps it is on the CSCs station 1 ring 4"<<std::endl;
 	 if(TheChamberDetId.station()==1 && TheChamberDetId.ring()==4){
 	   CSCDetId TheChamberDetIdNoring4= CSCDetId(TheChamberDetId.endcap(),TheChamberDetId.station(),1 //1 instead of 4
 						     ,TheChamberDetId.chamber(),TheChamberDetId.layer());
 	   
 	   if(shiftinfo.find(TheChamberDetIdNoring4.rawId())==shiftinfo.end()){
-//	     std::cout<<"CSC Warning the RawId = "<<TheChamberDetIdNoring4<<" "<<TheChamberDetIdNoring4.rawId()<<"is not in the map"<<std::endl;
+	     std::cout<<"CSC Warning the RawId = "<<TheChamberDetIdNoring4<<" "<<TheChamberDetIdNoring4.rawId()<<"is not in the map"<<std::endl;
 	     newtof = (*iHit).timeOfFlight();
 	   }else{
-          newtof = (*iHit).timeOfFlight();
-          newamplitude = (*iHit).energyLoss();
-          // std::cout<< "old amplitude = "<<newamplitude<< "new amplitude = ";
-          if(ShiftTiming) newtof = (*iHit).timeOfFlight()+shiftinfo[TheChamberDetIdNoring4.rawId()];
-          if(ShiftAmplitude) newamplitude = (*iHit).energyLoss()*(1+AmplitudeShiftSize);
-          //      std::cout<< newamplitude <<std::endl;
+	     newtof = (*iHit).timeOfFlight()+shiftinfo[TheChamberDetIdNoring4.rawId()];
 	   }
 	 }
        }else{
-          newtof = (*iHit).timeOfFlight();
-          newamplitude = (*iHit).energyLoss();
-          if(ShiftTiming) 	 newtof = (*iHit).timeOfFlight()+shiftinfo[TheChamberDetId.rawId()];
-          if(ShiftAmplitude) newamplitude = (*iHit).energyLoss()*(1+AmplitudeShiftSize);
+	 newtof = (*iHit).timeOfFlight()+shiftinfo[TheChamberDetId.rawId()];
        }
        
        PSimHit hit((*iHit).entryPoint(),(*iHit).exitPoint(),(*iHit).pabs(),
 		   newtof,
-		   newamplitude,(*iHit).particleType(),simdetid,(*iHit). trackId(),(*iHit).thetaAtEntry(),(*iHit).phiAtEntry(),(*iHit).processType());
+		   (*iHit).energyLoss(),(*iHit).particleType(),simdetid,(*iHit). trackId(),(*iHit).thetaAtEntry(),(*iHit).phiAtEntry(),(*iHit).processType());
        
-//       std::cout<<"CSC check newtof"<<newtof<<" "<<(*iHit).timeOfFlight()<<std::endl;
-//       if(newtof==(*iHit).timeOfFlight())std::cout<<"Warning!!!"<<std::endl;
+       std::cout<<"CSC check newtof"<<newtof<<" "<<(*iHit).timeOfFlight()<<std::endl;
+       if(newtof==(*iHit).timeOfFlight())std::cout<<"Warning!!!"<<std::endl;
        pcsc->push_back(hit);
      }     
    }
 
-//   std::cout<<"Putting collections in the event"<<std::endl;
+   std::cout<<"Putting collections in the event"<<std::endl;
 
    iEvent.put(pcsc,"MuonCSCHits");
    iEvent.put(pdt,"MuonDTHits");

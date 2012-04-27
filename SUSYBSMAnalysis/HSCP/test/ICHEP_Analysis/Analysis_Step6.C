@@ -50,7 +50,6 @@ struct stAllInfo{
    double Eff_SYSTI;
    double Eff_SYSTM;
    double Eff_SYSTT;
-   double Eff_SYSTPU;
    double Significance;
    double Index;
    double WP_Pt;
@@ -62,7 +61,7 @@ struct stAllInfo{
    float  NSign;
 
    stAllInfo(string path=""){
-     Mass=-1; XSec_Th=-1; XSec_Err=-1; XSec_Exp=-1; XSec_ExpUp=-1;XSec_ExpDown=-1;XSec_Exp2Up=-1;XSec_Exp2Down=-1; XSec_Obs=-1; Eff=-1; Eff_SYSTP=-1; Eff_SYSTI=-1;  Eff_SYSTM=-1; Eff_SYSTT=-1; Eff_SYSTPU=-1;
+      Mass=-1; XSec_Th=-1; XSec_Err=-1; XSec_Exp=-1; XSec_ExpUp=-1;XSec_ExpDown=-1;XSec_Exp2Up=-1;XSec_Exp2Down=-1; XSec_Obs=-1; Eff=-1; Eff_SYSTP=-1; Eff_SYSTI=-1;  Eff_SYSTM=-1; Eff_SYSTT=-1;
       if(path=="")return;
       FILE* pFile = fopen(path.c_str(),"r");
       if(!pFile){printf("Can't open %s\n",path.c_str()); return;}
@@ -79,7 +78,6 @@ struct stAllInfo{
       fscanf(pFile,"Eff_SystI    : %lf\n",&Eff_SYSTI);
       fscanf(pFile,"Eff_SystM    : %lf\n",&Eff_SYSTM);
       fscanf(pFile,"Eff_SystT    : %lf\n",&Eff_SYSTT);
-      fscanf(pFile,"Eff_SystPU   : %lf\n",&Eff_SYSTPU);
       fscanf(pFile,"Signif       : %lf\n",&Significance);
       fscanf(pFile,"XSec_Th      : %lf\n",&XSec_Th);
       fscanf(pFile,"XSec_Exp     : %lf\n",&XSec_Exp);
@@ -248,11 +246,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 
 //   TGraph* Tk_Obs_Gluino2C  = MakePlot(pFile,talkFile,TkPattern,syst,"Gluino  (2C)     ", 2, "Gluino300_2C" , "Gluino400_2C" , "Gluino500_2C" , "Gluino600_2C" , "Gluino700_2C", "Gluino800_2C", "Gluino900_2C", "Gluino1000_2C" );
 //   TGraph* Tk_Obs_GluinoF0  = MakePlot(pFile,talkFile,TkPattern,syst,"Gluino  (f=00\\%)", 2, "Gluino300_f0" , "Gluino400_f0" , "Gluino500_f0" , "Gluino600_f0" , "Gluino700_f0", "Gluino800_f0", "Gluino900_f0", "Gluino1000_f0" );
-   TGraph* Tk_Obs_GluinoF1  = MakePlot(pFile,talkFile,TkPattern,syst,"Gluino (f=10\\%)", 2, "Gluino300_f1" , "Gluino400_f1" , "Gluino500_f1" , "Gluino600_f1" , "Gluino700_f1", "Gluino800_f1", "Gluino900_f1", "Gluino1000_f1", "Gluino1100_f1", "Gluino1200_f1" );
+   TGraph* Tk_Obs_GluinoF1  = MakePlot(pFile,talkFile,TkPattern,syst,"Gluino (f=10\\%)", 2, "Gluino300_f1" , "Gluino400_f1" , "Gluino500_f1" , "Gluino600_f1" , "Gluino700_f1", "Gluino800_f1", "Gluino900_f1", "Gluino1000_f1", "Gluino1100_f1" );
    TGraph* Tk_Obs_GluinoZF1 = MakePlot(pFile,talkFile,TkPattern,syst,"Gluino Z2 (f=10\\%)", 2, "Gluino600Z_f1" , "Gluino700Z_f1", "Gluino800Z_f1");
-   TGraph* Tk_Obs_GluinoF5  = MakePlot(pFile,talkFile,TkPattern,syst,"Gluino (f=50\\%)", 2, "Gluino300_f5" , "Gluino400_f5" , "Gluino500_f5" , "Gluino600_f5" , "Gluino700_f5", "Gluino800_f5", "Gluino900_f5", "Gluino1000_f5", "Gluino1100_f5", "Gluino1200_f5" );
+   TGraph* Tk_Obs_GluinoF5  = MakePlot(pFile,talkFile,TkPattern,syst,"Gluino (f=50\\%)", 2, "Gluino300_f5" , "Gluino400_f5" , "Gluino500_f5" , "Gluino600_f5" , "Gluino700_f5", "Gluino800_f5", "Gluino900_f5", "Gluino1000_f5", "Gluino1100_f5" );
 //   TGraph* Tk_Obs_GluinoNF0 = MakePlot(pFile,talkFile,TkPattern,syst,"GluinoN (f=00\\%)", 2, "Gluino300N_f0", "Gluino400N_f0", "Gluino500N_f0", "Gluino600N_f0", "Gluino700N_f0", "Gluino800N_f0", "Gluino900N_f0", "Gluino1000N_f0" );
-   TGraph* Tk_Obs_GluinoNF1 = MakePlot(pFile,talkFile,TkPattern,syst,"GluinoN (f=10\\%)", 2, "Gluino300N_f1", "Gluino400N_f1", "Gluino500N_f1", "Gluino600N_f1", "Gluino700N_f1", "Gluino800N_f1", "Gluino900N_f1", "Gluino1000N_f1", "Gluino1100N_f1", "Gluino1200N_f1" );
+   TGraph* Tk_Obs_GluinoNF1 = MakePlot(pFile,talkFile,TkPattern,syst,"GluinoN (f=10\\%)", 2, "Gluino300N_f1", "Gluino400N_f1", "Gluino500N_f1", "Gluino600N_f1", "Gluino700N_f1", "Gluino800N_f1", "Gluino900N_f1", "Gluino1000N_f1", "Gluino1100N_f1" );
 //   TGraph* Tk_Obs_GluinoNF5 = MakePlot(pFile,talkFile,TkPattern,syst,"GluinoN (f=50\\%)", 2, "Gluino300N_f5", "Gluino400N_f5", "Gluino500N_f5", "Gluino600N_f5", "Gluino700N_f5", "Gluino800N_f5" , "Gluino900N_f5" , "Gluino1000N_f5" );
 //   TGraph* Tk_Obs_Stop2C    = MakePlot(pFile,talkFile,TkPattern,syst,"Stop    (2C)     ", 2, "Stop130_2C"   , "Stop200_2C"   , "Stop300_2C"   , "Stop400_2C"   , "Stop500_2C"   , "Stop600_2C" , "Stop700_2C" , "Stop800_2C"                    );
    TGraph* Tk_Obs_Stop      = MakePlot(pFile,talkFile,TkPattern,syst,"Stop"               , 2, "Stop130"      , "Stop200"      , "Stop300"      , "Stop400"      , "Stop500"      , "Stop600"    , "Stop700"    , "Stop800"                       );
@@ -277,11 +275,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 
 //   TGraph* Mu_Obs_Gluino2C  = MakePlot(pFile,talkFile,MuPattern,syst,"Gluino  (2C)     ", 2, "Gluino300_2C" , "Gluino400_2C" , "Gluino500_2C" , "Gluino600_2C" , "Gluino700_2C", "Gluino800_2C", "Gluino900_2C", "Gluino1000_2C" );
 //   TGraph* Mu_Obs_GluinoF0  = MakePlot(pFile,talkFile,MuPattern,syst,"Gluino  (f=00\\%)", 2, "Gluino300_f0" , "Gluino400_f0" , "Gluino500_f0" , "Gluino600_f0" , "Gluino700_f0", "Gluino800_f0", "Gluino900_f0", "Gluino1000_f0" );
-   TGraph* Mu_Obs_GluinoF1  = MakePlot(pFile,talkFile,MuPattern,syst,"Gluino (f=10\\%)", 2, "Gluino300_f1" , "Gluino400_f1" , "Gluino500_f1" , "Gluino600_f1" , "Gluino700_f1", "Gluino800_f1", "Gluino900_f1", "Gluino1000_f1", "Gluino1100_f1", "Gluino1200_f1" );
+   TGraph* Mu_Obs_GluinoF1  = MakePlot(pFile,talkFile,MuPattern,syst,"Gluino (f=10\\%)", 2, "Gluino300_f1" , "Gluino400_f1" , "Gluino500_f1" , "Gluino600_f1" , "Gluino700_f1", "Gluino800_f1", "Gluino900_f1", "Gluino1000_f1", "Gluino1100_f1" );
    //TGraph* Mu_Obs_GluinoZF1 = MakePlot(pFile,talkFile,MuPattern,syst,"Gluino Z2 (f=10\\%)", 2, "Gluino600Z_f1" , "Gluino700Z_f1", "Gluino800Z_f1");
-   TGraph* Mu_Obs_GluinoF5  = MakePlot(pFile,talkFile,MuPattern,syst,"Gluino (f=50\\%)", 2, "Gluino300_f5" , "Gluino400_f5" , "Gluino500_f5" , "Gluino600_f5" , "Gluino700_f5", "Gluino800_f5", "Gluino900_f5", "Gluino1000_f5", "Gluino1100_f5", "Gluino1200_f5" );
+   TGraph* Mu_Obs_GluinoF5  = MakePlot(pFile,talkFile,MuPattern,syst,"Gluino (f=50\\%)", 2, "Gluino300_f5" , "Gluino400_f5" , "Gluino500_f5" , "Gluino600_f5" , "Gluino700_f5", "Gluino800_f5", "Gluino900_f5", "Gluino1000_f5", "Gluino1100_f5" );
 //   TGraph* Mu_Obs_GluinoNF0 = MakePlot(pFile,talkFile,MuPattern,syst,"GluinoN (f=00\\%)", 2, "Gluino300N_f0", "Gluino400N_f0", "Gluino500N_f0", "Gluino600N_f0", "Gluino700N_f0", "Gluino800N_f0", "Gluino900N_f0", "Gluino1000N_f0" );
-   TGraph* Mu_Obs_GluinoNF1 = MakePlot(pFile,talkFile,MuPattern,syst,"GluinoN (f=10\\%)", 2, "Gluino300N_f1", "Gluino400N_f1", "Gluino500N_f1", "Gluino600N_f1", "Gluino700N_f1", "Gluino800N_f1", "Gluino900N_f1", "Gluino1000N_f1", "Gluino1100N_f1", "Gluino1200N_f1" );
+   TGraph* Mu_Obs_GluinoNF1 = MakePlot(pFile,talkFile,MuPattern,syst,"GluinoN (f=10\\%)", 2, "Gluino300N_f1", "Gluino400N_f1", "Gluino500N_f1", "Gluino600N_f1", "Gluino700N_f1", "Gluino800N_f1", "Gluino900N_f1", "Gluino1000N_f1", "Gluino1100N_f1" );
 //   TGraph* Mu_Obs_GluinoNF5 = MakePlot(pFile,talkFile,MuPattern,syst,"GluinoN (f=50\\%)", 2, "Gluino300N_f5", "Gluino400N_f5", "Gluino500N_f5", "Gluino600N_f5", "Gluino700N_f5", "Gluino800N_f5" , "Gluino900N_f5" , "Gluino1000N_f5" );
 //   TGraph* Mu_Obs_Stop2C    = MakePlot(pFile,talkFile,MuPattern,syst,"Stop    (2C)     ", 2, "Stop130_2C"   , "Stop200_2C"   , "Stop300_2C"   , "Stop400_2C"   , "Stop500_2C"   , "Stop600_2C" , "Stop700_2C" , "Stop800_2C"                    );
    TGraph* Mu_Obs_Stop      = MakePlot(pFile,talkFile,MuPattern,syst,"Stop"               , 2, "Stop130"      , "Stop200"      , "Stop300"      , "Stop400"      , "Stop500"      , "Stop600"    , "Stop700"    , "Stop800"                       );
@@ -306,12 +304,12 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 
    TGraph* GMStauXSec = MakePlot(NULL,NULL,TkPattern,"","GMSB Stau        ", 0, "GMStau100"    , "GMStau126"    , "GMStau156"    , "GMStau200"    , "GMStau247"    , "GMStau308", "GMStau370", "GMStau432", "GMStau494"    );
    TGraph* PPStauXSec = MakePlot(NULL,NULL,TkPattern,"","Pair Prod. Stau  ", 0, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247"    , "PPStau308");
-
    TGraph* DCRho08HyperKXSec = MakePlot(NULL,NULL,TkPattern,"","DiChamp    Rho08  ", 0,  "DCRho08HyperK100"    , "DCRho08HyperK121"    , "DCRho08HyperK182"    , "DCRho08HyperK242"    , "DCRho08HyperK302",    "DCRho08HyperK350"    ,    "DCRho08HyperK370"    , "DCRho08HyperK390"    ,  "DCRho08HyperK395"    ,  "DCRho08HyperK400"    ,  "DCRho08HyperK410"    ,    "DCRho08HyperK420"    ,  "DCRho08HyperK500");  
 
    TGraph* DCRho12HyperKXSec = MakePlot(NULL,NULL,TkPattern,"","DiChamp    Rho12  ", 0, "DCRho12HyperK100"    , "DCRho12HyperK182"    , "DCRho12HyperK302"    , "DCRho12HyperK500" , "DCRho12HyperK530"  , "DCRho12HyperK570"     ,"DCRho12HyperK590"     , "DCRho12HyperK595" , "DCRho12HyperK600"   , "DCRho12HyperK610"    ,"DCRho12HyperK620"    ,"DCRho12HyperK700");
 
    TGraph* DCRho16HyperKXSec = MakePlot(NULL,NULL,TkPattern,"","DiChamp    Rho16  ", 0, "DCRho16HyperK100"    , "DCRho16HyperK182"    , "DCRho16HyperK302"    , "DCRho16HyperK500"    , "DCRho16HyperK700" , "DCRho16HyperK730" , "DCRho16HyperK770"   , "DCRho16HyperK790"     , "DCRho16HyperK795" , "DCRho16HyperK800"     , "DCRho16HyperK810"     ,"DCRho16HyperK820"    ,"DCRho16HyperK900");
+
 
    double ThGluinoMass [100]; double ThGluinoXSec [100];  double ThGluinoLow  [100]; double ThGluinoHigh [100]; double ThGluinoErrLow  [100];  double ThGluinoErrHigh [100];
    int ThGluinoN = ReadXSection("gluino_XSec.txt", ThGluinoMass,ThGluinoXSec,ThGluinoLow,ThGluinoHigh, ThGluinoErrLow, ThGluinoErrHigh);
@@ -440,11 +438,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    fprintf(pFile,"-----------------------\n0%% TK ONLY       \n-------------------------\n");
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for Gluino2C \n", FindIntersection(Tk_Obs_Gluino2C,  GluinoXSec, 300, 900, 1, 0.00));
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoF0 \n", FindIntersection(Tk_Obs_GluinoF0,  GluinoXSec, 300, 900, 1, 0.00));
-   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoF1 \n", FindIntersection(Tk_Obs_GluinoF1,  GluinoXSec, 300, 1200, 1, 0.00));
+   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoF1 \n", FindIntersection(Tk_Obs_GluinoF1,  GluinoXSec, 300, 1100, 1, 0.00));
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoF1 Z2\n",FindIntersection(Tk_Obs_GluinoZF1, GluinoXSec, 600,800, 1, 0.00));
-   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoF5 \n", FindIntersection(Tk_Obs_GluinoF5,  GluinoXSec, 300, 1200, 1, 0.00));
+   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoF5 \n", FindIntersection(Tk_Obs_GluinoF5,  GluinoXSec, 300, 1100, 1, 0.00));
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoNF0\n", FindIntersection(Tk_Obs_GluinoNF0, GluinoXSec, 300, 900, 1, 0.00));
-   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoNF1\n", FindIntersection(Tk_Obs_GluinoNF1, GluinoXSec, 300, 1200, 1, 0.00));
+   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoNF1\n", FindIntersection(Tk_Obs_GluinoNF1, GluinoXSec, 300, 1100, 1, 0.00));
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoNF5\n", FindIntersection(Tk_Obs_GluinoNF5, GluinoXSec, 300, 900, 1, 0.00));
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for Stop2C   \n", FindIntersection(Tk_Obs_Stop2C   , StopXSec  , 130, 800, 1, 0.00));
    fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for Stop     \n", FindIntersection(Tk_Obs_Stop     , StopXSec  , 130, 800, 1, 0.00));
@@ -462,11 +460,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    fprintf(pFile,"-----------------------\n0%% TK TOF        \n-------------------------\n");
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for Gluino2C \n", FindIntersection(Mu_Obs_Gluino2C,  GluinoXSec, 300,1000, 1, 0.00));
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoF0 \n", FindIntersection(Mu_Obs_GluinoF0,  GluinoXSec, 300,1000, 1, 0.00));
-   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoF1 \n", FindIntersection(Mu_Obs_GluinoF1,  GluinoXSec, 300,1200, 1, 0.00));
+   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoF1 \n", FindIntersection(Mu_Obs_GluinoF1,  GluinoXSec, 300,1100, 1, 0.00));
    //fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoF1 Z2\n",FindIntersection(Mu_Obs_GluinoZF1, GluinoXSec, 600,800, 1, 0.00));
-   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoF5 \n", FindIntersection(Mu_Obs_GluinoF5,  GluinoXSec, 300,1200, 1, 0.00));
+   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoF5 \n", FindIntersection(Mu_Obs_GluinoF5,  GluinoXSec, 300,1100, 1, 0.00));
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoNF0\n", FindIntersection(Mu_Obs_GluinoNF0, GluinoXSec, 300,1000, 1, 0.00));
-   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoNF1\n", FindIntersection(Mu_Obs_GluinoNF1, GluinoXSec, 300,1200, 1, 0.00));
+   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoNF1\n", FindIntersection(Mu_Obs_GluinoNF1, GluinoXSec, 300,1100, 1, 0.00));
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoNF5\n", FindIntersection(Mu_Obs_GluinoNF5, GluinoXSec, 300,1000, 1, 0.00));
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for Stop2C   \n", FindIntersection(Mu_Obs_Stop2C   , StopXSec  , 130, 800, 1, 0.00));
    fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for Stop     \n", FindIntersection(Mu_Obs_Stop     , StopXSec  , 130, 800, 1, 0.00));
@@ -483,23 +481,23 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    if(syst!="")return;
 
 
-   GluinoXSec      ->SetLineColor(4);  GluinoXSec      ->SetMarkerColor(4);   GluinoXSec      ->SetLineWidth(5);   GluinoXSec      ->SetLineStyle(3);  GluinoXSec      ->SetMarkerStyle(1);
+   GluinoXSec      ->SetLineColor(4);  GluinoXSec      ->SetMarkerColor(4);   GluinoXSec      ->SetLineWidth(1);   GluinoXSec      ->SetLineStyle(3);  GluinoXSec      ->SetMarkerStyle(1);
    Mu_Obs_GluinoF1 ->SetLineColor(4);  Mu_Obs_GluinoF1 ->SetMarkerColor(4);   Mu_Obs_GluinoF1 ->SetLineWidth(2);   Mu_Obs_GluinoF1 ->SetLineStyle(1);  Mu_Obs_GluinoF1 ->SetMarkerStyle(22);
    Mu_Obs_GluinoF5 ->SetLineColor(4);  Mu_Obs_GluinoF5 ->SetMarkerColor(4);   Mu_Obs_GluinoF5 ->SetLineWidth(2);   Mu_Obs_GluinoF5 ->SetLineStyle(1);  Mu_Obs_GluinoF5 ->SetMarkerStyle(23);
    Mu_Obs_GluinoNF1->SetLineColor(4);  Mu_Obs_GluinoNF1->SetMarkerColor(4);   Mu_Obs_GluinoNF1->SetLineWidth(2);   Mu_Obs_GluinoNF1->SetLineStyle(1);  Mu_Obs_GluinoNF1->SetMarkerStyle(26);
    Tk_Obs_GluinoF1 ->SetLineColor(4);  Tk_Obs_GluinoF1 ->SetMarkerColor(4);   Tk_Obs_GluinoF1 ->SetLineWidth(2);   Tk_Obs_GluinoF1 ->SetLineStyle(1);  Tk_Obs_GluinoF1 ->SetMarkerStyle(22);
    Tk_Obs_GluinoF5 ->SetLineColor(4);  Tk_Obs_GluinoF5 ->SetMarkerColor(4);   Tk_Obs_GluinoF5 ->SetLineWidth(2);   Tk_Obs_GluinoF5 ->SetLineStyle(1);  Tk_Obs_GluinoF5 ->SetMarkerStyle(23);
    Tk_Obs_GluinoNF1->SetLineColor(4);  Tk_Obs_GluinoNF1->SetMarkerColor(4);   Tk_Obs_GluinoNF1->SetLineWidth(2);   Tk_Obs_GluinoNF1->SetLineStyle(1);  Tk_Obs_GluinoNF1->SetMarkerStyle(26);
-   StopXSec        ->SetLineColor(2);  StopXSec        ->SetMarkerColor(2);   StopXSec        ->SetLineWidth(5);   StopXSec        ->SetLineStyle(2);  StopXSec        ->SetMarkerStyle(1);
+   StopXSec        ->SetLineColor(2);  StopXSec        ->SetMarkerColor(2);   StopXSec        ->SetLineWidth(1);   StopXSec        ->SetLineStyle(2);  StopXSec        ->SetMarkerStyle(1);
    Mu_Obs_Stop     ->SetLineColor(2);  Mu_Obs_Stop     ->SetMarkerColor(2);   Mu_Obs_Stop     ->SetLineWidth(2);   Mu_Obs_Stop     ->SetLineStyle(1);  Mu_Obs_Stop     ->SetMarkerStyle(21);
    Mu_Obs_StopN    ->SetLineColor(2);  Mu_Obs_StopN    ->SetMarkerColor(2);   Mu_Obs_StopN    ->SetLineWidth(2);   Mu_Obs_StopN    ->SetLineStyle(1);  Mu_Obs_StopN    ->SetMarkerStyle(25);
    Tk_Obs_Stop     ->SetLineColor(2);  Tk_Obs_Stop     ->SetMarkerColor(2);   Tk_Obs_Stop     ->SetLineWidth(2);   Tk_Obs_Stop     ->SetLineStyle(1);  Tk_Obs_Stop     ->SetMarkerStyle(21);
    Tk_Obs_StopN    ->SetLineColor(2);  Tk_Obs_StopN    ->SetMarkerColor(2);   Tk_Obs_StopN    ->SetLineWidth(2);   Tk_Obs_StopN    ->SetLineStyle(1);  Tk_Obs_StopN    ->SetMarkerStyle(25);
-   GMStauXSec      ->SetLineColor(1);  GMStauXSec      ->SetMarkerColor(1);   GMStauXSec      ->SetLineWidth(5);   GMStauXSec      ->SetLineStyle(1);  GMStauXSec      ->SetMarkerStyle(1);
-   PPStauXSec      ->SetLineColor(6);  PPStauXSec      ->SetMarkerColor(6);   PPStauXSec      ->SetLineWidth(5);   PPStauXSec      ->SetLineStyle(4);  PPStauXSec      ->SetMarkerStyle(1);
-   DCRho08HyperKXSec      ->SetLineColor(4);  DCRho08HyperKXSec      ->SetMarkerColor(4);   DCRho08HyperKXSec      ->SetLineWidth(5);   DCRho08HyperKXSec      ->SetLineStyle(3);  DCRho08HyperKXSec      ->SetMarkerStyle(1);
-   DCRho12HyperKXSec      ->SetLineColor(2);  DCRho12HyperKXSec      ->SetMarkerColor(2);   DCRho12HyperKXSec      ->SetLineWidth(5);   DCRho12HyperKXSec      ->SetLineStyle(2);  DCRho12HyperKXSec      ->SetMarkerStyle(1);
-   DCRho16HyperKXSec      ->SetLineColor(1);  DCRho16HyperKXSec      ->SetMarkerColor(1);   DCRho16HyperKXSec      ->SetLineWidth(5);   DCRho16HyperKXSec      ->SetLineStyle(1);  DCRho16HyperKXSec      ->SetMarkerStyle(1);
+   GMStauXSec      ->SetLineColor(1);  GMStauXSec      ->SetMarkerColor(1);   GMStauXSec      ->SetLineWidth(1);   GMStauXSec      ->SetLineStyle(1);  GMStauXSec      ->SetMarkerStyle(1);
+   PPStauXSec      ->SetLineColor(6);  PPStauXSec      ->SetMarkerColor(6);   PPStauXSec      ->SetLineWidth(1);   PPStauXSec      ->SetLineStyle(4);  PPStauXSec      ->SetMarkerStyle(1);
+   DCRho08HyperKXSec      ->SetLineColor(4);  DCRho08HyperKXSec      ->SetMarkerColor(4);   DCRho08HyperKXSec      ->SetLineWidth(1);   DCRho08HyperKXSec      ->SetLineStyle(3);  DCRho08HyperKXSec      ->SetMarkerStyle(1);
+   DCRho12HyperKXSec      ->SetLineColor(2);  DCRho12HyperKXSec      ->SetMarkerColor(2);   DCRho12HyperKXSec      ->SetLineWidth(1);   DCRho12HyperKXSec      ->SetLineStyle(2);  DCRho12HyperKXSec      ->SetMarkerStyle(1);
+   DCRho16HyperKXSec      ->SetLineColor(1);  DCRho16HyperKXSec      ->SetMarkerColor(1);   DCRho16HyperKXSec      ->SetLineWidth(1);   DCRho16HyperKXSec      ->SetLineStyle(1);  DCRho16HyperKXSec      ->SetMarkerStyle(1);
 
 
    Mu_Obs_GMStau   ->SetLineColor(1);  Mu_Obs_GMStau   ->SetMarkerColor(1);   Mu_Obs_GMStau   ->SetLineWidth(2);   Mu_Obs_GMStau   ->SetLineStyle(1);  Mu_Obs_GMStau   ->SetMarkerStyle(23);
@@ -537,15 +535,15 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    PPStauXSecErr  ->Draw("f");
    MGMu->Draw("same");
    MGMu->SetTitle("");
-   MGMu->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
+   MGMu->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
    MGMu->GetYaxis()->SetTitle("#sigma (pb)");
    MGMu->GetYaxis()->SetTitleOffset(1.70);
    MGMu->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    
    DrawPreliminary(IntegratedLuminosity);
-   TLegend* LEGMu = new TLegend(0.45,0.65,0.65,0.90);   
+   TLegend* LEGMu = new TLegend(0.44,0.65,0.67,0.90);   
 //   LEGMu->SetHeader("95% C.L. Limits");
-   LEGMu->SetHeader("Tracker + TOF");
+   LEGMu->SetHeader("Tk + TOF");
    LEGMu->SetFillColor(0); 
    LEGMu->SetBorderSize(0);
    LEGMu->AddEntry(Mu_Obs_GluinoF5 , "gluino; 50% #tilde{g}g"    ,"LP");
@@ -555,9 +553,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 //   LEGMu->AddEntry(Mu_Obs_StopN    , "stop; ch. suppr.","LP");
    LEGMu->AddEntry(Mu_Obs_PPStau   , "Pair Prod. stau"       ,"LP");
    LEGMu->AddEntry(Mu_Obs_GMStau   , "GMSB stau"       ,"LP");
-   //LEGMu->Draw();
+   LEGMu->Draw();
 
-   TLegend* LEGTh = new TLegend(0.15,0.7,0.48,0.9);
+   TLegend* LEGTh = new TLegend(0.14,0.73,0.44,0.93);
    LEGTh->SetHeader("Theoretical Prediction");
    LEGTh->SetFillColor(0);
    LEGTh->SetBorderSize(0);
@@ -576,7 +574,6 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGTh->AddEntry(StauThLeg   ,"GMSB stau   (NLO)" ,"LF");
 
    LEGTh->Draw();
-   LEGMu->Draw();
 
 //   c1->SetGridx(true);
 //   c1->SetGridy(true);
@@ -606,14 +603,14 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    PPStauXSecErr  ->Draw("f");
    MGTk->Draw("same");
    MGTk->SetTitle("");
-   MGTk->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
+   MGTk->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
    MGTk->GetYaxis()->SetTitle("#sigma (pb)");
    MGTk->GetYaxis()->SetTitleOffset(1.70);
    MGTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    
    DrawPreliminary(IntegratedLuminosity);
    
-   TLegend* LEGTk = new TLegend(0.45,0.58,0.795,0.9);
+   TLegend* LEGTk = new TLegend(0.44,0.58,0.82,0.9);
 //   LEGTk->SetHeader("95% C.L. Limits");
    LEGTk->SetHeader("Tracker - Only");
    LEGTk->SetFillColor(0); 
@@ -625,10 +622,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGTk->AddEntry(Tk_Obs_StopN    , "stop; ch. suppr.","LP");
    LEGTk->AddEntry(Tk_Obs_PPStau   , "Pair Prod. stau"       ,"LP");
    LEGTk->AddEntry(Tk_Obs_GMStau   , "GMSB stau"       ,"LP");
-   //LEGTk->Draw();
+   LEGTk->Draw();
 
    LEGTh->Draw();
-   LEGTk->Draw();
 
 //   c1->SetGridx(true);
 //   c1->SetGridy(true);
@@ -651,37 +647,36 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 //   DCRho16HyperKXSecErr  ->Draw("f");
    MGDCMu->Draw("same");
    MGDCMu->SetTitle("");
-   MGDCMu->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
+   MGDCMu->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
    MGDCMu->GetYaxis()->SetTitle("#sigma (pb)");
    MGDCMu->GetYaxis()->SetTitleOffset(1.70);
    MGDCMu->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    
    DrawPreliminary(IntegratedLuminosity);
    
-   TLegend* LEGDCMu = new TLegend(0.50,0.65,0.80,0.9);
-   LEGDCMu->SetHeader("Tracker + TOF");
+   TLegend* LEGDCMu = new TLegend(0.50,0.65,0.80,0.90);
+   LEGDCMu->SetHeader("Tk + TOF");
    LEGDCMu->SetFillColor(0); 
    LEGDCMu->SetBorderSize(0);
-   LEGDCMu->AddEntry(Mu_Obs_DCRho08HyperK   , "Hyper-K, #tilde{#rho} = 0.8 TeV"       ,"LP");
-   LEGDCMu->AddEntry(Mu_Obs_DCRho12HyperK   , "Hyper-K, #tilde{#rho} = 1.2 TeV"       ,"LP");
-   LEGDCMu->AddEntry(Mu_Obs_DCRho16HyperK   , "Hyper-K, #tilde{#rho} = 1.6 TeV"       ,"LP");
-   //LEGDCMu->Draw();
+   LEGDCMu->AddEntry(Mu_Obs_DCRho08HyperK   , "Hyperk #tilde{#rho} = 0.8 TeV"       ,"LP");
+   LEGDCMu->AddEntry(Mu_Obs_DCRho12HyperK   , "Hyperk #tilde{#rho} = 1.2 TeV"       ,"LP");
+   LEGDCMu->AddEntry(Mu_Obs_DCRho16HyperK   , "Hyperk #tilde{#rho} = 1.6 TeV"       ,"LP");
+   LEGDCMu->Draw();
 
-   TLegend* LEGDCTh = new TLegend(0.15,0.7,0.49,0.9);
+   TLegend* LEGDCTh = new TLegend(0.15,0.73,0.46,0.93);
    LEGDCTh->SetHeader("Theoretical Prediction");
    LEGDCTh->SetFillColor(0);
    LEGDCTh->SetBorderSize(0);
    TGraph* DCRho08HyperKThLeg = (TGraph*) DCRho08HyperKXSec->Clone("DCRho08HyperKThLeg");
    DCRho08HyperKThLeg->SetFillColor(GluinoXSecErr->GetFillColor());
-   LEGDCTh->AddEntry(DCRho08HyperKThLeg   ,"Hyper-K, #tilde{#rho} = 0.8 TeV   (LO)" ,"L");
+   LEGDCTh->AddEntry(DCRho08HyperKThLeg   ,"Hyperk #tilde{#rho} = 0.8 TeV   (LO)" ,"L");
    TGraph* DCRho12HyperKThLeg = (TGraph*) DCRho12HyperKXSec->Clone("DCRho12HyperKThLeg");
    DCRho12HyperKThLeg->SetFillColor(GluinoXSecErr->GetFillColor());
-   LEGDCTh->AddEntry(DCRho12HyperKThLeg   ,"Hyper-K, #tilde{#rho} = 1.2 TeV   (LO)" ,"L");
+   LEGDCTh->AddEntry(DCRho12HyperKThLeg   ,"Hyperk #tilde{#rho} = 1.2 TeV   (LO)" ,"L");
    TGraph* DCRho16HyperKThLeg = (TGraph*) DCRho16HyperKXSec->Clone("DCRho16HyperKThLeg");
    DCRho16HyperKThLeg->SetFillColor(GluinoXSecErr->GetFillColor());
-   LEGDCTh->AddEntry(DCRho16HyperKThLeg   ,"Hyper-K, #tilde{#rho} = 1.6 TeV   (LO)" ,"L");
+   LEGDCTh->AddEntry(DCRho16HyperKThLeg   ,"Hyperk #tilde{#rho} = 1.6 TeV   (LO)" ,"L");
    LEGDCTh->Draw();
-   LEGDCMu->Draw();
    SaveCanvas(c1, outpath, string("MuDCExclusion"));
    c1->SetLogy(true);
    SaveCanvas(c1, outpath, string("MuDCExclusionLog"));
@@ -701,20 +696,20 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 //   DCRho16HyperKXSecErr  ->Draw("f");
    MGDCTk->Draw("same");
    MGDCTk->SetTitle("");
-   MGDCTk->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
+   MGDCTk->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
    MGDCTk->GetYaxis()->SetTitle("#sigma (pb)");
    MGDCTk->GetYaxis()->SetTitleOffset(1.70);
    MGDCTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    DrawPreliminary(IntegratedLuminosity);
-
+   
    TLegend* LEGDCTk = new TLegend(0.50,0.65,0.80,0.90);
 //   LEGDCTk->SetHeader("95% C.L. Limits");
    LEGDCTk->SetHeader("Tracker - Only");
    LEGDCTk->SetFillColor(0); 
    LEGDCTk->SetBorderSize(0);
-   LEGDCTk->AddEntry(Tk_Obs_DCRho08HyperK   , "Hyper-K, #tilde{#rho} = 0.8 TeV"       ,"LP");
-   LEGDCTk->AddEntry(Tk_Obs_DCRho12HyperK   , "Hyper-K, #tilde{#rho} = 1.2 TeV"       ,"LP");
-   LEGDCTk->AddEntry(Tk_Obs_DCRho16HyperK   , "Hyper-K, #tilde{#rho} = 1.6 TeV"       ,"LP");
+   LEGDCTk->AddEntry(Tk_Obs_DCRho08HyperK   , "Hyperk #tilde{#rho} = 0.8 TeV"       ,"LP");
+   LEGDCTk->AddEntry(Tk_Obs_DCRho12HyperK   , "Hyperk #tilde{#rho} = 1.2 TeV"       ,"LP");
+   LEGDCTk->AddEntry(Tk_Obs_DCRho16HyperK   , "Hyperk #tilde{#rho} = 1.6 TeV"       ,"LP");
    LEGDCTk->Draw();
 
    LEGDCTh->Draw();
@@ -744,7 +739,6 @@ void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern){
    Models.push_back("Gluino900_f1");
    Models.push_back("Gluino1000_f1");
    Models.push_back("Gluino1100_f1");
-   Models.push_back("Gluino1200_f1");
    Models.push_back("Gluino300_f5");
    Models.push_back("Gluino400_f5");
    Models.push_back("Gluino500_f5");
@@ -754,7 +748,6 @@ void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern){
    Models.push_back("Gluino900_f5");
    Models.push_back("Gluino1000_f5");
    Models.push_back("Gluino1100_f5");
-   Models.push_back("Gluino1200_f5");
    Models.push_back("Gluino300N_f1");
    Models.push_back("Gluino400N_f1");
    Models.push_back("Gluino500N_f1");
@@ -764,7 +757,6 @@ void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern){
    Models.push_back("Gluino900N_f1");
    Models.push_back("Gluino1000N_f1");
    Models.push_back("Gluino1100N_f1");
-   Models.push_back("Gluino1200N_f1");
    Models.push_back("Stop130");
    Models.push_back("Stop200");
    Models.push_back("Stop300");
@@ -836,36 +828,31 @@ void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern){
    
 
    if(IsTkOnly){
-     fprintf(pFile, "%20s   Eff   --> PScale |  DeDxScale | PUScale || TotalUncertainty\n","Model");
-     fprintf(talkFile, "\\hline\n%20s &  Eff   & PScale &  DeDxScale & PUScale & TotalUncertainty \\\\\n","Model");
+     fprintf(pFile, "%20s   Eff   --> PScale |  EstimScale | DiscrimScale || TotalUncertainty\n","Model");
+     fprintf(talkFile, "\\hline\n%20s &  Eff   & PScale &  EstimScale & DiscrimScale & TotalUncertainty \\\\\n","Model");
    }
    else {
-     fprintf(pFile, "%20s   Eff   --> PScale |  DeDxScale | PUScale | TOFScale || TotalUncertainty\n","Model");
-     fprintf(talkFile, "\\hline\n%20s &  Eff   & PScale &  DeDxScale & PUScale & TOFScale & TotalUncertainty \\\\\n","Model");
+     fprintf(pFile, "%20s   Eff   --> PScale |  EstimScale | DiscrimScale | TOFScale || TotalUncertainty\n","Model");
+     fprintf(talkFile, "\\hline\n%20s &  Eff   & PScale &  EstimScale & DiscrimScale & TOFScale & TotalUncertainty \\\\\n","Model");
    }
 
    for(unsigned int s=0;s<Models.size();s++){
         stAllInfo tmp(InputPattern+"/EXCLUSION" + "/"+Models[s]+".txt");
         double P = tmp.Eff - tmp.Eff_SYSTP;
         double I = tmp.Eff - tmp.Eff_SYSTI;
-        double PU = tmp.Eff - tmp.Eff_SYSTPU;
+        double M = tmp.Eff - tmp.Eff_SYSTM;
         double T = tmp.Eff - tmp.Eff_SYSTT;
         bool IsStau = (Models[s].find("Stau",0)<std::string::npos);
         bool IsNeutral = (Models[s].find("N",0)<std::string::npos);
 
-	double Ptemp=max(P, 0.0);
-        double Itemp=max(I, 0.0);
-        double PUtemp=max(PU, 0.0);
-        double Ttemp=max(T, 0.0);
+	if(IsTkOnly) fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f || %7.3f\n",+Models[s].c_str(), tmp.Eff, P/tmp.Eff, M/tmp.Eff, I/tmp.Eff, sqrt(P*P + I*I + M*M + T*T)/tmp.Eff);        
 
-	if(IsTkOnly) fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f || %7.3f\n",+Models[s].c_str(), tmp.Eff, P/tmp.Eff, I/tmp.Eff, PU/tmp.Eff, sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp)/tmp.Eff);        
-
-	else if(!IsNeutral) fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f || %7.3f\n",+Models[s].c_str(), tmp.Eff, P/tmp.Eff, I/tmp.Eff, PU/tmp.Eff, T/tmp.Eff, sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp)/tmp.Eff);
+	else if(!IsNeutral) fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f || %7.3f\n",+Models[s].c_str(), tmp.Eff, P/tmp.Eff, M/tmp.Eff, I/tmp.Eff, T/tmp.Eff, sqrt(P*P + I*I + M*M + T*T)/tmp.Eff);
 
 	if(IsTkOnly && (IsStau || (int)tmp.Mass%200==0)) {
-	  fprintf(talkFile, "\\hline\n%20s &  %7.1f\\% & %7.1f\\%  &  %7.1f\\%  & %7.1f\\%  & %7.1f\\% \\\\\n",+Models[s].c_str(), 100.*tmp.Eff, 100.*P/tmp.Eff, 100.*I/tmp.Eff, 100.*PU/tmp.Eff, 100.*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp)/tmp.Eff);
+	  fprintf(talkFile, "\\hline\n%20s &  %7.1f\\% & %7.1f\\%  &  %7.1f\\%  & %7.1f\\%  & %7.1f\\% \\\\\n",+Models[s].c_str(), 100.*tmp.Eff, 100.*P/tmp.Eff, 100.*M/tmp.Eff, 100.*I/tmp.Eff, 100.*sqrt(P*P + I*I + M*M + T*T)/tmp.Eff);
 	}
-        if(!IsTkOnly && !IsNeutral) fprintf(talkFile, "\\hline\n%20s &  %7.1f\\% & %7.1f\\%  &  %7.1f\\%  & %7.1f\\%  & %7.1f\\% & %7.1f\\% \\\\\n",+Models[s].c_str(), 100.*tmp.Eff, 100.*P/tmp.Eff, 100.*I/tmp.Eff, 100.*PU/tmp.Eff, 100.*T/tmp.Eff, 100.*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp)/tmp.Eff);
+        if(!IsTkOnly && !IsNeutral) fprintf(talkFile, "\\hline\n%20s &  %7.1f\\% & %7.1f\\%  &  %7.1f\\%  & %7.1f\\%  & %7.1f\\% & %7.1f\\% \\\\\n",+Models[s].c_str(), 100.*tmp.Eff, 100.*P/tmp.Eff, 100.*M/tmp.Eff, 100.*I/tmp.Eff, 100.*T/tmp.Eff, 100.*sqrt(P*P + I*I + M*M + T*T)/tmp.Eff);
 
    }
 }
@@ -939,7 +926,6 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    GetSignalDefinition(signals);
    CurrentSampleIndex        = JobIdToIndex(signal); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return stAllInfo();  } 
 
-
    stAllInfo toReturn;
    toReturn.Mass      = signals[JobIdToIndex(signal)].Mass;
    toReturn.MassMean  = 0;
@@ -1005,13 +991,9 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    TH2D*  MassSignI[4];
    TH2D*  MassSignM[4];
    TH2D*  MassSignT[4];
-   TH2D*  MassSignPU[4];
 
    string InputPathSign     = pattern + "Histos.root";
    TFile* InputFileSign     = new TFile(InputPathSign.c_str());
-
-   TH1D* TotalE          = (TH1D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "/TotalE" + syst);
-   double norm=signals[CurrentSampleIndex].XSec*IntegratedLuminosity/TotalE->Integral();
 
    MassSign[0]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "/Mass" + syst);
    MassSign[1]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC0/Mass" + syst);
@@ -1038,20 +1020,12 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    MassSignT[2]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC1/Mass_SystT");
    MassSignT[3]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC2/Mass_SystT");
 
-   TH1D* TotalEPU          = (TH1D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "/TotalEPU" + syst);
-   double normPU=signals[CurrentSampleIndex].XSec*IntegratedLuminosity/TotalEPU->Integral();
-
-   MassSignPU[0]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "/Mass_SystPU" + syst);
-   MassSignPU[1]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC0/Mass_SystPU" + syst);
-   MassSignPU[2]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC1/Mass_SystPU" + syst);
-   MassSignPU[3]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC2/Mass_SystPU" + syst);
 
    TH1D* MassSignProj[4];
    TH1D* MassSignPProj[4];
    TH1D* MassSignIProj[4];
    TH1D* MassSignMProj[4];
    TH1D* MassSignTProj[4];
-   TH1D* MassSignPUProj[4];
    ///##############################################################################"
    MassSignProj[0] = MassSign[0]->ProjectionY("MassSignProj0",1,1);
    double Mean  = MassSignProj[0]->GetMean();
@@ -1072,31 +1046,28 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
       GetSignalMeanHSCPPerEvent(pattern,CutIndex, MinRange, MaxRange);
       TH1D* MassDataProj = MassData->ProjectionY("MassDataProj",CutIndex+1,CutIndex+1);
       TH1D* MassPredProj = MassPred->ProjectionY("MassPredProj",CutIndex+1,CutIndex+1);
-      MassSignProj[0]    = MassSign [0]->ProjectionY("MassSignProj0",CutIndex+1,CutIndex+1); MassSignProj[0]->Scale(norm);
-      MassSignProj[1]    = MassSign [1]->ProjectionY("MassSignProj1",CutIndex+1,CutIndex+1); MassSignProj[1]->Scale(norm);
-      MassSignProj[2]    = MassSign [2]->ProjectionY("MassSignProj2",CutIndex+1,CutIndex+1); MassSignProj[2]->Scale(norm);
-      MassSignProj[3]    = MassSign [3]->ProjectionY("MassSignProj3",CutIndex+1,CutIndex+1); MassSignProj[3]->Scale(norm);
+      MassSignProj[0]    = MassSign [0]->ProjectionY("MassSignProj0",CutIndex+1,CutIndex+1);
+      MassSignProj[1]    = MassSign [1]->ProjectionY("MassSignProj1",CutIndex+1,CutIndex+1);
+      MassSignProj[2]    = MassSign [2]->ProjectionY("MassSignProj2",CutIndex+1,CutIndex+1);
+      MassSignProj[3]    = MassSign [3]->ProjectionY("MassSignProj3",CutIndex+1,CutIndex+1);
 
-      MassSignPProj[0]   = MassSignP[0]->ProjectionY("MassSignProP0",CutIndex+1,CutIndex+1); MassSignPProj[0]->Scale(norm);
-      MassSignPProj[1]   = MassSignP[1]->ProjectionY("MassSignProP1",CutIndex+1,CutIndex+1); MassSignPProj[1]->Scale(norm);
-      MassSignPProj[2]   = MassSignP[2]->ProjectionY("MassSignProP2",CutIndex+1,CutIndex+1); MassSignPProj[2]->Scale(norm);
-      MassSignPProj[3]   = MassSignP[3]->ProjectionY("MassSignProP3",CutIndex+1,CutIndex+1); MassSignPProj[3]->Scale(norm);
-      MassSignIProj[0]   = MassSignI[0]->ProjectionY("MassSignProI0",CutIndex+1,CutIndex+1); MassSignIProj[0]->Scale(norm);
-      MassSignIProj[1]   = MassSignI[1]->ProjectionY("MassSignProI1",CutIndex+1,CutIndex+1); MassSignIProj[1]->Scale(norm);
-      MassSignIProj[2]   = MassSignI[2]->ProjectionY("MassSignProI2",CutIndex+1,CutIndex+1); MassSignIProj[2]->Scale(norm);
-      MassSignIProj[3]   = MassSignI[3]->ProjectionY("MassSignProI3",CutIndex+1,CutIndex+1); MassSignIProj[3]->Scale(norm);
-      MassSignMProj[0]   = MassSignM[0]->ProjectionY("MassSignProM0",CutIndex+1,CutIndex+1); MassSignMProj[0]->Scale(norm);
-      MassSignMProj[1]   = MassSignM[1]->ProjectionY("MassSignProM1",CutIndex+1,CutIndex+1); MassSignMProj[1]->Scale(norm);
-      MassSignMProj[2]   = MassSignM[2]->ProjectionY("MassSignProM2",CutIndex+1,CutIndex+1); MassSignMProj[2]->Scale(norm);
-      MassSignMProj[3]   = MassSignM[3]->ProjectionY("MassSignProM3",CutIndex+1,CutIndex+1); MassSignMProj[3]->Scale(norm);
-      MassSignTProj[0]   = MassSignT[0]->ProjectionY("MassSignProT0",CutIndex+1,CutIndex+1); MassSignTProj[0]->Scale(norm);
-      MassSignTProj[1]   = MassSignT[1]->ProjectionY("MassSignProT1",CutIndex+1,CutIndex+1); MassSignTProj[1]->Scale(norm);
-      MassSignTProj[2]   = MassSignT[2]->ProjectionY("MassSignProT2",CutIndex+1,CutIndex+1); MassSignTProj[2]->Scale(norm);
-      MassSignTProj[3]   = MassSignT[3]->ProjectionY("MassSignProT3",CutIndex+1,CutIndex+1); MassSignTProj[3]->Scale(norm);
-      MassSignPUProj[0]   = MassSignPU[0]->ProjectionY("MassSignProPU0",CutIndex+1,CutIndex+1); MassSignPUProj[0]->Scale(normPU);
-      MassSignPUProj[1]   = MassSignPU[1]->ProjectionY("MassSignProPU1",CutIndex+1,CutIndex+1); MassSignPUProj[1]->Scale(normPU);
-      MassSignPUProj[2]   = MassSignPU[2]->ProjectionY("MassSignProPU2",CutIndex+1,CutIndex+1); MassSignPUProj[2]->Scale(normPU);
-      MassSignPUProj[3]   = MassSignPU[3]->ProjectionY("MassSignProPU3",CutIndex+1,CutIndex+1); MassSignPUProj[3]->Scale(normPU);
+      MassSignPProj[0]   = MassSignP[0]->ProjectionY("MassSignProP0",CutIndex+1,CutIndex+1);
+      MassSignPProj[1]   = MassSignP[1]->ProjectionY("MassSignProP1",CutIndex+1,CutIndex+1);
+      MassSignPProj[2]   = MassSignP[2]->ProjectionY("MassSignProP2",CutIndex+1,CutIndex+1);
+      MassSignPProj[3]   = MassSignP[3]->ProjectionY("MassSignProP3",CutIndex+1,CutIndex+1);
+      MassSignIProj[0]   = MassSignI[0]->ProjectionY("MassSignProI0",CutIndex+1,CutIndex+1);
+      MassSignIProj[1]   = MassSignI[1]->ProjectionY("MassSignProI1",CutIndex+1,CutIndex+1);
+      MassSignIProj[2]   = MassSignI[2]->ProjectionY("MassSignProI2",CutIndex+1,CutIndex+1);
+      MassSignIProj[3]   = MassSignI[3]->ProjectionY("MassSignProI3",CutIndex+1,CutIndex+1);
+      MassSignMProj[0]   = MassSignM[0]->ProjectionY("MassSignProM0",CutIndex+1,CutIndex+1);
+      MassSignMProj[1]   = MassSignM[1]->ProjectionY("MassSignProM1",CutIndex+1,CutIndex+1);
+      MassSignMProj[2]   = MassSignM[2]->ProjectionY("MassSignProM2",CutIndex+1,CutIndex+1);
+      MassSignMProj[3]   = MassSignM[3]->ProjectionY("MassSignProM3",CutIndex+1,CutIndex+1);
+      MassSignTProj[0]   = MassSignT[0]->ProjectionY("MassSignProT0",CutIndex+1,CutIndex+1);
+      MassSignTProj[1]   = MassSignT[1]->ProjectionY("MassSignProT1",CutIndex+1,CutIndex+1);
+      MassSignTProj[2]   = MassSignT[2]->ProjectionY("MassSignProT2",CutIndex+1,CutIndex+1);
+      MassSignTProj[3]   = MassSignT[3]->ProjectionY("MassSignProT3",CutIndex+1,CutIndex+1);
+
 
       double NData       = MassDataProj->Integral(MassDataProj->GetXaxis()->FindBin(MinRange), MassDataProj->GetXaxis()->FindBin(MaxRange));
       double NPred       = MassPredProj->Integral(MassPredProj->GetXaxis()->FindBin(MinRange), MassPredProj->GetXaxis()->FindBin(MaxRange));
@@ -1113,7 +1084,6 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
       double EffI      = 0;
       double EffM      = 0;
       double EffT      = 0;
-      double EffPU      = 0;
       if(RatioValue[0]<0 && RatioValue[1]<0 && RatioValue[2]<0){
             CurrentSampleIndex        = JobIdToIndex(signal); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return toReturn;  } 
             double INTERN_ESign       = MassSignProj[0]->Integral(MassSignProj[0]            ->GetXaxis()->FindBin(MinRange), MassSignProj[0]      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [0]; 
@@ -1136,10 +1106,6 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
             double INTERN_ESignT      = MassSignTProj[0]->Integral(MassSignTProj[0]            ->GetXaxis()->FindBin(MinRange), MassSignTProj[0]      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [0];
             double INTERN_EffT        = INTERN_ESignT      / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
             EffT                      = INTERN_EffT;
-
-            double INTERN_ESignPU      = MassSignPUProj[0]->Integral(MassSignPUProj[0]            ->GetXaxis()->FindBin(MinRange), MassSignPUProj[0]      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [0];
-            double INTERN_EffPU        = INTERN_ESignPU      / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
-            EffPU                      = INTERN_EffPU;
       }else{
          for(unsigned int i=0;i<3;i++){
             CurrentSampleIndex        = JobIdToIndex(signal); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return toReturn;  }
@@ -1162,10 +1128,6 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
             double INTERN_ESignT      = MassSignTProj[i+1]->Integral(MassSignTProj[i+1]            ->GetXaxis()->FindBin(MinRange), MassSignTProj[i+1]      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [1+i];
             double INTERN_EffT        = INTERN_ESignT      / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
             EffT                     += INTERN_EffT  * RatioValue[i];
-
-            double INTERN_ESignPU      = MassSignPUProj[i+1]->Integral(MassSignPUProj[i+1]            ->GetXaxis()->FindBin(MinRange), MassSignPUProj[i+1]      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [i+1];
-            double INTERN_EffPU        = INTERN_ESignPU      / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
-            EffPU                     += INTERN_EffPU  * RatioValue[i];
          }
       }
       if(Eff==0)continue;
@@ -1194,7 +1156,6 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      toReturn.Eff_SYSTI = EffI;
      toReturn.Eff_SYSTM = EffM;
      toReturn.Eff_SYSTT = EffT;
-     toReturn.Eff_SYSTPU= EffPU;
      toReturn.NData     = NData;
      toReturn.NPred     = NPred;
      toReturn.NPredErr  = NPredErr;
@@ -1244,13 +1205,14 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    }
 
    LimitResult CLMResults;
-   double signalUncertainty=0.07;
+   double signalUncertainty=0.10;
+   if (signals[JobIdToIndex(signal)].Mass<450) signalUncertainty=0.15;
    double NPred=toReturn.NPred;
    double NPredErr=toReturn.NPredErr;
    double Eff=toReturn.Eff;
    double NData=toReturn.NData;
 
-   CLMResults =  roostats_limit(IntegratedLuminosity, IntegratedLuminosity*0.022, Eff, Eff*signalUncertainty,NPred, NPredErr, NData, false, 1, "cls", "", 12345);
+   CLMResults =  roostats_limit(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPredErr, NData, false, 1, "cls", "", 12345);
 
    double ExpLimit=CLMResults.GetExpectedLimit();
    double ExpLimitup    = CLMResults.GetOneSigmaHighRange();
@@ -1282,7 +1244,6 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      fprintf(pFile2,"Eff_SystI    : %f\n",toReturn.Eff_SYSTI);
      fprintf(pFile2,"Eff_SystM    : %f\n",toReturn.Eff_SYSTM);
      fprintf(pFile2,"Eff_SystT    : %f\n",toReturn.Eff_SYSTT);
-     fprintf(pFile2,"Eff_SystPU   : %f\n",toReturn.Eff_SYSTPU);
      fprintf(pFile2,"Signif       : %f\n",toReturn.Significance);
      fprintf(pFile2,"XSec_Th      : %f\n",toReturn.XSec_Th);
      fprintf(pFile2,"XSec_Exp     : %f\n",toReturn.XSec_Exp);
@@ -1557,7 +1518,7 @@ void DrawModelLimitWithBand(string InputPattern, string inputmodel)
       Models.push_back("DCRho08HyperK410");
       Models.push_back("DCRho08HyperK420");
       Models.push_back("DCRho08HyperK500");
-      modelname="Hyper-K, #tilde{#rho} = 0.8 TeV (LO)";
+      modelname="Hyperk #tilde{#rho} = 0.8 TeV (LO)";
    }
    else if(inputmodel == "DCRho12"){
       Models.push_back("DCRho12HyperK100"); 
@@ -1572,7 +1533,7 @@ void DrawModelLimitWithBand(string InputPattern, string inputmodel)
       Models.push_back("DCRho12HyperK610");
       Models.push_back("DCRho12HyperK620");
       Models.push_back("DCRho12HyperK700");
-      modelname="Hyper-K, #tilde{#rho} = 1.2 TeV (LO)";
+      modelname="Hyperk #tilde{#rho} = 1.2 TeV (LO)";
    }
    else if(inputmodel == "DCRho16"){
       Models.push_back("DCRho16HyperK100");
@@ -1587,7 +1548,7 @@ void DrawModelLimitWithBand(string InputPattern, string inputmodel)
       Models.push_back("DCRho16HyperK800");
       Models.push_back("DCRho16HyperK820");
       Models.push_back("DCRho16HyperK900");
-      modelname="Hyper-K, #tilde{#rho} = 1.6 TeV (LO)";
+      modelname="Hyperk #tilde{#rho} = 1.6 TeV (LO)";
    }
    else{cout<<"no model specified"<<endl;}
 
@@ -1642,7 +1603,7 @@ void DrawModelLimitWithBand(string InputPattern, string inputmodel)
    ExpErr  ->Draw("f");
    MG->Draw("same");
    MG->SetTitle("");
-   MG->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
+   MG->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
    MG->GetYaxis()->SetTitle("#sigma (pb)");
    MG->GetYaxis()->SetTitleOffset(1.70);
    MG->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
@@ -1650,8 +1611,8 @@ void DrawModelLimitWithBand(string InputPattern, string inputmodel)
    
    TLegend* LEG = new TLegend(0.40,0.65,0.8,0.90);
    string headerstr;
-   headerstr = "95% CL Limits (Tracker + TOF)";
-   if(IsTkOnly) headerstr = "95% CL Limits (Tracker - Only)";
+   headerstr = "95% C.L. Limits (Tk + TOF)";
+   if(IsTkOnly) headerstr = "95% C.L. Limits (Tracker - Only)";
    LEG->SetHeader(headerstr.c_str());
    LEG->SetFillColor(0); 
    LEG->SetBorderSize(0);
@@ -1684,8 +1645,7 @@ std::vector<string> GetModels(string inputmodel)
       Models.push_back("Gluino800_f1");
       Models.push_back("Gluino900_f1");
       Models.push_back("Gluino1000_f1");
-      Models.push_back("Gluino1100_f1");
-      Models.push_back("Gluino1200_f1");
+//      Models.push_back("Gluino1100_f1");
       modelname="gluino; 10% #tilde{g}g (NLO+NLL)";
    }
    else if(inputmodel == "Gluinof5"){
@@ -1697,8 +1657,7 @@ std::vector<string> GetModels(string inputmodel)
       Models.push_back("Gluino800_f5");
       Models.push_back("Gluino900_f5");
       Models.push_back("Gluino1000_f5");
-      Models.push_back("Gluino1100_f5");
-      Models.push_back("Gluino1200_f5");
+//      Models.push_back("Gluino1100_f5");
      modelname="gluino; 50% #tilde{g}g (NLO+NLL)";
    }
    else if(inputmodel == "GluinoN"){
@@ -1710,8 +1669,7 @@ std::vector<string> GetModels(string inputmodel)
       Models.push_back("Gluino800N_f1");
       Models.push_back("Gluino900N_f1");
       Models.push_back("Gluino1000N_f1");
-      Models.push_back("Gluino1100N_f1");
-      Models.push_back("Gluino1200N_f1");
+//      Models.push_back("Gluino1100N_f1");
       modelname="gluino; 10% #tilde{g}g; ch. suppr.(NLO+NLL)";
    }
    else if(inputmodel == "Stop"){
@@ -1771,7 +1729,7 @@ std::vector<string> GetModels(string inputmodel)
       Models.push_back("DCRho08HyperK410");
       Models.push_back("DCRho08HyperK420");
       Models.push_back("DCRho08HyperK500");
-      modelname="Hyper-K, #tilde{#rho} = 0.8 TeV (LO)";
+      modelname="Hyperk #tilde{#rho} = 0.8 TeV (LO)";
    }
    else if(inputmodel == "DCRho12"){
       Models.push_back("DCRho12HyperK100"); 
@@ -1786,7 +1744,7 @@ std::vector<string> GetModels(string inputmodel)
       Models.push_back("DCRho12HyperK610");
       Models.push_back("DCRho12HyperK620");
       Models.push_back("DCRho12HyperK700");
-      modelname="Hyper-K, #tilde{#rho} = 1.2 TeV (LO)";
+      modelname="Hyperk #tilde{#rho} = 1.2 TeV (LO)";
    }
    else if(inputmodel == "DCRho16"){
       Models.push_back("DCRho16HyperK100");
@@ -1801,7 +1759,7 @@ std::vector<string> GetModels(string inputmodel)
       Models.push_back("DCRho16HyperK800");
       Models.push_back("DCRho16HyperK820");
       Models.push_back("DCRho16HyperK900");
-      modelname="Hyper-K, #tilde{#rho} = 1.6 TeV (LO)";
+      modelname="Hyperk #tilde{#rho} = 1.6 TeV (LO)";
    }
    else{cout<<"no model specified"<<endl;}
    return Models;
@@ -1832,13 +1790,13 @@ string GetModelName(string inputmodel)
       modelname="Pair Prod. stau";
    }
    else if(inputmodel == "DCRho08"){
-      modelname="Hyper-K, #tilde{#rho} = 0.8 TeV";
+      modelname="Hyperk #tilde{#rho} = 0.8 TeV";
    }
    else if(inputmodel == "DCRho12"){
-      modelname="Hyper-K, #tilde{#rho} = 1.2 TeV";
+      modelname="Hyperk #tilde{#rho} = 1.2 TeV";
    }
    else if(inputmodel == "DCRho16"){
-      modelname="Hyper-K, #tilde{#rho} = 1.6 TeV";
+      modelname="Hyperk #tilde{#rho} = 1.6 TeV";
    }
    else{cout<<"no model specified"<<endl;}
    return modelname;
@@ -1854,58 +1812,37 @@ void DrawRatioBands(string InputPattern, string inputmodel)
    if(IsTkOnly) prefix ="Tk";
 
    std::vector<string> TModels;
-   std::vector<bool> isNeutral;
    if(inputmodel == "Gluino"){
-     TModels.push_back("Gluinof1");
-     isNeutral.push_back(false);
-     TModels.push_back("Gluinof5");
-     isNeutral.push_back(false);
-     TModels.push_back("GluinoN");
-     isNeutral.push_back(true);
+      TModels.push_back("Gluinof1");
+      TModels.push_back("Gluinof5");
+      if(IsTkOnly) TModels.push_back("GluinoN");
    }
 
    else if(inputmodel == "Stop"){
-     TModels.push_back("Stop");
-     isNeutral.push_back(false);
-     TModels.push_back("StopN");
-     isNeutral.push_back(true);
+      TModels.push_back("Stop");
+      if(IsTkOnly) TModels.push_back("StopN");
    }
 
    else if(inputmodel == "Stau"){
       TModels.push_back("GMStau");
-      isNeutral.push_back(false);
       TModels.push_back("PPStau");
-      isNeutral.push_back(false);
    }
    else if(inputmodel == "Hyperk"){
       TModels.push_back("DCRho08");
-      isNeutral.push_back(false);
       TModels.push_back("DCRho12");
-      isNeutral.push_back(false);
       TModels.push_back("DCRho16");
-      isNeutral.push_back(false);
    }
    else if(inputmodel == "All"){
       TModels.push_back("Gluinof1");
-      isNeutral.push_back(false);
       TModels.push_back("Gluinof5");
-      isNeutral.push_back(false);
-      TModels.push_back("GluinoN");
-      isNeutral.push_back(true);
+      if(IsTkOnly) TModels.push_back("GluinoN");
       TModels.push_back("Stop");
-      isNeutral.push_back(false);
-      TModels.push_back("StopN");
-      isNeutral.push_back(true);
+      if(IsTkOnly) TModels.push_back("StopN");
       TModels.push_back("GMStau");
-      isNeutral.push_back(false);
       TModels.push_back("PPStau");
-      isNeutral.push_back(false);
       TModels.push_back("DCRho08");
-      isNeutral.push_back(false);
       TModels.push_back("DCRho12");
-      isNeutral.push_back(false);
       TModels.push_back("DCRho16");
-      isNeutral.push_back(false);
    }
 
 
@@ -1917,33 +1854,19 @@ void DrawRatioBands(string InputPattern, string inputmodel)
 
 
 
-   TCanvas* c1 = new TCanvas("c1", "c1",600,800);
+   TCanvas* c1 = new TCanvas("c1", "c1",600,600);
 
    TGraph** graphAtheory = new TGraph*[TModels.size()];
    TGraph** graphAobs =  new TGraph*[TModels.size()];
    TGraph** graphAexp =  new TGraph*[TModels.size()];
    TCutG**  ExpAErr = new TCutG*[TModels.size()];
    TCutG**  Exp2SigmaAErr= new TCutG*[TModels.size()];
-   TPad** padA= new  TPad*[TModels.size()];
+   TPad** padA= new  TPad*[TModels.size()+1];
    string  ModelNames[TModels.size()];
-   double step, top;
-
-   top= 1.0/(TModels.size()+2);
-   step=(1.0-2.*top)/(TModels.size());
-
+   double step= 1.0/(TModels.size()+2);
    for(int k=0;k<TModels.size();k++){
-     if(!IsTkOnly && isNeutral[k]) continue;
-     TPad* pad;
-     //TPad* pad = new TPad(Form("pad%i",k),Form("ExpErr%i",k),0.1,1-(k+2)*step,0.9,1-step*(k+1));//lower left x, y, topright x, y
-     if(k<(TModels.size()-1)) {
-       pad = new TPad(Form("pad%i",k),Form("ExpErr%i",k),0.1,1-top-(k+1)*step,0.9,1-top-step*k);//lower left x, y, topright x, y
-       pad->SetBottomMargin(0.);
-     }
-     else {
-       pad = new TPad(Form("pad%i",k),Form("ExpErr%i",k),0.1,0.0,0.9,1-top-step*(k));//lower left x, y, topright x, y
-       //pad = new TPad(Form("pad%i",k),Form("ExpErr%i",k),0.1,1-2*top-(k+1)*step+0.00001,0.9,1-top-step*(k));//lower left x, y, topright x, y
-       pad->SetBottomMargin(top/(step+top));
-     }
+      TPad* pad = new TPad(Form("pad%i",k),Form("ExpErr%i",k),0.1,1-(k+2)*step,0.9,1-step*(k+1));//lower left x, y, topright x, y
+      if(k<(TModels.size()-1)) pad->SetBottomMargin(0.);
       pad->SetLeftMargin(0.1);
       pad->SetRightMargin(0.);
       pad->SetTopMargin(0.);
@@ -1952,7 +1875,6 @@ void DrawRatioBands(string InputPattern, string inputmodel)
    }
 
    for(int k=0;k<TModels.size();k++){
-     if(!IsTkOnly && isNeutral[k]) continue;
       std::vector<string> Models = GetModels(TModels[k]);
       ModelNames[k]=GetModelName(TModels[k]);
 
@@ -1974,8 +1896,8 @@ void DrawRatioBands(string InputPattern, string inputmodel)
       TGraph* graphtheory= new TGraph(N,Mass,XSecTh);
       TGraph* graphobs = new TGraph(N,Mass,XSecObs);
       TGraph* graphexp = new TGraph(N,Mass,XSecExp);
-      TCutG*  ExpErr = GetErrorBand(Form("ExpErr%i",k),N,Mass,XSecExpDown,XSecExpUp,0.0, 3.0);
-      TCutG*  Exp2SigmaErr = GetErrorBand(Form("Exp2SigmaErr%i",k),N,Mass,XSecExp2Down,XSecExp2Up, 0.0, 3.0);
+      TCutG*  ExpErr = GetErrorBand(Form("ExpErr%i",k),N,Mass,XSecExpDown,XSecExpUp,0.5, 2.5);
+      TCutG*  Exp2SigmaErr = GetErrorBand(Form("Exp2SigmaErr%i",k),N,Mass,XSecExp2Down,XSecExp2Up, 0.5, 2.5);
 
       graphAtheory[k] = graphtheory;      
       graphAobs[k] =graphobs;
@@ -2000,7 +1922,7 @@ void DrawRatioBands(string InputPattern, string inputmodel)
 
       padA[k]->cd();
 
-      int masst[2] = {0,1250};
+      int masst[2] = {50,1050};
       int xsect[2] = {2, 1};
       TGraph* graph = new TGraph(2,masst,xsect); //fake graph to set xaxis right
       graph->SetMarkerSize(0.);
@@ -2008,87 +1930,60 @@ void DrawRatioBands(string InputPattern, string inputmodel)
       MG->Add(graphAobs[k]      ,"LP");
       MG->Draw("A");
       if(k==0){
-	TLegend* LEG;
-	LEG = new TLegend(0.13,0.01,0.32,0.99);
+         TLegend* LEG = new TLegend(0.11,0.01,0.7,0.99);
          string headerstr;
-         headerstr = "Tracker + TOF";
-         if(IsTkOnly) headerstr = "Tracker - Only";
+         headerstr = " Tk + TOF";
+         if(IsTkOnly) headerstr = " Tracker - Only";
          LEG->SetHeader(headerstr.c_str());
          LEG->SetFillColor(0); 
          LEG->SetBorderSize(0);
          LEG->AddEntry(ExpAErr[0], "Expected #pm 1#sigma","F");
-         //LEG->AddEntry(Exp2SigmaAErr[0], "Expected #pm 2#sigma","F");
-         //LEG->AddEntry(graphAobs[0],"Observed" ,"LP");
+         LEG->AddEntry(Exp2SigmaAErr[0], "Expected #pm 2#sigma "       ,"F");
+         LEG->AddEntry(graphAobs[0],"Observed" ,"LP");
          LEG->SetMargin(0.1);
          LEG->Draw();
       }  
-
-      if(k==1){
-        TLegend* LEG;
-        LEG = new TLegend(0.13,0.01,0.32,0.99);
-	string headerstr;
-	//headerstr = "Tracker + TOF";
-	//if(IsTkOnly) headerstr = "Tracker - Only";
-	//LEG->SetHeader(headerstr.c_str());
-	LEG->SetFillColor(0);
-	LEG->SetBorderSize(0);
-	//LEG->AddEntry(ExpAErr[0], "Expected #pm 1#sigma","F");
-	LEG->AddEntry(Exp2SigmaAErr[0], "Expected #pm 2#sigma","F");
-	LEG->AddEntry(graphAobs[0],"Observed" ,"LP");
-	LEG->SetMargin(0.1);
-	LEG->Draw();
-      }
 
       Exp2SigmaAErr[k]->Draw("f");
       ExpAErr[k]  ->Draw("f");
       MG->Draw("same");
       MG->SetTitle("");
       if(k==TModels.size()-1) {
-         MG->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
-         MG->GetXaxis()->SetTitleSize(0.2);
-         MG->GetXaxis()->SetLabelSize(0.2);
+         MG->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
+         MG->GetXaxis()->SetTitleSize(0.4);
+         MG->GetXaxis()->SetLabelSize(0.4);
       }
 
       TPaveText *pt;
-      if(IsTkOnly) {
-      if(k!=TModels.size()-1) pt = new TPaveText(0.45, 0.6, 0.95, 0.87,"LBNDC");
-      else pt = new TPaveText(0.45, 0.82, 0.95, 0.935,"LBNDC");
-      }
-      else {
-	if(k!=TModels.size()-1) pt = new TPaveText(0.55, 0.6, 0.95, 0.87,"LBNDC");
-	else pt = new TPaveText(0.55, 0.82, 0.95, 0.935,"LBNDC");
-      }
-
+      if(IsTkOnly) pt = new TPaveText(0.45, 0.6, 0.95, 0.87,"LBNDC");
+      else pt = new TPaveText(0.65, 0.7, 0.95, 0.85,"LBNDC");
       pt->SetBorderSize(0);
       pt->SetLineWidth(0);
       pt->SetFillColor(kWhite);
       TText *text = pt->AddText(ModelNames[k].c_str()); 
-      text ->SetTextAlign(12);
+      text ->SetTextAlign(11);
       text ->SetTextSize(0.3);
-      if(k==TModels.size()-1) text ->SetTextSize(0.5*text ->GetTextSize());
+      if(IsTkOnly) text ->SetTextSize(0.35);
       pt->Draw();
       
-      MG->GetXaxis()->SetRangeUser(0,1250);    
+      MG->GetXaxis()->SetRangeUser(50,1050);    
       MG->GetXaxis()->SetNdivisions(506,"Z");
 
-      MG->GetYaxis()->SetRangeUser(0.001,2.99);
-      MG->GetYaxis()->SetNdivisions(303, "Z");
-      MG->GetYaxis()->SetLabelSize(0.3);
-      if(k==(TModels.size()-1)) {
-	MG->GetYaxis()->SetLabelSize(0.15);
-
-      }
+      MG->GetYaxis()->SetRangeUser(0.5,2.5);
+      MG->GetYaxis()->SetNdivisions(202,"Z");
+      MG->GetYaxis()->SetLabelSize(0.2);
+ 
 
    }
    c1->cd();
    DrawPreliminary(IntegratedLuminosity);
 
-   TPaveText *pt = new TPaveText(0.1, 0., 0.15, 0.7,"NDC");
-   string tmp = "95% CL Limits (Relative to Expected Limit)";
+   TPaveText *pt = new TPaveText(0.1, 0.01, 0.15, 0.85,"NDC");
+   string tmp = "95% C.L. Limits (Relative to Expected Limit)";
    TText *text = pt->AddText(tmp.c_str()); 
-   text ->SetTextAlign(12);
+   text ->SetTextAlign(11);
    text ->SetTextAngle(90);
-   text ->SetTextSize(0.04);
+   text ->SetTextSize(0.025);
    pt->SetBorderSize(0);
    pt->SetFillColor(0);
    pt->Draw();

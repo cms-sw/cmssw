@@ -9,7 +9,6 @@ tests="\
  ConcurrentQueue_t\
  ConsumerID_t\
  ConsumerRegistrationInfo_t\
- DiskWriter_t\
  EnquingPolicyTag_t\
  MockNotifier_t\
  EventDistributor_t\

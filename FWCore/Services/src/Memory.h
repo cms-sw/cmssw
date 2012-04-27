@@ -7,7 +7,7 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.h,v 1.9 2011/04/13 20:45:17 chrjones Exp $
+// $Id: Memory.h,v 1.10 2011/07/22 20:42:38 chrjones Exp $
 //
 // Change Log
 //
@@ -122,6 +122,7 @@ namespace edm {
       bool showMallocInfo_;
       bool oncePerEventMode_;
       bool jobReportOutputOnly_;
+      bool monitorPssAndPrivate_;
       int count_;
 
       //smaps
@@ -141,11 +142,12 @@ namespace edm {
         double deltaVsize;
         double rss;
         double deltaRss;
+        bool monitorPssAndPrivate;
         double privateSize;
         double pss;
         edm::EventID event;
         SignificantEvent() : count(0), vsize(0), deltaVsize(0), 
-        rss(0), deltaRss(0), privateSize(0), pss(0),event() {}
+          rss(0), deltaRss(0), monitorPssAndPrivate(false), privateSize(0), pss(0),event() {}
         void set (double deltaV, double deltaR, 
                   edm::EventID const & e, SimpleMemoryCheck *t)
         { count = t->count_;
@@ -153,8 +155,11 @@ namespace edm {
           deltaVsize = deltaV;
           rss = t->current_->rss;
           deltaRss = deltaR;
-          privateSize = t->currentSmaps_.private_;
-          pss = t->currentSmaps_.pss_;
+          monitorPssAndPrivate = t->monitorPssAndPrivate_;
+          if (monitorPssAndPrivate) {
+            privateSize = t->currentSmaps_.private_;
+            pss = t->currentSmaps_.pss_;
+          }
           event = e;
         }
       }; // SignificantEvent

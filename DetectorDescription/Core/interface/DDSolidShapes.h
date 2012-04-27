@@ -1,7 +1,6 @@
 #ifndef DDSolidShapes_h
 #define DDSolidShapes_h
-
-#include "FWCore/Utilities/interface/Exception.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
 enum DDSolidShape { dd_not_init,
                     ddbox, ddtubs, ddtrap, ddcons,
@@ -105,7 +104,7 @@ struct DDSolidShapesName {
       return ddparallelepiped;
       break;
     default:
-      throw cms::Exception("DDException") << "DDSolidShapes:index wrong shape";   
+      throw DDException("DDSolidShapes:index wrong shape");   
       break;
     }
   }

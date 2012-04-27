@@ -1,13 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Demo")
-process.load('Configuration.Geometry.GeometryExtended_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
-process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
+process.load('Configuration/StandardSequences/GeometryExtended_cff')
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['mc']
+process.GlobalTag.globaltag = 'MC_31X_V8::All'
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

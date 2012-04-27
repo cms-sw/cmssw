@@ -1,4 +1,4 @@
-// $Id: DbFileHandler.h,v 1.5 2011/03/07 15:31:31 mommsen Exp $
+// $Id: DbFileHandler.h,v 1.4.10.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: DbFileHandler.h 
 
 #ifndef EventFilter_StorageManager_DbFileHandler_h
@@ -19,8 +19,8 @@ namespace stor {
    * Handle the file used to pass information into SM database
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2011/03/07 15:31:31 $
+   * $Revision: 1.4.10.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
 
   class DbFileHandler
@@ -47,13 +47,7 @@ namespace stor {
      */
     void write(const std::string&);
 
-    /**
-     * Return the DiskWritingParams used to configure the DbFileHandler
-     */
-    const DiskWritingParams& getDiskWritingParams() const
-    { return dwParams_; }
-
-
+    
   private:
     
     void openFile(std::ofstream&, const utils::TimePoint_t&) const;

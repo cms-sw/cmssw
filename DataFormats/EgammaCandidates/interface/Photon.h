@@ -7,7 +7,7 @@
  * stores isolation, shower shape and additional info
  * needed for identification
  * 
- * \version $Id: Photon.h,v 1.47 2012/03/21 22:11:05 slava77 Exp $
+ * \version $Id: Photon.h,v 1.45 2011/11/09 11:27:11 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -16,6 +16,7 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 
 namespace reco {
@@ -289,18 +290,12 @@ namespace reco {
       
       //EcalRecHit isolation
       float ecalRecHitSumEt;
-      //HcalTower isolation
+      //HcalDepth1Tower isolation
       float hcalTowerSumEt;
       //HcalDepth1Tower isolation
       float hcalDepth1TowerSumEt;
       //HcalDepth2Tower isolation
       float hcalDepth2TowerSumEt;
-      //HcalTower isolation subtracting the hadronic energy in towers behind the BCs in the SC
-      float hcalTowerSumEtBc; 
-      //HcalDepth1Tower isolation subtracting the hadronic energy in towers behind the BCs in the SC
-      float hcalDepth1TowerSumEtBc;
-      //HcalDepth2Tower isolation subtracting the hadronic energy in towers behind the BCs in the SC
-      float hcalDepth2TowerSumEtBc;
       //Sum of track pT in a cone of dR
       float trkSumPtSolidCone;
       //Sum of track pT in a hollow cone of outer radius, inner radius
@@ -313,16 +308,13 @@ namespace reco {
       IsolationVariables():
 	
 	ecalRecHitSumEt(0),
-	hcalTowerSumEt(0),
-	hcalDepth1TowerSumEt(0),
-	hcalDepth2TowerSumEt(0),
-	hcalTowerSumEtBc(0),
-	hcalDepth1TowerSumEtBc(0),
-	hcalDepth2TowerSumEtBc(0),
-	trkSumPtSolidCone(0),
-	trkSumPtHollowCone(0),
-	nTrkSolidCone(0),
-	nTrkHollowCone(0)
+	   hcalTowerSumEt(0),
+	   hcalDepth1TowerSumEt(0),
+	   hcalDepth2TowerSumEt(0),
+	   trkSumPtSolidCone(0),
+	   trkSumPtHollowCone(0),
+	   nTrkSolidCone(0),
+	   nTrkHollowCone(0)
 	   
       {}
       
@@ -342,13 +334,7 @@ namespace reco {
     float hcalDepth1TowerSumEtConeDR04()      const{return  isolationR04_.hcalDepth1TowerSumEt;}
     /// Hcal-Depth2 isolation sum
     float hcalDepth2TowerSumEtConeDR04()      const{return  isolationR04_.hcalDepth2TowerSumEt;}
-    /// Hcal isolation sum subtracting the hadronic energy in towers behind the BCs in the SC
-    float hcalTowerSumEtBcConeDR04()      const{return  isolationR04_.hcalTowerSumEtBc ;}
-    /// Hcal-Depth1 isolation sum subtracting the hadronic energy in towers behind the BCs in the SC
-    float hcalDepth1TowerSumEtBcConeDR04()      const{return  isolationR04_.hcalDepth1TowerSumEtBc;}
-    /// Hcal-Depth2 isolation sum subtracting the hadronic energy in towers behind the BCs in the SC
-    float hcalDepth2TowerSumEtBcConeDR04()      const{return  isolationR04_.hcalDepth2TowerSumEtBc;}
-    //  Track pT sum 
+    //  Track pT sum c
     float trkSumPtSolidConeDR04()    const{return   isolationR04_.trkSumPtSolidCone;}
     //As above, excluding the core at the center of the cone
     float trkSumPtHollowConeDR04()   const{return   isolationR04_.trkSumPtHollowCone;}
@@ -365,12 +351,6 @@ namespace reco {
     float hcalDepth1TowerSumEtConeDR03()      const{return isolationR03_.hcalDepth1TowerSumEt;}
     /// Hcal-Depth2 isolation sum
     float hcalDepth2TowerSumEtConeDR03()      const{return isolationR03_.hcalDepth2TowerSumEt;}
-    /// Hcal isolation sum subtracting the hadronic energy in towers behind the BCs in the SC
-    float hcalTowerSumEtBcConeDR03()      const{return  isolationR03_.hcalTowerSumEtBc ;}
-    /// Hcal-Depth1 isolation sum subtracting the hadronic energy in towers behind the BCs in the SC
-    float hcalDepth1TowerSumEtBcConeDR03()      const{return  isolationR03_.hcalDepth1TowerSumEtBc;}
-    /// Hcal-Depth2 isolation sum subtracting the hadronic energy in towers behind the BCs in the SC
-    float hcalDepth2TowerSumEtBcConeDR03()      const{return  isolationR03_.hcalDepth2TowerSumEtBc;}
     //  Track pT sum c
     float trkSumPtSolidConeDR03()    const{return  isolationR03_.trkSumPtSolidCone;}
     //As above, excluding the core at the center of the cone

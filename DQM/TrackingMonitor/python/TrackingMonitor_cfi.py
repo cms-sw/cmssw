@@ -1,30 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.TrackingMonitor.BXlumiParameters_cfi import BXlumiSetup
-
 TrackMon = cms.EDAnalyzer("TrackingMonitor",
     
     # input tags
-    TrackProducer    = cms.InputTag("generalTracks"),
-    SeedProducer     = cms.InputTag("initialStepSeeds"),
-    TCProducer       = cms.InputTag("initialStepTrackCandidates"),
-    ClusterLabels    = cms.vstring('Tot'), # to decide which Seeds-Clusters correlation plots to have default is Total other options 'Strip', 'Pix'
-    beamSpot         = cms.InputTag("offlineBeamSpot"),
-    primaryVertex    = cms.InputTag('offlinePrimaryVertices'),
-
-    BXlumiSetup      = BXlumiSetup.clone(),                              
-#    lumi             = cms.InputTag('lumiProducer'),
-#  # taken from 
-#  # DPGAnalysis/SiStripTools/src/DigiLumiCorrHistogramMaker.cc
-#  # the scale factor 6.37 should follow the lumi prescriptions
-#  # AS SOON AS THE CORRECTED LUMI WILL BE AVAILABLE IT HAS TO BE SET TO 1.
-#    lumiScale     = cms.double(6.37),
-                          
-    # PU monitoring
-    primaryVertexInputTags    = cms.VInputTag(),
-    selPrimaryVertexInputTags = cms.VInputTag(),
-    pvLabels = cms.vstring(),
-                          
+    TrackProducer = cms.InputTag("generalTracks"),
+    SeedProducer  = cms.InputTag("initialStepSeeds"),
+    TCProducer    = cms.InputTag("initialStepTrackCandidates"),
+    ClusterLabels = cms.vstring('Tot'), # to decide which Seeds-Clusters correlation plots to have default is Total other options 'Strip', 'Pix'
+    beamSpot      = cms.InputTag("offlineBeamSpot"),
+    
     # output parameters
     OutputMEsInRootFile = cms.bool(False),
     AlgoName            = cms.string('GenTk'),
@@ -32,8 +16,7 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     OutputFileName      = cms.string('MonitorTrack.root'),
     FolderName          = cms.string('Tracking/GlobalParameters'),
     BSFolderName        = cms.string('Tracking/ParametersVsBeamSpot'),
-    PVFolderName        = cms.string('Tracking/PrimaryVertices'),
-
+    
     # determines where to evaluate track parameters
     # options: 'default'      --> straight up track parametes
     #		   'ImpactPoint'  --> evalutate at impact point 
@@ -63,11 +46,7 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     doGoodTrack2DChi2Plots              = cms.bool(False),
     doThetaPlots                        = cms.bool(False),
     doTrackPxPyPlots                    = cms.bool(False),
-    doPUmonitoring                      = cms.bool(False),
-    doPlotsVsBXlumi                     = cms.bool(False),
-    doPlotsVsGoodPVtx                   = cms.bool(False),
-                              
-                          
+
     #which seed plots to do
     doSeedNumberHisto = cms.bool(False),
     doSeedVsClusterHisto = cms.bool(False),
@@ -372,16 +351,5 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     NTrk2DBin     = cms.int32(50),
     NTrk2DMax     = cms.double(1999.5),                      
     NTrk2DMin     = cms.double(-0.5),
-
-    # PU monitoring
-    # Nunmber of Good Primary Vertices
-    GoodPVtxBin = cms.int32(60),
-    GoodPVtxMin = cms.double( 0.),
-    GoodPVtxMax = cms.double(60.),
-
-#    # BXlumi                          
-#    BXlumiBin = cms.int32(400),
-#    BXlumiMin = cms.double(2000),
-#    BXlumiMax = cms.double(6000),
                           
 )

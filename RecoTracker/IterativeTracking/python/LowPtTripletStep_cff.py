@@ -6,7 +6,6 @@ lowPtTripletStepClusters = cms.EDProducer("TrackClusterRemover",
     trajectories = cms.InputTag("initialStepTracks"),
     overrideTrkQuals = cms.InputTag('initialStepSelector','initialStep'),
     TrackQuality = cms.string('highPurity'),
-    minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
     Common = cms.PSet(
@@ -65,33 +64,24 @@ lowPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
     MeasurementTrackerName = '',
     trajectoryFilterName = 'lowPtTripletStepTrajectoryFilter',
     clustersToSkip = cms.InputTag('lowPtTripletStepClusters'),
-    maxCand = 3,
-    estimator = cms.string('lowPtTripletStepChi2Est'),
-    maxDPhiForLooperReconstruction = cms.double(2.0),
-    # 0.63 GeV is the maximum pT for a charged particle to loop within the 1.1m radius
-    # of the outermost Tracker barrel layer (with B=3.8T)
-    maxPtForLooperReconstruction = cms.double(0.7) 
+    maxCand = 2,
+    estimator = cms.string('lowPtTripletStepChi2Est')
     )
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 lowPtTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('lowPtTripletStepSeeds'),
-    ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
-
     TrajectoryBuilder = 'lowPtTripletStepTrajectoryBuilder',
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
-)
+    )
 
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 lowPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'lowPtTripletStepTrackCandidates',
-    AlgorithmName = cms.string('iter1'),
-    Fitter = cms.string('FlexibleKFFittingSmoother')
+    AlgorithmName = cms.string('iter1')
     )
 
 

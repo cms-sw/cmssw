@@ -1,6 +1,33 @@
 import FWCore.ParameterSet.Config as cms
+#
+# Geometry master configuration
+#
+# Ideal geometry, needed for simulation
+from Geometry.CMSCommonData.cmsPilot2IdealGeometryXML_cfi import *
+from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
+# Reconstruction geometry services
+#  Tracking Geometry
+from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
 
-import warnings
-warnings.warn('Configuration.StandardSequences.GeometryPilot2_cff is deprecated, please use Configuration.Geometry.GeometryPilot2_cff', DeprecationWarning, stacklevel=2)
+#Tracker
+from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 
-from Configuration.Geometry.GeometryPilot2_cff import *
+#Muon
+from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
+from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
+
+#  Alignment
+from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
+from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *
+from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
+
+#  Calorimeters
+from Geometry.CaloEventSetup.CaloTopology_cfi import *
+from Geometry.CaloEventSetup.CaloGeometry_cff import *
+from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
+from Geometry.EcalMapping.EcalMapping_cfi import *
+from Geometry.EcalMapping.EcalMappingRecord_cfi import *
+
+CaloGeometryBuilder.SelectedCalos = ['HCAL', 'ZDC', 'EcalBarrel', 'EcalEndcap', 'TOWER']
+
+

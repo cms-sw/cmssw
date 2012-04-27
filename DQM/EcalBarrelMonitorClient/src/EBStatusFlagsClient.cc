@@ -1,15 +1,15 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2011/09/02 13:55:01 $
- * $Revision: 1.46 $
+ * $Date: 2011/08/30 09:33:51 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  *
 */
 
 #include <memory>
 #include <iostream>
-#include <sstream>
+#include <fstream>
 #include <iomanip>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -47,6 +47,7 @@ EBStatusFlagsClient::EBStatusFlagsClient(const edm::ParameterSet& ps) {
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   // vector of selected Super Modules (Defaults to all 36).
+  superModules_.reserve(36);
   for ( unsigned int i = 1; i <= 36; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<std::vector<int> >("superModules", superModules_);
 
@@ -67,11 +68,6 @@ EBStatusFlagsClient::EBStatusFlagsClient(const edm::ParameterSet& ps) {
     meh03_[ism-1] = 0;
 
   }
-
-  ievt_ = 0;
-  jevt_ = 0;
-  dqmStore_ = 0;
-
 
 }
 
@@ -184,49 +180,45 @@ void EBStatusFlagsClient::analyze(void) {
     if ( debug_ ) std::cout << "EBStatusFlagsClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
-//   uint32_t bits01 = 0;
-//   bits01 |= 1 << EcalDQMStatusHelper::STATUS_FLAG_ERROR;
+  uint32_t bits01 = 0;
+  bits01 |= 1 << EcalDQMStatusHelper::STATUS_FLAG_ERROR;
 
-//   MonitorElement *me;
+  MonitorElement* me;
 
-//   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-//     int ism = superModules_[i];
+    int ism = superModules_[i];
 
-//     me = dqmStore_->get( prefixME_ + "/EBStatusFlagsTask/FEStatus/EBSFT front-end status " + Numbers::sEB(ism) );
-//     h01_[ism-1] = UtilsClient::getHisto( me, cloneME_, h01_[ism-1] );
-//     meh01_[ism-1] = me;
+    me = dqmStore_->get( prefixME_ + "/EBStatusFlagsTask/FEStatus/EBSFT front-end status " + Numbers::sEB(ism) );
+    h01_[ism-1] = UtilsClient::getHisto( me, cloneME_, h01_[ism-1] );
+    meh01_[ism-1] = me;
 
-//     me = dqmStore_->get( prefixME_ + "/FEStatus/Flags/FEStatusTask front-end status bits " + Numbers::sEB(ism) );
-//     h02_[ism-1] = UtilsClient::getHisto( me, cloneME_, h02_[ism-1] );
-//     meh02_[ism-1] = me;
+    me = dqmStore_->get( prefixME_ + "/EBStatusFlagsTask/FEStatus/EBSFT front-end status bits " + Numbers::sEB(ism) );
+    h02_[ism-1] = UtilsClient::getHisto( me, cloneME_, h02_[ism-1] );
+    meh02_[ism-1] = me;
 
-//     me = dqmStore_->get( prefixME_ + "/EBStatusFlagsTask/FEStatus/EBSFT MEM front-end status " + Numbers::sEB(ism) );
-//     h03_[ism-1] = UtilsClient::getHisto( me, cloneME_, h01_[ism-1] );
-//     meh03_[ism-1] = me;
+    me = dqmStore_->get( prefixME_ + "/EBStatusFlagsTask/FEStatus/EBSFT MEM front-end status " + Numbers::sEB(ism) );
+    h03_[ism-1] = UtilsClient::getHisto( me, cloneME_, h01_[ism-1] );
+    meh03_[ism-1] = me;
 
-//     if ( meh01_[ism-1] ) {
-//       for ( int ie = 1; ie <= 85; ie++ ) {
-// 	for ( int ip = 1; ip <= 20; ip++ ) {
-// 	  if ( Masks::maskChannel(ism, ie, ip, bits01, EcalBarrel) ) {
-// 	    int iet = (ie-1)/5 + 1;
-// 	    int ipt = (ip-1)/5 + 1;
-// 	    meh01_[ism-1]->setBinError( iet, ipt, 0.01 );
-// 	  }
-// 	}
-//       }
-//     }
+    for ( int ie = 1; ie <= 85; ie++ ) {
+      for ( int ip = 1; ip <= 20; ip++ ) {
+        if ( Masks::maskChannel(ism, ie, ip, bits01, EcalBarrel) ) {
+          int iet = (ie-1)/5 + 1;
+          int ipt = (ip-1)/5 + 1;
+          if ( meh01_[ism-1] ) meh01_[ism-1]->setBinError( iet, ipt, 0.01 );
+        }
+      }
+    }
 
-//     if ( meh03_[ism-1] ){
-//       for ( int i = 1; i <= 10; i++ ) {
-// 	if ( Masks::maskPn(ism, i, bits01, EcalBarrel) ) {
-// 	  int it = (i-1)/5 + 1;
-// 	  meh03_[ism-1]->setBinError( it, 1, 0.01 );
-// 	}
-//       }
-//     }
+    for ( int i = 1; i <= 10; i++ ) {
+      if ( Masks::maskPn(ism, i, bits01, EcalBarrel) ) {
+        int it = (i-1)/5 + 1;
+        if ( meh03_[ism-1] ) meh03_[ism-1]->setBinError( it, 1, 0.01 );
+      }
+    }
 
-//   }
+  }
 
 }
 

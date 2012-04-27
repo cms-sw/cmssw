@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:06:35 CET 2012
-// $Id: FWOverlapTableView.cc,v 1.7 2012/03/14 23:58:21 amraktad Exp $
+// $Id: FWOverlapTableView.cc,v 1.6 2012/02/24 23:00:56 amraktad Exp $
 //
 
 // system include files
@@ -115,12 +115,7 @@ FWOverlapTableView::FWOverlapTableView(TEveWindowSlot* iParent, FWColorManager* 
    // std::cerr << " FWOverlapTableView::initGeometry \n";
   
    FWGeoTopNodeGLScene *gls = new FWGeoTopNodeGLScene(0);
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,32,0)
-   m_eveScene  = new  FWGeoTopNodeEveScene(gls, "TopGeoNodeScene", "");
-#else
-   m_eveScene  = new  TEveScene(gls, "TopGeoNodeScene", "");
-#endif
-
+   m_eveScene  = new TEveScene(gls, "OverlapScene", "");
    gEve->GetScenes()->AddElement(m_eveScene);
 
    m_eveTopNode = new  FWEveOverlap(this);

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorDbModule.cc
  *
- * $Date: 2010/08/08 08:46:03 $
- * $Revision: 1.21 $
+ * $Date: 2009/10/26 17:33:46 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */
@@ -53,8 +53,6 @@ EcalBarrelMonitorDbModule::EcalBarrelMonitorDbModule(const edm::ParameterSet& ps
 
   if ( dqmStore_ ) dqmStore_->showDirStructure();
 
-  icycle_ = 0;
-  session_ = 0;
 }
 
 EcalBarrelMonitorDbModule::~EcalBarrelMonitorDbModule(){

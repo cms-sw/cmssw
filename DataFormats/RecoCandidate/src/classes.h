@@ -17,6 +17,8 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 #include "DataFormats/RecoCandidate/interface/FitResult.h"
 #include "DataFormats/RecoCandidate/interface/CaloRecHitCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoPFClusterRefCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoPFClusterRefCandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/RecoCandidate/interface/TrackCandidateAssociation.h"
@@ -74,6 +76,13 @@ namespace {
 /*     edm::reftobase::Holder<reco::Candidate, reco::RecoChargedRefCandidateBaseRef> rb3; */
     edm::reftobase::Holder<reco::Candidate, reco::RecoChargedRefCandidateRef> rb4;
 
+    reco::RecoPFClusterRefCandidateCollection vpfcr1;
+    edm::Wrapper<reco::RecoPFClusterRefCandidateCollection> wpfcr1;
+    edm::Ref<reco::RecoPFClusterRefCandidateCollection> rpfcrr1;
+    edm::RefProd<reco::RecoPFClusterRefCandidateCollection> rpfcrpr1;
+    edm::RefVector<reco::RecoPFClusterRefCandidateCollection> rvpfcrr1;
+
+
     edm::Wrapper<reco::FitResultCollection> wfr1;
     edm::Wrapper<reco::TrackCandidateAssociation> tca1;
 
@@ -94,6 +103,12 @@ namespace {
     edm::reftobase::RefHolder<reco::RecoChargedRefCandidateRef> rbcr2;
     edm::reftobase::VectorHolder<reco::Candidate, reco::RecoChargedRefCandidateRefVector> rbcr3;
     edm::reftobase::RefVectorHolder<reco::RecoChargedRefCandidateRefVector> rbcr4;
+
+    edm::reftobase::Holder<reco::Candidate, reco::RecoPFClusterRefCandidateRef> rbpfr1;
+    edm::reftobase::RefHolder<reco::RecoPFClusterRefCandidateRef> rbpfr2;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::RecoPFClusterRefCandidateRefVector> rbpfr3;
+    edm::reftobase::RefVectorHolder<reco::RecoPFClusterRefCandidateRefVector> rbpfr4;
+
 
 /*     edm::reftobase::Holder<reco::Candidate, reco::RecoChargedRefCandidateBaseRef> rbcrb1; */
 /*     edm::reftobase::RefHolder<reco::RecoChargedRefCandidateBaseRef> rbcrb2; */
@@ -122,6 +137,10 @@ namespace {
     edm::Wrapper<edm::RefVector<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate> > > tpaaa;
 
     edm::Wrapper<edm::RefVector<std::vector<reco::RecoChargedRefCandidate>,reco::RecoChargedRefCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedRefCandidate>,reco::RecoChargedRefCandidate> > > tpaaa2;
+
+
+edm::Wrapper<edm::RefVector<std::vector<reco::RecoPFClusterRefCandidate>,reco::RecoPFClusterRefCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoPFClusterRefCandidate>,reco::RecoPFClusterRefCandidate> > > tpaaapfc2;
+
 
 /*     edm::Wrapper<edm::RefVector<std::vector<reco::RecoChargedRefCandidateBase>,reco::RecoChargedRefCandidateBase,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedRefCandidateBase>,reco::RecoChargedRefCandidateBase> > > tpaaa3; */
 

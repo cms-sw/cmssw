@@ -33,7 +33,7 @@ process.electronsCiCLoose = cms.EDFilter("EleIdCutBased",
                                          version = cms.string(""),
                                          verticesCollection = cms.InputTag('offlinePrimaryVerticesWithBS'),
                                          reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
-                                         reducedEndcapRecHitCollection = cms.InputTag("recucedEcalRecHitsEE"),
+                                         reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
                                          )
 
 process.eIDSequence = cms.Sequence(process.eidLooseMC)
