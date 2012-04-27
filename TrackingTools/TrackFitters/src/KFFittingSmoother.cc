@@ -146,7 +146,7 @@ vector<Trajectory> KFFittingSmoother::fit(const TrajectorySeed& aSeed,
 	      double estimate = tm->estimate();
 	      
 	      // --- here is the block of code about generic chi2-based Outlier Rejection ---
-	      if ( estimate > cut ) 
+	      if ( estimate > cut && theEstimateCut > 0 ) 
 		{
 		  hasoutliers = true;
 		  cut = estimate;

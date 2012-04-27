@@ -29,7 +29,11 @@
   </class>
 
   <class pattern="edm::KeyVal<*>"/>
-  <class pattern="edm::Wrapper<edm::AssociationMap<*>"/>
+
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,std::vector<reco::Track>,unsigned short> > >" persistent="false" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<MomentumConstraint>,unsigned int> > >" />
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<reco::TrackCollection,std::vector<VertexConstraint>,unsigned int> > >"/>
+
   <class pattern="edm::Ref<edm::AssociationMap<*>"/>
   <class pattern="edm::RefProd<edm::AssociationMap<*>"/>
   <class pattern="edm::RefVector<edm::AssociationMap<*>"/>
