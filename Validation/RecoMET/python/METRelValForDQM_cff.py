@@ -68,21 +68,26 @@ METRelValSequence = cms.Sequence(
     genMetCaloAndNonPromptAnalyzer)
 
     
+#Removed the MET collections that we no longer monitor
+#in an attempt to reduce the number of histograms produced
+# as requested by DQM group to reduce the load on server. 
+# -Samantha Hewamanage (samantha@cern.ch) - 04-27-2012
+
 METValidation = cms.Sequence(
     metAnalyzer*
-    metHOAnalyzer*
-    metNoHFAnalyzer*
-    metNoHFHOAnalyzer*
-    metOptAnalyzer*
-    metOptHOAnalyzer*
-    metOptNoHFAnalyzer*
-    metOptNoHFHOAnalyzer*
+    #metHOAnalyzer*
+    #metNoHFAnalyzer*
+    #metNoHFHOAnalyzer*
+    #metOptAnalyzer*
+    #metOptHOAnalyzer*
+    #metOptNoHFAnalyzer*
+    #metOptNoHFHOAnalyzer*
     pfMetAnalyzer*
     tcMetAnalyzer*
-    corMetGlobalMuonsAnalyzer*
+    #corMetGlobalMuonsAnalyzer*
     genMetTrueAnalyzer*
-    genMetCaloAnalyzer*
-    genMetCaloAndNonPromptAnalyzer)
+    #genMetCaloAnalyzer*
+    #genMetCaloAndNonPromptAnalyzer)
 
     
 
