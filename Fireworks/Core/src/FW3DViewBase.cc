@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.26.2.1 2011/12/07 22:39:59 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.27 2012/02/22 03:45:58 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -184,6 +184,11 @@ FW3DViewBase::sceneClip( bool x)
    }
 
    geoScene()->GetGLScene()->SetClip(x ? m_glClip : 0);
+   for (TEveElement::List_i it =gEve->GetScenes()->BeginChildren(); it != gEve->GetScenes()->EndChildren(); ++it )
+   {
+      if (strncmp((*it)->GetElementName(), "TopGeoNodeScene", 15) == 0)
+         ((TEveScene*)(*it))->GetGLScene()->SetClip(x ? m_glClip : 0);
+   }
    viewerGL()->RequestDraw();
 }
 
