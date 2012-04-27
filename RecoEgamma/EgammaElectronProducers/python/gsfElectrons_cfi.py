@@ -1,5 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
+from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
+from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 
 #==============================================================================
 # Producer of transient ecal driven gsf electrons
@@ -99,6 +101,13 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     minMVAPflow = cms.double(-0.4),
     minMvaByPassForIsolatedPflow = cms.double(-0.4),
     
+    # Ecal rec hits configuration
+    recHitFlagsToBeExcludedBarrel = cleanedHybridSuperClusters.RecHitFlagToBeExcluded,
+    recHitFlagsToBeExcludedEndcaps = multi5x5BasicClustersCleaned.RecHitFlagToBeExcluded,
+    recHitSeverityToBeExcludedBarrel = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
+    recHitSeverityToBeExcludedEndcaps = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
+    #severityLevelCut = cms.int32(4),
+
     # Isolation algos configuration
     intRadiusBarrelTk = cms.double(0.015), 
     intRadiusEndcapTk = cms.double(0.015), 
@@ -118,19 +127,6 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     eMinEndcaps = cms.double(0.0),  
     vetoClustered  = cms.bool(False),  
     useNumCrystals = cms.bool(True),  
-    severityLevelCut = cms.int32(4),
-#    severityRecHitThreshold = cms.double(5.0),
-#    spikeIdThreshold = cms.double(0.95),
-#    spikeIdString = cms.string('kSwissCrossBordersIncluded'),
-
-    recHitFlagsToBeExcluded = cms.vstring(
-        'kFaultyHardware',
-        'kPoorCalib',
-        'kTowerRecovered',
-        'kDead'
-    ),
-
-    
     TransientInitialStateEstimatorParameters = cms.PSet(
         propagatorAlongTISE = cms.string('PropagatorWithMaterial'),
         propagatorOppositeTISE = cms.string('PropagatorWithMaterialOpposite')
@@ -241,6 +237,13 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     minMVAPflow = cms.double(-0.1),
     minMvaByPassForIsolatedPflow = cms.double(-0.1),
     
+    # Ecal rec hits configuration
+    recHitFlagsToBeExcludedBarrel = cleanedHybridSuperClusters.RecHitFlagToBeExcluded,
+    recHitFlagsToBeExcludedEndcaps = multi5x5BasicClustersCleaned.RecHitFlagToBeExcluded,
+    recHitSeverityToBeExcludedBarrel = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
+    recHitSeverityToBeExcludedEndcaps = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
+    #severityLevelCut = cms.int32(4),
+
     # Isolation algos configuration
     intRadiusBarrelTk = cms.double(0.015), 
     intRadiusEndcapTk = cms.double(0.015), 
@@ -259,23 +262,7 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     etMinEndcaps = cms.double(0.110), 
     eMinEndcaps = cms.double(0.0),  
     vetoClustered  = cms.bool(False),  
-    useNumCrystals = cms.bool(True),  
-    severityLevelCut = cms.int32(4),
-#    severityRecHitThreshold = cms.double(5.0),
-#    spikeIdThreshold = cms.double(0.95),
-#    spikeIdString = cms.string('kSwissCrossBordersIncluded'),
-
-    recHitFlagsToBeExcluded = cms.vstring(
-        'kFaultyHardware',
-        'kPoorCalib',
-#        ecalRecHitFlag_kSaturated,
-#        ecalRecHitFlag_kLeadingEdgeRecovered,
-#        ecalRecHitFlag_kNeighboursRecovered,
-        'kTowerRecovered',
-        'kDead'
-    ),
-
-    
+    useNumCrystals = cms.bool(True),      
     TransientInitialStateEstimatorParameters = cms.PSet(
         propagatorAlongTISE = cms.string('PropagatorWithMaterial'),
         propagatorOppositeTISE = cms.string('PropagatorWithMaterialOpposite')

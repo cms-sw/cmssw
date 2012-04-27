@@ -139,6 +139,16 @@ class GsfElectronAlgo {
       bool seedFromTEC ;
      } ;
 
+    // Ecal rec hits
+    struct EcalRecHitsConfiguration
+     {
+      std::vector<int> recHitFlagsToBeExcludedBarrel ;
+      std::vector<int> recHitFlagsToBeExcludedEndcaps ;
+      std::vector<int> recHitSeverityToBeExcludedBarrel ;
+      std::vector<int> recHitSeverityToBeExcludedEndcaps ;
+      //int severityLevelCut ;
+     } ;
+
     // isolation variables parameters
     struct IsolationConfiguration
      {
@@ -162,16 +172,6 @@ class GsfElectronAlgo {
       bool useNumCrystals ;
      } ;
 
-    // spike removal configuration
-    struct SpikeConfiguration
-     {
-      int severityLevelCut ;
-      //float severityRecHitThreshold ;
-      //float spikeIdThreshold ;
-      //EcalSeverityLevelAlgo::SpikeId spikeId ;
-      std::vector<int> recHitFlagsToBeExcluded ;
-     } ;
-
     GsfElectronAlgo
      (
       const InputTagsConfiguration &,
@@ -181,7 +181,7 @@ class GsfElectronAlgo {
       const ElectronHcalHelper::Configuration & hcalCfg,
       const ElectronHcalHelper::Configuration & hcalCfgPflow,
       const IsolationConfiguration &,
-      const SpikeConfiguration &,
+      const EcalRecHitsConfiguration &,
       EcalClusterFunctionBaseClass * superClusterErrorFunction,
       EcalClusterFunctionBaseClass * crackCorrectionFunction
      ) ;
