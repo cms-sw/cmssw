@@ -230,10 +230,13 @@ HLT_MET80_v*                                                                    
 #HLT_L1EG20_Track5_dEdx5p0_v*                                                                   #sr126412 - removed for cpu time
 #HLT_L1EG20_Track6_dEdx6p0_v*                                                                   #sr126412 - removed for cpu time
 #HLT_L1EG20_Track7_dEdx6p5_v*                                                                   #sr126412 - removed for cpu time
-HLT_L2Mu70_eta2p1_PFMET65_v*                                                                    #sr126412, renamed to *MET*
-HLT_L2Mu80_eta2p1_PFMET70_v*                                                                    #sr126412, renamed to *MET*
+#HLT_L2Mu70_eta2p1_PFMET65_v*                                                                   #sr126412, renamed to *MET*, removed in sr128166
+#HLT_L2Mu80_eta2p1_PFMET70_v*                                                                   #sr126412, renamed to *MET*, removed in sr128166
 HLT_HT650_Track50_dEdx3p6_v*                                                                    #sr126412
 HLT_HT650_Track60_dEdx3p7_v*                                                                    #sr126412
+
+HLT_L2Mu70_eta2p1_PFMET55_v*                                                                    #sr128166
+HLT_L2Mu70_eta2p1_PFMET60_v*                                                                    #sr128166
 
 HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_PFMET20_v*                                         #sr126441, renamed to *MET*
 HLT_Ele27_WP80_PFJet30_PFJet25_Deta3_v*                                                         #sr126441
