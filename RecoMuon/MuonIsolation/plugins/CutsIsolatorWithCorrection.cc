@@ -64,6 +64,7 @@ MuIsoBaseIsolator::Result CutsIsolatorWithCorrection::result(const DepositContai
     edm::Handle<double> rhoHandle; 
     ev->getByLabel(theRhoSrc, rhoHandle); 
     rho = *(rhoHandle.product());
+    if (rho < 0.0) rho = 0.0;
     double rhoScale = fabs(tk.eta()) > 1.442 ? theRhoScaleEndcap : theRhoScaleBarrel;
     effAreaSF = fabs(tk.eta()) > 1.442 ? theEffAreaSFEndcap : theEffAreaSFBarrel;
     //    edm::LogWarning("CutsIsolatorWithCorrection::resultInRho")
