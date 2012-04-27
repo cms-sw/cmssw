@@ -53,10 +53,15 @@ public:
     PFTauDiscriminationProducerBase(iConfig),
     rhoProducer_(iConfig.getParameter<edm::InputTag>("rhoProducer")),
     gbrfFilePath_(iConfig.getParameter<edm::FileInPath>("gbrfFilePath")),
+    returnMVA_(iConfig.getParameter<bool>("returnMVA")),
+    mvaMin_(iConfig.getParameter<double>("mvaMin")),
     rho_(0)
   {
     // Prediscriminant fail value
-    prediscriminantFailValue_ = -1;
+    if(returnMVA_)
+      prediscriminantFailValue_ = -1;
+    else
+      prediscriminantFailValue_ = 0;
 
     // Read GBRForest
     TFile *gbrfFile = new TFile(gbrfFilePath_.fullPath().data());
@@ -73,6 +78,8 @@ private:
   edm::InputTag rhoProducer_;
   edm::FileInPath gbrfFilePath_;
   GBRForest *gbrfTauIso_;
+  bool returnMVA_;
+  double mvaMin_;
   double rho_;
 };
 
@@ -92,7 +99,7 @@ double PFRecoTauDiscriminationByMVAIsolation::discriminate(const PFTauRef& thePF
   mvainput.push_back(rho_);
   double mvaValue = gbrfTauIso_->GetClassifier(&mvainput[0]);
 
-  return mvaValue;
+  return returnMVA_ ? mvaValue : mvaValue > mvaMin_;
 }
 
 reco::tau::cone::IsoRings PFRecoTauDiscriminationByMVAIsolation::computeIsoRings(const PFTauRef& pfTau)
