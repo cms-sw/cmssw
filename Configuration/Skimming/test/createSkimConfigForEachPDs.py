@@ -20,6 +20,9 @@ for k in autoSkim:
    os.system('echo \"process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )\" >> skim_%s.py' %(k))
    os.system('cp skim_%s.py %s/%s' %(k,testdirname,k))
    os.system('mv skim_%s.py %s' %(k,tier1dirname))
-   os.system('cd %s/%s ; cmsRun skim_%s.py > skim_%s.txt 2>&1' %(testdirname,k,k,k) )
+######################################################
+# uncomment below if you want to run a test on all the skims
+######################################################
+#   os.system('cd %s/%s ; cmsRun skim_%s.py > skim_%s.txt 2>&1' %(testdirname,k,k,k) )
    
    
