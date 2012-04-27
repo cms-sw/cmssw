@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 20:31:25 CET 2012
-// $Id: FWGeometryTableManager.cc,v 1.45 2012/02/22 23:03:47 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.46 2012/04/25 06:09:33 amraktad Exp $
 //
 
 // system include files
@@ -211,7 +211,7 @@ void FWGeometryTableManager::updateFilter()
 {
    std::string filterExp =  m_browser->getFilter();
    m_filterOff =  filterExp.empty();
-   //   printf("update filter %s  OFF %d volumes size %d\n",filterExp.c_str(),  m_filterOff , (int)m_volumes.size());
+   // printf("update filter %s  OFF %d volumes size %d\n",filterExp.c_str(),  m_filterOff , (int)m_volumes.size());
 
    if (m_filterOff || m_entries.empty()) return;
    
@@ -230,7 +230,7 @@ void FWGeometryTableManager::updateFilter()
    }  
 
    std::vector<TGeoVolume*> pstack;
-   checkChildMatches(m_entries[TMath::Max(0,m_browser->getTopNodeIdx())].m_node->GetVolume(), pstack);
+   checkChildMatches(m_entries[0].m_node->GetVolume(), pstack);
  
 
    for (Entries_i ni = m_entries.begin(); ni != m_entries.end(); ++ni)
