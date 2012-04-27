@@ -142,6 +142,15 @@ dedxHitInfo               = cms.EDProducer("HSCPDeDxInfoProducer",
 )
 
 
+from RecoLocalMuon.DTSegment.dt4DSegments_MTPatternReco4D_LinearDriftFromDBLoose_cfi import *
+dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.AlphaMaxPhi = 1.0
+dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.AlphaMaxTheta = 0.9
+dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.segmCleanerMode = 2
+dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.MaxChi2 = 1.0
+dt4DSegmentsMT = dt4DSegments.clone()
+dt4DSegmentsMT.Reco4DAlgoConfig.recAlgoConfig.stepTwoFromDigi = True
+dt4DSegmentsMT.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.stepTwoFromDigi = True
+
 ####################################################################################
 #   MUON TIMING
 ####################################################################################
@@ -149,6 +158,13 @@ dedxHitInfo               = cms.EDProducer("HSCPDeDxInfoProducer",
 from RecoMuon.MuonIdentification.muonTiming_cfi import *
 muontiming.MuonCollection = cms.InputTag("muons")
 muontiming.TimingFillerParameters.UseECAL=False
+muontiming.TimingFillerParameters.DTTimingParameters.MatchParameters.DTsegments = "dt4DSegmentsMT"
+muontiming.TimingFillerParameters.DTTimingParameters.HitsMin = 3
+muontiming.TimingFillerParameters.DTTimingParameters.RequireBothProjections = False
+muontiming.TimingFillerParameters.DTTimingParameters.DropTheta = True
+muontiming.TimingFillerParameters.DTTimingParameters.DoWireCorr = True
+muontiming.TimingFillerParameters.DTTimingParameters.MatchParameters.DTradius = 1.0
+muontiming.TimingFillerParameters.DTTimingParameters.HitError = 3
 
 ####################################################################################
 #   HSCParticle Producer
@@ -193,6 +209,7 @@ HSCParticleProducer = cms.EDFilter("HSCParticleProducer",
    tracks             = cms.InputTag("TrackRefitter"),
    tracksIsolation    = cms.InputTag("generalTracks"),
    muons              = cms.InputTag("muons"),
+   MTmuons            = cms.InputTag("RefitMTMuons"),
    EBRecHitCollection = cms.InputTag("ecalRecHit:EcalRecHitsEB"),
    EERecHitCollection = cms.InputTag("ecalRecHit:EcalRecHitsEE"),
    rpcRecHits         = cms.InputTag("rpcRecHits"),
@@ -202,16 +219,50 @@ HSCParticleProducer = cms.EDFilter("HSCParticleProducer",
    minTkP             = cms.double(25),
    maxTkChi2          = cms.double(25),
    minTkHits          = cms.uint32(3),
+   minMTMuPt          = cms.double(70),
 
    #MUON/TRACK MATCHING THRESHOLDS (ONLY IF NO MUON INNER TRACK)
    minDR              = cms.double(0.1),
    maxInvPtDiff       = cms.double(0.005),
+   minMTDR              = cms.double(0.3),
 
    #SELECTION ON THE PRODUCED HSCP CANDIDATES (WILL STORE ONLY INTERESTING CANDIDATES)
    SelectionParameters = cms.VPSet(
       HSCPSelectionDefault,
+      HSCPSelectionMTMuonOnly,
    ),
 )
+
+####################################################################################
+#   New Stand Alone Muon Producer
+####################################################################################
+
+from RecoMuon.Configuration.RecoMuon_cff import *
+from RecoMuon.MuonSeedGenerator.ancientMuonSeed_cfi import *
+ancientMuonSeed.DTRecSegmentLabel = "dt4DSegmentsMT"
+from RecoMuon.StandAloneMuonProducer.standAloneMuons_cfi import *
+RefitMTSAMuons = standAloneMuons.clone()
+RefitMTSAMuons.STATrajBuilderParameters.DoRefit=True
+
+from RecoMuon.MuonIdentification.muons1stStep_cfi import *
+RefitMTMuons = muons1stStep.clone()
+RefitMTMuons.inputCollectionTypes = cms.vstring('outer tracks')
+#RefitMTMuons.inputCollectionLabels = cms.VInputTag(cms.InputTag("RefitMTSAMuons",""))
+RefitMTMuons.inputCollectionLabels = cms.VInputTag(cms.InputTag("RefitMTSAMuons","UpdatedAtVtx"))
+RefitMTMuons.fillEnergy = False
+RefitMTMuons.fillCaloCompatibility = False
+RefitMTMuons.fillIsolation = False
+RefitMTMuons.fillMatching = False
+
+MuonSegmentProducer = cms.EDProducer("MuonSegmentProducer",
+   CSCSegments        = cms.InputTag("cscSegments"),
+   DTSegments         = cms.InputTag("dt4DSegmentsMT"),
+)
+
+MTmuontiming = muontiming.clone()
+MTmuontiming.MuonCollection = "RefitMTMuons"
+
+MuonOnlySeq = cms.Sequence(standAloneMuonSeeds + RefitMTSAMuons + RefitMTMuons + MuonSegmentProducer + MTmuontiming)
 
 ####################################################################################
 #   HSCParticle Selector  (Just an Example of what we can do)
@@ -231,6 +282,6 @@ HSCParticleSelector = cms.EDFilter("HSCParticleSelector",
 #   HSCP Candidate Sequence
 ####################################################################################
 
-HSCParticleProducerSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxHarm2 + dedxTru40 + dedxNPHarm2 + dedxNPTru40 + dedxNSHarm2 + dedxNSTru40 + dedxProd + dedxASmi + dedxNPProd + dedxNPASmi + dedxNSTHarm2 + dedxHitInfo + muontiming + HSCParticleProducer)
+HSCParticleProducerSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxHarm2 + dedxTru40 + dedxNPHarm2 + dedxNPTru40 + dedxNSHarm2 + dedxNSTru40 + dedxProd + dedxASmi + dedxNPProd + dedxNPASmi + dedxNSTHarm2 + dedxHitInfo + dt4DSegmentsMT + muontiming + MuonOnlySeq + HSCParticleProducer)
 
 

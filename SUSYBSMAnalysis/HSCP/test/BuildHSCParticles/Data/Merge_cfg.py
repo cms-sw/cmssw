@@ -11,6 +11,8 @@ XXX_INPUT_XXX
    )
 )
 
+process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+
 process.HSCPHLTDuplicate = cms.EDFilter("HSCPHLTFilter",
    RemoveDuplicates = cms.bool(True),
    TriggerProcess   = cms.string("HLT"),
@@ -27,28 +29,28 @@ process.HSCPHLTTriggerMuDeDx.throw = cms.bool( False )
 process.HSCPHLTTriggerMuDeDx.HLTPaths = ["HLT_Mu*_dEdx*"]
 process.HSCPHLTTriggerMuDeDxFilter = cms.Path(process.HSCPHLTTriggerMuDeDx   )
 
-process.HSCPHLTTriggerMetDeDx = process.HSCPHLTTriggerMuDeDx.Clone() 
+process.HSCPHLTTriggerMetDeDx = process.HSCPHLTTriggerMuDeDx.clone() 
 process.HSCPHLTTriggerMetDeDx.HLTPaths = ["HLT_MET*_dEdx*"]
 process.HSCPHLTTriggerMetDeDxFilter = cms.Path(process.HSCPHLTTriggerMetDeDx   )
 
-process.HSCPHLTTriggerHtDeDx = process.HSCPHLTTriggerMuDeDx.Clone()
+process.HSCPHLTTriggerHtDeDx = process.HSCPHLTTriggerMuDeDx.clone()
 process.HSCPHLTTriggerHtDeDx.HLTPaths = ["HLT_HT*_dEdx*"]
 process.HSCPHLTTriggerHtDeDxFilter = cms.Path(process.HSCPHLTTriggerHtDeDx   )
 
-process.HSCPHLTTriggerMu = process.HSCPHLTTriggerMuDeDx.Clone()
+process.HSCPHLTTriggerMu = process.HSCPHLTTriggerMuDeDx.clone()
 process.HSCPHLTTriggerMu.HLTPaths = ["HLT_Mu40_*"]
 process.HSCPHLTTriggerMuFilter = cms.Path(process.HSCPHLTTriggerMu   )
 
-process.HSCPHLTTriggerMet = process.HSCPHLTTriggerMuDeDx.Clone()
+process.HSCPHLTTriggerMet = process.HSCPHLTTriggerMuDeDx.clone()
 process.HSCPHLTTriggerMet.HLTPaths = ["HLT_MET80_*"]
 process.HSCPHLTTriggerMetFilter = cms.Path(process.HSCPHLTTriggerMet   )
 
-process.HSCPHLTTriggerHt = process.HSCPHLTTriggerMuDeDx.Clone()
+process.HSCPHLTTriggerHt = process.HSCPHLTTriggerMuDeDx.clone()
 process.HSCPHLTTriggerHt.HLTPaths = ["HLT_HT650_*"]
 process.HSCPHLTTriggerHtFilter = cms.Path(process.HSCPHLTTriggerHt   )
 
-process.HSCPHLTTriggerL2Mu = process.HSCPHLTTriggerMuDeDx.Clone()
-process.HSCPHLTTriggerL2Mu.HLTPaths = ["HLT_L2Mu70_eta2p1_PFMET65", "HLT_L2Mu80_eta2p1_PFMET70"]
+process.HSCPHLTTriggerL2Mu = process.HSCPHLTTriggerMuDeDx.clone()
+process.HSCPHLTTriggerL2Mu.HLTPaths = ["HLT_L2Mu*_eta2p1_PFMET*"]
 process.HSCPHLTTriggerL2MuFilter = cms.Path(process.HSCPHLTTriggerL2Mu   )
 
 
@@ -61,9 +63,10 @@ process.Out = cms.OutputModule("PoolOutputModule",
          "keep *_genParticles_*_*",
          "keep GenEventInfoProduct_generator_*_*",
          "keep *_offlinePrimaryVertices_*_*",
-         #"keep *_cscSegments_*_*",
+         "keep *_cscSegments_*_*",
          #"keep *_rpcRecHits_*_*",
-         #"keep *_dt4DSegments_*_*",
+         "keep *_dt4DSegments_*_*",
+         "keep *_dt4DSegmentsMT_*_*",
          "keep SiStripClusteredmNewDetSetVector_generalTracksSkim_*_*",
          "keep SiPixelClusteredmNewDetSetVector_generalTracksSkim_*_*",
          #"keep *_reducedHSCPhbhereco_*_*",      #
@@ -85,6 +88,11 @@ process.Out = cms.OutputModule("PoolOutputModule",
          "keep *_dedx*_*_HSCPAnalysis",
          "keep *_muontiming_*_HSCPAnalysis",
          "keep triggerTriggerEvent_hltTriggerSummaryAOD_*_*",
+         "keep *_RefitMTSAMuons_*_*",
+         "keep *_RefitMTMuons_*_*",
+         "keep *_MTmuontiming_*_*",
+         "keep *_offlineBeamSpot_*_*",
+         "keep *_MuonSegmentProducer_*_*",
     ),
     fileName = cms.untracked.string('/uscmst1b_scratch/lpc1/3DayLifetime/farrell/NewDTError/XXX_OUTPUT_XXX.root'),
     SelectEvents = cms.untracked.PSet(
@@ -94,4 +102,4 @@ process.Out = cms.OutputModule("PoolOutputModule",
 
 process.endPath = cms.EndPath(process.Out)
 
-process.schedule = cms.Schedule(process.Filter, process.HSCPHLTTriggerMuDeDxFilter, process.HSCPHLTTriggerMetDeDxFilter, process.HSCPHLTTriggerHtDeDxFilter, process.HSCPHLTTriggerMuFilter, process.HSCPHLTTriggerMetFilter, process.HSCPHLTTriggerHtFilter, process.HSCPHLTTriggerL2MuFilter, process.endPath)
+process.schedule = cms.Schedule(process.DuplicateFilter, process.HSCPHLTTriggerMuDeDxFilter, process.HSCPHLTTriggerMetDeDxFilter, process.HSCPHLTTriggerHtDeDxFilter, process.HSCPHLTTriggerMuFilter, process.HSCPHLTTriggerMetFilter, process.HSCPHLTTriggerHtFilter, process.HSCPHLTTriggerL2MuFilter, process.endPath)

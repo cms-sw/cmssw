@@ -15,7 +15,9 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.GlobalTag.globaltag = 'GR_P_V32::All'
 
 process.source = cms.Source("PoolSource",
-   fileNames = cms.untracked.vstring()
+   fileNames = cms.untracked.vstring(
+        '/store/data/Run2012A/SingleMu/RECO/PromptReco-v1/000/191/248/186722DA-5E88-E111-ADFF-003048D2C0F0.root'
+   )
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
 #process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('190645:10-190645:110')
@@ -38,7 +40,7 @@ process.HSCPTrigger.HLTPaths = [
     "HLT_Mu50_eta2p1*",
     "HLT_HT650_*",
     "HLT_MET80_*",
-    "HLT_L2Mu70_eta2p1_PFMET65", "HLT_L2Mu80_eta2p1_PFMET70"
+    "HLT_L2Mu*_eta2p1_PFMET*",
 ]
 process.HSCPTrigger.andOr = cms.bool( True ) #OR
 process.HSCPTrigger.throw = cms.bool( False )
@@ -51,24 +53,6 @@ process.GlobalTag.toGet = cms.VPSet(
             tag = cms.string('Data7TeV_Deco_3D_Rcd_38X'),
             connect = cms.untracked.string("sqlite_file:Data7TeV_Deco_SiStripDeDxMip_3D_Rcd.db")),
 )
-
-process.load("RecoLocalMuon.DTSegment.dt4DSegments_MTPatternReco4D_LinearDriftFromDBLoose_cfi")
-process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.AlphaMaxPhi = 1.0
-process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.AlphaMaxTheta = 0.9
-process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.segmCleanerMode = 2
-process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.MaxChi2 = 1.0
-process.dt4DSegmentsMT = process.dt4DSegments.clone()
-process.dt4DSegmentsMT.Reco4DAlgoConfig.recAlgoConfig.stepTwoFromDigi = True
-process.dt4DSegmentsMT.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.stepTwoFromDigi = True
-
-
-process.muontiming.TimingFillerParameters.DTTimingParameters.MatchParameters.DTsegments = "dt4DSegmentsMT"
-process.muontiming.TimingFillerParameters.DTTimingParameters.HitsMin = 3
-process.muontiming.TimingFillerParameters.DTTimingParameters.RequireBothProjections = False
-process.muontiming.TimingFillerParameters.DTTimingParameters.DropTheta = True
-process.muontiming.TimingFillerParameters.DTTimingParameters.DoWireCorr = True
-process.muontiming.TimingFillerParameters.DTTimingParameters.MatchParameters.DTradius = 1.0
-process.muontiming.TimingFillerParameters.DTTimingParameters.HitError = 3
 
 ########################################################################
 process.nEventsBefSkim  = cms.EDProducer("EventCountProducer")
@@ -91,9 +75,10 @@ process.Out = cms.OutputModule("PoolOutputModule",
          "keep *_genParticles_*_*",
          "keep GenEventInfoProduct_generator_*_*",
          "keep *_offlinePrimaryVertices_*_*",
-         #"keep *_cscSegments_*_*",
+         "keep *_cscSegments_*_*",
          #"keep *_rpcRecHits_*_*",
-         #"keep *_dt4DSegments_*_*",
+         "keep *_dt4DSegments_*_*",
+         "keep *_dt4DSegmentsMT_*_*",
          "keep SiStripClusteredmNewDetSetVector_generalTracksSkim_*_*",
          "keep SiPixelClusteredmNewDetSetVector_generalTracksSkim_*_*",
          #"keep *_reducedHSCPhbhereco_*_*",      #
@@ -115,6 +100,11 @@ process.Out = cms.OutputModule("PoolOutputModule",
          "keep *_dedx*_*_HSCPAnalysis",
          "keep *_muontiming_*_HSCPAnalysis",
          "keep triggerTriggerEvent_hltTriggerSummaryAOD_*_*",
+         "keep *_RefitMTSAMuons_*_*",
+         "keep *_RefitMTMuons_*_*",
+         "keep *_MTmuontiming_*_*",
+         "keep *_offlineBeamSpot_*_*",
+         "keep *_MuonSegmentProducer_*_*",
     ),
     fileName = cms.untracked.string('HSCP.root'),
     SelectEvents = cms.untracked.PSet(
@@ -155,7 +145,7 @@ process.es_prefer_vDriftDB = cms.ESPrefer('PoolDBESSource','vDriftDB')
 
 
 #LOOK AT SD PASSED PATH IN ORDER to avoid as much as possible duplicated events (make the merging of .root file faster)
-process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.exoticaHSCPSeq * process.nEventsBefEDM * process.dt4DSegmentsMT * process.HSCParticleProducerSeq)
+process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.exoticaHSCPSeq * process.nEventsBefEDM * process.HSCParticleProducerSeq)
 #process.p1 = cms.Path(process.HSCParticleProducerSeq)
 process.endPath1 = cms.EndPath(process.Out)
 process.schedule = cms.Schedule( process.p1, process.endPath1)
