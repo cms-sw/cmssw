@@ -31,7 +31,7 @@ process.MessageLogger.destinations = ['cerr']
 process.MessageLogger.statistics = []
 process.MessageLogger.fwkJobReports = []
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(5))
 
 process.source = cms.Source("EmptySource")
 
@@ -96,4 +96,5 @@ process.p = cms.Path(process.generator)
 
 process.outpath = cms.EndPath(process.GEN)
 process.p1 = cms.Path(process.randomEngineStateProducer)
-process.schedule = cms.Schedule(process.p, process.p1, process.outpath)
+# process.schedule = cms.Schedule(process.p, process.p1, process.outpath)
+process.schedule = cms.Schedule(process.p)

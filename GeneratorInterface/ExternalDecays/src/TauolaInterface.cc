@@ -454,7 +454,7 @@ void TauolaInterface::init( const edm::EventSetup& es )
 
    fPDGs.push_back( Tauola::getDecayingParticle() );
          
-   Tauola::initialise();
+   Tauola::initialize();
 
    Tauola::spin_correlation.setAll(fPolarization);// Tauola switches this on during Tauola::initialise(); so we add this here to keep it on/off
 
@@ -532,24 +532,12 @@ HepMC::GenEvent* TauolaInterface::decay( HepMC::GenEvent* evt )
     //
     delete t_event; 
     
-    // fix barcodes of the newly added particles
-    //
-    for(HepMC::GenEvent::particle_const_iterator it = evt->particles_begin(); 
-        it != evt->particles_end(); ++it ) 
-    {
-       //HepMC::GenParticle* GenPrt = (*it);
-       if ( (*it)->barcode() > 10000 )
-       {
-          int NewBarcode = ((*it)->barcode()-10000) + NPartBefore;
-	  (*it)->suggest_barcode( NewBarcode ); 
-       }
-    }
-    
-
     // do we also need to apply the lifetime and vtx position shift ??? 
     // (see TauolaInterface, for example)
     //
-
+    // NOTE: the procedure ASSYMES that vertex barcoding is COUNTIUOUS/SEQUENTIAL,
+    // and that the abs(barcode) corresponds to vertex "plain indexing"
+    //
     for ( int iv=NVtxBefore+1; iv<=evt->vertices_size(); iv++ )
     {
        HepMC::GenVertex* GenVtx = evt->barcode_to_vertex(-iv);
@@ -576,9 +564,33 @@ HepMC::GenEvent* TauolaInterface::decay( HepMC::GenEvent* evt )
        double VtDec = GenVtx->position().t();
        VtDec += ct * (PMom.e()/mass);
        VtDec += ProdVtx->position().t();
-       GenVtx->set_position( HepMC::FourVector(VxDec,VyDec,VzDec,VtDec) );       
+       GenVtx->set_position( HepMC::FourVector(VxDec,VyDec,VzDec,VtDec) ); 
+       //
+       // now find decay products with funky barcode, weed out and replace with clones of sensible barcode
+       // we can NOT change the barcode while iterating, because iterators do depend on the barcoding
+       // thus we have to take a 2-step procedure
+       //
+       std::vector<int> BCodes;
+       BCodes.clear();
+       for (HepMC::GenVertex::particle_iterator pitr= GenVtx->particles_begin(HepMC::children);
+                                               pitr != GenVtx->particles_end(HepMC::children); ++pitr) 
+       {
+	  if ( (*pitr)->barcode() > 10000 )
+	  {
+	     BCodes.push_back( (*pitr)->barcode() );
+	  }
+       }
+       if ( BCodes.size() > 0 )
+       {
+          for ( size_t ibc=0; ibc<BCodes.size(); ibc++ )
+	  {
+	     HepMC::GenParticle* p1 = evt->barcode_to_particle( BCodes[ibc] );
+	     int nbc = p1->barcode() - 10000 + NPartBefore;
+             p1->suggest_barcode( nbc );
+	  }
+       }             
     }
-    
+        
     return evt;
       
 }

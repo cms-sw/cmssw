@@ -16,7 +16,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDFilter("Pythia8GeneratorFilter",
-    maxEventsToPrint = cms.untracked.int32(1),
+    maxEventsToPrint = cms.untracked.int32(0),
     pythiaPylistVerbosity = cms.untracked.int32(0),
     filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosity = cms.untracked.bool(True),
@@ -98,7 +98,7 @@ process.Timing=cms.Service("Timing",
     summaryOnly=cms.untracked.bool(True))
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(20000)
+    input = cms.untracked.int32(5)
 )
 
 process.GEN = cms.OutputModule("PoolOutputModule",
@@ -109,5 +109,6 @@ process.p = cms.Path(process.generator)
 process.p1 = cms.Path(process.randomEngineStateProducer)
 process.outpath = cms.EndPath(process.GEN)
 
-process.schedule = cms.Schedule(process.p, process.p1, process.outpath)
+#process.schedule = cms.Schedule(process.p, process.p1, process.outpath)
+process.schedule = cms.Schedule(process.p)
 
