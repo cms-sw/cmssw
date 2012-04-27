@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:38 CET 2012
-// $Id: FWGeometryTableView.h,v 1.1.2.9 2012/02/18 04:39:15 amraktad Exp $
+// $Id: FWGeometryTableView.h,v 1.2 2012/02/22 03:45:59 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
@@ -49,13 +49,14 @@ public:
    void autoExpandCallback();
    virtual void setPath(int, std::string&);
    void printTable();
-
    
    virtual void setFrom(const FWConfiguration&);
 
-
    void chosenItem(int);
    void updateVisibilityTopNode();
+   
+   void checkRegionOfInterest();
+   bool isSelectedByRegion() const { return m_selectRegion.value(); } 
 
 protected:
    // virtual void initGeometry(TGeoNode* iGeoTopNode, TObjArray* iVolumes);
@@ -76,6 +77,9 @@ private:
    FWBoolParameter         m_disableTopNode;
    FWLongParameter         m_visLevel;
    FWBoolParameter         m_visLevelFilter; 
+   
+   FWBoolParameter         m_selectRegion;
+   FWLongParameter         m_regionRadius;
 #endif  
 
 

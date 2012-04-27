@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 20:34:22 CET 2012
-// $Id: FWGeometryTableManager.h,v 1.3 2012/02/22 23:03:47 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.4 2012/04/25 06:09:34 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableManagerBase.h"
@@ -81,7 +81,10 @@ public:
  
    virtual int numberOfColumns() const { return kNumColumn; }
    virtual FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const;
-
+   
+   void checkRegionOfInterest(double* center, long radius);
+   void resetRegionOfInterest();
+   
 protected:
    virtual bool nodeIsParent(const NodeInfo&) const;
    //   virtual FWGeometryTableManagerBase::ESelectionState nodeSelectionState(int) const;

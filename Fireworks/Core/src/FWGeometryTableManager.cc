@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 20:31:25 CET 2012
-// $Id: FWGeometryTableManager.cc,v 1.46 2012/04/25 06:09:33 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.47 2012/04/27 04:27:18 amraktad Exp $
 //
 
 // system include files
@@ -20,6 +20,10 @@
 #include "Fireworks/Core/src/FWGeometryTableView.h"
 
 #include "TEveUtil.h"
+#include "TEveVector.h"
+#include "TGeoShape.h"
+#include "TGeoMatrix.h"
+#include "TGeoBBox.h"
 
 FWGeometryTableManager::FWGeometryTableManager(FWGeometryTableView* v):
    FWGeometryTableManagerBase(),
@@ -496,5 +500,61 @@ bool  FWGeometryTableManager::getVisibilityChld(const NodeInfo& data) const
 bool  FWGeometryTableManager::nodeIsParent(const NodeInfo& data) const
 {
    return   (data.m_node->GetNdaughters() != 0) && (m_filterOff || data.testBit(kChildMatches) );
+}
+
+
+//______________________________________________________________________________
+
+void FWGeometryTableManager::checkRegionOfInterest(double* center, long radius)
+{
+   TEveVectorD oo(center[0], center[1], center[2]);
+   
+   for (Entries_i ni = m_entries.begin(); ni != m_entries.end(); ++ni) 
+      ni->resetBit(kVisNodeChld);
+   
+   int cnt = 0;
+   TEveGeoManagerHolder mangeur( FWGeometryTableViewManager::getGeoMangeur());
+   printf("FWGeometryTableManagerBase::checkRegionOfInterest BEGIN r=%d center= (%.1f, %.1f, %.1f)\n ", (int)radius, center[0], center[1], center[2]);
+   TGeoIterator git(m_entries[0].m_node->GetVolume());
+   Entries_i eit = m_entries.begin();
+   while (git())
+   {
+      TGeoBBox* bb = static_cast<TGeoBBox*>(eit->m_node->GetVolume()->GetShape());
+      TEveVectorD c1(bb->GetOrigin()[0] + bb->GetDX(), bb->GetOrigin()[1] + bb->GetDY(), bb->GetOrigin()[2] +  bb->GetDZ());
+      TEveVectorD c2(bb->GetOrigin()[0] - bb->GetDX(), bb->GetOrigin()[1] - bb->GetDY(), bb->GetOrigin()[2] -  bb->GetDZ());
+      
+      TEveVectorD c1M, c2M;
+      git.GetCurrentMatrix()->LocalToMaster(c1.Arr(), c1M.Arr());
+      git.GetCurrentMatrix()->LocalToMaster(c2.Arr(), c2M.Arr());
+      if ((oo - c1M).Mag() < radius && (oo - c2M).Mag() < radius)
+      {
+         eit->setBit(kVisNodeSelf);
+         int pidx = eit->m_parent;
+         while(pidx >=0)
+         {
+            m_entries[pidx].setBit(kVisNodeChld);
+            pidx =  m_entries[pidx].m_parent;
+            cnt++;
+         }
+         
+      }
+      else
+         eit->resetBit(kVisNodeSelf);
+      
+      
+      eit++;
+   }
+   
+   printf("FWGeometryTableManager::checkRegionOfInterest END [%d]\n ", cnt);
+}
+
+void FWGeometryTableManager::resetRegionOfInterest()
+{
+   for (Entries_i ni = m_entries.begin(); ni != m_entries.end(); ++ni) 
+   {
+      ni->setBit(kVisNodeSelf);
+      ni->setBit(kVisNodeChld);
+   }
+   //  ni->setMatchRegion(true);
 }
 

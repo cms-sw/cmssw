@@ -73,7 +73,7 @@ void FWEveDetectorGeo::paintChildNodesRecurse (FWGeometryTableManagerBase::Entri
       nm.Multiply(it->m_node->GetMatrix());
 
   
-      if (m_filterOff)
+      if (m_filterOff || m_browser->isSelectedByRegion())
       {
          if ( ((FWGeometryTableManager*)tableManager())->getVisibility(*it))
             paintShape(*it, cnt , nm, m_browser->getVolumeMode() );

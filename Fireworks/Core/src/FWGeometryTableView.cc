@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:34 CET 2012
-// $Id: FWGeometryTableView.cc,v 1.24 2012/02/22 23:03:47 amraktad Exp $
+// $Id: FWGeometryTableView.cc,v 1.25 2012/03/23 22:40:13 amraktad Exp $
 //
 
 // system include files
@@ -39,6 +39,7 @@
 
 #include "TEveViewer.h"
 #include "TEveScene.h"
+#include "TEveSceneInfo.h"
 #include "TEveManager.h"
 #include "TGeoManager.h"
 #include "TGLCamera.h"
@@ -140,7 +141,9 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
      m_filter(this,"Materials:",std::string()),
      m_disableTopNode(this,"HideTopNode", true),
      m_visLevel(this,"VisLevel:", 3l, 1l, 100l),
-     m_visLevelFilter(this,"IgnoreVisLevelOnFilter", true)
+     m_visLevelFilter(this,"IgnoreVisLevelOnFilter", true),
+     m_selectRegion(this, "SelectNearCameraCenter", false),
+     m_regionRadius(this, "SphereRadius", 50l, 1l, 300l)
 {
    FWGeoTopNodeGLScene *gls = new FWGeoTopNodeGLScene(0);
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,32,0)
@@ -212,6 +215,10 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
 
    m_disableTopNode.changed_.connect(boost::bind(&FWGeometryTableView::updateVisibilityTopNode,this));
    postConst();
+   
+   m_selectRegion.changed_.connect(boost::bind(&FWGeometryTableView::checkRegionOfInterest,this));
+   m_regionRadius.changed_.connect(boost::bind(&FWGeometryTableView::checkRegionOfInterest,this)); 
+   
 }
 
 
@@ -314,8 +321,12 @@ void FWGeometryTableView::populateController(ViewerParameterGUI& gui) const
       addParam(&m_mode).
       addParam(&m_autoExpand).
       addParam(&m_visLevel).
-      addParam(&m_visLevelFilter);
-      //      separator().
+      separator().   
+      addParam(&m_visLevelFilter).
+      separator().   
+      addParam(&m_selectRegion).
+      addParam(&m_regionRadius);
+
       // addParam(&m_enableHighlight);
 }
 
@@ -344,6 +355,57 @@ void FWGeometryTableView::setPath(int parentIdx, std::string& path)
    FWGUIManager::getGUIManager()->updateStatus(path.c_str());
    }*/
 
+//--------------------------------------------------------------
+bool viewIsChecked(TEveViewer* v, TEveElement* el)
+{
+   if (strstr( v->GetElementName(), "3D") )
+   {
+      for (TEveElement::List_i eit = v->BeginChildren(); eit != v->EndChildren(); ++eit )
+      {
+         TEveScene* s = ((TEveSceneInfo*)*eit)->GetScene();
+         if (el && s->HasChildren() && s->FirstChild() == el) 
+            return true;
+      }
+      
+   }
+   return false;
+}
+
+void FWGeometryTableView::checkRegionOfInterest()
+{
+   
+   if (m_selectRegion.value()) {
+      double* center = 0;
+      for (TEveElement::List_i it = gEve->GetViewers()->BeginChildren(); it != gEve->GetViewers()->EndChildren(); ++it)
+      { 
+         TEveViewer* v = ((TEveViewer*)(*it));
+         if (viewIsChecked(v, m_eveTopNode)) {
+            if (center) {
+               fwLog(fwlog::kWarning) << "Center picked from first view \n";
+            }
+            else {
+               center = v->GetGLViewer()->CurrentCamera().GetCenterVec();
+               fwLog(fwlog::kInfo) << Form("Center picked (%.1f, %.1f, %.1f) from first selected 3D view \n", 
+                                           center[0], center[1], center[2]);
+            }
+         }
+      } 
+      
+      if (!center)
+      {
+         fwLog(fwlog::kError) << "No 3D view selected \n";
+         return;
+      }
+      
+      m_tableManager->checkRegionOfInterest(center, m_regionRadius.value());
+   }
+   else 
+   {
+      m_tableManager->resetRegionOfInterest();
+   }
+   
+   refreshTable3D();
+}
 //------------------------------------------------------------------------------
 
 void FWGeometryTableView::setFrom(const FWConfiguration& iFrom)
