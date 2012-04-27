@@ -198,3 +198,45 @@ void visibility_volume_by_material(const char* material_re, Bool_t vis_state)
    }
    full_update();
 }
+
+
+//==============================================================================
+// Material name "fixing"
+//==============================================================================
+
+void xxx_dump_material()
+{
+   TGeoMaterial *m;
+   TIter it(gGeoManager->GetListOfMaterials());
+   while ((m = (TGeoMaterial*) it()) != 0)
+   {
+      TGeoMixture *mix = dynamic_cast<TGeoMixture*>(m);
+      printf("%-50s | %-10s | %-20s | %d\n", m->GetName(), m->GetTitle(), m->ClassName(),
+             mix ? mix->GetNelements() : 0);
+      if (mix == 0)
+      {
+         if (m->GetBaseElement())
+            printf("  %4d %s\n", m->GetBaseElement()->Z(), m->GetBaseElement()->GetName());
+         else
+            printf("  Z=%f\n", m->GetZ());
+      }
+      else
+      {
+         Double_t *ww = mix->GetWmixt();
+         for (Int_t i = 0; i < mix->GetNelements(); ++i)
+         {
+            TGeoElement *e = mix->GetElement(i);
+            printf("  %4d %-4s %f\n",  e->Z(), e->GetName(), ww[i]);
+         }
+      }
+   }
+}
+
+/*
+// For testing ...
+void common_foos()
+{
+  std_init();
+  xxx_dump_material();
+}
+*/
