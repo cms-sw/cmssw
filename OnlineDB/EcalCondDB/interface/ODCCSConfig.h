@@ -63,6 +63,29 @@ class ODCCSConfig : public IODConfig {
   inline void setTEDelay(int x) { m_te_delay = x; }
 
 
+  inline void printout() { 
+
+    std::cout <<"CCS >>" << "Daccal " <<  getDaccal()<< std::endl;
+    std::cout <<"CCS >>" << "Delay " <<  getDelay()<< std::endl;
+    std::cout <<"CCS >>" << "Gain " <<  getGain()<< std::endl;
+    std::cout <<"CCS >>" << "MemGain " <<  getMemGain()<< std::endl;
+    std::cout <<"CCS >>" << "OffsetHigh " <<  getOffsetHigh()<< std::endl;
+    std::cout <<"CCS >>" << "OffsetMid " <<  getOffsetMid()<< std::endl;
+    std::cout <<"CCS >>" << "OffsetLow " <<  getOffsetLow()<< std::endl;
+    std::cout <<"CCS >>" << "TrgMode " <<  getTrgMode()<< std::endl;
+    std::cout <<"CCS >>" << "TrgFilter " <<  getTrgFilter()<< std::endl;
+    std::cout <<"CCS >>" << "Clock " <<  getClock()<< std::endl;
+    std::cout <<"CCS >>" << "BGOSource " <<  getBGOSource()<< std::endl;
+    std::cout <<"CCS >>" << "TTSMask " <<  getTTSMask()<< std::endl;
+    std::cout <<"CCS >>" << "DAQBCIDPreset " <<  getDAQBCIDPreset()<< std::endl;
+    std::cout <<"CCS >>" << "TrgBCIDPreset " <<  getTrgBCIDPreset()<< std::endl;
+    std::cout <<"CCS >>" << "BC0Counter " <<  getBC0Counter()<< std::endl;
+    std::cout <<"CCS >>" << "BC0Delay " <<  getBC0Delay()<< std::endl;
+    std::cout <<"CCS >>" << "TEDelay " <<  getTEDelay()<< std::endl;
+    
+  }
+
+
   int fetchNextId() throw(std::runtime_error);
   void setParameters(std::map<std::string,std::string> my_keys_map);
   

@@ -25,6 +25,11 @@ class ODDCUConfig : public IODConfig {
   inline int getId() const { return m_ID; }
 
   void setParameters(std::map<std::string,std::string> my_keys_map);
+
+  inline void printout() {
+    std::cout<<"DCU ID="<<getId()<<std::endl; 
+  }
+
   
  private:
   void prepareWrite()  throw(std::runtime_error);
@@ -32,7 +37,7 @@ class ODDCUConfig : public IODConfig {
   void clear();
   void fetchData(ODDCUConfig * result)     throw(std::runtime_error);
   int fetchID()  throw(std::runtime_error);
-
+  
 
   int fetchNextId() throw(std::runtime_error);
 

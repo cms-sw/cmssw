@@ -195,7 +195,7 @@ void ODTCCEEConfig::fetchData(ODTCCEEConfig * result)
   }
 
   try {
-
+    std::cout<<"we are here1"<<std::endl;
     m_readStmt->setSQL("SELECT * "
 		       "FROM ECAL_TCC_EE_CONFIGURATION d "
 		       " where (tcc_ee_configuration_id = :1 or tcc_ee_tag=:2 )" );
@@ -203,6 +203,7 @@ void ODTCCEEConfig::fetchData(ODTCCEEConfig * result)
     m_readStmt->setString(2, result->getConfigTag());
     ResultSet* rset = m_readStmt->executeQuery();
 
+    std::cout<<"we are here2"<<std::endl;
     rset->next();
     // the first is the id 
     result->setId(rset->getInt(1));
@@ -213,10 +214,13 @@ void ODTCCEEConfig::fetchData(ODTCCEEConfig * result)
     result->setSLBConfigurationFile(rset->getString(5));
     result->setTestPatternFileUrl(rset->getString(6));
     result->setNTestPatternsToLoad(rset->getInt(7));
+    result->setTriggerPos(rset->getInt(8));
     result->setSLBLatency(rset->getInt(12));
     //
 
-    Clob clob1 = rset->getClob (8);
+    std::cout<<"we are here3"<<std::endl;
+
+    Clob clob1 = rset->getClob (9);
     cout << "Opening the clob in Read only mode" << endl;
     clob1.open (OCCI_LOB_READONLY);
     int clobLength=clob1.length ();
@@ -229,7 +233,7 @@ void ODTCCEEConfig::fetchData(ODTCCEEConfig * result)
     cout << endl;
     result->setTCCClob(buffer );
 
-    Clob clob2 = rset->getClob (9);
+    Clob clob2 = rset->getClob (10);
     cout << "Opening the clob in Read only mode" << endl;
     clob2.open (OCCI_LOB_READONLY);
     clobLength=clob2.length ();
@@ -242,7 +246,7 @@ void ODTCCEEConfig::fetchData(ODTCCEEConfig * result)
     cout << endl;
     result->setLUTClob(buffer2 );
 
-    Clob clob3 = rset->getClob (10);
+    Clob clob3 = rset->getClob (11);
     cout << "Opening the clob in Read only mode" << endl;
     clob3.open (OCCI_LOB_READONLY);
     clobLength=clob3.length ();

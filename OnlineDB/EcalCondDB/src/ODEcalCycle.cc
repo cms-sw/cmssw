@@ -295,7 +295,15 @@ void ODEcalCycle::printout(){
   std::cout << "**** cycle description: "<< m_cycle_description<< std::endl;
   std::cout << "**** ccs_id: "<< m_ccs <<std::endl;
   std::cout << "**** dcc_id: "<< m_dcc <<std::endl;
+  std::cout << "**** dcu_id: "<< m_dcu <<std::endl;
+  std::cout << "**** jbh4_id: "<< m_jbh4<<std::endl;
+  std::cout << "**** ltc_id: "<< m_ltc <<std::endl;
+  std::cout << "**** lts_id: "<< m_lts <<std::endl;
   std::cout << "**** laser: "<< m_laser << std::endl;
+  std::cout << "**** ttcf_id: "<< m_ttcf << std::endl;
+  std::cout << "**** tcc_id: "<< m_tcc << std::endl;
+  std::cout << "**** tccee_id: "<< m_tcc_ee << std::endl;
+  std::cout << "**** ttcci_id: "<< m_ttcci << std::endl;
   std::cout << "**** ttcf_id: "<< m_ttcf << std::endl;
   std::cout << "**** srp_id: "<< m_srp << std::endl;
   std::cout << "**** scan_id: "<< m_scan << std::endl;

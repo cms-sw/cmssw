@@ -37,8 +37,6 @@ class ODTCCConfig : public IODConfig {
 
   inline void setSLBLatency(int id) { m_slb = id; }
   inline int getSLBLatency() const { return m_slb; }
-
-
   inline void setTCCClob(unsigned char* x) { m_tcc_clob = x; }
   inline unsigned char* getTCCClob() const { return m_tcc_clob; }
 
@@ -49,6 +47,15 @@ class ODTCCConfig : public IODConfig {
   inline unsigned char* getSLBClob() const { return m_slb_clob; }
 
   void setParameters(std::map<std::string,std::string> my_keys_map);
+  inline void printout() { 
+    std::cout <<"TCC >>" << "TCCConfigurationFile " <<  getTCCConfigurationFile()<< std::endl;
+    std::cout <<"TCC >>" << "LUTConfigurationFile " <<  getLUTConfigurationFile()<< std::endl;
+    std::cout <<"TCC >>" << "SLBConfigurationFile " <<  getSLBConfigurationFile()<< std::endl;
+    std::cout <<"TCC >>" << "TestPatternFileUrl " <<  getTestPatternFileUrl()<< std::endl;
+    std::cout <<"TCC >>" << "NTestPatternsToLoad " <<  getNTestPatternsToLoad()<< std::endl;
+    std::cout <<"TCC >>" << "SLBLatency " <<  getSLBLatency()<< std::endl;
+    
+  }
 
   
  private:

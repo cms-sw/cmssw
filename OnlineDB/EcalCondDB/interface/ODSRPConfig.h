@@ -52,6 +52,19 @@ class ODSRPConfig : public IODConfig {
   inline unsigned int getSRPClobSize() const { return m_size; }
 
   void setParameters(std::map<std::string,std::string> my_keys_map);
+
+  inline void printout() { 
+    std::cout<<"SRP>> DebugMode "<< getDebugMode() <<std::endl;
+    std::cout<<"SRP>> DummyMode "<< getDummyMode()  <<std::endl;
+    std::cout<<"SRP>> PatternDirectory "<< getPatternDirectory()  <<std::endl;
+    std::cout<<"SRP>> AutomaticMasks "<< getAutomaticMasks()  <<std::endl;
+    std::cout<<"SRP>> AutomaticSrpSelect "<< getAutomaticSrpSelect()  <<std::endl;
+    std::cout<<"SRP>> SRP0BunchAdjustPosition "<< getSRP0BunchAdjustPosition()  <<std::endl;
+    std::cout<<"SRP>> ConfigFile "<< getConfigFile()  <<std::endl;
+ }
+
+
+
   
  private:
   void prepareWrite()  throw(std::runtime_error);
