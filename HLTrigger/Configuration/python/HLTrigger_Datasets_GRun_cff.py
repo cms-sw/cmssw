@@ -39,6 +39,7 @@ streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_Activ
     'HLT_BeamGas_HF_Beam2_v4', 
     'HLT_IsoTrackHB_v13', 
     'HLT_IsoTrackHE_v14', 
+    'HLT_L1DoubleEG3_FwdVeto_v1', 
     'HLT_L1SingleEG12_v5', 
     'HLT_L1SingleEG5_v5', 
     'HLT_L1SingleJet16_v6', 

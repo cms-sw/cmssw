@@ -577,6 +577,8 @@ HLT_L1SingleEG12_v*
 HLT_L1SingleJet16_v*
 HLT_L1SingleJet36_v*
 
+HLT_L1DoubleEG3_FwdVeto_v*                                                                      #sr128183
+
 AlCa_EcalPi0EBonly_v*                                                                           #added in Feb 2012 5e33 menu (sr #126320)
 AlCa_EcalPi0EEonly_v*                                                                           #added in Feb 2012 5e33 menu (sr #126320)
 AlCa_EcalEtaEBonly_v*                                                                           #added in Feb 2012 5e33 menu (sr #126320)

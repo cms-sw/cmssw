@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/GRun/V95 (CMSSW_5_2_3_HLT9)
+# /dev/CMSSW_5_2_1/GRun/V96 (CMSSW_5_2_3_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V95')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V96')
 )
 
 process.streams = cms.PSet( 
@@ -84,6 +84,7 @@ process.datasets = cms.PSet(
     'HLT_BeamGas_HF_Beam2_v4',
     'HLT_IsoTrackHB_v13',
     'HLT_IsoTrackHE_v14',
+    'HLT_L1DoubleEG3_FwdVeto_v1',
     'HLT_L1SingleEG12_v5',
     'HLT_L1SingleEG5_v5',
     'HLT_L1SingleJet16_v6',
@@ -625,6 +626,7 @@ process.datasets = cms.PSet(
     'HLT_JetE30_NoBPTX_v12',
     'HLT_JetE50_NoBPTX3BX_NoHalo_v9',
     'HLT_JetE70_NoBPTX3BX_NoHalo_v1',
+    'HLT_L1DoubleEG3_FwdVeto_v1',
     'HLT_L1DoubleJet36Central_v6',
     'HLT_L1ETM100_v1',
     'HLT_L1ETM30_v1',
@@ -636,8 +638,8 @@ process.datasets = cms.PSet(
     'HLT_L1SingleJet36_v6',
     'HLT_L1SingleMu12_v1',
     'HLT_L1SingleMuOpen_AntiBPTX_v5',
-    'HLT_L1SingleMuOpen_v6',
-    'HLT_L1Tech_CASTOR_HaloMuon_v3')+cms.vstring( 'HLT_L1Tech_DT_GlobalOR_v3',
+    'HLT_L1SingleMuOpen_v6')+cms.vstring( 'HLT_L1Tech_CASTOR_HaloMuon_v3',
+    'HLT_L1Tech_DT_GlobalOR_v3',
     'HLT_L1Tech_HBHEHO_totalOR_v5',
     'HLT_L1Tech_HCAL_HF_single_channel_v3',
     'HLT_L1TrackerCosmics_v6',
@@ -4452,6 +4454,9 @@ process.PrescaleService = cms.Service( "PrescaleService",
       ),
       cms.PSet(  pathName = cms.string( "HLT_L1SingleEG12_v5" ),
         prescales = cms.vuint32( 220, 220, 220, 220, 2640, 8800, 350, 125, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_L1DoubleEG3_FwdVeto_v1" ),
+        prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_L1ETM30_v1" ),
         prescales = cms.vuint32( 80, 40, 40, 80, 50, 3000, 1500, 1500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
@@ -22401,6 +22406,10 @@ process.hltPreL1SingleEG12 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
+process.hltPreL1DoubleEG3FwdVeto = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
 process.hltL1sL1ETM30 = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
     L1SeedsLogicalExpression = cms.string( "L1_ETM30" ),
@@ -39327,6 +39336,7 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_DoublePhoton5_IsoVL_CEP_v15',
       'HLT_L1SingleEG5_v5',
       'HLT_L1SingleEG12_v5',
+      'HLT_L1DoubleEG3_FwdVeto_v1',
       'HLT_L1ETM30_v1',
       'HLT_L1ETM40_v1',
       'HLT_L1ETM70_v1',
@@ -39363,8 +39373,8 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_IsoMu15_eta2p1_LooseIsoPFTau35_Trk20_Prong1_L1ETM20_v4',
       'HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_Prong1_v4',
       'HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_v4',
-      'HLT_DoubleMediumIsoPFTau25_Trk5_eta2p1_Jet30_v4',
-      'HLT_IsoMu18_eta2p1_MediumIsoPFTau25_Trk5_eta2p1_v5')+cms.vstring( 'HLT_BTagMu_DiJet20_Mu5_v3',
+      'HLT_DoubleMediumIsoPFTau25_Trk5_eta2p1_Jet30_v4')+cms.vstring( 'HLT_IsoMu18_eta2p1_MediumIsoPFTau25_Trk5_eta2p1_v5',
+      'HLT_BTagMu_DiJet20_Mu5_v3',
       'HLT_BTagMu_DiJet40_Mu5_v3',
       'HLT_BTagMu_DiJet70_Mu5_v3',
       'HLT_BTagMu_DiJet110_Mu5_v3',
@@ -39798,6 +39808,7 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_JetE30_NoBPTX_v12',
   'HLT_JetE50_NoBPTX3BX_NoHalo_v9',
   'HLT_JetE70_NoBPTX3BX_NoHalo_v1',
+  'HLT_L1DoubleEG3_FwdVeto_v1',
   'HLT_L1DoubleJet36Central_v6',
   'HLT_L1ETM100_v1',
   'HLT_L1ETM30_v1',
@@ -39821,8 +39832,8 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v1',
   'HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v1',
   'HLT_L2Mu20_eta2p1_NoVertex_v1',
-  'HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v1',
-  'HLT_L2Mu70_eta2p1_PFMET55_v1')+cms.vstring( 'HLT_L2Mu70_eta2p1_PFMET60_v1',
+  'HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v1')+cms.vstring( 'HLT_L2Mu70_eta2p1_PFMET55_v1',
+  'HLT_L2Mu70_eta2p1_PFMET60_v1',
   'HLT_L2TripleMu10_0_0_NoVertex_PFJet40Neutral_v4',
   'HLT_LogMonitor_v3',
   'HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v4',
@@ -40443,6 +40454,7 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_JetE30_NoBPTX_v12',
   'HLT_JetE50_NoBPTX3BX_NoHalo_v9',
   'HLT_JetE70_NoBPTX3BX_NoHalo_v1',
+  'HLT_L1DoubleEG3_FwdVeto_v1',
   'HLT_L1DoubleJet36Central_v6',
   'HLT_L1ETM100_v1',
   'HLT_L1ETM30_v1',
@@ -40454,8 +40466,8 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_L1SingleJet36_v6',
   'HLT_L1SingleMu12_v1',
   'HLT_L1SingleMuOpen_AntiBPTX_v5',
-  'HLT_L1SingleMuOpen_v6',
-  'HLT_L1Tech_CASTOR_HaloMuon_v3')+cms.vstring( 'HLT_L1Tech_DT_GlobalOR_v3',
+  'HLT_L1SingleMuOpen_v6')+cms.vstring( 'HLT_L1Tech_CASTOR_HaloMuon_v3',
+  'HLT_L1Tech_DT_GlobalOR_v3',
   'HLT_L1Tech_HBHEHO_totalOR_v5',
   'HLT_L1Tech_HCAL_HF_single_channel_v3',
   'HLT_L1TrackerCosmics_v6',
@@ -41211,6 +41223,7 @@ process.HLT_DoublePhoton80_v6 = cms.Path( process.HLTBeginSequence + process.hlt
 process.HLT_DoublePhoton5_IsoVL_CEP_v15 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleEG3FwdVeto + process.hltPreDoublePhoton5IsoVLCEP + process.HLTDoublePhoton5IsoVLSequence + process.hltTowerMakerForHcal + process.hltHcalTowerFilter + process.HLTEndSequence )
 process.HLT_L1SingleEG5_v5 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG5 + process.hltPreL1SingleEG5 + process.HLTEndSequence )
 process.HLT_L1SingleEG12_v5 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG12 + process.hltPreL1SingleEG12 + process.HLTEndSequence )
+process.HLT_L1DoubleEG3_FwdVeto_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleEG3FwdVeto + process.hltPreL1DoubleEG3FwdVeto + process.HLTEndSequence )
 process.HLT_L1ETM30_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM30 + process.hltPreL1ETM30 + process.HLTEndSequence )
 process.HLT_L1ETM40_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM40 + process.hltPreL1ETM40 + process.HLTEndSequence )
 process.HLT_L1ETM70_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM70 + process.hltPreL1ETM70 + process.HLTEndSequence )
