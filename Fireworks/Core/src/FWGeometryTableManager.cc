@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 20:31:25 CET 2012
-// $Id: FWGeometryTableManager.cc,v 1.47 2012/04/27 04:27:18 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.48 2012/04/27 18:42:53 amraktad Exp $
 //
 
 // system include files
@@ -211,7 +211,7 @@ void FWGeometryTableManager::checkChildMatches(TGeoVolume* vol,  std::vector<TGe
 
 // callbacks ______________________________________________________________________________
 
-void FWGeometryTableManager::updateFilter()
+void FWGeometryTableManager::updateFilter(bool useName)
 {
    std::string filterExp =  m_browser->getFilter();
    m_filterOff =  filterExp.empty();
@@ -223,7 +223,7 @@ void FWGeometryTableManager::updateFilter()
    //   m_numVolumesMatched = 0;
    for (Volumes_i i = m_volumes.begin(); i!= m_volumes.end(); ++i) 
    {
-      if (strcasestr(i->first->GetMaterial()->GetName(), filterExp.c_str()) > 0) {
+      if (strcasestr(useName ? i->first->GetMaterial()->GetName() : i->first->GetMaterial()->GetTitle() , filterExp.c_str()) > 0) {
          i->second.m_matches = true;
          //    m_numVolumesMatched++;
       }
@@ -267,7 +267,7 @@ void FWGeometryTableManager::loadGeometry( TGeoNode* iGeoTopNode, TObjArray* iVo
       m_volumes.insert(std::make_pair(v, Match()));
 
    if (!m_filterOff)
-      updateFilter();  
+      updateFilter(m_browser->getFilterByName());  
 
    // add top node to init
  

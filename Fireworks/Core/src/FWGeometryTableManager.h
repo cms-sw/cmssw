@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 20:34:22 CET 2012
-// $Id: FWGeometryTableManager.h,v 1.4 2012/04/25 06:09:34 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.5 2012/04/27 18:42:53 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableManagerBase.h"
@@ -67,7 +67,7 @@ public:
    void checkHierarchy();
 
    // signal callbacks
-   void updateFilter();
+   void updateFilter(bool);
    void printMaterials();
 
    void setDaughtersSelfVisibility(int i, bool v);

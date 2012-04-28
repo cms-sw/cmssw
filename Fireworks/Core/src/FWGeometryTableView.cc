@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:34 CET 2012
-// $Id: FWGeometryTableView.cc,v 1.25 2012/03/23 22:40:13 amraktad Exp $
+// $Id: FWGeometryTableView.cc,v 1.26 2012/04/27 18:42:53 amraktad Exp $
 //
 
 // system include files
@@ -138,9 +138,10 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
      m_filterEntry(0),
      m_filterValidator(0),
      m_mode(this, "Mode:", 0l, 0l, 1l),
-     m_filter(this,"Materials:",std::string()),
      m_disableTopNode(this,"HideTopNode", true),
      m_visLevel(this,"VisLevel:", 3l, 1l, 100l),
+     m_filter(this,"Materials:",std::string()),
+     m_filterByName(this,"FilterByName", true),
      m_visLevelFilter(this,"IgnoreVisLevelOnFilter", true),
      m_selectRegion(this, "SelectNearCameraCenter", false),
      m_regionRadius(this, "SphereRadius", 50l, 1l, 300l)
@@ -260,22 +261,14 @@ void FWGeometryTableView::filterTextEntryCallback()
 {
    // std::cout << "text entry click ed \n" ;
    std::string exp = m_filterEntry->GetText();
-   if ( m_filterValidator->isStringValid(exp)) 
-   {
-      updateFilter(exp);
-   }
-   else
-   {
-      fwLog(fwlog::kError) << "filter expression not valid." << std::endl;
-      return;
-   }
+   updateFilter(exp);
 }
 
 //______________________________________________________________________________
 
 void FWGeometryTableView::filterListCallback()
 { 
-   //   std::cout << "list click ed \n" ;
+   // std::cout << "list click ed [" << m_filterEntry->GetText() << "] \n" ;
 
    std::string exp = m_filterEntry->GetText();
    updateFilter(exp);
@@ -288,11 +281,7 @@ void FWGeometryTableView::updateFilter(std::string& exp)
 {
    // std::cout << "=FWGeometryTableViewBase::updateFilter()" << m_filterEntry->GetText() <<std::endl;
   
-   if (exp == m_filterValidator->m_list.begin()->n) 
-      exp.clear();
-
-   if (exp == m_filter.value()) return;
-
+   
    if (exp.empty())
    {
       // std::cout << "FITLER OFF \n";
@@ -307,7 +296,7 @@ void FWGeometryTableView::updateFilter(std::string& exp)
    }
   
    m_filter.set(exp);
-   m_tableManager->updateFilter();
+   m_tableManager->updateFilter(m_filterByName.value());
    refreshTable3D();
 
 }
@@ -322,6 +311,7 @@ void FWGeometryTableView::populateController(ViewerParameterGUI& gui) const
       addParam(&m_autoExpand).
       addParam(&m_visLevel).
       separator().   
+      addParam(&m_filterByName).
       addParam(&m_visLevelFilter).
       separator().   
       addParam(&m_selectRegion).

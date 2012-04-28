@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:38 CET 2012
-// $Id: FWGeometryTableView.h,v 1.2 2012/02/22 03:45:59 amraktad Exp $
+// $Id: FWGeometryTableView.h,v 1.3 2012/04/27 18:42:53 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
@@ -44,6 +44,8 @@ public:
    int  getAutoExpand()      const { return m_autoExpand.value(); }
    int  getVisLevel()        const { return m_visLevel.value(); }
    bool getIgnoreVisLevelWhenFilter() const  { return m_visLevelFilter.value(); }
+
+   bool getFilterByName() const  { return m_filterByName.value(); }
 
    bool drawTopNode() const { return !m_disableTopNode.value(); }
    void autoExpandCallback();
@@ -73,9 +75,11 @@ private:
 
 #ifndef __CINT__ 
    FWEnumParameter         m_mode;
-   FWStringParameter       m_filter; 
    FWBoolParameter         m_disableTopNode;
    FWLongParameter         m_visLevel;
+
+   FWStringParameter       m_filter; 
+   FWBoolParameter         m_filterByName;
    FWBoolParameter         m_visLevelFilter; 
    
    FWBoolParameter         m_selectRegion;
