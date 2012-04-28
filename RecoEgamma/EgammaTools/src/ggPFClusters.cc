@@ -205,8 +205,8 @@ void ggPFClusters::localCoordsEB( reco::CaloCluster clus, float &etacry, float &
   const CaloCellGeometry* cell=geomBar_->getGeometry(crystalseed);
   const TruncatedPyramid *cpyr = dynamic_cast<const TruncatedPyramid*>(cell);
   
-  thetatilt = cpyr->getThetaAxis();
-  phitilt = cpyr->getPhiAxis();
+  // thetatilt = cpyr->getThetaAxis();
+  // phitilt = cpyr->getPhiAxis();
   
   GlobalPoint center_pos = cpyr->getPosition(depth);
   
@@ -271,8 +271,8 @@ void ggPFClusters::localCoordsEE(reco::CaloCluster clus, float &xcry, float &ycr
   const CaloCellGeometry* cell=geomEnd_->getGeometry(crystalseed);
   const TruncatedPyramid *cpyr = dynamic_cast<const TruncatedPyramid*>(cell);
 
-  thetatilt = cpyr->getThetaAxis();
-  phitilt = cpyr->getPhiAxis();
+  // thetatilt = cpyr->getThetaAxis();
+  //  phitilt = cpyr->getPhiAxis();
 
   GlobalPoint center_pos = cpyr->getPosition(depth);
   
