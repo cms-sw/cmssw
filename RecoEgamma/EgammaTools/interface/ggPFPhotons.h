@@ -51,6 +51,11 @@ class ggPFPhotons  {
   void fillPFClusters();
   double getPFPhoECorr( std::vector<reco::CaloCluster>PFClusters, const GBRForest *ReaderLCEB, const GBRForest *ReaderLCEE);
   std::pair<double, double>CalcRMS(vector<reco::CaloCluster> PFClust, reco::Photon PFPhoton);
+  std::vector<reco::CaloCluster>recoPhotonClusterLink(
+						      reco::Photon phot, 
+						      edm::Handle<PFCandidateCollection>& pfCandidates
+);
+  
   //for filling PFCluster Variables
  private:
   reco::Photon matchedPhot_;

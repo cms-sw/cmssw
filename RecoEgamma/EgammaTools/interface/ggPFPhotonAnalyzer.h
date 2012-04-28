@@ -36,6 +36,7 @@ class ggPFPhotonAnalyzer : public edm::EDAnalyzer {
   edm::InputTag   PFPhotonTag_;
   edm::InputTag   recoPhotonTag_;
   edm::InputTag   PFElectronTag_;
+  edm::InputTag pfPartTag_;
   edm::InputTag ebReducedRecHitCollection_;
   edm::InputTag eeReducedRecHitCollection_;
   edm::InputTag esRecHitCollection_;
@@ -49,6 +50,7 @@ class ggPFPhotonAnalyzer : public edm::EDAnalyzer {
   TTree* pfclus;
   int isConv_;
   int hasSLConv_;
+  int isMatch_;
   float PFPS1_;
   float PFPS2_;
   float MustE_;
@@ -61,5 +63,6 @@ class ggPFPhotonAnalyzer : public edm::EDAnalyzer {
   float VtxZ_;
   float VtxZErr_;
   float PFPhoECorr_;
+  float recoPFEnergy_;
 };
 #endif

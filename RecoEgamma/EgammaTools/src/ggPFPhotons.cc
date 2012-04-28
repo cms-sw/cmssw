@@ -1,5 +1,6 @@
 #include "RecoEgamma/EgammaTools/interface/ggPFPhotons.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/deltaR.h"
 /*
 Class by Rishi Patel rpatel@cern.ch
 */
@@ -155,8 +156,8 @@ void ggPFPhotons::fillPFClusters(){
   }
   
   //fill ES Clusters
-  /*
-  ggPFESClusters PFPSClusterCollection(ESRecHits_);
+  
+  ggPFESClusters PFPSClusterCollection(ESRecHits_, geomEnd_);
   vector<reco::PreshowerCluster>PFPS;
   if(isPFEle_)PFPS=PFPSClusterCollection.getPFESClusters(*((PFElectron_.pflowSuperCluster())));
   else PFPS=PFPSClusterCollection.getPFESClusters(*(PFPhoton_.pfSuperCluster()));
@@ -168,7 +169,7 @@ void ggPFPhotons::fillPFClusters(){
   }
   PFPreShower1_=PFPS1;
   PFPreShower2_=PFPS2;
-  */
+  
 }
 
 std::pair<double, double> ggPFPhotons::CalcRMS(vector<reco::CaloCluster> PFClust, reco::Photon PFPhoton){
@@ -221,4 +222,116 @@ double ggPFPhotons::getPFPhoECorr( std::vector<reco::CaloCluster>PFClusters, con
   PFPhoLocallyCorrE_=ECorr;
   
   return PFPhoLocallyCorrE_;
+}
+
+std::vector<reco::CaloCluster> ggPFPhotons::recoPhotonClusterLink(reco::Photon phot, 
+								 edm::Handle<PFCandidateCollection>& pfCandidates
+								 ){
+  PFClusters_.clear();
+  //initialize variables:
+  EinMustache_=0;
+  MustacheEOut_=0;
+  MustacheEtOut_=0;
+  PFPreShower1_=0;
+  PFPreShower2_=0;
+  PFLowClusE_=0;
+  dEtaLowestC_=0;
+  dPhiLowestC_=0;
+  PFClPhiRMS_=0;
+  PFClPhiRMSMust_=0;
+  //take SuperCluster position
+  for (PFCandidateCollection::const_iterator pfParticle =pfCandidates->begin(); pfParticle!=pfCandidates->end(); pfParticle++){
+    if(pfParticle->pdgId()!=22) continue; //if photon
+    if(pfParticle->mva_nothing_gamma()>0.9)continue; //if classic PFIsolated photon (not seeded from SuperCluster);
+    
+    //float dR=deltaR(pfParticle->eta(), pfParticle->phi(), phot.superCluster()->eta(),phot.superCluster()->phi()); 
+    //use a box about superCluster Width:
+    float dphi=acos(cos(phot.superCluster()->phi()-pfParticle->phi()));
+    float deta=fabs(pfParticle->eta()-phot.superCluster()->eta());
+    // cout<<"dPhi "<<dphi<<endl;
+    // cout<<"Phi w "<<phot.superCluster()->phiWidth()<<endl;
+    
+    //  cout<<"dEta "<<deta<<endl;
+    // cout<<"Eta w "<<phot.superCluster()->etaWidth()<<endl;
+    // if(deta<phot.superCluster()->etaWidth() && dphi<phot.superCluster()->phiWidth()){
+    PFPreShower1_=0;
+    PFPreShower2_=0;
+    if(deta<0.1 && dphi<0.4){
+      //hard coded size for now but will make it more dynamic
+      //based on SuperCluster Shape
+      math::XYZPoint position(pfParticle->positionAtECALEntrance().X(), pfParticle->positionAtECALEntrance().Y(), pfParticle->positionAtECALEntrance().Z()) ;
+      CaloCluster calo(pfParticle->rawEcalEnergy() ,position );
+      PFClusters_.push_back(calo);
+      PFPreShower1_=PFPreShower1_+pfParticle->pS1Energy();
+      PFPreShower2_=PFPreShower2_+pfParticle->pS2Energy();
+    }
+  }
+ 
+    //Mustache Variables:
+  
+  if(PFClusters_.size()>0){
+  Mustache Must;
+  std::vector<unsigned int> insideMust;
+  std::vector<unsigned int> outsideMust;
+  Must.MustacheClust(PFClusters_, insideMust, outsideMust);
+ 
+  //Must.MustacheID(PFClusters_, insideMust, outsideMust);
+  // cout<<"Inside "<<insideMust.size()<<", Total"<<PFClusters_.size()<<endl;
+  //sum MustacheEnergy and order clusters by Energy:
+  
+  std::multimap<float, unsigned int>OrderedClust;
+  float MustacheE=0;
+  for(unsigned int i=0; i<insideMust.size(); ++i){
+    unsigned int index=insideMust[i];
+    OrderedClust.insert(make_pair(PFClusters_[index].energy(), index));
+    MustacheE=MustacheE+PFClusters_[index].energy();
+  }
+  
+  float MustacheEOut=0;
+  float MustacheEtOut=0;
+  for(unsigned int i=0; i<outsideMust.size(); ++i){
+    unsigned int index=outsideMust[i];
+    MustacheEOut=MustacheEOut+PFClusters_[index].energy();
+    MustacheEtOut=MustacheEtOut+PFClusters_[index].energy()*sin(PFClusters_[index].position().theta());
+  }
+  MustacheEOut_=MustacheEOut;
+  MustacheEtOut_=MustacheEtOut;
+  EinMustache_=MustacheE;
+  
+  //find lowest energy Cluster
+  std::multimap<float, unsigned int>::iterator it;
+  it=OrderedClust.begin();
+  unsigned int lowEindex=(*it).second;   
+  PFLowClusE_=PFClusters_[lowEindex].energy();
+  
+  //dEta and dPhi to this Cluster:
+  dEtaLowestC_=PFClusters_[lowEindex].eta()-PFPhoton_.eta();
+  dPhiLowestC_=deltaPhi(PFClusters_[lowEindex].phi(),PFPhoton_.phi());
+  //RMS Of All PFClusters inside SuperCluster:
+  
+  std::pair<double, double> RMS=CalcRMS(PFClusters_, PFPhoton_);
+  PFClPhiRMS_=RMS.second;
+  std::vector<CaloCluster>MustacheNLClust;
+  for(it=OrderedClust.begin(); it!=OrderedClust.end(); ++it){
+    unsigned int index=(*it).second;
+    if(index==lowEindex)continue; //skip lowest cluster which could be from PU
+    MustacheNLClust.push_back(PFClusters_[index]);
+  }
+  if(insideMust.size()>3){
+  std::pair<double, double> RMSMust=CalcRMS(MustacheNLClust, PFPhoton_);
+  PFClPhiRMSMust_=RMSMust.second;
+  }
+  if(insideMust.size()==2){
+    MustacheNLClust.push_back(PFClusters_[lowEindex]);
+    std::pair<double, double> RMSMust=CalcRMS(MustacheNLClust, PFPhoton_);
+    PFClPhiRMSMust_=RMSMust.second;
+  }
+  if(insideMust.size()==1){
+    PFClPhiRMSMust_=matchedPhot_.superCluster()->phiWidth();
+    PFClPhiRMS_=PFClPhiRMSMust_;
+  }
+  
+  }
+  return PFClusters_;
+  
 }

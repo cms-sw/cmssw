@@ -6,12 +6,13 @@
 ggPFPhotonAnalyzer::ggPFPhotonAnalyzer(const edm::ParameterSet& iConfig){
   PFPhotonTag_=iConfig.getParameter<InputTag>("PFPhotons");
   PFElectronTag_=iConfig.getParameter<InputTag>("PFElectrons");
+  
   recoPhotonTag_=iConfig.getParameter<InputTag>("Photons");
   ebReducedRecHitCollection_=iConfig.getParameter<InputTag>("ebReducedRecHitCollection");
   eeReducedRecHitCollection_=iConfig.getParameter<InputTag>("eeReducedRecHitCollection");
   esRecHitCollection_=iConfig.getParameter<InputTag>("esRecHitCollection");
   beamSpotCollection_ =iConfig.getParameter<InputTag>("BeamSpotCollection");
-  
+  pfPartTag_=iConfig.getParameter<InputTag>("PFParticles");
   TFile *fgbr1 = new TFile("/afs/cern.ch/work/r/rpatel/public/TMVARegressionBarrelLC.root","READ");
   TFile *fgbr2 = new TFile("/afs/cern.ch/work/r/rpatel/public/TMVARegressionEndCapLC.root","READ");
   PFLCBarrel_=(const GBRForest*)fgbr1->Get("PFLCorrEB");
@@ -21,6 +22,7 @@ ggPFPhotonAnalyzer::ggPFPhotonAnalyzer(const edm::ParameterSet& iConfig){
   pfclus=new TTree("pflcus", "PFClusters");
   pf->Branch("isConv", &isConv_, "isConv/I");
   pf->Branch("hasSLConv", &hasSLConv_, "hasSLConv/I");
+  pf->Branch("isMatch", &isMatch_, "isMatch/I");
   pf->Branch("PFPS1", &PFPS1_, "PFPS1/F");
   pf->Branch("PFPS2", &PFPS2_, "PFPS2/F");
   pf->Branch("MustE", &MustE_, "MustE/F");
@@ -33,6 +35,8 @@ ggPFPhotonAnalyzer::ggPFPhotonAnalyzer(const edm::ParameterSet& iConfig){
   pf->Branch("VtxZ", &VtxZ_, "VtxZ/F"); 
   pf->Branch("VtxZErr", &VtxZErr_, "VtxZErr/F"); 
   pf->Branch("PFPhoECorr", &PFPhoECorr_, "PFPhoECorr/F"); 
+  pf->Branch("recoPFEnergy", &recoPFEnergy_, "recoPFEnergy/F"); 
+
 }
 
 ggPFPhotonAnalyzer::~ggPFPhotonAnalyzer(){}
@@ -46,11 +50,13 @@ void ggPFPhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   Handle<reco::PhotonCollection> PFPhotons;
   Handle<reco::PhotonCollection> recoPhotons;
   Handle<reco::GsfElectronCollection> PFElectrons;
+  Handle<reco::PFCandidateCollection>PFParticles;
   PhotonCollection::const_iterator iPfPho;
   PhotonCollection::const_iterator iPho;
   iEvent.getByLabel(PFPhotonTag_, PFPhotons);
   iEvent.getByLabel(recoPhotonTag_, recoPhotons);
   iEvent.getByLabel(PFElectronTag_,PFElectrons);
+  iEvent.getByLabel(pfPartTag_,PFParticles);
   //for PFPhoton Constructor:
   edm::ESHandle<CaloGeometry> pG;
   es.get<CaloGeometryRecord>().get(pG);
@@ -66,7 +72,8 @@ void ggPFPhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByLabel(esRecHitCollection_       , ESRecHits);
   iEvent.getByLabel(beamSpotCollection_,beamSpotHandle);
   for(reco::PhotonCollection::const_iterator iPho = recoPhotons->begin(); iPho!=recoPhotons->end(); ++iPho) {
-    ggPFPhotons ggPFPhoton(*iPho, PFPhotons,
+    recoPFEnergy_=0;
+   ggPFPhotons ggPFPhoton(*iPho, PFPhotons,
 			   PFElectrons,
 			   EBReducedRecHits,
 			   EEReducedRecHits,
@@ -76,6 +83,8 @@ void ggPFPhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 			   beamSpotHandle
 			   );
     if(ggPFPhoton.MatchPFReco()){
+      isMatch_=1;
+      
       std::pair<float, float>VertexZ=ggPFPhoton.SLPoint();
       VtxZ_=VertexZ.first;
       VtxZErr_=VertexZ.second;
@@ -101,8 +110,24 @@ void ggPFPhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
       PFClusRMSMust_=ggPFPhoton.PFClusRMSMust();
       std::vector<reco::CaloCluster>PFC=ggPFPhoton.PFClusters();
       PFPhoECorr_=ggPFPhoton.getPFPhoECorr(PFC, PFLCBarrel_, PFLCEndcap_);
-      pf->Fill();
     }
+    else{
+      isMatch_=0;
+      std::vector<reco::CaloCluster>PFC=ggPFPhoton.recoPhotonClusterLink(*iPho, PFParticles);  
+      recoPFEnergy_=0;
+      for(unsigned int i=0; i<PFC.size(); ++i)recoPFEnergy_=recoPFEnergy_+PFC[i].energy();
+      //cout<<"Recostruced from PF "<<recoPFEnergy_<<" SC Raw E "<<(*iPho).superCluster()->rawEnergy()<<endl;
+      PFPS1_=ggPFPhoton.PFPS1();
+      PFPS2_=ggPFPhoton.PFPS2();
+      MustE_=ggPFPhoton.MustE();
+      MustEOut_=ggPFPhoton.MustEOut();
+      PFLowCE_=ggPFPhoton.PFLowE();
+      PFdEta_=ggPFPhoton.PFdEta();
+      PFdPhi_=ggPFPhoton.PFdPhi();
+      PFClusRMS_=ggPFPhoton.PFClusRMSTot();
+      PFClusRMSMust_=ggPFPhoton.PFClusRMSMust();
+    }
+    pf->Fill();
   }
   
 }
@@ -118,3 +143,4 @@ void ggPFPhotonAnalyzer::endJob(){
 
 
 DEFINE_FWK_MODULE(ggPFPhotonAnalyzer);
+
