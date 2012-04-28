@@ -25,7 +25,8 @@ process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMCo
 #process.source.lumisToProcess = LumiList.LumiList(filename = 'OfficialLumi.json').getVLuminosityBlockRange()
 
 ########################################################################
-process.load('SUSYBSMAnalysis.Skimming.EXOHSCP_cff')
+#process.load('SUSYBSMAnalysis.Skimming.EXOHSCP_cff')
+process.load('Configuration.Skimming.PDWG_EXOHSCP_cff')
 process.load("SUSYBSMAnalysis.HSCP.HSCParticleProducerFromSkim_cff")  #IF RUNNING ON HSCP SKIM
 process.load("SUSYBSMAnalysis.HSCP.HSCPTreeBuilder_cff")
 
@@ -63,7 +64,7 @@ process.nEventsBefEDM   = cms.EDProducer("EventCountProducer")
 process.HSCParticleProducer.useBetaFromEcal = cms.bool(False)
 
 #no dE/dx cut from skim:
-process.DedxFilter.filter = cms.bool(False)
+#process.DedxFilter.filter = cms.bool(False)
 
 
 process.Out = cms.OutputModule("PoolOutputModule",
