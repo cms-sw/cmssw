@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/GRun/V93 (CMSSW_5_2_3_HLT9)
+# /dev/CMSSW_5_2_1/GRun/V94 (CMSSW_5_2_3_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V93')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V94')
 )
 
 process.streams = cms.PSet( 
@@ -13410,28 +13410,24 @@ process.hltDiCentralJet20L1FastJetCorrected = cms.EDFilter( "HLT1CaloJet",
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 85 )
 )
-process.hltPFHTMETDiPFJet30 = cms.EDProducer( "HLTHtMhtProducer",
-    tracksLabel = cms.InputTag( "hltL3Muons" ),
-    useTracks = cms.bool( False ),
-    minPtJetHt = cms.double( 30.0 ),
-    maxEtaJetMht = cms.double( 999.0 ),
-    minNJetMht = cms.int32( 0 ),
-    jetsLabel = cms.InputTag( "hltAntiKT5PFJets" ),
-    usePt = cms.bool( True ),
-    maxEtaJetHt = cms.double( 2.6 ),
-    minPtJetMht = cms.double( 0.0 ),
-    excludePFMuons = cms.bool( False ),
-    pfCandidatesLabel = cms.InputTag( "hltParticleFlow" ),
-    minNJetHt = cms.int32( 2 )
+process.hltDiCentralPFJet30ZnunuHbb = cms.EDFilter( "HLT1PFJet",
+    saveTags = cms.bool( False ),
+    MinPt = cms.double( 30.0 ),
+    MinN = cms.int32( 2 ),
+    MaxEta = cms.double( 2.6 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltAntiKT5PFJets" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
 )
-process.hltPFMHT80HT60 = cms.EDFilter( "HLTHtMhtFilter",
+process.hltPFMET80 = cms.EDFilter( "HLTHtMhtFilter",
     saveTags = cms.bool( True ),
-    mhtLabels = cms.VInputTag( 'hltPFHTMETDiPFJet30' ),
+    mhtLabels = cms.VInputTag( 'hltPFHTMET' ),
     meffSlope = cms.vdouble( 1.0 ),
     minMeff = cms.vdouble( 0.0 ),
     minMht = cms.vdouble( 80.0 ),
-    htLabels = cms.VInputTag( 'hltPFHTMETDiPFJet30' ),
-    minHt = cms.vdouble( 60.0 )
+    htLabels = cms.VInputTag( 'hltPFHTMET' ),
+    minHt = cms.vdouble( 0.0 )
 )
 process.hltL1sL1DoubleJetC36ETM30ORL1DoubleJetC44ETM44 = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
@@ -13459,15 +13455,6 @@ process.hltDiCentralPFJet50 = cms.EDFilter( "HLT1PFJet",
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 85 )
 )
-process.hltPFMET80 = cms.EDFilter( "HLTHtMhtFilter",
-    saveTags = cms.bool( True ),
-    mhtLabels = cms.VInputTag( 'hltPFHTMET' ),
-    meffSlope = cms.vdouble( 1.0 ),
-    minMeff = cms.vdouble( 0.0 ),
-    minMht = cms.vdouble( 80.0 ),
-    htLabels = cms.VInputTag( 'hltPFHTMET' ),
-    minHt = cms.vdouble( 0.0 )
-)
 process.hltPreDiCentralPFJet30PFMET80BTagCSV07 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -13482,31 +13469,22 @@ process.hltBJetHbb = cms.EDFilter( "HLT1CaloJet",
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 86 )
 )
-process.hltGetJetsfromBJetHbb = cms.EDProducer( "HLTCaloJetCollectionProducer",
-    TriggerTypes = cms.vint32( 86 ),
-    HLTObject = cms.InputTag( "hltBJetHbb" )
-)
-process.hltSelectorJetsHbb = cms.EDFilter( "LargestEtCaloJetSelector",
-    maxNumber = cms.uint32( 6 ),
+process.hltSelectorJets20L1FastJet = cms.EDFilter( "EtMinCaloJetSelector",
     filter = cms.bool( False ),
-    src = cms.InputTag( "hltGetJetsfromBJetHbb" )
-)
-process.hltBLifetimeL25JetsHbb = cms.EDFilter( "EtMinCaloJetSelector",
-    filter = cms.bool( False ),
-    src = cms.InputTag( "hltGetJetsfromBJetHbb" ),
+    src = cms.InputTag( "hltSelector4JetsL1FastJet" ),
     etMin = cms.double( 20.0 )
 )
-process.hltFastPixelHitsVertexVHbb = cms.EDProducer( "FastPrimaryVertexProducer",
+process.hltFastPrimaryVertex = cms.EDProducer( "FastPrimaryVertexProducer",
     maxZ = cms.double( 18.0 ),
     maxDeltaPhi = cms.double( 0.2 ),
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
     maxSizeX = cms.double( 3.0 ),
-    jets = cms.InputTag( "hltBLifetimeL25JetsHbb" ),
+    jets = cms.InputTag( "hltSelectorJets20L1FastJet" ),
     clusters = cms.InputTag( "hltSiPixelClusters" ),
     pixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
     clusterLength = cms.double( 2.0 )
 )
-process.hltFastPixelTracksVHbb = cms.EDProducer( "PixelTrackProducer",
+process.hltFastPVPixelTracks = cms.EDProducer( "PixelTrackProducer",
     useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
@@ -13527,13 +13505,13 @@ process.hltFastPixelTracksVHbb = cms.EDProducer( "PixelTrackProducer",
       RegionPSet = cms.PSet( 
         precise = cms.bool( True ),
         originRadius = cms.double( 0.2 ),
+        ptMin = cms.double( 0.9 ),
         originHalfLength = cms.double( 24.0 ),
         beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+        VertexCollection = cms.InputTag( "hltFastPrimaryVertex" ),
         useFixedError = cms.bool( True ),
         sigmaZVertex = cms.double( 3.0 ),
         fixedError = cms.double( 1.5 ),
-        VertexCollection = cms.InputTag( "hltFastPixelHitsVertexVHbb" ),
-        ptMin = cms.double( 0.9 ),
         useFoundVertices = cms.bool( True ),
         nSigmaZ = cms.double( 3.0 )
       )
@@ -13544,43 +13522,43 @@ process.hltFastPixelTracksVHbb = cms.EDProducer( "PixelTrackProducer",
       GeneratorPSet = cms.PSet( 
         useBending = cms.bool( True ),
         useFixedPreFiltering = cms.bool( False ),
-        maxElement = cms.uint32( 100000 ),
+        maxElement = cms.uint32( 10000 ),
         phiPreFiltering = cms.double( 0.3 ),
         extraHitRPhitolerance = cms.double( 0.06 ),
         useMultScattering = cms.bool( True ),
-        SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "LowPtClusterShapeSeedComparitor" ) ),
+        ComponentName = cms.string( "PixelTripletHLTGenerator" ),
         extraHitRZtolerance = cms.double( 0.06 ),
-        ComponentName = cms.string( "PixelTripletHLTGenerator" )
+        SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "LowPtClusterShapeSeedComparitor" ) )
       ),
       SeedingLayers = cms.string( "hltESPPixelLayerTriplets" )
     )
 )
-process.hltBLifetimeL25AssociatorHbbFirstVHbb = cms.EDProducer( "JetTracksAssociatorAtVertex",
-    jets = cms.InputTag( "hltBLifetimeL25JetsHbb" ),
-    tracks = cms.InputTag( "hltFastPixelTracksVHbb" ),
+process.hltFastPVJetTracksAssociator = cms.EDProducer( "JetTracksAssociatorAtVertex",
+    jets = cms.InputTag( "hltSelectorJets20L1FastJet" ),
+    tracks = cms.InputTag( "hltFastPVPixelTracks" ),
     useAssigned = cms.bool( False ),
     coneSize = cms.double( 0.5 ),
     pvSrc = cms.InputTag( "" )
 )
-process.hltFastPixelVertexCheckerVHbb = cms.EDFilter( "JetVertexChecker",
+process.hltFastPVJetVertexChecker = cms.EDFilter( "JetVertexChecker",
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
     maxNJetsToCheck = cms.int32( 2 ),
     minPtRatio = cms.double( 0.05 ),
     doFilter = cms.bool( False ),
-    jetTracks = cms.InputTag( "hltBLifetimeL25AssociatorHbbFirstVHbb" ),
+    jetTracks = cms.InputTag( "hltFastPVJetTracksAssociator" ),
     minPt = cms.double( 0.0 )
 )
-process.hltFastPixelTracksRecoverVHbb = cms.EDProducer( "PixelTrackProducer",
+process.hltFastPVPixelTracksRecover = cms.EDProducer( "PixelTrackProducer",
     useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
-      nSigmaInvPtTolerance = cms.double( 0.0 ),
       chi2 = cms.double( 1000.0 ),
-      ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
       nSigmaTipMaxTolerance = cms.double( 0.0 ),
+      ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
+      nSigmaInvPtTolerance = cms.double( 0.0 ),
       ptMin = cms.double( 0.1 ),
       tipMax = cms.double( 1.0 )
     ),
-    passLabel = cms.string( "pixelTracksL2Tau" ),
+    passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
       TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
@@ -13590,20 +13568,20 @@ process.hltFastPixelTracksRecoverVHbb = cms.EDProducer( "PixelTrackProducer",
       ComponentName = cms.string( "TauRegionalPixelSeedGenerator" ),
       RegionPSet = cms.PSet( 
         precise = cms.bool( True ),
-        beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-        originHalfLength = cms.double( 15.0 ),
-        JetSrc = cms.InputTag( "hltFastPixelVertexCheckerVHbb" ),
-        JetMaxN = cms.int32( 10 ),
-        deltaPhi = cms.double( 0.3 ),
-        ptMin = cms.double( 1.0 ),
-        JetMinPt = cms.double( 25.0 ),
         originRadius = cms.double( 0.2 ),
-        JetMaxEta = cms.double( 2.1 ),
-        deltaEta = cms.double( 0.3 ),
-        originZPos = cms.double( 0.0 ),
-        vertexSrc = cms.InputTag( "hltFastPixelVertexCheckerVHbb" ),
+        ptMin = cms.double( 0.9 ),
+        originHalfLength = cms.double( 15.0 ),
         deltaPhiRegion = cms.double( 0.5 ),
-        deltaEtaRegion = cms.double( 0.5 )
+        deltaEtaRegion = cms.double( 0.5 ),
+        JetSrc = cms.InputTag( "hltFastPVJetVertexChecker" ),
+        vertexSrc = cms.InputTag( "hltFastPVJetVertexChecker" ),
+        originZPos = cms.double( 0.0 ),
+        beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+        JetMaxN = cms.int32( 10 ),
+        deltaPhi = cms.double( -1.0 ),
+        deltaEta = cms.double( -1.0 ),
+        JetMinPt = cms.double( 20.0 ),
+        JetMaxEta = cms.double( 2.5 )
       )
     ),
     CleanerPSet = cms.PSet(  ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ) ),
@@ -13613,17 +13591,17 @@ process.hltFastPixelTracksRecoverVHbb = cms.EDProducer( "PixelTrackProducer",
         useBending = cms.bool( True ),
         useFixedPreFiltering = cms.bool( False ),
         maxElement = cms.uint32( 100000 ),
-        SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "LowPtClusterShapeSeedComparitor" ) ),
+        phiPreFiltering = cms.double( 0.3 ),
         extraHitRPhitolerance = cms.double( 0.06 ),
         useMultScattering = cms.bool( True ),
-        phiPreFiltering = cms.double( 0.3 ),
+        ComponentName = cms.string( "PixelTripletHLTGenerator" ),
         extraHitRZtolerance = cms.double( 0.06 ),
-        ComponentName = cms.string( "PixelTripletHLTGenerator" )
+        SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "LowPtClusterShapeSeedComparitor" ) )
       ),
       SeedingLayers = cms.string( "hltESPPixelLayerTriplets" )
     )
 )
-process.hltFastPixelTracksMergerVHbb = cms.EDProducer( "SimpleTrackListMerger",
+process.hltFastPVPixelTracksMerger = cms.EDProducer( "SimpleTrackListMerger",
     ShareFrac = cms.double( 0.19 ),
     promoteTrackQuality = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
@@ -13632,28 +13610,28 @@ process.hltFastPixelTracksMergerVHbb = cms.EDProducer( "SimpleTrackListMerger",
     allowFirstHitShare = cms.bool( True ),
     newQuality = cms.string( "confirmed" ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltFastPixelTracksVHbb" ),
+    TrackProducer1 = cms.string( "hltFastPVPixelTracks" ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltFastPixelTracksRecoverVHbb" ),
+    TrackProducer2 = cms.string( "hltFastPVPixelTracksRecover" ),
     LostHitPenalty = cms.double( 20.0 ),
     FoundHitBonus = cms.double( 5.0 )
 )
-process.hltFastPixelVerticesVHbb = cms.EDProducer( "PixelVertexProducer",
+process.hltFastPVPixelVertices = cms.EDProducer( "PixelVertexProducer",
     WtAverage = cms.bool( True ),
     Method2 = cms.bool( True ),
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
     Verbosity = cms.int32( 0 ),
     UseError = cms.bool( True ),
-    TrackCollection = cms.InputTag( "hltFastPixelTracksMergerVHbb" ),
+    TrackCollection = cms.InputTag( "hltFastPVPixelTracksMerger" ),
     PtMin = cms.double( 1.0 ),
     NTrkMin = cms.int32( 2 ),
     ZOffset = cms.double( 5.0 ),
     Finder = cms.string( "DivisiveVertexFinder" ),
     ZSeparation = cms.double( 0.05 )
 )
-process.hltFastPixelVertexSelectorVHbb = cms.EDFilter( "VertexSelector",
+process.hltFastPVPixelVertexSelector = cms.EDFilter( "VertexSelector",
     filter = cms.bool( True ),
-    src = cms.InputTag( "hltFastPixelVerticesVHbb" ),
+    src = cms.InputTag( "hltFastPVPixelVertices" ),
     cut = cms.string( "!isFake && ndof > 0 && abs(z) <= 25 && position.Rho <= 2" )
 )
 process.hltFastPixelBLifetimeRegionalPixelSeedGeneratorHbb = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
@@ -13666,9 +13644,9 @@ process.hltFastPixelBLifetimeRegionalPixelSeedGeneratorHbb = cms.EDProducer( "Se
         originRadius = cms.double( 0.2 ),
         deltaEtaRegion = cms.double( 0.5 ),
         ptMin = cms.double( 1.0 ),
-        JetSrc = cms.InputTag( "hltBLifetimeL25JetsHbb" ),
+        JetSrc = cms.InputTag( "hltSelectorJets20L1FastJet" ),
         originZPos = cms.double( 0.0 ),
-        vertexSrc = cms.InputTag( "hltFastPixelVerticesVHbb" )
+        vertexSrc = cms.InputTag( "hltFastPVPixelVertices" )
       )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
@@ -13722,7 +13700,7 @@ process.hltFastPixelBLifetimeRegionalCtfWithMaterialTracksHbb = cms.EDProducer( 
     Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
 )
 process.hltFastPixelBLifetimeL3AssociatorHbb = cms.EDProducer( "JetTracksAssociatorAtVertex",
-    jets = cms.InputTag( "hltBLifetimeL25JetsHbb" ),
+    jets = cms.InputTag( "hltSelectorJets20L1FastJet" ),
     tracks = cms.InputTag( "hltFastPixelBLifetimeRegionalCtfWithMaterialTracksHbb" ),
     useAssigned = cms.bool( False ),
     coneSize = cms.double( 0.5 ),
@@ -13732,7 +13710,7 @@ process.hltFastPixelBLifetimeL3TagInfosHbb = cms.EDProducer( "TrackIPProducer",
     maximumTransverseImpactParameter = cms.double( 0.2 ),
     minimumNumberOfHits = cms.int32( 8 ),
     minimumTransverseMomentum = cms.double( 1.0 ),
-    primaryVertex = cms.InputTag( "hltFastPixelVerticesVHbb" ),
+    primaryVertex = cms.InputTag( "hltFastPVPixelVertices" ),
     maximumLongitudinalImpactParameter = cms.double( 17.0 ),
     computeGhostTrack = cms.bool( False ),
     ghostTrackPriorDeltaR = cms.double( 0.03 ),
@@ -13805,7 +13783,7 @@ process.hltBLifetimeL3FilterHbbCSV = cms.EDFilter( "HLTCaloJetTag",
     MinJets = cms.int32( 1 ),
     JetTags = cms.InputTag( "hltL3CombinedSecondaryVertexBJetTags" ),
     TriggerType = cms.int32( 86 ),
-    Jets = cms.InputTag( "hltBLifetimeL25JetsHbb" ),
+    Jets = cms.InputTag( "hltSelectorJets20L1FastJet" ),
     MinTag = cms.double( 0.7 ),
     MaxTag = cms.double( 99999.0 )
 )
@@ -41223,8 +41201,8 @@ process.HLTTrackReconstructionForPFDEDX = cms.Sequence( process.HLTDoLocalPixelS
 process.HLTPFJetTriggerDEDXSequence = cms.Sequence( process.HLTL2muonrecoSequence + process.HLTL3muonrecoSequence + process.HLTTrackReconstructionForPFDEDX )
 process.HLTPFReconstructionDEDXSequence = cms.Sequence( process.HLTRecoJetSequencePrePF + process.HLTPFJetTriggerDEDXSequence )
 process.HLTHBHENoiseCleanerSequence = cms.Sequence( process.hltHcalNoiseInfoProducer + process.hltHcalTowerNoiseCleaner )
-process.HLTFasthitpixelvertexingSequenceVHbb = cms.Sequence( process.hltFastPixelHitsVertexVHbb + process.hltFastPixelTracksVHbb + process.hltBLifetimeL25AssociatorHbbFirstVHbb + process.hltFastPixelVertexCheckerVHbb + process.hltFastPixelTracksRecoverVHbb + process.hltFastPixelTracksMergerVHbb + process.hltFastPixelVerticesVHbb + process.hltFastPixelVertexSelectorVHbb )
-process.HLTBtagCSVSequenceL25Hbb = cms.Sequence( process.HLTDoLocalPixelSequence + process.hltGetJetsfromBJetHbb + process.hltSelectorJetsHbb + process.hltBLifetimeL25JetsHbb + process.HLTFasthitpixelvertexingSequenceVHbb )
+process.HLTFastRecopixelvertexingSequence = cms.Sequence( process.hltFastPrimaryVertex + process.hltFastPVPixelTracks + process.hltFastPVJetTracksAssociator + process.hltFastPVJetVertexChecker + process.hltFastPVPixelTracksRecover + process.hltFastPVPixelTracksMerger + process.hltFastPVPixelVertices )
+process.HLTFastPrimaryVertexSequence = cms.Sequence( process.hltSelector4JetsL1FastJet + process.hltSelectorJets20L1FastJet + process.HLTDoLocalPixelSequence + process.HLTFastRecopixelvertexingSequence )
 process.HLTBtagCSVSequenceL3Hbb = cms.Sequence( process.HLTDoLocalPixelSequence + process.HLTDoLocalStripSequence + process.hltFastPixelBLifetimeRegionalPixelSeedGeneratorHbb + process.hltFastPixelBLifetimeRegionalCkfTrackCandidatesHbb + process.hltFastPixelBLifetimeRegionalCtfWithMaterialTracksHbb + process.hltFastPixelBLifetimeL3AssociatorHbb + process.hltFastPixelBLifetimeL3TagInfosHbb + process.hltL3SecondaryVertexTagInfos + process.hltL3CombinedSecondaryVertexBJetTags )
 process.HLTL2muonrecoSequenceNoVtx = cms.Sequence( process.HLTL2muonrecoNocandSequence + process.hltL2MuonCandidatesNoVtx )
 process.HLTPFJetsSequenceNeutral = cms.Sequence( process.hltPFNeutralHadronsAndPartons + process.hltAntiKT5PFJetsNeutral )
@@ -41506,9 +41484,9 @@ process.HLT_PFHT750_v5 = cms.Path( process.HLTBeginSequence + process.hltL1sL1HT
 process.HLT_PFMET150_v4 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM36ORETM40 + process.hltPrePFMET150 + process.HLTRecoMETSequence + process.hltMET80 + process.HLTPFReconstructionSequence + process.hltPFMHTProducer + process.hltPFMHT150Filter + process.HLTEndSequence )
 process.HLT_PFMET180_v4 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM36ORETM40 + process.hltPrePFMET180 + process.HLTRecoMETSequence + process.hltMET80 + process.HLTPFReconstructionSequence + process.hltPFMHTProducer + process.hltPFMHT180Filter + process.HLTEndSequence )
 process.HLT_DiCentralJetSumpT100_dPhi05_DiCentralPFJet60_25_PFMET100_HBHENoiseCleaned_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM36OR40 + process.hltPreDiCentralJetSumpT100dPhi05DiCentralPFJet6025PFMET100HBHENoiseCleaned + process.HLTRecoMETSequence + process.hltMET50 + process.HLTHBHENoiseCleanerSequence + process.hltMetClean + process.hltMETClean25 + process.HLTRecoJetSequenceAK5L1FastJetCorrected + process.hltCentralJet50 + process.hltDiCentralJet15 + process.hlt2CaloJetCaloJetSumpt100 + cms.ignore(process.hltJet40) + ~process.hlt2CaloJetCaloMETdPhi1 + process.HLTPFReconstructionSequence + process.hltCentralPFJet60 + process.hltDiCentralPFJet25 + process.hltPFHTMET + process.hltPFMET100 + process.HLTEndSequence )
-process.HLT_DiCentralPFJet30_PFMET80_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM36OR40 + process.hltPreDiCentralPFJet30PFMET80 + process.HLTRecoMETSequence + process.hltMET65 + process.HLTRecoJetSequenceAK5L1FastJetCorrected + process.hltDiCentralJet20L1FastJetCorrected + process.HLTPFReconstructionSequence + process.hltPFHTMETDiPFJet30 + process.hltPFMHT80HT60 + process.HLTEndSequence )
+process.HLT_DiCentralPFJet30_PFMET80_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM36OR40 + process.hltPreDiCentralPFJet30PFMET80 + process.HLTRecoMETSequence + process.hltMET65 + process.HLTRecoJetSequenceAK5L1FastJetCorrected + process.hltDiCentralJet20L1FastJetCorrected + process.HLTPFReconstructionSequence + process.hltDiCentralPFJet30ZnunuHbb + process.hltPFHTMET + process.hltPFMET80 + process.HLTEndSequence )
 process.HLT_DiCentralPFJet50_PFMET80_v5 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleJetC36ETM30ORL1DoubleJetC44ETM44 + process.hltPreDiCentralPFJet50PFMET80 + process.HLTRecoMETSequence + process.hltMET80 + process.HLTRecoJetSequenceAK5L1FastJetCorrected + process.hltDiCentralJet20L1FastJetCorrected + process.HLTPFReconstructionSequence + process.hltDiCentralPFJet50 + process.hltPFHTMET + process.hltPFMET80 + process.HLTEndSequence )
-process.HLT_DiCentralPFJet30_PFMET80_BTagCSV07_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM36OR40 + process.hltPreDiCentralPFJet30PFMET80BTagCSV07 + process.HLTRecoMETSequence + process.hltMET65 + process.HLTRecoJetSequenceAK5L1FastJetCorrected + process.hltBJetHbb + process.HLTBtagCSVSequenceL25Hbb + process.HLTBtagCSVSequenceL3Hbb + process.hltBLifetimeL3FilterHbbCSV + process.HLTPFReconstructionSequence + process.hltPFHTMETDiPFJet30 + process.hltPFMHT80HT60 + process.HLTEndSequence )
+process.HLT_DiCentralPFJet30_PFMET80_BTagCSV07_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM36OR40 + process.hltPreDiCentralPFJet30PFMET80BTagCSV07 + process.HLTRecoMETSequence + process.hltMET65 + process.HLTRecoJetSequenceAK5L1FastJetCorrected + process.hltBJetHbb + process.HLTFastPrimaryVertexSequence + process.hltFastPVPixelVertexSelector + process.HLTBtagCSVSequenceL3Hbb + process.hltBLifetimeL3FilterHbbCSV + process.HLTPFReconstructionSequence + process.hltDiCentralPFJet30ZnunuHbb + process.hltPFHTMET + process.hltPFMET80 + process.HLTEndSequence )
 process.HLT_MET80_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM36ORETM40 + process.hltPreMET80 + process.HLTRecoMETSequence + process.hltMET80 + process.HLTEndSequence )
 process.HLT_MET80_Track50_dEdx3p6_v4 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM36ORETM40 + process.hltPreMET80Track50dEdx3p6 + process.HLTRecoMETSequence + process.hltMET80 + process.HLTPFReconstructionDEDXSequence + process.hltDeDxEstimatorProducer + process.hltDeDxFilter50DEDX3p6 + process.HLTEndSequence )
 process.HLT_MET80_Track60_dEdx3p7_v4 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM36ORETM40 + process.hltPreMET80Track60dEdx3p7 + process.HLTRecoMETSequence + process.hltMET80 + process.HLTPFReconstructionDEDXSequence + process.hltDeDxEstimatorProducer + process.hltDeDxFilter60DEDX3p7 + process.HLTEndSequence )
