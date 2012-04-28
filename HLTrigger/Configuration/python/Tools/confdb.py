@@ -59,7 +59,8 @@ class HLTProcess(object):
 # TODO: paths not supported by FastSim, but for which a recovery should be attempted
     "HLT_Ele80_CaloIdVT_GsfTrkIdT_v*",
     "HLT_Ele90_CaloIdVT_GsfTrkIdT_v*",
-
+    "HLT_DiCentralPFJet30_PFMET80_BTagCSV07_v*",
+    
     )
 
   def __init__(self, configuration):
