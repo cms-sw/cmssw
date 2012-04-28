@@ -223,7 +223,6 @@ def reconfigurePF2PATTaus(process,
                               "src",
                               cms.InputTag("combinatoricRecoTaus"),
                               cms.InputTag("pfTausBase"+postfix) )
-       getattr(process,"hpsPFTauProducer"+postfix).src = "pfTausBase"+postfix
 
    newTau.builders[0].pfCandSrc = oldTau.builders[0].pfCandSrc
    newTau.jetRegionSrc = oldTau.jetRegionSrc
