@@ -10,15 +10,10 @@ streamA_datasetBJetPlusX_selector.hltResults = cms.InputTag('TriggerResults', ''
 streamA_datasetBJetPlusX_selector.l1tResults = cms.InputTag('')
 streamA_datasetBJetPlusX_selector.throw      = cms.bool(False)
 streamA_datasetBJetPlusX_selector.triggerConditions = cms.vstring('HLT_DiJet40Eta2p6_BTagIP3DFastPV_v3', 
-    'HLT_DiJet40Eta2p6_BTagIP3D_v3', 
     'HLT_DiJet80Eta2p6_BTagIP3DFastPVLoose_v3', 
-    'HLT_DiJet80Eta2p6_BTagIP3DLoose_v3', 
     'HLT_Jet160Eta2p4_Jet120Eta2p4_DiBTagIP3DFastPVLoose_v3', 
-    'HLT_Jet160Eta2p4_Jet120Eta2p4_DiBTagIP3DLoose_v3', 
     'HLT_Jet60Eta1p7_Jet53Eta1p7_DiBTagIP3DFastPV_v3', 
-    'HLT_Jet60Eta1p7_Jet53Eta1p7_DiBTagIP3D_v3', 
     'HLT_Jet80Eta1p7_Jet70Eta1p7_DiBTagIP3DFastPV_v3', 
-    'HLT_Jet80Eta1p7_Jet70Eta1p7_DiBTagIP3D_v3', 
     'HLT_L1DoubleJet36Central_v6', 
     'HLT_QuadJet75_55_35_20_BTagIP_VBF_v3', 
     'HLT_QuadJet75_55_38_20_BTagIP_VBF_v3', 
