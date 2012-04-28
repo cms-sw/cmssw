@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Jul  8 00:40:37 CEST 2011
-// $Id: FWGeometryTableViewManager.cc,v 1.8 2012/04/21 00:30:22 amraktad Exp $
+// $Id: FWGeometryTableViewManager.cc,v 1.9 2012/04/27 19:55:07 amraktad Exp $
 //
 
 #include <boost/bind.hpp>
@@ -28,6 +28,8 @@
 #include "Fireworks/Core/interface/fwLog.h"
 
 TGeoManager* FWGeometryTableViewManager::s_geoManager = 0;
+
+TGeoManager* FWGeometryTableViewManager_GetGeoManager() { return FWGeometryTableViewManager::getGeoMangeur(); }
 
 FWGeometryTableViewManager::FWGeometryTableViewManager(FWGUIManager* iGUIMgr, std::string fileName):
    FWViewManagerBase(),
@@ -105,12 +107,7 @@ FWGeometryTableViewManager::setGeoManagerRuntime(TGeoManager* x)
 void
 FWGeometryTableViewManager::setGeoManagerFromFile()
 { 
-   TGeoManager  *old    = gGeoManager;
-   TGeoIdentity *old_id = gGeoIdentity;
-   gGeoManager = 0;
-   
    TFile* file = FWGeometry::findFile( m_fileName.c_str() );
-   gEve->RegisterGeometryAlias("Default", file->GetName());
    try 
    {
       if ( ! file )
@@ -118,15 +115,14 @@ FWGeometryTableViewManager::setGeoManagerFromFile()
       
       file->ls();
       
-      if ( !file->Get("cmsGeo;1"))
-         throw std::runtime_error("Can't find TGeoManager object in selected file.");
       s_geoManager = (TGeoManager*) file->Get("cmsGeo;1");      
+      if ( ! s_geoManager)
+         throw std::runtime_error("Can't find TGeoManager object in selected file.");
+
    }
    catch (std::runtime_error &e)
    {
       fwLog(fwlog::kError) << "Failed to find simulation geomtery file. Please set the file path with --sim-geom-file option.\n";
       exit(0);
    }
-   gGeoManager  = old;
-   gGeoIdentity = old_id;
 }
