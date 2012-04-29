@@ -138,7 +138,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
 	  
 	  
 	  //std::cout << "detid " << ((EcalRecHit*)(&*j))->detid() << std::endl;
-	  int severityFlag = sevLevel_->severityLevel(((EcalRecHit*)(&*j))->detid(), *ecalBarHits_);
+	  int severityFlag = ecalBarHits_ == 0 ? -1 : sevLevel_->severityLevel(((EcalRecHit*)(&*j))->detid(), *ecalBarHits_);
 	  std::vector<int>::const_iterator sit = std::find(severitiesexcl_.begin(), 
 							   severitiesexcl_.end(), 
 							   severityFlag);
