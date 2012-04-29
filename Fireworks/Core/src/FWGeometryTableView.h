@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:38 CET 2012
-// $Id: FWGeometryTableView.h,v 1.4 2012/04/28 01:18:40 amraktad Exp $
+// $Id: FWGeometryTableView.h,v 1.5 2012/04/29 06:07:38 matevz Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
@@ -62,6 +62,11 @@ public:
    
    void checkRegionOfInterest();
    bool isSelectedByRegion() const { return m_selectRegion.value(); } 
+   
+   long getParentTransparencyFactor() const { return m_parentTransparencyFactor.value(); }
+   long getLeafTransparencyFactor()   const { return m_leafTransparencyFactor.value(); }
+   long getMinParentTransparency() const { return m_minParentTransparency.value(); }
+   long getMinLeafTransparency()   const { return m_minLeafTransparency.value(); }
 
 protected:
    // virtual void initGeometry(TGeoNode* iGeoTopNode, TObjArray* iVolumes);
@@ -88,6 +93,13 @@ private:
    FWBoolParameter         m_selectRegion;
    FWDoubleParameter       m_regionRadius;
    FWEnumParameter         m_proximityAlgo;
+   
+   
+   FWLongParameter         m_parentTransparencyFactor;
+   FWLongParameter         m_leafTransparencyFactor;
+   FWLongParameter         m_minParentTransparency;
+   FWLongParameter         m_minLeafTransparency;
+
 #endif  
 
    ClassDef(FWGeometryTableView, 0);

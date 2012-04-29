@@ -25,7 +25,7 @@ void FWEveDetectorGeo::Paint(Option_t* opt)
 {
    FWGeoTopNode::Paint();
 
-   //   printf("PAINPAINTPAINTPAINTPAINTPAINTPAINTPAINTPAINTPAINTT  %d/%d \n",  m_browser->getTopNodeIdx(),  (int)m_browser->getTableManager()->refEntries().size());
+   // printf("PAINPAINTPAINTPAINTPAINTPAINTPAINTPAINTPAINTPAINTT  %d/%d \n",  m_browser->getTopNodeIdx(),  (int)m_browser->getTableManager()->refEntries().size());
    if (m_browser->getTableManager()->refEntries().empty()) return; 
 
    TEveGeoManagerHolder gmgr( FWGeometryTableViewManager::getGeoMangeur());
@@ -43,11 +43,13 @@ void FWEveDetectorGeo::Paint(Option_t* opt)
       m_browser->getTableManager()->getNodeMatrix(*sit, mtx);
 
       if (sit->testBit(FWGeometryTableManagerBase::kVisNodeSelf) && ((FWGeometryTableManager*)tableManager())->getVisibility(*sit))
-         paintShape(*sit,  topIdx,mtx, m_browser->getVolumeMode() );
+         paintShape(true, *sit,  topIdx,mtx, m_browser->getVolumeMode() );
    }
 
    if ( ((FWGeometryTableManager*)tableManager())->getVisibilityChld(*sit))
       paintChildNodesRecurse( sit, topIdx, mtx);
+   
+   fflush(stdout);
 }
 
 
@@ -76,7 +78,7 @@ void FWEveDetectorGeo::paintChildNodesRecurse (FWGeometryTableManagerBase::Entri
       if (m_filterOff || m_browser->isSelectedByRegion())
       {
          if ( ((FWGeometryTableManager*)tableManager())->getVisibility(*it))
-            paintShape(*it, cnt , nm, m_browser->getVolumeMode() );
+            paintShape(true, *it, cnt , nm, m_browser->getVolumeMode() );
 
          if  ( ((FWGeometryTableManager*)tableManager())->getVisibilityChld(*it) && ( it->m_level < m_maxLevel)) {
             paintChildNodesRecurse(it,cnt , nm);
@@ -87,7 +89,7 @@ void FWEveDetectorGeo::paintChildNodesRecurse (FWGeometryTableManagerBase::Entri
       {
          ((FWGeometryTableManager*)tableManager())->assertNodeFilterCache(*it);
          if ( ((FWGeometryTableManager*)tableManager())->getVisibility(*it))
-            paintShape(*it,cnt , nm, m_browser->getVolumeMode()  );
+            paintShape(false, *it,cnt , nm, m_browser->getVolumeMode()  );
 
          if ( ((FWGeometryTableManager*)tableManager())->getVisibilityChld(*it) && ( it->m_level < m_maxLevel || m_browser->getIgnoreVisLevelWhenFilter() ))
          {
@@ -114,7 +116,52 @@ TString  FWEveDetectorGeo::GetHighlightTooltip()
    return "error";
 }
 
+//______________________________________________________________________________
 
+void FWEveDetectorGeo::paintShape(bool visLevel, FWGeometryTableManagerBase::NodeInfo& data,  Int_t tableIndex, const TGeoHMatrix& nm, bool volumeColor)
+{
+   // check leaf node 
+   
+   
+   bool leafNode = true;
+   if (visLevel) {
+      leafNode = !(data.m_level < m_maxLevel);
+   }
+   
+   if (leafNode) {
+      int si = tableIndex + 1;
+      int dOff = 0;   
+      for (int n = 0; n != data.m_node->GetNdaughters(); ++n)
+      {
+         int di = si + n + dOff;
+         FWGeometryTableManagerBase::getNNodesTotal(data.m_node->GetDaughter(n), dOff);
+         if (tableManager()->refEntries()[di].testBit(FWGeometryTableManagerBase::kVisNodeSelf)) {
+            leafNode = false;
+            break;
+         }
+      } 
+   }
+   
+   int oldTransparency = data.m_transparency;
+   if (leafNode)
+   {
+      data.m_transparency = TMath::Max((Char_t)m_browser->getMinLeafTransparency(), data.m_transparency);
+      if (data.m_transparency < 100) {
+         data.m_transparency *= (m_browser->getLeafTransparencyFactor());
+         FWGeoTopNode::paintShape(data, tableIndex, nm, volumeColor);
+      }
+   }
+   else {
+      data.m_transparency = TMath::Max((Char_t)m_browser->getMinParentTransparency(), data.m_transparency);
+      if (data.m_transparency < 100) {
+         data.m_transparency *= (m_browser->getParentTransparencyFactor());
+        // printf("[ %d %d] ", oldTransparency, data.m_transparency);
+         FWGeoTopNode::paintShape(data, tableIndex, nm, volumeColor);
+      }
+   }
+   data.m_transparency = oldTransparency;
+   
+}
 
 //______________________________________________________________________________
 
