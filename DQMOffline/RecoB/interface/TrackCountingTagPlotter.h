@@ -19,6 +19,7 @@ class TrackCountingTagPlotter : public BaseTagInfoPlotter {
   ~TrackCountingTagPlotter () ;
 
   void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const int & jetFlavour);
+  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const int & jetFlavour, const float & w);
 
   virtual void finalize ();
   virtual void createPlotsForFinalize ();

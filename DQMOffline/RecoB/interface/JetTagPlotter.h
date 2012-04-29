@@ -22,7 +22,9 @@ class JetTagPlotter : public BaseBTagPlotter {
   virtual ~JetTagPlotter () ;
 
   void analyzeTag (const reco::JetTag & jetTag, const int & jetFlavour);
+  void analyzeTag (const reco::JetTag & jetTag, const int & jetFlavour, const float & w);
   void analyzeTag (const reco::Jet & jet, const float& discriminator, const int& jetFlavour);
+  void analyzeTag (const reco::Jet & jet, const float& discriminator, const int& jetFlavour, const float & w);
 
   // final computation, plotting, printing .......
   void createPlotsForFinalize();

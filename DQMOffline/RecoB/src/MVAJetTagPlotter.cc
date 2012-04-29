@@ -64,18 +64,25 @@ void MVAJetTagPlotter::setEventSetup(const edm::EventSetup &setup)
 void MVAJetTagPlotter::analyzeTag (const vector<const BaseTagInfo*> &baseTagInfos,
                                    const int &jetFlavour)
 {
+  analyzeTag(baseTagInfos,jetFlavour,1.);
+}
+
+void MVAJetTagPlotter::analyzeTag (const vector<const BaseTagInfo*> &baseTagInfos,
+                                   const int &jetFlavour,
+				   const float & w)
+{
 	// taggingVariables() should not need EventSetup
 	// computer->setEventSetup(es);
 
 	const JetTagComputer::TagInfoHelper helper(baseTagInfos);
 	const TaggingVariableList& vars = computer->taggingVariables(helper);
 
-	categoryPlotters.front()->analyzeTag(vars, jetFlavour);
+	categoryPlotters.front()->analyzeTag(vars, jetFlavour,w);
 	if (categoryVariable != btau::lastTaggingVariable) {
 		unsigned int cat =
 			(unsigned int)(vars.get(categoryVariable, -1) + 1);
 		if (cat >= 1 && cat < categoryPlotters.size())
-			categoryPlotters[cat]->analyzeTag(vars, jetFlavour);
+		  categoryPlotters[cat]->analyzeTag(vars, jetFlavour,w);
 	}
 }
 

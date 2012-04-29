@@ -23,6 +23,7 @@ class MVAJetTagPlotter : public BaseTagInfoPlotter {
   ~MVAJetTagPlotter ();
 
   virtual void analyzeTag (const std::vector<const reco::BaseTagInfo *> & baseTagInfos, const int & jetFlavour);
+  virtual void analyzeTag (const std::vector<const reco::BaseTagInfo *> & baseTagInfos, const int & jetFlavour, const float & w);
 
   virtual void finalize ();
 

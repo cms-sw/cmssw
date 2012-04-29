@@ -18,6 +18,8 @@ class BaseTagInfoPlotter : public BaseBTagPlotter {
   virtual ~BaseTagInfoPlotter () {};
   virtual void analyzeTag(const reco::BaseTagInfo * tagInfo, const int & jetFlavour);
   virtual void analyzeTag(const std::vector<const reco::BaseTagInfo *> &tagInfos, const int & jetFlavour);
+  virtual void analyzeTag(const reco::BaseTagInfo * tagInfo, const int & jetFlavour, const float & w);
+  virtual void analyzeTag(const std::vector<const reco::BaseTagInfo *> &tagInfos, const int & jetFlavour, const float & w);
 
   virtual void setEventSetup(const edm::EventSetup & setup);
   virtual std::vector<std::string> tagInfoRequirements() const;

@@ -185,6 +185,28 @@ void JetTagPlotter::analyzeTag(const reco::Jet & jet,
   
 }
 
+void JetTagPlotter::analyzeTag(const reco::Jet & jet,
+			       const float& discriminator,
+                               const int& jetFlavour,
+			       const float& w)  
+{
+
+  if (mcPlots_) {
+    dJetFlav->fill(jetFlavour, jetFlavour , w );
+//   dJetPartonMomentum->fill(jetFlav, jetFlavour.underlyingParton4Vec().P() );
+//   dJetPartonPt->fill(jetFlav, jetFlavour.underlyingParton4Vec().Pt() );
+//   dJetPartonPseudoRapidity->fill(jetFlav, jetFlavour.underlyingParton4Vec().Eta() );
+  }
+  //  dJetMultiplicity->fill(jetFlavourour, jetTag.tracks().size()); //fixme
+  if (isinf(discriminator) ) dDiscriminator->fill(jetFlavour, -999.0 , w );
+  else dDiscriminator->fill(jetFlavour, discriminator , w );
+  dJetRecMomentum->fill(jetFlavour, jet.p() , w);
+  dJetRecPt->fill(jetFlavour, jet.pt() , w);
+  dJetRecPseudoRapidity->fill(jetFlavour, jet.eta() , w );
+  dJetRecPhi->fill(jetFlavour, jet.phi() , w );
+  
+}
+
 
 void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
 	const int & jetFlavour)
@@ -206,7 +228,26 @@ void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
   
 }
 
+void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
+			       const int & jetFlavour,
+			       const float& w)
+{
 
+  if (mcPlots_) {
+    dJetFlav->fill(jetFlavour, jetFlavour, w );
+//   dJetPartonMomentum->fill(jetFlav, jetFlavour.underlyingParton4Vec().P() );
+//   dJetPartonPt->fill(jetFlav, jetFlavour.underlyingParton4Vec().Pt() );
+//   dJetPartonPseudoRapidity->fill(jetFlav, jetFlavour.underlyingParton4Vec().Eta() );
+  }
+  //  dJetMultiplicity->fill(jetFlavourour, jetTag.tracks().size()); //fixme
+  if (isinf(jetTag.second) ) dDiscriminator->fill(jetFlavour, -999.0 , w );
+  else dDiscriminator->fill(jetFlavour, jetTag.second , w );
+  dJetRecMomentum->fill(jetFlavour, jetTag.first->p() , w );
+  dJetRecPt->fill(jetFlavour, jetTag.first->pt() , w );
+  dJetRecPseudoRapidity->fill(jetFlavour, jetTag.first->eta() , w );
+  dJetRecPhi->fill(jetFlavour, jetTag.first->phi() , w );
+  
+}
 
 
 void JetTagPlotter::createPlotsForFinalize(){

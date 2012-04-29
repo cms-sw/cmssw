@@ -82,9 +82,15 @@ TrackCountingTagPlotter::~TrackCountingTagPlotter ()
   }
 }
 
-
 void TrackCountingTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
 	const int & jetFlavour)
+{
+  analyzeTag(baseTagInfo,jetFlavour,1.);
+}
+
+void TrackCountingTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
+					  const int & jetFlavour,
+					  const float & w)
 {
 
   const reco::TrackCountingTagInfo * tagInfo = 
@@ -95,23 +101,23 @@ void TrackCountingTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
       << "BTagPerformanceAnalyzer: Extended TagInfo not of type TrackCountingTagInfo. " << endl;
   }
 
-  trkNbr3D->fill(jetFlavour, tagInfo->selectedTracks(0));
-  trkNbr2D->fill(jetFlavour, tagInfo->selectedTracks(1));
+  trkNbr3D->fill(jetFlavour, tagInfo->selectedTracks(0),w);
+  trkNbr2D->fill(jetFlavour, tagInfo->selectedTracks(1),w);
 
   for(int n=0; n != tagInfo->selectedTracks(1) && n != 4; ++n)
-    tkcntHistosSig2D[n]->fill(jetFlavour, tagInfo->significance(n,1));
+    tkcntHistosSig2D[n]->fill(jetFlavour, tagInfo->significance(n,1),w);
   for(int n=tagInfo->selectedTracks(1); n < 4; ++n)
-    tkcntHistosSig2D[n]->fill(jetFlavour, lowerIPSBound-1.0);
+    tkcntHistosSig2D[n]->fill(jetFlavour, lowerIPSBound-1.0,w);
 
   for(int n=0; n != tagInfo->selectedTracks(0) && n != 4; ++n)
-    tkcntHistosSig3D[n]->fill(jetFlavour, tagInfo->significance(n,0));
+    tkcntHistosSig3D[n]->fill(jetFlavour, tagInfo->significance(n,0),w);
   for(int n=tagInfo->selectedTracks(0); n < 4; ++n)
-    tkcntHistosSig3D[n]->fill(jetFlavour, lowerIPSBound-1.0);
+    tkcntHistosSig3D[n]->fill(jetFlavour, lowerIPSBound-1.0,w);
 
   for(int n=0; n != tagInfo->selectedTracks(1); ++n)
-    tkcntHistosSig2D[4]->fill(jetFlavour, tagInfo->significance(n,1));
+    tkcntHistosSig2D[4]->fill(jetFlavour, tagInfo->significance(n,1),w);
   for(int n=0; n != tagInfo->selectedTracks(0); ++n)
-    tkcntHistosSig3D[4]->fill(jetFlavour, tagInfo->significance(n,0));
+    tkcntHistosSig3D[4]->fill(jetFlavour, tagInfo->significance(n,0),w);
 }
 
 

@@ -43,6 +43,7 @@ public:
   // fill entry
   // For single variables and arrays (for arrays only a single index can be filled)
   void fill ( const int & flavour,  const T & variable) const;
+  void fill ( const int & flavour,  const T & variable, const T & w) const;
 
   // For single variables and arrays
   void fill ( const int & flavour,  const T * variable) const;
@@ -93,7 +94,7 @@ public:
 
 protected:
 
-  void fillVariable ( const int & flavour , const T & var ) const;
+  void fillVariable ( const int & flavour , const T & var , const T & w) const;
   
   //
   // the data members
@@ -251,7 +252,14 @@ template <class T> void
 FlavourHistograms<T>::fill ( const int & flavour,  const T & variable) const 
 {
   // For single variables and arrays (for arrays only a single index can be filled)
-  fillVariable ( flavour , variable ) ;
+  fillVariable ( flavour , variable, 1.) ;
+}
+
+template <class T> void
+FlavourHistograms<T>::fill ( const int & flavour,  const T & variable, const T & w) const 
+{
+  // For single variables and arrays (for arrays only a single index can be filled)
+  fillVariable ( flavour , variable, w) ;
 }
 
 template <class T> void
@@ -259,7 +267,7 @@ FlavourHistograms<T>::fill ( const int & flavour,  const T * variable) const
 {
   if ( theArrayDimension == 0 ) {       
     // single variable
-    fillVariable ( flavour , *variable ) ;
+    fillVariable ( flavour , *variable, 1.) ;
   } else {
     // array      
     int iMax = (*theArrayDimension > theMaxDimension) ? theMaxDimension : *theArrayDimension ;
@@ -267,7 +275,7 @@ FlavourHistograms<T>::fill ( const int & flavour,  const T * variable) const
     for ( int i = 0 ; i != iMax ; ++i ) {
       // check if only one index to be plotted (<0: switched off -> plot all)
       if ( ( theIndexToPlot < 0 ) || ( i == theIndexToPlot ) ) { 
-	fillVariable ( flavour , *(variable+i) ) ;
+	fillVariable ( flavour , *(variable+i) , 1.) ;
       }
     }
 
@@ -275,7 +283,7 @@ FlavourHistograms<T>::fill ( const int & flavour,  const T * variable) const
     if ( theIndexToPlot >= iMax ) { 
       // cout << "==>> The index to be filled is too big -> fill 0.0 : " << theBaseNameTitle << " : " << theIndexToPlot << " >= " << iMax << endl ;
       const T& theZero = static_cast<T> ( 0.0 ) ;
-      fillVariable ( flavour , theZero ) ;
+      fillVariable ( flavour , theZero , 1.) ;
     }
   }
 } 
@@ -471,40 +479,40 @@ void FlavourHistograms<T>::divide ( const FlavourHistograms<T> & bHD ) const {
   
 
 template <class T>
-void FlavourHistograms<T>::fillVariable ( const int & flavour , const T & var ) const {
+void FlavourHistograms<T>::fillVariable ( const int & flavour , const T & var , const T & w) const {
   // all
-  theHisto_all                ->Fill ( var ) ;
+  theHisto_all                ->Fill ( var ,w) ;
   // flavour specific
   if (!mcPlots_) return;
 
   switch(flavour) {
     case 1:
-      theHisto_d->Fill( var );
-      theHisto_dus->Fill( var );
-      theHisto_dusg->Fill( var );
+      theHisto_d->Fill( var ,w);
+      theHisto_dus->Fill( var ,w);
+      theHisto_dusg->Fill( var ,w);
       return;
     case 2:
-      theHisto_u->Fill( var );
-      theHisto_dus->Fill( var );
-      theHisto_dusg->Fill( var );
+      theHisto_u->Fill( var ,w);
+      theHisto_dus->Fill( var ,w);
+      theHisto_dusg->Fill( var ,w);
       return;
     case 3:
-      theHisto_s->Fill( var );
-      theHisto_dus->Fill( var );
-      theHisto_dusg->Fill( var );
+      theHisto_s->Fill( var ,w);
+      theHisto_dus->Fill( var ,w);
+      theHisto_dusg->Fill( var ,w);
       return;
     case 4:
-      theHisto_c->Fill( var );
+      theHisto_c->Fill( var ,w);
       return;
     case 5:
-      theHisto_b->Fill( var );
+      theHisto_b->Fill( var ,w);
       return;
     case 21:
-      theHisto_g->Fill( var );
-      theHisto_dusg->Fill( var );
+      theHisto_g->Fill( var ,w);
+      theHisto_dusg->Fill( var ,w);
       return;
     default:
-      theHisto_ni->Fill( var );
+      theHisto_ni->Fill( var ,w);
       return;
   }
 }

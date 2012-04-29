@@ -20,6 +20,7 @@ class TrackIPTagPlotter : public BaseTagInfoPlotter {
   ~TrackIPTagPlotter () ;
 
   void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const int & jetFlavour);
+  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const int & jetFlavour, const float & w);
 
   virtual void createPlotsForFinalize ();
   virtual void finalize ();

@@ -20,7 +20,10 @@ class TagCorrelationPlotter : public BaseBTagPlotter {
     void psPlot (const std::string& name) {}
 
     void analyzeTags(const reco::JetTag& jetTag1, const reco::JetTag& jetTag2, const int& jetFlavour);
+    void analyzeTags(const reco::JetTag& jetTag1, const reco::JetTag& jetTag2, const int& jetFlavour, const float & w);
+
     void analyzeTags(const float& discr1, const float& discr2, const int& jetFlavour);
+    void analyzeTags(const float& discr1, const float& discr2, const int& jetFlavour, const float & w);
 
   protected:
     double lowerBound1_, lowerBound2_;
