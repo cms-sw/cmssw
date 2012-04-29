@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:34 CET 2012
-// $Id: FWGeometryTableView.cc,v 1.26 2012/04/27 18:42:53 amraktad Exp $
+// $Id: FWGeometryTableView.cc,v 1.27 2012/04/28 01:18:39 amraktad Exp $
 //
 
 // system include files
@@ -103,24 +103,24 @@ public:
 
       std::string h = "";
       oOptions.push_back(std::make_pair(boost::shared_ptr<std::string>(new std::string(m_list.begin()->n)), h));
-      for (std::vector<Material>::iterator i = startIt; i!=m_list.end(); ++i) {
-         if(part == (*i).n.substr(0,part_size) )
+      for (std::vector<Material>::iterator i = startIt; i!=m_list.end(); ++i)
+      {
+         if (part == (*i).n.substr(0,part_size))
          {
             //  std::cout << i->n <<std::endl;
             oOptions.push_back(std::make_pair(boost::shared_ptr<std::string>(new std::string((*i).n)), (*i).n.substr(part_size, (*i).n.size()-part_size)));
          }
       }
-
    }
 
    bool isStringValid(std::string& exp) 
    {
       if (exp.empty()) return true;
 
-      for (std::vector<Material>::iterator i = m_list.begin(); i!=m_list.end(); ++i) {
+      for (std::vector<Material>::iterator i = m_list.begin(); i != m_list.end(); ++i)
+      {
          if (exp == (*i).n) 
             return true;
-    
       }
       return false;
    }
@@ -137,14 +137,15 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
      m_tableManager(0),
      m_filterEntry(0),
      m_filterValidator(0),
-     m_mode(this, "Mode:", 0l, 0l, 1l),
+     m_mode(this, "Mode", 0l, 0l, 1l),
      m_disableTopNode(this,"HideTopNode", true),
-     m_visLevel(this,"VisLevel:", 3l, 1l, 100l),
-     m_filter(this,"Materials:",std::string()),
+     m_visLevel(this,"VisLevel", 3l, 1l, 100l),
+     m_filter(this,"Materials", std::string()),
      m_filterByName(this,"FilterByName", true),
      m_visLevelFilter(this,"IgnoreVisLevelOnFilter", true),
      m_selectRegion(this, "SelectNearCameraCenter", false),
-     m_regionRadius(this, "SphereRadius", 50l, 1l, 300l)
+     m_regionRadius(this, "SphereRadius", 50.0, 1.0, 300.0),
+     m_proximityAlgo(this, "Proximity algorithm", 0l, 0l, 1l)
 {
    FWGeoTopNodeGLScene *gls = new FWGeoTopNodeGLScene(0);
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,32,0)
@@ -158,26 +159,22 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
    m_eveTopNode->IncDenyDestroy();
    m_eveTopNode->SetPickable(true);
    m_eveScene->AddElement(m_eveTopNode);
- 
+
    gls->fTopNodeJebo = m_eveTopNode;
    m_eveTopNode->fSceneJebo   = gls;
 
-
-
    // top row
-   TGHorizontalFrame* hp =  new TGHorizontalFrame(m_frame);
-
+   TGHorizontalFrame *hp = new TGHorizontalFrame(m_frame);
    {
-      TGTextButton* rb = new TGTextButton (hp, "CdTop");
+      TGTextButton *rb = new TGTextButton (hp, "CdTop");
       hp->AddFrame(rb, new TGLayoutHints(kLHintsNormal, 2, 2, 0, 0) );
       rb->Connect("Clicked()","FWGeometryTableViewBase",this,"cdTop()");
    } 
    {
-      TGTextButton* rb = new TGTextButton (hp, "CdUp");
+      TGTextButton *rb = new TGTextButton (hp, "CdUp");
       hp->AddFrame(rb, new TGLayoutHints(kLHintsNormal, 2, 2, 0, 0));
       rb->Connect("Clicked()","FWGeometryTableViewBase",this,"cdUp()");
    }
-  
    {
       m_viewBox = new FWViewCombo(hp, this);
       hp->AddFrame( m_viewBox,new TGLayoutHints(kLHintsExpandY, 2, 2, 0, 0));
@@ -204,29 +201,30 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
    }
    cdTop();
 
-
-   m_mode.addEntry(kNode, "Node");
+   m_mode.addEntry(kNode,   "Node");
    m_mode.addEntry(kVolume, "Volume");
-   
+
    m_mode.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
    m_autoExpand.changed_.connect(boost::bind(&FWGeometryTableView::autoExpandCallback, this));
    m_visLevel.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
    m_visLevelFilter.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
 
-
    m_disableTopNode.changed_.connect(boost::bind(&FWGeometryTableView::updateVisibilityTopNode,this));
    postConst();
-   
+
+   m_proximityAlgo.addEntry(kBBoxCenter,  "BBox center");
+   m_proximityAlgo.addEntry(kBBoxSurface, "BBox surface");
+
    m_selectRegion.changed_.connect(boost::bind(&FWGeometryTableView::checkRegionOfInterest,this));
-   m_regionRadius.changed_.connect(boost::bind(&FWGeometryTableView::checkRegionOfInterest,this)); 
-   
+   m_regionRadius.changed_.connect(boost::bind(&FWGeometryTableView::checkRegionOfInterest,this));
+   m_proximityAlgo.changed_.connect(boost::bind(&FWGeometryTableView::checkRegionOfInterest,this));
 }
 
 
 FWGeometryTableView::~FWGeometryTableView()
-{ 
-}
+{}
 
+//______________________________________________________________________________
 void FWGeometryTableView::setPath(int parentIdx, std::string&)
 {
    m_eveTopNode->clearSelection();
@@ -234,27 +232,24 @@ void FWGeometryTableView::setPath(int parentIdx, std::string&)
    m_topNodeIdx.set(parentIdx);
    getTableManager()->refEntries().at(getTopNodeIdx()).setBitVal(FWGeometryTableManagerBase::kVisNodeSelf,!m_disableTopNode.value() );
    getTableManager()->setLevelOffset(getTableManager()->refEntries().at(getTopNodeIdx()).m_level);
- 
 
    checkExpandLevel();
    refreshTable3D(); 
- 
 }
+
 //______________________________________________________________________________
-
-
 FWGeometryTableManagerBase* FWGeometryTableView::getTableManager()
 {
    return m_tableManager;
 }
 
+//______________________________________________________________________________
 void FWGeometryTableView::autoExpandCallback()
 { 
    if (!m_enableRedraw) return;
    checkExpandLevel();
    getTableManager()->redrawTable(true);
 }
-
 
 //______________________________________________________________________________
 void FWGeometryTableView::filterTextEntryCallback()
@@ -265,7 +260,6 @@ void FWGeometryTableView::filterTextEntryCallback()
 }
 
 //______________________________________________________________________________
-
 void FWGeometryTableView::filterListCallback()
 { 
    // std::cout << "list click ed [" << m_filterEntry->GetText() << "] \n" ;
@@ -275,8 +269,6 @@ void FWGeometryTableView::filterListCallback()
 }
 
 //______________________________________________________________________________
-
-
 void FWGeometryTableView::updateFilter(std::string& exp)
 {
    // std::cout << "=FWGeometryTableViewBase::updateFilter()" << m_filterEntry->GetText() <<std::endl;
@@ -315,7 +307,8 @@ void FWGeometryTableView::populateController(ViewerParameterGUI& gui) const
       addParam(&m_visLevelFilter).
       separator().   
       addParam(&m_selectRegion).
-      addParam(&m_regionRadius);
+      addParam(&m_regionRadius).
+      addParam(&m_proximityAlgo);
 
       // addParam(&m_enableHighlight);
 }
@@ -363,37 +356,37 @@ bool viewIsChecked(TEveViewer* v, TEveElement* el)
 
 void FWGeometryTableView::checkRegionOfInterest()
 {
-   
-   if (m_selectRegion.value()) {
+   if (m_selectRegion.value())
+   {
       double* center = 0;
       for (TEveElement::List_i it = gEve->GetViewers()->BeginChildren(); it != gEve->GetViewers()->EndChildren(); ++it)
       { 
          TEveViewer* v = ((TEveViewer*)(*it));
-         if (viewIsChecked(v, m_eveTopNode)) {
+         if (viewIsChecked(v, m_eveTopNode))
+         {
             if (center) {
                fwLog(fwlog::kWarning) << "Center picked from first view \n";
-            }
-            else {
+            } else {
                center = v->GetGLViewer()->CurrentCamera().GetCenterVec();
                fwLog(fwlog::kInfo) << Form("Center picked (%.1f, %.1f, %.1f) from first selected 3D view \n", 
                                            center[0], center[1], center[2]);
             }
          }
       } 
-      
-      if (!center)
+
+      if (! center)
       {
          fwLog(fwlog::kError) << "No 3D view selected \n";
          return;
       }
       
-      m_tableManager->checkRegionOfInterest(center, m_regionRadius.value());
+      m_tableManager->checkRegionOfInterest(center, m_regionRadius.value(), m_proximityAlgo.value());
    }
    else 
    {
       m_tableManager->resetRegionOfInterest();
    }
-   
+
    refreshTable3D();
 }
 //------------------------------------------------------------------------------

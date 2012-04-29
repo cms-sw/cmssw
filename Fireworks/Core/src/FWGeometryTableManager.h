@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 20:34:22 CET 2012
-// $Id: FWGeometryTableManager.h,v 1.5 2012/04/27 18:42:53 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.6 2012/04/28 01:18:39 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableManagerBase.h"
@@ -32,7 +32,7 @@ class FWGeometryTableView;
 class FWGeometryTableManager : public FWGeometryTableManagerBase
 {
 public:
-   enum   ECol   { kNameColumn,kColorColumn, kTranspColumn,   kVisSelfColumn, kVisChildColumn, kMaterialColumn, kNumColumn };
+   enum ECol   { kNameColumn, kColorColumn, kTranspColumn, kVisSelfColumn, kVisChildColumn, kMaterialColumn, kNumColumn };
 
    enum GeometryBits
    {
@@ -46,11 +46,11 @@ public:
       bool m_matches;
       bool m_childMatches;
       Match() : m_matches(false), m_childMatches(false) {}
-   
+
       bool accepted() { return m_matches || m_childMatches; }
    };
 
- 
+
    typedef boost::unordered_map<TGeoVolume*, Match>  Volumes_t;
    typedef Volumes_t::iterator               Volumes_i; 
 
@@ -61,7 +61,7 @@ public:
    void recalculateVisibilityNodeRec(int);
    void recalculateVisibilityVolumeRec(int);
    // geo 
-   void  loadGeometry( TGeoNode* iGeoTopNode, TObjArray* iVolumes);
+   void loadGeometry( TGeoNode* iGeoTopNode, TObjArray* iVolumes);
    void checkChildMatches(TGeoVolume* v,  std::vector<TGeoVolume*>&);
    void importChildren(int parent_idx);
    void checkHierarchy();
@@ -72,17 +72,17 @@ public:
 
    void setDaughtersSelfVisibility(int i, bool v);
    void setVisibility(NodeInfo& nodeInfo, bool );
-    void setVisibilityChld(NodeInfo& nodeInfo, bool);
+   void setVisibilityChld(NodeInfo& nodeInfo, bool);
 
-    bool getVisibilityChld(const NodeInfo& nodeInfo) const;
-    bool getVisibility (const NodeInfo& nodeInfo) const;
+   bool getVisibilityChld(const NodeInfo& nodeInfo) const;
+   bool getVisibility (const NodeInfo& nodeInfo) const;
 
    void assertNodeFilterCache(NodeInfo& data);
  
    virtual int numberOfColumns() const { return kNumColumn; }
    virtual FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const;
    
-   void checkRegionOfInterest(double* center, long radius);
+   void checkRegionOfInterest(double* center, double radius, long algo);
    void resetRegionOfInterest();
    
 protected:
@@ -95,13 +95,11 @@ private:
    const FWGeometryTableManager& operator=(const FWGeometryTableManager&); // stop default
 
 
-   FWGeometryTableView* m_browser;
+   FWGeometryTableView *m_browser;
 
-   mutable Volumes_t  m_volumes;
+   mutable Volumes_t    m_volumes;
 
-   bool               m_filterOff; //cached
-
+   bool                 m_filterOff; //cached
 };
-
 
 #endif

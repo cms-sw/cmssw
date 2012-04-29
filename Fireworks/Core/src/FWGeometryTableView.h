@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:38 CET 2012
-// $Id: FWGeometryTableView.h,v 1.3 2012/04/27 18:42:53 amraktad Exp $
+// $Id: FWGeometryTableView.h,v 1.4 2012/04/28 01:18:40 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
@@ -29,7 +29,10 @@ class FWEveDetectorGeo;
 class FWGeometryTableView : public FWGeometryTableViewBase
 {
 public:
+   enum EMode          { kNode, kVolume };
+   enum EProximityAlgo { kBBoxCenter, kBBoxSurface };
 
+public:
    FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager* colMng);
    virtual ~FWGeometryTableView();
    virtual void populateController(ViewerParameterGUI&) const;
@@ -40,14 +43,14 @@ public:
    void updateFilter(std::string&);
 
    bool getVolumeMode()      const { return m_mode.value() == kVolume; }
-   std::string getFilter ()  const { return m_filter.value(); }
+   std::string getFilter()   const { return m_filter.value(); }
    int  getAutoExpand()      const { return m_autoExpand.value(); }
    int  getVisLevel()        const { return m_visLevel.value(); }
-   bool getIgnoreVisLevelWhenFilter() const  { return m_visLevelFilter.value(); }
+   bool getIgnoreVisLevelWhenFilter() const { return m_visLevelFilter.value(); }
 
-   bool getFilterByName() const  { return m_filterByName.value(); }
+   bool getFilterByName() const { return m_filterByName.value(); }
 
-   bool drawTopNode() const { return !m_disableTopNode.value(); }
+   bool drawTopNode() const { return ! m_disableTopNode.value(); }
    void autoExpandCallback();
    virtual void setPath(int, std::string&);
    void printTable();
@@ -68,10 +71,10 @@ private:
    const FWGeometryTableView& operator=(const FWGeometryTableView&); // stop default
 
    // ---------- member data --------------------------------
-   FWGeometryTableManager *m_tableManager;
+   FWGeometryTableManager   *m_tableManager;
 
-   FWGUIValidatingTextEntry* m_filterEntry;
-   FWGeoMaterialValidator*   m_filterValidator;
+   FWGUIValidatingTextEntry *m_filterEntry;
+   FWGeoMaterialValidator   *m_filterValidator;
 
 #ifndef __CINT__ 
    FWEnumParameter         m_mode;
@@ -83,12 +86,11 @@ private:
    FWBoolParameter         m_visLevelFilter; 
    
    FWBoolParameter         m_selectRegion;
-   FWLongParameter         m_regionRadius;
+   FWDoubleParameter       m_regionRadius;
+   FWEnumParameter         m_proximityAlgo;
 #endif  
-
 
    ClassDef(FWGeometryTableView, 0);
 };
-
 
 #endif

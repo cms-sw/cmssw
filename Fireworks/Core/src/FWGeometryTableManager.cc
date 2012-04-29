@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jan  4 20:31:25 CET 2012
-// $Id: FWGeometryTableManager.cc,v 1.49 2012/04/28 01:18:39 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.50 2012/04/28 19:38:15 matevz Exp $
 //
 
 // system include files
@@ -183,11 +183,11 @@ void FWGeometryTableManager::checkHierarchy()
    }
 }
 
-void FWGeometryTableManager::checkChildMatches(TGeoVolume* vol,  std::vector<TGeoVolume*>& pstack)
+void FWGeometryTableManager::checkChildMatches(TGeoVolume* vol, std::vector<TGeoVolume*>& pstack)
 {
    if (m_volumes[vol].m_matches)
    {
-      for (std::vector<TGeoVolume*>::iterator i = pstack.begin(); i!= pstack.end(); ++i)
+      for (std::vector<TGeoVolume*>::iterator i = pstack.begin(); i != pstack.end(); ++i)
       {
          Match& pm =  m_volumes[*i];
          pm.m_childMatches = true;
@@ -196,8 +196,8 @@ void FWGeometryTableManager::checkChildMatches(TGeoVolume* vol,  std::vector<TGe
 
    pstack.push_back(vol);
 
-   int nD =  vol->GetNdaughters();//TMath::Min(m_browser->getMaxDaughters(), vol->GetNdaughters());
-   for (int i = 0; i!=nD; ++i)
+   int nD = vol->GetNdaughters(); //TMath::Min(m_browser->getMaxDaughters(), vol->GetNdaughters());
+   for (int i = 0; i < nD; ++i)
       checkChildMatches(vol->GetNode(i)->GetVolume(), pstack);
 
    pstack.pop_back();
@@ -217,14 +217,15 @@ void FWGeometryTableManager::updateFilter(bool useName)
    if (m_filterOff || m_entries.empty()) return;
 
    // update volume-match entries
-   //   m_numVolumesMatched = 0;
-   for (Volumes_i i = m_volumes.begin(); i!= m_volumes.end(); ++i)
+   // m_numVolumesMatched = 0;
+   for (Volumes_i i = m_volumes.begin(); i != m_volumes.end(); ++i)
    {
       if (strcasestr(useName ? i->first->GetMaterial()->GetName() : i->first->GetMaterial()->GetTitle() , filterExp.c_str()) > 0) {
          i->second.m_matches = true;
-         //    m_numVolumesMatched++;
+         // m_numVolumesMatched++;
       }
-      else {
+      else
+      {
          i->second.m_matches = false;
       }
       i->second.m_childMatches = false;
@@ -379,8 +380,8 @@ void FWGeometryTableManager::recalculateVisibilityVolumeRec(int pIdx)
 void FWGeometryTableManager::recalculateVisibilityNodeRec( int pIdx)
 {
    TGeoNode* parentNode = m_entries[pIdx].m_node;
-   int nD = parentNode->GetNdaughters();
-   int dOff=0;
+   int nD   = parentNode->GetNdaughters();
+   int dOff = 0;
    for (int n = 0; n != nD; ++n)
    {
       int idx = pIdx + 1 + n + dOff;
@@ -461,9 +462,9 @@ void FWGeometryTableManager::setVisibilityChld(NodeInfo& data, bool x)
 
 void FWGeometryTableManager::setDaughtersSelfVisibility(int selectedIdx, bool v)
 {
-   int dOff = 0;
+   TGeoNode  *parentNode = m_entries[selectedIdx].m_node;
    int nD   = parentNode->GetNdaughters();
-   TGeoNode* parentNode = m_entries[selectedIdx].m_node;
+   int dOff = 0;
    for (int n = 0; n != nD; ++n)
    {
       int idx = selectedIdx + 1 + n + dOff;
@@ -503,9 +504,9 @@ bool FWGeometryTableManager::nodeIsParent(const NodeInfo& data) const
 
 //------------------------------------------------------------------------------
 
-void FWGeometryTableManager::checkRegionOfInterest(double* center, long radius)
+void FWGeometryTableManager::checkRegionOfInterest(double* center, double radius, long algo)
 {
-   TEveVectorD oo(center[0], center[1], center[2]);
+   double sqr_r = radius * radius;
 
    for (Entries_i ni = m_entries.begin(); ni != m_entries.end(); ++ni)
       ni->resetBit(kVisNodeChld);
@@ -514,25 +515,62 @@ void FWGeometryTableManager::checkRegionOfInterest(double* center, long radius)
    TEveGeoManagerHolder mangeur( FWGeometryTableViewManager::getGeoMangeur());
    printf("FWGeometryTableManagerBase::checkRegionOfInterest BEGIN r=%d center= (%.1f, %.1f, %.1f)\n ", (int)radius, center[0], center[1], center[2]);
    TGeoIterator git(m_entries[0].m_node->GetVolume());
-   Entries_i eit = m_entries.begin();
+   Entries_i    eit(m_entries.begin());
    while (git())
    {
-      TGeoBBox* bb = static_cast<TGeoBBox*>(eit->m_node->GetVolume()->GetShape());
-      TEveVectorD c1(bb->GetOrigin()[0] + bb->GetDX(), bb->GetOrigin()[1] + bb->GetDY(), bb->GetOrigin()[2] +  bb->GetDZ());
-      TEveVectorD c2(bb->GetOrigin()[0] - bb->GetDX(), bb->GetOrigin()[1] - bb->GetDY(), bb->GetOrigin()[2] -  bb->GetDZ());
+      const TGeoMatrix *gm   = git.GetCurrentMatrix();
+      const TGeoBBox   *bb   = static_cast<TGeoBBox*>(eit->m_node->GetVolume()->GetShape());
+      const Double_t   *bo   = bb->GetOrigin();
+      const Double_t    bd[] = { bb->GetDX(), bb->GetDY(), bb->GetDZ() };
+      const Double_t   *cc   = center;
 
-      TEveVectorD c1M, c2M;
-      git.GetCurrentMatrix()->LocalToMaster(c1.Arr(), c1M.Arr());
-      git.GetCurrentMatrix()->LocalToMaster(c2.Arr(), c2M.Arr());
-      if ((oo - c1M).Mag() < radius && (oo - c2M).Mag() < radius)
+      bool visible;
+
+      switch (algo)
+      {
+         case FWGeometryTableView::kBBoxCenter:
+         {
+            const Double_t *t = gm->GetTranslation();
+            TEveVectorD d(cc[0] - (t[0] + bo[0]), cc[1] - (t[1] + bo[1]), cc[2] - (t[2] + bo[2]));
+            Double_t sqr_d = d.Mag2();;
+            visible = (sqr_d <= sqr_r);
+            break;
+         }
+         case FWGeometryTableView::kBBoxSurface:
+         {
+            assert (gm->IsScale() == false);
+
+            const Double_t *t = gm->GetTranslation();
+            const Double_t *r = gm->GetRotationMatrix();
+            TEveVectorD d(cc[0] - (t[0] + bo[0]), cc[1] - (t[1] + bo[1]), cc[2] - (t[2] + bo[2]));
+            Double_t sqr_d = 0;
+            for (Int_t i = 0; i < 3; ++i)
+            {
+               Double_t dp = d[0]*r[i] + d[1]*r[i+3] + d[2]*r[i+6];
+               if (dp < -bd[i])
+               {
+                  Double_t delta = dp + bd[i];
+                  sqr_d += delta * delta;
+               }
+               else if (dp > bd[i])
+               {
+                  Double_t delta = dp - bd[i];
+                  sqr_d += delta * delta;               
+               }
+            }
+            visible = (sqr_d <= sqr_r);
+         }
+      }
+
+      if (visible)
       {
          eit->setBit(kVisNodeSelf);
          int pidx = eit->m_parent;
-         while(pidx >=0)
+         while (pidx >= 0)
          {
             m_entries[pidx].setBit(kVisNodeChld);
-            pidx =  m_entries[pidx].m_parent;
-            cnt++;
+            pidx = m_entries[pidx].m_parent;
+            ++cnt;
          }
       }
       else

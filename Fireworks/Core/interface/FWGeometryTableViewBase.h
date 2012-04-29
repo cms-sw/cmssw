@@ -47,10 +47,7 @@ class FWGeometryTableViewBase
      public  FWParameterSetterEditorBase
 #endif
 {
-
 public:
-   enum EMode { kNode, kVolume};
-
    class FWViewCombo : public TGTextButton
    {
    private:
