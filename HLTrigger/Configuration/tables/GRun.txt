@@ -314,9 +314,9 @@ HLT_Tau2Mu_ItTrack_v*										#sr(bug)92594
 
 HLT_QuadJet80_v*										#sr126462, removed L1FastJet from name
 HLT_SixJet45_v*											#sr126426, removed L1FastJet from name
-HLT_EightJet35_v*										#sr126462, removed L1FastJet from name
+#HLT_EightJet35_v*										#sr126462, removed L1FastJet from name, dropped by #sr128198
 #HLT_HT750_v*                                                                                   #sr126462 but dropped as we have HLT_HT750_L1FastJet
-HLT_EightJet40_v*										#sr126462, removed L1FastJet from name
+#HLT_EightJet40_v*										#sr126462, removed L1FastJet from name, dropped by #sr128198
 HLT_QuadJet70_v*										#sr126462, removed L1FastJet from name
 HLT_SixJet35_v*											#sr126462, removed L1FastJet from name
 HLT_QuadJet90_v*										#sr126462, removed L1FastJet from name
@@ -324,6 +324,9 @@ HLT_SixJet50_v*											#sr126462, removed L1FastJet from name
 
 HLT_HT750_v*											#sr126816, removed L1FastJet from name
 HLT_HT650_v*											#sr126816, removed L1FastJet from name
+
+HLT_EightJet30_eta3p0_v*									#sr128198
+HLT_EightJet35_eta3p0_v*									#sr128198
 
 #HLT_LooseIsoPFTau35_Trk20_v*                                                                   #sr126469 (removed by sr127332)
 #HLT_LooseIsoPFTau35_Trk20_MET70_v*                                                             #sr126469 (removed by sr127332)
@@ -467,10 +470,12 @@ HLT_DiPFJetAve260_v*                                                            
 HLT_DiPFJetAve320_v*                                                                            #sr126501, 126484
 HLT_DiPFJetAve400_v*                                                                            #sr126501, 126484
 
-HLT_DoublePhoton43_HEVT_v*                                                                      #sr126541
+#HLT_DoublePhoton43_HEVT_v*                                                                     #sr126541, dropped by #sr128200
 HLT_DoublePhoton48_HEVT_v*                                                                      #sr126541
-#HLT_Photon90EBOnly_CaloIdVL_IsoL_TriPFJet25_v*                                                  #sr126541, removed in sr127920
-#HLT_Photon90EBOnly_CaloIdVL_IsoL_TriPFJet30_v*                                                  #sr126541, removed in sr127920
+#HLT_Photon90EBOnly_CaloIdVL_IsoL_TriPFJet25_v*                                                 #sr126541, removed in sr127920
+#HLT_Photon90EBOnly_CaloIdVL_IsoL_TriPFJet30_v*                                                 #sr126541, removed in sr127920
+
+HLT_DoublePhoton53_HEVT_v*									#sr128200
 
 HLT_DisplacedPhoton65_CaloIdVL_IsoL_PFMET25_v*                                                  #sr127920
 HLT_DisplacedPhoton65EBOnly_CaloIdVL_IsoL_PFMET30_v*                                            #sr127920
