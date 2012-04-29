@@ -76,6 +76,7 @@ streamA_datasetDoubleElectron_selector.triggerConditions = cms.vstring('HLT_Doub
     'HLT_Ele8_CaloIdL_CaloIsoVL_v16', 
     'HLT_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Jet30_v5', 
     'HLT_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v14', 
+    'HLT_Ele8_CaloIdT_TrkIdVL_EG7_v1', 
     'HLT_Ele8_CaloIdT_TrkIdVL_Jet30_v4', 
     'HLT_Ele8_CaloIdT_TrkIdVL_v4', 
     'HLT_Photon22_R9Id90_HE10_Iso40_EBOnly_v4', 
