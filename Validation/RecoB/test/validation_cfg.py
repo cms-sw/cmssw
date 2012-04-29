@@ -22,6 +22,8 @@ process.bTagValidation.jetMCSrc = 'AK5byValAlgo'
 process.bTagValidation.allHistograms = True 
 #process.bTagValidation.fastMC = True
 
+process.bTagValidation.applyPtHatWeight = False
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
