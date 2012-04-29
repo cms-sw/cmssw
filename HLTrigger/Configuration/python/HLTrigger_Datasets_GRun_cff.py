@@ -145,8 +145,8 @@ streamA_datasetDoublePhotonHighPt_selector.triggerConditions = cms.vstring('HLT_
     'HLT_DoubleEle33_CaloIdT_v9', 
     'HLT_DoublePhoton40_CaloIdL_Rsq0p035_v3', 
     'HLT_DoublePhoton40_CaloIdL_Rsq0p06_v3', 
-    'HLT_DoublePhoton43_HEVT_v7', 
     'HLT_DoublePhoton48_HEVT_v7', 
+    'HLT_DoublePhoton53_HEVT_v1', 
     'HLT_DoublePhoton5_IsoVL_CEP_v15', 
     'HLT_DoublePhoton70_v5', 
     'HLT_DoublePhoton80_v6')
@@ -409,8 +409,8 @@ streamA_datasetMultiJet_selector.l1tResults = cms.InputTag('')
 streamA_datasetMultiJet_selector.throw      = cms.bool(False)
 streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_DiJet80_DiJet60_DiJet20_v2', 
     'HLT_DoubleJet20_ForwardBackward_v2', 
-    'HLT_EightJet35_v2', 
-    'HLT_EightJet40_v2', 
+    'HLT_EightJet30_eta3p0_v1', 
+    'HLT_EightJet35_eta3p0_v1', 
     'HLT_ExclDiJet35_HFAND_v2', 
     'HLT_ExclDiJet35_HFOR_v2', 
     'HLT_ExclDiJet80_HFAND_v2', 
