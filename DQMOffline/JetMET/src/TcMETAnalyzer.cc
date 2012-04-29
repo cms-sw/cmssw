@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/04/20 14:37:48 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/03/10 13:25:31 $
+ *  $Revision: 1.6 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -47,7 +47,7 @@ void TcMETAnalyzer::beginJob(DQMStore * dbe) {
   _hlt_HighPtJet = parameters.getParameter<std::string>("HLT_HighPtJet");
   _hlt_LowPtJet  = parameters.getParameter<std::string>("HLT_LowPtJet");
   _hlt_HighMET   = parameters.getParameter<std::string>("HLT_HighMET");
-  //  _hlt_LowMET    = parameters.getParameter<std::string>("HLT_LowMET");
+  _hlt_LowMET    = parameters.getParameter<std::string>("HLT_LowMET");
   _hlt_Ele       = parameters.getParameter<std::string>("HLT_Ele");
   _hlt_Muon      = parameters.getParameter<std::string>("HLT_Muon");
 
@@ -135,10 +135,10 @@ void TcMETAnalyzer::bookMESet(std::string DirName)
     meTriggerName_HighMET = _dbe->bookString("triggerName_HighMET", _hlt_HighMET);
   }
 
-  //  if (_hlt_LowMET.size()){
-  //    bookMonitorElement(DirName+"/"+"LowMET",false);
-  //    meTriggerName_LowMET = _dbe->bookString("triggerName_LowMET", _hlt_LowMET);
-  //  }
+  if (_hlt_LowMET.size()){
+    bookMonitorElement(DirName+"/"+"LowMET",false);
+    meTriggerName_LowMET = _dbe->bookString("triggerName_LowMET", _hlt_LowMET);
+  }
 
   if (_hlt_Ele.size()){
     bookMonitorElement(DirName+"/"+"Ele",false);
@@ -159,13 +159,14 @@ void TcMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fa
   if (_verbose) std::cout << "booMonitorElement " << DirName << std::endl;
   _dbe->setCurrentFolder(DirName);
  
-  meTcMEx    = _dbe->book1D("METTask_TcMEx",    "METTask_TcMEx",    200, -500,  500);
-  meTcMEy    = _dbe->book1D("METTask_TcMEy",    "METTask_TcMEy",    200, -500,  500);
-  meTcEz     = _dbe->book1D("METTask_TcEz",     "METTask_TcEz",     200, -500,  500);
-  meTcMETSig = _dbe->book1D("METTask_TcMETSig", "METTask_TcMETSig",  51,    0,   51);
-  meTcMET    = _dbe->book1D("METTask_TcMET",    "METTask_TcMET",    200,    0, 1000);
-  meTcMETPhi = _dbe->book1D("METTask_TcMETPhi", "METTask_TcMETPhi",  60, -3.2,  3.2);
-  meTcSumET  = _dbe->book1D("METTask_TcSumET",  "METTask_TcSumET",  400,    0, 4000);
+  meNevents              = _dbe->book1D("METTask_Nevents", "METTask_Nevents"   ,1,0,1);
+  meTcMEx                = _dbe->book1D("METTask_TcMEx",   "METTask_TcMEx"   ,500,-500,500);
+  meTcMEy                = _dbe->book1D("METTask_TcMEy",   "METTask_TcMEy"   ,500,-500,500);
+  meTcEz                 = _dbe->book1D("METTask_TcEz",    "METTask_TcEz"    ,500,-500,500);
+  meTcMETSig             = _dbe->book1D("METTask_TcMETSig","METTask_TcMETSig",51,0,51);
+  meTcMET                = _dbe->book1D("METTask_TcMET",   "METTask_TcMET"   ,500,0,1000);
+  meTcMETPhi             = _dbe->book1D("METTask_TcMETPhi","METTask_TcMETPhi",80,-TMath::Pi(),TMath::Pi());
+  meTcSumET              = _dbe->book1D("METTask_TcSumET", "METTask_TcSumET" ,500,0,2000);
 
   meTcNeutralEMFraction  = _dbe->book1D("METTask_TcNeutralEMFraction", "METTask_TcNeutralEMFraction" ,50,0.,1.);
   meTcNeutralHadFraction = _dbe->book1D("METTask_TcNeutralHadFraction","METTask_TcNeutralHadFraction",50,0.,1.);
@@ -231,29 +232,12 @@ void TcMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, 
       if (_hlt_HighPtJet.size()) makeRatePlot(DirName+"/"+_hlt_HighPtJet,totltime);
       if (_hlt_LowPtJet.size())  makeRatePlot(DirName+"/"+_hlt_LowPtJet,totltime);
       if (_hlt_HighMET.size())   makeRatePlot(DirName+"/"+_hlt_HighMET,totltime);
-      //      if (_hlt_LowMET.size())    makeRatePlot(DirName+"/"+_hlt_LowMET,totltime);
+      if (_hlt_LowMET.size())    makeRatePlot(DirName+"/"+_hlt_LowMET,totltime);
       if (_hlt_Ele.size())       makeRatePlot(DirName+"/"+_hlt_Ele,totltime);
       if (_hlt_Muon.size())      makeRatePlot(DirName+"/"+_hlt_Muon,totltime);
 
     }
-
-
-  // Fit ME{x,y}
-  //------------------------------------------------------------------------
-  for (std::vector<std::string>::const_iterator ic = _FolderNames.begin();
-       ic != _FolderNames.end(); ic++) {
-
-    std::string DirName;
-    DirName = dirName+*ic;
-
-    meTcMEx = _dbe->get(DirName + "/METTask_TcMEx");
-    meTcMEy = _dbe->get(DirName + "/METTask_TcMEy");
-
-    if (meTcMEx && meTcMEx->kind() == MonitorElement::DQM_KIND_TH1F) meTcMEx->getTH1F()->Fit("gaus", "q");
-    if (meTcMEy && meTcMEy->kind() == MonitorElement::DQM_KIND_TH1F) meTcMEy->getTH1F()->Fit("gaus", "q");
-  }
 }
-
 
 // ***********************************************************
 void TcMETAnalyzer::makeRatePlot(std::string DirName, double totltime)
@@ -301,9 +285,8 @@ void TcMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   _trig_HighPtJet=0;
   _trig_LowPtJet=0;
   _trig_HighMET=0;
-  //  _trig_LowMET=0;
-
-  if (&triggerResults) {   
+  _trig_LowMET=0;
+  if(&triggerResults) {   
 
     /////////// Analyzing HLT Trigger Results (TriggerResults) //////////
 
@@ -337,7 +320,7 @@ void TcMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (_verbose) std::cout << _hlt_HighPtJet << " " << triggerNames.triggerIndex(_hlt_HighPtJet) << std::endl;
     if (_verbose) std::cout << _hlt_LowPtJet  << " " << triggerNames.triggerIndex(_hlt_LowPtJet)  << std::endl;
     if (_verbose) std::cout << _hlt_HighMET   << " " << triggerNames.triggerIndex(_hlt_HighMET)   << std::endl;
-    //    if (_verbose) std::cout << _hlt_LowMET    << " " << triggerNames.triggerIndex(_hlt_LowMET)    << std::endl;
+    if (_verbose) std::cout << _hlt_LowMET    << " " << triggerNames.triggerIndex(_hlt_LowMET)    << std::endl;
     if (_verbose) std::cout << _hlt_Ele       << " " << triggerNames.triggerIndex(_hlt_Ele)       << std::endl;
     if (_verbose) std::cout << _hlt_Muon      << " " << triggerNames.triggerIndex(_hlt_Muon)      << std::endl;
 
@@ -350,8 +333,8 @@ void TcMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (triggerNames.triggerIndex(_hlt_HighMET)   != triggerNames.size() &&
         triggerResults.accept(triggerNames.triggerIndex(_hlt_HighMET)))   _trig_HighMET=1;
 
-    //    if (triggerNames.triggerIndex(_hlt_LowMET)    != triggerNames.size() &&
-    //        triggerResults.accept(triggerNames.triggerIndex(_hlt_LowMET)))    _trig_LowMET=1;
+    if (triggerNames.triggerIndex(_hlt_LowMET)    != triggerNames.size() &&
+        triggerResults.accept(triggerNames.triggerIndex(_hlt_LowMET)))    _trig_LowMET=1;
 
     if (triggerNames.triggerIndex(_hlt_Ele)       != triggerNames.size() &&
         triggerResults.accept(triggerNames.triggerIndex(_hlt_Ele)))       _trig_Ele=1;
@@ -532,7 +515,7 @@ void TcMETAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
   if (_hlt_HighPtJet.size() && _trig_HighPtJet) fillMonitorElement(iEvent,DirName,"HighPtJet",tcmet,false);
   if (_hlt_LowPtJet.size() && _trig_LowPtJet) fillMonitorElement(iEvent,DirName,"LowPtJet",tcmet,false);
   if (_hlt_HighMET.size() && _trig_HighMET) fillMonitorElement(iEvent,DirName,"HighMET",tcmet,false);
-  //  if (_hlt_LowMET.size() && _trig_LowMET) fillMonitorElement(iEvent,DirName,"LowMET",tcmet,false);
+  if (_hlt_LowMET.size() && _trig_LowMET) fillMonitorElement(iEvent,DirName,"LowMET",tcmet,false);
   if (_hlt_Ele.size() && _trig_Ele) fillMonitorElement(iEvent,DirName,"Ele",tcmet,false);
   if (_hlt_Muon.size() && _trig_Muon) fillMonitorElement(iEvent,DirName,"Muon",tcmet,false);
 }
@@ -552,9 +535,9 @@ void TcMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string Dir
   else if (TriggerTypeName=="HighMET") {
     if (tcmet.pt()<_highTcMETThreshold) return;
   }
-  //  else if (TriggerTypeName=="LowMET") {
-  //    if (tcmet.pt()<_lowTcMETThreshold) return;
-  //  }
+  else if (TriggerTypeName=="LowMET") {
+    if (tcmet.pt()<_lowTcMETThreshold) return;
+  }
   else if (TriggerTypeName=="Ele") {
     if (!selectWElectronEvent(iEvent)) return;
   }
@@ -602,7 +585,6 @@ void TcMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string Dir
     } // _allhist
   } // et threshold cut
 }
-
 
 // ***********************************************************
 bool TcMETAnalyzer::selectHighPtJetEvent(const edm::Event& iEvent){

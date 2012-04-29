@@ -4,8 +4,8 @@
 /*
  * \file EBHltTask.h
  *
- * $Date: 2010/03/26 11:24:49 $
- * $Revision: 1.6 $
+ * $Date: 2009/10/26 17:33:47 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */

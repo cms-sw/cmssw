@@ -9,14 +9,12 @@ namespace edm {
   class ParameterSet;
   namespace eventsetup {
     class EventSetupProvider;
-    class EventSetupsController;
 
     std::auto_ptr<EventSetupProvider>
     makeEventSetupProvider(ParameterSet const& params);
 
     void
-    fillEventSetupProvider(EventSetupsController& esController,
-                           EventSetupProvider& cp,
+    fillEventSetupProvider(EventSetupProvider& cp,
                            ParameterSet& params);
 
     void

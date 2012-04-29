@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/04/20 14:37:08 $
- *  $Revision: 1.69 $
+ *  $Date: 2012/03/23 18:24:44 $
+ *  $Revision: 1.65 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -38,7 +38,7 @@ CaloMETAnalyzer::CaloMETAnalyzer(const edm::ParameterSet& pSet) {
   edm::ParameterSet lowptjetparms  = parameters.getParameter<edm::ParameterSet>("lowPtJetTrigger" );
   edm::ParameterSet minbiasparms   = parameters.getParameter<edm::ParameterSet>("minBiasTrigger"  );
   edm::ParameterSet highmetparms   = parameters.getParameter<edm::ParameterSet>("highMETTrigger"  );
-  //  edm::ParameterSet lowmetparms    = parameters.getParameter<edm::ParameterSet>("lowMETTrigger"   );
+  edm::ParameterSet lowmetparms    = parameters.getParameter<edm::ParameterSet>("lowMETTrigger"   );
   edm::ParameterSet eleparms       = parameters.getParameter<edm::ParameterSet>("eleTrigger"      );
   edm::ParameterSet muonparms      = parameters.getParameter<edm::ParameterSet>("muonTrigger"     );
 
@@ -47,14 +47,14 @@ CaloMETAnalyzer::CaloMETAnalyzer(const edm::ParameterSet& pSet) {
   _LowPtJetEventFlag  = new GenericTriggerEventFlag( lowptjetparms  );
   _MinBiasEventFlag   = new GenericTriggerEventFlag( minbiasparms   );
   _HighMETEventFlag   = new GenericTriggerEventFlag( highmetparms   );
-  //  _LowMETEventFlag    = new GenericTriggerEventFlag( lowmetparms    );
+  _LowMETEventFlag    = new GenericTriggerEventFlag( lowmetparms    );
   _EleEventFlag       = new GenericTriggerEventFlag( eleparms       );
   _MuonEventFlag      = new GenericTriggerEventFlag( muonparms      );
 
   highPtJetExpr_ = highptjetparms.getParameter<std::vector<std::string> >("hltPaths");
   lowPtJetExpr_  = lowptjetparms .getParameter<std::vector<std::string> >("hltPaths");
   highMETExpr_   = highmetparms  .getParameter<std::vector<std::string> >("hltPaths");
-  //  lowMETExpr_    = lowmetparms   .getParameter<std::vector<std::string> >("hltPaths");
+  lowMETExpr_    = lowmetparms   .getParameter<std::vector<std::string> >("hltPaths");
   muonExpr_      = muonparms     .getParameter<std::vector<std::string> >("hltPaths");
   elecExpr_      = eleparms      .getParameter<std::vector<std::string> >("hltPaths");
   minbiasExpr_   = minbiasparms  .getParameter<std::vector<std::string> >("hltPaths");
@@ -68,7 +68,7 @@ CaloMETAnalyzer::~CaloMETAnalyzer() {
   delete _LowPtJetEventFlag;
   delete _MinBiasEventFlag;
   delete _HighMETEventFlag;
-  //  delete _LowMETEventFlag;
+  delete _LowMETEventFlag;
   delete _EleEventFlag;
   delete _MuonEventFlag;
 
@@ -142,7 +142,7 @@ void CaloMETAnalyzer::beginJob(DQMStore * dbe) {
   _highPtJetThreshold = parameters.getParameter<double>("HighPtJetThreshold"); // High Pt Jet threshold
   _lowPtJetThreshold = parameters.getParameter<double>("LowPtJetThreshold"); // Low Pt Jet threshold
   _highMETThreshold = parameters.getParameter<double>("HighMETThreshold"); // High MET threshold
-  //  _lowMETThreshold = parameters.getParameter<double>("LowMETThreshold"); // Low MET threshold
+  _lowMETThreshold = parameters.getParameter<double>("LowMETThreshold"); // Low MET threshold
 
   //
   jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
@@ -229,10 +229,10 @@ void CaloMETAnalyzer::bookMESet(std::string DirName)
     hTriggerName_HighMET = _dbe->bookString("triggerName_HighMET", highMETExpr_[0]);
   }
 
-  //  if ( _LowMETEventFlag->on() ) {
-  //    bookMonitorElementTriggered(DirName+"/"+"LowMET",false);
-  //    hTriggerName_LowMET = _dbe->bookString("triggerName_LowMET", lowMETExpr_[0]);
-  //  }
+  if ( _LowMETEventFlag->on() ) {
+    bookMonitorElementTriggered(DirName+"/"+"LowMET",false);
+    hTriggerName_LowMET = _dbe->bookString("triggerName_LowMET", lowMETExpr_[0]);
+  }
 
   if ( _EleEventFlag->on() ) {
     bookMonitorElementTriggered(DirName+"/"+"Ele",false);
@@ -251,19 +251,76 @@ void CaloMETAnalyzer::bookMESet(std::string DirName)
 void CaloMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=false)
 {
   if (_verbose) std::cout << "bookMonitorElement " << DirName << std::endl;
-
   _dbe->setCurrentFolder(DirName);
 
   bookMonitorElementTriggered(DirName, bLumiSecPlot);
+  /*
+  //hNevents                = _dbe->book1D("METTask_Nevents",   "METTask_Nevents"   ,1,0,1);
+  hCaloMEx                = _dbe->book1D("METTask_CaloMEx",   "METTask_CaloMEx"   ,100,-500,500);
+  hCaloMEx->setAxisTitle("MEx [GeV]",1);
+  hCaloMEy                = _dbe->book1D("METTask_CaloMEy",   "METTask_CaloMEy"   ,100,-500,500); 
+  hCaloMEy->setAxisTitle("MEy [GeV]",1);
+  hCaloMETSig             = _dbe->book1D("METTask_CaloMETSig","METTask_CaloMETSig",51,0,51);
+  hCaloMETSig->setAxisTitle("METSig",1);
+  hCaloMET                = _dbe->book1D("METTask_CaloMET",   "METTask_CaloMET"   ,100,0,1000); 
+  hCaloMET->setAxisTitle("MET [GeV]",1);
+  hCaloMET1               = _dbe->book1D("METTask_CaloMET1",  "METTask_CaloMET1"  ,40,0,200);
+  //meCaloMET->getTH1F()->SetStats(111111);
+  //meCaloMET->getTH1F()->SetOption("logy");
+  hCaloMETPhi             = _dbe->book1D("METTask_CaloMETPhi","METTask_CaloMETPhi",60,-TMath::Pi(),TMath::Pi()); 
+  hCaloMETPhi->setAxisTitle("METPhi [rad]",1);
+  hCaloSumET              = _dbe->book1D("METTask_CaloSumET", "METTask_CaloSumET" ,400,0,2000); 
+  hCaloSumET->setAxisTitle("SumET [GeV]",1);
 
+  hCaloMETNoHF                = _dbe->book1D("METTask_CaloMETNoHF",   "METTask_CaloMETNoHF"   ,100,0,1000); 
+  hCaloMETNoHF->setAxisTitle("MET (No HF) [GeV]",1);
 
-  if (_allhist) {
+  hCaloMET_logx           = _dbe->book1D("METTask_CaloMET_logx",   "METTask_CaloMET_logx"   ,40,-1.,7.);
+  hCaloMET_logx->setAxisTitle("log(MET) [GeV]",1);
+  hCaloSumET_logx         = _dbe->book1D("METTask_CaloSumET_logx", "METTask_CaloSumET_logx" ,40,-1.,7.);
+  hCaloSumET_logx->setAxisTitle("log(SumET) [GeV]",1);
+  //  hCaloMETIonFeedbck      = _dbe->book1D("METTask_CaloMETIonFeedbck", "METTask_CaloMETIonFeedbck" ,500,0,1000);
+  //  hCaloMETIonFeedbck->setAxisTitle("MET [GeV]",1);
+  //  hCaloMETHPDNoise        = _dbe->book1D("METTask_CaloMETHPDNoise",   "METTask_CaloMETHPDNoise"   ,500,0,1000);
+  //  hCaloMETHPDNoise->setAxisTitle("MET [GeV]",1);
+  //  hCaloMETRBXNoise        = _dbe->book1D("METTask_CaloMETRBXNoise",   "METTask_CaloMETRBXNoise"   ,500,0,1000);
+  //  hCaloMETRBXNoise->setAxisTitle("MET [GeV]",1);
 
+  //  hCaloMETPhi002          = _dbe->book1D("METTask_CaloMETPhi002","METTask_CaloMETPhi002",60,-TMath::Pi(),TMath::Pi());
+  //  hCaloMETPhi002->setAxisTitle("METPhi [rad] (MET>2 GeV)",1);
+  //  hCaloMETPhi010          = _dbe->book1D("METTask_CaloMETPhi010","METTask_CaloMETPhi010",60,-TMath::Pi(),TMath::Pi());
+  //  hCaloMETPhi010->setAxisTitle("METPhi [rad] (MET>10 GeV)",1);
+  hCaloMETPhi020          = _dbe->book1D("METTask_CaloMETPhi020","METTask_CaloMETPhi020",60,-TMath::Pi(),TMath::Pi());
+  hCaloMETPhi020->setAxisTitle("METPhi [rad] (MET>20 GeV)",1);
+  */
+  if (_allhist){
+    /*
+    if (bLumiSecPlot){
+      hCaloMExLS              = _dbe->book2D("METTask_CaloMEx_LS","METTask_CaloMEx_LS",200,-200,200,50,0.,500.);
+      hCaloMExLS->setAxisTitle("MEx [GeV]",1);
+      hCaloMExLS->setAxisTitle("Lumi Section",2);
+      hCaloMEyLS              = _dbe->book2D("METTask_CaloMEy_LS","METTask_CaloMEy_LS",200,-200,200,50,0.,500.);
+      hCaloMEyLS->setAxisTitle("MEy [GeV]",1);
+      hCaloMEyLS->setAxisTitle("Lumi Section",2);
+    }
+    */
     hCaloMaxEtInEmTowers    = _dbe->book1D("METTask_CaloMaxEtInEmTowers",   "METTask_CaloMaxEtInEmTowers"   ,100,0,2000);
     hCaloMaxEtInEmTowers->setAxisTitle("Et(Max) in EM Tower [GeV]",1);
     hCaloMaxEtInHadTowers   = _dbe->book1D("METTask_CaloMaxEtInHadTowers",  "METTask_CaloMaxEtInHadTowers"  ,100,0,2000);
     hCaloMaxEtInHadTowers->setAxisTitle("Et(Max) in Had Tower [GeV]",1);
+    /*
+    hCaloEtFractionHadronic = _dbe->book1D("METTask_CaloEtFractionHadronic","METTask_CaloEtFractionHadronic",100,0,1);
+    hCaloEtFractionHadronic->setAxisTitle("Hadronic Et Fraction",1);
+    hCaloEmEtFraction       = _dbe->book1D("METTask_CaloEmEtFraction",      "METTask_CaloEmEtFraction"      ,100,0,1);
+    hCaloEmEtFraction->setAxisTitle("EM Et Fraction",1);
 
+    //hCaloEmEtFraction002    = _dbe->book1D("METTask_CaloEmEtFraction002",   "METTask_CaloEmEtFraction002"      ,100,0,1);
+    //hCaloEmEtFraction002->setAxisTitle("EM Et Fraction (MET>2 GeV)",1);
+    //hCaloEmEtFraction010    = _dbe->book1D("METTask_CaloEmEtFraction010",   "METTask_CaloEmEtFraction010"      ,100,0,1);
+    //hCaloEmEtFraction010->setAxisTitle("EM Et Fraction (MET>10 GeV)",1);
+    hCaloEmEtFraction020    = _dbe->book1D("METTask_CaloEmEtFraction020",   "METTask_CaloEmEtFraction020"      ,100,0,1);
+    hCaloEmEtFraction020->setAxisTitle("EM Et Fraction (MET>20 GeV)",1);
+    */
     hCaloHadEtInHB          = _dbe->book1D("METTask_CaloHadEtInHB","METTask_CaloHadEtInHB",100,0,2000);
     hCaloHadEtInHB->setAxisTitle("Had Et [GeV]",1);
     hCaloHadEtInHO          = _dbe->book1D("METTask_CaloHadEtInHO","METTask_CaloHadEtInHO",25,0,500);
@@ -283,73 +340,104 @@ void CaloMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=
     hCaloEmMEx->setAxisTitle("EM MEx [GeV]",1);
     hCaloEmMEy= _dbe->book1D("METTask_CaloEmMEy","METTask_CaloEmMEy",200,-500,500);
     hCaloEmMEy->setAxisTitle("EM MEy [GeV]",1);
+    //hCaloEmEz= _dbe->book1D("METTask_CaloEmEz","METTask_CaloEmEz",100,-500,500);
+    //hCaloEmEz->setAxisTitle("EM Ez [GeV]",1);
     hCaloEmMET= _dbe->book1D("METTask_CaloEmMET","METTask_CaloEmMET",200,0,1000);
     hCaloEmMET->setAxisTitle("EM MET [GeV]",1);
-    hCaloEmMETPhi= _dbe->book1D("METTask_CaloEmMETPhi","METTask_CaloEmMETPhi", 60, -3.2, 3.2);
+    hCaloEmMETPhi= _dbe->book1D("METTask_CaloEmMETPhi","METTask_CaloEmMETPhi",60,-TMath::Pi(),TMath::Pi());
     hCaloEmMETPhi->setAxisTitle("EM METPhi [rad]",1);
+    //hCaloEmSumET= _dbe->book1D("METTask_CaloEmSumET","METTask_CaloEmSumET",200,0,2000);
+    //hCaloEmSumET->setAxisTitle("EM SumET [GeV]",1);
 
     hCaloHaMEx= _dbe->book1D("METTask_CaloHaMEx","METTask_CaloHaMEx",200,-500,500);
     hCaloHaMEx->setAxisTitle("HA MEx [GeV]",1);
     hCaloHaMEy= _dbe->book1D("METTask_CaloHaMEy","METTask_CaloHaMEy",200,-500,500);
     hCaloHaMEy->setAxisTitle("HA MEy [GeV]",1);
+    //hCaloHaEz= _dbe->book1D("METTask_CaloHaEz","METTask_CaloHaEz",100,-500,500);
+    //hCaloHaEz->setAxisTitle("HA Ez [GeV]",1);
     hCaloHaMET= _dbe->book1D("METTask_CaloHaMET","METTask_CaloHaMET",200,0,1000); 
     hCaloHaMET->setAxisTitle("HA MET [GeV]",1);
-    hCaloHaMETPhi= _dbe->book1D("METTask_CaloHaMETPhi","METTask_CaloHaMETPhi", 60, -3.2, 3.2);
+    hCaloHaMETPhi= _dbe->book1D("METTask_CaloHaMETPhi","METTask_CaloHaMETPhi",60,-TMath::Pi(),TMath::Pi());
     hCaloHaMETPhi->setAxisTitle("HA METPhi [rad]",1);
+    //hCaloHaSumET= _dbe->book1D("METTask_CaloHaSumET","METTask_CaloHaSumET",200,0,2000); 
+    //hCaloHaSumET->setAxisTitle("HA SumET [GeV]",1);
   }
+  /*  
+  if (theCaloMETCollectionLabel.label() == "corMetGlobalMuons" ) {
+    hCalomuPt    = _dbe->book1D("METTask_CalomuonPt", "METTask_CalomuonPt", 50, 0, 500);
+    hCalomuEta   = _dbe->book1D("METTask_CalomuonEta", "METTask_CalomuonEta", 60, -3.0, 3.0);
+    hCalomuNhits = _dbe->book1D("METTask_CalomuonNhits", "METTask_CalomuonNhits", 50, 0, 50);
+    hCalomuChi2  = _dbe->book1D("METTask_CalomuonNormalizedChi2", "METTask_CalomuonNormalizedChi2", 20, 0, 20);
+    hCalomuD0    = _dbe->book1D("METTask_CalomuonD0", "METTask_CalomuonD0", 50, -1, 1);
+    hCaloMExCorrection       = _dbe->book1D("METTask_CaloMExCorrection", "METTask_CaloMExCorrection", 100, -500.0,500.0);
+    hCaloMEyCorrection       = _dbe->book1D("METTask_CaloMEyCorrection", "METTask_CaloMEyCorrection", 100, -500.0,500.0);
+    hCaloMuonCorrectionFlag  = _dbe->book1D("METTask_CaloCorrectionFlag","METTask_CaloCorrectionFlag", 5, -0.5, 4.5);
+  }
+  */
 }
-
 
 // ***********************************************************
 void CaloMETAnalyzer::bookMonitorElementTriggered(std::string DirName, bool bLumiSecPlot=false)
 {
   if (_verbose) std::cout << "bookMonitorElementTriggered " << DirName << std::endl;
-
   _dbe->setCurrentFolder(DirName);
+ 
+  //hNevents                = _dbe->book1D("METTask_Nevents",   "METTask_Nevents"   ,1,0,1);
+  hCaloMEx                = _dbe->book1D("METTask_CaloMEx",   "METTask_CaloMEx"   ,100,-500,500);
+  hCaloMEx->setAxisTitle("MEx [GeV]",1);
+  hCaloMEy                = _dbe->book1D("METTask_CaloMEy",   "METTask_CaloMEy"   ,100,-500,500); 
+  hCaloMEy->setAxisTitle("MEy [GeV]",1);
+  hCaloMETSig             = _dbe->book1D("METTask_CaloMETSig","METTask_CaloMETSig",51,0,51);
+  hCaloMETSig->setAxisTitle("METSig",1);
+  hCaloMET                = _dbe->book1D("METTask_CaloMET",   "METTask_CaloMET"   ,100,0,1000); 
+  hCaloMET->setAxisTitle("MET [GeV]",1);
+  hCaloMET1               = _dbe->book1D("METTask_CaloMET1",  "METTask_CaloMET1"  ,40,0,200);
+  //meCaloMET->getTH1F()->SetStats(111111);
+  //meCaloMET->getTH1F()->SetOption("logy");
+  hCaloMETPhi             = _dbe->book1D("METTask_CaloMETPhi","METTask_CaloMETPhi",60,-TMath::Pi(),TMath::Pi()); 
+  hCaloMETPhi->setAxisTitle("METPhi [rad]",1);
+  hCaloSumET              = _dbe->book1D("METTask_CaloSumET", "METTask_CaloSumET" ,400,0,2000); 
+  hCaloSumET->setAxisTitle("SumET [GeV]",1);
 
-
-  hCaloMEx        = _dbe->book1D("METTask_CaloMEx",        "METTask_CaloMEx",        200, -500,  500);
-  hCaloMEy        = _dbe->book1D("METTask_CaloMEy",        "METTask_CaloMEy",        200, -500,  500); 
-  hCaloMET        = _dbe->book1D("METTask_CaloMET",        "METTask_CaloMET",        200,    0, 1000); 
-  hCaloMET1       = _dbe->book1D("METTask_CaloMET1",       "METTask_CaloMET1",        80,    0,  200);
-  hCaloMETNoHF    = _dbe->book1D("METTask_CaloMETNoHF",    "METTask_CaloMETNoHF",    200,    0, 1000); 
-  hCaloSumET      = _dbe->book1D("METTask_CaloSumET",      "METTask_CaloSumET",      400,    0, 4000); 
-  hCaloMETSig     = _dbe->book1D("METTask_CaloMETSig",     "METTask_CaloMETSig",      51,    0,   51);
-  hCaloMETPhi     = _dbe->book1D("METTask_CaloMETPhi",     "METTask_CaloMETPhi",      60, -3.2,  3.2); 
-  hCaloMETPhi020  = _dbe->book1D("METTask_CaloMETPhi020",  "METTask_CaloMETPhi020",   60, -3.2,  3.2);
-  hCaloMET_logx   = _dbe->book1D("METTask_CaloMET_logx",   "METTask_CaloMET_logx",    40,   -1,    7);
-  hCaloSumET_logx = _dbe->book1D("METTask_CaloSumET_logx", "METTask_CaloSumET_logx",  40,   -1,    7);
-
-  hCaloMEx       ->setAxisTitle("MEx [GeV]",                 1);
-  hCaloMEy       ->setAxisTitle("MEy [GeV]",                 1);
-  hCaloMET       ->setAxisTitle("MET [GeV]",                 1);
-  hCaloMET1      ->setAxisTitle("MET [GeV]",                 1);
-  hCaloMETNoHF   ->setAxisTitle("MET (No HF) [GeV]",         1);
-  hCaloSumET     ->setAxisTitle("SumET [GeV]",               1);
-  hCaloMETSig    ->setAxisTitle("METSig",                    1);
-  hCaloMETPhi    ->setAxisTitle("METPhi [rad]",              1);
-  hCaloMETPhi020 ->setAxisTitle("METPhi [rad] (MET>20 GeV)", 1);
-  hCaloMET_logx  ->setAxisTitle("log(MET) [GeV]",            1);
-  hCaloSumET_logx->setAxisTitle("log(SumET) [GeV]",          1);
+  hCaloMETNoHF                = _dbe->book1D("METTask_CaloMETNoHF",   "METTask_CaloMETNoHF"   ,100,0,1000); 
+  hCaloMETNoHF->setAxisTitle("MET (No HF) [GeV]",1);
 
 
   // Book NPV profiles
   //----------------------------------------------------------------------------
-  hCaloMEx_profile     = _dbe->bookProfile("METTask_CaloMEx_profile",     "MEx [GeV]",     nbinsPV, PVlow, PVup, 200, -500,  500);
-  hCaloMEy_profile     = _dbe->bookProfile("METTask_CaloMEy_profile",     "MEy [GeV]",     nbinsPV, PVlow, PVup, 200, -500,  500); 
-  hCaloMET_profile     = _dbe->bookProfile("METTask_CaloMET_profile",     "MET [GeV]",     nbinsPV, PVlow, PVup, 200,    0, 1000); 
-  hCaloMETNoHF_profile = _dbe->bookProfile("METTask_CaloMETNoHF_profile", "METNoHF [GeV]", nbinsPV, PVlow, PVup, 200,    0, 1000); 
-  hCaloSumET_profile   = _dbe->bookProfile("METTask_CaloSumET_profile",   "SumET [GeV]",   nbinsPV, PVlow, PVup, 400,    0, 4000); 
+  hCaloMEx_profile     = _dbe->bookProfile("METTask_CaloMEx_profile",     "MEx [GeV]",     nbinsPV, PVlow, PVup, 100, -500,  500);
+  hCaloMEy_profile     = _dbe->bookProfile("METTask_CaloMEy_profile",     "MEy [GeV]",     nbinsPV, PVlow, PVup, 100, -500,  500); 
+  hCaloMET_profile     = _dbe->bookProfile("METTask_CaloMET_profile",     "MET [GeV]",     nbinsPV, PVlow, PVup, 100,    0, 1000); 
+  hCaloMETNoHF_profile = _dbe->bookProfile("METTask_CaloMETNoHF_profile", "METNoHF [GeV]", nbinsPV, PVlow, PVup, 100,    0, 1000); 
+  hCaloSumET_profile   = _dbe->bookProfile("METTask_CaloSumET_profile",   "SumET [GeV]",   nbinsPV, PVlow, PVup, 200,    0, 2000); 
 
 
   // Set NPV profiles x-axis title
   //----------------------------------------------------------------------------
-  hCaloMEx_profile    ->setAxisTitle("nvtx", 1);
-  hCaloMEy_profile    ->setAxisTitle("nvtx", 1);
-  hCaloMET_profile    ->setAxisTitle("nvtx", 1);
-  hCaloMETNoHF_profile->setAxisTitle("nvtx", 1);
-  hCaloSumET_profile  ->setAxisTitle("nvtx", 1);
+  hCaloMEx_profile    ->setAxisTitle("nvtx",1);
+  hCaloMEy_profile    ->setAxisTitle("nvtx",1);
+  hCaloMET_profile    ->setAxisTitle("nvtx",1);
+  hCaloMETNoHF_profile->setAxisTitle("nvtx",1);
+  hCaloSumET_profile  ->setAxisTitle("nvtx",1);
 
+
+  hCaloMET_logx   = _dbe->book1D("METTask_CaloMET_logx",   "log(MET) [GeV]",   40, -1, 7);
+  hCaloSumET_logx = _dbe->book1D("METTask_CaloSumET_logx", "log(SumET) [GeV]", 40, -1, 7);
+
+
+  //  hCaloMETIonFeedbck      = _dbe->book1D("METTask_CaloMETIonFeedbck", "METTask_CaloMETIonFeedbck" ,500,0,1000);
+  //  hCaloMETIonFeedbck->setAxisTitle("MET [GeV]",1);
+  //  hCaloMETHPDNoise        = _dbe->book1D("METTask_CaloMETHPDNoise",   "METTask_CaloMETHPDNoise"   ,500,0,1000);
+  //  hCaloMETHPDNoise->setAxisTitle("MET [GeV]",1);
+  //  hCaloMETRBXNoise        = _dbe->book1D("METTask_CaloMETRBXNoise",   "METTask_CaloMETRBXNoise"   ,500,0,1000);
+  //  hCaloMETRBXNoise->setAxisTitle("MET [GeV]",1);
+
+  //  hCaloMETPhi002          = _dbe->book1D("METTask_CaloMETPhi002","METTask_CaloMETPhi002",60,-TMath::Pi(),TMath::Pi());
+  //  hCaloMETPhi002->setAxisTitle("METPhi [rad] (MET>2 GeV)",1);
+  //  hCaloMETPhi010          = _dbe->book1D("METTask_CaloMETPhi010","METTask_CaloMETPhi010",60,-TMath::Pi(),TMath::Pi());
+  //  hCaloMETPhi010->setAxisTitle("METPhi [rad] (MET>10 GeV)",1);
+  hCaloMETPhi020          = _dbe->book1D("METTask_CaloMETPhi020","METTask_CaloMETPhi020",60,-TMath::Pi(),TMath::Pi());
+  hCaloMETPhi020->setAxisTitle("METPhi [rad] (MET>20 GeV)",1);
 
   if (_allhist){
     if (bLumiSecPlot){
@@ -376,6 +464,47 @@ void CaloMETAnalyzer::bookMonitorElementTriggered(std::string DirName, bool bLum
     //hCaloEmEtFraction010->setAxisTitle("EM Et Fraction (MET>10 GeV)",1);
     hCaloEmEtFraction020    = _dbe->book1D("METTask_CaloEmEtFraction020",   "METTask_CaloEmEtFraction020"      ,100,0,1);
     hCaloEmEtFraction020->setAxisTitle("EM Et Fraction (MET>20 GeV)",1);
+
+    //hCaloHadEtInHB          = _dbe->book1D("METTask_CaloHadEtInHB","METTask_CaloHadEtInHB",100,0,2000);
+    //hCaloHadEtInHB->setAxisTitle("Had Et [GeV]",1);
+    //hCaloHadEtInHO          = _dbe->book1D("METTask_CaloHadEtInHO","METTask_CaloHadEtInHO",25,0,500);
+    //hCaloHadEtInHO->setAxisTitle("Had Et [GeV]",1);
+    //hCaloHadEtInHE          = _dbe->book1D("METTask_CaloHadEtInHE","METTask_CaloHadEtInHE",100,0,2000);
+    //hCaloHadEtInHE->setAxisTitle("Had Et [GeV]",1);
+    //hCaloHadEtInHF          = _dbe->book1D("METTask_CaloHadEtInHF","METTask_CaloHadEtInHF",50,0,1000);
+    //hCaloHadEtInHF->setAxisTitle("Had Et [GeV]",1);
+    //hCaloEmEtInHF           = _dbe->book1D("METTask_CaloEmEtInHF" ,"METTask_CaloEmEtInHF" ,25,0,500);
+    //hCaloEmEtInHF->setAxisTitle("EM Et [GeV]",1);
+    //hCaloEmEtInEE           = _dbe->book1D("METTask_CaloEmEtInEE" ,"METTask_CaloEmEtInEE" ,50,0,1000);
+    //hCaloEmEtInEE->setAxisTitle("EM Et [GeV]",1);
+    //hCaloEmEtInEB           = _dbe->book1D("METTask_CaloEmEtInEB" ,"METTask_CaloEmEtInEB" ,100,0,2000);
+    //hCaloEmEtInEB->setAxisTitle("EM Et [GeV]",1);
+    //
+    //hCaloEmMEx= _dbe->book1D("METTask_CaloEmMEx","METTask_CaloEmMEx",200,-500,500);
+    //hCaloEmMEx->setAxisTitle("EM MEx [GeV]",1);
+    //hCaloEmMEy= _dbe->book1D("METTask_CaloEmMEy","METTask_CaloEmMEy",200,-500,500);
+    //hCaloEmMEy->setAxisTitle("EM MEy [GeV]",1);
+    ////hCaloEmEz= _dbe->book1D("METTask_CaloEmEz","METTask_CaloEmEz",100,-500,500);
+    ////hCaloEmEz->setAxisTitle("EM Ez [GeV]",1);
+    //hCaloEmMET= _dbe->book1D("METTask_CaloEmMET","METTask_CaloEmMET",200,0,1000);
+    //hCaloEmMET->setAxisTitle("EM MET [GeV]",1);
+    //hCaloEmMETPhi= _dbe->book1D("METTask_CaloEmMETPhi","METTask_CaloEmMETPhi",60,-TMath::Pi(),TMath::Pi());
+    //hCaloEmMETPhi->setAxisTitle("EM METPhi [rad]",1);
+    ////hCaloEmSumET= _dbe->book1D("METTask_CaloEmSumET","METTask_CaloEmSumET",200,0,2000);
+    ////hCaloEmSumET->setAxisTitle("EM SumET [GeV]",1);
+    //
+    //hCaloHaMEx= _dbe->book1D("METTask_CaloHaMEx","METTask_CaloHaMEx",200,-500,500);
+    //hCaloHaMEx->setAxisTitle("HA MEx [GeV]",1);
+    //hCaloHaMEy= _dbe->book1D("METTask_CaloHaMEy","METTask_CaloHaMEy",200,-500,500);
+    //hCaloHaMEy->setAxisTitle("HA MEy [GeV]",1);
+    ////hCaloHaEz= _dbe->book1D("METTask_CaloHaEz","METTask_CaloHaEz",100,-500,500);
+    ////hCaloHaEz->setAxisTitle("HA Ez [GeV]",1);
+    //hCaloHaMET= _dbe->book1D("METTask_CaloHaMET","METTask_CaloHaMET",200,0,1000); 
+    //hCaloHaMET->setAxisTitle("HA MET [GeV]",1);
+    //hCaloHaMETPhi= _dbe->book1D("METTask_CaloHaMETPhi","METTask_CaloHaMETPhi",60,-TMath::Pi(),TMath::Pi());
+    //hCaloHaMETPhi->setAxisTitle("HA METPhi [rad]",1);
+    ////hCaloHaSumET= _dbe->book1D("METTask_CaloHaSumET","METTask_CaloHaSumET",200,0,2000); 
+    ////hCaloHaSumET->setAxisTitle("HA SumET [GeV]",1);
   }
   
   if (theCaloMETCollectionLabel.label() == "corMetGlobalMuons" ) {
@@ -398,7 +527,7 @@ void CaloMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
   if ( _LowPtJetEventFlag ->on() ) _LowPtJetEventFlag ->initRun( iRun, iSetup );
   if ( _MinBiasEventFlag  ->on() ) _MinBiasEventFlag  ->initRun( iRun, iSetup );
   if ( _HighMETEventFlag  ->on() ) _HighMETEventFlag  ->initRun( iRun, iSetup );
-  //  if ( _LowMETEventFlag   ->on() ) _LowMETEventFlag   ->initRun( iRun, iSetup );
+  if ( _LowMETEventFlag   ->on() ) _LowMETEventFlag   ->initRun( iRun, iSetup );
   if ( _EleEventFlag      ->on() ) _EleEventFlag      ->initRun( iRun, iSetup );
   if ( _MuonEventFlag     ->on() ) _MuonEventFlag     ->initRun( iRun, iSetup );
 
@@ -408,8 +537,8 @@ void CaloMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
     lowPtJetExpr_  = _LowPtJetEventFlag->expressionsFromDB(_LowPtJetEventFlag->hltDBKey(),   iSetup);
   if (_HighMETEventFlag->on() && _HighMETEventFlag->expressionsFromDB(_HighMETEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
     highMETExpr_   = _HighMETEventFlag->expressionsFromDB(_HighMETEventFlag->hltDBKey(),     iSetup);
-  //  if (_LowMETEventFlag->on() && _LowMETEventFlag->expressionsFromDB(_LowMETEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
-  //    lowMETExpr_    = _LowMETEventFlag->expressionsFromDB(_LowMETEventFlag->hltDBKey(),       iSetup);
+  if (_LowMETEventFlag->on() && _LowMETEventFlag->expressionsFromDB(_LowMETEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
+    lowMETExpr_    = _LowMETEventFlag->expressionsFromDB(_LowMETEventFlag->hltDBKey(),       iSetup);
   if (_MuonEventFlag->on() && _MuonEventFlag->expressionsFromDB(_MuonEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
     muonExpr_      = _MuonEventFlag->expressionsFromDB(_MuonEventFlag->hltDBKey(),           iSetup);
   if (_EleEventFlag->on() && _EleEventFlag->expressionsFromDB(_EleEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
@@ -464,31 +593,15 @@ void CaloMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup
 	makeRatePlot(DirName+"/"+"triggerName_MinBias",totltime);
       if ( _HighMETEventFlag->on() ) 
 	makeRatePlot(DirName+"/"+"triggerName_HighMET",totltime);
-      //      if ( _LowMETEventFlag->on() ) 
-      //	makeRatePlot(DirName+"/"+"triggerName_LowMET",totltime);
+      if ( _LowMETEventFlag->on() ) 
+	makeRatePlot(DirName+"/"+"triggerName_LowMET",totltime);
       if ( _EleEventFlag->on() ) 
 	makeRatePlot(DirName+"/"+"triggerName_Ele",totltime);
       if ( _MuonEventFlag->on() ) 
 	makeRatePlot(DirName+"/"+"triggerName_Muon",totltime);
     }
 
-
-  // Fit ME{x,y}
-  //------------------------------------------------------------------------
-  for (std::vector<std::string>::const_iterator ic = _FolderNames.begin();
-       ic != _FolderNames.end(); ic++) {
-
-    std::string DirName;
-    DirName = dirName+*ic;
-
-    hCaloMEx = _dbe->get(DirName + "/METTask_CaloMEx");
-    hCaloMEy = _dbe->get(DirName + "/METTask_CaloMEy");
-
-    if (hCaloMEx && hCaloMEx->kind() == MonitorElement::DQM_KIND_TH1F) hCaloMEx->getTH1F()->Fit("gaus", "q");
-    if (hCaloMEy && hCaloMEy->kind() == MonitorElement::DQM_KIND_TH1F) hCaloMEy->getTH1F()->Fit("gaus", "q");
-  }
 }
-
 
 // ***********************************************************
 void CaloMETAnalyzer::makeRatePlot(std::string DirName, double totltime)
@@ -545,7 +658,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   _trig_LowPtJet=0;
   _trig_MinBias=0;
   _trig_HighMET=0;
-  //  _trig_LowMET=0;
+  _trig_LowMET=0;
   _trig_Ele=0;
   _trig_Muon=0;
   _trig_PhysDec=0;
@@ -575,8 +688,8 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  _trig_LowPtJet=true;
         else if (triggerNames.triggerName(i).find(highMETExpr_[0].substr(0,highMETExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
 	  _trig_HighMET=true;
-	//        else if (triggerNames.triggerName(i).find(lowMETExpr_[0].substr(0,lowMETExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
-	//	  _trig_LowMET=true;
+        else if (triggerNames.triggerName(i).find(lowMETExpr_[0].substr(0,lowMETExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
+	  _trig_LowMET=true;
         else if (triggerNames.triggerName(i).find(muonExpr_[0].substr(0,muonExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
 	  _trig_Muon=true;
         else if (triggerNames.triggerName(i).find(elecExpr_[0].substr(0,elecExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
@@ -1140,8 +1253,8 @@ void CaloMETAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
     fillMonitorElementTriggered(iEvent,DirName,"MinBias",calomet,calometnohf,false);
   if (_trig_HighMET)
     fillMonitorElementTriggered(iEvent,DirName,"HighMET",calomet,calometnohf,false);
-  //  if (_trig_LowMET)
-  //    fillMonitorElementTriggered(iEvent,DirName,"LowMET",calomet,calometnohf,false);
+  if (_trig_LowMET)
+    fillMonitorElementTriggered(iEvent,DirName,"LowMET",calomet,calometnohf,false);
   if (_trig_Ele)
     fillMonitorElementTriggered(iEvent,DirName,"Ele",calomet,calometnohf,false);
   if (_trig_Muon) {
@@ -1158,8 +1271,27 @@ void CaloMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string D
 {
   fillMonitorElementTriggered(iEvent, DirName, TriggerTypeName, calomet, calometnohf, bLumiSecPlot);
 
-  double caloSumET = calomet.sumEt();
-
+  /*
+  if (TriggerTypeName=="HighPtJet") {
+    if (!selectHighPtJetEvent(iEvent)) return;
+  }
+  else if (TriggerTypeName=="LowPtJet") {
+    if (!selectLowPtJetEvent(iEvent)) return;
+  }
+  else if (TriggerTypeName=="HighMET") {
+    if (calomet.pt()<_highMETThreshold) return;
+  }
+  else if (TriggerTypeName=="LowMET") {
+    if (calomet.pt()<_lowMETThreshold) return;
+  }
+  else if (TriggerTypeName=="Ele") {
+    if (!selectWElectronEvent(iEvent)) return;
+  }
+  else if (TriggerTypeName=="Muon") {
+    if (!selectWMuonEvent(iEvent)) return;
+  }
+  */
+  double caloSumET  = calomet.sumEt();
   /*
   double caloMETSig = calomet.mEtSig();
   //double caloEz     = calomet.e_longitudinal();
@@ -1303,9 +1435,9 @@ void CaloMETAnalyzer::fillMonitorElementTriggered(const edm::Event& iEvent, std:
   else if (TriggerTypeName=="HighMET") {
     if (calomet.pt()<_highMETThreshold) return;
   }
-  //  else if (TriggerTypeName=="LowMET") {
-  //    if (calomet.pt()<_lowMETThreshold) return;
-  //  }
+  else if (TriggerTypeName=="LowMET") {
+    if (calomet.pt()<_lowMETThreshold) return;
+  }
   else if (TriggerTypeName=="Ele") {
     if (!selectWElectronEvent(iEvent)) return;
   }

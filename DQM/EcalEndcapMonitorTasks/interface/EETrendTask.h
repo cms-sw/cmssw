@@ -4,8 +4,8 @@
 /*
  * \file EETrendTask.h
  *
- * $Date: 2010/03/28 09:13:49 $
- * $Revision: 1.6 $
+ * $Date: 2010/03/22 04:45:45 $
+ * $Revision: 1.5 $
  * \author Dongwook Jang, Soon Yung Jun
  *
  */

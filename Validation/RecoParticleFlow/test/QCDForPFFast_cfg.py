@@ -25,7 +25,7 @@ process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 
 # Get frontier conditions 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.AlCa.autoCond import autoCond
+from Configuration.PyReleaseValidation.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
 
 # Parametrized magnetic field (new mapping, 4.0 and 3.8T)

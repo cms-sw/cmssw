@@ -36,7 +36,6 @@
 namespace edm {
    namespace eventsetup {
       class EventSetupProvider;
-      class EventSetupsController;
       
 template<typename T>
   class ComponentFactory
@@ -50,9 +49,8 @@ template<typename T>
    typedef std::map<std::string, boost::shared_ptr<Maker> > MakerMap;
    typedef typename T::base_type base_type;
       // ---------- const member functions ---------------------
-   boost::shared_ptr<base_type> addTo(EventSetupsController& esController,
-                                      EventSetupProvider& iProvider,
-                                      edm::ParameterSet const& iConfiguration) const
+   boost::shared_ptr<base_type> addTo(EventSetupProvider& iProvider,
+                  edm::ParameterSet const& iConfiguration) const
       {
          std::string modtype = iConfiguration.template getParameter<std::string>("@module_type");
          //cerr << "Factory: module_type = " << modtype << endl;
@@ -89,7 +87,7 @@ template<typename T>
          
          try {
            try {
-             return it->second->addTo(esController, iProvider, iConfiguration);
+             return it->second->addTo(iProvider,iConfiguration);
            }
            catch (cms::Exception& e) { throw; }
            catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }

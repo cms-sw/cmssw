@@ -1,152 +1,142 @@
+// -*- C++ -*-
+//
+// Package:    DisplayGeom
+// Class:      DisplayGeom
+// 
+/**\class DisplayGeom DisplayGeom.cc Reve/DisplayGeom/src/DisplayGeom.cc
 
+ Description: <one line class summary>
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Chris D Jones
+//         Created:  Wed Sep 26 08:27:23 EDT 2007
+// $Id: DisplayGeom.cc,v 1.1 2010/04/01 21:58:00 chrjones Exp $
+//
+//
+
+// system include files
+#include <memory>
+#include <iostream>
+#include <sstream>
+
+#include "TROOT.h"
+#include "TSystem.h"
+#include "TApplication.h"
+#include "TError.h"
+
+// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "Fireworks/Geometry/interface/DisplayPluginFactory.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "Fireworks/Eve/interface/EveService.h"
-
-#include "Fireworks/Geometry/interface/DisplayGeomRecord.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-
-#include "Fireworks/Tracks/interface/TrackUtils.h"
-
-#include "TEveManager.h"
-#include "TEveTrack.h"
-#include "TEveTrackPropagator.h"
-
-#include "TGeoManager.h"
-#include "TGeoMatrix.h"
-#include "TEveGeoNode.h"
-#include "TEveTrans.h"
-#include "TEveScene.h"
-#include "TGLScenePad.h"
-#include "TGLRnrCtx.h"
-#include "TEvePointSet.h"
-#include "TRandom.h"
-#include "TEveUtil.h"
-
+//
 // class decleration
 //
+using namespace fireworks::geometry;
        
 class DisplayGeom : public edm::EDAnalyzer {
 
-public:
-   explicit DisplayGeom(const edm::ParameterSet&);
-   ~DisplayGeom();
+   public:
+      explicit DisplayGeom(const edm::ParameterSet&);
+      ~DisplayGeom();
 
-protected:
-   TEveGeoTopNode* make_node(const TString& path, Int_t vis_level, Bool_t global_cs);
+   private:
+      virtual void beginJob() ;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
 
-  
-private:
-   virtual void beginJob() ;
-   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-
-   virtual void endJob() ;
-
-   edm::Service<EveService>  m_eve;
-
-   TEveElement   *m_geomList;
-
-   edm::ESWatcher<DisplayGeomRecord> m_geomWatcher;
-
-   void remakeGeometry(const DisplayGeomRecord& dgRec);
-
+      // ----------member data ---------------------------
+      int level_;
+      bool verbose_;
+      TApplication* app_;
+      DisplayPlugin* plugin_;
 };
 
-DEFINE_FWK_MODULE(DisplayGeom);
+//
+// constants, enums and typedefs
+//
 
+//
+// static data member definitions
+//
+
+//
+// constructors and destructor
+//
 DisplayGeom::DisplayGeom(const edm::ParameterSet& iConfig):
-   m_eve(),
-   m_geomList(0),
-   m_geomWatcher(this, &DisplayGeom::remakeGeometry)
-{}
+   level_(iConfig.getUntrackedParameter<int>("level",4)),
+   verbose_(iConfig.getUntrackedParameter<bool>("verbose",false)),
+   app_(0),
+   plugin_(0)
+{
+   //now do what ever initialization is needed
+
+  std::cout <<" is batch "<<gROOT->IsBatch()<<std::endl;
+  std::cout <<" display "<<gSystem->Getenv("DISPLAY")<<std::endl;
+
+  const char* dummyArgvArray[] = {"cmsRun"};
+  char** dummyArgv = const_cast<char**>(dummyArgvArray);
+  int dummyArgc = 1;
+  app_ = new TApplication("App", &dummyArgc, dummyArgv);
+  assert(TApplication::GetApplications()->GetSize());
+  
+  gROOT->SetBatch(kFALSE);
+  //TApplication* app = dynamic_cast<TApplication*>(TApplication::GetApplications()->First());
+  //assert(app!=0);
+  std::cout<<"calling NeedGraphicsLibs()"<<std::endl;
+  TApplication::NeedGraphicsLibs();
+
+  DisplayPluginFactory* factory = DisplayPluginFactory::get();
+  plugin_ = factory->create("EveDisplayPlugin");
+}
 
 
 DisplayGeom::~DisplayGeom()
 {
+ 
+   // do anything here that needs to be done at desctruction time
+   // (e.g. close files, deallocate resources etc.)
+  
+   delete plugin_;
 }
 
 
-//==============================================================================
-// Protected helpers
-//==============================================================================
-
-TEveGeoTopNode* DisplayGeom::make_node(const TString& path, Int_t vis_level, Bool_t global_cs)
-{
-   if (! gGeoManager->cd(path))
-   {
-      Warning("make_node", "Path '%s' not found.", path.Data());
-      return 0;
-   }
-
-   TEveGeoTopNode* tn = new TEveGeoTopNode(gGeoManager, gGeoManager->GetCurrentNode());
-   tn->SetVisLevel(vis_level);
-   if (global_cs)
-   {
-      tn->RefMainTrans().SetFrom(*gGeoManager->GetCurrentMatrix());
-   }
-   m_geomList->AddElement(tn);
-
-   return tn;
-}
-
-
-//==============================================================================
+//
 // member functions
-//==============================================================================
+//
 
-
+// ------------ method called to for each event  ------------
 void
 DisplayGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   if (m_eve)
-   {
-      // Remake geometry if it has changed.
-      m_geomWatcher.check(iSetup);
+  std::cout << "In the DisplayGeom::analyze method..." << std::endl;
+   using namespace edm;
 
-      // Add a test obj
-      if (!gRandom)
-         gRandom = new TRandom(0);
-      TRandom& r= *gRandom;
+   //need to reset the Error handler to avoid error messages becoming exceptions
+   ErrorHandlerFunc_t old = SetErrorHandler(DefaultErrorHandler);
 
-      Float_t s = 100;
+   plugin_->run(iSetup);
+   app_->Run(kTRUE);
 
-      TEvePointSet* ps = new TEvePointSet();
-      ps->SetOwnIds(kTRUE);
+   SetErrorHandler(old);
 
-      for(Int_t i = 0; i< 100; i++)
-      {
-         ps->SetNextPoint(r.Uniform(-s,s), r.Uniform(-s,s), r.Uniform(-s,s));
-         ps->SetPointId(new TNamed(Form("Point %d", i), ""));
-      }
+   // Exit from fireworks
+   // gApplication
+   //app->Terminate(0);
 
-      ps->SetMarkerColor(TMath::Nint(r.Uniform(2, 9)));
-      ps->SetMarkerSize(r.Uniform(1, 2));
-      ps->SetMarkerStyle(4);
-      m_eve->AddElement(ps);
-   }
 }
+
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
 DisplayGeom::beginJob()
-{ 
-   if (m_eve)
-   {
-      m_geomList = new TEveElementList("Display Geom");
-      m_eve->AddGlobalElement(m_geomList);
-      m_eve->getManager()->GetGlobalScene()->GetGLScene()->SetStyle(TGLRnrCtx::kWireFrame);
-   }
+{
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -154,19 +144,5 @@ void
 DisplayGeom::endJob() {
 }
 
-//------------------------------------------------------------------------------
-void DisplayGeom::remakeGeometry(const DisplayGeomRecord& dgRec)
-{
-   m_geomList->DestroyElements();
-
-   edm::ESHandle<TGeoManager> geom;
-   dgRec.get(geom);
-   TEveGeoManagerHolder _tgeo(const_cast<TGeoManager*>(geom.product()));
-
-   // To have a full one, all detectors in one top-node:
-   // make_node("/cms:World_1/cms:CMSE_1", 4, kTRUE);
-
-   make_node("/cms:World_1/cms:CMSE_1/tracker:Tracker_1", 1, kTRUE);
-   make_node("/cms:World_1/cms:CMSE_1/caloBase:CALO_1",   1, kTRUE);
-   make_node("/cms:World_1/cms:CMSE_1/muonBase:MUON_1",   1, kTRUE);
-}
+//define this as a plug-in
+DEFINE_FWK_MODULE(DisplayGeom);

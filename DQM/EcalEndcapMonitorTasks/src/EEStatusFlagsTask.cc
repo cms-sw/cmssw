@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2012/03/20 20:26:50 $
- * $Revision: 1.39.2.1 $
+ * $Date: 2011/08/30 09:28:42 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */

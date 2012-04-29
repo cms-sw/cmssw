@@ -17,7 +17,6 @@
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/EcalObjects"/>
-<use name="Geometry/CaloTopology"/>
 <use   name="rootphysics"/>
 <export>
   <lib   name="1"/>

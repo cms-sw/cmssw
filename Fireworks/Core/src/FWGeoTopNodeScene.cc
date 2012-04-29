@@ -1,6 +1,7 @@
 #include "Fireworks/Core/src/FWGeoTopNodeScene.h"
 #include "Fireworks/Core/interface/FWGeoTopNode.h"
 #include "Fireworks/Core/interface/fwLog.h"
+
 #include "TGLSelectRecord.h"
 #include "TGLPhysicalShape.h"
 #include "TGLLogicalShape.h"
@@ -84,10 +85,7 @@ Bool_t FWGeoTopNodeGLScene::ResolveSelectRecord(TGLSelectRecord& rec, Int_t curI
    {
       rec.SetTransparent(pshp->IsTransparent());
       rec.SetPhysShape(pshp);
-
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,32,0)
       rec.SetLogShape(FindLogical(fTopNodeJebo));
-#endif
       rec.SetObject(fTopNodeJebo);
       rec.SetSpecific(0);
       return kTRUE;
@@ -99,24 +97,3 @@ Bool_t FWGeoTopNodeGLScene::ResolveSelectRecord(TGLSelectRecord& rec, Int_t curI
 void FWGeoTopNodeGLScene::GeoPopupMenu(Int_t gx, Int_t gy)
 {fTopNodeJebo->popupMenu(gx, gy);
 }
-
-//==============================================================================
-//==============================================================================
-//==============================================================================
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,32,0)
-
-#include "TEvePad.h"
-FWGeoTopNodeEveScene::FWGeoTopNodeEveScene(FWGeoTopNodeGLScene* gl_scene, const char* n, const char* t)
-{
-   // Constructor.
-
-   delete fGLScene;
-
-   gl_scene->SetPad(fPad);
-   fGLScene = gl_scene;
-
-   fGLScene->SetName(n);
-   fGLScene->SetAutoDestruct(kFALSE);
-   fGLScene->SetSmartRefresh(kTRUE);
-}
-#endif

@@ -1,9 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# current defaults are resolutions for PF jets derived from Summer11 MC;
-# values of udscResolutions and bResolutions (see below) can still be replaced in the user's cff or cfg;
-# for the unit tests, we don't mind that CALO jets will be used with PF resolutions
-from TopQuarkAnalysis.TopObjectResolutions.stringResolutions_etEtaPhi_Summer11_cff import *
+from TopQuarkAnalysis.TopObjectResolutions.stringResolutions_etEtaPhi_cff import *
 
 kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
     jets = cms.InputTag("selectedPatJets"),
@@ -78,21 +75,10 @@ kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
 
     # ------------------------------------------------
     # resolutions used for the kinematic fit
-    # (see also comments at the head of this file)
     # ------------------------------------------------
-    udscResolutions = udscResolutionPF.functions,
-    bResolutions    = bjetResolutionPF.functions,
-
-    # ------------------------------------------------
-    # set correction factor(s) for the jet energy resolution:
-    # - (optional) eta dependence assumed to be symmetric
-    #   around eta=0, i.e. parametrized in |eta|
-    # - any negative value as last bin edge is read as "inf"
-    # - make sure that number of entries in vector with
-    #   bin edges = number of scale factors + 1
-    # ------------------------------------------------
-    jetEnergyResolutionScaleFactors = cms.vdouble(1.0),
-    jetEnergyResolutionEtaBinning = cms.vdouble(0.0,-1.0)
+    udscResolutions             = udscResolution.functions,
+    bResolutions                = bjetResolution.functions,
+    energyResolutionSmearFactor = cms.double(1.)
 )
 
 

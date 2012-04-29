@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 20:34:22 CET 2012
-// $Id: FWGeometryTableManager.h,v 1.3 2012/02/22 23:03:47 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.2 2012/02/22 03:45:59 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableManagerBase.h"
@@ -32,7 +32,7 @@ class FWGeometryTableView;
 class FWGeometryTableManager : public FWGeometryTableManagerBase
 {
 public:
-   enum   ECol   { kNameColumn,kColorColumn, kTranspColumn,   kVisSelfColumn, kVisChildColumn, kMaterialColumn, kNumColumn };
+   enum   ECol   { kNameColumn, kColorColumn,  kVisSelfColumn, kVisChildColumn, kMaterialColumn, kNumColumn };
 
    enum GeometryBits
    {

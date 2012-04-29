@@ -41,7 +41,6 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
   trackerMap_->setTitle(tmap_title);
  
   nDet     = 0;
-  tkMapLog = false;
   tkMapMax = 0.0; 
   tkMapMin = 0.0; 
 
@@ -75,40 +74,18 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
 // -- Create Tracker Map for Offline process
 //
 void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapPset, 
-						const edm::ESHandle<SiStripFedCabling>& fedcabling,
-						DQMStore* dqm_store, std::string& map_type){
+				  DQMStore* dqm_store, std::string& map_type){
   if (trackerMap_) delete trackerMap_;
-  trackerMap_ = new TrackerMap(tkmapPset,fedcabling);
-
-  tkMapLog = tkmapPset.getUntrackedParameter<bool>("logScale",false);
-  bool tkMapPSU = tkmapPset.getUntrackedParameter<bool>("psuMap",false);
+  trackerMap_ = new TrackerMap(tkmapPset);
  
   std::string tmap_title = " Tracker Map from  " + map_type;
-  if(tkMapLog) tmap_title += ": Log10 scale";
   trackerMap_->setTitle(tmap_title);
 
   setTkMapFromHistogram(dqm_store, map_type);
-  // if not overwitten by manual configuration min=0 and max= mean value * 2.5
-  setTkMapRangeOffline();
+  setTkMapRange(map_type);
 
-  // check manual setting
-  
-  if(tkmapPset.exists("mapMax")) tkMapMax = tkmapPset.getUntrackedParameter<double>("mapMax");
-  if(tkmapPset.exists("mapMin")) tkMapMin = tkmapPset.getUntrackedParameter<double>("mapMin");
-  
-  std::cout << "Ready to save TkMap " << map_type << " with range set to " << tkMapMin << " - " << tkMapMax << std::endl;
-  
   trackerMap_->save(true, tkMapMin,tkMapMax, map_type+".svg");  
   trackerMap_->save(true, tkMapMin,tkMapMax, map_type+".png",4500,2400);
-
-  if(tkMapPSU) {
-
-    std::cout << "Ready to save PSU TkMap " << map_type << " with range set to " << tkMapMin << " - " << tkMapMax << std::endl;
-    trackerMap_->save_as_psutrackermap(true, tkMapMin,tkMapMax, map_type+"_psu.svg");
-    trackerMap_->save_as_psutrackermap(true, tkMapMin,tkMapMax, map_type+"_psu.png",6000,3200);
-
-  }
-
   delete trackerMap_;
   trackerMap_ = 0;
 }
@@ -205,12 +182,11 @@ void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, Moni
       SiStripUtility::getDetectorStatusColor(flag, rval, gval, bval);
       trackerMap_->fillc(det_id, rval, gval, bval);
     } else {
+      tkMapMax += fval;
       if (fval == 0.0) trackerMap_->fillc(det_id,255, 255, 255);  
       else {
-        if(tkMapLog) fval = log(fval)/log(10);
- 	trackerMap_->fill_current_val(det_id, fval);
+	trackerMap_->fill_current_val(det_id, fval);
       }
-      tkMapMax += fval;
     }
   }
 } 
@@ -227,14 +203,6 @@ void SiStripTrackerMapCreator::setTkMapRange(std::string& map_type) {
     else if (map_type.find("NumberOfOnTrackCluster") != std::string::npos)  tkMapMax = 50.0;
     else if (map_type.find("StoNCorrOnTrack") != std::string::npos)         tkMapMax = 200.0;
   } else {
-    tkMapMax = tkMapMax/nDet*1.0;
-    tkMapMax = tkMapMax * 2.5;
- }
-  trackerMap_->setRange(tkMapMin, tkMapMax);
-}
-void SiStripTrackerMapCreator::setTkMapRangeOffline() {
-  tkMapMin = 0.0;
-  if (tkMapMax != 0.0) { 
     tkMapMax = tkMapMax/nDet*1.0;
     tkMapMax = tkMapMax * 2.5;
  }

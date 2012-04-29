@@ -3,9 +3,11 @@
 
 #include <string>
 #include <map>
+#include <vector>
 
 namespace edm{
   class ParameterSet;
+  class FUShmOutputModule;
 }
 
 
@@ -24,6 +26,7 @@ namespace evf
       OutputModule *get(std::string &name);
       void registerModule(std::string &name, OutputModule *op);
       void dumpRegistry();
+      std::vector<edm::FUShmOutputModule *> getShmOutputModules();
 
     private:
       typedef std::map<std::string, OutputModule*> dct;

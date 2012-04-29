@@ -10,9 +10,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.3 $
  *
- * $Id: CaloJetMETcorrInputProducerT.h,v 1.4 2011/11/20 10:25:47 veelken Exp $
+ * $Id: CaloJetMETcorrInputProducerT.h,v 1.3 2011/09/30 10:56:07 veelken Exp $
  *
  */
 
@@ -56,7 +56,7 @@ namespace CaloJetMETcorrInputProducer_namespace
   };
 }
 
-template <typename T, typename Textractor>
+template <typename T>
 class CaloJetMETcorrInputProducerT : public edm::EDProducer  
 {
  public:
@@ -176,7 +176,7 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
 
   std::string offsetCorrLabel_; // e.g. 'ak5CaloJetL1Fastjet'
   std::string jetCorrLabel_;    // e.g. 'ak5CaloJetL1FastL2L3' (MC) / 'ak5CaloJetL1FastL2L3Residual' (Data)
-  Textractor jetCorrExtractor_;
+  JetCorrExtractorT<T> jetCorrExtractor_;
 
   double jetCorrEtaMax_; // do not use JEC factors for |eta| above this threshold (recommended default = 4.7),
                          // in order to work around problem with CMSSW_4_2_x JEC factors at high eta,

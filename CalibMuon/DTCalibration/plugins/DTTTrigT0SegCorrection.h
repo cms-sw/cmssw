@@ -5,7 +5,7 @@
  *  Concrete implementation of a DTTTrigBaseCorrection.
  *  Computes t0-seg correction for tTrig
  *
- *  $Revision: 1.2 $
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 
@@ -21,8 +21,6 @@ class DTTtrig;
 
 class TH1F;
 class TFile;
-
-namespace dtCalibration {
 
 class DTTTrigT0SegCorrection: public DTTTrigBaseCorrection {
 public:
@@ -45,6 +43,4 @@ private:
 
   const DTTtrig *tTrigMap_;
 };
-
-} // namespace
 #endif

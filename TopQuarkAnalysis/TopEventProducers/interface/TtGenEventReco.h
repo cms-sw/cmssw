@@ -1,7 +1,16 @@
+#include <memory>
+#include <string>
+#include <vector>
+#include <map>
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class TtGenEventReco : public edm::EDProducer {
 
@@ -13,6 +22,9 @@ class TtGenEventReco : public edm::EDProducer {
 
  private:
 
-  edm::InputTag src_;
-  edm::InputTag init_;
+  void fillInitialPartons(const reco::GenParticle*, std::vector<const reco::GenParticle*>&);
+
+ private:
+
+  edm::InputTag src_, init_; 
 };

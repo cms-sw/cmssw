@@ -96,7 +96,6 @@ def customise(process):
 
 
   hltProcessName = "HLT"	#"REDIGI38X"
-  RECOproc = "RECO"
   # the following block can be used for more efficient processing by replacing the HLT variable below automatically
   try:
     hltProcessName = __HLT__
@@ -357,7 +356,7 @@ def customise(process):
   # xxx
   process.gsfElectrons = cms.EDProducer("GSFElectronsMixer",
       col1 = cms.InputTag("gsfElectronsORG"),
-      col2 = cms.InputTag("gsfElectrons","", RECOproc )
+      col2 = cms.InputTag("gsfElectrons","","RECO"),
   )
   #'''
 
@@ -375,11 +374,6 @@ def customise(process):
         print "Using legacy version of Zmumu skim. Note, that muon isolation is disabled"
         print
         process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelectionLegacy_cff")
-        process.RandomNumberGeneratorService.dummy = cms.PSet(
-          initialSeed = cms.untracked.uint32(123456789),
-          engineName = cms.untracked.string('HepJamesRandom')
-        )
-
       else:
         process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelection_cff")
 

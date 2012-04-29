@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2011/09/02 13:55:02 $
- * $Revision: 1.204 $
+ * $Date: 2011/06/27 08:26:29 $
+ * $Revision: 1.203 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *

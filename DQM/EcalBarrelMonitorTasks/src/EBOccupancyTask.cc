@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2012/03/18 17:20:55 $
- * $Revision: 1.96.4.1 $
+ * $Date: 2011/08/30 09:30:32 $
+ * $Revision: 1.96 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *

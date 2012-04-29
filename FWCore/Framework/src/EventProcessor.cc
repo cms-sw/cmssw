@@ -336,8 +336,7 @@ namespace edm {
 
   // ---------------------------------------------------------------
   boost::shared_ptr<EDLooperBase>
-  fillLooper(eventsetup::EventSetupsController& esController,
-             eventsetup::EventSetupProvider& cp,
+  fillLooper(eventsetup::EventSetupProvider& cp,
                          ParameterSet& params) {
     boost::shared_ptr<EDLooperBase> vLooper;
 
@@ -355,8 +354,7 @@ namespace edm {
 
       ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
       providerPSet->registerIt();
-      vLooper = eventsetup::LooperFactory::get()->addTo(esController,
-                                                        cp,
+      vLooper = eventsetup::LooperFactory::get()->addTo(cp,
                                                         *providerPSet);
       }
       return vLooper;
@@ -375,7 +373,6 @@ namespace edm {
     preg_(),
     serviceToken_(),
     input_(),
-    espController_(new eventsetup::EventSetupsController),
     esp_(),
     act_table_(),
     processConfiguration_(),
@@ -428,7 +425,6 @@ namespace edm {
     preg_(),
     serviceToken_(),
     input_(),
-    espController_(new eventsetup::EventSetupsController),
     esp_(),
     act_table_(),
     processConfiguration_(),
@@ -481,7 +477,6 @@ namespace edm {
     preg_(),
     serviceToken_(),
     input_(),
-    espController_(new eventsetup::EventSetupsController),
     esp_(),
     act_table_(),
     processConfiguration_(),
@@ -530,7 +525,6 @@ namespace edm {
     preg_(),
     serviceToken_(),
     input_(),
-    espController_(new eventsetup::EventSetupsController),
     esp_(),
     act_table_(),
     processConfiguration_(),
@@ -614,6 +608,8 @@ namespace edm {
     }
     IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter", true));
 
+    std::auto_ptr<eventsetup::EventSetupsController> espController(new eventsetup::EventSetupsController);
+
     // Now do general initialization
     ScheduleItems items;
 
@@ -629,10 +625,10 @@ namespace edm {
     boost::shared_ptr<CommonParams> common(items.initMisc(*parameterSet));
 
     // intialize the event setup provider
-    esp_ = espController_->makeProvider(*parameterSet);
+    esp_ = espController->makeProvider(*parameterSet);
 
     // initialize the looper, if any
-    looper_ = fillLooper(*espController_, *esp_, *parameterSet);
+    looper_ = fillLooper(*esp_, *parameterSet);
     if(looper_) {
       looper_->setActionTable(items.act_table_.get());
       looper_->attachTo(*items.actReg_);
@@ -655,9 +651,8 @@ namespace edm {
 
     // initialize the subprocess, if there is one
     if(subProcessParameterSet) {
-      subProcess_.reset(new SubProcess(*subProcessParameterSet, *parameterSet, preg_, *espController_, *actReg_, token, serviceregistry::kConfigurationOverrides));
+      subProcess_.reset(new SubProcess(*subProcessParameterSet, *parameterSet, preg_, *espController, *actReg_, token, serviceregistry::kConfigurationOverrides));
     }
-    espController_->clearComponents();
   }
 
   EventProcessor::~EventProcessor() {
@@ -685,7 +680,6 @@ namespace edm {
     }
 
     // manually destroy all these thing that may need the services around
-    espController_.reset();
     subProcess_.reset();
     esp_.reset();
     schedule_.reset();
@@ -1056,8 +1050,7 @@ namespace edm {
       LogSystem("ForkingEventSetupPreFetching") << " prefetching for run " << input_->runAuxiliary()->run();
       IOVSyncValue ts(EventID(input_->runAuxiliary()->run(), 0, 0),
                       input_->runAuxiliary()->beginTime());
-      espController_->eventSetupForInstance(ts);
-      EventSetup const& es = esp_->eventSetup();
+      EventSetup const& es = esp_->eventSetupForInstance(ts);
 
       //now get all the data available in the EventSetup
       std::vector<eventsetup::EventSetupRecordKey> recordKeys;
@@ -2003,10 +1996,9 @@ namespace edm {
     IOVSyncValue ts(EventID(runPrincipal.run(), 0, 0),
                     runPrincipal.beginTime());
     if(forceESCacheClearOnNewRun_){
-      espController_->forceCacheClear();
+      esp_->forceCacheClear();
     }
-    espController_->eventSetupForInstance(ts);
-    EventSetup const& es = esp_->eventSetup();
+    EventSetup const& es = esp_->eventSetupForInstance(ts);
     if(looper_ && looperBeginJobRun_== false) {
       looper_->copyInfo(ScheduleInfo(schedule_.get()));
       looper_->beginOfJob(es);
@@ -2032,8 +2024,7 @@ namespace edm {
     input_->doEndRun(runPrincipal, cleaningUpAfterException);
     IOVSyncValue ts(EventID(runPrincipal.run(), LuminosityBlockID::maxLuminosityBlockNumber(), EventID::maxEventNumber()),
                     runPrincipal.endTime());
-    espController_->eventSetupForInstance(ts);
-    EventSetup const& es = esp_->eventSetup();
+    EventSetup const& es = esp_->eventSetupForInstance(ts);
     {
       typedef OccurrenceTraits<RunPrincipal, BranchActionEnd> Traits;
       ScheduleSignalSentry<Traits> sentry(actReg_.get(), &runPrincipal, &es);
@@ -2061,8 +2052,7 @@ namespace edm {
     // NOTE: Using 0 as the event number for the begin of a lumi block is a bad idea
     // lumi blocks know their start and end times why not also start and end events?
     IOVSyncValue ts(EventID(lumiPrincipal.run(), lumiPrincipal.luminosityBlock(), 0), lumiPrincipal.beginTime());
-    espController_->eventSetupForInstance(ts);
-    EventSetup const& es = esp_->eventSetup();
+    EventSetup const& es = esp_->eventSetupForInstance(ts);
     {
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionBegin> Traits;
       ScheduleSignalSentry<Traits> sentry(actReg_.get(), &lumiPrincipal, &es);
@@ -2084,8 +2074,7 @@ namespace edm {
     // lumi blocks know their start and end times why not also start and end events?
     IOVSyncValue ts(EventID(lumiPrincipal.run(), lumiPrincipal.luminosityBlock(), EventID::maxEventNumber()),
                     lumiPrincipal.endTime());
-    espController_->eventSetupForInstance(ts);
-    EventSetup const& es = esp_->eventSetup();
+    EventSetup const& es = esp_->eventSetupForInstance(ts);
     {
       typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionEnd> Traits;
       ScheduleSignalSentry<Traits> sentry(actReg_.get(), &lumiPrincipal, &es);
@@ -2142,8 +2131,7 @@ namespace edm {
     assert(pep != 0);
 
     IOVSyncValue ts(pep->id(), pep->time());
-    espController_->eventSetupForInstance(ts);
-    EventSetup const& es = esp_->eventSetup();
+    EventSetup const& es = esp_->eventSetupForInstance(ts);
     {
       typedef OccurrenceTraits<EventPrincipal, BranchActionBegin> Traits;
       ScheduleSignalSentry<Traits> sentry(actReg_.get(), pep, &es);

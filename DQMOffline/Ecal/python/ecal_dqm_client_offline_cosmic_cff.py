@@ -1,12 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.EcalBarrelMonitorClient.EcalMonitorClient_cfi import *
-
-# placeholder
 from DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi import *
 from DQM.EcalEndcapMonitorClient.EcalEndcapMonitorClient_cfi import *
-
-from DQM.EcalCommon.EcalDQMBinningService_cfi import *
 
 dqmQTestEB = cms.EDAnalyzer("QualityTester",
 #    reportThreshold = cms.untracked.string('red'),
@@ -30,16 +25,26 @@ dqmQTestEE = cms.EDAnalyzer("QualityTester",
     verboseQT = cms.untracked.bool(False)
 )
 
-ecal_dqm_client_offline = cms.Sequence(
-    ecalMonitorClient
-)
+eb_dqm_client_offline = cms.Sequence(
+    ecalBarrelMonitorClient *
+    dqmQTestEB
+    )
 
-ecalMonitorClient.clients = cms.untracked.vstring(
-    "IntegrityClient",
-    "OccupancyClient",
-    "PresampleClient",
-    "RawDataClient",
-    "TimingClient",
-    "SummaryClient"
-)
+ee_dqm_client_offline = cms.Sequence(
+    ecalEndcapMonitorClient *
+    dqmQTestEE
+    )
+
+ecal_dqm_client_offline = cms.Sequence(
+    eb_dqm_client_offline *
+    ee_dqm_client_offline
+    )
+
+ecalBarrelMonitorClient.location = 'P5'
+ecalBarrelMonitorClient.verbose = False
+ecalBarrelMonitorClient.enabledClients = ['Integrity', 'StatusFlags', 'Occupancy', 'PedestalOnline', 'Cosmic', 'Cluster', 'TriggerTower', 'Summary']
+
+ecalEndcapMonitorClient.location = 'P5'
+ecalEndcapMonitorClient.verbose = False
+ecalEndcapMonitorClient.enabledClients = ['Integrity', 'StatusFlags', 'Occupancy', 'PedestalOnline', 'Cosmic', 'Cluster', 'TriggerTower', 'Summary']
 

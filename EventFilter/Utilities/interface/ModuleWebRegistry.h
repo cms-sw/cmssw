@@ -22,9 +22,12 @@ namespace xdaq{
 
 namespace evf
 {
+  namespace moduleweb {
+    class ForkInfoObj;
+  }
   class ModuleWeb;
   class ModuleWebRegistry
-    {
+  {
     public:
       ModuleWebRegistry(const edm::ParameterSet &);
 
@@ -38,11 +41,12 @@ namespace evf
       void publish(xdata::InfoSpace *);
       void publishToXmas(xdata::InfoSpace *);
       bool checkWeb(const std::string &);
+      void publishForkInfo(std::string name, moduleweb::ForkInfoObj *forkInfoObj);
 
     private:
       typedef std::map<std::string, ModuleWeb*> dct;
       typedef dct::iterator idct;
-      void openBackDoor(const std::string &, unsigned int timeout_sec = 0);
+      void openBackDoor(const std::string &, unsigned int timeout_sec = 0, bool * started = 0);
       void closeBackDoor(const std::string &);
       void clear();
       dct clm_;

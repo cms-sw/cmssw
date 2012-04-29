@@ -26,7 +26,10 @@ class SUSYDQMAnalyzer: public edm::EDAnalyzer {
   virtual void beginJob();
   virtual void beginRun(const edm::Run&, const edm::EventSetup& iSetup);
   virtual void analyze(const edm::Event& , const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+//  virtual void endJob();
+  virtual void endRun(const edm::Run&, const edm::EventSetup&); //{ if (OutputFileName!="") dqm->save(OutputFileName);}
+
+  //  edm::InputTag IT_L1MuGMTReadout;
 
   edm::InputTag theCaloMETCollectionLabel;
   edm::InputTag thePFMETCollectionLabel;
@@ -40,12 +43,21 @@ class SUSYDQMAnalyzer: public edm::EDAnalyzer {
   double _maxNJets;
   double _maxAbsEta;
 
+  //std::string OutputFileName;
+  //std::string TextFileName;
   std::string SUSYFolder;
-  static const char* messageLoggerCatregory;
-  
+  //std::string _source;
+
+  //ofstream* out;
+  //double DumpMET;
+
+  //bool StandardDQM;
+
+  // DAQ Tools
   DQMStore* dqm;
 
-  //Susy DQM storing elements
+
+  //Susy DQM
 
   MonitorElement* hCaloHT;
   MonitorElement* hJPTHT;

@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2012/03/18 17:20:51 $
- * $Revision: 1.232.2.2 $
+ * $Date: 2012/03/18 15:59:29 $
+ * $Revision: 1.232.2.1 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *

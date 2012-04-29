@@ -2,7 +2,6 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="root"/>
-<use   name="roostats"/>
 <use   name="rootmath"/>
 <lib   name="Graf"/>
 <lib   name="Gpad"/>

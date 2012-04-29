@@ -12,9 +12,9 @@
  *
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.3 $
  *
- * $Id: JetCorrExtractorT.h,v 1.4 2011/11/20 10:25:47 veelken Exp $
+ * $Id: JetCorrExtractorT.h,v 1.3 2011/09/30 10:56:07 veelken Exp $
  *
  */
 
@@ -67,6 +67,11 @@ class JetCorrExtractorT
     reco::Candidate::LorentzVector rawJetP4 = ( rawJetP4_specified ) ?
       (*rawJetP4_specified) : rawJet.p4();
 
+    // restrict computation of JEC factors to region |eta| < 4.7,
+    // to work around problem with CMSSW_4_2_x JEC factors at high eta,
+    // reported in
+    //  https://hypernews.cern.ch/HyperNews/CMS/get/jes/270.html
+    //  https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/1259/1.html
     double jetCorrFactor = 1.;
     if ( fabs(rawJetP4.eta()) < jetCorrEtaMax ) {      
       jetCorrFactor = getCorrection(rawJet, jetCorrLabel, *evt, *es);

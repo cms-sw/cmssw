@@ -5,8 +5,8 @@
  *  Class which read a ttrig DB and correct it with
  *  the near SL (or the global average)
  *
- *  $Date: 2010/11/17 17:54:23 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/02/16 10:03:23 $
+ *  $Revision: 1.7 $
  *  \author S. Maselli - INFN Torino
  */
 
@@ -18,9 +18,7 @@
 
 class DTTtrig;
 class DTGeometry;
-namespace dtCalibration {
-  class DTTTrigBaseCorrection;
-}
+class DTTTrigBaseCorrection;
 
 class DTTTrigCorrection : public edm::EDAnalyzer {
 public:
@@ -45,7 +43,7 @@ private:
   const DTTtrig* tTrigMap_;
   edm::ESHandle<DTGeometry> muonGeom_;
 
-  dtCalibration::DTTTrigBaseCorrection* correctionAlgo_;
+  DTTTrigBaseCorrection* correctionAlgo_;
 };
 #endif
 

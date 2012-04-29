@@ -10,7 +10,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackingMonitor.h,v 1.17 2012/03/29 17:21:10 tosi Exp $
+// $Id: TrackingMonitor.h,v 1.14 2011/07/18 14:32:48 fiori Exp $
 
 #include <memory>
 #include <fstream>
@@ -26,8 +26,6 @@ Monitoring source for general quantities related to tracks.
 class DQMStore;
 class TrackAnalyzer;
 class TrackBuildingAnalyzer;
-class VertexMonitor;
-class GetLumi;
 class TProfile;
 class GenericTriggerEventFlag;
 
@@ -61,12 +59,9 @@ class TrackingMonitor : public edm::EDAnalyzer
 
         // the track analyzer
         edm::InputTag bsSrc;
-	edm::InputTag pvSrc;
 
         TrackAnalyzer * theTrackAnalyzer;
         TrackBuildingAnalyzer  * theTrackBuildingAnalyzer;
-	std::vector<VertexMonitor*> theVertexMonitor;
-	GetLumi*                    theLumiDetails_;
 
         // Tracks 
         MonitorElement * NumberOfTracks;
@@ -99,22 +94,8 @@ class TrackingMonitor : public edm::EDAnalyzer
         MonitorElement* NumberOfGoodTrkVsClus;
 
 	// Monitoring vs LS
-	MonitorElement* NumberOfTracksVsLS;
-	MonitorElement* NumberOfGoodTracksVsLS;
 	MonitorElement* GoodTracksFractionVsLS;
 	MonitorElement* GoodTracksNumberOfRecHitsPerTrackVsLS;
-
-	// Monitoring PU
-	MonitorElement* NumberOfTracksVsGoodPVtx;
-	MonitorElement* NumberOfTracksVsBXlumi;
-	MonitorElement* NumberOfGoodTracksVsGoodPVtx;
-	MonitorElement* NumberOfGoodTracksVsBXlumi;
-	MonitorElement* FractionOfGoodTracksVsGoodPVtx;
-	MonitorElement* FractionOfGoodTracksVsBXlumi;
-	
-	// add in order to deal with LS transitions
-        MonitorElement * NumberOfTracks_lumiFlag;
-        MonitorElement * NumberOfGoodTracks_lumiFlag;
 
         std::string builderName;
         edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder;
@@ -133,9 +114,6 @@ class TrackingMonitor : public edm::EDAnalyzer
 	bool runTrackBuildingAnalyzerForSeed;
 	// ADD by Mia in order to have GoodTrack plots only for collision
 	bool doGoodTrackPlots_;
-	bool doPUmonitoring_;
-	bool doPlotsVsBXlumi_;
-	bool doPlotsVsGoodPVtx_;
 
         GenericTriggerEventFlag* genTriggerEventFlag_;
 };

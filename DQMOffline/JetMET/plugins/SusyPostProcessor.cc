@@ -3,20 +3,17 @@
 #include "DQMOffline/JetMET/plugins/SusyPostProcessor.h"
 #include "DQMOffline/JetMET/interface/SusyDQM/Quantile.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
-
-const char* SusyPostProcessor::messageLoggerCatregory = "SusyDQMPostProcessor";
 
 SusyPostProcessor::SusyPostProcessor(const edm::ParameterSet& pSet)
 {
   
+  dqm = 0;
   dqm = edm::Service<DQMStore>().operator->();
   iConfig = pSet;
 
   SUSYFolder = iConfig.getParameter<string>("folderName");
-  _quantile = iConfig.getParameter<double>("quantile");
 
 }
 
@@ -55,6 +52,7 @@ void  SusyPostProcessor::QuantilePlots(MonitorElement* ME, double q_value)
       dqm->setCurrentFolder(ME->getPathname());
       TString name=ME->getTH1()->GetName();
       name+="_quant";
+      //std::cout<<name<<std::endl;
       ME=dqm->book1D(name,"",NBin, xLow, xUp);
       ME->Fill(mean-RMS);
       ME->Fill(mean+RMS);
@@ -65,22 +63,33 @@ void  SusyPostProcessor::QuantilePlots(MonitorElement* ME, double q_value)
 
 void SusyPostProcessor::endRun(const edm::Run&, const edm::EventSetup&)
 {
+  //std::cout<<"here 1"<<std::endl;
   dqm->setCurrentFolder(SUSYFolder);
   Dirs = dqm->getSubdirs();
   for (int i=0; i<int(Dirs.size()); i++)
     {
+      //std::cout<<Dirs[i]<<std::endl;
       size_t found = Dirs[i].find("Alpha");
       if (found!=string::npos) continue;
+      //std::cout<<string::npos<<std::endl;
       if(!dqm->dirExists(Dirs[i])){
-	edm::LogError(messageLoggerCatregory)<< "Directory "<<Dirs[i]<<" doesn't exist!!";
+	cout << "Directory "<<Dirs[i]<<" doesn't exist!!" << std::endl;
 	continue;
-      }      
+      }
+      
       vector<MonitorElement*> histoVector = dqm->getContents(Dirs[i]);
+
       for (int i=0; i<int(histoVector.size()); i++) {
-	QuantilePlots(histoVector[i],_quantile);
+	std::cout<<histoVector[i]->getTH1()->GetName()<<std::endl;
+	QuantilePlots(histoVector[i],0.05);
       } 
     }
 }
 
 
 void SusyPostProcessor::endJob(){}
+
+
+
+
+

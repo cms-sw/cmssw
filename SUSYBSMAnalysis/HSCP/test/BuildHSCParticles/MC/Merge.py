@@ -14,7 +14,7 @@ Jobs = ["DYToMuMu","DYToTauTau","QCD_Pt-1000to1400","QCD_Pt-120to170","QCD_Pt-14
 
 FarmDirectory = "MERGE"
 for JobName in Jobs:
-	LaunchOnCondor.ListToFile(LaunchOnCondor.GetListOfFiles('"','/store/user/farrell3/HSCPEDMMCl23Dec2011/' + JobName + '/HSCP_*.root','",'), FarmDirectory + "InputFile.txt") 
+	LaunchOnCondor.ListToFile(LaunchOnCondor.GetListOfFiles('"file:','/storage/data/cms/store/user/quertenmont/11_07_31_HSCP2011/FWLite_MC/'+ JobName + '/HSCP_*.root','",'), FarmDirectory + "InputFile.txt") 
 	LaunchOnCondor.SendCMSJobs(FarmDirectory, "MC_" + JobName, "Merge_cfg.py", FarmDirectory + "InputFile.txt", 1, [])
 
 os.system("rm " +  FarmDirectory + "InputFile.txt")

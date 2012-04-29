@@ -1,22 +1,4 @@
 autoSkim = {
-    'SingleElectron' : 'WElectron+HighMET+DiTau',
-    'DoubleElectron' : 'ZElectron+DiTau',
-    'ElectronHad' : 'TOPElePlusJets+EXOHSCP',
-    'SingleMu' : 'ZMu+HighMET+EXOHSCP+MuTau',
-    'DoubleMu' : 'ZMu',
-    'MuHad' : 'TOPMuPlusJets',
-    'MuOnia' : 'ChiB',
-    'TauPlusX' : 'MuTauMET',
-    'Photon' : 'HighMET',
-    'HT' : 'EXOHSCP+HighMET',
-    'MultiJet' : 'HighMET',
-    'MET' : 'ZHbb+EXOHSCP+HighMET',
-    }
-#'SinglePhoton' : 'EXODisplacedPhoton',
-
-
-# autoSkim 2011
-"""
     'MinimumBias':'MuonTrack+BeamBkg+ValSkim+LogError+HSCPSD',
     'ZeroBias':'LogError',
     'Commissioning':'DT+LogError',
@@ -48,7 +30,9 @@ autoSkim = {
     'MuOnia': 'LogError',
     'ElectronHad': 'LogError',
     'TauPlusX': 'LogError',
-"""
+    
+    }
+
 
 autoSkimPDWG = {
     

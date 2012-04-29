@@ -1,16 +1,20 @@
 #ifndef SusyPostProcessor_H
 #define SusyPostProcessor_H
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
+//DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+
+//
 
 #include <vector>
 #include <string>
@@ -37,10 +41,7 @@ class SusyPostProcessor : public edm::EDAnalyzer
   edm::ParameterSet iConfig;
   void QuantilePlots(MonitorElement* ME, double q_value);
 
-  static const char* messageLoggerCatregory;
-
   std::string SUSYFolder;
-  double _quantile;
 
   DQMStore* dqm;
   std::vector<MonitorElement*> histoVector;

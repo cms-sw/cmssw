@@ -18,7 +18,6 @@ bool HcalSeverityLevelComputer::getChStBit(HcalSeverityDefinition& mydef,
   else if (mybit == "HcalCellTrigMask") setBit(HcalChannelStatus::HcalCellTrigMask, mydef.chStatusMask);
   else if (mybit == "HcalCellCaloTowerMask") setBit(HcalChannelStatus::HcalCellCaloTowerMask, mydef.chStatusMask);
   else if (mybit == "HcalCellCaloTowerProb") setBit(HcalChannelStatus::HcalCellCaloTowerProb, mydef.chStatusMask);
-  else if (mybit == "HcalCellExcludeFromHBHENoiseSummary") setBit(HcalChannelStatus::HcalCellExcludeFromHBHENoiseSummary, mydef.chStatusMask);
   else 
     { // error: unrecognized channel status name
       edm::LogWarning  ("HcalSeverityLevelComputer") 
@@ -71,12 +70,9 @@ bool HcalSeverityLevelComputer::getRecHitFlag(HcalSeverityDefinition& mydef,
   else if (mybit == "TimingAddedBit")       setAllRHMasks(HcalCaloFlagLabels::TimingAddedBit,      mydef);
   else if (mybit == "TimingErrorBit")       setAllRHMasks(HcalCaloFlagLabels::TimingErrorBit,      mydef);
   else if (mybit == "ADCSaturationBit")     setAllRHMasks(HcalCaloFlagLabels::ADCSaturationBit,    mydef);
-  else if (mybit== "AddedSimHcalNoise")     setAllRHMasks(HcalCaloFlagLabels::AddedSimHcalNoise,   mydef);
-
   else if (mybit == "UserDefinedBit0")      setAllRHMasks(HcalCaloFlagLabels::UserDefinedBit0,     mydef);
   else if (mybit == "UserDefinedBit1")      setAllRHMasks(HcalCaloFlagLabels::UserDefinedBit1,     mydef);
   else if (mybit == "UserDefinedBit2")      setAllRHMasks(HcalCaloFlagLabels::UserDefinedBit2,     mydef);
-  
 
   // additional defined diagnostic bits; not currently used for rejection
   else if (mybit == "PresampleADC")         setAllRHMasks(HcalCaloFlagLabels::PresampleADC,     mydef);

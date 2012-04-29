@@ -87,11 +87,11 @@ UtilsClient::getBinStatistics( TH1* histo, const int ix, const int iy, float& nu
  
   TClass *cl = histo->IsA();
   if( cl == TClass::GetClass("TProfile") ){
-    p = dynamic_cast<TProfile *>(histo);
+    p = static_cast<TProfile *>(histo);
     num = p->GetBinEntries(bin);
     o = *( p->GetErrorOption() );
   }else if( cl == TClass::GetClass("TProfile2D") ){
-    p2 = dynamic_cast<TProfile2D *>(histo);
+    p2 = static_cast<TProfile2D *>(histo);
     num = p2->GetBinEntries(bin);
     o = *( p2->GetErrorOption() );
   }else
