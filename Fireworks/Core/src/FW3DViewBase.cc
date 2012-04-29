@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.27 2012/02/22 03:45:58 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.28 2012/04/27 20:18:42 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -17,6 +17,7 @@
 #include "TGButton.h"
 #include "TGLScenePad.h"
 #include "TGLViewer.h"
+#include "TGLClip.h"
 #include "TGLPerspectiveCamera.h"
 #include "TEveManager.h"
 #include "TEveElement.h"
@@ -152,6 +153,11 @@ void FW3DViewBase::setContext(const fireworks::Context& context)
    m_showTrackerBarrel.changed_.connect(boost::bind(&FW3DViewGeometry::showTrackerBarrel,m_geometry,_1));
    m_showTrackerEndcap.changed_.connect(boost::bind(&FW3DViewGeometry::showTrackerEndcap,m_geometry,_1));
    m_showMuonEndcap.changed_.connect(boost::bind(&FW3DViewGeometry::showMuonEndcap,m_geometry,_1));
+   
+   // don't clip event scene --  ideally, would have TGLClipNoClip in root
+   TGLClipPlane* c=new TGLClipPlane();
+   c->Setup(TGLVector3(1e10,0,0), TGLVector3(-1,0,0));
+   eventScene()->GetGLScene()->SetClip(c);
 }
 
 void FW3DViewBase::showMuonBarrel(long x)
