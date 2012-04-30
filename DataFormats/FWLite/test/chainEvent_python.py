@@ -5,7 +5,7 @@ import optparse
 
 print "starting python test"
 
-files = ['empty.root', 'good.root', 'empty.root', 'good_delta5.root']
+files = ['empty_a.root', 'good_a.root', 'empty_a.root', 'good_b.root']
 events = Events (files)
 
 thingHandle = Handle ('std::vector<edmtest::Thing>')
