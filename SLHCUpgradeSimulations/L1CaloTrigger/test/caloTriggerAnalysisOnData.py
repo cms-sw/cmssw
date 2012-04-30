@@ -61,69 +61,7 @@ process.source = cms.Source("PoolSource",
        '/store/data/Run2011B/DoubleElectron/RAW-RECO/ZElectron-PromptSkim-v1/0000/0669929C-23DE-E011-A59E-001D0967BC3E.root',
        '/store/data/Run2011B/DoubleElectron/RAW-RECO/ZElectron-PromptSkim-v1/0000/06B9BF98-F2EA-E011-B05E-0015178C15DC.root',
        '/store/data/Run2011B/DoubleElectron/RAW-RECO/ZElectron-PromptSkim-v1/0000/06D8D174-DB03-E111-BE25-001D0967DAC1.root'
-#        'file:/scratch/ojalvo/TauSkim/TauRawReco.root',
-#        'file:/scratch/ojalvo/TauSkim/TauRawReco001.root',
-#        'file:/scratch/ojalvo/TauSkim/TauRawReco002.root'    
-##    '/store/data/Run2011B/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v1/0000/00257D72-F9DC-E011-A401-00261894392C.root',
-##     '/store/data/Run2011B/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v1/0000/002CD2CA-4BF9-E011-8377-001A92971B04.root',
-##     '/store/data/Run2011B/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v1/0000/0086BA65-33EE-E011-9BEC-0018F3D09652.root',
-##      '/store/data/Run2011B/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v1/0000/00A7606D-22F9-E011-8437-001A92971BDC.root',
-##       '/store/data/Run2011B/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v1/0000/00C112D0-ABE6-E011-98B7-0018F3D096C6.root',
-##       '/store/data/Run2011B/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v1/0000/00C632B2-04EB-E011-BD0A-0018F3D095EC.root',
-##     '/store/data/Run2011B/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v1/0000/0203D9EF-6AEE-E011-8FC4-003048678BAA.root',
-##     '/store/data/Run2011B/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v1/0000/02094552-C2EA-E011-8D86-0018F3D096F0.root',
-##     '/store/data/Run2011B/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v1/0000/022787E9-0BF0-E011-88E4-00261894392F.root',
-##     '/store/data/Run2011B/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v1/0000/02350F5F-37EB-E011-B5B9-001A92810ADC.root',
-##     '/store/data/Run2011B/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v1/0000/02431D41-85F9-E011-89A0-001A92971AD0.root',
-##     '/store/data/Run2011B/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v1/0000/024B3FB7-88F6-E011-B556-00304867920C.root',
-##      '/store/data/Run2011B/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v1/0000/0268062B-C200-E111-8BDF-00248C0BE018.root',
-##      '/store/data/Run2011B/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v1/0000/0270A6AE-0BEB-E011-A87A-001A928116B2.root',
-##      '/store/data/Run2011B/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v1/0000/02768AE9-ABE4-E011-909D-0026189438FC.root',
-##      '/store/data/Run2011B/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v1/0000/027B85ED-24FE-E011-8D87-001A92810AAE.root',
-##      '/store/data/Run2011B/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v1/0000/02A38E0C-C3FB-E011-9EC1-002618943916.root',
-##      '/store/data/Run2011B/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v1/0000/02CB1413-EFDE-E011-9075-0026189438F3.root',
-##    '/store/data/Run2011B/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v1/0000/02CF7AFB-F4E0-E011-9999-001A92810AA4.root'
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/186/8A8C9F33-3BF3-E011-951D-003048CF99BA.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/104/C078BFCF-30F2-E011-8300-E0CB4E4408C4.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/189/12B3284C-3BF3-E011-94BF-003048F118C2.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/191/54F1521F-40F3-E011-8AA6-BCAEC518FF8E.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/198/20BFEA48-49F3-E011-A2F7-003048F11C58.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/198/2AF282A0-BBF4-E011-8A46-001D09F253C0.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/198/2E2EAEF3-49F3-E011-A3AD-003048F118C2.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/198/AAF80FA6-BBF4-E011-BDB8-001D09F24024.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/020113E7-4FF3-E011-A1E3-001D09F25217.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/021B0678-4DF3-E011-96AB-001D09F2424A.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/04E86175-4DF3-E011-B981-002481E0D7D8.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/1205B758-4EF3-E011-88B1-001D09F253D4.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/128EE876-4DF3-E011-817C-001D09F2915A.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/1E32DB50-4EF3-E011-B2DF-BCAEC5329716.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/1E948CE6-4FF3-E011-9FA6-001D09F2924F.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/26B7C0E6-4FF3-E011-888A-0019B9F581C9.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/3047B9E5-4FF3-E011-B7EE-001D09F24D67.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/36E499E4-4FF3-E011-88A9-003048D2C0F0.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/36EA00E6-4FF3-E011-B929-001D09F253C0.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/3AD089DC-4FF3-E011-9E1A-00237DDC5BBC.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/3C59FC4E-4EF3-E011-AF14-BCAEC5329714.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/44BD3059-4EF3-E011-8692-001D09F24047.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/44C71C4F-4EF3-E011-ABB5-BCAEC5364C4C.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/48080A4F-4EF3-E011-85A0-BCAEC518FF3C.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/4CC55D77-4DF3-E011-AA53-003048D37538.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/4EF1E5E6-4FF3-E011-B691-001D09F252F3.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/62C6FDE5-4FF3-E011-B4B2-001D09F2905B.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/7C410050-4EF3-E011-84D2-BCAEC5329703.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/8281B4E5-4FF3-E011-B754-001D09F24763.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/8441674F-4EF3-E011-83B8-BCAEC518FF7A.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/8E38C450-4EF3-E011-A50C-BCAEC5329718.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/9AAE23E6-4FF3-E011-AC9D-001D09F2983F.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/9E9C6B5B-4BF3-E011-96D6-003048F1182E.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/AC468950-4EF3-E011-A2C0-003048D37456.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/BC487651-4EF3-E011-80D5-BCAEC5364C42.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/C4996AE4-4FF3-E011-B39E-002481E0D790.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/C6612D4F-4EF3-E011-9115-BCAEC518FF41.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/C6C8AEEB-50F3-E011-8995-BCAEC53296FB.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/CC202C4F-4EF3-E011-BB74-BCAEC5329732.root',
-##     '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/D88FA5E5-4FF3-E011-8A8B-001D09F290CE.root',
-##    '/store/data/Run2011B/ZeroBiasHPF0/RAW/v1/000/178/203/EC11FFE6-4FF3-E011-A79D-001D09F25456.root'
+
     )
                             )
 
@@ -145,7 +83,7 @@ process.p1 = cms.Path(
 
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("SLHCTausRatesMinbiasSkim.root")
+                                   fileName = cms.string("analysis.root")
 )
 
 
