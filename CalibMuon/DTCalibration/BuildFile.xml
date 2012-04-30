@@ -1,6 +1,8 @@
 <use   name="FWCore/Framework"/>
 <use   name="DataFormats/DTDigi"/>
 <use   name="DataFormats/DTRecHit"/>
+<use   name="DataFormats/CSCRecHit"/>
+<use   name="DataFormats/TrackReco"/>
 <use   name="Geometry/DTGeometry"/>
 <use   name="Geometry/Records"/>
 <use   name="CondFormats/DTObjects"/>
