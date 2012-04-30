@@ -179,7 +179,7 @@ void ggPFClusters::localCoordsEB( reco::CaloCluster clus, float &etacry, float &
   //find max energy crystal
   std::vector< std::pair<DetId, float> > crystals_vector = clus.hitsAndFractions();
   float drmin = 999.;
-  EBDetId crystalseed;
+  EBDetId crystalseed(crystals_vector[0].first);
   //printf("starting loop over crystals, etot = %5f:\n",clus.energy());
   for (unsigned int icry=0; icry!=crystals_vector.size(); ++icry) {    
     
@@ -245,7 +245,7 @@ void ggPFClusters::localCoordsEE(reco::CaloCluster clus, float &xcry, float &ycr
   //find max energy crystal
   std::vector< std::pair<DetId, float> > crystals_vector = clus.hitsAndFractions();
   float drmin = 999.;
-  EEDetId crystalseed;
+  EEDetId crystalseed(crystals_vector[0].first);
   //printf("starting loop over crystals, etot = %5f:\n",bclus.energy());
   for (unsigned int icry=0; icry!=crystals_vector.size(); ++icry) {    
     
@@ -359,7 +359,7 @@ DetId ggPFClusters::FindSeed(std::vector< std::pair<DetId, float> >& bcCells, bo
   //first find seed:
   EcalRecHitCollection::const_iterator eb;
   EcalRecHitCollection::const_iterator ee;
-  DetId idseed;
+  DetId idseed=bcCells[0].first();
   float PFSeedE=0;
   //find seed by largest energy matching
   for(unsigned int i=0; i<bcCells.size(); ++i){
