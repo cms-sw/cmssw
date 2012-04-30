@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel  
 //         Created:  Thu Jun 23 01:24:51 CEST 2011
-// $Id: FWGeoTopNode.cc,v 1.21 2012/02/22 23:03:47 amraktad Exp $
+// $Id: FWGeoTopNode.cc,v 1.22 2012/04/25 06:09:33 amraktad Exp $
 //
 
 // system include files
@@ -29,6 +29,8 @@
 #include "TGLScenePad.h"
 #include "TGLPhysicalShape.h"
 #include "TGLSelectRecord.h"
+#include "TGLViewer.h"
+#include "TGLWidget.h"
 
 #include "TGeoShape.h"
 #include "TGeoVolume.h"
@@ -42,8 +44,12 @@
 
 #include "Fireworks/Core/interface/FWGeoTopNode.h"
 #include "Fireworks/Core/src/FWGeoTopNodeScene.h"
+#include "Fireworks/Core/src/FWPopupMenu.cc"
 #include "Fireworks/Core/interface/FWViewType.h"
 #include "Fireworks/Core/interface/fwLog.h"
+
+TGLViewer* FWGeoTopNode::s_pickedViewer = 0;
+TGLVector3 FWGeoTopNode::s_pickedCamera3DCenter;
 
 UInt_t FWGeoTopNode::phyID(int tableIdx) 
 {
@@ -353,3 +359,49 @@ void FWGeoTopNode::UnHighlighted()
    for (FWGeometryTableManagerBase::Entries_i i = tableManager()->refEntries().begin(); i != tableManager()->refEntries().end(); ++i)
       i->resetBit(FWGeometryTableManagerBase::kHighlighted);
 }   
+
+
+// ______________________________________________________________________
+FWPopupMenu* FWGeoTopNode::setPopupMenu(int iX, int iY, TGLViewer* v, bool overlap)
+{
+   if (getFirstSelectedTableIndex() < 0)
+   {
+      if (fSted.empty()) fwLog(fwlog::kInfo) << "No menu -- no node/entry selected \n";
+      return 0;
+   }
+   
+   FWPopupMenu* nodePopup = new FWPopupMenu();
+   
+   nodePopup->AddEntry("Set As Top Node", kSetTopNode);
+   nodePopup->AddEntry("Set As Top Node And Reset Camera", kSetTopNodeCam);
+   nodePopup->AddSeparator();
+   if (v) { 
+       nodePopup->AddEntry("Rnr Off", kVisSelfOff);
+   }
+   nodePopup->AddEntry("Rnr Off For All Children", kVisChldOff);
+   nodePopup->AddEntry("Rnr On For All Children", kVisChldOn);      
+   nodePopup->AddSeparator();
+   
+   if (overlap)
+      nodePopup->AddEntry("Print Overlap", kPrintOverlap);
+   nodePopup->AddEntry("Print Path", kPrintPath);
+   nodePopup->AddEntry("Print Shape", kPrintShape);
+   nodePopup->AddEntry("Print Material", kPrintMaterial);   
+   
+   nodePopup->AddSeparator();
+   if (v) {
+      Window_t wdummy;
+      Int_t x,y;
+      gVirtualX->TranslateCoordinates(gClient->GetDefaultRoot()->GetId(), v->GetGLWidget()->GetId(), iX, iY, x, y, wdummy);   
+      TGLVector3 pnt(x, y, 0.5*v->GetSelRec().GetMinZ());
+      v->CurrentCamera().WindowToViewport(pnt);
+      s_pickedCamera3DCenter = v->CurrentCamera().ViewportToWorld(pnt);
+      // s_pickedCamera3DCenter.Dump();
+      s_pickedViewer = v;
+      
+      nodePopup->AddEntry("Set Camera Center", kCamera);
+   }
+   
+   nodePopup->PlaceMenu(iX, iY,true,true);
+   return nodePopup;
+}

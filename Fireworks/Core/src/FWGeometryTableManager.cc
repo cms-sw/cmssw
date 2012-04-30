@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jan  4 20:31:25 CET 2012
-// $Id: FWGeometryTableManager.cc,v 1.50 2012/04/28 19:38:15 matevz Exp $
+// $Id: FWGeometryTableManager.cc,v 1.51 2012/04/29 06:07:37 matevz Exp $
 //
 
 // system include files
@@ -524,7 +524,7 @@ void FWGeometryTableManager::checkRegionOfInterest(double* center, double radius
       const Double_t    bd[] = { bb->GetDX(), bb->GetDY(), bb->GetDZ() };
       const Double_t   *cc   = center;
 
-      bool visible;
+      bool visible = false;
 
       switch (algo)
       {

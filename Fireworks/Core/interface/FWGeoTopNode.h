@@ -16,7 +16,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel
 //         Created:  Thu Jun 23 01:25:00 CEST 2011
-// $Id: FWGeoTopNode.h,v 1.9.2.8 2012/02/17 18:18:13 amraktad Exp $
+// $Id: FWGeoTopNode.h,v 1.10 2012/02/22 03:45:57 amraktad Exp $
 //
 
 #ifndef __CINT__
@@ -24,25 +24,42 @@
 #endif
 #include "TEveElement.h"
 #include "TAttBBox.h"
+#include "TGLUtil.h"
 #include  <set>
 
 class TGeoHMatrix;
 class TGLPhysicalShape;
 class TGLSelectRecord;
+class TGLViewer;
 
 class FWGeometryTableView;
 class FWOverlapTableView;
 class TBuffer3D;
 class TGeoNode;
 class FWGeoTopNodeGLScene;
-
+class FWPopupMenu;
 
 class FWGeoTopNode : public TEveElementList,
                      public TAttBBox
 {
    friend class FWGeoTopNodeGL;
-
 public:
+      
+   enum MenuOptions {
+      kSetTopNode,
+      kSetTopNodeCam,
+      kVisSelfOff,
+      kVisChldOn,
+      kVisChldOff,
+      kCamera,
+      kPrintMaterial,
+      kPrintPath,
+      kPrintShape,
+      kPrintOverlap,
+      kOverlapVisibilityMotherOn,
+      kOverlapVisibilityMotherOff
+   };
+   
    FWGeoTopNode(const char* n = "FWGeoTopNode", const char* t = "FWGeoTopNode"){}
    virtual ~FWGeoTopNode(){}
 
@@ -58,10 +75,13 @@ public:
    void clearSelection() {fHted.clear(); fSted.clear();}
 
    void printSelected();
+   virtual void popupMenu(int x, int y, TGLViewer*) {}
 
    virtual void UnSelected();
    virtual void UnHighlighted();
-   virtual void popupMenu(int x, int y){}
+   
+   static TGLVector3 s_pickedCamera3DCenter;
+   static TGLViewer* s_pickedViewer;
 
 protected:
    static UInt_t phyID(int tableIdx);
@@ -76,6 +96,9 @@ protected:
 
 
    void setupBuffMtx(TBuffer3D& buff, const TGeoHMatrix& mat);
+   
+   FWPopupMenu* setPopupMenu(int iX, int iY, TGLViewer* v, bool);
+   
 #ifndef __CINT__
    void paintShape(FWGeometryTableManagerBase::NodeInfo& nodeInfo, Int_t idx,  const TGeoHMatrix& nm, bool volumeColor);
 #endif

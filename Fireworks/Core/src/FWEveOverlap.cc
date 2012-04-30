@@ -92,66 +92,38 @@ void FWEveOverlap::paintChildNodesRecurse (FWGeometryTableManagerBase::Entries_i
 }
 
 
-
-//______________________________________________________________________________
-
-void FWEveOverlap::popupMenu(int x, int y)
-{
- 
-   if (getFirstSelectedTableIndex() < 0)
-   {
-      if (fSted.empty()) fwLog(fwlog::kInfo) << "No menu -- no node/entry selected \n";
-      return;
-   }
-   FWPopupMenu* nodePopup = new FWPopupMenu();
-
-   
-   nodePopup->AddEntry("Rnr On For All Children",kOvlDaugtersVisOn);
-
-   nodePopup->AddEntry("Rnr Off For All Children", kOvlDaugtersVisOff);
-
-   if (tableManager()->refEntry(getFirstSelectedTableIndex()).testBit(FWOverlapTableManager::kOverlap))
-   {
-      nodePopup->AddSeparator();
-      nodePopup->AddEntry("Print Overlap Info", kOvlPrintOvl);
-   }
-   // nodePopup->AddEntry("Print Path ", kOvlPrintPath);
-   nodePopup->AddSeparator();
-   nodePopup->AddEntry("Set As Top Node", kOvlSetTopNode);
-   nodePopup->AddEntry("Set Camera Center", kOvlCamera);
-   /*
-     nodePopup->AddSeparator();
-     nodePopup->AddEntry("Rnr Off Everything", kOvlVisOff);
-     nodePopup->AddEntry("Rnr On Overlaps, Extrusions", kOvlVisOnOvl);
-     nodePopup->AddEntry("Rnr On Mother Volumes", kOvlVisOnAllMother);
-   */
-
-   nodePopup->PlaceMenu(x, y,true,true); 
-   nodePopup->Connect("Activated(Int_t)",
-                      "FWOverlapTableView",
-                      m_browser,
-                      "chosenItem(Int_t)");
-}
-
 //______________________________________________________________________________
 
 TString  FWEveOverlap::GetHighlightTooltip()
 {
    //   printf("highlight tooltio \n");
-     std::set<TGLPhysicalShape*>::iterator it = fHted.begin();
-     int idx = tableIdx(*it);
-     if ( idx < 0) 
-     {
-     return Form("TopNode ");
-     }
-  FWGeometryTableManagerBase::NodeInfo& data = m_browser->getTableManager()->refEntries().at(idx);
-    
-      TString name = data.name();
-  if (data.testBit(FWOverlapTableManager::kOverlap)) {
+   std::set<TGLPhysicalShape*>::iterator it = fHted.begin();
+   int idx = tableIdx(*it);
+   if ( idx < 0) 
+   {
+      return Form("TopNode ");
+   }
+   FWGeometryTableManagerBase::NodeInfo& data = m_browser->getTableManager()->refEntries().at(idx);
+   
+   TString name = data.name();
+   if (data.testBit(FWOverlapTableManager::kOverlap)) {
+      
+      ((FWOverlapTableManager*)m_browser->getTableManager())->getOverlapTitles(idx, name);
+      return name; 
+   }
+   
+   return data.name();
+}
 
-    ((FWOverlapTableManager*)m_browser->getTableManager())->getOverlapTitles(idx, name);
-    return name; 
-  }
 
-      return data.name();
+//_____________________________________________________________________________
+
+void FWEveOverlap::popupMenu(int x, int y, TGLViewer* v)
+{
+   FWPopupMenu* nodePopup = setPopupMenu(x, y,v, true);
+   
+   if (nodePopup)  nodePopup->Connect("Activated(Int_t)",
+                                      "FWOverlapTableView",
+                                      m_browser,
+                                      "chosenItem(Int_t)");
 }

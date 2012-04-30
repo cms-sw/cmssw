@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:38 CET 2012
-// $Id: FWGeometryTableView.h,v 1.5 2012/04/29 06:07:38 matevz Exp $
+// $Id: FWGeometryTableView.h,v 1.6 2012/04/29 19:29:00 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
@@ -57,7 +57,7 @@ public:
    
    virtual void setFrom(const FWConfiguration&);
 
-   void chosenItem(int);
+  // void chosenItem(int);
    void updateVisibilityTopNode();
    
    void checkRegionOfInterest();

@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManagerBase.h,v 1.3 2012/02/22 23:03:46 amraktad Exp $
+// $Id: FWGeometryTableManagerBase.h,v 1.4 2012/04/25 06:09:32 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -154,13 +154,14 @@ public:
 
    void getNodeMatrix(const NodeInfo& nodeInfo, TGeoHMatrix& mat) const;
 
-   /*
-   virtual void setVisibility(NodeInfo& nodeInfo, bool );
-   virtual void setVisibilityChld(NodeInfo& nodeInfo, bool);
-
+   
+   virtual void setVisibility(NodeInfo&, bool );
+   virtual void setVisibilityChld(NodeInfo&, bool);
+   virtual void setDaughtersSelfVisibility(int selectedIdx, bool v);
+/*
    virtual bool getVisibilityChld(const NodeInfo& nodeInfo) const;
    virtual bool getVisibility (const NodeInfo& nodeInfo) const;
-   */
+  */ 
 
    static  void getNNodesTotal(TGeoNode* geoNode, int& off);
 

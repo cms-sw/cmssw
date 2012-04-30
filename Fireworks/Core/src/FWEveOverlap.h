@@ -6,26 +6,10 @@
 #include <Rtypes.h>
 
 class FWGeometryTableManagerBase;
-
+class TGLViewer;
 class FWEveOverlap : public FWGeoTopNode
 {
 public:
-
-   enum MenuOptions {
-      //      kOvlVisOff,
-      //  kOvlVisOnOvl,
-      // kOvlVisOnAllMother,
-      //kOvlVisMother,
-      //kOvlSwitchVis,
-
-      kOvlDaugtersVisOn,
-      kOvlDaugtersVisOff,
-      kOvlCamera,
-      kOvlSetTopNode,
-      kOvlPrintOvl,
-      kOvlPrintPath
-   };
-
    FWEveOverlap(FWOverlapTableView* v);
    virtual ~FWEveOverlap(){}
 
@@ -33,7 +17,7 @@ public:
    virtual TString     GetHighlightTooltip();
 
    virtual FWGeometryTableManagerBase* tableManager();
-   virtual void popupMenu(int x, int y);
+   virtual void popupMenu(int x, int y, TGLViewer* v);
 private:
    FWOverlapTableView       *m_browser;
 

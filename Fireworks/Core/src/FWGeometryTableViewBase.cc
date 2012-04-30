@@ -451,7 +451,7 @@ FWGeometryTableViewBase::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, I
    else if (iColumn == 0)
    {
       setColumnSelected(idx);
-      m_eveTopNode->popupMenu(x, y);
+      m_eveTopNode->popupMenu(x, y, 0);
    }
 }
 
@@ -484,6 +484,75 @@ void FWGeometryTableViewBase::nodeColorChangeRequested(Color_t col)
    }
 }
 
+
+//______________________________________________________________________________
+void FWGeometryTableViewBase::chosenItem(int menuIdx)
+{
+   int selectedIdx = m_eveTopNode->getFirstSelectedTableIndex();
+   FWGeometryTableManagerBase::NodeInfo& ni = getTableManager()->refEntry(selectedIdx);
+   // printf("chosen item %s \n", ni.name());
+   
+   TGeoVolume *gv = ni.m_node->GetVolume();
+   bool resetHome = false;
+   if (gv)
+   {
+      switch (menuIdx)
+      {
+         case FWGeoTopNode::kVisSelfOff:
+            getTableManager()->setVisibility(ni, false);
+            refreshTable3D();
+            
+         case FWGeoTopNode::kVisChldOff:
+            getTableManager()->setDaughtersSelfVisibility(selectedIdx, false);
+            refreshTable3D();
+            break;
+            
+         case FWGeoTopNode::kVisChldOn:
+            getTableManager()->setDaughtersSelfVisibility(selectedIdx,  true);
+            refreshTable3D();
+            break;
+            
+         case FWGeoTopNode::kPrintMaterial:
+            gv->InspectMaterial();
+            break;
+            
+         case FWGeoTopNode::kPrintShape:
+            gv->InspectShape();
+            break;
+            
+         case FWGeoTopNode::kPrintPath:
+         {
+            std::string ps;
+             getTableManager()->getNodePath(selectedIdx, ps);
+            std::cout << ps << std::endl;
+            break;
+         }  
+         case FWGeoTopNode::kSetTopNode:
+            cdNode(selectedIdx);
+            break;         
+            
+         case FWGeoTopNode::kSetTopNodeCam:
+            cdNode(selectedIdx);
+            resetHome = true;
+            break;
+            
+         case FWGeoTopNode::kCamera:
+         {
+            TGLViewer* v = FWGeoTopNode::s_pickedViewer;
+            v->CurrentCamera().SetExternalCenter(true);
+            v->CurrentCamera().SetCenterVec(FWGeoTopNode::s_pickedCamera3DCenter.X(), FWGeoTopNode::s_pickedCamera3DCenter.Y(), FWGeoTopNode::s_pickedCamera3DCenter.Z());
+            v->SetDrawCameraCenter(true);
+            resetHome = true;
+            break;
+         }
+         default:
+            return;
+      }
+   }
+   
+   if (resetHome) gEve->FullRedraw3D(true, true);
+   
+}
 //______________________________________________________________________________
 void FWGeometryTableViewBase::transparencyChanged()
 {
@@ -553,3 +622,4 @@ void FWGeometryTableViewBase::setFrom(const FWConfiguration& iFrom)
    m_enableRedraw = true;
    refreshTable3D();
 }
+

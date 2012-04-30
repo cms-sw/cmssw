@@ -163,31 +163,14 @@ void FWEveDetectorGeo::paintShape(bool visLevel, FWGeometryTableManagerBase::Nod
    
 }
 
-//______________________________________________________________________________
+//_____________________________________________________________________________
 
-void FWEveDetectorGeo::popupMenu(int x, int y)
-{  
-   if (getFirstSelectedTableIndex() < 0)
-   {
-      if (fSted.empty()) fwLog(fwlog::kInfo) << "No menu -- no node/entry selected \n";
-      return;
-   }
+void FWEveDetectorGeo::popupMenu(int x, int y, TGLViewer* v)
+{
+   FWPopupMenu* nodePopup = FWGeoTopNode::setPopupMenu(x, y, v, false);
    
-   FWPopupMenu* nodePopup = new FWPopupMenu();
-   nodePopup->AddEntry("Set As Top Node", kGeoSetTopNode);
-   nodePopup->AddEntry("Set As Top Node And Camera Center", kGeoSetTopNodeCam);
-   nodePopup->AddSeparator();
-   nodePopup->AddEntry("Rnr Off For All Children", kGeoVisOff);
-   nodePopup->AddEntry("Rnr On For All Children", kGeoVisOn);
-   nodePopup->AddSeparator();
-   nodePopup->AddEntry("Set Camera Center", kGeoCamera);
-   nodePopup->AddSeparator();
-   //   nodePopup->AddEntry("InspectMaterial", kGeoInspectMaterial); crashes !!!
-   nodePopup->AddEntry("InspectShape", kGeoInspectShape);
-
-   nodePopup->PlaceMenu(x, y,true,true);
-   nodePopup->Connect("Activated(Int_t)",
+ if (nodePopup)  nodePopup->Connect("Activated(Int_t)",
                       "FWGeometryTableView",
-                       m_browser,
+                      m_browser,
                       "chosenItem(Int_t)");
 }

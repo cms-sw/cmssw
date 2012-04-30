@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:34 CET 2012
-// $Id: FWGeometryTableView.cc,v 1.28 2012/04/29 06:07:38 matevz Exp $
+// $Id: FWGeometryTableView.cc,v 1.29 2012/04/29 19:29:00 amraktad Exp $
 //
 
 // system include files
@@ -228,7 +228,6 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
    m_minParentTransparency.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
    m_minLeafTransparency.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
 }
-s
 
 FWGeometryTableView::~FWGeometryTableView()
 {}
@@ -428,74 +427,6 @@ void FWGeometryTableView::setFrom(const FWConfiguration& iFrom)
 }
 
 //------------------------------------------------------------------------------
-
-void FWGeometryTableView::chosenItem(int x)
-{
-   int selectedIdx = m_eveTopNode->getFirstSelectedTableIndex();
-   FWGeometryTableManagerBase::NodeInfo& ni = getTableManager()->refEntry(selectedIdx);
-   // printf("chosen item %s \n", ni.name());
-
-   TGeoVolume *gv = ni.m_node->GetVolume();
-   bool resetHome = false;
-   if (gv)
-   {
-      switch (x)
-      {
-         case FWEveDetectorGeo::kGeoVisOff:
-            m_tableManager->setDaughtersSelfVisibility(selectedIdx, false);
-            refreshTable3D();
-            break;
-         case FWEveDetectorGeo::kGeoVisOn:
-            m_tableManager->setDaughtersSelfVisibility(selectedIdx,  true);
-            refreshTable3D();
-            break;
-
-         case FWEveDetectorGeo::kGeoInspectMaterial:
-            gv->InspectMaterial();
-            break;
-         case FWEveDetectorGeo::kGeoInspectShape:
-            gv->InspectShape();
-            break;
-
-         case FWEveDetectorGeo::kGeoSetTopNode:
-            cdNode(selectedIdx);
-            break;         
-
-         case FWEveDetectorGeo::kGeoSetTopNodeCam:
-            cdNode(selectedIdx);
-            resetHome = true;
-
-         case FWEveDetectorGeo::kGeoCamera:
-         {
-            TGeoHMatrix mtx;
-            getTableManager()->getNodeMatrix(ni, mtx);
-
-            static double pnt[3];
-            TGeoBBox* bb = static_cast<TGeoBBox*>( ni.m_node->GetVolume()->GetShape());
-            const double* origin = bb->GetOrigin();
-            mtx.LocalToMaster(origin, pnt);
-
-            TEveElementList* vl = gEve->GetViewers();
-            for (TEveElement::List_i it = vl->BeginChildren(); it != vl->EndChildren(); ++it)
-            {
-               TEveViewer* v = ((TEveViewer*)(*it));
-               TString name = v->GetElementName();
-               if (name.Contains("3D"))
-               {
-                  v->GetGLViewer()->SetDrawCameraCenter(true);
-                  TGLCamera& cam = v->GetGLViewer()->CurrentCamera();
-                  cam.SetExternalCenter(true);
-                  cam.SetCenterVec(pnt[0], pnt[1], pnt[2]);
-               }
-            }
-            if (resetHome) gEve->FullRedraw3D(true, true);
-            break;
-         }
-         default:
-            fwLog(fwlog::kError) << "Entry not handled \n";
-      }
-   }
-}
 
 void FWGeometryTableView::updateVisibilityTopNode()
 {

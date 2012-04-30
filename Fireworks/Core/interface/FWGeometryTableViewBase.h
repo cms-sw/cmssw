@@ -70,6 +70,7 @@ public:
                              Int_t iGlobalX, Int_t iGlobalY);
   
    // void chosenItemFrom3DView(int);
+   virtual void chosenItem(int);
    void selectView(int);
  
    bool getEnableHighlight() { return m_enableHighlight.value(); } 

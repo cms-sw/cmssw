@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManagerBase.cc,v 1.4 2012/02/23 00:50:25 amraktad Exp $
+// $Id: FWGeometryTableManagerBase.cc,v 1.5 2012/04/25 06:09:34 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -307,3 +307,50 @@ void FWGeometryTableManagerBase::cancelEditor(bool redraw)
       if (redraw) redrawTable();
    }
 }
+
+
+//------------------------------------------------------------------------------
+
+void FWGeometryTableManagerBase::setVisibility(NodeInfo& data, bool x)
+{
+   data.setBitVal(kVisNodeSelf, x);
+}
+
+//------------------------------------------------------------------------------
+
+void FWGeometryTableManagerBase::setVisibilityChld(NodeInfo& data, bool x)
+{
+   data.setBitVal(kVisNodeChld, x);
+}
+//______________________________________________________________________________
+
+void FWGeometryTableManagerBase::setDaughtersSelfVisibility(int selectedIdx, bool v)
+{
+   TGeoNode  *parentNode = m_entries[selectedIdx].m_node;
+   int nD   = parentNode->GetNdaughters();
+   int dOff = 0;
+   for (int n = 0; n != nD; ++n)
+   {
+      int idx = selectedIdx + 1 + n + dOff;
+      NodeInfo& data = m_entries[idx];
+      
+      setVisibility(data, v);
+      setVisibilityChld(data, v);
+      
+      getNNodesTotal(parentNode->GetDaughter(n), dOff);
+   }
+}
+/*
+//------------------------------------------------------------------------------
+
+bool FWGeometryTableManagerBase::getVisibility(const NodeInfo& data) const
+{
+   return data.testBit(kVisNodeSelf);
+}
+
+bool FWGeometryTableManagerBase::getVisibilityChld(const NodeInfo& data) const
+{
+   return data.testBit(kVisNodeChld);
+}
+
+*/
