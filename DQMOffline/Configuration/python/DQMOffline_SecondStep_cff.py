@@ -65,7 +65,8 @@ DQMOffline_SecondStepPOGMC = cms.Sequence( dqmRefHistoRootFileGetter *
                                            DQMMessageLoggerClientSeq )
 
 
-DQMHarvestCommon = cms.Sequence(dqmDcsInfoClient *
+DQMHarvestCommon = cms.Sequence( dqmRefHistoRootFileGetter *
+                                 dqmDcsInfoClient *
                                  SiStripOfflineDQMClient *
                                  PixelOfflineDQMClientNoDataCertification *
                                  l1TriggerDqmOfflineClient *
@@ -75,16 +76,17 @@ DQMHarvestCommon = cms.Sequence(dqmDcsInfoClient *
                                  alcaBeamMonitorClient *
                                  runTauEff
                                 )
-DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmDcsInfoClient *
-                                 SiStripOfflineDQMClient *
-                                 PixelOfflineDQMClientNoDataCertification *
-                                 l1TriggerDqmOfflineClient *
-                                 triggerOfflineDQMClient *
-                                 hltOfflineDQMClient *
-                                 dqmFEDIntegrityClient *
-                                 alcaBeamMonitorClient *
-                                 runTauEff
-                                )
+DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
+                                               dqmDcsInfoClient *
+                                               SiStripOfflineDQMClient *
+                                               PixelOfflineDQMClientNoDataCertification *
+                                               l1TriggerDqmOfflineClient *
+                                               triggerOfflineDQMClient *
+                                               hltOfflineDQMClient *
+                                               dqmFEDIntegrityClient *
+                                               alcaBeamMonitorClient *
+                                               runTauEff
+                                               )
 
 DQMHarvestMuon = cms.Sequence( dtClients *
                                 rpcTier0Client *
