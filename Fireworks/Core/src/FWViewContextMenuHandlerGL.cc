@@ -85,8 +85,8 @@ FWViewContextMenuHandlerGL::select(int iEntryIndex, const FWModelId &id, int iX,
          }
          else
          {
-            v->CurrentCamera().SetCenterVec(pnt.X(), pnt.Y(), pnt.Z());
             v->CurrentCamera().SetExternalCenter(true);
+            v->CurrentCamera().SetCenterVec(pnt.X(), pnt.Y(), pnt.Z());
             v->SetDrawCameraCenter(true);
          }
          break;
