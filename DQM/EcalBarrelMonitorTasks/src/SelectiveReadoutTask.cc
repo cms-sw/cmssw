@@ -367,7 +367,7 @@ namespace ecaldqm {
 
     axis.title = "event size (kB)";
     axis.nbins = 78; // 10 zero-bins + 68
-    axis.edges = new float[79];
+    axis.edges = new double[79];
     float fullTTSize(0.608);
     for(int i(0); i <= 10; i++) axis.edges[i] = fullTTSize / 10. * i;
     for(int i(11); i < 79; i++) axis.edges[i] = fullTTSize * (i - 10);

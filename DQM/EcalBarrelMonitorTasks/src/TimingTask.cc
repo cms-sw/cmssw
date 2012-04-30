@@ -87,14 +87,14 @@ namespace ecaldqm {
     axisE.nbins = 25;
     axisE.low = -0.5;
     axisE.high = 2.;
-    axisE.edges = new float[axisE.nbins + 1];
+    axisE.edges = new double[axisE.nbins + 1];
     for(int i = 0; i <= axisE.nbins; i++)
       axisE.edges[i] = pow((float)10., axisE.low + (axisE.high - axisE.low) / axisE.nbins * i);
 
     axisT.nbins = 200;
     axisT.low = -50.;
     axisT.high = 50.;
-    axisT.edges = new float[axisT.nbins + 1];
+    axisT.edges = new double[axisT.nbins + 1];
     for(int i = 0; i <= axisT.nbins; i++)
       axisT.edges[i] = axisT.low + (axisT.high - axisT.low) / axisT.nbins * i;
 
