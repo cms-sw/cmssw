@@ -58,6 +58,7 @@ void L1CaloClusterProducer::algorithm( const int &aEta, const int &aPhi )
   int lClusterEcalE = 0;
   int lClusterTotalE = 0;
   int lLeadTower = 0;
+  int lSecondTower = 0;
 
   for ( int lTowerEta = aEta; lTowerEta <= aEta + 1; ++lTowerEta )
   {
@@ -89,8 +90,12 @@ void L1CaloClusterProducer::algorithm( const int &aEta, const int &aPhi )
           lCaloCluster.addConstituent( lRef );
 
           if ( lTowerTotalE > lLeadTower )
+	    lSecondTower = lLeadTower;
             lLeadTower = lTowerTotalE;
         }
+	else if(lTowerTotalE > lSecondTower && lTowerTotalE < lLeadTower){
+	  lSecondTower = lTowerTotalE;
+	}
       }
       // ---------- new way ------------
 
@@ -105,6 +110,8 @@ void L1CaloClusterProducer::algorithm( const int &aEta, const int &aPhi )
     lCaloCluster.setEGammaValue( lElectronValue );
 
     lCaloCluster.setLeadTower( lLeadTower >= mCaloTriggerSetup->seedTowerThr(  ) );
+
+    lCaloCluster.setLeadTowerE( lLeadTower+lSecondTower );
 
     // Electron Bit Decision
     bool lLowPtElectron = lCaloCluster.E(  ) <= mCaloTriggerSetup->electronThr( 1 ) && lElectronValue > mCaloTriggerSetup->electronThr( 0 );
