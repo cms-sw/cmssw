@@ -73,8 +73,9 @@ void ggPFPhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByLabel(beamSpotCollection_,beamSpotHandle);
   for(reco::PhotonCollection::const_iterator iPho = recoPhotons->begin(); iPho!=recoPhotons->end(); ++iPho) {
     recoPFEnergy_=0;
-   ggPFPhotons ggPFPhoton(*iPho, PFPhotons,
+    ggPFPhotons ggPFPhoton(*iPho, PFPhotons,
 			   PFElectrons,
+			  PFParticles,
 			   EBReducedRecHits,
 			   EEReducedRecHits,
 			   ESRecHits,
@@ -116,7 +117,7 @@ void ggPFPhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
       std::vector<reco::CaloCluster>PFC=ggPFPhoton.recoPhotonClusterLink(*iPho, PFParticles);  
       recoPFEnergy_=0;
       for(unsigned int i=0; i<PFC.size(); ++i)recoPFEnergy_=recoPFEnergy_+PFC[i].energy();
-      //cout<<"Recostruced from PF "<<recoPFEnergy_<<" SC Raw E "<<(*iPho).superCluster()->rawEnergy()<<endl;
+      //cout<<"PF reconstructed E "<<recoPFEnergy_<<"SC Raw E "<<(*iPho).superCluster()->rawEnergy()<<endl;
       PFPS1_=ggPFPhoton.PFPS1();
       PFPS2_=ggPFPhoton.PFPS2();
       MustE_=ggPFPhoton.MustE();

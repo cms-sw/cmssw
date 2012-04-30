@@ -8,6 +8,7 @@ ggPFPhotons::ggPFPhotons(
 			 reco::Photon phot,
 			 edm::Handle<reco::PhotonCollection>& pfPhotons,
 			 edm::Handle<reco::GsfElectronCollection>& pfElectrons,
+			 edm::Handle<PFCandidateCollection>& pfCandidates,
 			 edm::Handle<EcalRecHitCollection>& EBReducedRecHits,
 			 edm::Handle<EcalRecHitCollection>& EEReducedRecHits,
 			 edm::Handle<EcalRecHitCollection>& ESRecHits,
@@ -51,10 +52,22 @@ ggPFPhotons::ggPFPhotons(
       isPFEle_=true;
       break;
     }
-      
+    for(PFCandidateCollection::const_iterator pfParticle =pfCandidates->begin(); pfParticle!=pfCandidates->end(); pfParticle++){
+      if(abs(pfParticle->pdgId())!=11)continue;
+      if(pfParticle->superClusterRef().isNull())continue;
+      double dR=deltaR(pfParticle->superClusterRef()->eta(), 
+		       pfParticle->superClusterRef()->phi(),
+		       matchedPhot_.superCluster()->eta(), 
+		       matchedPhot_.superCluster()->phi());
+      if(pfele->superCluster()==pfParticle->superClusterRef() &&dR<0.1){
+	PFElectron_= *(pfele);
+	matchPFReco_=true;
+	isPFEle_=true;
+	break;
+      }	
+    }  
   } 
 
-    
 }
 ggPFPhotons::~ggPFPhotons(){;}
 
@@ -239,24 +252,20 @@ std::vector<reco::CaloCluster> ggPFPhotons::recoPhotonClusterLink(reco::Photon p
   dPhiLowestC_=0;
   PFClPhiRMS_=0;
   PFClPhiRMSMust_=0;
-  //take SuperCluster position
+  //find SC boundaries from RecHits:
+  std::pair<double,double>Boundary=SuperClusterSize(phot);		
+  double etabound=Boundary.first;
+  double phibound=Boundary.second;
+  double seedEta=phot.superCluster()->seed()->eta();
+  double seedPhi=phot.superCluster()->seed()->phi();
   for (PFCandidateCollection::const_iterator pfParticle =pfCandidates->begin(); pfParticle!=pfCandidates->end(); pfParticle++){
     if(pfParticle->pdgId()!=22) continue; //if photon
-    if(pfParticle->mva_nothing_gamma()>0.9)continue; //if classic PFIsolated photon (not seeded from SuperCluster);
-    
-    //float dR=deltaR(pfParticle->eta(), pfParticle->phi(), phot.superCluster()->eta(),phot.superCluster()->phi()); 
     //use a box about superCluster Width:
-    float dphi=acos(cos(phot.superCluster()->phi()-pfParticle->phi()));
-    float deta=fabs(pfParticle->eta()-phot.superCluster()->eta());
-    // cout<<"dPhi "<<dphi<<endl;
-    // cout<<"Phi w "<<phot.superCluster()->phiWidth()<<endl;
-    
-    //  cout<<"dEta "<<deta<<endl;
-    // cout<<"Eta w "<<phot.superCluster()->etaWidth()<<endl;
-    // if(deta<phot.superCluster()->etaWidth() && dphi<phot.superCluster()->phiWidth()){
+    float dphi=acos(cos(seedPhi-pfParticle->phi()));
+    float deta=fabs(seedEta-pfParticle->eta());
     PFPreShower1_=0;
     PFPreShower2_=0;
-    if(deta<0.1 && dphi<0.4){
+    if(deta<etabound && dphi<phibound){
       //hard coded size for now but will make it more dynamic
       //based on SuperCluster Shape
       math::XYZPoint position(pfParticle->positionAtECALEntrance().X(), pfParticle->positionAtECALEntrance().Y(), pfParticle->positionAtECALEntrance().Z()) ;
@@ -274,9 +283,6 @@ std::vector<reco::CaloCluster> ggPFPhotons::recoPhotonClusterLink(reco::Photon p
   std::vector<unsigned int> insideMust;
   std::vector<unsigned int> outsideMust;
   Must.MustacheClust(PFClusters_, insideMust, outsideMust);
- 
-  //Must.MustacheID(PFClusters_, insideMust, outsideMust);
-  // cout<<"Inside "<<insideMust.size()<<", Total"<<PFClusters_.size()<<endl;
   //sum MustacheEnergy and order clusters by Energy:
   
   std::multimap<float, unsigned int>OrderedClust;
@@ -303,12 +309,15 @@ std::vector<reco::CaloCluster> ggPFPhotons::recoPhotonClusterLink(reco::Photon p
   it=OrderedClust.begin();
   unsigned int lowEindex=(*it).second;   
   PFLowClusE_=PFClusters_[lowEindex].energy();
-  
   //dEta and dPhi to this Cluster:
   dEtaLowestC_=PFClusters_[lowEindex].eta()-PFPhoton_.eta();
   dPhiLowestC_=deltaPhi(PFClusters_[lowEindex].phi(),PFPhoton_.phi());
   //RMS Of All PFClusters inside SuperCluster:
-  
+  if(insideMust.size()==1){
+    PFLowClusE_=0;
+    dEtaLowestC_=0;
+    dPhiLowestC_=0;
+  }
   std::pair<double, double> RMS=CalcRMS(PFClusters_, PFPhoton_);
   PFClPhiRMS_=RMS.second;
   std::vector<CaloCluster>MustacheNLClust;
@@ -334,4 +343,64 @@ std::vector<reco::CaloCluster> ggPFPhotons::recoPhotonClusterLink(reco::Photon p
   }
   return PFClusters_;
   
+}
+
+std::pair<double, double>ggPFPhotons::SuperClusterSize(
+						       reco::Photon phot
+						       ){
+  std::pair<double, double>SCsize(0.1,0.4);//Eta, Phi
+  //find maximum distance between SuperCluster Seed and Rec Hits
+  SuperClusterRef recoSC=phot.superCluster();
+  reco::CaloCluster_iterator cit=recoSC->clustersBegin();
+  double seedeta=recoSC->seed()->eta();
+  double seedphi=recoSC->seed()->phi();
+  EcalRecHitCollection::const_iterator eb;
+  EcalRecHitCollection::const_iterator ee;
+  double MaxEta=-99;
+  double MaxPhi=-99;
+  for(;cit!=recoSC->clustersEnd();++cit){
+    std::vector< std::pair<DetId, float> >bcCells=(*cit)->hitsAndFractions();
+    if(phot.isEB()){
+      for(unsigned int i=0; i<bcCells.size(); ++i){
+	for(eb=EBReducedRecHits_->begin();eb!= EBReducedRecHits_->end();++eb){
+	  if(eb->id().rawId()==bcCells[i].first.rawId()){
+	    DetId id=bcCells[i].first;
+	    float eta=geomBar_->getGeometry(id)->getPosition().eta();
+	    float dEta = fabs(seedeta-eta);
+	    if(dEta>MaxEta){
+	      MaxEta=dEta;
+	      float phi=geomBar_->getGeometry(id)->getPosition().phi();
+	      float dPhi = acos(cos( seedphi-phi));
+	      if(dPhi>MaxPhi){
+		MaxPhi=dPhi;
+	      }
+	    }
+	  }
+	}
+	
+      }
+    }
+    else{
+      for(unsigned int i=0; i<bcCells.size(); ++i){
+	for(ee=EEReducedRecHits_->begin();ee!= EEReducedRecHits_->end();++ee){
+	  if(ee->id().rawId()==bcCells[i].first.rawId()){
+	    DetId id=bcCells[i].first;
+	    float eta=geomEnd_->getGeometry(id)->getPosition().eta();
+	    float dEta = fabs(seedeta-eta);
+	    if(dEta>MaxEta){
+	      MaxEta=dEta;
+	    }
+	    float phi=geomEnd_->getGeometry(id)->getPosition().phi();
+	    float dPhi = acos(cos(seedphi-phi));
+	    if(dPhi>MaxPhi){
+	      MaxPhi=dPhi;
+	    }
+	  }
+	}
+	
+      }
+    }
+  }
+  SCsize.first=MaxEta; SCsize.second=MaxPhi;
+  return SCsize;
 }

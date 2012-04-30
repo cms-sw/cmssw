@@ -21,6 +21,7 @@ class ggPFPhotons  {
 		       reco::Photon phot,
 		       edm::Handle<reco::PhotonCollection>& pfPhotons,
 		       edm::Handle<reco::GsfElectronCollection>& pfElectrons,
+		       edm::Handle<PFCandidateCollection>& pfCandidates,
 		       edm::Handle<EcalRecHitCollection>& EBReducedRecHits,
 		       edm::Handle<EcalRecHitCollection>& EEReducedRecHits,
 		       edm::Handle<EcalRecHitCollection>& ESRecHits,
@@ -55,7 +56,8 @@ class ggPFPhotons  {
 						      reco::Photon phot, 
 						      edm::Handle<PFCandidateCollection>& pfCandidates
 );
-  
+  std::pair<double, double>SuperClusterSize(reco::Photon phot
+					    );
   //for filling PFCluster Variables
  private:
   reco::Photon matchedPhot_;
