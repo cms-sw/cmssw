@@ -15,7 +15,7 @@ class L1CaloClusterIsolator:public L1CaloAlgoBase < l1slhc::L1CaloClusterCollect
 
   private:
         bool isoLookupTable( const int& clusters, const int& aCoeffA, const int& E );
-  bool isoLookupTable( const int& aConeEnergy, const int& aTwoHighTowers, const int& aCoeffB, const int& aE );
+  bool isoLookupTable( const int& aConeEnergy, const int& aTwoHighTowers, const int& aCoeffA, const int& aE );
         int ItrLookUp(const int& lPhi, const int& nTowers);
 };
 
@@ -132,6 +132,7 @@ int L1CaloClusterIsolator::ItrLookUp(const int& lPhi, const int& nTowers)
 bool L1CaloClusterIsolator::isoLookupTable( const int& aConeEnergy, const int& aCoeffA, const int& aE )	// takes as input the # Clusters the isolation coefficients
 {
   	if( aE < 0 ) return false;
+
 	if( aE >= 100 ) return true;
 
 	int cut = 0;
@@ -140,28 +141,33 @@ bool L1CaloClusterIsolator::isoLookupTable( const int& aConeEnergy, const int& a
 
 	//printf("aE-aClusters=%i aE=%i coneE/aE= %f\n",cut,aE,double( aConeEnergy*100 )/ double(aE));
 
-	return (cut > 32);
+	return (cut > 20);
 	}
 	else
 	  return false;
 }
 
 
-bool L1CaloClusterIsolator::isoLookupTable( const int& aConeEnergy, const int& aTwoHighTowers, const int& aCoeffB, const int& aE )	// takes as input the # Clusters the isolation coefficients/
+bool L1CaloClusterIsolator::isoLookupTable( const int& aConeEnergy, const int& aTwoHighTowers, const int& aCoeffA, const int& aE )	// takes as input the # Clusters the isolation coefficients/
 {
-
-  	if( aE < 0 ) return false;
-	if( aE >= 100 ) return true;
-
+  printf("Goes to Isolation Algo aE = %i\n",aE);
 	int cut = 0;
-	int TotalaConeEnergy = aConeEnergy + aE - aTwoHighTowers;
+	int TotalaConeEnergy = aConeEnergy + aE - aTwoHighTowers; //define total cone energy
+	//printf("TotalConeE: %i, coneE:%i, aE=%i, 2hightowers:%i\n",aConeEnergy + aE - aTwoHighTowers,aConeEnergy,aE,aTwoHighTowers);
+  	if( aE < 0 ) return false;    //less than zero then false
+	if( aE >= 100 ) return true;  //>= 100 then true (translates to >=50GeV for electrons) return: Isolated!!
 
-	//printf("aE-aClusters=%i aE=%i coneE/aE= %f\n",aE-TotalaConeEnergy,aE,double( TotalaConeEnergy*100 )/ double(aE));
+	//printf("rel iso: %f, cut:%i\n",double ( TotalaConeEnergy*100 )/ double(aE),aCoeffA );
 
-	if( double( TotalaConeEnergy*100 )/ double(aE)  <20){
-	cut = aE-TotalaConeEnergy;
+	if( double ( TotalaConeEnergy*100 )/ double(aE)  <  aCoeffA){ //change from int to double, multiply by 100: apply relative isolation here ConeE/Electron Energy <0.2
+	  //printf("fail1\n");
+	  cut = aE-TotalaConeEnergy;                      // define "cut" here == central cluster energy-TotalConeEnergy
+	  //if(cut<32)
+	    //printf("fail2\b");
 	}
-	return (cut > 32);
+	return (cut > 32); // if central cluster relative Iso < 0.20 && Central cluster - coneEnergy >32 then return: Isolated!!
+
+
 
 }
 
