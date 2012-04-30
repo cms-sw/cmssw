@@ -45,6 +45,7 @@ namespace edm {
 
     void updateID() const;
 
+    std::string dump(unsigned int indent = 0) const;
     friend std::ostream & operator<<(std::ostream & os, ParameterSetEntry const& psetEntry);
 
   private:

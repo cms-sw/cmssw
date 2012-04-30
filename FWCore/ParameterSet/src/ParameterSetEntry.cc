@@ -100,9 +100,15 @@ namespace edm {
     theID_ = pset().id();
   }
 
+  std::string ParameterSetEntry::dump(unsigned int indent) const {
+    std::ostringstream os;
+    const char* trackiness = (isTracked()?"tracked":"untracked");
+    os << "PSet "<<trackiness<<" = (" << pset().dump(indent) << ")";
+    return os.str();
+  }
+
   std::ostream & operator<<(std::ostream & os, ParameterSetEntry const& psetEntry) {
-     const char* trackiness = (psetEntry.isTracked()?"tracked":"untracked");
-    os << "PSet "<<trackiness<<" = ("<< psetEntry.pset() << ")";
+    os << psetEntry.dump();
     return os;
   }
 }

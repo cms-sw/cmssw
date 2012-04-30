@@ -5,6 +5,7 @@
 
 #include <cassert>
 #include <ostream>
+#include <sstream>
 
 namespace edm {
 
@@ -116,19 +117,26 @@ namespace edm {
     }
   }
 
-  std::ostream& operator<<(std::ostream& os, VParameterSetEntry const& vpsetEntry) {
-    std::vector<ParameterSet> const& vps = vpsetEntry.vpset();
-    os << "VPSet "<<(vpsetEntry.isTracked()?"tracked":"untracked")<<" = ({" << std::endl;
+  std::string VParameterSetEntry::dump(unsigned int indent)  const {
+    std::string indentation(indent, ' ');
+    std::ostringstream os;
+    std::vector<ParameterSet> const& vps = vpset();
+    os << "VPSet "<<(isTracked()?"tracked":"untracked")<<" = ({" << std::endl;
     std::string start;
     std::string const between(",\n");
     for(std::vector<ParameterSet>::const_iterator i = vps.begin(), e = vps.end(); i != e; ++i) {
-      os << start << *i;
+      os << start << indentation << i->dump(indent);
       start = between;
     }
     if (!vps.empty()) {
       os << std::endl;
     }
-    os << "})";
+    os << indentation << "})";
+    return os.str();
+  }
+
+  std::ostream& operator<<(std::ostream& os, VParameterSetEntry const& vpsetEntry) {
+    os << vpsetEntry.dump();
     return os;
   }
 }
