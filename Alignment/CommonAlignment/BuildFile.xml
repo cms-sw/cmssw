@@ -4,6 +4,8 @@
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/TrackingRecHit"/>
+<use   name="DataFormats/CSCRecHit"/>
+<use   name="DataFormats/DTRecHit"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
