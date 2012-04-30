@@ -24,11 +24,11 @@ namespace ecaldqm{
     DQWorker(const edm::ParameterSet&, const edm::ParameterSet&, std::string const&);
     virtual ~DQWorker();
 
-    virtual void beginRun(const edm::Run &, const edm::EventSetup &) = 0;
-    virtual void endRun(const edm::Run &, const edm::EventSetup &) = 0;
+    virtual void beginRun(const edm::Run &, const edm::EventSetup &){};
+    virtual void endRun(const edm::Run &, const edm::EventSetup &){};
 
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) = 0;
-    virtual void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) = 0;
+    virtual void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &){};
+    virtual void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &){};
 
     virtual void bookMEs();
 
@@ -36,6 +36,7 @@ namespace ecaldqm{
     virtual std::string const& getName() { return name_; }
     virtual bool isInitialized() { return initialized_; }
     virtual void setInitialized(bool _init) { initialized_ = _init; }
+    virtual void setVerbosity(int _verbosity) { verbosity_ = _verbosity; }
 
     const std::vector<MESet*>& getMEs() { return MEs_; }
 
@@ -54,6 +55,8 @@ namespace ecaldqm{
     std::string name_;
     std::vector<MESet*> MEs_; // [nMESets]
     bool initialized_;
+
+    int verbosity_;
   };
 
 

@@ -11,7 +11,7 @@ namespace ecaldqm
     MESetDet2D(std::string const&, MEData const&, bool _readOnly = false);
     ~MESetDet2D();
 
-    void fill(DetId const&, float _w = 1., float _unused1 = 0., float _unused2 = 0.);
+    void fill(DetId const&, double _w = 1., double _unused1 = 0., double _unused2 = 0.);
   };
 }
 

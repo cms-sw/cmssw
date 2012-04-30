@@ -34,7 +34,7 @@ namespace ecaldqm
   }
 
   void
-  MESetChannel::fill(DetId const& _id, float _w/* = 1.*/, float, float)
+  MESetChannel::fill(DetId const& _id, double _w/* = 1.*/, double, double)
   {
     uint32_t rawId(getIndex_(_id));
 
@@ -49,7 +49,7 @@ namespace ecaldqm
   }
 
   void
-  MESetChannel::fill(EcalElectronicsId const& _id, float _w/* = 1.*/, float, float)
+  MESetChannel::fill(EcalElectronicsId const& _id, double _w/* = 1.*/, double, double)
   {
     uint32_t rawId(getIndex_(_id));
 
@@ -64,7 +64,7 @@ namespace ecaldqm
   }
 
   void
-  MESetChannel::setBinContent(DetId const& _id, float _content, float _err/* = 0.*/)
+  MESetChannel::setBinContent(DetId const& _id, double _content, double _err/* = 0.*/)
   {
     uint32_t rawId(getIndex_(_id));
 
@@ -80,7 +80,7 @@ namespace ecaldqm
   }
    
   void
-  MESetChannel::setBinContent(EcalElectronicsId const& _id, float _content, float _err/* = 0.*/)
+  MESetChannel::setBinContent(EcalElectronicsId const& _id, double _content, double _err/* = 0.*/)
   {
     uint32_t rawId(getIndex_(_id));
 
@@ -96,7 +96,7 @@ namespace ecaldqm
   }
 
   void
-  MESetChannel::reset(float _content/* = 0.*/, float _err/* = 0.*/, float _entries/* = 0.*/)
+  MESetChannel::reset(double _content/* = 0.*/, double _err/* = 0.*/, double _entries/* = 0.*/)
   {
     if(readOnly_) return;
 
@@ -115,7 +115,7 @@ namespace ecaldqm
     }
   }
 
-  float
+  double
   MESetChannel::getBinContent(DetId const& _id, int) const
   {
     uint32_t rawId(getIndex_(_id));
@@ -127,7 +127,7 @@ namespace ecaldqm
     return mes_.at(tableItr->second)->getBinContent(1);
   }
 
-  float
+  double
   MESetChannel::getBinContent(EcalElectronicsId const& _id, int) const
   {
     uint32_t rawId(getIndex_(_id));

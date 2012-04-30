@@ -52,6 +52,7 @@ class EcalDQMBinningService {
     kProjPhi,
     kUser,
     kReport,
+    kTrend,
     nBinType
   };
 
@@ -84,15 +85,15 @@ class EcalDQMBinningService {
 
   struct AxisSpecs {
     int nbins;
-    float low, high;
-    float* edges;
+    double low, high;
+    double* edges;
     std::string title;
     AxisSpecs() : nbins(1), edges(0) {}
     AxisSpecs(AxisSpecs const& _specs) :
       nbins(_specs.nbins), low(_specs.low), high(_specs.high), edges(0), title(_specs.title)
     {
       if(_specs.edges){
-	edges = new float[nbins + 1];
+	edges = new double[nbins + 1];
 	for(int i(0); i <= nbins; i++) edges[i] = _specs.edges[i];
       }
     }
@@ -101,7 +102,7 @@ class EcalDQMBinningService {
       if(edges){ delete [] edges; edges = 0; }
       nbins = _rhs.nbins; low = _rhs.low; high = _rhs.high; title = _rhs.title;
       if(_rhs.edges){
-	edges = new float[nbins + 1];
+	edges = new double[nbins + 1];
 	for(int i(0); i <= nbins; i++) edges[i] = _rhs.edges[i];
       }
       return *this;
@@ -184,7 +185,7 @@ class EcalDQMBinningService {
   mutable BinningType cacheBtype_;
   mutable std::pair<unsigned, std::vector<int> > cache_;
 
-  const float etaBound_;
+  const double etaBound_;
 
   const CaloGeometry* geometry_;
 

@@ -11,9 +11,9 @@ namespace ecaldqm
     MESetDet0D(std::string const&, MEData const&, bool _readOnly = false);
     ~MESetDet0D();
 
-    void fill(DetId const&, float, float _unused1 = 0., float _unused2 = 0.);
-    void fill(unsigned, float, float _unused1 = 0., float _unused2 = 0.);
-    void fill(float, float _unused1 = 0., float _unused = 0.);
+    void fill(DetId const&, double, double _unused1 = 0., double _unused2 = 0.);
+    void fill(unsigned, double, double _unused1 = 0., double _unused2 = 0.);
+    void fill(double, double _unused1 = 0., double _unused = 0.);
   };
 }
 

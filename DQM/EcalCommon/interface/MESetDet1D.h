@@ -12,21 +12,21 @@ namespace ecaldqm
     ~MESetDet1D();
 
     // fill using the private fill_
-    void fill(DetId const&, float _wy = 1., float _w = 1., float _unused = 0.);
-    void fill(unsigned, float _wy = 1., float _w = 1., float _unused = 0.);
+    void fill(DetId const&, double _wy = 1., double _w = 1., double _unused = 0.);
+    void fill(unsigned, double _wy = 1., double _w = 1., double _unused = 0.);
 
-    float getBinContent(DetId const&, int _bin = 0) const;
-    float getBinContent(unsigned, int _bin = 0) const;
+    double getBinContent(DetId const&, int _bin = 0) const;
+    double getBinContent(unsigned, int _bin = 0) const;
 
-    float getBinError(DetId const&, int _bin = 0) const;
-    float getBinError(unsigned, int _bin = 0) const;
+    double getBinError(DetId const&, int _bin = 0) const;
+    double getBinError(unsigned, int _bin = 0) const;
 
-    float getBinEntries(DetId const&, int _bin = 0) const;
-    float getBinEntries(unsigned, int _bin = 0) const;
+    double getBinEntries(DetId const&, int _bin = 0) const;
+    double getBinEntries(unsigned, int _bin = 0) const;
 
   private:
     void find_(uint32_t) const;
-    void fill_(float, float);
+    void fill_(double, double);
   };
 }
 

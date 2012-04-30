@@ -50,6 +50,7 @@ EcalDQMonitorTask::EcalDQMonitorTask(const edm::ParameterSet &_ps) :
       continue;
     }
     DQWorkerTask* task(static_cast<DQWorkerTask*>(worker));
+    task->setVerbosity(verbosity_);
 
     workers_.push_back(task);
 

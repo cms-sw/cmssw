@@ -72,36 +72,36 @@ namespace ecaldqm
     virtual void clear() const;
 
     // default values are necessary (otherwise fill(DetId) will be interpreted as fill(uint32_t)!!)
-    virtual void fill(DetId const&, float _wx = 1., float _wy = 1., float _w = 1.);
-    virtual void fill(EcalElectronicsId const&, float _wx = 1., float _wy = 1., float _w = 1.);
-    virtual void fill(unsigned, float _wx = 1., float _wy = 1., float _w = 1.);
-    virtual void fill(float, float _wy = 1., float _w = 1.);
+    virtual void fill(DetId const&, double _wx = 1., double _wy = 1., double _w = 1.);
+    virtual void fill(EcalElectronicsId const&, double _wx = 1., double _wy = 1., double _w = 1.);
+    virtual void fill(unsigned, double _wx = 1., double _wy = 1., double _w = 1.);
+    virtual void fill(double, double _wy = 1., double _w = 1.);
 
-    virtual void setBinContent(DetId const&, float, float _err = 0.);
-    virtual void setBinContent(EcalElectronicsId const&, float, float _err = 0.);
-    virtual void setBinContent(unsigned, float, float _err = 0.);
+    virtual void setBinContent(DetId const&, double, double _err = 0.);
+    virtual void setBinContent(EcalElectronicsId const&, double, double _err = 0.);
+    virtual void setBinContent(unsigned, double, double _err = 0.);
 
-    virtual void setBinEntries(DetId const&, float);
-    virtual void setBinEntries(EcalElectronicsId const&, float);
-    virtual void setBinEntries(unsigned, float);
+    virtual void setBinEntries(DetId const&, double);
+    virtual void setBinEntries(EcalElectronicsId const&, double);
+    virtual void setBinEntries(unsigned, double);
 
-    virtual float getBinContent(DetId const&, int _bin = 0) const;
-    virtual float getBinContent(EcalElectronicsId const&, int _bin = 0) const;
-    virtual float getBinContent(unsigned, int _bin = 0) const;
+    virtual double getBinContent(DetId const&, int _bin = 0) const;
+    virtual double getBinContent(EcalElectronicsId const&, int _bin = 0) const;
+    virtual double getBinContent(unsigned, int _bin = 0) const;
 
-    virtual float getBinError(DetId const&, int _bin = 0) const;
-    virtual float getBinError(EcalElectronicsId const&, int _bin = 0) const;
-    virtual float getBinError(unsigned, int _bin = 0) const;
+    virtual double getBinError(DetId const&, int _bin = 0) const;
+    virtual double getBinError(EcalElectronicsId const&, int _bin = 0) const;
+    virtual double getBinError(unsigned, int _bin = 0) const;
 
-    virtual float getBinEntries(DetId const&, int _bin = 0) const;
-    virtual float getBinEntries(EcalElectronicsId const&, int _bin = 0) const;
-    virtual float getBinEntries(unsigned, int _bin = 0) const;
+    virtual double getBinEntries(DetId const&, int _bin = 0) const;
+    virtual double getBinEntries(EcalElectronicsId const&, int _bin = 0) const;
+    virtual double getBinEntries(unsigned, int _bin = 0) const;
 
     virtual void setAxisTitle(std::string const&, int _axis = 1);
     virtual void setBinLabel(unsigned, int, std::string const&, int _axis = 1);
 
-    virtual void reset(float _content = 0., float _err = 0., float _entries = 0.);
-    virtual void resetAll(float _content = 0., float _err = 0., float _entries = 0.);
+    virtual void reset(double _content = 0., double _err = 0., double _entries = 0.);
+    virtual void resetAll(double _content = 0., double _err = 0., double _entries = 0.);
 
     std::string const& getDir() const { return dir_; }
     void setDir(std::string const& _dir) { dir_ = _dir; }
@@ -115,12 +115,13 @@ namespace ecaldqm
     virtual MonitorElement const* getME(unsigned _offset) const { return (_offset < mes_.size() ? mes_[_offset] : 0); }
 
   protected:
-    virtual void fill_(unsigned, int, float);
-    virtual void setBinContent_(unsigned, int, float, float);
-    virtual void setBinEntries_(unsigned, int, float);
-    virtual float getBinContent_(unsigned, int) const;
-    virtual float getBinError_(unsigned, int) const;
-    virtual float getBinEntries_(unsigned, int) const;
+    virtual void fill_(unsigned, int, double);
+    virtual void fill_(unsigned, double, double, double);
+    virtual void setBinContent_(unsigned, int, double, double);
+    virtual void setBinEntries_(unsigned, int, double);
+    virtual double getBinContent_(unsigned, int) const;
+    virtual double getBinError_(unsigned, int) const;
+    virtual double getBinEntries_(unsigned, int) const;
 
     static BinService const* binService_;
     static DQMStore* dqmStore_;

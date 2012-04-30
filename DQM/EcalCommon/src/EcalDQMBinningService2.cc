@@ -339,7 +339,7 @@ EcalDQMBinningService::getBinningEcal_(BinningType _btype, bool _isMap) const
       break;
     case kProjEta:
       xaxis.nbins = nEBEtaBins + 2 * nEEEtaBins;
-      xaxis.edges = new float[xaxis.nbins + 1];
+      xaxis.edges = new double[xaxis.nbins + 1];
       for(int i(0); i <= nEEEtaBins; i++)
 	xaxis.edges[i] = -3. + (3. - etaBound_) / nEEEtaBins * i;
       for(int i(1); i <= nEBEtaBins; i++)

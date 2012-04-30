@@ -9,6 +9,7 @@
 #include "DQM/EcalCommon/interface/MESetDet0D.h"
 #include "DQM/EcalCommon/interface/MESetDet1D.h"
 #include "DQM/EcalCommon/interface/MESetDet2D.h"
+#include "DQM/EcalCommon/interface/MESetTrend.h"
 
 namespace ecaldqm{
 
@@ -17,7 +18,8 @@ namespace ecaldqm{
   DQWorker::DQWorker(const edm::ParameterSet &, const edm::ParameterSet& _paths, std::string const& _name) :
     name_(_name),
     MEs_(0),
-    initialized_(false)
+    initialized_(false),
+    verbosity_(0)
   {
     using namespace std;
 
@@ -76,6 +78,9 @@ namespace ecaldqm{
 
     if(otype == BinService::kChannel)
       return new MESetChannel(_fullpath, _data, _readOnly);
+
+    if(btype == BinService::kTrend)
+      return new MESetTrend(_fullpath, _data, _readOnly);
 
     unsigned logicalDimensions;
     switch(kind){

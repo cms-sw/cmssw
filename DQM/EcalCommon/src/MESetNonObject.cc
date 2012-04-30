@@ -18,6 +18,10 @@ namespace ecaldqm
 
     MonitorElement* me(0);
 
+    BinService::AxisSpecs* xaxis(data_->xaxis);
+    BinService::AxisSpecs* yaxis(data_->yaxis);
+    BinService::AxisSpecs* zaxis(data_->zaxis);
+
     switch(data_->kind) {
     case MonitorElement::DQM_KIND_REAL :
       me = dqmStore_->bookFloat(name_);
@@ -25,60 +29,79 @@ namespace ecaldqm
 
     case MonitorElement::DQM_KIND_TH1F :
       {
-	if(!data_->xaxis)
+	if(!xaxis)
 	  throw cms::Exception("InvalidCall") << "No xaxis found for MESetNonObject" << std::endl;
 
-	if(!data_->xaxis->edges)
-	  me = dqmStore_->book1D(name_, name_, data_->xaxis->nbins, data_->xaxis->low, data_->xaxis->high);
-	else
-	  me = dqmStore_->book1D(name_, name_, data_->xaxis->nbins, data_->xaxis->edges);
+	if(!xaxis->edges)
+	  me = dqmStore_->book1D(name_, name_, xaxis->nbins, xaxis->low, xaxis->high);
+	else{
+	  float* edges(new float[xaxis->nbins + 1]);
+	  for(int i(0); i < xaxis->nbins + 1; i++)
+	    edges[i] = xaxis->edges[i];
+	  me = dqmStore_->book1D(name_, name_, xaxis->nbins, edges);
+	  delete [] edges;
+	}
       }
       break;
 
     case MonitorElement::DQM_KIND_TPROFILE :
       {
-	if(!data_->xaxis)
+	if(!xaxis)
 	  throw cms::Exception("InvalidCall") << "No xaxis found for MESetNonObject" << std::endl;
 
-	float ylow, yhigh;
-	if(!data_->yaxis) {
+	double ylow, yhigh;
+	if(!yaxis){
 	  ylow = -std::numeric_limits<double>::max();
 	  yhigh = std::numeric_limits<double>::max();
 	}
-	else {
-	  ylow = data_->yaxis->low;
-	  yhigh = data_->yaxis->high;
+	else{
+	  ylow = yaxis->low;
+	  yhigh = yaxis->high;
 	}
-	if(data_->xaxis->edges){
-	  double* xedges(new double[data_->xaxis->nbins + 1]);
-	  for(int i = 0; i <= data_->xaxis->nbins; i++) xedges[i] = data_->xaxis->edges[i];
-	  me = dqmStore_->bookProfile(name_, name_, data_->xaxis->nbins, xedges, ylow, yhigh);
-	  delete [] xedges;
-	}
+	if(xaxis->edges)
+	  me = dqmStore_->bookProfile(name_, name_, xaxis->nbins, xaxis->edges, ylow, yhigh, "");
 	else
-	  me = dqmStore_->bookProfile(name_, name_, data_->xaxis->nbins, data_->xaxis->low, data_->xaxis->high, ylow, yhigh);
+	  me = dqmStore_->bookProfile(name_, name_, xaxis->nbins, xaxis->low, xaxis->high, ylow, yhigh, "");
 
       }
       break;
 
     case MonitorElement::DQM_KIND_TH2F :
       {
-	if(!data_->xaxis || !data_->yaxis)
+	if(!xaxis || !yaxis)
 	  throw cms::Exception("InvalidCall") << "No x/yaxis found for MESetNonObject" << std::endl;
 
-	if(!data_->xaxis->edges || !data_->yaxis->edges)
-	  me = dqmStore_->book2D(name_, name_, data_->xaxis->nbins, data_->xaxis->low, data_->xaxis->high, data_->yaxis->nbins, data_->yaxis->low, data_->yaxis->high);
-	else
-	  me = dqmStore_->book2D(name_, name_, data_->xaxis->nbins, data_->xaxis->edges, data_->yaxis->nbins, data_->yaxis->edges);
+	if(!xaxis->edges || !yaxis->edges)
+	  me = dqmStore_->book2D(name_, name_, xaxis->nbins, xaxis->low, xaxis->high, yaxis->nbins, yaxis->low, yaxis->high);
+	else{
+	  float* xedges(new float[xaxis->nbins + 1]);
+	  for(int i(0); i < xaxis->nbins + 1; i++)
+	    xedges[i] = xaxis->edges[i];
+	  float* yedges(new float[yaxis->nbins + 1]);
+	  for(int i(0); i < yaxis->nbins + 1; i++)
+	    yedges[i] = yaxis->edges[i];
+	  me = dqmStore_->book2D(name_, name_, xaxis->nbins, xedges, yaxis->nbins, yedges);
+	  delete [] xedges;
+	  delete [] yedges;
+	}
       }
       break;
 
     case MonitorElement::DQM_KIND_TPROFILE2D :
       {
-	if(!data_->xaxis || !data_->yaxis)
+	if(!xaxis || !yaxis)
 	  throw cms::Exception("InvalidCall") << "No x/yaxis found for MESetNonObject" << std::endl;
+	double high(0.), low(0.);
+	if(zaxis){
+	  low = zaxis->low;
+	  high = zaxis->high;
+	}
+	else{
+	  low = -std::numeric_limits<double>::max();
+	  high = std::numeric_limits<double>::max();
+	}
 
-	me = dqmStore_->book2D(name_, name_, data_->xaxis->nbins, data_->xaxis->edges, data_->yaxis->nbins, data_->yaxis->edges);
+	me = dqmStore_->bookProfile2D(name_, name_, xaxis->nbins, xaxis->low, xaxis->high, yaxis->nbins, yaxis->low, yaxis->high, low, high, "");
       }
       break;
 
@@ -110,7 +133,7 @@ namespace ecaldqm
   }
 
   void
-  MESetNonObject::fill(float _x, float _wy/* = 1.*/, float _w/* = 1.*/)
+  MESetNonObject::fill(double _x, double _wy/* = 1.*/, double _w/* = 1.*/)
   {
     if(mes_.size() == 0 || !mes_[0]) return;
 

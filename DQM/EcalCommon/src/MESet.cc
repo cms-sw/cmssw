@@ -84,13 +84,13 @@ namespace ecaldqm
   }
 
   void
-  MESet::reset(float _content/* = 0.*/, float _err/* = 0.*/, float _entries/* = 0.*/)
+  MESet::reset(double _content/* = 0.*/, double _err/* = 0.*/, double _entries/* = 0.*/)
   {
     resetAll(_content, _err, _entries);
   }
 
   void
-  MESet::resetAll(float _content/* = 0.*/, float _err/* = 0.*/, float _entries/* = 0.*/)
+  MESet::resetAll(double _content/* = 0.*/, double _err/* = 0.*/, double _entries/* = 0.*/)
   {
     if(data_->kind == MonitorElement::DQM_KIND_REAL){
       for(std::vector<MonitorElement*>::iterator meItr(mes_.begin()); meItr != mes_.end(); ++meItr)
@@ -108,7 +108,7 @@ namespace ecaldqm
 
       int nbinsX(h->GetNbinsX());
       int nbinsY(h->GetNbinsY());
-      float entries(0.);
+      double entries(0.);
       for(int ix(1); ix <= nbinsX; ix++){
 	for(int iy(1); iy <= nbinsY; iy++){
 	  int bin(h->GetBin(ix, iy));
@@ -130,107 +130,107 @@ namespace ecaldqm
   }
 
   void
-  MESet::fill(DetId const&, float, float, float)
+  MESet::fill(DetId const&, double, double, double)
   {
   }
 
   void
-  MESet::fill(EcalElectronicsId const& _id, float _wx/* = 1.*/,float _wy/* = 1.*/, float _w/* = 1.*/)
+  MESet::fill(EcalElectronicsId const& _id, double _wx/* = 1.*/,double _wy/* = 1.*/, double _w/* = 1.*/)
   {
     fill(getElectronicsMap()->getDetId(_id), _wx, _wy, _w);
   }
 
   void
-  MESet::fill(unsigned _dcctccid, float _wx/* = 1.*/, float _wy/* = 1.*/, float _w/* = 1.*/)
+  MESet::fill(unsigned _dcctccid, double _wx/* = 1.*/, double _wy/* = 1.*/, double _w/* = 1.*/)
   {
   }
 
   void
-  MESet::fill(float, float, float)
+  MESet::fill(double, double, double)
   {
   }
 
   void
-  MESet::setBinContent(DetId const&, float, float)
+  MESet::setBinContent(DetId const&, double, double)
   {
   }
 
   void
-  MESet::setBinContent(EcalElectronicsId const& _id, float _content, float _err/* = 0.*/)
+  MESet::setBinContent(EcalElectronicsId const& _id, double _content, double _err/* = 0.*/)
   {
     setBinContent(getElectronicsMap()->getDetId(_id), _content, _err);
   }
 
   void
-  MESet::setBinContent(unsigned, float, float)
+  MESet::setBinContent(unsigned, double, double)
   {
   }
 
   void
-  MESet::setBinEntries(DetId const&, float)
+  MESet::setBinEntries(DetId const&, double)
   {
   }
 
   void
-  MESet::setBinEntries(EcalElectronicsId const& _id, float _entries)
+  MESet::setBinEntries(EcalElectronicsId const& _id, double _entries)
   {
     setBinEntries(getElectronicsMap()->getDetId(_id), _entries);
   }
 
   void
-  MESet::setBinEntries(unsigned, float)
+  MESet::setBinEntries(unsigned, double)
   {
   }
 
-  float
+  double
   MESet::getBinContent(DetId const&, int) const
   {
     return 0.;
   }
 
-  float
+  double
   MESet::getBinContent(EcalElectronicsId const& _id, int _bin/* = 0*/) const
   {
     return getBinContent(getElectronicsMap()->getDetId(_id), _bin);
   }
 
-  float
+  double
   MESet::getBinContent(unsigned, int) const
   {
     return 0.;
   }
 
-  float
+  double
   MESet::getBinError(DetId const&, int) const
   {
     return 0.;
   }
 
-  float
+  double
   MESet::getBinError(EcalElectronicsId const& _id, int _bin/* = 0*/) const
   {
     return getBinError(getElectronicsMap()->getDetId(_id), _bin);
   }
 
-  float
+  double
   MESet::getBinError(unsigned, int) const
   {
     return 0.;
   }
 
-  float
+  double
   MESet::getBinEntries(DetId const&, int) const
   {
     return 0.;
   }
 
-  float
+  double
   MESet::getBinEntries(EcalElectronicsId const& _id, int _bin/* = 0*/) const
   {
     return getBinEntries(getElectronicsMap()->getDetId(_id), _bin);
   }
 
-  float
+  double
   MESet::getBinEntries(unsigned, int) const
   {
     return 0.;
@@ -259,7 +259,7 @@ namespace ecaldqm
   }
 
   void
-  MESet::fill_(unsigned _index, int _bin, float _w)
+  MESet::fill_(unsigned _index, int _bin, double _w)
   {
     MonitorElement* me(mes_.at(_index));
 
@@ -267,20 +267,31 @@ namespace ecaldqm
 
     int nbinsX(h->GetNbinsX());
 
-    float x(h->GetXaxis()->GetBinCenter((_bin - 1) % nbinsX + 1));
+    double x(h->GetXaxis()->GetBinCenter((_bin - 1) % nbinsX + 1));
 
     if((data_->kind < MonitorElement::DQM_KIND_TH2F && data_->kind >= MonitorElement::DQM_KIND_TH1F) || data_->kind == MonitorElement::DQM_KIND_TPROFILE) {
       me->Fill(x, _w);
       return;
     }
 
-    float y(h->GetYaxis()->GetBinCenter((_bin - 1) / nbinsX + 1));
+    double y(h->GetYaxis()->GetBinCenter((_bin - 1) / nbinsX + 1));
 
     me->Fill(x, y, _w);
   }
 
   void
-  MESet::setBinContent_(unsigned _index, int _bin, float _content, float _err)
+  MESet::fill_(unsigned _offset, double _x, double _wy, double _w)
+  {
+    if(data_->kind == MonitorElement::DQM_KIND_REAL)
+      mes_.at(_offset)->Fill(_x);
+    else if(data_->kind < MonitorElement::DQM_KIND_TH2F || data_->kind == MonitorElement::DQM_KIND_TPROFILE)
+      mes_.at(_offset)->Fill(_x, _wy);
+    else
+      mes_.at(_offset)->Fill(_x, _wy, _w);
+  }
+
+  void
+  MESet::setBinContent_(unsigned _index, int _bin, double _content, double _err)
   {
     MonitorElement* me(mes_.at(_index));
 
@@ -299,7 +310,7 @@ namespace ecaldqm
   }
 
   void
-  MESet::setBinEntries_(unsigned _index, int _bin, float _entries)
+  MESet::setBinEntries_(unsigned _index, int _bin, double _entries)
   {
     MonitorElement* me(mes_.at(_index));
 
@@ -315,7 +326,7 @@ namespace ecaldqm
     }
   }
 
-  float
+  double
   MESet::getBinContent_(unsigned _index, int _bin) const
   {
     MonitorElement* me(mes_.at(_index));
@@ -331,7 +342,7 @@ namespace ecaldqm
     }
   }
 
-  float
+  double
   MESet::getBinError_(unsigned _index, int _bin) const
   {
     MonitorElement* me(mes_.at(_index));
@@ -347,7 +358,7 @@ namespace ecaldqm
     }
   }
 
-  float
+  double
   MESet::getBinEntries_(unsigned _index, int _bin) const
   {
     MonitorElement* me(mes_.at(_index));

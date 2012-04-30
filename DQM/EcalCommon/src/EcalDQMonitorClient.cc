@@ -50,6 +50,7 @@ EcalDQMonitorClient::EcalDQMonitorClient(const edm::ParameterSet &_ps) :
       continue;
     }
     DQWorkerClient* client(static_cast<DQWorkerClient*>(worker));
+    client->setVerbosity(verbosity_);
 
     workers_.push_back(client);
   }
@@ -122,10 +123,8 @@ EcalDQMonitorClient::endRun(const edm::Run &_run, const edm::EventSetup &_es)
 void
 EcalDQMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock &_lumi, const edm::EventSetup &_es)
 {
-  for(std::vector<DQWorkerClient *>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
-    DQWorkerClient* client(*wItr);
-    if(client->isInitialized()) client->beginLuminosityBlock(_lumi, _es);
-  }
+  for(std::vector<DQWorkerClient *>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr)
+    (*wItr)->beginLuminosityBlock(_lumi, _es);
 
   lumiStatus_ = 0;
 }
@@ -133,10 +132,9 @@ EcalDQMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock &_lumi, con
 void
 EcalDQMonitorClient::endLuminosityBlock(const edm::LuminosityBlock &_lumi, const edm::EventSetup &_es)
 {
-  for(std::vector<DQWorkerClient *>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
-    DQWorkerClient* client(*wItr);
-    if(client->isInitialized()) client->endLuminosityBlock(_lumi, _es);
-  }
+  for(std::vector<DQWorkerClient *>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr)
+    (*wItr)->endLuminosityBlock(_lumi, _es);
+
   if(runAtEndLumi_){
     runWorkers();
     lumiStatus_ = 1;

@@ -16,20 +16,20 @@ namespace ecaldqm
     bool retrieve() const;
     void clear() const;
 
-    void fill(DetId const&, float _w = 1., float _unused1 = 0., float _unused2 = 0.);
-    void fill(EcalElectronicsId const&, float _w = 1., float _unused1 = 0., float _unused2 = 0.);
-    //    void fill(int, float _w = 1., float _unused1 = 0., float _unused2 = 0.);
+    void fill(DetId const&, double _w = 1., double _unused1 = 0., double _unused2 = 0.);
+    void fill(EcalElectronicsId const&, double _w = 1., double _unused1 = 0., double _unused2 = 0.);
+    //    void fill(int, double _w = 1., double _unused1 = 0., double _unused2 = 0.);
 
-    void setBinContent(DetId const&, float, float _err = 0.);
-    void setBinContent(EcalElectronicsId const&, float, float _err = 0.);
+    void setBinContent(DetId const&, double, double _err = 0.);
+    void setBinContent(EcalElectronicsId const&, double, double _err = 0.);
 
-    void reset(float _content = 0., float _err = 0., float _entries = 0.);
+    void reset(double _content = 0., double _err = 0., double _entries = 0.);
 
-    float getBinContent(DetId const&, int _bin = 0) const;
-    float getBinContent(EcalElectronicsId const&, int _bin = 0) const;
+    double getBinContent(DetId const&, int _bin = 0) const;
+    double getBinContent(EcalElectronicsId const&, int _bin = 0) const;
     
-    float getBinEntries(DetId const& _id, int _bin = 0) const { return getBinContent(_id, _bin); }
-    float getBinEntries(EcalElectronicsId const& _id, int _bin = 0) const { return getBinContent(_id, _bin); }
+    double getBinEntries(DetId const& _id, int _bin = 0) const { return getBinContent(_id, _bin); }
+    double getBinEntries(EcalElectronicsId const& _id, int _bin = 0) const { return getBinContent(_id, _bin); }
 
     void checkDirectory() const;
 

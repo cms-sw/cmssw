@@ -15,6 +15,8 @@ namespace ecaldqm
     cacheId_(0),
     cache_(std::make_pair(-1, std::vector<int>(0)))
   {
+    if(data_->btype == BinService::kUser && ((logicalDimensions_ > 0 && !data_->xaxis) || (logicalDimensions_ > 1 && !data_->yaxis)))
+      throw cms::Exception("InvalidCall") << "Need axis specifications" << std::endl;
   }
 
   MESetEcal::~MESetEcal()
@@ -29,9 +31,6 @@ namespace ecaldqm
     clear();
 
     dqmStore_->setCurrentFolder(dir_);
-
-    if(data_->btype == BinService::kUser && ((logicalDimensions_ > 0 && !data_->xaxis) || (logicalDimensions_ > 1 && !data_->yaxis)))
-      throw cms::Exception("InvalidCall") << "Need axis specifications" << std::endl;
 
     if(data_->btype == BinService::kReport && name_ == "")
       name_ = dir_.substr(0, dir_.find_first_of('/'));
@@ -85,8 +84,13 @@ namespace ecaldqm
 	break;
 
       case MonitorElement::DQM_KIND_TH1F :
-	if(xaxis.edges)
-	  me = dqmStore_->book1D(meNames[iME], meNames[iME], xaxis.nbins, xaxis.edges);
+	if(xaxis.edges){
+	  float* edges(new float[xaxis.nbins + 1]);
+	  for(int i(0); i < xaxis.nbins + 1; i++)
+	    edges[i] = xaxis.edges[i];
+	  me = dqmStore_->book1D(meNames[iME], meNames[iME], xaxis.nbins, edges);
+	  delete [] edges;
+	}
 	else
 	  me = dqmStore_->book1D(meNames[iME], meNames[iME], xaxis.nbins, xaxis.low, xaxis.high);
 
@@ -94,10 +98,7 @@ namespace ecaldqm
 
       case MonitorElement::DQM_KIND_TPROFILE :
 	if(xaxis.edges) {
-	  double* xedges(new double[xaxis.nbins + 1]);
-	  for(int i = 0; i <= xaxis.nbins; i++) xedges[i] = xaxis.edges[i];
-	  me = dqmStore_->bookProfile(meNames[iME], meNames[iME], xaxis.nbins, xedges, yaxis.low, yaxis.high, "");
-	  delete [] xedges;
+	  me = dqmStore_->bookProfile(meNames[iME], meNames[iME], xaxis.nbins, xaxis.edges, yaxis.low, yaxis.high, "");
 	}
 	else
 	  me = dqmStore_->bookProfile(meNames[iME], meNames[iME], xaxis.nbins, xaxis.low, xaxis.high, yaxis.low, yaxis.high, "");
@@ -107,16 +108,22 @@ namespace ecaldqm
       case MonitorElement::DQM_KIND_TH2F :
 	if(xaxis.edges || yaxis.edges) {
 	  BinService::AxisSpecs* specs[] = {&xaxis, &yaxis};
+	  float* edges[] = {new float[xaxis.nbins + 1], new float[yaxis.nbins + 1]};
 	  for(int iSpec(0); iSpec < 2; iSpec++){
-	    if(!specs[iSpec]->edges) {
+	    if(specs[iSpec]->edges){
+	      for(int i(0); i < specs[iSpec]->nbins + 1; i++)
+		edges[iSpec][i] = specs[iSpec]->edges[i];
+	    }
+	    else{
 	      int nbins(specs[iSpec]->nbins);
-	      float low(specs[iSpec]->low), high(specs[iSpec]->high);
-	      specs[iSpec]->edges = new float[nbins + 1];
+	      double low(specs[iSpec]->low), high(specs[iSpec]->high);
 	      for(int i(0); i < nbins + 1; i++)
-		specs[iSpec]->edges[i] = low + (high - low) / nbins * i;
+		edges[iSpec][i] = low + (high - low) / nbins * i;
 	    }
 	  }
-	  me = dqmStore_->book2D(meNames[iME], meNames[iME], xaxis.nbins, xaxis.edges, yaxis.nbins, yaxis.edges);
+	  me = dqmStore_->book2D(meNames[iME], meNames[iME], xaxis.nbins, edges[0], yaxis.nbins, edges[1]);
+	  for(int iSpec(0); iSpec < 2; iSpec++)
+	    delete [] edges[iSpec];
 	}
 	else
 	  me = dqmStore_->book2D(meNames[iME], meNames[iME], xaxis.nbins, xaxis.low, xaxis.high, yaxis.nbins, yaxis.low, yaxis.high);
@@ -211,37 +218,37 @@ namespace ecaldqm
   }
 
   void
-  MESetEcal::fill(DetId const& _id, float _x/* = 1.*/, float _wy/* = 1.*/, float _w/* = 1.*/)
+  MESetEcal::fill(DetId const& _id, double _x/* = 1.*/, double _wy/* = 1.*/, double _w/* = 1.*/)
   {
     unsigned offset(binService_->findOffset(data_->otype, _id));
     if(offset >= mes_.size() || !mes_[offset])
       throw cms::Exception("InvalidCall") << "ME array index overflow" << std::endl;
 
-    fill_(offset, _x, _wy, _w);
+    MESet::fill_(offset, _x, _wy, _w);
   }
 
   void
-  MESetEcal::fill(unsigned _dcctccid, float _x/* = 1.*/, float _wy/* = 1.*/, float _w/* = 1.*/)
+  MESetEcal::fill(unsigned _dcctccid, double _x/* = 1.*/, double _wy/* = 1.*/, double _w/* = 1.*/)
   {
     unsigned offset(binService_->findOffset(data_->otype, data_->btype, _dcctccid));
 
     if(offset >= mes_.size() || !mes_[offset])
       throw cms::Exception("InvalidCall") << "ME array index overflow" << offset << std::endl;
 
-    fill_(offset, _x, _wy, _w);
+    MESet::fill_(offset, _x, _wy, _w);
   }
 
   void
-  MESetEcal::fill(float _x, float _wy/* = 1.*/, float _w/* = 1.*/)
+  MESetEcal::fill(double _x, double _wy/* = 1.*/, double _w/* = 1.*/)
   {
     if(mes_.size() != 1)
       throw cms::Exception("InvalidCall") << "MESet type incompatible" << std::endl;
 
-    fill_(0, _x, _wy, _w);
+    MESet::fill_(0, _x, _wy, _w);
   }
 
   void
-  MESetEcal::setBinContent(DetId const& _id, float _content, float _err/* = 0.*/)
+  MESetEcal::setBinContent(DetId const& _id, double _content, double _err/* = 0.*/)
   {
     find_(_id);
 
@@ -251,7 +258,7 @@ namespace ecaldqm
   }
 
   void
-  MESetEcal::setBinContent(unsigned _dcctccid, float _content, float _err/* = 0.*/)
+  MESetEcal::setBinContent(unsigned _dcctccid, double _content, double _err/* = 0.*/)
   {
     find_(_dcctccid);
 
@@ -261,7 +268,7 @@ namespace ecaldqm
   }
 
   void
-  MESetEcal::setBinEntries(DetId const& _id, float _entries)
+  MESetEcal::setBinEntries(DetId const& _id, double _entries)
   {
     find_(_id);
 
@@ -271,7 +278,7 @@ namespace ecaldqm
   }
 
   void
-  MESetEcal::setBinEntries(unsigned _dcctccid, float _entries)
+  MESetEcal::setBinEntries(unsigned _dcctccid, double _entries)
   {
     find_(_dcctccid);
 
@@ -280,7 +287,7 @@ namespace ecaldqm
       setBinEntries_(cache_.first, *binItr, _entries);
   }
 
-  float
+  double
   MESetEcal::getBinContent(DetId const& _id, int) const
   {
     find_(_id);
@@ -290,7 +297,7 @@ namespace ecaldqm
     return getBinContent_(cache_.first, cache_.second[0]);
   }
 
-  float
+  double
   MESetEcal::getBinContent(unsigned _dcctccid, int) const
   {
     find_(_dcctccid);
@@ -300,7 +307,7 @@ namespace ecaldqm
     return getBinContent_(cache_.first, cache_.second[0]);
   }
 
-  float
+  double
   MESetEcal::getBinError(DetId const& _id, int) const
   {
     find_(_id);
@@ -310,7 +317,7 @@ namespace ecaldqm
     return getBinError_(cache_.first, cache_.second[0]);
   }
 
-  float
+  double
   MESetEcal::getBinError(unsigned _dcctccid, int) const
   {
     find_(_dcctccid);
@@ -320,7 +327,7 @@ namespace ecaldqm
     return getBinError_(cache_.first, cache_.second[0]);
   }
 
-  float
+  double
   MESetEcal::getBinEntries(DetId const& _id, int) const
   {
     find_(_id);
@@ -330,7 +337,7 @@ namespace ecaldqm
     return getBinEntries_(cache_.first, cache_.second[0]);
   }
 
-  float
+  double
   MESetEcal::getBinEntries(unsigned _dcctccid, int) const
   {
     find_(_dcctccid);
@@ -341,7 +348,7 @@ namespace ecaldqm
   }
 
   void
-  MESetEcal::reset(float _content/* = 0.*/, float _err/* = 0.*/, float _entries/* = 0.*/)
+  MESetEcal::reset(double _content/* = 0.*/, double _err/* = 0.*/, double _entries/* = 0.*/)
   {
     using namespace std;
 
@@ -481,18 +488,7 @@ namespace ecaldqm
   }
 
   void
-  MESetEcal::fill_(unsigned _offset, float _x, float _wy, float _w)
-  {
-    if(data_->kind == MonitorElement::DQM_KIND_REAL)
-      mes_[_offset]->Fill(_x);
-    else if(data_->kind < MonitorElement::DQM_KIND_TH2F || data_->kind == MonitorElement::DQM_KIND_TPROFILE)
-      mes_[_offset]->Fill(_x, _wy);
-    else
-      mes_[_offset]->Fill(_x, _wy, _w);
-  }
-
-  void
-  MESetEcal::fill_(float _w)
+  MESetEcal::fill_(double _w)
   {
     for(unsigned iBin(0); iBin < cache_.second.size(); iBin++)
       MESet::fill_(cache_.first, cache_.second[iBin], _w);

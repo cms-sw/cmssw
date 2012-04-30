@@ -13,7 +13,7 @@ namespace ecaldqm
   }
 
   void
-  MESetDet2D::fill(DetId const& _id, float _w/* = 1.*/, float, float)
+  MESetDet2D::fill(DetId const& _id, double _w/* = 1.*/, double, double)
   {
     find_(_id);
 

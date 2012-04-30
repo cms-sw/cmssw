@@ -14,12 +14,6 @@ namespace ecaldqm {
     DQWorkerTask(const edm::ParameterSet&, const edm::ParameterSet&, std::string const&);
     virtual ~DQWorkerTask() {}
 
-    virtual void beginRun(const edm::Run &, const edm::EventSetup &) {}
-    virtual void endRun(const edm::Run &, const edm::EventSetup &) {}
-
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) {}
-    virtual void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) {}
-
     virtual void beginEvent(const edm::Event &, const edm::EventSetup &) {}
     virtual void endEvent(const edm::Event &, const edm::EventSetup &) {}
 

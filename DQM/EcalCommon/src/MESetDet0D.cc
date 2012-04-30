@@ -15,7 +15,7 @@ namespace ecaldqm
   }
 
   void
-  MESetDet0D::fill(DetId const& _id, float _value, float, float)
+  MESetDet0D::fill(DetId const& _id, double _value, double, double)
   {
     unsigned offset(binService_->findOffset(data_->otype, _id));
     if(offset >= mes_.size() || !mes_[offset])
@@ -25,7 +25,7 @@ namespace ecaldqm
   }
 
   void
-  MESetDet0D::fill(unsigned _dcctccid, float _value, float, float)
+  MESetDet0D::fill(unsigned _dcctccid, double _value, double, double)
   {
     unsigned offset(binService_->findOffset(data_->otype, data_->btype, _dcctccid));
     if(offset >= mes_.size() || !mes_[offset])
@@ -35,7 +35,7 @@ namespace ecaldqm
   }
 
   void
-  MESetDet0D::fill(float _value, float, float)
+  MESetDet0D::fill(double _value, double, double)
   {
     if(!(data_->otype == BinService::kEcal && mes_.size() == 1))
       throw cms::Exception("InvalidCall") << "ME type incompatible";

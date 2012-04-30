@@ -14,7 +14,7 @@ namespace ecaldqm
     void book();
     bool retrieve() const;
 
-    void fill(float, float _wy = 1., float _w = 1.);
+    void fill(double, double _wy = 1., double _w = 1.);
   };
 }
 

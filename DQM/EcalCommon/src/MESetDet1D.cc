@@ -17,7 +17,7 @@ namespace ecaldqm
   }
 
   void
-  MESetDet1D::fill(DetId const& _id, float _wy/* = 1.*/, float _w/* = 1.*/, float)
+  MESetDet1D::fill(DetId const& _id, double _wy/* = 1.*/, double _w/* = 1.*/, double)
   {
     find_(_id);
 
@@ -25,14 +25,14 @@ namespace ecaldqm
   }
 
   void
-  MESetDet1D::fill(unsigned _dcctccid, float _wy/* = 1.*/, float _w/* = 1.*/, float)
+  MESetDet1D::fill(unsigned _dcctccid, double _wy/* = 1.*/, double _w/* = 1.*/, double)
   {
     find_(_dcctccid);
 
     fill_(_wy, _w);
   }
 
-  float
+  double
   MESetDet1D::getBinContent(DetId const& _id, int _bin/* = 0*/) const
   {
     find_(_id);
@@ -49,7 +49,7 @@ namespace ecaldqm
     return getBinContent_(cache_.first, bin);
   }
 
-  float
+  double
   MESetDet1D::getBinContent(unsigned _dcctccid, int _bin/* = 0*/) const
   {
     find_(_dcctccid);
@@ -66,7 +66,7 @@ namespace ecaldqm
     return getBinContent_(cache_.first, bin);
   }
 
-  float
+  double
   MESetDet1D::getBinError(DetId const& _id, int _bin/* = 0*/) const
   {
     find_(_id);
@@ -83,7 +83,7 @@ namespace ecaldqm
     return getBinError_(cache_.first, bin);
   }
 
-  float
+  double
   MESetDet1D::getBinError(unsigned _dcctccid, int _bin/* = 0*/) const
   {
     find_(_dcctccid);
@@ -100,7 +100,7 @@ namespace ecaldqm
     return getBinError_(cache_.first, bin);
   }
 
-  float
+  double
   MESetDet1D::getBinEntries(DetId const& _id, int _bin/* = 0*/) const
   {
     find_(_id);
@@ -117,7 +117,7 @@ namespace ecaldqm
     return getBinEntries_(cache_.first, bin);
   }
 
-  float
+  double
   MESetDet1D::getBinEntries(unsigned _dcctccid, int _bin/* = 0*/) const
   {
     find_(_dcctccid);
@@ -165,7 +165,7 @@ namespace ecaldqm
   }
 
   void
-  MESetDet1D::fill_(float _wy, float _w)
+  MESetDet1D::fill_(double _wy, double _w)
   {
     if(data_->kind == MonitorElement::DQM_KIND_TH2F || data_->kind == MonitorElement::DQM_KIND_TPROFILE2D){
       std::vector<int> bins(cache_.second);
