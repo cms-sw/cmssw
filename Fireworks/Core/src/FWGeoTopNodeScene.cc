@@ -96,8 +96,9 @@ Bool_t FWGeoTopNodeGLScene::ResolveSelectRecord(TGLSelectRecord& rec, Int_t curI
 }
 
 //______________________________________________________________________________
-void FWGeoTopNodeGLScene::GeoPopupMenu(Int_t gx, Int_t gy)
-{fTopNodeJebo->popupMenu(gx, gy);
+void FWGeoTopNodeGLScene::GeoPopupMenu(Int_t gx, Int_t gy, TGLViewer* v)
+{
+   fTopNodeJebo->popupMenu(gx, gy,v);
 }
 
 //==============================================================================

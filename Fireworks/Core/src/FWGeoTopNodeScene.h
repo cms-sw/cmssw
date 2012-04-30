@@ -1,10 +1,10 @@
 #ifndef Fireworks_Core_FWGeoTopNodeScene_h
 #define Fireworks_Core_FWGeoTopNodeScene_h
 
-
 #include "TGLScenePad.h"
 
 class FWGeoTopNode;
+class TGLViewer;
 
 class FWGeoTopNodeGLScene : public TGLScenePad
 {
@@ -22,7 +22,7 @@ public:
 
    void SetPad(TVirtualPad* p) { fPad = p; }
 
-   void  GeoPopupMenu(Int_t gx, Int_t gy);
+   void  GeoPopupMenu(Int_t gx, Int_t gy, TGLViewer*);
 
    virtual Bool_t ResolveSelectRecord(TGLSelectRecord& rec, Int_t curIdx);
 
