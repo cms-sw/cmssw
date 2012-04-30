@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2009/03/02 09:38:08 $
- * $Revision: 1.10 $
+ * $Date: 2009/09/21 10:13:37 $
+ * $Revision: 1.11 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -48,6 +48,7 @@ AlgebraicSymMatrix DTRecSegment2D::parametersError() const {
 
 }
 
+DTRecSegment2D::~DTRecSegment2D(){}
 
 DTRecSegment2D::DTRecSegment2D(DetId id, const vector<DTRecHit1D>& hits) :
   RecSegment(id), theChi2(0.0), theT0(0.), theVdrift(0.), theHits(hits){
