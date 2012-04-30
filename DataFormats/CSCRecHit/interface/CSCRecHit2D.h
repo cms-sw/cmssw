@@ -15,7 +15,7 @@
 #include <map>
 #include <iosfwd>
 
-class CSCRecHit2D : public RecHit2DLocalPos {
+class CSCRecHit2D GCC11_FINAL : public RecHit2DLocalPos {
 
 public:
 
