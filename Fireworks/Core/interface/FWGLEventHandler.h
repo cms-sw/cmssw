@@ -6,7 +6,7 @@
 
 class TGWindow;
 class TGLPhysicalShape;
-class TEveElement;
+class TEveViewer;
 
 class FWGLEventHandler : public TEveLegoEventHandler
 {
@@ -23,13 +23,13 @@ public:
 
    sigc::signal<void,Int_t,Int_t> openSelectedModelContextMenu_;
 
-   void setViewer(TEveElement* ev) { m_viewer = ev; }
+   void setViewer(TEveViewer* ev) { m_viewer = ev; }
 
 private:
    FWGLEventHandler(const FWGLEventHandler&); // stop default
    const FWGLEventHandler& operator=(const FWGLEventHandler&); // stop default
 
-   TEveElement *m_viewer;
+   TEveViewer *m_viewer;
 };
 
 #endif
