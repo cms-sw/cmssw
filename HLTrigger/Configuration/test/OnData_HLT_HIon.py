@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V103 (CMSSW_5_2_3_HLT9)
+# /dev/CMSSW_5_2_1/HIon/V104 (CMSSW_5_2_3_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V103')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V104')
 )
 
 process.streams = cms.PSet( 
@@ -8161,7 +8161,7 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltL1sL1ETM36or40_*_*',
       'keep *_hltL1sMu16Eta2p1_*_*',
       'keep *_hltL3crIsoL1sMu16Eta2p1L1f0L2f16QL3f18QL3crIsoRhoFiltered0p15_*_*',
-      'keep *_hltOverlapFilterEle20LooseIsoPFTau20_*_*',
+      'keep *_hltOverlapFilterEle20LooseIsoPFTau20OldVersion_*_*',
       'keep *_hltOverlapFilterIsoMu18LooseIsoPFTau20_*_*',
       'keep *_hltOverlapFilterIsoMu18PFTau25TrackPt5Prong4_*_*',
       'keep *_hltPFTau20IsoMuVertex_*_*',

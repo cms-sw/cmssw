@@ -568,19 +568,14 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetTauPlusX_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetTauPlusX_selector.l1tResults = cms.InputTag('')
 streamA_datasetTauPlusX_selector.throw      = cms.bool(False)
-streamA_datasetTauPlusX_selector.triggerConditions = cms.vstring('HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20L1Jet_v6', 
-    'HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v6', 
-    'HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau22L1Jet_v5', 
-    'HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_v5', 
-    'HLT_Ele20_CaloIdVT_TrkIdT_LooseIsoPFTau20_v6', 
-    'HLT_Ele22_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v5', 
+streamA_datasetTauPlusX_selector.triggerConditions = cms.vstring('HLT_Ele22_eta2p1_WP90NoIso_LooseIsoPFTau20_v1', 
+    'HLT_Ele22_eta2p1_WP90Rho_LooseIsoPFTau20_v1', 
     'HLT_IsoMu15_eta2p1_L1ETM20_v4', 
     'HLT_IsoMu15_eta2p1_LooseIsoPFTau35_Trk20_Prong1_L1ETM20_v4', 
-    'HLT_IsoMu18_eta2p1_LooseIsoPFTau20_v6', 
+    'HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1', 
     'HLT_IsoMu18_eta2p1_MediumIsoPFTau25_Trk5_eta2p1_v5', 
-    'HLT_IsoMu20_eta2p1_LooseIsoPFTau20_v5', 
     'HLT_Mu15_eta2p1_L1ETM20_v3', 
-    'HLT_Mu18_eta2p1_LooseIsoPFTau20_v6')
+    'HLT_Mu17_eta2p1_LooseIsoPFTau20_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetVBF1Parked_selector
 streamA_datasetVBF1Parked_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
