@@ -87,7 +87,8 @@ METValidation = cms.Sequence(
     #corMetGlobalMuonsAnalyzer*
     genMetTrueAnalyzer #*
     #genMetCaloAnalyzer*
-    #genMetCaloAndNonPromptAnalyzer)
+    #genMetCaloAndNonPromptAnalyzer
+	 )
 
     
 
