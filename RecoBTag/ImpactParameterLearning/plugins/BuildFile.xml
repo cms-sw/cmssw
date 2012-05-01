@@ -1,6 +1,7 @@
 <use   name="clhep"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="DataFormats/Math"/>
+<use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="RecoBTag/XMLCalibration"/>
