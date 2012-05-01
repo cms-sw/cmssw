@@ -408,6 +408,11 @@ HLT_IsoMu20_eta2p1_v*                                                           
 #HLT_DiCentralJet20_CaloMET65_BTagCSV07_PFMHT80_v*                                              #sr126490 - later renamed in 128167
 HLT_DiCentralPFJet30_PFMET80_BTagCSV07_v*	                                                #(renamed in 128167), sr128118
 
+HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d03_v*                                                     #sr128219
+HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d05_v*                                                     #sr128219
+HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d03_PFDiJetPt120_v*                                        #sr128219
+HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05_v*                                                        #sr128219
+
 HLT_DiCentralJetSumpT100_dPhi05_DiCentralPFJet60_25_PFMET100_HBHENoiseCleaned_v* 		#sr128167
 HLT_DiCentralPFJet30_PFMET80_v*									#sr128167, sr128118
 
