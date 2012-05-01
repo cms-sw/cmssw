@@ -6,8 +6,8 @@
  *  
  *  This filter cuts on MinPt and Quality in specified eta regions
  *
- *  $Date: 2010/01/29 16:37:11 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/03/31 12:01:10 $
+ *  $Revision: 1.2 $
  *
  *  \author Cristina Botta, Zoltan Gecse
  *
@@ -61,7 +61,7 @@ class HLTMuonL1RegionalFilter : public HLTFilter {
     int minN_;
 
     /// should we save the input collection ?
-    bool saveTag_;
+    bool saveTags_;
 };
 
 #endif //HLTMuonL1RegionalFilter_h

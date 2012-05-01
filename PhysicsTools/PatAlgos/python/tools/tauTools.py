@@ -63,7 +63,7 @@ def redoPFTauDiscriminators(process,
     else:
         raise StandardError, "Unkown tauType: '%s'"%tauType
 
-    applyPostfix(process,"makePatTaus",postfix).replace(
+    applyPostfix(process,"patDefaultSequence",postfix).replace(
         applyPostfix(process,"patTaus",postfix),
         tauDiscriminationSequence*applyPostfix(process,"patTaus",postfix)
     )
@@ -100,7 +100,8 @@ def switchToCaloTau(process,
     applyPostfix(process, "patTaus" + patTauLabel, postfix).userIsolation = cms.PSet()
 
     ## adapt cleanPatTaus
-    applyPostfix(process, "cleanPatTaus" + patTauLabel, postfix).preselection = \
+    if hasattr(process, "cleanPatTaus" + patTauLabel + postfix):
+        getattr(process, "cleanPatTaus" + patTauLabel + postfix).preselection = \
       'tauID("leadingTrackFinding") > 0.5 & tauID("leadingTrackPtCut") > 0.5' \
      + ' & tauID("byIsolation") > 0.5 & tauID("againstElectron") > 0.5 & (signalTracks.size() = 1 | signalTracks.size() = 3)'
 
@@ -236,7 +237,8 @@ def switchToPFTauHPS(process,
                    patTauLabel = patTauLabel, postfix = postfix)
     
     ## adapt cleanPatTaus
-    getattr(process, "cleanPatTaus" + patTauLabel).preselection = \
+    if hasattr(process, "cleanPatTaus" + patTauLabel + postfix):
+        getattr(process, "cleanPatTaus" + patTauLabel + postfix).preselection = \
       'pt > 15 & abs(eta) < 2.3 & tauID("decayModeFinding") > 0.5 & tauID("byLooseIsolation") > 0.5' \
      + ' & tauID("againstMuonTight") > 0.5 & tauID("againstElectronLoose") > 0.5'
 
@@ -250,7 +252,8 @@ def switchToPFTauHPSpTaNC(process,
                    patTauLabel = patTauLabel, postfix = postfix)
     
     ## adapt cleanPatTaus
-    getattr(process, "cleanPatTaus" + patTauLabel).preselection = \
+    if hasattr(process, "cleanPatTaus" + patTauLabel + postfix):
+        getattr(process, "cleanPatTaus" + patTauLabel + postfix).preselection = \
       'pt > 15 & abs(eta) < 2.3 & tauID("decayModeFinding") > 0.5 & tauID("byHPSloose") > 0.5' \
      + ' & tauID("againstMuonTight") > 0.5 & tauID("againstElectronLoose") > 0.5'
 

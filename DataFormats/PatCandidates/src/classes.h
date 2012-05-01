@@ -299,6 +299,11 @@ namespace {
   std::vector<pat::CandKinResolution>  v_ckr;
   pat::CandKinResolutionValueMap vm_ckr;
   edm::Wrapper<pat::CandKinResolutionValueMap> w_vm_ckr;
+  edm::Ptr<pat::Jet> ptr_Jet;
+  edm::Ptr<pat::MET> ptr_MET;
+  edm::Ptr<pat::Electron> ptr_Electron;
+  edm::Ptr<pat::Muon> ptr_Muon;
+  edm::Ptr<pat::Tau> ptr_Tau;
 
   };
 

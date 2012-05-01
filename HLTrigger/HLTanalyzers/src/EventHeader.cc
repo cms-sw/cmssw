@@ -26,12 +26,14 @@ void EventHeader::setup(TTree* HltTree) {
   fLumiBlock=-1;
   fBx = -1;
   fOrbit = -1;
+  fAvgInstDelLumi = -999.; 
 
   HltTree->Branch("Run",       &fRun,         "Run/I");
   HltTree->Branch("Event",     &fEvent,       "Event/I");
   HltTree->Branch("LumiBlock", &fLumiBlock,   "LumiBlock/I"); 
   HltTree->Branch("Bx",        &fBx,          "Bx/I"); 
   HltTree->Branch("Orbit",     &fOrbit,       "Orbit/I"); 
+  HltTree->Branch("AvgInstDelLumi", &fAvgInstDelLumi, "AvgInstDelLumi/D");
 }
 
 /* **Analyze the event** */
@@ -42,6 +44,15 @@ void EventHeader::analyze(edm::Event const& iEvent, TTree* HltTree) {
   fLumiBlock    = iEvent.luminosityBlock();
   fBx           = iEvent.bunchCrossing();
   fOrbit        = iEvent.orbitNumber();
+
+  const edm::LuminosityBlock& iLumi = iEvent.getLuminosityBlock(); 
+  edm::Handle<LumiSummary> lumiSummary; 
+  iLumi.getByLabel("lumiProducer", lumiSummary); 
+  if(lumiSummary->isValid()) 
+    fAvgInstDelLumi = lumiSummary->avgInsDelLumi(); 
+  else 
+    fAvgInstDelLumi = -999.; 
+  
   
   if (_Debug) {	
     std::cout << "EventHeader -- run   = "          << fRun       << std::endl;

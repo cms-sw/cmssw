@@ -14,10 +14,6 @@ gk7PFJets = gk5PFJets.clone( rParam = 0.7 )
 kt6PFJets = kt4PFJets.clone( rParam = 0.6 )
 ca6PFJets = ca4PFJets.clone( rParam = 0.6 )
 
-#compute areas for Fastjet PU subtraction  
-kt6PFJets.doRhoFastjet = cms.bool(True)
-ak5PFJets.doAreaFastjet = cms.bool(True)
-ak7PFJets.doAreaFastjet = cms.bool(True) 
 
 recoPFJets   =cms.Sequence(kt4PFJets+kt6PFJets+
                            iterativeCone5PFJets+

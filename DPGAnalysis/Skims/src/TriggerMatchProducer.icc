@@ -142,10 +142,23 @@ void TriggerMatchProducer<object>::produce(edm::Event &event, const edm::EventSe
      {
        if (!(iMyHLT->second && triggerUnprescaled[iMyHLT->first])) 
 	 continue;
+
+       int triggerIndex=-1;
        edm::InputTag filterTag;
-       
-       try { filters = hltConfig_.moduleLabels( iMyHLT->first ); }
+       try { 
+	 filters = hltConfig_.moduleLabels( iMyHLT->first );
+	 triggerIndex = hltConfig_.triggerIndex(iMyHLT->first);	 
+       }
        catch (std::exception ex) { cout << "bad trigger\n"; }
+       // Results from TriggerResults product
+       if ( triggerIndex==-1 ||
+	   !(pTrgResults->wasrun(triggerIndex)) ||
+	   !(pTrgResults->accept(triggerIndex)) ||
+	   (pTrgResults->error(triggerIndex)))
+	 {
+	   continue;
+	 }
+       
        for(std::vector<std::string>::iterator filter =
 	     filters.begin(); filter!= filters.end(); ++filter ) {
 	 
@@ -159,19 +172,16 @@ void TriggerMatchProducer<object>::produce(edm::Event &event, const edm::EventSe
        
        //using last filter tag
        index.push_back(trgEvent->filterIndex(filterTag));
-//        std::cout << "TrgPath" << iMyHLT->first << "hltTag_.label() " <<  
-// 	 filterTag.label() << "   filter name " <<  
-// 	 filterName_ << "  sizeFilters " <<  
-// 	 trgEvent->sizeFilters() << std::endl;
+       //        std::cout << "TrgPath" << iMyHLT->first << "hltTag_.label() " <<  
+       // 	 filterTag.label() << "   filter name " <<  
+       // 	 filterName_ << "  sizeFilters " <<  
+       // 	 trgEvent->sizeFilters() << std::endl;
      }
-
+   
    // Loop over the candidate collection
    const edm::PtrVector<object>& ptrVect = candHandle->ptrVector();
    const edm::RefToBaseVector<object>& refs = candHandle->refVector();
    // find how many objects there are
-   
-   
-   
    unsigned int counter=0;
    for( typename edm::View< object>::const_iterator j = candHandle->begin(); 
 	j != candHandle->end(); ++j, ++counter) 
@@ -203,8 +213,7 @@ void TriggerMatchProducer<object>::produce(edm::Event &event, const edm::EventSe
 	       outColRef->push_back( refs[counter] );
 	       outColPtr->push_back( ptrVect[counter] );
 	 }
-     }
-   
+     }   
    event.put(outColRef);
    event.put(outColPtr);
 }

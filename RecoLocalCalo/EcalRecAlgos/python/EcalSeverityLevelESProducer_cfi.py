@@ -19,12 +19,15 @@ ecalSeverityLevel = cms.ESProducer("EcalSeverityLevelESProducer",
  # map EcalRecHit::Flag into EcalSeverityLevel
  # for some reason hex notation does not seem to work with vuint32
                                        
- flagMask=cms.vuint32( 1,    #0x00000001, # good->good
-                       34,   #0x00000022, # poorreco,poorcalib->problematic
-                       896,  #0x00000380, # LERecovered,TowRecovered->recovered
-                       4,    #0x00000004, # outoftime->time 
-                       49152,#0x0000C000, # weird,diweird->weird
-                       6232  #0x00001858  # faultyhw,noisy,saturated,dead,killed->bad
+ flagMask=cms.vuint32( 1,    #0x00000001, # kGood               ->kGood
+                       114,  #0x00000072, # kPoorReco,kPoorCalib,
+                                          # kNoise,kSaturated   ->kProblematic
+                       896,  #0x00000380, # LERecovered,TowRecovered
+                                          #                     ->kRecovered
+                       4,    #0x00000004, # kOutoftime          ->kTime 
+                       49152,#0x0000C000, # kWeird,kDiweird     ->kWeird
+                       3080  #0x00000C08  # kFaultyhw,kDead,kKilled
+                                          #                     ->kBad
  ),
  # map ChannelStatus flags into EcalSeverityLevel
  dbstatusMask=cms.vuint32( 1,   #0x00000001, # good-> good;

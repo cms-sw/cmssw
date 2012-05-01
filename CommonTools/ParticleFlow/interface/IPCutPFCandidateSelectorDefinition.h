@@ -1,12 +1,12 @@
-#ifndef PhysicsTools_PFCandProducer_IPCutPFCandidateSelectorDefinition
-#define PhysicsTools_PFCandProducer_IPCutPFCandidateSelectorDefinition
+#ifndef CommonTools_ParticleFlow_IPCutPFCandidateSelectorDefinition
+#define CommonTools_ParticleFlow_IPCutPFCandidateSelectorDefinition
 
 /**
    \class    pf2pat::IPCutPFCandidateSelectorDefinition IPCutPFCandidateSelectorDefinition.h "CommonTools/ParticleFlow/interface/IPCutPFCandidateSelectorDefinition.h"
    \brief    Selects PFCandidates basing on their compatibility with vertex
 
    \author   Giovanni Petrucciani
-   \version  $Id: IPCutPFCandidateSelectorDefinition.h,v 1.1 2010/08/09 10:47:25 mbluj Exp $
+   \version  $Id: IPCutPFCandidateSelectorDefinition.h,v 1.1 2011/01/28 20:56:44 srappocc Exp $
 */
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"

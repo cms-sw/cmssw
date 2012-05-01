@@ -42,7 +42,7 @@ void RECOVertex::clear()
 }
 
 /*  Setup the analysis to put the branch-variables into the tree. */
-void RECOVertex::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
+void RECOVertex::setup(const edm::ParameterSet& pSet, TTree* HltTree, std::string vertexType) {
 
   edm::ParameterSet myHltParams = pSet.getParameter<edm::ParameterSet>("RunParameters") ;
   std::vector<std::string> parameterNames = myHltParams.getParameterNames() ;
@@ -52,13 +52,35 @@ void RECOVertex::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     if ( (*iParam) == "Debug" ) _Debug =  myHltParams.getParameter<bool>( *iParam );
   }
 
-  HltTree->Branch("recoNVrt",        & NVrtx,            "NVrtx/I");
-  HltTree->Branch("recoVrtX",     VertexCand_x,          "recoVrtX[NVrtx]/F");
-  HltTree->Branch("recoVrtY",     VertexCand_y,          "recoVrtY[NVrtx]/F");
-  HltTree->Branch("recoVrtZ",     VertexCand_z,          "recoVrtZ[NVrtx]/F");
-  HltTree->Branch("recoVrtNtrk",  VertexCand_tracks,     "recoVrtNtrk[NVrtx]/I");
-  HltTree->Branch("recoVrtChi2",  VertexCand_chi2,       "recoVrtChi2[NVrtx]/F");
-  HltTree->Branch("recoVrtNdof",  VertexCand_ndof,       "recoVrtNdof[NVrtx]/F");
+  TString br_recoNVrt = "recoNVrt";
+  br_recoNVrt.Append(vertexType);
+  HltTree->Branch(br_recoNVrt,        & NVrtx,            "NVrtx/I");
+
+  TString br_recoVrtX = "recoVrtX";
+  br_recoVrtX.Append(vertexType);
+  HltTree->Branch(br_recoVrtX,     VertexCand_x,          "recoVrtX[NVrtx]/F");
+
+  TString br_recoVrtY = "recoVrtY";
+  br_recoVrtY.Append(vertexType);
+  HltTree->Branch(br_recoVrtY,     VertexCand_y,          "recoVrtY[NVrtx]/F");
+
+  TString br_recoVrtZ = "recoVrtZ";
+  br_recoVrtZ.Append(vertexType);
+  HltTree->Branch(br_recoVrtZ,     VertexCand_z,          "recoVrtZ[NVrtx]/F");
+
+  TString br_recoVrtNtrk = "recoVrtNtrk";
+  br_recoVrtNtrk.Append(vertexType);
+  HltTree->Branch(br_recoVrtNtrk,  VertexCand_tracks,     "recoVrtNtrk[NVrtx]/I");
+
+  TString br_recoVrtChi2 = "recoVrtChi2";
+  br_recoVrtChi2.Append(vertexType);
+  HltTree->Branch(br_recoVrtChi2,  VertexCand_chi2,       "recoVrtChi2[NVrtx]/F");
+
+  TString br_recoVrtNdof = "recoVrtNdof";
+  br_recoVrtNdof.Append(vertexType);
+  HltTree->Branch(br_recoVrtNdof,  VertexCand_ndof,       "recoVrtNdof[NVrtx]/F");
+
+
 
 }
 

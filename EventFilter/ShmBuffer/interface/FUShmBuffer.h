@@ -18,12 +18,13 @@ namespace evf {
   
   // define event data states
   namespace evt {
-    enum State_t { EMPTY, STOP, LUMISECTION,
+    enum State_t { EMPTY, STOP, 
 		   RAWWRITING, RAWWRITTEN,
 		   RAWREADING, RAWREAD,
 		   PROCESSING, PROCESSED,
 		   RECOWRITING,RECOWRITTEN,
 		   SENDING,    SENT,
+		   LUMISECTION, USEDLS,
 		   DISCARDING };
   }
   
@@ -91,9 +92,11 @@ namespace evf {
     void           finishReadingDqmCell(FUShmDqmCell* cell);
     
     void           scheduleRawCellForDiscard(unsigned int iCell);
+    void           scheduleRawCellForDiscardServerSide(unsigned int iCell);
     
     void           discardRawCell(FUShmRawCell* cell);
     void           discardRecoCell(unsigned int iCell);
+    void           discardOrphanedRecoCell(unsigned int iCell);
     void           discardDqmCell(unsigned int iCell);
     
     void           releaseRawCell(FUShmRawCell* cell);
@@ -208,8 +211,8 @@ namespace evf {
 
   public:
     bool           setEvtState(unsigned int index,evt::State_t state);
-  private:
     bool           setDqmState(unsigned int index,dqm::State_t state);
+  private:
     bool           setEvtDiscard(unsigned int index,unsigned int discard);
     int            incEvtDiscard(unsigned int index);
     bool           setEvtNumber(unsigned int index,unsigned int evtNumber);
@@ -220,10 +223,11 @@ namespace evf {
   public:
     bool           removeClientPrcId(pid_t prcId);
 
-  private:
     FUShmRawCell*  rawCell(unsigned int iCell);
     FUShmRecoCell* recoCell(unsigned int iCell);
     FUShmDqmCell*  dqmCell(unsigned int iCell);
+
+  private:
     
     bool           rawCellReadyForDiscard(unsigned int index);
 

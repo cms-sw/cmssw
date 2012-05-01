@@ -63,6 +63,7 @@ namespace egHLT {
 
     //ele only
     void initTrigTagProbeHists(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string> filterNames,int cutMask,const BinData& bins);
+    void initTrigTagProbeHist(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::string filterName,int cutMask,const BinData& bins);
   
 
     template<class T,typename varType> void addStdHist(std::vector<MonElemManagerBase<T>*>& histVec,const std::string& name,const std::string& title,

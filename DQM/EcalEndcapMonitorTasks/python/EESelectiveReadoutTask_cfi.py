@@ -9,7 +9,7 @@ ecalEndcapSelectiveReadoutTask = cms.EDAnalyzer("EESelectiveReadoutTask",
     EESRFlagCollection = cms.InputTag("ecalEBunpacker"),
     EcalTrigPrimDigiCollection = cms.InputTag("ecalEBunpacker:EcalTriggerPrimitives"),
     FEDRawDataCollection = cms.InputTag("source"),
-    configFromCondDB = cms.bool(True),
+    configFromCondDB = cms.bool(False),
     # if configFromCondDB is true, dccWeights are not used.
     dccWeights = cms.vdouble(-0.374, -0.374, -0.3629, 0.2721, 0.4681, 0.3707),
     ecalDccZs1stSample = cms.int32(2)

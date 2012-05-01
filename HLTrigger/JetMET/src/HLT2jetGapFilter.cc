@@ -24,7 +24,7 @@
 HLT2jetGapFilter::HLT2jetGapFilter(const edm::ParameterSet& iConfig)
 {
    inputTag_ = iConfig.getParameter< edm::InputTag > ("inputTag");
-   saveTag_    = iConfig.getUntrackedParameter<bool>("saveTag",false);
+   saveTags_    = iConfig.getParameter<bool>("saveTags");
    minEt_   = iConfig.getParameter<double> ("minEt");
    minEta_= iConfig.getParameter<double> ("minEta"); 
 
@@ -43,7 +43,7 @@ HLT2jetGapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // The filter object
   std::auto_ptr<trigger::TriggerFilterObjectWithRefs> 
     filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTag_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags_) filterobject->addCollectionTag(inputTag_);
 
   edm::Handle<reco::CaloJetCollection> recocalojets;
   iEvent.getByLabel(inputTag_,recocalojets);

@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2010/08/06 14:08:49 $
- *  $Revision: 1.26 $
+ *  $Date: 2010/09/22 19:40:27 $
+ *  $Revision: 1.27 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -227,21 +227,22 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   MonitorElement* hNevents;
   MonitorElement* hCaloMEx;
   MonitorElement* hCaloMEy;
-  MonitorElement* hCaloEz;
+  //removed for optimizations//MonitorElement* hCaloEz;
   MonitorElement* hCaloMETSig;
   MonitorElement* hCaloMET;
+  MonitorElement* hCaloMET1;
   MonitorElement* hCaloMETPhi;
   MonitorElement* hCaloSumET;
   
   MonitorElement* hCaloMET_logx;
   MonitorElement* hCaloSumET_logx;
   
-  MonitorElement* hCaloMETIonFeedbck;
-  MonitorElement* hCaloMETHPDNoise;
-  MonitorElement* hCaloMETRBXNoise;
+  //removed for optimizations//MonitorElement* hCaloMETIonFeedbck;
+  //removed for optimizations//MonitorElement* hCaloMETHPDNoise;
+  //removed for optimizations//MonitorElement* hCaloMETRBXNoise;
   
-  MonitorElement* hCaloMETPhi002;
-  MonitorElement* hCaloMETPhi010;
+  //removed for optimizations//MonitorElement* hCaloMETPhi002;
+  //removed for optimizations//MonitorElement* hCaloMETPhi010;
   MonitorElement* hCaloMETPhi020;
   
   MonitorElement* hCaloMExLS;
@@ -252,8 +253,8 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   MonitorElement* hCaloEtFractionHadronic;
   MonitorElement* hCaloEmEtFraction;
   
-  MonitorElement* hCaloEmEtFraction002;
-  MonitorElement* hCaloEmEtFraction010;
+  //removed for optimizations//MonitorElement* hCaloEmEtFraction002;
+  //removed for optimizations//MonitorElement* hCaloEmEtFraction010;
   MonitorElement* hCaloEmEtFraction020;
   
   MonitorElement* hCaloHadEtInHB;
@@ -266,17 +267,17 @@ class CaloMETAnalyzer : public CaloMETAnalyzerBase {
   
   MonitorElement* hCaloEmMEx;
   MonitorElement* hCaloEmMEy;
-  MonitorElement* hCaloEmEz;
+  //removed for optimizations//MonitorElement* hCaloEmEz;
   MonitorElement* hCaloEmMET;
   MonitorElement* hCaloEmMETPhi;
-  MonitorElement* hCaloEmSumET;
+  //removed for optimizations//MonitorElement* hCaloEmSumET;
   
   MonitorElement* hCaloHaMEx;
   MonitorElement* hCaloHaMEy;
-  MonitorElement* hCaloHaEz;
+  //removed for optimizations//MonitorElement* hCaloHaEz;
   MonitorElement* hCaloHaMET;
   MonitorElement* hCaloHaMETPhi;
-  MonitorElement* hCaloHaSumET;
+  //removed for optimizations//MonitorElement* hCaloHaSumET;
   
   MonitorElement* hCalomuPt;
   MonitorElement* hCalomuEta;

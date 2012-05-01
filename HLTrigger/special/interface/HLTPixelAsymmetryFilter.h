@@ -56,7 +56,7 @@ class HLTPixelAsymmetryFilter : public HLTFilter {
   virtual bool filter(edm::Event&, const edm::EventSetup&);
 
   edm::InputTag inputTag_; // input tag identifying product containing pixel clusters
-  bool          saveTag_;  // whether to save this tag
+  bool          saveTags_;  // whether to save this tag
   double  min_asym_;       // minimum asymmetry 
   double  max_asym_;       // maximum asymmetry
   double  clus_thresh_;    // minimum charge for a cluster to be selected (in e-)

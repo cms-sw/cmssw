@@ -12,7 +12,6 @@
 <use   name="DataFormats/Scalers"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/DetId"/>
-<use   name="DataFormats/SiStripDetId"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/SiStripObjects"/>

@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.23 2010/10/14 13:55:24 beaudett Exp $
+// $Id: Electron.cc,v 1.25 2011/03/31 10:13:26 namapane Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -22,9 +22,8 @@ Electron::Electron() :
     dB_(0.0),
     edB_(0.0)
 {
+  initImpactParameters();
 }
-
-
 
 /// constructor from reco::GsfElectron
 Electron::Electron(const reco::GsfElectron & anElectron) :
@@ -39,8 +38,8 @@ Electron::Electron(const reco::GsfElectron & anElectron) :
     dB_(0.0),
     edB_(0.0)
 {
+  initImpactParameters();
 }
-
 
 /// constructor from ref to reco::GsfElectron
 Electron::Electron(const edm::RefToBase<reco::GsfElectron> & anElectronRef) :
@@ -55,6 +54,7 @@ Electron::Electron(const edm::RefToBase<reco::GsfElectron> & anElectronRef) :
     dB_(0.0),
     edB_(0.0)
 {
+  initImpactParameters();
 }
 
 /// constructor from Ptr to reco::GsfElectron
@@ -70,11 +70,37 @@ Electron::Electron(const edm::Ptr<reco::GsfElectron> & anElectronRef) :
     dB_(0.0),
     edB_(0.0)
 {
+  initImpactParameters();
 }
-
 
 /// destructor
 Electron::~Electron() {
+}
+
+std::ostream& 
+reco::operator<<(std::ostream& out, const pat::Electron& obj) 
+{
+  if(!out) return out;
+  
+  out << "\tpat::Electron: ";
+  out << std::setiosflags(std::ios::right);
+  out << std::setiosflags(std::ios::fixed);
+  out << std::setprecision(3);
+  out << " E/pT/eta/phi " 
+      << obj.energy()<<"/"
+      << obj.pt()<<"/"
+      << obj.eta()<<"/"
+      << obj.phi();
+  return out; 
+}
+
+// initialize impact parameter container vars
+void Electron::initImpactParameters() {
+  for (int i_ = 0; i_<5; ++i_){
+    ip_.push_back(0.0);
+    eip_.push_back(0.0);
+    cachedIP_.push_back(false);
+  }
 }
 
 
@@ -207,10 +233,19 @@ reco::CandidatePtr Electron::sourceCandidatePtr( size_type i ) const {
 
 /// dB gives the impact parameter wrt the beamline.
 /// If this is not cached it is not meaningful, since
-/// it relies on the distance to the beamline.
-double Electron::dB() const {
-  if ( cachedDB_ ) {
-    return dB_;
+/// it relies on the distance to the beamline. 
+double Electron::dB(IpType type_) const {
+  // preserve old functionality exactly
+  if (type_ == None){
+    if ( cachedDB_ ) {
+      return dB_;
+    } else {
+      return std::numeric_limits<double>::max();
+    }
+  }
+  // more IP types (new)
+  else if ( cachedIP_[type_] ) {
+    return ip_[type_];
   } else {
     return std::numeric_limits<double>::max();
   }
@@ -218,11 +253,33 @@ double Electron::dB() const {
 
 /// edB gives the uncertainty on the impact parameter wrt the beamline.
 /// If this is not cached it is not meaningful, since
-/// it relies on the distance to the beamline.
-double Electron::edB() const {
-  if ( cachedDB_ ) {
-    return edB_;
+/// it relies on the distance to the beamline. 
+double Electron::edB(IpType type_) const {
+  // preserve old functionality exactly
+  if (type_ == None) {
+    if ( cachedDB_ ) {
+      return edB_;
+    } else {
+      return std::numeric_limits<double>::max();
+    }
+  }
+  // more IP types (new)
+  else if ( cachedIP_[type_] ) {
+    return eip_[type_];
   } else {
     return std::numeric_limits<double>::max();
   }
+
 }
+
+void Electron::setDB(double dB, double edB, IpType type){
+  if (type == None) { // Preserve  old functionality exactly
+    dB_ = dB; edB_ = edB;
+    cachedDB_ = true;
+  } else {
+    ip_[type] = dB; 
+    eip_[type] = edB; 
+    cachedIP_[type] = true;
+  }
+}
+ 

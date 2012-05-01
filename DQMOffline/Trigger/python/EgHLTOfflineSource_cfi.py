@@ -34,10 +34,10 @@ egHLTOffDQMSource = cms.EDAnalyzer("EgHLTOfflineSource",
 
                                  #hcal isolation parameters
                                  #first which ones do we want to calculate...
-                                 calHLTHcalIsol = cms.bool(False),
+                                 calHLTHcalIsol = cms.bool(True),
                                  calHLTEmIsol = cms.bool(True),
                                  calHLTEleTrkIsol = cms.bool(True),
-                                 calHLTPhoTrkIsol = cms.bool(True),
+                                 calHLTPhoTrkIsol = cms.bool(False),
                                  #actual settings for hlt isolation 
                                  hltEMIsolOuterCone = cms.double(0.4),
                                  hltEMIsolInnerConeEB = cms.double(0.045),
@@ -68,11 +68,11 @@ egHLTOffDQMSource = cms.EDAnalyzer("EgHLTOfflineSource",
                                  
                                  #setting up selection
                                  cutMasks = cms.PSet(
-                                    stdEle = cms.string("et:detEta:dEtaIn:dPhiIn:hadem:maxr9:sigmaIEtaIEta:isolEm:isolHad:isolPtTrks"),
-                                    tagEle = cms.string("et:detEta:dEtaIn:dPhiIn:hadem:maxr9:sigmaIEtaIEta:isolEm:isolHad:isolPtTrks"),
+                                    stdEle = cms.string("et:detEta:dEtaIn:dPhiIn:hadem:maxr9:sigmaIEtaIEta:hltIsolTrksEle:hltIsolHad:hltIsolEm"),
+                                    tagEle = cms.string("et:detEta:dEtaIn:dPhiIn:hadem:maxr9:sigmaIEtaIEta:hltIsolTrksEle:hltIsolHad:hltIsolEm"),
                                     probeEle = cms.string("et:detEta"),
                                     fakeEle = cms.string("et:detEta:hadem"),
-                                    trigTPEle = cms.string("detEta:dEtaIn:dPhiIn:hadem:sigmaIEtaIEta"),
+                                    trigTPEle = cms.string("detEta:dEtaIn:dPhiIn:hadem:sigmaIEtaIEta:hltIsolTrksEle:hltIsolHad:hltIsolEm"),
                                     stdPho = cms.string("et:detEta:dEtaIn:dPhiIn:hadem:maxr9:isolEm:isolHad:isolPtTrks"),
                                  ),
                                  eleCuts = cms.PSet (egHLTOffEleCuts,),    

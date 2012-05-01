@@ -70,7 +70,8 @@ equivDict = \
      ]
 
 ignoreEdmDP = {
-  'LCGReflex/__gnu_cxx::__normal_iterator<std::basic_string<char>*,std::vector<std::basic_string<char>%>%>' : 1
+  'LCGReflex/__gnu_cxx::__normal_iterator<std::basic_string<char>*,std::vector<std::basic_string<char>%>%>' : 1,
+  '' : 1
 }
 
 def getReleaseBaseDir ():

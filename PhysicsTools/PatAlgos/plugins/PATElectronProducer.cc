@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.45 2010/12/13 14:10:19 salerno Exp $
+// $Id: PATElectronProducer.cc,v 1.49 2011/06/27 15:57:48 bellan Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -54,9 +54,10 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   embedTrack_       = iConfig.getParameter<bool>         ( "embedTrack" );
 
   // pflow specific
-  pfElecSrc_           = iConfig.getParameter<edm::InputTag>( "pfElectronSource" );
-  useParticleFlow_        = iConfig.getParameter<bool>( "useParticleFlow" );
-  embedPFCandidate_   = iConfig.getParameter<bool>( "embedPFCandidate" );
+  pfElecSrc_        = iConfig.getParameter<edm::InputTag>( "pfElectronSource" );
+  useParticleFlow_  = iConfig.getParameter<bool>( "useParticleFlow" );
+  linkToPFSource_   = iConfig.getParameter<edm::InputTag>( "linkToPFSource" );  //SAK
+  embedPFCandidate_ = iConfig.getParameter<bool>( "embedPFCandidate" );
 
 
   // MC matching configurables
@@ -216,20 +217,25 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   // needs beamline
   reco::TrackBase::Point beamPoint(0,0,0);
   reco::Vertex primaryVertex;
+  reco::BeamSpot beamSpot;
+  bool beamSpotIsValid = false;
+  bool primaryVertexIsValid = false;
   if ( embedHighLevelSelection_ ) {
     // Get the beamspot
-    reco::BeamSpot beamSpot;
     edm::Handle<reco::BeamSpot> beamSpotHandle;
     iEvent.getByLabel(beamLineSrc_, beamSpotHandle);
-
 
     // Get the primary vertex
     edm::Handle< std::vector<reco::Vertex> > pvHandle;
     iEvent.getByLabel( pvSrc_, pvHandle );
 
+    // This is needed by the IPTools methods from the tracking group
+    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
+
     if ( ! usePV_ ) {
       if ( beamSpotHandle.isValid() ){
 	beamSpot = *beamSpotHandle;
+	beamSpotIsValid = true;
       } else{
 	edm::LogError("DataNotAvailable")
 	  << "No beam spot available from EventSetup, not adding high level selection \n";
@@ -241,15 +247,13 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
       beamPoint = reco::TrackBase::Point ( x0, y0, z0 );
     } else {
-      if ( pvHandle.isValid() ) {
+      if ( pvHandle.isValid() && !pvHandle->empty() ) {
 	primaryVertex = pvHandle->at(0);
+	primaryVertexIsValid = true;
       } else {
 	edm::LogError("DataNotAvailable")
 	  << "No primary vertex available from EventSetup, not adding high level selection \n";
       }
-
-      // This is needed by the IPTools methods from the tracking group
-      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
     }
   }
 
@@ -258,6 +262,11 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   if( useParticleFlow_ ) {
     edm::Handle< reco::PFCandidateCollection >  pfElectrons;
     iEvent.getByLabel(pfElecSrc_, pfElectrons);
+    //-- SAK ------------------------------------------------------------------
+    edm::Handle< reco::PFCandidateCollection >  pfForLinking;
+    if (linkToPFSource_.label().length())
+      iEvent.getByLabel(linkToPFSource_, pfForLinking);
+    //-- SAK ------------------------------------------------------------------
     unsigned index=0;
 
     for( reco::PFCandidateConstIterator i = pfElectrons->begin();
@@ -312,11 +321,19 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	    // Make sure the collection it points to is there
 	    if ( track.isNonnull() && track.isAvailable() ) {
 
+	      reco::TransientTrack tt = trackBuilder->build(track);
+	      embedHighLevel( anElectron, 
+			      track,
+			      tt,
+			      primaryVertex,
+			      primaryVertexIsValid,
+			      beamSpot,
+			      beamSpotIsValid );
+
 	      if ( !usePV_ ) {
 		double corr_d0 = track->dxy( beamPoint );
 		anElectron.setDB( corr_d0, -1.0 );
 	      } else {
-		reco::TransientTrack tt = trackBuilder->build(track);
 		std::pair<bool,Measurement1D> result = IPTools::absoluteTransverseImpactParameter(tt, primaryVertex);
 		double d0_corr = result.second.value();
 		double d0_err = result.second.error();
@@ -350,13 +367,24 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	  // I don't know what to do with the efficiencyLoader, since I don't know
 	  // what this class is for.
 	  fillElectron2( anElectron,
-			 ptrToPFElectron->sourceCandidatePtr(0),
+			 ptrToPFElectron,
 			 ptrToGsfElectron,
 			 ptrToGsfElectron,
 			 genMatches, deposits, isolationValues );
 
 	  //COLIN need to use fillElectron2 in the non-pflow case as well, and to test it.
 
+    //-- SAK ------------------------------------------------------------------
+    if (linkToPFSource_.label().length() && anElectron.pfCandidateRef().id() != pfForLinking.id()) {
+      reco::CandidatePtr  source  = anElectron.pfCandidateRef()->sourceCandidatePtr(0);
+      while (source.id() != pfForLinking.id()) {
+        source  = source->sourceCandidatePtr(0);
+        if (source.isNull())
+          throw cms::Exception("InputSource", "Object in "+pfElecSrc_.encode()+" does not link back to "+linkToPFSource_.encode());
+      } // end loop over inheritance chain
+      anElectron.setPFCandidateRef(reco::PFCandidateRef(pfForLinking, source.key()));
+    }
+    //-- SAK ------------------------------------------------------------------
 	  patElectrons->push_back(anElectron);
 	}
       }
@@ -410,11 +438,21 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	// Make sure the collection it points to is there
 	if ( track.isNonnull() && track.isAvailable() ) {
 
+	  reco::TransientTrack tt = trackBuilder->build(track);
+	  embedHighLevel( anElectron, 
+			  track,
+			  tt,
+			  primaryVertex,
+			  primaryVertexIsValid,
+			  beamSpot,
+			  beamSpotIsValid );
+
+
 	  if ( !usePV_ ) {
 	    double corr_d0 = track->dxy( beamPoint );
 	    anElectron.setDB( corr_d0, -1.0 );
 	  } else {
-	    reco::TransientTrack tt = trackBuilder->build(track);
+	    
 	    std::pair<bool,Measurement1D> result = IPTools::absoluteTransverseImpactParameter(tt, primaryVertex);
 	    double d0_corr = result.second.value();
 	    double d0_err = result.second.error();
@@ -572,9 +610,13 @@ void PATElectronProducer::fillElectron2( Electron& anElectron,
       anElectron.setIsoDeposit(isoDepositLabels_[j].first,
  			       (*deposits[j])[candPtrForGenMatch]);
     }
-    else {
+    else if (deposits[j]->contains(candPtrForIsolation.id())) {
       anElectron.setIsoDeposit(isoDepositLabels_[j].first,
  			       (*deposits[j])[candPtrForIsolation]);
+    }
+    else {
+      anElectron.setIsoDeposit(isoDepositLabels_[j].first,
+			       (*deposits[j])[candPtrForIsolation->sourceCandidatePtr(0)]);
     }
   }
 
@@ -585,10 +627,15 @@ void PATElectronProducer::fillElectron2( Electron& anElectron,
       anElectron.setIsolation(isolationValueLabels_[j].first,
  			      (*isolationValues[j])[candPtrForGenMatch]);
     }
-    else {
+    else if (isolationValues[j]->contains(candPtrForIsolation.id())) {
       anElectron.setIsolation(isolationValueLabels_[j].first,
  			      (*isolationValues[j])[candPtrForIsolation]);
     }
+    else {
+      anElectron.setIsolation(isolationValueLabels_[j].first,
+			      (*isolationValues[j])[candPtrForIsolation->sourceCandidatePtr(0)]);
+    }
+    
   }
 }
 
@@ -611,6 +658,7 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
   // pf specific parameters
   iDesc.add<edm::InputTag>("pfElectronSource", edm::InputTag("pfElectrons"))->setComment("particle flow input collection");
   iDesc.add<bool>("useParticleFlow", false)->setComment("whether to use particle flow or not");
+  iDesc.add<edm::InputTag>("linkToPFSource", edm::InputTag())->setComment("alternative PF collection to link to (pfCandidateRef) -- traverses inheritance chain up to this");
   iDesc.add<bool>("embedPFCandidate", false)->setComment("embed external particle flow object");
 
   // MC matching configurables
@@ -731,6 +779,70 @@ void PATElectronProducer::readIsolationLabels( const edm::ParameterSet & iConfig
 
 }
 
+
+// embed various impact parameters with errors
+// embed high level selection
+void PATElectronProducer::embedHighLevel( pat::Electron & anElectron, 
+					  reco::GsfTrackRef track,
+					  reco::TransientTrack & tt,
+					  reco::Vertex & primaryVertex,
+					  bool primaryVertexIsValid,
+					  reco::BeamSpot & beamspot,
+					  bool beamspotIsValid
+					  )
+{
+  // Correct to PV
+
+  // PV2D
+  std::pair<bool,Measurement1D> result =
+    IPTools::signedTransverseImpactParameter(tt,
+					     GlobalVector(track->px(),
+							  track->py(),
+							  track->pz()),
+					     primaryVertex); 
+  double d0_corr = result.second.value();
+  double d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
+  anElectron.setDB( d0_corr, d0_err, pat::Electron::PV2D);
+
+
+  // PV3D
+  result =
+    IPTools::signedImpactParameter3D(tt,
+				     GlobalVector(track->px(),
+						  track->py(),
+						  track->pz()),
+				     primaryVertex);
+  d0_corr = result.second.value();
+  d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
+  anElectron.setDB( d0_corr, d0_err, pat::Electron::PV3D);
+  
+
+  // Correct to beam spot
+  // make a fake vertex out of beam spot
+  reco::Vertex vBeamspot(beamspot.position(), beamspot.covariance3D());
+  
+  // BS2D
+  result =
+    IPTools::signedTransverseImpactParameter(tt,
+					     GlobalVector(track->px(),
+							  track->py(),
+							  track->pz()),
+					     vBeamspot);
+  d0_corr = result.second.value();
+  d0_err = beamspotIsValid ? result.second.error() : -1.0;
+  anElectron.setDB( d0_corr, d0_err, pat::Electron::BS2D);
+  
+  // BS3D
+  result =
+    IPTools::signedImpactParameter3D(tt,
+				     GlobalVector(track->px(),
+						  track->py(),
+						  track->pz()),
+				     vBeamspot);
+  d0_corr = result.second.value();
+  d0_err = beamspotIsValid ? result.second.error() : -1.0;
+  anElectron.setDB( d0_corr, d0_err, pat::Electron::BS3D);
+}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

@@ -1,3 +1,4 @@
+# "HIon" menu
 HLT_HIZeroBias
 HLT_HIZeroBiasXOR
 HLT_HIZeroBiasPixel_SingleTrack
@@ -53,10 +54,14 @@ HLT_HIActivityHF_Single3
 HLT_HIClusterVertexCompatibility
 HLT_HICentralityVeto
 HLT_HIRandom
-HLT_EcalCalibration_v1
-HLT_HcalCalibration_HI
-HLT_LogMonitor_v1
+HLT_DTCalibration_v*
+HLT_EcalCalibration_v*
+HLT_HcalCalibration_v*
+HLT_TrackerCalibration_v*
+HLT_LogMonitor_v*
+HLTriggerFirstPath
 HLTriggerFinalPath
+HLTAnalyzerEndpath
 AOutput
 # AlCaHIOutput
 ALCAP0Output
@@ -69,7 +74,5 @@ HLTDQMOutput
 HLTDQMResultsOutput
 HLTMONOutput
 NanoDSTOutput
-OnlineErrorsOutput
 RPCMONOutput
-HLTriggerFirstPath
-HLTAnalyzerEndpath
+TrackerCalibrationOutput

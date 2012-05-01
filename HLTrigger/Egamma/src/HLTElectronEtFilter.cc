@@ -33,7 +33,7 @@ HLTElectronEtFilter::HLTElectronEtFilter(const edm::ParameterSet& iConfig){
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
   doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
 
-  store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;
+  store_ = iConfig.getParameter<bool>("saveTags") ;
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
 

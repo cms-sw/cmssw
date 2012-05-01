@@ -13,7 +13,7 @@ private:
   virtual bool filter(edm::Event&, const edm::EventSetup&);
 
   edm::InputTag inputTag_;          // input tag identifying product containing pixel clusters
-  bool          saveTag_;           // whether to save this tag
+  bool          saveTags_;           // whether to save this tag
   unsigned int  min_clusters_;      // minimum number of clusters
   unsigned int  max_clusters_;      // maximum number of clusters
 
@@ -34,7 +34,7 @@ private:
  
 HLTPixelActivityFilter::HLTPixelActivityFilter(const edm::ParameterSet& config) :
   inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
-  saveTag_      (config.getUntrackedParameter<bool>("saveTag", false)),
+  saveTags_      (config.getParameter<bool>("saveTags")),
   min_clusters_ (config.getParameter<unsigned int>("minClusters")),
   max_clusters_ (config.getParameter<unsigned int>("maxClusters"))
 {
@@ -64,7 +64,7 @@ bool HLTPixelActivityFilter::filter(edm::Event& event, const edm::EventSetup& iS
 
   // The filter object
   std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTag_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags_) filterobject->addCollectionTag(inputTag_);
 
   // get hold of products from Event
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > clusterColl;

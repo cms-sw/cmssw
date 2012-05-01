@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2011/02/14 08:01:29 $
- * $Revision: 1.73 $
+ * $Date: 2011/06/27 09:08:16 $
+ * $Revision: 1.75.2.1 $
  * \author G. Della Ricca
  *
 */
@@ -135,7 +135,7 @@ void EETimingTask::setup(void){
       dqmStore_->tag(meTime_[i], i+1);
 
       sprintf(histo, "EETMT timing %s", Numbers::sEE(i+1).c_str());
-      meTimeMap_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 25., 75., "s");
+      meTimeMap_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., -25.+shiftProf2D, 25.+shiftProf2D, "s");
       meTimeMap_[i]->setAxisTitle("ix", 1);
       if ( i+1 >= 1 && i+1 <= 9 ) meTimeMap_[i]->setAxisTitle("101-ix", 1);
       meTimeMap_[i]->setAxisTitle("iy", 2);
@@ -168,34 +168,34 @@ void EETimingTask::setup(void){
     meTimeSummary1D_[1]->setAxisTitle("time (ns)", 1);
 
     sprintf(histo, "EETMT timing map EE -");
-    meTimeSummaryMap_[0] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 50, 25., 75., "s");
+    meTimeSummaryMap_[0] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 50, -25.+shiftProf2D, 25.+shiftProf2D, "s");
     meTimeSummaryMap_[0]->setAxisTitle("ix'", 1);
     meTimeSummaryMap_[0]->setAxisTitle("101-iy'", 2);
     meTimeSummaryMap_[0]->setAxisTitle("time (ns)", 3);
 
     sprintf(histo, "EETMT timing map EE +");
-    meTimeSummaryMap_[1] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 50, 25., 75., "s");
+    meTimeSummaryMap_[1] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 100., 20, 0., 100., 50, -25.+shiftProf2D, 25.+shiftProf2D, "s");
     meTimeSummaryMap_[1]->setAxisTitle("ix'", 1);
     meTimeSummaryMap_[1]->setAxisTitle("iy'", 2);
     meTimeSummaryMap_[1]->setAxisTitle("time (ns)", 3);
 
     sprintf(histo, "EETMT timing projection eta EE -");
-    meTimeSummaryMapProjEta_[0] = dqmStore_->bookProfile(histo, histo, 20, -3.0, -1.479, 50, -50., 50., "s");
+    meTimeSummaryMapProjEta_[0] = dqmStore_->bookProfile(histo, histo, 20, -3.0, -1.479, 50, -25., 25., "s");
     meTimeSummaryMapProjEta_[0]->setAxisTitle("eta", 1);
     meTimeSummaryMapProjEta_[0]->setAxisTitle("time (ns)", 2);
 
     sprintf(histo, "EETMT timing projection eta EE +");
-    meTimeSummaryMapProjEta_[1] = dqmStore_->bookProfile(histo, histo, 20, 1.479, 3.0, 50, -50., 50., "s");
-    meTimeSummaryMapProjEta_[1]->setAxisTitle("phi", 1);
+    meTimeSummaryMapProjEta_[1] = dqmStore_->bookProfile(histo, histo, 20, 1.479, 3.0, 50, -25., 25., "s");
+    meTimeSummaryMapProjEta_[1]->setAxisTitle("eta", 1);
     meTimeSummaryMapProjEta_[1]->setAxisTitle("time (ns)", 2);
 
     sprintf(histo, "EETMT timing projection phi EE -");
-    meTimeSummaryMapProjPhi_[0] = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 50, -50., 50., "s");
+    meTimeSummaryMapProjPhi_[0] = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 50, -25., 25., "s");
     meTimeSummaryMapProjPhi_[0]->setAxisTitle("phi", 1);
     meTimeSummaryMapProjPhi_[0]->setAxisTitle("time (ns)", 2);
 
     sprintf(histo, "EETMT timing projection phi EE +");
-    meTimeSummaryMapProjPhi_[1] = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 50, -50., 50., "s");
+    meTimeSummaryMapProjPhi_[1] = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, 50, -25., 25., "s");
     meTimeSummaryMapProjPhi_[1]->setAxisTitle("phi", 1);
     meTimeSummaryMapProjPhi_[1]->setAxisTitle("time (ns)", 2);
 
@@ -374,11 +374,11 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
         if ( meTimeAmpliSummary_[iz] ) meTimeAmpliSummary_[iz]->Fill(xval, yval);
         if ( et > 0.600 ) {
-          if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval+50.);
+          if ( meTimeMap ) meTimeMap->Fill(xix, xiy, yval+shiftProf2D);
           if ( meTime ) meTime->Fill(yval);
           if ( meTimeSummary1D_[iz] ) meTimeSummary1D_[iz]->Fill(yval);
 
-          if ( meTimeSummaryMap_[iz] ) meTimeSummaryMap_[iz]->Fill(xix, xiy, yval+50.);
+          if ( meTimeSummaryMap_[iz] ) meTimeSummaryMap_[iz]->Fill(id.ix()-0.5, xiy, yval+shiftProf2D);
           if ( meTimeSummaryMapProjEta_[iz] ) meTimeSummaryMapProjEta_[iz]->Fill(eta, yval);
           if ( meTimeSummaryMapProjPhi_[iz] ) meTimeSummaryMapProjPhi_[iz]->Fill(phi, yval);
 

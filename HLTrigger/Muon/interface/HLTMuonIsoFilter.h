@@ -30,7 +30,7 @@ class HLTMuonIsoFilter : public HLTFilter {
       const muonisolation::MuIsoBaseIsolator * theDepositIsolator;
 
       int    min_N_;          // minimum number of muons to fire the trigger
-      bool saveTag_;            // should we save the input collection ?
+      bool saveTags_;            // should we save the input collection ?
 };
 
 #endif //HLTMuonIsoFilter_h

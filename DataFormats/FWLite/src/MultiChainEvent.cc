@@ -17,6 +17,7 @@
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 
 namespace fwlite {
@@ -323,6 +324,12 @@ const std::vector<std::string>&
 MultiChainEvent::getProcessHistory() const
 {
   return event1_->getProcessHistory();
+}
+
+edm::ProcessHistory const&
+MultiChainEvent::processHistory() const
+{
+  return event1_->processHistory();
 }
 
 edm::EventAuxiliary const&

@@ -9,7 +9,7 @@ hltDTActivityFilter = HLTrigger.special.hltDTActivityFilter_cfi.hltDTActivityFil
    inputDCC         = cms.InputTag( "dttfDigis" ),
     inputDDU         = cms.InputTag( "muonDTDigisforDTActivitySkim" ),
     inputRPC         = cms.InputTag( "hltGtDigis" ),
-    inputDigis       = cms.InputTag( "muonDTDigis" ),
+    inputDigis       = cms.InputTag( "muonDTDigisforDTActivitySkim" ),
     processDCC       = cms.bool( False ),
     processDDU       = cms.bool( False ),
     processRPC       = cms.bool( False ),
@@ -38,7 +38,7 @@ hltDTActivityFilter = HLTrigger.special.hltDTActivityFilter_cfi.hltDTActivityFil
 # this is for filtering on HLT path
 HLTDT =cms.EDFilter("HLTHighLevel",
      TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
-     HLTPaths = cms.vstring('HLH_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7'),           # provide list of HLT paths (or patterns) you want
+     HLTPaths = cms.vstring('HLT_L1MuOpen','HLT_Activity_DT','HLT_Activity_DT_Tuned','HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7'),           # provide list of HLT paths (or patterns) you want
      eventSetupPathsKey = cms.string(''), # not empty => use read paths from AlCaRecoTriggerBitsRcd via this key
      andOr = cms.bool(True),             # how to deal with multiple triggers: True (OR) accept if ANY is true, False (AND) accept if ALL are true
      throw = cms.bool(False)    # throw exception on unknown path names

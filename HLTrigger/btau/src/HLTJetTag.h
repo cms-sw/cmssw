@@ -7,8 +7,8 @@
  *  tagged multi-jet trigger for b and tau. 
  *  It should be run after the normal multi-jet trigger.
  *
- *  $Date: 2009/09/03 12:59:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/02/11 00:12:20 $
+ *  $Revision: 1.3 $
  *
  *  \author Arnaud Gay, Ian Tomalin
  *  \maintainer Andrea Bocci
@@ -37,7 +37,7 @@ private:
   edm::InputTag m_jetTag;       // module label of input JetTagCollection
   double m_minTag, m_maxTag;    // tag descriminator cuts applied to each jet
   int    m_minJets;             // min. number of jets required to be tagged
-  bool   m_saveTag;             // save the tagged jets in the TriggerEvent
+  bool   m_saveTags;             // save the tagged jets in the TriggerEvent
 
   std::string m_label;          // Label of this filter in configuration file.
 };

@@ -358,9 +358,9 @@ FUShmRawCell* FUShmBuffer::rawCellToDiscard()
 	 ||state==evt::SENT
 	 ||state==evt::EMPTY
 	 ||state==evt::STOP
-	 ||state==evt::LUMISECTION);
+	 ||state==evt::USEDLS);
   if (state!=evt::EMPTY 
-      && state!=evt::LUMISECTION
+      && state!=evt::USEDLS
       && state!=evt::STOP
       ) 
     setEvtState(cell->index(),evt::DISCARDING);
@@ -430,6 +430,22 @@ void FUShmBuffer::scheduleRawCellForDiscard(unsigned int iCell)
 	   ||state==evt::LUMISECTION
 	   );
     if (state==evt::PROCESSING) setEvtState(iCell,evt::PROCESSED);
+    if (state==evt::LUMISECTION) setEvtState(iCell,evt::USEDLS);
+    postRawDiscarded();
+  }
+  else postRawDiscard();
+}
+
+
+//______________________________________________________________________________
+void FUShmBuffer::scheduleRawCellForDiscardServerSide(unsigned int iCell)
+{
+  waitRawDiscard();
+  if (rawCellReadyForDiscard(iCell)) {
+    rawDiscardIndex_=iCell;
+    evt::State_t  state=evtState(iCell);
+    if(state!=evt::LUMISECTION && state!=evt::EMPTY && state!=evt::USEDLS) setEvtState(iCell,evt::PROCESSED);
+    if(state==evt::LUMISECTION) setEvtState(iCell,evt::USEDLS);
     postRawDiscarded();
   }
   else postRawDiscard();
@@ -454,6 +470,16 @@ void FUShmBuffer::discardRecoCell(unsigned int iCell)
     //assert(state==evt::SENT);
     scheduleRawCellForDiscard(iRawCell);
   }
+  cell->clear();
+  if (segmentationMode_) shmdt(cell);
+  postRecoIndexToWrite(iCell);
+  postRecoWrite();
+}
+
+//______________________________________________________________________________
+void FUShmBuffer::discardOrphanedRecoCell(unsigned int iCell)
+{
+  FUShmRecoCell* cell=recoCell(iCell);
   cell->clear();
   if (segmentationMode_) shmdt(cell);
   postRecoIndexToWrite(iCell);
@@ -485,7 +511,8 @@ void FUShmBuffer::releaseRawCell(FUShmRawCell* cell)
      ||state==evt::RAWWRITING
      ||state==evt::EMPTY
      ||state==evt::STOP
-     ||state==evt::LUMISECTION
+     //     ||state==evt::LUMISECTION
+     ||state==evt::USEDLS
      )) std::cout << "=================releaseRawCell state " << state 
 		  << std::endl;
 
@@ -494,7 +521,8 @@ void FUShmBuffer::releaseRawCell(FUShmRawCell* cell)
 	 ||state==evt::RAWWRITING
 	 ||state==evt::EMPTY
 	 ||state==evt::STOP
-	 ||state==evt::LUMISECTION
+	 //	 ||state==evt::LUMISECTION
+	 ||state==evt::USEDLS
 	 );
   setEvtState(cell->index(),evt::EMPTY);
   setEvtDiscard(cell->index(),0);
@@ -515,6 +543,7 @@ void FUShmBuffer::writeRawEmptyEvent()
   evt::State_t state=evtState(cell->index());
   assert(state==evt::RAWWRITING);
   setEvtState(cell->index(),evt::STOP);
+  cell->setEventTypeStopper();
   postRawIndexToRead(cell->index());
   if (segmentationMode_) shmdt(cell);
   postRawRead();
@@ -528,6 +557,7 @@ void FUShmBuffer::writeRawLumiSectionEvent(unsigned int ls)
   evt::State_t state=evtState(cell->index());
   assert(state==evt::RAWWRITING);
   setEvtState(cell->index(),evt::LUMISECTION);
+  cell->setEventTypeEol();
   postRawIndexToRead(cell->index());
   if (segmentationMode_) shmdt(cell);
   postRawRead();
@@ -566,6 +596,7 @@ void FUShmBuffer::scheduleRawEmptyCellForDiscard()
   FUShmRawCell* cell=rawCellToWrite();
   rawDiscardIndex_=cell->index();
   setEvtState(cell->index(),evt::STOP);
+  cell->setEventTypeStopper();
   setEvtNumber(cell->index(),0xffffffff);
   setEvtPrcId(cell->index(),0);
   setEvtTimeStamp(cell->index(),0);
@@ -579,10 +610,13 @@ void FUShmBuffer::scheduleRawEmptyCellForDiscard(FUShmRawCell* cell)
   waitRawDiscard();
   if (rawCellReadyForDiscard(cell->index())) {
     rawDiscardIndex_=cell->index();
-    setEvtState(cell->index(),evt::STOP);
-    setEvtNumber(cell->index(),0xffffffff);
-    setEvtPrcId(cell->index(),0);
-    setEvtTimeStamp(cell->index(),0);
+    // as this function is called by the reader, the state and type should 
+    // already be correct
+    //    setEvtState(cell->index(),evt::STOP);
+    //    cell->setEventType(evt::STOPPER);
+    //    setEvtNumber(cell->index(),0xffffffff);
+    //    setEvtPrcId(cell->index(),0);
+    //    setEvtTimeStamp(cell->index(),0);
     removeClientPrcId(getpid());
     if (segmentationMode_) shmdt(cell);
     postRawDiscarded();
@@ -596,10 +630,11 @@ void FUShmBuffer::scheduleRawEmptyCellForDiscardServerSide(FUShmRawCell* cell)
   //  waitRawDiscard();
   if (rawCellReadyForDiscard(cell->index())) {
     rawDiscardIndex_=cell->index();
-    setEvtState(cell->index(),evt::STOP);
-    setEvtNumber(cell->index(),0xffffffff);
-    setEvtPrcId(cell->index(),0);
-    setEvtTimeStamp(cell->index(),0);
+    //    setEvtState(cell->index(),evt::STOP);
+    //    cell->setEventType(evt::STOPPER);
+    //    setEvtNumber(cell->index(),0xffffffff);
+    //    setEvtPrcId(cell->index(),0);
+    //    setEvtTimeStamp(cell->index(),0);
     //    removeClientPrcId(getpid());
     if (segmentationMode_) shmdt(cell);
     postRawDiscarded();

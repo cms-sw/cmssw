@@ -3,8 +3,8 @@
  *  This class is an EDFilter implementing the following requirement:
  *  the number of caltowers with hadEnergy>E_Thr less than N_Thr for HB/HE/HF sperately.
  *
- *  $Date: 2011/02/01 21:00:10 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/05/01 08:41:41 $
+ *  $Revision: 1.5 $
  *
  *  \author Li Wenbo (PKU)
  *
@@ -25,7 +25,7 @@ private:
   virtual bool filter(edm::Event &, const edm::EventSetup &);
   
   edm::InputTag inputTag_;    // input tag identifying product
-  bool saveTag_;              // whether to save this tag
+  bool saveTags_;              // whether to save this tag
   double min_E_HB_;           // energy threshold for HB in GeV
   double min_E_HE_;           // energy threshold for HE in GeV
   double min_E_HF_;           // energy threshold for HF in GeV
@@ -48,7 +48,7 @@ private:
 //
 HLTHcalTowerFilter::HLTHcalTowerFilter(const edm::ParameterSet& config) :
   inputTag_ (config.getParameter<edm::InputTag>("inputTag")),
-  saveTag_  (config.getUntrackedParameter<bool>("saveTag",false)),
+  saveTags_  (config.getParameter<bool>("saveTags")),
   min_E_HB_ (config.getParameter<double>       ("MinE_HB")),
   min_E_HE_ (config.getParameter<double>       ("MinE_HE")),
   min_E_HF_ (config.getParameter<double>       ("MinE_HF")),
@@ -79,7 +79,7 @@ HLTHcalTowerFilter::filter(edm::Event& event, const edm::EventSetup& setup)
    
   // The filter object
   std::auto_ptr<TriggerFilterObjectWithRefs> filterobject (new TriggerFilterObjectWithRefs(path(),module()));
-  if(saveTag_) filterobject->addCollectionTag(inputTag_);
+  if(saveTags_) filterobject->addCollectionTag(inputTag_);
 
   // get hold of collection of objects
   Handle<CaloTowerCollection> towers;

@@ -124,7 +124,7 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) :
             m_l1EtMissMHT(edm::InputTag(m_l1CollectionsTag.label(), "MHT")),
 
             // save tags to TriggerFilterObjectWithRefs
-            saveTags_(parSet.getUntrackedParameter<bool> ("saveTags", true)),
+            saveTags_(parSet.getParameter<bool>("saveTags")),
             m_isDebugEnabled(edm::isDebugEnabled()) {
     if (m_l1SeedsLogicalExpression != "L1GlobalDecision") {
 

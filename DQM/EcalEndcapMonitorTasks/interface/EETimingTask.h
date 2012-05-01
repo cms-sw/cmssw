@@ -4,8 +4,8 @@
 /*
  * \file EETimingTask.h
  *
- * $Date: 2010/03/31 14:31:51 $
- * $Revision: 1.16 $
+ * $Date: 2011/06/27 09:08:17 $
+ * $Revision: 1.17.4.1 $
  * \author G. Della Ricca
  *
 */
@@ -32,6 +32,8 @@ EETimingTask(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EETimingTask();
+
+static const float shiftProf2D;
 
 protected:
 
@@ -89,5 +91,7 @@ bool init_;
 bool initCaloGeometry_;
 
 };
+
+const float EETimingTask::shiftProf2D = 50.;
 
 #endif

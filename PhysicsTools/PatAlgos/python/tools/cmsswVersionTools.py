@@ -787,8 +787,8 @@ class PickRelValInputFiles( ConfigToolBase ):
     - skipFiles    : number of files to skip for a found RelVal sample
                      optional; default: 0
     - numberOfFiles: number of files to pick up
-                     setting it to 0, returns all found ('skipFiles' remains active though)
-                     optional; default: 1
+                     setting it to negative values, returns all found ('skipFiles' remains active though)
+                     optional; default: -1
     - debug        : switch to enable enhanced messages in 'stdout'
                      optional; default: False
     """
@@ -809,7 +809,7 @@ class PickRelValInputFiles( ConfigToolBase ):
         self.addParameter( self._defaultParameters, 'globalTag'    , autoCond[ self.getDefaultParameters()[ 'condition' ].value ][ : -5 ], 'auto from \'condition\'' )
         self.addParameter( self._defaultParameters, 'maxVersions'  , 9                                                                   , '' )
         self.addParameter( self._defaultParameters, 'skipFiles'    , 0                                                                   , '' )
-        self.addParameter( self._defaultParameters, 'numberOfFiles', 1                                                                   , '' )
+        self.addParameter( self._defaultParameters, 'numberOfFiles', -1                                                                  , 'all' )
         self.addParameter( self._defaultParameters, 'debug'        , False                                                               , '' )
         self._parameters = copy.deepcopy( self._defaultParameters )
         self._comment = ""
@@ -877,9 +877,12 @@ class PickRelValInputFiles( ConfigToolBase ):
         filePaths = []
 
         patchId = '_patch'
+        slhcId  = '_SLHC'
         ibId    = '_X_'
         if patchId in cmsswVersion:
             cmsswVersion = cmsswVersion.split( patchId )[ 0 ]
+        elif slhcId in cmsswVersion:
+            cmsswVersion = cmsswVersion.split( slhcId )[ 0 ]
         elif ibId in cmsswVersion or formerVersion:
             outputTuple = Popen( [ 'scram', 'l -c CMSSW' ], stdout = PIPE, stderr = PIPE ).communicate()
             if len( outputTuple[ 1 ] ) != 0:
@@ -897,7 +900,7 @@ class PickRelValInputFiles( ConfigToolBase ):
             for line in outputTuple[ 0 ].splitlines():
                 version = line.split()[ 1 ]
                 if cmsswVersion.split( ibId )[ 0 ] in version or cmsswVersion.rpartition( '_' )[ 0 ] in version:
-                    if not ( patchId in version or ibId in version ):
+                    if not ( patchId in version or slhcId in version or ibId in version ):
                         versions[ 'lastToLast' ] = versions[ 'last' ]
                         versions[ 'last' ]       = version
                         if version == cmsswVersion:
@@ -925,6 +928,16 @@ class PickRelValInputFiles( ConfigToolBase ):
         command   = ''
         storage   = ''
         domain    = socket.getfqdn().split( '.' )
+        if len( domain ) == 0:
+            print '%s INFO : Cannot determine domain of this computer'%( self._label )
+            if debug:
+                self.messageEmptyList()
+            return filePaths
+        elif len( domain ) == 1:
+            print '%s INFO : Running on local host \'%s\' without direct access to RelVal files'%( self._label, domain[ 0 ] )
+            if debug:
+                self.messageEmptyList()
+            return filePaths
         if domain[ -2 ] == 'cern' and domain[ -1 ] == 'ch':
             command = 'nsls'
             storage = '/castor/cern.ch/cms'
@@ -953,25 +966,33 @@ class PickRelValInputFiles( ConfigToolBase ):
             for directory in directories.splitlines():
                 files = Popen( [ command, '%s%i/%s'%( argument, version, directory ) ], stdout = PIPE, stderr = PIPE ).communicate()[0]
                 for file in files.splitlines():
+                    if len( file ) > 0 and validVersion != version:
+                        validVersion = version
+                        if debug:
+                            print '%s DEBUG: Valid version set to \'v%i\''%( self._label, validVersion )
+                    if numberOfFiles == 0:
+                        break
                     if len( file ) > 0:
                         if debug:
                             print '%s DEBUG: File \'%s\' found'%( self._label, file )
                         fileCount += 1
-                        validVersion = version
                     if fileCount > skipFiles:
                         filePath = '%s%i/%s/%s'%( rfdirPath, version, directory, file )
                         filePaths.append( filePath )
-                    if numberOfFiles != 0 and len( filePaths ) >= numberOfFiles:
+                    if numberOfFiles > 0 and len( filePaths ) >= numberOfFiles:
                         break
                 if debug:
-                    print '%s DEBUG: %i file(s) found'%( self._label, fileCount )
-                if numberOfFiles != 0 and len( filePaths ) >= numberOfFiles:
+                    if numberOfFiles != 0:
+                        print '%s DEBUG: %i file(s) found so far'%( self._label, fileCount )
+                    else:
+                        print '%s DEBUG: No files requested'%( self._label )
+                if numberOfFiles >= 0 and len( filePaths ) >= numberOfFiles:
                     break
-            if numberOfFiles != 0:
-              if len( filePaths ) >= numberOfFiles:
+            if numberOfFiles > 0:
+                if len( filePaths ) >= numberOfFiles:
+                    break
+            if validVersion > 0:
                 break
-            elif validVersion > 0:
-              break
 
         if validVersion == 0:
             print '%s INFO : No RelVal file(s) found at all in \'%s*\''%( self._label, argument )

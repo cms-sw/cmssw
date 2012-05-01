@@ -15,18 +15,20 @@ patJetCorrFactors = cms.EDProducer("JetCorrFactorsProducer",
         'L1Offset', 'L2Relative', 'L3Absolute', 'L5Flavor', 'L7Parton'
     ), 
     flavorType = cms.string('J'), ## alternatively use 'T'
-    ## in case that L1Offset corrections are part of the
-    ## parameter levels add the optional parameter
+    ## in case that L1Offset or L1FastJet corrections are part 
+    ## of the parameter levels add the optional parameter
     ## primaryVertices here to specify the primary vertex
     ## collection, which was used to determine the L1Offset
-    ## correction from. This parameter will ONLY be read
-    ## out if the correction level L1Offset is found in
-    ## levels. 
+    ## or L1FastJet correction from. This parameter will ONLY
+    ## be read out if the correction level L1Offset or
+    ## L1FastJet is found in levels.
+    useNPV = cms.bool(True),
     primaryVertices = cms.InputTag('offlinePrimaryVertices'),
     ## in case that L1FastJet corrections are part of the
     ## parameter levels add the optional parameter rho
     ## here to specify the energy density parameter for
     ## the corresponding jet collection (this variable is
-    ## taken from kt6PFJets).
+    ## typically taken from kt6PFJets).
+    useRho = cms.bool(False),
     rho = cms.InputTag('kt6PFJets', 'rho'),                                   
 )

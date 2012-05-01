@@ -30,7 +30,7 @@ HLTAcoFilter::HLTAcoFilter(const edm::ParameterSet& iConfig)
 {
    inputJetTag_ = iConfig.getParameter< edm::InputTag > ("inputJetTag");
    inputMETTag_ = iConfig.getParameter< edm::InputTag > ("inputMETTag");
-   saveTags_    = iConfig.getUntrackedParameter<bool>("saveTags",false);
+   saveTags_    = iConfig.getParameter<bool>("saveTags");
    minDPhi_     = iConfig.getParameter<double> ("minDeltaPhi");
    maxDPhi_     = iConfig.getParameter<double> ("maxDeltaPhi");
    minEtjet1_   = iConfig.getParameter<double> ("minEtJet1"); 

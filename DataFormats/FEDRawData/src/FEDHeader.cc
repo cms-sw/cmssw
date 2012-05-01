@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/10/05 16:20:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/10/06 18:25:22 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
@@ -50,14 +50,14 @@ void FEDHeader::set(unsigned char* header,
   // FIXME: should check that input ranges are OK!!!
   fedh_t* h = reinterpret_cast<fedh_t*>(header);
   h->eventid = 
-    FED_HCTRLID | 
-    evt_ty    << FED_EVTY_SHIFT | 
-    lvl1_ID   << FED_LVL1_SHIFT;
+    ( FED_HCTRLID & FED_HCTRLID_MASK) | 
+    ( ( evt_ty    << FED_EVTY_SHIFT) & FED_EVTY_MASK ) | 
+    ( ( lvl1_ID   << FED_LVL1_SHIFT) & FED_LVL1_MASK );
 
   h->sourceid =
-    bx_ID     << FED_BXID_SHIFT |
-    source_ID << FED_SOID_SHIFT |
-    version   << FED_VERSION_SHIFT;
+    ( ( bx_ID     << FED_BXID_SHIFT) & FED_BXID_MASK ) |
+    ( ( source_ID << FED_SOID_SHIFT) & FED_SOID_MASK ) |
+    ( ( version   << FED_VERSION_SHIFT) & FED_VERSION_MASK );
   
   if (H) h->sourceid |= FED_MORE_HEADERS;
     

@@ -76,9 +76,9 @@ kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
     # ------------------------------------------------
     # resolutions used for the kinematic fit
     # ------------------------------------------------
-    udscResolutions       = udscResolution.functions,
-    bResolutions          = bjetResolution.functions,
-    resolutionSmearFactor = cms.double(1.)
+    udscResolutions             = udscResolution.functions,
+    bResolutions                = bjetResolution.functions,
+    energyResolutionSmearFactor = cms.double(1.)
 )
 
 

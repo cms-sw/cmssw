@@ -82,7 +82,7 @@ CurvilinearTrajectoryError SeedFromConsecutiveHitsCreator::
   float ptMin = region.ptMin();
 
 
-  AlgebraicSymMatrix55 C = ROOT::Math::SMatrixIdentity();
+  AlgebraicSymMatrix C(5,1);
 
 // FIXME: minC00. Prevent apriori uncertainty in 1/P from being too small, 
 // to avoid instabilities.

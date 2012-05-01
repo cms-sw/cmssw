@@ -50,7 +50,8 @@ SpecifiedEvenetContent=cms.PSet(
 	'keep *_HSCPIsolation03__*',
 	'keep *_HSCPIsolation05__*',
         'keep recoPFJets_ak5PFJets__*', 
-        'keep recoPFMETs_pfMet__*', 
+        'keep recoPFMETs_pfMet__*',
+	  'keep recoBeamSpot_offlineBeamSpot__*',
       )
     )
 exoticaHSCPOutputModule.outputCommands.extend(SpecifiedEvenetContent.outputCommands)

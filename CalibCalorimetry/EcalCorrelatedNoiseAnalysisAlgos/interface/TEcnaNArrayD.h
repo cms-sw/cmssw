@@ -1,23 +1,14 @@
+
+//////////////////////////////////////////////////////////////////////////////
+//                                                                          //
+// TEcnaNArrayD  ROOT class for multidimensional arrays of Double_t         //
+//                                                                          //
+//                                                                          //
+//////////////////////////////////////////////////////////////////////////////
 #ifndef ROOT_TEcnaNArrayD
 #define ROOT_TEcnaNArrayD
 
 #include "TObject.h"
-#include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaObject.h"
-
-///-----------------------------------------------------------
-///   TEcnaNArrayD.h
-///   Update: 16/02/2011
-///   Authors:   FX Gentit, B.Fabbro (bernard.fabbro@cea.fr),
-///              DSM/IRFU/SPP CEA-Saclay
-///   Copyright: Those valid for CEA sofware
-///
-///   ECNA web page:
-///     http://cms-fabbro.web.cern.ch/cms-fabbro/
-///     cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
-///-----------------------------------------------------------
-///
-///   ROOT class for multidimensional arrays of Double_t   
-///
 
 class TEcnaNArrayD : public TObject {
 
@@ -41,17 +32,17 @@ protected:
   inline Int_t OneDim(Int_t,Int_t,Int_t,Int_t,Int_t) const;
   inline Int_t OneDim(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t) const;
 
+
 public:
 
   TEcnaNArrayD();
   TEcnaNArrayD(const TEcnaNArrayD&);
-
-  TEcnaNArrayD(TEcnaObject*, Int_t);
-  TEcnaNArrayD(TEcnaObject*, Int_t,Int_t);
-  TEcnaNArrayD(TEcnaObject*, Int_t,Int_t,Int_t);
-  TEcnaNArrayD(TEcnaObject*, Int_t,Int_t,Int_t,Int_t);
-  TEcnaNArrayD(TEcnaObject*, Int_t,Int_t,Int_t,Int_t,Int_t);
-  TEcnaNArrayD(TEcnaObject*, Int_t,Int_t,Int_t,Int_t,Int_t,Int_t);
+  TEcnaNArrayD(Int_t);
+  TEcnaNArrayD(Int_t,Int_t);
+  TEcnaNArrayD(Int_t,Int_t,Int_t);
+  TEcnaNArrayD(Int_t,Int_t,Int_t,Int_t);
+  TEcnaNArrayD(Int_t,Int_t,Int_t,Int_t,Int_t);
+  TEcnaNArrayD(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t);
   virtual ~TEcnaNArrayD();
   void     Clean();
   Double_t GetOverFlow() const { return fA[fNL-1]; }

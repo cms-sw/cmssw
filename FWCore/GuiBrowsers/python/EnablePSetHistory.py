@@ -95,8 +95,8 @@ def new_setLooper_(self, lpr):
 cms.Process.old_setLooper_=cms.Process.setLooper_
 cms.Process.setLooper_=new_setLooper_
 
-def new_history(self):
-    return self.__dict__['_Process__history']+self.dumpModificationsWithObjects()
+def new_history(self, removeDuplicates=False):
+    return self.__dict__['_Process__history']+self.dumpModificationsWithObjects(removeDuplicates)
 cms.Process.history=new_history
 
 def new_resetHistory(self):
@@ -115,9 +115,9 @@ def new_dumpHistory(self,withImports=True):
             if isinstance(dump,tuple):
                 if withImports and dump[0] not in dumpHistory:
                     dumpHistory.append(dump[0])
-                dumpHistory.append(dump[1])
+                dumpHistory.append(dump[1] +"\n")
             else:
-                dumpHistory.append(dump)
+                dumpHistory.append(dump +"\n")
            
     return ''.join(dumpHistory)
 cms.Process.dumpHistory=new_dumpHistory
@@ -345,10 +345,16 @@ def new_dumpModifications(self, comments=True, process=True, module=False, seque
     return '\n'.join(text)+'\n'
 cms.Process.dumpModifications=new_dumpModifications
 
-def new_dumpModificationsWithObjects(self):
+def new_dumpModificationsWithObjects(self, removeDuplicates=False):
     modifications = []
+    last_modification=""
     for name, o in self.items_():
-        for m in self.recurseDumpModifications_(name, o):            
+        for m in self.recurseDumpModifications_(name, o):
+            # remove duplicate modifications
+            if removeDuplicates and last_modification==m['name']:
+                modifications.pop()
+            last_modification=m['name']
+            # add changes
             text = 'process.%s = %s' % (m['name'], m['dump'])
             modifications += [(text,[o])]
     return modifications
@@ -451,15 +457,24 @@ except:
 from FWCore.ParameterSet.SequenceTypes import _SequenceNegation, _SequenceIgnore
 
 def new__SequenceNegation_name(self):
-    return '~'+str(self._operand._name())
+    if self._operand:
+        return '~'+str(self._operand._name())
+    else:
+        return '~()'
 _SequenceNegation._name = new__SequenceNegation_name    
 
 def new__SequenceIgnore_name(self):
-    return '-'+str(self._operand._name())
+    if self._operand:
+        return '-'+str(self._operand._name())
+    else:
+        return '-()'
 _SequenceIgnore._name = new__SequenceIgnore_name
 
 def new_Sequence_name(self):
-    return '('+str(self._seq._name())+')'
+    if self._seq:
+        return '('+str(self._seq._name())+')'
+    else:
+        return '()'
 cms.Sequence._name = new_Sequence_name
 
 def new__Module_name(self):
@@ -640,26 +655,26 @@ if __name__=='__main__':
             changeSource(process,"file:filename3.root")
             self.assertEqual(changeSource._parameters['source'].value,"file:filename3.root")
     
-            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\nchangeSource(process , 'file:filename2.root')\n\nchangeSource(process , 'file:filename3.root')\n")
+            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\n\nchangeSource(process , 'file:filename2.root')\n\n\nchangeSource(process , 'file:filename3.root')\n\n")
             
             process.source.fileNames=cms.untracked.vstring("file:replacedfile.root") 
-            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\nchangeSource(process , 'file:filename2.root')\n\nchangeSource(process , 'file:filename3.root')\nprocess.source.fileNames = cms.untracked.vstring(\'file:replacedfile.root\')\n")
+            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\n\nchangeSource(process , 'file:filename2.root')\n\n\nchangeSource(process , 'file:filename3.root')\n\nprocess.source.fileNames = cms.untracked.vstring('file:replacedfile.root')\n")
             
             process.disableRecording()
             changeSource.setParameter('source',"file:filename4.root")
             action=changeSource.__copy__()
             process.addAction(action)
-            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\nchangeSource(process , 'file:filename2.root')\n\nchangeSource(process , 'file:filename3.root')\nprocess.source.fileNames = cms.untracked.vstring(\'file:replacedfile.root\')\n")
+            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\n\nchangeSource(process , 'file:filename2.root')\n\n\nchangeSource(process , 'file:filename3.root')\n\nprocess.source.fileNames = cms.untracked.vstring('file:replacedfile.root')\n")
             
             process.enableRecording()
             changeSource.setParameter('source',"file:filename5.root")
             action=changeSource.__copy__()
             process.addAction(action)
             process.deleteAction(3)
-            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\nchangeSource(process , 'file:filename2.root')\n\nchangeSource(process , 'file:filename3.root')\n\nchangeSource(process , 'file:filename5.root')\n")
+            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\n\nchangeSource(process , 'file:filename2.root')\n\n\nchangeSource(process , 'file:filename3.root')\n\n\nchangeSource(process , 'file:filename5.root')\n\n")
 
             process.deleteAction(0)
-            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename2.root')\n\nchangeSource(process , 'file:filename3.root')\n\nchangeSource(process , 'file:filename5.root')\n")
+            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename2.root')\n\n\nchangeSource(process , 'file:filename3.root')\n\n\nchangeSource(process , 'file:filename5.root')\n\n")
             
         def testModifiedObjectsHistory(self):
             process = cms.Process('unittest')

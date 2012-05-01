@@ -19,7 +19,7 @@
 
 /**
   \class    FWLiteAnalyzerWrapper FWLiteAnalyzerWrapper.h "PhysicsTools/UtilAlgos/interface/FWLiteAnalyzerWrapper.h"
-  \brief    Wrapper class of type BasicAnalyzer to "convert" it into a full a basic FWLiteAnalyzer 
+  \brief    Wrapper class for classes of type BasicAnalyzer to "convert" them into a full a basic FWLiteAnalyzer 
 
    This template class is a wrapper round classes of type BasicAnalyzer as defined in in the 
    BasicAnalyzer.h file of this package. From this class the wrapper expects the following 

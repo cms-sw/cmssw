@@ -43,10 +43,6 @@ using namespace std;
 
 // Main
 MaterialBudget(TString detector) {
-
-  //
-  gROOT->SetStyle("Plain");
-
   // detector
   theDetector = detector;
   if(
@@ -101,8 +97,8 @@ MaterialBudget(TString detector) {
   createPlots("l_vs_eta");
   createPlots("l_vs_phi");
   //  createPlots("l_vs_R");
-  create2DPlots("x_vs_eta_vs_phi");
-  create2DPlots("l_vs_eta_vs_phi");
+  //create2DPlots("x_vs_eta_vs_phi");
+  //create2DPlots("l_vs_eta_vs_phi");
   create2DPlots("x_vs_z_vs_R");
   create2DPlots("l_vs_z_vs_R");
   create2DPlots("x_vs_z_vs_Rsum");
@@ -290,10 +286,9 @@ void createPlots(TString plot) {
   
   // Store
   can.Update();
-  //  can.SaveAs( Form( "%s/%s_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  can.SaveAs( Form( "%s/%s_%s.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
 }
@@ -304,8 +299,7 @@ void create2DPlots(TString plot) {
   TString abscissaName = "dummy";
   TString ordinateName = "dummy";
   Int_t zLog = 0;
-  Int_t iDrawEta = 0;
-  Int_t iRebin = 0; //Rebin
+  Int_t zCol = 0; // 0 linear grayscale, 1 quadratic grayscale
   Double_t histoMin = -1.;
   Double_t histoMax = -1.;
   if(plot.CompareTo("x_vs_eta_vs_phi") == 0) {
@@ -313,14 +307,12 @@ void create2DPlots(TString plot) {
     abscissaName = TString("#eta");
     ordinateName = TString("#varphi");
     quotaName    = TString("x/X_{0}");
-    iRebin = 1;
     zLog = 0;
   } else if(plot.CompareTo("l_vs_eta_vs_phi") == 0) {
     plotNumber = 1030;
     abscissaName = TString("#eta");
     ordinateName = TString("#varphi");
     quotaName    = TString("x/#lambda_{0}");
-    iRebin = 1;
     zLog = 0;
   } else if(plot.CompareTo("x_vs_z_vs_Rsum") == 0) {
     plotNumber = 50;
@@ -328,7 +320,6 @@ void create2DPlots(TString plot) {
     ordinateName = TString("R [mm]");
     quotaName    = TString("#Sigmax/X_{0}");
     zLog = 0;
-    iDrawEta = 1;
     histoMin = 0.;
     histoMax = 2.;
   } else if(plot.CompareTo("x_vs_z_vs_R") == 0) {
@@ -336,28 +327,27 @@ void create2DPlots(TString plot) {
     abscissaName = TString("z [mm]");
     ordinateName = TString("R [mm]");
     quotaName    = TString("1/X_{0}");
-    iDrawEta = 1;
     zLog = 1;
+    zCol = 1;
     histoMin = 0.00001;
-    histoMax = 0.01;  
+    histoMax = 0.1;  
   } else if(plot.CompareTo("l_vs_z_vs_Rsum") == 0) {
     plotNumber = 1050;
     abscissaName = TString("z [mm]");
     ordinateName = TString("R [mm]");
     quotaName    = TString("#Sigmax/#lambda_{0}");
-    iDrawEta = 1;
     histoMin = 0.;
-    histoMax = 1.;
+    histoMax = 0.6;
     zLog = 0;
   } else if(plot.CompareTo("l_vs_z_vs_R") == 0) {
     plotNumber = 1060;
     abscissaName = TString("z [mm]");
     ordinateName = TString("R [mm]");
     quotaName    = TString("1/#lambda_{0}");
-    iDrawEta = 1;
     zLog = 1;
-    histoMin = 0.001;
-    histoMax = 0.9;
+    zCol = 1;
+    histoMin = 0.000001;
+    histoMax = 0.01;
   } else {
     cout << " error: chosen plot name not known " << plot << endl;
     return;
@@ -433,28 +423,16 @@ void create2DPlots(TString plot) {
   //
   
   // Create "null" histo
-  Double_t minX = 1.03*hist_x0_total->GetXaxis()->GetXmin();
-  Double_t maxX = 1.03*hist_x0_total->GetXaxis()->GetXmax();
-  Double_t minY = 1.03*hist_x0_total->GetYaxis()->GetXmin();
-  Double_t maxY = 1.03*hist_x0_total->GetYaxis()->GetXmax();
-
-  //  TH2F *frame = new TH2F("frame","",10,-3100.,3100.,10,-50.,1400.); 
-  TH2F *frame = new TH2F("frame","",10,minX,maxX,10,minY,maxY); 
+  TH2F *frame = new TH2F("frame","",10,-3100.,3100.,10,-50.,1400.); 
   frame->SetMinimum(0.1);
   frame->SetMaximum(10.);
   frame->GetXaxis()->SetTickLength(frame->GetXaxis()->GetTickLength()*0.50);
   frame->GetYaxis()->SetTickLength(frame->GetXaxis()->GetTickLength()/4.);
 
-  // Ratio
-  if (iRebin){
-    hist_x0_total->Rebin2D();
-  }
-
   // stack
-  TString hist2dTitle(quotaName+" "+theDetector+";"+abscissaName+";"+ordinateName+";"+quotaName);
-  
+  TString hist2dTitle = Form( "Material Budget (%s) ",quotaName.Data() ) + theDetector + Form( ";%s;%s;%s",abscissaName.Data(),ordinateName.Data(),quotaName.Data() );
   TH2D* hist2d_x0_total = hist_x0_total; //->Rebin2D(5,5);
-  //  hist2d_x0_total->SetTitle(hist2dTitle);
+  hist2d_x0_total->SetTitle(hist2dTitle);
   frame->SetTitle(hist2dTitle);
   frame->SetTitleOffset(0.5,"Y");
 
@@ -470,8 +448,6 @@ void create2DPlots(TString plot) {
   can.SetRightMargin(0.06);
   can.SetFillColor(kWhite);
   gStyle->SetOptStat(0);
-  gStyle->SetTitleFillColor(0);
-  gStyle->SetTitleBorderSize(0);
   //
   
 
@@ -483,7 +459,7 @@ void create2DPlots(TString plot) {
 
   // Draw in colors
   frame->Draw(); 
-  hist2d_x0_total->Draw("COLZsame"); //Dummy draw to create the palette object
+  hist2d_x0_total->Draw("COLZsame");
 
   // Store
   can.Update();
@@ -498,7 +474,7 @@ void create2DPlots(TString plot) {
   palette->GetAxis()->SetTickSize(.01);
   if ( zLog==1 ) {  palette->GetAxis()->SetLabelOffset(-0.01); }
   palette->GetAxis()->SetTitle("");
-  TLatex *paletteTitle = new TLatex(1.12*maxX,maxY,quotaName); 
+  TLatex *paletteTitle = new TLatex(3450.,1400.,quotaName); 
   paletteTitle->SetTextAngle(90.);
   paletteTitle->SetTextSize(0.05);
   paletteTitle->SetTextAlign(31);
@@ -510,29 +486,40 @@ void create2DPlots(TString plot) {
   hist2d_x0_total->GetYaxis()->SetNoExponent(true);
 
   //Add eta labels
-  if( iDrawEta ) drawEtaValues();
+  drawEtaValues();
 
   can.Modified();
 
-  //Color plots are not supported!
-  //  can.SaveAs( Form( "%s/%s_%s_col.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_%s_col.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_%s_col.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s_col.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s_col.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s_col.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
-  makeColorTable();  // Grayscale palette
-
-  hist2d_x0_total->SetContour(255);      
-    
+  // Grayscale palette
+  Int_t ncol = 100;
+  Int_t colors[100]; 
+  TColor *col; 
+  Double_t dg=1/(Double_t)(ncol-1);
+  Double_t gray=1.;
+  for (Int_t i=0; i<ncol; i++) {     
+    colors[i]= i+100; 
+    col = gROOT->GetColor(colors[i]);  
+    if ( zCol == 0. ) { col->SetRGB(gray, gray,gray); }
+    if ( zCol == 1. ) { col->SetRGB(gray*gray, gray*gray, gray*gray); }
+    gray = gray-dg;
+  }
+  hist2d_x0_total->SetContour(100);      
+  gStyle->SetPalette(100,colors);
+  
+  
   // Store
   can.Update();
 
   can.Modified();
 
-  //  can.SaveAs( Form( "%s/%s_%s_bw.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_%s_bw.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_%s_bw.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  can.SaveAs( Form( "%s/%s_%s_bw.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s_bw.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s_bw.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s_bw.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
   // restore properties
@@ -645,10 +632,9 @@ void createRatioPlots(TString plot) {
   
   // Store
   can.Update();
-  //  can.SaveAs( Form( "%s/%s_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  //  can.SaveAs( Form( "%s/%s_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
-  can.SaveAs( Form( "%s/%s_%s.png",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  can.SaveAs( Form( "%s/%s_%s.pdf",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
 }
@@ -707,19 +693,5 @@ void drawEtaValues(){
     t1->Draw();     
     
   }
-
-}
-
-void makeColorTable(){
-
-  const Int_t NRGBs = 2;
-  const Int_t NCont = 255;
-  Double_t stops[NRGBs] = {0.00, 1.00};
-  Double_t red[NRGBs]   = { .99, 0.00};
-  Double_t green[NRGBs] = { .99, 0.00};
-  Double_t blue[NRGBs]  = { .99, 0.00};
-
-  TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
-  gStyle->SetNumberContours(NCont);
 
 }

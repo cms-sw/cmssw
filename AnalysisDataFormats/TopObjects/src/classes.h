@@ -6,7 +6,6 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtFullHadronicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/CATopJetTagInfo.h"
-#include "DataFormats/JetReco/interface/BasicJet.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
@@ -17,18 +16,7 @@
 #include "TString.h"
 
 namespace {
-  typedef edm::Ptr<pat::MET> PtrMet;
-  typedef edm::Ptr<pat::Jet> PtrJet;
-  typedef edm::Ptr<pat::Muon> PtrMuon;
-  typedef edm::Ptr<pat::Electron> PtrElec;
   struct dictionary {
-    edm::Wrapper<std::vector<std::vector<int> > > w_v_vint;
-
-    PtrMet  p_met;
-    PtrJet  p_jet;
-    PtrMuon p_muon;
-    PtrElec p_elec;
-
     TtGenEvent ttgen;
     StGenEvent stgen;
     TopGenEvent topgen;
@@ -71,10 +59,6 @@ namespace {
     edm::Wrapper<std::vector<TtSemiEvtSolution> > w_v_ttsemi;
     edm::Wrapper<std::vector<TtHadEvtSolution> > w_v_tthad;
     edm::Wrapper<std::vector<StEvtSolution> > w_v_st;   
-
-
-    edm::reftobase::Holder<reco::Jet, reco::BasicJetRef> hbj;
-    edm::reftobase::RefHolder<reco::BasicJetRef> rhbj;
 
     reco::CATopJetProperties                                            catopjetp;
     std::pair<edm::RefToBase<reco::Jet>, reco::CATopJetProperties>      catopjetp_p;

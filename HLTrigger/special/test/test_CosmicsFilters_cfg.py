@@ -79,7 +79,7 @@ process.cosmicsNavigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESP
 
 process.hltTrackSeedMultiplicityFilter = cms.EDFilter( "HLTTrackSeedMultiplicityFilter",
    inputTag    = cms.InputTag( "hltRegionalCosmicTrackerSeeds" ),
-   saveTag     = cms.untracked.bool( False ),
+   saveTags = cms.bool( False ),
    minSeeds = cms.uint32( 1 ),
    maxSeeds = cms.uint32( 100000 )                                    
 )

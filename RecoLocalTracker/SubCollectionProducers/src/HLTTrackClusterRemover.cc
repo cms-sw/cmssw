@@ -111,10 +111,16 @@ HLTTrackClusterRemover::HLTTrackClusterRemover(const ParameterSet& iConfig):
     doPixel_(iConfig.existsAs<bool>("doPixel") ? iConfig.getParameter<bool>("doPixel") : true),
     stripClusters_(doStrip_ ? iConfig.getParameter<InputTag>("stripClusters") : InputTag("NONE")),
     pixelClusters_(doPixel_ ? iConfig.getParameter<InputTag>("pixelClusters") : InputTag("NONE")),
-    mergeOld_(iConfig.exists("oldClusterRemovalInfo")),
-    oldRemovalInfo_(mergeOld_ ? iConfig.getParameter<InputTag>("oldClusterRemovalInfo") : InputTag("NONE")),
+    mergeOld_(false),
+    oldRemovalInfo_(edm::InputTag()),
     makeProducts_(true)
 {
+
+  if (iConfig.exists("oldClusterRemovalInfo"))
+    {
+      oldRemovalInfo_=iConfig.getParameter<InputTag>("oldClusterRemovalInfo");
+      if (not (oldRemovalInfo_== edm::InputTag())) mergeOld_=true;
+    }
 
     fill(pblocks_, pblocks_+NumberOfParamBlocks, ParamBlock());
     readPSet(iConfig, "Common",-1);
@@ -333,7 +339,7 @@ HLTTrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     if (mergeOld_){
       iEvent.getByLabel(oldRemovalInfo_,oldPxlRef);
       iEvent.getByLabel(oldRemovalInfo_,oldStrRegRef);
-      edm::LogWarning("TrackClusterRemover")<<"to merge in, "<<oldStrRegRef->size()<<" strp and "<<oldPxlRef->size()<<" pxl";
+      LogDebug("TrackClusterRemover")<<"to merge in, "<<oldStrRegRef->size()<<" strp and "<<oldPxlRef->size()<<" pxl";
     }
 
     if (mergeOld_){

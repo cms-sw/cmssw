@@ -8,8 +8,8 @@
 //********** Date  : 04.03.2010 (first version) ******// 
 //***************************************************//
 ////---- energy and time of Castor RecHits 
-////---- last revision: 05.03.2010 
-
+////---- revision: 05.03.2010 (Dima Volyanskyy)
+////----- last revision 31.05.2011 (Panos Katsas)
 
 //==================================================================//
 //======================= Constructor ==============================//
@@ -150,14 +150,15 @@ void CastorChannelQualityMonitor::processEvent(const CastorRecHitCollection& cas
 
  ////---- increment here 
   ievt_++;
-  
-
 
 
  ////---------------------------------------------
  ////---- update reportSummarymap every 500 events
  ////----------------------------------------------
- if( (ievt_ == 25 || ievt_ % 500 == 0) && iRecHit ) {
+
+  // if( (ievt_ == 25 || ievt_ % 500 == 0) && iRecHit ) {
+  // no particular event selection done 
+   if( iRecHit ) {
    
    status = -99;  numOK = 0; 
 

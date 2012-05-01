@@ -29,6 +29,7 @@
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/TrajectorySeed"/>
 <use   name="DataFormats/HeavyIonEvent"/>
+<use   name="DataFormats/Luminosity"/>
 <use   name="SimDataFormats/HiGenData"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
@@ -49,5 +50,7 @@
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="RecoHI/HiEgammaAlgos"/>
+<use   name="RecoJets/JetProducers"/>
+<use   name="TrackingTools/TransientTrack"/>
 <use   name="rootcore"/>
 <flags   EDM_PLUGIN="1"/>

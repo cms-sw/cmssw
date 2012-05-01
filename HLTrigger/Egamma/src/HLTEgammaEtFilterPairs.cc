@@ -1,6 +1,6 @@
 /** \class HLTEgammaEtFilterPairs
  *
- * $Id: HLTEgammaEtFilterPairs.cc,v 1.1 2008/10/14 14:52:57 ghezzi Exp $
+ * $Id: HLTEgammaEtFilterPairs.cc,v 1.2 2009/01/27 13:57:07 ghezzi Exp $
  *
  *  \author Alessio Ghezzi
  *
@@ -26,7 +26,7 @@ HLTEgammaEtFilterPairs::HLTEgammaEtFilterPairs(const edm::ParameterSet& iConfig)
    etcutEE1_  = iConfig.getParameter<double> ("etcut1EE");
    etcutEB2_  = iConfig.getParameter<double> ("etcut2EB");
    etcutEE2_  = iConfig.getParameter<double> ("etcut2EE");
-   store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;
+   store_ = iConfig.getParameter<bool>("saveTags") ;
    relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
    L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
    L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
