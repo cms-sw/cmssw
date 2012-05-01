@@ -34,12 +34,12 @@ class RunMEtUncertainties(ConfigToolBase):
                           "NOTE: use 'L3Absolute' for MC/'L2L3Residual' for Data", Type=str)
 	self.addParameter(self._defaultParameters, 'doSmearJets', True, 
                           "Flag to enable/disable jet smearing to better match MC to Data", Type=bool)
+        self.addParameter(self._defaultParameters, 'doApplyType0corr', True, 
+                          "Flag to enable/disable usage of Type-0 MET corrections", Type=bool)
 	self.addParameter(self._defaultParameters, 'jetSmearFileName', 'PhysicsTools/PatUtils/data/pfJetResolutionMCtoDataCorrLUT.root', 
                           "Name of ROOT file containing histogram with jet smearing factors", Type=str) 
         self.addParameter(self._defaultParameters, 'jetSmearHistogram', 'pfJetResolutionMCtoDataCorrLUT', 
                           "Name of histogram with jet smearing factors", Type=str) 
-	self.addParameter(self._defaultParameters, 'doCorrType1p2MEt', False, 
-	                  "Flag to enable/disable estimation for Type 1+2 corrected MET", Type=bool)
 	self.addParameter(self._defaultParameters, 'pfCandCollection', cms.InputTag('particleFlow'), 
                           "Input PFCandidate collection", Type=cms.InputTag)	
 	self.addParameter(self._defaultParameters, 'jetCorrPayloadName', 'AK5PF', 
@@ -108,12 +108,6 @@ class RunMEtUncertainties(ConfigToolBase):
             #         --> (corr. - raw) jet contribution to MET = -1 (-10) GeV before (after) smearing,
             #             even though jet energy got smeared by merely 1 GeV
             #
-            # CV: do not apply jet smearing to jets of |eta| > 4.7,
-            #     because difference between corrected energies of reconstructed jet and generator level energies
-            #     may be unphysically large due to problem with CMSSW_4_2_x JEC factors at high eta,
-            #     cf. https://hypernews.cern.ch/HyperNews/CMS/get/jes/270.html
-            #         https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/1259/1.html
-            #                                                              
             skipJetSelection = cms.string(
                 'jecSetsAvailable & abs(energy - correctedP4("Uncorrected").energy) > (5.*min(energy, correctedP4("Uncorrected").energy))'
             ),
@@ -201,6 +195,7 @@ class RunMEtUncertainties(ConfigToolBase):
                  dRjetCleaning           = None,
                  jetCorrLabel            = None,
                  doSmearJets             = None,
+                 doApplyType0corr        = None,
                  jetSmearFileName        = None,
                  jetSmearHistogram       = None,
                  pfCandCollection        = None,
@@ -219,6 +214,8 @@ class RunMEtUncertainties(ConfigToolBase):
             dRjetCleaning = self._defaultParameters['dRjetCleaning'].value
         if doSmearJets is None:
             doSmearJets = self._defaultParameters['doSmearJets'].value
+        if doApplyType0corr is None:
+            doApplyType0corr = self._defaultParameters['doApplyType0corr'].value
         if jetSmearFileName is None:
             jetSmearFileName = self._defaultParameters['jetSmearFileName'].value
         if jetSmearHistogram is None:
@@ -241,6 +238,7 @@ class RunMEtUncertainties(ConfigToolBase):
         self.setParameter('jetCorrLabel', jetCorrLabel)
         self.setParameter('dRjetCleaning', dRjetCleaning)
         self.setParameter('doSmearJets', doSmearJets)
+        self.setParameter('doApplyType0corr', doApplyType0corr)
         self.setParameter('jetSmearFileName', jetSmearFileName)
         self.setParameter('jetSmearHistogram', jetSmearHistogram)
         self.setParameter('pfCandCollection', pfCandCollection)
@@ -260,6 +258,7 @@ class RunMEtUncertainties(ConfigToolBase):
         jetCorrLabel = self._parameters['jetCorrLabel'].value
         dRjetCleaning =  self._parameters['dRjetCleaning'].value
         doSmearJets = self._parameters['doSmearJets'].value
+        doApplyType0corr = self._parameters['doApplyType0corr'].value
         jetSmearFileName = self._parameters['jetSmearFileName'].value
         jetSmearHistogram = self._parameters['jetSmearHistogram'].value
         pfCandCollection = self._parameters['pfCandCollection'].value
@@ -269,12 +268,6 @@ class RunMEtUncertainties(ConfigToolBase):
         outputModule = self._parameters['outputModule'].value
 
         process.metUncertaintySequence = cms.Sequence()
-
-        # add kt6PFJets module with 'rho' computation enabled
-        # (needed for computing L1Fastjet corrections)
-        if not hasattr(process, 'producePatPFMETCorrections'):
-            process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
-        process.metUncertaintySequence += process.kt6PFJets
 
         collectionsToKeep = []
 
@@ -513,20 +506,14 @@ class RunMEtUncertainties(ConfigToolBase):
         process.pfCandsNotInJet.bottomCollection = pfCandCollection        
         process.selectedPatJetsForMETtype1p2Corr.src = lastJetCollection
         process.selectedPatJetsForMETtype2Corr.src = lastJetCollection
+        if not hasattr(process, 'producePatPFMETCorrections'):
+            process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
         process.metUncertaintySequence += process.producePatPFMETCorrections
         collectionsToKeep.extend([
             'patPFMet',
             'patType1CorrectedPFMet',
             'patType1p2CorrectedPFMet'])
 
-        # split jet collections into |jetEta| < 4.7 and |jetEta| > 4.7 parts
-        #
-        # NOTE: splitting of pat::Jets collections needs to be done
-        #       in order to work around problem with CMSSW_4_2_x JEC factors at high eta,
-        #       reported in
-        #         https://hypernews.cern.ch/HyperNews/CMS/get/jes/270.html
-        #         https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/1259/1.html )
-        #
         process.selectedPatJetsForMETtype1p2CorrEnUp = getattr(process, jetCollectionEnUpForCorrMEt).clone(
             src = cms.InputTag('selectedPatJetsForMETtype1p2Corr')
         )
@@ -613,11 +600,12 @@ class RunMEtUncertainties(ConfigToolBase):
             src = cms.InputTag('selectedPatJetsForMETtype2CorrEnDown')
         )
         process.metUncertaintySequence += process.patPFJetMETtype2CorrEnDown
-        
+
+        patType1correctionsJetEnUp = [ cms.InputTag('patPFJetMETtype1p2CorrEnUp', 'type1') ]
+        if doApplyType0corr:
+            patType1correctionsJetEnUp.extend([ cms.InputTag('patPFMETtype0Corr') ])        
         process.patType1p2CorrectedPFMetJetEnUp = process.patType1p2CorrectedPFMet.clone(
-            srcType1Corrections = cms.VInputTag(
-                cms.InputTag('patPFJetMETtype1p2CorrEnUp', 'type1')
-            ),
+            srcType1Corrections = cms.VInputTag(patType1correctionsJetEnUp),
             srcUnclEnergySums = cms.VInputTag(
                 cms.InputTag('patPFJetMETtype1p2CorrEnUp', 'type2' ),
                 cms.InputTag('patPFJetMETtype2CorrEnUp',   'type2' ),
@@ -627,10 +615,11 @@ class RunMEtUncertainties(ConfigToolBase):
         )
         process.metUncertaintySequence += process.patType1p2CorrectedPFMetJetEnUp
         collectionsToKeep.append('patType1p2CorrectedPFMetJetEnUp')
+        patType1correctionsJetEnDown = [ cms.InputTag('patPFJetMETtype1p2CorrEnDown', 'type1') ]
+        if doApplyType0corr:
+            patType1correctionsJetEnDown.extend([ cms.InputTag('patPFMETtype0Corr') ])  
         process.patType1p2CorrectedPFMetJetEnDown = process.patType1p2CorrectedPFMetJetEnUp.clone(
-            srcType1Corrections = cms.VInputTag(
-                cms.InputTag('patPFJetMETtype1p2CorrEnDown', 'type1')
-            ),
+            srcType1Corrections = cms.VInputTag(patType1correctionsJetEnDown),
             srcUnclEnergySums = cms.VInputTag(
                 cms.InputTag('patPFJetMETtype1p2CorrEnDown', 'type2' ),
                 cms.InputTag('patPFJetMETtype2CorrEnDown',   'type2' ),
@@ -671,10 +660,11 @@ class RunMEtUncertainties(ConfigToolBase):
             )
             process.metUncertaintySequence += process.patPFJetMETtype2CorrResDown
 
+            patType1correctionsJetResUp = [ cms.InputTag('patPFJetMETtype1p2CorrResUp', 'type1') ]
+            if doApplyType0corr:
+                patType1correctionsJetResUp.extend([ cms.InputTag('patPFMETtype0Corr') ])  
             process.patType1p2CorrectedPFMetJetResUp = process.patType1p2CorrectedPFMet.clone(
-                srcType1Corrections = cms.VInputTag(
-                    cms.InputTag('patPFJetMETtype1p2CorrResUp', 'type1')
-                ),
+                srcType1Corrections = cms.VInputTag(patType1correctionsJetResUp),
                 srcUnclEnergySums = cms.VInputTag(
                     cms.InputTag('patPFJetMETtype1p2CorrResUp', 'type2' ),
                     cms.InputTag('patPFJetMETtype2CorrResUp',   'type2' ),
@@ -684,10 +674,11 @@ class RunMEtUncertainties(ConfigToolBase):
             )
             process.metUncertaintySequence += process.patType1p2CorrectedPFMetJetResUp
             collectionsToKeep.append('patType1p2CorrectedPFMetJetResUp')
+            patType1correctionsJetResDown = [ cms.InputTag('patPFJetMETtype1p2CorrResDown', 'type1') ]
+            if doApplyType0corr:
+                patType1correctionsJetResDown.extend([ cms.InputTag('patPFMETtype0Corr') ]) 
             process.patType1p2CorrectedPFMetJetResDown = process.patType1p2CorrectedPFMetJetResUp.clone(
-                srcType1Corrections = cms.VInputTag(
-                    cms.InputTag('patPFJetMETtype1p2CorrResDown', 'type1')
-                ),
+                srcType1Corrections = cms.VInputTag(patType1correctionsJetResDown),
                 srcUnclEnergySums = cms.VInputTag(
                     cms.InputTag('patPFJetMETtype1p2CorrResDown', 'type2' ),
                     cms.InputTag('patPFJetMETtype2CorrResDown',   'type2' ),
