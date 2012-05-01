@@ -7,7 +7,7 @@
 Description: A essource/esproducer for lumi values from DIP via runtime logger DB
 */
 // read lumi from dip database and dump to express stream
-// $Id$
+// $Id: ExpressLumiProducer.cc,v 1.1 2012/04/17 14:55:18 xiezhen Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -133,7 +133,6 @@ ExpressLumiProducer::beginLuminosityBlock(edm::LuminosityBlock &iLBlock, edm::Ev
 {
   unsigned int runnumber=iLBlock.run();
   unsigned int luminum=iLBlock.luminosityBlock();
-  //std::cout<<"beg of beginLuminosityBlock "<<luminum<<std::endl;
   //if is null run, fill empty values and return
   if(m_isNullRun){
     std::auto_ptr<LumiSummary> pOut1;
@@ -189,14 +188,15 @@ ExpressLumiProducer::fillLSCache(unsigned int runnumber,unsigned int startlsnum)
   if(m_cachesize!=0){
     lsmax=lsmin+m_cachesize;
   }
+
   for(unsigned int n=lsmin;n<=lsmax;++n){
     PerLSData l;
-    l.bunchlumivalue.reserve(3564);
-    std::fill(l.bunchlumivalue.begin(),l.bunchlumivalue.end(),0.0);
-    l.bunchlumierror.reserve(3564);
-    std::fill(l.bunchlumierror.begin(),l.bunchlumierror.end(),0.0);
-    l.bunchlumiquality.reserve(3564);
-    std::fill(l.bunchlumiquality.begin(),l.bunchlumiquality.end(),0);
+    std::vector<float> mytmp(3564,0.0);
+    l.bunchlumivalue.swap(mytmp);
+    std::vector<float> myerrtmp(3564,0.0);
+    l.bunchlumierror.swap(myerrtmp);
+    std::vector<short> myqtmp(3564,0);
+    l.bunchlumiquality.swap(myqtmp);
     m_lscache.insert(std::make_pair(n,l));
   }
   try{
@@ -262,7 +262,6 @@ ExpressLumiProducer::fillLSCache(unsigned int runnumber,unsigned int startlsnum)
       lsdata.bitzerocount=bitzerocount;
       lsdata.startorbit=startorbit;
       lsdata.numorbit=262144;
-      
       ++rowcounter;
     }
     if (rowcounter==0){
@@ -275,45 +274,37 @@ ExpressLumiProducer::fillLSCache(unsigned int runnumber,unsigned int startlsnum)
     //
     //select lumisection,bunch,bunchlumi from cms_runtime_logger.bunch_lumi_sections where lumisection>=:lsmin and lumisection<:lsmax and runnumber=:runnumber;
     //
-    try{
-      session->transaction().start(true);
-      coral::ISchema& schema=session->nominalSchema();
-      coral::AttributeList lumidetailBindVariables;
-      lumidetailBindVariables.extend("lsmin",typeid(unsigned int));
-      lumidetailBindVariables.extend("runnumber",typeid(unsigned int));
-      lumidetailBindVariables["runnumber"].data<unsigned int>()=m_cachedrun;
-      lumidetailBindVariables["lsmin"].data<unsigned int>()=lsmin;
-      std::string conditionStr(" RUNNUMBER=:runnumber AND LUMISECTION>=:lsmin AND BUNCHLUMI>0 ");
-      coral::AttributeList lumidetailOutput;
-      lumidetailOutput.extend("LUMISECTION",typeid(unsigned int));
-      lumidetailOutput.extend("BUNCH",typeid(unsigned int));
-      lumidetailOutput.extend("BUNCHLUMI",typeid(float));
-      if(m_cachesize!=0){
-	lumidetailBindVariables.extend("lsmax",typeid(unsigned int));
-	conditionStr=conditionStr+"AND LUMISECTION<=:lsmax";
-	lumidetailBindVariables["lsmax"].data<unsigned int>()=lsmax;      
+    coral::AttributeList lumidetailBindVariables;
+    lumidetailBindVariables.extend("lsmin",typeid(unsigned int));
+    lumidetailBindVariables.extend("runnumber",typeid(unsigned int));
+    lumidetailBindVariables["runnumber"].data<unsigned int>()=m_cachedrun;
+    lumidetailBindVariables["lsmin"].data<unsigned int>()=lsmin;
+    std::string detailconditionStr(" RUNNUMBER=:runnumber AND LUMISECTION>=:lsmin AND BUNCHLUMI>0 ");
+    coral::AttributeList lumidetailOutput;
+    lumidetailOutput.extend("LUMISECTION",typeid(unsigned int));
+    lumidetailOutput.extend("BUNCH",typeid(unsigned int));
+    lumidetailOutput.extend("BUNCHLUMI",typeid(float));
+    if(m_cachesize!=0){
+      lumidetailBindVariables.extend("lsmax",typeid(unsigned int));
+      detailconditionStr=detailconditionStr+"AND LUMISECTION<=:lsmax";
+      lumidetailBindVariables["lsmax"].data<unsigned int>()=lsmax;      
     }
-      coral::IQuery* lumidetailQuery=schema.newQuery();
-      lumidetailQuery->addToTableList(std::string("BUNCH_LUMI_SECTIONS"));
-      lumidetailQuery->addToOutputList("LUMISECTION");
-      lumidetailQuery->addToOutputList("BUNCH");
-      lumidetailQuery->addToOutputList("BUNCHLUMI");
-      lumidetailQuery->setCondition(conditionStr,lumidetailBindVariables);
-      lumidetailQuery->defineOutput(lumidetailOutput);
-      coral::ICursor& lumidetailcursor=lumidetailQuery->execute();
-      while( lumidetailcursor.next() ){
-	const coral::AttributeList& row=lumidetailcursor.currentRow();
-	unsigned int lsnum=row["LUMISECTION"].data<unsigned int>();
-	unsigned int bxidx=row["BUNCH"].data<unsigned int>();
-	float bxlumi=row["BUNCHLUMI"].data<float>();//Hz/ub
-	m_lscache[lsnum].bunchlumivalue[bxidx]=bxlumi;
-      }
-      delete lumidetailQuery;
-    }catch(const coral::Exception& er){
-      session->transaction().rollback();
-      mydbservice->disconnect(session);
-      throw cms::Exception("DatabaseError ")<<er.what();
+    coral::IQuery* lumidetailQuery=schema.newQuery();
+    lumidetailQuery->addToTableList(std::string("BUNCH_LUMI_SECTIONS"));
+    lumidetailQuery->addToOutputList("LUMISECTION");
+    lumidetailQuery->addToOutputList("BUNCH");
+    lumidetailQuery->addToOutputList("BUNCHLUMI");
+    lumidetailQuery->setCondition(detailconditionStr,lumidetailBindVariables);
+    lumidetailQuery->defineOutput(lumidetailOutput);
+    coral::ICursor& lumidetailcursor=lumidetailQuery->execute();
+    while( lumidetailcursor.next() ){
+      const coral::AttributeList& row=lumidetailcursor.currentRow();
+      unsigned int lsnum=row["LUMISECTION"].data<unsigned int>();
+      unsigned int bxidx=row["BUNCH"].data<unsigned int>();
+      float bxlumi=row["BUNCHLUMI"].data<float>();//Hz/ub
+      m_lscache[lsnum].bunchlumivalue[bxidx]=bxlumi;
     }
+    delete lumidetailQuery;
     session->transaction().commit();
   }catch(const coral::Exception& er){
     session->transaction().rollback();
@@ -347,10 +338,7 @@ ExpressLumiProducer::writeProductsForEntry(edm::LuminosityBlock & iLBlock,unsign
   pIn1->setOrbitData(lsdata.startorbit,lsdata.numorbit);
 
   pIn2->setLumiVersion("DIP");
-  for(unsigned int i=0;i<lsdata.bunchlumivalue.size();++i){
-    pIn2->fill(LumiDetails::kDIP,lsdata.bunchlumivalue,lsdata.bunchlumierror,lsdata.bunchlumiquality);
-  }
-
+  pIn2->fill(LumiDetails::kOCC1,lsdata.bunchlumivalue,lsdata.bunchlumierror,lsdata.bunchlumiquality);
   pOut1.reset(pIn1);
   iLBlock.put(pOut1);
   pOut2.reset(pIn2);
