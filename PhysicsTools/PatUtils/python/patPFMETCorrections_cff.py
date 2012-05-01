@@ -16,21 +16,16 @@ patPFMet = patMETs.clone(
 #--------------------------------------------------------------------------------
 # select collection of pat::Jets entering Type 1 + 2 MET corrections
 #
-# NOTE: do not compute Type 1 MET corrections for |eta| > 4.7,
-#       in order to work around problem with CMSSW_4_2_x JEC factors at high eta,
-#       reported in
-#         https://hypernews.cern.ch/HyperNews/CMS/get/jes/270.html
-#         https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/1259/1.html
-#                         
+
 selectedPatJetsForMETtype1p2Corr = cms.EDFilter("PATJetSelector",
     src = cms.InputTag('patJets'),                                    
-    cut = cms.string('abs(eta) < 4.7'),
+    cut = cms.string('abs(eta) < 9.9'),
     filter = cms.bool(False)
 )
 
 selectedPatJetsForMETtype2Corr = cms.EDFilter("PATJetSelector",
     src = cms.InputTag('patJets'),                                               
-    cut = cms.string('abs(eta) > 4.7'),
+    cut = cms.string('abs(eta) > 9.9'),
     filter = cms.bool(False)
 )
 #--------------------------------------------------------------------------------
@@ -54,12 +49,27 @@ patPFJetMETtype2Corr = patPFJetMETtype1p2Corr.clone(
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
+# produce Type 0 MET corrections
+from JetMETCorrections.Type1MET.pfMETCorrectionType0_cfi import *
+patPFMETtype0Corr = pfMETcorrType0.clone(
+    correction = cms.PSet(
+        formula = cms.string("-([0] + [1]*x)*(1.0 + TMath::Erf(-[2]*TMath::Power(x, [3])))"),
+        par0 = cms.double(0.),
+        par1 = cms.double(-0.710135),
+        par2 = cms.double(0.0870503),
+        par3 = cms.double(0.621243)          
+    )
+)
+#--------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------
 # use MET corrections to produce Type 1 / Type 1 + 2 corrected PFMET objects
 patType1CorrectedPFMet = cms.EDProducer("CorrectedPATMETProducer",
     src = cms.InputTag('patPFMet'),
     applyType1Corrections = cms.bool(True),
     srcType1Corrections = cms.VInputTag(
-        cms.InputTag('patPFJetMETtype1p2Corr', 'type1')
+        cms.InputTag('patPFJetMETtype1p2Corr', 'type1'),
+        cms.InputTag('patPFMETtype0Corr')                    
     ),
     applyType2Corrections = cms.bool(False)
 )   
@@ -68,7 +78,8 @@ patType1p2CorrectedPFMet = cms.EDProducer("CorrectedPATMETProducer",
     src = cms.InputTag('patPFMet'),
     applyType1Corrections = cms.bool(True),
     srcType1Corrections = cms.VInputTag(
-        cms.InputTag('patPFJetMETtype1p2Corr', 'type1')
+        cms.InputTag('patPFJetMETtype1p2Corr', 'type1'),
+        cms.InputTag('patPFMETtype0Corr')             
     ),
     applyType2Corrections = cms.bool(True),
     srcUnclEnergySums = cms.VInputTag(
@@ -88,13 +99,13 @@ patType1p2CorrectedPFMet = cms.EDProducer("CorrectedPATMETProducer",
 # define sequence to run all modules
 producePatPFMETCorrections = cms.Sequence(
     patPFMet
-   * kt6PFJets
-   * ak5PFJets
    * pfCandsNotInJet
    * selectedPatJetsForMETtype1p2Corr
    * selectedPatJetsForMETtype2Corr 
    * patPFJetMETtype1p2Corr
    * patPFJetMETtype2Corr
+   * type0PFMEtCorrection
+   * patPFMETtype0Corr
    * pfCandMETcorr 
    * patType1CorrectedPFMet
    * patType1p2CorrectedPFMet
