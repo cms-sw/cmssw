@@ -701,8 +701,13 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	    ++badunpackerreport[binEta][rPhi-1][rDepth-1];
 	    ++baddigis[binEta][rPhi-1][rDepth-1];  
 	    
+	    // QPLL unlocking channels, have to ignore unpacker errors (fix requires opening CMS)
+	    bool HEM15A = true ? (id.subdet()==HcalEndcap && (rPhi>56 && rPhi<59 && rEta<0)) : false;
+	    bool HEM15B = true ? (id.subdet()==HcalEndcap && (rPhi>54 && rPhi<57 && rEta<0)) : false;
+	    bool HBP14A = true ? (id.subdet()==HcalBarrel && (rPhi>50 && rPhi<53 && rEta>0)) : false;
+
 	    if(excludeBadQPLLs_ && rDepth==1)
-	      if( ( id.subdet()==HcalBarrel && (rPhi>50 && rPhi<53 && rEta>0) ) || ( id.subdet()==HcalEndcap && (rPhi>54 && rPhi<57 && rEta<0)) )
+	      if( HEM15A || HEM15B || HBP14A )
 		++knownbadQPLLs;
 		
 	    uniqcounter2[binEta][rPhi-1][rDepth-1]++;
