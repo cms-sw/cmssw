@@ -1,6 +1,7 @@
 <use   name="hepmc"/>
 <use   name="FastSimulation/ParticlePropagator"/>
 <use   name="GeneratorInterface/Pythia6Interface"/>
+<use   name="GeneratorInterface/Pythia8Interface"/>
 <use   name="f77compiler"/>
 <architecture name="slc._[^_]*_gcc4[5-9]">
     <flags LDFLAGS="$(PYTHIA6_BASE)/lib/pydata.o"/>
