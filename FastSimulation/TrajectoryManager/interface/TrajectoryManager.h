@@ -36,7 +36,7 @@
 #include <vector>
 #include <map>
 
-class Pythia6Decays;
+class PythiaDecays;
 class TrackerInteractionGeometry;
 class TrackerLayer;
 class ParticlePropagator;
@@ -145,7 +145,8 @@ class TrajectoryManager
   
   MaterialEffects* theMaterialEffects;
 
-  Pythia6Decays* myDecayEngine;
+  PythiaDecays* myDecayEngine;
+  std::string decayer;
   double distCut;
 
   double pTmin;

@@ -23,7 +23,7 @@
 #include "FastSimulation/TrajectoryManager/interface/LocalMagneticField.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
-#include "FastSimulation/ParticleDecay/interface/Pythia6Decays.h"
+#include "FastSimulation/ParticleDecay/interface/PythiaDecays.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
@@ -68,14 +68,12 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
 {
   
   // Initialize Bthe stable particle decay engine 
-  if ( decays.getParameter<bool>("ActivateDecays") ) { 
-//    int seed = (int) ( 900000000. * random->flatShoot() );
-//    double comE = decays.getParameter<double>("comEnergy");
-//    myDecayEngine = new Pythia6Decays(seed,comE);
-    myDecayEngine = new Pythia6Decays();
+  if ( decays.getParameter<bool>("ActivateDecays") && ( decays.getParameter<std::string>("Decayer") == "pythia6" || decays.getParameter<std::string>("Decayer") == "pythia8" ) ) { 
+    myDecayEngine = new PythiaDecays();
+    decayer = decays.getParameter<std::string>("Decayer");
     distCut = decays.getParameter<double>("DistCut");
-  }
-   // new improvement: Muon brem effects 27-Fev-2011-S.Fonseca UERJ/Brazil
+  } else if (! ( decays.getParameter<std::string>("Decayer") == "pythia6" || decays.getParameter<std::string>("Decayer") == "pythia8" ) )
+    std::cout << "No valid decayer has been selected! No decay performed..." << std::endl;
   // Initialize the Material Effects updator, if needed
   if ( matEff.getParameter<bool>("PairProduction") || 
        matEff.getParameter<bool>("Bremsstrahlung") ||
@@ -484,8 +482,8 @@ TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi) {
     // Decays are not activated : do nothing
     if ( !myDecayEngine ) return;
     
-    // Invoke PYDECY to decay the particle and get the daughters
-    const DaughterParticleList& daughters = myDecayEngine->particleDaughters(PP);
+    // Invoke PYDECY (Pythia6) or Pythia8 to decay the particle and get the daughters
+    const DaughterParticleList& daughters = (decayer == "pythia6") ? myDecayEngine->particleDaughtersPy6(PP) : myDecayEngine->particleDaughtersPy8(PP);
     
     // Update the FSimEvent with an end vertex and with the daughters
     if ( daughters.size() ) { 
