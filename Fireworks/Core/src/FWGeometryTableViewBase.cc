@@ -542,7 +542,7 @@ void FWGeometryTableViewBase::chosenItem(int menuIdx)
             v->CurrentCamera().SetExternalCenter(true);
             v->CurrentCamera().SetCenterVec(FWGeoTopNode::s_pickedCamera3DCenter.X(), FWGeoTopNode::s_pickedCamera3DCenter.Y(), FWGeoTopNode::s_pickedCamera3DCenter.Z());
             v->SetDrawCameraCenter(true);
-            resetHome = true;
+           // resetHome = true;
             break;
          }
          default:
