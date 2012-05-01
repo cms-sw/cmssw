@@ -125,8 +125,30 @@ toymcoptutils::SinglePdfGenInfo::generate(const RooDataSet* protoData, int force
 RooDataSet *  
 toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar) 
 {
+    static int nPA = runtimedef::get("TMCSO_PseudoAsimov");
+    if (nPA) return generatePseudoAsimov(weightVar, nPA);
     return generateWithHisto(weightVar, true);
 }
+
+RooDataSet *  
+toymcoptutils::SinglePdfGenInfo::generatePseudoAsimov(RooRealVar *&weightVar, int nPoints) 
+{
+    if (mode_ == Unbinned) {
+        double expEvents = pdf_->expectedEvents(observables_);
+        std::auto_ptr<RooDataSet> data(pdf_->generate(observables_, nPoints));
+        if (weightVar == 0) weightVar = new RooRealVar("_weight_","",1.0);
+        RooArgSet obsPlusW(observables_); obsPlusW.add(*weightVar);
+        RooDataSet *rds = new RooDataSet(data->GetName(), "", obsPlusW, weightVar->GetName());
+        for (int i = 0; i < nPoints; ++i) {
+            observables_ = *data->get(i);
+            rds->add(observables_, expEvents/nPoints);
+        }
+        return rds; 
+    } else {
+        return generateWithHisto(weightVar, true);
+    }
+}
+
 
 RooDataSet *  
 toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool asimov) 
@@ -140,7 +162,7 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
     if (weightVar == 0) weightVar = new RooRealVar("_weight_","",1.0);
 
     RooCmdArg ay = (y ? RooFit::YVar(*y) : RooCmdArg::none());
-    RooCmdArg az = (z ? RooFit::YVar(*z) : RooCmdArg::none());
+    RooCmdArg az = (z ? RooFit::ZVar(*z) : RooCmdArg::none());
 
     if (histoSpec_ == 0) {
         histoSpec_ = pdf_->createHistogram("htemp", *x, ay, az); 

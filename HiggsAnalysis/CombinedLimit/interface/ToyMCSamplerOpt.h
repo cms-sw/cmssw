@@ -13,6 +13,7 @@ namespace toymcoptutils {
             ~SinglePdfGenInfo() ;
             RooAbsData *generate(const RooDataSet* protoData = NULL, int forceEvents = 0) ;
             RooDataSet *generateAsimov(RooRealVar *&weightVar) ;
+            RooDataSet *generatePseudoAsimov(RooRealVar *&weightVar, int nPoints) ;
             const RooAbsPdf * pdf() const { return pdf_; }
             void setCacheTemplates(bool cache) { keepHistoSpec_ = cache; }
         private:
