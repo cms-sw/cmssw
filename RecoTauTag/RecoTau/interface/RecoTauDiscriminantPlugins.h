@@ -14,7 +14,7 @@
  */
 
 #include "RecoTauTag/RecoTau/interface/RecoTauPluginsCommon.h"
-#include "DataFormats/TauReco/interface/PFTauFwd.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
 #include <vector>
 
 namespace reco { namespace tau {
