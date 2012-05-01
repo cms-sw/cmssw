@@ -48,11 +48,15 @@ pfMETcorrType0 = cms.EDProducer("Type0PFMETcorrInputProducer",
 )   
 #--------------------------------------------------------------------------------
 
-type0PFMEtCorrection = cms.Sequence(
+type0PFMEtCorrectionPFCandToVertexAssociation = cms.Sequence(
     selectedVerticesForPFMEtCorrType0
    * selectedPrimaryVertexHighestPtTrackSumForPFMEtCorrType0
    * particleFlowDisplacedVertex
    * trackToVertexAssociation
    * pfCandidateToVertexAssociation
+)
+
+type0PFMEtCorrection = cms.Sequence(
+    type0PFMEtCorrectionPFCandToVertexAssociation
    * pfMETcorrType0
 )
