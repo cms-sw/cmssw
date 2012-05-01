@@ -5,6 +5,7 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="DataFormats/Math"/>
+<use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/GeometryVector"/>
