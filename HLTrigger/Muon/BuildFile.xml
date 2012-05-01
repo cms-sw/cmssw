@@ -16,5 +16,9 @@
 <use   name="HLTrigger/HLTcore"/>
 <use   name="RecoMuon/MuonIsolation"/>
 <use   name="L1Trigger/CSCTrackFinder"/>
+<use   name="TrackingTools/PatternTools"/>
+<use   name="TrackingTools/TransientTrack"/>
+<use   name="MagneticField/Engine"/>
+<use   name="MagneticField/Records"/>
 <flags   EDM_PLUGIN="1"/>
 

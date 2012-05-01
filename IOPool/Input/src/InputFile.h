@@ -32,6 +32,7 @@ namespace edm {
     void eventReadFromFile(unsigned int run, unsigned int event) const;
     void reportInputRunNumber(unsigned int run) const;
     void reportInputLumiSection(unsigned int run, unsigned int lumi) const;
+    static void reportSkippedFile(std::string const& fileName, std::string const& logicalFileName);
 
     TObject* Get(char const* name) {return file_->Get(name);}
     TFileCacheRead* GetCacheRead() const {return file_->GetCacheRead();}

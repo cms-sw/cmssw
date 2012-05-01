@@ -7,6 +7,7 @@ siStripFEDMonitor.PrintDebugMessages = 0
 #lumi histogram
 siStripFEDMonitor.ErrorFractionByLumiBlockHistogramConfig.Enabled = False
 #Global/summary histograms
+siStripFEDMonitor.FedEventSizeHistogramConfig.Enabled = True
 siStripFEDMonitor.DataPresentHistogramConfig.Enabled = True
 siStripFEDMonitor.AnyFEDErrorsHistogramConfig.Enabled = True
 siStripFEDMonitor.AnyDAQProblemsHistogramConfig.Enabled = True
@@ -18,6 +19,11 @@ siStripFEDMonitor.BadActiveChannelStatusBitsHistogramConfig.Enabled = True
 siStripFEDMonitor.FEOverflowsHistogramConfig.Enabled = True
 siStripFEDMonitor.FEMissingHistogramConfig.Enabled = True
 siStripFEDMonitor.BadMajorityAddressesHistogramConfig.Enabled = True
+siStripFEDMonitor.BadMajorityInPartitionHistogramConfig.Enabled = False
+siStripFEDMonitor.FeMajFracTIBHistogramConfig.Enabled = False
+siStripFEDMonitor.FeMajFracTOBHistogramConfig.Enabled = False
+siStripFEDMonitor.FeMajFracTECBHistogramConfig.Enabled = False
+siStripFEDMonitor.FeMajFracTECFHistogramConfig.Enabled = False
 #Sub sets of DAQ problems
 siStripFEDMonitor.DataMissingHistogramConfig.Enabled = True
 siStripFEDMonitor.BadIDsHistogramConfig.Enabled = True
@@ -30,7 +36,7 @@ siStripFEDMonitor.TkHistoMapHistogramConfig.Enabled = True
 #Detailed FED level expert histograms
 siStripFEDMonitor.FEOverflowsDetailedHistogramConfig.Enabled = True
 siStripFEDMonitor.FEMissingDetailedHistogramConfig.Enabled = True
-siStripFEDMonitor.BadMajorityAddressesDetailedHistogramConfig.Enabled = True
+siStripFEDMonitor.BadMajorityAddressesDetailedHistogramConfig.Enabled = False
 siStripFEDMonitor.BadAPVStatusBitsDetailedHistogramConfig.Enabled = True
 siStripFEDMonitor.APVErrorBitsDetailedHistogramConfig.Enabled = True
 siStripFEDMonitor.APVAddressErrorBitsDetailedHistogramConfig.Enabled = True
@@ -114,8 +120,8 @@ siStripFEDMonitor.nFEDsWithFEBadMajorityAddressesHistogramConfig = cms.untracked
 siStripFEDMonitor.nUnconnectedChannelsHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(True),
   NBins = cms.untracked.uint32(250),
-  Min = cms.untracked.double(0),
-  Max = cms.untracked.double(500)
+  Min = cms.untracked.double(6000),
+  Max = cms.untracked.double(8000)
 )
 siStripFEDMonitor.nAPVStatusBitHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(False),
@@ -214,6 +220,12 @@ siStripFEDMonitor.nUnlockedvsTimeHistogramConfig = cms.untracked.PSet(
   Max = cms.untracked.double(3600)
 )
 siStripFEDMonitor.nOutOfSyncvsTimeHistogramConfig = cms.untracked.PSet(
+  Enabled = cms.untracked.bool(True),
+  NBins = cms.untracked.uint32(600),
+  Min = cms.untracked.double(0),
+  Max = cms.untracked.double(3600)
+)
+siStripFEDMonitor.FedMaxEventSizevsTimeHistogramConfig = cms.untracked.PSet(
   Enabled = cms.untracked.bool(True),
   NBins = cms.untracked.uint32(600),
   Min = cms.untracked.double(0),

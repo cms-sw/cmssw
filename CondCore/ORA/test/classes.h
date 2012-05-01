@@ -994,6 +994,10 @@ class SE {
   ora::PVector<SM> m_vec;
 };
 
+  struct dummy {
+   std::vector<std::pair<size_t,SM> > d;
+  };
+
 class SF {
 
   public:

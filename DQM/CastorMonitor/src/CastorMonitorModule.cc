@@ -11,7 +11,8 @@
 //**************************************************************//
 ////---- simple event filter which directs events to monitoring tasks: 
 ////---- access unpacked data from each event and pass them to monitoring tasks 
-////---- last revision: 06.10.2010 
+////---- revision: 06.10.2010 (Dima Volyanskyy)
+////---- last revision: 31.05.2011 (Panos Katsas)
 
 //==================================================================//
 //======================= Constructor ==============================//
@@ -42,7 +43,8 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
 
   meStatus_=0;  meRunType_=0;
   meEvtMask_=0; meFEDS_=0;
-  meLatency_=0; meQuality_=0;
+  // meLatency_=0;  // PK: eliminate - proposed change from reproducibility tests; is it needed?  
+  meQuality_=0;
   fedsListed_ = false;
 
   RecHitMon_ = NULL; 
@@ -217,7 +219,7 @@ void CastorMonitorModule::beginJob(){
     meFEDS_    = dbe_->book1D("FEDs Unpacked","FEDs Unpacked",100,660,759);
     meCASTOR_ = dbe_->bookInt("CASTORpresent");
     ////---- process latency 
-    meLatency_ = dbe_->book1D("Process Latency","Process Latency",2000,0,10);
+    //   meLatency_ = dbe_->book1D("Process Latency","Process Latency",2000,0,10); // PK: eliminate
     meQuality_ = dbe_->book1D("Quality Status","Quality Status",100,0,1);
     meStatus_->Fill(0);
     meRunType_->Fill(-1);
@@ -378,7 +380,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
   if(prescale()) return;
 
 
-  meLatency_->Fill(psTime_.elapsedTime);
+  //  meLatency_->Fill(psTime_.elapsedTime);
  
 
   int evtMask=DO_CASTOR_RECHITMON|DO_CASTOR_PED_CALIBMON; 

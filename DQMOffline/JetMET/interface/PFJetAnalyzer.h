@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFlow Jets
  *
- *  $Date: 2010/12/06 12:18:23 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/10/15 13:49:54 $
+ *  $Revision: 1.6 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -39,9 +39,6 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
   /// Inizialize parameters for histo binning
   void beginJob(DQMStore * dbe);
 
-  /// Finish up a job
-  void endJob();
-
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, const reco::PFJetCollection& pfJets);
   //
@@ -66,16 +63,11 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
 
  private:
   // ----------member data ---------------------------
+
   int   _JetLoPass;
   int   _JetHiPass;
   int   _leadJetFlag;
   double _ptThreshold;
-
-  double _asymmetryThirdJetCut;
-  double _balanceThirdJetCut;
-
-  int makedijetselection;
-
   //histo binning parameters
   int    etaBin;
   double etaMin;
@@ -150,188 +142,63 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
   MonitorElement* mPt_Barrel;
   MonitorElement* mPhi_Barrel;
 
-  MonitorElement* mCHFrac_lowPt_Barrel;
-  MonitorElement* mNHFrac_lowPt_Barrel;
-  MonitorElement* mPhFrac_lowPt_Barrel;
-  MonitorElement* mElFrac_lowPt_Barrel;
-  MonitorElement* mMuFrac_lowPt_Barrel;
-  MonitorElement* mCHFrac_mediumPt_Barrel;
-  MonitorElement* mNHFrac_mediumPt_Barrel;
-  MonitorElement* mPhFrac_mediumPt_Barrel;
-  MonitorElement* mElFrac_mediumPt_Barrel;
-  MonitorElement* mMuFrac_mediumPt_Barrel;
-  MonitorElement* mCHFrac_highPt_Barrel;
-  MonitorElement* mNHFrac_highPt_Barrel;
-  MonitorElement* mPhFrac_highPt_Barrel;
-  MonitorElement* mElFrac_highPt_Barrel;
-  MonitorElement* mMuFrac_highPt_Barrel;
-  MonitorElement* mCHEn_lowPt_Barrel;
-  MonitorElement* mNHEn_lowPt_Barrel;
-  MonitorElement* mPhEn_lowPt_Barrel;
-  MonitorElement* mElEn_lowPt_Barrel;
-  MonitorElement* mMuEn_lowPt_Barrel;
-  MonitorElement* mCHEn_mediumPt_Barrel;
-  MonitorElement* mNHEn_mediumPt_Barrel;
-  MonitorElement* mPhEn_mediumPt_Barrel;
-  MonitorElement* mElEn_mediumPt_Barrel;
-  MonitorElement* mMuEn_mediumPt_Barrel;
-  MonitorElement* mCHEn_highPt_Barrel;
-  MonitorElement* mNHEn_highPt_Barrel;
-  MonitorElement* mPhEn_highPt_Barrel;
-  MonitorElement* mElEn_highPt_Barrel;
-  MonitorElement* mMuEn_highPt_Barrel;
-  MonitorElement*   mChMultiplicity_lowPt_Barrel;
-  MonitorElement*   mNeuMultiplicity_lowPt_Barrel;
-  MonitorElement*   mMuMultiplicity_lowPt_Barrel;
-  MonitorElement*   mChMultiplicity_mediumPt_Barrel;
-  MonitorElement*   mNeuMultiplicity_mediumPt_Barrel;
-  MonitorElement*   mMuMultiplicity_mediumPt_Barrel;
-  MonitorElement*   mChMultiplicity_highPt_Barrel;
-  MonitorElement*   mNeuMultiplicity_highPt_Barrel;
-  MonitorElement*   mMuMultiplicity_highPt_Barrel;
-
-  MonitorElement*  mCHFracVSpT_Barrel;
-  MonitorElement*  mNHFracVSpT_Barrel;
-  MonitorElement*  mPhFracVSpT_Barrel;
-  MonitorElement*  mElFracVSpT_Barrel;
-  MonitorElement*  mMuFracVSpT_Barrel;
-  MonitorElement*  mCHFracVSpT_EndCap;
-  MonitorElement*  mNHFracVSpT_EndCap;
-  MonitorElement*  mPhFracVSpT_EndCap;
-  MonitorElement*  mElFracVSpT_EndCap;
-  MonitorElement*  mMuFracVSpT_EndCap;
-  MonitorElement*  mHFHFracVSpT_Forward;
-  MonitorElement*  mHFEFracVSpT_Forward;
-
-  MonitorElement*  mCHFracVSeta_lowPt;
-  MonitorElement*  mNHFracVSeta_lowPt;
-  MonitorElement*  mPhFracVSeta_lowPt;
-  MonitorElement*  mElFracVSeta_lowPt;
-  MonitorElement*  mMuFracVSeta_lowPt;
-  MonitorElement*  mCHFracVSeta_mediumPt;
-  MonitorElement*  mNHFracVSeta_mediumPt;
-  MonitorElement*  mPhFracVSeta_mediumPt;
-  MonitorElement*  mElFracVSeta_mediumPt;
-  MonitorElement*  mMuFracVSeta_mediumPt;
-  MonitorElement*  mCHFracVSeta_highPt;
-  MonitorElement*  mNHFracVSeta_highPt;
-  MonitorElement*  mPhFracVSeta_highPt;
-  MonitorElement*  mElFracVSeta_highPt;
-  MonitorElement*  mMuFracVSeta_highPt;
-
-  MonitorElement* mCHFrac_lowPt_EndCap;
-  MonitorElement* mNHFrac_lowPt_EndCap;
-  MonitorElement* mPhFrac_lowPt_EndCap;
-  MonitorElement* mElFrac_lowPt_EndCap;
-  MonitorElement* mMuFrac_lowPt_EndCap;
-  MonitorElement* mCHFrac_mediumPt_EndCap;
-  MonitorElement* mNHFrac_mediumPt_EndCap;
-  MonitorElement* mPhFrac_mediumPt_EndCap;
-  MonitorElement* mElFrac_mediumPt_EndCap;
-  MonitorElement* mMuFrac_mediumPt_EndCap;
-  MonitorElement* mCHFrac_highPt_EndCap;
-  MonitorElement* mNHFrac_highPt_EndCap;
-  MonitorElement* mPhFrac_highPt_EndCap;
-  MonitorElement* mElFrac_highPt_EndCap;
-  MonitorElement* mMuFrac_highPt_EndCap;
-
-  MonitorElement* mCHEn_lowPt_EndCap;
-  MonitorElement* mNHEn_lowPt_EndCap;
-  MonitorElement* mPhEn_lowPt_EndCap;
-  MonitorElement* mElEn_lowPt_EndCap;
-  MonitorElement* mMuEn_lowPt_EndCap;
-  MonitorElement* mCHEn_mediumPt_EndCap;
-  MonitorElement* mNHEn_mediumPt_EndCap;
-  MonitorElement* mPhEn_mediumPt_EndCap;
-  MonitorElement* mElEn_mediumPt_EndCap;
-  MonitorElement* mMuEn_mediumPt_EndCap;
-  MonitorElement* mCHEn_highPt_EndCap;
-  MonitorElement* mNHEn_highPt_EndCap;
-  MonitorElement* mPhEn_highPt_EndCap;
-  MonitorElement* mElEn_highPt_EndCap;
-  MonitorElement* mMuEn_highPt_EndCap;
-
-  MonitorElement*   mChMultiplicity_lowPt_EndCap;
-  MonitorElement*   mNeuMultiplicity_lowPt_EndCap;
-  MonitorElement*   mMuMultiplicity_lowPt_EndCap;
-  MonitorElement*   mChMultiplicity_mediumPt_EndCap;
-  MonitorElement*   mNeuMultiplicity_mediumPt_EndCap;
-  MonitorElement*   mMuMultiplicity_mediumPt_EndCap;
-  MonitorElement*   mChMultiplicity_highPt_EndCap;
-  MonitorElement*   mNeuMultiplicity_highPt_EndCap;
-  MonitorElement*   mMuMultiplicity_highPt_EndCap;
-
-
   MonitorElement* mPt_EndCap;
   MonitorElement* mPhi_EndCap;
 
   MonitorElement* mPt_Forward;
   MonitorElement* mPhi_Forward;
 
-  MonitorElement*mHFEFrac_lowPt_Forward;
-  MonitorElement*mHFHFrac_lowPt_Forward;
-  MonitorElement*mHFEFrac_mediumPt_Forward;
-  MonitorElement*mHFHFrac_mediumPt_Forward;
-  MonitorElement*mHFEFrac_highPt_Forward;
-  MonitorElement*mHFHFrac_highPt_Forward;
-  MonitorElement*mHFEEn_lowPt_Forward;
-  MonitorElement*mHFHEn_lowPt_Forward;
-  MonitorElement*mHFEEn_mediumPt_Forward;
-  MonitorElement*mHFHEn_mediumPt_Forward;
-  MonitorElement*mHFEEn_highPt_Forward;
-  MonitorElement*mHFHEn_highPt_Forward;
-  MonitorElement*   mChMultiplicity_lowPt_Forward;
-  MonitorElement*   mNeuMultiplicity_lowPt_Forward;
-  MonitorElement*   mMuMultiplicity_lowPt_Forward;
-  MonitorElement*   mChMultiplicity_mediumPt_Forward;
-  MonitorElement*   mNeuMultiplicity_mediumPt_Forward;
-  MonitorElement*   mMuMultiplicity_mediumPt_Forward;
-  MonitorElement*   mChMultiplicity_highPt_Forward;
-  MonitorElement*   mNeuMultiplicity_highPt_Forward;
-  MonitorElement*   mMuMultiplicity_highPt_Forward;
-
-  MonitorElement* mPt_Barrel_Lo;
-  MonitorElement* mPhi_Barrel_Lo;
-  MonitorElement* mConstituents_Barrel_Lo;
-  MonitorElement* mHFrac_Barrel_Lo;
-  MonitorElement* mPt_EndCap_Lo;
-  MonitorElement* mPhi_EndCap_Lo;
-  MonitorElement* mConstituents_EndCap_Lo;
-  MonitorElement* mHFrac_EndCap_Lo;
-  MonitorElement* mPt_Forward_Lo;
-  MonitorElement* mPhi_Forward_Lo;
-  MonitorElement* mConstituents_Forward_Lo;
-  MonitorElement* mHFrac_Forward_Lo;
+  MonitorElement* mConstituents_Barrel;
+  MonitorElement* mHFrac_Barrel;
+  MonitorElement* mEFrac_Barrel;
+  //removed for optimization//MonitorElement* mPt_Barrel_Lo;
+  //removed for optimization//MonitorElement* mPhi_Barrel_Lo;
+  //removed for optimization//MonitorElement* mConstituents_Barrel_Lo;
+  //removed for optimization//MonitorElement* mHFrac_Barrel_Lo;
+  MonitorElement* mConstituents_EndCap;
+  MonitorElement* mHFrac_EndCap;
+  MonitorElement* mEFrac_EndCap;
+  //removed for optimization//MonitorElement* mPt_EndCap_Lo;
+  //removed for optimization//MonitorElement* mPhi_EndCap_Lo;
+  //removed for optimization//MonitorElement* mConstituents_EndCap_Lo;
+  //removed for optimization//MonitorElement* mHFrac_EndCap_Lo;
+  MonitorElement* mConstituents_Forward;
+  MonitorElement* mHFrac_Forward;
+  MonitorElement* mEFrac_Forward;
+  //removed for optimization//MonitorElement* mPt_Forward_Lo;
+  //removed for optimization//MonitorElement* mPhi_Forward_Lo;
+  //removed for optimization//MonitorElement* mConstituents_Forward_Lo;
+  //removed for optimization//MonitorElement* mHFrac_Forward_Lo;
 
   MonitorElement* mPt_Barrel_Hi;
   MonitorElement* mPhi_Barrel_Hi;
-  MonitorElement* mConstituents_Barrel_Hi;
-  MonitorElement* mHFrac_Barrel_Hi;
+  //removed for optimization//MonitorElement* mConstituents_Barrel_Hi;
+  //removed for optimization//MonitorElement* mHFrac_Barrel_Hi;
   MonitorElement* mPt_EndCap_Hi;
   MonitorElement* mPhi_EndCap_Hi;
-  MonitorElement* mConstituents_EndCap_Hi;
-  MonitorElement* mHFrac_EndCap_Hi;
+  //removed for optimization//MonitorElement* mConstituents_EndCap_Hi;
+  //removed for optimization//MonitorElement* mHFrac_EndCap_Hi;
   MonitorElement* mPt_Forward_Hi;
   MonitorElement* mPhi_Forward_Hi;
-  MonitorElement* mConstituents_Forward_Hi;
-  MonitorElement* mHFrac_Forward_Hi;
+  //removed for optimization//MonitorElement* mConstituents_Forward_Hi;
+  //removed for optimization//MonitorElement* mHFrac_Forward_Hi;
   // ---
 
 
-  MonitorElement* mE_Barrel;
-  MonitorElement* mE_EndCap;
-  MonitorElement* mE_Forward;
+  //removed for optimizations//MonitorElement* mE_Barrel;
+  //removed for optimizations//MonitorElement* mE_EndCap;
+  //removed for optimizations//MonitorElement* mE_Forward;
 
-  MonitorElement* mE;
-  MonitorElement* mP;
-  MonitorElement* mMass;
+  //removed for optimizations//MonitorElement* mE;
+  //removed for optimizations//MonitorElement* mP;
+  //removed for optimizations//MonitorElement* mMass;
   MonitorElement* mNJets;
   MonitorElement* mDPhi;
 
   // Leading Jet Parameters
   MonitorElement* mEtaFirst;
   MonitorElement* mPhiFirst;
-  MonitorElement* mEFirst;
+  //removed for optimizations//MonitorElement* mEFirst;
   MonitorElement* mPtFirst;
 
   // Events passing the jet triggers
@@ -369,8 +236,5 @@ class PFJetAnalyzer : public PFJetAnalyzerBase {
   MonitorElement* mTightJIDPassFractionVSeta;
   MonitorElement* mTightJIDPassFractionVSpt;
 
-  //dijet analysis quantities
-  MonitorElement* mDijetBalance;
-  MonitorElement* mDijetAsymmetry;
 };
 #endif

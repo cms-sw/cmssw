@@ -39,7 +39,6 @@ namespace edm {
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
-      sigc::signal<void, ModuleDescription const&, double> newMeasurementSignal;
     private:
       void postBeginJob();
       void postEndJob();

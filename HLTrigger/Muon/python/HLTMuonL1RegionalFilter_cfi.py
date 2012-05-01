@@ -4,7 +4,7 @@ HLTMuonL1RegionalFilter = cms.EDFilter( "HLTMuonL1RegionalFilter",
     CandTag = cms.InputTag( "hltL1extraParticles" ),
     PreviousCandTag = cms.InputTag( "hltL1sL1SingleMu20" ),
     MinN = cms.int32( 1 ),
-    SaveTag = cms.untracked.bool( True ),
+    saveTags = cms.bool( True ),
     Cuts = cms.VPSet(
         cms.PSet(
             EtaRange = cms.vdouble( -2.5, -1.6 ),

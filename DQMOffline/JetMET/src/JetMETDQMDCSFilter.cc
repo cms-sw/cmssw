@@ -18,6 +18,11 @@ JetMETDQMDCSFilter::JetMETDQMDCSFilter( const edm::ParameterSet & pset ) {
    filter_        = pset.getUntrackedParameter<bool>( "Filter", true );
    detectorOn_    = false;
    if (verbose_) std::cout << "JetMETDQMDCSFilter constructor: " << detectorTypes_ << std::endl;
+
+   passPIX = false, passSiStrip = false;
+   passECAL = false, passES = false;
+   passHBHE = false, passHF = false, passHO = false;
+   passMuon = false;
 }
 //
 // -- Destructor
@@ -42,6 +47,7 @@ bool JetMETDQMDCSFilter::filter(const edm::Event & evt, const edm::EventSetup & 
       if ((*dcsStatus)[0].ready(DcsStatus::BPIX) && 
 	  (*dcsStatus)[0].ready(DcsStatus::FPIX)) {
 	if (verbose_) std::cout << "pixel on" << std::endl;
+        passPIX = true;
       } else detectorOn_ = false;
     }
 
@@ -51,6 +57,7 @@ bool JetMETDQMDCSFilter::filter(const edm::Event & evt, const edm::EventSetup & 
 	  (*dcsStatus)[0].ready(DcsStatus::TECp) &&  
 	  (*dcsStatus)[0].ready(DcsStatus::TECm)) {
 	if (verbose_) std::cout << "sistrip on" << std::endl;
+        passSiStrip = true;
       } else detectorOn_ = false;
     }
 
@@ -60,6 +67,7 @@ bool JetMETDQMDCSFilter::filter(const edm::Event & evt, const edm::EventSetup & 
 	  (*dcsStatus)[0].ready(DcsStatus::EEp) &&  
 	  (*dcsStatus)[0].ready(DcsStatus::EEm)) {
 	if (verbose_) std::cout << "ecal on" << std::endl;
+        passECAL = true;
       } else detectorOn_ = false;
     }
 
@@ -68,18 +76,21 @@ bool JetMETDQMDCSFilter::filter(const edm::Event & evt, const edm::EventSetup & 
 	  (*dcsStatus)[0].ready(DcsStatus::HBHEb) &&   
 	  (*dcsStatus)[0].ready(DcsStatus::HBHEc)){
 	if (verbose_) std::cout << "hbhe on" << std::endl;
+        passHBHE = true;
       } else detectorOn_ = false;
     }
 
     if (detectorTypes_.find("hf") !=std::string::npos){  
       if ((*dcsStatus)[0].ready(DcsStatus::HF)){
 	if (verbose_) std::cout << "hf on" << std::endl;
+        passHF = true;
       } else detectorOn_ = false;
     }
 
     if (detectorTypes_.find("ho") !=std::string::npos){  
       if ((*dcsStatus)[0].ready(DcsStatus::HO)){
 	if (verbose_) std::cout << "ho on" << std::endl;
+        passHO = true;
       } else detectorOn_ = false;
     }
 
@@ -87,6 +98,7 @@ bool JetMETDQMDCSFilter::filter(const edm::Event & evt, const edm::EventSetup & 
       if ((*dcsStatus)[0].ready(DcsStatus::ESp) &&
 	  (*dcsStatus)[0].ready(DcsStatus::ESm)) {
 	if (verbose_) std::cout << "es on" << std::endl;
+        passES = true;
       } else detectorOn_ = false;
     }
 
@@ -98,6 +110,7 @@ bool JetMETDQMDCSFilter::filter(const edm::Event & evt, const edm::EventSetup & 
 	  (*dcsStatus)[0].ready(DcsStatus::CSCp) &&  
 	  (*dcsStatus)[0].ready(DcsStatus::CSCm)) {
 	if (verbose_) std::cout << "muon on" << std::endl;
+        passMuon = true;
       } else detectorOn_ = false;
     }    
 

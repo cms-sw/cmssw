@@ -21,7 +21,7 @@ print 'reference_histogram_file = '+str(reference_histogram_file)
 input_files = []
 if read_from_file=="True":
   #--- [name of the text file (default=inputfile_list_default.txt)]
-  filename = (os.environ.get('INPUTFILES_LIST','inputfile_list_default.txt'))
+  filename = (os.environ.get('INPUTFILES_LIST','inputfiles.txt'))
   file=open(filename)
   print file.read()
   f = open(filename)
@@ -88,25 +88,6 @@ process.dqmInfoJetMET = cms.EDAnalyzer("DQMEventInfo",
 # JetMET Certification Module 
 #-----------------------------
 process.load("DQMOffline.JetMET.dataCertificationJetMET_cff")
-process.dataCertificationJetMET = cms.EDAnalyzer('DataCertificationJetMET',
-#
-#--- Always define reference root file by process.DQMStore.referenceFileName
-#    Use process.DQMStore.referenceFileName above. This should be empty.
-                              refFileName    = cms.untracked.string(""),
-#
-#--- 0: harvest EDM files, 1: read in DQM root file
-                              TestType       = cms.untracked.int32(1),
-#
-#--- When read in RECO file including EDM from ME
-#                              fileName       = cms.untracked.string("jetMETMonitoring_cruzet98154.root"),
-                              fileName       = cms.untracked.string(""),
-#
-#--- Do note save here. Save output by dqmSaver
-                              OutputFile     = cms.untracked.bool(False),
-                              OutputFileName = cms.untracked.string(""),
-#
-                              Verbose        = cms.untracked.int32(0)
-)
 
 if harvesting:
   print

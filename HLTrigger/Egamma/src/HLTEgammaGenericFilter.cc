@@ -1,6 +1,6 @@
 /** \class HLTEgammaGenericFilter
  *
- * $Id: HLTEgammaGenericFilter.cc,v 1.3 2009/09/16 09:23:20 covarell Exp $
+ * $Id: HLTEgammaGenericFilter.cc,v 1.4 2011/01/19 16:48:23 sharper Exp $
  *
  *  \author Roberto Covarelli (CERN)
  *
@@ -41,7 +41,7 @@ HLTEgammaGenericFilter::HLTEgammaGenericFilter(const edm::ParameterSet& iConfig)
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");			  
   doIsolated_ = iConfig.getParameter<bool> ("doIsolated");		  
 			     				  
-  store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;	  
+  store_ = iConfig.getParameter<bool>("saveTags") ;	  
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 	  
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
 

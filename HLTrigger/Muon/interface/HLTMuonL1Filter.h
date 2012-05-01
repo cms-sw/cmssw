@@ -89,7 +89,7 @@ class HLTMuonL1Filter : public HLTFilter {
     unsigned long long m_scalesCacheID_ ;
 
     /// should we save the input collection?
-    bool saveTag_;
+    bool saveTags_;
 };
 
 #endif //HLTMuonL1Filter_h

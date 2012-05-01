@@ -12,7 +12,7 @@ public:
 private:
 
   edm::InputTag       inputTag_;      // input tag identifying product containing pixel clusters
-  bool                saveTag_;       // whether to save this tag
+  bool                saveTags_;       // whether to save this tag
 
   double              minZ_;          // beginning z-vertex position
   double              maxZ_;          // end z-vertex position
@@ -59,7 +59,7 @@ private:
  
 HLTPixelClusterShapeFilter::HLTPixelClusterShapeFilter(const edm::ParameterSet& config) :
   inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
-  saveTag_      (config.getUntrackedParameter<bool>("saveTag", false)),
+  saveTags_      (config.getParameter<bool>("saveTags")),
   minZ_         (config.getParameter<double>("minZ")),
   maxZ_         (config.getParameter<double>("maxZ")),
   zStep_        (config.getParameter<double>("zStep")),
@@ -90,7 +90,7 @@ bool HLTPixelClusterShapeFilter::filter(edm::Event& event, const edm::EventSetup
 
   // The filter object
   std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTag_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags_) filterobject->addCollectionTag(inputTag_);
   bool accept = true;
 
   // get hold of products from Event

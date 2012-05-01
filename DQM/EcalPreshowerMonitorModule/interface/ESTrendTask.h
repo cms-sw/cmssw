@@ -47,7 +47,7 @@ class ESTrendTask: public edm::EDAnalyzer{
   void cleanup(void);
 
   // Update time check
-  void updateTime(void);
+  void updateTime(const edm::Event&);
 
   // Shift bins of TProfile to the right
   void shift2Right(TProfile* p, int bins=1);

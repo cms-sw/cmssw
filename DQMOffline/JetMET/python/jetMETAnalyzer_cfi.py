@@ -20,16 +20,30 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         andOr         = cms.bool( False ),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltDBKey       = cms.string( 'jetmet_highptjet' ),
-        hltPaths       = cms.vstring( 'HLT_Jet100U' ), 
-        andOrHlt       = cms.bool( False ),
+        hltPaths       = cms.vstring( 'HLT_Jet300_v1',
+                                      'HLT_Jet300_v2',
+                                      'HLT_Jet300_v3',
+                                      'HLT_Jet300_v4',
+                                      'HLT_Jet300_v5',
+                                      'HLT_Jet300_v6',
+                                      'HLT_Jet300_v7' ), 
+        andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
     lowPtJetTrigger = cms.PSet(
         andOr         = cms.bool( False ),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltDBKey       = cms.string( 'jetmet_lowptjet' ),
-        hltPaths       = cms.vstring( 'HLT_L1Jet6U' ), 
-        andOrHlt       = cms.bool( False ),
+        hltPaths       = cms.vstring( 'HLT_Jet80_v1',
+                                      'HLT_Jet80_v2',
+                                      'HLT_Jet80_v3',
+                                      'HLT_Jet80_v4',
+                                      'HLT_Jet80_v5',
+                                      'HLT_Jet80_v6',
+                                      'HLT_Jet80_v7',
+                                      'HLT_Jet80_v8',
+                                      'HLT_Jet80_v9' ), 
+        andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
 
@@ -192,8 +206,6 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     DijetAnalysis = cleanedJetDQMParameters.clone(
         makedijetselection = cms.int32(1),
         ptThreshold = cms.double(8.),
-        asymmetryThirdJetCut = cms.double(30),
-        balanceThirdJetCut   = cms.double(0.2),
         fillJIDPassFrac   = cms.int32(1)
     ),
 
@@ -233,14 +245,6 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     ptThreshold = cms.double(3.)
     ),
 
-    PFDijetAnalysis = cleanedJetDQMParameters.clone(
-        makedijetselection = cms.int32(1),
-        ptThreshold = cms.double(3.),
-        asymmetryThirdJetCut = cms.double(30),
-        balanceThirdJetCut   = cms.double(0.2),
-        fillpfJIDPassFrac   = cms.int32(1)
-    ),
-
     #
     # For JPT jetAnalysis
     #
@@ -268,6 +272,11 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     ),
     DCSFilterJPT = cms.PSet(
       DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
+      #DebugOn = cms.untracked.bool(True),
+      Filter = cms.untracked.bool(True)
+    ),
+    DCSFilterAll = cms.PSet(
+      DetectorTypes = cms.untracked.string("ecal:hbhe:hf:ho:pixel:sistrip:es:muon"),
       #DebugOn = cms.untracked.bool(True),
       Filter = cms.untracked.bool(True)
     )

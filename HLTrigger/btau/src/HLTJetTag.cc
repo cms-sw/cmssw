@@ -4,8 +4,8 @@
  *  tagged multi-jet trigger for b and tau. 
  *  It should be run after the normal multi-jet trigger.
  *
- *  $Date: 2008/04/22 14:58:44 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/04/23 11:57:53 $
+ *  $Revision: 1.9 $
  *
  *  \author Arnaud Gay, Ian Tomalin
  *  \maintainer Andrea Bocci
@@ -31,7 +31,7 @@ HLTJetTag::HLTJetTag(const edm::ParameterSet & config) :
   m_minTag(  config.getParameter<double>        ("MinTag") ),
   m_maxTag(  config.getParameter<double>        ("MaxTag") ),
   m_minJets( config.getParameter<int>           ("MinJets") ),
-  m_saveTag( config.getParameter<bool>          ("SaveTag") ),
+  m_saveTags( config.getParameter<bool>          ("saveTags") ),
   m_label(   config.getParameter<std::string>   ("@module_label") )
 {
 
@@ -67,7 +67,7 @@ HLTJetTag::filter(edm::Event& event, const edm::EventSetup& setup)
   event.getByLabel(m_jetTag, h_jetTag);
   const reco::JetTagCollection & jetTags = * h_jetTag;
 
-  if (m_saveTag and jetTags.size()) {
+  if (m_saveTags and jetTags.size()) {
     // find out which InputTag identifies the jets being tagged, and request it to be stored in the event
     // if there are no tagged jets, there is nothing to save
     ProductID jetsId = jetTags.begin()->first.id();

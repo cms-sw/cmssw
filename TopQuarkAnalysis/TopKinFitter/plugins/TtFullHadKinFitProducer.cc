@@ -4,25 +4,25 @@ static const unsigned int nPartons=6;
 
 /// default constructor  
 TtFullHadKinFitProducer::TtFullHadKinFitProducer(const edm::ParameterSet& cfg):
-  jets_                 (cfg.getParameter<edm::InputTag>("jets")),
-  match_                (cfg.getParameter<edm::InputTag>("match")),
-  useOnlyMatch_         (cfg.getParameter<bool>("useOnlyMatch")),
-  bTagAlgo_             (cfg.getParameter<std::string>("bTagAlgo")),
-  minBTagValueBJet_     (cfg.getParameter<double>("minBTagValueBJet")),
-  maxBTagValueNonBJet_  (cfg.getParameter<double>("maxBTagValueNonBJet")),
-  useBTagging_          (cfg.getParameter<bool>("useBTagging")),
-  bTags_                (cfg.getParameter<unsigned int>("bTags")),
-  jetCorrectionLevel_   (cfg.getParameter<std::string>("jetCorrectionLevel")),
-  maxNJets_             (cfg.getParameter<int>("maxNJets")),
-  maxNComb_             (cfg.getParameter<int>("maxNComb")),
-  maxNrIter_            (cfg.getParameter<unsigned int>("maxNrIter")),
-  maxDeltaS_            (cfg.getParameter<double>("maxDeltaS")),
-  maxF_                 (cfg.getParameter<double>("maxF")),
-  jetParam_             (cfg.getParameter<unsigned>("jetParametrisation")),
-  constraints_          (cfg.getParameter<std::vector<unsigned> >("constraints")),
-  mW_                   (cfg.getParameter<double>("mW"  )),
-  mTop_                 (cfg.getParameter<double>("mTop")),
-  resolutionSmearFactor_(cfg.getParameter<double>("resolutionSmearFactor"))
+  jets_                       (cfg.getParameter<edm::InputTag>("jets")),
+  match_                      (cfg.getParameter<edm::InputTag>("match")),
+  useOnlyMatch_               (cfg.getParameter<bool>("useOnlyMatch")),
+  bTagAlgo_                   (cfg.getParameter<std::string>("bTagAlgo")),
+  minBTagValueBJet_           (cfg.getParameter<double>("minBTagValueBJet")),
+  maxBTagValueNonBJet_        (cfg.getParameter<double>("maxBTagValueNonBJet")),
+  useBTagging_                (cfg.getParameter<bool>("useBTagging")),
+  bTags_                      (cfg.getParameter<unsigned int>("bTags")),
+  jetCorrectionLevel_         (cfg.getParameter<std::string>("jetCorrectionLevel")),
+  maxNJets_                   (cfg.getParameter<int>("maxNJets")),
+  maxNComb_                   (cfg.getParameter<int>("maxNComb")),
+  maxNrIter_                  (cfg.getParameter<unsigned int>("maxNrIter")),
+  maxDeltaS_                  (cfg.getParameter<double>("maxDeltaS")),
+  maxF_                       (cfg.getParameter<double>("maxF")),
+  jetParam_                   (cfg.getParameter<unsigned>("jetParametrisation")),
+  constraints_                (cfg.getParameter<std::vector<unsigned> >("constraints")),
+  mW_                         (cfg.getParameter<double>("mW"  )),
+  mTop_                       (cfg.getParameter<double>("mTop")),
+  energyResolutionSmearFactor_(cfg.getParameter<double>("energyResolutionSmearFactor"))
 {
   if(cfg.exists("udscResolutions") && cfg.exists("bResolutions")){
     udscResolutions_ = cfg.getParameter <std::vector<edm::ParameterSet> >("udscResolutions");
@@ -35,7 +35,7 @@ TtFullHadKinFitProducer::TtFullHadKinFitProducer(const edm::ParameterSet& cfg):
 
   // define kinematic fit interface
   kinFitter = new TtFullHadKinFitter::KinFit(useBTagging_, bTags_, bTagAlgo_, minBTagValueBJet_, maxBTagValueNonBJet_,
-					     udscResolutions_, bResolutions_, resolutionSmearFactor_ ,
+					     udscResolutions_, bResolutions_, energyResolutionSmearFactor_ ,
 					     jetCorrectionLevel_, maxNJets_, maxNComb_,
 					     maxNrIter_, maxDeltaS_, maxF_, jetParam_, constraints_, mW_, mTop_);
 

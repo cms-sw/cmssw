@@ -208,6 +208,7 @@ def getPrescalesDescription(name, out, end):
 # format the information about a path associated to a specific endpath
 def dumpPath(name, out, end):
   path = process.paths[name]
+  length = max(len(p) for p in process.paths) + 4
   
   # look for prescales
   preDesc = getPrescalesDescription(name, out, end)
@@ -218,7 +219,7 @@ def dumpPath(name, out, end):
   # look for L1 seed
   seedDesc = getL1SeedDescription(path)
 
-  return '      %s %-48s%s    %s' % (bptxDesc, name, preDesc, seedDesc)
+  return '      %s %-*s%s    %s' % (bptxDesc, length, name, preDesc, seedDesc)
 
 
 def getEndPath(output):

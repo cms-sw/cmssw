@@ -51,3 +51,6 @@ DEFINE_FWK_MODULE(RPCEfficiencySecond);
 
 #include <DQM/RPCMonitorClient/interface/RPCEfficiencyShiftHisto.h>
 DEFINE_FWK_MODULE(RPCEfficiencyShiftHisto);
+
+#include <DQM/RPCMonitorClient/interface/RPCEfficiencyPerRingLayer.h>
+DEFINE_FWK_MODULE(RPCEfficiencyPerRingLayer);

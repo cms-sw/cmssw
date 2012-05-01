@@ -33,7 +33,7 @@
 HLTExclDiJetFilter::HLTExclDiJetFilter(const edm::ParameterSet& iConfig)
 {
    inputJetTag_ = iConfig.getParameter< edm::InputTag > ("inputJetTag");
-   saveTag_     = iConfig.getUntrackedParameter<bool>("saveTag");
+   saveTags_     = iConfig.getParameter<bool>("saveTags");
    minPtJet_    = iConfig.getParameter<double> ("minPtJet"); 
    minHFe_      = iConfig.getParameter<double> ("minHFe"); 
    HF_OR_       = iConfig.getParameter<bool> ("HF_OR"); 
@@ -47,7 +47,7 @@ void
 HLTExclDiJetFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltMCJetCorJetIcone5HF07"));
-  desc.addUntracked<bool>("saveTag",false);
+  desc.add<bool>("saveTags",false);
   desc.add<double>("minPtJet",30.0);
   desc.add<double>("minHFe",50.0);
   desc.add<bool>("HF_OR",false);
@@ -67,7 +67,7 @@ HLTExclDiJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // The filter object
   auto_ptr<trigger::TriggerFilterObjectWithRefs> 
     filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTag_) filterobject->addCollectionTag(inputJetTag_);
+  if (saveTags_) filterobject->addCollectionTag(inputJetTag_);
 
   Handle<CaloJetCollection> recocalojets;
   iEvent.getByLabel(inputJetTag_,recocalojets);

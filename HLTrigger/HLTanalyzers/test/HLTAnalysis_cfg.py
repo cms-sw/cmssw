@@ -6,8 +6,8 @@ import FWCore.ParameterSet.Config as cms
 isData=1 # =1 running on real data, =0 running on MC
 
 
-OUTPUT_HIST='openhlt_SingleMu_run160406.root'
-NEVTS=-1
+OUTPUT_HIST='openhlt.root'
+NEVTS=200
 MENU="GRun" # GRun for data or MC with >= CMSSW_3_8_X
 isRelval=0 # =0 for running on MC RelVals, =0 for standard production MC, no effect for data 
 
@@ -31,18 +31,9 @@ if (isData):
 # Which AlCa condition for what. 
 
 if (isData):
-    # GLOBAL_TAG='GR09_H_V6OFF::All' # collisions 2009
-    # GLOBAL_TAG='GR10_H_V6A::All' # collisions2010 tag for CMSSW_3_6_X
-    # GLOBAL_TAG='GR10_H_V8_T2::All' # collisions2010 tag for CMSSW_3_8_X
-    # GLOBAL_TAG='GR10_H_V9::All' # collisions2010 tag for CMSSW_3_8_X, updated  
-    # GLOBAL_TAG='GR_R_311_V0::All' # Temporary tag for running in CMSSW_3_11_X
-##    GLOBAL_TAG='L1HLTST311_V0::All'
-    ## Use the same GLOBAL TAG as in the master table
-#    GLOBAL_TAG='TESTL1_GR_P::All'    
-    GLOBAL_TAG='GR_H_V15::All'
+    GLOBAL_TAG='GR_H_V20::All' # 2011 Collisions data, CMSSW_4_2_X
 else:
-    GLOBAL_TAG='START39_V8::All'
-    if (MENU == "GRun"): GLOBAL_TAG= 'START39_V8::All'
+    GLOBAL_TAG='START42_V12::All' # CMSSW_4_2_X MC, STARTUP Conditions
     
 ##################################################################
 
@@ -56,13 +47,23 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(False)
 )
 
+## For running on RAW only 
+##process.source = cms.Source("PoolSource",
+##                            fileNames = cms.untracked.vstring(
+##                                '/store/data/Run2011A/MuOnia/RAW/v1/000/165/364/1C94C2CB-9382-E011-9913-0030487CD6E8.root'
+##                                )
+##                            )
+
+## For running on RAW+RECO
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-        '/store/data/Run2011A/SingleMu/RAW/v1/000/160/406/CA9EFACF-A14D-E011-ACB9-00304879EDEA.root',
-                                        '/store/data/Run2011A/SingleMu/RAW/v1/000/160/406/34691D6B-A54D-E011-8177-0030487CF41E.root',
-                                        '/store/data/Run2011A/SingleMu/RAW/v1/000/160/406/1601C6C0-A04D-E011-A2CE-0030487CD812.root',
-                                        '/store/data/Run2011A/SingleMu/RAW/v1/000/160/406/1020951C-A34D-E011-A99F-0030487CD7B4.root'
-    )
+   fileNames = cms.untracked.vstring(
+    '/store/data/Run2011A/MuOnia/RECO/PromptReco-v4/000/165/205/86911218-C782-E011-81F3-0019B9F72CE5.root',
+    ),
+   secondaryFileNames =  cms.untracked.vstring(
+    '/store/data/Run2011A/MuOnia/RAW/v1/000/165/205/800B07D2-F680-E011-B2C3-003048F117B4.root',
+    '/store/data/Run2011A/MuOnia/RAW/v1/000/165/205/1C677B58-FA80-E011-A39D-003048F11CF0.root',
+    '/store/data/Run2011A/MuOnia/RAW/v1/000/165/205/0E702227-0281-E011-8081-000423D98950.root'
+   )
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -85,9 +86,6 @@ process.load('Configuration/StandardSequences/SimL1Emulator_cff')
 # Define the HLT reco paths
 process.load("HLTrigger.HLTanalyzers.HLTopen_cff")
 
-# Remove the PrescaleService which, in 31X, it is expected once HLT_XXX_cff is imported
-# del process.PrescaleService ## ccla no longer needed in for releases in 33x+?
-
 process.DQM = cms.Service( "DQM",)
 process.DQMStore = cms.Service( "DQMStore",)
 
@@ -101,7 +99,7 @@ process.hltanalysis.filterEff=FILTEREFF
 process.hltanalysis.l1GtReadoutRecord = cms.InputTag( 'hltGtDigis','',process.name_() ) # get gtDigis extract from the RAW
 process.hltanalysis.hltresults = cms.InputTag( 'TriggerResults','',WhichHLTProcess)
 process.hltanalysis.HLTProcessName = WhichHLTProcess
-process.hltanalysis.ht = "hltJet30Ht"
+process.hltanalysis.ht = "hltJet40Ht"
 process.hltanalysis.genmet = "genMetTrue"
 
 # Switch on ECAL alignment to be consistent with full HLT Event Setup
@@ -110,7 +108,7 @@ process.EcalEndcapGeometryEP.applyAlignment = True
 process.EcalPreshowerGeometryEP.applyAlignment = True
 
 # Add tight isolation PF taus
-process.HLTPFTauSequence += process.hltPFTausTightCone
+process.HLTPFTauSequence += process.hltPFTausTightIso
 
 if (MENU == "GRun"):
     # get the objects associated with the menu
@@ -126,7 +124,7 @@ if (MENU == "GRun"):
             process.hltanalysis.l1GtObjectMapRecord = "hltL1GtObjectMap::HLT"
             process.hltanalysis.hltresults = "TriggerResults::HLT"
                                                                                                             
-# pdt
+# pdt, if running on MC
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 # Schedule the whole thing

@@ -39,7 +39,7 @@ HLTMuonL1Filter::HLTMuonL1Filter(const edm::ParameterSet& iConfig) :
   csctfTag_( iConfig.getParameter<edm::InputTag>("CSCTFtag") ),
   l1MuTriggerScales_(0),
   m_scalesCacheID_(0),
-  saveTag_( iConfig.getUntrackedParameter<bool>("SaveTag") ) 
+  saveTags_( iConfig.getParameter<bool>("saveTags") ) 
 {
   using namespace std;
 
@@ -69,7 +69,7 @@ HLTMuonL1Filter::HLTMuonL1Filter(const edm::ParameterSet& iConfig) :
     ss<<"    MinN = "<<minN_<<endl;
     ss<<"    ExcludeSingleSegmentCSC = "<<excludeSingleSegmentCSC_<<endl;
     ss<<"    CSCTFtag = "<<csctfTag_.encode()<<endl;
-    ss<<"    SaveTag = "<<saveTag_;
+    ss<<"    saveTags= "<<saveTags_;
     LogDebug("HLTMuonL1Filter")<<ss.str();
   }
 
@@ -85,13 +85,15 @@ void
 HLTMuonL1Filter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL1extraParticles"));
-  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltL1sL1DoubleMuOpen"));
+  //  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltL1sL1DoubleMuOpen"));
+  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag(""));
   desc.add<double>("MaxEta",2.5);
   desc.add<double>("MinPt",0.0);
   desc.add<int>("MinN",1);
   desc.add<bool>("ExcludeSingleSegmentCSC",false);
-  desc.add<edm::InputTag>("CSCTFtag",edm::InputTag("unused"));
-  desc.addUntracked<bool>("SaveTag",false);
+  //  desc.add<edm::InputTag>("CSCTFtag",edm::InputTag("unused"));
+  desc.add<edm::InputTag>("CSCTFtag",edm::InputTag("csctfDigis"));
+  desc.add<bool>("saveTags",false);
   {
     std::vector<int> temp1;
     temp1.reserve(0);
@@ -169,7 +171,7 @@ bool HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup){
     filterproduct->addObject(TriggerL1Mu,muon);
   }
 
-  if(saveTag_) filterproduct->addCollectionTag(candTag_);
+  if(saveTags_) filterproduct->addCollectionTag(candTag_);
 
   // filter decision
   const bool accept(n >= minN_);

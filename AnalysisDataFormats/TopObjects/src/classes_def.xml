@@ -1,12 +1,4 @@
 <lcgdict>
-
-  <class name="edm::Wrapper<std::vector<std::vector<int> > >" />
-
-  <class name="PtrMet" />
-  <class name="PtrJet" />
-  <class name="PtrMuon" />
-  <class name="PtrElec" />
-
   <class name="TtGenEvent" />
   <class name="StGenEvent" />
   <class name="TopGenEvent" />
@@ -49,9 +41,6 @@
   <class name="edm::Wrapper<std::vector<TtSemiEvtSolution> >" />
   <class name="edm::Wrapper<std::vector<TtHadEvtSolution> >" />
   <class name="edm::Wrapper<std::vector<StEvtSolution> >" />
-
-  <class name="edm::reftobase::Holder<reco::Jet, reco::BasicJetRef>" />
-  <class name="edm::reftobase::RefHolder<reco::BasicJetRef>" />
 
   <class name="reco::CATopJetProperties"/>
   <class name="std::pair<edm::RefToBase<reco::Jet>, reco::CATopJetProperties>"/>

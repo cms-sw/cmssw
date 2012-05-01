@@ -5,7 +5,7 @@
    date of first version: Sept 2008
 
 */
-//$Id: FourVectorHLTClient.cc,v 1.24 2010/03/26 07:58:54 rekovic Exp $
+//$Id: FourVectorHLTClient.cc,v 1.25 2010/04/29 07:08:36 rekovic Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 
@@ -69,6 +69,8 @@ void FourVectorHLTClient::initialize(){
   // base folder for the contents of this job
   sourceDir_ = TString(parameters_.getUntrackedParameter<string>("hltSourceDir",""));
 
+
+
   // remove trainling "/" from dirname
   while(sourceDir_.Last('/') == sourceDir_.Length()-1) {
     sourceDir_.Remove(sourceDir_.Length()-1);
@@ -109,7 +111,6 @@ void FourVectorHLTClient::initialize(){
   pathsSummaryFilterCountsFolder_ = parameters_.getUntrackedParameter ("filterCountsFolder",std::string("HLT/FourVector/PathsSummary/Filters Counts/"));
   pathsSummaryFilterEfficiencyFolder_ = parameters_.getUntrackedParameter ("filterEfficiencyFolder",std::string("HLT/FourVector/PathsSummary/Filters Efficiencies/"));
 
-      
 }
 
 //--------------------------------------------------------
@@ -274,6 +275,7 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
  
   fullPathHLTFolders = dbe_->getSubdirs();
  
+
   LogDebug("FourVectorHLTClient")<<"endRun: sourceDir_(" << sourceDir_.Data() << ") has " << fullPathHLTFolders.size() << " folders. " << endl;
  
  
@@ -282,14 +284,26 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
     LogDebug("FourVectorHLTClient")<<"endRun: sourceDir_(" << sourceDir_.Data() << ") folder["<< i << "] = " << fullPathHLTFolders[i] << endl;
     TString hltPath = fullPathHLTFolders[i].substr(fullPathHLTFolders[i].rfind('/')+1, fullPathHLTFolders[i].size());
  
+    //*****
+    hltPath = removeVersions(hltPath);
+    //*****
+
     ///////////////////////////
     // Efficiencies
     ///////////////////////////
+
     TString currEffFolder = clientDir_ + "/" + hltPath + "/" + customEffDir_ + "/";
+
+    //*****
+    currEffFolder = removeVersions(currEffFolder);
+    //*****
+
+
     LogDebug("FourVectorHLTClient")<< "Custom Efficiencies dir path = " << currEffFolder << endl;
   
     dbe_->setCurrentFolder(currEffFolder.Data());
  
+
     hltMEs = dbe_->getContents(fullPathHLTFolders[i]);
     LogDebug("FourVectorHLTClient")<< "Number of MEs for this HLT path = " << hltMEs.size() << endl;
   
@@ -308,8 +322,11 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
   
       TString numPathName=hltPath;
       TString denPathName=TString(custompathnamepair->second);
-  
-  
+
+      numPathName = removeVersions(numPathName);
+
+
+
       vector<TString> vStage;
       vStage.push_back(TString("L1"));
       vStage.push_back(TString("On"));
@@ -472,7 +489,7 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
          // not the differeence b/w  Num and NumBck, as in OnOff vs OffOn
          oldHistPathNum    = sourceDir_+"/"+hltPath+"/"+numPathName+"_wrt_"+denPathName+"_"+vObj[k]+vStage[l]+vStage[m]; 
          oldHistPathNumBck = sourceDir_+"/"+hltPath+"/"+numPathName+"_wrt_"+denPathName+"_"+vObj[k]+vStage[m]+vStage[l]; 
- 
+
          // In the deominator hist name, we don't have any "UM" substrings, so remove them
          TString tempDenString = vStage[l];
          tempDenString.ReplaceAll("UM","") ;
@@ -545,7 +562,8 @@ void FourVectorHLTClient::endRun(const Run& r, const EventSetup& context){
          }
  
          TString newHistPath   = currEffFolder+newHistName;
-         
+	 newHistPath = removeVersions(newHistPath);
+
          LogDebug("FourVectorHLTClient")<< "Will make efficiency histogram " << newHistPath << endl;
     
          TH2F* effHist = (TH2F*) numHist->Clone(newHistName.Data());
@@ -639,6 +657,20 @@ TProfile *  FourVectorHLTClient::get1DProfile(string meName, DQMStore * dbi)
   return me_->getTProfile();
 }
 
+TString FourVectorHLTClient::removeVersions(TString histVersion) {
+  for (int ii = 1; ii < 10; ii++) {
+    string ver = "_v";
+    string version ="";
+    stringstream ss;
+    ss << ver << ii;
+    ss >> version;
+    
+    if (histVersion.Contains(version)){
+      histVersion.ReplaceAll(version,"");
+    }
+  }
+  return histVersion;
+}
 
 void FourVectorHLTClient::calculateRatio(TH1F* effHist, TH1F* denHist) {
 

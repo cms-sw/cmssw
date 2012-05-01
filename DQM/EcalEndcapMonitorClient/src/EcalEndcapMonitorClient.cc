@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2010/11/08 18:06:16 $
- * $Revision: 1.262 $
+ * $Date: 2011/06/27 08:33:16 $
+ * $Revision: 1.264 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -717,9 +717,9 @@ void EcalEndcapMonitorClient::beginJob(void) {
   if ( me ) {
     dqmStore_->removeElement(me->getName());
   }
-  me = dqmStore_->book2D(histo, histo, 200, 0., 200., 100, 0., 100);
-  for ( int jx = 1; jx <= 200; jx++ ) {
-    for ( int jy = 1; jy <= 100; jy++ ) {
+  me = dqmStore_->book2D(histo, histo, 40, 0., 200., 20, 0., 100);
+  for ( int jx = 1; jx <= 40; jx++ ) {
+    for ( int jy = 1; jy <= 20; jy++ ) {
       me->setBinContent( jx, jy, -1.0 );
     }
   }
@@ -931,8 +931,8 @@ void EcalEndcapMonitorClient::endRun(const edm::Run& r, const edm::EventSetup& c
 
     sprintf(histo, "reportSummaryMap");
     me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
-    for ( int jx = 1; jx <= 200; jx++ ) {
-      for ( int jy = 1; jy <= 100; jy++ ) {
+    for ( int jx = 1; jx <= 40; jx++ ) {
+      for ( int jy = 1; jy <= 20; jy++ ) {
         if ( me ) me->setBinContent( jx, jy, -1.0 );
       }
     }

@@ -81,14 +81,14 @@ process.HLTDoLocalStrips= cms.Sequence( process.hltSiStripRawToClustersFacility 
 
 process.hltPixelActivityFilter = cms.EDFilter( "HLTPixelActivityFilter",
    inputTag    = cms.InputTag( "hltSiPixelClusters" ),
-   saveTag     = cms.untracked.bool( False ),
+   saveTags = cms.bool( False ),
    minClusters = cms.uint32( 0 ),
    maxClusters = cms.uint32( 10 )                                    
 )
 
 process.hltTrackerHaloFilter = cms.EDFilter( "HLTTrackerHaloFilter",
    inputTag           = cms.InputTag( "hltSiStripClusters" ),
-   saveTag            = cms.untracked.bool( False ),
+   saveTags = cms.bool( False ),
    MaxClustersTECp    = cms.int32(50),
    MaxClustersTECm    = cms.int32(50),
    SignalAccumulation = cms.int32(5),

@@ -11,10 +11,12 @@ promptTrackCounting = cms.ESProducer("PromptTrackCountingESProducer",
     impactParameterType = cms.int32(0), ## 0 = 3D, 1 = 2D
 
     maximumDistanceToJetAxis = cms.double(999999.0),
-    deltaR = cms.double(-1.0), ## use cut from JTA
+    deltaR = cms.double(-1.0), ## maximum deltaR of track to jet. If -ve just use cut from JTA
+    deltaRmin = cms.double(0.0), ## minimum deltaR of track to jet.                                     
 
     maximumDecayLength = cms.double(999999.0),
-    # Warning, this cuts on absolute impact parameter significance
+    # These cuts on absolute impact parameter and its significance
+    maxImpactParameter    = cms.double(0.1),
     maxImpactParameterSig = cms.double(999999.0),
     trackQualityClass = cms.string("any"),
 

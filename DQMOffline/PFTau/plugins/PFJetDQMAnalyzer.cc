@@ -41,7 +41,7 @@ void PFJetDQMAnalyzer::beginJob() {
   Benchmark::DQM_->setCurrentFolder(path.c_str());
   edm::LogInfo("PFJetDQMAnalyzer") << " PFJetDQMAnalyzer::beginJob " << "Histogram Folder path set to "<< path;
   pfJetMonitor_.setup(pSet_);  
-
+  nBadEvents_ = 0;
 }
 //
 // -- Analyze
@@ -60,9 +60,15 @@ void PFJetDQMAnalyzer::analyze(edm::Event const& iEvent,
     pfJetMonitor_.fill( *jetCollection, *matchedJetCollection, minRes, maxRes);
     
     edm::ParameterSet skimPS = pSet_.getParameter<edm::ParameterSet>("SkimParameter");
-    if (skimPS.getParameter<bool>("switchOn")) {
-      if ( minRes < skimPS.getParameter<double>("lowerCutOffOnResolution")) storeBadEvents(iEvent,minRes);
-      else if (maxRes > skimPS.getParameter<double>("upperCutOffOnResolution")) storeBadEvents(iEvent,maxRes);
+    if ( (skimPS.getParameter<bool>("switchOn")) &&  
+         (nBadEvents_ <= skimPS.getParameter<int32_t>("maximumNumberToBeStored")) ){
+      if ( minRes < skimPS.getParameter<double>("lowerCutOffOnResolution")) {
+	storeBadEvents(iEvent,minRes);
+        nBadEvents_++;
+      } else if (maxRes > skimPS.getParameter<double>("upperCutOffOnResolution")) {
+	storeBadEvents(iEvent,maxRes);
+        nBadEvents_++;
+      }
     }
   }
 }

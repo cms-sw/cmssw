@@ -31,7 +31,7 @@ private:
   edm::InputTag muonTag_;       ///< RecoChargedCandidateCollection (muons)
   edm::InputTag trackTag_;      ///< RecoChargedCandidateCollection (tracks)
   edm::InputTag prevCandTag_;   ///< filter objects from previous filter
-  bool saveTag_;                ///< save tags in filter object collection?
+  bool saveTags_;                ///< save tags in filter object collection?
   std::vector<double> minMasses_; ///< lower mass limits
   std::vector<double> maxMasses_; ///< higher mass limits
   bool checkCharge_;            ///< check opposite charge?
@@ -42,7 +42,8 @@ private:
   double maxTrackDz_;           ///< track lip cut w.r.t. beamspot
   int minTrackHits_;            ///< # valid hits on track
   double maxTrackNormChi2_;     ///< normalized chi2 of track
-  double maxDzMuonTrack_;       ///< relative deltaZ between muon and track
+//   double maxDzMuonTrack_;       ///< relative deltaZ between muon and track
+  double max_DCAMuonTrack_;     /// DCA between the two muons
   bool cutCowboys_;             ///< if true, reject muon-track pairs that bend towards each other
 };
 

@@ -70,6 +70,8 @@ namespace {
     reco::GenJetCollection o2;
     reco::GenJetRef r2;
     reco::GenJetFwdRef fwdr2;
+    std::vector<reco::CaloJetRefVector> vrv1;    
+    edm::Wrapper<std::vector<reco::CaloJetRefVector> > wfvrv1;
     reco::GenJetFwdPtr fwdp2;
     reco::GenJetRefVector rr2;
     reco::GenJetFwdRefVector fwdrr2;

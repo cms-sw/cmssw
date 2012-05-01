@@ -26,6 +26,7 @@ namespace edm {class ParameterSet; class Event; class EventSetup;}
 class L3MuonCandidateProducer : public edm::EDProducer {
 
  public:
+  enum MuonTrackType {InnerTrack, OuterTrack, CombinedTrack};
 
   /// constructor with config
   L3MuonCandidateProducer(const edm::ParameterSet&);
@@ -35,11 +36,13 @@ class L3MuonCandidateProducer : public edm::EDProducer {
   
   /// produce candidates
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  
+
  private:
-  
   // L3/GLB Collection Label
   edm::InputTag theL3CollectionLabel; 
+  edm::InputTag theL3LinksLabel; 
+  enum MuonTrackType theType;
+  bool theUseLinks;
 };
 
 #endif

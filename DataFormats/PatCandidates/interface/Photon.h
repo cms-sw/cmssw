@@ -1,5 +1,5 @@
 //
-// $Id: Photon.h,v 1.22 2009/10/15 17:20:10 rwolf Exp $
+// $Id: Photon.h,v 1.23 2009/10/15 17:37:53 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Photon_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Photon.h,v 1.22 2009/10/15 17:20:10 rwolf Exp $
+  \version  $Id: Photon.h,v 1.23 2009/10/15 17:37:53 rwolf Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
@@ -34,6 +34,10 @@ namespace pat {
   typedef edm::RefVector<PhotonCollection> PhotonRefVector; 
 }
 
+namespace reco {
+  /// pipe operator (introduced to use pat::Photon with PFTopProjectors)
+  std::ostream& operator<<(std::ostream& out, const pat::Photon& obj);
+}
 
 // Class definition
 namespace pat {
@@ -179,6 +183,8 @@ namespace pat {
       /// Sets user-level IsoDeposit
       void userIsoDeposit(const IsoDeposit &dep, uint8_t index=0) { setIsoDeposit(IsolationKeys(UserBaseIso + index), dep); }
 
+      /// pipe operator (introduced to use pat::Photon with PFTopProjectors)
+      friend std::ostream& reco::operator<<(std::ostream& out, const pat::Photon& obj);
 
     protected:
 

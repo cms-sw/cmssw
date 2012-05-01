@@ -73,7 +73,7 @@ void RPCOccupancyTest::clientOperation(edm::EventSetup const& iSetup) {
   edm::LogVerbatim ("rpceventsummary") <<"[RPCOccupancyTest]: Client Operation";
 
    MonitorElement * RPCEvents = dbe_->get(prefixDir_ +"/RPCEvents");  
-   rpcevents_ = RPCEvents -> getIntValue(); 
+   rpcevents_ = RPCEvents ->getBinContent(1);
 
      
  //Loop on MEs
@@ -151,27 +151,30 @@ void RPCOccupancyTest::beginRun(const edm:: Run& r, const edm::EventSetup& c) {
     
     rpcUtils.labelXAxisSector(AsyMeWheel[w+2]);
     rpcUtils.labelYAxisRoll(AsyMeWheel[w+2], 0, w);
-    
-    histoName.str("");
-    histoName<<"OccupancyNormByEvents_Wheel"<<w;
-    me = 0;
-    me = dbe_->get( globalFolder_+"/"+ histoName.str());
-    if ( 0!=me  ) {
-      dbe_->removeElement(me->getName());
-    }
-    
-    NormOccupWheel[w+2] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  12, 0.5, 12.5, 21, 0.5, 21.5);
-    
-    rpcUtils.labelXAxisSector(  NormOccupWheel[w+2]);
-    rpcUtils.labelYAxisRoll(  NormOccupWheel[w+2], 0, w);
+  
     
     if(testMode_){
+  
+      histoName.str("");
+      histoName<<"OccupancyNormByEvents_Wheel"<<w;
+      me = 0;
+      me = dbe_->get( globalFolder_+"/"+ histoName.str());
+      if ( 0!=me  ) {
+	dbe_->removeElement(me->getName());
+      }
+      
+      NormOccupWheel[w+2] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  12, 0.5, 12.5, 21, 0.5, 21.5);
+      
+      rpcUtils.labelXAxisSector(  NormOccupWheel[w+2]);
+      rpcUtils.labelYAxisRoll(  NormOccupWheel[w+2], 0, w);
+      
+      
       histoName.str("");
       histoName<<"AsymmetryLeftRight_Distribution_Wheel"<<w;  
       me = 0;
       me = dbe_->get( globalFolder_+"/"+ histoName.str());
       if ( 0!=me  ) {
-	  dbe_->removeElement(me->getName());
+	dbe_->removeElement(me->getName());
       }
       AsyMeDWheel[w+2] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  20, -0.1, 1.1);
       
@@ -206,20 +209,23 @@ void RPCOccupancyTest::beginRun(const edm:: Run& r, const edm::EventSetup& c) {
     rpcUtils.labelXAxisSegment(AsyMeDisk[d+offset]);
     rpcUtils.labelYAxisRing(AsyMeDisk[d+offset], numberOfRings_);
     
-    histoName.str("");
-    histoName<<"OccupancyNormByEvents_Disk"<<d;
-    me = 0;
-    me = dbe_->get( globalFolder_+"/"+ histoName.str());
-    if ( 0!=me  ) {
-      dbe_->removeElement(me->getName());
-    }
-    
-    NormOccupDisk[d+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
-    
-    rpcUtils.labelXAxisSegment(NormOccupDisk[d+offset]);
-    rpcUtils.labelYAxisRing( NormOccupDisk[d+offset],numberOfRings_);
+   
     
     if(testMode_){
+   
+      histoName.str("");
+      histoName<<"OccupancyNormByEvents_Disk"<<d;
+      me = 0;
+      me = dbe_->get( globalFolder_+"/"+ histoName.str());
+      if ( 0!=me  ) {
+	dbe_->removeElement(me->getName());
+      }
+      
+      NormOccupDisk[d+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
+      
+      rpcUtils.labelXAxisSegment(NormOccupDisk[d+offset]);
+      rpcUtils.labelYAxisRing( NormOccupDisk[d+offset],numberOfRings_);
+      
       histoName.str("");
       histoName<<"AsymmetryLeftRight_Distribution_Disk"<<d;      
       me = 0;
@@ -256,8 +262,8 @@ if (!myMe) return;
        
     if(detId.region() ==0){
       AsyMe= AsyMeWheel[detId.ring()+2];
-      NormOccup=NormOccupWheel[detId.ring()+2];
       if(testMode_){
+	NormOccup=NormOccupWheel[detId.ring()+2];
 	AsyMeD= AsyMeDWheel[detId.ring()+2];
 	NormOccupD=NormOccupDWheel[detId.ring()+2];
       }
@@ -268,16 +274,16 @@ if (!myMe) return;
 	
 	if(detId.region()<0){
 	  AsyMe= AsyMeDisk[-detId.station()  + numberOfDisks_];
-	  AsyMeD= AsyMeDDisk[-detId.station() + numberOfDisks_];
 	  if(testMode_){
 	    NormOccup=NormOccupDisk[-detId.station() + numberOfDisks_];
+	    AsyMeD= AsyMeDDisk[-detId.station() + numberOfDisks_];	  
 	    NormOccupD=NormOccupDDisk[-detId.station() + numberOfDisks_];
 	  }
 	}else{
 	  AsyMe= AsyMeDisk[detId.station() + numberOfDisks_-1];
-	  AsyMeD= AsyMeDDisk[detId.station() + numberOfDisks_-1];
 	  if(testMode_){
 	    NormOccup=NormOccupDisk[detId.station() + numberOfDisks_-1];
+	    AsyMeD= AsyMeDDisk[detId.station() + numberOfDisks_-1];
 	    NormOccupD=NormOccupDDisk[detId.station() + numberOfDisks_-1];
 	  }
 	}
@@ -312,21 +318,20 @@ if (!myMe) return;
     float asym = 0;
     if(totEnt != 0 ) asym =  fabs((FOccupancy - BOccupancy )/totEnt);
     
-    if(AsyMe)  AsyMe->setBinContent(xBin,yBin,asym );
+    if(AsyMe)  AsyMe->setBinContent(xBin,yBin,asym);
 
 
 	
-    float normoccup = 0;
-    if(rpcevents_ !=0)
-      normoccup = (totEnt/rpcevents_);
-    if(NormOccup)  NormOccup->setBinContent(xBin,yBin, normoccup);
-
+    float normoccup = 1;
+    if(rpcevents_ != 0) normoccup = (totEnt/rpcevents_);
+   
     if(testMode_){
+      if(NormOccup)  NormOccup->setBinContent(xBin,yBin, normoccup);
       if(AsyMeD) AsyMeD->Fill(asym);
       if(NormOccupD) NormOccupD->Fill(normoccup);
-    }
-    
-    
+    }    
+   
+
     if(detId.region()==0) {
       if(Barrel_OccBySt)Barrel_OccBySt -> Fill(detId.station(), normoccup);
     }else if(detId.region()==1) {

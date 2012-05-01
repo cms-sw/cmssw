@@ -60,7 +60,12 @@ kinFitTtSemiLepEvent = cms.EDProducer("TtSemiLepKinFitProducerElectron",
     # set mass values used in the constraints
     # ------------------------------------------------    
     mW   = cms.double(80.4),
-    mTop = cms.double(173.)                                      
+    mTop = cms.double(173.),
+                                      
+    # ------------------------------------------------
+    # set correction factor for the jet resolution
+    # ------------------------------------------------                                     
+    jetEnergyResolutionSmearFactor = cms.double(1.0)                                 
 )
 
 

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:56:17 EST 2008
-// $Id: FWViewManagerBase.cc,v 1.14 2010/04/08 19:45:25 amraktad Exp $
+// $Id: FWViewManagerBase.cc,v 1.15 2010/06/18 10:17:16 yana Exp $
 //
 
 // system include files
@@ -154,7 +154,3 @@ FWViewManagerBase::colorManager() const
    return *m_colorManager;
 }
 
-
-//
-// static member functions
-//

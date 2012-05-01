@@ -1,5 +1,4 @@
 <use   name="hepmc"/>
-<use   name="pythia6"/>
 <use   name="FastSimulation/ParticlePropagator"/>
 <use   name="GeneratorInterface/Pythia6Interface"/>
 <use   name="f77compiler"/>

@@ -14,6 +14,7 @@ class JetMETDQMDCSFilter {
   JetMETDQMDCSFilter( const edm::ParameterSet & );
   ~JetMETDQMDCSFilter();
   bool filter(const edm::Event& evt, const edm::EventSetup& es);
+  bool passPIX, passSiStrip, passECAL, passHBHE, passHF, passHO, passES, passMuon;
 
   private:
   bool verbose_;

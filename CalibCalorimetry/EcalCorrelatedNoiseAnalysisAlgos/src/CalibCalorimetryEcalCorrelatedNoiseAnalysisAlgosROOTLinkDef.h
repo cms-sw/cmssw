@@ -1,6 +1,5 @@
 #include "TString.h"
 
-#include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaObject.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParEcal.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNumbering.h"
 
@@ -26,8 +25,6 @@
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
-
-#pragma link C++ class TEcnaObject+;
 
 #pragma link C++ class TEcnaParEcal+;
 #pragma link C++ class TEcnaNumbering+;

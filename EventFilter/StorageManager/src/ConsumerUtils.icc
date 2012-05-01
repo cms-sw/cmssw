@@ -1,4 +1,4 @@
-// $Id: ConsumerUtils.icc,v 1.1.2.14 2011/03/08 18:34:11 mommsen Exp $
+// $Id: ConsumerUtils.icc,v 1.3 2011/03/08 18:49:04 mommsen Exp $
 /// @file: ConsumerUtils.icc
 
 #include "EventFilter/StorageManager/interface/ConsumerID.h"
@@ -594,6 +594,16 @@ namespace stor
   {
     writeHTTPHeaders( out );
 
+    #ifdef STOR_DEBUG_CORRUPTED_EVENT_HEADER
+    double r = rand()/static_cast<double>(RAND_MAX);
+    if (r < 0.1)
+    {
+      std::cout << "Simulating corrupted event header" << std::endl;
+      EventHeader* h = (EventHeader*)evt.dataLocation(0);
+      h->protocolVersion_ = 1;
+    }
+    #endif // STOR_DEBUG_CORRUPTED_EVENT_HEADER
+
     const unsigned int nfrags = evt.fragmentCount();
     for ( unsigned int i = 0; i < nfrags; ++i )
     {
@@ -621,7 +631,17 @@ namespace stor
   writeDQMConsumerEvent(xgi::Output* out, const DQMEventMsgView& view) const
   {
     writeHTTPHeaders( out );
-    
+
+    #ifdef STOR_DEBUG_CORRUPTED_DQMEVENT_HEADER
+    double r = rand()/static_cast<double>(RAND_MAX);
+    if (r < 0.5)
+    {
+      std::cout << "Simulating corrupted DQM event header" << std::endl;
+      EventHeader* h = (EventHeader*)view.startAddress();
+      h->protocolVersion_ = 1;
+    }
+    #endif // STOR_DEBUG_CORRUPTED_DQMEVENT_HEADER
+
     const unsigned int len = view.size();
     unsigned char* location = view.startAddress();
     out->write( (char*)location, len );

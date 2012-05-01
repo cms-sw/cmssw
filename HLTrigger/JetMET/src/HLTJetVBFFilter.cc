@@ -1,6 +1,6 @@
 /** \class HLTJetVBFFilter
  *
- * $Id: HLTJetVBFFilter.cc,v 1.6 2011/02/09 06:38:58 gruen Exp $
+ * $Id: HLTJetVBFFilter.cc,v 1.10 2011/05/01 08:40:25 gruen Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -26,12 +26,13 @@
 HLTJetVBFFilter::HLTJetVBFFilter(const edm::ParameterSet& iConfig)
 {
    inputTag_    = iConfig.getParameter< edm::InputTag > ("inputTag");
-   saveTag_     = iConfig.getUntrackedParameter<bool>("saveTag",false);
+   saveTags_     = iConfig.getParameter<bool>("saveTags");
    minEtLow_    = iConfig.getParameter<double> ("minEtLow");
    minEtHigh_   = iConfig.getParameter<double> ("minEtHigh");
    etaOpposite_ = iConfig.getParameter<bool>   ("etaOpposite"); 
    minDeltaEta_ = iConfig.getParameter<double> ("minDeltaEta"); 
    minInvMass_  = iConfig.getParameter<double> ("minInvMass"); 
+   maxEta_      = iConfig.getParameter<double> ("maxEta"); 
 
    //register your products
    produces<trigger::TriggerFilterObjectWithRefs>();
@@ -48,7 +49,7 @@ HLTJetVBFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // The filter object
   std::auto_ptr<trigger::TriggerFilterObjectWithRefs> 
     filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTag_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags_) filterobject->addCollectionTag(inputTag_);
 
   edm::Handle<reco::CaloJetCollection> recocalojets;
   iEvent.getByLabel(inputTag_,recocalojets);
@@ -79,11 +80,13 @@ HLTJetVBFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
          recocalojet1 != recocalojets->end(); ++recocalojet1) {
       
       if( recocalojet1->et() < minEtHigh_ ) break;
+      if( maxEta_>=0.0 && std::abs(recocalojet1->eta())>maxEta_ ) break;
       
       for (reco::CaloJetCollection::const_iterator recocalojet2 = recocalojet1+1; 
            recocalojet2 != recocalojets->end(); ++recocalojet2) {
         
         if( recocalojet2->et() < minEtLow_ ) break;
+	if( maxEta_>=0.0 && std::abs(recocalojet2->eta())>maxEta_ ) break;
         
         ejet1 = recocalojet1->energy();
         pxjet1 = recocalojet1->px();

@@ -6,6 +6,10 @@
 #include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
 #include "HLTrigger/HLTfilters/interface/HLT1CaloJetEnergy.h"
 
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -29,8 +33,7 @@ using namespace trigger;
 #include "HLTrigger/HLTfilters/interface/HLTSinglet.h"
 #include "HLTrigger/HLTfilters/src/HLTSinglet.cc"
 
-// template HLTSinglet<reco::Electron>             ;
-
+// filter for HLT candidates
 typedef HLTSinglet<RecoEcalCandidate  ,TriggerPhoton> HLT1Photon   ;
 typedef HLTSinglet<Electron         ,TriggerElectron> HLT1Electron ;
 typedef HLTSinglet<RecoChargedCandidate ,TriggerMuon> HLT1Muon     ;
@@ -43,11 +46,14 @@ typedef HLTSinglet<MET                   ,TriggerMET> HLT1MET      ;
 typedef HLTSinglet<RecoChargedCandidate,TriggerTrack> HLT1Track    ;
 typedef HLTSinglet<RecoEcalCandidate, TriggerCluster> HLT1Cluster  ;
 
+// filters for L1 candidates
+typedef HLTSinglet<l1extra::L1EmParticle,    TriggerL1NoIsoEG> HLTLevel1EG;     // the actual type is ovrridden object-by-object (TriggerL1IsoEG or TriggerL1NoIsoEG)
+typedef HLTSinglet<l1extra::L1EtMissParticle,    TriggerL1ETM> HLTLevel1MET;    // the actual type is ovrridden object-by-object (TriggerL1ETM or TriggerL1HTM)
+typedef HLTSinglet<l1extra::L1JetParticle,         TriggerJet> HLTLevel1Jet;    // the actual type is ovrridden object-by-object (TriggerL1CenJet, TriggerL1ForJet or TriggerL1TauJet)
+typedef HLTSinglet<l1extra::L1MuonParticle,       TriggerMuon> HLTLevel1Muon;   
 
 #include "HLTrigger/HLTfilters/interface/HLTSmartSinglet.h"
 #include "HLTrigger/HLTfilters/src/HLTSmartSinglet.cc"
-
-// template HLTSmartSinglet<reco::Electron>             ;
 
 typedef HLTSmartSinglet<RecoEcalCandidate  ,TriggerPhoton> HLT1SmartPhoton   ;
 typedef HLTSmartSinglet<Electron         ,TriggerElectron> HLT1SmartElectron ;
@@ -65,11 +71,9 @@ typedef HLTSmartSinglet<RecoEcalCandidate ,TriggerCluster> HLT1SmartCluster  ;
 #include "HLTrigger/HLTfilters/interface/HLTGlobalSums.h"
 #include "HLTrigger/HLTfilters/src/HLTGlobalSums.cc"
 
-//
 typedef HLTGlobalSums<CaloMET,TriggerTET> HLTGlobalSumsCaloMET;
 typedef HLTGlobalSums<MET    ,TriggerTHT> HLTGlobalSumsMET    ;
 
-//
 
 #include "HLTrigger/HLTfilters/interface/HLTDoublet.h"
 #include "HLTrigger/HLTfilters/src/HLTDoublet.cc"
@@ -100,6 +104,11 @@ DEFINE_FWK_MODULE(HLT1MET);
 DEFINE_FWK_MODULE(HLT1Track);
 DEFINE_FWK_MODULE(HLT1Cluster);
 DEFINE_FWK_MODULE(HLT1CaloJetEnergy);
+
+DEFINE_FWK_MODULE(HLTLevel1EG);
+DEFINE_FWK_MODULE(HLTLevel1MET);
+DEFINE_FWK_MODULE(HLTLevel1Jet);
+DEFINE_FWK_MODULE(HLTLevel1Muon);
 
 DEFINE_FWK_MODULE(HLT1SmartElectron);
 DEFINE_FWK_MODULE(HLT1SmartPhoton);
