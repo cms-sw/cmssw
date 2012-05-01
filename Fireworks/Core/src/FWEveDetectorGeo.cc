@@ -123,9 +123,9 @@ void FWEveDetectorGeo::paintShape(bool visLevel, FWGeometryTableManagerBase::Nod
    // check leaf node 
    
    
-   bool leafNode = true;
+   bool leafNode = (data.m_node->GetNdaughters() == 0);
    if (visLevel) {
-      leafNode = !(data.m_level < m_maxLevel);
+      if (!leafNode) leafNode = (data.m_level == m_maxLevel);
    }
    
    if (leafNode) {
