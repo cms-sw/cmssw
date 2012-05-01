@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:34 CET 2012
-// $Id: FWGeometryTableView.cc,v 1.29 2012/04/29 19:29:00 amraktad Exp $
+// $Id: FWGeometryTableView.cc,v 1.30 2012/04/30 19:59:37 amraktad Exp $
 //
 
 // system include files
@@ -144,8 +144,8 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
      m_filterByName(this,"FilterByName", true),
      m_visLevelFilter(this,"IgnoreVisLevelOnFilter", true),
      m_selectRegion(this, "SelectNearCameraCenter", false),
-     m_regionRadius(this, "SphereRadius", 50.0, 1.0, 300.0),
-     m_proximityAlgo(this, "Proximity algorithm", 0l, 0l, 1l),
+     m_regionRadius(this, "SphereRadius", 10.0, 1.0, 300.0),
+     m_proximityAlgo(this, "Proximity algorithm", 1l, 0l, 1l),
      m_parentTransparencyFactor(this, "ParentTransparencyFactor", 1l, 0l, 100l),
      m_leafTransparencyFactor(this, "LeafTransparencyFactor", 1l, 0l, 100l),
      m_minParentTransparency(this, "MinParentTransparency", 90l, 0l, 100l),
