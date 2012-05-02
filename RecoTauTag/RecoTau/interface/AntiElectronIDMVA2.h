@@ -122,7 +122,7 @@ class AntiElectronIDMVA2
     Float_t GammadPhi_;
     Float_t GammadPt_;
 
-    Float_t Tau_AbsEta_;
+    Float_t Tau_Eta_;
     Float_t Tau_Pt_;
     Float_t Tau_HasGsf_; 
     Float_t Tau_EmFraction_; 
