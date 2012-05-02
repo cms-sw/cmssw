@@ -423,6 +423,12 @@ HLT_Mu24_eta2p1_v*                                                              
 HLT_Mu15_eta2p1_v*                                                                              #sr126489
 HLT_IsoMu20_eta2p1_v*                                                                           #sr126489, 126618
 
+HLT_Mu24_v*											#sr128207
+HLT_Mu30_v*											#sr128207
+HLT_Mu40_v*											#sr128207
+HLT_IsoMu24_v*											#sr128207
+HLT_IsoMu30_v*											#sr128207
+
 #HLT_DiCentralJet20_BTagIP_MET65_v*                                                             #sr126490 - later dropped in 127238
 #HLT_DiCentralJet20_BTagIP_MET65_HBHENoiseFiltered_dPhi1_v*					#sr127238
 #HLT_DiCentralJet20_BTagIP_MET65_HBHENoiseCleaned_dPhi1_v*					#(renamed)- later dropped in 128167
