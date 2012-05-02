@@ -9,32 +9,104 @@
 #include "FastSimulation/ParticleDecay/interface/PythiaDecays.h"
 #include "FastSimulation/ParticleDecay/interface/Pythia6jets.h"
 
+
+// Needed for Pythia6 
 #define PYTHIA6PYDECY pythia6pydecy_
 
 extern "C" {
   void PYTHIA6PYDECY(int *ip);
 }
 
-PythiaDecays::PythiaDecays()
+PythiaDecays::PythiaDecays(std::string program)
 {
-  // Create a new Pythia6jets
-  pyjets = new Pythia6jets();
-  // Create a new Pythia6Service helper
-  pyservice = new gen::Pythia6Service();
-  // The PYTHIA decay tables will be initialized later 
+  program_=program;
+  if (program_ == "pythia6") {
+    //// Pythia6:
+    pyjets = new Pythia6jets();
+    pyservice = new gen::Pythia6Service();
+    // The PYTHIA decay tables will be initialized later 
+  } else if (program_ == "pythia8") {
+    //// Pythia8:
+    pythia.reset(new Pythia8::Pythia);
+    decayer.reset(new Pythia8::Pythia);
+
+    /*
+      RandomP8* RP8 = new RandomP8();
+      pythia->setRndmEnginePtr(RP8);
+      decayer->setRndmEnginePtr(RP8);
+      
+      if I uncomment this part, I get:
+      
+      >> Building shared library tmp/slc5_amd64_gcc462/src/FastSimulation/ParticleDecay/src/FastSimulationParticleDecay/libFastSimulationParticleDecay.so
+      /afs/cern.ch/cms/slc5_amd64_gcc462/external/gcc/4.6.2/bin/../lib/gcc/x86_64-unknown-linux-gnu/4.6.2/../../../../x86_64-unknown-linux-gnu/bin/ld: tmp/slc5_amd64_gcc462/src/FastSimulation/ParticleDecay/src/FastSimulationParticleDecay/PythiaDecays.o: in function PythiaDecays::PythiaDecays():PythiaDecays.cc(.text+0x2ac): error: undefined reference to 'vtable for RandomP8'
+    */
+  } else {
+    std::cout << "WARNING: you are requesting an option which is not available in PythiaDecays::PythiaDecays " << std::endl;
+  }
+
 }
 
 PythiaDecays::~PythiaDecays() {
-  delete pyjets;
-  delete pyservice;
+  if (program_ == "pythia6") {
+    delete pyjets;
+    delete pyservice;
+  }
 }
 
 const DaughterParticleList&
 PythiaDecays::particleDaughtersPy8(ParticlePropagator& particle)
 {
-  //placeholder
-  std::cout << "PythiaDecays::particleDaughtersPy8" << std::endl;
+
   theList.clear();
+
+  /*
+  std::cout << "###" << std::endl;
+  std::cout << "particle.PDGname() == " << particle.PDGname() << std::endl; 
+  std::cout << "particle.status() == " << particle.status() << std::endl;
+  std::cout << "particle.pid() == " << particle.pid() << std::endl;
+  std::cout << "particle.momentum().x() == " << particle.momentum().x() << std::endl;
+  std::cout << "particle.Px() == " << particle.Px() << std::endl;
+  std::cout << "particle.X() == " << particle.X() << std::endl;
+  std::cout << "particle.mass() == " << particle.mass() << std::endl;
+  std::cout << "particle.PDGmass() == " << particle.PDGmass() << std::endl;
+  std::cout << "particle.PDGcTau() == " << particle.PDGcTau() << std::endl;
+  std::cout << "(decayer->particleData).tau0( particle.pid() ) == " << (decayer->particleData).tau0( particle.pid() ) << std::endl;
+  */
+
+  // inspired by method Pythia8Hadronizer::residualDecay() in GeneratorInterface/Pythia8Interface/src/Pythia8Hadronizer.cc
+  decayer->event.reset();
+  Pythia8::Particle py8part(  particle.pid(), 93, 0, 0, 0, 0, 0, 0,
+		     particle.momentum().x(), // note: momentum().x() and Px() are the same
+		     particle.momentum().y(),
+		     particle.momentum().z(),
+		     particle.momentum().t(),
+		     particle.mass() );
+  py8part.vProd( particle.X(), particle.Y(), 
+		 particle.Z(), particle.T() );
+  py8part.tau( (decayer->particleData).tau0( particle.pid() ) );
+  decayer->event.append( py8part );
+
+  int nentries = decayer->event.size();
+  if ( !decayer->event[nentries-1].mayDecay() ) return theList;
+  decayer->next();
+  int nentries1 = decayer->event.size();
+  if ( nentries1 <= nentries ) return theList; //same number of particles, no decays...
+  Pythia8::Particle& py8daughter = decayer->event[nentries]; // the 1st daughter // DO I NEED THIS LINE?
+
+  theList.resize(nentries,RawParticle());
+
+  for ( int ipart=nentries+1; ipart<nentries1; ipart++ )
+    {
+      py8daughter = decayer->event[ipart];
+      theList[ipart-nentries-1].SetXYZT( py8daughter.px(), py8daughter.py(), py8daughter.pz(), py8daughter.e() );
+      theList[ipart-nentries-1].setVertex( py8daughter.xProd(),
+					   py8daughter.yProd(),
+					   py8daughter.zProd(),
+					   py8daughter.tProd() );
+      theList[ipart-nentries-1].setID( py8daughter.id() );
+      theList[ipart-nentries-1].setMass( py8daughter.m() );
+    }
+
   return theList;
 }
 
