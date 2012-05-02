@@ -40,7 +40,7 @@ void AntiElectronIDMVA2::Initialize(std::string methodName,
   //TMVA::Tools::Instance();
 
   TMVA::Reader* readerNoEleMatch_BL = new TMVA::Reader( "!Color:!Silent:Error" );  
-  readerNoEleMatch_BL->AddVariable("Tau_AbsEta", &Tau_AbsEta_);
+  readerNoEleMatch_BL->AddVariable("Tau_Eta", &Tau_Eta_);
   readerNoEleMatch_BL->AddVariable("Tau_Pt", &Tau_Pt_);
   readerNoEleMatch_BL->AddVariable("Tau_EmFraction", &Tau_EmFraction_);
   readerNoEleMatch_BL->AddVariable("Tau_NumGammaCands", &Tau_NumGammaCands_);
@@ -61,7 +61,7 @@ void AntiElectronIDMVA2::Initialize(std::string methodName,
   readerwoG_BL->AddVariable("Elec_GSFTrackResol", &Elec_GSFTrackResol_);
   readerwoG_BL->AddVariable("Elec_GSFTracklnPt", &Elec_GSFTracklnPt_);
   readerwoG_BL->AddVariable("Elec_GSFTrackEta", &Elec_GSFTrackEta_);
-  readerwoG_BL->AddVariable("Tau_AbsEta", &Tau_AbsEta_);
+  readerwoG_BL->AddVariable("Tau_Eta", &Tau_Eta_);
   readerwoG_BL->AddVariable("Tau_Pt", &Tau_Pt_);
   readerwoG_BL->AddVariable("Tau_EmFraction", &Tau_EmFraction_);
   readerwoG_BL->AddVariable("Tau_HadrHoP", &Tau_HadrHoP_);
@@ -80,7 +80,7 @@ void AntiElectronIDMVA2::Initialize(std::string methodName,
   readerwGwoGSF_BL->AddVariable("Elec_GSFTrackResol", &Elec_GSFTrackResol_);
   readerwGwoGSF_BL->AddVariable("Elec_GSFTracklnPt", &Elec_GSFTracklnPt_);
   readerwGwoGSF_BL->AddVariable("Elec_GSFTrackEta", &Elec_GSFTrackEta_);
-  readerwGwoGSF_BL->AddVariable("Tau_AbsEta", &Tau_AbsEta_);
+  readerwGwoGSF_BL->AddVariable("Tau_Eta", &Tau_Eta_);
   readerwGwoGSF_BL->AddVariable("Tau_Pt", &Tau_Pt_);
   readerwGwoGSF_BL->AddVariable("Tau_EmFraction", &Tau_EmFraction_);
   readerwGwoGSF_BL->AddVariable("Tau_NumGammaCands", &Tau_NumGammaCands_);
@@ -101,7 +101,7 @@ void AntiElectronIDMVA2::Initialize(std::string methodName,
   readerwGwGSFwoPFMVA_BL->AddVariable("Elec_GSFTrackResol", &Elec_GSFTrackResol_);
   readerwGwGSFwoPFMVA_BL->AddVariable("Elec_GSFTracklnPt", &Elec_GSFTracklnPt_);
   readerwGwGSFwoPFMVA_BL->AddVariable("Elec_GSFTrackEta", &Elec_GSFTrackEta_);
-  readerwGwGSFwoPFMVA_BL->AddVariable("Tau_AbsEta", &Tau_AbsEta_);
+  readerwGwGSFwoPFMVA_BL->AddVariable("Tau_Eta", &Tau_AbsEta_);
   readerwGwGSFwoPFMVA_BL->AddVariable("Tau_Pt", &Tau_Pt_);
   readerwGwGSFwoPFMVA_BL->AddVariable("Tau_EmFraction", &Tau_EmFraction_);
   readerwGwGSFwoPFMVA_BL->AddVariable("Tau_NumGammaCands", &Tau_NumGammaCands_);
