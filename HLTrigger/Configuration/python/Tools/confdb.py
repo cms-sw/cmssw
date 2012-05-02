@@ -63,20 +63,32 @@ class HLTProcess(object):
     "HLT_L2Mu10_NoVertex_NoBPTX3BX_v*",
     "HLT_L2Mu20_NoVertex_NoBPTX3BX_v*",
     "HLT_L2Mu30_NoVertex_NoBPTX3BX_v*",
+    "HLT_PixelTracks_Multiplicity70_v*",
+    "HLT_PixelTracks_Multiplicity70_v*",
+    "HLT_PixelTracks_Multiplicity90_v*",
+    "HLT_BeamGas_HF_Beam1_v*",
+    "HLT_BeamGas_HF_Beam2_v*",
+    "HLT_BeamHalo_v*",
+    "HLT_L1Tech_CASTOR_HaloMuon_v*",
+    "HLT_L1Tech_DT_GlobalOR_v*",
+    "HLT_GlobalRunHPDNoise_v*",
+    "HLT_L1Tech_HBHEHO_totalOR_v*",
+    "HLT_L1Tech_HCAL_HF_single_channel_v*",
+    "HLT_L1TrackerCosmics_v",   
     
 # TODO: paths not supported by FastSim, but for which a recovery should be attempted
     "HLT_Ele80_CaloIdVT_GsfTrkIdT_v*",
     "HLT_Ele90_CaloIdVT_GsfTrkIdT_v*",
-    "HLT_DiCentralPFJet30_PFMET80_BTagCSV07_v*",
-    "HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d03_v*",
-    "HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d05_v*",
-    "HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d03_PFDiJetPt120_v*",
-    "HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05_v*",
-    "HLT_DiJet40Eta2p6_BTagIP3DFastPV_v*",
-    "HLT_DiJet80Eta2p6_BTagIP3DFastPVLoose_v*",
-    "HLT_Jet60Eta1p7_Jet53Eta1p7_DiBTagIP3DFastPV_v*",
-    "HLT_Jet80Eta1p7_Jet70Eta1p7_DiBTagIP3DFastPV_v*",
-    "HLT_Jet160Eta2p4_Jet120Eta2p4_DiBTagIP3DFastPVLoose_v*",
+#    "HLT_DiCentralPFJet30_PFMET80_BTagCSV07_v*",
+#    "HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d03_v*",
+#    "HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d05_v*",
+#    "HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d03_PFDiJetPt120_v*",
+#    "HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05_v*",
+#    "HLT_DiJet40Eta2p6_BTagIP3DFastPV_v*",
+#    "HLT_DiJet80Eta2p6_BTagIP3DFastPVLoose_v*",
+#    "HLT_Jet60Eta1p7_Jet53Eta1p7_DiBTagIP3DFastPV_v*",
+#    "HLT_Jet80Eta1p7_Jet70Eta1p7_DiBTagIP3DFastPV_v*",
+#    "HLT_Jet160Eta2p4_Jet120Eta2p4_DiBTagIP3DFastPVLoose_v*",
   
     )
 
@@ -1001,12 +1013,11 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltFastPixelHitsVertex" )
       self.options['modules'].append( "-hltFastPixelTracks")
       self.options['modules'].append( "-hltFastPixelTracksRecover")
-      self.options['modules'].append( "-hltFastPrimaryVertexbbPhi")
-      self.options['modules'].append( "-hltPixelTracksFastPVbbPhi")
-      self.options['modules'].append( "-hltPixelTracksRecoverbbPhi" )
-      self.options['modules'].append( "-hltFastPixelHitsVertexVHbb" )
-      self.options['modules'].append( "-hltFastPixelTracksVHbb" )
-      self.options['modules'].append( "-hltFastPixelTracksRecoverVHbb" )
+      
+      self.options['modules'].append( "-hltFastPrimaryVertex")
+      self.options['modules'].append( "-hltFastPVPixelTracks")
+      self.options['modules'].append( "-hltFastPVPixelTracksRecover" )
+
       self.options['modules'].append( "-hltIter4Tau3MuMerged" )
       self.options['modules'].append( "hltPixelMatchElectronsActivity" )
 
