@@ -42,6 +42,7 @@ bool uncompressBuffer(unsigned char* inputBuffer,
                               unsigned int expectedFullSize);
 bool test_chksum(EventMsgView const* eview);
 bool test_uncompress(EventMsgView const* eview, std::vector<unsigned char> &dest);
+bool test_hltStats(std::vector<uint32> const&, std::vector<uint32> const&);
 void readfile(std::string filename, std::string outfile);
 void help();
 void updateHLTStats(std::vector<uint8> const& packedHlt, uint32 hltcount, std::vector<uint32> &hltStats);
@@ -75,12 +76,12 @@ void help() {
 //==========================================================================
 void readfile(std::string filename, std::string outfile) {
 
-  int num_events(0);
-  int num_badevents(0);
-  int num_baduncompress(0);
-  int num_badchksum(0);
-  int num_goodevents(0);
-  int num_duplevents(0);
+  uint32 num_events(0);
+  uint32 num_badevents(0);
+  uint32 num_baduncompress(0);
+  uint32 num_badchksum(0);
+  uint32 num_goodevents(0);
+  uint32 num_duplevents(0);
   uint32 hltcount(0);
   std::vector<uint32> hltStats(0);
   std::vector<unsigned char> compress_buffer(7000000);
@@ -103,11 +104,11 @@ void readfile(std::string filename, std::string outfile) {
     dumpInitView(init);
     if(output) {
       stream_output.write(*init);
-      hltcount = init->get_hlt_bit_cnt();
-      //Initialize the HLT Stat vector with all ZEROs
-      for(uint32 i = 0; i != hltcount; ++i)
-        hltStats.push_back(0);
     }
+    hltcount = init->get_hlt_bit_cnt();
+    //Initialize the HLT Stat vector with all ZEROs
+    for(uint32 i = 0; i != hltcount; ++i)
+      hltStats.push_back(0);
 
     // ------- event
     std::cout << "\n\n-------------EVENT Messages-------------------" << std::endl;
@@ -141,7 +142,7 @@ void readfile(std::string filename, std::string outfile) {
         std::copy(src, src+srcSize, &(savebuf)[0]);
         firstEvtView.reset(new EventMsgView(&(savebuf)[0]));
         //firstEvtView, reset(new EventMsgView((void*)eview->startAddress()));
-        if(!test_chksum(firstEvtView.get())) {
+        if(!test_chksum(eview)) {
           std::cout << "checksum error for count " << num_events
                     << " event number " << eview->event()
                     << " from host name " << eview->hostName() << std::endl;
@@ -150,7 +151,7 @@ void readfile(std::string filename, std::string outfile) {
           dumpEventView(eview);
           good_event = false;
         }
-        if(!test_uncompress(firstEvtView.get(), compress_buffer)) {
+        if(!test_uncompress(eview, compress_buffer)) {
           std::cout << "uncompress error for count " << num_events
                     << " event number " << firstEvtView->event() << std::endl;
           ++num_baduncompress;
@@ -184,16 +185,19 @@ void readfile(std::string filename, std::string outfile) {
           good_event = false;
         }
       }
-      if(output && good_event) {
-        ++num_goodevents;
-        stream_output.write(*eview);
+      if(good_event) {
+        if(output) {
+          ++num_goodevents;
+          stream_output.write(*eview);
+        }
         //get the HLT Packed bytes
         std::vector<uint8> packedHlt;
         uint32 hlt_sz = 0;
         if(hltcount != 0) hlt_sz = 1 + ((hltcount - 1)/4);
         packedHlt.resize(hlt_sz);
-        firstEvtView->hltTriggerBits(&packedHlt[0]);
+        eview->hltTriggerBits(&packedHlt[0]);
         updateHLTStats(packedHlt, hltcount, hltStats);
+        //dumpEventView(eview);
       }
       if((num_events % 50) == 0) {
         std::cout << "Read " << num_events << " events, and "
@@ -203,12 +207,33 @@ void readfile(std::string filename, std::string outfile) {
         if(output) std::cout << "Wrote " << num_goodevents << " good events " << std::endl;
       }
     }
+    
+    EOFRecordView* eofRecord(0);
+    if(!stream_reader.eofRecordMessage(hltcount, eofRecord)) {
+      std::cout << "Failed to read EOF record" << std::endl;
+    } else {
+      if(eofRecord->events() != num_events)
+        std::cout << "EOF record claims to have " << eofRecord->events()
+                  << " while there are " << num_events << " events" << std::endl;
+      if(eofRecord->run() != 1)
+        std::cout << "EOF record has dummy run number " << eofRecord->run()
+                  << " instead of 1" << std::endl;
+      if(eofRecord->statusCode() != 1234)
+        std::cout << "EOF record has dummy status Code " << eofRecord->statusCode()
+                  << " instead of 1234" << std::endl;
+
+      std::vector<uint32> eofHltStats;
+      eofRecord->hltStats(eofHltStats);
+      test_hltStats(eofHltStats,hltStats);
+    }
+
     std::cout << std::endl << "------------END--------------" << std::endl
               << "read " << num_events << " events" << std::endl
               << "and " << num_badevents << " events with bad headers" << std::endl
               << "and " << num_badchksum << " events with bad check sum"  << std::endl
               << "and " << num_baduncompress << " events with bad uncompress" << std::endl
               << "and " << num_duplevents << " duplicated event Id" << std::endl;
+
     if(output) {
       uint32 dummyStatusCode = 1234;
       stream_output.writeEOF(dummyStatusCode, hltStats);
@@ -316,6 +341,27 @@ bool uncompressBuffer(unsigned char *inputBuffer,
     }
     return true;
 }
+
+//==========================================================================
+bool test_hltStats(std::vector<uint32> const& hltStats1, std::vector<uint32> const& hltStats2)
+{
+  bool is_bad(false);
+  const size_t hltcount = hltStats1.size();
+  if(hltcount != hltStats2.size()) {
+    std::cout << "HLT stats has different HLT counts: " 
+              << hltcount << " vs " << hltStats2.size() << std::endl;
+    is_bad = true;
+  }
+  for(size_t i = 0; i != hltcount; ++i) {
+    if(hltStats1[i] != hltStats2[i]) {
+      std::cout << "HLT stats for bit " << i << " differs: " 
+                << hltStats1[i] << " vs " << hltStats2[i] << std::endl;
+      is_bad = true;
+    }
+  }
+  return is_bad;
+}
+
 
 //==========================================================================
 void updateHLTStats(std::vector<uint8> const& packedHlt, uint32 hltcount, std::vector<uint32> &hltStats)
