@@ -289,6 +289,31 @@ namespace edm {
     return 1;
   }
 
+  bool StreamerInputFile::eofRecordMessage(uint32 const& hlt_path_cnt, EOFRecordView*& view) {
+    if(!endOfFile_) return false;
+
+    HeaderView head(&eventBuf_[0]);
+    uint32 code = head.code();
+    
+    if(code != Header::EOFRECORD) {
+      return false;
+    }
+    
+    uint32 eofSize = head.size();
+    IOSize nWant = eofSize - sizeof(EventHeader);
+    if(nWant>0) {
+      IOSize nGot = readBytes(&eventBuf_[sizeof(EventHeader)], nWant);
+      if(nGot != nWant) {
+          throw Exception(errors::FileReadError, "StreamerInputFile::eofRecordMessage")
+            << "Failed reading streamer file, second read in eofRecordMessage\n"
+            << "Requested " << nWant << " bytes, read function returned " << nGot << " bytes\n";
+      }
+    }
+
+    view = new EOFRecordView(&eventBuf_[0], hlt_path_cnt);
+    return true;
+  }
+
   void StreamerInputFile::logFileAction(char const* msg) {
     LogAbsolute("fileAction") << std::setprecision(0) << TimeOfDay() << msg << currentFileName_;
     FlushMessageLog();
