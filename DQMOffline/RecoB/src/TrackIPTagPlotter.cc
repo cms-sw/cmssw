@@ -121,7 +121,7 @@ TrackIPTagPlotter::TrackIPTagPlotter(const std::string & tagName,
 	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
 
   tkcntHistosVal2D[3] = new TrackIPHistograms<double>
-       ("ip4" + theExtensionString, "2D IP value 4.trk",
+       ("ip4_2D" + theExtensionString, "2D IP value 4.trk",
 	nBinsIP, lowerIPBound, upperIPBound, false, true, true, "b", update,trackIPDir, mc, makeQualityPlots_) ;
 
 
@@ -728,6 +728,19 @@ void TrackIPTagPlotter::finalize ()
   // final processing:
   // produce the misid. vs. eff histograms
   //
+  const std::string trackIPDir(theExtensionString.substr(1));
+  effPurFromHistos[0] = new EffPurFromHistos (tkcntHistosSig3D[1],trackIPDir, mcPlots_,
+					      nBinEffPur_, startEffPur_,
+					      endEffPur_);
+  effPurFromHistos[1] = new EffPurFromHistos (tkcntHistosSig3D[2],trackIPDir, mcPlots_,
+					      nBinEffPur_, startEffPur_,
+					      endEffPur_);
+  effPurFromHistos[2] = new EffPurFromHistos (tkcntHistosSig2D[1],trackIPDir, mcPlots_,
+					      nBinEffPur_, startEffPur_,
+					      endEffPur_);
+  effPurFromHistos[3] = new EffPurFromHistos (tkcntHistosSig2D[2],trackIPDir, mcPlots_,
+					      nBinEffPur_, startEffPur_,
+					      endEffPur_);
   for(int n=0; n != 4; ++n) effPurFromHistos[n]->compute();
   finalized = true;
 }
