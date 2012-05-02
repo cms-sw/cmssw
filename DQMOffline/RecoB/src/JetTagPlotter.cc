@@ -21,36 +21,43 @@ JetTagPlotter::JetTagPlotter (const std::string & tagName, const EtaPtBin & etaP
   const std::string & es = theExtensionString;
   const std::string jetTagDir(es.substr(1));
 
+  nJets = 0; //added to count the number of jets by event
 
   if (mcPlots_){
     // jet flavour
     dJetFlav = new FlavourHistograms<int>
       ("jetFlavour" + es, "Jet Flavour", 22, -0.5, 21.5,
        false, false, false, "b", update,jetTagDir, mcPlots_);
-    // associated parton momentum
-    dJetPartonMomentum = new FlavourHistograms<double>
-      ("associatedPartonMomentum" + es, "associated parton momentum",
-       200, 0.0, 400.0, false, false, true, "b", update,jetTagDir, mcPlots_);
+    // associated parton momentum : commented, not really necessary
+    //dJetPartonMomentum = new FlavourHistograms<double>
+    //  ("associatedPartonMomentum" + es, "associated parton momentum",
+    //   200, 0.0, 400.0, false, false, true, "b", update,jetTagDir, mcPlots_);
     
-    // associated parton pt
-    dJetPartonPt = new FlavourHistograms<double>
-      ("associatedPartonPt" + es, "associated parton pt",
-       200, 0.0, 400.0, false, false, true, "b", update,jetTagDir, mcPlots_);
+    // associated parton pt : commented, not really necessary
+    //dJetPartonPt = new FlavourHistograms<double>
+    //  ("associatedPartonPt" + es, "associated parton pt",
+    //   200, 0.0, 400.0, false, false, true, "b", update,jetTagDir, mcPlots_);
     
-    // associated parton eta
-    dJetPartonPseudoRapidity = new FlavourHistograms<double>
-      ("associatedPartonEta" + es, "associated parton eta",
-       100, -3.5, 3.5, false, false, true, "b", update,jetTagDir, mcPlots_);
+    // associated parton eta : commented, not really necessary
+    //dJetPartonPseudoRapidity = new FlavourHistograms<double>
+    //  ("associatedPartonEta" + es, "associated parton eta",
+    //   100, -3.5, 3.5, false, false, true, "b", update,jetTagDir, mcPlots_);
   }else {
     dJetFlav=0;
-    dJetPartonMomentum = 0;
-    dJetPartonPt = 0;
-    dJetPartonPseudoRapidity = 0;
+    //dJetPartonMomentum = 0;
+    //dJetPartonPt = 0;
+    //dJetPartonPseudoRapidity = 0;
   }
-  // track multiplicity in jet
-  dJetMultiplicity = new FlavourHistograms<int>
-	("jetMultiplicity" + es, "Jet Multiplicity", 31, -0.5, 30.5,
-	false, true, true, "b", update,jetTagDir, mcPlots_);
+
+  // jet multiplicity
+  JetMultiplicity = new FlavourHistograms<int>
+    ("jetMultiplicity" + es, "Jet Multiplicity", 11, -0.5, 10.5,
+     false, true, true, "b", update,jetTagDir, mcPlots_);
+
+  // track multiplicity in jet 
+  //dJetTrackMultiplicity = new FlavourHistograms<int>
+  //	("jetTrackMultiplicity" + es, "Jet Track Multiplicity", 31, -0.5, 30.5,
+  //	false, true, true, "b", update,jetTagDir, mcPlots_);
 
     // Discriminator: again with reasonable binning
   dDiscriminator = new FlavourHistograms<double>
@@ -84,15 +91,16 @@ JetTagPlotter::JetTagPlotter (const std::string & tagName, const EtaPtBin & etaP
   
 JetTagPlotter::~JetTagPlotter () {
   delete dJetFlav;
-  delete dJetMultiplicity;
+  delete JetMultiplicity;
+  //delete dJetTrackMultiplicity;
   delete dDiscriminator;
   delete dJetRecMomentum;
   delete dJetRecPt;
   delete dJetRecPseudoRapidity;
   delete dJetRecPhi;
-  delete dJetPartonMomentum;
-  delete dJetPartonPt;
-  delete dJetPartonPseudoRapidity;
+  //delete dJetPartonMomentum;
+  //delete dJetPartonPt;
+  //delete dJetPartonPseudoRapidity;
   if (finalized) {
     delete effPurFromHistos;
   }
@@ -101,15 +109,16 @@ JetTagPlotter::~JetTagPlotter () {
 void JetTagPlotter::epsPlot(const std::string & name)
 {
   dJetFlav->epsPlot(name);
-  dJetMultiplicity->epsPlot(name);
+  JetMultiplicity->epsPlot(name);
+  //dJetTrackMultiplicity->epsPlot(name);
   dDiscriminator->epsPlot(name);
   dJetRecMomentum->epsPlot(name);
   dJetRecPt->epsPlot(name);
   dJetRecPseudoRapidity->epsPlot(name);
   dJetRecPhi->epsPlot(name);
-  dJetPartonMomentum->epsPlot(name);
-  dJetPartonPt->epsPlot(name);
-  dJetPartonPseudoRapidity->epsPlot(name);
+  //dJetPartonMomentum->epsPlot(name);
+  //dJetPartonPt->epsPlot(name);
+  //dJetPartonPseudoRapidity->epsPlot(name);
   if (finalized) {
     effPurFromHistos->epsPlot(name);
   }
@@ -127,7 +136,7 @@ void JetTagPlotter::psPlot(const std::string & name)
   canvas.cd(1);
   dJetFlav->plot();
   canvas.cd(2);
-  dJetMultiplicity->plot();
+  //dJetTrackMultiplicity->plot();
   canvas.cd(3);
   dDiscriminator->plot();
   canvas.cd(4);
@@ -140,14 +149,18 @@ void JetTagPlotter::psPlot(const std::string & name)
   canvas.Clear();
   canvas.Divide(2,3);
 
+  JetMultiplicity->plot();
+  canvas.Print((name + cName + ".ps").c_str());
+  canvas.Clear();
+
   canvas.cd(1);
   dJetRecPhi->plot();
   canvas.cd(2);
-  dJetPartonMomentum->plot();
+  //dJetPartonMomentum->plot();
   canvas.cd(3);
-  dJetPartonPt->plot();
+  //dJetPartonPt->plot();
   canvas.cd(4);
-  dJetPartonPseudoRapidity->plot();
+  //dJetPartonPseudoRapidity->plot();
   if (finalized) {
     canvas.cd(5);
     effPurFromHistos->discriminatorNoCutEffic()->plot();
@@ -163,19 +176,32 @@ void JetTagPlotter::psPlot(const std::string & name)
   canvas.Print((name + cName + ".ps]").c_str());
 }
 
+void JetTagPlotter::analyzeTag(const int& jetFlavour)
+{
+  JetMultiplicity->fill(jetFlavour, nJets);  
+  nJets = 0; //reset to 0 before the next event
+}
+
+void JetTagPlotter::analyzeTag(const int& jetFlavour, const float& w)
+{
+  JetMultiplicity->fill(jetFlavour, nJets, w);
+  nJets = 0; //reset to 0 before the next event
+}
 
 void JetTagPlotter::analyzeTag(const reco::Jet & jet,
 			       const float& discriminator,
                                const int& jetFlavour)  
 {
 
+  nJets++; //added to count the number of jets
+
   if (mcPlots_) {
   dJetFlav->fill(jetFlavour, jetFlavour);
-//   dJetPartonMomentum->fill(jetFlav, jetFlavour.underlyingParton4Vec().P() );
-//   dJetPartonPt->fill(jetFlav, jetFlavour.underlyingParton4Vec().Pt() );
-//   dJetPartonPseudoRapidity->fill(jetFlav, jetFlavour.underlyingParton4Vec().Eta() );
+//   dJetPartonMomentum->fill(jetFlavour, jetFlavour.underlyingParton4Vec().P() );
+//   dJetPartonPt->fill(jetFlavour, jetFlavour.underlyingParton4Vec().Pt() );
+//   dJetPartonPseudoRapidity->fill(jetFlavour, jetFlavour.underlyingParton4Vec().Eta() );
   }
-  //  dJetMultiplicity->fill(jetFlavourour, jetTag.tracks().size()); //fixme
+  //  dJetTrackMultiplicity->fill(jetFlavour, jetTag.tracks().size()); //fixme
   if (isinf(discriminator) ) dDiscriminator->fill(jetFlavour, -999.0 );
   else dDiscriminator->fill(jetFlavour, discriminator );
   dJetRecMomentum->fill(jetFlavour, jet.p() );
@@ -191,13 +217,15 @@ void JetTagPlotter::analyzeTag(const reco::Jet & jet,
 			       const float& w)  
 {
 
+  nJets++;
+
   if (mcPlots_) {
     dJetFlav->fill(jetFlavour, jetFlavour , w );
-//   dJetPartonMomentum->fill(jetFlav, jetFlavour.underlyingParton4Vec().P() );
-//   dJetPartonPt->fill(jetFlav, jetFlavour.underlyingParton4Vec().Pt() );
-//   dJetPartonPseudoRapidity->fill(jetFlav, jetFlavour.underlyingParton4Vec().Eta() );
+//   dJetPartonMomentum->fill(jetFlavour, jetFlavour.underlyingParton4Vec().P() );
+//   dJetPartonPt->fill(jetFlavour, jetFlavour.underlyingParton4Vec().Pt() );
+//   dJetPartonPseudoRapidity->fill(jetFlavour, jetFlavour.underlyingParton4Vec().Eta() );
   }
-  //  dJetMultiplicity->fill(jetFlavourour, jetTag.tracks().size()); //fixme
+  //  dJetTrackMultiplicity->fill(jetFlavour, jetTag.tracks().size()); //fixme
   if (isinf(discriminator) ) dDiscriminator->fill(jetFlavour, -999.0 , w );
   else dDiscriminator->fill(jetFlavour, discriminator , w );
   dJetRecMomentum->fill(jetFlavour, jet.p() , w);
@@ -212,13 +240,15 @@ void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
 	const int & jetFlavour)
 {
 
+  nJets++;
+
   if (mcPlots_) {
   dJetFlav->fill(jetFlavour, jetFlavour);
-//   dJetPartonMomentum->fill(jetFlav, jetFlavour.underlyingParton4Vec().P() );
-//   dJetPartonPt->fill(jetFlav, jetFlavour.underlyingParton4Vec().Pt() );
-//   dJetPartonPseudoRapidity->fill(jetFlav, jetFlavour.underlyingParton4Vec().Eta() );
+//   dJetPartonMomentum->fill(jetFlavour, jetFlavour.underlyingParton4Vec().P() );
+//   dJetPartonPt->fill(jetFlavour, jetFlavour.underlyingParton4Vec().Pt() );
+//   dJetPartonPseudoRapidity->fill(jetFlavour, jetFlavour.underlyingParton4Vec().Eta() );
   }
-  //  dJetMultiplicity->fill(jetFlavourour, jetTag.tracks().size()); //fixme
+  //  dJetTrackMultiplicity->fill(jetFlavour, jetTag.tracks().size()); //fixme
   if (isinf(jetTag.second) ) dDiscriminator->fill(jetFlavour, -999.0 );
   else dDiscriminator->fill(jetFlavour, jetTag.second);
   dJetRecMomentum->fill(jetFlavour, jetTag.first->p() );
@@ -233,13 +263,15 @@ void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
 			       const float& w)
 {
 
+  nJets++;
+
   if (mcPlots_) {
     dJetFlav->fill(jetFlavour, jetFlavour, w );
-//   dJetPartonMomentum->fill(jetFlav, jetFlavour.underlyingParton4Vec().P() );
-//   dJetPartonPt->fill(jetFlav, jetFlavour.underlyingParton4Vec().Pt() );
-//   dJetPartonPseudoRapidity->fill(jetFlav, jetFlavour.underlyingParton4Vec().Eta() );
+//   dJetPartonMomentum->fill(jetFlavour, jetFlavour.underlyingParton4Vec().P() );
+//   dJetPartonPt->fill(jetFlavour, jetFlavour.underlyingParton4Vec().Pt() );
+//   dJetPartonPseudoRapidity->fill(jetFlavour, jetFlavour.underlyingParton4Vec().Eta() );
   }
-  //  dJetMultiplicity->fill(jetFlavourour, jetTag.tracks().size()); //fixme
+  //  dJetTrackMultiplicity->fill(jetFlavour, jetTag.tracks().size()); //fixme
   if (isinf(jetTag.second) ) dDiscriminator->fill(jetFlavour, -999.0 , w );
   else dDiscriminator->fill(jetFlavour, jetTag.second , w );
   dJetRecMomentum->fill(jetFlavour, jetTag.first->p() , w );

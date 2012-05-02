@@ -278,8 +278,7 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
     int plotterSize =  binJetTagPlotters[iJetLabel].size();
     for (JetTagCollection::const_iterator tagI = tagColl.begin();
 	 tagI != tagColl.end(); ++tagI) {
-      // Identify parton associated to jet.
-
+      
       if (!jetSelector(*(tagI->first), -1, infoHandle)) continue;
       for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
 	bool inBin = binJetTagPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(*tagI->first);
@@ -287,6 +286,9 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
 	if (inBin)
 	  binJetTagPlotters[iJetLabel][iPlotter]->analyzeTag(*tagI, -1);
       }
+    }
+    for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
+      binJetTagPlotters[iJetLabel][iPlotter]->analyzeTag(-1);
     }
   }
 
