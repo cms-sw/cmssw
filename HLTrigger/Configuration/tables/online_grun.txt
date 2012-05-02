@@ -172,7 +172,6 @@ HLT_DiCentralPFJet50_PFMET80_v*                                                 
 HLT_Photon60_CaloIdL_HT300_v*                                                                   #(renamed)
 HLT_Photon60_CaloIdL_MHT70_v*                                                                   #sr126304
 HLT_QuadJet60_DiJet20_v*									#sr126304, removed L1FastJet from name
-HLT_QuadJet50_v*										#sr126304, removed L1FastJet from name
 HLT_DiJet80_DiJet60_DiJet20_v*									#sr126304, removed L1FastJet from name
 HLT_IsoMu17_eta2p1_DiCentralPFJet30_PFHT350_PFMHT40_v*                                          #sr126304
 HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v*                                                              #sr126304
@@ -223,6 +222,9 @@ HLT_DoubleEle8_CaloIdT_TrkIdVL_v*								#sr126304
 HLT_Mu8_DiJet30_v*										#sr126304
 HLT_Mu8_TriJet30_v*										#sr126304
 HLT_Mu8_QuadJet30_v*										#sr126304
+
+HLT_QuadJet50_v*										#sr126304, sr128195
+HLT_QuadJet50_Jet20_v*										#sr128195
 
 HLT_DoubleMu8_Ele8_CaloIdT_TrkIdVL_v*                                                           #sr127498
 
