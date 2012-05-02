@@ -101,7 +101,7 @@ void AntiElectronIDMVA2::Initialize(std::string methodName,
   readerwGwGSFwoPFMVA_BL->AddVariable("Elec_GSFTrackResol", &Elec_GSFTrackResol_);
   readerwGwGSFwoPFMVA_BL->AddVariable("Elec_GSFTracklnPt", &Elec_GSFTracklnPt_);
   readerwGwGSFwoPFMVA_BL->AddVariable("Elec_GSFTrackEta", &Elec_GSFTrackEta_);
-  readerwGwGSFwoPFMVA_BL->AddVariable("Tau_Eta", &Tau_AbsEta_);
+  readerwGwGSFwoPFMVA_BL->AddVariable("Tau_Eta", &Tau_Eta_);
   readerwGwGSFwoPFMVA_BL->AddVariable("Tau_Pt", &Tau_Pt_);
   readerwGwGSFwoPFMVA_BL->AddVariable("Tau_EmFraction", &Tau_EmFraction_);
   readerwGwGSFwoPFMVA_BL->AddVariable("Tau_NumGammaCands", &Tau_NumGammaCands_);
@@ -123,7 +123,7 @@ void AntiElectronIDMVA2::Initialize(std::string methodName,
   readerwGwGSFwPFMVA_BL->AddVariable("Elec_GSFTrackResol", &Elec_GSFTrackResol_);
   readerwGwGSFwPFMVA_BL->AddVariable("Elec_GSFTracklnPt", &Elec_GSFTracklnPt_);
   readerwGwGSFwPFMVA_BL->AddVariable("Elec_GSFTrackEta", &Elec_GSFTrackEta_);
-  readerwGwGSFwPFMVA_BL->AddVariable("Tau_AbsEta", &Tau_AbsEta_);
+  readerwGwGSFwPFMVA_BL->AddVariable("Tau_Eta", &Tau_Eta_);
   readerwGwGSFwPFMVA_BL->AddVariable("Tau_Pt", &Tau_Pt_);
   readerwGwGSFwPFMVA_BL->AddVariable("Tau_EmFraction", &Tau_EmFraction_);
   readerwGwGSFwPFMVA_BL->AddVariable("Tau_NumGammaCands", &Tau_NumGammaCands_);
@@ -137,7 +137,7 @@ void AntiElectronIDMVA2::Initialize(std::string methodName,
   readerwGwGSFwPFMVA_BL->BookMVA("BDT", oneProng1pi0wGSFwPfEleMva_BL);  
   
   TMVA::Reader* readerNoEleMatch_EC = new TMVA::Reader( "!Color:!Silent:Error" );  
-  readerNoEleMatch_EC->AddVariable("Tau_AbsEta", &Tau_AbsEta_);
+  readerNoEleMatch_EC->AddVariable("Tau_Eta", &Tau_Eta_);
   readerNoEleMatch_EC->AddVariable("Tau_Pt", &Tau_Pt_);
   readerNoEleMatch_EC->AddVariable("Tau_EmFraction", &Tau_EmFraction_);
   readerNoEleMatch_EC->AddVariable("Tau_NumGammaCands", &Tau_NumGammaCands_);
@@ -158,7 +158,7 @@ void AntiElectronIDMVA2::Initialize(std::string methodName,
   readerwoG_EC->AddVariable("Elec_GSFTrackResol", &Elec_GSFTrackResol_);
   readerwoG_EC->AddVariable("Elec_GSFTracklnPt", &Elec_GSFTracklnPt_);
   readerwoG_EC->AddVariable("Elec_GSFTrackEta", &Elec_GSFTrackEta_);
-  readerwoG_EC->AddVariable("Tau_AbsEta", &Tau_AbsEta_);
+  readerwoG_EC->AddVariable("Tau_Eta", &Tau_Eta_);
   readerwoG_EC->AddVariable("Tau_Pt", &Tau_Pt_);
   readerwoG_EC->AddVariable("Tau_EmFraction", &Tau_EmFraction_);
   readerwoG_EC->AddVariable("Tau_HadrHoP", &Tau_HadrHoP_);
@@ -177,7 +177,7 @@ void AntiElectronIDMVA2::Initialize(std::string methodName,
   readerwGwoGSF_EC->AddVariable("Elec_GSFTrackResol", &Elec_GSFTrackResol_);
   readerwGwoGSF_EC->AddVariable("Elec_GSFTracklnPt", &Elec_GSFTracklnPt_);
   readerwGwoGSF_EC->AddVariable("Elec_GSFTrackEta", &Elec_GSFTrackEta_);
-  readerwGwoGSF_EC->AddVariable("Tau_AbsEta", &Tau_AbsEta_);
+  readerwGwoGSF_EC->AddVariable("Tau_Eta", &Tau_Eta_);
   readerwGwoGSF_EC->AddVariable("Tau_Pt", &Tau_Pt_);
   readerwGwoGSF_EC->AddVariable("Tau_EmFraction", &Tau_EmFraction_);
   readerwGwoGSF_EC->AddVariable("Tau_NumGammaCands", &Tau_NumGammaCands_);
@@ -198,7 +198,7 @@ void AntiElectronIDMVA2::Initialize(std::string methodName,
   readerwGwGSFwoPFMVA_EC->AddVariable("Elec_GSFTrackResol", &Elec_GSFTrackResol_);
   readerwGwGSFwoPFMVA_EC->AddVariable("Elec_GSFTracklnPt", &Elec_GSFTracklnPt_);
   readerwGwGSFwoPFMVA_EC->AddVariable("Elec_GSFTrackEta", &Elec_GSFTrackEta_);
-  readerwGwGSFwoPFMVA_EC->AddVariable("Tau_AbsEta", &Tau_AbsEta_);
+  readerwGwGSFwoPFMVA_EC->AddVariable("Tau_Eta", &Tau_Eta_);
   readerwGwGSFwoPFMVA_EC->AddVariable("Tau_Pt", &Tau_Pt_);
   readerwGwGSFwoPFMVA_EC->AddVariable("Tau_EmFraction", &Tau_EmFraction_);
   readerwGwGSFwoPFMVA_EC->AddVariable("Tau_NumGammaCands", &Tau_NumGammaCands_);
@@ -220,7 +220,7 @@ void AntiElectronIDMVA2::Initialize(std::string methodName,
   readerwGwGSFwPFMVA_EC->AddVariable("Elec_GSFTrackResol", &Elec_GSFTrackResol_);
   readerwGwGSFwPFMVA_EC->AddVariable("Elec_GSFTracklnPt", &Elec_GSFTracklnPt_);
   readerwGwGSFwPFMVA_EC->AddVariable("Elec_GSFTrackEta", &Elec_GSFTrackEta_);
-  readerwGwGSFwPFMVA_EC->AddVariable("Tau_AbsEta", &Tau_AbsEta_);
+  readerwGwGSFwPFMVA_EC->AddVariable("Tau_Eta", &Tau_Eta_);
   readerwGwGSFwPFMVA_EC->AddVariable("Tau_Pt", &Tau_Pt_);
   readerwGwGSFwPFMVA_EC->AddVariable("Tau_EmFraction", &Tau_EmFraction_);
   readerwGwGSFwPFMVA_EC->AddVariable("Tau_NumGammaCands", &Tau_NumGammaCands_);
@@ -377,7 +377,7 @@ double AntiElectronIDMVA2::MVAValue(Float_t TauEta,
     return -99.;
   }
 
-  Tau_AbsEta_ = TMath::Abs(TauEta) ;
+  Tau_Eta_ = TauEta;
   Tau_Pt_ = TauPt;
   Tau_HasGsf_ = TauHasGsf; 
   Tau_EmFraction_ = TMath::Max(TauEmFraction,float(0.0)); 
