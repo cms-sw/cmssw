@@ -8,6 +8,7 @@
 
 #include "TClass.h"
 #include "TList.h"
+#include "TPRegexp.h"
 
 TGeoManager* FWGeometryTableViewManager_GetGeoManager();
 
@@ -100,6 +101,40 @@ void fw_simGeo_set_material_titles(Double_t fraction=0, Bool_t long_names=false)
       m->SetTitle(tit);
    }
 }
+
+//==============================================================================
+
+void fw_simGeo_set_volume_color_by_material(const char* material_re, Bool_t use_names, Color_t color, Char_t transparency=-1)
+{
+   // Note: material_re is a perl regexp!
+   // If you want exact match, enclose in begin / end meta characters (^ / $):
+   //   set_volume_color_by_material("^materials:Silicon$", kRed);
+
+   TPMERegexp re(material_re, "o");
+   TGeoMaterial *m;
+   TIter it(FWGeometryTableViewManager_GetGeoManager()->GetListOfMaterials());
+   while ((m = (TGeoMaterial*) it()) != 0)
+   {
+      if (re.Match(use_names ? m->GetName() : m->GetTitle()))
+      {
+         if (transparency != -1)
+         {
+            m->SetTransparency(transparency);
+         }
+         TGeoVolume *v;
+         TIter it2(FWGeometryTableViewManager_GetGeoManager()->GetListOfVolumes());
+         while ((v = (TGeoVolume*) it2()) != 0)
+         {
+            if (v->GetMaterial() == m)
+            {
+               v->SetLineColor(color);
+            }
+         }
+      }
+   }
+}
+
+//==============================================================================
 
 void fw_simGeo_foos()
 {
