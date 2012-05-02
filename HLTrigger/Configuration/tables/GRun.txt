@@ -251,14 +251,24 @@ HLT_HT650_Track60_dEdx3p7_v*                                                    
 HLT_L2Mu70_eta2p1_PFMET55_v*                                                                    #sr128166
 HLT_L2Mu70_eta2p1_PFMET60_v*                                                                    #sr128166
 
-HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_PFMET20_v*                                         #sr126441, renamed to *MET*
-HLT_Ele27_WP80_PFJet30_PFJet25_Deta3_v*                                                         #sr126441
-HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_v*                                                 #sr126441
-HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_PFMET20_v*                                     #sr126441, renamed to *MET*
-HLT_IsoMu24_eta2p1_PFJet30_PFJet25_Deta3_v*                                                     #sr126441
-HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_v*                                             #sr126441
-HLT_Mu24_eta2p1_CentralPFJet30_CentralPFJet25_v*                                                #sr126441
-HLT_Mu24_eta2p1_PFJet30_PFJet25_Deta3_v*                                                        #sr126441
+#HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_PFMET20_v*					#sr126441, renamed to *MET*, removed in sr128209
+#HLT_Ele27_WP80_PFJet30_PFJet25_Deta3_v*                                                        #sr126441, removed in sr128209
+#HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_v*                                                #sr126441, removed in sr128209
+#HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_PFMET20_v*                                    #sr126441, renamed to *MET*, removed in sr128209
+#HLT_IsoMu24_eta2p1_PFJet30_PFJet25_Deta3_v*                                                    #sr126441, removed in sr128209
+#HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_v*                                            #sr126441, removed in sr128209
+#HLT_Mu24_eta2p1_CentralPFJet30_CentralPFJet25_v*                                               #sr126441, removed in sr128209
+#HLT_Mu24_eta2p1_PFJet30_PFJet25_Deta3_v*                                                       #sr126441, removed in sr128209
+
+HLT_Ele32_WP80_CentralPFJet35_CentralPFJet25_PFMET20_v*                                         #sr128209
+HLT_Ele32_WP80_PFJet30_PFJet25_Deta3_v*                                                         #sr128209
+HLT_Ele32_WP80_PFJet30_PFJet25_Deta3_CentralPFJet30_v*                                          #sr128209
+HLT_Ele32_WP80_CentralPFJet35_CentralPFJet25_v*                                                 #sr128209
+HLT_IsoMu24_CentralPFJet30_CentralPFJet25_PFMET20_v*						#sr128209
+HLT_IsoMu24_PFJet30_PFJet25_Deta3_CentralPFJet25_v*						#sr128209
+HLT_IsoMu24_CentralPFJet30_CentralPFJet25_v*							#sr128209
+HLT_Mu24_CentralPFJet30_CentralPFJet25_v*							#sr128209
+HLT_Mu24_PFJet30_PFJet25_Deta3_CentralPFJet25_v*						#sr128209
 
 #HLT_Dimuon3p5_SameSign_v*                                                                      #sr126442 -> Superseeded by #sr126726
 #HLT_Tau2Mu_RegPixTrack_v*                                                                      #sr126442 -> Superseeded by #sr126726
