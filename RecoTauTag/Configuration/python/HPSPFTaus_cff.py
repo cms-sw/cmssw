@@ -9,10 +9,11 @@ Sequences for HPS taus
 
 # Define the discriminators for this tau
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi                      import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByMVAIsolation_cfi                   import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackFinding_cfi            import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectron_cfi                  import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronMVA_cfi               import *
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronMVA2_cfi               import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronMVA2_cfi              import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi                      import *
 
 # Load helper functions to change the source of the discriminants
@@ -237,6 +238,40 @@ hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr = cms.Sequence(
     hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr
     )
 
+# Define MVA based isolation discrimators
+hpsPFTauDiscriminationByIsolationMVAraw = pfRecoTauDiscriminationByMVAIsolation.clone(
+    PFTauProducer = cms.InputTag("hpsPFTauProducer"),
+    Prediscriminants = requireDecayMode.clone(),
+    returnMVA = cms.bool(True),
+    )
+
+hpsPFTauDiscriminationByLooseIsolationMVA = hpsPFTauDiscriminationByDecayModeFinding.clone(
+    Prediscriminants = cms.PSet(
+        BooleanOperator = cms.string("and"),
+        mva = cms.PSet(
+            Producer = cms.InputTag('hpsPFTauDiscriminationByIsolationMVAraw'),
+            cut = cms.double(0.795)
+        ) 
+    ))
+hpsPFTauDiscriminationByMediumIsolationMVA = copy.deepcopy(hpsPFTauDiscriminationByLooseIsolationMVA)
+hpsPFTauDiscriminationByMediumIsolationMVA.Prediscriminants.mva.cut = cms.double(0.884)
+hpsPFTauDiscriminationByTightIsolationMVA = copy.deepcopy(hpsPFTauDiscriminationByLooseIsolationMVA)
+hpsPFTauDiscriminationByTightIsolationMVA.Prediscriminants.mva.cut = cms.double(0.921)
+
+from RecoJets.Configuration.RecoPFJets_cff import *
+kt6PFJetsForRhoComputationVoronoi = kt6PFJets.clone(
+    doRhoFastjet = True,
+    voronoiRfact = 0.9
+    )
+
+hpsPFTauDiscriminationByMVAIsolationSeq = cms.Sequence(
+    kt6PFJetsForRhoComputationVoronoi*
+    hpsPFTauDiscriminationByIsolationMVAraw*
+    hpsPFTauDiscriminationByLooseIsolationMVA*
+    hpsPFTauDiscriminationByMediumIsolationMVA*
+    hpsPFTauDiscriminationByTightIsolationMVA
+    )
+
 #copying discriminator against electrons and muons
 hpsPFTauDiscriminationByLooseElectronRejection = pfRecoTauDiscriminationAgainstElectron.clone(
     PFTauProducer = cms.InputTag('hpsPFTauProducer'),
@@ -292,72 +327,60 @@ hpsPFTauDiscriminationByMVA2rawElectronRejection = pfRecoTauDiscriminationAgains
     Prediscriminants = requireDecayMode.clone(),
 )
 
-# Additionally require that the MVA2 electrons pass electron loose
-# (this discriminator was used on the training sample)
-hpsPFTauDiscriminationByMVA2rawElectronRejection.Prediscriminants.electronLoose = \
-        cms.PSet(
-            Producer = cms.InputTag('hpsPFTauDiscriminationByLooseElectronRejection'),
-            cut = cms.double(0.5)
-        )
+hpsPFTauDiscriminationByMVA2VLooseElectronRejection = hpsPFTauDiscriminationByMVA2rawElectronRejection.clone(
+    returnMVA = cms.bool(False),
+    minMVA1prongNoEleMatchBL           = cms.double(-0.13479),
+    minMVA1prongBL                     = cms.double(-0.15939),
+    minMVA1prongStripsWOgsfBL          = cms.double(-0.137365),
+    minMVA1prongStripsWgsfWOpfEleMvaBL = cms.double(-0.115863),
+    minMVA1prongStripsWgsfWpfEleMvaBL  = cms.double(-0.115635),
+    minMVA1prongNoEleMatchEC           = cms.double(-0.193283),
+    minMVA1prongEC                     = cms.double(-0.146413),
+    minMVA1prongStripsWOgsfEC          = cms.double(-0.0899225),
+    minMVA1prongStripsWgsfWOpfEleMvaEC = cms.double(-0.155648),
+    minMVA1prongStripsWgsfWpfEleMvaEC  = cms.double(-0.105423)
+)
 
 hpsPFTauDiscriminationByMVA2LooseElectronRejection = hpsPFTauDiscriminationByMVA2rawElectronRejection.clone(
     returnMVA = cms.bool(False),
-    # define 95% signal efficiency WP
-    minMVA1prongNoEleMatchBL           = cms.double(-0.101727),
-    minMVA1prongBL                     = cms.double(-0.130411),
-    minMVA1prongStripsWOgsfBL          = cms.double(-0.110745),
-    minMVA1prongStripsWgsfWOpfEleMvaBL = cms.double(-0.11647),
-    minMVA1prongStripsWgsfWpfEleMvaBL  = cms.double(-0.134414),
-    minMVA1prongNoEleMatchEC           = cms.double(-0.169389),
-    minMVA1prongEC                     = cms.double(-0.140327),
-    minMVA1prongStripsWOgsfEC          = cms.double(-0.102089),
-    minMVA1prongStripsWgsfWOpfEleMvaEC = cms.double(-0.14057),
-    minMVA1prongStripsWgsfWpfEleMvaEC  = cms.double(-0.0975809)
+    minMVA1prongNoEleMatchBL           = cms.double(-0.0639254),
+    minMVA1prongBL                     = cms.double(-0.0220708),
+    minMVA1prongStripsWOgsfBL          = cms.double(-0.102071),
+    minMVA1prongStripsWgsfWOpfEleMvaBL = cms.double(-0.0233814),
+    minMVA1prongStripsWgsfWpfEleMvaBL  = cms.double(-0.0391565),
+    minMVA1prongNoEleMatchEC           = cms.double(-0.142564),
+    minMVA1prongEC                     = cms.double(+0.00982555),
+    minMVA1prongStripsWOgsfEC          = cms.double(-0.0596019),
+    minMVA1prongStripsWgsfWOpfEleMvaEC = cms.double(-0.0381238),
+    minMVA1prongStripsWgsfWpfEleMvaEC  = cms.double(-0.100381)
 )
 
 hpsPFTauDiscriminationByMVA2MediumElectronRejection = hpsPFTauDiscriminationByMVA2rawElectronRejection.clone(
     returnMVA = cms.bool(False),
-    # define 85% signal efficiency WP
-    minMVA1prongNoEleMatchBL           = cms.double(-0.0727222),
-    minMVA1prongBL                     = cms.double(-0.072778),
-    minMVA1prongStripsWOgsfBL          = cms.double(-0.137213),
-    minMVA1prongStripsWgsfWOpfEleMvaBL = cms.double(-0.0948499),
-    minMVA1prongStripsWgsfWpfEleMvaBL  = cms.double(-0.0600284),
-    minMVA1prongNoEleMatchEC           = cms.double(-0.084118),
-    minMVA1prongEC                     = cms.double(+0.0648186),
-    minMVA1prongStripsWOgsfEC          = cms.double(-0.0804441),
-    minMVA1prongStripsWgsfWOpfEleMvaEC = cms.double(-0.0227585),
-    minMVA1prongStripsWgsfWpfEleMvaEC  = cms.double(-0.116097)
+    minMVA1prongNoEleMatchBL           = cms.double(+0.011729),
+    minMVA1prongBL                     = cms.double(+0.0203646),
+    minMVA1prongStripsWOgsfBL          = cms.double(+0.177502),
+    minMVA1prongStripsWgsfWOpfEleMvaBL = cms.double(+0.0103449),
+    minMVA1prongStripsWgsfWpfEleMvaBL  = cms.double(+0.257798),
+    minMVA1prongNoEleMatchEC           = cms.double(-0.0966083),
+    minMVA1prongEC                     = cms.double(-0.0466023),
+    minMVA1prongStripsWOgsfEC          = cms.double(+0.0467638),
+    minMVA1prongStripsWgsfWOpfEleMvaEC = cms.double(+0.0863876),
+    minMVA1prongStripsWgsfWpfEleMvaEC  = cms.double(+0.233436)
 )
 
 hpsPFTauDiscriminationByMVA2TightElectronRejection = hpsPFTauDiscriminationByMVA2rawElectronRejection.clone(
     returnMVA = cms.bool(False),
-    # define 75% signal efficiency WP
-    minMVA1prongNoEleMatchBL           = cms.double(-0.126102),
-    minMVA1prongBL                     = cms.double(-0.0458154),
-    minMVA1prongStripsWOgsfBL          = cms.double(-0.137043),
-    minMVA1prongStripsWgsfWOpfEleMvaBL = cms.double(+0.0332071),
-    minMVA1prongStripsWgsfWpfEleMvaBL  = cms.double(-0.0448832),
-    minMVA1prongNoEleMatchEC           = cms.double(-0.0177012),
-    minMVA1prongEC                     = cms.double(+0.189192),
-    minMVA1prongStripsWOgsfEC          = cms.double(-0.0444424),
-    minMVA1prongStripsWgsfWOpfEleMvaEC = cms.double(-0.0938333),
-    minMVA1prongStripsWgsfWpfEleMvaEC  = cms.double(+0.144127)
-)
-
-hpsPFTauDiscriminationByMVA2VTightElectronRejection = hpsPFTauDiscriminationByMVA2rawElectronRejection.clone(
-    returnMVA = cms.bool(False),
-    # define 70% signal efficiency WP
-    minMVA1prongNoEleMatchBL           = cms.double(-0.133868),
-    minMVA1prongBL                     = cms.double(-0.0295349),
-    minMVA1prongStripsWOgsfBL          = cms.double(-0.00930688),
-    minMVA1prongStripsWgsfWOpfEleMvaBL = cms.double(-0.0949625),
-    minMVA1prongStripsWgsfWpfEleMvaBL  = cms.double(+0.832122),
-    minMVA1prongNoEleMatchEC           = cms.double(-0.00877876),
-    minMVA1prongEC                     = cms.double(+0.275851),
-    minMVA1prongStripsWOgsfEC          = cms.double(-0.0145072),
-    minMVA1prongStripsWgsfWOpfEleMvaEC = cms.double(+0.515682),
-    minMVA1prongStripsWgsfWpfEleMvaEC  = cms.double(-0.0634265)
+    minMVA1prongNoEleMatchBL           = cms.double(+0.0306715),
+    minMVA1prongBL                     = cms.double(+0.992195),
+    minMVA1prongStripsWOgsfBL          = cms.double(+0.308324),
+    minMVA1prongStripsWgsfWOpfEleMvaBL = cms.double(-0.0370998),
+    minMVA1prongStripsWgsfWpfEleMvaBL  = cms.double(+0.864643),
+    minMVA1prongNoEleMatchEC           = cms.double(+0.0832094),
+    minMVA1prongEC                     = cms.double(+0.791665),
+    minMVA1prongStripsWOgsfEC          = cms.double(+0.675537),
+    minMVA1prongStripsWgsfWOpfEleMvaEC = cms.double(+0.87047),
+    minMVA1prongStripsWgsfWpfEleMvaEC  = cms.double(+0.233711)
 )
 
 # Define the HPS selection discriminator used in cleaning
@@ -406,6 +429,7 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
     #hpsPFTauDiscriminationByIsolationSeqRhoCorr*
     #hpsPFTauDiscriminationByIsolationSeqCustomRhoCorr*
     hpsPFTauDiscriminationByIsolationSeqDBSumPtCorr*
+    hpsPFTauDiscriminationByMVAIsolationSeq*
 
     hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr*
     hpsPFTauDiscriminationByRawChargedIsolationDBSumPtCorr*
@@ -417,10 +441,10 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByTightElectronRejection*
     hpsPFTauDiscriminationByMVAElectronRejection*
     hpsPFTauDiscriminationByMVA2rawElectronRejection*
-    hpsPFTauDiscriminationByMVA2LooseElectronRejection*
+    hpsPFTauDiscriminationByMVA2VLooseElectronRejection*
+    hpsPFTauDiscriminationByMVA2LooseElectronRejection*    
     hpsPFTauDiscriminationByMVA2MediumElectronRejection*
     hpsPFTauDiscriminationByMVA2TightElectronRejection*
-    hpsPFTauDiscriminationByMVA2VTightElectronRejection*
     hpsPFTauDiscriminationByLooseMuonRejection*
     hpsPFTauDiscriminationByMediumMuonRejection*
     hpsPFTauDiscriminationByTightMuonRejection
