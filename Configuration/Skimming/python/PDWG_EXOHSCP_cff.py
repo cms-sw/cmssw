@@ -16,7 +16,8 @@ HSCPTrigger.HLTPaths = [
             "HLT_HT650_*",
             "HLT_MET80_*",
             "HLT_PFMET*",
-            "HLT_L2Mu70_eta2p1_PFMET65", "HLT_L2Mu80_eta2p1_PFMET70"
+            "HLT_L2Mu70_eta2p1_PFMET65", 
+            "HLT_L2Mu80_eta2p1_PFMET70",
             "HLT_*L2Mu*_NoBPTX*"
 		]
 hltSeq = cms.Sequence(HSCPTrigger)  
