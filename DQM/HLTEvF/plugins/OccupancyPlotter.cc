@@ -98,7 +98,7 @@ class OccupancyPlotter : public edm::EDAnalyzer {
   float _instLumi;
   float _instLumi_err;
   float _pileup;
-
+  double _photScale;
   // Store the HV info
   bool dcs[25];
   bool thisiLumiValue;
@@ -110,7 +110,7 @@ class OccupancyPlotter : public edm::EDAnalyzer {
   // histograms
   TH1F * hist_LumivsLS;
   TH1F * hist_PUvsLS;
-  
+  TH1F * hist_photEtaNormd;
 };
 
 //
@@ -134,6 +134,7 @@ OccupancyPlotter::OccupancyPlotter(const edm::ParameterSet& iConfig)
   thisiLumiValue = false;
   cntevt=0;
   cntBadHV=0;
+  _photScale=1.;
   if (debugPrint) std::cout << "Inside Constructor" << std::endl;
 
   plotDirectoryName = iConfig.getUntrackedParameter<std::string>("dirname", "HLT/Test");
@@ -165,7 +166,7 @@ OccupancyPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    using std::string;
    int lumisection = (int)iEvent.luminosityBlock();
 
-   if (debugPrint) std::cout << "Inside analyze" << std::endl;
+   //std::cout << "Inside analyze" << std::endl; //if (debugPrint) 
    ++cntevt;
    if (cntevt % 10000 == 0) std::cout << "[OccupancyPlotter::analyze] Received event " << cntevt << std::endl;
    // === Check the HV and the lumi
@@ -183,11 +184,11 @@ OccupancyPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      thisiLumiValue = false;
      std::cout << "LS = " << lumisection << ", Lumi = " << _instLumi << " ± " << _instLumi_err << ", pileup = " << _pileup << std::endl;
 
-     hist_LumivsLS = dbe->get("HLT/OccupancyPlots/HLT_LumivsLS")->getTH1F();
-     hist_LumivsLS->SetBinContent(lumisection+1,_instLumi);
-     hist_LumivsLS->SetBinError(lumisection+1,_instLumi_err);
+     hist_LumivsLS = dbe->get("HLT/OccupancyPlots/HLT_z_LumivsLS")->getTH1F();
+     hist_LumivsLS->SetBinContent(lumisection+1,_instLumi/1000);
+     hist_LumivsLS->SetBinError(lumisection+1,_instLumi_err/1000);
      //
-     hist_PUvsLS = dbe->get("HLT/OccupancyPlots/HLT_PUvsLS")->getTH1F();
+     hist_PUvsLS = dbe->get("HLT/OccupancyPlots/HLT_z_PUvsLS")->getTH1F();
      hist_PUvsLS->SetBinContent(lumisection+1,_pileup);
 
    }
@@ -358,12 +359,14 @@ OccupancyPlotter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 
     if (debugPrint) std::cout <<"Found PD: " << datasetNames[i]  << std::endl;     
     setupHltMatrix(datasetNames[i],i);   
-    int maxLumisection=1000;
+    int maxLumisection=1250;
     dbe->setCurrentFolder("HLT/OccupancyPlots/");
-    hist_LumivsLS = new TH1F("HLT_LumivsLS", "; Lumisection; Instantaneous Luminosity (cm^{-2} s^{-1})",maxLumisection,0,maxLumisection);
-    dbe->book1D("HLT_LumivsLS", hist_LumivsLS);
-    hist_PUvsLS = new TH1F("HLT_PUvsLS", "; Lumisection; Pileup",maxLumisection,0,maxLumisection);
-    dbe->book1D("HLT_PUvsLS", hist_PUvsLS);
+    hist_LumivsLS = new TH1F("HLT_z_LumivsLS", "; Lumisection; Instantaneous Luminosity [#times10^{33}cm^{-2} s^{-1}]",maxLumisection,0,maxLumisection);
+    dbe->book1D("HLT_z_LumivsLS", hist_LumivsLS);
+    hist_PUvsLS = new TH1F("HLT_z_PUvsLS", "; Lumisection; Pileup",maxLumisection,0,maxLumisection);
+    dbe->book1D("HLT_z_PUvsLS", hist_PUvsLS);
+    hist_photEtaNormd = new TH1F("HLT_photEtaNormd","Photons (overlayable for endcap); eta; Photons",60,-2.610,2.610);
+    dbe->book1D("HLT_photEtaNormd", hist_photEtaNormd);
 
   }// end of loop over dataset names
 
@@ -416,20 +419,17 @@ Double_t PhiMaxFine = 33.0*TMath::Pi()/32.0;
 //Double_t eta_bins[] = {-2.610,-2.175,-1.740,-1.305,-0.870,-0.435,0,0.435,0.870,1.305,1.740,2.175,2.610};
 //Double_t phi_bins[] = {-TMath::Pi(),-3*TMath::Pi()/4,-TMath::Pi()/2,-TMath::Pi()/4,0,TMath::Pi()/4,TMath::Pi()/2,3*TMath::Pi()/4,TMath::Pi()};
 
- if (label!="MET") { 
-    TH2F * hist_EtaVsPhi = new
-                TH2F(h_name.c_str(),h_title.c_str(),numBinsEta,-EtaMax,EtaMax,numBinsPhi,-PhiMax,PhiMax);
-    TH1F * hist_1dEta = new
-                TH1F(h_name_1dEta.c_str(),h_title_1dEta.c_str(),numBinsEtaFine,-EtaMax,EtaMax);
-    hist_EtaVsPhi->SetMinimum(0); 
-    hist_1dEta->SetMinimum(0);
-   dbe->book1D(h_name_1dEta.c_str(),hist_1dEta);
-   dbe->book2D(h_name.c_str(),hist_EtaVsPhi);
- }
- TH1F * hist_1dPhi = new
-                TH1F(h_name_1dPhi.c_str(),h_title_1dPhi.c_str(),numBinsPhiFine,-PhiMaxFine,PhiMaxFine);
+ TH2F * hist_EtaVsPhi = new TH2F(h_name.c_str(),h_title.c_str(),numBinsEta,-EtaMax,EtaMax,numBinsPhi,-PhiMax,PhiMax);
+ TH1F * hist_1dEta = new TH1F(h_name_1dEta.c_str(),h_title_1dEta.c_str(),numBinsEtaFine,-EtaMax,EtaMax);
+ TH1F * hist_1dPhi = new TH1F(h_name_1dPhi.c_str(),h_title_1dPhi.c_str(),numBinsPhiFine,-PhiMaxFine,PhiMaxFine);
+
+ hist_EtaVsPhi->SetMinimum(0);
+ hist_1dEta->SetMinimum(0);
  hist_1dPhi->SetMinimum(0);
- dbe->book1D(h_name_1dPhi.c_str(),hist_1dPhi);
+
+dbe->book2D(h_name.c_str(),hist_EtaVsPhi);
+dbe->book1D(h_name_1dEta.c_str(),hist_1dEta);
+dbe->book1D(h_name_1dPhi.c_str(),hist_1dPhi);
 
   for (unsigned int iPath = 0; iPath < PDsVectorPathsVector[iPD].size(); iPath++) { 
     pathName = PDsVectorPathsVector[iPD][iPath];
@@ -440,9 +440,7 @@ Double_t PhiMaxFine = 33.0*TMath::Pi()/32.0;
     Path_Folder = TString("HLT/OccupancyPlots/"+label+"/Paths");
     dbe->setCurrentFolder(Path_Folder.c_str());
 
-    // We don't want eta of MET PD to be histogrammed
-    if (label!="MET")
-        dbe->book1D(h_name_1dEtaPath.c_str(),h_title_1dEtaPath.c_str(),numBinsEtaFine,-EtaMax,EtaMax);
+    dbe->book1D(h_name_1dEtaPath.c_str(),h_title_1dEtaPath.c_str(),numBinsEtaFine,-EtaMax,EtaMax);
     dbe->book1D(h_name_1dPhiPath.c_str(),h_title_1dPhiPath.c_str(),numBinsPhiFine,-PhiMaxFine,PhiMaxFine);
   
     if (debugPrint) std::cout << "book1D for " << pathName << std::endl;
@@ -461,6 +459,8 @@ void OccupancyPlotter::fillHltMatrix(std::string label, std::string path,double 
   std::string fullPathToME1dEtaPath;
   std::string fullPathToME1dPhiPath;
 
+  
+
  fullPathToME = "HLT/OccupancyPlots/HLT_"+label+"_EtaVsPhi"; 
  fullPathToME1dEta = "HLT/OccupancyPlots/HLT_"+label+"_1dEta";
  fullPathToME1dPhi = "HLT/OccupancyPlots/HLT_"+label+"_1dPhi";
@@ -477,42 +477,36 @@ if (label != "SingleMu" && label != "SingleElectron" && label != "Jet") {
   if (debugPrint) std::cout << "fullPathToME = " << std::endl;
 
   MonitorElement * ME_2d = dbe->get(fullPathToME);
-  
   MonitorElement * ME_1dEta = dbe->get(fullPathToME1dEta);
-  MonitorElement * ME_1dEtaPath = dbe->get(fullPathToME1dEtaPath);
-  
   MonitorElement * ME_1dPhi = dbe->get(fullPathToME1dPhi);  
+  MonitorElement * ME_1dEtaPath = dbe->get(fullPathToME1dEtaPath);
   MonitorElement * ME_1dPhiPath = dbe->get(fullPathToME1dPhiPath);
 
   if (debugPrint) std::cout << "MonitorElement * " << std::endl;
 
-  TH2F * hist_2d;
-  TH1F * hist_1dEta;
-  TH1F * hist_1dEtaPath;
-
-  if (label!="MET"){
-    hist_1dEta = ME_1dEta->getTH1F();
-    hist_1dEtaPath = ME_1dEtaPath->getTH1F();
-    hist_2d = ME_2d->getTH2F();
-  }
+  TH2F * hist_2d = ME_2d->getTH2F();
+  TH1F * hist_1dEta = ME_1dEta->getTH1F();
   TH1F * hist_1dPhi = ME_1dPhi->getTH1F();
+  TH1F * hist_1dEtaPath = ME_1dEtaPath->getTH1F();
   TH1F * hist_1dPhiPath = ME_1dPhiPath->getTH1F();
 
   if (debugPrint) std::cout << "TH2F *" << std::endl;
 
-  //int i=2;
-  //if (Eta>1.305 && Eta<1.872) i=0;
-  //if (Eta<-1.305 && Eta>-1.872) i=0;
-  //for (int ii=i; ii<3; ++ii) hist_2d->Fill(Eta,Phi); //Scales narrow bins in Barrel/Endcap border region
+  hist_photEtaNormd = dbe->get("HLT/OccupancyPlots/HLT_photEtaNormd")->getTH1F();
 
   if(first_count) {
-    hist_1dPhi->Fill(Phi);
-    if (label!="MET") {
-      hist_1dEta->Fill(Eta); 
-      hist_2d->Fill(Eta,Phi); }
-  }
-  if (label!="MET") hist_1dEtaPath->Fill(Eta); 
-  hist_1dPhiPath->Fill(Phi);
+   //std::cout << "eta=" << Eta << ", phi=" << Phi << ", label=" << label << ", path=" << path << "\n";
+    // this is the photon eta histogram normalized so as to make the barrel part integrate to a fixed value
+    // so that the plots can be overlayed on DQM GUI and the affect of the transparency correction that
+    // modifies the endcap photons can be observed.
+    // Normalization is done at the endrun  
+    if (label == "Photon") hist_photEtaNormd->Fill(Eta); 
+
+    if (Eta!=0) hist_1dEta->Fill(Eta);
+    hist_1dPhi->Fill(Phi); 
+    if (Eta!=0) hist_2d->Fill(Eta,Phi); }
+    if (Eta!=0) hist_1dEtaPath->Fill(Eta); 
+    hist_1dPhiPath->Fill(Phi);
 
  if (debugPrint) std::cout << "hist->Fill" << std::endl;
 
@@ -619,7 +613,6 @@ void OccupancyPlotter::checkLumiInfo (const edm::Event & jEvent) {
   if (debugPrint) std::cout << "Live Lumi Fill is " <<it3->liveLumiFill() << std::endl;
   if (debugPrint) std::cout << "Live Lumi Run is " <<it3->liveLumiRun() << std::endl;
   if (debugPrint) std::cout << "Pileup? = " << _pileup << std::endl;
-
   return;
   
 }
@@ -633,12 +626,24 @@ void OccupancyPlotter::beginLuminosityBlock(edm::LuminosityBlock const &lb, edm:
  thisLumiSection = lb.luminosityBlock();
  std::cout << "[OccupancyPlotter::beginLuminosityBlock] New luminosity block: " << thisLumiSection << std::endl; 
  thisiLumiValue=true; // add the instantaneous luminosity of the first event to the LS-Lumi plot
+
+ hist_photEtaNormd->Scale(1/_photScale); // revert to original normalization
+
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 void 
 OccupancyPlotter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
+
+   hist_photEtaNormd = dbe->get("HLT/OccupancyPlots/HLT_photEtaNormd")->getTH1F();
+   double integral=hist_photEtaNormd->Integral(13,47); // for 60 bins, |eta|=1.479 corr.s to bins 13 and 47
+   if (integral >0) {
+      std::cout << "[endLuminosityBlock] Scaling HLT_photEtaNormd histogram to 1/" <<  integral << "\n" ;
+      _photScale=1/integral;
+      hist_photEtaNormd->Scale(_photScale);
+   }
+
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
