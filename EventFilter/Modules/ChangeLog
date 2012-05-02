@@ -1,3 +1,9 @@
+2012-05-02 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-08-07-02
+	* branch point OldInitMsg
+	* taking out older version of the branch for backwards support
+
 2011-08-17 Emilio Meschi <Remigius.Mommsen@cern.ch>
 
 	* tag V00-08-07
