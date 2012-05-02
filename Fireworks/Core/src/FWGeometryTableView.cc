@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:34 CET 2012
-// $Id: FWGeometryTableView.cc,v 1.30 2012/04/30 19:59:37 amraktad Exp $
+// $Id: FWGeometryTableView.cc,v 1.31 2012/05/01 01:13:44 amraktad Exp $
 //
 
 // system include files
@@ -324,15 +324,11 @@ void FWGeometryTableView::populateController(ViewerParameterGUI& gui) const
       addParam(&m_proximityAlgo);
 
       // addParam(&m_enableHighlight);
+   
+   
+   FWGeometryTableViewBase::populateController(gui);
 }
 
-void FWGeometryTableView::printTable()
-{
-   // print all entries
-
-   // getTableManager()->printChildren(-1);
-   std::cout << "TODO .... \n";
-}
 
 //------------------------------------------------------------------------------
 

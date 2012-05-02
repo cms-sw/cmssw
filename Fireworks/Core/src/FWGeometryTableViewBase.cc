@@ -14,6 +14,8 @@
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/src/FWPopupMenu.cc"
 #include "Fireworks/Core/src/FWGeoTopNodeScene.h"
+#include "Fireworks/Core/interface/CmsShowViewPopup.h"
+
 
 #include "TGFileDialog.h"
 #include "TGeoNode.h"
@@ -474,11 +476,13 @@ void FWGeometryTableViewBase::setBackgroundColor()
 
 void FWGeometryTableViewBase::nodeColorChangeRequested(Color_t col)
 {
+   // AMT: need to add virtual   FWGeometryTableView::nodeColorChangeRequested() for volume mode
+   
    //   printf("color change %d \n", m_tableRowIndexForColorPopup);
    if (m_tableRowIndexForColorPopup >= 0) {
       FWGeometryTableManagerBase::NodeInfo& ni = getTableManager()->refEntries()[m_tableRowIndexForColorPopup];
       ni.m_color = col;
-      ni.m_node->GetVolume()->SetLineColor(col);
+      // ni.m_node->GetVolume()->SetLineColor(col);
       refreshTable3D();
       m_tableRowIndexForColorPopup = -1;
    }
@@ -622,4 +626,29 @@ void FWGeometryTableViewBase::setFrom(const FWConfiguration& iFrom)
    m_enableRedraw = true;
    refreshTable3D();
 }
+
+//______________________________________________________________________________
+
+void FWGeometryTableViewBase::reloadColors()
+{
+  // printf("relaodColors \n");
+   for (FWGeometryTableManagerBase::Entries_i i = getTableManager()->refEntries().begin(); i !=  getTableManager()->refEntries().end(); ++i)
+   {
+      i->m_color = i->m_node->GetVolume()->GetLineColor();
+   }
+   
+   refreshTable3D();
+}
+
+//______________________________________________________________________________
+
+void FWGeometryTableViewBase::populateController(ViewerParameterGUI& gui) const
+{
+   gui.requestTab("Style").separator();
+   TGTextButton* butt = new TGTextButton(gui.getTabContainer(), "ReloadColors");
+   gui.getTabContainer()->AddFrame(butt);
+   butt->Connect("Clicked()", "FWGeometryTableViewBase", (FWGeometryTableViewBase*)this, "reloadColors()");
+
+}
+
 

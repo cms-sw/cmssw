@@ -98,6 +98,9 @@ public:
    int getTopNodeIdx() const { return TMath::Max((int)m_topNodeIdx.value(), 0); }
   
    void transparencyChanged();
+   
+   void  reloadColors();
+
 protected:
 
 #ifndef __CINT__      
@@ -137,6 +140,8 @@ protected:
    void enableHighlight();
 
    void postConst();
+   
+   virtual void populateController(ViewerParameterGUI&) const;
 
 private:
    int m_tableRowIndexForColorPopup;

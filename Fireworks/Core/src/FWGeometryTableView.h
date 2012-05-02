@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:38 CET 2012
-// $Id: FWGeometryTableView.h,v 1.6 2012/04/29 19:29:00 amraktad Exp $
+// $Id: FWGeometryTableView.h,v 1.7 2012/04/30 19:59:37 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
@@ -52,9 +52,7 @@ public:
 
    bool drawTopNode() const { return ! m_disableTopNode.value(); }
    void autoExpandCallback();
-   virtual void setPath(int, std::string&);
-   void printTable();
-   
+   virtual void setPath(int, std::string&);   
    virtual void setFrom(const FWConfiguration&);
 
   // void chosenItem(int);
