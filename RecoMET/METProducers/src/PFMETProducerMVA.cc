@@ -65,8 +65,8 @@ namespace
 
 PFMETProducerMVA::PFMETProducerMVA(const edm::ParameterSet& cfg) 
   : mvaMEtAlgo_(cfg),
-    looseJetIdAlgo_(0)
-    //mvaJetIdAlgo_(cfg)
+    looseJetIdAlgo_(0),
+    mvaJetIdAlgo_(cfg)
 {
   srcCorrJets_     = cfg.getParameter<edm::InputTag>("srcCorrJets");
   srcUncorrJets_   = cfg.getParameter<edm::InputTag>("srcUncorrJets");
@@ -152,7 +152,7 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es)
   metAlgo_.run(pfCandidates_view, &pfMEt_data, globalThreshold_);
   reco::PFMET pfMEt = pfMEtSpecificAlgo_.addInfo(pfCandidates_view, pfMEt_data);
   reco::Candidate::LorentzVector pfMEtP4_original = pfMEt.p4();
-
+  
   // compute objects specific to MVA based MET reconstruction
   std::vector<mvaMEtUtilities::JetInfo> jetInfo = computeJetInfo(*uncorrJets, *corrJets, *vertices, hardScatterVertex, *rho);
   std::vector<mvaMEtUtilities::pfCandInfo> pfCandidateInfo = computePFCandidateInfo(*pfCandidates, hardScatterVertex);
@@ -210,24 +210,21 @@ std::vector<mvaMEtUtilities::JetInfo> PFMETProducerMVA::computeJetInfo(const rec
       // compute jet energy correction factor
       // (= ratio of corrected/uncorrected jet Pt)
       double jetEnCorrFactor = corrJet->pt()/uncorrJet->pt();
-
       mvaMEtUtilities::JetInfo jetInfo;
 
       // PH: don't apply jet energy corrections for jets of uncorrected Pt < 10 GeV,
       //     following recommendation of JetMET convenors for Type 1 corrected PFMET
       //    (only apply rho correction)
-      if ( corrJet->pt() > 10. ) {
+      if ( uncorrJet->pt() > 10. ) {
 	jetInfo.p4_ = corrJet->p4();
       } else {
 	jetInfo.p4_ = uncorrJet->p4();
 	if ( uncorrJet->pt() > 0. ) jetInfo.p4_ *= std::max((uncorrJet->pt() - rho*uncorrJet->jetArea())/uncorrJet->pt(), 0.);
       }
-
       // check that jet Pt used to compute MVA based jet id. is above threshold
       if ( !(jetInfo.p4_.pt() > minCorrJetPt_) ) continue;
-
-      //jetInfo.mva_ = mvaJetIdAlgo_.computeIdVariables(&(*corrJet), jetEnCorrFactor, hardScatterVertex, vertices, true).mva();
-
+      
+      jetInfo.mva_ = mvaJetIdAlgo_.computeIdVariables(&(*corrJet), jetEnCorrFactor, hardScatterVertex, vertices, true).mva();
       jetInfo.neutralEnFrac_ = (uncorrJet->neutralEmEnergy() + uncorrJet->neutralHadronEnergy())/uncorrJet->energy();
 
       retVal.push_back(jetInfo);

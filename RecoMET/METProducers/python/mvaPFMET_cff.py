@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMET.METProducers.PFMET_cfi import pfMet
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
+from JetMETCorrections.Configuration.DefaultJEC_cff import *
 from CMGTools.External.puJetIDAlgo_cff import JetIdParams
 
 calibratedAK5PFJetsForPFMEtMVA = cms.EDProducer('PFJetCorrectionProducer',
@@ -18,15 +19,15 @@ pfMEtMVA = cms.EDProducer("PFMETProducerMVA",
                                   #       passing the lepton reconstruction & identification criteria applied in your analysis
     srcRho = cms.InputTag('kt6PFJets','rho'),
     globalThreshold = pfMet.globalThreshold,
-    minCorrJetPt = cms.double(0.),
+    minCorrJetPt = cms.double(-1.),
     inputFileNames = cms.PSet(
-        U     = cms.FileInPath('RecoMET/Configuration/data/gbrmet_52.root'),
-        DPhi  = cms.FileInPath('RecoMET/Configuration/data/gbrmetphi_52.root'),
-        CovU1 = cms.FileInPath('RecoMET/Configuration/data/gbrmetu1cov_52.root'),
-        CovU2 = cms.FileInPath('RecoMET/Configuration/data/gbrmetu2cov_52.root')                              
+        U     = cms.FileInPath('pharris/MVAMet/data/gbrmet_52.root'),
+        DPhi  = cms.FileInPath('pharris/MVAMet/data/gbrmetphi_52.root'),
+        CovU1 = cms.FileInPath('pharris/MVAMet/data/gbrmetu1cov_52.root'),
+        CovU2 = cms.FileInPath('pharris/MVAMet/data/gbrmetu2cov_52.root')                              
     ),
     dZcut = cms.double(0.1),
-    impactParTkThreshold = cms.double(1.),
+    impactParTkThreshold = cms.double(0.),
     tmvaWeights = cms.string("CMGTools/External/data/mva_JetID_v1.weights.xml"),
     tmvaMethod = cms.string("JetID"),
     version = cms.int32(-1),
@@ -54,6 +55,6 @@ pfMEtMVA = cms.EDProducer("PFMETProducerMVA",
 )
 
 pfMEtMVAsequence  = cms.Sequence(
-    calibratedAK5PFJetsForPFMEtMVA
-   * pfMEtMVA
+    calibratedAK5PFJetsForPFMEtMVA* 
+    pfMEtMVA
 )

@@ -105,7 +105,7 @@ void PFMETAlgorithmMVA::setInput(const std::vector<reco::Candidate::LorentzVecto
   CommonMETData tkRecoil_data  = utils_.computeNegTrackRecoil(sumLeptons, pfCandidates, dZcut_);
   CommonMETData npuRecoil_data = utils_.computeNegNoPURecoil(sumLeptons, pfCandidates, jets_cleaned, dZcut_);
   CommonMETData pucRecoil_data = utils_.computeNegPUCRecoil(sumLeptons, pfCandidates, jets_cleaned, dZcut_);
-  CommonMETData puMEt_data     = utils_.computePUMEt(pfCandidates, jets_cleaned, dZcut_);
+  CommonMETData puMEt_data     = utils_.computePUMEt(pfCandidates, jets_cleaned, 0.2); //dZCut bug
 
   reco::Candidate::LorentzVector jet1P4 = utils_.leadJetP4(jets_cleaned);
   reco::Candidate::LorentzVector jet2P4 = utils_.subleadJetP4(jets_cleaned);
@@ -310,7 +310,7 @@ void PFMETAlgorithmMVA::evaluateCovU1()
   mvaInputCovU1_[22] = numJets_;
   mvaInputCovU1_[23] = numJetsPtGt30_;
   mvaInputCovU1_[24] = pfPhi_ + mvaOutputDPhi_;
-  mvaInputCovU1_[25] = mvaOutputU_;
+  mvaInputCovU1_[25] = mvaOutputU_*pfU_;
   mvaOutputCovU1_    = mvaReaderCovU1_->GetResponse(mvaInputCovU1_);
   //std::cout << "<PFMETAlgorithmMVA::evaluateCovU1>:" << std::endl;
   //std::cout << " mvaOutputCovU1 = " << mvaOutputCovU1_ << std::endl;
@@ -343,7 +343,7 @@ void PFMETAlgorithmMVA::evaluateCovU2()
   mvaInputCovU2_[22] = numJets_;
   mvaInputCovU2_[23] = numJetsPtGt30_;
   mvaInputCovU2_[24] = pfPhi_ + mvaOutputDPhi_;
-  mvaInputCovU2_[25] = mvaOutputU_;
+  mvaInputCovU2_[25] = mvaOutputU_*pfU_;
   mvaOutputCovU2_    = mvaReaderCovU2_->GetResponse(mvaInputCovU2_);
   //std::cout << "<PFMETAlgorithmMVA::evaluateCovU2>:" << std::endl;
   //std::cout << " mvaOutputCovU2 = " << mvaOutputCovU2_ << std::endl;

@@ -35,10 +35,10 @@ mvaMEtUtilities::mvaMEtUtilities(const edm::ParameterSet& cfg)
   mvaCut_[1][2][0] =  0.2; mvaCut_[1][2][1] = 0.2; mvaCut_[1][2][2] = 0.5; mvaCut_[1][2][3] = 0.7;
   mvaCut_[1][3][0] =  0.3; mvaCut_[1][3][1] = 0.2; mvaCut_[1][3][2] = 0.7; mvaCut_[1][3][3] = 0.8;
   //Loose Id 
-  mvaCut_[2][0][0] =  0. ; mvaCut_[2][0][1] =  0. ; mvaCut_[2][0][2] =  0. ; mvaCut_[2][0][3] = 0.2;
-  mvaCut_[2][1][0] = -0.4; mvaCut_[2][1][1] = -0.4; mvaCut_[2][1][2] = -0.4; mvaCut_[2][1][3] = 0.4;
-  mvaCut_[2][2][0] =  0. ; mvaCut_[2][2][1] =  0. ; mvaCut_[2][2][2] =  0.2; mvaCut_[2][2][3] = 0.6;
-  mvaCut_[2][3][0] =  0. ; mvaCut_[2][3][1] =  0. ; mvaCut_[2][3][2] =  0.6; mvaCut_[2][3][3] = 0.2;
+  mvaCut_[2][0][0] = -0.2; mvaCut_[2][0][1] =  0. ; mvaCut_[2][0][2] =  0.2; mvaCut_[2][0][3] =  0.5;
+  mvaCut_[2][1][0] =  0.2; mvaCut_[2][1][1] = -0.6; mvaCut_[2][1][2] = -0.6; mvaCut_[2][1][3] = -0.4;
+  mvaCut_[2][2][0] =  0.2; mvaCut_[2][2][1] = -0.6; mvaCut_[2][2][2] = -0.6; mvaCut_[2][2][3] = -0.4;
+  mvaCut_[2][3][0] =  0.2; mvaCut_[2][3][1] = -0.8; mvaCut_[2][3][2] = -0.8; mvaCut_[2][3][3] = -0.4;
 }
 
 mvaMEtUtilities::~mvaMEtUtilities() 
@@ -141,7 +141,6 @@ std::vector<mvaMEtUtilities::JetInfo> mvaMEtUtilities::cleanJets(const std::vect
   //  std::cout << " #" << iJet << ": Pt = " << jetP4.pt() << "," 
   //	        << " eta = " << jetP4.eta() << ", phi = " << jetP4.phi() << std::endl;
   //}
-  
   return retVal;
 }
 //-------------------------------------------------------------------------------
@@ -195,10 +194,10 @@ CommonMETData mvaMEtUtilities::computeJetMEt_neutral(const std::vector<JetInfo>&
     if (  passesMVAjetId && !mvaPassFlag ) continue;
     if ( !passesMVAjetId &&  mvaPassFlag ) continue;
     reco::Candidate::LorentzVector p4neutral = jet->p4_;
-    p4neutral *= jet->neutralEnFrac_; // CV: in Phil's original implementation the mass did not get scaled (?)
-    retVal.mex   -= p4neutral.px();
-    retVal.mey   -= p4neutral.py();
-    retVal.sumet += p4neutral.pt();
+    //p4neutral *= jet->neutralEnFrac_; // CV: in Phil's original implementation the mass did not get scaled (?)
+    retVal.mex   -= jet->p4_.px()*jet->neutralEnFrac_;
+    retVal.mey   -= jet->p4_.py()*jet->neutralEnFrac_;
+    retVal.sumet += jet->p4_.pt()*jet->neutralEnFrac_;
   }
   finalize(retVal);
   return retVal;
@@ -215,7 +214,9 @@ CommonMETData mvaMEtUtilities::computeNoPUMEt(const std::vector<pfCandInfo>& pfC
   CommonMETData jetMEt_neutral = computeJetMEt_neutral(jets, true);
   retVal.mex   = trackMEt.mex   + jetMEt_neutral.mex;
   retVal.mey   = trackMEt.mey   + jetMEt_neutral.mey;
-  retVal.sumet = trackMEt.sumet + jetMEt_neutral.sumet;
+  double lNPSumEtBug = 0; 
+  for(int i0 = 0; i0 < int(pfCandidates.size()); i0++) if(pfCandidates[i0].dZ_ > 0) lNPSumEtBug += pfCandidates[i0].p4_.pt();  //One More bug
+  retVal.sumet = lNPSumEtBug + jetMEt_neutral.sumet;
   finalize(retVal);
   return retVal;
 }
@@ -246,9 +247,9 @@ CommonMETData mvaMEtUtilities::computePUCMEt(const std::vector<pfCandInfo>& pfCa
   CommonMETData pfMEt = computeTrackMEt(pfCandidates, dZcut, 2);
   CommonMETData trackMEt = computeTrackMEt(pfCandidates, dZcut, 1);
   CommonMETData jetMEt_neutral = computeJetMEt_neutral(jets, false);
-  retVal.mex   = pfMEt.mex   - (trackMEt.mex   + jetMEt_neutral.mex);
-  retVal.mey   = pfMEt.mey   - (trackMEt.mey   + jetMEt_neutral.mey);
-  retVal.sumet = pfMEt.sumet - (trackMEt.sumet + jetMEt_neutral.sumet);
+  retVal.mex   = pfMEt.mex   - (trackMEt.mex    + jetMEt_neutral.mex);
+  retVal.mey   = pfMEt.mey   - (trackMEt.mey    + jetMEt_neutral.mey);
+  retVal.sumet = pfMEt.sumet - (trackMEt.sumet) + jetMEt_neutral.sumet;//PH Bug in Sume for PUC Met 
   finalize(retVal);
   return retVal;
 }
