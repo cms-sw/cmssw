@@ -69,8 +69,8 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   
   // Initialize Bthe stable particle decay engine 
   if ( decays.getParameter<bool>("ActivateDecays") && ( decays.getParameter<std::string>("Decayer") == "pythia6" || decays.getParameter<std::string>("Decayer") == "pythia8" ) ) { 
-    myDecayEngine = new PythiaDecays();
     decayer = decays.getParameter<std::string>("Decayer");
+    myDecayEngine = new PythiaDecays(decayer);
     distCut = decays.getParameter<double>("DistCut");
   } else if (! ( decays.getParameter<std::string>("Decayer") == "pythia6" || decays.getParameter<std::string>("Decayer") == "pythia8" ) )
     std::cout << "No valid decayer has been selected! No decay performed..." << std::endl;
