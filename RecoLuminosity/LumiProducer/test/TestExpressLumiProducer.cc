@@ -54,6 +54,7 @@ namespace edmtest
   void TestExpressLumiProducer::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
     Handle<LumiSummary> lumiSummary;
     lumiBlock.getByLabel("expressLumiProducer", lumiSummary);
+    //std::cout<<"lumiSummary ptr "<<lumiSummary<<std::endl;
     if(lumiSummary->isValid()){
       std::cout << *lumiSummary << "\n";
     }else{
@@ -63,6 +64,11 @@ namespace edmtest
     lumiBlock.getByLabel("expressLumiProducer", lumiDetails);
     if(lumiDetails->isValid()){
       std::cout<<"valid detail"<<std::endl;
+      std::cout<<"lumivalue bx 14 "<<lumiDetails->lumiValue(LumiDetails::kOCC1,14)<<std::endl;
+      std::cout<<"lumivalue bx 214 "<<lumiDetails->lumiValue(LumiDetails::kOCC1,214)<<std::endl;
+      std::cout<<"lumivalue bx 1475 "<<lumiDetails->lumiValue(LumiDetails::kOCC1,1475)<<std::endl;
+      std::cout<<"lumivalue bx 2775 "<<lumiDetails->lumiValue(LumiDetails::kOCC1,2775)<<std::endl;
+      std::cout<<"lumivalue bx 3500 "<<lumiDetails->lumiValue(LumiDetails::kOCC1,3500)<<std::endl;
     }else{
       std::cout << "no valid lumi detail data" <<std::endl;
     }
