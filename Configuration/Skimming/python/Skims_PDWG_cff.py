@@ -132,13 +132,10 @@ SKIMStreamTOPMuPlusJets = cms.FilteredStream(
 
 
 from Configuration.Skimming.PDWG_HZZSkim_cff import *
-HZZmmPath = cms.Path(zzdiMuonSequence)
-HZZeePath = cms.Path(zzdiElectronSequence)
-HZZemPath = cms.Path(zzeleMuSequence)
 SKIMStreamHZZ = cms.FilteredStream(
         responsible = 'PDWG',
         name = 'HZZ',
-        paths = (HZZmmPath,HZZeePath,HZZemPath),
+        paths = HZZPaths,
         content = skimAodContent.outputCommands,
         selectEvents = cms.untracked.PSet(),
         dataTier = cms.untracked.string('AOD')
