@@ -104,9 +104,8 @@ void HcalTBQADCUnpacker::setCalib(const std::vector<std::vector<std::string> >& 
 	}
 
   void HcalTBQADCUnpacker::unpackRaw(const FEDRawData& raw, std::vector<uint16_t>& values, bool is04) const {
-    values=std::vector<uint16_t>(0xFFFF,N_QADCS_ALLOWED*32);
+    values=std::vector<uint16_t>(N_QADCS_ALLOWED*32,0xFFFF);
     
-
     if(is04){ ///this is TB04
       const ClassicQADCDataFormat* qadc=(const ClassicQADCDataFormat*)raw.data();
       // Applying mask, pedestal subtraction and gain.
@@ -121,7 +120,7 @@ void HcalTBQADCUnpacker::setCalib(const std::vector<std::vector<std::string> >& 
   void HcalTBQADCUnpacker::unpackWithGains(const FEDRawData& raw, std::vector<double>& values, bool is04) const {
     std::vector<uint16_t> rawValues;
     unpackRaw(raw,rawValues,is04);
-    values=std::vector<double>(-1000,N_QADCS_ALLOWED*32);
+    values=std::vector<double>(N_QADCS_ALLOWED*32,-1000.0);
 
     for (unsigned int i=0;i<N_QADCS_ALLOWED*32;i++)
       if (rawValues[i]!=0xFFFF) values[i]=((rawValues[i]&0xFFF)-qdc_ped[i])/qdc_gain[i];
