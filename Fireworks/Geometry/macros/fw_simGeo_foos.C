@@ -2,13 +2,14 @@
 // Material name/title "fixing"
 //==============================================================================
 
-#include "TEveManager.h"
-
 #include "TGeoManager.h"
 #include "TGeoMaterial.h"
 #include "TGeoMedium.h"
 
+#include "TClass.h"
 #include "TList.h"
+
+TGeoManager* FWGeometryTableViewManager_GetGeoManager();
 
 TGeoElementTable *g_element_table = 0;
 
@@ -19,7 +20,7 @@ void fw_simGeo_fix_materials()
    TString vacuum("materials:Vacuum");
 
    TGeoMaterial *m;
-   TIter it(gEve->GetDefaultGeometry()->GetListOfMaterials());
+   TIter it(FWGeometryTableViewManager_GetGeoManager()->GetListOfMaterials());
    while ((m = (TGeoMaterial*) it()) != 0)
    {
       // Fixes
@@ -42,7 +43,7 @@ void fw_simGeo_fix_materials()
 void fw_simGeo_dump_materials(Bool_t dump_components=false)
 {
    TGeoMaterial *m;
-   TIter it(gEve->GetDefaultGeometry()->GetListOfMaterials());
+   TIter it(FWGeometryTableViewManager_GetGeoManager()->GetListOfMaterials());
    while ((m = (TGeoMaterial*) it()) != 0)
    {
       TGeoMixture *mix = dynamic_cast<TGeoMixture*>(m);
@@ -70,7 +71,7 @@ void fw_simGeo_dump_materials(Bool_t dump_components=false)
 void fw_simGeo_set_material_titles(Double_t fraction=0, Bool_t long_names=false)
 {
    TGeoMaterial *m;
-   TIter it(gEve->GetDefaultGeometry()->GetListOfMaterials());
+   TIter it(FWGeometryTableViewManager_GetGeoManager()->GetListOfMaterials());
    while ((m = (TGeoMaterial*) it()) != 0)
    {
       TString tit(":");
