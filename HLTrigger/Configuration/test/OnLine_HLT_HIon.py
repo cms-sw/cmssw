@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V108 (CMSSW_5_2_3_HLT9)
+# /dev/CMSSW_5_2_1/HIon/V109 (CMSSW_5_2_3_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V108')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V109')
 )
 
 process.streams = cms.PSet( 
@@ -6647,10 +6647,10 @@ process.hltStoppedHSCP1CaloJetEnergy30 = cms.EDFilter( "HLT1CaloJet",
     triggerType = cms.int32( 85 )
 )
 process.hltBPTXAntiCoincidence = cms.EDFilter( "HLTLevel1Activity",
-    technicalBits = cms.uint64( 0x11 ),
+    technicalBits = cms.uint64( 0x8 ),
     ignoreL1Mask = cms.bool( True ),
     invert = cms.bool( True ),
-    physicsLoBits = cms.uint64( 0x1 ),
+    physicsLoBits = cms.uint64( 0x0 ),
     physicsHiBits = cms.uint64( 0x0 ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     daqPartitions = cms.uint32( 1 ),

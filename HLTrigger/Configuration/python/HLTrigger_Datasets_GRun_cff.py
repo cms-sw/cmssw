@@ -11,6 +11,10 @@ streamA_datasetBJetPlusX_selector.l1tResults = cms.InputTag('')
 streamA_datasetBJetPlusX_selector.throw      = cms.bool(False)
 streamA_datasetBJetPlusX_selector.triggerConditions = cms.vstring('HLT_DiJet40Eta2p6_BTagIP3DFastPV_v3', 
     'HLT_DiJet80Eta2p6_BTagIP3DFastPVLoose_v3', 
+    'HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05_v1', 
+    'HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d03_PFDiJetPt120_v1', 
+    'HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d03_v1', 
+    'HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d05_v1', 
     'HLT_Jet160Eta2p4_Jet120Eta2p4_DiBTagIP3DFastPVLoose_v3', 
     'HLT_Jet60Eta1p7_Jet53Eta1p7_DiBTagIP3DFastPV_v3', 
     'HLT_Jet80Eta1p7_Jet70Eta1p7_DiBTagIP3DFastPV_v3', 
@@ -296,10 +300,6 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_DiCentralJetSum
     'HLT_DiCentralPFJet50_PFMET80_v5', 
     'HLT_DiPFJet40_PFMETnoMu65_MJJ600VBF_LeadingJets_v4', 
     'HLT_DiPFJet40_PFMETnoMu65_MJJ800VBF_AllJets_v4', 
-    'HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05_v1', 
-    'HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d03_PFDiJetPt120_v1', 
-    'HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d03_v1', 
-    'HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d05_v1', 
     'HLT_L1ETM100_v1', 
     'HLT_L1ETM30_v1', 
     'HLT_L1ETM40_v1', 
@@ -425,14 +425,14 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetNoBPTX_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetNoBPTX_selector.l1tResults = cms.InputTag('')
 streamA_datasetNoBPTX_selector.throw      = cms.bool(False)
-streamA_datasetNoBPTX_selector.triggerConditions = cms.vstring('HLT_JetE30_NoBPTX3BX_NoHalo_v12', 
+streamA_datasetNoBPTX_selector.triggerConditions = cms.vstring('HLT_JetE30_NoBPTX3BX_v1', 
     'HLT_JetE30_NoBPTX_v12', 
-    'HLT_JetE50_NoBPTX3BX_NoHalo_v9', 
-    'HLT_JetE70_NoBPTX3BX_NoHalo_v1', 
-    'HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v1', 
-    'HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v1', 
+    'HLT_JetE50_NoBPTX3BX_v1', 
+    'HLT_JetE70_NoBPTX3BX_v1', 
+    'HLT_L2Mu10_NoVertex_NoBPTX3BX_v1', 
+    'HLT_L2Mu20_NoVertex_NoBPTX3BX_v1', 
     'HLT_L2Mu20_eta2p1_NoVertex_v1', 
-    'HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v1')
+    'HLT_L2Mu30_NoVertex_NoBPTX3BX_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetPhotonHad_selector
 streamA_datasetPhotonHad_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
