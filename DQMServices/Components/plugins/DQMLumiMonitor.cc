@@ -2,8 +2,8 @@
  * \file DQMLumiMonitor.cc
  * \author S. Dutta
  * Last Update:
- * $Date: 2012/04/13 14:10:24 $
- * $Revision: 1.4 $
+ * $Date: 2012/04/20 06:49:07 $
+ * $Revision: 1.5 $
  * $Author: dutta $
  *
  * Description: Pixel Luminosity Monitoring 
@@ -108,7 +108,7 @@ void DQMLumiMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iS
 }
 
 void DQMLumiMonitor::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& eSetup){
-  std::cout <<" Run Number "<<lumiBlock.run() <<" Lumi Section Numnber "<< lumiBlock.luminosityBlock()<<std::endl;
+  edm::LogInfo("PixelLumiMonotor") <<" Run Number "<<lumiBlock.run() <<" Lumi Section Numnber "<< lumiBlock.luminosityBlock();
 
   nLumi_ = lumiBlock.luminosityBlock();
 
