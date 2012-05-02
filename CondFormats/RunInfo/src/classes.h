@@ -3,6 +3,7 @@
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/RunInfo/interface/L1TriggerScaler.h"
 #include "CondFormats/RunInfo/interface/MixingModuleConfig.h"
+#include "CondFormats/RunInfo/interface/FillInfo.h"
 namespace {
   struct dictionary {
     std::vector<runinfo_test::RunNumber::Item>::iterator tmp0;
