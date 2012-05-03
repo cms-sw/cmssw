@@ -5,6 +5,7 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="DataFormats/BTauReco"/>
   <use   name="PhysicsTools/PatUtils"/>
+  <use   name="PhysicsTools/PatAlgos"/>
   <use   name="CommonTools/UtilAlgos"/>
   <use   name="DataFormats/PatCandidates"/>
   <use   name="root"/>
