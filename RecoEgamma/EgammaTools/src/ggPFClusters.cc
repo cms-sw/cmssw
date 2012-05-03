@@ -288,7 +288,8 @@ void ggPFClusters::localCoordsEE(reco::CaloCluster clus, float &xcry, float &ycr
 }
 
 float ggPFClusters::get5x5Element(int i, int j,
-				  std::vector< std::pair<DetId, float> >& bcCells, 
+				  std::vector< std::pair<DetId, float> >& 
+				  bcCells, 
 				  bool isEB){
   
   Fill5x5Map(bcCells,isEB);
@@ -326,7 +327,9 @@ void ggPFClusters::Fill5x5Map(std::vector< std::pair<DetId, float> >& bcCells,
 	      ind1=EBid.ieta()-EBidSeed.ieta();
 	    }
 	    else{ //near EB+ EB-
-	      ind1=(1-(EBidSeed.ieta()-EBid.ieta())); 
+	      //bugged
+	      //ind1=(1-(EBidSeed.ieta()-EBid.ieta())); 
+	      ind1 =  (EBid.ieta()-EBidSeed.ieta())*(abs(EBid.ieta()-EBidSeed.ieta())-1)/abs(EBid.ieta()-EBidSeed.ieta());
 	    }
 	    int iEta=ind1+2;
 	    int iPhi=ind2+2;
