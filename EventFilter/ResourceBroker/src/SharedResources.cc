@@ -582,7 +582,7 @@ void SharedResources::printWorkLoopStatus() {
 //______________________________________________________________________________
 void SharedResources::goToFailedState(evf::Exception& exception) {
 	reasonForFailed_ = exception.what();
-	LOG4CPLUS_ERROR(log_,
+	LOG4CPLUS_FATAL(log_,
 			"Moving to FAILED state! Reason: " << exception.what());
 	EventPtr fail(new Fail());
 	commands_.enqEvent(fail);

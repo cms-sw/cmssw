@@ -2,8 +2,8 @@
  * Collection of utility functions for handling SOAP messages
  *
  * $Author: aspataru $
- * $Revision: 1.1.2.9 $
- * $Date: 2012/04/21 00:23:01 $
+ * $Revision: 1.2 $
+ * $Date: 2012/05/02 15:27:26 $
  */
 
 #include "EventFilter/ResourceBroker/interface/SoapUtils.h"

@@ -75,6 +75,8 @@ void Halting::do_stateAction() const {
 		} else {
 			res->reasonForFailed_
 					= "halting FAILED: ResourceTable shutdown timed out.";
+			LOG4CPLUS_FATAL(res->log_,
+						"Moving to FAILED state! Reason: " << res->reasonForFailed_.value_);
 			EventPtr failTimeOut(new Fail());
 			res->commands_.enqEvent(failTimeOut);
 		}
@@ -135,7 +137,7 @@ string Halting::do_stateName() const {
 void Halting::do_moveToFailedState(xcept::Exception& exception) const {
 	SharedResourcesPtr_t res = outermost_context().getSharedResources();
 	res->reasonForFailed_ = exception.what();
-	LOG4CPLUS_ERROR(res->log_,
+	LOG4CPLUS_FATAL(res->log_,
 			"Moving to FAILED state! Reason: " << exception.what());
 	EventPtr fail(new Fail());
 	res->commands_.enqEvent(fail);

@@ -14,8 +14,8 @@ namespace soaputils {
  * Collection of utility functions for handling SOAP messages
  *
  * $Author: aspataru $
- * $Revision: 1.1.2.10 $
- * $Date: 2012/04/21 00:23:00 $
+ * $Revision: 1.2 $
+ * $Date: 2012/05/02 15:27:23 $
  */
 
 /**

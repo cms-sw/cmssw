@@ -1,3 +1,8 @@
+2012-05-03  Andrei Spataru  <aspataru@cern.ch>
+
+	* tag V01-00-12
+	* fixed some LOG4CPLUS messages
+	
 2012-05-02  Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V01-00-11
@@ -29,7 +34,7 @@
 	* added ShmBuffer exception handling
 	* added protection from late SM discards through I2O
 	
-2012-04-09  Srecko Morovic  <smorovic@cern.ch>
+2012-04-09  Srecko Morovic  <aspataru@cern.ch>
 
 	* tag V01-00-05-01
 	* back to nbFreeSlotsMax = nbResources() / 2

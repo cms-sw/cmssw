@@ -247,7 +247,7 @@ bool FUResourceTable::sendDqm() {
 	}
 
 	if (state == dqm::EMPTY) {
-		LOG4CPLUS_WARN(log_, "Don't reschedule sendDqm workloop.");
+		LOG4CPLUS_INFO(log_, "Don't reschedule sendDqm workloop.");
 		std::cout << "shut down dqm workloop " << std::endl;
 		UInt_t cellIndex = cell->index();
 		try {
@@ -301,7 +301,7 @@ bool FUResourceTable::sendDqmWhileHalting() {
 	}
 
 	if (state == dqm::EMPTY) {
-		LOG4CPLUS_WARN(log_, "Don't reschedule sendDqm workloop.");
+		LOG4CPLUS_INFO(log_, "Don't reschedule sendDqm workloop.");
 		std::cout << "shut down dqm workloop " << std::endl;
 		UInt_t cellIndex = cell->index();
 		try {
@@ -695,7 +695,7 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef) {
 			LOG4CPLUS_WARN(
 					log_,
 					"DQM discard for cell " << dqmIndex
-							<< " which is not yer in SENT state - waiting");
+							<< " which is not yet in SENT state - waiting");
 			::usleep(10000);
 			if (ntries++ > 10) {
 				LOG4CPLUS_ERROR(
@@ -751,7 +751,7 @@ bool FUResourceTable::discardDqmEventWhileHalting(MemRef_t* bufRef) {
 			LOG4CPLUS_WARN(
 					log_,
 					"DQM discard for cell " << dqmIndex
-							<< " which is not yer in SENT state - waiting");
+							<< " which is not yet in SENT state - waiting");
 			::usleep(10000);
 			if (ntries++ > 10) {
 				LOG4CPLUS_ERROR(

@@ -48,7 +48,7 @@ string Enabled::do_stateName() const {
 void Enabled::do_moveToFailedState(xcept::Exception& exception) const {
 	SharedResourcesPtr_t res = outermost_context().getSharedResources();
 	res->reasonForFailed_ = exception.what();
-	LOG4CPLUS_ERROR(res->log_,
+	LOG4CPLUS_FATAL(res->log_,
 			"Moving to FAILED state! Reason: " << exception.what());
 	EventPtr fail(new Fail());
 	res->commands_.enqEvent(fail);
