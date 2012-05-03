@@ -6,19 +6,19 @@ L1GctConfigProducers = cms.ESProducer("L1GctConfigProducers",
     TauIsoEtThreshold = cms.double(2.0),
     HtJetEtThreshold = cms.double(10.0),
     MHtJetEtThreshold = cms.double(10.0),
-    RctRegionEtLSB = cms.double(0.25),
-    GctHtLSB = cms.double(0.25),
+    RctRegionEtLSB = cms.double(0.5),
+    GctHtLSB = cms.double(0.5),
     ConvertEtValuesToEnergy = cms.bool(False),
 
     # energy sum eta ranges
-    MEtEtaMask = cms.uint32(0),
-    TEtEtaMask = cms.uint32(0),
-    MHtEtaMask = cms.uint32(0),
-    HtEtaMask = cms.uint32(0),
+    MEtEtaMask = cms.uint32(3c000f),
+    TEtEtaMask = cms.uint32(3c000f),
+    MHtEtaMask = cms.uint32(3c000f),
+    HtEtaMask = cms.uint32(3c000f),
                                       
     # The CalibrationStyle should be "None", "PiecewiseCubic", "Simple" or "PF"
     # "PowerSeries", "ORCAStyle" are also available, but not recommended
-    CalibrationStyle = cms.string('None'),
+    CalibrationStyle = cms.string('PF'),
     PFCoefficients = cms.PSet(
         nonTauJetCalib0 = cms.vdouble(1.25,-1.159,4.032,1.035,0.7912,0.794),
         nonTauJetCalib1 = cms.vdouble(1.277,-1.311,4.379,1.091,0.8263,0.7937),
