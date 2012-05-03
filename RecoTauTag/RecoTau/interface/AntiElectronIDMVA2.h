@@ -31,17 +31,29 @@ class AntiElectronIDMVA2
     AntiElectronIDMVA2();
     ~AntiElectronIDMVA2(); 
 
-    void Initialize(std::string methodName,
-		    std::string oneProngNoEleMatch_BL,
-		    std::string oneProng0Pi0_BL,
-		    std::string oneProng1pi0woGSF_BL,
-		    std::string oneProng1pi0wGSFwoPfEleMva_BL,
-		    std::string oneProng1pi0wGSFwPfEleMva_BL,
-		    std::string oneProngNoEleMatch_EC,
-		    std::string oneProng0Pi0_EC,
-		    std::string oneProng1pi0woGSF_EC,
-		    std::string oneProng1pi0wGSFwoPfEleMva_EC,
-		    std::string oneProng1pi0wGSFwPfEleMva_EC);
+    void Initialize_from_file(const std::string& methodName,
+			      const std::string& oneProngNoEleMatch_BL,
+			      const std::string& oneProng0Pi0_BL,
+			      const std::string& oneProng1pi0woGSF_BL,
+			      const std::string& oneProng1pi0wGSFwoPfEleMva_BL,
+			      const std::string& oneProng1pi0wGSFwPfEleMva_BL,
+			      const std::string& oneProngNoEleMatch_EC,
+			      const std::string& oneProng0Pi0_EC,
+			      const std::string& oneProng1pi0woGSF_EC,
+			      const std::string& oneProng1pi0wGSFwoPfEleMva_EC,
+			      const std::string& oneProng1pi0wGSFwPfEleMva_EC);
+
+    void Initialize_from_string(const std::string& methodName,
+				const std::string& oneProngNoEleMatch_BL,
+				const std::string& oneProng0Pi0_BL,
+				const std::string& oneProng1pi0woGSF_BL,
+				const std::string& oneProng1pi0wGSFwoPfEleMva_BL,
+				const std::string& oneProng1pi0wGSFwPfEleMva_BL,
+				const std::string& oneProngNoEleMatch_EC,
+				const std::string& oneProng0Pi0_EC,
+				const std::string& oneProng1pi0woGSF_EC,
+				const std::string& oneProng1pi0wGSFwoPfEleMva_EC,
+				const std::string& oneProng1pi0wGSFwPfEleMva_EC);
 
     // RECOMMENDED:
     double MVAValue(Float_t TauEta,
@@ -114,6 +126,8 @@ class AntiElectronIDMVA2
 
  private:
 
+    void bookMVAs();
+
     Bool_t isInitialized_;
     std::string methodName_;
     TMVA::Reader* fTMVAReader_[10];
@@ -136,7 +150,7 @@ class AntiElectronIDMVA2
     Float_t Tau_GammaEnFrac_;
     Float_t Tau_HadrMva_; 
 
-    Float_t Elec_AbsEta_;
+    Float_t Elec_Eta_;
     Float_t Elec_Pt_;
     Float_t Elec_PFMvaOutput_;
     Float_t Elec_Ee_;
@@ -155,6 +169,8 @@ class AntiElectronIDMVA2
     Float_t Elec_GSFTrackResol_;
     Float_t Elec_GSFTracklnPt_;
     Float_t Elec_GSFTrackEta_;
+
+    int verbosity_;
 };
 
 #endif
