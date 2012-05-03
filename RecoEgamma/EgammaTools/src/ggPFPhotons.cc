@@ -407,8 +407,8 @@ std::pair<double, double>ggPFPhotons::SuperClusterSize(
 
 static void recoPhotonClusterLink(
 					reco::SuperCluster sc, 
-					std::vector<reco::PFCandidateRef>&insideMust, 
-					std::vector<reco::PFCandidateRef>&outsideMust,
+					std::vector<reco::PFCandidatePtr>&insideMust, 
+					std::vector<reco::PFCandidatePtr>&outsideMust,
 					edm::Handle<PFCandidateCollection>& pfCandidates,
 					double etabound,
 					double phibound
@@ -416,7 +416,7 @@ static void recoPhotonClusterLink(
 					
 					){
   std::vector<reco::CaloCluster>PFClusters;
-  std::vector<reco::PFCandidateRef>PFCand;
+  std::vector<reco::PFCandidatePtr>PFCand;
   double seedEta=sc.seed()->eta();
   double seedPhi=sc.seed()->phi();
   for(PFCandidateCollection::const_iterator pfParticle =pfCandidates->begin(); pfParticle!=pfCandidates->end(); pfParticle++){
@@ -431,7 +431,7 @@ static void recoPhotonClusterLink(
       math::XYZPoint position(pfParticle->positionAtECALEntrance().X(), pfParticle->positionAtECALEntrance().Y(), pfParticle->positionAtECALEntrance().Z()) ;
       CaloCluster calo(pfParticle->rawEcalEnergy() ,position );
       PFClusters.push_back(calo);
-      reco::PFCandidateRef pfRef(pfCandidates,index);
+      reco::PFCandidatePtr pfRef(pfCandidates,index);
       PFCand.push_back(pfRef);
     }
     

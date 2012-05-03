@@ -63,8 +63,8 @@ class ggPFPhotons  {
 					      );
   static void recoPhotonClusterLink(
 							     reco::SuperCluster sc, 
-							     std::vector<reco::PFCandidateRef>&insideMust, 
-							     std::vector<reco::PFCandidateRef>&outsideMust,
+							     std::vector<reco::PFCandidatePtr>&insideMust, 
+							     std::vector<reco::PFCandidatePtr>&outsideMust,
 							     edm::Handle<PFCandidateCollection>& pfCandidates,
 							     double etabound,
 							     double phibound
