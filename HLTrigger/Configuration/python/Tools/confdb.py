@@ -77,18 +77,6 @@ class HLTProcess(object):
     "HLT_L1TrackerCosmics_v",   
     
 # TODO: paths not supported by FastSim, but for which a recovery should be attempted
-    "HLT_Ele80_CaloIdVT_GsfTrkIdT_v*",
-    "HLT_Ele90_CaloIdVT_GsfTrkIdT_v*",
-#    "HLT_DiCentralPFJet30_PFMET80_BTagCSV07_v*",
-#    "HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d03_v*",
-#    "HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d05_v*",
-#    "HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d03_PFDiJetPt120_v*",
-#    "HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05_v*",
-#    "HLT_DiJet40Eta2p6_BTagIP3DFastPV_v*",
-#    "HLT_DiJet80Eta2p6_BTagIP3DFastPVLoose_v*",
-#    "HLT_Jet60Eta1p7_Jet53Eta1p7_DiBTagIP3DFastPV_v*",
-#    "HLT_Jet80Eta1p7_Jet70Eta1p7_DiBTagIP3DFastPV_v*",
-#    "HLT_Jet160Eta2p4_Jet120Eta2p4_DiBTagIP3DFastPVLoose_v*",
   
     )
 
@@ -923,6 +911,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltCkf3HitActivityTrackCandidates" )
       self.options['modules'].append( "-hltCtf3HitActivityWithMaterialTracks" )
       self.options['modules'].append( "-hltActivityCkfTrackCandidatesForGSF" )
+      self.options['modules'].append( "-hltL1SeededCkfTrackCandidatesForGSF" )
       self.options['modules'].append( "-hltMuCkfTrackCandidates" )
       self.options['modules'].append( "-hltMuCtfTracks" )
       self.options['modules'].append( "-hltTau3MuCkfTrackCandidates" )
