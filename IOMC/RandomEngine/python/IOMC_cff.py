@@ -91,6 +91,11 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
    hiSignalG4SimHits = cms.PSet(
         initialSeed = cms.untracked.uint32(11),
         engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    # filter for simulated beam spot
+    simBeamSpotFilter = cms.PSet(
+        initialSeed = cms.untracked.uint32(87654321),
+        engineName = cms.untracked.string('HepJamesRandom')
     )
     # to save the status of the last event (useful for crashes)
     ,saveFileName = cms.untracked.string('')

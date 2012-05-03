@@ -1,3 +1,7 @@
+2012-04-17 Srecko Morovic <srecko.smorovic@cern.ch>
+	* support for fork in DaqSource (framework thread)
+	* requires new DaqSource, Modules and Utilities
+
 2011-10-21 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-04-17

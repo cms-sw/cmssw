@@ -14,7 +14,7 @@
    define communication protocoll between FUResourceBroker ('FU') and
    StorageManager ('SM').
    
-   $Id: i2oEvfMsgs.h,v 1.3 2008/05/23 09:08:22 schiefer Exp $
+   $Id: i2oEvfMsgs.h,v 1.4 2008/10/14 11:40:19 schiefer Exp $
 */
 
 // I2O function codes: *_SM_* / *_FU_* according to who *receives* the message
@@ -85,6 +85,7 @@ typedef struct _I2O_SM_PREAMBLE_MESSAGE_FRAME : _I2O_SM_MULTIPART_MESSAGE_FRAME
   U32 outModID;
   U32 fuProcID;
   U32 fuGUID;
+  U32 nExpectedEPs;
   char* dataPtr() const
   {
     return (char*)this+sizeof(_I2O_SM_PREAMBLE_MESSAGE_FRAME);

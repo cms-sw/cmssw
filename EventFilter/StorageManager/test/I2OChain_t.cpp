@@ -443,6 +443,7 @@ testI2OChain::populate_i2o_header()
     unsigned int value2 = 0xb4b4e1e1;
     unsigned int value3 = 0xc3c3f0f0;
     unsigned int value4 = 0x12345678;
+    unsigned int value5 = 6;
 
     Reference* ref = allocate_frame_with_basic_header(I2O_SM_PREAMBLE, 0, 1);
     I2O_SM_PREAMBLE_MESSAGE_FRAME *smMsg =
@@ -452,6 +453,7 @@ testI2OChain::populate_i2o_header()
     smMsg->outModID = value2;
     smMsg->fuProcID = value3;
     smMsg->fuGUID = value4;
+    smMsg->nExpectedEPs = value5;
 
     stor::I2OChain initMsgFrag(ref);
     CPPUNIT_ASSERT(initMsgFrag.messageCode() == Header::INIT);
@@ -465,6 +467,7 @@ testI2OChain::populate_i2o_header()
     CPPUNIT_ASSERT(initMsgFrag.rbBufferId() == 2);
     CPPUNIT_ASSERT(initMsgFrag.fuProcessId() == value3);
     CPPUNIT_ASSERT(initMsgFrag.fuGuid() == value4);
+    CPPUNIT_ASSERT(initMsgFrag.nExpectedEPs() == value5);
   }
   CPPUNIT_ASSERT(outstanding_bytes() == 0);
 }
@@ -704,6 +707,7 @@ testI2OChain::release_with_valid_header()
     unsigned int value2 = 0xb4b4e1e1;
     unsigned int value3 = 0xc3c3f0f0;
     unsigned int value4 = 0x12345678;
+    unsigned int value5 = 32;
 
     Reference* ref = allocate_frame_with_basic_header(I2O_SM_PREAMBLE, 0, 1);
     I2O_SM_PREAMBLE_MESSAGE_FRAME *smMsg =
@@ -713,6 +717,7 @@ testI2OChain::release_with_valid_header()
     smMsg->outModID = value2;
     smMsg->fuProcID = value3;
     smMsg->fuGUID = value4;
+    smMsg->nExpectedEPs = value5;
 
     stor::I2OChain initMsgFrag(ref);
     CPPUNIT_ASSERT(initMsgFrag.messageCode() == Header::INIT);
@@ -726,6 +731,7 @@ testI2OChain::release_with_valid_header()
     CPPUNIT_ASSERT(initMsgFrag.rbBufferId() == 2);
     CPPUNIT_ASSERT(initMsgFrag.fuProcessId() == value3);
     CPPUNIT_ASSERT(initMsgFrag.fuGuid() == value4);
+    CPPUNIT_ASSERT(initMsgFrag.nExpectedEPs() == value5);
 
     initMsgFrag.release();
     CPPUNIT_ASSERT(initMsgFrag.messageCode() == 0);
@@ -1585,6 +1591,7 @@ testI2OChain::multipart_msg_header()
     unsigned int value4 = 0xdeadbeef;
     unsigned int value5 = 0x01234567;
     unsigned int value6 = 0x89abcdef;
+    unsigned int value7 = 22;
 
     Reference* ref = allocate_frame_with_basic_header(I2O_SM_PREAMBLE, 0, 1);
     I2O_SM_PREAMBLE_MESSAGE_FRAME *smMsg =
@@ -1593,6 +1600,7 @@ testI2OChain::multipart_msg_header()
     smMsg->outModID = outputModuleId;
     smMsg->fuProcID = value2;
     smMsg->fuGUID = value3;
+    smMsg->nExpectedEPs = value7;
 
     std::strcpy(smMsg->hltURL, hltURL.c_str());
     std::strcpy(smMsg->hltClassName, hltClass.c_str());
@@ -1620,6 +1628,7 @@ testI2OChain::multipart_msg_header()
     CPPUNIT_ASSERT(initMsgFrag.rbBufferId() == 2);
     CPPUNIT_ASSERT(initMsgFrag.fuProcessId() == value2);
     CPPUNIT_ASSERT(initMsgFrag.fuGuid() == value3);
+    CPPUNIT_ASSERT(initMsgFrag.nExpectedEPs() == value7);
 
 
     stor::I2OChain initMsgFrag2;
@@ -1629,7 +1638,9 @@ testI2OChain::multipart_msg_header()
     CPPUNIT_ASSERT(initMsgFrag2.hltTid() == 0);
     CPPUNIT_ASSERT(initMsgFrag2.hltURL() == "");
     CPPUNIT_ASSERT(initMsgFrag2.hltClassName() == "");
-
+    CPPUNIT_ASSERT(initMsgFrag2.rbBufferId() == 0);
+    CPPUNIT_ASSERT(initMsgFrag2.fuProcessId() == 0);
+    CPPUNIT_ASSERT(initMsgFrag2.fuGuid() == 0);
 
     std::swap(initMsgFrag, initMsgFrag2);
 
@@ -1639,6 +1650,10 @@ testI2OChain::multipart_msg_header()
     CPPUNIT_ASSERT(initMsgFrag2.hltTid() == value6);
     CPPUNIT_ASSERT(initMsgFrag2.hltURL() == hltURL);
     CPPUNIT_ASSERT(initMsgFrag2.hltClassName() == hltClass);
+    CPPUNIT_ASSERT(initMsgFrag2.rbBufferId() == 2);
+    CPPUNIT_ASSERT(initMsgFrag2.fuProcessId() == value2);
+    CPPUNIT_ASSERT(initMsgFrag2.fuGuid() == value3);
+    CPPUNIT_ASSERT(initMsgFrag2.nExpectedEPs() == value7);
 
     CPPUNIT_ASSERT(initMsgFrag.messageCode() == Header::INVALID);
     CPPUNIT_ASSERT(initMsgFrag.hltLocalId() == 0);
@@ -1646,6 +1661,9 @@ testI2OChain::multipart_msg_header()
     CPPUNIT_ASSERT(initMsgFrag.hltTid() == 0);
     CPPUNIT_ASSERT(initMsgFrag.hltURL() == "");
     CPPUNIT_ASSERT(initMsgFrag.hltClassName() == "");
+    CPPUNIT_ASSERT(initMsgFrag.rbBufferId() == 0);
+    CPPUNIT_ASSERT(initMsgFrag.fuProcessId() == 0);
+    CPPUNIT_ASSERT(initMsgFrag.fuGuid() == 0);
   }
   CPPUNIT_ASSERT(outstanding_bytes() == 0);
   {
@@ -1661,6 +1679,7 @@ testI2OChain::multipart_msg_header()
     unsigned int value2 = 0xb4b4e1e1;
     unsigned int value3 = 0xc3c3f0f0;
     unsigned int value4 = 0xdeadbeef;
+    unsigned int value5 = 22;
 
     Reference* ref = allocate_frame_with_basic_header(I2O_SM_PREAMBLE, 0, 1);
     I2O_SM_PREAMBLE_MESSAGE_FRAME *smMsg =
@@ -1670,6 +1689,8 @@ testI2OChain::multipart_msg_header()
     smMsg->outModID = outputModuleId;
     smMsg->fuProcID = value2;
     smMsg->fuGUID = value3;
+    smMsg->nExpectedEPs = value5;
+    smMsg->nExpectedEPs = value5;
 
     std::strncpy(smMsg->hltClassName, hltClass.c_str(), MAX_I2O_SM_URLCHARS);
     smMsg->hltInstance = value4;
@@ -1691,6 +1712,7 @@ testI2OChain::multipart_msg_header()
     CPPUNIT_ASSERT(initMsgFrag.rbBufferId() == 2);
     CPPUNIT_ASSERT(initMsgFrag.fuProcessId() == value2);
     CPPUNIT_ASSERT(initMsgFrag.fuGuid() == value3);
+    CPPUNIT_ASSERT(initMsgFrag.nExpectedEPs() == value5);
   }
   CPPUNIT_ASSERT(outstanding_bytes() == 0);
 }
@@ -1735,6 +1757,7 @@ testI2OChain::init_msg_header()
     unsigned int value1 = 0xa5a5d2d2;
     unsigned int value2 = 0xb4b4e1e1;
     unsigned int value3 = 0xc3c3f0f0;
+    unsigned int value4 = 1;
 
     Reference* ref = allocate_frame_with_basic_header(I2O_SM_PREAMBLE, 0, 1);
     I2O_SM_PREAMBLE_MESSAGE_FRAME *smMsg =
@@ -1744,6 +1767,7 @@ testI2OChain::init_msg_header()
     smMsg->outModID = outputModuleId;
     smMsg->fuProcID = value2;
     smMsg->fuGUID = value3;
+    smMsg->nExpectedEPs = value4;
 
     char test_value[] = "This is a test, This is a";
     uint32_t adler32_chksum = (uint32_t)cms::Adler32((char*)&test_value[0], sizeof(test_value));
@@ -1779,6 +1803,7 @@ testI2OChain::init_msg_header()
     CPPUNIT_ASSERT(initMsgFrag.rbBufferId() == 2);
     CPPUNIT_ASSERT(initMsgFrag.fuProcessId() == value2);
     CPPUNIT_ASSERT(initMsgFrag.fuGuid() == value3);
+    CPPUNIT_ASSERT(initMsgFrag.nExpectedEPs() == value4);
 
     Strings outNames;
     outNames.clear();
@@ -2115,6 +2140,7 @@ testI2OChain::split_init_header()
     unsigned int value1 = 0xa5a5d2d2;
     unsigned int value2 = 0xb4b4e1e1;
     unsigned int value3 = 0xc3c3f0f0;
+    unsigned int value4 = 34;
 
     int bufferSize = 2000;
     std::vector<unsigned char> tmpBuffer;
@@ -2151,6 +2177,7 @@ testI2OChain::split_init_header()
     smMsg->outModID = outputModuleId;
     smMsg->fuProcID = value2;
     smMsg->fuGUID = value3;
+    smMsg->nExpectedEPs = value4;
 
     unsigned char* sourceLoc = &tmpBuffer[0];
     unsigned long sourceSize = fragmentSize;
@@ -2179,6 +2206,7 @@ testI2OChain::split_init_header()
         smMsg->outModID = outputModuleId;
         smMsg->fuProcID = value2;
         smMsg->fuGUID = value3;
+        smMsg->nExpectedEPs = value4;
 
         sourceLoc = &tmpBuffer[idx*fragmentSize];
         sourceSize = fragmentSize;

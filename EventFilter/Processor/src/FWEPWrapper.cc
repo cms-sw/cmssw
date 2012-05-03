@@ -88,6 +88,8 @@ namespace evf{
     , rcms_(0)
     , instance_(instance)
     , waitingForLs_(false)
+    , mwrRef_(nullptr)
+    , sorRef_(nullptr)
   {
     //list of variables for scalers flashlist
     names_.push_back("lumiSectionIndex");
@@ -285,6 +287,7 @@ namespace evf{
       LOG4CPLUS_INFO(log_,
 		     "exception when trying to get service ModuleWebRegistry");
     }
+    mwrRef_=mwr;
 
     if(mwr) mwr->clear(); // in case we are coming from stop we need to clear the mwr
 
@@ -297,7 +300,6 @@ namespace evf{
       LOG4CPLUS_INFO(log_,
 		     "exception when trying to get service ModuleWebRegistry");
     }
-
     ShmOutputModuleRegistry *sor = 0;
     try{
       if(edm::Service<ShmOutputModuleRegistry>().isAvailable())
@@ -307,6 +309,7 @@ namespace evf{
       LOG4CPLUS_INFO(log_,
 		     "exception when trying to get service ShmOutputModuleRegistry");
     }
+    sorRef_=sor;
 
     if(sor) sor->clear();
     //  if(swr) swr->clear(); // in case we are coming from stop we need to clear the swr
@@ -435,7 +438,14 @@ namespace evf{
   {
     edm::ServiceRegistry::Operate operate(serviceToken_);
   }
-    
+ 
+  ModuleWebRegistry * FWEPWrapper::getModuleWebRegistry() {
+    return mwrRef_;
+  }
+
+  ShmOutputModuleRegistry * FWEPWrapper::getShmOutputModuleRegistry() {
+    return sorRef_;
+  }
 
   //______________________________________________________________________________
   edm::EventProcessor::StatusCode FWEPWrapper::stop()
@@ -640,8 +650,8 @@ namespace evf{
     if(useLock) {
       gettimeofday(&tv,0);
       //      std::cout << getpid() << " calling openBackdoor " << std::endl;
-      waitingForLs_ = true;
-      mwr->openBackDoor("DaqSource",lsTimeOut_);
+      //waitingForLs_ = true;//moving this behind mutex lock
+      mwr->openBackDoor("DaqSource",lsTimeOut_,&waitingForLs_);
       //      std::cout << getpid() << " opened Backdoor " << std::endl;
     }
 

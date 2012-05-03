@@ -1,4 +1,4 @@
-// $Id: InitMsgCollection.h,v 1.13 2011/03/07 15:31:32 mommsen Exp $
+// $Id: InitMsgCollection.h,v 1.14 2011/03/22 16:27:00 mommsen Exp $
 /// @file: InitMsgCollection.h 
 
 #ifndef EventFilter_StorageManager_InitMsgCollection_h
@@ -8,13 +8,16 @@
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
-#include <vector>
 #include <map>
+#include <set>
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace stor
 {
+
+  class I2OChain;
 
   /**
      This class is used to manage the unique set of INIT messages
@@ -22,8 +25,8 @@ namespace stor
      to event consumers and written to output streams.
 
      $Author: mommsen $
-     $Revision: 1.13 $
-     $Date: 2011/03/07 15:31:32 $
+     $Revision: 1.14 $
+     $Date: 2011/03/22 16:27:00 $
   */
 
   typedef std::vector<unsigned char> InitMsgBuffer;
@@ -62,6 +65,39 @@ namespace stor
     bool addIfUnique(InitMsgView const& initMsgView);
 
     /**
+     * Adds the INIT message contained in the specified I2OChain to the
+     * collection if it has a unique HLT output module label.
+     *
+     * If we already have an INIT message with the same output module label
+     * as the input INIT message, the duplicate
+     * message is *not* added to the collection, and this method returns false.
+     *
+     * If the INIT message is new, the InitMsgView will contain the view of
+     * INIT message and the method returns true.
+     *
+     * If the output module label inside the INIT message is empty, an
+     * exception is thrown.
+     *
+     * @param i2oChain the I2OChain containing an INIT message
+     * @param initMsgView the INIT view which was added to the collection.
+     * @return true if the message was added to the collection, false otherwise.
+     * @throws cms::Exception if one of the consistency checks fails.
+     */
+    bool addIfUnique(I2OChain const&, InitMsgSharedPtr&);
+
+    /**
+     * Fetches the single INIT message that matches the requested HLT output
+     * module id.  If no messages match the request, an empty pointer
+     * is returned.
+     *
+     * @param requestedOutputModuleId The HLT output module id of the INIT
+     *        message to be returned.
+     * @return a pointer to the INIT message that matches.  If no
+     *         matching INIT message is found, and empty pointer is returned.
+     */
+    InitMsgSharedPtr getElementForOutputModuleId(const uint32_t&) const;
+
+    /**
      * Fetches the single INIT message that matches the requested HLT output
      * module label.  If no messages match the request, an empty pointer
      * is returned.
@@ -73,22 +109,14 @@ namespace stor
      * (How can we decide which is the best match when we have nothing to work
      * with?)
      *
-     * @param requestedOMLabel The HLT output module label of the INIT
+     * @param requestedOutputModuleLabel The HLT output module label of the INIT
      *        message to be returned.
      * @return a pointer to the INIT message that matches.  If no
      *         matching INIT message is found, and empty pointer is returned.
      * @throws cms::Exception if the input HLT output module label string is
      *         empty and there is more than one INIT message in the collection.
      */
-    InitMsgSharedPtr getElementForOutputModule(const std::string& requestedOMLabel) const;
-
-    /**
-     * Returns a shared pointer to the last element in the collection
-     * or an empty pointer if the collection has no elements.
-     *
-     * @return the last InitMsgSharedPtr in the collection.
-     */
-    InitMsgSharedPtr getLastElement() const;
+    InitMsgSharedPtr getElementForOutputModuleLabel(const std::string&) const;
 
     /**
      * Returns a shared pointer to the requested element in the collection
@@ -110,22 +138,6 @@ namespace stor
      * @return the integer number of messages.
      */
     size_t size() const;
-
-    /**
-     * Returns the number of identical INIT messages received for the
-     * given module name
-     *
-     * @return the integer number of received INIT messages
-     */
-    size_t initMsgCount(const std::string& outputModuleLabel) const;
-
-    /**
-     * Returns the maximum number of identical INIT messages received
-     * for any output module
-     *
-     * @return the integer number of maximum received INIT messages
-     */
-    size_t maxMsgCount() const;
 
     /**
      * Returns a string with information on which selections are available.
@@ -157,19 +169,10 @@ namespace stor
 
   private:
 
-    /**
-     * Adds the specified INIT message to the collection (unconditionally).
-     *
-     * @param initMsgView The INIT message to add to the collection.
-     */
-    void add(InitMsgView const& initMsgView);
+    void checkOutputModuleLabel(InitMsgView const&) const;
 
-    typedef std::pair<InitMsgSharedPtr, size_t> InitMsgPtrAndCount;
-    typedef std::vector<InitMsgPtrAndCount> InitMsgList;
-    InitMsgList initMsgList_;
-
-    typedef std::map<uint32_t, std::string> OutModTable;
-    OutModTable outModNameTable_;
+    typedef std::map<uint32_t,InitMsgSharedPtr> InitMsgMap;
+    InitMsgMap initMsgMap_;
     mutable boost::mutex listLock_;
   };
   

@@ -12,12 +12,13 @@ dataType = 'RAW'
 
 
 # runNumber for RAW only 
-runNumber = 163661
+runNumber = '165633-CAFDQM'
+#runNumber = 163661
 #runNumber = 161312
 #runNumber = 143657
 #runNumber = 137028
 
-maxNumberEvents = 5000
+maxNumberEvents = 10000
 
 ###################### end user choices ###################
 
@@ -77,6 +78,14 @@ if dataType == 'RAW' :
         secFiles.extend([
             ])    
    
+    elif runNumber == '165633-CAFDQM' : 
+    
+        readFiles.extend( [
+            'file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/DQMTest/MinimumBias__RAW__v1__165633__1CC420EE-B686-E011-A788-0030487CD6E8.root'
+            ] );
+
+        secFiles.extend([
+            ])    
    
 elif dataType == 'StreamFile' : 
 

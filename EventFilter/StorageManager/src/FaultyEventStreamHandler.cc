@@ -1,4 +1,4 @@
-// $Id: FaultyEventStreamHandler.cc,v 1.2.6.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: FaultyEventStreamHandler.cc,v 1.4 2012/04/04 12:17:02 mommsen Exp $
 /// @file: FaultyEventStreamHandler.cc
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -47,25 +47,22 @@ namespace stor {
     try
     {
       InitMsgSharedPtr initMsgView =
-        initMsgCollection_->getElementForOutputModule(
-          initMsgCollection_->getOutputModuleName( event.outputModuleId() )
-        );
+        initMsgCollection_->getElementForOutputModuleId( event.outputModuleId() );
       
       newFileHandler.reset(
-        new EventFileHandler(initMsgView, fileRecord, dbFileHandler_,
-          diskWritingParams_, 0)
+        new EventFileHandler(initMsgView, fileRecord, dbFileHandler_, 0)
       );
     }
     catch (stor::exception::IncompleteEventMessage& e) //faulty data event
     {
       newFileHandler.reset(
-        new FRDFileHandler(fileRecord, dbFileHandler_, diskWritingParams_, 0)
+        new FRDFileHandler(fileRecord, dbFileHandler_, 0)
       );
     }
     catch (stor::exception::WrongI2OMessageType& e) //faulty error event
     {
       newFileHandler.reset(
-        new FRDFileHandler(fileRecord, dbFileHandler_, diskWritingParams_, 0)
+        new FRDFileHandler(fileRecord, dbFileHandler_, 0)
       );
     }
     

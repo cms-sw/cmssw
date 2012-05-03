@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/01/20 09:57:11 $
- *  $Revision: 1.12 $
+ *  $Date: 2010/02/15 16:45:47 $
+ *  $Revision: 1.13 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -145,12 +145,17 @@ void DumpDBToFile::endJob() {
     } else if(dbToDump == "TZeroDB") {
       for(DTT0::const_iterator tzero = tZeroMap->begin();
 	  tzero != tZeroMap->end(); tzero++) {
-	DTWireId wireId((*tzero).first.wheelId,
-			(*tzero).first.stationId,
-			(*tzero).first.sectorId,
-			(*tzero).first.slId,
-			(*tzero).first.layerId,
-			(*tzero).first.cellId);
+// @@@ NEW DTT0 FORMAT
+//	DTWireId wireId((*tzero).first.wheelId,
+//			(*tzero).first.stationId,
+//			(*tzero).first.sectorId,
+//			(*tzero).first.slId,
+//			(*tzero).first.layerId,
+//			(*tzero).first.cellId);
+        int channelId = tzero->channelId;
+        if ( channelId == 0 ) continue;
+        DTWireId wireId(channelId);
+// @@@ NEW DTT0 END
         float t0mean;
         float t0rms;
         // t0s and rms are TDC counts

@@ -58,6 +58,13 @@ private:
     std::vector<edm::ParameterSet> m_l1Systems;
     std::vector<std::string> m_maskL1Systems;
 
+    bool m_runInEventLoop;
+    bool m_runInEndLumi;
+    bool m_runInEndRun;
+    bool m_runInEndJob;
+
+
+
     /// private methods
 
     void initialize();
@@ -82,9 +89,6 @@ private:
     //
 
     DQMStore* m_dbe;
-
-    int m_counterLS; ///counter
-    int m_counterEvt; ///counter
 
 };
 

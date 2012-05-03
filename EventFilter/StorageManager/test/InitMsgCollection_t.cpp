@@ -37,16 +37,10 @@ void testInitMsgCollection::testAdditions()
     {
       initMsgCollection_.reset(new InitMsgCollection());
     }
-  std::vector<unsigned char> tmpBuff;
-
   CPPUNIT_ASSERT(initMsgCollection_->size() == 0);
-  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModule("hltOutputDQM").get() == 0);
-  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModule("HLTDEBUG").get() == 0);
-  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModule("CALIB").get() == 0);
-  CPPUNIT_ASSERT(initMsgCollection_->initMsgCount("hltOutputDQM") == 0);
-  CPPUNIT_ASSERT(initMsgCollection_->initMsgCount("HLTDEBUG") == 0);
-  CPPUNIT_ASSERT(initMsgCollection_->initMsgCount("CALIB") == 0);
-  CPPUNIT_ASSERT(initMsgCollection_->maxMsgCount() == 0);
+  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModuleLabel("hltOutputDQM").get() == 0);
+  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModuleLabel("HLTDEBUG").get() == 0);
+  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModuleLabel("CALIB").get() == 0);
 
   // *** first INIT message ***
 
@@ -54,18 +48,16 @@ void testInitMsgCollection::testAdditions()
   stor::I2OChain initMsgFrag(ref);
   CPPUNIT_ASSERT(initMsgFrag.messageCode() == Header::INIT);
 
-  initMsgFrag.copyFragmentsIntoBuffer(tmpBuff);
-  InitMsgView view( &tmpBuff[0] );
-  initMsgCollection_->addIfUnique(view);
-
+  InitMsgSharedPtr serializedProds;
+  CPPUNIT_ASSERT( initMsgCollection_->addIfUnique(initMsgFrag,serializedProds) );
+  InitMsgView initMsgView(&(*serializedProds)[0]);
+  CPPUNIT_ASSERT(initMsgView.outputModuleLabel() == "hltOutputDQM");
+  CPPUNIT_ASSERT(initMsgView.size() == serializedProds->size());
+  
   CPPUNIT_ASSERT(initMsgCollection_->size() == 1);
-  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModule("hltOutputDQM").get() != 0);
-  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModule("HLTDEBUG").get() == 0);
-  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModule("CALIB").get() == 0);
-  CPPUNIT_ASSERT(initMsgCollection_->initMsgCount("hltOutputDQM") == 1);
-  CPPUNIT_ASSERT(initMsgCollection_->initMsgCount("HLTDEBUG") == 0);
-  CPPUNIT_ASSERT(initMsgCollection_->initMsgCount("CALIB") == 0);
-  CPPUNIT_ASSERT(initMsgCollection_->maxMsgCount() == 1);
+  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModuleLabel("hltOutputDQM").get() != 0);
+  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModuleLabel("HLTDEBUG").get() == 0);
+  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModuleLabel("CALIB").get() == 0);
 
   // *** second INIT message ***
 
@@ -73,18 +65,15 @@ void testInitMsgCollection::testAdditions()
   stor::I2OChain initMsgFrag2(ref);
   CPPUNIT_ASSERT(initMsgFrag2.messageCode() == Header::INIT);
 
-  initMsgFrag2.copyFragmentsIntoBuffer(tmpBuff);
-  InitMsgView view2( &tmpBuff[0] );
-  initMsgCollection_->addIfUnique(view2);
+  CPPUNIT_ASSERT( initMsgCollection_->addIfUnique(initMsgFrag2,serializedProds) );
+  InitMsgView initMsgView2(&(*serializedProds)[0]);
+  CPPUNIT_ASSERT(initMsgView2.outputModuleLabel() == "HLTDEBUG");
+  CPPUNIT_ASSERT(initMsgView2.size() == serializedProds->size());
 
   CPPUNIT_ASSERT(initMsgCollection_->size() == 2);
-  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModule("hltOutputDQM").get() != 0);
-  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModule("HLTDEBUG").get() != 0);
-  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModule("CALIB").get() == 0);
-  CPPUNIT_ASSERT(initMsgCollection_->initMsgCount("hltOutputDQM") == 1);
-  CPPUNIT_ASSERT(initMsgCollection_->initMsgCount("HLTDEBUG") == 1);
-  CPPUNIT_ASSERT(initMsgCollection_->initMsgCount("CALIB") == 0);
-  CPPUNIT_ASSERT(initMsgCollection_->maxMsgCount() == 1);
+  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModuleLabel("hltOutputDQM").get() != 0);
+  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModuleLabel("HLTDEBUG").get() != 0);
+  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModuleLabel("CALIB").get() == 0);
 
   // *** third INIT message ***
 
@@ -92,18 +81,15 @@ void testInitMsgCollection::testAdditions()
   stor::I2OChain initMsgFrag3(ref);
   CPPUNIT_ASSERT(initMsgFrag3.messageCode() == Header::INIT);
 
-  initMsgFrag3.copyFragmentsIntoBuffer(tmpBuff);
-  InitMsgView view3( &tmpBuff[0] );
-  initMsgCollection_->addIfUnique(view3);
+  CPPUNIT_ASSERT( initMsgCollection_->addIfUnique(initMsgFrag3,serializedProds) );
+  InitMsgView initMsgView3(&(*serializedProds)[0]);
+  CPPUNIT_ASSERT(initMsgView3.outputModuleLabel() == "CALIB");
+  CPPUNIT_ASSERT(initMsgView3.size() == serializedProds->size());
 
   CPPUNIT_ASSERT(initMsgCollection_->size() == 3);
-  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModule("hltOutputDQM").get() != 0);
-  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModule("HLTDEBUG").get() != 0);
-  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModule("CALIB").get() != 0);
-  CPPUNIT_ASSERT(initMsgCollection_->initMsgCount("hltOutputDQM") == 1);
-  CPPUNIT_ASSERT(initMsgCollection_->initMsgCount("HLTDEBUG") == 1);
-  CPPUNIT_ASSERT(initMsgCollection_->initMsgCount("CALIB") == 1);
-  CPPUNIT_ASSERT(initMsgCollection_->maxMsgCount() == 1);
+  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModuleLabel("hltOutputDQM").get() != 0);
+  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModuleLabel("HLTDEBUG").get() != 0);
+  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModuleLabel("CALIB").get() != 0);
 
   // *** duplicate INIT message ***
 
@@ -111,31 +97,21 @@ void testInitMsgCollection::testAdditions()
   stor::I2OChain initMsgFrag4(ref);
   CPPUNIT_ASSERT(initMsgFrag4.messageCode() == Header::INIT);
 
-  initMsgFrag4.copyFragmentsIntoBuffer(tmpBuff);
-  InitMsgView view4( &tmpBuff[0] );
-  initMsgCollection_->addIfUnique(view4);
+  CPPUNIT_ASSERT( ! initMsgCollection_->addIfUnique(initMsgFrag4,serializedProds) );
 
   CPPUNIT_ASSERT(initMsgCollection_->size() == 3);
-  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModule("hltOutputDQM").get() != 0);
-  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModule("HLTDEBUG").get() != 0);
-  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModule("CALIB").get() != 0);
-  CPPUNIT_ASSERT(initMsgCollection_->initMsgCount("hltOutputDQM") == 1);
-  CPPUNIT_ASSERT(initMsgCollection_->initMsgCount("HLTDEBUG") == 1);
-  CPPUNIT_ASSERT(initMsgCollection_->initMsgCount("CALIB") == 2);
-  CPPUNIT_ASSERT(initMsgCollection_->maxMsgCount() == 2);
+  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModuleLabel("hltOutputDQM").get() != 0);
+  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModuleLabel("HLTDEBUG").get() != 0);
+  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModuleLabel("CALIB").get() != 0);
 
   // *** cleanup ***
 
   initMsgCollection_->clear();
 
   CPPUNIT_ASSERT(initMsgCollection_->size() == 0);
-  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModule("hltOutputDQM").get() == 0);
-  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModule("HLTDEBUG").get() == 0);
-  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModule("CALIB").get() == 0);
-  CPPUNIT_ASSERT(initMsgCollection_->initMsgCount("hltOutputDQM") == 0);
-  CPPUNIT_ASSERT(initMsgCollection_->initMsgCount("HLTDEBUG") == 0);
-  CPPUNIT_ASSERT(initMsgCollection_->initMsgCount("CALIB") == 0);
-  CPPUNIT_ASSERT(initMsgCollection_->maxMsgCount() == 0);
+  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModuleLabel("hltOutputDQM").get() == 0);
+  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModuleLabel("HLTDEBUG").get() == 0);
+  CPPUNIT_ASSERT(initMsgCollection_->getElementForOutputModuleLabel("CALIB").get() == 0);
 }
 
 // This macro writes the 'main' for this test.

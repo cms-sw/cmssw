@@ -1,7 +1,8 @@
-// $Id: InitMsgCollection.cc,v 1.15 2011/03/07 15:31:32 mommsen Exp $
+// $Id: InitMsgCollection.cc,v 1.16 2011/03/22 16:27:00 mommsen Exp $
 /// @file: InitMsgCollection.cc
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
+#include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/InitMsgCollection.h"
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
@@ -31,59 +32,80 @@ InitMsgCollection::~InitMsgCollection()
 bool InitMsgCollection::addIfUnique(InitMsgView const& initMsgView)
 {
   boost::mutex::scoped_lock sl(listLock_);
+  
+  // check if the outputModuleId was already seen
+  const uint32_t outputModuleId = initMsgView.outputModuleId();
+  InitMsgMap::iterator pos = initMsgMap_.lower_bound(outputModuleId);
+  if ( pos != initMsgMap_.end() && !(initMsgMap_.key_comp()(outputModuleId, pos->first)))
+    return false; // init message already exists
+  
+  checkOutputModuleLabel(initMsgView);
+  
+  // add the message to the internal list
+  InitMsgSharedPtr serializedProds(new InitMsgBuffer(initMsgView.size()));
+  std::copy(
+    initMsgView.startAddress(),
+    initMsgView.startAddress()+initMsgView.size(),
+    &(*serializedProds)[0]
+  );
+  initMsgMap_.insert(pos, InitMsgMap::value_type(outputModuleId,serializedProds));
+  
+  return true; // new init message
+}
 
-  // test the output module label for validity
-  std::string inputOMLabel = initMsgView.outputModuleLabel();
-  std::string trimmedOMLabel = boost::algorithm::trim_copy(inputOMLabel);
+
+bool InitMsgCollection::addIfUnique(I2OChain const& i2oChain, InitMsgSharedPtr& serializedProds)
+{
+  boost::mutex::scoped_lock sl(listLock_);
+
+  // check if the outputModuleId was already seen
+  const uint32_t outputModuleId = i2oChain.outputModuleId();
+  InitMsgMap::iterator pos = initMsgMap_.lower_bound(outputModuleId);
+  if ( pos != initMsgMap_.end() && !(initMsgMap_.key_comp()(outputModuleId, pos->first)))
+    return false; // init message already exists
+  
+  // build the init message view
+  serializedProds.reset( new InitMsgBuffer(i2oChain.totalDataSize()) );
+  i2oChain.copyFragmentsIntoBuffer( *serializedProds );
+  InitMsgView initMsgView(&(*serializedProds)[0]);
+  
+  checkOutputModuleLabel(initMsgView);
+  
+  // add the message to the internal list
+  initMsgMap_.insert(pos, InitMsgMap::value_type(outputModuleId,serializedProds));
+
+  return true; // new init message
+}
+
+
+void InitMsgCollection::checkOutputModuleLabel(InitMsgView const& initMsgView) const
+{
+  const std::string inputOMLabel = initMsgView.outputModuleLabel();
+  const std::string trimmedOMLabel = boost::algorithm::trim_copy(inputOMLabel);
   if (trimmedOMLabel.empty()) {
     throw cms::Exception("InitMsgCollection", "addIfUnique:")
       << "Invalid INIT message: the HLT output module label is empty!"
-      << std::endl;
+        << std::endl;
   }
-
-  // initially, assume that we will want to include the new message
-  bool addToList = true;
-
-  // if this is the first INIT message that we've seen, we just add it
-  if (initMsgList_.empty()) {
-    this->add(initMsgView);
-  }
-
-  // if this is a subsequent INIT message, check if it is unique
-  else {
-
-    // loop over the existing messages
-    for (InitMsgList::iterator msgIter = initMsgList_.begin(),
-           msgIterEnd = initMsgList_.end();
-         msgIter != msgIterEnd;
-         msgIter++)
-    {
-      InitMsgSharedPtr serializedProds = msgIter->first;
-      InitMsgView existingInitMsg(&(*serializedProds)[0]);
-      std::string existingOMLabel = existingInitMsg.outputModuleLabel();
-
-      // check if the output module labels match
-      if (inputOMLabel == existingOMLabel) {
-        // we already have a copy of the INIT message
-        addToList = false;
-        ++msgIter->second;
-        break;
-      }
-    }
-
-    // if we've found no problems, add the new message to the collection
-    if (addToList) {
-      this->add(initMsgView);
-    }
-  }
-
-  // indicate whether the message was added or not
-  return addToList;
 }
 
 
 InitMsgSharedPtr
-InitMsgCollection::getElementForOutputModule(const std::string& requestedOMLabel) const
+InitMsgCollection::getElementForOutputModuleId(const uint32_t& requestedOutputModuleId) const
+{
+  boost::mutex::scoped_lock sl(listLock_);
+  InitMsgSharedPtr serializedProds;
+  
+  InitMsgMap::const_iterator it = initMsgMap_.find(requestedOutputModuleId);
+  if (it != initMsgMap_.end())
+    serializedProds = it->second;
+
+  return serializedProds;
+}
+
+
+InitMsgSharedPtr
+InitMsgCollection::getElementForOutputModuleLabel(const std::string& requestedOutputModuleLabel) const
 {
   boost::mutex::scoped_lock sl(listLock_);
   InitMsgSharedPtr serializedProds;
@@ -92,11 +114,11 @@ InitMsgCollection::getElementForOutputModule(const std::string& requestedOMLabel
   // (If we want to use class methods to check the collection size and
   // fetch the last element in the collection, then we would need to 
   // switch to recursive mutexes...)
-  if (requestedOMLabel.empty()) {
-    if (initMsgList_.size() == 1) {
-      serializedProds = initMsgList_.back().first;
+  if (requestedOutputModuleLabel.empty()) {
+    if (initMsgMap_.size() == 1) {
+      serializedProds = initMsgMap_.begin()->second;
     }
-    else if (initMsgList_.size() > 1) {
+    else if (initMsgMap_.size() > 1) {
       std::string msg = "Invalid INIT message lookup: the requested ";
       msg.append("HLT output module label is empty but there are multiple ");
       msg.append("HLT output modules to choose from.");
@@ -107,17 +129,17 @@ InitMsgCollection::getElementForOutputModule(const std::string& requestedOMLabel
 
   else {
     // loop over the existing messages
-    for (InitMsgList::const_iterator msgIter = initMsgList_.begin(),
-           msgIterEnd = initMsgList_.end();
+    for (InitMsgMap::const_iterator msgIter = initMsgMap_.begin(),
+           msgIterEnd = initMsgMap_.end();
          msgIter != msgIterEnd;
          msgIter++)
     {
-      InitMsgSharedPtr workingMessage = msgIter->first;
+      InitMsgSharedPtr workingMessage = msgIter->second;
       InitMsgView existingInitMsg(&(*workingMessage)[0]);
       std::string existingOMLabel = existingInitMsg.outputModuleLabel();
       
       // check if the output module labels match
-      if (requestedOMLabel == existingOMLabel) {
+      if (requestedOutputModuleLabel == existingOMLabel) {
         serializedProds = workingMessage;
         break;
       }
@@ -128,18 +150,6 @@ InitMsgCollection::getElementForOutputModule(const std::string& requestedOMLabel
 }
 
 
-InitMsgSharedPtr InitMsgCollection::getLastElement() const
-{
-  boost::mutex::scoped_lock sl(listLock_);
-
-  InitMsgSharedPtr ptrToLast;
-  if (!initMsgList_.empty()) {
-    ptrToLast = initMsgList_.back().first;
-  }
-  return ptrToLast;
-}
-
-
 InitMsgSharedPtr InitMsgCollection::getElementAt(const unsigned int index) const
 {
   boost::mutex::scoped_lock sl(listLock_);
@@ -147,7 +157,7 @@ InitMsgSharedPtr InitMsgCollection::getElementAt(const unsigned int index) const
   InitMsgSharedPtr ptrToElement;
   try
   {
-    ptrToElement = initMsgList_.at(index).first;
+    ptrToElement = initMsgMap_.at(index);
   }
   catch (std::out_of_range& e)
   { }
@@ -159,55 +169,14 @@ InitMsgSharedPtr InitMsgCollection::getElementAt(const unsigned int index) const
 void InitMsgCollection::clear()
 {
   boost::mutex::scoped_lock sl(listLock_);
-  initMsgList_.clear();
-  outModNameTable_.clear();
+  initMsgMap_.clear();
 }
 
 
 size_t InitMsgCollection::size() const
 {
   boost::mutex::scoped_lock sl(listLock_);
-  return initMsgList_.size();
-}
-
-
-size_t InitMsgCollection::initMsgCount(const std::string& outputModuleLabel) const
-{
-  boost::mutex::scoped_lock sl(listLock_);
-
-  for (InitMsgList::const_iterator msgIter = initMsgList_.begin(),
-         msgIterEnd = initMsgList_.end();
-       msgIter != msgIterEnd;
-       msgIter++)
-  {
-    InitMsgSharedPtr workingMessage = msgIter->first;
-    InitMsgView existingInitMsg(&(*workingMessage)[0]);
-    std::string existingOMLabel = existingInitMsg.outputModuleLabel();
-      
-    // check if the output module labels match
-    if (outputModuleLabel == existingOMLabel) {
-      return msgIter->second;
-    }
-  }
-  return 0;
-}
-
-
-size_t InitMsgCollection::maxMsgCount() const
-{
-  boost::mutex::scoped_lock sl(listLock_);
-
-  size_t maxCount = 0;
-
-  for (InitMsgList::const_iterator msgIter = initMsgList_.begin(),
-         msgIterEnd = initMsgList_.end();
-       msgIter != msgIterEnd;
-       msgIter++)
-  {
-    if (msgIter->second > maxCount)
-      maxCount = msgIter->second;
-  }
-  return maxCount;
+  return initMsgMap_.size();
 }
 
 
@@ -216,7 +185,7 @@ std::string InitMsgCollection::getSelectionHelpString() const
   boost::mutex::scoped_lock sl(listLock_);
 
   // nothing much we can say if the collection is empty
-  if (initMsgList_.empty()) {
+  if (initMsgMap_.empty()) {
     return "No information is available about the available triggers.";
   }
 
@@ -226,7 +195,7 @@ std::string InitMsgCollection::getSelectionHelpString() const
 
   // we can just use the list from the first entry since all
   // subsequent entries are forced to be the same
-  InitMsgSharedPtr serializedProds = initMsgList_[0].first;
+  InitMsgSharedPtr serializedProds = initMsgMap_.begin()->second;
   InitMsgView existingInitMsg(&(*serializedProds)[0]);
   Strings existingTriggerList;
   existingInitMsg.hltTriggerNames(existingTriggerList);
@@ -239,12 +208,12 @@ std::string InitMsgCollection::getSelectionHelpString() const
   helpString.append("trigger selections are the following:");
 
   // loop over the existing messages
-    for (InitMsgList::const_iterator msgIter = initMsgList_.begin(),
-           msgIterEnd = initMsgList_.end();
+    for (InitMsgMap::const_iterator msgIter = initMsgMap_.begin(),
+           msgIterEnd = initMsgMap_.end();
          msgIter != msgIterEnd;
          msgIter++)
     {
-    serializedProds = msgIter->first;
+    serializedProds = msgIter->second;
     InitMsgView workingInitMsg(&(*serializedProds)[0]);
     helpString.append("\n  *** Output module \"");
     helpString.append(workingInitMsg.outputModuleLabel());
@@ -265,14 +234,16 @@ std::string InitMsgCollection::getOutputModuleName(const uint32_t outputModuleId
 {
   boost::mutex::scoped_lock sl(listLock_);
 
-  OutModTable::const_iterator it = outModNameTable_.find(outputModuleId);
+  InitMsgMap::const_iterator it = initMsgMap_.find(outputModuleId);
 
-  if (it == outModNameTable_.end())
+  if (it == initMsgMap_.end())
   {
     return "";
   }
   else {
-    return it->second;
+    InitMsgSharedPtr serializedProds = it->second;
+    const InitMsgView initMsgView(&(*serializedProds)[0]);
+    return initMsgView.outputModuleLabel();
   }
 }
 
@@ -296,22 +267,6 @@ std::string InitMsgCollection::stringsToText(Strings const& list,
   }
   return resultString;
 }
-
-
-void InitMsgCollection::add(InitMsgView const& initMsgView)
-{
-  // add the message to the internal list
-  InitMsgSharedPtr serializedProds(new InitMsgBuffer(initMsgView.size()));
-  initMsgList_.push_back( std::make_pair(serializedProds,1) );
-  std::copy(initMsgView.startAddress(),
-            initMsgView.startAddress()+initMsgView.size(),
-            &(*serializedProds)[0]);
-
-  // add the module ID name to the name map
-  outModNameTable_[initMsgView.outputModuleId()] =
-    initMsgView.outputModuleLabel();
-}
-
 
 
 /// emacs configuration

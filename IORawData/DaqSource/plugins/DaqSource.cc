@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2011/10/13 19:43:44 $
- *  $Revision: 1.54 $
+ *  $Date: 2012/04/18 15:34:01 $
+ *  $Revision: 1.55.2.2 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -75,6 +75,10 @@ namespace edm {
     , mis_(0)
     , thisEventLSid(0)
     , goToStopping(false)
+    , immediateStop(false)
+    , forkInfo_(nullptr)
+    , runFork_(false)
+    , beginRunTiming_(false)
   {
     count = 0;
     pthread_mutex_init(&mutex_,0);
@@ -114,15 +118,115 @@ namespace edm {
     delete reader_;
   }
   
+  void DaqSource::publishForkInfo(evf::moduleweb::ForkInfoObj * forkInfoObj) {
+    forkInfo_ = forkInfoObj;
+    runFork_=true;
+    immediateStop=false;
+    noMoreEvents_=false;
+  }
   
   ////////////////////////////////////////////////////////////////////////////////
   // implementation of member functions
   ////////////////////////////////////////////////////////////////////////////////
-  
+
+
+  //______________________________________________________________________________
+  int DaqSource::doMyBeginRun() {
+
+    if (forkInfo_) {
+      while (!immediateStop) {
+	//queue new run to Framework (causes EP beginRun to be executed)
+	if (newRun_) {
+	  beginRunTiming_=true;
+	  gettimeofday(&tvStat_, NULL);
+	  return 2;
+	}
+	//measure time in fwk beginRun
+	if (beginRunTiming_) {
+	  timeval tsTmp;
+	  gettimeofday(&tsTmp,NULL);
+	  long tusecs = (tsTmp.tv_sec-tvStat_.tv_sec)*1000000 + tsTmp.tv_usec - tvStat_.tv_usec;
+	  double tsecs = ((double)(tusecs/10000))/100.;
+	  std::cout << "DaqSource: FWK beginRun elapsed time: " << tsecs << " seconds in master EP"<< std::endl;
+	  edm::LogInfo("DaqSource") << "FWK beginRun elapsed time: " << tsecs << " seconds in master EP";
+	  beginRunTiming_=false;
+	  usleep(10000);//short sleep before fork
+	}
+	//first or new run init
+	if (forkInfo_->forkParams.isMaster==-1) {
+	  forkInfo_->lock();//keeping it locked during init!
+	  forkInfo_->forkHandler(forkInfo_->fuAddr); //fork all slaves
+        }
+	if (forkInfo_->forkParams.isMaster==-1) {
+	  forkInfo_->unlock();
+	  std::cout << "ERROR (DaqSource): not notified to be either in  master or slave process after fork" << std::endl;
+	  return -2;
+	}
+
+	//slave process after fork: exit all this
+	if (forkInfo_->forkParams.isMaster==0) {
+	  forkInfo_->unlock();
+	  return 1;
+	}
+
+	//master process after fork:
+	if (forkInfo_->forkParams.isMaster==1) {
+	    forkInfo_->unlock();
+	    int slotToRestart=-1;
+	    sem_wait(forkInfo_->control_sem_);
+	    forkInfo_->lock();
+
+	    //got unblocked due to next run
+	    if (forkInfo_->forkParams.isMaster==-1) {
+	            forkInfo_->unlock();
+		    continue; // check here for newRun_?
+            }
+	    //check if asked to stop
+	    immediateStop=forkInfo_->stopCondition;
+	    if (immediateStop) {
+	      break;
+	    }
+	    
+	    //check if asked to restart
+	    slotToRestart = forkInfo_->forkParams.slotId;
+
+	  if (slotToRestart==-1 && forkInfo_->forkParams.restart==0) {
+	    //this will deal with spurious semaphore signals when slave is killed
+	    forkInfo_->unlock();
+	    continue;
+	  }
+	  //restart single slave
+	  forkInfo_->forkHandler(forkInfo_->fuAddr);
+	}
+      }
+      //loop exit
+      forkInfo_->unlock();
+      return 0;
+    }
+    return -1; //no forkInfo_
+  }
+
+
   //______________________________________________________________________________
   InputSource::ItemType 
   DaqSource::getNextItemType() {
     //    std::cout << getpid() << " enter getNextItemType " << std::endl;
+    if (runFork_) {
+      runFork_=false;
+      int queueNext = doMyBeginRun();
+      //check if new run (requires returning IsRun once)
+      if (queueNext == 2) runFork_=true;
+    }
+
+    //get initial time before beginRun (used with old forking)
+    if (!forkInfo_ && newRun_) {
+      beginRunTiming_=true;
+      gettimeofday(&tvStat_, NULL);
+    }
+
+    if (immediateStop) return IsStop;
+
+    // --------------
     if(goToStopping){noMoreEvents_ = true; goToStopping=false;}
     if (noMoreEvents_) {
       pthread_mutex_lock(&mutex_);
@@ -133,31 +237,45 @@ namespace edm {
     if (newRun_) {
       return IsRun;
     }
+
+    //calculate and print the beginRun the timing
+    if (beginRunTiming_) {
+      timeval tsTmp;
+      gettimeofday(&tsTmp,NULL);
+      long tusecs = (tsTmp.tv_sec-tvStat_.tv_sec)*1000000 + tsTmp.tv_usec - tvStat_.tv_usec;
+      double tsecs = ((double)(tusecs/10000))/100.;
+      std::cout << "DaqSource (slave pid "<< getpid() << " ): FWK beginRun elapsed time: " 
+		<< tsecs << " seconds "<< std::endl;
+      edm::LogInfo("DaqSource") << "DaqSource (slave pid "<< getpid() << " ): FWK beginRun elapsed time: " 
+		<< tsecs << " seconds ";
+      beginRunTiming_=false;
+    }
+
     if (newLumi_ && luminosityBlockAuxiliary()) {
       //      std::cout << "newLumi & lumiblock valid " << std::endl;
       return IsLumi;
     }
     if (alignLsToLast_) { //here we are recovering from a gap in Ls number so an event may already be cached but 
       // we hold onto it until we have issued all the necessary endLumi/beginLumi
-//       std::cout << getpid() << "alignLsToLast was set and ls number is " 
-// 		<< luminosityBlockNumber_ << " before signaling" << std::endl;
+      //       std::cout << getpid() << "alignLsToLast was set and ls number is " 
+      // 		<< luminosityBlockNumber_ << " before signaling" << std::endl;
       signalWaitingThreadAndBlock();
       luminosityBlockNumber_++;
-//       std::cout << getpid() << "alignLsToLast signaled and incremented " 
-// 		<< luminosityBlockNumber_ << " eventcached " 
-// 		<< eventCached_ << std::endl;
+      //       std::cout << getpid() << "alignLsToLast signaled and incremented " 
+      // 		<< luminosityBlockNumber_ << " eventcached " 
+      // 		<< eventCached_ << std::endl;
       newLumi_ = true;
       lumiSectionIndex_->value_ = luminosityBlockNumber_;
       resetLuminosityBlockAuxiliary();
       if(luminosityBlockNumber_ == thisEventLSid+1) 
-	{
-	  alignLsToLast_ = false;
-	}
+      {
+        alignLsToLast_ = false;
+      }
       if (!luminosityBlockAuxiliary() || luminosityBlockAuxiliary()->luminosityBlock() != luminosityBlockNumber_) {
 	setLuminosityBlockAuxiliary(new LuminosityBlockAuxiliary(
-								 runNumber_, luminosityBlockNumber_, timestamp(), Timestamp::invalidTimestamp()));
-       luminosityBlockAuxiliary()->setProcessHistoryID(phid_);
-	
+	      runNumber_, luminosityBlockNumber_, timestamp(), Timestamp::invalidTimestamp()));
+	luminosityBlockAuxiliary()->setProcessHistoryID(phid_);
+
 	//      std::cout << "nextItemType: dealt with new lumi block principal, retval is " << retval << std::endl;
       }
       return IsLumi;
@@ -168,7 +286,7 @@ namespace edm {
     }
     if(reader_ == 0) {
       throw edm::Exception(errors::LogicError)
-        << "DaqSource is used without a reader. Check your configuration !";
+	  << "DaqSource is used without a reader. Check your configuration !";
     }
     EventID eventId;
     TimeValue_t time = 0LL;
@@ -251,12 +369,14 @@ namespace edm {
 
 	unsigned int nextFakeLs	= 0;
 	eventCounter_++;
+	if (fakeLSid_)
+	    evttype =  edm::EventAuxiliary::PhysicsTrigger; 
 	if(fakeLSid_ && luminosityBlockNumber_ != 
 	   (nextFakeLs = useEventCounter_ ? ((eventCounter_-1)/lumiSegmentSizeInEvents_ + 1) :
 	    ((eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1))) {
 	  lastLumiPrescaleIndex_->value_ = prescaleSetIndex_->value_;
 	  prescaleSetIndex_->value_ = 0; // since we do not know better but we want to be able to run
-	  
+	 
 	  if(luminosityBlockNumber_ == nextFakeLs-1)
 	    signalWaitingThreadAndBlock();
 	  luminosityBlockNumber_ = nextFakeLs;
@@ -462,11 +582,12 @@ namespace edm {
     mis_ = is;
   }
 
-  void DaqSource::openBackDoor(unsigned int timeout_sec)
+  void DaqSource::openBackDoor(unsigned int timeout_sec, bool *running)
   {
     count++;
     if(count==2) throw;
     pthread_mutex_lock(&mutex_);
+    if (running) *running=true;
     pthread_mutex_unlock(&signal_lock_);
     timespec ts;
 #if _POSIX_TIMERS > 0

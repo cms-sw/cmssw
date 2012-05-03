@@ -1,4 +1,4 @@
-// $Id: DQMEventStore.h,v 1.12 2011/04/18 16:06:23 mommsen Exp $
+// $Id: DQMEventStore.h,v 1.13 2011/08/31 20:11:59 wmtan Exp $
 /// @file: DQMEventStore.h 
 
 #ifndef EventFilter_StorageManager_DQMEventStore_h
@@ -16,9 +16,9 @@
 
 #include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/Configuration.h"
+#include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/DQMTopLevelFolder.h"
 #include "EventFilter/StorageManager/interface/DQMKey.h"
-#include "EventFilter/StorageManager/interface/InitMsgCollection.h"
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 
 
@@ -33,9 +33,9 @@ namespace stor {
    * class wide temporary buffer to convert I2OChains
    * into DQMEventMsgViews.
    *
-   * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2011/04/18 16:06:23 $
+   * $Author: wmtan $
+   * $Revision: 1.13 $
+   * $Date: 2011/08/31 20:11:59 $
    */
 
   template<class EventType, class ConnectionType, class StateMachineType>  

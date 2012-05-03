@@ -55,7 +55,7 @@ public:
     theChiSquared(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(alongMomentum), theDirectionValidity(false), 
-    theValid(true),theDPhiCache(0),theNLoops(0)
+    theValid(true),theDPhiCache(0)
   {}
   
   
@@ -70,7 +70,7 @@ public:
     theChiSquared(0),
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(alongMomentum), theDirectionValidity(false),
-    theValid(true),theDPhiCache(0),theNLoops(0)  
+    theValid(true),theDPhiCache(0)  
   {}
   
   /** Constructor of an empty trajectory with defined direction.
@@ -82,7 +82,7 @@ public:
     theChiSquared(0), 
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(dir), theDirectionValidity(true),
-    theValid(true),theDPhiCache(0),theNLoops(0)
+    theValid(true),theDPhiCache(0)
   {}
   
   /** Constructor of an empty trajectory with defined direction.
@@ -94,7 +94,7 @@ public:
     theChiSquared(0), 
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(dir), theDirectionValidity(true),
-    theValid(true),theDPhiCache(0),theNLoops(0)
+    theValid(true),theDPhiCache(0)
   {}
   
   
@@ -106,9 +106,8 @@ public:
     theChiSquared(0), 
     theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(dir), theDirectionValidity(true),
-    theValid(true),theDPhiCache(0),theNLoops(0)
+    theValid(true),theDPhiCache(0)
   {}
-
   
   
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
@@ -119,7 +118,7 @@ public:
     theChiSquared(rh.theChiSquared), 
     theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
     theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity),theValid(rh.theValid),
-    theDPhiCache(rh.theDPhiCache),theNLoops(rh.theNLoops)
+    theDPhiCache(rh.theDPhiCache)
   {}
   
   
@@ -135,7 +134,6 @@ public:
     theDirectionValidity=rh.theDirectionValidity;
     theValid=rh.theValid;
     theDPhiCache=rh.theDPhiCache;
-    theNLoops=rh.theNLoops;
  
     return *this;
 
@@ -149,8 +147,7 @@ public:
     theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
     theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity),
     theValid(rh.theValid),
-    theDPhiCache(rh.theDPhiCache),
-    theNLoops(rh.theNLoops)
+    theDPhiCache(rh.theDPhiCache)
    {}
 
   TempTrajectory & operator=(TempTrajectory && rh) {
@@ -164,7 +161,6 @@ public:
     theDirectionValidity=rh.theDirectionValidity;
     theValid=rh.theValid;
     theDPhiCache=rh.theDPhiCache;
-    theNLoops=rh.theNLoops;
     return *this;
 
   }
@@ -313,13 +309,6 @@ public:
   /// two layers crossed by the trajectory
   void setDPhiCacheForLoopersReconstruction(float dphi) {  theDPhiCache = dphi;}
 
-   bool isLooper() const { return (theNLoops>0);}
-   signed char nLoops() const {return theNLoops;}
-
-   void setNLoops(signed char value) { theNLoops=value;}
-   void incrementLoops() {theNLoops++;}
-
-
 private:
 
   void pushAux( const TrajectoryMeasurement& tm, double chi2Increment);
@@ -340,7 +329,6 @@ private:
   bool theValid;
 
   float theDPhiCache;
-  signed char theNLoops;
 
 
   void check() const;

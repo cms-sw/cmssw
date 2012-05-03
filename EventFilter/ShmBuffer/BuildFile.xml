@@ -1,4 +1,5 @@
 <use   name="EventFilter/FEDInterface"/>
+<use   name="EventFilter/Utilities"/>
 <export>
   <lib   name="1"/>
 </export>

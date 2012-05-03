@@ -27,6 +27,8 @@
 
 #include <string>
 #include "EventFilter/Utilities/interface/MsgBuf.h"
+#include "EventFilter/Utilities/interface/ModuleWeb.h"
+#include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
 
 namespace xdaq{
   class ApplicationDescriptor;
@@ -135,6 +137,9 @@ namespace evf{
     unsigned int getLumiSectionReferenceIndex(){return trh_.getLumiSectionReferenceIndex();}
     unsigned int getNumberOfMicrostates(){return mapmod_.size();}
     std::vector<std::string> const &getmicromap() const { return mapmod_;}
+
+    ModuleWebRegistry * getModuleWebRegistry();
+    ShmOutputModuleRegistry * getShmOutputModuleRegistry();
   private:
     static const std::string        unknown;
     edm::EventProcessor             *evtProcessor_;
@@ -234,6 +239,8 @@ namespace evf{
     bool                             waitingForLs_;
     pthread_mutex_t                  ep_guard_lock_;
     int                              notstarted_state_code_;
+    ModuleWebRegistry                *mwrRef_;
+    ShmOutputModuleRegistry          *sorRef_;
     friend class FUEventProcessor;
 
   };

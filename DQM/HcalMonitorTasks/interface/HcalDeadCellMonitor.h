@@ -25,8 +25,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2011/05/23 14:54:10 $
-  * $Revision: 1.51 $
+  * $Date: 2011/08/03 13:58:18 $
+  * $Revision: 1.56 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -98,6 +98,7 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
 
   MonitorElement *Nevents;
   int beamMode_;
+  bool doReset_;
 
   MonitorElement *HBDeadVsEvent, *HEDeadVsEvent, *HODeadVsEvent, *HFDeadVsEvent;
   bool present_digi[85][72][4]; // tests that a good digi was present at least once

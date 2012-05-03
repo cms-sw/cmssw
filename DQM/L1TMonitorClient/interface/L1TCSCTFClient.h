@@ -46,6 +46,9 @@ protected:
 private:
 
   void initialize();
+
+  void processHistograms();
+
   edm::ParameterSet parameters;
 
   DQMStore* dbe;
@@ -54,6 +57,13 @@ private:
   int counterEvt;     ///counter
   int prescaleLS;     ///units of lumi sections
   int prescaleEvt;    ///prescale on number of events
+
+  bool m_runInEventLoop;
+  bool m_runInEndLumi;
+  bool m_runInEndRun;
+  bool m_runInEndJob;
+
+
 
   // -------- member data --------
   MonitorElement *csctferrors_;

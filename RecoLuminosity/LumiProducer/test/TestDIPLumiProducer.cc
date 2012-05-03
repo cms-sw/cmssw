@@ -9,7 +9,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "RecoLuminosity/LumiProducer/interface/DIPLumiSummary.h"
-#include "RecoLuminosity/LumiProducer/interface/DIPLumiSummaryRcd.h"
+#include "RecoLuminosity/LumiProducer/interface/DIPLumiDetail.h"
+#include "RecoLuminosity/LumiProducer/interface/DIPLuminosityRcd.h"
 
 #include <iostream>
 
@@ -52,26 +53,47 @@ void TestDIPLumiProducer::analyze(edm::Event const& e,edm::EventSetup const&)
 // -----------------------------------------------------------------
 
 void TestDIPLumiProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, EventSetup const& es){
-  std::cout <<" I AM IN RUN NUMBER "<<lumiBlock.run() <<std::endl;
-  std::cout <<" ---LS NUMBER "<< lumiBlock.luminosityBlock()<<std::endl;
-  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("DIPLumiSummaryRcd"));
+  std::cout <<" I AM IN RUN NUMBER "<<lumiBlock.run() <<" LS NUMBER "<< lumiBlock.luminosityBlock()<<std::endl;
+  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("DIPLuminosityRcd"));
   if( recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
-    std::cout <<"Record \"DIPLumiSummaryRcd"<<"\" does not exist "<<std::endl;
+    std::cout <<"Record \"DIPLuminosityRcd"<<"\" does not exist "<<std::endl;
   }
   try{
     edm::ESHandle<DIPLumiSummary> datahandle;
-    unsigned long long cache_id=es.get<DIPLumiSummaryRcd>().cacheIdentifier();
-    std::cout<<cache_id<<std::endl;
-    es.get<DIPLumiSummaryRcd>().get(datahandle);
+    es.getData(datahandle);
     if(datahandle.isValid()){
       const DIPLumiSummary* mydata=datahandle.product();
-      std::cout<<*mydata<<std::endl;
+      if(!mydata->isNull()){
+	std::cout<<"from Run "<<mydata->fromRun()<<" from LS "<<mydata->fromLS()<<std::endl;
+	std::cout<<mydata->intgDelLumiByLS()<<std::endl;
+      }else{
+	std::cout<<"data empty"<<std::endl;
+      }
     }else{
-      std::cout<<"no valid data found"<<std::endl;
+      std::cout<<"no valid record found"<<std::endl;
     }
-  }catch(const edm::eventsetup::NoRecordException<DIPLumiSummaryRcd>& er){
+  }catch(const edm::eventsetup::NoRecordException<DIPLuminosityRcd>& er){
     std::cout<<"no data found"<<std::endl;
+  }catch(const cms::Exception& ee){
+    std::cout<<ee.what()<<std::endl;
   }
+  //try{
+  //  std::cout<<"looking at detail"<<std::endl;
+  //  edm::ESHandle<DIPLumiDetail> pDetail;
+  //  es.getData(pDetail);
+  // if(pDetail.isValid()){
+  //    const DIPLumiDetail* ddata=pDetail.product();
+  //    if(!mydata->isNull()){
+  //      std::cout<<*ddata<<std::endl;
+  //    }else{
+  //	  std::cout<<"data empty"<<std::endl;
+  //    }
+  //  }else{
+  //    std::cout<<"no valid data found"<<std::endl;
+  //  }
+  //}catch(const edm::eventsetup::NoRecordException<DIPLuminosityRcd>& er){
+  //  std::cout<<"no data found"<<std::endl;
+  //}
 }
 
 DEFINE_FWK_MODULE(TestDIPLumiProducer);

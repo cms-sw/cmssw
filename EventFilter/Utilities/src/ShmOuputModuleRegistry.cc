@@ -1,4 +1,5 @@
 #include "EventFilter/Utilities/interface/ShmOutputModuleRegistry.h"
+#include "EventFilter/Modules/src/FUShmOutputModule.h"
 
 #include <iostream>
 
@@ -29,10 +30,23 @@ namespace evf{
       it++;
     }
   }
+  std::vector<edm::FUShmOutputModule *> ShmOutputModuleRegistry::getShmOutputModules()
+  {
+    std::vector<edm::FUShmOutputModule *> outputs;
+    idct it= clm_.begin();
+    while(it!=clm_.end()){
+      edm::FUShmOutputModule * sho = dynamic_cast<edm::FUShmOutputModule *> ((*it).second);
+      if (sho!=NULL) {
+        outputs.push_back(sho);
+      }
+      it++;
+    }
+    return outputs;
+  }
   void ShmOutputModuleRegistry::clear()
   {
      clm_.clear();
   }
-  
+
 
 } //end namespace evf

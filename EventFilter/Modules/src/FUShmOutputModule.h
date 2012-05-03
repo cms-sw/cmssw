@@ -6,13 +6,14 @@
      Header file shared memory to be used with FUShmOutputModule.
      See CMS EvF Storage Manager wiki page for further notes.
 
-   $Id: FUShmOutputModule.h,v 1.7 2011/04/14 15:24:51 mommsen Exp $
+   $Id: FUShmOutputModule.h,v 1.8.2.2 2012/04/17 13:50:52 smorovic Exp $
 */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "EventFilter/ShmBuffer/interface/FUShmBuffer.h"
 #include "EventFilter/Utilities/interface/ShmOutputModuleRegistry.h"
@@ -42,6 +43,9 @@ struct SM_SharedMemoryHandle
      shmBuffer_ = 0;
    }
   }
+  evf::FUShmBuffer* getBufferRef() {
+    return shmBuffer_;
+  }
 
   evf::FUShmBuffer* shmBuffer_;
 };
@@ -65,7 +69,6 @@ namespace edm
     void stop();
     // No parameters.
     static void fillDescription(ParameterSetDescription&) {}
-
   private:
 
     evf::FUShmBuffer* shmBuffer_;
@@ -74,6 +77,20 @@ namespace edm
 
     static bool fuIdsInitialized_;
     static uint32 fuGuidValue_;
+    bool postponeInitMsg_;
+    bool sentInitMsg_;
+    unsigned char * initBuf_;
+    unsigned int initBufSize_;
+    bool postponeStart_;
+    unsigned int nExpectedEPs_;
+
+  public:
+    //void writeLuminosityBlock(LuminosityBlockPrincipal const&);
+    void setPostponeInitMsg();
+    void sendPostponedStart();
+    void sendPostponedInitMsg();
+    void setNExpectedEPs(unsigned int EPs);
+    void unregisterFromShm();
 
   };
 }

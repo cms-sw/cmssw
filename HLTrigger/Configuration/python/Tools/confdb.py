@@ -55,6 +55,26 @@ class HLTProcess(object):
     "HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v*",
     "HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v*",
     "HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v*",
+    "HLT_JetE30_NoBPTX3BX_v*",
+    "HLT_JetE50_NoBPTX3BX_v*",
+    "HLT_JetE70_NoBPTX3BX_v*",
+    "HLT_L2Mu10_NoVertex_NoBPTX3BX_v*",
+    "HLT_L2Mu10_NoVertex_NoBPTX3BX_v*",
+    "HLT_L2Mu10_NoVertex_NoBPTX3BX_v*",
+    "HLT_L2Mu20_NoVertex_NoBPTX3BX_v*",
+    "HLT_L2Mu30_NoVertex_NoBPTX3BX_v*",
+    "HLT_PixelTracks_Multiplicity70_v*",
+    "HLT_PixelTracks_Multiplicity80_v*",
+    "HLT_PixelTracks_Multiplicity90_v*",
+    "HLT_BeamGas_HF_Beam1_v*",
+    "HLT_BeamGas_HF_Beam2_v*",
+    "HLT_BeamHalo_v*",
+    "HLT_L1Tech_CASTOR_HaloMuon_v*",
+    "HLT_L1Tech_DT_GlobalOR_v*",
+    "HLT_GlobalRunHPDNoise_v*",
+    "HLT_L1Tech_HBHEHO_totalOR_v*",
+    "HLT_L1Tech_HCAL_HF_single_channel_v*",
+    "HLT_L1TrackerCosmics_v",   
     
 # TODO: paths not supported by FastSim, but for which a recovery should be attempted
   
@@ -430,7 +450,7 @@ if 'GlobalTag' in %%(dict)s:
     elif self.config.globaltag.startswith('auto:'):
       self.config.menuGlobalTagAuto = self.config.globaltag[5:]
       text += "    from Configuration.AlCa.autoCond import autoCond\n"
-      text += "    %%(process)sGlobalTag.globaltag = autoCond['%(menuGlobalTagAuto)s']\n"
+      text += "    %%(process)sGlobalTag.globaltag = autoCond['%(menuGlobalTagAuto)s'].split(',')[0]\n"
     else:
       text += "    %%(process)sGlobalTag.globaltag = '%(globaltag)s'\n"
 
@@ -466,6 +486,37 @@ if 'GlobalTag' in %%(dict)s:
 %%(process)ses_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml') 
 """
       self.data += text % self.config.l1Xml.__dict__
+
+  def runL1EmulatorGT(self):
+    # if requested, run (part of) the L1 emulator, then repack the data into a new RAW collection, to be used by the HLT
+    if not self.config.emulator:
+      return
+
+    if self.config.emulator != 'gt':
+      # only the GT emulator is currently supported
+      return
+
+    # run the L1 GT emulator, then repack the data into a new RAW collection, to be used by the HLT
+    text = """
+# run the L1 GT emulator, then repack the data into a new RAW collection, to be used by the HLT
+"""
+    if self.config.fragment:
+      # FIXME in a cff, should also update the HLTSchedule
+      text += "import Configuration.StandardSequences.SimL1EmulatorRepack_GT_cff\n"
+    else:
+      text += "process.load( 'Configuration.StandardSequences.SimL1EmulatorRepack_GT_cff' )\n"
+
+    if not 'hltBoolFalse' in self.data:
+      # add hltBoolFalse
+      text += """
+%(process)shltBoolFalse = cms.EDFilter( "HLTBool",
+    result = cms.bool( False )
+)
+"""
+    text += "process.L1Emulator = cms.Path( process.SimL1Emulator + process.hltBoolFalse )\n\n"
+
+    self.data = re.sub(r'.*cms\.(End)?Path.*', text + r'\g<0>', self.data, 1)
+
 
   def runL1Emulator(self):
     # if requested, run (part of) the L1 emulator
@@ -860,6 +911,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltCkf3HitActivityTrackCandidates" )
       self.options['modules'].append( "-hltCtf3HitActivityWithMaterialTracks" )
       self.options['modules'].append( "-hltActivityCkfTrackCandidatesForGSF" )
+      self.options['modules'].append( "-hltL1SeededCkfTrackCandidatesForGSF" )
       self.options['modules'].append( "-hltMuCkfTrackCandidates" )
       self.options['modules'].append( "-hltMuCtfTracks" )
       self.options['modules'].append( "-hltTau3MuCkfTrackCandidates" )
@@ -897,7 +949,6 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltEcalRecHitAll" )
       self.options['modules'].append( "-hltESRecHitAll" )
       # === hltPF
-      self.options['modules'].append( "-hltPFJetPixelSeeds" )
       self.options['modules'].append( "-hltPFJetCkfTrackCandidates" )
       self.options['modules'].append( "-hltPFJetCtfWithMaterialTracks" )
       self.options['modules'].append( "-hltPFlowTrackSelectionHighPurity" )
@@ -905,6 +956,9 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltDisplacedHT250L1FastJetRegionalPixelSeedGenerator" )
       self.options['modules'].append( "-hltDisplacedHT250L1FastJetRegionalCkfTrackCandidates" )
       self.options['modules'].append( "-hltDisplacedHT250L1FastJetRegionalCtfWithMaterialTracks" )     
+      self.options['modules'].append( "-hltDisplacedHT300L1FastJetRegionalPixelSeedGenerator" )
+      self.options['modules'].append( "-hltDisplacedHT300L1FastJetRegionalCkfTrackCandidates" )
+      self.options['modules'].append( "-hltDisplacedHT300L1FastJetRegionalCtfWithMaterialTracks" )     
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorbbPhiL1FastJet" )
       self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesbbPhiL1FastJet" )
       self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksbbPhiL1FastJet" )     
@@ -918,27 +972,9 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltBLifetimeDiBTagIP3D1stTrkRegionalCkfTrackCandidatesJet20HbbL1FastJet" )
       self.options['modules'].append( "-hltBLifetimeDiBTagIP3D1stTrkRegionalCtfWithMaterialTracksJet20HbbL1FastJet" )
       # === hltBLifetimeRegional
-      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorSingleTop" )
-      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksSingleTop" )
-      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesSingleTop" )
-      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorEleJetSingleTop" )
-      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesEleJetSingleTop" )
-      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksEleJetSingleTop" )
-      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorIsoEleJetSingleTop" )
-      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesIsoEleJetSingleTop" )
-      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksIsoEleJetSingleTop" )
-      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorRA2b" )
-      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesRA2b" )
-      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksRA2b" )
-      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorRAzr" )
-      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesRAzr" )
-      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksRAzr" )
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorHbb" )
       self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesHbb" )
       self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksHbb" )
-      self.options['modules'].append( "-hltBLifetimeRegionalPixel3DSeedGeneratorJet30Hbb" )
-      self.options['modules'].append( "-hltBLifetimeRegional3DCkfTrackCandidatesJet30Hbb" )
-      self.options['modules'].append( "-hltBLifetimeRegional3DCtfWithMaterialTracksJet30Hbb" )
       self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorbbPhi" )
       self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesbbPhi" )
       self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksbbPhi" )
@@ -948,17 +984,30 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltBLifetimeDiBTagIP3D1stTrkRegionalPixelSeedGeneratorJet20Hbb" )
       self.options['modules'].append( "-hltBLifetimeDiBTagIP3D1stTrkRegionalCkfTrackCandidatesJet20Hbb" )
       self.options['modules'].append( "-hltBLifetimeDiBTagIP3D1stTrkRegionalCtfWithMaterialTracksJet20Hbb" )
-      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorGammaB" )
-      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesGammaB" )
-      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksGammaB" )
-
+      self.options['modules'].append( "-hltBLifetimeFastRegionalPixelSeedGeneratorHbbVBF" )
+      self.options['modules'].append( "-hltBLifetimeFastRegionalCkfTrackCandidatesHbbVBF" )
+      self.options['modules'].append( "-hltBLifetimeFastRegionalCtfWithMaterialTracksHbbVBF" )
+      self.options['modules'].append( "-hltBLifetimeRegionalPixelSeedGeneratorbbPhiL1FastJetFastPV" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCkfTrackCandidatesbbPhiL1FastJetFastPV" )
+      self.options['modules'].append( "-hltBLifetimeRegionalCtfWithMaterialTracksbbPhiL1FastJetFastPV" )
+      self.options['modules'].append( "-hltFastPixelBLifetimeRegionalPixelSeedGeneratorHbb" )
+      self.options['modules'].append( "-hltFastPixelBLifetimeRegionalCkfTrackCandidatesHbb" )
+      self.options['modules'].append( "-hltFastPixelBLifetimeRegionalCtfWithMaterialTracksHbb" )
+     
       self.options['modules'].append( "-hltPixelTracksForMinBias" )
       self.options['modules'].append( "-hltPixelTracksForHighMult" )
       self.options['modules'].append( "-hltRegionalPixelTracks" )
-      self.options['modules'].append( "-hltRegPixelTracks" )
+      self.options['modules'].append( "-hltPixelTracksReg" )
       self.options['modules'].append( "-hltIter4Merged" )
+      self.options['modules'].append( "-hltFastPixelHitsVertex" )
+      self.options['modules'].append( "-hltFastPixelTracks")
+      self.options['modules'].append( "-hltFastPixelTracksRecover")
+      
+      self.options['modules'].append( "-hltFastPrimaryVertex")
+      self.options['modules'].append( "-hltFastPVPixelTracks")
+      self.options['modules'].append( "-hltFastPVPixelTracksRecover" )
+
       self.options['modules'].append( "-hltIter4Tau3MuMerged" )
-      self.options['modules'].append( "-hltPFJetCtfWithMaterialTracks" )
       self.options['modules'].append( "hltPixelMatchElectronsActivity" )
 
       self.options['modules'].append( "-hltMuonCSCDigis" )
@@ -976,6 +1025,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTPixelMatchElectronActivityTrackingSequence" )
       self.options['sequences'].append( "-HLTDoLocalStripSequence" )
       self.options['sequences'].append( "-HLTDoLocalPixelSequence" )
+      self.options['sequences'].append( "-HLTDoLocalPixelSequenceRegL2Tau" )
       self.options['sequences'].append( "-hltSiPixelDigis" )
       self.options['sequences'].append( "-hltSiPixelClusters" )
       self.options['sequences'].append( "-hltSiPixelRecHits" )
@@ -1014,10 +1064,10 @@ if 'GlobalTag' in %%(dict)s:
       self.source = [ "file:/tmp/InputCollection.root" ]
     elif self.config.data:
       # offline we can run on data...
-      self.source = [ "/store/data/Run2011B/MinimumBias/RAW/v1/000/178/479/3E364D71-F4F5-E011-ABD2-001D09F29146.root" ]
+      self.source = [ "file:RelVal_Raw_%s_DATA.root" % self.config.type ]
     else:
       # ...or on mc
-      self.source = [ "file:RelVal_Raw_%s.root" % self.config.type ]
+      self.source = [ "file:RelVal_Raw_%s_STARTUP.root" % self.config.type ]
 
     self.data += """
 %(process)ssource = cms.Source( "PoolSource",

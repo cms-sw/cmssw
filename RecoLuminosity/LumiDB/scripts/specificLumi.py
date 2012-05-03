@@ -232,7 +232,7 @@ def specificlumiTofile(fillnum,filldata,outdir):
         print >>f,'%d\t%d\t%e\t%e'%(startts,stopts,plu,lui)
     f.close()
 
-def getSpecificLumi(schema,fillnum,inputdir,xingMinLum=0.0,norm='pp7TeV',withcorrection=True,amodetag='PROTPHYS',bxAlgo='OCC1',usecorrectionv2=False,usecorrectionv3=False):
+def getSpecificLumi(schema,fillnum,inputdir,xingMinLum=0.0,norm='pp7TeV',withcorrection=True,amodetag='PROTPHYS',bxAlgo='OCC1'):
     '''
     specific lumi in 1e-30 (ub-1s-1) unit
     lumidetail occlumi in 1e-27
@@ -250,21 +250,11 @@ def getSpecificLumi(schema,fillnum,inputdir,xingMinLum=0.0,norm='pp7TeV',withcor
     #print irunlsdict
     finecorrections=None
     driftcorrections=None
-    usecorrectionv2=False
     if withcorrection :
-        if usecorrectionv2:
-            cterms=lumiCorrections.nonlinearV2()
-            finecorrections=lumiCorrections.correctionsForRangeV2(schema,runlist,cterms)#constant+nonlinear corrections
-            driftcorrections=lumiCorrections.driftcorrectionsForRange(schema,runlist,cterms)
-        elif options.correctionv3:
-            cterms=lumiCorrections.nonlinearV3()
-            finecorrections=lumiCorrections.correctionsForRangeV2(schema,runlist,cterms)#constant+nonlinear corrections
-            driftcorrections=lumiCorrections.driftcorrectionsForRange(schema,runlist,cterms)            
-        else:#default
-            cterms=lumiCorrections.nonlinearSingle()
-            finecorrections=lumiCorrections.correctionsForRange(schema,runlist,cterms)
-            driftcorrections=None
-    lumidetails=lumiCalcAPI.instCalibratedLumiForRange(schema,irunlsdict,beamstatus=None,amodetag=amodetag,withBXInfo=True,withBeamIntensity=True,bxAlgo=bxAlgo,xingMinLum=xingMinLum,norm=norm,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=(usecorrectionv2 or usecorrectionv3 ))
+        cterms=lumiCorrections.nonlinearV2()
+        finecorrections=lumiCorrections.correctionsForRangeV2(schema,runlist,cterms)#constant+nonlinear corrections
+        driftcorrections=lumiCorrections.driftcorrectionsForRange(schema,runlist,cterms)
+    lumidetails=lumiCalcAPI.instCalibratedLumiForRange(schema,irunlsdict,beamstatus=None,amodetag=amodetag,withBXInfo=True,withBeamIntensity=True,bxAlgo=bxAlgo,xingMinLum=xingMinLum,norm=norm,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=True)
     session.transaction().commit()
     #
     #output: {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),calibratedlumi(5),calibratedlumierr(6),startorbit(7),numorbit(8),(bxvalues,bxerrs)(9),(bxidx,b1intensities,b2intensities)(10)]}}
@@ -396,10 +386,6 @@ if __name__ == '__main__':
     #
     parser.add_argument('--without-correction',dest='withoutFineCorrection',action='store_true',
                         help='without fine correction on calibration' )
-    parser.add_argument('--correctionv2',dest='correctionv2',action='store_true',
-                        help='apply correction v2' )
-    parser.add_argument('--correctionv3',dest='correctionv3',action='store_true',
-                        help='apply correction v3' )
     parser.add_argument('--debug',dest='debug',action='store_true',
                         help='debug')
     options=parser.parse_args()
@@ -450,7 +436,7 @@ if __name__ == '__main__':
     filldata={}
     session.transaction().start(True)
     for fillnum in fillstoprocess:# process per fill
-        filldata=getSpecificLumi(session.nominalSchema(),fillnum,options.inputdir,xingMinLum=options.xingMinLum,norm=options.normfactor,withcorrection=withcorrection,amodetag=options.amodetag,bxAlgo=options.bxAlgo,usecorrectionv2=options.correctionv2,usecorrectionv3=options.correctionv3)
+        filldata=getSpecificLumi(session.nominalSchema(),fillnum,options.inputdir,xingMinLum=options.xingMinLum,norm=options.normfactor,withcorrection=withcorrection,amodetag=options.amodetag,bxAlgo=options.bxAlgo)
         specificlumiTofile(fillnum,filldata,options.outputdir)
     session.transaction().commit()
 

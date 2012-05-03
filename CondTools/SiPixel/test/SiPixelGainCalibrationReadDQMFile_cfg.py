@@ -6,7 +6,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 process.load("Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "DESIGN311_V2::All"
+#process.GlobalTag.globaltag = "STARTUP_V8::All"
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('/tmp/rougny/histos.root')
@@ -23,7 +23,7 @@ process.readfileHLT = cms.EDAnalyzer("SiPixelGainCalibrationReadDQMFile",
 #    supportedProtocols = cms.vstring('rfio'),
     inputrootfile = cms.untracked.string('file:///tmp/rougny/test.root'),
     record = cms.untracked.string('SiPixelGainCalibrationForHLTRcd'),
-    useMeanWhenEmpty = cms.untracked.bool(True),  
+    useMeanWhenEmpty = cms.untracked.bool(False),  
     badChi2Prob = cms.untracked.double(0.00001)                             
 )
 
