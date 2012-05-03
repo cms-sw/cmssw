@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoTauTag.RecoTau.HLTPFRecoTauQualityCuts_cfi import hltPFTauQualityCuts
-from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadTrack
+from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadTrack, noPrediscriminants
 
 hltPFRecoTauDiscriminationByIsolation = cms.EDProducer(
     "PFRecoTauDiscriminationByIsolation",
