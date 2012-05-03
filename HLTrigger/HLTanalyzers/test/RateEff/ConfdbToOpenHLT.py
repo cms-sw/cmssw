@@ -260,6 +260,9 @@ class ConfdbToOpenHLT:
                                 aliasedseeds.append("AND")
                                                                 
                             self.hltl1modulemap[name] = thinginpath
+                            if thinginpath not in self.l1modulenameseedmap:
+                                continue
+                                  
                             seedexpression = self.l1modulenameseedmap[thinginpath]
                             splitseedexpression = seedexpression.split()
 
