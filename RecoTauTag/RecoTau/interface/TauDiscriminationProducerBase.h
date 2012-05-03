@@ -69,6 +69,9 @@ class TauDiscriminationProducerBase : public edm::EDProducer {
     // abstract functions implemented in derived classes.
     virtual double discriminate(const TauRef& tau) = 0;
 
+    // called at the end of event processing - override if necessary.
+    virtual void endEvent(edm::Event& evt) {}
+
     struct TauDiscInfo {
       edm::InputTag label;
       edm::Handle<TauDiscriminator> handle;
@@ -80,8 +83,9 @@ class TauDiscriminationProducerBase : public edm::EDProducer {
     //value given to taus that fail prediscriminants
     double prediscriminantFailValue_;
 
-  private:
     edm::InputTag TauProducer_;
+
+  private:
     std::vector<TauDiscInfo> prediscriminants_;
     // select boolean operation on prediscriminants (and = 0x01, or = 0x00)
     uint8_t andPrediscriminants_;
