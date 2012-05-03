@@ -6,10 +6,17 @@
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "RecoTauTag/RecoTau/interface/AntiElectronIDMVA2.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "PhysicsTools/MVAComputer/interface/zstream.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 
 #include <TMath.h>
+
+#include <iostream>
+#include <sstream>
+#include <fstream>
 
 using namespace reco;
 
@@ -17,7 +24,8 @@ class PFRecoTauDiscriminationAgainstElectronMVA2 : public PFTauDiscriminationPro
 public:
   explicit PFRecoTauDiscriminationAgainstElectronMVA2(const edm::ParameterSet& iConfig)
     : PFTauDiscriminationProducerBase(iConfig),
-      mva_(0)
+      mva_(0),
+      category_output_(0)
   {    
     method_                                    = iConfig.getParameter<std::string>("method");
     inputFileName1prongNoEleMatchBL_           = iConfig.getParameter<edm::FileInPath>("inputFileName1prongNoEleMatchBL");
@@ -46,27 +54,71 @@ public:
     srcGsfElectrons_ = iConfig.getParameter<edm::InputTag>("srcGsfElectrons");
 
     mva_ = new AntiElectronIDMVA2();
-    mva_->Initialize(method_,
-		     inputFileName1prongNoEleMatchBL_.fullPath().data(),
-		     inputFileName1prongBL_.fullPath().data(),
-		     inputFileName1prongStripsWOgsfBL_.fullPath().data(),
-		     inputFileName1prongStripsWgsfWOpfEleMvaBL_.fullPath().data(),
-		     inputFileName1prongStripsWgsfWpfEleMvaBL_.fullPath().data(),
-		     inputFileName1prongNoEleMatchEC_.fullPath().data(),
-		     inputFileName1prongEC_.fullPath().data(),
-		     inputFileName1prongStripsWOgsfEC_.fullPath().data(),
-		     inputFileName1prongStripsWgsfWOpfEleMvaEC_.fullPath().data(),
-		     inputFileName1prongStripsWgsfWpfEleMvaEC_.fullPath().data());
+    // CV: working version of file compression not implemented yet
+    //mva_->Initialize_from_string(method_,
+    //				   readZippedFile(inputFileName1prongNoEleMatchBL_.fullPath()),
+    //				   readZippedFile(inputFileName1prongBL_.fullPath()),
+    //				   readZippedFile(inputFileName1prongStripsWOgsfBL_.fullPath()),
+    //				   readZippedFile(inputFileName1prongStripsWgsfWOpfEleMvaBL_.fullPath()),
+    //				   readZippedFile(inputFileName1prongStripsWgsfWpfEleMvaBL_.fullPath()),
+    //				   readZippedFile(inputFileName1prongNoEleMatchEC_.fullPath()),
+    //				   readZippedFile(inputFileName1prongEC_.fullPath()),
+    //				   readZippedFile(inputFileName1prongStripsWOgsfEC_.fullPath()),
+    //				   readZippedFile(inputFileName1prongStripsWgsfWOpfEleMvaEC_.fullPath()),
+    //				   readZippedFile(inputFileName1prongStripsWgsfWpfEleMvaEC_.fullPath()));
+    mva_->Initialize_from_file(method_,
+			       inputFileName1prongNoEleMatchBL_.fullPath(),
+			       inputFileName1prongBL_.fullPath(),
+			       inputFileName1prongStripsWOgsfBL_.fullPath(),
+			       inputFileName1prongStripsWgsfWOpfEleMvaBL_.fullPath(),
+			       inputFileName1prongStripsWgsfWpfEleMvaBL_.fullPath(),
+			       inputFileName1prongNoEleMatchEC_.fullPath(),
+			       inputFileName1prongEC_.fullPath(),
+			       inputFileName1prongStripsWOgsfEC_.fullPath(),
+			       inputFileName1prongStripsWgsfWOpfEleMvaEC_.fullPath(),
+			       inputFileName1prongStripsWgsfWpfEleMvaEC_.fullPath());
+    
+    // add category index
+    if ( returnMVA_ ) {
+      produces<PFTauDiscriminator>("category");
+    }
   }
 
-  double discriminate(const PFTauRef& thePFTauRef);
+  void beginEvent(const edm::Event&, const edm::EventSetup&);
+  
+  double discriminate(const PFTauRef&);
 
-  void beginEvent(const edm::Event& evt, const edm::EventSetup& es);
+  void endEvent(edm::Event&);
 
-  ~PFRecoTauDiscriminationAgainstElectronMVA2(){ delete mva_;}
+  ~PFRecoTauDiscriminationAgainstElectronMVA2() 
+  { 
+    delete mva_; 
+  }
 
 private:
   
+  std::string readZippedFile(const std::string& fileName)
+  {
+    //std::cout << "<PFRecoTauDiscriminationAgainstElectronMVA2::readZippedFile>:" << std::endl;
+    //std::cout << " fileName = " << fileName << std::endl;
+    // CV: code adapted from PhysicsTools/MVAComputer/src/MVAComputer.cc
+    std::ifstream file;
+    file.open(fileName);
+    if ( !file.good() ) throw cms::Exception("InvalidFileState")
+      << "Failed to open MVA file = " << fileName << " !!\n";
+    std::ostringstream buffer_zipped;
+    while ( file.good() ) {
+      buffer_zipped << (char)file.get();
+    }
+    file.close();
+    //std::cout << " buffer (zipped) = " << buffer_zipped.str() << std::endl;
+    ext::izstream gunzip(&file);
+    std::ostringstream buffer_unzipped;
+    buffer_unzipped << gunzip.rdbuf();
+    //std::cout << " buffer (unzipped) = " << buffer_unzipped.str() << std::endl;
+    return buffer_unzipped.str();
+  }
+
   std::string method_ ;
   edm::FileInPath inputFileName1prongNoEleMatchBL_;
   edm::FileInPath inputFileName1prongBL_;
@@ -92,10 +144,18 @@ private:
   double minMVA1prongStripsWgsfWpfEleMvaEC_ ;
   edm::InputTag srcGsfElectrons_;
   edm::Handle<reco::GsfElectronCollection> gsfElectrons_;
+  edm::Handle<TauCollection> taus_;
+  std::auto_ptr<PFTauDiscriminator> category_output_;
+  size_t tauIndex_;
 };
 
 void PFRecoTauDiscriminationAgainstElectronMVA2::beginEvent(const edm::Event& evt, const edm::EventSetup& es)
 {
+  if ( returnMVA_ ) {
+    evt.getByLabel(TauProducer_, taus_);
+    category_output_.reset(new PFTauDiscriminator(TauRefProd(taus_)));
+    tauIndex_ = 0;
+  }
   evt.getByLabel(srcGsfElectrons_, gsfElectrons_);
 }
 
@@ -103,6 +163,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA2::discriminate(const PFTauRef& 
 {
   double mva = 1.;
   double workingPoint = 1.;
+  double category = -1.;
   bool isGsfElectronMatched = false;
   if( (*thePFTauRef).leadPFChargedHadrCand().isNonnull()) {
     for ( reco::GsfElectronCollection::const_iterator theGsfElectron = gsfElectrons_->begin();
@@ -120,15 +181,33 @@ double PFRecoTauDiscriminationAgainstElectronMVA2::discriminate(const PFTauRef& 
 	  if ( thePFTauRef->signalPFChargedHadrCands().size() == 1 ) {
 	    double mvaCut = 999.;
 	    if ( TMath::Abs(thePFTauRef->eta()) < 1.5 ) { // Barrel
-	      if      ( numSignalPFGammaCands == 0                                  ) mvaCut = minMVA1prongBL_;
-	      else if ( numSignalPFGammaCands >= 1 && !hasGsfTrack                  ) mvaCut = minMVA1prongStripsWOgsfBL_;
-	      else if ( numSignalPFGammaCands >= 1 &&  hasGsfTrack && !isPFElectron ) mvaCut = minMVA1prongStripsWgsfWOpfEleMvaBL_;
-	      else if ( numSignalPFGammaCands >= 1 &&  hasGsfTrack &&  isPFElectron ) mvaCut = minMVA1prongStripsWgsfWpfEleMvaBL_;
+	      if        ( numSignalPFGammaCands == 0                                  ) {
+		category = 1.;
+		mvaCut = minMVA1prongBL_;
+	      } else if ( numSignalPFGammaCands >= 1 && !hasGsfTrack                  ) {
+		category = 2.;
+		mvaCut = minMVA1prongStripsWOgsfBL_;
+	      } else if ( numSignalPFGammaCands >= 1 &&  hasGsfTrack && !isPFElectron ) {
+		category = 3.;
+		mvaCut = minMVA1prongStripsWgsfWOpfEleMvaBL_;
+	      } else if ( numSignalPFGammaCands >= 1 &&  hasGsfTrack &&  isPFElectron ) {
+		category = 4.;
+		mvaCut = minMVA1prongStripsWgsfWpfEleMvaBL_;
+	      }
 	    } else { // Endcap
-	      if      ( numSignalPFGammaCands == 0                                  ) mvaCut = minMVA1prongEC_;
-	      else if ( numSignalPFGammaCands >= 1 && !hasGsfTrack                  ) mvaCut = minMVA1prongStripsWOgsfEC_;
-	      else if ( numSignalPFGammaCands >= 1 &&  hasGsfTrack && !isPFElectron ) mvaCut = minMVA1prongStripsWgsfWOpfEleMvaEC_;
-	      else if ( numSignalPFGammaCands >= 1 &&  hasGsfTrack &&  isPFElectron ) mvaCut = minMVA1prongStripsWgsfWpfEleMvaEC_;
+	      if        ( numSignalPFGammaCands == 0                                  ) {
+		category = 6.;
+		mvaCut = minMVA1prongEC_;
+	      } else if ( numSignalPFGammaCands >= 1 && !hasGsfTrack                  ) {
+		category = 7.;
+		mvaCut = minMVA1prongStripsWOgsfEC_;
+	      } else if ( numSignalPFGammaCands >= 1 &&  hasGsfTrack && !isPFElectron ) {
+		category = 8.;
+		mvaCut = minMVA1prongStripsWgsfWOpfEleMvaEC_;
+	      } else if ( numSignalPFGammaCands >= 1 &&  hasGsfTrack &&  isPFElectron ) {
+		category = 9.;
+		mvaCut = minMVA1prongStripsWgsfWpfEleMvaEC_;
+	      }
 	    }
 	    workingPoint_match = (mva_match > mvaCut);            
 	  } else {
@@ -147,8 +226,10 @@ double PFRecoTauDiscriminationAgainstElectronMVA2::discriminate(const PFTauRef& 
     mva = mva_->MVAValue(*thePFTauRef);
     double mvaCut = 999.;
     if ( TMath::Abs(thePFTauRef->eta()) < 1.5 ) { // Barrel
+      category = 0.;
       mvaCut = minMVA1prongNoEleMatchBL_;
     } else { // Endcap
+      category = 5.;
       mvaCut = minMVA1prongNoEleMatchEC_;
     }
     workingPoint = (mva > mvaCut); 	
@@ -158,7 +239,23 @@ double PFRecoTauDiscriminationAgainstElectronMVA2::discriminate(const PFTauRef& 
   //std::cout << " tau: Pt = " << thePFTauRef->pt() << ", eta = " << thePFTauRef->eta() << ", phi = " << thePFTauRef->phi() << std::endl;
   //std::cout << " mva = " << mva << ": workingPoint = " << workingPoint << std::endl;
   
-  return ( returnMVA_ ? mva : workingPoint );
+  if ( returnMVA_ ) {
+    // add category index 
+    category_output_->setValue(tauIndex_, category);
+    ++tauIndex_;
+    // return MVA output value
+    return mva;
+  } else {
+    return workingPoint;
+  }
+}
+
+void PFRecoTauDiscriminationAgainstElectronMVA2::endEvent(edm::Event& evt)
+{
+  // add all category indices to event
+  if ( returnMVA_ ) {
+    evt.put(category_output_, "category");
+  }
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstElectronMVA2);
