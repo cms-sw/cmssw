@@ -36,6 +36,7 @@ class ggPFClusters  {
   //compute Energy
   virtual float SumPFRecHits(std::vector< std::pair<DetId, float> >& bcCells, bool isEB);
   // return the PFCluster Energy from Rec Hits that match SC Footprint
+  float getPFSuperclusterOverlap( reco::CaloCluster PFClust, reco::SuperCluster sc);
   virtual float getPFSuperclusterOverlap( reco::CaloCluster PFClust, reco::Photon phot);
   // compute the PFCluster Energy from Rec Hits that match SC Footprint
   virtual float PFRecHitsSCOverlap(
@@ -53,6 +54,7 @@ class ggPFClusters  {
   virtual DetId FindSeed(std::vector< std::pair<DetId, float> >& bcCells, bool isEB);  
   virtual std::pair<float, float>ClusterWidth(vector<reco::CaloCluster>& PFClust);
   double LocalEnergyCorrection(const GBRForest *ReaderLCEB, const GBRForest *ReaderLCEE, reco::CaloCluster PFClust, float beamspotZ);
+  // virtual std::pair<float, float>ClusterShape(reco::CaloCluster PFClust);
  private:
  Handle<EcalRecHitCollection>  EBReducedRecHits_;
  Handle<EcalRecHitCollection>  EEReducedRecHits_;

@@ -81,6 +81,33 @@ float ggPFClusters::SumPFRecHits(std::vector< std::pair<DetId, float> >& bcCells
   return ClustSum;  
 }
 
+float ggPFClusters::getPFSuperclusterOverlap(reco::CaloCluster PFClust, reco::SuperCluster sc){
+  float overlap=0;
+  reco::CaloCluster_iterator pit=sc.clustersBegin();
+  std::vector< std::pair<DetId, float> >bcCellsPF=PFClust.hitsAndFractions();
+  
+  DetId seedXtalId = bcCellsPF[0].first ;
+  int detector = seedXtalId.subdetId() ;
+  bool isEb;
+  std::vector< std::pair<DetId, float> >bcCellsreco;
+  if(detector==1)isEb=true;
+  else isEb=false;
+  for(;pit!=sc.clustersEnd();++pit){//fill vector of basic Clusters from SuperCluster
+    std::vector< std::pair<DetId, float> >bcCells2=(*pit)->hitsAndFractions();
+    for(unsigned int h=0; h<bcCells2.size(); ++h)bcCellsreco.push_back(bcCells2[h]);
+  }
+  float clustOverlap=0;
+  clustOverlap=PFRecHitsSCOverlap(//find overlap of a PFCluster with SuperCluster
+				  bcCellsPF, 
+				  bcCellsreco,
+				  isEb);
+  overlap=clustOverlap;
+  return overlap;
+
+
+}
+
+
 float ggPFClusters::getPFSuperclusterOverlap(reco::CaloCluster PFClust, reco::Photon phot){
   float overlap=0;
   SuperClusterRef recoSC=phot.superCluster();

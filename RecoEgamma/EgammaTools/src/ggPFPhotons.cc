@@ -404,3 +404,117 @@ std::pair<double, double>ggPFPhotons::SuperClusterSize(
   SCsize.first=MaxEta; SCsize.second=MaxPhi;
   return SCsize;
 }
+
+static void recoPhotonClusterLink(
+					reco::SuperCluster sc, 
+					std::vector<reco::PFCandidateRef>&insideMust, 
+					std::vector<reco::PFCandidateRef>&outsideMust,
+					edm::Handle<PFCandidateCollection>& pfCandidates,
+					double etabound,
+					double phibound
+					
+					
+					){
+  std::vector<reco::CaloCluster>PFClusters;
+  std::vector<reco::PFCandidateRef>PFCand;
+  double seedEta=sc.seed()->eta();
+  double seedPhi=sc.seed()->phi();
+  for(PFCandidateCollection::const_iterator pfParticle =pfCandidates->begin(); pfParticle!=pfCandidates->end(); pfParticle++){
+    unsigned int index=pfParticle - pfCandidates->begin();
+    if(pfParticle->pdgId()!=22) continue; //if photon
+    //use a box about superCluster Width:
+    float dphi=acos(cos(seedPhi-pfParticle->phi()));
+    float deta=fabs(seedEta-pfParticle->eta());
+    if(deta<etabound && dphi<phibound){
+      //hard coded size for now but will make it more dynamic
+      //based on SuperCluster Shape
+      math::XYZPoint position(pfParticle->positionAtECALEntrance().X(), pfParticle->positionAtECALEntrance().Y(), pfParticle->positionAtECALEntrance().Z()) ;
+      CaloCluster calo(pfParticle->rawEcalEnergy() ,position );
+      PFClusters.push_back(calo);
+      reco::PFCandidateRef pfRef(pfCandidates,index);
+      PFCand.push_back(pfRef);
+    }
+    
+  }
+  Mustache Must;
+  std::vector<unsigned int> insideMustindex;
+  std::vector<unsigned int> outsideMustindex;
+  Must.MustacheClust(PFClusters, insideMustindex, outsideMustindex);
+  for(unsigned int i=0; i<insideMustindex.size(); ++i){
+    unsigned int index=insideMustindex[i];
+    insideMust.push_back(PFCand[index]);
+  }
+  for(unsigned int i=0; i<outsideMustindex.size(); ++i){
+    unsigned int index=outsideMustindex[i];
+    outsideMust.push_back(PFCand[index]);
+  }
+    
+}
+static std::pair<double, double>SuperClusterSize(reco::SuperCluster sc,
+						 Handle<EcalRecHitCollection>&   EBReducedRecHits,
+						 Handle<EcalRecHitCollection>&   EEReducedRecHits,
+						 const CaloSubdetectorGeometry* geomBar,
+						 const CaloSubdetectorGeometry* geomEnd
+						 ){
+  std::pair<double, double>SCsize(0.1,0.4);//Eta, Phi
+  //find maximum distance between SuperCluster Seed and Rec Hits
+  reco::CaloCluster_iterator cit=sc.clustersBegin();
+  double seedeta=sc.seed()->eta();
+  double seedphi=sc.seed()->phi();
+  EcalRecHitCollection::const_iterator eb;
+  EcalRecHitCollection::const_iterator ee;
+  double MaxEta=-99;
+  double MaxPhi=-99;
+  for(;cit!=sc.clustersEnd();++cit){
+    std::vector< std::pair<DetId, float> >bcCells=(*cit)->hitsAndFractions();
+    DetId seedXtalId = bcCells[0].first ;
+    int detector = seedXtalId.subdetId(); //use Seed to check if EB or EE
+    bool isEb;
+    if(detector==1)isEb=true;
+    else isEb=false;
+    if(isEb){
+      for(unsigned int i=0; i<bcCells.size(); ++i){
+	for(eb=EBReducedRecHits->begin();eb!= EBReducedRecHits->end();++eb){
+	  if(eb->id().rawId()==bcCells[i].first.rawId()){
+	    DetId id=bcCells[i].first;
+	    float eta=geomBar->getGeometry(id)->getPosition().eta();
+	    float dEta = fabs(seedeta-eta);
+	    if(dEta>MaxEta){
+	      MaxEta=dEta;
+	      float phi=geomBar->getGeometry(id)->getPosition().phi();
+	      float dPhi = acos(cos( seedphi-phi));
+	      if(dPhi>MaxPhi){
+		MaxPhi=dPhi;
+	      }
+	    }
+	  }
+	}
+	
+      }
+    }
+    else{
+      for(unsigned int i=0; i<bcCells.size(); ++i){
+	for(ee=EEReducedRecHits->begin();ee!= EEReducedRecHits->end();++ee){
+	  if(ee->id().rawId()==bcCells[i].first.rawId()){
+	    DetId id=bcCells[i].first;
+	    float eta=geomEnd->getGeometry(id)->getPosition().eta();
+	    float dEta = fabs(seedeta-eta);
+	    if(dEta>MaxEta){
+	      MaxEta=dEta;
+	    }
+	    float phi=geomEnd->getGeometry(id)->getPosition().phi();
+	    float dPhi = acos(cos(seedphi-phi));
+	    if(dPhi>MaxPhi){
+	      MaxPhi=dPhi;
+	    }
+	  }
+	}
+	
+      }
+    }
+  }
+  SCsize.first=MaxEta; SCsize.second=MaxPhi;
+  return SCsize;
+  
+  
+}

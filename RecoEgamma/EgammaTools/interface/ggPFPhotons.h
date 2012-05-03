@@ -4,6 +4,7 @@
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "RecoEgamma/EgammaTools/interface/ggPFClusters.h"
 #include "RecoEgamma/EgammaTools/interface/ggPFESClusters.h"
 #include "RecoEgamma/EgammaTools/interface/ggPFTracks.h"
@@ -49,14 +50,30 @@ class ggPFPhotons  {
   std::vector<reco::CaloCluster>PFClustersSCFP(){return PFSCFootprintClusters_;}
   //for Vertex
   std::pair<float, float> SLPoint();
+  //fill PFCLuster Variables
   void fillPFClusters();
+  //Local Containment Correction
   double getPFPhoECorr( std::vector<reco::CaloCluster>PFClusters, const GBRForest *ReaderLCEB, const GBRForest *ReaderLCEE);
   std::pair<double, double>CalcRMS(vector<reco::CaloCluster> PFClust, reco::Photon PFPhoton);
-  std::vector<reco::CaloCluster>recoPhotonClusterLink(
+  std::vector<reco::CaloCluster>recoPhotonClusterLink( 		
 						      reco::Photon phot, 
 						      edm::Handle<PFCandidateCollection>& pfCandidates
-);
+						      );
   std::pair<double, double>SuperClusterSize(reco::Photon phot
+					      );
+  static void recoPhotonClusterLink(
+							     reco::SuperCluster sc, 
+							     std::vector<reco::PFCandidateRef>&insideMust, 
+							     std::vector<reco::PFCandidateRef>&outsideMust,
+							     edm::Handle<PFCandidateCollection>& pfCandidates,
+							     double etabound,
+							     double phibound
+							     );
+  static std::pair<double, double>SuperClusterSize(reco::SuperCluster sc,
+						   Handle<EcalRecHitCollection>&   EBReducedRecHits,
+						   Handle<EcalRecHitCollection>&   EEReducedRecHits,
+						   const CaloSubdetectorGeometry* geomBar,
+						   const CaloSubdetectorGeometry* geomEnd
 					    );
   //for filling PFCluster Variables
  private:
