@@ -41,10 +41,10 @@ HLT_Jet60Eta1p7_Jet53Eta1p7_DiBTagIP3DFastPV_v*							#sr127336, sr128118
 HLT_Jet80Eta1p7_Jet70Eta1p7_DiBTagIP3DFastPV_v*							#sr127336, sr128118
 HLT_Jet160Eta2p4_Jet120Eta2p4_DiBTagIP3DFastPVLoose_v*						#sr127336, sr128118
 
-HLT_JetE30_NoBPTX_v*                                                                            #sr126248
-#HLT_JetE30_NoBPTX3BX_NoHalo_v*                                                                 #sr126248, removed in sr128286
-#HLT_JetE50_NoBPTX3BX_NoHalo_v*                                                                 #sr126248, removed in sr128286
-#HLT_JetE70_NoBPTX3BX_NoHalo_v*                                                                 #sr126248, removed in sr128286
+HLT_JetE30_NoBPTX_v*										#sr126248
+#HLT_JetE30_NoBPTX3BX_NoHalo_v*									#sr126248, removed in sr128286
+#HLT_JetE50_NoBPTX3BX_NoHalo_v*									#sr126248, removed in sr128286
+#HLT_JetE70_NoBPTX3BX_NoHalo_v*									#sr126248, removed in sr128286
 
 HLT_JetE30_NoBPTX3BX_v*										#sr128286
 HLT_JetE50_NoBPTX3BX_v*										#sr126248
@@ -262,7 +262,7 @@ HLT_L2Mu70_eta2p1_PFMET60_v*                                                    
 #HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_PFMET20_v*					#sr126441, renamed to *MET*, removed in sr128209
 #HLT_Ele27_WP80_PFJet30_PFJet25_Deta3_v*                                                        #sr126441, removed in sr128209
 #HLT_Ele27_WP80_CentralPFJet30_CentralPFJet25_v*                                                #sr126441, removed in sr128209
-#HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_PFMET20_v*                                    #sr126441, renamed to *MET*, removed in sr128209
+#HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_PFMET20_v*					#sr126441, renamed to *MET*, removed in sr128209
 #HLT_IsoMu24_eta2p1_PFJet30_PFJet25_Deta3_v*                                                    #sr126441, removed in sr128209
 #HLT_IsoMu24_eta2p1_CentralPFJet30_CentralPFJet25_v*                                            #sr126441, removed in sr128209
 #HLT_Mu24_eta2p1_CentralPFJet30_CentralPFJet25_v*                                               #sr126441, removed in sr128209
@@ -604,6 +604,9 @@ HLT_Photon90_R9Id90_HE10_Iso40_EBOnly_v*                                        
 
 HLT_Ele27_WP80_WCandPt80_v*                                                                     #sr#127321
 HLT_IsoMu20_eta2p1_WCandPt80_v*                                                                 #sr#127321 
+
+HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_v1				#sr128284
+HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet50_40_30_v1			#sr128284
 
 HLT_DiJet35_MJJ650_AllJets_DEta3p5_VBF_v*							#sr127987
 HLT_DiJet35_MJJ700_AllJets_DEta3p5_VBF_v*							#sr127987
