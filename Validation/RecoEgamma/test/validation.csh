@@ -24,18 +24,32 @@ setenv STARTUP True
 
 
 
+<<<<<<< validation.csh
+setenv CMSSWver1 6_0_0
+setenv CMSSWver2 6_0_0
+setenv OLDRELEASE 6_0_0
+setenv NEWRELEASE 6_0_0
+setenv OLDPRERELEASE pre2
+setenv NEWPRERELEASE pre3
+=======
 setenv CMSSWver1 5_2_2
 setenv CMSSWver2 5_2_3
 setenv OLDRELEASE 5_2_2
 setenv NEWRELEASE 5_2_3
 setenv OLDPRERELEASE 
 setenv NEWPRERELEASE 
+>>>>>>> 1.111
 
 
 
 if ( $STARTUP == True) then
+<<<<<<< validation.csh
+setenv OLDGLOBALTAG START52_V9-v1
+setenv NEWGLOBALTAG START60_V0-v1
+=======
 setenv OLDGLOBALTAG START52_V4-v2
 setenv NEWGLOBALTAG START52_V5-v1
+>>>>>>> 1.111
 else 
 setenv OLDGLOBALTAG START50_V8-v3
 setenv NEWGLOBALTAG START50_V8-v3
@@ -44,31 +58,31 @@ endif
 
 
 
-#setenv OLDRELEASE ${OLDRELEASE}_${OLDPRERELEASE}
-setenv OLDRELEASE ${OLDRELEASE}
-#setenv NEWRELEASE ${NEWRELEASE}_${NEWPRERELEASE}
-setenv NEWRELEASE ${NEWRELEASE}
+setenv OLDRELEASE ${OLDRELEASE}_${OLDPRERELEASE}
+#setenv OLDRELEASE ${OLDRELEASE}
+setenv NEWRELEASE ${NEWRELEASE}_${NEWPRERELEASE}
+#setenv NEWRELEASE ${NEWRELEASE}
 
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
 
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
-#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+#setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
 #Name of sample (affects output directory name and htmldescription only) 
 
 #setenv SAMPLE SingleGammaPt10
 #setenv SAMPLE SingleGammaPt35
-#setenv SAMPLE SingleGammaFlatPt10_100
-setenv SAMPLE H130GGgluonfusion
-#setenv SAMPLE PhotonJets_Pt_10
+##setenv SAMPLE SingleGammaFlatPt10_100
+#setenv SAMPLE H130GGgluonfusion
+setenv SAMPLE PhotonJets_Pt_10
 #setenv SAMPLE GammaJets_Pt_80_120
 #setenv SAMPLE QCD_Pt_80_120
 
