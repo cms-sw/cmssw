@@ -72,6 +72,13 @@ namespace l1slhc
 		void setConstituents( const L1CaloTowerRefVector & );
 		void setE( const int & );
 		void setLeadTowerE( const int & );
+		void setSecondTowerE( const int & );
+		void setThirdTowerE( const int & );
+		void setFourthTowerE( const int & );
+		void setRing1E( const int & );
+		void setRing2E( const int & );
+		void setRing3E( const int & );
+		void setRing4E( const int & );
 		void addConstituent( const L1CaloTowerRef & );
 		int hasConstituent( const int &, const int & );
 		void removeConstituent( const int &, const int & );
@@ -81,6 +88,13 @@ namespace l1slhc
 		const int &iPhi(  ) const;	// Phi of Origin in integer
 		const int &E(  ) const;	// Compressed Et 
 		const int &LeadTowerE(  ) const;	// Lead Tower Et 
+		const int &SecondTowerE(  ) const;	// Lead Tower Et 
+		const int &ThirdTowerE(  ) const;	// Lead Tower Et 
+		const int &FourthTowerE(  ) const;	// Lead Tower Et 
+		const int &Ring1E(  ) const;	// Lead Tower Et 
+		const int &Ring2E(  ) const;	// Lead Tower Et 
+		const int &Ring3E(  ) const;	// Lead Tower Et 
+		const int &Ring4E(  ) const;	// Lead Tower Et 
 		const int &innerEta(  ) const;	// Weighted position eta
 		const int &innerPhi(  ) const;	// Weighted position phi
 		const L1CaloTowerRefVector & getConstituents(  ) const;
@@ -124,6 +138,13 @@ namespace l1slhc
 		int mIphi;
 		int mE;
 		int mLeadTowerE; //Lead Tower Energy
+		int mSecondTowerE; //Lead Tower Energy
+		int mThirdTowerE; //Lead Tower Energy
+		int mFourthTowerE; //Lead Tower Energy
+		int mRing1E; //Lead Tower Energy
+		int mRing2E; //Lead Tower Energy
+		int mRing3E; //Lead Tower Energy
+		int mRing4E; //Lead Tower Energy
 		// FineGrain / EGamma /Isolations
 
 		bool mFg;

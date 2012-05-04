@@ -9,6 +9,13 @@ namespace l1slhc
 	mIphi( 0 ),
 	mE( 0 ),
 	mLeadTowerE( 0 ),			       
+	mSecondTowerE( 0 ),
+	mThirdTowerE( 0 ),
+	mFourthTowerE( 0 ),
+	mRing1E( 0 ),
+	mRing2E( 0 ),
+	mRing3E( 0 ),
+	mRing4E( 0 ),
 	mFg( false ),
 	mEgamma( false ),
 	mCentral( false ),
@@ -28,6 +35,13 @@ namespace l1slhc
 	mIphi( iPhi ),
 	mE( 0 ),
         mLeadTowerE( 0 ),			       
+        mSecondTowerE( 0 ),			       
+        mThirdTowerE( 0 ),			       
+        mFourthTowerE( 0 ),
+	mRing1E( 0 ),
+	mRing2E( 0 ),
+	mRing3E( 0 ),
+	mRing4E( 0 ),			       
 	mFg( false ),
 	mEgamma( false ),
 	mCentral( false ),
@@ -82,6 +96,42 @@ namespace l1slhc
 		return mLeadTowerE;
 	}
 
+	const int &L1CaloCluster::SecondTowerE(  ) const
+	{
+		return mSecondTowerE;
+	}
+
+	const int &L1CaloCluster::ThirdTowerE(  ) const
+	{
+		return mThirdTowerE;
+	}
+
+	const int &L1CaloCluster::FourthTowerE(  ) const
+	{
+		return mFourthTowerE;
+	}
+
+
+	const int &L1CaloCluster::Ring1E(  ) const
+	{
+		return mRing1E;
+	}
+
+
+	const int &L1CaloCluster::Ring2E(  ) const
+	{
+		return mRing2E;
+	}
+
+	const int &L1CaloCluster::Ring3E(  ) const
+	{
+		return mRing3E;
+	}
+
+	const int &L1CaloCluster::Ring4E(  ) const
+	{
+		return mRing4E;
+	}
 
 	const bool & L1CaloCluster::fg(  ) const
 	{
@@ -171,6 +221,42 @@ namespace l1slhc
 		mLeadTowerE = E;
 	}
 
+	void L1CaloCluster::setSecondTowerE( const int &E )
+	{
+		mSecondTowerE = E;
+	}
+
+	void L1CaloCluster::setThirdTowerE( const int &E )
+	{
+		mThirdTowerE = E;
+	}
+
+	void L1CaloCluster::setFourthTowerE( const int &E )
+	{
+		mFourthTowerE = E;
+	}
+
+
+	void L1CaloCluster::setRing1E( const int &Ring1E )
+	{
+		mRing1E = Ring1E;
+	}
+
+
+	void L1CaloCluster::setRing2E( const int &Ring2E )
+	{
+		mRing2E = Ring2E;
+	}
+
+	void L1CaloCluster::setRing3E( const int &Ring3E )
+	{
+		mRing3E = Ring3E;
+	}
+
+	void L1CaloCluster::setRing4E( const int &Ring4E )
+	{
+		mRing4E = Ring4E;
+	}
 
 	void L1CaloCluster::setConstituents( const L1CaloTowerRefVector & cons )
 	{
