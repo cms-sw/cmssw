@@ -405,7 +405,7 @@ std::pair<double, double>ggPFPhotons::SuperClusterSize(
   return SCsize;
 }
 
-static void recoPhotonClusterLink(
+void ggPFPhotons::recoPhotonClusterLink(
 					reco::SuperCluster sc, 
 					std::vector<reco::PFCandidatePtr>&insideMust, 
 					std::vector<reco::PFCandidatePtr>&outsideMust,
@@ -450,7 +450,7 @@ static void recoPhotonClusterLink(
   }
     
 }
-static std::pair<double, double>SuperClusterSize(reco::SuperCluster sc,
+std::pair<double, double>ggPFPhotons::SuperClusterSize(reco::SuperCluster sc,
 						 Handle<EcalRecHitCollection>&   EBReducedRecHits,
 						 Handle<EcalRecHitCollection>&   EEReducedRecHits,
 						 const CaloSubdetectorGeometry* geomBar,
