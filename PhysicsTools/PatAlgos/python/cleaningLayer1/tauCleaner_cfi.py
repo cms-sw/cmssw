@@ -7,7 +7,7 @@ cleanPatTaus = cms.EDProducer("PATTauCleaner",
     preselection = cms.string(
         'tauID("decayModeFinding") > 0.5 &'
         ' tauID("byLooseCombinedIsolationDeltaBetaCorr") > 0.5 &'
-        ' tauID("againstMuonMedium") > 0.5 &'
+        ' tauID("againstMuonTight") > 0.5 &'
         ' tauID("againstElectronMedium") > 0.5'
     ),
 
