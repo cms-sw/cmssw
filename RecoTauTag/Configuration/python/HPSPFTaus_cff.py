@@ -251,18 +251,18 @@ hpsPFTauDiscriminationByLooseIsolationMVA = hpsPFTauDiscriminationByDecayModeFin
         mva = cms.PSet(
             Producer = cms.InputTag('hpsPFTauDiscriminationByIsolationMVAraw'),
             cut = cms.double(0.795)
-        ) 
+        )
     ))
 hpsPFTauDiscriminationByMediumIsolationMVA = copy.deepcopy(hpsPFTauDiscriminationByLooseIsolationMVA)
 hpsPFTauDiscriminationByMediumIsolationMVA.Prediscriminants.mva.cut = cms.double(0.884)
 hpsPFTauDiscriminationByTightIsolationMVA = copy.deepcopy(hpsPFTauDiscriminationByLooseIsolationMVA)
 hpsPFTauDiscriminationByTightIsolationMVA.Prediscriminants.mva.cut = cms.double(0.921)
 
-from RecoJets.Configuration.RecoPFJets_cff import *
+from RecoJets.Configuration.RecoPFJets_cff import kt6PFJets
 kt6PFJetsForRhoComputationVoronoi = kt6PFJets.clone(
     doRhoFastjet = True,
     voronoiRfact = 0.9
-    )
+)
 
 hpsPFTauDiscriminationByMVAIsolationSeq = cms.Sequence(
     kt6PFJetsForRhoComputationVoronoi*
@@ -336,7 +336,7 @@ hpsPFTauDiscriminationByMVA2VLooseElectronRejection = recoTauDiscriminantCutMult
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0), # minMVA1prongNoEleMatchBL
-            cut = cms.double(-0.141383) 
+            cut = cms.double(-0.141383)
         ),
         cms.PSet(
             category = cms.uint32(1), # minMVA1prongBL
@@ -472,7 +472,7 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByMVAElectronRejection*
     hpsPFTauDiscriminationByMVA2rawElectronRejection*
     hpsPFTauDiscriminationByMVA2VLooseElectronRejection*
-    hpsPFTauDiscriminationByMVA2LooseElectronRejection*    
+    hpsPFTauDiscriminationByMVA2LooseElectronRejection*
     hpsPFTauDiscriminationByMVA2MediumElectronRejection*
     hpsPFTauDiscriminationByMVA2TightElectronRejection*
     hpsPFTauDiscriminationByLooseMuonRejection*
