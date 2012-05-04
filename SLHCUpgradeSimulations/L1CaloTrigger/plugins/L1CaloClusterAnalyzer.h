@@ -69,6 +69,15 @@ class L1CaloClusterAnalyzer : public edm::EDAnalyzer {
       float RecoMatch;
       float ClusterMatch;
       float TwoLeadTowerEnergy;
+      int TowerEnergy1;
+      int TowerEnergy2;
+      int TowerEnergy3;
+      int TowerEnergy4;
+      int Ring1E;
+      int Ring2E;
+      int Ring3E;
+      int Ring4E;
+
       float ClusterEnergy;
 
       float ClusterPtMatch;
