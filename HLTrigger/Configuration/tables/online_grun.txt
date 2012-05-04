@@ -671,6 +671,7 @@ HLTriggerFirstPath
 HLTriggerFinalPath
 #HLTAnalyzerEndpath                                                                              # only in 'GRun', not in 'online'
 AOutput
+BOutput
 ALCAP0Output
 ALCAPHISYMOutput
 ALCALUMIPIXELSOutput
