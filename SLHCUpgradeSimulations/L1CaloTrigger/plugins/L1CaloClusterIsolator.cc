@@ -102,18 +102,14 @@ void L1CaloClusterIsolator::algorithm( const int &aEta, const int &aPhi )
 									lTauClusterCount++;
 								      }
 
-								    if(abs(lEta-aEta)==1&&abs(lPhi-aPhi) ==1)
+								    if((abs(lEta-aEta)+abs(lPhi-aPhi) ==1))
 								      {lRing1 = lRing1 + lNeighbourItr->E( );}
-								    if(abs(lEta-aEta)==2&&abs(lPhi-aPhi) ==2)
+								    else if((abs(lEta-aEta)+abs(lPhi-aPhi) ==2)||(abs(lEta-aEta)==2&&abs(lPhi-aPhi)==1)||(abs(lEta-aEta)==1&&abs(lPhi-aPhi)==2))
 								      {lRing2 = lRing2 + lNeighbourItr->E( );}
-								    if(abs(lEta-aEta)==3&&abs(lPhi-aPhi) ==3)
+								    else if((abs(lEta-aEta)==3||abs(lPhi-aPhi)==3)&&!(abs(lEta-aEta)==3&&abs(lPhi-aPhi)==3))
 								      {lRing3 = lRing3 + lNeighbourItr->E( );}
-								    if(abs(lEta-aEta)==4&&abs(lPhi-aPhi) ==4)
+								    else
 								      {lRing4 = lRing4 + lNeighbourItr->E( );}
-								    if(abs(lEta-aEta)==5&&abs(lPhi-aPhi) ==5)
-								      {lRing5 = lRing5 + lNeighbourItr->E( );}
-								    if(abs(lEta-aEta)==6&&abs(lPhi-aPhi) ==6)
-								      {lRing6 = lRing6 + lNeighbourItr->E( );}
 
 								  }
 							}
