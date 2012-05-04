@@ -16,6 +16,10 @@ Tracks2Vertex = cms.EDProducer('PF_PU_AssoMap',
 	   
 	  #Configuration for the reassociation of particles from nuclear interactions
 	  NIVertexCollection = cms.InputTag('particleFlowDisplacedVertex'),
+	   	   
+	  #Configuration to check if a secondary is compatible with the BeamSpot
+	  UseBeamSpotCompatibility = cms.untracked.bool(False),
+	  BeamSpot = cms.InputTag('offlineBeamSpot'),
 		  
 	  #Configuration for the final association
           VertexAssOneDim = cms.untracked.bool(True),
