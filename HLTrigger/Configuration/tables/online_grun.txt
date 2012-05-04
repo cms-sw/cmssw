@@ -1,4 +1,4 @@
-# "GRun" menu
+# "online" menu
 HLT_Activity_Ecal_SC7_v*
 
 HLT_IsoMu15_eta2p1_L1ETM20_v*                                                                   #added in Feb 2012 5e33 menu (sr #126183)
@@ -626,6 +626,12 @@ HLT_L1Tech_HBHEHO_totalOR_v*
 HLT_L1Tech_HCAL_HF_single_channel_v*
 #HLT_L1Tech_CASTOR_HaloMuon_v*                                                                   # only in 'GRun' and 'cosmics', not in 'online'
 #HLT_L1Tech_DT_GlobalOR_v*                                                                       # only in 'GRun' and 'cosmics', not in 'online'
+
+DST_HT250_v*                                          # sr #128199
+DST_L1HTT_Or_L1MultiJet_v*                            # sr #128199
+DST_Mu5_HT250_v*                                      # sr #128199
+DST_Ele8_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT250_v*  # sr #128199
+
 HLT_ZeroBias_v*
 HLT_Physics_v*
 DST_Physics_v*
