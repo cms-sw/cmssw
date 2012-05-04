@@ -212,15 +212,9 @@ std::vector<mvaMEtUtilities::JetInfo> PFMETProducerMVA::computeJetInfo(const rec
       double jetEnCorrFactor = corrJet->pt()/uncorrJet->pt();
       mvaMEtUtilities::JetInfo jetInfo;
 
-      // PH: don't apply jet energy corrections for jets of uncorrected Pt < 10 GeV,
-      //     following recommendation of JetMET convenors for Type 1 corrected PFMET
-      //    (only apply rho correction)
-      if ( uncorrJet->pt() > 10. ) {
-	jetInfo.p4_ = corrJet->p4();
-      } else {
-	jetInfo.p4_ = uncorrJet->p4();
-	if ( uncorrJet->pt() > 0. ) jetInfo.p4_ *= std::max((uncorrJet->pt() - rho*uncorrJet->jetArea())/uncorrJet->pt(), 0.);
-      }
+      // PH: apply jet energy corrections for all Jets ignoring recommendations
+      jetInfo.p4_ = corrJet->p4();
+
       // check that jet Pt used to compute MVA based jet id. is above threshold
       if ( !(jetInfo.p4_.pt() > minCorrJetPt_) ) continue;
       

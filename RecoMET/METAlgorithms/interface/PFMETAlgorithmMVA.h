@@ -8,9 +8,9 @@
  * \authors Phil Harris, CERN
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.23 $
+ * \version $Revision: 1.2 $
  *
- * $Id: PFMETAlgorithmMVA.h,v 1.23 2012/04/10 14:56:05 veelken Exp $
+ * $Id: PFMETAlgorithmMVA.h,v 1.2 2012/04/25 08:53:38 veelken Exp $
  *
  */
 
@@ -77,8 +77,8 @@ class PFMETAlgorithmMVA
   std::string mvaNameCovU1_;
   std::string mvaNameCovU2_;
 
-  int mvaType_;
-
+  int    mvaType_;
+  bool   is42_;
   double dZcut_;
 
   Float_t pfSumEt_;

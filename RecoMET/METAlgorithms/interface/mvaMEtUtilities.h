@@ -37,7 +37,7 @@ class mvaMEtUtilities
   reco::Candidate::LorentzVector subleadJetP4(const std::vector<JetInfo>&);
   unsigned numJetsAboveThreshold(const std::vector<JetInfo>&, double);
 
-  std::vector<JetInfo> cleanJets(const std::vector<JetInfo>&, const std::vector<reco::Candidate::LorentzVector>&);
+  std::vector<JetInfo> cleanJets(const std::vector<JetInfo>&, const std::vector<reco::Candidate::LorentzVector>&, double);
 
   struct pfCandInfo 
   {

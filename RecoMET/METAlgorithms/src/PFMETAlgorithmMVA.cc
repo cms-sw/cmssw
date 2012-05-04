@@ -59,7 +59,10 @@ PFMETAlgorithmMVA::PFMETAlgorithmMVA(const edm::ParameterSet& cfg)
   mvaReaderCovU1_ = loadMVA(inputFileNameCovU1, mvaNameCovU1_);
   edm::FileInPath inputFileNameCovU2 = cfgInputFileNames.getParameter<edm::FileInPath>("CovU2");
   mvaReaderCovU2_ = loadMVA(inputFileNameCovU2, mvaNameCovU2_);
-
+  
+  is42_ = ( inputFileNameU.fullPath().find("42") != std::string::npos ) ?
+    true : false;
+  
   mvaInputU_     = new Float_t[25];
   mvaInputDPhi_  = new Float_t[23];
   mvaInputCovU1_ = new Float_t[26];
@@ -99,7 +102,9 @@ void PFMETAlgorithmMVA::setInput(const std::vector<reco::Candidate::LorentzVecto
   sumLeptonPx_ = sumLeptons.mex;
   sumLeptonPy_ = sumLeptons.mey;
 
-  std::vector<mvaMEtUtilities::JetInfo> jets_cleaned = utils_.cleanJets(jets, leptons);
+  double ptThreshold = -1.;
+  if(is42_) ptThreshold = 1.;  //PH: For 42 training added a pT cut of 1 GeV on corrected Jets
+  std::vector<mvaMEtUtilities::JetInfo> jets_cleaned = utils_.cleanJets(jets, leptons,ptThreshold);
 
   CommonMETData pfRecoil_data  = utils_.computeNegPFRecoil(sumLeptons, pfCandidates, dZcut_);
   CommonMETData tkRecoil_data  = utils_.computeNegTrackRecoil(sumLeptons, pfCandidates, dZcut_);
