@@ -258,8 +258,8 @@ hpsPFTauDiscriminationByMediumIsolationMVA.Prediscriminants.mva.cut = cms.double
 hpsPFTauDiscriminationByTightIsolationMVA = copy.deepcopy(hpsPFTauDiscriminationByLooseIsolationMVA)
 hpsPFTauDiscriminationByTightIsolationMVA.Prediscriminants.mva.cut = cms.double(0.921)
 
-from RecoJets.Configuration.RecoPFJets_cff import kt6PFJets
-kt6PFJetsForRhoComputationVoronoi = kt6PFJets.clone(
+from RecoJets.Configuration.RecoPFJets_cff import kt6PFJets as dummy
+kt6PFJetsForRhoComputationVoronoi = dummy.clone(
     doRhoFastjet = True,
     voronoiRfact = 0.9
 )
