@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:34 CET 2012
-// $Id: FWGeometryTableView.cc,v 1.32 2012/05/02 04:44:36 amraktad Exp $
+// $Id: FWGeometryTableView.cc,v 1.33 2012/05/04 00:22:06 amraktad Exp $
 //
 
 // system include files
@@ -141,12 +141,11 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
      m_disableTopNode(this,"HideTopNode", true),
      m_visLevel(this,"VisLevel", 3l, 1l, 100l),
      m_filter(this,"Materials", std::string()),
-     m_filterByName(this,"FilterByName", true),
+     m_filterType(this,"FilterType", 0l, 0l, 3l),
      m_visLevelFilter(this,"IgnoreVisLevelOnFilter", true),
      m_selectRegion(this, "SelectNearCameraCenter", false),
      m_regionRadius(this, "SphereRadius", 10.0, 1.0, 300.0),
-    m_proximityAlgo(this, "Proximity algorithm", 1l, 0l, 1l)
-
+     m_proximityAlgo(this, "Proximity algorithm", 1l, 0l, 1l)
 {
    FWGeoTopNodeGLScene *gls = new FWGeoTopNodeGLScene(0);
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,32,0)
@@ -208,6 +207,14 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
    m_mode.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
    m_autoExpand.changed_.connect(boost::bind(&FWGeometryTableView::autoExpandCallback, this));
    m_visLevel.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
+   
+   
+   
+   m_filterType.addEntry(kFilterMaterialName,   "MaterialName");
+   m_filterType.addEntry(kFilterMaterialTitle,  "MaterialTitle");
+   m_filterType.addEntry(kFilterShapeName,      "ShapeName");
+   m_filterType.addEntry(kFilterShapeClassName, "ShapeClassName");
+
    m_visLevelFilter.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
 
    m_disableTopNode.changed_.connect(boost::bind(&FWGeometryTableView::updateVisibilityTopNode,this));
@@ -289,7 +296,7 @@ void FWGeometryTableView::updateFilter(std::string& exp)
    }
   
    m_filter.set(exp);
-   m_tableManager->updateFilter(m_filterByName.value());
+   m_tableManager->updateFilter(m_filterType.value());
    refreshTable3D();
 
 }
@@ -304,7 +311,7 @@ void FWGeometryTableView::populateController(ViewerParameterGUI& gui) const
       addParam(&m_autoExpand).
       addParam(&m_visLevel).
       separator().   
-      addParam(&m_filterByName).
+      addParam(&m_filterType).
       addParam(&m_visLevelFilter).
       separator().   
       addParam(&m_selectRegion).

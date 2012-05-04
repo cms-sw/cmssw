@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:38 CET 2012
-// $Id: FWGeometryTableView.h,v 1.8 2012/05/02 04:44:36 amraktad Exp $
+// $Id: FWGeometryTableView.h,v 1.9 2012/05/04 00:22:06 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
@@ -31,6 +31,7 @@ class FWGeometryTableView : public FWGeometryTableViewBase
 public:
    enum EMode          { kNode, kVolume };
    enum EProximityAlgo { kBBoxCenter, kBBoxSurface };
+   enum EFiterType     { kFilterMaterialName, kFilterMaterialTitle, kFilterShapeName, kFilterShapeClassName };
 
 public:
    FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager* colMng);
@@ -48,7 +49,7 @@ public:
    int  getVisLevel()        const { return m_visLevel.value(); }
    bool getIgnoreVisLevelWhenFilter() const { return m_visLevelFilter.value(); }
 
-   bool getFilterByName() const { return m_filterByName.value(); }
+   int getFilterType() const { return m_filterType.value(); }
 
    bool drawTopNode() const { return ! m_disableTopNode.value(); }
    void autoExpandCallback();
@@ -80,7 +81,7 @@ private:
    FWLongParameter         m_visLevel;
 
    FWStringParameter       m_filter; 
-   FWBoolParameter         m_filterByName;
+   FWEnumParameter         m_filterType;
    FWBoolParameter         m_visLevelFilter; 
    
    FWBoolParameter         m_selectRegion;
