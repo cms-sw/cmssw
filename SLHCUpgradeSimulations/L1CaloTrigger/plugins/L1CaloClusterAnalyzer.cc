@@ -72,7 +72,7 @@ L1CaloClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
    Handle<l1slhc::L1CaloClusterCollection> clusters;
    iEvent.getByLabel(src_,clusters);
-<<<<<<< L1CaloClusterAnalyzer.cc
+
   edm::Handle<reco::GsfElectronCollection> electrons;
    
    bool gotRecoE = iEvent.getByLabel(electrons_,electrons);   
