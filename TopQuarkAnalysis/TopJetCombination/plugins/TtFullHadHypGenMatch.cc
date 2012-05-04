@@ -1,6 +1,5 @@
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtFullHadHypGenMatch.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtFullHadEvtPartons.h"
-#include "DataFormats/Math/interface/deltaR.h"
 
 TtFullHadHypGenMatch::TtFullHadHypGenMatch(const edm::ParameterSet& cfg):
   TtFullHadHypothesis( cfg ) 
@@ -16,8 +15,7 @@ TtFullHadHypGenMatch::buildHypo(edm::Event& evt,
 				const unsigned int iComb)
 {
   // -----------------------------------------------------
-  // get genEvent (to distinguish between uds and c quarks
-  // and for the lepton matching)
+  // get genEvent (to distinguish between uds and c quarks)
   // -----------------------------------------------------
   edm::Handle<TtGenEvent> genEvt;
   evt.getByLabel("genEvt", genEvt);
