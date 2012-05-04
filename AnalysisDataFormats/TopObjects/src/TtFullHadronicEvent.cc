@@ -52,7 +52,7 @@ TtFullHadronicEvent::print(const int verbosity) const
     case kWMassMaxSumPt     : log << " WMassMaxSumPt not (yet) applicable to TtFullHadronicEvent --> skipping"    ; continue;
     case kMaxSumPtWMass     : log << " MaxSumPtWMass not (yet) applicable to TtFullHadronicEvent --> skipping"    ; continue;
     case kGenMatch          : log << " GenMatch"                                                                  ; break;
-    case kMVADisc           : log << " MVADisc"                                                                   ; break;
+    case kMVADisc           : log << " MVADisc not (yet) applicable to TtFullHadronicEvent --> skipping"          ; continue;
     case kKinFit            : log << " KinFit"                                                                    ; break;
     case kKinSolution       : log << " KinSolution not (yet) applicable to TtFullHadronicEvent --> skipping"      ; continue;
     case kWMassDeltaTopMass : log << " WMassDeltaTopMass not (yet) applicable to TtFullHadronicEvent --> skipping"; continue;
@@ -85,8 +85,6 @@ TtFullHadronicEvent::print(const int verbosity) const
 	switch(hypKey) {
 	case kGenMatch : log << " * Sum(DeltaR) : " << this->genMatchSumDR(cmb) << " \n"
 			     << " * Sum(DeltaPt): " << this->genMatchSumPt(cmb) << " \n"; break;
-	case kMVADisc  : log << " * Method      : " << this->mvaMethod()        << " \n"
-			     << " * Discrim.    : " << this->mvaDisc(cmb)       << " \n"; break;
 	case kKinFit   : log << " * Chi^2       : " << this->fitChi2(cmb)       << " \n"
 			     << " * Prob(Chi^2) : " << this->fitProb(cmb)       << " \n"; break;
 	default        : break;
