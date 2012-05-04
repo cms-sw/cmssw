@@ -603,6 +603,30 @@ PF_PU_AssoMapAlgos::FindNIVertex(const TrackRef trackref, PFDisplacedVertex disp
 }
 
 
+/*************************************************************************************/
+/* function to check if a secondary is compatible with the BeamSpot                  */ 
+/*************************************************************************************/
+
+bool
+PF_PU_AssoMapAlgos::CheckBeamSpotCompability(const TrackRef trackref, Handle<BeamSpot> beamspotH)
+{
+   
+        double track_x = trackref->vertex().x();
+        double track_y = trackref->vertex().y(); 
+
+        double bs_x = beamspotH->x(trackref->vertex().z());
+        double bs_y = beamspotH->y(trackref->vertex().z());
+
+	double relative_x = (track_x - bs_x) /  beamspotH->BeamWidthX();
+	double relative_y = (track_y - bs_y) /  beamspotH->BeamWidthY();
+
+	double relative_distance = sqrt(relative_x*relative_x + relative_y*relative_y);
+
+	return (relative_distance<=10.);
+
+}
+
+
 /*****************************************************************************************/
 /* function to sort the vertices in the AssociationMap by the sum of (pT - pT_Error)**2  */ 
 /*****************************************************************************************/

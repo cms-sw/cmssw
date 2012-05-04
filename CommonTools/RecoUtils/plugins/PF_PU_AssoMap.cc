@@ -59,6 +59,7 @@
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
@@ -100,6 +101,9 @@ PF_PU_AssoMap::PF_PU_AssoMap(const edm::ParameterSet& iConfig)
   LambdaCollection_= iConfig.getParameter<InputTag>("V0LambdaCollection");
 
   NIVertexCollection_= iConfig.getParameter<InputTag>("NIVertexCollection");
+
+  UseBeamSpotCompatibility_= iConfig.getUntrackedParameter<bool>("UseBeamSpotCompatibility", false);
+  input_BeamSpot_= iConfig.getParameter<InputTag>("BeamSpot");
 
   produces<TrackVertexAssMap>();
 }
@@ -149,6 +153,10 @@ PF_PU_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //get the input vertex collection
   Handle<VertexCollection> vtxcollH;
   iEvent.getByLabel(input_VertexCollection_, vtxcollH);
+  
+  //get the offfline beam spot
+  Handle<BeamSpot> beamspotH;
+  iEvent.getByLabel(input_BeamSpot_, beamspotH);
     
   //loop over all tracks in the track collection	
   for ( size_t idxTrack = 0; idxTrack < trkcollH->size(); ++idxTrack ) {
@@ -164,17 +172,27 @@ PF_PU_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if ( VtxTrkQualAss.second.second <= 1.e-5 ) {
 
       // Test if the track comes from a photon conversion or if it is an electron:
-      // If so, reassociate the track always to the first vertex
+      // If so, try to find the vertex of the mother particle
       if ( trackref->extra().isAvailable() ) {
         Conversion gamma;
         if ( PF_PU_AssoMapAlgos::ComesFromConversion(trackref, convCollH, &gamma) || 
 	     PF_PU_AssoMapAlgos::FindRelatedElectron(trackref, gsfcollH, trkcollH) ) {
-  	  if ( gamma.nTracks() == 2 ){
-	    VtxTrkQualAss = PF_PU_AssoMapAlgos::FindConversionVertex(trackref, gamma, vtxcollH, iSetup, false);
-	  } else {
-	    VtxTrkQualAss = PF_PU_AssoMapAlgos::AssociateClosest3D(trackref, vtxcollH, iSetup, false);
-	    if ( VtxTrkQualAss.second.second == -1. ) VtxTrkQualAss.second.second = -2.;
-	  }	
+          if ( UseBeamSpotCompatibility_ ){
+            if (PF_PU_AssoMapAlgos::CheckBeamSpotCompability(trackref, beamspotH) ){
+	      //associate to closest vertex in z 
+	      VtxTrkQualAss = PF_PU_AssoMapAlgos::AssociateClosestInZ(trackref, vtxcollH);
+	    } else {
+	      //choose always the first vertex from the vertex collection & bestweight set to -2
+	      VtxTrkQualAss = make_pair(VertexRef(vtxcollH, 0), make_pair(trackref, -2.));
+            }
+          } else {
+  	    if ( gamma.nTracks() == 2 ){
+  	       VtxTrkQualAss = PF_PU_AssoMapAlgos::FindConversionVertex(trackref, gamma, vtxcollH, iSetup, false);
+	    } else {
+	      VtxTrkQualAss = PF_PU_AssoMapAlgos::AssociateClosest3D(trackref, vtxcollH, iSetup, false);
+	    }	
+          }
+	  if ( VtxTrkQualAss.second.second == -1. ) VtxTrkQualAss.second.second = -2.;
         }
       } else if ( numWarnings_ < maxNumWarnings_ ) {
 	edm::LogWarning("PF_PU_AssoMap::produce")
@@ -187,7 +205,17 @@ PF_PU_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if ( VtxTrkQualAss.second.second != -2. ) {
 	VertexCompositeCandidate V0;
 	if ( PF_PU_AssoMapAlgos::ComesFromV0Decay(trackref, vertCompCandCollKshortH, vertCompCandCollLambdaH, &V0) ) {
-	  VtxTrkQualAss = PF_PU_AssoMapAlgos::FindV0Vertex(trackref, V0, vtxcollH);	
+          if ( UseBeamSpotCompatibility_ ){
+            if (PF_PU_AssoMapAlgos::CheckBeamSpotCompability(trackref, beamspotH) ){
+	      //associate to closest vertex in z 
+	      VtxTrkQualAss = PF_PU_AssoMapAlgos::AssociateClosestInZ(trackref, vtxcollH);
+	    } else {
+	      //choose always the first vertex from the vertex collection & bestweight set to -2
+	      VtxTrkQualAss = make_pair(VertexRef(vtxcollH, 0), make_pair(trackref, -2.));
+            }
+          } else {
+	    VtxTrkQualAss = PF_PU_AssoMapAlgos::FindV0Vertex(trackref, V0, vtxcollH);	
+          }
 	  if ( VtxTrkQualAss.second.second == -1. ) VtxTrkQualAss.second.second = -2.;
 	}	
       }
@@ -197,28 +225,50 @@ PF_PU_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if ( VtxTrkQualAss.second.second != -2. ) {
 	PFDisplacedVertex displVtx;
 	if ( PF_PU_AssoMapAlgos::ComesFromNI(trackref, displVertexCollH, &displVtx) ){
-	  VtxTrkQualAss = PF_PU_AssoMapAlgos::FindNIVertex(trackref, displVtx, vtxcollH, true, iSetup);
+          if ( UseBeamSpotCompatibility_ ){
+            if (PF_PU_AssoMapAlgos::CheckBeamSpotCompability(trackref, beamspotH) ){
+	      //associate to closest vertex in z 
+	      VtxTrkQualAss = PF_PU_AssoMapAlgos::AssociateClosestInZ(trackref, vtxcollH);
+	    } else {
+	      //choose always the first vertex from the vertex collection & bestweight set to -2
+	      VtxTrkQualAss = make_pair(VertexRef(vtxcollH, 0), make_pair(trackref, -2.));
+            }
+          } else {
+	    VtxTrkQualAss = PF_PU_AssoMapAlgos::FindNIVertex(trackref, displVtx, vtxcollH, true, iSetup);
+          }
+	  if ( VtxTrkQualAss.second.second == -1. ) VtxTrkQualAss.second.second = -2.;
 	}	
       }
 
       // If no vertex is found with track-to-vertex association weight > 1.e-5 is found
       // and no reassociation was done look for the closest vertex in z in 3d
       // or associate the track allways to the first vertex
-      if ( VtxTrkQualAss.second.second != -2. ) {	
-	// if input_VertexAssOneDim_ == true association done by closest in z or always first vertex
-	if ( input_VertexAssOneDim_ ) { 
-	  if ( input_VertexAssClosest_ ) {
+      if ( VtxTrkQualAss.second.second != -2. ) {
+        if ( UseBeamSpotCompatibility_ ){
+          if (PF_PU_AssoMapAlgos::CheckBeamSpotCompability(trackref, beamspotH) ){
 	    //associate to closest vertex in z 
 	    VtxTrkQualAss = PF_PU_AssoMapAlgos::AssociateClosestInZ(trackref, vtxcollH);
-	  } else{
-	    //choose always the first vertex from the vertex collection & bestweight set to -1
-	    VtxTrkQualAss = make_pair(VertexRef(vtxcollH, 0), make_pair(trackref, -1.));
+	  } else {
+	    //choose always the first vertex from the vertex collection & bestweight set to -2
+	    VtxTrkQualAss = make_pair(VertexRef(vtxcollH, 0), make_pair(trackref, -2.));
+          }
+        } else {
+	  // if input_VertexAssOneDim_ == true association done by closest in z or always first vertex
+	  if ( input_VertexAssOneDim_ ) { 
+  	    if ( input_VertexAssClosest_ ) {
+	      //associate to closest vertex in z 
+	      VtxTrkQualAss = PF_PU_AssoMapAlgos::AssociateClosestInZ(trackref, vtxcollH);
+	    } else{
+	      //choose always the first vertex from the vertex collection & bestweight set to -1
+	      VtxTrkQualAss = make_pair(VertexRef(vtxcollH, 0), make_pair(trackref, -1.));
+	    }
+	  } else {
+	    VtxTrkQualAss = PF_PU_AssoMapAlgos::AssociateClosest3D(trackref, vtxcollH, iSetup, input_VertexAssUseAbsDistance_);
 	  }
-	} else {
-	  VtxTrkQualAss = PF_PU_AssoMapAlgos::AssociateClosest3D(trackref, vtxcollH, iSetup, input_VertexAssUseAbsDistance_);
-	}
-      }      
-    } 
+        }      
+      } 
+
+    }
 
     //std::cout << "associating track: Pt = " << VtxTrkQualAss.second.first->pt() << "," 
     //	        << " eta = " << VtxTrkQualAss.second.first->eta() << ", phi = " << VtxTrkQualAss.second.first->phi() 

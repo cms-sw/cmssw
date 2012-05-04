@@ -32,6 +32,7 @@
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
    
 using namespace edm;
 using namespace std;
@@ -73,6 +74,9 @@ class PF_PU_AssoMapAlgos{
    static bool ComesFromNI(const TrackRef, Handle<PFDisplacedVertexCollection>, PFDisplacedVertex*);
    
    static VertexTrackQuality FindNIVertex(const TrackRef, PFDisplacedVertex, Handle<VertexCollection>, bool, const edm::EventSetup&);
+   
+   //function to check if a secondary is compatible with the BeamSpot
+   static bool CheckBeamSpotCompability(const TrackRef, Handle<BeamSpot>);
 
    //function to sort the vertices in the AssociationMap by the sum of (pT - pT_Error)**2
    static auto_ptr<TrackVertexAssMap> SortAssociationMap(TrackVertexAssMap*); 
