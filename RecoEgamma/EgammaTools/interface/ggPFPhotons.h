@@ -36,6 +36,7 @@ class ggPFPhotons  {
   bool isConv(){ return isConv_;}
   bool hasSLConv(){return hasSLConv_;}
   bool isPFEle(){return isPFEle_;}
+  bool EleVeto(){return EleVeto_;}
   float PFPS1(){return PFPreShower1_;}
   float PFPS2(){return PFPreShower2_;}
   float MustE(){return EinMustache_;}
@@ -47,7 +48,9 @@ class ggPFPhotons  {
   double PFClusRMSTot(){return PFClPhiRMS_;}
   double PFClusRMSMust(){return PFClPhiRMSMust_;}
   std::vector<reco::CaloCluster>PFClusters(){return PFClusters_;}
-  std::vector<reco::CaloCluster>PFClustersSCFP(){return PFSCFootprintClusters_;}
+  std::vector<reco::CaloCluster>PFClustersSCFP(){return PFSCFootprintClusters_;}//Electron Veto:
+  bool PFElectronVeto(edm::Handle<reco::ConversionCollection>& convH,
+		      edm::Handle<reco::GsfElectronCollection>& gsfElectronsHandle);
   //for Vertex
   std::pair<float, float> SLPoint();
   //fill PFCLuster Variables
@@ -90,6 +93,7 @@ class ggPFPhotons  {
   reco::GsfElectron PFElectron_;
   bool matchPFReco_;
   bool isPFEle_;
+  bool EleVeto_;
   bool isConv_;
   bool hasSLConv_;
   std::vector<reco::CaloCluster>PFClusters_;

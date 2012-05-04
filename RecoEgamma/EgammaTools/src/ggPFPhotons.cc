@@ -1,6 +1,7 @@
 #include "RecoEgamma/EgammaTools/interface/ggPFPhotons.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 /*
 Class by Rishi Patel rpatel@cern.ch
 */
@@ -26,6 +27,7 @@ ggPFPhotons::ggPFPhotons(
   beamSpotHandle_(beamSpotHandle),
   matchPFReco_(false),
   isPFEle_(false),
+  EleVeto_(false),
   isConv_(false),
   hasSLConv_(false)
 {
@@ -48,6 +50,7 @@ ggPFPhotons::ggPFPhotons(
       if(pfele->pflowSuperCluster().isNull())continue;
       
       PFElectron_= *(pfele);
+      
       matchPFReco_=true;
       isPFEle_=true;
       break;
@@ -70,7 +73,13 @@ ggPFPhotons::ggPFPhotons(
 
 }
 ggPFPhotons::~ggPFPhotons(){;}
-
+//Prompt Electron Veto:
+bool ggPFPhotons::PFElectronVeto(edm::Handle<reco::ConversionCollection>& convH, edm::Handle<reco::GsfElectronCollection>& gsfElectronsHandle){
+  bool isprompt=false;
+  if(!isPFEle_)return isprompt;
+  isprompt= ConversionTools::hasMatchedPromptElectron(PFElectron_.superCluster(), gsfElectronsHandle, convH, beamSpotHandle_->position());
+  return isprompt;
+}
 //get Vtx Z along beam line from Single Leg Pointing if Track exists
 //else it returns Vtx Z from Conversion Pair or Beamspot Z
 std::pair<float, float> ggPFPhotons::SLPoint(){
