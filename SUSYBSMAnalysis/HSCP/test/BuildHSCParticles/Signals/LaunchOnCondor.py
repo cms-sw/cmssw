@@ -5,6 +5,7 @@ import string
 import os
 import sys
 import glob
+import fnmatch
 import commands
 
 CopyRights  = '####################################\n'
@@ -284,10 +285,48 @@ def SendCMSJobs(FarmDirectory, JobName, ConfigFile, InputFiles, NJobs, Argv):
 
 
 def GetListOfFiles(Prefix, InputPattern, Suffix):
-	List = sorted(glob.glob(InputPattern))
-	for i in range(len(List)):
-		List[i] = Prefix + List[i] + Suffix
-	return List
+      List = []
+
+      if(InputPattern.find('/store/cmst3')==0) :
+         index = InputPattern.rfind('/')
+         Listtmp = commands.getstatusoutput('cmsLs ' + InputPattern[0:index] + ' | awk \'{print $5}\'')[1].split('\n')
+         pattern = InputPattern[index+1:len(InputPattern)]
+         for file in Listtmp:
+            if fnmatch.fnmatch(file, pattern): List.append(InputPattern[0:index]+'/'+file)
+      elif(InputPattern.find('/castor/')==0):
+         index = InputPattern.rfind('/')
+         Listtmp = commands.getstatusoutput('rfdir ' + InputPattern[0:index] + ' | awk \'{print $9}\'')[1].split('\n')
+         pattern = InputPattern[index+1:len(InputPattern)]
+         for file in Listtmp:
+            if fnmatch.fnmatch(file, pattern): List.append(InputPattern[0:index]+'/'+file)
+      else :
+         List = glob.glob(InputPattern)
+
+      List = sorted(List)
+      for i in range(len(List)):
+         List[i] = Prefix + List[i] + Suffix
+      return List
+
+
+def ListToString(InputList):
+   outString = ""
+   for i in range(len(InputList)):
+      outString += InputList[i]
+   return outString
+
+def ListToFile(InputList, outputFile):
+   out_file=open(outputFile,'w')
+   for i in range(len(InputList)):
+      out_file.write('     ' + InputList[i] + '\n')
+   out_file.close()
+
+def FileToList(path):
+   input_file  = open(path,'r')
+   input_lines = input_file.readlines()
+   input_file.close()
+   input_lines.sort()
+   return input_lines
+
 
 def SendCMSMergeJob(FarmDirectory, JobName, InputFiles, OutputFile, KeepStatement):
         SendCluster_Create(FarmDirectory, JobName)
