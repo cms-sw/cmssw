@@ -16,13 +16,40 @@ namespace SmearedJetProducer_namespace
   {
     public:
 
-     GenJetMatcherT(const edm::ParameterSet&) {}
-     ~GenJetMatcherT() {}
+     GenJetMatcherT(const edm::ParameterSet& cfg)
+       : dRmaxGenJetMatch_(0)
+     {
+       TString dRmaxGenJetMatch_formula = cfg.getParameter<std::string>("dRmaxGenJetMatch").data();
+       dRmaxGenJetMatch_formula.ReplaceAll("genJetPt", "x");
+       dRmaxGenJetMatch_ = new TFormula("dRmaxGenJetMatch", dRmaxGenJetMatch_formula.Data());
+     }
+     ~GenJetMatcherT()
+     {
+       delete dRmaxGenJetMatch_;
+     }
 
      const reco::GenJet* operator()(const pat::Jet& jet, edm::Event* evt = 0) const
      {
-       return jet.genJet();
+       const reco::GenJet* retVal = 0;
+
+       // CV: apply matching criterion which is tighter than PAT default,
+       //     in order to avoid "accidental" matches for which the difference between genJetPt and recJetPt is large 
+       //    (the large effect of such bad matches on the MEt smearing is "unphysical",
+       //     because the large difference between genJetPt and recJetPt results from the matching
+       //     and not from the particle/jet reconstruction)
+       //retVal = jet.genJet();
+       if ( jet.genJet() ) {
+	 const reco::GenJet* genJet = jet.genJet();
+	 double dR = deltaR(jet.p4(), genJet->p4());
+	 if ( dR < dRmaxGenJetMatch_->Eval(genJet->pt()) ) retVal = genJet;
+       }
+       
+       return retVal;
      }
+
+    private:
+    
+     TFormula* dRmaxGenJetMatch_;
   };
 
   template <>

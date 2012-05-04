@@ -11,9 +11,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.7 $
  *
- * $Id: SmearedJetProducerT.h,v 1.6 2011/11/30 08:31:30 veelken Exp $
+ * $Id: SmearedJetProducerT.h,v 1.7 2012/02/13 14:12:12 veelken Exp $
  *
  */
 
@@ -38,9 +38,11 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include <TFile.h>
+#include <TFormula.h>
 #include <TH2.h>
 #include <TMath.h>
 #include <TRandom3.h>
+#include <TString.h>
 
 namespace SmearedJetProducer_namespace
 {
@@ -51,9 +53,16 @@ namespace SmearedJetProducer_namespace
 
      GenJetMatcherT(const edm::ParameterSet& cfg) 
        : srcGenJets_(cfg.getParameter<edm::InputTag>("srcGenJets")),
-         dRmaxGenJetMatch_(cfg.getParameter<double>("dRmaxGenJetMatch"))
-     {}
-     ~GenJetMatcherT() {}
+         dRmaxGenJetMatch_(0)
+     {
+       TString dRmaxGenJetMatch_formula = cfg.getParameter<std::string>("dRmaxGenJetMatch").data();
+       dRmaxGenJetMatch_formula.ReplaceAll("genJetPt", "x");
+       dRmaxGenJetMatch_ = new TFormula("dRmaxGenJetMatch", dRmaxGenJetMatch_formula.Data());
+     }
+     ~GenJetMatcherT() 
+     {
+       delete dRmaxGenJetMatch_;
+     }
 
      const reco::GenJet* operator()(const T& jet, edm::Event* evt = 0) const
      {
@@ -64,11 +73,11 @@ namespace SmearedJetProducer_namespace
 
        const reco::GenJet* retVal = 0;
 
-       double dRbestMatch = dRmaxGenJetMatch_;
+       double dRbestMatch = 1.e+6;
        for ( reco::GenJetCollection::const_iterator genJet = genJets->begin();
 	     genJet != genJets->end(); ++genJet ) {
 	 double dR = deltaR(jet.p4(), genJet->p4());
-	 if ( dR < dRbestMatch ) {
+	 if ( dR < dRbestMatch && dRmaxGenJetMatch_->Eval(genJet->pt()) ) {
 	   retVal = &(*genJet);
 	   dRbestMatch = dR;
 	 }
@@ -82,7 +91,7 @@ namespace SmearedJetProducer_namespace
 //--- configuration parameter
      edm::InputTag srcGenJets_;
 
-     double dRmaxGenJetMatch_;
+     TFormula* dRmaxGenJetMatch_;
   };
 
   template <typename T>
@@ -166,13 +175,18 @@ class SmearedJetProducerT : public edm::EDProducer
       skipJetSelection_ = new StringCutObjectSelector<T>(skipJetSelection_string);
     }
 
-    skipJetPtThreshold_ = ( cfg.exists("skipJetPtThreshold") ) ? cfg.getParameter<double>("skipJetPtThreshold") : 1.e-2;
+    skipRawJetPtThreshold_  = ( cfg.exists("skipRawJetPtThreshold")  ) ? 
+      cfg.getParameter<double>("skipRawJetPtThreshold")  : 1.e-2;
+    skipCorrJetPtThreshold_ = ( cfg.exists("skipCorrJetPtThreshold") ) ? 
+      cfg.getParameter<double>("skipCorrJetPtThreshold") : 1.e-2;
 
     produces<JetCollection>();
   }
   ~SmearedJetProducerT()
   {
     delete skipJetSelection_;
+    delete inputFile_;
+    delete lut_;
   }
     
  private:
@@ -242,8 +256,8 @@ class SmearedJetProducerT : public edm::EDProducer
       //     cf. PhysicsTools/PatUtils/python/tools/metUncertaintyTools.py)
       reco::Candidate::LorentzVector smearedJetP4 = jet.p4();
       if ( !((skipJetSelection_ && (*skipJetSelection_)(jet)) ||
-	     rawJetP4.pt() < skipJetPtThreshold_              ||
-	     corrJetP4.pt() < skipJetPtThreshold_             ) ) {
+	     rawJetP4.pt()  < skipRawJetPtThreshold_          ||
+	     corrJetP4.pt() < skipCorrJetPtThreshold_         ) ) {
 	smearedJetP4 *= (smearedCorrJetEn/corrJetP4.E());
       }
 	  
@@ -285,7 +299,8 @@ class SmearedJetProducerT : public edm::EDProducer
   double shiftBy_; // option to increase/decrease within uncertainties the jet energy resolution used for smearing 
 
   StringCutObjectSelector<T>* skipJetSelection_; // jets passing this cut are **not** smeared 
-  double skipJetPtThreshold_; // jets with transverse momenta below this value (either on "raw" or "corrected" level) are **not** smeared 
+  double skipRawJetPtThreshold_;  // jets with transverse momenta below this value (either on "raw" or "corrected" level) 
+  double skipCorrJetPtThreshold_; // are **not** smeared 
 };
 
 #endif
