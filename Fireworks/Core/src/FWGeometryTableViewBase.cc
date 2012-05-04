@@ -162,6 +162,10 @@ FWGeometryTableViewBase::FWGeometryTableViewBase(TEveWindowSlot* iParent,FWViewT
      m_topNodeIdx(this, "TopNodeIndex", -1l, 0, 1e7),
      m_autoExpand(this,"ExpandList:", 1l, 0l, 100l),
      m_enableHighlight(this,"EnableHighlight", true),
+     m_parentTransparencyFactor(this, "ParentTransparencyFactor", 1l, 0l, 100l),
+     m_leafTransparencyFactor(this, "LeafTransparencyFactor", 1l, 0l, 100l),
+     m_minParentTransparency(this, "MinParentTransparency", 90l, 0l, 100l),
+     m_minLeafTransparency(this, "MinLeafTransparency", 0l, 0l, 100l),
      m_colorManager(colMng),
      m_colorPopup(0),
      m_eveWindow(0),
@@ -180,6 +184,11 @@ FWGeometryTableViewBase::FWGeometryTableViewBase(TEveWindowSlot* iParent,FWViewT
    m_frame = new FWGeometryVF(xf, this);
 
    xf->AddFrame(m_frame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));  
+   
+   m_parentTransparencyFactor.changed_.connect(boost::bind(&FWGeometryTableViewBase::refreshTable3D,this));
+   m_leafTransparencyFactor.changed_.connect(boost::bind(&FWGeometryTableViewBase::refreshTable3D,this));
+   m_minParentTransparency.changed_.connect(boost::bind(&FWGeometryTableViewBase::refreshTable3D,this));
+   m_minLeafTransparency.changed_.connect(boost::bind(&FWGeometryTableViewBase::refreshTable3D,this));
  
 }
 
@@ -644,7 +653,13 @@ void FWGeometryTableViewBase::reloadColors()
 
 void FWGeometryTableViewBase::populateController(ViewerParameterGUI& gui) const
 {
-   gui.requestTab("Style").separator();
+   gui.requestTab("Style").
+   separator().
+   //addParam(&m_parentTransparencyFactor).
+  // addParam(&m_leafTransparencyFactor).
+   addParam(&m_minParentTransparency).
+   addParam(&m_minLeafTransparency).
+   separator();
    TGTextButton* butt = new TGTextButton(gui.getTabContainer(), "ReloadColors");
    gui.getTabContainer()->AddFrame(butt);
    butt->Connect("Clicked()", "FWGeometryTableViewBase", (FWGeometryTableViewBase*)this, "reloadColors()");

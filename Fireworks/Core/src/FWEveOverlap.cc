@@ -16,79 +16,92 @@ FWGeometryTableManagerBase* FWEveOverlap::tableManager()
 {
    return m_browser->getTableManager();
 }
+
+FWGeometryTableViewBase* FWEveOverlap::browser()
+{
+   return m_browser;
+}
 //______________________________________________________________________________
 
 void FWEveOverlap::Paint(Option_t*)
 {
-
+   
    if (m_browser->getTableManager()->refEntries().empty()) return; 
-
+   
    FWGeoTopNode::Paint();
-
+   
    TEveGeoManagerHolder gmgr( FWGeometryTableViewManager::getGeoMangeur());
-
-  
-  int topNodeIdx =  m_browser->getTopNodeIdx();
-
-  FWGeometryTableManagerBase::Entries_i sit = m_browser->getTableManager()->refEntries().begin();    std::advance(sit,topNodeIdx );
-  TGeoHMatrix mtx;
-    m_browser->getTableManager()->getNodeMatrix(*sit, mtx);
-
-  if (sit->testBit(FWGeometryTableManagerBase::kVisNodeSelf))
-    paintShape(*sit,  topNodeIdx,mtx, false );
-  
-  
-  if ( (*sit).testBit(FWGeometryTableManagerBase::kVisNodeChld))
-   paintChildNodesRecurse( sit, topNodeIdx, mtx);
+   
+   
+   int topNodeIdx =  m_browser->getTopNodeIdx();
+   
+   FWGeometryTableManagerBase::Entries_i sit = m_browser->getTableManager()->refEntries().begin();
+   std::advance(sit,topNodeIdx );
+   TGeoHMatrix mtx;
+   m_browser->getTableManager()->getNodeMatrix(*sit, mtx);
+   
+   bool  drawsChildren = false;
+   
+   if ( (*sit).testBit(FWGeometryTableManagerBase::kVisNodeChld))
+      drawsChildren = paintChildNodesRecurse( sit, topNodeIdx, mtx);
+   
+   if (sit->testBit(FWGeometryTableManagerBase::kVisNodeSelf))
+      paintShape(topNodeIdx,mtx, false,  drawsChildren);
 }
 
 
 // ______________________________________________________________________
-void FWEveOverlap::paintChildNodesRecurse (FWGeometryTableManagerBase::Entries_i pIt, Int_t cnt, const TGeoHMatrix& parentMtx)
-{ 
-  TGeoNode* parentNode =  pIt->m_node;
-  int nD = parentNode->GetNdaughters();
-  
-  int dOff=0;
-  
-  pIt++;
-  int pcnt = cnt+1;
-  
-  FWGeometryTableManagerBase::Entries_i it;
-  for (int n = 0; n != nD; ++n)
-  {
-    it =  pIt;
-    std::advance(it,n + dOff);
-    cnt = pcnt + n+dOff;
-    
-    TGeoHMatrix nm = parentMtx;
-    nm.Multiply(it->m_node->GetMatrix());
-    
-    
-    if (it->testBit(FWGeometryTableManagerBase::kVisNodeSelf))
-    {
-      if (it->testBit(FWOverlapTableManager::kOverlap))
-      {
-        int nno;it->m_node->GetOverlaps(nno);
-        if ( (m_browser->m_rnrOverlap.value() && ((nno & BIT(1)) == BIT(1)) ) 
-            || (m_browser->m_rnrExtrusion.value() && ((nno & BIT(2)) == BIT(2)) ))
-        {
-          paintShape(*it, cnt , nm, false);
-        }
-        
-      }
-      else
-      {
-        paintShape(*it, cnt , nm, false);
-      }
-    }
-    if ( it->testBit(FWGeometryTableManagerBase::kVisNodeChld) && it->testBit(FWOverlapTableManager::kOverlapChild))
-      paintChildNodesRecurse(it,cnt , nm);
-    
+bool FWEveOverlap::paintChildNodesRecurse (FWGeometryTableManagerBase::Entries_i pIt, Int_t cnt, const TGeoHMatrix& parentMtx)
+{
 
-  
-  FWGeometryTableManagerBase::getNNodesTotal(parentNode->GetDaughter(n), dOff);  
-  }
+   TGeoNode* parentNode =  pIt->m_node;
+   int nD = parentNode->GetNdaughters();
+   
+   int dOff=0;
+   
+   pIt++;
+   int pcnt = cnt+1;
+   
+   bool  drawsChildren = false;
+   
+   FWGeometryTableManagerBase::Entries_i it;
+   for (int n = 0; n != nD; ++n)
+   {
+      it =  pIt;
+      std::advance(it,n + dOff);
+      cnt = pcnt + n+dOff;
+      
+      TGeoHMatrix nm = parentMtx;
+      nm.Multiply(it->m_node->GetMatrix());
+      
+      bool  drawsChildrenSecondGen = false;
+      if ( it->testBit(FWGeometryTableManagerBase::kVisNodeChld) && it->testBit(FWOverlapTableManager::kOverlapChild))
+         drawsChildrenSecondGen = paintChildNodesRecurse(it,cnt , nm);
+      
+      if (it->testBit(FWGeometryTableManagerBase::kVisNodeSelf))
+      {
+         if (it->testBit(FWOverlapTableManager::kOverlap))
+         {
+            int nno;it->m_node->GetOverlaps(nno);
+            if ( (m_browser->m_rnrOverlap.value() && ((nno & BIT(1)) == BIT(1)) ) 
+                || (m_browser->m_rnrExtrusion.value() && ((nno & BIT(2)) == BIT(2)) ))
+            {
+               paintShape(cnt , nm, false, drawsChildrenSecondGen);
+               drawsChildren = true;
+            }
+            
+         }
+         else
+         {
+            paintShape(cnt , nm, false, drawsChildrenSecondGen);
+            drawsChildren = true;
+         }
+      }
+      
+      drawsChildren |= drawsChildrenSecondGen;
+      FWGeometryTableManagerBase::getNNodesTotal(parentNode->GetDaughter(n), dOff);  
+   }
+   return drawsChildren;
 }
 
 

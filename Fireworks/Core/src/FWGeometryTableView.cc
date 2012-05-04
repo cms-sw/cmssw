@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:34 CET 2012
-// $Id: FWGeometryTableView.cc,v 1.31 2012/05/01 01:13:44 amraktad Exp $
+// $Id: FWGeometryTableView.cc,v 1.32 2012/05/02 04:44:36 amraktad Exp $
 //
 
 // system include files
@@ -145,11 +145,8 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
      m_visLevelFilter(this,"IgnoreVisLevelOnFilter", true),
      m_selectRegion(this, "SelectNearCameraCenter", false),
      m_regionRadius(this, "SphereRadius", 10.0, 1.0, 300.0),
-     m_proximityAlgo(this, "Proximity algorithm", 1l, 0l, 1l),
-     m_parentTransparencyFactor(this, "ParentTransparencyFactor", 1l, 0l, 100l),
-     m_leafTransparencyFactor(this, "LeafTransparencyFactor", 1l, 0l, 100l),
-     m_minParentTransparency(this, "MinParentTransparency", 90l, 0l, 100l),
-     m_minLeafTransparency(this, "MinLeafTransparency", 0l, 0l, 100l)
+    m_proximityAlgo(this, "Proximity algorithm", 1l, 0l, 1l)
+
 {
    FWGeoTopNodeGLScene *gls = new FWGeoTopNodeGLScene(0);
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,32,0)
@@ -223,10 +220,6 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
    m_regionRadius.changed_.connect(boost::bind(&FWGeometryTableView::checkRegionOfInterest,this));
    m_proximityAlgo.changed_.connect(boost::bind(&FWGeometryTableView::checkRegionOfInterest,this));
    
-   m_parentTransparencyFactor.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
-   m_leafTransparencyFactor.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
-   m_minParentTransparency.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
-   m_minLeafTransparency.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
 }
 
 FWGeometryTableView::~FWGeometryTableView()
@@ -310,11 +303,6 @@ void FWGeometryTableView::populateController(ViewerParameterGUI& gui) const
       addParam(&m_mode).
       addParam(&m_autoExpand).
       addParam(&m_visLevel).
-      separator().
-      addParam(&m_parentTransparencyFactor).
-      addParam(&m_leafTransparencyFactor).
-      addParam(&m_minParentTransparency).
-      addParam(&m_minLeafTransparency).
       separator().   
       addParam(&m_filterByName).
       addParam(&m_visLevelFilter).

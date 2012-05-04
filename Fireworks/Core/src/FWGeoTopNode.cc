@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel  
 //         Created:  Thu Jun 23 01:24:51 CEST 2011
-// $Id: FWGeoTopNode.cc,v 1.22 2012/04/25 06:09:33 amraktad Exp $
+// $Id: FWGeoTopNode.cc,v 1.23 2012/04/30 19:59:36 amraktad Exp $
 //
 
 // system include files
@@ -244,12 +244,17 @@ void FWGeoTopNode::setupBuffMtx(TBuffer3D& buff, const TGeoHMatrix& mat)
 }
 
 // ______________________________________________________________________
-void FWGeoTopNode::paintShape(FWGeometryTableManagerBase::NodeInfo& data,  Int_t tableIndex, const TGeoHMatrix& nm, bool volumeColor)
+void FWGeoTopNode::paintShape( Int_t tableIndex, const TGeoHMatrix& nm, bool volumeColor, bool isParentNode)
 {
    static const TEveException eh("FWGeoTopNode::paintShape ");
  
-   //  printf("paint sahpe %s idx %d\n", data.m_node->GetVolume()->GetName(), tableIndex );
+  // printf("paint sahpe id %d\n", tableIndex );
 
+   FWGeometryTableManagerBase::NodeInfo& data = tableManager()->refEntries().at(tableIndex);
+   UChar_t transparency = wrapTransparency(data, isParentNode);
+   // printf("trans %d \n", transparency );
+   if (transparency >= 100) return;
+   
    TGeoShape* shape = data.m_node->GetVolume()->GetShape();
    
    TGeoCompositeShape* compositeShape = dynamic_cast<TGeoCompositeShape*>(shape);
@@ -262,7 +267,7 @@ void FWGeoTopNode::paintShape(FWGeometryTableManagerBase::NodeInfo& data,  Int_t
       TBuffer3D buff(TBuffer3DTypes::kComposite);
       buff.fID           = data.m_node->GetVolume();
       buff.fColor        = volumeColor ? data.m_node->GetVolume()->GetLineColor() : data.m_color ;
-      buff.fTransparency = data.m_transparency;// data.m_node->GetVolume()->GetTransparency(); 
+      buff.fTransparency = transparency;// data.m_node->GetVolume()->GetTransparency(); 
 
       nm.GetHomogenousMatrix(buff.fLocalMaster);  
       buff.fLocalFrame   = kTRUE; // Always enforce local frame (no geo manager).
@@ -297,7 +302,7 @@ void FWGeoTopNode::paintShape(FWGeometryTableManagerBase::NodeInfo& data,  Int_t
       setupBuffMtx(buff, nm);
       buff.fID           = data.m_node->GetVolume();
       buff.fColor        = volumeColor ? data.m_node->GetVolume()->GetLineColor() : data.m_color ;
-      buff.fTransparency = data.m_transparency;// data.m_node->GetVolume()->GetTransparency(); 
+      buff.fTransparency = transparency;// data.m_node->GetVolume()->GetTransparency(); 
 
 
       nm.GetHomogenousMatrix(buff.fLocalMaster);
@@ -404,4 +409,17 @@ FWPopupMenu* FWGeoTopNode::setPopupMenu(int iX, int iY, TGLViewer* v, bool overl
    
    nodePopup->PlaceMenu(iX, iY,true,true);
    return nodePopup;
+}
+
+
+UChar_t FWGeoTopNode::wrapTransparency(FWGeometryTableManagerBase::NodeInfo& data, bool isParentNode)
+{
+   if (isParentNode)
+   {
+      return TMath::Max((Char_t)browser()->getMinParentTransparency(), data.m_transparency) * browser()->getParentTransparencyFactor();
+   }
+   else 
+   {
+      return TMath::Max((Char_t)browser()->getMinLeafTransparency(), data.m_transparency) * browser()->getLeafTransparencyFactor();
+   }   
 }

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:06:35 CET 2012
-// $Id: FWOverlapTableView.cc,v 1.8 2012/03/23 22:40:13 amraktad Exp $
+// $Id: FWOverlapTableView.cc,v 1.9 2012/04/30 19:59:37 amraktad Exp $
 //
 
 // system include files
@@ -232,6 +232,8 @@ void FWOverlapTableView::populateController(ViewerParameterGUI& gui) const
       separator().
       addParam(&m_drawPoints).
       addParam(&m_pointSize);
+   
+   FWGeometryTableViewBase::populateController(gui);
 }
 
 //______________________________________________________________________________

@@ -16,7 +16,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel
 //         Created:  Thu Jun 23 01:25:00 CEST 2011
-// $Id: FWGeoTopNode.h,v 1.10 2012/02/22 03:45:57 amraktad Exp $
+// $Id: FWGeoTopNode.h,v 1.11 2012/04/30 19:59:36 amraktad Exp $
 //
 
 #ifndef __CINT__
@@ -65,8 +65,10 @@ public:
 
    virtual void Paint(Option_t* option="");
    FWGeoTopNodeGLScene    *fSceneJebo;
-
+   
    virtual FWGeometryTableManagerBase* tableManager() { return 0; }
+   virtual FWGeometryTableViewBase* browser() { return 0; }
+   
    std::set<TGLPhysicalShape*> fHted;
    std::set<TGLPhysicalShape*> fSted;
 
@@ -98,16 +100,18 @@ protected:
    void setupBuffMtx(TBuffer3D& buff, const TGeoHMatrix& mat);
    
    FWPopupMenu* setPopupMenu(int iX, int iY, TGLViewer* v, bool);
-   
-#ifndef __CINT__
-   void paintShape(FWGeometryTableManagerBase::NodeInfo& nodeInfo, Int_t idx,  const TGeoHMatrix& nm, bool volumeColor);
-#endif
 
+
+   void paintShape(Int_t idx,  const TGeoHMatrix& nm, bool volumeColor, bool parentNode);
    virtual void ComputeBBox();
 private:   
    FWGeoTopNode(const FWGeoTopNode&); // stop default
    const FWGeoTopNode& operator=(const FWGeoTopNode&); // stop default
+#ifndef __CINT__
+   UChar_t wrapTransparency(FWGeometryTableManagerBase::NodeInfo& data, bool leafNode); 
+#endif
 
+   
    ClassDef(FWGeoTopNode, 0);
 };
 
