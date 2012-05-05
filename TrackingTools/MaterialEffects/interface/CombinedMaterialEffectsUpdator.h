@@ -15,7 +15,7 @@
 #include "TrackingTools/MaterialEffects/interface/MaterialEffectsUpdator.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 
-class CombinedMaterialEffectsUpdator : public MaterialEffectsUpdator
+class CombinedMaterialEffectsUpdator GCC11_FINAL : public MaterialEffectsUpdator
 {  
  public:
  virtual CombinedMaterialEffectsUpdator* clone() const {

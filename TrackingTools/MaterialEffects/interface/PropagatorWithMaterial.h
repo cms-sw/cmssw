@@ -12,8 +12,8 @@
  *  only be included when propagating from a TrajectoryStateOnSurface.
  *  Ported from ORCA.
  *
- *  $Date: 2011/03/28 13:20:25 $
- *  $Revision: 1.12 $
+ *  $Date: 2012/02/03 22:51:35 $
+ *  $Revision: 1.13 $
  *  \author todorov, cerati
  */
 
@@ -22,7 +22,7 @@
 #include "TrackingTools/MaterialEffects/interface/MaterialEffectsUpdator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-class PropagatorWithMaterial : public Propagator {
+class PropagatorWithMaterial GCC11_FINAL : public Propagator {
   
 public:
   /** Constructor with PropagationDirection and mass hypothesis.

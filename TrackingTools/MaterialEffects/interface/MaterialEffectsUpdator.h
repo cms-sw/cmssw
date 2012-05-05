@@ -7,14 +7,16 @@
  *  in this class.
  *  Ported from ORCA.
  *
- *  $Date: 2010/04/22 16:58:45 $
- *  $Revision: 1.12 $
+ *  $Date: 2011/04/16 14:51:22 $
+ *  $Revision: 1.13 $
  *  \author todorov, cerati
  */
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 
 class MaterialEffectsUpdator

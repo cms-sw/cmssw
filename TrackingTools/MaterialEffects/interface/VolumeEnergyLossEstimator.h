@@ -13,7 +13,7 @@
 class VolumeMaterialEffectsEstimate;
 class VolumeMediumProperties;
 
-class VolumeEnergyLossEstimator : public VolumeMaterialEffectsEstimator
+class VolumeEnergyLossEstimator GCC11_FINAL : public VolumeMaterialEffectsEstimator
 {
 public:
   /// Constructor with explicit mass hypothesis
