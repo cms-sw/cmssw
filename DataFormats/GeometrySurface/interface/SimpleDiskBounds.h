@@ -10,7 +10,7 @@
  * Plane bounds that define a disk with a concentric hole in the middle.
  */
 
-class SimpleDiskBounds : public Bounds {
+class SimpleDiskBounds GCC11_FINAL : public Bounds {
 public:
 
   /// Construct the bounds from min and max R and Z in LOCAL coordinates.

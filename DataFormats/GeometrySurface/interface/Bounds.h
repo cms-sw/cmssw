@@ -5,6 +5,8 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h" 
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
 
 /** \class Bounds 
  *

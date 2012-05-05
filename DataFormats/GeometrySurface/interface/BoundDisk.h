@@ -14,11 +14,11 @@
  *  using the static build() method. 
  *  (The normal constructor will become private in the future).
  *
- *  $Date: 2007/01/17 20:58:43 $
- *  $Revision: 1.1 $
+ *  $Date: 2012/01/02 17:04:36 $
+ *  $Revision: 1.3 $
  */
 
-class BoundDisk : public BoundPlane {
+class BoundDisk GCC11_FINAL : public BoundPlane {
 public:
 
   typedef ReferenceCountingPointer<BoundDisk> BoundDiskPointer;

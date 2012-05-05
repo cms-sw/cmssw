@@ -17,7 +17,7 @@
 #include <algorithm>
 
 
-class SimpleCylinderBounds : public Bounds {
+class SimpleCylinderBounds GCC11_FINAL : public Bounds {
 public:
 
   SimpleCylinderBounds( float rmin, float rmax, float zmin, float zmax);

@@ -7,7 +7,7 @@
  *  To be constructed by the "parent" surface.
  */
 
-class TangentPlane : public Plane {
+class TangentPlane GCC11_FINAL : public Plane {
 public:
   TangentPlane (const PositionType& pos, 
 		const RotationType& rot, 

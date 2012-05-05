@@ -13,7 +13,7 @@
  *  surface types. 
  */
 
-class GeneralNSurfaceDelimitedBounds : public Bounds {
+class GeneralNSurfaceDelimitedBounds GCC11_FINAL : public Bounds {
 public:
 
     typedef std::pair<const Surface*, SurfaceOrientation::Side>  SurfaceAndSide;
