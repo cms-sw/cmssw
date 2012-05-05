@@ -16,13 +16,13 @@ class DetRod : public virtual GeometricSearchDet   {
   virtual ~DetRod();
   
  
-  virtual const BoundSurface& surface() const {return *thePlane;}
+  virtual const BoundSurface& surface() const GCC11_FINAL {return *thePlane;}
 
 
   //--- Extension of the interface
   
   /// Return the rod surface as a BoundPlane
-  virtual const BoundPlane& specificSurface() const {return *thePlane;}
+  virtual const BoundPlane& specificSurface() const GCC11_FINAL {return *thePlane;}
 
 
 protected:

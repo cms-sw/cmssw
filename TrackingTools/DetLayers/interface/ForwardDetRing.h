@@ -26,7 +26,7 @@ class ForwardDetRing : public GeometricSearchDet {
   //--- Extension of the interface
 
   /// Return the ring surface as a BoundDisk
-  const BoundDisk& specificSurface() const GCC11_FINAL {return *theDisk;}
+  const BoundDisk& specificSurface() const {return *theDisk;}
 
 
 protected:

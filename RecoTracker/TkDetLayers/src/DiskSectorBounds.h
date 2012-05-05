@@ -10,7 +10,7 @@
 
 
 #pragma GCC visibility push(hidden)
-class DiskSectorBounds : public Bounds {
+class DiskSectorBounds GCC11_FINAL : public Bounds {
 public:
   
    DiskSectorBounds( float rmin, float rmax, float zmin, float zmax, float phiExt) : 
