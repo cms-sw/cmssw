@@ -29,7 +29,7 @@ public:
 
   virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface&, const Propagator&, 
-	      const MeasurementEstimator&) const GCC11_FINAL;
+	      const MeasurementEstimator&) const;
 
   // DetLayer interface
   virtual Location   location()   const  GCC11_FINAL {return GeomDetEnumerators::endcap;}
