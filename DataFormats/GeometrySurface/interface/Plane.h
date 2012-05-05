@@ -60,22 +60,22 @@ public:
 
 // implementation of Surface interface    
 
-  virtual SurfaceOrientation::Side side( const LocalPoint& p, Scalar toler) const {
+  virtual SurfaceOrientation::Side side( const LocalPoint& p, Scalar toler) const GCC11_FINAL {
     return (std::abs(p.z())<toler) ? SurfaceOrientation::onSurface : 
 	(p.z()>0 ? SurfaceOrientation::positiveSide : SurfaceOrientation::negativeSide);
   }
 
-  virtual SurfaceOrientation::Side side( const GlobalPoint& p, Scalar toler) const {
+  virtual SurfaceOrientation::Side side( const GlobalPoint& p, Scalar toler) const GCC11_FINAL {
     Scalar lz = localZ(p);
     return (std::abs(lz)<toler ? SurfaceOrientation::onSurface : 
 	    (lz>0 ? SurfaceOrientation::positiveSide : SurfaceOrientation::negativeSide));
   }
 
   /// tangent plane to surface from global point
-  virtual ReferenceCountingPointer<TangentPlane> tangentPlane (const GlobalPoint&) const;
+  virtual ReferenceCountingPointer<TangentPlane> tangentPlane (const GlobalPoint&) const GCC11_FINAL;
 
   /// tangent plane to surface from local point
-  virtual ReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const;
+  virtual ReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const GCC11_FINAL;
 
 
 
