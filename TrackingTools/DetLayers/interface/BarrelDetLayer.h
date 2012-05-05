@@ -9,8 +9,8 @@
  *  are implemented in this class,
  *  but some methods are left abstract.
  *
- *  $Date: 2007/03/07 16:28:39 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/08/21 20:48:46 $
+ *  $Revision: 1.8 $
  */
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
@@ -31,18 +31,18 @@ class BarrelDetLayer : public DetLayer {
   virtual ~BarrelDetLayer();
 
   /// GeometricSearchDet interface
-  virtual const BoundSurface&  surface() const { return *theCylinder;}
+  virtual const BoundSurface&  surface() const  GCC11_FINAL { return *theCylinder;}
 
   virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-	      const MeasurementEstimator&) const;
+	      const MeasurementEstimator&) const GCC11_FINAL;
 
   /// DetLayer interface
-  virtual Location location()   const {return GeomDetEnumerators::barrel;}
+  virtual Location location()   const GCC11_FINAL {return GeomDetEnumerators::barrel;}
 
 
   /// Extension of the interface
-  virtual const BoundCylinder&  specificSurface() const { return *theCylinder;}
+  virtual const BoundCylinder&  specificSurface() const GCC11_FINAL { return *theCylinder;}
 
   bool contains( const Local3DPoint& p) const;
 

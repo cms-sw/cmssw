@@ -20,13 +20,13 @@ class ForwardDetRing : public GeometricSearchDet {
 		   const MeasurementEstimator& est,
 		   std::vector<DetWithState>& result) const;
   
-  virtual const BoundSurface& surface() const {return *theDisk;}
+  virtual const BoundSurface& surface() const GCC11_FINAL {return *theDisk;}
 
   
   //--- Extension of the interface
 
   /// Return the ring surface as a BoundDisk
-  const BoundDisk& specificSurface() const {return *theDisk;}
+  const BoundDisk& specificSurface() const GCC11_FINAL {return *theDisk;}
 
 
 protected:
