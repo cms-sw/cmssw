@@ -1,10 +1,10 @@
-# /online/collisions/2012/7e33/v2.1/HLT/V5 (CMSSW_5_2_3_HLT9)
+# /online/collisions/2012/7e33/v2.1/HLT/V12 (CMSSW_5_2_3_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/7e33/v2.1/HLT/V5')
+  tableName = cms.string('/online/collisions/2012/7e33/v2.1/HLT/V12')
 )
 
 streams = cms.PSet( 
@@ -46,6 +46,7 @@ streams = cms.PSet(
   ALCALUMIPIXELS = cms.vstring( 'AlCaLumiPixels' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSym' ),
+  B = cms.vstring( 'ParkingMonitor' ),
   Calibration = cms.vstring( 'TestEnablesEcalHcalDT' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Express = cms.vstring( 'ExpressPhysics' ),
@@ -919,6 +920,23 @@ datasets = cms.PSet(
     'HLT_SingleForJet25_v2',
     'HLT_SingleJetC5_v2' ),
   OnlineHltResults = cms.vstring( 'HLTriggerFinalPath' ),
+  ParkingMonitor = cms.vstring( 'HLT_DiJet35_MJJ650_AllJets_DEta3p5_VBF_v1',
+    'HLT_DiJet35_MJJ700_AllJets_DEta3p5_VBF_v1',
+    'HLT_DiJet35_MJJ750_AllJets_DEta3p5_VBF_v1',
+    'HLT_Dimuon10_Jpsi_v3',
+    'HLT_Dimuon5_PsiPrime_v3',
+    'HLT_Dimuon5_Upsilon_v3',
+    'HLT_Dimuon8_Jpsi_v4',
+    'HLT_Dimuon8_Upsilon_v3',
+    'HLT_Dimuon9_PsiPrime_v9',
+    'HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_v5',
+    'HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v3',
+    'HLT_DoubleMu3p5_LowMass_Displaced_v3',
+    'HLT_HT200_AlphaT0p57_v5',
+    'HLT_Mu13_Mu8_v17',
+    'HLT_QuadJet50_Jet20_v1',
+    'HLT_QuadJet50_v2',
+    'HLT_RsqMR45_Rsq0p09_v2' ),
   PhotonHad = cms.vstring( 'HLT_Photon40_CaloIdL_RsqMR35_Rsq0p09_MR150_v3',
     'HLT_Photon40_CaloIdL_RsqMR40_Rsq0p09_MR150_v3',
     'HLT_Photon40_CaloIdL_RsqMR45_Rsq0p09_MR150_v3',
