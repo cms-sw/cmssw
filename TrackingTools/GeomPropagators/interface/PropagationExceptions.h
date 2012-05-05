@@ -11,7 +11,7 @@
 
 /// Common base class
 
-class PropagationException : public cms::Exception {
+class PropagationException GCC11_FINAL : public cms::Exception {
 public:
   PropagationException( const std::string& message) throw() :  cms::Exception(message)  {}
   virtual ~PropagationException() throw() {}

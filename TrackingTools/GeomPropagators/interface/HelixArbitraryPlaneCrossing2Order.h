@@ -7,7 +7,7 @@
 /** Calculates intersections of a helix with planes of
  *  any orientation using a parabolic approximation. */
 
-class HelixArbitraryPlaneCrossing2Order : public HelixPlaneCrossing {
+class HelixArbitraryPlaneCrossing2Order GCC11_FINAL : public HelixPlaneCrossing {
 
 
 public:

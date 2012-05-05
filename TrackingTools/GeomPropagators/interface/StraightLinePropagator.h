@@ -14,7 +14,7 @@ class MagneticField;
  * \warning The errors are NOT propagated.
  */
 
-class StraightLinePropagator : public Propagator {
+class StraightLinePropagator GCC11_FINAL : public Propagator {
 
 private: 
 

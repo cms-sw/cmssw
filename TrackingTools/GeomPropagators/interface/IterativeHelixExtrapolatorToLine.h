@@ -10,7 +10,7 @@
  *  iterative use of a 2nd order expansion of the helix.
  */
 
-class IterativeHelixExtrapolatorToLine : public HelixLineExtrapolation {
+class IterativeHelixExtrapolatorToLine GCC11_FINAL : public HelixLineExtrapolation {
 public:
   /** Constructor using point, direction and (transverse!) curvature.
    */

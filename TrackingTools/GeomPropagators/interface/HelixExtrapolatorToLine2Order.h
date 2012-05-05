@@ -8,7 +8,7 @@
 /** Calculates intersections of a helix with planes of
  *  any orientation using a parabolic approximation. */
 
-class HelixExtrapolatorToLine2Order : public HelixLineExtrapolation {
+class HelixExtrapolatorToLine2Order GCC11_FINAL : public HelixLineExtrapolation {
 public:
   /// Constructor using point, direction and (transverse!) curvature.
   HelixExtrapolatorToLine2Order(const PositionType& point,

@@ -34,7 +34,7 @@ class BoundPlane;
 
 /* Class SmartPropagator Interface */
 
-class SmartPropagator : public Propagator {
+class SmartPropagator GCC11_FINAL : public Propagator {
 
   public:
 

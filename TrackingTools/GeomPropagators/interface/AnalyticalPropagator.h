@@ -20,7 +20,7 @@ class MagneticField;
  *  (currently: propagation to arbitrary plane).
  */
 
-class AnalyticalPropagator : public Propagator {
+class AnalyticalPropagator GCC11_FINAL : public Propagator {
 
 public:
 

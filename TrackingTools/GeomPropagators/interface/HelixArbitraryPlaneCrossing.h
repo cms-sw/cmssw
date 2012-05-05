@@ -7,7 +7,7 @@
 
 /** Calculates intersections of a helix with planes of any orientation. */
 
-class HelixArbitraryPlaneCrossing : public HelixPlaneCrossing {
+class HelixArbitraryPlaneCrossing GCC11_FINAL : public HelixPlaneCrossing {
 public:
   /** Constructor using point, direction and (transverse!) curvature.
    */

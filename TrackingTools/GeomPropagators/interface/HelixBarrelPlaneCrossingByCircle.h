@@ -10,7 +10,7 @@
  *  Exact if the magnetic field is parallel to the plane.
  */
 
-class HelixBarrelPlaneCrossingByCircle : public HelixPlaneCrossing {
+class HelixBarrelPlaneCrossingByCircle GCC11_FINAL : public HelixPlaneCrossing {
 public:
 
   HelixBarrelPlaneCrossingByCircle( const PositionType& pos,
