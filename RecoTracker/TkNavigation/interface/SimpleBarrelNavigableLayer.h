@@ -9,7 +9,7 @@
 /** A concrete NavigableLayer for the barrel 
  */
 
-class SimpleBarrelNavigableLayer : public SimpleNavigableLayer {
+class SimpleBarrelNavigableLayer GCC11_FINAL : public SimpleNavigableLayer {
 
 public:
 

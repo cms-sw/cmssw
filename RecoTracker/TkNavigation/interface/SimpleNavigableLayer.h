@@ -27,7 +27,7 @@ public:
     theSelfSearch(false),
     theEpsilon(eps),thePropagator(field),theCheckCrossingSide(checkCrossingSide) {}
 
-    virtual void setInwardLinks(const BDLC&, const FDLC&, TkLayerLess sorter = TkLayerLess(outsideIn)) = 0;
+  virtual void setInwardLinks(const BDLC&, const FDLC&, TkLayerLess sorter = TkLayerLess(outsideIn)) = 0;
   
   virtual void setAdditionalLink(DetLayer*, NavigationDirection direction=insideOut) = 0;
 
@@ -37,7 +37,7 @@ public:
 
   virtual std::vector< const DetLayer * > compatibleLayers (const FreeTrajectoryState &fts, 
 							    PropagationDirection timeDirection,
-							    int& counter)const ;
+							    int& counter) const  GCC11_FINAL;
 
 protected:
 

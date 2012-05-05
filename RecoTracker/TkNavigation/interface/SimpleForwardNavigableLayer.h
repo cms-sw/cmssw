@@ -6,7 +6,7 @@
 /** A concrete NavigableLayer for the forward
  */
 
-class SimpleForwardNavigableLayer : public SimpleNavigableLayer {
+class SimpleForwardNavigableLayer GCC11_FINAL : public SimpleNavigableLayer {
 
 public:
 
