@@ -25,7 +25,7 @@ runOnMC = True
 ### Standard and PF work flow
 
 # Standard
-runStandardPAT = True
+runStandardPAT = False
 usePFJets      = True
 useCaloJets    = True
 
@@ -350,6 +350,7 @@ if runPF2PAT:
     applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfPhotons          = cms.InputTag( 'elPFIsoValueGamma03' + postfix )
     applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfChargedHadrons   = cms.InputTag( 'elPFIsoValueCharged03' + postfix )
 
+
 from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import *
 
 # remove MC matching, object cleaning, objects etc.
@@ -537,9 +538,8 @@ if runPF2PAT:
     applyPostfix( process, 'patJetCorrFactors', postfix ).rho = cms.InputTag( 'kt6PFJets' + postfix, 'rho' )
   process.out.outputCommands.append( 'keep double_kt6PFJets' + postfix + '_*_' + process.name_() )
 
-  goodPatJetsPF = goodPatJets.clone( src = cms.InputTag( 'selectedPatJets' + postfix ) )
+  goodPatJetsPF = goodPatJets.clone( src = cms.InputTag( 'selectedPatJets' + postfix ), checkOverlaps = cms.PSet() )
   setattr( process, 'goodPatJets' + postfix, goodPatJetsPF )
-  getattr( process, 'goodPatJets' + postfix ).checkOverlaps.muons.src = cms.InputTag( 'intermediatePatMuons' + postfix )
 
   step4aPF = step4a.clone( src = cms.InputTag( 'goodPatJets' + postfix ) )
   setattr( process, 'step4a' + postfix, step4aPF )
@@ -613,8 +613,7 @@ if runPF2PAT:
 
   ### Jets
 
-  getattr( process, 'goodPatJets' + postfix ).preselection               = jetCutPF
-  getattr( process, 'goodPatJets' + postfix ).checkOverlaps.muons.deltaR = jetMuonsDRPF
+  getattr( process, 'goodPatJets' + postfix ).preselection = jetCutPF
 
   ### Electrons
 
@@ -670,19 +669,12 @@ if addTriggerMatching:
 ### Scheduling
 ###
 
-# CiC electron ID
+# MVA electron ID
 
-process.load( "RecoEgamma.ElectronIdentification.cutsInCategoriesElectronIdentificationV06_cfi" )
-process.eidCiCSequence = cms.Sequence(
-  process.eidVeryLooseMC
-+ process.eidLooseMC
-+ process.eidMediumMC
-+ process.eidTightMC
-+ process.eidSuperTightMC
-+ process.eidHyperTight1MC
-+ process.eidHyperTight2MC
-+ process.eidHyperTight3MC
-+ process.eidHyperTight4MC
+process.load( "EGamma.EGammaAnalysisTools.electronIdMVAProducer_cfi" )
+process.eidMVASequence = cms.Sequence(
+  process.mvaTrigV0
++ process.mvaNonTrigV0
 )
 
 # The additional sequence
@@ -715,7 +707,7 @@ if runStandardPAT:
     if useGoodVertex:
       process.p += process.step0b
     process.p += process.step0c
-    process.p += process.eidCiCSequence
+    process.p += process.eidMVASequence
     if useL1FastJet and useRelVals:
       process.p += process.ak5CaloJetSequence
     process.p += process.patDefaultSequence
@@ -778,7 +770,7 @@ if runStandardPAT:
     if useGoodVertex:
       pAddPF += process.step0b
     pAddPF += process.step0c
-    pAddPF += process.eidCiCSequence
+    pAddPF += process.eidMVASequence
     if useL1FastJet:
       pAddPF += process.ak5PFJets
     pAddPF += process.patDefaultSequence
@@ -851,7 +843,7 @@ if runPF2PAT:
   if useGoodVertex:
     pPF += process.step0b
   pPF += process.step0c
-  pPF += process.eidCiCSequence
+  pPF += process.eidMVASequence
   pPF += getattr( process, 'patPF2PATSequence' + postfix )
   pPF += getattr( process, 'patAddOnSequence' + postfix )
   if useLooseMuon:

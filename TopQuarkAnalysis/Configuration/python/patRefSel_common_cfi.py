@@ -21,20 +21,8 @@ kt6PFJetsChs = kt6PFJets.clone(
 
 # CiC electron ID
 electronIDSources = cms.PSet(
-  eidTight            = cms.InputTag( 'eidTight' )
-, eidLoose            = cms.InputTag( 'eidLoose' )
-, eidRobustTight      = cms.InputTag( 'eidRobustTight' )
-, eidRobustHighEnergy = cms.InputTag( 'eidRobustHighEnergy' )
-, eidRobustLoose      = cms.InputTag( 'eidRobustLoose' )
-, eidVeryLooseMC      = cms.InputTag( 'eidVeryLooseMC' )
-, eidLooseMC          = cms.InputTag( 'eidLooseMC' )
-, eidMediumMC         = cms.InputTag( 'eidMediumMC' )
-, eidTightMC          = cms.InputTag( 'eidTightMC' )
-, eidSuperTightMC     = cms.InputTag( 'eidSuperTightMC' )
-, eidHyperTight1MC    = cms.InputTag( 'eidHyperTight1MC' )
-, eidHyperTight2MC    = cms.InputTag( 'eidHyperTight2MC' )
-, eidHyperTight3MC    = cms.InputTag( 'eidHyperTight3MC' )
-, eidHyperTight4MC    = cms.InputTag( 'eidHyperTight4MC' )
+  mvaTrigV0    = cms.InputTag("mvaTrigV0")
+, mvaNonTrigV0 = cms.InputTag("mvaNonTrigV0")
 )
 
 ### Selection filters

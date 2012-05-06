@@ -35,7 +35,7 @@ process = cms.Process( 'PAT' )
 runOnMC = options.runOnMC
 
 ### Standard and PF reconstruction
-useStandardPAT = True
+runStandardPAT = False
 runPF2PAT      = True
 
 ### Switch on/off selection steps
@@ -84,7 +84,7 @@ from TopQuarkAnalysis.Configuration.patRefSel_refAllJets import *
 ### Particle flow
 ### takes effect only, if 'runPF2PAT' = True
 
-postfix = 'PF' # needs to be a non-empty string and must not be 'AK5PF', if 'useStandardPAT' = True
+postfix = 'PF' # needs to be a non-empty string and must not be 'AK5PF', if 'runStandardPAT' = True
 
 # subtract charged hadronic pile-up particles (from wrong PVs)
 # effects also JECs
@@ -104,13 +104,15 @@ from TopQuarkAnalysis.Configuration.patRefSel_PF2PAT import *
 #pfD0Cut   = 0.2
 #pfDzCut   = 0.5
 # muons
-#pfMuonSelectionCut = ''
-# pfMuonIsoConeR03 = False
-#pfMuonCombIsoCut = 0.15
+#pfMuonSelectionCut = 'pt > 5.'
+useMuonCutBasePF = False # use minimal (veto) muon selection cut on top of 'pfMuonSelectionCut'
+#pfMuonIsoConeR03 = False
+#pfMuonCombIsoCut = 0.2
 # electrons
-#pfElectronSelectionCut  = ''
+#pfElectronSelectionCut  = 'pt > 5. && gsfTrackRef.isNonnull && gsfTrackRef.trackerExpectedHitsInner.numberOfLostHits < 2'
+useElectronCutBasePF  = False # use minimal (veto) electron selection cut on top of 'pfElectronSelectionCut'
 #pfElectronnIsoConeR03 = False
-#pfElectronCombIsoCut = 0.2
+#pfElectronCombIsoCut  = 0.2
 
 ### JEC levels
 
@@ -239,12 +241,10 @@ process.step2 = process.goodOfflinePrimaryVertices.clone( filter = True )
 ### PAT/PF2PAT configuration
 ###
 
-from TopQuarkAnalysis.Configuration.patRefSel_refAllJets_cfi import *
-
-if useStandardPAT and runPF2PAT:
+if runStandardPAT and runPF2PAT:
   if postfix == '':
     sys.exit( 'ERROR: running standard PAT and PF2PAT in parallel requires a defined "postfix" for PF2PAT' )
-if not useStandardPAT and not runPF2PAT:
+if not runStandardPAT and not runPF2PAT:
   sys.exit( 'ERROR: standard PAT and PF2PAT are both switched off' )
 
 process.load( "PhysicsTools.PatAlgos.patSequences_cff" )
@@ -280,8 +280,10 @@ if useL7Parton:
 ### Switch configuration
 
 if runPF2PAT:
-  pfMuonSelectionCut += ' && %s'%( muonCutBase )
-  pfElectronSelectionCut += ' && %s'%( electronCutBase )
+  if useMuonCutBasePF:
+    pfMuonSelectionCut += ' && %s'%( muonCutBase )
+  if useElectronCutBasePF:
+    pfElectronSelectionCut += ' && %s'%( electronCutBase )
   from PhysicsTools.PatAlgos.tools.pfTools import usePF2PAT
   usePF2PAT( process
            , runPF2PAT      = runPF2PAT
@@ -323,12 +325,22 @@ if runPF2PAT:
   applyPostfix( process, 'pfSelectedElectrons'      , postfix ).cut = pfElectronSelectionCut
   applyPostfix( process, 'pfIsolatedElectrons'      , postfix ).isolationCut = pfElectronCombIsoCut
   if pfElectronIsoConeR03:
-    applyPostfix( process, 'isoValElectronWithCharged', postfix ).deposits[0].deltaR = 0.3
-    applyPostfix( process, 'isoValElectronWithNeutral', postfix ).deposits[0].deltaR = 0.3
-    applyPostfix( process, 'isoValElectronWithPhotons', postfix ).deposits[0].deltaR = 0.3
+    applyPostfix( process, 'pfIsolatedElectrons', postfix ).isolationValueMapsCharged  = cms.VInputTag( cms.InputTag( 'elPFIsoValueCharged03' + postfix )
+                                                                                                       )
+    applyPostfix( process, 'pfIsolatedElectrons', postfix ).deltaBetaIsolationValueMap = cms.InputTag( 'elPFIsoValuePU03' + postfix )
+    applyPostfix( process, 'pfIsolatedElectrons', postfix ).isolationValueMapsNeutral  = cms.VInputTag( cms.InputTag( 'elPFIsoValueNeutral03' + postfix )
+                                                                                                      , cms.InputTag( 'elPFIsoValueGamma03'   + postfix )
+                                                                                                      )
+    applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfNeutralHadrons   = cms.InputTag( 'elPFIsoValueNeutral03' + postfix )
+    applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfPUChargedHadrons = cms.InputTag( 'elPFIsoValuePU03' + postfix )
+    applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfPhotons          = cms.InputTag( 'elPFIsoValueGamma03' + postfix )
+    applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfChargedHadrons   = cms.InputTag( 'elPFIsoValueCharged03' + postfix )
+
+
+from TopQuarkAnalysis.Configuration.patRefSel_refAllJets_cfi import *
 
 # remove MC matching, object cleaning, photons and taus
-if useStandardPAT:
+if runStandardPAT:
   if not runOnMC:
     runOnData( process )
   removeSpecificPATObjects( process
@@ -349,7 +361,7 @@ if runPF2PAT:
                           ) # includes 'removeCleaning'
 
 # JetCorrFactorsProducer configuration has to be fixed _after_ any call to 'removeCleaning()':
-if useStandardPAT:
+if runStandardPAT:
   process.patJetCorrFactors.payload = jecSet
   process.patJetCorrFactors.levels  = jecLevels
   if useL1FastJet:
@@ -393,12 +405,24 @@ if runOnMC:
 ### Additional configuration
 ###
 
-if useStandardPAT:
+if runStandardPAT:
+
+  ### Muons
 
   process.intermediatePatMuons = intermediatePatMuons.clone()
   process.loosePatMuons        = loosePatMuons.clone()
   process.tightPatMuons        = tightPatMuons.clone()
   process.step3a               = step3a.clone()
+
+  ### Jets
+
+  process.kt6PFJets = kt6PFJets.clone( src          = cms.InputTag( 'particleFlow' )
+                                     , doRhoFastjet = True
+                                     )
+  process.patDefaultSequence.replace( process.patJetCorrFactors
+                                    , process.kt6PFJets * process.patJetCorrFactors
+                                    )
+  process.out.outputCommands.append( 'keep double_kt6PFJets_*_' + process.name_() )
 
   process.step3b_1 = step3b_1.clone()
   process.step3b_2 = step3b_2.clone()
@@ -406,6 +430,8 @@ if useStandardPAT:
   process.step3b   = cms.Sequence( process.step3b_1 * process.step3b_2 * process.step3b_3 )
 
   process.out.outputCommands.append( 'keep double_*_*_' + process.name_() )
+  if useL1FastJet:
+    process.patJetCorrFactors.useRho = True
 
   process.goodPatJets       = goodPatJets.clone()
   process.goodPatJetsMedium = process.goodPatJets.clone()
@@ -413,6 +439,8 @@ if useStandardPAT:
   process.goodPatJetsAK5PF       = goodPatJets.clone()
   process.goodPatJetsMediumAK5PF = process.goodPatJets.clone()
   process.goodPatJetsHardAK5PF   = process.goodPatJets.clone()
+
+  ### Electrons
 
 if runPF2PAT:
 
@@ -437,11 +465,10 @@ if runPF2PAT:
                                                           )
   if useL1FastJet:
     applyPostfix( process, 'patJetCorrFactors', postfix ).rho = cms.InputTag( 'kt6PFJets' + postfix, 'rho' )
-  process.out.outputCommands.append( 'keep double_*' + postfix + '*_*_' + process.name_() )
+  process.out.outputCommands.append( 'keep double_kt6PFJets' + postfix + '_*_' + process.name_() )
 
-  goodPatJetsPF = goodPatJets.clone( src = cms.InputTag( 'selectedPatJets' + postfix ) )
+  goodPatJetsPF = goodPatJets.clone( src = cms.InputTag( 'selectedPatJets' + postfix ), checkOverlaps = cms.PSet() )
   setattr( process, 'goodPatJets' + postfix, goodPatJetsPF )
-  getattr( process, 'goodPatJets' + postfix ).checkOverlaps.muons.src = cms.InputTag( 'intermediatePatMuons' + postfix )
 
   goodPatJetsMediumPF = getattr( process, 'goodPatJets' + postfix ).clone()
   setattr( process, 'goodPatJetsMedium' + postfix, goodPatJetsMediumPF )
@@ -474,7 +501,7 @@ process.out.outputCommands.append( 'keep *_goodPatJets*_*_*' )
 ### Selection configuration
 ###
 
-if useStandardPAT:
+if runStandardPAT:
 
   ### Muons
 
@@ -509,6 +536,8 @@ if useStandardPAT:
 
   ### Electrons
 
+  process.patElectrons.electronIDSources = electronIDSources
+
   process.selectedPatElectrons.cut = electronCut
 
 if runPF2PAT:
@@ -527,80 +556,15 @@ if runPF2PAT:
 
   ### Jets
 
-  getattr( process, 'goodPatJets'       + postfix ).preselection               = jetCutPF
-  getattr( process, 'goodPatJets'       + postfix ).checkOverlaps.muons.deltaR = jetMuonsDRPF
-  getattr( process, 'goodPatJetsMedium' + postfix ).preselection               = jetCutPF + jetCutMedium
-  getattr( process, 'goodPatJetsMedium' + postfix ).checkOverlaps.muons.deltaR = jetMuonsDRPF
-  getattr( process, 'goodPatJetsHard'   + postfix ).preselection               = jetCutPF + jetCutHard
-  getattr( process, 'goodPatJetsHard'   + postfix ).checkOverlaps.muons.deltaR = jetMuonsDRPF
+  getattr( process, 'goodPatJets'       + postfix ).preselection = jetCutPF
+  getattr( process, 'goodPatJetsMedium' + postfix ).preselection = jetCutPF + jetCutMedium
+  getattr( process, 'goodPatJetsHard'   + postfix ).preselection = jetCutPF + jetCutHard
 
   ### Electrons
 
+  applyPostfix( process, 'patElectrons', postfix ).electronIDSources = electronIDSources
+
   applyPostfix( process, 'selectedPatElectrons', postfix ).cut = electronCutPF
-
-
-###
-### Scheduling
-###
-
-# The additional sequence
-
-if useStandardPAT:
-  process.patAddOnSequence = cms.Sequence(
-    process.intermediatePatMuons
-  * process.goodPatJets
-  * process.goodPatJetsMedium
-  * process.goodPatJetsHard
-  * process.goodPatJetsAK5PF
-  * process.goodPatJetsMediumAK5PF
-  * process.goodPatJetsHardAK5PF
-  * process.loosePatMuons
-  * process.tightPatMuons
-  )
-if runPF2PAT:
-  patAddOnSequence = cms.Sequence(
-    getattr( process, 'intermediatePatMuons' + postfix )
-  * getattr( process, 'goodPatJets'          + postfix )
-  * getattr( process, 'goodPatJetsMedium'    + postfix )
-  * getattr( process, 'goodPatJetsHard'      + postfix )
-  * getattr( process, 'loosePatMuons'        + postfix )
-  * getattr( process, 'tightPatMuons'        + postfix )
-  )
-  setattr( process, 'patAddOnSequence' + postfix, patAddOnSequence )
-
-# The paths
-if useStandardPAT:
-  process.p = cms.Path( process.eventCleaning )
-  if useTrigger:
-    process.p += process.step1
-  process.p += process.goodOfflinePrimaryVertices
-  if useGoodVertex:
-    process.p += process.step2
-  if useL1FastJet:
-    process.p += process.ak5PFJets
-  process.p += process.patDefaultSequence
-  process.p += process.patAddOnSequence
-  if use6JetsLoose:
-    process.p += process.step3a
-  if use6JetsTight:
-    process.p += process.step3b
-  process.out.SelectEvents.SelectEvents.append( 'p' )
-
-if runPF2PAT:
-  pPF = cms.Path( process.eventCleaning )
-  if useTrigger:
-    pPF += process.step1
-  pPF += process.goodOfflinePrimaryVertices
-  if useGoodVertex:
-    pPF += process.step2
-  pPF += getattr( process, 'patPF2PATSequence' + postfix )
-  pPF += getattr( process, 'patAddOnSequence' + postfix )
-  if use6JetsLoose:
-    pPF += getattr( process, 'step3a' + postfix )
-  if use6JetsTight:
-    pPF += getattr( process, 'step3b' + postfix )
-  setattr( process, 'p' + postfix, pPF )
-  process.out.SelectEvents.SelectEvents.append( 'p' + postfix )
 
 
 ###
@@ -621,7 +585,7 @@ if addTriggerMatching:
   from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import patTrigger
   from TopQuarkAnalysis.Configuration.patRefSel_triggerMatching_cfi import patJetTriggerMatch
   from PhysicsTools.PatAlgos.tools.trigTools import *
-  if useStandardPAT:
+  if runStandardPAT:
     triggerProducer = patTrigger.clone()
     setattr( process, 'patTrigger', triggerProducer )
     process.triggerMatch      = patJetTriggerMatch.clone( matchedCuts = triggerObjectSelection )
@@ -653,3 +617,77 @@ if addTriggerMatching:
     getattr( process, 'goodPatJets'       + postfix ).src = cms.InputTag( 'selectedPatJets' + postfix + 'TriggerMatch' )
     getattr( process, 'goodPatJetsMedium' + postfix ).src = cms.InputTag( 'selectedPatJets' + postfix + 'TriggerMatch' )
     getattr( process, 'goodPatJetsHard'   + postfix ).src = cms.InputTag( 'selectedPatJets' + postfix + 'TriggerMatch' )
+
+
+###
+### Scheduling
+###
+
+# MVA electron ID
+
+process.load( "EGamma.EGammaAnalysisTools.electronIdMVAProducer_cfi" )
+process.eidMVASequence = cms.Sequence(
+  process.mvaTrigV0
++ process.mvaNonTrigV0
+)
+
+# The additional sequence
+
+if runStandardPAT:
+  process.patAddOnSequence = cms.Sequence(
+    process.intermediatePatMuons
+  * process.goodPatJets
+  * process.goodPatJetsMedium
+  * process.goodPatJetsHard
+  * process.goodPatJetsAK5PF
+  * process.goodPatJetsMediumAK5PF
+  * process.goodPatJetsHardAK5PF
+  * process.loosePatMuons
+  * process.tightPatMuons
+  )
+if runPF2PAT:
+  patAddOnSequence = cms.Sequence(
+    getattr( process, 'intermediatePatMuons' + postfix )
+  * getattr( process, 'goodPatJets'          + postfix )
+  * getattr( process, 'goodPatJetsMedium'    + postfix )
+  * getattr( process, 'goodPatJetsHard'      + postfix )
+  * getattr( process, 'loosePatMuons'        + postfix )
+  * getattr( process, 'tightPatMuons'        + postfix )
+  )
+  setattr( process, 'patAddOnSequence' + postfix, patAddOnSequence )
+
+# The paths
+if runStandardPAT:
+  process.p = cms.Path( process.eventCleaning )
+  if useTrigger:
+    process.p += process.step1
+  process.p += process.goodOfflinePrimaryVertices
+  if useGoodVertex:
+    process.p += process.step2
+  process.p += process.eidMVASequence
+  if useL1FastJet:
+    process.p += process.ak5PFJets
+  process.p += process.patDefaultSequence
+  process.p += process.patAddOnSequence
+  if use6JetsLoose:
+    process.p += process.step3a
+  if use6JetsTight:
+    process.p += process.step3b
+  process.out.SelectEvents.SelectEvents.append( 'p' )
+
+if runPF2PAT:
+  pPF = cms.Path( process.eventCleaning )
+  if useTrigger:
+    pPF += process.step1
+  pPF += process.goodOfflinePrimaryVertices
+  if useGoodVertex:
+    pPF += process.step2
+  pPF += process.eidMVASequence
+  pPF += getattr( process, 'patPF2PATSequence' + postfix )
+  pPF += getattr( process, 'patAddOnSequence' + postfix )
+  if use6JetsLoose:
+    pPF += getattr( process, 'step3a' + postfix )
+  if use6JetsTight:
+    pPF += getattr( process, 'step3b' + postfix )
+  setattr( process, 'p' + postfix, pPF )
+  process.out.SelectEvents.SelectEvents.append( 'p' + postfix )
