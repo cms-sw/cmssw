@@ -179,18 +179,18 @@ process.load( "TopQuarkAnalysis.Configuration.patRefSel_inputModule_cfi" )
 if useRelVals:
   from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
   if runOnMC:
-    inputFiles = pickRelValInputFiles(cmsswVersion  = 'CMSSW_5_2_3'
+    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_2_5_cand1'
                                      , relVal        = 'RelValTTbar'
-                                     , globalTag     = 'START52_V5'
+                                     , globalTag     = 'START52_V9'
                                      , maxVersions   = 1
                                      )
   else:
     print 'running on *Jet* data stream (instead of MultiJet) as no better stream exists as RelVal'
-    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_2_2'
+    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_2_5_cand1'
                                      , relVal        = 'Jet'
                                      , dataTier      = 'RECO'
-                                     , globalTag     = 'GR_R_52_V4_RelVal_jet2011B'
-                                     , maxVersions   = 2
+                                     , globalTag     = 'GR_R_52_V7_RelVal_jet2011B'
+                                     , maxVersions   = 1
                                      )
 process.source.fileNames = inputFiles
 process.maxEvents.input  = maxInputEvents
