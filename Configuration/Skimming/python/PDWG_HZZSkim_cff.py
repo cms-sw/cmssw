@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 ####### MUON SELECTION
 MUON_CUT       = ("abs(eta)<2.5 && (isGlobalMuon || isTrackerMuon)")
-DIMUON_MASSCUT = ("mass > 40")
+DIMUON_MASSCUT = ("mass > 30")
 DIMUON_KINCUT  = ("(max(daughter(0).pt(),daughter(1).pt())>20 && min(daughter(0).pt,daughter(1).pt())>10)")
 goodHzzMuons = cms.EDFilter("MuonRefSelector", src = cms.InputTag("muons"), cut = cms.string(MUON_CUT) )
 hzzKinDiMuons = cms.EDProducer("CandViewShallowCloneCombiner",
