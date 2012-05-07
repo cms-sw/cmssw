@@ -1,3 +1,19 @@
+2011-04-30 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-08-09
+	* moving ShmOutputModuleRegistry here
+
+2011-04-22 Srecko Morovic <srecko.morovic@cern.ch>
+	* tag V00-08-08
+	* improvements for new forking development
+	* support for sending init message in master and
+	  disconnecting from Shm
+
+2011-04-16 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-08-07-01
+	* new branch NewEPforking
+
 2011-08-17 Emilio Meschi <Remigius.Mommsen@cern.ch>
 
 	* tag V00-08-07

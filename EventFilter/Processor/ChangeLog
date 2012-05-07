@@ -1,3 +1,21 @@
+2012-04-30 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-02
+	* ShmOutputModuleRegistry moved to Modules
+
+2012-04-27 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-01
+	* fixing possible invalid write when pid from invalid
+	  location is 0 (passing waitpid check)
+	* related thread safety improvements
+
+2012-04-17 Srecko Morovic <srecko.smorovic@cern.ch>
+
+	* tag V02-05-00
+	* support for fork in DaqSource (framework thread)
+	* requires new DaqSource, Modules and Utilities
+
 2011-10-21 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-04-17

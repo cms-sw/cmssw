@@ -1,10 +1,47 @@
-<use name="DQM/EcalCommon"/>
-<use name="DQM/EcalBarrelMonitorClient"/>
-
 <library   file="plugins.cc" name="DQMEcalBarrelMonitorClientPlugins">
+  <use   name="DQM/EcalBarrelMonitorClient"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
-
-<library file="SealModule.cc" name="DQMEcalMonitorClientPlugins">
- <flags EDM_PLUGIN="1"/>
+<library   file="../src/*.cc" name="DQMEcalBarrelMonitorCommon">
+  <use   name="DQM/EcalCommon"/>
+  <use   name="DQMServices/Core"/>
+  <use   name="DataFormats/EcalDetId"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="OnlineDB/EcalCondDB"/>
+  <use   name="rootcore"/>
+  <flags   CPPDEFINES="WITH_ECAL_COND_DB"/>
+  <flags   EDM_PLUGIN="0"/>
+</library>
+<library   file="EcalBarrelMonitorXdaqClient.cc" name="DQMEcalBarrelMonitorXdaqClientPlugins">
+  <lib   name="DQMEcalBarrelMonitorCommon"/>
+  <use   name="DQM/EcalCommon"/>
+  <use   name="DQMServices/Core"/>
+  <use   name="DataFormats/EcalDetId"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="rootcore"/>
+  <use   name="EventFilter/Utilities"/>
+  <use   name="xdaq"/>
+  <use   name="OnlineDB/EcalCondDB"/>
+  <flags   CPPDEFINES="WITH_ECAL_COND_DB"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="EcalBarrelMonitorDbClient.cc" name="DQMEcalBarrelMonitorDbClientPlugins">
+  <lib   name="DQMEcalBarrelMonitorCommon"/>
+  <use   name="DQM/EcalCommon"/>
+  <use   name="DQMServices/Core"/>
+  <use   name="DataFormats/EcalDetId"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="rootcore"/>
+  <use   name="OnlineDB/EcalCondDB"/>
+  <flags   CPPDEFINES="WITH_ECAL_COND_DB"/>
+  <flags   EDM_PLUGIN="1"/>
 </library>

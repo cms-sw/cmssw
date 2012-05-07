@@ -416,27 +416,14 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
       //suggested replacement: lm250909
       for (unsigned int i=0; i<triggerResults->size(); i++) 
 	{
-	  std::string trigName = trigNames.triggerName(i);	  
- 	  bool found=false; 
-	  
-// 	  for (unsigned int j = 0; j < elecTrig_.size(); j++)
-// 	    {
-// 	      if ( trigName == elecTrig_.at(j) && triggerResults->accept(i)) 
-// 		{
-// 		  trigger_fired = true;
-// 		}
-// 	    }
-
-
-         for(unsigned int index=0; index<elecTrig_.size() && found==false; index++) {
-	   size_t trigPath = trigName.find(elecTrig_.at(index)); // 0 if found, pos if not
-                   if (trigPath==0) found=true;
-              }
-              if(!found) continue;
-              
-                        
-	      if(triggerResults->accept(i)) trigger_fired=true;
-
+	  std::string trigName = trigNames.triggerName(i);
+	  for (unsigned int j = 0; j < elecTrig_.size(); j++)
+	    {
+	      if ( trigName == elecTrig_.at(j) && triggerResults->accept(i)) 
+		{
+		  trigger_fired = true;
+		}
+	    }
 	}
 
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2012/03/16 14:46:37 $
- * $Revision: 1.504.2.4 $
+ * $Date: 2012/03/16 13:16:44 $
+ * $Revision: 1.504.2.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -53,6 +53,8 @@
 #include "DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h"
+#include "DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h"
@@ -460,6 +462,26 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps) {
 
   }
 
+  if ( find(enabledClients_.begin(), enabledClients_.end(), "BeamCalo" ) != enabledClients_.end() ) {
+
+    clients_.push_back( new EBBeamCaloClient(ps) );
+    clientsNames_.push_back( "BeamCalo" );
+
+    clientsRuns_.insert(std::pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(std::pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+
+  }
+
+  if ( find(enabledClients_.begin(), enabledClients_.end(), "BeamHodo" ) != enabledClients_.end() ) {
+
+    clients_.push_back( new EBBeamHodoClient(ps) );
+    clientsNames_.push_back( "BeamHodo" );
+
+    clientsRuns_.insert(std::pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    clientsRuns_.insert(std::pair<EBClient*,int>( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+
+  }
+
   if ( find(enabledClients_.begin(), enabledClients_.end(), "TriggerTower" ) != enabledClients_.end() ) {
 
     clients_.push_back( new EBTriggerTowerClient(ps) );
@@ -537,6 +559,8 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps) {
   clientsStatus_.insert(std::pair<std::string,int>( "Pedestal",        3 ));
   clientsStatus_.insert(std::pair<std::string,int>( "PedestalOnline",  4 ));
   clientsStatus_.insert(std::pair<std::string,int>( "TestPulse",       5 ));
+  clientsStatus_.insert(std::pair<std::string,int>( "BeamCalo",        6 ));
+  clientsStatus_.insert(std::pair<std::string,int>( "BeamHodo",        7 ));
   clientsStatus_.insert(std::pair<std::string,int>( "TriggerTower",    8 ));
   clientsStatus_.insert(std::pair<std::string,int>( "Cluster",         9 ));
   clientsStatus_.insert(std::pair<std::string,int>( "Timing",         10 ));

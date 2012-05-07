@@ -24,13 +24,12 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(False)
 )
 
-## load modules to produce the TtGenEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 
-## load analyzer
-process.load("TopQuarkAnalysis.Examples.TopGenEventAnalyzer_cfi")
+from TopQuarkAnalysis.Examples.TopGenEventAnalyzer_cfi import analyzeTopGenEvent
+process.analyzeTopGenEvent = analyzeTopGenEvent
 
-## register TFileService
+# register TFileService
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('analyzeTopGenEvent.root')
 )

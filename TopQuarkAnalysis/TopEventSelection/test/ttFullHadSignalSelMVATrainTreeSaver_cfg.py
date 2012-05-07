@@ -38,7 +38,8 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 
 ## filter for full-hadronic 
-process.load("TopQuarkAnalysis.TopSkimming.ttDecayChannelFilters_cff")
+process.load("TopQuarkAnalysis.TopEventProducers.producers.TtDecaySelection_cfi")
+process.ttFullHadronicFilter = process.ttDecaySelection.clone()
 
 ## configure mva trainer
 process.load("TopQuarkAnalysis.TopEventSelection.TtFullHadSignalSelMVATrainTreeSaver_cff")
@@ -62,7 +63,8 @@ process.leadingJetSelection = process.countPatJets.clone(src = 'selectedPatJets'
                                                          )
 
 ## produce pat objects and ttGenEvt and make mva training
-process.p = cms.Path(process.ttFullHadronicFilter *
-                     process.patDefaultSequence *
+process.p = cms.Path(process.patDefaultSequence *
                      process.leadingJetSelection *
+                     process.makeGenEvt *
+                     process.ttFullHadronicFilter *
                      process.saveTrainTree)

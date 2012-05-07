@@ -6,8 +6,6 @@
 #include "FWCore/Framework/interface/EDLooperBase.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
-#include "Fireworks/Geometry/interface/DisplayGeomRecord.h"
 #include <string>
 #include <Rtypes.h>
 #include <memory>
@@ -22,7 +20,6 @@ namespace edm
    class ProcessingController;
    class ModuleChanger;
    class ParameterSet;
-   class LuminosityBlockPrincipal;
 }
 
 class FWFFNavigator;
@@ -58,8 +55,6 @@ public:
    void postEndJob();
 
    virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-   virtual void doBeginLuminosityBlock(edm::LuminosityBlockPrincipal&,edm::EventSetup const&);
-   virtual void doEndLuminosityBlock(edm::LuminosityBlockPrincipal&, edm::EventSetup const&);
 
    void display(const std::string& info="");
 
@@ -78,15 +73,12 @@ public:
    virtual edm::EDLooperBase::Status endOfLoop(const edm::EventSetup&, unsigned int);
    virtual edm::EDLooperBase::Status duringLoop(const edm::Event&, const edm::EventSetup&, edm::ProcessingController&); 
    void requestChanges(const std::string &, const edm::ParameterSet &);
-
-   void remakeGeometry(const DisplayGeomRecord& dgRec);
-
 private:
    FWFFLooper(const FWFFLooper&);                  // stop default
    const FWFFLooper& operator=(const FWFFLooper&); // stop default
 
    void loadDefaultGeometryFile( void );
-
+   
    edm::Service<FWFFHelper>            m_appHelper;
    std::auto_ptr<FWFFNavigator>        m_navigator;
    std::auto_ptr<FWFFMetadataManager>  m_metadataManager;
@@ -108,8 +100,6 @@ private:
    bool          m_autoReload;
    bool          m_isFirstEvent;
    bool          m_isLastEvent;
-
-   edm::ESWatcher<DisplayGeomRecord> m_geomWatcher;
 };
 
 #endif

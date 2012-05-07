@@ -147,7 +147,6 @@ class BaseTreeFiller : boost::noncopyable {
         /// Write a string dump of this PSet into the TTree header.
         /// see macro in test directory for how to retrieve it from the output root file
         void writeProvenance(const edm::ParameterSet &pset) const ;
-
     protected:
 
         std::vector<ProbeVariable> vars_;
@@ -157,16 +156,12 @@ class BaseTreeFiller : boost::noncopyable {
         enum WeightMode { None, Fixed, External };
         WeightMode weightMode_;
         edm::InputTag weightSrc_;
-	edm::InputTag PUweightSrc_;
 
         /// Ignore exceptions when evaluating variables
         bool ignoreExceptions_;
 
-      /// Add branches with run and lumisection number
+        /// Add branches with run and lumisection number
         bool addRunLumiInfo_;
-
-	/// Store Pileup weight when running over Monte Carlo
-	bool storePUweight_;
 
         /// Add branches with event variables: met, sum ET, .. etc.
 	bool addEventVariablesInfo_;
@@ -176,7 +171,6 @@ class BaseTreeFiller : boost::noncopyable {
         //implementation notice: these two are 'mutable' because we will fill them from a 'const' method
         mutable TTree * tree_;
         mutable float weight_;
-        mutable float PUweight_;
         mutable uint32_t run_, lumi_, event_, mNPV_;
 
         mutable float mPVx_,mPVy_,mPVz_,mBSx_,mBSy_,mBSz_; 

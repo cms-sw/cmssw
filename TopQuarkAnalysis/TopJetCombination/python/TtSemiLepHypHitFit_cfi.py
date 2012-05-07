@@ -18,9 +18,7 @@ ttSemiLepHypHitFit = cms.EDProducer("TtSemiLepHypHitFit",
     partonsHadP = cms.InputTag("hitFitTtSemiLepEventHypothesis","PartonsHadP"),
     partonsHadQ = cms.InputTag("hitFitTtSemiLepEventHypothesis","PartonsHadQ"),
     partonsHadB = cms.InputTag("hitFitTtSemiLepEventHypothesis","PartonsHadB"),
-    partonsLepB = cms.InputTag("hitFitTtSemiLepEventHypothesis","PartonsLepB"),
-    ## number of considered jets
-    nJetsConsidered = cms.InputTag("hitFitTtSemiLepEventHypothesis","NumberOfConsideredJets")
+    partonsLepB = cms.InputTag("hitFitTtSemiLepEventHypothesis","PartonsLepB")
 )
 
 

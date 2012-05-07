@@ -12,7 +12,7 @@
 
   https://twiki.cern.ch/twiki/bin/view/CMS/LumiCalc#How_to_use_script_estimatePileup
 
-  \author Mike Hildreth
+  \author Salvatore Rappoccio
 */
 
 #include "TH1.h"
@@ -29,13 +29,11 @@ namespace edm {
   class Lumi3DReWeighting {
   public:
     Lumi3DReWeighting( std::string generatedFile,
-		       std::string dataFile,
-		       std::string GenHistName,
-		       std::string DataHistName,
-		       std::string WeightOutputFile);
+		     std::string dataFile,
+		     std::string GenHistName,
+		     std::string DataHistName);
     
-    Lumi3DReWeighting( std::vector< float > MC_distr, std::vector< float > Lumi_distr,
-		       std::string WeightOutputFile);
+    Lumi3DReWeighting( std::vector< float > MC_distr, std::vector< float > Lumi_distr);
 
     Lumi3DReWeighting ( ) { } ;
 
@@ -43,7 +41,7 @@ namespace edm {
 
     double weight3D( int, int, int );
 
-    void weight3D_set( std::string generatedFile, std::string dataFile, std::string GenHistName, std::string DataHistName, std::string WeightOutputFile);
+    void weight3D_set( std::string generatedFile, std::string dataFile, std::string GenHistName, std::string DataHistName);
 
     void weight3D_init( float Scale );
 
@@ -58,7 +56,6 @@ namespace edm {
     std::string dataFileName_;
     std::string GenHistName_;
     std::string DataHistName_;
-    std::string weightFileName_;
     boost::shared_ptr<TFile>     generatedFile_;
     boost::shared_ptr<TFile>     dataFile_;
     boost::shared_ptr<TH1>      weights_;

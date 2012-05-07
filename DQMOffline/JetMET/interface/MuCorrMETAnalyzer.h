@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2012/04/19 09:57:57 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/02/24 19:08:54 $
+ *  $Revision: 1.5 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -103,7 +103,7 @@ class MuCorrMETAnalyzer : public MuCorrMETAnalyzerBase {
   std::string _hlt_HighPtJet;
   std::string _hlt_LowPtJet;
   std::string _hlt_HighMET;
-  //  std::string _hlt_LowMET;
+  std::string _hlt_LowMET;
   std::string _hlt_Ele;
   std::string _hlt_Muon;
   
@@ -111,7 +111,7 @@ class MuCorrMETAnalyzer : public MuCorrMETAnalyzerBase {
   int _trig_HighPtJet;
   int _trig_LowPtJet;
   int _trig_HighMET;
-  //  int _trig_LowMET;
+  int _trig_LowMET;
   int _trig_Ele;
   int _trig_Muon;
 
@@ -119,7 +119,7 @@ class MuCorrMETAnalyzer : public MuCorrMETAnalyzerBase {
   double _highPtMuCorrJetThreshold;
   double _lowPtMuCorrJetThreshold;
   double _highMuCorrMETThreshold;
-  //  double _lowMuCorrMETThreshold;
+  double _lowMuCorrMETThreshold;
 
   // Et threshold for MET plots
   double _etThreshold;
@@ -146,12 +146,14 @@ class MuCorrMETAnalyzer : public MuCorrMETAnalyzerBase {
   MonitorElement* meTriggerName_HighPtJet;
   MonitorElement* meTriggerName_LowPtJet;
   MonitorElement* meTriggerName_HighMET;
-  //  MonitorElement* meTriggerName_LowMET;
+  MonitorElement* meTriggerName_LowMET;
   MonitorElement* meTriggerName_Ele;
   MonitorElement* meTriggerName_Muon;
 
+  MonitorElement* meNevents;
   MonitorElement* meMuCorrMEx;
   MonitorElement* meMuCorrMEy;
+  MonitorElement* meMuCorrEz;
   MonitorElement* meMuCorrMETSig;
   MonitorElement* meMuCorrMET;
   MonitorElement* meMuCorrMETPhi;
@@ -164,5 +166,7 @@ class MuCorrMETAnalyzer : public MuCorrMETAnalyzerBase {
   MonitorElement* meMuCorrMETRBXNoise;
 
   MonitorElement* meMuCorrMETRate;
+
+
 };
 #endif

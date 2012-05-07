@@ -8,7 +8,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackAnalyzer.h,v 1.13 2012/02/17 17:22:42 tosi Exp $
+// $Id: TrackAnalyzer.h,v 1.15 2012/03/28 22:59:41 tosi Exp $
 
 #include <memory>
 #include <fstream>
@@ -63,8 +63,6 @@ class TrackAnalyzer
 	bool doGoodTrackLayersVsPhiVsEtaPerTrack_;
 	bool doGoodTrack2DChi2Plots_;
 
-	bool doLumiAnalysis_;
-
 	// ADD by Mia in order to clean the tracking MEs
 	// do not plot *Theta* and TrackPx* and TrackPy*
 	bool doThetaPlots_;
@@ -72,6 +70,8 @@ class TrackAnalyzer
 	// ADD by Mia in order to not plot DistanceOfClosestApproach w.r.t. (0,0,0)
 	// the DistanceOfClosestApproach w.r.t. the beam-spot is already shown in DistanceOfClosestApproachToBS
 	bool doDCAwrt000Plots_;
+
+	bool doLumiAnalysis_;
 
 	// ADD by Mia in order to turnON test MEs
 	bool doTestPlots_;

@@ -24,18 +24,18 @@ setenv STARTUP True
 
 
 
-setenv CMSSWver1 5_2_2
-setenv CMSSWver2 5_2_3
-setenv OLDRELEASE 5_2_2
-setenv NEWRELEASE 5_2_3
+setenv CMSSWver1 5_1_2
+setenv CMSSWver2 5_2_0
+setenv OLDRELEASE 5_1_2
+setenv NEWRELEASE 5_2_0
 setenv OLDPRERELEASE 
 setenv NEWPRERELEASE 
 
 
 
 if ( $STARTUP == True) then
-setenv OLDGLOBALTAG START52_V4-v2
-setenv NEWGLOBALTAG START52_V5-v1
+setenv OLDGLOBALTAG START50_V15A-v1
+setenv NEWGLOBALTAG START52_V4A-v1
 else 
 setenv OLDGLOBALTAG START50_V8-v3
 setenv NEWGLOBALTAG START50_V8-v3
@@ -321,10 +321,19 @@ cat > 2dhistosForPhotons <<EOF
   R9VsEtaAll
   R1VsEtaAll
   R2VsEtaAll
+  sigmaIetaIetaVsEtaAll
+  ecalRecHitSumEtConeDR04VsEtaAll
+  hcalTowerSumEtConeDR04VsEtaAll
+  isoTrkSolidConeDR04VsEtaAll
+  nTrkSolidConeDR04VsEtaAll
   R9VsEtAll
   R1VsEtAll
   R2VsEtAll
   sigmaIetaIetaVsEtAll
+  ecalRecHitSumEtConeDR04VsEtBarrel
+  ecalRecHitSumEtConeDR04VsEtEndcap
+  hcalTowerSumEtConeDR04VsEtBarrel
+  hcalTowerSumEtConeDR04VsEtEndcap
   isoTrkSolidConeDR04VsEtAll
   nTrkSolidConeDR04VsEtAll
   eResVsR9All

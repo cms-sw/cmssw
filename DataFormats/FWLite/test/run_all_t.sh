@@ -4,7 +4,7 @@
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
 
-${LOCAL_TEST_DIR}/RefTest.sh || die 'Failed to create file' $?
+${LOCAL_TEST_DIR}/RefTest_a.sh || die 'Failed to create file' $?
 root -b -n -q ${LOCAL_TEST_DIR}/event_looping_cint.C || die 'Failed in event_looping_cint.C' $?
 root -b -n -q ${LOCAL_TEST_DIR}/chainevent_looping_cint.C || die 'Failed in chainevent_looping_cint.C' $?
 python ${LOCAL_TEST_DIR}/chainEvent_python.py || die 'Failed in chainEvent_python.py' $?

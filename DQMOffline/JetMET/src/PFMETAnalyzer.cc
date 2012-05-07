@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/04/20 14:37:48 $
- *  $Revision: 1.47 $
+ *  $Date: 2012/03/23 18:24:44 $
+ *  $Revision: 1.43 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -42,7 +42,7 @@ PFMETAnalyzer::PFMETAnalyzer(const edm::ParameterSet& pSet) {
   edm::ParameterSet lowptjetparms  = parameters.getParameter<edm::ParameterSet>("lowPtJetTrigger" );
   edm::ParameterSet minbiasparms   = parameters.getParameter<edm::ParameterSet>("minBiasTrigger"  );
   edm::ParameterSet highmetparms   = parameters.getParameter<edm::ParameterSet>("highMETTrigger"  );
-  //  edm::ParameterSet lowmetparms    = parameters.getParameter<edm::ParameterSet>("lowMETTrigger"   );
+  edm::ParameterSet lowmetparms    = parameters.getParameter<edm::ParameterSet>("lowMETTrigger"   );
   edm::ParameterSet eleparms       = parameters.getParameter<edm::ParameterSet>("eleTrigger"      );
   edm::ParameterSet muonparms      = parameters.getParameter<edm::ParameterSet>("muonTrigger"     );
 
@@ -51,14 +51,14 @@ PFMETAnalyzer::PFMETAnalyzer(const edm::ParameterSet& pSet) {
   _LowPtJetEventFlag  = new GenericTriggerEventFlag( lowptjetparms  );
   _MinBiasEventFlag   = new GenericTriggerEventFlag( minbiasparms   );
   _HighMETEventFlag   = new GenericTriggerEventFlag( highmetparms   );
-  //  _LowMETEventFlag    = new GenericTriggerEventFlag( lowmetparms    );
+  _LowMETEventFlag    = new GenericTriggerEventFlag( lowmetparms    );
   _EleEventFlag       = new GenericTriggerEventFlag( eleparms       );
   _MuonEventFlag      = new GenericTriggerEventFlag( muonparms      );
 
   highPtJetExpr_ = highptjetparms.getParameter<std::vector<std::string> >("hltPaths");
   lowPtJetExpr_  = lowptjetparms .getParameter<std::vector<std::string> >("hltPaths");
   highMETExpr_   = highmetparms  .getParameter<std::vector<std::string> >("hltPaths");
-  //  lowMETExpr_    = lowmetparms   .getParameter<std::vector<std::string> >("hltPaths");
+  lowMETExpr_    = lowmetparms   .getParameter<std::vector<std::string> >("hltPaths");
   muonExpr_      = muonparms     .getParameter<std::vector<std::string> >("hltPaths");
   elecExpr_      = eleparms      .getParameter<std::vector<std::string> >("hltPaths");
   minbiasExpr_   = minbiasparms  .getParameter<std::vector<std::string> >("hltPaths");
@@ -72,7 +72,7 @@ PFMETAnalyzer::~PFMETAnalyzer() {
   delete _LowPtJetEventFlag;
   delete _MinBiasEventFlag;
   delete _HighMETEventFlag;
-  //  delete _LowMETEventFlag;
+  delete _LowMETEventFlag;
   delete _EleEventFlag;
   delete _MuonEventFlag;
 
@@ -141,7 +141,7 @@ void PFMETAnalyzer::beginJob(DQMStore * dbe) {
   _highPtPFJetThreshold = parameters.getParameter<double>("HighPtJetThreshold"); // High Pt Jet threshold
   _lowPtPFJetThreshold  = parameters.getParameter<double>("LowPtJetThreshold");   // Low Pt Jet threshold
   _highPFMETThreshold   = parameters.getParameter<double>("HighMETThreshold");     // High MET threshold
-  //  _lowPFMETThreshold    = parameters.getParameter<double>("LowMETThreshold");       // Low MET threshold
+  _lowPFMETThreshold    = parameters.getParameter<double>("LowMETThreshold");       // Low MET threshold
 
   //
   jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
@@ -228,10 +228,10 @@ void PFMETAnalyzer::bookMESet(std::string DirName)
     meTriggerName_HighMET = _dbe->bookString("triggerName_HighMET", highMETExpr_[0]);
   }
 
-  //  if ( _LowMETEventFlag->on() ) {
-  //    bookMonitorElement(DirName+"/"+"LowMET",false);
-  //    meTriggerName_LowMET = _dbe->bookString("triggerName_LowMET", lowMETExpr_[0]);
-  //  }
+  if ( _LowMETEventFlag->on() ) {
+    bookMonitorElement(DirName+"/"+"LowMET",false);
+    meTriggerName_LowMET = _dbe->bookString("triggerName_LowMET", lowMETExpr_[0]);
+  }
 
   if ( _EleEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"Ele",false);
@@ -249,28 +249,30 @@ void PFMETAnalyzer::bookMESet(std::string DirName)
 // ***********************************************************
 void PFMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=false)
 {
+
   if (_verbose) std::cout << "booMonitorElement " << DirName << std::endl;
-
   _dbe->setCurrentFolder(DirName);
-
  
-  mePfMEx        = _dbe->book1D("METTask_PfMEx",        "METTask_PfMEx",        200, -500,  500); 
-  mePfMEy        = _dbe->book1D("METTask_PfMEy",        "METTask_PfMEy",        200, -500,  500); 
-  mePfMET        = _dbe->book1D("METTask_PfMET",        "METTask_PfMET",        200,    0, 1000); 
-  mePfSumET      = _dbe->book1D("METTask_PfSumET",      "METTask_PfSumET",      400,    0, 4000); 
-  mePfMETSig     = _dbe->book1D("METTask_PfMETSig",     "METTask_PfMETSig",      51,    0,   51);
-  mePfMETPhi     = _dbe->book1D("METTask_PfMETPhi",     "METTask_PfMETPhi",      60, -3.2,  3.2);
-  mePfMET_logx   = _dbe->book1D("METTask_PfMET_logx",   "METTask_PfMET_logx",    40,   -1,    7);
-  mePfSumET_logx = _dbe->book1D("METTask_PfSumET_logx", "METTask_PfSumET_logx",  40,   -1,    7);
+  //meNevents              = _dbe->book1D("METTask_Nevents", "METTask_Nevents"   ,1,0,1);
+  mePfMEx                = _dbe->book1D("METTask_PfMEx",   "METTask_PfMEx"   ,200,-500,500); 
+  mePfMEx->setAxisTitle("MEx [GeV]",1);
+  mePfMEy                = _dbe->book1D("METTask_PfMEy",   "METTask_PfMEy"   ,200,-500,500); 
+  mePfMEy->setAxisTitle("MEy [GeV]",1);
+  //mePfEz                 = _dbe->book1D("METTask_PfEz",    "METTask_PfEz"    ,500,-500,500);
+  //mePfEz->setAxisTitle("MEz [GeV]",1);
+  mePfMETSig             = _dbe->book1D("METTask_PfMETSig","METTask_PfMETSig",51,0,51);
+  mePfMETSig->setAxisTitle("METSig",1);
+  mePfMET                = _dbe->book1D("METTask_PfMET",   "METTask_PfMET"   ,200,0,1000); 
+  mePfMET->setAxisTitle("MET [GeV]",1);
+  mePfMETPhi             = _dbe->book1D("METTask_PfMETPhi","METTask_PfMETPhi",60,-TMath::Pi(),TMath::Pi());
+  mePfMETPhi->setAxisTitle("METPhi [rad]",1);
+  mePfSumET              = _dbe->book1D("METTask_PfSumET", "METTask_PfSumET" ,400,0,2000); 
+  mePfSumET->setAxisTitle("SumET [GeV]",1);
 
-  mePfMEx       ->setAxisTitle("MEx [GeV]",        1);
-  mePfMEy       ->setAxisTitle("MEy [GeV]",        1);
-  mePfMET       ->setAxisTitle("MET [GeV]",        1);
-  mePfSumET     ->setAxisTitle("SumET [GeV]",      1);
-  mePfMETSig    ->setAxisTitle("METSig",           1);
-  mePfMETPhi    ->setAxisTitle("METPhi [rad]",     1);
-  mePfMET_logx  ->setAxisTitle("log(MET) [GeV]",   1);
-  mePfSumET_logx->setAxisTitle("log(SumET) [GeV]", 1);
+  mePfMET_logx           = _dbe->book1D("METTask_PfMET_logx",   "METTask_PfMET_logx"   ,40,-1.,7.);
+  mePfMET_logx->setAxisTitle("log(MET) [GeV]",1);
+  mePfSumET_logx         = _dbe->book1D("METTask_PfSumET_logx", "METTask_PfSumET_logx" ,40,-1.,7.);
+  mePfSumET_logx->setAxisTitle("log(SumET) [GeV]",1);
 
   mePfNeutralEMFraction  = _dbe->book1D("METTask_PfNeutralEMFraction", "METTask_PfNeutralEMFraction" ,50,0.,1.);
   mePfNeutralEMFraction->setAxisTitle("Pf Neutral EM Fraction",1);
@@ -283,6 +285,12 @@ void PFMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fa
   mePfMuonFraction       = _dbe->book1D("METTask_PfMuonFraction",      "METTask_PfMuonFraction"      ,50,0.,1.);
   mePfMuonFraction->setAxisTitle("Pf Muon Fraction",1);
 
+  //mePfMETIonFeedbck      = _dbe->book1D("METTask_PfMETIonFeedbck", "METTask_PfMETIonFeedbck" ,500,0,1000);
+  //mePfMETIonFeedbck->setAxisTitle("MET [GeV]",1);
+  //mePfMETHPDNoise        = _dbe->book1D("METTask_PfMETHPDNoise",   "METTask_PfMETHPDNoise"   ,500,0,1000);
+  //mePfMETHPDNoise->setAxisTitle("MET [GeV]",1);
+  //mePfMETRBXNoise        = _dbe->book1D("METTask_PfMETRBXNoise",   "METTask_PfMETRBXNoise"   ,500,0,1000);
+  //mePfMETRBXNoise->setAxisTitle("MET [GeV]",1);
 
   if (_allhist){
     if (bLumiSecPlot){
@@ -298,10 +306,10 @@ void PFMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fa
 
   // Book NPV profiles
   //----------------------------------------------------------------------------
-  mePfMEx_profile   = _dbe->bookProfile("METTask_PfMEx_profile",   "MEx [GeV]",   nbinsPV, PVlow, PVup, 200, -500,  500);
-  mePfMEy_profile   = _dbe->bookProfile("METTask_PfMEy_profile",   "MEy [GeV]",   nbinsPV, PVlow, PVup, 200, -500,  500); 
-  mePfMET_profile   = _dbe->bookProfile("METTask_PfMET_profile",   "MET [GeV]",   nbinsPV, PVlow, PVup, 200,    0, 1000); 
-  mePfSumET_profile = _dbe->bookProfile("METTask_PfSumET_profile", "SumET [GeV]", nbinsPV, PVlow, PVup, 400,    0, 4000); 
+  mePfMEx_profile   = _dbe->bookProfile("METTask_PfMEx_profile",   "MEx [GeV]",   nbinsPV, PVlow, PVup, 100, -500,  500);
+  mePfMEy_profile   = _dbe->bookProfile("METTask_PfMEy_profile",   "MEy [GeV]",   nbinsPV, PVlow, PVup, 100, -500,  500); 
+  mePfMET_profile   = _dbe->bookProfile("METTask_PfMET_profile",   "MET [GeV]",   nbinsPV, PVlow, PVup, 100,    0, 1000); 
+  mePfSumET_profile = _dbe->bookProfile("METTask_PfSumET_profile", "SumET [GeV]", nbinsPV, PVlow, PVup, 200,    0, 2000); 
 
   mePfNeutralEMFraction_profile  = _dbe->bookProfile("METTask_PfNeutralEMFraction_profile",  "PF neutral EM fraction",  nbinsPV, PVlow, PVup, 50, 0, 1);
   mePfNeutralHadFraction_profile = _dbe->bookProfile("METTask_PfNeutralHadFraction_profile", "PF neutral HAD fraction", nbinsPV, PVlow, PVup, 50, 0, 1);
@@ -332,7 +340,7 @@ void PFMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
   if ( _LowPtJetEventFlag ->on() ) _LowPtJetEventFlag ->initRun( iRun, iSetup );
   if ( _MinBiasEventFlag  ->on() ) _MinBiasEventFlag  ->initRun( iRun, iSetup );
   if ( _HighMETEventFlag  ->on() ) _HighMETEventFlag  ->initRun( iRun, iSetup );
-  //  if ( _LowMETEventFlag   ->on() ) _LowMETEventFlag   ->initRun( iRun, iSetup );
+  if ( _LowMETEventFlag   ->on() ) _LowMETEventFlag   ->initRun( iRun, iSetup );
   if ( _EleEventFlag      ->on() ) _EleEventFlag      ->initRun( iRun, iSetup );
   if ( _MuonEventFlag     ->on() ) _MuonEventFlag     ->initRun( iRun, iSetup );
 
@@ -342,8 +350,8 @@ void PFMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
     lowPtJetExpr_  = _LowPtJetEventFlag->expressionsFromDB(_LowPtJetEventFlag->hltDBKey(),   iSetup);
   if (_HighMETEventFlag->on() && _HighMETEventFlag->expressionsFromDB(_HighMETEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
     highMETExpr_   = _HighMETEventFlag->expressionsFromDB(_HighMETEventFlag->hltDBKey(),     iSetup);
-  //  if (_LowMETEventFlag->on() && _LowMETEventFlag->expressionsFromDB(_LowMETEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
-  //    lowMETExpr_    = _LowMETEventFlag->expressionsFromDB(_LowMETEventFlag->hltDBKey(),       iSetup);
+  if (_LowMETEventFlag->on() && _LowMETEventFlag->expressionsFromDB(_LowMETEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
+    lowMETExpr_    = _LowMETEventFlag->expressionsFromDB(_LowMETEventFlag->hltDBKey(),       iSetup);
   if (_MuonEventFlag->on() && _MuonEventFlag->expressionsFromDB(_MuonEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
     muonExpr_      = _MuonEventFlag->expressionsFromDB(_MuonEventFlag->hltDBKey(),           iSetup);
   if (_EleEventFlag->on() && _EleEventFlag->expressionsFromDB(_EleEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
@@ -398,31 +406,14 @@ void PFMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, 
 	makeRatePlot(DirName+"/"+"triggerName_MinBias",totltime);
       if ( _HighMETEventFlag->on() ) 
 	makeRatePlot(DirName+"/"+"triggerName_HighMET",totltime);
-      //      if ( _LowMETEventFlag->on() ) 
-      //	makeRatePlot(DirName+"/"+"triggerName_LowMET",totltime);
+      if ( _LowMETEventFlag->on() ) 
+	makeRatePlot(DirName+"/"+"triggerName_LowMET",totltime);
       if ( _EleEventFlag->on() ) 
 	makeRatePlot(DirName+"/"+"triggerName_Ele",totltime);
       if ( _MuonEventFlag->on() ) 
 	makeRatePlot(DirName+"/"+"triggerName_Muon",totltime);
     }
-
-
-  // Fit ME{x,y}
-  //------------------------------------------------------------------------
-  for (std::vector<std::string>::const_iterator ic = _FolderNames.begin();
-       ic != _FolderNames.end(); ic++) {
-
-    std::string DirName;
-    DirName = dirName+*ic;
-
-    mePfMEx = _dbe->get(DirName + "/METTask_PfMEx");
-    mePfMEy = _dbe->get(DirName + "/METTask_PfMEy");
-
-    if (mePfMEx && mePfMEx->kind() == MonitorElement::DQM_KIND_TH1F) mePfMEx->getTH1F()->Fit("gaus", "q");
-    if (mePfMEy && mePfMEy->kind() == MonitorElement::DQM_KIND_TH1F) mePfMEy->getTH1F()->Fit("gaus", "q");
-  }
 }
-
 
 // ***********************************************************
 void PFMETAnalyzer::makeRatePlot(std::string DirName, double totltime)
@@ -472,7 +463,7 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   _trig_LowPtJet=0;
   _trig_MinBias=0;
   _trig_HighMET=0;
-  //  _trig_LowMET=0;
+  _trig_LowMET=0;
   _trig_Ele=0;
   _trig_Muon=0;
   _trig_PhysDec=0;
@@ -502,8 +493,8 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  _trig_LowPtJet=true;
         else if (triggerNames.triggerName(i).find(highMETExpr_[0].substr(0,highMETExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
 	  _trig_HighMET=true;
-	//        else if (triggerNames.triggerName(i).find(lowMETExpr_[0].substr(0,lowMETExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
-	//	  _trig_LowMET=true;
+        else if (triggerNames.triggerName(i).find(lowMETExpr_[0].substr(0,lowMETExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
+	  _trig_LowMET=true;
         else if (triggerNames.triggerName(i).find(muonExpr_[0].substr(0,muonExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
 	  _trig_Muon=true;
         else if (triggerNames.triggerName(i).find(elecExpr_[0].substr(0,elecExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
@@ -945,8 +936,8 @@ void PFMETAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
     fillMonitorElement(iEvent,DirName,"MinBias",pfmet,false);
   if (_trig_HighMET)
     fillMonitorElement(iEvent,DirName,"HighMET",pfmet,false);
-  //  if (_trig_LowMET)
-  //    fillMonitorElement(iEvent,DirName,"LowMET",pfmet,false);
+  if (_trig_LowMET)
+    fillMonitorElement(iEvent,DirName,"LowMET",pfmet,false);
   if (_trig_Ele)
     fillMonitorElement(iEvent,DirName,"Ele",pfmet,false);
   if (_trig_Muon)
@@ -968,9 +959,9 @@ void PFMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string Dir
   else if (TriggerTypeName=="HighMET") {
     if (pfmet.pt()<_highPFMETThreshold) return;
   }
-  //  else if (TriggerTypeName=="LowMET") {
-  //    if (pfmet.pt()<_lowPFMETThreshold) return;
-  //  }
+  else if (TriggerTypeName=="LowMET") {
+    if (pfmet.pt()<_lowPFMETThreshold) return;
+  }
   else if (TriggerTypeName=="Ele") {
     if (!selectWElectronEvent(iEvent)) return;
   }
@@ -1005,12 +996,13 @@ void PFMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string Dir
   if (_verbose) std::cout << "_etThreshold = " << _etThreshold << std::endl;
   if (pfSumET>_etThreshold){
     
-    mePfMEx    = _dbe->get(DirName + "/METTask_PfMEx");    if (mePfMEx    && mePfMEx->getRootObject())    mePfMEx->Fill(pfMEx);
-    mePfMEy    = _dbe->get(DirName + "/METTask_PfMEy");    if (mePfMEy    && mePfMEy->getRootObject())    mePfMEy->Fill(pfMEy);
-    mePfMET    = _dbe->get(DirName + "/METTask_PfMET");    if (mePfMET    && mePfMET->getRootObject())    mePfMET->Fill(pfMET);
-    mePfMETPhi = _dbe->get(DirName + "/METTask_PfMETPhi"); if (mePfMETPhi && mePfMETPhi->getRootObject()) mePfMETPhi->Fill(pfMETPhi);
-    mePfSumET  = _dbe->get(DirName + "/METTask_PfSumET");  if (mePfSumET  && mePfSumET->getRootObject())  mePfSumET->Fill(pfSumET);
-    mePfMETSig = _dbe->get(DirName + "/METTask_PfMETSig"); if (mePfMETSig && mePfMETSig->getRootObject()) mePfMETSig->Fill(pfMETSig);
+    mePfMEx    = _dbe->get(DirName+"/"+"METTask_PfMEx");    if (mePfMEx    && mePfMEx->getRootObject())    mePfMEx->Fill(pfMEx);
+    mePfMEy    = _dbe->get(DirName+"/"+"METTask_PfMEy");    if (mePfMEy    && mePfMEy->getRootObject())    mePfMEy->Fill(pfMEy);
+    mePfMET    = _dbe->get(DirName+"/"+"METTask_PfMET");    if (mePfMET    && mePfMET->getRootObject())    mePfMET->Fill(pfMET);
+    mePfMETPhi = _dbe->get(DirName+"/"+"METTask_PfMETPhi"); if (mePfMETPhi && mePfMETPhi->getRootObject()) mePfMETPhi->Fill(pfMETPhi);
+    mePfSumET  = _dbe->get(DirName+"/"+"METTask_PfSumET");  if (mePfSumET  && mePfSumET->getRootObject())  mePfSumET->Fill(pfSumET);
+    mePfMETSig = _dbe->get(DirName+"/"+"METTask_PfMETSig"); if (mePfMETSig && mePfMETSig->getRootObject()) mePfMETSig->Fill(pfMETSig);
+    //mePfEz     = _dbe->get(DirName+"/"+"METTask_PfEz");     if (mePfEz     && mePfEz->getRootObject())     mePfEz->Fill(pfEz);
 
     mePfMET_logx    = _dbe->get(DirName+"/"+"METTask_PfMET_logx");    if (mePfMET_logx    && mePfMET_logx->getRootObject())    mePfMET_logx->Fill(log10(pfMET));
     mePfSumET_logx  = _dbe->get(DirName+"/"+"METTask_PfSumET_logx");  if (mePfSumET_logx  && mePfSumET_logx->getRootObject())  mePfSumET_logx->Fill(log10(pfSumET));

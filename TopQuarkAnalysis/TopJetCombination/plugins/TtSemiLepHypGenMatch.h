@@ -24,6 +24,10 @@ class TtSemiLepHypGenMatch : public TtSemiLepHypothesis  {
   /// find index of the candidate nearest to the singleLepton of the generator event in the collection; return -1 if this fails
   int findMatchingLepton(const edm::Handle<TtGenEvent>& genEvt, 
 			 const edm::Handle<edm::View<reco::RecoCandidate> >&);
+
+ private:
+
+  int neutrinoSolutionType_;
 };
 
 #endif

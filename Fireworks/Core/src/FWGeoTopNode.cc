@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel  
 //         Created:  Thu Jun 23 01:24:51 CEST 2011
-// $Id: FWGeoTopNode.cc,v 1.21 2012/02/22 23:03:47 amraktad Exp $
+// $Id: FWGeoTopNode.cc,v 1.20 2012/02/22 03:45:59 amraktad Exp $
 //
 
 // system include files
@@ -256,7 +256,7 @@ void FWGeoTopNode::paintShape(FWGeometryTableManagerBase::NodeInfo& data,  Int_t
       TBuffer3D buff(TBuffer3DTypes::kComposite);
       buff.fID           = data.m_node->GetVolume();
       buff.fColor        = volumeColor ? data.m_node->GetVolume()->GetLineColor() : data.m_color ;
-      buff.fTransparency = data.m_transparency;// data.m_node->GetVolume()->GetTransparency(); 
+      buff.fTransparency = data.m_node->GetVolume()->GetTransparency(); 
 
       nm.GetHomogenousMatrix(buff.fLocalMaster);  
       buff.fLocalFrame   = kTRUE; // Always enforce local frame (no geo manager).
@@ -291,8 +291,7 @@ void FWGeoTopNode::paintShape(FWGeometryTableManagerBase::NodeInfo& data,  Int_t
       setupBuffMtx(buff, nm);
       buff.fID           = data.m_node->GetVolume();
       buff.fColor        = volumeColor ? data.m_node->GetVolume()->GetLineColor() : data.m_color ;
-      buff.fTransparency = data.m_transparency;// data.m_node->GetVolume()->GetTransparency(); 
-
+      buff.fTransparency =  data.m_node->GetVolume()->GetTransparency();
 
       nm.GetHomogenousMatrix(buff.fLocalMaster);
       buff.fLocalFrame   = kTRUE; // Always enforce local frame (no geo manager).

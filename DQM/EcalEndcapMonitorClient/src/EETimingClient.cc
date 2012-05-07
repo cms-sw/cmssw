@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2011/09/15 21:02:09 $
- * $Revision: 1.111 $
+ * $Date: 2011/09/02 14:02:36 $
+ * $Revision: 1.110 $
  * \author G. Della Ricca
  *
 */

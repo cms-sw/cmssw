@@ -55,9 +55,29 @@ class HLTProcess(object):
     "HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v*",
     "HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v*",
     "HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v*",
+    "HLT_JetE30_NoBPTX3BX_v*",
+    "HLT_JetE50_NoBPTX3BX_v*",
+    "HLT_JetE70_NoBPTX3BX_v*",
+    "HLT_L2Mu10_NoVertex_NoBPTX3BX_v*",
+    "HLT_L2Mu10_NoVertex_NoBPTX3BX_v*",
+    "HLT_L2Mu10_NoVertex_NoBPTX3BX_v*",
+    "HLT_L2Mu20_NoVertex_NoBPTX3BX_v*",
+    "HLT_L2Mu30_NoVertex_NoBPTX3BX_v*",
+    "HLT_PixelTracks_Multiplicity70_v*",
+    "HLT_PixelTracks_Multiplicity80_v*",
+    "HLT_PixelTracks_Multiplicity90_v*",
+    "HLT_BeamGas_HF_Beam1_v*",
+    "HLT_BeamGas_HF_Beam2_v*",
+    "HLT_BeamHalo_v*",
+    "HLT_L1Tech_CASTOR_HaloMuon_v*",
+    "HLT_L1Tech_DT_GlobalOR_v*",
+    "HLT_GlobalRunHPDNoise_v*",
+    "HLT_L1Tech_HBHEHO_totalOR_v*",
+    "HLT_L1Tech_HCAL_HF_single_channel_v*",
+    "HLT_L1TrackerCosmics_v",   
     
 # TODO: paths not supported by FastSim, but for which a recovery should be attempted
-
+  
     )
 
   def __init__(self, configuration):
@@ -891,6 +911,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltCkf3HitActivityTrackCandidates" )
       self.options['modules'].append( "-hltCtf3HitActivityWithMaterialTracks" )
       self.options['modules'].append( "-hltActivityCkfTrackCandidatesForGSF" )
+      self.options['modules'].append( "-hltL1SeededCkfTrackCandidatesForGSF" )
       self.options['modules'].append( "-hltMuCkfTrackCandidates" )
       self.options['modules'].append( "-hltMuCtfTracks" )
       self.options['modules'].append( "-hltTau3MuCkfTrackCandidates" )
@@ -981,12 +1002,11 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltFastPixelHitsVertex" )
       self.options['modules'].append( "-hltFastPixelTracks")
       self.options['modules'].append( "-hltFastPixelTracksRecover")
-      self.options['modules'].append( "-hltFastPrimaryVertexbbPhi")
-      self.options['modules'].append( "-hltPixelTracksFastPVbbPhi")
-      self.options['modules'].append( "-hltPixelTracksRecoverbbPhi" )
-      self.options['modules'].append( "-hltFastPixelHitsVertexVHbb" )
-      self.options['modules'].append( "-hltFastPixelTracksVHbb" )
-      self.options['modules'].append( "-hltFastPixelTracksRecoverVHbb" )
+      
+      self.options['modules'].append( "-hltFastPrimaryVertex")
+      self.options['modules'].append( "-hltFastPVPixelTracks")
+      self.options['modules'].append( "-hltFastPVPixelTracksRecover" )
+
       self.options['modules'].append( "-hltIter4Tau3MuMerged" )
       self.options['modules'].append( "hltPixelMatchElectronsActivity" )
 
