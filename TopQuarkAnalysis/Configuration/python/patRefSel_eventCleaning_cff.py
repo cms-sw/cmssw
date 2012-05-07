@@ -8,7 +8,7 @@ HBHENoiseFilter.minIsolatedNoiseSumEt       = 999999.
 
 from TopQuarkAnalysis.Configuration.patRefSel_eventCleaning_cfi import scrapingFilter
 
-eventCleaning = cms.Sequence(
+eventCleaningData = cms.Sequence(
   HBHENoiseFilter
 + scrapingFilter
 )

@@ -658,7 +658,9 @@ if runPF2PAT:
 
 # The paths
 if runStandardPAT:
-  process.p = cms.Path( process.eventCleaning )
+  process.p = cms.Path()
+  if not runOnMC:
+    process.p += process.eventCleaningData
   if useTrigger:
     process.p += process.step1
   process.p += process.goodOfflinePrimaryVertices
@@ -676,7 +678,9 @@ if runStandardPAT:
   process.out.SelectEvents.SelectEvents.append( 'p' )
 
 if runPF2PAT:
-  pPF = cms.Path( process.eventCleaning )
+  pPF = cms.Path()
+  if not runOnMC:
+    process.pPF += process.eventCleaningData
   if useTrigger:
     pPF += process.step1
   pPF += process.goodOfflinePrimaryVertices

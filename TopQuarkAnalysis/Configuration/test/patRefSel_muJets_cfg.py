@@ -241,9 +241,9 @@ process.step0b = process.goodOfflinePrimaryVertices.clone( filter = True )
 
 ### Event cleaning
 process.load( 'TopQuarkAnalysis.Configuration.patRefSel_eventCleaning_cff' )
-process.step0c = cms.Sequence(
-  process.eventCleaning
-)
+process.step0c = cms.Sequence()
+if not runOnMC:
+  process.step0c += process.eventCleaningData
 
 
 ###
