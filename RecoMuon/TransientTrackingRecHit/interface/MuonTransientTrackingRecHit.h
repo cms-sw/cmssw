@@ -5,8 +5,8 @@
  *
  *  A TransientTrackingRecHit for muons.
  *
- *  $Date: 2009/09/16 17:06:30 $
- *  $Revision: 1.16 $
+ *  $Date: 2009/09/17 18:50:11 $
+ *  $Revision: 1.17 $
  *
  *   \author   C. Liu            Purdue University
  */
@@ -67,7 +67,7 @@ public:
     return MuonRecHitPointer(new MuonTransientTrackingRecHit(geom, rh));
   }
 
-  inline void invalidateHit() { setType(bad); trackingRecHit_->setType(bad); }
+  void invalidateHit();
 
  private:
 

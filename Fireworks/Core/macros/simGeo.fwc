@@ -293,6 +293,9 @@
     <config name="IgnoreVisLevelOnFilter" version="0">
       <string>1</string>
     </config>
+    <config name="TopNodeIndex" version="0">
+      <string>1791211</string>
+    </config>
     <config name="Viewers" version="1">
      <config name="3D RecHit" version="1">
      </config>

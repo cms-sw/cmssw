@@ -37,6 +37,7 @@ void listbadmodule(std::string filename) {
 
   int debug = 1;
 
+  cout << " here " << endl;
   std::vector<std::string> subdet;
   subdet.push_back("TIB");
   subdet.push_back("TID/side_1"); 
@@ -61,39 +62,7 @@ void listbadmodule(std::string filename) {
   std::string topdir = "DQMData/Run " + nrun + "/SiStrip/Run summary/MechanicalView";
   gDirectory->cd(topdir.c_str());
   TDirectory* mec1 = gDirectory;
-
-  //get the summary first                                                                                                                                    
-  vector <int> nbadmod;
-  for (unsigned int i=0; i < subdet.size(); i++){
-    int nbad = 0;
-    string badmodule_dir = subdet[i] + "/BadModuleList";
-    if (gDirectory->cd(badmodule_dir.c_str())){
-      TIter next(gDirectory->GetListOfKeys());
-      TKey *key;
-      while  ( (key = dynamic_cast<TKey*>(next())) ) {
-        string sflag = key->GetName();
-        if (sflag.size() == 0) continue;
-        nbad++;
-      }
-    }
-    nbadmod.push_back(nbad);
-    mec1->cd();
-  }
-
-  outfile << "Number of bad modules in total:" << std::endl;
-  outfile << "-------------------------------" << std::endl;
-  outfile << subdet.at(0) << ": " << nbadmod.at(0) << std::endl;
-  outfile << subdet.at(1) << ": " << nbadmod.at(1) << std::endl;
-  outfile << subdet.at(2) << ": " << nbadmod.at(2) << std::endl;
-  outfile << subdet.at(3) << ": " << nbadmod.at(3) << std::endl;
-  outfile << subdet.at(4) << ": " << nbadmod.at(4) << std::endl;
-  outfile << subdet.at(5) << ": " << nbadmod.at(5) << std::endl;
-  outfile << "-------------------------------" << std::endl;
-
-  outfile << std::endl
-          << "List of bad modules per partition:" << std::endl;
-  outfile << "----------------------------------" << std::endl;
-
+  
   for (unsigned int i=0; i < subdet.size(); i++){
     std::string badmodule_dir = subdet[i] + "/BadModuleList";
     outfile << " " << endl;

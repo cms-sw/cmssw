@@ -283,7 +283,7 @@ void EgHLTOfflineSource::filterTriggers(const HLTConfigProvider& hltConfig)
   
   trigTools::getActiveFilters(hltConfig,activeFilters,activeEleFilters,activeEle2LegFilters,activePhoFilters,activePho2LegFilters);
   
-  trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeEleFilters);
+  trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeFilters);
   trigTools::filterInactiveTriggers(phoHLTFilterNames_,activePhoFilters);
   trigTools::filterInactiveTriggers(eleHLTFilterNames2Leg_,activeEle2LegFilters);
   trigTools::filterInactiveTightLooseTriggers(eleTightLooseTrigNames_,activeEleFilters);

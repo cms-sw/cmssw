@@ -144,7 +144,7 @@ void    ls_cert( float threshold_pixel , float threshold , string filename )
     }
   
   outfile.close();
-  std::cout << "Lumisection Certification summary saved in " << namefile << std::endl;
+  cout << "Lumisection Certification summary saved in " << namefile << endl;
 
   cert_plot ( threshold_pixel , threshold , filename , cert_strip , cert_track , cert_pixel , gLS_strip , gLS_track , gLS_pixel );
 }
@@ -156,22 +156,21 @@ void ls_cert_type(string iDir, float threshold, string filename, vector <string>
 
   bool debug = false;
   string run = runnum_str( filename );
-  if (debug) std::cout << filename.c_str() << std::endl;
+  if (debug) cout << filename.c_str() << endl;
 
   TDirectory* topDir; 
   vector<float> ls;
   
   TFile* file = TFile::Open(filename.c_str());
   if (!file->IsOpen()) {
-    std::cerr << "Failed to open " << filename << std::endl; 
+    cerr << "Failed to open " << filename << endl; 
     return;
   }
 
   string dir = "DQMData/Run " + run + "/" + iDir;
   topDir = dynamic_cast<TDirectory*>( file->Get(dir.c_str()));
   topDir->cd();
-  if (debug) std::cout << topDir->GetTitle() << std::endl;
-
+  if (debug) cout << topDir->GetTitle() << endl;
   //
   // Reading the LS directory    
   //
@@ -186,6 +185,7 @@ void ls_cert_type(string iDir, float threshold, string filename, vector <string>
       name = name.substr(name.find("-")+1);
       float temp1 = atof(name.c_str()); 
       ls.push_back(temp1);
+      //cout << temp1 << endl;
     }
   }
   sort(ls.begin(),ls.end());   
@@ -221,12 +221,12 @@ void ls_cert_type(string iDir, float threshold, string filename, vector <string>
       cert.push_back( certflagPrint[icert_type] );
     }
 
-  if (debug) std::cout << gDirectory->GetName() << std::endl;
+  if (debug) cout << gDirectory->GetName() << endl;
   
   for (int i=0; i < vecsize; i++){
     stringstream lsdir;
     lsdir << dir << "/By Lumi Section " << ls[i] <<"-"<<ls[i]<<"/EventInfo";
-    if (debug) std::cout << lsdir.str().c_str() << std::endl;
+    if (debug) cout << lsdir.str().c_str() << endl;
     float templs = ls[i];
     lsd[i] = templs;
     TDirectory *tempDir = dynamic_cast<TDirectory*>( file->Get(lsdir.str().c_str()));
@@ -244,13 +244,14 @@ void ls_cert_type(string iDir, float threshold, string filename, vector <string>
 	size_t pos2 = sflag.find_first_of(">");
 	string detvalue = tempname.substr(0,pos1);
 	string typecert = sflag.substr(1,pos2-1);
-	if (debug) std::cout << typecert.c_str() << std::endl;
+	if (debug) cout << typecert.c_str() << endl;
 	tempvalue = atof(detvalue.c_str());
 	
 	for (j=0; j<smax; j++){
+	  //	    cout << "j " << j << endl;
 	  if ( strstr(typecert.c_str(),certflag[j].c_str())!=NULL)
 	    v[j][i] = tempvalue;
-	  if (debug) std::cout << "Entering value " << tempvalue << " " << v[j][i] << " for " << certflag[j].c_str() << std::endl;
+	  if (debug) cout << "Entering value " << tempvalue << " " << v[j][i] << " for " << certflag[j].c_str() << endl;
 	}
 	j = j + 1;
       }
@@ -307,7 +308,7 @@ void ls_cert_type(string iDir, float threshold, string filename, vector <string>
       string goodList    = ListOut( goodLS    );
       string badList     = ListOut( badLS     );
       string missingList = ListOut( missingLS );
-
+      
       //save lumisections for this certification type
       gLS.push_back ( make_pair ( goodList    , allLSthr ) );
       bLS.push_back ( make_pair ( badList     , allLSthr ) );
@@ -440,7 +441,7 @@ int nlumis( string filename )
 
   TFile* file = TFile::Open(filename.c_str());
   if (!file->IsOpen()) {
-    std::cerr << "Failed to open " << filename << std::endl;
+    cerr << "Failed to open " << filename << endl;
     return -1;
   }
   
@@ -523,12 +524,11 @@ string ListOut(vector<int> &LSlist)
   
   string strout = "";
   bool rangeset = false;
-
   for (unsigned int at = 0; at < LSlist.size(); at++)
     {
       if ( LSlist[at] != -1 ) 
 	{
-	  if ( at > 0 && LSlist[at-1] != -1 ) strout += ",";
+	  if ( LSlist[at-1] != -1 && at > 0 ) strout += ",";
 	  stringstream lsnum;
 	  lsnum << LSlist[at];
 	  strout += lsnum.str();

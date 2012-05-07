@@ -31,9 +31,6 @@ public:
     kPLT,
     kMaxNumAlgos
   };
-  enum DipAlgos {
-    kDIP
-  };
   typedef unsigned int AlgoType;
   typedef std::pair<std::vector<float>::const_iterator, std::vector<float>::const_iterator> ValueRange;
   typedef std::pair<std::vector<float>::const_iterator, std::vector<float>::const_iterator> ErrorRange;
@@ -73,8 +70,6 @@ public:
   bool isProductEqual(LumiDetails const& lumiDetails) const;
 
   static std::vector<std::string> const& algoNames();
-
-  static std::vector<std::string> const& dipalgoNames();
 
 private:
 

@@ -817,9 +817,7 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                         for thisbitinfo in l1bitinfo:
                             thisbitname=thisbitinfo[0]
                             thisbitprescale=thisbitinfo[2]
-                            #trgprescalemap['"'+thisbitname+'"']=thisbitprescale#note:need to double quote bit name!
-                            trgprescalemap['"'+thisbitname+'"']=thisbitprescale
-
+                            trgprescalemap['"'+thisbitname+'"']=thisbitprescale#note:need to double quote bit name!                    
                     del trgdata[cmslsnum][:]
                 if hltdata.has_key(cmslsnum):                
                     hltpathdata=hltdata[cmslsnum]
@@ -841,8 +839,6 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                                 l1bitname=hltTrgSeedMapper.findUniqueSeed(thispathname,thisl1seed)
                                 if l1bitname :
                                     l1prescale=trgprescalemap[l1bitname]#need to match double quoted string!
-                                else:
-                                    l1prescale=None
                             except KeyError:
                                 l1prescale=None                           
                         if l1prescale and thisprescale :#normal both prescaled
@@ -851,9 +847,6 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                         elif l1prescale and thisprescale==0: #hltpath in menu but masked
                             efflumi=0.0
                             efflumidict[thispathname]=[l1bitname,l1prescale,thisprescale,efflumi]
-                        else:
-                            efflumi=0.0
-                            efflumidict[thispathname]=[None,0,thisprescale,efflumi]
                 
             bxvaluelist=[]
             bxerrorlist=[]

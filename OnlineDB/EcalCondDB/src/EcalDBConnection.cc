@@ -58,7 +58,7 @@ EcalDBConnection::EcalDBConnection( string sid,
   this->port = port;
 }
 
-EcalDBConnection::~EcalDBConnection() {
+EcalDBConnection::~EcalDBConnection()  throw(std::runtime_error) {
   //Close database conection and terminate environment
   try {
     conn->terminateStatement(stmt);

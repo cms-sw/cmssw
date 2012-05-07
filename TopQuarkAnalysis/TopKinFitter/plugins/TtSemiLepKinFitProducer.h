@@ -64,14 +64,8 @@ class TtSemiLepKinFitProducer : public edm::EDProducer {
   std::vector<unsigned> constraints_;
   double mW_;
   double mTop_;
-  /// scale factors for jet energy resolution
-  std::vector<double> jetEnergyResolutionScaleFactors_;
-  std::vector<double> jetEnergyResolutionEtaBinning_;
-  /// config-file-based object resolutions
-  std::vector<edm::ParameterSet> udscResolutions_;
-  std::vector<edm::ParameterSet> bResolutions_;
-  std::vector<edm::ParameterSet> lepResolutions_;
-  std::vector<edm::ParameterSet> metResolutions_;
+  /// smear factor for jet resolutions
+  double jetEnergyResolutionSmearFactor_;
 
   TtSemiLepKinFitter* fitter;
 
@@ -112,23 +106,11 @@ TtSemiLepKinFitProducer<LeptonCollection>::TtSemiLepKinFitProducer(const edm::Pa
   constraints_             (cfg.getParameter<std::vector<unsigned> >("constraints")),
   mW_                      (cfg.getParameter<double>       ("mW"                  )),
   mTop_                    (cfg.getParameter<double>       ("mTop"                )),
-  jetEnergyResolutionScaleFactors_(cfg.getParameter<std::vector<double> >("jetEnergyResolutionScaleFactors")),
-  jetEnergyResolutionEtaBinning_  (cfg.getParameter<std::vector<double> >("jetEnergyResolutionEtaBinning")),
-  udscResolutions_(0), bResolutions_(0), lepResolutions_(0), metResolutions_(0)
-{
-  if(cfg.exists("udscResolutions") && cfg.exists("bResolutions") && cfg.exists("lepResolutions") && cfg.exists("metResolutions")){
-    udscResolutions_ = cfg.getParameter<std::vector<edm::ParameterSet> >("udscResolutions");
-    bResolutions_    = cfg.getParameter<std::vector<edm::ParameterSet> >("bResolutions"   );
-    lepResolutions_  = cfg.getParameter<std::vector<edm::ParameterSet> >("lepResolutions" );
-    metResolutions_  = cfg.getParameter<std::vector<edm::ParameterSet> >("metResolutions" );
-  }
-  else if(cfg.exists("udscResolutions") || cfg.exists("bResolutions") || cfg.exists("lepResolutions") || cfg.exists("metResolutions") ){
-    throw cms::Exception("Configuration") << "Parameters 'udscResolutions', 'bResolutions', 'lepResolutions', 'metResolutions' should be used together.\n";
-  }
+  jetEnergyResolutionSmearFactor_(cfg.getParameter<double> ("jetEnergyResolutionSmearFactor"))
 
+{
   fitter = new TtSemiLepKinFitter(param(jetParam_), param(lepParam_), param(metParam_), maxNrIter_, maxDeltaS_, maxF_,
-				  constraints(constraints_), mW_, mTop_, &udscResolutions_, &bResolutions_, &lepResolutions_, &metResolutions_,
-				  &jetEnergyResolutionScaleFactors_, &jetEnergyResolutionEtaBinning_);
+				  constraints(constraints_), mW_, mTop_);
 
   produces< std::vector<pat::Particle> >("PartonsHadP");
   produces< std::vector<pat::Particle> >("PartonsHadQ");
@@ -141,8 +123,6 @@ TtSemiLepKinFitProducer<LeptonCollection>::TtSemiLepKinFitProducer(const edm::Pa
   produces< std::vector<double> >("Chi2");
   produces< std::vector<double> >("Prob");
   produces< std::vector<int> >("Status");
-
-  produces<int>("NumberOfConsideredJets");
 }
 
 template<typename LeptonCollection>
@@ -185,8 +165,6 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   std::auto_ptr< std::vector<double>            > pProb  ( new std::vector<double> );
   std::auto_ptr< std::vector<int>               > pStatus( new std::vector<int> );
 
-  std::auto_ptr<int> pJetsConsidered(new int);
-
   edm::Handle<std::vector<pat::Jet> > jets;
   evt.getByLabel(jets_, jets);
 
@@ -196,12 +174,11 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   edm::Handle<LeptonCollection> leps;
   evt.getByLabel(leps_, leps);
 
-  const unsigned int nPartons = 4;
+  unsigned int nPartons = 4;
 
   std::vector<int> match;
   bool invalidMatch = false;
   if(useOnlyMatch_) {
-    *pJetsConsidered = nPartons;
     edm::Handle<std::vector<std::vector<int> > > matchHandle;
     evt.getByLabel(match_, matchHandle);
     match = *(matchHandle->begin());
@@ -241,8 +218,6 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
     pProb->push_back( -1. );
     // status of the fitter
     pStatus->push_back( -1 );
-    // number of jets
-    *pJetsConsidered = jets->size();
     // feed out all products
     evt.put(pCombi);
     evt.put(pPartonsHadP, "PartonsHadP");
@@ -254,7 +229,6 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
     evt.put(pChi2       , "Chi2"       );
     evt.put(pProb       , "Prob"       );
     evt.put(pStatus     , "Status"     );
-    evt.put(pJetsConsidered, "NumberOfConsideredJets");
     return;
   }
 
@@ -266,10 +240,7 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   std::vector<int> jetIndices;
   if(!useOnlyMatch_) {
     for(unsigned int i=0; i<jets->size(); ++i){
-      if(maxNJets_ >= (int) nPartons && maxNJets_ == (int) i) {
-	*pJetsConsidered = i;
-	break;
-      }
+      if(maxNJets_ >= (int) nPartons && maxNJets_ == (int) i) break;
       jetIndices.push_back(i);
     }
   }
@@ -297,7 +268,7 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
 	jetCombi[TtSemiLepEvtPartons::LepB     ] = (*jets)[combi[TtSemiLepEvtPartons::LepB     ]];
 
 	// do the kinematic fit
-	const int status = fitter->fit(jetCombi, (*leps)[0], (*mets)[0]);
+	int status = fitter->fit(jetCombi, (*leps)[0], (*mets)[0], jetEnergyResolutionSmearFactor_);
 
 	if( status == 0 ) { // only take into account converged fits
 	  KinFitResult result;
@@ -384,7 +355,6 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   evt.put(pChi2       , "Chi2"       );
   evt.put(pProb       , "Prob"       );
   evt.put(pStatus     , "Status"     );
-  evt.put(pJetsConsidered, "NumberOfConsideredJets");
 }
  
 template<typename LeptonCollection>
@@ -396,7 +366,7 @@ TtSemiLepKinFitter::Param TtSemiLepKinFitProducer<LeptonCollection>::param(unsig
   case TtSemiLepKinFitter::kEtEtaPhi   : result=TtSemiLepKinFitter::kEtEtaPhi;   break;
   case TtSemiLepKinFitter::kEtThetaPhi : result=TtSemiLepKinFitter::kEtThetaPhi; break;
   default: 
-    throw cms::Exception("Configuration") 
+    throw cms::Exception("WrongConfig") 
       << "Chosen jet parametrization is not supported: " << val << "\n";
     break;
   }
@@ -414,9 +384,8 @@ TtSemiLepKinFitter::Constraint TtSemiLepKinFitProducer<LeptonCollection>::constr
   case TtSemiLepKinFitter::kTopLepMass     : result=TtSemiLepKinFitter::kTopLepMass;     break;
   case TtSemiLepKinFitter::kNeutrinoMass   : result=TtSemiLepKinFitter::kNeutrinoMass;   break;
   case TtSemiLepKinFitter::kEqualTopMasses : result=TtSemiLepKinFitter::kEqualTopMasses; break;
-  case TtSemiLepKinFitter::kSumPt          : result=TtSemiLepKinFitter::kSumPt;          break;
   default: 
-    throw cms::Exception("Configuration") 
+    throw cms::Exception("WrongConfig") 
       << "Chosen fit constraint is not supported: " << val << "\n";
     break;
   }

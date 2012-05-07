@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Fri Jun 25 18:57:39 CEST 2010
-// $Id: EveService.cc,v 1.7 2010/07/15 13:02:04 matevz Exp $
+// $Id: EveService.cc,v 1.6 2010/07/13 19:59:05 matevz Exp $
 //
 
 // system include files
@@ -191,32 +191,25 @@ void EveService::postBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 {
    float current = 18160.0f;
 
-   try 
+   edm::Handle<edm::ConditionsInRunBlock> runCond;
+   bool res = iRun.getByType(runCond);
+   //bool res = run.getByLabel("conditionsInEdm", runCond, "", "");
+   if (res && runCond.isValid())
    {
-      edm::Handle<edm::ConditionsInRunBlock> runCond;
-      bool res = iRun.getByType(runCond);
-  
-      //bool res = run.getByLabel("conditionsInEdm", runCond, "", "");
-      if (res && runCond.isValid())
-      {
-         printf("Got current from conds in edm %f\n", runCond->BAvgCurrent);
-         current = runCond->BAvgCurrent;
-      }
-      else
-      {
-         printf("Could not extract run-conditions get-result=%d, is-valid=%d\n", res, runCond.isValid());
-
-         edm::ESHandle<RunInfo> sum;
-         iSetup.get<RunInfoRcd>().get(sum);
-
-         current = sum->m_avg_current;
-         printf("Got current from RunInfoRcd %f\n", sum->m_avg_current);
-      }
+      printf("Got current from conds in edm %f\n", runCond->BAvgCurrent);
+      current = runCond->BAvgCurrent;
    }
-   catch (...) 
+   else
    {
-      printf("RunInfo not available \n");
+      printf("Could not extract run-conditions get-result=%d, is-valid=%d\n", res, runCond.isValid());
+
+      edm::ESHandle<RunInfo> sum;
+      iSetup.get<RunInfoRcd>().get(sum);
+
+      current = sum->m_avg_current;
+      printf("Got current from RunInfoRcd %f\n", sum->m_avg_current);
    }
+
    static_cast<CmsEveMagField*>(m_MagField)->SetFieldByCurrent(current);
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2011/09/02 13:55:03 $
- * $Revision: 1.86 $
+ * $Date: 2011/06/27 08:31:54 $
+ * $Revision: 1.85 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *

@@ -36,7 +36,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
  
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/JetReco/interface/JetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"  
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"  

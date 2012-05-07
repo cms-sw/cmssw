@@ -70,10 +70,6 @@ class TtEvent {
   unsigned int numberOfAvailableHypos(const std::string& key) const { return numberOfAvailableHypos( hypoClassKeyFromString(key) ); };
   /// return number of available hypotheses within a given hypothesis class
   unsigned int numberOfAvailableHypos(const HypoClassKey& key) const { return isHypoAvailable(key) ? evtHyp_.find(key)->second.size() : 0; };
-  /// return number of jets that were considered when building a given hypothesis
-  int numberOfConsideredJets(const std::string& key) const { return numberOfConsideredJets(hypoClassKeyFromString(key) ); };
-  /// return number of jets that were considered when building a given hypothesis
-  int numberOfConsideredJets(const HypoClassKey& key) const { return (isHypoAvailable(key) ? nJetsConsidered_.find(key)->second : -1); };
   /// return the vector of jet lepton combinatorics for a given hypothesis and class
   std::vector<int> jetLeptonCombination(const std::string& key, const unsigned& cmb=0) const { return jetLeptonCombination(hypoClassKeyFromString(key), cmb); };
   /// return the vector of jet lepton combinatorics for a given hypothesis and class
@@ -103,13 +99,6 @@ class TtEvent {
   /// return the hypothesis in hypothesis class 'key2', which corresponds to hypothesis 'hyp1' in hypothesis class 'key1'
   int correspondingHypo(const HypoClassKey& key1, const unsigned& hyp1, const HypoClassKey& key2) const;
 
-  /// get combined 4-vector of top and topBar of the given hypothesis
-  const reco::Candidate* topPair(const std::string& key, const unsigned& cmb=0) const { return topPair(hypoClassKeyFromString(key), cmb); };
-  /// get combined 4-vector of top and topBar of the given hypothesis
-  const reco::Candidate* topPair(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : (reco::Candidate*)&eventHypo(key,cmb); };
-  /// get combined 4-vector of top and topBar from the TtGenEvent
-  const math::XYZTLorentzVector* topPair() const { return (!genEvt_ ? 0 : this->genEvent()->topPair()); };
-
   /// print pt, eta, phi, mass of a given candidate into an existing LogInfo
   void printParticle(edm::LogInfo &log, const char* name, const reco::Candidate* cand) const;
 
@@ -118,9 +107,7 @@ class TtEvent {
   /// set TtGenEvent
   void setGenEvent(const edm::Handle<TtGenEvent>& evt) { genEvt_=edm::RefProd<TtGenEvent>(evt); };
   /// add new hypotheses
-  void addEventHypo(const HypoClassKey& key, const HypoCombPair hyp) { evtHyp_[key].push_back(hyp); };
-  /// set number of jets considered when building a given hypothesis
-  void setNumberOfConsideredJets(const HypoClassKey& key, const unsigned int nJets) { nJetsConsidered_[key]=nJets; };
+  void addEventHypo(const HypoClassKey& key, HypoCombPair hyp) { evtHyp_[key].push_back(hyp); };
   /// set sum pt of kGenMatch hypothesis
   void setGenMatchSumPt(const std::vector<double>& val) {genMatchSumPt_=val;};
   /// set sum dr of kGenMatch hypothesis
@@ -141,18 +128,16 @@ class TtEvent {
   void setHitFitMT(const std::vector<double>& val) { hitFitMT_=val; };
   /// set fitted top mass uncertainty of kHitFit hypothesis
   void setHitFitSigMT(const std::vector<double>& val) { hitFitSigMT_=val; };
-
+  
  protected:
 
   /// leptonic decay channels
-  std::pair<WDecay::LeptonType, WDecay::LeptonType> lepDecays_;
+   std::pair<WDecay::LeptonType, WDecay::LeptonType> lepDecays_;
   /// reference to TtGenEvent (has to be kept in the event!)
   edm::RefProd<TtGenEvent> genEvt_;
   /// map of hypotheses; for each HypoClassKey a vector of 
   /// hypothesis and their lepton jet combinatorics are kept
   std::map<HypoClassKey, std::vector<HypoCombPair> > evtHyp_;
-  /// number of jets considered when building the hypotheses
-  std::map<HypoClassKey, int> nJetsConsidered_;
   
   /// result of kinematic fit
   std::vector<double> fitChi2_;        

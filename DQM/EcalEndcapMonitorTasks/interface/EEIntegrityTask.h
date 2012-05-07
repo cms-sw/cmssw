@@ -4,8 +4,8 @@
 /*
  * \file EEIntegrityTask.h
  *
- * $Date: 2012/03/18 17:20:58 $
- * $Revision: 1.17.18.1 $
+ * $Date: 2010/03/05 18:22:18 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
  */

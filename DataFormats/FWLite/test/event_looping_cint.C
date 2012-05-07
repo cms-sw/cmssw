@@ -22,7 +22,7 @@ static loadFWLite lfw;
 
 void event_looping_cint()
 {
-TFile f("good.root");
+TFile f("good_a.root");
 fwlite::Event e(&f);
 
 int i =0;

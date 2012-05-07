@@ -18,7 +18,7 @@ from Validation.RecoTau.DQMSequences_cfi import *
 DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
                                  ecal_dqm_source_offline *
                                  hcalOfflineDQMSource *
-                                 SiStripDQMTier0 *
+                                 SiStripDQMTier0MinBias *
                                  siPixelOfflineDQM_source *
                                  dtSources *
                                  rpcTier0Source *

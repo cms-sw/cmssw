@@ -1,8 +1,8 @@
 /*
  * \file EBTrendClient.cc
  *
- * $Date: 2010/08/11 15:01:48 $
- * $Revision: 1.7 $
+ * $Date: 2010/03/27 20:07:57 $
+ * $Revision: 1.6 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */

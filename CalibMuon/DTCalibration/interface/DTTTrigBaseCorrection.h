@@ -4,8 +4,8 @@
 /** \class DTTTrigBaseCorrection
  *  Base class to define the tTrig corrections for entering in DB
  *
- *  $Date: 2010/11/17 17:54:23 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/12/11 16:34:34 $
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 
@@ -15,8 +15,6 @@ namespace edm {
 }
 
 class DTSuperLayerId;
-
-namespace dtCalibration {
 
 struct DTTTrigData {
 public:
@@ -39,7 +37,6 @@ public:
    
    virtual void setES(const edm::EventSetup& setup) = 0;
    virtual DTTTrigData correction(const DTSuperLayerId&) = 0;
-};
- 
-} // namespace
+}; 
+
 #endif

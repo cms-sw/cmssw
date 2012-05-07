@@ -19,6 +19,7 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EcalRecHit/interface/EcalSeverityLevel.h"
 
 
 #include <iostream>
@@ -109,6 +110,13 @@ void GsfElectronBaseProducer::fillDescription( edm::ParameterSetDescription & de
 //  desc.add<double>("maxTIPPflow",999999999.) ;
 //  desc.add<double>("minMVAPflow",-0.4) ;
 
+  // Ecal rec hits configuration
+  desc.add<std::vector<int> >("recHitFlagsToBeExcludedBarrel") ;
+  desc.add<std::vector<int> >("recHitFlagsToBeExcludedEndcaps") ;
+  desc.add<std::vector<int> >("recHitSeverityToBeExcludedBarrel") ;
+  desc.add<std::vector<int> >("recHitSeverityToBeExcludedEndcaps") ;
+  //desc.add<int>("severityLevelCut",4) ;
+
   // Isolation algos configuration
   desc.add<double>("intRadiusBarrelTk",0.015) ;
   desc.add<double>("intRadiusEndcapTk",0.015) ;
@@ -128,11 +136,6 @@ void GsfElectronBaseProducer::fillDescription( edm::ParameterSetDescription & de
   desc.add<double>("eMinEndcaps",0.0) ;
   desc.add<bool>("vetoClustered",false) ;
   desc.add<bool>("useNumCrystals",true) ;
-  desc.add<int>("severityLevelCut",4) ;
-  //desc.add<double>("severityRecHitThreshold",5.0) ;
-  //desc.add<double>("spikeIdThreshold",0.95) ;
-  //desc.add<std::string>("spikeIdString","kSwissCrossBordersIncluded") ;
-  desc.add<std::vector<int> >("recHitFlagsToBeExcluded") ;
 
   edm::ParameterSetDescription descNested ;
   descNested.add<std::string>("propagatorAlongTISE","PropagatorWithMaterial") ;
@@ -198,6 +201,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   cutsCfg_.isEndcaps = cfg.getParameter<bool>("isEndcaps") ;
   cutsCfg_.isFiducial = cfg.getParameter<bool>("isFiducial") ;
   cutsCfg_.minMVA = cfg.getParameter<double>("minMVA") ;
+  cutsCfg_.minMvaByPassForIsolated = cfg.getParameter<double>("minMvaByPassForIsolated") ;
   cutsCfg_.maxTIP = cfg.getParameter<double>("maxTIP") ;
   cutsCfg_.seedFromTEC = cfg.getParameter<bool>("seedFromTEC") ;
 
@@ -230,6 +234,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   cutsCfgPflow_.isEndcaps = cfg.getParameter<bool>("isEndcapsPflow") ;
   cutsCfgPflow_.isFiducial = cfg.getParameter<bool>("isFiducialPflow") ;
   cutsCfgPflow_.minMVA = cfg.getParameter<double>("minMVAPflow") ;
+  cutsCfgPflow_.minMvaByPassForIsolated = cfg.getParameter<double>("minMvaByPassForIsolatedPflow") ;
   cutsCfgPflow_.maxTIP = cfg.getParameter<double>("maxTIPPflow") ;
   cutsCfgPflow_.seedFromTEC = true ; // not applied for pflow
 
@@ -248,6 +253,18 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
     hcalCfgPflow_.hcalTowers = cfg.getParameter<edm::InputTag>("hcalTowers") ;
     hcalCfgPflow_.hOverEPtMin = cfg.getParameter<double>("hOverEPtMinPflow") ;
    }
+
+  // Ecal rec hits configuration
+  GsfElectronAlgo::EcalRecHitsConfiguration recHitsCfg ;
+  const std::vector<std::string> flagnamesbarrel = cfg.getParameter<std::vector<std::string> >("recHitFlagsToBeExcludedBarrel");
+  recHitsCfg.recHitFlagsToBeExcludedBarrel = StringToEnumValue<EcalRecHit::Flags>(flagnamesbarrel);
+  const std::vector<std::string> flagnamesendcaps = cfg.getParameter<std::vector<std::string> >("recHitFlagsToBeExcludedEndcaps");
+  recHitsCfg.recHitFlagsToBeExcludedEndcaps = StringToEnumValue<EcalRecHit::Flags>(flagnamesendcaps);
+  const std::vector<std::string> severitynamesbarrel = cfg.getParameter<std::vector<std::string> >("recHitSeverityToBeExcludedBarrel");
+  recHitsCfg.recHitSeverityToBeExcludedBarrel = StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesbarrel);
+  const std::vector<std::string> severitynamesendcaps = cfg.getParameter<std::vector<std::string> >("recHitSeverityToBeExcludedEndcaps");
+  recHitsCfg.recHitSeverityToBeExcludedEndcaps = StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynamesendcaps);
+  //recHitsCfg.severityLevelCut = cfg.getParameter<int>("severityLevelCut") ;
 
   // isolation
   GsfElectronAlgo::IsolationConfiguration isoCfg ;
@@ -269,26 +286,6 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   isoCfg.eMinEndcaps = cfg.getParameter<double>("eMinEndcaps") ;
   isoCfg.vetoClustered = cfg.getParameter<bool>("vetoClustered") ;
   isoCfg.useNumCrystals = cfg.getParameter<bool>("useNumCrystals") ;
-
-  // spike removal configuration
-  GsfElectronAlgo::SpikeConfiguration spikeCfg ;
-  spikeCfg.severityLevelCut = cfg.getParameter<int>("severityLevelCut") ;
-//  spikeCfg.severityRecHitThreshold = cfg.getParameter<double>("severityRecHitThreshold") ;
-//  spikeCfg.spikeIdThreshold = cfg.getParameter<double>("spikeIdThreshold") ;
-//  std::string spikeIdString = cfg.getParameter<std::string>("spikeIdString") ;
-//  if     (!spikeIdString.compare("kE1OverE9"))   spikeCfg.spikeId = EcalSeverityLevelAlgo::kE1OverE9 ;
-//  else if(!spikeIdString.compare("kSwissCross")) spikeCfg.spikeId = EcalSeverityLevelAlgo::kSwissCross ;
-//  else if(!spikeIdString.compare("kSwissCrossBordersIncluded")) spikeCfg.spikeId = EcalSeverityLevelAlgo::kSwissCrossBordersIncluded ;
-//  else
-//   {
-//    spikeCfg.spikeId = EcalSeverityLevelAlgo::kSwissCrossBordersIncluded ;
-//    edm::LogWarning("GsfElectronAlgo|SpikeRemovalForIsolation")
-//      << "Cannot find the requested method. kSwissCross set instead." ;
-//   }
-
-  const std::vector<std::string> flagnames =
-    cfg.getParameter<std::vector<std::string> >("recHitFlagsToBeExcluded");
-  spikeCfg.recHitFlagsToBeExcluded = StringToEnumValue<EcalRecHit::Flags>(flagnames);
 
   // functions for corrector
   EcalClusterFunctionBaseClass * superClusterErrorFunction = 0 ;
@@ -318,7 +315,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
    ( inputCfg_, strategyCfg_,
      cutsCfg_,cutsCfgPflow_,
      hcalCfg_,hcalCfgPflow_,
-     isoCfg,spikeCfg,
+     isoCfg,recHitsCfg,
      superClusterErrorFunction,
      crackCorrectionFunction ) ;
  }

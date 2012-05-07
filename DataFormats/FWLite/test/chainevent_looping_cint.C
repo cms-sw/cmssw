@@ -23,11 +23,11 @@ static loadFWLite lfw;
 void chainevent_looping_cint()
 {
 vector<string>  files;
-files.push_back("empty.root");
-files.push_back("good.root");
-files.push_back("empty.root");
-files.push_back("good_delta5.root");
-files.push_back("empty.root");
+files.push_back("empty_a.root");
+files.push_back("good_a.root");
+files.push_back("empty_a.root");
+files.push_back("good_b.root");
+files.push_back("empty_a.root");
 fwlite::ChainEvent e(files);
 
 int i =0;

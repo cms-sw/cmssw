@@ -14,13 +14,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 
-
-#include "DataFormats/HcalDigi/interface/HFDataFrame.h"
-#include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
-
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalSourcePositionData.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -76,9 +69,6 @@
 // include files
 #include "CommonTools/RecoAlgos/interface/HBHENoiseFilter.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
-
-#include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
-#include "RecoMET/METAlgorithms/interface/HcalHPDRBXMap.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"  
 
@@ -142,20 +132,10 @@ myJetAna::myJetAna( const ParameterSet & cfg ) :
 
 // ************************
 // ************************
-void myJetAna::beginRun(const edm::Run& r, const edm::EventSetup& iSetup) {
 
-  // Get conditions information (for reconstruction)
-  //edm::ESHandle<HcalDbService> conditions;
-  iSetup.get<HcalDbRecord>().get(conditions);
-  shape_ = conditions->getHcalShape (); // this one is generic
-
-}
-
-
-
-// ************************
-// ************************
 void myJetAna::beginJob( ) {
+
+
 
   edm::Service<TFileService> fs;
 
@@ -169,11 +149,6 @@ void myJetAna::beginJob( ) {
   h_phi    = fs->make<TH1F>( "phi", "Jet #phi", 50, -M_PI, M_PI );
   // ---
 
-  bad_ptCal = fs->make<TH1F>( "bad_ptCal",  "p_{T} of CalJet", 100, 0, 1000 );
-  bad_etaCal = fs->make<TH1F>( "bad_etaCal",  "#eta of  CalJet", 100, -5, 5 );
-  bad_phiCal = fs->make<TH1F>( "bad_phiCal",  "#phi of  CalJet", 50, -M_PI, M_PI );
-
-
   hitEtaEt  = fs->make<TH1F>( "hitEtaEt", "RecHit #eta", 90, -45, 45 );
   hitEta    = fs->make<TH1F>( "hitEta", "RecHit #eta", 90, -45, 45 );
   hitPhi    = fs->make<TH1F>( "hitPhi", "RecHit #phi", 73, 0, 73 );
@@ -182,7 +157,7 @@ void myJetAna::beginJob( ) {
   caloEta    = fs->make<TH1F>( "caloEta", "CaloTower #eta", 100, -4, 4 );
   caloPhi    = fs->make<TH1F>( "caloPhi", "CaloTower #phi", 50, -M_PI, M_PI );
 
-  dijetMass  =  fs->make<TH1F>("dijetMass","DiJet Mass",100,0,1000);
+  dijetMass  =  fs->make<TH1F>("dijetMass","DiJet Mass",100,0,100);
 
   totEneLeadJetEta1 = fs->make<TH1F>("totEneLeadJetEta1","Total Energy Lead Jet Eta1 1",100,0,100);
   totEneLeadJetEta2 = fs->make<TH1F>("totEneLeadJetEta2","Total Energy Lead Jet Eta2 1",150,0,150);
@@ -204,16 +179,8 @@ void myJetAna::beginJob( ) {
   HFMET    = fs->make<TH1F>("HFMET",  "HFMET",120,0,120);
 
   SumEt  = fs->make<TH1F>("SumEt","SumEt",100,0,100);
-
-  MET    = fs->make<TH1F>("MET",  "MET",100,0,500);
-  MET_All    = fs->make<TH1F>("MET_All",  "MET_All",100,0,500);
-  MET_FBSN = fs->make<TH1F>("MET_FBSN",  "MET_FBSN",100,0,500);
-  MET_FBTN = fs->make<TH1F>("MET_FBTN",  "MET_FBTN",100,0,500);
-  MET_FBFN = fs->make<TH1F>("MET_FBFN",  "MET_FBFN",100,0,500);
-  MET_FBTNR = fs->make<TH1F>("MET_FBTNR",  "MET_FBTNR",100,0,500);
-  MET_FBFNR = fs->make<TH1F>("MET_FBFNR",  "MET_FBFNR",100,0,500);
-  OERMET    = fs->make<TH1F>("OERMET",  "OERMET",100,0,500);
-
+  MET    = fs->make<TH1F>("MET",  "MET",120,0,120);
+  OERMET    = fs->make<TH1F>("OERMET",  "OERMET",120,0,120);
   METSig = fs->make<TH1F>("METSig",  "METSig",100,0,50);
   MEx    = fs->make<TH1F>("MEx",  "MEx",100,-20,20);
   MEy    = fs->make<TH1F>("MEy",  "MEy",100,-20,20);
@@ -308,7 +275,6 @@ void myJetAna::beginJob( ) {
   HBTimeTh1  = fs->make<TH1F>( "HBTimeTh1", "HBTimeTh1", 200, -100, 100 );
   HBTimeTh2  = fs->make<TH1F>( "HBTimeTh2", "HBTimeTh2", 200, -100, 100 );
   HBTimeTh3  = fs->make<TH1F>( "HBTimeTh3", "HBTimeTh3", 200, -100, 100 );
-  HBTimeTh4  = fs->make<TH1F>( "HBTimeTh4", "HBTimeTh4", 200, -100, 100 );
   HBTimeThR  = fs->make<TH1F>( "HBTimeThR", "HBTimeThR", 200, -100, 100 );
   HBTimeTh1R  = fs->make<TH1F>( "HBTimeTh1R", "HBTimeTh1R", 200, -100, 100 );
   HBTimeTh2R  = fs->make<TH1F>( "HBTimeTh2R", "HBTimeTh2R", 200, -100, 100 );
@@ -318,25 +284,11 @@ void myJetAna::beginJob( ) {
   HBTimeThFlagged    = fs->make<TH1F>( "HBTimeThFlagged", "HBTimeThFlagged", 200, -100, 100 );
   HBTimeTh1Flagged    = fs->make<TH1F>( "HBTimeTh1Flagged", "HBTimeTh1Flagged", 200, -100, 100 );
   HBTimeTh2Flagged    = fs->make<TH1F>( "HBTimeTh2Flagged", "HBTimeTh2Flagged", 200, -100, 100 );
-  HBTimeTh3Flagged    = fs->make<TH1F>( "HBTimeTh3Flagged", "HBTimeTh3Flagged", 200, -100, 100 );
 
   HBTimeFlagged2    = fs->make<TH1F>( "HBTimeFlagged2", "HBTimeFlagged2", 200, -100, 100 );
   HBTimeThFlagged2    = fs->make<TH1F>( "HBTimeThFlagged2", "HBTimeThFlagged2", 200, -100, 100 );
   HBTimeTh1Flagged2    = fs->make<TH1F>( "HBTimeTh1Flagged2", "HBTimeTh1Flagged2", 200, -100, 100 );
   HBTimeTh2Flagged2    = fs->make<TH1F>( "HBTimeTh2Flagged2", "HBTimeTh2Flagged2", 200, -100, 100 );
-  HBTimeTh3Flagged2    = fs->make<TH1F>( "HBTimeTh3Flagged2", "HBTimeTh3Flagged2", 200, -100, 100 );
-
-  HBTimeTh3Flagged3    = fs->make<TH1F>( "HBTimeTh3Flagged3", "HBTimeTh3Flagged3", 200, -100, 100 );
-  HBTimeTh3Flagged3Clean    = fs->make<TH1F>( "HBTimeTh3Flagged3Clean", "HBTimeTh3Flagged3Clean", 200, -100, 100 );
-
-  HBTimeTh3Flagged3FN    = fs->make<TH1F>( "HBTimeTh3Flagged3FN", "HBTimeTh3Flagged3FN", 200, -100, 100 );
-  HBTimeTh3Flagged3SN    = fs->make<TH1F>( "HBTimeTh3Flagged3SN", "HBTimeTh3Flagged3SN", 200, -100, 100 );
-  HBTimeTh3Flagged3TN    = fs->make<TH1F>( "HBTimeTh3Flagged3TN", "HBTimeTh3Flagged3TN", 200, -100, 100 );
-
-  HBTimeTh4Flagged3FN    = fs->make<TH1F>( "HBTimeTh4Flagged3FN", "HBTimeTh4Flagged3FN", 200, -100, 100 );
-  HBTimeTh4Flagged3SN    = fs->make<TH1F>( "HBTimeTh4Flagged3SN", "HBTimeTh4Flagged3SN", 200, -100, 100 );
-  HBTimeTh4Flagged3TN    = fs->make<TH1F>( "HBTimeTh4Flagged3TN", "HBTimeTh4Flagged3TN", 200, -100, 100 );
-
 
   HBTimeX   = fs->make<TH1F>( "HBTimeX", "HBTimeX", 200, -100, 100 );
   HBTimeY   = fs->make<TH1F>( "HBTimeY", "HBTimeY", 200, -100, 100 );
@@ -352,7 +304,6 @@ void myJetAna::beginJob( ) {
   HETimeTh1  = fs->make<TH1F>( "HETimeTh1", "HETimeTh1", 200, -100, 100 );
   HETimeTh2  = fs->make<TH1F>( "HETimeTh2", "HETimeTh2", 200, -100, 100 );
   HETimeTh3  = fs->make<TH1F>( "HETimeTh3", "HETimeTh3", 200, -100, 100 );
-  HETimeTh4  = fs->make<TH1F>( "HETimeTh4", "HETimeTh4", 200, -100, 100 );
   HETimeThR  = fs->make<TH1F>( "HETimeThR", "HETimeThR", 200, -100, 100 );
   HETimeTh1R  = fs->make<TH1F>( "HETimeTh1R", "HETimeTh1R", 200, -100, 100 );
   HETimeTh2R  = fs->make<TH1F>( "HETimeTh2R", "HETimeTh2R", 200, -100, 100 );
@@ -362,24 +313,11 @@ void myJetAna::beginJob( ) {
   HETimeThFlagged    = fs->make<TH1F>( "HETimeThFlagged", "HETimeThFlagged", 200, -100, 100 );
   HETimeTh1Flagged    = fs->make<TH1F>( "HETimeTh1Flagged", "HETimeTh1Flagged", 200, -100, 100 );
   HETimeTh2Flagged    = fs->make<TH1F>( "HETimeTh2Flagged", "HETimeTh2Flagged", 200, -100, 100 );
-  HETimeTh3Flagged    = fs->make<TH1F>( "HETimeTh3Flagged", "HETimeTh3Flagged", 200, -100, 100 );
 
   HETimeFlagged2    = fs->make<TH1F>( "HETimeFlagged2", "HETimeFlagged2", 200, -100, 100 );
   HETimeThFlagged2    = fs->make<TH1F>( "HETimeThFlagged2", "HETimeThFlagged2", 200, -100, 100 );
   HETimeTh1Flagged2    = fs->make<TH1F>( "HETimeTh1Flagged2", "HETimeTh1Flagged2", 200, -100, 100 );
   HETimeTh2Flagged2    = fs->make<TH1F>( "HETimeTh2Flagged2", "HETimeTh2Flagged2", 200, -100, 100 );
-  HETimeTh3Flagged2    = fs->make<TH1F>( "HETimeTh3Flagged2", "HETimeTh3Flagged2", 200, -100, 100 );
-
-  HETimeTh3Flagged3    = fs->make<TH1F>( "HETimeTh3Flagged3", "HETimeTh3Flagged3", 200, -100, 100 );
-  HETimeTh3Flagged3Clean    = fs->make<TH1F>( "HETimeTh3Flagged3Clean", "HETimeTh3Flagged3Clean", 200, -100, 100 );
-
-  HETimeTh3Flagged3FN    = fs->make<TH1F>( "HETimeTh3Flagged3FN", "HETimeTh3Flagged3FN", 200, -100, 100 );
-  HETimeTh3Flagged3SN    = fs->make<TH1F>( "HETimeTh3Flagged3SN", "HETimeTh3Flagged3SN", 200, -100, 100 );
-  HETimeTh3Flagged3TN    = fs->make<TH1F>( "HETimeTh3Flagged3TN", "HETimeTh3Flagged3TN", 200, -100, 100 );
-
-  HETimeTh4Flagged3FN    = fs->make<TH1F>( "HETimeTh4Flagged3FN", "HETimeTh4Flagged3FN", 200, -100, 100 );
-  HETimeTh4Flagged3SN    = fs->make<TH1F>( "HETimeTh4Flagged3SN", "HETimeTh4Flagged3SN", 200, -100, 100 );
-  HETimeTh4Flagged3TN    = fs->make<TH1F>( "HETimeTh4Flagged3TN", "HETimeTh4Flagged3TN", 200, -100, 100 );
 
   HETimeX   = fs->make<TH1F>( "HETimeX", "HETimeX", 200, -100, 100 );
   HETimeY   = fs->make<TH1F>( "HETimeY", "HETimeY", 200, -100, 100 );
@@ -408,11 +346,10 @@ void myJetAna::beginJob( ) {
   HOHrp2Ene     = fs->make<TH1F>( "HOHrp2Ene" ,  "HOHrp2Ene", 12000, -20 , 100 );
   HOHrp2Time    = fs->make<TH1F>( "HOHrp2Time", "HOHrp2Time",   200, -200, 200 );
 
-  HBTvsE    = fs->make<TH2F>( "HBTvsE", "HBTvsE",301, -10, 3000, 100, -100, 100);
-  HETvsE    = fs->make<TH2F>( "HETvsE", "HETvsE",301, -10, 3000, 100, -100, 100);
-  HFTvsE            = fs->make<TH2F>( "HFTvsE", "HFTvsE",301, -10, 3000, 100, -100, 100);
-  HFTvsEPass        = fs->make<TH2F>( "HFTvsEPass", "HFTvsEPass",301, -10, 3000, 100, -100, 100);
+  HBTvsE    = fs->make<TH2F>( "HBTvsE", "HBTvsE",305, -5, 300, 100, -100, 100);
+  HETvsE    = fs->make<TH2F>( "HETvsE", "HETvsE",305, -5, 300, 100, -100, 100);
 
+  HFTvsE            = fs->make<TH2F>( "HFTvsE", "HFTvsE",305, -5, 300, 100, -100, 100);
   HFTvsEFlagged     = fs->make<TH2F>( "HFTvsEFlagged", "HFTvsEFlagged",305, -5, 300, 100, -100, 100);  
   HFTvsEFlagged2    = fs->make<TH2F>( "HFTvsEFlagged2", "HFTvsEFlagged2",305, -5, 300, 100, -100, 100);
 
@@ -430,21 +367,11 @@ void myJetAna::beginJob( ) {
   HBocc    = fs->make<TH2F>( "HBocc", "HBocc",85,-42.5,42.5,70,0.5,70.5);
   HEocc    = fs->make<TH2F>( "HEocc", "HEocc",85,-42.5,42.5,70,0.5,70.5);
   HFocc    = fs->make<TH2F>( "HFocc", "HFocc",85,-42.5,42.5,70,0.5,70.5);
-
-
   HFoccTime    = fs->make<TH2F>( "HFoccTime", "HFoccTime",85,-42.5,42.5,70,0.5,70.5);
   HFoccFlagged    = fs->make<TH2F>( "HFoccFlagged", "HFoccFlagged",85,-42.5,42.5,70,0.5,70.5);
   HFoccFlagged2    = fs->make<TH2F>( "HFoccFlagged2", "HFoccFlagged2",85,-42.5,42.5,70,0.5,70.5);
 
-  HFEtaPhiFlagged     = fs->make<TH2F>( "HFEtaPhiFlagged",  "HFEtaPhiFlagged",85,-42.5,42.5,70,0.5,70.5);
   HFEtaPhiNFlagged    = fs->make<TH2F>( "HFEtaPhiNFlagged", "HFEtaPhiNFlagged",85,-42.5,42.5,70,0.5,70.5);
-
-  HFPhiNewPMTFlagged     = fs->make<TH1F>( "HFPhiNewPMTFlagged", "HFPhiNewPMTFlagged",73, 0, 73);
-
-  HFPhiFlagged          = fs->make<TH1F>( "HFPhiFlagged", "HFPhiFlagged",73, 0, 73);
-  HFPhiFlaggedEta29     = fs->make<TH1F>( "HFPhiFlaggedEta29", "HFPhiFlaggedEta29",73, 0, 73);
-  HFPhiFlaggedEta30     = fs->make<TH1F>( "HFPhiFlaggedEta30", "HFPhiFlaggedEta30",73, 0, 73);
-  HFPhiFlaggedEta31     = fs->make<TH1F>( "HFPhiFlaggedEta31", "HFPhiFlaggedEta31",73, 0, 73);
 
   //  HFEtaFlagged    = fs->make<TProfile>( "HFEtaFlagged", "HFEtaFlagged",85,-42.5,42.5,0, 10000);
   HFEtaFlagged     = fs->make<TH1F>( "HFEtaFlagged", "HFEtaFlagged",85,-42.5,42.5);
@@ -460,11 +387,6 @@ void myJetAna::beginJob( ) {
   HEoccOOT    = fs->make<TH2F>( "HEoccOOT", "HEoccOOT",85,-42.5,42.5,70,0.5,70.5);
   HFoccOOT    = fs->make<TH2F>( "HFoccOOT", "HFoccOOT",85,-42.5,42.5,70,0.5,70.5);
 
-  HBHEFBSpike     = fs->make<TH2F>( "HBHEFBSpike", "HBHEFBSpike",85,-42.5,42.5,70,0.5,70.5);
-  HBHEFBFlat      = fs->make<TH2F>( "HBHEFBFlat", "HBHEFBFlat",85,-42.5,42.5,70,0.5,70.5);
-  HBHEFBTriangle  = fs->make<TH2F>( "HBHEFBTriangle", "HBHEFBTriangle",85,-42.5,42.5,70,0.5,70.5);
-  HBHETS4TS5      = fs->make<TH2F>( "HBHETS4TS5", "HBHETS4TS5",85,-42.5,42.5,70,0.5,70.5);
-
   HFEnePMT0     = fs->make<TH1F>( "HFEnePMT0",  "HFEnePMT0", 210, -10, 200 );
   HFEnePMT1     = fs->make<TH1F>( "HFEnePMT1",  "HFEnePMT1", 210, -10, 200 );
   HFEnePMT2     = fs->make<TH1F>( "HFEnePMT2",  "HFEnePMT2", 210, -10, 200 );
@@ -472,10 +394,9 @@ void myJetAna::beginJob( ) {
   HFTimePMT1    = fs->make<TH1F>( "HFTimePMT1", "HFTimePMT1", 200, -100, 100 );
   HFTimePMT2    = fs->make<TH1F>( "HFTimePMT2", "HFTimePMT2", 200, -100, 100 );
 
-  HFEne     = fs->make<TH1F>( "HFEne",  "HFEne", 1000, 0, 10000 );
-  HFEneFlagged     = fs->make<TH1F>( "HFEneFlagged",  "HFEneFlagged", 1000, 0, 10000 );
-  HFEneFlagged2     = fs->make<TH1F>( "HFEneFlagged2",  "HFEneFlagged2", 1000, 0, 10000 );
-  HFEneFlagged3     = fs->make<TH1F>( "HFEneFlagged3",  "HFEneFlagged3", 1000, 0, 10000 );
+  HFEne     = fs->make<TH1F>( "HFEne",  "HFEne", 210, -10, 200 );
+  HFEneFlagged     = fs->make<TH1F>( "HFEneFlagged",  "HFEneFlagged", 210, -10, 200 );
+  HFEneFlagged2     = fs->make<TH1F>( "HFEneFlagged2",  "HFEneFlagged2", 210, -10, 200 );
   HFEneTh   = fs->make<TH1F>( "HFEneTh",  "HFEneTh", 210, -10, 200 );
   HFEneTh1  = fs->make<TH1F>( "HFEneTh1",  "HFEneTh1", 210, -10, 200 );
   HFEneP    = fs->make<TH1F>( "HFEneP",  "HFEneP", 200, -5, 10 );
@@ -489,14 +410,12 @@ void myJetAna::beginJob( ) {
   HFTimeTh1Flagged2  = fs->make<TH1F>( "HFTimeTh1Flagged2", "HFTimeTh1Flagged2", 200, -100, 100 );
   HFTimeTh2Flagged2  = fs->make<TH1F>( "HFTimeTh2Flagged2", "HFTimeTh2Flagged2", 200, -100, 100 );
   HFTimeTh3Flagged2  = fs->make<TH1F>( "HFTimeTh3Flagged2", "HFTimeTh3Flagged2", 200, -100, 100 );
-  HFTimeTh4Flagged2  = fs->make<TH1F>( "HFTimeTh4Flagged2", "HFTimeTh4Flagged2", 200, -100, 100 );
 
   HFTimeFlagged3  = fs->make<TH1F>( "HFTimeFlagged3", "HFTimeFlagged3", 200, -100, 100 );
   HFTimeThFlagged3  = fs->make<TH1F>( "HFTimeThFlagged3", "HFTimeThFlagged3", 200, -100, 100 );
   HFTimeTh1Flagged3  = fs->make<TH1F>( "HFTimeTh1Flagged3", "HFTimeTh1Flagged3", 200, -100, 100 );
   HFTimeTh2Flagged3  = fs->make<TH1F>( "HFTimeTh2Flagged3", "HFTimeTh2Flagged3", 200, -100, 100 );
   HFTimeTh3Flagged3  = fs->make<TH1F>( "HFTimeTh3Flagged3", "HFTimeTh3Flagged3", 200, -100, 100 );
-  HFTimeTh4Flagged3  = fs->make<TH1F>( "HFTimeTh4Flagged3", "HFTimeTh4Flagged3", 200, -100, 100 );
 
   HFTimeThFlagged  = fs->make<TH1F>( "HFTimeThFlagged", "HFTimeThFlagged", 200, -100, 100 );
   HFTimeTh2Flagged  = fs->make<TH1F>( "HFTimeTh2Flagged", "HFTimeTh2Flagged", 200, -100, 100 );
@@ -514,18 +433,10 @@ void myJetAna::beginJob( ) {
   TrkMultFlagged3  = fs->make<TH1F>( "TrkMultFlagged3", "TrkMultFlagged3", 100, 0, 100 );
   TrkMultFlagged4  = fs->make<TH1F>( "TrkMultFlagged4", "TrkMultFlagged4", 100, 0, 100 );
   TrkMultFlaggedM  = fs->make<TH1F>( "TrkMultFlaggedM", "TrkMultFlaggedM", 100, 0, 100 );
-
   HFTimeTh  = fs->make<TH1F>( "HFTimeTh", "HFTimeTh", 200, -100, 100 );
   HFTimeTh1  = fs->make<TH1F>( "HFTimeTh1", "HFTimeTh1", 200, -100, 100 );
   HFTimeTh2  = fs->make<TH1F>( "HFTimeTh2", "HFTimeTh2", 200, -100, 100 );
   HFTimeTh3  = fs->make<TH1F>( "HFTimeTh3", "HFTimeTh3", 200, -100, 100 );
-  HFTimeTh4  = fs->make<TH1F>( "HFTimeTh4", "HFTimeTh4", 200, -100, 100 );
-  HFTimeThPass   = fs->make<TH1F>( "HFTimeThPass", "HFTimeThPass", 200, -100, 100 );
-  HFTimeTh1Pass  = fs->make<TH1F>( "HFTimeTh1Pass", "HFTimeTh1Pass", 200, -100, 100 );
-  HFTimeTh2Pass  = fs->make<TH1F>( "HFTimeTh2Pass", "HFTimeTh2Pass", 200, -100, 100 );
-  HFTimeTh3Pass  = fs->make<TH1F>( "HFTimeTh3Pass", "HFTimeTh3Pass", 200, -100, 100 );
-  HFTimeTh4Pass  = fs->make<TH1F>( "HFTimeTh4Pass", "HFTimeTh4Pass", 200, -100, 100 );
-
   HFTimeThR  = fs->make<TH1F>( "HFTimeThR", "HFTimeThR", 200, -100, 100 );
   HFTimeTh1R  = fs->make<TH1F>( "HFTimeTh1R", "HFTimeTh1R", 200, -100, 100 );
   HFTimeTh2R  = fs->make<TH1F>( "HFTimeTh2R", "HFTimeTh2R", 200, -100, 100 );
@@ -580,8 +491,8 @@ void myJetAna::beginJob( ) {
 
   h_nTowersCal = fs->make<TH1F>( "nTowersCal",  "N Towers in Jet", 100, 0, 50 );
   h_EMFracCal  = fs->make<TH1F>( "EMFracCal",  "EM Fraction in Jet", 100, -1.1, 1.1 );
-  h_ptCal      = fs->make<TH1F>( "ptCal",  "p_{T} of CalJet", 100, 0, 1000 );
-  h_etaCal     = fs->make<TH1F>( "etaCal", "#eta of  CalJet", 100, -5, 5 );
+  h_ptCal      = fs->make<TH1F>( "ptCal",  "p_{T} of CalJet", 100, 0, 50 );
+  h_etaCal     = fs->make<TH1F>( "etaCal", "#eta of  CalJet", 100, -4, 4 );
   h_phiCal     = fs->make<TH1F>( "phiCal", "#phi of  CalJet", 50, -M_PI, M_PI );
 
   h_nGenJets  =  fs->make<TH1F>( "nGenJets",  "Number of GenJets", 20, 0, 20 );
@@ -659,285 +570,28 @@ void myJetAna::beginJob( ) {
   NTime         = fs->make<TH1F>( "NTime", "NTime", 10, 0, 10 );
 
 
-  HFRecHitEne   = fs->make<TH1F>( "HFRecHitEne", "HFRecHitEne", 100, 0, 2000 );
-  HFRecHitEneClean   = fs->make<TH1F>( "HFRecHitEneClean", "HFRecHitEneClean", 100, 0, 2000 );
-  HFRecHitEneCleanTopological  = fs->make<TH1F>( "HFRecHitEneCleanTopological", "HFRecHitEneCleanTopological", 100, 0, 2000 );
-  HFRecHitEneOnlyPulseShape  = fs->make<TH1F>( "HFRecHitEneOnlyPulseShape", "HFRecHitEneOnlyPulseShape", 100, 0, 2000 );
-  HFRecHitEneCleanPulseShape   = fs->make<TH1F>( "HFRecHitEneCleanPulseShape", "HFRecHitEneCleanPulseShape",100, 0, 2000 );
-
+  HFRecHitEne   = fs->make<TH1F>( "HFRecHitEne", "HFRecHitEne", 300, 0, 3000 );
+  HFRecHitEneClean   = fs->make<TH1F>( "HFRecHitEneClean", "HFRecHitEneClean", 300, 0, 3000 );
   HFRecHitTime  = fs->make<TH1F>( "HFRecHitTime", "HFRecHitTime", 120, -60, 60 );
 
 
   HFLongShortPhi  = fs->make<TH1F>( "HFLongShortPhi", "HFLongShortPhi", 73, 0, 73 );
   HFLongShortEta  = fs->make<TH1F>( "HFLongShortEta", "HFLongShortEta", 90, -45, 45 );
-  HFLongShortEne  = fs->make<TH1F>( "HFLongShortEne", "HFLongShortEne", 1000, 0, 10000 );
+  HFLongShortEne  = fs->make<TH1F>( "HFLongShortEne", "HFLongShortEne", 300, 0, 3000 );
   HFLongShortTime = fs->make<TH1F>( "HFLongShortTime", "HFLongShortTime", 120, -60, 60 );
   HFLongShortNHits = fs->make<TH1F>( "HFLongShortNHits", "HFLongShortNHits", 30, 0, 30 );
 
   HFDigiTimePhi  = fs->make<TH1F>( "HFDigiTimePhi", "HFDigiTimePhi", 73, 0, 73 );
   HFDigiTimeEta  = fs->make<TH1F>( "HFDigiTimeEta", "HFDigiTimeEta", 90, -45, 45 );
-  HFDigiTimeEne  = fs->make<TH1F>( "HFDigiTimeEne", "HFDigiTimeEne", 1000, 0, 10000 );
+  HFDigiTimeEne  = fs->make<TH1F>( "HFDigiTimeEne", "HFDigiTimeEne", 300, 0, 3000 );
   HFDigiTimeTime = fs->make<TH1F>( "HFDigiTimeTime", "HFDigiTimeTime", 120, -60, 60 );
   HFDigiTimeNHits = fs->make<TH1F>( "HFDigiTimeNHits", "HFDigiTimeNHits", 30, 0, 30 );
 
-  ADC1 = fs->make<TH1F>( "ADC1",  "ADC1", 200, 0, 5 );
-  ADC2 = fs->make<TH1F>( "ADC2",  "ADC2", 200, 0, 5 );
-  ADC3 = fs->make<TH1F>( "ADC3",  "ADC3", 200, 0, 5 );
-  ADC1E1000 = fs->make<TH1F>( "ADC1E1000",  "ADC1E1000", 100, 0, 1 );
-  ADC2E1000 = fs->make<TH1F>( "ADC2E1000",  "ADC2E1000", 100, 0, 1 );
-  ADC3E1000 = fs->make<TH1F>( "ADC3E1000",  "ADC3E1000", 100, 0, 1 );
-
-  ADC1F = fs->make<TH1F>( "ADC1F",  "ADC1F", 200, 0, 5 );
-  ADC2F = fs->make<TH1F>( "ADC2F",  "ADC2F", 200, 0, 5 );
-  ADC3F = fs->make<TH1F>( "ADC3F",  "ADC3F", 200, 0, 5 );
-  ADC1E1000F = fs->make<TH1F>( "ADC1E1000F",  "ADC1E1000F", 200, 0, 5 );
-  ADC2E1000F = fs->make<TH1F>( "ADC2E1000F",  "ADC2E1000F", 200, 0, 5 );
-  ADC3E1000F = fs->make<TH1F>( "ADC3E1000F",  "ADC3E1000F", 200, 0, 5 );
-
-  ADC1vsE    = fs->make<TH2F>( "ADC1vsE", "ADC1vsE",301, 0, 10000, 100, 0, 1);
-  ADC2vsE    = fs->make<TH2F>( "ADC2vsE", "ADC2vsE",301, 0, 10000, 100, 0, 1);
-  ADC3vsE    = fs->make<TH2F>( "ADC3vsE", "ADC3vsE",301, 0, 10000, 100, 0, 1);
-
-  ADC1vsEF    = fs->make<TH2F>( "ADC1vsEF", "ADC1vsEF",301, 0, 10000, 100, 0, 1);
-  ADC2vsEF    = fs->make<TH2F>( "ADC2vsEF", "ADC2vsEF",301, 0, 10000, 100, 0, 1);
-  ADC3vsEF    = fs->make<TH2F>( "ADC3vsEF", "ADC3vsEF",301, 0, 10000, 100, 0, 1);
-
-  HFRatVsTS4          = fs->make<TH2F>( "HFRatVsTS4", "HFRatVsTS4",500, 0, 2000, 100, 0, 1);
-  HFPulseShapeVsTS5   = fs->make<TH2F>( "HFPulseShapeVsTS5", "HFPulseShapeVsTS5",500, 0, 2000, 100, 0, 1);
-  HFPulseShapeVsTS6   = fs->make<TH2F>( "HFPulseShapeVsTS6", "HFPulseShapeVsTS6",500, 0, 2000, 100, 0, 1);
-
-  HFPulseShapeFPX  = fs->make<TProfile>( "HFPulseShapeFPX", "HFPulseShapeFPX",  10, 0, 10, 0, 5000);
-  HFPulseShapeFP  = fs->make<TProfile>( "HFPulseShapeFP", "HFPulseShapeFP",  10, 0, 10, 0, 5000);
-  HFPulseShapeFT  = fs->make<TProfile>( "HFPulseShapeFT", "HFPulseShapeFT",  10, 0, 10, 0, 5000);
-  HFPulseShapeP  = fs->make<TProfile>( "HFPulseShapeP", "HFPulseShapeP",  10, 0, 10, 0, 5000);
-
-  HFPS4VsPS6E0    = fs->make<TH2F>( "HFPS4VsPS6E0", "HFPS4VsPS6E0",  100, 0, 1, 100, 0, 1);
-  HFPS4VsPS6E10   = fs->make<TH2F>( "HFPS4VsPS6E10", "HFPS4VsPS6E10",100, 0, 1, 100, 0, 1);
-  HFPS4VsPS6E0F   = fs->make<TH2F>( "HFPS4VsPS6E0F", "HFPS4VsPS6E0F",  100, 0, 1, 100, 0, 1);
-  HFPS4VsPS6E10F  = fs->make<TH2F>( "HFPS4VsPS6E10F", "HFPS4VsPS6E10F",100, 0, 1, 100, 0, 1);
-
-
-  HFPulseShape1   = fs->make<TH2F>( "HFPulseShape1", "HFPulseShape1",500, 0, 2000, 100, 0, 1);
-  HFPulseShape2   = fs->make<TH2F>( "HFPulseShape2", "HFPulseShape2",500, 0, 2000, 100, 0, 1);
-  HFPulseShape3   = fs->make<TH2F>( "HFPulseShape3", "HFPulseShape3",500, 0, 2000, 100, 0, 1);
-  HFPulseShape1F  = fs->make<TH2F>( "HFPulseShape1F", "HFPulseShape1F",500, 0, 2000, 100, 0, 1);
-  HFPulseShape2F  = fs->make<TH2F>( "HFPulseShape2F", "HFPulseShape2F",500, 0, 2000, 100, 0, 1);
-  HFPulseShape3F  = fs->make<TH2F>( "HFPulseShape3F", "HFPulseShape3F",500, 0, 2000, 100, 0, 1);
-  HFPulseShape1FT  = fs->make<TH2F>( "HFPulseShape1FT", "HFPulseShape1FT",500, 0, 2000, 100, 0, 1);
-  HFPulseShape1FTE  = fs->make<TH2F>( "HFPulseShape1FTE", "HFPulseShape1FTE",500, 0, 2000, 100, 0, 1);
-  HFPulseShape2FT  = fs->make<TH2F>( "HFPulseShape2FT", "HFPulseShape2FT",500, 0, 2000, 100, 0, 1);
-  HFPulseShape3FT  = fs->make<TH2F>( "HFPulseShape3FT", "HFPulseShape3FT",500, 0, 2000, 100, 0, 1);
-  HFPulseShape1FP  = fs->make<TH2F>( "HFPulseShape1FP", "HFPulseShape1FP",500, 0, 2000, 100, 0, 1);
-  HFPulseShape1FPE  = fs->make<TH2F>( "HFPulseShape1FPE", "HFPulseShape1FPE",500, 0, 2000, 100, 0, 1);
-  HFPulseShape2FP  = fs->make<TH2F>( "HFPulseShape2FP", "HFPulseShape2FP",500, 0, 2000, 100, 0, 1);
-  HFPulseShape3FP  = fs->make<TH2F>( "HFPulseShape3FP", "HFPulseShape3FP",500, 0, 2000, 100, 0, 1);
-  HFPulseShape1C  = fs->make<TH2F>( "HFPulseShape1C", "HFPulseShape1C",500, 0, 2000, 100, 0, 1);
-  HFPulseShape2C  = fs->make<TH2F>( "HFPulseShape2C", "HFPulseShape2C",500, 0, 2000, 100, 0, 1);
-  HFPulseShape3C  = fs->make<TH2F>( "HFPulseShape3C", "HFPulseShape3C",500, 0, 2000, 100, 0, 1);
-
-  HFPS1A  = fs->make<TH1F>( "HFPS1A", "HFPS1A",100, 0, 1);
-  HFPS1C  = fs->make<TH1F>( "HFPS1C", "HFPS1C",100, 0, 1);
-  HFPS1ATh2  = fs->make<TH1F>( "HFPS1ATh2", "HFPS1ATh2",100, 0, 1);
-  HFPS1CTh2  = fs->make<TH1F>( "HFPS1CTh2", "HFPS1CTh2",100, 0, 1);
-  HFPS1ATh3  = fs->make<TH1F>( "HFPS1ATh3", "HFPS1ATh3",100, 0, 1);
-  HFPS1CTh3  = fs->make<TH1F>( "HFPS1CTh3", "HFPS1CTh3",100, 0, 1);
-  HFPS1ATh4  = fs->make<TH1F>( "HFPS1ATh4", "HFPS1ATh4",100, 0, 1);
-  HFPS1CTh4  = fs->make<TH1F>( "HFPS1CTh4", "HFPS1CTh4",100, 0, 1);
-  HFPS1ATh5  = fs->make<TH1F>( "HFPS1ATh5", "HFPS1ATh5",100, 0, 1);
-  HFPS1CTh5  = fs->make<TH1F>( "HFPS1CTh5", "HFPS1CTh5",100, 0, 1);
-
-  HFPS2ATh2  = fs->make<TH1F>( "HFPS2ATh2", "HFPS2ATh2",100, 0, 1);
-  HFPS2CTh2  = fs->make<TH1F>( "HFPS2CTh2", "HFPS2CTh2",100, 0, 1);
-  HFPS2ATh3  = fs->make<TH1F>( "HFPS2ATh3", "HFPS2ATh3",100, 0, 1);
-  HFPS2CTh3  = fs->make<TH1F>( "HFPS2CTh3", "HFPS2CTh3",100, 0, 1);
-  HFPS2ATh4  = fs->make<TH1F>( "HFPS2ATh4", "HFPS2ATh4",100, 0, 1);
-  HFPS2CTh4  = fs->make<TH1F>( "HFPS2CTh4", "HFPS2CTh4",100, 0, 1);
-  HFPS2ATh5  = fs->make<TH1F>( "HFPS2ATh5", "HFPS2ATh5",100, 0, 1);
-  HFPS2CTh5  = fs->make<TH1F>( "HFPS2CTh5", "HFPS2CTh5",100, 0, 1);
-
-  HFPS3ATh2  = fs->make<TH1F>( "HFPS3ATh2", "HFPS3ATh2",100, 0, 1);
-  HFPS3CTh2  = fs->make<TH1F>( "HFPS3CTh2", "HFPS3CTh2",100, 0, 1);
-  HFPS3ATh3  = fs->make<TH1F>( "HFPS3ATh3", "HFPS3ATh3",100, 0, 1);
-  HFPS3CTh3  = fs->make<TH1F>( "HFPS3CTh3", "HFPS3CTh3",100, 0, 1);
-  HFPS3ATh4  = fs->make<TH1F>( "HFPS3ATh4", "HFPS3ATh4",100, 0, 1);
-  HFPS3CTh4  = fs->make<TH1F>( "HFPS3CTh4", "HFPS3CTh4",100, 0, 1);
-  HFPS3ATh5  = fs->make<TH1F>( "HFPS3ATh5", "HFPS3ATh5",100, 0, 1);
-  HFPS3CTh5  = fs->make<TH1F>( "HFPS3CTh5", "HFPS3CTh5",100, 0, 1);
-
-  HFPS1CTim1  = fs->make<TH1F>( "HFPS1CTim1", "HFPS1CTim1",100, 0, 1);
-  HFPS1CTim2  = fs->make<TH1F>( "HFPS1CTim2", "HFPS1CTim2",100, 0, 1);
-  HFPS1CEne  = fs->make<TH1F>( "HFPS1CEne", "HFPS1CEne",100, 0, 1);
-  HFPS1F  = fs->make<TH1F>( "HFPS1F", "HFPS1F",100, 0, 1);
-  HFPS1FT = fs->make<TH1F>( "HFPS1FT", "HFPS1FT",100, 0, 1);
-  HFPS1FP = fs->make<TH1F>( "HFPS1FP", "HFPS1FP",100, 0, 1);
-
-  HFPS2A    = fs->make<TH1F>( "HFPS2A", "HFPS2A",100, 0, 1);
-  HFPS2C    = fs->make<TH1F>( "HFPS2C", "HFPS2C",100, 0, 1);
-  HFPS2CTim1 = fs->make<TH1F>( "HFPS2CTim1", "HFPS2CTim1",100, 0, 1);
-  HFPS2CTim2 = fs->make<TH1F>( "HFPS2CTim2", "HFPS2CTim2",100, 0, 1);
-  HFPS2CEne = fs->make<TH1F>( "HFPS2CEne", "HFPS2CEne",100, 0, 1);
-  HFPS2F    = fs->make<TH1F>( "HFPS2F", "HFPS2F",100, 0, 1);
-  HFPS2FT   = fs->make<TH1F>( "HFPS2FT", "HFPS2FT",100, 0, 1);
-  HFPS2FP   = fs->make<TH1F>( "HFPS2FP", "HFPS2FP",100, 0, 1);
-
-  HFPS3A    = fs->make<TH1F>( "HFPS3A", "HFPS3A",100, 0, 1);
-  HFPS3C    = fs->make<TH1F>( "HFPS3C", "HFPS3C",100, 0, 1);
-  HFPS3CTim1 = fs->make<TH1F>( "HFPS3CTim1", "HFPS3CTim1",100, 0, 1);
-  HFPS3CTim2 = fs->make<TH1F>( "HFPS3CTim2", "HFPS3CTim2",100, 0, 1);
-  HFPS3CEne = fs->make<TH1F>( "HFPS3CEne", "HFPS3CEne",100, 0, 1);
-  HFPS3F    = fs->make<TH1F>( "HFPS3F", "HFPS3F",100, 0, 1);
-  HFPS3FT   = fs->make<TH1F>( "HFPS3FT", "HFPS3FT",100, 0, 1);
-  HFPS3FP   = fs->make<TH1F>( "HFPS3FP", "HFPS3FP",100, 0, 1);
-
-  BunchCrossing        = fs->make<TH1F>( "BunchCrossing", "BunchCrossing",4000, 0, 4000);
-  OddBunchCrossing     = fs->make<TH1F>( "OddBunchCrossing", "OddBunchCrossing",4000, 0, 4000);
-  EvenBunchCrossing    = fs->make<TH1F>( "EvenBunchCrossing", "EvenBunchCrossing",4000, 0, 4000);
-  BadBunchCrossing     = fs->make<TH1F>( "BadBunchCrossing", "BadBunchCrossing",4000, 0, 4000);
-  GoodBunchCrossing    = fs->make<TH1F>( "GoodBunchCrossing", "GoodBunchCrossing",4000, 0, 4000);
-  CentralBunchCrossing = fs->make<TH1F>( "CentralBunchCrossing", "CentralBunchCrossing",4000, 0, 4000);
-  OKBunchCrossing = fs->make<TH1F>( "OKBunchCrossing", "OKBunchCrossing",4000, 0, 4000);
-
-
-  HFMEFlaggedVsE    = fs->make<TProfile>( "HFMEFlaggedVsE", "HFMEFlaggedVsE",50, 0, 4000, 0, 5000);
-  HFMECleanVsE      = fs->make<TProfile>( "HFMECleanVsE", "HFMECleanVsE",50, 0, 4000, 0, 5000);
-  HFPEFlaggedVsE    = fs->make<TProfile>( "HFPEFlaggedVsE", "HFPEFlaggedVsE",50, 0, 4000, 0, 5000);
-  HFPECleanVsE      = fs->make<TProfile>( "HFPECleanVsE", "HFPECleanVsE",50, 0, 4000, 0, 5000);
-
-
-  HFFlaggedLVsE    = fs->make<TProfile>( "HFFlaggedLVsE", "HFFlaggedLVsE",200, 0, 20000, 0, 10);
-  HFFlaggedPVsE    = fs->make<TProfile>( "HFFlaggedPVsE", "HFFlaggedPVsE",200, 0, 20000, 0, 10);
-  HFFlaggedLVsE1    = fs->make<TProfile>( "HFFlaggedLVsE1", "HFFlaggedLVsE1",200, 0, 2000, 0, 10);
-  HFFlaggedPVsE1    = fs->make<TProfile>( "HFFlaggedPVsE1", "HFFlaggedPVsE1",200, 0, 2000, 0, 10);
-
-
-  HFRecHitsVsNVtx   = fs->make<TProfile>( "HFRecHitsVsNVtx", "HFRecHitsVsNVtx",50,0,50,0, 5000);
-  HFRecHitsFlaggedVsNVtx   = fs->make<TProfile>( "HFRecHitsFlaggedVsNVtx", "HFRecHitsFlaggedVsNVtx",50,0,50,0, 5000);
-
-  NVTX              = fs->make<TH1F>( "NVTX", "NVTX",50, 0, 50);
-  NVTX_R45          = fs->make<TH1F>( "NVTX_R45", "NVTX_R45",50, 0, 50);
-  NVTX_NoiseSummary = fs->make<TH1F>( "NVTX_NoiseSummary", "NVTX_NoiseSummary",50, 0, 50);
-  NVTX_MaxHPD       = fs->make<TH1F>( "NVTX_MaxHPD", "NVTX_MaxHPD",50, 0, 50);
-  NVTX_NoOther      = fs->make<TH1F>( "NVTX_NoOther", "NVTX_NoOther",50, 0, 50);
-  NVTX_MaxZero      = fs->make<TH1F>( "NVTX_MaxZero", "NVTX_MaxZero",50, 0, 50);
-
-  NVTXMET200              = fs->make<TH1F>( "NVTXMET200", "NVTXMET200",50, 0, 50);
-  NVTX_R45MET200          = fs->make<TH1F>( "NVTX_R45MET200", "NVTX_R45MET200",50, 0, 50);
-  NVTX_NoiseSummaryMET200 = fs->make<TH1F>( "NVTX_NoiseSummaryMET200", "NVTX_NoiseSummaryMET200",50, 0, 50);
-  NVTX_MaxHPDMET200       = fs->make<TH1F>( "NVTX_MaxHPDMET200", "NVTX_MaxHPDMET200",50, 0, 50);
-  NVTX_NoOtherMET200      = fs->make<TH1F>( "NVTX_NoOtherMET200", "NVTX_NoOtherMET200",50, 0, 50);
-  NVTX_MaxZeroMET200      = fs->make<TH1F>( "NVTX_MaxZeroMET200", "NVTX_MaxZeroMET200",50, 0, 50);
-
-  NHFRecHits        = fs->make<TH1F>( "NHFRecHits", "NHFRecHits",100, 0, 2000);
-
-  HBHEFlaggedVsJet  = fs->make<TH2F>( "HBHEFlaggedVsJet", "HBHEFlaggedVsJet",200, 0, 1000, 200, 0, 1000);
-  HBHENFlagged      = fs->make<TH1F>( "HBHENFlagged", "HBHENFlagged",40, 0, 40);
-
-  HBHEJetHadEneFlagged = fs->make<TH1F>( "HBHEJetHadEneFlagged", "HBHEJetHadEneFlagged",200, 0, 1000);
-  HBHEJetHadEne        = fs->make<TH1F>( "HBHEJetHadEne", "HBHEJetHadEne",200, 0, 1000);
-  NHBHEFlaggedVsNVtx   = fs->make<TProfile>( "NHBHEFlaggedVsNVtx", "NHBHEFlaggedVsNVtx",50,0,50,0, 20);
-
-  RingRat       = fs->make<TH1F>( "RingRat", "RingRat",20, 0, 20);
-  RatVsRun      = fs->make<TProfile>( "RatVsRun", "RatVsRun",15000, 165000, 180000, 0, 50);
-
-  PSAVsRun      = fs->make<TProfile>( "PSAVsRun", "PSAVsRun",15000, 175000, 190000, 0, 50);
-  PSCVsRun      = fs->make<TProfile>( "PSCVsRun", "PSCVsRun",15000, 175000, 190000, 0, 50);
-
-  R45VsE_HB     = fs->make<TH2F>( "R45VsE_HB", "R45VsE_HB",100,0,1000,100, -1, 1);
-  R45VsE_HE     = fs->make<TH2F>( "R45VsE_HE", "R45VsE_HE",100,0,1000,100, -1, 1);
-
-
-  R45VsE        = fs->make<TH2F>( "R45VsE", "R45VsE",100,0,1000,100, -1, 1);
-  R45VsE_Flagged   = fs->make<TH2F>( "R45VsE_Flagged", "R45VsE_Flagged",100,0,1000,100, -1, 1);
-  R45VsE_Clean   = fs->make<TH2F>( "R45VsE_Clean", "R45VsE_Clean",100,0,1000,100, -1, 1);
-  R45VsE_Spike     = fs->make<TH2F>( "R45VsE_Spike", "R45VsE_Spike",100,0,1000,100, -1, 1);
-  R45VsE_Flat      = fs->make<TH2F>( "R45VsE_Flat", "R45VsE_Flat",100,0,1000,100, -1, 1);
-  R45VsE_Triangle  = fs->make<TH2F>( "R45VsE_Triangle", "R45VsE_Triangle",100,0,1000,100, -1, 1);
-  R45VsE_SpikeEx     = fs->make<TH2F>( "R45VsE_SpikeEx", "R45VsE_SpikeEx",100,0,1000,100, -1, 1);
-  R45VsE_FlatEx      = fs->make<TH2F>( "R45VsE_FlatEx", "R45VsE_FlatEx",100,0,1000,100, -1, 1);
-  R45VsE_TriangleEx  = fs->make<TH2F>( "R45VsE_TriangleEx", "R45VsE_TriangleEx",100,0,1000,100, -1, 1);
-
-  R45VsE_HEM15    = fs->make<TH2F>( "R45VsE_HEM15", "R45VsE_HEM15",100,0,1000,100, -1, 1);
-  R45VsE_HEM15G    = fs->make<TH2F>( "R45VsE_HEM15G", "R45VsE_HEM15G",100,0,1000,100, -1, 1);
-  R45VsE_HEM15B    = fs->make<TH2F>( "R45VsE_HEM15B", "R45VsE_HEM15B",100,0,1000,100, -1, 1);
-  R45VsE_HEP18    = fs->make<TH2F>( "R45VsE_HEP18", "R45VsE_HEP18",100,0,1000,100, -1, 1);
-  R45VsE_HBP14    = fs->make<TH2F>( "R45VsE_HBP14", "R45VsE_HBP14",100,0,1000,100, -1, 1);
-  R45VsE_HBP14G    = fs->make<TH2F>( "R45VsE_HBP14G", "R45VsE_HBP14G",100,0,1000,100, -1, 1);
-  R45VsE_HBP14B    = fs->make<TH2F>( "R45VsE_HBP14B", "R45VsE_HBP14B",100,0,1000,100, -1, 1);
-  R45VsE_HBM14    = fs->make<TH2F>( "R45VsE_HBM14", "R45VsE_HBM14",100,0,1000,100, -1, 1);
-
-  R45VsE_HBM13    = fs->make<TH2F>( "R45VsE_HBM13", "R45VsE_HBM13",100,0,1000,100, -1, 1);
-  R45VsE_HBM15    = fs->make<TH2F>( "R45VsE_HBM15", "R45VsE_HBM15",100,0,1000,100, -1, 1);
-  R45VsE_HBP13    = fs->make<TH2F>( "R45VsE_HBP13", "R45VsE_HBP13",100,0,1000,100, -1, 1);
-  R45VsE_HBP15    = fs->make<TH2F>( "R45VsE_HBP15", "R45VsE_HBP15",100,0,1000,100, -1, 1);
-
-  R45VsE_AllGood  = fs->make<TH2F>( "R45VsE_AllGood", "R45VsE_AllGood",100,0,1000,100, -1, 1);
-  R45_HEM15       = fs->make<TH1F>( "R45_HEM15", "R45_HEM15",120, -1.1,1.1);
-  R45_HEM15G       = fs->make<TH1F>( "R45_HEM15G", "R45_HEM15G",120, -1.1,1.1);
-  R45_HEM15B       = fs->make<TH1F>( "R45_HEM15B", "R45_HEM15B",120, -1.1,1.1);
-  R45_HEP18       = fs->make<TH1F>( "R45_HEP18", "R45_HEP18",120, -1.1,1.1);
-  R45_HBP14       = fs->make<TH1F>( "R45_HBP14", "R45_HBP14",120, -1.1,1.1);
-  R45_HBP14G       = fs->make<TH1F>( "R45_HBP14G", "R45_HBP14G",120, -1.1,1.1);
-  R45_HBP14B       = fs->make<TH1F>( "R45_HBP14B", "R45_HBP14B",120, -1.1,1.1);
-  R45_HBM14       = fs->make<TH1F>( "R45_HBM14", "R45_HBM14",120, -1.1,1.1);
-  R45_AllGood     = fs->make<TH1F>( "R45_AllGood", "R45_AllGood",120, -1.1,1.1);
-  R45_HB_AllGood     = fs->make<TH1F>( "R45_HB_AllGood", "R45_HB_AllGood",120, -1.1,1.1);
-  R45_HE_AllGood     = fs->make<TH1F>( "R45_HE_AllGood", "R45_HE_AllGood",120, -1.1,1.1);
-
-  R45_HBM13       = fs->make<TH1F>( "R45_HBM13", "R45_HBM13",120, -1.1,1.1);
-  R45_HBM15       = fs->make<TH1F>( "R45_HBM15", "R45_HBM15",120, -1.1,1.1);
-  R45_HBP13       = fs->make<TH1F>( "R45_HBP13", "R45_HBP13",120, -1.1,1.1);
-  R45_HBP15       = fs->make<TH1F>( "R45_HBP15", "R45_HBP15",120, -1.1,1.1);
-
-  R45_All       = fs->make<TH1F>( "R45_All", "R45_All",120, -1.1,1.1);
-  R45_Flagged   = fs->make<TH1F>( "R45_Flagged", "R45_Flagged",120, -1.1,1.1);
-  R45_Clean   = fs->make<TH1F>( "R45_Clean", "R45_Clean",120, -1.1,1.1);
-  R45_Clean_300   = fs->make<TH1F>( "R45_Clean_300", "R45_Clean_300",120, -1.1,1.1);
-  R45_Spike     = fs->make<TH1F>( "R45_Spike", "R45_Spike",120, -1.1,1.1);
-  R45_Flat      = fs->make<TH1F>( "R45_Flat", "R45_Flat",120, -1.1,1.1);
-  R45_Triangle  = fs->make<TH1F>( "R45_Triangle", "R45_Triangle",120, -1.1,1.1);
-  R45_Spike_300     = fs->make<TH1F>( "R45_Spike_300", "R45_Spike_300",120, -1.1,1.1);
-  R45_Flat_300      = fs->make<TH1F>( "R45_Flat_300", "R45_Flat_300",120, -1.1,1.1);
-  R45_Triangle_300  = fs->make<TH1F>( "R45_Triangle_300", "R45_Triangle_300",120, -1.1,1.1);
-  R45_Spike_300Ex     = fs->make<TH1F>( "R45_Spike_300Ex", "R45_Spike_300Ex",120, -1.1,1.1);
-  R45_Flat_300Ex      = fs->make<TH1F>( "R45_Flat_300Ex", "R45_Flat_300Ex",120, -1.1,1.1);
-  R45_Triangle_300Ex  = fs->make<TH1F>( "R45_Triangle_300Ex", "R45_Triangle_300Ex",120, -1.1,1.1);
-  R45_100       = fs->make<TH1F>( "R45_100", "R45_100",120, -1.1,1.1);
-  R45_200       = fs->make<TH1F>( "R45_200", "R45_200",120, -1.1,1.1);
-  R45_300       = fs->make<TH1F>( "R45_300", "R45_300",120, -1.1,1.1);
-  R45RBXFrac    = fs->make<TH1F>( "R45RBXFrac", "R45RBXFrac",110,0, 1.1);
-  R45RBXFrac_Flagged    = fs->make<TH1F>( "R45RBXFrac_Flagged", "R45RBXFrac_Flagged",110,0, 1.1);
-
-  R45BadRBXFrac    = fs->make<TH1F>( "R45BadRBXFrac", "R45BadRBXFrac",110,0, 1.1);
-  R45BadRBXFrac_Flagged    = fs->make<TH1F>( "R45BadRBXFrac_Flagged", "R45BadRBXFrac_Flagged",110,0, 1.1);
-
-
-  TS4TS5VsRBX    = fs->make<TProfile>( "TS4TS5VsRBX", "TS4TS5VsRBX",75,0.5,75.5,-2, 2);
-  TS4TS5VsHPD    = fs->make<TProfile>( "TS4TS5VsHPD", "TS4TS5VsHPD",300,0.5,300.5,-2, 2);
-
-  TS4TS5VsPhi_HBP    = fs->make<TProfile>( "TS4TS5VsPhi_HBP", "TS4TS5VsPhi_HBP",80,-0.5,79.5,-2, 2);
-  TS4TS5VsPhi_HBM    = fs->make<TProfile>( "TS4TS5VsPhi_HBM", "TS4TS5VsPhi_HBM",80,-0.5,79.5,-2, 2);
-  TS4TS5VsPhi_HEP    = fs->make<TProfile>( "TS4TS5VsPhi_HEP", "TS4TS5VsPhi_HEP",80,-0.5,79.5,-2, 2);
-  TS4TS5VsPhi_HEM    = fs->make<TProfile>( "TS4TS5VsPhi_HEM", "TS4TS5VsPhi_HEM",80,-0.5,79.5,-2, 2);
-
-  RecHit_numTS4TS5NoiseChannels   = fs->make<TH1F>( "RecHit_numTS4TS5NoiseChannels", "RecHit_numTS4TS5NoiseChannels",75,0,75);
-  Noise_numTS4TS5NoiseChannels   = fs->make<TH1F>( "Noise_numTS4TS5NoiseChannels", "Noise_numTS4TS5NoiseChannels",75,0,75);
-  Noise_numFlatNoiseChannels     = fs->make<TH1F>( "Noise_numFlatNoiseChannels", "Noise_numFlatNoiseChannels",75,0,75);
-  Noise_numSpikeNoiseChannels    = fs->make<TH1F>( "Noise_numSpikeNoiseChannels", "Noise_numSpikeNoiseChannels",75,0,75);
-  Noise_numTriangleNoiseChannels = fs->make<TH1F>( "Noise_numTriangleNoiseChannels", "Noise_numTriangleNoiseChannels",75,0,75);
-
-  Noise_numTS4TS5NoiseChannelsFlagged   = fs->make<TH1F>( "Noise_numTS4TS5NoiseChannelsFlagged", "Noise_numTS4TS5NoiseChannelsFlagged",75,0,75);
-  Noise_numFlatNoiseChannelsFlagged     = fs->make<TH1F>( "Noise_numFlatNoiseChannelsFlagged", "Noise_numFlatNoiseChannelsFlagged",75,0,75);
-  Noise_numSpikeNoiseChannelsFlagged    = fs->make<TH1F>( "Noise_numSpikeNoiseChannelsFlagged", "Noise_numSpikeNoiseChannelsFlagged",75,0,75);
-  Noise_numTriangleNoiseChannelsFlagged = fs->make<TH1F>( "Noise_numTriangleNoiseChannelsFlagged", "Noise_numTriangleNoiseChannelsFlagged",75,0,75);
-
-  Noise_maxHPDHits   = fs->make<TH1F>( "Noise_maxHPDHits", "Noise_maxHPDHits",75,0,75);
-  Noise_maxRBXHits   = fs->make<TH1F>( "Noise_maxRBXHits", "Noise_maxRBXHits",75,0,75);
 
   totBNC = 0;
   for (int i=0; i<4000; i++)  nBNC[i] = 0;
+
 }
-
-
 
 // ************************
 // ************************
@@ -945,7 +599,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
  
   using namespace edm;
 
-  bool Pass, Pass_HFTime, Pass_DiJet, Pass_BunchCrossing, Pass_Trigger, Pass_Vertex;
+  bool Pass, Pass_HFTime, Pass_DiJet, Pass_BunchCrossing, Pass_Vertex;
 
   int EtaOk10, EtaOk13, EtaOk40;
 
@@ -953,14 +607,13 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
   double HFRecHit[100][100][2];
   int HFRecHitFlag[100][100][2];
-  int HFRecHitFlagN[100][100][2];
 
   double towerEtCut, towerECut, towerE;
 
   towerEtCut = 1.0;
   towerECut  = 1.0;
 
-  uint StableRun = 123732;
+  unsigned int StableRun = 123732;
 
   double HBHEThreshold = 2.0;
   double HFThreshold   = 2.0;
@@ -970,31 +623,17 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   double HBHEThreshold1 = 4.0;
   double HFThreshold1   = 4.0;
   double HOThreshold1   = 4.0;
-  //  double EBEEThreshold1 = 4.0;
+  //double EBEEThreshold1 = 4.0;
 
   double HBHEThreshold2 = 10.0;
   double HFThreshold2   = 10.0;
-  //  double HOThreshold2   = 10.0;
-  //  double EBEEThreshold2 = 10.0;
+  //double HOThreshold2   = 10.0;
+  //double EBEEThreshold2 = 10.0;
 
   double HBHEThreshold3 = 40.0;
   double HFThreshold3   = 40.0;
-  //  double HOThreshold3   = 40.0;
-  //  double EBEEThreshold3 = 40.0;
-
-  double HBHEThreshold4 = 100.0;
-  double HFThreshold4   = 100.0;
-  //  double HOThreshold4   = 100.0;
-  //  double EBEEThreshold4 = 100.0;
-
-  //  double HBHEThreshold5 = 200.0;
-  double HFThreshold5   = 200.0;
-  //  double HOThreshold5   = 200.0;
-  //  double EBEEThreshold5 = 200.0;
-
-  //  double HFThreshold4   = 1000.0;
-
-  float pt1;
+  //double HOThreshold3   = 40.0;
+  //double EBEEThreshold3 = 40.0;
 
   float minJetPt = 20.;
   float minJetPt10 = 10.;
@@ -1016,62 +655,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
   // --------------------------------------------------------------
   // --------------------------------------------------------------
-  
-  bool BadCrossing = false;
-  bool OKCrossing  = false;
-
-  BunchCrossing->Fill(evt.bunchCrossing());
-  if ( ((evt.bunchCrossing() > 6 )    && (evt.bunchCrossing() < 25  ))  ||
-       ((evt.bunchCrossing() > 144 )  && (evt.bunchCrossing() < 218 ))  ||
-       ((evt.bunchCrossing() > 852 )  && (evt.bunchCrossing() < 926 ))  ||
-       ((evt.bunchCrossing() > 1038 ) && (evt.bunchCrossing() < 1112 )) ||
-       ((evt.bunchCrossing() > 1746 ) && (evt.bunchCrossing() < 1808 )) ||
-       ((evt.bunchCrossing() > 1932 ) && (evt.bunchCrossing() < 1994 )) ||
-       ((evt.bunchCrossing() > 2628 ) && (evt.bunchCrossing() < 2702 )) ||
-       ((evt.bunchCrossing() > 2814 ) && (evt.bunchCrossing() < 2888 )) ) {
-    OKBunchCrossing->Fill(evt.bunchCrossing());
-    OKCrossing = true;
-  }
-
-  if (evt.bunchCrossing() % 2 == 0) {
-    // It's even
-    EvenBunchCrossing->Fill(evt.bunchCrossing());
-
-    //    if ( ((evt.bunchCrossing() > 100 )  && (evt.bunchCrossing() < 300  )) ||   	
-    //	 ((evt.bunchCrossing() > 1000 ) && (evt.bunchCrossing() < 1200 )) ||
-    //	 ((evt.bunchCrossing() > 1900 ) && (evt.bunchCrossing() < 2000 )) ||
-    //	 ((evt.bunchCrossing() > 2800 ) && (evt.bunchCrossing() < 2900 )) ) {
-
-    if ( ((evt.bunchCrossing() > 144 )  && (evt.bunchCrossing() < 218  )) ||   	
-	 ((evt.bunchCrossing() > 1038 ) && (evt.bunchCrossing() < 1112 )) ||
-	 ((evt.bunchCrossing() > 1932 ) && (evt.bunchCrossing() < 1994 )) ||
-	 ((evt.bunchCrossing() > 2814 ) && (evt.bunchCrossing() < 2888 )) ) {
-
-      GoodBunchCrossing->Fill(evt.bunchCrossing());
-    } else {
-      BadBunchCrossing->Fill(evt.bunchCrossing());
-      BadCrossing = true;
-    }
-
-  } else {
-    // It's odd
-    OddBunchCrossing->Fill(evt.bunchCrossing());
-
-    //    if ( ((evt.bunchCrossing() < 100 )) ||  
-    //	 ((evt.bunchCrossing() > 800 )  && (evt.bunchCrossing() < 1000 )) ||
-    //	 ((evt.bunchCrossing() > 1700 ) && (evt.bunchCrossing() < 1900 )) || 
-    //	 ((evt.bunchCrossing() > 2500 ) && (evt.bunchCrossing() < 2800 )) ) {
-
-    if ( ((evt.bunchCrossing() > 6 )    && (evt.bunchCrossing() < 25  ))  ||
-	 ((evt.bunchCrossing() > 852 )  && (evt.bunchCrossing() < 926 )) ||
-	 ((evt.bunchCrossing() > 1746 ) && (evt.bunchCrossing() < 1808 )) || 
-	 ((evt.bunchCrossing() > 2628 ) && (evt.bunchCrossing() < 2702 )) ) {
-      GoodBunchCrossing->Fill(evt.bunchCrossing());
-    } else {
-      BadBunchCrossing->Fill(evt.bunchCrossing());
-      BadCrossing = true;
-    }      
-  }
 
   /***
   std::cout << ">>>> ANA: Run = "    << evt.id().run() 
@@ -1131,14 +714,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
       //	   (triggerNames.triggerName(i) == "HLT_MinBias")   || 
       //	   (triggerNames.triggerName(i) == "HLT_MinBiasHcal") )  {
 
-      /***
-      if (triggerNames.triggerName(i) == "HLT_MinBiasBSC") {
-	Pass_Trigger = true;
-      } else {
-	Pass_Trigger = false;
-      }
-      ****/
-
     }
       
   } else {
@@ -1154,10 +729,9 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     edm::LogInfo("myJetAna") << "TriggerResults::HLT not found, "
       "automatically select events";
 
-    Pass_Trigger = true;
-
     //return;
   }
+
 
   
   /***
@@ -1165,16 +739,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   evt.getByLabel("gtDigis",gtRecord);
   const TechnicalTriggerWord tWord = gtRecord->technicalTriggerWord();
 
-  if (gtRecord.isValid()) {
-    if (tWord.at(40)) {
-      Pass_Trigger = true;
-    } else {
-      Pass_Trigger = false;
-    }
-  } else {
-    Pass_Trigger = false;
-  }
-  ****/
+  ***/
 
 
   // *************************
@@ -1236,20 +801,12 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
   double HFM_ETime, HFP_ETime;
   double HFM_E, HFP_E;
-  double HFM_EFlagged, HFP_EFlagged;
-  double HF_EClean, HFM_EClean, HFP_EClean;
   double HF_PMM;
-
-  HF_EClean = 0.;
 
   HFM_ETime = 0.;
   HFM_E = 0.;
-  HFM_EFlagged = 0.;
-  HFM_EClean = 0.;
   HFP_ETime = 0.;
   HFP_E = 0.;
-  HFP_EFlagged = 0.;
-  HFP_EClean = 0.;
 
   for (int i=0; i<100; i++) {
     for (int j=0; j<100; j++) {
@@ -1257,8 +814,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
       HFRecHit[i][j][1] = -10.;
       HFRecHitFlag[i][j][0]  = 0;
       HFRecHitFlag[i][j][1]  = 0;
-      HFRecHitFlagN[i][j][0] = 0;
-      HFRecHitFlagN[i][j][1] = 0;
     }
   }
 
@@ -1270,13 +825,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   NHFDigiTimeHits = 0;
 
   //  edm::Handle<reco::VertexCollection> vertexCollection;
-  int hfFirstTimeSlice_ = 3;
-  //  const HcalQIEShape*  shape_;
-
-  int nHighEtaP = 0;
-  int nLowEtaP = 0;
-  //  int nHighEtaM = 0;
-  //  int nLowEtaM = 0;
 
   try {
     std::vector<edm::Handle<HFRecHitCollection> > colls;
@@ -1287,373 +835,11 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
       
       for (HFRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
         if (j->id().subdet() == HcalForward) {
-	  
-	  //	  const HcalCalibrations& calib=conditions->getHcalCalibrations((DetId)j->id());
-	  const HcalQIECoder* channelCoder = conditions->getHcalCoder ((DetId)j->id());
-	  HcalCoderDb coder (*channelCoder, *shape_);
-
-	  HFDataFrame digi(j->id());
-	  digi.setSize(10);
-
-	  int aux = j->aux();
-
-	  // Get the capID of the first digi stored in the aux word
-	  int firstCapID = aux>>28 & hfFirstTimeSlice_;
-	  // Use firstCapID to calculate capID of time slice 0
-	  int capID_TS0 = (firstCapID - hfFirstTimeSlice_)%4;
-	  for (int i=0;i<10;++i) {
-	    if ( (i<hfFirstTimeSlice_)  || 
-		 (i>hfFirstTimeSlice_+3) )
-	      continue; // can't process digi value outside of aux range
-	    // Now get ADC value from aux
-	    unsigned int adcvalue = (aux>>7*(i-hfFirstTimeSlice_))&0x7f;
-	    digi.setSample(i,HcalQIESample(adcvalue,(i+capID_TS0)%4,0,0));
-	    //	    cout << " CapID = " <<  (i+capID_TS0)%4
-	    //		 << " ADC (FC) = " << adcvalue << std::endl;
-	  } 
-	  
-	  // "tool" is the vector of digi samples in fC
-	  CaloSamples tool;
-	  coder.adc2fC(digi,tool);
-
-	  float adcvalue3 = tool[3];
-	  float adcvalue4 = tool[4];
-	  float adcvalue5 = tool[5];
-	  float adcvalue6 = tool[6];
-
-	  if (j->energy() > 40.) {
-	    if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 0) &&
-		 (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 0) ) {
-	      HFPulseShapeP->Fill(3, adcvalue3);
-	      HFPulseShapeP->Fill(4, adcvalue4);
-	      HFPulseShapeP->Fill(5, adcvalue5);
-	      HFPulseShapeP->Fill(6, adcvalue6);
-	    }
-	    if (j->flagField(HcalCaloFlagLabels::HFLongShort)  == 1) {
-	      HFPulseShapeFT->Fill(3, adcvalue3);
-	      HFPulseShapeFT->Fill(4, adcvalue4);
-	      HFPulseShapeFT->Fill(5, adcvalue5);
-	      HFPulseShapeFT->Fill(6, adcvalue6);
-	    }
-	    if (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) {
-	      HFPulseShapeFP->Fill(3, adcvalue3);
-	      HFPulseShapeFP->Fill(4, adcvalue4);
-	      HFPulseShapeFP->Fill(5, adcvalue5);
-	      HFPulseShapeFP->Fill(6, adcvalue6);
-
-	      if (adcvalue4/(adcvalue3+adcvalue4) > 0.95 ) {
-		HFPulseShapeFPX->Fill(3, adcvalue3);
-		HFPulseShapeFPX->Fill(4, adcvalue4);
-		HFPulseShapeFPX->Fill(5, adcvalue5);
-		HFPulseShapeFPX->Fill(6, adcvalue6);
-	      }
-	    }
-	  }
-
-	  if ( ((adcvalue3+adcvalue4) != 0) && ((adcvalue5+adcvalue6) != 0) ) {
-
-	    HFPS4VsPS6E0->Fill(adcvalue4/(adcvalue3+adcvalue4), adcvalue6/(adcvalue5+adcvalue6));
-	    if (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) 
-	      HFPS4VsPS6E0F->Fill(adcvalue4/(adcvalue3+adcvalue4), adcvalue6/(adcvalue5+adcvalue6));	    
-
-	    if (j->energy() > 40.) {
-	      HFPS4VsPS6E10->Fill(adcvalue4/(adcvalue3+adcvalue4), adcvalue6/(adcvalue5+adcvalue6));
-	      if (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1 ) 
-		HFPS4VsPS6E10F->Fill(adcvalue4/(adcvalue3+adcvalue4), adcvalue6/(adcvalue5+adcvalue6));
-	    }
-
-	  }
-
-
-
-
-	  //************** Brian Dorney's code to extract pulse shape information
-	  //**************
-
-	  //BEGIN: Setup of Time Slices Available in RECO (TS 1-4) & Conversion of fC to GeV
-	  const HcalQIECoder *coderX = conditions->getHcalCoder( j->id() );
-	  const HcalCalibrations& calibs_ = conditions->getHcalCalibrations( j->id() );
-	  
-	  int auxX = j->aux();	//Holds acd info
-	  int adc[10];			//Something involving the QIE digitization, Index Corresponds to Time Slices, TS Below
-	  int capId, firstCapId;
-	  double nrgByTS[10];		//Energy In Each Time Slice
-	  
-	  double ped_fC, gainHF, caled_fC;//pedastal charge, gain HF, calibrated charge
-
-	  //	  double recHitEne;
-	  for(int TS=1;TS<5;TS++){ //Loop Over Available Time Slices in RECO
-	    adc[TS]	= (auxX>>7*(TS-1))&0x7f;
-	    firstCapId	= auxX>>28&0x3;
-	    //	    capId	= (TS+((firstCapId-1)%4)%4);
-	    capId	= (TS+(firstCapId-1))%4;
-	    //	    caled_fC	= coderX->charge(*qieConversion, adc[TS], capId);
-	    caled_fC	= coderX->charge(*shape_, adc[TS], capId);
-	    ped_fC	= calibs_.pedestal( capId );
-	    gainHF	= calibs_.rawgain( capId );
-	    nrgByTS[TS]	= (caled_fC-ped_fC)*gainHF;
-
-	    //	    nrgByTS[TS]	= caled_fC;
-	    //	    cout << " CapID = "        << capId
-	    //		 << " ADC (BD) = "     << adc[TS] 
-	    //		 << " fC (BD) = "      << caled_fC
-	    //		 << " Energy (BD) = "  << (caled_fC-ped_fC)*gainHF
-	    //		 << " / " 
-	    //		 << 
-	    //		 << std::endl;
-
-	  } //End Loop Over Available Time Slices in RECO
-	  //END: Setup of Time Slices Available in RECO (TS 1-4) & Conversion of fC to GeV
-
-
-
-	  
-	  //Compute Relevant Time Slice Ratio Quantities
-	  double TSRatio123, TSRatio12, TSRatio23, TSAsymRatio12, TSAsymRatio23;
-	  TSRatio123	=  nrgByTS[2] / (nrgByTS[1] + nrgByTS[2] + nrgByTS[3] );
-	  TSRatio12	=  nrgByTS[2] / (nrgByTS[1] + nrgByTS[2]              );
-	  TSRatio23	=  nrgByTS[2] / (	      nrgByTS[2] + nrgByTS[3] );
-	  TSAsymRatio12	= (nrgByTS[2] - nrgByTS[1]) / (nrgByTS[2] + nrgByTS[1]);
-	  TSAsymRatio23	= (nrgByTS[2] - nrgByTS[3]) / (nrgByTS[2] + nrgByTS[3]);
-	  
-	  //Record the "aux" for this RecHit having Anomalous properities
-	  //	  if(energy > 40 && (0.08 <= TSRatio123 && TSRatio123 <= 0.10) && (HFDigiTimeFlag + HFLongShortFlag)==0 ){ //Log anomalous TS2 Over 3TS RecHits	  
-	  //	    recHitLoc_WeirdTS2Over3TS->Fill( hfRecHit->id().ieta(),hfRecHit->id().iphi() ); //This is a 2D Histogram that Logs the Location of the RecHit in the Detector
-	  //	  } //End Log Anomalous TS2 Over 3TS RecHits
-
-	  //**************
-	  //**************
-	  /****
-	  std::cout << ">>>> Time Sample = "    
-		    << " FC3 = " << tool[3]
-		    << " FC4 = " << tool[4]
-		    << " FC5 = " << tool[5]
-		    << " FC6 = " << tool[6]
-		    << " BD1 = " << nrgByTS[1]
-		    << " BD2 = " << nrgByTS[2]	
-		    << " BD3 = " << nrgByTS[3]
-		    << " BD4 = " << nrgByTS[4]
-	    <<  std::endl;
-	  ***/
-
-	  /***
-	  std::cout << ">>>> RecHit Energy = "    
-		    << nrgByTS[2]
-		    << " / "
-		    << nrgByTS[2] + nrgByTS[3]
-		    << " / "
-		    << j->energy()
-		    <<  std::endl;
-
-	  ***/
-
-	  if (j->energy() > 20.) {
-	    if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) ||
-		 (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) ) {
-	      
-	      if ( ((j->id().ieta()) >= 30) && ((j->id().ieta()) <= 32) ) {
-		HFPhiNewPMTFlagged->Fill(j->id().iphi());
-	      }
-	    }
-	  }
-
-
-
-	  if (j->energy() > 40.) {
-	  //	  if (1) {
-	    //	    float ADCE        = adcvalue4 + adcvalue5;
-	    float ADCE        = adcvalue4;
-	    float pulseShape1 = adcvalue4/(adcvalue3 + adcvalue4 + adcvalue5);;
-	    float pulseShape2 = adcvalue4/(adcvalue3 + adcvalue4);
-	    float pulseShape3 = adcvalue4/(adcvalue4 + adcvalue5);
-
-	    PSAVsRun->Fill(evt.id().run(), pulseShape1);
-
-	    HFPulseShapeVsTS5->Fill(adcvalue5, pulseShape1);
-	    HFPulseShapeVsTS6->Fill(adcvalue6, pulseShape1);
-
-	    if (adcvalue4 != 0.) HFRatVsTS4->Fill(adcvalue4, adcvalue6/adcvalue4);
-
-	    HFPulseShape1->Fill(ADCE, pulseShape1);
-	    HFPulseShape2->Fill(ADCE, pulseShape2);
-	    HFPulseShape3->Fill(ADCE, pulseShape3);
-	    HFPS1A->Fill(pulseShape1);
-	    HFPS2A->Fill(pulseShape2);
-	    HFPS3A->Fill(pulseShape3);
-
-	    if (j->energy() > HFThreshold2) {
-	      HFPS1ATh2->Fill(pulseShape1); 
-	      HFPS2ATh2->Fill(pulseShape2); 
-	      HFPS3ATh2->Fill(pulseShape3); 
-	    }
-
-	    if (j->energy() > HFThreshold3) {
-	      HFPS1ATh3->Fill(pulseShape1); 
-	      HFPS2ATh3->Fill(pulseShape2); 
-	      HFPS3ATh3->Fill(pulseShape3); 
-	    }
-
-	    if (j->energy() > HFThreshold4) {
-	      HFPS1ATh4->Fill(pulseShape1); 
-	      HFPS2ATh4->Fill(pulseShape2); 
-	      HFPS3ATh4->Fill(pulseShape3); 
-	    }
-
-	    if (j->energy() > HFThreshold5) {
-	      HFPS1ATh5->Fill(pulseShape1); 
-	      HFPS2ATh5->Fill(pulseShape2); 
-	      HFPS3ATh5->Fill(pulseShape3); 
-	    }
-
-	    if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 0) && 
-		 (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 0) ) {
-
-	      PSCVsRun->Fill(evt.id().run(), pulseShape1);
-
-	      HFPulseShape1C->Fill(ADCE, pulseShape1);
-	      HFPulseShape2C->Fill(ADCE, pulseShape2);
-	      HFPulseShape3C->Fill(ADCE, pulseShape3);
-	      HFPS1C->Fill(pulseShape1);	      
-	      HFPS2C->Fill(pulseShape2);
-	      HFPS3C->Fill(pulseShape3);
-
-	      if (j->energy() > HFThreshold2) {
-		HFPS1CTh2->Fill(pulseShape1); 
-		HFPS2CTh2->Fill(pulseShape2); 
-		HFPS3CTh2->Fill(pulseShape3); 
-	      }
-	      if (j->energy() > HFThreshold3) {
-		HFPS1CTh3->Fill(pulseShape1); 
-		HFPS2CTh3->Fill(pulseShape2); 
-		HFPS3CTh3->Fill(pulseShape3); 
-	      }
-	      if (j->energy() > HFThreshold4) {
-		HFPS1CTh4->Fill(pulseShape1); 
-		HFPS2CTh4->Fill(pulseShape2); 
-		HFPS3CTh4->Fill(pulseShape3); 
-	      }
-	      if (j->energy() > HFThreshold5) {
-		HFPS1CTh5->Fill(pulseShape1); 
-		HFPS2CTh5->Fill(pulseShape2); 
-		HFPS3CTh5->Fill(pulseShape3); 
-	      }
-
-	      if (j->energy() > 100.) {
-		HFPS1CEne->Fill(pulseShape1);
-		HFPS2CEne->Fill(pulseShape2);
-		HFPS3CEne->Fill(pulseShape3);
-	      }
-	      if (j->time() < -5.0) {
-		HFPS1CTim1->Fill(pulseShape1);
-		HFPS2CTim1->Fill(pulseShape2);
-		HFPS3CTim1->Fill(pulseShape3);
-	      }
-	      if (j->time() > 20.0) {
-		HFPS1CTim2->Fill(pulseShape1);
-		HFPS2CTim2->Fill(pulseShape2);
-		HFPS3CTim2->Fill(pulseShape3);
-	      }
-	    }
-
-	    if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) ||
-		 (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) ) {
-	      HFPulseShape1F->Fill(ADCE, pulseShape1);
-	      HFPulseShape2F->Fill(ADCE, pulseShape2);
-	      HFPulseShape3F->Fill(ADCE, pulseShape3);
-	      HFPS1F->Fill(pulseShape1);
-	      HFPS2F->Fill(pulseShape2);
-	      HFPS3F->Fill(pulseShape3);
-	    }
-	    if (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) {
-	      HFPulseShape1FT->Fill(ADCE, pulseShape1);
-	      HFPulseShape1FTE->Fill(j->energy(), pulseShape1);
-	      HFPulseShape2FT->Fill(ADCE, pulseShape2);
-	      HFPulseShape3FT->Fill(ADCE, pulseShape3);
-	      HFPS1FT->Fill(pulseShape1);
-	      HFPS2FT->Fill(pulseShape2);
-	      HFPS3FT->Fill(pulseShape3);
-	    }
-	    if (j->flagField(HcalCaloFlagLabels::HFDigiTime) == 1) {
-	      HFPulseShape1FP->Fill(ADCE, pulseShape1);
-	      HFPulseShape1FPE->Fill(j->energy(), pulseShape1);
-	      HFPulseShape2FP->Fill(ADCE, pulseShape2);
-	      HFPulseShape3FP->Fill(ADCE, pulseShape3);
-	      HFPS1FP->Fill(pulseShape1);
-	      HFPS2FP->Fill(pulseShape2);
-	      HFPS3FP->Fill(pulseShape3);
-	    }
-	  }
-
-
-	  /*****
-	  std::cout << "DIGI = " <<
-	    digi[3] <<" / " << tool[3] << "     " <<
-	    digi[4] <<" / " << tool[4] << "     " <<
-	    digi[5] <<" / " << tool[5] << std::endl;
-	  *****/
 
 	  HFRecHitEne->Fill(j->energy());
-
-
 	  if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 0) && 
 	       (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 0) ) {
-
-	    //	    if (j->energy() > HFThreshold) {
-	      HF_EClean += j->energy();	
-	      //	    }
-
-
 	    HFRecHitEneClean->Fill(j->energy());
-
-	    if ((j->energy()>10.) && (adcvalue4!=0)) {
-	      ADC1->Fill(adcvalue3/adcvalue4);
-	      ADC2->Fill(adcvalue5/adcvalue4);
-	      ADC3->Fill(adcvalue6/adcvalue4);
-
-	      ADC1vsE->Fill(j->energy(), adcvalue3/adcvalue4);
-	      ADC2vsE->Fill(j->energy(), adcvalue5/adcvalue4);
-	      ADC3vsE->Fill(j->energy(), adcvalue6/adcvalue4);
-	      
-	      if (j->energy() > 1000.) {
-		ADC1E1000->Fill(adcvalue3/adcvalue4);
-		ADC2E1000->Fill(adcvalue5/adcvalue4);
-		ADC3E1000->Fill(adcvalue6/adcvalue4);
-	      }
-	    }
-	  } else {
-	    if ((j->energy()>10.) && (adcvalue4!=0)) {
-	      ADC1F->Fill(adcvalue3/adcvalue4);
-	      ADC2F->Fill(adcvalue5/adcvalue4);
-	      ADC3F->Fill(adcvalue6/adcvalue4);
-
-	      ADC1vsEF->Fill(j->energy(), adcvalue3/adcvalue4);
-	      ADC2vsEF->Fill(j->energy(), adcvalue5/adcvalue4);
-	      ADC3vsEF->Fill(j->energy(), adcvalue6/adcvalue4);
-
-	      if (j->energy() > 1000.) {
-		ADC1E1000F->Fill(adcvalue3/adcvalue4);
-		ADC2E1000F->Fill(adcvalue5/adcvalue4);
-		ADC3E1000F->Fill(adcvalue6/adcvalue4);
-		if ( (adcvalue3/adcvalue4 > 5.) || (adcvalue5/adcvalue4 > 5.) || (adcvalue6/adcvalue4 > 5.) ) {
-		       std::cout << "Tool = " 
-				 << tool[3] << "   "
-				 << tool[4] << "   "
-				 << tool[5] << "   "
-				 << tool[6] << std::endl;		       
-		}
-	      }     	      
-	    }
-	  }
-
-	  if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 0) && 
-	       (j->flagField(HcalCaloFlagLabels::HFDigiTime) == 1) ) {
-	    HFRecHitEneOnlyPulseShape->Fill(j->energy());
-	  }
-	  if (j->flagField(HcalCaloFlagLabels::HFLongShort) == 0) {
-	    HFRecHitEneCleanTopological->Fill(j->energy());
-	  }
-	  if (j->flagField(HcalCaloFlagLabels::HFDigiTime) == 0) {
-	    HFRecHitEneCleanPulseShape->Fill(j->energy());
 	  }
  
 	  HFRecHitTime->Fill(j->time());
@@ -1697,44 +883,19 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
 	  /****
 	  std::cout << "RecHit Flag = " 
-		    << j->flagField(0)
+		    << j->flagField(0)a
 		    << std::endl;
 	  ***/
-	  /***
-	  std::cout << "HF RecHit = " 
-		    << j->energy() << " " 
-		    << ieta 
-		    << std::endl;
-	  ***/
-
-	  if (j->energy() > 10.) {
-	    if ( (ieta == 41) && (depth = 1)) nHighEtaP++;
-	    if ( (ieta == 29) && (depth = 1)) nLowEtaP++; 
-	    if ( (ieta == -41) && (depth = 1)) nHighEtaP++;
-	    if ( (ieta == -29) && (depth = 1)) nLowEtaP++; 
-	  }
-
 
 	  if (j->id().ieta()<0) {
 	    if (j->energy() > HFThreshold) {
 	      HFM_ETime += j->energy()*j->time(); 
 	      HFM_E     += j->energy();
-	      if (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) {
-		HFM_EFlagged     += j->energy();		
-	      } else {
-		HFM_EClean     += j->energy();		
-	      }
-
 	    }
 	  } else {
 	    if (j->energy() > HFThreshold) {
 	      HFP_ETime += j->energy()*j->time(); 
 	      HFP_E     += j->energy();
-	      if (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) {
-		HFP_EFlagged     += j->energy();
-	      } else {
-		HFP_EClean     += j->energy();
-	      }
 	    }
 	  }
 
@@ -1746,37 +907,13 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     cout << "No HF RecHits." << endl;
   }
 
-  /***
-  std::cout << "HF_EClean = " 
-	    << HF_EClean 
-	    << " NHFLongShortHits = " 
-	    << NHFLongShortHits
-	    << " NHFDigiTimeHits = " 
-	    << NHFDigiTimeHits
-	    << std::endl;
-  ***/
-  HFFlaggedLVsE->Fill(HF_EClean, NHFLongShortHits);
-  HFFlaggedPVsE->Fill(HF_EClean, NHFDigiTimeHits);
-  HFFlaggedLVsE1->Fill(HF_EClean, NHFLongShortHits);
-  HFFlaggedPVsE1->Fill(HF_EClean, NHFDigiTimeHits);
-
-  if ( (HFP_E > 0.) && (HFP_EFlagged > 0.)) {
-    HFPEFlaggedVsE->Fill(HFP_E, HFP_EFlagged);
-    HFPECleanVsE->Fill(HFP_E, HFP_EClean);
-  }
-  if ( (HFM_E > 0.) && (HFM_EFlagged > 0.)) {
-    HFMEFlaggedVsE->Fill(HFM_E, HFM_EFlagged);
-    HFMECleanVsE->Fill(HFM_E, HFM_EClean);
-  }
-
-  //  cout << "N HF Hits" << NHFLongShortHits << " " << NHFDigiTimeHits << endl;
+  cout << "N HF Hits" << NHFLongShortHits << " " << NHFDigiTimeHits << endl;
   HFLongShortNHits->Fill(NHFLongShortHits);
   HFDigiTimeNHits->Fill(NHFDigiTimeHits);
 
   NTime->Fill(nTime);
 
-  double OER = 0; 
-  double OddEne, EvenEne;
+  double OER = 0, OddEne, EvenEne;
   int nOdd, nEven;
 
   for (int iphi=0; iphi<100; iphi++) {
@@ -1829,7 +966,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   // **************************
   double highestPt;
   double nextPt;
-  double dphi;
+  // double dphi;
   int    nDiJet, nJet;
 
   nJet      = 0;
@@ -1856,10 +993,10 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   
 
   if (nDiJet > 1) {
-    dphi = deltaPhi(p4tmp[0].phi(), p4tmp[1].phi());
+    //dphi = deltaPhi(p4tmp[0].phi(), p4tmp[1].phi());
     Pass_DiJet = true;
   } else {
-    dphi = INVALID;
+    // dphi = INVALID;
     Pass_DiJet = false;
   }
       
@@ -1877,21 +1014,9 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   //  std::cout << "Reconstructed "<< vC.size() << " vertices" << std::endl ;
 
   nVTX = vC.size();
-  NVTX->Fill(nVTX);
-
-
   for (reco::VertexCollection::const_iterator vertex=vC.begin(); vertex!=vC.end(); vertex++){
     VTX  = vertex->z();
   }
-
-
-  if ((nLowEtaP != 0) && (nVTX >= 10) && (nVTX <= 15) ) {
-    float rat = nHighEtaP / nLowEtaP;
-    RingRat->Fill(rat);
-    RatVsRun->Fill(evt.id().run(), rat);
-  }
-
-
 
   if ( (fabs(VTX) < 20.) && (nVTX > 0) ){
     Pass_Vertex = true;
@@ -1995,8 +1120,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   const HcalNoiseSummary summary = *summary_h;
 
   bool Pass_NoiseSummary;
-  bool Fail_NoiseSummary, Fail_R45, Fail_MaxHPD, Fail_NoOther, Fail_MaxZero;
-  Fail_NoiseSummary = Fail_R45 = Fail_MaxHPD = Fail_NoOther =  Fail_MaxZero = false;
   Pass_NoiseSummary = true;
   if(summary.minE2Over10TS()<0.7) {
     Pass_NoiseSummary = false;
@@ -2006,18 +1129,15 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   }
   if(summary.maxHPDHits()>=17) {
     Pass_NoiseSummary = false;
-    Fail_MaxHPD = true;
   }
   if(summary.maxRBXHits()>=999) {
     Pass_NoiseSummary = false;
   }
   if(summary.maxHPDNoOtherHits()>=10) {
     Pass_NoiseSummary = false;
-    Fail_NoOther = true;
   }
   if(summary.maxZeros()>=10) {
     Pass_NoiseSummary = false;
-    Fail_MaxZero = true;
   }
   if(summary.min25GeVHitTime()<-9999.0) {
     Pass_NoiseSummary = false;
@@ -2032,99 +1152,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     Pass = false;
   } else {
     Pass = true;
-  }
-
-
-  // *******************
-  //  edm::InputTag hcalFilterTag_;
-  //  hcalFilterTag_    = cfg.getParameter < edm::InputTag > ("hcalFilterTag");
-  
-  //  Handle< bool > hcalNoiseFilterHandle;
-  //  evt.getByLabel(hcalFilterTag_, hcalNoiseFilterHandle);
-  //  Bool_t hcalNoiseFilter = (Bool_t)(*hcalNoiseFilterHandle);
-  // *******************
-
-  Pass = true;
-  if (summary.HasBadRBXTS4TS5()) {
-    Pass = false;
-    Fail_R45 = true;
-  }
-
-  double caloMETX;
-  caloMETX = 0;
-  edm::Handle<reco::CaloMETCollection> calometcollX;
-  evt.getByLabel("met", calometcollX);
-  if (calometcollX.isValid()) {
-    const CaloMETCollection *calometcolX = calometcollX.product();
-    const CaloMET *calomet;
-    calomet = &(calometcolX->front());
-    caloMETX    = calomet->pt();
-  }
-
-  
-
-  if (Fail_R45 || Fail_MaxHPD || Fail_NoOther || Fail_MaxZero) Fail_NoiseSummary = true;
-
-  if (caloMETX > 200.) NVTXMET200->Fill(nVTX);
-
-  if (Fail_NoiseSummary)  {
-    NVTX_NoiseSummary->Fill(nVTX);
-    if (caloMETX > 200) NVTX_NoiseSummaryMET200->Fill(nVTX);
-  }
-  if (Fail_R45) {
-    NVTX_R45->Fill(nVTX);
-    if (caloMETX > 200) NVTX_R45MET200->Fill(nVTX);
-  }
-
-  if (Fail_MaxHPD) {
-    NVTX_MaxHPD->Fill(nVTX);
-    if (caloMETX > 200) NVTX_MaxHPDMET200->Fill(nVTX);
-  }
-  if (Fail_NoOther) {
-    NVTX_NoOther->Fill(nVTX);
-    if (caloMETX > 200) NVTX_NoOtherMET200->Fill(nVTX);
-  }
-  if (Fail_MaxZero) {
-    NVTX_MaxZero->Fill(nVTX);
-    if (caloMETX > 200) NVTX_MaxZeroMET200->Fill(nVTX);
-  }
-
-  Noise_numTS4TS5NoiseChannels->Fill(summary.numTS4TS5NoiseChannels());  
-  Noise_numFlatNoiseChannels->Fill(summary.numFlatNoiseChannels());  
-  Noise_numSpikeNoiseChannels->Fill(summary.numSpikeNoiseChannels());  
-  Noise_numTriangleNoiseChannels->Fill(summary.numTriangleNoiseChannels());  
-
-  if (summary.HasBadRBXTS4TS5()) {
-    Noise_numTS4TS5NoiseChannelsFlagged->Fill(summary.numTS4TS5NoiseChannels());  
-    Noise_numFlatNoiseChannelsFlagged->Fill(summary.numFlatNoiseChannels());  
-    Noise_numSpikeNoiseChannelsFlagged->Fill(summary.numSpikeNoiseChannels());  
-    Noise_numTriangleNoiseChannelsFlagged->Fill(summary.numTriangleNoiseChannels());      
-  }
-
-  Noise_maxHPDHits->Fill(summary.maxHPDHits()); 
-  Noise_maxRBXHits->Fill(summary.maxRBXHits());
-
-  //******************************************
-  //  std::cout << "numTS4TS5NoiseChannels = " << summary.numTS4TS5NoiseChannels()
-  //    	    << " TS4TS5NoiseSumE = "       << summary.TS4TS5NoiseSumE()
-  //    	    << " TS4TS5NoiseSumEt = "      << summary.TS4TS5NoiseSumEt()
-  //    	    << " HasBadRBXTS4TS5 = "       << summary.HasBadRBXTS4TS5()
-  //    	    << " maxHPDHits = "            << summary.maxHPDHits()
-  //    	    << " maxRBXHits = "            << summary.maxRBXHits()
-  //    	    << std::endl;    
-  //******************************************
-
-
-
-
-  edm::Handle<reco::CaloMETCollection> calometcoll;
-  evt.getByLabel("met", calometcoll);
-  if (calometcoll.isValid()) {
-    const CaloMETCollection *calometcol = calometcoll.product();
-    const CaloMET *calomet;
-    calomet = &(calometcol->front());
-
-    MET_All->Fill(calomet->pt());
   }
 
 
@@ -2175,25 +1202,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   ECALTotalCaloTowerE_Eta2 = 0.;
   HCALTotalCaloTowerE_Eta3 = 0.;
   ECALTotalCaloTowerE_Eta3 = 0.;
-
-  /*
-  edm::Handle<reco::HcalNoiseRBXCollection> hRBXCollection;
-  //  iEvent.getByLabel(edm::InputTag(noiseLabel_),hRBXCollection);
-  evt.getByLabel(edm::InputTag("noiseLabel"),hRBXCollection);
-
-  for(reco::HcalNoiseRBXCollection::const_iterator rbx = hRBXCollection->begin();
-       rbx != hRBXCollection->end(); rbx++) {
-    const reco::HcalNoiseRBX RBX = *rbx;
-    int NumberRBXHits = RBX.numRecHits(1.5);    
-    double RBXEnergy  = RBX.recHitEnergy(1.5);
-    int RBXID         = RBX.idnumber();
-
-    std::cout << "NumberRBXHits = " << ETotal 
-	      << " RBXEnergy = "    << RBXEnergy
-	      << " RBXID = "        << RBXID
-	      << std::endl;    
-  }
-  */
 
   for (CaloTowerCollection::const_iterator tower = caloTowers->begin();
        tower != caloTowers->end(); tower++) {
@@ -2501,7 +1509,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
       h_jet1Pt->Fill( cal->pt() );
       h_jet1Eta->Fill( cal->eta() );
       if (JetLoPass != 0) h_jet1PtHLT->Fill( cal->pt() );
-      pt1 = cal->pt();
       p4tmp[0] = cal->p4();
       if ( fabs(cal->eta()) < 1.0) EtaOk10++;
       if ( fabs(cal->eta()) < 1.3) EtaOk13++;
@@ -2524,14 +1531,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
       h_ptCal->Fill( cal->pt() );         
       h_etaCal->Fill( cal->eta() );
       h_phiCal->Fill( cal->phi() );
-
-      if ( (BadCrossing) &&  (cal->pt() > 50.) && (fabs(cal->eta()) < 2.6) ) {
-	bad_ptCal->Fill( cal->pt() );         
-	bad_etaCal->Fill( cal->eta() );
-	bad_phiCal->Fill( cal->phi() );
-	CentralBunchCrossing->Fill(evt.bunchCrossing());
-      }
-
       jetInd++;
     }
   }
@@ -2554,13 +1553,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
   // *********************************************************
   // --- Loop over jets and make a list of all the used towers
-
-  float LeadingJetPt;
-  float LeadingJetHadEne;
-
-  LeadingJetPt     = 0.;
-  LeadingJetHadEne = 0.;
-
   int jjet = 0;
   for ( CaloJetCollection::const_iterator ijet=caloJets->begin(); ijet!=caloJets->end(); ijet++) {
     jjet++;
@@ -2569,15 +1561,8 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
                     ijet->hadEnergyInHE() + ijet->hadEnergyInHF();                   
     float emEne   = ijet->emEnergyInEB() + ijet->emEnergyInEE() + ijet->emEnergyInHF();
     float had     = ijet->energyFractionHadronic();    
-    float j_et    = ijet->et();
+    float j_et = ijet->et();
 
-    if (fabs(ijet->eta()) < 3.0){
-      if (ijet->pt() > LeadingJetPt) {
-	LeadingJetPt     = ijet->pt();
-	LeadingJetHadEne = hadEne;
-      } 
-    }
-    
     // *** Barrel
     if (fabs(ijet->eta()) < 1.3) {
       totEneLeadJetEta1->Fill(hadEne+emEne); 
@@ -2654,8 +1639,10 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   double sumTowerAllEx(0);
   double sumTowerAllEy(0);
 
-  double HCALTotalE, HBTotalE, HETotalE, HOTotalE, HFTotalE;
-  double ECALTotalE, EBTotalE, EETotalE;
+  // double HCALTotalE;
+  double HBTotalE, HETotalE, HOTotalE, HFTotalE;
+  // double ECALTotalE;
+  double EBTotalE, EETotalE;
 
   std::vector<CaloTowerPtr>   UsedTowerList;
   std::vector<CaloTower>      TowerUsedInJets;
@@ -2666,13 +1653,9 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   // *********************
 
   edm::Handle<HcalSourcePositionData> spd;
-  float HBHEEneFlagged = 0;
-  int   HBHENFitFlagged = 0;
-  int   numTS4TS5RecHits = 0;
-  HCALTotalE = HBTotalE = HETotalE = HOTotalE = HFTotalE = 0.;
-  bool FBSNFlag = false;
-  bool FBTNFlag = false;
-  bool FBFNFlag = false;
+
+  // HCALTotalE = 0.;
+  HBTotalE = HETotalE = HOTotalE = HFTotalE = 0.;
   try {
     std::vector<edm::Handle<HBHERecHitCollection> > colls;
     evt.getManyByType(colls);
@@ -2680,42 +1663,11 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     for (i=colls.begin(); i!=colls.end(); i++) {
 
 
-      HBHENFitFlagged = 0;
       for (HBHERecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
         //      std::cout << *j << std::endl;
-
-	if (j->flagField(HcalCaloFlagLabels::HBHESpikeNoise) == 1) {
-	  FBSNFlag = true;	  
-	  HBHEFBSpike->Fill(j->id().ieta(),j->id().iphi());
-	}
-	if (j->flagField(HcalCaloFlagLabels::HBHEFlatNoise) == 1) {
-	  FBFNFlag = true;	  
-	  HBHEFBFlat->Fill(j->id().ieta(),j->id().iphi());
-	}
-	if (j->flagField(HcalCaloFlagLabels::HBHETriangleNoise) == 1) {
-	  FBTNFlag = true;	  
-	  HBHEFBTriangle->Fill(j->id().ieta(),j->id().iphi());
-	}
-	if (j->flagField(HcalCaloFlagLabels::HBHETS4TS5Noise) == 1) {
-	  numTS4TS5RecHits++;
-	  HBHETS4TS5->Fill(j->id().ieta(),j->id().iphi());
-	}
-	     
-
-	bool fitFlagged = false;
-	if ( (j->flagField(HcalCaloFlagLabels::HBHEFlatNoise)     == 1) || 
-	     (j->flagField(HcalCaloFlagLabels::HBHESpikeNoise)    == 1) ||
-	     (j->flagField(HcalCaloFlagLabels::HBHETriangleNoise) == 1) ) {
-
-	  fitFlagged = true;
-	  HBHEEneFlagged += j->energy();
-	  HBHENFitFlagged++;
-	}
-
         if (j->id().subdet() == HcalBarrel) {
 	  HBEne->Fill(j->energy()); 
 	  HBTime->Fill(j->time()); 
-
 	  if (!Pass_NoiseSummary) HBTimeFlagged2->Fill(j->time()); 
 	  if (j->flagField(HcalCaloFlagLabels::HBHETimingShapedCutsBits) != 0) HBTimeFlagged->Fill(j->time()); 
 	  HBTvsE->Fill(j->energy(), j->time());
@@ -2754,24 +1706,12 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	    HBTimeTh2->Fill(j->time()); 
 	    if (!Pass_NoiseSummary) HBTimeTh2Flagged2->Fill(j->time()); 
 	    if (j->flagField(HcalCaloFlagLabels::HBHETimingShapedCutsBits) != 0) HBTimeTh2Flagged->Fill(j->time()); 
+
 	    if (evt.id().run() >= StableRun) HBTimeTh2R->Fill(j->time()); 
 	  }
 	  if (j->energy() > HBHEThreshold3) {
 	    HBTimeTh3->Fill(j->time()); 
-	    if (j->flagField(HcalCaloFlagLabels::HBHETimingShapedCutsBits) != 0) HBTimeTh3Flagged->Fill(j->time()); 
-	    if (!Pass_NoiseSummary)                                              HBTimeTh3Flagged2->Fill(j->time()); 
-	    if (fitFlagged)                                                      HBTimeTh3Flagged3->Fill(j->time()); 
-	    if (!fitFlagged)                                                     HBTimeTh3Flagged3Clean->Fill(j->time()); 
 	    if (evt.id().run() >= StableRun) HBTimeTh3R->Fill(j->time()); 
-	    if (j->flagField(HcalCaloFlagLabels::HBHEFlatNoise)     == 1) HBTimeTh3Flagged3FN->Fill(j->time());
-	    if (j->flagField(HcalCaloFlagLabels::HBHESpikeNoise)    == 1) HBTimeTh3Flagged3SN->Fill(j->time());
-	    if (j->flagField(HcalCaloFlagLabels::HBHETriangleNoise) == 1) HBTimeTh3Flagged3TN->Fill(j->time());
-	  }
-	  if (j->energy() > HBHEThreshold4) {
-	    HBTimeTh4->Fill(j->time()); 
-	    if (j->flagField(HcalCaloFlagLabels::HBHEFlatNoise)     == 1) HBTimeTh4Flagged3FN->Fill(j->time());
-	    if (j->flagField(HcalCaloFlagLabels::HBHESpikeNoise)    == 1) HBTimeTh4Flagged3SN->Fill(j->time());
-	    if (j->flagField(HcalCaloFlagLabels::HBHETriangleNoise) == 1) HBTimeTh4Flagged3TN->Fill(j->time());
 	  }
 	  if ( (evt.id().run() == 120020) && (evt.id().event() == 453) ) {
 	    HBEneX->Fill(j->energy()); 
@@ -2827,21 +1767,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	  }
 	  if (j->energy() > HBHEThreshold3) {
 	    HETimeTh3->Fill(j->time()); 
-	    if (j->flagField(HcalCaloFlagLabels::HBHETimingShapedCutsBits) != 0) HETimeTh3Flagged->Fill(j->time()); 
-	    if (!Pass_NoiseSummary)                                              HETimeTh3Flagged2->Fill(j->time()); 
-	    if (fitFlagged)                                                      HETimeTh3Flagged3->Fill(j->time()); 
-	    if (!fitFlagged)                                                     HETimeTh3Flagged3Clean->Fill(j->time()); 
 	    if (evt.id().run() >= StableRun) HETimeTh3R->Fill(j->time()); 
-
-	    if (j->flagField(HcalCaloFlagLabels::HBHEFlatNoise)     == 1) HETimeTh3Flagged3FN->Fill(j->time());
-	    if (j->flagField(HcalCaloFlagLabels::HBHESpikeNoise)    == 1) HETimeTh3Flagged3SN->Fill(j->time());
-	    if (j->flagField(HcalCaloFlagLabels::HBHETriangleNoise) == 1) HETimeTh3Flagged3TN->Fill(j->time());
-	  }
-	  if (j->energy() > HBHEThreshold4) {
-	    HETimeTh4->Fill(j->time()); 
-	    if (j->flagField(HcalCaloFlagLabels::HBHEFlatNoise)     == 1) HETimeTh4Flagged3FN->Fill(j->time());
-	    if (j->flagField(HcalCaloFlagLabels::HBHESpikeNoise)    == 1) HETimeTh4Flagged3SN->Fill(j->time());
-	    if (j->flagField(HcalCaloFlagLabels::HBHETriangleNoise) == 1) HETimeTh4Flagged3TN->Fill(j->time());
 	  }
 
 	  if ( (evt.id().run() == 120020) && (evt.id().event() == 453) ) {
@@ -2878,294 +1804,25 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
                   << j->time()   << std::endl;
         ****/
       }
-      break;
-
     }
   } catch (...) {
     cout << "No HB/HE RecHits." << endl;
   }
 
-  RecHit_numTS4TS5NoiseChannels->Fill(numTS4TS5RecHits);
-
-  //***********************
-  //*** R45
-  //***********************
-  //  if (summary.HasBadRBXTS4TS5()) {
-  if (1) {
-    Handle<HcalNoiseRBXCollection> handle;
-    evt.getByLabel("hcalnoise", handle);
-  
-    // loop over the RBXs
-    double TotalBaseCharge    = 0;
-    double TotalBadBaseCharge = 0;
-    //    double BadRBX = 0;
-    double MaxRBX = 0;
-    for(HcalNoiseRBXCollection::const_iterator rit=handle->begin(); rit!=handle->end(); ++rit) {
-      // get the rbx
-      HcalNoiseRBX rbx=(*rit);
-
-
-      //      std::cout << "RBX: idnumber = " << rbx.idnumber()
-      //		<< std::endl;  
-
-      std::vector<float> AllCharge = rbx.allCharge();
-      double BaseCharge = AllCharge[4] + AllCharge[5];
-      if (BaseCharge > MaxRBX) MaxRBX = BaseCharge;      
-      TotalBaseCharge += BaseCharge;
-      
-      if(BaseCharge < 1) BaseCharge = 1;
-      double TS4TS5 = (AllCharge[4] - AllCharge[5]) / BaseCharge;
-
-
-      // HcalBarrel=1
-      if (HcalHPDRBXMap::subdetRBX(rbx.idnumber()) == 1) {
-	R45VsE_HB->Fill(BaseCharge, TS4TS5);     
-      }
-      // HcalEndcap=2
-      if (HcalHPDRBXMap::subdetRBX(rbx.idnumber()) == 2) {
-	R45VsE_HE->Fill(BaseCharge, TS4TS5);
-      }
-
-
-      if (BaseCharge > 300) {
-	bool QPLL;
-	QPLL = false;
-	// HcalBarrel=1
-	if ( (HcalHPDRBXMap::subdetRBX(rbx.idnumber()) == 1) && 
-	     (HcalHPDRBXMap::zsideRBX(rbx.idnumber()) > 0)   &&  
-	     (HcalHPDRBXMap::iphiloRBX(rbx.idnumber()) == 51) )  {
-	  QPLL = true;
-	  R45VsE_HBP14->Fill(BaseCharge, TS4TS5);
-	  R45_HBP14->Fill(TS4TS5);	
-	  if (evt.id().run() < 173621) { 
-	    R45VsE_HBP14G->Fill(BaseCharge, TS4TS5);
-	    R45_HBP14G->Fill(TS4TS5);	
-	  }
-	  if (evt.id().run() > 174856) { 
-	    R45VsE_HBP14B->Fill(BaseCharge, TS4TS5);
-	    R45_HBP14B->Fill(TS4TS5);	
-	  }
-
-	  cout << "Run = "         << evt.id().run() 
-	       << " Event = "      << evt.id().event()
-	       << " subdetRBX = "  << HcalHPDRBXMap::subdetRBX(rbx.idnumber())
-	       << " zsideRBX = "   << HcalHPDRBXMap::zsideRBX(rbx.idnumber())
-	       << " iphiloRBX = "  << HcalHPDRBXMap::iphiloRBX(rbx.idnumber())
-	       << " BaseCharge = " << BaseCharge
-	       << " R45 = "        << TS4TS5
-	       << std::endl;
-
-	}
-
-	if ( (HcalHPDRBXMap::subdetRBX(rbx.idnumber()) == 1) && 
-	     (HcalHPDRBXMap::zsideRBX(rbx.idnumber()) > 0)   &&  
-	     (HcalHPDRBXMap::iphiloRBX(rbx.idnumber()) == 47) )  {
-	  R45VsE_HBP13->Fill(BaseCharge, TS4TS5);
-	  R45_HBP13->Fill(TS4TS5);	
-	}
-	if ( (HcalHPDRBXMap::subdetRBX(rbx.idnumber()) == 1) && 
-	     (HcalHPDRBXMap::zsideRBX(rbx.idnumber()) > 0)   &&  
-	     (HcalHPDRBXMap::iphiloRBX(rbx.idnumber()) == 55) )  {
-	  R45VsE_HBP15->Fill(BaseCharge, TS4TS5);
-	  R45_HBP15->Fill(TS4TS5);	
-	}
-	
-	if ( (HcalHPDRBXMap::subdetRBX(rbx.idnumber()) == 1) && 
-	     (HcalHPDRBXMap::zsideRBX(rbx.idnumber()) < 0)   &&  
-	     (HcalHPDRBXMap::iphiloRBX(rbx.idnumber()) == 47) )  {
-	  R45VsE_HBM13->Fill(BaseCharge, TS4TS5);
-	  R45_HBM13->Fill(TS4TS5);	
-	}
-	if ( (HcalHPDRBXMap::subdetRBX(rbx.idnumber()) == 1) && 
-	     (HcalHPDRBXMap::zsideRBX(rbx.idnumber()) < 0)   &&  
-	     (HcalHPDRBXMap::iphiloRBX(rbx.idnumber()) == 51) )  {
-	  R45VsE_HBM14->Fill(BaseCharge, TS4TS5);
-	  R45_HBM14->Fill(TS4TS5);	
-	}
-	if ( (HcalHPDRBXMap::subdetRBX(rbx.idnumber()) == 1) && 
-	     (HcalHPDRBXMap::zsideRBX(rbx.idnumber()) < 0)   &&  
-	     (HcalHPDRBXMap::iphiloRBX(rbx.idnumber()) == 55) )  {
-	  R45VsE_HBM15->Fill(BaseCharge, TS4TS5);
-	  R45_HBM15->Fill(TS4TS5);	
-	}
-	
-
-	// HcalEndcap=2
-	if ( (HcalHPDRBXMap::subdetRBX(rbx.idnumber()) == 2) &&
-	     (HcalHPDRBXMap::zsideRBX(rbx.idnumber()) > 0)   &&  
-	     (HcalHPDRBXMap::iphihiRBX(rbx.idnumber()) == 70) )  {
-	  QPLL = true;
-	  R45VsE_HEP18->Fill(BaseCharge, TS4TS5);
-	  R45_HEP18->Fill(TS4TS5);
-	}
-	if ( (HcalHPDRBXMap::subdetRBX(rbx.idnumber()) == 2) &&
-	     (HcalHPDRBXMap::zsideRBX(rbx.idnumber()) < 0)   &&  
-	     (HcalHPDRBXMap::iphiloRBX(rbx.idnumber()) == 55) )  {
-	  QPLL = true;
-	  R45VsE_HEM15->Fill(BaseCharge, TS4TS5);
-	  if (evt.id().run() < 164625) { 
-	    R45VsE_HEM15G->Fill(BaseCharge, TS4TS5);
-	    R45_HEM15G->Fill(TS4TS5);
-	  }
-	  if (evt.id().run() > 165111) {
-	    R45VsE_HEM15B->Fill(BaseCharge, TS4TS5);
-	    R45_HEM15B->Fill(TS4TS5);
-	  }
-
-	  R45VsE_HEM15->Fill(BaseCharge, TS4TS5);
-	  R45_HEM15->Fill(TS4TS5);
-	}
-	
-	if (QPLL) {
-	  //	  std::cout << "SubDet = "  << HcalHPDRBXMap::subdetRBX(rbx.idnumber())
-	  //		    << " Z Side = " << HcalHPDRBXMap::zsideRBX(rbx.idnumber())
-	  //		    << " iPhi lo = " << HcalHPDRBXMap::iphiloRBX(rbx.idnumber())
-	  //		    << " iPhi hi = " << HcalHPDRBXMap::iphihiRBX(rbx.idnumber())
-	  //		    << std::endl; 
-	} else {
-	  R45VsE_AllGood->Fill(BaseCharge, TS4TS5);
-	  R45_AllGood->Fill(TS4TS5);
-	  if (HcalHPDRBXMap::subdetRBX(rbx.idnumber()) == 1) R45_HB_AllGood->Fill(TS4TS5);
-	  if (HcalHPDRBXMap::subdetRBX(rbx.idnumber()) == 2) R45_HE_AllGood->Fill(TS4TS5);
-
-	}
-
-	
-	if ( (HcalHPDRBXMap::subdetRBX(rbx.idnumber()) == 1) &&
-	     (HcalHPDRBXMap::zsideRBX(rbx.idnumber()) < 0) )	  
-	  TS4TS5VsPhi_HBM->Fill(HcalHPDRBXMap::iphiloRBX(rbx.idnumber()), TS4TS5);
-	if ( (HcalHPDRBXMap::subdetRBX(rbx.idnumber()) == 1) &&
-	     (HcalHPDRBXMap::zsideRBX(rbx.idnumber()) > 0) )	  
-	  TS4TS5VsPhi_HBP->Fill(HcalHPDRBXMap::iphiloRBX(rbx.idnumber()), TS4TS5);
-	
-	if ( (HcalHPDRBXMap::subdetRBX(rbx.idnumber()) == 2) &&
-	     (HcalHPDRBXMap::zsideRBX(rbx.idnumber()) < 0) )	  
-	  TS4TS5VsPhi_HEM->Fill(HcalHPDRBXMap::iphiloRBX(rbx.idnumber()), TS4TS5);
-	if ( (HcalHPDRBXMap::subdetRBX(rbx.idnumber()) == 2) &&
-	     (HcalHPDRBXMap::zsideRBX(rbx.idnumber()) > 0) )	  
-	  TS4TS5VsPhi_HEP->Fill(HcalHPDRBXMap::iphiloRBX(rbx.idnumber()), TS4TS5);
-	
-
-      }
-
-      if ( (BaseCharge > 150) && 
-	   ( (TS4TS5 > 0.6) || (TS4TS5 < 0.2)) ) {
-	TotalBadBaseCharge += BaseCharge; 
-      }
-      
-      R45VsE->Fill(BaseCharge, TS4TS5);
-      if (FBSNFlag) {
-	R45VsE_Spike->Fill(BaseCharge, TS4TS5);
-	if (!summary.HasBadRBXTS4TS5() && !FBFNFlag && !FBTNFlag) R45VsE_SpikeEx->Fill(BaseCharge, TS4TS5);
-	R45_Spike->Fill(TS4TS5);
-	if (BaseCharge > 300) {
-	  R45_Spike_300->Fill(TS4TS5);
-	  if (!summary.HasBadRBXTS4TS5() && !FBFNFlag && !FBTNFlag) R45_Spike_300Ex->Fill(TS4TS5);
-	}
-      }
-      if (FBFNFlag) {
-	R45VsE_Flat->Fill(BaseCharge, TS4TS5);
-	if (!summary.HasBadRBXTS4TS5() && !FBSNFlag && !FBTNFlag) R45VsE_FlatEx->Fill(BaseCharge, TS4TS5);
-	R45_Flat->Fill(TS4TS5);
-	if (BaseCharge > 300) {
-	  R45_Flat_300->Fill(TS4TS5);
-	  if (!summary.HasBadRBXTS4TS5() && !FBSNFlag && !FBTNFlag) R45_Flat_300Ex->Fill(TS4TS5);
-	}
-      }
-      if (FBTNFlag) {
-	R45VsE_Triangle->Fill(BaseCharge, TS4TS5);
-	if (!summary.HasBadRBXTS4TS5() && !FBSNFlag && !FBFNFlag) R45VsE_TriangleEx->Fill(BaseCharge, TS4TS5);
-	R45_Triangle->Fill(TS4TS5);
-	if (BaseCharge > 300) { 
-	  R45_Triangle_300->Fill(TS4TS5);
-	  if (!summary.HasBadRBXTS4TS5() && !FBSNFlag && !FBFNFlag) R45_Triangle_300Ex->Fill(TS4TS5);
-	}
-      }
-      if (summary.HasBadRBXTS4TS5()) {
-	R45VsE_Flagged->Fill(BaseCharge, TS4TS5);
-	R45_Flagged->Fill(TS4TS5);
-      } else {
-	R45VsE_Clean->Fill(BaseCharge, TS4TS5);
-	R45_Clean->Fill(TS4TS5);
-	if (BaseCharge > 300) R45_Clean_300->Fill(TS4TS5);
-      }
-      R45_All->Fill(TS4TS5);
-      if (BaseCharge > 100) R45_100->Fill(TS4TS5);
-      if (BaseCharge > 200) R45_200->Fill(TS4TS5);
-      if (BaseCharge > 300) R45_300->Fill(TS4TS5);
-	
-      //      std::cout << "RBX: allChargeTotal = " << rbx.allChargeTotal()
-      //		<< " BaseCharge = "         << BaseCharge
-      //		<< " TS4TS5 = "             << TS4TS5
-      //		<< " numRecHits = "         << rbx.numRecHits(1.5)
-      //		<< std::endl;    
-      
-      // do what you want with the rbx
-      TS4TS5VsRBX->Fill(rbx.idnumber(), TS4TS5);
-      // loop over the HPDs
-      std::vector<reco::HcalNoiseHPD> HPDs = rbx.HPDs();
-      for(std::vector<reco::HcalNoiseHPD>::const_iterator hpd = HPDs.begin(); hpd != HPDs.end(); hpd++) {
-	reco::HcalNoiseHPD HPD = *hpd;
-	//	int HPDHitCount = HPD.numRecHits(1.5);
-	TS4TS5VsHPD->Fill(HPD.idnumber(), TS4TS5);
-      }
-
-      //      std::vector<HcalNoiseHPD> HPDs=rbx.HPDs();
-      //      for(std::vector<HcalNoiseHPD>::const_iterator hit=HPDs.begin(); hit!=HPDs.end(); ++hit) {
-      //	// get the hpd
-      //	HcalNoiseHPD hpd=(*hit);
-      //	
-      //	// do what you want with the hpd
-      //	
-      //      }
-    }
-    if (TotalBaseCharge != 0) {
-      R45RBXFrac->Fill(MaxRBX/TotalBaseCharge);
-      R45BadRBXFrac->Fill(TotalBadBaseCharge/TotalBaseCharge);
-      if (summary.HasBadRBXTS4TS5()) {
-	R45RBXFrac_Flagged->Fill(MaxRBX/TotalBaseCharge);
-	R45BadRBXFrac_Flagged->Fill(TotalBadBaseCharge/TotalBaseCharge);
-      }
-    }
-  }
-  
-  //***********************
-  //*** R45
-  //***********************
-
-
-
-
-  if (HBHENFitFlagged > 0) NHBHEFlaggedVsNVtx->Fill(nVTX, HBHENFitFlagged);
-
-  //  if (BadCrossing) {
-    HBHENFlagged->Fill(HBHENFitFlagged); 
-    if (HBHENFitFlagged > 0) HBHEJetHadEneFlagged->Fill(LeadingJetHadEne); 
-    HBHEJetHadEne->Fill(LeadingJetHadEne); 
-    HBHEFlaggedVsJet->Fill(LeadingJetHadEne, HBHEEneFlagged); 
-  //  }
 
   HFM_ETime = 0.;
   HFM_E = 0.;
-  HFM_EFlagged = 0.;
   HFP_ETime = 0.;
   HFP_E = 0.;
-  HFP_EFlagged = 0.;
 
-  int NPMTHits, NRecHits;
+  int NPMTHits;
   NPMTHits = 0;
-  NRecHits = 0;
-
   try {
     std::vector<edm::Handle<HFRecHitCollection> > colls;
     evt.getManyByType(colls);
     std::vector<edm::Handle<HFRecHitCollection> >::iterator i;
-
-    
     for (i=colls.begin(); i!=colls.end(); i++) {
-      
       for (HFRecHitCollection::const_iterator j=(*i)->begin(); j!=(*i)->end(); j++) {
-	NRecHits++;
 	if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) ||
 	     (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) ) {
 	     NPMTHits++;
@@ -3177,10 +1834,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     cout << "No HF RecHits." << endl;
   }
 
-  HFRecHitsVsNVtx->Fill(nVTX, NRecHits);
-  HFRecHitsFlaggedVsNVtx->Fill(nVTX, NPMTHits);
 
-  NHFRecHits->Fill(NRecHits);
   PMTHits->Fill(NPMTHits); 
 
   try {
@@ -3206,7 +1860,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	    if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) ||
 		 (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) ) {
 	      HFEtaFlagged->Fill(j->id().ieta());
-	      HFEtaPhiFlagged->Fill(j->id().ieta(),j->id().iphi(),j->energy());
 	      if (j->id().depth() == 1) HFEtaFlaggedL->Fill(j->id().ieta());
 	      if (j->id().depth() == 2) HFEtaFlaggedS->Fill(j->id().ieta());
 	    } else {
@@ -3251,19 +1904,13 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	  HFEne->Fill(j->energy()); 
 	  HFTime->Fill(j->time()); 
 	  HFTvsE->Fill(j->energy(), j->time());
-	  if (j->flagField(HcalCaloFlagLabels::HFLongShort) == 0) HFTvsEPass->Fill(j->energy(), j->time());
-	  
+
 	  if (j->time() > 20.) HFEneTThr->Fill(j->energy()); 
 	 
 	  if (j->energy() > 10.) HFTvsEThr->Fill(j->energy(), j->time());
 
 	  if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1)|| 
 	       (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) ) {
-	    
-	    HFPhiFlagged->Fill(j->id().iphi());
-	    if (j->id().ieta() == 29) HFPhiFlaggedEta29->Fill(j->id().iphi());
-	    if (j->id().ieta() == 30) HFPhiFlaggedEta30->Fill(j->id().iphi());
-	    if (j->id().ieta() == 31) HFPhiFlaggedEta31->Fill(j->id().iphi());
 	    HFEneFlagged->Fill(j->energy());
 	    HFoccFlagged->Fill(j->id().ieta(),j->id().iphi());
 	    HFTimeFlagged->Fill(j->time()); 
@@ -3284,16 +1931,12 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	  }
 
 	  if (j->flagField(HcalCaloFlagLabels::HFDigiTime) == 1) {
-	    HFEneFlagged3->Fill(j->energy());
 	    HFTimeFlagged3->Fill(j->time()); 
 	  }
 
 	  if (j->energy() > HFThreshold) {
 	    HFEneTh->Fill(j->energy()); 
 	    HFTimeTh->Fill(j->time()); 
-	    if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 0) && 
-		 (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 0) ) HFTimeThPass->Fill(j->time()); 
-
 	    if (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) HFTimeThFlagged2->Fill(j->time()); 
 	    if (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) HFTimeThFlagged3->Fill(j->time()); 
 
@@ -3324,9 +1967,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	  if (j->energy() > HFThreshold1) {
 	    HFEneTh1->Fill(j->energy());
 	    HFTimeTh1->Fill(j->time()); 
-	    if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 0) && 
-		 (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 0) ) HFTimeTh1Pass->Fill(j->time()); 
-
 	    if (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) HFTimeTh1Flagged2->Fill(j->time()); 
 	    if (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) HFTimeTh1Flagged3->Fill(j->time()); 
 	    if (evt.id().run() >= StableRun) HFTimeTh1R->Fill(j->time()); 
@@ -3336,33 +1976,17 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	  } 
 	  if (j->energy() > HFThreshold2) {
 	    HFTimeTh2->Fill(j->time()); 
-	    if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 0) && 
-		 (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 0) ) HFTimeTh2Pass->Fill(j->time()); 
 	    if (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) HFTimeTh2Flagged2->Fill(j->time()); 
 	    if (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) HFTimeTh2Flagged3->Fill(j->time()); 
 	    if (evt.id().run() >= StableRun) HFTimeTh2R->Fill(j->time()); 
 	  }
 	  if (j->energy() > HFThreshold3) {
 	    HFTimeTh3->Fill(j->time()); 
-	    if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 0) && 
-		 (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 0) ) HFTimeTh3Pass->Fill(j->time()); 
-
 	    if (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) HFTimeTh3Flagged2->Fill(j->time()); 
 	    if (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) HFTimeTh3Flagged3->Fill(j->time()); 
 	    if (evt.id().run() >= StableRun) HFTimeTh3R->Fill(j->time()); 
-
 	  }
 
-	  if (j->energy() > HFThreshold4) {
-	    HFTimeTh4->Fill(j->time()); 
-	    if ( (j->flagField(HcalCaloFlagLabels::HFLongShort) == 0) && 
-		 (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 0) ) HFTimeTh4Pass->Fill(j->time()); 
-
-	    if (j->flagField(HcalCaloFlagLabels::HFLongShort) == 1) HFTimeTh4Flagged2->Fill(j->time()); 
-	    if (j->flagField(HcalCaloFlagLabels::HFDigiTime)  == 1) HFTimeTh4Flagged3->Fill(j->time()); 
-
-
-	  }
 	  if (j->id().ieta()<0) {
 	    if (j->energy() > HFThreshold) {
 	      //	      HFTimeM->Fill(j->time()); 
@@ -3426,7 +2050,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	   //	   if (longF > 110.)  {
 	   //	   if (longF > 50.)  {
 	   if (longF > (162.4-10.19*abs(ieta-41)+.21*abs(ieta-41)*abs(ieta-41)) )  {
-	     HFRecHitFlagN[ieta+41][iphi][0] = 1;
 	     HFEtaFlaggedLN->Fill(ieta-41);
 
 	     HFLEneAllF->Fill(longF);
@@ -3436,7 +2059,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 	   //	   if (shortF > 70.)  {
 	   //	   if (shortF > 50.)  {
 	   if (shortF > (129.9-6.61*abs(ieta-41)+0.1153*abs(ieta-41)*abs(ieta-41)) ) {
-	     HFRecHitFlagN[ieta+41][iphi][1] = 1;
 	     HFEtaFlaggedSN->Fill(ieta-41);
 
 	     HFSEneAllF->Fill(shortF);
@@ -3548,8 +2170,9 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
     cout << "No HO RecHits." << endl;
   }
 
-  HCALTotalE = HBTotalE + HETotalE + HFTotalE + HOTotalE;
-  ECALTotalE = EBTotalE = EETotalE = 0.;
+  // HCALTotalE = HBTotalE + HETotalE + HFTotalE + HOTotalE;
+  // ECALTotalE = 0.;
+  EBTotalE = EETotalE = 0.;
 
 
   try {
@@ -3653,7 +2276,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   }
   ******/
 
-  ECALTotalE = EBTotalE + EETotalE;
+  // ECALTotalE = EBTotalE + EETotalE;
 
   if ( (EBTotalE > 320000)  && (EBTotalE < 330000) && 
        (HBTotalE > 2700000) && (HBTotalE < 2800000) ) {
@@ -3754,8 +2377,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   HFSumEt->Fill(HFsum_et);
   HFMET->Fill(sqrt( HFsum_ex*HFsum_ex + HFsum_ey*HFsum_ey));
 
-
-
   hf_sumTowerAllEx->Fill(sumTowerAllEx);
   hf_sumTowerAllEy->Fill(sumTowerAllEy);
 
@@ -3791,13 +2412,13 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
       const std::vector<CaloTowerPtr> jetCaloRefs = ijet->getCaloConstituents();
       int nConstituents = jetCaloRefs.size();
       for (int i = 0; i <nConstituents ; i++){
+	
         UsedTowerList.push_back(jetCaloRefs[i]);
       }
       
       SumPtJet +=jetPt;
 
     //    }
-
 
       if ( (jetPt>80.0) && (fabs(jetEta) < 1.3) ){
 	st_Pt->Fill( jetPt );
@@ -3932,14 +2553,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
     SumEt->Fill(caloSumET);
     MET->Fill(caloMET);
-    if (FBSNFlag) MET_FBSN->Fill(caloMET);
-    if (FBTNFlag) MET_FBTN->Fill(caloMET);
-    if (FBFNFlag) MET_FBFN->Fill(caloMET);
- 
-    if ((FBTNFlag) && (!FBSNFlag))  MET_FBTNR->Fill(caloMET);
-    if ((FBFNFlag) && (!FBSNFlag))  MET_FBFNR->Fill(caloMET);
-
-    if (fabs(OER) > 0.8) OERMET->Fill(caloMET);
+    if (std::abs(OER) > 0.8) OERMET->Fill(caloMET);
 
     if (evtType == 0) MET_Tower->Fill(caloMET);
     if (evtType == 1) MET_RBX->Fill(caloMET);
@@ -3979,7 +2593,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
   //  std::cout << "Reconstructed "<< vC.size() << " vertices" << std::endl ;
   nVTX = vC.size();
-  //  double vertex_numTrks;
+  //double vertex_numTrks;
   for (reco::VertexCollection::const_iterator vertex=vC.begin(); vertex!=vC.end(); vertex++){
 
     h_Vx->Fill(vertex->x());
@@ -3994,8 +2608,6 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   if ((HF_PMM != INVALID) || (nVTX > 0)) {
     HFvsZ->Fill(HF_PMM,VTX);
   }
-
-
 
   // ********************************
   // *** Pixel Clusters

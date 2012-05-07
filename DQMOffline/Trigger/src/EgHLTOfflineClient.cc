@@ -42,14 +42,12 @@ EgHLTOfflineClient::EgHLTOfflineClient(const edm::ParameterSet& iConfig):dbe_(NU
   eleEffTags_ = iConfig.getParameter<std::vector<std::string> >("eleEffTags");
   eleTrigTPEffVsVars_ = iConfig.getParameter<std::vector<std::string> >("eleTrigTPEffVsVars");
   eleLooseTightTrigEffVsVars_ =  iConfig.getParameter<std::vector<std::string> >("eleLooseTightTrigEffVsVars");
-  eleHLTvOfflineVars_ = iConfig.getParameter<std::vector<std::string> >("eleHLTvOfflineVars");
 
   phoN1EffVars_=iConfig.getParameter<std::vector<std::string> >("phoN1EffVars");
   phoSingleEffVars_ = iConfig.getParameter<std::vector<std::string> >("phoSingleEffVars");
   phoEffTags_ = iConfig.getParameter<std::vector<std::string> >("phoEffTags");
   phoTrigTPEffVsVars_ = iConfig.getParameter<std::vector<std::string> >("phoTrigTPEffVsVars");
   phoLooseTightTrigEffVsVars_ =  iConfig.getParameter<std::vector<std::string> >("phoLooseTightTrigEffVsVars");
-  phoHLTvOfflineVars_ = iConfig.getParameter<std::vector<std::string> >("phoHLTvOfflineVars");
   
   runClientEndLumiBlock_ = iConfig.getParameter<bool>("runClientEndLumiBlock");
   runClientEndRun_ = iConfig.getParameter<bool>("runClientEndRun");
@@ -98,7 +96,7 @@ void EgHLTOfflineClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
       std::vector<std::string> activePho2LegFilters;
       egHLT::trigTools::getActiveFilters(hltConfig,activeFilters,activeEleFilters,activeEle2LegFilters,activePhoFilters,activePho2LegFilters);
       
-      egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeEleFilters);
+      egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeFilters);
       egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNames2Leg_,activeEle2LegFilters);
       egHLT::trigTools::filterInactiveTriggers(phoHLTFilterNames_,activePhoFilters);
       egHLT::trigTools::filterInactiveTightLooseTriggers(eleTightLooseTrigNames_,activeEleFilters);
@@ -145,7 +143,6 @@ void EgHLTOfflineClient::runClient_()
 	createN1EffHists(eleHLTFilterNames_[filterNr],eleHLTFilterNames_[filterNr]+"_gsfEle_"+eleEffTags_[effNr],regions[regionNr],eleN1EffVars_);
 	createSingleEffHists(eleHLTFilterNames_[filterNr],eleHLTFilterNames_[filterNr]+"_gsfEle_"+eleEffTags_[effNr],regions[regionNr],eleSingleEffVars_);
 	createTrigTagProbeEffHistsNewAlgo(eleHLTFilterNames_[filterNr],regions[regionNr],eleTrigTPEffVsVars_,"gsfEle");
-	createHLTvsOfflineHists(eleHLTFilterNames_[filterNr],eleHLTFilterNames_[filterNr]+"_gsfEle_passFilter",regions[regionNr],eleHLTvOfflineVars_);
       }
     }
   }
@@ -174,8 +171,6 @@ void EgHLTOfflineClient::runClient_()
 	createN1EffHists(phoHLTFilterNames_[filterNr],phoHLTFilterNames_[filterNr]+"_pho_"+phoEffTags_[effNr],regions[regionNr],phoN1EffVars_);
 	createSingleEffHists(phoHLTFilterNames_[filterNr],phoHLTFilterNames_[filterNr]+"_pho_"+phoEffTags_[effNr],regions[regionNr],phoSingleEffVars_);
 	createTrigTagProbeEffHistsNewAlgo(phoHLTFilterNames_[filterNr],regions[regionNr],phoTrigTPEffVsVars_,"pho");
-	createHLTvsOfflineHists(phoHLTFilterNames_[filterNr],phoHLTFilterNames_[filterNr]+"_pho_passFilter",regions[regionNr],phoHLTvOfflineVars_);
-
 	//--------------
       }
     }
@@ -192,52 +187,6 @@ void EgHLTOfflineClient::runClient_()
   //----Morse-----
   dbe_->setCurrentFolder(dirName_);
   //----------
-}
-
-void EgHLTOfflineClient::createHLTvsOfflineHists(const std::string& filterName,const std::string& baseName,const std::string& region,const std::vector<std::string>& varNames){
-  //need to do Energy manually to get SC Energy
-  /*
-  MonitorElement* numer = dbe_->get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_HLTenergy"+"_"+region);
-  MonitorElement* denom = dbe_->get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_energy"+"_"+region);
-
-  if(numer!=NULL && denom!=NULL){
-    std::string effHistName(baseName+"_HLToverOfflineSC_energy_"+region);//std::cout<<"hltVSoffline:  "<<effHistName<<std::endl;
-    std::string effHistTitle(effHistName);
-    if(region=="eb" || region=="ee"){
-      if(region=="eb") effHistTitle = "Barrel "+baseName+" HLToverOfflineSC Energy";
-      if(region=="ee") effHistTitle = "Endcap "+baseName+" HLToverOfflineSC Energy";
-      FillHLTvsOfflineHist(filterName,effHistName,effHistTitle,numer,denom);	
-    }
-  }//end Et
-  */
-  //now eta, phi automatically
-  for(size_t varNr=0;varNr<varNames.size();varNr++){
-    MonitorElement* numer = dbe_->get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_HLT"+varNames[varNr]+"_"+region);
-    MonitorElement* denom = dbe_->get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_"+varNames[varNr]+"_"+region);
-    if(numer!=NULL && denom!=NULL){
-      std::string effHistName(baseName+"_HLToverOffline_"+varNames[varNr]+"_"+region);//std::cout<<"hltVSoffline:  "<<effHistName<<std::endl;
-      std::string effHistTitle(effHistName);
-      if(region=="eb" || region=="ee"){
-	if(region=="eb") effHistTitle = "Barrel "+baseName+" HLToverOffline "+varNames[varNr];
-	if(region=="ee") effHistTitle = "Endcap "+baseName+" HLToverOffline "+varNames[varNr];
-	FillHLTvsOfflineHist(filterName,effHistName,effHistTitle,numer,denom);	
-      }
-    }
-  }//end loop over varNames 
-}
-MonitorElement* EgHLTOfflineClient::FillHLTvsOfflineHist(const std::string& filter,const std::string& name,const std::string& title,const MonitorElement* numer,const MonitorElement* denom){
-  TH1F* num = numer->getTH1F();if(num->GetSumw2N()==0) num->Sumw2();
-  TH1F* den = denom->getTH1F();if(den->GetSumw2N()==0) den->Sumw2();
-  TH1F* h_eff = (TH1F*)num->Clone(name.c_str());
-  h_eff->Divide(num,den,1,1,"B");
-  h_eff->SetTitle(title.c_str());
-  MonitorElement* eff = dbe_->get(dirName_+"/Client_Histos/"+filter+"/"+name);
-  if(eff==NULL)eff=dbe_->book1D(name,h_eff);
-  else{ //I was having problems with collating the histograms, hence why I'm just resetting the histogram value
-    *eff->getTH1F()=*h_eff; 
-    delete h_eff;
-  }
-  return eff;
 }
 
 void EgHLTOfflineClient::createN1EffHists(const std::string& filterName,const std::string& baseName,const std::string& region,const std::vector<std::string>& varNames)

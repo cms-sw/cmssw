@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/07/19 15:53:25 $
- *  $Revision: 1.14 $
+ *  $Date: 2011/12/09 10:31:19 $
+ *  $Revision: 1.15 $
  */
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
@@ -169,4 +169,31 @@ TransientTrackingRecHit::ConstRecHitContainer MuonTransientTrackingRecHit::trans
   }
   return theSubTransientRecHits;
 
+}
+
+
+void MuonTransientTrackingRecHit::invalidateHit(){ 
+  setType(bad); trackingRecHit_->setType(bad); 
+
+
+  if (isDT()){
+    if(dimension() > 1){ // MB4s have 2D, but formatted in 4D segments 
+      std::vector<TrackingRecHit*> seg2D = recHits(); // 4D --> 2D
+      // load 1D hits (2D --> 1D)
+      for(std::vector<TrackingRecHit*>::iterator it = seg2D.begin(); it != seg2D.end(); ++it){
+	std::vector<TrackingRecHit*> hits1D =  (*it)->recHits();
+	(*it)->setType(bad);
+	for(std::vector<TrackingRecHit*>::iterator it2 = hits1D.begin(); it2 != hits1D.end(); ++it2)
+	  (*it2)->setType(bad);
+      }
+    }
+  }
+  else if(isCSC())
+    if(dimension() == 4){
+      std::vector<TrackingRecHit*>  hits = recHits(); // load 2D hits (4D --> 1D)
+      for(std::vector<TrackingRecHit*>::iterator it = hits.begin(); it != hits.end(); ++it)
+	(*it)->setType(bad);
+    }
+  
+  
 }

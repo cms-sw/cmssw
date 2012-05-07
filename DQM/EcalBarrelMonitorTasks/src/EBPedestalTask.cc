@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2011/08/30 09:30:32 $
- * $Revision: 1.102 $
+ * $Date: 2011/08/23 00:30:59 $
+ * $Revision: 1.101.4.2 $
  * \author G. Della Ricca
  *
 */

@@ -117,7 +117,8 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 	    ),
     Htaunu = cms.PSet( 
 	    hltPathsToCheck = cms.vstring(
-		    "HLT_LooseIsoPFTau35_Trk20_MET75_v",
+		    #"HLT_LooseIsoPFTau35_Trk20_MET75_v",
+		    "HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v",
 		    ),
 	    recPFTauLabel   = cms.string("hpsTancTaus"),
 	    recCaloMETLabel = cms.string("met"),

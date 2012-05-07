@@ -294,18 +294,7 @@ CmsShowMainBase::reloadConfiguration(const std::string &config)
       m_configurationManager->readFromFile(config);
       gEve->EnableRedraw();
    }
-   catch (SimpleSAXParser::ParserError &e)
-   {
-      Int_t chosen;
-      new TGMsgBox(gClient->GetDefaultRoot(),
-                   gClient->GetDefaultRoot(),
-                   "Bad configuration",
-                   ("Configuration " + config + " cannot be parsed: " + e.error()).c_str(),
-                   kMBIconExclamation,
-                   kMBCancel,
-                   &chosen);
-   }
-   catch (...)
+   catch (std::runtime_error &e)
    {
       Int_t chosen;
       new TGMsgBox(gClient->GetDefaultRoot(),
@@ -316,7 +305,17 @@ CmsShowMainBase::reloadConfiguration(const std::string &config)
                    kMBCancel,
                    &chosen);
    }
-
+   catch (SimpleSAXParser::ParserError &e)
+   {
+      Int_t chosen;
+      new TGMsgBox(gClient->GetDefaultRoot(),
+                   gClient->GetDefaultRoot(),
+                   "Bad configuration",
+                   ("Configuration " + config + " cannot be parsed.").c_str(),
+                   kMBIconExclamation,
+                   kMBCancel,
+                   &chosen);
+   }
    m_guiManager->updateStatus("");
 }
 
@@ -376,16 +375,15 @@ CmsShowMainBase::setupConfiguration()
          m_configurationManager->readFromFile(m_configFileName);
          gEve->EnableRedraw();
       }
-      catch (SimpleSAXParser::ParserError &e)
+      catch (std::runtime_error &e)
       {
          fwLog(fwlog::kError) <<"Unable to load configuration file '" 
                               << m_configFileName 
-                              << "': " 
-                              << e.error()
+                              << "' which was specified on command line. Quitting." 
                               << std::endl;
          exit(1);
       }
-      catch (std::runtime_error &e)
+      catch (SimpleSAXParser::ParserError &e)
       {
          fwLog(fwlog::kError) <<"Unable to load configuration file '" 
                               << m_configFileName 

@@ -1,4 +1,4 @@
-/* for old tauola27 
+/* for old tauola27 */
 #include <iostream>
 
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
@@ -268,9 +268,9 @@ void TauolaInterface::statistics()
    return;
 }
 
-*/
+/* */
 
-/* this is the code for the new Tauola++ */
+/* this is the code for the new Tauola++ 
 
 #include <iostream>
 
@@ -321,7 +321,7 @@ TauolaInterface* TauolaInterface::fInstance = 0;
 
 
 TauolaInterface::TauolaInterface()
-   : fPolarization(false), fPSet(0), fIsInitialized(false), fMDTAU(-1), fSelectDecayByEvent(false)
+   : fPolarization(false), fPSet(0), fIsInitialized(false)
 {
    
    Service<RandomNumberGenerator> rng;
@@ -428,14 +428,8 @@ void TauolaInterface::init( const edm::EventSetup& es )
    // read tau decay mode switches
    //
    ParameterSet cards = fPSet->getParameter< ParameterSet >("InputCards");
-   
-   fMDTAU = cards.getParameter< int >( "mdtau" );
-
-   if ( fMDTAU == 0 || fMDTAU == 1 )
-   {
-      Tauola::setSameParticleDecayMode( cards.getParameter< int >( "pjak1" ) ) ;
-      Tauola::setOppositeParticleDecayMode( cards.getParameter< int >( "pjak2" ) ) ;
-   }
+   Tauola::setSameParticleDecayMode( cards.getParameter< int >( "pjak1" ) ) ;
+   Tauola::setOppositeParticleDecayMode( cards.getParameter< int >( "pjak2" ) ) ;
 
    Tauola::setTauLifetime(0.0);
    Tauola::spin_correlation.setAll(fPolarization);
@@ -455,18 +449,6 @@ void TauolaInterface::init( const edm::EventSetup& es )
    fPDGs.push_back( Tauola::getDecayingParticle() );
          
    Tauola::initialise();
-
-   Tauola::spin_correlation.setAll(fPolarization);// Tauola switches this on during Tauola::initialise(); so we add this here to keep it on/off
-
-   // override decay modes if needs be
-   //
-   // we have to do it AFTER init because otherwises branching ratios are NOT filled in
-   //
-   if ( fMDTAU != 0 && fMDTAU != 1 )
-   {
-      decodeMDTAU( fMDTAU );
-   }
-
    Log::LogWarning(false);
    
    return;
@@ -509,12 +491,6 @@ HepMC::GenEvent* TauolaInterface::decay( HepMC::GenEvent* evt )
    //
    // if ( NPartBefore > 10000 ) return evt;
    //
-   
-   // override decay mode if needs be
-   if ( fSelectDecayByEvent )
-   {
-      selectDecayByMDTAU();
-   }
    
     //construct tmp TAUOLA event
     //
@@ -588,349 +564,4 @@ void TauolaInterface::statistics()
    return;
 }
 
-void TauolaInterface::decodeMDTAU( int mdtau )
-{
-
-   // Note-1:
-   // I have to hack the common block directly because set<...>DecayMode(...)
-   // only changes it in the Tauola++ instance but does NOT passes it over
-   // to the Fortran core - this it does only one, via initialize() stuff...
-   //
-   // So I'll do both ways of settings, just for consistency...
-   // but I probably need to communicate it to the Tauola(++) team...
-   //
-   
-   // Note-2: 
-   // originally, the 1xx settings are meant for tau's from hard event,
-   // and the 2xx settings are for any tau in the event record;
-   //
-   // later one, we'll have to take this into account...
-   // but first I'll have to sort out what happens in the 1xx case
-   // to tau's coming outside of hard event (if any in the record)   
-   //
-   
-   if ( mdtau == 101 || mdtau == 201 )
-   {
-      // override with electron mode for both tau's
-      //
-      jaki_.jak1 = 1;
-      jaki_.jak2 = 1;
-      Tauola::setSameParticleDecayMode( 1 ) ;
-      Tauola::setOppositeParticleDecayMode( 1 ) ;
-      return;
-   }
-   
-   if ( mdtau == 102 || mdtau == 202 )
-   {
-      // override with muon mode for both tau's
-      //
-      jaki_.jak1 = 2;
-      jaki_.jak2 = 2;
-      Tauola::setSameParticleDecayMode( 2 ) ;
-      Tauola::setOppositeParticleDecayMode( 2 ) ;
-      return;
-   }
-
-   if ( mdtau == 111 || mdtau == 211 )
-   {
-      // override with electron mode for 1st tau 
-      // and any mode for 2nd tau
-      //
-      jaki_.jak1 = 1;
-      jaki_.jak2 = 0;
-      Tauola::setSameParticleDecayMode( 1 ) ;
-      Tauola::setOppositeParticleDecayMode( 0 ) ;
-      return;
-   }
-
-   if ( mdtau == 112 || mdtau == 212 )
-   {
-      // override with muon mode for the 1st tau 
-      // and any mode for the 2nd tau
-      //
-      jaki_.jak1 = 2;
-      jaki_.jak2 = 0;
-      Tauola::setSameParticleDecayMode( 2 ) ;
-      Tauola::setOppositeParticleDecayMode( 0 ) ;
-      return;
-   }
-   
-   if ( mdtau == 121 || mdtau == 221 )
-   {
-      // override with any mode for the 1st tau 
-      // and electron mode for the 2nd tau
-      //
-      jaki_.jak1 = 0;
-      jaki_.jak2 = 1;
-      Tauola::setSameParticleDecayMode( 0 ) ;
-      Tauola::setOppositeParticleDecayMode( 1 ) ;
-      return;
-   }
-   
-   if ( mdtau == 122 || mdtau == 222 )
-   {
-      // override with any mode for the 1st tau 
-      // and muon mode for the 2nd tau
-      //
-      jaki_.jak1 = 0;
-      jaki_.jak2 = 2;
-      Tauola::setSameParticleDecayMode( 0 ) ;
-      Tauola::setOppositeParticleDecayMode( 2 ) ;
-      return;
-   }
-
-   if ( mdtau == 140 || mdtau == 240 )
-   {
-      // override with pi+/- nutau mode for both tau's 
-      //
-      jaki_.jak1 = 3;
-      jaki_.jak2 = 3;
-      Tauola::setSameParticleDecayMode( 3 ) ;
-      Tauola::setOppositeParticleDecayMode( 3 ) ;
-      return;
-   }
-
-   if ( mdtau == 141 || mdtau == 241 )
-   {
-      // override with pi+/- nutau mode for the 1st tau 
-      // and any mode for the 2nd tau
-      //
-      jaki_.jak1 = 3;
-      jaki_.jak2 = 0;
-      Tauola::setSameParticleDecayMode( 3 ) ;
-      Tauola::setOppositeParticleDecayMode( 0 ) ;
-      return;
-   }
-
-   if ( mdtau == 142 || mdtau == 242 )
-   {
-      // override with any mode for the 1st tau 
-      // and pi+/- nutau mode for 2nd tau
-      //
-      jaki_.jak1 = 0;
-      jaki_.jak2 = 3;
-      Tauola::setSameParticleDecayMode( 0 ) ;
-      Tauola::setOppositeParticleDecayMode( 3 ) ;
-      return;
-   }
-   
-   // OK, we come here for semi-inclusive modes
-   //
-   
-   // First of all, leptons and hadron modes sums
-   //
-   // re-scale branching ratios, just in case...
-   //
-   double sumBra = 0;
-   
-   // the number of decay modes is hardcoded at 22 because that's what it is right now in Tauola
-   // in the future, perhaps an asscess method would be useful - communicate to Tauola team...
-   //
-   
-   for ( int i=0; i<22; i++ )
-   {
-      sumBra += taubra_.gamprt[i];
-   }
-   if ( sumBra == 0. ) return ; // perhaps need to throw ?
-   for ( int i=0; i<22; i++ )
-   {
-      double newBra = taubra_.gamprt[i] / sumBra;
-      Tauola::setTauBr( i+1, newBra ); 
-   }
-   sumBra = 1.0;
-   
-   double sumLeptonBra = taubra_.gamprt[0] + taubra_.gamprt[1];
-   double sumHadronBra = sumBra - sumLeptonBra;
-   
-   for ( int i=0; i<2; i++ )
-   {
-      fLeptonModes.push_back( i+1 );
-      fScaledLeptonBrRatios.push_back( (taubra_.gamprt[i]/sumLeptonBra) );  
-   }
-   for ( int i=2; i<22; i++ )
-   {
-      fHadronModes.push_back( i+1 );
-      fScaledHadronBrRatios.push_back( (taubra_.gamprt[i]/sumHadronBra) ); 
-   }
-
-   fSelectDecayByEvent = true;
-   return;
-      
-}
-
-void TauolaInterface::selectDecayByMDTAU()
-{
-
-   
-   if ( fMDTAU == 100 || fMDTAU == 200 )
-   {
-      int mode = selectLeptonic();
-      jaki_.jak1 = mode;
-      Tauola::setSameParticleDecayMode( mode );
-      mode = selectLeptonic();
-      jaki_.jak2 = mode;
-      Tauola::setOppositeParticleDecayMode( mode );
-      return ;
-   }
-   
-   int modeL = selectLeptonic();
-   int modeH = selectHadronic();
-   
-   if ( fMDTAU == 110 || fMDTAU == 210 )
-   {
-      jaki_.jak1 = modeL;
-      jaki_.jak2 = 0;
-      Tauola::setSameParticleDecayMode( modeL );
-      Tauola::setOppositeParticleDecayMode( 0 );
-      return ;
-   }
-   
-   if ( fMDTAU == 120 || fMDTAU == 22 )
-   {
-      jaki_.jak1 = 0;
-      jaki_.jak2 = modeL;
-      Tauola::setSameParticleDecayMode( 0 );
-      Tauola::setOppositeParticleDecayMode( modeL );
-      return;      
-   }
-   
-   if ( fMDTAU == 114 || fMDTAU == 214 )
-   {
-      jaki_.jak1 = modeL;
-      jaki_.jak2 = modeH;
-      Tauola::setSameParticleDecayMode( modeL );
-      Tauola::setOppositeParticleDecayMode( modeH );
-      return;      
-   }
-
-   if ( fMDTAU == 124 || fMDTAU == 224 )
-   {
-      jaki_.jak1 = modeH;
-      jaki_.jak2 = modeL;
-      Tauola::setSameParticleDecayMode( modeH );
-      Tauola::setOppositeParticleDecayMode( modeL );
-      return;      
-   }
-
-   if ( fMDTAU == 115 || fMDTAU == 215 )
-   {
-      jaki_.jak1 = 1;
-      jaki_.jak2 = modeH;
-      Tauola::setSameParticleDecayMode( 1 );
-      Tauola::setOppositeParticleDecayMode( modeH );
-      return;      
-   }
-
-   if ( fMDTAU == 125 || fMDTAU == 225 )
-   {
-      jaki_.jak1 = modeH;
-      jaki_.jak2 = 1;
-      Tauola::setSameParticleDecayMode( modeH );
-      Tauola::setOppositeParticleDecayMode( 1 );
-      return;      
-   }
-
-   if ( fMDTAU == 116 || fMDTAU == 216 )
-   {
-      jaki_.jak1 = 2;
-      jaki_.jak2 = modeH;
-      Tauola::setSameParticleDecayMode( 2 );
-      Tauola::setOppositeParticleDecayMode( modeH );
-      return;      
-   }
-
-   if ( fMDTAU == 126 || fMDTAU == 226 )
-   {
-      jaki_.jak1 = modeH;
-      jaki_.jak2 = 2;
-      Tauola::setSameParticleDecayMode( modeH );
-      Tauola::setOppositeParticleDecayMode( 2 );
-      return;      
-   }
-
-   if ( fMDTAU == 130 || fMDTAU == 230 )
-   {
-      jaki_.jak1 = modeH;
-      jaki_.jak2 = selectHadronic();
-      Tauola::setSameParticleDecayMode( modeH );
-      Tauola::setOppositeParticleDecayMode( jaki_.jak2 );
-      return;      
-   }
-
-   if ( fMDTAU == 131 || fMDTAU == 231 )
-   {
-      jaki_.jak1 = modeH;
-      jaki_.jak2 = 0;
-      Tauola::setSameParticleDecayMode( modeH );
-      Tauola::setOppositeParticleDecayMode( 0 );
-      return;      
-   }
-
-   if ( fMDTAU == 132 || fMDTAU == 232 )
-   {
-      jaki_.jak1 = 0;
-      jaki_.jak2 = modeH;
-      Tauola::setSameParticleDecayMode( 0 );
-      Tauola::setOppositeParticleDecayMode( modeH );
-      return;      
-   }
-   
-   // unlikely that we get here on unknown mdtau 
-   // - there's a protection earlier
-   // but if we do, just set defaults
-   // probably need to spit a warning...
-   //
-   Tauola::setSameParticleDecayMode( 0 );
-   Tauola::setOppositeParticleDecayMode( 0 );
-      
-   return;
-   
-
-}
-
-int TauolaInterface::selectLeptonic()
-{
-   
-   float prob = flat();
-   
-   if ( prob > 0. && prob <= fScaledLeptonBrRatios[0] ) 
-   {
-      return 1;
-   }
-   else if ( prob > fScaledLeptonBrRatios[1] && prob <=1. )
-   {
-      return 2;
-   }
-      
-   return 0;
-}
-
-int TauolaInterface::selectHadronic()
-{
-
-   float prob = 0.;
-   int len = 1;
-   ranmar_(&prob,&len);
-   
-   double sumBra = fScaledHadronBrRatios[0];
-   if ( prob > 0. && prob <= sumBra ) 
-   {
-      return fHadronModes[0];
-   }
-   else
-   {
-      int NN = fScaledHadronBrRatios.size();
-      for ( int i=1; i<NN; i++ )
-      {
-         if ( prob > sumBra && prob <= (sumBra+fScaledHadronBrRatios[i]) ) 
-	 {
-	    return fHadronModes[i];
-	 }
-	 sumBra += fScaledHadronBrRatios[i];
-      }
-   }
-   
-   return 0;
-
-}
-/* */
+*/

@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerClient.h
  *
- * $Date: 2010/01/25 21:12:23 $
- * $Revision: 1.46 $
+ * $Date: 2009/11/20 20:51:25 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
