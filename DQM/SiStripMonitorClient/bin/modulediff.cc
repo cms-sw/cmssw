@@ -94,13 +94,13 @@ void modulediff ( int run_2 , string repro_run2 )
   outfile << "Recovered modules in run " << run_2 << ":" << endl;
   if ( modules_recovered.size() == 0 ) 
     outfile << " -" << endl;
-  for ( u_int i = 0; i < modules_recovered.size() ; i++ )
+  for ( unsigned int i = 0; i < modules_recovered.size() ; i++ )
     outfile << " " << modules_recovered[ i ] << endl;
   
   outfile << "New bad modules that appeared in run " << run_2 << ":" << endl;
   if ( modules_malformed.size() == 0 ) 
     outfile << " -" << endl;
-  for ( u_int i = 0; i < modules_malformed.size() ; i++ )
+  for ( unsigned int i = 0; i < modules_malformed.size() ; i++ )
     outfile << " " << modules_malformed[ i ] << endl;
 
   outfile.close();
@@ -111,7 +111,7 @@ void modulediff ( int run_2 , string repro_run2 )
     {
       ofstream outfile_good;
       outfile_good.open("modulediff_good.txt");
-      for ( u_int i = 0; i < modules_recovered.size() ; i++ )
+      for ( unsigned int i = 0; i < modules_recovered.size() ; i++ )
 	outfile_good << " " << modules_recovered[ i ] << endl;
       outfile_good.close();
     }
@@ -120,7 +120,7 @@ void modulediff ( int run_2 , string repro_run2 )
     {
       ofstream outfile_bad;
       outfile_bad.open("modulediff_bad.txt");
-      for ( u_int i = 0; i < modules_malformed.size() ; i++ )
+      for ( unsigned int i = 0; i < modules_malformed.size() ; i++ )
 	outfile_bad << " " << modules_malformed[ i ] << endl;
       outfile_bad.close();
     }
@@ -129,10 +129,10 @@ void modulediff ( int run_2 , string repro_run2 )
 void get_difference  ( vector < int > badlist1 , vector < int > badlist2 , vector < int > &difflist )
 {
   //check if any element of badlist1 is in badlist2
-  for ( u_int i1 = 0; i1 < badlist1.size() ; i1++ )
+  for ( unsigned int i1 = 0; i1 < badlist1.size() ; i1++ )
     {
       bool thisrecovered = true;
-      for ( u_int i2 = 0; i2 < badlist2.size() ; i2++ )
+      for ( unsigned int i2 = 0; i2 < badlist2.size() ; i2++ )
 	if ( badlist1[ i1 ] == badlist2[ i2 ] )
 	  {
 	    thisrecovered = false;
