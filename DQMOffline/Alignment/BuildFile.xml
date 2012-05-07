@@ -5,6 +5,7 @@
 <use   name="DataFormats/MuonReco"/>
 <use   name="RecoMuon/TrackingTools"/>
 <use   name="TrackingTools/TransientTrack"/>
+<use   name="TrackPropagation/SteppingHelixPropagator"/>
 <use   name="Alignment/LaserAlignment"/>
 <use   name="MagneticField/Engine"/>
 <flags   EDM_PLUGIN="1"/>
