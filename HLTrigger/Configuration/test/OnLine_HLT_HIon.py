@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V114 (CMSSW_5_2_3_HLT9)
+# /dev/CMSSW_5_2_1/HIon/V115 (CMSSW_5_2_3_HLT9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V114')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V115')
 )
 
 process.streams = cms.PSet( 
@@ -334,7 +334,8 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     ),
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
     globaltag = cms.string( "GR_H_V29::All" ),
-    timetype = cms.string( "runnumber" )
+    timetype = cms.string( "runnumber" ),
+    RefreshEachRun = cms.untracked.bool( True )
 )
 process.HepPDTESSource = cms.ESSource( "HepPDTESSource",
     pdtFileName = cms.FileInPath( "SimGeneral/HepPDTESSource/data/pythiaparticle.tbl" )
@@ -3017,12 +3018,22 @@ process.DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
     getSCInfo = cms.untracked.bool( True )
 )
 process.MessageLogger = cms.Service( "MessageLogger",
+    suppressInfo = cms.untracked.vstring(  ),
     debugs = cms.untracked.PSet( 
       threshold = cms.untracked.string( "INFO" ),
       placeholder = cms.untracked.bool( True ),
+      suppressInfo = cms.untracked.vstring(  ),
+      suppressWarning = cms.untracked.vstring(  ),
+      suppressDebug = cms.untracked.vstring(  ),
+      suppressError = cms.untracked.vstring(  )
     ),
+    suppressDebug = cms.untracked.vstring(  ),
     cout = cms.untracked.PSet( 
       threshold = cms.untracked.string( "ERROR" ),
+      suppressInfo = cms.untracked.vstring(  ),
+      suppressWarning = cms.untracked.vstring(  ),
+      suppressDebug = cms.untracked.vstring(  ),
+      suppressError = cms.untracked.vstring(  )
     ),
     cerr_stats = cms.untracked.PSet( 
       threshold = cms.untracked.string( "WARNING" ),
@@ -3032,6 +3043,10 @@ process.MessageLogger = cms.Service( "MessageLogger",
     warnings = cms.untracked.PSet( 
       threshold = cms.untracked.string( "INFO" ),
       placeholder = cms.untracked.bool( True ),
+      suppressInfo = cms.untracked.vstring(  ),
+      suppressWarning = cms.untracked.vstring(  ),
+      suppressDebug = cms.untracked.vstring(  ),
+      suppressError = cms.untracked.vstring(  )
     ),
     statistics = cms.untracked.vstring( 'cerr' ),
     cerr = cms.untracked.PSet( 
@@ -3049,6 +3064,10 @@ process.MessageLogger = cms.Service( "MessageLogger",
         limit = cms.untracked.int32( 10000000 )
       ),
       threshold = cms.untracked.string( "INFO" ),
+      suppressInfo = cms.untracked.vstring(  ),
+      suppressWarning = cms.untracked.vstring(  ),
+      suppressDebug = cms.untracked.vstring(  ),
+      suppressError = cms.untracked.vstring(  )
     ),
     FrameworkJobReport = cms.untracked.PSet( 
       default = cms.untracked.PSet(  limit = cms.untracked.int32( 0 ) ),
@@ -3069,12 +3088,21 @@ process.MessageLogger = cms.Service( "MessageLogger",
     errors = cms.untracked.PSet( 
       threshold = cms.untracked.string( "INFO" ),
       placeholder = cms.untracked.bool( True ),
+      suppressInfo = cms.untracked.vstring(  ),
+      suppressWarning = cms.untracked.vstring(  ),
+      suppressDebug = cms.untracked.vstring(  ),
+      suppressError = cms.untracked.vstring(  )
     ),
     fwkJobReports = cms.untracked.vstring( 'FrameworkJobReport' ),
+    debugModules = cms.untracked.vstring(  ),
     infos = cms.untracked.PSet( 
       threshold = cms.untracked.string( "INFO" ),
       Root_NoDictionary = cms.untracked.PSet(  limit = cms.untracked.int32( 0 ) ),
       placeholder = cms.untracked.bool( True ),
+      suppressInfo = cms.untracked.vstring(  ),
+      suppressWarning = cms.untracked.vstring(  ),
+      suppressDebug = cms.untracked.vstring(  ),
+      suppressError = cms.untracked.vstring(  )
     ),
     categories = cms.untracked.vstring( 'FwkJob',
       'FwkReport',
