@@ -103,7 +103,7 @@ electronCutBase  =     'pt > 20.'                                               
 electronCutBase += ' && abs(eta) < 2.5'                                            # pseudo-rapisity range
 # veto electron
 electronCutVeto  = electronCutBase
-electronCutVeto += ' && electronID("mvaNonTrigV0") > 0.'                           # MVA electrons ID
+electronCutVeto += ' && electronID("mvaTrigV0") > 0.'                              # MVA electrons ID
 # standard electron
 electronCut  = electronCutVeto
 electronCut += ' && (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/et < 0.2' # relative isolation
