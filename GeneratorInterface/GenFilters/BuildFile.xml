@@ -1,11 +1,13 @@
 <use   name="boost"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Framework"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="hepmc"/>
 <use   name="heppdt"/>
 <use   name="clhep"/>
 <use   name="root"/>
-<use   name="pythia6"/>
+<use   name="GeneratorInterface/Pythia6Interface"/>
+<use   name="GeneratorInterface/Core"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/GeometrySurface"/>
@@ -20,6 +22,5 @@
 <use   name="FastSimulation/BaseParticlePropagator"/>
 <use   name="TrackingTools/GeomPropagators"/>
 <use   name="DataFormats/HepMCCandidate"/>
+<use   name="DataFormats/JetReco"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-</export>

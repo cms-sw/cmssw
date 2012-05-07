@@ -144,10 +144,10 @@ class WorkFlowRunner(Thread):
             # input files (the relvals are OK)
             if ( '40.0' in str(self.wf.numId) ) :
                 fullcmd += ' --himix '
-                inFile = '/store/relval/CMSSW_3_8_0_pre1/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-RAW/MC_37Y_V5-v1/0001/E0DE7C01-2C6F-DF11-B61F-0026189438F4.root'
+                inFile = '/store/relval/CMSSW_3_9_7/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V7HI-v1/0054/102FF831-9B0F-E011-A3E9-003048678BC6.root'
             if ( '41.0' in str(self.wf.numId) ) : 
                 fullcmd += ' --himix '
-                inFile = '/store/relval/CMSSW_3_8_0_pre1/RelValPyquen_GammaJet_pt20_2760GeV/GEN-SIM-RAW/MC_37Y_V5-v1/0001/F68A53A5-2B6F-DF11-8958-003048678FE6.root'
+                inFile = '/store/relval/CMSSW_3_9_7/RelValPyquen_GammaJet_pt20_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V7HI-v1/0054/06B4F699-A50F-E011-AD62-0018F3D0962E.root'
 
             fullcmd += ' --filein '+inFile+ ' '
             fullcmd += ' > %s 2>&1; ' % ('step2_'+self.wf.nameId+'.log ',)
@@ -161,7 +161,10 @@ class WorkFlowRunner(Thread):
                 if ' -n ' not in fullcmd : fullcmd += ' -n -1 '
                 # FIXME: dirty hack for beam-spot dedicated relval
                 if not '134' in str(self.wf.numId):
-                    fullcmd += ' --filein file:reco.root --fileout file:step3.root '
+                    if 'HARVESTING' in fullcmd and not 'filein' in fullcmd:
+                        fullcmd += ' --filein file:reco_inDQM.root --fileout file:step3.root '
+                    else:
+                        fullcmd += ' --filein file:reco.root --fileout file:step3.root '
                 fullcmd += ' > %s 2>&1; ' % ('step3_'+self.wf.nameId+'.log ',)
                 # print fullcmd
                 retStep3 = self.doCmd(fullcmd)

@@ -11,7 +11,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Wed Oct 15  11:38:38 CEST 2008
-// $Id: EcalTPCondAnalyzer.h,v 1.3 2010/02/11 00:14:52 wmtan Exp $
+// $Id: EcalTPCondAnalyzer.h,v 1.2 2009/10/28 00:09:30 ebecheva Exp $
 //
 //
 
@@ -39,8 +39,6 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBIdMap.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainTowerEE.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGPhysicsConst.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
 
 class CaloSubdetectorGeometry ;
 
@@ -79,7 +77,5 @@ class EcalTPCondAnalyzer : public edm::EDAnalyzer {
   void printEcalTPGLutIdMap(const EcalTPGLutIdMap *ecaltpgLut) const;
   void printEcalTPGFineGrainEBIdMap(const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB) const ;
   void printTOWEREE(const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE,const EcalTPGLutGroup *ecaltpgLutGroup) const ;
-  void printBadX(const EcalTPGCrystalStatus *ecaltpgBadX) const; 
-  void printBadTT(const EcalTPGTowerStatus *ecaltpgBadTT) const;
 };
 

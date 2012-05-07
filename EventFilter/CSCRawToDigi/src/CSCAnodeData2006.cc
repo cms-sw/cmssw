@@ -32,11 +32,7 @@ CSCAnodeData2006::CSCAnodeData2006(const CSCALCTHeader & header) ///for digi->ra
     }
   }
     /// To get BX from ALCT digis
-  theALCTDigis=header.ALCTDigis();
-  alctBX_.clear();
-  for(unsigned int k=0; k<theALCTDigis.size(); k++){
-           alctBX_.push_back(theALCTDigis[k].getFullBX());
-     }
+    alctBX_= header.BXNCount();
 }
 
 // initialize
@@ -75,6 +71,8 @@ std::vector<CSCWireDigi> CSCAnodeData2006::wireDigis(int layer) const {
 	  }//end of tbin loop
 	  if (tbinbits !=0 ) {
 	    wireGroup = (afeb*16+halfLayer*8+j)+1;
+            uint32_t wireGroupBX=alctBX_;
+            wireGroup = wireGroup | (wireGroupBX << 16);
 	    CSCWireDigi digi(wireGroup, tbinbits);
 	    if (debug)
 	      LogTrace ("CSCAnodeData|CSCRawToDigi") << "Layer " << layer << " " << digi;

@@ -11,9 +11,9 @@
 #include "Fireworks/Core/interface/FWEveViewManager.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
-#include "Fireworks/Core/interface/FWL1TriggerTableViewManager.h"
 #include "Fireworks/Core/interface/FWJobMetadataManager.h"
 #include "Fireworks/Core/interface/FWMagField.h"
+#include "Fireworks/Core/interface/FWBeamSpot.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWNavigatorBase.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
@@ -73,7 +73,7 @@ CmsShowMainBase::setupActions()
    // init TGSlider state before signals are connected
    m_guiManager->setDelayBetweenEvents(m_playDelay);
 
-   m_navigatorPtr->newEvent_.connect(boost::bind(&FWGUIManager::loadEvent, guiManager()));
+   m_navigatorPtr->newEvent_.connect(boost::bind(&CmsShowMainBase::eventChangedSlot, this));
    if (m_guiManager->getAction(cmsshow::sNextEvent) != 0)
       m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*this, &CmsShowMainBase::doNextEvent));
    if (m_guiManager->getAction(cmsshow::sPreviousEvent) != 0)
@@ -113,12 +113,11 @@ CmsShowMainBase::setupViewManagers()
 
    boost::shared_ptr<FWTriggerTableViewManager> triggerTableViewManager(new FWTriggerTableViewManager(guiManager()));
    configurationManager()->add(std::string("TriggerTables"), triggerTableViewManager.get());
+   configurationManager()->add(std::string("L1TriggerTables"), triggerTableViewManager.get()); // AMT: added for backward compatibilty
+   triggerTableViewManager->setContext(m_contextPtr);
    viewManager()->add(triggerTableViewManager);
 
-   boost::shared_ptr<FWL1TriggerTableViewManager> l1TriggerTableViewManager(new FWL1TriggerTableViewManager(guiManager()));
-   configurationManager()->add(std::string("L1TriggerTables"), l1TriggerTableViewManager.get());
-   viewManager()->add(l1TriggerTableViewManager);
-  
+    
    // Unfortunately, due to the plugin mechanism, we need to delay
    // until here the creation of the FWJobMetadataManager, because
    // otherwise the supportedTypesAndRepresentations map is empty.
@@ -126,6 +125,18 @@ CmsShowMainBase::setupViewManagers()
    //        changes? Can that actually happer (maybe if we add support
    //        for loading plugins on the fly??).
    m_metadataManagerPtr->initReps(viewManager()->supportedTypesAndRepresentations());
+}
+
+void
+CmsShowMainBase::eventChangedSlot()
+{
+   eventChangedImp();
+}
+
+void
+CmsShowMainBase::eventChangedImp()
+{
+   guiManager()->eventChangedCallback();
 }
 
 void
@@ -174,7 +185,10 @@ CmsShowMainBase::draw()
    m_guiManager->updateStatus("loading event ...");
 
    if (m_contextPtr->getField()->getSource() != FWMagField::kUser)
-      m_contextPtr->getField()->checkFiledInfo(m_navigatorPtr->getCurrentEvent());
+   {
+      m_contextPtr->getField()->checkFieldInfo(m_navigatorPtr->getCurrentEvent());
+   }
+   m_contextPtr->getBeamSpot()->checkBeamSpot(m_navigatorPtr->getCurrentEvent());
 
    TStopwatch sw;
    m_viewManager->eventBegin();

@@ -31,32 +31,43 @@ typedefsDict = \
 # 'TrackReco' package should have objects 'reco::Track'.
 #Ordered List to search for matched packages
 equivDict = \
-     {
-         'JetReco'               : ['reco::.*Jet','reco::.*JetCollection'],
-	 'ValidationFormats'     : ['PGlobalDigi::.+','PGlobalRecHit::.+'],
-	 'PatternTools'          : ['MomentumConstraint','VertexConstraint'],
-	 'TauReco'               : ['reco::BaseTau'],
-	 'TrackerRecHit2D'       : ['SiStrip(Matched|)RecHit[12]D','SiTrackerGSRecHit[12]D','SiPixelRecHit'],
-	 'MuonReco'              : ['reco::Muon(Ref|)(Vector|)'],
-	 'MuonSeed'              : ['L3MuonTrajectorySeed'],
-	 'HepMCCandidate'        : ['reco::GenParticle.*'],
-	 'L1Trigger'             : ['l1extra::L1.+Particle'],
-	 'TrackInfo'             : ['reco::TrackingRecHitInfo'],
-         'BTauReco'              : ['reco::SoftLeptonProperties'],
-	 'EgammaCandidates'      : ['reco::GsfElectron.*','reco::Photon.*'],
-	 'HcalIsolatedTrack'     : ['reco::IsolatedPixelTrackCandidate', 'reco::EcalIsolatedParticleCandidate'],
-	 'HcalRecHit'            : ['HFRecHit','HORecHit','ZDCRecHit','HBHERecHit'],
-	 'CaloTowers'            : ['CaloTowerRef', 'CaloTowerRefs'],
-         'GsfTrackReco'          : ['GsfTrackRef'],
-         'METReco'               : ['reco::(Calo|PF|Gen|)MET'],
-         'ParticleFlowCandidate' : ['reco::PFCandidateRef','reco::PFCandidateFwdRef'],
-         'PhysicsToolsObjects'   : ['PhysicsTools::Calibration'],
-         'RecoCandidate'         : ['reco::Candidate','TrackingParticle'],
-         'TrackReco'             : ['reco::Track'],
-         'VertexReco'            : ['reco::Vertex'],
-         'TFWLiteSelectorTest'   : ['tfwliteselectortest'],
-         'PatCandidates'         : ['reco::RecoCandidate','pat::[A-Za-z]+Ref(Vector|)'],
-     }
+     [
+         {'GsfTracking'           : ['reco::GsfTrack(Collection|).*(MomentumConstraint|VertexConstraint)', 'Trajectory.*reco::GsfTrack']},
+         {'ParallelAnalysis'      : ['examples::TrackAnalysisAlgorithm']},
+         {'PatCandidates'         : ['pat::PATObject','pat::Lepton']},
+         {'BTauReco'              : ['reco::SoftLeptonProperties','reco::SecondaryVertexTagInfo']},
+         {'CastorReco'            : ['reco::CastorJet']},
+         {'JetMatching'           : ['reco::JetFlavour','reco::MatchedPartons']},
+         {'TrackingAnalysis'      : ['TrackingParticle']},
+         {'Egamma'                : ['reco::ElectronID']},
+         {'TopObjects'            : ['reco::CATopJetProperties']},
+         {'TauReco'               : ['reco::L2TauIsolationInfo','reco::RecoTauPiZero','reco::BaseTau']},
+	 {'ValidationFormats'     : ['PGlobalDigi::.+','PGlobalRecHit::.+']},
+         {'TrajectorySeed'        : ['TrajectorySeed']},
+         {'TrackCandidate'        : ['TrackCandidate']},
+	 {'PatternTools'          : ['MomentumConstraint','VertexConstraint','Trajectory']},
+	 {'TrackerRecHit2D'       : ['SiStrip(Matched|)RecHit[12]D','SiTrackerGSRecHit[12]D','SiPixelRecHit']},
+	 {'MuonReco'              : ['reco::Muon(Ref|)(Vector|)']},
+	 {'MuonSeed'              : ['L3MuonTrajectorySeed']},
+	 {'HepMCCandidate'        : ['reco::GenParticle.*']},
+	 {'L1Trigger'             : ['l1extra::L1.+Particle']},
+	 {'TrackInfo'             : ['reco::TrackingRecHitInfo']},
+	 {'EgammaCandidates'      : ['reco::GsfElectron.*','reco::Photon.*']},
+	 {'HcalIsolatedTrack'     : ['reco::IsolatedPixelTrackCandidate', 'reco::EcalIsolatedParticleCandidate']},
+	 {'HcalRecHit'            : ['HFRecHit','HORecHit','ZDCRecHit','HBHERecHit']},
+         {'PFRootEvent'           : ['EventColin::']},
+	 {'CaloTowers'            : ['CaloTower.*']},
+         {'GsfTrackReco'          : ['GsfTrack.*']},
+         {'METReco'               : ['reco::(Calo|PF|Gen|)MET','reco::PFClusterMET']},
+         {'ParticleFlowCandidate' : ['reco::PFCandidateRef','reco::PFCandidateFwdRef']},
+         {'PhysicsToolsObjects'   : ['PhysicsTools::Calibration']},
+         {'RecoCandidate'         : ['reco::Candidate']},
+         {'TrackReco'             : ['reco::Track']},
+         {'VertexReco'            : ['reco::Vertex']},
+         {'TFWLiteSelectorTest'   : ['tfwliteselectortest']},
+         {'PatCandidates'         : ['reco::RecoCandidate','pat::[A-Za-z]+Ref(Vector|)']},
+         {'JetReco'               : ['reco::.*Jet','reco::.*Jet(Collection|Ref)']},
+     ]
 
 ignoreEdmDP = {
   'LCGReflex/__gnu_cxx::__normal_iterator<std::basic_string<char>*,std::vector<std::basic_string<char>%>%>' : 1
@@ -79,6 +90,7 @@ def searchClassDefXml (srcDir):
     spacesRE       = re.compile (r'\s+')
     stdRE          = re.compile (r'std::')
     srcClassNameRE = re.compile (r'(\w+)/src/classes_def.xml')
+    ignoreSrcRE    = re.compile (r'.*/FWCore/Skeletons/scripts/mkTemplates/.+')
     braketRE       = re.compile (r'<.+>')
     # get the source directory we want
     if not len (srcDir):
@@ -100,26 +112,31 @@ def searchClassDefXml (srcDir):
     xmlPackages = []
     packagesREs = {}
     equivREs    = {}
+    explicitREs = []
+    for item in equivDict:
+        for pack in item:
+            for equiv in item[pack]:
+                explicitREs.append( (re.compile(r'\b' + equiv + r'\b'),pack))
     if options.lostDefs:
         for filename in xmlFiles:
-            if not filename: continue
+            if (not filename) or (ignoreSrcRE.match(filename)): continue
             match = srcClassNameRE.search (filename)
-            if not match:
-                continue
+            if not match: continue
             packageName = match.group(1)
             xmlPackages.append (packageName)
             matchString = r'\b' + packageName + r'\b'
             packagesREs[packageName] = re.compile (matchString)
             equivList = equivREs.setdefault (packageName, [])
+            for item in equivDict:
+                for equiv in item.get (packageName, []):
+                    matchString = re.compile(r'\b' + equiv + r'\b')
+                    equivList.append( (matchString, equiv) )
             equivList.append( (packagesREs[packageName], packageName) )
-            for equiv in equivDict.get (packageName, []):
-                matchString = r'\b' + equiv + r'\b'
-                equivList.append( (re.compile (matchString), equiv) )
     #pprint.pprint (equivREs, width=109)
     classDict = {}
     ncdict = {'class' : 'className'}
     for filename in xmlFiles:
-        if not filename: continue
+        if (not filename) or (ignoreSrcRE.match(filename)): continue
         dupProblems     = ''
         exceptName      = ''
         regexList       = []
@@ -127,15 +144,16 @@ def searchClassDefXml (srcDir):
         simpleObjectREs = []
         if options.lostDefs:
             lostMatch = srcClassNameRE.search (filename)
-            if lostMatch:
+	    if lostMatch:
                 exceptName = lostMatch.group (1)
                 regexList = equivREs[exceptName]
-                if not regexList[0][0].search (exceptName):
+                xcount = len(regexList)-1
+                if not regexList[xcount][0].search (exceptName):
                     print '%s not found in' % exceptName,
-                    print regexList[0][0]
+                    print regexList[xcount][0]
                     sys.exit()
             else: continue
-        if options.verbose:
+	if options.verbose:
             print "filename", filename
         try:
             xmlObj = xml2obj (filename = filename,
@@ -184,7 +202,6 @@ def searchClassDefXml (srcDir):
                 #print "searching %s for %s" % (equivRE[1], className)
                 if equivRE[0].search (className):
                     foundEquiv = True
-                    #print "Found it!"
                     break
             for simpleRE in simpleObjectREs:
                 if simpleRE[0].search (className):
@@ -193,13 +210,19 @@ def searchClassDefXml (srcDir):
                         print "    Using %s to ignore %s" \
                               % (simpleRE[1], className)                    
                     break
-            if foundEquiv:
-                continue
+            if foundEquiv: continue
+            for exRes in explicitREs:
+                if exRes[0].search(className):
+                    dupProblems += "  %s : %s\n" % (exRes[1], className)
+                    foundEquiv = True
+                    break
+            if foundEquiv: continue
             for packageName in xmlPackages:
                 # don't bother looking for the name of this
                 # package in this package
                 if packagesREs[packageName].search (className):
                     dupProblems += "  %s : %s\n" % (packageName, className)
+                    break
         # for piece
         if dupProblems:
             print '\n%s\n%s\n' % (filename, dupProblems)

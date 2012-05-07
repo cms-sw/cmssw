@@ -7,7 +7,7 @@
  * \author original version: Chris Jones, Cornell, 
  *         extended by Luca Lista, INFN
  *
- * \version $Revision: 1.10 $
+ * \version $Revision: 1.9 $
  *
  */
 #include "boost/spirit/include/classic_core.hpp"
@@ -57,7 +57,16 @@ namespace reco {
       mutable MethodArgumentStack methArgStack;
       mutable TypeStack typeStack;
       mutable IntStack intStack;
-
+      template<typename T>
+      Grammar(SelectorPtr & sel, const T *, bool lazy=false) : 
+	sel_(& sel), expr_(& dummyExpr_), lazy_(lazy) { 
+	typeStack.push_back(Reflex::Type::ByTypeInfo(typeid(T)));
+      }
+      template<typename T>
+      Grammar(ExpressionPtr & expr, const T*, bool lazy=false) : 
+	sel_(& dummySel_), expr_(& expr), lazy_(lazy) { 
+	typeStack.push_back(Reflex::Type::ByTypeInfo(typeid(T)));
+      }
       Grammar(SelectorPtr & sel, const Reflex::Type& iType, bool lazy=false) : 
    	sel_(& sel), expr_(& dummyExpr_), lazy_(lazy) { 
    	typeStack.push_back(iType);

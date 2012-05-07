@@ -27,7 +27,6 @@
 #define TAU_VEC_DISC_PLUGIN(DiscriminatorFunction) DEFINE_EDM_PLUGIN(RecoTauDiscriminantPluginFactory, reco::tau::RecoTauDiscriminantVectorFunctionPlugin<reco::tau::disc::DiscriminatorFunction>, reco::tau::discPluginName(#DiscriminatorFunction))
 
 TAU_DISC_PLUGIN(JetEta);
-TAU_DISC_PLUGIN(AbsJetEta);
 TAU_DISC_PLUGIN(JetWidth);
 
 // HPStanc variables
@@ -57,7 +56,6 @@ TAU_DISC_PLUGIN(ImpactParameterSignificance);
 
 TAU_DISC_PLUGIN(Pt);
 TAU_DISC_PLUGIN(Eta);
-TAU_DISC_PLUGIN(AbsEta);
 TAU_DISC_PLUGIN(Mass);
 TAU_DISC_PLUGIN(DecayMode);
 TAU_DISC_PLUGIN(OutlierN);

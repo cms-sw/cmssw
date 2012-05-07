@@ -7,8 +7,7 @@ OutALCARECOTkAlLAS_noDrop = cms.PSet(
     ),
     outputCommands = cms.untracked.vstring(
         'keep *_ALCARECOTkAlLAST0Producer_*_*', 
-        'keep DcsStatuss_scalersRawToDigi_*_*',
-        'keep *_MEtoEDMConverter_*_*')
+        'keep DcsStatuss_scalersRawToDigi_*_*')
 )
 
 import copy

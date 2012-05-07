@@ -33,6 +33,7 @@ class ESOccupancyTask : public edm::EDAnalyzer {
   MonitorElement* hEnDensity_[2][2];
   MonitorElement* hSelEnDensity_[2][2];
   MonitorElement* hDigiNHit_[2][2];
+  MonitorElement* hSelEng_[2][2];
   MonitorElement* hEng_[2][2];
   MonitorElement* hEvEng_[2][2];
   MonitorElement* hE1E2_[2];

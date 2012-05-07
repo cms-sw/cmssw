@@ -1,8 +1,8 @@
-// $Id: MonitorCollection.h,v 1.4 2009/07/20 13:06:10 mommsen Exp $
+// $Id: MonitorCollection.h,v 1.5.14.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: MonitorCollection.h 
 
-#ifndef StorageManager_MonitorCollection_h
-#define StorageManager_MonitorCollection_h
+#ifndef EventFilter_StorageManager_MonitorCollection_h
+#define EventFilter_StorageManager_MonitorCollection_h
 
 #include "xdata/Serializable.h"
 
@@ -18,8 +18,8 @@ namespace stor {
    * An abstract collection of MonitoredQuantities
    *
    * $Author: mommsen $
-   * $Revision: 1.4 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.5.14.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
   
   class MonitorCollection
@@ -29,7 +29,7 @@ namespace stor {
     typedef std::vector< std::pair<std::string, xdata::Serializable*> > InfoSpaceItems;
 
 
-    explicit MonitorCollection(const utils::duration_t& updateInterval);
+    explicit MonitorCollection(const utils::Duration_t& updateInterval);
 
 
     // A pure virtual destructor results in a missing symbol
@@ -44,7 +44,7 @@ namespace stor {
     /**
      * Calculates the statistics for all quantities
      */
-    void calculateStatistics(const utils::time_point_t& now);
+    void calculateStatistics(const utils::TimePoint_t& now);
 
     /**
      * Update all values of the items put into the monitoring
@@ -57,7 +57,7 @@ namespace stor {
     /**
      * Resets the monitored quantities
      */
-    void reset(const utils::time_point_t& now);
+    void reset(const utils::TimePoint_t& now);
 
     
   protected:
@@ -74,15 +74,15 @@ namespace stor {
     MonitorCollection(MonitorCollection const&);
     MonitorCollection& operator=(MonitorCollection const&);
 
-    const utils::duration_t _updateInterval;
-    utils::time_point_t _lastCalculateStatistics;
-    bool _infoSpaceUpdateNeeded;
+    const utils::Duration_t updateInterval_;
+    utils::TimePoint_t lastCalculateStatistics_;
+    bool infoSpaceUpdateNeeded_;
 
   };
   
 } // namespace stor
 
-#endif // StorageManager_MonitorCollection_h 
+#endif // EventFilter_StorageManager_MonitorCollection_h 
 
 
 /// emacs configuration

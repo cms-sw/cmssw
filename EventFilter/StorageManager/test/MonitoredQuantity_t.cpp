@@ -51,16 +51,15 @@ private:
   );
 
 
-  MonitoredQuantity _quantity;
+  MonitoredQuantity quantity_;
 
-  const double _multiplier;
+  const double multiplier_;
 };
 
 testMonitoredQuantity::testMonitoredQuantity() :
-_quantity(boost::posix_time::milliseconds(1),boost::posix_time::milliseconds(2)),
+quantity_(boost::posix_time::milliseconds(1),boost::posix_time::milliseconds(2)),
 //Only 2 bins deep history for testing, allow fast updates
-
-_multiplier(drand48()*100)
+multiplier_(drand48()*100)
 {
   srand48(time(0));
 }
@@ -78,11 +77,11 @@ void testMonitoredQuantity::accumulateSamples
     ++i
   )
   {
-    _quantity.addSample(i*_multiplier);
-    squareSum += pow(i*_multiplier,2);
+    quantity_.addSample(i*multiplier_);
+    squareSum += pow(i*multiplier_,2);
     ::usleep(1000);
   }
-  _quantity.calculateStatistics();
+  quantity_.calculateStatistics();
 }
 
 
@@ -97,29 +96,29 @@ void testMonitoredQuantity::testResults
   // we don't expect an exact agreement due to rounding precision
   const double smallValue = 1e-05;;
   MonitoredQuantity::Stats stats;
-  _quantity.getStats(stats);
+  quantity_.getStats(stats);
 
   CPPUNIT_ASSERT(stats.getSampleCount(type) == cycleCount * sampleCount);
   
   CPPUNIT_ASSERT(
     fabs(
       stats.getValueSum(type) -
-      cycleCount * static_cast<double>(sampleCount)*(sampleCount+1)/2 * _multiplier
+      cycleCount * static_cast<double>(sampleCount)*(sampleCount+1)/2 * multiplier_
     ) < smallValue);
 
   CPPUNIT_ASSERT(
     fabs(
       stats.getValueAverage(type) -
-      ((cycleCount) ? static_cast<double>(sampleCount+1)/2 * _multiplier : 0)
+      ((cycleCount) ? static_cast<double>(sampleCount+1)/2 * multiplier_ : 0)
     ) < smallValue);
 
   CPPUNIT_ASSERT(stats.getValueMin(type) == 
-    (cycleCount) ? _multiplier : 1e+9);
+    (cycleCount) ? multiplier_ : 1e+9);
 
   CPPUNIT_ASSERT(stats.getValueMax(type) == 
-    (cycleCount) ? static_cast<double>(sampleCount)*_multiplier : 1e-9);
+    (cycleCount) ? static_cast<double>(sampleCount)*multiplier_ : 1e-9);
 
-  const double duration = utils::duration_to_seconds(stats.getDuration(type));
+  const double duration = utils::durationToSeconds(stats.getDuration(type));
   if (duration > 0)
   {
     CPPUNIT_ASSERT(
@@ -171,9 +170,9 @@ void testMonitoredQuantity::testResults
 
 void testMonitoredQuantity::testEmpty()
 {
-  _quantity.reset();
+  quantity_.reset();
 
-  _quantity.calculateStatistics();
+  quantity_.calculateStatistics();
 
   testResults(MonitoredQuantity::FULL, 0, 0, 0);
   testResults(MonitoredQuantity::RECENT, 0, 0, 0);
@@ -185,7 +184,7 @@ void testMonitoredQuantity::testFull()
   int sampleCount = 100;
   double squareSum = 0.0;
 
-  _quantity.reset();
+  quantity_.reset();
 
   accumulateSamples(sampleCount, squareSum);
 
@@ -198,7 +197,7 @@ void testMonitoredQuantity::testRecent()
   int sampleCount = 50;
   double squareSum=0.0, totalSquareSum=0.0;
 
-  _quantity.reset();
+  quantity_.reset();
 
   accumulateSamples(sampleCount, squareSum);
   // reset square sum as buffer is only 2 deep
@@ -218,18 +217,18 @@ void testMonitoredQuantity::testDisable()
   int sampleCount = 50;
   double squareSum(0.0), dummySquareSum(0.0);
 
-  _quantity.reset();
+  quantity_.reset();
 
   accumulateSamples(sampleCount, squareSum);
   // disable the quantity, no changes expected
-  _quantity.disable();
+  quantity_.disable();
   accumulateSamples(sampleCount, dummySquareSum);
 
   testResults(MonitoredQuantity::FULL, 1, sampleCount, squareSum);
   testResults(MonitoredQuantity::RECENT, 1, sampleCount, squareSum);
 
   // Reenable quantity. This resets everything.
-  _quantity.enable();
+  quantity_.enable();
   squareSum = 0;
   accumulateSamples(sampleCount, squareSum);
 

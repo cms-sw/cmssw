@@ -23,6 +23,9 @@
 
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 //
 // constructors and destructor
@@ -30,7 +33,7 @@
 HLTExclDiJetFilter::HLTExclDiJetFilter(const edm::ParameterSet& iConfig)
 {
    inputJetTag_ = iConfig.getParameter< edm::InputTag > ("inputJetTag");
-   saveTag_     = iConfig.getUntrackedParameter<bool>("saveTag",false);
+   saveTag_     = iConfig.getUntrackedParameter<bool>("saveTag");
    minPtJet_    = iConfig.getParameter<double> ("minPtJet"); 
    minHFe_      = iConfig.getParameter<double> ("minHFe"); 
    HF_OR_       = iConfig.getParameter<bool> ("HF_OR"); 
@@ -40,6 +43,16 @@ HLTExclDiJetFilter::HLTExclDiJetFilter(const edm::ParameterSet& iConfig)
 
 HLTExclDiJetFilter::~HLTExclDiJetFilter(){}
 
+void
+HLTExclDiJetFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltMCJetCorJetIcone5HF07"));
+  desc.addUntracked<bool>("saveTag",false);
+  desc.add<double>("minPtJet",30.0);
+  desc.add<double>("minHFe",50.0);
+  desc.add<bool>("HF_OR",false);
+  descriptions.add("hltExclDiJetFilter",desc);
+}
 
 // ------------ method called to produce the data  ------------
 bool

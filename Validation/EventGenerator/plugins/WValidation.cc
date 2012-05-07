@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2010/05/25 16:50:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/01/24 17:41:34 $
+ *  $Revision: 1.3 $
  */
  
 #include "Validation/EventGenerator/interface/WValidation.h"
@@ -42,8 +42,6 @@ void WValidation::beginJob()
     //Kinematics
     Wmass = dbe->book1D("Wmass","inv. Mass W", 70 ,0,140);
     WmassPeak = dbe->book1D("WmassPeak","inv. Mass W", 80 ,80 ,100);
-    //WmT = dbe->book1D("WmT","W transverse mass", 70 ,0,140);
-    //WmTPeak = dbe->book1D("WmTPeak","W transverse mass", 80 ,80 ,100);	
     Wpt = dbe->book1D("Wpt","W pt",100,0,200);
     WptLog = dbe->book1D("WptLog","log(W pt)",100,0.,5.);
     Wrap = dbe->book1D("Wrap", "W y", 100, -5, 5);
@@ -83,7 +81,7 @@ void WValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup
   iEvent.getByLabel(hepmcCollection_, evt);
 
   //Get EVENT
-  HepMC::GenEvent *myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
+  const HepMC::GenEvent *myGenEvent = evt->GetEvent();
 
   nEvt->Fill(0.5);
 
@@ -101,9 +99,9 @@ void WValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup
     }
     if((*iter)->status()==requiredstatus) {
       //@todo: improve this selection	
-      if(abs((*iter)->pdg_id())==_flavor)
+      if((*iter)->pdg_id()==_flavor)
 	allleptons.push_back(*iter);
-      else if (abs((*iter)->pdg_id()) == _flavor+1)
+      else if (abs((*iter)->pdg_id()) == abs(_flavor)+1)
 	allneutrinos.push_back(*iter);	
     }
   }
@@ -118,6 +116,9 @@ void WValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup
   //get the first lepton and the first neutrino, and check that one is particle one is antiparticle (product of pdgids < 0) 
   std::vector<const HepMC::GenParticle*> products;
   if (allleptons.front()->pdg_id() * allneutrinos.front()->pdg_id() > 0) return;	
+
+  //require at least 20 GeV on the lepton
+  if (allleptons.front()->momentum().perp() < 20. || allneutrinos.front()->momentum().perp() < 20. ) return;
 
   //find possible qed fsr photons
   std::vector<const HepMC::GenParticle*> selectedLepton;
@@ -179,5 +180,4 @@ void WValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup
   } 
 
 
-  delete myGenEvent;
 }//analyze

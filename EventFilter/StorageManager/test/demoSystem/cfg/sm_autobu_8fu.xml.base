@@ -192,9 +192,6 @@
         <setupLabel         xsi:type="xsd:string">smdev</setupLabel> 
         <fileSizeTolerance  xsi:type="xsd:double">0.1</fileSizeTolerance>
         <collateDQM         xsi:type="xsd:boolean">true</collateDQM>
-        <archiveDQM         xsi:type="xsd:boolean">false</archiveDQM>
-        <filePrefixDQM      xsi:type="xsd:string">../../smDQM/</filePrefixDQM>
-        <purgeTimeDQM       xsi:type="xsd:integer">120</purgeTimeDQM>
         <readyTimeDQM       xsi:type="xsd:integer">30</readyTimeDQM>
         <useCompressionDQM  xsi:type="xsd:boolean">true</useCompressionDQM>
         <compressionLevelDQM xsi:type="xsd:integer">1</compressionLevelDQM>
@@ -225,14 +222,9 @@
         </SMRegistrationList>
         <consumerQueueSize  xsi:type="xsd:integer">10</consumerQueueSize>
         <DQMconsumerQueueSize xsi:type="xsd:integer">10</DQMconsumerQueueSize>
-        <maxESEventRate     xsi:type="xsd:double">15.0</maxESEventRate>
-        <DQMmaxESEventRate  xsi:type="xsd:double">1.0</DQMmaxESEventRate>
-        <maxEventRequestRate     xsi:type="xsd:double">25.0</maxEventRequestRate>
-        <maxDQMEventRequestRate   xsi:type="xsd:double">1.0</maxDQMEventRequestRate>
-        <collateDQM         xsi:type="xsd:boolean">false</collateDQM>
-        <archiveDQM         xsi:type="xsd:boolean">false</archiveDQM>
+        <collateDQM         xsi:type="xsd:boolean">true</collateDQM>
+        <archiveDQM         xsi:type="xsd:boolean">true</archiveDQM>
         <filePrefixDQM      xsi:type="xsd:string">../../smpsDQM</filePrefixDQM>
-        <purgeTimeDQM       xsi:type="xsd:integer">120</purgeTimeDQM>
         <readyTimeDQM       xsi:type="xsd:integer">30</readyTimeDQM>
         <archiveIntervalDQM xsi:type="xsd:integer">1</archiveIntervalDQM>
         <useCompressionDQM  xsi:type="xsd:boolean">true</useCompressionDQM>

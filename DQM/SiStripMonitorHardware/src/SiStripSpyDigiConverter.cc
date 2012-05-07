@@ -63,14 +63,11 @@ namespace sistrip {
       }
 
       //print out warning only for non-empty frames....
-      if (!sistrip::SpyUtilities::isValid(lFrame,aQuality,expectedPos)){
-	//print out only for non-empty frames, else too many prints...
-	if (lFrame.firstHeaderBit < sistrip::SPY_SAMPLES_PER_CHANNEL) {
+      if (!sistrip::SpyUtilities::isValid(lFrame,aQuality,expectedPos) && lFrame.firstHeaderBit < sistrip::SPY_SAMPLES_PER_CHANNEL) {
 	edm::LogWarning("SiStripSpyDigiConverter") << " FED ID: " << fedId << ", channel: " << fedCh << std::endl
 						   << sistrip::SpyUtilities::print(lFrame,
 										   std::string("  -- Invalid Frame ")
 										   );
-	}
 
 	continue;
       }

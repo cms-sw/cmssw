@@ -38,10 +38,12 @@ EcalBarrelRecHitsMaker::EcalBarrelRecHitsMaker(edm::ParameterSet const & p,
   threshold_ = RecHitsParameters.getParameter<double>("Threshold");
   refactor_ = RecHitsParameters.getParameter<double> ("Refactor");
   refactor_mean_ = RecHitsParameters.getParameter<double> ("Refactor_mean");
+  noiseADC_ = RecHitsParameters.getParameter<double>("NoiseADC");
+  highNoiseParameters_ = RecHitsParameters.getParameter<std::vector<double> > ("HighNoiseParameters");
   SRThreshold_ = RecHitsParameters.getParameter<double> ("SRThreshold");
   SREtaSize_ = RecHitsParameters.getUntrackedParameter<int> ("SREtaSize",1);
   SRPhiSize_ = RecHitsParameters.getUntrackedParameter<int> ("SRPhiSize",1);
-
+  applyZSCells_.resize(EBDetId::kSizeForDenseIndexing,true);
   theCalorimeterHits_.resize(EBDetId::kSizeForDenseIndexing,0.);
   crystalsinTT_.resize(2448);
   TTTEnergy_.resize(2448,0.);
@@ -50,15 +52,26 @@ EcalBarrelRecHitsMaker::EcalBarrelRecHitsMaker(edm::ParameterSet const & p,
   theTTDetIds_.resize(2448);
   neighboringTTs_.resize(2448);
   sinTheta_.resize(86,0.); 
-
+  doCustomHighNoise_=false;
+  // Initialize the Gaussian tail generator
+  // Two options : noise is set by the user (to a positive value). In this case, this value is taken
+  // or the user chose to use the noise from DB. In this case, the noise is flat in pT and not in energy
+  // but the threshold is in energy and not in pT.
+  doCustomHighNoise_=highNoiseParameters_.size()>=3;
   Genfun::Erf myErf; 
   if(  noise_>0. ) {
     EBHotFraction_ = 0.5-0.5*myErf(threshold_/noise_/sqrt(2.));
     myGaussianTailGenerator_ = new GaussianTail(random_, noise_, threshold_);
-  } else {
-    EBHotFraction_ =0.;
-  }
-
+    edm::LogInfo("CaloRecHitsProducer") <<"Uniform noise simulation selected in the barrel";
+  } else if (noise_==-1 && doCustomHighNoise_)
+    {
+      if(highNoiseParameters_.size()==4)
+	EBHotFraction_ = 0.5-0.5*myErf(highNoiseParameters_[3]/highNoiseParameters_[2]/sqrt(2.));
+      if(highNoiseParameters_.size()==3)
+	EBHotFraction_ = highNoiseParameters_[2] ;
+      edm::LogInfo("CaloRecHitsProducer")<< " The gaussian model for high noise fluctuation cells after ZS is selected (best model), hot fraction " << EBHotFraction_  << std::endl;
+    }
+  
   noisified_ = (noise_==0.);
   edm::ParameterSet CalibParameters = RecHitsParameters.getParameter<edm::ParameterSet>("ContFact"); 
   double c1=CalibParameters.getParameter<double>("EBs25notContainment"); 
@@ -79,6 +92,7 @@ void EcalBarrelRecHitsMaker::clean()
   for(unsigned ic=0;ic<size;++ic)
     {
       theCalorimeterHits_[theFiredCells_[ic]] = 0.;
+      applyZSCells_[theFiredCells_[ic]] = true;
     }
   theFiredCells_.clear();
   // If the noise is set to 0. No need to simulate it. 
@@ -146,7 +160,7 @@ void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCo
       // is afterwards put in this cell which would not be correct. 
       float energy=theCalorimeterHits_[icell];
       //      std::cout << myDetId << " Energy " << theCalorimeterHits_[icell] << " " << TTTEnergy_[TThashedindex] << " " << isHighInterest(TThashedindex) << std::endl;
-      if ( SRThreshold_ && energy < threshold_  && !isHighInterest(TThashedindex))
+      if ( SRThreshold_ && energy < threshold_  && !isHighInterest(TThashedindex) && applyZSCells_[icell])
 	{
 	  //	  std::cout << " Killed " << std::endl;
 	  theCalorimeterHits_[icell]=0.;
@@ -188,15 +202,18 @@ void EcalBarrelRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
   for (cficalo=colcalo->begin(); cficalo!=cficaloend;cficalo++) 
     {
       unsigned hashedindex = EBDetId(cficalo->id()).hashedIndex();      
+      // the famous 1/0.97 calibration factor is applied here ! 
+      // the miscalibration is applied here:
+      float calib = (doMisCalib_) ? calibfactor_*theCalibConstants_[hashedindex]:calibfactor_;
       // Check if the hit already exists
       if(theCalorimeterHits_[hashedindex]==0.)
 	{
 	  theFiredCells_.push_back(hashedindex);
-	  if (!noisified_ )  theCalorimeterHits_[hashedindex] += random_->gaussShoot(0.,noise_); 
+	  float noise=(noise_==-1.) ? noisesigma_[hashedindex] : noise_ ;
+	  if (!noisified_ )  theCalorimeterHits_[hashedindex] += random_->gaussShoot(0.,noise*calib); 
 	}
-      // the famous 1/0.97 calibration factor is applied here ! 
-      // the miscalibration is applied here:
-      float calib = (doMisCalib_) ? calibfactor_*theCalibConstants_[hashedindex]:calibfactor_;
+
+
       // cficalo->energy can be 0 (a 7x7 grid is always built) if there is no noise simulated, in this case the cells should
       // not be added several times. 
       float energy=(cficalo->energy()==0.) ? 0.000001 : cficalo->energy() ;
@@ -282,7 +299,8 @@ bool EcalBarrelRecHitsMaker::noisifyTriggerTower(unsigned tthi)
       if(theCalorimeterHits_[hashedindex]==0)
 	{
 	  float calib = (doMisCalib_) ? calibfactor_*theCalibConstants_[hashedindex]:calibfactor_;
-	  float energy = calib*random_->gaussShoot(0.,noise_);
+	  float noise = (noise_==-1.) ? noisesigma_[hashedindex]:noise_;
+	  float energy = calib*random_->gaussShoot(0.,noise);
 	  theCalorimeterHits_[hashedindex]=energy;
 	  //	  std::cout << " Updating with noise " << tthi << " " << energy << " " << sinTheta_[EBDetId(barrelRawId_[hashedindex]).ietaAbs()] << std::endl;
 	  if(TTTEnergy_[tthi]==0.)
@@ -305,10 +323,14 @@ bool EcalBarrelRecHitsMaker::noisifyTriggerTower(unsigned tthi)
 // make of the tower a high interest one
 void EcalBarrelRecHitsMaker::randomNoisifier()
 {
-  // first of cells where some noise will be injected
+  // first number of cells where some noise will be injected
   double mean = (double)(EBDetId::kSizeForDenseIndexing-theFiredCells_.size())*EBHotFraction_;
   unsigned ncells= random_->poissonShoot(mean);
 
+ // if hot fraction is high (for example, no ZS, inject everywhere)
+  bool fullInjection=(noise_==-1. && !doCustomHighNoise_);
+  if(fullInjection)
+    ncells = EBDetId::kSizeForDenseIndexing;
   // for debugging
   //  std::vector<int> listofNewTowers;
 
@@ -318,7 +340,23 @@ void EcalBarrelRecHitsMaker::randomNoisifier()
       unsigned cellindex= (unsigned)(floor(random_->flatShoot()*EBDetId::kSizeForDenseIndexing));
       if(theCalorimeterHits_[cellindex]==0.)
 	{
-	  double energy=myGaussianTailGenerator_->shoot();
+	  float energy=0.;
+	  if(noise_>0.) 
+	    energy=myGaussianTailGenerator_->shoot();
+	  if(noise_==-1.) 
+	    {
+	      // in this case the generated noise might be below the threshold but it 
+	      // does not matter, the threshold will be applied anyway
+	      //	      energy/=sinTheta_[(cellindex<EEDetId::kEEhalf)?cellindex : cellindex-EEDetId::kEEhalf];	 
+	      float noisemean  = (doCustomHighNoise_)? highNoiseParameters_[0]*(*ICMC_)[cellindex]*adcToGeV_: 0.;
+	      float noisesigma = (doCustomHighNoise_)? highNoiseParameters_[1]*(*ICMC_)[cellindex]*adcToGeV_ : noisesigma_[cellindex]; 
+	      energy=random_->gaussShoot(noisemean,noisesigma); 
+	      
+	      // in the case of high noise fluctuation, the ZS should not be applied later 
+	      if(doCustomHighNoise_) applyZSCells_[cellindex]=false;
+	    }
+	  float calib = (doMisCalib_) ? calibfactor_*theCalibConstants_[cellindex]:calibfactor_;
+	  energy *= calib;
 	  theCalorimeterHits_[cellindex]=energy;
 	  theFiredCells_.push_back(cellindex);
 	  EBDetId myDetId(EBDetId::unhashIndex(cellindex));
@@ -373,7 +411,7 @@ void EcalBarrelRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
   sat_ = 12.*t1_*calibfactor_;
 
   barrelRawId_.resize(EBDetId::kSizeForDenseIndexing);
-  if (doMisCalib_) theCalibConstants_.resize(EBDetId::kSizeForDenseIndexing);
+  if (doMisCalib_ || noise_==-1.) theCalibConstants_.resize(EBDetId::kSizeForDenseIndexing);
   edm::ESHandle<CaloGeometry> pG;
   es.get<CaloGeometryRecord>().get(pG);   
 
@@ -459,16 +497,23 @@ void EcalBarrelRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
   //  std::cout << " Made the array " << std::endl;
 
   // Stores the miscalibration constants
-  if(doMisCalib_)
+  if(doMisCalib_ || noise_==-1.)
     {
       double rms=0.;
       double mean=0.;
       unsigned ncells=0;
+
+      if(noise_==-1.)
+	noisesigma_.resize(EBDetId::kSizeForDenseIndexing);
+
       // Intercalib MC constants IC_MC_i
       edm::ESHandle<EcalIntercalibConstantsMC> pJcal;
       es.get<EcalIntercalibConstantsMCRcd>().get(pJcal); 
       const EcalIntercalibConstantsMC* jcal = pJcal.product(); 
       const std::vector<float>& ICMC = jcal->barrelItems();
+
+       // should be saved, used by the zero suppression
+      ICMC_ = &ICMC;
 
       // Intercalib constants IC_i 
       // IC = IC_MC * (1+delta)
@@ -490,6 +535,12 @@ void EcalBarrelRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
 	rms+=(factor-1.)*(factor-1.);
 	mean+=(factor-1.);
 	++ncells;	
+	if(noise_==-1.)
+	  { 
+	    // the calibfactor will be applied later on 
+	    noisesigma_[ic]=noiseADC_*adcToGeV_*ICMC[ic]/calibfactor_;
+	  }
+
       }
 
       mean/=(float)ncells;

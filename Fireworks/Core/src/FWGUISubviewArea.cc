@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.36 2010/06/18 10:17:15 yana Exp $
+// $Id: FWGUISubviewArea.cc,v 1.37 2010/09/16 15:36:56 amraktad Exp $
 //
 
 // system include files
@@ -170,9 +170,11 @@ FWGUISubviewArea::undock()
    TEveWindow* ew = m_frame->GetEveWindow();
    ew->UndockWindow();
    TEveCompositeFrameInMainFrame* emf = dynamic_cast<TEveCompositeFrameInMainFrame*>(ew->GetEveFrame());
-   const TGMainFrame* mf =  dynamic_cast<const TGMainFrame*>(emf->GetParent());
-   if (mf)
-      FWGUIManager::getGUIManager()->getMainFrame()->bindCSGActionKeys(mf);
+   if (emf) {
+      const TGMainFrame* mf =  dynamic_cast<const TGMainFrame*>(emf->GetParent());
+      if (mf)
+         FWGUIManager::getGUIManager()->getMainFrame()->bindCSGActionKeys(mf);
+   }
 }
 
 void

@@ -1,3 +1,11 @@
+2011-04-12  Emilio Meschi  <emilio.meschi@cern.ch>
+	* tag V01-00-03
+	* small improvements to initialize script
+	
+2011-03-21  Emilio Meschi  <emilio.meschi@cern.ch>
+	* tag V01-00-02
+	* small fixes and emulateLS better handling
+
 2011-01-21  Emilio Meschi  <emilio.meschi@cern.ch>
 	* tag V01-00-01
 	* added option to turn off iDie

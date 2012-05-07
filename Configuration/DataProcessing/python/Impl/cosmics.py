@@ -40,7 +40,6 @@ class cosmics(Scenario):
                  'MuAlBeamHaloOverlaps',
                  'MuAlBeamHalo',
                  'TkAlCosmics0T',
-                 'MuAlStandAloneCosmics',
                  'MuAlGlobalCosmics',
                  'MuAlCalIsolatedMu',
                  'HcalCalHOCosmics',
@@ -81,8 +80,6 @@ class cosmics(Scenario):
         """
 
         skims = ['SiStripCalZeroBias',
-                 'TkAlMinBias',
-                 'DtCalib',
                  'MuAlCalIsolatedMu']
         step = stepALCAPRODUCER(skims)
         options = Options()

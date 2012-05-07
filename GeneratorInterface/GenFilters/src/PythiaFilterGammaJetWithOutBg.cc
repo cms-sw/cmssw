@@ -117,11 +117,9 @@ bool PythiaFilterGammaJetWithOutBg::filter(edm::Event& iEvent, const edm::EventS
 				  particle8->momentum().phi()));
 
     int jetline=8;
-    int photonline = 7; 
     if(dphi7>dphi) {
       dphi=dphi7;
       jetline=7;
-      photonline = 8; 
     }
 
 //    std::cout<<" Dphi "<<dphi<<" "<<dphiMin<<std::endl;

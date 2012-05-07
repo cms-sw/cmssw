@@ -6,7 +6,7 @@ package SkelParser;
 #  execution:  mkesprod producername recordname datatype1 [ [datatype2] ...]  
 # 
 #  output:  producername/
-#                         Buildfile
+#                         BuildFile.xml
 #                         interface/
 #                         sr/producername.cc
 #                               producername_DONT_TOUCH.cc
@@ -26,7 +26,7 @@ package SkelParser;
 #  example:
 #  mkesprod MyProducer  MyRecord MyData
 #        --> write  MyProducer/
-#                               Buildfile
+#                               BuildFile.xml
 #                               interface/
 #                               src/MyProducer.cc
 #                               doc/
@@ -64,7 +64,7 @@ BEGIN {
     # set the version for version checking
     $VERSION     = 1.00;
     # if using RCS/CVS, this may be preferred
-    $VERSION = sprintf "%d.%03d", q$Revision: 1.7 $ =~ /(\d+)/g;
+    $VERSION = sprintf "%d.%03d", q$Revision: 1.8 $ =~ /(\d+)/g;
     
     @ISA         = qw(Exporter);
     @EXPORT      = qw(&copy_file &make_file &grandparent_parent_dir &mk_package_structure &find_mkTemplate_dir);

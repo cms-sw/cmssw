@@ -5,7 +5,7 @@
 namespace spr{
 
   template <typename T>
-  double eECALmatrix(CaloNavigator<DetId>& navigator,edm::Handle<T>& hits, int ieta, int iphi, const EcalSeverityLevelAlgo * sevlv, bool debug) {
+  double eECALmatrix(CaloNavigator<DetId>& navigator,edm::Handle<T>& hits, int ieta, int iphi, bool debug) {
 	
     std::vector< typename T::const_iterator> hit;
     spr::hitECALmatrix(navigator,hits,ieta,iphi,hit,debug);

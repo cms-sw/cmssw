@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: FWSecVertexProxyBuilder.cc,v 1.3 2010/05/03 15:47:48 amraktad Exp $
+// $Id: FWSecVertexProxyBuilder.cc,v 1.4 2010/11/11 20:25:29 amraktad Exp $
 //
 #include <vector>
 
@@ -45,7 +45,7 @@ FWSecVertexProxyBuilder::build(const reco::SecondaryVertexTagInfo& iData, unsign
    {
       const reco::Vertex & v = iData.secondaryVertex(i);
       // do we need this stuff?
-      TGeoSphere * sphere = new TGeoSphere(0, 0.06); //would that leak?
+      TGeoSphere * sphere = new TGeoSphere(0, 0.002); //would that leak?
       TGeoTranslation position(v.x(), v.y(), v.z() );
       TEveGeoShape * shape = new TEveGeoShape();
       sphere->SetBoxDimensions(2.5,2.5,2.5);
@@ -71,7 +71,7 @@ FWSecVertexProxyBuilder::build(const reco::SecondaryVertexTagInfo& iData, unsign
             t(i+1,j+1) = mm(i,j);
          }   
       TVectorD vv ( eig.GetEigenValuesRe())   ; 
-      t.Scale(sqrt(vv(0))*100.,sqrt(vv(1))*100.,sqrt(vv(2))*100.);
+      t.Scale(sqrt(vv(0))*1000.,sqrt(vv(1))*1000.,sqrt(vv(2))*1000.);
       t.SetPos(v.x(),v.y(),v.z());
 
       setupAddElement(shape, &oItemHolder);

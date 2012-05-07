@@ -246,6 +246,10 @@
   
   <class name="edm::Association<reco::GenJetCollection>" />
   <class name="edm::Wrapper<edm::Association<reco::GenJetCollection> >" />
+
+  <class name="edm::Association<reco::PFJetCollection>" />
+  <class name="edm::Wrapper<edm::Association<reco::PFJetCollection> >" />
+
   <class name="std::vector<reco::CaloJet::Specific>" />
   <class name="std::vector<reco::PFJet::Specific>"   />
   <class name="std::vector<reco::JPTJet::Specific>" />

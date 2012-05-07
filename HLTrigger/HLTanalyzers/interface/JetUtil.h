@@ -17,14 +17,6 @@ class EtGreater {
   }
 };
 
-class EtFromEEtaGreater {
-  public:
-  template <typename T> bool operator () (const T& i, const T& j) {
-    return ((i.energy()/cosh(i.eta())) > (j.energy()/cosh(j.eta())));
-  }
-};
-
-
 class JetUtil{
  public:
 

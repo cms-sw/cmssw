@@ -178,8 +178,10 @@ namespace evf {
     xdata::UnsignedInteger32 nbReceivedEvents_;
     xdata::UnsignedInteger32 nbProcessedEvents_;
     xdata::UnsignedInteger32 nbSentEvents_;
+    xdata::UnsignedInteger32 nbSentDqmEvents_;
     xdata::UnsignedInteger32 nbSentErrorEvents_;
     xdata::UnsignedInteger32 nbPendingSMDiscards_;
+    xdata::UnsignedInteger32 nbPendingSMDqmDiscards_;
     xdata::UnsignedInteger32 nbDiscardedEvents_;
     
     xdata::UnsignedInteger32 nbLostEvents_;

@@ -84,8 +84,3 @@ def customiseExpressHI(process):
 def customisePromptHI(process):
     myname=sys._getframe().f_code.co_name
     return getCustomProcess(process,myname)
-
-##############################################################################
-def customiseAlcaOnlyPromptHI(process):
-    myname=sys._getframe().f_code.co_name
-    return getCustomProcess(process,myname)

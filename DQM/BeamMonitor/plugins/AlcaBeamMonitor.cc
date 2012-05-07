@@ -1,8 +1,8 @@
 /*
  * \file AlcaBeamMonitor.cc
  * \author Lorenzo Uplegger/FNAL
- * $Date: 2010/09/24 06:36:04 $
- * $Revision: 1.7 $
+ * $Date: 2010/10/14 23:05:23 $
+ * $Revision: 1.8 $
  *
  */
 
@@ -295,7 +295,7 @@ void AlcaBeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup ){
     //BeamSpot from file for this stream is = to the scalar BeamSpot
     Handle<BeamSpot> recoBeamSpotHandle;
     try{
-      iEvent.getByLabel(beamSpotLabel_,recoBeamSpotHandle);
+      iEvent.getByLabel(scalerLabel_,recoBeamSpotHandle);
     }
     catch( cms::Exception& exception ){ 			      
       LogInfo("AlcaBeamMonitor") 

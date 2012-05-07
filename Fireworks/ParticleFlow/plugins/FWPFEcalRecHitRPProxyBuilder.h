@@ -1,6 +1,18 @@
 #ifndef _FWPFECALRECHITRPPROXYBUILDER_H_
 #define _FWPFECALRECHITRPPROXYBUILDER_H_
 
+// -*- C++ -*-
+//
+// Package:     ParticleFlow
+// Class  :     FWPFEcalRecHitRPProxyBuilder
+// 
+// Implementation:
+//     <Notes on implementation>
+//
+// Original Author:  Simon Harris
+//
+
+// System include files
 #include "TEveCompound.h"
 
 // User include files
@@ -11,6 +23,7 @@
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "Fireworks/ParticleFlow/plugins/FWPFRhoPhiRecHit.h"
+#include "Fireworks/ParticleFlow/interface/FWPFUtils.h"
 
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
@@ -23,10 +36,11 @@ class FWPFEcalRecHitRPProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit>
    public:
       static std::string typeOfBuilder() { return "simple#"; }
 
-   // -------------------- Constructor(s)/Destructors --------------------------
-      FWPFEcalRecHitRPProxyBuilder(){}
-      virtual ~FWPFEcalRecHitRPProxyBuilder(){}
+   // ---------------- Constructor(s)/Destructor ----------------------
+      FWPFEcalRecHitRPProxyBuilder(){ m_pfUtils = new FWPFUtils(); }
+      virtual ~FWPFEcalRecHitRPProxyBuilder(){ delete m_pfUtils; }
 
+   // --------------------- Member Functions --------------------------
       virtual void build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* );
 
       virtual bool havePerViewProduct( FWViewType::EType ) const { return true; }
@@ -39,11 +53,13 @@ class FWPFEcalRecHitRPProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit>
       FWPFEcalRecHitRPProxyBuilder( const FWPFEcalRecHitRPProxyBuilder& );                    // Stop default
       const FWPFEcalRecHitRPProxyBuilder& operator=( const FWPFEcalRecHitRPProxyBuilder& );   // Stop default
 
-   // ------------------------- Member Functions -------------------------------
+   // --------------------- Member Functions --------------------------
       TEveVector calculateCentre( const float *corners );
       float      calculateEt( const TEveVector &centre, float E );
 
-   // --------------------------- Data Members ---------------------------------
+   // ----------------------- Data Members ----------------------------
       std::vector<FWPFRhoPhiRecHit*> m_towers;
+      FWPFUtils *m_pfUtils;
 };
 #endif
+//=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

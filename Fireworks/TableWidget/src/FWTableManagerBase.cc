@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:40:44 EST 2009
-// $Id: FWTableManagerBase.cc,v 1.2 2009/03/04 15:25:37 chrjones Exp $
+// $Id: FWTableManagerBase.cc,v 1.5 2011/03/07 13:13:51 amraktad Exp $
 //
 
 // system include files
@@ -118,6 +118,11 @@ std::vector<unsigned int> FWTableManagerBase::maxWidthForColumns() const
       returnValue.push_back(max);
    }
    return returnValue;
+}
+
+bool FWTableManagerBase::hasLabelHeaders() const
+{
+   return true;
 }
 
 bool FWTableManagerBase::hasRowHeaders() const

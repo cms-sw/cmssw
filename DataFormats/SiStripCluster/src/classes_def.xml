@@ -33,12 +33,4 @@
  
  <class name="edm::Ref< edm::LazyGetter<SiStripCluster>, SiStripCluster, edm::FindValue<SiStripCluster> >"/>
 
- <class name="std::vector<edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster,edmNew::DetSetVector<SiStripCluster>::FindForDetSetVector> >" />
- <class name="edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster,edmNew::DetSetVector<SiStripCluster>::FindForDetSetVector> >" />
- <class name="edm::Wrapper<edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster,edmNew::DetSetVector<SiStripCluster>::FindForDetSetVector> > >" />
-
- <class name="std::vector<edm::Ref<edm::LazyGetter<SiStripCluster>,SiStripCluster,edm::FindValue<SiStripCluster> > >" />
- <class name="edmNew::DetSetVector<edm::Ref<edm::LazyGetter<SiStripCluster>,SiStripCluster,edm::FindValue<SiStripCluster> > >" />
- <class name="edm::Wrapper<edmNew::DetSetVector<edm::Ref<edm::LazyGetter<SiStripCluster>,SiStripCluster,edm::FindValue<SiStripCluster> > > >" />
-
 </lcgdict>

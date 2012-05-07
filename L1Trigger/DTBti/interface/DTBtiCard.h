@@ -4,8 +4,8 @@
  *     Contains active DTBtiChips
  *
  *
- *   $Date: 2009/11/12 14:33:15 $
- *   $Revision: 1.11 $
+ *   $Date: 2008/09/05 15:55:03 $
+ *   $Revision: 1.10 $
  *
  *   \author C. Grandi, S. Vanini
  *
@@ -63,7 +63,8 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
   public:
 
     /// Constructor
-    DTBtiCard(DTTrigGeom *);
+    //DTBtiCard(DTTrigGeom*,edm::ParameterSet&);
+    DTBtiCard(DTTrigGeom *, DTTTrigBaseSync *);
 
     /// Destructor 
     ~DTBtiCard();
@@ -135,7 +136,9 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
     std::vector<DTDigi*> _digis; 
 
     bool _debug;
-    DTConfigPedestals* _pedestals;
+    DTTTrigBaseSync *_digi_sync;
+    int  _finedelay;
+    int  _MCdelay;
 
     bool _flag_acc;
 };

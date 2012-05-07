@@ -148,7 +148,7 @@ struct GsfElectronAlgo::EventSetupData
    edm::ESHandle<CaloTopology> caloTopo ;
    edm::ESHandle<TrackerGeometry> trackerHandle ;
    edm::ESHandle<EcalChannelStatus> chStatus ;
-   edm::ESHandle<EcalSeverityLevelAlgo> sevLevel;
+//   edm::ESHandle<EcalSeverityLevelAlgo> sevLevel;
 
    const MultiTrajectoryStateTransform * mtsTransform ;
    GsfConstraintAtVertex * constraintAtVtx ;
@@ -593,10 +593,10 @@ void GsfElectronAlgo::checkSetup( const edm::EventSetup & es )
     es.get<EcalChannelStatusRcd>().get(eventSetupData_->chStatus);
   }
 
-  if(eventSetupData_->cacheSevLevel != es.get<EcalSeverityLevelAlgoRcd>().cacheIdentifier()){
-    eventSetupData_->cacheSevLevel = es.get<EcalSeverityLevelAlgoRcd>().cacheIdentifier();
-    es.get<EcalSeverityLevelAlgoRcd>().get(eventSetupData_->sevLevel);
-  }
+//  if(eventSetupData_->cacheSevLevel != es.get<EcalSeverityLevelAlgoRcd>().cacheIdentifier()){
+//    eventSetupData_->cacheSevLevel = es.get<EcalSeverityLevelAlgoRcd>().cacheIdentifier();
+//    es.get<EcalSeverityLevelAlgoRcd>().get(eventSetupData_->sevLevel);
+//  }
  }
 
 void GsfElectronAlgo::copyElectrons( GsfElectronCollection & outEle )
@@ -655,19 +655,19 @@ void GsfElectronAlgo::beginEvent( edm::Event & event )
   float egIsoPtMinEndcap=generalData_->isoCfg.etMinEndcaps,egIsoEMinEndcap=generalData_->isoCfg.eMinEndcaps, egIsoConeSizeInEndcap=generalData_->isoCfg.intRadiusEcalEndcaps;
   eventData_->ecalBarrelHitsMeta = new EcalRecHitMetaCollection(*eventData_->reducedEBRecHits) ;
   eventData_->ecalEndcapHitsMeta = new EcalRecHitMetaCollection(*eventData_->reducedEERecHits) ;
-  eventData_->ecalBarrelIsol03 = new EgammaRecHitIsolation(egIsoConeSizeOutSmall,egIsoConeSizeInBarrel,egIsoJurassicWidth,egIsoPtMinBarrel,egIsoEMinBarrel,eventSetupData_->caloGeom,eventData_->ecalBarrelHitsMeta,eventSetupData_->sevLevel.product(),DetId::Ecal);
-  eventData_->ecalBarrelIsol04 = new EgammaRecHitIsolation(egIsoConeSizeOutLarge,egIsoConeSizeInBarrel,egIsoJurassicWidth,egIsoPtMinBarrel,egIsoEMinBarrel,eventSetupData_->caloGeom,eventData_->ecalBarrelHitsMeta,eventSetupData_->sevLevel.product(),DetId::Ecal);
-  eventData_->ecalEndcapIsol03 = new EgammaRecHitIsolation(egIsoConeSizeOutSmall,egIsoConeSizeInEndcap,egIsoJurassicWidth,egIsoPtMinEndcap,egIsoEMinEndcap,eventSetupData_->caloGeom,eventData_->ecalEndcapHitsMeta,eventSetupData_->sevLevel.product(),DetId::Ecal);
-  eventData_->ecalEndcapIsol04 = new EgammaRecHitIsolation(egIsoConeSizeOutLarge,egIsoConeSizeInEndcap,egIsoJurassicWidth,egIsoPtMinEndcap,egIsoEMinEndcap,eventSetupData_->caloGeom,eventData_->ecalEndcapHitsMeta,eventSetupData_->sevLevel.product(),DetId::Ecal);
+  eventData_->ecalBarrelIsol03 = new EgammaRecHitIsolation(egIsoConeSizeOutSmall,egIsoConeSizeInBarrel,egIsoJurassicWidth,egIsoPtMinBarrel,egIsoEMinBarrel,eventSetupData_->caloGeom,eventData_->ecalBarrelHitsMeta/*,eventSetupData_->sevLevel.product()*/,DetId::Ecal);
+  eventData_->ecalBarrelIsol04 = new EgammaRecHitIsolation(egIsoConeSizeOutLarge,egIsoConeSizeInBarrel,egIsoJurassicWidth,egIsoPtMinBarrel,egIsoEMinBarrel,eventSetupData_->caloGeom,eventData_->ecalBarrelHitsMeta/*,eventSetupData_->sevLevel.product()*/,DetId::Ecal);
+  eventData_->ecalEndcapIsol03 = new EgammaRecHitIsolation(egIsoConeSizeOutSmall,egIsoConeSizeInEndcap,egIsoJurassicWidth,egIsoPtMinEndcap,egIsoEMinEndcap,eventSetupData_->caloGeom,eventData_->ecalEndcapHitsMeta/*,eventSetupData_->sevLevel.product()*/,DetId::Ecal);
+  eventData_->ecalEndcapIsol04 = new EgammaRecHitIsolation(egIsoConeSizeOutLarge,egIsoConeSizeInEndcap,egIsoJurassicWidth,egIsoPtMinEndcap,egIsoEMinEndcap,eventSetupData_->caloGeom,eventData_->ecalEndcapHitsMeta/*,eventSetupData_->sevLevel.product()*/,DetId::Ecal);
   eventData_->ecalBarrelIsol03->setUseNumCrystals(generalData_->isoCfg.useNumCrystals);
   eventData_->ecalBarrelIsol03->setVetoClustered(generalData_->isoCfg.vetoClustered);
-  //eventData_->ecalBarrelIsol03->doSpikeRemoval(eventData_->reducedEBRecHits.product(),eventSetupData_->chStatus.product(),generalData_->spikeCfg.severityLevelCut,generalData_->spikeCfg.severityRecHitThreshold,generalData_->spikeCfg.spikeId,generalData_->spikeCfg.spikeIdThreshold);
-  eventData_->ecalBarrelIsol03->doSpikeRemoval(eventData_->reducedEBRecHits.product(),eventSetupData_->chStatus.product(),generalData_->spikeCfg.severityLevelCut);
+  eventData_->ecalBarrelIsol03->doSpikeRemoval(eventData_->reducedEBRecHits.product(),eventSetupData_->chStatus.product(),generalData_->spikeCfg.severityLevelCut,generalData_->spikeCfg.severityRecHitThreshold,generalData_->spikeCfg.spikeId,generalData_->spikeCfg.spikeIdThreshold);
+  //eventData_->ecalBarrelIsol03->doSpikeRemoval(eventData_->reducedEBRecHits.product(),eventSetupData_->chStatus.product(),generalData_->spikeCfg.severityLevelCut);//,generalData_->spikeCfg.severityRecHitThreshold,generalData_->spikeCfg.spikeId,generalData_->spikeCfg.spikeIdThreshold);
   eventData_->ecalBarrelIsol03->doFlagChecks(generalData_->spikeCfg.recHitFlagsToBeExcluded);
   eventData_->ecalBarrelIsol04->setUseNumCrystals(generalData_->isoCfg.useNumCrystals);
   eventData_->ecalBarrelIsol04->setVetoClustered(generalData_->isoCfg.vetoClustered);
-  //eventData_->ecalBarrelIsol04->doSpikeRemoval(eventData_->reducedEBRecHits.product(),eventSetupData_->chStatus.product(),generalData_->spikeCfg.severityLevelCut,generalData_->spikeCfg.severityRecHitThreshold,generalData_->spikeCfg.spikeId,generalData_->spikeCfg.spikeIdThreshold);
-  eventData_->ecalBarrelIsol04->doSpikeRemoval(eventData_->reducedEBRecHits.product(),eventSetupData_->chStatus.product(),generalData_->spikeCfg.severityLevelCut);
+  eventData_->ecalBarrelIsol04->doSpikeRemoval(eventData_->reducedEBRecHits.product(),eventSetupData_->chStatus.product(),generalData_->spikeCfg.severityLevelCut,generalData_->spikeCfg.severityRecHitThreshold,generalData_->spikeCfg.spikeId,generalData_->spikeCfg.spikeIdThreshold);
+  //eventData_->ecalBarrelIsol04->doSpikeRemoval(eventData_->reducedEBRecHits.product(),eventSetupData_->chStatus.product(),generalData_->spikeCfg.severityLevelCut);//,generalData_->spikeCfg.severityRecHitThreshold,generalData_->spikeCfg.spikeId,generalData_->spikeCfg.spikeIdThreshold);
   eventData_->ecalBarrelIsol04->doFlagChecks(generalData_->spikeCfg.recHitFlagsToBeExcluded);
   eventData_->ecalEndcapIsol03->setUseNumCrystals(generalData_->isoCfg.useNumCrystals);
   eventData_->ecalEndcapIsol03->setVetoClustered(generalData_->isoCfg.vetoClustered);

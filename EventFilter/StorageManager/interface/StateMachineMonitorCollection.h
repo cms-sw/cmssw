@@ -1,8 +1,8 @@
-// $Id: StateMachineMonitorCollection.h,v 1.6 2009/08/18 08:54:13 mommsen Exp $
+// $Id: StateMachineMonitorCollection.h,v 1.7.10.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: StateMachineMonitorCollection.h 
 
-#ifndef StorageManager_StateMachineMonitorCollection_h
-#define StorageManager_StateMachineMonitorCollection_h
+#ifndef EventFilter_StorageManager_StateMachineMonitorCollection_h
+#define EventFilter_StorageManager_StateMachineMonitorCollection_h
 
 #include <ostream>
 #include <string>
@@ -19,8 +19,8 @@ namespace stor {
    * A collection of monitored quantities related to the state machine
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/08/18 08:54:13 $
+   * $Revision: 1.7.10.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
   
   class StateMachineMonitorCollection : public MonitorCollection
@@ -28,7 +28,7 @@ namespace stor {
 
   public:
 
-    explicit StateMachineMonitorCollection(const utils::duration_t& updateInterval);
+    explicit StateMachineMonitorCollection(const utils::Duration_t& updateInterval);
 
     /**
      * Add the TransitionRecord to the state machine history
@@ -74,7 +74,7 @@ namespace stor {
     /**
      * Retrieve the current internal state name
      */
-    const std::string& innerStateName() const;
+    std::string innerStateName() const;
 
   private:
 
@@ -87,19 +87,19 @@ namespace stor {
     virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
     virtual void do_updateInfoSpaceItems();
 
-    History _history;
-    std::string _externallyVisibleState;
-    mutable boost::mutex _stateMutex;
+    History history_;
+    std::string externallyVisibleState_;
+    mutable boost::mutex stateMutex_;
 
-    std::string _statusMessage;
+    std::string statusMessage_;
 
-    xdata::String _stateName;
+    xdata::String stateName_;
 
   };
   
 } // namespace stor
 
-#endif // StorageManager_StateMachineMonitorCollection_h 
+#endif // EventFilter_StorageManager_StateMachineMonitorCollection_h 
 
 
 /// emacs configuration

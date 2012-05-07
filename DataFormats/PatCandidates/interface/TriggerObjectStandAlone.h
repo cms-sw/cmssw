@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerObjectStandAlone
 //
-// $Id: TriggerObjectStandAlone.h,v 1.11 2010/12/19 21:06:43 vadler Exp $
+// $Id: TriggerObjectStandAlone.h,v 1.12 2010/12/20 20:05:52 vadler Exp $
 //
 /**
   \class    pat::TriggerObjectStandAlone TriggerObjectStandAlone.h "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
@@ -20,7 +20,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerObjectStandAlone
 
   \author   Volker Adler
-  \version  $Id: TriggerObjectStandAlone.h,v 1.11 2010/12/19 21:06:43 vadler Exp $
+  \version  $Id: TriggerObjectStandAlone.h,v 1.12 2010/12/20 20:05:52 vadler Exp $
 */
 
 
@@ -32,13 +32,16 @@ namespace pat {
   class TriggerObjectStandAlone : public TriggerObject {
 
       /// Data Members
+      /// Keeping the old names of the data members for backward compatibility,
+      /// although they refer only to HLT objects.
 
-      /// Vector of labels of all filters the trigger objects has been used in
+      /// Vector of labels of all HLT filters or names od L1 conditions the trigger objects has been used in
       std::vector< std::string > filterLabels_;
-      /// Vector of names of all paths the trigger objects has been used in
+      /// Vector of names of all HLT paths or L1 algorithms the trigger objects has been used in
       std::vector< std::string > pathNames_;
       /// Vector alligned with 'pathNames_' of boolean indicating the usage of the trigger object
-      /// An element is true, if the corresponding path succeeded and the trigger object was used in the last filter.
+      /// An element is true, if the corresponding path succeeded and the trigger object was used in the last filter (HLT
+      /// or the corresponding algorithm succeeded as well as the corresponding condition (L1).
       /// The vector is empty for data (size 0), if the according information is not available in data.
       std::vector< bool > pathLastFilterAccepted_;
 
@@ -51,6 +54,20 @@ namespace pat {
 
       /// Checks a string vector for occurence of a certain string, incl. wild-card mechanism
       bool hasAnyName( const std::string & name, const std::vector< std::string > & nameVec ) const;
+      /// Adds a new HLT filter label or L1 condition name
+      void addFilterOrCondition( const std::string & name ) { if ( ! hasFilterOrCondition( name ) ) filterLabels_.push_back( name ); };
+      /// Adds a new HLT path or L1 algorithm name
+      void addPathOrAlgorithm( const std::string & name, bool firing = true );
+      /// Gets all HLT filter labels or L1 condition names
+      std::vector< std::string > filtersOrConditions() const { return filterLabels_; };
+      /// Gets all HLT path or L1 algorithm names
+      std::vector< std::string > pathsOrAlgorithms( bool firing = true ) const;
+      /// Checks, if a certain HLT filter label or L1 condition name is assigned
+      bool hasFilterOrCondition( const std::string & name ) const;
+      /// Checks, if a certain HLT path or L1 algorithm name is assigned
+      bool hasPathOrAlgorithm( const std::string & name, bool firing = true ) const;
+      /// Checks, if the usage indicator vector has been filled
+      bool hasFiring() const { return ( pathLastFilterAccepted_.size() > 0 && pathLastFilterAccepted_.size() == pathNames_.size() ); };
 
     public:
 
@@ -73,25 +90,38 @@ namespace pat {
 
       /// Methods
 
-      /// Adds a new filter label
-      void addFilterLabel( const std::string & filterLabel ) { if ( ! hasFilterLabel( filterLabel ) ) filterLabels_.push_back( filterLabel ); };
-      /// Adds a new path name
-      void addPathName( const std::string & pathName, bool pathLastFilterAccepted = true );
-      /// Gets all filter labels
-      std::vector< std::string > filterLabels() const { return filterLabels_; };
-      /// Gets all path names
-      std::vector< std::string > pathNames( bool pathLastFilterAccepted = true ) const;
+      /// Adds a new HLT filter label
+      void addFilterLabel( const std::string & filterLabel ) { addFilterOrCondition( filterLabel ); };
+      /// Adds a new L1 condition name
+      void addConditionName( const std::string & conditionName ) { addFilterOrCondition( conditionName ); };
+      /// Adds a new HLT path name
+      void addPathName( const std::string & pathName, bool pathLastFilterAccepted = true ) { addPathOrAlgorithm( pathName, pathLastFilterAccepted ); };
+      /// Adds a new L1 algorithm name
+      void addAlgorithmName( const std::string & algorithmName, bool algoCondAccepted = true ) { addPathOrAlgorithm( algorithmName, algoCondAccepted ); };
+      /// Gets all HLT filter labels
+      std::vector< std::string > filterLabels() const { return filtersOrConditions(); };
+      /// Gets all L1 condition names
+      std::vector< std::string > conditionNames() const { return filtersOrConditions(); };
+      /// Gets all HLT path names
+      std::vector< std::string > pathNames( bool pathLastFilterAccepted = true ) const { return pathsOrAlgorithms( pathLastFilterAccepted ); };
+      /// Gets all L1 algorithm names
+      std::vector< std::string > algorithmNames( bool algoCondAccepted = true ) const { return pathsOrAlgorithms( algoCondAccepted ); };
       /// Gets the pat::TriggerObject (parent class)
       TriggerObject triggerObject();
-      /// Checks, if a certain filter label is assigned
-      bool hasFilterLabel( const std::string & filterLabel ) const;
-      /// Checks, if a certain path name is assigned
-      bool hasPathName( const std::string & pathName, bool pathLastFilterAccepted = true ) const;
+      /// Checks, if a certain HLT filter label is assigned
+      bool hasFilterLabel( const std::string & filterLabel ) const { return hasFilterOrCondition( filterLabel ); };
+      /// Checks, if a certain L1 condition name is assigned
+      bool hasConditionName( const std::string & conditionName ) const { return hasFilterOrCondition( conditionName ); };
+      /// Checks, if a certain HLT path name is assigned
+      bool hasPathName( const std::string & pathName, bool pathLastFilterAccepted = true ) const { return hasPathOrAlgorithm( pathName, pathLastFilterAccepted ); };
+      /// Checks, if a certain L1 algorithm name is assigned
+      bool hasAlgorithmName( const std::string & algorithmName, bool algoCondAccepted = true ) const { return hasPathOrAlgorithm( algorithmName, algoCondAccepted ); };
       /// Checks, if a certain label of original collection is assigned (method overrides)
       virtual bool hasCollection( const std::string & collName ) const;
       virtual bool hasCollection( const edm::InputTag & collName ) const { return hasCollection( collName.encode() ); };
       /// Checks, if the usage indicator vector has been filled
-      bool hasPathLastFilterAccepted() const { return ( pathLastFilterAccepted_.size() > 0 && pathLastFilterAccepted_.size() == pathNames_.size() ); };
+      bool hasPathLastFilterAccepted() const { return hasFiring(); };
+      bool hasAlgoCondAccepted() const { return hasFiring(); };
 
       /// Special methods for the cut string parser
       /// - argument types usable in the cut string parser
@@ -99,8 +129,12 @@ namespace pat {
 
       /// Calls 'hasFilterLabel(...)'
       bool filter( const std::string & filterLabel ) const { return hasFilterLabel( filterLabel ); };
+      /// Calls 'hasConditionName(...)'
+      bool cond( const std::string & conditionName ) const { return hasConditionName( conditionName ); };
       /// Calls 'hasPathName(...)'
       bool path( const std::string & pathName, unsigned pathLastFilterAccepted = 1 ) const { return hasPathName( pathName, bool( pathLastFilterAccepted ) ); };
+      /// Calls 'hasAlgorithmName(...)'
+      bool algo( const std::string & algorithmName, unsigned algoCondAccepted = 1 ) const { return hasAlgorithmName( algorithmName, bool( algoCondAccepted ) ); };
       /// Calls 'hasCollection(...)' (method override)
       virtual bool coll( const std::string & collName ) const { return hasCollection( collName ); };
 

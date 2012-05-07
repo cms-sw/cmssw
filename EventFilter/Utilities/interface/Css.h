@@ -63,6 +63,10 @@ namespace evf{
 	  *out << "color: white;"                          << endl;
 	  *out << "background-color: #000;"                << endl;
 	  *out << "}"                                      << endl;
+	  *out << "table.states .special a"                << endl;
+	  *out << "{"                                      << endl;
+	  *out << "color: white;"                          << endl;
+	  *out << "}"                                      << endl;
 	  
 	  *out                                             << endl;
 	  

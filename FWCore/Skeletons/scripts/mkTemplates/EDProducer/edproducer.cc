@@ -45,11 +45,18 @@ class prodname : public edm::EDProducer {
       explicit prodname(const edm::ParameterSet&);
       ~prodname();
 
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
    private:
       virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
+      virtual void beginRun(edm::Run&, edm::EventSetup const&);
+      virtual void endRun(edm::Run&, edm::EventSetup const&);
+      virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+      virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+
       // ----------member data ---------------------------
 @example_myparticle       edm::InputTag muonTags_; 
 @example_myparticle       edm::InputTag electronTags_;
@@ -71,8 +78,8 @@ class prodname : public edm::EDProducer {
 //
 prodname::prodname(const edm::ParameterSet& iConfig)
 @example_myparticle :
-@example_myparticle   muonTags_( iConfig.getUntrackedParameter<edm::InputTag>( "muons" )),
-@example_myparticle   electronTags_( iConfig.getUntrackedParameter<edm::InputTag>( "electrons" ))
+@example_myparticle   muonTags_( iConfig.getParameter<edm::InputTag>( "muons" )),
+@example_myparticle   electronTags_( iConfig.getParameter<edm::InputTag>( "electrons" ))
 {
    //register your products
 /* Examples
@@ -80,6 +87,9 @@ prodname::prodname(const edm::ParameterSet& iConfig)
 
    //if do put with a label
    produces<ExampleData2>("label");
+ 
+   //if you want to put into the Run
+   produces<ExampleData2,InRun>();
 */
 @example_myparticle   produces<MyParticleCollection>( "particles" );
    //now do what ever other initialization is needed
@@ -173,6 +183,47 @@ prodname::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 prodname::endJob() {
+}
+
+// ------------ method called when starting to processes a run  ------------
+void 
+prodname::beginRun(edm::Run&, edm::EventSetup const&)
+{
+}
+
+// ------------ method called when ending the processing of a run  ------------
+void 
+prodname::endRun(edm::Run&, edm::EventSetup const&)
+{
+}
+
+// ------------ method called when starting to processes a luminosity block  ------------
+void 
+prodname::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+{
+}
+
+// ------------ method called when ending the processing of a luminosity block  ------------
+void 
+prodname::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+{
+}
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void
+prodname::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  //The following says we do not know what parameters are allowed so do no validation
+  // Please change this to state exactly what you do use, even if it is no parameters
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault(desc);
+@example_myparticle  
+@example_myparticle  //Specify that only 'muons' and 'electrons' are allowed
+@example_myparticle  //To use, remove the default given above and uncomment below
+@example_myparticle  //ParameterSetDescription desc;
+@example_myparticle  //desc.add<edm::InputTag>("muons","muons");
+@example_myparticle  //desc.add<edm::InputTag>("electrons","pixelMatchGsfElectrons");
+@example_myparticle  //descriptions.addDefault(desc);
 }
 
 //define this as a plug-in

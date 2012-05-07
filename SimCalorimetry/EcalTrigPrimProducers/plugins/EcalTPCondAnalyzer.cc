@@ -11,7 +11,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Wed Oct 15  11:38:38 CEST 2008
-// $Id: EcalTPCondAnalyzer.cc,v 1.2 2009/10/28 00:09:26 ebecheva Exp $
+// $Id: EcalTPCondAnalyzer.cc,v 1.1 2008/10/15 15:51:15 uberthon Exp $
 //
 //
 //
@@ -21,7 +21,6 @@
 #include <memory>
 #include <utility>
 #include <iostream>
-#include <fstream>
 
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -41,8 +40,6 @@
 #include "CondFormats/DataRecord/interface/EcalTPGWeightIdMapRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGWeightGroupRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGFineGrainStripEERcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
 
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
@@ -142,18 +139,6 @@ unsigned long long  EcalTPCondAnalyzer::getRecords(edm::EventSetup const& setup)
   const EcalTPGFineGrainTowerEE * ecaltpgFineGrainTowerEE = theEcalTPGFineGrainTowerEE_handle.product();
   printTOWEREE(ecaltpgFineGrainTowerEE,ecaltpgLutGroup);
 
-  // get parameters for BadX
-  edm::ESHandle<EcalTPGCrystalStatus> theEcalTPGCrystalStatus_handle;
-  setup.get<EcalTPGCrystalStatusRcd>().get(theEcalTPGCrystalStatus_handle);
-  const EcalTPGCrystalStatus * ecaltpgBadX = theEcalTPGCrystalStatus_handle.product();
-  printBadX(ecaltpgBadX);
-
-  // get parameters for BadTT
-  edm::ESHandle<EcalTPGTowerStatus> theEcalTPGTowerStatus_handle;
-  setup.get<EcalTPGTowerStatusRcd>().get(theEcalTPGTowerStatus_handle);
-  const EcalTPGTowerStatus * ecaltpgBadTT = theEcalTPGTowerStatus_handle.product();
-  printBadTT(ecaltpgBadTT);
-  
   std::cout<<"EOF"<<std::endl;
 
   return setup.get<EcalTPGFineGrainTowerEERcd>().cacheIdentifier();
@@ -395,80 +380,4 @@ void EcalTPCondAnalyzer::printTOWEREE(const EcalTPGFineGrainTowerEE *ecaltpgFine
       std::cout <<" "<<(*lutGroupId).second<<std::endl;
       std::cout <<std::hex<<"0x"<<(*it).second<<std::endl;
     }
-}
-
-void EcalTPCondAnalyzer::printBadX(const EcalTPGCrystalStatus *ecaltpgBadX) const {
-  
-  std::ofstream myfile;
-  myfile.open("badXvalues.txt");
-  
-  const EcalTPGCrystalStatusMap & badXMap = ecaltpgBadX->getMap();
-
-  const std::vector<DetId> & ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
-
-  myfile <<"COMMENT ====== barrel masked crystals ====== "<<std::endl; 
-  myfile << "RawId         eta      phi   " << std::endl; 
-
-  for (std::vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
-
-    EBDetId id(*it) ;
-    const EcalTPGCrystalStatusCode &badXeb=badXMap[id.rawId()];
-    // Print in the text file obly the masked crystals
-    if (badXeb.getStatusCode() != 0){    
-      myfile << "" << id.rawId() << "      " << id.ieta() << "      " << id.iphi() << std::endl;
-    }
-    
-  }
-  
-  myfile << " " << std::endl;
-
-  const std::vector<DetId> & eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
-  
-  myfile <<"COMMENT ====== endcap masked crystals ====== "<<std::endl; 
-  myfile << "RawId       x      y      z   " << std::endl; 
-  
-  for (std::vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
-    
-    EEDetId id(*it) ;
-    const EcalTPGCrystalStatusCode &badXee=badXMap[id.rawId()];
-    // Print in the text file only the masked clystals
-    if (badXee.getStatusCode() != 0){ 
-      myfile << "" << id.rawId() << "   " << id.ix() << "      " << id.iy() << "     "<< id.zside() << std::endl;
-    } 
-  }
-  
-  myfile.close();
-}
-
-
-void EcalTPCondAnalyzer::printBadTT(const EcalTPGTowerStatus *ecaltpgBadTT) const {
-  std::ofstream myfilebadTT;
-  myfilebadTT.open("badTTvalues.txt");
-  int ieta = 0;
-  int iphi = 0;
-  
-  const EcalTPGTowerStatusMap & badTTMap = ecaltpgBadTT -> getMap();
-  EcalTPGTowerStatusMapIterator it;
-  
-  myfilebadTT <<"Barrel and endcap masked Trigger Towers"<<std::endl;
-  myfilebadTT <<"RawId " << "     iphi " << "  ieta " << std::endl;
-  myfilebadTT <<""<< std::endl;
-  
-  for (it=badTTMap.begin();it!=badTTMap.end();++it) {
-    
-    // Print in the text file only the masked barrel and endcap TTs
-    if ((*it).second != 0){
-    
-      EcalTrigTowerDetId  ttId((*it).first);
-      ieta = ttId.ieta();
-      iphi = ttId.iphi();
-
-      myfilebadTT <<""<< std::dec<<(*it).first << "  " << iphi << "     " << ieta << std::endl;
-      
-    }
-  }
-  
-  
-  myfilebadTT.close();
-
 }

@@ -1,6 +1,6 @@
-#include <cassert>
+#include <assert.h>
 #include <iostream>
-#include <cstdlib>
+#include <stdlib.h>
 #include <string>
 using namespace std;
 
@@ -907,23 +907,23 @@ MEEEGeom::memFromLmr( int ilmr )
   int dee_ = dee( ilmr );
   if( dee_==1 )    // EE+F
     {
-      out_.first  = 51;
-      out_.second = 50;
+      out_.first  = 50;
+      out_.second = 51;
     }
   else if( dee_==2 )  // EE+N
     {
-      out_.first  = 47;
+      out_.first  = 47;  // JM: warning -- inverted !!
       out_.second = 46;
     }
   else if( dee_==3 )  // EE-N
     {
-      out_.first   = 2;
-      out_.second  = 1;
+      out_.first   = 1;
+      out_.second  = 2;
     }
   else if( dee_==4 )
     {
-      out_.first   = 6;
-      out_.second  = 5;
+      out_.first   = 5;
+      out_.second  = 6;
     }
   return out_;
 }
@@ -944,8 +944,6 @@ MEEEGeom::side( SuperCrysCoord iX, SuperCrysCoord iY, int iz )
 
   return side;
 }
-
-
 std::vector<int>
 MEEEGeom::lmmodFromLmr( int ilmr )
 {
@@ -1081,8 +1079,6 @@ MEEEGeom::apdRefTower( int ilmr, int ilmmod )
     switch( ilmmod ){
     case  18: tower=185; break; 
     case  19: tower=172; break;
-    case  20: tower=185; break; 
-    case  21: tower=172; break;
     default:
       abort();
     }
@@ -1090,8 +1086,6 @@ MEEEGeom::apdRefTower( int ilmr, int ilmmod )
     switch( ilmmod ){
     case  18: tower=264; break; 
     case  19: tower=251; break;
-    case  20: tower=264; break; 
-    case  21: tower=251; break;
     default:
       abort();
     }

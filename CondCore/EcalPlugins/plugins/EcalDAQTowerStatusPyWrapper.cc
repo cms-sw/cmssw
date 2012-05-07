@@ -24,8 +24,6 @@
 
 #include <fstream>
 
-#include "CondCore/EcalPlugins/plugins/EcalPyWrapperFunctions.h"
-
 namespace cond {
 
   namespace ecalcond {
@@ -127,39 +125,15 @@ namespace cond {
     return ss.str();
   }
 
-  	class EcalDAQTowerStatusHelper: public EcalPyWrapperHelper<EcalDAQStatusCode>{
-	public:
-		//change me
-		EcalDAQTowerStatusHelper():EcalPyWrapperHelper<EcalObject>(1, STATUS){}
-	protected:
-
-		//change me
-		typedef EcalDAQStatusCode EcalObject;
-
-		type_vValues getValues( const std::vector<EcalObject> & vItems)
-		{
-			type_vValues vValues(total_values);
-			
-			//change us
-			vValues[0].first = "bit 0 -> towers excluded from the DAQ";
-			
-			vValues[0].second = .0;
-			
-			//get info:
-			for(std::vector<EcalObject>::const_iterator iItems = vItems.begin(); iItems != vItems.end(); ++iItems){
-				//change us
-				vValues[0].second += iItems->getStatusCode();
-			}
-			return vValues;
-		}
-	};
-
    template<>
    std::string PayLoadInspector<EcalDAQTowerStatus>::summary() const {
-	std::stringstream ss;
-	EcalDAQTowerStatusHelper helper;
-	ss << helper.printBarrelsEndcaps(object().barrelItems(), object().endcapItems());
-	return ss.str();
+     std::cout << "***************************************"<< std::endl;
+     std::stringstream ss;
+     ss << "sizes="
+	<< object().barrelItems().size() <<","
+	<< object().endcapItems().size() <<";";
+     ss << std::endl;
+     return ss.str();
    }
 
 

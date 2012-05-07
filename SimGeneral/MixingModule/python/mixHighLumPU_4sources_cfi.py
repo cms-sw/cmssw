@@ -12,7 +12,9 @@ import FWCore.ParameterSet.Config as cms
 #
 # we have put minbias files for all the sources, just as an example
 #
-from SimGeneral.MixingModule.mixObjects_cfi import *
+from SimGeneral.MixingModule.mixObjects_cfi import * 
+from SimGeneral.MixingModule.mixPoolSource_cfi import * 
+
 mix = cms.EDProducer("MixingModule",
     LabelPlayback = cms.string(''),
     maxBunch = cms.int32(3),

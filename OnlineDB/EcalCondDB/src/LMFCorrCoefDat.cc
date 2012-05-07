@@ -1,4 +1,5 @@
 #include "OnlineDB/EcalCondDB/interface/LMFCorrCoefDat.h"
+#include "OnlineDB/Oracle/interface/Oracle.h"
 
 LMFCorrCoefDat::LMFCorrCoefDat() {
   init();
@@ -104,10 +105,10 @@ LMFCorrCoefDatComponent* LMFCorrCoefDat::find(const LMFLmrSubIOV &iov) {
       c->setConnection(m_env, m_conn);
       subiov->setConnection(m_env, m_conn);
     }
-    c->setLMFLmrSubIOV(iov);
     *subiov = iov;
-    m_data[iov.getID()] = c;
-    m_subiov[iov.getID()] = subiov;
+    c->setLMFLmrSubIOV(*subiov);
+    m_data[subiov->getID()] = c;
+    m_subiov[subiov->getID()] = subiov;
     return c;
   }
 }
@@ -143,6 +144,7 @@ void LMFCorrCoefDat::writeDB() {
 }
 
 void LMFCorrCoefDat::debug() {
+  std::cout << "Set debug" << std::endl << std::flush;
   m_debug = true;
 }
 
@@ -150,49 +152,170 @@ void LMFCorrCoefDat::nodebug() {
   m_debug = false;
 }
 
+RunIOV LMFCorrCoefDat::fetchLastInsertedRun() {
+  RunIOV iov;
+  if (m_conn == NULL) {
+    throw std::runtime_error("[LMFCorrCoefDat::fetchLastInsertedRun] ERROR:  "
+                             "Connection not set");
+  }
+  iov.setConnection(m_env, m_conn);
+  std::string sql = "SELECT IOV_ID FROM CMS_ECAL_COND.RUN_IOV WHERE "
+    "IOV_ID = (SELECT RUN_IOV_ID FROM LMF_SEQ_DAT WHERE SEQ_ID = "
+    "(SELECT MAX(SEQ_ID) FROM LMF_CORR_COEF_DAT))"; 
+  oracle::occi::Statement * stmt;
+  try {
+    stmt = m_conn->createStatement();  
+    stmt->setSQL(sql);
+  }
+  catch (oracle::occi::SQLException &e) {
+    throw(std::runtime_error("[LMFCorrCoefDat::fetchLastInsertedRun]: " +
+                             e.getMessage()));
+  }
+  if (m_debug) {
+    std::cout << "[LMFCorrCoefDat::fetchLastInsertedRun] executing query"
+	      << std::endl << sql << std::endl << std::flush;
+  }
+  oracle::occi::ResultSet *rset = stmt->executeQuery();
+  if (m_debug) {
+    std::cout << "                                       done"
+	      << std::endl << std::flush;
+  }
+  int iov_id = -1;
+  try {
+    while (rset->next()) {
+      // there should be just one result
+      iov_id = rset->getInt(1);
+    }
+  }
+  catch (oracle::occi::SQLException &e) {
+    throw(std::runtime_error("[LMFCorrCoefDat::fetchLastInsertedRun]: " +
+                             e.getMessage()));
+  }
+  if (iov_id > 0) {
+    iov.setByID(iov_id);
+  }
+  return iov;
+}
+
 void LMFCorrCoefDat::fetchAfter(const Tm &t) {
+  Tm tmax;
+  tmax.setToString("9999-12-31 23:59:59");
+  fetchBetween(t, tmax, 0);
+}
+
+void LMFCorrCoefDat::fetchAfter(const Tm &t, int howmany) {
+  Tm tmax;
+  tmax.setToString("9999-12-31 23:59:59");
+  fetchBetween(t, tmax, howmany);
+}
+
+void LMFCorrCoefDat::fetchBetween(const Tm &tmin, const Tm &tmax) {
+  fetchBetween(tmin, tmax, 0);
+}
+
+void LMFCorrCoefDat::fetchBetween(const Tm &tmin, const Tm &tmax,
+				  int maxNumberOfIOVs) {
   LMFLmrSubIOV iov(m_env, m_conn);
-  std::list<int> l = iov.getIOVIDsLaterThan(t);
+  Tm tinf;
+  tinf.setToString("9999-12-31 23:59:59");
+  if (m_debug) {
+    std::cout << "Searching for data collected after " << tmin.str();
+    if (tmax != tinf) {
+      std::cout << " and before " << tmax.str();
+    }
+    std::cout << ". Retrieving the first " 
+	      << maxNumberOfIOVs << " records" << std::endl;
+    iov.debug();
+  }
+  std::list<int> l = iov.getIOVIDsLaterThan(tmin, tmax, maxNumberOfIOVs);
+  if (m_debug) {
+    std::cout << "Now we are going to fetch details about "
+	      << "data collected within the above mentioned "
+	      << "LMR_SUB_IOV's" << std::endl;
+  }
   fetch(l);
+  if (m_debug) {
+    std::cout << "Fetched a list of " << m_data.size() << " IOVs"
+	      << std::endl << std::flush;
+  }
 }
 
 void LMFCorrCoefDat::fetch(std::list<int> subiov_ids) {
   std::list<int>::const_iterator i = subiov_ids.begin();
   std::list<int>::const_iterator e = subiov_ids.end();
+  int c = 0;
   while (i != e) {
+    if (m_debug) {
+      std::cout << "[LMFCorrCoefDat] Fetching data taken "
+		<< "during LMR_SUB_IOV no. " << ++c << std::endl;
+    }
     fetch(*i);
     i++;
+  }
+  if (m_debug) {
+    std::cout << "[LMFCorrCoefDat] fetch done for all sub iovs" 
+	      << std::endl << std::flush;
   }
 }
 
 void LMFCorrCoefDat::fetch(int subiov_id) {
   LMFLmrSubIOV iov(m_env, m_conn);
   iov.setByID(subiov_id);
+  if (m_debug) {
+    std::cout << "[LMFCorrCoefDat] Looking for LMR_SUB_IOV with ID " 
+	      << iov.getID() << std::endl
+	      << std::flush;
+  }
+  // create an instance of LMFLmrSubIOV to associate to this IOV_ID
+  LMFLmrSubIOV *subiov = new LMFLmrSubIOV(m_env, m_conn);
+  *subiov = iov; 
+  m_subiov[subiov_id] = subiov;
+  if (m_debug) {
+    std::cout << "[LMFCorrCoefDat] Latest LMR_SUB_IOV data follows"
+	      << std::endl;
+    subiov->dump();
+    std::cout << "[LMFCorrCoefDat] Fetching data taken "
+	      << "during LMR_SUB_IOV ID " << subiov_id << std::endl
+	      << std::flush;
+  }
   fetch(iov);
 }
 
 void LMFCorrCoefDat::fetch(const LMFLmrSubIOV &iov)
 {
   // fetch data with given LMR_SUB_IOV_ID from the database
-  if (m_debug) {
-    std::cout << "Looking for SUB_IOV with ID " << iov.getID() << std::endl
-	      << std::flush;
-  }
   if (m_data.find(iov.getID()) == m_data.end()) {
     if (m_debug) {
-      std::cout << "Not found. Getting it from DB " << std::endl
+      std::cout << "                 Data collected in LMR_SUB_IOV " 
+		<< iov.getID() 
+		<< " not found in private data. "
+		<< "Getting it from DB " << std::endl
 		<< std::flush;
     }
     LMFCorrCoefDatComponent *comp = new LMFCorrCoefDatComponent(m_env, m_conn);
+    if (m_debug) {
+      comp->debug();
+    }
+    // assign this IOV to comp to be able to retrieve it from the DB 
     comp->setLMFLmrSubIOV(iov);
     comp->fetch();
+    if (m_debug) {
+      std::cout << "====== DEBUGGING: Data collected during this LMR_SUB_IOV" 
+		<< std::endl;
+      comp->dump();
+      std::cout << "====== DEBUGGING: ======================================"
+		<< std::endl << std::endl;
+    }
     m_data[iov.getID()] = comp;
-    LMFLmrSubIOV *subiov = new LMFLmrSubIOV(m_env, m_conn);
-    *subiov = iov;
-    m_subiov[iov.getID()] = subiov;
   } else if (m_debug) {
-    std::cout << "Found in memory." << std::endl
-	      << std::flush;
+    // this is not going to happen, but...
+    std::cout << "                 Data collected in LMR_SUB_IOV " 
+	      << iov.getID() 
+	      << " found in private data. "
+	      << std::endl << std::flush;
+  }
+  if (m_debug) {
+    std::cout << "[LMFCorrCoefDat] Fetch done" << std::endl << std::endl << std::flush;
   }
 }
 
@@ -200,70 +323,154 @@ std::vector<Tm> LMFCorrCoefDat::getTimes(const LMFLmrSubIOV &iov) {
   return iov.getTimes();
 }
 
-std::map<int, std::map<int, LMFSextuple> > LMFCorrCoefDat::getParameters() {
-  // returns a map whose key is the SEQ_ID 
+std::map<int, std::map<int, LMFSextuple> > 
+LMFCorrCoefDat::getCorrections(const Tm &t) {
+  return getCorrections(t, MAX_NUMBER_OF_SEQUENCES_TO_FETCH);
+}
+
+void LMFCorrCoefDat::checkTriplets(int logic_id, const LMFSextuple &s, 
+				   const std::map<int, LMFSextuple> &lastMap) 
+{
+  // this method verify that T3 in the last inserted record for a given 
+  // crystal coincides with T1 of the newly inserted record
+  if (lastMap.find(logic_id) != lastMap.end()) {
+    const LMFSextuple sold = lastMap.find(logic_id)->second;
+    /* This check is wrong as it is. But we still need to define
+       a reasonable one.
+    if (sold.t[2] != s.t[0]) {
+      std::cout << ":-( T3 in last sequence for crystal " << logic_id 
+		<< " differs from T1 in this sequence: "  
+		<< sold.t[2].str() << " != " << s.t[0].str() << std::endl;
+      exit(0);
+    }
+    */
+  } else {
+    std::cout << ":-( Can't find crystal " << logic_id << " in last map"
+	      << std::endl;
+  }
+}
+
+std::map<int, std::map<int, LMFSextuple> > 
+LMFCorrCoefDat::getCorrections(const Tm &t, int max) {
+  return getCorrections(t, Tm().plusInfinity(), max);
+}
+
+std::map<int, std::map<int, LMFSextuple> > 
+LMFCorrCoefDat::getCorrections(const Tm &t, const Tm &t2, int max) {
+  // returns a map whose key is the sequence_id and whose value is another
+  // map. The latter has the logic_id of a crystal as key and the corresponding
+  // sextuple p1, p2, p3, t1, t2, t3 as value.
+  // Crystal corrections, then, are organized by sequences
+  // First of all, checks that the connection is active (TODO)
+  if (m_conn == NULL) {
+    throw std::runtime_error("[LMFCorrCoefDat::getCorrections] ERROR:  "
+			     "Connection not set");
+  }
+  // limit the maximum number of rows to fetch
+  if (max > MAX_NUMBER_OF_SEQUENCES_TO_FETCH) {
+    if (m_debug) {
+      std::cout << "   Required to fetch " << max << " sequences from OMDS. "
+		<< MAX_NUMBER_OF_SEQUENCES_TO_FETCH << " allowed" 
+		<< std::endl; 
+    }
+    max = MAX_NUMBER_OF_SEQUENCES_TO_FETCH;
+  }
+  // we must define some criteria to select the right rows 
   std::map<int, std::map<int, LMFSextuple> > ret;
-  std::map<int, LMFCorrCoefDatComponent *>::const_iterator i = m_data.begin();
-  std::map<int, LMFCorrCoefDatComponent *>::const_iterator e = m_data.end();
-  int lmr_sub_iov_id = 0;
-  while (i != e) {
+  std::string sql = "SELECT * FROM (SELECT LOGIC_ID, T1, T2, T3, P1, P2, P3, "
+    "SEQ_ID FROM LMF_LMR_SUB_IOV JOIN LMF_CORR_COEF_DAT ON "  
+    "LMF_CORR_COEF_DAT.LMR_SUB_IOV_ID = LMF_LMR_SUB_IOV.LMR_SUB_IOV_ID "
+    "WHERE T1 > :1 AND T1 <= :2 ORDER BY T1) WHERE ROWNUM <= :3";
+  try {
+    DateHandler dh(m_env, m_conn);
+    oracle::occi::Statement * stmt = m_conn->createStatement();
+    stmt->setSQL(sql);
+    int toFetch = max * (61200 + 14648);
+    stmt->setDate(1, dh.tmToDate(t));
+    stmt->setDate(2, dh.tmToDate(t2));
+    stmt->setInt(3, toFetch);
+    stmt->setPrefetchRowCount(toFetch);
+    if (m_debug) {
+      std::cout << "[LMFCorrCoefDat::getCorrections] executing query" 
+		<< std::endl << sql << std::endl 
+		<< "Prefetching " << toFetch << " rows " 
+		<< std::endl << std::flush;
+    }
+    oracle::occi::ResultSet *rset = stmt->executeQuery();
+    if (m_debug) {
+      std::cout << "                                 done" 
+		<< std::endl << std::flush;
+    }
+    int c = 0;
+    std::map<int, LMFSextuple> theMap;
+    int lastSeqId = 0;
+    int previousSeqId = 0;
     LMFSextuple s;
-    // loop on all LMR_SUB_IOVs
-    if (lmr_sub_iov_id != i->first) {
-      // As soon as I find a new LMR_SUB_IOV take the first record and get the
-      // SEQ_ID from it
-      std::list<int> tlist = i->second->getLogicIds();
-      int ecal_logic_id = tlist.front();
-      int this_seq_id = i->second->getSeqID(ecal_logic_id);
-      std::cout << "LMR_SUB_IOV_ID = " << i->first << " " << this_seq_id << std::endl;
-      if (ret.find(this_seq_id) == ret.end()) {
-	std::map<int, LMFSextuple> empty_map;
-	ret[this_seq_id] = empty_map;
-      } 
-      LMFLmrSubIOV lmr_sub_iov = i->second->getLMFLmrSubIOV();
-      lmr_sub_iov.getTimes(&s.t[0], &s.t[1], &s.t[2]); 
-      std::list<int>::const_iterator ixtl = tlist.begin();
-      std::list<int>::const_iterator extl = tlist.end();
-      while (ixtl != extl) {
-	std::vector<float> tvect = i->second->getParameters(*ixtl);
-	for (int i = 0; i < 3; i++) {
-	  s.p[i] = tvect[i];
+    while (rset->next()) {
+      int logic_id = rset->getInt(1);
+      int seq_id   = rset->getInt(8);
+      if (seq_id != lastSeqId) {
+	if (m_debug) {
+	  if (lastSeqId != 0) {
+	    std::cout << "    Triplets in sequences: " << c 
+		      << std::endl;
+	    std::cout << "    T1: " << s.t[0].str() << " T2: " << s.t[1].str() 
+		      << " T3: " << s.t[2].str() << std::endl;
+ 	  }
+	  c = 0;
+	  std::cout << "    Found new sequence: " << seq_id
+		    << std::endl; 
 	}
-	ret[this_seq_id][*ixtl] = s;
-	ixtl++;
+	// the triplet of dates is equal for all rows in a sequence:
+	// get them once
+	for (int i = 0; i < 3; i++) {
+	  oracle::occi::Date d = rset->getDate(i + 2);
+	  s.t[i] = dh.dateToTm(d);
+	}
+	if (lastSeqId > 0) {
+	  ret[lastSeqId] = theMap;
+	}
+	theMap.clear();
+	previousSeqId = lastSeqId;
+	lastSeqId = seq_id;
       }
-      lmr_sub_iov_id = i->first;
-    }
-    i++;
-  }
-  /*
-  std::map<int, LMFCorrCoefDatComponent *>::const_iterator i = m_data.begin();
-  std::map<int, LMFCorrCoefDatComponent *>::const_iterator e = m_data.end();
-  // loop on all components
-  while (i != e) {
-    int subiov_id = i->first;
-    std::list<int> logic_ids = i->second->getLogicIds();
-    std::list<int>::const_iterator il = logic_ids.begin();
-    std::list<int>::const_iterator el = logic_ids.end();
-    // loop on all logic id's in this component
-    while (il != el) {
-      // get p1, p2, p3
-      std::vector<float> p = i->second->getData(*il);
-      // get t1, t2, t3
-      std::vector<Tm> t = m_subiov[subiov_id]->getTimes();
-      // build the six parameters vector
-      std::vector<float> r(6);
-      for (int k = 0; k < 3; k++) {
-	r[k]     = t[k].microsTime();
-	r[k + 3] = p[k];
+      for (int i = 0; i <3; i++) {
+	s.p[i] = rset->getDouble(i + 5);
       }
-      // add the vector to the resulting map
-      ret[*il].push_back(r);
-      il++;
+      theMap[logic_id] = s;
+      // verify that the sequence of time is correct
+      if (ret.size() > 0) {
+	checkTriplets(logic_id, s, ret[previousSeqId]); 
+      }
+      c++;
     }
-    i++;
+    // insert the last map in the outer map
+    ret[lastSeqId] = theMap;
+    if (m_debug) {
+      std::cout << "    Triplets in sequences: " << c 
+		<< std::endl;
+      std::cout << "    T1: " << s.t[0].str() << " T2: " << s.t[1].str() 
+		<< " T3: " << s.t[2].str() << std::endl;
+      std::cout << std::endl;
+    }
   }
-  */
+  catch (oracle::occi::SQLException &e) {
+    throw(std::runtime_error("LMFCorrCoefDat::getCorrections: " + 
+			     e.getMessage()));
+  }
+  if (m_debug) {
+    std::cout << "[LMFCorrCoefDat::getCorrections] Map built" << std::endl
+	      << "                                 Contains " << ret.size()
+	      << " sequences. These are the size of all sequences" 
+	      << std::endl;
+    std::map<int, std::map<int, LMFSextuple> >::const_iterator i = ret.begin();
+    std::map<int, std::map<int, LMFSextuple> >::const_iterator e = ret.end();
+    while (i != e) {
+      std::cout << "                                 SEQ " << i->first
+		<< " Size " << i->second.size() << std::endl;
+      i++;
+    }
+  }
   return ret;
 }
 
@@ -271,6 +478,7 @@ std::list<std::vector<float> > LMFCorrCoefDat::getParameters(const EcalLogicID
 							     &id) {
   return getParameters(id.getLogicID());
 }
+
 
 std::list<std::vector<float> > LMFCorrCoefDat::getParameters(int id) {
   std::map<int, LMFCorrCoefDatComponent *>::const_iterator i = m_data.begin();
@@ -362,4 +570,15 @@ int LMFCorrCoefDat::size() const {
     i++;
   }
   return c;
+}
+
+std::list<int> LMFCorrCoefDat::getSubIOVIDs() {
+  std::list<int> ret;
+  std::map<int, LMFCorrCoefDatComponent *>::const_iterator i = m_data.begin();
+  std::map<int, LMFCorrCoefDatComponent *>::const_iterator e = m_data.end();
+  while (i != e) {
+    ret.push_back(i->first);
+    i++;
+  }
+  return ret;
 }

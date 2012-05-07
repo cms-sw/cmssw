@@ -1,6 +1,6 @@
 #############################################################################
 #
-# $Id: cms-valgrind-memcheck.supp,v 1.4 2009/10/27 19:18:47 elmer Exp $
+# $Id: cms-valgrind-memcheck.supp,v 1.5 2010/10/25 14:03:36 elmer Exp $
 #
 # Valgrind memcheck suppression file for CMS. This is meant primarily for
 # suppressing problems reported for external packages which are known to
@@ -305,5 +305,16 @@
    fun:_tr_flush_block
    fun:deflate_slow
    fun:deflate
+}
+
+#============================================================================
+# frontier_client
+
+{
+  FrontierClient:frontier_str_copy/wordcopy_fwd_dest_aligned
+  Memcheck:Addr8
+  fun:_wordcopy_fwd_dest_aligned
+  fun:bcopy
+  fun:frontier_str_copy
 }
 

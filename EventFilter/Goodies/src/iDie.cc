@@ -20,6 +20,7 @@
 #include "cgicc/FormFile.h"
 #include "cgicc/HTMLClasses.h"
 
+#include "EventFilter/Utilities/interface/DebugUtils.h"
 
 using namespace evf;
 
@@ -247,6 +248,12 @@ void iDie::dumpTable(xgi::Input *in,xgi::Output *out)
 }
 
 //______________________________________________________________________________
+void iDie::iChokeMiniInterface(xgi::Input *in,xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+}
+
+//______________________________________________________________________________
 void iDie::iChoke(xgi::Input *in,xgi::Output *out)
   throw (xgi::exception::Exception)
 {
@@ -256,8 +263,10 @@ void iDie::iChoke(xgi::Input *in,xgi::Output *out)
 //     *out << i << " " << mapmod_[i] << std::endl;
 //     ++i;
 //   }
+  std::cout << "iChoke, last_ls= " << last_ls_ << std::endl;
   if(last_ls_==0) return;
-  *out << "Last ls=" << last_ls_ << std::endl;
+  *out << "Last ls=" << last_ls_ << "Cpu statistics=" 
+       << cpuentries_[last_ls_-1] << std::endl;
   *out << "================" << std::endl;
   sorted_indices tmp(cpustat_[last_ls_-1]);
   //  std::sort(tmp.begin(),tmp.end());// figure out how to remap indices of legenda
@@ -265,6 +274,7 @@ void iDie::iChoke(xgi::Input *in,xgi::Output *out)
     if(tmp[i]!=0) *out << mapmod_[tmp.ii(i)] << " " << float(tmp[i])/float(cpuentries_[last_ls_-1]) << std::endl;
     i++;
   }
+  *out << "\n\n\n";
   unsigned int begin = last_ls_<10 ? 0 : last_ls_-10;
   for(i=begin; i < last_ls_; i++)
     *out << std::setw(9) << i +1 << " ";
@@ -275,30 +285,70 @@ void iDie::iChoke(xgi::Input *in,xgi::Output *out)
   for(i=begin; i < last_ls_; i++)
     *out << std::setw(8) << float(cpustat_[i][2])/float(cpuentries_[i]) << " ";
   *out << std::endl;
+  *out << "\n\n\n";
+  begin = last_ls_<10 ? 0 : last_ls_-10;
+  for(i=begin; i < last_ls_; i++)
+    *out << std::setw(9) << i +1 << " ";
+  *out << std::endl;
+  for(i=begin; i < last_ls_; i++)
+    *out << "----------";
+  *out << std::endl;
+  for(i=begin; i < last_ls_; i++)
+    *out << std::setw(8) << float(trp_[i].eventSummary.totalEventsPassed)/float(trp_[i].eventSummary.totalEvents) << " "; 
+  *out << std::endl;
+  for(i=begin; i < last_ls_; i++)
+    *out << std::setw(8) << trp_[i].eventSummary.totalEvents << " "; 
+  *out << std::endl;
+
+  for(int j = 0; j < trp_[last_ls_-1].trigPathsInMenu; j++)
+    {
+      for(i=begin; i < last_ls_; i++)
+	*out << std::setw(8) << trp_[i].trigPathSummaries[j].timesPassed << "("
+	     << trp_[i].trigPathSummaries[j].timesPassedL1 << ")("
+	     << trp_[i].trigPathSummaries[j].timesPassedPs << ") ";
+      *out << mappath_[j];
+      *out << std::endl;
+    }
+  for(int j = 0; j < trp_[last_ls_-1].endPathsInMenu; j++)
+    {
+      for(i=begin; i < last_ls_; i++)
+	*out << std::setw(8) << trp_[i].endPathSummaries[j].timesPassed << " ";
+      *out << mappath_[j+trp_[last_ls_-1].trigPathsInMenu];
+      *out << std::endl;
+    }
+
+
 }
 
 //______________________________________________________________________________
 void iDie::postEntry(xgi::Input*in,xgi::Output*out)
   throw (xgi::exception::Exception)
 {
+  std::cout << "postEntry " << std::endl;
   timeval tv;
   gettimeofday(&tv,0);
   time_t now = tv.tv_sec;
   cgicc::Cgicc cgi(in); 
+  unsigned int run = 0;
   pid_t cpid = 0;
   /*  cgicc::CgiEnvironment cgie(in);
   cout << "query = "  << cgie.getContentLength() << endl;
   */
   std::vector<cgicc::FormEntry> el1;
+  el1 = cgi.getElements();
+  for(unsigned int i = 0; i < el1.size(); i++)
+    std::cout << "name="<<el1[i].getName() << std::endl;
+  el1.clear();
   cgi.getElement("run",el1);
   if(el1.size()!=0)
     {
-      cpid =  el1[0].getIntegerValue();
+      run =  el1[0].getIntegerValue();
     }
   el1.clear();
   cgi.getElement("stacktrace",el1);
   if(el1.size()!=0)
     {
+      cpid = run;
       //      std::cout << "=============== stacktrace =============" << std::endl;
       //      std::cout << el1[0].getValue() << std::endl;
       if(el1[0].getValue().find("Dead")==0){
@@ -331,6 +381,20 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
 	}
       }
     }
+  el1.clear();
+  cgi.getElement("legenda",el1);
+  if(el1.size()!=0)
+    {
+      parsePathLegenda(el1[0].getValue());
+    }
+  cgi.getElement("trp",el1);
+  if(el1.size()!=0)
+    {
+      unsigned int lsid = run;
+      parsePathHisto((unsigned char*)(el1[0].getValue().c_str()),lsid);
+    }
+  el1.clear();
+
 
 }
 
@@ -338,29 +402,32 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
 void iDie::postEntryiChoke(xgi::Input*in,xgi::Output*out)
   throw (xgi::exception::Exception)
 {
+  std::cout << "postEntryiChoke " << std::endl;
   unsigned int lsid = 0;
   cgicc::Cgicc cgi(in); 
   /*  cgicc::CgiEnvironment cgie(in);
   cout << "query = "  << cgie.getContentLength() << endl;
   */
   std::vector<cgicc::FormEntry> el1;
+  el1 = cgi.getElements();
+  for(unsigned int i = 0; i < el1.size(); i++)
+    std::cout << "name="<<el1[i].getName() << std::endl;
+  el1.clear();
   cgi.getElement("run",el1);
   if(el1.size()!=0)
     {
       lsid =  el1[0].getIntegerValue();
     }
   el1.clear();
-
-
   cgi.getElement("legenda",el1);
   if(el1.size()!=0)
     {
-      parseLegenda(el1[0].getValue());
+      parseModuleLegenda(el1[0].getValue());
     }
   cgi.getElement("trp",el1);
   if(el1.size()!=0)
     {
-      parseHisto(el1[0].getStrippedValue().c_str(),lsid);
+      parseModuleHisto(el1[0].getStrippedValue().c_str(),lsid);
     }
   el1.clear();
 }
@@ -372,7 +439,7 @@ void iDie::reset()
   totalCores_=0;
 }
 
-void iDie::parseLegenda(std::string leg)
+void iDie::parseModuleLegenda(std::string leg)
 {
   mapmod_.clear();
   //  if(cpustat_) delete cpustat_;
@@ -389,8 +456,9 @@ void iDie::parseLegenda(std::string leg)
 //   cpuentries_ = 0;
 }
 
-void iDie::parseHisto(const char *crp, unsigned int lsid)
+void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
 {
+  std::cout << "parseModuleHisto ls=" << lsid << std::endl; 
   if(last_ls_ < lsid) last_ls_ = lsid; 
   int *trp = (int*)crp;
   if(lsid>=cpustat_.size()){
@@ -403,6 +471,34 @@ void iDie::parseHisto(const char *crp, unsigned int lsid)
       cpuentries_[lsid-1] += trp[i];
     }
 }
+
+
+void iDie::parsePathLegenda(std::string leg)
+{
+  std::cout << "parsePathLegenda" << std::endl;
+  std::cout << leg << std::endl;
+  mappath_.clear();
+  boost::char_separator<char> sep(",");
+  boost::tokenizer<boost::char_separator<char> > tokens(leg, sep);
+  for (boost::tokenizer<boost::char_separator<char> >::iterator tok_iter = tokens.begin();
+       tok_iter != tokens.end(); ++tok_iter){
+    mappath_.push_back((*tok_iter));
+  }
+}
+
+void iDie::parsePathHisto(const unsigned char *crp, unsigned int lsid)
+{
+  std::cout << "parsePathHisto ls=" << lsid << std::endl; 
+  TriggerReportStatic *trp = (TriggerReportStatic*)crp;
+  if(lsid>=trp_.size()){
+    trp_.resize(lsid);
+    funcs::reset(&trp_[lsid-1]);
+    trpentries_.resize(lsid,0);
+  }
+  funcs::addToReport(&trp_[lsid-1],trp,lsid);
+  trpentries_[lsid-1]++;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // xdaq instantiator implementation macro
 ////////////////////////////////////////////////////////////////////////////////

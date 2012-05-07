@@ -205,33 +205,26 @@ if __name__ == '__main__':
     """
     
     parser = optparse.OptionParser(usage="usage: %prog arg1 arg2 [options]")
-    parser.add_option("-r","--run", dest="run", help="set reference run number (typically first or last run in list)")
+    parser.add_option("-r","--run", dest="run", help="set reference run number (typically first run in list)")
     parser.add_option("--runselection", dest="runselection", help="run list or range")
     parser.add_option("--trial", dest="trial", help="trial number used to in the naming of output directories")
     parser.add_option("--castorpath", dest="castorpath", default=('/castor/cern.ch/cms/store/caf/user/%s' % os.environ['USER']), help="path to user area at CAF (default /castor/cern.ch/cms/store/caf/user/username)")
     parser.add_option("--datasetpath", dest="datasetpath", help="dataset name to process")
     parser.add_option("--globaltag", dest="globaltag", help="global tag identifier (without the '::All' string)")
     parser.add_option("--preselection", dest="preselection", help="configuration fragment and sequence name, separated by a ':', defining a pre-selection filter")
-    parser.add_option("--inputVdriftDB", dest="inputVdriftDB", help="uses local SQLITE vDrift DB (instead of using the one in the GT)")
+    parser.add_option("--inputDB", dest="inputDB", help="when running in 'ttrig residuals' mode sets initial DB (instead of using the one in the GT)")
     parser.add_option("--email", dest="email", help="user email")
     parser.add_option("--templatepath", dest="templatepath", help="path to dir with template cfg files")
-    parser.add_option("--no_exec", action="store_true", dest="no_exec", default=False, help="script will not execute")
-    # Option group - options for residuals mode
-    group_residuals = optparse.OptionGroup(parser,"Options for 'residuals' mode")
-    group_residuals.add_option("--inputDB", dest="inputDB", help="sets initial DB (instead of using the one in the GT)")
-    parser.add_option_group(group_residuals)
-    # Option group - additional options
-    group_additional = optparse.OptionGroup(parser,"Additional options")
-    group_additional.add_option("--runOnGrid", action="store_true", dest="runOnGrid", default=False, help="workflow will be run on the Grid (instead of the CAF)")
-    group_additional.add_option("--stageOutLocal", action="store_true", dest="stageOutLocal", default=False, help="output will be copied locally (if running on the Grid this will be the default)")
-    group_additional.add_option("--jobsFinishedThreshold", dest="jobsFinishedThreshold", type="float", default=100, help="percentage above or equal to which CRAB tasks will be considered completed")
-    group_additional.add_option("--useCRABServer", action="store_true", dest="useserver", default=False, help="will use CRAB server to submit jobs (default = False)")
+    parser.add_option("--runOnGrid", action="store_true", dest="runOnGrid", default=False, help="workflow will be run on the Grid (instead of the CAF)")
+    parser.add_option("--stageOutLocal", action="store_true", dest="stageOutLocal", default=False, help="output will be copied locally (if running on the Grid this will be the default)")
     # Split by lumi options
-    group_additional.add_option("--splitByLumi", action="store_true", dest="splitByLumi", default=False, help="will split CRAB jobs by lumi section")
-    group_additional.add_option("--totalnumberlumis", dest="totalnumberlumis", type="int", default=-1, help="total number of lumis to be analyzed")
-    group_additional.add_option("--lumisperjob", dest="lumisperjob", type="int", default=150, help="number of lumis per job")
-    group_additional.add_option("--lumimask", dest="lumimask", help="lumi mask JSON file")
-    parser.add_option_group(group_additional)
+    parser.add_option("--splitByLumi", action="store_true", dest="splitByLumi", default=False, help="will split CRAB jobs by lumi section")
+    parser.add_option("--totalnumberlumis", dest="totalnumberlumis", type="int", default=-1, help="total number of lumis to be analyzed")
+    parser.add_option("--lumisperjob", dest="lumisperjob", type="int", default=150, help="number of lumis per job")
+    parser.add_option("--lumimask", dest="lumimask", help="lumi mask JSON file")
+    parser.add_option("--useCRABServer", action="store_true", dest="useserver", default=False, help="will use CRAB server to submit jobs (default = False)")
+    parser.add_option("--jobsFinishedThreshold", dest="jobsFinishedThreshold", type="float", default=100, help="percentage above or equal to which CRAB tasks will be considered completed")
+    parser.add_option("--no_exec", action="store_true", dest="no_exec", default=False, help="script will not execute")
  
     (input, args) = parser.parse_args()
 
@@ -263,9 +256,6 @@ if __name__ == '__main__':
   
     class config: pass
 
-    if hasattr(input,'inputVdriftDB') and input.inputVdriftDB: config.inputVdriftDB = os.path.abspath(input.inputVdriftDB)
-    config.globaltag = input.globaltag + '::All'
-
     if not input.runOnGrid:
         config.scheduler = 'CAF'
         if input.stageOutLocal:
@@ -295,6 +285,8 @@ if __name__ == '__main__':
         config.splitByLumi = False 
 
     if hasattr(input,'email') and input.email: config.email = input.email    
+
+    config.globaltag = input.globaltag + '::All'
 
     if config.stageOutCAF:
         """ 

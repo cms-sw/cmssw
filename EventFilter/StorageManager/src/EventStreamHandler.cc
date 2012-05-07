@@ -1,4 +1,4 @@
-// $Id: EventStreamHandler.cc,v 1.6 2010/03/19 13:24:05 mommsen Exp $
+// $Id: EventStreamHandler.cc,v 1.7.6.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: EventStreamHandler.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -7,47 +7,47 @@
 #include "EventFilter/StorageManager/interface/EventStreamHandler.h"
 
 
-using namespace stor;
+namespace stor {
 
-
-EventStreamHandler::EventStreamHandler
-(
-  const EventStreamConfigurationInfo& streamConfig,
-  const SharedResourcesPtr sharedResources,
-  const DbFileHandlerPtr dbFileHandler
-):
-StreamHandler(sharedResources, dbFileHandler),
-_streamConfig(streamConfig),
-_initMsgCollection(sharedResources->_initMsgCollection)
-{
-  _streamRecord->streamName = streamLabel();
-  _streamRecord->fractionToDisk = fractionToDisk();
-}
-
-
-StreamHandler::FileHandlerPtr
-EventStreamHandler::newFileHandler(const I2OChain& event)
-{
-  // the INIT message is not available when the EventStreamHandler is
-  // constructed, so we need to fetch it when we first need a new file
-  // handler (when the first event is received, which is after the 
-  // INIT messages have been received)
-  if (_initMsgView.get() == 0)
+  EventStreamHandler::EventStreamHandler
+  (
+    const EventStreamConfigurationInfo& streamConfig,
+    const SharedResourcesPtr sharedResources,
+    const DbFileHandlerPtr dbFileHandler
+  ):
+  StreamHandler(sharedResources, dbFileHandler),
+  streamConfig_(streamConfig),
+  initMsgCollection_(sharedResources->initMsgCollection_)
+  {
+    streamRecord_->streamName = streamLabel();
+    streamRecord_->fractionToDisk = fractionToDisk();
+  }
+  
+  
+  StreamHandler::FileHandlerPtr
+  EventStreamHandler::newFileHandler(const I2OChain& event)
+  {
+    // the INIT message is not available when the EventStreamHandler is
+    // constructed, so we need to fetch it when we first need a new file
+    // handler (when the first event is received, which is after the 
+    // INIT messages have been received)
+    if (initMsgView_.get() == 0)
     {
-      _initMsgView = _initMsgCollection->getElementForOutputModule(_streamConfig.outputModuleLabel());
+      initMsgView_ = initMsgCollection_->getElementForOutputModule(streamConfig_.outputModuleLabel());
     }
-
-  FilesMonitorCollection::FileRecordPtr fileRecord = getNewFileRecord(event);
-
-  FileHandlerPtr newFileHandler(
-    new EventFileHandler(_initMsgView, fileRecord, _dbFileHandler,
-      _diskWritingParams, getMaxFileSize())
-  );
-  _fileHandlers.push_back(newFileHandler);
-
-  return newFileHandler;
-}
-
+    
+    FilesMonitorCollection::FileRecordPtr fileRecord = getNewFileRecord(event);
+    
+    FileHandlerPtr newFileHandler(
+      new EventFileHandler(initMsgView_, fileRecord, dbFileHandler_,
+        diskWritingParams_, getMaxFileSize())
+    );
+    fileHandlers_.push_back(newFileHandler);
+    
+    return newFileHandler;
+  }
+  
+} // namespace stor
 
 /// emacs configuration
 /// Local Variables: -

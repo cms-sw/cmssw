@@ -288,11 +288,11 @@ void TauolaInterface::statistics()
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
-#include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
-
 using namespace gen;
 using namespace edm;
 using namespace std;
+
+CLHEP::HepRandomEngine* tauolaRandomEngine;
 
 extern "C" {
 
@@ -300,7 +300,7 @@ extern "C" {
   {
 
       for(int i = 0; i < *lenv; i++)
-         *rvec++ = decayRandomEngine->flat();
+         *rvec++ = tauolaRandomEngine->flat();
 
       return;
 
@@ -320,7 +320,7 @@ TauolaInterface::TauolaInterface( const ParameterSet& pset )
 {
 
    Tauola::setDecayingParticle(15);
-   // --> ??? Tauola::setRadiation(false);
+   Tauola::setRadiation(false);
 
    // polarization switch 
    //

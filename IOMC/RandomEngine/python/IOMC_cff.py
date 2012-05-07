@@ -8,6 +8,10 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
 #        initialSeed = cms.untracked.uint32(123456789),
 #        engineName = cms.untracked.string('HepJamesRandom')
 #    ),
+    externalLHEProducer = cms.PSet(
+        initialSeed = cms.untracked.uint32(234567),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
     generator = cms.PSet(
         initialSeed = cms.untracked.uint32(123456789),
         engineName = cms.untracked.string('HepJamesRandom')

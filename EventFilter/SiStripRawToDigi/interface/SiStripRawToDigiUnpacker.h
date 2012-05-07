@@ -37,7 +37,7 @@ namespace sistrip {
     
     /// constructor
     RawToDigiUnpacker( int16_t appended_bytes, int16_t fed_buffer_dump_freq, int16_t fed_event_dump_freq, int16_t trigger_fed_id, bool using_fed_key,
-                       bool unpack_bad_channels, bool mark_missing_feds ); 
+                       bool unpack_bad_channels, bool mark_missing_feds, const uint32_t errorThreshold ); 
     
     /// default constructor
     ~RawToDigiUnpacker();
@@ -125,6 +125,7 @@ namespace sistrip {
     bool quiet_;
     bool extractCm_;    
     bool doFullCorruptBufferChecks_;
+    uint32_t errorThreshold_;
     
     /// registries
     std::vector<Registry> zs_work_registry_;

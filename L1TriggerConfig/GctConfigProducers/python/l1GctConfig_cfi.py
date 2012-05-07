@@ -10,12 +10,6 @@ L1GctConfigProducers = cms.ESProducer("L1GctConfigProducers",
     GctHtLSB = cms.double(0.25),
     ConvertEtValuesToEnergy = cms.bool(False),
 
-    # energy sum eta ranges
-    MEtEtaMask = cms.uint32(0),
-    TEtEtaMask = cms.uint32(0),
-    MHtEtaMask = cms.uint32(0),
-    HtEtaMask = cms.uint32(0),
-                                      
     # The CalibrationStyle should be "None", "PiecewiseCubic", "Simple" or "PF"
     # "PowerSeries", "ORCAStyle" are also available, but not recommended
     CalibrationStyle = cms.string('None'),
@@ -59,7 +53,6 @@ L1GctConfigProducers = cms.ESProducer("L1GctConfigProducers",
         tauJetCalib5 = cms.vdouble(130, 0., 0., 0., 0., 20, 11.5901, 1.00117, -0.00939815, 3.85389e-05, 8.5, -79.4911, 15.0639, -0.765169, 0.0140553),
         tauJetCalib6 = cms.vdouble(130, 0., 0., 0., 0., 20, 11.3408, 0.670967, -0.00545793, 2.1702e-05, 8, -68.8283, 13.7013, -0.741858, 0.014287)
     )
-
 )
 
 

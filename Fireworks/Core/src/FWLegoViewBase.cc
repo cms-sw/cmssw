@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWLegoViewBase.cc,v 1.26 2010/11/26 20:24:48 amraktad Exp $
+// $Id: FWLegoViewBase.cc,v 1.28 2011/02/03 14:21:24 amraktad Exp $
 //
 
 // system include files
@@ -124,13 +124,13 @@ FWLegoViewBase::setContext(const fireworks::Context& ctx)
       data = hdata;
    } 
 
+   data->GetEtaBins()->SetNdivisions(710);
+   data->GetPhiBins()->SetNdivisions(510);
    data->GetEtaBins()->SetTitleFont(120);
    data->GetEtaBins()->SetTitle("h");
    data->GetPhiBins()->SetTitleFont(120);
    data->GetPhiBins()->SetTitle("f");
-   data->GetPhiBins()->SetLabelSize(0.02);
    data->GetEtaBins()->SetLabelSize(0.02);
-   data->GetPhiBins()->SetTitleSize(0.03);
    data->GetEtaBins()->SetTitleSize(0.03);
 
    m_lego = new TEveCaloLego(data);
@@ -149,7 +149,7 @@ FWLegoViewBase::setContext(const fireworks::Context& ctx)
    eventScene()->AddElement(m_lego);
 
    TEveLegoEventHandler* eh = dynamic_cast<TEveLegoEventHandler*>( viewerGL()->GetEventHandler());
-   eh->SetLego(m_lego);
+   if (eh) eh->SetLego(m_lego);
   
    m_overlay = new TEveCaloLegoOverlay();
    m_overlay->SetCaloLego(m_lego);

@@ -78,17 +78,18 @@ HelixBarrelCylinderCrossing( const GlobalPoint& startingPos,
   chooseSolution(d1, d2, startingPos, startingDir, propDir);
   if (!theSolExists) return;
 
-  double pabs = startingDir.mag();
-  double sinTheta = pt / pabs;
-  double cosTheta = startingDir.z() / pabs;
+  double ipabs = 1./startingDir.mag();
+  double sinTheta = pt * ipabs;
+  double cosTheta = startingDir.z() * ipabs;
 
   double dMag = theD.mag();
-  theS = theActualDir * 2.* asin( dMag*rho/2.) / (rho*sinTheta);
+  double tmp = 0.5 * dMag * rho;
+  if (std::abs(tmp)>1.) tmp = ::copysign(1.,tmp);
+  theS = theActualDir * 2.* asin( tmp ) / (rho*sinTheta);
   thePos =  GlobalPoint( startingPos.x() + theD.x(),
 			 startingPos.y() + theD.y(),
 			 startingPos.z() + theS*cosTheta);
 
-  double tmp = 0.5 * dMag * rho;
   if (theS < 0) tmp = -tmp;
   double sinPhi = 2.*tmp*sqrt(1.-tmp*tmp);
   double cosPhi = 1.-2.*tmp*tmp;
@@ -96,6 +97,7 @@ HelixBarrelCylinderCrossing( const GlobalPoint& startingPos,
 			 startingDir.x()*sinPhi+startingDir.y()*cosPhi,
 			 startingDir.z());
 }
+
 void HelixBarrelCylinderCrossing::chooseSolution( const Vector& d1, const Vector& d2,
 						  const PositionType& startingPos,
 						  const DirectionType& startingDir, 

@@ -1,11 +1,12 @@
-// $Id: CurlInterface.h,v 1.1 2009/08/20 13:43:18 mommsen Exp $
+// $Id: CurlInterface.h,v 1.2.6.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: CurlInterface.h
 
-#ifndef StorageManager_CurlInterface_h
-#define StorageManager_CurlInterface_h
+#ifndef EventFilter_StorageManager_CurlInterface_h
+#define EventFilter_StorageManager_CurlInterface_h
 
-#include <string>
 #include <curl/curl.h>
+#include <string>
+#include <vector>
 
 
 namespace stor {
@@ -14,14 +15,16 @@ namespace stor {
    * Helper class to interact with curl
    *
    * $Author: mommsen $
-   * $Revision: 1.1 $
-   * $Date: 2009/08/20 13:43:18 $
+   * $Revision: 1.2.6.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
  
   class CurlInterface
   {
 
   public:
+
+    typedef std::vector<char> Content;
 
     /**
      * Get webpage content from specified URL using the user/password
@@ -30,7 +33,7 @@ namespace stor {
      * and the content is in the content string. Otherwise, the 
      * content string contains the error message.
      */
-    CURLcode getContent(const std::string& url, const std::string& user, std::string& content);
+    CURLcode getContent(const std::string& url, const std::string& user, Content& content);
 
     /**
      * Post message a message at the given location.
@@ -38,20 +41,20 @@ namespace stor {
      * and the reply is in the content string. Otherwise, the 
      * content string contains the error message.
      */
-    CURLcode postBinaryMessage(const std::string& url, void* buf, size_t size, std::string& content);
+    CURLcode postBinaryMessage(const std::string& url, void* buf, size_t size, Content& content);
 
     
   private:
 
-    CURLcode do_curl(CURL*, const std::string& url, std::string& content);
-    static size_t writeToString(char* data, size_t size, size_t nmemb, std::string* buffer);
+    CURLcode do_curl(CURL*, const std::string& url, Content& content);
+    static size_t writeToString(char* data, size_t size, size_t nmemb, Content* buffer);
     
-    char errorBuffer[CURL_ERROR_SIZE]; 
+    char errorBuffer_[CURL_ERROR_SIZE]; 
   };
 
 } // namespace stor
 
-#endif // StorageManager_CurlInterface_h
+#endif // EventFilter_StorageManager_CurlInterface_h
 
 
 /// emacs configuration

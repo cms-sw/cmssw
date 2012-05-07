@@ -230,9 +230,16 @@ void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction)
 			"timestamp = 0 and LMFRunIOV = 0"));
   }
   if (ok && isValid()) {
+    if (m_debug) {
+      std::cout << "[LMFDat] This object is valid..." << std::endl;
+    }
     try {
       Statement * stmt = m_conn->createStatement();
       std::string sql = buildSelectSql(logic_id, direction);
+      if (m_debug) {
+	std::cout << "[LMFDat] Executing query " << std::endl;
+	std::cout << "         " << sql << std::endl << std::flush;
+      }
       if (logic_id == 0) {
 	// get data for all crystals with a given timestamp
 	stmt->setPrefetchRowCount(131072);
@@ -449,17 +456,21 @@ int LMFDat::writeDB()
 	  free(*bi);
 	  bi++;
 	}
-	m_conn->terminateStatement(stmt);
 	m_conn->commit();
+	m_conn->terminateStatement(stmt);
 	ret = nData;
       } catch (oracle::occi::SQLException &e) {
+	debug();
+	setMaxDataToDump(nData);
+	dump();
+	m_conn->rollback();
 	throw(std::runtime_error(m_className + "::writeDB: " + 
 				 e.getMessage()));
-	m_conn->rollback();
       }
     } else {
       cout << m_className << "::writeDB: Cannot write because " << 
 	m_Error << endl;
+      dump();
     }
   }
   return ret;

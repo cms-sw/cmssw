@@ -74,7 +74,7 @@
       <PARAM name="useRMS">0</PARAM>
       <PARAM name="useSigma">0</PARAM>
       <PARAM name="useRange">1</PARAM>
-      <PARAM name="minEntries">300</PARAM>
+      <PARAM name="minEntries">0</PARAM>
       <PARAM name="xmin">15.0</PARAM>
       <PARAM name="xmax">100.0</PARAM>
 </QTEST>
@@ -86,7 +86,7 @@
       <PARAM name="useRMS">0</PARAM>
       <PARAM name="useSigma">0</PARAM>
       <PARAM name="useRange">1</PARAM>
-      <PARAM name="minEntries">300</PARAM>
+      <PARAM name="minEntries">0</PARAM>
       <PARAM name="xmin">15.0</PARAM>
       <PARAM name="xmax">100.0</PARAM>
 </QTEST>
@@ -98,7 +98,7 @@
       <PARAM name="useRMS">0</PARAM>
       <PARAM name="useSigma">0</PARAM>
       <PARAM name="useRange">1</PARAM>
-      <PARAM name="minEntries">200</PARAM>
+      <PARAM name="minEntries">0</PARAM>
       <PARAM name="xmin">15.0</PARAM>
       <PARAM name="xmax">100.0</PARAM>
 </QTEST>
@@ -110,7 +110,7 @@
       <PARAM name="useRMS">0</PARAM>
       <PARAM name="useSigma">0</PARAM>
       <PARAM name="useRange">1</PARAM>
-      <PARAM name="minEntries">200</PARAM>
+      <PARAM name="minEntries">0</PARAM>
       <PARAM name="xmin">15.0</PARAM>
       <PARAM name="xmax">100.0</PARAM>
 </QTEST>

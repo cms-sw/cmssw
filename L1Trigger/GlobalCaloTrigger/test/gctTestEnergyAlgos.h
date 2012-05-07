@@ -19,8 +19,6 @@
 class L1GlobalCaloTrigger;
 class L1CaloRegion;
 
-class L1GctChannelMask;
-
 class gctTestEnergyAlgos
 {
 public:
@@ -43,9 +41,6 @@ public:
   /// Check the energy sums algorithms
   bool checkEnergySums(const L1GlobalCaloTrigger* gct) const;
 
-  /// Load setup information
-  void configure(const L1GctChannelMask* mask) { m_chanMask = mask; }
-
 private:
 
   // FUNCTION PROTOTYPES FOR EVENT GENERATION
@@ -55,9 +50,6 @@ private:
   std::vector<unsigned> randomTestData(const int size, const unsigned max) const;
   /// Loads test input regions from a text file.
   L1CaloRegion nextRegionFromFile(const unsigned ieta, const unsigned iphi, const int16_t bx);
-
-  /// Sends input regions to the gct and remembers strip sums for checking
-  void loadInputRegions(L1GlobalCaloTrigger* &gct, const std::vector<L1CaloRegion>& inputRegions, const int16_t bx);
 
   //=========================================================================
 
@@ -69,9 +61,6 @@ private:
   /// Calculate et vector from ex and ey, using floating arithmetic and conversion back to integer
   etmiss_vec trueMissingEt(const int ex, const int ey) const;
   //=========================================================================
-
-  // Required setup information
-  const L1GctChannelMask* m_chanMask;
 
   int m_bxStart;
   int m_numOfBx;

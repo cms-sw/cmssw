@@ -19,6 +19,9 @@ public:
 
   // pure virtual, need a concrete implementation
   virtual void dump(std::ostream & out) const = 0;
+
+  // virtual destructor
+  virtual ~Evaluator() { }
 };
 
 inline 

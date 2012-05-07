@@ -99,7 +99,7 @@ bool JetMatchingMadgraph::parseParameter(const std::string &value_)
 	std::string value(value_);
 	std::transform(value.begin(), value.end(),
 	               value.begin(), (int(*)(int))std::toupper);
-	return value == "T" || value == "Y" || value=="True";
+	return value == "T" || value == "Y" || value=="True" ||
 	       value == "1" || value == ".TRUE.";
 }
 

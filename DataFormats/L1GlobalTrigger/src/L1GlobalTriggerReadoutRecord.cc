@@ -237,9 +237,10 @@ const boost::uint16_t L1GlobalTriggerReadoutRecord::finalOR() const
 
 // get Global Trigger decision word
 
-const DecisionWord
+const DecisionWord &
 L1GlobalTriggerReadoutRecord::decisionWord(int bxInEventValue) const
 {
+    static DecisionWord emptyDecisionWord;
 
     for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
             itBx != m_gtFdlWord.end(); ++itBx) {
@@ -259,11 +260,10 @@ L1GlobalTriggerReadoutRecord::decisionWord(int bxInEventValue) const
     << "Can not return decision word for this bx!\n"
     << std::endl;
 
-    DecisionWord dW; // empty; it does not arrive here
-    return dW;
+    return emptyDecisionWord;
 }
 
-const DecisionWord
+const DecisionWord &
 L1GlobalTriggerReadoutRecord::decisionWord() const
 {
 
@@ -273,7 +273,9 @@ L1GlobalTriggerReadoutRecord::decisionWord() const
 
 
 
-const TechnicalTriggerWord L1GlobalTriggerReadoutRecord::technicalTriggerWord(int bxInEventValue) const {
+const TechnicalTriggerWord & 
+L1GlobalTriggerReadoutRecord::technicalTriggerWord(int bxInEventValue) const {
+    static TechnicalTriggerWord emptyTechnicalTriggerWord;
 
     for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
             itBx != m_gtFdlWord.end(); ++itBx) {
@@ -293,11 +295,11 @@ const TechnicalTriggerWord L1GlobalTriggerReadoutRecord::technicalTriggerWord(in
     << "Can not return technical trigger word for this bx!\n"
     << std::endl;
 
-    TechnicalTriggerWord ttW; // empty; it does not arrive here
-    return ttW;
+    return emptyTechnicalTriggerWord;
 }
 
-const TechnicalTriggerWord L1GlobalTriggerReadoutRecord::technicalTriggerWord() const {
+const TechnicalTriggerWord & 
+L1GlobalTriggerReadoutRecord::technicalTriggerWord() const {
 
     int bxInEventL1Accept = 0;
     return technicalTriggerWord(bxInEventL1Accept);

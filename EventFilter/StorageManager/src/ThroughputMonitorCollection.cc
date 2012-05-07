@@ -1,4 +1,4 @@
-// $Id: ThroughputMonitorCollection.cc,v 1.22 2010/12/14 12:56:52 mommsen Exp $
+// $Id: ThroughputMonitorCollection.cc,v 1.23.4.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: ThroughputMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/ThroughputMonitorCollection.h"
@@ -8,114 +8,114 @@ using namespace stor;
 
 ThroughputMonitorCollection::ThroughputMonitorCollection
 (
-  const utils::duration_t& updateInterval,
+  const utils::Duration_t& updateInterval,
   const unsigned int& throuphputAveragingCycles
 ) :
   MonitorCollection(updateInterval),
-  _binCount(300),
-  _poolUsageMQ(updateInterval, updateInterval*_binCount),
-  _entriesInFragmentQueueMQ(updateInterval, updateInterval*_binCount),
-  _memoryUsedInFragmentQueueMQ(updateInterval, updateInterval*_binCount),
-  _poppedFragmentSizeMQ(updateInterval, updateInterval*_binCount),
-  _fragmentProcessorIdleTimeMQ(updateInterval, updateInterval*_binCount),
-  _entriesInFragmentStoreMQ(updateInterval, updateInterval*_binCount),
-  _memoryUsedInFragmentStoreMQ(updateInterval, updateInterval*_binCount),
-  _entriesInStreamQueueMQ(updateInterval, updateInterval*_binCount),
-  _memoryUsedInStreamQueueMQ(updateInterval, updateInterval*_binCount),
-  _poppedEventSizeMQ(updateInterval, updateInterval*_binCount),
-  _diskWriterIdleTimeMQ(updateInterval, updateInterval*_binCount),
-  _diskWriteSizeMQ(updateInterval, updateInterval*_binCount),
-  _entriesInDQMEventQueueMQ(updateInterval, updateInterval*_binCount),
-  _memoryUsedInDQMEventQueueMQ(updateInterval, updateInterval*_binCount),
-  _poppedDQMEventSizeMQ(updateInterval, updateInterval*_binCount),
-  _dqmEventProcessorIdleTimeMQ(updateInterval, updateInterval*_binCount),
-  _currentFragmentStoreSize(0),
-  _currentFragmentStoreMemoryUsedMB(0),
-  _throuphputAveragingCycles(throuphputAveragingCycles),
-  _pool(0)
+  binCount_(300),
+  poolUsageMQ_(updateInterval, updateInterval*binCount_),
+  entriesInFragmentQueueMQ_(updateInterval, updateInterval*binCount_),
+  memoryUsedInFragmentQueueMQ_(updateInterval, updateInterval*binCount_),
+  poppedFragmentSizeMQ_(updateInterval, updateInterval*binCount_),
+  fragmentProcessorIdleTimeMQ_(updateInterval, updateInterval*binCount_),
+  entriesInFragmentStoreMQ_(updateInterval, updateInterval*binCount_),
+  memoryUsedInFragmentStoreMQ_(updateInterval, updateInterval*binCount_),
+  entriesInStreamQueueMQ_(updateInterval, updateInterval*binCount_),
+  memoryUsedInStreamQueueMQ_(updateInterval, updateInterval*binCount_),
+  poppedEventSizeMQ_(updateInterval, updateInterval*binCount_),
+  diskWriterIdleTimeMQ_(updateInterval, updateInterval*binCount_),
+  diskWriteSizeMQ_(updateInterval, updateInterval*binCount_),
+  entriesInDQMEventQueueMQ_(updateInterval, updateInterval*binCount_),
+  memoryUsedInDQMEventQueueMQ_(updateInterval, updateInterval*binCount_),
+  poppedDQMEventSizeMQ_(updateInterval, updateInterval*binCount_),
+  dqmEventProcessorIdleTimeMQ_(updateInterval, updateInterval*binCount_),
+  currentFragmentStoreSize_(0),
+  currentFragmentStoreMemoryUsedMB_(0),
+  throuphputAveragingCycles_(throuphputAveragingCycles),
+  pool_(0)
 {}
 
 
 void ThroughputMonitorCollection::setMemoryPoolPointer(toolbox::mem::Pool* pool)
 {
-  if ( ! _pool)
-    _pool = pool;
+  if ( ! pool_)
+    pool_ = pool;
 }
 
 
 void ThroughputMonitorCollection::addPoppedFragmentSample(double dataSize)
 {
-  _poppedFragmentSizeMQ.addSample(dataSize);
+  poppedFragmentSizeMQ_.addSample(dataSize);
 }
 
 
 void ThroughputMonitorCollection::
-addFragmentProcessorIdleSample(utils::duration_t idleTime)
+addFragmentProcessorIdleSample(utils::Duration_t idleTime)
 {
-  _fragmentProcessorIdleTimeMQ.addSample(utils::duration_to_seconds(idleTime));
+  fragmentProcessorIdleTimeMQ_.addSample(utils::durationToSeconds(idleTime));
 }
 
 
 void ThroughputMonitorCollection::addPoppedEventSample(double dataSize)
 {
-  _poppedEventSizeMQ.addSample(dataSize);
+  poppedEventSizeMQ_.addSample(dataSize);
 }
 
 
 void ThroughputMonitorCollection::
-addDiskWriterIdleSample(utils::duration_t idleTime)
+addDiskWriterIdleSample(utils::Duration_t idleTime)
 {
-  _diskWriterIdleTimeMQ.addSample(utils::duration_to_seconds(idleTime));
+  diskWriterIdleTimeMQ_.addSample(utils::durationToSeconds(idleTime));
 }
 
 
 void ThroughputMonitorCollection::addDiskWriteSample(double dataSize)
 {
-  _diskWriteSizeMQ.addSample(dataSize);
+  diskWriteSizeMQ_.addSample(dataSize);
 }
 
 
 void ThroughputMonitorCollection::addPoppedDQMEventSample(double dataSize)
 {
-  _poppedDQMEventSizeMQ.addSample(dataSize);
+  poppedDQMEventSizeMQ_.addSample(dataSize);
 }
 
 
 void ThroughputMonitorCollection::
-addDQMEventProcessorIdleSample(utils::duration_t idleTime)
+addDQMEventProcessorIdleSample(utils::Duration_t idleTime)
 {
-  _dqmEventProcessorIdleTimeMQ.addSample(utils::duration_to_seconds(idleTime));
+  dqmEventProcessorIdleTimeMQ_.addSample(utils::durationToSeconds(idleTime));
 }
 
 
 void ThroughputMonitorCollection::calcPoolUsage()
 {
-  if (_pool)
+  if (pool_)
   {
     try {
-      _pool->lock();
-      _poolUsageMQ.addSample(_pool->getMemoryUsage().getUsed());
-      _pool->unlock();
+      pool_->lock();
+      poolUsageMQ_.addSample(pool_->getMemoryUsage().getUsed());
+      pool_->unlock();
     }
     catch (...)
     {
-      _pool->unlock();
+      pool_->unlock();
     }
   }
-  _poolUsageMQ.calculateStatistics();
+  poolUsageMQ_.calculateStatistics();
 }
 
 
 void ThroughputMonitorCollection::getStats(Stats& stats) const
 {
-  boost::mutex::scoped_lock sl(_statsMutex);
-  do_getStats(stats, _binCount);
+  boost::mutex::scoped_lock sl(statsMutex_);
+  do_getStats(stats, binCount_);
 }
 
 
 void ThroughputMonitorCollection::getStats(Stats& stats, const unsigned int sampleCount) const
 {
-  boost::mutex::scoped_lock sl(_statsMutex);
+  boost::mutex::scoped_lock sl(statsMutex_);
   do_getStats(stats, sampleCount);
 }
 
@@ -126,22 +126,22 @@ void ThroughputMonitorCollection::do_getStats(Stats& stats, const unsigned int s
   MonitoredQuantity::Stats fpIdleMQ, fsEntryCountMQ, fsMemoryUsedMQ;
   MonitoredQuantity::Stats sqEntryCountMQ, sqMemoryUsedMQ, eventSizeMQ, dwIdleMQ, diskWriteMQ;
   MonitoredQuantity::Stats dqEntryCountMQ, dqMemoryUsedMQ, dqmEventSizeMQ, dqmIdleMQ, poolUsageMQ;
-  _poolUsageMQ.getStats(poolUsageMQ);
-  _entriesInFragmentQueueMQ.getStats(fqEntryCountMQ);
-  _memoryUsedInFragmentQueueMQ.getStats(fqMemoryUsedMQ);
-  _poppedFragmentSizeMQ.getStats(fragSizeMQ);
-  _fragmentProcessorIdleTimeMQ.getStats(fpIdleMQ);
-  _entriesInFragmentStoreMQ.getStats(fsEntryCountMQ);
-  _memoryUsedInFragmentStoreMQ.getStats(fsMemoryUsedMQ);
-  _entriesInStreamQueueMQ.getStats(sqEntryCountMQ);
-  _memoryUsedInStreamQueueMQ.getStats(sqMemoryUsedMQ);
-  _poppedEventSizeMQ.getStats(eventSizeMQ);
-  _diskWriterIdleTimeMQ.getStats(dwIdleMQ);
-  _diskWriteSizeMQ.getStats(diskWriteMQ);
-  _entriesInDQMEventQueueMQ.getStats(dqEntryCountMQ);
-  _memoryUsedInDQMEventQueueMQ.getStats(dqMemoryUsedMQ);
-  _poppedDQMEventSizeMQ.getStats(dqmEventSizeMQ);
-  _dqmEventProcessorIdleTimeMQ.getStats(dqmIdleMQ);
+  poolUsageMQ_.getStats(poolUsageMQ);
+  entriesInFragmentQueueMQ_.getStats(fqEntryCountMQ);
+  memoryUsedInFragmentQueueMQ_.getStats(fqMemoryUsedMQ);
+  poppedFragmentSizeMQ_.getStats(fragSizeMQ);
+  fragmentProcessorIdleTimeMQ_.getStats(fpIdleMQ);
+  entriesInFragmentStoreMQ_.getStats(fsEntryCountMQ);
+  memoryUsedInFragmentStoreMQ_.getStats(fsMemoryUsedMQ);
+  entriesInStreamQueueMQ_.getStats(sqEntryCountMQ);
+  memoryUsedInStreamQueueMQ_.getStats(sqMemoryUsedMQ);
+  poppedEventSizeMQ_.getStats(eventSizeMQ);
+  diskWriterIdleTimeMQ_.getStats(dwIdleMQ);
+  diskWriteSizeMQ_.getStats(diskWriteMQ);
+  entriesInDQMEventQueueMQ_.getStats(dqEntryCountMQ);
+  memoryUsedInDQMEventQueueMQ_.getStats(dqMemoryUsedMQ);
+  poppedDQMEventSizeMQ_.getStats(dqmEventSizeMQ);
+  dqmEventProcessorIdleTimeMQ_.getStats(dqmIdleMQ);
 
   stats.reset();
 
@@ -149,11 +149,11 @@ void ThroughputMonitorCollection::do_getStats(Stats& stats, const unsigned int s
   smoothIdleTimes(dwIdleMQ);
   smoothIdleTimes(dqmIdleMQ);
 
-  utils::duration_t relativeTime = fqEntryCountMQ.recentDuration;
-  const int lowestBin = sampleCount<_binCount ? _binCount-sampleCount : 0;
-  for (int idx = (_binCount - 1); idx >= lowestBin; --idx)
+  utils::Duration_t relativeTime = fqEntryCountMQ.recentDuration;
+  const int lowestBin = sampleCount<binCount_ ? binCount_-sampleCount : 0;
+  for (int idx = (binCount_ - 1); idx >= lowestBin; --idx)
   {
-    utils::duration_t binDuration = fqEntryCountMQ.recentBinnedDurations[idx];
+    utils::Duration_t binDuration = fqEntryCountMQ.recentBinnedDurations[idx];
     relativeTime -= binDuration;
     if (binDuration < boost::posix_time::milliseconds(10)) continue; //avoid very short durations
 
@@ -245,7 +245,7 @@ void ThroughputMonitorCollection::do_getStats(Stats& stats, const unsigned int s
 
 void ThroughputMonitorCollection::smoothIdleTimes(MonitoredQuantity::Stats& stats) const
 {
-  int index = _binCount - 1;
+  int index = binCount_ - 1;
   while (index >= 0)
   {
     index = smoothIdleTimesHelper(stats.recentBinnedValueSums,
@@ -258,7 +258,7 @@ void ThroughputMonitorCollection::smoothIdleTimes(MonitoredQuantity::Stats& stat
 int ThroughputMonitorCollection::smoothIdleTimesHelper
 (
   std::vector<double>& idleTimes,
-  std::vector<utils::duration_t>& durations,
+  std::vector<utils::Duration_t>& durations,
   int firstIndex, int lastIndex
 ) const
 {
@@ -269,7 +269,7 @@ int ThroughputMonitorCollection::smoothIdleTimesHelper
   for (int idx = firstIndex; idx <= lastIndex; ++idx)
   {
     idleTimeSum += idleTimes[idx];
-    durationSum += utils::duration_to_seconds(durations[idx]);
+    durationSum += utils::durationToSeconds(durations[idx]);
   }
 
   if (idleTimeSum > durationSum && firstIndex > 0)
@@ -283,7 +283,7 @@ int ThroughputMonitorCollection::smoothIdleTimesHelper
       for (int idx = firstIndex; idx <= lastIndex; ++idx)
       {
         idleTimes[idx] = idleTimeSum / workingSize;
-        durations[idx] = utils::seconds_to_duration(durationSum / workingSize);
+        durations[idx] = utils::secondsToDuration(durationSum / workingSize);
       }
     }
     return (firstIndex - 1);
@@ -299,7 +299,7 @@ void ThroughputMonitorCollection::getRateAndBandwidth
   double& bandwidth
 ) const
 {
-  const double recentBinnedDuration = utils::duration_to_seconds(stats.recentBinnedDurations[idx]);
+  const double recentBinnedDuration = utils::durationToSeconds(stats.recentBinnedDurations[idx]);
   if (recentBinnedDuration > 0)
   {
     rate =
@@ -330,11 +330,11 @@ double ThroughputMonitorCollection::calcBusyPercentage
     // this should only happen if deq_timed_wait timeout >= statistics calculation period
     busyPercentage = 0;
   }
-  else if (stats.recentBinnedValueSums[idx] <= utils::duration_to_seconds(stats.recentBinnedDurations[idx]))
+  else if (stats.recentBinnedValueSums[idx] <= utils::durationToSeconds(stats.recentBinnedDurations[idx]))
   {
     // the thread was busy while it was not idle during the whole reporting duration
     busyPercentage = 100.0 * (1.0 - (stats.recentBinnedValueSums[idx] /
-        utils::duration_to_seconds(stats.recentBinnedDurations[idx])));
+        utils::durationToSeconds(stats.recentBinnedDurations[idx])));
   }
   else
   {
@@ -351,112 +351,112 @@ void ThroughputMonitorCollection::do_calculateStatistics()
 {
   calcPoolUsage();
 
-  if (_fragmentQueue.get() != 0) {
-    _entriesInFragmentQueueMQ.addSample(_fragmentQueue->size());
-    _memoryUsedInFragmentQueueMQ.addSample( static_cast<double>(_fragmentQueue->used()) / (1024*1024) );
+  if (fragmentQueue_.get() != 0) {
+    entriesInFragmentQueueMQ_.addSample(fragmentQueue_->size());
+    memoryUsedInFragmentQueueMQ_.addSample( static_cast<double>(fragmentQueue_->used()) / (1024*1024) );
   }
-  if (_streamQueue.get() != 0) {
-    _entriesInStreamQueueMQ.addSample(_streamQueue->size());
-    _memoryUsedInStreamQueueMQ.addSample( static_cast<double>(_streamQueue->used()) / (1024*1024) );
+  if (streamQueue_.get() != 0) {
+    entriesInStreamQueueMQ_.addSample(streamQueue_->size());
+    memoryUsedInStreamQueueMQ_.addSample( static_cast<double>(streamQueue_->used()) / (1024*1024) );
   }
-  if (_dqmEventQueue.get() != 0) {
-    _entriesInDQMEventQueueMQ.addSample(_dqmEventQueue->size());
-    _memoryUsedInDQMEventQueueMQ.addSample( static_cast<double>(_dqmEventQueue->used()) / (1024*1024) );
+  if (dqmEventQueue_.get() != 0) {
+    entriesInDQMEventQueueMQ_.addSample(dqmEventQueue_->size());
+    memoryUsedInDQMEventQueueMQ_.addSample( static_cast<double>(dqmEventQueue_->used()) / (1024*1024) );
   }
-  _entriesInFragmentStoreMQ.addSample(_currentFragmentStoreSize);
-  _memoryUsedInFragmentStoreMQ.addSample(_currentFragmentStoreMemoryUsedMB);
+  entriesInFragmentStoreMQ_.addSample(currentFragmentStoreSize_);
+  memoryUsedInFragmentStoreMQ_.addSample(currentFragmentStoreMemoryUsedMB_);
 
-  _entriesInFragmentQueueMQ.calculateStatistics();
-  _memoryUsedInFragmentQueueMQ.calculateStatistics();
-  _poppedFragmentSizeMQ.calculateStatistics();
-  _fragmentProcessorIdleTimeMQ.calculateStatistics();
-  _entriesInFragmentStoreMQ.calculateStatistics();
-  _memoryUsedInFragmentStoreMQ.calculateStatistics();
-  _entriesInStreamQueueMQ.calculateStatistics();
-  _memoryUsedInStreamQueueMQ.calculateStatistics();
-  _poppedEventSizeMQ.calculateStatistics();
-  _diskWriterIdleTimeMQ.calculateStatistics();
-  _diskWriteSizeMQ.calculateStatistics();
-  _entriesInDQMEventQueueMQ.calculateStatistics();
-  _memoryUsedInDQMEventQueueMQ.calculateStatistics();
-  _poppedDQMEventSizeMQ.calculateStatistics();
-  _dqmEventProcessorIdleTimeMQ.calculateStatistics();
+  entriesInFragmentQueueMQ_.calculateStatistics();
+  memoryUsedInFragmentQueueMQ_.calculateStatistics();
+  poppedFragmentSizeMQ_.calculateStatistics();
+  fragmentProcessorIdleTimeMQ_.calculateStatistics();
+  entriesInFragmentStoreMQ_.calculateStatistics();
+  memoryUsedInFragmentStoreMQ_.calculateStatistics();
+  entriesInStreamQueueMQ_.calculateStatistics();
+  memoryUsedInStreamQueueMQ_.calculateStatistics();
+  poppedEventSizeMQ_.calculateStatistics();
+  diskWriterIdleTimeMQ_.calculateStatistics();
+  diskWriteSizeMQ_.calculateStatistics();
+  entriesInDQMEventQueueMQ_.calculateStatistics();
+  memoryUsedInDQMEventQueueMQ_.calculateStatistics();
+  poppedDQMEventSizeMQ_.calculateStatistics();
+  dqmEventProcessorIdleTimeMQ_.calculateStatistics();
 }
 
 
 void ThroughputMonitorCollection::do_reset()
 {
-  _poolUsageMQ.reset();
-  _entriesInFragmentQueueMQ.reset();
-  _memoryUsedInFragmentQueueMQ.reset();
-  _poppedFragmentSizeMQ.reset();
-  _fragmentProcessorIdleTimeMQ.reset();
-  _entriesInFragmentStoreMQ.reset();
-  _memoryUsedInFragmentStoreMQ.reset();
-  _entriesInStreamQueueMQ.reset();
-  _memoryUsedInStreamQueueMQ.reset();
-  _poppedEventSizeMQ.reset();
-  _diskWriterIdleTimeMQ.reset();
-  _diskWriteSizeMQ.reset();
-  _entriesInDQMEventQueueMQ.reset();
-  _memoryUsedInDQMEventQueueMQ.reset();
-  _poppedDQMEventSizeMQ.reset();
-  _dqmEventProcessorIdleTimeMQ.reset();
+  poolUsageMQ_.reset();
+  entriesInFragmentQueueMQ_.reset();
+  memoryUsedInFragmentQueueMQ_.reset();
+  poppedFragmentSizeMQ_.reset();
+  fragmentProcessorIdleTimeMQ_.reset();
+  entriesInFragmentStoreMQ_.reset();
+  memoryUsedInFragmentStoreMQ_.reset();
+  entriesInStreamQueueMQ_.reset();
+  memoryUsedInStreamQueueMQ_.reset();
+  poppedEventSizeMQ_.reset();
+  diskWriterIdleTimeMQ_.reset();
+  diskWriteSizeMQ_.reset();
+  entriesInDQMEventQueueMQ_.reset();
+  memoryUsedInDQMEventQueueMQ_.reset();
+  poppedDQMEventSizeMQ_.reset();
+  dqmEventProcessorIdleTimeMQ_.reset();
 }
 
 
 void ThroughputMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpaceItems)
 {
-  infoSpaceItems.push_back(std::make_pair("poolUsage", &_poolUsage));
-  infoSpaceItems.push_back(std::make_pair("entriesInFragmentQueue", &_entriesInFragmentQueue));
-  infoSpaceItems.push_back(std::make_pair("memoryUsedInFragmentQueue", &_memoryUsedInFragmentQueue));
-  infoSpaceItems.push_back(std::make_pair("fragmentQueueRate", &_fragmentQueueRate));
-  infoSpaceItems.push_back(std::make_pair("fragmentQueueBandwidth", &_fragmentQueueBandwidth));
-  infoSpaceItems.push_back(std::make_pair("fragmentStoreSize", &_fragmentStoreSize));
-  infoSpaceItems.push_back(std::make_pair("fragmentStoreMemoryUsed", &_fragmentStoreMemoryUsed));
-  infoSpaceItems.push_back(std::make_pair("entriesInStreamQueue", &_entriesInStreamQueue));
-  infoSpaceItems.push_back(std::make_pair("memoryUsedInStreamQueue", &_memoryUsedInStreamQueue));
-  infoSpaceItems.push_back(std::make_pair("streamQueueRate", &_streamQueueRate));
-  infoSpaceItems.push_back(std::make_pair("streamQueueBandwidth", &_streamQueueBandwidth));
-  infoSpaceItems.push_back(std::make_pair("writtenEventsRate", &_writtenEventsRate));
-  infoSpaceItems.push_back(std::make_pair("writtenEventsBandwidth", &_writtenEventsBandwidth));
-  infoSpaceItems.push_back(std::make_pair("entriesInDQMQueue", &_entriesInDQMQueue));
-  infoSpaceItems.push_back(std::make_pair("memoryUsedInDQMQueue", &_memoryUsedInDQMQueue));
-  infoSpaceItems.push_back(std::make_pair("dqmQueueRate", &_dqmQueueRate));
-  infoSpaceItems.push_back(std::make_pair("dqmQueueBandwidth", &_dqmQueueBandwidth));
-  infoSpaceItems.push_back(std::make_pair("fragmentProcessorBusy", &_fragmentProcessorBusy));
-  infoSpaceItems.push_back(std::make_pair("diskWriterBusy", &_diskWriterBusy));
-  infoSpaceItems.push_back(std::make_pair("dqmEventProcessorBusy", &_dqmEventProcessorBusy));
-  infoSpaceItems.push_back(std::make_pair("averagingTime", &_averagingTime));
+  infoSpaceItems.push_back(std::make_pair("poolUsage", &poolUsage_));
+  infoSpaceItems.push_back(std::make_pair("entriesInFragmentQueue", &entriesInFragmentQueue_));
+  infoSpaceItems.push_back(std::make_pair("memoryUsedInFragmentQueue", &memoryUsedInFragmentQueue_));
+  infoSpaceItems.push_back(std::make_pair("fragmentQueueRate", &fragmentQueueRate_));
+  infoSpaceItems.push_back(std::make_pair("fragmentQueueBandwidth", &fragmentQueueBandwidth_));
+  infoSpaceItems.push_back(std::make_pair("fragmentStoreSize", &fragmentStoreSize_));
+  infoSpaceItems.push_back(std::make_pair("fragmentStoreMemoryUsed", &fragmentStoreMemoryUsed_));
+  infoSpaceItems.push_back(std::make_pair("entriesInStreamQueue", &entriesInStreamQueue_));
+  infoSpaceItems.push_back(std::make_pair("memoryUsedInStreamQueue", &memoryUsedInStreamQueue_));
+  infoSpaceItems.push_back(std::make_pair("streamQueueRate", &streamQueueRate_));
+  infoSpaceItems.push_back(std::make_pair("streamQueueBandwidth", &streamQueueBandwidth_));
+  infoSpaceItems.push_back(std::make_pair("writtenEventsRate", &writtenEventsRate_));
+  infoSpaceItems.push_back(std::make_pair("writtenEventsBandwidth", &writtenEventsBandwidth_));
+  infoSpaceItems.push_back(std::make_pair("entriesInDQMQueue", &entriesInDQMQueue_));
+  infoSpaceItems.push_back(std::make_pair("memoryUsedInDQMQueue", &memoryUsedInDQMQueue_));
+  infoSpaceItems.push_back(std::make_pair("dqmQueueRate", &dqmQueueRate_));
+  infoSpaceItems.push_back(std::make_pair("dqmQueueBandwidth", &dqmQueueBandwidth_));
+  infoSpaceItems.push_back(std::make_pair("fragmentProcessorBusy", &fragmentProcessorBusy_));
+  infoSpaceItems.push_back(std::make_pair("diskWriterBusy", &diskWriterBusy_));
+  infoSpaceItems.push_back(std::make_pair("dqmEventProcessorBusy", &dqmEventProcessorBusy_));
+  infoSpaceItems.push_back(std::make_pair("averagingTime", &averagingTime_));
 }
 
 
 void ThroughputMonitorCollection::do_updateInfoSpaceItems()
 {
   Stats stats;
-  getStats(stats, _throuphputAveragingCycles);
+  getStats(stats, throuphputAveragingCycles_);
 
-  _poolUsage = static_cast<unsigned int>(stats.average.poolUsage);
-  _entriesInFragmentQueue = static_cast<unsigned int>(stats.average.entriesInFragmentQueue);
-  _memoryUsedInFragmentQueue = stats.average.memoryUsedInFragmentQueue;
-  _fragmentQueueRate = stats.average.fragmentQueueRate;
-  _fragmentQueueBandwidth = stats.average.fragmentQueueBandwidth;
-  _fragmentStoreSize = static_cast<unsigned int>(stats.average.fragmentStoreSize);
-  _fragmentStoreMemoryUsed = stats.average.fragmentStoreMemoryUsed;
-  _entriesInStreamQueue = static_cast<unsigned int>(stats.average.entriesInStreamQueue);
-  _memoryUsedInStreamQueue = stats.average.memoryUsedInStreamQueue;
-  _streamQueueRate = stats.average.streamQueueRate;
-  _streamQueueBandwidth = stats.average.streamQueueBandwidth;
-  _writtenEventsRate = stats.average.writtenEventsRate;
-  _writtenEventsBandwidth = stats.average.writtenEventsBandwidth;
-  _entriesInDQMQueue = static_cast<unsigned int>(stats.average.entriesInDQMQueue);
-  _memoryUsedInDQMQueue = stats.average.memoryUsedInDQMQueue;
-  _dqmQueueRate = stats.average.dqmQueueRate;
-  _dqmQueueBandwidth = stats.average.dqmQueueBandwidth;
-  _fragmentProcessorBusy = stats.average.fragmentProcessorBusy;
-  _diskWriterBusy = stats.average.diskWriterBusy;
-  _dqmEventProcessorBusy = stats.average.dqmEventProcessorBusy;
-  _averagingTime = utils::duration_to_seconds(stats.average.duration);
+  poolUsage_ = static_cast<unsigned int>(stats.average.poolUsage);
+  entriesInFragmentQueue_ = static_cast<unsigned int>(stats.average.entriesInFragmentQueue);
+  memoryUsedInFragmentQueue_ = stats.average.memoryUsedInFragmentQueue;
+  fragmentQueueRate_ = stats.average.fragmentQueueRate;
+  fragmentQueueBandwidth_ = stats.average.fragmentQueueBandwidth;
+  fragmentStoreSize_ = static_cast<unsigned int>(stats.average.fragmentStoreSize);
+  fragmentStoreMemoryUsed_ = stats.average.fragmentStoreMemoryUsed;
+  entriesInStreamQueue_ = static_cast<unsigned int>(stats.average.entriesInStreamQueue);
+  memoryUsedInStreamQueue_ = stats.average.memoryUsedInStreamQueue;
+  streamQueueRate_ = stats.average.streamQueueRate;
+  streamQueueBandwidth_ = stats.average.streamQueueBandwidth;
+  writtenEventsRate_ = stats.average.writtenEventsRate;
+  writtenEventsBandwidth_ = stats.average.writtenEventsBandwidth;
+  entriesInDQMQueue_ = static_cast<unsigned int>(stats.average.entriesInDQMQueue);
+  memoryUsedInDQMQueue_ = stats.average.memoryUsedInDQMQueue;
+  dqmQueueRate_ = stats.average.dqmQueueRate;
+  dqmQueueBandwidth_ = stats.average.dqmQueueBandwidth;
+  fragmentProcessorBusy_ = stats.average.fragmentProcessorBusy;
+  diskWriterBusy_ = stats.average.diskWriterBusy;
+  dqmEventProcessorBusy_ = stats.average.dqmEventProcessorBusy;
+  averagingTime_ = utils::durationToSeconds(stats.average.duration);
 }
 
 

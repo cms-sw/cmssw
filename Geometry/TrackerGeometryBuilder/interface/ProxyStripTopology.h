@@ -18,14 +18,14 @@
 /// While one could easily deduce corrections from the given
 /// LocalPosition (and track angles 0) when converting from local frame
 /// to measurement frame, this is not done to be consistent with the
-/// methods converting teh other way round where the essential y-coordinate
+/// methods converting the other way round where the essential y-coordinate
 /// is basically missing (it is a 1D strip detector...)
 ///
 ///  \author    : Andreas Mussgiller
 ///  date       : November 2010
-///  $Revision: 1.2 $
-///  $Date: 2010/11/22 22:09:46 $
-///  (last update by $Author: flucke $)
+///  $Revision: 1.1 $
+///  $Date: 2011/01/03 10:35:23 $
+///  (last update by $Author: mussgill $)
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
@@ -34,7 +34,6 @@
 
 class StripGeomDetType;
 class BoundPlane;
-class Bounds;
 
 class ProxyStripTopology : public StripTopology {
 public:
@@ -110,7 +109,7 @@ private:
     positionCorrection(const Topology::LocalTrackPred &trk) const;
 
   StripGeomDetType* theType;
-  const Bounds & theBounds;
+  float theLength, theWidth;
   DeepCopyPointerByClone<const SurfaceDeformation> theSurfaceDeformation;
 };
 

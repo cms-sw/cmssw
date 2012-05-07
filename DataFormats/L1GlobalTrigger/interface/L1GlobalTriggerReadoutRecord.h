@@ -88,11 +88,11 @@ public:
     const boost::uint16_t finalOR(int bxInEventValue) const;
     const boost::uint16_t finalOR() const;
 
-    const DecisionWord decisionWord(int bxInEventValue) const;
-    const DecisionWord decisionWord() const;
+    const DecisionWord & decisionWord(int bxInEventValue) const;
+    const DecisionWord & decisionWord() const;
     
-    const TechnicalTriggerWord technicalTriggerWord(int bxInEventValue) const;
-    const TechnicalTriggerWord technicalTriggerWord() const;   
+    const TechnicalTriggerWord & technicalTriggerWord(int bxInEventValue) const;
+    const TechnicalTriggerWord & technicalTriggerWord() const;   
 
     /// set global decision, decision word and technical trigger word
     void setDecision(const bool& t, int bxInEventValue);

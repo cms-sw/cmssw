@@ -24,8 +24,12 @@ hcalDigiMonitor=cms.EDAnalyzer("HcalDigiMonitor",
                                
                                HLTResultsLabel              = cms.untracked.InputTag("TriggerResults","","HLT"),
                                # triggers required to Min Bias conditions
-                               MinBiasHLTBits               = cms.untracked.vstring("HLT_MinBiasBSC"),
-
+                               MinBiasHLTBits               = cms.untracked.vstring("HLT_MinBiasPixel_SingleTrack",
+                                                                                    "HLT_L1Tech_BSC_minBias",
+                                                                                    "HLT_L1Tech_BSC_minBias_OR",
+                                                                                    "HLT_L1Tech_BSC_minBias_threshold1_v2",
+                                                                                    "HLT_ZeroBias_v1"),
+                               
                                # disable testing of HO ring 2
                                excludeHORing2  = cms.untracked.bool(True),
 

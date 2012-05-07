@@ -5,7 +5,9 @@
 import FWCore.ParameterSet.Config as cms
 
 # this is the configuration to model pileup in the low-luminosity phase
-from SimGeneral.MixingModule.mixObjects_cfi import *
+from SimGeneral.MixingModule.mixObjects_cfi import * 
+from SimGeneral.MixingModule.mixPoolSource_cfi import * 
+
 mix = cms.EDProducer("MixingModule",
     LabelPlayback = cms.string(''),
     maxBunch = cms.int32(3),
@@ -26,12 +28,7 @@ mix = cms.EDProducer("MixingModule",
         seed = cms.int32(1234567),
         type = cms.string('poisson'),
 	sequential = cms.untracked.bool(False),
-        fileNames = cms.untracked.vstring('/store/relval/CMSSW_3_1_0_pre11/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V1-v1/0000/ECDB1818-A964-DE11-9B4B-001D09F24934.root',
-        '/store/relval/CMSSW_3_1_0_pre11/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V1-v1/0000/D245A5BB-4C64-DE11-9F79-001D09F248F8.root',
-        '/store/relval/CMSSW_3_1_0_pre11/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V1-v1/0000/C65577F4-EC64-DE11-8D4A-001D09F251CC.root',
-        '/store/relval/CMSSW_3_1_0_pre11/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V1-v1/0000/965505C4-9264-DE11-A3BC-001D09F232B9.root',
-        '/store/relval/CMSSW_3_1_0_pre11/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/MC_31X_V1-v1/0000/5E309A39-7264-DE11-978E-001D09F2A690.root'
-	)
+        fileNames = FileNames 
     ),
     mixObjects = cms.PSet(
         mixCH = cms.PSet(

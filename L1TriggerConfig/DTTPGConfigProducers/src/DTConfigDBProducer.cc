@@ -4,18 +4,16 @@
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 
-#include "CondFormats/DataRecord/interface/DTT0Rcd.h"
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 #include "CondFormats/DataRecord/interface/DTCCBConfigRcd.h"
-#include "CondFormats/DataRecord/interface/DTTPGParametersRcd.h"
+// @@@ add headers
 #include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
 #include "CondFormats/DataRecord/interface/DTKeyedConfigListRcd.h"
 #include "CondFormats/DTObjects/interface/DTConfigAbstractHandler.h"
 
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
 
-//#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigPedestals.h" CB test
-
+//#include "CondTools/DT/interface/DTPosNeg.h"
 #include "L1TriggerConfig/DTTPGConfigProducers/src/DTPosNegType.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -46,28 +44,50 @@ DTConfigDBProducer::DTConfigDBProducer(const edm::ParameterSet& p)
   // tell the framework what record is being produced
   setWhatProduced(this,&DTConfigDBProducer::produce);
 
-  cfgConfig = p.getParameter<bool>("cfgConfig");
+  // parameters to setup 
+// @@@ remove
+//  contact   = p.getParameter< std::string >("contact");
+//  auth_path = p.getParameter< std::string >("authPath");
+//  token     = p.getParameter< std::string >("token");
+//  local     = p.getParameter< bool        >("siteLocalConfig");
+// @@@ add
+  cfgConfig = p.getParameter< bool        >("cfgConfig");
+
+// @@@ remove direct DB access
+/*  
+  if ( local ) catalog = "";
+  else         catalog = p.getParameter< std::string >("catalog");
+
+  // create DB session
+  session = new DTDB1Session( contact, catalog, auth_path, local );
+  session->connect( false );
+
+  // create an interface to handle configurations list
+  DTConfig1Handler::maxBrickNumber  = 100;
+  DTConfig1Handler::maxStringNumber = 10000;
+  DTConfig1Handler::maxByteNumber   = 1000000;
+  rs = 0;
+  ri = DTConfig1Handler::create( session, token );
+  rs = ri->getContainer();  
+*/
     
   // get and store parameter set and config manager pointer
   m_ps = p;
   m_manager = new DTConfigManager();
   
   // debug flags
-  m_debugDB    = p.getParameter<bool>("debugDB"); 
-  m_debugBti   = p.getParameter<int>("debugBti");
-  m_debugTraco = p.getParameter<int>("debugTraco");
-  m_debugTSP   = p.getParameter<bool>("debugTSP");
-  m_debugTST   = p.getParameter<bool>("debugTST");
-  m_debugTU    = p.getParameter<bool>("debugTU");
-  m_debugSC    = p.getParameter<bool>("debugSC");
-  m_debugLUTs  = p.getParameter<bool>("debugLUTs");
-  m_debugPed   = p.getParameter<bool>("debugPed");
-
-  m_UseT0 = p.getParameter<bool>("UseT0");  // CB check for a better way to do it
+  m_debugDB = p.getParameter< bool        >("debugDB"); 
+  m_debugBti = p.getParameter< int        >("debugBti");
+  m_debugTraco = p.getParameter< int        >("debugTraco");
+  m_debugTSP = p.getParameter< bool        >("debugTSP");
+  m_debugTST = p.getParameter< bool        >("debugTST");
+  m_debugTU = p.getParameter< bool        >("debugTU");
+  m_debugSC = p.getParameter< bool        >("debugSC");
+  m_debugLUTs = p.getParameter< bool        >("debugLUTs");
 
   // DB specific requests
-  bool tracoLutsFromDB   = p.getParameter<bool>("TracoLutsFromDB");
-  bool useBtiAcceptParam = p.getParameter<bool>("UseBtiAcceptParam");
+  bool tracoLutsFromDB = p.getParameter< bool        >("TracoLutsFromDB");
+  bool useBtiAcceptParam = p.getParameter< bool        >("UseBtiAcceptParam");
 
   // initialize flags to check if data are present in OMDS 
   flagDBBti 	= false;
@@ -89,14 +109,18 @@ DTConfigDBProducer::DTConfigDBProducer(const edm::ParameterSet& p)
 
 DTConfigDBProducer::~DTConfigDBProducer()
 {
-
+  // destruction time
+// @@@ remove
+//  DTConfig1Handler::remove( session );
+//  session->disconnect();
+//  delete session;
 }
 
 
 //
 // member functions
 //
-
+// ------------ method called to produce the data  ------------
 std::auto_ptr<DTConfigManager> DTConfigDBProducer::produce(const DTConfigManagerRcd& iRecord)
 {
    using namespace edm::es;
@@ -106,10 +130,9 @@ std::auto_ptr<DTConfigManager> DTConfigDBProducer::produce(const DTConfigManager
    	configFromCfg();
 	code = 2;
    }	
-   else{
+   else
    	code = readDTCCBConfig(iRecord);
-   	readPedestalsConfig(iRecord); // CB return code anche qui???
-   }
+
    if(code==-1)
    	cout << "ERROR code: please check!" << endl; 
 
@@ -127,33 +150,6 @@ std::auto_ptr<DTConfigManager> DTConfigDBProducer::produce(const DTConfigManager
    return dtConfig ;
 }
 
-void DTConfigDBProducer::readPedestalsConfig(const DTConfigManagerRcd& iRecord){
-
-  edm::ESHandle<DTTPGParameters> dttpgParams;
-  iRecord.getRecord<DTTPGParametersRcd>().get(dttpgParams);
-
-  DTConfigPedestals pedestals;
-  pedestals.setDebug(m_debugPed);
-
-  if (m_UseT0) {
-
-    edm::ESHandle<DTT0> t0i;
-    iRecord.getRecord<DTT0Rcd>().get(t0i);
- 
-    pedestals.setUseT0(true);
-    pedestals.setES(dttpgParams.product(),t0i.product());
-
-  } else {
-
-    pedestals.setUseT0(false);
-    pedestals.setES(dttpgParams.product());
-
-  }
-
-  m_manager->setDTConfigPedestals(pedestals);
-
-}
-
 int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 {
   using namespace edm::eventsetup;
@@ -164,8 +160,10 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
   iRecord.getRecord<DTCCBConfigRcd>().get(ccb_conf);
   int ndata = std::distance( ccb_conf->begin(), ccb_conf->end() );
 
+// @@@ add
   DTConfigAbstractHandler* cfgCache = DTConfigAbstractHandler::getInstance();
-  const DTKeyedConfigListRcd& keyRecord = iRecord.getRecord<DTKeyedConfigListRcd>();
+  const DTKeyedConfigListRcd& keyRecord =
+                              iRecord.getRecord<DTKeyedConfigListRcd>();
 
   if(m_debugDB)
   {
@@ -199,7 +197,7 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 
   // read data from CCBConfig
   while ( iter != iend ) {
-    // get chamber id
+  	// get chamber id
       	const DTCCBId& ccbId = iter->first;
 	if(m_debugDB)
       		cout << " Filling configuration for chamber : wh " << ccbId.wheelId   << " st "
@@ -232,17 +230,29 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd& iRecord)
 			cout << " BRICK " << id << endl;  
 
 		// create strings list
+// @@@ change to vector of strings in place of vector of pointers to string
+//        	std::vector<const std::string*> list;
         	std::vector<std::string> list;
+// @@@ change access to DB
+//        	ri->getData( id, list );
+//                const DTKeyedConfig* kBrick = 0;
                 cfgCache->getData( keyRecord, id, list );
 
 		// loop over strings
+// @@@ change to vector of strings in place of vector of pointers to string
+//        	std::vector<const std::string*>::const_iterator s_iter = list.begin();
+//        	std::vector<const std::string*>::const_iterator s_iend = list.end();
         	std::vector<std::string>::const_iterator s_iter = list.begin();
         	std::vector<std::string>::const_iterator s_iend = list.end();
         	while ( s_iter != s_iend ) {
+// @@@ change to string in place of pointer to string
 			if(m_debugDB)
 				cout << "        ----> " << *s_iter << endl;
+//				cout << "        ----> " << **s_iter << endl;
 				
 			// copy string in unsigned int buffer
+// @@@ change to string in place of pointer to string
+//			std::string str = **s_iter++;
 			std::string str = *s_iter++;
 			unsigned short int buffer[100];		//2 bytes
 			int c = 0;

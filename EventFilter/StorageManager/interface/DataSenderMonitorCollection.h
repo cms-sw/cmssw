@@ -1,8 +1,8 @@
-// $Id: DataSenderMonitorCollection.h,v 1.16 2010/12/14 12:56:51 mommsen Exp $
+// $Id: DataSenderMonitorCollection.h,v 1.17.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: DataSenderMonitorCollection.h 
 
-#ifndef StorageManager_DataSenderMonitorCollection_h
-#define StorageManager_DataSenderMonitorCollection_h
+#ifndef EventFilter_StorageManager_DataSenderMonitorCollection_h
+#define EventFilter_StorageManager_DataSenderMonitorCollection_h
 
 #include <map>
 
@@ -12,22 +12,20 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/MonitorCollection.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
 
 namespace stor {
 
-  class AlarmHandler;
-
-
   /**
    * A collection of MonitoredQuantities to track received fragments
    * and events by their source (resource broker, filter unit, etc.)
    *
    * $Author: mommsen $
-   * $Revision: 1.16 $
-   * $Date: 2010/12/14 12:56:51 $
+   * $Revision: 1.17.4.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
   
   class DataSenderMonitorCollection : public MonitorCollection
@@ -128,7 +126,7 @@ namespace stor {
       //MonitoredQuantity fragmentSize;
       MonitoredQuantity eventSize;
       
-      OutputModuleRecord(const utils::duration_t& updateInterval) :
+      OutputModuleRecord(const utils::Duration_t& updateInterval) :
       eventSize(updateInterval,boost::posix_time::seconds(10)) {}
     };
     typedef boost::shared_ptr<OutputModuleRecord> OutModRecordPtr;
@@ -157,7 +155,7 @@ namespace stor {
       explicit FilterUnitRecord
       (
         FilterUnitKey fuKey,
-        const utils::duration_t& updateInterval
+        const utils::Duration_t& updateInterval
       ) :
         key(fuKey),
         shortIntervalEventSize(updateInterval,boost::posix_time::seconds(10)),
@@ -196,7 +194,7 @@ namespace stor {
       explicit ResourceBrokerRecord
       (
         ResourceBrokerKey rbKey,
-        const utils::duration_t& updateInterval
+        const utils::Duration_t& updateInterval
       ) :
         key(rbKey),
         eventSize(updateInterval,boost::posix_time::seconds(10)),
@@ -295,8 +293,8 @@ namespace stor {
      */
     DataSenderMonitorCollection
     (
-      const utils::duration_t& updateInterval,
-      boost::shared_ptr<AlarmHandler>
+      const utils::Duration_t& updateInterval,
+      AlarmHandlerPtr
     );
 
     /**
@@ -411,23 +409,23 @@ namespace stor {
 
     void calcStatsForOutputModules(OutputModuleRecordMap& outputModuleMap);
 
-    mutable boost::mutex _collectionsMutex;
+    mutable boost::mutex collectionsMutex_;
 
-    xdata::UnsignedInteger32 _connectedRBs;
-    xdata::UnsignedInteger32 _connectedEPs;
-    xdata::UnsignedInteger32 _activeEPs;
-    xdata::Integer32 _outstandingDataDiscards;
-    xdata::Integer32 _outstandingDQMDiscards;
-    xdata::UnsignedInteger32 _faultyEvents;
-    xdata::UnsignedInteger32 _ignoredDiscards;
+    xdata::UnsignedInteger32 connectedRBs_;
+    xdata::UnsignedInteger32 connectedEPs_;
+    xdata::UnsignedInteger32 activeEPs_;
+    xdata::Integer32 outstandingDataDiscards_;
+    xdata::Integer32 outstandingDQMDiscards_;
+    xdata::UnsignedInteger32 faultyEvents_;
+    xdata::UnsignedInteger32 ignoredDiscards_;
 
-    OutputModuleRecordMap _outputModuleMap;
+    OutputModuleRecordMap outputModuleMap_;
 
-    std::map<ResourceBrokerKey, UniqueResourceBrokerID_t> _resourceBrokerIDs;
-    std::map<UniqueResourceBrokerID_t, RBRecordPtr> _resourceBrokerMap;
+    std::map<ResourceBrokerKey, UniqueResourceBrokerID_t> resourceBrokerIDs_;
+    std::map<UniqueResourceBrokerID_t, RBRecordPtr> resourceBrokerMap_;
 
-    const utils::duration_t _updateInterval;
-    boost::shared_ptr<AlarmHandler> _alarmHandler;
+    const utils::Duration_t updateInterval_;
+    AlarmHandlerPtr alarmHandler_;
 
   };
 
@@ -436,7 +434,7 @@ namespace stor {
 
 } // namespace stor
 
-#endif // StorageManager_DataSenderMonitorCollection_h 
+#endif // EventFilter_StorageManager_DataSenderMonitorCollection_h 
 
 
 /// emacs configuration

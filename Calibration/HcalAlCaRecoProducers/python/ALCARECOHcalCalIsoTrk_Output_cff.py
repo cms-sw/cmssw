@@ -12,8 +12,7 @@ OutALCARECOHcalCalIsoTrk_noDrop = cms.PSet(
         'keep *_IsoProd_*_*',
 	'keep *_offlinePrimaryVertices_*_*',
 	'keep edmTriggerResults_*_*_*',
-	'keep triggerTriggerEvent_*_*_*',
-        'keep *_MEtoEDMConverter_*_*'
+	'keep triggerTriggerEvent_*_*_*'
 )
 )
 

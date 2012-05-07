@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerFilter
 //
-// $Id: TriggerFilter.h,v 1.9 2010/12/15 19:44:26 vadler Exp $
+// $Id: TriggerFilter.h,v 1.7 2010/12/16 18:39:17 vadler Exp $
 //
 /**
   \class    pat::TriggerFilter TriggerFilter.h "DataFormats/PatCandidates/interface/TriggerFilter.h"
@@ -18,7 +18,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerFilter
 
   \author   Volker Adler
-  \version  $Id: TriggerFilter.h,v 1.9 2010/12/15 19:44:26 vadler Exp $
+  \version  $Id: TriggerFilter.h,v 1.7 2010/12/16 18:39:17 vadler Exp $
 */
 
 
@@ -45,9 +45,9 @@ namespace pat {
       /// Indeces of trigger objects in pat::TriggerObjectCollection in event
       /// as produced together with the pat::TriggerFilterCollection
       std::vector< unsigned > objectKeys_;
-      /// List of (unique) special identifiers for the trigger object types used as defined in
+      /// List of (unique) special identifiers for the used trigger object types as defined in
       /// trigger::TriggerObjectType (DataFormats/HLTReco/interface/TriggerTypeDefs.h),
-      /// possibly empty
+      /// possibly empty or containing also zeroes
       std::vector< trigger::TriggerObjectType > triggerObjectTypes_;
       /// Indicator for filter status: -1: not run, 0: failed, 1: succeeded
       int status_;

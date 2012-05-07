@@ -12,7 +12,6 @@ tests="\
  MockNotifier_t\
  EventDistributor_t\
  EventQueueCollection_t\
- EventStreamConfigurationInfo_t\
  ExpirableQueue_t\
  FragmentStore_t\
  I2OChain_t\

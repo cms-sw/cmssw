@@ -1,4 +1,4 @@
-// $Id: DrainingQueues.cc,v 1.11 2010/08/06 20:24:30 wmtan Exp $
+// $Id: DrainingQueues.cc,v 1.12.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: DrainingQueues.cc
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
@@ -63,8 +63,8 @@ DrainingQueues::do_noFragmentToProcess() const
   {
     SharedResourcesPtr sharedResources =
       outermost_context().getSharedResources();
-    event_ptr stMachEvent( new QueuesEmpty() );
-    sharedResources->_commandQueue->enq_wait( stMachEvent );
+    EventPtr_t stMachEvent( new QueuesEmpty() );
+    sharedResources->commandQueue_->enqWait( stMachEvent );
   }
 }
 
@@ -84,13 +84,13 @@ DrainingQueues::allQueuesAndWorkersAreEmpty() const
   FragmentStore *fs = outermost_context().getFragmentStore();
   if ( ! fs->empty() ) return false;
 
-  if ( ! sharedResources->_streamQueue->empty() ) return false;
+  if ( ! sharedResources->streamQueue_->empty() ) return false;
 
-  if ( sharedResources->_diskWriterResources->isBusy() ) return false;
+  if ( sharedResources->diskWriterResources_->isBusy() ) return false;
   
-  //if ( ! sharedResources->_dqmEventQueue->empty() ) return false;
+  //if ( ! sharedResources->dqmEventQueue_->empty() ) return false;
   // Do not wait for dqmEventQueue to drain, just clear it
-  sharedResources->_dqmEventQueue->clear();
+  sharedResources->dqmEventQueue_->clear();
 
   return true;
 }
@@ -110,7 +110,7 @@ DrainingQueues::processStaleFragments() const
       outermost_context().getFragmentStore()->getStaleEvent(staleEvent, boost::posix_time::seconds(0));
     if ( gotStaleEvent )
     {
-      outermost_context().getSharedResources()->_discardManager->sendDiscardMessage(staleEvent);
+      outermost_context().getSharedResources()->discardManager_->sendDiscardMessage(staleEvent);
       ed->addEventToRelevantQueues(staleEvent);
     }
   }

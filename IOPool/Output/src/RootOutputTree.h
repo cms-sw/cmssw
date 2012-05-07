@@ -86,6 +86,13 @@ namespace edm {
 
     void close();
 
+    void optimizeBaskets(ULong64_t size) {
+      tree_->OptimizeBaskets(size);
+    }
+
+    void setAutoFlush(Long64_t size) {
+      tree_->SetAutoFlush(size);
+    }
   private:
     static void fillTTree(TTree* tree, std::vector<TBranch*> const& branches);
 // We use bare pointers for pointers to some ROOT entities.

@@ -64,8 +64,7 @@ private:
 
   unsigned short int layerParts_;///number of layer parts in the ALCT
   unsigned short int maxWireGroups_;///number of wiregroups in the ALCT
-  std::vector<CSCALCTDigi> theALCTDigis; /// To account BX in wire digis
-  std::vector<int> alctBX_; /// To account BX in wire digis
+  unsigned int alctBX_; /// To account BX in wire digis
 };
 
 #endif

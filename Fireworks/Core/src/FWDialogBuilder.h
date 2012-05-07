@@ -51,7 +51,7 @@ private:
    TGCompositeFrame *m_window;
 
    std::vector<TGVerticalFrame *> m_framesStack;
-   TGCompositeFrame *m_lastFrame;
+   //  TGCompositeFrame *m_lastFrame;
    TGCompositeFrame *m_currentFrame;
 
    bool             m_floatLeft;
@@ -124,7 +124,7 @@ public:
    FWDialogBuilder &addTextEntry(const char *defaultText, TGTextEntry **out);
    FWDialogBuilder &addNumberEntry(float defaultValue, size_t digits,
                                    TGNumberFormat::EStyle style,
-                                   size_t min, size_t max,
+                                   int min, int max,
                                    TGNumberEntry **out);
    
    FWDialogBuilder &addCheckbox(const char *text, TGCheckButton **out = 0);

@@ -19,6 +19,7 @@
 // #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTRemoveSpikesSC.h"
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTR9Producer.h"
+#include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTR9IDProducer.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTHcalIsolationProducersRegional.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTEcalIsolationProducersRegional.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTEcalRecIsolationProducer.h"
@@ -39,6 +40,7 @@ DEFINE_FWK_MODULE(EgammaHLTPixelMatchElectronProducers);
 DEFINE_FWK_MODULE(EgammaHLTRegionalPixelSeedGeneratorProducers);
 DEFINE_FWK_MODULE(EgammaHLTClusterShapeProducer);
 DEFINE_FWK_MODULE(EgammaHLTR9Producer);
+DEFINE_FWK_MODULE(EgammaHLTR9IDProducer);
 DEFINE_FWK_MODULE(EgammaHLTHybridClusterProducer);
 DEFINE_FWK_MODULE(EgammaHLTIslandClusterProducer);
 DEFINE_FWK_MODULE(EgammaHLTMulti5x5ClusterProducer);

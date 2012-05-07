@@ -75,7 +75,6 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
   double peakCharge=0;
   double RecomputedEnergy=0;
 
-
   CaloSamples tool;
   coder.adc2fC(digi,tool);
 
@@ -103,10 +102,9 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
 	  totalCharge+=value;
 	  RecomputedEnergy+=value*calib.respcorrgain(capid);
 	  if (i==expectedPeak_) peakCharge=value;
-
 	}
-    }
-
+    } // for (int i=0;i<digi.size();++i)
+  
   // FLAG:  HcalCaloLabel::Fraction2TS
   // Shuichi's Algorithm:  Compare size of peak in digi to charge in TS immediately before peak
   int TSfrac_counter=1; 
@@ -127,7 +125,7 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
       if (peakCharge/totalCharge<cutoff)
 	hf.setFlagField(1,HcalCaloFlagLabels::HFDigiTime);
     }
-  
+
   // FLAG:  HcalCaloLabels:: HFInTimeWindow
   // Timing algorithm
   if (hf.id().depth()==1)

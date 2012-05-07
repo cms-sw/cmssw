@@ -1,12 +1,11 @@
 #ifndef RecoMET_MuonTCMETValueMapProducer_h
 #define RecoMET_MuonTCMETValueMapProducer_h
-
 // -*- C++ -*-
 //
 // Package:    Test
 // Class:      Test
 // 
-/**\class MuonTCMETValueMapProducer MuonTCMETValueMapProducer.cc RecoMET/METProducers/src/MuonTCMETValueMapProducer.cc
+/**\class MuonTCMETValueMapProducer MuonTCMETValueMapProducer.cc JetMETCorrections/MuonTCMETValueMapProducer/src/MuonTCMETValueMapProducer.cc
 
  Description: <one line class summary>
 
@@ -17,7 +16,6 @@
 // Created:  Wed Aug 29 2007
 //
 //
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -38,8 +36,8 @@ class MuonTCMETValueMapProducer : public edm::EDProducer {
       explicit MuonTCMETValueMapProducer(const edm::ParameterSet&);
       ~MuonTCMETValueMapProducer();
 
-//      TH2D* getResponseFunction_fit ( );
-//      TH2D* getResponseFunction_mode ( );
+      TH2D* getResponseFunction_fit ( );
+      TH2D* getResponseFunction_mode ( );
 
    private:
       virtual void beginJob() ;
@@ -47,6 +45,7 @@ class MuonTCMETValueMapProducer : public edm::EDProducer {
       virtual void endJob() ;
       
       // ----------member data ---------------------------
+      //list of cuts
       edm::Handle<reco::MuonCollection>    muon_h;
       edm::Handle<reco::BeamSpot>          beamSpot_h;
       edm::Handle<reco::VertexCollection>  VertexHandle;
@@ -66,7 +65,7 @@ class MuonTCMETValueMapProducer : public edm::EDProducer {
       bool useCaloMuons_;
       bool hasValidVertex;
 
-      int     rfType_;
+      int rfType_;
       int     nLayers_;
       int     nLayersTight_;
       int     vertexNdof_;

@@ -1,4 +1,4 @@
-// $Id: Operations.cc,v 1.9 2009/09/29 07:58:30 mommsen Exp $
+// $Id: Operations.cc,v 1.10.6.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: Operations.cc
 
 #include "EventFilter/StorageManager/interface/I2OChain.h"
@@ -67,9 +67,9 @@ Operations::do_processI2OFragment( I2OChain& frag ) const
   // actually work here.
   //
   //if ( outermost_context().getSharedResources().get() != 0 &&
-  //     outermost_context().getSharedResources()->_discardManager.get() != 0)
+  //     outermost_context().getSharedResources()->discardManager_.get() != 0)
   //  {
-  //    outermost_context().getSharedResources()->_discardManager->sendDiscardMessage(frag);
+  //    outermost_context().getSharedResources()->discardManager_->sendDiscardMessage(frag);
   //  }
 }
 

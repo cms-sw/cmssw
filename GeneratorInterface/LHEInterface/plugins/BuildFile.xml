@@ -3,17 +3,17 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
 <use name="GeneratorInterface/LHEInterface"/>
+<use name="GeneratorInterface/Core"/>
 <use name="boost"/>
-<use name="hepmc"/>
-<library name="GeneratorInterfaceLHEProducer" file="LHEProducer.cc LHEFilter.cc">
+<library name="GeneratorInterfaceLHEProducer" file="LHEProducer.cc LHEFilter.cc LHE2HepMCConverter.cc ExternalLHEProducer.cc ExternalLHEAsciiDumper.cc">
 	<use name="FWCore/Framework"/>
-	<use name="SimDataFormats/GeneratorProducts"/>
+        <use name="SimDataFormats/GeneratorProducts"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
 <library name="GeneratorInterfaceLHEIO" file="LHESource.cc MCDBSource.cc LHEWriter.cc">
 	<use name="FWCore/Framework"/>
 	<use name="FWCore/Sources"/>
-	<use name="SimDataFormats/GeneratorProducts"/>
+        <use name="SimDataFormats/GeneratorProducts"/>
 	<use name="mcdb"/>
 	<flags EDM_PLUGIN="1"/>
 </library>

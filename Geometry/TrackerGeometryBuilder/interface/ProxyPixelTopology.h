@@ -18,8 +18,8 @@
 ///
 ///  \author    : Andreas Mussgiller
 ///  date       : December 2010
-///  $Revision: 1.1 $
-///  $Date: 2011/01/03 10:35:23 $
+///  $Revision: 1.2 $
+///  $Date: 2011/01/05 14:09:02 $
 ///  (last update by $Author: mussgill $)
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
@@ -29,7 +29,6 @@
 
 class PixelGeomDetType;
 class BoundPlane;
-class Bounds;
 
 class ProxyPixelTopology : public PixelTopology {
 public:
@@ -117,7 +116,7 @@ private:
     positionCorrection(const Topology::LocalTrackPred &trk) const;
   
   PixelGeomDetType* theType;  
-  const Bounds & theBounds;
+  float theLength, theWidth;
   DeepCopyPointerByClone<const SurfaceDeformation> theSurfaceDeformation;
 };
 

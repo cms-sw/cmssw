@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/10/07 17:09:10 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/10/14 12:42:57 $
+ *  $Revision: 1.9 $
  *  \author L. Uplegger F. Yumiceva - Fermilab
  */
 
@@ -168,12 +168,12 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
       } else if(beamSpotOutputBase_ == "lumibased") {
 	jrInfo["Timetype"] = "lumiid";
       }
-
-      jrInfo["destDB"] = metadataForOfflineDropBox_.getUntrackedParameter<std::string>("destDB");
-      jrInfo["destDBValidation"] = metadataForOfflineDropBox_.getUntrackedParameter<std::string>("destDBValidation");
-      jrInfo["tag"] = metadataForOfflineDropBox_.getUntrackedParameter<std::string>("tag");
-      jrInfo["DuplicateTagPROMPT"] = metadataForOfflineDropBox_.getUntrackedParameter<std::string>("DuplicateTagPROMPT");
-
+      std::vector<std::string> paramKeys = metadataForOfflineDropBox_.getParameterNames();
+      for(std::vector<std::string>::const_iterator key = paramKeys.begin();
+	  key != paramKeys.end();
+	  ++key) {
+	jrInfo[*key] = metadataForOfflineDropBox_.getUntrackedParameter<std::string>(*key);
+      }
       std::string filename = poolDbService->session().connectionString();
       jr->reportAnalysisFile(filename, jrInfo);
     }

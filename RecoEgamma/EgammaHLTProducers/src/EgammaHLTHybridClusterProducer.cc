@@ -19,8 +19,6 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 // Geometry
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -140,10 +138,7 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   edm::ESHandle<EcalChannelStatus> chStatus;
   es.get<EcalChannelStatusRcd>().get(chStatus);
   const EcalChannelStatus* theEcalChStatus = chStatus.product();
-  
-  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-  es.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-  const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
+
   //if (debugL == HybridClusterAlgo::pDEBUG)
   //std::cout << "\n\n\n" << hitcollection_ << "\n\n" << std::endl;
 
@@ -241,30 +236,30 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
        //Part of the region is in the barel if either the upper or lower
        //edge of the region is within the barrel
        if(((float)(etaLow)>-1.479 && (float)(etaLow)<1.479) || 
-          ((float)(etaHigh)>-1.479 && (float)(etaHigh)<1.479)) isbarl=1;
-       
-       //std::cout<<"Hybrid etaindex "<<etaIndex<<" low hig : "<<etaLow<<" "<<etaHigh<<" phi low hig" <<phiLow<<" " << phiHigh<<" isforw "<<emItr->gctEmCand()->regionId().isForward()<<" isforwnew" <<isforw<< std::endl;
-       
-       etaLow -= regionEtaMargin_;
-       etaHigh += regionEtaMargin_;
-       phiLow -= regionPhiMargin_;
-       phiHigh += regionPhiMargin_;
-       
-       if (etaHigh>1.479) etaHigh=1.479;
-       if (etaLow<-1.479) etaLow=-1.479;
-       
-       if(isbarl) regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
-       
-    }
+	  ((float)(etaHigh)>-1.479 && (float)(etaHigh)<1.479)) isbarl=1;
+
+	//std::cout<<"Hybrid etaindex "<<etaIndex<<" low hig : "<<etaLow<<" "<<etaHigh<<" phi low hig" <<phiLow<<" " << phiHigh<<" isforw "<<emItr->gctEmCand()->regionId().isForward()<<" isforwnew" <<isforw<< std::endl;
+
+      etaLow -= regionEtaMargin_;
+      etaHigh += regionEtaMargin_;
+      phiLow -= regionPhiMargin_;
+      phiHigh += regionPhiMargin_;
+
+      if (etaHigh>1.479) etaHigh=1.479;
+      if (etaLow<-1.479) etaLow=-1.479;
+
+      if(isbarl) regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+
     }
   }
-  
+  }
+
   // make the Basic clusters!
   reco::BasicClusterCollection basicClusters;
-  hybrid_p->makeClusters(hit_collection, geometry_p, basicClusters, sevLevel, true, regions);
+  hybrid_p->makeClusters(hit_collection, geometry_p, basicClusters, true, regions,theEcalChStatus);
   //if (debugL == HybridClusterAlgo::pDEBUG)
   //std::cout << "Hybrid Finished clustering - BasicClusterCollection returned to producer..." << std::endl;
-  
+
   // create an auto_ptr to a BasicClusterCollection, copy the clusters into it and put in the Event:
   std::auto_ptr< reco::BasicClusterCollection > basicclusters_p(new reco::BasicClusterCollection);
   basicclusters_p->assign(basicClusters.begin(), basicClusters.end());

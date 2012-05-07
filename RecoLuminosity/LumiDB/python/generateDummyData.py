@@ -3,67 +3,80 @@ from RecoLuminosity.LumiDB import CommonUtil
 def lumiSummary(schema,nlumils):
     '''
     input:
-    output: [datasource,{lumilsnum:[cmslsnum,cmsalive,instlumi,instlumierror,instlumiquality,beamstatus,cmsbxindexblob,beamintensityblob_1,beamintensitublob_2,numorbit,startorbit]}]
+    output: [datasource,{lumilsnum:[cmslsnum,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit,cmsbxindexblob,beamintensityblob_1,beamintensitublob_2,bxlumivalue_occ1,bxlumierror_occ1,bxlumiquality_occ1,bxlumivalue_occ2,bxlumierror_occ2,bxlumiquality_occ2,bxlumivalue_et,bxlumierror_et,bxlumiquality_et]}]
     '''
     o=['file:fake.root']
     perlsdata={}
     for lumilsnum in range(1,nlumils+1):
         cmslsnum=0
-        cmsalive=0
         if lumilsnum<100:
             cmslsnum=lumilsnum
-            cmsalive=1
         instlumi=2.37
         instlumierror=0.56
         instlumiquality=2
         beamstatus='STABLE BEAMS'
         beamenergy=3.5e03
-        cmsbxindex=array.array('I')
-        beam1intensity=array.array('f')
-        beam2intensity=array.array('f')
         numorbit=12345
         startorbit=numorbit*lumilsnum
+        if cmslsnum==0:
+            cmsbxindex=None
+            beam1intensity=None
+            beam2intensity=None
+        else:
+            cmsbxindex=array.array('I')
+            beam1intensity=array.array('f')
+            beam2intensity=array.array('f')
+            for idx in range(1,3565):
+                cmsbxindex.append(idx)
+                beam1intensity.append(1.5e09)
+                beam2intensity.append(5.5e09)
+                cmsbxindexBlob=CommonUtil.packArraytoBlob(cmsbxindex)
+                beam1intensityBlob=CommonUtil.packArraytoBlob(beam1intensity)
+                beam2intensityBlob=CommonUtil.packArraytoBlob(beam2intensity)
+        bxlumivalue=array.array('f')
+        bxlumierror=array.array('f')
+        bxlumiquality=array.array('I')
         for idx in range(1,3565):
-            cmsbxindex.append(idx)
-            beam1intensity.append(1.5e09)
-            beam2intensity.append(5.5e09)
-        cmsbxindexBlob=CommonUtil.packArraytoBlob(cmsbxindex)
-        beam1intensityBlob=CommonUtil.packArraytoBlob(beam1intensity)
-        beam2intensityBlob=CommonUtil.packArraytoBlob(beam2intensity)
+            bxlumivalue.append(2.3)
+            bxlumierror.append(0.4)
+            bxlumiquality.append(2)
+        bxlumivalueBlob=CommonUtil.packArraytoBlob(bxlumivalue)
+        bxlumierrorBlob=CommonUtil.packArraytoBlob(bxlumierror)
+        bxlumiqualityBlob=CommonUtil.packArraytoBlob(bxlumiquality)
         if not perlsdata.has_key(lumilsnum):
             perlsdata[lumilsnum]=[]
-        perlsdata[lumilsnum].extend([cmslsnum,cmsalive,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit,cmsbxindexBlob,beam1intensityBlob,beam2intensityBlob])
+        perlsdata[lumilsnum].extend([cmslsnum,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit,cmsbxindexBlob,beam1intensityBlob,beam2intensityBlob,bxlumivalueBlob,bxlumierrorBlob,bxlumiqualityBlob,bxlumivalueBlob,bxlumierrorBlob,bxlumiqualityBlob,bxlumivalueBlob,bxlumierrorBlob,bxlumiqualityBlob])
     o.append(perlsdata)
     return o
-def lumiDetail(schema,nlumils):
-    '''
-    input:
-    output:[(algoname,{lumilsnum:[cmslsnum,bxlumivalue,bxlumierror,bxlumiquality]})]
-    '''
-    o=[]
-    algos=['OCC1','OCC2','ET']
-    for algoname in algos:
-        perlsdata={}
-        for lumilsnum in range(1,nlumils+1):
-            cmslsnum=0
-            cmsalive=0
-            if lumilsnum<100:
-                cmslsnum=lumilsnum
-            bxlumivalue=array.array('f')
-            bxlumierror=array.array('f')
-            bxlumiquality=array.array('I')
-            for idx in range(1,3565):
-                bxlumivalue.append(2.3)
-                bxlumierror.append(0.4)
-                bxlumiquality.append(2)
-            bxlumivalueBlob=CommonUtil.packArraytoBlob(bxlumivalue)
-            bxlumierrorBlob=CommonUtil.packArraytoBlob(bxlumierror)
-            bxlumiqualityBlob=CommonUtil.packArraytoBlob(bxlumiquality)
-            if not perlsdata.has_key(lumilsnum):
-                perlsdata[lumilsnum]=[]
-            perlsdata[lumilsnum].extend([cmslsnum,bxlumivalueBlob,bxlumierrorBlob,bxlumiqualityBlob])           
-        o.append((algoname,perlsdata))
-    return o
+#def lumiDetail(schema,nlumils):
+#    '''
+#    input:
+#    output:[(algoname,{lumilsnum:[cmslsnum,bxlumivalue,bxlumierror,bxlumiquality]})]
+#    '''
+#    o=[]
+#    algos=['OCC1','OCC2','ET']
+#    for algoname in algos:
+#        perlsdata={}
+#        for lumilsnum in range(1,nlumils+1):
+#            cmslsnum=0
+#            cmsalive=0
+#            if lumilsnum<100:
+#                cmslsnum=lumilsnum
+#            bxlumivalue=array.array('f')
+#            bxlumierror=array.array('f')
+#            bxlumiquality=array.array('I')
+#            for idx in range(1,3565):
+#                bxlumivalue.append(2.3)
+#                bxlumierror.append(0.4)
+#                bxlumiquality.append(2)
+#            bxlumivalueBlob=CommonUtil.packArraytoBlob(bxlumivalue)
+#            bxlumierrorBlob=CommonUtil.packArraytoBlob(bxlumierror)
+#            bxlumiqualityBlob=CommonUtil.packArraytoBlob(bxlumiquality)
+#            if not perlsdata.has_key(lumilsnum):
+#                perlsdata[lumilsnum]=[]
+#            perlsdata[lumilsnum].extend([cmslsnum,bxlumivalueBlob,bxlumierrorBlob,bxlumiqualityBlob])           
+#        o.append((algoname,perlsdata))
+#    return o
 def trg(schema,nls):
     '''
     input:
@@ -129,12 +142,12 @@ def hlttrgmap(schema):
     hlttrgmap['HLT_TechTrigHCALNoise']="11 OR 12"
     o.append(hlttrgmap)
     return o
-def runsummary(schema):
+def runsummary(schema,amodetag,egev):
     '''
     input:
-    output:[hltkey,l1key,fillnum,sequence,starttime,stoptime]
+    output:[l1key,amodetag,egev,hltkey,fillnum,sequence,starttime,stoptime]
     '''
-    o=['/cdaq/physics/firstCollisions10/v2.0/HLT_7TeV/V5','collisioncollision','GLOBAL-RUN',1005]
+    o=['collisioncollision','PROTPHYS',3500,'/cdaq/physics/firstCollisions10/v2.0/HLT_7TeV/V5',1005,'GLOBAL-RUN']
     starttime=coral.TimeStamp(2010,11,1,0,0,0,0)
     stoptime=coral.TimeStamp(2010,11,1,11,0,0,0)
     o.append(starttime)

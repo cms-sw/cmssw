@@ -7,4 +7,6 @@
   <use   name="PhysicsTools/UtilAlgos"/>
   <use   name="FWCore/ServiceRegistry"/>
   <use   name="DataFormats/CLHEP"/>
+  <use   name="DataFormats/PatCandidates"/>
+  <use  name="PhysicsTools/SelectorUtils"/>
 </library>

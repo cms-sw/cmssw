@@ -429,9 +429,8 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
 	assert( !ecal1ref.isNull() );
 	assert( !ecal2ref.isNull() );
 	if(debug_)
+	  cout << " PFBlockLink::ECALandECAL" << endl;
 	dist = testLinkBySuperCluster(ecal1ref,ecal2ref);
-	if (debug_) cout << " PFBlockLink::ECALandECAL with dist = " << dist << endl;
-	
 	break;
       }
 
@@ -640,7 +639,6 @@ PFBlockAlgo::testTrackAndPS(const PFRecTrack& track,
 			    const PFCluster& ps)  const {
 
 #ifdef PFLOW_DEBUG
-  /*
   //   cout<<"entering testTrackAndPS"<<endl;
   // resolution of PS cluster dxdx and dydy from strip pitch and length
   double dx=0.;
@@ -694,7 +692,6 @@ PFBlockAlgo::testTrackAndPS(const PFRecTrack& track,
 	<<" psy "    << psy    
 	<< endl;
   }
-  */
 #endif
   
   // Return -1. as long as no link by rechit is available
@@ -714,7 +711,7 @@ PFBlockAlgo::testECALAndHCAL(const PFCluster& ecal,
 		 hcal.positionREP().Eta(), 
 		 hcal.positionREP().Phi() );
   */
-  /*
+
 #ifdef PFLOW_DEBUG
   if(debug_) cout<<"testECALAndHCAL "<< dist <<" "<<endl;
   if(debug_){
@@ -724,7 +721,7 @@ PFBlockAlgo::testECALAndHCAL(const PFCluster& ecal,
 	<<" hcalphi " << hcal.positionREP().Phi()
   }
 #endif
-  */
+
   // Need to implement a link by RecHit
   return -1.;
 }
@@ -733,13 +730,12 @@ double
 PFBlockAlgo::testLinkBySuperCluster(const PFClusterRef& ecal1, 
 				    const PFClusterRef& ecal2)  const {
   
-  //  if (debug_) cout<<"entering testECALAndECAL "<< pfcRefSCMap_.size() << endl;
+  //  cout<<"entering testECALAndECAL "<< pfcRefSCMap_.size() << endl;
   
   double dist = -1;
   
   // the first one is not in any super cluster
   int testindex=pfcSCVec_[ecal1.key()];
-  if (debug_) cout << "testindex = " << testindex << endl;
   if(testindex == -1.) return dist;
   //  if(itcheck==pfcRefSCMap_.end()) return dist;
   // now retrieve the of PFclusters in this super cluster  
@@ -755,16 +751,15 @@ PFBlockAlgo::testLinkBySuperCluster(const PFClusterRef& ecal1,
 					  ecal1->positionREP().Phi(), 
 					  ecal2->positionREP().Eta(), 
 					  ecal2->positionREP().Phi() );
-	  // std::cout << " DETA " << fabs(ecal1->positionREP().Eta()-ecal2->positionREP().Eta()) << std::endl;
-	  if(fabs(ecal1->positionREP().Eta()-ecal2->positionREP().Eta())>0.2)
-	    {
-	      
-	      //      std::cout <<  " Super Cluster " <<  *(superClusters_[testindex]) << std::endl;
-	      //      std::cout <<  " Cluster1 " <<  *ecal1 << std::endl;
-	      //      std::cout <<  " Cluster2 " <<  *ecal2 << std::endl;
+//	  std::cout << " DETA " << fabs(ecal1->positionREP().Eta()-ecal2->positionREP().Eta()) << std::endl;
+//	  if(fabs(ecal1->positionREP().Eta()-ecal2->positionREP().Eta())>0.2)
+//	    {
+//	      std::cout <<  " Super Cluster " <<  *(superClusters_[testindex]) << std::endl;
+//	      std::cout <<  " Cluster1 " <<  *ecal1 << std::endl;
+//	      std::cout <<  " Cluster2 " <<  *ecal2 << std::endl;
 //	      ClusterClusterMapping::checkOverlap(*ecal1,superClusters_,0.01,true);
 //	      ClusterClusterMapping::checkOverlap(*ecal2,superClusters_,0.01,true);
-	    }
+//	    }
 	  return dist;
 	}
     }
@@ -779,7 +774,7 @@ PFBlockAlgo::testPS1AndPS2(const PFCluster& ps1,
   
 #ifdef PFLOW_DEBUG
   //   cout<<"entering testPS1AndPS2"<<endl;
-  /*
+  
   // compute chi2 in y, z using swimming formulae
   // y2 = y1 * z2/z1   and x2 = x1 *z2/z1
   
@@ -817,7 +812,6 @@ PFBlockAlgo::testPS1AndPS2(const PFCluster& ps1,
 	<<" x2 " <<x2  << " dx2 "<<resPSlength_
 	<<" y2 " << y2 << " dy2 "<<resPSpitch_<< endl;
   }
-  */
 #endif
 
   // Need a link by rechit here

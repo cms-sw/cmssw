@@ -25,8 +25,6 @@
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 GamIsoDetIdCollectionProducer::GamIsoDetIdCollectionProducer(const edm::ParameterSet& iConfig) :
             recHitsLabel_(iConfig.getParameter< edm::InputTag > ("recHitsLabel")),
@@ -38,13 +36,15 @@ GamIsoDetIdCollectionProducer::GamIsoDetIdCollectionProducer(const edm::Paramete
             innerRadius_(iConfig.getParameter<double>("innerRadius")),
             interestingDetIdCollection_(iConfig.getParameter<std::string>("interestingDetIdCollection")),
             severityLevelCut_(iConfig.getParameter<int>("severityLevelCut")),
-            //severityRecHitThreshold_(iConfig.getParameter<double>("severityRecHitThreshold")),
-            //spIdString_(iConfig.getParameter<std::string>("spikeIdString")),
-            //spIdThreshold_(iConfig.getParameter<double>("spikeIdThreshold")),
+            severityRecHitThreshold_(iConfig.getParameter<double>("severityRecHitThreshold")),
+            spIdString_(iConfig.getParameter<std::string>("spikeIdString")),
+            spIdThreshold_(iConfig.getParameter<double>("spikeIdThreshold")),
             v_chstatus_(iConfig.getParameter<std::vector<int> >("recHitFlagsToBeExcluded")) {
-  //if     ( !spIdString_.compare("kE1OverE9") )   spId_ = EcalSeverityLevelAlgo::kE1OverE9;
-  // else if( !spIdString_.compare("kSwissCross") ) spId_ = EcalSeverityLevelAlgo::kSwissCross;
-  //  else                                           spId_ = EcalSeverityLevelAlgo::kSwissCross;
+
+    if     ( !spIdString_.compare("kE1OverE9") )                  spId_ = EcalSeverityLevelAlgo::kE1OverE9;
+    else if( !spIdString_.compare("kSwissCross") )                spId_ = EcalSeverityLevelAlgo::kSwissCross;
+    else if( !spIdString_.compare("kSwissCrossBordersIncluded") ) spId_ = EcalSeverityLevelAlgo::kSwissCrossBordersIncluded;
+    else                                                          spId_ = EcalSeverityLevelAlgo::kSwissCross;
     
     //register your products
     produces< DetIdCollection > (interestingDetIdCollection_) ;
@@ -81,10 +81,6 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
     edm::ESHandle<EcalChannelStatus> chStatus;
     iSetup.get<EcalChannelStatusRcd>().get(chStatus);
 
-    edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-    iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-    const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
-
     CaloDualConeSelector *doubleConeSel_ = 0;
     if(recHitsLabel_.instance() == "EcalRecHitsEB")
         doubleConeSel_= new CaloDualConeSelector(innerRadius_,outerRadius_, &*pG, DetId::Ecal, EcalBarrel);
@@ -114,22 +110,15 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
                 
                 if ( fabs(et) < etCut_) continue;  //dont fill if below ET noise value
 
-                //make sure we have a barrel rechit                                     
-                //call the severity level method                                        
-                //passing the EBDetId                                                   
-                //the rechit collection in order to calculate the swiss crss            
-                //and the EcalChannelRecHitRcd                                          
-                //only consider rechits with ET >                                       
-                //the SpikeId method (currently kE1OverE9 or kSwissCross)               
-                //cut value for above                                                   
-                //then if the severity level is too high, we continue to the next rechit
-                if(recHitsLabel_.instance() == "EcalRecHitsEB" && 
-                   sevLevel->severityLevel(EBDetId(recIt->detid()), *recHitsH)>= severityLevelCut_) continue;                                  
-                //                       *chStatus,                                 
-                  //                        severityRecHitThreshold_,                 
-                //    spId_,                                    
-                  //      spIdThreshold_                            
-                  //  ) >= severityLevelCut_) continue;              
+                if(recHitsLabel_.instance() == "EcalRecHitsEB" && //make sure we have a barrel rechit
+                   EcalSeverityLevelAlgo::severityLevel(          //call the severity level method
+                       EBDetId(recIt->detid()),                   //passing the EBDetId
+                       *recHitsH,                                 //the rechit collection in order to calculate the swiss crss
+                       *chStatus,                                 //and the EcalChannelRecHitRcd
+                        severityRecHitThreshold_,                 //only consider rechits with ET >
+                        spId_,                                    //the SpikeId method (currently kE1OverE9 or kSwissCross)
+                        spIdThreshold_                            //cut value for above
+                   ) >= severityLevelCut_) continue;              //then if the severity level is too high, we continue to the next rechit
 
                 //Check based on flags to protect from recovered channels from non-read towers
                 //Assumption is that v_chstatus_ is empty unless doFlagChecks() has been called

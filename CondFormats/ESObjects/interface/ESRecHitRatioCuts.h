@@ -7,7 +7,8 @@ class ESRecHitRatioCuts {
   public:
 
     ESRecHitRatioCuts();
-    ESRecHitRatioCuts(const float & r12Low, const float & r12High, const float & r23Low, const float & r23High);
+    ESRecHitRatioCuts(const float & r12Low, const float & r23Low, 
+		      const float & r12High, const float & r23High);
     ~ESRecHitRatioCuts();
 
     void  setR12Low(const float& value) { r12Low_ = value; }

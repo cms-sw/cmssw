@@ -6,7 +6,32 @@ from PhysicsTools.PatAlgos.tools.jetTools import *
 from Configuration.PyReleaseValidation.autoCond import autoCond
 
 import os
+import socket
 from subprocess import *
+
+
+## ------------------------------------------------------
+## Deal with backweard incompatibilities of conditions
+## ------------------------------------------------------
+
+def run41xOn3yzMcInput( process
+                      , l1MenuTag    = 'L1GtTriggerMenu_L1Menu_Commissioning2010_v4_mc' # L1 menu for Fall10 REDIGI (CMSSW_3_8_7)
+                      ):
+  """
+  """
+  # Use correct L1 trigger menu
+  import CondCore.DBCommon.CondDBCommon_cfi
+  process.l1GtTriggerMenu = cms.ESSource( "PoolDBESSource"
+  , CondCore.DBCommon.CondDBCommon_cfi.CondDBCommon
+  , toGet   = cms.VPSet(
+      cms.PSet(
+        connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_L1T' )
+      , record  = cms.string( 'L1GtTriggerMenuRcd' )
+      , tag     = cms.string( l1MenuTag )
+      )
+    )
+  )
+  process.preferL1GtTriggerMenu = cms.ESPrefer( "PoolDBESSource", "l1GtTriggerMenu" )
 
 
 ## ------------------------------------------------------
@@ -742,15 +767,21 @@ class PickRelValInputFiles( ConfigToolBase ):
     PickRelValInputFiles( cmsswVersion, relVal, dataTier, condition, globalTag, maxVersions, skipFiles, numberOfFiles, debug )
     - cmsswVersion : CMSSW release to pick up the RelVal files from
                      optional; default: the current release (determined automatically from environment)
-    . relVal       : RelVal sample to be used
+    - formerVersion: use the last before the last valid CMSSW release to pick up the RelVal files from
+                     applies also, if 'cmsswVersion' is set explicitly
+                     optional; default: False
+    - relVal       : RelVal sample to be used
                      optional; default: 'RelValTTbar'
     - dataTier     : data tier to be used
                      optional; default: 'GEN-SIM-RECO'
     - condition    : identifier of GlobalTag as defined in Configurations/PyReleaseValidation/python/autoCond.py
-                     possibly overwritten by 'globalTag'
+                     possibly overwritten, if 'globalTag' is set explicitly
                      optional; default: 'startup'
-    - globalTag    : name of GlobalTag to be used
+    - globalTag    : name of GlobalTag as it is used in the data path of the RelVals
                      optional; default: determined automatically as defined by 'condition' in Configurations/PyReleaseValidation/python/autoCond.py
+      !!!            Determination is done for the release one runs in, not for the release the RelVals have been produced in.
+      !!!            Example of deviation: data RelVals (CMSSW_4_1_X) might not only have the pure name of the GlobalTag 'GR_R_311_V2' in the full path,
+                     but also an extension identifying the data: 'GR_R_311_V2_RelVal_wzMu2010B'
     - maxVersions  : max. versioning number of RelVal to check
                      optional; default: 9
     - skipFiles    : number of files to skip for a found RelVal sample
@@ -771,6 +802,7 @@ class PickRelValInputFiles( ConfigToolBase ):
     def __init__( self ):
         ConfigToolBase.__init__( self )
         self.addParameter( self._defaultParameters, 'cmsswVersion' , os.getenv( "CMSSW_VERSION" )                                        , 'auto from environment' )
+        self.addParameter( self._defaultParameters, 'formerVersion', False                                                               , '' )
         self.addParameter( self._defaultParameters, 'relVal'       , 'RelValTTbar'                                                       , '' )
         self.addParameter( self._defaultParameters, 'dataTier'     , 'GEN-SIM-RECO'                                                      , '' )
         self.addParameter( self._defaultParameters, 'condition'    , 'startup'                                                           , '' )
@@ -784,6 +816,7 @@ class PickRelValInputFiles( ConfigToolBase ):
 
     def __call__( self
                 , cmsswVersion  = None
+                , formerVersion = None
                 , relVal        = None
                 , dataTier      = None
                 , condition     = None
@@ -795,6 +828,8 @@ class PickRelValInputFiles( ConfigToolBase ):
                 ):
         if cmsswVersion is None:
             cmsswVersion = self.getDefaultParameters()[ 'cmsswVersion' ].value
+        if formerVersion is None:
+            formerVersion = self.getDefaultParameters()[ 'formerVersion' ].value
         if relVal is None:
             relVal = self.getDefaultParameters()[ 'relVal' ].value
         if dataTier is None:
@@ -812,6 +847,7 @@ class PickRelValInputFiles( ConfigToolBase ):
         if debug is None:
             debug = self.getDefaultParameters()[ 'debug' ].value
         self.setParameter( 'cmsswVersion' , cmsswVersion )
+        self.setParameter( 'formerVersion', formerVersion )
         self.setParameter( 'relVal'       , relVal )
         self.setParameter( 'dataTier'     , dataTier )
         self.setParameter( 'condition'    , condition )
@@ -822,8 +858,13 @@ class PickRelValInputFiles( ConfigToolBase ):
         self.setParameter( 'debug'        , debug )
         return self.apply()
 
+    def messageEmptyList( self ):
+        print '%s DEBUG: Empty file list returned'%( self._label )
+        print '    This might be overwritten by providing input files explicitly to the source module in the main configuration file.'
+
     def apply( self ):
         cmsswVersion  = self._parameters[ 'cmsswVersion'  ].value
+        formerVersion = self._parameters[ 'formerVersion' ].value
         relVal        = self._parameters[ 'relVal'        ].value
         dataTier      = self._parameters[ 'dataTier'      ].value
         condition     = self._parameters[ 'condition'     ].value # only used for GT determination in initialization, if GT not explicitly given
@@ -832,8 +873,42 @@ class PickRelValInputFiles( ConfigToolBase ):
         skipFiles     = self._parameters[ 'skipFiles'     ].value
         numberOfFiles = self._parameters[ 'numberOfFiles' ].value
         debug         = self._parameters[ 'debug'         ].value
+
+        filePaths = []
+
+        patchId = '_patch'
+        ibId    = '_X_'
+        if patchId in cmsswVersion:
+            cmsswVersion = cmsswVersion.split( patchId )[ 0 ]
+        elif ibId in cmsswVersion or formerVersion:
+            outputTuple = Popen( [ 'scram', 'l -c CMSSW' ], stdout = PIPE, stderr = PIPE ).communicate()
+            if len( outputTuple[ 1 ] ) != 0:
+                print '%s INFO : SCRAM error'%( self._label )
+                if debug:
+                    print '    from trying to determine last valid releases before \'%s\''%( cmsswVersion )
+                    print
+                    print outputTuple[ 1 ]
+                    print
+                    self.messageEmptyList()
+                return filePaths
+            versions = { 'last'      :''
+                       , 'lastToLast':''
+                       }
+            for line in outputTuple[ 0 ].splitlines():
+                version = line.split()[ 1 ]
+                if cmsswVersion.split( ibId )[ 0 ] in version or cmsswVersion.rpartition( '_' )[ 0 ] in version:
+                    if not ( patchId in version or ibId in version ):
+                        versions[ 'lastToLast' ] = versions[ 'last' ]
+                        versions[ 'last' ]       = version
+                        if version == cmsswVersion:
+                            break
+            if formerVersion:
+                cmsswVersion = versions[ 'lastToLast' ]
+            else:
+                cmsswVersion = versions[ 'last' ]
+
         if debug:
-            print 'DEBUG %s: Called with...'%( self._label )
+            print '%s DEBUG: Called with...'%( self._label )
             for key in self._parameters.keys():
                print '    %s:\t'%( key ),
                print self._parameters[ key ].value,
@@ -841,25 +916,56 @@ class PickRelValInputFiles( ConfigToolBase ):
                    print ' (default)'
                else:
                    print
+               if key == 'cmsswVersion' and cmsswVersion != self._parameters[ key ].value:
+                   if formerVersion:
+                       print '    ==> modified to last to last valid release %s (s. \'formerVersion\' parameter)'%( cmsswVersion )
+                   else:
+                       print '    ==> modified to last valid release %s'%( cmsswVersion )
 
-        command      = 'nsls'
+        command   = ''
+        storage   = ''
+        domain    = socket.getfqdn().split( '.' )
+        if len( domain ) == 0:
+            print '%s INFO : Cannot determine domain of this computer'%( self._label )
+            if debug:
+                self.messageEmptyList()
+            return filePaths
+        elif len( domain ) == 1:
+            print '%s INFO : Running on local host \'%s\' without direct access to RelVal files'%( self._label, domain[ 0 ] )
+            if debug:
+                self.messageEmptyList()
+            return filePaths
+        if domain[ -2 ] == 'cern' and domain[ -1 ] == 'ch':
+            command = 'nsls'
+            storage = '/castor/cern.ch/cms'
+        elif domain[ -2 ] == 'fnal' and domain[ -1 ] == 'gov':
+            command = 'ls'
+            storage = '/pnfs/cms/WAX/11'
+        else:
+            print '%s INFO : Running on site \'%s.%s\' without direct access to RelVal files'%( self._label, domain[ -2 ], domain[ -1 ] )
+            if debug:
+                self.messageEmptyList()
+            return filePaths
+        if debug:
+            print '%s DEBUG: Running at site \'%s.%s\''%( self._label, domain[ -2 ], domain[ -1 ] )
+            print '    using command   \'%s\''%( command )
+            print '    on storage path %s'%( storage )
         rfdirPath    = '/store/relval/%s/%s/%s/%s-v'%( cmsswVersion, relVal, dataTier, globalTag )
-        argument     = '/castor/cern.ch/cms%s'%( rfdirPath )
-        filePaths    = []
+        argument     = '%s%s'%( storage, rfdirPath )
         validVersion = 0
 
         for version in range( maxVersions, 0, -1 ):
             filePaths = []
             fileCount = 0
             if debug:
-                print 'DEBUG %s: Checking directory \'%s%i\''%( self._label, argument, version )
+                print '%s DEBUG: Checking directory \'%s%i\''%( self._label, argument, version )
             directories = Popen( [ command, '%s%i'%( argument, version ) ], stdout = PIPE, stderr = PIPE ).communicate()[0]
             for directory in directories.splitlines():
                 files = Popen( [ command, '%s%i/%s'%( argument, version, directory ) ], stdout = PIPE, stderr = PIPE ).communicate()[0]
                 for file in files.splitlines():
                     if len( file ) > 0:
                         if debug:
-                            print 'DEBUG %s: File \'%s\' found'%( self._label, file )
+                            print '%s DEBUG: File \'%s\' found'%( self._label, file )
                         fileCount += 1
                         validVersion = version
                     if fileCount > skipFiles:
@@ -868,7 +974,7 @@ class PickRelValInputFiles( ConfigToolBase ):
                     if numberOfFiles != 0 and len( filePaths ) >= numberOfFiles:
                         break
                 if debug:
-                    print 'DEBUG %s: %i file(s) found'%( self._label, fileCount )
+                    print '%s DEBUG: %i file(s) found'%( self._label, fileCount )
                 if numberOfFiles != 0 and len( filePaths ) >= numberOfFiles:
                     break
             if numberOfFiles != 0:
@@ -878,17 +984,18 @@ class PickRelValInputFiles( ConfigToolBase ):
               break
 
         if validVersion == 0:
-            print 'ERROR pickRelValInputFiles()'
-            print '    No RelVal file(s) found at all in \'%s*\''%( argument )
+            print '%s INFO : No RelVal file(s) found at all in \'%s*\''%( self._label, argument )
+            if debug:
+                self.messageEmptyList()
         elif len( filePaths ) == 0:
-            print 'ERROR pickRelValInputFiles()'
-            print '    No RelVal file(s) picked up in \'%s%i\''%( argument, validVersion )
+            print '%s INFO : No RelVal file(s) picked up in \'%s%i\''%( self._label, argument, validVersion )
+            if debug:
+                self.messageEmptyList()
         elif len( filePaths ) < numberOfFiles:
-            print 'WARNING pickRelValInputFiles()'
-            print '    Only %i RelVal files picked up in \'%s%i\''%( len( filePaths ), argument, validVersion )
+            print '%s INFO : Only %i RelVal files picked up in \'%s%i\''%( self._label, len( filePaths ), argument, validVersion )
 
         if debug:
-            print 'DEBUG %s: returning %i file(s)\n%s'%( self._label, len( filePaths ), filePaths )
+            print '%s DEBUG: returning %i file(s)\n%s'%( self._label, len( filePaths ), filePaths )
         return filePaths
 
 pickRelValInputFiles = PickRelValInputFiles()

@@ -28,37 +28,45 @@ DetectorStateFilter::~DetectorStateFilter() {
 bool DetectorStateFilter::filter( edm::Event & evt, edm::EventSetup const& es) {
   
   nEvents_++;
-
-  edm::Handle<DcsStatusCollection> dcsStatus;
-  evt.getByLabel("scalersRawToDigi", dcsStatus);
-  if (dcsStatus.isValid()) {
-    if (detectorType_ == "pixel") {
-      if ((*dcsStatus)[0].ready(DcsStatus::BPIX) && 
-	  (*dcsStatus)[0].ready(DcsStatus::FPIX)) {
+  // Check Detector state Only for Real Data and return true for MC
+  if (evt.isRealData()) {
+    edm::Handle<DcsStatusCollection> dcsStatus;
+    evt.getByLabel("scalersRawToDigi", dcsStatus);
+    if (dcsStatus.isValid()) {
+      if (detectorType_ == "pixel" && dcsStatus->size() > 0 ) {
+	  if ((*dcsStatus)[0].ready(DcsStatus::BPIX) && 
+	      (*dcsStatus)[0].ready(DcsStatus::FPIX)) {
 	detectorOn_ = true;
 	nSelectedEvents_++;
       } else detectorOn_ = false;
       if ( verbose_ ) std::cout << " Total Events " << nEvents_ 
-			   << " Selected Events " << nSelectedEvents_ 
-			   << " DCS States : " << " BPix " << (*dcsStatus)[0].ready(DcsStatus::BPIX) 
-			   << " FPix " << (*dcsStatus)[0].ready(DcsStatus::FPIX)
+				<< " Selected Events " << nSelectedEvents_ 
+				<< " DCS States : " << " BPix " << (*dcsStatus)[0].ready(DcsStatus::BPIX) 
+				<< " FPix " << (*dcsStatus)[0].ready(DcsStatus::FPIX)
 				<< " Detector State " << detectorOn_<<  std::endl;           
-    } else if (detectorType_ == "sistrip") {  
-      if ((*dcsStatus)[0].ready(DcsStatus::TIBTID) &&
-	  (*dcsStatus)[0].ready(DcsStatus::TOB) &&   
-	  (*dcsStatus)[0].ready(DcsStatus::TECp) &&  
-	  (*dcsStatus)[0].ready(DcsStatus::TECm)) {
-        detectorOn_ = true;             
-	nSelectedEvents_++;
-      } else detectorOn_ = false;
-      if ( verbose_ ) std::cout << " Total Events " << nEvents_ 
-			   << " Selected Events " << nSelectedEvents_ 
-			   << " DCS States : " << " TEC- " << (*dcsStatus)[0].ready(DcsStatus::TECm) 
-			   << " TEC+ " << (*dcsStatus)[0].ready(DcsStatus::TECp)
-			   << " TIB/TID " << (*dcsStatus)[0].ready(DcsStatus::TIBTID) 
-			   << " TOB " << (*dcsStatus)[0].ready(DcsStatus::TOB)   
-			   << " Detector States " << detectorOn_<<  std::endl;      
+      } else if (detectorType_ == "sistrip" && dcsStatus->size() > 0) {  
+	if ((*dcsStatus)[0].ready(DcsStatus::TIBTID) &&
+	    (*dcsStatus)[0].ready(DcsStatus::TOB) &&   
+	    (*dcsStatus)[0].ready(DcsStatus::TECp) &&  
+	    (*dcsStatus)[0].ready(DcsStatus::TECm)) {
+	  detectorOn_ = true;             
+	  nSelectedEvents_++;
+	} else detectorOn_ = false;
+	if ( verbose_ ) std::cout << " Total Events " << nEvents_ 
+				  << " Selected Events " << nSelectedEvents_ 
+				  << " DCS States : " << " TEC- " << (*dcsStatus)[0].ready(DcsStatus::TECm) 
+				  << " TEC+ " << (*dcsStatus)[0].ready(DcsStatus::TECp)
+				  << " TIB/TID " << (*dcsStatus)[0].ready(DcsStatus::TIBTID) 
+				  << " TOB " << (*dcsStatus)[0].ready(DcsStatus::TOB)   
+				  << " Detector States " << detectorOn_<<  std::endl;      
+      }
     }
+  } else {
+    detectorOn_ = true;
+    nSelectedEvents_++;
+    if ( verbose_ ) std::cout << "Total MC Events " << nEvents_
+                              << " Selected Events " << nSelectedEvents_
+                              << " Detector States " << detectorOn_<<  std::endl;
   }
   return detectorOn_;
 }

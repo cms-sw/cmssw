@@ -1,9 +1,10 @@
-// $Id: DiskWriter.cc,v 1.24 2010/10/12 01:41:32 wmtan Exp $
+// $Id: DiskWriter.cc,v 1.25.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include <algorithm>
 
 #include <boost/bind.hpp>
+#include <boost/pointer_cast.hpp>
 
 #include "toolbox/task/WorkLoopFactory.h"
 #include "xcept/tools.h"
@@ -18,322 +19,323 @@
 #include "EventFilter/StorageManager/interface/StreamHandler.h"
 
 
-using namespace stor;
-
-DiskWriter::DiskWriter(xdaq::Application *app, SharedResourcesPtr sr) :
-_app(app),
-_sharedResources(sr),
-_dbFileHandler(new DbFileHandler()),
-_runNumber(0),
-_lastFileTimeoutCheckTime(utils::getCurrentTime()),
-_actionIsActive(true)
-{
-  WorkerThreadParams workerParams =
-    _sharedResources->_configuration->getWorkerThreadParams();
-  _timeout = workerParams._DWdeqWaitTime;
-}
-
-
-DiskWriter::~DiskWriter()
-{
-  // Stop the activity
-  _actionIsActive = false;
-
-  // Cancel the workloop (will wait until the action has finished)
-  _writingWL->cancel();
-
-  // Destroy any remaining streams. Under normal conditions, there should be none
-  destroyStreams(); 
-}
-
-
-void DiskWriter::startWorkLoop(std::string workloopName)
-{
-  try
+namespace stor {
+  
+  DiskWriter::DiskWriter(xdaq::Application *app, SharedResourcesPtr sr) :
+  app_(app),
+  sharedResources_(sr),
+  dbFileHandler_(new DbFileHandler()),
+  runNumber_(0),
+  lastFileTimeoutCheckTime_(utils::getCurrentTime()),
+  actionIsActive_(true)
   {
-    std::string identifier = utils::getIdentifier(_app->getApplicationDescriptor());
+    WorkerThreadParams workerParams =
+      sharedResources_->configuration_->getWorkerThreadParams();
+    timeout_ = workerParams.DWdeqWaitTime_;
+  }
+  
+  
+  DiskWriter::~DiskWriter()
+  {
+    // Stop the activity
+    actionIsActive_ = false;
     
-    _writingWL = toolbox::task::getWorkLoopFactory()->
-      getWorkLoop( identifier + workloopName, "waiting" );
+    // Cancel the workloop (will wait until the action has finished)
+    writingWL_->cancel();
     
-    if ( ! _writingWL->isActive() )
+    // Destroy any remaining streams. Under normal conditions, there should be none
+    destroyStreams(); 
+  }
+  
+  
+  void DiskWriter::startWorkLoop(std::string workloopName)
+  {
+    try
     {
-      toolbox::task::ActionSignature* processAction = 
-        toolbox::task::bind(this, &DiskWriter::writeAction, 
-          identifier + "WriteNextEvent");
-      _writingWL->submit(processAction);
+      std::string identifier = utils::getIdentifier(app_->getApplicationDescriptor());
       
-      _writingWL->activate();
+      writingWL_ = toolbox::task::getWorkLoopFactory()->
+        getWorkLoop( identifier + workloopName, "waiting" );
+      
+      if ( ! writingWL_->isActive() )
+      {
+        toolbox::task::ActionSignature* processAction = 
+          toolbox::task::bind(this, &DiskWriter::writeAction, 
+            identifier + "WriteNextEvent");
+        writingWL_->submit(processAction);
+        
+        writingWL_->activate();
+      }
+    }
+    catch (xcept::Exception& e)
+    {
+      std::string msg = "Failed to start workloop 'DiskWriter' with 'writeNextEvent'.";
+      XCEPT_RETHROW(stor::exception::DiskWriting, msg, e);
     }
   }
-  catch (xcept::Exception& e)
-  {
-    std::string msg = "Failed to start workloop 'DiskWriter' with 'writeNextEvent'.";
-    XCEPT_RETHROW(stor::exception::DiskWriting, msg, e);
-  }
-}
-
-
-bool DiskWriter::writeAction(toolbox::task::WorkLoop*)
-{
-  std::string errorMsg = "Failed to write an event: ";
   
-  try
+  
+  bool DiskWriter::writeAction(toolbox::task::WorkLoop*)
   {
-    writeNextEvent();
+    std::string errorMsg = "Failed to write an event: ";
+    
+    try
+    {
+      writeNextEvent();
+    }
+    catch(xcept::Exception &e)
+    {
+      XCEPT_DECLARE_NESTED( stor::exception::DiskWriting,
+        sentinelException, errorMsg, e );
+      sharedResources_->moveToFailedState(sentinelException);
+    }
+    catch(std::exception &e)
+    {
+      errorMsg += e.what();
+      XCEPT_DECLARE( stor::exception::DiskWriting,
+        sentinelException, errorMsg );
+      sharedResources_->moveToFailedState(sentinelException);
+    }
+    catch(...)
+    {
+      errorMsg += "Unknown exception";
+      XCEPT_DECLARE( stor::exception::DiskWriting,
+        sentinelException, errorMsg );
+      sharedResources_->moveToFailedState(sentinelException);
+    }
+    
+    return actionIsActive_;
   }
-  catch(xcept::Exception &e)
+  
+  
+  void DiskWriter::writeNextEvent()
   {
-    XCEPT_DECLARE_NESTED( stor::exception::DiskWriting,
-                          sentinelException, errorMsg, e );
-    _sharedResources->moveToFailedState(sentinelException);
-  }
-  catch(std::exception &e)
-  {
-    errorMsg += e.what();
-    XCEPT_DECLARE( stor::exception::DiskWriting,
-                   sentinelException, errorMsg );
-    _sharedResources->moveToFailedState(sentinelException);
-  }
-  catch(...)
-  {
-    errorMsg += "Unknown exception";
-    XCEPT_DECLARE( stor::exception::DiskWriting,
-                   sentinelException, errorMsg );
-    _sharedResources->moveToFailedState(sentinelException);
-  }
-
-  return _actionIsActive;
-}
-
-
-void DiskWriter::writeNextEvent()
-{
-  I2OChain event;
-  boost::shared_ptr<StreamQueue> sq = _sharedResources->_streamQueue;
-  utils::time_point_t startTime = utils::getCurrentTime();
-  if (sq->deq_timed_wait(event, _timeout))
-  {
-    _sharedResources->_diskWriterResources->setBusy(true);
-
-    utils::duration_t elapsedTime = utils::getCurrentTime() - startTime;
-    _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addDiskWriterIdleSample(elapsedTime);
-    _sharedResources->_statisticsReporter->getThroughputMonitorCollection().addPoppedEventSample(event.memoryUsed());
-
-    if( event.isEndOfLumiSectionMessage() )
+    I2OChain event;
+    StreamQueuePtr sq = sharedResources_->streamQueue_;
+    utils::TimePoint_t startTime = utils::getCurrentTime();
+    if (sq->deqTimedWait(event, timeout_))
+    {
+      sharedResources_->diskWriterResources_->setBusy(true);
+      
+      utils::Duration_t elapsedTime = utils::getCurrentTime() - startTime;
+      sharedResources_->statisticsReporter_->getThroughputMonitorCollection().addDiskWriterIdleSample(elapsedTime);
+      sharedResources_->statisticsReporter_->getThroughputMonitorCollection().addPoppedEventSample(event.memoryUsed());
+      
+      if( event.isEndOfLumiSectionMessage() )
       {
         processEndOfLumiSection( event );
       }
-    else
+      else
       {
         writeEventToStreams( event );
         checkForFileTimeOuts();
       }
-
-  }
-  else
-  {
-    utils::duration_t elapsedTime = utils::getCurrentTime() - startTime;
-    _sharedResources->_statisticsReporter->
-      getThroughputMonitorCollection().addDiskWriterIdleSample(elapsedTime);
-
-    checkStreamChangeRequest();
-    checkForFileTimeOuts(true);
-    _sharedResources->_diskWriterResources->setBusy(false);
-  }
-}
-
-
-void DiskWriter::writeEventToStreams(const I2OChain& event)
-{
-  std::vector<StreamID> streams = event.getStreamTags();
-
-  for (
-    std::vector<StreamID>::const_iterator it = streams.begin(), itEnd = streams.end();
-    it != itEnd;
-    ++it
-  )
-  {
-    try
-    {
-      _streamHandlers.at(*it)->writeEvent(event);
     }
-    catch (std::out_of_range& e)
+    else
     {
-      std::ostringstream msg;
-      msg << "Unable to retrieve stream handler for " << (*it) << " : ";
-      msg << e.what();
-      XCEPT_RAISE(exception::UnknownStreamId, msg.str());
+      utils::Duration_t elapsedTime = utils::getCurrentTime() - startTime;
+      sharedResources_->statisticsReporter_->
+        getThroughputMonitorCollection().addDiskWriterIdleSample(elapsedTime);
+      
+      checkStreamChangeRequest();
+      checkForFileTimeOuts(true);
+      sharedResources_->diskWriterResources_->setBusy(false);
     }
   }
-}
-
-
-void DiskWriter::checkStreamChangeRequest()
-{
-  EvtStrConfigListPtr evtCfgList;
-  ErrStrConfigListPtr errCfgList;
-  DiskWritingParams newdwParams;
-  unsigned int newRunNumber;
-  boost::posix_time::time_duration newTimeoutValue;
-  bool doConfig;
-  if (_sharedResources->_diskWriterResources->
-    streamChangeRequested(doConfig, evtCfgList, errCfgList, newdwParams, newRunNumber, newTimeoutValue))
-  {
-    destroyStreams();
-    if (doConfig)
-    {
-      _dwParams = newdwParams;
-      _runNumber = newRunNumber;
-      _timeout = newTimeoutValue;
-      _dbFileHandler->configure(_runNumber, _dwParams);
-
-      makeFaultyEventStream();
-      configureEventStreams(evtCfgList);
-      configureErrorStreams(errCfgList);
-    }
-    _sharedResources->_diskWriterResources->streamChangeDone();
-  }
-}
-
-
-void DiskWriter::checkForFileTimeOuts(const bool doItNow)
-{
-  utils::time_point_t now = utils::getCurrentTime();
-
-  if (doItNow || (now - _lastFileTimeoutCheckTime) > _dwParams._fileClosingTestInterval)
-  {
-    closeTimedOutFiles(now);
-    _lastFileTimeoutCheckTime = now;
-  }
-}
-
-
-void DiskWriter::closeTimedOutFiles(const utils::time_point_t now)
-{
-  std::for_each(_streamHandlers.begin(), _streamHandlers.end(),
-    boost::bind(&StreamHandler::closeTimedOutFiles, _1, now));
-}
-
-
-void DiskWriter::configureEventStreams(EvtStrConfigListPtr cfgList)
-{
-  for (
-    EvtStrConfigList::iterator it = cfgList->begin(),
-      itEnd = cfgList->end();
-    it != itEnd;
-    ++it
-  ) 
-  {
-    if ( it->fractionToDisk() > 0 )
-      makeEventStream(*it);
-  }
-}
-
-
-void DiskWriter::configureErrorStreams(ErrStrConfigListPtr cfgList)
-{
-  for (
-    ErrStrConfigList::iterator it = cfgList->begin(),
-      itEnd = cfgList->end();
-    it != itEnd;
-    ++it
-  ) 
-  {
-    makeErrorStream(*it);
-  }
-}
-
-
-void DiskWriter::makeFaultyEventStream()
-{
-  if ( _dwParams._faultyEventsStream.empty() ) return;
-
-  boost::shared_ptr<FaultyEventStreamHandler> newHandler(
-    new FaultyEventStreamHandler(_sharedResources, _dbFileHandler, _dwParams._faultyEventsStream)
-  );
-  _streamHandlers.push_back(boost::dynamic_pointer_cast<StreamHandler>(newHandler));
-}
-
-
-void DiskWriter::makeEventStream(EventStreamConfigurationInfo& streamCfg)
-{
-  boost::shared_ptr<EventStreamHandler> newHandler(
-    new EventStreamHandler(streamCfg, _sharedResources, _dbFileHandler)
-  );
-  _streamHandlers.push_back(boost::dynamic_pointer_cast<StreamHandler>(newHandler));
-  streamCfg.setStreamId(_streamHandlers.size() - 1);
-}
-
-
-void DiskWriter::makeErrorStream(ErrorStreamConfigurationInfo& streamCfg)
-{
-  boost::shared_ptr<FRDStreamHandler> newHandler(
-    new FRDStreamHandler(streamCfg, _sharedResources, _dbFileHandler)
-  );
-  _streamHandlers.push_back(boost::dynamic_pointer_cast<StreamHandler>(newHandler));
-  streamCfg.setStreamId(_streamHandlers.size() - 1);
-}
-
-
-void DiskWriter::destroyStreams()
-{
-  if (_streamHandlers.empty()) return;
-
-  std::for_each(_streamHandlers.begin(), _streamHandlers.end(),
-    boost::bind(&StreamHandler::closeAllFiles, _1));
-  _streamHandlers.clear();
   
-  reportRemainingLumiSections();
-  writeEndOfRunMarker();
-}
-
-
-void DiskWriter::reportRemainingLumiSections() const
-{
-  StreamsMonitorCollection& smc =
-    _sharedResources->_statisticsReporter->getStreamsMonitorCollection();
   
-  smc.reportAllLumiSectionInfos(_dbFileHandler);
-}
-
-
-void DiskWriter::writeEndOfRunMarker() const
-{
-  RunMonitorCollection& rmc =
-    _sharedResources->_statisticsReporter->getRunMonitorCollection();
-  // Make sure we report the latest values
-  rmc.calculateStatistics(utils::getCurrentTime());
-
-  MonitoredQuantity::Stats lumiSectionsSeenStats;
-  rmc.getLumiSectionsSeenMQ().getStats(lumiSectionsSeenStats);
-  MonitoredQuantity::Stats eolsSeenStats;
-  rmc.getEoLSSeenMQ().getStats(eolsSeenStats);
-
-  std::ostringstream str;
-  str << "LScount:" << lumiSectionsSeenStats.getSampleCount()
-    << "\tEoLScount:" << eolsSeenStats.getSampleCount()
-    << "\tLastLumi:" << lumiSectionsSeenStats.getLastSampleValue()
-    << "\tEoR";
-  _dbFileHandler->write(str.str());
-}
-
-
-void DiskWriter::processEndOfLumiSection(const I2OChain& msg)
-{
-  if ( msg.faulty() || msg.runNumber() != _runNumber ) return;
-
-  const uint32_t lumiSection = msg.lumiSection();
-
-  std::string fileCountStr;
-
-  for (StreamHandlers::const_iterator it = _streamHandlers.begin(),
-         itEnd = _streamHandlers.end(); it != itEnd; ++it)
+  void DiskWriter::writeEventToStreams(const I2OChain& event)
   {
-    (*it)->closeFilesForLumiSection(lumiSection, fileCountStr);
+    std::vector<StreamID> streams = event.getStreamTags();
+    
+    for (
+      std::vector<StreamID>::const_iterator it = streams.begin(), itEnd = streams.end();
+      it != itEnd;
+      ++it
+    )
+    {
+      try
+      {
+        streamHandlers_.at(*it)->writeEvent(event);
+      }
+      catch (std::out_of_range& e)
+      {
+        std::ostringstream msg;
+        msg << "Unable to retrieve stream handler for " << (*it) << " : ";
+        msg << e.what();
+        XCEPT_RAISE(exception::UnknownStreamId, msg.str());
+      }
+    }
   }
-  _dbFileHandler->write(fileCountStr);
-}
+  
+  
+  void DiskWriter::checkStreamChangeRequest()
+  {
+    EvtStrConfigListPtr evtCfgList;
+    ErrStrConfigListPtr errCfgList;
+    DiskWritingParams newdwParams;
+    unsigned int newRunNumber;
+    boost::posix_time::time_duration newTimeoutValue;
+    bool doConfig;
+    if (sharedResources_->diskWriterResources_->
+      streamChangeRequested(doConfig, evtCfgList, errCfgList, newdwParams, newRunNumber, newTimeoutValue))
+    {
+      destroyStreams();
+      if (doConfig)
+      {
+        dwParams_ = newdwParams;
+        runNumber_ = newRunNumber;
+        timeout_ = newTimeoutValue;
+        dbFileHandler_->configure(runNumber_, dwParams_);
+        
+        makeFaultyEventStream();
+        configureEventStreams(evtCfgList);
+        configureErrorStreams(errCfgList);
+      }
+      sharedResources_->diskWriterResources_->streamChangeDone();
+    }
+  }
+  
+  
+  void DiskWriter::checkForFileTimeOuts(const bool doItNow)
+  {
+    utils::TimePoint_t now = utils::getCurrentTime();
+    
+    if (doItNow || (now - lastFileTimeoutCheckTime_) > dwParams_.fileClosingTestInterval_)
+    {
+      closeTimedOutFiles(now);
+      lastFileTimeoutCheckTime_ = now;
+    }
+  }
+  
+  
+  void DiskWriter::closeTimedOutFiles(const utils::TimePoint_t now)
+  {
+    std::for_each(streamHandlers_.begin(), streamHandlers_.end(),
+      boost::bind(&StreamHandler::closeTimedOutFiles, _1, now));
+  }
+  
+  
+  void DiskWriter::configureEventStreams(EvtStrConfigListPtr cfgList)
+  {
+    for (
+      EvtStrConfigList::iterator it = cfgList->begin(),
+        itEnd = cfgList->end();
+      it != itEnd;
+      ++it
+    ) 
+    {
+      if ( it->fractionToDisk() > 0 )
+        makeEventStream(*it);
+    }
+  }
+  
+  
+  void DiskWriter::configureErrorStreams(ErrStrConfigListPtr cfgList)
+  {
+    for (
+      ErrStrConfigList::iterator it = cfgList->begin(),
+        itEnd = cfgList->end();
+      it != itEnd;
+      ++it
+    ) 
+    {
+      makeErrorStream(*it);
+    }
+  }
+  
+  
+  void DiskWriter::makeFaultyEventStream()
+  {
+    if ( dwParams_.faultyEventsStream_.empty() ) return;
+
+    boost::shared_ptr<FaultyEventStreamHandler> newHandler(
+    new FaultyEventStreamHandler(sharedResources_, dbFileHandler_, dwParams_.faultyEventsStream_)
+    );
+    streamHandlers_.push_back(boost::dynamic_pointer_cast<StreamHandler>(newHandler));
+  }
+  
+  
+  void DiskWriter::makeEventStream(EventStreamConfigurationInfo& streamCfg)
+  {
+    boost::shared_ptr<EventStreamHandler> newHandler(
+      new EventStreamHandler(streamCfg, sharedResources_, dbFileHandler_)
+    );
+    streamHandlers_.push_back(boost::dynamic_pointer_cast<StreamHandler>(newHandler));
+    streamCfg.setStreamId(streamHandlers_.size() - 1);
+  }
+  
+  
+  void DiskWriter::makeErrorStream(ErrorStreamConfigurationInfo& streamCfg)
+  {
+    boost::shared_ptr<FRDStreamHandler> newHandler(
+      new FRDStreamHandler(streamCfg, sharedResources_, dbFileHandler_)
+    );
+    streamHandlers_.push_back(boost::dynamic_pointer_cast<StreamHandler>(newHandler));
+    streamCfg.setStreamId(streamHandlers_.size() - 1);
+  }
+  
+  
+  void DiskWriter::destroyStreams()
+  {
+    if (streamHandlers_.empty()) return;
+    
+    std::for_each(streamHandlers_.begin(), streamHandlers_.end(),
+      boost::bind(&StreamHandler::closeAllFiles, _1));
+    streamHandlers_.clear();
+    
+    reportRemainingLumiSections();
+    writeEndOfRunMarker();
+  }
+  
+  
+  void DiskWriter::reportRemainingLumiSections() const
+  {
+    StreamsMonitorCollection& smc =
+      sharedResources_->statisticsReporter_->getStreamsMonitorCollection();
+    
+    smc.reportAllLumiSectionInfos(dbFileHandler_);
+  }
+  
+  
+  void DiskWriter::writeEndOfRunMarker() const
+  {
+    RunMonitorCollection& rmc =
+      sharedResources_->statisticsReporter_->getRunMonitorCollection();
+    // Make sure we report the latest values
+    rmc.calculateStatistics(utils::getCurrentTime());
+    
+    MonitoredQuantity::Stats lumiSectionsSeenStats;
+    rmc.getLumiSectionsSeenMQ().getStats(lumiSectionsSeenStats);
+    MonitoredQuantity::Stats eolsSeenStats;
+    rmc.getEoLSSeenMQ().getStats(eolsSeenStats);
+    
+    std::ostringstream str;
+    str << "LScount:" << lumiSectionsSeenStats.getSampleCount()
+      << "\tEoLScount:" << eolsSeenStats.getSampleCount()
+      << "\tLastLumi:" << lumiSectionsSeenStats.getLastSampleValue()
+      << "\tEoR";
+    dbFileHandler_->write(str.str());
+  }
+  
+  
+  void DiskWriter::processEndOfLumiSection(const I2OChain& msg)
+  {
+    if ( msg.faulty() || msg.runNumber() != runNumber_ ) return;
+    
+    const uint32_t lumiSection = msg.lumiSection();
+    
+    std::string fileCountStr;
+    
+    for (StreamHandlers::const_iterator it = streamHandlers_.begin(),
+           itEnd = streamHandlers_.end(); it != itEnd; ++it)
+    {
+      (*it)->closeFilesForLumiSection(lumiSection, fileCountStr);
+    }
+    dbFileHandler_->write(fileCountStr);
+  }
+  
+} // namespace stor
 
 
 /// emacs configuration

@@ -1,10 +1,7 @@
-<use name=FWCore/Framework>
-<use name=FWCore/PluginManager>
-<use name=FWCore/ParameterSet>
-<flags EDM_PLUGIN=1>
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<flags EDM_PLUGIN="1"/>
 <export>
-   <lib name=skelsubsysloopername>
-   <use name=FWCore/Framework>
-   <use name=FWCore/PluginManager>
-   <use name=FWCore/ParameterSet>
+   <lib name="1"/>
 </export>

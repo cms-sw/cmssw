@@ -1,8 +1,8 @@
-// $Id: StatisticsReporter.h,v 1.12 2010/03/16 17:55:43 mommsen Exp $
+// $Id: StatisticsReporter.h,v 1.13.10.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: StatisticsReporter.h 
 
-#ifndef StorageManager_StatisticsReporter_h
-#define StorageManager_StatisticsReporter_h
+#ifndef EventFilter_StorageManager_StatisticsReporter_h
+#define EventFilter_StorageManager_StatisticsReporter_h
 
 #include "toolbox/lang/Class.h"
 #include "toolbox/task/WaitingWorkLoop.h"
@@ -11,6 +11,7 @@
 #include "xdata/String.h"
 #include "xdata/UnsignedInteger32.h"
 
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/EventConsumerMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/DQMConsumerMonitorCollection.h"
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
@@ -36,8 +37,6 @@
 
 namespace stor {
 
-  class AlarmHandler;
-
   /**
    * Singleton to keep track of all monitoring and statistics issues
    *
@@ -45,8 +44,8 @@ namespace stor {
    * statistics for all MonitorCollections.
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2010/03/16 17:55:43 $
+   * $Revision: 1.13.10.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
   
   class StatisticsReporter : public toolbox::lang::Class, public xdata::ActionListener
@@ -62,80 +61,80 @@ namespace stor {
     virtual ~StatisticsReporter();
 
     const RunMonitorCollection& getRunMonitorCollection() const
-    { return _runMonCollection; }
+    { return runMonCollection_; }
 
     RunMonitorCollection& getRunMonitorCollection()
-    { return _runMonCollection; }
+    { return runMonCollection_; }
 
 
     const FragmentMonitorCollection& getFragmentMonitorCollection() const
-    { return _fragMonCollection; }
+    { return fragMonCollection_; }
 
     FragmentMonitorCollection& getFragmentMonitorCollection()
-    { return _fragMonCollection; }
+    { return fragMonCollection_; }
 
 
     const FilesMonitorCollection& getFilesMonitorCollection() const
-    { return _filesMonCollection; }
+    { return filesMonCollection_; }
 
     FilesMonitorCollection& getFilesMonitorCollection()
-    { return _filesMonCollection; }
+    { return filesMonCollection_; }
 
 
     const StreamsMonitorCollection& getStreamsMonitorCollection() const
-    { return _streamsMonCollection; }
+    { return streamsMonCollection_; }
 
     StreamsMonitorCollection& getStreamsMonitorCollection()
-    { return _streamsMonCollection; }
+    { return streamsMonCollection_; }
 
 
     const DataSenderMonitorCollection& getDataSenderMonitorCollection() const
-    { return _dataSenderMonCollection; }
+    { return dataSenderMonCollection_; }
 
     DataSenderMonitorCollection& getDataSenderMonitorCollection()
-    { return _dataSenderMonCollection; }
+    { return dataSenderMonCollection_; }
 
 
     const DQMEventMonitorCollection& getDQMEventMonitorCollection() const
-    { return _dqmEventMonCollection; }
+    { return dqmEventMonCollection_; }
 
     DQMEventMonitorCollection& getDQMEventMonitorCollection()
-    { return _dqmEventMonCollection; }
+    { return dqmEventMonCollection_; }
 
 
     const ResourceMonitorCollection& getResourceMonitorCollection() const
-    { return _resourceMonCollection; }
+    { return resourceMonCollection_; }
 
     ResourceMonitorCollection& getResourceMonitorCollection()
-    { return _resourceMonCollection; }
+    { return resourceMonCollection_; }
 
 
     const StateMachineMonitorCollection& getStateMachineMonitorCollection() const
-    { return _stateMachineMonCollection; }
+    { return stateMachineMonCollection_; }
 
     StateMachineMonitorCollection& getStateMachineMonitorCollection()
-    { return _stateMachineMonCollection; }
+    { return stateMachineMonCollection_; }
 
 
     const EventConsumerMonitorCollection& getEventConsumerMonitorCollection() const
-    { return _eventConsumerMonCollection; }
+    { return eventConsumerMonCollection_; }
 
     EventConsumerMonitorCollection& getEventConsumerMonitorCollection()
-    { return _eventConsumerMonCollection; }
+    { return eventConsumerMonCollection_; }
 
 
     const DQMConsumerMonitorCollection& getDQMConsumerMonitorCollection() const
-    { return _dqmConsumerMonCollection; }
+    { return dqmConsumerMonCollection_; }
 
     DQMConsumerMonitorCollection& getDQMConsumerMonitorCollection()
-    { return _dqmConsumerMonCollection; }
+    { return dqmConsumerMonCollection_; }
 
 
     const ThroughputMonitorCollection& getThroughputMonitorCollection() const
-    { return _throughputMonCollection; }
+    { return throughputMonCollection_; }
 
     ThroughputMonitorCollection& getThroughputMonitorCollection()
-    { return _throughputMonCollection; }
+    { return throughputMonCollection_; }
 
 
     /**
@@ -151,8 +150,7 @@ namespace stor {
     /**
      * Access alarm handler
      */
-    typedef boost::shared_ptr<AlarmHandler> AlarmHandlerPtr;
-    AlarmHandlerPtr alarmHandler() { return _alarmHandler; }
+    AlarmHandlerPtr alarmHandler() { return alarmHandler_; }
 
     /**
      * Update the variables put into the application info space
@@ -176,37 +174,37 @@ namespace stor {
     void calculateStatistics();
     void updateInfoSpace();
 
-    xdaq::Application* _app;
-    AlarmHandlerPtr _alarmHandler;
-    SharedResourcesPtr _sharedResources;
-    utils::duration_t _monitoringSleepSec;
-    utils::time_point_t _lastMonitorAction;
+    xdaq::Application* app_;
+    AlarmHandlerPtr alarmHandler_;
+    SharedResourcesPtr sharedResources_;
+    utils::Duration_t monitoringSleepSec_;
+    utils::TimePoint_t lastMonitorAction_;
 
-    RunMonitorCollection _runMonCollection;
-    FragmentMonitorCollection _fragMonCollection;
-    FilesMonitorCollection _filesMonCollection;
-    StreamsMonitorCollection _streamsMonCollection;
-    DataSenderMonitorCollection _dataSenderMonCollection;
-    DQMEventMonitorCollection _dqmEventMonCollection;
-    ResourceMonitorCollection _resourceMonCollection;
-    StateMachineMonitorCollection _stateMachineMonCollection;
-    EventConsumerMonitorCollection _eventConsumerMonCollection;
-    DQMConsumerMonitorCollection _dqmConsumerMonCollection;
-    ThroughputMonitorCollection _throughputMonCollection;
-    toolbox::task::WorkLoop* _monitorWL;      
-    bool _doMonitoring;
+    RunMonitorCollection runMonCollection_;
+    FragmentMonitorCollection fragMonCollection_;
+    FilesMonitorCollection filesMonCollection_;
+    StreamsMonitorCollection streamsMonCollection_;
+    DataSenderMonitorCollection dataSenderMonCollection_;
+    DQMEventMonitorCollection dqmEventMonCollection_;
+    ResourceMonitorCollection resourceMonCollection_;
+    StateMachineMonitorCollection stateMachineMonCollection_;
+    EventConsumerMonitorCollection eventConsumerMonCollection_;
+    DQMConsumerMonitorCollection dqmConsumerMonCollection_;
+    ThroughputMonitorCollection throughputMonCollection_;
+    toolbox::task::WorkLoop* monitorWL_;      
+    bool doMonitoring_;
 
     // Stuff dealing with the monitoring info space
-    xdata::InfoSpace *_infoSpace;
-    InfoSpaceItemNames _infoSpaceItemNames;
+    xdata::InfoSpace *infoSpace_;
+    InfoSpaceItemNames infoSpaceItemNames_;
 
     // These values have to be in the application infospace as
     // the HLTSFM queries them from the application infospace at 
     // the end of the run to put them into the RunInfo DB. The HTLSFM
     // uses the application infospace, and not the monitoring infospace.
-    xdata::String _stateName;
-    xdata::UnsignedInteger32 _storedEvents;
-    xdata::UnsignedInteger32 _closedFiles;
+    xdata::String stateName_;
+    xdata::UnsignedInteger32 storedEvents_;
+    xdata::UnsignedInteger32 closedFiles_;
 
   };
 
@@ -214,7 +212,7 @@ namespace stor {
   
 } // namespace stor
 
-#endif // StorageManager_StatisticsReporter_h 
+#endif // EventFilter_StorageManager_StatisticsReporter_h 
 
 
 /// emacs configuration

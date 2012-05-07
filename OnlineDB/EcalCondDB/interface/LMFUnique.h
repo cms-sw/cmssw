@@ -41,12 +41,13 @@ class LMFUnique: public IUniqueDBObject {
     setConnection(c->getEnv(), c->getConn());
   }
 
-  virtual ~LMFUnique() {  }
+  virtual ~LMFUnique();
 
   virtual bool isValid() const { return true; }
   virtual bool exists();
 
   //  int getID()       { return m_ID; } 
+  std::string sequencePostfix(Tm t);
   int getID() const { return m_ID; } 
   int getInt(std::string fieldname) const;
   std::string getClassName() { return m_className; }

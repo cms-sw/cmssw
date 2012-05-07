@@ -23,6 +23,8 @@ multiTrackValidator = cms.EDAnalyzer(
     # to be calculated in the end run (for automated validation):
     skipHistoFit=cms.untracked.bool(True),
 
+    runStandalone = cms.bool(False),
+
     useGsf=cms.bool(False),
 
     

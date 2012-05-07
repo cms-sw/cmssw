@@ -1,8 +1,8 @@
-// $Id: FragmentStore.h,v 1.7 2010/02/15 13:43:38 mommsen Exp $
+// $Id: FragmentStore.h,v 1.9 2011/03/07 15:31:32 mommsen Exp $
 /// @file: FragmentStore.h 
 
-#ifndef StorageManager_FragmentStore_h
-#define StorageManager_FragmentStore_h
+#ifndef EventFilter_StorageManager_FragmentStore_h
+#define EventFilter_StorageManager_FragmentStore_h
 
 #include <map>
 
@@ -20,16 +20,15 @@ namespace stor {
    * Uses a map of I2OChains to store incomplete events.
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2010/02/15 13:43:38 $
+   * $Revision: 1.9 $
+   * $Date: 2011/03/07 15:31:32 $
    */
   
   class FragmentStore
   {
   public:
     
-    FragmentStore()
-    { clear(); }
+    explicit FragmentStore(size_t maxMemoryUsageMB);
 
     /**
      * Adds fragments of the I2OChain to the fragment store.
@@ -41,10 +40,10 @@ namespace stor {
 
 
     /**
-     * Add the duration_t in seconds to the stale window start time for
+     * Add the duration to the stale window start time for
      * all I2OChains hold by the store.
      */
-    void addToStaleEventTimes(const utils::duration_t);
+    void addToStaleEventTimes(const utils::Duration_t);
 
 
     /**
@@ -60,35 +59,42 @@ namespace stor {
      * it returns true and the I2OChain contains the faulty event.
      * Otherwise it returns false and the I2OChain is empty.
      */
-    const bool getStaleEvent(I2OChain&, utils::duration_t timeout);
+    const bool getStaleEvent(I2OChain&, utils::Duration_t timeout);
 
 
     /**
      * Clears all fragments hold by the fragment store
      */
     inline void clear()
-    { _store.clear(); _memoryUsed = 0; }
+    { store_.clear(); memoryUsed_ = 0; }
 
 
     /**
      * Checks if the fragment store is empty
      */
     inline bool empty() const
-    { return _store.empty(); }
+    { return store_.empty(); }
+
+
+    /**
+     * Checks if the fragment store is full
+     */
+    inline bool full() const
+    { return (memoryUsed_ >= maxMemoryUsage_); }
 
 
     /**
      * Returns the number of events in the fragment store (complete or not).
      */
     inline unsigned int size() const
-    { return _store.size(); }
+    { return store_.size(); }
 
 
     /**
      * Returns the total memory occupied by the events in the fragment store
      */
     inline size_t memoryUsed() const
-    { return _memoryUsed; }
+    { return memoryUsed_; }
 
     
   private:
@@ -98,15 +104,15 @@ namespace stor {
     FragmentStore& operator=(FragmentStore const&);
 
     typedef std::map<FragKey, I2OChain> fragmentMap;
-    fragmentMap _store;
+    fragmentMap store_;
     
-    size_t _memoryUsed;
-
+    size_t memoryUsed_;
+    const size_t maxMemoryUsage_;
   };
   
 } // namespace stor
 
-#endif // StorageManager_FragmentStore_h 
+#endif // EventFilter_StorageManager_FragmentStore_h 
 
 
 /// emacs configuration

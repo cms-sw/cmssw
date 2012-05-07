@@ -49,7 +49,6 @@
 
 class EgammaHLTTrackIsolation;
 class HLTConfigProvider;
-class EcalSeverityLevelAlgo;
 
 namespace egHLT {
 
@@ -80,8 +79,7 @@ namespace egHLT {
     edm::ESHandle<CaloGeometry> caloGeom_;
     edm::ESHandle<CaloTopology> caloTopology_;
     edm::ESHandle<MagneticField> magField_;
-    edm::ESHandle<EcalSeverityLevelAlgo> ecalSeverityLevel_;
-
+    
     edm::Handle<EcalRecHitCollection> ebRecHits_;
     edm::Handle<EcalRecHitCollection> eeRecHits_; 
     edm::Handle<HFRecHitCollection> hfHits_;

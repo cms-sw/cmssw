@@ -5,6 +5,10 @@
 #include<vector>
 #include "TLorentzVector.h"
 
+namespace edm {
+   class ConfigurationDescriptions;
+}
+
 //
 // class declaration
 //
@@ -15,6 +19,7 @@ class HLTRFilter : public HLTFilter {
 
       explicit HLTRFilter(const edm::ParameterSet&);
       ~HLTRFilter();
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:

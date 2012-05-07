@@ -14,7 +14,7 @@ process.source = cms.Source("EmptySource")
 
 process.MessageLogger = cms.Service("MessageLogger")
 
-process.demo = cms.EDAnalyzer("RPCGEO")
+process.demo = cms.EDFilter("RPCGEO")
 
 process.p = cms.Path(process.demo)
 

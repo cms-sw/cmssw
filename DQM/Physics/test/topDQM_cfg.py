@@ -7,6 +7,7 @@ process.load("DQM.Physics.topDiLeptonOfflineDQM_cfi")
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.DQM.collectorHost = ''
+
 process.dqmSaver.workflow = cms.untracked.string('/Physics/TopSingleLeptonDQM/DataSet')
 
 process.maxEvents = cms.untracked.PSet(
@@ -16,28 +17,23 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source(
     "PoolSource"
     ,fileNames = cms.untracked.vstring(
-      '/store/relval/CMSSW_3_8_5/RelValTTbar/GEN-SIM-RECO/MC_38Y_V12-v1/0039/2ABE8934-E7D1-DF11-9985-003048678C9A.root'
-     #'/store/relval/CMSSW_3_8_4/RelValTTbar/GEN-SIM-RECO/START38_V12-v1/0024/1A650A81-83C2-DF11-B355-002618FDA287.root'
+  #   'file:/afs/desy.de/user/r/rwolf/cms13/samples/847D00B0-608E-DF11-A37D-003048678FA0.root' ## for testing at DESY only!!
+      '/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/1A19B479-BA3A-DF11-8E43-0017A4770410.root'      
+  #  ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/1A2CED78-BA3A-DF11-98CD-0017A4771010.root'
+  #  ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/3AE61B7A-BA3A-DF11-BA4C-0017A477040C.root'
+  #  ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/3CBA7F7C-BA3A-DF11-9ECE-0017A4770C14.root'
+  #  ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/443CAD79-BA3A-DF11-9F90-0017A4770818.root'
+  #  ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/4C91A47A-BA3A-DF11-B3D2-0017A4771004.root'
+  #  ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/5225C429-BB3A-DF11-AD90-0017A4770020.root'
+  #  ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/62BC7102-BB3A-DF11-8D7C-0017A4771028.root'
+  #  ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/64FCA77B-BA3A-DF11-8514-0017A477042C.root'
+  #  ,'/store/mc/Spring10/TTbar/GEN-SIM-RECO/MC_3XY_V25_S09_preproduction-v2/0106/7AE57478-BA3A-DF11-BA3C-0017A4771034.root'
     )
 )
 
-## apply VBTF electronID (needed for the current implementation
-## of topSingleElectronDQMLoose and topSingleElectronDQMMedium)
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("DQM.Physics.topElectronID_cff")
-
 ## load jet corrections
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-## --------------------------------------------------------------------
-## Frontier Conditions: (adjust accordingly!!!)
-##
-## For CMSSW_3_8_X MC use             ---> 'START38_V12::All'
-## For Data (38X re-processing) use   ---> 'GR_R_38X_V13::All'
-##
-## For more details have a look at: WGuideFrontierConditions
-## --------------------------------------------------------------------
-process.GlobalTag.globaltag = 'START38_V12::All' 
+process.GlobalTag.globaltag = 'START38_V7::All' ## (for CMSSW_3_8_0) ## 'GR10_P_V5::All' (for data with CMSSW_3_6_1_patch4)
 process.load('JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff')
 process.prefer("ak5CaloL2L3")
 
@@ -52,11 +48,9 @@ process.MessageLogger.cerr.TopDiLeptonOfflineDQM = cms.untracked.PSet(limit = cm
 ## check the event content
 process.content = cms.EDAnalyzer("EventContentAnalyzer")
 
-## this is a full sequence to test the functionality of all modules
 process.p = cms.Path(
     #process.content *
     ## common dilepton monitoring
-    process.simpleEleId70cIso          *
     process.topDiLeptonOfflineDQM      +
     ## common lepton plus jets monitoring
     process.topSingleLeptonDQM         +

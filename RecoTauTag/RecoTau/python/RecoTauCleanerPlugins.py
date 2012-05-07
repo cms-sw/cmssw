@@ -1,19 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-'''
+''' 
 
 Plugins for ranking PFTau candidates
 
 '''
-
-matchingConeCut = cms.PSet(
-    name = cms.string("MatchingCone"),
-    plugin = cms.string("RecoTauStringCleanerPlugin"),
-    # Prefer taus that are within DR<0.1 of the jet axis
-    selection = cms.string("deltaR(eta, phi, jetRef().eta, jetRef().phi) < 0.1"),
-    selectionPassFunction = cms.string("0"),
-    selectionFailValue = cms.double(1e3),
-)
 
 # Prefer taus with charge == 1 (no three prongs with charge = 3)
 unitCharge = cms.PSet(
@@ -23,7 +14,7 @@ unitCharge = cms.PSet(
     selection = cms.string("signalPFChargedHadrCands().size() = 3"),
     # As 1 is lower than 3, this will always prefer those with unit charge
     selectionPassFunction = cms.string("abs(charge())-1"),
-    # If it is a one prong, consider it just as good as a
+    # If it is a one prong, consider it just as good as a 
     # three prong with unit charge
     selectionFailValue = cms.double(0),
 )

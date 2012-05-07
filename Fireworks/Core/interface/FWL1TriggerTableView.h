@@ -1,57 +1,36 @@
-// -*- C++ -*-
 #ifndef Fireworks_Core_FWL1TriggerTableView_h
 #define Fireworks_Core_FWL1TriggerTableView_h
+// -*- C++ -*-
 //
 // Package:     Core
 // Class  :     FWL1TriggerTableView
+// 
+/**\class FWL1TriggerTableView FWL1TriggerTableView.h Fireworks/Core/interface/FWL1TriggerTableView.h
 
-#include "Fireworks/Core/interface/FWViewBase.h"
+ Description: [one line class summary]
 
-class TGFrame;
-class TGCompositeFrame;
-class FWTableWidget;
-class TEveWindowFrame;
-class TEveWindowSlot;
-class FWL1TriggerTableViewManager;
-class FWL1TriggerTableViewTableManager;
+ Usage:
+    <usage>
 
-class FWL1TriggerTableView : public FWViewBase
+*/
+//
+// Original Author:  
+//         Created:  Tue Jan 25 16:02:19 CET 2011
+// $Id$
+//
+
+#include "Fireworks/Core/interface/FWTriggerTableView.h"
+
+class FWTriggerTableViewManager;
+class FWTriggerTableViewTableManager;
+class FWL1TriggerTableView : public FWTriggerTableView
 {
-   friend class FWL1TriggerTableViewTableManager;
-
 public:
-   struct Column {
-      std::string title;
-      std::vector<std::string> values;
-      Column( const std::string& s ) : title( s ) 
-		{}
-   };
-
-   FWL1TriggerTableView( TEveWindowSlot *, FWL1TriggerTableViewManager * );
-   virtual ~FWL1TriggerTableView( void );
-
-   TGFrame*       frame( void ) const;
-   virtual void   addTo( FWConfiguration& ) const;
-   virtual void   saveImageTo( const std::string& iName ) const;
-
-   virtual void setFrom( const FWConfiguration& );
-   void 		setBackgroundColor( Color_t );
-   void 		resetColors( const class FWColorManager& );
-   void 		dataChanged( void );
-   void 		columnSelected( Int_t iCol, Int_t iButton, Int_t iKeyMod );
-
-private:
-   FWL1TriggerTableView( const FWL1TriggerTableView& );      // stop default
-   const FWL1TriggerTableView& operator=( const FWL1TriggerTableView& );      // stop default
+   FWL1TriggerTableView( TEveWindowSlot*);
+   virtual ~FWL1TriggerTableView() {}
 
 protected:
-   TEveWindowFrame*		m_eveWindow;
-   TGCompositeFrame*		m_vert;
-   FWL1TriggerTableViewManager*      m_manager;
-   FWL1TriggerTableViewTableManager* m_tableManager;
-   FWTableWidget*			m_tableWidget;
-   int                  m_currentColumn;
-   std::vector<Column>	m_columns;
+   virtual void fillTable(fwlite::Event* event);
 };
 
-#endif // Fireworks_Core_FWL1TriggerTableView_h
+#endif

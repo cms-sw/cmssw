@@ -14,13 +14,17 @@
 #include "G4UImanager.hh" 
 #include "G4TrackingManager.hh"
 #include "G4PhysicalVolumeStore.hh"
+#include "G4TransportationManager.hh"
 
 //#define DebugLog
 
 TrackingAction::TrackingAction(EventAction * e, const edm::ParameterSet & p) 
   : eventAction_(e),currentTrack_(0),
   detailedTiming(p.getUntrackedParameter<bool>("DetailedTiming",false)),
-  trackMgrVerbose(p.getUntrackedParameter<int>("G4TrackManagerVerbosity",0)){}
+  trackMgrVerbose(p.getUntrackedParameter<int>("G4TrackManagerVerbosity",0)) {
+
+  worldSolid = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume()->GetLogicalVolume()->GetSolid();
+}
 
 TrackingAction::~TrackingAction() {}
 
@@ -51,6 +55,12 @@ void TrackingAction::PreUserTrackingAction(const G4Track * aTrack)
     if (isNewPrimary(aTrack)) {
       eventAction_->prepareForNewPrimary();
     }
+    //    G4cout << "Track " << aTrack->GetTrackID() << " R " << (aTrack->GetVertexPosition()).r() << " Z " << std::abs((aTrack->GetVertexPosition()).z()) << G4endl << "Top Solid " << worldSolid->GetName() << " is it inside " << worldSolid->Inside(aTrack->GetVertexPosition()) << " compared to " << kOutside << G4endl;
+    if (worldSolid->Inside(aTrack->GetVertexPosition()) == kOutside) {
+      //      G4cout << "Kill Track " << aTrack->GetTrackID() << G4endl;
+      G4Track* theTrack = (G4Track *)(aTrack);
+      theTrack->SetTrackStatus(fStopAndKill);
+    }      
 
 }
 

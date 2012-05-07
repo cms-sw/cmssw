@@ -1,0 +1,635 @@
+// $Id: ConsumerUtils.icc,v 1.1.2.12 2011/03/02 10:54:17 mommsen Exp $
+/// @file: ConsumerUtils.icc
+
+#include "EventFilter/StorageManager/interface/ConsumerID.h"
+#include "EventFilter/StorageManager/interface/Exception.h"
+#include "EventFilter/StorageManager/interface/StatisticsReporter.h"
+
+#include "IOPool/Streamer/interface/ConsRegMessage.h"
+#include "IOPool/Streamer/interface/OtherMessage.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+
+#include "xcept/tools.h"
+#include "xgi/Input.h"
+#include "xgi/Output.h"
+#include "xgi/exception/Exception.h"
+
+#include <boost/date_time/posix_time/posix_time_types.hpp>
+#include <boost/pointer_cast.hpp>
+#include <boost/scoped_ptr.hpp>
+
+#include <string>
+#include <vector>
+
+namespace stor
+{
+  
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  ConsumerUtils
+  (
+    boost::shared_ptr<Configuration_t> configuration,
+    RegistrationCollectionPtr registrationCollection,
+    RegistrationQueuePtr registrationQueue,
+    InitMsgCollectionPtr initMsgCollection,
+    boost::shared_ptr<EventQueueCollection_t> eventQueueCollection,
+    DQMEventQueueCollectionPtr dqmEventQueueCollection,
+    AlarmHandlerPtr alarmHandler
+  ) :
+  configuration_(configuration),
+  registrationCollection_(registrationCollection),
+  registrationQueue_(registrationQueue),
+  initMsgCollection_(initMsgCollection),
+  eventQueueCollection_(eventQueueCollection),
+  dqmEventQueueCollection_(dqmEventQueueCollection),
+  alarmHandler_(alarmHandler)
+  {}
+  
+  
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  void
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  processConsumerRegistrationRequest(xgi::Input* in, xgi::Output* out) const
+  {
+    EventConsRegPtr reginfo = createEventConsumerRegistrationInfo(in,out);
+    
+    if ( reginfo.get() != NULL && reginfo->isValid() &&
+      createEventConsumerQueue(reginfo) &&
+      addRegistrationInfo(reginfo) )
+    {
+      writeConsumerRegistration( out, reginfo->consumerId() );
+    }
+    else
+    {  
+      writeNotReady( out );
+    }
+  }
+  
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  EventConsRegPtr
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  createEventConsumerRegistrationInfo(xgi::Input* in, xgi::Output* out) const
+  {
+    EventConsRegPtr reginfo;
+    
+    ConsumerID cid = registrationCollection_->getConsumerId();
+    if ( !cid.isValid() ) return reginfo;
+    
+    std::string errorMsg = "Error parsing an event consumer registration request";
+    try
+    {
+      reginfo = parseEventConsumerRegistration(in);
+    }
+    catch ( edm::Exception& excpt )
+    {
+      errorMsg.append( ": " );
+      errorMsg.append( excpt.what() );
+      
+      XCEPT_DECLARE(stor::exception::ConsumerRegistration,
+        sentinelException, errorMsg);
+      alarmHandler_->notifySentinel(AlarmHandler::ERROR, sentinelException);
+      
+      writeErrorString( out, errorMsg );
+      return reginfo;
+    }
+    catch ( xcept::Exception& excpt )
+    {
+      XCEPT_DECLARE_NESTED(stor::exception::ConsumerRegistration,
+        sentinelException, errorMsg, excpt);
+      alarmHandler_->notifySentinel(AlarmHandler::ERROR, sentinelException);
+      
+      writeErrorString( out, errorMsg + ": " + xcept::stdformat_exception_history(excpt) );
+      return reginfo;
+    }
+    catch ( ... )
+    {
+      errorMsg.append( ": unknown exception" );
+      
+      XCEPT_DECLARE(stor::exception::ConsumerRegistration,
+        sentinelException, errorMsg);
+      alarmHandler_->notifySentinel(AlarmHandler::ERROR, sentinelException);
+      
+      writeErrorString( out, errorMsg );
+      return reginfo;
+    }
+    reginfo->setConsumerId( cid );
+    return reginfo;
+  }
+  
+  
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  bool
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  createEventConsumerQueue(EventConsRegPtr reginfo) const
+  {
+    QueueID qid = eventQueueCollection_->createQueue(reginfo);
+    
+    if( !qid.isValid() ) return false;
+    
+    reginfo->setQueueId( qid );
+    return true;
+  }
+  
+  
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  void
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  processConsumerHeaderRequest(xgi::Input* in, xgi::Output* out) const
+  {
+    ConsumerID cid = getConsumerId( in );
+    if( !cid.isValid() )
+    {
+      writeEmptyBuffer( out );
+      return;
+    }
+    
+    EventConsRegPtr consRegPtr = boost::dynamic_pointer_cast<EventConsumerRegistrationInfo>(
+      registrationCollection_->getRegistrationInfo( cid ));
+    if ( consRegPtr.get() == NULL )
+    {
+      writeEmptyBuffer( out );
+      return;
+    }
+    
+    InitMsgSharedPtr payload =
+      initMsgCollection_->getElementForOutputModule( consRegPtr->outputModuleLabel() );
+    
+    if( payload.get() == NULL )
+    {
+      writeEmptyBuffer( out );
+      return;
+    }
+    
+    writeConsumerHeader( out, payload );
+  }
+  
+  
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  void
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  processConsumerEventRequest(xgi::Input* in, xgi::Output* out) const
+  {
+    ConsumerID cid = getConsumerId( in );
+    
+    if( !cid.isValid() )
+    {
+      writeEmptyBuffer( out );
+      return;
+    }
+    
+    if ( !registrationCollection_->registrationIsAllowed( cid ) )
+    {
+      writeDone( out );
+      return;
+    }
+    
+    const typename EventQueueCollection_t::ValueType event =
+      eventQueueCollection_->popEvent( cid );
+    if( event.first.empty() || event.first.faulty() )
+      writeEmptyBuffer( out );
+    else
+    {   
+      writeConsumerEvent( out, event.first );
+    }
+  }
+  
+  
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  void
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  processDQMConsumerRegistrationRequest(xgi::Input* in, xgi::Output* out) const
+  {
+    DQMEventConsRegPtr reginfo = createDQMEventConsumerRegistrationInfo(in,out);
+    
+    if ( reginfo.get() != NULL && reginfo->isValid() &&
+      createDQMEventConsumerQueue(reginfo) &&
+      addRegistrationInfo(reginfo) )
+    {
+      writeConsumerRegistration( out, reginfo->consumerId() );
+    }
+    else
+    {  
+      writeNotReady( out );
+    }
+  }
+  
+  
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  DQMEventConsRegPtr
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  createDQMEventConsumerRegistrationInfo(xgi::Input* in, xgi::Output* out) const
+  {
+    DQMEventConsRegPtr dqmreginfo;
+    
+    ConsumerID cid = registrationCollection_->getConsumerId();
+    if ( !cid.isValid() ) return dqmreginfo;
+    
+    std::string errorMsg = "Error parsing a DQM event consumer registration request";
+    try
+    {
+      dqmreginfo = parseDQMEventConsumerRegistration(in);
+    }
+    catch ( edm::Exception& excpt )
+    {
+      errorMsg.append( ": " );
+      errorMsg.append( excpt.what() );
+      
+      XCEPT_DECLARE(stor::exception::DQMConsumerRegistration,
+        sentinelException, errorMsg);
+      alarmHandler_->notifySentinel(AlarmHandler::ERROR, sentinelException);
+      
+      writeErrorString( out, errorMsg );
+      return dqmreginfo;
+    }
+    catch ( xcept::Exception& excpt )
+    {
+      XCEPT_DECLARE_NESTED(stor::exception::DQMConsumerRegistration,
+        sentinelException, errorMsg, excpt);
+      alarmHandler_->notifySentinel(AlarmHandler::ERROR, sentinelException);
+      
+      writeErrorString( out, errorMsg + ": " + xcept::stdformat_exception_history(excpt) );
+      return dqmreginfo;
+    }
+    catch ( ... )
+    {
+      errorMsg.append( ": unknown exception" );
+      
+      XCEPT_DECLARE(stor::exception::DQMConsumerRegistration,
+        sentinelException, errorMsg);
+      alarmHandler_->notifySentinel(AlarmHandler::ERROR, sentinelException);
+      
+      writeErrorString( out, errorMsg );
+      return dqmreginfo;
+    }
+    dqmreginfo->setConsumerId( cid );
+    return dqmreginfo;
+  }
+  
+  
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  void
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  processDQMConsumerEventRequest(xgi::Input* in, xgi::Output* out) const
+  {
+    ConsumerID cid = getConsumerId( in );
+    if( !cid.isValid() )
+    {
+      writeEmptyBuffer( out );
+      return;
+    }
+    
+    if ( !registrationCollection_->registrationIsAllowed( cid ) )
+    {
+      writeDone( out );
+      return;
+    }
+    
+    const typename DQMEventQueueCollection::ValueType dqmEvent =
+      dqmEventQueueCollection_->popEvent( cid );
+    
+    if ( dqmEvent.first.empty() )
+      writeEmptyBuffer( out );
+    else
+      writeDQMConsumerEvent( out, dqmEvent.first.getDQMEventMsgView() );
+  }
+  
+  
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  bool
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  createDQMEventConsumerQueue(DQMEventConsRegPtr reginfo) const
+  {
+    QueueID qid = dqmEventQueueCollection_->createQueue(reginfo);
+    
+    if( !qid.isValid() ) return false;
+    
+    reginfo->setQueueId( qid );
+    return true;
+  }
+  
+  
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  bool
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  addRegistrationInfo(const RegPtr reginfo) const
+  {
+    if ( !registrationCollection_->addRegistrationInfo( reginfo ) ) return false;
+    
+    return registrationQueue_->enqTimedWait( reginfo, boost::posix_time::seconds(5) );
+  }
+  
+  
+  ////////////////////////////////////////////
+  //// Create consumer registration info: ////
+  ////////////////////////////////////////////
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  EventConsRegPtr
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  parseEventConsumerRegistration(xgi::Input* in) const
+  {
+    
+    if( in == 0 )
+    {
+      XCEPT_RAISE( xgi::exception::Exception,
+        "Null xgi::Input* in parseEventConsumerRegistration" );
+    }
+    
+    std::string psetStr = "<>";
+    
+    const std::string lengthStr = in->getenv( "CONTENT_LENGTH" );
+    unsigned long length = std::atol( lengthStr.c_str() );
+    
+    const std::string remoteHost = in->getenv( "REMOTE_HOST" );
+    
+    if( length > 0 )
+    {
+      boost::scoped_ptr< std::vector<char> > buf( new std::vector<char>(length) );
+      in->read( &(*buf)[0], length );
+      ConsRegRequestView req( &(*buf)[0] );
+      psetStr = req.getRequestParameterSet();
+    }
+    else
+    {
+      XCEPT_RAISE( stor::exception::ConsumerRegistration,
+        "Bad request length" );
+    }
+    
+    const edm::ParameterSet pset( psetStr );
+    
+    EventConsRegPtr cr(
+      new EventConsumerRegistrationInfo(pset,
+        configuration_->getEventServingParams(), remoteHost)
+    );
+    
+    return cr;
+  }
+  
+  ////////////////////////////////////////////////
+  //// Create DQM consumer registration info: ////
+  ////////////////////////////////////////////////
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  DQMEventConsRegPtr
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  parseDQMEventConsumerRegistration(xgi::Input* in) const
+  {
+    if( in == 0 )
+    {
+      XCEPT_RAISE( xgi::exception::Exception,
+        "Null xgi::Input* in parseDQMEventConsumerRegistration" );
+    }
+    
+    std::string psetStr = "<>";
+    
+    const std::string lengthStr = in->getenv( "CONTENT_LENGTH" );
+    unsigned long length = std::atol( lengthStr.c_str() );
+    
+    const std::string remoteHost = in->getenv( "REMOTE_HOST" );
+    
+    if( length > 0 )
+    {
+      boost::scoped_ptr< std::vector<char> > buf( new std::vector<char>(length) );
+      in->read( &(*buf)[0], length );
+      ConsRegRequestView req( &(*buf)[0] );
+      psetStr = req.getRequestParameterSet();
+    }
+    else
+    {
+      XCEPT_RAISE( stor::exception::DQMConsumerRegistration,
+        "Bad request length" );
+    }
+    
+    const edm::ParameterSet pset( psetStr );
+    
+    DQMEventConsRegPtr cr(
+      new DQMEventConsumerRegistrationInfo(pset,
+        configuration_->getEventServingParams(), remoteHost)
+    );
+    
+    return cr;
+  }
+  
+  /////////////////////////////
+  //// Write HTTP headers: ////
+  /////////////////////////////
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  void
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  writeHTTPHeaders(xgi::Output* out) const
+  {
+    out->getHTTPResponseHeader().addHeader( "Content-Type",
+      "application/octet-stream" );
+    out->getHTTPResponseHeader().addHeader( "Content-Transfer-Encoding",
+      "binary" );
+  }
+  
+  //////////////////////////////
+  //// Send ID to consumer: ////
+  //////////////////////////////
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  void
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  writeConsumerRegistration(xgi::Output* out, const ConsumerID cid) const
+  {
+    
+    const int buff_size = 1000;
+    std::vector<unsigned char> buff( buff_size );
+    
+    ConsRegResponseBuilder rb( &buff[0], buff.capacity(), 0, cid.value );
+    ConsRegResponseView rv( &buff[0] );
+    const unsigned int len = rv.size();
+    
+    writeHTTPHeaders( out );
+    out->write( (char*)(&buff[0]), len );
+  }
+  
+  ////////////////////////////////////////
+  //// Tell consumer we're not ready: ////
+  ////////////////////////////////////////
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  void
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  writeNotReady(xgi::Output* out) const
+  {
+    
+    const int buff_size = 1000;
+    std::vector<unsigned char> buff( buff_size );
+    
+    ConsRegResponseBuilder rb( &buff[0], buff.capacity(),
+      ConsRegResponseBuilder::ES_NOT_READY, 0 );
+    ConsRegResponseView rv( &buff[0] );
+    const unsigned int len = rv.size();
+    
+    writeHTTPHeaders( out );
+    out->write( (char*)(&buff[0]), len );
+  }
+  
+  ////////////////////////////////////////
+  //// Send empty buffer to consumer: ////
+  ////////////////////////////////////////
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  void
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  writeEmptyBuffer(xgi::Output* out) const
+  {
+    char buff;
+    writeHTTPHeaders( out );
+    out->write( &buff, 0 );
+  }
+  
+  ///////////////////////////////////////////
+  //// Tell consumer that run has ended: ////
+  ///////////////////////////////////////////
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  void
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  writeDone(xgi::Output* out) const
+  {
+    
+    const int buff_size = 1000;
+    std::vector<unsigned char> buff( buff_size );
+    
+    OtherMessageBuilder omb( &buff[0], Header::DONE );
+    const unsigned int len = omb.size();
+    
+    writeHTTPHeaders( out );
+    out->write( (char*)(&buff[0]), len );
+  }
+  
+  /////////////////////////////////////////
+  //// Send error message to consumer: ////
+  /////////////////////////////////////////
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  void
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  writeErrorString(xgi::Output* out, const std::string errorString) const
+  {
+    const int buff_size = errorString.size();
+    std::vector<unsigned char> buff( buff_size+1 );
+    
+    for (int i=0; i<buff_size; ++i) buff[i]=errorString[i];
+    buff[buff_size] = '\0';
+    
+    writeHTTPHeaders( out );
+    out->write( (char*)(&buff[0]), buff_size+1 );
+  }
+  
+  
+  //////////////////////////////////////////////////
+  //// Extract consumer ID from header request: ////
+  //////////////////////////////////////////////////
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  ConsumerID
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  getConsumerId(xgi::Input* in) const
+  {
+    
+    if( in == 0 )
+    {          
+      XCEPT_RAISE( xgi::exception::Exception,
+        "Null xgi::Input* in getConsumerID" );
+    }
+    
+    const std::string l_str = in->getenv( "CONTENT_LENGTH" );
+    unsigned long l = std::atol( l_str.c_str() );
+    
+    unsigned int cid_int = 0;
+    
+    if( l > 0 )
+    {
+      boost::scoped_ptr< std::vector<char> > buf( new std::vector<char>(l) );
+      in->read( &(*buf)[0], l );
+      OtherMessageView req( &(*buf)[0] );
+      if( req.code() == Header::HEADER_REQUEST ||
+        req.code() == Header::EVENT_REQUEST ||
+        req.code() == Header::DQMEVENT_REQUEST )
+      {
+        uint8* ptr = req.msgBody();
+        cid_int = convert32( ptr );
+      }
+      else
+      {
+        XCEPT_RAISE( stor::exception::Exception,
+          "Bad request code in getConsumerID" );
+      }
+    }
+    else
+    {
+      XCEPT_RAISE( stor::exception::Exception,
+        "Bad request length in getConsumerID" );
+    }
+    
+    return ConsumerID( cid_int );
+  }
+  
+  ///////////////////////
+  //// Write header: ////
+  ///////////////////////
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  void
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  writeConsumerHeader(xgi::Output* out, const InitMsgSharedPtr ptr) const
+  {
+    const unsigned int len = ptr->size();
+    std::vector<unsigned char> buff( len );
+    for( unsigned int i = 0; i < len; ++i )
+    {
+      buff[i] = (*ptr)[i];
+    }
+    writeHTTPHeaders( out );
+    out->write( (char*)(&buff[0]), len );
+  }
+  
+  //////////////////////
+  //// Write event: ////
+  //////////////////////
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  void
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  writeConsumerEvent(xgi::Output* out, const stor::I2OChain& evt) const
+  {
+    writeHTTPHeaders( out );
+
+    const unsigned int nfrags = evt.fragmentCount();
+    for ( unsigned int i = 0; i < nfrags; ++i )
+    {
+      const unsigned long len = evt.dataSize( i );
+      unsigned char* location = evt.dataLocation( i );
+      out->write( (char*)location, len );
+    } 
+  }
+
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  void
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  writeConsumerEvent(xgi::Output* out, const smproxy::EventMsg& evt) const
+  {
+    writeHTTPHeaders( out );
+    out->write( (char*)evt.dataLocation(), evt.totalDataSize() );
+  }
+  
+  //////////////////////////
+  //// Write DQM event: ////
+  //////////////////////////
+  template<typename Configuration_t, typename EventQueueCollection_t>
+  void
+  ConsumerUtils<Configuration_t,EventQueueCollection_t>::
+  writeDQMConsumerEvent(xgi::Output* out, const DQMEventMsgView& view) const
+  {
+    writeHTTPHeaders( out );
+    
+    const unsigned int len = view.size();
+    unsigned char* location = view.startAddress();
+    out->write( (char*)location, len );
+  }
+  
+} // namespace stor
+
+  
+/// emacs configuration
+/// Local Variables: -
+/// mode: c++ -
+/// c-basic-offset: 2 -
+/// indent-tabs-mode: nil -
+/// End: -

@@ -33,7 +33,8 @@ class SiPixelTemplateDBObjectReader : public edm::EDAnalyzer {
       std::string theTemplateCalibrationLocation;
       bool theDetailedTemplateDBErrorOutput;
       bool theFullTemplateDBOutput;
-			bool testGlobalTag;
+			float theMagField;
+			bool testStandalone;
 			
 			SiPixelTemplateDBObject dbobject;
 			bool hasTriggeredWatcher;			

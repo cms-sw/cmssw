@@ -17,6 +17,7 @@ class LMFColor : public LMFUnique {
   LMFColor(oracle::occi::Environment* env,
 	   oracle::occi::Connection* conn);
   LMFColor(EcalDBConnection *c);
+  LMFColor(EcalDBConnection *c, std::string col);
   ~LMFColor();
 
   LMFColor& setName(const std::string &s = "blue") {

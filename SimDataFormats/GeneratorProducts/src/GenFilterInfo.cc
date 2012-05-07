@@ -24,3 +24,13 @@ GenFilterInfo::~GenFilterInfo()
 {
 }
 
+bool GenFilterInfo::mergeProduct(GenFilterInfo const &other)
+{
+  // merging two GenFilterInfos means that the numerator and
+  // denominator from the original product need to besummed with
+  // those in the product we are going to merge
+  numEventsTried_ += other.numEventsTried(); 
+  numEventsPassed_ += other.numEventsPassed();   
+  return true;
+}
+

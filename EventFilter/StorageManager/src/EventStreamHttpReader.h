@@ -1,66 +1,60 @@
-#ifndef STREAMER_EVENTSTREAMHTTPREADER_H
-#define STREAMER_EVENTSTREAMHTTPREADER_H
+// $Id: EventStreamHttpReader.h,v 1.22.10.1 2011/03/07 11:33:05 mommsen Exp $
+/// @file: EventStreamHttpReader.h
 
-// $Id: EventStreamHttpReader.h,v 1.21 2009/09/03 21:10:36 biery Exp $
+#ifndef StorageManager_EventStreamHttpReader_h
+#define StorageManager_EventStreamHttpReader_h
 
-#include "IOPool/Streamer/interface/EventBuffer.h"
-#include "IOPool/Streamer/interface/StreamerInputSource.h"
+#include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
+#include "EventFilter/StorageManager/interface/EventServerProxy.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "FWCore/Framework/interface/InputSourceDescription.h"
+#include "IOPool/Streamer/interface/StreamerInputSource.h"
 
-#include <vector>
-#include <memory>
-#include <string>
-#include <fstream>
 
 namespace edm
 {
-  struct ReadData;
+  /**
+    Input source for event consumers that will get events from the
+    Storage Manager Event Server. This does uses a HTTP get using the
+    CURL library. The Storage Manager Event Server responses with
+    a binary octet-stream.  The product registry is also obtained
+    through a HTTP get.
+
+    There is currently no test of the product registry against
+    the consumer client product registry within the code. It should
+    already be done if this was inherenting from the standard
+    framework input source. Currently we inherit from InputSource.
+
+    $Author: mommsen $
+    $Revision: 1.22.10.1 $
+    $Date: 2011/03/07 11:33:05 $
+  */
 
   class EventStreamHttpReader : public edm::StreamerInputSource
   {
   public:
-    typedef std::vector<char> Buf;
+    EventStreamHttpReader
+    (
+      edm::ParameterSet const&,
+      edm::InputSourceDescription const&
+    );
+    virtual ~EventStreamHttpReader() {};
 
-    EventStreamHttpReader(edm::ParameterSet const& pset,
-		 edm::InputSourceDescription const& desc);
-    virtual ~EventStreamHttpReader();
+    virtual EventPrincipal* read();
 
-    virtual edm::EventPrincipal* read();
+  private:
     void readHeader();
-    void registerWithEventServer();
+    
+    stor::EventServerProxy<stor::EventConsumerRegistrationInfo> eventServerProxy_;
 
-  private:  
-    edm::EventPrincipal* getOneEvent();
+    const bool dropOldLumisectionEvents_;
+    unsigned int lastLS_;
 
-    std::string sourceurl_;
-    char eventurl_[256];
-    char headerurl_[256];
-    char subscriptionurl_[256];
-    Buf buf_;
-    int hltBitCount;
-    int l1BitCount;
-    std::string consumerName_;
-    std::string consumerPriority_;
-    std::string consumerPSetString_;
-    int headerRetryInterval_;
-    double minEventRequestInterval_;
-    unsigned int consumerId_;
-    struct timeval lastRequestTime_;
-    bool endRunAlreadyNotified_;
-    bool runEnded_;
-    bool alreadySaidHalted_;
-    enum
-    {
-      DEFAULT_MAX_CONNECT_TRIES = 360,
-      DEFAULT_CONNECT_TRY_SLEEP_TIME = 10
-    };
-    int maxConnectTries_;
-    int connectTrySleepTime_;
   };
 
-}
-#endif
+} // namespace edm
+
+#endif // StorageManager_EventStreamHttpReader_h
 
 /// emacs configuration
 /// Local Variables: -

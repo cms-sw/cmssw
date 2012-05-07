@@ -86,6 +86,7 @@ INSERT INTO COND_TABLE_META(DEF_ID, TABLE_NAME, TABLE_TYPE,NUMBER_OF_FIELDS, FIL
 INSERT INTO COND_TABLE_META(DEF_ID, TABLE_NAME, TABLE_TYPE,NUMBER_OF_FIELDS, FILLED_BY, CONTENT_EXPLANATION, LOGIC_ID_EXPLANATION, LOGIC_ID_NAME,MAP_TO_BE_DONE_BY_i, MAP_TO_BE_DONE_BY_j) values (COND_TABLE_SQ.NextVal, 'DCU_LVR_TEMPS_DAT',2,3,'CCS_Supervisor','LVR chip temperatures','LVR numbering','EB_LVRB_DCU',17,4);                                                                                  
 INSERT INTO COND_TABLE_META(DEF_ID, TABLE_NAME, TABLE_TYPE,NUMBER_OF_FIELDS, FILLED_BY, CONTENT_EXPLANATION, LOGIC_ID_EXPLANATION, LOGIC_ID_NAME,MAP_TO_BE_DONE_BY_i, MAP_TO_BE_DONE_BY_j) values (COND_TABLE_SQ.NextVal, 'DCU_LVRB_TEMPS_DAT',2,3,'CCS_Supervisor','LVR board temperatures','LVR numbering','EB_LVRB_T_sensor',17,4);                                                                                  
 INSERT INTO COND_TABLE_META(DEF_ID, TABLE_NAME, TABLE_TYPE,NUMBER_OF_FIELDS, FILLED_BY, CONTENT_EXPLANATION, LOGIC_ID_EXPLANATION, LOGIC_ID_NAME,MAP_TO_BE_DONE_BY_i, MAP_TO_BE_DONE_BY_j) values (COND_TABLE_SQ.NextVal, 'DCU_LVR_VOLTAGES_DAT',2,11,'CCS_Supervisor','LVR measured voltages','LVR numbering','EB_trigger_tower',17,4);                                                                                  
+
 INSERT INTO COND_TABLE_META(DEF_ID, TABLE_NAME, TABLE_TYPE,NUMBER_OF_FIELDS, FILLED_BY, CONTENT_EXPLANATION, LOGIC_ID_EXPLANATION, LOGIC_ID_NAME) values (COND_TABLE_SQ.NextVal, 'LMF_RUN_TAG',6,0,'LaserMonitoringFarm','Definition of the run tags for LMF analysis','none','none');                                                                                  
 INSERT INTO COND_TABLE_META(DEF_ID, TABLE_NAME, TABLE_TYPE,NUMBER_OF_FIELDS, FILLED_BY, CONTENT_EXPLANATION, LOGIC_ID_EXPLANATION, LOGIC_ID_NAME) values (COND_TABLE_SQ.NextVal, 'LMF_RUN_IOV',3,0,'LaserMonitoringFarm','LMF Interval of validity with subrun','none','none');                                                                                  
 INSERT INTO COND_TABLE_META(DEF_ID, TABLE_NAME, TABLE_TYPE,NUMBER_OF_FIELDS, FILLED_BY, CONTENT_EXPLANATION, LOGIC_ID_EXPLANATION, LOGIC_ID_NAME,MAP_TO_BE_DONE_BY_i, MAP_TO_BE_DONE_BY_j) values (COND_TABLE_SQ.NextVal, 'LMF_LASER_BLUE_RAW_DAT',2,2,'LaserMonitoringFarm','Blue Laser raw analysis','crystal numbering','EB_crystal_number',85,20);                                                                                  
@@ -111,7 +112,7 @@ INSERT INTO COND_TABLE_META(DEF_ID, TABLE_NAME, TABLE_TYPE,NUMBER_OF_FIELDS, FIL
 
 INSERT INTO COND_TABLE_META(DEF_ID, TABLE_NAME, TABLE_TYPE,NUMBER_OF_FIELDS, FILLED_BY, CONTENT_EXPLANATION, LOGIC_ID_EXPLANATION, LOGIC_ID_NAME,MAP_TO_BE_DONE_BY_i, MAP_TO_BE_DONE_BY_j) values (COND_TABLE_SQ.NextVal, 'MON_PN_LED1_DAT',2,9,'DQM','PN analysis in LED1 laser runs','PN numbering', 'EB_LM_PN',5,2);                                                                                  
 INSERT INTO COND_TABLE_META(DEF_ID, TABLE_NAME, TABLE_TYPE,NUMBER_OF_FIELDS, FILLED_BY, CONTENT_EXPLANATION, LOGIC_ID_EXPLANATION, LOGIC_ID_NAME,MAP_TO_BE_DONE_BY_i, MAP_TO_BE_DONE_BY_j) values (COND_TABLE_SQ.NextVal, 'MON_PN_LED2_DAT',2,9,'DQM','PN analysis in LED2 runs','PN numbering', 'EB_LM_PN',5,2);                                                                                  
-
+INSERT INTO COND_TABLE_META(DEF_ID, TABLE_NAME, TABLE_TYPE,NUMBER_OF_FIELDS, FILLED_BY, CONTENT_EXPLANATION, LOGIC_ID_EXPLANATION, LOGIC_ID_NAME,MAP_TO_BE_DONE_BY_i, MAP_TO_BE_DONE_BY_j) values (COND_TABLE_SQ.NextVal, 'DCU_CCS_DAT',2,12,'CCS_Supervisor','Membox values and CCS temperatures','DCC numbering','ECAL_DCC',1,1);                                                                                  
 
 
 /* RUN_DAT */
@@ -348,6 +349,19 @@ INSERT INTO COND_FIELD_META(DEF_ID, TAB_ID, FIELD_NAME, IS_PLOTTABLE, FIELD_TYPE
 INSERT INTO COND_FIELD_META(DEF_ID, TAB_ID, FIELD_NAME, IS_PLOTTABLE, FIELD_TYPE, CONTENT_EXPLANATION, LABEL, histo_min, histo_max) values (COND_FIELD_SQ.NextVal, 39, 'PROBLEMS_BUNCH_X',1,'INT','MEM TTBlock wrong BunchX','MEM TTBlock wrong BunchX',0,0);
 INSERT INTO COND_FIELD_META(DEF_ID, TAB_ID, FIELD_NAME, IS_PLOTTABLE, FIELD_TYPE, CONTENT_EXPLANATION, LABEL, histo_min, histo_max) values (COND_FIELD_SQ.NextVal, 39, 'TASK_STATUS',1,'INT','MEM TTBlock Integrity status','MEM TTBlock Integrity status',0,1);
 
+/* DCU_CCS_DAT */
+INSERT INTO COND_FIELD_META(DEF_ID, TAB_ID, FIELD_NAME, IS_PLOTTABLE, FIELD_TYPE, CONTENT_EXPLANATION, LABEL, histo_min, histo_max) values (COND_FIELD_SQ.NextVal,70, 'M1_VDD1',1,'FLOAT','FE Board Voltage 1 for Mem 1','Mem 1 VDD1 (V)',1.,3.); 
+INSERT INTO COND_FIELD_META(DEF_ID, TAB_ID, FIELD_NAME, IS_PLOTTABLE, FIELD_TYPE, CONTENT_EXPLANATION, LABEL, histo_min, histo_max) values (COND_FIELD_SQ.NextVal,70, 'M2_VDD1',1,'FLOAT','FE Board Voltage 1 for Mem 2','Mem 2 VDD1 (V)',1.,3.); 
+INSERT INTO COND_FIELD_META(DEF_ID, TAB_ID, FIELD_NAME, IS_PLOTTABLE, FIELD_TYPE, CONTENT_EXPLANATION, LABEL, histo_min, histo_max) values (COND_FIELD_SQ.NextVal,70, 'M1_VDD2',1,'FLOAT','FE Board Voltage 2 for Mem 1','Mem 1 VDD2 (V)',1.,3.); 
+INSERT INTO COND_FIELD_META(DEF_ID, TAB_ID, FIELD_NAME, IS_PLOTTABLE, FIELD_TYPE, CONTENT_EXPLANATION, LABEL, histo_min, histo_max) values (COND_FIELD_SQ.NextVal,70, 'M2_VDD2',1,'FLOAT','FE Board Voltage 2 for Mem 2','Mem 2 VDD2 (V)',1.,3.); 
+INSERT INTO COND_FIELD_META(DEF_ID, TAB_ID, FIELD_NAME, IS_PLOTTABLE, FIELD_TYPE, CONTENT_EXPLANATION, LABEL, histo_min, histo_max) values (COND_FIELD_SQ.NextVal,70, 'M1_VINJ',1,'FLOAT','FE Board Test Pulse Voltage for Mem 1','Mem 1 Vinj (V)',0.,1.); 
+INSERT INTO COND_FIELD_META(DEF_ID, TAB_ID, FIELD_NAME, IS_PLOTTABLE, FIELD_TYPE, CONTENT_EXPLANATION, LABEL, histo_min, histo_max) values (COND_FIELD_SQ.NextVal,70, 'M2_VINJ',1,'FLOAT','FE Board Test Pulse Voltage for Mem 2','Mem 2 Vinj (V)',0.,1.); 
+INSERT INTO COND_FIELD_META(DEF_ID, TAB_ID, FIELD_NAME, IS_PLOTTABLE, FIELD_TYPE, CONTENT_EXPLANATION, LABEL, histo_min, histo_max) values (COND_FIELD_SQ.NextVal,70, 'M1_VCC',1,'FLOAT','ADC Voltage for Mem 1','Mem 1 ADC Vcc (V)',3.,6.); 
+INSERT INTO COND_FIELD_META(DEF_ID, TAB_ID, FIELD_NAME, IS_PLOTTABLE, FIELD_TYPE, CONTENT_EXPLANATION, LABEL, histo_min, histo_max) values (COND_FIELD_SQ.NextVal,70, 'M2_VCC',1,'FLOAT','ADC Voltage for Mem 2','Mem 2 ADC Vcc (V)',3.,6.); 
+INSERT INTO COND_FIELD_META(DEF_ID, TAB_ID, FIELD_NAME, IS_PLOTTABLE, FIELD_TYPE, CONTENT_EXPLANATION, LABEL, histo_min, histo_max) values (COND_FIELD_SQ.NextVal,70, 'M1_DCUTEMP',1,'FLOAT','DCU Chip Temperature','Chip Temperature 1 (C)',30.,50.); 
+INSERT INTO COND_FIELD_META(DEF_ID, TAB_ID, FIELD_NAME, IS_PLOTTABLE, FIELD_TYPE, CONTENT_EXPLANATION, LABEL, histo_min, histo_max) values (COND_FIELD_SQ.NextVal,70, 'M2_DCUTEMP',1,'FLOAT','DCU Chip Temperature','Chip Temperature 2 (C)',30.,50.); 
+INSERT INTO COND_FIELD_META(DEF_ID, TAB_ID, FIELD_NAME, IS_PLOTTABLE, FIELD_TYPE, CONTENT_EXPLANATION, LABEL, histo_min, histo_max) values (COND_FIELD_SQ.NextVal,70, 'CCSTEMPLOW',1,'FLOAT','Temperature of the low sensor in the CCS board','CCS Low Sensor Temp. (C)',18.,35.); 
+INSERT INTO COND_FIELD_META(DEF_ID, TAB_ID, FIELD_NAME, IS_PLOTTABLE, FIELD_TYPE, CONTENT_EXPLANATION, LABEL, histo_min, histo_max) values (COND_FIELD_SQ.NextVal,70, 'CCSTEMPHIGH',1,'FLOAT','Temperature of the high sensor in the CCS board','CCS High Sensor Temp. (C)',18.,35.); 
 
 /* DCU_CAPSULE_TEMP_DAT     */
 INSERT INTO COND_FIELD_META(DEF_ID, TAB_ID, FIELD_NAME, IS_PLOTTABLE, FIELD_TYPE, CONTENT_EXPLANATION, LABEL, histo_min, histo_max) values (COND_FIELD_SQ.NextVal,42, 'CAPSULE_TEMP',1,'FLOAT','Capsule Temperature',       'Capsule Temperature (C)',17.,21.); 
@@ -394,8 +408,6 @@ INSERT INTO COND_FIELD_META(DEF_ID, TAB_ID, FIELD_NAME, IS_PLOTTABLE, FIELD_TYPE
 INSERT INTO COND_FIELD_META(DEF_ID, TAB_ID, FIELD_NAME, IS_PLOTTABLE, FIELD_TYPE, CONTENT_EXPLANATION, LABEL, histo_min, histo_max) values (COND_FIELD_SQ.NextVal,49,'GOH',1,'FLOAT','GOH',       'GOH Voltage (V)',2.3,2.7);   
 INSERT INTO COND_FIELD_META(DEF_ID, TAB_ID, FIELD_NAME, IS_PLOTTABLE, FIELD_TYPE, CONTENT_EXPLANATION, LABEL, histo_min, histo_max) values (COND_FIELD_SQ.NextVal,49,'INH',1,'FLOAT','Inhibit',       'Inhibit Voltage (V)',0.,5.);   
 INSERT INTO COND_FIELD_META(DEF_ID, TAB_ID, FIELD_NAME, IS_PLOTTABLE, FIELD_TYPE, CONTENT_EXPLANATION, LABEL, histo_min, histo_max) values (COND_FIELD_SQ.NextVal,49,'V43_D',1,'FLOAT','Input 4.3 V Digital Voltage',       'Input 4.3 V Digital Voltage (V)',2.3,6.3);   
-
-
 
 
 /* LMF_LASER_BLUE_RAW_DAT  */

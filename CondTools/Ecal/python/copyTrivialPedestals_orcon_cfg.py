@@ -5,7 +5,7 @@ process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_c
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 # process.CondDBCommon.connect = 'oracle://cms_orcoff_prep/CMS_COND_ECAL'
-process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb/'
+# process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb/'
 process.CondDBCommon.connect = 'sqlite_file:DB.db'
 
 
@@ -25,7 +25,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('EcalPedestalsRcd'),
-        tag = cms.string('EcalPedestals_v5_online')
+        tag = cms.string('EcalPedestals_hlt')
         ))
 )
 

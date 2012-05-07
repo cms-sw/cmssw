@@ -5,8 +5,8 @@
  *  An input service for raw data. 
  *  The actual source can be the real DAQ, a file, a random generator, etc.
  *
- *  $Date: 2010/10/13 14:54:19 $
- *  $Revision: 1.14 $
+ *  $Date: 2011/02/14 15:29:39 $
+ *  $Revision: 1.16 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -60,6 +60,9 @@ namespace edm {
 
     DaqBaseReader*  reader_;
     unsigned int    lumiSegmentSizeInEvents_; //temporary kludge, LS# will come from L1 Global record
+    bool            useEventCounter_;
+    unsigned int    eventCounter_;
+    bool            keepUsingPsidFromTrigger_;
     bool            fakeLSid_;
   
     RunNumber_t runNumber_;
@@ -73,16 +76,15 @@ namespace edm {
     pthread_mutex_t mutex_;
     pthread_mutex_t signal_lock_;
     pthread_cond_t cond_;
-    xdata::UnsignedInteger32         lumiSectionIndex_;
-    xdata::UnsignedInteger32         prescaleSetIndex_;
-    xdata::Boolean                   lsTimedOut_;
-    xdata::Boolean                   lsToBeRecovered_;
+    xdata::UnsignedInteger32        *lumiSectionIndex_;
+    xdata::UnsignedInteger32        *prescaleSetIndex_;
+    xdata::UnsignedInteger32        *lastLumiPrescaleIndex_;
+    xdata::Boolean                  *lsTimedOut_;
+    xdata::Boolean                  *lsToBeRecovered_;
     xdata::InfoSpace                *is_;
     xdata::InfoSpace                *mis_;
     int                              count;
     unsigned int                     thisEventLSid;
-    const unsigned int               aBigPsIndex_;
-    unsigned int                     thisEventPsInd;
     bool                             goToStopping;
   };
   

@@ -97,8 +97,8 @@ void testFunctions::checkAll() {
   {
     X x = 3.141516;
     Expression f = sin(x) * cos(x);
-    const double epsilon = 1.e-6;
-    CPPUNIT_ASSERT(fabs(f() == sin(x) * cos(x)) < epsilon);
+    const double epsilon = 1.e-4;
+    CPPUNIT_ASSERT(fabs(f() - (sin(x) * cos(x))()) < epsilon);
   }
   {
     TestFun f;
@@ -110,17 +110,17 @@ void testFunctions::checkAll() {
     x = 0.5; y = g(x), y1 = g1(x), y2 = g2(x);
     CPPUNIT_ASSERT(y == y1 && y1 == y2);
     CPPUNIT_ASSERT(f.counter_ == 1);
-    CPPUNIT_ASSERT(fabs(f(x) == y) < epsilon);
+    CPPUNIT_ASSERT(fabs(f(x) - y) < epsilon);
     f.reset();
     x = 1.5; y1 = g1(x), y = g(x), y2 = g2(x);
     CPPUNIT_ASSERT(y == y1 && y1 == y2);
     CPPUNIT_ASSERT(f.counter_ == 1);
-    CPPUNIT_ASSERT(fabs(f(x) == y) < epsilon);
+    CPPUNIT_ASSERT(fabs(f(x) - y) < epsilon);
     f.reset();
     x = 0.765; y2 = g2(x), y1 = g1(x), y = g(x);
     CPPUNIT_ASSERT(y == y1 && y1 == y2);
     CPPUNIT_ASSERT(f.counter_ == 1); 
-    CPPUNIT_ASSERT(fabs(f(x) == y) < epsilon);
+    CPPUNIT_ASSERT(fabs(f(x) - y) < epsilon);
     f.reset();
     g(0.5); 
     CPPUNIT_ASSERT(f.counter_ == 1);
@@ -138,6 +138,6 @@ void testFunctions::checkAll() {
     CPPUNIT_ASSERT(y == y1 && y1 == y2);
     CPPUNIT_ASSERT(f.counter_ == 1);
     f.reset();
-    CPPUNIT_ASSERT(fabs(f(x) == y) < epsilon);
+    CPPUNIT_ASSERT(fabs(f(x) - y) < epsilon);
   }
 }

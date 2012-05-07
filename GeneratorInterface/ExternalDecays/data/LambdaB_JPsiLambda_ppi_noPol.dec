@@ -1,0 +1,36 @@
+# This is the decay file for the decay Lambda_B0 -> J/Psi(MU+ MU-) Lambda0
+#
+# Descriptor: [Lambda_B0 -> J/Psi(mu+ mu-) Lambda0]cc
+#
+# NickName: 
+#
+# Physics: Includes radiative mode
+#
+# Tested: Yes
+# By:     K. Ulmer
+# Date:   2-26-08
+#
+Alias      MyLambda_b0       Lambda_b0
+Alias      Myanti-Lambda_b0  anti-Lambda_b0
+ChargeConj MyLambda_b0       Myanti-Lambda_b0
+Alias      MyLambda0         Lambda0
+Alias      Myanti-Lambda0    anti-Lambda0
+ChargeConj MyLambda0         Myanti-Lambda0
+Alias      MyJpsi      J/psi
+ChargeConj MyJpsi      MyJpsi
+#
+Decay MyLambda_b0
+  1.000        MyLambda0     MyJpsi      PHSP;
+Enddecay
+CDecay Myanti-Lambda_b0
+#
+Decay MyLambda0
+  1.000        p+       pi-              PHSP;
+Enddecay
+CDecay Myanti-Lambda0
+#
+Decay MyJpsi
+  1.000         mu+       mu-            PHOTOS VLL;
+Enddecay
+#
+End

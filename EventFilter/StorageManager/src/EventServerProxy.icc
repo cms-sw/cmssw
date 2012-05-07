@@ -1,0 +1,312 @@
+// $Id: EventServerProxy.icc,v 1.1.4.2 2011/03/07 11:33:05 mommsen Exp $
+/// @file: EventServerProxy.icc
+
+#include "EventFilter/StorageManager/interface/CurlInterface.h"
+#include "EventFilter/StorageManager/interface/EventServerProxy.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/DebugMacros.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
+#include "IOPool/Streamer/interface/EventMessage.h"
+#include "IOPool/Streamer/interface/InitMessage.h"
+#include "IOPool/Streamer/interface/OtherMessage.h"
+#include "IOPool/Streamer/interface/ConsRegMessage.h"
+
+#include <algorithm>
+#include <iterator>
+#include <strstream>
+
+#include "curl/curl.h"
+#include "boost/scoped_ptr.hpp"
+
+
+namespace stor
+{
+  template<class RegInfo>
+  EventServerProxy<RegInfo>::EventServerProxy(edm::ParameterSet const& ps) :
+  regInfo_(ps),
+  consumerId_(0),
+  minEventRequestInterval_(regInfo_.minEventRequestInterval()),
+  alreadySaidHalted_(false),
+  alreadySaidWaiting_(false),
+  failedAttemptsToGetData_(0)
+  {
+    nextRequestTime_ = stor::utils::getCurrentTime();
+
+    registerWithEventServer();
+  }
+
+
+  template<class RegInfo>
+  void
+  EventServerProxy<RegInfo>::getOneEvent(CurlInterface::Content& data)
+  {
+    stor::utils::sleepUntil(nextRequestTime_);
+
+    while ( ! edm::shutdown_flag && ! getEventMaybe(data) ) {}
+
+    if ( ! minEventRequestInterval_.is_not_a_date_time() )
+      nextRequestTime_ = stor::utils::getCurrentTime() +
+        minEventRequestInterval_;
+  }
+ 
+
+  template<class RegInfo>
+  bool
+  EventServerProxy<RegInfo>::getEventMaybe(CurlInterface::Content& data)
+  {
+    data.clear();
+    getOneEventFromEventServer(data);
+
+    if ( edm::shutdown_flag || data.empty() ) return false;
+
+    checkEvent(data);
+
+    return true;
+  }
+  
+  
+  template<class RegInfo>
+  void
+  EventServerProxy<RegInfo>::getOneEventFromEventServer(CurlInterface::Content& data)
+  {
+    // build the event request message to send to the event server
+    char msgBuff[100];
+    OtherMessageBuilder requestMessage(
+      &msgBuff[0],
+      regInfo_.eventRequestCode(),
+      sizeof(char_uint32)
+    );
+    uint8 *bodyPtr = requestMessage.msgBody();
+    convert(consumerId_, bodyPtr);
+
+    // send the event request
+    stor::CurlInterface curl;
+    CURLcode result = curl.postBinaryMessage(
+      regInfo_.eventURL(),
+      requestMessage.startAddress(),
+      requestMessage.size(),
+      data
+    );
+
+    const unsigned int maxConnectTries = regInfo_.maxConnectTries();
+    
+    if ( result != CURLE_OK )
+    {
+      ++failedAttemptsToGetData_;
+      if ( failedAttemptsToGetData_ > maxConnectTries )
+      {
+        throw cms::Exception("getOneEventFromEventServer","EventServerProxy")
+          << "could not get event from event server " << regInfo_.sourceURL()
+            << " after " << maxConnectTries << " tries:\n"
+            <<  std::string(&data[0]) << std::endl;
+      }
+      else
+      {
+        edm::LogInfo("EventServerProxy")
+          << "Failed to get event from event server " << regInfo_.sourceURL()
+            << " (" << failedAttemptsToGetData_ << "/" << maxConnectTries << "):\n"
+            <<  std::string(&data[0]) << std::endl;
+         ::sleep(regInfo_.retryInterval());
+      }
+      data.clear();
+    }
+    else
+    {
+      failedAttemptsToGetData_ = 0;
+    }
+    
+    if ( data.empty() && !alreadySaidWaiting_) {
+      edm::LogInfo("EventServerProxy")
+        << "Waiting for first event from event server "
+          << regInfo_.sourceURL() << std::endl;
+      alreadySaidWaiting_ = true;
+    }
+  }
+  
+  template<class RegInfo>
+  void
+  EventServerProxy<RegInfo>::checkEvent(CurlInterface::Content& data)
+  {
+    // 29-Jan-2008, KAB:  catch (and re-throw) any exceptions decoding
+    // the event data so that we can display the returned HTML and
+    // (hopefully) give the user a hint as to the cause of the problem.
+    try {
+      HeaderView hdrView(&data[0]);
+      if (hdrView.code() == Header::DONE) {
+        if(!alreadySaidHalted_) {
+          alreadySaidHalted_ = true;
+          edm::LogInfo("EventServerProxy") << "Event server has stopped";
+        }
+      }
+      else if (hdrView.code() != regInfo_.eventCode()) {
+        throw cms::Exception("EventServerProxy", "checkEvent")
+          << "received an event with header code " << hdrView.code()
+            << " instead of the expected " << regInfo_.eventCode() 
+            << " from event server " << regInfo_.sourceURL() << std::endl;
+      }
+      alreadySaidHalted_ = false;
+    }
+    catch (cms::Exception excpt) {
+      const unsigned int MAX_DUMP_LENGTH = 2000;
+      std::ostringstream dump;
+      dump << "========================================" << std::endl;
+      dump << "* Exception decoding an event from the event server "
+        << regInfo_.sourceURL() << std::endl;
+      if (data.size() < MAX_DUMP_LENGTH)
+      {
+        dump << "* Here is the raw text that was returned:" << std::endl;
+        dump << std::string(&data[0]) << std::endl;
+      }
+      else
+      {
+        dump << "* Here are the first " << MAX_DUMP_LENGTH <<
+          " characters of the raw text that was returned:" << std::endl;
+        dump << std::string(&data[0], MAX_DUMP_LENGTH) << std::endl;
+      }
+      dump << "========================================" << std::endl;
+      edm::LogError("EventServerProxy") << dump.str();
+      throw excpt;
+    }
+  }
+
+  
+  template<class RegInfo>
+  void
+  EventServerProxy<RegInfo>::registerWithEventServer()
+  {
+    CurlInterface::Content data;
+
+    do
+    {
+      data.clear();
+      connectToEventServer(data);
+    }
+    while ( !edm::shutdown_flag && !extractConsumerId(data) );
+
+    if (edm::shutdown_flag) {
+      throw cms::Exception("registerWithEventServer","EventServerProxy")
+          << "registration was aborted by a shutdown request.\n";
+    }
+  }
+  
+  
+  template<class RegInfo>
+  void
+  EventServerProxy<RegInfo>::connectToEventServer(CurlInterface::Content& data)
+  {
+    // Serialize the ParameterSet
+    edm::ParameterSet consumerPSet = regInfo_.getPSet();
+    std::string consumerPSetString;
+    consumerPSet.allToString(consumerPSetString);
+
+    // build the registration request message to send to the event server
+    const int bufferSize = 2000;
+    char msgBuffer[bufferSize];
+    ConsRegRequestBuilder requestMessage(
+      msgBuffer, bufferSize, regInfo_.consumerName(),
+      "normal", consumerPSetString
+    );
+    
+    // send registration request
+    stor::CurlInterface curl;
+    CURLcode result = CURLE_COULDNT_CONNECT;
+    unsigned int tries = 0;
+
+    const std::string sourceURL = regInfo_.sourceURL();
+    const unsigned int maxConnectTries = regInfo_.maxConnectTries();
+    
+    while ( result != CURLE_OK && !edm::shutdown_flag )
+    {
+      ++tries;
+      result = curl.postBinaryMessage(
+        regInfo_.registerURL(),
+        requestMessage.startAddress(),
+        requestMessage.size(),
+        data
+      );
+      
+      if ( result != CURLE_OK )
+      {
+        if ( tries > maxConnectTries )
+        {
+          throw cms::Exception("connectToEventServer","EventServerProxy")
+            << "giving up waiting for registration response after "
+              << maxConnectTries << " tries for event server " << sourceURL;
+        }
+        else
+        {
+          edm::LogInfo("EventServerProxy")
+            << "Waiting for registration response from event server "
+              << sourceURL << " (" << tries << "/" << maxConnectTries << "):\n"
+              <<  std::string(&data[0]) << std::endl;
+          ::sleep(regInfo_.connectTrySleepTime());
+        }
+        data.clear();
+      }
+    }
+  }
+  
+  
+  template<class RegInfo>
+  bool
+  EventServerProxy<RegInfo>::extractConsumerId(CurlInterface::Content& data)      
+  {
+    boost::scoped_ptr<ConsRegResponseView> respView;
+
+    try {
+      respView.reset( new ConsRegResponseView(&data[0]) );
+    }
+    catch (cms::Exception excpt) {
+      const unsigned int MAX_DUMP_LENGTH = 1000;
+      std::ostringstream dump;
+      dump << "========================================" << std::endl;
+      dump << "* Exception decoding the registerWithEventServer response from the event server "
+        << regInfo_.sourceURL() << std::endl;
+      if (data.size() <= MAX_DUMP_LENGTH)
+      {
+        dump << "* Here is the raw text that was returned:" << std::endl;
+        dump << std::string(&data[0]) << std::endl;
+      }
+      else
+      {
+        dump << "* Here are the first " << MAX_DUMP_LENGTH <<
+          " characters of the raw text that was returned:" << std::endl;
+        dump << std::string(&data[0], MAX_DUMP_LENGTH) << std::endl;
+      }
+      dump << "========================================" << std::endl;
+      edm::LogError("EventServerProxy") << dump.str();
+      throw excpt;
+    }
+    
+    if ( respView->getStatus() == ConsRegResponseBuilder::ES_NOT_READY )
+    {
+      if(!alreadySaidWaiting_) {
+        edm::LogInfo("EventServerProxy")
+          << "Waiting for registration response from event server "
+            << regInfo_.sourceURL() << std::endl;
+        alreadySaidWaiting_ = true;
+      }
+      // sleep for desired amount of time
+      ::sleep(regInfo_.retryInterval());
+      return false;
+    }
+    else
+    {
+      alreadySaidWaiting_ = false;
+    }
+
+    consumerId_ = respView->getConsumerId();
+    return true;
+  }
+
+} //namespace stor
+
+
+/// emacs configuration
+/// Local Variables: -
+/// mode: c++ -
+/// c-basic-offset: 2 -
+/// indent-tabs-mode: nil -
+/// End: -

@@ -45,9 +45,6 @@ ElectronMcFakeValidator::ElectronMcFakeValidator( const edm::ParameterSet & conf
  {
   outputFile_ = conf.getParameter<std::string>("outputFile");
   electronCollection_ = conf.getParameter<edm::InputTag>("electronCollection");
-  electronCoreCollection_ = conf.getParameter<edm::InputTag>("electronCoreCollection");
-  electronTrackCollection_ = conf.getParameter<edm::InputTag>("electronTrackCollection");
-  electronSeedCollection_ = conf.getParameter<edm::InputTag>("electronSeedCollection");
   matchingObjectCollection_ = conf.getParameter<edm::InputTag>("matchingObjectCollection");
   beamSpotTag_ = conf.getParameter<edm::InputTag>("beamSpot");
   readAOD_ = conf.getParameter<bool>("readAOD");
@@ -138,11 +135,8 @@ void ElectronMcFakeValidator::beginJob()
   std::string htitle = "# "+matchingObjectType+"s", xtitle = "N_{"+matchingObjectType+"}" ;
   h1_matchingObjectNum = bookH1withSumw2("h_matchingObjectNum",htitle,fhits_nbin,0.,fhits_max,xtitle) ;
 
-  // rec event collections sizes
-  h1_recEleNum_= bookH1("h_recEleNum","# rec electrons",11, -0.5,10.5,"N_{ele}");
-  h1_recCoreNum_= bookH1("h_recCoreNum","# rec electron cores",21, -0.5,20.5,"N_{core}");
-  h1_recTrackNum_= bookH1("h_recTrackNum","# rec gsf tracks",41, -0.5,40.5,"N_{track}");
-  h1_recSeedNum_= bookH1("h_recSeedNum","# rec electron seeds",101, -0.5,100.5,"N_{seed}");
+  // rec event
+  h1_recEleNum_= bookH1("h_recEleNum","# rec electrons",20, 0.,20.,"N_{ele}");
 
   // mc
   h1_matchingObjectEta = bookH1withSumw2("h_matchingObject_eta",matchingObjectType+" #eta",eta_nbin,eta_min,eta_max,"#eta");
@@ -189,7 +183,7 @@ void ElectronMcFakeValidator::beginJob()
   h1_ele_matchingObjectPhi_matched = bookH1withSumw2("h_ele_matchingObjectPhi_matched",htitle+"phi",phi_nbin,phi_min,phi_max);
   h1_ele_matchingObjectZ_matched = bookH1withSumw2("h_ele_matchingObjectZ_matched",htitle+"z",xyz_nbin,-25,25);
 
-  h1_ele_charge = bookH1withSumw2("h_ele_charge","ele charge",5,-2.5,2.5,"charge");
+  h1_ele_charge = bookH1withSumw2("h_ele_charge","ele charge",5,-2.,2.,"charge");
   h2_ele_chargeVsEta = bookH2("h_ele_chargeVsEta","ele charge vs eta",eta2D_nbin,eta_min,eta_max,5,-2.,2.);
   h2_ele_chargeVsPhi = bookH2("h_ele_chargeVsPhi","ele charge vs phi",phi2D_nbin,phi_min,phi_max,5,-2.,2.);
   h2_ele_chargeVsPt = bookH2("h_ele_chargeVsPt","ele charge vs pt",pt_nbin,0.,100.,5,-2.,2.);
@@ -390,25 +384,13 @@ void ElectronMcFakeValidator::beginJob()
   h2_ele_HoEVsEta = bookH2("h_ele_HoEVsEta","ele hadronic energy / em energy vs eta",eta_nbin,eta_min,eta_max,hoe_nbin, hoe_min, hoe_max) ;
   h2_ele_HoEVsPhi = bookH2("h_ele_HoEVsPhi","ele hadronic energy / em energy vs phi",phi2D_nbin,phi_min,phi_max,hoe_nbin, hoe_min, hoe_max) ;
   h2_ele_HoEVsE = bookH2("h_ele_HoEVsE","ele hadronic energy / em energy vs E",p_nbin, 0.,300.,hoe_nbin, hoe_min, hoe_max) ;
-
-  // seeds
-  h1_ele_seed_subdet2_ = bookH1withSumw2("h_ele_seedSubdet2","ele seed subdet 2nd layer",11,-0.5,10.5,"2nd hit subdet Id") ;
-  h1_ele_seed_mask_ = bookH1withSumw2("h_ele_seedMask","ele seed hits mask",13,-0.5,12.5) ;
-  h1_ele_seed_mask_bpix_ = bookH1withSumw2("h_ele_seedMask_Bpix","ele seed hits mask when subdet2 is bpix",13,-0.5,12.5) ;
-  h1_ele_seed_mask_fpix_ = bookH1withSumw2("h_ele_seedMask_Fpix","ele seed hits mask when subdet2 is bpix",13,-0.5,12.5) ;
-  h1_ele_seed_mask_tec_ = bookH1withSumw2("h_ele_seedMask_Tec","ele seed hits mask when subdet2 is bpix",13,-0.5,12.5) ;
   h1_ele_seed_dphi2_ = bookH1withSumw2("h_ele_seedDphi2","ele seed dphi 2nd layer", 50,-0.003,+0.003,"#phi_{hit}-#phi_{pred} (rad)") ;
-  h2_ele_seed_dphi2VsEta_ = bookH2("h_ele_seedDphi2_VsEta","ele seed dphi 2nd layer vs eta",eta2D_nbin,eta_min,eta_max,50,-0.003,+0.003) ;
-  h2_ele_seed_dphi2VsPt_ = bookH2("h_ele_seedDphi2_VsPt","ele seed dphi 2nd layer vs pt",pt2D_nbin,0.,pt_max,50,-0.003,+0.003) ;
-  h1_ele_seed_dphi2pos_ = bookH1withSumw2("h_ele_seedDphi2Pos","ele seed dphi 2nd layer positron", 50,-0.003,+0.003,"#phi_{hit}-#phi_{pred} (rad)") ;
-  h2_ele_seed_dphi2posVsEta_ = bookH2("h_ele_seedDphi2Pos_VsEta","ele seed dphi 2nd layer positron vs eta",eta2D_nbin,eta_min,eta_max,50,-0.003,+0.003) ;
-  h2_ele_seed_dphi2posVsPt_ = bookH2("h_ele_seedDphi2Pos_VsPt","ele seed dphi 2nd layer positron vs pt",pt2D_nbin,0.,pt_max,50,-0.003,+0.003) ;
+  h2_ele_seed_dphi2VsEta_ = bookH2("h_ele_seedDphi2VsEta","ele seed dphi 2nd layer vs eta",eta2D_nbin,eta_min,eta_max,50,-0.003,+0.003) ;
+  h2_ele_seed_dphi2VsPt_ = bookH2("h_ele_seedDphi2VsPt","ele seed dphi 2nd layer vs pt",pt2D_nbin,0.,pt_max,50,-0.003,+0.003) ;
   h1_ele_seed_drz2_ = bookH1withSumw2("h_ele_seedDrz2","ele seed dr (dz) 2nd layer", 50,-0.03,+0.03,"r(z)_{hit}-r(z)_{pred} (cm)") ;
-  h2_ele_seed_drz2VsEta_ = bookH2("h_ele_seedDrz2_VsEta","ele seed dr/dz 2nd layer vs eta",eta2D_nbin,eta_min,eta_max,50,-0.03,+0.03) ;
-  h2_ele_seed_drz2VsPt_ = bookH2("h_ele_seedDrz2_VsPt","ele seed dr/dz 2nd layer vs pt",pt2D_nbin,0.,pt_max,50,-0.03,+0.03) ;
-  h1_ele_seed_drz2pos_ = bookH1withSumw2("h_ele_seedDrz2Pos","ele seed dr (dz) 2nd layer positron", 50,-0.03,+0.03,"r(z)_{hit}-r(z)_{pred} (cm)") ;
-  h2_ele_seed_drz2posVsEta_ = bookH2("h_ele_seedDrz2Pos_VsEta","ele seed dr/dz 2nd layer positron vs eta",eta2D_nbin,eta_min,eta_max,50,-0.03,+0.03) ;
-  h2_ele_seed_drz2posVsPt_ = bookH2("h_ele_seedDrz2PoVs_Pt","ele seed dr/dz 2nd layer positron vs pt",pt2D_nbin,0.,pt_max,50,-0.03,+0.03) ;
+  h2_ele_seed_drz2VsEta_ = bookH2("h_ele_seedDrz2VsEta","ele seed dr/dz 2nd layer vs eta",eta2D_nbin,eta_min,eta_max,50,-0.03,+0.03) ;
+  h2_ele_seed_drz2VsPt_ = bookH2("h_ele_seedDrz2VsPt","ele seed dr/dz 2nd layer vs pt",pt2D_nbin,0.,pt_max,50,-0.03,+0.03) ;
+  h1_ele_seed_subdet2_ = bookH1withSumw2("h_ele_seedSubdet2","ele seed subdet 2nd layer",10,0.,10.,"2nd hit subdet Id") ;
 
   // classes
   h1_ele_classes = bookH1withSumw2("h_ele_classes","ele classes",20,0.0,20.,"class Id");
@@ -448,17 +430,6 @@ void ElectronMcFakeValidator::beginJob()
   // e/g et pflow electrons
   h1_ele_mva = bookH1withSumw2("h_ele_mva","ele identification mva",100,-1.,1.);
   h1_ele_provenance = bookH1withSumw2("h_ele_provenance","ele provenance",5,-2.,3.);
-
-  // conversion rejection information
-  h1_ele_convFlags = bookH1withSumw2("h_ele_convFlags","conversion rejection flag",5,-2.5,2.5);
-  h1_ele_convFlags_all = bookH1withSumw2("h_ele_convFlags_all","conversion rejection flag, all electrons",5,-2.5,2.5);
-  h1_ele_convDist = bookH1withSumw2("h_ele_convDist","distance to the conversion partner",100,-15.,15.);
-  h1_ele_convDist_all = bookH1withSumw2("h_ele_convDist_all","distance to the conversion partner, all electrons",100,-15.,15.);
-  h1_ele_convDcot = bookH1withSumw2("h_ele_convDcot","difference of cot(angle) with the conversion partner",100,-CLHEP::pi/2.,CLHEP::pi/2.);
-  h1_ele_convDcot_all = bookH1withSumw2("h_ele_convDcot_all","difference of cot(angle) with the conversion partner, all electrons",100,-CLHEP::pi/2.,CLHEP::pi/2.);
-  h1_ele_convRadius = bookH1withSumw2("h_ele_convRadius","signed conversion radius",100,0.,130.);
-  h1_ele_convRadius_all = bookH1withSumw2("h_ele_convRadius_all","signed conversion radius, all electrons",100,0.,130.);
-
  }
 
 ElectronMcFakeValidator::~ElectronMcFakeValidator()
@@ -474,12 +445,9 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
   // get reco electrons
   edm::Handle<reco::GsfElectronCollection> gsfElectrons;
   iEvent.getByLabel(electronCollection_,gsfElectrons);
-  edm::Handle<GsfElectronCoreCollection> gsfElectronCores ;
-  iEvent.getByLabel(electronCoreCollection_,gsfElectronCores) ;
-  edm::Handle<GsfTrackCollection> gsfElectronTracks ;
-  iEvent.getByLabel(electronTrackCollection_,gsfElectronTracks) ;
-  edm::Handle<ElectronSeedCollection> gsfElectronSeeds ;
-  iEvent.getByLabel(electronSeedCollection_,gsfElectronSeeds) ;
+  edm::LogInfo("ElectronMcFakeValidator::analyze")
+    <<"Treating event "<<iEvent.id()
+    <<" with "<<gsfElectrons.product()->size()<<" electrons" ;
 
   // get gen jets
   edm::Handle<reco::GenJetCollection> genJets ;
@@ -490,13 +458,7 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
   iEvent.getByLabel(beamSpotTag_,recoBeamSpotHandle);
   const BeamSpot bs = *recoBeamSpotHandle;
 
-  edm::LogInfo("ElectronMcFakeValidator::analyze")
-    <<"Treating event "<<iEvent.id()
-    <<" with "<<gsfElectrons.product()->size()<<" electrons" ;
   h1_recEleNum_->Fill((*gsfElectrons).size());
-  h1_recCoreNum_->Fill((*gsfElectronCores).size());
-  h1_recTrackNum_->Fill((*gsfElectronTracks).size());
-  h1_recSeedNum_->Fill((*gsfElectronSeeds).size());
 
   // all rec electrons
   reco::GsfElectronCollection::const_iterator gsfIter ;
@@ -508,7 +470,6 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
     // preselect electrons
     if (gsfIter->pt()>maxPt_ || std::abs(gsfIter->eta())>maxAbsEta_)
      { continue ; }
-
     h1_ele_EoverP_all->Fill( gsfIter->eSuperClusterOverP() );
     h1_ele_EseedOP_all->Fill( gsfIter->eSeedClusterOverP() );
     h1_ele_EoPout_all->Fill( gsfIter->eSeedClusterOverPout() );
@@ -525,7 +486,6 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
     h1_ele_vertexEta_all->Fill( gsfIter->eta() );
     h1_ele_vertexPt_all->Fill( gsfIter->pt() );
     float enrj1=gsfIter->superCluster()->energy();
-
     // mee
     reco::GsfElectronCollection::const_iterator gsfIter2 ;
     for
@@ -543,18 +503,6 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
       if (gsfIter->charge()*gsfIter2->charge()<0.)
        { h1_ele_mee_os->Fill(sqrt(mee2)) ; }
      }
-
-    // conversion rejection
-    int flags = gsfIter->convFlags() ;
-    if (flags==-9999) { flags=-1 ; }
-    h1_ele_convFlags_all->Fill(flags);
-    if (flags>=0.)
-     {
-      h1_ele_convDist_all->Fill( gsfIter->convDist() );
-      h1_ele_convDcot_all->Fill( gsfIter->convDcot() );
-      h1_ele_convRadius_all->Fill( gsfIter->convRadius() );
-     }
-
    }
 
   // association matching object-reco electrons
@@ -738,26 +686,13 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
        { // track extra does not exist in AOD
         edm::RefToBase<TrajectorySeed> seed = bestGsfElectron.gsfTrack()->extra()->seedRef();
         ElectronSeedRef elseed=seed.castTo<ElectronSeedRef>();
-        h1_ele_seed_subdet2_->Fill(elseed->subDet2());
-        h1_ele_seed_mask_->Fill(elseed->hitsMask());
-        if (elseed->subDet2()==1)
-         { h1_ele_seed_mask_bpix_->Fill(elseed->hitsMask()); }
-        else if (elseed->subDet2()==2)
-         { h1_ele_seed_mask_fpix_->Fill(elseed->hitsMask()); }
-        else if (elseed->subDet2()==6)
-         { h1_ele_seed_mask_tec_->Fill(elseed->hitsMask()); }
         h1_ele_seed_dphi2_->Fill(elseed->dPhi2());
         h2_ele_seed_dphi2VsEta_->Fill(bestGsfElectron.eta(), elseed->dPhi2());
         h2_ele_seed_dphi2VsPt_->Fill(bestGsfElectron.pt(), elseed->dPhi2()) ;
-        h1_ele_seed_dphi2pos_->Fill(elseed->dPhi2Pos());
-        h2_ele_seed_dphi2posVsEta_->Fill(bestGsfElectron.eta(), elseed->dPhi2Pos());
-        h2_ele_seed_dphi2posVsPt_->Fill(bestGsfElectron.pt(), elseed->dPhi2Pos());
         h1_ele_seed_drz2_->Fill(elseed->dRz2());
         h2_ele_seed_drz2VsEta_->Fill(bestGsfElectron.eta(), elseed->dRz2());
         h2_ele_seed_drz2VsPt_->Fill(bestGsfElectron.pt(), elseed->dRz2());
-        h1_ele_seed_drz2pos_->Fill(elseed->dRz2Pos());
-        h2_ele_seed_drz2posVsEta_->Fill(bestGsfElectron.eta(), elseed->dRz2Pos());
-        h2_ele_seed_drz2posVsPt_->Fill(bestGsfElectron.pt(), elseed->dRz2Pos());
+        h1_ele_seed_subdet2_->Fill(elseed->subDet2());
        }
       // match distributions
       h1_ele_EoP->Fill( bestGsfElectron.eSuperClusterOverP() );
@@ -919,17 +854,6 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
       h1_ele_hcalTowerSumEt_dr04_depth1->Fill(bestGsfElectron.dr04HcalDepth1TowerSumEt());
       h1_ele_hcalTowerSumEt_dr04_depth2->Fill(bestGsfElectron.dr04HcalDepth2TowerSumEt());
 
-      // conversion rejection
-      int flags = bestGsfElectron.convFlags() ;
-      if (flags==-9999) { flags=-1 ; }
-      h1_ele_convFlags->Fill(flags);
-      if (flags>=0.)
-       {
-        h1_ele_convDist->Fill( bestGsfElectron.convDist() );
-        h1_ele_convDcot->Fill( bestGsfElectron.convDcot() );
-        h1_ele_convRadius->Fill( bestGsfElectron.convRadius() );
-       }
-
      } // gsf electron found
 
 //    } // matching object found
@@ -1016,14 +940,6 @@ void ElectronMcFakeValidator::endJob()
     profileX("h_ele_vertexTIPVsEta_pfx",h2_ele_vertexTIPVsEta,"mean tip (wrt gen vtx) vs eta","#eta","<TIP> (cm)");
     profileX("h_ele_vertexTIPVsPhi_pfx",h2_ele_vertexTIPVsPhi,"mean tip (wrt gen vtx) vs phi","#phi","<TIP> (cm)");
     profileX("h_ele_vertexTIPVsPt_pfx",h2_ele_vertexTIPVsPt,"mean tip (wrt gen vtx) vs phi","p_{T} (GeV/c)","<TIP> (cm)");
-    profileX("h_ele_seedDphi2_VsEta_pfx",h2_ele_seed_dphi2VsEta_,"mean ele seed dphi 2nd layer vs eta","#eta","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
-    profileX("h_ele_seedDphi2_VsPt_pfx",h2_ele_seed_dphi2VsPt_,"mean ele seed dphi 2nd layer vs pt","p_{T} (GeV/c)","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
-    profileX("h_ele_seedDrz2_VsEta_pfx",h2_ele_seed_drz2VsEta_,"mean ele seed dr(dz) 2nd layer vs eta","#eta","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
-    profileX("h_ele_seedDrz2_VsPt_pfx",h2_ele_seed_drz2VsPt_,"mean ele seed dr(dz) 2nd layer vs pt","p_{T} (GeV/c)","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
-    profileX("h_ele_seedDphi2Pos_VsEta_pfx",h2_ele_seed_dphi2posVsEta_,"mean ele seed dphi 2nd layer positron vs eta","#eta","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
-    profileX("h_ele_seedDphi2Pos_VsPt_pfx",h2_ele_seed_dphi2posVsPt_,"mean ele seed dphi 2nd layer positron vs pt","p_{T} (GeV/c)","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
-    profileX("h_ele_seedDrz2Pos_VsEta_pfx",h2_ele_seed_drz2posVsEta_,"mean ele seed dr(dz) 2nd layer positron vs eta","#eta","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
-    profileX("h_ele_seedDrz2Pos_VsPt_pfx",h2_ele_seed_drz2posVsPt_,"mean ele seed dr(dz) 2nd layer positron vs pt","p_{T} (GeV/c)","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
 
     saveStore(outputFile_) ;
    }

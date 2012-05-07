@@ -1,0 +1,33 @@
+Particle dummy00_1 4.267 0.0
+#ChangeMassMin dummy00_1 4.1
+#ChangeMassMax dummy00_1 4.25
+#
+Alias      MyB+        B+
+Alias      MyB-        B-
+ChargeConj MyB-        MyB+
+Alias      MyJpsi      J/psi
+ChargeConj MyJpsi      MyJpsi
+Alias      MyPhi       phi
+ChargeConj MyPhi       MyPhi
+#
+Decay MyB+
+1.000      dummy00_1   K+      PHSP;
+Enddecay
+#
+Decay MyB-
+1.000      dummy00_1   K-      PHSP;
+Enddecay
+#
+Decay dummy00_1
+1.000      MyJpsi      MyPhi   PHSP;
+Enddecay
+#
+Decay MyJpsi
+1.000      mu+         mu-     PHOTOS VLL;
+Enddecay
+#
+Decay MyPhi
+1.000      K+          K-      VSS;
+Enddecay
+#
+End

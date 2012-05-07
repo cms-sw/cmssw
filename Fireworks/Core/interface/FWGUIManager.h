@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.114.2.1 2010/12/07 10:30:52 mccauley Exp $
+// $Id: FWGUIManager.h,v 1.118 2011/02/14 20:02:51 amraktad Exp $
 //
 
 // system include files
@@ -65,7 +65,7 @@ class FWSelectionManager;
 class FWSummaryManager;
 class FWDetailViewManager;
 class FWInvMassDialog;
-class FWGeometryTable;
+class FWGeometryBrowser;
 class CSGAction;
 class CSGContinuousAction;
 
@@ -138,7 +138,7 @@ public:
    void showSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY, FWViewContextMenuHandlerBase* iHandler);
 
    void showInvMassDialog();
-   void showGeometryTable();
+   void showGeometryBrowser();
 
    // help
    void createHelpPopup ();
@@ -171,7 +171,7 @@ public:
    void setPlayMode(bool);
    void updateStatus(const char* status);
    void clearStatus();
-   void loadEvent();
+   void eventChangedCallback();
    
    CSGAction* getAction(const std::string name);
    
@@ -263,7 +263,7 @@ private:
    CmsShowCommonPopup*     m_commonPopup;
    FWInvMassDialog*        m_invMassDialog;
    
-   FWGeometryTable* m_geometryTable;
+   FWGeometryBrowser*      m_geoBrowser;
 
    // help
    CmsShowHelpPopup *m_helpPopup;

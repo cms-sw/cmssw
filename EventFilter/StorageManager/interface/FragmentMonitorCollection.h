@@ -1,8 +1,8 @@
-// $Id: FragmentMonitorCollection.h,v 1.6 2009/08/24 14:31:11 mommsen Exp $
+// $Id: FragmentMonitorCollection.h,v 1.7.10.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: FragmentMonitorCollection.h 
 
-#ifndef StorageManager_FragmentMonitorCollection_h
-#define StorageManager_FragmentMonitorCollection_h
+#ifndef EventFilter_StorageManager_FragmentMonitorCollection_h
+#define EventFilter_StorageManager_FragmentMonitorCollection_h
 
 #include "xdata/Double.h"
 #include "xdata/UnsignedInteger32.h"
@@ -16,22 +16,22 @@ namespace stor {
    * A collection of MonitoredQuantities related to fragments
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/08/24 14:31:11 $
+   * $Revision: 1.7.10.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
   
   class FragmentMonitorCollection : public MonitorCollection
   {
   private:
 
-    MonitoredQuantity _allFragmentSizes;
-    MonitoredQuantity _allFragmentBandwidth;
+    MonitoredQuantity allFragmentSizes_;
+    MonitoredQuantity allFragmentBandwidth_;
 
-    MonitoredQuantity _eventFragmentSizes;
-    MonitoredQuantity _eventFragmentBandwidth;
+    MonitoredQuantity eventFragmentSizes_;
+    MonitoredQuantity eventFragmentBandwidth_;
 
-    MonitoredQuantity _dqmEventFragmentSizes;
-    MonitoredQuantity _dqmEventFragmentBandwidth;
+    MonitoredQuantity dqmEventFragmentSizes_;
+    MonitoredQuantity dqmEventFragmentBandwidth_;
 
 
   public:
@@ -48,7 +48,7 @@ namespace stor {
       MonitoredQuantity::Stats dqmEventFragmentBandwidthStats;
     };
 
-    explicit FragmentMonitorCollection(const utils::duration_t& updateInterval);
+    explicit FragmentMonitorCollection(const utils::Duration_t& updateInterval);
 
     /**
       Add a generic fragment size of bytes
@@ -66,45 +66,45 @@ namespace stor {
      void addDQMEventFragmentSample(const double bytecount);
 
     const MonitoredQuantity& getAllFragmentSizeMQ() const {
-      return _allFragmentSizes;
+      return allFragmentSizes_;
     }
     MonitoredQuantity& getAllFragmentSizeMQ() {
-      return _allFragmentSizes;
+      return allFragmentSizes_;
     }
 
     const MonitoredQuantity& getEventFragmentSizeMQ() const {
-      return _eventFragmentSizes;
+      return eventFragmentSizes_;
     }
     MonitoredQuantity& getEventFragmentSizeMQ() {
-      return _eventFragmentSizes;
+      return eventFragmentSizes_;
     }
 
     const MonitoredQuantity& getDQMEventFragmentSizeMQ() const {
-      return _dqmEventFragmentSizes;
+      return dqmEventFragmentSizes_;
     }
     MonitoredQuantity& getDQMEventFragmentSizeMQ() {
-      return _dqmEventFragmentSizes;
+      return dqmEventFragmentSizes_;
     }
 
     const MonitoredQuantity& getAllFragmentBandwidthMQ() const {
-      return _allFragmentBandwidth;
+      return allFragmentBandwidth_;
     }
     MonitoredQuantity& getAllFragmentBandwidthMQ() {
-      return _allFragmentBandwidth;
+      return allFragmentBandwidth_;
     }
 
     const MonitoredQuantity& getEventFragmentBandwidthMQ() const {
-      return _eventFragmentBandwidth;
+      return eventFragmentBandwidth_;
     }
     MonitoredQuantity& getEventFragmentBandwidthMQ() {
-      return _eventFragmentBandwidth;
+      return eventFragmentBandwidth_;
     }
 
     const MonitoredQuantity& getDQMEventFragmentBandwidthMQ() const {
-      return _dqmEventFragmentBandwidth;
+      return dqmEventFragmentBandwidth_;
     }
     MonitoredQuantity& getDQMEventFragmentBandwidthMQ() {
-      return _dqmEventFragmentBandwidth;
+      return dqmEventFragmentBandwidth_;
     }
 
    /**
@@ -124,15 +124,15 @@ namespace stor {
     virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
     virtual void do_updateInfoSpaceItems();
 
-    xdata::UnsignedInteger32 _receivedFrames; // Total I2O frames received
-    xdata::Double _instantBandwidth;          // Recent bandwidth in MB/s
-    xdata::Double _instantRate;               // Recent number of frames/s
+    xdata::UnsignedInteger32 receivedFrames_; // Total I2O frames received
+    xdata::Double instantBandwidth_;          // Recent bandwidth in MB/s
+    xdata::Double instantRate_;               // Recent number of frames/s
 
   };
   
 } // namespace stor
 
-#endif // StorageManager_FragmentMonitorCollection_h 
+#endif // EventFilter_StorageManager_FragmentMonitorCollection_h 
 
 
 /// emacs configuration

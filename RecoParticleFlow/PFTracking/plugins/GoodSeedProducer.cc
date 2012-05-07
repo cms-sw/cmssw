@@ -486,10 +486,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  iEvent.put(preIdMap_p,preidname_);
 	}
     }
-
-   // clear temporary maps
-  refMap_.clear();
-
+  
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 

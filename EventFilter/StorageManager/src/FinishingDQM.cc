@@ -1,4 +1,4 @@
-// $Id: FinishingDQM.cc,v 1.9 2009/09/29 07:57:56 mommsen Exp $
+// $Id: FinishingDQM.cc,v 1.10.6.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: FinishingDQM.cc
 
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
@@ -28,7 +28,7 @@ void FinishingDQM::do_entryActionWork()
     outermost_context().getSharedResources();
 
   // request end-of-run processing in DQMEventProcessor
-  sharedResources->_dqmEventProcessorResources->requestEndOfRun();
+  sharedResources->dqmEventProcessorResources_->requestEndOfRun();
 
 }
 
@@ -60,8 +60,8 @@ FinishingDQM::do_noFragmentToProcess() const
   {
     SharedResourcesPtr sharedResources =
       outermost_context().getSharedResources();
-    event_ptr stMachEvent( new EndRun() );
-    sharedResources->_commandQueue->enq_wait( stMachEvent );
+    EventPtr_t stMachEvent( new EndRun() );
+    sharedResources->commandQueue_->enqWait( stMachEvent );
   }
 }
 
@@ -71,7 +71,7 @@ FinishingDQM::endOfRunProcessingIsDone() const
   SharedResourcesPtr sharedResources =
     outermost_context().getSharedResources();
 
-  if ( sharedResources->_dqmEventProcessorResources->requestsOngoing() ) return false; 
+  if ( sharedResources->dqmEventProcessorResources_->requestsOngoing() ) return false; 
 
   return true;
 }

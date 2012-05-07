@@ -36,13 +36,8 @@ $classpath = $classpath . ":$confdbbase/ext/mysql-connector-java-5.0.5-bin.jar";
 $classpath = $classpath . ":$confdbbase/ext/ojdbc14.jar";
 
 # start the GUI
-system ("java -classpath $classpath confdb.converter.OnlineConverter @ARGV | csplit - /CONFIGURATION/+1\ {*\}"); 
-# csplit - %CONFIGURATION%+1 {*}");   
-system ("rm xx00;");
-system ("sed '/CONFIGURATION/d' xx01 > EP.py; rm xx01");
-system ("sed '/CONFIGURATION/d' xx02 > SM.py; rm xx02");
-
-
+system ("java -classpath $classpath confdb.converter.OnlineConverter --ep @ARGV | csplit - /#/; mv xx01 EP.py; rm xx00;"); 
+system ("java -classpath $classpath confdb.converter.OnlineConverter --sm @ARGV | csplit - /#/ > SM.py; mv xx01 SM.py; rm xx00;"); 
 exit 0;
 
 

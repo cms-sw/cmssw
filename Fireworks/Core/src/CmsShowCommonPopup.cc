@@ -4,6 +4,8 @@
 #include "TGSlider.h"
 #include "TGComboBox.h"
 #include "TGClient.h"
+#include "TG3DLine.h"
+#include "TGResourcePool.h"
 
 #include "Fireworks/Core/interface/CmsShowCommonPopup.h"
 #include "Fireworks/Core/interface/CmsShowCommon.h"
@@ -24,44 +26,61 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
    m_gammaButton(0)
 {
    SetCleanup(kDeepCleanup);
-   
-   //
+
+   TGGC *fTextGC;
+   const TGFont *font = gClient->GetFont("-adobe-helvetica-bold-r-*-*-14-*-*-*-*-*-iso8859-1");
+   if (!font)
+      font = gClient->GetResourcePool()->GetDefaultFont();
+   GCValues_t   gval;
+   gval.fMask = kGCBackground | kGCFont | kGCForeground;
+   gval.fFont = font->GetFontHandle();
+   fTextGC = gClient->GetGC(&gval, kTRUE);
+
+   TGCompositeFrame* vf2 = new TGVerticalFrame(this);
+   AddFrame(vf2, new TGLayoutHints(kLHintsExpandX, 2, 2, 2, 2));
+   //==============================================================================
    // scales
    //
-   TGCompositeFrame* vf2 = new TGVerticalFrame(this);
-   AddFrame(vf2, new TGLayoutHints(kLHintsNormal, 2, 2, 2, 2));
- 
-   FWDialogBuilder bS(vf2);
-   bS.addLabel("GlobalScales", 14).vSpacer(5);
-
+   {
+      TGLabel* xx = new TGLabel(vf2, "GlobalScales     ", fTextGC->GetGC());
+      vf2->AddFrame(xx, new TGLayoutHints(kLHintsLeft ,2,2,4,4));
+   }
    FWViewEnergyScaleEditor* scaleEditor = new FWViewEnergyScaleEditor(m_common->m_energyScale.get(), vf2);
    vf2->AddFrame(scaleEditor);
-
-   //   addParamSetter( &m_common->m_energyCombinedSwitch, vf2, "CombinedMode");
+   //==============================================================================
+   // Projections
    //
+   vf2->AddFrame(new TGHorizontal3DLine(vf2),  new TGLayoutHints(kLHintsExpandX,4 ,8, 3, 3));
+   {
+      TGLabel* xx = new TGLabel(vf2, "Projections     ", fTextGC->GetGC());
+      vf2->AddFrame(xx, new TGLayoutHints(kLHintsLeft ,2,2,4,4));
+   }
+   vf2->AddFrame(new TGLabel(vf2, "Track behaviour when crossing y=0 in RhoZ-view:"), new TGLayoutHints(kLHintsLeft ,2,2,0,0));
+   makeSetter(vf2, &m_common->m_trackBreak);
+   makeSetter(vf2, &m_common->m_drawBreakPoints);
+
+   //==============================================================================
    // brigtness
    //
-   TGCompositeFrame* vf = new TGVerticalFrame(this);
-   AddFrame(vf, new TGLayoutHints(kLHintsNormal, 2, 2, 2, 4));
-   FWDialogBuilder builder(vf);
-   builder.indent(3)
-      .addHSeparator(0)
-      .addLabel("General Colors:", 14)
-      .spaceDown(4).expand(false)  
-      .addTextButton("Black/White Background", &m_backgroundButton).expand(false)
-      .spaceDown(4)  
-      .addLabel("Brightness:", 10, 0).expand(false).floatLeft()
-      .addHSlider(120, &m_gammaSlider).expand(false)
-      .addTextButton("Reset Brightness", &m_gammaButton).expand(false)
-      .spaceDown(4)
-      .addHSeparator(0)
-      .addLabel("Detector Colors: ", 14)
-      .spaceDown(2)
-      .indent(0);
 
-   m_backgroundButton->SetEnabled(true);
-   m_gammaButton->SetEnabled(true);
-   m_gammaSlider->SetEnabled(true);
+   vf2->AddFrame(new TGHorizontal3DLine(vf2),  new TGLayoutHints(kLHintsExpandX ,4 ,8, 8, 2));
+   {
+      TGLabel* xx = new TGLabel(vf2, "General Colors        ", fTextGC->GetGC());
+      vf2->AddFrame(xx, new TGLayoutHints(kLHintsLeft,2,2,4,4));
+   }
+   m_backgroundButton = new TGTextButton(vf2, "Black/White Background");
+   vf2->AddFrame(m_backgroundButton);
+   makeSetter(vf2, &m_common->m_gamma);
+
+
+   //==============================================================================
+   // geom colors
+   //
+
+   {
+      TGLabel* xx = new TGLabel(vf2, "DetectorColors       ", fTextGC->GetGC());
+      vf2->AddFrame(xx, new TGLayoutHints(kLHintsLeft,2,2,8,0));
+   }
 
    TGFont* smallFont = 0;
    FontStruct_t defaultFontStruct = m_backgroundButton->GetDefaultFontStruct();
@@ -77,29 +96,26 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
       // Ignore exceptions.
    }
 
-   //
-   // geom colors
-   //
-
+  
    TGHSlider* transpWidget2D = 0;
    TGHSlider* transpWidget3D = 0;
-   TGCompositeFrame* top  = new TGVerticalFrame(vf);
-   vf->AddFrame(top, new TGLayoutHints(kLHintsNormal, 2, 2, 2, 4));
+   TGCompositeFrame* top  = new TGVerticalFrame(vf2);
+   vf2->AddFrame(top, new TGLayoutHints(kLHintsNormal, 2, 2, 2, 0));
+
    {
       TGHorizontalFrame* hf = new TGHorizontalFrame(top); 
-      hf->AddFrame(new TGLabel(hf, "Tansparency 2D:"), new TGLayoutHints(kLHintsNormal, 2,  2, 3, 3));
+      hf->AddFrame(new TGLabel(hf, "Tansparency 2D:"), new TGLayoutHints(kLHintsBottom, 2,  2, 3, 3));
       transpWidget2D = new TGHSlider(hf, 100, kSlider1);
       hf->AddFrame( transpWidget2D);
-      top->AddFrame(hf,new TGLayoutHints( kLHintsNormal, 2,  2, 3, 3));
+      top->AddFrame(hf,new TGLayoutHints( kLHintsNormal, 0, 0, 2, 2));
    }
    {
       TGHorizontalFrame* hf = new TGHorizontalFrame(top); 
-      hf->AddFrame(new TGLabel(hf, "Tansparency 3D:") , new TGLayoutHints(kLHintsNormal,2, 2, 3, 3));
+      hf->AddFrame(new TGLabel(hf, "Tansparency 3D:") , new TGLayoutHints(kLHintsBottom,2, 2, 2, 2 ));
       transpWidget3D = new TGHSlider(hf, 100, kSlider1);
       hf->AddFrame( transpWidget3D);
       top->AddFrame(hf, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 10));
    }
-
    std::string names[kFWGeomColorSize];
    names[kFWPixelBarrelColorIndex   ] = "Pixel Barrel";
    names[kFWPixelEndcapColorIndex   ] = "Pixel Endcap" ;
@@ -123,17 +139,14 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
          TGFrame* lf = new TGHorizontalFrame(hf, 100, 16, kFixedSize);
          TGLabel* label = new TGLabel(lf, m_colorSelectWidget[i]->label().c_str());
          label->SetTextFont(smallFont);
-         hf->AddFrame(lf); 
+         hf->AddFrame(lf, new TGLayoutHints(kLHintsLeft |kLHintsCenterY , 0, 0, 0,0)); 
 
          ++i;
       }
    }
+   //==============================================================================
 
    m_backgroundButton->Connect("Clicked()", "CmsShowCommonPopup", this, "switchBackground()");
-   m_gammaSlider->Connect("PositionChanged(Int_t)", "CmsShowCommonPopup", this, "setGamma(Int_t)");
-   m_gammaSlider->SetRange(-15, 15);
-   m_gammaSlider->SetPosition(m_common->gamma());
-   m_gammaButton->Connect("Clicked()", "CmsShowCommonPopup", this, "resetGamma()");
 
    transpWidget2D->SetRange(0, 100);
    transpWidget2D->SetPosition(m_common->colorManager()->geomTransparency(true));
@@ -143,7 +156,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
    transpWidget3D->SetPosition(m_common->colorManager()->geomTransparency(false));
    transpWidget3D->Connect("PositionChanged(Int_t)", "CmsShowCommonPopup", this, "changeGeomTransparency3D(Int_t)");
 
-   SetWindowName("Common Preferences ...");
+   SetWindowName("Common Preferences");
    MapSubwindows();
    Resize(GetDefaultSize());
    Layout();
@@ -160,18 +173,6 @@ CmsShowCommonPopup::switchBackground()
    m_common->switchBackground();
 }
  
-void
-CmsShowCommonPopup::resetGamma()
-{
-   m_gammaSlider->SetPosition(0);
-   m_common->setGamma(0);
-}
-
-void
-CmsShowCommonPopup::setGamma(Int_t x)
-{
-   m_common->setGamma(x);
-}
 
 void
 CmsShowCommonPopup::changeGeomColor(Color_t iColor)
@@ -201,4 +202,17 @@ CmsShowCommonPopup::colorSetChanged()
    for (int i = 0 ; i < kFWGeomColorSize; ++i)
       m_colorSelectWidget[i]->SetColorByIndex(m_common->colorManager()->geomColor(FWGeomColorIndex(i)), kFALSE);
    
+}
+
+
+void
+CmsShowCommonPopup::makeSetter(TGCompositeFrame* frame, FWParameterBase* param) 
+{
+   boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(param) );
+   ptr->attach(param, this);
+ 
+   TGFrame* pframe = ptr->build(frame);
+   frame->AddFrame(pframe, new TGLayoutHints(kLHintsExpandX, 0, 0, 2,2));
+
+   m_setters.push_back(ptr);
 }

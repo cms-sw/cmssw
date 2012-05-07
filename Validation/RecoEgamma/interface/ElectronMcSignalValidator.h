@@ -25,11 +25,8 @@ class ElectronMcSignalValidator : public ElectronValidator
 
   private:
 
-    edm::InputTag mcTruthCollection_;
     edm::InputTag electronCollection_;
-    edm::InputTag electronCoreCollection_;
-    edm::InputTag electronTrackCollection_;
-    edm::InputTag electronSeedCollection_;
+    edm::InputTag  mcTruthCollection_;
     edm::InputTag beamSpotTag_ ;
     bool readAOD_;
     std::string outputFile_ ;
@@ -71,11 +68,6 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h1_mcNum;
     MonitorElement *h1_eleNum;
     MonitorElement *h1_gamNum;
-
-    MonitorElement *h1_recEleNum_ ;
-    MonitorElement *h1_recCoreNum_ ;
-    MonitorElement *h1_recTrackNum_ ;
-    MonitorElement *h1_recSeedNum_ ;
 
     MonitorElement *h1_simEta;
     MonitorElement *h1_simAbsEta;
@@ -164,6 +156,8 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h2_ele_vertexTIPVsEta;
     MonitorElement *h2_ele_vertexTIPVsPhi;
     MonitorElement *h2_ele_vertexTIPVsPt;
+
+    MonitorElement *h1_recEleNum_;
 
     MonitorElement *h1_scl_En_ ;
     MonitorElement *h1_scl_EoEtrue_barrel;
@@ -382,23 +376,13 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h2_ele_dPhiEleClVsPhi_propOut;
     MonitorElement *h2_ele_dPhiEleClVsPt_propOut;
 
-    MonitorElement *h1_ele_seed_subdet2_;
-    MonitorElement *h1_ele_seed_mask_;
-    MonitorElement *h1_ele_seed_mask_bpix_;
-    MonitorElement *h1_ele_seed_mask_fpix_;
-    MonitorElement *h1_ele_seed_mask_tec_;
     MonitorElement *h1_ele_seed_dphi2_;
     MonitorElement *h2_ele_seed_dphi2VsEta_;
     MonitorElement *h2_ele_seed_dphi2VsPt_ ;
-    MonitorElement *h1_ele_seed_dphi2pos_;
-    MonitorElement *h2_ele_seed_dphi2posVsEta_;
-    MonitorElement *h2_ele_seed_dphi2posVsPt_ ;
     MonitorElement *h1_ele_seed_drz2_;
     MonitorElement *h2_ele_seed_drz2VsEta_;
     MonitorElement *h2_ele_seed_drz2VsPt_;
-    MonitorElement *h1_ele_seed_drz2pos_;
-    MonitorElement *h2_ele_seed_drz2posVsEta_;
-    MonitorElement *h2_ele_seed_drz2posVsPt_;
+    MonitorElement *h1_ele_seed_subdet2_;
 
     MonitorElement *h1_ele_classes;
     MonitorElement *h1_ele_eta;
@@ -448,15 +432,6 @@ class ElectronMcSignalValidator : public ElectronValidator
     MonitorElement *h1_ele_ecalRecHitSumEt_dr04;
     MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth1;
     MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth2;
-
-    MonitorElement *h1_ele_convFlags;
-    MonitorElement *h1_ele_convFlags_all;
-    MonitorElement *h1_ele_convDist;
-    MonitorElement *h1_ele_convDist_all;
-    MonitorElement *h1_ele_convDcot;
-    MonitorElement *h1_ele_convDcot_all;
-    MonitorElement *h1_ele_convRadius;
-    MonitorElement *h1_ele_convRadius_all;
 
  } ;
 

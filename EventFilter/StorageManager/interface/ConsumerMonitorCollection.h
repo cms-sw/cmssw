@@ -1,10 +1,11 @@
-// $Id: ConsumerMonitorCollection.h,v 1.10 2010/12/20 16:33:21 mommsen Exp $
+// $Id: ConsumerMonitorCollection.h,v 1.11.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: ConsumerMonitorCollection.h 
 
-#ifndef StorageManager_ConsumerMonitorCollection_h
-#define StorageManager_ConsumerMonitorCollection_h
+#ifndef EventFilter_StorageManager_ConsumerMonitorCollection_h
+#define EventFilter_StorageManager_ConsumerMonitorCollection_h
 
 #include "EventFilter/StorageManager/interface/MonitorCollection.h"
+#include "EventFilter/StorageManager/interface/QueueID.h"
 
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
@@ -13,7 +14,6 @@
 
 namespace stor {
 
-  class QueueID;
   class MonitoredQuantity;
 
 
@@ -21,8 +21,8 @@ namespace stor {
    * A collection of MonitoredQuantities to track consumer activity.
    *
    * $Author: mommsen $
-   * $Revision: 1.10 $
-   * $Date: 2010/12/20 16:33:21 $
+   * $Revision: 1.11.4.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
 
   class ConsumerMonitorCollection: public MonitorCollection
@@ -30,7 +30,18 @@ namespace stor {
 
   public:
 
-    explicit ConsumerMonitorCollection(const utils::duration_t& updateInterval);
+    struct TotalStats
+    {
+      MonitoredQuantity::Stats queuedStats;
+      MonitoredQuantity::Stats droppedStats;
+      MonitoredQuantity::Stats servedStats;
+    };
+
+    explicit ConsumerMonitorCollection
+    (
+      const utils::Duration_t& updateInterval,
+      const utils::Duration_t& recentDuration
+    );
 
     /**
        Add queued sample
@@ -38,9 +49,9 @@ namespace stor {
     void addQueuedEventSample( const QueueID&, const unsigned int& data_size );
 
     /**
-       Add number of discarded events
+       Add number of dropped events
     */
-    void addDiscardedEvents( const QueueID&, const size_t& count );
+    void addDroppedEvents( const QueueID&, const size_t& count );
 
     /**
        Add served sample
@@ -50,17 +61,22 @@ namespace stor {
     /**
        Get queued data size. Return false if consumer ID not found.
     */
-    bool getQueued( const QueueID& qid, MonitoredQuantity::Stats& result );
+    bool getQueued( const QueueID& qid, MonitoredQuantity::Stats& result ) const;
 
     /**
        Get served data size. Return false if consumer ID not found.
     */
-    bool getServed( const QueueID& qid, MonitoredQuantity::Stats& result );
+    bool getServed( const QueueID& qid, MonitoredQuantity::Stats& result ) const;
 
     /**
-       Get number of discarded events. Return false if consumer ID not found.
+       Get number of dropped events. Return false if consumer ID not found.
     */
-    bool getDiscarded( const QueueID& qid, MonitoredQuantity::Stats& result );
+    bool getDropped( const QueueID& qid, MonitoredQuantity::Stats& result ) const;
+
+    /**
+       Get the summary statistics for all consumers
+    */
+    void getTotalStats( TotalStats& ) const;
 
     /**
        Reset sizes to zero leaving consumers in
@@ -73,29 +89,33 @@ namespace stor {
     ConsumerMonitorCollection( const ConsumerMonitorCollection& );
     ConsumerMonitorCollection& operator = ( const ConsumerMonitorCollection& );
 
-    typedef std::map< QueueID, boost::shared_ptr<MonitoredQuantity> > ConsStatMap;
+    typedef std::map<QueueID, MonitoredQuantityPtr> ConsStatMap;
 
     void addEventSampleToMap( const QueueID&, const unsigned int& data_size, ConsStatMap& );
-    bool getValueFromMap( const QueueID&, MonitoredQuantity::Stats&, const ConsStatMap& );
+    bool getValueFromMap( const QueueID&, MonitoredQuantity::Stats&, const ConsStatMap& ) const;
 
     virtual void do_calculateStatistics();
     virtual void do_reset();
 
-    const utils::duration_t _updateInterval;
+    const utils::Duration_t updateInterval_;
+    const utils::Duration_t recentDuration_;
+    MonitoredQuantity totalQueuedMQ_;
+    MonitoredQuantity totalDroppedMQ_;
+    MonitoredQuantity totalServedMQ_;
 
   protected:
 
-    ConsStatMap _qmap; // queued
-    ConsStatMap _dmap; // dropped
-    ConsStatMap _smap; // served
+    ConsStatMap qmap_; // queued
+    ConsStatMap dmap_; // dropped
+    ConsStatMap smap_; // served
 
-    mutable boost::mutex _mutex;
+    mutable boost::mutex mutex_;
 
   };
 
 } // namespace stor
 
-#endif // StorageManager_ConsumerMonitorCollection_h
+#endif // EventFilter_StorageManager_ConsumerMonitorCollection_h
 
 
 /// emacs configuration

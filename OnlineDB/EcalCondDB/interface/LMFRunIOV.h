@@ -24,6 +24,7 @@ class LMFRunIOV : public LMFUnique {
   LMFRunIOV(oracle::occi::Environment* env,
 	    oracle::occi::Connection* conn);
   LMFRunIOV(EcalDBConnection *c);
+  LMFRunIOV(const LMFRunIOV &r);
   ~LMFRunIOV();
 
   // Methods for user data
@@ -58,6 +59,8 @@ class LMFRunIOV : public LMFUnique {
   Tm getDBInsertionTime() const;
   bool isValid();
   
+  virtual void dump() const;
+  virtual LMFRunIOV& operator=(const LMFRunIOV &r); 
   std::list<LMFRunIOV> fetchBySequence(const LMFSeqDat &s);
   std::list<LMFRunIOV> fetchBySequence(const LMFSeqDat &s, int lmr);
   std::list<LMFRunIOV> fetchBySequence(const LMFSeqDat &s, int lmr, int type,

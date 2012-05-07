@@ -12,7 +12,7 @@
 //
 // Original Author:  Leonard Apanasevich
 //         Created:  Wed Mar 25 16:01:27 CDT 2009
-// $Id: HLTHcalMETNoiseFilter.cc,v 1.11 2010/04/14 20:27:48 johnpaul Exp $
+// $Id: HLTHcalMETNoiseFilter.cc,v 1.12 2010/04/22 22:42:39 johnpaul Exp $
 //
 //
 
@@ -27,6 +27,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/METReco/interface/HcalNoiseRBX.h"
+
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <iostream>
 
@@ -55,6 +59,29 @@ HLTHcalMETNoiseFilter::HLTHcalMETNoiseFilter(const edm::ParameterSet& iConfig)
 
 HLTHcalMETNoiseFilter::~HLTHcalMETNoiseFilter(){}
 
+void
+HLTHcalMETNoiseFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("HcalNoiseRBXCollection",edm::InputTag("hltHcalNoiseInfoProducer"));
+  desc.add<int>("severity",1);
+  desc.add<int>("maxNumRBXs",2);
+  desc.add<int>("numRBXsToConsider",2);
+  desc.add<bool>("needEMFCoincidence",true);
+  desc.add<double>("minRBXEnergy",50.0);
+  desc.add<double>("minRatio",0.65);
+  desc.add<double>("maxRatio",0.98);
+  desc.add<int>("minHPDHits",17);
+  desc.add<int>("minRBXHits",999);
+  desc.add<int>("minHPDNoOtherHits",10);
+  desc.add<int>("minZeros",10);
+  desc.add<double>("minHighEHitTime",-9999.0);
+  desc.add<double>("maxHighEHitTime",9999.0);
+  desc.add<double>("maxRBXEMF",0.02);
+  desc.add<double>("minRecHitE",1.5);
+  desc.add<double>("minLowHitE",10.0);
+  desc.add<double>("minHighHitE",25.0);
+  descriptions.add("hltHcalMETNoiseFilter",desc);
+}
 
 //
 // member functions

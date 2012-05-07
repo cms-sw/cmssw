@@ -70,8 +70,8 @@ DTGeometryBuilderFromCondDB::build(boost::shared_ptr<DTGeometry> theGeometry,
       //cout << "    LAY: " <<  lid << endl;
       DTLayer* lay = buildLayer(sl, lid, rig, idt);
       theGeometry->add(lay);
-    } else { //what the fuck!!!
-      cout << "What the Fuck is this!" << endl;
+    } else {
+      cout << "What is this?" << endl;
     }
     ++idt;
   }

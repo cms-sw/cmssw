@@ -1,3 +1,68 @@
+2011-04-12 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-01
+	* fix bug introduced in stopAndHalt by breaking stop of slaves in two steps
+	* fix bug in TriggerReportHelpers which decremented reference LS below zero after 2 restarts
+	* move sentinel message to after max restart is reached
+
+2011-04-12 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-00
+	* change handling of socket FD after fork (moved to SubProcess)
+	* perform stop in two steps: first send signal to all live subprocesses
+	then wait for response
+	* improve handling of subweb requests
+
+2011-04-05 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-07
+	* small fix for classic mode
+	
+2011-04-01 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-06 
+	* limit the number of restart per slave process to 3
+	
+2011-03-23 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-05
+	* put back begin job in mFU enabling thread
+	* remove unused infospace
+
+2011-03-21 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-04
+	* merge from branch
+	* fixes to monitoring usage 
+	* fix loss of total counters when all slave processes
+	crash
+	
+2011-02-16 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-00-02
+	* add forgotten mutex_destroy/mutex_init in slave process recycle
+
+2011-02-14 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-00-01
+	* more fixes with psindex reporting to db
+	
+2011-02-09 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-00-00
+	* fix deadlock and minor issues with path index 
+
+2011-02-04 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-03
+	* added rate statistics gathering to idie
+
+2011-01-21 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-02
+	* fix pathindex handling when path missing in index file
+	* sleep 10 s in summarize to avoid tight loop when no msg present
+
 2011-01-21 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-03-01

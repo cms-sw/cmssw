@@ -7,9 +7,9 @@ isData=1 # =1 running on real data, =0 running on MC
 
 
 OUTPUT_HIST='openhlt.root'
-NEVTS=500
-MENU="LUMI8e29" # LUMI8e29 or LUMI1e31 for pre-38X MC, or GRun for data
-isRelval=1 # =1 for running on MC RelVals, =0 for standard production MC, no effect for data 
+NEVTS=-1
+MENU="GRun" # GRun for data or MC with >= CMSSW_3_8_X
+isRelval=0 # =0 for running on MC RelVals, =0 for standard production MC, no effect for data 
 
 WhichHLTProcess="HLT"
 
@@ -28,32 +28,27 @@ if (isData):
 
 #####  Global Tag ###############################################
     
-# Which AlCa condition for what. Available from pre11
-# * DESIGN_31X_V1 - no smearing, alignment and calibration constants = 1.  No bad channels.
-# * MC_31X_V1 (was IDEAL_31X) - conditions intended for 31X physics MC production: no smearing,
-#   alignment and calibration constants = 1.  Bad channels are masked.
-# * STARTUP_31X_V1 (was STARTUP_31X) - conditions needed for HLT 8E29 menu studies: As MC_31X_V1 (including bad channels),
-#   but with alignment and calibration constants smeared according to knowledge from CRAFT.
-# * CRAFT08_31X_V1 (was CRAFT_31X) - conditions for CRAFT08 reprocessing.
-# * CRAFT_31X_V1P, CRAFT_31X_V1H - initial conditions for 2009 cosmic data taking - as CRAFT08_31X_V1 but with different
-#   tag names to allow append IOV, and DT cabling map corresponding to 2009 configuration (10 FEDs).
-# Meanwhile...:
+# Which AlCa condition for what. 
 
 if (isData):
     # GLOBAL_TAG='GR09_H_V6OFF::All' # collisions 2009
     # GLOBAL_TAG='GR10_H_V6A::All' # collisions2010 tag for CMSSW_3_6_X
     # GLOBAL_TAG='GR10_H_V8_T2::All' # collisions2010 tag for CMSSW_3_8_X
-    GLOBAL_TAG='GR10_H_V12::All' # Temporary tag for CMSSW_3_10_X
+    # GLOBAL_TAG='GR10_H_V9::All' # collisions2010 tag for CMSSW_3_8_X, updated  
+    # GLOBAL_TAG='GR_R_311_V0::All' # Temporary tag for running in CMSSW_3_11_X
+##    GLOBAL_TAG='L1HLTST311_V0::All'
+    ## Use the same GLOBAL TAG as in the master table
+    GLOBAL_TAG='TESTL1_GR_P::All'    
 else:
-    GLOBAL_TAG='MC_31X_V2::All'
-    if (MENU == "LUMI8e29"): GLOBAL_TAG= 'STARTUP3X_V15::All'
-    
+    GLOBAL_TAG='START39_V8::All'
+    if (MENU == "GRun"): GLOBAL_TAG= 'START39_V8::All'
     
 ##################################################################
 
 process = cms.Process("ANALYSIS")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.suppressWarning = cms.untracked.vstring( 'hltOnlineBeamSpot' )
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.options = cms.untracked.PSet(
@@ -62,7 +57,7 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-                                '/store/data/Run2010B/Commissioning/RAW/v1/000/149/181/10429293-69E2-DF11-84F4-0030487CD6DA.root'
+    '/store/data/Run2010B/Jet/RAW/v1/000/149/181/326E0028-28E2-DF11-8EF5-001D09F2546F.root'
     )
 )
 
@@ -92,8 +87,6 @@ process.load("HLTrigger.HLTanalyzers.HLTopen_cff")
 process.DQM = cms.Service( "DQM",)
 process.DQMStore = cms.Service( "DQMStore",)
 
-# AlCa OpenHLT specific settings
-
 # Define the analyzer modules
 process.load("HLTrigger.HLTanalyzers.HLTAnalyser_cfi")
 process.analyzeThis = cms.Path( process.HLTBeginSequence + process.hltanalysis )
@@ -107,90 +100,40 @@ process.hltanalysis.HLTProcessName = WhichHLTProcess
 process.hltanalysis.ht = "hltJet30Ht"
 process.hltanalysis.genmet = "genMetTrue"
 
+# Switch on ECAL alignment to be consistent with full HLT Event Setup
+process.EcalBarrelGeometryEP.applyAlignment = True
+process.EcalEndcapGeometryEP.applyAlignment = True
+process.EcalPreshowerGeometryEP.applyAlignment = True
+
 if (MENU == "GRun"):
-    # get the objects associated with the 8e29 menu
-    process.hltanalysis.recjets = "hltMCJetCorJetIcone5HF07"
-    process.hltanalysis.ht = "hltJet20UHt"
+    # get the objects associated with the menu
     process.hltanalysis.IsoPixelTracksL3 = "hltHITIPTCorrector8E29"
     process.hltanalysis.IsoPixelTracksL2 = "hltIsolPixelTrackProd8E29"
     if (isData == 0):
         if(isRelval == 0):
-            process.hltTrigReport.HLTriggerResults = "TriggerResults::HLT8E29"
-            process.hltanalysis.l1GtObjectMapRecord = "hltL1GtObjectMap::HLT8E29"
-            process.hltanalysis.hltresults = "TriggerResults::HLT8E29"
+            process.hltTrigReport.HLTriggerResults = "TriggerResults::HLT"
+            process.hltanalysis.l1GtObjectMapRecord = "hltL1GtObjectMap::HLT"
+            process.hltanalysis.hltresults = "TriggerResults::HLT"
         else:
             process.hltTrigReport.HLTriggerResults = "TriggerResults::HLT"
             process.hltanalysis.l1GtObjectMapRecord = "hltL1GtObjectMap::HLT"
             process.hltanalysis.hltresults = "TriggerResults::HLT"
                                                                                                             
-elif (MENU == "LUMI8e29"):
-    # get the objects associated with the 8e29 menu
-    process.hltanalysis.recjets = "hltMCJetCorJetIcone5HF07"    
-    process.hltanalysis.ht = "hltJet20UHt"    
-    process.hltanalysis.IsoPixelTracksL3 = "hltHITIPTCorrector8E29"
-    process.hltanalysis.IsoPixelTracksL2 = "hltIsolPixelTrackProd8E29"
-    if (isData == 0):
-        if(isRelval == 0):
-            process.hltTrigReport.HLTriggerResults = "TriggerResults::HLT8E29"
-            process.hltanalysis.l1GtObjectMapRecord = "hltL1GtObjectMap::HLT8E29"
-            process.hltanalysis.hltresults = "TriggerResults::HLT8E29"
-        else:
-            process.hltTrigReport.HLTriggerResults = "TriggerResults::HLT"
-            process.hltanalysis.l1GtObjectMapRecord = "hltL1GtObjectMap::HLT"
-            process.hltanalysis.hltresults = "TriggerResults::HLT"
-
 # pdt
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 # Schedule the whole thing
 if (MENU == "GRun"):
     process.schedule = cms.Schedule(
-        process.DoHLTJetsU,
+        process.DoHLTJets,
         process.DoHltMuon,
         process.DoHLTPhoton,
         process.DoHLTElectron,
         process.DoHLTTau,
         process.DoHLTBTag,
-        process.DoHLTAlCaECALPhiSym,
-        process.DoHLTAlCaPi0Eta8E29,
         process.DoHLTMinBiasPixelTracks,
-        process.DoHLTIsoTrackHE,
-        process.DoHLTIsoTrackHB,
         process.analyzeThis)
         
-elif (MENU == "LUMI8e29"):
-    process.schedule = cms.Schedule(
-        process.DoHLTJetsU,
-        process.DoHltMuon,
-        process.DoHLTPhoton,
-        process.DoHLTElectron,
-        ##        process.DoHLTElectronStartUpWindows,
-        ##        process.DoHLTElectronLargeWindows,
-        ##        process.DoHLTElectronSiStrip,
-        process.DoHLTTau,
-        process.DoHLTBTag,
-        process.DoHLTAlCaECALPhiSym,
-        process.DoHLTAlCaPi0Eta8E29,
-        # process.DoHLTIsoTrack8E29, 
-        process.DoHLTMinBiasPixelTracks,
-        process.analyzeThis)
-else:
-    process.schedule = cms.Schedule( 
-        process.DoHLTJets, 
-        process.DoHltMuon, 
-        process.DoHLTPhoton, 
-        process.DoHLTElectron, 
-        ##        process.DoHLTElectronStartUpWindows, 
-        ##        process.DoHLTElectronLargeWindows,
-        ##        process.DoHLTElectronSiStrip,
-        process.DoHLTTau, 
-        process.DoHLTBTag,
-        process.DoHLTAlCaECALPhiSym,
-        process.DoHLTAlCaPi0Eta1E31,
-        # process.DoHLTIsoTrack,
-        process.DoHLTMinBiasPixelTracks,
-        process.analyzeThis)
-
 #########################################################################################
 #
 if (isData):  # replace all instances of "rawDataCollector" with "source" in InputTags
@@ -202,7 +145,7 @@ if (isData):  # replace all instances of "rawDataCollector" with "source" in Inp
                     if parameter.moduleLabel == 'rawDataCollector':
                         parameter.moduleLabel = 'source'
 else:
-    if (MENU == "LUMI8e29"):
+    if (MENU == "GRun"):
         from FWCore.ParameterSet import Mixins
         for module in process.__dict__.itervalues():
             if isinstance(module, Mixins._Parameterizable):
@@ -210,4 +153,4 @@ else:
                     if isinstance(parameter, cms.InputTag):
                         if parameter.moduleLabel == 'rawDataCollector':
                             if(isRelval == 0):
-                                parameter.moduleLabel = 'rawDataCollector::HLT8E29'
+                                parameter.moduleLabel = 'rawDataCollector::HLT'

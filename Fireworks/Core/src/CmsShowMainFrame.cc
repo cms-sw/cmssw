@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.108.2.1 2010/12/07 10:30:53 mccauley Exp $
+// $Id: CmsShowMainFrame.cc,v 1.113 2011/02/24 10:26:25 eulisse Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -218,12 +218,16 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    showAddCollection->createMenuEntry(windowMenu);
    showMainViewCtl->createMenuEntry(windowMenu);
    showInvMassDialog->createMenuEntry(windowMenu);
-   showGeometryTable->createMenuEntry(windowMenu);
+
+   TGPopupMenu *geoMenu = new TGPopupMenu(gClient->GetRoot());
+   menuBar->AddPopup("Geomtery", geoMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
+   showGeometryTable->createMenuEntry(geoMenu);
 
    TGPopupMenu *helpMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Help", helpMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
    help->createMenuEntry(helpMenu);
    keyboardShort->createMenuEntry(helpMenu);
+   helpMenu->AddSeparator();
    helpGL->createMenuEntry(helpMenu);
 
    // colors
@@ -603,6 +607,18 @@ CmsShowMainFrame::enableNext(bool enable)
          m_playEvents->stop();
       }
    }
+}
+
+/** To disable GUI to jump from event to another,
+    when this is not possible (i.e. when in full framework mode).
+  */
+void
+CmsShowMainFrame::enableComplexNavigation(bool enable)
+{
+   if (enable)
+      m_goToLast->enable();
+   else
+      m_goToLast->disable();
 }
 
 bool

@@ -33,8 +33,12 @@ bool L1TechReader::operator()(const Data & data) const {
       if (psbTriggerWord & ((uint64_t) 0x01 << trigger.second))
         return true;
   } else {
+    const std::vector<bool> & word = data.l1tResults().technicalTriggerWord();
+    if (word.empty())
+      return false;
+
     BOOST_FOREACH(const value_type & trigger, m_triggers)
-      if (data.l1tResults().technicalTriggerWord()[trigger.second])
+      if (trigger.second < word.size() and word[trigger.second])
         return true;
   }
 

@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.42 2010/11/14 14:14:28 innocent Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.38 2009/05/15 20:49:03 ymaravin Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-EgammaSCEnergyCorrectionAlgo::EgammaSCEnergyCorrectionAlgo(float noise, 
+EgammaSCEnergyCorrectionAlgo::EgammaSCEnergyCorrectionAlgo(double noise, 
 							   reco::CaloCluster::AlgoId theAlgo,
 							   const edm::ParameterSet& pset,
 							   EgammaSCEnergyCorrectionAlgo::VerbosityLevel verbosity
@@ -16,15 +16,31 @@ EgammaSCEnergyCorrectionAlgo::EgammaSCEnergyCorrectionAlgo(float noise,
 
 {
   sigmaElectronicNoise_ = noise;
-  verbosity_ = verbosity;  
+  verbosity_ = verbosity;
+  recHits_m = new std::map<DetId, EcalRecHit>();
+  
 }
 
+EgammaSCEnergyCorrectionAlgo::~EgammaSCEnergyCorrectionAlgo()
+{
+  recHits_m->clear();
+  delete recHits_m;
+}
 
 reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster &cl, 
-								 const EcalRecHitCollection &rhc, reco::CaloCluster::AlgoId theAlgo, 
-								 const CaloSubdetectorGeometry* geometry,
-								 EcalClusterFunctionBaseClass* EnergyCorrection) {	
+								 const EcalRecHitCollection &rhc, reco::CaloCluster::AlgoId theAlgo, const CaloSubdetectorGeometry* geometry,
+								 EcalClusterFunctionBaseClass* EnergyCorrection)
+{	
 
+  // Insert the recHits into map	
+  // (recHits needed as number of crystals in the seed cluster
+  //  with energy above 2sigma noise required)
+    EcalRecHitCollection::const_iterator it;
+    for (it = rhc.begin(); it != rhc.end(); it++)
+    {
+      std::pair<DetId, EcalRecHit> map_entry(it->id(), *it);
+      recHits_m->insert(map_entry);
+    }
 	
   // A little bit of trivial info to be sure all is well
 
@@ -64,14 +80,13 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   // where is the seed cluster?
   std::vector<std::pair<DetId, float> > seedHits = seedC->hitsAndFractions();  
   EcalSubdetector theBase = EcalSubdetector(seedHits.at(0).first.subdetId());
-
   if (verbosity_ <= pINFO)
   {
     std::cout << "   seed cluster location == " << theBase << std::endl;
   }
 
   // Get number of crystals 2sigma above noise in seed basiccluster      
-  int nCryGT2Sigma = nCrystalsGT2Sigma(*seedC,rhc);
+  int nCryGT2Sigma = nCrystalsGT2Sigma(*seedC);
   if (verbosity_ <= pINFO)
   {
     std::cout << "   nCryGT2Sigma " << nCryGT2Sigma << std::endl;
@@ -86,14 +101,14 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
 
   //Create the pointer ot class SuperClusterShapeAlgo
   //which calculates phiWidth and etaWidth
-  SuperClusterShapeAlgo  SCShape(&rhc, geometry);
+  SuperClusterShapeAlgo* SCShape = new SuperClusterShapeAlgo(&rhc, geometry);
 
   double phiWidth = 0.;
   double etaWidth = 0.;
   //Calculate phiWidth & etaWidth for SuperClusters
-  SCShape.Calculate_Covariances(cl);
-  phiWidth = SCShape.phiWidth();
-  etaWidth = SCShape.etaWidth();
+  SCShape->Calculate_Covariances(cl);
+  phiWidth = SCShape->phiWidth();
+  etaWidth = SCShape->etaWidth();
 
   // Calculate the new supercluster energy 
   //as a function of number of crystals in the seed basiccluster for Endcap 
@@ -131,96 +146,102 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   corrCl.setPhiWidth(phiWidth);
   corrCl.setEtaWidth(etaWidth);
 
-   return corrCl;
+  // Return the corrected cluster
+  recHits_m->clear();
+ 
+  delete SCShape;
+  return corrCl;
 }
 
-float EgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase) const {
+float EgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::CaloCluster::AlgoId theAlgo, EcalSubdetector theBase)
+{
 
   float p0 = 0, p1 = 0, p2 = 0, p3 = 0, p4 = 0;
-  float x  =  nCry;
-  float result =1.f;
+  float x  = (float) nCry;
+  float result =1.;
  
-  if((theBase == EcalBarrel) && (theAlgo == reco::CaloCluster::hybrid))  {
-    if (nCry<=10) 
-      {
-	p0 =  6.32879e-01f; 
-	p1 =  1.14893e-01f; 
-	p2 = -2.45705e-02f; 
-	p3 =  2.53074e-03f; 
-	p4 = -9.29654e-05f; 
-      } 
-    else if (nCry>10 && nCry<=30) 
-      {
-	p0 =  6.93196e-01f; 
-	p1 =  4.44034e-02f; 
-	p2 = -2.82229e-03f; 
-	p3 =  8.19495e-05f; 
-	p4 = -8.96645e-07f; 
-      } 
-    else 
-      {
-	p0 =  5.65474e+00f; 
-	p1 = -6.31640e-01f; 
-	p2 =  3.14218e-02f; 
-	p3 = -6.84256e-04f; 
-	p4 =  5.50659e-06f; 
+  if((theBase == EcalBarrel) && (theAlgo == reco::CaloCluster::hybrid)) 
+    {
+      if (nCry<=10) 
+	{
+	  p0 =  6.32879e-01; 
+	  p1 =  1.14893e-01; 
+	  p2 = -2.45705e-02; 
+	  p3 =  2.53074e-03; 
+	  p4 = -9.29654e-05; 
+	} 
+      else if (nCry>10 && nCry<=30) 
+        {
+          p0 =  6.93196e-01; 
+          p1 =  4.44034e-02; 
+          p2 = -2.82229e-03; 
+          p3 =  8.19495e-05; 
+          p4 = -8.96645e-07; 
+        } 
+      else 
+        {
+          p0 =  5.65474e+00; 
+          p1 = -6.31640e-01; 
+          p2 =  3.14218e-02; 
+          p3 = -6.84256e-04; 
+          p4 =  5.50659e-06; 
+        }
+      if (x > 40.) x = 40.;
+      result = p0 + p1*x + p2*x*x + p3*x*x*x + p4*x*x*x*x;
+    }
+          
+    else if((theBase == EcalEndcap) && (theAlgo == reco::CaloCluster::hybrid)) {
+        if (verbosity_ <= pERROR)
+        {
+          std::cout << "ERROR! HybridEFRYsc called" << std::endl;
+        } 
+        result = 1.;
       }
-    if (x > 40.f) x = 40.f;
-  }
-  
-  else if((theBase == EcalEndcap) && (theAlgo == reco::CaloCluster::hybrid)) {
-    if (verbosity_ <= pERROR)
-      {
-	std::cout << "ERROR! HybridEFRYsc called" << std::endl;
-      } 
-    return 1.f;
-  }
-  
-  else if((theBase == EcalBarrel) && (theAlgo == reco::CaloCluster::island)) { 
-    p0 = 4.69976e-01f;     // extracted from fit to all endcap classes with Ebrem = 0.
-    p1 = 1.45900e-01f;
-    p2 = -1.61359e-02f;
-    p3 = 7.99423e-04f;
-    p4 = -1.47873e-05f;
-    if (x > 16.f) x = 16.f;
-  }
-  
-  else if((theBase == EcalEndcap) && (theAlgo == reco::CaloCluster::island)) {    
-    p0 = 4.69976e-01f;     // extracted from fit to all endcap classes with Ebrem = 0.
-    p1 = 1.45900e-01f;
-    p2 = -1.61359e-02f;
-    p3 = 7.99423e-04f;
-    p4 = -1.47873e-05f;
-    if (x > 16.f) x = 16.f;
-  }
-  
-  else {
-    if (verbosity_ <= pINFO)
+        
+    else if((theBase == EcalBarrel) && (theAlgo == reco::CaloCluster::island)) { 
+        p0 = 4.69976e-01;     // extracted from fit to all endcap classes with Ebrem = 0.
+        p1 = 1.45900e-01;
+        p2 = -1.61359e-02;
+        p3 = 7.99423e-04;
+        p4 = -1.47873e-05;
+        if (x > 16.) x = 16.;
+        result = p0 + p1*x + p2*x*x + p3*x*x*x + p4*x*x*x*x;
+      }
+        
+    else if((theBase == EcalEndcap) && (theAlgo == reco::CaloCluster::island)) {    
+        p0 = 4.69976e-01;     // extracted from fit to all endcap classes with Ebrem = 0.
+        p1 = 1.45900e-01;
+        p2 = -1.61359e-02;
+        p3 = 7.99423e-04;
+        p4 = -1.47873e-05;
+        if (x > 16.) x = 16.;
+        result = p0 + p1*x + p2*x*x + p3*x*x*x + p4*x*x*x*x;
+      }
+      
+    else {
+      if (verbosity_ <= pINFO)
       {
         std::cout << "trying to correct unknown cluster!!!" << std::endl;
       }
-    return 1.f;
-  }
-  result = p0 + x*(p1 + x*(p2 + x*(p3 + x*p4)));
-  
+    }
+
   //Rescale energy scale correction to take into account change in calibrated
   //RecHit definition introduced in CMSSW_1_5_0
-  float const fact = 1.f/0.965f; 
   if(theBase == EcalBarrel) {
-    result*=fact;
+    result/=0.965;
   } else {
-    result*=fact;
+    result/=0.975;
   }
   
   return result;  
 }
 
-int EgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma(reco::BasicCluster const & seed, EcalRecHitCollection const & rhc) const
+int EgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma(const reco::BasicCluster &seed)
 {
   // return number of crystals 2Sigma above
   // electronic noise
   
-  std::vector<std::pair<DetId,float > > const & hits = seed.hitsAndFractions();
+  std::vector<std::pair<DetId,float > > hits = seed.hitsAndFractions();
 
   if (verbosity_ <= pINFO)
   {
@@ -231,12 +252,13 @@ int EgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma(reco::BasicCluster const & s
   }
 
   int nCry = 0;
-  std::vector<std::pair<DetId,float > >::const_iterator hit;
-  EcalRecHitCollection::const_iterator aHit;
-  for(hit = hits.begin(); hit != hits.end(); hit++) {
+  std::vector<std::pair<DetId,float > >::iterator hit;
+  std::map<DetId, EcalRecHit>::iterator aHit;
+  for(hit = hits.begin(); hit != hits.end(); hit++)
+    {
       // need to get hit by DetID in order to get energy
-      aHit = rhc.find((*hit).first);
-      if((*aHit).energy()>2.f*sigmaElectronicNoise_) nCry++;
+      aHit = recHits_m->find((*hit).first);
+      if(aHit->second.energy()>2.*sigmaElectronicNoise_) nCry++;
     }
 
   if (verbosity_ <= pINFO)

@@ -58,22 +58,22 @@ public:
 
 private:
 
-  boost::shared_ptr<MockAlarmHandler> _ah;
-  ResourceMonitorCollection* _rmc;
+  boost::shared_ptr<MockAlarmHandler> ah_;
+  ResourceMonitorCollection* rmc_;
 
 };
 
 void
 testResourceMonitorCollection::setUp()
 {
-  _ah.reset(new MockAlarmHandler());
-  _rmc = new ResourceMonitorCollection(boost::posix_time::seconds(1), _ah);
+  ah_.reset(new MockAlarmHandler());
+  rmc_ = new ResourceMonitorCollection(boost::posix_time::seconds(1), ah_);
 }
 
 void
 testResourceMonitorCollection::tearDown()
 {
-  delete _rmc;
+  delete rmc_;
 }
 
 
@@ -83,7 +83,7 @@ testResourceMonitorCollection::diskSize()
   ResourceMonitorCollection::DiskUsagePtr
     diskUsage( new ResourceMonitorCollection::DiskUsage() );
   diskUsage->pathName = "/tmp";
-  CPPUNIT_ASSERT_THROW( _rmc->retrieveDiskSize(diskUsage), stor::exception::DiskSpaceAlarm );
+  CPPUNIT_ASSERT_THROW( rmc_->retrieveDiskSize(diskUsage), stor::exception::DiskSpaceAlarm );
 #ifdef __APPLE__
   struct statfs buf;
   CPPUNIT_ASSERT( statfs(diskUsage->pathName.c_str(), &buf) == 0 );
@@ -106,8 +106,8 @@ testResourceMonitorCollection::unknownDisk()
     diskUsage( new ResourceMonitorCollection::DiskUsage() );
   diskUsage->pathName = "/aNonExistingDisk";
 
-  CPPUNIT_ASSERT( _ah->noAlarmSet() );
-  _rmc->retrieveDiskSize(diskUsage);
+  CPPUNIT_ASSERT( ah_->noAlarmSet() );
+  rmc_->retrieveDiskSize(diskUsage);
   CPPUNIT_ASSERT( diskUsage->diskSize == -1 );
 }
 
@@ -118,20 +118,20 @@ testResourceMonitorCollection::notMountedDisk(bool sendAlarm)
   const std::string dummyDisk = "/aNonExistingDisk";
 
   AlarmParams alarmParams;
-  alarmParams._isProductionSystem = sendAlarm;
-  _rmc->configureAlarms(alarmParams);
+  alarmParams.isProductionSystem_ = sendAlarm;
+  rmc_->configureAlarms(alarmParams);
 
   DiskWritingParams dwParams;
-  dwParams._nLogicalDisk = 0;
-  dwParams._filePath = "/tmp";
-  dwParams._highWaterMark = 100;
-  dwParams._otherDiskPaths.push_back(dummyDisk);
-  _rmc->configureDisks(dwParams);
+  dwParams.nLogicalDisk_ = 0;
+  dwParams.filePath_ = "/tmp";
+  dwParams.highWaterMark_ = 100;
+  dwParams.otherDiskPaths_.push_back(dummyDisk);
+  rmc_->configureDisks(dwParams);
 
-  _ah->printActiveAlarms("SentinelException");
+  ah_->printActiveAlarms("SentinelException");
 
   std::vector<MockAlarmHandler::Alarms> alarms;
-  return _ah->getActiveAlarms("SentinelException", alarms);
+  return ah_->getActiveAlarms("SentinelException", alarms);
 }
 
 
@@ -153,29 +153,29 @@ void
 testResourceMonitorCollection::diskUsage()
 {
   DiskWritingParams dwParams;
-  dwParams._nLogicalDisk = 0;
-  dwParams._filePath = "/tmp";
-  dwParams._highWaterMark = 100;
-  dwParams._failHighWaterMark = 100;
-  _rmc->configureDisks(dwParams);
-  CPPUNIT_ASSERT( _rmc->_diskUsageList.size() == 1 );
-  CPPUNIT_ASSERT( _rmc->_nLogicalDisks == 1 );
-  ResourceMonitorCollection::DiskUsagePtr diskUsagePtr = _rmc->_diskUsageList[0];
+  dwParams.nLogicalDisk_ = 0;
+  dwParams.filePath_ = "/tmp";
+  dwParams.highWaterMark_ = 100;
+  dwParams.failHighWaterMark_ = 100;
+  rmc_->configureDisks(dwParams);
+  CPPUNIT_ASSERT( rmc_->diskUsageList_.size() == 1 );
+  CPPUNIT_ASSERT( rmc_->nLogicalDisks_ == 1 );
+  ResourceMonitorCollection::DiskUsagePtr diskUsagePtr = rmc_->diskUsageList_[0];
   CPPUNIT_ASSERT( diskUsagePtr.get() != 0 );
 
 #ifdef __APPLE__
   struct statfs buf;
-  CPPUNIT_ASSERT( statfs(dwParams._filePath.c_str(), &buf) == 0 );
+  CPPUNIT_ASSERT( statfs(dwParams.filePath_.c_str(), &buf) == 0 );
 #else
   struct statfs64 buf;
-  CPPUNIT_ASSERT( statfs64(dwParams._filePath.c_str(), &buf) == 0 );
+  CPPUNIT_ASSERT( statfs64(dwParams.filePath_.c_str(), &buf) == 0 );
 #endif
   CPPUNIT_ASSERT( buf.f_blocks );
   double relDiskUsage = (1 - static_cast<double>(buf.f_bavail) / buf.f_blocks) * 100;
 
-  _rmc->calcDiskUsage();
+  rmc_->calcDiskUsage();
   ResourceMonitorCollection::Stats stats;
-  _rmc->getStats(stats);
+  rmc_->getStats(stats);
   CPPUNIT_ASSERT( stats.diskUsageStatsList.size() == 1 );
   ResourceMonitorCollection::DiskUsageStatsPtr diskUsageStatsPtr = stats.diskUsageStatsList[0];
   CPPUNIT_ASSERT( diskUsageStatsPtr.get() != 0 );
@@ -187,17 +187,17 @@ testResourceMonitorCollection::diskUsage()
     CPPUNIT_ASSERT( statRelDiskUsage == relDiskUsage );
 
   CPPUNIT_ASSERT( diskUsageStatsPtr->alarmState == AlarmHandler::OKAY );
-  CPPUNIT_ASSERT( _ah->noAlarmSet() );
+  CPPUNIT_ASSERT( ah_->noAlarmSet() );
 
-  _rmc->_dwParams._highWaterMark = relDiskUsage > 10 ? (relDiskUsage-10) : 0;
-  _rmc->calcDiskUsage();
+  rmc_->dwParams_.highWaterMark_ = relDiskUsage > 10 ? (relDiskUsage-10) : 0;
+  rmc_->calcDiskUsage();
   CPPUNIT_ASSERT( diskUsagePtr->alarmState == AlarmHandler::WARNING );
-  CPPUNIT_ASSERT(! _ah->noAlarmSet() );
+  CPPUNIT_ASSERT(! ah_->noAlarmSet() );
 
-  _rmc->_dwParams._highWaterMark = (relDiskUsage+10);
-  _rmc->calcDiskUsage();
+  rmc_->dwParams_.highWaterMark_ = (relDiskUsage+10);
+  rmc_->calcDiskUsage();
   CPPUNIT_ASSERT( diskUsagePtr->alarmState == AlarmHandler::OKAY );
-  CPPUNIT_ASSERT( _ah->noAlarmSet() );
+  CPPUNIT_ASSERT( ah_->noAlarmSet() );
 }
 
 
@@ -211,13 +211,13 @@ testResourceMonitorCollection::processCount()
   for (int i = 0; i < processes; ++i)
     system("${CMSSW_BASE}/src/EventFilter/StorageManager/test/processCountTest.sh 2> /dev/null &");
 
-  int processCount = _rmc->getProcessCount("processCountTest.sh");
+  int processCount = rmc_->getProcessCount("processCountTest.sh");
   CPPUNIT_ASSERT( processCount == processes);
   
-  processCount = _rmc->getProcessCount("processCountTest.sh", myUid);
+  processCount = rmc_->getProcessCount("processCountTest.sh", myUid);
   CPPUNIT_ASSERT( processCount == processes);
 
-  processCount = _rmc->getProcessCount("processCountTest.sh", myUid+1);
+  processCount = rmc_->getProcessCount("processCountTest.sh", myUid+1);
   CPPUNIT_ASSERT( processCount == 0);
 
   system("killall -u ${USER} -q sleep");
@@ -232,8 +232,8 @@ testResourceMonitorCollection::processCountWithArguments()
   for (int i = 0; i < processes; ++i)
     system("${CMSSW_BASE}/src/EventFilter/StorageManager/test/processCountTest.sh foo 2> /dev/null &");
 
-  int processCountFoo = _rmc->getProcessCount("processCountTest.sh foo");
-  int processCountBar = _rmc->getProcessCount("processCountTest.sh bar");
+  int processCountFoo = rmc_->getProcessCount("processCountTest.sh foo");
+  int processCountBar = rmc_->getProcessCount("processCountTest.sh bar");
   CPPUNIT_ASSERT( processCountFoo == processes);
   CPPUNIT_ASSERT( processCountBar == 0);
 
@@ -245,21 +245,21 @@ void
 testResourceMonitorCollection::noSataBeasts()
 {
   AlarmParams alarmParams;
-  alarmParams._isProductionSystem = true;
-  _rmc->configureAlarms(alarmParams);
+  alarmParams.isProductionSystem_ = true;
+  rmc_->configureAlarms(alarmParams);
 
   ResourceMonitorCollection::SATABeasts sataBeasts;
   bool foundSataBeasts =
-    _rmc->getSataBeasts(sataBeasts);
+    rmc_->getSataBeasts(sataBeasts);
   CPPUNIT_ASSERT(! foundSataBeasts );
   CPPUNIT_ASSERT( sataBeasts.empty() );
 
-  _rmc->checkSataBeasts();
-  CPPUNIT_ASSERT( _rmc->_latchedSataBeastStatus == -1 );
-  CPPUNIT_ASSERT( _ah->noAlarmSet() );
+  rmc_->checkSataBeasts();
+  CPPUNIT_ASSERT( rmc_->latchedSataBeastStatus_ == -1 );
+  CPPUNIT_ASSERT( ah_->noAlarmSet() );
 
   ResourceMonitorCollection::Stats stats;
-  _rmc->getStats(stats);
+  rmc_->getStats(stats);
   CPPUNIT_ASSERT( stats.sataBeastStatus == -1 );
 }
 
@@ -273,13 +273,13 @@ testResourceMonitorCollection::sataBeastOkay()
   fileName << getenv("CMSSW_BASE") << "/src/EventFilter/StorageManager/test/SATABeast_okay.html";
   CPPUNIT_ASSERT( testhelper::read_file(fileName.str(), content) );
   CPPUNIT_ASSERT(! content.empty() );
-  _rmc->updateSataBeastStatus(sataBeast, content);
+  rmc_->updateSataBeastStatus(sataBeast, content);
 
-  CPPUNIT_ASSERT( _rmc->_latchedSataBeastStatus == 0 );
-  CPPUNIT_ASSERT( _ah->noAlarmSet() );
+  CPPUNIT_ASSERT( rmc_->latchedSataBeastStatus_ == 0 );
+  CPPUNIT_ASSERT( ah_->noAlarmSet() );
 
   ResourceMonitorCollection::Stats stats;
-  _rmc->getStats(stats);
+  rmc_->getStats(stats);
   CPPUNIT_ASSERT( stats.sataBeastStatus == 0 );
 }
 
@@ -292,17 +292,17 @@ testResourceMonitorCollection::sataBeastFailed()
   std::ostringstream fileName;
   fileName << getenv("CMSSW_BASE") << "/src/EventFilter/StorageManager/test/SATABeast_failed.html";
   CPPUNIT_ASSERT( testhelper::read_file(fileName.str(), content) );
-  _rmc->updateSataBeastStatus(sataBeast, content);
+  rmc_->updateSataBeastStatus(sataBeast, content);
   CPPUNIT_ASSERT(! content.empty() );
 
-  CPPUNIT_ASSERT( _rmc->_latchedSataBeastStatus == 101 );
+  CPPUNIT_ASSERT( rmc_->latchedSataBeastStatus_ == 101 );
   std::vector<MockAlarmHandler::Alarms> alarms;
-  bool alarmsAreSet = _ah->getActiveAlarms(sataBeast, alarms);
+  bool alarmsAreSet = ah_->getActiveAlarms(sataBeast, alarms);
   CPPUNIT_ASSERT( alarmsAreSet );
   CPPUNIT_ASSERT( alarms.size() == 2 );
 
   ResourceMonitorCollection::Stats stats;
-  _rmc->getStats(stats);
+  rmc_->getStats(stats);
   CPPUNIT_ASSERT( stats.sataBeastStatus == 101 );
 
   // verify that we can reset the alarms if all is okay
@@ -315,26 +315,26 @@ testResourceMonitorCollection::sataBeastsOnSpecialNode()
 {
   ResourceMonitorCollection::SATABeasts sataBeasts;
   bool foundSataBeasts =
-    _rmc->getSataBeasts(sataBeasts);
+    rmc_->getSataBeasts(sataBeasts);
   CPPUNIT_ASSERT( foundSataBeasts );
   CPPUNIT_ASSERT( sataBeasts.size() == 1 );
   std::string sataBeast = *(sataBeasts.begin());
   CPPUNIT_ASSERT( sataBeast == "satab-c2c07-06" );
 
-  CPPUNIT_ASSERT(! _rmc->checkSataDisks(sataBeast,"-00.cms") );
-  CPPUNIT_ASSERT( _rmc->checkSataDisks(sataBeast,"-10.cms") );
+  CPPUNIT_ASSERT(! rmc_->checkSataDisks(sataBeast,"-00.cms") );
+  CPPUNIT_ASSERT( rmc_->checkSataDisks(sataBeast,"-10.cms") );
 
-  CPPUNIT_ASSERT( _rmc->_latchedSataBeastStatus == 101 );
+  CPPUNIT_ASSERT( rmc_->latchedSataBeastStatus_ == 101 );
 
   ResourceMonitorCollection::Stats stats;
-  _rmc->getStats(stats);
+  rmc_->getStats(stats);
   CPPUNIT_ASSERT( stats.sataBeastStatus == 101 );
 
   std::vector<MockAlarmHandler::Alarms> alarms;
-  bool alarmsAreSet = _ah->getActiveAlarms(sataBeast, alarms);
+  bool alarmsAreSet = ah_->getActiveAlarms(sataBeast, alarms);
   CPPUNIT_ASSERT( alarmsAreSet );
 
-  _ah->printActiveAlarms(sataBeast);
+  ah_->printActiveAlarms(sataBeast);
 }
 
 // This macro writes the 'main' for this test.

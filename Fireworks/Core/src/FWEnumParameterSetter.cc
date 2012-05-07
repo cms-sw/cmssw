@@ -8,7 +8,7 @@
 //
 // Original Author:  matevz
 //         Created:  Fri Apr 30 15:17:33 CEST 2010
-// $Id: FWEnumParameterSetter.cc,v 1.3 2010/05/09 10:02:35 amraktad Exp $
+// $Id: FWEnumParameterSetter.cc,v 1.5 2011/02/11 19:56:36 amraktad Exp $
 //
 
 // system include files
@@ -66,7 +66,7 @@ FWEnumParameterSetter::attach(FWParameterBase* iParam)
 }
 
 TGFrame*
-FWEnumParameterSetter::build(TGFrame* iParent)
+FWEnumParameterSetter::build(TGFrame* iParent, bool labelBack)
 {
    TGCompositeFrame *frame = new TGHorizontalFrame(iParent);
 
@@ -79,15 +79,23 @@ FWEnumParameterSetter::build(TGFrame* iParent)
       if (me->second.length() > max_len) max_len = me->second.length();
       ++me;
    }
-   frame->AddFrame(m_widget, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,8,2,2));
    m_widget->Resize(8*max_len + 20, 20);
    m_widget->Select(static_cast<Int_t>(m_param->value()), kFALSE);
 
    m_widget->Connect("Selected(Int_t)", "FWEnumParameterSetter", this, "doUpdate(Int_t)");
 
    // label
-   frame->AddFrame(new TGLabel(frame, m_param->name().c_str()),
-                   new TGLayoutHints(kLHintsLeft|kLHintsCenterY) );
+   TGLabel* label = new TGLabel(frame, m_param->name().c_str());
+   if (labelBack)
+   {
+      frame->AddFrame(m_widget, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,6,2,2));
+      frame->AddFrame(label, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2, 4, 0, 0));
+   }
+   else
+   {
+      frame->AddFrame(label, new TGLayoutHints(kLHintsLeft|kLHintsCenterY) );
+      frame->AddFrame(m_widget, new TGLayoutHints(kLHintsLeft|kLHintsCenterY, 2,8,2,2));
+   }
    return frame;
 }
 

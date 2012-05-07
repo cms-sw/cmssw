@@ -11,7 +11,6 @@ using namespace std;
 int main(int argc, char **argv)
 {
   int type_   = ME::iLaser;
-  //int type_   = ME::iTestPulse;
   int color_  = ME::iBlue; 
   bool useEN_ = false;
   int first_  = MusEcal::firstRun;
@@ -19,14 +18,14 @@ int main(int argc, char **argv)
   bool debug_ = false;
 
   int c;
-  while ( (c = getopt( argc, argv, "c:f:l:t:ed" ) ) != EOF ) 
+  while ( (c = getopt( argc, argv, "t:c:f:l:ed" ) ) != EOF ) 
     {
       switch (c) 
 	{
+	case 't': type_     = atoi( optarg );    break;
 	case 'c': color_    = atoi(optarg);      break;
 	case 'f': first_    = atoi(optarg);      break;
 	case 'l': last_     = atoi(optarg);      break;
-	case 't': type_     = atoi( optarg );    break;
 	case 'e': useEN_    = true;              break;
 	case 'd': debug_    = true;              break;
 	}

@@ -32,10 +32,11 @@ patElectrons = cms.EDProducer("PATElectronProducer",
     ),
 
     # embedding of AOD items
-    embedTrack        = cms.bool(False), ## embed in AOD externally stored track (note: gsf electrons don't have a track)
-    embedGsfTrack     = cms.bool(True),  ## embed in AOD externally stored gsf track
-    embedSuperCluster = cms.bool(True),  ## embed in AOD externally stored supercluster
-    embedPFCandidate  = cms.bool(True),  ## embed in AOD externally stored particle flow candidate
+    embedGsfElectronCore = cms.bool(True),  ## embed in AOD externally stored gsf electron core
+    embedGsfTrack        = cms.bool(True),  ## embed in AOD externally stored gsf track
+    embedSuperCluster    = cms.bool(True),  ## embed in AOD externally stored supercluster
+    embedPFCandidate     = cms.bool(True),  ## embed in AOD externally stored particle flow candidate
+    embedTrack           = cms.bool(False), ## embed in AOD externally stored track (note: gsf electrons don't have a track)
                                     
     # embed IsoDeposits to recompute isolation
     isoDeposits = cms.PSet(),

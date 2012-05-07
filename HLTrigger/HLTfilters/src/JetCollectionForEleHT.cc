@@ -13,7 +13,7 @@
 //
 // Original Author:  Massimiliano Chiorboli,40 4-A01,+41227671535,
 //         Created:  Mon Oct  4 11:57:35 CEST 2010
-// $Id: JetCollectionForEleHT.cc,v 1.1 2010/10/12 23:10:07 sharper Exp $
+// $Id: JetCollectionForEleHT.cc,v 1.4 2011/03/03 14:20:14 gruen Exp $
 //
 //
 
@@ -31,6 +31,19 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HLTrigger/HLTfilters/interface/JetCollectionForEleHT.h"
 
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+
+#include "DataFormats/Common/interface/Handle.h"
+
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
 
 JetCollectionForEleHT::JetCollectionForEleHT(const edm::ParameterSet& iConfig):
   hltElectronTag(iConfig.getParameter< edm::InputTag > ("HltElectronTag")),
@@ -55,7 +68,9 @@ JetCollectionForEleHT::~JetCollectionForEleHT()
 // member functions
 //
 
+
 // ------------ method called to produce the data  ------------
+// template <typename T>
 void
 JetCollectionForEleHT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
@@ -63,10 +78,34 @@ JetCollectionForEleHT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
   iEvent.getByLabel(hltElectronTag,PrevFilterOutput);
-
-  std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
-  PrevFilterOutput->getObjects(trigger::TriggerCluster, recoecalcands);
  
+  //its easier on the if statement flow if I try everything at once, shouldnt add to timing
+  std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > clusCands;
+  PrevFilterOutput->getObjects(trigger::TriggerCluster,clusCands);
+  std::vector<edm::Ref<reco::ElectronCollection> > eleCands;
+  PrevFilterOutput->getObjects(trigger::TriggerElectron,eleCands);
+  
+  //prepare the collection of 3-D vector for electron momenta
+  std::vector<TVector3> ElePs;
+
+  if(!clusCands.empty()){ //try trigger cluster
+    for(size_t candNr=0;candNr<clusCands.size();candNr++){
+      TVector3 positionVector(
+          clusCands[candNr]->superCluster()->position().x(),
+          clusCands[candNr]->superCluster()->position().y(),
+          clusCands[candNr]->superCluster()->position().z());
+      ElePs.push_back(positionVector);
+    }
+  }else if(!eleCands.empty()){ // try trigger electrons
+    for(size_t candNr=0;candNr<eleCands.size();candNr++){
+      TVector3 positionVector(
+          eleCands[candNr]->superCluster()->position().x(),
+          eleCands[candNr]->superCluster()->position().y(),
+          eleCands[candNr]->superCluster()->position().z());
+      ElePs.push_back(positionVector);
+    }
+  }
+  
   edm::Handle<reco::CaloJetCollection> theCaloJetCollectionHandle;
   iEvent.getByLabel(sourceJetTag, theCaloJetCollectionHandle);
   const reco::CaloJetCollection* theCaloJetCollection = theCaloJetCollectionHandle.product();
@@ -78,26 +117,25 @@ JetCollectionForEleHT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   for(unsigned int j=0; j<theCaloJetCollection->size(); j++) {
 
     isOverlapping = false;
-    for(unsigned int i=0; i<recoecalcands.size(); i++) {
-      reco::SuperClusterRef theHltEleSC = recoecalcands[i]->superCluster();
-      TVector3 EleP(theHltEleSC->position().x(), theHltEleSC->position().y(), theHltEleSC->position().z());
+    for(unsigned int i=0; i<ElePs.size(); i++) {
+      
       TVector3 JetP((*theCaloJetCollection)[j].px(), (*theCaloJetCollection)[j].py(), (*theCaloJetCollection)[j].pz());
-      double DR = EleP.DeltaR(JetP);
+      double DR = ElePs[i].DeltaR(JetP);
+      
       if(DR<minDeltaR_) {
-	isOverlapping = true;
-	break;
+	      isOverlapping = true;
+	      break;
       }
     }
    
     if(!isOverlapping) theFilteredCaloJetCollection->push_back((*theCaloJetCollection)[j]);
   }
-
-
+  
   //do the filtering
-
 
   iEvent.put(theFilteredCaloJetCollection);
 
+  return;
 
 }
 
@@ -114,3 +152,4 @@ JetCollectionForEleHT::endJob() {
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(JetCollectionForEleHT);
+

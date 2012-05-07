@@ -7,8 +7,7 @@ vertexAnalysis = cms.EDAnalyzer("PrimaryVertexAnalyzer4PU",
         verbose = cms.untracked.bool(True),
         recoTrackProducer = cms.untracked.string("generalTracks"),
         zmatch=cms.untracked.double(0.05),
-        TkFilterParameters = cms.PSet(
-          algorithm=cms.string('filter'),
+        TkFilterParameters = cms.PSet(             
           maxNormalizedChi2 = cms.double(5.0),     # should be identical to those used in
                                                    # OfflinePrimaryVertex_cfg.py
           minSiliconLayersWithHits = cms.int32(5), # >= 5

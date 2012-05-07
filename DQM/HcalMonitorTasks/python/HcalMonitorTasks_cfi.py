@@ -19,6 +19,7 @@ from DQM.HcalMonitorTasks.HcalDetDiagTimingMonitor_cfi   import*
 
 from DQM.HcalMonitorTasks.HcalLSbyLSMonitor_cfi          import*
 from DQM.HcalMonitorTasks.HcalCoarsePedestalMonitor_cfi  import *
+from DQM.HcalMonitorTasks.HcalNoiseMonitor_cfi  import *
 
 hcalMonitorTasksTestSequence=cms.Sequence(hcalDigiMonitor
                                           *hcalHotCellMonitor
@@ -44,7 +45,7 @@ hcalMonitorTasksOnlineSequence = cms.Sequence(hcalDigiMonitor
                                               #*hcalDetDiagLEDMonitor
                                               *hcalDetDiagNoiseMonitor
                                               *hcalDetDiagTimingMonitor
-                                              *hcalNZSMonitor 
+                                              *hcalNZSMonitor
                                               )
 
 hcalMonitorTasksOfflineSequence = cms.Sequence(hcalDigiMonitor
@@ -55,6 +56,7 @@ hcalMonitorTasksOfflineSequence = cms.Sequence(hcalDigiMonitor
                                                *hcalRawDataMonitor
                                                *hcalDetDiagNoiseMonitor
                                                *hcalLSbyLSMonitor
+                                               *hcalNoiseMonitor
                                                )
 
 
@@ -80,13 +82,13 @@ def SetTaskParams(process,param, value):
                 newval=string.atof(newval)
             except:
                 isstring=True
-    
+
     tasks=[hcalDigiMonitor,hcalRecHitMonitor,hcalHotCellMonitor,hcalDeadCellMonitor,
            hcalRawDataMonitor, hcalBeamMonitor, hcalTrigPrimMonitor, hcalNZSMonitor,
            hcalDataIntegrityMonitor, hcalDetDiagLaserMonitor, hcalDetDiagLEDMonitor,
            hcalDetDiagNoiseMonitor, hcalDetDiagPedestalMonitor, hcalCoarsePedestalMonitor,
            hcalDetDiagTimingMonitor, hcalLSbyLSMonitor]
-    
+
     for i in tasks:
         if isstring==False:
             cmd="process.%s.%s=%s"%(i,param,value)

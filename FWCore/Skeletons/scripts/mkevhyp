@@ -7,7 +7,7 @@
 #  execution:  mkevhyp packagename event_hypothesis_file
 # 
 #  output:  packagename/
-#                         Buildfile
+#                         BuildFile.xml
 #                         interface/packagename.h
 #                         src/packagename.cc <also modifies:> classes.h classes_def.xml
 #                         doc/
@@ -24,7 +24,7 @@
 #  example:
 #  mkevhyp MyPackage zjets.txt
 #        --> write  MyPackage/
-#                               Buildfile
+#                               BuildFile.xml
 #                               interface/MyPackage.h
 #                               src/MyPackage.cc <also modifies:> classes.h classes_def.xml
 #                               doc/
@@ -194,7 +194,7 @@ if ( ! $do_list )
     &modify_file("$name/src/classes_def.xml",
 		 "uncomment_xml_here",
 		 "  -->" );
-    &modify_file("$name/BuildFile",
+    &modify_file("$name/BuildFile.xml",
 		 "<use name=rootrflx>",
 		 "<use name=rootrflx>\n" . "$buildfile_includes" );
 
@@ -280,7 +280,7 @@ mkevhyp  h:
 mkevhyp  h: execution:  mkevhyp packagename event_hypothesis_file
 mkevhyp  h:
 mkevhyp  h: output:  packagename/
-mkevhyp  h:                       BuildFile
+mkevhyp  h:                       BuildFile.xml
 mkevhyp  h:                       interface/packagename.h
 mkevhyp  h:                       src/packagename.cc
 mkevhyp  h:                       doc/
@@ -308,7 +308,7 @@ mkevhyp  h:
 mkevhyp  h: example:
 mkevhyp  h: mkevhyp MyEventHypothesis
 mkevhyp  h:       --> write  MyEventHypothesis/
-mkevhyp  h:                              BuildFile
+mkevhyp  h:                              BuildFile.xml
 mkevhyp  h:                              interface/MyEventHypothesis.h
 mkevhyp  h:                              src/MyEventHypothesis.cc
 mkevhyp  h:                              doc/

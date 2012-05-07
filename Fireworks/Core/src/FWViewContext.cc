@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Wed Apr 14 18:31:58 CEST 2010
-// $Id: FWViewContext.cc,v 1.6 2010/09/26 19:57:21 amraktad Exp $
+// $Id: FWViewContext.cc,v 1.7 2010/11/26 20:24:48 amraktad Exp $
 //
 
 // system include files
@@ -17,7 +17,8 @@
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 
-FWViewContext::FWViewContext()
+FWViewContext::FWViewContext():
+   m_energyScale(0)
 {
 }
 

@@ -42,6 +42,7 @@ ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps) {
       hEnDensity_[i][i] = 0;
       hDigiNHit_[i][j] = 0;
 
+      hSelEng_[i][j] = 0;
       hSelOCC_[i][j] = 0;
       hSelEnDensity_[i][j] = 0;
     }
@@ -89,6 +90,11 @@ ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps) {
       hEvEng_[i][j]->setAxisTitle("Num of Events", 2);
 
       // histograms with selected hits
+      sprintf(histo, "ES RecHit Energy with selected hits Z %d P %d", iz, j+1);
+      hSelEng_[i][j] = dqmStore_->book1DD(histo, histo, 50, 0, 0.001);
+      hSelEng_[i][j]->setAxisTitle("RecHit Energy", 1);
+      hSelEng_[i][j]->setAxisTitle("Num of ReHits", 2);
+
       sprintf(histo, "ES Occupancy with selected hits Z %d P %d", iz, j+1);
       hSelOCC_[i][j] = dqmStore_->book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
       hSelOCC_[i][j]->setAxisTitle("Si X", 1);
@@ -154,55 +160,16 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
        if (hitItr->energy() != 0) {
 	 hEng_[i][j]->Fill(hitItr->energy());
 	 hEnDensity_[i][j]->Fill(ix, iy, hitItr->energy());
+
+	 if (hitItr->recoFlag()==14 || hitItr->recoFlag()==1 || (hitItr->recoFlag()<=10 && hitItr->recoFlag()>=5)) continue;
+	 hSelEng_[i][j]->Fill(hitItr->energy());
+	 hSelEnDensity_[i][j]->Fill(ix, iy, hitItr->energy());
+	 hSelOCC_[i][j]->Fill(ix, iy);
        }
        
      }
    } else {
      LogWarning("ESOccupancyTask") << rechitlabel_ << " not available";
-   }
-
-   //Digis
-   Handle<ESDigiCollection> digis;
-   if ( e.getByLabel(digilabel_, digis) ) {
-
-     for (ESDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr) {
-       
-       ESDataFrame dataframe = (*digiItr);
-       ESDetId id = dataframe.id();
-       
-       zside = id.zside();
-       plane = id.plane();
-       ix    = id.six();
-       iy    = id.siy();
-       strip = id.strip();
-       
-       int i = (zside==1)? 0:1;
-       int j = plane-1;
-       
-       //cout<<zside<<" "<<plane<<" "<<ix<<" "<<iy<<" "<<strip<<" "<<dataframe.sample(0).adc()<<" "<<dataframe.sample(1).adc()<<" "<<dataframe.sample(2).adc()<<endl;
-       
-       // select good rechits 
-       if (dataframe.sample(0).adc() < 20 && dataframe.sample(1).adc() > 0 && dataframe.sample(2).adc() > 0) {
-	 
-	 if (dataframe.sample(1).adc() > dataframe.sample(0).adc() && 
-	     dataframe.sample(2).adc() > dataframe.sample(0).adc() && 
-	     dataframe.sample(1).adc() > dataframe.sample(2).adc()) {
-	   
-	   sum_DigiHits[i][j]++;
-
-	   Float_t tmpRH = 0.725*dataframe.sample(1).adc() + 0.4525*dataframe.sample(2).adc();
-	   if (tmpRH/55. > 10) {
-	     hSelEnDensity_[i][j]->Fill(ix, iy, tmpRH/55.);
-	     hSelOCC_[i][j]->Fill(ix, iy);
-	   }
-
-	 }
-
-       }
-       
-     }
-   } else {
-     LogWarning("ESOccupancyTask") << digilabel_ << " not available";
    }
 
    //Fill histograms after a event

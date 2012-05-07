@@ -1,3 +1,38 @@
+2011-03-29 Remi Mommsen <Remigius.Mommsen@cern.ch>
+	* tag V03-00-00
+	* Merge new SMPS based on tag V02-00-02 (branch_3_10_x)
+	  into trunk.
+	* This tag requires IOPool/Streamer V07-01-00 or later.
+
+2011-04-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
+	* tag V02-01-00
+	* Adjust to API change in DQMEventStore in SM V07-03-00.
+
+2011-03-29 Remi Mommsen <Remigius.Mommsen@cern.ch>
+	* tag V02-00-02
+	* Minor adjustments
+
+2011-03-23 Remi Mommsen <Remigius.Mommsen@cern.ch>
+	* tag V02-00-01
+	* Clear statistics only at the next run start
+
+2011-03-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
+	* tag V02-00-00
+	* Rewrite of SMPS (from SMPSdev_branch)
+
+2011-02-17 Remi Mommsen <Remigius.Mommsen@cern.ch>
+	* tag V01-11-00
+	* Minimal changes for modified IOPool/Streamer V07-01-00
+
+2011-03-24 Remi Mommsen <Remigius.Mommsen@cern.ch>
+	* tag V01-10-04
+	* Fix signedness of loop variable.
+
+2011-03-24 Remi Mommsen <Remigius.Mommsen@cern.ch>
+	* tag V01-10-03
+	* Remove unnecessary and no longer available call to
+	  xdata::InfoSpace::get
+
 2010-10-27 William Tanenbaum <wmtan@fnal.gov>
 	* tag V01-10-02
 	* Convert BuildFiles to XML.

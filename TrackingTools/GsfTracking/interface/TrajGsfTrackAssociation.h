@@ -1,5 +1,5 @@
-#ifndef TrackingTools_PatternTools_TrajTrackAssociation_h
-#define TrackingTools_PatternTools_TrajTrackAssociation_h
+#ifndef TrackingTools_GsfTracking_TrajGsfTrackAssociation_h
+#define TrackingTools_GsfTracking_TrajGsfTrackAssociation_h
 
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"

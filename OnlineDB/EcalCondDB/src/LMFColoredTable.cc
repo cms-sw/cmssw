@@ -5,8 +5,9 @@ LMFColoredTable::LMFColoredTable() : LMFDat() {
   m_system = 0;
   m_color = 0;
   COLOR[0]  = "BLUE";
-  COLOR[1]  = "IR";
+  COLOR[1]  = "GREEN";
   COLOR[2]  = "ORANGE";
+  COLOR[3]  = "IR";
   SYSTEM[0] = "LASER";
   SYSTEM[1] = "LED";
 }
@@ -16,8 +17,9 @@ LMFColoredTable::LMFColoredTable(EcalDBConnection *c) : LMFDat(c) {
   m_system = 0;
   m_color = 0;
   COLOR[0]  = "BLUE";
-  COLOR[1]  = "IR";
+  COLOR[1]  = "GREEN";
   COLOR[2]  = "ORANGE";
+  COLOR[3]  = "IR";
   SYSTEM[0] = "LASER";
   SYSTEM[1] = "LED";
 }
@@ -29,8 +31,9 @@ LMFColoredTable::LMFColoredTable(oracle::occi::Environment* env,
   m_system = 0;
   m_color = 0;
   COLOR[0]  = "BLUE";
-  COLOR[1]  = "IR";
+  COLOR[1]  = "GREEN";
   COLOR[2]  = "ORANGE";
+  COLOR[3]  = "IR";
   SYSTEM[0] = "LASER";
   SYSTEM[1] = "LED";
 }
@@ -87,13 +90,18 @@ int LMFColoredTable::writeDB()
   // change it to the default value
   std::map<int, std::vector<float> >::iterator i = m_data.begin();
   std::map<int, std::vector<float> >::iterator e = m_data.end();
+  std::list<int> versions; // the list of different versions
   while (i != e) {
     int s = i->second.size();
     if (i->second[s - 2] == 0) { // VMIN cannot be NULL
       i->second[s - 2] = 1;
     }
+    versions.push_back(i->second[s - 1]);
+    versions.push_back(i->second[s - 2]);
+    versions.unique();
     i++;
   }
+  //  checkVesrions(versions); // not yet used, in fact...
   int ret = 0;
   try {
     ret = LMFDat::writeDB();

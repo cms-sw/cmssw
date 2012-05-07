@@ -38,5 +38,5 @@ const std::string cmsshow::sShowInvMassDialog    = "Show Invariant Mass Dialog";
 const std::string cmsshow::sShowGeometryTable    = "Show Geometry Table";
 
 const std::string cmsshow::sHelp                 = "CmsShow Online Help";
-const std::string cmsshow::sKeyboardShort        = "Keyboard Shortcuts";
-const std::string cmsshow::sHelpGL               = "Help On GL Viewer";
+const std::string cmsshow::sKeyboardShort        = "CmsShow Shortcuts";
+const std::string cmsshow::sHelpGL               = "Viewer Camera Interactions";

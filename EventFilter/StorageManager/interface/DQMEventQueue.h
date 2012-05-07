@@ -1,9 +1,10 @@
-// $Id: DQMEventQueue.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
+// $Id: DQMEventQueue.h,v 1.4.10.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: DQMEventQueue.h 
 
-#ifndef StorageManager_DQMEventQueue_h
-#define StorageManager_DQMEventQueue_h
+#ifndef EventFilter_StorageManager_DQMEventQueue_h
+#define EventFilter_StorageManager_DQMEventQueue_h
 
+#include "boost/shared_ptr.hpp"
 #include "EventFilter/StorageManager/interface/ConcurrentQueue.h"
 #include "EventFilter/StorageManager/interface/I2OChain.h"
 
@@ -14,15 +15,16 @@ namespace stor {
    * waiting to be processed by the DQMEventProcessor
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.4.10.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
 
   typedef ConcurrentQueue< I2OChain, KeepNewest<I2OChain> > DQMEventQueue;  
-  
+  typedef boost::shared_ptr<DQMEventQueue> DQMEventQueuePtr;
+
 } // namespace stor
 
-#endif // StorageManager_DQMEventQueue_h 
+#endif // EventFilter_StorageManager_DQMEventQueue_h 
 
 
 /// emacs configuration

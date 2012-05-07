@@ -35,6 +35,7 @@ class RivetAnalyzer : public edm::EDAnalyzer
   edm::InputTag            _hepmcCollection;
   Rivet::AnalysisHandler   _analysisHandler;   
   bool                     _isFirstEvent;
+  std::string              _outFileName; 
 };
 
 #endif

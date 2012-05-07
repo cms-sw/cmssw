@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWTableView.h,v 1.7 2009/09/23 20:30:57 chrjones Exp $
+// $Id: FWTableView.h,v 1.8 2010/09/02 18:10:10 amraktad Exp $
 //
 
 // system include files
@@ -56,14 +56,11 @@ public:
      virtual ~FWTableView();
 
      // ---------- const member functions ---------------------
-     TGFrame* frame() const;
-     const std::string& typeName() const;
      virtual void addTo(FWConfiguration&) const;
 
      virtual void saveImageTo(const std::string& iName) const;
 
      // ---------- static member functions --------------------
-     static const std::string& staticTypeName();
 
      // ---------- member functions ---------------------------
      virtual void setFrom(const FWConfiguration&);

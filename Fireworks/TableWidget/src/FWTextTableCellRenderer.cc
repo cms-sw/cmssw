@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:43:54 EST 2009
-// $Id: FWTextTableCellRenderer.cc,v 1.2 2009/03/04 15:30:02 chrjones Exp $
+// $Id: FWTextTableCellRenderer.cc,v 1.4 2011/02/11 19:56:37 amraktad Exp $
 //
 
 // system include files
@@ -19,6 +19,7 @@
 
 // user include files
 #include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
+#include "Fireworks/TableWidget/src/FWTabularWidget.h"
 
 
 //
@@ -70,16 +71,21 @@ FWTextTableCellRenderer::~FWTextTableCellRenderer()
 void 
 FWTextTableCellRenderer::draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight)
 {
-   if(m_isSelected){
+ 
+   if(m_isSelected) {
       GContext_t c = m_highlightContext->GetGC();
-      gVirtualX->FillRectangle(iID, c, iX, iY, iWidth, iHeight);
-      
-      gVirtualX->DrawLine(iID,m_context->GetGC(),iX-1,iY-1,iX-1,iY+iHeight);
-      gVirtualX->DrawLine(iID,m_context->GetGC(),iX+iWidth,iY-1,iX+iWidth,iY+iHeight);
-      gVirtualX->DrawLine(iID,m_context->GetGC(),iX-1,iY-1,iX+iWidth,iY-1);
-      gVirtualX->DrawLine(iID,m_context->GetGC(),iX-1,iY+iHeight,iX+iWidth,iY+iHeight);
-      
+      gVirtualX->FillRectangle(iID, c, iX - FWTabularWidget::kTextBuffer, iY - FWTabularWidget::kTextBuffer,
+                               iWidth + 2*FWTabularWidget::kTextBuffer, iHeight + 2*FWTabularWidget::kTextBuffer);
+      /*
+        gVirtualX->DrawLine(iID,m_context->GetGC(),iX-1,iY-1,iX-1,iY+iHeight);
+        gVirtualX->DrawLine(iID,m_context->GetGC(),iX+iWidth,iY-1,iX+iWidth,iY+iHeight);
+        gVirtualX->DrawLine(iID,m_context->GetGC(),iX-1,iY-1,iX+iWidth,iY-1);
+        gVirtualX->DrawLine(iID,m_context->GetGC(),iX-1,iY+iHeight,iX+iWidth,iY+iHeight);*
+      */
    }
+
+
+
    FontMetrics_t metrics;
    m_font->GetFontMetrics(&metrics);
    int dX=0;
@@ -92,11 +98,18 @@ FWTextTableCellRenderer::draw(Drawable_t iID, int iX, int iY, unsigned int iWidt
       dX = (iWidth-w)/2;
 
    }
-   gVirtualX->DrawString(iID,m_context->GetGC(),iX+dX,iY+metrics.fAscent, m_data.c_str(),m_data.size());
+
+   gVirtualX->DrawString(iID,m_context->GetGC(),iX+dX,iY+metrics.fAscent +1, m_data.c_str(),m_data.size());
 }
 
 void
 FWTextTableCellRenderer::setData(const std::string& iData, bool iIsSelected) {
+   m_data = iData;
+   m_isSelected=iIsSelected;
+}
+
+void
+FWTextTableCellRenderer::setData(const char* iData, bool iIsSelected) {
    m_data = iData;
    m_isSelected=iIsSelected;
 }
@@ -114,14 +127,14 @@ UInt_t
 FWTextTableCellRenderer::width() const
 {
    if(m_data.size()) {
-      return m_font->TextWidth(m_data.c_str(),-1);
+      return m_font->TextWidth(m_data.c_str(),-1);// + 2*kTextBuffer;
    }
    return 0;
 }
 UInt_t 
 FWTextTableCellRenderer::height() const
 {
-   return m_font->TextHeight();
+   return m_font->TextHeight(); //+  2*kTextBuffer;
 }
 
 const TGFont* 
@@ -141,18 +154,17 @@ FWTextTableCellRenderer::getDefaultGC()
 }
 
 const TGGC &
-FWTextTableCellRenderer::getHighlightGC()
+FWTextTableCellRenderer::getDefaultHighlightGC()
 {
    // Return graphics context for highlighted frame background.
    static const TGGC* s_default = 0;
    if (!s_default) {
       GCValues_t gval;
-      gval.fMask = kGCForeground | kGCBackground | kGCTile |
-                   kGCFillStyle  | kGCGraphicsExposures;
-      gval.fForeground = gClient->GetResourcePool()->GetFrameHiliteColor();
-      gval.fBackground = gClient->GetResourcePool()->GetFrameBgndColor();
-      gval.fFillStyle  = kFillTiled;
-      gval.fTile       = gClient->GetResourcePool()->GetCheckeredPixmap();
+      gval.fMask = kGCForeground | kGCBackground | kGCStipple | kGCFillStyle  | kGCGraphicsExposures;
+      gval.fForeground = gVirtualX->GetPixel(kGray);//gClient->GetResourcePool()->GetFrameHiliteColor();
+      gval.fBackground = gVirtualX->GetPixel(kWhite);//gClient->GetResourcePool()->GetFrameBgndColor();
+      gval.fFillStyle  = kFillOpaqueStippled; // kFillTiled;
+      gval.fStipple    = gClient->GetResourcePool()->GetCheckeredBitmap();
       gval.fGraphicsExposures = kFALSE;
       s_default = gClient->GetGC(&gval, kTRUE);
    }

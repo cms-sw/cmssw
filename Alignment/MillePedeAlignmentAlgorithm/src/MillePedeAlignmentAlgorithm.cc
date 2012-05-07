@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.68 $
- *  $Date: 2010/09/20 17:27:43 $
+ *  $Revision: 1.69 $
+ *  $Date: 2010/10/26 20:52:23 $
  *  (last update by $Author: flucke $)
  */
 
@@ -479,13 +479,20 @@ bool MillePedeAlignmentAlgorithm::readFromPede(const edm::ParameterSet &mprespse
   if (!allEmpty) out << ", possibly overwriting previous settings";
   out << ".";
 
-  if (okRead && allEmpty && numMatch) {
-    edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::readFromPede" << out.str();
+  if (okRead && allEmpty) {
+    if (numMatch) { // as many alignables with result as trying to align
+      edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::readFromPede" << out.str();
+    } else if (alis.size()) { // dead module do not get hits and no pede result
+      edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::readFromPede" << out.str();
+    } else { // serious problem: no result read - and not all modules can be dead...
+      edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::readFromPede" << out.str();
+      return false;
+    }
     return true;
-  } else {
-    edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::readFromPede" << out.str();
-    return false;
   }
+  // the rest is not OK:
+  edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::readFromPede" << out.str();
+  return false;
 }
 
 //__________________________________________________________________________________________________

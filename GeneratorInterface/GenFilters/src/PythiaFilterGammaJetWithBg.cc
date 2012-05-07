@@ -119,11 +119,9 @@ bool PythiaFilterGammaJetWithBg::filter(edm::Event& iEvent, const edm::EventSetu
     //***
 
     int jetline=8;
-    int photonline = 7; 
     if(dphi7>dphi) {
       dphi=dphi7;
       jetline=7;
-      photonline = 8; 
     }
     
 //    std::cout<<" Dphi "<<dphi<<" "<<dphiMin<<std::endl;
@@ -212,12 +210,12 @@ bool PythiaFilterGammaJetWithBg::filter(edm::Event& iEvent, const edm::EventSetu
     }
     //isolation cuts
 
-    double isocut1 = 5+etPhoton/20-etPhoton*etPhoton/1e4;
+//    double isocut1 = 5+etPhoton/20-etPhoton*etPhoton/1e4;
     double isocut2 = 3+etPhoton/20-etPhoton*etPhoton*etPhoton/1e6;
     double isocut3 = 4.5+etPhoton/40;
     if (etPhoton>165.)
     {
-      isocut1 = 5.+165./20.-165.*165./1e4;
+//     isocut1 = 5.+165./20.-165.*165./1e4;
       isocut2 = 3.+165./20.-165.*165.*165./1e6;
       isocut3 = 4.5+165./40.;
     }

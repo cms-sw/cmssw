@@ -51,15 +51,15 @@ FWTrackingParticleProxyBuilder::build( const TrackingParticle& iData, unsigned i
 
    float local[3];
    float localDir[3];
-   float global[3];
-   float globalDir[3];
+   float global[3] = { 0.0, 0.0, 0.0 };
+   float globalDir[3] = { 0.0, 0.0, 0.0 };
    std::vector<PSimHit>::const_iterator it = hits.begin();
    std::vector<PSimHit>::const_iterator end = hits.end();
    if( it != end )
    {
       unsigned int trackid = hits.begin()->trackId();
 
-      for( std::vector<PSimHit>::const_iterator it = hits.begin(), end = hits.end(); it != end; ++it )
+      for( ; it != end; ++it )
       {
 	 const PSimHit& phit = (*it);
 	 if( phit.trackId() != trackid )

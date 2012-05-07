@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth Cooper,27 1-024,+41227672342,
 //         Created:  Wed Apr 14 14:27:52 CEST 2010
-// $Id: HSCPValidator.h,v 1.1 2010/04/14 13:31:01 scooper Exp $
+// $Id: HSCPValidator.h,v 1.3 2011/02/22 06:50:06 querten Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -25,6 +25,13 @@
 
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "FWCore/Common/interface/TriggerResultsByName.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+
+
+//
 
 #include "TH2F.h"
 //
@@ -43,11 +50,15 @@ class HSCPValidator : public edm::EDAnalyzer {
       virtual void endJob() ;
       std::string intToString(int num);
       void makeGenPlots(const edm::Event& iEvent);
+      void makeSimTrackPlots(const edm::Event& iEvent);
       void makeSimDigiPlotsECAL(const edm::Event& iEvent);
       void makeSimDigiPlotsRPC(const edm::Event& iEvent);
-
+      void makeHLTPlots(const edm::Event& iEvent);
+      bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, int NObjectAboveThreshold, bool averageThreshold);
       // ----------member data ---------------------------
       bool doGenPlots_;
+      bool doHLTPlots_;
+      bool doSimTrackPlots_;
       bool doSimDigiPlots_;
       bool doRecoPlots_;
 
@@ -64,6 +75,18 @@ class HSCPValidator : public edm::EDAnalyzer {
       TH1F* particleStatusHist_;
       TH1F* particleBetaHist_;
       TH1F* particleBetaInverseHist_;
+      TH1F * h_genhscp_met;
+      TH1F * h_genhscp_met_nohscp;
+      TH1F * h_genhscp_scaloret;
+      TH1F * h_genhscp_scaloret_nohscp;
+
+
+      //SIM-Track section
+      TH1F*simTrackParticleEtaHist_ ;
+      TH1F* simTrackParticlePhiHist_;
+      TH1F* simTrackParticlePHist_;
+      TH1F*simTrackParticlePtHist_;
+      TH1F* simTrackParticleBetaHist_;
 
       // SIM-DIGI section
       edm::InputTag ebSimHitTag_;
@@ -102,5 +125,10 @@ class HSCPValidator : public edm::EDAnalyzer {
       TH1F* rpcTimeOfFlightBarrel_[6];       
       TH1F* rpcBXBarrel_[6];       
       TH1F* rpcTimeOfFlightEndCap_[3];       
-      TH1F* rpcBXEndCap_[3];       
+      TH1F* rpcBXEndCap_[3];      
+      //HLT
+      TH1F* hltmet100_;
+      TH1F* hltjet140_;
+      TH1F* hltmu15_;
+
 };

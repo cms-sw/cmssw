@@ -17,7 +17,10 @@ muonid::matchTracks(const reco::Track& ref, const reco::Track& probe)
   // going, then sign is -1 as well.
   int match_sign = directionAlongMomentum(ref)==directionAlongMomentum(probe) ? -1 : +1; 
   double sprod = ref.px()*probe.px() + ref.py()*probe.py() + ref.pz()*probe.pz();
-  result.first = acos( match_sign*(sprod/ref.p()/probe.p()) );
+  double argCos = match_sign*(sprod/ref.p()/probe.p());
+  if (argCos < -1.0) argCos = -1.0;
+  if (argCos > 1.0) argCos = 1.0;
+  result.first = acos( argCos );
   result.second = fabs(probe.pt()-ref.pt())/sqrt(ref.pt()*probe.pt()); //SK: take a geom-mean pt
   return result;
 }

@@ -1,6 +1,6 @@
 // Original author: Brock Tweedie (JHU)
 // Ported to CMSSW by: Sal Rappoccio (JHU)
-// $Id: CATopJetAlgorithm.cc,v 1.7 2010/03/23 21:02:09 srappocc Exp $
+// $Id: CATopJetAlgorithm.cc,v 1.6 2010/03/12 10:38:45 jdolen Exp $
 
 #include "RecoJets/JetAlgorithms/interface/CATopJetAlgorithm.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -152,47 +152,13 @@ void CATopJetAlgorithm::run( const vector<fastjet::PseudoJet> & cell_particles,
 		
 		// proceed if one or both of the above hard subjets successfully decomposed
 		if ( verbose_ ) cout << "Done with decomposition" << endl;
-
- 		if ( verbose_ ) cout<<"hardBreak1 = "<<hardBreak1<<endl;
-        if ( verbose_ ) cout<<"hardBreak2a = "<<hardBreak2a<<endl;
-        if ( verbose_ ) cout<<"hardBreak2b = "<<hardBreak2b<<endl;
-            
-        fastjet::PseudoJet hardA = blankJet, hardB = blankJet, hardC = blankJet, hardD = blankJet;
-        if (!hardBreak1) { 
-			hardA = localJet;  
-			hardB = blankJet;  
-			hardC = blankJet; 
-			hardD = blankJet; 
-			if(verbose_)cout<<"Hardbreak failed. Save subjet1=localJet"<<endl;
-		} 
-        if (hardBreak1 && !hardBreak2a && !hardBreak2b) { 
-			hardA = ja;  
-			hardB = jb;  
-			hardC = blankJet; 
-			hardD = blankJet; 
-			if(verbose_)cout<<"First decomposition succeeded, both second decompositions failed. Save subjet1=ja subjet2=jb"<<endl;
-		}
-        if (hardBreak1 && hardBreak2a && !hardBreak2b) { 
-			hardA = jaa; 
-			hardB = jab; 
-			hardC = jb; 
-			hardD = blankJet; 
-			if(verbose_)cout<<"First decomposition succeeded, ja split succesfully, jb did not split. Save subjet1=jaa subjet2=jab subjet3=jb"<<endl;
-		}
-        if (hardBreak1 && !hardBreak2a &&  hardBreak2b) { 
-			hardA = jba; 
-			hardB = jbb; 
-			hardC = ja; 
-			hardD = blankJet; 
-			if(verbose_)cout<<"First decomposition succeeded, jb split succesfully, ja did not split. Save subjet1=jba subjet2=jbb subjet3=ja"<<endl;
-		}
-        if (hardBreak1 && hardBreak2a &&  hardBreak2b) { 
-			hardA = jaa; 
-			hardB = jab; 
-			hardC = jba; 
-			hardD = jbb; 
-			if(verbose_)cout<<"First decomposition and both secondary decompositions succeeded. Save subjet1=jaa subjet2=jab subjet3=jba subjet4=jbb"<<endl;
-		}
+		
+		int nBreak2 = 0;
+		fastjet::PseudoJet hardA = blankJet, hardB = blankJet, hardC = blankJet, hardD = blankJet;
+		if (!hardBreak2a && !hardBreak2b) { nBreak2 = 0; hardA = ja;  hardB = jb;  hardC = blankJet; hardD = blankJet; }
+		if ( hardBreak2a && !hardBreak2b) { nBreak2 = 1; hardA = jaa; hardB = jab; hardC = jb;       hardD = blankJet; }
+		if (!hardBreak2a &&  hardBreak2b) { nBreak2 = 1; hardA = jba; hardB = jbb; hardC = ja;       hardD = blankJet;}
+		if ( hardBreak2a &&  hardBreak2b) { nBreak2 = 2; hardA = jaa; hardB = jab; hardC = jba;      hardD = jbb; }
 		
 		// check if we are left with >= 3 hard subjets
 		fastjet::PseudoJet subjet1 = blankJet;

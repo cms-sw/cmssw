@@ -3,15 +3,22 @@
 ## --
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 ## ... and modify it according to the needs:
-# use latest ReReco as input
-from PhysicsTools.PatExamples.samplesCERN_cff import dataMu
-process.source.fileNames = dataMu
+process.source.fileNames = [ '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/016/1C159A2D-D455-E011-9502-003048F01E88.root'
+                           , '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/016/1C1D1BBA-D255-E011-81F6-003048F1182E.root'
+                           , '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/016/2C9C9787-C755-E011-AC9A-0019DB2F3F9A.root'
+                           , '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/016/52713845-C855-E011-A1AB-000423D98B6C.root'
+                           , '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/016/702DDB20-E355-E011-BA84-0030487C2B86.root'
+                           , '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/016/78186858-D155-E011-B08A-003048F118C4.root'
+                           , '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/016/86102236-D455-E011-85C5-0030487CD812.root'
+                           , '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/016/9E612DE9-D455-E011-8FA6-003048F11C28.root'
+                           , '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/016/F8DFDD84-4B56-E011-84BD-003048D2BE08.root'
+                           ]
 # use the correct conditions
-process.GlobalTag.globaltag = 'GR_R_38X_V15::All'
+process.GlobalTag.globaltag = autoCond[ 'com10' ]
 # use a sufficient number of events
 process.maxEvents.input = 1000
 # have a proper output file name
-process.out.fileName = 'patTuple_triggerOnly_dataReReco.root'
+process.out.fileName = 'patTuple_triggerOnly_dataPromptReco.root'
 
 ## ---
 ## Define the path as empty skeleton

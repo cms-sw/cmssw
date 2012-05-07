@@ -12,7 +12,7 @@ process.source = cms.Source("PoolSource",
 
 )
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
 
 
 ################ Condition ######################
@@ -90,10 +90,10 @@ process.rpcFEDIntegrity.RPCRawCountsInputTag = 'provaDiNoCrash'
 process.load("DQM.RPCMonitorClient.RPCMonitorLinkSynchro_cfi")
 
 ################# Quality Tests #########################
-process.qTesterRPC = cms.EDAnalyzer("QualityTester",
-     qtList = cms.untracked.FileInPath('DQM/RPCMonitorClient/test/RPCQualityTests.xml'),
-     prescaleFactor = cms.untracked.int32(1)
-)
+## process.qTesterRPC = cms.EDFilter("QualityTester",
+##     qtList = cms.untracked.FileInPath('DQM/RPCMonitorClient/test/RPCQualityTests.xml'),
+##     prescaleFactor = cms.untracked.int32(1)
+## )
 
 ################ Chamber Quality ##################
 process.load("DQM.RPCMonitorClient.RPCChamberQuality_cfi")

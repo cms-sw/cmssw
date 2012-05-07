@@ -13,7 +13,6 @@
 
 #include "TFile.h"
 #include "TTree.h"
-#include "TMath.h"
 
 #include "RawDataConverter.h"
 
@@ -29,9 +28,7 @@ RawDataConverter::RawDataConverter( const edm::ParameterSet& iConfig ) :
   lumiBlock(-1)
   
 {
-  output_filename = iConfig.getUntrackedParameter<std::string>( "OutputFileName" );
-  theOutputFile = new TFile("TemporaryFile" , "RECREATE" );
-  //theOutputFile = new TFile( iConfig.getUntrackedParameter<std::string>( "OutputFileName" ).c_str() , "RECREATE" );
+  theOutputFile = new TFile( iConfig.getUntrackedParameter<std::string>( "OutputFileName" ).c_str() , "RECREATE" );
   theOutputFile->cd();
   theOutputTree = new TTree( "lasRawDataTree", "lasRawDataTree" );
   theOutputTree->Branch( "lasRawData", &theData );
@@ -39,7 +36,6 @@ RawDataConverter::RawDataConverter( const edm::ParameterSet& iConfig ) :
   theOutputTree->Branch( "eventnumber", &eventnumber, "eventnumber/I" );
   theOutputTree->Branch( "runnumber", &runnumber, "runnumber/I" );
   theOutputTree->Branch( "lumiblock", &lumiBlock, "lumiblock/I" );
-  theOutputTree->Branch( "unixTime", &unixTime, "unixTime/i" );
   
   theDigiModuleLabels = iConfig.getParameter<std::vector<std::string> >( "DigiModuleLabels" );
   theProductInstanceLabels = iConfig.getParameter<std::vector<std::string> >( "ProductInstanceLabels" );
@@ -143,8 +139,6 @@ void RawDataConverter::analyze( const edm::Event& iEvent, const edm::EventSetup&
   static DigiType digitype = Unknown;  // Type of digis in this run
   if(digitype == Unknown) digitype = GetValidLabels( iEvent );   // Initialization of Digi Type
 
-  //static int event_counter=0;
-
   //////////////////////////////////////////////////////////
   // Retrieve SiStripEventSummary produced by the digitizer
   //////////////////////////////////////////////////////////
@@ -155,8 +149,6 @@ void RawDataConverter::analyze( const edm::Event& iEvent, const edm::EventSetup&
   eventnumber = iEvent.id().event();
   runnumber = iEvent.run();
   lumiBlock = iEvent.luminosityBlock();
-  edm::Timestamp timestamp = iEvent.time();
-  unixTime = timestamp.unixTime();
   //edm::LogAbsolute("RawdataConverter") << " > run: " << runnumber << " event: " << eventnumber << " lumiBlock: " << lumiBlock << " latency: " << latency << std::endl;
 
   ///////////////////////////////////////////////////////////
@@ -184,8 +176,6 @@ void RawDataConverter::analyze( const edm::Event& iEvent, const edm::EventSetup&
   // Push Container into the Tree
   theOutputTree->Fill();
 
-  //index.push_back(std::pair<int,int>(eventnumber, event_counter));
-
   return;
 }
 
@@ -195,28 +185,8 @@ void RawDataConverter::analyze( const edm::Event& iEvent, const edm::EventSetup&
 ///
 void RawDataConverter::endJob()
 {
-
-  Int_t nentries = (Int_t)theOutputTree->GetEntries();
-
-  //Drawing variable eventnumber with no graphics option.
-  //variable eventnumber stored in array fV1 (see TTree::Draw)
-  theOutputTree->Draw("eventnumber","","goff");
-  Int_t *index = new Int_t[nentries];
-  //sort array containing eventnumber in decreasing order
-  //The array index contains the entry numbers in decreasing order of eventnumber
-  TMath::Sort(nentries,theOutputTree->GetV1(),index, kFALSE);
-
-  TFile FinalFile(output_filename.c_str() , "RECREATE" );
-  FinalFile.cd();
-
-  TTree *tsorted = (TTree*)theOutputTree->CloneTree(0);
-
-  for (Int_t i=0;i<nentries;i++) {
-    theOutputTree->GetEntry(index[i]);
-    tsorted->Fill();
-  }
-  tsorted->Write();
-  delete [] index;
+  theOutputFile->Write();
+  theOutputFile->Close();
 }
 
 

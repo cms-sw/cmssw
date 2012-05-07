@@ -11,6 +11,9 @@ DEFINE_FWK_MODULE(HLTJetTag);
 #include "HLTDisplacedmumuFilter.h"
 DEFINE_FWK_MODULE(HLTDisplacedmumuFilter);
 
+#include "HLTDisplacedmumuVtxProducer.h"
+DEFINE_FWK_MODULE(HLTDisplacedmumuVtxProducer);
+
 #include "HLTmmkFilter.h"
 DEFINE_FWK_MODULE(HLTmmkFilter);
 

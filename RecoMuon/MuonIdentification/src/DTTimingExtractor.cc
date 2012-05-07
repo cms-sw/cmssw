@@ -11,7 +11,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: DTTimingExtractor.cc,v 1.10 2010/12/15 11:07:40 ptraczyk Exp $
+// $Id: DTTimingExtractor.cc,v 1.9 2010/07/01 08:48:10 ptraczyk Exp $
 //
 //
 
@@ -81,7 +81,6 @@ DTTimingExtractor::DTTimingExtractor(const edm::ParameterSet& iConfig)
   theTimeOffset_(iConfig.getParameter<double>("DTTimeOffset")),
   useSegmentT0_(iConfig.getParameter<bool>("UseSegmentT0")),
   doWireCorr_(iConfig.getParameter<bool>("DoWireCorr")),
-  dropTheta_(iConfig.getParameter<bool>("DropTheta")),
   requireBothProjections_(iConfig.getParameter<bool>("RequireBothProjections")),
   debug(iConfig.getParameter<bool>("debug"))
 {
@@ -156,8 +155,6 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
     // loop over (theta, phi) segments
     for (int phi=0; phi<2; phi++) {
 
-      if (dropTheta_ && !phi) continue;
-
       const DTRecSegment2D* segm;
       if (phi) segm = dynamic_cast<const DTRecSegment2D*>((*rechit)->phiSegment()); 
         else segm = dynamic_cast<const DTRecSegment2D*>((*rechit)->zSegment());
@@ -178,13 +175,8 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 	tsos=propag->propagateWithPath(muonFTS,dtcell->surface());
 
         double dist;            
-	if (tsos.first.isValid()) { 
-	  dist = tsos.second+posp.mag(); 
-//	  std::cout << "Propagate distance: " << dist << " ( innermost: " << posp.mag() << ")" << std::endl; 
-	} else { 
-	  dist = dtcell->toGlobal(hiti->localPosition()).mag(); 
-//	  std::cout << "Geom distance: " << dist << std::endl; 
-	}
+	if (tsos.first.isValid()) dist = tsos.second+posp.mag(); 
+	  else dist = dtcell->toGlobal(hiti->localPosition()).mag();
 
 	thisHit.driftCell = hiti->geographicalId();
 	if (hiti->lrSide()==DTEnums::Left) thisHit.isLeft=true; else thisHit.isLeft=false;
@@ -195,6 +187,7 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 	if (useSegmentT0_ && segm->ist0Valid()) thisHit.timeCorr=segm->t0();
 	else thisHit.timeCorr=0.;
 	thisHit.timeCorr += theTimeOffset_;
+
 	  
 	// signal propagation along the wire correction for unmached theta or phi segment hits
 	if (doWireCorr_ && !bothProjections && tsos.first.isValid()) {
@@ -229,8 +222,8 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
     // Rebuild segments
     for (int sta=1;sta<5;sta++)
       for (int phi=0;phi<2;phi++) {
-        std::vector <TimeMeasurement> seg;
-        std::vector <int> seg_idx;
+          std::vector <TimeMeasurement> seg;
+          std::vector <int> seg_idx;
 	int tmpos=0;
 	for (std::vector<TimeMeasurement>::iterator tm=tms.begin(); tm!=tms.end(); ++tm) {
 	  if ((tm->station==sta) && (tm->isPhi==phi)) {
@@ -241,10 +234,11 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
 	}
           
 	unsigned int segsize = seg.size();
+          
 	if (segsize<theHitsMin_) continue;
 
 	double a=0, b=0;
-        std::vector <double> hitxl,hitxr,hityl,hityr;
+    std::vector <double> hitxl,hitxr,hityl,hityr;
 
 	for (std::vector<TimeMeasurement>::iterator tm=seg.begin(); tm!=seg.end(); ++tm) {
  
@@ -318,7 +312,7 @@ DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRe
       diff=(1.+dsegm.at(i)/dstnc.at(i)*30.)-invbeta;
       diff=diff*diff*hitWeight.at(i);
       invbetaerr+=diff;
-      if (diff>chimax) { 
+      if (diff/totalWeight>chimax) { 
 	tmmax=tms.begin()+hit_idx.at(i);
 	chimax=diff;
       }

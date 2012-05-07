@@ -40,25 +40,21 @@ public:
       float m_et;
       float m_energy;
       const FWViewContext* m_vc;
-      TEveScalableStraightLineSet* m_line;
 
       Arrow(Float_t x, Float_t y, Float_t z,
             Float_t xo, Float_t yo, Float_t zo=0) : 
          TEveArrow(x, y, z, xo, yo, zo),
-         m_et(0), m_energy(0), m_vc(0), m_line(0) {}
+         m_et(0), m_energy(0), m_vc(0) {}
 
       void setScale(FWViewEnergyScale* caloScale)
       {
          static float maxW = 3;
          float scale = caloScale->getScaleFactor3D()*(caloScale->getPlotEt() ? m_et : m_energy);
-         // printf("scale arroe %f \n", scale);
          fVector.Normalize();
          fVector *= scale;
-         float w = 0.02/scale;
-         fTubeR = TMath::Min(maxW/scale, 0.02f);
-         fConeR = fTubeR*2;
+         fTubeR = TMath::Min(maxW/scale, 0.08f);
+         fConeR = TMath::Min(maxW*2.5f/scale, 0.25f);
 
-         m_line->SetScale(scale);
       }
    };
 
@@ -134,20 +130,15 @@ FWMET3DProxyBuilder::build(const reco::MET& met, unsigned int iIndex, TEveElemen
    arrow->m_energy = met.energy();
    arrow->m_vc = vc;
    arrow->SetConeL(0.15);
-   setupAddElement(arrow, &oItemHolder );
-  
-   // draw line in case of zoom out;
-   TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet( "MET marker" );
-   marker->SetLineWidth( 2 );
-   marker->SetScaleCenter( r0*sin(theta)*cos(phi), r0*sin(theta)*sin(phi), r0*cos(theta) );
-   float r1 = r0 + 1;
-   marker->AddLine( r0*sin(theta)*cos(phi), r0*sin(theta)*sin(phi), r0*cos(theta),
-                    r1*sin(theta)*cos(phi), r1*sin(theta)*sin(phi), r1*cos(theta) );
-   setupAddElement( marker, &oItemHolder );
+   arrow->SetConeR(0.06);
+   setupAddElement(arrow, &oItemHolder );  
 
-   arrow->m_line = marker;
    m_arrows.push_back(arrow);
+   arrow->setScale(vc->getEnergyScale()); 
    arrow->setScale(vc->getEnergyScale());
+
+   context().voteMaxEtAndEnergy(met.et(), met.energy());
+
 }
 
 //

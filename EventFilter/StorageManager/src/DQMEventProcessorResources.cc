@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessorResources.cc,v 1.3 2009/07/20 13:07:27 mommsen Exp $
+// $Id: DQMEventProcessorResources.cc,v 1.4.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: DQMEventProcessorResources.cc
 
 #include "EventFilter/StorageManager/interface/DQMEventProcessorResources.h"
@@ -6,92 +6,92 @@
 namespace stor
 {
   DQMEventProcessorResources::DQMEventProcessorResources() :
-  _requestsPending(false),
-  _requestsInProgress(false)
+  requestsPending_(false),
+  requestsInProgress_(false)
   {
-    _pendingRequests.reset();
+    pendingRequests_.reset();
   }
   
   void DQMEventProcessorResources::
   requestConfiguration(DQMProcessingParams const& params, boost::posix_time::time_duration const& timeoutValue)
   {
-    boost::mutex::scoped_lock sl(_requestsMutex);
+    boost::mutex::scoped_lock sl(requestsMutex_);
 
-    _requestedDQMProcessingParams = params;
-    _requestedTimeout = timeoutValue;
+    requestedDQMProcessingParams_ = params;
+    requestedTimeout_ = timeoutValue;
 
     // A new configuration forces the store destruction and
     // after the store is destroyed, end-of-run processing
     // has nothing left to do. Thus, cancel these requests.
-    _pendingRequests.configuration = true;
-    _pendingRequests.endOfRun = false;
-    _pendingRequests.storeDestruction = false;
-    _requestsPending = true;
+    pendingRequests_.configuration = true;
+    pendingRequests_.endOfRun = false;
+    pendingRequests_.storeDestruction = false;
+    requestsPending_ = true;
   }
 
   void DQMEventProcessorResources::requestEndOfRun()
   {
-    boost::mutex::scoped_lock sl(_requestsMutex);
+    boost::mutex::scoped_lock sl(requestsMutex_);
 
     // A end-of-run request does not change any other requests.
-    _pendingRequests.endOfRun = true;
-    _requestsPending = true;
+    pendingRequests_.endOfRun = true;
+    requestsPending_ = true;
   }
 
   void DQMEventProcessorResources::requestStoreDestruction()
   {
-    boost::mutex::scoped_lock sl(_requestsMutex);
+    boost::mutex::scoped_lock sl(requestsMutex_);
 
     // The store destruction clears everything.
     // Thus, cancel any other pending requests.
-    _pendingRequests.configuration = false;
-    _pendingRequests.endOfRun = false;
-    _pendingRequests.storeDestruction = true;
-    _requestsPending = true;
+    pendingRequests_.configuration = false;
+    pendingRequests_.endOfRun = false;
+    pendingRequests_.storeDestruction = true;
+    requestsPending_ = true;
   }
 
   bool DQMEventProcessorResources::
   getRequests(Requests& requests, DQMProcessingParams& params, boost::posix_time::time_duration& timeoutValue)
   {
-    boost::mutex::scoped_lock sl(_requestsMutex);
+    boost::mutex::scoped_lock sl(requestsMutex_);
 
-    if (! _requestsPending) {return false;}
+    if (! requestsPending_) {return false;}
 
-    _requestsPending = false;
+    requestsPending_ = false;
 
-    requests = _pendingRequests;
-    params = _requestedDQMProcessingParams;
-    timeoutValue = _requestedTimeout;
+    requests = pendingRequests_;
+    params = requestedDQMProcessingParams_;
+    timeoutValue = requestedTimeout_;
 
-    _pendingRequests.reset();
-    _requestsInProgress = true;
+    pendingRequests_.reset();
+    requestsInProgress_ = true;
 
     return true;
   }
 
   void DQMEventProcessorResources::waitForCompletion()
   {
-    boost::mutex::scoped_lock sl(_requestsMutex);
-    if (_requestsPending || _requestsInProgress)
+    boost::mutex::scoped_lock sl(requestsMutex_);
+    if (requestsPending_ || requestsInProgress_)
       {
-        _requestsCondition.wait(sl);
+        requestsCondition_.wait(sl);
       }
   }
 
   bool DQMEventProcessorResources::requestsOngoing()
   {
-    boost::mutex::scoped_lock sl(_requestsMutex);
-    return (_requestsPending || _requestsInProgress);
+    boost::mutex::scoped_lock sl(requestsMutex_);
+    return (requestsPending_ || requestsInProgress_);
   }
 
   void DQMEventProcessorResources::requestsDone()
   {
-    boost::mutex::scoped_lock sl(_requestsMutex);
-    if (_requestsInProgress)
+    boost::mutex::scoped_lock sl(requestsMutex_);
+    if (requestsInProgress_)
       {
-        _requestsCondition.notify_one();
+        requestsCondition_.notify_one();
       }
-    _requestsInProgress = false;
+    requestsInProgress_ = false;
   }
 
   void DQMEventProcessorResources::Requests::reset()

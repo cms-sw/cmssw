@@ -11,7 +11,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: FWElectronDetailView.h,v 1.19 2010/01/14 15:55:14 amraktad Exp $
+// $Id: FWElectronDetailView.h,v 1.21 2011/02/26 00:14:00 dlange Exp $
 //
 
 // user include files
@@ -43,7 +43,6 @@ private:
 
    double deltaEtaSuperClusterTrackAtVtx (const reco::GsfElectron &);
    double deltaPhiSuperClusterTrackAtVtx (const reco::GsfElectron &);
-   math::XYZPoint trackPositionAtCalo (const reco::GsfElectron &);
    void addTrackPointsInCaloData(const reco::GsfElectron*, TEveCaloLego*);
 
    void   addSceneInfo(const reco::GsfElectron *i, TEveElementList* tList);

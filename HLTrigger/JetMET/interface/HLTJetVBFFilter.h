@@ -23,8 +23,11 @@ class HLTJetVBFFilter : public HLTFilter {
    private:
       edm::InputTag inputTag_; // input tag identifying jets
       bool saveTag_;           // whether to save this tag
-      double minEt_;
+      double minEtLow_;
+      double minEtHigh_;
+      bool etaOpposite_;
       double minDeltaEta_;
+      double minInvMass_;
 };
 
 #endif //HLTJetVBFFilter_h

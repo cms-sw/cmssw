@@ -5,7 +5,7 @@
 //
 /**\class SimplePi0DiscAnalyzer RecoEgamma/Examples/src/SimplePi0DiscAnalyzer.cc
 
- Description: Pi0Disc analyzer using reco data
+ Description: Pi0DiscAnalyzer analyzer using reco data
 
  Implementation:
      <Notes on implementation>
@@ -129,7 +129,7 @@ SimplePi0DiscAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByLabel("piZeroDiscriminators","PhotonPi0DiscriminatorAssociationMap",  map);
   reco::PhotonPi0DiscriminatorAssociationMap::const_iterator mapIter;
 
-//  int PhoInd = 0;
+  int PhoInd = 0;
 
   for( reco::PhotonCollection::const_iterator  iPho = photons.begin(); iPho != photons.end(); iPho++) { // Loop over Photons
 
@@ -138,8 +138,7 @@ SimplePi0DiscAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     float Photon_et = localPho.et(); float Photon_eta = localPho.eta(); 
     float Photon_phi = localPho.phi(); float Photon_r9 = localPho.r9();
     bool isPhotConv  = localPho.hasConversionTracks();
-//    std::cout << "Photon Id = " << PhoInd 
-    std::cout << "Photon Id = " <<  iPho - photons.begin()
+    std::cout << "Photon Id = " << PhoInd 
               << " with Et = " << Photon_et 
               << " Eta = " << Photon_eta 
 	      << " Phi = " << Photon_phi 
@@ -152,8 +151,7 @@ SimplePi0DiscAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 //    hConv_ntracks_->Fill(Ntrk_conv);
 
     float nn = -10;
-//    mapIter = map->find(edm::Ref<reco::PhotonCollection>(PhotonHandle,PhoInd));
-    mapIter = map->find(edm::Ref<reco::PhotonCollection>(PhotonHandle,iPho - photons.begin()));
+    mapIter = map->find(edm::Ref<reco::PhotonCollection>(PhotonHandle,PhoInd));
     if(mapIter!=map->end()) {
       nn = mapIter->val;
     }
@@ -196,7 +194,7 @@ SimplePi0DiscAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
 
-//    PhoInd++;
+    PhoInd++;
   } // End Loop over Photons
 
 }

@@ -7,17 +7,19 @@ recoMuonValidator = cms.EDAnalyzer("RecoMuonValidator",
     tpSelector = muonTPSet,
 
     simLabel = cms.InputTag("mergedtruth","MergedTrackTruth"),
+    trkMuLabel = cms.InputTag("generalTracks"),
+    staMuLabel = cms.InputTag("standalonemuons:UpdatedAtVtx"),
+    glbMuLabel = cms.InputTag("globalMuons"),
     muonLabel = cms.InputTag("muons"),
 
-    muAssocLabel = cms.InputTag("MuonAssociatorByHits"),
-
-    doAssoc = cms.untracked.bool(True),
+    trkMuAssocLabel = cms.InputTag("TrackAssociatorByHits"),
+    staMuAssocLabel = cms.InputTag("TrackAssociatorByHits"),
+    glbMuAssocLabel = cms.InputTag("TrackAssociatorByHits"),
+    doAssoc = cms.untracked.bool(False),
 
     outputFileName = cms.untracked.string(''),
     subDir = cms.untracked.string('Muons/RecoMuonV/'),
 
-    trackType = cms.string("global"),
-    muonSelection = cms.string("isGlobalMuon"), 
     #
     # Histogram dimensions     #
     #

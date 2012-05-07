@@ -39,11 +39,18 @@ class fltrname : public edm::EDFilter {
       explicit fltrname(const edm::ParameterSet&);
       ~fltrname();
 
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
    private:
       virtual void beginJob() ;
       virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
+      virtual bool beginRun(edm::Run&, edm::EventSetup const&);
+      virtual bool endRun(edm::Run&, edm::EventSetup const&);
+      virtual bool beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+      virtual bool endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+
       // ----------member data ---------------------------
 };
 
@@ -106,5 +113,42 @@ void
 fltrname::endJob() {
 }
 
+// ------------ method called when starting to processes a run  ------------
+bool 
+fltrname::beginRun(edm::Run&, edm::EventSetup const&)
+{ 
+  return true;
+}
+
+// ------------ method called when ending the processing of a run  ------------
+bool 
+fltrname::endRun(edm::Run&, edm::EventSetup const&)
+{
+  return true;
+}
+
+// ------------ method called when starting to processes a luminosity block  ------------
+bool 
+fltrname::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+{
+  return true;
+}
+
+// ------------ method called when ending the processing of a luminosity block  ------------
+bool 
+fltrname::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+{
+  return true;
+}
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void
+fltrname::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  //The following says we do not know what parameters are allowed so do no validation
+  // Please change this to state exactly what you do use, even if it is no parameters
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault(desc);
+}
 //define this as a plug-in
 DEFINE_FWK_MODULE(fltrname);

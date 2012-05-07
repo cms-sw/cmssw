@@ -53,7 +53,7 @@ globalreco_plusPL= cms.Sequence(globalreco*ctfTracksPixelLess)
 
 reducedRecHits = cms.Sequence ( reducedEcalRecHitsSequence * reducedHcalRecHitsSequence )
 
-highlevelreco = cms.Sequence(particleFlowReco*reducedRecHits*egammarecoFull*jetHighLevelReco*tautagging*metrecoPlusHCALNoise*btagging*recoPFMET*regionalCosmicTracksSeq*muoncosmichighlevelreco)
+highlevelreco = cms.Sequence(particleFlowReco*egammarecoFull*jetHighLevelReco*tautagging*metrecoPlusHCALNoise*btagging*recoPFMET*PFTau*regionalCosmicTracksSeq*muoncosmichighlevelreco*reducedRecHits)
 
 
 from FWCore.Modules.logErrorHarvester_cfi import *

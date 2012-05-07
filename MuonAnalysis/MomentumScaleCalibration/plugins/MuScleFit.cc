@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2010/11/12 17:01:55 $
-//  $Revision: 1.100 $
+//  $Date: 2010/10/19 16:36:51 $
+//  $Revision: 1.96 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -253,7 +253,6 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) :
   MuScleFitUtils::rapidityBinsForZ_ = pset.getUntrackedParameter<bool>("RapidityBinsForZ", true);
 
   // Set the cuts on muons to be used in the fit
-  MuScleFitUtils::separateRanges_ = pset.getUntrackedParameter<bool>("SeparateRanges", true);
   MuScleFitUtils::maxMuonPt_ = pset.getUntrackedParameter<double>("MaxMuonPt", 100000000.);
   MuScleFitUtils::minMuonPt_ = pset.getUntrackedParameter<double>("MinMuonPt", 0.);
   MuScleFitUtils::minMuonEtaFirstRange_ = pset.getUntrackedParameter<double>("MinMuonEtaFirstRange", -6.);
@@ -287,7 +286,7 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) :
     MuScleFitUtils::MuonTypeForCheckMassWindow = theMuonType_-1;
     MuScleFitUtils::MuonType = theMuonType_-1;
   }
-  else if(theMuonType_ == 0 || theMuonType_ == 4 || theMuonType_ >= 10 || theMuonType_==-1 || theMuonType_==-2 || theMuonType_==-3 || theMuonType_==-4) {
+  else if(theMuonType_ == 4 || theMuonType_ >= 10 || theMuonType_==-1 || theMuonType_==-2 || theMuonType_==-3 || theMuonType_==-4) {
     MuScleFitUtils::MuonTypeForCheckMassWindow = 2;
     MuScleFitUtils::MuonType = 2;
   }
@@ -626,9 +625,7 @@ void MuScleFit::selectMuons(const edm::Event & event)
 				MuScleFitUtils::SavedPair.back().second,
 				event.run(), event.id().event()));
   // Fill the internal genPair tree from the external one
-  if( MuScleFitUtils::speedup == false ) {
-    MuScleFitUtils::genPair.push_back(std::make_pair( genMuonPairs_.back().mu1, genMuonPairs_.back().mu2 ));
-  }
+  MuScleFitUtils::genPair.push_back(std::make_pair( genMuonPairs_.back().mu1, genMuonPairs_.back().mu2 ));
 }
 
 void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
@@ -657,34 +654,12 @@ void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
     double eta2 = it->second.eta();
     // std::cout << "eta2 = " << eta2 << std::endl;
     // If they don't pass the cuts set to null vectors
-    bool dontPass = false;
-    if( MuScleFitUtils::separateRanges_ ) {
-      bool eta1InFirstRange = eta1 >= MuScleFitUtils::minMuonEtaFirstRange_ && eta1 < MuScleFitUtils::maxMuonEtaFirstRange_;
-      bool eta2InFirstRange = eta2 >= MuScleFitUtils::minMuonEtaFirstRange_ && eta2 < MuScleFitUtils::maxMuonEtaFirstRange_;
-      bool eta1InSecondRange = eta1 >= MuScleFitUtils::minMuonEtaSecondRange_ && eta1 < MuScleFitUtils::maxMuonEtaSecondRange_;
-      bool eta2InSecondRange = eta2 >= MuScleFitUtils::minMuonEtaSecondRange_ && eta2 < MuScleFitUtils::maxMuonEtaSecondRange_;
-
-      if( !(pt1 >= MuScleFitUtils::minMuonPt_ && pt1 < MuScleFitUtils::maxMuonPt_ &&
-	    pt2 >= MuScleFitUtils::minMuonPt_ && pt2 < MuScleFitUtils::maxMuonPt_ &&
-	    ( (eta1InFirstRange && eta2InFirstRange) || (eta1InSecondRange && eta2InSecondRange) )) ) {
-	dontPass = true;
-      }
-    }
-    else {
-      eta1 = fabs(eta1);
-      eta2 = fabs(eta2);
-      bool eta1InFirstRange = eta1 >= MuScleFitUtils::minMuonEtaFirstRange_ && eta1 < MuScleFitUtils::maxMuonEtaFirstRange_;
-      bool eta2InFirstRange = eta2 >= MuScleFitUtils::minMuonEtaFirstRange_ && eta2 < MuScleFitUtils::maxMuonEtaFirstRange_;
-      bool eta1InSecondRange = eta1 >= MuScleFitUtils::minMuonEtaSecondRange_ && eta1 < MuScleFitUtils::maxMuonEtaSecondRange_;
-      bool eta2InSecondRange = eta2 >= MuScleFitUtils::minMuonEtaSecondRange_ && eta2 < MuScleFitUtils::maxMuonEtaSecondRange_;
-      if( !(pt1 >= MuScleFitUtils::minMuonPt_ && pt1 < MuScleFitUtils::maxMuonPt_ &&
-	    pt2 >= MuScleFitUtils::minMuonPt_ && pt2 < MuScleFitUtils::maxMuonPt_ &&
-	    ( ((eta1InFirstRange && !eta2InFirstRange) && (eta2InSecondRange && !eta1InSecondRange)) ||
-	      ((eta2InFirstRange && !eta1InFirstRange) && (eta1InSecondRange && !eta2InSecondRange)) )) ) {
-	dontPass = true;
-      }
-    }
-    if( dontPass ) {
+    if( !(pt1 > MuScleFitUtils::minMuonPt_ && pt1 < MuScleFitUtils::maxMuonPt_ &&
+	  pt2 > MuScleFitUtils::minMuonPt_ && pt2 < MuScleFitUtils::maxMuonPt_ &&
+	  ( (eta1 > MuScleFitUtils::minMuonEtaFirstRange_ && eta1 < MuScleFitUtils::maxMuonEtaFirstRange_ &&
+	     eta2 > MuScleFitUtils::minMuonEtaFirstRange_ && eta2 < MuScleFitUtils::maxMuonEtaFirstRange_) ||
+	    (eta1 > MuScleFitUtils::minMuonEtaSecondRange_ && eta1 < MuScleFitUtils::maxMuonEtaSecondRange_ &&
+	     eta2 > MuScleFitUtils::minMuonEtaSecondRange_ && eta2 < MuScleFitUtils::maxMuonEtaSecondRange_) ) ) ) {
       // std::cout << "removing muons not passing cuts" << std::endl;
       it->first = reco::Particle::LorentzVector(0,0,0,0);
       it->second = reco::Particle::LorentzVector(0,0,0,0);
@@ -757,33 +732,11 @@ void MuScleFit::duringFastLoop()
     // Reconstructed resonance
     mapHisto_["hRecBestRes"]->Fill(bestRecRes, weight);
     mapHisto_["hRecBestResAllEvents"]->Fill(bestRecRes, 1.);
-//     // Fill histogram of Res mass vs muon variables
-//     mapHisto_["hRecBestResVSMu"]->Fill (recMu1, bestRecRes, -1);
-//     mapHisto_["hRecBestResVSMu"]->Fill (recMu2, bestRecRes, +1);
-//     // Fill also the mass mu+/mu- comparisons
-//     mapHisto_["hRecBestResVSMu"]->Fill(recMu1, recMu2, bestRecRes);
-
-    mapHisto_["hRecBestResVSMu"]->Fill (recMu1, bestRecRes, -1, weight);
-    mapHisto_["hRecBestResVSMu"]->Fill (recMu2, bestRecRes, +1, weight);
-    // Fill also the mass mu+/mu- comparisons
-    mapHisto_["hRecBestResVSMu"]->Fill(recMu1, recMu2, bestRecRes, weight);
-    
-    //-- rc 2010 filling histograms for mu+ /mu- ------
-    //  mapHisto_["hRecBestResVSMuMinus"]->Fill (recMu1, bestRecRes, -1);
-    // mapHisto_["hRecBestResVSMuPlus"]->Fill (recMu2, bestRecRes, +1);
-  
-    //-- rc 2010 filling histograms MassVsMuEtaPhi------
-    //  mapHisto_["hRecBestResVSMuEtaPhi"]->Fill (recMu1, bestRecRes,-1);
-    //  mapHisto_["hRecBestResVSMuEtaPhi"]->Fill (recMu2, bestRecRes,+1);
-
+    // Fill histogram of Res mass vs muon variables
+    mapHisto_["hRecBestResVSMu"]->Fill (recMu1, bestRecRes, -1);
+    mapHisto_["hRecBestResVSMu"]->Fill (recMu2, bestRecRes, +1);
     // Fill histogram of Res mass vs Res variables
-    // mapHisto_["hRecBestResVSRes"]->Fill (bestRecRes, bestRecRes, +1);
-    mapHisto_["hRecBestResVSRes"]->Fill (bestRecRes, bestRecRes, +1, weight);
-
-
-
-
-
+    mapHisto_["hRecBestResVSRes"]->Fill (bestRecRes, bestRecRes, +1);
 
     std::vector<double> * parval;
     std::vector<double> initpar;
@@ -856,17 +809,12 @@ void MuScleFit::duringFastLoop()
 	  initpar.push_back(MuScleFitUtils::parBgr[i]);
 	}
 	massResol = MuScleFitUtils::massResolution( recMu1, recMu2, initpar );
-	// prob      = MuScleFitUtils::massProb( bestRecRes.mass(), bestRecRes.Eta(), bestRecRes.Rapidity(), massResol, initpar, true );
-	prob      = MuScleFitUtils::massProb( bestRecRes.mass(), bestRecRes.Eta(), bestRecRes.Rapidity(), massResol,
-					      initpar, true, recMu1.eta(), recMu2.eta() );
+	prob      = MuScleFitUtils::massProb( bestRecRes.mass(), bestRecRes.Eta(), bestRecRes.Rapidity(), massResol, initpar, true );
       } else {
 	massResol = MuScleFitUtils::massResolution( recMu1, recMu2,
                                                     MuScleFitUtils::parvalue[loopCounter-1] );
-	// prob      = MuScleFitUtils::massProb( bestRecRes.mass(), bestRecRes.Eta(), bestRecRes.Rapidity(),
-        //                                       massResol, MuScleFitUtils::parvalue[loopCounter-1], true );
 	prob      = MuScleFitUtils::massProb( bestRecRes.mass(), bestRecRes.Eta(), bestRecRes.Rapidity(),
-                                              massResol, MuScleFitUtils::parvalue[loopCounter-1], true,
-					      recMu1.eta(), recMu2.eta() );
+                                              massResol, MuScleFitUtils::parvalue[loopCounter-1], true );
       }
       if( debug_ > 0 ) std::cout << "inside weight: mass = " << bestRecRes.mass() << ", prob = " << prob << std::endl;
       if (prob>0) {

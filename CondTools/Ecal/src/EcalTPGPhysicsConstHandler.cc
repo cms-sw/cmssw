@@ -25,7 +25,7 @@ popcon::EcalTPGPhysicsConstHandler::EcalTPGPhysicsConstHandler(const edm::Parame
         m_gentag=ps.getParameter<std::string>("GenTag");
 	m_runtype=ps.getParameter<std::string>("RunType");
 
-        edm::LogInfo("EcalTPGPhysicsConstHandler")<< m_sid<<"/"<<m_user<<"/"<<m_pass<<"/"<<m_location<<"/"<<m_gentag;
+        edm::LogInfo("EcalTPGPhysicsConstHandler")<< m_sid<<"/"<<m_user<<"/"<<m_location<<"/"<<m_gentag;
 
 }
 
@@ -65,7 +65,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 	
 	if (!econn)
 	  {
-	    std::cout << " connection parameters " <<m_sid <<"/"<<m_user<<"/"<<m_pass<<std::endl;
+	    std::cout << " connection parameters " <<m_sid <<"/"<<m_user<<std::endl;
 	    //	    cerr << e.what() << std::endl;
 	    throw cms::Exception("OMDS not available");
 	  } 
@@ -103,7 +103,8 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 	edm::LogInfo("EcalTPGPhysicsConstHandler") << "min_run= " << min_run << "max_run= " << max_run;
 	
         RunList my_list;
-	my_list=econn->fetchRunListByLocation(my_runtag,min_run,max_run,my_locdef);
+	my_list=econn->fetchGlobalRunListByLocation(my_runtag, min_run, max_run, my_locdef);
+	//	my_list=econn->fetchRunListByLocation(my_runtag,min_run,max_run,my_locdef);
 
       
 	std::vector<RunIOV> run_vec=  my_list.getRuns();

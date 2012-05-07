@@ -33,27 +33,10 @@ eventVtxInfoNtuple = cms.EDProducer(
     primaryVertices=cms.InputTag("offlinePrimaryVertices")
 )
 
-
-
-
-###  NJets and Met info
-
-#EventNjetAndMetInfoNtupleDumper
-
-eventNjetsAndMetInfoNtuple = cms.EDProducer(
-    "EventNjetAndMetInfoNtupleDumper",
-    MuonTag = cms.untracked.InputTag("muons"),
-    METTag = cms.untracked.InputTag("pfMet"),
-    JetTag = cms.untracked.InputTag("ak5PFJets"),
-    EJetMin = cms.untracked.double(40.)  
-)
-
-# path for dumping vtx info, njets and met info in the ntuple
+# path for dumping vtx info in the ntuple
 generalEventInfoPath = cms.Path(
-    eventVtxInfoNtuple +
-    eventNjetsAndMetInfoNtuple
+    eventVtxInfoNtuple
     )
-
 
 
 ### paths for loose cuts, not notIso ones, not 1HLT and 2HLT: only ZGolden, zMuSta, zMuTk, zMuTrackerMuon and ZGoldenSameCharge..

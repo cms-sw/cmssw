@@ -1,24 +1,48 @@
 // \class JetTracksAssociationDRVertex
 // Associate jets with tracks by simple "delta R" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetTracksAssociationDRVertex.h,v 1.3 2007/09/19 18:02:39 fedor Exp $
+// $Id: JetTracksAssociationDRVertex.h,v 1.4.2.1 2009/02/23 12:59:13 bainbrid Exp $
 
-#ifndef JetTracksAssociationDRVertex_h
-#define JetTracksAssociationDRVertex_h
+#ifndef RecoJets_JetAssociationAlgorithms_JetTracksAssociationDRVertex_h
+#define RecoJets_JetAssociationAlgorithms_JetTracksAssociationDRVertex_h
 
-#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
+#include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDR.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include <vector>
 
-class JetTracksAssociationDRVertex {
+class JetTracksAssociationDRVertex : public JetTracksAssociationDR {
+
  public:
-  JetTracksAssociationDRVertex (double fDr);
-  ~JetTracksAssociationDRVertex () {}
 
-  void produce (reco::JetTracksAssociation::Container* fAssociation, 
-		const std::vector <edm::RefToBase<reco::Jet> >& fJets,
-		const std::vector <reco::TrackRef>& fTracks) const;
+  /// Constructor taking dR threshold as argument
+  explicit JetTracksAssociationDRVertex( double dr_threshold );
+  
+  /// Destructor
+  ~JetTracksAssociationDRVertex();
+
+  /// Associates tracks to jets (using Handles as input)
+  void produce( Association*,
+		const Jets&,
+		const Tracks&,
+		const TrackQuality& );
+  
+  /// Associates tracks to jets
+  void produce( Association*,
+		const JetRefs&,
+		const TrackRefs& );
+  
+  // Associates tracks to the given jet
+  void associateTracksToJet( reco::TrackRefVector&,
+			     const reco::Jet&,
+			     const TrackRefs& );
+  
+  // Calculates track impact points at calorimeter face
+  void propagateTracks( const TrackRefs& );
+  
  private:
-  /// fidutial dR between track in the vertex and jet's reference direction
-  double mDeltaR2Threshold;
+  
+  std::vector<math::RhoEtaPhiVector> propagatedTracks_;
+  
 };
 
-#endif
+#endif // RecoJets_JetAssociationAlgorithms_JetTracksAssociationDRVertex_h

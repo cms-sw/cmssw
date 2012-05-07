@@ -1,123 +1,126 @@
-// $Id: StateMachineMonitorCollection.cc,v 1.7 2009/08/18 08:55:12 mommsen Exp $
+// $Id: StateMachineMonitorCollection.cc,v 1.8.10.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: StateMachineMonitorCollection.cc
 
 #include "EventFilter/StorageManager/interface/Exception.h"
 #include "EventFilter/StorageManager/interface/StateMachineMonitorCollection.h"
 
-using namespace stor;
 
-StateMachineMonitorCollection::StateMachineMonitorCollection(const utils::duration_t& updateInterval) :
-MonitorCollection(updateInterval),
-_externallyVisibleState( "unknown" ),
-_stateName( "unknown" )
-{}
+namespace stor {
+  
+  StateMachineMonitorCollection::StateMachineMonitorCollection(const utils::Duration_t& updateInterval) :
+  MonitorCollection(updateInterval),
+  externallyVisibleState_( "unknown" ),
+  stateName_( "unknown" )
+  {}
+  
 
-
-void StateMachineMonitorCollection::updateHistory( const TransitionRecord& tr )
-{
-  boost::mutex::scoped_lock sl( _stateMutex );
-  _history.push_back( tr );
-}
-
-
-void StateMachineMonitorCollection::getHistory( History& history ) const
-{
-  boost::mutex::scoped_lock sl( _stateMutex );
-  history = _history;
-}
-
-
-void StateMachineMonitorCollection::dumpHistory( std::ostream& os ) const
-{
-  boost::mutex::scoped_lock sl( _stateMutex );
-
-  os << "**** Begin transition history ****" << std::endl;
-
-  for( History::const_iterator j = _history.begin();
-       j != _history.end(); ++j )
+  void StateMachineMonitorCollection::updateHistory( const TransitionRecord& tr )
+  {
+    boost::mutex::scoped_lock sl( stateMutex_ );
+    history_.push_back( tr );
+  }
+  
+  
+  void StateMachineMonitorCollection::getHistory( History& history ) const
+  {
+    boost::mutex::scoped_lock sl( stateMutex_ );
+    history = history_;
+  }
+  
+  
+  void StateMachineMonitorCollection::dumpHistory( std::ostream& os ) const
+  {
+    boost::mutex::scoped_lock sl( stateMutex_ );
+    
+    os << "**** Begin transition history ****" << std::endl;
+    
+    for( History::const_iterator j = history_.begin();
+         j != history_.end(); ++j )
     {
       os << "  " << *j << std::endl;
     }
-
-  os << "**** End transition history ****" << std::endl;
-
-}
-
-
-void StateMachineMonitorCollection::setExternallyVisibleState( const std::string& n )
-{
-  boost::mutex::scoped_lock sl( _stateMutex );
-  _externallyVisibleState = n;
-}
-
-
-const std::string& StateMachineMonitorCollection::externallyVisibleState() const
-{
-  boost::mutex::scoped_lock sl( _stateMutex );
-  return _externallyVisibleState;
-}
-
-
-
-void StateMachineMonitorCollection::setStatusMessage( const std::string& m )
-{
-  boost::mutex::scoped_lock sl( _stateMutex );
-  if ( _statusMessage.empty() )
-    _statusMessage = m;
-}
-
-
-void StateMachineMonitorCollection::clearStatusMessage()
-{
-  boost::mutex::scoped_lock sl( _stateMutex );
-  _statusMessage.clear();
-}
-
-
-bool StateMachineMonitorCollection::statusMessage( std::string& m ) const
-{
-  boost::mutex::scoped_lock sl( _stateMutex );
-  m = _statusMessage;
-  return ( ! _statusMessage.empty() );
-}
-
-
-const std::string& StateMachineMonitorCollection::innerStateName() const
-{
-  boost::mutex::scoped_lock sl( _stateMutex );
-  TransitionRecord tr = _history.back();
-  return tr.stateName();;
-}
-
-
-void StateMachineMonitorCollection::do_calculateStatistics()
-{
-  // nothing to do
-}
-
-
-void StateMachineMonitorCollection::do_reset()
-{
-  // we shall not reset the state name
-  boost::mutex::scoped_lock sl( _stateMutex );
-  _history.clear();
-}
-
-
-void StateMachineMonitorCollection::do_appendInfoSpaceItems(InfoSpaceItems& infoSpaceItems)
-{
-  infoSpaceItems.push_back(std::make_pair("stateName", &_stateName));
-}
-
-
-void StateMachineMonitorCollection::do_updateInfoSpaceItems()
-{
-  boost::mutex::scoped_lock sl( _stateMutex );
-
-  _stateName = static_cast<xdata::String>( _externallyVisibleState );
-}
-
-
+    
+    os << "**** End transition history ****" << std::endl;
+    
+  }
+  
+  
+  void StateMachineMonitorCollection::setExternallyVisibleState( const std::string& n )
+  {
+    boost::mutex::scoped_lock sl( stateMutex_ );
+    externallyVisibleState_ = n;
+  }
+  
+  
+  const std::string& StateMachineMonitorCollection::externallyVisibleState() const
+  {
+    boost::mutex::scoped_lock sl( stateMutex_ );
+    return externallyVisibleState_;
+  }
+  
+  
+  void StateMachineMonitorCollection::setStatusMessage( const std::string& m )
+  {
+    boost::mutex::scoped_lock sl( stateMutex_ );
+    if ( statusMessage_.empty() )
+      statusMessage_ = m;
+  }
+  
+  
+  void StateMachineMonitorCollection::clearStatusMessage()
+  {
+    boost::mutex::scoped_lock sl( stateMutex_ );
+    statusMessage_.clear();
+  }
+  
+  
+  bool StateMachineMonitorCollection::statusMessage( std::string& m ) const
+  {
+    boost::mutex::scoped_lock sl( stateMutex_ );
+    m = statusMessage_;
+    return ( ! statusMessage_.empty() );
+  }
+  
+  
+  std::string StateMachineMonitorCollection::innerStateName() const
+  {
+    boost::mutex::scoped_lock sl( stateMutex_ );
+    TransitionRecord tr = history_.back();
+    return tr.stateName();;
+  }
+  
+  
+  void StateMachineMonitorCollection::do_calculateStatistics()
+  {
+    // nothing to do
+  }
+  
+  
+  void StateMachineMonitorCollection::do_reset()
+  {
+    // we shall not reset the state name
+    boost::mutex::scoped_lock sl( stateMutex_ );
+    history_.clear();
+  }
+  
+  
+  void StateMachineMonitorCollection::do_appendInfoSpaceItems
+  (
+    InfoSpaceItems& infoSpaceItems
+  )
+  {
+    infoSpaceItems.push_back(std::make_pair("stateName", &stateName_));
+  }
+  
+  
+  void StateMachineMonitorCollection::do_updateInfoSpaceItems()
+  {
+    boost::mutex::scoped_lock sl( stateMutex_ );
+    
+    stateName_ = static_cast<xdata::String>( externallyVisibleState_ );
+  }
+  
+} // namespace stor
 
 /// emacs configuration
 /// Local Variables: -

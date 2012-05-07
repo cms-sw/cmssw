@@ -3,4 +3,8 @@
   <class name="std::vector<PileupSummaryInfo>"/>  
   <class name="edm::Wrapper<PileupSummaryInfo>"/>
   <class name="edm::Wrapper<std::vector<PileupSummaryInfo> >"/>
+  <class name="PileupMixingContent"/>
+  <class name="std::vector<PileupMixingContent>"/>  
+  <class name="edm::Wrapper<PileupMixingContent>"/>
+  <class name="edm::Wrapper<std::vector<PileupMixingContent> >"/>
 </lcgdict>

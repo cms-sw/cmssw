@@ -61,7 +61,6 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   for ( std::vector<std::string>::iterator iParam = parameterNames.begin();
         iParam != parameterNames.end(); iParam++ ){
     if ( (*iParam) == "Debug" ) _Debug =  myHltParams.getParameter<bool>( *iParam );
-    if ( (*iParam) == "DoHeavyIon" ) _OR_BXes=  myHltParams.getUntrackedParameter<bool>(*iParam,false);    
   }
 
   HltEvtCnt = 0;
@@ -99,6 +98,7 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   l1extmufor = new int[kMaxL1ExtMu];
   l1extmurpc = new int[kMaxL1ExtMu];
   l1extmuqul = new int[kMaxL1ExtMu];
+  l1extmuchg = new int[kMaxL1ExtMu];
   const int kMaxL1ExtJtC = 10000;
   l1extjtcet = new float[kMaxL1ExtJtC];
   l1extjtce = new float[kMaxL1ExtJtC];
@@ -138,6 +138,7 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("L1MuFor",l1extmufor,"L1MuFor[NL1Mu]/I");
   HltTree->Branch("L1MuRPC",l1extmurpc,"L1MuRPC[NL1Mu]/I");
   HltTree->Branch("L1MuQal",l1extmuqul,"L1MuQal[NL1Mu]/I");
+  HltTree->Branch("L1MuChg",l1extmuchg,"L1MuChg[NL1Mu]/I");
   HltTree->Branch("NL1CenJet",&nl1extjetc,"NL1CenJet/I");
   HltTree->Branch("L1CenJetEt",l1extjtcet,"L1CenJetEt[NL1CenJet]/F");
   HltTree->Branch("L1CenJetE",l1extjtce,"L1CenJetE[NL1CenJet]/F");
@@ -299,6 +300,7 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
     l1extmufor[i] = -999;
     l1extmurpc[i] = -999;
     l1extmuqul[i] = -999;
+    l1extmuchg[i] = -999;
   }
   if (L1ExtMu.isValid()) {
     nl1extmu = maxL1Mu;
@@ -315,6 +317,7 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
       l1extmumip[il1exmu] = muItr->isMip(); // = 1 for Mip ?
       l1extmufor[il1exmu] = muItr->isForward();
       l1extmurpc[il1exmu] = muItr->isRPC();
+      l1extmuchg[il1exmu] = muItr->charge();
       L1MuGMTExtendedCand gmtCand = muItr->gmtMuonCand();
       l1extmuqul[il1exmu] = gmtCand.quality(); // Muon quality as defined in the GT
       il1exmu++;
@@ -454,13 +457,13 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
  
       //ccla determine if more than 1 bx was unpacked in event; add OR all bx's if so
       const edm::Provenance& prov = iEvent.getProvenance(L1GTRR.id());
-      //      const std::string& procName = prov.processName();
+      //const string& procName = prov.processName();
       edm::ParameterSetID setId = prov.psetID();
       //std::cout << "procName:" << procName << std::endl;
       //std::cout << "provinfo:" << prov << std::endl;
       //std::cout << "setid:" << setId << std::endl;
       edm::ParameterSet pSet=getParameterSet(setId);
-      std::cout << "pset:" << pSet << std::endl;
+      //std::cout << "pset:" << pSet << std::endl;
       if (pSet.exists("UnpackBxInEvent")){
 	UnpackBxInEvent = pSet.getParameter<int>("UnpackBxInEvent");
       }

@@ -15,11 +15,20 @@ hcalDetDiagNoiseMonitor=cms.EDAnalyzer("HcalDetDiagNoiseMonitor",
                                        
                                        # DetDiag Noise Monitor-specific Info
                                        UseDB                  = cms.untracked.bool(False),
-                                       NoiseReferenceData     = cms.untracked.string(""),
-
-                                       RawDataLabel                        = cms.untracked.InputTag("source"),
-                                       digiLabel                           = cms.untracked.InputTag("hcalDigis"),
-                                       HLTriggerResults                    = cms.untracked.InputTag("TriggerResults","","HLT"),
+ 
+                                       RawDataLabel           = cms.untracked.InputTag("source"),
+                                       digiLabel              = cms.untracked.InputTag("hcalDigis"),
+                        	       gtLabel                = cms.untracked.InputTag("l1GtUnpack"),
+                                       Overwrite              = cms.untracked.bool(True),
+                                       # path to store datasets for current run
+                                       OutputFilePath         = cms.untracked.string(""),
+                                       # path to store xmz.zip file to be uploaded into OMDG
+                                       XmlFilePath            = cms.untracked.string(""),
+                                       HPDthresholdHi         = cms.untracked.double(49.0),
+                                       HPDthresholdLo         = cms.untracked.double(10.0),
+                                       SpikeThreshold         = cms.untracked.double(0.5),
+                                       
+				       HLTriggerResults                    = cms.untracked.InputTag("TriggerResults","","HLT"),
                                        MetSource                           = cms.untracked.InputTag("met"),
                                        JetSource                           = cms.untracked.InputTag("iterativeCone5CaloJets"),
                                        TrackSource                         = cms.untracked.InputTag("generalTracks"),

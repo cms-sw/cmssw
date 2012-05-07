@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.20.2.3 2010/11/08 12:14:14 vadler Exp $
+// $Id: PATTriggerProducer.cc,v 1.65 2011/03/15 18:05:27 vadler Exp $
 //
 
 
@@ -7,17 +7,21 @@
 
 #include <vector>
 #include <map>
+#include <utility>
 #include <cassert>
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
 #include "DataFormats/PatCandidates/interface/TriggerAlgorithm.h"
+#include "DataFormats/PatCandidates/interface/TriggerCondition.h"
 #include "DataFormats/PatCandidates/interface/TriggerPath.h"
 #include "DataFormats/PatCandidates/interface/TriggerFilter.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
@@ -30,12 +34,19 @@ using namespace pat;
 using namespace edm;
 
 
+// Constants' definitions
+const unsigned L1GlobalTriggerReadoutSetup::NumberPhysTriggers;
+const unsigned L1GlobalTriggerReadoutSetup::NumberPhysTriggersExtended;
+const unsigned L1GlobalTriggerReadoutSetup::NumberTechnicalTriggers;
+
+
 PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   nameProcess_( iConfig.getParameter< std::string >( "processName" ) ),
   autoProcessName_( nameProcess_ == "*" ),
   onlyStandAlone_( iConfig.getParameter< bool >( "onlyStandAlone" ) ),
   // L1 configuration parameters
   addL1Algos_( false ),
+  tagL1GlobalTriggerObjectMapRecord_( "hltL1GtObjectMap" ),
   tagL1ExtraMu_(),
   tagL1ExtraNoIsoEG_(),
   tagL1ExtraIsoEG_(),
@@ -52,6 +63,7 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   autoProcessNameL1ExtraTauJet_( false ),
   autoProcessNameL1ExtraETM_( false ),
   autoProcessNameL1ExtraHTM_( false ),
+  mainBxOnly_( true ),
   saveL1Refs_( false ),
   // HLT configuration parameters
   tagTriggerResults_( "TriggerResults" ),
@@ -65,6 +77,7 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
 
   // L1 configuration parameters
   if ( iConfig.exists( "addL1Algos" ) ) addL1Algos_ = iConfig.getParameter< bool >( "addL1Algos" );
+  if ( iConfig.exists( "l1GlobalTriggerObjectMapRecord" ) ) tagL1GlobalTriggerObjectMapRecord_ = iConfig.getParameter< InputTag >( "l1GlobalTriggerObjectMapRecord" );
   if ( iConfig.exists( "l1ExtraMu" ) ) {
     tagL1ExtraMu_ = iConfig.getParameter< InputTag >( "l1ExtraMu" );
     if ( tagL1ExtraMu_.process() == "*" ) {
@@ -121,16 +134,21 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
       else                    tagL1ExtraHTM_ = InputTag( tagL1ExtraHTM_.label(), tagL1ExtraHTM_.instance(), nameProcess_ );
     }
   }
+  if ( iConfig.exists( "mainBxOnly" ) ) mainBxOnly_ = iConfig.getParameter< bool >( "mainBxOnly" );
   if ( iConfig.exists( "saveL1Refs" ) ) saveL1Refs_ = iConfig.getParameter< bool >( "saveL1Refs" );
+
   // HLT configuration parameters
   if ( iConfig.exists( "triggerResults" ) )      tagTriggerResults_     = iConfig.getParameter< InputTag >( "triggerResults" );
   if ( iConfig.exists( "triggerEvent" ) )        tagTriggerEvent_       = iConfig.getParameter< InputTag >( "triggerEvent" );
   if ( iConfig.exists( "hltPrescaleLabel" ) )    hltPrescaleLabel_      = iConfig.getParameter< std::string >( "hltPrescaleLabel" );
   if ( iConfig.exists( "hltPrescaleTable" ) )    labelHltPrescaleTable_ = iConfig.getParameter< std::string >( "hltPrescaleTable" );
   if ( iConfig.exists( "addPathModuleLabels" ) ) addPathModuleLabels_   = iConfig.getParameter< bool >( "addPathModuleLabels" );
+  exludeCollections_.clear();
+  if ( iConfig.exists( "exludeCollections" )  ) exludeCollections_      = iConfig.getParameter< std::vector< std::string > >( "exludeCollections" );
 
   if ( ! onlyStandAlone_ ) {
     produces< TriggerAlgorithmCollection >();
+    produces< TriggerConditionCollection >();
     produces< TriggerPathCollection >();
     produces< TriggerFilterCollection >();
     produces< TriggerObjectCollection >();
@@ -391,34 +409,93 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
     // Put HLT paths to event
     if ( ! onlyStandAlone_ ) iEvent.put( triggerPaths );
 
-    // Produce HLT filters and store used trigger object types
+    // Store used trigger objects and their types for HLT filters
     // (only last active filter(s) available from trigger::TriggerEvent)
 
     std::auto_ptr< TriggerFilterCollection > triggerFilters( new TriggerFilterCollection() );
     triggerFilters->reserve( onlyStandAlone_ ? 0 : sizeFilters );
-    std::multimap< trigger::size_type, int >         filterIds;
+    std::multimap< trigger::size_type, int >         objectTypes;
     std::multimap< trigger::size_type, std::string > filterLabels;
 
     for ( size_t iF = 0; iF < sizeFilters; ++iF ) {
       const std::string nameFilter( handleTriggerEvent->filterTag( iF ).label() );
-      const trigger::Keys & keys = handleTriggerEvent->filterKeys( iF );
-      const trigger::Vids & ids  = handleTriggerEvent->filterIds( iF );
-      assert( ids.size() == keys.size() );
+      const trigger::Keys & keys  = handleTriggerEvent->filterKeys( iF );
+      const trigger::Vids & types = handleTriggerEvent->filterIds( iF );
+      assert( types.size() == keys.size() );
       for ( size_t iK = 0; iK < keys.size(); ++iK ) {
         filterLabels.insert( std::pair< trigger::size_type, std::string >( keys[ iK ], nameFilter ) ); // only for objects used in last active filter
-        filterIds.insert( std::pair< trigger::size_type, int >( keys[ iK ], ids[ iK ] ) );             // only for objects used in last active filter
+        objectTypes.insert( std::pair< trigger::size_type, int >( keys[ iK ], types[ iK ] ) );             // only for objects used in last active filter
       }
-      if ( ! onlyStandAlone_ ) {
+    }
+
+    // HLT objects
+
+    const trigger::Keys & collectionKeys( handleTriggerEvent->collectionKeys() );
+    std::map< trigger::size_type, trigger::size_type > newObjectKeys;
+    for ( size_t iO = 0, iC = 0; iO < sizeObjects && iC < handleTriggerEvent->sizeCollections(); ++iO ) {
+
+      TriggerObject triggerObject( handleTriggerEvent->getObjects().at( iO ) );
+      // set collection
+      while ( iO >= collectionKeys[ iC ] ) ++iC; // relies on well ordering of trigger objects with respect to the collections
+      triggerObject.setCollection( handleTriggerEvent->collectionTag( iC ) );
+      // set filter ID
+      for ( std::multimap< trigger::size_type, int >::iterator iM = objectTypes.begin(); iM != objectTypes.end(); ++iM ) {
+        if ( iM->first == iO ) {
+          triggerObject.addTriggerObjectType( iM->second );
+        }
+      }
+
+      // stand-alone trigger object
+      TriggerObjectStandAlone triggerObjectStandAlone( triggerObject );
+      // check for excluded collections
+      bool excluded( false );
+      for ( size_t iE = 0; iE < exludeCollections_.size(); ++iE ) {
+        if ( triggerObjectStandAlone.hasCollection( exludeCollections_.at( iE ) ) ) {
+          newObjectKeys[ iO ] = trigger::size_type( sizeObjects );
+          excluded = true;
+          break;
+        }
+      }
+      if ( excluded ) continue;
+      for ( std::multimap< trigger::size_type, std::string >::iterator iM = filterLabels.begin(); iM != filterLabels.end(); ++iM ) {
+        if ( iM->first == iO ) {
+          triggerObjectStandAlone.addFilterLabel( iM->second );
+          for ( std::multimap< std::string, std::pair< std::string, bool > >::iterator iP = filterPaths.begin(); iP != filterPaths.end(); ++iP ) {
+            if ( iP->first == iM->second ) {
+              triggerObjectStandAlone.addPathName( iP->second.first, iP->second.second );
+            }
+          }
+        }
+      }
+
+      if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
+      triggerObjectsStandAlone->push_back( triggerObjectStandAlone );
+      newObjectKeys[ iO ] = trigger::size_type( triggerObjectsStandAlone->size() - 1 );
+    }
+
+    // Re-iterate HLT filters and finally produce them
+    // in ordert to account for optionally skipped objects
+
+    if ( ! onlyStandAlone_ ) {
+      for ( size_t iF = 0; iF < sizeFilters; ++iF ) {
+        const std::string nameFilter( handleTriggerEvent->filterTag( iF ).label() );
+        const trigger::Keys & keys  = handleTriggerEvent->filterKeys( iF ); // not cached
+        const trigger::Vids & types = handleTriggerEvent->filterIds( iF );  // not cached
         TriggerFilter triggerFilter( nameFilter );
         // set filter type
         const std::string typeFilter( hltConfig_.moduleType( nameFilter ) );
         triggerFilter.setType( typeFilter );
-        // set filter IDs of used objects
-        for ( size_t iK = 0; iK < keys.size(); ++iK ) {
-          triggerFilter.addObjectKey( keys[ iK ] );
-        }
-        for ( size_t iI = 0; iI < ids.size(); ++iI ) {
-          triggerFilter.addObjectId( ids[ iI ] );
+        // set keys and trigger object types of used objects
+        for ( size_t iK = 0; iK < keys.size(); ++iK ) { // identical to types.size()
+          // check, if current object is excluded
+          if ( newObjectKeys.find( keys.at( iK ) ) != newObjectKeys.end() ) {
+            if ( newObjectKeys[ keys.at( iK ) ] == sizeObjects ) continue;
+            triggerFilter.addObjectKey( keys.at( iK ) );
+            triggerFilter.addTriggerObjectType( types.at( iK ) );
+          } else {
+            LogWarning( "triggerObjectKey" ) << "TriggerFilter '" << nameFilter << "' requests non-existing TriggerObject key " << keys.at( iK ) << "\n"
+                                             << "Skipping object assignment";
+          }
         }
         // set status from path info
         std::map< std::string, int >::iterator iS( moduleStates.find( nameFilter ) );
@@ -432,41 +509,8 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         // store filter
         triggerFilters->push_back( triggerFilter );
       }
-    }
-
-    // Put HLT filters to event
-    if ( ! onlyStandAlone_ ) iEvent.put( triggerFilters );
-
-    // HLT objects
-
-    const trigger::Keys & collectionKeys( handleTriggerEvent->collectionKeys() );
-    for ( size_t iO = 0, iC = 0; iO < sizeObjects && iC < handleTriggerEvent->sizeCollections(); ++iO ) {
-
-      TriggerObject triggerObject( handleTriggerEvent->getObjects().at( iO ) );
-      // set collection
-      while ( iO >= collectionKeys[ iC ] ) ++iC; // relies on well ordering of trigger objects with respect to the collections
-      triggerObject.setCollection( handleTriggerEvent->collectionTag( iC ) );
-      // set filter ID
-      for ( std::multimap< trigger::size_type, int >::iterator iM = filterIds.begin(); iM != filterIds.end(); ++iM ) {
-        if ( iM->first == iO && ! triggerObject.hasFilterId( iM->second ) ) {
-          triggerObject.addFilterId( iM->second );
-        }
-      }
-      if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
-      // stand-alone trigger object
-      TriggerObjectStandAlone triggerObjectStandAlone( triggerObject );
-      for ( std::multimap< trigger::size_type, std::string >::iterator iM = filterLabels.begin(); iM != filterLabels.end(); ++iM ) {
-        if ( iM->first == iO ) {
-          triggerObjectStandAlone.addFilterLabel( iM->second );
-          for ( std::multimap< std::string, std::pair< std::string, bool > >::iterator iP = filterPaths.begin(); iP != filterPaths.end(); ++iP ) {
-            if ( iP->first == iM->second ) {
-              triggerObjectStandAlone.addPathName( iP->second.first, iP->second.second );
-            }
-          }
-        }
-      }
-
-      triggerObjectsStandAlone->push_back( triggerObjectStandAlone );
+      // put HLT filters to event
+      iEvent.put( triggerFilters );
     }
 
   } // if ( goodHlt )
@@ -474,11 +518,16 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
   // L1 objects
   // (needs to be done after HLT objects, since their x-links with filters rely on their collection keys)
 
+  // map for assignments of objects to conditions
+  std::map< L1GtObject, std::vector< unsigned > > l1ObjectTypeMap;
+
   if ( ! tagL1ExtraMu_.label().empty() ) {
     Handle< l1extra::L1MuonParticleCollection > handleL1ExtraMu;
     iEvent.getByLabel( tagL1ExtraMu_, handleL1ExtraMu );
     if ( handleL1ExtraMu.isValid() ) {
+      std::vector< unsigned > muKeys;
       for ( size_t l1Mu = 0; l1Mu < handleL1ExtraMu->size(); ++l1Mu ) {
+        if ( mainBxOnly_ && handleL1ExtraMu->at( l1Mu ).bx() != 0 ) continue;
         TriggerObject triggerObject;
         if ( saveL1Refs_ ) {
           const reco::CandidateBaseRef leafCandRef( l1extra::L1MuonParticleRef( handleL1ExtraMu, l1Mu ) );
@@ -488,17 +537,22 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           triggerObject = TriggerObject( *leafCandidate );
         }
         triggerObject.setCollection( tagL1ExtraMu_ );
-        triggerObject.addFilterId( trigger::TriggerL1Mu );
+        triggerObject.addTriggerObjectType( trigger::TriggerL1Mu );
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
-        triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
+        TriggerObjectStandAlone triggerObjectStandAlone( triggerObject );
+        triggerObjectsStandAlone->push_back( triggerObjectStandAlone );
+        if ( handleL1ExtraMu->at( l1Mu ).bx() == 0 ) muKeys.push_back( triggerObjectsStandAlone->size() - 1 );
       }
+      l1ObjectTypeMap.insert( std::make_pair( Mu, muKeys ) );
     } else LogError( "l1ExtraValid" ) << "l1extra::L1MuonParticleCollection product with InputTag '" << tagL1ExtraMu_.encode() << "' not in event";
   }
   if ( ! tagL1ExtraNoIsoEG_.label().empty() ) {
     Handle< l1extra::L1EmParticleCollection > handleL1ExtraNoIsoEG;
     iEvent.getByLabel( tagL1ExtraNoIsoEG_, handleL1ExtraNoIsoEG );
     if ( handleL1ExtraNoIsoEG.isValid() ) {
+      std::vector< unsigned > noIsoEGKeys;
       for ( size_t l1NoIsoEG = 0; l1NoIsoEG < handleL1ExtraNoIsoEG->size(); ++l1NoIsoEG ) {
+        if ( mainBxOnly_ && handleL1ExtraNoIsoEG->at( l1NoIsoEG ).bx() != 0 ) continue;
         TriggerObject triggerObject;
         if ( saveL1Refs_ ) {
           const reco::CandidateBaseRef leafCandRef( l1extra::L1EmParticleRef( handleL1ExtraNoIsoEG, l1NoIsoEG ) );
@@ -508,17 +562,22 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           triggerObject = TriggerObject( *leafCandidate );
         }
         triggerObject.setCollection( tagL1ExtraNoIsoEG_ );
-        triggerObject.addFilterId( trigger::TriggerL1NoIsoEG );
+        triggerObject.addTriggerObjectType( trigger::TriggerL1NoIsoEG );
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
-        triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
+        TriggerObjectStandAlone triggerObjectStandAlone( triggerObject );
+        triggerObjectsStandAlone->push_back( triggerObjectStandAlone );
+        if ( handleL1ExtraNoIsoEG->at( l1NoIsoEG ).bx() == 0 ) noIsoEGKeys.push_back( triggerObjectsStandAlone->size() - 1 );
       }
+      l1ObjectTypeMap.insert( std::make_pair( NoIsoEG, noIsoEGKeys ) );
     } else LogError( "l1ExtraValid" ) << "l1extra::L1EmParticleCollection product with InputTag '" << tagL1ExtraNoIsoEG_.encode() << "' not in event";
   }
   if ( ! tagL1ExtraIsoEG_.label().empty() ) {
     Handle< l1extra::L1EmParticleCollection > handleL1ExtraIsoEG;
     iEvent.getByLabel( tagL1ExtraIsoEG_, handleL1ExtraIsoEG );
     if ( handleL1ExtraIsoEG.isValid() ) {
+      std::vector< unsigned > isoEGKeys;
       for ( size_t l1IsoEG = 0; l1IsoEG < handleL1ExtraIsoEG->size(); ++l1IsoEG ) {
+        if ( mainBxOnly_ && handleL1ExtraIsoEG->at( l1IsoEG ).bx() != 0 ) continue;
         TriggerObject triggerObject;
         if ( saveL1Refs_ ) {
           const reco::CandidateBaseRef leafCandRef( l1extra::L1EmParticleRef( handleL1ExtraIsoEG, l1IsoEG ) );
@@ -528,17 +587,22 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           triggerObject = TriggerObject( *leafCandidate );
         }
         triggerObject.setCollection( tagL1ExtraIsoEG_ );
-        triggerObject.addFilterId( trigger::TriggerL1IsoEG );
+        triggerObject.addTriggerObjectType( trigger::TriggerL1IsoEG );
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
-        triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
+        TriggerObjectStandAlone triggerObjectStandAlone( triggerObject );
+        triggerObjectsStandAlone->push_back( triggerObjectStandAlone );
+        if ( handleL1ExtraIsoEG->at( l1IsoEG ).bx() == 0 ) isoEGKeys.push_back( triggerObjectsStandAlone->size() - 1 );
       }
+      l1ObjectTypeMap.insert( std::make_pair( IsoEG, isoEGKeys ) );
     } else LogError( "l1ExtraValid" ) << "l1extra::L1EmParticleCollection product with InputTag '" << tagL1ExtraIsoEG_.encode() << "' not in event";
   }
   if ( ! tagL1ExtraCenJet_.label().empty() ) {
     Handle< l1extra::L1JetParticleCollection > handleL1ExtraCenJet;
     iEvent.getByLabel( tagL1ExtraCenJet_, handleL1ExtraCenJet );
     if ( handleL1ExtraCenJet.isValid() ) {
+      std::vector< unsigned > cenJetKeys;
       for ( size_t l1CenJet = 0; l1CenJet < handleL1ExtraCenJet->size(); ++l1CenJet ) {
+        if ( mainBxOnly_ && handleL1ExtraCenJet->at( l1CenJet ).bx() != 0 ) continue;
         TriggerObject triggerObject;
         if ( saveL1Refs_ ) {
           const reco::CandidateBaseRef leafCandRef( l1extra::L1JetParticleRef( handleL1ExtraCenJet, l1CenJet ) );
@@ -548,17 +612,22 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           triggerObject = TriggerObject( *leafCandidate );
         }
         triggerObject.setCollection( tagL1ExtraCenJet_ );
-        triggerObject.addFilterId( trigger::TriggerL1CenJet );
+        triggerObject.addTriggerObjectType( trigger::TriggerL1CenJet );
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
-        triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
+        TriggerObjectStandAlone triggerObjectStandAlone( triggerObject );
+        triggerObjectsStandAlone->push_back( triggerObjectStandAlone );
+        if ( handleL1ExtraCenJet->at( l1CenJet ).bx() == 0 ) cenJetKeys.push_back( triggerObjectsStandAlone->size() - 1 );
       }
+      l1ObjectTypeMap.insert( std::make_pair( CenJet, cenJetKeys ) );
     } else LogError( "l1ExtraValid" ) << "l1extra::L1JetParticleCollection product with InputTag '" << tagL1ExtraCenJet_.encode() << "' not in event";
   }
   if ( ! tagL1ExtraForJet_.label().empty() ) {
     Handle< l1extra::L1JetParticleCollection > handleL1ExtraForJet;
     iEvent.getByLabel( tagL1ExtraForJet_, handleL1ExtraForJet );
     if ( handleL1ExtraForJet.isValid() ) {
+      std::vector< unsigned > forJetKeys;
       for ( size_t l1ForJet = 0; l1ForJet < handleL1ExtraForJet->size(); ++l1ForJet ) {
+        if ( mainBxOnly_ && handleL1ExtraForJet->at( l1ForJet ).bx() != 0 ) continue;
         TriggerObject triggerObject;
         if ( saveL1Refs_ ) {
           const reco::CandidateBaseRef leafCandRef( l1extra::L1JetParticleRef( handleL1ExtraForJet, l1ForJet ) );
@@ -568,17 +637,22 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           triggerObject = TriggerObject( *leafCandidate );
         }
         triggerObject.setCollection( tagL1ExtraForJet_ );
-        triggerObject.addFilterId( trigger::TriggerL1ForJet );
+        triggerObject.addTriggerObjectType( trigger::TriggerL1ForJet );
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
-        triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
+        TriggerObjectStandAlone triggerObjectStandAlone( triggerObject );
+        triggerObjectsStandAlone->push_back( triggerObjectStandAlone );
+        if ( handleL1ExtraForJet->at( l1ForJet ).bx() == 0 ) forJetKeys.push_back( triggerObjectsStandAlone->size() - 1 );
       }
+      l1ObjectTypeMap.insert( std::make_pair( ForJet, forJetKeys ) );
     } else LogError( "l1ExtraValid" ) << "l1extra::L1JetParticleCollection product with InputTag '" << tagL1ExtraForJet_.encode() << "' not in event";
   }
   if ( ! tagL1ExtraTauJet_.label().empty() ) {
     Handle< l1extra::L1JetParticleCollection > handleL1ExtraTauJet;
     iEvent.getByLabel( tagL1ExtraTauJet_, handleL1ExtraTauJet );
     if ( handleL1ExtraTauJet.isValid() ) {
+      std::vector< unsigned > tauJetKeys;
       for ( size_t l1TauJet = 0; l1TauJet < handleL1ExtraTauJet->size(); ++l1TauJet ) {
+        if ( mainBxOnly_ && handleL1ExtraTauJet->at( l1TauJet ).bx() != 0 ) continue;
         TriggerObject triggerObject;
         if ( saveL1Refs_ ) {
           const reco::CandidateBaseRef leafCandRef( l1extra::L1JetParticleRef( handleL1ExtraTauJet, l1TauJet ) );
@@ -588,17 +662,22 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           triggerObject = TriggerObject( *leafCandidate );
         }
         triggerObject.setCollection( tagL1ExtraTauJet_ );
-        triggerObject.addFilterId( trigger::TriggerL1TauJet );
+        triggerObject.addTriggerObjectType( trigger::TriggerL1TauJet );
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
-        triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
+        TriggerObjectStandAlone triggerObjectStandAlone( triggerObject );
+        triggerObjectsStandAlone->push_back( triggerObjectStandAlone );
+        if ( handleL1ExtraTauJet->at( l1TauJet ).bx() == 0 ) tauJetKeys.push_back( triggerObjectsStandAlone->size() - 1 );
       }
+      l1ObjectTypeMap.insert( std::make_pair( TauJet, tauJetKeys ) );
     } else LogError( "l1ExtraValid" ) << "l1extra::L1JetParticleCollection product with InputTag '" << tagL1ExtraTauJet_.encode() << "' not in event";
   }
   if ( ! tagL1ExtraETM_ .label().empty()) {
     Handle< l1extra::L1EtMissParticleCollection > handleL1ExtraETM;
     iEvent.getByLabel( tagL1ExtraETM_, handleL1ExtraETM );
     if ( handleL1ExtraETM.isValid() ) {
+      std::vector< unsigned > etmKeys;
       for ( size_t l1ETM = 0; l1ETM < handleL1ExtraETM->size(); ++l1ETM ) {
+        if ( mainBxOnly_ && handleL1ExtraETM->at( l1ETM ).bx() != 0 ) continue;
         TriggerObject triggerObject;
         if ( saveL1Refs_ ) {
           const reco::CandidateBaseRef leafCandRef( l1extra::L1EtMissParticleRef( handleL1ExtraETM, l1ETM ) );
@@ -608,17 +687,22 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           triggerObject = TriggerObject( *leafCandidate );
         }
         triggerObject.setCollection( tagL1ExtraETM_ );
-        triggerObject.addFilterId( trigger::TriggerL1ETM );
+        triggerObject.addTriggerObjectType( trigger::TriggerL1ETM );
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
-        triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
+        TriggerObjectStandAlone triggerObjectStandAlone( triggerObject );
+        triggerObjectsStandAlone->push_back( triggerObjectStandAlone );
+        if ( handleL1ExtraETM->at( l1ETM ).bx() == 0 ) etmKeys.push_back( triggerObjectsStandAlone->size() - 1 );
       }
+      l1ObjectTypeMap.insert( std::make_pair( ETM, etmKeys ) );
     } else LogError( "l1ExtraValid" ) << "l1extra::L1EtMissParticleCollection product with InputTag '" << tagL1ExtraETM_.encode() << "' not in event";
   }
   if ( ! tagL1ExtraHTM_.label().empty() ) {
     Handle< l1extra::L1EtMissParticleCollection > handleL1ExtraHTM;
     iEvent.getByLabel( tagL1ExtraHTM_, handleL1ExtraHTM );
     if ( handleL1ExtraHTM.isValid() ) {
+      std::vector< unsigned > htmKeys;
       for ( size_t l1HTM = 0; l1HTM < handleL1ExtraHTM->size(); ++l1HTM ) {
+        if ( mainBxOnly_ && handleL1ExtraHTM->at( l1HTM ).bx() != 0 ) continue;
         TriggerObject triggerObject;
         if ( saveL1Refs_ ) {
           const reco::CandidateBaseRef leafCandRef( l1extra::L1EtMissParticleRef( handleL1ExtraHTM, l1HTM ) );
@@ -628,38 +712,72 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           triggerObject = TriggerObject( *leafCandidate );
         }
         triggerObject.setCollection( tagL1ExtraHTM_ );
-        triggerObject.addFilterId( trigger::TriggerL1HTM );
+        triggerObject.addTriggerObjectType( trigger::TriggerL1HTM );
         if ( ! onlyStandAlone_ ) triggerObjects->push_back( triggerObject );
-        triggerObjectsStandAlone->push_back( TriggerObjectStandAlone( triggerObject ) );
+        TriggerObjectStandAlone triggerObjectStandAlone( triggerObject );
+        triggerObjectsStandAlone->push_back( triggerObjectStandAlone );
+        if ( handleL1ExtraHTM->at( l1HTM ).bx() == 0 ) htmKeys.push_back( triggerObjectsStandAlone->size() - 1 );
       }
+      l1ObjectTypeMap.insert( std::make_pair( HTM, htmKeys ) );
     } else LogError( "l1ExtraValid" ) << "l1extra::L1EtMissParticleCollection product with InputTag '" << tagL1ExtraHTM_.encode() << "' not in event";
   }
 
-  // Put HLT & L1 objects to event
+  // Put trigger objects to event
   if ( ! onlyStandAlone_ ) iEvent.put( triggerObjects );
-  iEvent.put( triggerObjectsStandAlone );
 
   // L1 algorithms
   if ( ! onlyStandAlone_ ) {
     std::auto_ptr< TriggerAlgorithmCollection > triggerAlgos( new TriggerAlgorithmCollection() );
+    std::auto_ptr< TriggerConditionCollection > triggerConditions( new TriggerConditionCollection() );
     if ( addL1Algos_ ) {
+      // create trigger object types transalation map (yes, it's ugly!)
+      std::map< L1GtObject, trigger::TriggerObjectType > mapObjectTypes;
+      mapObjectTypes.insert( std::make_pair( Mu     , trigger::TriggerL1Mu ) );
+      mapObjectTypes.insert( std::make_pair( NoIsoEG, trigger::TriggerL1NoIsoEG ) );
+      mapObjectTypes.insert( std::make_pair( IsoEG  , trigger::TriggerL1IsoEG ) );
+      mapObjectTypes.insert( std::make_pair( CenJet , trigger::TriggerL1CenJet ) );
+      mapObjectTypes.insert( std::make_pair( ForJet , trigger::TriggerL1ForJet ) );
+      mapObjectTypes.insert( std::make_pair( TauJet , trigger::TriggerL1TauJet ) );
+      mapObjectTypes.insert( std::make_pair( ETM    , trigger::TriggerL1ETM ) );
+      mapObjectTypes.insert( std::make_pair( HTM    , trigger::TriggerL1HTM ) );
+      // get and cache L1 menu
       l1GtUtils_.retrieveL1EventSetup( iSetup );
       ESHandle< L1GtTriggerMenu > handleL1GtTriggerMenu;
       iSetup.get< L1GtTriggerMenuRcd >().get( handleL1GtTriggerMenu );
-      const AlgorithmMap l1GtAlgorithms( handleL1GtTriggerMenu->gtAlgorithmMap() );
-      const AlgorithmMap l1GtTechTriggers( handleL1GtTriggerMenu->gtTechnicalTriggerMap() );
+      L1GtTriggerMenu l1GtTriggerMenu( *handleL1GtTriggerMenu );
+      const AlgorithmMap l1GtAlgorithms( l1GtTriggerMenu.gtAlgorithmMap() );
+      const AlgorithmMap l1GtTechTriggers( l1GtTriggerMenu.gtTechnicalTriggerMap() );
+      l1GtTriggerMenu.buildGtConditionMap();
+      const std::vector< ConditionMap > l1GtConditionsVector( l1GtTriggerMenu.gtConditionMap() );
+      // cache conditions in one single condition map
+      ConditionMap l1GtConditions;
+      for ( size_t iCv = 0; iCv < l1GtConditionsVector.size(); ++iCv ) {
+        l1GtConditions.insert( l1GtConditionsVector.at( iCv ).begin(), l1GtConditionsVector.at( iCv ).end() );
+      }
       triggerAlgos->reserve( l1GtAlgorithms.size() + l1GtTechTriggers.size() );
+      Handle< L1GlobalTriggerObjectMapRecord > handleL1GlobalTriggerObjectMapRecord;
+      iEvent.getByLabel( tagL1GlobalTriggerObjectMapRecord_, handleL1GlobalTriggerObjectMapRecord );
+      if( ! handleL1GlobalTriggerObjectMapRecord.isValid() ) {
+        LogWarning( "l1ObjectMap" ) << "L1GlobalTriggerObjectMapRecord product with InputTag '" << tagL1GlobalTriggerObjectMapRecord_.encode() << "' not in event\n"
+                                    << "No L1 objects and GTL results available for physics algorithms";
+      }
       // physics algorithms
-      for ( AlgorithmMap::const_iterator iAlgo = l1GtAlgorithms.begin(); iAlgo != l1GtAlgorithms.end(); ++iAlgo ) {
-        if ( iAlgo->second.algoBitNumber() > 127 ) {
-          LogError( "l1Algo" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' has bit number " << iAlgo->second.algoBitNumber() << " > 127\n"
+      for ( CItAlgo iAlgo = l1GtAlgorithms.begin(); iAlgo != l1GtAlgorithms.end(); ++iAlgo ) {
+        const std::string & algoName( iAlgo->second.algoName() );
+        if ( ! ( iAlgo->second.algoBitNumber() < int( L1GlobalTriggerReadoutSetup::NumberPhysTriggers ) ) ) {
+          LogError( "l1Algo" ) << "L1 physics algorithm '" << algoName << "' has bit number " << iAlgo->second.algoBitNumber() << " >= " << L1GlobalTriggerReadoutSetup::NumberPhysTriggers << "\n"
                                << "Skipping";
           continue;
         }
         L1GtUtils::TriggerCategory category;
         int bit;
-        if ( ! l1GtUtils_.l1AlgoTechTrigBitNumber( iAlgo->second.algoName(), category, bit ) ) {
-          LogError( "l1Algo" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' not found in the L1 menu\n"
+        if ( ! l1GtUtils_.l1AlgoTechTrigBitNumber( algoName, category, bit ) ) {
+          LogError( "l1Algo" ) << "L1 physics algorithm '" << algoName << "' not found in the L1 menu\n"
+                               << "Skipping";
+          continue;
+        }
+        if ( category != L1GtUtils::AlgorithmTrigger ) {
+          LogError( "l1Algo" ) << "L1 physics algorithm '" << algoName << "' does not have category 'AlgorithmTrigger' from 'L1GtUtils'\n"
                                << "Skipping";
           continue;
         }
@@ -667,26 +785,101 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         bool decisionAfterMask;
         int  prescale;
         int  mask;
-        int  error( l1GtUtils_.l1Results( iEvent, iAlgo->second.algoName(), decisionBeforeMask, decisionAfterMask, prescale, mask ) );
+        int  error( l1GtUtils_.l1Results( iEvent, algoName, decisionBeforeMask, decisionAfterMask, prescale, mask ) );
         if ( error ) {
-          LogError( "l1Algo" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' decision has error code " << error << " from 'L1GtUtils'\n"
+          LogError( "l1Algo" ) << "L1 physics algorithm '" << algoName << "' decision has error code " << error << " from 'L1GtUtils'\n"
                                << "Skipping";
           continue;
         }
-        TriggerAlgorithm triggerAlgo( iAlgo->second.algoName(), iAlgo->second.algoAlias(), category == L1GtUtils::TechnicalTrigger, (unsigned)bit, (unsigned)prescale, (bool)mask, decisionBeforeMask, decisionAfterMask );
+        TriggerAlgorithm triggerAlgo( algoName, iAlgo->second.algoAlias(), category == L1GtUtils::TechnicalTrigger, (unsigned)bit, (unsigned)prescale, (bool)mask, decisionBeforeMask, decisionAfterMask );
+        triggerAlgo.setLogicalExpression( iAlgo->second.algoLogicalExpression() );
+        // GTL result and used conditions in physics algorithm
+        if( ! handleL1GlobalTriggerObjectMapRecord.isValid() ) {
+          triggerAlgos->push_back( triggerAlgo );
+          continue; // LogWarning already earlier (before loop)
+        }
+        const L1GlobalTriggerObjectMap * l1ObjectMap( handleL1GlobalTriggerObjectMapRecord->getObjectMap( algoName ) );
+        if ( ! l1ObjectMap ) {
+          LogError( "l1ObjectMap" ) << "L1 physics algorithm '" << algoName << "' is missing in L1GlobalTriggerObjectMapRecord\n"
+                                    << "Skipping conditions and GTL result";
+          triggerAlgos->push_back( triggerAlgo );
+          continue;
+        }
+//         if ( ( l1ObjectMap->algoGtlResult() != decisionBeforeMask ) && ( decisionBeforeMask == true || prescale == 1 ) ) {
+        if ( ( l1ObjectMap->algoGtlResult() != decisionBeforeMask ) && ( decisionBeforeMask == true ) ) { // FIXME: understand the difference for un-prescaled algos 118, 119, 123
+          LogInfo( "l1ObjectMap" ) << "L1 physics algorithm '" << algoName << "' with different decisions in\n"
+                                   << "L1GlobalTriggerObjectMapRecord (GTL result)        : " << l1ObjectMap->algoGtlResult() << "\n"
+                                   << "L1GlobalTriggerReadoutRecord (decision before mask): " << decisionBeforeMask;
+        }
+        triggerAlgo.setGtlResult( l1ObjectMap->algoGtlResult() );
+        // conditions in algorithm
+        const std::vector< L1GtLogicParser::OperandToken > & tokens( l1ObjectMap->operandTokenVector() );
+        for ( size_t iT = 0; iT < tokens.size(); ++iT ) {
+          const L1GtLogicParser::OperandToken & token( tokens.at( iT ) );
+          size_t key( triggerConditions->size() );
+          for ( size_t iC = 0; iC < triggerConditions->size(); ++iC ) {
+            if ( token.tokenName == triggerConditions->at( iC ).name() ) {
+              key = iC;
+              break;
+            }
+          }
+          if ( key == triggerConditions->size() ) {
+            TriggerCondition triggerCond( token.tokenName, token.tokenResult );
+            if ( l1GtConditions.find( triggerCond.name() ) != l1GtConditions.end() ) {
+              triggerCond.setCategory( l1GtConditions[ triggerCond.name() ]->condCategory() );
+              triggerCond.setType( l1GtConditions[ triggerCond.name() ]->condType() );
+              const std::vector< L1GtObject > l1ObjectTypes( l1GtConditions[ triggerCond.name() ]->objectType() );
+              for ( size_t iT = 0 ; iT < l1ObjectTypes.size(); ++iT ) {
+                triggerCond.addTriggerObjectType( mapObjectTypes[ l1ObjectTypes.at( iT ) ] );
+              }
+              // objects in condition
+              CombinationsInCond combis( l1ObjectMap->combinationVector().at( token.tokenNumber ) );
+              for ( size_t iVV = 0; iVV < combis.size(); ++iVV ) {
+                SingleCombInCond combi( combis.at( iVV ) );
+                for ( size_t iV = 0; iV < combi.size(); ++iV ) {
+                  if ( iV >= l1ObjectTypes.size() ) {
+                    LogError( "l1CondMap" ) << "Index " << iV << " in combinations vector overshoots size " << l1ObjectTypes.size() << " of types vector in conditions map\n"
+                                            << "Skipping object key in condition " << triggerCond.name();
+                  } else if ( l1ObjectTypeMap.find( l1ObjectTypes.at( iV ) ) != l1ObjectTypeMap.end() ) {
+                    if ( combi.at( iV ) >= int( l1ObjectTypeMap[ l1ObjectTypes.at( iV ) ].size() ) ) {
+                      LogError( "l1CondMap" ) << "Index " << combi.at( iV ) << " in combination overshoots number " << l1ObjectTypeMap[ l1ObjectTypes.at( iV ) ].size() << "of according trigger objects\n"
+                                              << "Skipping object key in condition " << triggerCond.name();
+                    }
+                    const unsigned objectKey( l1ObjectTypeMap[ l1ObjectTypes.at( iV ) ].at( combi.at( iV ) ) );
+                    triggerCond.addObjectKey( objectKey );
+                    // add current condition and algorithm also to the according stand-alone trigger object
+                    triggerObjectsStandAlone->at( objectKey ).addAlgorithmName( triggerAlgo.name(), ( triggerAlgo.decision() && triggerCond.wasAccept() ) );
+                    triggerObjectsStandAlone->at( objectKey ).addConditionName( triggerCond.name() );
+                  }
+                }
+              }
+            } else {
+              LogWarning( "l1CondMap" ) << "L1 conditions '" << triggerCond.name() << "' not found in the L1 menu\n"
+                                        << "Remains incomplete";
+            }
+            triggerConditions->push_back( triggerCond );
+          }
+          triggerAlgo.addConditionKey( key );
+        }
         triggerAlgos->push_back( triggerAlgo );
       }
       // technical triggers
-      for ( AlgorithmMap::const_iterator iAlgo = l1GtTechTriggers.begin(); iAlgo != l1GtTechTriggers.end(); ++iAlgo ) {
-        if ( iAlgo->second.algoBitNumber() > 63 ) {
-          LogError( "l1Algo" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' has bit number " << iAlgo->second.algoBitNumber() << " > 63\n"
+      for ( CItAlgo iAlgo = l1GtTechTriggers.begin(); iAlgo != l1GtTechTriggers.end(); ++iAlgo ) {
+        const std::string & algoName( iAlgo->second.algoName() );
+        if ( ! ( iAlgo->second.algoBitNumber() < int( L1GlobalTriggerReadoutSetup::NumberTechnicalTriggers ) ) ) {
+          LogError( "l1Algo" ) << "L1 technical trigger '" << algoName << "' has bit number " << iAlgo->second.algoBitNumber() << " >= " << L1GlobalTriggerReadoutSetup::NumberTechnicalTriggers << "\n"
                                << "Skipping";
           continue;
         }
         L1GtUtils::TriggerCategory category;
         int bit;
-        if ( ! l1GtUtils_.l1AlgoTechTrigBitNumber( iAlgo->second.algoName(), category, bit ) ) {
-          LogError( "l1Algo" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' not found in the L1 menu\n"
+        if ( ! l1GtUtils_.l1AlgoTechTrigBitNumber( algoName, category, bit ) ) {
+          LogError( "l1Algo" ) << "L1 technical trigger '" << algoName << "' not found in the L1 menu\n"
+                               << "Skipping";
+          continue;
+        }
+        if ( category != L1GtUtils::TechnicalTrigger ) {
+          LogError( "l1Algo" ) << "L1 technical trigger '" << algoName << "' does not have category 'TechnicalTrigger' from 'L1GtUtils'\n"
                                << "Skipping";
           continue;
         }
@@ -694,19 +887,25 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         bool decisionAfterMask;
         int  prescale;
         int  mask;
-        int  error( l1GtUtils_.l1Results( iEvent, iAlgo->second.algoName(), decisionBeforeMask, decisionAfterMask, prescale, mask ) );
+        int  error( l1GtUtils_.l1Results( iEvent, algoName, decisionBeforeMask, decisionAfterMask, prescale, mask ) );
         if ( error ) {
-          LogError( "l1Algo" ) << "L1 algorithm '" << iAlgo->second.algoName() << "' decision has error code " << error << " from 'L1GtUtils'\n"
+          LogError( "l1Algo" ) << "L1 technical trigger '" << algoName << "' decision has error code " << error << " from 'L1GtUtils'\n"
                                << "Skipping";
           continue;
         }
-        TriggerAlgorithm triggerAlgo( iAlgo->second.algoName(), iAlgo->second.algoAlias(), category == L1GtUtils::TechnicalTrigger, (unsigned)bit, (unsigned)prescale, (bool)mask, decisionBeforeMask, decisionAfterMask );
+        TriggerAlgorithm triggerAlgo( algoName, iAlgo->second.algoAlias(), category == L1GtUtils::TechnicalTrigger, (unsigned)bit, (unsigned)prescale, (bool)mask, decisionBeforeMask, decisionAfterMask );
+        triggerAlgo.setLogicalExpression( iAlgo->second.algoLogicalExpression() );
         triggerAlgos->push_back( triggerAlgo );
       }
     }
-    // Put L1 algorithms to event
+
+    // Put L1 algorithms and conditions to event
     iEvent.put( triggerAlgos );
+    iEvent.put( triggerConditions );
   }
+
+  // Put (finally) stand-alone trigger objects to event
+  iEvent.put( triggerObjectsStandAlone );
 
 }
 

@@ -64,6 +64,7 @@ namespace edm
     Hadronizer hadronizer_;
     // gen::ExternalDecayDriver* decayer_;
     Decayer* decayer_;
+    bool fromSource_;
 
   };
 
@@ -75,7 +76,8 @@ namespace edm
   HadronizerFilter<HAD,DEC>::HadronizerFilter(ParameterSet const& ps) :
     EDFilter(),
     hadronizer_(ps),
-    decayer_(0)
+    decayer_(0),
+    fromSource_(true)
   {
     // TODO:
     // Put the list of types produced by the filters here.
@@ -111,7 +113,11 @@ namespace edm
     // get LHE stuff and pass to hadronizer!
     //
     edm::Handle<LHEEventProduct> product;
-    ev.getByLabel("source", product);
+    
+    if ( fromSource_ ) 
+      ev.getByLabel("source", product);
+    else
+      ev.getByLabel("externalLHEProducer", product);
 
     lhef::LHEEvent *lheEvent =
 		new lhef::LHEEvent(hadronizer_.getLHERunInfo(), *product);
@@ -190,10 +196,20 @@ namespace edm
     
     // get LHE stuff and pass to hadronizer!
 
-    edm::Handle<LHERunInfoProduct> product;
-    run.getByLabel("source", product);
+    std::vector< edm::Handle<LHERunInfoProduct> > productV;
 
-    hadronizer_.setLHERunInfo( new lhef::LHERunInfo(*product) ) ;
+    run.getManyByType(productV); 
+
+    if ( productV.size() > 1 ) 
+      throw edm::Exception(errors::EventCorruption) 
+        << "More than one LHERunInfoProduct present";
+    else
+      {
+        if ( productV[0].provenance()->moduleLabel() == "externalLHEProducer" ) 
+          fromSource_ = false;
+      }
+
+    hadronizer_.setLHERunInfo( new lhef::LHERunInfo(*productV[0]) ) ;
    
 /*
     if (! hadronizer_.initializeForExternalPartons())

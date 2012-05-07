@@ -76,16 +76,8 @@ private:
   bool empty;
   bool activeThisEvent_, activeThisPeriod_;
   std::vector< LocalPoint > badRocPositions_;
-  
-  static const float theRocWidth, theRocHeight;
 
-  std::set<SiPixelClusterRef> skipClusters_;
- public:
-  template <typename IT>
-    void setClusterToSkip(IT begin, IT end){
-    skipClusters_.clear();
-    skipClusters_.insert(begin,end);
-      }
+  static const float theRocWidth, theRocHeight;
 };
 
 #endif

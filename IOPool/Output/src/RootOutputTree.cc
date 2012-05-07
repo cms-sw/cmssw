@@ -155,7 +155,7 @@ namespace edm {
       }
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
-      TTreeCloner cloner(in, tree_, option.c_str(), TTreeCloner::kNoWarnings);
+      TTreeCloner cloner(in, tree_, option.c_str(), TTreeCloner::kNoWarnings|TTreeCloner::kIgnoreMissingTopLevel);
 #else
       TTreeCloner cloner(in, tree_, option.c_str());
 #endif

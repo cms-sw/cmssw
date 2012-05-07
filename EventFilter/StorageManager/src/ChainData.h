@@ -1,4 +1,4 @@
-// $Id: ChainData.h,v 1.13 2010/05/17 15:59:09 mommsen Exp $
+// $Id: ChainData.h,v 1.14.4.3 2011/03/01 08:31:12 mommsen Exp $
 /// @file: ChainData.h
 
 #ifndef CHAINDATA_H
@@ -70,24 +70,24 @@ namespace stor
       void markCorrupt();
       unsigned long* getBufferData() const;
       void swap(ChainData& other);
-      unsigned int messageCode() const {return _messageCode;}
-      unsigned short i2oMessageCode() const {return _i2oMessageCode;}
-      FragKey const& fragmentKey() const {return _fragKey;}
-      unsigned int fragmentCount() const {return _fragmentCount;}
-      unsigned int rbBufferId() const {return _rbBufferId;}
-      unsigned int hltLocalId() const {return _hltLocalId;}
-      unsigned int hltInstance() const {return _hltInstance;}
-      unsigned int hltTid() const {return _hltTid;}
-      unsigned int fuProcessId() const {return _fuProcessId;}
-      unsigned int fuGuid() const {return _fuGuid;}
-      utils::time_point_t creationTime() const {return _creationTime;}
-      utils::time_point_t lastFragmentTime() const {return _lastFragmentTime;}
-      utils::time_point_t staleWindowStartTime() const {return _staleWindowStartTime;}
-      void addToStaleWindowStartTime(const utils::duration_t duration) {
-        _staleWindowStartTime += duration;
+      unsigned int messageCode() const {return messageCode_;}
+      unsigned short i2oMessageCode() const {return i2oMessageCode_;}
+      FragKey const& fragmentKey() const {return fragKey_;}
+      unsigned int fragmentCount() const {return fragmentCount_;}
+      unsigned int rbBufferId() const {return rbBufferId_;}
+      unsigned int hltLocalId() const {return hltLocalId_;}
+      unsigned int hltInstance() const {return hltInstance_;}
+      unsigned int hltTid() const {return hltTid_;}
+      unsigned int fuProcessId() const {return fuProcessId_;}
+      unsigned int fuGuid() const {return fuGuid_;}
+      utils::TimePoint_t creationTime() const {return creationTime_;}
+      utils::TimePoint_t lastFragmentTime() const {return lastFragmentTime_;}
+      utils::TimePoint_t staleWindowStartTime() const {return staleWindowStartTime_;}
+      void addToStaleWindowStartTime(const utils::Duration_t duration) {
+        staleWindowStartTime_ += duration;
       }
       void resetStaleWindowStartTime() {
-        _staleWindowStartTime = utils::getCurrentTime();
+        staleWindowStartTime_ = utils::getCurrentTime();
       }
       size_t memoryUsed() const;
       unsigned long totalDataSize() const;
@@ -124,45 +124,45 @@ namespace stor
       void tagForStream(StreamID);
       void tagForEventConsumer(QueueID);
       void tagForDQMEventConsumer(QueueID);
-      bool isTaggedForAnyStream() const {return !_streamTags.empty();}
-      bool isTaggedForAnyEventConsumer() const {return !_eventConsumerTags.empty();}
-      bool isTaggedForAnyDQMEventConsumer() const {return !_dqmEventConsumerTags.empty();}
+      bool isTaggedForAnyStream() const {return !streamTags_.empty();}
+      bool isTaggedForAnyEventConsumer() const {return !eventConsumerTags_.empty();}
+      bool isTaggedForAnyDQMEventConsumer() const {return !dqmEventConsumerTags_.empty();}
       std::vector<StreamID> const& getStreamTags() const;
-      std::vector<QueueID> const& getEventConsumerTags() const;
-      std::vector<QueueID> const& getDQMEventConsumerTags() const;
+      QueueIDs const& getEventConsumerTags() const;
+      QueueIDs const& getDQMEventConsumerTags() const;
 
       bool isEndOfLumiSectionMessage() const;
 
     private:
-      std::vector<StreamID> _streamTags;
-      std::vector<QueueID> _eventConsumerTags;
-      std::vector<QueueID> _dqmEventConsumerTags;
+      std::vector<StreamID> streamTags_;
+      QueueIDs eventConsumerTags_;
+      QueueIDs dqmEventConsumerTags_;
 
-      utils::time_point_t _creationTime;
-      utils::time_point_t _lastFragmentTime;
-      utils::time_point_t _staleWindowStartTime;
+      utils::TimePoint_t creationTime_;
+      utils::TimePoint_t lastFragmentTime_;
+      utils::TimePoint_t staleWindowStartTime_;
 
       void checkForCompleteness();
       bool validateAdler32Checksum();
       uint32_t calculateAdler32() const;
 
     protected:
-      toolbox::mem::Reference* _ref;
+      toolbox::mem::Reference* ref_;
 
-      bool _complete;
-      unsigned int _faultyBits;
+      bool complete_;
+      unsigned int faultyBits_;
 
-      unsigned int _messageCode;
-      unsigned short _i2oMessageCode;
-      FragKey _fragKey;
-      unsigned int _fragmentCount;
-      unsigned int _expectedNumberOfFragments;
-      unsigned int _rbBufferId;
-      unsigned int _hltLocalId;
-      unsigned int _hltInstance;
-      unsigned int _hltTid;
-      unsigned int _fuProcessId;
-      unsigned int _fuGuid;
+      unsigned int messageCode_;
+      unsigned short i2oMessageCode_;
+      FragKey fragKey_;
+      unsigned int fragmentCount_;
+      unsigned int expectedNumberOfFragments_;
+      unsigned int rbBufferId_;
+      unsigned int hltLocalId_;
+      unsigned int hltInstance_;
+      unsigned int hltTid_;
+      unsigned int fuProcessId_;
+      unsigned int fuGuid_;
 
       inline bool validateDataLocation(
         toolbox::mem::Reference* ref,
@@ -247,16 +247,16 @@ namespace stor
       void parseI2OHeader();
       void cacheHeaderFields() const;
 
-      mutable bool _headerFieldsCached;
-      mutable std::vector<unsigned char> _headerCopy;
-      mutable unsigned long _headerSize;
-      mutable unsigned char* _headerLocation;
-      mutable uint32_t _adler32;
-      mutable uint32_t _outputModuleId;
-      mutable std::string _outputModuleLabel;
-      mutable Strings _hltTriggerNames;
-      mutable Strings _hltTriggerSelections;
-      mutable Strings _l1TriggerNames;
+      mutable bool headerFieldsCached_;
+      mutable std::vector<unsigned char> headerCopy_;
+      mutable unsigned long headerSize_;
+      mutable unsigned char* headerLocation_;
+      mutable uint32_t adler32_;
+      mutable uint32_t outputModuleId_;
+      mutable std::string outputModuleLabel_;
+      mutable Strings hltTriggerNames_;
+      mutable Strings hltTriggerSelections_;
+      mutable Strings l1TriggerNames_;
 
     }; // class InitMsgData
 
@@ -294,17 +294,17 @@ namespace stor
       void parseI2OHeader();
       void cacheHeaderFields() const;
 
-      mutable bool _headerFieldsCached;
-      mutable std::vector<unsigned char> _headerCopy;
-      mutable unsigned long _headerSize;
-      mutable unsigned char* _headerLocation;
-      mutable uint32_t _outputModuleId;
-      mutable uint32_t _hltTriggerCount;
-      mutable std::vector<unsigned char> _hltTriggerBits;
-      mutable uint32_t _runNumber;
-      mutable uint32_t _lumiSection;
-      mutable uint32_t _eventNumber;
-      mutable uint32_t _adler32;
+      mutable bool headerFieldsCached_;
+      mutable std::vector<unsigned char> headerCopy_;
+      mutable unsigned long headerSize_;
+      mutable unsigned char* headerLocation_;
+      mutable uint32_t outputModuleId_;
+      mutable uint32_t hltTriggerCount_;
+      mutable std::vector<unsigned char> hltTriggerBits_;
+      mutable uint32_t runNumber_;
+      mutable uint32_t lumiSection_;
+      mutable uint32_t eventNumber_;
+      mutable uint32_t adler32_;
 
     }; // EventMsgData
 
@@ -340,13 +340,13 @@ namespace stor
       void parseI2OHeader();
       void cacheHeaderFields() const;
 
-      mutable bool _headerFieldsCached;
-      mutable std::vector<unsigned char> _headerCopy;
-      mutable unsigned long _headerSize;
-      mutable unsigned char* _headerLocation;
-      mutable std::string _topFolderName;
-      mutable DQMKey _dqmKey;
-      mutable uint32_t _adler32;
+      mutable bool headerFieldsCached_;
+      mutable std::vector<unsigned char> headerCopy_;
+      mutable unsigned long headerSize_;
+      mutable unsigned char* headerLocation_;
+      mutable std::string topFolderName_;
+      mutable DQMKey dqmKey_;
+      mutable uint32_t adler32_;
 
     }; // class DQMEventMsgData
 
@@ -379,13 +379,13 @@ namespace stor
       void parseI2OHeader();
       void cacheHeaderFields() const;
 
-      mutable bool _headerFieldsCached;
-      mutable std::vector<unsigned char> _headerCopy;
-      mutable unsigned long _headerSize;
-      mutable unsigned char* _headerLocation;
-      mutable uint32_t _runNumber;
-      mutable uint32_t _lumiSection;
-      mutable uint32_t _eventNumber;
+      mutable bool headerFieldsCached_;
+      mutable std::vector<unsigned char> headerCopy_;
+      mutable unsigned long headerSize_;
+      mutable unsigned char* headerLocation_;
+      mutable uint32_t runNumber_;
+      mutable uint32_t lumiSection_;
+      mutable uint32_t eventNumber_;
 
     }; // class ErrorEventMsgData
 
@@ -404,13 +404,13 @@ namespace stor
 
     protected:
 
-      inline uint32_t do_runNumber() const { return _runNumber; }
-      inline uint32_t do_lumiSection() const { return _lumiSection; }
+      inline uint32_t do_runNumber() const { return runNumber_; }
+      inline uint32_t do_lumiSection() const { return lumiSection_; }
 
     private:
 
-      mutable uint32_t _runNumber;
-      mutable uint32_t _lumiSection;
+      mutable uint32_t runNumber_;
+      mutable uint32_t lumiSection_;
 
     }; // class EndLumiSectMsgData
 

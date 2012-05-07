@@ -35,11 +35,7 @@ L1GctConfigProducers::L1GctConfigProducers(const edm::ParameterSet& iConfig) :
   m_corrFunType(0),
   m_convertToEnergy (iConfig.getParameter<bool>("ConvertEtValuesToEnergy")),
   m_jetCalibFunc(),
-  m_tauCalibFunc(),
-  m_metEtaMask(iConfig.getParameter<unsigned>("MEtEtaMask")),
-  m_tetEtaMask(iConfig.getParameter<unsigned>("TEtEtaMask")),
-  m_mhtEtaMask(iConfig.getParameter<unsigned>("MHtEtaMask")),
-  m_thtEtaMask(iConfig.getParameter<unsigned>("HtEtaMask"))
+  m_tauCalibFunc()
 {
 
    //the following lines are needed to tell the framework what
@@ -151,18 +147,7 @@ L1GctConfigProducers::produceJfParams(const L1GctJetFinderParamsRcd& aRcd)
 
 L1GctConfigProducers::ChanMaskReturnType 
 L1GctConfigProducers::produceChanMask(const L1GctChannelMaskRcd&) {
-
-  L1GctChannelMask* mask = new L1GctChannelMask;
-
-  for (unsigned ieta=0; ieta<22; ++ieta) {
-    mask->maskMissingEt((m_metEtaMask>>ieta)&0x1);
-    mask->maskTotalEt((m_tetEtaMask>>ieta)&0x1);
-    mask->maskMissingHt((m_mhtEtaMask>>ieta)&0x1);
-    mask->maskTotalHt((m_thtEtaMask>>ieta)&0x1);
-  }
-
-  return boost::shared_ptr<L1GctChannelMask>(mask);
-
+  return boost::shared_ptr<L1GctChannelMask>(new L1GctChannelMask);
 }
 
 

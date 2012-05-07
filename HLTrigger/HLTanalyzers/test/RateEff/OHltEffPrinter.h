@@ -12,27 +12,35 @@
 #include "OHltConfig.h"
 #include "OHltTree.h"
 
-class OHltEffPrinter {
- public:
-  
-  OHltEffPrinter(){};
-  virtual ~OHltEffPrinter(){};
+class OHltEffPrinter
+{
+public:
 
-  void SetupAll(std::vector<float> Eff,std::vector<float> EffErr,std::vector<float> spureEff,
-		std::vector<float> spureEffErr,std::vector<float> pureEff,
-		std::vector<float> pureEffErr,std::vector< std::vector<float> >coMa, float DenEff);
+   OHltEffPrinter() {}
 
-  void printEffASCII(OHltConfig *cfg,OHltMenu *menu);
+   virtual ~OHltEffPrinter() {}
 
-  std::vector<float> Eff;
-  std::vector<float> EffErr;
-  std::vector<float> spureEff;
-  std::vector<float> spureEffErr;
-  std::vector<float> pureEff;
-  std::vector<float> pureEffErr;
-  std::vector< std::vector<float> >coMa;
-  float DenEff;
-  
+   void SetupAll(
+         std::vector<float> Eff,
+         std::vector<float> EffErr,
+         std::vector<float> spureEff,
+         std::vector<float> spureEffErr,
+         std::vector<float> pureEff,
+         std::vector<float> pureEffErr,
+         std::vector< std::vector<float> >coMa,
+         float DenEff);
+
+   void printEffASCII(OHltConfig *cfg, OHltMenu *menu);
+
+   std::vector<float> Eff;
+   std::vector<float> EffErr;
+   std::vector<float> spureEff;
+   std::vector<float> spureEffErr;
+   std::vector<float> pureEff;
+   std::vector<float> pureEffErr;
+   std::vector< std::vector<float> > coMa;
+   float DenEff;
+
 };
 
 #endif

@@ -18,15 +18,15 @@ RootTree.h // used by ROOT input sources
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "TBranch.h"
-class TFile;
 
 namespace edm {
 
+  class InputFile;
   class RootTree : private boost::noncopyable {
   public:
     typedef input::BranchMap BranchMap;
     typedef input::EntryNumber EntryNumber;
-    RootTree(boost::shared_ptr<TFile> filePtr,
+    RootTree(boost::shared_ptr<InputFile> filePtr,
              BranchType const& branchType,
              unsigned int maxVirtualSize,
              unsigned int cacheSize,
@@ -84,7 +84,7 @@ namespace edm {
     void setCacheSize(unsigned int cacheSize);
     void setTreeMaxVirtualSize(int treeMaxVirtualSize);
 
-    boost::shared_ptr<TFile> filePtr_;
+    boost::shared_ptr<InputFile> filePtr_;
 // We use bare pointers for pointers to some ROOT entities.
 // Root owns them and uses bare pointers internally.
 // Therefore,using smart pointers here will do no good.

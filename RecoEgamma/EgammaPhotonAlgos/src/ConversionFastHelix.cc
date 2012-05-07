@@ -168,6 +168,7 @@ FreeTrajectoryState ConversionFastHelix::helixStateAtVertex()  {
 
 FreeTrajectoryState ConversionFastHelix::straightLineStateAtVertex() {
 
+  FTS atVertex;
 
   //calculate FTS assuming straight line...
 
@@ -182,8 +183,14 @@ FreeTrajectoryState ConversionFastHelix::straightLineStateAtVertex() {
   if(fabs(theCircle.n2()) > 0.) {
     dydx = -theCircle.n1()/theCircle.n2(); //else px = 0 
   }
+
+  if ( pt==0 && dydx==0. ) {
+    validStateAtVertex=false;
+    return atVertex; 
+  }
   px = pt/sqrt(1. + dydx*dydx);
   py = px*dydx;
+
   // check sign with scalar product
   if (px*(pMid.x() - v.x()) + py*(pMid.y() - v.y()) < 0.) {
     px *= -1.;
@@ -197,8 +204,8 @@ FreeTrajectoryState ConversionFastHelix::straightLineStateAtVertex() {
   //p = pt/sin(theta)
   //pz = p*cos(theta) = pt/tan(theta) 
 
+
   FastLine flfit(theOuterHit, theMiddleHit);
-  FTS atVertex;
 
   double z_0 = 0;
   if (flfit.n2() !=0  && !std::isnan( flfit.c()) && !std::isnan(flfit.n2())   ) {
@@ -211,20 +218,24 @@ FreeTrajectoryState ConversionFastHelix::straightLineStateAtVertex() {
  
     AlgebraicSymMatrix66 C = AlgebraicMatrixID();
     //MP
-    FTS atVertex = FTS(GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
+    atVertex = FTS(GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
 						  GlobalVector(px, py, pz),
 						  q,
 						  mField),
 		       CartesianTrajectoryError(C));
 
-    validStateAtVertex=true;        
-
-    //    std::cout << " ConversionFastHelix:strighLIneStateAtVertex validStraightLineStateAtVertex status " <<validStateAtVertex  << std::endl;
-    return atVertex;
-    
-  } else {
-    
+    //    std::cout << "  ConversionFastHelix::straightLineStateAtVertex curvature " << atVertex.transverseCurvature() << "   signedInverseMomentum " << atVertex.signedInverseMomentum() << std::endl;
+    if ( atVertex.transverseCurvature() == -0 ) {
       return atVertex;
+    } else {
+      validStateAtVertex=true;        
+      return atVertex;
+    }
+  
+  } else {
+
+
+    return atVertex;
   
   }
 

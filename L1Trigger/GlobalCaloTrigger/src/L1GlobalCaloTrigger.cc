@@ -359,12 +359,6 @@ void L1GlobalCaloTrigger::setupHfSumLuts(const L1CaloEtScale* const scale) {
 /// setup the input channel mask
 void L1GlobalCaloTrigger::setChannelMask(const L1GctChannelMask* const mask) {
   m_inputChannelMask = mask;
-  // Need to propagate the new mask to all the JetFinders
-  for (int i=0; i<N_JET_LEAF_CARDS; i++) {
-    theJetLeafCards.at(i)->getJetFinderA()->setEnergySumMasks(mask);
-    theJetLeafCards.at(i)->getJetFinderB()->setEnergySumMasks(mask);
-    theJetLeafCards.at(i)->getJetFinderC()->setEnergySumMasks(mask);
-  }
 }
 
 /// check we have done all the setup

@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.h,v 1.12 2010/11/05 16:02:03 srappocc Exp $
+// $Id: JetCorrectorParameters.h,v 1.13 2010/11/11 15:35:23 srappocc Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -104,6 +104,7 @@ class JetCorrectorParametersCollection {
  public:
   enum Level_t { L1Offset=0,
 		 L1JPTOffset=7,
+                 L1FastJet = 10,
 		 L2Relative=1,
 		 L3Absolute=2,
 		 L2L3Residual=8,
@@ -112,7 +113,7 @@ class JetCorrectorParametersCollection {
 		 L6UE=5,
 		 L7Parton=6,
 		 Uncertainty=9,
-                N_LEVELS=10
+                N_LEVELS=11
   };
 
 

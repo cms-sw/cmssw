@@ -195,7 +195,8 @@ famosMuonSequence = cms.Sequence(
 )
 
 #Muon identification sequence
-from FastSimulation.Configuration.muonIdentification_cff import *
+#from FastSimulation.Configuration.muonIdentification_cff import *
+from RecoMuon.MuonIdentification.muonIdProducerSequence_cff import *
 # Use FastSim tracks and calo hits for muon id
 muons.inputCollectionLabels = cms.VInputTag(
     'generalTracks',

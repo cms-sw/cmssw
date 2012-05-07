@@ -1,8 +1,8 @@
-// $Id: DQMEventMonitorCollection.h,v 1.6 2009/08/24 14:31:11 mommsen Exp $
+// $Id: DQMEventMonitorCollection.h,v 1.8 2011/03/07 15:31:31 mommsen Exp $
 /// @file: DQMEventMonitorCollection.h 
 
-#ifndef StorageManager_DQMEventMonitorCollection_h
-#define StorageManager_DQMEventMonitorCollection_h
+#ifndef EventFilter_StorageManager_DQMEventMonitorCollection_h
+#define EventFilter_StorageManager_DQMEventMonitorCollection_h
 
 #include "xdata/Double.h"
 #include "xdata/UnsignedInteger32.h"
@@ -16,34 +16,35 @@ namespace stor {
    * A collection of MonitoredQuantities related to fragments
    *
    * $Author: mommsen $
-   * $Revision: 1.6 $
-   * $Date: 2009/08/24 14:31:11 $
+   * $Revision: 1.8 $
+   * $Date: 2011/03/07 15:31:31 $
    */
   
   class DQMEventMonitorCollection : public MonitorCollection
   {
   private:
 
-    MonitoredQuantity _discardedDQMEventCounts;
+    MonitoredQuantity droppedDQMEventCounts_;
 
-    MonitoredQuantity _dqmEventSizes;
-    MonitoredQuantity _servedDQMEventSizes;
-    MonitoredQuantity _writtenDQMEventSizes;
+    MonitoredQuantity dqmEventSizes_;
+    MonitoredQuantity servedDQMEventSizes_;
+    MonitoredQuantity writtenDQMEventSizes_;
 
-    MonitoredQuantity _dqmEventBandwidth;
-    MonitoredQuantity _servedDQMEventBandwidth;
-    MonitoredQuantity _writtenDQMEventBandwidth;
+    MonitoredQuantity dqmEventBandwidth_;
+    MonitoredQuantity servedDQMEventBandwidth_;
+    MonitoredQuantity writtenDQMEventBandwidth_;
 
-    MonitoredQuantity _numberOfGroups;
-    MonitoredQuantity _numberOfUpdates;
-    MonitoredQuantity _numberOfWrittenGroups;
+    MonitoredQuantity numberOfTopLevelFolders_;
+    MonitoredQuantity numberOfUpdates_;
+    MonitoredQuantity numberOfWrittenTopLevelFolders_;
 
+    MonitoredQuantity numberOfCompleteUpdates_;
 
   public:
 
     struct DQMEventStats
     {
-      MonitoredQuantity::Stats discardedDQMEventCountsStats;  //number of events
+      MonitoredQuantity::Stats droppedDQMEventCountsStats;  //number of events
       
       MonitoredQuantity::Stats dqmEventSizeStats;             //MB
       MonitoredQuantity::Stats servedDQMEventSizeStats;       //MB
@@ -53,81 +54,90 @@ namespace stor {
       MonitoredQuantity::Stats servedDQMEventBandwidthStats;  //MB/s
       MonitoredQuantity::Stats writtenDQMEventBandwidthStats; //MB/s
 
-      MonitoredQuantity::Stats numberOfGroupsStats;           //number of groups
-      MonitoredQuantity::Stats numberOfUpdatesStats;          //number of received updates per group and DQMKey
-      MonitoredQuantity::Stats numberOfWrittenGroupsStats;    //number of groups written to disk
+      MonitoredQuantity::Stats numberOfTopLevelFoldersStats;  //number of top level folders
+      MonitoredQuantity::Stats numberOfUpdatesStats;          //number of received updates per DQMKey
+      MonitoredQuantity::Stats numberOfWrittenTopLevelFoldersStats; //number of top level folders written to disk
+
+      MonitoredQuantity::Stats numberOfCompleteUpdatesStats;  //number of complete updates
     };
 
-    explicit DQMEventMonitorCollection(const utils::duration_t& updateInterval);
+    explicit DQMEventMonitorCollection(const utils::Duration_t& updateInterval);
 
-    const MonitoredQuantity& getDiscardedDQMEventCountsMQ() const {
-      return _discardedDQMEventCounts;
+    const MonitoredQuantity& getDroppedDQMEventCountsMQ() const {
+      return droppedDQMEventCounts_;
     }
-    MonitoredQuantity& getDiscardedDQMEventCountsMQ() {
-      return _discardedDQMEventCounts;
+    MonitoredQuantity& getDroppedDQMEventCountsMQ() {
+      return droppedDQMEventCounts_;
     }
 
     const MonitoredQuantity& getDQMEventSizeMQ() const {
-      return _dqmEventSizes;
+      return dqmEventSizes_;
     }
     MonitoredQuantity& getDQMEventSizeMQ() {
-      return _dqmEventSizes;
+      return dqmEventSizes_;
     }
 
     const MonitoredQuantity& getServedDQMEventSizeMQ() const {
-      return _servedDQMEventSizes;
+      return servedDQMEventSizes_;
     }
     MonitoredQuantity& getServedDQMEventSizeMQ() {
-      return _servedDQMEventSizes;
+      return servedDQMEventSizes_;
     }
 
     const MonitoredQuantity& getWrittenDQMEventSizeMQ() const {
-      return _writtenDQMEventSizes;
+      return writtenDQMEventSizes_;
     }
     MonitoredQuantity& getWrittenDQMEventSizeMQ() {
-      return _writtenDQMEventSizes;
+      return writtenDQMEventSizes_;
     }
 
     const MonitoredQuantity& getDQMEventBandwidthMQ() const {
-      return _dqmEventBandwidth;
+      return dqmEventBandwidth_;
     }
     MonitoredQuantity& getDQMEventBandwidthMQ() {
-      return _dqmEventBandwidth;
+      return dqmEventBandwidth_;
     }
 
     const MonitoredQuantity& getServedDQMEventBandwidthMQ() const {
-      return _servedDQMEventBandwidth;
+      return servedDQMEventBandwidth_;
     }
     MonitoredQuantity& getServedDQMEventBandwidthMQ() {
-      return _servedDQMEventBandwidth;
+      return servedDQMEventBandwidth_;
     }
 
     const MonitoredQuantity& getWrittenDQMEventBandwidthMQ() const {
-      return _writtenDQMEventBandwidth;
+      return writtenDQMEventBandwidth_;
     }
     MonitoredQuantity& getWrittenDQMEventBandwidthMQ() {
-      return _writtenDQMEventBandwidth;
+      return writtenDQMEventBandwidth_;
     }
 
-    const MonitoredQuantity& getNumberOfGroupsMQ() const {
-      return _numberOfGroups;
+    const MonitoredQuantity& getNumberOfTopLevelFoldersMQ() const {
+      return numberOfTopLevelFolders_;
     }
-    MonitoredQuantity& getNumberOfGroupsMQ() {
-      return _numberOfGroups;
+    MonitoredQuantity& getNumberOfTopLevelFoldersMQ() {
+      return numberOfTopLevelFolders_;
     }
 
     const MonitoredQuantity& getNumberOfUpdatesMQ() const {
-      return _numberOfUpdates;
+      return numberOfUpdates_;
     }
     MonitoredQuantity& getNumberOfUpdatesMQ() {
-      return _numberOfUpdates;
+      return numberOfUpdates_;
     }
 
-    const MonitoredQuantity& getNumberOfWrittenGroupsMQ() const {
-      return _numberOfWrittenGroups;
+    const MonitoredQuantity& getNumberOfCompleteUpdatesMQ() const {
+      return numberOfCompleteUpdates_;
     }
-    MonitoredQuantity& getNumberOfWrittenGroupsMQ() {
-      return _numberOfWrittenGroups;
+    MonitoredQuantity& getNumberOfCompleteUpdatesMQ() {
+      return numberOfCompleteUpdates_;
+    }
+
+    const MonitoredQuantity& getNumberOfWrittenTopLevelFoldersMQ() const {
+      return numberOfWrittenTopLevelFolders_;
+    }
+    MonitoredQuantity& getNumberOfWrittenTopLevelFoldersMQ() {
+      return numberOfWrittenTopLevelFolders_;
     }
 
    /**
@@ -147,14 +157,15 @@ namespace stor {
     virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
     virtual void do_updateInfoSpaceItems();
 
-    xdata::Double _dqmFoldersPerEP;
-    xdata::UnsignedInteger32 _processedDQMEvents;
-    xdata::UnsignedInteger32 _discardedDQMEvents;
+    xdata::Double dqmFoldersPerEP_;
+    xdata::UnsignedInteger32 processedDQMEvents_;
+    xdata::UnsignedInteger32 droppedDQMEvents_;
+    xdata::Double completeDQMUpdates_;
   };
   
 } // namespace stor
 
-#endif // StorageManager_DQMEventMonitorCollection_h 
+#endif // EventFilter_StorageManager_DQMEventMonitorCollection_h 
 
 
 /// emacs configuration

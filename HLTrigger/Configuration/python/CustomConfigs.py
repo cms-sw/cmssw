@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.Configuration import patchToRerunL1Emulator
+from HLTrigger.Configuration import customizeHLTforL1Emulator
 
 
 def Base(process):

@@ -933,12 +933,9 @@ mkxdeps() {
     mindeps $TOPLEVELDIR/xdeps.incdetail "$DEPS_SUBPART" > xdeps.incdetail &
     wait
   fi
-  set -x
-  xmerge $confp xdeps.inc xdeps.lib "$DEPS_SUBPART" $exclude $extradeps > xdeps.all
-  set +x
-  #if [ "X$IGNOMINY_ONLY" = X ] ; then
-  if [ "1" = "0" ] ; then 
+  if [ "X$IGNOMINY_ONLY" = X ] ; then
     set -x
+    xmerge $confp xdeps.inc xdeps.lib "$DEPS_SUBPART" $exclude $extradeps > xdeps.all
     xmerge $confp --side-by-side xdeps.inc xdeps.lib "$DEPS_SUBPART" $exclude $extradeps > xdeps-purpose.ps
     xmerge $confo --side-by-side xdeps.inc xdeps.lib "$DEPS_SUBPART" $exclude $extradeps > xdeps-origin.ps
     set +x
@@ -1387,13 +1384,17 @@ run_ignominy () {
     initgraphsconfs
   fi
   timeit mkmetrics &
-  timeit mkxdeps &
-  timeit mkgraphs
-  timeit rescaleps
-  timeit mkgifs
-  wait
-  timeit mkdirindex
-  timeit zipfiles
+  if [ "X$IGNOMINY_ONLY" = "X" ] ; then
+    timeit mkxdeps &
+    timeit mkgraphs
+    timeit rescaleps
+    timeit mkgifs
+    wait
+    timeit mkdirindex
+    timeit zipfiles
+  else
+    wait
+  fi
   rm -f core.* .scales
 
   if [ "X$DIAGRAM_NGROUPS" != X ] ; then

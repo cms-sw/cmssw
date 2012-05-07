@@ -89,19 +89,19 @@ FWLiteJobMetadataManager::doUpdate(FWJobMetadataUpdateRequest *request)
       //NOTE: for now, we will ignore the view and only look for the closest proximity
       unsigned int minProx = ~(0U);
       for (size_t ii = 0, ei = infos.size(); ii != ei; ++ii) {
-         if (!infos[ii].representsSubPart() && minProx > infos[ii].proximity()) {
-            minProx = infos[ii].proximity();
-         }
+      if (!infos[ii].representsSubPart() && minProx > infos[ii].proximity()) {
+      minProx = infos[ii].proximity();
       }
-       */
+      }
+      */
       
       //the infos list can contain multiple items with the same purpose so we will just find
       // the unique ones
       purposes.clear();
       for (size_t ii = 0, ei = infos.size(); ii != ei; ++ii) {
-        /* if(!infos[ii].representsSubPart() && minProx != infos[ii].proximity()) {
+         /* if(!infos[ii].representsSubPart() && minProx != infos[ii].proximity()) {
             continue;
-         } */
+            } */
          purposes.insert(infos[ii].purpose());
       }
       
@@ -109,7 +109,7 @@ FWLiteJobMetadataManager::doUpdate(FWJobMetadataUpdateRequest *request)
          purposes.insert("Table");
       
       for (Purposes::const_iterator itPurpose = purposes.begin(),
-                                   itEnd = purposes.end();
+              itEnd = purposes.end();
            itPurpose != itEnd;
            ++itPurpose) 
       {
@@ -125,12 +125,15 @@ FWLiteJobMetadataManager::doUpdate(FWJobMetadataUpdateRequest *request)
          if (!theClass->GetTypeInfo())
             continue;
          
+         const static bool debug = false;
          // This is pretty much the same thing that happens 
-         if (!FWItemAccessorFactory::classAccessedAsCollection(theClass))
+         if (!FWItemAccessorFactory::classAccessedAsCollection(theClass) )
          {
-            fwLog(fwlog::kDebug) << theClass->GetName() 
-                       << " will not be displayed in table." << std::endl;
-   	      continue;
+            if (debug) {
+               fwLog(fwlog::kDebug) << theClass->GetName() 
+                                    << " will not be displayed in table." << std::endl;
+            }
+            continue;
          }
          d.type_ = desc.fullClassName();
          d.purpose_ = *itPurpose;
@@ -138,10 +141,13 @@ FWLiteJobMetadataManager::doUpdate(FWJobMetadataUpdateRequest *request)
          d.productInstanceLabel_ = desc.productInstanceName();
          d.processName_ = desc.processName();
          usableData().push_back(d);
-         fwLog(fwlog::kDebug) << "Add collection will display " << d.type_ 
-                              << " " << d.moduleLabel_ 
-                              << " " << d.productInstanceLabel_
-                              << " " << d.processName_ << std::endl;
+         if (debug)
+         {
+            fwLog(fwlog::kDebug) << "Add collection will display " << d.type_ 
+                                 << " " << d.moduleLabel_ 
+                                 << " " << d.productInstanceLabel_
+                                 << " " << d.processName_ << std::endl;
+         }
       }
    }
    return true;

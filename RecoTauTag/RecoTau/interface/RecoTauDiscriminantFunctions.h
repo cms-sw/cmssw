@@ -32,7 +32,6 @@ PFCandidateRef mainTrack(const PFTau& tau);
 // HPStanc variables
 double JetPt(Tau tau);
 double JetEta(Tau tau);
-double AbsJetEta(Tau tau);
 double JetWidth(Tau tau);
 
 double SignalPtFraction(Tau tau);
@@ -66,7 +65,6 @@ double ImpactParameterSignificance(Tau tau);
 
 double Pt(Tau tau) { return tau.pt(); }
 double Eta(Tau tau) { return tau.eta(); }
-double AbsEta(Tau tau) { return std::abs(tau.eta()); }
 double Mass(Tau tau) { return tau.mass(); }
 double DecayMode(Tau tau) { return tau.decayMode(); }
 

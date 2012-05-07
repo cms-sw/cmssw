@@ -5,6 +5,7 @@ from DQM.HcalMonitorTasks.HcalHotCellMonitor_cfi       import *
 from DQM.HcalMonitorTasks.HcalDeadCellMonitor_cfi      import *
 from DQM.HcalMonitorTasks.HcalRecHitMonitor_cfi        import *
 from DQM.HcalMonitorTasks.HcalNZSMonitor_cfi           import *
+from DQM.HcalMonitorTasks.HcalNoiseMonitor_cfi         import *
 from DQM.HcalMonitorTasks.HcalBeamMonitor_cfi          import *
 from DQM.HcalMonitorTasks.HcalRawDataMonitor_cfi       import *
 from DQM.HcalMonitorTasks.HcalTrigPrimMonitor_cfi      import *
@@ -25,6 +26,7 @@ hcalDeadCellMonitor.online        = False
 hcalBeamMonitor.online            = False
 hcalTrigPrimMonitor.online        = False
 hcalNZSMonitor.online             = False
+hcalNoiseMonitor.online           = False
 hcalLSbyLSMonitor.online          = False
 # The following tasks are not yet run online
 hcalDetDiagLEDMonitor.online      = False
@@ -33,15 +35,16 @@ hcalDetDiagLaserMonitor.online    = False
 hcalDetDiagNoiseMonitor.online    = False
 
 # Offline tasks should look at all events, I think
-hcalRawDataMonitor.AllowedCalibTypes         =  []
-hcalDigiMonitor.AllowedCalibTypes            =  []
-hcalRecHitMonitor.AllowedCalibTypes          =  []
-hcalHotCellMonitor.AllowedCalibTypes         =  []
-hcalDeadCellMonitor.AllowedCalibTypes        =  []
-hcalBeamMonitor.AllowedCalibTypes            =  []
-hcalTrigPrimMonitor.AllowedCalibTypes        =  []
-hcalNZSMonitor.AllowedCalibTypes             =  []
-hcalLSbyLSMonitor.AllowedCalibTypes          =  []
+hcalRawDataMonitor.AllowedCalibTypes         =  [0,1,2,3,4,5,6,7]
+hcalDigiMonitor.AllowedCalibTypes            =  [0,1,2,3,4,5,6,7]
+hcalRecHitMonitor.AllowedCalibTypes          =  [0,1,2,3,4,5,6,7]
+hcalHotCellMonitor.AllowedCalibTypes         =  [0,1,2,3,4,5,6,7]
+hcalDeadCellMonitor.AllowedCalibTypes        =  [0,1,2,3,4,5,6,7]
+hcalBeamMonitor.AllowedCalibTypes            =  [0,1,2,3,4,5,6,7]
+hcalTrigPrimMonitor.AllowedCalibTypes        =  [0,1,2,3,4,5,6,7]
+hcalNZSMonitor.AllowedCalibTypes             =  [0,1,2,3,4,5,6,7]
+hcalNoiseMonitor.AllowedCalibTypes           =  [0,1,2,3,4,5,6,7]
+hcalLSbyLSMonitor.AllowedCalibTypes          =  [0,1,2,3,4,5,6,7]
 
 # No need to skip out of order LS in offline, I think
 hcalRawDataMonitor.skipOutOfOrderLS         =  False
@@ -52,6 +55,7 @@ hcalDeadCellMonitor.skipOutOfOrderLS        =  False
 hcalBeamMonitor.skipOutOfOrderLS            =  False
 hcalTrigPrimMonitor.skipOutOfOrderLS        =  False
 hcalNZSMonitor.skipOutOfOrderLS             =  False
+hcalNoiseMonitor.skipOutOfOrderLS           =  False
 hcalLSbyLSMonitor.skipOutOfOrderLS          =  False
 
 # Make diagnostics where appropriate

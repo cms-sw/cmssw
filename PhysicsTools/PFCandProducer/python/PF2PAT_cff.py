@@ -19,7 +19,6 @@ from PhysicsTools.PFCandProducer.genForPF2PAT_cff import *
 
 
 PF2PAT = cms.Sequence(
-    pfMET +
     pfNoPileUpSequence + 
     # pfSortByTypeSequence +
     pfAllNeutralHadrons+
@@ -35,7 +34,9 @@ PF2PAT = cms.Sequence(
     pfJetSequence +
     pfNoJet + 
     pfTauSequence +
-    pfNoTau 
+    pfNoTau +
+# finally run pfMET reco (use pfJets provided by PF2PAT? After tau cleaning or before)
+    pfMET
 # now that we have real data, we leave it to the user
 # or maybe to PAT? to run the gen sequence. 
     )

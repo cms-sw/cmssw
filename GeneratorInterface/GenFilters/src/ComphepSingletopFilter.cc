@@ -13,7 +13,7 @@
 //
 // Original Author:  Vladimir Molchanov
 //         Created:  Wed Mar 25 19:43:12 CET 2009
-// $Id: ComphepSingletopFilter.cc,v 1.2 2009/03/26 23:03:28 yarba Exp $
+// $Id: ComphepSingletopFilter.cc,v 1.3 2009/12/15 10:29:32 fabiocos Exp $
 //
 //
 
@@ -86,7 +86,6 @@ bool ComphepSingletopFilter::filter(
     }
 
     int id_bdec = 0;
-    const GenParticle * gp_bdec = NULL;
     vector<const GenParticle *> vgp_bsec;
 
     GenVertex * gv_hard = gp_clep->production_vertex();
@@ -97,7 +96,6 @@ bool ComphepSingletopFilter::filter(
         if (abs(pdg_id) == 5) {
             if (pdg_id * (gp_clep->pdg_id()) < 0) {
                 id_bdec = pdg_id;
-                gp_bdec = *it;
             } else {
                 vgp_bsec.push_back(*it);
             }

@@ -1,8 +1,8 @@
-// $Id: EventFileHandler.h,v 1.12 2010/09/09 08:01:16 mommsen Exp $
+// $Id: EventFileHandler.h,v 1.13.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: EventFileHandler.h 
 
-#ifndef StorageManager_EventFileHandler_h
-#define StorageManager_EventFileHandler_h
+#ifndef EventFilter_StorageManager_EventFileHandler_h
+#define EventFilter_StorageManager_EventFileHandler_h
 
 #include "EventFilter/StorageManager/interface/FileHandler.h"
 #include "EventFilter/StorageManager/interface/InitMsgCollection.h"
@@ -22,8 +22,8 @@ namespace stor {
    * Represents a file holding event data
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2010/09/09 08:01:16 $
+   * $Revision: 1.13.4.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
   
   class EventFileHandler : public FileHandler
@@ -56,12 +56,12 @@ namespace stor {
      */
     virtual void do_writeEvent(const I2OChain&);
 
-    boost::scoped_ptr<edm::StreamerFileWriter> _writer; // writes streamer and index file
+    boost::scoped_ptr<edm::StreamerFileWriter> writer_; // writes streamer and index file
   };
   
 } // stor namespace
 
-#endif // StorageManager_EventFileHandler_h
+#endif // EventFilter_StorageManager_EventFileHandler_h
 
 
 /// emacs configuration

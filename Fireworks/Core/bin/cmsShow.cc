@@ -148,19 +148,26 @@ int main (int argc, char **argv)
       }
    }
 
-   if (isri) {
-      std::cout<<""<<std::endl;
-      std::cout<<"WARNING:You are running cmsShow with ROOT prompt enabled."<<std::endl;
-      std::cout<<"If you encounter an issue you suspect to be a bug in     "<<std::endl;
-      std::cout<<"cmsShow, please re-run without this option and try to    "<<std::endl;
-      std::cout<<"reproduce it before submitting a bug-report.             "<<std::endl;
-      std::cout<<""<<std::endl;
+   try {
+      if (isri) {
+         std::cout<<""<<std::endl;
+         std::cout<<"WARNING:You are running cmsShow with ROOT prompt enabled."<<std::endl;
+         std::cout<<"If you encounter an issue you suspect to be a bug in     "<<std::endl;
+         std::cout<<"cmsShow, please re-run without this option and try to    "<<std::endl;
+         std::cout<<"reproduce it before submitting a bug-report.             "<<std::endl;
+         std::cout<<""<<std::endl;
 
-      TRint app("cmsShow", &dummyArgc, dummyArgv);
-      run_app(app,argc, argv);
-   } else {
-      TApplication app("cmsShow", &dummyArgc, dummyArgv);
-      run_app(app,argc, argv);
+         TRint app("cmsShow", &dummyArgc, dummyArgv);
+         run_app(app,argc, argv);
+      } else {
+         TApplication app("cmsShow", &dummyArgc, dummyArgv);
+         run_app(app,argc, argv);
+      }
+   }
+   catch(std::exception& iException)
+   {
+      std::cerr <<"CmsShow unhandled exception "<<iException.what()<<std::endl;
+      return 1;      
    }
 
    return 0;

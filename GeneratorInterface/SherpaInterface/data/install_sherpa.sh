@@ -9,13 +9,13 @@
 #               SHERPA patches/fixes [see below]
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2009/12/07
-#  version:     2.9
+#  date:        2011/02/28
+#  version:     3.0
 #
 
 print_help() {
     echo "" && \
-    echo "install_sherpa version 2.9" && echo && \
+    echo "install_sherpa version 3.0" && echo && \
     echo "options: -v  version    define SHERPA version ( "${SHERPAVER}" )" && \
     echo "         -d  path       define (SHERPA) installation directory" && \
     echo "                         -> ( "${IDIR}" )" && \
@@ -49,6 +49,13 @@ print_help() {
 
 # save current path
 HDIR=`pwd`
+
+
+# get absolute path of this script
+SCRIPT=$(readlink -f $0)
+#echo "XXX: "$SCRIPT
+SCRIPTPATH=`dirname $SCRIPT`
+#echo "YYY: "$SCRIPTPATH
 
 
 # dummy setup (if all options are missing)
@@ -124,6 +131,7 @@ done
 
 # set up file names
 MSI=$HDIR                            # main installation directory
+MSI=$SCRIPTPATH
 shpatchfile="sherpa_patches_"${SHERPAVER}".tgz" # official patches for current SHERPA version
 shfixfile="sherpa_fixes_"${SHERPAVER}".tgz"     # fixes for current SHERPA version
 shshifile="install_sherpa.sh"        # this script
@@ -199,7 +207,9 @@ fi
 export SHERPADIR=${IDIR}"/SHERPA-MC-"${SHERPAVER}
 export SHERPAIDIR=${IDIR}"/SHERPA_"${SHERPAVER}
 
-if [ "$HEPMC" = "TRUE" ] && [ "$HVER" = "CMSSW" ]; then
+if [ "$HEPMC" = "TRUE" ]; then
+ CTESTH=`echo ${HVER} | cut -c1`
+ if [ "$HVER" = "CMSSW" ]; then
   if [ ! "$CMSSW_BASE" = "" ]; then
     newdir=""
     cd $CMSSW_BASE &&
@@ -217,9 +227,16 @@ if [ "$HEPMC" = "TRUE" ] && [ "$HVER" = "CMSSW" ]; then
   else
     echo " "
   fi
+ elif [ "$CTESTH" = "." ] || [ "$CTESTH" = "/" ]; then
+  cd ${HVER}
+  HEPMC2DIR=`pwd`
+  cd ${HDIR}
+ fi
 fi
 
-if [ "$LHAPDF" = "TRUE" ] && [ "$LVER" = "CMSSW" ]; then
+if [ "$LHAPDF" = "TRUE" ]; then
+ CTESTL=`echo ${LVER} | cut -c1`
+ if [ "$LVER" = "CMSSW" ]; then
   if [ ! "$CMSSW_BASE" = "" ]; then
     newdir=""
     cd $CMSSW_BASE &&
@@ -237,6 +254,11 @@ if [ "$LHAPDF" = "TRUE" ] && [ "$LVER" = "CMSSW" ]; then
   else
     echo " "
   fi
+ elif [ "$CTESTL" = "." ] || [ "$CTESTL" = "/" ]; then
+  cd ${LVER}
+  LHAPDFDIR=`pwd`
+  cd ${HDIR}
+ fi
 fi
 
 
@@ -599,7 +621,7 @@ if [ "${FLGXMLFL}" = "TRUE" ]; then
     echo "cp ${HDIR}/${lxmlfile} \${tmpxml}" >> ${overrscr}
     echo "scramv1 setup lhapdf" >> ${overrscr}
 #    echo "rm \${tmpxml}/lhapdf.xml" >> ${overrscr}
-    echo ${setvarcmd}"newlibpath=\`find ${HEPMC2DIR}/ -name \\*.\*a -printf %h\\\\\n | head -1\`" >> ${overrscr}
+    echo ${setvarcmd}"newlibpath=\`find ${LHAPDFDIR}/ -name \\*.\*a -printf %h\\\\\n | head -1\`" >> ${overrscr}
     echo ${exportcmd}"LD_LIBRARY_PATH"${exporteqs}"\${newlibpath}:\$LD_LIBRARY_PATH" >> ${overrscr}
   fi
   hxmlfile="hepmc_"${HVER}".xml"
@@ -611,7 +633,7 @@ if [ "${FLGXMLFL}" = "TRUE" ]; then
     echo "cp ${HDIR}/${hxmlfile} \${tmpxml}" >> ${overrscr}
     echo "scramv1 setup hepmc" >> ${overrscr}
 #    echo "rm \${tmpxml}/hepmc.xml" >> ${overrscr}
-    echo ${setvarcmd}"newlibpath=\`find ${LHAPDFDIR}/ -name \\*.\*a -printf %h\\\\\n | head -1\`" >> ${overrscr}
+    echo ${setvarcmd}"newlibpath=\`find ${HEPMC2DIR}/ -name \\*.\*a -printf %h\\\\\n | head -1\`" >> ${overrscr}
     echo ${exportcmd}"LD_LIBRARY_PATH"${exporteqs}"\${newlibpath}:\$LD_LIBRARY_PATH" >> ${overrscr}
   fi
   sxmlfile=${xmlfile}
@@ -638,11 +660,15 @@ if [ "$HEPMC" = "TRUE" ]; then
 echo " <I> HepMC2 version "${HEPMC2VER}" installed in "${HEPMC2DIR}
 fi
 if [ "$LHAPDF" = "TRUE" ]; then
-echo "\n\n\n\n\n\n\n\n\n"
+echo ""
+echo ""
+echo ""
 echo " <I> LHAPDF version "${LHAPDFVER}" installed in "${LHAPDFDIR}
 echo " <I>  -> before using SHERPA please define"
 echo " <I>  -> export LHAPATH="${pdfdir}
-echo "\n\n\n\n\n\n\n\n\n"
+echo ""
+echo ""
+echo ""
 fi
 echo " <I> SHERPA version "${SHERPAVER}" installed in "${SHERPADIR}
 

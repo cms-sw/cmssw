@@ -2,7 +2,7 @@
                 Shahzad Muzaffar (Shahzad.Muzaffar@cern.ch)
                    Northeastern University, Boston, USA
            
-What is Include Checker:
+What is Include Checker: 
 
   Include Checker is a perl script which can parse any c/c++ files (source/
 header) and checks if any include statement is needed or not. It can tell you

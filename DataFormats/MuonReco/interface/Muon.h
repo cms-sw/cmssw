@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.57 2010/06/21 18:47:28 slava77 Exp $
+ * \version $Id: Muon.h,v 1.58 2010/06/28 08:06:37 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -121,6 +121,9 @@ namespace reco {
     int numberOfChambers() const { return muMatches_.size(); }
     /// get number of chambers with matched segments
     int numberOfMatches( ArbitrationType type = SegmentAndTrackArbitration ) const;
+    /// get number of stations with matched segments
+    /// just adds the bits returned by stationMask
+    int numberOfMatchedStations( ArbitrationType type = SegmentAndTrackArbitration ) const;
     /// get bit map of stations with matched segments
     /// bits 0-1-2-3 = DT stations 1-2-3-4
     /// bits 4-5-6-7 = CSC stations 1-2-3-4

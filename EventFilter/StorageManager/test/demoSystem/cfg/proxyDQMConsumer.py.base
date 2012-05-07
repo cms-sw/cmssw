@@ -12,8 +12,14 @@ process.pDQM = cms.Path(process.tester)
 process.source = cms.Source("DQMHttpSource",
                             sourceURL = cms.untracked.string('http://STMGR_DEV_SMPROXY_HOST:STMGR_DEV_SMPROXY_PORT/urn:xdaq-application:lid=30'),
                             DQMconsumerName = cms.untracked.string('Test Consumer'),
-                            DQMconsumerPriority = cms.untracked.string('normal'),
-                            headerRetryInterval = cms.untracked.int32(5),
-                            maxDQMEventRequestRate = cms.untracked.double(1.0),
+                            retryInterval = cms.untracked.int32(5),
                             topLevelFolderName = cms.untracked.string('*')
                             )
+
+process.MessageLogger = cms.Service("MessageLogger",
+                                    destinations = cms.untracked.vstring('cout','log4cplus'),
+                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('INFO')),
+                                    log4cplus = cms.untracked.PSet(INFO = cms.untracked.PSet(reportEvery = cms.untracked.int32(250)),
+                                                                   threshold = cms.untracked.string('INFO')
+                                                                   )
+                                    )

@@ -26,7 +26,6 @@
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 
 #include "RecoTracker/DeDx/interface/DeDxDiscriminatorProducer.h"
-//#include "RecoTracker/DeDx/interface/DeDxTools.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
@@ -72,7 +71,6 @@ DeDxDiscriminatorProducer::DeDxDiscriminatorProducer(const edm::ParameterSet& iC
    MaxNrStrips         = iConfig.getUntrackedParameter<unsigned>("maxNrStrips"        ,  255);
    MinTrackHits        = iConfig.getUntrackedParameter<unsigned>("MinTrackHits"       ,  3);
 
-   shapetest           = iConfig.getParameter<bool>("ShapeTest");
    useCalibration      = iConfig.getParameter<bool>("UseCalibration");
    m_calibrationPath   = iConfig.getParameter<string>("calibrationPath");
 
@@ -222,6 +220,13 @@ void  DeDxDiscriminatorProducer::beginRun(edm::Run & run, const edm::EventSetup&
 void  DeDxDiscriminatorProducer::endJob()
 {
    MODsColl.clear();
+   
+/*
+   TFile* file = new TFile("MipsMap.root", "RECREATE");
+   Prob_ChargePath->Write();
+   file->Write();
+   file->Close();
+*/
 }
 
 
@@ -270,28 +275,17 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
          const SiStripRecHit1D*        sistripsimple1dhit  = dynamic_cast<const SiStripRecHit1D*>(hit);
 
 	 double Prob;
-         if(sistripsimplehit){
-       		Prob = GetProbability((sistripsimplehit->cluster()).get(), trajState);	    
-	        if(shapetest && !(DeDxTools::shapeSelection(((sistripsimplehit->cluster()).get())->amplitudes()))) Prob=-1.0;
-                if(Prob>=0) vect_probs.push_back(Prob);             
-            
-		if(ClusterSaturatingStrip((sistripsimplehit->cluster()).get())>0)NClusterSaturating++;
-
+         if(sistripsimplehit)
+         {           
+	     Prob = GetProbability((sistripsimplehit->cluster()).get(), trajState);	                    if(Prob>=0) vect_probs.push_back(Prob);             
+             if(ClusterSaturatingStrip((sistripsimplehit->cluster()).get())>0)NClusterSaturating++;
          }else if(sistripmatchedhit){
-                Prob = GetProbability((sistripmatchedhit->monoHit()->cluster()).get(), trajState);
-	        if(shapetest && !(DeDxTools::shapeSelection(((sistripmatchedhit->monoHit()->cluster()).get())->amplitudes()))) Prob=-1.0;
-                if(Prob>=0) vect_probs.push_back(Prob);
-           
-                Prob = GetProbability((sistripmatchedhit->stereoHit()->cluster()).get(), trajState);
-                if(Prob>=0) vect_probs.push_back(Prob);
-            
-	     if(ClusterSaturatingStrip((sistripmatchedhit->monoHit()->cluster()).get())  >0)NClusterSaturating++;
+             Prob = GetProbability((sistripmatchedhit->monoHit()->cluster()).get(), trajState);             if(Prob>=0) vect_probs.push_back(Prob);
+             Prob = GetProbability((sistripmatchedhit->stereoHit()->cluster()).get(), trajState);           if(Prob>=0) vect_probs.push_back(Prob);
+             if(ClusterSaturatingStrip((sistripmatchedhit->monoHit()->cluster()).get())  >0)NClusterSaturating++;
              if(ClusterSaturatingStrip((sistripmatchedhit->stereoHit()->cluster()).get())>0)NClusterSaturating++;
-
-         }else if(sistripsimple1dhit){ 
-                Prob = GetProbability((sistripsimple1dhit->cluster()).get(), trajState);
-	        if(shapetest && !(DeDxTools::shapeSelection(((sistripsimple1dhit->cluster()).get())->amplitudes()))) Prob=-1.0;
-                if(Prob>=0) vect_probs.push_back(Prob);
+         }else if(sistripsimple1dhit){           
+             Prob = GetProbability((sistripsimple1dhit->cluster()).get(), trajState);                       if(Prob>=0) vect_probs.push_back(Prob);
              if(ClusterSaturatingStrip((sistripsimple1dhit->cluster()).get())>0)NClusterSaturating++;
          }else{
          }
@@ -369,6 +363,7 @@ double DeDxDiscriminatorProducer::GetProbability(const SiStripCluster*   cluster
    int    BinX   = Prob_ChargePath->GetXaxis()->FindBin(trajState.localMomentum().mag());
    int    BinY   = Prob_ChargePath->GetYaxis()->FindBin(path);
    int    BinZ   = Prob_ChargePath->GetZaxis()->FindBin(charge/path);
+   
    return Prob_ChargePath->GetBinContent(BinX,BinY,BinZ);
 }
 

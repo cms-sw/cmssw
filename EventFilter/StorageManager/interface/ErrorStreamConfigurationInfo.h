@@ -1,8 +1,8 @@
-// $Id: ErrorStreamConfigurationInfo.h,v 1.4 2009/09/11 21:07:06 elmer Exp $
+// $Id: ErrorStreamConfigurationInfo.h,v 1.5.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: ErrorStreamConfigurationInfo.h 
 
-#ifndef StorageManager_ErrorStreamConfigurationInfo_h
-#define StorageManager_ErrorStreamConfigurationInfo_h
+#ifndef EventFilter_StorageManager_ErrorStreamConfigurationInfo_h
+#define EventFilter_StorageManager_ErrorStreamConfigurationInfo_h
 
 #include "EventFilter/StorageManager/interface/StreamID.h"
 
@@ -18,9 +18,9 @@ namespace stor
   /**
      Configuration information for the error stream
 
-     $Author: elmer $
-     $Revision: 1.4 $
-     $Date: 2009/09/11 21:07:06 $
+     $Author: mommsen $
+     $Revision: 1.5.4.1 $
+     $Date: 2011/03/07 11:33:04 $
   */
 
   class ErrorStreamConfigurationInfo
@@ -31,24 +31,24 @@ namespace stor
     // Constructor:
     ErrorStreamConfigurationInfo( const std::string& streamLabel,
 				  int maxFileSizeMB ):
-      _streamLabel( streamLabel ),
-      _maxFileSizeMB( maxFileSizeMB ),
-      _streamId(0)
+      streamLabel_( streamLabel ),
+      maxFileSizeMB_( maxFileSizeMB ),
+      streamId_(0)
     {}
 
     // Destructor:
     ~ErrorStreamConfigurationInfo() {}
 
     // Accessors:
-    const std::string& streamLabel() const { return _streamLabel; }
-    const int maxFileSizeMB() const { return _maxFileSizeMB; }
-    StreamID streamId() const { return _streamId; }
+    const std::string& streamLabel() const { return streamLabel_; }
+    const int maxFileSizeMB() const { return maxFileSizeMB_; }
+    StreamID streamId() const { return streamId_; }
 
     // Comparison:
     bool operator<(const ErrorStreamConfigurationInfo&) const;
 
     // Set stream Id:
-    void setStreamId( StreamID sid ) { _streamId = sid; }
+    void setStreamId( StreamID sid ) { streamId_ = sid; }
 
     // Output:
     friend std::ostream& operator <<
@@ -56,9 +56,9 @@ namespace stor
 
   private:
 
-    std::string _streamLabel;
-    int _maxFileSizeMB;
-    StreamID _streamId;
+    std::string streamLabel_;
+    int maxFileSizeMB_;
+    StreamID streamId_;
 
   };
 
@@ -66,9 +66,10 @@ namespace stor
   typedef boost::shared_ptr<ErrStrConfigList> ErrStrConfigListPtr;
 
   std::ostream& operator << ( std::ostream&, const ErrorStreamConfigurationInfo& );
-}
 
-#endif // StorageManager_ErrorStreamConfigurationInfo_h
+} // namespace stor
+
+#endif // EventFilter_StorageManager_ErrorStreamConfigurationInfo_h
 
 
 /// emacs configuration

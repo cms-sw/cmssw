@@ -53,10 +53,10 @@ class TCMETAlgo
   TCMETAlgo();
   virtual ~TCMETAlgo();
   reco::MET CalculateTCMET(edm::Event& event, const edm::EventSetup& setup, const edm::ParameterSet& iConfig, TH2D *response_function, TH2D *showerRF);
-  static TH2D* getResponseFunction_fit ( );
-  static TH2D* getResponseFunction_mode ( );
-  static TH2D* getResponseFunction_shower ( );
-  static TH2D* getResponseFunction_noshower ( );
+  TH2D* getResponseFunction_fit ( );
+  TH2D* getResponseFunction_mode ( );
+  TH2D* getResponseFunction_shower ( );
+  TH2D* getResponseFunction_noshower ( );
  private:
   double met_x;
   double met_y;
@@ -64,6 +64,7 @@ class TCMETAlgo
 
   edm::Handle<reco::MuonCollection> MuonHandle;
   edm::Handle<reco::GsfElectronCollection> ElectronHandle;
+//  edm::Handle<reco::CaloMETCollection> metHandle;
   edm::Handle<edm::View<reco::MET> > metHandle;
   edm::Handle<reco::TrackCollection> TrackHandle;
   edm::Handle<reco::BeamSpot> beamSpotHandle;

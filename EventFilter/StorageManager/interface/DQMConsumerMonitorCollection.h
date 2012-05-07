@@ -1,8 +1,8 @@
-// $Id: DQMConsumerMonitorCollection.h,v 1.5 2009/08/18 08:54:13 mommsen Exp $
+// $Id: DQMConsumerMonitorCollection.h,v 1.1.16.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: DQMConsumerMonitorCollection.h 
 
-#ifndef StorageManager_DQMConsumerMonitorCollection_h
-#define StorageManager_DQMConsumerMonitorCollection_h
+#ifndef EventFilter_StorageManager_DQMConsumerMonitorCollection_h
+#define EventFilter_StorageManager_DQMConsumerMonitorCollection_h
 
 #include "xdata/UnsignedInteger32.h"
 
@@ -15,8 +15,8 @@ namespace stor {
    * A collection of MonitoredQuantities to track event consumer activity.
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/08/18 08:54:13 $
+   * $Revision: 1.1.16.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
 
   class DQMConsumerMonitorCollection: public ConsumerMonitorCollection
@@ -24,7 +24,7 @@ namespace stor {
 
   public:
 
-    explicit DQMConsumerMonitorCollection(const utils::duration_t& updateInterval);
+    explicit DQMConsumerMonitorCollection(const utils::Duration_t& updateInterval);
 
   private:
 
@@ -35,13 +35,13 @@ namespace stor {
     virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
     virtual void do_updateInfoSpaceItems();
 
-    xdata::UnsignedInteger32 _dqmConsumers;
+    xdata::UnsignedInteger32 dqmConsumers_;
     
   };
 
 } // namespace stor
 
-#endif // StorageManager_DQMConsumerMonitorCollection_h
+#endif // EventFilter_StorageManager_DQMConsumerMonitorCollection_h
 
 
 /// emacs configuration
