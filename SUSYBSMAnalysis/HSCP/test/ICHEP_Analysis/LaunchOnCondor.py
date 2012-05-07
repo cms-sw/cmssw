@@ -101,7 +101,7 @@ def CreateTheShellFile(argv):
         elif argv[0]=='ROOT':
 		if Jobs_RunHere==0:
                 	shell_file.write('cd -\n')
-                shell_file.write('source setstandaloneroot.sh\n')
+                #shell_file.write('source setstandaloneroot.sh\n')
 	        shell_file.write('root -l -b << EOF\n')
 	        shell_file.write('   TString makeshared(gSystem->GetMakeSharedLib());\n')
 	        shell_file.write('   TString dummy = makeshared.ReplaceAll("-W ", "");\n')
@@ -164,7 +164,7 @@ def CreateTheCmdFile():
 		cmd_file.write('Environment             = CONDORJOBID=$(Process)\n')
 		cmd_file.write('notification            = Error\n')
 		#code specific for louvain
-		if(commands.getstatusoutput("uname -n")[1].find("ucl.ac.be")):
+		if(commands.getstatusoutput("uname -n")[1].find("ucl.ac.be")!=-1):
         		cmd_file.write('requirements            = (CMSFARM=?=True)&&(Memory > 200)\n')
 		else:
 			cmd_file.write('requirements            = (Memory > 200)\n')
