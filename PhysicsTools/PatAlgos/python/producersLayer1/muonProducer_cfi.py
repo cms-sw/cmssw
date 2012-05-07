@@ -4,9 +4,9 @@ patMuons = cms.EDProducer("PATMuonProducer",
     # input
     muonSource      = cms.InputTag("muons"),
 
-    # use particle flow instead of std reco                                
+    # use particle flow instead of std reco
     useParticleFlow =  cms.bool( False ),
-    pfMuonSource    = cms.InputTag("pfIsolatedMuons"),          
+    pfMuonSource    = cms.InputTag("particleFlow"),
 
     # add user data
     userData = cms.PSet(
@@ -46,15 +46,15 @@ patMuons = cms.EDProducer("PATMuonProducer",
     # embedding of muon MET corrections for tcMET
     embedTcMETMuonCorrs   = cms.bool(True),
     tcMETMuonCorrs   = cms.InputTag("muonTCMETValueMapProducer", "muCorrData"),
-                          
+
     # embed IsoDeposits
     isoDeposits = cms.PSet(
         #user    = cms.VInputTag(
-        #             cms.InputTag("muIsoDepositCalByAssociatorTowers","ho"), 
+        #             cms.InputTag("muIsoDepositCalByAssociatorTowers","ho"),
         #             cms.InputTag("muIsoDepositJets")
         #          ),
     ),
-    
+
     # user defined isolation variables the variables defined here will be accessible
     # via pat::Muon::userIsolation(IsolationKeys key) with the key as defined in
     # DataFormats/PatCandidates/interface/Isolation.h
@@ -62,7 +62,7 @@ patMuons = cms.EDProducer("PATMuonProducer",
         #user = cms.VPSet(cms.PSet(
         #    src = cms.InputTag("muIsoDepositCalByAssociatorTowers","ho"),
         #    deltaR = cms.double(0.3)
-        #    ), 
+        #    ),
         #    cms.PSet(
         #        src = cms.InputTag("muIsoDepositJets"),
         #        deltaR = cms.double(0.3)
@@ -84,7 +84,7 @@ patMuons = cms.EDProducer("PATMuonProducer",
 
     # high level selections
     embedHighLevelSelection = cms.bool(True),
-    usePV                   = cms.bool(True),                          
+    usePV                   = cms.bool(True),
     beamLineSrc             = cms.InputTag("offlineBeamSpot"),
     pvSrc                   = cms.InputTag("offlinePrimaryVertices")
 )
