@@ -6,6 +6,7 @@
 
 //#include <exception>
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 #include <string>
 
