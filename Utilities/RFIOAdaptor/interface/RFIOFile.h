@@ -32,9 +32,7 @@ public:
   using Storage::readv;
   using Storage::write;
   using Storage::position;
-  using Storage::prefetch;
 
-  virtual bool		prefetch (const IOPosBuffer *what, IOSize n);
   virtual IOSize	read (void *into, IOSize n);
   virtual IOSize	readv (IOPosBuffer *into, IOSize buffers);
   virtual IOSize	write (const void *from, IOSize n);
@@ -42,6 +40,12 @@ public:
   virtual void		resize (IOOffset size);
   virtual void		close (void);
   virtual void		abort (void);
+
+/*
+ * Note: we used to implement prefetch for RFIOFile, but it never got used in
+ * production due to memory leaks in the underlying library.  This was removed
+ * in CMSSW 6 so we could default to storage-only if available.
+ */
 
 private:
   ssize_t		retryRead (void *into, IOSize n, int maxRetry = 10);
