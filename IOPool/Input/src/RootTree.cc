@@ -57,6 +57,9 @@ namespace edm {
         Long64_t averageEventSizeBytes = tree_->GetZipBytes() / (tree_->GetEntries()+1) + 1;
         treeAutoFlush_ = cacheSize_/averageEventSizeBytes+1;
       }
+      if (treeAutoFlush_ < learningEntries_) {
+        learningEntries_ = treeAutoFlush_;
+      }
       setTreeMaxVirtualSize(maxVirtualSize);
       setCacheSize(cacheSize);
   }
