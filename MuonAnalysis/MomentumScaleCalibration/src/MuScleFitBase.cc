@@ -141,6 +141,7 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
     std::cout << "[MuScleFit-Constructor]: Reading TH2D probabilities from " << probabilitiesFileInPath_ << std::endl;
   }
 
+
   ProbsFile->cd();
   if( theMuonType_!=2 && MuScleFitUtils::resfind[0]) {
     for ( int i=0; i<24; i++ ) {

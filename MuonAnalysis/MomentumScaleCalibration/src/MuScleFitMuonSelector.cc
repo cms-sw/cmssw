@@ -241,7 +241,7 @@ void MuScleFitMuonSelector::selectGeneratedMuons(const edm::Handle<pat::Composit
 	// genPair.push_back(std::make_pair(genMu2.get()->p4(),genMu1.get()->p4()) );
 	genPair.push_back(GenMuonPair(genMu2.get()->p4(), genMu1.get()->p4(), motherId));
 
-      plotter->fillGen1(const_cast <reco::GenParticleCollection*> (genPatParticles), true);
+      plotter->fillGen(const_cast <reco::GenParticleCollection*> (genPatParticles), true);
 
       if (debug_>0) std::cout << "Found genParticles in PAT" << std::endl;
     }
@@ -282,13 +282,13 @@ void MuScleFitMuonSelector::selectGenSimMuons(const edm::Event & event,
   event.getByLabel( genParticlesName_, genParticles );
   if( evtMC.isValid() ) {
     genPair.push_back( findGenMuFromRes(evtMC.product()) );
-    plotter->fillGen2(evtMC.product(), sherpa_);
+    plotter->fillGen(evtMC.product(), sherpa_);
     ifHepMC = true;
     if (debug_>0) std::cout << "Found hepMC" << std::endl;
   }
   else if( genParticles.isValid() ) {
     genPair.push_back( findGenMuFromRes(genParticles.product()) );
-    plotter->fillGen1(genParticles.product());
+    plotter->fillGen(genParticles.product());
     if (debug_>0) std::cout << "Found genParticles" << std::endl;
   }
   else {

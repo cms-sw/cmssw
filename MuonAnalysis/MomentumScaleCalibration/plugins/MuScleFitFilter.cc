@@ -1,12 +1,14 @@
-//#define DEBUG
+// #define DEBUG
+// System include files
+// --------------------
 
-#include "MuScleFitFilter.h"
-
-// Collaborating Class Header
-#include "FWCore/Framework/interface/MakerMacros.h"
+// User include files
+// ------------------
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -24,7 +26,38 @@
 #include <cmath>
 #include <memory>
 
+#include <vector>
+
 #include "TRandom.h"
+
+// Class declaration
+// -----------------
+
+class MuScleFitFilter : public edm::EDFilter {
+ public:
+  explicit MuScleFitFilter(const edm::ParameterSet&);
+  ~MuScleFitFilter();
+
+ private:
+  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  virtual void endJob() {};
+
+  // Member data
+  // -----------
+  int eventsRead;
+  int eventsWritten;
+  bool debug;
+  int theMuonType;
+  std::vector<double> Mmin;
+  std::vector<double> Mmax;
+  int maxWrite;
+  unsigned int minimumMuonsNumber;
+
+  // Collections labels
+  // ------------------
+  edm::InputTag theMuonLabel;
+
+};
 
 // Static data member definitions
 // ------------------------------
@@ -218,3 +251,6 @@ bool MuScleFitFilter::filter(edm::Event& event, const edm::EventSetup& iSetup) {
   return write;
 
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(MuScleFitFilter);

@@ -1,8 +1,16 @@
+/** \class MuScleFit
+ *  Analyzer of the Global muon tracks
+ *
+ *  $Date: 2010/10/22 17:48:07 $
+ *  $Revision: 1.42 $
+ *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
+ */
+
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2011/04/13 13:17:45 $
-//  $Revision: 1.106 $
+//  $Date: 2011/05/12 08:59:19 $
+//  $Revision: 1.107 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -99,14 +107,44 @@
 //    ---------------------------------------
 //  - Reworked background fit based on ranges. See comments in the code for more details.
 // ---------------------------------------------------------------------------------------------
-
-#include "MuScleFit.h"
-#include "MuonAnalysis/MomentumScaleCalibration/interface/Histograms.h"
-#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitPlotter.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+// Base Class Headers
+// ------------------
+#include "FWCore/Framework/interface/EDLooper.h"
+#include "FWCore/Framework/interface/LooperFactory.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include <CLHEP/Vector/LorentzVector.h>
+#include <vector>
+
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitBase.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/Histograms.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitPlotter.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/RootTreeHandler.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitMuonSelector.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/CaloMuon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+
+#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "HepPDT/defs.h"
 #include "HepPDT/TableBuilder.hh"
@@ -114,20 +152,16 @@
 
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenEvent.h"
-// #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "TFile.h"
 #include "TTree.h"
 #include "TMinuit.h"
-#include <vector>
 
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 // To use callgrind for code profiling uncomment also the following define.
 // #define USE_CALLGRIND
@@ -136,12 +170,189 @@
 #include "valgrind/callgrind.h"
 #endif
 
-#include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
-#include "MuonAnalysis/MomentumScaleCalibration/interface/RootTreeHandler.h"
 
 // To read likelihood distributions from the database.
 	//#include "CondFormats/RecoMuonObjects/interface/MuScleFitLikelihoodPdf.h"
 	//#include "CondFormats/DataRecord/interface/MuScleFitLikelihoodPdfRcd.h"
+
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}
+
+
+class MuScleFit: public edm::EDLooper, MuScleFitBase
+{
+ public:
+  // Constructor
+  // -----------
+  MuScleFit( const edm::ParameterSet& pset );
+
+  // Destructor
+  // ----------
+  virtual ~MuScleFit();
+
+  // Operations
+  // ----------
+  void beginOfJobInConstructor();
+  // void beginOfJob( const edm::EventSetup& eventSetup );
+  // virtual void beginOfJob();
+  virtual void endOfJob();
+
+  virtual void startingNewLoop( unsigned int iLoop );
+
+  virtual edm::EDLooper::Status endOfLoop( const edm::EventSetup& eventSetup, unsigned int iLoop );
+  virtual void endOfFastLoop( const unsigned int iLoop );
+
+  virtual edm::EDLooper::Status duringLoop( const edm::Event & event, const edm::EventSetup& eventSetup );
+  /**
+   * This method performs all needed operations on the muon pair. It reads the muons from SavedPair and uses the iev
+   * counter to keep track of the event number. The iev is incremented internally and reset to 0 in startingNewLoop.
+   */
+  virtual void duringFastLoop();
+
+  template<typename T>
+  std::vector<reco::LeafCandidate> fillMuonCollection( const std::vector<T>& tracks );
+ private:
+
+ protected:
+  /**
+   * Selects the muon pairs and fills the SavedPair and (if needed) the genPair vector.
+   * This version reads the events from the edm root file and performs a selection of the muons according to the parameters in the cfg.
+   */
+  void selectMuons(const edm::Event & event);
+  /**
+   * Selects the muon pairs and fills the SavedPair and (if needed) the genPair vector.
+   * This version reads the events from a tree in the file specified in the cfg. The tree only contains one muon pair per event. This
+   * means that no selection is performed and we use preselected muons.
+   */
+  void selectMuons(const int maxEvents, const TString & treeFileName);
+
+  /// Template method used to fill the track collection starting from reco::muons or pat::muons
+  template<typename T>
+  void takeSelectedMuonType(const T & muon, std::vector<reco::Track> & tracks);
+  /// Function for onia selections
+  bool selGlobalMuon(const pat::Muon* aMuon);
+  bool selTrackerMuon(const pat::Muon* aMuon);  
+
+  /// Check if two lorentzVector are near in deltaR
+  bool checkDeltaR( reco::Particle::LorentzVector& genMu, reco::Particle::LorentzVector& recMu );
+  /// Fill the reco vs gen and reco vs sim comparison histograms
+  void fillComparisonHistograms( const reco::Particle::LorentzVector & genMu, const reco::Particle::LorentzVector & recoMu, const std::string & inputName, const int charge );
+
+  /// Apply the smearing if needed using the function in MuScleFitUtils
+  void applySmearing( reco::Particle::LorentzVector & mu );
+  /// Apply the bias if needed using the function in MuScleFitUtils
+  void applyBias( reco::Particle::LorentzVector & mu, const int charge );
+
+  /**
+   * Simple method to check parameters consistency. It aborts the job if the parameters
+   * are not consistent.
+   */
+  void checkParameters();
+
+  MuonServiceProxy *theService;
+
+  // Counters
+  // --------
+  int numberOfSimTracks;
+  int numberOfSimMuons;
+  int numberOfSimVertices;
+  int numberOfEwkZ;
+
+  bool ifHepMC;
+  bool ifGenPart;
+
+  // Constants
+  // ---------
+  double minResMass_hwindow[6];
+  double maxResMass_hwindow[6];
+
+  // Total number of loops
+  // ---------------------
+  unsigned int maxLoopNumber;
+  unsigned int loopCounter;
+
+  bool fastLoop;
+
+  MuScleFitPlotter *plotter;
+
+  // The reconstructed muon 4-momenta to be put in the tree
+  // ------------------------------------------------------
+  reco::Particle::LorentzVector recMu1, recMu2;
+  int iev;
+  int totalEvents_;
+
+  bool compareToSimTracks_;
+  edm::InputTag simTracksCollection_;
+  bool PATmuons_;
+  std::string genParticlesName_;
+
+  // Input Root Tree file name. If empty events are read from the edm root file.
+  std::string inputRootTreeFileName_;
+  // Output Root Tree file name. If not empty events are dumped to this file at the end of the last iteration.
+  std::string outputRootTreeFileName_;
+  // Maximum number of events from root tree. It works in the same way as the maxEvents to configure a input source.
+  int maxEventsFromRootTree_;
+
+  std::string triggerResultsLabel_;
+  std::string triggerResultsProcess_;
+  std::vector<std::string> triggerPath_;
+  bool negateTrigger_;
+  bool saveAllToTree_;
+
+  std::auto_ptr<MuScleFitMuonSelector> muonSelector_;
+};
+
+template<typename T>
+std::vector<reco::LeafCandidate> MuScleFit::fillMuonCollection( const std::vector<T>& tracks )
+{
+  std::vector<reco::LeafCandidate> muons;
+  typename std::vector<T>::const_iterator track;
+  for( track = tracks.begin(); track != tracks.end(); ++track ) {
+    reco::Particle::LorentzVector mu;
+    mu = reco::Particle::LorentzVector(track->px(),track->py(),track->pz(),
+                                       sqrt(track->p()*track->p() + MuScleFitUtils::mMu2));
+    // Apply smearing if needed, and then bias
+    // ---------------------------------------
+    MuScleFitUtils::goodmuon++;
+    if (debug_>0) 
+      std::cout <<std::setprecision(9)<< "Muon #" << MuScleFitUtils::goodmuon
+                       << ": initial value   Pt = " << mu.Pt() << std::endl;
+
+    applySmearing(mu);
+    applyBias(mu, track->charge());
+
+    reco::LeafCandidate muon(track->charge(),mu);
+    // Store modified muon
+    // -------------------
+    muons.push_back (muon);
+  }
+  return muons;
+}
+
+template<typename T>
+void MuScleFit::takeSelectedMuonType(const T & muon, std::vector<reco::Track> & tracks)
+{
+  // std::cout<<"muon "<<muon->isGlobalMuon()<<muon->isStandAloneMuon()<<muon->isTrackerMuon()<<std::endl;
+  //NNBB: one muon can be of many kinds at once but with the theMuonType_ we are sure
+  // to avoid double counting of the same muon
+  if(muon->isGlobalMuon() && theMuonType_==1)
+    tracks.push_back(*(muon->globalTrack()));
+  else if(muon->isStandAloneMuon() && theMuonType_==2)
+    tracks.push_back(*(muon->outerTrack()));
+  else if(muon->isTrackerMuon() && theMuonType_==3)
+    tracks.push_back(*(muon->innerTrack()));
+
+  else if( theMuonType_ == 10 && !(muon->isStandAloneMuon()) ) //particular case!!
+    tracks.push_back(*(muon->innerTrack()));
+  else if( theMuonType_ == 11 && muon->isGlobalMuon() )
+    tracks.push_back(*(muon->innerTrack()));
+  else if( theMuonType_ == 13 && muon->isTrackerMuon() )
+    tracks.push_back(*(muon->innerTrack()));
+}
+
 
 // Constructor
 // -----------
@@ -242,7 +453,7 @@ MuScleFit::MuScleFit( const edm::ParameterSet& pset ) :
 
   triggerResultsLabel_ = pset.getUntrackedParameter<std::string>("TriggerResultsLabel");
   triggerResultsProcess_ = pset.getUntrackedParameter<std::string>("TriggerResultsProcess");
-  triggerPath_ = pset.getUntrackedParameter<std::string>("TriggerPath");
+  triggerPath_ = pset.getUntrackedParameter<std::vector<std::string> >("TriggerPath");
   negateTrigger_ = pset.getUntrackedParameter<bool>("NegateTrigger", false);
   saveAllToTree_ = pset.getUntrackedParameter<bool>("SaveAllToTree", false);
 
@@ -480,7 +691,7 @@ edm::EDLooper::Status MuScleFit::endOfLoop( const edm::EventSetup& eventSetup, u
       // std::vector<std::pair<lorentzVector,lorentzVector> >::const_iterator it = MuScleFitUtils::SavedPair.begin();
       // for( ; it != SavedPair.end(); ++it ) {
       while( iev<totalEvents_ ) {
-	if( iev%1000 == 0 ) {
+	if( iev%50000 == 0 ) {
 	  std::cout << "Fast looping on event number " << iev << std::endl;
 	}
 	// This reads muons from SavedPair using iev to keep track of the event
@@ -541,9 +752,9 @@ edm::EDLooper::Status MuScleFit::duringLoop( const edm::Event & event, const edm
   //event.getByLabel(InputTag(triggerResultsLabel_),triggerResults);
   bool isFired = false;
 
-  if(triggerPath_ == "")
+  if(triggerPath_[0] == "")
     isFired = true;
-  else if(triggerPath_ == "All"){
+  else if(triggerPath_[0] == "All"){
     isFired =triggerResults->accept();
     if(debug_>0)
       std::cout<<"Trigger "<<isFired<<std::endl;
@@ -552,13 +763,28 @@ edm::EDLooper::Status MuScleFit::duringLoop( const edm::Event & event, const edm
     bool changed;
     HLTConfigProvider hltConfig;
     hltConfig.init(event.getRun(), eventSetup, triggerResultsProcess_, changed);
-    unsigned int triggerIndex( hltConfig.triggerIndex(triggerPath_) );
-    // triggerIndex must be less than the size of HLTR or you get a CMSException: _M_range_check
-    if (triggerIndex < triggerResults->size()) {
-      isFired = triggerResults->accept(triggerIndex);
-      if(debug_>0)
-	std::cout<<triggerPath_<<" "<<isFired<<std::endl;
+
+
+    const edm::TriggerNames triggerNames = event.triggerNames(*triggerResults); 
+
+    for (unsigned i=0; i<triggerNames.size(); i++) { 
+      std::string hltName = triggerNames.triggerName(i);
+
+      // match the path in the pset with the true name of the trigger  
+      for ( unsigned int ipath=0; ipath<triggerPath_.size(); ipath++ ) {
+	if ( hltName.find(triggerPath_[ipath]) != std::string::npos ) {
+	    unsigned int triggerIndex( hltConfig.triggerIndex(hltName) );
+	  
+	  // triggerIndex must be less than the size of HLTR or you get a CMSException: _M_range_check
+	    if (triggerIndex < triggerResults->size()) {
+	      isFired = triggerResults->accept(triggerIndex);
+	      if(debug_>0) 
+		std::cout << triggerPath_[ipath] <<" "<< hltName << " " << isFired<<std::endl;
+	    }	    
+	} // end if (matching the path in the pset with the true trigger name      
+      }
     }
+
   }
 
   if( negateTrigger_ && isFired ) return kContinue;
@@ -603,7 +829,7 @@ void MuScleFit::selectMuons(const edm::Event & event)
 
   std::vector<reco::LeafCandidate> muons;
   muonSelector_->selectMuons(event, muons, genMuonPairs_, MuScleFitUtils::simPair, plotter);
-  plotter->fillRec(muons);
+  //  plotter->fillRec(muons); // @EM method already invoked inside MuScleFitMuonSelector::selectMuons()
 
   // Find the two muons from the resonance, and set ResFound bool
   // ------------------------------------------------------------
@@ -725,9 +951,9 @@ void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
       ++genIt;
     }
   }
-  plotter->fillRec(MuScleFitUtils::SavedPair);
+  plotter->fillTreeRec(MuScleFitUtils::SavedPair);
   if( !(MuScleFitUtils::speedup) ) {
-    plotter->fillGen(MuScleFitUtils::genPair);
+    plotter->fillTreeGen(MuScleFitUtils::genPair);
   }
 }
 
@@ -1159,3 +1385,7 @@ bool MuScleFit::selTrackerMuon(const pat::Muon* aMuon) {
           fabs(iTrack->dz()) < 15.0 );//should be done w.r.t. PV!
  
 }
+
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_LOOPER(MuScleFit);

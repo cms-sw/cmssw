@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2012/01/23 17:03:19 $
- *  $Revision: 1.33 $
+ *  $Date: 2012/03/20 16:47:05 $
+ *  $Revision: 1.34 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -28,6 +28,7 @@
 #include "TSystem.h"
 #include "TCanvas.h"
 
+#include "TLorentzVector.h"
 #include <vector>
 #include <string>
 #include <iostream>
@@ -805,20 +806,24 @@ class HMassVSPart : public Histograms
 //     hMassVSEtaPhiMinus_      = new TH3F( name+"_MassVSEtaPhiMinus", "resonance mass vs muon- phi/pseudorapidity", 6, -3.2, 3.2, 20, -2.5, 2.5, 6000, minMass, maxMass );
  
     //Z mass -----------
-    hMassVSEtaPhiPlus_      = new TH3F( name+"_MassVSEtaPhiPlus", "resonance mass vs muon+ phi/pseudorapidity",4, -3.2, 3.2, 4, -2.5, 2.5,600, minMass, maxMass );
-    hMassVSEtaPhiMinus_      = new TH3F( name+"_MassVSEtaPhiMinus", "resonance mass vs muon- phi/pseudorapidity", 4, -3.2, 3.2, 4, -2.5, 2.5, 600, minMass, maxMass );
+    hMassVSEtaPhiPlus_      = new TH3F( name+"_MassVSEtaPhiPlus",  "resonance mass vs muon+ phi/pseudorapidity", 12, -3.2, 3.2, 20, -2.4, 2.4, 300, minMass, maxMass );
+    hMassVSEtaPhiMinus_     = new TH3F( name+"_MassVSEtaPhiMinus", "resonance mass vs muon- phi/pseudorapidity", 12, -3.2, 3.2, 20, -2.4, 2.4, 300, minMass, maxMass );
 
-    hMassVSCosThetaCS_      = new TH2F( name+"_MassVSCosThetaCS", "resonance mass vs cos(theta) (CS frame)", 10, -1., 1., 6000, minMass, maxMass );
+    hMassVSCosThetaCS_      = new TH2F( name+"_MassVSCosThetaCS", "resonance mass vs cos(theta) (CS frame)", 40, -1., 1., 6000, minMass, maxMass );
+    hMassVSPhiCS_           = new TH2F( name+"_MassVSPhiCS", "resonance mass vs phi (CS frame)", 64, -3.2, 3.2, 6000, minMass, maxMass );
 
-    hMassVSEtaPlus_      = new TH2F( name+"_MassVSEtaPlus", "resonance mass vs muon+ pseudorapidity", 60, -6., 6., 6000, minMass, maxMass );
-    hMassVSEtaMinus_      = new TH2F( name+"_MassVSEtaMinus", "resonance mass vs muon- pseudorapidity", 60, -6., 6., 6000, minMass, maxMass );
+    hMassVSEtaPlus_       = new TH2F( name+"_MassVSEtaPlus", "resonance mass vs muon+ pseudorapidity",  64, -6.4, 6.4,  6000, minMass, maxMass );
+    hMassVSEtaMinus_      = new TH2F( name+"_MassVSEtaMinus", "resonance mass vs muon- pseudorapidity", 64, -6.4, 6.4,  6000, minMass, maxMass );
 
-    hMassVSPhiPlusPhiMinus_ = new TH3F( name+"_MassVSPhiPlusPhiMinus", "resonance mass vs muon+ phi/muon- phi",6, -3.2, 3.2, 6, -3.2, 3.2, 6000, minMass, maxMass );
-    hMassVSEtaPlusEtaMinus_ = new TH3F( name+"_MassVSEtaPlusEtaMinus", "resonance mass vs muon+ eta/muon- eta",6, -2.5, 2.5, 6, -2.5, 2.5, 6000, minMass, maxMass );
+    hMassVSPhiPlusPhiMinus_ = new TH3F( name+"_MassVSPhiPlusPhiMinus", "resonance mass vs muon+ phi/muon- phi", 6, -3.2, 3.2, 6, -3.2, 3.2, 6000, minMass, maxMass );
+    hMassVSEtaPlusEtaMinus_ = new TH3F( name+"_MassVSEtaPlusEtaMinus", "resonance mass vs muon+ eta/muon- eta",10, -2.4, 2.4,10, -2.4, 2.4, 6000, minMass, maxMass );
 
-    hMassVSPhiPlus_  = new TH2F( name+"_MassVSPhiPlus", "resonance mass vs muon+ phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass );
+    hMassVSPhiPlus_  = new TH2F( name+"_MassVSPhiPlus", "resonance mass vs muon+ phi angle",  64, -3.2, 3.2, 6000, minMass, maxMass );
     hMassVSPhiMinus_ = new TH2F( name+"_MassVSPhiMinus", "resonance mass vs muon- phi angle", 64, -3.2, 3.2, 6000, minMass, maxMass );
    
+    hMassVSEtaPlusMinusDiff_      = new TH2F( name+"_MassVSEtaPlusMinusDiff", "resonance mass vs delta pseudorapidity between mu+/mu-", 32, -4.4, 4.4, 6000, minMass, maxMass );
+    hMassVSCosThetaCS_prof   = new TProfile (name+"_MassVScosTheta_prof", "resonance mass vs cosTheta", 40, -1., 1., 85., 95.);   
+
     //hMassVSPt_prof       = new TProfile (name+"_MassVSPt_prof", "resonance mass vs muon transverse momentum", 100, 0., 200., minMass, maxMass);
     //hMassVSEta_prof      = new TProfile (name+"_MassVSEta_prof", "resonance mass vs muon pseudorapidity", 30, -6., 6., minMass, maxMass);
     //hMassVSPhiPlus_prof  = new TProfile (name+"_MassVSPhiPlus_prof", "resonance mass vs muon+ phi angle", 32, -3.2, 3.2, minMass, maxMass);
@@ -834,9 +839,13 @@ class HMassVSPart : public Histograms
     hMassVSEtaPhiMinus_   = (TH3F *) file->Get(name+"_MassVSEtaMinus");
     hMassVSEtaPlus_      = (TH2F *) file->Get(name+"_MassVSEtaPlus");
     hMassVSEtaMinus_      = (TH2F *) file->Get(name+"_MassVSEtaMinus");
+
+    hMassVSEtaPlusMinusDiff_ = (TH2F *) file->Get(name+"_MassVSEtaPlusMinusDiff");
     
     hMassVSPhiPlus_  = (TH2F *) file->Get(name+"_MassVSPhiPlus");
     hMassVSPhiMinus_ = (TH2F *) file->Get(name+"_MassVSPhiMinus");
+    
+    hMassVSCosThetaCS_prof  = (TProfile *) file->Get(name+"_MassVScosTheta_prof");  
     //hMassVSPt_prof       = (TProfile *) file->Get(name+"_MassVSPt_prof");
     //hMassVSEta_prof      = (TProfile *) file->Get(name+"_MassVSEta_prof");
     //hMassVSPhiPlus_prof  = (TProfile *) file->Get(name+"_MassVSPhiPlus_prof");
@@ -855,6 +864,9 @@ class HMassVSPart : public Histograms
     delete hMassVSPhiPlusPhiMinus_;
     delete hMassVSEtaPlusEtaMinus_;
     delete hMassVSCosThetaCS_;
+    delete hMassVSPhiCS_;
+    delete hMassVSEtaPlusMinusDiff_;
+    delete hMassVSCosThetaCS_prof;  
   }
 
   virtual void Fill(const reco::Particle::LorentzVector & p41, const reco::Particle::LorentzVector & p42, const int charge, const double & weight = 1.)
@@ -884,11 +896,12 @@ class HMassVSPart : public Histograms
     /************************************************************************
      *
      * Observable: cos(theta) = 2 Q^-1 (Q^2+Qt^2)^-(1/2) (mu^+ mubar^- - mu^- mubar^+)
-     * (computed in Colin-Sopher frame)
+     * (computed in Collins-Soper frame)
      *
      ************************************************************************/
     
-    double costheta;
+    double costhetaCS, phiCS;
+
     CLHEP::HepLorentzVector mu= momentum1;
     CLHEP::HepLorentzVector mubar= momentum2;    
     CLHEP::HepLorentzVector Q(mu+mubar);
@@ -897,15 +910,45 @@ class HMassVSPart : public Histograms
     double mubarplus  = 1.0/sqrt(2.0) * (mubar.e() + mubar.z());
     double mubarminus = 1.0/sqrt(2.0) * (mubar.e() - mubar.z());
     //double costheta = 2.0 / Q.Mag() / sqrt(pow(Q.Mag(), 2) + pow(Q.Pt(), 2)) * (muplus * mubarminus - muminus * mubarplus);
-    costheta = 2.0 / Q.mag() / sqrt(pow(Q.mag(), 2) + pow(Q.perp(), 2)) * (muplus * mubarminus - muminus * mubarplus);
-    if (momentumRes.rapidity()<0) costheta = -costheta;
+    costhetaCS = 2.0 / Q.mag() / sqrt(pow(Q.mag(), 2) + pow(Q.perp(), 2)) * (muplus * mubarminus - muminus * mubarplus);
+    if (momentumRes.rapidity()<0) costhetaCS = -costhetaCS;
+    
 
-    hMassVSCosThetaCS_->Fill(costheta,momentumRes.m(), weight);
+
+
+  /************************************************************************
+   *
+   * 3) tanphi = (Q^2 + Qt^2)^1/2 / Q (Dt dot R unit) /(Dt dot Qt unit)
+   *
+   ************************************************************************/
+
+  // unit vector on R direction
+    CLHEP::HepLorentzVector Pbeam(0.,0.,3500.,3500.);
+    CLHEP::Hep3Vector R = Pbeam.vect().cross(Q.vect());
+    CLHEP::Hep3Vector Runit = R.unit();
+
+
+    // unit vector on Qt
+    CLHEP::Hep3Vector Qt = Q.vect(); Qt.setZ(0);
+    CLHEP::Hep3Vector Qtunit = Qt.unit();
+
+
+    CLHEP::HepLorentzVector D(mu-mubar);
+    CLHEP::Hep3Vector Dt = D.vect(); Dt.setZ(0);
+    double tanphi = sqrt(pow(Q.mag(), 2) + pow(Q.perp(), 2)) / Q.mag() * Dt.dot(Runit) / Dt.dot(Qtunit);
+    if (momentumRes.rapidity()<0) tanphi = -tanphi;
+    phiCS = atan(tanphi); 
+
+    hMassVSPhiCS_->Fill(phiCS,momentumRes.m(), weight);
+    hMassVSCosThetaCS_->Fill(costhetaCS,momentumRes.m(), weight);
+    hMassVSCosThetaCS_prof ->Fill(costhetaCS,momentumRes.m());  
     /*************************************************************************
      *************************************************************************/
    
-     hMassVSPhiPlusPhiMinus_->Fill(momentum1.phi(), momentum2.phi(), momentumRes.m(), weight);
-     hMassVSEtaPlusEtaMinus_->Fill(momentum1.eta(), momentum2.eta(), momentumRes.m(), weight);
+    hMassVSPhiPlusPhiMinus_->Fill(momentum1.phi(), momentum2.phi(), momentumRes.m(), weight);
+    hMassVSEtaPlusEtaMinus_->Fill(momentum1.eta(), momentum2.eta(), momentumRes.m(), weight);
+
+     hMassVSEtaPlusMinusDiff_->Fill( (momentum1.eta()-momentum2.eta()), momentumRes.m(), weight);
   }
   
   virtual void Fill(const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2, const int charge, const double & weight = 1.)
@@ -947,6 +990,10 @@ class HMassVSPart : public Histograms
     hMassVSPhiPlusPhiMinus_->Write();
     hMassVSEtaPlusEtaMinus_->Write();
     hMassVSCosThetaCS_->Write();
+    hMassVSPhiCS_->Write();
+
+    hMassVSEtaPlusMinusDiff_->Write();
+    hMassVSCosThetaCS_prof->Write();
 
     //hMassVSPt_prof_->Write();
     //hMassVSEta_prof_->Write();    
@@ -968,6 +1015,9 @@ class HMassVSPart : public Histograms
     hMassVSPhiPlusPhiMinus_->Clear();
     hMassVSEtaPlusEtaMinus_->Clear();
     hMassVSCosThetaCS_->Clear();
+    hMassVSPhiCS_->Clear();
+    hMassVSEtaPlusMinusDiff_->Clear();
+    hMassVSCosThetaCS_prof->Clear();
 
     //hMassVSPt_prof_->Clear();
     //hMassVSEta_prof_->Clear();    
@@ -981,14 +1031,18 @@ class HMassVSPart : public Histograms
   TH2F* hMassVSPhiPlus_; 
   TH2F* hMassVSPhiMinus_; 
   TH2F* hMassVSCosThetaCS_;
+  TH2F* hMassVSPhiCS_;
 
   TH3F* hMassVSEtaPhiPlus_;
   TH3F* hMassVSEtaPhiMinus_;
   TH2F* hMassVSEtaPlus_;
   TH2F* hMassVSEtaMinus_; 
+  TH2F* hMassVSEtaPlusMinusDiff_;
 
   TH3F* hMassVSPhiPlusPhiMinus_;
   TH3F* hMassVSEtaPlusEtaMinus_;
+
+  TProfile*  hMassVSCosThetaCS_prof;
 
   //TProfile* hMassVSPt_prof_;
   //TProfile* hMassVSEta_prof_;
@@ -2161,7 +2215,7 @@ class HMassResolutionVSPart : public Histograms
     int index = 0;
     for( int i=0; i<2; ++i ) {
       index = id[i];
-      mapHisto_[name_+"VSPt"+nameSuffix_[i]]->Fill(recoPt[index], massRes);
+      mapHisto_[name_+"VSPt"+nameSuffix_[i]]->Fill(recoPt[index], massRes); // EM [index] or [i]???
       mapHisto_[name_+"VSEta"+nameSuffix_[i]]->Fill(recoEta[index], massRes);
       mapHisto_[name_+"VSPhi"+nameSuffix_[i]]->Fill(recoPhi[index], massRes);
     }

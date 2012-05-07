@@ -87,7 +87,7 @@ public:
   void readTree( const int maxEvents, const TString & fileName, MuonPairVector * savedPair,
 		 const int muonType, std::vector<std::pair<int, int> > * evtRun, MuonPairVector * genPair = 0 )
   {
-    TFile * file = new TFile(fileName, "READ");
+    TFile * file = TFile::Open(fileName, "READ");
     if( file->IsOpen() ) {
       TTree * tree = (TTree*)file->Get("T");
       MuonPair * muonPair = 0;
@@ -122,7 +122,7 @@ public:
   void readTree( const int maxEvents, const TString & fileName, std::vector<MuonPair> * savedPair,
 		 const int muonType, std::vector<GenMuonPair> * genPair = 0 )
   {
-    TFile * file = new TFile(fileName, "READ");
+    TFile * file = TFile::Open(fileName, "READ");
     if( file->IsOpen() ) {
       TTree * tree = (TTree*)file->Get("T");
       MuonPair * muonPair = 0;

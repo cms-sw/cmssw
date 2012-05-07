@@ -1,3 +1,9 @@
+<use   name="hepmc"/>
+<use   name="heppdt"/>
+<use   name="clhep"/>
+<use   name="rootminuit"/>
+<use   name="rootrflx"/>
+<use   name="roothistmatrix"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/ParameterSet"/>
@@ -6,15 +12,9 @@
 <use   name="DataFormats/Common"/>
 <use   name="SimDataFormats/Track"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
-<use   name="hepmc"/>
-<use   name="heppdt"/>
-<use   name="clhep"/>
-<use   name="rootminuit"/>
-<use   name="rootrflx"/>
-<use   name="roothistmatrix"/>
 <use   name="CondFormats/RecoMuonObjects"/>
 <use   name="DataFormats/PatCandidates"/>
-
+<use   name="PhysicsTools/TagAndProbe"/>
 <export>
-  <lib name="MuonAnalysisMomentumScaleCalibration"/>
+  <lib name="1"/>
 </export>
