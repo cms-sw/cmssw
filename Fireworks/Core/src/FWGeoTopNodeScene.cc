@@ -5,6 +5,8 @@
 #include "TGLPhysicalShape.h"
 #include "TGLLogicalShape.h"
 #include "TGeoVolume.h"
+#include "TEveManager.h"
+#include "TEveSelection.h"
 #include "TBuffer3D.h"
 
 
@@ -93,6 +95,29 @@ Bool_t FWGeoTopNodeGLScene::ResolveSelectRecord(TGLSelectRecord& rec, Int_t curI
       return kTRUE;
    }
    return kFALSE;
+}
+
+//______________________________________________________________________________
+Int_t FWGeoTopNodeGLScene::DestroyPhysicals()
+{
+   // Need to clear state on full redraw, else FWGeoTopNode ends
+   // with invalid set of selected physical and logical ids.
+
+   if (gEve->GetSelection()->HasChild( fTopNodeJebo))
+      gEve->GetSelection()->RemoveElement( fTopNodeJebo);
+
+   if (gEve->GetHighlight()->HasChild( fTopNodeJebo))
+      gEve->GetHighlight()->RemoveElement( fTopNodeJebo);
+
+
+   return TGLScene::DestroyPhysicals();
+}
+
+//______________________________________________________________________________
+Bool_t FWGeoTopNodeGLScene::DestroyPhysical(Int_t x)
+{ 
+   fwLog(fwlog::kInfo) << "FWGeoTopNodeGLScene::DestroyPhysical()\n"; 
+   return TGLScene::DestroyPhysical(x);
 }
 
 //______________________________________________________________________________

@@ -28,6 +28,13 @@ public:
 
    bool OpenCompositeWithPhyID(UInt_t phyID, const TBuffer3D& buffer);
 
+   // virtual DestroyPhysicals() ... call fTopNodeJebo->ClearSelectionHighlight;
+   // There: if selected => gEve->GetSelection()->Remove(this) or sth
+   //        if highlighted .... "" .....
+
+   virtual Int_t DestroyPhysicals();
+   virtual Bool_t DestroyPhysical(Int_t);
+
    virtual Int_t  AddObject(const TBuffer3D& buffer, Bool_t* addChildren = 0);
 };
 
