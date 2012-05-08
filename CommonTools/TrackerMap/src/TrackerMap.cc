@@ -43,6 +43,8 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
   std::cout << jsfilename << std::endl;
   infilename=tkmapPset.getUntrackedParameter<std::string>("trackerdatPath","")+"tracker.dat";
   std::cout << infilename << std::endl;
+  saveWebInterface=tkmapPset.getUntrackedParameter<bool>("saveWebInterface",false);
+  saveGeoTrackerMap=tkmapPset.getUntrackedParameter<bool>("saveGeoTrackerMap",true);
   ncrates=0;
   enableFedProcessing=tkmapPset.getUntrackedParameter<bool>("loadFedCabling",false);
   nfeccrates=0;
@@ -631,6 +633,7 @@ if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
 //print_total = false represent in color the average  
 void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,int width, int height){
   
+  if(saveGeoTrackerMap){ 
   std::string filetype=s,outputfilename=s;
   std::vector<TPolyLine*> vp;
   TGaxis *axis = 0 ;
@@ -841,7 +844,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
          delete (*pos1);}
     
   }
-
+ }
   
 }
 void TrackerMap::drawApvPair(int crate, int numfed_incrate, bool print_total, TmApvPair* apvPair,std::ofstream * svgfile,bool useApvPairValue)
@@ -1714,7 +1717,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
 
   
   if(filetype=="xml"||filetype=="svg")temporary_file=false;
-  
+   
   std::ostringstream outs;
   minvalue=minval; maxvalue=maxval;
   outs << outputfilename << ".coor";
@@ -2950,7 +2953,7 @@ void TrackerMap::printall(bool print_total, float minval, float maxval, std::str
   std::string ifname;
   std::string line;
   std::string command;
-
+  if(saveWebInterface){
   ifilename=findfile("viewerHeader.xhtml");
   ofname << outputfilename << "viewer.html";
   ofilename = new std::ofstream(ofname.str().c_str(),std::ios::out);
@@ -3026,11 +3029,16 @@ ifilename=findfile("jqviewer.js");
    command = "scp -r ../../CommonTools/TrackerMap/data/images/ .";
     std::cout << "Executing " << command << std::endl;
     system(command.c_str());
+}
  
-  
+ if(saveGeoTrackerMap){ 
     std::ostringstream outs;
     outs << outputfilename<<".png";
-save(true,minval,maxval,outs.str(),3000,1600);
+    save(true,minval,maxval,outs.str(),3000,1600);
+    }
+  if(saveWebInterface){
+    std::ostringstream outs;
+    outs << outputfilename<<".png";
 temporary_file=false;
 printlayers(true,minval,maxval,outputfilename);
 
@@ -3065,11 +3073,13 @@ for (int layer=1; layer < 44; layer++){
                 }
     *txtfile << "</body></html>" << std::endl;
     txtfile->close();delete txtfile;
+}
                 }
 if(enableFedProcessing){
   std::ostringstream outs1,outs2;
     outs1 << outputfilename<<"fed.png";
 save_as_fedtrackermap(true,0.,0.,outs1.str(),6000,3200);
+  if(saveWebInterface){
     outs2 << outputfilename<<".xml";
 save_as_fedtrackermap(true,0.,0.,outs2.str(),3000,1600);
 //And a text file for each crate 
@@ -3100,11 +3110,13 @@ save_as_fedtrackermap(true,0.,0.,outs2.str(),3000,1600);
     *txtfile << "</body></html>" << std::endl;
     txtfile->close();delete txtfile;
                 }
+   }
   }
 if(enableFecProcessing){
   std::ostringstream outs1,outs2;
     outs1 << outputfilename<<"fec.png";
 save_as_fectrackermap(true,0.,0.,outs1.str(),6000,3200);
+  if(saveWebInterface){
     outs2 << outputfilename<<".xml";
 save_as_fectrackermap(true,0.,0.,outs2.str(),3000,1600);
 //And a text file for each crate
@@ -3141,11 +3153,12 @@ save_as_fectrackermap(true,0.,0.,outs2.str(),3000,1600);
     txtfile->close();
                 }//for int crate
   }
+  }
 if(enableLVProcessing){
   std::ostringstream outs3,outs4;
     outs3 << outputfilename<<"psu.png";
 save_as_psutrackermap(true,0.,0.,outs3.str(),6000,3200);
-
+  if(saveWebInterface){
     outs4 << outputfilename<<".xml";
 save_as_psutrackermap(true,0.,0.,outs4.str(),3000,1600);
 //And a text file for each rack 
@@ -3183,6 +3196,7 @@ save_as_psutrackermap(true,0.,0.,outs4.str(),3000,1600);
   *txtfile << "</body></html>" << std::endl;
    txtfile->close();
   }
+  }
  } 
 
 
@@ -3190,7 +3204,7 @@ if(enableHVProcessing){
   std::ostringstream outs5,outs6;
     outs5 << outputfilename<<"hv.png";
 save_as_HVtrackermap(true,0.,0.,outs5.str(),6000,3200);
-
+  if(saveWebInterface){
     outs6 << outputfilename<<".xml";
 save_as_HVtrackermap(true,0.,0.,outs6.str(),3000,1600);
 //And a text file for each rack 
@@ -3242,6 +3256,7 @@ save_as_HVtrackermap(true,0.,0.,outs6.str(),3000,1600);
   *txtfile << "</body></html>" << std::endl;
    txtfile->close();
   }
+ } 
  } 
 
 

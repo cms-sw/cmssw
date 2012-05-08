@@ -99,6 +99,8 @@ class TrackerMap {
   PsuModule psuModuleMap;
   int palette;
   bool printflag;
+  bool saveWebInterface;
+  bool saveGeoTrackerMap;
   bool enableFedProcessing;
   bool enableFecProcessing;
   bool enableLVProcessing;
