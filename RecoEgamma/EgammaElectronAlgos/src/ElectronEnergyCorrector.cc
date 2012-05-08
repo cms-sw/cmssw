@@ -15,7 +15,7 @@
  * \author Ivica Puljak - FESB, Split
  * \author Stephanie Baffioni - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: ElectronEnergyCorrector.cc,v 1.16 2012/02/22 17:36:44 chamont Exp $
+ * \version $Id: ElectronEnergyCorrector.cc,v 1.18 2012/04/26 14:39:17 chamont Exp $
  *
  ****************************************************************************/
 
@@ -307,18 +307,20 @@ float ElectronEnergyCorrector::fEt(float ET, int algorithm, reco::GsfElectron::C
  {
   if (algorithm==0) //Electrons EB
    {
-    float par[reco::GsfElectron::GAP+1][5] =
+    const float parClassIndep[5] = { 0.97213, 0.999528, 5.61192e-06, 0.0143269, -17.1776 } ;
+    const float par[reco::GsfElectron::GAP+1][5] =
      {
        { 0.974507, 1.16569, -0.000884133, 0.161423, -125.356 },
        { 0.974507, 1.16569, -0.000884133, 0.161423, -125.356 },
        { 0.96449, 0.991457, 0.000237869, 0.159983, -4.38755 },
        { 0.97956, 0.883959, 0.000782834, -0.106388, -124.394 },
-       { 0.97213, 0.999528, 5.61192e-06, 0.0143269, -17.1776 }
+       { parClassIndep[0], parClassIndep[1], parClassIndep[2], parClassIndep[3], parClassIndep[4] }
      } ;
-    if ( ET > 200 ) { ET =200 ; }
-    if ( ET < 5 ) { return 1. ; }
-    if ( 5 <= ET && ET < 10 ) { return par[cl][0] ; }
-    if ( 10 <= ET && ET <= 200 ) { return (par[cl][1]  + ET*par[cl][2])*(1- par[cl][3]*exp(ET/par[cl][4])) ; }
+    if ( ET > 200 ) { ET = 200 ; }
+    if ( ET > 100 ) { return (parClassIndep[1]+ET*parClassIndep[2]) * (1-parClassIndep[3]*exp(ET/parClassIndep[4])) ; }
+    if ( ET >= 10 ) { return (par[cl][1]+ET*par[cl][2]) * (1-par[cl][3]*exp(ET/par[cl][4])) ; }
+    if ( ET >=5 ) { return par[cl][0] ; }
+    return 1. ;
    }
   else if (algorithm==1) //Electrons EE
    {
