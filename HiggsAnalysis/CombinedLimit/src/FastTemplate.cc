@@ -27,7 +27,16 @@ void FastTemplate::CopyValues(const TH1 &other) {
      for (unsigned int i = 0; i < size_; ++i) values_[i] = other.GetBinContent(i+1);
 }
 
-void FastTemplate::Dump() {
+void FastTemplate::CopyValues(const TH2 &other) {
+    for (unsigned int i = 0, ix = 1, nx = other.GetNbinsX(), ny = other.GetNbinsY(); ix <= nx; ++ix) {
+        for (unsigned int iy = 1; iy <= ny; ++iy, ++i) {
+            values_[i] = other.GetBinContent(ix,iy);
+            //printf("FastTemplate::CopyValues from %s: (ix,iy) = (%d/%d,%d/%d), i = %d/%d, val = %.5f\n", other.GetName(), ix, nx, iy, ny,  i, size_, values_[i]);
+        }
+    }
+}
+
+void FastTemplate::Dump() const {
     printf("--- dumping template with %d bins (@%p) ---\n", size_+1, (void*)values_);
     for (unsigned int i = 0; i < size_; ++i) printf(" bin %3d: yval = %9.5f\n", i, values_[i]);
     printf("\n"); 
@@ -66,7 +75,7 @@ FastHisto::T FastHisto::IntegralWidth() const {
     return total;
 }
 
-void FastHisto::Dump() {
+void FastHisto::Dump() const {
     printf("--- dumping histo template with %d bins in range %.2f - %.2f (@%p)---\n", size_+1, binEdges_[0], binEdges_[size_], (void*)values_);
     for (unsigned int i = 0; i < size_; ++i) {
         printf(" bin %3d, x = %6.2f: yval = %9.5f, width = %6.3f\n", 
@@ -75,6 +84,79 @@ void FastHisto::Dump() {
     printf("\n"); 
 }
 
+FastHisto2D::FastHisto2D(const TH2 &hist, bool normXonly) :
+    FastTemplate(hist),
+    binX_(hist.GetNbinsX()), binY_(hist.GetNbinsY()),
+    binEdgesX_(new T[binX_+1]),
+    binEdgesY_(new T[binY_+1]),
+    binWidths_(new T[size_])
+{
+    TAxis *ax = hist.GetXaxis(), *ay = hist.GetYaxis();
+    for (unsigned int ix = 0; ix < binX_; ++ix) {
+        binEdgesX_[ix] = ax->GetBinLowEdge(ix+1);
+    }
+    binEdgesX_[binX_] = ax->GetBinLowEdge(binX_+1);
+    for (unsigned int iy = 0; iy < binY_; ++iy) {
+        binEdgesY_[iy] = ay->GetBinLowEdge(iy+1);
+    }
+    binEdgesY_[binY_] = ay->GetBinLowEdge(binY_+1);
+    for (unsigned int ix = 1, i = 0; ix <= binX_; ++ix) {
+        for (unsigned int iy = 1; iy <= binY_; ++iy, ++i) {
+            binWidths_[i] = (normXonly ? 1 : ax->GetBinWidth(ix))*ay->GetBinWidth(iy);
+        }
+    }
+}
+
+FastHisto2D::FastHisto2D(const FastHisto2D &other) :
+    FastTemplate(other),
+    binX_(other.binX_), binY_(other.binY_),
+    binEdgesX_(new T[binX_+1]),
+    binEdgesY_(new T[binY_+1]),
+    binWidths_(new T[size_])
+{
+    memcpy(binEdgesX_, other.binEdgesX_, (binX_+1)*sizeof(T));
+    memcpy(binEdgesY_, other.binEdgesY_, (binY_+1)*sizeof(T));
+    memcpy(binWidths_, other.binWidths_, size_*sizeof(T));
+}
+
+FastHisto2D::T FastHisto2D::GetAt(const T &x, const T &y) const {
+    T *matchx = std::lower_bound(binEdgesX_, binEdgesX_+binX_+1, x);
+    int ix = (matchx - binEdgesX_ - 1);
+    if (ix < 0 || unsigned(ix) >= binX_) return T(0.0);
+    T *matchy = std::lower_bound(binEdgesY_, binEdgesY_+binY_+1, y);
+    int iy = (matchy - binEdgesY_ - 1);
+    if (iy < 0 || unsigned(iy) >= binY_) return T(0.0);
+    return values_[ix * binY_ + iy];
+}
+
+FastHisto2D::T FastHisto2D::IntegralWidth() const {
+    T total = 0;
+    for (unsigned int i = 0; i < size_; ++i) total += values_[i] * binWidths_[i];
+    return total;
+}
+
+void FastHisto2D::NormalizeXSlices() {
+    for (unsigned int ix = 0, offs = 0; ix < binX_; ++ix, offs += binY_) {
+       T *values = & values_[offs], *widths = & binWidths_[offs];
+       T total = 0;
+       for (unsigned int i = 0; i < binY_; ++i) total += values[i] * widths[i];
+       if (total > 0) {
+            total = T(1.0)/total;
+            for (unsigned int i = 0; i < binY_; ++i) values[i] *= total;
+       } 
+    }
+}
+
+void FastHisto2D::Dump() const {
+    printf("--- dumping histo template with %d x %d bins (@%p)---\n", binX_, binY_, (void*)values_);
+    for (unsigned int i = 0; i < size_; ++i) {
+        printf(" bin %3d, x = %6.2f, y = %6.2f: yval = %9.5f, width = %6.3f\n", 
+                    i, 0.5*(binEdgesX_[i/binY_]+binEdgesX_[i/binY_+1]), 
+                       0.5*(binEdgesY_[i%binY_]+binEdgesY_[(i%binY_)+1]),
+                     values_[i], binWidths_[i]);
+    }
+    printf("\n"); 
+}
 
 
 namespace { 

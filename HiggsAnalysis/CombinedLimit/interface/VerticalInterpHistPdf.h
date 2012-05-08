@@ -64,19 +64,18 @@ protected:
   }
 };
 
-class FastVerticalInterpHistPdf : public RooAbsPdf {
+class FastVerticalInterpHistPdfBase : public RooAbsPdf {
 public:
 
-  FastVerticalInterpHistPdf() ;
-  FastVerticalInterpHistPdf(const char *name, const char *title, const RooRealVar &x, const RooArgList& funcList, const RooArgList& coefList, Double_t smoothRegion=1., Int_t smoothAlgo=1) ;
-  FastVerticalInterpHistPdf(const FastVerticalInterpHistPdf& other, const char* name=0) ;
-  explicit FastVerticalInterpHistPdf(const VerticalInterpHistPdf& other, const char* name=0) ;
-  virtual TObject* clone(const char* newname) const { return new FastVerticalInterpHistPdf(*this,newname) ; }
-  virtual ~FastVerticalInterpHistPdf() ;
+  FastVerticalInterpHistPdfBase() ;
+  FastVerticalInterpHistPdfBase(const char *name, const char *title, const RooArgSet &obs, const RooArgList& funcList, const RooArgList& coefList, Double_t smoothRegion=1., Int_t smoothAlgo=1) ;
+  FastVerticalInterpHistPdfBase(const FastVerticalInterpHistPdfBase& other, const char* name=0) ;
+  virtual TObject* clone(const char* newname) const = 0; 
+  virtual ~FastVerticalInterpHistPdfBase() ;
 
   Bool_t selfNormalized() const { return kTRUE; }
 
-  Double_t evaluate() const ;
+  Double_t evaluate() const = 0;
 
   const RooArgList& funcList() const { return _funcList ; }
   const RooArgList& coefList() const { return _coefList ; }
@@ -93,32 +92,112 @@ protected:
   // TH1 containing the histogram of this pdf
   mutable SimpleCacheSentry _sentry; // !not to be serialized
 
-  /// Cache of the result
-  mutable FastHisto _cache; //! not to be serialized
-  /// Cache of nominal pdf (additive morphing) and its bin-by-bin logarithm (multiplicative)
-  mutable FastHisto _cacheNominal; //! not to be serialized
-  mutable FastHisto _cacheNominalLog; //! not to be serialized
   // For additive morphing, histograms of (fUp-f0)+(fDown-f0) and (fUp-f0)-(fDown-f0)
   // For multiplicative morphing, log(fUp/f0)+log(fDown/f0),  log(fUp/f0)-log(fDown/f0)
   struct Morph { FastTemplate sum; FastTemplate diff; };
   mutable std::vector<Morph> _morphs;  //! not to be serialized
   mutable std::vector<RooAbsReal *> _morphParams;
-private:
 
-  ClassDef(FastVerticalInterpHistPdf,1) // 
+  // Prepare morphing data for a triplet of templates
+  void syncMorph(Morph &out, const FastTemplate &nominal, FastTemplate &lo, FastTemplate &hi) const;
 
-protected:
-  void setupCaches() const ;
-  void syncTotal() const ;
-  void syncComponent(int which) const ;
-  void syncNominal() const ;
-  void syncComponents(int dimension) const ;
+  // Do the vertical morphing from nominal value and morphs into cache. 
+  // Do not normalize yet, as that depends on the dimension of the template
+  void syncTotal(FastTemplate &cache, const FastTemplate &cacheNominal, const FastTemplate &cacheNominalLog) const ;
+
   // return a smooth function that is equal to +/-1 for |x| >= smoothRegion_ and it's null in zero
   inline double smoothStepFunc(double x) const { 
     if (fabs(x) >= _smoothRegion) return x > 0 ? +1 : -1;
     double xnorm = x/_smoothRegion, xnorm2 = xnorm*xnorm;
     return 0.125 * xnorm * (xnorm2 * (3.*xnorm2 - 10.) + 15);
   }
+
+private:
+  ClassDef(FastVerticalInterpHistPdfBase,1) // 
 };
+
+
+class FastVerticalInterpHistPdf : public FastVerticalInterpHistPdfBase {
+public:
+
+  FastVerticalInterpHistPdf() : FastVerticalInterpHistPdfBase() {}
+  FastVerticalInterpHistPdf(const char *name, const char *title, const RooRealVar &x, const RooArgList& funcList, const RooArgList& coefList, Double_t smoothRegion=1., Int_t smoothAlgo=1) :
+    FastVerticalInterpHistPdfBase(name,title,RooArgSet(x),funcList,coefList,smoothRegion,smoothAlgo),
+    _x("x","Independent variable",this,const_cast<RooRealVar&>(x)),
+    _cache(), _cacheNominal(), _cacheNominalLog()  {}
+  FastVerticalInterpHistPdf(const FastVerticalInterpHistPdf& other, const char* name=0) :
+    FastVerticalInterpHistPdfBase(other, name),
+    _x("x",this,other._x),
+    _cache(), _cacheNominal(), _cacheNominalLog()  {}
+  virtual TObject* clone(const char* newname) const { return new FastVerticalInterpHistPdf(*this,newname) ; }
+  virtual ~FastVerticalInterpHistPdf() {}
+
+  Double_t evaluate() const ;
+
+protected:
+  RooRealProxy   _x;
+
+  /// Cache of the result
+  mutable FastHisto _cache; //! not to be serialized
+  /// Cache of nominal pdf (additive morphing) and its bin-by-bin logarithm (multiplicative)
+  mutable FastHisto _cacheNominal; //! not to be serialized
+  mutable FastHisto _cacheNominalLog; //! not to be serialized
+
+  void setupCaches() const ;
+  void syncTotal() const ;
+  void syncComponent(int which) const ;
+  void syncNominal() const ;
+  void syncComponents(int dimension) const ;
+
+private:
+  ClassDef(FastVerticalInterpHistPdf,1) // 
+};
+
+class FastVerticalInterpHistPdf2D : public FastVerticalInterpHistPdfBase {
+public:
+
+  FastVerticalInterpHistPdf2D() : FastVerticalInterpHistPdfBase() {}
+  /// If conditional = false, the pdf is normalized integrating on (x,y). 
+  /// If conditional = true, the pdf is separately normalized integrating on (y) for each specific (x) bin
+  FastVerticalInterpHistPdf2D(const char *name, const char *title, const RooRealVar &x, const RooRealVar &y, bool conditional, const RooArgList& funcList, const RooArgList& coefList, Double_t smoothRegion=1., Int_t smoothAlgo=1) :
+    FastVerticalInterpHistPdfBase(name,title,RooArgSet(x,y),funcList,coefList,smoothRegion,smoothAlgo),
+    _x("x","Independent variable",this,const_cast<RooRealVar&>(x)),
+    _y("y","Independent variable",this,const_cast<RooRealVar&>(y)),
+    _conditional(conditional),
+    _cache(), _cacheNominal(), _cacheNominalLog()  {}
+  FastVerticalInterpHistPdf2D(const FastVerticalInterpHistPdf2D& other, const char* name=0) :
+    FastVerticalInterpHistPdfBase(other, name),
+    _x("x",this,other._x), _y("y",this,other._y), _conditional(other._conditional),
+    _cache(), _cacheNominal(), _cacheNominalLog()  {}
+  virtual TObject* clone(const char* newname) const { return new FastVerticalInterpHistPdf2D(*this,newname) ; }
+  virtual ~FastVerticalInterpHistPdf2D() {}
+
+  Double_t evaluate() const ;
+
+  Bool_t selfNormalized() const { return kTRUE; }
+
+protected:
+  RooRealProxy _x, _y;
+  bool _conditional;
+
+  /// Cache of the result
+  mutable FastHisto2D _cache; //! not to be serialized
+  /// Cache of nominal pdf (additive morphing) and its bin-by-bin logarithm (multiplicative)
+  mutable FastHisto2D _cacheNominal; //! not to be serialized
+  mutable FastHisto2D _cacheNominalLog; //! not to be serialized
+
+  void setupCaches() const ;
+  void syncTotal() const ;
+  void syncComponent(int which) const ;
+  void syncNominal() const ;
+  void syncComponents(int dimension) const ;
+
+private:
+  ClassDef(FastVerticalInterpHistPdf2D,1) // 
+};
+
+
+
+
 
 #endif

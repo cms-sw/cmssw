@@ -215,12 +215,13 @@ void VerticalInterpHistPdf::setupCaches() const {
 }
 
 //=============================================================================================
+ClassImp(FastVerticalInterpHistPdfBase)
 ClassImp(FastVerticalInterpHistPdf)
+ClassImp(FastVerticalInterpHistPdf2D)
 
 
 //_____________________________________________________________________________
-FastVerticalInterpHistPdf::FastVerticalInterpHistPdf() :
-    _cache()
+FastVerticalInterpHistPdfBase::FastVerticalInterpHistPdfBase() 
 {
   // Default constructor
   _funcIter  = _funcList.createIterator() ;
@@ -229,14 +230,12 @@ FastVerticalInterpHistPdf::FastVerticalInterpHistPdf() :
 
 
 //_____________________________________________________________________________
-FastVerticalInterpHistPdf::FastVerticalInterpHistPdf(const char *name, const char *title, const RooRealVar &x, const RooArgList& inFuncList, const RooArgList& inCoefList, Double_t smoothRegion, Int_t smoothAlgo) :
+FastVerticalInterpHistPdfBase::FastVerticalInterpHistPdfBase(const char *name, const char *title, const RooArgSet &obs, const RooArgList& inFuncList, const RooArgList& inCoefList, Double_t smoothRegion, Int_t smoothAlgo) :
   RooAbsPdf(name,title),
-  _x("x","Independent variable",this,const_cast<RooRealVar&>(x)),
   _funcList("funcList","List of pdfs",this),
   _coefList("coefList","List of coefficients",this), // we should get shapeDirty when coefficients change
   _smoothRegion(smoothRegion),
   _smoothAlgo(smoothAlgo),
-  _cache(), _cacheNominal(), _cacheNominalLog(),
   _morphs(), _morphParams()
 { 
 
@@ -254,7 +253,7 @@ FastVerticalInterpHistPdf::FastVerticalInterpHistPdf(const char *name, const cha
       coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") function  " << func->GetName() << " is not of type RooAbsPdf" << endl;
       assert(0);
     }
-    RooArgSet *params = pdf->getParameters(RooArgSet(x));
+    RooArgSet *params = pdf->getParameters(obs);
     if (params->getSize() > 0) {
       coutE(InputArguments) << "ERROR: VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() << ") pdf  " << func->GetName() << " has some parameters." << endl;
       assert(0);
@@ -281,45 +280,28 @@ FastVerticalInterpHistPdf::FastVerticalInterpHistPdf(const char *name, const cha
 }
 
 //_____________________________________________________________________________
-FastVerticalInterpHistPdf::FastVerticalInterpHistPdf(const VerticalInterpHistPdf& other, const char* name) :
+FastVerticalInterpHistPdfBase::FastVerticalInterpHistPdfBase(const FastVerticalInterpHistPdfBase& other, const char* name) :
   RooAbsPdf(other,name),
-  _x("x",this,other.x()),
   _funcList("funcList",this,other._funcList),
   _coefList("coefList",this,other._coefList),
   _smoothRegion(other._smoothRegion),
   _smoothAlgo(other._smoothAlgo),
-  _cache(), _cacheNominal(), _cacheNominalLog(),
   _morphs(), _morphParams()
 {
   // Copy constructor
-
   _funcIter  = _funcList.createIterator() ;
   _coefIter = _coefList.createIterator() ;
 }
 
 
 //_____________________________________________________________________________
-FastVerticalInterpHistPdf::FastVerticalInterpHistPdf(const FastVerticalInterpHistPdf& other, const char* name) :
-  RooAbsPdf(other,name),
-  _x("x",this,other._x),
-  _funcList("funcList",this,other._funcList),
-  _coefList("coefList",this,other._coefList),
-  _smoothRegion(other._smoothRegion),
-  _smoothAlgo(other._smoothAlgo),
-  _cache(), _cacheNominal(), _cacheNominalLog(),
-  _morphs(), _morphParams()
-{
-  _funcIter  = _funcList.createIterator() ;
-  _coefIter = _coefList.createIterator() ;
-}
-
-//_____________________________________________________________________________
-FastVerticalInterpHistPdf::~FastVerticalInterpHistPdf()
+FastVerticalInterpHistPdfBase::~FastVerticalInterpHistPdfBase()
 {
   // Destructor
   delete _funcIter ;
   delete _coefIter ;
 }
+
 
 //_____________________________________________________________________________
 Double_t FastVerticalInterpHistPdf::evaluate() const 
@@ -329,6 +311,16 @@ Double_t FastVerticalInterpHistPdf::evaluate() const
   if (!_sentry.good()) syncTotal();
   return std::max<float>(1e-9f, _cache.GetAt(_x));
 }
+
+//_____________________________________________________________________________
+Double_t FastVerticalInterpHistPdf2D::evaluate() const 
+{
+  if (_cache.size() == 0) setupCaches();
+
+  if (!_sentry.good()) syncTotal();
+  return std::max<float>(1e-9f, _cache.GetAt(_x, _y));
+}
+
 
 
 void FastVerticalInterpHistPdf::syncNominal() const {
@@ -344,6 +336,37 @@ void FastVerticalInterpHistPdf::syncNominal() const {
     }
 }
 
+void FastVerticalInterpHistPdf2D::syncNominal() const {
+    RooAbsPdf *pdf = dynamic_cast<RooAbsPdf *>(_funcList.at(0));
+    const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
+    const RooRealVar &y = dynamic_cast<const RooRealVar &>(_y.arg());
+    const RooCmdArg &cond = _conditional ? RooFit::ConditionalObservables(RooArgSet(x)) : RooCmdArg::none();
+    std::auto_ptr<TH1> hist(pdf->createHistogram("", x, RooFit::YVar(y), cond));
+    hist->SetDirectory(0); 
+    _cacheNominal = FastHisto2D(dynamic_cast<TH2F&>(*hist), _conditional);
+    if (_conditional) _cacheNominal.NormalizeXSlices(); 
+    else              _cacheNominal.Normalize(); 
+
+    if (_smoothAlgo < 0) {
+        _cacheNominalLog = _cacheNominal;
+        _cacheNominalLog.Log();
+    }
+}
+
+
+
+void FastVerticalInterpHistPdfBase::syncMorph(Morph &out, const FastTemplate &nominal, FastTemplate &lo, FastTemplate &hi) const {
+    if (_smoothAlgo < 0)  {
+        hi.LogRatio(nominal); lo.LogRatio(nominal);
+        //printf("Log-ratios for dimension %d: \n", dim);  hi.Dump(); lo.Dump();
+    } else {
+        hi.Subtract(nominal); lo.Subtract(nominal);
+        //printf("Differences for dimension %d: \n", dim);  hi.Dump(); lo.Dump();
+    }
+    FastTemplate::SumDiff(hi, lo, out.sum, out.diff);
+    //printf("Sum and diff for dimension %d: \n", dim);  out.sum.Dump(); out.diff.Dump();
+}
+
 void FastVerticalInterpHistPdf::syncComponents(int dim) const {
     RooAbsPdf *pdfHi = dynamic_cast<RooAbsPdf *>(_funcList.at(2*dim+1));
     RooAbsPdf *pdfLo = dynamic_cast<RooAbsPdf *>(_funcList.at(2*dim+2));
@@ -355,20 +378,30 @@ void FastVerticalInterpHistPdf::syncComponents(int dim) const {
     //printf("Un-normalized templates for dimension %d: \n", dim);  hi.Dump(); lo.Dump();
     hi.Normalize(); lo.Normalize();
     //printf("Normalized templates for dimension %d: \n", dim);  hi.Dump(); lo.Dump();
-    Morph &out = _morphs[dim];
-    if (_smoothAlgo < 0)  { 
-        hi.LogRatio(_cacheNominal); lo.LogRatio(_cacheNominal); 
-        //printf("Log-ratios for dimension %d: \n", dim);  hi.Dump(); lo.Dump();
+    syncMorph(_morphs[dim], _cacheNominal, lo, hi);
+}
+void FastVerticalInterpHistPdf2D::syncComponents(int dim) const {
+    RooAbsPdf *pdfHi = dynamic_cast<RooAbsPdf *>(_funcList.at(2*dim+1));
+    RooAbsPdf *pdfLo = dynamic_cast<RooAbsPdf *>(_funcList.at(2*dim+2));
+    const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
+    const RooRealVar &y = dynamic_cast<const RooRealVar &>(_y.arg());
+    const RooCmdArg &cond = _conditional ? RooFit::ConditionalObservables(RooArgSet(x)) : RooCmdArg::none();
+    std::auto_ptr<TH1> histHi(pdfHi->createHistogram("", x, RooFit::YVar(y), cond)); histHi->SetDirectory(0); 
+    std::auto_ptr<TH1> histLo(pdfLo->createHistogram("", x, RooFit::YVar(y), cond)); histLo->SetDirectory(0);
+
+    FastHisto2D hi(dynamic_cast<TH2&>(*histHi), _conditional), lo(dynamic_cast<TH2&>(*histLo), _conditional); 
+    //printf("Un-normalized templates for dimension %d: \n", dim);  hi.Dump(); lo.Dump();
+    if (_conditional) {
+        hi.NormalizeXSlices(); lo.NormalizeXSlices();
     } else {
-        hi.Subtract(_cacheNominal); lo.Subtract(_cacheNominal); 
-        //printf("Differences for dimension %d: \n", dim);  hi.Dump(); lo.Dump();
+        hi.Normalize(); lo.Normalize();
     }
-    FastTemplate::SumDiff(hi, lo, out.sum, out.diff);
-    //printf("Sum and diff for dimension %d: \n", dim);  out.sum.Dump(); out.diff.Dump();
+    //printf("Normalized templates for dimension %d: \n", dim);  hi.Dump(); lo.Dump();
+    syncMorph(_morphs[dim], _cacheNominal, lo, hi);
 }
 
 
-void FastVerticalInterpHistPdf::syncTotal() const {
+void FastVerticalInterpHistPdfBase::syncTotal(FastTemplate &cache, const FastTemplate &cacheNominal, const FastTemplate &cacheNominalLog) const {
     /* === how the algorithm works, in theory ===
      * let  dhi = h_hi - h_nominal
      *      dlo = h_lo - h_nominal
@@ -387,32 +420,46 @@ void FastVerticalInterpHistPdf::syncTotal() const {
      * ========================================== */
 
     // start from nominal
-    _cache.CopyValues(_smoothAlgo < 0 ? _cacheNominalLog : _cacheNominal);
-    //printf("Cache initialized to nominal template: \n");  _cacheNominal.Dump();
+    cache.CopyValues(_smoothAlgo < 0 ? cacheNominalLog : cacheNominal);
+    //printf("Cache initialized to nominal template: \n");  cacheNominal.Dump();
 
     // apply all morphs one by one
     for (int i = 0, ndim = _coefList.getSize(); i < ndim; ++i) {
         double x = _morphParams[i]->getVal();
         double a = 0.5*x, b = smoothStepFunc(x);
-        _cache.Meld(_morphs[i].diff, _morphs[i].sum, a, b);    
-        //printf("Merged transformation for dimension %d, x = %+5.3f, step = %.3f: \n", i, x, b);  _cache.Dump();
+        cache.Meld(_morphs[i].diff, _morphs[i].sum, a, b);    
+        //printf("Merged transformation for dimension %d, x = %+5.3f, step = %.3f: \n", i, x, b);  cache.Dump();
     }
 
     // if necessary go back to linear scale
     if (_smoothAlgo < 0) {
-        _cache.Exp();
-        //printf("Done exponential tranformation\n");  _cache.Dump();
+        cache.Exp();
+        //printf("Done exponential tranformation\n");  cache.Dump();
     } else {
-        _cache.CropUnderflows();
+        cache.CropUnderflows();
     }
     
-    // normalize the result
-    _cache.Normalize();
-    //printf("Normalized result\n");  _cache.Dump();
-
     // mark as done
     _sentry.reset();
 }
+
+void FastVerticalInterpHistPdf::syncTotal() const {
+    FastVerticalInterpHistPdfBase::syncTotal(_cache, _cacheNominal, _cacheNominalLog);
+
+    // normalize the result
+    _cache.Normalize(); 
+    //printf("Normalized result\n");  _cache.Dump();
+}
+
+void FastVerticalInterpHistPdf2D::syncTotal() const {
+    FastVerticalInterpHistPdfBase::syncTotal(_cache, _cacheNominal, _cacheNominalLog);
+    // normalize the result
+    if (_conditional) _cache.NormalizeXSlices(); 
+    else              _cache.Normalize(); 
+    //printf("Normalized result\n");  _cache.Dump();
+}
+
+
 
 void FastVerticalInterpHistPdf::setupCaches() const {
     int ndim = _coefList.getSize();
@@ -433,4 +480,25 @@ void FastVerticalInterpHistPdf::setupCaches() const {
     _sentry.addVars(_coefList); 
     syncTotal();
 }
+
+void FastVerticalInterpHistPdf2D::setupCaches() const {
+    int ndim = _coefList.getSize();
+
+    _morphs.resize(ndim);
+    _morphParams.resize(ndim);
+    syncNominal();
+    //printf("Nominal template has been set up: \n");  _cacheNominal.Dump();
+    _coefIter->Reset();
+    for (int i = 0; i < ndim; ++i) {
+        _morphParams[i] = dynamic_cast<RooAbsReal *>(_coefIter->Next());
+        _morphs[i].sum.Resize(_cacheNominal.size());
+        _morphs[i].diff.Resize(_cacheNominal.size());
+        syncComponents(i);
+    } 
+    _cache = FastHisto2D(_cacheNominal);
+
+    _sentry.addVars(_coefList); 
+    syncTotal();
+}
+
 

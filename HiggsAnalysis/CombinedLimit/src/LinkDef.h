@@ -23,7 +23,9 @@
 #pragma link C++ class DebugProposal+;
 #pragma link C++ class VerticalInterpPdf+;
 #pragma link C++ class VerticalInterpHistPdf+;
+#pragma link C++ class FastVerticalInterpHistPdfBase+;
 #pragma link C++ class FastVerticalInterpHistPdf+;
+#pragma link C++ class FastVerticalInterpHistPdf2D+;
 #pragma link C++ class AsymPow+;
 #pragma link C++ class CombDataSetFactory+;
 #pragma link C++ class TH1Keys+;
