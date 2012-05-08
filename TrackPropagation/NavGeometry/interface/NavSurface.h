@@ -5,6 +5,9 @@
 
 #include <utility>
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
+
 class NavVolume;
 class TrajectoryStateOnSurface;
 class Propagator;

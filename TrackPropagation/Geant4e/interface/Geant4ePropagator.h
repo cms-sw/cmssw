@@ -18,7 +18,7 @@ class Geant4eSteppingAction;
  *  See that class for more details.
  */
 
-class Geant4ePropagator: public Propagator {
+class Geant4ePropagator GCC11_FINAL : public Propagator {
 
  public:
   /** Constructor. Takes as arguments:

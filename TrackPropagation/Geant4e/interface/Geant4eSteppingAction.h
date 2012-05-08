@@ -3,12 +3,15 @@
 
 #include "G4UserSteppingAction.hh"
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
+
 /** A G4 User stepping action used to calculate the total track. The method
     G4UserSteppingAction::UserSteppingAction(const G4Step*) should be 
     automatically called by G4eManager at each step. 
 
  */
-class Geant4eSteppingAction: public G4UserSteppingAction {
+class Geant4eSteppingAction GCC11_FINAL : public G4UserSteppingAction {
  public:
   Geant4eSteppingAction():theTrackLength(0) {}
   virtual ~Geant4eSteppingAction() {}

@@ -18,7 +18,7 @@ class NavVolume;
 class MagVolume;
 
 
-class NavPropagator : public Propagator {
+class NavPropagator GCC11_FINAL : public Propagator {
 
 public:
 

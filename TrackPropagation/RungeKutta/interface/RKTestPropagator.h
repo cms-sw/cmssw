@@ -19,13 +19,13 @@ class RKLocalFieldProvider;
 class CartesianStateAdaptor;
 
 
-class RKTestField : public MagneticField
+class RKTestField GCC11_FINAL : public MagneticField
 {
  public:
   virtual GlobalVector inTesla ( const GlobalPoint& ) const {return GlobalVector(0,0,4);}
 };
 
-class RKTestFieldProvider : public MagneticFieldProvider<float> {
+class RKTestFieldProvider GCC11_FINAL : public MagneticFieldProvider<float> {
 public:
 
 RKTestFieldProvider (const MagneticField* field) : theField(field) {}
@@ -44,7 +44,7 @@ RKTestFieldProvider (const MagneticField* field) : theField(field) {}
 
 };
 
-class RKTestMagVolume : public MagVolume {
+class RKTestMagVolume GCC11_FINAL : public MagVolume {
 public:
   RKTestMagVolume( const PositionType& pos, const RotationType& rot, 
 		       DDSolidShape shape, const MagneticFieldProvider<float> * mfp) :
@@ -62,7 +62,7 @@ private:
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
-class RKTestPropagator : public Propagator {
+class RKTestPropagator GCC11_FINAL : public Propagator {
  public:
 
 

@@ -10,7 +10,7 @@ class Bounds;
 class Plane;
 class TrajectoryStateOnSurface;
 
-class NavVolume6Faces : public NavVolume {
+class NavVolume6Faces GCC11_FINAL : public NavVolume {
 public:
 
     NavVolume6Faces( const PositionType& pos, const RotationType& rot, 
