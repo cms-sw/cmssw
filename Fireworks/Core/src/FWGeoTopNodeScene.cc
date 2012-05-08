@@ -14,11 +14,11 @@
 FWGeoTopNodeGLScene::FWGeoTopNodeGLScene(TVirtualPad* pad) :
    TGLScenePad(pad),
    // fNextCompositeID(0),
-   fTopNodeJebo(0)
+   m_eveTopNode(0)
 {
    // Constructor.
    // fInternalPIDs = false;
-   fTitle="JeboScene";
+   fTitle="GeoTopNodeScene";
 }
 
 //______________________________________________________________________________
@@ -88,9 +88,9 @@ Bool_t FWGeoTopNodeGLScene::ResolveSelectRecord(TGLSelectRecord& rec, Int_t curI
       rec.SetPhysShape(pshp);
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,32,0)
-      rec.SetLogShape(FindLogical(fTopNodeJebo));
+      rec.SetLogShape(FindLogical(m_eveTopNode));
 #endif
-      rec.SetObject(fTopNodeJebo);
+      rec.SetObject(m_eveTopNode);
       rec.SetSpecific(0);
       return kTRUE;
    }
@@ -103,11 +103,11 @@ Int_t FWGeoTopNodeGLScene::DestroyPhysicals()
    // Need to clear state on full redraw, else FWGeoTopNode ends
    // with invalid set of selected physical and logical ids.
 
-   if (gEve->GetSelection()->HasChild( fTopNodeJebo))
-      gEve->GetSelection()->RemoveElement( fTopNodeJebo);
+   if (gEve->GetSelection()->HasChild( m_eveTopNode))
+      gEve->GetSelection()->RemoveElement( m_eveTopNode);
 
-   if (gEve->GetHighlight()->HasChild( fTopNodeJebo))
-      gEve->GetHighlight()->RemoveElement( fTopNodeJebo);
+   if (gEve->GetHighlight()->HasChild( m_eveTopNode))
+      gEve->GetHighlight()->RemoveElement( m_eveTopNode);
 
 
    return TGLScene::DestroyPhysicals();
@@ -123,7 +123,7 @@ Bool_t FWGeoTopNodeGLScene::DestroyPhysical(Int_t x)
 //______________________________________________________________________________
 void FWGeoTopNodeGLScene::GeoPopupMenu(Int_t gx, Int_t gy, TGLViewer* v)
 {
-   fTopNodeJebo->popupMenu(gx, gy,v);
+   m_eveTopNode->popupMenu(gx, gy,v);
 }
 
 //==============================================================================

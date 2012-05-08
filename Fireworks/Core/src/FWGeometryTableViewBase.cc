@@ -585,7 +585,7 @@ void FWGeometryTableViewBase::refreshTable3D()
       if (gEve->GetHighlight()->HasChild(m_eveTopNode))
          gEve->GetHighlight()->RemoveElement(m_eveTopNode);
 
-      m_eveTopNode->fSceneJebo->PadPaint(m_eveTopNode->fSceneJebo->GetPad());
+      m_eveTopNode->m_scene->PadPaint(m_eveTopNode->m_scene->GetPad());
       gEve->Redraw3D(); 
 
       getTableManager()->redrawTable();
@@ -606,7 +606,7 @@ void FWGeometryTableViewBase::addTo(FWConfiguration& iTo) const
       for (TEveElement::List_i eit = (*k)->BeginChildren(); eit != (*k)->EndChildren(); ++eit )
       {
          TEveScene* s = ((TEveSceneInfo*)*eit)->GetScene();
-         if (s->GetGLScene() == m_eveTopNode->fSceneJebo)
+         if (s->GetGLScene() == m_eveTopNode->m_scene)
          {
             viewers.addKeyValue( (*k)->GetElementName(), tempArea);
             break;

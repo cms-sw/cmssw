@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:34 CET 2012
-// $Id: FWGeometryTableView.cc,v 1.33 2012/05/04 00:22:06 amraktad Exp $
+// $Id: FWGeometryTableView.cc,v 1.34 2012/05/04 03:00:38 amraktad Exp $
 //
 
 // system include files
@@ -160,8 +160,8 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
    m_eveTopNode->SetPickable(true);
    m_eveScene->AddElement(m_eveTopNode);
 
-   gls->fTopNodeJebo = m_eveTopNode;
-   m_eveTopNode->fSceneJebo   = gls;
+   gls->m_eveTopNode = m_eveTopNode;
+   m_eveTopNode->m_scene   = gls;
 
    // top row
    TGHorizontalFrame *hp = new TGHorizontalFrame(m_frame);
