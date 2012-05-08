@@ -17,7 +17,8 @@ class FitMassSlices : public FitSlices
 	   const TString & signalType = "gaussian", const TString & backgroundType = "exponential",
 	   const double & xMean = 3.1, const double & xMin = 3., const double & xMax = 3.2,
 	   const double & sigma = 0.03, const double & sigmaMin = 0., const double & sigmaMax = 0.1,
-	   const int rebinXphi = 0,
+	   // change 0 if you want to rebin phi distributions
+	   const int rebinXphi = 0, 
 	   TDirectory * externalDir = 0,
 	   const TString & histoBaseName = "hRecBestResVSMu", const TString & histoBaseTitle = "MassVs")
   {
@@ -63,7 +64,7 @@ class FitMassSlices : public FitSlices
              signalType, backgroundType,
              inputFile, dir);
 
-    if( rebinXphi != 0 ) rebinX = rebinXphi;
+    if( rebinXphi != 0 ) rebinX = 8*rebinXphi;
     fitSlice(histoBaseName+"_MassVSPhiPlus", histoBaseTitle+"PhiPlus",
     	     xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
     	     signalType, backgroundType,
@@ -83,6 +84,23 @@ class FitMassSlices : public FitSlices
              xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
              signalType, backgroundType,
              inputFile, dir);
+
+    // New entries...
+    
+    fitSlice(histoBaseName+"_MassVSEtaPlusMinusDiff", histoBaseTitle+"EtaPlusMinusDiff",
+	     xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
+             signalType, backgroundType,
+             inputFile, dir);
+    
+    fitSlice(histoBaseName+"_MassVSCosThetaCS", histoBaseTitle+"CosThetaCS",
+             xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
+	     signalType, backgroundType,
+	     inputFile, dir);
+
+    fitSlice(histoBaseName+"_MassVSPhiCS", histoBaseTitle+"PhiCS",
+             xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
+	     signalType, backgroundType,
+	     inputFile, dir);
 
     if( outputFile != 0 ) {
       outputFile->Write();

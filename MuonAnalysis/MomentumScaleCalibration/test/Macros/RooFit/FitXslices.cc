@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <sstream>
+#include "TColor.h"
 #include "TH2F.h"
 #include "TH3F.h"
 #include "TDirectory.h"
@@ -55,6 +56,17 @@ public:
     gDirectory->mkdir("allHistos");
     gDirectory->cd("allHistos");
 
+/*
+    const Int_t NRGBs = 3;
+    const Int_t NCont = 255;
+    Double_t stops[NRGBs] = {0.00,   0.50,   1.00};
+    Double_t red[NRGBs]   = {1.00,   0.50,   0.00};
+    Double_t green[NRGBs] = {0.00,   0.00,   0.00};
+    Double_t blue[NRGBs]  = {0.00,   0.50,   1.00};    
+    TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+    gStyle->SetNumberContours(NCont);
+*/
+    gStyle->SetPalette(1);
   // Loop on all X bins, project on Y and fit the resulting TH1
     TString name = histo->GetName();
     unsigned int binsX = histo->GetNbinsX();
@@ -171,7 +183,6 @@ public:
     // Create and move in a subdir
     gDirectory->mkdir("allHistos");
     gDirectory->cd("allHistos");
-    gStyle->SetPalette(1);
 
    // Loop on all X bins, project on Y and fit the resulting TH2
     TString name = histo->GetName();
@@ -184,6 +195,9 @@ public:
     // The canvas for the results of the fit (the mean values for the gaussians +- errors)
     TCanvas * meanCanvas = new TCanvas("meanCanvas", "meanCanvas", 1000, 800);
     TH2D * meanHisto = new TH2D("meanHisto", "meanHisto", binsX, histo->GetXaxis()->GetXmin(), histo->GetXaxis()->GetXmax(), binsY, histo->GetYaxis()->GetXmin(), histo->GetYaxis()->GetXmax());
+
+    TCanvas * errorMeanCanvas = new TCanvas("errorMeanCanvas", "errorMeanCanvas", 1000, 800);
+    TH2D * errorMeanHisto = new TH2D("errorMeanHisto", "errorMeanHisto", binsX, histo->GetXaxis()->GetXmin(), histo->GetXaxis()->GetXmax(), binsY, histo->GetYaxis()->GetXmin(), histo->GetYaxis()->GetXmax());
 
     TCanvas * sigmaCanvas = new TCanvas("sigmaCanvas", "sigmaCanvas", 1000, 800);
     TH2D * sigmaHisto = new TH2D("sigmaHisto", "sigmaHisto", binsX, histo->GetXaxis()->GetXmin(), histo->GetXaxis()->GetXmax(),binsY, histo->GetYaxis()->GetXmin(), histo->GetYaxis()->GetXmax());
@@ -232,6 +246,7 @@ public:
       
       RooRealVar * mean = fitter_.mean();
       meanHisto->SetBinContent(it->first%(binsX+1), int(it->first/(binsX+1)), mean->getVal());
+      errorMeanHisto->SetBinContent(it->first%(binsX+1), int(it->first/(binsX+1)), mean->getError());
       //      meanHisto->SetBinError(it->first%binsX, int(it->first/binsX), mean->getError());
       //std::cout<<"int i -->"<<i<<std::endl;
       //std::cout<< " it->first%(binsX+1) --> "<<it->first%(binsX+1)<<std::endl;
