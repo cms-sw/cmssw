@@ -6,6 +6,7 @@
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/MuonReco"/>
 <use   name="DataFormats/GsfTrackReco"/>
+<use   name="DataFormats/VertexReco"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="Utilities/General"/>
 <use   name="root"/>
