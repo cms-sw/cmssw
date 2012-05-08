@@ -36,6 +36,10 @@ class RunMEtUncertainties(ConfigToolBase):
                           "Flag to enable/disable jet smearing to better match MC to Data", Type=bool)
         self.addParameter(self._defaultParameters, 'doApplyType0corr', True, 
                           "Flag to enable/disable usage of Type-0 MET corrections", Type=bool)
+        self.addParameter(self._defaultParameters, 'sysShiftCorrParameter', None,
+                          "MET sys. shift correction parameters", Type=cms.PSet)
+        self.addParameter(self._defaultParameters, 'doApplySysShiftCorr', False,
+                          "Flag to enable/disable usage of MET sys. shift corrections", Type=bool)
 	self.addParameter(self._defaultParameters, 'jetSmearFileName', 'PhysicsTools/PatUtils/data/pfJetResolutionMCtoDataCorrLUT.root', 
                           "Name of ROOT file containing histogram with jet smearing factors", Type=str) 
         self.addParameter(self._defaultParameters, 'jetSmearHistogram', 'pfJetResolutionMCtoDataCorrLUT', 
@@ -196,6 +200,8 @@ class RunMEtUncertainties(ConfigToolBase):
                  jetCorrLabel            = None,
                  doSmearJets             = None,
                  doApplyType0corr        = None,
+                 sysShiftCorrParameter   = None,
+                 doApplySysShiftCorr     = None,
                  jetSmearFileName        = None,
                  jetSmearHistogram       = None,
                  pfCandCollection        = None,
@@ -216,6 +222,14 @@ class RunMEtUncertainties(ConfigToolBase):
             doSmearJets = self._defaultParameters['doSmearJets'].value
         if doApplyType0corr is None:
             doApplyType0corr = self._defaultParameters['doApplyType0corr'].value
+        if sysShiftCorrParameter is None:
+            sysShiftCorrParameter = self._defaultParameters['sysShiftCorrParameter'].value    
+        if doApplySysShiftCorr is None:
+            doApplySysShiftCorr = self._defaultParameters['doApplySysShiftCorr'].value
+        if sysShiftCorrParameter is None:
+            if doApplySysShiftCorr:
+                raise ValueError("MET sys. shift correction parameters must be specified explicitely !!")
+            sysShiftCorrParameter = cms.PSet()
         if jetSmearFileName is None:
             jetSmearFileName = self._defaultParameters['jetSmearFileName'].value
         if jetSmearHistogram is None:
@@ -239,6 +253,8 @@ class RunMEtUncertainties(ConfigToolBase):
         self.setParameter('dRjetCleaning', dRjetCleaning)
         self.setParameter('doSmearJets', doSmearJets)
         self.setParameter('doApplyType0corr', doApplyType0corr)
+        self.setParameter('doApplySysShiftCorr', doApplySysShiftCorr)
+        self.setParameter('sysShiftCorrParameter', sysShiftCorrParameter)
         self.setParameter('jetSmearFileName', jetSmearFileName)
         self.setParameter('jetSmearHistogram', jetSmearHistogram)
         self.setParameter('pfCandCollection', pfCandCollection)
@@ -259,6 +275,8 @@ class RunMEtUncertainties(ConfigToolBase):
         dRjetCleaning =  self._parameters['dRjetCleaning'].value
         doSmearJets = self._parameters['doSmearJets'].value
         doApplyType0corr = self._parameters['doApplyType0corr'].value
+        sysShiftCorrParameter = self._parameters['sysShiftCorrParameter'].value
+        doApplySysShiftCorr = self._parameters['doApplySysShiftCorr'].value        
         jetSmearFileName = self._parameters['jetSmearFileName'].value
         jetSmearHistogram = self._parameters['jetSmearHistogram'].value
         pfCandCollection = self._parameters['pfCandCollection'].value
@@ -506,9 +524,26 @@ class RunMEtUncertainties(ConfigToolBase):
         process.pfCandsNotInJet.bottomCollection = pfCandCollection        
         process.selectedPatJetsForMETtype1p2Corr.src = lastJetCollection
         process.selectedPatJetsForMETtype2Corr.src = lastJetCollection
+        
         if not hasattr(process, 'producePatPFMETCorrections'):
             process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
+
+        if doApplySysShiftCorr:
+            if not hasattr(process, 'pfMEtSysShiftCorrSequence'):
+                process.load("JetMETCorrections.Type1MET.pfMETsysShiftCorrections_cfi")
+            process.pfMEtSysShiftCorr.parameter = sysShiftCorrParameter
+            process.metUncertaintySequence += process.pfMEtSysShiftCorrSequence
+
         process.metUncertaintySequence += process.producePatPFMETCorrections
+        
+        patType1correctionsCentralValue = [ cms.InputTag('patPFJetMETtype1p2Corr', 'type1') ]
+        if doApplyType0corr:
+            patType1correctionsCentralValue.extend([ cms.InputTag('patPFMETtype0Corr') ])
+        if doApplySysShiftCorr:
+            patType1correctionsCentralValue.extend([ cms.InputTag('pfMEtSysShiftCorr') ])
+        process.patType1CorrectedPFMet.srcType1Corrections = cms.VInputTag(patType1correctionsCentralValue)
+        process.patType1p2CorrectedPFMet.srcType1Corrections = cms.VInputTag(patType1correctionsCentralValue)
+        
         collectionsToKeep.extend([
             'patPFMet',
             'patType1CorrectedPFMet',
@@ -603,7 +638,9 @@ class RunMEtUncertainties(ConfigToolBase):
 
         patType1correctionsJetEnUp = [ cms.InputTag('patPFJetMETtype1p2CorrEnUp', 'type1') ]
         if doApplyType0corr:
-            patType1correctionsJetEnUp.extend([ cms.InputTag('patPFMETtype0Corr') ])        
+            patType1correctionsJetEnUp.extend([ cms.InputTag('patPFMETtype0Corr') ])
+        if doApplySysShiftCorr:
+            patType1correctionsJetEnUp.extend([ cms.InputTag('pfMEtSysShiftCorr') ])
         process.patType1p2CorrectedPFMetJetEnUp = process.patType1p2CorrectedPFMet.clone(
             srcType1Corrections = cms.VInputTag(patType1correctionsJetEnUp),
             srcUnclEnergySums = cms.VInputTag(
@@ -617,7 +654,9 @@ class RunMEtUncertainties(ConfigToolBase):
         collectionsToKeep.append('patType1p2CorrectedPFMetJetEnUp')
         patType1correctionsJetEnDown = [ cms.InputTag('patPFJetMETtype1p2CorrEnDown', 'type1') ]
         if doApplyType0corr:
-            patType1correctionsJetEnDown.extend([ cms.InputTag('patPFMETtype0Corr') ])  
+            patType1correctionsJetEnDown.extend([ cms.InputTag('patPFMETtype0Corr') ])
+        if doApplySysShiftCorr:
+            patType1correctionsJetEnDown.extend([ cms.InputTag('pfMEtSysShiftCorr') ])    
         process.patType1p2CorrectedPFMetJetEnDown = process.patType1p2CorrectedPFMetJetEnUp.clone(
             srcType1Corrections = cms.VInputTag(patType1correctionsJetEnDown),
             srcUnclEnergySums = cms.VInputTag(
@@ -662,7 +701,9 @@ class RunMEtUncertainties(ConfigToolBase):
 
             patType1correctionsJetResUp = [ cms.InputTag('patPFJetMETtype1p2CorrResUp', 'type1') ]
             if doApplyType0corr:
-                patType1correctionsJetResUp.extend([ cms.InputTag('patPFMETtype0Corr') ])  
+                patType1correctionsJetResUp.extend([ cms.InputTag('patPFMETtype0Corr') ])
+            if doApplySysShiftCorr:
+                patType1correctionsJetResUp.extend([ cms.InputTag('pfMEtSysShiftCorr') ])
             process.patType1p2CorrectedPFMetJetResUp = process.patType1p2CorrectedPFMet.clone(
                 srcType1Corrections = cms.VInputTag(patType1correctionsJetResUp),
                 srcUnclEnergySums = cms.VInputTag(
@@ -676,7 +717,9 @@ class RunMEtUncertainties(ConfigToolBase):
             collectionsToKeep.append('patType1p2CorrectedPFMetJetResUp')
             patType1correctionsJetResDown = [ cms.InputTag('patPFJetMETtype1p2CorrResDown', 'type1') ]
             if doApplyType0corr:
-                patType1correctionsJetResDown.extend([ cms.InputTag('patPFMETtype0Corr') ]) 
+                patType1correctionsJetResDown.extend([ cms.InputTag('patPFMETtype0Corr') ])
+            if doApplySysShiftCorr:
+                patType1correctionsJetResDown.extend([ cms.InputTag('pfMEtSysShiftCorr') ])    
             process.patType1p2CorrectedPFMetJetResDown = process.patType1p2CorrectedPFMetJetResUp.clone(
                 srcType1Corrections = cms.VInputTag(patType1correctionsJetResDown),
                 srcUnclEnergySums = cms.VInputTag(
