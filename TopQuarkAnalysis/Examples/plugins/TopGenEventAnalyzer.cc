@@ -15,6 +15,10 @@ TopGenEventAnalyzer::TopGenEventAnalyzer(const edm::ParameterSet& cfg):
   ttbarPt_   = fs->make<TH1F>("ttbarPt",   "pt (ttbar)",  100,   0., 500.);
   ttbarEta_  = fs->make<TH1F>("ttbarEta",  "eta(ttbar)",   40,  -5.,   5.);
   ttbarPhi_  = fs->make<TH1F>("ttbarPhi",  "phi(ttbar)",   60, -3.5,  3.5);
+  prodChan_  = fs->make<TH1F>("prodChan",  "production mode", 3, 0, 3);
+  prodChan_->GetXaxis()->SetBinLabel(1, "gg"   );
+  prodChan_->GetXaxis()->SetBinLabel(2, "qqbar");
+  prodChan_->GetXaxis()->SetBinLabel(3, "other");
 }
 
 TopGenEventAnalyzer::~TopGenEventAnalyzer()
@@ -26,6 +30,16 @@ TopGenEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
 {
   edm::Handle<TtGenEvent> genEvent;
   evt.getByLabel(inputGenEvent_, genEvent);
+
+  if(!genEvent->isTtBar())
+    return;
+
+  if(genEvent->fromGluonFusion())
+    prodChan_->Fill("gg", 1);
+  else if(genEvent->fromQuarkAnnihilation())
+    prodChan_->Fill("qqbar", 1);
+  else
+    prodChan_->Fill("other", 1);
 
   // fill BR's
   nLep_  ->Fill(genEvent->numberOfLeptons());
@@ -39,10 +53,9 @@ TopGenEventAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   topBarPhi_->Fill(genEvent->topBar()->phi());
 
   //fill ttbar kinematics
-  reco::Particle::LorentzVector p4 = genEvent->top()->p4()+genEvent->topBar()->p4();
-  ttbarPt_ ->Fill(p4.pt() );
-  ttbarEta_->Fill(p4.eta());
-  ttbarPhi_->Fill(p4.phi());
+  ttbarPt_ ->Fill(genEvent->topPair()->pt() );
+  ttbarEta_->Fill(genEvent->topPair()->eta());
+  ttbarPhi_->Fill(genEvent->topPair()->phi());
 }
 
 void TopGenEventAnalyzer::beginJob()
