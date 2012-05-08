@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V115 (CMSSW_5_2_3_HLT9)
+# /dev/CMSSW_5_2_1/HIon/V117 (CMSSW_5_2_5_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V115')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V117')
 )
 
 process.streams = cms.PSet( 
@@ -3011,6 +3011,10 @@ process.DQM = cms.Service( "DQM",
     collectorHost = cms.untracked.string( "" )
 )
 process.DQMStore = cms.Service( "DQMStore",
+    verboseQT = cms.untracked.int32( 0 ),
+    referenceFileName = cms.untracked.string( "" ),
+    verbose = cms.untracked.int32( 0 ),
+    collateHistograms = cms.untracked.bool( False )
 )
 process.DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
     processingMode = cms.untracked.string( "HLT" ),
@@ -3370,7 +3374,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
       )
     ),
     lvl1DefaultLabel = cms.string( "3e33" ),
-    lvl1Labels = cms.vstring( '5e33_parking',
+    lvl1Labels = cms.vstring( '7e33nopark',
       '7e33',
       '6e33',
       '5e33',
