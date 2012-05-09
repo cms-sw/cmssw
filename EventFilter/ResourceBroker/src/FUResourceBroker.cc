@@ -60,7 +60,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s) :
 	bindStateMachineCallbacks();
 
 	res_->gui_ = new IndependentWebGUI(this);
-	res_->gui_->setVersionString("Changeset: 3.05.2012-V1.055");
+	res_->gui_->setVersionString("Changeset: 9.05.2012-V1.06");
 
 	// create state machine with shared resources
 	fsm_.reset(new RBStateMachine(this, res_));
@@ -531,11 +531,11 @@ void FUResourceBroker::customWebPage(xgi::Input*in, xgi::Output*out)
 		throw (xgi::exception::Exception) {
 	using namespace cgicc;
 	Cgicc cgi(in);
-	std::vector<FormEntry> els = cgi.getElements();
+	std::vector < FormEntry > els = cgi.getElements();
 	for (std::vector<FormEntry>::iterator it = els.begin(); it != els.end(); it++)
 		cout << "form entry " << (*it).getValue() << endl;
 
-	std::vector<FormEntry> el1;
+	std::vector < FormEntry > el1;
 	cgi.getElement("crcError", el1);
 	*out << "<html>" << endl;
 	res_->gui_->htmlHead(in, out, res_->sourceId_);
@@ -554,7 +554,8 @@ void FUResourceBroker::customWebPage(xgi::Input*in, xgi::Output*out)
 				<< endl;
 		*out << "</form>" << endl;
 		*out << "<hr/>" << endl;
-		vector<pid_t> client_prc_ids = res_->resourceStructure_->clientPrcIds();
+		vector < pid_t > client_prc_ids
+				= res_->resourceStructure_->clientPrcIds();
 		*out << table().set("frame", "void").set("rules", "rows") .set("class",
 				"modules").set("width", "250") << endl << tr() << th(
 				"Client Processes").set("colspan", "3") << tr() << endl << tr()
@@ -582,10 +583,12 @@ void FUResourceBroker::customWebPage(xgi::Input*in, xgi::Output*out)
 		*out << table() << endl;
 		*out << "<br><br>" << endl;
 
-		vector<string> states = res_->resourceStructure_->cellStates();
-		vector<UInt_t> evt_numbers = res_->resourceStructure_->cellEvtNumbers();
-		vector<pid_t> prc_ids = res_->resourceStructure_->cellPrcIds();
-		vector<time_t> time_stamps = res_->resourceStructure_->cellTimeStamps();
+		vector < string > states = res_->resourceStructure_->cellStates();
+		vector < UInt_t > evt_numbers
+				= res_->resourceStructure_->cellEvtNumbers();
+		vector < pid_t > prc_ids = res_->resourceStructure_->cellPrcIds();
+		vector < time_t > time_stamps
+				= res_->resourceStructure_->cellTimeStamps();
 
 		*out << table().set("frame", "void").set("rules", "rows") .set("class",
 				"modules").set("width", "500") << endl << tr() << th(
@@ -653,7 +656,7 @@ void FUResourceBroker::customWebPage(xgi::Input*in, xgi::Output*out)
 		*out << table() << endl;
 		*out << "<br><br>" << endl;
 
-		vector<string> dqmstates = res_->resourceStructure_->dqmCellStates();
+		vector < string > dqmstates = res_->resourceStructure_->dqmCellStates();
 
 		*out << table().set("frame", "void").set("rules", "rows") .set("class",
 				"modules").set("width", "500") << endl << tr() << th(

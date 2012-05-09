@@ -1,3 +1,9 @@
+2012-05-09  Andrei Spataru  <aspataru@cern.ch>
+
+	* tag V01-00-13
+	* improved exception reporting from ShmBuffer
+	* some input validation through I2O
+	
 2012-05-03  Andrei Spataru  <aspataru@cern.ch>
 
 	* tag V01-00-12

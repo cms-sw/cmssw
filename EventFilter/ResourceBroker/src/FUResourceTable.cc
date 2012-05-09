@@ -46,7 +46,7 @@ FUResourceTable::FUResourceTable(bool segmentationMode, UInt_t nbRawCells,
 FUResourceTable::~FUResourceTable() {
 	clear();
 	//workloop cancels used to be here in the previous version
-	shmdt(shmBuffer_);
+	shmdt( shmBuffer_);
 	if (FUShmBuffer::releaseSharedMemory())
 		LOG4CPLUS_INFO(log_, "SHARED MEMORY SUCCESSFULLY RELEASED.");
 	if (0 != acceptSMDataDiscard_)
@@ -93,7 +93,7 @@ bool FUResourceTable::sendData() {
 	try {
 		cell = shmBuffer_->recoCellToRead();
 	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e);
+		rethrowShmBufferException(e, "FUResourceTable:sendData:recoCellToRead");
 	}
 
 	if (0 == cell->eventSize()) {
@@ -103,7 +103,8 @@ bool FUResourceTable::sendData() {
 			shmBuffer_->finishReadingRecoCell(cell);
 			shmBuffer_->discardRecoCell(cellIndex);
 		} catch (evf::Exception& e) {
-			rethrowShmBufferException(e);
+			rethrowShmBufferException(e,
+					"FUResourceTable:sendData:finishReadingRecoCell/discardRecoCell");
 		}
 		reschedule = false;
 	} else {
@@ -119,7 +120,8 @@ bool FUResourceTable::sendData() {
 				try {
 					shmBuffer_->finishReadingRecoCell(cell);
 				} catch (evf::Exception& e) {
-					rethrowShmBufferException(e);
+					rethrowShmBufferException(e,
+							"FUResourceTable:sendData:finishReadingRecoCell");
 				}
 
 				lock();
@@ -142,7 +144,8 @@ bool FUResourceTable::sendData() {
 				try {
 					shmBuffer_->finishReadingRecoCell(cell);
 				} catch (evf::Exception& e) {
-					rethrowShmBufferException(e);
+					rethrowShmBufferException(e,
+							"FUResourceTable:sendData:finishReadingRecoCell");
 				}
 
 				lock();
@@ -167,7 +170,8 @@ bool FUResourceTable::sendData() {
 				try {
 					shmBuffer_->finishReadingRecoCell(cell);
 				} catch (evf::Exception& e) {
-					rethrowShmBufferException(e);
+					rethrowShmBufferException(e,
+							"FUResourceTable:sendData:recoCellToRead");
 				}
 
 				lock();
@@ -206,7 +210,8 @@ bool FUResourceTable::sendDataWhileHalting() {
 	try {
 		cell = shmBuffer_->recoCellToRead();
 	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e);
+		rethrowShmBufferException(e,
+				"FUResourceTable:sendDataWhileHalting:recoCellToRead");
 	}
 
 	if (0 == cell->eventSize()) {
@@ -216,7 +221,8 @@ bool FUResourceTable::sendDataWhileHalting() {
 			shmBuffer_->finishReadingRecoCell(cell);
 			shmBuffer_->discardRecoCell(cellIndex);
 		} catch (evf::Exception& e) {
-			rethrowShmBufferException(e);
+			rethrowShmBufferException(e,
+					"FUResourceTable:sendDataWhileHalting:finishReadingRecoCell/discardRecoCell");
 		}
 		reschedule = false;
 	} else {
@@ -226,7 +232,8 @@ bool FUResourceTable::sendDataWhileHalting() {
 			shmBuffer_->finishReadingRecoCell(cell);
 			shmBuffer_->discardRecoCell(cellIndex);
 		} catch (evf::Exception& e) {
-			rethrowShmBufferException(e);
+			rethrowShmBufferException(e,
+					"FUResourceTable:sendDataWhileHalting:finishReadingRecoCell/discardRecoCell");
 		}
 	}
 
@@ -243,7 +250,8 @@ bool FUResourceTable::sendDqm() {
 		cell = shmBuffer_->dqmCellToRead();
 		state = shmBuffer_->dqmState(cell->index());
 	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e);
+		rethrowShmBufferException(e,
+				"FUResourceTable:sendDqm:dqmCellToRead/dqmState");
 	}
 
 	if (state == dqm::EMPTY) {
@@ -254,7 +262,8 @@ bool FUResourceTable::sendDqm() {
 			shmBuffer_->finishReadingDqmCell(cell);
 			shmBuffer_->discardDqmCell(cellIndex);
 		} catch (evf::Exception& e) {
-			rethrowShmBufferException(e);
+			rethrowShmBufferException(e,
+					"FUResourceTable:sendDqm:finishReadingDqmCell/discardDqmCell");
 		}
 		reschedule = false;
 	} else {
@@ -273,7 +282,8 @@ bool FUResourceTable::sendDqm() {
 			try {
 				shmBuffer_->finishReadingDqmCell(cell);
 			} catch (evf::Exception& e) {
-				rethrowShmBufferException(e);
+				rethrowShmBufferException(e,
+						"FUResourceTable:sendDqm:finishReadingDqmCell");
 			}
 		} catch (xcept::Exception& e) {
 			LOG4CPLUS_FATAL(
@@ -297,7 +307,8 @@ bool FUResourceTable::sendDqmWhileHalting() {
 		cell = shmBuffer_->dqmCellToRead();
 		state = shmBuffer_->dqmState(cell->index());
 	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e);
+		rethrowShmBufferException(e,
+				"FUResourceTable:sendDqmWhileHalting:dqmCellToRead/dqmState");
 	}
 
 	if (state == dqm::EMPTY) {
@@ -308,7 +319,8 @@ bool FUResourceTable::sendDqmWhileHalting() {
 			shmBuffer_->finishReadingDqmCell(cell);
 			shmBuffer_->discardDqmCell(cellIndex);
 		} catch (evf::Exception& e) {
-			rethrowShmBufferException(e);
+			rethrowShmBufferException(e,
+					"FUResourceTable:sendDqmWhileHalting:finishReadingDqmCell/discardDqmCell");
 		}
 		reschedule = false;
 	} else {
@@ -317,7 +329,8 @@ bool FUResourceTable::sendDqmWhileHalting() {
 			shmBuffer_->finishReadingDqmCell(cell);
 			shmBuffer_->discardDqmCell(cellIndex);
 		} catch (evf::Exception& e) {
-			rethrowShmBufferException(e);
+			rethrowShmBufferException(e,
+					"FUResourceTable:sendDqmWhileHalting:finishReadingDqmCell/discardDqmCell");
 		}
 	}
 
@@ -332,7 +345,8 @@ void FUResourceTable::discardNoReschedule() {
 	try {
 		shmBuffer_->writeRecoEmptyEvent();
 	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e);
+		rethrowShmBufferException(e,
+				"FUResourceTable:discardNoReschedule:writeRecoEmptyEvent");
 	}
 	UInt_t count = 0;
 	while (count < 100) {
@@ -351,7 +365,7 @@ void FUResourceTable::discardNoReschedule() {
 							<< " nClients=" << shmBuffer_->nClients()
 							<< " nattch=" << FUShmBuffer::shm_nattch(
 							shmBuffer_->shmid()) << " (" << count << ")");
-			::usleep(shutdownTimeout_);
+			::usleep( shutdownTimeout_);
 			if (count * shutdownTimeout_ > 10000000)
 				LOG4CPLUS_WARN(
 						log_,
@@ -374,7 +388,8 @@ void FUResourceTable::discardNoReschedule() {
 			try {
 				state = shmBuffer_->dqmState(i);
 			} catch (evf::Exception& e) {
-				rethrowShmBufferException(e);
+				rethrowShmBufferException(e,
+						"FUResourceTable:discardNoReschedule:dqmState");
 			}
 			if (state != dqm::EMPTY)
 				allEmpty = false;
@@ -393,7 +408,8 @@ void FUResourceTable::discardNoReschedule() {
 	try {
 		shmBuffer_->writeDqmEmptyEvent();
 	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e);
+		rethrowShmBufferException(e,
+				"FUResourceTable:discardNoReschedule:writeDqmEmptyEvent");
 	}
 	isReadyToShutDown_ = true; // moved here from within the first while loop to make sure the
 	// sendDqm loop has been shut down as well
@@ -408,7 +424,8 @@ bool FUResourceTable::discard() {
 		cell = shmBuffer_->rawCellToDiscard();
 		state = shmBuffer_->evtState(cell->index());
 	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e);
+		rethrowShmBufferException(e,
+				"FUResourceTable:discard:rawCellToRead/evtState");
 	}
 
 	bool reschedule = true;
@@ -436,7 +453,7 @@ bool FUResourceTable::discard() {
 	try {
 		shmBuffer_->discardRawCell(cell);
 	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e);
+		rethrowShmBufferException(e, "FUResourceTable:discard:discardRawCell");
 	}
 	// UPDATED
 	if (isLumi)
@@ -476,7 +493,8 @@ bool FUResourceTable::discardWhileHalting(bool sendDiscards) {
 		cell = shmBuffer_->rawCellToDiscard();
 		state = shmBuffer_->evtState(cell->index());
 	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e);
+		rethrowShmBufferException(e,
+				"FUResourceTable:discardWhileHalting:rawCellToRead/evtState");
 	}
 
 	bool reschedule = true;
@@ -504,7 +522,8 @@ bool FUResourceTable::discardWhileHalting(bool sendDiscards) {
 	try {
 		shmBuffer_->discardRawCell(cell);
 	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e);
+		rethrowShmBufferException(e,
+				"FUResourceTable:discardWhileHalting:discardRawCell");
 	}
 	// UPDATED
 	if (isLumi)
@@ -547,6 +566,18 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef) {
 	I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *block =
 			(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*) bufRef->getDataLocation();
 
+	// Check input
+	int fuResourceIdCheck = (int) block->fuTransactionId;
+	int buResourceIdCheck = (int) block->buResourceId;
+	if (fuResourceIdCheck < 0 || buResourceIdCheck < 0) {
+		stringstream failureStr;
+		failureStr << "Received TAKE message with invalid bu/fu resource id:"
+				<< " fuResourceId: " << fuResourceIdCheck << " buResourceId: "
+				<< buResourceIdCheck;
+		LOG4CPLUS_ERROR(log_, failureStr.str());
+		XCEPT_RAISE(evf::Exception, failureStr.str());
+	}
+
 	UInt_t fuResourceId = (UInt_t) block->fuTransactionId;
 	UInt_t buResourceId = (UInt_t) block->buResourceId;
 	FUResource* resource = resources_[fuResourceId];
@@ -557,7 +588,8 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef) {
 		try {
 			cell = shmBuffer_->rawCellToWrite();
 		} catch (evf::Exception& e) {
-			rethrowShmBufferException(e);
+			rethrowShmBufferException(e,
+					"FUResourceTable:buildResource:rawCellToWrite");
 		}
 		if (cell == 0) {
 			bufRef->release();
@@ -568,7 +600,7 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef) {
 		gettimeofday(&now, 0);
 
 		frb_->setRBTimeStamp(
-				((uint64_t) (now.tv_sec) << 32) + (uint64_t) (now.tv_usec));
+				((uint64_t)(now.tv_sec) << 32) + (uint64_t)(now.tv_usec));
 
 		frb_->setRBEventCount(nbCompleted_);
 
@@ -608,7 +640,8 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef) {
 			try {
 				shmBuffer_->finishWritingRawCell(resource->shmCell());
 			} catch (evf::Exception& e) {
-				rethrowShmBufferException(e);
+				rethrowShmBufferException(e,
+						"FUResourceTable:buildResource:finishWritingRawCell");
 			}
 			eventComplete = true;
 		}
@@ -620,7 +653,8 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef) {
 			try {
 				shmBuffer_->releaseRawCell(resource->shmCell());
 			} catch (evf::Exception& e) {
-				rethrowShmBufferException(e);
+				rethrowShmBufferException(e,
+						"FUResourceTable:buildResource:releaseRawCell");
 			}
 			resource->release(true);
 			lock();
@@ -644,6 +678,14 @@ bool FUResourceTable::discardDataEvent(MemRef_t* bufRef) {
 	msg = (I2O_FU_DATA_DISCARD_MESSAGE_FRAME*) bufRef->getDataLocation();
 	UInt_t recoIndex = msg->rbBufferID;
 
+	// Check input
+	int recoIndexCheck = (int) msg->rbBufferID;
+	if (recoIndexCheck < 0)
+		LOG4CPLUS_ERROR(
+				log_,
+				"Received DISCARD DATA message with invalid recoIndex:"
+						<< recoIndexCheck);
+
 	if (acceptSMDataDiscard_[recoIndex]) {
 		lock();
 		nbPendingSMDiscards_--;
@@ -653,7 +695,8 @@ bool FUResourceTable::discardDataEvent(MemRef_t* bufRef) {
 		try {
 			shmBuffer_->discardRecoCell(recoIndex);
 		} catch (evf::Exception& e) {
-			rethrowShmBufferException(e);
+			rethrowShmBufferException(e,
+					"FUResourceTable:discardDataEvent:discardRecoCell");
 		}
 		bufRef->release();
 
@@ -669,6 +712,14 @@ bool FUResourceTable::discardDataEventWhileHalting(MemRef_t* bufRef) {
 	I2O_FU_DATA_DISCARD_MESSAGE_FRAME *msg;
 	msg = (I2O_FU_DATA_DISCARD_MESSAGE_FRAME*) bufRef->getDataLocation();
 	UInt_t recoIndex = msg->rbBufferID;
+
+	// Check input
+	int recoIndexCheck = (int) msg->rbBufferID;
+	if (recoIndexCheck < 0)
+		LOG4CPLUS_ERROR(
+				log_,
+				"Received DISCARD DATA message with invalid recoIndex:"
+						<< recoIndexCheck);
 
 	if (acceptSMDataDiscard_[recoIndex]) {
 		lock();
@@ -689,6 +740,15 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef) {
 	I2O_FU_DQM_DISCARD_MESSAGE_FRAME *msg;
 	msg = (I2O_FU_DQM_DISCARD_MESSAGE_FRAME*) bufRef->getDataLocation();
 	UInt_t dqmIndex = msg->rbBufferID;
+
+	// Check input
+	int dqmIndexCheck = (int) msg->rbBufferID;
+	if (dqmIndexCheck < 0)
+		LOG4CPLUS_ERROR(
+				log_,
+				"Received DISCARD DQM message with invalid dqmIndex:"
+						<< dqmIndexCheck);
+
 	unsigned int ntries = 0;
 	try {
 		while (shmBuffer_->dqmState(dqmIndex) != dqm::SENT) {
@@ -708,7 +768,7 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef) {
 			}
 		}
 	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e);
+		rethrowShmBufferException(e, "FUResourceTable:discardDqmEvent:dqmState");
 	}
 	if (acceptSMDqmDiscard_[dqmIndex] > 0) {
 		acceptSMDqmDiscard_[dqmIndex]--;
@@ -725,7 +785,8 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef) {
 		try {
 			shmBuffer_->discardDqmCell(dqmIndex);
 		} catch (evf::Exception& e) {
-			rethrowShmBufferException(e);
+			rethrowShmBufferException(e,
+					"FUResourceTable:discardDqmEvent:discardDqmCell");
 		}
 		bufRef->release();
 
@@ -745,6 +806,15 @@ bool FUResourceTable::discardDqmEventWhileHalting(MemRef_t* bufRef) {
 	I2O_FU_DQM_DISCARD_MESSAGE_FRAME *msg;
 	msg = (I2O_FU_DQM_DISCARD_MESSAGE_FRAME*) bufRef->getDataLocation();
 	UInt_t dqmIndex = msg->rbBufferID;
+
+	// Check input
+	int dqmIndexCheck = (int) msg->rbBufferID;
+	if (dqmIndexCheck < 0)
+		LOG4CPLUS_ERROR(
+				log_,
+				"Received DISCARD DQM message with invalid dqmIndex:"
+						<< dqmIndexCheck);
+
 	unsigned int ntries = 0;
 	try {
 		while (shmBuffer_->dqmState(dqmIndex) != dqm::SENT) {
@@ -764,7 +834,8 @@ bool FUResourceTable::discardDqmEventWhileHalting(MemRef_t* bufRef) {
 			}
 		}
 	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e);
+		rethrowShmBufferException(e,
+				"FUResourceTable:discardDqmEventWhileHalting:dqmState(2)");
 	}
 	if (acceptSMDqmDiscard_[dqmIndex] > 0) {
 		acceptSMDqmDiscard_[dqmIndex]--;
@@ -780,7 +851,8 @@ bool FUResourceTable::discardDqmEventWhileHalting(MemRef_t* bufRef) {
 								<< " accept flag "
 								<< acceptSMDqmDiscard_[dqmIndex]);
 			} catch (evf::Exception& e) {
-				rethrowShmBufferException(e);
+				rethrowShmBufferException(e,
+						"FUResourceTable:discardDqmEventWhileHalting:dqmState");
 			}
 		}
 
@@ -803,13 +875,20 @@ void FUResourceTable::postEndOfLumiSection(MemRef_t* bufRef) {
 	//make sure to fill up the shmem so no process will miss it
 	// but processes will have to handle duplicates
 
+	// Check input
+	int lumiCheck = (int) msg->lumiSection;
+	if (lumiCheck < 0)
+		LOG4CPLUS_ERROR(log_,
+				"Received EOL message with invalid index:" << lumiCheck);
+
 	for (unsigned int i = 0; i < nbRawCells_; i++) {
 		// UPDATED
 		nbEolPosted_++;
 		try {
 			shmBuffer_->writeRawLumiSectionEvent(msg->lumiSection);
 		} catch (evf::Exception& e) {
-			rethrowShmBufferException(e);
+			rethrowShmBufferException(e,
+					"FUResourceTable:postEndOfLumiSection:writeRawLumiSectionEvent");
 		}
 	}
 }
@@ -820,21 +899,22 @@ void FUResourceTable::dropEvent() {
 	try {
 		cell = shmBuffer_->rawCellToRead();
 	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e);
+		rethrowShmBufferException(e, "FUResourceTable:dropEvent:rawCellToRead");
 	}
 	UInt_t fuResourceId = cell->fuResourceId();
 	try {
 		shmBuffer_->finishReadingRawCell(cell);
 		shmBuffer_->scheduleRawCellForDiscard(fuResourceId);
 	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e);
+		rethrowShmBufferException(e,
+				"FUResourceTable:dropEvent:finishReadingRawCell/scheduleRawCellForDiscard");
 	}
 }
 
 //______________________________________________________________________________
 bool FUResourceTable::handleCrashedEP(UInt_t runNumber, pid_t pid) {
 	bool retval = false;
-	vector<pid_t> pids = cellPrcIds();
+	vector < pid_t > pids = cellPrcIds();
 	UInt_t iRawCell = pids.size();
 	for (UInt_t i = 0; i < pids.size(); i++) {
 		if (pid == pids[i]) {
@@ -847,7 +927,8 @@ bool FUResourceTable::handleCrashedEP(UInt_t runNumber, pid_t pid) {
 		try {
 			shmBuffer_->writeErrorEventData(runNumber, pid, iRawCell, true);
 		} catch (evf::Exception& e) {
-			rethrowShmBufferException(e);
+			rethrowShmBufferException(e,
+					"FUResourceTable:handleCrashedEP:writeErrorEventData");
 		}
 		retval = true;
 	} else
@@ -856,7 +937,8 @@ bool FUResourceTable::handleCrashedEP(UInt_t runNumber, pid_t pid) {
 	try {
 		shmBuffer_->removeClientPrcId(pid);
 	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e);
+		rethrowShmBufferException(e,
+				"FUResourceTable:handleCrashedEP:removeClientPrcId");
 	}
 	return retval;
 }
@@ -884,7 +966,8 @@ void FUResourceTable::shutDownClients() {
 			}
 			shmBuffer_->scheduleRawEmptyCellForDiscard();
 		} catch (evf::Exception& e) {
-			rethrowShmBufferException(e);
+			rethrowShmBufferException(e,
+					"FUResourceTable:shutDownClients:evtState/scheduleRawEmptyCellForDiscard");
 		}
 	} else {
 		// UPDATED
@@ -893,7 +976,7 @@ void FUResourceTable::shutDownClients() {
 			while (shmBuffer_->nbRawCellsToWrite() < nbClients() && nbClients()
 					!= 0) {
 				checks++;
-				vector<pid_t> prcids = clientPrcIds();
+				vector < pid_t > prcids = clientPrcIds();
 				for (UInt_t i = 0; i < prcids.size(); i++) {
 					pid_t pid = prcids[i];
 					int status = kill(pid, 0);
@@ -916,7 +999,8 @@ void FUResourceTable::shutDownClients() {
 				::usleep(500000);
 			}
 		} catch (evf::Exception& e) {
-			rethrowShmBufferException(e);
+			rethrowShmBufferException(e,
+					"FUResourceTable:shutDownClients:nbRawCellsToWrite");
 		}
 		nbClientsToShutDown_ = nbClients();
 		if (nbClientsToShutDown_ == 0) {
@@ -927,7 +1011,8 @@ void FUResourceTable::shutDownClients() {
 				try {
 					state = shmBuffer_->evtState(i);
 				} catch (evf::Exception& e) {
-					rethrowShmBufferException(e);
+					rethrowShmBufferException(e,
+							"FUResourceTable:shutDownClients:evtState");
 				}
 				if (state != evt::EMPTY) {
 					LOG4CPLUS_WARN(
@@ -938,14 +1023,16 @@ void FUResourceTable::shutDownClients() {
 						shmBuffer_->setEvtDiscard(i, 1, true);
 						shmBuffer_->scheduleRawCellForDiscardServerSide(i);
 					} catch (evf::Exception& e) {
-						rethrowShmBufferException(e);
+						rethrowShmBufferException(e,
+								"FUResourceTable:shutDownClients:scheduleRawCellForDiscardServerSide");
 					}
 				}
 			}
 			try {
 				shmBuffer_->scheduleRawEmptyCellForDiscard();
 			} catch (evf::Exception& e) {
-				rethrowShmBufferException(e);
+				rethrowShmBufferException(e,
+						"FUResourceTable:shutDownClients:scheduleRawEmptyCellForDiscard");
 			}
 		}
 		UInt_t n = nbClientsToShutDown_;
@@ -953,7 +1040,8 @@ void FUResourceTable::shutDownClients() {
 			for (UInt_t i = 0; i < n; ++i)
 				shmBuffer_->writeRawEmptyEvent();
 		} catch (evf::Exception& e) {
-			rethrowShmBufferException(e);
+			rethrowShmBufferException(e,
+					"FUResourceTable:shutDownClients:writeRawEmptyEvent");
 		}
 	}
 }
@@ -982,7 +1070,8 @@ void FUResourceTable::resetCounters() {
 			for (UInt_t i = 0; i < shmBuffer_->nDqmCells(); i++)
 				acceptSMDqmDiscard_[i] = 0;
 		} catch (evf::Exception& e) {
-			rethrowShmBufferException(e);
+			rethrowShmBufferException(e,
+					"FUResourceTable:resetCounters:nRecoCells/nDqmCells");
 		}
 	}
 
@@ -1016,14 +1105,14 @@ UInt_t FUResourceTable::nbClients() const {
 		if (0 != shmBuffer_)
 			result = shmBuffer_->nClients();
 	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e);
+		rethrowShmBufferException(e, "FUResourceTable:nbClients:nClients");
 	}
 	return result;
 }
 
 //______________________________________________________________________________
 vector<pid_t> FUResourceTable::clientPrcIds() const {
-	vector<pid_t> result;
+	vector < pid_t > result;
 	try {
 		if (0 != shmBuffer_) {
 			UInt_t n = nbClients();
@@ -1031,7 +1120,8 @@ vector<pid_t> FUResourceTable::clientPrcIds() const {
 				result.push_back(shmBuffer_->clientPrcId(i));
 		}
 	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e);
+		rethrowShmBufferException(e,
+				"FUResourceTable:clientPrcIds:clientPrcIds");
 	}
 	return result;
 }
@@ -1049,14 +1139,15 @@ string FUResourceTable::clientPrcIdsAsString() const {
 			}
 		}
 	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e);
+		rethrowShmBufferException(e,
+				"FUResourceTable:clientPrcIdsAsString:clientPrcId");
 	}
 	return ss.str();
 }
 
 //______________________________________________________________________________
 vector<string> FUResourceTable::cellStates() const {
-	vector<string> result;
+	vector < string > result;
 	if (0 != shmBuffer_) {
 		UInt_t n = nbResources();
 		shmBuffer_->lock();
@@ -1096,7 +1187,7 @@ vector<string> FUResourceTable::cellStates() const {
 					result.push_back("DISCARDING");
 			}
 		} catch (evf::Exception& e) {
-			rethrowShmBufferException(e);
+			rethrowShmBufferException(e, "FUResourceTable:cellStates:evtState");
 		}
 		shmBuffer_->unlock();
 	}
@@ -1104,7 +1195,7 @@ vector<string> FUResourceTable::cellStates() const {
 }
 
 vector<string> FUResourceTable::dqmCellStates() const {
-	vector<string> result;
+	vector < string > result;
 	if (0 != shmBuffer_) {
 		UInt_t n = nbDqmCells_;
 		shmBuffer_->lock();
@@ -1125,7 +1216,8 @@ vector<string> FUResourceTable::dqmCellStates() const {
 					result.push_back("DISCARDING");
 			}
 		} catch (evf::Exception& e) {
-			rethrowShmBufferException(e);
+			rethrowShmBufferException(e,
+					"FUResourceTable:dqmCellStates:dqmState");
 		}
 		shmBuffer_->unlock();
 	}
@@ -1134,7 +1226,7 @@ vector<string> FUResourceTable::dqmCellStates() const {
 
 //______________________________________________________________________________
 vector<UInt_t> FUResourceTable::cellEvtNumbers() const {
-	vector<UInt_t> result;
+	vector < UInt_t > result;
 	if (0 != shmBuffer_) {
 		UInt_t n = nbResources();
 		shmBuffer_->lock();
@@ -1142,7 +1234,8 @@ vector<UInt_t> FUResourceTable::cellEvtNumbers() const {
 			for (UInt_t i = 0; i < n; i++)
 				result.push_back(shmBuffer_->evtNumber(i));
 		} catch (evf::Exception& e) {
-			rethrowShmBufferException(e);
+			rethrowShmBufferException(e,
+					"FUResourceTable:cellEvtNumbers:evtNumber");
 		}
 		shmBuffer_->unlock();
 	}
@@ -1151,7 +1244,7 @@ vector<UInt_t> FUResourceTable::cellEvtNumbers() const {
 
 //______________________________________________________________________________
 vector<pid_t> FUResourceTable::cellPrcIds() const {
-	vector<pid_t> result;
+	vector < pid_t > result;
 	if (0 != shmBuffer_) {
 		UInt_t n = nbResources();
 		shmBuffer_->lock();
@@ -1159,7 +1252,7 @@ vector<pid_t> FUResourceTable::cellPrcIds() const {
 			for (UInt_t i = 0; i < n; i++)
 				result.push_back(shmBuffer_->evtPrcId(i));
 		} catch (evf::Exception& e) {
-			rethrowShmBufferException(e);
+			rethrowShmBufferException(e, "FUResourceTable:cellPrcIds:evtPrcId");
 		}
 		shmBuffer_->unlock();
 	}
@@ -1168,7 +1261,7 @@ vector<pid_t> FUResourceTable::cellPrcIds() const {
 
 //______________________________________________________________________________
 vector<time_t> FUResourceTable::cellTimeStamps() const {
-	vector<time_t> result;
+	vector < time_t > result;
 	try {
 		if (0 != shmBuffer_) {
 			UInt_t n = nbResources();
@@ -1178,7 +1271,8 @@ vector<time_t> FUResourceTable::cellTimeStamps() const {
 			shmBuffer_->unlock();
 		}
 	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e);
+		rethrowShmBufferException(e,
+				"FUResourceTable:cellTimeStamps:evtTimeStamp");
 	}
 	return result;
 }
@@ -1204,7 +1298,9 @@ void FUResourceTable::lastResort() {
 		//trigger the shutdown (again?)
 		shmBuffer_->scheduleRawEmptyCellForDiscard();
 	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e);
+		rethrowShmBufferException(
+				e,
+				"FUResourceTable:lastResort:nbRawCellsToRead/scheduleRawCellForDiscardServerSide");
 	}
 }
 
@@ -1215,11 +1311,11 @@ void FUResourceTable::resetIPC() {
 	}
 }
 
-void FUResourceTable::rethrowShmBufferException(evf::Exception& e) const
+void FUResourceTable::rethrowShmBufferException(evf::Exception& e, string where) const
 		throw (evf::Exception) {
 	stringstream details;
-	vector<string> dataStates = cellStates();
-	vector<string> dqmStates = dqmCellStates();
+	vector < string > dataStates = cellStates();
+	vector < string > dqmStates = dqmCellStates();
 	details << "Exception raised: " << e.what() << " (in module: "
 			<< e.module() << " in function: " << e.function() << " at line: "
 			<< e.line() << ")";
@@ -1230,5 +1326,6 @@ void FUResourceTable::rethrowShmBufferException(evf::Exception& e) const
 	details << "dqm cells --> ";
 	for (unsigned int i = 0; i < dqmStates.size(); i++)
 		details << dqmStates[i] << " ";
+	details << " ... originated in: " << where;
 	XCEPT_RETHROW(evf::Exception, details.str(), e);
 }
