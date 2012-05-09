@@ -53,6 +53,9 @@ process.HSCPHLTTriggerL2Mu = process.HSCPHLTTriggerMuDeDx.clone()
 process.HSCPHLTTriggerL2Mu.HLTPaths = ["HLT_L2Mu*_eta2p1_PFMET*"]
 process.HSCPHLTTriggerL2MuFilter = cms.Path(process.HSCPHLTTriggerL2Mu   )
 
+process.HSCPHLTTriggerCosmic = process.HSCPHLTTriggerMuDeDx.clone()
+process.HSCPHLTTriggerCosmic.HLTPaths = ["HLT_L2Mu*NoBPTX*"]
+process.HSCPHLTTriggerCosmicFilter = cms.Path(process.HSCPHLTTriggerCosmic   )
 
 process.Out = cms.OutputModule("PoolOutputModule",
      outputCommands = cms.untracked.vstring(
@@ -102,4 +105,4 @@ process.Out = cms.OutputModule("PoolOutputModule",
 
 process.endPath = cms.EndPath(process.Out)
 
-process.schedule = cms.Schedule(process.DuplicateFilter, process.HSCPHLTTriggerMuDeDxFilter, process.HSCPHLTTriggerMetDeDxFilter, process.HSCPHLTTriggerHtDeDxFilter, process.HSCPHLTTriggerMuFilter, process.HSCPHLTTriggerMetFilter, process.HSCPHLTTriggerHtFilter, process.HSCPHLTTriggerL2MuFilter, process.endPath)
+process.schedule = cms.Schedule(process.DuplicateFilter, process.HSCPHLTTriggerMuDeDxFilter, process.HSCPHLTTriggerMetDeDxFilter, process.HSCPHLTTriggerHtDeDxFilter, process.HSCPHLTTriggerMuFilter, process.HSCPHLTTriggerMetFilter, process.HSCPHLTTriggerHtFilter, process.HSCPHLTTriggerL2MuFilter, process.HSCPHLTTriggerCosmicFilter, process.endPath)

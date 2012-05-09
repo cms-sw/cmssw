@@ -42,6 +42,7 @@ process.HSCPTrigger.HLTPaths = [
     "HLT_HT650_*",
     "HLT_MET80_*",
     "HLT_L2Mu*_eta2p1_PFMET*",
+    "HLT_L2Mu*NoBPTX*",
 ]
 process.HSCPTrigger.andOr = cms.bool( True ) #OR
 process.HSCPTrigger.throw = cms.bool( False )
