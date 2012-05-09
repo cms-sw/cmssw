@@ -10,6 +10,8 @@
 
 #include "DQM/EcalCommon/interface/EcalDQMBinningService.h"
 
+#include <sstream>
+
 EcalDQMonitor::EcalDQMonitor(const edm::ParameterSet &_ps) :
   moduleName_(_ps.getUntrackedParameter<std::string>("moduleName", "Ecal Monitor")),
   mergeRuns_(_ps.getUntrackedParameter<bool>("mergeRuns", false)),
