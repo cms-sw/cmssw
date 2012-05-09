@@ -151,3 +151,8 @@ WEnuHltFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     )
 
 elecMetSeq = cms.Sequence( WEnuHltFilter * ele_sequence * elecMetFilter )
+
+
+from Configuration.EventContent.EventContent_cff import OutALCARECOEcalCalElectron
+WElectronSkimContent = OutALCARECOEcalCalElectron.clone()
+WElectronSkimContent.outputCommands.extend( [ "keep *_pfMet_*_*", "keep *_kt6*_rho_*", "keep *_offlinePrimaryVerticesWithBS_*_*","keep *_generator_*_*", "keep *_rawDataCollector_*_*" ] )
