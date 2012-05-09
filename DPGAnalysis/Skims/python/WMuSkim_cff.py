@@ -5,7 +5,7 @@ import copy
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 WMuHLTFilter = copy.deepcopy(hltHighLevel)
 WMuHLTFilter.throw = cms.bool(False)
-WMuHLTFilter.HLTPaths = ["HLT_Mu9","HLT_Mu11","HLT_Mu15","HLT_Mu15_v*","HLT_IsoMu17_v*","HLT_Mu20_v*","HLT_Mu24_v*"]
+WMuHLTFilter.HLTPaths = ["HLT_Mu*","HLT_IsoMu*"]
 
 #Get muons of needed quality for Ws
 goodMuonsForW = cms.EDFilter("MuonViewRefSelector",

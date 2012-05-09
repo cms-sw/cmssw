@@ -15,7 +15,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  October 8, 2008
-// $Id: TauTagValidation.cc,v 1.20 2011/01/24 13:29:22 mverzett Exp $
+// $Id: TauTagValidation.cc,v 1.19 2011/01/21 14:45:43 mverzett Exp $
 //
 //
 // user include files
@@ -35,7 +35,7 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig)
   // We need different matching criteria if we talk about leptons or jets
   matchDeltaR_Leptons_ = iConfig.getParameter<double>("MatchDeltaR_Leptons");
   matchDeltaR_Jets_    = iConfig.getParameter<double>("MatchDeltaR_Jets");
-  leadingTrackCut_     = iConfig.getParameter<double>("LeadingTrackPtCut");
+
   // The output histograms can be stored or not
   saveoutputhistograms_ = iConfig.getParameter<bool>("SaveOutputHistograms");
 
@@ -253,6 +253,7 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       PFTauCollection::size_type thePFTauClosest;      
 
       for (genCandidateCollection::const_iterator RefJet= ReferenceCollection->begin() ; RefJet != ReferenceCollection->end(); RefJet++ ){ 
+
 	
 	ptTauVisibleMap.find(refCollection_)->second->Fill(RefJet->pt());
 	etaTauVisibleMap.find(refCollection_)->second->Fill(RefJet->eta());
@@ -288,18 +289,7 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	
 	PFTauRef thePFTau(thePFTauHandle, thePFTauClosest);
 	Handle<PFTauDiscriminator> currentDiscriminator;
-
-	PFCandidateRefVector signalCands = (*thePFTau).signalPFChargedHadrCands();
-	bool cut=true;
-	for(PFCandidateRefVector::const_iterator candidate = signalCands.begin(); candidate != signalCands.end(); candidate++)
-	  if((*candidate)->pt() > leadingTrackCut_)
-	    {
-	      cut =false;
-	      break;
-	    }
-	if(cut)
-	  continue;
-
+	
 	for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++) 
 	  {
 	    string currentDiscriminatorLabel = it->getParameter<string>("discriminator");	      
@@ -464,17 +454,6 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	PFTauRef thePFTau(thePFTauHandle, thePFTauClosest);
 	Handle<PFTauDiscriminator> currentDiscriminator;
 	
-	PFCandidateRefVector signalCands = (*thePFTau).signalPFChargedHadrCands();
-	bool cut=true;
-	for(PFCandidateRefVector::const_iterator candidate = signalCands.begin(); candidate != signalCands.end(); candidate++)
-	  if((*candidate)->pt() > leadingTrackCut_)
-	    {
-	      cut =false;
-	      break;
-	    }
-	if(cut)
-	  continue;
-
 	for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++) 
 	  {
 	    string currentDiscriminatorLabel = it->getParameter<string>("discriminator");	      
@@ -502,13 +481,13 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 void TauTagValidation::endJob(){
 
-  //if(saveoutputhistograms_) //USED for debugging. I keep it here in case of need ;)
-  //{
+  if(saveoutputhistograms_) //USED for debugging. I keep it here in case of need ;)
+    {
       cout << "dumping entries for hpsTanc"<<endl;
       for(std::map<std::string,MonitorElement*>::iterator mapEntry = ptTauVisibleMap.begin(); mapEntry != ptTauVisibleMap.end(); mapEntry++)
 	if( mapEntry->first.find("hpsTancTaus") !=string::npos)    
 	  cout << mapEntry->first << "      entries:   " <<  mapEntry->second->getTH1()->GetEntries() << endl;
-      //}
+    }
 
   // just fill the denominator histograms for the changing cone sizes
   /*  

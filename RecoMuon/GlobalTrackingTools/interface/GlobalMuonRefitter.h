@@ -4,8 +4,8 @@
 /** \class GlobalMuonRefitter
  *  class to build muon trajectory
  *
- *  $Date: 2010/06/18 07:40:10 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/02/20 21:01:05 $
+ *  $Revision: 1.8 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -141,8 +141,6 @@ class GlobalMuonRefitter {
     bool theRPCInTheFit;
 
     RefitDirection theRefitDirection;
-
-    std::vector<int> theDYTthrs;	
 
     std::string theFitterName;
     edm::ESHandle<TrajectoryFitter> theFitter;

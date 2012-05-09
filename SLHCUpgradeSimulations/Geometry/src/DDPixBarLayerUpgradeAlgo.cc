@@ -36,12 +36,12 @@ void DDPixBarLayerUpgradeAlgo::initialize(const DDNumericArguments & nArgs,
   genMat    = sArgs["GeneralMaterial"];
   number    = int(nArgs["Ladders"]);
   layerDz   = nArgs["LayerDz"];
-  sensorEdge= nArgs["SensorEdge"];
   coolDz    = nArgs["CoolDz"];
-  coolWidth = nArgs["CoolWidth"];
-  coolSide  = nArgs["CoolSide"];
   coolThick = nArgs["CoolThick"];
+  coolRadius= nArgs["CoolRadius"];
   coolDist  = nArgs["CoolDist"];
+  cool1Offset = nArgs["Cool1Offset"];
+  cool2Offset = nArgs["Cool2Offset"];
   coolMat   = sArgs["CoolMaterial"];
   tubeMat   = sArgs["CoolTubeMaterial"];
 
@@ -49,16 +49,15 @@ void DDPixBarLayerUpgradeAlgo::initialize(const DDNumericArguments & nArgs,
   LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo debug: Parent " << parentName 
 			<< " NameSpace " << idNameSpace << "\n"
 			<< "\tLadders " << number << "\tGeneral Material " 
-			<< genMat << "\tLength " << layerDz << "\tSensorEdge "
-			<< sensorEdge << "\tSpecification of Cooling Pieces:\n"
-			<< "\tLength " << coolDz << " Width " << coolWidth 
-			<< " Side " << coolSide << " Thickness of Shell " 
+			<< genMat << "\tLength " << layerDz << "\tSpecification of Cooling Pieces:\n"
+			<< "\tLength " << coolDz << " Thickness of Shell " 
 			<< coolThick << " Radial distance " << coolDist 
 			<< " Materials " << coolMat << ", " << tubeMat;
 
   ladder      = sArgs["LadderName"];
   ladderWidth = nArgs["LadderWidth"];
   ladderThick = nArgs["LadderThick"];
+  ladderOffset = nArgs["LadderOffset"];
   outerFirst  = int(nArgs["OuterFirst"]);
  
   LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo debug: Full Ladder " 
@@ -72,19 +71,10 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
   std::string idName = DDSplit(mother).first;
 
   double dphi = CLHEP::twopi/number;
-  double d2   = 0.5*coolWidth;
-  double d1   = d2 - coolSide*sin(0.5*dphi);
-  double x1   = (d1+d2)/(2.*sin(0.5*dphi));
   double x2   = coolDist*sin(0.5*dphi);
-  double rmin = (coolDist-0.5*(d1+d2))*cos(0.5*dphi)-0.5*ladderThick;
-  double rmax = (coolDist+0.5*(d1+d2))*cos(0.5*dphi)+0.5*ladderThick;
-  double rmxh = rmax + 0.5*ladderThick;
-  LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: Rmin/Rmax " << rmin 
-			<< ", " << rmax << " d1/d2 " << d1 << ", " << d2 
-			<< " x1/x2 " << x1 << ", " << x2;
-
-  double rtmi = rmin - 0.5*ladderThick;
-  double rtmx = sqrt(rmxh*rmxh+ladderWidth*ladderWidth);
+  double rtmi = coolDist*cos(0.5*dphi)-(coolRadius+ladderThick);
+  double rmxh = coolDist*cos(0.5*dphi)+(coolRadius+ladderThick+ladderOffset);
+  double rtmx = sqrt(rmxh*rmxh+ladderWidth*ladderWidth/4);
   DDSolid solid = DDSolidFactory::tubs(DDName(idName, idNameSpace),0.5*layerDz,
                                        rtmi, rtmx, 0, CLHEP::twopi);
   LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " 
@@ -96,31 +86,24 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
   DDMaterial matter(matname);
   DDLogicalPart layer(solid.ddname(), matter, solid);
 
-  double rr = 0.5*(rmax+rmin);
-  double dr = 0.5*(rmax-rmin);
-  double h1 = 0.5*coolSide*cos(0.5*dphi);
+  double dr = coolRadius+0.5*ladderThick;
   std::string name = idName + "CoolTube";
-  solid = DDSolidFactory::trap(DDName(name,idNameSpace), 0.5*coolDz, 0, 0,
-			       h1, d2, d1, 0, h1, d2, d1, 0);
+  solid = DDSolidFactory::tubs(DDName(name,idNameSpace), 0.5*coolDz,
+			       0, coolRadius, 0, CLHEP::twopi);
   LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " <<solid.name() 
-			<< " Trap made of " << tubeMat << " of dimensions " 
-			<< 0.5*coolDz << ", 0, 0, " << h1 << ", " << d2 
-			<< ", " << d1 << ", 0, " << h1 << ", " << d2 << ", " 
-			<< d1 << ", 0";
+			<< " Tubs made of " << tubeMat << " from 0 to " <<
+			CLHEP::twopi/CLHEP::deg << " with Rout " << coolRadius <<
+			" ZHalf " << 0.5*coolDz;		
   matter = DDMaterial(DDName(DDSplit(tubeMat).first, DDSplit(tubeMat).second));
   DDLogicalPart coolTube(solid.ddname(), matter, solid);
 
   name = idName + "Coolant";
-  h1  -= coolThick;
-  d1  -= coolThick;
-  d2  -= coolThick;
-  solid = DDSolidFactory::trap(DDName(name,idNameSpace), 0.5*coolDz, 0, 0,
-			       h1, d2, d1, 0, h1, d2, d1, 0);
+  solid = DDSolidFactory::tubs(DDName(name,idNameSpace), 0.5*coolDz,
+			       0, coolRadius-coolThick, 0, CLHEP::twopi);
   LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " <<solid.name() 
-			<< " Trap made of " << coolMat << " of dimensions " 
-			<< 0.5*coolDz << ", 0, 0, " << h1 << ", " << d2
-			<< ", " << d1 << ", 0, " << h1 << ", " << d2 << ", " 
-			<< d1 << ", 0";
+			<< " Tubs made of " << tubeMat << " from 0 to " <<
+			CLHEP::twopi/CLHEP::deg << " with Rout " << coolRadius-coolThick <<
+			" ZHalf " << 0.5*coolDz;		
   matter = DDMaterial(DDName(DDSplit(coolMat).first, DDSplit(coolMat).second));
   DDLogicalPart cool(solid.ddname(), matter, solid);
   cpv.position (cool, coolTube, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
@@ -130,14 +113,20 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
 
   DDName ladderFull(DDSplit(ladder).first, DDSplit(ladder).second);
   int  copy=1, iup=(-1)*outerFirst;
+  int copyoffset=number+2;
   for (int i=1; i<number+1; i++) {
-    double phi = i*dphi;
-    double phix, phiy, rrr;
+    double phi = i*dphi+90*CLHEP::deg-0.5*dphi; //to start with the interface ladder
+    double phix, phiy, rrr, rrroffset;
     std::string rots;
     DDTranslation tran;
     DDRotation rot;
     iup  =-iup;
-    rrr  = rr + iup*dr;
+    if ((i==1)||(i==number/2+1)){
+	dr=coolRadius+0.5*ladderThick+ladderOffset; //interface ladder offset
+	}else{
+	dr=coolRadius+0.5*ladderThick;
+	}
+    rrr = coolDist*cos(0.5*dphi)+iup*dr;
     tran = DDTranslation(rrr*cos(phi), rrr*sin(phi), 0);
     rots = idName + dbl_to_string(copy);
     if (iup > 0) phix = phi-90*CLHEP::deg;
@@ -165,7 +154,18 @@ void DDPixBarLayerUpgradeAlgo::execute(DDCompactView& cpv) {
 			  << ", 90.," << phiy/CLHEP::deg << ", 0, 0";
     rot = DDrot(DDName(rots,idNameSpace), 90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
     cpv.position (coolTube, layer, i+1, tran, rot);
-    LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " << coolTube.name() 
+    if ((i==1)||(i==number/2+1)){
+    	rrroffset = coolDist*cos(0.5*dphi)+iup*ladderOffset;
+	tran = DDTranslation(rrroffset*cos(phi)-cool1Offset*sin(phi), 
+		rrroffset*sin(phi)+cool1Offset*cos(phi), 0);
+    	cpv.position (coolTube, layer, copyoffset, tran, DDRotation());
+	copyoffset++;
+	tran = DDTranslation(rrroffset*cos(phi)-cool2Offset*sin(phi), 
+		rrroffset*sin(phi)+cool2Offset*cos(phi), 0);
+    	cpv.position (coolTube, layer, copyoffset, tran, DDRotation());
+	copyoffset++;
+	} 
+   LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " << coolTube.name() 
 			  << " number " << i+1 << " positioned in " 
 			  << layer.name() << " at " << tran << " with "<< rot;
   }

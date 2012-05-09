@@ -12,7 +12,7 @@
 //
 // Original Author:  Leonard Apanasevich
 //         Created:  Wed Mar 25 16:01:27 CDT 2009
-// $Id: HLTHcalMETNoiseFilter.cc,v 1.12 2010/04/22 22:42:39 johnpaul Exp $
+// $Id: HLTHcalMETNoiseFilter.cc,v 1.14 2011/04/12 18:25:58 johnpaul Exp $
 //
 //
 
@@ -52,8 +52,22 @@ HLTHcalMETNoiseFilter::HLTHcalMETNoiseFilter(const edm::ParameterSet& iConfig)
     maxRBXEMF_(iConfig.getParameter<double>("maxRBXEMF")),
     minRecHitE_(iConfig.getParameter<double>("minRecHitE")),
     minLowHitE_(iConfig.getParameter<double>("minLowHitE")),
-    minHighHitE_(iConfig.getParameter<double>("minHighHitE"))
+    minHighHitE_(iConfig.getParameter<double>("minHighHitE")),
+    TS4TS5EnergyThreshold_(iConfig.getParameter<double>("TS4TS5EnergyThreshold"))
 {
+
+  std::vector<double> TS4TS5UpperThresholdTemp = iConfig.getParameter<std::vector<double> >("TS4TS5UpperThreshold");
+  std::vector<double> TS4TS5UpperCutTemp = iConfig.getParameter<std::vector<double> >("TS4TS5UpperCut");
+  std::vector<double> TS4TS5LowerThresholdTemp = iConfig.getParameter<std::vector<double> >("TS4TS5LowerThreshold");
+  std::vector<double> TS4TS5LowerCutTemp = iConfig.getParameter<std::vector<double> >("TS4TS5LowerCut");
+
+  for(int i = 0; i < (int)TS4TS5UpperThresholdTemp.size() && i < (int)TS4TS5UpperCutTemp.size(); i++)
+     TS4TS5UpperCut_.push_back(std::pair<double, double>(TS4TS5UpperThresholdTemp[i], TS4TS5UpperCutTemp[i]));
+  sort(TS4TS5UpperCut_.begin(), TS4TS5UpperCut_.end());
+
+  for(int i = 0; i < (int)TS4TS5LowerThresholdTemp.size() && i < (int)TS4TS5LowerCutTemp.size(); i++)
+     TS4TS5LowerCut_.push_back(std::pair<double, double>(TS4TS5LowerThresholdTemp[i], TS4TS5LowerCutTemp[i]));
+  sort(TS4TS5LowerCut_.begin(), TS4TS5LowerCut_.end());
 }
 
 
@@ -68,8 +82,8 @@ HLTHcalMETNoiseFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<int>("numRBXsToConsider",2);
   desc.add<bool>("needEMFCoincidence",true);
   desc.add<double>("minRBXEnergy",50.0);
-  desc.add<double>("minRatio",0.65);
-  desc.add<double>("maxRatio",0.98);
+  desc.add<double>("minRatio",-999.);
+  desc.add<double>("maxRatio",999.);
   desc.add<int>("minHPDHits",17);
   desc.add<int>("minRBXHits",999);
   desc.add<int>("minHPDNoOtherHits",10);
@@ -80,6 +94,21 @@ HLTHcalMETNoiseFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("minRecHitE",1.5);
   desc.add<double>("minLowHitE",10.0);
   desc.add<double>("minHighHitE",25.0);
+  desc.add<double>("TS4TS5EnergyThreshold",50.0);
+
+  double TS4TS5UpperThresholdArray[5] = {70, 90, 100, 400, 4000 };
+  double TS4TS5UpperCutArray[5] = {1, 0.8, 0.75, 0.72, 0.72};
+  double TS4TS5LowerThresholdArray[7] = {100, 120, 150, 200, 300, 400, 500};
+  double TS4TS5LowerCutArray[7] = {-1, -0.7, -0.4, -0.2, -0.08, 0, 0.1};
+  std::vector<double> TS4TS5UpperThreshold(TS4TS5UpperThresholdArray, TS4TS5UpperThresholdArray+5);
+  std::vector<double> TS4TS5UpperCut(TS4TS5UpperCutArray, TS4TS5UpperCutArray+5);
+  std::vector<double> TS4TS5LowerThreshold(TS4TS5LowerThresholdArray, TS4TS5LowerThresholdArray+7);
+  std::vector<double> TS4TS5LowerCut(TS4TS5LowerCutArray, TS4TS5LowerCutArray+7);
+
+  desc.add<std::vector<double> >("TS4TS5UpperThreshold", TS4TS5UpperThreshold);
+  desc.add<std::vector<double> >("TS4TS5UpperCut", TS4TS5UpperCut);
+  desc.add<std::vector<double> >("TS4TS5LowerThreshold", TS4TS5LowerThreshold);
+  desc.add<std::vector<double> >("TS4TS5LowerCut", TS4TS5LowerCut);
   descriptions.add("hltHcalMETNoiseFilter",desc);
 }
 
@@ -110,7 +139,8 @@ bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
   noisedataset_t data;
   for(HcalNoiseRBXCollection::const_iterator it=rbxs_h->begin(); it!=rbxs_h->end(); ++it) {
     const HcalNoiseRBX &rbx=(*it);
-    CommonHcalNoiseRBXData d(rbx, minRecHitE_, minLowHitE_, minHighHitE_);
+    CommonHcalNoiseRBXData d(rbx, minRecHitE_, minLowHitE_, minHighHitE_, TS4TS5EnergyThreshold_,
+			     TS4TS5UpperCut_, TS4TS5LowerCut_);
     data.insert(d);
   }
 
@@ -132,7 +162,8 @@ bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
       else if(it->numZeros()>=minZeros_)                   passFilter=false;
       else if(it->minHighEHitTime()<minHighEHitTime_)      passFilter=false;
       else if(it->maxHighEHitTime()>maxHighEHitTime_)      passFilter=false;
-      
+      else if(!it->PassTS4TS5())                           passFilter=false;
+
       if(it->RBXEMF()<maxRBXEMF_) passEMF=false;
     }
 
@@ -146,6 +177,7 @@ bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
 		   << "# Zeros=" << it->numZeros() << "; "
 		   << "min time=" << it->minHighEHitTime() << "; "
 		   << "max time=" << it->maxHighEHitTime() << "; "
+		   << "passTS4TS5=" << it->PassTS4TS5() << "; "
 		   << "RBX EMF=" << it->RBXEMF()
 		   << std::endl;
       return false;

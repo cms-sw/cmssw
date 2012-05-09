@@ -51,7 +51,7 @@ void PatTriggerTagAndProbe::analyze( const edm::Event & iEvent, const edm::Event
   const pat::helper::TriggerMatchHelper matchHelper;
 
   // ask for trigger accept of HLT_Mu9; otherwise we don't even start
-  if(!(triggerEvent->path("HLT_Mu9")->wasRun() && triggerEvent->path("HLT_Mu9")->wasAccept())){
+  if(!(triggerEvent->path("HLT_IsoMu17_v5")->wasRun() && triggerEvent->path("HLT_IsoMu17_v5")->wasAccept())){
     return;
   }
 

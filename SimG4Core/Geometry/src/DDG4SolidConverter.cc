@@ -120,8 +120,10 @@ G4VSolid * DDG4SolidConverter::cons(const DDSolid & s)
 G4VSolid * DDG4SolidConverter::polycone_rz(const DDSolid & s)
 {
   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: pcon_rz = " << s ;  
-  vector<double> r;
-  vector<double> z;
+  vector<double>* r_p = new vector<double>;
+  vector<double>* z_p = new vector<double>;
+  vector<double>& r = *r_p;
+  vector<double>& z = *z_p;
   vector<double>::const_iterator i = (*par_).begin()+2;
   int count=0;
   for(; i!=(*par_).end(); ++i) {
@@ -133,35 +135,35 @@ G4VSolid * DDG4SolidConverter::polycone_rz(const DDSolid & s)
    }
    LogDebug("SimG4CoreGeometry") << "sp=" << (*par_)[0]/deg << " ep=" << (*par_)[1]/deg ;
    return new G4Polycone(s.name().name(), (*par_)[0], (*par_)[1], // start,delta-phi
-			 count, // numRZ
-			 &(r[0]),
-			 &(z[0]));
+                                 count, // numRZ
+	 			 &(*r.begin()),
+				 &(*z.begin()));
 }
 
 
 G4VSolid * DDG4SolidConverter::polycone_rrz(const DDSolid & s)
 {
     LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: pcon_rrz = " << s ;  
-    vector<double> z_p;
-    vector<double> rmin_p;
-    vector<double> rmax_p;
+    vector<double>* z_p = new vector<double>;
+    vector<double>* rmin_p = new vector<double>;
+    vector<double>* rmax_p = new vector<double>;
     vector<double>::const_iterator i = par_->begin()+2;
     int count = 0;
     for (; i!=par_->end(); ++i) {
         LogDebug("SimG4CoreGeometry") << "z=" << *i ;
-	z_p.push_back(*i); ++i;
+      (*z_p).push_back(*i); ++i;
         LogDebug("SimG4CoreGeometry") << "rmin=" << *i ;
-	rmin_p.push_back(*i); ++i;
+      (*rmin_p).push_back(*i); ++i;
         LogDebug("SimG4CoreGeometry") << "rmax=" << *i ;
-	rmax_p.push_back(*i); 
+      (*rmax_p).push_back(*i); 
       count++;
     }
     LogDebug("SimG4CoreGeometry") << "sp=" << (*par_)[0]/deg << " ep=" << (*par_)[1]/deg ;
     return new G4Polycone(s.name().name(), (*par_)[0], (*par_)[1], // start,delta-phi
                         count, // sections
-			&(z_p[0]),
-			&(rmin_p[0]),
-			&(rmax_p[0]));
+			&((*z_p)[0]),
+			&((*rmin_p)[0]),
+			&((*rmax_p)[0]));
 			
 }
 
@@ -170,8 +172,10 @@ G4VSolid * DDG4SolidConverter::polycone_rrz(const DDSolid & s)
 G4VSolid * DDG4SolidConverter::polyhedra_rz(const DDSolid & s)
 {
     LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: phed_rz = " << s ;  
-    vector<double> r;
-    vector<double> z;
+    vector<double>* r_p = new vector<double>; // geant gets the memory!
+    vector<double>* z_p = new vector<double>;
+    vector<double>& r = *r_p;
+    vector<double>& z = *z_p;
     vector<double>::const_iterator i = par_->begin()+3;
     int count=0;
     
@@ -182,36 +186,37 @@ G4VSolid * DDG4SolidConverter::polyhedra_rz(const DDSolid & s)
     }
       
     return new G4Polyhedra(s.name().name(), (*par_)[1], (*par_)[2], int((*par_)[0]),// start,delta-phi;sides
-			   count, // numRZ
-			   &(r[0]),
-			   &(z[0]));
+                                count, // numRZ
+				&(*r.begin()),
+				&(*z.begin()));
 }
 
 
 G4VSolid * DDG4SolidConverter::polyhedra_rrz(const DDSolid & s)
 {
     LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: phed_rrz = " << s ;  
-    vector<double> z_p;
-    vector<double> rmin_p;
-    vector<double> rmax_p;
+    vector<double>* z_p = new vector<double>;
+    vector<double>* rmin_p = new vector<double>;
+    vector<double>* rmax_p = new vector<double>;
     vector<double>::const_iterator i = par_->begin()+3;
     int count = 0;
     for (; i!=par_->end(); ++i) {
         LogDebug("SimG4CoreGeometry") << "z=" << *i ;
-	z_p.push_back(*i); ++i;
+      (*z_p).push_back(*i); ++i;
         LogDebug("SimG4CoreGeometry") << "rmin=" << *i ;
-	rmin_p.push_back(*i); ++i;
+      (*rmin_p).push_back(*i); ++i;
         LogDebug("SimG4CoreGeometry") << "rmax=" << *i ;
-	rmax_p.push_back(*i); 
+      (*rmax_p).push_back(*i); 
       count++;
     }
     LogDebug("SimG4CoreGeometry") << "sp=" << (*par_)[0]/deg << " ep=" << (*par_)[1]/deg ;
     return new G4Polyhedra(s.name().name(), (*par_)[1], (*par_)[2], int((*par_)[0]), // start,delta-phi,sides
-			   count, // sections
-			   &(z_p[0]),
-			   &(rmin_p[0]),
-			   &(rmax_p[0]));  
+                         count, // sections
+			 &((*z_p)[0]),
+			 &((*rmin_p)[0]),
+			 &((*rmax_p)[0]));  
 }
+
 
 #include "G4Torus.hh"
 G4VSolid * DDG4SolidConverter::torus(const DDSolid & s)

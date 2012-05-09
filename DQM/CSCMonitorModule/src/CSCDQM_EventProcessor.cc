@@ -28,7 +28,7 @@ namespace cscdqm {
   EventProcessor::EventProcessor(Configuration* const p_config) {
 
     config = p_config;
-    fFirstEvent = true;
+    // fFirstEvent = true;
     fCloseL1As = true;
 
   }

@@ -7,8 +7,7 @@ db_client = cms.EDAnalyzer("SiStripCommissioningOfflineDbClient",
   UseClientFile    = cms.untracked.bool(False),
   UploadHwConfig   = cms.untracked.bool(False),
   UploadAnalyses   = cms.untracked.bool(False),
-  KeepStripsDisabled= cms.untracked.bool(False),
-  DisableDevices   = cms.untracked.bool(False),  
+  DisableDevices   = cms.untracked.bool(False),
   SaveClientFile   = cms.untracked.bool(True),
   SummaryXmlFile   = cms.untracked.FileInPath('DQM/SiStripCommissioningClients/data/summary.xml'),
   # individual parameters
@@ -40,7 +39,7 @@ db_client = cms.EDAnalyzer("SiStripCommissioningOfflineDbClient",
     LowThreshold        = cms.double(2),    # analysis-wide low threshold for the fed zero suppression
     DisableBadStrips    = cms.bool(False),  # for experts! disables bad strips on the fed level 
     AddBadStrips				= cms.bool(False), #for experts! keep and add disabled bad strips. 
-    KeepsStripsDisabled = cms.bool(True)   # for experts! keep strips disabled as in the db's current state
+    KeepsStripsDisabled = cms.bool(False)   # for experts! keep strips disabled as in the db's current state
   ),
   PedsOnlyParameters       = cms.PSet(),
   PedsFullNoiseParameters  = cms.PSet(
@@ -49,11 +48,9 @@ db_client = cms.EDAnalyzer("SiStripCommissioningOfflineDbClient",
     HighThreshold       = cms.double(5),    # analysis-wide high threshold for the fed zero suppression
     LowThreshold        = cms.double(2),    # analysis-wide low threshold for the fed zero suppression
     KsProbCut						= cms.double(10),
-    DisableBadStrips    = cms.bool(False),
-  	KeepStripsDisabled= cms.bool(False),  # for experts! disables bad strips on the fed level 
- 		NoiseDefinition = cms.string("Bin84"),  # for experts! disables bad strips on the fed level 
+    DisableBadStrips    = cms.bool(False),  # for experts! disables bad strips on the fed level 
     AddBadStrips				= cms.bool(False), 	#for experts! keep and add disabled bad strips.
-    KeepsStripsDisabled = cms.bool(True)   # for experts! keeps strip disabling as in the db's current state
+    KeepsStripsDisabled = cms.bool(False)   # for experts! keeps strip disabling as in the db's current state
   ),
   SamplingParameters       = cms.PSet(),
   VpspScanParameters       = cms.PSet(),

@@ -6,6 +6,7 @@
 #  include "FWCore/ServiceRegistry/interface/Service.h"
 #  include "FWCore/MessageLogger/interface/JobReport.h"
 #  include "FWCore/Version/interface/GetReleaseVersion.h"
+#  include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 # else
 #  include <memory>
 #  include <string>
@@ -52,6 +53,13 @@ namespace edm
     T &operator*(void) { return * operator->(); }
   };
 
+  struct ActivityRegistry
+  {
+    template <typename T>
+    void watchPostSourceRun(void*, T) {}
+  };
+  
+  
   struct JobReport
   {
     JobReport(const edm::ParameterSet &) {}

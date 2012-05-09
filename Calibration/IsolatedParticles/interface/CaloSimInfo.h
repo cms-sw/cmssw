@@ -1,3 +1,4 @@
+// -*- C++ -*
 /* 
 Functions to give the details of parent track of SimHits.
 

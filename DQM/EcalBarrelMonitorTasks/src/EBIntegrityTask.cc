@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2010/04/02 08:20:43 $
- * $Revision: 1.84 $
+ * $Date: 2011/08/23 00:25:31 $
+ * $Revision: 1.85.4.1 $
  * \author G. Della Ricca
  *
  */
@@ -123,34 +123,34 @@ void EBIntegrityTask::setup(void){
 
   init_ = true;
 
-  char histo[200];
+  std::string name;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask");
 
     // checking when number of towers in data different than expected from header
-    sprintf(histo, "EBIT DCC size error");
-    meIntegrityDCCSize = dqmStore_->book1D(histo, histo, 36, 1., 37.);
+    name = "EBIT DCC size error";
+    meIntegrityDCCSize = dqmStore_->book1D(name, name, 36, 1., 37.);
     for (int i = 0; i < 36; i++) {
-      meIntegrityDCCSize->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+      meIntegrityDCCSize->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
     // checking the number of integrity errors in each DCC for each lumi
     // crystal integrity error is weighted by 1/1700
     // tower integrity error is weighted by 1/68
     // bin 0 contains the number of processed events in the lumi (for normalization)
-    sprintf(histo, "EBIT weighted integrity errors by lumi");
-    meIntegrityErrorsByLumi = dqmStore_->book1D(histo, histo, 36, 1., 37.);
+    name = "EBIT weighted integrity errors by lumi";
+    meIntegrityErrorsByLumi = dqmStore_->book1D(name, name, 36, 1., 37.);
     meIntegrityErrorsByLumi->setLumiFlag();
     for (int i = 0; i < 36; i++) {
-      meIntegrityErrorsByLumi->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
+      meIntegrityErrorsByLumi->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
     // checking when the gain is 0
     dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/Gain");
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBIT gain %s", Numbers::sEB(i+1).c_str());
-      meIntegrityGain[i] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      name = "EBIT gain " + Numbers::sEB(i+1);
+      meIntegrityGain[i] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       meIntegrityGain[i]->setAxisTitle("ieta", 1);
       meIntegrityGain[i]->setAxisTitle("iphi", 2);
       dqmStore_->tag(meIntegrityGain[i], i+1);
@@ -159,8 +159,8 @@ void EBIntegrityTask::setup(void){
     // checking when channel has unexpected or invalid ID
     dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/ChId");
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBIT ChId %s", Numbers::sEB(i+1).c_str());
-      meIntegrityChId[i] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      name = "EBIT ChId " + Numbers::sEB(i+1);
+      meIntegrityChId[i] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       meIntegrityChId[i]->setAxisTitle("ieta", 1);
       meIntegrityChId[i]->setAxisTitle("iphi", 2);
       dqmStore_->tag(meIntegrityChId[i], i+1);
@@ -169,8 +169,8 @@ void EBIntegrityTask::setup(void){
     // checking when channel has unexpected or invalid ID
     dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/GainSwitch");
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBIT gain switch %s", Numbers::sEB(i+1).c_str());
-      meIntegrityGainSwitch[i] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      name = "EBIT gain switch " + Numbers::sEB(i+1);
+      meIntegrityGainSwitch[i] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       meIntegrityGainSwitch[i]->setAxisTitle("ieta", 1);
       meIntegrityGainSwitch[i]->setAxisTitle("iphi", 2);
       dqmStore_->tag(meIntegrityGainSwitch[i], i+1);
@@ -179,8 +179,8 @@ void EBIntegrityTask::setup(void){
     // checking when trigger tower has unexpected or invalid ID
     dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/TTId");
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBIT TTId %s", Numbers::sEB(i+1).c_str());
-      meIntegrityTTId[i] = dqmStore_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+      name = "EBIT TTId " + Numbers::sEB(i+1);
+      meIntegrityTTId[i] = dqmStore_->book2D(name, name, 17, 0., 17., 4, 0., 4.);
       meIntegrityTTId[i]->setAxisTitle("ieta'", 1);
       meIntegrityTTId[i]->setAxisTitle("iphi'", 2);
       dqmStore_->tag(meIntegrityTTId[i], i+1);
@@ -189,8 +189,8 @@ void EBIntegrityTask::setup(void){
     // checking when trigger tower has unexpected or invalid size
     dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/TTBlockSize");
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBIT TTBlockSize %s", Numbers::sEB(i+1).c_str());
-      meIntegrityTTBlockSize[i] = dqmStore_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+      name = "EBIT TTBlockSize " + Numbers::sEB(i+1);
+      meIntegrityTTBlockSize[i] = dqmStore_->book2D(name, name, 17, 0., 17., 4, 0., 4.);
       meIntegrityTTBlockSize[i]->setAxisTitle("ieta'", 1);
       meIntegrityTTBlockSize[i]->setAxisTitle("iphi'", 2);
       dqmStore_->tag(meIntegrityTTBlockSize[i], i+1);
@@ -199,8 +199,8 @@ void EBIntegrityTask::setup(void){
     // checking when mem channels have unexpected ID
     dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/MemChId");
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBIT MemChId %s", Numbers::sEB(i+1).c_str());
-      meIntegrityMemChId[i] = dqmStore_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      name = "EBIT MemChId " + Numbers::sEB(i+1);
+      meIntegrityMemChId[i] = dqmStore_->book2D(name, name, 10, 0., 10., 5, 0., 5.);
       meIntegrityMemChId[i]->setAxisTitle("pseudo-strip", 1);
       meIntegrityMemChId[i]->setAxisTitle("channel", 2);
       dqmStore_->tag(meIntegrityMemChId[i], i+1);
@@ -211,8 +211,8 @@ void EBIntegrityTask::setup(void){
     // but indicates that data are not completely correct
     dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/MemGain");
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBIT MemGain %s", Numbers::sEB(i+1).c_str());
-      meIntegrityMemGain[i] = dqmStore_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      name = "EBIT MemGain " + Numbers::sEB(i+1);
+      meIntegrityMemGain[i] = dqmStore_->book2D(name, name, 10, 0., 10., 5, 0., 5.);
       meIntegrityMemGain[i]->setAxisTitle("pseudo-strip", 1);
       meIntegrityMemGain[i]->setAxisTitle("channel", 2);
       dqmStore_->tag(meIntegrityMemGain[i], i+1);
@@ -221,8 +221,8 @@ void EBIntegrityTask::setup(void){
     // checking when mem tower block has unexpected ID
     dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/MemTTId");
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBIT MemTTId %s", Numbers::sEB(i+1).c_str());
-      meIntegrityMemTTId[i] = dqmStore_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      name = "EBIT MemTTId " + Numbers::sEB(i+1);
+      meIntegrityMemTTId[i] = dqmStore_->book2D(name, name, 2, 0., 2., 1, 0., 1.);
       meIntegrityMemTTId[i]->setAxisTitle("pseudo-strip", 1);
       meIntegrityMemTTId[i]->setAxisTitle("channel", 2);
       dqmStore_->tag(meIntegrityMemTTId[i], i+1);
@@ -231,8 +231,8 @@ void EBIntegrityTask::setup(void){
     // checking when mem tower block has invalid size
     dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/MemSize");
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBIT MemSize %s", Numbers::sEB(i+1).c_str());
-      meIntegrityMemTTBlockSize[i] = dqmStore_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      name = "EBIT MemSize " + Numbers::sEB(i+1);
+      meIntegrityMemTTBlockSize[i] = dqmStore_->book2D(name, name, 2, 0., 2., 1, 0., 1.);
       meIntegrityMemTTBlockSize[i]->setAxisTitle("pseudo-strip", 1);
       meIntegrityMemTTBlockSize[i]->setAxisTitle("pseudo-strip", 1);
       meIntegrityMemTTBlockSize[i]->setAxisTitle("channel", 2);

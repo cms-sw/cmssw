@@ -281,9 +281,9 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1orL2(vector<L1MuGMT
     GlobalVector aP(px,py,pz);    
     GlobalTrajectoryParameters gtp(aX,aP,charge,field);
     
-    AlgebraicSymMatrix55 m;
-    m(0,0)=0.6*pt; m(1,1)=1.; m(2,2)=1.;
-    m(3,3)=1.;m(4,4)=0.; 
+    AlgebraicSymMatrix m(5,0);
+    m(1,1)=0.6*pt; m(2,2)=1.; m(3,3)=1.;
+    m(4,4)=1.;m(5,5)=0.; 
     CurvilinearTrajectoryError cte(m);
 
     FreeTrajectoryState fts(gtp,cte);
@@ -318,7 +318,7 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1orL2(vector<L1MuGMT
 
    // cout<<" L2::Innermost state "<<pos0<<" new momentum "<<mom<<" old momentum "<<mom0<<endl;
     
-    AlgebraicSymMatrix55 m;
+    AlgebraicSymMatrix m(5,0);
     double error;
     if( abs(mom.eta()) < 1. )
     {
@@ -328,8 +328,8 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1orL2(vector<L1MuGMT
     {
      error = 0.6*abs(mom.z());
     }
-    m(0,0)=0.6*mom.perp(); m(1,1)=1.; m(2,2)=1.;
-    m(3,3)=1.;m(4,4)=0.; 
+    m(1,1)=0.6*mom.perp(); m(2,2)=1.; m(3,3)=1.;
+    m(4,4)=1.;m(5,5)=0.; 
     CurvilinearTrajectoryError cte(m);
     GlobalPoint pos(pos0.x(),pos0.y(),pos0.z());
     
@@ -366,7 +366,7 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1orL2(vector<L1MuGMT
 
     //cout<<" StandAlone::Innermost state "<<pos0<<" new momentum "<<mom<<" old momentum "<<mom0<<endl;
     
-    AlgebraicSymMatrix55 m;
+    AlgebraicSymMatrix m(5,0);
     double error;
     if( abs(mom.eta()) < 1. )
     {
@@ -376,8 +376,8 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1orL2(vector<L1MuGMT
     {
      error = 0.6*abs(mom.z());
     }
-    m(0,0)=0.6*mom.perp(); m(1,1)=1.; m(2,2)=1.;
-    m(3,3)=1.;m(4,4)=0.; 
+    m(1,1)=0.6*mom.perp(); m(2,2)=1.; m(3,3)=1.;
+    m(4,4)=1.;m(5,5)=0.; 
     CurvilinearTrajectoryError cte(m);
     GlobalPoint pos(pos0.x(),pos0.y(),pos0.z());
     

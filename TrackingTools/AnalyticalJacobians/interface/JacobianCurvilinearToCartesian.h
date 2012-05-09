@@ -1,7 +1,7 @@
 #ifndef JacobianCurvilinearToCartesian_H
 #define JacobianCurvilinearToCartesian_H
 
-#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 class GlobalTrajectoryParameters;
 
@@ -23,7 +23,8 @@ class JacobianCurvilinearToCartesian {
   /** Access to Jacobian.
    */
   
-  const AlgebraicMatrix65& jacobian() const {return theJacobian; }
+  const AlgebraicMatrix65& jacobian() const;
+  const AlgebraicMatrix jacobian_old() const;
 
 
  private:

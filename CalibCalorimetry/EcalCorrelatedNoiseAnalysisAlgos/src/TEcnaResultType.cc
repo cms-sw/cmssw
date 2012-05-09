@@ -1,22 +1,16 @@
 //----------Author's Names:FX. Gentit, B.Fabbro  DSM/IRFU/SPP CEA-Saclay
 //----------Copyright:Those valid for CEA sofware
-//----------Modified: 24/03/2011
+//----------Modified: 17/03/2010
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaResultType.h"
 #include "Riostream.h"
 
-//--------------------------------------
-//  TEcnaResultType.cc
-//  Class creation: 03 Dec 2002
-//  Documentation: see TEcnaResultType.h
-//--------------------------------------
-
 ClassImp(TEcnaResultType)
 //___________________________________________________________________________
 //
-
-// INFO ========> fMatMat and fMatHis Type is TEcnaNArrayD (visible in TEcnaResultType.h only)
+//  Set the results types and dimensions 
 //
+  
 //.... Constructor without Arguments
   
 TEcnaResultType::TEcnaResultType()
@@ -28,24 +22,12 @@ TEcnaResultType::TEcnaResultType()
   fMatHis.ReSet(1,1);
 }
 
-TEcnaResultType::TEcnaResultType(TEcnaObject* pObjectManager)
-{
-  
-  // cout << "[Info Management] CLASS: TEcnaResultType.    CREATE OBJECT: this = " << this << endl;
-
-  Long_t i_this = (Long_t)this;
-  pObjectManager->RegisterPointer("TEcnaResultType", i_this);
-
-  fMatMat.ReSet(1,1);
-  fMatHis.ReSet(1,1);
-}
-
 #define CWAR
 #ifndef CWAR
 
 TEcnaResultType::TEcnaResultType(CnaResultTyp  typ,          Int_t   i,
-				 Int_t         xArgNrowMat,  Int_t   xArgNcolMat,
-				 Int_t         xArgNrowHis,  Int_t   xArgNcolHis)
+			       Int_t         xArgNrowMat,  Int_t   xArgNcolMat,
+			       Int_t         xArgNrowHis,  Int_t   xArgNcolHis)
 {
 //constructor
 
@@ -58,14 +40,22 @@ TEcnaResultType::TEcnaResultType(CnaResultTyp  typ,          Int_t   i,
   fMatHis.ReSet(1,1);
 
   if ( (xArgNrowMat>0) && (xArgNcolMat>0) )
-    {fMatMat.ReSet(xArgNrowMat,xArgNcolMat);}
+    {
+      fMatMat.ReSet(xArgNrowMat,xArgNcolMat);
+    }
   else
-    {fMatMat.ReSet(1,1);}
+    {
+      fMatMat.ReSet(1,1);
+    }
 
   if ( (xArgNrowHis>0) && (xArgNcolHis>0) )
-    {fMatHis.ReSet(xArgNrowHis,xArgNcolHis);}
+    {
+      fMatHis.ReSet(xArgNrowHis,xArgNcolHis);
+    }
   else 
-    {fMatHis.ReSet(1,1);}
+    {
+      fMatHis.ReSet(1,1);
+    }
 }
 
 #endif // CWAR
@@ -130,43 +120,43 @@ CnaResultTyp  TEcnaResultType::GetTypOfEntry(Int_t  kEntry)
 
   CnaResultTyp  xResultType = cTypNumbers;   // (default)
 
- if( kEntry ==  0 ){xResultType = cTypNumbers;}
- if( kEntry ==  1 ){xResultType = cTypMSp;}
- if( kEntry ==  2 ){xResultType = cTypSSp;}
+ if (kEntry ==  0 ) { xResultType = cTypNumbers;}
+ if (kEntry ==  1 ) { xResultType = cTypMSp;}
+ if (kEntry ==  2 ) { xResultType = cTypSSp;}
 
- if( kEntry ==  3 ){xResultType = cTypAvTno;}
- if( kEntry ==  4 ){xResultType = cTypAvLfn;}
- if( kEntry ==  5 ){xResultType = cTypAvHfn;}
+ if (kEntry ==  3 ) { xResultType = cTypAvTno;}
+ if (kEntry ==  4 ) { xResultType = cTypAvLfn;}
+ if (kEntry ==  5 ) { xResultType = cTypAvHfn;}
 
- if( kEntry ==  6 ){xResultType = cTypHfCov;}
- if( kEntry ==  7 ){xResultType = cTypHfCor;}
+ if (kEntry ==  6 ) { xResultType = cTypHfCov;}
+ if (kEntry ==  7 ) { xResultType = cTypHfCor;}
 
- if( kEntry ==  8 ){xResultType = cTypCovCss;}
- if( kEntry ==  9 ){xResultType = cTypCorCss;}
+ if (kEntry ==  8 ) { xResultType = cTypCovCss;}
+ if (kEntry ==  9 ) { xResultType = cTypCorCss;}
 
- if( kEntry == 10 ){xResultType = cTypMeanCorss;}
- if( kEntry == 11 ){xResultType = cTypSigCorss;}
+ if (kEntry == 10 ) { xResultType = cTypMeanCorss;}
+ if (kEntry == 11 ) { xResultType = cTypSigCorss;}
 
- if( kEntry == 12 ){xResultType = cTypAvPed;}
- if( kEntry == 13 ){xResultType = cTypAvMeanCorss;}
- if( kEntry == 14 ){xResultType = cTypAvSigCorss;}
+ if (kEntry == 12 ) { xResultType = cTypAvPed;}
+ if (kEntry == 13 ) { xResultType = cTypAvMeanCorss;}
+ if (kEntry == 14 ) { xResultType = cTypAvSigCorss;}
 
- if( kEntry == 15 ){xResultType = cTypNbOfEvts;}
+ if (kEntry == 15 ) { xResultType = cTypNbOfEvts;}
 
- if( kEntry == 16 ){xResultType = cTypPed;}
- if( kEntry == 17 ){xResultType = cTypTno;}
- if( kEntry == 18 ){xResultType = cTypLfn;}
- if( kEntry == 19 ){xResultType = cTypHfn;}
+ if (kEntry == 16 ) { xResultType = cTypPed;}
+ if (kEntry == 17 ) { xResultType = cTypTno;}
+ if (kEntry == 18 ) { xResultType = cTypLfn;}
+ if (kEntry == 19 ) { xResultType = cTypHfn;}
 
- if( kEntry == 20 ){xResultType = cTypAdcEvt;}
+ if (kEntry == 20 ) { xResultType = cTypAdcEvt;}
 
- if( kEntry == 21 ){xResultType = cTypLfCov;}
- if( kEntry == 22 ){xResultType = cTypLfCor;}
+ if (kEntry == 21 ) { xResultType = cTypLfCov;}
+ if (kEntry == 22 ) { xResultType = cTypLfCor;}
 
- if( kEntry == 23 ){xResultType = cTypLFccMoStins;}
- if( kEntry == 24 ){xResultType = cTypHFccMoStins;}
+ if (kEntry == 23 ) { xResultType = cTypLFccMoStins;}
+ if (kEntry == 24 ) { xResultType = cTypHFccMoStins;}
 
- if( kEntry == 25 ){xResultType = cTypEvtNbInLoop;}      // (FREE)
+ if (kEntry == 25 ) { xResultType = cTypEvtNbInLoop;}      // (FREE)
 
  return xResultType;
 }

@@ -74,7 +74,6 @@ METTester::METTester(const edm::ParameterSet& iConfig)
   maxPtErr_                = iConfig.getParameter<double>("maxPtErr");
   trkQuality_              = iConfig.getParameter<std::vector<int> >("trkQuality");
   trkAlgos_                = iConfig.getParameter<std::vector<int> >("trkAlgos");
-  sample_                  = iConfig.getUntrackedParameter<std::string>("sample");
   }
   finebinning_             = iConfig.getUntrackedParameter<bool>("FineBinning");
   FolderName_              = iConfig.getUntrackedParameter<std::string>("FolderName");
@@ -733,39 +732,6 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       math::XYZPoint bspot = ( beamSpot_h.isValid() ) ? beamSpot_h->position() : math::XYZPoint(0, 0, 0);
       
-      //Event selection-----------------------------------------------------------------------
-
-      edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > tcMet_ValueMap_Handle;
-      iEvent.getByLabel("muonTCMETValueMapProducer" , "muCorrData", tcMet_ValueMap_Handle);
-
-      //count muons
-      int nM = 0;
-
-      for( unsigned int mus = 0; mus < muon_h->size() ; mus++ ) {
-        
-        reco::MuonRef muref( muon_h, mus);
-        if( muref->pt() < 20 ) continue;
-
-        reco::MuonMETCorrectionData muCorrData = (*tcMet_ValueMap_Handle)[muref];
-        int type = muCorrData.type();
-        
-        if( type == 1 || type == 2 || type == 5 )  ++nM;
-      }
-
-      //count electrons
-      int nE = 0;
-
-      for( edm::View<reco::GsfElectron>::const_iterator eleit = electron_h->begin(); eleit != electron_h->end(); eleit++ ) {
-	if( eleit->p4().pt() < 20 ) continue;  
-        ++nE;
-      }
-      
-      if( strcmp( sample_.c_str() , "zmm" ) == 0 && nM != 2 ) return;
-
-      if( strcmp( sample_.c_str() , "zee" ) == 0 && nE != 2 ) return;
-
-      if( strcmp( sample_.c_str() , "ttbar" ) == 0 && ( nE + nM ) == 0 ) return;
-
       // Reconstructed TCMET Information                                                                                                     
       double SumET = tcMet->sumEt();
       double MET = tcMet->pt();
@@ -847,8 +813,8 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	me["hmuD0"]->Fill( d0 );
       }
 
-      //edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > tcMet_ValueMap_Handle;
-      //iEvent.getByLabel("muonTCMETValueMapProducer" , "muCorrData", tcMet_ValueMap_Handle);
+      edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > tcMet_ValueMap_Handle;
+      iEvent.getByLabel("muonTCMETValueMapProducer" , "muCorrData", tcMet_ValueMap_Handle);
 
       edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > muon_ValueMap_Handle;
       iEvent.getByLabel("muonMETValueMapProducer" , "muCorrData", muon_ValueMap_Handle);

@@ -19,7 +19,8 @@ class CosmicSeedCreator : public SeedCreator {
   const TrajectorySeed * trajectorySeed(TrajectorySeedCollection & seedCollection,
 					const SeedingHitSet & ordered,
 					const TrackingRegion & region,
-					const edm::EventSetup& es);
+					const edm::EventSetup& es,
+                                        const SeedComparitor *filter);
   
 private:
 

@@ -25,24 +25,19 @@ ctfTracksCombinedSeeds = cms.Sequence(globalSeedsFromPairsWithVertices*globalSee
 #
 # Regional reconstruction for cosmics
 #
-# Seeds
+# Seeding
 from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmicsRegionalReconstruction_cff import *
-# Ckf
-import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-regionalCosmicCkfTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+
+# Ckf pattern
+import RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff
+regionalCosmicCkfTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidatesP5_cff.ckfTrackCandidatesP5.clone(
     src = cms.InputTag( "regionalCosmicTrackerSeeds" ),
-    NavigationSchool = cms.string('CosmicNavigationSchool'),
-    #TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
-    TrajectoryBuilder = cms.string( "GroupedCkfTrajectoryBuilder" ),
 )
 
 # Track producer
-import RecoTracker.TrackProducer.TrackProducer_cfi
-regionalCosmicTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff
+regionalCosmicTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksCosmics.clone(
     src = cms.InputTag( "regionalCosmicCkfTrackCandidates" ),
-    NavigationSchool = 'CosmicNavigationSchool',
-    AlgorithmName = 'cosmics',
-    alias = 'regionalCosmicTracks'
 )
 # Final Sequence
 regionalCosmicTracksSeq = cms.Sequence( regionalCosmicTrackerSeeds * regionalCosmicCkfTrackCandidates * regionalCosmicTracks )

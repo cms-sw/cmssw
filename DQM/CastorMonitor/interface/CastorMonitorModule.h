@@ -31,10 +31,22 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
+
+#include "DataFormats/CastorReco/interface/CastorTower.h"
+#include "DataFormats/CastorReco/interface/CastorCluster.h"
+#include "DataFormats/CastorReco/interface/CastorJet.h"
+#include "DataFormats/JetReco/interface/CastorJetID.h"
+#include "RecoJets/JetProducers/interface/CastorJetIDHelper.h"
+#include "RecoJets/JetProducers/plugins/CastorJetIDProducer.h"
+#include "DataFormats/JetReco/interface/BasicJet.h"
+#include "DataFormats/JetReco/interface/BasicJetCollection.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h" //-- no CastorUnpackerReport at the moment !
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h" //-- HcalCastorDetId
+
 #include "DQM/CastorMonitor/interface/CastorMonitorSelector.h"
 #include "DQM/CastorMonitor/interface/CastorDigiMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorRecHitMonitor.h"
@@ -43,6 +55,8 @@
 #include "DQM/CastorMonitor/interface/CastorPSMonitor.h"
 #include "DQM/CastorMonitor/interface/CastorEventDisplay.h"
 #include "DQM/CastorMonitor/interface/CastorHIMonitor.h"
+#include "DQM/CastorMonitor/interface/CastorDataIntegrityMonitor.h"
+#include "DQM/CastorMonitor/interface/CastorTowerJetMonitor.h"
 
 #include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h" //-- use to get/dump Calib to DB 
 #include "CondFormats/CastorObjects/interface/CastorChannelQuality.h" //-- use to get/hold channel status
@@ -135,9 +149,23 @@ public:
   int nlumisecs_;
   bool saved_;
 
-     
-
-
+  ////---- castor products among the event data   
+  bool rawOK_    ;
+  bool reportOK_ ;
+  bool digiOK_   ;
+  bool rechitOK_ ;
+  bool towerOK_  ;
+  bool jetOK_    ;
+  bool jetIdOK_  ;
+  
+  int nRaw;
+  int nDigi;
+  int nRechit;
+  int nTower;
+  int nJet;
+  int nJetId;
+   
+  
   ////---- control whether or not to display time used by each module
   bool showTiming_; 
   edm::CPUTimer cpu_timer; 
@@ -165,8 +193,21 @@ public:
   
   //edm::InputTag inputLabelGT_;
   edm::InputTag inputLabelRaw_;
+  edm::InputTag inputLabelReport_;
   edm::InputTag inputLabelDigi_;
   edm::InputTag inputLabelRecHitCASTOR_;
+  edm::InputTag inputLabelTowerCASTOR_;  
+  edm::InputTag inputLabelBasicJetCASTOR_;  
+  edm::InputTag inputLabelJetIdCASTOR_ ;
+  edm::InputTag inputLabelCastorTowers_    ; 
+  edm::InputTag inputLabelCastorBasicJets_ ; 
+  edm::InputTag inputLabelCastorJetIDs_ ; 
+
+
+
+  ////---- define  CastorTowerCollection
+  // typedef std::vector<reco::CastorTower> CastorTowerCollection;
+
   //edm::InputTag inputLabelCaloTower_;
   //edm::InputTag inputLabelLaser_;
 
@@ -196,11 +237,13 @@ public:
   CastorPSMonitor*          PSMon_;
   CastorEventDisplay*       EDMon_;
   CastorHIMonitor*          HIMon_;
+  CastorDataIntegrityMonitor* DataIntMon_;
+  CastorTowerJetMonitor*     TowerJetMon_;
 
   MonitorElement* meEVT_;
 
   edm::ESHandle<CastorDbService> conditions_;
-  const CastorElectronicsMap*    readoutMap_;
+  const CastorElectronicsMap*     CastorReadoutMap_;
 
   ////---- pedestal parameters from CastorPedestalsRcd, initialized in beginRun
   edm::ESHandle<CastorPedestals> dbPedestals;

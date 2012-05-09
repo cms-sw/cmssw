@@ -26,6 +26,13 @@
   <class name="std::vector<edm::Ref<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate> > >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::Electron>,reco::Electron,edm::refhelper::FindUsingAdvance<std::vector<reco::Electron>,reco::Electron> > >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> > >"/>
+
+  <!--commented out because dictionary is in DataFormats/Candidate-->
+  <!--class name="edm::Ref<std::vector<reco::CompositeCandidate>,reco::CompositeCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::CompositeCandidate>,reco::CompositeCandidate> >"/-->
+  <class name="std::vector<edm::Ref<std::vector<reco::CompositeCandidate>,reco::CompositeCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::CompositeCandidate>,reco::CompositeCandidate> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::MET>,reco::MET,edm::refhelper::FindUsingAdvance<std::vector<reco::MET>,reco::MET> > >"/>
 
   <enum name="trigger::TriggerObjectType" />
   <class name="std::vector<trigger::TriggerObjectType>" />
