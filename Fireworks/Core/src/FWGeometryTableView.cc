@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:34 CET 2012
-// $Id: FWGeometryTableView.cc,v 1.34 2012/05/04 03:00:38 amraktad Exp $
+// $Id: FWGeometryTableView.cc,v 1.35 2012/05/08 02:32:50 amraktad Exp $
 //
 
 // system include files
@@ -400,14 +400,15 @@ void FWGeometryTableView::setFrom(const FWConfiguration& iFrom)
    m_enableRedraw = false;
    for (const_iterator it =begin(), itEnd = end(); it != itEnd; ++it)
    {
-      //      printf("set from %s \n",(*it)->name().c_str() );
+     // printf("set from %s \n",(*it)->name().c_str() );
       (*it)->setFrom(iFrom);
    }  
    m_viewersConfig = iFrom.valueForKey("Viewers");
 
    cdNode(m_topNodeIdx.value());
    m_enableRedraw = true;
-
+   m_filterEntry->SetText(m_filter.value().c_str(), false);
+   m_tableManager->updateFilter(m_filterType.value());
    checkExpandLevel();
    refreshTable3D();
    /*
