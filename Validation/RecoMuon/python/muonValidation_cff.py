@@ -283,7 +283,11 @@ recoMuonVMuAssoc_tgt.simLabel = 'mergedtruth:MergedTrackTruth'
 recoMuonVMuAssoc_tgt.muAssocLabel = 'muonAssociatorByHits_NoSimHits_tight'
 recoMuonVMuAssoc_tgt.trackType = 'global'
 #(NO)#recoMuonVMuAssoc_tgt.selection = 'isGlobalMuon & globalTrack.normalizedChi2<10 & globalTrack.hitPattern.numberOfValidMuonHits>0 & numberOfMatchedStations>1 & abs(innerTrack.dxy(vertex.position))<0.2 & track.hitPattern.numberOfValidPixelHits>0 & track.hitPattern.numberOfValidTrackerHits>10'
-recoMuonVMuAssoc_tgt.selection = 'isGlobalMuon & globalTrack.normalizedChi2<10 & globalTrack.hitPattern.numberOfValidMuonHits>0 & numberOfMatchedStations>1 & track.hitPattern.numberOfValidPixelHits>0 & track.hitPattern.numberOfValidTrackerHits>10'
+#recoMuonVMuAssoc_tgt.selection = 'isGlobalMuon & globalTrack.normalizedChi2<10 & globalTrack.hitPattern.numberOfValidMuonHits>0 & numberOfMatchedStations>1 & track.hitPattern.numberOfValidPixelHits>0 & track.hitPattern.numberOfValidTrackerHits>10'
+#recoMuonVMuAssoc_tgt.selection = 'muon::isTightMuon'
+recoMuonVMuAssoc_tgt.selection = 'isGlobalMuon'
+recoMuonVMuAssoc_tgt.wantTightMuon = True
+recoMuonVMuAssoc_tgt.beamSpot = 'offlineBeamSpot'
 
 # Muon validation sequence
 muonValidation_seq = cms.Sequence(trkMuonTrackVTrackAssoc
