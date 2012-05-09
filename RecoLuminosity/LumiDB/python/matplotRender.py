@@ -395,8 +395,8 @@ class matplotRender():
             csvreport=csvReporter.csvReporter(textoutput)
             csvreport.writeRow(head)
             allruns=[int(t[0]) for t in rawdata[referenceLabel]]
-            allstarts=[ t[1] for t in rawdata[referenceLabel]]
-            allstops=[ t[2] for t in rawdata[referenceLabel]]
+            allstarts=[ lut.DatetimeToStr(t[1],customfm='%Y-%m-%d %H:%M:%S') for t in rawdata[referenceLabel] ]
+            allstops=[ lut.DatetimeToStr(t[2],customfm='%Y-%m-%d %H:%M:%S') for t in rawdata[referenceLabel] ]
             flat.insert(0,allruns)
             flat.insert(1,allstarts)
             flat.insert(2,allstops)
