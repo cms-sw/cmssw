@@ -60,7 +60,7 @@ namespace Rivet {
     // Finalize
     void finalize() {
 
-      _hist_sigma.scale(crossSection()/sumOfWeights()/0.5/2, this);
+      _hist_sigma.scale(crossSection()/sumOfWeights()/2, this);
     }
     //@}
 
