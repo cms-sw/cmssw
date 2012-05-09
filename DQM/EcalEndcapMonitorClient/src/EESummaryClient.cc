@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2012/04/20 11:18:26 $
- * $Revision: 1.215.2.11 $
+ * $Date: 2012/04/27 13:46:08 $
+ * $Revision: 1.221 $
  * \author G. Della Ricca
  *
 */
@@ -42,8 +42,6 @@
 #include "DQM/EcalEndcapMonitorClient/interface/EEPedestalClient.h"
 #include "DQM/EcalEndcapMonitorClient/interface/EEPedestalOnlineClient.h"
 #include "DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h"
-#include "DQM/EcalEndcapMonitorClient/interface/EEBeamCaloClient.h"
-#include "DQM/EcalEndcapMonitorClient/interface/EEBeamHodoClient.h"
 #include "DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h"
 #include "DQM/EcalEndcapMonitorClient/interface/EEClusterClient.h"
 #include "DQM/EcalEndcapMonitorClient/interface/EETimingClient.h"

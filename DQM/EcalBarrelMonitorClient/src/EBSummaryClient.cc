@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2012/04/20 11:18:26 $
- * $Revision: 1.223.2.12 $
+ * $Date: 2012/04/27 13:45:59 $
+ * $Revision: 1.229 $
  * \author G. Della Ricca
  *
 */
@@ -33,8 +33,6 @@
 #include "DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBTestPulseClient.h"
-#include "DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h"
-#include "DQM/EcalBarrelMonitorClient/interface/EBBeamHodoClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h"
