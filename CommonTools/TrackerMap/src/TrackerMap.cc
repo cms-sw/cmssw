@@ -47,8 +47,10 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const edm::ESHandle<S
   saveGeoTrackerMap=tkmapPset.getUntrackedParameter<bool>("saveGeoTrackerMap",true);
   ncrates=0;
   enableFedProcessing=tkmapPset.getUntrackedParameter<bool>("loadFedCabling",false);
+  if(tkFed.isValid()==0 && enableFedProcessing){enableFedProcessing=false;std::cout << "ERROR:fed trackermap requested but no valid fedCabling is available!!!"<<std::endl;}
   nfeccrates=0;
   enableFecProcessing=tkmapPset.getUntrackedParameter<bool>("loadFecCabling",false);
+  if(tkFed.isValid()==0 && enableFecProcessing){enableFecProcessing=false;std::cout << "ERROR:fec trackermap requested but no valid fedCabling is available!!!"<<std::endl;} 
  // std::cout << "loadFecCabling " << enableFecProcessing << std::endl;
   npsuracks=0;
   enableLVProcessing=tkmapPset.getUntrackedParameter<bool>("loadLVCabling",false);
@@ -2945,8 +2947,16 @@ save_as_HVtrackermap(true,gminvalue,gmaxvalue,outs6.str(),3000,1600);
  } 
  
 }
-void TrackerMap::printall(bool print_total, float minval, float maxval, std::string outputfilename){
+void TrackerMap::printall(bool print_total, float minval, float maxval, std::string s,int width, int height){
 //Copy interface
+  std::string filetype=s,outputfilename=s;
+  if(saveWebInterface){width=6000;height=3200;}
+  else{ 
+  size_t found=filetype.find_last_of(".");
+  filetype=filetype.substr(found+1);
+  found=outputfilename.find_last_of(".");
+  outputfilename=outputfilename.substr(0,found);
+  }
   std::ofstream * ofilename;
   std::ifstream * ifilename;
   std::ostringstream ofname;
@@ -3031,11 +3041,10 @@ ifilename=findfile("jqviewer.js");
     system(command.c_str());
 }
  
- if(saveGeoTrackerMap){ 
     std::ostringstream outs;
     outs << outputfilename<<".png";
-    save(true,minval,maxval,outs.str(),3000,1600);
-    }
+    if(saveWebInterface)save(true,minval,maxval,outs.str(),3000,1600);
+    else {if(saveGeoTrackerMap)save(true,minval,maxval,s,width,height);}
   if(saveWebInterface){
     std::ostringstream outs;
     outs << outputfilename<<".png";
@@ -3077,8 +3086,9 @@ for (int layer=1; layer < 44; layer++){
                 }
 if(enableFedProcessing){
   std::ostringstream outs1,outs2;
-    outs1 << outputfilename<<"fed.png";
-save_as_fedtrackermap(true,0.,0.,outs1.str(),6000,3200);
+    if(saveWebInterface)outs1 << outputfilename<<"fed.png";
+        else outs1 << outputfilename<<"fed."<<filetype;
+save_as_fedtrackermap(true,0.,0.,outs1.str(),width,height);
   if(saveWebInterface){
     outs2 << outputfilename<<".xml";
 save_as_fedtrackermap(true,0.,0.,outs2.str(),3000,1600);
@@ -3114,8 +3124,9 @@ save_as_fedtrackermap(true,0.,0.,outs2.str(),3000,1600);
   }
 if(enableFecProcessing){
   std::ostringstream outs1,outs2;
-    outs1 << outputfilename<<"fec.png";
-save_as_fectrackermap(true,0.,0.,outs1.str(),6000,3200);
+    if(saveWebInterface)outs1 << outputfilename<<"fec.png";
+        else outs1 << outputfilename<<"fec."<<filetype;
+save_as_fectrackermap(true,0.,0.,outs1.str(),width,height);
   if(saveWebInterface){
     outs2 << outputfilename<<".xml";
 save_as_fectrackermap(true,0.,0.,outs2.str(),3000,1600);
@@ -3156,8 +3167,9 @@ save_as_fectrackermap(true,0.,0.,outs2.str(),3000,1600);
   }
 if(enableLVProcessing){
   std::ostringstream outs3,outs4;
-    outs3 << outputfilename<<"psu.png";
-save_as_psutrackermap(true,0.,0.,outs3.str(),6000,3200);
+    if(saveWebInterface)outs3 << outputfilename<<"psu.png";
+        else outs3 << outputfilename<<"psu."<<filetype;
+save_as_psutrackermap(true,0.,0.,outs3.str(),width,height);
   if(saveWebInterface){
     outs4 << outputfilename<<".xml";
 save_as_psutrackermap(true,0.,0.,outs4.str(),3000,1600);
@@ -3202,8 +3214,9 @@ save_as_psutrackermap(true,0.,0.,outs4.str(),3000,1600);
 
 if(enableHVProcessing){
   std::ostringstream outs5,outs6;
-    outs5 << outputfilename<<"hv.png";
-save_as_HVtrackermap(true,0.,0.,outs5.str(),6000,3200);
+    if(saveWebInterface)outs5 << outputfilename<<"hv.png";
+        else outs5 << outputfilename<<"hv."<<filetype;
+save_as_HVtrackermap(true,0.,0.,outs5.str(),width,height);
   if(saveWebInterface){
     outs6 << outputfilename<<".xml";
 save_as_HVtrackermap(true,0.,0.,outs6.str(),3000,1600);

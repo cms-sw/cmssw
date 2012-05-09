@@ -29,7 +29,7 @@ class TrackerMap {
   void init();
   void drawModule(TmModule * mod, int key, int layer, bool total, std::ofstream * file);
   void print(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap");
-  void printall(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap");
+  void printall(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap",int width=6000, int height=3200);
   void printonline();
   void printlayers(bool print_total=true,float minval=0., float maxval=0.,std::string s="layer");
   void save(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap.svg",int width=1500, int height=800);
