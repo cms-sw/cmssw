@@ -602,14 +602,29 @@ bool FUEventProcessor::doEndRunInEDM() {
         break;
       }
       else {
-        LOG4CPLUS_ERROR(getApplicationLogger(),
-	    "Master edm::EventProcessor is in state "<< evtProcessor_->stateName(st) << " while stopping");
+	std::ostringstream ost;
+        ost << "Master edm::EventProcessor is in state "<< evtProcessor_->stateName(st) << " while stopping";
+        LOG4CPLUS_ERROR(getApplicationLogger(),ost.str());
+        fsm_.fireFailed(ost.str(),this);
         return false;
+      }
+      if (count%5==0 && st==edm::event_processor::sRunning && !forkInfoObj_->receivedStop_) {
+	forkInfoObj_->lock();
+	forkInfoObj_->stopCondition=true;
+	sem_post(forkInfoObj_->control_sem_);
+	forkInfoObj_->unlock();
+        LOG4CPLUS_WARN(getApplicationLogger(),
+	  "Master edm::EventProcessor still running after "<< (30-count-1) << " seconds. \"sem_post\" was executed again" );
       }
     }
     if (count<0) {
-      LOG4CPLUS_ERROR(getApplicationLogger(),
-          "Timeout waiting for Master edm::EventProcessor to go stopping state:"<<evtProcessor_->stateName(st));
+      std::ostringstream ost;
+      if (!forkInfoObj_->receivedStop_)
+        ost << "Timeout waiting for Master edm::EventProcessor to go stopping state "<<evtProcessor_->stateName(st) << ": input source did not receive stop signal!";
+      else
+        ost << "Timeout waiting for Master edm::EventProcessor to go stopping state "<<evtProcessor_->stateName(st);
+      LOG4CPLUS_ERROR(getApplicationLogger(),ost.str());
+      fsm_.fireFailed(ost.str(),this);
       return false;
     }
   }
@@ -2293,7 +2308,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.134.2.6 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.135 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
