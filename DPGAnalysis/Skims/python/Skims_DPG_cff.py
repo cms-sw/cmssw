@@ -18,6 +18,17 @@ SKIMStreamLogError = cms.FilteredStream(
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
+#############
+pathlogerrormonitor =cms.Path(logerrormonitorseq)
+
+SKIMStreamLogErrorMonitor = cms.FilteredStream(
+    responsible = 'reco convener',
+    name = 'LogErrorMonitor',
+    paths = (pathlogerrormonitor),
+    content = cms.untracked.vstring('drop *_*_*_*', 'keep edmErrorSummaryEntrys_*_*_*'),
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('USER')
+    )
 
 ##############
 from  DPGAnalysis.Skims.BeamBkgSkim_cff import *
