@@ -26,12 +26,12 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.11 $'),
+    version = cms.untracked.string('$Revision: 1.12 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5)
+    input = cms.untracked.int32(1)
 )
 process.options = cms.untracked.PSet(
   wantSummary = cms.untracked.bool(True)
@@ -137,12 +137,12 @@ process.detachedTripletStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.
 process.detachedTripletStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
 process.detachedTripletStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
 process.detachedTripletStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
-process.mixedTripletStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
-process.mixedTripletStepMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
-process.mixedTripletStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
-process.mixedTripletStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
-process.mixedTripletStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
-process.mixedTripletStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
+#process.mixedTripletStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+#process.mixedTripletStepMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
+#process.mixedTripletStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
+#process.mixedTripletStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
+#process.mixedTripletStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
+#process.mixedTripletStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
 process.pixelLessStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 process.tobTecStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 

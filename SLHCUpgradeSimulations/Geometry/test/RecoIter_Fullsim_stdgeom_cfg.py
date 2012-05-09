@@ -23,12 +23,12 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.15 $'),
+    version = cms.untracked.string('$Revision: 1.16 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(1)
 )
 process.options = cms.untracked.PSet(
   wantSummary = cms.untracked.bool(True)
@@ -78,7 +78,7 @@ process.Timing =  cms.Service("Timing")
 #  averageNumber = cms.double(50.0)
 #)
 ### if doing inefficiency at <PU>=50
-#process.simSiPixelDigis.AddPixelInefficiency = -1
+#process.simSiPixelDigis.AddPixelInefficiency = 20
 ## also for strips TIB inefficiency if we want
 ## TIB1,2 inefficiency at 20%
 #process.simSiStripDigis.Inefficiency = 20
@@ -134,12 +134,12 @@ process.detachedTripletStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.
 process.detachedTripletStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
 process.detachedTripletStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
 process.detachedTripletStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
-process.mixedTripletStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
-process.mixedTripletStepMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
-process.mixedTripletStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
-process.mixedTripletStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
-process.mixedTripletStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
-process.mixedTripletStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
+#process.mixedTripletStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+#process.mixedTripletStepMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
+#process.mixedTripletStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
+#process.mixedTripletStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
+#process.mixedTripletStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
+#process.mixedTripletStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
 process.pixelLessStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 process.tobTecStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 
@@ -170,7 +170,8 @@ process.trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                            cms.InputTag("cutsRecoTracksHpwbtagc"),
                                            cms.InputTag("cutsRecoTracksZeroHp"),
                                            cms.InputTag("cutsRecoTracksFirstHp"),
-                                           cms.InputTag("cutsRecoTracksSecondHp")
+                                           cms.InputTag("cutsRecoTracksSecondHp"),
+                                           cms.InputTag("cutsRecoTracksFourthHp")
                                            )
 #process.trackValidator.associators = ['TrackAssociatorByHits']
 process.trackValidator.associators = cms.vstring('quickTrackAssociatorByHits')
@@ -208,6 +209,7 @@ process.slhcTracksValidation = cms.Sequence(process.cutsRecoTracksHp*
                                  process.cutsRecoTracksZeroHp*
                                  process.cutsRecoTracksFirstHp*
                                  process.cutsRecoTracksSecondHp*
+                                 process.cutsRecoTracksFourthHp*
                                  process.trackValidator)
 
 process.ReadLocalMeasurement = cms.EDAnalyzer("StdHitNtuplizer",
@@ -235,6 +237,8 @@ process.anal = cms.EDAnalyzer("EventContentAnalyzer")
 # cms.PSet(src=cms.InputTag("lowPtTripletStepSeeds")),
 # cms.PSet(src=cms.InputTag("pixelPairStepSeeds"),
 #          maxValue=cms.untracked.double(500000),nBins=cms.untracked.uint32(2000)),
+# cms.PSet(src=cms.InputTag("mixedTripletStepSeeds"),
+#          maxValue=cms.untracked.double(500000),nBins=cms.untracked.uint32(2000)),
 # cms.PSet(src=cms.InputTag("newCombinedSeeds"),
 #          maxValue=cms.untracked.double(500000),nBins=cms.untracked.uint32(2000))
 #)
@@ -257,8 +261,9 @@ process.debug_step 		= cms.Path(process.anal)
 process.validation_step 	= cms.Path(process.cutsTPEffic*
 						process.cutsTPFake*
 						process.slhcTracksValidation)
-#process.user_step 		= cms.Path(process.seedmultiplicitymonitor*process.ReadLocalMeasurement)
-process.user_step              = cms.Path(process.ReadLocalMeasurement)
+process.user_step 		= cms.Path(process.ReadLocalMeasurement)
+#process.user_step              = cms.Path(process.seedmultiplicitymonitor*process.ReadLocalMeasurement)
+#process.user_step              = cms.Path(process.seedmultiplicitymonitor)
 process.endjob_step 		= cms.Path(process.endOfProcess)
 process.out_step 		= cms.EndPath(process.output)
 
