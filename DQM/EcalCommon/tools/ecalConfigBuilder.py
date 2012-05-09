@@ -131,23 +131,11 @@ import os, sys, socket
 process = cms.Process("DQM")
 '''
 
-if not laser :
-    recoModules += '''
+recoModules += '''
 
 ### RECONSTRUCTION MODULES ###
 
 process.load("EventFilter.EcalRawToDigi.EcalUnpackerMapping_cfi")
-
-process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")
-
-import RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi
-process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi.ecalGlobalUncalibRecHit.clone()
-
-process.load("RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi")
-
-process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
-
-process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
 
 process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 
@@ -160,6 +148,20 @@ process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.EcalMapping.EcalMapping_cfi")
 
 process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
+'''
+
+if not laser :
+    recoModules += '''
+process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")
+
+import RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi
+process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi.ecalGlobalUncalibRecHit.clone()
+
+process.load("RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi")
+
+process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
+
+process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
 
 process.load("RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff")
 
@@ -740,7 +742,7 @@ process.ecalMonitorClient.runAtEndLumi = True
     if laser :
         if privEcal :
             customizations += '''
-process.ecalCalibMonitorClient.clientParameters.LightChecker.matacqPlotsDir = "/data/ecalod-disk01/dqm-data/laser"
+process.ecalLaserMonitorClient.clientParameters.LightChecker.matacqPlotsDir = "/data/ecalod-disk01/dqm-data/laser"
 '''
 
 else :
