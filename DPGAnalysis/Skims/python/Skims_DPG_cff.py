@@ -5,6 +5,11 @@ skimContent = FEVTEventContent.clone()
 skimContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
 skimContent.outputCommands.append("drop *_*_*_SKIM")
 
+from Configuration.EventContent.EventContent_cff import OutALCARECOEcalCalElectron
+WElectronSkimContent = OutALCARECOEcalCalElectron.clone()
+WElectronSkimContent.outputCommands.extend( [ "keep *_pfMet_*_*", "keep *_kt6*_rho_*", "keep *_offlinePrimaryVerticesWithBS_*_*","keep *_generator_*_*", "keep *_rawDataCollector_*_*" ] )
+
+
 #############
 from  DPGAnalysis.Skims.logErrorSkim_cff import *
 pathlogerror =cms.Path(logerrorseq)
@@ -75,6 +80,7 @@ SKIMStreamCSCAlone = cms.FilteredStream(
     dataTier = cms.untracked.string('RAW-RECO')
    )
 
+
 #####################
 
 from DPGAnalysis.Skims.dtActivitySkim_cff import *
@@ -89,6 +95,20 @@ SKIMStreamDT = cms.FilteredStream(
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
     )
+
+#####################
+
+#from DPGAnalysis.Skims.EcalActivitySkim_cff import *
+#EcalActivityPath = cms.Path( ecalActivitySeq )
+#SKIMStreamEcalActivity = cms.FilteredStream(
+#    responsible = 'ECAL DPG',
+#    name = 'EcalActivity',
+#    paths = ( EcalActivityPath ),
+#    content = skimContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('RAW-RECO')
+#    )
+
 
 #####################
 
@@ -304,7 +324,7 @@ SKIMStreamWElectron = cms.FilteredStream(
     responsible = 'ECAL DPG',
     name = 'WElectron',
     paths = ( WElectronPath ),
-    content = skimContent.outputCommands,
+    content = WElectronSkimContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
     )
