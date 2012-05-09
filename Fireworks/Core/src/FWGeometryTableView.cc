@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:34 CET 2012
-// $Id: FWGeometryTableView.cc,v 1.35 2012/05/08 02:32:50 amraktad Exp $
+// $Id: FWGeometryTableView.cc,v 1.36 2012/05/09 00:39:28 amraktad Exp $
 //
 
 // system include files
@@ -23,6 +23,8 @@
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 #include "Fireworks/Core/src/FWGeometryTableManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/interface/FWEnumParameter.h"
+#include "Fireworks/Core/interface/FWEnumParameterSetter.h"
 
 #include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
@@ -31,6 +33,7 @@
 
 #include "KeySymbols.h"
 #include "TGButton.h"
+#include "TGComboBox.h"
 #include "TGLabel.h"
 #include "TGListBox.h"
 #include "TGLViewer.h"
@@ -131,7 +134,6 @@ public:
 //==============================================================================
 //==============================================================================
 //==============================================================================
-
 FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager* colMng)
    : FWGeometryTableViewBase(iParent, FWViewType::kGeometryTable, colMng),
      m_tableManager(0),
@@ -141,7 +143,7 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
      m_disableTopNode(this,"HideTopNode", true),
      m_visLevel(this,"VisLevel", 3l, 1l, 100l),
      m_filter(this,"Materials", std::string()),
-     m_filterType(this,"FilterType", 0l, 0l, 3l),
+     m_filterType(this,"FilterType:", 0l, 0l, 3l),
      m_visLevelFilter(this,"IgnoreVisLevelOnFilter", true),
      m_selectRegion(this, "SelectNearCameraCenter", false),
      m_regionRadius(this, "SphereRadius", 10.0, 1.0, 300.0),
@@ -180,19 +182,33 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
       hp->AddFrame( m_viewBox,new TGLayoutHints(kLHintsExpandY, 2, 2, 0, 0));
    }
    {
-      hp->AddFrame(new TGLabel(hp, "Filter:"), new TGLayoutHints(kLHintsBottom, 10, 0, 0, 2));
+
+      m_filterType.addEntry(kFilterMaterialName,   "MaterialName");
+      m_filterType.addEntry(kFilterMaterialTitle,  "MaterialTitle");
+      m_filterType.addEntry(kFilterShapeName,      "ShapeName");
+      m_filterType.addEntry(kFilterShapeClassName, "ShapeClassName");
+
+      boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor((FWParameterBase*)&m_filterType) );
+      ptr->attach((FWParameterBase*)&m_filterType, this);
+
+      TGFrame* pframe = ptr->build(hp, false);
+      hp->AddFrame(pframe, new TGLayoutHints(kLHintsLeft));
+      m_filterTypeSetter.swap(ptr);
+   }
+   {
+      hp->AddFrame(new TGLabel(hp, "FilterExp:"), new TGLayoutHints(kLHintsBottom, 0, 0, 0, 2));
       m_filterEntry = new FWGUIValidatingTextEntry(hp);
       m_filterEntry->SetHeight(20);
       m_filterValidator = new FWGeoMaterialValidator(this);
       m_filterEntry->setValidator(m_filterValidator);
-      hp->AddFrame(m_filterEntry, new TGLayoutHints(kLHintsExpandX,  1, 2, 1, 0));
+      hp->AddFrame(m_filterEntry, new TGLayoutHints(kLHintsExpandX,  0, 2, 1, 0));
       m_filterEntry->setMaxListBoxHeight(150);
       m_filterEntry->getListBox()->Connect("Selected(int)", "FWGeometryTableView",  this, "filterListCallback()");
       m_filterEntry->Connect("ReturnPressed()", "FWGeometryTableView",  this, "filterTextEntryCallback()");
 
       gVirtualX->GrabKey( m_filterEntry->GetId(),gVirtualX->KeysymToKeycode((int)kKey_A),  kKeyControlMask, true);
    }
-   m_frame->AddFrame(hp,new TGLayoutHints(kLHintsLeft|kLHintsExpandX, 4, 2, 2, 0));
+   m_frame->AddFrame(hp,new TGLayoutHints(kLHintsLeft|kLHintsExpandX, 2, 2, 2, 0));
 
    m_tableManager = new FWGeometryTableManager(this);
    {
@@ -209,12 +225,6 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager
    m_visLevel.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
    
    
-   
-   m_filterType.addEntry(kFilterMaterialName,   "MaterialName");
-   m_filterType.addEntry(kFilterMaterialTitle,  "MaterialTitle");
-   m_filterType.addEntry(kFilterShapeName,      "ShapeName");
-   m_filterType.addEntry(kFilterShapeClassName, "ShapeClassName");
-
    m_visLevelFilter.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
 
    m_disableTopNode.changed_.connect(boost::bind(&FWGeometryTableView::updateVisibilityTopNode,this));
@@ -310,8 +320,8 @@ void FWGeometryTableView::populateController(ViewerParameterGUI& gui) const
       addParam(&m_mode).
       addParam(&m_autoExpand).
       addParam(&m_visLevel).
-      separator().   
-      addParam(&m_filterType).
+      separator().
+      //      addParam(&m_filterType).
       addParam(&m_visLevelFilter).
       separator().   
       addParam(&m_selectRegion).
@@ -403,6 +413,9 @@ void FWGeometryTableView::setFrom(const FWConfiguration& iFrom)
      // printf("set from %s \n",(*it)->name().c_str() );
       (*it)->setFrom(iFrom);
    }  
+
+   TGComboBox* cbox = ((FWEnumParameterSetter*) m_filterTypeSetter.get())->getWidget();
+   cbox->Select(m_filterType.value());
    m_viewersConfig = iFrom.valueForKey("Viewers");
 
    cdNode(m_topNodeIdx.value());
