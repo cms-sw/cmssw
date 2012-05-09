@@ -53,7 +53,7 @@ def toScreenTotDelivered(lumidata,resultlines,scalefactor,isverbose):
         totlumi=sum([x[5] for x in lsdata])
         totdelivered+=totlumi
         (totlumival,lumiunit)=CommonUtil.guessUnit(totlumi)
-        beamenergyPerLS=[float(x[4]) for x in lsdata]
+        beamenergyPerLS=[float(x[4]) for x in lsdata if x[3]=='STABLE BEAMS']
         avgbeamenergy=0.0
         if len(beamenergyPerLS):
             avgbeamenergy=sum(beamenergyPerLS)/len(beamenergyPerLS)
@@ -118,7 +118,7 @@ def toCSVTotDelivered(lumidata,filename,resultlines,scalefactor,isverbose):
         if lsdata[0][9]:
             fillnum=lsdata[0][9]
         totlumival=sum([x[5] for x in lsdata])
-        beamenergyPerLS=[float(x[4]) for x in lsdata]
+        beamenergyPerLS=[float(x[4]) for x in lsdata if x[3]=='STABLE BEAMS']
         avgbeamenergy=0.0
         if len(beamenergyPerLS):
             avgbeamenergy=sum(beamenergyPerLS)/len(beamenergyPerLS)
