@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.45 2012/01/31 17:05:52 wmtan Exp $
- *  $Date: 2012/01/31 17:05:52 $
- *  $Revision: 1.45 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.46 2012/05/10 12:51:41 franzoni Exp $
+ *  $Date: 2012/05/10 12:51:41 $
+ *  $Revision: 1.46 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -135,23 +135,30 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::init( const C &dataFrame, const EcalSa
 	int GainId;
         for (int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
 	  
-	  // only use samples which are desired
-	  if (!sampleMask_.useSample(iSample, theDetId_ ) ) continue;
-	  
+
 
           GainId = dataFrame.sample(iSample).gainId();
-
-          if (GainId == 1) {
+	  
+	  
+	  // only use normally samples which are desired; if sample not to be used
+	  // inflate error so won't generate ratio considered for the measurement
+	  if (!sampleMask_.useSample(iSample, theDetId_ ) ) {
+	    sample      = 1e-9;
+	    sampleError = 1e+9;
+	  }
+          else if (GainId == 1) {
             sample      = double (dataFrame.sample(iSample).adc() - pedestal_);
             sampleError = pedestalRMSes[0];
-          } else if (GainId == 2 || GainId == 3){
+          } 
+	  else if (GainId == 2 || GainId == 3){
             sample      = (double (dataFrame.sample(iSample).adc() - pedestals[GainId - 1])) *gainRatios[GainId - 1];
             sampleError = pedestalRMSes[GainId-1]*gainRatios[GainId-1];
-          } else {
+          } 
+	  else {
 	    sample      = 1e-9;  // GainId=0 case falls here, from saturation
 	    sampleError = 1e+9;  // inflate error so won't generate ratio considered for the measurement 
 	  }
-
+	  
 
           if(sampleError>0){
             amplitudes_.push_back(sample);
