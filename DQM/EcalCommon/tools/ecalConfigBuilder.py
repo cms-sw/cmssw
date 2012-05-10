@@ -229,10 +229,8 @@ process.load("DQM.EcalEndcapMonitorClient.EETrendClient_cfi")
 
 if not newFramework :
     ecalDQM += '''
-import DQM.EcalBarrelMonitorClient.EcalBarrelMonitorDbClient_cfi
-process.ecalBarrelMonitorClient = DQM.EcalBarrelMonitorClient.EcalBarrelMonitorDbClient_cfi.ecalBarrelMonitorDbClient.clone()
-import DQM.EcalEndcapMonitorClient.EcalEndcapMonitorDbClient_cfi
-process.ecalEndcapMonitorClient = DQM.EcalEndcapMonitorClient.EcalEndcapMonitorDbClient_cfi.ecalEndcapMonitorDbClient.clone()
+process.load("DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi")
+process.load("DQM.EcalEndcapMonitorClient.EcalEndcapMonitorClient_cfi")
 '''
 
 if privEcal and not live :
@@ -801,8 +799,8 @@ process.ecalEndcapTimingTask.useBeamStatus = cms.untracked.bool(True)
     customizations += '''
 process.ecalBarrelMonitorClient.location = "P5_Co"
 process.ecalEndcapMonitorClient.location = "P5_Co"
-process.ecalBarrelMonitorClient.verbose = False
-process.ecalEndcapMonitorClient.verbose = False
+process.ecalBarrelMonitorClient.verbose = True
+process.ecalEndcapMonitorClient.verbose = True
 '''
 
     if live :
