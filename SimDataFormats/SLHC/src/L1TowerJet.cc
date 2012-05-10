@@ -10,27 +10,30 @@ namespace l1slhc
 	mE( 0 ), 
 	mCentral( true ),
 	mJetSize( 12 ),
-	mJetShapeType( square )
+	mJetShapeType( square ),
+	mJetArea( 144 )
 	{
 	}
 
-	L1TowerJet::L1TowerJet( const int& aJetSize, const L1TowerJet::tJetShape& aJetShapeType ):
+	L1TowerJet::L1TowerJet( const int& aJetSize, const L1TowerJet::tJetShape& aJetShapeType , const int& aJetArea ):
 	mIeta( 0 ), 
 	mIphi( 0 ), 
 	mE( 0 ), 
 	mCentral( true ),
 	mJetSize( aJetSize ),
-	mJetShapeType( aJetShapeType )
+	mJetShapeType( aJetShapeType ),
+	mJetArea( aJetArea )
 	{
 	}
 
-	L1TowerJet::L1TowerJet( const int& aJetSize, const L1TowerJet::tJetShape& aJetShapeType , const int &iEta, const int &iPhi ):
+	L1TowerJet::L1TowerJet( const int& aJetSize, const L1TowerJet::tJetShape& aJetShapeType , const int& aJetArea , const int &iEta, const int &iPhi ):
 	mIeta( iEta ), 
 	mIphi( iPhi ), 
 	mE( 0 ), 
 	mCentral( true ),
 	mJetSize( aJetSize ),
-	mJetShapeType( aJetShapeType )
+	mJetShapeType( aJetShapeType ),
+	mJetArea( aJetArea )
 	{
 	}
 
@@ -94,7 +97,7 @@ namespace l1slhc
 	}
 
 
-
+/*
 	double L1TowerJet::EcalVariance(  ) const
 	{
 		double lMean(0.0);
@@ -144,12 +147,73 @@ namespace l1slhc
 
 		return lMeanSq - (lMean*lMean);
 	}
+*/
+
+
+		double L1TowerJet::EcalMAD() const
+		{
+			std::deque< int > lEnergy;
+			for ( L1CaloTowerRefVector::const_iterator lConstituentIt = mConstituents.begin() ; lConstituentIt != mConstituents.end(); ++lConstituentIt ){
+				lEnergy.push_back( (**lConstituentIt).E() );
+			}
+			lEnergy.resize( mJetArea , 0 );
+			return MAD( lEnergy );
+
+		}
+		
+		double L1TowerJet::HcalMAD() const
+		{
+			std::deque< int > lEnergy;
+			for ( L1CaloTowerRefVector::const_iterator lConstituentIt = mConstituents.begin() ; lConstituentIt != mConstituents.end(); ++lConstituentIt ){
+				lEnergy.push_back( (**lConstituentIt).H() );
+			}
+			lEnergy.resize( mJetArea , 0 );
+			return MAD( lEnergy );
+
+		}
 
 
 
+		double L1TowerJet::EnergyMAD() const
+		{
+			std::deque< int > lEnergy;
+			for ( L1CaloTowerRefVector::const_iterator lConstituentIt = mConstituents.begin() ; lConstituentIt != mConstituents.end(); ++lConstituentIt ){
+				lEnergy.push_back( (**lConstituentIt).E() + (**lConstituentIt).H() );
+			}
+			lEnergy.resize( mJetArea , 0 );
+			return MAD( lEnergy );
+		}
 
 
 
+		double L1TowerJet::MAD( std::deque<int>& aDataSet ) const
+		{
+			std::sort( aDataSet.begin() , aDataSet.end() );
+		
+			std::size_t lDataSetSize( aDataSet.size() );
+
+			double lMedian(0);
+			if( lDataSetSize%2 == 0 ){
+				lMedian = double ( aDataSet[ (lDataSetSize/2) - 1 ] + aDataSet[ lDataSetSize/2 ] ) / 2.0 ;
+			}else{
+				lMedian = double( aDataSet[ (lDataSetSize-1)/2 ] );
+			}
+
+
+			std::deque< double > lMedianSubtractedDataSet;
+			for ( std::deque< int >::const_iterator lIt = aDataSet.begin() ; lIt != aDataSet.end(); ++lIt ){
+				lMedianSubtractedDataSet.push_back( fabs( double(*lIt) - lMedian ) );
+			}
+
+			std::sort( lMedianSubtractedDataSet.begin() , lMedianSubtractedDataSet.end() );
+
+			if( lDataSetSize%2 == 0 ){
+				return double ( lMedianSubtractedDataSet[ (lDataSetSize/2) - 1 ] + lMedianSubtractedDataSet[ lDataSetSize/2 ] ) / 2.0 ;
+			}else{
+				return double( lMedianSubtractedDataSet[ (lDataSetSize-1)/2 ] );
+			}
+
+		}
 
 
 

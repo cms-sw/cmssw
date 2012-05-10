@@ -27,8 +27,8 @@ namespace l1slhc
 	  public:
 
 		L1TowerJet( );
-		L1TowerJet( const int& , const L1TowerJet::tJetShape& );
-		L1TowerJet( const int& , const L1TowerJet::tJetShape& , const int& , const int& );
+		L1TowerJet( const int& aJetSize, const L1TowerJet::tJetShape& aJetShapeType , const int& aJetArea );
+		L1TowerJet( const int& aJetSize, const L1TowerJet::tJetShape& aJetShapeType , const int& aJetArea , const int& iEta, const int& iPhi );
 		 ~L1TowerJet(  );
 
 		// getters
@@ -41,20 +41,24 @@ namespace l1slhc
 		const L1TowerJet::tJetShape& JetShape(  ) const;
 
 //possibly helpful methods
-		double EcalVariance(  ) const;
-		double HcalVariance(  ) const;
-		double EnergyVariance(  ) const;
+//		double EcalVariance(  ) const;
+//		double HcalVariance(  ) const;
+//		double EnergyVariance(  ) const;
+
+		double EcalMAD() const;
+		double HcalMAD() const;
+		double EnergyMAD() const;
 
 		// Setters
 
-		void setP4( const math::PtEtaPhiMLorentzVector & );
+		void setP4( const math::PtEtaPhiMLorentzVector & p4 );
 		void setCentral( const bool& );
 //		void setE( const int& );
 
 
-		void addConstituent( const L1CaloTowerRef & );
-		L1CaloTowerRefVector::iterator getConstituent( const int&, const int& );
-		void removeConstituent( const int&, const int& );
+		void addConstituent( const L1CaloTowerRef & Tower );
+		L1CaloTowerRefVector::iterator getConstituent( const int& eta , const int& phi );
+		void removeConstituent( const int& eta , const int& phi );
 		
 		const L1CaloTowerRefVector& getConstituents(  ) const;
 
@@ -68,11 +72,14 @@ namespace l1slhc
 
 		int mJetSize;
 		L1TowerJet::tJetShape mJetShapeType;
-
+		int mJetArea;
 
 
 		L1CaloTowerRefVector mConstituents;
 		math::PtEtaPhiMLorentzVector mP4;
+
+
+		double MAD( std::deque<int>& aDataSet ) const;
 
 	};
 
