@@ -1,0 +1,430 @@
+#include <vector>
+#include <string>
+#include <stdio.h>
+
+#include "TStyle.h"
+
+// These are the blue and orange from the CMS logo.
+Int_t const kCMSBlue = 1756;
+Int_t const kCMSOrange = 1757;
+Int_t const kLumiGray = 1758;
+Int_t const kCMSBlueG = 1759;
+Int_t const kCMSOrangeG = 1760;
+
+// These are the colors that Greg gave us.
+TColor* cmsBlueG = new TColor(kCMSBlueG, 102./255., 153./255., 204./255.);
+TColor* cmsOrangeG = new TColor(kCMSOrangeG, 255./255., 153./255., 0./255.);
+
+// This is the light blue of the CMS logo.
+TColor* cmsBlue = new TColor(kCMSBlue, 0./255., 240./255., 255./255.);
+
+// // This is the dark blue from the letters in the CMS logo.
+// TColor* cmsBlue = new TColor(kCMSBlue, 0./255., 25./255., 230./255.);
+
+// This is the orange from the CMS logo.
+TColor* cmsOrange = new TColor(kCMSOrange, 255./255., 195./255., 12./255.);
+
+// // This is just a nice gray.
+// TColor* lumiGray = new TColor(kLumiGray, 140./255., 140./255., 140./255.);
+
+Int_t const kFillColorDelivered = kCMSBlue;
+Int_t const kFillColorRecorded = kCMSOrange;
+Int_t const kLineColorDelivered = kCMSBlueG;
+Int_t const kLineColorRecorded = kCMSOrangeG;
+
+void rootInit() {
+  gROOT->SetStyle("Plain");
+  gStyle->SetOptStat(0);
+  gStyle->SetTitleFillColor(0);
+  gStyle->SetTitleBorderSize(0);
+  gStyle->SetHistFillStyle(1001);
+  gStyle->SetHistFillStyle(1001);
+  gStyle->SetHistFillColor(51);
+  gStyle->SetHistLineWidth(2);
+  gStyle->SetFrameFillColor(0);
+  gStyle->SetTitleW(0.65);
+  gStyle->SetTitleH(0.08);
+  gStyle->SetTitleX(0.5);
+  gStyle->SetTitleAlign(23);
+  gStyle->SetStatW(0.25);
+  gStyle->SetStatH(0.2);
+  gStyle->SetStatColor(0);
+  gStyle->SetHistFillStyle(5101);
+  gStyle->SetEndErrorSize(0);
+  gStyle->SetPalette(1);
+  gStyle->SetPadTickX(1);
+  gStyle->SetPadTickY(1);
+  gStyle->SetPadBorderMode(0);
+  gStyle->SetPadColor(0);
+  gStyle->SetGridStyle(0);
+  gStyle->SetLegendBorderSize(0);
+  // This does not yet exist in the CMSSW versions of ROOT...
+  //gStyle->SetLegendFillColor(0);
+  gStyle->SetFrameFillColor(0);
+  gStyle->SetFillStyle(4000);
+}
+
+TCanvas* createCanvas() {
+  return new TCanvas("canvas", "Canvas", 10, 10, 1800, 1400);
+}
+
+TLegend* createLegend() {
+  float width = .5;
+  float height = .1;
+  float min_x = .2;
+  float max_x = min_x + width;
+  float min_y = .78;
+  float max_y = min_y + height;
+  return new TLegend(min_x, min_y, max_x, max_y);
+}
+
+void drawLogo(TCanvas* canvas) {
+  TImage* logo = TImage::Open("CMS_logo_cut.png");
+  float aspectRatio = 1. * canvas->GetWh() / canvas->GetWw();
+  float min_x = .1005;
+  float max_x = .2;
+  float max_y = .899;
+  float min_y = max_y - (max_x - min_x) / aspectRatio;
+  TPad* p = new TPad("p", "p", min_x, min_y, max_x, max_y);
+  p->SetMargin(.02, .01, .01, .02);
+  p->SetBorderSize(0.);
+  p->SetFillColor(0);
+  canvas->cd();
+  p->Draw();
+  p->cd();
+  logo->Draw();
+}
+
+void duplicateYAxis(TCanvas* const canvas,
+                    TAxis const* const axOri) {
+  canvas->Update();
+  TGaxis* secAxis = new TGaxis(canvas->GetUxmax(), canvas->GetUymin(),
+                               canvas->GetUxmax(), canvas->GetUymax(),
+                               canvas->GetUymin(), canvas->GetUymax(),
+                               axOri->GetNdivisions(), "+L");
+  secAxis->SetLineColor(axOri->GetAxisColor());
+  secAxis->SetLabelColor(axOri->GetLabelColor());
+  secAxis->SetLabelFont(axOri->GetLabelFont());
+  secAxis->SetLabelOffset(axOri->GetLabelOffset());
+  secAxis->SetLabelSize(axOri->GetLabelSize());
+  secAxis->Draw();
+}
+
+TTimeStamp timestampFromString(std::string const& input) {
+  // NOTE: This does assume a certain date/time format of the string!
+  std::string tmpStr = input.c_str();
+  TTimeStamp timestamp(atoi(tmpStr.substr(0, 4).c_str()),
+                       atoi(tmpStr.substr(5, 2).c_str()),
+                       atoi(tmpStr.substr(8, 2).c_str()),
+                       atoi(tmpStr.substr(11, 2).c_str()),
+                       atoi(tmpStr.substr(14, 2).c_str()),
+                       atoi(tmpStr.substr(17, 2).c_str()),
+                       0, true, 0);
+  return timestamp;
+}
+
+TTimeStamp zeroTimeInTimestamp(TTimeStamp const& input) {
+  std::string tmpStr(input.AsString("s"));
+  TTimeStamp timestamp(atoi(tmpStr.substr(0, 4).c_str()),
+                       atoi(tmpStr.substr(5, 2).c_str()),
+                       atoi(tmpStr.substr(8, 2).c_str()),
+                       0, 0, 0,
+                       0, true, 0);
+  return timestamp;
+}
+
+void readInputFile(std::string& fileName,
+                   std::vector< int >& runV,
+                   std::vector< std::string >& start_timeV,
+                   std::vector< std::string >& end_timeV,
+                   std::vector< float >& delivered_lumiV,
+                   std::vector< float >& recorded_lumiV) {
+
+  char line[200];
+  std::string lineS;
+  int iLine = 0;
+  char runC[50], start_timeC[50], end_timeC[50], delivered_lumiC[50], recorded_lumiC[50];
+  FILE* file = fopen(fileName.c_str(), "rt");
+  size_t found_1;
+  size_t found_2;
+  std::string badS_1 = "Run";
+  std::string badS_2 = "pb";
+  int runI;
+  float delivered_lumiF, recorded_lumiF;
+  while (fgets(line, 100, file) != NULL) {
+    lineS = line;
+    found_1 = lineS.find(badS_1);
+    found_2 = lineS.find(badS_2);
+    if (lineS[0] != '#') {
+      if ((found_1 == string::npos) && (found_2 == string::npos)) {
+        sscanf(line, "%[^','],%[^','],%[^','],%[^','],%[^',']",
+               runC, start_timeC, end_timeC, delivered_lumiC, recorded_lumiC);
+        runI = atoi(runC);
+        std::string start_timeS(start_timeC);
+        std::string end_timeS(end_timeC);
+        delivered_lumiF = atof(delivered_lumiC);
+        recorded_lumiF = atof(recorded_lumiC);
+        runV.push_back(runI);
+        start_timeV.push_back(start_timeS);
+        end_timeV.push_back(end_timeS);
+        delivered_lumiV.push_back(delivered_lumiF);
+        recorded_lumiV.push_back(recorded_lumiF);
+        ++iLine;
+      }
+    }
+  }
+  fclose(file);
+  return;
+}
+
+void create_public_lumi_plots() {
+
+  // Overall title and axis titles for everything. One version for the
+  // per-day plot, one for the cumulative plot.
+  std::string titlePerDay =
+    std::string("CMS Integrated Luminosity Per Day, 2012, #sqrt{s} = 8 TeV;") +
+    std::string("Date;") +
+    std::string("Integrated Luminosity (pb^{-1}/day)");
+  std::string titleCumulative =
+    std::string("CMS Total Integrated Luminosity, 2012, #sqrt{s} = 8 TeV;") +
+    std::string("Date;") +
+    std::string("Total Integrated Luminosity (fb^{-1})");
+
+  // Conversion factor to go to inverse femtobarn.
+  float conversionFactor = 1.e6;
+
+  // This is the intermediate CSV file with the data from the lumi DB.
+  // std::string fileName = "totallumivstime-pp-2012.csv";
+  std::string fileName = "/afs/cern.ch/cms/lumi/www/publicplots/totallumivstime-pp-2012.csv";
+
+  // // Basic style settings.
+  // gROOT->ProcessLine(".L public_lumi_style.C+");
+  rootInit();
+
+  // // Load the CSV file reader.
+  // gROOT->ProcessLine(".L lumi_plot_csv_reader.C+");
+
+  std::vector< int > runV;
+  std::vector< std::string > start_timeV;
+  std::vector< std::string > end_timeV;
+  std::vector< float > delivered_lumiV;
+  std::vector< float > recorded_lumiV;
+
+  readInputFile(fileName, runV, start_timeV, end_timeV,
+                delivered_lumiV, recorded_lumiV);
+
+  // Figure out the time span of the data in days.
+  TTimeStamp tmpLo = timestampFromString(start_timeV.front());
+  TTimeStamp tmpHi = timestampFromString(end_timeV.back());
+  TTimeStamp dateLo = zeroTimeInTimestamp(tmpLo);
+  TTimeStamp dateHi = zeroTimeInTimestamp(tmpHi);
+  time_t numDays = ((dateHi.GetSec() - dateLo.GetSec()) / (24 * 60 * 60)) + 1;
+
+  const int nBins = numDays;
+
+  float delivered_lumiA[nBins];
+  float recorded_lumiA[nBins];
+
+  // Zero the arrays before use!
+  for (size_t iTmp = 0; iTmp < numDays; ++iTmp) {
+    delivered_lumiA[iTmp] = 0.;
+    recorded_lumiA[iTmp] = 0.;
+  }
+
+  // Map luminosities on to days.
+  for(size_t ind = 0; ind < runV.size(); ++ind) {
+    TTimeStamp timeStart = timestampFromString(start_timeV[ind]);
+    TTimeStamp timeEnd = timestampFromString(end_timeV[ind].c_str());
+
+    Int_t dayDiff = timeEnd.GetDate() - timeStart.GetDate();
+    // DEBUG DEBUG DEBUG
+    // This assumes we don't take runs longer than 24 hours.
+    assert(dayDiff >= 0);
+    assert(dayDiff < 2);
+    // DEBUG DEBUG DEBUG end
+
+    time_t start = dateLo.GetSec();
+    time_t dayIndex = (timeStart.GetSec() - start) / (24 * 60 * 60);
+
+    if (dayDiff == 0) {
+      // Whole run is contained in a single day.
+      delivered_lumiA[dayIndex] += delivered_lumiV[ind] / conversionFactor;
+      recorded_lumiA[dayIndex] += recorded_lumiV[ind] / conversionFactor;
+    } else {
+      // Run runs across midnight, need to split the lumi across two
+      // days.
+      // DEBUG DEBUG DEBUG
+      assert((dayIndex + 1) < numDays);
+      // DEBUG DEBUG DEBUG end
+      TTimeStamp timeMid(timeStart);
+      timeMid = zeroTimeInTimestamp(timeMid);
+      timeMid.SetSec(timeMid.GetSec() + (24 * 60 * 60));
+      float frac1 = 1. * (timeMid.GetSec() - timeStart.GetSec()) /
+        (timeEnd.GetSec() - timeStart.GetSec());
+      float frac2 = 1. * (timeEnd.GetSec() - timeMid.GetSec()) /
+        (timeEnd.GetSec() - timeStart.GetSec());
+      // DEBUG DEBUG DEBUG
+      assert(abs(frac1 + frac2 - 1.) < 1.e-9);
+      // DEBUG DEBUG DEBUG end
+      float tmpDel = delivered_lumiV[ind] / conversionFactor;
+      float tmpRec = recorded_lumiV[ind] / conversionFactor;
+      delivered_lumiA[dayIndex] += frac1 * tmpDel;
+      recorded_lumiA[dayIndex] += frac1 * tmpRec;
+      delivered_lumiA[dayIndex + 1] += frac2 * tmpDel;
+      recorded_lumiA[dayIndex + 1] += frac2 * tmpRec;
+    }
+  }
+
+  // Figure out the maxima.
+  float maxDel = -1;
+  float maxRec = -1;
+  for (size_t day = 0; day < numDays; ++day) {
+    maxDel = max(delivered_lumiA[day], maxDel);
+    maxRec = max(recorded_lumiA[day], maxRec);
+  }
+
+  // Now we can move on to the plotting.
+  TCanvas* canvas = createCanvas();
+
+  TTimeStamp a(dateLo);
+  TTimeStamp b(dateHi);
+  // NOTE: Watch out with this magic. It centers the bins on the days.
+  // a.SetSec(a.GetSec() - (24 * 60 * 60));
+  b.SetSec(b.GetSec() + (24 * 60 * 60));
+  a.SetSec(a.GetSec() - (12 * 60 * 60) - (60 * 60));
+  b.SetSec(b.GetSec() - (12 * 60 * 60) - (60 * 60));
+  TH1F* h_delLum = new TH1F("", "", numDays, a.GetSec(), b.GetSec());
+  TH1F* h_recLum = new TH1F("", "", numDays, a.GetSec(), b.GetSec());
+
+  for (size_t i = 0; i != numDays; ++i) {
+    h_delLum->SetBinContent(i + 1, delivered_lumiA[i]);
+    h_recLum->SetBinContent(i + 1, recorded_lumiA[i]);
+  }
+
+  //----------------------------------------------
+  // Create the lumi-per-day plot.
+  //----------------------------------------------
+
+  h_delLum->SetLineColor(kLineColorDelivered);
+  h_delLum->SetMarkerColor(kLineColorDelivered);
+  h_delLum->SetFillColor(kFillColorDelivered);
+
+  h_recLum->SetLineColor(kLineColorRecorded);
+  h_recLum->SetMarkerColor(kLineColorRecorded);
+  h_recLum->SetFillColor(kFillColorRecorded);
+
+  h_delLum->SetLineWidth(2);
+  h_recLum->SetLineWidth(2);
+
+  // Titles etc.
+  h_delLum->SetTitle(titlePerDay.c_str());
+  h_delLum->GetXaxis()->SetTimeDisplay(1);
+  h_delLum->GetXaxis()->SetTimeFormat("%d/%m");
+  h_delLum->GetXaxis()->SetTimeOffset(0, "gmt");
+  h_delLum->GetXaxis()->SetLabelOffset(0.01);
+  h_delLum->GetYaxis()->SetTitleOffset(1.2);
+  h_delLum->GetXaxis()->SetTitleFont(62);
+  h_delLum->GetYaxis()->SetTitleFont(62);
+  h_delLum->GetXaxis()->SetNdivisions(705);
+
+  // Tweak the axes ranges a bit to create a bit more 'air.'
+  float airSpace = .2;
+  float min_y = 0.;
+  // Round to next multiple of ten.
+  float tmp = (1. + airSpace) * max(maxDel, maxRec);
+  float max_y = ceil(tmp / 10.) * 10;
+  h_delLum->Draw();
+  h_recLum->Draw("SAME");
+  h_delLum->GetYaxis()->SetRangeUser(min_y, max_y);
+
+  // Add legend to the top left.
+  TLegend* legend = createLegend();
+  float marginOld = legend->GetMargin();
+  legend->SetX2NDC(legend->GetX2NDC() +
+                   1.01 * (legend->GetX2NDC() - legend->GetX1NDC()));
+  legend->SetMargin(marginOld / 1.01);
+  legend->AddEntry(h_delLum,
+                   Form("LHC Delivered, max: %6.1f pb^{-1}/day", maxDel),
+                   "F");
+  legend->AddEntry(h_recLum,
+                   Form("CMS Recorded, max: %6.1f pb^{-1}/day", maxRec),
+                   "F");
+  legend->Draw();
+
+  // Duplicate the vertical axis on the right-hand side.
+  duplicateYAxis(canvas, h_delLum->GetYaxis());
+
+  // Redraw the axes. This way the graphs don't overshoot on top of
+  // the axes any more.
+  canvas->RedrawAxis();
+
+  // Add the CMS logo in the top right corner. This has to be the last
+  // action so the logo sits on top of the axes.
+  drawLogo(canvas);
+
+  canvas->Print("int_lumi_per_day_2012.png");
+
+  //----------------------------------------------
+  // Create the cumulative lumi plot.
+  //----------------------------------------------
+
+  TH1F* h_delLumCum = h_delLum->Clone();
+  TH1F* h_recLumCum = h_recLum->Clone();
+  double cumDel = 0.;
+  double cumRec = 0.;
+  for (size_t bin = 1; bin != h_delLum->GetNbinsX() + 1; ++bin) {
+    cumDel += h_delLum->GetBinContent(bin);
+    h_delLumCum->SetBinContent(bin, cumDel);
+    cumRec += h_recLum->GetBinContent(bin);
+    h_recLumCum->SetBinContent(bin, cumRec);
+  }
+
+  // Scale from inv. pb to inv. fb to reduce the vertical labels a
+  // bit.
+  float scale = 1.e-3;
+  h_delLumCum->Scale(scale);
+  h_recLumCum->Scale(scale);
+
+  h_delLumCum->SetTitle(titleCumulative.c_str());
+
+  canvas->Clear();
+  h_delLumCum->Draw();
+  h_recLumCum->Draw("SAME");
+
+  float sumDel = h_delLumCum->GetBinContent(h_delLumCum->GetNbinsX());
+  float sumRec = h_recLumCum->GetBinContent(h_recLumCum->GetNbinsX());
+
+  // Tweak the axes ranges a bit to create a bit more 'air.'
+  float airSpace = .2;
+  float min_y = 0.;
+  float tmp = (1. + airSpace) * sumDel;
+  // // Round to next multiple of ten.
+  // float max_y = ceil(tmp / 10.) * 10;
+  float max_y = tmp;
+  h_delLumCum->Draw();
+  h_recLumCum->Draw("SAME");
+  h_delLumCum->GetYaxis()->SetRangeUser(min_y, max_y);
+
+  // Add legend to the top left.
+  TLegend* legend = createLegend();
+  legend->AddEntry(h_delLumCum,
+                   Form("LHC Delivered: %.2f fb^{-1}", sumDel),
+                   "F");
+  legend->AddEntry(h_recLumCum,
+                   Form("CMS Recorded: %.2f fb^{-1}", sumRec),
+                   "F");
+  legend->Draw();
+
+  // Duplicate the vertical axis on the right-hand side.
+  duplicateYAxis(canvas, h_delLumCum->GetYaxis());
+
+  // Redraw the axes. This way the graphs don't overshoot on top of
+  // the axes any more.
+  canvas->RedrawAxis();
+
+  // Add the CMS logo in the top right corner. This has to be the last
+  // action so the logo sits on top of the axes.
+  drawLogo(canvas);
+
+  canvas->Print("int_lumi_cumulative_2012.png");
+}
