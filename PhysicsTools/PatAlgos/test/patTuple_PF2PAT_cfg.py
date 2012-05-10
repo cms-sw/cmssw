@@ -27,6 +27,8 @@ usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix
 # selection yourself at analysis level!
 #adaptPFTaus(process,"shrinkingConePFTau",postfix=postfix)
 
+# to use GsfElectrons instead of PF electrons
+# useGsfElectrons(process,postfix)
 
 # Let it run
 process.p = cms.Path(
