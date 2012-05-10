@@ -434,13 +434,13 @@ FWGeometryTableViewBase::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, I
       else if (iColumn == 3)
       {
          // vis self
-         ni.switchBit(FWGeometryTableManagerBase::kVisNodeSelf);
+         getTableManager()->setVisibility(ni, !getTableManager()->getVisibility(ni));
          elementChanged = true;
       }
       else if (iColumn == 4)
       { 
          // vis children
-         ni.switchBit(FWGeometryTableManagerBase::kVisNodeChld); 
+         getTableManager()->setVisibilityChld(ni, !getTableManager()->getVisibilityChld(ni));
          elementChanged = true;
       }
       else if (iColumn == 6)
@@ -491,7 +491,7 @@ void FWGeometryTableViewBase::nodeColorChangeRequested(Color_t col)
    if (m_tableRowIndexForColorPopup >= 0) {
       FWGeometryTableManagerBase::NodeInfo& ni = getTableManager()->refEntries()[m_tableRowIndexForColorPopup];
       ni.m_color = col;
-      // ni.m_node->GetVolume()->SetLineColor(col);
+      ni.m_node->GetVolume()->SetLineColor(col);
       refreshTable3D();
       m_tableRowIndexForColorPopup = -1;
    }
