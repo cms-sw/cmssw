@@ -15,7 +15,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
 #import array
 class TrendPlot:
     def __init__(self, section, config, cache = None):
-        from ROOT import MakeNullPointer, TH1
+        from ROOT import MakeNullPointer, TH1, TFile,TObject
         from array import array
         self.__config = config
         self.__section = section
@@ -38,9 +38,11 @@ class TrendPlot:
             self.__title = self.__config.get(self.__section,"title")
         self.__xTitle ="" # this is automatically generated later
         self.__yTitle = metricString #.split("(")[0].split(".")[-1].split("(")[0]
+        self.__saveHistos = metricString #.split("(")[0].split(".")[-1].split("(")[0]
         if self.__config.has_option(self.__section,"yTitle"):
             self.__yTitle = self.__config.get(self.__section,"yTitle")
-
+        if self.__config.has_option(self.__section,"saveHistos"):
+           self.__saveHistos = self.__config.get(self.__section,"saveHistos") 
         self.__x = array("d")
         self.__y = array("d")
         self.__yErrHigh = array("d")
@@ -50,7 +52,8 @@ class TrendPlot:
 
         self.__count = 0
         self.__runs = []
-
+        self.__histoSum = MakeNullPointer(TH1)
+        self.__FileHisto=MakeNullPointer(TFile)
         self.__labels = []
 
     def __addAnnotaion(self,run, x, y, yErr):
@@ -79,7 +82,10 @@ class TrendPlot:
     
     def addRun(self, serverUrl, runNr, dataset):
         from math import sqrt
-        from ROOT import TH1
+        from ROOT import TH1,TFile,TObject
+#        import ROOT
+        import os, sys, string
+        
         self.__count = self.__count + 1
         histoPath = self.__config.get(self.__section, "relativePath")
 
@@ -103,13 +109,35 @@ class TrendPlot:
         cacheLocation = (serverUrl, runNr, dataset, histoPath, self.__config.get(self.__section,"metric"))
         print "cachelocation = ", cacheLocation
         print "dataset = ", dataset
+        
+        if self.__config.has_option(self.__section, "saveHistos"):
+          try:
+              histo1 = getHistoFromDQM( serverUrl, runNr, dataset, histoPath)
+              histosFile = self.__config.get(self.__section, "saveHistos")
+              if not os.path.exists(histosFile): os.makedirs(histosFile)
+              if self.__FileHisto==None:
+                    print "prazan",self.__FileHisto
+
+              if self.__histoSum==None:
+                  self.__histoSum=histo1
+                  self.__FileHisto=TFile.Open(os.path.join("%s/SumAll_%s.root"%(histosFile,self.__title)),"RECREATE")
+                  self.__histoSum.Write()
+              else:
+                self.__histoSum.Add(histo1)
+                self.__FileHisto.cd()
+                self.__histoSum.Write("",TObject.kOverwrite)
+                histo1.SetName(str(runNr))
+                histo1.Write()
+
+          except StandardError as msg :
+              print "WARNING: something went wrong gettin the histogram ", runNr, msg
+
         try:
             if self.__cache == None or cacheLocation not in self.__cache:
                 histo = getHistoFromDQM( serverUrl, runNr, dataset, histoPath)
                 Entr=0
                 Entr=histo.GetEntries()
                 print "###############    GOT HISTO #################" 
-                print "SEVA",runNr,Entr
                 y=0
                 yErr    = (0.0,0.0)
                 if Entr>self.__threshold:
@@ -213,13 +241,68 @@ class TrendPlot:
 
         result.Add(sysGraph,"[]")
         result.Add(graph,"P")
+        result.SetName("MultiPlots")
         legend.AddEntry(graph, self.__getStyleOption("name"))
         
         #for (x,y,yErr) in zip(self.__x, self.__y, zip(self.__yErrLow,self.__yErrHigh)):
         #    self.__addAnnotaion("hallo",x,y,yErr)
 
         return (result, legend)
+        #return (graph, legend)
         #return (result, legend, refLabel)
+
+    def getGraphSimple(self):
+        from array import array
+        from ROOT import TMultiGraph, TLegend, TGraphAsymmErrors
+        n = len(self.__x)
+        if n != len(self.__y) or n != len(self.__yErrLow) or n != len(self.__yErrHigh):
+            raise StandardError, "The length of the x(%s), y(%s) and y error(%s,%s) lists does not match"%(len(self.__x), len(self.__y), len(self.__yErrLow), len(self.__yErrHigh))
+
+        legendPosition = [float(i) for i in self.__getStyleOption("legendPosition").split()]
+        legend = TLegend(*legendPosition)
+        legend.SetFillColor(0)
+
+        xErr = array("d",[0 for i in range(n)])
+        print "__x = ", self.__x
+        print "__y = ", self.__y
+        graph = TGraphAsymmErrors(n, self.__x, self.__y, xErr, xErr, self.__yErrLow,self.__yErrHigh)
+        graph.SetTitle("%s;%s;%s"%(self.__title,self.__xTitle,self.__yTitle))
+        graph.SetLineWidth(2)
+        graph.SetFillColor(0)
+        graph.SetLineColor(int(self.__getStyleOption("lineColor")))
+        graph.SetMarkerColor(int(self.__getStyleOption("markerColor")))
+        graph.SetMarkerStyle(int(self.__getStyleOption("markerStyle")))
+        graph.SetMarkerSize(float(self.__getStyleOption("markerSize")))
+        graph.SetDrawOption("AP")
+
+        return (graph, legend)
+
+
+    def getHISTO(self):
+        from array import array
+        from ROOT import TMultiGraph, TLegend, TGraphAsymmErrors
+        from ROOT import TH1,TH1F,TAxis
+        from math import sqrt 
+        n = len(self.__x)
+        if n != len(self.__y) or n != len(self.__yErrLow):
+            raise StandardError, "The length of the x(%s), y(%s) and y error(%s,%s) lists does not match"%(len(self.__x), len(self.__y), len(self.__yErrLow), len(self.__yErrHigh))
+        result=TH1F(self.__title,self.__title,n,1,n)
+        axis = result.GetXaxis()
+        for i in range (len(self.__x)):
+            result.Fill(i+1,self.__y[i])
+            result.SetBinError(i+1,self.__yErrHigh[i])
+            #axis.SetBinLabel(i+1, str(self.__x[i]))
+            axis.SetBinLabel(i+1, str(self.__runs[i]))
+#        result = MakeNullPointer(TH1)
+        legendPosition = [float(i) for i in self.__getStyleOption("legendPosition").split()]
+        legend = TLegend(*legendPosition)
+        legend.SetFillColor(0)
+        result.SetMarkerColor(int(self.__getStyleOption("markerColor")))
+        result.SetMarkerStyle(int(self.__getStyleOption("markerStyle")))
+        result.SetMarkerSize(float(self.__getStyleOption("markerSize")))
+        result.SetTitle("%s;%s;%s"%(self.__title,self.__xTitle,self.__yTitle))
+        return (result, legend)
+
 
     def formatGraphAxis(self, graph):
         if self.__config.has_option(self.__section,"xMode"):
@@ -323,18 +406,28 @@ def getReferenceRun(config, runs):
       config.set("reference","name", directories[0])
       file.Close()
 
-#def getRunsFromDQM(config, mask, pd, mode, runMask="all"):
-def getRunsFromDQM(config, mask, pd, mode, runMask="all",runlistfile=[]):
+def getRunsFromDQM(config, mask, pd, mode, runMask="all",runlistfile=[],jsonfile=[]):
     from src.dqmjson import dqm_get_samples
+#    import simplejson as jsonn
+    import json as jsonn
     serverUrl = config.get("dqmServer","url")
     dataType = config.get("dqmServer","type")
 
     json = dqm_get_samples(serverUrl, mask, dataType)
     masks = []
-    if runlistfile==[]:
-        print "JOS VECE SRANJE"
-    else:
+    if runlistfile!=[]:
        runs1 = [x.strip() for x in open(runlistfile,"r")]
+
+    if jsonfile!=[]:
+        print "file:",jsonfile
+        aaf = open(jsonfile)
+        info = aaf.read()
+        decoded = jsonn.loads(info)
+        print decoded
+        runs1=[]
+        for sranje in decoded:
+            runs1.append(sranje)           
+
     for runNr, dataset in json:
         if dataset not in masks: masks.append(dataset)
     for m in masks:
@@ -348,12 +441,11 @@ def getRunsFromDQM(config, mask, pd, mode, runMask="all",runlistfile=[]):
               ##For this to run correctly, I need autoRunDecoDetector.py checked out (UserCode/TkDQM/Tools)
                 if checkStripMode(runNr) != mode:
                     continue
-            if runlistfile==[]:
+            if runlistfile==[] and jsonfile==[]:
                 if eval(runMask,{"all":True,"run":runNr}):
                     result[runNr] = (serverUrl, runNr, dataset)
             else:
                  for run_temp in runs1:
-#                        print "aaaaaaaa",runNr,run_temp
                         if int(run_temp)==int(runNr):
                                 print "test1=",run_temp,runNr
                                 result[runNr] = (serverUrl, runNr, dataset)
@@ -458,7 +550,7 @@ def main(argv=None):
     import sys
     import os
     from optparse import OptionParser
-    from ROOT import TCanvas
+    from ROOT import TCanvas,TFile
     
     if argv == None:
         argv = sys.argv[1:]
@@ -480,22 +572,25 @@ def main(argv=None):
     parser.add_option("-s", "--state", dest="state", default="ALL",
                       help="mask for strip state, options are ALL, PEAK, DECO, or MIXED -- only applicable if dataset is 'Cosmics'")
     parser.add_option("-L", "--list", dest="list", type="string", default=[] , action="store")
+    parser.add_option("-J", "--json", dest="json", type="string", default=[] , action="store")
     (opts, args) = parser.parse_args(argv)
     if opts.config ==[]:
         opts.config = "trendPlots.ini"
     config = BetterConfigParser()
     config.read(opts.config)
-    
+#    if opts.json!=[]:
+#        import simplejson as json
+#        aaf = open("Cert_190456-191276_8TeV_PromptReco_Collisions12_JSON_MuonPhys.txt","r")
+#        tempF=open("temp.txt")
+ 
     initStyle(config)
 
     dsetmask = ".*/" + opts.dset +"/"+opts.epoch+".*"+opts.reco+"*.*"+opts.tag
     print dsetmask
-#    runs = getRunsFromDQM(config, dsetmask, opts.dset, opts.state, opts.runs)
-    runs = getRunsFromDQM(config, dsetmask, opts.dset, opts.state, opts.runs,opts.list)
+    runs = getRunsFromDQM(config, dsetmask, opts.dset, opts.state, opts.runs,opts.list,opts.json)
     if not runs : raise StandardError, "*** Number of runs matching run/mask/etc criteria is equal to zero!!!"
 
     print "runs= ", runs
-    print "runssss= ", runs
 
     print "got %s run between %s and %s"%(len(runs), min(runs.keys()), max(runs.keys()))
 #    getReferenceRun(config, runs)
@@ -521,6 +616,8 @@ def main(argv=None):
     canvas.Clear()
     canvas.SetBottomMargin(0.14)
     canvas.SetGridy()
+
+
     if makeSummary: canvas.Print(os.path.join(outPath,"trendPlots.ps["))
     print "plots = ", plots
     for plot in plots:
@@ -540,10 +637,25 @@ def main(argv=None):
         canvas.Modified()
         canvas.Update()
         for formatExt in config.get("output","formats").split():
-            canvas.Print(os.path.join(outPath,"%s.%s"%(plot.getName(), formatExt)))
+            if formatExt=='root':
+                (histotemp, legend) = plot.getHISTO()
+                #(graphtemp, legend1) = plot.getGraphSimple()
+            #plot.formatGraphAxis(graphtemp)
+                F_out=TFile.Open(os.path.join(outPath,"%s.%s"%(plot.getName(), formatExt)),"RECREATE")
+                F_out.cd()
+                histotemp.Write()
+                graph.Write()
+#                graphtemp.SetDrawOption("AP")
+#                graphtemp.Write("P")
+                F_out.Close()
+
+            else:
+                canvas.Print(os.path.join(outPath,"%s.%s"%(plot.getName(), formatExt)))
+
         if makeSummary: canvas.Print(os.path.join(outPath,"trendPlots.ps"))
         
         if makeSummary: canvas.Print(os.path.join(outPath,"trendPlots.ps]"))
-        
+
+
 if __name__ == '__main__':
     main()
