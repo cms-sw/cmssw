@@ -19,24 +19,6 @@
 namespace { 
   struct dictionary {
 
-    reco::Vertex  v0;
-    edm::Wrapper<reco::Vertex> v1;
-
-    reco::Track  t0;
-    edm::Wrapper<reco::Track> t1;
-
-    reco::PFCandidate  p0;
-    edm::Wrapper<reco::PFCandidate> p1;
-
-    std::vector<reco::Vertex>  vv0;
-    edm::Wrapper<std::vector<reco::Vertex> > vv1;
-
-    std::vector<reco::Track>  tv0;
-    edm::Wrapper<std::vector<reco::Track> > tv1;
-
-    std::vector<reco::PFCandidate>  pv0;
-    edm::Wrapper<std::vector<reco::PFCandidate> > pv1;
-
     edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Vertex> >,edm::RefProd<std::vector<reco::Track> > > am0;
 
     edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Vertex> >,edm::RefProd<std::vector<reco::PFCandidate> > > pm0;
