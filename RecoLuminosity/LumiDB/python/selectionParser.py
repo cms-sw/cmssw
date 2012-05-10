@@ -18,7 +18,7 @@ class selectionParser(object):
                 elif len(w)==2 and w[0]==w[1]:
                     expandedvalues.append(w[0])
                 else:
-                    for i in range(w[0],w[1]+1):
+                    for i in range(int(w[0]),int(w[1])+1):
                         expandedvalues.append(i)
             self.__result[int(k)]=expandedvalues
             self.__strresult[k]=[str(x) for x in expandedvalues]
@@ -37,7 +37,7 @@ class selectionParser(object):
     def numls(self,run):
         return len(self.__result[run])
 if __name__ == "__main__":
-    s=selectionParser('{"1":[[3,45]],"2":[[4,8],[10,10]],"3":[[]]}')
+    s=selectionParser('{"1":[[3,45.5]],"2":[[4,8],[10,10]],"3":[[]]}')
     print 'runs : ',s.runs()
     print 'full result : ',s.runsandls()
     print 'str result : ',s.runsandlsStr()
