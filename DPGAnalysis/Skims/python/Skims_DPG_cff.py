@@ -322,7 +322,7 @@ SKIMStreamWElectron = cms.FilteredStream(
     paths = ( WElectronPath ),
     content = WElectronSkimContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
+    dataTier = cms.untracked.string('USER')
     )
 
 #####################
