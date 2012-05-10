@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:34 CET 2012
-// $Id: FWGeometryTableView.cc,v 1.37 2012/05/09 04:51:05 amraktad Exp $
+// $Id: FWGeometryTableView.cc,v 1.38 2012/05/10 02:12:37 amraktad Exp $
 //
 
 // system include files
@@ -399,6 +399,7 @@ void FWGeometryTableView::checkRegionOfInterest()
 
    refreshTable3D();
 }
+
 //------------------------------------------------------------------------------
 
 void FWGeometryTableView::setFrom(const FWConfiguration& iFrom)
@@ -406,24 +407,30 @@ void FWGeometryTableView::setFrom(const FWConfiguration& iFrom)
    m_enableRedraw = false;
    for (const_iterator it =begin(), itEnd = end(); it != itEnd; ++it)
    {
-     // printf("set from %s \n",(*it)->name().c_str() );
-      (*it)->setFrom(iFrom);
+      // printf("set from %s \n",(*it)->name().c_str() );
+      if ((*it)->name() == m_topNodeIdx.name()  )
+         setTopNodePathFromConfig(iFrom);
+      else 
+         (*it)->setFrom(iFrom);
    }  
+   
+   
+   cdNode(m_topNodeIdx.value());
 
    TGComboBox* cbox = ((FWEnumParameterSetter*) m_filterTypeSetter.get())->getWidget();
-   cbox->Select(m_filterType.value());
+   cbox->Select(m_filterType.value(), false);
    m_viewersConfig = iFrom.valueForKey("Viewers");
 
-   cdNode(m_topNodeIdx.value());
+
    m_enableRedraw = true;
    m_filterEntry->SetText(m_filter.value().c_str(), false);
    m_tableManager->updateFilter(m_filterType.value());
    checkExpandLevel();
    refreshTable3D();
    /*
-   getTableManager()->redrawTable();
-   m_eveTopNode->ElementChanged();
-   gEve->FullRedraw3D(false, true);
+     getTableManager()->redrawTable();
+     m_eveTopNode->ElementChanged();
+     gEve->FullRedraw3D(false, true);
    */
 }
 

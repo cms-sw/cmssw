@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:06:35 CET 2012
-// $Id: FWOverlapTableView.cc,v 1.10 2012/05/04 00:22:11 amraktad Exp $
+// $Id: FWOverlapTableView.cc,v 1.11 2012/05/08 02:32:50 amraktad Exp $
 //
 
 // system include files
@@ -205,18 +205,20 @@ void FWOverlapTableView::recalculate()
 //______________________________________________________________________________
 void FWOverlapTableView::setFrom(const FWConfiguration& iFrom)
 {
-  m_enableRedraw = false;
-   for(const_iterator it =begin(), itEnd = end();
-       it != itEnd;
-       ++it) {
-      (*it)->setFrom(iFrom);
+   m_enableRedraw = false;
 
+   for (const_iterator it =begin(), itEnd = end(); it != itEnd; ++it)
+   { 
+      if ((*it)->name() == m_topNodeIdx.name()  )
+         setTopNodePathFromConfig(iFrom);
+      else 
+         (*it)->setFrom(iFrom);
    }  
+
    m_viewersConfig = iFrom.valueForKey("Viewers");
    m_numEntry->SetNumber(m_precision.value());
   
-  
-//  refreshTable3D();
+   //  refreshTable3D();
    m_enableRedraw = true;
    recalculate();
 }

@@ -616,24 +616,23 @@ void FWGeometryTableViewBase::addTo(FWConfiguration& iTo) const
 
    iTo.addKeyValue("Viewers", viewers, true);
 }
- 
+
 //______________________________________________________________________________
 
-void FWGeometryTableViewBase::setFrom(const FWConfiguration& iFrom)
-{ 
-   m_enableRedraw = false;
-   for(const_iterator it =begin(), itEnd = end();
-       it != itEnd;
-       ++it) {
+void FWGeometryTableViewBase::setTopNodePathFromConfig(const FWConfiguration& iFrom)
+{
+   int tn;
+   const FWConfiguration* value = iFrom.valueForKey( m_topNodeIdx.name() );
+   if (!value) return;
 
-      //      printf("set from %s \n",(*it)->name().c_str() );
-      (*it)->setFrom(iFrom);
-
-   }  
-   m_viewersConfig = iFrom.valueForKey("Viewers");
-
-   m_enableRedraw = true;
-   refreshTable3D();
+   std::istringstream s(value->value());
+   s>> tn;
+   if (tn >= (getTableManager()->refEntries().size() -1 )) { 
+      fwLog(fwlog::kWarning) << Form("Ignoring node path from confugration file -- %s value larger than number of nodes \n", m_topNodeIdx.name().c_str());
+      return;
+   }
+   //   std::cerr << "set top node " << ;
+   m_topNodeIdx.set(tn);
 }
 
 //______________________________________________________________________________
@@ -648,6 +647,7 @@ void FWGeometryTableViewBase::reloadColors()
    
    refreshTable3D();
 }
+
 
 //______________________________________________________________________________
 
