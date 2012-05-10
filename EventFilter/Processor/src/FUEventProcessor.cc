@@ -1084,7 +1084,7 @@ bool FUEventProcessor::receiving(toolbox::task::WorkLoop *)
     myProcess_->rcvSlave(msg,false); //will receive only messages from Master
     if(msg->mtype==MSQM_MESSAGE_TYPE_RLI)
       {
-	std::cout << "slave process pid: " << getpid() << "setting coredump size limit to 0" << std::endl;
+	std::cout << "slave process pid " << getpid() << ": setting coredump size limit to 0" << std::endl;
 	rlimit rl;
 	getrlimit(RLIMIT_CORE,&rl);
 	rl.rlim_cur=0;
@@ -1189,8 +1189,12 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
     rlimit_coresize_changed_=true;
     
     MsgBuf master_message_rli_(NUMERIC_MESSAGE_SIZE,MSQM_MESSAGE_TYPE_RLI);
-    for (unsigned int i = 0; i < subs_.size(); i++)
-      subs_[i].post(master_message_rli_,false);
+    for (unsigned int i = 0; i < subs_.size(); i++) {
+      try {
+        subs_[i].post(master_message_rli_,false);
+      }
+      catch (...) {}
+    }
       //prlimit(subs_[i].pid(),RLIMIT_CORE,&rlnew,&rlold);
   }
 
@@ -2352,7 +2356,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.136 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.137 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

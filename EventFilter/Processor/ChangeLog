@@ -1,3 +1,9 @@
+
+2012-05-10 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-06
+	* putting message posting in try/catch
+
 2012-05-10 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V02-05-05
