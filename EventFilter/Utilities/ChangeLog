@@ -1,3 +1,9 @@
+2012-05-10 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* V00-19-27
+	* adding new message type
+	* when receiving it, slave will set core dump size to 0
+
 2012-05-02 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* V00-19-26
