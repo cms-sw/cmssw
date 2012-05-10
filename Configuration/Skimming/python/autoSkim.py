@@ -4,7 +4,7 @@
 ## autoSkim 2012 (5E33 menu)
 autoSkim = {
     'BTag' : 'LogError+LogErrorMonitor',
-    'Commissioning' : 'LogError+LogErrorMonitor',
+    'Commissioning' : 'LogError+LogErrorMonitor+EcalActivity',
     'Cosmics' : 'LogError+LogErrorMonitor',    
     'DoubleElectron' : 'LogError+LogErrorMonitor+ZElectron+DiTau+HZZ',
     'DoubleMu' : 'LogError+LogErrorMonitor+HZZ+Zmmg',
