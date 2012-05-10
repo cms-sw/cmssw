@@ -1191,7 +1191,8 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
     MsgBuf master_message_rli_(NUMERIC_MESSAGE_SIZE,MSQM_MESSAGE_TYPE_RLI);
     for (unsigned int i = 0; i < subs_.size(); i++) {
       try {
-        subs_[i].post(master_message_rli_,false);
+	if (subs_[i].alive())
+          subs_[i].post(master_message_rli_,false);
       }
       catch (...) {}
     }
@@ -2356,7 +2357,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.137 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.138 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

@@ -3,6 +3,7 @@
 
 	* tag V02-05-06
 	* putting message posting in try/catch
+	* check that prc is alive
 
 2012-05-10 Srecko Morovic <srecko.morovic@cern.ch>
 
