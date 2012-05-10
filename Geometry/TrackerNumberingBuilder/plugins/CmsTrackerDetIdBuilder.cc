@@ -1,8 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerDetIdBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-
 #include "FWCore/Utilities/interface/Exception.h"
-
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include <iostream>
@@ -11,20 +9,23 @@
 #include <string>
 #include <bitset>
 
+CmsTrackerDetIdBuilder::CmsTrackerDetIdBuilder( unsigned int layerNumberPXB )
+  : m_layerNumberPXB( layerNumberPXB )
+{}
 
-CmsTrackerDetIdBuilder::CmsTrackerDetIdBuilder(){
-}
-
-GeometricDet* CmsTrackerDetIdBuilder::buildId(GeometricDet* tracker){
-
-  DetId t(DetId::Tracker,0);
-  tracker->setGeographicalID(t);
-  iterate(tracker,0,tracker->geographicalID().rawId());
+GeometricDet*
+CmsTrackerDetIdBuilder::buildId( GeometricDet* tracker )
+{
+  DetId t( DetId::Tracker, 0 );
+  tracker->setGeographicalID( t );
+  iterate( tracker, 0, tracker->geographicalID().rawId() );
 
   return tracker;
 }
 
-void CmsTrackerDetIdBuilder::iterate(GeometricDet const * in, int level, unsigned int ID){
+void
+CmsTrackerDetIdBuilder::iterate( GeometricDet const *in, int level, unsigned int ID )
+{
   std::bitset<32> binary_ID(ID);
 
   // SubDetector (useful to know fron now on, valid only after level 0, where SubDetector is assigned)
@@ -33,62 +34,67 @@ void CmsTrackerDetIdBuilder::iterate(GeometricDet const * in, int level, unsigne
   iSubDet = iSubDet >> 25;
   //
   
-  switch (level) {
-  
+  switch( level )
+  {
     // level 0
   case 0:
-    {
-      
-      for(uint32_t i=0; i<(in)->components().size();i++) {
+    {  
+      for( uint32_t i = 0; i<(in)->components().size(); i++ )
+      {
 	uint32_t jSubDet = ((in)->components())[i]->geographicalID().rawId();
 	uint32_t temp = ID;
 	temp |= (jSubDet<<25);
 	((in)->components())[i]->setGeographicalID(temp);	
 	
-	switch (jSubDet) {
-	 
+	switch( jSubDet )
+	{ 
 	  // PXF
 	case 2:
 	  {
 	    // SubDetector Side start bit is 23 [3 unused and Side length is 2 bit]
-	    if( ((in)->components())[i]->translation().z()<0. ) {
+	    if(((in)->components())[i]->translation().z()<0. )
+	    {
 	      temp |= (1<<23); // PXF-
-	    } else {
+	    }
+	    else
+	    {
 	      temp |= (2<<23); // PXF+
 	    }
 	    break;
 	  }
-	  
 	  // TID
 	case 4:
 	  {
 	    temp|= (0<<15); // SubDetector Side start bit is 13 [10 unused and Side length is 2 bit]
-	    if( (((in)->components())[i])->components()[0]->translation().z()<0. ) {
+	    if((((in)->components())[i])->components()[0]->translation().z()<0. )
+	    {
 	      temp |= (1<<13); // TIDB = TID-
-	    } else {
+	    }
+	    else
+	    {
 	      temp |= (2<<13); // TIDF = TID+
 	    }
 	    break;
 	  }
-	  
 	  // TEC
 	case 6:
 	  {
-	    temp|= (0<<20); // SubDetector Side start bit is 18 [5 unused and Side length is 2 bit]
-	    if( ((in)->components())[i]->translation().z()<0. ) {
+	    temp |= (0<<20); // SubDetector Side start bit is 18 [5 unused and Side length is 2 bit]
+	    if(((in)->components())[i]->translation().z()<0. )
+	    {
 	      temp |= (1<<18); // TEC-
-	    } else {
+	    }
+	    else
+	    {
 	      temp |= (2<<18); // TEC+
 	    }
 	    break;
 	  }
-	  
 	  // PXB, TIB, TOB (barrel)
 	default:
 	  {
 	    // do nothing
 	  }
-
 	  // SubDetector switch ends
 	}
 	
@@ -99,75 +105,72 @@ void CmsTrackerDetIdBuilder::iterate(GeometricDet const * in, int level, unsigne
       }
       break;
     }
-    
-    // level 1
-  case 1: {
-    
-    for (uint32_t i=0;i<(in)->components().size();i++) {
-      uint32_t temp = ID;
+  // level 1
+  case 1:
+    {
+      for( uint32_t i = 0; i < (in)->components().size(); i++ )
+      {
+	uint32_t temp = ID;
       
-      switch (iSubDet) {
-
+	switch( iSubDet )
+	{
 	// PXB
-      case 1:
-	{
-	  temp |= (((in)->components())[i]->geographicalID().rawId()<<16); // Layer Number start bit is 16 [5 unused]
-	  break;
-	}
-	
+	case 1:
+	  {
+	    temp |= (((in)->components())[i]->geographicalID().rawId() << m_layerNumberPXB ); // Layer Number start bit is 16 [5 unused]
+	    break;
+	  }
 	// PXF
-      case 2:
-	{
-	  temp |= (((in)->components())[i]->geographicalID().rawId()<<16); // Disk Number start bit is 16
-	  break;
-	}
-	
+	case 2:
+	  {
+	    temp |= (((in)->components())[i]->geographicalID().rawId() << 16 ); // Disk Number start bit is 16
+	    break;
+	  }
 	// TIB
-      case 3:
-	{
-	  temp |= (((in)->components())[i]->geographicalID().rawId()<<14); // Layer Number start bit is 14 [8 unused]
-	  break;
-	}
+	case 3:
+	  {
+	    temp |= (((in)->components())[i]->geographicalID().rawId() << 14); // Layer Number start bit is 14 [8 unused]
+	    break;
+	  }
 	
 	// TID
-      case 4:
-	{
-	  temp |= (((in)->components())[i]->geographicalID().rawId()<<11); // Disk (Wheel) Number start bit is 11
-	  break;
-	}
+	case 4:
+	  {
+	    temp |= (((in)->components())[i]->geographicalID().rawId() << 11); // Disk (Wheel) Number start bit is 11
+	    break;
+	  }
 	
 	// TOB
-      case 5:
-	{
-	  temp |= (((in)->components())[i]->geographicalID().rawId()<<14); // Layer Number start bit is 14 [8 unused]
-	  break;
-	}
+	case 5:
+	  {
+	    temp |= (((in)->components())[i]->geographicalID().rawId() << 14); // Layer Number start bit is 14 [8 unused]
+	    break;
+	  }
 	
-      // TEC
-      case 6:
-	{
-	  temp |= (((in)->components())[i]->geographicalID().rawId()<<14); // Wheel Number start bit is 14
-	  break;
-	}
+	// TEC
+	case 6:
+	  {
+	    temp |= (((in)->components())[i]->geographicalID().rawId() << 14); // Wheel Number start bit is 14
+	    break;
+	  }
       
 	// the rest
-      default:
-	{
-	  // do nothing
-	}
+	default:
+	  {
+	    // do nothing
+	  }
 	
 	// SubDetector switch ends
+	}
+      
+	((in)->components())[i]->setGeographicalID( temp );
+      
+	// next level
+	iterate(((in)->components())[i],level+1,((in)->components())[i]->geographicalID().rawId());      
       }
-      
-      ((in)->components())[i]->setGeographicalID(temp);
-      
-      // next level
-      iterate(((in)->components())[i],level+1,((in)->components())[i]->geographicalID().rawId());      
-    }
     
       break; 
-  }
-    
+    }    
     // level 2
   case 2: {
     
