@@ -8,6 +8,7 @@
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 #include "FastSimulation/ParticleDecay/interface/PythiaDecays.h"
 #include "FastSimulation/ParticleDecay/interface/Pythia6jets.h"
+#include "FastSimulation/ParticleDecay/interface/RandomP8.h"
 
 
 // Needed for Pythia6 
@@ -30,16 +31,9 @@ PythiaDecays::PythiaDecays(std::string program)
     pythia.reset(new Pythia8::Pythia);
     decayer.reset(new Pythia8::Pythia);
 
-    /*
-      RandomP8* RP8 = new RandomP8();
-      pythia->setRndmEnginePtr(RP8);
-      decayer->setRndmEnginePtr(RP8);
-      
-      if I uncomment this part, I get:
-      
-      >> Building shared library tmp/slc5_amd64_gcc462/src/FastSimulation/ParticleDecay/src/FastSimulationParticleDecay/libFastSimulationParticleDecay.so
-      /afs/cern.ch/cms/slc5_amd64_gcc462/external/gcc/4.6.2/bin/../lib/gcc/x86_64-unknown-linux-gnu/4.6.2/../../../../x86_64-unknown-linux-gnu/bin/ld: tmp/slc5_amd64_gcc462/src/FastSimulation/ParticleDecay/src/FastSimulationParticleDecay/PythiaDecays.o: in function PythiaDecays::PythiaDecays():PythiaDecays.cc(.text+0x2ac): error: undefined reference to 'vtable for RandomP8'
-    */
+    RandomP8* RP8 = new RandomP8();
+    pythia->setRndmEnginePtr(RP8);
+    decayer->setRndmEnginePtr(RP8);
   } else {
     std::cout << "WARNING: you are requesting an option which is not available in PythiaDecays::PythiaDecays " << std::endl;
   }
