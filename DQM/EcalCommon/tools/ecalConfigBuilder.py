@@ -219,7 +219,7 @@ process.load("DQM.EcalBarrelMonitorTasks.EBHltTask_cfi")
 process.load("DQM.EcalEndcapMonitorTasks.EEHltTask_cfi")
 '''
 
-if not newFramework and live :
+if not newFramework and physics and live :
     ecalDQM += '''
 process.load("DQM.EcalBarrelMonitorTasks.EBTrendTask_cfi")
 process.load("DQM.EcalBarrelMonitorClient.EBTrendClient_cfi")
@@ -465,7 +465,7 @@ process.ecalMonitorPath = cms.Path(
     (
     process.ecalClusterSequence +'''
 
-        if live :
+        if physics and live :
             sequencePaths += '''
     process.l1GtEvmUnpack +'''
 
@@ -547,7 +547,7 @@ process.ecalClientPath = cms.Path(
         sequencePaths += '''
     process.ecalCalibrationFilter +'''
 
-    if not newFramework and live :
+    if not newFramework and physics and live :
         sequencePaths += '''
     process.ecalBarrelTrendClient +
     process.ecalEndcapTrendClient +'''
@@ -1024,21 +1024,23 @@ process.ecalBarrelRawDataTask.FEDRawDataCollection = cms.InputTag(FedRawData)
 process.ecalEndcapRawDataTask.FEDRawDataCollection = cms.InputTag(FedRawData)
 '''
 
-    if live :
-        customizations += 'process.l1GtEvmUnpack.EvmGtInputTag = cms.InputTag(FedRawData)' + "\n"
-        if not newFramework :
-            customizations += 'process.ecalBarrelTrendTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
-            customizations += 'process.ecalEndcapTrendTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
-
 if physics :
     if newFramework :
         customizations += 'process.ecalMonitorTask.collectionTags.Source = FedRawData' + "\n"
+        if live :
+            customizations += 'process.l1GtEvmUnpack.EvmGtInputTag = cms.InputTag(FedRawData)' + "\n"
+            
     else :
         customizations += 'process.ecalBarrelSelectiveReadoutTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
         customizations += 'process.ecalEndcapSelectiveReadoutTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
         if not central :
             customizations += 'process.ecalBarrelHltTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
             customizations += 'process.ecalEndcapHltTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
+
+        if live :
+            customizations += 'process.l1GtEvmUnpack.EvmGtInputTag = cms.InputTag(FedRawData)' + "\n"
+            customizations += 'process.ecalBarrelTrendTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
+            customizations += 'process.ecalEndcapTrendTask.FEDRawDataCollection = cms.InputTag(FedRawData)' + "\n"
 
 if not newFramework and calib and (daqtype == 'globalDAQ') :
     customizations += '''
