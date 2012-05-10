@@ -184,42 +184,42 @@ def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l
     try:
         qHandle.addToTableList(r)
         qHandle.addToTableList(l)
-        qConditionStr=r+'.runnum='+l+'.runnum'
+        qConditionStr=r+'.RUNNUM='+l+'.RUNNUM'
         if requiretrg:
             qHandle.addToTableList(t)
-            qConditionStr+=' and '+l+'.runnum='+t+'.runnum'
+            qConditionStr+=' and '+l+'.RUNNUM='+t+'.RUNNUM'
         if requirehlt:
             qHandle.addToTableList(h)
-            qConditionStr+=' and '+l+'.runnum='+h+'.runnum'
+            qConditionStr+=' and '+l+'.RUNNUM='+h+'.RUNNUM'
         qCondition=coral.AttributeList()        
         if fillnum:
-            qConditionStr+=' and '+r+'.fillnum=:fillnum'
+            qConditionStr+=' and '+r+'.FILLNUM=:fillnum'
             qCondition.extend('fillnum','unsigned int')
             qCondition['fillnum'].setData(int(fillnum))
         if runmin:
-            qConditionStr+=' and '+r+'.runnum>=:runmin'
+            qConditionStr+=' and '+r+'.RUNNUM>=:runmin'
             qCondition.extend('runmin','unsigned int')
             qCondition['runmin'].setData(runmin)
         if runmax:
-            qConditionStr+=' and '+r+'.runnum<=:runmax'
+            qConditionStr+=' and '+r+'.RUNNUM<=:runmax'
             qCondition.extend('runmax','unsigned int')
             qCondition['runmax'].setData(runmax)
         if amodetag:
-            qConditionStr+=' and '+r+'.amodetag=:amodetag'
+            qConditionStr+=' and '+r+'.AMODETAG=:amodetag'
             qCondition.extend('amodetag','string')
             qCondition['amodetag'].setData(amodetag)
         if l1keyPattern:
-            qConditionStr+=' and regexp_like('+r+'.l1key,:l1keypattern)'
+            qConditionStr+=' and regexp_like('+r+'.L1KEY,:l1keypattern)'
             qCondition.extend('l1keypattern','string')
             qCondition['l1keypattern'].setData(l1keyPattern)
         if hltkeyPattern:
-            qConditionStr+=' and regexp_like('+r+'.hltkey,:hltkeypattern)'
+            qConditionStr+=' and regexp_like('+r+'.HLTKEY,:hltkeypattern)'
             qCondition.extend('hltkeypattern','string')
             qCondition['hltkeypattern'].setData(hltkeyPattern)
         if nominalEnergy:
             emin=nominalEnergy*(1.0-energyFlut)
             emax=nominalEnergy*(1.0+energyFlut)
-            qConditionStr+=' and '+l+'.nominalegev>=:emin and '+l+'.nominalegev<=:emax'
+            qConditionStr+=' and '+l+'.NOMINALEGEV>=:emin and '+l+'.NOMINALEGEV<=:emax'
             qCondition.extend('emin','float')
             qCondition.extend('emax','float')
             qCondition['emin'].setData(emin)
