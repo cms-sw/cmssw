@@ -203,7 +203,6 @@ def toScreenOverview(lumidata,resultlines,scalefactor,isverbose):
             fillnum=lsdata[0][10]
         nls=len(lsdata)
         deliveredData=[x[5] for x in lsdata]
-        print 'run ',run,len(deliveredData)
         totdelivered=sum(deliveredData)
 
         totalDelivered+=totdelivered
