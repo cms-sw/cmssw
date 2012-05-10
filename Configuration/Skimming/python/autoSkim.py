@@ -20,7 +20,7 @@ autoSkim = {
     'MultiJet' : 'LogError+LogErrorMonitor+HighMET',
     'Photon' : 'LogError+LogErrorMonitor+HighMET',
     'PhotonHad' : 'LogError+LogErrorMonitor',
-    'SingleElectron' : 'LogError+LogErrorMonitor+HighMET+DiTau',
+    'SingleElectron' : 'LogError+LogErrorMonitor+HighMET+DiTau+WElectron',
     'SingleMu' : 'LogError+LogErrorMonitor+ZMu+HighMET+EXOHSCP+MuTau',
     'Tau' : 'LogError+LogErrorMonitor',
     'TauPlusX' : 'LogError+LogErrorMonitor+MuTauMET',
