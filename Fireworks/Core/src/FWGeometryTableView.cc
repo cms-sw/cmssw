@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:34 CET 2012
-// $Id: FWGeometryTableView.cc,v 1.36 2012/05/09 00:39:28 amraktad Exp $
+// $Id: FWGeometryTableView.cc,v 1.37 2012/05/09 04:51:05 amraktad Exp $
 //
 
 // system include files
@@ -57,74 +57,70 @@
 class FWGeoMaterialValidator : public FWValidatorBase 
 {
 public:
-   struct Material
-   {
-      TGeoMaterial* g;
-      std::string n;
-      bool operator< (const Material& x) const { return n < x.n ;}
-      Material( TGeoMaterial* x) {  g= x; n = x ? x->GetName() : "<show-all>";}
-   };
 
    FWGeometryTableView* m_browser;
-   mutable std::vector<Material> m_list;
-
+  mutable std::vector<const char*> m_list;
    FWGeoMaterialValidator( FWGeometryTableView* v) { m_browser = v;}
    virtual ~FWGeoMaterialValidator() {}
 
+  virtual void addDaughtersRec(TGeoVolume* v) const
+  {
+    switch (m_browser->getFilterType())
+    {
+      case FWGeometryTableView::kFilterMaterialName:
+        m_list.push_back(v->GetMaterial()->GetName());
+        break;
+      case FWGeometryTableView::kFilterMaterialTitle:
+        m_list.push_back(v->GetMaterial()->GetTitle());
+        break;
+      case FWGeometryTableView::kFilterShapeName:
+        m_list.push_back(v->GetShape()->GetName());
+        break;
+      case FWGeometryTableView::kFilterShapeClassName:
+        m_list.push_back(v->GetShape()->ClassName());
+        break;
+      default:
+        std::cerr << "FWGeoMaterialValidator unhandeled case. \n";
+    }
+
+    for (int i = 0; i < v->GetNdaughters(); ++i)
+      addDaughtersRec(v->GetNode(i)->GetVolume());      
+
+  }
 
    virtual void fillOptions(const char* iBegin, const char* iEnd, std::vector<std::pair<boost::shared_ptr<std::string>, std::string> >& oOptions) const 
    {
       oOptions.clear();
-      std::string part(iBegin,iEnd);
-      unsigned int part_size = part.size();
-
       m_list.clear();
-      m_list.push_back(0);
 
-      FWGeometryTableManagerBase::Entries_i it = m_browser->getTableManager()->refEntries().begin();
-      std::advance(it, m_browser->getTopNodeIdx());
-      int nLevel = it->m_level;
-      it++;
-      while (it->m_level > nLevel)
-      {
-         TGeoMaterial* g = it->m_node->GetVolume()->GetMaterial();
-         bool duplicate = false;
-         for (std::vector<Material>::iterator j = m_list.begin(); j!=m_list.end(); ++j) {
-            if (j->g == g) {
-               duplicate = true;
-               break;
-            }
-         }
-         if (!duplicate)
-            m_list.push_back(g);
+    FWGeometryTableManagerBase::Entries_i tnit = m_browser->getTableManager()->refEntries().begin();
+    std::advance(tnit, m_browser->getTopNodeIdx());
+    FWGeometryTableViewManager::getGeoMangeur();
+    addDaughtersRec(tnit->m_node->GetVolume());
 
-         ++it;
-      }
-      std::vector<Material>::iterator startIt = m_list.begin();
-      startIt++;
-      std::sort(startIt, m_list.end());
+    std::sort(m_list.begin(), m_list.end());
+    std::vector<const char*>::iterator ui = std::unique(m_list.begin(), m_list.end());
+    m_list.resize(ui - m_list.begin());
 
+    std::string part(iBegin,iEnd);
+    unsigned int part_size = part.size();
       std::string h = "";
-      oOptions.push_back(std::make_pair(boost::shared_ptr<std::string>(new std::string(m_list.begin()->n)), h));
-      for (std::vector<Material>::iterator i = startIt; i!=m_list.end(); ++i)
+  // int cnt = 0;  
+    oOptions.push_back(std::make_pair(boost::shared_ptr<std::string>(new std::string(*m_list.begin())), h));
+    std::vector<const char*>::iterator startIt = m_list.begin();  startIt++;
+    for (std::vector<const char*>::iterator i = startIt; i!=m_list.end(); ++i)
       {
-         if (part == (*i).n.substr(0,part_size))
+    //      std::cout << *i << " " << cnt++ << std::endl;
+      if ((strlen(*i) >= part_size) && strncmp(*i, part.c_str(), part_size ) == 0)
          {
-            //  std::cout << i->n <<std::endl;
-            oOptions.push_back(std::make_pair(boost::shared_ptr<std::string>(new std::string((*i).n)), (*i).n.substr(part_size, (*i).n.size()-part_size)));
+        oOptions.push_back(std::make_pair(boost::shared_ptr<std::string>(new std::string((*i))),&((*i)[part_size]) ));
          }
       }
    }
 
    bool isStringValid(std::string& exp) 
    {
-      if (exp.empty()) return true;
-
-      for (std::vector<Material>::iterator i = m_list.begin(); i != m_list.end(); ++i)
-      {
-         if (exp == (*i).n) 
-            return true;
-      }
+    std::cerr << "validation not used \n";
       return false;
    }
 };
