@@ -18,9 +18,10 @@
 //
 #include "GeneratorInterface/Pythia8Interface/interface/JetMatchingHook.h"
 
-// Emission Veto Hook
+// Emission Veto Hooks
 //
 #include "GeneratorInterface/Pythia8Interface/interface/EmissionVetoHook.h"
+#include "GeneratorInterface/Pythia8Interface/interface/EmissionVetoHook1.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -101,9 +102,19 @@ class Pythia8Hadronizer : public BaseHadronizer {
     //
     JetMatchingHook* fJetMatchingHook;
 	
-    // Emission Veto Hook
+    // Emission Veto Hooks
     //
     EmissionVetoHook* fEmissionVetoHook;
+    EmissionVetoHook1* fEmissionVetoHook1;
+
+    int EV1_nFinal;
+    int EV1_vetoMode;
+    int EV1_maxVetoCount;
+    int EV1_pThardMode;
+    int EV1_pTempMode;
+    int EV1_emittedMode;
+    int EV1_pTdefMode;
+    int EV1_MPIvetoMode;
 
 };
 
@@ -119,7 +130,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   fInitialState(PP),
   fReweightUserHook(0),
   fJetMatchingHook(0),
-  fEmissionVetoHook(0)
+  fEmissionVetoHook(0),fEmissionVetoHook1(0)
 {
   randomEngine = &getEngineReference();
 
@@ -192,25 +203,43 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
     fJetMatchingHook = new JetMatchingHook( jmParams, &pythia->info );
   }
 
-  // Emission veto
+  // Emission vetos
   //
   if ( params.exists("emissionVeto") )
   {   
     fEmissionVetoHook = new EmissionVetoHook(0);
   }
 
+  if ( params.exists("emissionVeto1") )
+  {
+    EV1_nFinal = params.getParameter<int>("EV1_nFinal");
+    EV1_vetoMode = params.getParameter<int>("EV1_vetoMode");
+    EV1_maxVetoCount = params.getParameter<int>("EV1_maxVetoCount");
+    EV1_pThardMode = params.getParameter<int>("EV1_pThardMode");
+    EV1_pTempMode = params.getParameter<int>("EV1_pTempMode");
+    EV1_emittedMode = params.getParameter<int>("EV1_emittedMode");
+    EV1_pTdefMode = params.getParameter<int>("EV1_pTdefMode");
+    EV1_MPIvetoMode = params.getParameter<int>("EV1_MPIvetoMode");
+    fEmissionVetoHook1 = new EmissionVetoHook1(EV1_nFinal, EV1_vetoMode, 
+                               EV1_maxVetoCount, EV1_pThardMode, EV1_pTempMode,
+                               EV1_emittedMode, EV1_pTdefMode, EV1_MPIvetoMode);
+  }
+
   int NHooks=0;
   if(fReweightUserHook) NHooks++;
   if(fJetMatchingHook) NHooks++;
   if(fEmissionVetoHook) NHooks++;
+  if(fEmissionVetoHook1) NHooks++;
   if(NHooks > 1)
     throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
       <<" Too many User Hooks. \n Please choose one from: reweightGen, jetMatching, emissionVeto \n";
 
   if(fReweightUserHook) pythia->setUserHooksPtr(fReweightUserHook);
   if(fJetMatchingHook) pythia->setUserHooksPtr(fJetMatchingHook);
-  if(fEmissionVetoHook) {
-    cout << "Turning on Emission Veto Hook" << endl;
+  if(fEmissionVetoHook || fEmissionVetoHook1) {
+    cout << "Turning on Emission Veto Hook";
+    if(fEmissionVetoHook1) cout << " 1";
+    cout << endl;
     int nversion = (int)(1000.*(pythia->settings.parm("Pythia:versionNumber") - 8.));
     if(nversion < 157) {
       cout << "obsolete pythia8 version for this Emission Veto code" << endl;
@@ -220,7 +249,8 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
       throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
         <<" Obsolete pythia8 version for this Emission Veto code\n";
     }
-    pythia->setUserHooksPtr(fEmissionVetoHook);
+    if(fEmissionVetoHook) pythia->setUserHooksPtr(fEmissionVetoHook);
+    if(fEmissionVetoHook1) pythia->setUserHooksPtr(fEmissionVetoHook1);
   }
 }
 
@@ -230,6 +260,7 @@ Pythia8Hadronizer::~Pythia8Hadronizer()
 // do we need to delete UserHooks/JetMatchingHook here ???
 
   if(fEmissionVetoHook) {delete fEmissionVetoHook; fEmissionVetoHook=0;}
+  if(fEmissionVetoHook1) {delete fEmissionVetoHook1; fEmissionVetoHook1=0;}
 }
 
 
