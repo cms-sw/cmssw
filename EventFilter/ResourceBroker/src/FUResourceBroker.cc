@@ -60,7 +60,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s) :
 	bindStateMachineCallbacks();
 
 	res_->gui_ = new IndependentWebGUI(this);
-	res_->gui_->setVersionString("Changeset: 9.05.2012-V1.06");
+	res_->gui_->setVersionString("Changeset:   *** 10.05.2012 - V1.10 ***");
 
 	// create state machine with shared resources
 	fsm_.reset(new RBStateMachine(this, res_));
@@ -295,12 +295,14 @@ void FUResourceBroker::I2O_EVM_LUMISECTION_Callback(
 void FUResourceBroker::I2O_FU_DATA_DISCARD_Callback(
 		toolbox::mem::Reference* bufRef) {
 
+	// obtain lock on Resource Structure for discard
+	res_->lockRSAccess();
+
 	fsm_->transitionReadLock();
 	const BaseState& currentState = fsm_->getCurrentState();
 	fsm_->transitionUnlock();
 
-	res_->lockRSAccess();
-	if (res_->allowAccessToResourceStructure_)
+	if (res_->allowI2ODiscards_)
 		/*bool success = */
 		currentState.discardDataEvent(bufRef);
 	else {
@@ -318,12 +320,14 @@ void FUResourceBroker::I2O_FU_DATA_DISCARD_Callback(
 void FUResourceBroker::I2O_FU_DQM_DISCARD_Callback(
 		toolbox::mem::Reference* bufRef) {
 
+	// obtain lock on Resource Structure for discard
+	res_->lockRSAccess();
+
 	fsm_->transitionReadLock();
 	const BaseState& currentState = fsm_->getCurrentState();
 	fsm_->transitionUnlock();
 
-	res_->lockRSAccess();
-	if (res_->allowAccessToResourceStructure_)
+	if (res_->allowI2ODiscards_)
 		/*bool success = */
 		currentState.discardDqmEvent(bufRef);
 	else {

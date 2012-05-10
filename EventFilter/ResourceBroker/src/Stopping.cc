@@ -63,9 +63,13 @@ void Stopping::do_stateAction() const {
 		}
 
 		if (res->resourceStructure_->isReadyToShutDown()) {
+			// lock access to I2O discards (data & dqm)
+			res->lockRSAccess();
 
-			// reset only if there was no emergency stop
-			if (res->allowAccessToResourceStructure_) {
+			// if emergency stop was not triggered
+			if (res->allowI2ODiscards_) {
+				// any I2O discards after this point are ignored
+				res->allowI2ODiscards_ = false;
 				// UPDATED: release resources
 				res->resourceStructure_->releaseResources();
 				// UPDATED: forget pending allocates to BU
@@ -73,6 +77,8 @@ void Stopping::do_stateAction() const {
 				// UPDATE: reset the underlying IPC method
 				res->resourceStructure_->resetIPC();
 			}
+
+			res->unlockRSAccess();
 
 			LOG4CPLUS_INFO(res->log_, "Finished stopping!");
 			EventPtr stopDone(new StopDone());
@@ -124,9 +130,9 @@ void Stopping::emergencyStop() const {
 
 	LOG4CPLUS_WARN(res->log_, "in Emergency stop - handle non-clean stops");
 
-	// UPDATE: while in emergency stop, access is no longer allowed to ResourceStructure
-	// I2O messages from SM will be rejected
-	res->allowAccessToResourceStructure_ = false;
+	// UPDATE: while in emergency stop I2O discards from SM are not allowed
+	// they are re-allowed after a new enable
+	res->allowI2ODiscards_ = false;
 
 	vector < pid_t > client_prc_ids = resourceStructure->clientPrcIds();
 	for (UInt_t i = 0; i < client_prc_ids.size(); i++) {

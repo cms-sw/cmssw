@@ -20,7 +20,6 @@
 
 using namespace evf;
 using namespace std;
-
 ////////////////////////////////////////////////////////////////////////////////
 // construction/destruction
 ////////////////////////////////////////////////////////////////////////////////
@@ -566,20 +565,18 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef) {
 	I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *block =
 			(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*) bufRef->getDataLocation();
 
+	UInt_t fuResourceId = (UInt_t) block->fuTransactionId;
+	UInt_t buResourceId = (UInt_t) block->buResourceId;
 	// Check input
-	int fuResourceIdCheck = (int) block->fuTransactionId;
-	int buResourceIdCheck = (int) block->buResourceId;
-	if (fuResourceIdCheck < 0 || buResourceIdCheck < 0) {
+	if ((int) block->fuTransactionId < 0 || fuResourceId >= nbRawCells_
+			|| (int) block->buResourceId < 0) {
 		stringstream failureStr;
 		failureStr << "Received TAKE message with invalid bu/fu resource id:"
-				<< " fuResourceId: " << fuResourceIdCheck << " buResourceId: "
-				<< buResourceIdCheck;
+				<< " fuResourceId: " << fuResourceId << " buResourceId: "
+				<< buResourceId;
 		LOG4CPLUS_ERROR(log_, failureStr.str());
 		XCEPT_RAISE(evf::Exception, failureStr.str());
 	}
-
-	UInt_t fuResourceId = (UInt_t) block->fuTransactionId;
-	UInt_t buResourceId = (UInt_t) block->buResourceId;
 	FUResource* resource = resources_[fuResourceId];
 
 	// allocate resource
@@ -679,12 +676,11 @@ bool FUResourceTable::discardDataEvent(MemRef_t* bufRef) {
 	UInt_t recoIndex = msg->rbBufferID;
 
 	// Check input
-	int recoIndexCheck = (int) msg->rbBufferID;
-	if (recoIndexCheck < 0)
+	if ((int) msg->rbBufferID < 0 || recoIndex >= nbRecoCells_)
 		LOG4CPLUS_ERROR(
 				log_,
 				"Received DISCARD DATA message with invalid recoIndex:"
-						<< recoIndexCheck);
+						<< recoIndex);
 
 	if (acceptSMDataDiscard_[recoIndex]) {
 		lock();
@@ -714,12 +710,11 @@ bool FUResourceTable::discardDataEventWhileHalting(MemRef_t* bufRef) {
 	UInt_t recoIndex = msg->rbBufferID;
 
 	// Check input
-	int recoIndexCheck = (int) msg->rbBufferID;
-	if (recoIndexCheck < 0)
+	if ((int) msg->rbBufferID < 0 || recoIndex >= nbRecoCells_)
 		LOG4CPLUS_ERROR(
 				log_,
 				"Received DISCARD DATA message with invalid recoIndex:"
-						<< recoIndexCheck);
+						<< recoIndex);
 
 	if (acceptSMDataDiscard_[recoIndex]) {
 		lock();
@@ -742,12 +737,11 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef) {
 	UInt_t dqmIndex = msg->rbBufferID;
 
 	// Check input
-	int dqmIndexCheck = (int) msg->rbBufferID;
-	if (dqmIndexCheck < 0)
+	if ((int) msg->rbBufferID < 0 || dqmIndex >= nbDqmCells_)
 		LOG4CPLUS_ERROR(
 				log_,
 				"Received DISCARD DQM message with invalid dqmIndex:"
-						<< dqmIndexCheck);
+						<< dqmIndex);
 
 	unsigned int ntries = 0;
 	try {
@@ -808,12 +802,11 @@ bool FUResourceTable::discardDqmEventWhileHalting(MemRef_t* bufRef) {
 	UInt_t dqmIndex = msg->rbBufferID;
 
 	// Check input
-	int dqmIndexCheck = (int) msg->rbBufferID;
-	if (dqmIndexCheck < 0)
+	if ((int) msg->rbBufferID < 0 || dqmIndex >= nbDqmCells_)
 		LOG4CPLUS_ERROR(
 				log_,
 				"Received DISCARD DQM message with invalid dqmIndex:"
-						<< dqmIndexCheck);
+						<< dqmIndex);
 
 	unsigned int ntries = 0;
 	try {
