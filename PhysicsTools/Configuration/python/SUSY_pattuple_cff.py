@@ -24,7 +24,8 @@ def addDefaultSUSYPAT(process,mcInfo=True,HLTMenu='HLT',jetMetCorrections=['L2Re
     #process.load('RecoTauTag.Configuration.RecoPFTauTag_cff')
     process.susyPatDefaultSequence = cms.Sequence( process.eventCountProducer
     #                                               * process.PFTau
-                                                   * process.patDefaultSequence 
+                                                   * process.patPF2PATSequence
+#                                                   * process.patDefaultSequence #(included in process.patPF2PATSequence - needed for PF isolation)
                                                    * process.patPF2PATSequencePF
                                                    )
 
@@ -57,6 +58,25 @@ def extensiveMatching(process):
 
 def loadPAT(process,jetMetCorrections,extMatch):
     #-- Changes for electron and photon ID ----------------------------------------
+    from PhysicsTools.PatAlgos.tools.pfTools import usePFIso
+    usePFIso( process )
+    process.patElectrons.isolationValues = cms.PSet(
+        pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral03PFIdPFIso"),
+        pfChargedAll = cms.InputTag("elPFIsoValueChargedAll03PFIdPFIso"),
+        pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU03PFIdPFIso"),
+        pfPhotons = cms.InputTag("elPFIsoValueGamma03PFIdPFIso"),
+        pfChargedHadrons = cms.InputTag("elPFIsoValueCharged03PFIdPFIso")
+        )
+    process.patElectrons.isolationValuesNoPFId = cms.PSet(
+        pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral03NoPFIdPFIso"),
+        pfChargedAll = cms.InputTag("elPFIsoValueChargedAll03NoPFIdPFIso"),
+        pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU03NoPFIdPFIso"),
+        pfPhotons = cms.InputTag("elPFIsoValueGamma03NoPFIdPFIso"),
+        pfChargedHadrons = cms.InputTag("elPFIsoValueCharged03NoPFIdPFIso")
+        )
+    process.patDefaultSequence.replace(process.patElectrons,process.eleIsoSequence+process.patElectrons)
+    process.patDefaultSequence.replace(process.patMuons,process.muIsoSequence+process.patMuons)
+    
     # Turn off photon-electron cleaning (i.e., flag only)
     process.cleanPatPhotons.checkOverlaps.electrons.requireNoOverlaps = False
 
