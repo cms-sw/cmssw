@@ -5,7 +5,7 @@
 autoSkim = {
     'BTag' : 'LogError+LogErrorMonitor',
     'Commissioning' : 'LogError+LogErrorMonitor+EcalActivity',
-    'Cosmics' : 'LogError+LogErrorMonitor',    
+    'Cosmics' : 'LogError+LogErrorMonitor+CosmicSP',    
     'DoubleElectron' : 'LogError+LogErrorMonitor+ZElectron+DiTau+HZZ',
     'DoubleMu' : 'LogError+LogErrorMonitor+HZZ+Zmmg',
     'ElectronHad' : 'LogError+LogErrorMonitor+TOPElePlusJets+EXOHSCP',
