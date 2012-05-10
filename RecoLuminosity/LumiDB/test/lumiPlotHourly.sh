@@ -56,5 +56,6 @@ cd $macrodir
 echo "root -b -q create_public_lumi_plots.C">>"$logpath/$logfile"
 root -b -q create_public_lumi_plots.C >> "$logpath/$logfile"
 /bin/cp *.png $outdir
+/bin/rm *.png
 cd $currentdir
 date >> "$logpath/$logfile"
