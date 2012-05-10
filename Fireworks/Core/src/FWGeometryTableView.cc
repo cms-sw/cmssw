@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:34 CET 2012
-// $Id: FWGeometryTableView.cc,v 1.38 2012/05/10 02:12:37 amraktad Exp $
+// $Id: FWGeometryTableView.cc,v 1.39 2012/05/10 21:02:31 amraktad Exp $
 //
 
 // system include files
@@ -311,23 +311,23 @@ void FWGeometryTableView::updateFilter(std::string& exp)
 
 void FWGeometryTableView::populateController(ViewerParameterGUI& gui) const
 {
-   gui.requestTab("Style").
-      addParam(&m_disableTopNode).
-      addParam(&m_mode).
-      addParam(&m_autoExpand).
-      addParam(&m_visLevel).
-      separator().
-      //      addParam(&m_filterType).
-      addParam(&m_visLevelFilter).
-      separator().   
-      addParam(&m_selectRegion).
-      addParam(&m_regionRadius).
-      addParam(&m_proximityAlgo);
+  gui.requestTab("Style").
+    addParam(&m_mode).
+    addParam(&m_autoExpand).
+    separator().
+    addParam(&m_disableTopNode).
+    addParam(&m_minParentTransparency).
+    addParam(&m_minLeafTransparency).
+    addParam(&m_visLevel).
+    addParam(&m_visLevelFilter).
+    separator().
+    addParam(&m_selectRegion).
+    addParam(&m_regionRadius).
+    addParam(&m_proximityAlgo).separator();
 
-      // addParam(&m_enableHighlight);
-   
-   
-   FWGeometryTableViewBase::populateController(gui);
+   TGTextButton* butt = new TGTextButton(gui.getTabContainer(), "ReloadColors");
+   gui.getTabContainer()->AddFrame(butt);
+   butt->Connect("Clicked()", "FWGeometryTableViewBase", (FWGeometryTableViewBase*)this, "reloadColors()");
 }
 
 
