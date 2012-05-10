@@ -35,6 +35,7 @@
 
 #include <sys/time.h>
 #include <pthread.h>
+#include <sys/resource.h>
 
 #include <list>
 #include <vector>
@@ -277,6 +278,11 @@ namespace evf
     moduleweb::ForkInfoObj           *forkInfoObj_;
     pthread_mutex_t                  forkObjLock_;
     bool                             edm_init_done_;
+
+    unsigned int                     crashesThisRun_;
+    bool                             rlimit_coresize_changed_;
+    rlimit                           rlimit_coresize_default_;
+    xdata::UnsignedInteger32         crashesToDump_;
   };
   
 } // namespace evf

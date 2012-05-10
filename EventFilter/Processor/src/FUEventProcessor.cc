@@ -47,6 +47,7 @@
 #include <stdio.h>
 #include <errno.h>
 
+
 using namespace evf;
 using namespace cgicc;
 namespace toolbox {
@@ -126,6 +127,9 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , slave_message_prr_(sizeof(prg),MSQS_MESSAGE_TYPE_PRR)
   , master_message_trr_(MAX_MSG_SIZE,MSQS_MESSAGE_TYPE_TRR)
   , edm_init_done_(true)
+  , crashesThisRun_(false)
+  , rlimit_coresize_changed_(false)
+  , crashesToDump_(2)
 {
   using namespace utils;
 
@@ -182,7 +186,8 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("autoRestartSlaves",    &autoRestartSlaves_           );
   ispace->fireItemAvailable("slaveRestartDelaySecs",&slaveRestartDelaySecs_       );
   ispace->fireItemAvailable("iDieUrl",              &iDieUrl_                     );
-  
+  ispace->fireItemAvailable("crashesToDump"         ,&crashesToDump_              );
+
   // Add infospace listeners for exporting data values
   getApplicationInfoSpace()->addItemChangedListener("parameterSet",        this);
   getApplicationInfoSpace()->addItemChangedListener("outputEnabled",       this);
@@ -301,6 +306,11 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   for (AppDescIter_t it=setOfiDie.begin();it!=setOfiDie.end();++it)
     if ((*it)->getInstance()==0) // there has to be only one instance of iDie
       iDieUrl_ = (*it)->getContextDescriptor()->getURL() + "/" + (*it)->getURN();
+
+  //save default core file size
+  getrlimit(RLIMIT_CORE,&rlimit_coresize_default_);
+
+
 }
 //___________here ends the *huge* constructor___________________________________
 
@@ -436,6 +446,13 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
     + (hasPrescaleService_.value_ ? 0x1 : 0);
 
   LOG4CPLUS_INFO(getApplicationLogger(),"Start enabling...");
+  
+  //reset core limit size
+  if (rlimit_coresize_changed_)
+    setrlimit(RLIMIT_CORE,&rlimit_coresize_default_);
+  rlimit_coresize_changed_=false;
+  crashesThisRun_=0;
+
   if(!epInitialized_){
     evtProcessor_.forceInitEventProcessorMaybe();
   }
@@ -1065,6 +1082,14 @@ bool FUEventProcessor::receiving(toolbox::task::WorkLoop *)
   MsgBuf msg;
   try{
     myProcess_->rcvSlave(msg,false); //will receive only messages from Master
+    if(msg->mtype==MSQM_MESSAGE_TYPE_RLI)
+      {
+	std::cout << "slave process pid: " << getpid() << "setting coredump size limit to 0" << std::endl;
+	rlimit rl;
+	getrlimit(RLIMIT_CORE,&rl);
+	rl.rlim_cur=0;
+	setrlimit(RLIMIT_CORE,&rl);
+      }
     if(msg->mtype==MSQM_MESSAGE_TYPE_STOP)
       {
 	pthread_mutex_lock(&stop_lock_);
@@ -1133,7 +1158,10 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
 	  subs_[i].setStatus((WIFEXITED(sl) != 0 ? 0 : -1));
 	  std::ostringstream ost;
 	  if(subs_[i].alive()==0) ost << " process exited with status " << WEXITSTATUS(sl);
-	  else if(WIFSIGNALED(sl)!=0) ost << " process terminated with signal " << WTERMSIG(sl);
+	  else if(WIFSIGNALED(sl)!=0) {
+	    ost << " process terminated with signal " << WTERMSIG(sl);
+	    crashesThisRun_++;
+	  }
 	  else ost << " process stopped ";
 	  subs_[i].countdown()=slaveRestartDelaySecs_.value_;
 	  subs_[i].setReasonForFailed(ost.str());
@@ -1149,6 +1177,22 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
     }
   pthread_mutex_unlock(&stop_lock_);	
   if(stopping) return true; // if in stopping we are done
+
+  //set core size limit to 0 for master and all child processes if 2 or more restarts in this run
+  if (crashesThisRun_>=crashesToDump_.value_ && running && !rlimit_coresize_changed_) {
+
+    rlimit rlold;
+    getrlimit(RLIMIT_CORE,&rlold);
+    rlimit rlnew = rlold;
+    rlnew.rlim_cur=0;
+    setrlimit(RLIMIT_CORE,&rlnew);
+    rlimit_coresize_changed_=true;
+    
+    MsgBuf master_message_rli_(NUMERIC_MESSAGE_SIZE,MSQM_MESSAGE_TYPE_RLI);
+    for (unsigned int i = 0; i < subs_.size(); i++)
+      subs_[i].post(master_message_rli_,false);
+      //prlimit(subs_[i].pid(),RLIMIT_CORE,&rlnew,&rlold);
+  }
 
   if(running && edm_init_done_)
     {
@@ -2308,7 +2352,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.135 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.136 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
