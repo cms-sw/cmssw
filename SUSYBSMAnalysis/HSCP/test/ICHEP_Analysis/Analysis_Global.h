@@ -37,7 +37,7 @@ double             GlobalMaxTIsol = 50;
 double             GlobalMaxEIsol = 0.30;
 double             GlobalMinPt   =   50.00;
 double             GlobalMinIs   =   0.0;
-double             GlobalMinIm   =   3.5;
+double             GlobalMinIm   =   3.0;
 double             GlobalMinTOF  =   1.0;
 float              GlobalMaxEta  =  1.5; 
 
