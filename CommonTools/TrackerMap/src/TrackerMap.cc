@@ -1030,7 +1030,7 @@ void TrackerMap::drawPsu(int rack,int numcrate_inrack , bool print_total, TmPsu*
   s.erase(s.begin()+s.find("connected"),s.end());
    
   if(psu->red < 0){ //use count to compute color
-    if(psu->value > 0){
+    if(psu->count > 0){
       color = getcolor(psu->value,palette);
       red=(color>>16)&0xFF;
       green=(color>>8)&0xFF;
