@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/08/10 15:59:09 $
- *  $Revision: 1.12 $
+ *  $Date: 2012/02/20 15:11:54 $
+ *  $Revision: 1.13 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -92,12 +92,17 @@ void DTt0DBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
   for(DTT0::const_iterator tzero = tZeroRefMap_->begin();
                            tzero != tZeroRefMap_->end(); tzero++) {
     // t0s and rms are TDC counts
-    DTWireId wireId((*tzero).first.wheelId,
-		    (*tzero).first.stationId,
-		    (*tzero).first.sectorId,
-		    (*tzero).first.slId,
-		    (*tzero).first.layerId,
-		    (*tzero).first.cellId);
+// @@@ NEW DTT0 FORMAT
+//    DTWireId wireId((*tzero).first.wheelId,
+//		    (*tzero).first.stationId,
+//		    (*tzero).first.sectorId,
+//		    (*tzero).first.slId,
+//		    (*tzero).first.layerId,
+//		    (*tzero).first.cellId);
+    int channelId = tzero->channelId;
+    if ( channelId == 0 ) continue;
+    DTWireId wireId(channelId);
+// @@@ NEW DTT0 END
     float t0mean;
     float t0rms;
     tZeroRefMap_->get( wireId, t0mean, t0rms, DTTimeUnits::counts );
@@ -113,12 +118,17 @@ void DTt0DBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
   for(DTT0::const_iterator tzero = tZeroMap_->begin();
                            tzero != tZeroMap_->end(); tzero++) {
     // t0s and rms are TDC counts
-    DTWireId wireId((*tzero).first.wheelId,
-		    (*tzero).first.stationId,
-		    (*tzero).first.sectorId,
-		    (*tzero).first.slId,
-		    (*tzero).first.layerId,
-		    (*tzero).first.cellId);
+// @@@ NEW DTT0 FORMAT
+//    DTWireId wireId((*tzero).first.wheelId,
+//		    (*tzero).first.stationId,
+//		    (*tzero).first.sectorId,
+//		    (*tzero).first.slId,
+//		    (*tzero).first.layerId,
+//		    (*tzero).first.cellId);
+    int channelId = tzero->channelId;
+    if ( channelId == 0 ) continue;
+    DTWireId wireId(channelId);
+// @@@ NEW DTT0 END
     float t0mean;
     float t0rms;
     tZeroMap_->get( wireId, t0mean, t0rms, DTTimeUnits::counts );
