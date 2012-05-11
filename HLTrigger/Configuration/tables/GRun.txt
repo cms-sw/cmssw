@@ -83,10 +83,10 @@ HLT_L2TripleMu10_0_0_NoVertex_PFJet40Neutral_v*							#sr126258, sr127329, remov
 #HLT_Mu20_eta2p1_TriCentralPFJet50_40_30_v*                                                     #sr126618, sr127333, removed in sr128457
 #HLT_Mu20_eta2p1_CentralPFJet30_BTagIPIter_v*                                                   #sr126618, sr127333, removed in sr128457
 
-HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFNoPUJet30_v*						#sr127305
+#HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFNoPUJet30_v*						#sr127305 (removed by sr128556)
 HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFNoPUJet50_40_30_v*                                        #sr127305
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_v*				#sr127305
-HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFNoPUJet30_v*                             #sr127305
+#HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFNoPUJet30_v*                            #sr127305 (removed by sr128556)
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralPFNoPUJet30_v*                              #sr127305
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v*                     #sr127305, sr128254
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFNoPUJet50_40_30_v*                       #sr127305
@@ -102,13 +102,19 @@ HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFNoPUJet50_40_30_v*       
 HLT_IsoMu17_eta2p1_CentralPFNoPUJet30_v*							#sr128283
 HLT_IsoMu17_eta2p1_CentralPFNoPUJet30_BTagIPIter_v*						#sr128283
 HLT_IsoMu17_eta2p1_DiCentralPFNoPUJet30_v*							#sr128283
-HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet30_v*							#sr128283
+#HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet30_v*							#sr128283 (removed by sr128556)
 HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet50_40_30_v*						#sr128283
 HLT_Mu17_eta2p1_CentralPFNoPUJet30_BTagIPIter_v*						#sr128283
-HLT_Mu17_eta2p1_TriCentralPFNoPUJet30_v*							#sr128283
+#HLT_Mu17_eta2p1_TriCentralPFNoPUJet30_v*							#sr128283 (removed by sr128556)
 HLT_Mu17_eta2p1_TriCentralPFNoPUJet50_40_30_v*							#sr128283
 
-HLT_Ele25_CaloIdVL_CaloIsoT_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_v*				#sr128240
+#HLT_Ele25_CaloIdVL_CaloIsoT_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_v*				#sr128240 (removed by sr128556)
+
+HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet30_30_20_v*						#sr128556
+HLT_Mu17_eta2p1_TriCentralPFNoPUJet30_30_20_v*							#sr128556
+HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFNoPUJet30_30_20_v*			#sr128556
+HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFNoPUJet30_30_20_v*					#sr128556
+HLT_Ele25_CaloIdVL_CaloIsoT_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_30_20_v*			#sr128556
 
 HLT_Ele30_CaloIdVT_TrkIdT_PFJet100_PFJet25_v*                                                   #sr126292
 HLT_Ele30_CaloIdVT_TrkIdT_PFJet150_PFJet25_v*                                                   #sr126292
