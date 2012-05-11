@@ -54,6 +54,7 @@ RecoTauBuilderCombinatoricPlugin::RecoTauBuilderCombinatoricPlugin(
   }
 }
 
+  reco::VertexRef primaryVertexRef;
 RecoTauBuilderCombinatoricPlugin::return_type
 RecoTauBuilderCombinatoricPlugin::operator()(
     const reco::PFJetRef& jet,
@@ -64,10 +65,11 @@ RecoTauBuilderCombinatoricPlugin::operator()(
   typedef std::vector<RecoTauPiZero> PiZeroList;
 
   output_type output;
-
+  primaryVertexRef = primaryVertex(jet);
+ 
   // Update the primary vertex used by the quality cuts.  The PV is supplied by
   // the base class.
-  qcuts_.setPV(primaryVertex(jet));
+  qcuts_.setPV(primaryVertexRef);
 
   // Get PFCHs from this jet.  They are already sorted by descending Pt
   PFCandPtrs pfchs;
@@ -95,7 +97,6 @@ RecoTauBuilderCombinatoricPlugin::operator()(
     size_t piZerosToBuild = decayMode->nPiZeros_;
     // Find how many tracks are in this decay mode
     size_t tracksToBuild = decayMode->nCharged_;
-
     // Skip decay mode if jet doesn't have the multiplicity to support it
     if (pfchs.size() < tracksToBuild)
       continue;
@@ -112,11 +113,9 @@ RecoTauBuilderCombinatoricPlugin::operator()(
     /*
      * Begin combinatoric loop for this decay mode
      */
-
     // Loop over the different combinations of tracks
     for (PFCombo::iterator trackCombo = trackCombos.begin();
          trackCombo != trackCombos.end(); ++trackCombo) {
-
       xclean::CrossCleanPiZeros<PFCombo::combo_iterator>
         xCleaner(trackCombo->combo_begin(), trackCombo->combo_end());
 
@@ -137,11 +136,9 @@ RecoTauBuilderCombinatoricPlugin::operator()(
       // Build our piZero combo generator
       typedef tau::CombinatoricGenerator<PiZeroList> PiZeroCombo;
       PiZeroCombo piZeroCombos(piZero_begin, piZero_end, piZerosToBuild);
-
       // Loop over the different combinations of PiZeros
       for (PiZeroCombo::iterator piZeroCombo = piZeroCombos.begin();
            piZeroCombo != piZeroCombos.end(); ++piZeroCombo) {
-
         // Output tau
         RecoTauConstructor tau(jet, getPFCands(), true);
         // Reserve space in our collections
@@ -304,8 +301,6 @@ RecoTauBuilderCombinatoricPlugin::operator()(
 
         std::auto_ptr<reco::PFTau> tauPtr = tau.get(true);
 
-	// Set event vertex position for tau
-	reco::VertexRef primaryVertexRef = primaryVertex(jet);
 	if ( primaryVertexRef.isNonnull() )
 	  tauPtr->setVertex(primaryVertexRef->position());
 
