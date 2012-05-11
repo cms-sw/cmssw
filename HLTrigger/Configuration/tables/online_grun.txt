@@ -25,8 +25,11 @@ HLT_QuadJet75_55_35_20_BTagIP_VBF_v*                                            
 
 HLT_QuadJet75_55_38_20_BTagIP_VBF_v*                                                            #sr127255
 
-HLT_QuadPFJet75_55_35_20_BTagCSV_VBF_v*                                                         #sr127327
-HLT_QuadPFJet75_55_38_20_BTagCSV_VBF_v*                                                         #sr127330
+#HLT_QuadPFJet75_55_35_20_BTagCSV_VBF_v*                                                        #sr127327, removed in sr128529
+#HLT_QuadPFJet75_55_38_20_BTagCSV_VBF_v*                                                        #sr127330, removed in sr128530
+
+HLT_QuadPFJet78_61_44_31_BTagCSV_VBF_v*                                                         #sr128529
+HLT_QuadPFJet82_65_48_35_BTagCSV_VBF_v*                                                         #sr128530
 
 #HLT_Jet80Eta1p7_Jet70Eta1p7_DiBTagIP3D_v*							#sr126241, removed L1FastJet from name, removed in sr128194
 #HLT_Jet60Eta1p7_Jet53Eta1p7_DiBTagIP3D_v*							#sr126241, removed L1FastJet from name, removed in sr128194
