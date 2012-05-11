@@ -672,7 +672,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
       for (int module=1;module<200;module++) {
         int key=layer*100000+ring*1000+module;
         TmModule * mod = smoduleMap[key];
-        if(mod !=0 && !mod->notInUse()){
+        if(mod !=0 && !mod->notInUse()  && mod->count>0){
           if (minvalue > mod->value)minvalue=mod->value;
           if (maxvalue < mod->value)maxvalue=mod->value;
         }
@@ -1200,6 +1200,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
  if(enableFecProcessing){
   std::string filetype=s,outputfilename=s;
   std::vector<TPolyLine*> vp;
+  TGaxis *axis = 0 ;
   size_t found=filetype.find_last_of(".");
   filetype=filetype.substr(found+1);
   found=outputfilename.find_last_of(".");
@@ -1273,7 +1274,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
     maxvalue=-9999999.;
     for( i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
        TmCcu *  ccu= i_ccu->second;
-       if(ccu!=0) {
+       if(ccu!=0 && ccu->count>0) {
               if (minvalue > ccu->value)minvalue=ccu->value;
               if (maxvalue < ccu->value)maxvalue=ccu->value;
         }
@@ -1348,7 +1349,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
 }
 }
  if(temporary_file){
-   // if(printflag)drawPalette(savefile);
+ if(printflag&&!saveWebInterface)drawPalette(savefile);
   savefile->close();
 
   const char * command1;
@@ -1359,7 +1360,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
 
-    gPad->Range(0,0,3700,1600);
+    if(saveWebInterface)gPad->Range(0,0,3700,1600); else gPad->Range(0,0,3800,1600);
 
     //First  build palette
     ncolor=0;
@@ -1408,6 +1409,17 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
         pline->Draw("f");
       }
     }
+        if (printflag&&!saveWebInterface) {
+      axis = new TGaxis(3660,36,3660,1530,minvalue,maxvalue,510,"+L");
+      axis->SetLabelSize(0.02);
+      axis->Draw();
+    }
+
+    if(!saveWebInterface){
+    TLatex l;
+    l.SetTextSize(0.05);
+    l.DrawLatex(50,1530,title.c_str());
+       }
     MyC->Update();
     std::cout << "Filetype " << filetype << std::endl;
     if(filetype=="png"){
@@ -1428,6 +1440,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
     system(command1);
     MyC->Clear();
     delete MyC;
+    if (printflag&&!saveWebInterface)delete axis;
     for(std::vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
          delete (*pos1);}
    
@@ -1442,7 +1455,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
  if(enableHVProcessing){
   std::string filetype=s,outputfilename=s;
   std::vector<TPolyLine*> vp;
-  
+  TGaxis *axis = 0 ;
   size_t found=filetype.find_last_of(".");
   filetype=filetype.substr(found+1);
   found=outputfilename.find_last_of(".");
@@ -1613,7 +1626,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
   
 
   if(temporary_file){
- //   if(printflag)drawPalette(savefile);
+  if(printflag&&!saveWebInterface)drawPalette(savefile);
     savefile->close(); 
 
   const char * command1;
@@ -1624,7 +1637,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
     
-    gPad->Range(0,0,3700,1600);
+    if(saveWebInterface)gPad->Range(0,0,3700,1600); else gPad->Range(0,0,3800,1600);
     
     //First  build palette
     ncolor=0;
@@ -1673,6 +1686,18 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
         pline->Draw("f");
       }
     }
+        if (printflag&&!saveWebInterface) {
+      axis = new TGaxis(3660,36,3660,1530,minvalue,maxvalue,510,"+L");
+      axis->SetLabelSize(0.02);
+      axis->Draw();
+    }
+
+
+    if(!saveWebInterface){
+    TLatex l;
+    l.SetTextSize(0.05);
+    l.DrawLatex(50,1530,title.c_str());
+       }
     MyC->Update();
     std::cout << "Filetype " << filetype << std::endl;
     if(filetype=="png"){
@@ -1693,6 +1718,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
     system(command1);
     MyC->Clear();
     delete MyC;
+     if (printflag&&!saveWebInterface)delete axis;
     for(std::vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
          delete (*pos1);}
     
@@ -1708,6 +1734,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
   
   std::string filetype=s,outputfilename=s;
   std::vector<TPolyLine*> vp;
+  TGaxis *axis = 0 ;
   
   size_t found=filetype.find_last_of(".");
   filetype=filetype.substr(found+1);
@@ -1865,7 +1892,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
   
   
   if(temporary_file){
-  //  if(printflag)drawPalette(savefile);
+  if(printflag&&!saveWebInterface)drawPalette(savefile);
     savefile->close(); 
 
   const char * command1;
@@ -1876,7 +1903,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
     
-    gPad->Range(0,0,3700,1600);
+    if(saveWebInterface)gPad->Range(0,0,3700,1600); else gPad->Range(0,0,3800,1600);
     
     //First  build palette
     ncolor=0;
@@ -1925,6 +1952,17 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
         pline->Draw("f");
       }
     }
+        if (printflag&&!saveWebInterface) {
+      axis = new TGaxis(3660,36,3660,1530,minvalue,maxvalue,510,"+L");
+      axis->SetLabelSize(0.02);
+      axis->Draw();
+    }
+
+    if(!saveWebInterface){
+    TLatex l;
+    l.SetTextSize(0.05);
+    l.DrawLatex(50,1530,title.c_str());
+       }
     MyC->Update();
     std::cout << "Filetype " << filetype << std::endl;
     if(filetype=="png"){
@@ -1945,6 +1983,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
     system(command1);
     MyC->Clear();
     delete MyC;
+     if (printflag&&!saveWebInterface)delete axis;
     for(std::vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
          delete (*pos1);}
    
@@ -1956,6 +1995,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
  if(enableFedProcessing){
   std::string filetype=s,outputfilename=s;
   std::vector<TPolyLine*> vp;
+  TGaxis *axis = 0 ;
   
   size_t found=filetype.find_last_of(".");
   filetype=filetype.substr(found+1);
@@ -1988,7 +2028,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 	TmModule * apv_mod = apvPair->mod;
 	if(apv_mod !=0 && !apv_mod->notInUse()){
 	  if(useApvPairValue) apvPair->value = apvPair->value / apvPair->count;
-	  else if(apvPair->mpos==0)apv_mod->value = apv_mod->value / apv_mod->count;
+	  else if(apvPair->mpos==0)apv_mod->value = apv_mod->value / apv_mod->count; 
 	}
       }
     }
@@ -1999,7 +2039,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     maxvalue=-9999999.;
     for(i_apv=apvMap.begin();i_apv !=apvMap.end(); i_apv++){
 	TmApvPair *  apvPair= i_apv->second;
-	if(apvPair!=0) {
+	if(apvPair!=0 ) {
 	  TmModule * apv_mod = apvPair->mod;
 	  if( apv_mod !=0 && !apv_mod->notInUse()){
 	    if(useApvPairValue){
@@ -2089,7 +2129,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 }
   
   if(temporary_file){
-    //if(printflag)drawPalette(savefile);
+  if(printflag&&!saveWebInterface)drawPalette(savefile);
   savefile->close(); delete savefile;
 
   const char * command1;
@@ -2100,7 +2140,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
     
-    gPad->Range(0,0,3750,1600);
+    if(saveWebInterface)gPad->Range(0,0,3750,1600); else gPad->Range(0,0,3800,1600);
     
     //First  build palette
     ncolor=0;
@@ -2149,6 +2189,17 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
         pline->Draw("f");
       }
     }
+        if (printflag&&!saveWebInterface) {
+      axis = new TGaxis(3660,36,3660,1530,minvalue,maxvalue,510,"+L");
+      axis->SetLabelSize(0.02);
+      axis->Draw();
+    }
+
+    if(!saveWebInterface){
+    TLatex l;
+    l.SetTextSize(0.05);
+    l.DrawLatex(50,1530,title.c_str());
+       }
     MyC->Update();
     std::cout << "Filetype " << filetype << std::endl;
     if(filetype=="png"){
@@ -2169,6 +2220,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     system(command1);
     MyC->Clear();
     delete MyC;
+     if (printflag&&!saveWebInterface)delete axis;
     for(std::vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
          delete (*pos1);}
    
