@@ -2,8 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 # make simple analysis plots for a comparison
-# between a simple algorithmic, a gen match and
-# an MVA discriminator based event hypothesis
+# between event hypothesis from different algorithms
 #
 
 # initialize analyzers
@@ -13,9 +12,9 @@ analyzeMaxSumPtWMass = analyzeHypothesis.clone()
 analyzeMVADisc       = analyzeHypothesis.clone()
 
 # configure analyzers
-analyzeGenMatch.hypoClassKey      = "ttSemiLepHypGenMatch:Key"
-analyzeMaxSumPtWMass.hypoClassKey = "ttSemiLepHypMaxSumPtWMass:Key"
-analyzeMVADisc.hypoClassKey       = "ttSemiLepHypMVADisc:Key"
+analyzeGenMatch.hypoClassKey      = "kGenMatch"
+analyzeMaxSumPtWMass.hypoClassKey = "kMaxSumPtWMass"
+analyzeMVADisc.hypoClassKey       = "kMVADisc"
 
 # define sequence
 analyzeHypotheses = cms.Sequence(analyzeGenMatch *

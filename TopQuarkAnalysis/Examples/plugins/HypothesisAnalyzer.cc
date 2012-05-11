@@ -10,7 +10,7 @@
 
 HypothesisAnalyzer::HypothesisAnalyzer(const edm::ParameterSet& cfg):
   semiLepEvt_  (cfg.getParameter<edm::InputTag>("semiLepEvent")),
-  hypoClassKey_(cfg.getParameter<edm::InputTag>("hypoClassKey"))
+  hypoClassKey_(cfg.getParameter<std::string>("hypoClassKey"))
 {
 }
 
@@ -24,16 +24,12 @@ HypothesisAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setu
   edm::Handle<TtSemiLeptonicEvent> semiLepEvt;
   event.getByLabel(semiLepEvt_, semiLepEvt);
 
-  edm::Handle<int> hypoClassKeyHandle;
-  event.getByLabel(hypoClassKey_, hypoClassKeyHandle);
-  TtSemiLeptonicEvent::HypoClassKey& hypoClassKey = (TtSemiLeptonicEvent::HypoClassKey&) *hypoClassKeyHandle;
-
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // check if hypothesis is available and valid in this event
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
-  if( !semiLepEvt->isHypoValid(hypoClassKey) ){
-    edm::LogInfo("HypothesisAnalyzer") << "Hypothesis not valid for this event";
+  if( !semiLepEvt->isHypoValid(hypoClassKey_) ){
+    edm::LogInfo("HypothesisAnalyzer") << "Hypothesis " << hypoClassKey_ << " not valid for this event";
     return;
   }
 
@@ -41,8 +37,8 @@ HypothesisAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setu
   // get reconstructed top quarks and W bosons from the hypothesis
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
-  const reco::Candidate* hadTop = semiLepEvt->hadronicDecayTop(hypoClassKey);
-  const reco::Candidate* hadW   = semiLepEvt->hadronicDecayW  (hypoClassKey);
+  const reco::Candidate* hadTop = semiLepEvt->hadronicDecayTop(hypoClassKey_);
+  const reco::Candidate* hadW   = semiLepEvt->hadronicDecayW  (hypoClassKey_);
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // fill simple histograms with pt, eta and the masses of the reconstructed particles
