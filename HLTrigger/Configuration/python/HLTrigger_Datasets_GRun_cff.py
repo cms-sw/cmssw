@@ -383,7 +383,6 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleDisplac
     'HLT_IsoMu12_RsqMR30_Rsq0p04_MR200_v1', 
     'HLT_IsoMu12_RsqMR40_Rsq0p04_MR200_v1', 
     'HLT_IsoMu17_eta2p1_DiCentralPFJet30_PFHT350_PFMHT40_v6', 
-    'HLT_IsoMu17_eta2p1_TriCentralPFJet30_v5', 
     'HLT_L2TripleMu10_0_0_NoVertex_PFJet40Neutral_v4', 
     'HLT_Mu14_Ele14_CaloIdT_TrkIdVL_Mass8_PFMET40_v5', 
     'HLT_Mu14_Ele14_CaloIdT_TrkIdVL_Mass8_PFMET50_v5', 
