@@ -671,15 +671,16 @@ AlCa_LumiPixels_ZeroBias_v*
 DQM_FEDIntegrity_v*
 HLTriggerFirstPath
 HLTriggerFinalPath
-#HLTAnalyzerEndpath                                                                              # only in 'GRun', not in 'online'
+#HLTAnalyzerEndpath                                                                             # only in 'GRun', not in 'online'
 AOutput
 BOutput
 ALCAP0Output
 ALCAPHISYMOutput
 ALCALUMIPIXELSOutput
 CalibrationOutput
+DQMOutput                                                                                       # reintroduced in the 7e33 v2 May 10th bugfix menu (sr #128571)
 EcalCalibrationOutput
-#ExpressForCosmicsOutput                                                                         # only in 'GRun' and 'cosmics', not in 'online'
+#ExpressForCosmicsOutput                                                                        # only in 'GRun' and 'cosmics', not in 'online'
 ExpressOutput
 HLTDQMOutput
 HLTDQMResultsOutput

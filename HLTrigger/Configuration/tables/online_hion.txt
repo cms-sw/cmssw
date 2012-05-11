@@ -82,6 +82,7 @@ ALCAP0Output
 ALCAPHISYMOutput
 ALCALUMIPIXELSOutput
 CalibrationOutput
+DQMOutput
 EcalCalibrationOutput
 ExpressForHIOutput
 HLTDQMOutput
