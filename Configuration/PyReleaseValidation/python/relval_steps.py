@@ -690,7 +690,7 @@ steps['RECODFROMRAWRECO']=merge([{'-s':'RAW2DIGI:RawToDigi_noTk,L1Reco,RECO:reco
                                  steps['RECOD']])
 
 
-### over write a few things to add PU to every sample in the standard set
-#steps.overwrite('DIGI',steps['DIGIPU1'])
-#steps.overwrite('RECO',steps['RECOPU1'])
-#steps.overwrite(('DIGI','RESIMDIGI'))
+steps['COPYPASTE']={'-s':'NONE',
+                    '--conditions':'auto:startup',
+                    '--output':'\'[{"t":"RAW","e":"ALL"}]\'',
+                    '--customise_commands':'"process.ALLRAWoutput.fastCloning=cms.untracked.bool(False)"'}
