@@ -93,7 +93,7 @@
 
 
 //This code is there to enable/disable year dependent code
-#define ANALYSIS2011
+//#define ANALYSIS2011
 
 #ifdef ANALYSIS2011
 int                  RunningPeriods = 2;
