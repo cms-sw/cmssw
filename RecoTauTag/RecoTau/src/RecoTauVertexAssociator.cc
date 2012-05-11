@@ -2,7 +2,6 @@
 
 #include <functional>
 #include <boost/foreach.hpp>
-#include <string.h>
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
