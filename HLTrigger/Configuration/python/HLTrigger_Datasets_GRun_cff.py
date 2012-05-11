@@ -134,6 +134,7 @@ streamA_datasetDoublePhoton_selector.triggerConditions = cms.vstring('HLT_Photon
     'HLT_Photon26_CaloId10_Iso50_Photon18_R9Id85_Mass60_v5', 
     'HLT_Photon26_Photon18_v11', 
     'HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v5', 
+    'HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v1', 
     'HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_v4', 
     'HLT_Photon26_R9Id85_Photon18_CaloId10_Iso50_Mass60_v5', 
     'HLT_Photon26_R9Id85_Photon18_R9Id85_Mass60_v3', 

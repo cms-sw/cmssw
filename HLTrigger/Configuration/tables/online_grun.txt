@@ -407,6 +407,8 @@ HLT_Photon50_CaloIdVL_v*                                                        
 HLT_Photon75_CaloIdVL_v*                                                                        #sr126475
 HLT_Photon90_CaloIdVL_v*                                                                        #sr126475
 
+HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v*               #sr128416
+
 HLT_Mu13_Mu8_v*                                                                                 #sr126489
 HLT_L1SingleMu12_v*                                                                             #sr126489
 HLT_L1SingleMuOpen_v*                                                                           #sr126489
