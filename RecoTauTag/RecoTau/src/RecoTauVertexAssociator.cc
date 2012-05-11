@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <boost/foreach.hpp>
+#include <string.h>
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -10,6 +11,11 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+
+// containers for holding vertices associated to jets
+std::map<const reco::PFJet*,reco::VertexRef> *JetToVertexAssociation=0;
+int  myEventNumber = -999;
+ 
 
 namespace reco { namespace tau {
 
@@ -106,7 +112,9 @@ RecoTauVertexAssociator::RecoTauVertexAssociator(
       <<  "closestInDeltaZ,"
       <<  "or highestWeightForLeadTrack." << std::endl;
   }
-}
+
+ }
+
 
 void RecoTauVertexAssociator::setEvent(const edm::Event& evt) {
   edm::Handle<reco::VertexCollection> verticesH_;
@@ -117,6 +125,13 @@ void RecoTauVertexAssociator::setEvent(const edm::Event& evt) {
     vertices_.push_back(reco::VertexRef(verticesH_, i));
   }
   if(vertices_.size()>0 ) qcuts_.setPV(vertices_[0]);
+  int currentEvent = evt.id().event();
+  if(myEventNumber == -999 || myEventNumber!=currentEvent)
+    {
+      if(myEventNumber==-999) JetToVertexAssociation= new std::map<const reco::PFJet*,reco::VertexRef>;
+      else JetToVertexAssociation->clear();
+      myEventNumber = currentEvent;
+    }
 }
 
 reco::VertexRef
@@ -125,13 +140,21 @@ RecoTauVertexAssociator::associatedVertex(const PFTau& tau) const {
   // FIXME workaround for HLT which does not use updated data format
   if (jetRef.isNull())
     jetRef = tau.pfTauTagInfoRef()->pfjetRef();
-
   return associatedVertex(*jetRef);
 }
 
 reco::VertexRef
 RecoTauVertexAssociator::associatedVertex(const PFJet& jet) const {
   reco::VertexRef output = vertices_.size() ? vertices_[0] : reco::VertexRef();
+  PFJet const* my_jet_ptr = &jet;
+  LogDebug("VxTrkAssocInfo") << "The jet is " << jet;
+  LogTrace("VxTrkAssocInfo") << "The lenght of assoc map is "<< JetToVertexAssociation->size();
+  std::map<const reco::PFJet*,reco::VertexRef>::iterator it = JetToVertexAssociation->find(my_jet_ptr);
+   if(it!=JetToVertexAssociation->end())
+     {
+       LogTrace("VxTrkAssocInfo") << "I have seen this jet! Returning pointer to stored value.";
+       return it->second;
+     }
   if (algo_ == kHighestPtInEvent) {
     return output;
   } else if (algo_ == kClosestDeltaZ) {
@@ -152,12 +175,15 @@ RecoTauVertexAssociator::associatedVertex(const PFJet& jet) const {
     // Find the vertex that has the lowest DZ to the lead track
     BOOST_FOREACH(const reco::VertexRef& vtx, vertices_) {
       double weight = weightComputer(vtx);
-      if (weight > largestWeight) {
+     if (weight > largestWeight) {
         largestWeight = weight;
         output = vtx;
       }
     }
   }
+
+  JetToVertexAssociation->insert(std::pair<const PFJet*, reco::VertexRef>(my_jet_ptr,output));
+
   return output;
 }
 
