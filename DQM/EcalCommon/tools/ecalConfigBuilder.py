@@ -73,10 +73,14 @@ if newFramework :
     withDB = False
 
 central = False
+privCentral = False
 if (env == 'CMSLive') :
-    central = True
+    if laser :
+        privCentral = True
+    else :
+        central = True
 
-privEcal = False
+privEcal = privCentral
 if (env == 'PrivLive') or (env == 'PrivOffline') :
     privEcal = True
 
@@ -87,7 +91,7 @@ if (env == 'LocalOffline') or (env == 'LocalLive') :
     local = True
 
 doOutput = True
-if (env == 'LocalLive') :
+if (env == 'LocalLive') or (laser and privEcal) :
     doOutput = False
 
 live = False
@@ -911,7 +915,7 @@ process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/ecalcalib_reference
 '''
 
 if doOutput :
-    if not central :
+    if not central or privCentral :
         customizations += 'process.dqmSaver.referenceHandling = "skip"' + "\n"
 
     if privEcal :
@@ -943,12 +947,12 @@ if local :
 process.DQM.collectorHost = "localhost"
 process.DQM.collectorPort = 8061
 '''
-elif live and privEcal :
+elif live and privEcal and not privCentral :
         customizations += '''
 process.DQM.collectorHost = "ecalod-web01.cms"
 process.DQM.collectorPort = 9190
 '''
-elif not central :
+elif not central and not privCentral :
     customizations += '''
 process.DQM.collectorHost = ""
 '''
@@ -1068,7 +1072,7 @@ if filename == '' :
     elif laser :
         c = 'ecallaser'
 
-    if central :
+    if central or privCentral :
         e = 'live'
     elif privEcal and live :
         e = 'privlive'
