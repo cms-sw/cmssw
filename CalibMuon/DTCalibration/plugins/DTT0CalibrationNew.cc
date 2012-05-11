@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/12/09 22:44:10 $
- *  $Revision: 1.4 $
+ *  $Date: 2012/02/17 16:39:06 $
+ *  $Revision: 1.5.2.1 $
  *  \author S. Bolognesi - INFN Torino
  *  06/08/2008 Mofified by Antonio.Vilela.Pereira@cern.ch
  */
@@ -552,34 +552,61 @@ void DTT0CalibrationNew::endJob() {
   map<DTChamberId,int> countT0ByChamber;
   for(DTT0::const_iterator tzero = t0s->begin();
       tzero != t0s->end(); tzero++) {
-    DTChamberId chamberId((*tzero).first.wheelId,
-			  (*tzero).first.stationId,
-			  (*tzero).first.sectorId);
-    sumT0ByChamber[chamberId] = sumT0ByChamber[chamberId] + (*tzero).second.t0mean;
+// @@@ NEW DTT0 FORMAT
+//    DTChamberId chamberId((*tzero).first.wheelId,
+//			  (*tzero).first.stationId,
+//			  (*tzero).first.sectorId);
+//    sumT0ByChamber[chamberId] = sumT0ByChamber[chamberId] + (*tzero).second.t0mean;
+    int channelId = tzero->channelId;
+    if ( channelId == 0 ) continue;
+    DTWireId wireId(channelId);
+    DTChamberId chamberId(wireId.chamberId());
+    //sumT0ByChamber[chamberId] = sumT0ByChamber[chamberId] + tzero->t0mean;
+// @@@ better DTT0 usage
+    float t0mean_f;
+    float t0rms_f;
+    t0s->get(wireId,t0mean_f,t0rms_f,DTTimeUnits::counts);
+    sumT0ByChamber[chamberId] = sumT0ByChamber[chamberId] + t0mean_f;
+// @@@ NEW DTT0 END
     countT0ByChamber[chamberId]++;
   }
 
   //Change reference for each wire and store the new t0s in the new map
   for(DTT0::const_iterator tzero = t0s->begin();
       tzero != t0s->end(); tzero++) {
-    DTChamberId chamberId((*tzero).first.wheelId,
-			  (*tzero).first.stationId,
-			  (*tzero).first.sectorId);
-    double t0mean = ((*tzero).second.t0mean) - (sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
-    double t0rms = (*tzero).second.t0rms;
-    DTWireId wireId((*tzero).first.wheelId,
-		    (*tzero).first.stationId,
-		    (*tzero).first.sectorId,
-		    (*tzero).first.slId,
-		    (*tzero).first.layerId,
-		    (*tzero).first.cellId);
+// @@@ NEW DTT0 FORMAT
+//    DTChamberId chamberId((*tzero).first.wheelId,
+//			  (*tzero).first.stationId,
+//			  (*tzero).first.sectorId);
+//    double t0mean = ((*tzero).second.t0mean) - (sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
+//    double t0rms = (*tzero).second.t0rms;
+//    DTWireId wireId((*tzero).first.wheelId,
+//		    (*tzero).first.stationId,
+//		    (*tzero).first.sectorId,
+//		    (*tzero).first.slId,
+//		    (*tzero).first.layerId,
+//		    (*tzero).first.cellId);
+    int channelId = tzero->channelId;
+    if ( channelId == 0 ) continue;
+    DTWireId wireId( channelId );
+    DTChamberId chamberId(wireId.chamberId());
+    //double t0mean = (tzero->t0mean) - (sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
+    //double t0rms = tzero->t0rms;
+// @@@ better DTT0 usage
+    float t0mean_f;
+    float t0rms_f;
+    t0s->get(wireId,t0mean_f,t0rms_f,DTTimeUnits::counts);
+    double t0mean = t0mean_f - (sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
+    double t0rms = t0rms_f;
+// @@@ NEW DTT0 END
     t0sWRTChamber->set(wireId,
 		       t0mean,
 		       t0rms,
 		       DTTimeUnits::counts);
     if(debug){
       //cout<<"Chamber "<<chamberId<<" has reference "<<(sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
-      cout<<"Changing t0 of wire "<<wireId<<" from "<<(*tzero).second.t0mean<<" to "<<t0mean<<endl;
+//      cout<<"Changing t0 of wire "<<wireId<<" from "<<(*tzero).second.t0mean<<" to "<<t0mean<<endl;
+      cout<<"Changing t0 of wire "<<wireId<<" from "<<tzero->t0mean<<" to "<<t0mean<<endl;
     }
   }
 

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/10/03 08:34:49 $
- *  $Revision: 1.2 $
+ *  $Date: 2012/02/17 16:39:06 $
+ *  $Revision: 1.3.2.1 $
  *  \author S. Bolognesi
  */
 
@@ -72,12 +72,17 @@ void DTTPDeadWriter::analyze(const Event & event, const EventSetup& eventSetup) 
       tzero != tZeroMap->end(); tzero++){
 
     //Consider what layers have been already considered
-    DTLayerId layerId = (DTWireId((*tzero).first.wheelId,
-				  (*tzero).first.stationId,
-				  (*tzero).first.sectorId,
-				  (*tzero).first.slId,
-				  (*tzero).first.layerId,
-				  (*tzero).first.cellId)).layerId();
+// @@@ NEW DTT0 FORMAT
+//    DTLayerId layerId = (DTWireId((*tzero).first.wheelId,
+//				  (*tzero).first.stationId,
+//				  (*tzero).first.sectorId,
+//				  (*tzero).first.slId,
+//				  (*tzero).first.layerId,
+//				  (*tzero).first.cellId)).layerId();
+    int channelId = tzero->channelId;
+    if ( channelId == 0 ) continue;
+    DTLayerId layerId = (DTWireId(channelId)).layerId();
+// @@@ NEW DTT0 END
     if(analyzedLayers.find(layerId)==analyzedLayers.end()){
       analyzedLayers.insert(layerId);
 

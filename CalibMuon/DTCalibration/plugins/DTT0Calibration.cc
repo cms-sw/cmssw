@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/06/11 14:01:57 $
- *  $Revision: 1.11 $
+ *  $Date: 2012/04/10 17:55:08 $
+ *  $Revision: 1.12 $
  *  \author S. Bolognesi - INFN Torino
  */
 #include "CalibMuon/DTCalibration/plugins/DTT0Calibration.h"
@@ -432,37 +432,47 @@ void DTT0Calibration::endJob() {
      map<DTChamberId,int> countT0ByChamber;
      for(DTT0::const_iterator tzero = t0sRelative->begin();
 	   tzero != t0sRelative->end(); tzero++) {
-	DTChamberId chamberId((*tzero).first.wheelId,
-	      (*tzero).first.stationId,
-	      (*tzero).first.sectorId);
-	sumT0ByChamber[chamberId] = sumT0ByChamber[chamberId] + (*tzero).second.t0mean;
+        int channelId = tzero->channelId;
+        if ( channelId == 0 ) continue;
+        DTWireId wireId(channelId);
+        DTChamberId chamberId(wireId.chamberId());
+        //sumT0ByChamber[chamberId] = sumT0ByChamber[chamberId] + tzero->t0mean;
+        // @@@ better DTT0 usage
+        float t0mean_f;
+        float t0rms_f;
+        t0sRelative->get(wireId,t0mean_f,t0rms_f,DTTimeUnits::counts);
+        sumT0ByChamber[chamberId] = sumT0ByChamber[chamberId] + t0mean_f;
+        // @@@ NEW DTT0 END
 	countT0ByChamber[chamberId]++;
      }
 
      //Change reference for each wire and store the new t0s in the new map
      for(DTT0::const_iterator tzero = t0sRelative->begin();
 	   tzero != t0sRelative->end(); tzero++) {
-	DTChamberId chamberId((*tzero).first.wheelId,
-	      (*tzero).first.stationId,
-	      (*tzero).first.sectorId);
-	double t0mean = ((*tzero).second.t0mean) - (sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
-	double t0rms = (*tzero).second.t0rms;
-	DTWireId wireId((*tzero).first.wheelId,
-	      (*tzero).first.stationId,
-	      (*tzero).first.sectorId,
-	      (*tzero).first.slId,
-	      (*tzero).first.layerId,
-	      (*tzero).first.cellId);
+	int channelId = tzero->channelId;
+	if ( channelId == 0 ) continue;
+	DTWireId wireId(channelId);
+	DTChamberId chamberId(wireId.chamberId());
+	//double t0mean = (tzero->t0mean) - (sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
+	//double t0rms = tzero->t0rms;
+	// @@@ better DTT0 usage
+	float t0mean_f;
+	float t0rms_f;
+	t0sRelative->get(wireId,t0mean_f,t0rms_f,DTTimeUnits::counts);
+	double t0mean = t0mean_f - (sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
+	double t0rms = t0rms_f;
+	// @@@ NEW DTT0 END
 	t0sWRTChamber->set(wireId,
 	      t0mean,
 	      t0rms,
 	      DTTimeUnits::counts);
 	//if(debug)
 	//cout<<"Chamber "<<chamberId<<" has reference "<<(sumT0ByChamber[chamberId]/countT0ByChamber[chamberId]);
-	cout << "Changing t0 of wire " << wireId << " from " << (*tzero).second.t0mean
-                                                 << " to " << t0mean << endl;
+	cout << "Changing t0 of wire " << wireId << " from " << t0mean_f
+	     << " to " << t0mean << endl;
      }
   }
+  
   ///Write the t0 map into DB
   if(debug) 
    cout << "[DTT0Calibration]Writing values in DB!" << endl;
