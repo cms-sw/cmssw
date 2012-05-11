@@ -1,4 +1,4 @@
-// $Id: $
+// $Id: RBCConfiguration.h,v 1.1 2009/01/30 15:42:47 aosorio Exp $
 #ifndef INTERFACE_RBCCONFIGURATION_H 
 #define INTERFACE_RBCCONFIGURATION_H 1
 
@@ -20,7 +20,7 @@
 
 class RBCConfiguration {
 public: 
-  
+  virtual ~RBCConfiguration() {}
   virtual bool initialise()=0;
 
   virtual void preprocess(RBCInput &)=0;
