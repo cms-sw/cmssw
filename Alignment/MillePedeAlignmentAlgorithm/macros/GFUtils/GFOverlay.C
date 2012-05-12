@@ -1,6 +1,6 @@
 //   Author:      Gero Flucke
 //   Date:        October 2007
-//   last update: $Date: 2007/10/31 18:28:32 $  
+//   last update: $Date: 2012/03/29 08:48:50 $  
 //   by:          $Author: flucke $
 
 #include "GFOverlay.h"
@@ -220,7 +220,7 @@ TObjArray GFOverlay::GetTypeWithNameFromDirs(const TClass *aType, const char *na
 //________________________________________________________
 Int_t GFOverlay::AddHistsAt(const TObjArray &hists, const TObjArray &legends, Int_t layer,Int_t pos)
 {
-  // hists and legends must have dame length, but might have gaps...
+  // hists and legends must have same length, but might have gaps...
   // return number of hists found and added
 
   Int_t nHists = 0;
