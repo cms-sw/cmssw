@@ -5,9 +5,9 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
-  *  $Id: EcalUncalibRecHitRecWeightsAlgo.h,v 1.11 2009/11/08 15:44:29 theofil Exp $
-  *  $Date: 2009/11/08 15:44:29 $
-  *  $Revision: 1.11 $
+  *  $Id: EcalUncalibRecHitRecWeightsAlgo.h,v 1.12 2010/02/04 18:07:27 theofil Exp $
+  *  $Date: 2010/02/04 18:07:27 $
+  *  $Revision: 1.12 $
   *  \author R. Bruneliere - A. Zabi
   *  
   *  The chi2 computation with matrix is replaced by the chi2express which is  moved outside the weight algo
@@ -53,7 +53,10 @@ template<class C> class EcalUncalibRecHitRecWeightsAlgo
       if ( gainId == 0 ) 
 	{ 
 	  gainId = 3;
-	  isSaturated = 1;
+	  //isSaturated = 1;
+	  // in pileup run May2012 samples 7,8,9,10 have gainid ==0
+          // fix it like this: it won't hurt for the future SA20120512
+	  if(iSample==4 || iSample ==5 || iSample==6) isSaturated = 1;
 	}
 
       if (gainId != gainId0) iGainSwitch = 1;
