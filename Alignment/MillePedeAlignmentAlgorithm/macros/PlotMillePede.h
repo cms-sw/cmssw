@@ -1,7 +1,7 @@
 #ifndef PLOTMILLEPEDE_H
 #define PLOTMILLEPEDE_H
 // Original Author: Gero Flucke
-// last change    : $Date: 2012/02/24 13:38:42 $
+// last change    : $Date: 2012/03/29 08:42:23 $
 // by             : $Author: flucke $
 //
 // PlotMillePede is a class to interprete the content of the ROOT
@@ -92,6 +92,7 @@
 //  This method makes internal use of the above "AddAdditionalSel(const char *)".
 //  Selects quantity 'xyzrPhiNhit' between 'min' and 'max' where
 //  'xyzrPhiNhit' can be any of x, y, z, r, phi, Nhit.
+//  (Concerning 'Nhit' see also the comment about IOV handling below.)
 //  Also cleared by 'ClearAdditionalSel()'.
 //
 // 5) Selecting predefined detector layers
