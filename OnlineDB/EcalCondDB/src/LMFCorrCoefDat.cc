@@ -431,11 +431,11 @@ LMFCorrCoefDat::getCorrections(const Tm &t, const Tm &t2, int max) {
 		    << std::endl;
 	}
 	seq_id = rset->getInt(9); // for fixed-time intervals use LMR_SUB_IOV_ID
-      } else if ((startingSeqId == 0) && (proceed = true)) {
+      } else if ((startingSeqId == 0) && (proceed == true)) {
 	std::cout << "[LMFCorrCoefDat::getCorrections] Switch to normal (sequence based) mode. "
 		  << "Exiting..." << std::endl;
 	proceed = false;
-      } else if ((seq_id == 0) && (proceed = true)) {
+      } else if ((seq_id == 0) && (proceed == true)) {
 	std::cout << "[LMFCorrCoefDat::getCorrections] Switch to fixed-time IOV mode. "
 		  << "Exiting..." << std::endl;
 	proceed = false;
