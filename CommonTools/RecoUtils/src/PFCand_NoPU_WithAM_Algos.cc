@@ -125,7 +125,7 @@ bool
 PFCand_NoPU_WithAM_Algos::ComesFromConversion(const PFCandidateRef candref, Handle<ConversionCollection> convCollH, Handle<VertexCollection> vtxcollH, VertexRef* primVtxRef)
 {
 
-	Conversion* gamma = new Conversion();
+        Conversion gamma;
 
 	if(candref->gsfElectronRef().isNull()) return false;
 
@@ -133,12 +133,12 @@ PFCand_NoPU_WithAM_Algos::ComesFromConversion(const PFCandidateRef candref, Hand
 	
 	  if(ConversionTools::matchesConversion(*(candref->gsfElectronRef()),convCollH->at(convcoll_ite))){
 	
-	    *gamma = convCollH->at(convcoll_ite);
+	    gamma = convCollH->at(convcoll_ite);
 
-	    double ztrackfirst = gamma->conversionVertex().z();
-	    double radius = gamma->conversionVertex().position().rho();
+	    double ztrackfirst = gamma.conversionVertex().z();
+	    double radius = gamma.conversionVertex().position().rho();
 	    double tracktheta = candref->theta();
-	    if(gamma->nTracks()==2) tracktheta = gamma->pairMomentum().theta();
+	    if(gamma.nTracks()==2) tracktheta = gamma.pairMomentum().theta();
 
 	    double ztrack = ztrackfirst - (radius/tan(tracktheta));
 
