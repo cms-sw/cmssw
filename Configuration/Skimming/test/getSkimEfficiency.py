@@ -83,33 +83,3 @@ for l, PD in enumerate(listPDs_output_lines):
 
 #print skimMatrix
 
-"""
- #---Read .dat table for current dataset
-    data={}
-    column=[]
-    lineCounter = int(0)
-
-    for j,line in enumerate( open( inputDataFile ) ):
-
-        if( re.search("^###", line) ):
-            continue
-
-        line = string.strip(line,"\n")
-        #print "---> lineCounter: " , lineCounter
-        print line
-
-        if lineCounter == 0:
-            for i,piece in enumerate(line.split()):
-                column.append(piece)
-        else:
-            for i,piece in enumerate(line.split()):
-                if i == 0:
-                    data[int(piece)] = {}
-                    row = int(piece)
-                else:
-                    data[row][ column[i] ] = piece
-                    #print data[row][ column[i] ] 
-
-        lineCounter = lineCounter+1
-
-"""
