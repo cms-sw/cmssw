@@ -1,7 +1,36 @@
-## autoSkim 2012 (7E33 menu)
-#'SinglePhoton' : 'EXODisplacedPhoton',
+## autoSkim 2012 (7E33 HLT menu)
+autoSkim = {
+    'BJetPlusX' : 'LogError+LogErrorMonitor',
+    'BTag' : 'LogError+LogErrorMonitor',
+    'Commissioning' : 'LogError+LogErrorMonitor+EcalActivity',
+    'Cosmics' : 'LogError+LogErrorMonitor+CosmicSP',
+    'DoubleElectron' : 'LogError+LogErrorMonitor+ZElectron+DiTau+HZZ',
+    'DoubleMu' : 'LogError+LogErrorMonitor+Zmmg+HZZ',
+    'DoublePhoton' : 'LogError+LogErrorMonitor',
+    'DoublePhotonHighPt' : 'LogError+LogErrorMonitor',
+    'ElectronHad' : 'LogError+LogErrorMonitor',
+    'HTMHT' : 'LogError+LogErrorMonitor+HighMET',
+    'HcalNZS' : 'LogError+LogErrorMonitor',
+    'JetHT' : 'LogError+LogErrorMonitor+EXOHSCP',
+    'JetMon' : 'LogError+LogErrorMonitor',
+    'MET' : 'LogError+LogErrorMonitor+ZHbb+HighMET+EXOHSCP',
+    'MinimumBias' : 'LogError+LogErrorMonitor',
+    'MuEG' : 'LogError+LogErrorMonitor+HZZ',
+    'MuHad' : 'LogError+LogErrorMonitor',
+    'MuOnia' : 'LogError+LogErrorMonitor+ChiB',
+    'MultiJet' : 'LogError+LogErrorMonitor+HighMET',
+    'NoBPTX' : 'LogError+LogErrorMonitor+EXOHSCP',
+#    'ParkingMonitor' : 'LogError+LogErrorMonitor+HighMET',
+    'PhotonHad' : 'LogError+LogErrorMonitor',
+    'SingleElectron' : 'LogError+LogErrorMonitor+WElectron+HighMET+TOPElePlusJets+DiTau',
+    'SingleMu' : 'LogError+LogErrorMonitor+ZMu+HighMET+EXOHSCP+TOPMuPlusJets+MuTau',
+    'SinglePhoton' : 'LogError+LogErrorMonitor+EXODisplacedPhoton+HighMET',
+    'Tau' : 'LogError+LogErrorMonitor',
+    'TauPlusX' : 'LogError+LogErrorMonitor+MuTauMET',
+    }
 
-## autoSkim 2012 (5E33 menu)
+## autoSkim 2012 (5E33 HLT menu)
+"""
 autoSkim = {
     'BTag' : 'LogError+LogErrorMonitor',
     'Commissioning' : 'LogError+LogErrorMonitor+EcalActivity',
@@ -25,6 +54,7 @@ autoSkim = {
     'Tau' : 'LogError+LogErrorMonitor',
     'TauPlusX' : 'LogError+LogErrorMonitor+MuTauMET',
     }
+"""
 
 ## autoSkim 2011
 """
