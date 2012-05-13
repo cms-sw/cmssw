@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/GRun/V122 (CMSSW_5_2_5_HLT5)
+# /dev/CMSSW_5_2_1/GRun/V123 (CMSSW_5_2_5_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V122')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V123')
 )
 
 process.streams = cms.PSet( 
@@ -5479,7 +5479,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "DST_L1HTT_Or_L1MultiJet_v1" ),
-        prescales = cms.vuint32( 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
+        prescales = cms.vuint32( 100, 100, 100, 100, 100, 100, 100, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "DST_Mu5_HT250_v1" ),
         prescales = cms.vuint32( 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
@@ -40373,7 +40373,7 @@ process.hltPrePhysicsDSTOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     l1techIgnorePrescales = cms.bool( False ),
     hltResults = cms.InputTag( "TriggerResults" ),
     triggerConditions = cms.vstring( 'DST_HT250_v1',
-      'DST_L1HTT_Or_L1MultiJet_v1 / 100',
+      'DST_L1HTT_Or_L1MultiJet_v1',
       'DST_Mu5_HT250_v1',
       'DST_Ele8_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT250_v1' ),
     throw = cms.bool( True ),

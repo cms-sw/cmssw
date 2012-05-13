@@ -613,8 +613,10 @@ HLT_Photon50_R9Id90_HE10_Iso40_EBOnly_v*                                        
 HLT_Photon75_R9Id90_HE10_Iso40_EBOnly_v*                                                        #sr127257
 HLT_Photon90_R9Id90_HE10_Iso40_EBOnly_v*                                                        #sr127257
 
-HLT_Ele27_WP80_WCandPt80_v*                                                                     #sr#127321
-HLT_IsoMu20_eta2p1_WCandPt80_v*                                                                 #sr#127321 
+HLT_Ele27_WP80_WCandPt80_v*                                                                     #sr127321
+#HLT_IsoMu20_eta2p1_WCandPt80_v*                                                                #sr127321 (replaced by  #sr128565)
+
+HLT_IsoMu20_eta2p1_WCandPt80_v*                                                                 #sr128565 
 
 HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_v1				#sr128284
 HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet50_40_30_v1			#sr128284
