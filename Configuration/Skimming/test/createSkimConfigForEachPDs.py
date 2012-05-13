@@ -14,9 +14,13 @@ os.system( 'mkdir %s' %(testdirname) )
 
 for k in autoSkim:
    #    print k
+### 5E33 menu
    #print ('cmsDriver.py skims -s SKIM:@%s --data --no_exec --dbs \"find file,file.parent where dataset=/%s/Run2012A-PromptReco-v1/RECO and run=190705\" -n 100 --conditions auto:com10 --python_filename=skim_%s.py' %(k,k,k))
 #   os.system('cmsDriver.py skims -s SKIM:@%s --data --no_exec --dbs \"find file,file.parent where dataset=/%s/Run2012A-PromptReco-v1/RECO and run=190705\" -n 100 --conditions auto:com10 --python_filename=skim_%s.py' %(k,k,k))
-   os.system('cmsDriver.py skims -s SKIM:@%s --data --no_exec --dbs \"find file,file.parent where dataset=/%s/Run2012A-PromptReco-v1/RECO and run=191277\" -n 100 --conditions auto:com10 --python_filename=skim_%s.py' %(k,k,k))
+#   os.system('cmsDriver.py skims -s SKIM:@%s --data --no_exec --dbs \"find file,file.parent where dataset=/%s/Run2012A-PromptReco-v1/RECO and run=191277\" -n 100 --conditions auto:com10 --python_filename=skim_%s.py' %(k,k,k))
+### 7E33 menu
+   os.system('cmsDriver.py skims -s SKIM:@%s --data --no_exec --dbs \"find file,file.parent where dataset=/%s/Run2012B-PromptReco-v1/RECO and run=193928\" -n 1000 --conditions auto:com10 --python_filename=skim_%s.py' %(k,k,k))
+###   
    os.system('mkdir -p %s/%s' %(testdirname,k))
 ######################################################
 # uncomment below if you want to get a summary from your test
