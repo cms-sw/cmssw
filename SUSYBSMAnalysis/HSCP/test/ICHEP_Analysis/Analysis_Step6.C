@@ -193,8 +193,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
       return;
    }
    
-   string MuPattern  = "Results/dedxASmi/combined/Eta15/PtMin45/Type2/";
-   string TkPattern  = "Results/dedxASmi/combined/Eta15/PtMin45/Type0/";
+   string MuPattern  = "Results/dedxASmi/combined/Eta15/PtMin50/Type2/";
+   string TkPattern  = "Results/dedxASmi/combined/Eta15/PtMin50/Type0/";
 
    string outpath = string("Results/EXCLUSION/");
    MakeDirectories(outpath);
@@ -939,7 +939,6 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    GetSignalDefinition(signals);
    CurrentSampleIndex        = JobIdToIndex(signal); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return stAllInfo();  } 
 
-
    stAllInfo toReturn;
    toReturn.Mass      = signals[JobIdToIndex(signal)].Mass;
    toReturn.MassMean  = 0;
@@ -967,12 +966,11 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    toReturn.NPredErr  = 0;
    toReturn.NSign     = 0;
 
-
-
    double RescaleFactor = 1.0;
    double RescaleError  = 0.1;
 
    double RatioValue[] = {Ratio_0C, Ratio_1C, Ratio_2C};
+   bool Mix012C = (RatioValue[0]>0 || RatioValue[1]>0 || RatioValue[2]>0);
 
    double MaxSOverB=-1; 
    int MaxSOverBIndex=-1;
@@ -984,7 +982,8 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    FILE* pFile = fopen((outpath+"/"+modelName+".info").c_str(),"w");
    if(!pFile)printf("Can't open file : %s\n",(outpath+"/"+modelName+".info").c_str());
 
-   string InputPath     = pattern + "Histos_Data.root";
+//   string InputPath     = pattern + "Histos_Data.root";
+   string InputPath     = pattern + "Histos_Data11.root";
    TFile* InputFile     = new TFile(InputPath.c_str());
 
    TH1D*  HCuts_Pt      = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
@@ -1014,37 +1013,49 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    double norm=signals[CurrentSampleIndex].XSec*IntegratedLuminosity/TotalE->Integral();
 
    MassSign[0]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "/Mass" + syst);
+   if(Mix012C){
    MassSign[1]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC0/Mass" + syst);
    MassSign[2]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC1/Mass" + syst);
    MassSign[3]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC2/Mass" + syst);
+   }
 
    MassSignP[0]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "/Mass_SystP");
+   if(Mix012C){
    MassSignP[1]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC0/Mass_SystP");
    MassSignP[2]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC1/Mass_SystP");
    MassSignP[3]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC2/Mass_SystP");
+   }
 
    MassSignI[0]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "/Mass_SystI");
+   if(Mix012C){
    MassSignI[1]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC0/Mass_SystI");
    MassSignI[2]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC1/Mass_SystI");
    MassSignI[3]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC2/Mass_SystI");
+   }
 
    MassSignM[0]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "/Mass_SystM");
+   if(Mix012C){
    MassSignM[1]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC0/Mass_SystM");
    MassSignM[2]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC1/Mass_SystM");
    MassSignM[3]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC2/Mass_SystM");
+   }
 
    MassSignT[0]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "/Mass_SystT");
+   if(Mix012C){
    MassSignT[1]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC0/Mass_SystT");
    MassSignT[2]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC1/Mass_SystT");
    MassSignT[3]         = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC2/Mass_SystT");
+   }
 
    TH1D* TotalEPU          = (TH1D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "/TotalEPU" + syst);
    double normPU=signals[CurrentSampleIndex].XSec*IntegratedLuminosity/TotalEPU->Integral();
 
    MassSignPU[0]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "/Mass_SystPU" + syst);
+   if(Mix012C){
    MassSignPU[1]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC0/Mass_SystPU" + syst);
    MassSignPU[2]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC1/Mass_SystPU" + syst);
    MassSignPU[3]          = (TH2D*)GetObjectFromPath(InputFileSign, signals[CurrentSampleIndex].Name + "_NC2/Mass_SystPU" + syst);
+   }
 
    TH1D* MassSignProj[4];
    TH1D* MassSignPProj[4];
@@ -1073,30 +1084,42 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
       TH1D* MassDataProj = MassData->ProjectionY("MassDataProj",CutIndex+1,CutIndex+1);
       TH1D* MassPredProj = MassPred->ProjectionY("MassPredProj",CutIndex+1,CutIndex+1);
       MassSignProj[0]    = MassSign [0]->ProjectionY("MassSignProj0",CutIndex+1,CutIndex+1); MassSignProj[0]->Scale(norm);
+      if(Mix012C){
       MassSignProj[1]    = MassSign [1]->ProjectionY("MassSignProj1",CutIndex+1,CutIndex+1); MassSignProj[1]->Scale(norm);
       MassSignProj[2]    = MassSign [2]->ProjectionY("MassSignProj2",CutIndex+1,CutIndex+1); MassSignProj[2]->Scale(norm);
       MassSignProj[3]    = MassSign [3]->ProjectionY("MassSignProj3",CutIndex+1,CutIndex+1); MassSignProj[3]->Scale(norm);
+      }
 
       MassSignPProj[0]   = MassSignP[0]->ProjectionY("MassSignProP0",CutIndex+1,CutIndex+1); MassSignPProj[0]->Scale(norm);
+      if(Mix012C){
       MassSignPProj[1]   = MassSignP[1]->ProjectionY("MassSignProP1",CutIndex+1,CutIndex+1); MassSignPProj[1]->Scale(norm);
       MassSignPProj[2]   = MassSignP[2]->ProjectionY("MassSignProP2",CutIndex+1,CutIndex+1); MassSignPProj[2]->Scale(norm);
       MassSignPProj[3]   = MassSignP[3]->ProjectionY("MassSignProP3",CutIndex+1,CutIndex+1); MassSignPProj[3]->Scale(norm);
+      }
       MassSignIProj[0]   = MassSignI[0]->ProjectionY("MassSignProI0",CutIndex+1,CutIndex+1); MassSignIProj[0]->Scale(norm);
+      if(Mix012C){
       MassSignIProj[1]   = MassSignI[1]->ProjectionY("MassSignProI1",CutIndex+1,CutIndex+1); MassSignIProj[1]->Scale(norm);
       MassSignIProj[2]   = MassSignI[2]->ProjectionY("MassSignProI2",CutIndex+1,CutIndex+1); MassSignIProj[2]->Scale(norm);
       MassSignIProj[3]   = MassSignI[3]->ProjectionY("MassSignProI3",CutIndex+1,CutIndex+1); MassSignIProj[3]->Scale(norm);
+      }
       MassSignMProj[0]   = MassSignM[0]->ProjectionY("MassSignProM0",CutIndex+1,CutIndex+1); MassSignMProj[0]->Scale(norm);
+      if(Mix012C){
       MassSignMProj[1]   = MassSignM[1]->ProjectionY("MassSignProM1",CutIndex+1,CutIndex+1); MassSignMProj[1]->Scale(norm);
       MassSignMProj[2]   = MassSignM[2]->ProjectionY("MassSignProM2",CutIndex+1,CutIndex+1); MassSignMProj[2]->Scale(norm);
       MassSignMProj[3]   = MassSignM[3]->ProjectionY("MassSignProM3",CutIndex+1,CutIndex+1); MassSignMProj[3]->Scale(norm);
+      }
       MassSignTProj[0]   = MassSignT[0]->ProjectionY("MassSignProT0",CutIndex+1,CutIndex+1); MassSignTProj[0]->Scale(norm);
+      if(Mix012C){
       MassSignTProj[1]   = MassSignT[1]->ProjectionY("MassSignProT1",CutIndex+1,CutIndex+1); MassSignTProj[1]->Scale(norm);
       MassSignTProj[2]   = MassSignT[2]->ProjectionY("MassSignProT2",CutIndex+1,CutIndex+1); MassSignTProj[2]->Scale(norm);
       MassSignTProj[3]   = MassSignT[3]->ProjectionY("MassSignProT3",CutIndex+1,CutIndex+1); MassSignTProj[3]->Scale(norm);
+      }
       MassSignPUProj[0]   = MassSignPU[0]->ProjectionY("MassSignProPU0",CutIndex+1,CutIndex+1); MassSignPUProj[0]->Scale(normPU);
+      if(Mix012C){
       MassSignPUProj[1]   = MassSignPU[1]->ProjectionY("MassSignProPU1",CutIndex+1,CutIndex+1); MassSignPUProj[1]->Scale(normPU);
       MassSignPUProj[2]   = MassSignPU[2]->ProjectionY("MassSignProPU2",CutIndex+1,CutIndex+1); MassSignPUProj[2]->Scale(normPU);
       MassSignPUProj[3]   = MassSignPU[3]->ProjectionY("MassSignProPU3",CutIndex+1,CutIndex+1); MassSignPUProj[3]->Scale(normPU);
+      }
 
       double NData       = MassDataProj->Integral(MassDataProj->GetXaxis()->FindBin(MinRange), MassDataProj->GetXaxis()->FindBin(MaxRange));
       double NPred       = MassPredProj->Integral(MassPredProj->GetXaxis()->FindBin(MinRange), MassPredProj->GetXaxis()->FindBin(MaxRange));
@@ -1114,7 +1137,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
       double EffM      = 0;
       double EffT      = 0;
       double EffPU      = 0;
-      if(RatioValue[0]<0 && RatioValue[1]<0 && RatioValue[2]<0){
+      if(!Mix012C){
             CurrentSampleIndex        = JobIdToIndex(signal); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return toReturn;  } 
             double INTERN_ESign       = MassSignProj[0]->Integral(MassSignProj[0]            ->GetXaxis()->FindBin(MinRange), MassSignProj[0]      ->GetXaxis()->FindBin(MaxRange))/signalsMeanHSCPPerEvent      [0]; 
             double INTERN_Eff         = INTERN_ESign       / (signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
@@ -1170,8 +1193,6 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
       }
       if(Eff==0)continue;
       NPred*=RescaleFactor;
-
-     
 
      //fprintf(pFile ,"CutIndex=%4i ManHSCPPerEvents = %6.2f %6.2f %6.2f %6.2f   NTracks = %6.3f %6.3f %6.3f %6.3f\n",CutIndex,signalsMeanHSCPPerEvent[0], signalsMeanHSCPPerEvent[1],signalsMeanHSCPPerEvent[2],signalsMeanHSCPPerEvent[3], MassSignProj[0]->Integral(), MassSignProj[1]->Integral(), MassSignProj[2]->Integral(), MassSignProj[3]->Integral());
 
@@ -1315,7 +1336,6 @@ int JobIdToIndex(string JobId){
 
 void GetSignalMeanHSCPPerEvent(string InputPattern, unsigned int CutIndex, double MinRange, double MaxRange)
 {
-
    string InputPath     = InputPattern + "Histos.root";
    TFile* InputFile     = new TFile(InputPath.c_str());
 
@@ -1338,53 +1358,55 @@ void GetSignalMeanHSCPPerEvent(string InputPattern, unsigned int CutIndex, doubl
    TH1D*  NTracksPassingSelection     = Mass->ProjectionY("NTracksPassingSelection",CutIndex+1,CutIndex+1);
    TH1D*  NEventsPassingSelection     = MaxEventMass->ProjectionY("NEventsPassingSelection",CutIndex+1,CutIndex+1);
 
-   TH2D*  Mass_NC0     = (TH2D*)GetObjectFromPath(InputFile, signals[CurrentSampleIndex].Name          + "_NC0/Mass");
-   TH2D*  MaxEventMass_NC0     = (TH2D*)GetObjectFromPath(InputFile, signals[CurrentSampleIndex].Name          + "_NC0/MaxEventMass");
-   TH1D*  NTracksPassingSelection_NC0     = Mass_NC0->ProjectionY("NTracksPassingSelection_NC0",CutIndex+1,CutIndex+1);
-   TH1D*  NEventsPassingSelection_NC0     = MaxEventMass_NC0->ProjectionY("NEventsPassingSelection_NC0",CutIndex+1,CutIndex+1);
-
-   TH2D*  Mass_NC1     = (TH2D*)GetObjectFromPath(InputFile, signals[CurrentSampleIndex].Name          + "_NC1/Mass");
-   TH2D*  MaxEventMass_NC1     = (TH2D*)GetObjectFromPath(InputFile, signals[CurrentSampleIndex].Name          + "_NC1/MaxEventMass");
-   TH1D*  NTracksPassingSelection_NC1     = Mass_NC1->ProjectionY("NTracksPassingSelection_NC1",CutIndex+1,CutIndex+1);
-   TH1D*  NEventsPassingSelection_NC1     = MaxEventMass_NC1->ProjectionY("NEventsPassingSelection_NC1",CutIndex+1,CutIndex+1);
-
-   TH2D*  Mass_NC2     = (TH2D*)GetObjectFromPath(InputFile, signals[CurrentSampleIndex].Name          + "_NC2/Mass");
-   TH2D*  MaxEventMass_NC2     = (TH2D*)GetObjectFromPath(InputFile, signals[CurrentSampleIndex].Name          + "_NC2/MaxEventMass");
-   TH1D*  NTracksPassingSelection_NC2     = Mass_NC2->ProjectionY("NTracksPassingSelection_NC2",CutIndex+1,CutIndex+1);
-   TH1D*  NEventsPassingSelection_NC2     = MaxEventMass_NC2->ProjectionY("NEventsPassingSelection_NC2",CutIndex+1,CutIndex+1);
-
    double NTracks       = NTracksPassingSelection->Integral(NTracksPassingSelection->GetXaxis()->FindBin(MinRange), NTracksPassingSelection->GetXaxis()->FindBin(MaxRange));
    double NEvents       = NEventsPassingSelection->Integral(NEventsPassingSelection->GetXaxis()->FindBin(MinRange), NEventsPassingSelection->GetXaxis()->FindBin(MaxRange));
-   double NTracks_NC0   = NTracksPassingSelection_NC0->Integral(NTracksPassingSelection_NC0->GetXaxis()->FindBin(MinRange), NTracksPassingSelection_NC0->GetXaxis()->FindBin(MaxRange));
-   double NEvents_NC0   = NEventsPassingSelection_NC0->Integral(NEventsPassingSelection_NC0->GetXaxis()->FindBin(MinRange), NEventsPassingSelection_NC0->GetXaxis()->FindBin(MaxRange));
-
-   double NTracks_NC1   = NTracksPassingSelection_NC1->Integral(NTracksPassingSelection_NC1->GetXaxis()->FindBin(MinRange), NTracksPassingSelection_NC1->GetXaxis()->FindBin(MaxRange));
-   double NEvents_NC1   = NEventsPassingSelection_NC1->Integral(NEventsPassingSelection_NC1->GetXaxis()->FindBin(MinRange), NEventsPassingSelection_NC1->GetXaxis()->FindBin(MaxRange));
-
-   double NTracks_NC2   = NTracksPassingSelection_NC2->Integral(NTracksPassingSelection_NC2->GetXaxis()->FindBin(MinRange), NTracksPassingSelection_NC2->GetXaxis()->FindBin(MaxRange));
-   double NEvents_NC2   = NEventsPassingSelection_NC2->Integral(NEventsPassingSelection_NC2->GetXaxis()->FindBin(MinRange), NEventsPassingSelection_NC2->GetXaxis()->FindBin(MaxRange));
-
    signalsMeanHSCPPerEvent[0] = (float)std::max(1.0,NTracks/ NEvents);
-   signalsMeanHSCPPerEvent[1] = (float)std::max(1.0,NTracks_NC0/ NEvents_NC0);
-   signalsMeanHSCPPerEvent[2] = (float)std::max(1.0,NTracks_NC1/ NEvents_NC1);
-   signalsMeanHSCPPerEvent[3] = (float)std::max(1.0,NTracks_NC2/ NEvents_NC2);
-
    delete Mass;
    delete MaxEventMass;
-   delete Mass_NC0;
-   delete MaxEventMass_NC0;
-   delete Mass_NC1;
-   delete MaxEventMass_NC1;
-   delete Mass_NC2;
-   delete MaxEventMass_NC2;
    delete NTracksPassingSelection;
    delete NEventsPassingSelection;
-   delete NTracksPassingSelection_NC0;
-   delete NEventsPassingSelection_NC0;
-   delete NTracksPassingSelection_NC1;
-   delete NEventsPassingSelection_NC1;
-   delete NTracksPassingSelection_NC2;
-   delete NEventsPassingSelection_NC2;
+
+   TH2D*  Mass_NC0     = (TH2D*)GetObjectFromPath(InputFile, signals[CurrentSampleIndex].Name          + "_NC0/Mass");
+   if(Mass_NC0){
+      TH2D*  MaxEventMass_NC0     = (TH2D*)GetObjectFromPath(InputFile, signals[CurrentSampleIndex].Name          + "_NC0/MaxEventMass");
+      TH1D*  NTracksPassingSelection_NC0     = Mass_NC0->ProjectionY("NTracksPassingSelection_NC0",CutIndex+1,CutIndex+1);
+      TH1D*  NEventsPassingSelection_NC0     = MaxEventMass_NC0->ProjectionY("NEventsPassingSelection_NC0",CutIndex+1,CutIndex+1);
+      double NTracks_NC0   = NTracksPassingSelection_NC0->Integral(NTracksPassingSelection_NC0->GetXaxis()->FindBin(MinRange), NTracksPassingSelection_NC0->GetXaxis()->FindBin(MaxRange));
+      double NEvents_NC0   = NEventsPassingSelection_NC0->Integral(NEventsPassingSelection_NC0->GetXaxis()->FindBin(MinRange), NEventsPassingSelection_NC0->GetXaxis()->FindBin(MaxRange));
+      signalsMeanHSCPPerEvent[1] = (float)std::max(1.0,NTracks_NC0/ NEvents_NC0);
+      delete Mass_NC0;
+      delete MaxEventMass_NC0;
+      delete NTracksPassingSelection_NC0;
+      delete NEventsPassingSelection_NC0;
+   }
+
+   TH2D*  Mass_NC1     = (TH2D*)GetObjectFromPath(InputFile, signals[CurrentSampleIndex].Name          + "_NC1/Mass");
+   if(Mass_NC1){
+      TH2D*  MaxEventMass_NC1     = (TH2D*)GetObjectFromPath(InputFile, signals[CurrentSampleIndex].Name          + "_NC1/MaxEventMass");
+      TH1D*  NTracksPassingSelection_NC1     = Mass_NC1->ProjectionY("NTracksPassingSelection_NC1",CutIndex+1,CutIndex+1);
+      TH1D*  NEventsPassingSelection_NC1     = MaxEventMass_NC1->ProjectionY("NEventsPassingSelection_NC1",CutIndex+1,CutIndex+1);
+      double NTracks_NC1   = NTracksPassingSelection_NC1->Integral(NTracksPassingSelection_NC1->GetXaxis()->FindBin(MinRange), NTracksPassingSelection_NC1->GetXaxis()->FindBin(MaxRange));
+      double NEvents_NC1   = NEventsPassingSelection_NC1->Integral(NEventsPassingSelection_NC1->GetXaxis()->FindBin(MinRange), NEventsPassingSelection_NC1->GetXaxis()->FindBin(MaxRange));
+      signalsMeanHSCPPerEvent[2] = (float)std::max(1.0,NTracks_NC1/ NEvents_NC1);
+      delete Mass_NC1;
+      delete MaxEventMass_NC1;
+      delete NTracksPassingSelection_NC1;
+      delete NEventsPassingSelection_NC1;
+   }
+
+   TH2D*  Mass_NC2     = (TH2D*)GetObjectFromPath(InputFile, signals[CurrentSampleIndex].Name          + "_NC2/Mass");
+   if(Mass_NC2){
+      TH2D*  MaxEventMass_NC2     = (TH2D*)GetObjectFromPath(InputFile, signals[CurrentSampleIndex].Name          + "_NC2/MaxEventMass");
+      TH1D*  NTracksPassingSelection_NC2     = Mass_NC2->ProjectionY("NTracksPassingSelection_NC2",CutIndex+1,CutIndex+1);
+      TH1D*  NEventsPassingSelection_NC2     = MaxEventMass_NC2->ProjectionY("NEventsPassingSelection_NC2",CutIndex+1,CutIndex+1);
+      double NTracks_NC2   = NTracksPassingSelection_NC2->Integral(NTracksPassingSelection_NC2->GetXaxis()->FindBin(MinRange), NTracksPassingSelection_NC2->GetXaxis()->FindBin(MaxRange));
+      double NEvents_NC2   = NEventsPassingSelection_NC2->Integral(NEventsPassingSelection_NC2->GetXaxis()->FindBin(MinRange), NEventsPassingSelection_NC2->GetXaxis()->FindBin(MaxRange));
+      signalsMeanHSCPPerEvent[3] = (float)std::max(1.0,NTracks_NC2/ NEvents_NC2);
+      delete Mass_NC2;
+      delete MaxEventMass_NC2;
+      delete NTracksPassingSelection_NC2;
+      delete NEventsPassingSelection_NC2;
+   }
 
    delete InputFile;
    return;
