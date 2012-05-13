@@ -44,7 +44,7 @@ argv.remove( '-b-' )
 from HiggsAnalysis.CombinedLimit.DatacardParser import *
 
 masses = list()
-parser = OptionParser(usage="usage: %prog [options] datacard.txt -o output \nrun with --help to get list of options")
+parser = OptionParser(usage="usage: %prog [options] datacard.txt [--dir output] \nrun with --help to get list of options")
 parser.add_option("--depth", dest="depth",  default=1,  type="int", help="Scans excluding up to DEPTH and testing only up to DEPTH nuisances (0 means all in and all out if two-sided is specified).")
 parser.add_option("--two-sided", dest="twosided",  default=False,  action='store_true', help="If specified, scans both including up to DEPTH and by removing down to DEPTH.")
 parser.add_option("--dir", dest="dir",  default='systs',  type="string", help="Output directory for results and intermediates.")
@@ -138,7 +138,7 @@ for combo in combinationsToRemove:
     fName   = 'Syst.%s' % combinationsHash[combo]
 
     tempOut = "%s.root" % fName
-    filterCmd = "text2workspace.py --verbose=2 %s --X-exclude-nuisance='%s' -o root/%s &> log/%s.log" % (options.fileName, nuisStr, tempOut, tempOut)
+    filterCmd = "text2workspace.py --verbose=2 %s -m %f  --X-exclude-nuisance='%s' -o root/%s &> log/%s.log" % (options.fileName, options.masses[0], nuisStr, tempOut, tempOut)
 
     if os.path.isfile('root/'+tempOut):
 #        print "Not queuing text2workspace job for %s. (output already present)" % tempOut

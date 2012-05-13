@@ -1,7 +1,7 @@
 import re
 from sys import stderr
 
-globalNuisances = re.compile('(lumi|pdf_(qqbar|gg|qg)|QCDscale_\w+|UEPS|FakeRate|CMS_(eff|fake|trigger|scale|res)_([gemtjb]|met))')
+globalNuisances = re.compile('(lumi|pdf_(qqbar|gg|qg)|QCDscale_(ggH|qqH|VH|ggH1in|ggH2in|VV)|UEPS|FakeRate|CMS_(eff|fake|trigger|scale|res)_([gemtjb]|met))')
 
 def addDatacardParserOptions(parser):
     parser.add_option("-s", "--stat",   dest="stat",    default=False, action="store_true", help="keep only statistical uncertainties, no systematics") 
