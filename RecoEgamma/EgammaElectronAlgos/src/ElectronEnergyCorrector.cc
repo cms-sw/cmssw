@@ -15,12 +15,6 @@
  * \author Ivica Puljak - FESB, Split
  * \author Stephanie Baffioni - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
-<<<<<<< ElectronEnergyCorrector.cc
- * \version $Id: ElectronEnergyCorrector.cc,v 1.19 2012/05/08 20:04:26 chamont Exp $
-=======
- * \version $Id: ElectronEnergyCorrector.cc,v 1.17 2012/04/16 14:26:04 chamont Exp $
->>>>>>> 1.17
- *
  ****************************************************************************/
 
 void ElectronEnergyCorrector::classBasedParameterizationUncertainty( reco::GsfElectron & electron )
@@ -314,19 +308,11 @@ float ElectronEnergyCorrector::fEt(float ET, int algorithm, reco::GsfElectron::C
     const float parClassIndep[5] = { 0.97213, 0.999528, 5.61192e-06, 0.0143269, -17.1776 } ;
     const float par[reco::GsfElectron::GAP+1][5] =
      {
-<<<<<<< ElectronEnergyCorrector.cc
-       { 0.974507, 1.16569, -0.000884133, 0.161423, -125.356 },
-       { 0.974507, 1.16569, -0.000884133, 0.161423, -125.356 },
-       { 0.96449, 0.991457, 0.000237869, 0.159983, -4.38755 },
-       { 0.97956, 0.883959, 0.000782834, -0.106388, -124.394 },
-       { parClassIndep[0], parClassIndep[1], parClassIndep[2], parClassIndep[3], parClassIndep[4] }
-=======
        { 0.974327, 0.996127, 5.99401e-05, 0.159813, -3.80392 },
        { 0.97213, 0.999528, 5.61192e-06, 0.0143269, -17.1776 },
        { 0.940666, 0.988894, 0.00017474, 0.25603, -4.58153 },
        { 0.969526, 0.98572, 0.000193842, 4.21548, -1.37159 },
-       { 0.97213, 0.999528, 5.61192e-06, 0.0143269, -17.1776 }
->>>>>>> 1.17
+       { parClassIndep[0], parClassIndep[1], parClassIndep[2], parClassIndep[3], parClassIndep[4] }
      } ;
     if ( ET > 200 ) { ET = 200 ; }
     if ( ET > 100 ) { return (parClassIndep[1]+ET*parClassIndep[2]) * (1-parClassIndep[3]*exp(ET/parClassIndep[4])) ; }
