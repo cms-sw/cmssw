@@ -26,6 +26,7 @@ use File::Basename;
 unshift(@INC, dirname($0)."/mpslib");
 }
 use Mpslib;
+use warnings;
 read_db();
 
 my $confname = "";
@@ -37,12 +38,12 @@ my $weight = 1.0;
 
 # parse the arguments
 while (@ARGV) {
-   my $arg = shift(ARGV);
+   my $arg = shift(@ARGV);
     if ($arg =~ /-N/g) {
       $confname = $arg;
       $confname =~ s/-N//; # Strips away the "-N"
       if (length($confname) == 0) {
-         $confname = shift(ARGV);
+         $confname = shift(@ARGV);
        }
       $confname =~ s/\s//g;
       if($confname =~ /\:/)
