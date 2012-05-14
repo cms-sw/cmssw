@@ -132,8 +132,8 @@ process.HBHENoiseFilter.minIsolatedNoiseSumEt = cms.double(999999.)
 
 ##____________________________________________________________________________||
 process.load("RecoMET.METFilters.hcalLaserEventFilter_cfi")
-#process.hcalLaserEventFilter.vetoByRunEventNumber=cms.untracked.bool(False)
-#process.hcalLaserEventFilter.vetoByHBHEOccupancy=cms.untracked.bool(True)
+process.hcalLaserEventFilter.vetoByRunEventNumber=cms.untracked.bool(False)
+process.hcalLaserEventFilter.vetoByHBHEOccupancy=cms.untracked.bool(True)
 
 ##____________________________________________________________________________||
 process.load('RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi')
