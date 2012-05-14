@@ -347,79 +347,81 @@ void DigiBXCorrHistogramMaker<T>::fill(const T& he, const std::map<int,int>& ndi
 	    thephase = phase->getPhase(m_phasepart[ui]);
 	  }
 	}
-
-      long long tbx = he.absoluteBX();
-      if(thephase!=APVCyclePhaseCollection::nopartition &&
-	 thephase!=APVCyclePhaseCollection::multiphase &&
-	 thephase!=APVCyclePhaseCollection::invalid) tbx -= thephase;
-
-      if(m_nmeandigivscycle.find(i)!=m_nmeandigivscycle.end()) m_nmeandigivscycle[i]->Fill(tbx%70,digi->second);
-
-      if(m_ndigivscycle.find(i)!=m_ndigivscycle.end()) m_ndigivscycle[i]->Fill(tbx%70,digi->second);
-      if(m_ndigivscyclezoom.find(i)!=m_ndigivscyclezoom.end()) m_ndigivscyclezoom[i]->Fill(tbx%70,digi->second);
-      if(m_ndigivscyclezoom2.find(i)!=m_ndigivscyclezoom2.end()) m_ndigivscyclezoom2[i]->Fill(tbx%70,digi->second);
-      
-      if(m_runHisto) {
-	if(m_ndigivscycletime.find(i)!=m_ndigivscycletime.end()) {
-	  if(m_ndigivscycletime[i]!=0 && (*m_ndigivscycletime[i])!=0 ) (*m_ndigivscycletime[i])->Fill(tbx%70,(int)he._orbit,digi->second);
-	}
-      }
-
-      m_ndigivsbx[i]->Fill(he.bx(),digi->second);
-      if(m_ndigivsbx2D.find(i)!=m_ndigivsbx2D.end()) m_ndigivsbx2D[i]->Fill(he.bx(),digi->second);
-      if(m_ndigivsbx2Dzoom.find(i)!=m_ndigivsbx2Dzoom.end()) m_ndigivsbx2Dzoom[i]->Fill(he.bx(),digi->second);
-      if(m_ndigivsbx2Dzoom2.find(i)!=m_ndigivsbx2Dzoom2.end()) m_ndigivsbx2Dzoom2[i]->Fill(he.bx(),digi->second);
-      
-      
-      if(he.depth()>0) {
 	
-	long long dbx = he.deltaBX();
-	
-	m_ndigivsdbx[i]->Fill(dbx,digi->second);
-	m_ndigivsdbxzoom[i]->Fill(dbx,digi->second);
-	m_ndigivsdbxzoom2[i]->Fill(dbx,digi->second);
-	
-	if(m_ndigivsdbx2D.find(i)!=m_ndigivsdbx2D.end()) m_ndigivsdbx2D[i]->Fill(dbx,digi->second);
-	if(m_ndigivsdbx2Dzoom.find(i)!=m_ndigivsdbx2Dzoom.end()) m_ndigivsdbx2Dzoom[i]->Fill(dbx,digi->second);
-	if(m_ndigivsdbx2Dzoom2.find(i)!=m_ndigivsdbx2Dzoom2.end()) m_ndigivsdbx2Dzoom2[i]->Fill(dbx,digi->second);
-	
+	long long tbx = he.absoluteBX();
 	if(thephase!=APVCyclePhaseCollection::nopartition &&
 	   thephase!=APVCyclePhaseCollection::multiphase &&
 	   thephase!=APVCyclePhaseCollection::invalid) {
-	  long long dbxincycle = he.deltaBXinCycle(thephase);
-	  if(m_ndigivsdbxincycle2D.find(i)!=m_ndigivsdbxincycle2D.end()) m_ndigivsdbxincycle2D[i]->Fill(dbxincycle,digi->second);
-	  if(m_ndigivsdbxincycle.find(i)!=m_ndigivsdbxincycle.end()) m_ndigivsdbxincycle[i]->Fill(dbxincycle,digi->second);
+	  
+	  tbx -= thephase;
+	  
+	  if(m_nmeandigivscycle.find(i)!=m_nmeandigivscycle.end()) m_nmeandigivscycle[i]->Fill(tbx%70,digi->second);
+	  
+	  if(m_ndigivscycle.find(i)!=m_ndigivscycle.end()) m_ndigivscycle[i]->Fill(tbx%70,digi->second);
+	  if(m_ndigivscyclezoom.find(i)!=m_ndigivscyclezoom.end()) m_ndigivscyclezoom[i]->Fill(tbx%70,digi->second);
+	  if(m_ndigivscyclezoom2.find(i)!=m_ndigivscyclezoom2.end()) m_ndigivscyclezoom2[i]->Fill(tbx%70,digi->second);
+	  
 	}
-
-	long long prevtbx = he.absoluteBX(1);
-	if(thephase!=APVCyclePhaseCollection::nopartition &&
-	   thephase!=APVCyclePhaseCollection::multiphase &&
-	   thephase!=APVCyclePhaseCollection::invalid) prevtbx -= thephase;
-
 	
-	if(m_ndigivscycledbx.find(i)!=m_ndigivscycledbx.end()) m_ndigivscycledbx[i]->Fill(prevtbx%70,dbx,digi->second);
-	if(m_ndigivscycle2dbx.find(i)!=m_ndigivscycle2dbx.end()) m_ndigivscycle2dbx[i]->Fill(tbx%70,dbx,digi->second);
+	if(m_runHisto) {
+	  if(m_ndigivscycletime.find(i)!=m_ndigivscycletime.end()) {
+	    if(m_ndigivscycletime[i]!=0 && (*m_ndigivscycletime[i])!=0 ) (*m_ndigivscycletime[i])->Fill(tbx%70,(int)he._orbit,digi->second);
+	  }
+	}
 	
-	if(he.depth()>1) {
+	m_ndigivsbx[i]->Fill(he.bx(),digi->second);
+	if(m_ndigivsbx2D.find(i)!=m_ndigivsbx2D.end()) m_ndigivsbx2D[i]->Fill(he.bx(),digi->second);
+	if(m_ndigivsbx2Dzoom.find(i)!=m_ndigivsbx2Dzoom.end()) m_ndigivsbx2Dzoom[i]->Fill(he.bx(),digi->second);
+	if(m_ndigivsbx2Dzoom2.find(i)!=m_ndigivsbx2Dzoom2.end()) m_ndigivsbx2Dzoom2[i]->Fill(he.bx(),digi->second);
+	
+	
+	if(he.depth()>0) {
 	  
-	  long long dbx2 = he.deltaBX(2);
-	  m_ndigivsdbx3zoom[i]->Fill(dbx2,dbx,digi->second);
+	  long long dbx = he.deltaBX();
 	  
+	  m_ndigivsdbx[i]->Fill(dbx,digi->second);
+	  m_ndigivsdbxzoom[i]->Fill(dbx,digi->second);
+	  m_ndigivsdbxzoom2[i]->Fill(dbx,digi->second);
+	  
+	  if(m_ndigivsdbx2D.find(i)!=m_ndigivsdbx2D.end()) m_ndigivsdbx2D[i]->Fill(dbx,digi->second);
+	  if(m_ndigivsdbx2Dzoom.find(i)!=m_ndigivsdbx2Dzoom.end()) m_ndigivsdbx2Dzoom[i]->Fill(dbx,digi->second);
+	  if(m_ndigivsdbx2Dzoom2.find(i)!=m_ndigivsdbx2Dzoom2.end()) m_ndigivsdbx2Dzoom2[i]->Fill(dbx,digi->second);
+	  
+	  long long prevtbx = he.absoluteBX(1);
 	  if(thephase!=APVCyclePhaseCollection::nopartition &&
 	     thephase!=APVCyclePhaseCollection::multiphase &&
 	     thephase!=APVCyclePhaseCollection::invalid) {
+	    
 	    long long dbxincycle = he.deltaBXinCycle(thephase);
-	    long long dbxincycle2 = he.deltaBXinCycle(2,thephase);
-	    if(m_dbx3Histo) {
-	      if(m_ndigivsdbxincycle3.find(i)!=m_ndigivsdbxincycle3.end()) m_ndigivsdbxincycle3[i]->Fill(dbxincycle,dbxincycle2-dbxincycle,digi->second);
-	      if(m_dbx3Histo3D) {
-		if(m_ndigivsdbxincycle33D.find(i)!=m_ndigivsdbxincycle33D.end()) m_ndigivsdbxincycle33D[i]->Fill(dbxincycle,dbxincycle2-dbxincycle,digi->second);
+	    if(m_ndigivsdbxincycle2D.find(i)!=m_ndigivsdbxincycle2D.end()) m_ndigivsdbxincycle2D[i]->Fill(dbxincycle,digi->second);
+	    if(m_ndigivsdbxincycle.find(i)!=m_ndigivsdbxincycle.end()) m_ndigivsdbxincycle[i]->Fill(dbxincycle,digi->second);
+	    
+	    prevtbx -= thephase;
+	    if(m_ndigivscycledbx.find(i)!=m_ndigivscycledbx.end()) m_ndigivscycledbx[i]->Fill(prevtbx%70,dbx,digi->second);
+	    if(m_ndigivscycle2dbx.find(i)!=m_ndigivscycle2dbx.end()) m_ndigivscycle2dbx[i]->Fill(tbx%70,dbx,digi->second);
+	    
+	  }
+	  
+	  if(he.depth()>1) {
+	    
+	    long long dbx2 = he.deltaBX(2);
+	    m_ndigivsdbx3zoom[i]->Fill(dbx2,dbx,digi->second);
+	    
+	    if(thephase!=APVCyclePhaseCollection::nopartition &&
+	       thephase!=APVCyclePhaseCollection::multiphase &&
+	       thephase!=APVCyclePhaseCollection::invalid) {
+	      long long dbxincycle = he.deltaBXinCycle(thephase);
+	      long long dbxincycle2 = he.deltaBXinCycle(2,thephase);
+	      if(m_dbx3Histo) {
+		if(m_ndigivsdbxincycle3.find(i)!=m_ndigivsdbxincycle3.end()) m_ndigivsdbxincycle3[i]->Fill(dbxincycle,dbxincycle2-dbxincycle,digi->second);
+		if(m_dbx3Histo3D) {
+		  if(m_ndigivsdbxincycle33D.find(i)!=m_ndigivsdbxincycle33D.end()) m_ndigivsdbxincycle33D[i]->Fill(dbxincycle,dbxincycle2-dbxincycle,digi->second);
+		}
 	      }
 	    }
 	  }
 	}
-      }
-      
+	
     }
     else {
       edm::LogWarning("MissingKey") << " Key " << digi->first << " is missing ";
