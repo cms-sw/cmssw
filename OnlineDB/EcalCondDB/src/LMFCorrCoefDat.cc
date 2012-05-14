@@ -386,7 +386,8 @@ LMFCorrCoefDat::getCorrections(const Tm &t, const Tm &t2, int max) {
     "SEQ_ID, D.LMR_SUB_IOV_ID FROM LMF_LMR_SUB_IOV JOIN LMF_CORR_COEF_DAT D ON "  
     "D.LMR_SUB_IOV_ID = LMF_LMR_SUB_IOV.LMR_SUB_IOV_ID "
     "WHERE T1 > TO_DATE(:1, 'YYYY-MM-DD HH24:MI:SS') AND "
-    "T1 <= TO_DATE(:2, 'YYYY-MM-DD HH24:MI:SS') ORDER BY T1) WHERE ROWNUM <= :3";
+    "T1 <= TO_DATE(:2, 'YYYY-MM-DD HH24:MI:SS') ORDER BY T1, D.LMR_SUB_IOV_ID, "
+    "SEQ_ID) WHERE ROWNUM <= :3";
   try {
     DateHandler dh(m_env, m_conn);
     const int PREFETCH = 10000;
