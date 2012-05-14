@@ -61,6 +61,8 @@ class PF_PU_AssoMap : public edm::EDProducer {
       int maxNumWarnings_; // CV: print Warning if TrackExtra objects don't exist in input file,
                            //     but only a few times
       int numWarnings_;
+
+      bool ignoremissingpfcollection_;
 };
 
 
