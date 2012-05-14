@@ -105,6 +105,8 @@ PF_PU_AssoMap::PF_PU_AssoMap(const edm::ParameterSet& iConfig)
   UseBeamSpotCompatibility_= iConfig.getUntrackedParameter<bool>("UseBeamSpotCompatibility", false);
   input_BeamSpot_= iConfig.getParameter<InputTag>("BeamSpot");
 
+  ignoremissingpfcollection_ = iConfig.getParameter<bool>("ignoreMissingCollection");
+
   produces<TrackVertexAssMap>();
 }
 
@@ -143,8 +145,12 @@ PF_PU_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(LambdaCollection_, vertCompCandCollLambdaH);
   
   //get the displaced vertex collection for nuclear interactions
+  //create a new bool, false if no displaced vertex collection is in the event, mostly for AOD
+  bool displVtxColl = true;
   Handle<PFDisplacedVertexCollection> displVertexCollH;
-  iEvent.getByLabel(NIVertexCollection_, displVertexCollH);
+  if(!iEvent.getByLabel(NIVertexCollection_,displVertexCollH) && ignoremissingpfcollection_){
+    displVtxColl = false;
+  }
   
   //get the input gsfelectron collection
   Handle<GsfElectronCollection> gsfcollH;
@@ -222,7 +228,8 @@ PF_PU_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       // Test if the track comes from a nuclear interaction:
       // If so, reassociate the track to the vertex of the incoming particle      
-      if ( VtxTrkQualAss.second.second != -2. ) {
+      if ( (VtxTrkQualAss.second.second != -2.) && displVtxColl ) {
+
 	PFDisplacedVertex displVtx;
 	if ( PF_PU_AssoMapAlgos::ComesFromNI(trackref, displVertexCollH, &displVtx) ){
           if ( UseBeamSpotCompatibility_ ){
@@ -237,7 +244,8 @@ PF_PU_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    VtxTrkQualAss = PF_PU_AssoMapAlgos::FindNIVertex(trackref, displVtx, vtxcollH, true, iSetup);
           }
 	  if ( VtxTrkQualAss.second.second == -1. ) VtxTrkQualAss.second.second = -2.;
-	}	
+	}
+	
       }
 
       // If no vertex is found with track-to-vertex association weight > 1.e-5 is found

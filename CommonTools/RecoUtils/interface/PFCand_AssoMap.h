@@ -13,7 +13,7 @@
 //
 // Original Author:  Matthias Geisler
 //         Created:  Wed Apr 18 14:48:37 CEST 2012
-// $Id$
+// $Id: PFCand_AssoMap.h,v 1.1 2012/04/18 15:16:54 mgeisler Exp $
 //
 //
 #include "CommonTools/RecoUtils/interface/PFCand_NoPU_WithAM.h"
@@ -81,6 +81,12 @@ class PFCand_AssoMap : public edm::EDProducer {
       edm::InputTag LambdaCollection_;
 
       edm::InputTag NIVertexCollection_;
+
+      int maxNumWarnings_; // CV: print Warning if TrackExtra objects don't exist in input file,
+                           //     but only a few times
+      int numWarnings_;
+
+      bool ignoremissingpfcollection_;
 };
 
 

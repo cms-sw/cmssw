@@ -10,7 +10,7 @@
 //
 // Original Author:  Matthias Geisler
 //         Created:  Wed Apr 18 14:48:37 CEST 2012
-// $Id$
+// $Id: PFCand_AssoMap.cc,v 1.1 2012/04/18 15:16:18 mgeisler Exp $
 //
 //
 #include "CommonTools/RecoUtils/interface/PFCand_AssoMap.h"
@@ -42,6 +42,8 @@ using namespace reco;
 // constructors and destructor
 //
 PFCand_AssoMap::PFCand_AssoMap(const edm::ParameterSet& iConfig)
+  : maxNumWarnings_(3),
+    numWarnings_(0)
 {
    //register your products
 
@@ -59,6 +61,9 @@ PFCand_AssoMap::PFCand_AssoMap(const edm::ParameterSet& iConfig)
   	LambdaCollection_= iConfig.getParameter<InputTag>("V0LambdaCollection");
 
   	NIVertexCollection_= iConfig.getParameter<InputTag>("NIVertexCollection");
+
+        ignoremissingpfcollection_ = iConfig.getParameter<bool>("ignoreMissingCollection");
+
   
 }
 
@@ -106,8 +111,12 @@ PFCand_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	iEvent.getByLabel(LambdaCollection_, vertCompCandCollLambdaH);
 
 	//get the displaced vertex collection for nuclear interactions
-	Handle<PFDisplacedVertexCollection> displVertexCollH;
-	iEvent.getByLabel(NIVertexCollection_, displVertexCollH);
+  	//create a new bool, false if no displaced vertex collection is in the event, mostly for AOD
+  	bool displVtxColl = true;
+  	Handle<PFDisplacedVertexCollection> displVertexCollH;
+  	if(!iEvent.getByLabel(NIVertexCollection_,displVertexCollH) && ignoremissingpfcollection_){
+    	  displVtxColl = false;
+  	}
    
 	for( unsigned i=0; i<pfCandInH->size(); i++ ) {
      
@@ -138,13 +147,21 @@ PFCand_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
               break;
 
             }   
+	  
+	    if(displVtxColl){
 
-            if(PFCand_NoPU_WithAM_Algos::ComesFromNI(candref,displVertexCollH,&displVtx,iSetup)){
+              if(PFCand_NoPU_WithAM_Algos::ComesFromNI(candref,displVertexCollH,&displVtx,iSetup)){
 
-              vtxref_tmp = PFCand_NoPU_WithAM_Algos::FindNIVertex(candref,displVtx,vtxcollH,true,iSetup);
-              VtxPfcQualAss = make_pair(vtxref_tmp,make_pair(candref,weight));
-              break;
+                vtxref_tmp = PFCand_NoPU_WithAM_Algos::FindNIVertex(candref,displVtx,vtxcollH,true,iSetup);
+                VtxPfcQualAss = make_pair(vtxref_tmp,make_pair(candref,weight));
+                break;
 
+	      }
+
+            }else if ( numWarnings_ < maxNumWarnings_ ){
+	      edm::LogWarning("PFCand_AssoMap::produce")
+	        << "No PFDisplacedVertex Collection available in input file --> skipping check for nuclear interaction !!" << std::endl;
+	      ++numWarnings_;
             } 
 
             if(PFCand_NoPU_WithAM_Algos::ComesFromConversion(candref,convCollH,vtxcollH,&vtxref_tmp)){

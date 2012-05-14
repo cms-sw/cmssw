@@ -24,6 +24,9 @@ Tracks2Vertex = cms.EDProducer('PF_PU_AssoMap',
 	  #Configuration for the final association
           VertexAssOneDim = cms.untracked.bool(True),
           VertexAssClosest = cms.untracked.bool(True),
-          VertexAssUseAbsDistance = cms.untracked.bool(False),
+          VertexAssUseAbsDistance = cms.untracked.bool(False),			    
+	   	   
+	  #What to do if the dipl vertex coll can't be found
+          ignoreMissingCollection = cms.bool(False),
 )
 
