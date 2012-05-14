@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
-   version $Id: PVFitter.cc,v 1.18 2011/05/24 19:13:17 burkett Exp $
+   version $Id: PVFitter.cc,v 1.19 2011/12/05 23:14:31 burkett Exp $
 
 ________________________________________________________________**/
 
@@ -375,10 +375,12 @@ bool PVFitter::runFitter() {
       minuitx.SetParameter(1,"y",0.,0.02,-10.,10.);
       minuitx.SetParameter(2,"z",0.,0.20,-30.,30.);
       //minuitx.SetParameter(3,"ex",0.015,0.01,0.,10.);
-      minuitx.SetParameter(3,"ex",0.015,0.01,0.0001,10.);
+      //minuitx.SetParameter(3,"ex",0.015,0.01,0.0001,10.);
+      minuitx.SetParameter(3,"ex",0.005,0.0005,0.0001,0.05);
       minuitx.SetParameter(4,"corrxy",0.,0.02,-1.,1.);
       //minuitx.SetParameter(5,"ey",0.015,0.01,0.,10.);
-      minuitx.SetParameter(5,"ey",0.015,0.01,0.0001,10.);
+      //minuitx.SetParameter(5,"ey",0.015,0.01,0.0001,10.);
+      minuitx.SetParameter(5,"ey",0.005,0.0005,0.0001,0.05);
       minuitx.SetParameter(6,"dxdz",0.,0.0002,-0.1,0.1);
       minuitx.SetParameter(7,"dydz",0.,0.0002,-0.1,0.1);
       //minuitx.SetParameter(8,"ez",1.,0.1,0.,30.);
