@@ -22,6 +22,7 @@ expertSettings = optparse.OptionGroup(parser, '===============\n  Expert Options
 famosSettings = optparse.OptionGroup(parser, '===============\n  FastSimulation options', '')
 parser.add_option_group(expertSettings)
 
+threeValued=[]
 parser.add_option("-s", "--step",
                    help="The desired step. The possible values are: "+\
                         "GEN,SIM,DIGI,L1,DIGI2RAW,HLT,RAW2DIGI,RECO,POSTRECO,DQM,ALCA,VALIDATION,HARVESTING, NONE or ALL.",
@@ -298,7 +299,8 @@ expertSettings.add_option("--donotDropOnInput",
 expertSettings.add_option("--restoreRNDSeeds",
                           help="restore the random number engine state",
                           default=False,
-                          action="store_true")
+                          )
+threeValued.append( ('--restoreRNDSeeds',True) )
 
 expertSettings.add_option("--slhc",
                           help="Specify the SLHC scenario version",
