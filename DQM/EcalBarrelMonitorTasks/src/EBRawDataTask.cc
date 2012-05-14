@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2012/04/27 13:46:02 $
- * $Revision: 1.45 $
+ * $Date: 2012/05/14 20:36:37 $
+ * $Revision: 1.46 $
  * \author E. Di Marco
  *
 */
@@ -399,8 +399,8 @@ void EBRawDataTask::endLuminosityBlock(const edm::LuminosityBlock&, const  edm::
 
   MonitorElement* me(meEBSynchronizationErrorsTrend_);
   if(!me) return;
-  if(ls_ >= 300){
-    for(int ix(1); ix <= 300; ix++)
+  if(ls_ >= 50){
+    for(int ix(1); ix <= 50; ix++)
       me->setBinContent(ix, me->getBinContent(ix + 1));
 
     me->getTH1()->GetXaxis()->SetLimits(ls_ - 49, ls_ + 1);
