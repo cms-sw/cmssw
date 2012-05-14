@@ -102,8 +102,8 @@ streamA_datasetDoubleMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu11
     'HLT_Mu17_Mu8_v17', 
     'HLT_Mu17_TkMu8_v10', 
     'HLT_Mu17_v3', 
-    'HLT_Mu22_TkMu22_v5', 
-    'HLT_Mu22_TkMu8_v5', 
+    'HLT_Mu22_TkMu22_v6', 
+    'HLT_Mu22_TkMu8_v6', 
     'HLT_Mu8_v16', 
     'HLT_TripleMu5_v17')
 
@@ -121,8 +121,8 @@ streamA_datasetDoubleMuParked_selector.triggerConditions = cms.vstring('HLT_Doub
     'HLT_Mu17_Mu8_v17', 
     'HLT_Mu17_TkMu8_v10', 
     'HLT_Mu17_v3', 
-    'HLT_Mu22_TkMu22_v5', 
-    'HLT_Mu22_TkMu8_v5', 
+    'HLT_Mu22_TkMu22_v6', 
+    'HLT_Mu22_TkMu8_v6', 
     'HLT_Mu8_v16', 
     'HLT_TripleMu5_v17')
 
@@ -180,8 +180,8 @@ streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_CleanPF
     'HLT_Ele12_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_RsqMR40_Rsq0p04_MR200_v1', 
     'HLT_Ele30_CaloIdVT_TrkIdT_PFJet100_PFJet25_v5', 
     'HLT_Ele30_CaloIdVT_TrkIdT_PFJet150_PFJet25_v5', 
-    'HLT_Ele30_CaloIdVT_TrkIdT_PFNoPUJet100_PFNoPUJet25_v4', 
-    'HLT_Ele30_CaloIdVT_TrkIdT_PFNoPUJet150_PFNoPUJet25_v4', 
+    'HLT_Ele30_CaloIdVT_TrkIdT_PFNoPUJet100_PFNoPUJet25_v5', 
+    'HLT_Ele30_CaloIdVT_TrkIdT_PFNoPUJet150_PFNoPUJet25_v5', 
     'HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v15', 
     'HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v15', 
     'HLT_Ele8_CaloIdT_TrkIdT_TriJet30_v15')
@@ -377,8 +377,8 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleDisplac
     'HLT_DoubleMu14_Mass8_PFMET50_v5', 
     'HLT_DoubleMu8_Mass8_PFHT175_v6', 
     'HLT_DoubleMu8_Mass8_PFHT225_v6', 
-    'HLT_DoubleRelIso1p0Mu5_Mass8_PFHT175_v5', 
-    'HLT_DoubleRelIso1p0Mu5_Mass8_PFHT225_v5', 
+    'HLT_DoubleRelIso1p0Mu5_Mass8_PFHT175_v6', 
+    'HLT_DoubleRelIso1p0Mu5_Mass8_PFHT225_v6', 
     'HLT_IsoMu12_DoubleCentralJet65_v1', 
     'HLT_IsoMu12_RsqMR30_Rsq0p04_MR200_v1', 
     'HLT_IsoMu12_RsqMR40_Rsq0p04_MR200_v1', 
@@ -398,8 +398,8 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleDisplac
     'HLT_PFHT350_Mu15_PFMET50_v6', 
     'HLT_PFHT400_Mu5_PFMET45_v6', 
     'HLT_PFHT400_Mu5_PFMET50_v6', 
-    'HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFHT175_v5', 
-    'HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFHT225_v5')
+    'HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFHT175_v6', 
+    'HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFHT225_v6')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuOnia_selector
 streamA_datasetMuOnia_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
