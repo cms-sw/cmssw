@@ -27,7 +27,10 @@ std::vector<std::string>  MultiDimFit::poi_;
 std::vector<RooRealVar *> MultiDimFit::poiVars_;
 std::vector<float>        MultiDimFit::poiVals_;
 RooArgList                MultiDimFit::poiList_;
+float                     MultiDimFit::deltaNLL_ = 0;
 unsigned int MultiDimFit::points_ = 50;
+unsigned int MultiDimFit::firstPoint_ = 0;
+unsigned int MultiDimFit::lastPoint_  = std::numeric_limits<unsigned int>::max();
 bool MultiDimFit::floatOtherPOIs_ = false;
 unsigned int MultiDimFit::nOtherFloatingPoi_ = 0;
 
@@ -40,6 +43,8 @@ MultiDimFit::MultiDimFit() :
         ("poi,P",   boost::program_options::value<std::vector<std::string> >(&poi_), "Parameters of interest to fit (default = all)")
         ("floatOtherPOIs",   boost::program_options::value<bool>(&floatOtherPOIs_)->default_value(floatOtherPOIs_), "POIs other than the selected ones will be kept freely floating (1) or fixed (0, default)")
         ("points",  boost::program_options::value<unsigned int>(&points_)->default_value(points_), "Points to use for grid or contour scans")
+        ("firstPoint",  boost::program_options::value<unsigned int>(&firstPoint_)->default_value(firstPoint_), "First point to use")
+        ("lastPoint",  boost::program_options::value<unsigned int>(&lastPoint_)->default_value(lastPoint_), "Last point to use")
        ;
 }
 
@@ -139,6 +144,7 @@ void MultiDimFit::initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) {
     for (int i = 0, n = poi_.size(); i < n; ++i) {
         Combine::addBranch(poi_[i].c_str(), &poiVals_[i], (poi_[i]+"/F").c_str()); 
     }
+    Combine::addBranch("deltaNLL", &deltaNLL_, "deltaNLL/F");
 }
 
 void MultiDimFit::doSingles(RooFitResult &res)
@@ -181,7 +187,76 @@ void MultiDimFit::doSingles(RooFitResult &res)
 
 void MultiDimFit::doGrid(RooAbsReal &nll) 
 {
-    
+    unsigned int n = poi_.size();
+    if (poi_.size() > 2) throw std::logic_error("Not today");
+    double nll0 = nll.getVal(), threshold = nll0 + 0.5*ROOT::Math::chisquared_quantile_c(1-cl,n+nOtherFloatingPoi_);
+
+    std::vector<double> p0(n), pmin(n), pmax(n);
+    for (unsigned int i = 0; i < n; ++i) {
+        p0[i] = poiVars_[i]->getVal();
+        pmin[i] = poiVars_[i]->getMin();
+        pmax[i] = poiVars_[i]->getMax();
+        poiVars_[i]->setConstant(true);
+    }
+
+    CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
+    minim.setStrategy(minimizerStrategy_);
+
+    if (n == 1) {
+        for (unsigned int i = 0; i < points_; ++i) {
+            double x =  pmin[0] + (i+0.5)*(pmax[0]-pmin[0])/points_; 
+            if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
+            poiVals_[0] = x;
+            poiVars_[0]->setVal(x);
+            // now we minimize
+            {   
+                //CloseCoutSentry sentry(verbose < 3);    
+                bool ok = minim.minimize(verbose-1);
+                if (ok) {
+                    deltaNLL_ = nll.getVal() - nll0;
+                    double qN = 2*(deltaNLL_);
+                    double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+                    Combine::commitPoint(true, /*quantile=*/prob);
+                }
+            } 
+        }
+    } else if (n == 2) {
+        unsigned int sqrn = ceil(sqrt(double(points_)));
+        unsigned int ipoint = 0;
+        RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
+        CloseCoutSentry sentry(verbose < 2);    
+        for (unsigned int i = 0; i < sqrn; ++i) {
+            for (unsigned int j = 0; j < sqrn; ++j, ++ipoint) {
+                if (ipoint < firstPoint_) continue;
+                if (ipoint > lastPoint_)  break;
+                double x =  pmin[0] + (i+0.5)*(pmax[0]-pmin[0])/sqrn; 
+                double y =  pmin[1] + (j+0.5)*(pmax[1]-pmin[1])/sqrn; 
+                if (verbose > 1) std::cout << "Point " << ipoint << "/" <<  (sqrn*sqrn) << ", " 
+                    << "(i,j) = " << i << "," << j << ", " 
+                        << poiVars_[0]->GetName() << " = " << x << ", "
+                        << poiVars_[1]->GetName() << " = " << y << std::endl;
+                poiVals_[0] = x;
+                poiVals_[1] = y;
+                poiVars_[0]->setVal(x);
+                poiVars_[1]->setVal(y);
+                nll.clearEvalErrorLog(); nll.getVal();
+                if (nll.numEvalErrors() > 0) { 
+                    deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
+                    continue;
+                }
+                // now we minimize
+                {   
+                    bool ok = minim.minimize(verbose-1);
+                    if (ok) {
+                        deltaNLL_ = nll.getVal() - nll0;
+                        double qN = 2*(deltaNLL_);
+                        double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+                        Combine::commitPoint(true, /*quantile=*/prob);
+                    }
+                } 
+            }
+        }
+    }
 }
 
 void MultiDimFit::doRandomPoints(RooAbsReal &nll) 
