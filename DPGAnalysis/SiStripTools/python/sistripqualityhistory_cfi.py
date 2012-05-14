@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 ssqhistory = cms.EDAnalyzer("SiStripQualityHistory",
-                            eventProcessing = cms.bool(False),
-                            granularityMode=cms.untracked.uint32(2),  # 1 = Module , 2= Fiber , 3= APV 
+                            runProcess = cms.bool(False),
+                            granularityMode=cms.untracked.uint32(2),  # 0 = Module , 1= Fiber , 2= APV, 3=Strip 
                             monitoredSiStripQuality = cms.VPSet(
 #    cms.PSet( name = cms.string("Cabling"), ssqLabel = cms.string("onlyCabling")),  # name= used in histos, ssqLabel= label of SiStripQuality object
 #    cms.PSet( name = cms.string("RunInfo"), ssqLabel = cms.string("CablingRunInfo")),
