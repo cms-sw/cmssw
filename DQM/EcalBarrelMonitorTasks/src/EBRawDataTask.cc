@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2012/03/20 20:26:48 $
- * $Revision: 1.40.2.1 $
+ * $Date: 2012/04/27 13:46:02 $
+ * $Revision: 1.45 $
  * \author E. Di Marco
  *
 */
@@ -12,6 +12,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -65,6 +66,8 @@ EBRawDataTask::EBRawDataTask(const edm::ParameterSet& ps) {
 
   meEBSynchronizationErrorsByLumi_ = 0;
 
+  meEBSynchronizationErrorsTrend_ = 0;
+
   calibrationBX_ = 3490;
 
 }
@@ -85,9 +88,19 @@ void EBRawDataTask::beginJob(void){
 
 }
 
-void EBRawDataTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup) {
+void EBRawDataTask::beginLuminosityBlock(const edm::LuminosityBlock& _lumi, const  edm::EventSetup&) {
+
+  if ( ! init_ ) this->setup();
+
+  ls_ = _lumi.luminosityBlock();
 
   if ( meEBSynchronizationErrorsByLumi_ ) meEBSynchronizationErrorsByLumi_->Reset();
+
+  if ( meEBSynchronizationErrorsTrend_ ){
+    int bin(meEBSynchronizationErrorsTrend_->getTH1()->GetXaxis()->FindBin(ls_ - 0.5));
+    meEBSynchronizationErrorsTrend_->setBinContent(bin - 1, fatalErrors_);
+    meEBSynchronizationErrorsTrend_->getTH1()->SetEntries(fatalErrors_);
+  }
 
 }
 
@@ -97,10 +110,14 @@ void EBRawDataTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
   if ( ! mergeRuns_ ) this->reset();
 
+  fatalErrors_ = 0.;
+
+  if ( meEBSynchronizationErrorsTrend_ ){
+    meEBSynchronizationErrorsTrend_->getTH1()->GetXaxis()->SetLimits(0., 50.);
+  }
 }
 
 void EBRawDataTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
-
 }
 
 void EBRawDataTask::reset(void) {
@@ -122,7 +139,7 @@ void EBRawDataTask::reset(void) {
   if ( meEBL1ASRPErrors_ ) meEBL1ASRPErrors_->Reset();
   if ( meEBBunchCrossingSRPErrors_ ) meEBBunchCrossingSRPErrors_->Reset();
   if ( meEBSynchronizationErrorsByLumi_ ) meEBSynchronizationErrorsByLumi_->Reset();
-
+  if ( meEBSynchronizationErrorsTrend_ ) meEBSynchronizationErrorsTrend_->Reset();
 }
 
 void EBRawDataTask::setup(void){
@@ -302,6 +319,10 @@ void EBRawDataTask::setup(void){
       meEBSynchronizationErrorsByLumi_->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
+    name = "EBRDT accumulated FE synchronization errors";
+    meEBSynchronizationErrorsTrend_ = dqmStore_->book1D(name, name, 50, 0., 50.);
+    meEBSynchronizationErrorsTrend_->setAxisTitle("LumiSection", 1);
+
   }
 
 }
@@ -366,13 +387,24 @@ void EBRawDataTask::cleanup(void){
     if ( meEBSynchronizationErrorsByLumi_ ) dqmStore_->removeElement( meEBSynchronizationErrorsByLumi_->getName() );
     meEBSynchronizationErrorsByLumi_ = 0;
 
+    if ( meEBSynchronizationErrorsTrend_ ) dqmStore_->removeElement( meEBSynchronizationErrorsTrend_->getName() );
+    meEBSynchronizationErrorsTrend_ = 0;
   }
 
   init_ = false;
 
 }
 
-void EBRawDataTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
+void EBRawDataTask::endLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) {
+
+  MonitorElement* me(meEBSynchronizationErrorsTrend_);
+  if(!me) return;
+  if(ls_ >= 300){
+    for(int ix(1); ix <= 300; ix++)
+      me->setBinContent(ix, me->getBinContent(ix + 1));
+
+    me->getTH1()->GetXaxis()->SetLimits(ls_ - 49, ls_ + 1);
+  }
 }
 
 void EBRawDataTask::endJob(void) {
@@ -385,12 +417,12 @@ void EBRawDataTask::endJob(void) {
 
 void EBRawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
-  if ( ! init_ ) this->setup();
-
   ievt_++;
 
   // fill bin 0 with number of events in the lumi
   if ( meEBSynchronizationErrorsByLumi_ ) meEBSynchronizationErrorsByLumi_->Fill(0.);
+
+  float errorsInEvent(0.);
 
   int evt_runNumber = e.id().run();
 
@@ -598,7 +630,11 @@ void EBRawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         if(feLv1[fe]+feLv1Offset != ECALDCC_L1A_12bit && feLv1[fe] != -1 && ECALDCC_L1A_12bit - 1 != -1) {
           meEBL1AFEErrors_->Fill( xism, 1/(float)feLv1.size() );
           meEBSynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() );
-        } else if( BxSynchStatus[fe]==0 ) meEBSynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() );
+	  errorsInEvent += 1. / feLv1.size();
+        } else if( BxSynchStatus[fe]==0 ){
+	  meEBSynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() );
+	  errorsInEvent += 1. / feLv1.size();
+	}
       }
 
       // vector of TCC channels has 4 elements for both EB and EE.
@@ -650,5 +686,9 @@ void EBRawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     edm::LogWarning("EBRawDataTask") << EcalRawDataCollection_ << " not available";
   }
 
+  if(errorsInEvent > 0.){
+    meEBSynchronizationErrorsTrend_->Fill(ls_ - 0.5, errorsInEvent);
+    fatalErrors_ += errorsInEvent;
+  }
 }
 
