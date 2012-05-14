@@ -9,7 +9,8 @@
 #include "RooProdPdf.h"
 #include "RooConstVar.h"
 #include "RooPlot.h"
-#include "../interface/RooMinimizerOpt.h"
+#include "RooTrace.h"
+#include <RooMinimizer.h>
 #include "TCanvas.h"
 #include "TStyle.h"
 #include "TH2.h"
@@ -52,8 +53,23 @@ MaxLikelihoodFit::MaxLikelihoodFit() :
         ("justFit",  "Just do the S+B fit, don't do the B-only one, don't save output file")
         ("noErrors",  "Don't compute uncertainties on the best fit value")
    ;
+
+    // setup a few defaults
+    nToys=0; fitStatus_=0; mu_=0;numbadnll_=-1;nll_nll0_=-1;
 }
 
+MaxLikelihoodFit::~MaxLikelihoodFit(){
+   // delete the Arrays used to fill the trees;
+   delete globalObservables_;
+   delete nuisanceParameters_;
+}
+
+void MaxLikelihoodFit::setToyNumber(const int iToy){
+	currentToy_ = iToy;
+}
+void MaxLikelihoodFit::setNToys(const int iToy){
+	nToys = iToy;
+}
 void MaxLikelihoodFit::applyOptions(const boost::program_options::variables_map &vm) 
 {
     applyOptionsBase(vm);
@@ -63,11 +79,17 @@ void MaxLikelihoodFit::applyOptions(const boost::program_options::variables_map 
     justFit_  = vm.count("justFit");
     noErrors_ = vm.count("noErrors");
     if (justFit_) { out_ = "none"; makePlots_ = false; saveNormalizations_ = false; }
+    // For now default this to true;
 }
 
-bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
-  std::auto_ptr<TFile> fitOut;
-  if (!justFit_ && out_ != "none") fitOut.reset(TFile::Open((out_+"/mlfit"+name_+".root").c_str(), "RECREATE"));
+bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
+
+  if (!justFit_ && out_ != "none"){
+	if (currentToy_ < 1){
+		fitOut.reset(TFile::Open((out_+"/mlfit"+name_+".root").c_str(), "RECREATE")); 
+		createFitResultTrees(*mc_s);
+	}
+  }
 
   RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
 
@@ -84,14 +106,16 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
       for (std::vector<RooPlot *>::iterator it = plots.begin(), ed = plots.end(); it != ed; ++it) {
           (*it)->Draw(); 
           c1->Print((out_+"/"+(*it)->GetName()+"_prefit.png").c_str());
-          if (fitOut.get()) fitOut->WriteTObject(*it, (std::string((*it)->GetName())+"_prefit").c_str());
+          if (fitOut.get() && currentToy_< 1) fitOut->WriteTObject(*it, (std::string((*it)->GetName())+"_prefit").c_str());
       }
   }
 
+
   // Determine pre-fit values of nuisance parameters
-  const RooArgSet *nuis      = mc_s->GetNuisanceParameters();
-  const RooArgSet *globalObs = mc_s->GetGlobalObservables();
-  if (!justFit_ && nuis && globalObs) {
+  if (currentToy_ < 1){
+    const RooArgSet *nuis      = mc_s->GetNuisanceParameters();
+    const RooArgSet *globalObs = mc_s->GetGlobalObservables();
+    if (!justFit_ && nuis && globalObs ) {
       std::auto_ptr<RooAbsPdf> nuisancePdf(utils::makeNuisancePdf(*mc_s));
       std::auto_ptr<RooDataSet> globalData(new RooDataSet("globalData","globalData", *globalObs));
       globalData->add(*globalObs);
@@ -105,25 +129,36 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
             RooFit::Minos(minos_ == "all")
             );
       }
-      if (fitOut.get()) fitOut->WriteTObject(res_prefit, "nuisances_prefit_res");
-      if (fitOut.get()) fitOut->WriteTObject(nuis->snapshot(), "nuisances_prefit");
-  } else if (nuis) {
-      if (fitOut.get()) fitOut->WriteTObject(nuis->snapshot(), "nuisances_prefit");
-  }
+      if (fitOut.get() ) fitOut->WriteTObject(res_prefit, "nuisances_prefit_res");
+      if (fitOut.get() ) fitOut->WriteTObject(nuis->snapshot(), "nuisances_prefit");
 
+      nuisancePdf.reset();
+      globalData.reset();
+      delete res_prefit;
+
+    } else if (nuis) {
+      if (fitOut.get() ) fitOut->WriteTObject(nuis->snapshot(), "nuisances_prefit");
+    }
+  }
   
   RooFitResult *res_b = 0, *res_s = 0;
   const RooCmdArg &constCmdArg_s = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooFit::NumCPU(1); // use something dummy 
   const RooCmdArg &minosCmdArg = minos_ == "poi" ?  RooFit::Minos(*mc_s->GetParametersOfInterest())   : RooFit::Minos(minos_ != "none"); 
   w->loadSnapshot("clean");
   r->setVal(0.0); r->setConstant(true);
+  double nll_bonly = -1., nll_sb = -1; 
+
+  // Setup Nll before calling fits;
+  if (currentToy_<1) nll.reset(mc_s->GetPdf()->createNLL(data,constCmdArg_s,RooFit::Extended(mc_s->GetPdf()->canBeExtended())));
 
   if (justFit_) { 
     // skip b-only fit
   } else if (minos_ != "all") {
     RooArgList minos; 
-    res_b = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/true); 
-  } else {
+    res_b = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/true,/*reuseNLL*/ true); 
+    // doFit sets the value of nllValue_ to fit-beforefit so will be < 0
+    // store -1*nllValue_ as the value of the background only fit
+    nll_bonly=-1*nllValue_;   } else {
     CloseCoutSentry sentry(verbose < 2);
     res_b = mc_s->GetPdf()->fitTo(data, 
             RooFit::Save(1), 
@@ -132,30 +167,40 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
             RooFit::Extended(mc_s->GetPdf()->canBeExtended()), 
             constCmdArg_s, minosCmdArg
             );
+    if (res_b) nll_bonly =res_b->minNll();
+
   }
 
   if (res_b) { 
       if (verbose > 1) res_b->Print("V");
-      if (fitOut.get()) fitOut->WriteTObject(res_b, "fit_b");
+      if (fitOut.get()) {
+	 if (currentToy_< 1)	fitOut->WriteTObject(res_b,"fit_b");
+	 setFitResultTrees(mc_s->GetNuisanceParameters(),nuisanceParameters_);
+	 setFitResultTrees(mc_s->GetGlobalObservables(),globalObservables_);
+	 fitStatus_ = res_b->status();
+      }
+      numbadnll_=res_b->numInvalidNLL();
+      std::cout << "Just after B only fit " << nll_bonly <<std::endl;
 
       if (makePlots_) {
           std::vector<RooPlot *> plots = utils::makePlots(*mc_b->GetPdf(), data, signalPdfNames_.c_str(), backgroundPdfNames_.c_str(), rebinFactor_);
           for (std::vector<RooPlot *>::iterator it = plots.begin(), ed = plots.end(); it != ed; ++it) {
               c1->cd(); (*it)->Draw(); 
               c1->Print((out_+"/"+(*it)->GetName()+"_fit_b.png").c_str());
-              if (fitOut.get()) fitOut->WriteTObject(*it, (std::string((*it)->GetName())+"_fit_b").c_str());
+              if (fitOut.get() && currentToy_< 1) fitOut->WriteTObject(*it, (std::string((*it)->GetName())+"_fit_b").c_str());
           }
       }
 
-      if (saveNormalizations_) {
+      if (saveNormalizations_ && currentToy_<1) {
           RooArgSet *norms = new RooArgSet();
           norms->setName("norm_fit_b");
           getNormalizations(mc_s->GetPdf(), *mc_s->GetObservables(), *norms);
           if (fitOut.get()) fitOut->WriteTObject(norms, "norm_fit_b");
+	  delete norms;
       }
 
-      TH2 *corr = res_b->correlationHist();
-      if (makePlots_)  {
+      if (makePlots_ && currentToy_<1)  {
+	  TH2 *corr = res_b->correlationHist();
           c1->SetLeftMargin(0.25);  c1->SetBottomMargin(0.25);
           corr->SetTitle("Correlation matrix of fit parameters");
           gStyle->SetPaintTextFormat(res_b->floatParsFinal().getSize() > 10 ? ".1f" : ".2f");
@@ -164,15 +209,24 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
           corr->Draw("COLZ TEXT");
           c1->Print((out_+"/covariance_fit_b.png").c_str());
           c1->SetLeftMargin(0.16);  c1->SetBottomMargin(0.13);
+      	  if (fitOut.get()) fitOut->WriteTObject(corr, "covariance_fit_b");
       }
-      if (fitOut.get()) fitOut->WriteTObject(corr, "covariance_fit_b");
   }
+  else {
+	fitStatus_=-1;
+	numbadnll_=-1;	
+  }
+  mu_=r->getVal();
+  t_fit_b_->Fill();
+  // no longer need res_b
+  delete res_b;
 
-  w->loadSnapshot("clean");
-  r->setVal(preFitValue_); r->setConstant(false);
+  w->loadSnapshot("clean"); // Reset, also ensures nll_prefit is same in call to doFit for b and s+b
+  r->setVal(preFitValue_); r->setConstant(false); 
   if (minos_ != "all") {
     RooArgList minos; if (minos_ == "poi") minos.add(*r);
-    res_s = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/!noErrors_); 
+    res_s = doFit(*mc_s->GetPdf(), data, minos, constCmdArg_s, /*hesse=*/!noErrors_,/*reuseNLL*/ true); 
+    nll_sb = -1*nllValue_;
   } else {
     CloseCoutSentry sentry(verbose < 2);
     res_s = mc_s->GetPdf()->fitTo(data, 
@@ -182,31 +236,45 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
             RooFit::Extended(mc_s->GetPdf()->canBeExtended()), 
             constCmdArg_s, minosCmdArg
             );
+    if (res_s) nll_sb= res_s->minNll();
+
   }
   if (res_s) { 
       limit    = r->getVal();
       limitErr = r->getError();
       if (verbose > 1) res_s->Print("V");
-      if (fitOut.get()) fitOut->WriteTObject(res_s, "fit_s");
+      if (fitOut.get()){
+	 if (currentToy_<1) fitOut->WriteTObject(res_s, "fit_s");
+
+	 setFitResultTrees(mc_s->GetNuisanceParameters(),nuisanceParameters_);
+	 setFitResultTrees(mc_s->GetGlobalObservables(),globalObservables_);
+	 fitStatus_ = res_s->status();
+         numbadnll_ = res_s->numInvalidNLL();
+
+	 // nllValue_ will be from the latest fit (s+b fit) but relative to pre-fit, this part can now cancel
+	 double  nll_bonly_minus_nll_s = -1*(nll_bonly - nll_sb);
+	 nll_nll0_ = (nll_bonly > -1 && nll_sb > -1) ? nll_bonly_minus_nll_s : -1; // each are > 0 if all went well, and the entry will be +ve
+      }
 
       if (makePlots_) {
           std::vector<RooPlot *> plots = utils::makePlots(*mc_s->GetPdf(), data, signalPdfNames_.c_str(), backgroundPdfNames_.c_str(), rebinFactor_);
           for (std::vector<RooPlot *>::iterator it = plots.begin(), ed = plots.end(); it != ed; ++it) {
               c1->cd(); (*it)->Draw(); 
               c1->Print((out_+"/"+(*it)->GetName()+"_fit_s.png").c_str());
-              if (fitOut.get()) fitOut->WriteTObject(*it, (std::string((*it)->GetName())+"_fit_s").c_str());
+              if (fitOut.get() && currentToy_< 1) fitOut->WriteTObject(*it, (std::string((*it)->GetName())+"_fit_s").c_str());
           }
       }
 
-      if (saveNormalizations_) {
+      if (saveNormalizations_&& currentToy_< 1) {
           RooArgSet *norms = new RooArgSet();
           norms->setName("norm_fit_s");
           getNormalizations(mc_s->GetPdf(), *mc_s->GetObservables(), *norms);
-          if (fitOut.get()) fitOut->WriteTObject(norms, "norm_fit_s");
+          if (fitOut.get() ) fitOut->WriteTObject(norms, "norm_fit_s");
+	  delete norms;
       }
 
-      TH2 *corr = res_s->correlationHist();
-      if (makePlots_)  {
+      if (makePlots_&& currentToy_< 1)  {
+          TH2 *corr = res_s->correlationHist();
           c1->SetLeftMargin(0.25);  c1->SetBottomMargin(0.25);
           corr->SetTitle("Correlation matrix of fit parameters");
           gStyle->SetPaintTextFormat(res_s->floatParsFinal().getSize() > 10 ? ".1f" : ".2f");
@@ -215,9 +283,15 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
           corr->Draw("COLZ TEXT");
           c1->Print((out_+"/covariance_fit_s.png").c_str());
           c1->SetLeftMargin(0.16);  c1->SetBottomMargin(0.13);
+          if (fitOut.get() ) fitOut->WriteTObject(corr, "covariance_fit_s");
       }
-      if (fitOut.get()) fitOut->WriteTObject(corr, "covariance_fit_s");
+  }  else {
+	fitStatus_=-1;
+	numbadnll_=-1;
+  	nll_nll0_ = -1;
   }
+  mu_=r->getVal();
+  t_fit_sb_->Fill();
 
   if (res_s) {
       RooRealVar *rf = dynamic_cast<RooRealVar*>(res_s->floatParsFinal().find(r->GetName()));
@@ -255,8 +329,19 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
       std::cout << "\n --- MaxLikelihoodFit ---" << std::endl;
       std::cout << "Fit failed."  << std::endl;
   }
-  if (fitOut.get()) fitOut.release()->Close();
-  return res_s != 0;
+
+  if (currentToy_==nToys-1 || nToys==0 ) {
+        
+        if (fitOut.get()) {	
+		fitOut->cd();
+		t_fit_sb_->Write(); t_fit_b_->Write();
+		fitOut.release()->Close();
+	}
+
+  } 
+  bool fitreturn = (res_s!=0);
+  delete res_s;
+  return fitreturn;
 }
 
 void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, RooArgSet &out) {
@@ -290,4 +375,69 @@ void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, R
     }
 }
 
+//void MaxLikelihoodFit::setFitResultTrees(const RooArgSet *args, std::vector<double> *vals){
+void MaxLikelihoodFit::setFitResultTrees(const RooArgSet *args, double * vals){
+	
+         TIterator* iter(args->createIterator());
+	 int count=0;
+	 
+         for (TObject *a = iter->Next(); a != 0; a = iter->Next()) { 
+                 RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);        
+		 std::string name = rrv->GetName();
+		 vals[count]=rrv->getVal();
+		 count++;
+         }
+	 delete iter;
+	 return;
+}
 
+void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc){
+
+	 // Initiate the arrays to store parameters
+
+	 // create TTrees to store fit results:
+	 t_fit_b_  = new TTree("tree_fit_b","tree_fit_b");
+	 t_fit_sb_ = new TTree("tree_fit_sb","tree_fit_sb");
+
+    	 t_fit_b_->Branch("fit_status",&fitStatus_,"fit_status/Int_t");
+   	 t_fit_sb_->Branch("fit_status",&fitStatus_,"fit_status/Int_t");
+
+	 t_fit_b_->Branch("mu",&mu_,"mu/Double_t");
+	 t_fit_sb_->Branch("mu",&mu_,"mu/Double_t");
+
+	 t_fit_b_->Branch("numbadnll",&numbadnll_,"numbadnll/Int_t");
+	 t_fit_sb_->Branch("numbadnll",&numbadnll_,"numbadnll/Int_t");
+
+	 t_fit_sb_->Branch("nll_nll0",&nll_nll0_,"nll_nll0/Double_t");
+
+         // fill the maps for the nuisances, and global observables
+         const RooArgSet *cons = mc.GetGlobalObservables();
+         const RooArgSet *nuis = mc.GetNuisanceParameters();
+
+	 globalObservables_ = new double[cons->getSize()];
+	 nuisanceParameters_= new double[nuis->getSize()];
+        
+	 int count=0; 
+         TIterator* iter_c(cons->createIterator());
+         for (TObject *a = iter_c->Next(); a != 0; a = iter_c->Next()) { 
+                 RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);        
+		 std::string name = rrv->GetName();
+		 globalObservables_[count]=0;
+		 t_fit_sb_->Branch(name.c_str(),&(globalObservables_[count]),Form("%s/Double_t",name.c_str()));
+		 t_fit_b_->Branch(name.c_str(),&(globalObservables_[count]),Form("%s/Double_t",name.c_str()));
+		 count++;
+         }
+         
+	 count = 0;
+         TIterator* iter_n(nuis->createIterator());
+         for (TObject *a = iter_n->Next(); a != 0; a = iter_n->Next()) { 
+                 RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);        
+		 std::string name = rrv->GetName();
+		 nuisanceParameters_[count] = 0;
+		 t_fit_sb_->Branch(name.c_str(),&(nuisanceParameters_[count])),Form("%s/Double_t",name.c_str());
+		 t_fit_b_->Branch(name.c_str(),&(nuisanceParameters_[count]),Form("%s/Double_t",name.c_str()));
+		 count++;
+         }
+	std::cout << "Created Branches" <<std::endl;
+         return;	
+}

@@ -87,13 +87,14 @@ bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
 }
 
 
-RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &r, const RooCmdArg &constrain, bool doHesse, int ndim) {
-    return doFit(pdf, data, RooArgList (r), constrain, doHesse, ndim);
+RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &r, const RooCmdArg &constrain, bool doHesse, int ndim, bool reuseNLL) {
+    return doFit(pdf, data, RooArgList (r), constrain, doHesse, ndim, reuseNLL);
 }
 
-RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooArgList &rs, const RooCmdArg &constrain, bool doHesse, int ndim) {
+RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooArgList &rs, const RooCmdArg &constrain, bool doHesse, int ndim, bool reuseNLL) {
     RooFitResult *ret = 0;
-    std::auto_ptr<RooAbsReal> nll(pdf.createNLL(data, constrain, RooFit::Extended(pdf.canBeExtended())));
+    if (reuseNLL) nll->setData(data);	// reuse nll but swap out the data
+    else nll.reset(pdf.createNLL(data, constrain, RooFit::Extended(pdf.canBeExtended()))); // make a new nll
 
     double nll0 = nll->getVal();
     double delta68 = 0.5*ROOT::Math::chisquared_quantile_c(1-0.68,ndim);

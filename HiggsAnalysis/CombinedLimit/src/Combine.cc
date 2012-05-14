@@ -473,7 +473,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       } 
     }
     std::auto_ptr<RooArgSet> vars(genPdf->getVariables());
+    algo->setNToys(nToys);
     for (iToy = 1; iToy <= nToys; ++iToy) {
+      algo->setToyNumber(iToy-1);
       RooAbsData *absdata_toy = 0;
       if (readToysFromHere == 0) {
 	w->loadSnapshot("clean");
