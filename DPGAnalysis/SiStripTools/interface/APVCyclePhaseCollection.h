@@ -20,7 +20,7 @@ class APVCyclePhaseCollection {
 
   const std::vector<int> getPhases(const std::string partition) const;
 
-  enum{nopartition=-91,multiphase=-92,invalid=-99};
+  enum{nopartition=-91,multiphase=-92,empty=-98,invalid=-99};
 
  private:
 
