@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/04/20 14:37:48 $
- *  $Revision: 1.47 $
+ *  $Date: 2012/04/24 15:22:50 $
+ *  $Revision: 1.48 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -390,22 +390,6 @@ void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQ
       if ( _MuonEventFlag->on() ) 
 	makeRatePlot(DirName+"/"+"triggerName_Muon",totltime);
     }
-
-
-  // Fit ME{x,y}
-  //------------------------------------------------------------------------
-  for (std::vector<std::string>::const_iterator ic = _FolderNames.begin();
-       ic != _FolderNames.end(); ic++) {
-
-    std::string DirName;
-    DirName = dirName+*ic;
-
-    hMEx = _dbe->get(DirName + "/METTask_MEx");
-    hMEy = _dbe->get(DirName + "/METTask_MEy");
-
-    if (hMEx && hMEx->kind() == MonitorElement::DQM_KIND_TH1F) hMEx->getTH1F()->Fit("gaus", "q");
-    if (hMEy && hMEy->kind() == MonitorElement::DQM_KIND_TH1F) hMEy->getTH1F()->Fit("gaus", "q");
-  }
 }
 
 
