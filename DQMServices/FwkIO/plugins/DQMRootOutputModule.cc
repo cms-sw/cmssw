@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr 29 13:26:29 CDT 2011
-// $Id: DQMRootOutputModule.cc,v 1.13 2011/12/12 20:22:24 chrjones Exp $
+// $Id: DQMRootOutputModule.cc,v 1.14 2012/03/03 21:38:40 chrjones Exp $
 //
 
 // system include files
@@ -34,6 +34,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/Utilities/interface/Digest.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
@@ -316,7 +317,7 @@ DQMRootOutputModule::openFile(edm::FileBlock const&)
                                    std::string(),
                                    "DQMRootOutputModule",
                                    description().moduleLabel(),
-                                   m_file->GetUUID().AsString(),
+                                   edm::createGlobalIdentifier(),
                                    std::string(),
                                    branchHash.digest().toString(),
                                    std::vector<std::string>()
