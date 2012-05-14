@@ -62,65 +62,64 @@ SKIMStreamLogErrorMonitor = cms.FilteredStream(
     )
 
 ##############
-from  DPGAnalysis.Skims.BeamBkgSkim_cff import *
-pathpfgskim3noncross = cms.Path(pfgskim3noncrossseq)
+#from  DPGAnalysis.Skims.BeamBkgSkim_cff import *
+#pathpfgskim3noncross = cms.Path(pfgskim3noncrossseq)
 
-SKIMStreamBeamBkg = cms.FilteredStream(
-    responsible = 'PFG',
-    name = 'BeamBkg',
-    paths = (pathpfgskim3noncross),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
+#SKIMStreamBeamBkg = cms.FilteredStream(
+#    responsible = 'PFG',
+#    name = 'BeamBkg',
+#    paths = (pathpfgskim3noncross),
+#    content = skimContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('RAW-RECO')
+#    )
 
 ###########
     
-from DPGAnalysis.Skims.cscSkim_cff import *
-pathCSCSkim =cms.Path(cscSkimseq)  
-pathCSCHLTSkim = cms.Path(cscHLTSkimSeq)
-pathCSCAloneSkim = cms.Path(cscSkimAloneSeq)
+#from DPGAnalysis.Skims.cscSkim_cff import *
+#pathCSCSkim =cms.Path(cscSkimseq)  
+#pathCSCHLTSkim = cms.Path(cscHLTSkimSeq)
+#pathCSCAloneSkim = cms.Path(cscSkimAloneSeq)
 
-SKIMStreamCSC = cms.FilteredStream(
-    responsible = 'DPG',
-    name = 'CSC',
-    paths = (pathCSCSkim),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
-SKIMStreamCSCHLT = cms.FilteredStream(
-    responsible = 'DPG',
-    name = 'CSCHLT',
-    paths = (pathCSCHLTSkim),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
-SKIMStreamCSCAlone = cms.FilteredStream(
-    responsible = 'DPG',
-    name = 'CSCAlone',
-    paths = (pathCSCAloneSkim),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-   )
-
+#SKIMStreamCSC = cms.FilteredStream(
+#    responsible = 'DPG',
+#    name = 'CSC',
+#    paths = (pathCSCSkim),
+#    content = skimContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('RAW-RECO')
+#    )
+#SKIMStreamCSCHLT = cms.FilteredStream(
+#    responsible = 'DPG',
+#    name = 'CSCHLT',
+#    paths = (pathCSCHLTSkim),
+#    content = skimContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('RAW-RECO')
+#    )
+#SKIMStreamCSCAlone = cms.FilteredStream(
+#    responsible = 'DPG',
+#    name = 'CSCAlone',
+#    paths = (pathCSCAloneSkim),
+#    content = skimContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('RAW-RECO')
+#   )
 
 #####################
 
-from DPGAnalysis.Skims.dtActivitySkim_cff import *
-pathdtSkim =cms.Path(dtSkimseq)  
-pathHLTdtSkim =cms.Path(dtHLTSkimseq)
+#from DPGAnalysis.Skims.dtActivitySkim_cff import *
+#pathdtSkim =cms.Path(dtSkimseq)  
+#pathHLTdtSkim =cms.Path(dtHLTSkimseq)
     
-SKIMStreamDT = cms.FilteredStream(
-    responsible = 'DPG',
-    name = 'DT',
-    paths = (pathHLTdtSkim),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
+#SKIMStreamDT = cms.FilteredStream(
+#    responsible = 'DPG',
+#    name = 'DT',
+#    paths = (pathHLTdtSkim),
+#    content = skimContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('RAW-RECO')
+#    )
 
 #####################
 
@@ -138,31 +137,31 @@ SKIMStreamEcalActivity = cms.FilteredStream(
 
 #####################
 
-from DPGAnalysis.Skims.L1MuonBitSkim_cff import *
-pathL1MuBitSkim =cms.Path(l1MuBitsSkimseq)  
+#from DPGAnalysis.Skims.L1MuonBitSkim_cff import *
+#pathL1MuBitSkim =cms.Path(l1MuBitsSkimseq)  
 
-SKIMStreamL1MuBit = cms.FilteredStream(
-    responsible = 'DPG',
-    name = 'L1MuBit',
-    paths = (pathL1MuBitSkim),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
+#SKIMStreamL1MuBit = cms.FilteredStream(
+#    responsible = 'DPG',
+#    name = 'L1MuBit',
+#    paths = (pathL1MuBitSkim),
+#    content = skimContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('RAW-RECO')
+#    )
 
 #####################
 
-from DPGAnalysis.Skims.RPCSkim_cff import *
-pathrpcTecSkim =cms.Path(rpcTecSkimseq)  
+#from DPGAnalysis.Skims.RPCSkim_cff import *
+#pathrpcTecSkim =cms.Path(rpcTecSkimseq)  
 
-SKIMStreamRPC = cms.FilteredStream(
-    responsible = 'DPG',
-    name = 'RPC',
-    paths = (pathrpcTecSkim),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
+#SKIMStreamRPC = cms.FilteredStream(
+#    responsible = 'DPG',
+#    name = 'RPC',
+#    paths = (pathrpcTecSkim),
+#    content = skimContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('RAW-RECO')
+#    )
 
 #####################
 
@@ -192,97 +191,95 @@ SKIMStreamRPC = cms.FilteredStream(
     
 #####################
 
-
-from DPGAnalysis.Skims.ecalrechitsSkim_cff import *
-ecalrechitSkimPath = cms.Path(ecalrechitSkim)
-SKIMStreamEcalRH = cms.FilteredStream(
-    responsible = 'Ecal DPG',
-    name = 'EcalRH',
-    paths = (ecalrechitSkimPath),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
+#from DPGAnalysis.Skims.ecalrechitsSkim_cff import *
+#ecalrechitSkimPath = cms.Path(ecalrechitSkim)
+#SKIMStreamEcalRH = cms.FilteredStream(
+#    responsible = 'Ecal DPG',
+#    name = 'EcalRH',
+#    paths = (ecalrechitSkimPath),
+#    content = skimContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('RAW-RECO')
+#    )
 
 #####################
 
-from DPGAnalysis.Skims.goodvertexSkim_cff import *
-goodvertexSkimPath = cms.Path(goodvertexSkim)
-SKIMStreamGoodVtx = cms.FilteredStream(
-    responsible = 'Tracking POG',
-    name = 'GoodVtx',
-    paths = (goodvertexSkimPath),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
+#from DPGAnalysis.Skims.goodvertexSkim_cff import *
+#goodvertexSkimPath = cms.Path(goodvertexSkim)
+#SKIMStreamGoodVtx = cms.FilteredStream(
+#    responsible = 'Tracking POG',
+#    name = 'GoodVtx',
+#    paths = (goodvertexSkimPath),
+#    content = skimContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('RAW-RECO')
+#    )
 
 #############
 
-from DPGAnalysis.Skims.goodcollSkim_cff import *
-pathgoodcoll1 = cms.Path(goodcollL1requirement)
-pathgoodcolhf = cms.Path(goodcollHFrequirement)
+#from DPGAnalysis.Skims.goodcollSkim_cff import *
+#pathgoodcoll1 = cms.Path(goodcollL1requirement)
+#pathgoodcolhf = cms.Path(goodcollHFrequirement)
 
-SKIMStreamGoodCol = cms.FilteredStream(
-    responsible = 'PVT',
-    name = 'GoodCol',
-    paths = (goodvertexSkimPath,pathgoodcoll1,pathgoodcolhf),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
-
-#####################
-
-from DPGAnalysis.Skims.muonTracksSkim_cff import *
-muonTracksSkimPath = cms.Path(muonTracksSkim)
-SKIMStreamMuonTrack = cms.FilteredStream(
-        responsible = 'Muon POG',
-        name = 'MuonTrack',
-        paths = (muonTracksSkimPath),
-        content = skimContent.outputCommands,
-        selectEvents = cms.untracked.PSet(),
-        dataTier = cms.untracked.string('RAW-RECO')
-        )
+#SKIMStreamGoodCol = cms.FilteredStream(
+#    responsible = 'PVT',
+#    name = 'GoodCol',
+#    paths = (goodvertexSkimPath,pathgoodcoll1,pathgoodcolhf),
+#    content = skimContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('RAW-RECO')
+#    )
 
 #####################
 
-SKIMStreamMuonDPG = cms.FilteredStream(
-        responsible = 'Muon DPG',
-        name = 'MuonDPG',
-        paths = (muonTracksSkimPath,pathdtSkim,pathHLTdtSkim,pathCSCHLTSkim,pathCSCAloneSkim,pathrpcTecSkim,),
-        content = skimContent.outputCommands,
-        selectEvents = cms.untracked.PSet(),
-        dataTier = cms.untracked.string('RAW-RECO')
-        )
+#from DPGAnalysis.Skims.muonTracksSkim_cff import *
+#muonTracksSkimPath = cms.Path(muonTracksSkim)
+#SKIMStreamMuonTrack = cms.FilteredStream(
+#        responsible = 'Muon POG',
+#        name = 'MuonTrack',
+#        paths = (muonTracksSkimPath),
+#        content = skimContent.outputCommands,
+#        selectEvents = cms.untracked.PSet(),
+#        dataTier = cms.untracked.string('RAW-RECO')
+#        )
 
 #####################
 
-from DPGAnalysis.Skims.valSkim_cff import *
-relvaltrackSkimPath = cms.Path( relvaltrackSkim )
-relvalmuonSkimPath = cms.Path( relvalmuonSkim )
-SKIMStreamValSkim = cms.FilteredStream(
-    responsible = 'RECO',
-    name = 'ValSkim',
-    paths = (relvaltrackSkimPath,relvalmuonSkimPath),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
+#SKIMStreamMuonDPG = cms.FilteredStream(
+#        responsible = 'Muon DPG',
+#        name = 'MuonDPG',
+#        paths = (muonTracksSkimPath,pathdtSkim,pathHLTdtSkim,pathCSCHLTSkim,pathCSCAloneSkim,pathrpcTecSkim,),
+#        content = skimContent.outputCommands,
+#        selectEvents = cms.untracked.PSet(),
+#        dataTier = cms.untracked.string('RAW-RECO')
+#        )
 
 #####################
 
-from DPGAnalysis.Skims.WZEGSkim_cff import *
-WZEGSkimPath = cms.Path ( WZfilterSkim )
-SKIMStreamWZEG = cms.FilteredStream(
-    responsible = 'ECAL DPG & EGM POG',
-    name = 'WZEG',
-    paths = ( WZEGSkimPath ),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
+#from DPGAnalysis.Skims.valSkim_cff import *
+#relvaltrackSkimPath = cms.Path( relvaltrackSkim )
+#relvalmuonSkimPath = cms.Path( relvalmuonSkim )
+#SKIMStreamValSkim = cms.FilteredStream(
+#    responsible = 'RECO',
+#    name = 'ValSkim',
+#    paths = (relvaltrackSkimPath,relvalmuonSkimPath),
+#    content = skimContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('RAW-RECO')
+#    )
 
+#####################
+
+#from DPGAnalysis.Skims.WZEGSkim_cff import *
+#WZEGSkimPath = cms.Path ( WZfilterSkim )
+#SKIMStreamWZEG = cms.FilteredStream(
+#    responsible = 'ECAL DPG & EGM POG',
+#    name = 'WZEG',
+#    paths = ( WZEGSkimPath ),
+#    content = skimContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('RAW-RECO')
+#    )
 
 
 #####################
@@ -295,14 +292,14 @@ ZMuSkimPath = cms.Path(diMuonSelSeq)
 ZmmgSkimPath = cms.Path(ZmmgSkimSeq)
 WtcMetSkimPath = cms.Path(tcMetWMuNuSeq)
 WpfMetSkimPath = cms.Path(pfMetWMuNuSeq)
-SKIMStreamWZMu   = cms.FilteredStream(
-    responsible = 'Muon DPG-POG-MuEW',
-    name = 'WZMu',
-    paths = (ZMuSkimPath, WtcMetSkimPath, WpfMetSkimPath),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
+#SKIMStreamWZMu   = cms.FilteredStream(
+#    responsible = 'Muon DPG-POG-MuEW',
+#    name = 'WZMu',
+#    paths = (ZMuSkimPath, WtcMetSkimPath, WpfMetSkimPath),
+#    content = skimContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('RAW-RECO')
+#    )
 SKIMStreamZMu   = cms.FilteredStream(
     responsible = 'Muon DPG-POG-MuEW',
     name = 'ZMu',
@@ -319,28 +316,27 @@ SKIMStreamZmmg   = cms.FilteredStream(
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
     )
-SKIMStreamWMu   = cms.FilteredStream(
-    responsible = 'Muon DPG-POG-MuEW',
-    name = 'WMu',
-    paths = (WtcMetSkimPath, WpfMetSkimPath),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-
-    )
+#SKIMStreamWMu   = cms.FilteredStream(
+#    responsible = 'Muon DPG-POG-MuEW',
+#    name = 'WMu',
+#    paths = (WtcMetSkimPath, WpfMetSkimPath),
+#    content = skimContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('RAW-RECO')
+#    )
 
 #####################
 
-from DPGAnalysis.Skims.TkSDSkim_cff import *
-TkSDSkimPath = cms.Path (TkSD_Seq)
-SKIMStreamTkSD = cms.FilteredStream(
-    responsible = 'Tracker DPG & Tracking POG',
-    name = 'TkSD',
-    paths = ( TkSDSkimPath ),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
+#from DPGAnalysis.Skims.TkSDSkim_cff import *
+#TkSDSkimPath = cms.Path (TkSD_Seq)
+#SKIMStreamTkSD = cms.FilteredStream(
+#    responsible = 'Tracker DPG & Tracking POG',
+#    name = 'TkSD',
+#    paths = ( TkSDSkimPath ),
+#    content = skimContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('RAW-RECO')
+#    )
 
 #####################
 
