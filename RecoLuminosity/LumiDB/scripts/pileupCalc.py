@@ -19,6 +19,38 @@ def parseInputFile(inputfilename):
     runlsbyfile=p.runsandls()
     return runlsbyfile
 
+def MyErf(input):
+
+    # Abramowitz and Stegun approximations for Erf (equations 7.1.25-28)
+    X = abs(input)
+
+    p = 0.47047
+    b1 = 0.3480242
+    b2 = -0.0958798
+    b3 = 0.7478556
+
+    T = 1.0/(1.0+p*X)
+    cErf = 1.0 - (b1*T + b2*T*T + b3*T*T*T)*exp(-1.0*X*X)
+    if input<0:
+        cErf = -1.0*cErf
+
+    # Alternate Erf approximation:
+    
+    #A1 = 0.278393
+    #A2 = 0.230389
+    #A3 = 0.000972
+    #A4 = 0.078108
+
+    #term = 1.0+ A1*X+ A2*X*X+ A3*X*X*X+ A4*X*X*X*X
+    #denom = term*term*term*term
+
+    #dErf = 1.0 - 1.0/denom
+    #if input<0:
+    #    dErf = -1.0*dErf
+        
+    return cErf
+
+
 def fillPileupHistogram (lumiInfo, calcOption, hist, minbXsec, Nbins):
     '''
     lumiinfo:[intlumi per LS, mean interactions ]
@@ -30,21 +62,51 @@ def fillPileupHistogram (lumiInfo, calcOption, hist, minbXsec, Nbins):
     RMSInt = lumiInfo[1]*minbXsec
     AveNumInt = lumiInfo[2]*minbXsec
 
-    coeff = 0
-    if RMSInt > 0:
-        coeff = 1.0/RMSInt/sqrt(6.283185)
-    expon = 2.0*RMSInt*RMSInt
+    #coeff = 0
+
+    #if RMSInt > 0:
+    #    coeff = 1.0/RMSInt/sqrt(6.283185)
+
+    #expon = 2.0*RMSInt*RMSInt
+
+    Sqrt2 = sqrt(2)
 
     ##Nbins = hist.GetXaxis().GetNbins()
 
     ProbFromRMS = []
+    BinWidth = hist.GetBinWidth(1)
 
     # First, re-constitute lumi distribution for this LS from RMS:
     if RMSInt > 0:
+
+        AreaLnew = -10.
+        AreaL = 0
+
         for obs in range (Nbins):
-            val = hist.GetBinCenter(obs+1)
-            prob = coeff*exp(-1.0*(val-AveNumInt)*(val-AveNumInt)/expon)
-            ProbFromRMS.append(prob)
+            #Old Gaussian normalization; inaccurate for small rms and large bins
+            #val = hist.GetBinCenter(obs+1)
+            #prob = coeff*exp(-1.0*(val-AveNumInt)*(val-AveNumInt)/expon)
+            #ProbFromRMS.append(prob)
+            
+            left = hist.GetBinLowEdge(obs+1)
+            right = left+BinWidth
+
+            argR = (AveNumInt-right)/Sqrt2/RMSInt
+            AreaR = MyErf(argR)
+
+            if AreaLnew<-5.:
+                argL = (AveNumInt-left)/Sqrt2/RMSInt
+                AreaL = MyErf(argL)
+            else:
+                AreaL = AreaLnew
+                AreaLnew = AreaR  # save R bin value for L next time
+
+            NewProb = (AreaL-AreaR)*0.5
+
+            ProbFromRMS.append(NewProb)
+
+            #print left, right, argL, argR, AreaL, AreaR, NewProb
+
     else:
         obs = hist.FindBin(AveNumInt)
         for bin in range (Nbins):
@@ -60,11 +122,15 @@ def fillPileupHistogram (lumiInfo, calcOption, hist, minbXsec, Nbins):
             for obs in range (Nbins):
                 prob = ProbFromRMS[obs]
                 val = hist.GetBinCenter(obs+1)
-                # print obs, val, RMSInt,coeff,expon,prob
+                #print obs, val, RMSInt,coeff,expon,prob
                 totalProb += prob
                 hist.Fill (val, prob * LSintLumi)
-            if totalProb < 1:
-                hist.Fill (val, (1 - totalProb) * LSintLumi)
+                
+            if 1.0-totalProb > 0.01:
+                print "Significant probability density outside of your histogram"
+                print "Consider using a higher value of --maxPileupBin"
+                print "Mean %f, RMS %f, Integrated probability %f" % (AveNumInt,RMSInt,totalProb)
+            #    hist.Fill (val, (1 - totalProb) * LSintLumi)
         else:
             hist.Fill(AveNumInt,LSintLumi)
     else: # have to convolute with a poisson distribution to get observed Nint
@@ -79,8 +145,11 @@ def fillPileupHistogram (lumiInfo, calcOption, hist, minbXsec, Nbins):
                 prob = ROOT.TMath.Poisson (val, Peak)
                 totalProb += prob
                 hist.Fill (val, prob * LSintLumi * RMSWeight)
-        if totalProb < 1:
-            hist.Fill (Peak, (1 - totalProb) * LSintLumi)
+
+        if 1.0-totalProb > 0.01:
+            print "Significant probability density outside of your histogram"
+            print "Consider using a higher value of --maxPileupBin"
+
 
     return hist
 
@@ -184,12 +253,12 @@ if __name__ == '__main__':
             # now, look for matching run, then match lumi sections
             # print "searching for run %d" % (run)
             if run in inputPileupRange.keys():
-                # print run
+                #print run
                 LSPUlist = inputPileupRange[run]
                 # print "LSPUlist", LSPUlist
                 for LSnumber in lslist:
                     if LSnumber in LSPUlist.keys():
-                        # print "found LS %d" % (LSnumber)
+                        #print "found LS %d" % (LSnumber)
                         lumiInfo = LSPUlist[LSnumber]
                         # print lumiInfo
                         fillPileupHistogram (lumiInfo, options.calcMode,
