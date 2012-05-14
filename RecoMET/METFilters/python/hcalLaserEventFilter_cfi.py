@@ -19,6 +19,9 @@ hcalLaserEventFilter = cms.EDFilter("HcalLaserEventFilter",
                                     debug = cms.untracked.bool(False),
                                     reverseFilter = cms.untracked.bool(False), # if True, will select only events failing filter, rather than events passing
                                     hbheInputLabel=cms.untracked.InputTag("hbhereco"),
-
+                                    hcalNoiseSummaryLabel=cms.untracked.InputTag("hcalnoise"),
                                     taggingMode   = cms.bool(False),
+                                    maxerrormessage = cms.untracked.int32(5), # max number of error messages to print
+                                    forceUseRecHitCollection=cms.untracked.bool(False),  # if specified, will attempt to use HBHE RecHit Collection directly; otherwise, will use information as stored in HcalNoiseSummary object for CMSSW_5_2_0 and above.  (If CMSSW version is < 5_2_0, RecHit collection will be used automatically, since HcalNoiseSummary in those versions didn't contain this filter info)
+                                    forceUseHcalNoiseSummary=cms.untracked.bool(False),  # Can likewise specify to force the use of Hcal Noise Summary, regardless of CMSSW version.   Perhaps this should be the default, since version checked doesn't allow for comparison of patched older versions with new version?
                                     )
