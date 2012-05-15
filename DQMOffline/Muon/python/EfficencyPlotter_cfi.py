@@ -9,10 +9,8 @@ effPlotter = cms.EDAnalyzer("EfficiencyPlotter",
                             phiBin = cms.int32(8),
                             etaMax = cms.double(2.5),
                             phiMax = cms.double(3.2),
-                            ptMax  = cms.double(100),
-                            vtxBin = cms.int32(10),
-                            vtxMin = cms.double(0.5),
-                            vtxMax = cms.double(50.5)
+                            ptMax  = cms.double(100)
                             )
+
 
 

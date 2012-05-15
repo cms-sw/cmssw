@@ -10,7 +10,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"

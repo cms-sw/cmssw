@@ -22,22 +22,21 @@ TtFullHadKinFitProducer::TtFullHadKinFitProducer(const edm::ParameterSet& cfg):
   constraints_                (cfg.getParameter<std::vector<unsigned> >("constraints")),
   mW_                         (cfg.getParameter<double>("mW"  )),
   mTop_                       (cfg.getParameter<double>("mTop")),
-  jetEnergyResolutionScaleFactors_(cfg.getParameter<std::vector<double> >("jetEnergyResolutionScaleFactors")),
-  jetEnergyResolutionEtaBinning_  (cfg.getParameter<std::vector<double> >("jetEnergyResolutionEtaBinning"))
+  energyResolutionSmearFactor_(cfg.getParameter<double>("energyResolutionSmearFactor"))
 {
   if(cfg.exists("udscResolutions") && cfg.exists("bResolutions")){
     udscResolutions_ = cfg.getParameter <std::vector<edm::ParameterSet> >("udscResolutions");
     bResolutions_    = cfg.getParameter <std::vector<edm::ParameterSet> >("bResolutions");
   }
   else if(cfg.exists("udscResolutions") || cfg.exists("bResolutions")){
-    if(cfg.exists("udscResolutions")) throw cms::Exception("Configuration") << "Parameter 'bResolutions' is needed if parameter 'udscResolutions' is defined!\n";
-    else                              throw cms::Exception("Configuration") << "Parameter 'udscResolutions' is needed if parameter 'bResolutions' is defined!\n";
+    if(cfg.exists("udscResolutions")) throw cms::Exception("WrongConfig") << "Parameter 'bResolutions' is needed if parameter 'udscResolutions' is defined!\n";
+    else                              throw cms::Exception("WrongConfig") << "Parameter 'udscResolutions' is needed if parameter 'bResolutions' is defined!\n";
   }
 
   // define kinematic fit interface
   kinFitter = new TtFullHadKinFitter::KinFit(useBTagging_, bTags_, bTagAlgo_, minBTagValueBJet_, maxBTagValueNonBJet_,
-					     udscResolutions_, bResolutions_, jetEnergyResolutionScaleFactors_, 
-					     jetEnergyResolutionEtaBinning_, jetCorrectionLevel_, maxNJets_, maxNComb_,
+					     udscResolutions_, bResolutions_, energyResolutionSmearFactor_ ,
+					     jetCorrectionLevel_, maxNJets_, maxNComb_,
 					     maxNrIter_, maxDeltaS_, maxF_, jetParam_, constraints_, mW_, mTop_);
 
   // produces the following collections

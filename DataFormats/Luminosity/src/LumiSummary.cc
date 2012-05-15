@@ -1,5 +1,5 @@
 
-// $Id: LumiSummary.cc,v 1.25 2012/03/06 11:39:18 xiezhen Exp $
+// $Id: LumiSummary.cc,v 1.24 2012/02/28 15:06:41 xiezhen Exp $
 
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 
@@ -42,9 +42,6 @@ LumiSummary::deadFrac() const {
   //definition: deadcount/bitzerocount
   //if no trigger data, return deadfraction 1.0,mask out this LS
   //if bitzerocount=0, return -1.0 meaning no beam
-  if(lumiversion_=="DIP"){
-    return float(deadcount_)/float(bitzerocount_);
-  }
   if (l1data_.size()==0) return 1.0;
   if (bitzerocount_==0) return -1.0;
   return float(deadcount_)/float(bitzerocount_);
@@ -76,7 +73,7 @@ LumiSummary::numOrbit() const{
 }
 bool 
 LumiSummary::isValid() const {
-  return avginsdellumi_>0;
+  return (lumiversion_!="-1"); 
 }
 LumiSummary::L1  
 LumiSummary::l1info(unsigned int idx)const{

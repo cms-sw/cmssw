@@ -5,7 +5,7 @@ from RecoMuon.TrackingTools.MuonServiceProxy_cff import MuonServiceProxy
 dtEfficiencyMonitor = cms.EDAnalyzer("DTChamberEfficiency",
     MuonServiceProxy,
     debug = cms.untracked.bool(True),
-    TrackCollection = cms.InputTag("standAloneSETMuons"),                                 
+    TrackCollection = cms.InputTag("standAloneMuons"),                                 
     theMaxChi2 = cms.double(100.),
     theNSigma = cms.double(3.),
     theMinNrec = cms.double(20.),

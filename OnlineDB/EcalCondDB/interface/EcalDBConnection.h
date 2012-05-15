@@ -47,7 +47,7 @@ class EcalDBConnection {
   /**
    *  Destructor
    */
-  virtual ~EcalDBConnection();
+  virtual ~EcalDBConnection() throw(std::runtime_error);
 
   /**
    *  Get a new Statement

@@ -129,14 +129,12 @@ lumi::RevisionDML::insertLumiRunData(coral::ISchema& schema,
   lumirundata.extend("RUNNUM",typeid(unsigned int));
   lumirundata.extend("SOURCE",typeid(std::string));
   lumirundata.extend("NOMINALEGEV",typeid(float));
-  lumirundata.extend("NCOLLIDINGBUNCHES",typeid(unsigned int));
   lumirundata["DATA_ID"].data<unsigned long long>()=lumientry.data_id;
   lumirundata["ENTRY_ID"].data<unsigned long long>()=lumientry.entry_id;
   lumirundata["ENTRY_NAME"].data<std::string>()=lumientry.entry_name;
   lumirundata["RUNNUM"].data<unsigned int>()=lumientry.runnumber;
   lumirundata["SOURCE"].data<std::string>()=lumientry.source;
   lumirundata["NOMINALEGEV"].data<float>()=lumientry.bgev;
-  lumirundata["NCOLLIDINGBUNCHES"].data<unsigned int>()=lumientry.ncollidingbunches;
   const std::string lumidataTableName=lumi::LumiNames::lumidataTableName();
   schema.tableHandle(lumidataTableName).dataEditor().insertRow(lumirundata);
 }

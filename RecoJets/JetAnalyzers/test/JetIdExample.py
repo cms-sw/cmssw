@@ -14,7 +14,7 @@ import FWCore.ParameterSet.Config as cms
 ## | |_| | (_| | || (_| | | (_) | |    | |  | | |___ 
 ## |____/ \__,_|\__\__,_|  \___/|_|    |_|  |_|\____|
                                                   
-isMC = False
+isMC = True
 
 
 ##   ____             __ _                       _     _           
@@ -24,20 +24,13 @@ isMC = False
 ##  \____\___/|_| |_|_| |_|\__, |\__,_|_|  \__,_|_.__/|_|\___||___/
 ##                         |___/                                   
 
-## NJetsToKeep = 2
-## GLOBAL_TAG = 'GR_R_38X_V15::All'
-## inputFile = 'file:/uscms_data/d2/kalanand/dijet-Run2010A-JetMET-Nov4ReReco-9667events.root'
-
-## if isMC:
-##     GLOBAL_TAG = 'START38_V14::All'
-##     inputFile ='/store/mc/Fall10/QCD_Pt_80to120_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/FEF4D100-4CCB-DF11-94CB-00E08178C12F.root'
-
 NJetsToKeep = 2
-GLOBAL_TAG = 'GR_R_42_V19::All'
-inputFile = '/store/data/Run2011A/SingleMu/AOD/PromptReco-v6/000/173/692/EE90CCE0-E9CF-E011-B4C7-BCAEC54DB5D6.root'
+GLOBAL_TAG = 'GR_R_38X_V15::All'
+inputFile = 'file:/uscms_data/d2/kalanand/dijet-Run2010A-JetMET-Nov4ReReco-9667events.root'
+
 if isMC:
-    GLOBAL_TAG = 'START42_V13::All'
-    inputFile ='/store/mc/Spring11/QCD_Pt-15_TuneZ2_7TeV-pythia6/AODSIM/PU_S2_START311_V2-v1/0007/0AD300BD-5659-E011-B47A-002618943836.root'
+    GLOBAL_TAG = 'START38_V14::All'
+    inputFile ='/store/mc/Fall10/QCD_Pt_80to120_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/FEF4D100-4CCB-DF11-94CB-00E08178C12F.root'
 
 
 ##   _            _           _           
@@ -84,27 +77,27 @@ process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMCon
 
 #############   JetID: Calo Jets  ###########################
 process.load("RecoJets.JetProducers.ak5JetID_cfi")
-## process.CaloJetsLooseId = cms.EDProducer("CaloJetIdSelector",
-##     src     = cms.InputTag( "ak5CaloJets" ),                                     
-##     idLevel = cms.string("LOOSE_AOD"),                            
-##     jetIDMap = cms.untracked.InputTag("ak5JetID")
-## )
+process.CaloJetsLooseId = cms.EDProducer("CaloJetIdSelector",
+    src     = cms.InputTag( "ak5CaloJets" ),                                     
+    idLevel = cms.string("LOOSE"),                            
+    jetIDMap = cms.untracked.InputTag("ak5JetID")
+)
 
-## process.CaloJetsTightId = cms.EDProducer("CaloJetIdSelector",
-##     src     = cms.InputTag( "ak5CaloJets" ),                                             
-##     idLevel = cms.string("TIGHT"),                            
-##     jetIDMap = cms.untracked.InputTag("ak5JetID")
-## )
+process.CaloJetsTightId = cms.EDProducer("CaloJetIdSelector",
+    src     = cms.InputTag( "ak5CaloJets" ),                                             
+    idLevel = cms.string("TIGHT"),                            
+    jetIDMap = cms.untracked.InputTag("ak5JetID")
+)
 #############   JetID: PF Jets    ###########################
 process.PFJetsLooseId = cms.EDProducer("PFJetIdSelector",
     src     = cms.InputTag( "ak5PFJets" ),                                     
-    idLevel = cms.string("LOOSE_AOD")
+    idLevel = cms.string("LOOSE")
 )
 
-## process.PFJetsTightId = cms.EDProducer("PFJetIdSelector",
-##     src     = cms.InputTag( "ak5PFJets" ),                                             
-##     idLevel = cms.string("TIGHT")
-## )
+process.PFJetsTightId = cms.EDProducer("PFJetIdSelector",
+    src     = cms.InputTag( "ak5PFJets" ),                                             
+    idLevel = cms.string("TIGHT")
+)
 
 
 ##  ____  _       _       
@@ -115,14 +108,14 @@ process.PFJetsLooseId = cms.EDProducer("PFJetIdSelector",
 
 #######################################################
 #############   Analysis: Calo Jets  ##################
-## process.caloJetAnalysisLooseId = cms.EDAnalyzer("CaloJetPlotsExample",
-##     JetAlgorithm  = cms.string('CaloJetsLooseId'),
-##     HistoFileName = cms.string('CaloJetPlotsExample_LooseId.root'),
-##     NJets         = cms.int32(NJetsToKeep)
-## )
-## process.caloJetAnalysisTightId = process.caloJetAnalysisLooseId.clone()
-## process.caloJetAnalysisTightId.JetAlgorithm = cms.string('CaloJetsTightId')
-## process.caloJetAnalysisTightId.HistoFileName = cms.string('CaloJetPlotsExample_TightId.root')
+process.caloJetAnalysisLooseId = cms.EDAnalyzer("CaloJetPlotsExample",
+    JetAlgorithm  = cms.string('CaloJetsLooseId'),
+    HistoFileName = cms.string('CaloJetPlotsExample_LooseId.root'),
+    NJets         = cms.int32(NJetsToKeep)
+)
+process.caloJetAnalysisTightId = process.caloJetAnalysisLooseId.clone()
+process.caloJetAnalysisTightId.JetAlgorithm = cms.string('CaloJetsTightId')
+process.caloJetAnalysisTightId.HistoFileName = cms.string('CaloJetPlotsExample_TightId.root')
 
 #############    Analysis: PF Jets  ###################
 process.pfJetAnalysisLooseId = cms.EDAnalyzer("PFJetPlotsExample",
@@ -130,9 +123,9 @@ process.pfJetAnalysisLooseId = cms.EDAnalyzer("PFJetPlotsExample",
     HistoFileName = cms.string('PFJetPlotsExample_LooseId.root'),
     NJets         = cms.int32(NJetsToKeep)
 )
-## process.pfJetAnalysisTightId = process.pfJetAnalysisLooseId.clone()
-## process.pfJetAnalysisTightId.JetAlgorithm = cms.string('PFJetsTightId')
-## process.pfJetAnalysisTightId.HistoFileName = cms.string('PFJetPlotsExample_TightId.root')
+process.pfJetAnalysisTightId = process.pfJetAnalysisLooseId.clone()
+process.pfJetAnalysisTightId.JetAlgorithm = cms.string('PFJetsTightId')
+process.pfJetAnalysisTightId.HistoFileName = cms.string('PFJetPlotsExample_TightId.root')
 
 
 
@@ -143,13 +136,13 @@ process.pfJetAnalysisLooseId = cms.EDAnalyzer("PFJetPlotsExample",
 ## |_|   \__,_|\__|_| |_|
 
 ## #############   Path       ###########################
-process.p = cms.Path( #process.ak5JetID +
-                      #process.CaloJetsLooseId +
-                      #process.CaloJetsTightId +
+process.p = cms.Path( process.ak5JetID +
+                      process.CaloJetsLooseId +
+                      process.CaloJetsTightId +
                       process.PFJetsLooseId +
-                      #process.PFJetsTightId +
-                      #process.caloJetAnalysisLooseId +
-                      #process.caloJetAnalysisTightId +                      
-                      process.pfJetAnalysisLooseId #+
-                      #process.pfJetAnalysisTightId 
+                      process.PFJetsTightId +
+                      process.caloJetAnalysisLooseId +
+                      process.caloJetAnalysisTightId +                      
+                      process.pfJetAnalysisLooseId +
+                      process.pfJetAnalysisTightId 
                       )

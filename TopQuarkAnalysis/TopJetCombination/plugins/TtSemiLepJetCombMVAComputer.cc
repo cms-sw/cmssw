@@ -13,10 +13,9 @@ TtSemiLepJetCombMVAComputer::TtSemiLepJetCombMVAComputer(const edm::ParameterSet
   maxNJets_(cfg.getParameter<int>("maxNJets")),
   maxNComb_(cfg.getParameter<int>("maxNComb"))
 {
-  produces<std::vector<std::vector<int> > >();
-  produces<std::vector<double>            >("Discriminators");
-  produces<std::string                    >("Method");
-  produces<int                            >("NumberOfConsideredJets");
+  produces< std::vector<std::vector<int> > >();
+  produces< std::vector<double>            >("Discriminators");
+  produces< std::string                    >("Method");
 }
 
 TtSemiLepJetCombMVAComputer::~TtSemiLepJetCombMVAComputer()
@@ -26,10 +25,9 @@ TtSemiLepJetCombMVAComputer::~TtSemiLepJetCombMVAComputer()
 void
 TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
-  std::auto_ptr<std::vector<std::vector<int> > > pOut    (new std::vector<std::vector<int> >);
-  std::auto_ptr<std::vector<double>            > pOutDisc(new std::vector<double>);
-  std::auto_ptr<std::string                    > pOutMeth(new std::string);
-  std::auto_ptr<int                            > pJetsConsidered(new int);
+  std::auto_ptr< std::vector<std::vector<int> > >pOut    (new std::vector<std::vector<int> >);
+  std::auto_ptr< std::vector<double>            >pOutDisc(new std::vector<double>);
+  std::auto_ptr< std::string                    >pOutMeth(new std::string);
 
   mvaComputer.update<TtSemiLepJetCombMVARcd>(setup, "ttSemiLepJetCombMVA");
 
@@ -52,7 +50,7 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
   edm::Handle< std::vector<pat::MET> > mets;
   evt.getByLabel(mets_, mets);
 
-  const unsigned int nPartons = 4;
+  unsigned int nPartons = 4;
 
   // skip events with no appropriate lepton candidate,
   // empty METs vector or less jets than partons
@@ -64,8 +62,6 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
     evt.put(pOut);
     pOutDisc->push_back( 0. );
     evt.put(pOutDisc, "Discriminators");
-    *pJetsConsidered = jets->size();
-    evt.put(pJetsConsidered, "NumberOfConsideredJets");
     return;
   }
 
@@ -76,10 +72,7 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
   // analyze jet combinations
   std::vector<int> jetIndices;
   for(unsigned int i=0; i<jets->size(); ++i){
-    if(maxNJets_ >= (int) nPartons && maxNJets_ == (int) i) {
-      *pJetsConsidered = i;
-      break;
-    }
+    if(maxNJets_ >= (int) nPartons && maxNJets_ == (int) i) break;
     jetIndices.push_back(i);
   }
   
@@ -128,7 +121,6 @@ TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& set
   }
   evt.put(pOut);
   evt.put(pOutDisc, "Discriminators");
-  evt.put(pJetsConsidered, "NumberOfConsideredJets");
 }
 
 void 

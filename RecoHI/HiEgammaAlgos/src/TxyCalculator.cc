@@ -6,7 +6,6 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/PatCandidates/interface/Photon.h"
 
 using namespace edm;
 using namespace reco;

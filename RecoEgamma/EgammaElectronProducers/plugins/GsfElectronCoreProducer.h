@@ -20,13 +20,13 @@ class GsfElectronCoreProducer : public GsfElectronCoreBaseProducer
 
     edm::InputTag edCoresTag_ ;
     edm::InputTag pfCoresTag_ ;
-    edm::InputTag pfSuperClustersTag_ ;
-    edm::InputTag pfSuperClusterTrackMapTag_ ;
+//    edm::InputTag pfSuperClustersTag_ ;
+//    edm::InputTag pfSuperClusterTrackMapTag_ ;
 
     edm::Handle<reco::GsfElectronCoreCollection> edCoresH_ ;
     edm::Handle<reco::GsfElectronCoreCollection> pfCoresH_ ;
-    edm::Handle<reco::SuperClusterCollection> pfClustersH_ ;
-    edm::Handle<edm::ValueMap<reco::SuperClusterRef> > pfClusterTracksH_ ;
+//    edm::Handle<reco::SuperClusterCollection> pfClustersH_ ;
+//    edm::Handle<edm::ValueMap<reco::SuperClusterRef> > pfClusterTracksH_ ;
 
     void produceTrackerDrivenCore( const reco::GsfTrackRef & gsfTrackRef, std::list<reco::GsfElectronCore *> & electrons ) ;
 

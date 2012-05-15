@@ -21,8 +21,7 @@ TtSemiLepJetCombGeom::TtSemiLepJetCombGeom(const edm::ParameterSet& cfg):
       << "Parameter maxNJets can not be set to " << maxNJets_ << ". \n"
       << "It has to be larger than 4 or can be set to -1 to take all jets.";
 
-  produces<std::vector<std::vector<int> > >();
-  produces<int>("NumberOfConsideredJets");
+  produces< std::vector<std::vector<int> > >();
 }
 
 TtSemiLepJetCombGeom::~TtSemiLepJetCombGeom()
@@ -32,8 +31,7 @@ TtSemiLepJetCombGeom::~TtSemiLepJetCombGeom()
 void
 TtSemiLepJetCombGeom::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
-  std::auto_ptr<std::vector<std::vector<int> > > pOut(new std::vector<std::vector<int> >);
-  std::auto_ptr<int> pJetsConsidered(new int);
+  std::auto_ptr< std::vector<std::vector<int> > >pOut    (new std::vector<std::vector<int> >);
 
   std::vector<int> match;
   for(unsigned int i = 0; i < 4; ++i) 
@@ -47,19 +45,15 @@ TtSemiLepJetCombGeom::produce(edm::Event& evt, const edm::EventSetup& setup)
   edm::Handle< edm::View<reco::RecoCandidate> > leps; 
   evt.getByLabel(leps_, leps);
 
-  // skip events without lepton candidate or less than 4 jets
+  // skip events with without lepton candidate or less than 4 jets
   if(leps->empty() || jets->size() < 4){
     pOut->push_back( match );
     evt.put(pOut);
-    *pJetsConsidered = jets->size();
-    evt.put(pJetsConsidered, "NumberOfConsideredJets");
     return;
   }
 
   unsigned maxNJets = maxNJets_;
   if(maxNJets_ == -1 || (int)jets->size() < maxNJets_) maxNJets = jets->size();
-  *pJetsConsidered = maxNJets;
-  evt.put(pJetsConsidered, "NumberOfConsideredJets");
 
   std::vector<bool> isBJet;
   std::vector<bool> isLJet;

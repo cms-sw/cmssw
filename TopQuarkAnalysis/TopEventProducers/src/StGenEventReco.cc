@@ -1,5 +1,8 @@
-#include "AnalysisDataFormats/TopObjects/interface/StGenEvent.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "AnalysisDataFormats/TopObjects/interface/StGenEvent.h"
+#include "TopQuarkAnalysis/TopEventProducers/interface/TopDecaySubset.h"
 #include "TopQuarkAnalysis/TopEventProducers/interface/StGenEventReco.h"
 
 StGenEventReco::StGenEventReco(const edm::ParameterSet& cfg):

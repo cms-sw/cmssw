@@ -17,10 +17,10 @@
    \brief   Module to produce the subset of generator particles directly contained in top decay chains
 
    The module produces the subset of generator particles directly contained in top decay chains. The 
-   particles are saved as a collection of reco::GenParticles. Depending on the configuration of the module,
-   the 4-vector kinematics can be taken from the status-3 particles (ME before parton showering) or from 
-   the status-2 particles (after parton showering), additionally radiated gluons may be considered during
-   the creation of the subset or not. 
+   particles are saved as a collection of reco::GenParticles. Depending on the configuration of the module
+   the 4-vector kinematics can be taken from the status 3 particles (ME before parton showering) of from 
+   the status 2 particles (after parton showering), additioanlly radiated gluons may be considered during
+   the creation if the subset or not. 
 */
 
 

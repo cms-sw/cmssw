@@ -1,5 +1,17 @@
-<use   name="FWCore/Framework"/>
-<use   name="TopQuarkAnalysis/TopSkimming"/>
-<library   file="*.cc" name="TopQuarkAnalysisTopSkimmingPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<library   file="TopDiLeptonFilter.cc" name="TopSkimPlugins">
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="clhepheader"/> 
+</library>
+<library   file="TopLeptonTauFilter.cc">
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="DataFormats/MuonReco"/>
+  <use   name="DataFormats/EgammaCandidates"/>
+</library>
+<library   file="JetTagCountFilter.cc" name="JetTagCountFilter">
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="DataFormats/JetReco"/>
+  <use   name="rootmath"/>
 </library>

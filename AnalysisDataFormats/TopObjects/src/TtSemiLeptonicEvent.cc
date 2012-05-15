@@ -69,10 +69,9 @@ TtSemiLeptonicEvent::print(const int verbosity) const
     }
     log << "-Hypothesis: \n";
     log << " * Number of real neutrino solutions: " << this->numberOfRealNeutrinoSolutions(hypKey) << "\n";
-    log << " * Number of considered jets        : " << this->numberOfConsideredJets(hypKey) << "\n";
     unsigned nOfHyp = this->numberOfAvailableHypos(hypKey);
     if(nOfHyp > 1) {
-      log << " * Number of stored jet combinations: " << nOfHyp << "\n";
+      log << " * Number of available jet combinations: " << nOfHyp << "\n";
       if(verbosity < 10)
 	log << " The following was found to be the best one:\n";
     }
@@ -108,8 +107,6 @@ TtSemiLeptonicEvent::print(const int verbosity) const
 	// kinematic quantities of particles (if last digit of verbosity level > 1)
 	if(verbosity%10 >= 2) {
 	  log << " * Candidates (pt; eta; phi; mass):\n";
-	  if(verbosity%10 >= 3)
-	    printParticle(log, "top pair", this->topPair(hypKey, cmb));
 	  printParticle(log, "hadronic top", this->hadronicDecayTop(hypKey, cmb));
 	  printParticle(log, "hadronic W  ", this->hadronicDecayW  (hypKey, cmb));
 	  if(verbosity%10 >= 3) {

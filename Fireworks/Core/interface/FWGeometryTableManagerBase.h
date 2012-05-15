@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManagerBase.h,v 1.3 2012/02/22 23:03:46 amraktad Exp $
+// $Id: FWGeometryTableManagerBase.h,v 1.2 2012/02/22 03:45:57 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -65,8 +65,6 @@ public:
       Color_t     m_color;
       UChar_t     m_level;
       UChar_t     m_flags;
-      UChar_t     m_transparency;
-
 
       const char* name() const;
       //  const char* nameIndent() const;
@@ -164,10 +162,7 @@ public:
 
    static  void getNNodesTotal(TGeoNode* geoNode, int& off);
 
-   void showEditor(int);
-   void cancelEditor(bool);
-   void setCellValueEditor(TGTextEntry *editor);
-   void applyTransparencyFromEditor();
+
    // protected:
    FWGeometryTableManagerBase(const FWGeometryTableManagerBase&); // stop default
    const FWGeometryTableManagerBase& operator=(const FWGeometryTableManagerBase&); // stop default
@@ -194,10 +189,8 @@ public:
    
    Entries_v          m_entries;
 
+
    int m_levelOffset;
-   
-   TGTextEntry* m_editor;
-   int m_editTransparencyIdx;
 };
 
 

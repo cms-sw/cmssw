@@ -55,11 +55,14 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
   // set correction algo parameters
   applyEnergyCorrection_ = ps.getParameter<bool>("applyEnergyCorrection");
   applyCrackCorrection_  = ps.getParameter<bool>("applyCrackCorrection");
-  applyLocalContCorrection_= ps.getParameter<bool>("applyLocalContCorrection");
+  applyLocalContCorrection_= ps.existsAs<bool>("applyLocalContCorrection") ?  
+    ps.getParameter<bool>("applyLocalContCorrection") : false;
 
   energyCorrectorName_ = ps.getParameter<std::string>("energyCorrectorName");
-  crackCorrectorName_  = ps.getParameter<std::string>("crackCorrectorName");
-  localContCorrectorName_= ps.getParameter<std::string>("localContCorrectorName");
+  crackCorrectorName_  = ps.existsAs<std::string>("crackCorrectorName") ?  
+    ps.getParameter<std::string>("crackCorrectorName") : std::string("EcalClusterCrackCorrection");
+  localContCorrectorName_= ps.existsAs<std::string>("localContCorrectorName") ? 
+    ps.getParameter<std::string>("localContCorrectorName") : std::string("EcalBasicClusterLocalContCorrection") ;
 
   modeEB_ =  ps.getParameter<int>("modeEB");
   modeEE_ =  ps.getParameter<int>("modeEE");

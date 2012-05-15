@@ -5,8 +5,8 @@
  *  An input service for raw data. 
  *  The actual source can be the real DAQ, a file, a random generator, etc.
  *
- *  $Date: 2011/10/13 19:43:44 $
- *  $Revision: 1.19 $
+ *  $Date: 2011/10/14 18:30:20 $
+ *  $Revision: 1.20 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -51,12 +51,15 @@ namespace edm {
     virtual void skip(int offset);
     virtual void setLumi(LuminosityBlockNumber_t lb);
     virtual void setRun(RunNumber_t r);
+    //virtual void doBeginRun(edm::EventPrincipal &rp);
     virtual ItemType getNextItemType();
   
 
+    int doMyBeginRun();
     virtual void publish(xdata::InfoSpace *);
     virtual void publishToXmas(xdata::InfoSpace *);
-    virtual void openBackDoor(unsigned int);
+    virtual void publishForkInfo(evf::moduleweb::ForkInfoObj * forkInfoObj);
+    virtual void openBackDoor(unsigned int,bool*);
     virtual void closeBackDoor();
     virtual void signalWaitingThreadAndBlock();
 
@@ -91,6 +94,11 @@ namespace edm {
     int                              count;
     unsigned int                     thisEventLSid;
     bool                             goToStopping;
+    bool                             immediateStop;
+    evf::moduleweb::ForkInfoObj      *forkInfo_;
+    bool                             runFork_;
+    timeval                          tvStat_;
+    bool                             beginRunTiming_;
   };
   
 }

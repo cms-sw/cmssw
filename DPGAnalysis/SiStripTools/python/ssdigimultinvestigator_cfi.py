@@ -22,7 +22,7 @@ ssdigimultinvestigator = cms.EDAnalyzer('MultiplicityInvestigator',
                                          hitName = cms.untracked.string("digi"),
                                          multiplicityMap = cms.InputTag("ssdigimultprod"),
                                          numberOfBins = cms.untracked.int32(2000),   
-                                         maxLSBeforeRebin = cms.untracked.uint32(100),   
+                                         orbitNbin = cms.untracked.int32(3600),   
                                          scaleFactor = cms.untracked.int32(100)
                                       )
 

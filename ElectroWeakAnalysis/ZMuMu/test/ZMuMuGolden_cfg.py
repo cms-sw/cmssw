@@ -64,21 +64,10 @@ zPlots = cms.PSet(
     )
 )
 
-process.goodZToMuMuNtuple = cms.EDProducer(
-    "CandViewNtpProducer",
-    src = cms.InputTag("zmmCands"),
-    variables = cms.VPSet(
-    cms.PSet(
-    tag = cms.untracked.string("mass"),
-    quantity = cms.untracked.string("mass")
-    )
-    )
-    )
-        
 
 
 
-process.goodZToMuMuPlots = cms.EDAnalyzer(
+process.goodZToMuMuPlots = cms.EDFilter(
     "CandViewHistoAnalyzer",
     zPlots,
 #    src = cms.InputTag("goodZToMuMuAtLeast1HLT"),
@@ -95,30 +84,11 @@ process.eventInfo = cms.OutputModule (
 
 process.ewkZMuMuGoldenPath = cms.Path(
     process.ewkZMuMuGoldenSequence *
-    process.goodZToMuMuPlots *
-    process.goodZToMuMuNtuple
+    process.goodZToMuMuPlots
 )
 
-process.out = cms.OutputModule(
-        "PoolOutputModule",
-            fileName = cms.untracked.string('Ntuple_test.root'),
-        outputCommands = cms.untracked.vstring(
-    "drop *",
-                "keep *_goodZToMuMuNtuple_*_*",
-    ),
-            SelectEvents = cms.untracked.PSet(
-          SelectEvents = cms.vstring(
-            "ewkZMuMuGoldenPath",
-            )
-          )
-        )
-
-process.endPath = cms.EndPath(
-    process.eventInfo
-    + process.out
-    )
 
 
-
-  
-
+process.endPath = cms.EndPath( 
+   process.eventInfo 
+)

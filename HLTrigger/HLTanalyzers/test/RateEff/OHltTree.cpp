@@ -67,8 +67,6 @@ void OHltTree::Loop(
       fChain->SetBranchStatus("LumiBlock", kTRUE);
       fChain->SetBranchStatus("Bx", kTRUE);
       fChain->SetBranchStatus("Orbit", kTRUE);
-      fChain->SetBranchStatus("AvgInstDelLumi", kTRUE);
-
       // fChain->SetBranchStatus("L1TechnicalTriggerBits",kTRUE);
       if (cfg->selectBranchL1)
       {
@@ -138,7 +136,7 @@ void OHltTree::Loop(
             cout<<"Run, LS: "<<Run<<" "<<LumiBlock<<endl;
             if (rc->isNewRunLS(Run, LumiBlock))
             { // check against double counting
-	       rc->addRunLS(Run, LumiBlock, AvgInstDelLumi);
+               rc->addRunLS(Run, LumiBlock);
                nLumiSections++;
 
                // JH - Track per-LS changes in prescales
@@ -303,7 +301,7 @@ void OHltTree::Loop(
                || st.BeginsWith("OpenL1_") )
          {
             // Prefixes reserved for Standard HLT&L1	
-	   if (map_L1BitOfStandardHLTPath.find(st)->second>0)
+            if (map_L1BitOfStandardHLTPath.find(st)->second>0)
             {
                if (prescaleResponse(menu, cfg, rc, i))
                {

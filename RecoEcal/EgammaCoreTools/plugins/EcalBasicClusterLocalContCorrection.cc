@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 //#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <iostream>
@@ -34,6 +35,9 @@ float EcalBasicClusterLocalContCorrection::getValue( const reco::SuperCluster & 
 float EcalBasicClusterLocalContCorrection::getValue( const reco::BasicCluster & basicCluster, const EcalRecHitCollection & recHit ) const
 {
   checkInit();
+
+  // number of parameters needed by this parametrization
+  size_t nparams = 24;
 
   //correction factor to be returned, and to be calculated in this present function:
   double correction_factor=1.;
@@ -119,6 +123,18 @@ float EcalBasicClusterLocalContCorrection::getValue( const reco::BasicCluster & 
 
   //-------------- end calculate local position -------------
   
+
+  size_t payloadsize = params_->params().size();
+  
+  if (payloadsize < nparams  )
+    edm::LogError("Invalid Payload") << "Parametrization requires " << nparams << " parameters but only " << payloadsize << " are found in DB. Perhaps incompatible Global Tag"  << std::endl;
+  
+
+  if (payloadsize > nparams  )
+    edm::LogWarning("Size mismatch ") << "Parametrization requires " << nparams << " parameters but " << payloadsize << " are found in DB. Perhaps incompatible Global Tag"  << std::endl;
+  
+
+
   std::pair<double,double> localPosition(EtaCry,PhiCry);
 
   //--- local cluster coordinates 

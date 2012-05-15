@@ -499,10 +499,9 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuCondFromDB(
                 resultsMenuCond.fillVariableFromRow(*constIt, iRow, menuCond.gtObject2);
 
             } else if ( ( *constIt ) == "COND_GEQ") {
-                //float condGEqFloat = -1;
-                //resultsMenuCond.fillVariableFromRow(*constIt, iRow, condGEqFloat);
-                //menuCond.condGEq = (condGEqFloat > 0.5) ? true : false;
-                resultsMenuCond.fillVariableFromRow(*constIt, iRow, menuCond.condGEq);
+                float condGEqFloat = -1;
+                resultsMenuCond.fillVariableFromRow(*constIt, iRow, condGEqFloat);
+                menuCond.condGEq = (condGEqFloat > 0.5) ? true : false;
 
             } else if ( ( *constIt ) == "COUNT_INDEX") {
                 resultsMenuCond.fillVariableFromRow(*constIt, iRow, menuCond.countIndex);
@@ -1159,11 +1158,7 @@ void L1GtTriggerMenuConfigOnlineProd::addMuonCondition(const TableMenuCond& cond
     }
 
     L1GtMuonTemplate::CorrelationParameter corrParameter;
-    // FIXME
-    // put it back from OMDS when fixing the bool problem
-    // now, put it hardcoded to 1 - we never used another value up to now
-    //corrParameter.chargeCorrelation = static_cast<unsigned int> (condDB.chargeCorrelation);
-    corrParameter.chargeCorrelation = 1;
+    corrParameter.chargeCorrelation = static_cast<unsigned int> (condDB.chargeCorrelation);
     if (muonCond.wsc()) {
         corrParameter.deltaEtaRange = lexical_cast_from_hex<unsigned long long> (
                 condDB.deltaEtaRange);
@@ -1700,11 +1695,7 @@ void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCon
                     fillMuonObjectParameter(condDB.objectParameter2FK, objParameter[0]);
                 }
 
-                //  chargeCorrelation must be set for muons
-                // FIXME check with the hardware if the charge for muons can be used
-                //       till then, put it to ignore
-                L1GtMuonTemplate::CorrelationParameter corrPar;
-                corrPar.chargeCorrelation = 1;
+                L1GtMuonTemplate::CorrelationParameter corrPar; //  dummy, not needed for correlation conditions
 
                 L1GtMuonTemplate subcond(subcondName, Type1s);
                 subcond.setCondGEq(condDB.condGEq);

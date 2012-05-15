@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from FWCore.MessageLogger.MessageLogger_cfi import *
 process = cms.Process("MF")
-process.load("Configuration.Geometry.GeometryExtended_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 process.XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
