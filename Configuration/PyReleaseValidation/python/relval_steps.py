@@ -351,21 +351,19 @@ def addForAll(steps,d):
 step1FastDefaults =merge([{'-s':'GEN,FASTSIM,HLT:GRun,VALIDATION',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
                            '--datatier':'GEN-SIM-DIGI-RECO,DQM',
-                           '--relval':'27000,500'},
+                           '--relval':'27000,3000'},
                           step1Defaults])
 K100by500={'--relval':'100000,500'}
-steps['TTbarFS']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi'},K100by500,step1FastDefaults])
-#steps['TTbarFS2']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi'},K100by500,stCond,step1FastDefaults])
+K100byK2={'--relval':'100000,2000'}
+steps['TTbarFS']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi'},K100byK2,step1FastDefaults])
 steps['SingleMuPt1FS']=merge([{'cfg':'SingleMuPt1_cfi'},step1FastDefaults])
 steps['SingleMuPt10FS']=merge([{'cfg':'SingleMuPt10_cfi'},step1FastDefaults])
 steps['SingleMuPt100FS']=merge([{'cfg':'SingleMuPt100_cfi'},step1FastDefaults])
 steps['SinglePiPt1FS']=merge([{'cfg':'SinglePiPt1_cfi'},step1FastDefaults])
 steps['SinglePiPt10FS']=merge([{'cfg':'SinglePiPt10_cfi'},step1FastDefaults])
 steps['SinglePiPt100FS']=merge([{'cfg':'SinglePiPt100_cfi'},step1FastDefaults])
-steps['ZEEFS']=merge([{'cfg':'ZEE_8TeV_cfi'},K100by500,step1FastDefaults])
-#steps['ZEEFS2']=merge([{'cfg':'ZEE_8TeV_cfi'},K100by500,stCond,step1FastDefaults])
-steps['ZTTFS']=merge([{'cfg':'ZTT_Tauola_OneLepton_OtherHadrons_8TeV_cfi'},K100by500,step1FastDefaults])
-#steps['ZTTFS2']=merge([{'cfg':'ZTT_Tauola_OneLepton_OtherHadrons_8TeV_cfi'},K100by500,stCond,step1FastDefaults])
+steps['ZEEFS']=merge([{'cfg':'ZEE_8TeV_cfi'},K100byK2,step1FastDefaults])
+steps['ZTTFS']=merge([{'cfg':'ZTT_Tauola_OneLepton_OtherHadrons_8TeV_cfi'},K100byK2,step1FastDefaults])
 steps['QCDFlatPt153000FS']=merge([{'cfg':'QCDForPF_8TeV_cfi'},step1FastDefaults])
 steps['QCD_Pt_80_120FS']=merge([{'cfg':'QCD_Pt_80_120_8TeV_cfi'},K100by500,stCond,step1FastDefaults])
 steps['QCD_Pt_3000_3500FS']=merge([{'cfg':'QCD_Pt_3000_3500_8TeV_cfi'},K100by500,stCond,step1FastDefaults])
