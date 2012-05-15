@@ -691,7 +691,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   for (unsigned int ind=0; ind<recVtxs->size(); ++ind) {
     if ( (*recVtxs)[ind].isValid() && !((*recVtxs)[ind].isFake()) ) {
       theIndexOfThePrimaryVertex = ind;
-      continue;
+      break;
     }
   }
   if (theIndexOfThePrimaryVertex<100) {
