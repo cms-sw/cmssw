@@ -1,4 +1,4 @@
-// $Id: I2OChain.cc,v 1.25 2011/03/08 16:01:50 mommsen Exp $
+// $Id: I2OChain.cc,v 1.26 2011/03/08 18:34:11 mommsen Exp $
 /// @file: I2OChain.cc
 
 #include <algorithm>
@@ -472,16 +472,6 @@ namespace stor
     return data_->copyFragmentsIntoBuffer(targetBuffer);
   }
 
-  std::string I2OChain::outputModuleLabel() const
-  {
-    if (!data_)
-      {
-        XCEPT_RAISE(stor::exception::I2OChain,
-          "The output module label can not be determined from an empty I2OChain.");
-      }
-    return data_->outputModuleLabel();
-  }
-
   std::string I2OChain::topFolderName() const
   {
     if( !data_ )
@@ -502,6 +492,16 @@ namespace stor
     return data_->dqmKey();
   }
 
+  std::string I2OChain::outputModuleLabel() const
+  {
+    if (!data_)
+      {
+        XCEPT_RAISE(stor::exception::I2OChain,
+          "The output module label can not be determined from an empty I2OChain.");
+      }
+    return data_->outputModuleLabel();
+  }
+
   uint32_t I2OChain::outputModuleId() const
   {
     if (!data_)
@@ -510,6 +510,16 @@ namespace stor
           "The output module ID can not be determined from an empty I2OChain.");
       }
     return data_->outputModuleId();
+  }
+
+  uint32_t I2OChain::nExpectedEPs() const
+  {
+    if (!data_)
+      {
+        XCEPT_RAISE(stor::exception::I2OChain,
+          "The slave EP count can not be determined from an empty I2OChain.");
+      }
+    return data_->nExpectedEPs();
   }
 
   void I2OChain::hltTriggerNames(Strings& nameList) const

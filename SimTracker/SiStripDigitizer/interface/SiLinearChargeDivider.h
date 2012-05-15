@@ -32,7 +32,7 @@ class SiLinearChargeDivider : public SiChargeDivider{
   virtual ~SiLinearChargeDivider();
 
   // main method: divide the charge (from the PSimHit) into several energy deposits in the bulk
-  SiChargeDivider::ionization_type* divide(const PSimHit*, const LocalVector&, double, const StripGeomDetUnit& det);
+  SiChargeDivider::ionization_type divide(const PSimHit*, const LocalVector&, double, const StripGeomDetUnit& det);
 
   // set the ParticleDataTable (used to fluctuate the charge properly)
   void setParticleDataTable(const ParticleDataTable * pdt) { theParticleDataTable = pdt; }
@@ -51,9 +51,6 @@ class SiLinearChargeDivider : public SiChargeDivider{
   SiG4UniversalFluctuation* fluctuate; 
   // random generator
   CLHEP::HepRandomEngine& rndEngine;
-  // Change to member data
-  ionization_type m_ionization_points;
-  std::vector<float> m_eLossVector;
   // utility: drifts the charge to the surface to estimate the number of relevant strips
   inline float driftXPos(const Local3DPoint& pos, const LocalVector& drift, double thickness) { 
     return pos.x()+(thickness/2.-pos.z())*drift.x()/drift.z();

@@ -12,14 +12,14 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool( True ) )
 # Conditions
 from Configuration.AlCa.autoCond import autoCond
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR_R_50_V6::All'
+process.GlobalTag.globaltag = 'GR_R_50_V11::All'
 
 ## Source
 process.source = cms.Source( "PoolSource"
-, fileNames  = cms.untracked.vstring( '/store/relval/CMSSW_5_0_0/SingleMu/RECO/GR_R_50_V6_RelVal_mu2011A-v3/0000/0026C043-F52A-E111-B383-001A9281173C.root'
-                                    , '/store/relval/CMSSW_5_0_0/SingleMu/RECO/GR_R_50_V6_RelVal_mu2011B-v3/0000/06918CA3-9E2A-E111-8953-0018F34D0D62.root'
+, fileNames  = cms.untracked.vstring( '/store/relval/CMSSW_5_0_1/SingleMu/RECO/GR_R_50_V11_RelVal_mu2011A-v1/0000/004FE4A1-564B-E111-A114-002618943958.root'
+                                    , '/store/relval/CMSSW_5_0_1/SingleMu/RECO/GR_R_50_V11_RelVal_mu2011B-v1/0000/06304866-474B-E111-9F7C-002618943930.root'
                                     )
-, skipEvents = cms.untracked.uint32( 20200 )
+, skipEvents = cms.untracked.uint32( 19850 )
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( 100 ) )
 
@@ -42,7 +42,7 @@ process.genericTriggerEventFlagHLTPass = cms.EDFilter( "GenericTriggerEventFlagT
 , verbosityLevel = cms.uint32( 2 )
 , andOrHlt      = cms.bool( False )
 , hltInputTag   = cms.InputTag( 'TriggerResults::HLT' )
-, hltPaths      = cms.vstring( 'HLT_IsoMu24_eta2p1_v3'
+, hltPaths      = cms.vstring( 'HLT_IsoMu24_eta2p1_v3' # only in 2011B
                              )
 , errorReplyHlt = cms.bool( False )
 )

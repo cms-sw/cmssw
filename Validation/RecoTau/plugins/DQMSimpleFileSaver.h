@@ -1,12 +1,12 @@
-#ifndef ElectroWeakAnalysis_EWKTau_DQMSimpleFileSaver_h
-#define ElectroWeakAnalysis_EWKTau_DQMSimpleFileSaver_h
+#ifndef TauDQMSimpleFileSaver_h
+#define TauDQMSimpleFileSaver_h
 
-/** \class DQMSimpleFileSaver
+/** \class TauDQMSimpleFileSaver
  *  
  *  Class to write all monitor elements registered in DQMStore into ROOT file
  *  (without any naming restrictions imposed by "regular" DQMFileSaver)
  *
- *  $Date: 2008/11/18 16:41:39 $
+ *  $Date: 2008/12/19 19:05:50 $
  *  $Revision: 1.1 $
  *  \author Christian Veelken, UC Davis
  */
@@ -19,11 +19,11 @@
 
 #include <string>
 
-class DQMSimpleFileSaver : public edm::EDAnalyzer
+class TauDQMSimpleFileSaver : public edm::EDAnalyzer
 {
  public:
-  explicit DQMSimpleFileSaver(const edm::ParameterSet&);
-  virtual ~DQMSimpleFileSaver();
+  explicit TauDQMSimpleFileSaver(const edm::ParameterSet&);
+  virtual ~TauDQMSimpleFileSaver();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();  
 

@@ -212,7 +212,6 @@ namespace cms{
 
 	// Optionally continue building trajectory back through 
 	// seed and if possible further inwards.
-	
 	if (doSeedingRegionRebuilding) {
 	  theTrajectoryBuilder->rebuildSeedingRegion((*collseed)[j],theTmpTrajectories);      
 
@@ -220,7 +219,6 @@ namespace cms{
   			              << " valid/invalid trajectories from seed " << j << " ========"<<endl
 				 <<PrintoutHelper::dumpCandidates(theTmpTrajectories);
         }
-	
 
         // Select the best trajectory from this seed (after seed region rebuilding, can be more than one)
 	theTrajectoryCleaner->clean(theTmpTrajectories);
@@ -297,7 +295,6 @@ namespace cms{
             boost::shared_ptr<const TrajectorySeed> seed(new TrajectorySeed(state, hits, direction));
             // 3) make a trajectory
             Trajectory trajectory(seed, direction);
-	    trajectory.setNLoops(it->nLoops());
             trajectory.setSeedRef(it->seedRef());
             // 4) push states in reversed order
             const Trajectory::DataContainer &meas = it->measurements();
@@ -360,7 +357,7 @@ namespace cms{
 	 else state = trajectoryStateTransform::persistentState( initState.first,
 									initState.second->geographicalId().rawId());
 	 LogDebug("CkfPattern") << "pushing a TrackCandidate.";
-	 output->push_back(TrackCandidate(recHits,it->seed(),state,it->seedRef(),it->nLoops() ) );
+	 output->push_back(TrackCandidate(recHits,it->seed(),state,it->seedRef() ) );
        }
       }//output trackcandidates
 

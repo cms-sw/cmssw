@@ -231,7 +231,7 @@ cond::Time_t cond::IOVProxy::firstSince() const {
 }
 
 cond::Time_t cond::IOVProxy::lastTill() const {
-  return iov().firstSince();
+  return iov().lastTill();
 }
  
 std::set<std::string> const& 

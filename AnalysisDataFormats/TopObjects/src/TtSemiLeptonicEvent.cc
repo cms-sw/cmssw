@@ -108,6 +108,8 @@ TtSemiLeptonicEvent::print(const int verbosity) const
 	// kinematic quantities of particles (if last digit of verbosity level > 1)
 	if(verbosity%10 >= 2) {
 	  log << " * Candidates (pt; eta; phi; mass):\n";
+	  if(verbosity%10 >= 3)
+	    printParticle(log, "top pair", this->topPair(hypKey, cmb));
 	  printParticle(log, "hadronic top", this->hadronicDecayTop(hypKey, cmb));
 	  printParticle(log, "hadronic W  ", this->hadronicDecayW  (hypKey, cmb));
 	  if(verbosity%10 >= 3) {

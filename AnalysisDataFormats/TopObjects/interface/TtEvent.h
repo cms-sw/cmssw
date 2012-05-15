@@ -103,6 +103,13 @@ class TtEvent {
   /// return the hypothesis in hypothesis class 'key2', which corresponds to hypothesis 'hyp1' in hypothesis class 'key1'
   int correspondingHypo(const HypoClassKey& key1, const unsigned& hyp1, const HypoClassKey& key2) const;
 
+  /// get combined 4-vector of top and topBar of the given hypothesis
+  const reco::Candidate* topPair(const std::string& key, const unsigned& cmb=0) const { return topPair(hypoClassKeyFromString(key), cmb); };
+  /// get combined 4-vector of top and topBar of the given hypothesis
+  const reco::Candidate* topPair(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : (reco::Candidate*)&eventHypo(key,cmb); };
+  /// get combined 4-vector of top and topBar from the TtGenEvent
+  const math::XYZTLorentzVector* topPair() const { return (!genEvt_ ? 0 : this->genEvent()->topPair()); };
+
   /// print pt, eta, phi, mass of a given candidate into an existing LogInfo
   void printParticle(edm::LogInfo &log, const char* name, const reco::Candidate* cand) const;
 
@@ -111,9 +118,9 @@ class TtEvent {
   /// set TtGenEvent
   void setGenEvent(const edm::Handle<TtGenEvent>& evt) { genEvt_=edm::RefProd<TtGenEvent>(evt); };
   /// add new hypotheses
-  void addEventHypo(const HypoClassKey& key, HypoCombPair hyp) { evtHyp_[key].push_back(hyp); };
+  void addEventHypo(const HypoClassKey& key, const HypoCombPair hyp) { evtHyp_[key].push_back(hyp); };
   /// set number of jets considered when building a given hypothesis
-  void setNumberOfConsideredJets(const HypoClassKey& key, unsigned int nJets) { nJetsConsidered_[key]=nJets; };
+  void setNumberOfConsideredJets(const HypoClassKey& key, const unsigned int nJets) { nJetsConsidered_[key]=nJets; };
   /// set sum pt of kGenMatch hypothesis
   void setGenMatchSumPt(const std::vector<double>& val) {genMatchSumPt_=val;};
   /// set sum dr of kGenMatch hypothesis
@@ -134,11 +141,11 @@ class TtEvent {
   void setHitFitMT(const std::vector<double>& val) { hitFitMT_=val; };
   /// set fitted top mass uncertainty of kHitFit hypothesis
   void setHitFitSigMT(const std::vector<double>& val) { hitFitSigMT_=val; };
-  
+
  protected:
 
   /// leptonic decay channels
-   std::pair<WDecay::LeptonType, WDecay::LeptonType> lepDecays_;
+  std::pair<WDecay::LeptonType, WDecay::LeptonType> lepDecays_;
   /// reference to TtGenEvent (has to be kept in the event!)
   edm::RefProd<TtGenEvent> genEvt_;
   /// map of hypotheses; for each HypoClassKey a vector of 

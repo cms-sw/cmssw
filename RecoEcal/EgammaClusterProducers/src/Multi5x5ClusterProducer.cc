@@ -70,13 +70,8 @@ Multi5x5ClusterProducer::Multi5x5ClusterProducer(const edm::ParameterSet& ps)
   // Produces a collection of barrel and a collection of endcap clusters
   produces< reco::BasicClusterCollection >(endcapClusterCollection_);
   produces< reco::BasicClusterCollection >(barrelClusterCollection_);
-  
-  bool reassignSeedCrysToClusterItSeeds=false;
-  if(ps.exists("reassignSeedCrysToClusterItSeeds")) reassignSeedCrysToClusterItSeeds = ps.getParameter<bool>("reassignSeedCrysToClusterItSeeds");
 
-    
-
-  island_p = new Multi5x5ClusterAlgo(barrelSeedThreshold, endcapSeedThreshold,  v_chstatus, posCalculator_,reassignSeedCrysToClusterItSeeds);
+  island_p = new Multi5x5ClusterAlgo(barrelSeedThreshold, endcapSeedThreshold,  v_chstatus, posCalculator_);
 
   nEvt_ = 0;
 }

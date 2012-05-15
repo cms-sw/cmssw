@@ -25,9 +25,8 @@
   <class name="reco::Photon::MIPVariables" ClassVersion="10">
    <version ClassVersion="10" checksum="1613378413"/>
   </class>
-  <class name="reco::Photon::IsolationVariables" ClassVersion="11">
+  <class name="reco::Photon::IsolationVariables" ClassVersion="10">
    <version ClassVersion="10" checksum="3308689624"/>
-   <version ClassVersion="11" checksum="3649971983"/>
   </class>
   <class name="reco::Photon::PflowIsolationVariables"  ClassVersion="11">
    <version ClassVersion="11" checksum="3200292660"/>

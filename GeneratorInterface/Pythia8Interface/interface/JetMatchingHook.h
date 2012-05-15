@@ -53,10 +53,8 @@ private:
      int                     fEventNumber;
      Pythia8::Info*          fInfoPtr;
      gen::JetMatching*       fJetMatching;
-          
+     
      void setHEPEVT( const Pythia8::Event& );
-     // void setHEPEVT();
-     int getAncestor( int, const Pythia8::Event& );
  
 };
 

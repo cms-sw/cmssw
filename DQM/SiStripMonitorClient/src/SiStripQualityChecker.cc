@@ -73,28 +73,6 @@ SiStripQualityChecker::SiStripQualityChecker(edm::ParameterSet const& ps):pSet_(
   tracking_mes.UpperCut = TkPSet.getParameter<double>("UpperCut");
   TrackingMEsMap.insert(std::pair<std::string, TrackingMEs>("RecHits", tracking_mes));
 
-//  // LS analysis
-//  TkPSet = pSet_.getParameter<edm::ParameterSet>("TrackRateLSPSet"); 
-//  tracking_mes.TrackingFlag = 0;
-//  tracking_mes.HistoName    = TkPSet.getParameter<std::string>("Name");
-//  tracking_mes.LowerCut = TkPSet.getParameter<double>("LowerCut");
-//  tracking_mes.UpperCut = TkPSet.getParameter<double>("UpperCut");
-//  TrackingMEsLSMap.insert(std::pair<std::string, TrackingMEs>("Rate", tracking_mes));
-//
-//  TkPSet = pSet_.getParameter<edm::ParameterSet>("TrackChi2LSPSet"); 
-//  tracking_mes.TrackingFlag = 0;
-//  tracking_mes.HistoName    = TkPSet.getParameter<std::string>("Name");
-//  tracking_mes.LowerCut = TkPSet.getParameter<double>("LowerCut");
-//  tracking_mes.UpperCut = TkPSet.getParameter<double>("UpperCut");
-//  TrackingMEsLSMap.insert(std::pair<std::string, TrackingMEs>("Chi2", tracking_mes));
-//
-//  TkPSet = pSet_.getParameter<edm::ParameterSet>("TrackHitLSPSet"); 
-//  tracking_mes.TrackingFlag = 0;
-//  tracking_mes.HistoName    = TkPSet.getParameter<std::string>("Name");
-//  tracking_mes.LowerCut = TkPSet.getParameter<double>("LowerCut");
-//  tracking_mes.UpperCut = TkPSet.getParameter<double>("UpperCut");
-//  TrackingMEsLSMap.insert(std::pair<std::string, TrackingMEs>("RecHits", tracking_mes));
-
   useGoodTracks_  = pSet_.getUntrackedParameter<bool>("UseGoodTracks", false);
   if (useGoodTracks_) edm::LogInfo("SiStripQualityChecker") <<  " use GoodTrack histograms for certification " << "\n" ;
 }
@@ -242,12 +220,6 @@ void SiStripQualityChecker::fillDummyStatus(){
          it != TrackingMEsMap.end(); it++) {
       it->second.TrackingFlag->Fill(-1.0);
     }
-    /*
-    for (std::map<std::string, TrackingMEs>::iterator it = TrackingMEsLSMap.begin();
-         it != TrackingMEsLSMap.end(); it++) {
-      it->second.TrackingFlag->Fill(-1.0);
-    }
-    */
   }
 }
 //
@@ -276,12 +248,6 @@ void SiStripQualityChecker::resetStatus() {
          it != TrackingMEsMap.end(); it++) {
       it->second.TrackingFlag->Reset();
     }
-    /*
-    for (std::map<std::string, TrackingMEs>::iterator it = TrackingMEsLSMap.begin();
-         it != TrackingMEsLSMap.end(); it++) {
-      it->second.TrackingFlag->Reset();
-    }
-    */
   }
 }
 //
@@ -351,8 +317,8 @@ void SiStripQualityChecker::fillTrackingStatus(DQMStore* dqm_store) {
   std::merge(meVec1.begin(), meVec1.end(), meVec2.begin(), meVec2.end(), meVec.begin());
 
   float gstatus = 1.0;
-  for (std::vector<MonitorElement*>::const_iterator itME = meVec.begin(); itME != meVec.end(); itME++) {
-    MonitorElement * me = (*itME);     
+  for (std::vector<MonitorElement*>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+    MonitorElement * me = (*it);     
     if (!me) continue;     
     std::vector<QReport *> qt_reports = me->getQReports();          
     if (qt_reports.size() == 0) continue;
@@ -486,6 +452,7 @@ void SiStripQualityChecker::printStatusReport() {
 		    << " SToN Flag           " << fval2
 		    << " Summary Flag        " << fval3 << std::endl;
   }
+  std::cout << det_summary_str.str() << std::endl;
 }
 //
 // -- Get Module Status from Layer Level Histograms
@@ -644,8 +611,8 @@ void SiStripQualityChecker::fillTrackingStatusAtLumi(DQMStore* dqm_store){
   std::vector<MonitorElement*> meVec1;
   std::vector<MonitorElement*> meVec2;
   if (useGoodTracks_){
-    meVec1 = dqm_store->getContents(dqm_store->pwd()+"/LSanalysis");
-    //    meVec2 = dqm_store->getContents(dqm_store->pwd()+"/HitProperties/LSanalysis");
+    meVec1 = dqm_store->getContents(dqm_store->pwd()+"/GeneralProperties/GoodTracks");
+    meVec2 = dqm_store->getContents(dqm_store->pwd()+"/HitProperties/GoodTracks");
   }else{
     meVec1 = dqm_store->getContents(dqm_store->pwd()+"/GeneralProperties");
     meVec2 = dqm_store->getContents(dqm_store->pwd()+"/HitProperties");
@@ -654,8 +621,8 @@ void SiStripQualityChecker::fillTrackingStatusAtLumi(DQMStore* dqm_store){
   std::merge(meVec1.begin(), meVec1.end(), meVec2.begin(), meVec2.end(), meVec.begin());
 
   float gstatus = 1.0;
-  for (std::vector<MonitorElement*>::const_iterator itME = meVec.begin(); itME != meVec.end(); itME++) {
-    MonitorElement * me = (*itME);     
+  for (std::vector<MonitorElement*>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+    MonitorElement * me = (*it);     
     if (!me) continue;     
     std::string name = me->getName();
 
@@ -664,7 +631,7 @@ void SiStripQualityChecker::fillTrackingStatusAtLumi(DQMStore* dqm_store){
     for (std::map<std::string, TrackingMEs>::const_iterator it = TrackingMEsMap.begin();
          it != TrackingMEsMap.end(); it++) {
       ibin++;
-      std::string hname = it->second.HistoName+"lumiFlag_";
+      std::string hname = it->second.HistoName;
       float lower_cut = it->second.LowerCut; 
       float upper_cut = it->second.UpperCut; 
       if (name.find(hname) != std::string::npos) {
@@ -673,7 +640,6 @@ void SiStripQualityChecker::fillTrackingStatusAtLumi(DQMStore* dqm_store){
 	it->second.TrackingFlag->Fill(status);
 	fillStatusHistogram(TrackSummaryReportMap, ibin, 1, status);
         break;
-      } else {
       }
     }
     if (status == -1.0) gstatus = -1.0;

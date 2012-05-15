@@ -378,7 +378,7 @@ class SequencePlaceholder(_Sequenceable):
         if not self._name in processDict:
             #print str(processDict.keys())
             raise RuntimeError("The SequencePlaceholder "+self._name+ " cannot be resolved.\n Known keys are:"+str(processDict.keys()))
-        return  processDict[self._name]
+        return  processDict[self._name].resolve(processDict)
 
     def _clonesequence(self, lookuptable):
         if id(self) not in lookuptable:
@@ -866,6 +866,15 @@ if __name__=="__main__":
             self.assertEqual(l, ['m1'])
             p.resolve(d)
             l[:] = []
+            p.visit(namesVisitor)
+            self.assertEqual(l, ['m1', 'm2'])
+            l[:]=[]
+            s1 = Sequence(m1)
+            s2 = SequencePlaceholder("s3")
+            s3 = Sequence(m2)
+            s4 = SequencePlaceholder("s2")
+            p=Path(s1+s4)
+            p.resolve(d)
             p.visit(namesVisitor)
             self.assertEqual(l, ['m1', 'm2'])
         def testReplace(self):
