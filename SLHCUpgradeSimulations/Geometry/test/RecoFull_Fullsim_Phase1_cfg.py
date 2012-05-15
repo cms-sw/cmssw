@@ -26,7 +26,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.14 $'),
+    version = cms.untracked.string('$Revision: 1.15 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -109,6 +109,7 @@ process.PixelCPEGenericESProducer.DoCosmics = False
 ## CPE for other steps
 process.siPixelRecHits.CPE = cms.string('PixelCPEGeneric')
 process.initialStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+process.highPtTripletStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
 process.lowPtTripletStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
 process.pixelPairStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
 process.detachedTripletStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
@@ -142,12 +143,12 @@ process.detachedTripletStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.
 process.detachedTripletStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
 process.detachedTripletStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
 process.detachedTripletStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
-process.mixedTripletStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
-process.mixedTripletStepMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
-process.mixedTripletStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
-process.mixedTripletStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
-process.mixedTripletStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
-process.mixedTripletStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
+#process.mixedTripletStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+#process.mixedTripletStepMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
+#process.mixedTripletStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
+#process.mixedTripletStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
+#process.mixedTripletStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
+#process.mixedTripletStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
 process.pixelLessStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 process.tobTecStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 
