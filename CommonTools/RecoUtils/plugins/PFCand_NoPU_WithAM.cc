@@ -11,7 +11,7 @@
 //
 // Original Author:  Matthias Geisler,32 4-B20,+41227676487,
 //         Created:  Thu Dec  1 16:07:41 CET 2011
-// $Id: PFCand_NoPU_WithAM.cc,v 1.1 2012/04/17 11:58:02 mgeisler Exp $
+// $Id: PFCand_NoPU_WithAM.cc,v 1.2 2012/04/18 15:11:30 mgeisler Exp $
 //
 //
 #include "CommonTools/RecoUtils/interface/PFCand_NoPU_WithAM.h"
@@ -104,9 +104,13 @@ PFCand_NoPU_WithAM::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
 	//get the input vertex<->pfcandidate association map
   	Handle<PFCandVertexAssMap> PFCandAmH;
-  	iEvent.getByLabel(input_VertexPFCandAssociationMap_,PFCandAmH);
+  	iEvent.getByLabel(input_VertexPFCandAssociationMap_,PFCandAmH);	
 
-	PFCandQualityPairVector pfcColl = PFCandAmH->begin()->val;
+	PFCandQualityPairVector pfcColl; 
+
+	if(PFCandAmH->size()!=0){
+          pfcColl = PFCandAmH->begin()->val;
+        }
 
         for(unsigned pfc_ite=0; pfc_ite<pfcColl.size(); pfc_ite++){
 
