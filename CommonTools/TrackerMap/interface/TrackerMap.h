@@ -1,5 +1,6 @@
 #ifndef _TrackerMap_h_
 #define _TrackerMap_h_
+#include <utility>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -70,6 +71,7 @@ class TrackerMap {
   void showPalette(bool printflag1){printflag=printflag1;}; 
   void setTitle(std::string s){title=s;};
   void setRange(float min,float max){gminvalue=min;gmaxvalue=max;};
+  std::pair<float,float>getAutomaticRange();
   void addPixel(bool addPixelfl){addPixelFlag=addPixelfl;};
   void reset();
   void load(std::string s="tmap.svg"); 

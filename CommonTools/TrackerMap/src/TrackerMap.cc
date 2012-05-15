@@ -629,6 +629,25 @@ if(!print_total)mod->value=mod->value*mod->count;//restore mod->value
  }
   
 }
+std::pair<float,float> TrackerMap::getAutomaticRange(){
+  float minvalue,maxvalue;
+  minvalue=9999999.;
+  maxvalue=-9999999.;
+  for (int layer=1; layer < 44; layer++){
+    for (int ring=firstRing[layer-1]; ring < ntotRing[layer-1]+firstRing[layer-1];ring++){
+      for (int module=1;module<200;module++) {
+        int key=layer*100000+ring*1000+module;
+        TmModule * mod = smoduleMap[key];
+        if(mod !=0 && !mod->notInUse()  && mod->count>0){
+          if (minvalue > mod->value)minvalue=mod->value;
+          if (maxvalue < mod->value)maxvalue=mod->value;
+        }
+      }
+    }
+  }
+ return std::make_pair(minvalue,maxvalue);
+
+}
 
 //export  tracker map
 //print_total = true represent in color the total stored in the module
@@ -1491,14 +1510,13 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
        TmPsu *  psu= ipsu->second;
        if(psu!=0) {
        ret = psuModuleMap.equal_range(psu);
+         int nconn1=0;int nconn2=0;
          for(it = ret.first; it != ret.second; ++it){
-           if((*it).second->HVchannel==2){ psu->valueHV2=psu->valueHV2+(*it).second->value;}
-           if((*it).second->HVchannel==3){ psu->valueHV3=psu->valueHV3+(*it).second->value;} 
+           if((*it).second->HVchannel==2&&(*it).second->count>0){ nconn1++;psu->valueHV2=psu->valueHV2+(*it).second->value;}
+           if((*it).second->HVchannel==3&&(*it).second->count>0){ nconn2++;psu->valueHV3=psu->valueHV3+(*it).second->value;} 
 	    }
-         if(psu->nmodHV2!=0){psu->valueHV2=psu->valueHV2/psu->nmodHV2;}
-         if(psu->nmodHV3!=0){psu->valueHV3=psu->valueHV3/psu->nmodHV3;}
-	 psu->countHV2=1;
-         psu->countHV3=1; 
+         if(psu->nmodHV2!=0 &&nconn1>0){psu->valueHV2=psu->valueHV2/psu->nmodHV2; psu->countHV2=1; }
+         if(psu->nmodHV3!=0 &&nconn2>0){psu->valueHV3=psu->valueHV3/psu->nmodHV3; psu->countHV3=1; }
 	  
 	   }
 	 
@@ -1547,7 +1565,8 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
     
     for( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
        TmPsu *  psu= ipsu->second;
-       if(psu!=0) {
+       if(psu!=0 && psu->countHV2>0 && psu->countHV3 >0) {
+
 	      if (minvalue > psu->valueHV2 || minvalue > psu->valueHV3)minvalue=std::min(psu->valueHV2,psu->valueHV3);
 	      if (maxvalue < psu->valueHV2 || maxvalue < psu->valueHV3)maxvalue=std::max(psu->valueHV2,psu->valueHV3);
 	      
@@ -1771,12 +1790,12 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
        TmPsu *  psu= ipsu->second;
        if(psu!=0) {
          ret = psuModuleMap.equal_range(psu);
+         int nconn=0;
          for(it = ret.first; it != ret.second; ++it){
-            psu->value=psu->value+(*it).second->value;
+            if((*it).second->count>0){nconn++;psu->value=psu->value+(*it).second->value;}
             
 	    }
-         psu->value=psu->value/psu->nmod;
-         psu->count=1;
+         if(nconn>0){ psu->value=psu->value/psu->nmod; psu->count=1;}
      
 	 }
        }
@@ -1815,7 +1834,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
     maxvalue=-9999999.;
     for( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
        TmPsu *  psu= ipsu->second;
-       if(psu!=0) {
+       if(psu!=0 && psu->count>0) {
 	      if (minvalue > psu->value)minvalue=psu->value;
 	      if (maxvalue < psu->value)maxvalue=psu->value;
 	}
@@ -2026,9 +2045,9 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
       TmApvPair *  apvPair= i_apv->second;
       if(apvPair!=0) {
 	TmModule * apv_mod = apvPair->mod;
-	if(apv_mod !=0 && !apv_mod->notInUse()){
+	if(apv_mod !=0 && !apv_mod->notInUse() ){
 	  if(useApvPairValue) apvPair->value = apvPair->value / apvPair->count;
-	  else if(apvPair->mpos==0)apv_mod->value = apv_mod->value / apv_mod->count; 
+	  else if(apvPair->mpos==0 && apv_mod->count>0)apv_mod->value = apv_mod->value / apv_mod->count; 
 	}
       }
     }
@@ -2041,13 +2060,14 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 	TmApvPair *  apvPair= i_apv->second;
 	if(apvPair!=0 ) {
 	  TmModule * apv_mod = apvPair->mod;
-	  if( apv_mod !=0 && !apv_mod->notInUse()){
+	  if( apv_mod !=0 && !apv_mod->notInUse() ){
 	    if(useApvPairValue){
 	      if (minvalue > apvPair->value)minvalue=apvPair->value;
 	      if (maxvalue < apvPair->value)maxvalue=apvPair->value;
 	    } else {
+              if(apv_mod->count>0){
 	      if (minvalue > apv_mod->value)minvalue=apv_mod->value;
-	      if (maxvalue < apv_mod->value)maxvalue=apv_mod->value;
+	      if (maxvalue < apv_mod->value)maxvalue=apv_mod->value;}
 	    }
 	  }
 	}
