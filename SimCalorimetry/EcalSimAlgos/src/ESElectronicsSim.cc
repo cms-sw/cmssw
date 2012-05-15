@@ -17,6 +17,9 @@ ESElectronicsSim::ESElectronicsSim (bool addNoise):
   // For 300(310/320) um Si, the MIP is 78.47(81.08/83.7) keV
 }
 
+ESElectronicsSim::~ESElectronicsSim ()
+{}
+
 void ESElectronicsSim::analogToDigital(const CaloSamples& cs, ESDataFrame& df) const 
 {
 
