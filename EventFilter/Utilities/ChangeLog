@@ -1,3 +1,10 @@
+2012-05-15 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* V00-19-28
+	* ExceptionGenerator updated:
+	* timed segfault (type 12), improved cgi parameter handling
+	* added virtual function to compile properly
+
 2012-05-10 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* V00-19-27

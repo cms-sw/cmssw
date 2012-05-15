@@ -20,6 +20,8 @@
 #include "boost/tokenizer.hpp"
 
 #include <stdio.h>
+#include <sys/types.h>
+#include <signal.h>
 
 using namespace std;
 
@@ -27,7 +29,7 @@ namespace evf{
 
     const std::string ExceptionGenerator::menu[menu_items] =  
       {"Sleep x ms", "SleepForever", "Cms Exception", "Exit with error", "Abort", "Unknown Exception", "Endless loop", "Generate Error Message", "Segfault", 
-       "Burn CPU","HLT timing distribution","HLT timing with memory access"};
+       "Burn CPU","HLT timing distribution","HLT timing with memory access","Timed segfault"};
 
     ExceptionGenerator::ExceptionGenerator( const edm::ParameterSet& pset) : 
       ModuleWeb("ExceptionGenerator"), 
@@ -149,7 +151,9 @@ namespace evf{
   }
   void ExceptionGenerator::beginRun(edm::Run& r)
   {
+    gettimeofday(&tv_start_,0);
   }
+
   void ExceptionGenerator::analyze(const edm::Event & e, const edm::EventSetup& c)
     {
       float dummy = 0.;
@@ -202,22 +206,32 @@ namespace evf{
 	      }
               break;
             case 11:
-              iterations = static_cast<unsigned int>(
-                timingHisto_->GetRandom() * intqualifier_*12. + 0.5
-              );
-              TRandom3 random(iterations);
-              const size_t dataSize = 32*500; // 124kB
-              std::vector<double> data(dataSize);
-              random.RndmArray(dataSize, &data[0]);
+	      {
+                iterations = static_cast<unsigned int>(
+                  timingHisto_->GetRandom() * intqualifier_*12. + 0.5
+                );
+                TRandom3 random(iterations);
+                const size_t dataSize = 32*500; // 124kB
+                std::vector<double> data(dataSize);
+                random.RndmArray(dataSize, &data[0]);
               
-	      for(unsigned int j=0; j<iterations;j++){
-                const size_t index = static_cast<size_t>(random.Rndm() * dataSize + 0.5);
-                const double value = data[index];
-		dummy += sqrt(log(value+1))/(value*value);
-                if ( random.Rndm() < 0.1 )
-                  data[index] = dummy;
+	        for(unsigned int j=0; j<iterations;j++){
+                  const size_t index = static_cast<size_t>(random.Rndm() * dataSize + 0.5);
+                  const double value = data[index];
+		  dummy += sqrt(log(value+1))/(value*value);
+                  if ( random.Rndm() < 0.1 )
+                    data[index] = dummy;
+	        }
 	      }
               break;
+	    case 12:
+	      {
+		timeval tv_now;
+	        gettimeofday(&tv_now,0);
+		if (tv_now.tv_sec-tv_start_.tv_sec>intqualifier_)
+		  *pi=0;
+	      }
+	    break;
 	    }
 	}
     }
@@ -239,8 +253,13 @@ namespace evf{
 	  if ( xgi::Utils::hasFormElement(cgi,"exceptiontype") )
 	    {
 	      actionId_ = xgi::Utils::getFormElement(cgi, "exceptiontype")->getIntegerValue();
-	      qualifier_ = xgi::Utils::getFormElement(cgi, "qualifier")->getValue();
-	      intqualifier_ =  xgi::Utils::getFormElement(cgi, "qualifier")->getIntegerValue();
+	      try {
+	        qualifier_ = xgi::Utils::getFormElement(cgi, "qualifier")->getValue();
+	        intqualifier_ =  xgi::Utils::getFormElement(cgi, "qualifier")->getIntegerValue();
+	      }
+	      catch (...) {
+	        //didn't have some parameters
+	      }
 	      actionRequired_ = true;
 	    }
 	  if ( xgi::Utils::hasFormElement(cgi,"module") )
@@ -353,6 +372,9 @@ namespace evf{
       *out << "</html>"                                                  << endl;
     }
   void ExceptionGenerator::publish(xdata::InfoSpace *is)
+  {
+  }
+  void ExceptionGenerator::publishForkInfo(moduleweb::ForkInfoObj *forkInfoObj)
   {
   }
 } // end namespace evf

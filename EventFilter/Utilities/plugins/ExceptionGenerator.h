@@ -21,7 +21,7 @@ namespace evf{
     class ExceptionGenerator : public edm::EDAnalyzer, public evf::ModuleWeb
     {
     public:
-      static const int menu_items = 12;
+      static const int menu_items = 13;
       static const std::string menu[menu_items];
 						   
       explicit ExceptionGenerator( const edm::ParameterSet& );
@@ -33,6 +33,7 @@ namespace evf{
 
       void defaultWebPage(xgi::Input *in, xgi::Output *out); 
       void publish(xdata::InfoSpace *);
+      virtual void publishForkInfo(moduleweb::ForkInfoObj *forkInfoObj);
       
     private:
       int actionId_;
@@ -41,6 +42,7 @@ namespace evf{
       bool actionRequired_;
       std::string original_referrer_;
       TH1D* timingHisto_;
+      timeval tv_start_;
     };
   }
 
