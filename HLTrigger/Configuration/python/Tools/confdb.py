@@ -247,6 +247,9 @@ if 'hltHfreco' in %(dict)s:
     # if requested, override all ED/HLTfilters to always pass ("open" mode)
     self.instrumentOpenMode()
 
+    # if requested, change all HLTTriggerTypeFilter EDFilters to accept only error events (SelectedTriggerType = 0)
+    self.instrumentErrorEventType()
+
     # if requested, instrument the self with the modules and EndPath needed for timing studies
     self.instrumentTiming()
 
@@ -415,6 +418,14 @@ if 'PrescaleService' in %(dict)s:
       for some in splitter(filters, 1000):
         re_filters  = re.compile( r'\b((process\.)?(' + r'|'.join(some) + r'))\b' )
         self.data = re_sequence.sub( lambda line: re_filters.sub( r'cms.ignore( \1 )', line.group(0) ), self.data )
+
+
+  def instrumentErrorEventType(self):
+    if self.config.errortype:
+      # change all HLTTriggerTypeFilter EDFilters to accept only error events (SelectedTriggerType = 0)
+      self._fix_parameter(name = 'SelectedTriggerType', type ='int32', value = '1', replace = '0')
+      self._fix_parameter(name = 'SelectedTriggerType', type ='int32', value = '2', replace = '0')
+      self._fix_parameter(name = 'SelectedTriggerType', type ='int32', value = '3', replace = '0')
 
 
   def overrideGlobalTag(self):
