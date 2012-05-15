@@ -103,47 +103,36 @@ unsigned mvaMEtUtilities::numJetsAboveThreshold(const std::vector<JetInfo>& jets
 
 //-------------------------------------------------------------------------------
 std::vector<mvaMEtUtilities::JetInfo> mvaMEtUtilities::cleanJets(const std::vector<JetInfo>& jets, 
-								 const std::vector<reco::Candidate::LorentzVector>& leptons,double ptThreshold)
+								 const std::vector<reco::Candidate::LorentzVector>& leptons,
+								 double ptThreshold, double dRmatch)
 {
-  //std::cout << "<mvaMEtUtilities::cleanJets>:" << std::endl;
-  //std::cout << "leptons:" << std::endl;
-  //unsigned numLeptons = leptons.size();
-  //for ( unsigned iLepton = 0; iLepton < numLeptons; ++iLepton ) {
-  //  const reco::Candidate::LorentzVector& leptonP4 = leptons.at(iLepton);
-  //  std::cout << " #" << iLepton << ": Pt = " << leptonP4.pt() << "," 
-  //	        << " eta = " << leptonP4.eta() << ", phi = " << leptonP4.phi() << std::endl;
-  //}
-  //std::cout << "input jets:" << std::endl;
-  //unsigned numJets_input = jets.size();
-  //for ( unsigned iJet = 0; iJet < numJets_input; ++iJet ) {
-  //  const reco::Candidate::LorentzVector& jetP4 = jets.at(iJet).p4_;
-  //  std::cout << " #" << iJet << ": Pt = " << jetP4.pt() << "," 
-  //	        << " eta = " << jetP4.eta() << ", phi = " << jetP4.phi() << std::endl;
-  //}
-  
   std::vector<JetInfo> retVal;
   for ( std::vector<JetInfo>::const_iterator jet = jets.begin();
 	jet != jets.end(); ++jet ) {
     bool isOverlap = false;
     for ( std::vector<reco::Candidate::LorentzVector>::const_iterator lepton = leptons.begin();
 	  lepton != leptons.end(); ++lepton ) {
-      if ( deltaR(jet->p4_, *lepton) < 0.5 ) {
-	isOverlap = true;	
-      }
-      if ( jet->p4_.pt() < ptThreshold ) { 
-	isOverlap = true;
-      }
+      if ( deltaR(jet->p4_, *lepton) < dRmatch ) isOverlap = true;	
     }
-    if ( !isOverlap ) retVal.push_back(*jet);
+    if ( jet->p4_.pt() > ptThreshold && !isOverlap ) retVal.push_back(*jet);
   }
-  
-  //std::cout << "output jets:" << std::endl;
-  //unsigned numJets_output = retVal.size();
-  //for ( unsigned iJet = 0; iJet < numJets_output; ++iJet ) {
-  //  const reco::Candidate::LorentzVector& jetP4 = retVal.at(iJet).p4_;
-  //  std::cout << " #" << iJet << ": Pt = " << jetP4.pt() << "," 
-  //	        << " eta = " << jetP4.eta() << ", phi = " << jetP4.phi() << std::endl;
-  //}
+  return retVal;
+}
+
+std::vector<mvaMEtUtilities::pfCandInfo> mvaMEtUtilities::cleanPFCands(const std::vector<pfCandInfo>& pfCandidates, 
+								       const std::vector<reco::Candidate::LorentzVector>& leptons,
+								       double dRmatch, bool invert)
+{
+  std::vector<pfCandInfo> retVal;
+  for ( std::vector<pfCandInfo>::const_iterator pfCandidate = pfCandidates.begin();
+	pfCandidate != pfCandidates.end(); ++pfCandidate ) {
+    bool isOverlap = false;
+    for ( std::vector<reco::Candidate::LorentzVector>::const_iterator lepton = leptons.begin();
+	  lepton != leptons.end(); ++lepton ) {
+      if ( deltaR(pfCandidate->p4_, *lepton) < dRmatch ) isOverlap = true;
+    }
+    if ( (!isOverlap && !invert) || (isOverlap && invert) ) retVal.push_back(*pfCandidate);
+  }
   return retVal;
 }
 //-------------------------------------------------------------------------------
@@ -262,15 +251,10 @@ CommonMETData mvaMEtUtilities::computeNegPFRecoil(const CommonMETData& leptons,
 {
   CommonMETData retVal;
   CommonMETData pfMEt = computeTrackMEt(pfCandidates, dZcut, 2);
-  //std::cout << "<mvaMEtUtilities::computeNegPFRecoil>:" << std::endl;
-  //std::cout << " pfMEt: Px = " << pfMEt.mex << ", Py = " << pfMEt.mey << std::endl;
-  //std::cout << " leptons: Px = " << leptons.mex << ", Py = " << leptons.mey << std::endl;
-  retVal.mex   = pfMEt.mex   + leptons.mex; // CV: this is actually minus the hadronic recoil in the event
-  retVal.mey   = pfMEt.mey   + leptons.mey;
-  retVal.sumet = pfMEt.sumet - leptons.sumet;
+  retVal.mex   = pfMEt.mex; 
+  retVal.mey   = pfMEt.mey;
+  retVal.sumet = pfMEt.sumet;
   finalize(retVal);
-  //std::cout << "--> retVal: Pt = " << retVal.met 
-  //	      << " (Px = " << retVal.mex << ", Py = " << retVal.mey << ")" << std::endl; 
   return retVal;
 }
 
@@ -279,9 +263,9 @@ CommonMETData mvaMEtUtilities::computeNegTrackRecoil(const CommonMETData& lepton
 {
   CommonMETData retVal;
   CommonMETData trackMEt = computeTrackMEt(pfCandidates, dZcut, 0);
-  retVal.mex   = trackMEt.mex   + leptons.mex; // CV: this is actually minus the hadronic recoil in the event
-  retVal.mey   = trackMEt.mey   + leptons.mey;
-  retVal.sumet = trackMEt.sumet - leptons.sumet;
+  retVal.mex   = trackMEt.mex; 
+  retVal.mey   = trackMEt.mey;
+  retVal.sumet = trackMEt.sumet;
   finalize(retVal);
   return retVal;
 }
@@ -292,9 +276,9 @@ CommonMETData mvaMEtUtilities::computeNegNoPURecoil(const CommonMETData& leptons
 {
   CommonMETData retVal;
   CommonMETData noPUMEt = computeNoPUMEt(pfCandidates, jets, dZcut);
-  retVal.mex   = noPUMEt.mex   + leptons.mex; // CV: this is actually minus the hadronic recoil in the event
-  retVal.mey   = noPUMEt.mey   + leptons.mey;
-  retVal.sumet = noPUMEt.sumet - leptons.sumet;
+  retVal.mex   = noPUMEt.mex; 
+  retVal.mey   = noPUMEt.mey;
+  retVal.sumet = noPUMEt.sumet;
   finalize(retVal);
   return retVal;
 }
@@ -305,9 +289,9 @@ CommonMETData mvaMEtUtilities::computeNegPUCRecoil(const CommonMETData& leptons,
 {
   CommonMETData retVal;
   CommonMETData puCMEt = computePUCMEt(pfCandidates, jets, dZcut);
-  retVal.mex   = puCMEt.mex   + leptons.mex; // CV: this is actually minus the hadronic recoil in the event
-  retVal.mey   = puCMEt.mey   + leptons.mey;
-  retVal.sumet = puCMEt.sumet - leptons.sumet;
+  retVal.mex   = puCMEt.mex;
+  retVal.mey   = puCMEt.mey;
+  retVal.sumet = puCMEt.sumet;
   finalize(retVal);
   return retVal;
 }

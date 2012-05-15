@@ -88,29 +88,22 @@ void PFMETAlgorithmMVA::setInput(const std::vector<reco::Candidate::LorentzVecto
 				 const std::vector<mvaMEtUtilities::pfCandInfo>& pfCandidates,
 				 const std::vector<reco::Vertex::Point>& vertices)
 {
-  CommonMETData sumLeptons;
-  sumLeptons.mex   = 0.;
-  sumLeptons.mey   = 0.;
-  sumLeptons.sumet = 0.;
-  for ( std::vector<reco::Candidate::LorentzVector>::const_iterator lepton = leptons.begin();
-	lepton != leptons.end(); ++lepton ) {
-    sumLeptons.mex   += lepton->px();
-    sumLeptons.mey   += lepton->py();
-    sumLeptons.sumet += lepton->pt();
-  }
-
+  std::vector<mvaMEtUtilities::pfCandInfo> pfCandidates_leptons = utils_.cleanPFCands(pfCandidates, leptons, 0.3, true);
+  CommonMETData sumLeptons = utils_.computeTrackMEt(pfCandidates_leptons, dZcut_, 2);
   sumLeptonPx_ = sumLeptons.mex;
   sumLeptonPy_ = sumLeptons.mey;
+  //std::cout << "sumLeptons: Px = " << sumLeptonPx_ << ", Py = " << sumLeptonPy_ << std::endl;
 
   double ptThreshold = -1.;
   if(is42_) ptThreshold = 1.;  //PH: For 42 training added a pT cut of 1 GeV on corrected Jets
-  std::vector<mvaMEtUtilities::JetInfo> jets_cleaned = utils_.cleanJets(jets, leptons,ptThreshold);
+  std::vector<mvaMEtUtilities::JetInfo> jets_cleaned = utils_.cleanJets(jets, leptons, ptThreshold, 0.5);
+  const std::vector<mvaMEtUtilities::pfCandInfo> pfCandidates_cleaned = utils_.cleanPFCands(pfCandidates, leptons, 0.3, false);
 
-  CommonMETData pfRecoil_data  = utils_.computeNegPFRecoil(sumLeptons, pfCandidates, dZcut_);
-  CommonMETData tkRecoil_data  = utils_.computeNegTrackRecoil(sumLeptons, pfCandidates, dZcut_);
-  CommonMETData npuRecoil_data = utils_.computeNegNoPURecoil(sumLeptons, pfCandidates, jets_cleaned, dZcut_);
-  CommonMETData pucRecoil_data = utils_.computeNegPUCRecoil(sumLeptons, pfCandidates, jets_cleaned, dZcut_);
-  CommonMETData puMEt_data     = utils_.computePUMEt(pfCandidates, jets_cleaned, 0.2); //dZCut bug
+  CommonMETData pfRecoil_data  = utils_.computeNegPFRecoil(sumLeptons, pfCandidates_cleaned, dZcut_);
+  CommonMETData tkRecoil_data  = utils_.computeNegTrackRecoil(sumLeptons, pfCandidates_cleaned, dZcut_);
+  CommonMETData npuRecoil_data = utils_.computeNegNoPURecoil(sumLeptons, pfCandidates_cleaned, jets_cleaned, dZcut_);
+  CommonMETData pucRecoil_data = utils_.computeNegPUCRecoil(sumLeptons, pfCandidates_cleaned, jets_cleaned, dZcut_);
+  CommonMETData puMEt_data     = utils_.computePUMEt(pfCandidates_cleaned, jets_cleaned, 0.2); //dZCut bug
 
   reco::Candidate::LorentzVector jet1P4 = utils_.leadJetP4(jets_cleaned);
   reco::Candidate::LorentzVector jet2P4 = utils_.subleadJetP4(jets_cleaned);
@@ -149,6 +142,8 @@ void PFMETAlgorithmMVA::setInput(const std::vector<reco::Candidate::LorentzVecto
 	   jet2Pt, jet2Eta, jet2Phi,
 	   numJetsPtGt30, numJets, 
 	   numVertices);
+
+  //PFMETAlgorithmMVA::print(std::cout);
 }
 
 void PFMETAlgorithmMVA::setInput(double pfSumEt, double pfU, double pfPhi,
