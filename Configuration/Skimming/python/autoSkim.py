@@ -20,7 +20,6 @@ autoSkim = {
     'MuOnia' : 'LogError+LogErrorMonitor+ChiB',
     'MultiJet' : 'LogError+LogErrorMonitor+HighMET',
     'NoBPTX' : 'LogError+LogErrorMonitor+EXOHSCP',
-#    'ParkingMonitor' : 'LogError+LogErrorMonitor+HighMET',
     'PhotonHad' : 'LogError+LogErrorMonitor',
     'SingleElectron' : 'LogError+LogErrorMonitor+WElectron+HighMET+TOPElePlusJets+DiTau',
     'SingleMu' : 'LogError+LogErrorMonitor+ZMu+HighMET+EXOHSCP+TOPMuPlusJets+MuTau',
@@ -28,6 +27,7 @@ autoSkim = {
     'Tau' : 'LogError+LogErrorMonitor',
     'TauPlusX' : 'LogError+LogErrorMonitor+MuTauMET',
     }
+
 
 ## autoSkim 2012 (5E33 HLT menu)
 """
