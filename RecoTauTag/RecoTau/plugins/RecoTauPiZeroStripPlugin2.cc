@@ -198,8 +198,8 @@ RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(con
     //	        << " eta = " << (*cand)->eta() << ", phi = " << (*cand)->phi(); 
     if ( (*cand)->et() > minGammaEtStripSeed_ ) {
       //std::cout << " --> assigning seedCandId = " << seedCands.size() << std::endl;
-      const reco::TrackBaseRef candTrack = getTrack(*cand);
-      if ( candTrack.isNonnull() ) {
+      //      const reco::TrackBaseRef candTrack = getTrack(*cand);
+      //  if ( candTrack.isNonnull() ) {
 	//std::cout << "has Track: pt = " << candTrack->pt() << " +/- " << candTrack->ptError() << "," 
 	//	    << " eta = " << candTrack->eta() << ", phi = " << candTrack->phi() << ","
 	//	    << " charge = " << candTrack->charge() << std::endl;
@@ -209,7 +209,7 @@ RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(con
 	//std::cout << " vtxAssocWeight = " << vertexAssociator_.associatedVertex(jet)->trackWeight(candTrack) << std::endl;
 	//std::cout << " numPxlHits = " << candTrack->hitPattern().numberOfValidPixelHits() << std::endl;
         //std::cout << " numTrkHits = " << candTrack->hitPattern().numberOfValidHits() << std::endl;
-      }
+      // }
       //std::cout << "ECAL Et: calibrated = " << (*cand)->ecalEnergy()*sin((*cand)->theta()) << "," 
       //	  << " raw = " << (*cand)->rawEcalEnergy()*sin((*cand)->theta()) << std::endl;
       //std::cout << "HCAL Et: calibrated = " << (*cand)->hcalEnergy()*sin((*cand)->theta()) << "," 
