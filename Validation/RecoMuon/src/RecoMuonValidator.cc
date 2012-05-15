@@ -5,6 +5,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
@@ -475,6 +476,7 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset):
 
   wantTightMuon_ = pset.getParameter<bool>("wantTightMuon");
   beamspotLabel_ = pset.getParameter< edm::InputTag >("beamSpot");
+  primvertexLabel_ = pset.getParameter< edm::InputTag >("primaryVertex");
 
   // Set histogram dimensions from config
   HistoDimensions hDim;
@@ -680,15 +682,34 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     return;
   }
 
-  // Get the BeamSpot, and fill a (dummy) primary vertx with it
-  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  event.getByLabel(beamspotLabel_,recoBeamSpotHandle);
-  reco::BeamSpot bs = *recoBeamSpotHandle;
-  reco::Vertex::Error e;
-  e(0,0) = bs.BeamWidthX();
-  e(1,1) = bs.BeamWidthY();
-  e(2,2) = bs.sigmaZ();
-  const reco::Vertex thePrimaryVertex(bs.position(),e);
+  // Look for the Primary Vertex (and use the BeamSpot instead, if you can't find it):
+  reco::Vertex::Point posVtx;
+  reco::Vertex::Error errVtx;
+  edm::Handle<reco::VertexCollection> recVtxs;
+  event.getByLabel(primvertexLabel_,recVtxs);
+  unsigned int theIndexOfThePrimaryVertex = 999.;
+  for (unsigned int ind=0; ind<recVtxs->size(); ++ind) {
+    if ( (*recVtxs)[ind].isValid() && !((*recVtxs)[ind].isFake()) ) {
+      theIndexOfThePrimaryVertex = ind;
+      continue;
+    }
+  }
+  if (theIndexOfThePrimaryVertex<100) {
+    posVtx = ((*recVtxs)[theIndexOfThePrimaryVertex]).position();
+    errVtx = ((*recVtxs)[theIndexOfThePrimaryVertex]).error();
+  }
+  else {
+    LogInfo("RecoMuonValidator") << "reco::PrimaryVertex not found, use BeamSpot position instead\n";
+    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+    event.getByLabel(beamspotLabel_,recoBeamSpotHandle);
+    reco::BeamSpot bs = *recoBeamSpotHandle;
+    posVtx = bs.position();
+    errVtx(0,0) = bs.BeamWidthX();
+    errVtx(1,1) = bs.BeamWidthY();
+    errVtx(2,2) = bs.sigmaZ();
+  }
+  const reco::Vertex thePrimaryVertex(posVtx,errVtx);
+
 
   // Get TrackingParticles
   Handle<TrackingParticleCollection> simHandle;
