@@ -3,6 +3,7 @@
 
 class CaloRecHitMetaCollectionItem {
 public:
+  virtual ~CaloRecHitMetaCollectionItem() {}
   virtual int find(const DetId& id) const = 0;
   virtual const CaloRecHit* at(int index) const = 0;
 };
@@ -11,7 +12,6 @@ template <class T>
 class CaloRecHitMetaCollectionItemT : public CaloRecHitMetaCollectionItem {
 public:
   CaloRecHitMetaCollectionItemT(const T* coll, int start) : m_collection(coll),m_start(start) { }
-  virtual ~CaloRecHitMetaCollectionItemT() { }
   virtual int find(const DetId& id) const {
     typename T::const_iterator i;
     i=m_collection->find(id);
