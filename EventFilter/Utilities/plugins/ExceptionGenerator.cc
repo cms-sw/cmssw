@@ -226,10 +226,8 @@ namespace evf{
               break;
 	    case 12:
 	      {
-		std::cout << " time ! " << std::endl;
 		timeval tv_now;
 	        gettimeofday(&tv_now,0);
-		std::cout << " now: " << tv_now.tv_sec << " before: " << tv_start_.tv_sec << std::endl;
 		if (tv_now.tv_sec-tv_start_.tv_sec>intqualifier_)
 		  *pi=0;
 	      }
