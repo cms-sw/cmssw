@@ -23,6 +23,7 @@ def customise(process):
     process.mixedTripletStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
     process.pixelLessStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
     process.tobTecStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+    process.highPtTripletStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
 
     # Need these lines to stop some errors about missing siStripDigis collections.
     # should add them to fakeConditions_Phase1_cff
