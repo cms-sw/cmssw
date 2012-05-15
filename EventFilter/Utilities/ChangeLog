@@ -1,6 +1,11 @@
 2012-05-15 Srecko Morovic <srecko.morovic@cern.ch>
 
-	* V00-19-28
+	* V00-19-30
+	* update beginRun to latest framework definition
+
+2012-05-15 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* V00-19-29
 	* ExceptionGenerator updated:
 	* timed segfault (type 12), improved cgi parameter handling
 	* added virtual function to compile properly

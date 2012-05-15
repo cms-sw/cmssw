@@ -27,7 +27,7 @@ namespace evf{
       explicit ExceptionGenerator( const edm::ParameterSet& );
       ~ExceptionGenerator(){};
       void beginJob();
-      void beginRun(edm::Run& r);
+      void beginRun(edm::Run& r, const edm::EventSetup& iSetup);
       void analyze(const edm::Event & e, const edm::EventSetup& c);
       void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 

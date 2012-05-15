@@ -149,7 +149,7 @@ namespace evf{
     timingHisto_->SetBinContent(101,147);
     timingHisto_->SetEntries(24934);
   }
-  void ExceptionGenerator::beginRun(edm::Run& r)
+  void ExceptionGenerator::beginRun(edm::Run& r, const edm::EventSetup& iSetup)
   {
     gettimeofday(&tv_start_,0);
   }
@@ -226,8 +226,10 @@ namespace evf{
               break;
 	    case 12:
 	      {
+		std::cout << " time ! " << std::endl;
 		timeval tv_now;
 	        gettimeofday(&tv_now,0);
+		std::cout << " now: " << tv_now.tv_sec << " before: " << tv_start_.tv_sec << std::endl;
 		if (tv_now.tv_sec-tv_start_.tv_sec>intqualifier_)
 		  *pi=0;
 	      }
@@ -243,6 +245,7 @@ namespace evf{
     
     void ExceptionGenerator::defaultWebPage(xgi::Input *in, xgi::Output *out)
     {
+      gettimeofday(&tv_start_,0);
       std::string path;
       std::string urn;
       std::string mname;
