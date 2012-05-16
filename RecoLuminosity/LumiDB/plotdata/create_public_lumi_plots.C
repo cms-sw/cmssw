@@ -4,6 +4,13 @@
 
 #include "TStyle.h"
 #include "TColor.h"
+#include "TCanvas.h"
+#include "TPad.h"
+#include "TLegend.h"
+#include "TGaxis.h"
+#include "TTimeStamp.h"
+#include "TColor.h"
+#include "TH1F.h"
 
 // NOTE: All the below colors have been tweaked based on the PNG
 // versions of the CMS logos present in this CVS area.
@@ -149,43 +156,35 @@ TTimeStamp zeroTimeInTimestamp(TTimeStamp const& input) {
 }
 
 void readInputFile(std::string& fileName,
-                   std::vector< int >& runV,
-                   std::vector< std::string >& start_timeV,
-                   std::vector< std::string >& end_timeV,
-                   std::vector< float >& delivered_lumiV,
-                   std::vector< float >& recorded_lumiV) {
+                   std::vector<int>& runV,
+                   std::vector<std::string>& start_timeV,
+                   std::vector<std::string>& end_timeV,
+                   std::vector<float>& delivered_lumiV,
+                   std::vector<float>& recorded_lumiV) {
 
   char line[200];
   std::string lineS;
   int iLine = 0;
   char runC[50], start_timeC[50], end_timeC[50], delivered_lumiC[50], recorded_lumiC[50];
   FILE* file = fopen(fileName.c_str(), "rt");
-  size_t found_1;
-  size_t found_2;
-  std::string badS_1 = "Run";
-  std::string badS_2 = "pb";
   int runI;
   float delivered_lumiF, recorded_lumiF;
-  while (fgets(line, 100, file) != NULL) {
+  while (fgets(line, 100, file) != 0) {
     lineS = line;
-    found_1 = lineS.find(badS_1);
-    found_2 = lineS.find(badS_2);
     if (lineS[0] != '#') {
-      if ((found_1 == string::npos) && (found_2 == string::npos)) {
-        sscanf(line, "%[^','],%[^','],%[^','],%[^','],%[^',']",
-               runC, start_timeC, end_timeC, delivered_lumiC, recorded_lumiC);
-        runI = atoi(runC);
-        std::string start_timeS(start_timeC);
-        std::string end_timeS(end_timeC);
-        delivered_lumiF = atof(delivered_lumiC);
-        recorded_lumiF = atof(recorded_lumiC);
-        runV.push_back(runI);
-        start_timeV.push_back(start_timeS);
-        end_timeV.push_back(end_timeS);
-        delivered_lumiV.push_back(delivered_lumiF);
-        recorded_lumiV.push_back(recorded_lumiF);
-        ++iLine;
-      }
+      sscanf(line, "%[^','],%[^','],%[^','],%[^','],%[^',']",
+             runC, start_timeC, end_timeC, delivered_lumiC, recorded_lumiC);
+      runI = atoi(runC);
+      std::string start_timeS(start_timeC);
+      std::string end_timeS(end_timeC);
+      delivered_lumiF = atof(delivered_lumiC);
+      recorded_lumiF = atof(recorded_lumiC);
+      runV.push_back(runI);
+      start_timeV.push_back(start_timeS);
+      end_timeV.push_back(end_timeS);
+      delivered_lumiV.push_back(delivered_lumiF);
+      recorded_lumiV.push_back(recorded_lumiF);
+      ++iLine;
     }
   }
   fclose(file);
@@ -245,11 +244,11 @@ void create_plots(std::string const colorScheme="Greg") {
               << colorScheme << "' --> using the default ('Greg')" << std::endl;
   }
 
-  std::vector< int > runV;
-  std::vector< std::string > start_timeV;
-  std::vector< std::string > end_timeV;
-  std::vector< float > delivered_lumiV;
-  std::vector< float > recorded_lumiV;
+  std::vector<int> runV;
+  std::vector<std::string> start_timeV;
+  std::vector<std::string> end_timeV;
+  std::vector<float> delivered_lumiV;
+  std::vector<float> recorded_lumiV;
 
   readInputFile(fileName, runV, start_timeV, end_timeV,
                 delivered_lumiV, recorded_lumiV);
