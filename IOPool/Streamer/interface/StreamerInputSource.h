@@ -25,6 +25,7 @@ class InitMsgView;
 class EventMsgView;
 
 namespace edm {
+  class BranchIDListHelper;
   class ParameterSetDescription;
   class StreamerInputSource : public InputSource {
   public:  
@@ -41,7 +42,7 @@ namespace edm {
     EventPrincipal* deserializeEvent(EventMsgView const& eventView);
 
     static
-    void mergeIntoRegistry(SendJobHeader const& header, ProductRegistry&, bool subsequent);
+    void mergeIntoRegistry(SendJobHeader const& header, ProductRegistry&, BranchIDListHelper&, bool subsequent);
 
     /**
      * Uncompresses the data in the specified input buffer into the

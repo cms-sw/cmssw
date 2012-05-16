@@ -5,6 +5,7 @@
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/Messages.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -206,6 +207,7 @@ namespace edm
   edm::ProductRegistry getRegFromFile(std::string const& filename)
   {
     edm::ProductRegistry pr;
+    edm::BranchIDListHelper bidlh;
     ifstream ist(filename.c_str(), std::ios_base::binary | std::ios_base::in);
 
     if(!ist)
@@ -215,7 +217,7 @@ namespace edm
       }
 
     std::auto_ptr<SendJobHeader> p = readHeaderFromStream(ist);
-    StreamerInputSource::mergeIntoRegistry(*p, pr, false);
+    StreamerInputSource::mergeIntoRegistry(*p, pr, bidlh, false);
     return pr;
   }
 

@@ -14,6 +14,7 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 
 #include "zlib.h"
@@ -27,7 +28,6 @@
 #include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 
-#include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
@@ -73,7 +73,7 @@ namespace edm {
   }
 
   void
-  StreamerInputSource::mergeIntoRegistry(SendJobHeader const& header, ProductRegistry& reg, bool subsequent) {
+  StreamerInputSource::mergeIntoRegistry(SendJobHeader const& header, ProductRegistry& reg, BranchIDListHelper& branchIDListHelper, bool subsequent) {
 
     SendDescs const& descs = header.descs();
 
@@ -87,14 +87,14 @@ namespace edm {
       if (!mergeInfo.empty()) {
         throw cms::Exception("MismatchedInput","RootInputFileSequence::previousEvent()") << mergeInfo;
       }
-      BranchIDListHelper::updateFromInput(header.branchIDLists(), std::string());
+      branchIDListHelper.updateFromInput(header.branchIDLists());
     } else {
       declareStreamers(descs);
       buildClassCache(descs);
       loadExtraClasses();
       reg.updateFromInput(descs);
       fillProductRegistryTransients(header.processConfigurations(), reg);
-      BranchIDListHelper::updateFromInput(header.branchIDLists(), std::string());
+      branchIDListHelper.updateFromInput(header.branchIDLists());
     }
   }
 
@@ -241,7 +241,7 @@ namespace edm {
   StreamerInputSource::deserializeAndMergeWithRegistry(InitMsgView const& initView, bool subsequent) {
      std::auto_ptr<SendJobHeader> sd = deserializeRegistry(initView);
      ProcessConfigurationVector const& pcv = sd->processConfigurations();
-     mergeIntoRegistry(*sd, productRegistryUpdate(), subsequent);
+     mergeIntoRegistry(*sd, productRegistryUpdate(), *branchIDListHelper(), subsequent);
      if (subsequent) {
        principalCache().adjustEventToNewProductRegistry(productRegistry());
      }
@@ -340,7 +340,7 @@ namespace edm {
 
     boost::shared_ptr<EventSelectionIDVector> ids(new EventSelectionIDVector(sd->eventSelectionIDs()));
     boost::shared_ptr<BranchListIndexes> indexes(new BranchListIndexes(sd->branchListIndexes()));
-    BranchIDListHelper::fixBranchListIndexes(*indexes);
+    branchIDListHelper()->fixBranchListIndexes(*indexes);
     eventPrincipalCache()->fillEventPrincipal(sd->aux(), boost::shared_ptr<LuminosityBlockPrincipal>(), ids, indexes);
     productGetter_.setEventPrincipal(eventPrincipalCache());
     eventCached_ = true;

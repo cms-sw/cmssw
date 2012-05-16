@@ -9,7 +9,7 @@
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
-#include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
+#include "DataFormats/Provenance/interface/Selections.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
@@ -42,7 +42,7 @@ namespace edm {
    * into the specified InitMessage.
    */
 
-  int StreamSerializer::serializeRegistry(SerializeDataBuffer &data_buffer) {
+  int StreamSerializer::serializeRegistry(SerializeDataBuffer &data_buffer, const BranchIDLists &branchIDLists) {
     FDEBUG(6) << "StreamSerializer::serializeRegistry" << std::endl;
     SendJobHeader sd;
 
@@ -57,7 +57,7 @@ namespace edm {
                   << std::endl;
     }
     Service<ConstProductRegistry> reg;
-    sd.setBranchIDLists(BranchIDListRegistry::instance()->data());
+    sd.setBranchIDLists(branchIDLists);
     SendJobHeader::ParameterSetMap psetMap;
 
     pset::fillMap(pset::Registry::instance(), psetMap);

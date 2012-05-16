@@ -17,8 +17,8 @@
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
-#include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
@@ -112,6 +112,7 @@ namespace edm {
       TFWLiteSelectorMembers() :
       tree_(0),
       reg_(new ProductRegistry()),
+      branchIDListHelper_(new BranchIDListHelper()),
       processNames_(),
       reader_(new FWLiteDelayedReader),
       prov_(),
@@ -125,6 +126,7 @@ namespace edm {
       }
       TTree* tree_;
       boost::shared_ptr<ProductRegistry> reg_;
+      boost::shared_ptr<BranchIDListHelper> branchIDListHelper_;
       ProcessHistory processNames_;
       boost::shared_ptr<FWLiteDelayedReader> reader_;
       std::vector<EventEntryDescription> prov_;
@@ -276,7 +278,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
       }
       branchListIndexBranch->SetAddress(&pBranchListIndexes);
       branchListIndexBranch->GetEntry(iEntry);
-      edm::BranchIDListHelper::fixBranchListIndexes(*branchListIndexes_);
+      m_->branchIDListHelper_->fixBranchListIndexes(*branchListIndexes_);
 
       try {
          m_->reader_->setEntry(iEntry);
@@ -371,8 +373,8 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
      metaDataTree->SetBranchAddress(edm::poolNames::processConfigurationBranchName().c_str(), &procConfigVectorPtr);
   }
 
-  std::auto_ptr<edm::BranchIDListRegistry::collection_type> branchIDListsAPtr(new edm::BranchIDListRegistry::collection_type);
-  edm::BranchIDListRegistry::collection_type *branchIDListsPtr = branchIDListsAPtr.get();
+  boost::shared_ptr<edm::BranchIDListHelper> branchIDListsHelper(new edm::BranchIDListHelper);
+  edm::BranchIDLists const* branchIDListsPtr = &branchIDListsHelper->branchIDLists();
   if(metaDataTree->FindBranch(edm::poolNames::branchIDListBranchName().c_str()) != 0) {
     metaDataTree->SetBranchAddress(edm::poolNames::branchIDListBranchName().c_str(), &branchIDListsPtr);
   }
@@ -448,8 +450,8 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
       //m_->metaTree_->SetBranchAddress(prod.branchName().c_str(), tmp);
     }
   }
-  edm::BranchIDListHelper::updateFromInput(*branchIDListsAPtr, "");
-  m_->ep_.reset(new edm::EventPrincipal(m_->reg_, m_->pc_));
+  m_->branchIDListHelper_->updateFromInput(*branchIDListsPtr);
+  m_->ep_.reset(new edm::EventPrincipal(m_->reg_, m_->branchIDListHelper_, m_->pc_));
   everythingOK_ = true;
 }
 
