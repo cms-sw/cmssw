@@ -2080,6 +2080,7 @@ void FUEventProcessor::forkProcessesFromEDM() {
       sigaddset(&tmpset_thread, SIGABRT);
       sigaddset(&tmpset_thread, SIGFPE);
       sigaddset(&tmpset_thread, SIGSEGV);
+      sigaddset(&tmpset_thread, SIGALRM);
       //sigprocmask(SIG_UNBLOCK, &tmpset_thread, 0);
       pthread_sigmask(SIG_UNBLOCK,&tmpset_thread,0);
      
@@ -2098,9 +2099,9 @@ void FUEventProcessor::forkProcessesFromEDM() {
       sigaction(SIGABRT,&sa,0);
       sigaction(SIGFPE,&sa,0);
       sigaction(SIGSEGV,&sa,0);
-
       sa.sa_sigaction=evfep_alarmhandler;
       sigaction(SIGALRM,&sa,0);
+
       //child return to DaqSource
       return ;
     }
@@ -2530,7 +2531,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.140 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.141 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
