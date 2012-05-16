@@ -442,6 +442,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       std::cerr << "No observed data '" << dataset << "' in the workspace. Cannot compute limit.\n" << std::endl;
       return;
     }
+    if (saveToys_) {
+	writeToysHere->WriteTObject(dobs, TString::Format("toy_asimov%g", expectSignal_));
+      }
     std::cout << "Computing limit starting from " << (iToy == 0 ? "observation" : "expected outcome") << std::endl;
     if (verbose > (isExtended ? 3 : 2)) utils::printRAD(dobs);
     if (mklimit(w,mc,mc_bonly,*dobs,limit,limitErr)) tree->Fill();
