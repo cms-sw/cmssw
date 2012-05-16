@@ -1,3 +1,7 @@
+2012-05-16 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* added test 13: invalid free (heap corruption)
+
 2012-05-15 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* V00-19-30

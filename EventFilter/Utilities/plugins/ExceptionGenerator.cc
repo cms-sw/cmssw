@@ -29,7 +29,7 @@ namespace evf{
 
     const std::string ExceptionGenerator::menu[menu_items] =  
       {"Sleep x ms", "SleepForever", "Cms Exception", "Exit with error", "Abort", "Unknown Exception", "Endless loop", "Generate Error Message", "Segfault", 
-       "Burn CPU","HLT timing distribution","HLT timing with memory access","Timed segfault"};
+       "Burn CPU","HLT timing distribution","HLT timing with memory access","Timed segfault","Invalid free()"};
 
     ExceptionGenerator::ExceptionGenerator( const edm::ParameterSet& pset) : 
       ModuleWeb("ExceptionGenerator"), 
@@ -231,7 +231,12 @@ namespace evf{
 		if (tv_now.tv_sec-tv_start_.tv_sec>intqualifier_)
 		  *pi=0;
 	      }
-	    break;
+	      break;
+	    case 13:
+	      void *vp = malloc(1024);
+	      memset((char *)vp - 32, 0, 1024);
+	      free(vp);
+	      break;
 	    }
 	}
     }
