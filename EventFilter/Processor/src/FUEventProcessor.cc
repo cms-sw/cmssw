@@ -64,9 +64,18 @@ namespace toolbox {
 //signal handler (global)
 namespace evf {
   FUEventProcessor * FUInstancePtr_;
+  int evfep_raised_signal;
   void evfep_sighandler(int sig, siginfo_t* info, void* c)
   {
+    evfep_raised_signal=sig;
     FUInstancePtr_->handleSignalSlave(sig, info, c);
+  }
+  void evfep_alarmhandler(int sig, siginfo_t* info, void* c)
+  {
+    if (evfep_raised_signal) {
+      signal(evfep_raised_signal,SIG_DFL);
+      raise(evfep_raised_signal);
+    }
   }
 }
 
@@ -2090,6 +2099,8 @@ void FUEventProcessor::forkProcessesFromEDM() {
       sigaction(SIGFPE,&sa,0);
       sigaction(SIGSEGV,&sa,0);
 
+      sa.sa_sigaction=evfep_alarmhandler;
+      sigaction(SIGALRM,&sa,0);
       //child return to DaqSource
       return ;
     }
@@ -2519,7 +2530,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.139 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.140 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
@@ -2553,9 +2564,13 @@ void FUEventProcessor::handleSignalSlave(int sig, siginfo_t* info, void* c)
 {
   //notify master
   sem_post(sigmon_sem_);
+
   //sleep until master takes action
-  sleep(3);
-  //printouts not guaranteed to work if there is severe memory corruption
+  sleep(2);
+
+  //set up alarm if handler deadlocks on unsafe actions
+  alarm(5);
+  
   std::cout << "--- Slave EP signal handler caught signal " << sig << " process id is " << info->si_pid <<" ---" << std::endl;
   std::cout << "--- Address: " << std::hex << info->si_addr << std::dec << " --- " << std::endl;
   std::cout << "--- Stacktrace follows --" << std::endl;

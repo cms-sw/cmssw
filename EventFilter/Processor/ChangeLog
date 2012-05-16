@@ -1,3 +1,7 @@
+2012-05-16 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* add alarm signal handler, use it with alarm timeout in signal handling
+
 2012-05-15 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V02-05-07
