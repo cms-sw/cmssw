@@ -1,7 +1,9 @@
 #include <vector>
 #include <string>
 #include <stdio.h>
+#include <iostream>
 
+#include "TROOT.h"
 #include "TStyle.h"
 #include "TColor.h"
 #include "TCanvas.h"
@@ -11,6 +13,7 @@
 #include "TTimeStamp.h"
 #include "TColor.h"
 #include "TH1F.h"
+#include "TImage.h"
 
 // NOTE: All the below colors have been tweaked based on the PNG
 // versions of the CMS logos present in this CVS area.
@@ -155,23 +158,122 @@ TTimeStamp zeroTimeInTimestamp(TTimeStamp const& input) {
   return timestamp;
 }
 
-void readInputFile(std::string& fileName,
-                   std::vector<int>& runV,
-                   std::vector<std::string>& start_timeV,
-                   std::vector<std::string>& end_timeV,
-                   std::vector<float>& delivered_lumiV,
-                   std::vector<float>& recorded_lumiV) {
+bool is_leap(int year) {
+  return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
+}
+
+static int _days_in_month[] = {
+  0, /* unused; this vector uses 1-based indexing */
+  31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+};
+
+static int _days_before_month[] = {
+  0, /* unused; this vector uses 1-based indexing */
+  0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
+};
+
+int days_in_month(int year, int month) {
+  assert(month >= 1);
+  assert(month <= 12);
+  if (month == 2 && is_leap(year))
+    return 29;
+  else
+    return _days_in_month[month];
+}
+
+int days_before_month(int year, int month) {
+  int days;
+  assert(month >= 1);
+  assert(month <= 12);
+  days = _days_before_month[month];
+  if (month > 2 && is_leap(year))
+    ++days;
+  return days;
+}
+
+TTimeStamp timestampFromOrdinal(int ordinal) {
+  // This is tuned to do one thing: reconstruct the date from an
+  // integer stored by Python's datetime.toordinal() method.
+
+  // NOTE: This is basically a stripped-down version of the CPython
+  // implementation of datetime.fromordinal().
+
+  // DEBUG DEBUG DEBUG
+  assert(ordinal >= 1);
+  // DEBUG DEBUG DEBUG end
+
+#define DI4Y      1461
+#define DI100Y   36524
+#define DI400Y  146097
+
+  int n, n1, n4, n100, n400, leapyear, preceding;
+  int year, month, day;
+
+  --ordinal;
+  n400 = ordinal / DI400Y;
+  n = ordinal % DI400Y;
+  year = n400 * 400 + 1;
+
+  n100 = n / DI100Y;
+  n = n % DI100Y;
+
+  n4 = n / DI4Y;
+  n = n % DI4Y;
+
+  n1 = n / 365;
+  n = n % 365;
+
+  year += n100 * 100 + n4 * 4 + n1;
+  if (n1 == 4 || n100 == 4) {
+    // DEBUG DEBUG DEBUG
+    assert(n == 0);
+    // DEBUG DEBUG DEBUG end
+    year -= 1;
+    month = 12;
+    day = 31;
+  } else {
+
+    leapyear = n1 == 3 && (n4 != 24 || n100 == 3);
+    // DEBUG DEBUG DEBUG
+    assert(leapyear == is_leap(year));
+    // DEBUG DEBUG DEBUG end
+    month = (n + 50) >> 5;
+    preceding = (_days_before_month[month] + (month > 2 && leapyear));
+    if (preceding > n) {
+      month -= 1;
+      preceding -= days_in_month(year, month);
+    }
+    n -= preceding;
+    // DEBUG DEBUG DEBUG
+    assert(0 <= n);
+    assert(n < days_in_month(year, month));
+    // DEBUG DEBUG DEBUG end
+
+    day = n + 1;
+  }
+
+  TTimeStamp timestamp(year, month, day,
+                       0, 0, 0, 0, true);
+  return timestamp;
+}
+
+void readInputFileIntLumi(std::string& fileName,
+                          std::vector<int>& runV,
+                          std::vector<std::string>& start_timeV,
+                          std::vector<std::string>& end_timeV,
+                          std::vector<float>& delivered_lumiV,
+                          std::vector<float>& recorded_lumiV) {
 
   char line[200];
   std::string lineS;
-  int iLine = 0;
-  char runC[50], start_timeC[50], end_timeC[50], delivered_lumiC[50], recorded_lumiC[50];
+  size_t const i = 50;
+  char runC[i], start_timeC[i], end_timeC[i],
+    delivered_lumiC[i], recorded_lumiC[i];
   FILE* file = fopen(fileName.c_str(), "rt");
   int runI;
   float delivered_lumiF, recorded_lumiF;
-  while (fgets(line, 100, file) != 0) {
-    lineS = line;
-    if (lineS[0] != '#') {
+  while (fgets(line, 100, file)) {
+    if (line[0] != '#') {
       sscanf(line, "%[^','],%[^','],%[^','],%[^','],%[^',']",
              runC, start_timeC, end_timeC, delivered_lumiC, recorded_lumiC);
       runI = atoi(runC);
@@ -184,17 +286,47 @@ void readInputFile(std::string& fileName,
       end_timeV.push_back(end_timeS);
       delivered_lumiV.push_back(delivered_lumiF);
       recorded_lumiV.push_back(recorded_lumiF);
-      ++iLine;
     }
   }
   fclose(file);
-  return;
+}
+
+void readInputFilePeakLumi(std::string const& fileName,
+                           std::vector<int>& dayV,
+                           std::vector<int>& runV,
+                           std::vector<int>& lsV,
+                           std::vector<float>& lumiV) {
+  char line[200];
+  size_t const i = 50;
+  char dayC[i], runC[i], lsC[i], lumiC[i];
+  int dayI;
+  int runI;
+  int lsI;
+  float lumiF;
+  FILE* file = fopen(fileName.c_str(), "rt");
+  while (fgets(line, 100, file)) {
+    if (line[0] != '#') {
+      sscanf(line, "%[^','],%[^','],%[^','],%[^',']",
+             dayC, runC, lsC, lumiC);
+      dayI = atoi(dayC);
+      runI = atoi(runC);
+      lsI = atoi(lsC);
+      lumiF = atof(lumiC);
+      TTimeStamp t = timestampFromOrdinal(dayI);
+      dayV.push_back(timestampFromOrdinal(dayI).GetSec());
+      runV.push_back(runI);
+      lsV.push_back(lsI);
+      lumiV.push_back(lumiF);
+    }
+  }
+  fclose(file);
 }
 
 void create_plots(std::string const colorScheme="Greg") {
 
   // Overall title and axis titles for everything. One version for the
-  // per-day plot, one for the cumulative plot.
+  // per-day plot, one for the cumulative plot, one for the peak lumi
+  // plot.
   std::string titlePerDay =
     std::string("CMS Integrated Luminosity Per Day, 2012, #sqrt{s} = 8 TeV;") +
     std::string("Date;") +
@@ -203,21 +335,32 @@ void create_plots(std::string const colorScheme="Greg") {
     std::string("CMS Total Integrated Luminosity, 2012, #sqrt{s} = 8 TeV;") +
     std::string("Date;") +
     std::string("Total Integrated Luminosity (fb^{-1})");
+  std::string titlePeak =
+    std::string("CMS Peak Luminosity Per Day, 2012, #sqrt{s} = 8 TeV;") +
+    std::string("Date;") +
+    std::string("Peak Delivered Luminosity (Hz/#mub)");
 
   // Conversion factor to go to inverse femtobarn.
   float conversionFactor = 1.e6;
 
-  // This is the intermediate CSV file with the data from the lumi DB.
-  std::string fileName = "/afs/cern.ch/cms/lumi/www/publicplots/totallumivstime-pp-2012.csv";
+  // This is the intermediate CSV file with the integrated lumi data
+  // from the lumi DB
+  std::string fileNameIntLumi = "/afs/cern.ch/cms/lumi/www/publicplots/totallumivstime-pp-2012.csv";
+  // Same for the peak lumi file.
+  std::string fileNamePeakLumi = "/afs/cern.ch/cms/lumi/www/publicplots/lumipeak-pp-2012.csv";
 
   // Basic style settings.
   rootInit();
 
+  //------------------------------
+
   // Color scheme settings.
   Int_t kFillColorDelivered = 0;
   Int_t kFillColorRecorded = 0;
+  Int_t kFillColorPeak = 0;
   Int_t kLineColorDelivered = 0;
   Int_t kLineColorRecorded = 0;
+  Int_t kLineColorPeak = 0;
   std::string fileSuffix = "";
   std::string logoName = "cms_logo_1.png";
 
@@ -225,18 +368,23 @@ void create_plots(std::string const colorScheme="Greg") {
     // Color scheme 'Greg'.
     kFillColorDelivered = kCMSBlue;
     kFillColorRecorded = kCMSOrange;
-//     Int_t const kLineColorDelivered = kCMSBlueD;
-//     Int_t const kLineColorRecorded = kCMSOrangeD;
+    kFillColorPeak = kCMSOrange;
     kLineColorDelivered = TColor::GetColorDark(kFillColorDelivered);
     kLineColorRecorded = TColor::GetColorDark(kFillColorRecorded);
+    kLineColorPeak = TColor::GetColorDark(kFillColorPeak);
     logoName = "cms_logo_2.png";
     fileSuffix = "";
   } else if (colorScheme == "Joe") {
     // Color scheme 'Joe'.
     kFillColorDelivered = kCMSYellow;
     kFillColorRecorded = kCMSRed;
+    kFillColorPeak = kCMSRed;
+//     kFillColorDelivered = kCMSRed;
+//     kFillColorRecorded = kCMSYellow;
+//     kFillColorPeak = kCMSYellow;
     kLineColorDelivered = TColor::GetColorDark(kFillColorDelivered);
     kLineColorRecorded = TColor::GetColorDark(kFillColorRecorded);
+    kLineColorPeak = TColor::GetColorDark(kFillColorPeak);
     logoName = "cms_logo_3.png";
     fileSuffix = "_alt";
   } else {
@@ -244,37 +392,40 @@ void create_plots(std::string const colorScheme="Greg") {
               << colorScheme << "' --> using the default ('Greg')" << std::endl;
   }
 
+  //------------------------------
+
+  // Read in the integrated lumi data.
+
   std::vector<int> runV;
   std::vector<std::string> start_timeV;
   std::vector<std::string> end_timeV;
   std::vector<float> delivered_lumiV;
   std::vector<float> recorded_lumiV;
 
-  readInputFile(fileName, runV, start_timeV, end_timeV,
-                delivered_lumiV, recorded_lumiV);
+  readInputFileIntLumi(fileNameIntLumi, runV, start_timeV, end_timeV,
+                       delivered_lumiV, recorded_lumiV);
 
   // Figure out the time span of the data in days.
   TTimeStamp tmpLo = timestampFromString(start_timeV.front());
   TTimeStamp tmpHi = timestampFromString(end_timeV.back());
   TTimeStamp dateLo = zeroTimeInTimestamp(tmpLo);
   TTimeStamp dateHi = zeroTimeInTimestamp(tmpHi);
-  time_t numDays = ((dateHi.GetSec() - dateLo.GetSec()) / (24 * 60 * 60)) + 1;
+  int numDays = ((dateHi.GetSec() - dateLo.GetSec()) / (24 * 60 * 60)) + 1;
 
-  const int nBins = numDays;
-
+  int const nBins = numDays;
   float delivered_lumiA[nBins];
   float recorded_lumiA[nBins];
 
   // Zero the arrays before use!
-  for (size_t iTmp = 0; iTmp < numDays; ++iTmp) {
+  for (int iTmp = 0; iTmp < numDays; ++iTmp) {
     delivered_lumiA[iTmp] = 0.;
     recorded_lumiA[iTmp] = 0.;
   }
 
   // Map luminosities on to days.
   for(size_t ind = 0; ind < runV.size(); ++ind) {
-    TTimeStamp timeStart = timestampFromString(start_timeV[ind]);
-    TTimeStamp timeEnd = timestampFromString(end_timeV[ind].c_str());
+    TTimeStamp timeStart = timestampFromString(start_timeV.at(ind));
+    TTimeStamp timeEnd = timestampFromString(end_timeV.at(ind).c_str());
 
     Int_t dayDiff = timeEnd.GetDate() - timeStart.GetDate();
     // DEBUG DEBUG DEBUG
@@ -288,8 +439,8 @@ void create_plots(std::string const colorScheme="Greg") {
 
     if (dayDiff == 0) {
       // Whole run is contained in a single day.
-      delivered_lumiA[dayIndex] += delivered_lumiV[ind] / conversionFactor;
-      recorded_lumiA[dayIndex] += recorded_lumiV[ind] / conversionFactor;
+      delivered_lumiA[dayIndex] += delivered_lumiV.at(ind) / conversionFactor;
+      recorded_lumiA[dayIndex] += recorded_lumiV.at(ind) / conversionFactor;
     } else {
       // Run runs across midnight, need to split the lumi across two
       // days.
@@ -306,8 +457,8 @@ void create_plots(std::string const colorScheme="Greg") {
       // DEBUG DEBUG DEBUG
       assert(abs(frac1 + frac2 - 1.) < 1.e-9);
       // DEBUG DEBUG DEBUG end
-      float tmpDel = delivered_lumiV[ind] / conversionFactor;
-      float tmpRec = recorded_lumiV[ind] / conversionFactor;
+      float tmpDel = delivered_lumiV.at(ind) / conversionFactor;
+      float tmpRec = recorded_lumiV.at(ind) / conversionFactor;
       delivered_lumiA[dayIndex] += frac1 * tmpDel;
       recorded_lumiA[dayIndex] += frac1 * tmpRec;
       delivered_lumiA[dayIndex + 1] += frac2 * tmpDel;
@@ -318,31 +469,57 @@ void create_plots(std::string const colorScheme="Greg") {
   // Figure out the maxima.
   float maxDel = -1;
   float maxRec = -1;
-  for (size_t day = 0; day < numDays; ++day) {
+  for (int day = 0; day < numDays; ++day) {
     maxDel = max(delivered_lumiA[day], maxDel);
     maxRec = max(recorded_lumiA[day], maxRec);
   }
 
-  // Now we can move on to the plotting.
-
   TTimeStamp a(dateLo);
   TTimeStamp b(dateHi);
   // NOTE: Watch out with this magic. It centers the bins on the days.
-  // a.SetSec(a.GetSec() - (24 * 60 * 60));
   b.SetSec(b.GetSec() + (24 * 60 * 60));
   a.SetSec(a.GetSec() - (12 * 60 * 60) - (60 * 60));
   b.SetSec(b.GetSec() - (12 * 60 * 60) - (60 * 60));
   TH1F h_delLum("", "", numDays, a.GetSec(), b.GetSec());
   TH1F h_recLum("", "", numDays, a.GetSec(), b.GetSec());
 
-  for (size_t i = 0; i != numDays; ++i) {
+  for (int i = 0; i != numDays; ++i) {
     h_delLum.SetBinContent(i + 1, delivered_lumiA[i]);
     h_recLum.SetBinContent(i + 1, recorded_lumiA[i]);
   }
 
-  //----------------------------------------------
+  //------------------------------
+
+  // Read in the peak lumi data.
+
+  std::vector<int> dayV;
+  std::vector<int> dummy1, dummy2;
+  std::vector<float> peakLumiV;
+  readInputFilePeakLumi(fileNamePeakLumi, dayV, dummy1, dummy2, peakLumiV);
+
+  int peakDayStart = dayV.front();
+  int peakDayEnd = dayV.back();
+  int numDaysPeakLumi = (peakDayEnd - peakDayStart) / (24 * 60 * 60) + 1;
+
+//   // DEBUG DEBUG DEBUG
+//   assert(numDaysPeakLumi == numDays);
+//   // DEBUG DEBUG DEBUG end
+
+  peakDayStart -= (12 * 60 * 60);
+  peakDayEnd += (12 * 60 * 60);
+
+  TH1F hPeakLum("", "", numDaysPeakLumi, peakDayStart, peakDayEnd);
+  for (size_t j = 0; j < dayV.size(); ++j) {
+    hPeakLum.Fill(dayV.at(j), peakLumiV.at(j));
+  }
+
+  //------------------------------
+
+  // Now we can move on to the plotting.
+
+  //------------------------------
   // Create the lumi-per-day plot.
-  //----------------------------------------------
+  //------------------------------
 
   h_delLum.SetLineColor(kLineColorDelivered);
   h_delLum.SetMarkerColor(kLineColorDelivered);
@@ -407,15 +584,15 @@ void create_plots(std::string const colorScheme="Greg") {
   delete legend;
   delete canvas;
 
-  //----------------------------------------------
+  //------------------------------
   // Create the cumulative lumi plot.
-  //----------------------------------------------
+  //------------------------------
 
-  TH1F* h_delLumCum = h_delLum.Clone();
-  TH1F* h_recLumCum = h_recLum.Clone();
+  TH1F* h_delLumCum = dynamic_cast<TH1F*>(h_delLum.Clone());
+  TH1F* h_recLumCum = dynamic_cast<TH1F*>(h_recLum.Clone());
   double cumDel = 0.;
   double cumRec = 0.;
-  for (size_t bin = 1; bin != h_delLum.GetNbinsX() + 1; ++bin) {
+  for (int bin = 1; bin != h_delLum.GetNbinsX() + 1; ++bin) {
     cumDel += h_delLum.GetBinContent(bin);
     h_delLumCum->SetBinContent(bin, cumDel);
     cumRec += h_recLum.GetBinContent(bin);
@@ -430,7 +607,7 @@ void create_plots(std::string const colorScheme="Greg") {
 
   h_delLumCum->SetTitle(titleCumulative.c_str());
 
-  TCanvas* canvas = createCanvas();
+  canvas = createCanvas();
   h_delLumCum->Draw();
   h_recLumCum->Draw("SAME");
 
@@ -438,18 +615,16 @@ void create_plots(std::string const colorScheme="Greg") {
   float sumRec = h_recLumCum->GetBinContent(h_recLumCum->GetNbinsX());
 
   // Tweak the axes ranges a bit to create a bit more 'air.'
-  float airSpace = .2;
-  float min_y = 0.;
-  float tmp = (1. + airSpace) * sumDel;
-  // // Round to next multiple of ten.
-  // float max_y = ceil(tmp / 10.) * 10;
-  float max_y = tmp;
+  airSpace = .2;
+  min_y = 0.;
+  tmp = (1. + airSpace) * sumDel;
+  max_y = tmp;
   h_delLumCum->Draw();
   h_recLumCum->Draw("SAME");
   h_delLumCum->GetYaxis()->SetRangeUser(min_y, max_y);
 
   // Add legend to the top left.
-  TLegend* legend = createLegend();
+  legend = createLegend();
   legend->AddEntry(h_delLumCum,
                    Form("LHC Delivered: %.2f fb^{-1}", sumDel),
                    "F");
@@ -475,6 +650,55 @@ void create_plots(std::string const colorScheme="Greg") {
   delete h_recLumCum;
   delete canvas;
   delete legend;
+
+  //------------------------------
+  // Create the peak-lumi-per-day plot.
+  //------------------------------
+
+  // Scale the vertical axis to reduce the size of the labels a bit.
+  scale = 1.e-3;
+  hPeakLum.Scale(scale);
+
+  hPeakLum.SetTitle(titlePeak.c_str());
+  hPeakLum.GetXaxis()->SetTimeDisplay(1);
+  hPeakLum.GetXaxis()->SetTimeFormat("%d/%m");
+  hPeakLum.GetXaxis()->SetTimeOffset(0, "gmt");
+  hPeakLum.GetXaxis()->SetLabelOffset(0.01);
+  hPeakLum.GetXaxis()->SetTitleFont(62);
+  hPeakLum.GetYaxis()->SetTitleFont(62);
+  hPeakLum.GetXaxis()->SetNdivisions(705);
+
+  hPeakLum.SetLineColor(kLineColorPeak);
+  hPeakLum.SetMarkerColor(kLineColorPeak);
+  hPeakLum.SetFillColor(kFillColorPeak);
+
+  double maxPeak = 0.;
+  for (int i = 0; i != hPeakLum.GetNbinsX(); ++i) {
+    maxPeak = max(hPeakLum.GetBinContent(i), maxPeak);
+  }
+  airSpace = .2;
+  min_y = 0.;
+  tmp = (1. + airSpace) * maxPeak;
+  max_y = tmp;
+  canvas = createCanvas();
+  hPeakLum.Draw();
+  hPeakLum.GetYaxis()->SetRangeUser(min_y, max_y);
+  duplicateYAxis(canvas, hPeakLum.GetYaxis());
+
+  legend = createLegend();
+  legend->SetHeader(Form("Max. inst. lumi.: %.2f Hz/#mub", maxPeak));
+  legend->Draw();
+
+  canvas->RedrawAxis();
+
+  // Add the CMS logo in the top right corner. This has to be the last
+  // action so the logo sits on top of the axes.
+  drawLogo(canvas, logoName);
+
+  canvas->Print(Form("peak_lumi_per_day_2012%s.png", fileSuffix.c_str()));
+
+  delete legend;
+  delete canvas;
 }
 
 void create_public_lumi_plots() {
