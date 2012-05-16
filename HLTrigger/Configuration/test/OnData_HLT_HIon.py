@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V128 (CMSSW_5_2_5_HLT5)
+# /dev/CMSSW_5_2_1/HIon/V130 (CMSSW_5_2_5_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V128')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V130')
 )
 
 process.streams = cms.PSet( 
@@ -6707,8 +6707,8 @@ process.hltL1BeamHaloAntiCoincidence3BX = cms.EDFilter( "HLTLevel1Activity",
     technicalBits = cms.uint64( 0x0 ),
     ignoreL1Mask = cms.bool( True ),
     invert = cms.bool( True ),
-    physicsLoBits = cms.uint64( 0x40000000000000 ),
-    physicsHiBits = cms.uint64( 0x0 ),
+    physicsLoBits = cms.uint64( 0x0 ),
+    physicsHiBits = cms.uint64( 0x8000000000000000 ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     daqPartitions = cms.uint32( 1 ),
     bunchCrossings = cms.vint32( 0, 1, -1 )

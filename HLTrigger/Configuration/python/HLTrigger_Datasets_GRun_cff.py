@@ -482,14 +482,14 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetNoBPTX_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetNoBPTX_selector.l1tResults = cms.InputTag('')
 streamA_datasetNoBPTX_selector.throw      = cms.bool(False)
-streamA_datasetNoBPTX_selector.triggerConditions = cms.vstring('HLT_JetE30_NoBPTX3BX_v1', 
+streamA_datasetNoBPTX_selector.triggerConditions = cms.vstring('HLT_JetE30_NoBPTX3BX_NoHalo_v13', 
     'HLT_JetE30_NoBPTX_v12', 
-    'HLT_JetE50_NoBPTX3BX_v1', 
-    'HLT_JetE70_NoBPTX3BX_v1', 
-    'HLT_L2Mu10_NoVertex_NoBPTX3BX_v1', 
-    'HLT_L2Mu20_NoVertex_NoBPTX3BX_v1', 
+    'HLT_JetE50_NoBPTX3BX_NoHalo_v10', 
+    'HLT_JetE70_NoBPTX3BX_NoHalo_v2', 
+    'HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v2', 
+    'HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v2', 
     'HLT_L2Mu20_eta2p1_NoVertex_v1', 
-    'HLT_L2Mu30_NoVertex_NoBPTX3BX_v1')
+    'HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v2')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetPhotonHad_selector
 streamA_datasetPhotonHad_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
