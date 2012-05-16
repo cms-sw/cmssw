@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.382 $"
+__version__ = "$Revision: 1.383 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1502,7 +1502,7 @@ class ConfigBuilder(object):
                             prevalSeqName=''
                             valSeqName=sequence
 
-            if not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap:
+            if not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap and not valSeqName.startswith('genvalid'):
 		    if self._options.restoreRNDSeeds==False and not self._options.restoreRNDSeeds==True:
 			    self._options.restoreRNDSeeds=True
 
@@ -1515,11 +1515,8 @@ class ConfigBuilder(object):
             if prevalSeqName:
                     self.process.prevalidation_step = cms.Path( getattr(self.process, prevalSeqName ) )
                     self.schedule.append(self.process.prevalidation_step)
-            if valSeqName.startswith('genvalid'):
-                    self.loadAndRemember("IOMC.RandomEngine.IOMC_cff")
-                    self.process.validation_step = cms.Path( getattr(self.process,valSeqName ) )
-            else:
-                    self.process.validation_step = cms.EndPath( getattr(self.process,valSeqName ) )
+
+	    self.process.validation_step = cms.EndPath( getattr(self.process,valSeqName ) )
             self.schedule.append(self.process.validation_step)
 
 	    if not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap:
@@ -1774,7 +1771,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.382 $"),
+                                            (version=cms.untracked.string("$Revision: 1.383 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
