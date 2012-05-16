@@ -949,26 +949,41 @@ def makeCppPSet(module,cppPSetMaker):
             p.insertInto(cppPSetMaker,x)
     return cppPSetMaker
 
-class EDAlias(_ConfigureComponent,_Parameterizable,_Labelable):
+class EDAlias(_ConfigureComponent,_Labelable):
     def __init__(self,*arg,**kargs):
-        super(EDAlias,self).__init__(*arg,**kargs)
-    def copy(self):
-        return copy.copy(self)
+        super(EDAlias,self).__init__()
+        self.__dict__['_EDAlias__parameterNames'] = []
+        self.__setParameters(kargs)
+
+    def parameterNames_(self):
+        """Returns the name of the parameters"""
+        return self.__parameterNames[:]
+
+    def __addParameter(self, name, value):
+        if not isinstance(value,_ParameterTypeBase):
+            self.__raiseBadSetAttr(name)
+        self.__dict__[name]=value
+        self.__parameterNames.append(name)
+
+    def __setParameters(self,parameters):
+        for name,value in parameters.iteritems():
+            self.__addParameter(name, value)
+
     def _place(self,name,proc):
         proc._placeAlias(name,self)
+
     def nameInProcessDesc_(self, myname):
         return myname;
-    def moduleLabel_(self, myname):
-        return myname
+
     def insertInto(self, parameterSet, myname):
         newpset = parameterSet.newPSet()
-        newpset.addString(True, "@module_label", self.moduleLabel_(myname))
-        newpset.addString(True, "@module_type", self.type_())
+        newpset.addString(True, "@module_label", myname)
+        newpset.addString(True, "@module_type", type(self).__name__)
         newpset.addString(True, "@module_edm_type", type(self).__name__)
-        self.insertContentsInto(newpset)
+        for name in self.parameterNames_():
+            param = getattr(self,name)
+            param.insertInto(newpset, name)
         parameterSet.addPSet(True, self.nameInProcessDesc_(myname), newpset)
-    def type_(self):
-        return ""
 
 if __name__ == "__main__":
 
