@@ -25,7 +25,6 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
@@ -539,7 +538,7 @@ namespace edm {
   }
 
   void RootOutputFile::writeBranchIDListRegistry() {
-    BranchIDListRegistry::collection_type* p = &BranchIDListRegistry::instance()->data();
+    BranchIDLists const* p = om_->branchIDLists();
     TBranch* b = metaDataTree_->Branch(poolNames::branchIDListBranchName().c_str(), &p, om_->basketSize(), 0);
     assert(b);
     b->Fill();
@@ -691,6 +690,10 @@ namespace edm {
 
       BranchID const& id = i->branchDescription_->branchID();
       branchesWithStoredHistory_.insert(id);
+      if(i->branchDescription_->isAlias()) {
+        // We're keeping an EDAlias. Keep the registry entry for the original branch.
+        branchesWithStoredHistory_.insert(i->branchDescription_->originalBranchID());
+      }
 
       bool produced = i->branchDescription_->produced();
       bool keepProvenance = productProvenanceVecPtr != 0 &&
