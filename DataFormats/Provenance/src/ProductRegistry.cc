@@ -85,6 +85,20 @@ namespace edm {
   }
 
   void
+  ProductRegistry::addLabelAlias(BranchDescription const& productDesc,
+                                 std::string const& labelAlias,
+                                 std::string const& instanceAlias) {
+    assert(productDesc.produced());
+    assert(productDesc.branchID().isValid());
+    throwIfFrozen();
+    BranchDescription bd(productDesc, labelAlias, instanceAlias);
+    std::pair<ProductList::iterator, bool> ret =
+         productList_.insert(std::make_pair(BranchKey(bd), bd));
+    assert(ret.second);
+    addCalled(bd, false);
+  }
+
+  void
   ProductRegistry::copyProduct(BranchDescription const& productDesc) {
     assert(!productDesc.produced());
     throwIfFrozen();

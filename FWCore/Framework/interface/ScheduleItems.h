@@ -13,6 +13,7 @@
 namespace edm {
   class ActionTable;
   class ActivityRegistry;
+  class BranchIDListHelper;
   class CommonParams;
   class ParameterSet;
   class ProcessConfiguration;
@@ -23,7 +24,7 @@ namespace edm {
   struct ScheduleItems : private boost::noncopyable {
     ScheduleItems();
 
-    ScheduleItems(ProductRegistry const& preg);
+    ScheduleItems(ProductRegistry const& preg, BranchIDListHelper const& branchIDListHelper);
 
     ServiceToken
     initServices(std::vector<ParameterSet>& servicePSets,
@@ -47,6 +48,7 @@ namespace edm {
 
     boost::shared_ptr<ActivityRegistry>           actReg_;
     boost::shared_ptr<SignallingProductRegistry>  preg_;
+    boost::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
     boost::shared_ptr<ActionTable const>          act_table_;
     boost::shared_ptr<ProcessConfiguration>       processConfiguration_;
   };

@@ -16,14 +16,16 @@ namespace edm {
     typedef std::multimap<BranchID, IndexPair> BranchIDToIndexMap;
     typedef std::map<BranchListIndex, BranchListIndex> BranchListIndexMapper;
     BranchIDListHelper();
-    static bool updateFromInput(BranchIDLists const& bidlists, std::string const& fileName);
-    static void updateRegistries(ProductRegistry const& reg);
-    static void fixBranchListIndexes(BranchListIndexes& indexes);
-    static void clearRegistries();  // Use only for tests
+    bool updateFromInput(BranchIDLists const& bidlists);
+    void updateRegistries(ProductRegistry const& reg);
+    void fixBranchListIndexes(BranchListIndexes& indexes);
 
+    BranchIDLists const& branchIDLists() const {return branchIDLists_;}
+    BranchIDLists& branchIDLists() {return branchIDLists_;}
     BranchIDToIndexMap const& branchIDToIndexMap() const {return branchIDToIndexMap_;}
 
   private:
+    BranchIDLists branchIDLists_;
     BranchIDToIndexMap branchIDToIndexMap_;
     BranchListIndexMapper branchListIndexMapper_;
   };

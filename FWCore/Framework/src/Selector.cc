@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-  $Id: Selector.cc,v 1.7 2008/05/12 18:14:08 wmtan Exp $
+  $Id: Selector.cc,v 1.8 2009/04/15 23:22:30 wmtan Exp $
   ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/Selector.h"
@@ -27,6 +27,11 @@ namespace edm
   bool
   Selector::doMatch(ConstBranchDescription const& prov) const {
     return sel_->match(prov);
+  }
+
+  bool
+  Selector::doMatchSelectorType(std::type_info const& type) const {
+    return sel_->matchSelectorType(type);
   }
 
 }

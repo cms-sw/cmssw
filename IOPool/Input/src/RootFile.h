@@ -10,7 +10,7 @@ RootFile.h // used by ROOT input sources
 #include "InputType.h"
 #include "RootTree.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
-#include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
+#include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h" // backward compatibility
@@ -33,6 +33,7 @@ namespace edm {
   //------------------------------------------------------------
   // Class RootFile: supports file reading.
 
+  class BranchIDListHelper;
   class BranchMapper;
   class DaqProvenanceHelper;
   class DuplicateChecker;
@@ -65,6 +66,7 @@ namespace edm {
              bool noEventSort,
              GroupSelectorRules const& groupSelectorRules,
              InputType::InputType inputType,
+             boost::shared_ptr<BranchIDListHelper> branchIDListHelper,
              boost::shared_ptr<DuplicateChecker> duplicateChecker,
              bool dropDescendantsOfDroppedProducts,
              std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
@@ -92,7 +94,8 @@ namespace edm {
     boost::shared_ptr<LuminosityBlockPrincipal> readLumi(boost::shared_ptr<LuminosityBlockPrincipal> lbCache);
     std::string const& file() const {return file_;}
     boost::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
-    BranchIDListRegistry::collection_type const& branchIDLists() {return *branchIDLists_;}
+    boost::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {return branchIDListHelper_;}
+    BranchIDLists const& branchIDLists() {return *branchIDLists_;}
     EventAuxiliary const& eventAux() const {return eventAux_;}
     // IndexIntoFile::EntryNumber_t const& entryNumber() const {return indexIntoFileIter().entry();}
     // LuminosityBlockNumber_t const& luminosityBlockNumber() const {return indexIntoFileIter().lumi();}
@@ -199,7 +202,8 @@ namespace edm {
     RootTreePtrArray treePointers_;
     IndexIntoFile::EntryNumber_t lastEventEntryNumberRead_;
     boost::shared_ptr<ProductRegistry const> productRegistry_;
-    boost::shared_ptr<BranchIDListRegistry::collection_type const> branchIDLists_;
+    boost::shared_ptr<BranchIDLists const> branchIDLists_;
+    boost::shared_ptr<BranchIDListHelper> branchIDListHelper_;
     InputSource::ProcessingMode processingMode_;
     int forcedRunOffset_;
     std::map<std::string, std::string> newBranchToOldBranch_;

@@ -2,7 +2,7 @@
 
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
-#include "DataFormats/Provenance/interface/BranchIDListRegistry.h"
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/ProductIDToBranchID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -20,6 +20,7 @@
 namespace edm {
   EventPrincipal::EventPrincipal(
         boost::shared_ptr<ProductRegistry const> reg,
+        boost::shared_ptr<BranchIDListHelper const> branchIDListHelper,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender) :
     Base(reg, pc, InEvent, historyAppender),
@@ -29,6 +30,7 @@ namespace edm {
           unscheduledHandler_(),
           moduleLabelsRunning_(),
           eventSelectionIDs_(new EventSelectionIDVector),
+          branchIDListHelper_(branchIDListHelper),
           branchListIndexes_(new BranchListIndexes),
           branchListIndexToProcessIndex_() {}
 
@@ -82,7 +84,7 @@ namespace edm {
 
     // Fill in the product ID's in the groups.
     for(const_iterator it = this->begin(), itEnd = this->end(); it != itEnd; ++it) {
-      (*it)->setProvenance(branchMapperPtr(), processHistoryID(), branchIDToProductID((*it)->branchDescription().branchID()));
+      (*it)->setProvenance(branchMapperPtr(), processHistoryID(), branchIDToProductID((*it)->branchDescription().originalBranchID()));
     }
   }
 
@@ -168,7 +170,7 @@ namespace edm {
       throw Exception(errors::ProductNotFound, "InvalidID")
         << "get by product ID: invalid ProductID supplied\n";
     }
-    return productIDToBranchID(pid, BranchIDListRegistry::instance()->data(), *branchListIndexes_);
+    return productIDToBranchID(pid, branchIDListHelper_->branchIDLists(), *branchListIndexes_);
   }
 
   ProductID
@@ -181,8 +183,7 @@ namespace edm {
     typedef BIDToIndexMap::const_iterator Iter;
     typedef std::pair<Iter, Iter> IndexRange;
 
-    BIDToIndexMap const& branchIDToIndexMap = BranchIDListRegistry::instance()->extra().branchIDToIndexMap();
-    IndexRange range = branchIDToIndexMap.equal_range(bid);
+    IndexRange range = branchIDListHelper_->branchIDToIndexMap().equal_range(bid);
     for(Iter it = range.first; it != range.second; ++it) {
       BranchListIndex blix = it->second.first;
       std::map<BranchListIndex, ProcessIndex>::const_iterator i = branchListIndexToProcessIndex_.find(blix);

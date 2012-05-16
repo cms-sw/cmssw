@@ -57,6 +57,7 @@ Some examples of InputSource subclasses may be:
 
 namespace edm {
   class ActivityRegistry;
+  class BranchIDListHelper;
   class ConfigurationDescriptions;
   class HistoryAppender;
   class ParameterSet;
@@ -153,6 +154,9 @@ namespace edm {
 
     /// Accessor for product registry.
     boost::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
+
+    /// Accessor for branchIDListHelper
+    boost::shared_ptr<BranchIDListHelper> branchIDListHelper() const {return branchIDListHelper_;}
 
     /// Reset the remaining number of events/lumis to the maximum number.
     void repeat() {
@@ -363,6 +367,7 @@ namespace edm {
     ProcessingMode processingMode_;
     ModuleDescription const moduleDescription_;
     boost::shared_ptr<ProductRegistry const> productRegistry_;
+    boost::shared_ptr<BranchIDListHelper> branchIDListHelper_;
     bool const primary_;
     std::string processGUID_;
     Timestamp time_;

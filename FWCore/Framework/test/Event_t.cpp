@@ -120,6 +120,7 @@ class testEvent: public CppUnit::TestFixture {
                        std::string const& productLabel = std::string());
 
   boost::shared_ptr<ProductRegistry>   availableProducts_;
+  boost::shared_ptr<BranchIDListHelper> branchIDListHelper_;
   boost::shared_ptr<EventPrincipal>    principal_;
   boost::shared_ptr<Event>             currentEvent_;
   boost::shared_ptr<ModuleDescription> currentModuleDescription_;
@@ -200,12 +201,12 @@ testEvent::addProduct(std::auto_ptr<T> product,
 
 testEvent::testEvent() :
   availableProducts_(new ProductRegistry()),
+  branchIDListHelper_(new BranchIDListHelper()),
   principal_(),
   currentEvent_(),
   currentModuleDescription_(),
   moduleDescriptions_(),
   processConfigurations_() {
-  BranchIDListHelper::clearRegistries();
 
   typedef edmtest::IntProduct prod_t;
   typedef std::vector<edmtest::Thing> vec_t;
@@ -258,7 +259,7 @@ testEvent::testEvent() :
 
   // Freeze the product registry before we make the Event.
   availableProducts_->setFrozen();
-  BranchIDListHelper::updateRegistries(*availableProducts_);
+  branchIDListHelper_->updateRegistries(*availableProducts_);
 }
 
 testEvent::~testEvent() {
@@ -336,7 +337,7 @@ void testEvent::setUp() {
   boost::shared_ptr<LuminosityBlockPrincipal>lbp(new LuminosityBlockPrincipal(lumiAux, preg, pc, rp));
   EventAuxiliary eventAux(id, uuid, time, true);
   const_cast<ProcessHistoryID &>(eventAux.processHistoryID()) = processHistoryID;
-  principal_.reset(new edm::EventPrincipal(preg, pc));
+  principal_.reset(new edm::EventPrincipal(preg, branchIDListHelper_, pc));
   principal_->fillEventPrincipal(eventAux, lbp);
   currentEvent_.reset(new Event(*principal_, *currentModuleDescription_));
 

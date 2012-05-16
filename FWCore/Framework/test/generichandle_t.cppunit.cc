@@ -75,7 +75,6 @@ void testGenericHandle::failWrongType() {
 }
 void testGenericHandle::failgetbyLabelTest() {
 
-  edm::BranchIDListHelper::clearRegistries();
   edm::EventID id;
   edm::Timestamp time;
   std::string uuid = edm::createGlobalIdentifier();
@@ -85,8 +84,10 @@ void testGenericHandle::failgetbyLabelTest() {
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, preg, pc));
   boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, time, time));
   boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, preg, pc, rp));
+  boost::shared_ptr<edm::BranchIDListHelper> branchIDListHelper(new edm::BranchIDListHelper());
+  branchIDListHelper->updateRegistries(*preg);
   edm::EventAuxiliary eventAux(id, uuid, time, true);
-  edm::EventPrincipal ep(preg, pc);
+  edm::EventPrincipal ep(preg, branchIDListHelper, pc);
   ep.fillEventPrincipal(eventAux, lbp);
   edm::GenericHandle h("edmtest::DummyProduct");
   bool didThrow=true;
@@ -118,7 +119,6 @@ void testGenericHandle::failgetbyLabelTest() {
 }
 
 void testGenericHandle::getbyLabelTest() {
-  edm::BranchIDListHelper::clearRegistries();
   std::string processName = "PROD";
 
   typedef edmtest::DummyProduct DP;
@@ -158,7 +158,8 @@ void testGenericHandle::getbyLabelTest() {
   std::auto_ptr<edm::ProductRegistry> preg(new edm::ProductRegistry);
   preg->addProduct(product);
   preg->setFrozen();
-  edm::BranchIDListHelper::updateRegistries(*preg);
+  boost::shared_ptr<edm::BranchIDListHelper> branchIDListHelper(new edm::BranchIDListHelper());
+  branchIDListHelper->updateRegistries(*preg);
 
   edm::ProductRegistry::ProductList const& pl = preg->productList();
   edm::BranchKey const bk(product);
@@ -174,7 +175,7 @@ void testGenericHandle::getbyLabelTest() {
   boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, fakeTime, fakeTime));
   boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc, rp));
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
-  edm::EventPrincipal ep(pregc, pc);
+  edm::EventPrincipal ep(pregc, branchIDListHelper, pc);
   ep.fillEventPrincipal(eventAux, lbp);
   edm::BranchDescription const& branchFromRegistry = it->second;
   boost::shared_ptr<edm::Parentage> entryDescriptionPtr(new edm::Parentage);

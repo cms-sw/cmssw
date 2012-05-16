@@ -6,6 +6,7 @@
 #include "RootInputFileSequence.h"
 #include "RootTree.h"
 
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -240,6 +241,7 @@ namespace edm {
           noEventSort_,
           groupSelectorRules_,
           inputType_,
+          (inputType_ == InputType::SecondarySource ?  boost::shared_ptr<BranchIDListHelper>(new BranchIDListHelper()) :  input_.branchIDListHelper()),
           duplicateChecker_,
           dropDescendants_,
           indexesIntoFiles_,
@@ -271,6 +273,12 @@ namespace edm {
   RootInputFileSequence::fileProductRegistry() const {
     assert(rootFile_);
     return rootFile_->productRegistry();
+  }
+
+  boost::shared_ptr<BranchIDListHelper const>
+  RootInputFileSequence::fileBranchIDListHelper() const {
+    assert(rootFile_);
+    return rootFile_->branchIDListHelper();
   }
 
   bool RootInputFileSequence::nextFile(PrincipalCache& cache) {

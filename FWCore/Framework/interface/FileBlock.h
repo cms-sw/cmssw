@@ -9,6 +9,7 @@ FileBlock: Properties of an input file.
 
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
+#include "DataFormats/Provenance/interface/BranchIDList.h"
 class TTree;
 #include "boost/shared_ptr.hpp"
 #include <array>
@@ -64,7 +65,8 @@ namespace edm {
       fileName_(),
       branchListIndexesUnchanged_(false),
       modifiedIDs_(false),
-      branchChildren_(new BranchChildren) {}
+      branchChildren_(new BranchChildren),
+      branchIDLists_(new BranchIDLists) {}
 
     FileBlock(FileFormatVersion const& version,
               TTree const* ev, TTree const* meta,
@@ -75,7 +77,8 @@ namespace edm {
               std::string const& fileName,
               bool branchListIndexesUnchanged,
               bool modifiedIDs,
-              boost::shared_ptr<BranchChildren> branchChildren) :
+              boost::shared_ptr<BranchChildren> branchChildren,
+              boost::shared_ptr<BranchIDLists const> branchIDLists) :
       fileFormatVersion_(version),
       tree_(const_cast<TTree*>(ev)),
       metaTree_(const_cast<TTree*>(meta)),
@@ -88,7 +91,8 @@ namespace edm {
       fileName_(fileName),
       branchListIndexesUnchanged_(branchListIndexesUnchanged),
       modifiedIDs_(modifiedIDs),
-      branchChildren_(branchChildren) {}
+      branchChildren_(branchChildren),
+      branchIDLists_(branchIDLists) {}
 
     ~FileBlock() {}
 
@@ -110,6 +114,7 @@ namespace edm {
       whyNotFastClonable_ |= why;
     }
     BranchChildren const& branchChildren() const { return *branchChildren_; }
+    BranchIDLists const& branchIDLists() const { return *branchIDLists_; }
     void close () {runMetaTree_ = lumiMetaTree_ = metaTree_ = runTree_ = lumiTree_ = tree_ = 0;}
 
   private:
@@ -127,6 +132,7 @@ namespace edm {
     bool branchListIndexesUnchanged_;
     bool modifiedIDs_;
     boost::shared_ptr<BranchChildren> branchChildren_;
+    boost::shared_ptr<BranchIDLists const> branchIDLists_;
   };
 }
 #endif

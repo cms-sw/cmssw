@@ -19,6 +19,7 @@
 #include <limits>
 #include <sstream>
 #include <stdexcept>
+#include <typeinfo>
 
 //using boost::lambda::_1;
 
@@ -114,23 +115,37 @@ namespace edm {
     //Now that these have been set, we can create the list of Branches we need.
     std::string const source("source");
     ProductRegistry::ProductList const& prodsList = reg->productList();
-    for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin(),
-          itProdInfoEnd = prodsList.end();
-        itProdInfo != itProdInfoEnd;
-        ++itProdInfo) {
-      if(itProdInfo->second.branchType() == branchType_) {
-        boost::shared_ptr<ConstBranchDescription> bd(new ConstBranchDescription(itProdInfo->second));
-        if(bd->produced()) {
-          if(bd->moduleLabel() == source) {
-            addGroupSource(bd);
-          } else if(bd->onDemand()) {
-            assert(bt == InEvent);
-            addOnDemandGroup(bd);
-          } else {
-            addGroupScheduled(bd);
-          }
+    // On this first pass, skip current EDAliases.
+    bool hasAliases = false;
+    for(auto const& prod : prodsList) {
+      BranchDescription const& bd = prod.second;
+      if(bd.branchType() == branchType_) {
+        if(bd.isAlias()) {
+          hasAliases = true;
         } else {
-          addGroupInput(bd);
+          boost::shared_ptr<ConstBranchDescription> cbd(new ConstBranchDescription(bd));
+          if(bd.produced()) {
+            if(bd.moduleLabel() == source) {
+              addGroupSource(cbd);
+            } else if(bd.onDemand()) {
+              assert(branchType_ == InEvent);
+              addOnDemandGroup(cbd);
+            } else {
+              addGroupScheduled(cbd);
+            }
+          } else {
+            addGroupInput(cbd);
+          }
+        }
+      }
+    }
+    // Now process any EDAliases
+    if(hasAliases) {
+      for(auto const& prod : prodsList) {
+        BranchDescription const& bd = prod.second;
+        if(bd.isAlias() && bd.branchType() == branchType_) {
+          boost::shared_ptr<ConstBranchDescription> cbd(new ConstBranchDescription(bd));
+          addGroupAliased(cbd);
         }
       }
     }
@@ -198,6 +213,15 @@ namespace edm {
   void
   Principal::addOnDemandGroup(boost::shared_ptr<ConstBranchDescription> bd) {
     std::auto_ptr<Group> g(new UnscheduledGroup(bd));
+    addGroupOrThrow(g);
+  }
+
+  void
+  Principal::addGroupAliased(boost::shared_ptr<ConstBranchDescription> bd) {
+    ProductTransientIndex index = preg_->indexFrom(bd->originalBranchID());
+    assert(index != ProductRegistry::kInvalidIndex);
+
+    std::auto_ptr<Group> g(new AliasGroup(bd, dynamic_cast<ProducedGroup&>(*groups_[index])));
     addGroupOrThrow(g);
   }
 
@@ -456,7 +480,14 @@ namespace edm {
 
     for(TypeLookup::const_iterator it = range.first; it != range.second; ++it) {
 
-      if(selector.match(*(it->branchDescription()))) {
+      ConstBranchDescription const& bd = *(it->branchDescription());
+
+      // Unless the selector is matching by module label, ignore aliases to avoid matching the same product multiple times.
+      if(bd.isAlias() && !selector.matchSelectorType(typeid(ModuleLabelSelector))) {
+        continue;
+      }
+
+      if(selector.match(bd)) {
 
         //now see if the data is actually available
         ConstGroupPtr const& group = getGroupByIndex(it->index(), false, false);
@@ -464,9 +495,9 @@ namespace edm {
         if(group && group->productWasDeleted()) {
           throwProductDeletedException("findGroups",
                                        typeID,
-                                       it->branchDescription()->moduleLabel(),
-                                       it->branchDescription()->productInstanceName(),
-                                       it->branchDescription()->processName());
+                                       bd.moduleLabel(),
+                                       bd.productInstanceName(),
+                                       bd.processName());
         }
 
         // Skip product if not available.
@@ -511,16 +542,23 @@ namespace edm {
         continue;
       }
 
-      if(selector.match(*(it->branchDescription()))) {
+      ConstBranchDescription const& bd = *(it->branchDescription());
+
+      // Unless the selector is matching by module label, ignore aliases to avoid matching the same product multiple times.
+      if(bd.isAlias() && !selector.matchSelectorType(typeid(ModuleLabelSelector))) {
+        continue;
+      }
+
+      if(selector.match(bd)) {
 
         //now see if the data is actually available
         ConstGroupPtr const& group = getGroupByIndex(it->index(), false, false);
         if(group && group->productWasDeleted()) {
           throwProductDeletedException("findGroup",
                                        typeID,
-                                       it->branchDescription()->moduleLabel(),
-                                       it->branchDescription()->productInstanceName(),
-                                       it->branchDescription()->processName());
+                                       bd.moduleLabel(),
+                                       bd.productInstanceName(),
+                                       bd.processName());
         }
 
         // Skip product if not available.
@@ -698,12 +736,12 @@ namespace edm {
   void
   Principal::getAllProvenance(std::vector<Provenance const*>& provenances) const {
     provenances.clear();
-    for (const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
-      if((*i)->provenanceAvailable()) {
+    for (auto const& group : *this) {
+      if(group->provenanceAvailable() && !group->branchDescription().isAlias()) {
         // We do not attempt to get the event/lumi/run status from the provenance,
         // because the per event provenance may have been dropped.
-        if((*i)->provenance()->product().present()) {
-           provenances.push_back((*i)->provenance());
+        if(group->provenance()->product().present()) {
+           provenances.push_back(group->provenance());
         }
       }
     }

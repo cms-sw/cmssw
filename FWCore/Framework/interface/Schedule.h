@@ -93,6 +93,7 @@ namespace edm {
     class TriggerNamesService;
   }
   class ActivityRegistry;
+  class BranchIDListHelper;
   class EventSetup;
   class ExceptionCollector;
   class OutputWorker;
@@ -116,6 +117,7 @@ namespace edm {
     Schedule(ParameterSet& proc_pset,
              service::TriggerNamesService& tns,
              ProductRegistry& pregistry,
+             BranchIDListHelper& branchIDListHelper,
              ActionTable const& actions,
              boost::shared_ptr<ActivityRegistry> areg,
              boost::shared_ptr<ProcessConfiguration> processConfiguration,
@@ -278,7 +280,7 @@ namespace edm {
                      boost::shared_ptr<ProcessConfiguration const> processConfiguration,
                      int bitpos, std::string const& name);
 
-    void limitOutput(ParameterSet const& proc_pset);
+    void limitOutput(ParameterSet const& proc_pset, BranchIDLists const& branchIDLists);
 
     void addToAllWorkers(Worker* w);
     

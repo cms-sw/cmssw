@@ -67,6 +67,7 @@ namespace edm {
 
     void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
     boost::shared_ptr<ProductRegistry const> fileProductRegistry() const;
+    boost::shared_ptr<BranchIDListHelper const> fileBranchIDListHelper() const;
     static void fillDescription(ParameterSetDescription & desc);
     ProcessingController::ForwardState forwardState() const;
     ProcessingController::ReverseState reverseState() const;

@@ -16,6 +16,7 @@ namespace edm {
   ScheduledGroup::~ScheduledGroup() {}
   UnscheduledGroup::~UnscheduledGroup() {}
   SourceGroup::~SourceGroup() {}
+  AliasGroup::~AliasGroup() {}
 
   void
   ProducedGroup::putProduct_(
@@ -23,7 +24,7 @@ namespace edm {
         ProductProvenance const& productProvenance) {
     if(product()) {
       throw Exception(errors::InsertFailure)
-          << "Attempt to insert more than one product on branch " << productData().branchDescription()->branchName() << "\n";
+          << "Attempt to insert more than one product on branch " << branchDescription().branchName() << "\n";
     }
     assert(branchDescription().produced());
     assert(edp.isValid());
@@ -64,7 +65,7 @@ namespace edm {
   ProducedGroup::putProduct_(WrapperOwningHolder const& edp) const {
     if(product()) {
       throw Exception(errors::InsertFailure)
-          << "Attempt to insert more than one product on branch " << productData().branchDescription()->branchName() << "\n";
+          << "Attempt to insert more than one product on branch " << branchDescription().branchName() << "\n";
     }
     assert(branchDescription().produced());
     assert(edp.isValid());
@@ -191,7 +192,7 @@ namespace edm {
   }
 
   void 
-  ProducedGroup::setProductDeleted() {
+  ProducedGroup::setProductDeleted_() {
     status() = ProductDeleted;
   }
 

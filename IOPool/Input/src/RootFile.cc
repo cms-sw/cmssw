@@ -134,6 +134,7 @@ namespace edm {
                      bool noEventSort,
                      GroupSelectorRules const& groupSelectorRules,
                      InputType::InputType inputType,
+                     boost::shared_ptr<BranchIDListHelper> branchIDListHelper,
                      boost::shared_ptr<DuplicateChecker> duplicateChecker,
                      bool dropDescendants,
                      std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
@@ -171,6 +172,7 @@ namespace edm {
       lastEventEntryNumberRead_(-1LL),
       productRegistry_(),
       branchIDLists_(),
+      branchIDListHelper_(branchIDListHelper),
       processingMode_(processingMode),
       forcedRunOffset_(0),
       newBranchToOldBranch_(),
@@ -276,8 +278,8 @@ namespace edm {
       metaDataTree->SetBranchAddress(poolNames::processConfigurationBranchName().c_str(), &procConfigVectorPtr);
     }
 
-    std::unique_ptr<BranchIDListRegistry::collection_type> branchIDListsAPtr(new BranchIDListRegistry::collection_type);
-    BranchIDListRegistry::collection_type *branchIDListsPtr = branchIDListsAPtr.get();
+    std::unique_ptr<BranchIDLists> branchIDListsAPtr(new BranchIDLists);
+    BranchIDLists* branchIDListsPtr = branchIDListsAPtr.get();
     if(metaDataTree->FindBranch(poolNames::branchIDListBranchName().c_str()) != 0) {
       metaDataTree->SetBranchAddress(poolNames::branchIDListBranchName().c_str(), &branchIDListsPtr);
     }
@@ -452,7 +454,7 @@ namespace edm {
 
     // Event Principal cache for secondary input source
     if(inputType == InputType::SecondarySource) {
-      secondaryEventPrincipal_.reset(new EventPrincipal(productRegistry(), processConfiguration));
+      secondaryEventPrincipal_.reset(new EventPrincipal(productRegistry(), branchIDListHelper_, processConfiguration));
     }
 
     // Determine if this file is fast clonable.
@@ -460,7 +462,7 @@ namespace edm {
 
     // Update the branch id info.
     if(inputType == InputType::Primary) {
-      branchListIndexesUnchanged_ = BranchIDListHelper::updateFromInput(*branchIDLists_, file_);
+      branchListIndexesUnchanged_ = branchIDListHelper_->updateFromInput(*branchIDLists_);
     }
 
     setRefCoreStreamer(true);  // backward compatibility
@@ -631,7 +633,8 @@ namespace edm {
                                                      file_,
                                                      branchListIndexesUnchanged(),
                                                      modifiedIDs(),
-                                                     branchChildren_));
+                                                     branchChildren_,
+                                                     branchIDLists_));
   }
 
   std::string const&
@@ -1198,7 +1201,7 @@ namespace edm {
       // old format.  branchListIndexes_ must be filled in from the ProvenanceAdaptor.
       provenanceAdaptor_->branchListIndexes(*branchListIndexes_);
     }
-    BranchIDListHelper::fixBranchListIndexes(*branchListIndexes_);
+    branchIDListHelper_->fixBranchListIndexes(*branchListIndexes_);
   }
 
   boost::shared_ptr<LuminosityBlockAuxiliary>

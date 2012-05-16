@@ -17,6 +17,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
@@ -32,6 +33,7 @@
 #include <functional>
 #include <iomanip>
 #include <list>
+#include <map>
 #include <exception>
 
 namespace edm {
@@ -140,6 +142,112 @@ namespace edm {
         }
       }
     }
+
+    void
+    checkAndInsertAlias(std::string const& friendlyClassName,
+                        std::string const& moduleLabel,
+                        std::string const& productInstanceName,
+                        std::string const& processName,
+                        std::string const& alias,
+                        std::string const& instanceAlias,
+                        ProductRegistry const& preg,
+                        std::multimap<BranchKey, BranchKey>& aliasMap,
+                        std::map<BranchKey, BranchKey>& aliasKeys) {
+      std::string const star("*");
+
+      BranchKey key(friendlyClassName, moduleLabel, productInstanceName, processName);
+      if(preg.productList().find(key) == preg.productList().end()) {
+        throw Exception(errors::Configuration, "EDAlias does not match data\n")
+          << "There are no products of type '" << friendlyClassName << "'\n"
+          << "with module label '" << moduleLabel << "' and instance name '" << productInstanceName << "'.\n";
+      }
+
+      std::string const& theInstanceAlias(instanceAlias == star ? productInstanceName : instanceAlias);
+      BranchKey aliasKey(friendlyClassName, alias, theInstanceAlias, processName);
+      if(preg.productList().find(aliasKey) != preg.productList().end()) {
+        throw Exception(errors::Configuration, "EDAlias conflicts with data\n")
+          << "A product of type '" << friendlyClassName << "'\n"
+          << "with module label '" << alias << "' and instance name '" << theInstanceAlias << "'\n"
+          << "already exists.\n";
+      }
+      auto iter = aliasKeys.find(aliasKey);
+      if(iter != aliasKeys.end()) {
+        // The alias matches a previous one.  If the same alias is used for different product, throw. 
+        if(iter->second != key) {
+          throw Exception(errors::Configuration, "EDAlias conflict\n")
+            << "The module label alias '" << alias << "' and product instance alias '" << theInstanceAlias << "'\n"
+            << "are used for multiple products of type '" << friendlyClassName << "'\n"
+            << "One has module label '" << moduleLabel << "' and product instance name '" << productInstanceName << "',\n"
+            << "the other has module label '" << iter->second.moduleLabel_ << "' and product instance name '" << iter->second.productInstanceName_ << "'.\n";
+        }
+      } else {
+        aliasMap.insert(std::make_pair(key, aliasKey));
+        aliasKeys.insert(std::make_pair(aliasKey, key));
+      }
+    }
+
+    void
+    processEDAliases(ParameterSet const& proc_pset, std::string const& processName, ProductRegistry& preg) {
+      std::vector<std::string> aliases = proc_pset.getParameter<std::vector<std::string> >("@all_aliases");
+      if(aliases.empty()) {
+        return;
+      }
+      std::string const star("*");
+      std::string const empty("");
+      ParameterSetDescription desc;
+      desc.add<std::string>("type");
+      desc.add<std::string>("fromProductInstance", star);
+      desc.add<std::string>("toProductInstance", star);
+
+      std::multimap<BranchKey, BranchKey> aliasMap;
+
+      std::map<BranchKey, BranchKey> aliasKeys; // Used to search for duplicates or clashes.
+
+      // Now, loop over the alias information and store it in aliasMap.
+      for(std::string const& alias : aliases) {
+        ParameterSet const& aliasPSet = proc_pset.getParameterSet(alias);
+        std::vector<std::string> vPSetNames = aliasPSet.getParameterNamesForType<VParameterSet>();
+        for(std::string const& moduleLabel : vPSetNames) {
+          VParameterSet vPSet = aliasPSet.getParameter<VParameterSet>(moduleLabel);
+          for(ParameterSet& pset : vPSet) {
+            desc.validate(pset);
+            std::string friendlyClassName = pset.getParameter<std::string>("type"); 
+            std::string productInstanceName = pset.getParameter<std::string>("fromProductInstance");
+            std::string instanceAlias = pset.getParameter<std::string>("toProductInstance");
+            if(productInstanceName == star) {
+              bool match = false;
+              BranchKey lowerBound(friendlyClassName, moduleLabel, empty, empty);
+              for(ProductRegistry::ProductList::const_iterator it = preg.productList().lower_bound(lowerBound);
+                  it != preg.productList().end() && it->first.friendlyClassName_ == friendlyClassName && it->first.moduleLabel_ == moduleLabel;
+                  ++it) {
+                if(it->first.processName_ != processName) {
+                  continue;
+                }
+                match = true;
+
+                checkAndInsertAlias(friendlyClassName, moduleLabel, it->first.productInstanceName_, processName, alias, instanceAlias, preg, aliasMap, aliasKeys);
+              }
+              if(!match) {
+                throw Exception(errors::Configuration, "EDAlias parameter set mismatch\n")
+                   << "There are no products of type '" << friendlyClassName << "'\n"
+                   << "with module label '" << moduleLabel << "'.\n";
+              }
+            } else {
+              checkAndInsertAlias(friendlyClassName, moduleLabel, productInstanceName, processName, alias, instanceAlias, preg, aliasMap, aliasKeys);
+            }
+          }
+        }
+      }
+
+
+      // Now add the new alias entries to the product registry.
+      for(auto const& aliasEntry : aliasMap) {
+        ProductRegistry::ProductList::const_iterator it = preg.productList().find(aliasEntry.first);
+        assert(it != preg.productList().end()); 
+        preg.addLabelAlias(it->second, aliasEntry.second.moduleLabel_, aliasEntry.second.productInstanceName_);
+      }
+
+    }
   }
 
   // -----------------------------
@@ -151,6 +259,7 @@ namespace edm {
   Schedule::Schedule(ParameterSet& proc_pset,
                      service::TriggerNamesService& tns,
                      ProductRegistry& preg,
+                     BranchIDListHelper& branchIDListHelper,
                      ActionTable const& actions,
                      boost::shared_ptr<ActivityRegistry> areg,
                      boost::shared_ptr<ProcessConfiguration> processConfiguration,
@@ -286,6 +395,8 @@ namespace edm {
     std::map<std::string, std::vector<std::pair<std::string, int> > > outputModulePathPositions;
     reduceParameterSet(proc_pset, modulesInConfig, modulesInConfigSet, labelsOnTriggerPaths, shouldBeUsedLabels, outputModulePathPositions);
 
+    processEDAliases(proc_pset, processConfiguration->processName(), preg);
+
     proc_pset.registerIt();
     pset::Registry::instance()->extra().setID(proc_pset.id());
     processConfiguration->setParameterSetID(proc_pset.id());
@@ -307,8 +418,8 @@ namespace edm {
         all_output_workers_.push_back(ow);
       }
     }
-    // Now that the output workers are filled in, set any output limits.
-    limitOutput(proc_pset);
+    // Now that the output workers are filled in, set any output limits or information.
+    limitOutput(proc_pset, branchIDListHelper.branchIDLists());
 
     loadMissingDictionaries();
     preg.setFrozen();
@@ -323,7 +434,7 @@ namespace edm {
     assert (all_workers_count == all_workers_.size());
 
     ProcessConfigurationRegistry::instance()->insertMapped(*processConfiguration);
-    BranchIDListHelper::updateRegistries(preg);
+    branchIDListHelper.updateRegistries(preg);
     fillProductRegistryTransients(*processConfiguration, preg);
   } // Schedule::Schedule
 
@@ -596,7 +707,7 @@ namespace edm {
   }
 
   void
-  Schedule::limitOutput(ParameterSet const& proc_pset) {
+  Schedule::limitOutput(ParameterSet const& proc_pset, BranchIDLists const& branchIDLists) {
     std::string const output("output");
 
     ParameterSet const& maxEventsPSet = proc_pset.getUntrackedParameterSet("maxEvents", ParameterSet());
@@ -620,13 +731,9 @@ namespace edm {
         "\nAt most, one form of 'output' may appear in the 'maxEvents' parameter set";
     }
 
-    if (maxEventSpecs == 0) {
-      return;
-    }
-
     for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(), itEnd = all_output_workers_.end();
         it != itEnd; ++it) {
-      OutputModuleDescription desc(maxEventsOut);
+      OutputModuleDescription desc(branchIDLists, maxEventsOut);
       if (vMaxEventsOut != 0 && !vMaxEventsOut->empty()) {
         std::string moduleLabel = (*it)->description().moduleLabel();
         try {

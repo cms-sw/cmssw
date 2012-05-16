@@ -80,6 +80,8 @@ namespace edm {
 
     void addOnDemandGroup(boost::shared_ptr<ConstBranchDescription> bd);
 
+    void addGroupAliased(boost::shared_ptr<ConstBranchDescription> bd);
+
     void fillPrincipal(ProcessHistoryID const& hist, DelayedReader* reader);
 
     void clearPrincipal();

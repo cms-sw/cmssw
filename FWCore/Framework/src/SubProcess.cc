@@ -2,6 +2,7 @@
 
 #include "DataFormats/Common/interface/ProductData.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/FullHistoryToReducedHistoryMap.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
@@ -10,10 +11,12 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/Group.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
+#include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
@@ -31,6 +34,7 @@ namespace edm {
   SubProcess::SubProcess(ParameterSet& parameterSet,
                          ParameterSet const& topLevelParameterSet,
                          boost::shared_ptr<ProductRegistry const> parentProductRegistry,
+                         boost::shared_ptr<BranchIDListHelper const> parentBranchIDListHelper,
                          eventsetup::EventSetupsController& esController,
                          ActivityRegistry& parentActReg,
                          ServiceToken const& token,
@@ -39,6 +43,7 @@ namespace edm {
       serviceToken_(),
       parentPreg_(parentProductRegistry),
       preg_(),
+      branchIDListHelper_(),
       act_table_(),
       processConfiguration_(),
       principalCache_(),
@@ -76,7 +81,7 @@ namespace edm {
 
     boost::shared_ptr<ParameterSet> subProcessParameterSet(popSubProcessParameterSet(*processParameterSet_).release());
   
-    ScheduleItems items(*parentProductRegistry);
+    ScheduleItems items(*parentProductRegistry, *parentBranchIDListHelper);
 
     ParameterSet const& optionsPset(processParameterSet_->getUntrackedParameterSet("options", ParameterSet()));
     IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter", true));
@@ -107,16 +112,20 @@ namespace edm {
     // set the items
     act_table_ = items.act_table_;
     preg_ = items.preg_;
+    branchIDListHelper_ = items.branchIDListHelper_;
     processConfiguration_ = items.processConfiguration_;
+
+    OutputModuleDescription desc(branchIDListHelper_->branchIDLists());
+    configure(desc);
 
     std::map<std::string, std::vector<std::pair<std::string, int> > > outputModulePathPositions;
     setEventSelectionInfo(outputModulePathPositions, parentProductRegistry->anyProductProduced());
 
-    boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_, *processConfiguration_, historyAppender_.get()));
+    boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_, branchIDListHelper_, *processConfiguration_, historyAppender_.get()));
     principalCache_.insert(ep);
 
     if(subProcessParameterSet) {
-      subProcess_.reset(new SubProcess(*subProcessParameterSet, topLevelParameterSet, preg_, esController, *items.actReg_, newToken, iLegacy));
+      subProcess_.reset(new SubProcess(*subProcessParameterSet, topLevelParameterSet, preg_, branchIDListHelper_, esController, *items.actReg_, newToken, iLegacy));
     }
   }
 
@@ -124,6 +133,9 @@ namespace edm {
 
   void
   SubProcess::beginJob() {
+    if(!droppedBranchIDToKeptBranchID().empty()) {
+      fixBranchIDListsForEDAliases(droppedBranchIDToKeptBranchID());
+    }
     // Mark dropped branches as dropped in the product registry.
     {
       std::set<BranchID> keptBranches;
@@ -159,6 +171,21 @@ namespace edm {
       c.rethrow();
     }
     if(subProcess_.get()) subProcess_->doEndJob();
+  }
+
+  void
+  SubProcess::fixBranchIDListsForEDAliases(std::map<BranchID::value_type, BranchID::value_type> const& droppedBranchIDToKeptBranchID) {
+    // Check for branches dropped while an EDAlias was kept.
+    // Replace BranchID of each dropped branch with that of the kept alias.
+    for(BranchIDList& branchIDList : branchIDListHelper_->branchIDLists()) {
+      for(BranchID::value_type& branchID : branchIDList) {
+        std::map<BranchID::value_type, BranchID::value_type>::const_iterator iter = droppedBranchIDToKeptBranchID.find(branchID);
+        if(iter != droppedBranchIDToKeptBranchID.end()) {
+          branchID = iter->second;
+        }
+      }
+    }
+    if(subProcess_.get()) subProcess_->fixBranchIDListsForEDAliases(droppedBranchIDToKeptBranchID);
   }
 
   SubProcess::ESInfo::ESInfo(IOVSyncValue const& ts, eventsetup::EventSetupProvider& esp) :
@@ -356,6 +383,15 @@ namespace edm {
     }
   }
 
+  // Call respondToOpenInputFile() on all Modules
+  void
+  SubProcess::respondToOpenInputFile(FileBlock const& fb) {
+    ServiceRegistry::Operate operate(serviceToken_);
+    branchIDListHelper_->updateFromInput(fb.branchIDLists());
+    schedule_->respondToOpenInputFile(fb);
+    if(subProcess_.get()) subProcess_->respondToOpenInputFile(fb);
+  }
+
   // free function
   std::auto_ptr<ParameterSet>
   popSubProcessParameterSet(ParameterSet& parameterSet) {
@@ -367,6 +403,5 @@ namespace edm {
     }
     return std::auto_ptr<ParameterSet>(0);
   }
-
 }
 

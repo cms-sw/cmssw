@@ -40,6 +40,7 @@ namespace statemachine {
 namespace edm {
 
   class ActionTable;
+  class BranchIDListHelper;
   class EDLooperBase;
   class HistoryAppender;
   class ProcessDesc;
@@ -347,6 +348,7 @@ namespace edm {
     ActivityRegistry::PostProcessEvent            postProcessEventSignal_;
     boost::shared_ptr<ActivityRegistry>           actReg_;
     boost::shared_ptr<SignallingProductRegistry>  preg_;
+    boost::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
     ServiceToken                                  serviceToken_;
     boost::shared_ptr<InputSource>                input_;
     boost::scoped_ptr<eventsetup::EventSetupsController> espController_;

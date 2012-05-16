@@ -13,6 +13,7 @@ namespace edm {
   class PrincipalCache;
   class ProductRegistry;
   class ActivityRegistry;
+  class BranchIDListHelper;
 
   struct InputSourceDescription {
     InputSourceDescription() :
@@ -23,12 +24,14 @@ namespace edm {
       maxLumis_(-1) {}
     InputSourceDescription(ModuleDescription const& md,
 			   ProductRegistry& preg,
+                           boost::shared_ptr<BranchIDListHelper> branchIDListHelper,
 			   PrincipalCache& pCache,
 			   boost::shared_ptr<ActivityRegistry> areg,
 			   int maxEvents,
 			   int maxLumis) :
       moduleDescription_(md),
       productRegistry_(&preg),
+      branchIDListHelper_(branchIDListHelper),
       principalCache_(&pCache),
       actReg_(areg),
       maxEvents_(maxEvents),
@@ -38,6 +41,7 @@ namespace edm {
 
     ModuleDescription moduleDescription_;
     ProductRegistry* productRegistry_;
+    boost::shared_ptr<BranchIDListHelper> branchIDListHelper_;
     PrincipalCache* principalCache_;
     boost::shared_ptr<ActivityRegistry> actReg_;
     int maxEvents_;

@@ -3,6 +3,7 @@
 
 namespace edm {
   class BranchDescription;
+  class BranchIDListHelper;
   class Parentage;
   class BranchID;
   struct BranchKey;

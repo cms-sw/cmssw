@@ -129,7 +129,7 @@ Event::put<GenericObjectOwner>(std::auto_ptr<GenericObjectOwner> product, std::s
    // product.release(); // The object has been copied into the Wrapper.
    // The old copy must be deleted, so we cannot release ownership.
    
-   return(OrphanHandle<GenericObjectOwner>(oWrapper.Get("obj"), eventPrincipal().branchIDToProductID(desc.branchID())));
+   return(OrphanHandle<GenericObjectOwner>(oWrapper.Get("obj"), eventPrincipal().branchIDToProductID(desc.originalBranchID())));
 }
 }
 
