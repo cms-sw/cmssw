@@ -949,6 +949,27 @@ def makeCppPSet(module,cppPSetMaker):
             p.insertInto(cppPSetMaker,x)
     return cppPSetMaker
 
+class EDAlias(_ConfigureComponent,_Parameterizable,_Labelable):
+    def __init__(self,*arg,**kargs):
+        super(EDAlias,self).__init__(*arg,**kargs)
+    def copy(self):
+        return copy.copy(self)
+    def _place(self,name,proc):
+        proc._placeAlias(name,self)
+    def nameInProcessDesc_(self, myname):
+        return myname;
+    def moduleLabel_(self, myname):
+        return myname
+    def insertInto(self, parameterSet, myname):
+        newpset = parameterSet.newPSet()
+        newpset.addString(True, "@module_label", self.moduleLabel_(myname))
+        newpset.addString(True, "@module_type", self.type_())
+        newpset.addString(True, "@module_edm_type", type(self).__name__)
+        self.insertContentsInto(newpset)
+        parameterSet.addPSet(True, self.nameInProcessDesc_(myname), newpset)
+    def type_(self):
+        return ""
+
 if __name__ == "__main__":
 
     import unittest
@@ -1129,6 +1150,8 @@ if __name__ == "__main__":
             self.assertRaises(TypeError, lambda : VPSet(3))
             self.assertRaises(TypeError, lambda : VPSet(int32(3)))
             self.assertRaises(SyntaxError, lambda : VPSet(foo=PSet()))
+        def testEDAlias(self):
+            aliasfoo2 = EDAlias(foo2 = VPSet(PSet(type = string("Foo2"))))
 
         def testFileInPath(self):
             f = FileInPath("FWCore/ParameterSet/python/Types.py")
