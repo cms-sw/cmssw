@@ -39,6 +39,20 @@ class BaseMetric:
         raise StandardError, "you should not use the baseclass as a metric. Use the derived classes!"
         
         
+class SummaryMapPartition(BaseMetric):
+    def __init__(self,  binx, nbinsy):
+        self.__binx = binx
+        self.__nbinsy = nbinsy
+
+    def calculate(self, histo):
+        value = 0
+        for ybin in range(self.__nbinsy):
+            ybin=ybin+1
+            value += histo.GetBinContent(self.__binx , ybin)
+            value1=value
+        value /= self.__nbinsy
+        return (value, 0)
+
 class Mean(BaseMetric):
     def calculate(self, histo):
         return (histo.GetMean(), histo.GetMeanError())
