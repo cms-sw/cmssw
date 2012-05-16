@@ -246,7 +246,16 @@ HLTDebugRAW   = cms.PSet(
         'keep TrackCandidates_hltHIL3TrackCandidateFromL2OIState_*_*',
         'keep TrackingRecHitsOwned_hltL3Muons_*_*',
         'keep edmTriggerResults_*_*_*',
+        'keep recoCaloJets_*_*_*',
+        'keep recoCaloMETs_*_*_*',
         'keep recoCaloMETs_hltMet_*_*',
+        'keep recoCompositeCandidates_*_*_*',
+        'keep recoElectrons_*_*_*',
+        'keep recoIsolatedPixelTrackCandidates_*_*_*',
+        'keep recoMETs_*_*_*',
+        'keep recoPFJets_*_*_*',
+        'keep recoPFTaus_*_*_*',
+        'keep recoRecoChargedCandidates_*_*_*',
         'keep recoRecoChargedCandidates_hltHIL3MuonCandidates_*_*',
         'keep recoRecoChargedCandidates_hltL2MuonCandidates_*_*',
         'keep recoRecoEcalCandidatesToValuefloatAssociation_hltL1IsoHLTClusterShape_*_*',
@@ -257,6 +266,7 @@ HLTDebugRAW   = cms.PSet(
         'keep recoRecoEcalCandidatesToValuefloatAssociation_hltL1NonIsolatedPhotonEcalIsol_*_*',
         'keep recoRecoEcalCandidatesToValuefloatAssociation_hltL1NonIsolatedPhotonHcalForHE_*_*',
         'keep recoRecoEcalCandidatesToValuefloatAssociation_hltL1NonIsolatedPhotonHcalIsol_*_*',
+        'keep recoRecoEcalCandidates_*_*_*',
         'keep recoRecoEcalCandidates_hltL1IsoRecoEcalCandidate_*_*',
         'keep recoRecoEcalCandidates_hltL1NonIsoRecoEcalCandidate_*_*',
         'keep recoTrackExtras_hltHIL3MuonsOIHit_*_*',
@@ -268,7 +278,8 @@ HLTDebugRAW   = cms.PSet(
         'keep recoTracks_hltHIL3TkTracksFromL2OIState_*_*',
         'keep recoTracks_hltHIL3TkTracksFromL2_*_*',
         'keep triggerTriggerEventWithRefs_*_*_*',
-        'keep triggerTriggerEvent_*_*_*'
+        'keep triggerTriggerEvent_*_*_*',
+        'keep triggerTriggerFilterObjectWithRefs_*_*_*'
     ) )
 )
 
@@ -480,7 +491,16 @@ HLTDebugFEVT  = cms.PSet(
         'keep TrackCandidates_hltHIL3TrackCandidateFromL2OIState_*_*',
         'keep TrackingRecHitsOwned_hltL3Muons_*_*',
         'keep edmTriggerResults_*_*_*',
+        'keep recoCaloJets_*_*_*',
+        'keep recoCaloMETs_*_*_*',
         'keep recoCaloMETs_hltMet_*_*',
+        'keep recoCompositeCandidates_*_*_*',
+        'keep recoElectrons_*_*_*',
+        'keep recoIsolatedPixelTrackCandidates_*_*_*',
+        'keep recoMETs_*_*_*',
+        'keep recoPFJets_*_*_*',
+        'keep recoPFTaus_*_*_*',
+        'keep recoRecoChargedCandidates_*_*_*',
         'keep recoRecoChargedCandidates_hltHIL3MuonCandidates_*_*',
         'keep recoRecoChargedCandidates_hltL2MuonCandidates_*_*',
         'keep recoRecoEcalCandidatesToValuefloatAssociation_hltL1IsoHLTClusterShape_*_*',
@@ -491,6 +511,7 @@ HLTDebugFEVT  = cms.PSet(
         'keep recoRecoEcalCandidatesToValuefloatAssociation_hltL1NonIsolatedPhotonEcalIsol_*_*',
         'keep recoRecoEcalCandidatesToValuefloatAssociation_hltL1NonIsolatedPhotonHcalForHE_*_*',
         'keep recoRecoEcalCandidatesToValuefloatAssociation_hltL1NonIsolatedPhotonHcalIsol_*_*',
+        'keep recoRecoEcalCandidates_*_*_*',
         'keep recoRecoEcalCandidates_hltL1IsoRecoEcalCandidate_*_*',
         'keep recoRecoEcalCandidates_hltL1NonIsoRecoEcalCandidate_*_*',
         'keep recoTrackExtras_hltHIL3MuonsOIHit_*_*',
@@ -502,7 +523,8 @@ HLTDebugFEVT  = cms.PSet(
         'keep recoTracks_hltHIL3TkTracksFromL2OIState_*_*',
         'keep recoTracks_hltHIL3TkTracksFromL2_*_*',
         'keep triggerTriggerEventWithRefs_*_*_*',
-        'keep triggerTriggerEvent_*_*_*'
+        'keep triggerTriggerEvent_*_*_*',
+        'keep triggerTriggerFilterObjectWithRefs_*_*_*'
     ) )
 )
 
