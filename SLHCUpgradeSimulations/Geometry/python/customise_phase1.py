@@ -117,3 +117,72 @@ def customise_pu50_25ns(process):
     #process.simSiStripDigis.Inefficiency = 40
     
     return (process)
+
+def customise_wo_pairs(process):
+
+    process=customise(process)
+
+    process.generalTracks.TrackProducers = (cms.InputTag('initialStepTracks'),
+                      cms.InputTag('highPtTripletStepTracks'),
+                      cms.InputTag('lowPtTripletStepTracks'),
+                      cms.InputTag('mixedTripletStepTracks'))
+    process.generalTracks.hasSelector=cms.vint32(1,1,1,1)
+    process.generalTracks.selectedTrackQuals = cms.VInputTag(cms.InputTag("initialStepSelector","initialStep"),
+                                       cms.InputTag("highPtTripletStepSelector","highPtTripletStep"),
+                                       cms.InputTag("lowPtTripletStepSelector","lowPtTripletStep"),
+                                       cms.InputTag("mixedTripletStep")
+                                       )
+    process.generalTracks.setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3), pQual=cms.bool(True) )
+                             )
+
+    process.newCombinedSeeds.seedCollections = cms.VInputTag(
+          cms.InputTag('initialStepSeeds'),
+          cms.InputTag('highPtTripletStepSeeds'),
+          cms.InputTag('lowPtTripletStepSeeds')
+    )
+
+    process.mixedTripletStepClusters.oldClusterRemovalInfo = cms.InputTag("lowPtTripletStepClusters")
+    process.mixedTripletStepClusters.trajectories = cms.InputTag("lowPtTripletStepTracks")
+    process.mixedTripletStepClusters.overrideTrkQuals = cms.InputTag('lowPtTripletStepSelector','lowPtTripletStep')
+
+    process.iterTracking.remove(process.PixelPairStep)
+    return (process)
+
+def customise_pu15_25ns_wo_pairs(process):
+
+    process=customise_wo_pairs(process)
+
+    process.load("SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R30F12_cff")
+
+### set the number of pileup
+    process.mix.input.nbPileupEvents = cms.PSet(
+        averageNumber = cms.double(15.0)
+        )
+    return (process)
+    
+
+#pileup specific stuff here
+def customise_pu50_25ns_wo_pairs(process):
+
+    process=customise_wo_pairs(process)
+
+    process.load("SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R30F12_cff")
+
+### set the number of pileup
+    process.mix.input.nbPileupEvents = cms.PSet(
+        averageNumber = cms.double(50.0)
+        )
+
+
+### if doing inefficiency at <PU>=50
+    process.simSiPixelDigis.AddPixelInefficiency = 20
+    ## also for strips TIB inefficiency if we want
+    ## TIB1,2 inefficiency at 20%
+    #process.simSiStripDigis.Inefficiency = 20
+    ## TIB1,2 inefficiency at 50%
+    #process.simSiStripDigis.Inefficiency = 30
+    ## TIB1,2 inefficiency at 99% (i.e. dead)
+    #process.simSiStripDigis.Inefficiency = 40
+
+    return (process)
+
