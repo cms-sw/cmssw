@@ -12,6 +12,16 @@ RUNDIR=$HOME/scratch0/some/path
 MSSDIR=/castor/cern.ch/user/u/username/another/path
 MSSDIRPOOL=
 
+#get list of treefiles
+TREEFILELIST=
+if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
+else
+    TREEFILELIST=`cmsLs -l $MSSDIR | grep -i treeFile | grep -i root`
+fi
+if [ -z "$TREEFILELIST" ]; then
+    echo "\nThe list of treefiles seems to be empty.\n"
+fi
+
 clean_up () {
 #try to recover log files and root files
     echo try to recover log files and root files ...
@@ -58,6 +68,17 @@ untilSuccess () {
     return 0
 }
 
+copytreefile () {
+    CHECKFILE=`echo $TREEFILELIST | grep -i $2`
+    if [ -z "$TREEFILELIST" ]; then
+        untilSuccess $1 $2 $3
+    else
+        if [ -n "$CHECKFILE" ]; then
+            untilSuccess $1 $2 $3
+        fi
+    fi
+}
+
 # The batch job directory (will vanish after job end):
 BATCH_DIR=$(pwd)
 echo "Running at $(date) \n        on $HOST \n        in directory $BATCH_DIR."
@@ -70,7 +91,7 @@ if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
   stager_get -M $MSSDIR/milleBinaryISN.dat.gz
   untilSuccess rfcp $MSSDIR/milleBinaryISN.dat.gz $BATCH_DIR
   stager_get -M $MSSDIR/treeFileISN.root
-  untilSuccess rfcp $MSSDIR/treeFileISN.root $BATCH_DIR
+  copytreefile rfcp $MSSDIR/treeFileISN.root $BATCH_DIR
 else
 # Using cmscafuser pool => cmsStageIn command must be used
   . /afs/cern.ch/cms/caf/setup.sh
@@ -78,7 +99,7 @@ else
   MSSCAFDIR=`echo $MSSDIR | perl -pe 's/\/castor\/cern.ch\/cms//gi'`
   
   untilSuccess cmsStageIn $MSSCAFDIR/milleBinaryISN.dat.gz milleBinaryISN.dat.gz
-  untilSuccess cmsStageIn $MSSCAFDIR/treeFileISN.root treeFileISN.root
+  copytreefile cmsStageIn $MSSCAFDIR/treeFileISN.root treeFileISN.root
 fi
 
 # We have gzipped binaries, but the python config looks for .dat
