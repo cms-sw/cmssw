@@ -33,6 +33,7 @@ unsigned int MultiDimFit::firstPoint_ = 0;
 unsigned int MultiDimFit::lastPoint_  = std::numeric_limits<unsigned int>::max();
 bool MultiDimFit::floatOtherPOIs_ = false;
 unsigned int MultiDimFit::nOtherFloatingPoi_ = 0;
+bool MultiDimFit::fastScan_ = false;
 
 
 MultiDimFit::MultiDimFit() :
@@ -45,6 +46,7 @@ MultiDimFit::MultiDimFit() :
         ("points",  boost::program_options::value<unsigned int>(&points_)->default_value(points_), "Points to use for grid or contour scans")
         ("firstPoint",  boost::program_options::value<unsigned int>(&firstPoint_)->default_value(firstPoint_), "First point to use")
         ("lastPoint",  boost::program_options::value<unsigned int>(&lastPoint_)->default_value(lastPoint_), "Last point to use")
+        ("fastScan", "Do a fast scan, evaluating the likelihood without profiling it.")
        ;
 }
 
@@ -65,6 +67,7 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
     } else if (algo == "contour2d") {
         algo_ = Contour2D;
     } else throw std::invalid_argument("Unknown algorithm");
+    fastScan_ = (vm.count("fastScan") > 0);
 }
 
 bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
@@ -189,7 +192,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 {
     unsigned int n = poi_.size();
     if (poi_.size() > 2) throw std::logic_error("Not today");
-    double nll0 = nll.getVal(), threshold = nll0 + 0.5*ROOT::Math::chisquared_quantile_c(1-cl,n+nOtherFloatingPoi_);
+    double nll0 = nll.getVal();
 
     std::vector<double> p0(n), pmin(n), pmax(n);
     for (unsigned int i = 0; i < n; ++i) {
@@ -201,17 +204,20 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
 
     CascadeMinimizer minim(nll, CascadeMinimizer::Constrained);
     minim.setStrategy(minimizerStrategy_);
-
+    std::auto_ptr<RooArgSet> params(nll.getParameters((const RooArgSet *)0));
+    RooArgSet snap; params->snapshot(snap);
+    //snap.Print("V");
     if (n == 1) {
         for (unsigned int i = 0; i < points_; ++i) {
             double x =  pmin[0] + (i+0.5)*(pmax[0]-pmin[0])/points_; 
             if (verbose > 1) std::cout << "Point " << i << "/" << points_ << " " << poiVars_[0]->GetName() << " = " << x << std::endl;
+            *params = snap; 
             poiVals_[0] = x;
             poiVars_[0]->setVal(x);
             // now we minimize
             {   
                 //CloseCoutSentry sentry(verbose < 3);    
-                bool ok = minim.minimize(verbose-1);
+                bool ok = fastScan_ ? true : minim.minimize(verbose-1);
                 if (ok) {
                     deltaNLL_ = nll.getVal() - nll0;
                     double qN = 2*(deltaNLL_);
@@ -222,19 +228,20 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
         }
     } else if (n == 2) {
         unsigned int sqrn = ceil(sqrt(double(points_)));
-        unsigned int ipoint = 0;
+        unsigned int ipoint = 0, nprint = ceil(0.005*sqrn*sqrn);
         RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
         CloseCoutSentry sentry(verbose < 2);    
         for (unsigned int i = 0; i < sqrn; ++i) {
             for (unsigned int j = 0; j < sqrn; ++j, ++ipoint) {
                 if (ipoint < firstPoint_) continue;
                 if (ipoint > lastPoint_)  break;
+                *params = snap; 
                 double x =  pmin[0] + (i+0.5)*(pmax[0]-pmin[0])/sqrn; 
                 double y =  pmin[1] + (j+0.5)*(pmax[1]-pmin[1])/sqrn; 
-                if (verbose > 1) std::cout << "Point " << ipoint << "/" <<  (sqrn*sqrn) << ", " 
-                    << "(i,j) = " << i << "," << j << ", " 
-                        << poiVars_[0]->GetName() << " = " << x << ", "
-                        << poiVars_[1]->GetName() << " = " << y << std::endl;
+                if (verbose && (ipoint % nprint == 0)) {
+                         fprintf(sentry.trueStdOut(), "Point %d/%d, (i,j) = (%d,%d), %s = %f, %s = %f\n",
+                                        ipoint,sqrn*sqrn, i,j, poiVars_[0]->GetName(), x, poiVars_[1]->GetName(), y);
+                }
                 poiVals_[0] = x;
                 poiVals_[1] = y;
                 poiVars_[0]->setVal(x);
@@ -246,7 +253,7 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                 }
                 // now we minimize
                 {   
-                    bool ok = minim.minimize(verbose-1);
+                    bool ok = fastScan_ ? true : minim.minimize(verbose-1);
                     if (ok) {
                         deltaNLL_ = nll.getVal() - nll0;
                         double qN = 2*(deltaNLL_);
