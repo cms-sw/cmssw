@@ -180,7 +180,6 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 	 fitStatus_ = res_b->status();
       }
       numbadnll_=res_b->numInvalidNLL();
-      std::cout << "Just after B only fit " << nll_bonly <<std::endl;
 
       if (makePlots_) {
           std::vector<RooPlot *> plots = utils::makePlots(*mc_b->GetPdf(), data, signalPdfNames_.c_str(), backgroundPdfNames_.c_str(), rebinFactor_);
