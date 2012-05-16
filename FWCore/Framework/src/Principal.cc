@@ -115,7 +115,9 @@ namespace edm {
     //Now that these have been set, we can create the list of Branches we need.
     std::string const source("source");
     ProductRegistry::ProductList const& prodsList = reg->productList();
-    // On this first pass, skip current EDAliases.
+    // The constructor of an alias group takes as an argument the group for which it is an alias.
+    // So, the non-alias groups must be created first.
+    // Therefore, on this first pass, skip current EDAliases.
     bool hasAliases = false;
     for(auto const& prod : prodsList) {
       BranchDescription const& bd = prod.second;
