@@ -12,11 +12,14 @@
 //
 // Author:      Chris D. Jones
 // Created:     Sun Sep 20 16:03:32 EDT 1998
-// $Id: HCMethods.icc,v 1.6 2006/08/26 13:31:22 chrjones Exp $
+// $Id: HCMethods.icc,v 1.7 2010/01/15 20:35:48 chrjones Exp $
 //
 // Revision history
 //
 // $Log: HCMethods.icc,v $
+// Revision 1.7  2010/01/15 20:35:48  chrjones
+// Changed type identifier for the EventSetup to no longer be a template
+//
 // Revision 1.6  2006/08/26 13:31:22  chrjones
 // replaced C style cast with a static_cast
 //
@@ -61,14 +64,14 @@ namespace edm {
    namespace eventsetup {
       namespace heterocontainer {
          template< class Type, class Key, class IdTag >
-         Key makeKey(const IdTag& iIdTag) {
-            static HCTypeTag typeTag = HCTypeTag::make<Type>();
+         inline Key makeKey(const IdTag& iIdTag) {
+            HCTypeTag typeTag = HCTypeTag::make<Type>();
             return Key(typeTag, iIdTag);
          }
          
          template< class Type, class Key>
-         Key makeKey() {
-            static HCTypeTag typeTag = HCTypeTag::make<Type>();
+         inline Key makeKey() {
+            HCTypeTag typeTag = HCTypeTag::make<Type>();
             return Key(typeTag);
          }
          
