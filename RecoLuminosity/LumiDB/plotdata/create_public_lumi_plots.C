@@ -3,34 +3,50 @@
 #include <stdio.h>
 
 #include "TStyle.h"
+#include "TColor.h"
 
-// These are the blue and orange from the CMS logo.
+// NOTE: All the below colors have been tweaked based on the PNG
+// versions of the CMS logos present in this CVS area.
+
+//------------------------------
+// Color scheme 'Greg'.
+//------------------------------
+
 Int_t const kCMSBlue = 1756;
 Int_t const kCMSOrange = 1757;
-Int_t const kLumiGray = 1758;
-Int_t const kCMSBlueG = 1759;
-Int_t const kCMSOrangeG = 1760;
-
-// These are the colors that Greg gave us.
-TColor* cmsBlueG = new TColor(kCMSBlueG, 102./255., 153./255., 204./255.);
-TColor* cmsOrangeG = new TColor(kCMSOrangeG, 255./255., 153./255., 0./255.);
+Int_t const kCMSBlueD = 1759;
+Int_t const kCMSOrangeD = 1760;
 
 // This is the light blue of the CMS logo.
-TColor* cmsBlue = new TColor(kCMSBlue, 0./255., 240./255., 255./255.);
-
-// // This is the dark blue from the letters in the CMS logo.
-// TColor* cmsBlue = new TColor(kCMSBlue, 0./255., 25./255., 230./255.);
+TColor* cmsBlue = new TColor(kCMSBlue, 0./255., 152./255., 212./255.);
 
 // This is the orange from the CMS logo.
-TColor* cmsOrange = new TColor(kCMSOrange, 255./255., 195./255., 12./255.);
+TColor* cmsOrange = new TColor(kCMSOrange, 241./255., 194./255., 40./255.);
 
-// // This is just a nice gray.
-// TColor* lumiGray = new TColor(kLumiGray, 140./255., 140./255., 140./255.);
+// Slightly darker versions of the above colors for the lines.
+TColor* cmsBlueD = new TColor(kCMSBlueD, 102./255., 153./255., 204./255.);
+TColor* cmsOrangeD = new TColor(kCMSOrangeD, 255./255., 153./255., 0./255.);
 
-Int_t const kFillColorDelivered = kCMSBlue;
-Int_t const kFillColorRecorded = kCMSOrange;
-Int_t const kLineColorDelivered = kCMSBlueG;
-Int_t const kLineColorRecorded = kCMSOrangeG;
+//------------------------------
+// Color scheme 'Joe'.
+//------------------------------
+
+// Several colors from the alternative CMS logo, with their darker
+// line variants.
+
+Int_t const kCMSRed = 1700;
+Int_t const kCMSYellow = 1701;
+Int_t const kCMSPurple = 1702;
+Int_t const kCMSGreen = 1703;
+Int_t const kCMSOrange2 = 1704;
+
+TColor* cmsRed = new TColor(kCMSRed, 208./255., 0./255., 37./255.);
+TColor* cmsYellow = new TColor(kCMSYellow, 255./255., 248./255., 0./255.);
+TColor* cmsPurple = new TColor(kCMSPurple, 125./255., 16./255., 123./255.);
+TColor* cmsGreen = new TColor(kCMSGreen, 60./255., 177./255., 110./255.);
+TColor* cmsOrange2 = new TColor(kCMSOrange2, 227./255., 136./255., 36./255.);
+
+//------------------------------
 
 void rootInit() {
   gROOT->SetStyle("Plain");
@@ -58,8 +74,7 @@ void rootInit() {
   gStyle->SetPadColor(0);
   gStyle->SetGridStyle(0);
   gStyle->SetLegendBorderSize(0);
-  // This does not yet exist in the CMSSW versions of ROOT...
-  //gStyle->SetLegendFillColor(0);
+  gStyle->SetLegendFillColor(0);
   gStyle->SetFrameFillColor(0);
   gStyle->SetFillStyle(4000);
 }
@@ -78,8 +93,8 @@ TLegend* createLegend() {
   return new TLegend(min_x, min_y, max_x, max_y);
 }
 
-void drawLogo(TCanvas* canvas) {
-  TImage* logo = TImage::Open("CMS_logo_cut.png");
+void drawLogo(TCanvas* canvas, std::string const logoName) {
+  TImage* logo = TImage::Open(logoName.c_str());
   float aspectRatio = 1. * canvas->GetWh() / canvas->GetWw();
   float min_x = .1005;
   float max_x = .2;
@@ -177,7 +192,7 @@ void readInputFile(std::string& fileName,
   return;
 }
 
-void create_public_lumi_plots() {
+void create_public_lumi_plots(std::string const colorScheme="Greg") {
 
   // Overall title and axis titles for everything. One version for the
   // per-day plot, one for the cumulative plot.
@@ -194,15 +209,41 @@ void create_public_lumi_plots() {
   float conversionFactor = 1.e6;
 
   // This is the intermediate CSV file with the data from the lumi DB.
-  // std::string fileName = "totallumivstime-pp-2012.csv";
   std::string fileName = "/afs/cern.ch/cms/lumi/www/publicplots/totallumivstime-pp-2012.csv";
 
-  // // Basic style settings.
-  // gROOT->ProcessLine(".L public_lumi_style.C+");
+  // Basic style settings.
   rootInit();
 
-  // // Load the CSV file reader.
-  // gROOT->ProcessLine(".L lumi_plot_csv_reader.C+");
+  // Color scheme settings.
+  Int_t kFillColorDelivered = 0;
+  Int_t kFillColorRecorded = 0;
+  Int_t kLineColorDelivered = 0;
+  Int_t kLineColorRecorded = 0;
+  std::string fileSuffix = "";
+  std::string logoName = "cms_logo_1.png";
+
+  if (colorScheme == "Greg") {
+    // Color scheme 'Greg'.
+    kFillColorDelivered = kCMSBlue;
+    kFillColorRecorded = kCMSOrange;
+//     Int_t const kLineColorDelivered = kCMSBlueD;
+//     Int_t const kLineColorRecorded = kCMSOrangeD;
+    kLineColorDelivered = TColor::GetColorDark(kFillColorDelivered);
+    kLineColorRecorded = TColor::GetColorDark(kFillColorRecorded);
+    logoName = "cms_logo_2.png";
+    fileSuffix = "";
+  } else if (colorScheme == "Joe") {
+    // Color scheme 'Joe'.
+    kFillColorDelivered = kCMSYellow;
+    kFillColorRecorded = kCMSRed;
+    kLineColorDelivered = TColor::GetColorDark(kFillColorDelivered);
+    kLineColorRecorded = TColor::GetColorDark(kFillColorRecorded);
+    logoName = "cms_logo_3.png";
+    fileSuffix = "_alt";
+  } else {
+    std::cerr << "ERROR Unknown color scheme '"
+              << colorScheme << "' --> using the default ('Greg')" << std::endl;
+  }
 
   std::vector< int > runV;
   std::vector< std::string > start_timeV;
@@ -360,9 +401,9 @@ void create_public_lumi_plots() {
 
   // Add the CMS logo in the top right corner. This has to be the last
   // action so the logo sits on top of the axes.
-  drawLogo(canvas);
+  drawLogo(canvas, logoName);
 
-  canvas->Print("int_lumi_per_day_2012.png");
+  canvas->Print(Form("int_lumi_per_day_2012%s.png", fileSuffix.c_str()));
 
   //----------------------------------------------
   // Create the cumulative lumi plot.
@@ -424,7 +465,7 @@ void create_public_lumi_plots() {
 
   // Add the CMS logo in the top right corner. This has to be the last
   // action so the logo sits on top of the axes.
-  drawLogo(canvas);
+  drawLogo(canvas, logoName);
 
-  canvas->Print("int_lumi_cumulative_2012.png");
+  canvas->Print(Form("int_lumi_cumulative_2012%s.png", fileSuffix.c_str()));
 }
