@@ -18,14 +18,14 @@ Int_t const kCMSBlueD = 1759;
 Int_t const kCMSOrangeD = 1760;
 
 // This is the light blue of the CMS logo.
-TColor* cmsBlue = new TColor(kCMSBlue, 0./255., 152./255., 212./255.);
+TColor cmsBlue(kCMSBlue, 0./255., 152./255., 212./255.);
 
 // This is the orange from the CMS logo.
-TColor* cmsOrange = new TColor(kCMSOrange, 241./255., 194./255., 40./255.);
+TColor cmsOrange(kCMSOrange, 241./255., 194./255., 40./255.);
 
 // Slightly darker versions of the above colors for the lines.
-TColor* cmsBlueD = new TColor(kCMSBlueD, 102./255., 153./255., 204./255.);
-TColor* cmsOrangeD = new TColor(kCMSOrangeD, 255./255., 153./255., 0./255.);
+TColor cmsBlueD(kCMSBlueD, 102./255., 153./255., 204./255.);
+TColor cmsOrangeD(kCMSOrangeD, 255./255., 153./255., 0./255.);
 
 //------------------------------
 // Color scheme 'Joe'.
@@ -40,11 +40,11 @@ Int_t const kCMSPurple = 1702;
 Int_t const kCMSGreen = 1703;
 Int_t const kCMSOrange2 = 1704;
 
-TColor* cmsRed = new TColor(kCMSRed, 208./255., 0./255., 37./255.);
-TColor* cmsYellow = new TColor(kCMSYellow, 255./255., 248./255., 0./255.);
-TColor* cmsPurple = new TColor(kCMSPurple, 125./255., 16./255., 123./255.);
-TColor* cmsGreen = new TColor(kCMSGreen, 60./255., 177./255., 110./255.);
-TColor* cmsOrange2 = new TColor(kCMSOrange2, 227./255., 136./255., 36./255.);
+TColor cmsRed(kCMSRed, 208./255., 0./255., 37./255.);
+TColor cmsYellow(kCMSYellow, 255./255., 248./255., 0./255.);
+TColor cmsPurple(kCMSPurple, 125./255., 16./255., 123./255.);
+TColor cmsGreen(kCMSGreen, 60./255., 177./255., 110./255.);
+TColor cmsOrange2(kCMSOrange2, 227./255., 136./255., 36./255.);
 
 //------------------------------
 
@@ -192,7 +192,7 @@ void readInputFile(std::string& fileName,
   return;
 }
 
-void create_public_lumi_plots(std::string const colorScheme="Greg") {
+void create_plots(std::string const colorScheme="Greg") {
 
   // Overall title and axis titles for everything. One version for the
   // per-day plot, one for the cumulative plot.
@@ -325,7 +325,6 @@ void create_public_lumi_plots(std::string const colorScheme="Greg") {
   }
 
   // Now we can move on to the plotting.
-  TCanvas* canvas = createCanvas();
 
   TTimeStamp a(dateLo);
   TTimeStamp b(dateHi);
@@ -334,39 +333,39 @@ void create_public_lumi_plots(std::string const colorScheme="Greg") {
   b.SetSec(b.GetSec() + (24 * 60 * 60));
   a.SetSec(a.GetSec() - (12 * 60 * 60) - (60 * 60));
   b.SetSec(b.GetSec() - (12 * 60 * 60) - (60 * 60));
-  TH1F* h_delLum = new TH1F("", "", numDays, a.GetSec(), b.GetSec());
-  TH1F* h_recLum = new TH1F("", "", numDays, a.GetSec(), b.GetSec());
+  TH1F h_delLum("", "", numDays, a.GetSec(), b.GetSec());
+  TH1F h_recLum("", "", numDays, a.GetSec(), b.GetSec());
 
   for (size_t i = 0; i != numDays; ++i) {
-    h_delLum->SetBinContent(i + 1, delivered_lumiA[i]);
-    h_recLum->SetBinContent(i + 1, recorded_lumiA[i]);
+    h_delLum.SetBinContent(i + 1, delivered_lumiA[i]);
+    h_recLum.SetBinContent(i + 1, recorded_lumiA[i]);
   }
 
   //----------------------------------------------
   // Create the lumi-per-day plot.
   //----------------------------------------------
 
-  h_delLum->SetLineColor(kLineColorDelivered);
-  h_delLum->SetMarkerColor(kLineColorDelivered);
-  h_delLum->SetFillColor(kFillColorDelivered);
+  h_delLum.SetLineColor(kLineColorDelivered);
+  h_delLum.SetMarkerColor(kLineColorDelivered);
+  h_delLum.SetFillColor(kFillColorDelivered);
 
-  h_recLum->SetLineColor(kLineColorRecorded);
-  h_recLum->SetMarkerColor(kLineColorRecorded);
-  h_recLum->SetFillColor(kFillColorRecorded);
+  h_recLum.SetLineColor(kLineColorRecorded);
+  h_recLum.SetMarkerColor(kLineColorRecorded);
+  h_recLum.SetFillColor(kFillColorRecorded);
 
-  h_delLum->SetLineWidth(2);
-  h_recLum->SetLineWidth(2);
+  h_delLum.SetLineWidth(2);
+  h_recLum.SetLineWidth(2);
 
   // Titles etc.
-  h_delLum->SetTitle(titlePerDay.c_str());
-  h_delLum->GetXaxis()->SetTimeDisplay(1);
-  h_delLum->GetXaxis()->SetTimeFormat("%d/%m");
-  h_delLum->GetXaxis()->SetTimeOffset(0, "gmt");
-  h_delLum->GetXaxis()->SetLabelOffset(0.01);
-  h_delLum->GetYaxis()->SetTitleOffset(1.2);
-  h_delLum->GetXaxis()->SetTitleFont(62);
-  h_delLum->GetYaxis()->SetTitleFont(62);
-  h_delLum->GetXaxis()->SetNdivisions(705);
+  h_delLum.SetTitle(titlePerDay.c_str());
+  h_delLum.GetXaxis()->SetTimeDisplay(1);
+  h_delLum.GetXaxis()->SetTimeFormat("%d/%m");
+  h_delLum.GetXaxis()->SetTimeOffset(0, "gmt");
+  h_delLum.GetXaxis()->SetLabelOffset(0.01);
+  h_delLum.GetYaxis()->SetTitleOffset(1.2);
+  h_delLum.GetXaxis()->SetTitleFont(62);
+  h_delLum.GetYaxis()->SetTitleFont(62);
+  h_delLum.GetXaxis()->SetNdivisions(705);
 
   // Tweak the axes ranges a bit to create a bit more 'air.'
   float airSpace = .2;
@@ -374,9 +373,10 @@ void create_public_lumi_plots(std::string const colorScheme="Greg") {
   // Round to next multiple of ten.
   float tmp = (1. + airSpace) * max(maxDel, maxRec);
   float max_y = ceil(tmp / 10.) * 10;
-  h_delLum->Draw();
-  h_recLum->Draw("SAME");
-  h_delLum->GetYaxis()->SetRangeUser(min_y, max_y);
+  TCanvas* canvas = createCanvas();
+  h_delLum.Draw();
+  h_recLum.Draw("SAME");
+  h_delLum.GetYaxis()->SetRangeUser(min_y, max_y);
 
   // Add legend to the top left.
   TLegend* legend = createLegend();
@@ -384,16 +384,16 @@ void create_public_lumi_plots(std::string const colorScheme="Greg") {
   legend->SetX2NDC(legend->GetX2NDC() +
                    1.01 * (legend->GetX2NDC() - legend->GetX1NDC()));
   legend->SetMargin(marginOld / 1.01);
-  legend->AddEntry(h_delLum,
+  legend->AddEntry(&h_delLum,
                    Form("LHC Delivered, max: %6.1f pb^{-1}/day", maxDel),
                    "F");
-  legend->AddEntry(h_recLum,
+  legend->AddEntry(&h_recLum,
                    Form("CMS Recorded, max: %6.1f pb^{-1}/day", maxRec),
                    "F");
   legend->Draw();
 
   // Duplicate the vertical axis on the right-hand side.
-  duplicateYAxis(canvas, h_delLum->GetYaxis());
+  duplicateYAxis(canvas, h_delLum.GetYaxis());
 
   // Redraw the axes. This way the graphs don't overshoot on top of
   // the axes any more.
@@ -405,18 +405,21 @@ void create_public_lumi_plots(std::string const colorScheme="Greg") {
 
   canvas->Print(Form("int_lumi_per_day_2012%s.png", fileSuffix.c_str()));
 
+  delete legend;
+  delete canvas;
+
   //----------------------------------------------
   // Create the cumulative lumi plot.
   //----------------------------------------------
 
-  TH1F* h_delLumCum = h_delLum->Clone();
-  TH1F* h_recLumCum = h_recLum->Clone();
+  TH1F* h_delLumCum = h_delLum.Clone();
+  TH1F* h_recLumCum = h_recLum.Clone();
   double cumDel = 0.;
   double cumRec = 0.;
-  for (size_t bin = 1; bin != h_delLum->GetNbinsX() + 1; ++bin) {
-    cumDel += h_delLum->GetBinContent(bin);
+  for (size_t bin = 1; bin != h_delLum.GetNbinsX() + 1; ++bin) {
+    cumDel += h_delLum.GetBinContent(bin);
     h_delLumCum->SetBinContent(bin, cumDel);
-    cumRec += h_recLum->GetBinContent(bin);
+    cumRec += h_recLum.GetBinContent(bin);
     h_recLumCum->SetBinContent(bin, cumRec);
   }
 
@@ -428,7 +431,7 @@ void create_public_lumi_plots(std::string const colorScheme="Greg") {
 
   h_delLumCum->SetTitle(titleCumulative.c_str());
 
-  canvas->Clear();
+  TCanvas* canvas = createCanvas();
   h_delLumCum->Draw();
   h_recLumCum->Draw("SAME");
 
@@ -468,4 +471,18 @@ void create_public_lumi_plots(std::string const colorScheme="Greg") {
   drawLogo(canvas, logoName);
 
   canvas->Print(Form("int_lumi_cumulative_2012%s.png", fileSuffix.c_str()));
+
+  delete h_delLumCum;
+  delete h_recLumCum;
+  delete canvas;
+  delete legend;
+}
+
+void create_public_lumi_plots() {
+  std::vector<std::string> colorSchemes;
+  colorSchemes.push_back("Greg");
+  colorSchemes.push_back("Joe");
+  for (size_t i = 0; i < colorSchemes.size(); ++i) {
+    create_plots(colorSchemes[i]);
+  }
 }
