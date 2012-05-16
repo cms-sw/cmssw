@@ -98,6 +98,7 @@ class OccupancyPlotter : public edm::EDAnalyzer {
   float _instLumi;
   float _instLumi_err;
   float _pileup;
+  float _pileupRMS;
   double _photScale;
   // Store the HV info
   bool dcs[25];
@@ -110,6 +111,7 @@ class OccupancyPlotter : public edm::EDAnalyzer {
   // histograms
   TH1F * hist_LumivsLS;
   TH1F * hist_PUvsLS;
+  TH1F * hist_PURMSvsLS;
   TH1F * hist_photEtaNormd;
 };
 
@@ -182,7 +184,7 @@ OccupancyPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
    if (thisiLumiValue){
      thisiLumiValue = false;
-     std::cout << "LS = " << lumisection << ", Lumi = " << _instLumi << " ± " << _instLumi_err << ", pileup = " << _pileup << std::endl;
+     std::cout << "LS = " << lumisection << ", Lumi = " << _instLumi << " ± " << _instLumi_err << ", pileup = " << _pileup << ", PU RMS="<< _pileupRMS << std::endl;
 
      hist_LumivsLS = dbe->get("HLT/OccupancyPlots/HLT_z_LumivsLS")->getTH1F();
      hist_LumivsLS->SetBinContent(lumisection+1,_instLumi/1000);
@@ -190,6 +192,9 @@ OccupancyPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      //
      hist_PUvsLS = dbe->get("HLT/OccupancyPlots/HLT_z_PUvsLS")->getTH1F();
      hist_PUvsLS->SetBinContent(lumisection+1,_pileup);
+
+     hist_PURMSvsLS = dbe->get("HLT/OccupancyPlots/HLT_z_PURMSvsLS")->getTH1F();
+     hist_PURMSvsLS->SetBinContent(lumisection+1,_pileupRMS);
 
    }
 
@@ -365,6 +370,8 @@ OccupancyPlotter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
     dbe->book1D("HLT_z_LumivsLS", hist_LumivsLS);
     hist_PUvsLS = new TH1F("HLT_z_PUvsLS", "; Lumisection; Pileup",maxLumisection,0,maxLumisection);
     dbe->book1D("HLT_z_PUvsLS", hist_PUvsLS);
+    hist_PURMSvsLS = new TH1F("HLT_z_PURMSvsLS", "; Lumisection; Pileup RMS (spare)",maxLumisection,0,maxLumisection);
+    dbe->book1D("HLT_z_PURMSvsLS", hist_PURMSvsLS);
     hist_photEtaNormd = new TH1F("HLT_photEtaNormd","Photons (overlayable for endcap); eta; Photons",60,-2.610,2.610);
     dbe->book1D("HLT_photEtaNormd", hist_photEtaNormd);
 
@@ -500,7 +507,7 @@ if (label != "SingleMu" && label != "SingleElectron" && label != "Jet") {
     // so that the plots can be overlayed on DQM GUI and the affect of the transparency correction that
     // modifies the endcap photons can be observed.
     // Normalization is done at the endrun  
-    if (label == "Photon") hist_photEtaNormd->Fill(Eta); 
+    if (Eta!=0 && label == "SinglePhoton") hist_photEtaNormd->Fill(Eta); 
 
     if (Eta!=0) hist_1dEta->Fill(Eta);
     hist_1dPhi->Fill(Phi); 
@@ -605,6 +612,7 @@ void OccupancyPlotter::checkLumiInfo (const edm::Event & jEvent) {
   _instLumi = it3->instantLumi();
   _instLumi_err = it3->instantLumiErr();
   _pileup = it3->pileup();
+  _pileupRMS = it3->spare(); //it3->pileupRMS();
 
   if (debugPrint) std::cout << "Instanteous Lumi is " << _instLumi << std::endl;
   if (debugPrint) std::cout << "Instanteous Lumi Error is " << _instLumi_err << std::endl;
@@ -612,7 +620,8 @@ void OccupancyPlotter::checkLumiInfo (const edm::Event & jEvent) {
   if (debugPrint) std::cout << "Lumi Fill is " <<it3->lumiRun() << std::endl;
   if (debugPrint) std::cout << "Live Lumi Fill is " <<it3->liveLumiFill() << std::endl;
   if (debugPrint) std::cout << "Live Lumi Run is " <<it3->liveLumiRun() << std::endl;
-  if (debugPrint) std::cout << "Pileup? = " << _pileup << std::endl;
+  if (debugPrint) std::cout << "Pileup = " << _pileup << std::endl;
+  if (debugPrint) std::cout << "Pileup RMS= " << _pileupRMS << std::endl;
   return;
   
 }
