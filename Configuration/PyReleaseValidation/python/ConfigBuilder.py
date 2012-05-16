@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.381 $"
+__version__ = "$Revision: 1.382 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -66,6 +66,7 @@ defaultOptions.restoreRNDSeeds = False
 defaultOptions.donotDropOnInput = ''
 defaultOptions.python_filename =''
 defaultOptions.io=None
+defaultOptions.lumiToProcess=None
 
 # some helper routines
 def dumpPython(process,name):
@@ -401,6 +402,10 @@ class ConfigBuilder(object):
 			self.process.source.inputCommands.append(command)
 		if not self._options.dropDescendant:
 			self.process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
+
+	if self._options.lumiToProcess:
+		import FWCore.PythonUtilities.LumiList as LumiList
+		self.process.source.eventsToProcess=cms.untracked.VEventRange( LumiList.LumiList(self._options.lumiToProcess).getCMSSWString().split(',') )
 
 		
         if 'GEN' in self.stepMap.keys() or (not self._options.filein and hasattr(self._options, "evt_type")):
@@ -1769,7 +1774,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.381 $"),
+                                            (version=cms.untracked.string("$Revision: 1.382 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
