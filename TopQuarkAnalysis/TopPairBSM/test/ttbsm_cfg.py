@@ -84,12 +84,7 @@ if not options.useData :
 			]    
 	elif options.release == '52x' :
 		process.source.fileNames = [
-			'/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-RECO/START52_V5-v1/0043/18E75EC8-2B7A-E111-B784-002354EF3BDE.root',
-			'/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-RECO/START52_V5-v1/0043/42F2FCD5-FF79-E111-9A09-003048FFD736.root',
-			'/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-RECO/START52_V5-v1/0043/60C59011-FE79-E111-B86A-003048FFCB9E.root',
-			'/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-RECO/START52_V5-v1/0043/72675B06-FE79-E111-BCD2-003048FFD736.root',
-			'/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-RECO/START52_V5-v1/0043/B832091D-007A-E111-B3D2-0018F3D096C6.root',
-			'/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-RECO/START52_V5-v1/0043/C63C1406-FE79-E111-B880-003048FFD76E.root'
+			'/store/mc/Summer12/TTJets_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S7_START52_V5-v1/0000/FEBE99BB-3881-E111-B1F3-003048D42DC8.root'
 			]    		
 
 else :
@@ -117,6 +112,12 @@ else :
 		process.source.fileNames = [
 		    '/store/relval/CMSSW_5_2_2/Jet/RECO/GR_R_52_V4_RelVal_jet2011B-v2/0252/96518387-A174-E111-95A6-001A928116E8.root'
 		    ]
+
+		
+process.source.fileNames = [
+	'/store/mc/Summer12/TTJets_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S7_START52_V5-v1/0000/FEBE99BB-3881-E111-B1F3-003048D42DC8.root'
+	]    		
+
 
 #process.source.eventsToProcess = cms.untracked.VEventRange( ['1:86747'] )
 
@@ -1371,6 +1372,11 @@ if options.useExtraJetColls:
 		src = cms.InputTag('goodPatJetsAK8FilteredPF')
 		)
 
+
+## IVF and BCandidate producer for Vbb cross check analysis
+process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
+
+
 # let it run
 
 process.patseq = cms.Sequence(
@@ -1379,6 +1385,8 @@ process.patseq = cms.Sequence(
     #process.offlinePrimaryVerticesDAF*    
     process.goodOfflinePrimaryVertices*
     process.primaryVertexFilter*
+    process.softElectronCands*
+    process.inclusiveVertexing*
     process.genParticlesForJetsNoNu*
     process.ca8GenJetsNoNu*
     process.ak8GenJetsNoNu*
@@ -1503,7 +1511,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
 
 
 # process all the events
-process.maxEvents.input = -1
+process.maxEvents.input = 100
 process.options.wantSummary = True
 process.out.dropMetaData = cms.untracked.string("DROPPED")
 
@@ -1578,7 +1586,8 @@ else :
                                    'keep GenRunInfoProduct_generator_*_*',
                                    'keep GenEventInfoProduct_generator_*_*',
                                    'keep *_flavorHistoryFilter_*_*',
-                                   'keep PileupSummaryInfos_*_*_*'
+                                   'keep PileupSummaryInfos_*_*_*',
+				   'keep recoGenJets_selectedPatJetsPFlow_*_*',
                                    ]
 
 if options.writeFat :
