@@ -130,9 +130,8 @@ bool PomwigHadronizer::initializeForExternalPartons()
    return false;
 }
 
-bool PomwigHadronizer::readSettings( int )
+bool PomwigHadronizer::initializeForInternalPartons()
 {
-
    clear();
 
    edm::LogVerbatim("") << "----------------------------------------------\n"
@@ -211,13 +210,6 @@ bool PomwigHadronizer::readSettings( int )
    }
 
    needClear = true;
-
-   return true;
-
-}
-
-bool PomwigHadronizer::initializeForInternalPartons()
-{
  
    call(hwuinc);
 

@@ -123,7 +123,7 @@ const bool L1GtJetCountsCondition::evaluateCondition() const {
     SingleCombInCond objectsInComb;
 
     // clear the m_combinationsInCond vector
-    (combinationsInCond()).clear();
+    (*m_combinationsInCond).clear();
 
     // get the jet counts (event / condition)
     const L1GctJetCounts* jetCounts = m_gtPSB->getCandL1JetCounts();
@@ -159,7 +159,7 @@ const bool L1GtJetCountsCondition::evaluateCondition() const {
     int indexObj = 0;
 
     objectsInComb.push_back(indexObj);
-    (combinationsInCond()).push_back(objectsInComb);
+    (*m_combinationsInCond).push_back(objectsInComb);
 
     // if we get here all checks were successful for this combination
     // set the general result for evaluateCondition to "true"

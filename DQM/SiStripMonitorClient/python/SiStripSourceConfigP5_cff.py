@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.SiStripMonitorHardware.siStripFEDMonitor_P5_cff import *
+siStripFEDMonitor.nFEDErrorsHistogramConfig.NBins = cms.untracked.uint32(441)
+siStripFEDMonitor.nFEDErrorsHistogramConfig.Max = cms.untracked.double(440.5)
 
 # SiStripMonitorDigi ####
 from DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi import *
@@ -13,6 +15,7 @@ SiStripMonitorDigi.xLumiProf = 3
 # removing some histograms
 SiStripMonitorDigi.TH1ADCsCoolestStrip.moduleswitchon = False
 SiStripMonitorDigi.TH1ADCsHottestStrip.moduleswitchon = False
+SiStripMonitorDigi.TH1DigiADCs.moduleswitchon = False
 SiStripMonitorDigi.TH1StripOccupancy.moduleswitchon = False
 
 # SiStripMonitorCluster ####
@@ -24,7 +27,10 @@ SiStripMonitorClusterReal.TProfTotalNumberOfClusters.subdetswitchon = True
 SiStripMonitorClusterReal.TProfClustersApvCycle.subdetswitchon = True
 # removing some histograms
 SiStripMonitorClusterReal.TH1NrOfClusterizedStrips.moduleswitchon = False
-SiStripMonitorClusterReal.TH1NrOfClusterizedStrips.moduleswitchon = False
+SiStripMonitorClusterReal.TH1ClusterNoise.moduleswitchon = False
+SiStripMonitorClusterReal.TH1ClusterStoN.moduleswitchon = False
+SiStripMonitorClusterReal.TH1ClusterCharge.moduleswitchon = False
+SiStripMonitorClusterReal.TH1ClusterWidth.moduleswitchon = False
 SiStripMonitorClusterReal.TH1ModuleLocalOccupancy.moduleswitchon = False
 
 # SiStripMonitorTrack ####

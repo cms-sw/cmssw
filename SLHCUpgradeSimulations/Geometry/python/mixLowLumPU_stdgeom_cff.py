@@ -1,8 +1,34 @@
-# sandard geometry minbias pileup files
-# E34 cm-2s-1
 import FWCore.ParameterSet.Config as cms
 
-# this is the configuration to model pileup in the design LHC (10**34)
+mixingFiles = cms.untracked.vstring() 
+mixingFiles.extend( [
+	# Using one Block from a much larger Dataset.   Block size: 65.6GB, Number of events: 274,800, Number of files: 23
+	# /MinBias_TuneZ2star_14TeV-pythia6/Summer12-UpgrdStdGeom-v1/GEN-SIM#3aadca6c-8947-11e1-9dc0-00221959e72f
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/FA806C6D-4889-E111-A202-00259029E670.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/F00999DC-6489-E111-AEDB-00259048A8F4.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/EED1EB46-5F89-E111-838D-00259048AE00.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/EC97B0BE-5E89-E111-916A-00259029ED64.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/EAAD21EE-4589-E111-B143-00259048A8F4.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/E67A1BD8-6689-E111-8832-0025901ABD2E.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/CE51A078-4689-E111-88F3-00304867FD67.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/CC8DABC8-5689-E111-83C6-00259029ED0E.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/C8262F49-4589-E111-96B5-00304867FE1F.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/B487E3FD-4889-E111-9349-00304867FD83.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/9899572A-5D89-E111-ADD2-00259048A87C.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/90D2EF67-6089-E111-9B88-00259048AE50.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/8EE02DB4-4789-E111-BAAC-00259048AC10.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/8E77FAAC-6389-E111-9C7C-00259048AE52.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/847F9024-9E89-E111-A81C-00259019A41A.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/8237A98E-5B89-E111-B01C-0025901AC0FA.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/7C6CB101-6689-E111-AC98-00259048AC9A.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/7830DD50-6289-E111-BAFD-00259048AE52.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/70998A41-4A89-E111-BBA7-00304867FE3C.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/706D0C05-5E89-E111-8687-00259029E66E.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/6CBFF5D0-5F89-E111-A1CE-00259019A41C.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/58BDEAAF-6089-E111-A59F-0025901AC0FC.root',
+	'/store/mc/Summer12/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/UpgrdStdGeom-v1/0000/1E3B82B0-6189-E111-AFB4-00259029ED64.root'
+	] );
+
 from SimGeneral.MixingModule.mixObjects_cfi import *
 mix = cms.EDProducer("MixingModule",
     LabelPlayback = cms.string(''),
@@ -15,7 +41,7 @@ mix = cms.EDProducer("MixingModule",
 
     playback = cms.untracked.bool(False),
     useCurrentProcessOnly = cms.bool(False),
-                   
+
     input = cms.SecSource("PoolSource",
     nbPileupEvents = cms.PSet(
             sigmaInel = cms.double(80.0),
@@ -23,39 +49,7 @@ mix = cms.EDProducer("MixingModule",
         ),
         type = cms.string('poisson'),
     sequential = cms.untracked.bool(False),
-        fileNames = cms.untracked.vstring(
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/E4203C42-9B04-E011-A7CE-002354EF3BCE.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/E0E7B952-9504-E011-AF03-003048678B18.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/D6717442-9304-E011-8E90-002618FDA21D.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/D4A2E054-A904-E011-9FD5-001A928116FE.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/C6B233DE-A204-E011-BC60-001A92810ABA.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/C47592C5-9B04-E011-BD16-002618943959.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/C23A8054-A204-E011-B910-0018F3D096C0.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/BE66C05B-A104-E011-A59F-001BFCDBD1BC.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/B840F758-A304-E011-9A3F-001A92810ABA.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/B66F0FC2-9A04-E011-BFED-0026189438D3.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/B4D5BCC7-9204-E011-8515-0026189438F9.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/B22789C4-9704-E011-A4FE-003048D15E02.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/AE310A63-9F04-E011-89B7-0018F3D09680.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/ACC83145-A104-E011-8AB7-001A92810A98.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/96311464-9304-E011-875F-0026189438BD.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/8849274B-9404-E011-A04C-0026189438CE.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/8478D057-9A04-E011-8EE1-001A92810AAE.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/781653E7-9604-E011-897D-003048D15E02.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/66DFE744-9804-E011-8407-00304867902E.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/6618FD02-A504-E011-81B0-0018F3D096D2.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/64D0AB4C-9704-E011-B4BA-003048D15E02.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/642DBACD-AF04-E011-B839-002618FDA259.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/5E5C69C4-9504-E011-B85C-00304867D446.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/485A5ACB-9C04-E011-B80E-002618FDA265.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/40BD6FCD-9804-E011-BAF2-00304867902E.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/2EDCA4C4-A004-E011-AB0B-001A92810A98.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/269BE108-A504-E011-B0A8-001A92811726.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/1806E3E0-9604-E011-8B03-003048678E94.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/0CB095CE-9404-E011-91B5-0026189438DA.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/04305755-A704-E011-95BF-001A9281174A.root',
-       '/store/relval/CMSSW_3_6_3_patch2/RelValMinBias/GEN-SIM/DESIGN_36_V10_special-v1/0106/00EB1558-9304-E011-AEDF-002618FDA208.root'
-	)
+        fileNames = mixingFiles
     ),
     mixObjects = cms.PSet(
         mixCH = cms.PSet(

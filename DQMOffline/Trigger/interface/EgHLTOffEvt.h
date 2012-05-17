@@ -35,6 +35,7 @@ namespace egHLT {
     //const std::vector<reco::CaloJet>* jets_;
     
     TrigCodes::TrigBitSet evtTrigBits_; //the triggers that fired in the event all in a handy bit set
+
     
   public:
     OffEvt(){}

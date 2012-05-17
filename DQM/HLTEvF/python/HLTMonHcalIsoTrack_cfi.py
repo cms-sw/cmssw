@@ -10,22 +10,22 @@ hltAODTriggerEventLabel=cms.string("hltTriggerSummaryAOD"),
 
 triggers=cms.VPSet(
 	cms.PSet(
-	triggerName=cms.string('HLT_IsoTrackHE_8E29'),
-	l2collectionLabel=cms.string("hltIsolPixelTrackProdHE8E29"),
-	l3collectionLabel=cms.string("hltHITIPTCorrectorHE8E29"),
+	triggerName=cms.string('HLT_IsoTrackHE'),
+	l2collectionLabel=cms.string("hltIsolPixelTrackProdHE"),
+	l3collectionLabel=cms.string("hltHITIPTCorrectorHE"),
 
-	hltL3filterLabel=cms.string("hltIsolPixelTrackL3FilterHE8E29"), 
-	hltL2filterLabel=cms.string("hltIsolPixelTrackL2FilterHE8E29"), 
-	hltL1filterLabel=cms.string("hltL1sIsoTrack8E29")  
+	hltL3filterLabel=cms.string("hltIsolPixelTrackL3FilterHE"), 
+	hltL2filterLabel=cms.string("hltIsolPixelTrackL2FilterHE"), 
+	hltL1filterLabel=cms.string("hltL1sL1SingleJet52")  
 	),
 	cms.PSet(
-        triggerName=cms.string('HLT_IsoTrackHB_8E29'),
-        l2collectionLabel=cms.string("hltIsolPixelTrackProdHB8E29"),
-        l3collectionLabel=cms.string("hltHITIPTCorrectorHB8E29"),
+        triggerName=cms.string('HLT_IsoTrackHB'),
+        l2collectionLabel=cms.string("hltIsolPixelTrackProdHB"),
+        l3collectionLabel=cms.string("hltHITIPTCorrectorHB"),
 
-        hltL3filterLabel=cms.string("hltIsolPixelTrackL3FilterHB8E29"),
-        hltL2filterLabel=cms.string("hltIsolPixelTrackL2FilterHB8E29"),
-        hltL1filterLabel=cms.string("hltL1sIsoTrack8E29")
+        hltL3filterLabel=cms.string("hltIsolPixelTrackL3FilterHB"),
+        hltL2filterLabel=cms.string("hltIsolPixelTrackL2FilterHB"),
+        hltL1filterLabel=cms.string("hltL1sL1SingleJet52")
         )
 ),
 	

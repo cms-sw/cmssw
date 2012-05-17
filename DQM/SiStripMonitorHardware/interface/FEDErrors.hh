@@ -155,10 +155,14 @@ public:
 		     unsigned int & aCounterUnpacker,
 		     const bool aDoMeds,
 		     MonitorElement *aMedianHist0,
-		     MonitorElement *aMedianHist1
+		     MonitorElement *aMedianHist1,
+		     const bool aDoFEMaj,
+		     std::vector<std::vector<std::pair<unsigned int,unsigned int> > > & aFeMajFrac
 		     );
 
-  bool fillFEErrors(const sistrip::FEDBuffer* aBuffer);
+  bool fillFEErrors(const sistrip::FEDBuffer* aBuffer,
+		    const bool aDoFEMaj,
+		    std::vector<std::vector<std::pair<unsigned int,unsigned int> > > & aFeMajFrac);
 
   bool fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
 			 bool & aFullDebug,

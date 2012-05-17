@@ -30,6 +30,10 @@ class DQMMessageLogger : public edm::EDAnalyzer {
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);
 
+
+  /// collate categories in summary plots
+  void endRun(const edm::Run & r, const edm::EventSetup & c);
+
   /// Save the histos
   void endJob();
 
@@ -44,6 +48,8 @@ class DQMMessageLogger : public edm::EDAnalyzer {
   
   std::map<std::string,int> moduleMap;
   std::map<std::string,int> categoryMap;
+  std::map<std::string,int> categoryWCount;
+  std::map<std::string,int> categoryECount;
   // from parameters
   std::vector<std::string> categories_vector;
   std::string directoryName;

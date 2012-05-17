@@ -56,7 +56,8 @@ namespace cms{
     theInitialState(0),
     theNavigationSchoolName(conf.getParameter<std::string>("NavigationSchool")),
     theNavigationSchool(0),
-    theSeedCleaner(0)
+    theSeedCleaner(0),
+    maxSeedsBeforeCleaning_(0)
   {  
     //produces<TrackCandidateCollection>();  
     // old configuration totally descoped.
@@ -64,6 +65,8 @@ namespace cms{
     //      theSeedLabel = InputTag(conf_.getParameter<std::string>("SeedProducer"),conf_.getParameter<std::string>("SeedLabel"));
     //    else
       theSeedLabel= conf.getParameter<edm::InputTag>("src");
+      if ( conf.exists("maxSeedsBeforeCleaning") ) 
+	   maxSeedsBeforeCleaning_=conf.getParameter<unsigned int>("maxSeedsBeforeCleaning");
   }
 
   
@@ -161,6 +164,7 @@ namespace cms{
     // Step D: Invoke the building algorithm
     if ((*collseed).size()>0){
 
+      unsigned int lastCleanResult=0;
        vector<Trajectory> rawResult;
        rawResult.reserve(collseed->size() * 4);
 
@@ -233,6 +237,15 @@ namespace cms{
         theTmpTrajectories.clear();
         
 	LogDebug("CkfPattern") << "rawResult trajectories found so far = " << rawResult.size();
+
+	if ( maxSeedsBeforeCleaning_ >0 && rawResult.size() > maxSeedsBeforeCleaning_+lastCleanResult) {
+          theTrajectoryCleaner->clean(rawResult);
+          rawResult.erase(std::remove_if(rawResult.begin(),rawResult.end(),
+					 std::not1(std::mem_fun_ref(&Trajectory::isValid))),
+			  rawResult.end());
+          lastCleanResult=rawResult.size();
+        }
+
       }
       // end of loop over seeds
       

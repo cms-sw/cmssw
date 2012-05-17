@@ -419,11 +419,11 @@ testConcurrentQueue::keepnewest_memlimit2()
   keepnewest_t::ValueType value;
   CPPUNIT_ASSERT(q.deqNowait(value));
   CPPUNIT_ASSERT(value.first == (uint32_t)4);
-  CPPUNIT_ASSERT(value.second == 1);
+  CPPUNIT_ASSERT(value.second == 3);
 
   CPPUNIT_ASSERT(q.deqNowait(value));
   CPPUNIT_ASSERT(value.first == (uint64_t)5);
-  CPPUNIT_ASSERT(value.second == 2);
+  CPPUNIT_ASSERT(value.second == 0);
 
   CPPUNIT_ASSERT(q.empty());
   CPPUNIT_ASSERT(q.used() == 0);
@@ -440,13 +440,13 @@ testConcurrentQueue::rejectnewest()
   rejectnewest_t::ValueType value;
   CPPUNIT_ASSERT(q.deqNowait(value));
   CPPUNIT_ASSERT(value.first == 1);
-  CPPUNIT_ASSERT(value.second == 0);
+  CPPUNIT_ASSERT(value.second == 1);
   CPPUNIT_ASSERT(q.empty());
   CPPUNIT_ASSERT(q.enqNowait(3) == 0);
   CPPUNIT_ASSERT(q.size() == 1);
   CPPUNIT_ASSERT(q.deqNowait(value));
   CPPUNIT_ASSERT(value.first == 3);
-  CPPUNIT_ASSERT(value.second == 1);
+  CPPUNIT_ASSERT(value.second == 0);
   CPPUNIT_ASSERT(q.empty());
   CPPUNIT_ASSERT(q.used() == 0);
 }
@@ -463,14 +463,14 @@ testConcurrentQueue::rejectnewest_memlimit()
   rejectnewest_t::ValueType value;
   CPPUNIT_ASSERT(q.deqNowait(value));
   CPPUNIT_ASSERT(value.first == 1);
-  CPPUNIT_ASSERT(value.second == 0);
+  CPPUNIT_ASSERT(value.second == 1);
   CPPUNIT_ASSERT(q.empty());
   CPPUNIT_ASSERT(q.used() == 0);
   CPPUNIT_ASSERT(q.enqNowait(3) == 0);
   CPPUNIT_ASSERT(q.size() == 1);
   CPPUNIT_ASSERT(q.deqNowait(value));
   CPPUNIT_ASSERT(value.first == 3);
-  CPPUNIT_ASSERT(value.second == 1);
+  CPPUNIT_ASSERT(value.second == 0);
   CPPUNIT_ASSERT(q.empty());
   CPPUNIT_ASSERT(q.used() == 0);
 }

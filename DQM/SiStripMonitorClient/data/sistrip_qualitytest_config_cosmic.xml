@@ -8,7 +8,7 @@
       <PARAM name="useSigma">0</PARAM>
       <PARAM name="useRange">1</PARAM>
       <PARAM name="xmin">0.0</PARAM>
-      <PARAM name="xmax">0.5</PARAM>
+      <PARAM name="xmax">10.0</PARAM>
 </QTEST>
 <QTEST name="MeanWithinExpectedRange:nBadChannelStatusBits">
       <TYPE>MeanWithinExpected</TYPE>
@@ -47,7 +47,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoDigi">
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="minMean">0.0</PARAM>
-        <PARAM name="maxMean">0.8</PARAM>
+        <PARAM name="maxMean">1.0</PARAM>
         <PARAM name="minRMS">0</PARAM>
         <PARAM name="maxRMS">0</PARAM>
         <PARAM name="toleranceMean">-1</PARAM>
@@ -59,7 +59,7 @@
 <QTEST name="ContentsWithinExpected:TkHistoCluster">
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="minMean">0.0</PARAM>
-        <PARAM name="maxMean">0.1</PARAM>
+        <PARAM name="maxMean">0.15</PARAM>
         <PARAM name="minRMS">0</PARAM>
         <PARAM name="maxRMS">0</PARAM>
         <PARAM name="toleranceMean">-1</PARAM>

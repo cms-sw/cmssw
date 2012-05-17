@@ -20,13 +20,3 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   theDigitizer.produce(e, eventSetup);
 }
 
-void HcalDigiProducer::beginRun(edm::Run& run, edm::EventSetup const& es)
-{
-  theDigitizer.beginRun(es);
-}
-
-void HcalDigiProducer::endRun(edm::Run& run, edm::EventSetup const& es)
-{
-  theDigitizer.endRun();
-}
-

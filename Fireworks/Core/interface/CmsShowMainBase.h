@@ -91,6 +91,8 @@ public:
    void setGeometryFilename(const std::string &filename) {m_geometryFilename = filename; }
    const std::string &geometryFilename(void) { return m_geometryFilename; }
    FWGeometry& getGeom() { return m_geom; }
+
+   void setSimGeometryFilename(const std::string &filename) {m_simGeometryFilename = filename; }
    
    // Event navigation.
    void doFirstEvent();
@@ -168,6 +170,7 @@ private:
    std::string                           m_configFileName;
    std::string                           m_geometryFilename;
    FWGeometry                            m_geom;
+   std::string                           m_simGeometryFilename;
 };
 
 #endif

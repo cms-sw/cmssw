@@ -10,8 +10,8 @@
 
 /** \class HcalRecHitMonitor
   *
-  * $Date: 2010/06/25 19:30:48 $
-  * $Revision: 1.49 $
+  * $Date: 2010/11/11 09:31:21 $
+  * $Revision: 1.50 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -87,8 +87,8 @@ class HcalRecHitMonitor: public HcalBaseDQMonitor {
 
   double HBtime_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
   double HBtime_thresh_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
-  double HB_occupancy_[261];
-  double HB_occupancy_thresh_[261];
+  double HB_occupancy_[260];
+  double HB_occupancy_thresh_[260];
   double HEtime_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
   double HEtime_thresh_[RECHITMON_TIME_MAX-RECHITMON_TIME_MIN];
   double HE_occupancy_[260];

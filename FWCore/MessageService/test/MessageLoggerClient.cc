@@ -10,7 +10,7 @@ namespace edmtest
 
 
 void
-  MessageLoggerClient::analyze( edm::Event      const & e
+  MessageLoggerClient::analyze( edm::Event      const & /*unused*/
                               , edm::EventSetup const & /*unused*/
                               )
 {

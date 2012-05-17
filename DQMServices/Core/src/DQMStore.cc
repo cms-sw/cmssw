@@ -46,7 +46,6 @@ static std::string s_monitorDirName = "DQMData";
 static std::string s_referenceDirName = "Reference";
 static std::string s_collateDirName = "Collate";
 static std::string s_safe = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# ";
-static DQMStore *s_instance = 0;
 
 static const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|t|qr)=(.*)</\\1>$");
 static const lat::Regexp s_rxmeqr1 ("^st:(\\d+):([-+e.\\d]+):([^:]*):(.*)$");
@@ -116,24 +115,18 @@ initQCriterion(std::map<std::string, QCriterion *(*)(const std::string &)> &m)
 { m[T::getAlgoName()] = &makeQCriterion<T>; }
 
 //////////////////////////////////////////////////////////////////////
-DQMStore *
-DQMStore::instance(void)
+DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
+  : verbose_ (1),
+    verboseQT_ (1),
+    reset_ (false),
+    collateHistograms_ (false),
+    readSelectedDirectory_ (""),
+    pwd_ ("")
 {
-  if (! s_instance)
-  {
-    try
-    {
-      DQMStore *bei = new DQMStore(edm::ParameterSet());
-      assert (s_instance == bei);
-    }
-    catch(DQMError &e)
-    {
-      std::cout << e.what() << std::endl;
-      exit(255);
-    }
+  initializeFrom(pset);
+  if(pset.getUntrackedParameter<bool>("forceResetOnBeginRun",false)) {
+    ar.watchPostSourceRun(this,&DQMStore::forceReset);
   }
-
-  return s_instance;
 }
 
 DQMStore::DQMStore(const edm::ParameterSet &pset)
@@ -144,8 +137,21 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
     readSelectedDirectory_ (""),
     pwd_ ("")
 {
-  assert(! s_instance);
-  s_instance = this;
+  initializeFrom(pset);
+}
+
+DQMStore::~DQMStore(void)
+{
+  for (QCMap::iterator i = qtests_.begin(), e = qtests_.end(); i != e; ++i)
+    delete i->second;
+
+  for (QTestSpecs::iterator i = qtestspecs_.begin(), e = qtestspecs_.end(); i != e; ++i)
+    delete i->first;
+
+}
+
+void
+DQMStore::initializeFrom(const edm::ParameterSet& pset) {
   makeDirectory("");
   reset();
 
@@ -179,18 +185,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
   initQCriterion<NoisyChannel>(qalgos_);
   initQCriterion<ContentsWithinExpected>(qalgos_);
   initQCriterion<CompareToMedian>(qalgos_);
-}
-
-DQMStore::~DQMStore(void)
-{
-  for (QCMap::iterator i = qtests_.begin(), e = qtests_.end(); i != e; ++i)
-    delete i->second;
-
-  for (QTestSpecs::iterator i = qtestspecs_.begin(), e = qtestspecs_.end(); i != e; ++i)
-    delete i->first;
-
-  if (s_instance == this)
-    s_instance = 0;
+  
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -318,7 +313,8 @@ DQMStore::book(const std::string &dir, const std::string &name,
   h->SetDirectory(0);
 
   // Check if the request monitor element already exists.
-  if (MonitorElement *me = findObject(dir, name))
+  MonitorElement *me = findObject(dir, name);
+  if (me)
   {
     if (collateHistograms_)
     {
@@ -343,8 +339,7 @@ DQMStore::book(const std::string &dir, const std::string &name,
     // Create and initialise core object.
     assert(dirs_.count(dir));
     MonitorElement proto(&*dirs_.find(dir), name);
-    MonitorElement *me
-      = const_cast<MonitorElement &>(*data_.insert(proto).first)
+    me = const_cast<MonitorElement &>(*data_.insert(proto).first)
       .initialise((MonitorElement::Kind)kind, h);
 
     // Initialise quality test information.
@@ -1539,6 +1534,26 @@ DQMStore::reset(void)
 	me.Reset();
       me.resetUpdate();
     }
+  }
+
+  reset_ = true;
+}
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+/** Invoke this method after flushing all recently changed monitoring.
+    Clears updated flag on all MEs and calls their Reset() method. */
+void
+DQMStore::forceReset(void)
+{
+  MEMap::iterator mi = data_.begin();
+  MEMap::iterator me = data_.end();
+  for ( ; mi != me; ++mi)
+  {
+    MonitorElement &me = const_cast<MonitorElement &>(*mi);
+    me.Reset();
+    me.resetUpdate();
   }
 
   reset_ = true;

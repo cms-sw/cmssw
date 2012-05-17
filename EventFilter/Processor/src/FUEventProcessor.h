@@ -251,6 +251,12 @@ namespace evf
     pid_t			     vp_;
     CPUStat                         *cpustat_;
     RateStat                        *ratestat_;
+
+    MsgBuf                           master_message_prg_;
+    MsgBuf                           master_message_prr_;
+    MsgBuf                           slave_message_prr_;
+    MsgBuf                           slave_message_monitoring_;
+    MsgBuf                           master_message_trr_;
   };
   
 } // namespace evf

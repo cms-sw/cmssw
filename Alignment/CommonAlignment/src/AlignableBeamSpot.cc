@@ -2,9 +2,9 @@
  *
  *  Original author: Andreas Mussgiller, August 2010
  *
- *  $Date: 2010/10/26 19:53:53 $
- *  $Revision: 1.2 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2010/09/10 10:26:56 $
+ *  $Revision: 1.1 $
+ *  (last update by $Author: mussgill $)
  */
 
 #include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
@@ -145,7 +145,7 @@ AlignmentErrors* AlignableBeamSpot::alignmentErrors( void ) const
   uint32_t detId = theId;
   CLHEP::HepSymMatrix clhepSymMatrix(3,0);
   if ( theAlignmentPositionError ) // Might not be set
-    clhepSymMatrix = asHepMatrix(theAlignmentPositionError->globalError().matrix());
+    clhepSymMatrix = theAlignmentPositionError->globalError().matrix();
   AlignTransformError transformError( clhepSymMatrix, detId );
   m_alignmentErrors->m_alignError.push_back( transformError );
   

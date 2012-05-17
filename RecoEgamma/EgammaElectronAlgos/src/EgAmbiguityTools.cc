@@ -1,60 +1,22 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/EgAmbiguityTools.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/EgAmbiguityTools.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronClassification.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronEnergyCorrector.h"
 //#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/Records/interface/CaloTopologyRecord.h"
 
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
-#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
 
-#include "TrackingTools/TransientTrackingRecHit/interface/RecHitComparatorByPosition.h"
 
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include <TMath.h>
-#include <Math/VectorUtil.h>
-#include <Math/Point3D.h>
 #include <sstream>
 #include <algorithm>
 

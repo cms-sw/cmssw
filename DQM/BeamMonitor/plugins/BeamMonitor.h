@@ -3,8 +3,8 @@
 
 /** \class BeamMonitor
  * *
- *  $Date: 2011/02/22 17:36:57 $
- *  $Revision: 1.9 $
+ *  $Date: 2011/02/28 16:44:29 $
+ *  $Revision: 1.10 $
  *  \author  Geng-yuan Jeng/UC Riverside
  *           Francisco Yumiceva/FNAL
  *
@@ -29,19 +29,6 @@
 
 class BeamMonitor : public edm::EDAnalyzer {
   public:
-
-    struct LumiFitInfo {
-      // Keep track of the positions of all PVs in this lumi
-      std::vector<math::XYZPoint> pvs_;
-      int beginLS_;
-      time_t beginTime_;
-      // N Tracks added in this LS
-      size_t nTracks_;
-      // Number of primary vertices added
-      size_t nPrimaryVertices_;
-      // The track cut flow table from the beam fitter
-      TH1F cutFlow_;
-    };
 
     BeamMonitor( const edm::ParameterSet& );
     ~BeamMonitor();
@@ -78,6 +65,7 @@ class BeamMonitor : public edm::EDAnalyzer {
     edm::InputTag bsSrc_; // beam spot
     edm::InputTag tracksLabel_;
     edm::InputTag pvSrc_; // primary vertex
+    edm::InputTag hltSrc_;//hlt collection
 
     int fitNLumi_;
     int fitPVNLumi_;
@@ -86,6 +74,7 @@ class BeamMonitor : public edm::EDAnalyzer {
     int intervalInSec_;
     bool debug_;
     bool onlineMode_;
+    std::vector<std::string> jetTrigger_;
 
     DQMStore* dbe_;
     BeamFitter * theBeamFitter;
@@ -116,6 +105,7 @@ class BeamMonitor : public edm::EDAnalyzer {
     int countGapLumi_;
 
     bool processed_;
+   
     // ----------member data ---------------------------
 
     //   std::vector<BSTrkParameters> fBSvector;
@@ -139,6 +129,7 @@ class BeamMonitor : public edm::EDAnalyzer {
     MonitorElement * h_sigmaY0;
     MonitorElement * h_sigmaZ0;
     MonitorElement * h_nVtx;
+    MonitorElement * h_nVtx_st;
     MonitorElement * h_PVx[2];
     MonitorElement * h_PVy[2];
     MonitorElement * h_PVz[2];
@@ -149,6 +140,7 @@ class BeamMonitor : public edm::EDAnalyzer {
 
     // The histo of the primary vertex for  DQM gui
     std::map<int, std::vector<float> > mapPVx,mapPVy,mapPVz;
+    std::map<int, std::vector<int> > mapNPV;
     //keep track of beginLuminosity block and time
     std::map<int, int> mapBeginBSLS,mapBeginPVLS;
     std::map<int, std::time_t> mapBeginBSTime, mapBeginPVTime;

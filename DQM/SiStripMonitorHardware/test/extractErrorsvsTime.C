@@ -18,11 +18,11 @@
 #include "TString.h"
 #include "TDirectory.h"
 
-struct Clusters {
-  unsigned int nEvents;
-  double mean;
-  double meanErr;
-};
+//struct Clusters {
+//  unsigned int nEvents;
+//  double mean;
+//  double meanErr;
+//};
 
 int main(int argc, char** argv) {//main
 
@@ -50,16 +50,16 @@ int main(int argc, char** argv) {//main
 
   //4 histos, 4 partitions
   //pair nb events, mean+err value of histo
-  std::map<unsigned int,Clusters> lMapClust[4][4];
-  std::map<unsigned int,Clusters>::iterator lIterClust;
-  TString clustDir[4] = {"TIB","TID","TOB","TEC"};
+  //std::map<unsigned int,Clusters> lMapClust[4][4];
+  //std::map<unsigned int,Clusters>::iterator lIterClust;
+  //TString clustDir[4] = {"TIB","TID","TOB","TEC"};
 
   unsigned int nDirNotFound = 0;
-  unsigned int nClustDirNotFound = 0;
+  //unsigned int nClustDirNotFound = 0;
   unsigned int nFileNotFound = 0;
 
   std::ofstream txtoutfile;                                                                                         
-  txtoutfile.open("FEDErrors_14xyyy.dat",std::ios::out);                                                                   
+  txtoutfile.open("FEDErrors_16xyyy.dat",std::ios::out);                                                                   
   txtoutfile << "| Error type | run # | fedID | rate of error |" << std::endl;
 
   for (unsigned int r(0); r<nRuns; r++){//loop on runs
@@ -157,23 +157,46 @@ int main(int argc, char** argv) {//main
 
     //looking for object with name chNames etc...
     TString normDir = dirName;
-    normDir += "FedMonitoringSummary";
+    normDir += "FedMonitoringSummary/";
     if (!f->cd(normDir)) {
-      std::cerr << "Folder not found, please modify source code " << __FILE__ << ", line " << __LINE__ << std::endl;
+      std::cerr << "Folder " << normDir << " not found, please modify source code " << __FILE__ << ", line " << __LINE__ << std::endl;
       nDirNotFound++;
       return 0;
     };
 
-    TH1F *hNorm = (TH1F*)gDirectory->Get("nFEDErrors");
+  
+
+    TH1F *hNorm = (TH1F*)gDirectory->Get("FED/nFEDErrors");
+    if (!hNorm) hNorm = (TH1F*)gDirectory->Get("FEDLevel/nFEDErrors");
+    if (!hNorm) hNorm = (TH1F*)gDirectory->Get("nFEDErrors");
+    if (!hNorm) {
+      std::cout << "Error, histogram nFEDErrors not found. Continue..." << std::endl;
+      continue;//return 0;
+    }
     double norm = hNorm->GetEntries();
 
     lMapFED.insert(std::pair<unsigned int,double>(lRun,hNorm->GetMean()));                                          
-               
-    TH1F *hChannels = (TH1F*)gDirectory->Get("nBadChannelStatusBits");
+          
+    TH1F *hChannels = (TH1F*)gDirectory->Get("Fiber/nBadChannelStatusBits");
+    if (!hChannels) hChannels = (TH1F*)gDirectory->Get("FiberLevel/nBadChannelStatusBits");
+    if (!hChannels) hChannels = (TH1F*)gDirectory->Get("nBadChannelStatusBits");
+    if (!hChannels){
+      std::cout << "Error, histogram nBadChannelStatusBits not found. Continue..." << std::endl;
+      continue;
+    }
+
     lMapChannels.insert(std::pair<unsigned int,std::pair<double,double> >(lRun,std::pair<double,double>(hChannels->GetMean(),hChannels->GetMeanError())));               
 
-    TProfile *hAll = (TProfile*)gDirectory->Get("nTotalBadChannelsvsTime");
-    lMapAll.insert(std::pair<unsigned int,std::pair<double,double> >(lRun,std::pair<double,double>(hAll->GetMean(2),hAll->GetMeanError(2))));               
+    
+
+    TProfile *hAll = (TProfile*)gDirectory->Get("Trends/nTotalBadChannelsvsTime");
+    if (!hAll) hAll = (TProfile*)gDirectory->Get("ErrorsVsTime/nTotalBadChannelsvsTime");
+    if (!hAll) hAll = (TProfile*)gDirectory->Get("nTotalBadChannelsvsTime");
+    if (!hAll) {
+      std::cout << "Error, histogram nTotalBadChannelsvsTime not found. Continue..." << std::endl;
+      continue;
+    }
+    lMapAll.insert(std::pair<unsigned int,std::pair<double,double> >(lRun,std::pair<double,double>(hAll->GetMean(2),hAll->GetMeanError(2))));
 
     if (hAll->GetMean(2) < 0.000001) std::cout << " -- Run " << lRun << " has no errors." << std::endl; 
 
@@ -181,12 +204,17 @@ int main(int argc, char** argv) {//main
 
     //find out which FEDs are in error, and which error
     //TString lFedName[6] = {"AnyFEDErrors","CorruptBuffers","AnyFEProblems","AnyDAQProblems","DataMissing","BadDAQCRCs"};
-    TString lFedName[4] = {"AnyFEDErrors","CorruptBuffers","AnyFEProblems","BadDAQCRCs"};                           
-                                                                                                                     
+    TString lFedName[4] = {"FED/VsId/AnyFEDErrors","FED/VsId/CorruptBuffers","FED/VsId/AnyFEProblems","FED/VsId/BadDAQCRCs"};
+    TString lFedNameBis[4] = {"FEDLevel/VsFedId/AnyFEDErrors","FEDLevel/VsFedId/CorruptBuffers","FEDLevel/VsFedId/AnyFEProblems","FEDLevel/VsFedId/BadDAQCRCs"};
+    TString lFedNameTer[4] = {"AnyFEDErrors","CorruptBuffers","AnyFEProblems","BadDAQCRCs"};
+    
     for (unsigned int iH(0); iH<4; iH++){                                                                           
       TH1F *FEDobj = (TH1F*)gDirectory->Get(lFedName[iH]);
+      if (!FEDobj) FEDobj = (TH1F*)gDirectory->Get(lFedNameBis[iH]);
+      if (!FEDobj) FEDobj = (TH1F*)gDirectory->Get(lFedNameTer[iH]);
+
       if (!FEDobj) { 
-	std::cout << "Error, histogram AnyFEDErrors not found. Continue..." << std::endl;
+	std::cout << "Error, histogram " << lFedName[iH] << " not found. Continue..." << std::endl;
 	continue;//return 0;
       }
       else { 
@@ -252,44 +280,44 @@ int main(int argc, char** argv) {//main
       
     }//loop on feds
 
-    TString clustDirBase = "DQMData/Run ";
-    clustDirBase += lRun;
-    clustDirBase += "/SiStrip/Run summary/MechanicalView/";
-    TString histClust[4] = {"Summary_MeanNumberOfClusters__",
-			    "Summary_MeanNumberOfDigis__",
-			    "Summary_TotalNumberOfClusters_OffTrack_in_",
-			    "Summary_TotalNumberOfClusters_OnTrack_in_"};
+//     TString clustDirBase = "DQMData/Run ";
+//     clustDirBase += lRun;
+//     clustDirBase += "/SiStrip/Run summary/MechanicalView/";
+//     TString histClust[4] = {"Summary_MeanNumberOfClusters__",
+// 			    "Summary_MeanNumberOfDigis__",
+// 			    "Summary_TotalNumberOfClusters_OffTrack_in_",
+// 			    "Summary_TotalNumberOfClusters_OnTrack_in_"};
 
-    for (unsigned iP(0); iP<4; iP++){//loop on partitions
-      TString lClustDir = clustDirBase+clustDir[iP];
-      if (!f->cd(lClustDir)) {
-      std::cerr << "Folder not found. Check if file valid or source code valid in " << __FILE__ << ", variable dirName! Going to next run." << std::endl;
-      nClustDirNotFound++;
-      //return 0;
-      continue;
-      }
+//     for (unsigned iP(0); iP<4; iP++){//loop on partitions
+//       TString lClustDir = clustDirBase+clustDir[iP];
+//       if (!f->cd(lClustDir)) {
+//       std::cerr << "Folder not found. Check if file valid or source code valid in " << __FILE__ << ", variable dirName! Going to next run." << std::endl;
+//       nClustDirNotFound++;
+//       //return 0;
+//       continue;
+//       }
 
-      for (unsigned int iH(0); iH<4; iH++){
-	TString lHistName = histClust[iH];
-	lHistName += clustDir[iP];
+//       for (unsigned int iH(0); iH<4; iH++){
+// 	TString lHistName = histClust[iH];
+// 	lHistName += clustDir[iP];
 
-	TH1F *hClust = (TH1F*)gDirectory->Get(lHistName);
-	if (!hClust) {
-	  std::cout << "Can't find object " << lHistName << " in directory " 
-		    << lClustDir
-		    << ", continuing..."
-		    << std::endl;
-	  continue;
-	}
-	Clusters lClust;
-	lClust.nEvents = hClust->GetEntries();
-	lClust.mean = hClust->GetMean();
-	lClust.meanErr = hClust->GetMeanError();
-	lMapClust[iP][iH].insert(std::pair<unsigned int,Clusters >(lRun,lClust));
-      }
+// 	TH1F *hClust = (TH1F*)gDirectory->Get(lHistName);
+// 	if (!hClust) {
+// 	  std::cout << "Can't find object " << lHistName << " in directory " 
+// 		    << lClustDir
+// 		    << ", continuing..."
+// 		    << std::endl;
+// 	  continue;
+// 	}
+// 	Clusters lClust;
+// 	lClust.nEvents = hClust->GetEntries();
+// 	lClust.mean = hClust->GetMean();
+// 	lClust.meanErr = hClust->GetMeanError();
+// 	lMapClust[iP][iH].insert(std::pair<unsigned int,Clusters >(lRun,lClust));
+//       }
 
 
-    }//loop on partitions
+//     }//loop on partitions
 
 
 
@@ -304,10 +332,10 @@ int main(int argc, char** argv) {//main
   std::cout << "Found " << nErr << " channels with errors in " << nRuns << " runs processed." << std::endl;
   std::cout << "Number of runs where file was not found : " << nFileNotFound << std::endl;
   std::cout << "Number of runs where folder was not found : " << nDirNotFound << std::endl;
-  std::cout << "Number of runs where cluster folder was not found : " << nClustDirNotFound << std::endl;
+  //std::cout << "Number of runs where cluster folder was not found : " << nClustDirNotFound << std::endl;
 
   //TFile *outfile = TFile::Open("APVAddressErrors.root","RECREATE");
-  TFile *outfile = TFile::Open("MyHDQM_run14xyyy.root","RECREATE");
+  TFile *outfile = TFile::Open("MyHDQM_run16xyyy.root","RECREATE");
   outfile->cd();
   
   for (unsigned int iH=0; iH<nHistsDetailed; iH++){
@@ -372,19 +400,19 @@ int main(int argc, char** argv) {//main
 
 
 
-  TH1F *hRateClust[4][4];
-  for (unsigned int iP(0); iP<4; iP++){
-    for (unsigned int iH(0); iH<4; iH++){
-      std::ostringstream lNameClust;
-      lNameClust << "hRateClust_" << clustDir[iP] << "_" << iH ;
-      hRateClust[iP][iH] = new TH1F(lNameClust.str().c_str(),";run #",runs[nRuns-1]-runs[0]+1,runs[0],runs[nRuns-1]+1);
-      lIterClust = lMapClust[iP][iH].begin();
-      for (;lIterClust!=lMapClust[iP][iH].end(); lIterClust++){
-	hRateClust[iP][iH]->SetBinContent(lIterClust->first-runs[0]+1,lIterClust->second.mean);
-	hRateClust[iP][iH]->SetBinError(lIterClust->first-runs[0]+1,lIterClust->second.meanErr);
-      }
-    }
-  }
+//   TH1F *hRateClust[4][4];
+//   for (unsigned int iP(0); iP<4; iP++){
+//     for (unsigned int iH(0); iH<4; iH++){
+//       std::ostringstream lNameClust;
+//       lNameClust << "hRateClust_" << clustDir[iP] << "_" << iH ;
+//       hRateClust[iP][iH] = new TH1F(lNameClust.str().c_str(),";run #",runs[nRuns-1]-runs[0]+1,runs[0],runs[nRuns-1]+1);
+//       lIterClust = lMapClust[iP][iH].begin();
+//       for (;lIterClust!=lMapClust[iP][iH].end(); lIterClust++){
+// 	hRateClust[iP][iH]->SetBinContent(lIterClust->first-runs[0]+1,lIterClust->second.mean);
+// 	hRateClust[iP][iH]->SetBinError(lIterClust->first-runs[0]+1,lIterClust->second.meanErr);
+//       }
+//     }
+//   }
 
 
   outfile->Write();

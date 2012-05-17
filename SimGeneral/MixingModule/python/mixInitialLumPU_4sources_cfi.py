@@ -27,7 +27,6 @@ mix = cms.EDProducer("MixingModule",
             sigmaInel = cms.double(80.0),
             Lumi = cms.double(0.5)
         ),
-        seed = cms.int32(1234567),
         type = cms.string('poisson'),
 	sequential = cms.untracked.bool(False),
         fileNames = cms.untracked.vstring('/store/relval/CMSSW_2_1_10/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0000/18890F4C-FD99-DD11-BFF9-000423D996C8.root',

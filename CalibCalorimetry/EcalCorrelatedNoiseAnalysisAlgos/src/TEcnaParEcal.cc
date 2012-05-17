@@ -1,15 +1,9 @@
 //----------Author's Name:FX Gentit and B.Fabbro  DSM/IRFU/SPP CEA-Saclay
 //----------Copyright:Those valid for CEA software
-//----------Modified:24/03/2011
+//----------Modified:25/09/2009
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParEcal.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNumbering.h"
-
-//--------------------------------------
-//  TEcnaParEcal.cc
-//  Class creation: 06 October 2005
-//  Documentation: see TEcnaParEcal.h
-//--------------------------------------
 
 ClassImp(TEcnaParEcal)
 //____________________________________________________________________________
@@ -22,32 +16,19 @@ TEcnaParEcal::TEcnaParEcal(){
   Init();
 }
 
-TEcnaParEcal::TEcnaParEcal(TEcnaObject* pObjectManager, const TString SubDet){
-// Constructor with argument. Call to Init() and set the subdetector flag
-
-  //cout << "[Info Management] CLASS: TEcnaParEcal.   CREATE OBJECT: this = " << this << endl;
-
-  Init();
-  Long_t i_this = (Long_t)this;
-  pObjectManager->RegisterPointer("TEcnaParEcal", i_this);
-
-  SetEcalSubDetector(SubDet.Data());
-}
-
 TEcnaParEcal::TEcnaParEcal(const TString SubDet){
 // Constructor with argument. Call to Init() and set the subdetector flag
 
-  //cout << "[Info Management] CLASS: TEcnaParEcal.   CREATE OBJECT: this = " << this << endl;
+ // cout << "[Info Management] CLASS: TEcnaParEcal.   CREATE OBJECT: this = " << this << endl;
 
   Init();
   SetEcalSubDetector(SubDet.Data());
 }
-
 
 TEcnaParEcal::~TEcnaParEcal() {
 //destructor
 
-  //cout << "[Info Management] CLASS: TEcnaParEcal.   DESTROY OBJECT: this = " << this << endl;
+ // cout << "[Info Management] CLASS: TEcnaParEcal.   DESTROY OBJECT: this = " << this << endl;
 }
 
 void TEcnaParEcal::Init()
@@ -67,7 +48,7 @@ void TEcnaParEcal::Init()
 
   fMaxSampADCEB           = (Int_t)10;  // Maximum number of samples ADC
 
-  //  fMaxEvtsInBurstPedRunEB = (Int_t)150; // Maximum number of events per burst in Pedestal Runs
+  fMaxEvtsInBurstPedRunEB = (Int_t)150; // Maximum number of events per burst in Pedestal Runs
 
   fMaxSMEtaInEB           = (Int_t)2;   // Maximum number of SuperModules in eta in the EB
   fMaxSMPhiInEB           = (Int_t)18;  // Maximum number of SuperModules in phi in the EB
@@ -85,21 +66,20 @@ void TEcnaParEcal::Init()
 
   fMaxTowEtaInEB = fMaxSMEtaInEB*fMaxTowEtaInSM;      // Maximum number of towers in eta in EB
   fMaxTowPhiInEB = fMaxSMPhiInEB*fMaxTowPhiInSM;      // Maximum number of towers in phi in EB
-  fMaxTowInEB    = fMaxTowEtaInEB*fMaxTowPhiInEB;     // Maximum number of towers in EB
 
   fMaxSMInEB      = fMaxSMInEBPlus + fMaxSMInEBMinus;         // Maximum number of SuperModules in the Ecal
-  fMaxTowInSM     = (Int_t)(fMaxTowEtaInSM*fMaxTowPhiInSM);     // Maximum number of towers in a SuperModule
-  fMaxCrysInTow   = (Int_t)(fMaxCrysEtaInTow*fMaxCrysPhiInTow); // Maximum number of crystals in a tower 
+  fMaxTowInSM     = (Int_t)fMaxTowEtaInSM*fMaxTowPhiInSM;     // Maximum number of towers in a SuperModule
+  fMaxCrysInTow   = (Int_t)fMaxCrysEtaInTow*fMaxCrysPhiInTow; // Maximum number of crystals in a tower 
 
-  fMaxCrysEtaInSM = (Int_t)(fMaxTowEtaInSM*fMaxCrysEtaInTow);   // Maximum number of crystals in eta in a SuperModule
-  fMaxCrysPhiInSM = (Int_t)(fMaxTowPhiInSM*fMaxCrysPhiInTow);   // Maximum number of crystals in phi in a SuperModule
-  fMaxCrysInSM    = (Int_t)(fMaxTowInSM*fMaxCrysInTow);         // Maximum number of crystals in a SuperModule
+  fMaxCrysEtaInSM = (Int_t)fMaxTowEtaInSM*fMaxCrysEtaInTow;   // Maximum number of crystals in eta in a SuperModule
+  fMaxCrysPhiInSM = (Int_t)fMaxTowPhiInSM*fMaxCrysPhiInTow;   // Maximum number of crystals in phi in a SuperModule
+  fMaxCrysInSM    = (Int_t)fMaxTowInSM*fMaxCrysInTow;         // Maximum number of crystals in a SuperModule
 
   //.............. Basic parameters for the EE
 
   fMaxSampADCEE           = (Int_t)10;  // Maximum number of samples ADC
 
-  //  fMaxEvtsInBurstPedRunEE = (Int_t)150;  // Maximum number of events per burst in Pedestal Runs
+  fMaxEvtsInBurstPedRunEE = (Int_t)50;  // Maximum number of events per burst in Pedestal Runs
 
   fMaxDeeIXInEE           = (Int_t)4;   // Maximum number of Dees in IX in EE
   fMaxDeeIYInEE           = (Int_t)1;   // Maximum number of Dees in IY in EE
@@ -120,20 +100,18 @@ void TEcnaParEcal::Init()
   fNumberOfNotConnectedSCs = (Int_t)7; // Number of not connected SC's (178, 182, 207, 33, 29, etc... see EE mapping)
   fNumberOfNotCompleteSCs  = (Int_t)4; // Number of not complete  SC's (161, 216, 224, 12, 67, etc... see EE mapping)
 
+
   //.............. Derived parameters for the EE
+
+  fMaxSCIXInEE    = fMaxDeeIXInEE*fMaxSCIXInDee;        // Maximum number of SC's in IX in EE
+  fMaxSCIYInEE    = fMaxDeeIYInEE*fMaxSCIYInDee;        // Maximum number of SC's in IY in EE
+
   fMaxDeeInEE     = fMaxDeeInEEPlus + fMaxDeeInEEMinus; // Maximum number of Dees in EE
-
-  fMaxSCIXInEE      = fMaxDeeIXInEE*fMaxSCIXInDee;        // Maximum number of SC's in IX in EE
-  fMaxSCIYInEE      = fMaxDeeIYInEE*fMaxSCIYInDee;        // Maximum number of SC's in IY in EE
-  fMaxSCEcnaInEE    = fMaxSCIXInEE*fMaxSCIYInEE;          // Maximum number of SC's in EE
-  fMaxSCForConsInEE = fMaxDeeInEE*fMaxSCForConsInDee;     // Maximum number of SC's for construction in EE
-
-  fMaxSCEcnaInDee   = fMaxSCIXInDee*fMaxSCIYInDee;        // Maximum number of super-crystals in the Dee matrix
+  fMaxSCEcnaInDee = fMaxSCIXInDee*fMaxSCIYInDee;        // Maximum number of super-crystals in the Dee matrix
+  fMaxCrysInSC    = fMaxCrysIXInSC*fMaxCrysIYInSC;      // Maximum number of crystals in a super-crystal 
 
   fMaxCrysIXInDee      = fMaxSCIXInDee*fMaxCrysIXInSC;    // Maximum number of crystals in IX in Dee
   fMaxCrysIYInDee      = fMaxSCIYInDee*fMaxCrysIYInSC;    // Maximum number of crystals in IY in Dee
-
-  fMaxCrysInSC         = fMaxCrysIXInSC*fMaxCrysIYInSC;   // Max nb of crystals in a super-crystal 
   fMaxCrysEcnaInDee    = fMaxSCEcnaInDee*fMaxCrysInSC;    // Max nb of crystals in the Dee matrix
   fMaxCrysForConsInDee = fMaxSCForConsInDee*fMaxCrysInSC; // Max nb of crystals for construction in Dee
 
@@ -143,7 +121,7 @@ void TEcnaParEcal::Init()
 
   fMaxSampADC           = 0;
 
-  //  fMaxEvtsInBurstPedRun = 0;
+  fMaxEvtsInBurstPedRun = 0;
 
   fMaxStexHocoInStas    = 0;
   fMaxStexVecoInStas    = 0;
@@ -154,8 +132,6 @@ void TEcnaParEcal::Init()
 
   fMaxStinHocoInStas    = 0; 
   fMaxStinVecoInStas    = 0; 
-  fMaxStinEcnaInStas    = 0; 
-
 
   fMaxStinHocoInStex    = 0;
   fMaxStinVecoInStex    = 0;
@@ -214,7 +190,7 @@ void TEcnaParEcal::SetEcalSubDetector(const TString SubDet){
       if(fFlagSubDet == fCodeEB)
 	{
 	  fMaxSampADC           = fMaxSampADCEB;
-	  //fMaxEvtsInBurstPedRun = fMaxEvtsInBurstPedRunEB;
+	  fMaxEvtsInBurstPedRun = fMaxEvtsInBurstPedRunEB;
 	  
 	  fMaxStexHocoInStas    = fMaxSMEtaInEB;
 	  fMaxStexVecoInStas    = fMaxSMPhiInEB;
@@ -225,7 +201,6 @@ void TEcnaParEcal::SetEcalSubDetector(const TString SubDet){
 	  
 	  fMaxStinHocoInStas    = fMaxTowEtaInEB; 
 	  fMaxStinVecoInStas    = fMaxTowPhiInEB;
-	  fMaxStinEcnaInStas    = fMaxTowEtaInEB*fMaxTowPhiInEB;
 
 	  fMaxStinHocoInStex    = fMaxTowEtaInSM;
 	  fMaxStinVecoInStex    = fMaxTowPhiInSM;
@@ -246,7 +221,7 @@ void TEcnaParEcal::SetEcalSubDetector(const TString SubDet){
       if(fFlagSubDet == fCodeEE)
 	{
 	  fMaxSampADC           = fMaxSampADCEE;
-	  //fMaxEvtsInBurstPedRun = fMaxEvtsInBurstPedRunEE;
+	  fMaxEvtsInBurstPedRun = fMaxEvtsInBurstPedRunEE;
 	  
 	  fMaxStexHocoInStas    = fMaxDeeIXInEE;
 	  fMaxStexVecoInStas    = fMaxDeeIYInEE;
@@ -257,8 +232,7 @@ void TEcnaParEcal::SetEcalSubDetector(const TString SubDet){
 	  
 	  fMaxStinHocoInStas    = fMaxSCIXInEE; 
 	  fMaxStinVecoInStas    = fMaxSCIYInEE;
-	  fMaxStinEcnaInStas    = fMaxSCIXInEE*fMaxSCIYInEE;
-
+	  
 	  fMaxStinHocoInStex    = fMaxSCIXInDee;
 	  fMaxStinVecoInStex    = fMaxSCIYInDee;
 	  fMaxStinEcnaInStex    = fMaxSCEcnaInDee;
@@ -287,7 +261,7 @@ TString TEcnaParEcal::GetEcalSubDetector(){return fFlagSubDet;}
 //------------------------------------------- Max samp ADC
 Int_t TEcnaParEcal::MaxSampADCEB()   {return fMaxSampADCEB;} // maximum  number of samples ADC for EB
 //------------------------------------------- Max number of events in Ped runs (for each gain)
-//Int_t TEcnaParEcal::MaxEvtsInBurstPedRunEB(){return fMaxEvtsInBurstPedRunEB;}
+Int_t TEcnaParEcal::MaxEvtsInBurstPedRunEB(){return fMaxEvtsInBurstPedRunEB;}
 //------------------------------------------- Max SM in barrel
 Int_t TEcnaParEcal::MaxSMEtaInEB() {return fMaxSMEtaInEB;}  // maximum number of SMs in eta in EB
 Int_t TEcnaParEcal::MaxSMPhiInEB() {return fMaxSMPhiInEB;}  // maximum number of SMs in phi in EB
@@ -298,7 +272,6 @@ Int_t TEcnaParEcal::MaxSMInEB()     {return fMaxSMInEB;}      // maximum number 
 //------------------------------------------- Max tow in EB
 Int_t TEcnaParEcal::MaxTowEtaInEB(){return fMaxTowEtaInEB;}   // maximum number of towers in eta in EB
 Int_t TEcnaParEcal::MaxTowPhiInEB(){return fMaxTowPhiInEB;}   // maximum number of towers in phi in EB
-Int_t TEcnaParEcal::MaxTowInEB()   {return fMaxTowInEB;}      // maximum number of towers in EB
 //------------------------------------------- Max tow in SM
 Int_t TEcnaParEcal::MaxTowEtaInSM()  {return fMaxTowEtaInSM;}   // maximum number of towers in eta in SM
 Int_t TEcnaParEcal::MaxTowPhiInSM()  {return fMaxTowPhiInSM;}   // maximum number of towers in phi in SM
@@ -316,7 +289,7 @@ Int_t TEcnaParEcal::MaxCrysInSM()    {return fMaxCrysInSM;}     // maximum  numb
 //------------------------------------------- Max samp ADC
 Int_t TEcnaParEcal::MaxSampADCEE(){return fMaxSampADCEE;}   // maximum number of samples ADC for EE
 //------------------------------------------- Max number of events in Ped runs (for each gain)
-//Int_t TEcnaParEcal::MaxEvtsInBurstPedRunEE(){return fMaxEvtsInBurstPedRunEE;}
+Int_t TEcnaParEcal::MaxEvtsInBurstPedRunEE(){return fMaxEvtsInBurstPedRunEE;}
 //------------------------------------------- Max Dee in Endcap
 Int_t TEcnaParEcal::MaxDeeIXInEE() {return fMaxDeeIXInEE;}  // maximum number of dees in IX in EE
 Int_t TEcnaParEcal::MaxDeeIYInEE() {return fMaxDeeIYInEE;}  // maximum number of dees in IY in EE
@@ -325,26 +298,21 @@ Int_t TEcnaParEcal::MaxDeeInEEPlus() {return fMaxDeeInEEPlus;}  // maximum numbe
 Int_t TEcnaParEcal::MaxDeeInEEMinus(){return fMaxDeeInEEMinus;} // maximum number of dees in EE-
 Int_t TEcnaParEcal::MaxDeeInEE()     {return fMaxDeeInEE;}      // maximum number of dees in EE
 //------------------------------------------- Max SC in EE
-Int_t TEcnaParEcal::MaxSCIXInEE()     {return fMaxSCIXInEE;}      // max nb of SC's in IX in EE
-Int_t TEcnaParEcal::MaxSCIYInEE()     {return fMaxSCIYInEE;}      // max nb of SC's in IY in EE
-Int_t TEcnaParEcal::MaxSCEcnaInEE()   {return fMaxSCEcnaInEE;}    // max nb of SC's in the EE matrix (default for MaxSCInEE())
-Int_t TEcnaParEcal::MaxSCInEE()       {return fMaxSCEcnaInEE;}    // max nb of SC's in the EE matrix
-Int_t TEcnaParEcal::MaxSCForConsInEE(){return fMaxSCForConsInEE;} // max nb of SC's for construction EE
+Int_t TEcnaParEcal::MaxSCIXInEE(){return fMaxSCIXInEE;}         // maximum number of SC's in eta in EE
+Int_t TEcnaParEcal::MaxSCIYInEE(){return fMaxSCIYInEE;}         // maximum number of SC's in phi in EE
 //------------------------------------------- Max SC in Dee
-Int_t TEcnaParEcal::MaxSCIXInDee()     {return fMaxSCIXInDee;}       // max nb of SCs in IX in Dee
-Int_t TEcnaParEcal::MaxSCIYInDee()     {return fMaxSCIYInDee;}       // max nb of SCs in IY in Dee
-Int_t TEcnaParEcal::MaxSCEcnaInDee()   {return fMaxSCEcnaInDee;}     // max nb of SCs in Dee matrix (default for MaxSCInDee())
-Int_t TEcnaParEcal::MaxSCInDee()       {return fMaxSCEcnaInDee;}     // max nb of SCs in the Dee matrix
+Int_t TEcnaParEcal::MaxSCIXInDee()     {return fMaxSCIXInDee;}       // maximum number of SCs in IX in Dee
+Int_t TEcnaParEcal::MaxSCIYInDee()     {return fMaxSCIYInDee;}       // maximum number of SCs in IY in Dee
+Int_t TEcnaParEcal::MaxSCEcnaInDee()   {return fMaxSCEcnaInDee;}     // maximum number of SCs in the Dee matrix
 Int_t TEcnaParEcal::MaxSCForConsInDee(){return fMaxSCForConsInDee;}  // max nb of crystals for construction in Dee
 //------------------------------------------- Max Crys in SC
 Int_t TEcnaParEcal::MaxCrysIXInSC(){return fMaxCrysIXInSC;}   // maximum number of crystals in IX in a SC
 Int_t TEcnaParEcal::MaxCrysIYInSC(){return fMaxCrysIYInSC;}   // maximum number of crystals in IY in a SC
 Int_t TEcnaParEcal::MaxCrysInSC()  {return fMaxCrysInSC;}     // maximum number of crystals in a SC
 //------------------------------------------- Max crys in Dee
-Int_t TEcnaParEcal::MaxCrysIXInDee()     {return fMaxCrysIXInDee;}  // max nb of crystals in IX in Dee
-Int_t TEcnaParEcal::MaxCrysIYInDee()     {return fMaxCrysIYInDee;}  // max nb of crystals in IY in Dee
-Int_t TEcnaParEcal::MaxCrysEcnaInDee()   {return fMaxCrysEcnaInDee;}// max nb of crystals in Dee matrix(default for MaxCrysInDee())
-Int_t TEcnaParEcal::MaxCrysInDee()       {return fMaxCrysEcnaInDee;}// max nb of crystals in Dee matrix
+Int_t TEcnaParEcal::MaxCrysIXInDee()     {return fMaxCrysIXInDee;}      // max nb of crystals in IX in Dee
+Int_t TEcnaParEcal::MaxCrysIYInDee()     {return fMaxCrysIYInDee;}      // max nb of crystals in IY in Dee
+Int_t TEcnaParEcal::MaxCrysEcnaInDee()   {return fMaxCrysEcnaInDee;}    // max nb of crystals in Dee matrix
 Int_t TEcnaParEcal::MaxCrysForConsInDee(){return fMaxCrysForConsInDee;} // max nb of crystals for construction in Dee
 //------------------------------------------- Max DS in EE
 Int_t TEcnaParEcal::MaxDSInEE(){return fMaxDSInEE;}
@@ -356,7 +324,7 @@ Int_t TEcnaParEcal::NumberOfNotCompleteSCs() {return fNumberOfNotCompleteSCs;}
 //------------------------------------------- Max samp ADC
 Int_t TEcnaParEcal::MaxSampADC()          {return fMaxSampADC;}          // max number of samples ADC
 //------------------------------------------- Max number of events in Ped runs (for each gain)
-//Int_t TEcnaParEcal::MaxEvtsInBurstPedRun(){return fMaxEvtsInBurstPedRun;}
+Int_t TEcnaParEcal::MaxEvtsInBurstPedRun(){return fMaxEvtsInBurstPedRun;}
 //------------------------------------------- Max Stex in Stas
 Int_t TEcnaParEcal::MaxStexHocoInStas()  {return fMaxStexHocoInStas;}   // max number of Stexs in Hoco in Stas+
 Int_t TEcnaParEcal::MaxStexVecoInStas()  {return fMaxStexVecoInStas;}   // max number of Stexs in Veco in Stas+
@@ -367,7 +335,6 @@ Int_t TEcnaParEcal::MaxStexInStas()      {return fMaxStexInStas;}       // max n
 //------------------------------------------- Max Stin in Stas
 Int_t TEcnaParEcal::MaxStinHocoInStas()   {return fMaxStinHocoInStas;}    // maximum number of Stin's in Hoco in Stas
 Int_t TEcnaParEcal::MaxStinVecoInStas()   {return fMaxStinVecoInStas;}    // maximum number of Stin's in Veco in Stas
-Int_t TEcnaParEcal::MaxStinEcnaInStas()   {return fMaxStinEcnaInStas;}    // maximum number of Stin's (ECNA) in Stas
 //------------------------------------------- Max Stin in Stex
 Int_t TEcnaParEcal::MaxStinHocoInStex(){return fMaxStinHocoInStex;} // max number of Stins in Hoco in a Stex
 Int_t TEcnaParEcal::MaxStinVecoInStex(){return fMaxStinVecoInStex;} // max number of Stins in Veco in a Stex
@@ -382,5 +349,5 @@ Int_t TEcnaParEcal::MaxCrysInStin()    {return fMaxCrysInStin;}     // max numbe
 Int_t TEcnaParEcal::MaxCrysHocoInStex(){return fMaxCrysHocoInStex;} // max number of crystals in Hoco in a Stex
 Int_t TEcnaParEcal::MaxCrysVecoInStex(){return fMaxCrysVecoInStex;} // max number of crystals in Veco in a Stex
 Int_t TEcnaParEcal::MaxCrysEcnaInStex(){return fMaxCrysEcnaInStex;} // max number of crystals in "ECNA matrix" Stex
-Int_t TEcnaParEcal::MaxCrysInStex()    {return fMaxCrysInStex;}     // max number of crystals in Stex
+Int_t TEcnaParEcal::MaxCrysInStex()    {return fMaxCrysInStex;}     // max number of crystals in Stex  
 

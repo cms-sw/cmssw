@@ -1,6 +1,85 @@
+2011-07-20 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-12
+	* hack away possibly taken lock coming from xdaq update or 
+	* refcounted pointers
+	
+2011-06-27 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-11
+	* comment out scalers flashlist refresh
+	* refresh microstate legenda every 10 lumisections
+
+2011-06-08 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-10
+	* remove debug flags from BuildFile
+
+2011-06-09 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-09
+	* Varios bug fixes mostly to handling of EOL and MsgBuf
+
+2011-05-20 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-08
+	* disconnect forcestopped process from msgq
+
+2011-05-20 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-07
+	* adjust parameters of stuck process detection
+	
+2011-05-19 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-06
+	* use FSTOP signal to exit processes with invalid (stuck) state
+	* issue sentinel error when FSTOP is used
+	* call _exit instead of exit
+
+2011-05-13 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-05
+	* fix inconsistency in fsm_ transitions on stop failure
+
+2011-05-11 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-04
+	* added monitoring of usage of EOL signals in slaves
+
+2011-04-27 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-03
+	* fix handling of filedescriptor close which was causing problems to frontierclient
+
+2011-04-15 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-02
+	* fix bug introduced by commenting out clear of SubProcess array
+	
+2011-04-12 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-01
+	* fix bug introduced in stopAndHalt by breaking stop of slaves in two steps
+	* fix bug in TriggerReportHelpers which decremented reference LS below zero after 2 restarts
+	* move sentinel message to after max restart is reached
+
+2011-04-12 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-00
+	* change handling of socket FD after fork (moved to SubProcess)
+	* perform stop in two steps: first send signal to all live subprocesses
+	then wait for response
+	* improve handling of subweb requests
+
+2011-04-05 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-03-07
+	* small fix for classic mode
+	
 2011-04-01 Emilio Meschi <emilio.meschi@cern.ch>
 
-	* tag V02-03-06
+	* tag V02-03-06 
 	* limit the number of restart per slave process to 3
 	
 2011-03-23 Emilio Meschi <emilio.meschi@cern.ch>

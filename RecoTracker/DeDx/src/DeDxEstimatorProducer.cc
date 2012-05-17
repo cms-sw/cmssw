@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxEstimatorProducer.cc,v 1.29 2010/06/30 09:47:57 querten Exp $
+// $Id: DeDxEstimatorProducer.cc,v 1.30 2010/12/16 17:45:03 innocent Exp $
 //
 //
 
@@ -184,10 +184,8 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	   mono.detId= matchedHit->monoHit()->geographicalId();
 	   stereo.detId= matchedHit->stereoHit()->geographicalId();
 
-
-	   hits.push_back(stereo);
-	   if(shapetest && !(DeDxTools::shapeSelection(((matchedHit->monoHit()->cluster()).get())->amplitudes()))) continue;
-	   hits.push_back(mono);
+           if(shapetest && !(DeDxTools::shapeSelection(((matchedHit->stereoHit()->cluster()).get())->amplitudes()))) hits.push_back(stereo);
+	   if(shapetest && !(DeDxTools::shapeSelection(((matchedHit->monoHit  ()->cluster()).get())->amplitudes()))) hits.push_back(mono);
         }else if(const ProjectedSiStripRecHit2D* projectedHit=dynamic_cast<const ProjectedSiStripRecHit2D*>(recHit)) {
            if(!useStrip) continue;
            const SiStripRecHit2D* singleHit=&(projectedHit->originalHit());

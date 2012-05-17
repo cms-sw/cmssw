@@ -25,7 +25,11 @@ CATopJetProducer::CATopJetProducer(edm::ParameterSet const& conf):
        conf.getParameter<double>("inputEtMin"),                	// seed threshold - NOT USED
        conf.getParameter<bool>  ("useMaxTower"),               	// use max tower as adjacency criterion, otherwise use centroid - NOT USED
        conf.getParameter<double>("sumEtEtaCut"),               	// eta for event SumEt - NOT USED
-       conf.getParameter<double>("etFrac")                    	// fraction of event sumEt / 2 for a jet to be considered "hard" -NOT USED
+       conf.getParameter<double>("etFrac"),                    	// fraction of event sumEt / 2 for a jet to be considered "hard" -NOT USED
+       fjJetDefinition_,
+       doAreaFastjet_,
+       fjActiveArea_,
+       voronoiRfact_
        )
 {}
 
@@ -37,7 +41,7 @@ void CATopJetProducer::produce(  edm::Event & e, const edm::EventSetup & c )
 void CATopJetProducer::runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  alg_.run( fjInputs_, fjCompoundJets_, iSetup );
+  alg_.run( fjInputs_, fjCompoundJets_ );
 
 }
 

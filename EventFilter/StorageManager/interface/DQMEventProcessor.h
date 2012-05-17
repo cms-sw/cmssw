@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessor.h,v 1.5.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: DQMEventProcessor.h,v 1.6 2011/03/07 15:31:31 mommsen Exp $
 /// @file: DQMEventProcessor.h 
 
 #ifndef EventFilter_StorageManager_DQMEventProcessor_h
@@ -31,8 +31,8 @@ namespace stor {
    * to disk every N lumi-sections.
    *
    * $Author: mommsen $
-   * $Revision: 1.5.4.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.6 $
+   * $Date: 2011/03/07 15:31:31 $
    */
   
   class DQMEventProcessor : public toolbox::lang::Class
@@ -75,13 +75,15 @@ namespace stor {
     void endOfRun();
  
 
-    xdaq::Application*        app_;
-    SharedResourcesPtr        sharedResources_;
+    xdaq::Application* app_;
+    SharedResourcesPtr sharedResources_;
 
     boost::posix_time::time_duration timeout_;
-    bool                      actionIsActive_;
+    bool actionIsActive_;
+    uint32_t latestLumiSection_;
+    unsigned int discardDQMUpdatesForOlderLS_;
 
-    toolbox::task::WorkLoop*  processWL_;      
+    toolbox::task::WorkLoop* processWL_;      
 
     DQMEventStore<I2OChain,InitMsgCollection,SharedResources> dqmEventStore_;
 

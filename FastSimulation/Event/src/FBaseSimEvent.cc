@@ -22,7 +22,6 @@
 #include "FastSimulation/Event/interface/NoPrimaryVertexGenerator.h"
 
 #include "FastSimDataFormats/NuclearInteractions/interface/FSimVertexType.h"
-//#include "FastSimulation/Utilities/interface/Histos.h"
 
 using namespace HepPDT;
 
@@ -124,15 +123,6 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
   // Initialize the Particle filter
   myFilter = new KineParticleFilter(kine);
 
-  // Get the Famos Histos pointer
-  //  myHistos = Histos::instance();
-
-  // Initialize a few histograms
-  /*
-  myHistos->book("hvtx",100,-0.1,0.1);
-  myHistos->book("hvty",100,-0.1,0.1);
-  myHistos->book("hvtz",100,-500.,500.);
-  */
 }
  
 FBaseSimEvent::~FBaseSimEvent(){
@@ -152,9 +142,6 @@ FBaseSimEvent::~FBaseSimEvent(){
   delete theFSimVerticesType;
   delete myFilter;
 
-  //Write the histograms
-  //  myHistos->put("histos.root");
-  //  delete myHistos;
 }
 
 void 

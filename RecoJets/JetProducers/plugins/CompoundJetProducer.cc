@@ -69,6 +69,9 @@ void CompoundJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSet
   std::vector< std::vector<int> > indices;
   // this is the list of hardjet 4-momenta
   std::vector<math::XYZTLorentzVector> p4_hardJets;
+  // this is the hardjet areas
+  std::vector<double> area_hardJets;
+
 
   // Loop over the hard jets
   std::vector<CompoundPseudoJet>::const_iterator it = fjCompoundJets_.begin(),
@@ -80,6 +83,7 @@ void CompoundJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSet
     fastjet::PseudoJet localJet = it->hardJet();
     // Get the 4-vector for the hard jet
     p4_hardJets.push_back( math::XYZTLorentzVector(localJet.px(), localJet.py(), localJet.pz(), localJet.e() ));
+    area_hardJets.push_back( it->hardJetArea() );
 
     // create the subjet list
     std::vector<CompoundPseudoSubJet>::const_iterator itSubJetBegin = it->subjets().begin(),
@@ -111,6 +115,7 @@ void CompoundJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSet
       // Add the concrete subjet type to the subjet list to write to event record
       T jet;
       reco::writeSpecific( jet, p4Subjet, point, subjetConstituents, iSetup);
+      jet.setJetArea( itSubJet->subjetArea() );
       subjetCollection->push_back( jet );
 
     }
@@ -135,7 +140,9 @@ void CompoundJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSet
       i_hardJetConstituents.push_back( candPtr );
     }   
     reco::Particle::Point point(0,0,0);
-    jetCollection->push_back( reco::BasicJet( *ip4, point, i_hardJetConstituents) );
+    reco::BasicJet toput( *ip4, point, i_hardJetConstituents);
+    toput.setJetArea( area_hardJets[ip4 - ip4Begin] );
+    jetCollection->push_back( toput );
   }
   
   // put hard jets into event record

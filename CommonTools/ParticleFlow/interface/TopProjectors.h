@@ -1,3 +1,6 @@
+#ifndef CommonTools_ParticleFlow_TopProjectors
+#define CommonTools_ParticleFlow_TopProjectors
+
 #include "CommonTools/ParticleFlow/interface/TopProjectorAlgo.h"
 
 
@@ -31,3 +34,5 @@ namespace ipf2pat {
   typedef pf2pat::TopProjectorAlgo<PFJet, PFCandidate> TPPFJetsOnPFCandidates;
   typedef pf2pat::TopProjectorAlgo<PFTau, PFJet> TPPFTausOnPFJets;
 }
+
+#endif

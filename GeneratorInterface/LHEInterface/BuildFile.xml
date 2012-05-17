@@ -4,11 +4,11 @@
 <use name="FWCore/Utilities"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="Utilities/StorageFactory"/>
+<use name="hepmc"/>
 <use name="boost"/>
 <use name="sigcpp"/>
 <use name="xerces-c"/>
 <use name="rootmath"/>
-<use name="hepmc"/>
 <use name="libhepml"/>
 <use name="fastjet"/>
 <export>

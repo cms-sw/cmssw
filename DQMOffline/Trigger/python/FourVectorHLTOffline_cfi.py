@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: FourVectorHLTOffline_cfi.py,v 1.43 2010/09/03 13:11:19 rekovic Exp $
+# $Id: FourVectorHLTOffline_cfi.py,v 1.44 2010/10/28 13:56:53 rekovic Exp $
 hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
     dirname = cms.untracked.string("HLT/FourVector/paths"),
     muonRecoCollectionName = cms.untracked.string("muons"),
@@ -32,6 +32,7 @@ hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
     photonL1DRMatch = cms.untracked.double(0.5),
     photonEtMin = cms.untracked.double(5.0),
 
+    tauEtMin = cms.untracked.double(10.0),
     #tauDRMatch = cms.untracked.double(0.1),
 
     #bjetDRMatch = cms.untracked.double(0.1),
@@ -93,6 +94,10 @@ hltResults = cms.EDAnalyzer("FourVectorHLTOffline",
         ebRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
         eeRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
     ),
+
+    tauDscrmtrLabel1 = cms.untracked.string("hpsPFTauDiscriminationByDecayModeFinding"),
+    tauDscrmtrLabel2 = cms.untracked.string("hpsPFTauDiscriminationByLooseIsolation"),
+    tauDscrmtrLabel3 = cms.untracked.string("hpsPFTauDiscriminationByLooseIsolation"),
 
                           
      # this is I think MC and CRUZET4

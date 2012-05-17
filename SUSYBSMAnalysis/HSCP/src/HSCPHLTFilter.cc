@@ -119,153 +119,41 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // HLT TRIGGER BASED ON 1 MUON!
    if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu24_v1")){
-          //if(CountEvent<MaxPrint)printf("Use HLT_Mu24_v1\n");
-          if(tr.accept(tr.triggerIndex("HLT_Mu24_v1"))){MuonTrigger = true;}
+      if(tr.accept(tr.triggerIndex("HLT_Mu24_v1"))){MuonTrigger = true;}
    }else{
-         if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu15_v1")){
-          if(IncreasedTreshold(trEv, InputTag("hltSingleMu15L3Filtered11","",TriggerProcess), 24, 1, false)){MuonTrigger = true;}
-      }else{
-         if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu11")){
-               //if(CountEvent<MaxPrint)printf("Use HLT_Mu11 Rescaled\n");
-               if(IncreasedTreshold(trEv, InputTag("hltSingleMu11L3Filtered11","",TriggerProcess), 24, 1, false)){MuonTrigger = true;}
-         }else{
-             if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu9")){
-               //if(CountEvent<MaxPrint)printf("Use HLT_Mu9 Rescaled\n");
-               if(IncreasedTreshold(trEv, InputTag("hltSingleMu9L3Filtered9","",TriggerProcess), 24, 1, false)){MuonTrigger = true;}
-            }else{
-                printf("HSCPHLTFilter --> BUG with HLT_Mu9\n");
-            }
-         }
-      }
+      printf("HSCPHLTFilter --> HLT_Mu24_v1  not found\n");
+      for(unsigned int i=0;i<tr.size();i++){
+         printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
+      }fflush(stdout);
+      exit(0);
    }
 
 
    // HLT TRIGGER BASED ON 2 MUONS!
    if(TrIndex_Unknown != tr.triggerIndex("HLT_DoubleMu6_v1")){
-             if(tr.accept(tr.triggerIndex("HLT_DoubleMu6_v1"))){MuonTrigger = true;}
+      if(tr.accept(tr.triggerIndex("HLT_DoubleMu6_v1"))){MuonTrigger = true;}
    }else{
-      if(TrIndex_Unknown != tr.triggerIndex("HLT_DoubleMu3_v2")){
-          if(IncreasedTreshold(trEv, InputTag("hltDoubleMu3L3Filtered11","",TriggerProcess), 6, 2, false)){MuonTrigger = true;}
-       }else{
-          if(TrIndex_Unknown != tr.triggerIndex("HLT_DoubleMu3")){
-             //if(CountEvent<MaxPrint)printf("Use HLT_DoubleMu3\n");
-          if(IncreasedTreshold(trEv, InputTag("hltDoubleMu3L3Filtered11","",TriggerProcess), 6, 2, false)){MuonTrigger = true;}
-          }else{
-             printf("HSCPHLTFilter --> BUG with HLT_DoubleMu3\n");
-         }
-      }
+      printf("HSCPHLTFilter --> HLT_DoubleMu6_v1  not found\n");
+      for(unsigned int i=0;i<tr.size();i++){
+         printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
+      }fflush(stdout);
+      exit(0);
    }
 
    // HLT TRIGGER BASED ON MET!
-   if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet370_v1")){
-      if(tr.accept(tr.triggerIndex("HLT_Jet370_v1"))){METTrigger = true;}
+   if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v2")){
+      if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v2"))){METTrigger = true;}
    }else{
-      if(TrIndex_Unknown != tr.triggerIndex("HLT_MET100_v3")){
-         //if(CountEvent<MaxPrint)printf("Use HLT_MET100_v3\n");
-         if(tr.accept(tr.triggerIndex("HLT_MET100_v3"))){METTrigger = true;}
+      if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v1")){
+         if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v1"))){METTrigger = true;}
       }else{
-         if(TrIndex_Unknown != tr.triggerIndex("HLT_MET100_v2")){
-            //if(CountEvent<MaxPrint)printf("Use HLT_MET100_v2\n");
-            if(tr.accept(tr.triggerIndex("HLT_MET100_v2"))){METTrigger = true;}
-         }else{
-            if(TrIndex_Unknown != tr.triggerIndex("HLT_MET100")){
-               //if(CountEvent<MaxPrint)printf("Use HLT_MET100\n");
-               if(tr.accept(tr.triggerIndex("HLT_MET100"))){METTrigger = true;}
-            }else{
-               printf("HSCPHLTFilter --> BUG with HLT_MET100\n");
-            }
-         }
+         printf("HSCPHLTFilter --> HLT_PFMHT150_v2 or v1  not found\n");
+         for(unsigned int i=0;i<tr.size();i++){
+            printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
+         }fflush(stdout);
+         exit(0);
       }
    }
-
-   // HLT TRIGGER BASED ON 1 JET!
-   if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet370_v1")){
-      if(tr.accept(tr.triggerIndex("HLT_Jet370_v1"))){JetTrigger = true;}
-   }else{
-      if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet140U_v3")){
-         //if(CountEvent<MaxPrint)printf("Use HLT_Jet140U_v3\n");
-         if(IncreasedTreshold(trEv, InputTag("hlt1jet140U","",TriggerProcess), 370, 1, false)){JetTrigger = true;}
-      }else{ 
-         if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet140U_v1")){
-             //if(CountEvent<MaxPrint)printf("Use HLT_Jet140U_v1\n");
-            if(IncreasedTreshold(trEv, InputTag("hlt1jet140U","",TriggerProcess), 370, 1, false)){JetTrigger = true;}
-         }else{
-            if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet100U")){
-                //if(CountEvent<MaxPrint)printf("Use HLT_Jet100U Rescaled\n");
-                if(IncreasedTreshold(trEv, InputTag("hlt1jet100U","",TriggerProcess), 370, 1, false)){JetTrigger = true;}
-            }else{
-               if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet70U")){   
-                  //if(CountEvent<MaxPrint)printf("Use HLT_Jet70U Rescaled\n");
-                  if(IncreasedTreshold(trEv, InputTag("hlt1jet70U","",TriggerProcess), 370, 1, false)){JetTrigger = true;}
-               }else{
-                  if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet50U")){
-                     //if(CountEvent<MaxPrint)printf("Use HLT_Jet50U Rescaled\n");
-                     if(IncreasedTreshold(trEv, InputTag("hlt1jet50U","",TriggerProcess), 370, 1, false)){JetTrigger = true;}
-                  }else{
-                     printf("HSCPHLTFilter --> BUG with HLT_Jet50U\n");
-                  }
-               }
-            }
-         }
-      }
-   }
-/*
-   // HLT TRIGGER BASED ON 2 JETS!
-   if(TrIndex_Unknown != tr.triggerIndex("HLT_DiJetAve140U_v3")){
-      //if(CountEvent<MaxPrint)printf("Use HLT_DiJetAve140U_v3\n");
-      if(tr.accept(tr.triggerIndex("HLT_DiJetAve140U_v3") )){JetTrigger = true;}
-   }else{  
-      if(TrIndex_Unknown != tr.triggerIndex("OpenHLT_DiJetAve70")){
-         //if(CountEvent<MaxPrint)printf("Use OpenHLT_DiJetAve70\n");
-         if(IncreasedTreshold(trEv, InputTag("hltDiJetAve70U","",TriggerProcess), 140, 2, true)){JetTrigger = true;}
-      }else{
-         if(TrIndex_Unknown != tr.triggerIndex("OpenHLT_DiJetAve50U")){
-               //if(CountEvent<MaxPrint)printf("Use OpenHLT_DiJetAve50 Rescaled\n");
-               if(IncreasedTreshold(trEv, InputTag("hltDiJetAve50U","",TriggerProcess), 140, 2, true)){JetTrigger = true;}
-               if(IncreasedTreshold(trEv, InputTag("openhltDiJetAve50U","",TriggerProcess), 140, 2, true)){JetTrigger = true;}
-         }else{
-            if(TrIndex_Unknown != tr.triggerIndex("HLT_DiJetAve50U")){
-               //if(CountEvent<MaxPrint)printf("Use HLT_DiJetAve50 Rescaled\n");
-               if(IncreasedTreshold(trEv, InputTag("hltDiJetAve50U","",TriggerProcess), 140, 2, true)){JetTrigger = true;}
-            }else{
-               if(TrIndex_Unknown != tr.triggerIndex("HLT_DiJetAve30U_8E29")){ 
-                  //if(CountEvent<MaxPrint)printf("Use HLT_DiJetAve30U_8E29 Rescaled\n");
-                  if(IncreasedTreshold(trEv, InputTag("hltDiJetAve30U8E29","",TriggerProcess), 140, 2, true)){JetTrigger = true;}
-               }else{
-                   printf("HSCPHLTFilter --> BUG with HLT_DiJetAve30U_8E29\n");
-               }
-            }
-         }
-      }
-   }
-
-
-   // HLT TRIGGER BASED ON 4 JETS!
-   if(TrIndex_Unknown != tr.triggerIndex("HLT_QuadJet25U_v3")){
-      //if(CountEvent<MaxPrint)printf("Rescale HLT_QuadJet25U_v3\n");
-      if(IncreasedTreshold(trEv, InputTag("hlt4jet25U","",TriggerProcess), 30, 4, false)){JetTrigger = true;}
-//      if(tr.accept(tr.triggerIndex("HLT_QuadJet25U_v3") )){JetTrigger = true;}
-   }else{
-      if(TrIndex_Unknown != tr.triggerIndex("HLT_QuadJet25U_v2")){
-         //if(CountEvent<MaxPrint)printf("Rescale HLT_QuadJet25U_v2\n");
-         if(IncreasedTreshold(trEv, InputTag("hlt4jet25U","",TriggerProcess), 30, 4, false)){JetTrigger = true;}
-//         if(tr.accept(tr.triggerIndex("HLT_QuadJet25U_v2") )){JetTrigger = true;}
-      }else{
-         if(TrIndex_Unknown != tr.triggerIndex("OpenHLT_QuadJet25U")){
-            //if(CountEvent<MaxPrint)printf("Rescale OpenHLT_QuadJet25U\n");
-            if(IncreasedTreshold(trEv, InputTag("hlt4jet25U","",TriggerProcess), 30, 4, false)){JetTrigger = true;}
-//            if(tr.accept(tr.triggerIndex("OpenHLT_QuadJet25U") )){JetTrigger = true;}
-         }else{
-            if(TrIndex_Unknown != tr.triggerIndex("HLT_QuadJet15U")){
-               //if(CountEvent<MaxPrint)printf("Use HLT_QuadJet15U Rescaled\n");
-               if(IncreasedTreshold(trEv, InputTag("hlt4jet15U","",TriggerProcess), 30, 4, false)){JetTrigger = true;}
-            }else{
-               printf("HSCPHLTFilter --> BUG with HLT_QuadJet15U\n");
-            }
-         }
-      }
-   }
-*/
 
    //printf("Bits = %1i %1i %1i X Mask = %+2i %+2i %+2i -->",MuonTrigger,METTrigger,JetTrigger,MuonTriggerMask,METTriggerMask,JetTriggerMask);
 
