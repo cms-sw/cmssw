@@ -27,6 +27,11 @@ distribution.
  *
  * THIS FILE WAS ALTERED BY Bill Tanenbaum, 25 September 2011
  * to fix Coverity error (use after free).
+
+ * THIS FILE WAS ALTERED BY Bill Tanenbaum, 17 May 2012
+ * to fix bugus uninitialized variable error reported by clang static analyzer.
+ * The error was bogus, but trivial to eliminate.  All three places
+ * where a variable was declared without being initialized were fixed.
  */
 #define TIXML_USE_STL
 #include <ctype.h>
@@ -447,7 +452,6 @@ const char* TiXmlBase::GetEntity( const char* p, char* value, int* length, TiXml
 {
 	// Presume an entity, and pull it out.
     TIXML_STRING ent;
-	int i;
 	*length = 0;
 
 	if ( *(p+1) && *(p+1) == '#' && *(p+2) )
@@ -520,7 +524,7 @@ const char* TiXmlBase::GetEntity( const char* p, char* value, int* length, TiXml
 	}
 
 	// Now try to match it.
-	for( i=0; i<NUM_ENTITY; ++i )
+	for( int i=0; i<NUM_ENTITY; ++i )
 	{
 		if ( strncmp( entity[i].str, p, entity[i].strLength ) == 0 )
 		{
@@ -595,7 +599,7 @@ const char* TiXmlBase::ReadText(	const char* p,
 				&& !StringEqual( p, endTag, caseInsensitive, encoding )
 			  )
 		{
-			int len;
+			int len = 0;
 			char cArr[4] = { 0, 0, 0, 0 };
 			p = GetChar( p, cArr, &len, encoding );
 			text->append( cArr, len );
@@ -629,7 +633,7 @@ const char* TiXmlBase::ReadText(	const char* p,
 					(*text) += ' ';
 					whitespace = false;
 				}
-				int len;
+				int len = 0;
 				char cArr[4] = { 0, 0, 0, 0 };
 				p = GetChar( p, cArr, &len, encoding );
 				if ( len == 1 )
