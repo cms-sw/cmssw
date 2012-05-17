@@ -222,6 +222,7 @@ def customise(process):
 
   process.offlinePrimaryVerticesWithBS.TrackLabel = cms.InputTag("tmfTracks")
   process.offlinePrimaryVertices.TrackLabel = cms.InputTag("tmfTracks")
+
   if hasattr(process.muons, "TrackExtractorPSet"):
     process.muons.TrackExtractorPSet.inputTrackCollection = cms.InputTag("tmfTracks")
   elif hasattr(process, "muons1stStep") and hasattr(process.muons1stStep, "TrackExtractorPSet"):
@@ -257,6 +258,27 @@ def customise(process):
       pth.replace(process.generalTracks, process.generalTracks*process.tmfTracks)
 
 
+  #'''
+  process.gsfElectronsORG = process.gsfElectrons.clone()
+  #print dir(process)
+  #for p in dir(process):
+
+  for p in process.paths:
+    pth = getattr(process,p)
+    #if hasattr(pth,"gsfElectrons"):
+    if "gsfElectrons" in pth.moduleNames():
+      pth.replace(process.gsfElectrons, process.gsfElectronsORG*process.gsfElectrons)
+      #print p, dir(pth.moduleNames())
+
+  # xxx
+  process.gsfElectrons = cms.EDProducer("GSFElectronsMixer",
+      col1 = cms.InputTag("gsfElectronsORG"),
+      col2 = cms.InputTag("gsfElectrons","", RECOproc )
+  )
+  #'''
+
+
+
   process.particleFlowORG = process.particleFlow.clone()
 
   # Since CMSSW 4_4 the particleFlow reco works a bit differently. The step is
@@ -268,7 +290,11 @@ def customise(process):
     process.particleFlowTmpMixed = cms.EDProducer('PFCandidateMixer',
       col1 = cms.untracked.InputTag("removedInputMuons","pfCands"),
       col2 = cms.untracked.InputTag("particleFlowTmp", ""),
-      trackCol = cms.untracked.InputTag("tmfTracks")
+      trackCol = cms.untracked.InputTag("tmfTracks"),
+
+      # Don't produce value maps:
+      muons = cms.untracked.InputTag(""),
+      gsfElectrons = cms.untracked.InputTag("")
     )
     process.muons.PFCandidates = cms.InputTag("particleFlowTmpMixed")
 
@@ -305,7 +331,11 @@ def customise(process):
   process.particleFlow =  cms.EDProducer('PFCandidateMixer',
           col1 = cms.untracked.InputTag("removedInputMuons","pfCands"),
           col2 = cms.untracked.InputTag("particleFlowORG", ""),
-          trackCol = cms.untracked.InputTag("tmfTracks")
+          trackCol = cms.untracked.InputTag("tmfTracks"),
+
+          muons = cms.untracked.InputTag("muons"),
+          gsfElectrons = cms.untracked.InputTag("gsfElectrons")
+          # TODO: photons???
   )
 
   process.filterEmptyEv.src = cms.untracked.InputTag("generator","","EmbeddedRECO")
@@ -341,25 +371,6 @@ def customise(process):
        #seqVis.catch=0
        #i.__iadd__(source)
 
-
-  #'''
-  process.gsfElectronsORG = process.gsfElectrons.clone()
-  #print dir(process)
-  #for p in dir(process):
-
-  for p in process.paths:
-    pth = getattr(process,p)
-    #if hasattr(pth,"gsfElectrons"):
-    if "gsfElectrons" in pth.moduleNames():
-      pth.replace(process.gsfElectrons, process.gsfElectronsORG*process.gsfElectrons)
-      #print p, dir(pth.moduleNames())
-
-  # xxx
-  process.gsfElectrons = cms.EDProducer("GSFElectronsMixer",
-      col1 = cms.InputTag("gsfElectronsORG"),
-      col2 = cms.InputTag("gsfElectrons","", RECOproc )
-  )
-  #'''
 
   if hasattr(process, "DQM_FEDIntegrity_v3"):
     process.schedule.remove(process.DQM_FEDIntegrity_v3)
@@ -406,11 +417,4 @@ def customise(process):
   print "     process.doZmumuSkim = cms.PSet() # adds Zmumu skimming before embedding is run"
   print "# ######################################################################################"
 
-
-
-
-  print "#############################################################"
-  print " Warning! PFCandidates 'electron' collection is not mixed, "
-  print "  and probably shouldnt be used. "
-  print "#############################################################"
   return(process)
