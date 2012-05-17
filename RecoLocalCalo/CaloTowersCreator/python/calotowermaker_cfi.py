@@ -131,6 +131,7 @@ calotowermaker = cms.EDProducer("CaloTowersCreator",
 
 
 # flag to allow/disallow missing inputs
-    AllowMissingInputs = cms.bool(False)
-    
+    AllowMissingInputs = cms.bool(True),
+    upgrade = cms.bool(True),
+    hcalUpgradeInput = cms.InputTag("hcalupgradereco")
 )

@@ -20,7 +20,8 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "RecoTracker/TkNavigation/interface/TkLayerLess.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "RecoTracker/TkDetLayers/interface/PixelBarrelLayer.h"
+#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
+// #include "RecoTracker/TkDetLayers/interface/PixelBarrelLayer.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TrackingRecHitProjector.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/ProjectedRecHit2D.h"
@@ -903,8 +904,8 @@ int CkfDebugger::analyseRecHitNotFound(const Trajectory& traj, CTTRHp correctRec
   bool navLayerAfter = false;
   bool test = false;
   for (std::vector<const DetLayer*>::iterator il = nl.begin(); il != nl.end(); il++) {
-    if ( dynamic_cast<const PixelBarrelLayer*>(*il) ){
-      const PixelBarrelLayer* pbl = dynamic_cast<const PixelBarrelLayer*>(*il);
+    if ( dynamic_cast<const BarrelDetLayer*>(*il) ){
+      const BarrelDetLayer* pbl = dynamic_cast<const BarrelDetLayer*>(*il);
       LogTrace("CkfDebugger") << "pbl->specificSurface().bounds().length()=" << pbl->specificSurface().bounds().length() ;
       LogTrace("CkfDebugger") << "pbl->specificSurface().bounds().width()=" << pbl->specificSurface().bounds().width() ;
     }

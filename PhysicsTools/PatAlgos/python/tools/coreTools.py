@@ -311,21 +311,21 @@ class RemoveSpecificPATObjects(ConfigToolBase):
         
             ## remove object production steps from the default sequence    
             if( names[obj] == 'METs' ):
-                process.patCandidates.remove( getattr(process, 'pat'+names[obj]) )
+                process.patDefaultSequence.remove( getattr(process, 'pat'+names[obj]) )
             else:
                 if( names[obj] == 'Jets' ):
-                    applyPostfix(process,"patCandidates",postfix).remove(
+                    applyPostfix(process,"patDefaultSequence",postfix).remove(
                         getattr(process, jetCollectionString()+postfix) )
-                    applyPostfix(process,"selectedPatCandidates",postfix).remove(
+                    applyPostfix(process,"patDefaultSequence",postfix).remove(
                         getattr(process, jetCollectionString('selected')+postfix) )
-                    applyPostfix(process,"countPatCandidates",postfix).remove(
+                    applyPostfix(process,"patDefaultSequence",postfix).remove(
                         getattr(process, jetCollectionString('count')+postfix) )
                 else:
-                    applyPostfix(process,"patCandidates",postfix).remove( 
+                    applyPostfix(process,"patDefaultSequence",postfix).remove( 
                         getattr(process, 'pat'+names[obj]+postfix) )
-                    applyPostfix(process,"selectedPatCandidates",postfix).remove( 
+                    applyPostfix(process,"patDefaultSequence",postfix).remove( 
                         getattr(process, 'selectedPat'+names[obj]+postfix) )
-                    applyPostfix(process,"countPatCandidates",postfix).remove( 
+                    applyPostfix(process,"patDefaultSequence",postfix).remove( 
                         getattr(process, 'countPat'+names[obj]+postfix) )
             ## in the case of leptons, the lepton counter must be modified as well
             if( names[obj] == 'Electrons' ):

@@ -1,7 +1,7 @@
 #ifndef AnalyticalCurvilinearJacobian_H
 #define AnalyticalCurvilinearJacobian_H
 
-#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include "TrackingTools/AnalyticalJacobians/interface/CurvilinearJacobian.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h" 
 
@@ -18,10 +18,10 @@
 
 class GlobalTrajectoryParameters;
 
-class AnalyticalCurvilinearJacobian  {
+class AnalyticalCurvilinearJacobian : public CurvilinearJacobian {
  public:
   /// default constructor (for tests)
-  AnalyticalCurvilinearJacobian()  :  theJacobian(AlgebraicMatrixID()){}
+  AnalyticalCurvilinearJacobian() : theJacobian(AlgebraicMatrixID()) {}
 
   /// get Field at starting state (internally)
   AnalyticalCurvilinearJacobian(const GlobalTrajectoryParameters& globalParameters,
@@ -35,7 +35,10 @@ class AnalyticalCurvilinearJacobian  {
 				const GlobalVector& theFieldInInverseGeV, 
 				const double& s);
   
+  virtual ~AnalyticalCurvilinearJacobian() {}
   
+  virtual const AlgebraicMatrix55& jacobian() const {return theJacobian;}
+  virtual const AlgebraicMatrix jacobian_old() const {return asHepMatrix(theJacobian);}
 public:
   /// result for non-vanishing curvature
   void computeFullJacobian (const GlobalTrajectoryParameters&,
@@ -50,11 +53,7 @@ public:
 				    const GlobalPoint&, const GlobalVector&, 
 				    const double& s);
 
-
-
-  const AlgebraicMatrix55& jacobian() const {return theJacobian;}
-
-private:
+ private:
   
   AlgebraicMatrix55 theJacobian;
 

@@ -7,6 +7,7 @@
 <use   name="DataFormats/EcalDetId"/>
 <use   name="DataFormats/EcalDigi"/>
 <use   name="DataFormats/EcalRawData"/>
+<use   name="DataFormats/EcalRecHit"/>
 <use   name="DataFormats/FEDRawData"/>
 <use   name="rootphysics"/>
 <use   name="CondFormats/RunInfo"/>

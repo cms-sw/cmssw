@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.37 2010/04/02 15:41:32 amagnan Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.41 2011/07/04 14:47:32 amagnan Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -71,6 +71,12 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
   //update the cabling if necessary
   void updateCabling(const edm::EventSetup& eventSetup);
 
+  static bool pairComparison(const std::pair<unsigned int, unsigned int> & pair1,
+			     const std::pair<unsigned int, unsigned int> & pair2);
+
+  void getMajority(const std::vector<std::pair<unsigned int,unsigned int> > & aFeMajVec,
+		   unsigned int & aMajorityCounter,
+		   std::vector<unsigned int> & afedIds);
 
   //tag of FEDRawData collection
   edm::InputTag rawDataTag_;
@@ -94,16 +100,17 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
   uint32_t cablingCacheId_;
   const SiStripFedCabling* cabling_;
 
-  //add parameter to save computing time if TkHistoMap are not filled
+  //add parameter to save computing time if TkHistoMap/Median/FeMajCheck are not enabled
   bool doTkHistoMap_;
   bool doMedHists_;
+  bool doFEMajorityCheck_;
 
   unsigned int nEvt_;
 
   //FED errors
   //need class member for lumi histograms
   FEDErrors fedErrors_;
-
+  unsigned int maxFedBufferSize_;
 };
 
 
@@ -113,7 +120,7 @@ class SiStripFEDMonitorPlugin : public edm::EDAnalyzer
 
 SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfig)
   : rawDataTag_(iConfig.getUntrackedParameter<edm::InputTag>("RawDataTag",edm::InputTag("source",""))),
-    folderName_(iConfig.getUntrackedParameter<std::string>("HistogramFolderName","SiStrip/ReadoutView/FedMonitoringSummary")),
+    folderName_(iConfig.getUntrackedParameter<std::string>("HistogramFolderName","SiStrip/ReadoutView/FedSummary")),
     fillAllDetailedHistograms_(iConfig.getUntrackedParameter<bool>("FillAllDetailedHistograms",false)),
     fillWithEvtNum_(iConfig.getUntrackedParameter<bool>("FillWithEventNumber",false)),
     printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages",1)),
@@ -121,7 +128,8 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
     writeDQMStore_(iConfig.getUntrackedParameter<bool>("WriteDQMStore",false)),
     dqmStoreFileName_(iConfig.getUntrackedParameter<std::string>("DQMStoreFileName","DQMStore.root")),
     dqm_(0),
-    cablingCacheId_(0)
+    cablingCacheId_(0),
+    maxFedBufferSize_(0)
 {
   //print config to debug log
   std::ostringstream debugStream;
@@ -144,6 +152,8 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
   doTkHistoMap_ = fedHists_.tkHistoMapEnabled();
 
   doMedHists_ = fedHists_.cmHistosEnabled();
+
+  doFEMajorityCheck_ = fedHists_.feMajHistosEnabled();
 
   if (printDebug_) {
     LogTrace("SiStripMonitorHardware") << debugStream.str();
@@ -196,6 +206,19 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
   unsigned int lNTotBadChannels = 0;
   unsigned int lNTotBadActiveChannels = 0;
 
+  std::vector<std::vector<std::pair<unsigned int,unsigned int> > > lFeMajFrac;
+  const unsigned int nParts = 4;
+  if (doFEMajorityCheck_){
+    lFeMajFrac.resize(nParts);
+    //max nFE per partition
+    lFeMajFrac[0].reserve(912);
+    lFeMajFrac[1].reserve(1080);
+    lFeMajFrac[2].reserve(768);
+    lFeMajFrac[3].reserve(760);
+  }
+
+  maxFedBufferSize_ = 0;
+
   //loop over siStrip FED IDs
   for (unsigned int fedId = FEDNumbering::MINSiStripFEDID; 
        fedId <= FEDNumbering::MAXSiStripFEDID; 
@@ -210,7 +233,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     //first check if data exists
     bool lDataExist = fedErrors_.checkDataPresent(fedData);
     if (!lDataExist) {
-      fedHists_.fillFEDHistograms(fedErrors_,lFullDebug);
+      fedHists_.fillFEDHistograms(fedErrors_,0,lFullDebug);
       continue;
     }
 
@@ -224,15 +247,22 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 			     lNChannelUnpacker,
 			     doMedHists_,
 			     fedHists_.cmHistPointer(false),
-			     fedHists_.cmHistPointer(true)
+			     fedHists_.cmHistPointer(true),
+			     doFEMajorityCheck_,
+			     lFeMajFrac
 			     );
 
     //check filled in previous method.
     bool lFailUnpackerFEDcheck = fedErrors_.failUnpackerFEDCheck();
 
     fedErrors_.incrementFEDCounters();
-    fedHists_.fillFEDHistograms(fedErrors_,lFullDebug);
+    unsigned int lSize = fedData.size();
+    if (lSize > maxFedBufferSize_){
+      maxFedBufferSize_ = lSize;
+    }
+    //std::cout << " -- " << fedId << " " << lSize << std::endl;
 
+    fedHists_.fillFEDHistograms(fedErrors_,lSize,lFullDebug);
 
     bool lFailMonitoringFEDcheck = fedErrors_.failMonitoringFEDCheck();
     if (lFailMonitoringFEDcheck) lNTotBadFeds++;
@@ -273,6 +303,23 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 				  lNTotBadActiveChannels);
   }//loop over FED IDs
 
+
+  if (doFEMajorityCheck_){
+    for (unsigned int iP(0); iP<nParts; ++iP){
+      //std::cout << " -- Partition " << iP << std::endl;
+      //std::cout << " --- Number of elements in vec = " << lFeMajFrac[iP].size() << std::endl;
+      if (lFeMajFrac[iP].size()==0) continue;
+      std::sort(lFeMajFrac[iP].begin(),lFeMajFrac[iP].end(),SiStripFEDMonitorPlugin::pairComparison);
+
+      unsigned int lMajorityCounter = 0;
+      std::vector<unsigned int> lfedIds;
+
+      getMajority(lFeMajFrac[iP],lMajorityCounter,lfedIds);
+      //std::cout << " -- Found " << lfedIds.size() << " unique elements not matching the majority." << std::endl;
+      fedHists_.fillMajorityHistograms(iP,static_cast<float>(lMajorityCounter)/lFeMajFrac[iP].size(),lfedIds);
+    }
+  }
+
   if ((lNTotBadFeds> 0 || lNTotBadChannels>0) && printDebug_>1) {
     std::ostringstream debugStream;
     debugStream << "[SiStripFEDMonitorPlugin] --- Total number of bad feds = " 
@@ -307,13 +354,79 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
   //fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(), nEvt_);
   //time in seconds since beginning of the run or event number
-  if (fillWithEvtNum_) fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(),FEDErrors::getChannelErrorsCounters(),iEvent.id().event());
-  else fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(),FEDErrors::getChannelErrorsCounters(),iEvent.orbitNumber()/11223.);
-
+  if (fillWithEvtNum_) fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(),FEDErrors::getChannelErrorsCounters(),maxFedBufferSize_,iEvent.id().event());
+  else fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(),FEDErrors::getChannelErrorsCounters(),maxFedBufferSize_,iEvent.orbitNumber()/11223.);
 
   nEvt_++;
 
 }//analyze method
+
+
+bool SiStripFEDMonitorPlugin::pairComparison(const std::pair<unsigned int, unsigned int> & pair1,
+					     const std::pair<unsigned int, unsigned int> & pair2){
+  return (pair1.second < pair2.second) ;
+}
+
+void SiStripFEDMonitorPlugin::getMajority(const std::vector<std::pair<unsigned int,unsigned int> > & aFeMajVec,
+					  unsigned int & aMajorityCounter,
+					  std::vector<unsigned int> & afedIds) {
+  
+  
+  unsigned int lMajAddress = 0;
+  std::vector<std::pair<unsigned int,unsigned int> >::const_iterator lIter = aFeMajVec.begin();
+  unsigned int lMajAddr = (*lIter).second;
+  unsigned int lCounter = 0;
+  
+  //std::cout << " --- First element: addr = " << lMajAddr << " counter = " << lCounter << std::endl;
+  unsigned int iele=0;
+  bool foundMaj = false;
+  for ( ; lIter != aFeMajVec.end(); ++lIter,++iele) {
+    //std::cout << " ---- Ele " << iele << " " << (*lIter).first << " " << (*lIter).second << " ref " << lMajAddr << std::endl;
+    if ((*lIter).second == lMajAddr) {
+      ++lCounter;
+      //std::cout << " ----- =ref: Counter = " << lCounter << std::endl;
+    }
+    else {
+      //std::cout << " ----- !=ref: Counter = " << lCounter << " Majority = " << aMajorityCounter << std::endl;
+      if (lCounter > aMajorityCounter) {
+	//std::cout << " ------ >Majority: " << std::endl;
+	aMajorityCounter = lCounter;
+	lMajAddress = (*lIter).second;
+	foundMaj=true;
+      }
+      lCounter = 0;
+      lMajAddr = (*lIter).second;
+      --lIter;
+      --iele;
+    }
+  }
+  if (!foundMaj) {
+    if (lCounter > aMajorityCounter) {
+      //std::cout << " ------ >Majority: " << std::endl;
+      aMajorityCounter = lCounter;
+      lMajAddress = lMajAddr;
+    }
+  }
+  //std::cout << " -- found majority value for " << aMajorityCounter << " elements out of " << aFeMajVec.size() << "." << std::endl;
+  //get list of feds with address different from majority in partition:      
+  lIter = aFeMajVec.begin();
+  afedIds.reserve(135);
+  for ( ; lIter != aFeMajVec.end(); ++lIter ) {
+    if((*lIter).second != lMajAddress) {
+      afedIds.push_back((*lIter).first);
+    }
+    else {
+      lIter += aMajorityCounter-1;
+    }
+  }
+  //std::cout << " -- Found " << lfedIds.size() << " elements not matching the majority." << std::endl;
+  if (afedIds.size()>0) {
+    std::sort(afedIds.begin(),afedIds.end());
+    std::vector<unsigned int>::iterator lIt = std::unique(afedIds.begin(),afedIds.end());
+    afedIds.erase(lIt,afedIds.end());
+  }
+
+}
 
 // ------------ method called once each job just before starting event loop  ------------
 void 

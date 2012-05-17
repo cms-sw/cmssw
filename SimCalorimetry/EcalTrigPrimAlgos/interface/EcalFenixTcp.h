@@ -7,7 +7,6 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcpFormat.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixFgvbEB.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcpFgvbEE.h>
-#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcpsFgvbEB.h>
 
 
 #include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
@@ -43,8 +42,7 @@ class EcalFenixTcp {
   EcalFenixEtTot *adder_;
   EcalFenixFgvbEB *fgvbEB_;
   EcalFenixTcpFgvbEE *fgvbEE_;
-  EcalFenixTcpsFgvbEB *sfgvbEB_;  
-
+    
   EcalFenixTcpFormat *formatter_;
 
   // permanent data structures
@@ -52,7 +50,6 @@ class EcalFenixTcp {
   std::vector<int> adder_out_;
   std::vector<int> maxOf2_out_;
   std::vector<int> fgvb_out_;
-  std::vector<int> strip_fgvb_out_;
    
  public:
   // temporary, for timing tests
@@ -61,8 +58,7 @@ class EcalFenixTcp {
 		     const EcalTPGLutIdMap * ecaltpgLut,
 		     const EcalTPGFineGrainEBIdMap * ecaltpgFineGrainEB,
 		     const EcalTPGFineGrainTowerEE * ecaltpgFineGrainTowerEE,
-		     const EcalTPGTowerStatus * ecaltpgBadTT,
-                     const EcalTPGSpike * ecaltpgSpike)
+		     const EcalTPGTowerStatus * ecaltpgBadTT)
     {
       ecaltpgFgEBGroup_=ecaltpgFgEBGroup;
       ecaltpgLutGroup_=ecaltpgLutGroup;
@@ -70,7 +66,6 @@ class EcalFenixTcp {
       ecaltpgFineGrainEB_=ecaltpgFineGrainEB;
       ecaltpgFineGrainTowerEE_=ecaltpgFineGrainTowerEE;
       ecaltpgBadTT_=ecaltpgBadTT;
-      ecaltpgSpike_=ecaltpgSpike;
    }
   // end temporary, for timing tests
 
@@ -92,13 +87,12 @@ class EcalFenixTcp {
 
   void process_part1(std::vector<std::vector<int> > &tpframetow, int nStr,int bitMask);
 
-  void  process_part2_barrel(std::vector<std::vector<int> > &, int nStr,int bitMask,
+  void  process_part2_barrel(std::vector<std::vector<int> > &, int nStr,
 			     const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup,
 			     const EcalTPGLutGroup*ecaltpgLutGroup,
 			     const EcalTPGLutIdMap *ecaltpgLut,
 			     const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB,
 			     const EcalTPGTowerStatus *ecaltpgBadTT,
-                             const EcalTPGSpike * ecaltpgSpike,
 			     std::vector< EcalTriggerPrimitiveSample> &tptow,
 			     std::vector< EcalTriggerPrimitiveSample> &tptow2,
 			     EcalTrigTowerDetId towid);
@@ -119,7 +113,6 @@ class EcalFenixTcp {
   EcalFenixTcpFormat *getFormatter() const {return formatter_;}
   EcalFenixFgvbEB *getFGVBEB() const {return fgvbEB_;}
   EcalFenixTcpFgvbEE *getFGVBEE() const {return fgvbEE_;}
-  EcalFenixTcpsFgvbEB *getsFGVBEB() const {return sfgvbEB_;}
 	        	      
   const EcalTPGFineGrainEBGroup * ecaltpgFgEBGroup_;
   const EcalTPGLutGroup * ecaltpgLutGroup_;
@@ -127,7 +120,6 @@ class EcalFenixTcp {
   const EcalTPGFineGrainEBIdMap * ecaltpgFineGrainEB_;
   const EcalTPGFineGrainTowerEE * ecaltpgFineGrainTowerEE_;
   const EcalTPGTowerStatus * ecaltpgBadTT_;
-  const EcalTPGSpike * ecaltpgSpike_;
 };
 
 

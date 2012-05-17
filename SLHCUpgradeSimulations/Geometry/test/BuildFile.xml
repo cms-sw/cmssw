@@ -1,0 +1,42 @@
+<environment>
+  <library   file="StdHitNtuplizer.cc" name="StdHitNtuplizerExample">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/Framework"/>
+    <use   name="DataFormats/Common"/>
+    <use   name="DataFormats/TrackReco"/>
+    <use   name="DataFormats/StdDictionaries"/>
+    <use   name="FWCore/ParameterSet"/>
+    <use   name="SimTracker/TrackerHitAssociation"/>
+    <use   name="RecoLocalTracker/SiPixelRecHits"/>
+  </library>
+  <library   file="TPNtuplizer.cc" name="TPNtuplizer">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/Framework"/>
+    <use   name="DataFormats/Common"/>
+    <use   name="DataFormats/TrackReco"/>
+    <use   name="DataFormats/StdDictionaries"/>
+    <use   name="FWCore/ParameterSet"/>
+    <use   name="SimTracker/TrackerHitAssociation"/>
+    <use   name="RecoLocalTracker/SiPixelRecHits"/>
+    <use   name="SimDataFormats/TrackingAnalysis"/>
+    <use   name="SimTracker/TrackAssociation"/>
+    <use   name="SimTracker/Records"/>
+  </library>
+  <library   file="FastsimHitNtuplizer.cc" name="FastsimHitNtuplizerExample">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/Framework"/>
+    <use   name="DataFormats/Common"/>
+    <use   name="FWCore/ParameterSet"/>
+    <use   name="SimTracker/TrackerHitAssociation"/>
+    <use   name="RecoLocalTracker/SiPixelRecHits"/>
+  </library>
+  <library file="ModuleInfo_Phase2.cc" name="ModuleInfo_Phase2">
+    <flags EDM_PLUGIN="1"/>
+    <use name="FWCore/Framework"/>
+    <use name="Geometry/Records"/>
+    <use name="Geometry/TrackerGeometryBuilder"/>
+    <use name="Geometry/TrackerNumberingBuilder"/>
+    <use name="Geometry/CommonDetUnit"/>
+    <use name="CondFormats/Alignment"/>
+  </library>
+</environment>

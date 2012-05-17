@@ -1,4 +1,4 @@
-// $Id: DQMEventMonitorCollection.cc,v 1.10.4.2 2011/03/08 17:28:10 mommsen Exp $
+// $Id: DQMEventMonitorCollection.cc,v 1.12 2011/03/08 18:29:34 mommsen Exp $
 /// @file: DQMEventMonitorCollection.cc
 
 #include <string>
@@ -22,7 +22,8 @@ namespace stor
   writtenDQMEventBandwidth_(updateInterval, boost::posix_time::seconds(300)),
   numberOfTopLevelFolders_(updateInterval, boost::posix_time::seconds(300)),
   numberOfUpdates_(updateInterval, boost::posix_time::seconds(300)),
-  numberOfWrittenTopLevelFolders_(updateInterval, boost::posix_time::seconds(300))
+  numberOfWrittenTopLevelFolders_(updateInterval, boost::posix_time::seconds(300)),
+  numberOfCompleteUpdates_(updateInterval, boost::posix_time::seconds(300))
   {}
   
   
@@ -41,6 +42,8 @@ namespace stor
     getNumberOfTopLevelFoldersMQ().getStats(stats.numberOfTopLevelFoldersStats);
     getNumberOfUpdatesMQ().getStats(stats.numberOfUpdatesStats);
     getNumberOfWrittenTopLevelFoldersMQ().getStats(stats.numberOfWrittenTopLevelFoldersStats);
+
+    getNumberOfCompleteUpdatesMQ().getStats(stats.numberOfCompleteUpdatesStats);
   }
   
   
@@ -74,6 +77,8 @@ namespace stor
     numberOfTopLevelFolders_.calculateStatistics();
     numberOfUpdates_.calculateStatistics();
     numberOfWrittenTopLevelFolders_.calculateStatistics();
+
+    numberOfCompleteUpdates_.calculateStatistics();
   }
   
   
@@ -92,6 +97,8 @@ namespace stor
     numberOfTopLevelFolders_.reset();
     numberOfUpdates_.reset();
     numberOfWrittenTopLevelFolders_.reset();
+
+    numberOfCompleteUpdates_.reset();
   }
   
   
@@ -101,6 +108,7 @@ namespace stor
     infoSpaceItems.push_back(std::make_pair("processedDQMEvents", &processedDQMEvents_));
     infoSpaceItems.push_back(std::make_pair("droppedDQMEvents", &droppedDQMEvents_));
     infoSpaceItems.push_back(std::make_pair("discardedDQMEvents", &droppedDQMEvents_));
+    infoSpaceItems.push_back(std::make_pair("completeDQMUpdates", &completeDQMUpdates_));
   }
   
   
@@ -117,6 +125,9 @@ namespace stor
     
     droppedDQMEvents_ = static_cast<xdata::UnsignedInteger32>(
       static_cast<unsigned int>(stats.droppedDQMEventCountsStats.getValueSum(MonitoredQuantity::FULL)));
+    
+    completeDQMUpdates_ = static_cast<xdata::Double>(
+      stats.numberOfCompleteUpdatesStats.getValueAverage(MonitoredQuantity::RECENT));
   }
   
 } // namespace stor

@@ -550,7 +550,7 @@ template <class T> void SiStripMonitorTrack::RecHitInfo(const T* tkrecHit, Local
       const SiStripCluster* SiStripCluster_ = &*(tkrecHit->cluster());
       SiStripClusterInfo SiStripClusterInfo_(*SiStripCluster_,es);
             
-      if ( clusterInfos(&SiStripClusterInfo_,detid,"OnTrack", LV ) ) {
+      if ( clusterInfos(&SiStripClusterInfo_,detid,OnTrack, LV ) ) {
 	vPSiStripCluster.push_back(SiStripCluster_);
       }
     }else{
@@ -578,16 +578,15 @@ void SiStripMonitorTrack::AllClusters(const edm::Event& ev, const edm::EventSetu
     for(; ClusIter!=DSViter->end(); ClusIter++) {
       if (std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter) == vPSiStripCluster.end()){
 	SiStripClusterInfo SiStripClusterInfo_(*ClusIter,es);
-	clusterInfos(&SiStripClusterInfo_,detid,"OffTrack",LV);
+	clusterInfos(&SiStripClusterInfo_,detid,OffTrack,LV);
       }
     }
   }
 }
 
 //------------------------------------------------------------------------
-bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32_t& detid,std::string flag, const LocalVector LV)
+bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32_t& detid,enum ClusterFlags flag, const LocalVector LV)
 {
-  SiStripFolderOrganizer folder_organizer;
   if (cluster==0) return false;
   // if one imposes a cut on the clusters, apply it
   if( (applyClusterQuality_) &&
@@ -597,11 +596,11 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
        cluster->width() > widthUpperLimit_) ) return false;
   // start of the analysis
   
-  std::pair<std::string,std::string> sdet_pair = folder_organizer.getSubDetFolderAndTag(detid);
+  std::pair<std::string,std::string> sdet_pair = folderOrganizer_.getSubDetFolderAndTag(detid);
   std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(sdet_pair.second);
   if(iSubdet != SubDetMEsMap.end()){ 
-    if (flag=="OnTrack") iSubdet->second.totNClustersOnTrack++;
-    else if (flag=="OffTrack") iSubdet->second.totNClustersOffTrack++;
+    if (flag == OnTrack) iSubdet->second.totNClustersOnTrack++;
+    else if (flag == OffTrack) iSubdet->second.totNClustersOffTrack++;
   }
   
   float cosRZ = -2;
@@ -619,11 +618,11 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
   //******** TkHistoMaps
   if (TkHistoMap_On_) {
     uint32_t adet=cluster->detId();
-    if(flag=="OnTrack"){
+    if(flag==OnTrack){
       tkhisto_NumOnTrack->add(adet,1.);
       tkhisto_StoNCorrOnTrack->fill(adet,cluster->signalOverNoise()*cosRZ);
     }
-    else if(flag=="OffTrack"){
+    else if(flag==OffTrack){
       tkhisto_NumOffTrack->add(adet,1.);
       if(cluster->charge() > 250){
 	LogDebug("SiStripMonitorTrack") << "Module firing " << detid << " in Event " << eventNb << std::endl;
@@ -633,7 +632,7 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
 
   // Module plots filled only for onTrack Clusters
   if(Mod_On_){
-    if(flag=="OnTrack"){
+    if(flag==OnTrack){
       SiStripHistoId hidmanager2;
       name =hidmanager2.createHistoId("","det",detid);
       fillModMEs(cluster,name,cosRZ); 
@@ -676,14 +675,13 @@ void SiStripMonitorTrack::fillModMEs(SiStripClusterInfo* cluster,std::string nam
 }
 
 //------------------------------------------------------------------------
-void SiStripMonitorTrack::fillMEs(SiStripClusterInfo* cluster,uint32_t detid,float cos, std::string flag)
+void SiStripMonitorTrack::fillMEs(SiStripClusterInfo* cluster,uint32_t detid,float cos, enum ClusterFlags flag)
 { 
-  SiStripFolderOrganizer folder_organizer;
-  std::pair<std::string,int32_t> SubDetAndLayer = folder_organizer.GetSubDetAndLayer(detid,flag_ring);
+  std::pair<std::string,int32_t> SubDetAndLayer = folderOrganizer_.GetSubDetAndLayer(detid,flag_ring);
   SiStripHistoId hidmanager1;
   std::string layer_id = hidmanager1.getSubdetid(detid,flag_ring); 
   
-  std::pair<std::string,std::string> sdet_pair = folder_organizer.getSubDetFolderAndTag(detid);
+  std::pair<std::string,std::string> sdet_pair = folderOrganizer_.getSubDetFolderAndTag(detid);
   float    StoN     = cluster->signalOverNoise();
   float    noise    = cluster->noiseRescaledByGain();
   uint16_t charge   = cluster->charge();
@@ -692,7 +690,7 @@ void SiStripMonitorTrack::fillMEs(SiStripClusterInfo* cluster,uint32_t detid,flo
    
   std::map<std::string, LayerMEs>::iterator iLayer  = LayerMEsMap.find(layer_id);
   if (iLayer != LayerMEsMap.end()) {
-    if(flag=="OnTrack"){
+    if(flag==OnTrack){
       fillME(iLayer->second.ClusterStoNCorrOnTrack, StoN*cos);
       fillME(iLayer->second.ClusterChargeCorrOnTrack, charge*cos);
       fillME(iLayer->second.ClusterChargeOnTrack, charge);
@@ -708,7 +706,7 @@ void SiStripMonitorTrack::fillMEs(SiStripClusterInfo* cluster,uint32_t detid,flo
   }
   std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(sdet_pair.second);
   if(iSubdet != SubDetMEsMap.end() ){
-    if(flag=="OnTrack"){
+    if(flag==OnTrack){
       fillME(iSubdet->second.ClusterStoNCorrOnTrack,StoN*cos);
     } else {
       fillME(iSubdet->second.ClusterChargeOffTrack,charge);

@@ -27,12 +27,9 @@ process.load("CalibTracker.SiStripDCS.MessLogger_cfi")
 #   Partitions
 # -----------------------------------------------------------------------------
 
-#This is not currently used in the O2O code, an ASCII file with the map is used instead...
-#Will eventually get rid of it completely...
 process.SiStripConfigDb = cms.Service("SiStripConfigDb",
     ConfDb = cms.untracked.string('cms_trk_r/PASSWORD@cms_omds_tunnel'),
-    #TNS_ADMIN = cms.untracked.string('/afs/cern.ch/user/g/gbenelli/O2O/connection_files'),                                   
-    TNS_ADMIN = cms.untracked.string('/nfshome0/popcondev/conddb'),
+    TNS_ADMIN = cms.untracked.string('/exports/slc4/CMSSW/Development/Users/gbenelli/connection_files'),
     UsingDb = cms.untracked.bool(True),
     Partitions = cms.untracked.PSet(
         PartTIBD = cms.untracked.PSet(
@@ -105,17 +102,12 @@ process.CondDBCommon.connect = cms.string('oracle://cms_omds_tunnel/CMS_TRK_R')
 process.SiStripDetVOffBuilder = cms.Service(
     "SiStripDetVOffBuilder",
     onlineDB = cms.string('oracle://cms_omds_tunnel/CMS_TRK_R'),
-    #EDIT here with your favorite connection_files directory!
     #authPath = cms.string('/opt/cmssw/shifter/o2o_dcs/connection_files'),
-    #authPath = cms.string('/exports/slc4/CMSSW/Development/Users/gbenelli/connection_files'),
-    #authPath = cms.string('/afs/cern.ch/user/g/gbenelli/O2O/connection_files'),
-    authPath = cms.string('/nfshome0/popcondev/conddb'),
+    authPath = cms.string('/exports/slc4/CMSSW/Development/Users/gbenelli/connection_files'),
 
-    #The Tmin and Tmax indicated here drive the ManualO2O.py script setting the overall interval
-    #By default this is broken into 1 hour O2O jobs (1 cmsRun cfg per hour interval)
     # Format for date/time vector:  year, month, day, hour, minute, second, nanosecond      
-    Tmin = cms.vint32(2010, 8, 11,  4,  0, 0, 000),
-    Tmax = cms.vint32(YEAR, MONTH, DAY, HOUR,  0, 0, 000),
+    Tmin = cms.untracked.vint32(2009, 11, 23,  4,  0, 0, 000),
+    Tmax = cms.untracked.vint32(2009, 11, 23,  16,  0, 0, 000),
     
     # Do NOT change this unless you know what you are doing!
     TSetMin = cms.vint32(2007, 11, 26, 0, 0, 0, 0),                                             
@@ -131,20 +123,16 @@ process.SiStripDetVOffBuilder = cms.Service(
     
     # flag to toggle debug output
     debugModeOn = cms.bool(False),
-
     
     # DetIdFile
-    #Remember to change this to a Pixel list if you are testing the O2O code with Pixels before
-    #the proper migration is done...
     DetIdListFile = cms.string('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat'),
 
     # Threshold to consider an HV channel on
     HighVoltageOnThreshold = cms.double(0.97),
 
     # Leave empty if you want to use the db
-    PsuDetIdMapFile = cms.string("CalibTracker/SiStripDCS/data/StripPSUDetIDMap_FromJan132010.dat"),
-    #This excluded detids file is not currently used (it was needed when there were unmapped detids.
-    ExcludedDetIdListFile = cms.string('')
+    PsuDetIdMapFile = cms.string("CalibTracker/SiStripDCS/data/PsuDetIdMap.dat"),
+    ExcludedDetIdListFile = cms.string('CalibTracker/SiStripDCS/data/ExcludedSiStripDetInfo.dat')
 )
 
 # -----------------------------------------------------------------------------
@@ -171,20 +159,12 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         authenticationPath = cms.untracked.string('/nfshome0/popcondev/conddb')
     ),
     timetype = cms.untracked.string('timestamp'),
-    #Connection string when using a local sqlite db file:
-    #connect = cms.string('sqlite_file:dbfile.db'),
-    #Connection string to access the Offline DB via Frontier:
-    connect = cms.string('frontier://PromptProd/CMS_COND_31X_STRIP'),
+    connect = cms.string('sqlite_file:dbfile.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiStripDetVOffRcd'),
-        #Tag when using the output of the ManualO2O.py (fake tag)
-        #tag = cms.string('SiStripDetVOff_Fake_31X')
-        tag = cms.string('SiStripDetVOff_v1_offline')
+        tag = cms.string('SiStripDetVOff_Fake_31X')
     )),
-    #Logconnect string to access the local sqlite logfile:
-    #logconnect = cms.untracked.string('sqlite_file:logfile.db')
-    #logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
-    logconnect = cms.untracked.string('frontier://PromptProd/CMS_COND_31X_POPCONLOG')
+    logconnect = cms.untracked.string('sqlite_file:logfile.db')
 )
 
 # -----------------------------------------------------------------------------
@@ -204,9 +184,7 @@ process.siStripPopConDetVOff = cms.EDAnalyzer("SiStripPopConDetVOff",
     loggingOn= cms.untracked.bool(True),
     SinceAppendMode=cms.bool(True),
     Source = cms.PSet(
-        #Length in seconds of minimum deltaT for 2 consecutive IOVs in the original data to be considered separately and not be merged by the IOV reduction
         DeltaTmin = cms.uint32(15),
-        #Length in seconds of the maximum time an IOV sequence can be (i.e. one can be compressing sequences up to 120 seconds long, after that a new IOV would be made)
         MaxIOVlength = cms.uint32(120)
     )                                        
 )

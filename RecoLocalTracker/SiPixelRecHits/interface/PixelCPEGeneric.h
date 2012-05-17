@@ -129,6 +129,9 @@ class PixelCPEGeneric : public PixelCPEBase
   bool TruncatePixelCharge_;
   bool IrradiationBiasCorrection_;
 
+  bool Upgrade_;                         
+  bool SmallPitch_;
+
   double EdgeClusterErrorX_;
   double EdgeClusterErrorY_;
 

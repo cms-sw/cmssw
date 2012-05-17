@@ -71,3 +71,8 @@ SKIMStreamCosmicTP = cms.FilteredStream(
 
 #####################
 
+from DPGAnalysis.Skims.logErrorSkim_cff import *
+from DPGAnalysis.Skims.Skims_DPG_cff import pathlogerror,SKIMStreamLogError
+
+from DPGAnalysis.Skims.cscSkim_cff import *
+from DPGAnalysis.Skims.Skims_DPG_cff import pathCSCSkim,SKIMStreamCSC

@@ -1,19 +1,16 @@
-<TESTSCONFIGURATION>
-
-
-<QTEST name="digiSizeTest">
-	<TYPE>ContentsXRange</TYPE>	
-	<PARAM name="xmin">9.5</PARAM>
-	<PARAM name="xmax">10.5</PARAM>
-	<PARAM name="error">0.90</PARAM>
-	<PARAM name="warning">0.95</PARAM>
+<TESTSCONFIGURATION> 
+<QTEST name="MeanWithinExpectedRange:DeadInLastNLB_HBHEHF">
+      <TYPE>MeanWithinExpected</TYPE>
+      <PARAM name="error">0.05</PARAM>
+      <PARAM name="warning">0.3</PARAM>
+      <PARAM name="mean">1.0</PARAM>
+      <PARAM name="useRMS">0</PARAM>
+      <PARAM name="useSigma">0</PARAM>
+      <PARAM name="useRange">1</PARAM>
+      <PARAM name="xmin">0.0</PARAM>
+      <PARAM name="xmax">50.0</PARAM>
 </QTEST>
-
-
-
-
-<LINK name="* Digi Size">                         <!-- NAME OF HISTOGRAM  -->
-   <TestName activate="true">digiSizeTest</TestName>
+<LINK name="*ProblemsInLastNLB_HBHEHF_alarm">
+  <TestName activate="true">MeanWithinExpectedRange:DeadInLastNLB_HBHEHF</TestName>
 </LINK>
-
-</TESTSCONFIGURATION>
+</TESTCONFIGURATION>

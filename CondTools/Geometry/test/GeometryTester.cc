@@ -92,138 +92,108 @@ GeometryTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   }
   
-  if( ecaltest )
-  {
+  if(ecaltest){
     edm::ESHandle<PCaloGeometry> ebgeo;
     iSetup.get<PEcalBarrelRcd>().get(ebgeo);
-    std::cout<<"ECAL BARREL\n";
+    std::cout<<"ECAL BARREL"<<std::endl;
     std::vector<double> tseb = ebgeo->getTranslation();
     std::vector<double> dimeb = ebgeo->getDimension();
     std::vector<uint32_t> indeb = ebgeo->getIndexes();
-    std::cout << "Translations " << tseb.size() << "\n";
-    std::cout << "Dimensions " << dimeb.size() << "\n";
-    std::cout << "Indices " << indeb.size() << "\n";
-    for( std::vector<double>::const_iterator it = tseb.begin(), end = tseb.end(); it != end; ++it )
-    {
-      std::cout << (*it);
+    for(uint32_t i=0;i<tseb.size();i++){
+      std::cout<<tseb[i];
     } 
-    std::cout << "\n";
-    for( std::vector<double>::const_iterator it = dimeb.begin(), end = dimeb.end(); it != end; ++it )
-    {
-      std::cout << (*it);
+    std::cout<<""<<std::endl;
+    for(uint32_t i=0;i<dimeb.size();i++){
+      std::cout<<dimeb[i];
     } 
-    std::cout << "\n";
-    for( std::vector<uint32_t>::const_iterator it = indeb.begin(), end = indeb.end(); it != end; ++it )
-    {
-      std::cout << (*it);
+    std::cout<<""<<std::endl;
+    for(uint32_t i=0;i<indeb.size();i++){
+      std::cout<<indeb[i];
     } 
-    std::cout << "\n";
+    std::cout<<""<<std::endl;
 
     edm::ESHandle<PCaloGeometry> eegeo;
     iSetup.get<PEcalEndcapRcd>().get(eegeo);
-    std::cout<<"ECAL ENDCAP\n";
+    std::cout<<"ECAL ENDCAP"<<std::endl;
     std::vector<double> tsee = eegeo->getTranslation();
     std::vector<double> dimee = eegeo->getDimension();
     std::vector<uint32_t> indee = eegeo->getIndexes();
-    std::cout << "Translations " << tsee.size() << "\n";
-    std::cout << "Dimensions " << dimee.size() << "\n";
-    std::cout << "Indices " << indee.size() << "\n";
-    for( std::vector<double>::const_iterator it = tsee.begin(), end = tsee.end(); it != end; ++it )
-    {
-      std::cout << (*it);
+    for(uint32_t i=0;i<tsee.size();i++){
+      std::cout<<tsee[i];
     } 
-    std::cout << "\n";
-    for( std::vector<double>::const_iterator it = dimee.begin(), end = dimee.end(); it != end; ++it )
-    {
-      std::cout << (*it);
+    std::cout<<""<<std::endl;
+    for(uint32_t i=0;i<dimee.size();i++){
+      std::cout<<dimee[i];
     } 
-    std::cout << "\n";
-    for( std::vector<uint32_t>::const_iterator it = indee.begin(), end = indee.end(); it != end; ++it )
-    {
-      std::cout << (*it);
+    std::cout<<""<<std::endl;
+    for(uint32_t i=0;i<indee.size();i++){
+      std::cout<<indee[i];
     } 
-    std::cout << "\n";
+    std::cout<<""<<std::endl;
 
     edm::ESHandle<PCaloGeometry> epgeo;
     iSetup.get<PEcalPreshowerRcd>().get(epgeo);
-    std::cout<<"ECAL PRESHOWER\n";
+    std::cout<<"ECAL PRESHOWER"<<std::endl;
     std::vector<double> tsep = epgeo->getTranslation();
     std::vector<double> dimep = epgeo->getDimension();
     std::vector<uint32_t> indep = epgeo->getIndexes();
-    std::cout << "Translations " << tsep.size() << "\n";
-    std::cout << "Dimensions " << dimep.size() << "\n";
-    std::cout << "Indices " << indep.size() << "\n";
-    for( std::vector<double>::const_iterator it = tsep.begin(), end = tsep.end(); it != end; ++it )
-    {
-      std::cout << (*it);
+    for(uint32_t i=0;i<tsep.size();i++){
+      std::cout<<tsep[i];
     } 
-    std::cout << "\n";
-    for( std::vector<double>::const_iterator it = dimep.begin(), end = dimep.end(); it != end; ++it )
-    {
-      std::cout << (*it);
+    std::cout<<""<<std::endl;
+    for(uint32_t i=0;i<dimep.size();i++){
+      std::cout<<dimep[i];
     } 
-    std::cout << "\n";
-    for( std::vector<uint32_t>::const_iterator it = indep.begin(), end = indep.end(); it != end; ++it )
-    {
-      std::cout << (*it);
+    std::cout<<""<<std::endl;
+    for(uint32_t i=0;i<indep.size();i++){
+      std::cout<<indep[i];
     } 
-    std::cout << "\n";
+    std::cout<<""<<std::endl;
+
   }
 
-  if( hcaltest )
-  {
+  if(hcaltest){
     edm::ESHandle<PCaloGeometry> hgeo;
     iSetup.get<PHcalRcd>().get(hgeo);
-    std::cout << "HCAL\n";
+    std::cout<<"HCAL"<<std::endl;
     std::vector<double> tsh = hgeo->getTranslation();
     std::vector<double> dimh = hgeo->getDimension();
     std::vector<uint32_t> indh = hgeo->getIndexes();
-    std::cout << "Translations " << tsh.size() << "\n";
-    std::cout << "Dimensions " << dimh.size() << "\n";
-    std::cout << "Indices " << indh.size() << "\n";
-    for( std::vector<double>::const_iterator it = tsh.begin(), end = tsh.end(); it != end; ++it )
-    {
-      std::cout << (*it);
+    for(uint32_t i=0;i<tsh.size();i++){
+      std::cout<<tsh[i];
     } 
-    std::cout << "\n";
-    for( std::vector<double>::const_iterator it = dimh.begin(), end = dimh.end(); it != end; ++it )
-    {
-      std::cout << (*it);
+    std::cout<<""<<std::endl;
+    for(uint32_t i=0;i<dimh.size();i++){
+      std::cout<<dimh[i];
     } 
-    std::cout << "\n";
-    for( std::vector<uint32_t>::const_iterator it = indh.begin(), end = indh.end(); it != end; ++it )
-    {
-      std::cout << (*it);
+    std::cout<<""<<std::endl;
+    for(uint32_t i=0;i<indh.size();i++){
+      std::cout<<indh[i];
     } 
-    std::cout << "\n";
+    std::cout<<""<<std::endl;
+
   }
 
-  if( calotowertest )
-  {
+  if(calotowertest){
     edm::ESHandle<PCaloGeometry> ctgeo;
     iSetup.get<PCaloTowerRcd>().get(ctgeo);
-    std::cout << "CALO TOWER:\n";
+    std::cout<<"CALO TOWER"<<std::endl;
     std::vector<double> tsct = ctgeo->getTranslation();
     std::vector<double> dimct = ctgeo->getDimension();
     std::vector<uint32_t> indct = ctgeo->getIndexes();
-    std::cout << "Translations " << tsct.size() << "\n";
-    std::cout << "Dimensions " << dimct.size() << "\n";
-    std::cout << "Indices " << indct.size() << "\n";
-    for( std::vector<double>::const_iterator it = tsct.begin(), end = tsct.end(); it != end; ++it )
-    {
-      std::cout << (*it);
+    for(uint32_t i=0;i<tsct.size();i++){
+      std::cout<<tsct[i];
     } 
-    std::cout << "\n";
-    for( std::vector<double>::const_iterator it = dimct.begin(), end = dimct.end(); it != end; ++it )
-    {
-      std::cout << (*it);
+    std::cout<<""<<std::endl;
+    for(uint32_t i=0;i<dimct.size();i++){
+      std::cout<<dimct[i];
     } 
-    std::cout << "\n";
-    for( std::vector<uint32_t>::const_iterator it = indct.begin(), end = indct.end(); it != end; ++it )
-    {
-      std::cout << (*it);
+    std::cout<<""<<std::endl;
+    for(uint32_t i=0;i<indct.size();i++){
+      std::cout<<indct[i];
     } 
-    std::cout << "\n";
+    std::cout<<""<<std::endl;
+
   }
 
   if(castortest){

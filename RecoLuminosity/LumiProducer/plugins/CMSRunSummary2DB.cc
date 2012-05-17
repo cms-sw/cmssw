@@ -58,7 +58,7 @@ namespace lumi{
        select distinct name from runsession_parameter
        sequence: select string_value from cms_runinfo.runsession_parameter where runnumber=129265 and name='CMS.LVL0:SEQ_NAME'
        hltkey: select string_value from cms_runinfo.runsession_parameter where runnumber=129265 and name='CMS.LVL0:HLT_KEY_DESCRIPTION';
-       fillnumber: select string_value from cms_runinfo.runsession_parameter where runnumber=129265 and name='CMS.SCAL:FILLN' order by time;//take the first one
+       fillnumber: select string_value from cms_runinfo.runsession_parameter where runnumber=129265 and name='CMS.SCAL:FILLN' and rownum<=1;
        start/stop time:
        select time from cms_runinfo.runsession_parameter where runnumber=129265 and name='CMS.LVL0:START_TIME_T';
        select time from cms_runinfo.runsession_parameter where runnumber=129265 and name='CMS.LVL0:STOP_TIME_T';
@@ -125,16 +125,12 @@ namespace lumi{
     fillBindVariableList["name"].data<std::string>()=std::string("CMS.SCAL:FILLN");
     fillQuery->setCondition("RUNNUMBER =:runnumber AND NAME =:name",fillBindVariableList);
     fillQuery->addToOutputList("STRING_VALUE"); 
-    fillQuery->addToOrderList("TIME");
-    //fillQuery->limitReturnedRows(1);
+    fillQuery->limitReturnedRows(1);
     coral::ICursor& fillCursor=fillQuery->execute();
-    unsigned int cc=0;
+    
     while( fillCursor.next() ){
       const coral::AttributeList& row=fillCursor.currentRow();
-      if (cc==0){
-	result.fillnumber=row["STRING_VALUE"].data<std::string>();
-      }
-      ++cc;
+      result.fillnumber=row["STRING_VALUE"].data<std::string>();
     }
     delete fillQuery;
     if (result.fillnumber.empty()){

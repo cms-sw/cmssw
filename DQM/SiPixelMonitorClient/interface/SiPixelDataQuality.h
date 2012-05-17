@@ -105,6 +105,7 @@ class SiPixelDataQuality {
   int allMods_, errorMods_, barrelMods_, endcapMods_;
  
   // FEDErrors Cuts:
+  MonitorElement * FEDErrReportMap;
   MonitorElement * NErrorsBarrel;
   MonitorElement * NErrorsEndcap;
   MonitorElement * NErrorsFEDs;
@@ -143,5 +144,8 @@ class SiPixelDataQuality {
   int timeoutCounter_;
   int modCounter_;
   int lastLS_;
+  float lasterrmods_[40];
+  float lastallmods_[40];
+
 };
 #endif

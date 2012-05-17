@@ -26,6 +26,7 @@
     <use   name="cppunit"/>
   </bin>
   <bin   file="xhtmlmaker_t.cpp">
+    <use   name="cppunit"/>
   </bin>
   <bin   file="EnquingPolicyTag_t.cpp">
   </bin>

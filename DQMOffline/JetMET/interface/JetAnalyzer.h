@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for Calo Jets
  *
- *  $Date: 2010/10/15 13:49:54 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/07/21 04:23:21 $
+ *  $Revision: 1.12 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -87,9 +87,6 @@ class JetAnalyzer : public JetAnalyzerBase {
   int   _leadJetFlag;
   int _theend;
   double _ptThreshold;
-
-  double _asymmetryThirdJetCut;
-  double _balanceThirdJetCut;
 
   int makedijetselection;
 
@@ -246,8 +243,5 @@ class JetAnalyzer : public JetAnalyzerBase {
   MonitorElement* mPhi_Hi;
   MonitorElement* mPt_Hi;
 
-  //dijet analysis quantities
-  MonitorElement* mDijetBalance;
-  MonitorElement* mDijetAsymmetry;
 };
 #endif

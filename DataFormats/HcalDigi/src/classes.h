@@ -16,12 +16,14 @@ namespace {
   struct dictionary {
     std::vector<HcalQIESample> vQIE_;
     std::vector<HcalTriggerPrimitiveSample> vTPS_;
+    std::vector<HcalUpgradeTriggerPrimitiveSample> vUTPS_;
     
     edm::SortedCollection<HBHEDataFrame> vHBHE_;
     edm::SortedCollection<HODataFrame> vHO_;
     edm::SortedCollection<HFDataFrame> vHF_;
     edm::SortedCollection<HcalCalibDataFrame> vHC_;
     edm::SortedCollection<HcalTriggerPrimitiveDigi> vHTP_;
+    edm::SortedCollection<HcalUpgradeTriggerPrimitiveDigi> vHUTP_;
     edm::SortedCollection<HcalHistogramDigi> vHH_;
     edm::SortedCollection<HcalTTPDigi> vTTP_;
     edm::SortedCollection<HcalUpgradeDataFrame> vU_;
@@ -31,6 +33,7 @@ namespace {
     HFDigiCollection theHF_;
     HcalCalibDigiCollection theHC_;
     HcalTrigPrimDigiCollection theHTP_;
+    HcalUpgradeTrigPrimDigiCollection theHUTP_;
     HcalHistogramDigiCollection theHH_;
     ZDCDigiCollection theZDC_;
     HcalUpgradeDigiCollection theUG_;
@@ -44,6 +47,7 @@ namespace {
     edm::Wrapper<edm::SortedCollection<HFDataFrame> > anotherHF_;
     edm::Wrapper<edm::SortedCollection<HcalCalibDataFrame> > anotherHC_;
     edm::Wrapper<edm::SortedCollection<HcalTriggerPrimitiveDigi> > anotherHTP_;
+    edm::Wrapper<edm::SortedCollection<HcalUpgradeTriggerPrimitiveDigi> > anotherHUTP_;
     edm::Wrapper<edm::SortedCollection<HcalHistogramDigi> > anotherHH_;
     edm::Wrapper<edm::SortedCollection<ZDCDataFrame> > anotherZDC_;
     edm::Wrapper<edm::SortedCollection<CastorDataFrame> > anotherCastor_;
@@ -57,6 +61,7 @@ namespace {
     edm::Wrapper<HFDigiCollection> theHFw_;
     edm::Wrapper<HcalCalibDigiCollection> theHCw_;
     edm::Wrapper<HcalTrigPrimDigiCollection> theHTPw_; 
+    edm::Wrapper<HcalUpgradeTrigPrimDigiCollection> theHUTPw_; 
     edm::Wrapper<HOTrigPrimDigiCollection> theHOTPw_; 
     edm::Wrapper<HcalHistogramDigiCollection> theHHw_; 
     edm::Wrapper<HcalUnpackerReport> theReport_;

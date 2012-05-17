@@ -13,7 +13,7 @@ Usage: purely descriptive
 //
 // Original Author:  Mike Hildreth, Notre Dame
 //         Created:  July 1, 2010
-// $Id: PileupSummaryInfo.h,v 1.2 2010/07/07 02:40:07 mikeh Exp $
+// $Id: PileupSummaryInfo.h,v 1.3 2011/03/07 05:57:38 mikeh Exp $
 //
 
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -43,6 +43,16 @@ class PileupSummaryInfo {
 		     std::vector<int>& ntrks_highpT,
 		     int bunchCrossing);
 
+
+  PileupSummaryInfo( const int num_PU_vertices,
+		     std::vector<float>& zpositions,
+		     std::vector<float>& sumpT_lowpT,
+		     std::vector<float>& sumpT_highpT,
+		     std::vector<int>& ntrks_lowpT,
+		     std::vector<int>& ntrks_highpT,
+		     int bunchCrossing,
+		     float TrueNumInteractions);
+
   PileupSummaryInfo( const int num_PU_vertices,
 		     std::vector<float>& instLumi,
 		     std::vector<edm::EventID>& eventInfo );
@@ -59,6 +69,7 @@ class PileupSummaryInfo {
   const std::vector<float>& getPU_instLumi() const { return instLumi_; }
   const std::vector<edm::EventID>& getPU_EventID() const { return eventInfo_; }
   const int getBunchCrossing() const { return bunchCrossing_;}
+  const float getTrueNumInteractions() const { return TrueNumInteractions_;}
 
  private:
 
@@ -71,6 +82,7 @@ class PileupSummaryInfo {
   std::vector<int> ntrks_lowpT_;
   std::vector<int> ntrks_highpT_;
   int bunchCrossing_;
+  float TrueNumInteractions_;
 
 
   // for DataMixer pileup, we only have raw information:

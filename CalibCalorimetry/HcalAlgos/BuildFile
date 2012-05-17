@@ -1,0 +1,23 @@
+<use name=boost>
+<use name=root>
+<use name=clhep>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=DataFormats/HcalDetId>
+<use name=CondFormats/HcalObjects>
+<use name=DataFormats/HcalDigi>
+<use name=CalibFormats/HcalObjects>
+
+<export>
+  <lib name=CalibCalorimetryHcalAlgos>
+  <use name=root>
+  <use name=boost>
+  <use name=clhep>
+  <use name=FWCore/Framework>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/PluginManager>
+  <use name=DataFormats/HcalDetId>
+  <use name=CondFormats/HcalObjects>
+  <use name=DataFormats/HcalDigi>
+  <use name=CalibFormats/HcalObjects>
+</export>

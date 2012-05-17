@@ -225,8 +225,7 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       }
       if(passed){
 	
-	//if(!hltconfigchanged) 
-	//fill later//rate_All->Fill(N);
+	if(!hltconfigchanged) rate_All->Fill(N);
 	
 	if (verbose_) std::cout <<  "  N " << N << "  trigger name " << v->getPath() << std::endl;
 		
@@ -299,8 +298,7 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 					     << toc[*l1ki].eta() << "\t" << toc[*l1ki].phi() 
 					     << std::endl;
 		    if (reco::deltaR(toc[*l1ki].eta(),toc[*l1ki].phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3){
-		      //if(!hltconfigchanged)
-		      //fill later//rate_All_L1->Fill(NL1);
+		    if(!hltconfigchanged) rate_All_L1->Fill(NL1);
 		   
 		    v->getL1EtHisto()->Fill(toc[*l1ki].pt());
 		    v->getL1PhiHisto()->Fill(toc[*l1ki].phi());
@@ -335,8 +333,7 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		  {
 		    if (reco::deltaR(toc[*l1ki].eta(),toc[*l1ki].phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3) {
 
-		      //if(!hltconfigchanged)
-		      //fill later//rate_All_L1->Fill(NL1);
+		    if(!hltconfigchanged) rate_All_L1->Fill(NL1);
 		   
 		  v->getL1EtHisto()->Fill(toc[*l1ki].pt());
 		    //v->getL1PhiHisto()->Fill(toc[*l1ki].phi()());
@@ -364,8 +361,7 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		{
 		  if (reco::deltaR(toc[*l1ki].eta(),toc[*l1ki].phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3) {
 		  //NL1[npth]++;
-		  //if(!hltconfigchanged) 
-		    //fill later//rate_All_L1->Fill(NL1);
+		  if(!hltconfigchanged) rate_All_L1->Fill(NL1);
 		  v->getL1EtHisto()->Fill(toc[*l1ki].pt());
 		  v->getL1PhiHisto()->Fill(toc[*l1ki].phi());
 		  }
@@ -388,8 +384,7 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		 
 		  if (reco::deltaR(toc[*l1ki].eta(),toc[*l1ki].phi(),toc[*ki].eta(),toc[*ki].phi()) < 0.3) {
 		  //NL1[npth]++;
-		  //if(!hltconfigchanged) 
-		    //fill later//rate_All_L1->Fill(NL1);
+		  if(!hltconfigchanged) rate_All_L1->Fill(NL1);
 		  v->getL1EtHisto()->Fill(toc[*l1ki].pt());
 		  v->getL1PhiHisto()->Fill(toc[*l1ki].phi());
 		  }
@@ -450,8 +445,7 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			   << v->getDenomPath() << std::endl;
 	if(passed){
 
-	  //if(!hltconfigchanged)
-	  //fill later//rate_wrtMu->Fill(N);
+	  if(!hltconfigchanged) rate_wrtMu->Fill(N);
 	
 	  if (verbose_) std::cout <<  "  N " << N << "  trigger name " 
 			     << v->getPath() << std::endl;
@@ -585,8 +579,7 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	}
       }
       if (denompassed){
-	//if(!hltconfigchanged)
-	//fill later//rate_Denom->Fill(Ndenom);
+	if(!hltconfigchanged) rate_Denom->Fill(Ndenom);
 	if (verbose_) std::cout <<  "  N " << N << "  trigger name " << v->getDenomPath() << std::endl;
 	
 	if (!l1accept) {
@@ -660,8 +653,7 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       }//if denom passed
       if(denompassed){
 	if (passed){
-	  //if(!hltconfigchanged) 
-	  //fill later//rate_Num->Fill(Nnum);
+	  if(!hltconfigchanged) rate_Num->Fill(Nnum);
  	  if (verbose_) std::cout <<  "  N " << N << "  trigger name " << v->getPath() << std::endl;
 	  if (!l1accept) {
             edm::LogInfo("HLTJetMETDQMSource") << "l1 seed path not accepted for hlt path "<< v->getPath() << "\t" << v->getl1Path();
@@ -981,10 +973,10 @@ HLTJetMETDQMSource::beginJob(){
     std::string histonmL1="JetMET_rate_All_L1";
     std::string histot="JetMET Rate Summary";
     std::string histoL1t="JetMET L1 Rate Summary";
-    //fill later//rate_All = dbe->book1D(histonm.c_str(),histot.c_str(),
+    rate_All = dbe->book1D(histonm.c_str(),histot.c_str(),
 			   hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5);
 
-    //fill later//rate_All_L1 = dbe->book1D(histonmL1.c_str(),histoL1t.c_str(),
+    rate_All_L1 = dbe->book1D(histonmL1.c_str(),histoL1t.c_str(),
 			      hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5);
     
     //rate_All->setBinLabel(hltPathsAll_.size()+1,"Rate",1);
@@ -1590,14 +1582,13 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
       // std::cout << hltConfig_.triggerName(i) << std::endl;
     
       //std::string denompathname = hltConfig_.triggerName(i);  
-      std::string denompathname = ""; 
-      std::string denompathnamemu = custompathnamemu_;
+      std::string denompathname = "";  
       unsigned int usedPresscale = 1;  
       unsigned int objectType = 0;
       //int denomobjectType = 0;
       //parse pathname to guess object type
       
-      if ( pathname.find("Mu") && (pathname==denompathnamemu)) 
+      if ( pathname.find("Mu") && (pathname=="HLT_L1MuOpen")) 
 	objectType = trigger::TriggerMuon; 
       else if (pathname.find("MET") != std::string::npos) objectType = trigger::TriggerMET;    
       else if (pathname.find("L1MET") != std::string::npos) objectType = trigger::TriggerL1ETM;    
@@ -1643,11 +1634,11 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
     std::string histonmL1="JetMET_rate_All_L1";
     std::string histot="JetMET Rate Summary";
     std::string histoL1t="JetMET L1 Rate Summary";
-    //fill later//rate_All = dbe->book1D(histonm.c_str(),histot.c_str(),
-    //fill later//			   hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5);
+    rate_All = dbe->book1D(histonm.c_str(),histot.c_str(),
+			   hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5);
 
-    //fill later//rate_All_L1 = dbe->book1D(histonmL1.c_str(),histoL1t.c_str(),
-    //fill later//			      hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5);
+    rate_All_L1 = dbe->book1D(histonmL1.c_str(),histoL1t.c_str(),
+			      hltPathsAll_.size()+1,-0.5,hltPathsAll_.size()+1-0.5);
     
     //rate_All->setBinLabel(hltPathsAll_.size()+1,"Rate",1);
     unsigned int nname=0;
@@ -1655,12 +1646,12 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
     for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
       std::string labelnm("dummy");
       labelnm = v->getPath();
-      //fill later//rate_All->setBinLabel(nname+1,labelnm); 
+      rate_All->setBinLabel(nname+1,labelnm); 
       nname++;
 
       std::string labelnml1("dummyl1");
       labelnml1 = v->getl1Path();
-      //fill later//rate_All_L1->setBinLabel(nnameL1+1,labelnml1); 
+      rate_All_L1->setBinLabel(nnameL1+1,labelnml1); 
       nnameL1++;
     }
     // now set up all of the histos for each path
@@ -1801,7 +1792,7 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
       //int denomobjectType = 0;
       //parse pathname to guess object type
        	    
-      if ( pathname.find("Mu") && (pathname==denompathname)) 
+      if ( pathname.find("Mu") && (pathname=="HLT_L1MuOpen")) 
 	objectType = trigger::TriggerMuon; 
       else if (pathname.find("MET") != std::string::npos) objectType = trigger::TriggerMET;    
       else if (pathname.find("L1MET") != std::string::npos) objectType = trigger::TriggerL1ETM;    
@@ -1844,8 +1835,8 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
     std::string histonm="JetMET_rate_wrt_" + custompathnamemu_ + "_Summary";
     std::string histt="JetMET Rate wrt " + custompathnamemu_ + "Summary";
-    //fill later//rate_wrtMu = dbe->book1D(histonm.c_str(),histt.c_str(),
-    //fill later//			     hltPathswrtMu_.size()+1,-0.5,hltPathswrtMu_.size()+1.0-0.5);
+    rate_wrtMu = dbe->book1D(histonm.c_str(),histt.c_str(),
+			     hltPathswrtMu_.size()+1,-0.5,hltPathswrtMu_.size()+1.0-0.5);
 
     
     int nname=0;
@@ -1853,7 +1844,7 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
       std::string labelnm("dummy");
       labelnm = v->getPath();
       
-      //fill later//rate_wrtMu->setBinLabel(nname+1,labelnm);
+      rate_wrtMu->setBinLabel(nname+1,labelnm);
             
       nname++;
     }
@@ -1944,7 +1935,6 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 	 ++custompathnamepair) {
 	     
       std::string denompathname = custompathnamepair->second;  
-      std::string denompathnamemu = custompathnamemu_;  
       std::string pathname = custompathnamepair->first;  
       int usedPrescale = prescUsed_[countN];
       if (verbose_) std::cout << " ------prescale used -----" << usedPrescale << std::endl; 
@@ -1972,7 +1962,7 @@ void HLTJetMETDQMSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
       int objectType = 0;
       //int denomobjectType = 0;
       //parse pathname to guess object type
-      if ( pathname.find("Mu") && (pathname==denompathnamemu)) 
+      if ( pathname.find("Mu") && (pathname=="HLT_L1MuOpen")) 
 	objectType = trigger::TriggerMuon; 
       else if (pathname.find("MET") != std::string::npos) objectType = trigger::TriggerMET;    
       else if (pathname.find("L1MET") != std::string::npos) objectType = trigger::TriggerL1ETM;    

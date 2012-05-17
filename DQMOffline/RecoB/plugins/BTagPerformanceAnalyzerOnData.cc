@@ -1,7 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/CodedException.h"
 #include "DQMOffline/RecoB/plugins/BTagPerformanceAnalyzerOnData.h"
 #include "DQMOffline/RecoB/interface/JetTagPlotter.h"
 #include "DQMOffline/RecoB/interface/TagInfoPlotterFactory.h"

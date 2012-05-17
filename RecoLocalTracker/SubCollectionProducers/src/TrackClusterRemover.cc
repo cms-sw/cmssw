@@ -17,6 +17,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 
@@ -52,6 +53,7 @@ class TrackClusterRemover : public edm::EDProducer {
         static const unsigned int NumberOfParamBlocks = 6;
 
         edm::InputTag trajectories_;
+        std::vector<edm::InputTag> overrideTrkQuals_;
         bool doStrip_, doPixel_;
         edm::InputTag stripClusters_, pixelClusters_;
         bool mergeOld_;
@@ -117,6 +119,8 @@ TrackClusterRemover::TrackClusterRemover(const ParameterSet& iConfig):
     oldRemovalInfo_(mergeOld_ ? iConfig.getParameter<InputTag>("oldClusterRemovalInfo") : InputTag("NONE")),
     clusterWasteSolution_(true)
 {
+  if (iConfig.exists("overrideTrkQuals"))
+    overrideTrkQuals_.push_back(iConfig.getParameter<edm::InputTag>("overrideTrkQuals"));
   if (iConfig.exists("clusterLessSolution"))
     clusterWasteSolution_=!iConfig.getParameter<bool>("clusterLessSolution");
   if (doPixel_ && clusterWasteSolution_) produces< edmNew::DetSetVector<SiPixelCluster> >();
@@ -364,6 +368,12 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     Handle<TrajTrackAssociationCollection> trajectories_totrack; 
     iEvent.getByLabel(trajectories_,trajectories_totrack);
 
+    std::vector<Handle<edm::ValueMap<int> > > quals;
+    if ( overrideTrkQuals_.size() > 0) {
+      quals.resize(1);
+      iEvent.getByLabel(overrideTrkQuals_[0],quals[0]);
+    }
+
     if (doStrip_) {
       strips.resize(stripClusters->dataSize()); fill(strips.begin(), strips.end(), true);
     }
@@ -372,10 +382,22 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     }
 
     TrajTrackAssociationCollection::const_iterator asst=trajectories_totrack->begin();
-    for (;asst!=trajectories_totrack->end();++asst){
+   
+    for ( ; asst!=trajectories_totrack->end();++asst){
       const Track & track = *(asst->val);
-      bool goodTk = (track.quality(trackQuality_));
-      if (filterTracks_ && !goodTk) continue;
+      if (filterTracks_) {
+	bool goodTk = true;
+	if ( quals.size()!=0) {
+	  int qual=(*(quals[0]))[asst->val];
+	  if ( qual < 0 ) {goodTk=false;}
+	  //note that this does not work for some trackquals (goodIterative  or undefQuality)
+	  else
+	    goodTk = ( qual & (1<<trackQuality_))>>trackQuality_;
+	}
+	else
+	  goodTk=(track.quality(trackQuality_));
+	if ( !goodTk) continue;
+      }
       const Trajectory &tj = *(asst->key);
       const vector<TrajectoryMeasurement> &tms = tj.measurements();
       vector<TrajectoryMeasurement>::const_iterator itm, endtm;

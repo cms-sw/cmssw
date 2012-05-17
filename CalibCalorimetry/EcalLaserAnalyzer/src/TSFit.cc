@@ -6,12 +6,10 @@
  */
 
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TSFit.h>
-#include <cassert>
-#include <iostream>
-#include <cstring>
-#include <cstdlib>
+
 #include <cstdio>
-#include <math.h>
+#include <cmath>
+#include <cstring>
 
 //ClassImp(TSFit)
 

@@ -1,6 +1,5 @@
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbHardcode.cc,v 1.23 2010/02/22 20:55:51 kukartse Exp $
 //
 #include <vector>
 #include <string>
@@ -11,7 +10,7 @@
 
 HcalPedestal HcalDbHardcode::makePedestal (HcalGenericDetId fId, bool fSmear) {
   HcalPedestalWidth width = makePedestalWidth (fId);
-  float value0 = fId.genericSubdet() == HcalGenericDetId::HcalGenForward ? 11. : 4.;  // fC
+  float value0 = fId.genericSubdet() == HcalGenericDetId::HcalGenForward ? 11. : 18.;  // fC
   float value [4] = {value0, value0, value0, value0};
   if (fSmear) {
     for (int i = 0; i < 4; i++) {
@@ -27,10 +26,11 @@ HcalPedestal HcalDbHardcode::makePedestal (HcalGenericDetId fId, bool fSmear) {
 
 HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalGenericDetId fId) {
   float value = 0;
-  if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel || 
-      fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) value = 0.7;
-  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) value = 0.9;
-  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward) value = 2.5;  // everything in fC
+  if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) value = 5.0;
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) value = 1.5;
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) value = 5.0;
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward) value = 2.0;  // everything in fC
+
   HcalPedestalWidth result (fId.rawId ());
   for (int i = 0; i < 4; i++) {
     double width = value;
@@ -44,10 +44,10 @@ HcalPedestalWidth HcalDbHardcode::makePedestalWidth (HcalGenericDetId fId) {
 HcalRecoParam HcalDbHardcode::makeRecoParam (HcalGenericDetId fId) {
   int first = 0;
   int add = 0;
-  if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) {first = 4; add = 4;}
-  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) {first = 4; add = 4;}
+  if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) {first = 4; add = 2;}
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) {first = 4; add = 2;}
   else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {first = 4; add = 4;}
-  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward) {first = 4; add = 2;}
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward) {first = 4; add = 1;}
   HcalRecoParam result(fId.rawId(), first, add);
 
   return result;
@@ -57,11 +57,25 @@ HcalRecoParam HcalDbHardcode::makeRecoParam (HcalGenericDetId fId) {
 HcalGain HcalDbHardcode::makeGain (HcalGenericDetId fId, bool fSmear) {
   HcalGainWidth width = makeGainWidth (fId);
   float value0 = 0;
-  if (fId.genericSubdet() != HcalGenericDetId::HcalGenForward) value0 = 0.177;  // GeV/fC
-  else {
+  if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) {
+    if (HcalDetId(fId).depth() == 1) value0 = 0.003333;
+    else if (HcalDetId(fId).depth() == 2) value0 = 0.003333;
+    else if (HcalDetId(fId).depth() == 3) value0 = 0.003333;
+    else if (HcalDetId(fId).depth() == 4) value0 = 0.003333;
+    else value0 = 0.003333; // GeV/fC
+  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) {
+    if (HcalDetId(fId).depth() == 1) value0 = 0.003333;
+    else if (HcalDetId(fId).depth() == 2) value0 = 0.003333;
+    else if (HcalDetId(fId).depth() == 3) value0 = 0.003333;
+    else if (HcalDetId(fId).depth() == 4) value0 = 0.003333;
+    else value0 = 0.003333; // GeV/fC
+    // if (fId.genericSubdet() != HcalGenericDetId::HcalGenForward) value0 = 0.177;  // GeV/fC
+  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {
+    value0 = 0.02667;  // GeV/fC
+  } else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward) {
     if (HcalDetId(fId).depth() == 1) value0 = 0.2146;
     else if (HcalDetId(fId).depth() == 2) value0 = 0.3375;
-  }
+  } else value0 = 0.003333; // GeV/fC
   float value [4] = {value0, value0, value0, value0};
   if (fSmear) for (int i = 0; i < 4; i++) value [i] = CLHEP::RandGauss::shoot (value0, width.getValue (i)); 
   HcalGain result (fId.rawId (), value[0], value[1], value[2], value[3]);
@@ -77,7 +91,7 @@ HcalGainWidth HcalDbHardcode::makeGainWidth (HcalGenericDetId fId) {
 HcalQIECoder HcalDbHardcode::makeQIECoder (HcalGenericDetId fId) {
   HcalQIECoder result (fId.rawId ());
   float offset = 0;
-  float slope = fId.genericSubdet () == HcalGenericDetId::HcalGenForward ? 0.36 : 0.92;  // ADC/fC
+  float slope = fId.genericSubdet () == HcalGenericDetId::HcalGenForward ? 0.36 : 0.333;  // ADC/fC
   for (unsigned range = 0; range < 4; range++) {
     for (unsigned capid = 0; capid < 4; capid++) {
       result.setOffset (capid, range, offset);
@@ -89,8 +103,8 @@ HcalQIECoder HcalDbHardcode::makeQIECoder (HcalGenericDetId fId) {
 
 HcalCalibrationQIECoder HcalDbHardcode::makeCalibrationQIECoder (HcalGenericDetId fId) {
   HcalCalibrationQIECoder result (fId.rawId ());
-  float lowEdges [32];
-  for (int i = 0; i < 32; i++) lowEdges[i] = -1.5 + i*0.35;
+  float lowEdges [64];
+  for (int i = 0; i < 64; i++) lowEdges[i] = -1.5 + i*1.0;
   result.setMinCharges (lowEdges);
   return result;
 }

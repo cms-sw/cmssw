@@ -41,7 +41,7 @@ class Hector {
   
  public:
   //  Hector(const edm::ParameterSet & ps);
-  Hector(const edm::ParameterSet & ps, bool verbosity, bool FP420Transport, bool HPS240Transport, bool ZDCTransport);
+  Hector(const edm::ParameterSet & ps, bool verbosity, bool FP420Transport,bool ZDCTransport);
   //  Hector();
   virtual ~Hector();
   
@@ -53,10 +53,10 @@ class Hector {
   void add( const HepMC::GenEvent * ev , const edm::EventSetup & es);
   /*!propagate the particles through a beamline to FP420*/
   void filterFP420();
-  /*!propagate the particles through a beamline to HPS240*/
-  void filterHPS240();
   /*!propagate the particles through a beamline to ZDC*/
   void filterZDC();
+  /*!propagate the particles through a beamline to ZDC*/
+  void filterD1();
   
   int getDirect( unsigned int part_n ) const;
 
@@ -80,8 +80,8 @@ class Hector {
     
     // Defaults
     double lengthfp420 ;
-    double lengthhps240 ;
     double lengthzdc ;
+    double lengthd1 ;
     
     double etacut;
     bool m_smearAng;
@@ -92,50 +92,34 @@ class Hector {
    
     float m_rpp420_f;
     float m_rpp420_b;
-    float m_rpp240_f;
-    float m_rpp240_b;
     float m_rppzdc;
+    float m_rppd1;
     
     edm::ESHandle < ParticleDataTable > pdt;
     
     // Hector
     H_BeamLine * m_beamlineFP4201;
     H_BeamLine * m_beamlineFP4202;
-    H_BeamLine * m_beamlineHPS2401;
-    H_BeamLine * m_beamlineHPS2402;
     H_BeamLine * m_beamlineZDC1;
     H_BeamLine * m_beamlineZDC2;
+    H_BeamLine * m_beamlineD11;
+    H_BeamLine * m_beamlineD12;
     //
     
-//    H_RecRPObject * m_rp420_f;
-//    H_RecRPObject * m_rp420_b;
-    //    
+    H_RecRPObject * m_rp420_f;
+    H_RecRPObject * m_rp420_b;
+    
     std::map<unsigned int, H_BeamParticle*> m_beamPart;
     std::map<unsigned int, int> m_direct;
     std::map<unsigned int, bool> m_isStoppedfp420;
-    std::map<unsigned int, bool> m_isStoppedhps240;
     std::map<unsigned int, bool> m_isStoppedzdc;
     std::map<unsigned int, bool> m_isStoppedd1;
-    //ZDC
-    std::map<unsigned int, double> m_xAtZDCTrPoint;
-    std::map<unsigned int, double> m_yAtZDCTrPoint;
-    std::map<unsigned int, double> m_TxAtZDCTrPoint;
-    std::map<unsigned int, double> m_TyAtZDCTrPoint;
-    std::map<unsigned int, double> m_eAtZDCTrPoint;
-    //FP420    
-    std::map<unsigned int, double> m_xAtFP420TrPoint;
-    std::map<unsigned int, double> m_yAtFP420TrPoint;
-    std::map<unsigned int, double> m_TxAtFP420TrPoint;
-    std::map<unsigned int, double> m_TyAtFP420TrPoint;
-    std::map<unsigned int, double> m_eAtFP420TrPoint;
-    //HPS240   
-    std::map<unsigned int, double> m_xAtHPS240TrPoint;
-    std::map<unsigned int, double> m_yAtHPS240TrPoint;
-    std::map<unsigned int, double> m_TxAtHPS240TrPoint;
-    std::map<unsigned int, double> m_TyAtHPS240TrPoint;
-    std::map<unsigned int, double> m_eAtHPS240TrPoint;
-    //
+    std::map<unsigned int, double> m_xAtTrPoint;
+    std::map<unsigned int, double> m_yAtTrPoint;
+    std::map<unsigned int, double> m_TxAtTrPoint;
+    std::map<unsigned int, double> m_TyAtTrPoint;
     std::map<unsigned int, double> m_eAtTrPoint;
+    
     std::map<unsigned int, double> m_eta;
     std::map<unsigned int, int> m_pdg;
     std::map<unsigned int, double> m_pz;
@@ -146,7 +130,6 @@ class Hector {
     
     bool m_verbosity;
     bool m_FP420Transport;
-    bool m_HPS240Transport;
     bool m_ZDCTransport;
 
     std::vector<LHCTransportLink> theCorrespondenceMap;

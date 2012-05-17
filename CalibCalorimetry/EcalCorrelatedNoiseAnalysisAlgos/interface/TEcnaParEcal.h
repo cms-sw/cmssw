@@ -1,25 +1,16 @@
 #ifndef ROOT_TEcnaParEcal
 #define ROOT_TEcnaParEcal
 
-#include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaObject.h"
+//////////////////////////////////////////////////////////////////////////
+//                                                                      //
+// TEcnaParEcal   Init ECAL Parameters                               //
+//                                                                      //
+//                                                                      //
+//                                                                      //
+//////////////////////////////////////////////////////////////////////////
 
 #include <Riostream.h>
 #include "TNamed.h"
-
-///-----------------------------------------------------------
-///   TEcnaParEcal.h
-///   Update: 15/02/2011
-///   Author:    B.Fabbro (bernard.fabbro@cea.fr)
-///              DSM/IRFU/SPP CEA-Saclay
-///   Copyright: Those valid for CEA sofware
-///
-///   ECNA web page:
-///     http://cms-fabbro.web.cern.ch/cms-fabbro/
-///     cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
-///-----------------------------------------------------------
-///
-///   Init ECAL Parameter values
-///
 
 class TEcnaParEcal : public TNamed {
 
@@ -47,7 +38,7 @@ private:
 
   Int_t fMaxSampADCEB;           // Maximum number of samples ADC
 
-  //  Int_t fMaxEvtsInBurstPedRunEB; // Maximum number of events per burst in Pedestal Runs
+  Int_t fMaxEvtsInBurstPedRunEB; // Maximum number of events per burst in Pedestal Runs
 
   Int_t fMaxSMEtaInEB;         // Maximum number of SMs in eta in EB
   Int_t fMaxSMPhiInEB;         // Maximum number of SMs in phi in EB
@@ -58,7 +49,6 @@ private:
 
   Int_t fMaxTowEtaInEB;        // Maximum number of towers in eta in EB
   Int_t fMaxTowPhiInEB;        // Maximum number of towers in phi in EB
-  Int_t fMaxTowInEB;           // Maximum number of towers in EB
 
   Int_t fMaxTowEtaInSM;        // Maximum number of towers in eta in SM
   Int_t fMaxTowPhiInSM;        // Maximum number of towers in phi in SM
@@ -83,7 +73,7 @@ private:
 
   Int_t fMaxSampADCEE;           // Maximum number of samples ADC
 
-  //  Int_t fMaxEvtsInBurstPedRunEE; // Maximum number of events per burst in Pedestal Runs
+  Int_t fMaxEvtsInBurstPedRunEE; // Maximum number of events per burst in Pedestal Runs
 
   Int_t fMaxDeeIXInEE;         // Maximum number of Dees in IX in EE
   Int_t fMaxDeeIYInEE;         // Maximum number of Dees in IY in EE
@@ -94,14 +84,12 @@ private:
 
   Int_t fMaxSCIXInEE;          // Maximum number of SC's in IX in EE
   Int_t fMaxSCIYInEE;          // Maximum number of SC's in IY in EE
-  Int_t fMaxSCEcnaInEE;        // Maximum number of SC's in the EE matrix
 
   Int_t fMaxSCIXInDee;         // Maximum number of super-crystals in IX in Dee
   Int_t fMaxSCIYInDee;         // Maximum number of super-crystals in IY in Dee
   Int_t fMaxSCEcnaInDee;       // Maximum ECNA number of super-crystals in the Dee matrix
                                  // ( = fMaxSCIXInDee*fMaxSCIYInDee )
   Int_t fMaxSCForConsInDee;    // Maximum number of super-crystals for construction in Dee
-  Int_t fMaxSCForConsInEE;     // Maximum number of super-crystals for construction in EE
 
   Int_t fMaxCrysIXInSC;        // Maximum number of crystals in IX in a super-crystal
   Int_t fMaxCrysIYInSC;        // Maximum number of crystals in IY in a super-crystal
@@ -130,17 +118,17 @@ private:
 
   Int_t fMaxSampADC;           // Maximum number of samples ADC
 
-  //  Int_t fMaxEvtsInBurstPedRun; // Maximum number of events per burst in Pedestal Runs
+  Int_t fMaxEvtsInBurstPedRun; // Maximum number of events per burst in Pedestal Runs
 
-  Int_t fMaxStexHocoInStas;    // Maximum number of Stex's in Hoco in Stas
-  Int_t fMaxStexVecoInStas;    // Maximum number of Stex's in Veco in Stas
-  Int_t fMaxStexInStasPlus;    // Maximum number of Stex's in Stas+
-  Int_t fMaxStexInStasMinus;   // Maximum number of Stex's in Stas- 
-  Int_t fMaxStexInStas;        // Maximum number of Stex's in Stas
+  Int_t fMaxStexHocoInStas;    // Maximum number of Stex's in Hoco in the Stas
+  Int_t fMaxStexVecoInStas;    // Maximum number of Stex's in Veco in the Stas
 
-  Int_t fMaxStinHocoInStas;    // Maximum number of Stin's in Hoco in Stas
-  Int_t fMaxStinVecoInStas;    // Maximum number of Stin's in Veco in Stas
-  Int_t fMaxStinEcnaInStas;    // Maximum number of Stin's in Stas
+  Int_t fMaxStexInStasPlus;    // Maximum number of Stex's in the Stas+
+  Int_t fMaxStexInStasMinus;   // Maximum number of Stex's in the Stas- 
+  Int_t fMaxStexInStas;        // Maximum number of Stex's in the Stas
+
+  Int_t fMaxStinHocoInStas;    // Maximum number of Stex's in Hoco in the Stas
+  Int_t fMaxStinVecoInStas;    // Maximum number of Stex's in Veco in the Stas
 
   Int_t fMaxStinHocoInStex;    // Maximum number of Stin's in Hoco in a Stex
   Int_t fMaxStinVecoInStex;    // Maximum number of Stin's in Veco in a Stex
@@ -176,7 +164,6 @@ private:
 
   TEcnaParEcal(); 
   TEcnaParEcal(const TString); 
-  TEcnaParEcal(TEcnaObject*, const TString);
   ~TEcnaParEcal();
 
   void    SetEcalSubDetector(const TString);
@@ -184,7 +171,7 @@ private:
 
   //............................. EB
   Int_t MaxSampADCEB();
-  //  Int_t MaxEvtsInBurstPedRunEB();
+  Int_t MaxEvtsInBurstPedRunEB();
 
   Int_t MaxSMEtaInEB();
   Int_t MaxSMPhiInEB();
@@ -195,7 +182,6 @@ private:
 
   Int_t MaxTowEtaInEB();
   Int_t MaxTowPhiInEB();
-  Int_t MaxTowInEB();
 
   Int_t MaxTowEtaInSM();
   Int_t MaxTowPhiInSM();
@@ -211,7 +197,7 @@ private:
 
   //............................. EE
   Int_t MaxSampADCEE();
-  //  Int_t MaxEvtsInBurstPedRunEE();
+  Int_t MaxEvtsInBurstPedRunEE();
 
   Int_t MaxDeeIXInEE();
   Int_t MaxDeeIYInEE();
@@ -222,14 +208,10 @@ private:
 
   Int_t MaxSCIXInEE();
   Int_t MaxSCIYInEE();
-  Int_t MaxSCEcnaInEE();  // default for MaxSCInEE()
-  Int_t MaxSCInEE();
-  Int_t MaxSCForConsInEE();
 
   Int_t MaxSCIXInDee();
   Int_t MaxSCIYInDee();
-  Int_t MaxSCEcnaInDee();  // default for MaxSCInDee()
-  Int_t MaxSCInDee();
+  Int_t MaxSCEcnaInDee();
   Int_t MaxSCForConsInDee();
 
   Int_t MaxCrysIXInSC();
@@ -238,8 +220,7 @@ private:
 
   Int_t MaxCrysIXInDee();
   Int_t MaxCrysIYInDee();
-  Int_t MaxCrysEcnaInDee();  // default for MaxCrysInDee()
-  Int_t MaxCrysInDee();
+  Int_t MaxCrysEcnaInDee();
   Int_t MaxCrysForConsInDee();
 
   Int_t MaxDSInEE();
@@ -249,7 +230,7 @@ private:
 
   //............................. Current subdetector (Stin-Stex-Stas)
   Int_t MaxSampADC();
-  //  Int_t MaxEvtsInBurstPedRun();
+  Int_t MaxEvtsInBurstPedRun();
 
   Int_t MaxStexHocoInStas();
   Int_t MaxStexVecoInStas();
@@ -260,7 +241,6 @@ private:
 
   Int_t MaxStinHocoInStas();
   Int_t MaxStinVecoInStas();
-  Int_t MaxStinEcnaInStas();
   //  Int_t MaxStinForConsInStas();
 
   Int_t MaxStinHocoInStex();

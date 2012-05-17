@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Mar 10 16:37:40 CDT 2008
-// $Id: MuonAlignmentInputXML.cc,v 1.15 2010/07/30 04:20:13 pivarski Exp $
+// $Id: MuonAlignmentInputXML.cc,v 1.14 2009/11/04 20:49:21 elmer Exp $
 //
 
 // system include files
@@ -923,13 +923,13 @@ void MuonAlignmentInputXML::do_setape(const XERCES_CPP_NAMESPACE::DOMElement *no
    if (node_yz == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"yz\" attribute" << std::endl;
    if (node_zz == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"zz\" attribute" << std::endl;
 
-   AlgebraicSymMatrix33 matrix3x3;
-   matrix3x3(0,0) = parseDouble(node_xx->getValue(), "xx");
-   matrix3x3(0,1) = parseDouble(node_xy->getValue(), "xy");
-   matrix3x3(0,2) = parseDouble(node_xz->getValue(), "xz");
-   matrix3x3(1,1) = parseDouble(node_yy->getValue(), "yy");
-   matrix3x3(1,2) = parseDouble(node_yz->getValue(), "yz");
-   matrix3x3(2,2) = parseDouble(node_zz->getValue(), "zz");
+   CLHEP::HepSymMatrix matrix3x3(3);
+   matrix3x3(1,1) = parseDouble(node_xx->getValue(), "xx");
+   matrix3x3(1,2) = parseDouble(node_xy->getValue(), "xy");
+   matrix3x3(1,3) = parseDouble(node_xz->getValue(), "xz");
+   matrix3x3(2,2) = parseDouble(node_yy->getValue(), "yy");
+   matrix3x3(2,3) = parseDouble(node_yz->getValue(), "yz");
+   matrix3x3(3,3) = parseDouble(node_zz->getValue(), "zz");
 
    for (std::map<Alignable*, bool>::const_iterator aliiter = aliset.begin();  aliiter != aliset.end();  ++aliiter) {
      // this sets APEs at this level and (since 2nd argument is true) all lower levels

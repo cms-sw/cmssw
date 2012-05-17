@@ -7,8 +7,8 @@
  *   L2 muon reconstruction
  *
  *
- *   $Date: 2009/05/27 08:07:23 $
- *   $Revision: 1.12 $
+ *   $Date: 2008/10/17 09:57:55 $
+ *   $Revision: 1.11 $
  *
  *   \author  A.Everett, R.Bellan, J. Alcaraz
  *
@@ -220,7 +220,7 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     GlobalVector mom(pt*cos(phi), pt*sin(phi), pt*cos(theta)/sin(theta));
 
     GlobalTrajectoryParameters param(pos,mom,charge,&*theService->magneticField());
-    AlgebraicSymMatrix55 mat;
+    AlgebraicSymMatrix mat(5,0);
     
     mat[0][0] = (0.25/pt)*(0.25/pt);  // sigma^2(charge/abs_momentum)
     if ( !barrel ) mat[0][0] = (0.4/pt)*(0.4/pt);

@@ -12,8 +12,8 @@
 /*
  * \file HcalBaseDQClient.h
  * 
- * $Date: 2010/11/10 20:01:26 $
- * $Revision: 1.4 $
+ * $Date: 2010/11/17 19:17:36 $
+ * $Revision: 1.5 $
  * \author J. Temple
  * \brief Hcal Monitor Client base class
  * based on code in EcalBarrelMonitorClient/interface/EBClient.h
@@ -63,6 +63,8 @@ class HcalBaseDQClient
   int debug_;
   int badChannelStatusMask_; 
   bool validHtmlOutput_;
+
+  bool Online_; // fix to problem of April 2011, in which online DQM crashes in endJob
 
   bool testenabled_;
   int minevents_; // minimum number of events for test to pass

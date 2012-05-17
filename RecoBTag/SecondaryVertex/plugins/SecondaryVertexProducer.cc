@@ -324,7 +324,7 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 
 			// select tracks for SV finder
 
-			if (!trackSelector(*trackRef, ipData[i], *jetRef,
+			if (!trackSelector(*trackRef, ipData[indices[i]], *jetRef,
 			                   RecoVertex::convertPos(
 			                   		pv.position()))) {
 				trackData.back().second.svStatus =
@@ -349,10 +349,10 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 			if (useGhostTrack) {
 				GhostTrackState gtState(fitTrack);
 				GlobalPoint pos =
-					ipData[i].closestToGhostTrack;
+					ipData[indices[i]].closestToGhostTrack;
 				gtState.linearize(*gtPred, true,
 				                  gtPred->lambda(pos));
-				gtState.setWeight(ipData[i].ghostTrackWeight);
+				gtState.setWeight(ipData[indices[i]].ghostTrackWeight);
 				gtStates.push_back(gtState);
 			}
 		}

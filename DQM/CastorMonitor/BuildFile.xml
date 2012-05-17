@@ -4,6 +4,7 @@
 <use   name="DataFormats/HcalDigi"/>
 <use   name="CondFormats/CastorObjects"/>
 <use   name="CalibFormats/CastorObjects"/>
+<use   name="DataFormats/JetReco"/>
 <use   name="EventFilter/CastorRawToDigi"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="FWCore/ParameterSet"/>

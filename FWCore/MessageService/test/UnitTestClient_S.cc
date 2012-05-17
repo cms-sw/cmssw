@@ -13,7 +13,7 @@ int UTC_S1::n = 0;
 int UTC_S2::n = 0;
 
 void
-  UTC_S1::analyze( edm::Event      const & e
+  UTC_S1::analyze( edm::Event      const & /*unused*/
                             , edm::EventSetup const & /*unused*/
                               )
 {
@@ -29,7 +29,7 @@ void
 }  
 
 void
-  UTC_S2::analyze( edm::Event      const & e
+  UTC_S2::analyze( edm::Event      const & /*unused*/
                             , edm::EventSetup const & /*unused*/
                               )
 {
@@ -44,7 +44,7 @@ void
 }  
 
 void
-  UTC_SUMMARY::analyze( edm::Event      const & e
+  UTC_SUMMARY::analyze( edm::Event      const & /*unused*/
                             , edm::EventSetup const & /*unused*/
                               )
 {

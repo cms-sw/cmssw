@@ -32,6 +32,7 @@ release=CMSSW_3_11_0_ONLINE
 version=010
 
 echo "`date` : o2o-setIOV-l1Key-slc5.sh $run $l1Key" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
+START=$(date +%s)
 
 if [ $# -lt 2 ]
     then
@@ -124,9 +125,18 @@ else
 fi
 
 echo "`date` : o2o-setIOV-l1Key-slc5.sh finished : ${run} ${l1Key}" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
+
+END=$(date +%s)
+DIFF=$(( $END - $START ))
+if [ ${DIFF} -gt 60 ]
+    then
+    echo "O2O SLOW: `date`, ${DIFF} seconds for ${run} ${l1Key}" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
+else
+    echo "Time elapsed: ${DIFF} seconds" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
+fi
 echo "" | tee -a /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log
 
-tail -5 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
+tail -6 /nfshome0/popcondev/L1Job/o2o-setIOV-${version}.log >> /nfshome0/popcondev/L1Job/o2o.summary
 
 # Delete semaphore file
 rm -f o2o-setIOV.lock

@@ -8,14 +8,14 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Mar 26 12:25:02 CET 2010
-// $Id: FWViewType.cc,v 1.17 2010/12/06 15:28:15 amraktad Exp $
+// $Id: FWViewType.cc,v 1.21 2011/06/03 04:44:30 amraktad Exp $
 //
 
 // system include files
 
 // user include files
 #include "Fireworks/Core/interface/FWViewType.h"
-
+#include "Fireworks/Core/interface/fwLog.h"
  
 //
 // constants, enums and typedefs
@@ -33,18 +33,19 @@ std::string FWViewType::sName[FWViewType::kTypeSize];
 
 FWViewType::static_initializer::static_initializer()
 {
-  sName[k3D           ] = "3D";
   sName[kRhoPhi       ] = "Rho Phi";
   sName[kRhoZ         ] = "Rho Z";
-  sName[kISpy         ] = "iSpy";
+  sName[k3D           ] = "3D Tower";
+  sName[kISpy         ] = "3D RecHit";
   sName[kGlimpse      ] = "Glimpse";
   sName[kLego         ] = "Lego";
   sName[kLegoHF       ] = "HF";
   sName[kTable        ] = "Table";
-  sName[kTableHLT ] = "HLT Table";
+  sName[kTableHLT     ] = "HLT Table";
   sName[kTableL1      ] = "L1 Table";
   sName[kLegoPFECAL   ] = "PF ECAL Lego";
   sName[kRhoPhiPF     ] = "PF Rho Phi";
+  sName[kGeometryTable] = "Geometry Table";
 }
 
 FWViewType::static_initializer init_statics;
@@ -91,21 +92,34 @@ FWViewType::idToName(int id)
   return sName[id];
 }
 
+const std::string& switchName (const std::string& old, FWViewType::EType id)
+{
+   fwLog(fwlog::kDebug) << old << " view has been renamed to "<< FWViewType::idToName(id) << ".\n";
+   return  (const std::string&)FWViewType::idToName(id);
+}
+
 const std::string& 
 FWViewType::checkNameWithViewVersion(const std::string& refName, unsigned int version)
 {
-   //  printf("version %d %s \n", version, refName.c_str());
+   // printf("version %d %s \n", version, refName.c_str());fflush(stdout);
    if (version < 2)
    {
       if (refName == "TriggerTable") 
-         return idToName(FWViewType::kTableHLT);
+         return switchName(refName, FWViewType::kTableHLT);
       else if (refName == "L1TriggerTable")
-         return idToName(FWViewType::kTableL1);
+         return switchName(refName, FWViewType::kTableL1);
    }
-   else if (version < 3)
+   if (version < 3)
    {
       if (refName == "3D Lego") 
-         return idToName(FWViewType::kLego);
+         return switchName(refName, FWViewType::kLego);
+   }
+   if (version < 7)
+   {
+      if (refName == "iSpy") 
+         return switchName(refName, FWViewType::kISpy);
+      if (refName == "3D") 
+         return switchName(refName, FWViewType::k3D);
    }
    return refName;
 }

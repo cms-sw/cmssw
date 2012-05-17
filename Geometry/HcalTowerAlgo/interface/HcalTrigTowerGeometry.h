@@ -43,6 +43,7 @@ private:
   HcalTopology theTopology;
   bool useShortFibers_;
   bool useHFQuadPhiRings_;
+  bool useUpgradeConfigurationHFTowers_;
 };
 
 #endif

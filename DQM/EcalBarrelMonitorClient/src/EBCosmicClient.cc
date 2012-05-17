@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2010/08/04 08:20:12 $
- * $Revision: 1.124 $
+ * $Date: 2011/08/30 09:33:51 $
+ * $Revision: 1.126 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,6 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
@@ -156,26 +157,21 @@ void EBCosmicClient::analyze(void) {
     if ( debug_ ) std::cout << "EBCosmicClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
-  char histo[200];
-
   MonitorElement* me;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_ + "/EBCosmicTask/Sel/EBCT energy sel %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
+    me = dqmStore_->get( prefixME_ + "/EBCosmicTask/Sel/EBCT energy sel " + Numbers::sEB(ism) );
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    sprintf(histo, (prefixME_ + "/EBCosmicTask/Spectrum/EBCT 1x1 energy spectrum %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
+    me = dqmStore_->get( prefixME_ + "/EBCosmicTask/Spectrum/EBCT 1x1 energy spectrum " + Numbers::sEB(ism) );
     h02_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
-    sprintf(histo, (prefixME_ + "/EBCosmicTask/Spectrum/EBCT 3x3 energy spectrum %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
+    me = dqmStore_->get( prefixME_ + "/EBCosmicTask/Spectrum/EBCT 3x3 energy spectrum " + Numbers::sEB(ism) );
     h03_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 

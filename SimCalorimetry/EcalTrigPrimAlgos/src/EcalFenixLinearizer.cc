@@ -51,8 +51,7 @@ void EcalFenixLinearizer::setParameters(uint32_t raw, const EcalTPGPedestals * e
 int EcalFenixLinearizer::process()
 {
   int output=(uncorrectedSample_-base_); //Substract base
-  //if(output<0) return 0;
-  if(output<0) return shift_ << 12; // FENIX bug(!)
+  if(output<0) return 0;
   output=(output*mult_)>>(shift_+2);        //Apply multiplicative factor
   if(output>0X3FFFF)output=0X3FFFF;         //Saturation if too high
   return output;
@@ -67,20 +66,9 @@ int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam)
     }
   uncorrectedSample_=RawSam.adc(); //uncorrectedSample_ is coded in the 12 LSB
   gainID_=RawSam.gainId();       //uncorrectedSample_ is coded in the 2 next bits!
-  //if (gainID_==0)    gainID_=3;
+  if (gainID_==0)    gainID_=3;
 
-  if(gainID_ == 0)
-  {
-    base_ = 0;
-    shift_ = 0;
-    mult_ = 0xFF;
-    if((linConsts_->mult_x12 == 0) && (linConsts_->mult_x6 == 0) && (linConsts_->mult_x1 == 0))
-    {
-      mult_ = 0; // Implemented in CCSSupervisor to
-                 // reject overflow cases in rejected channels
-    }
-  }
-  else if (gainID_==1) {
+  if (gainID_==1) {
     base_ = peds_ -> mean_x12; 
     shift_ = linConsts_ -> shift_x12;
     

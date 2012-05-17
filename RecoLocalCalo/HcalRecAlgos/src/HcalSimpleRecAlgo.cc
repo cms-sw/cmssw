@@ -1,4 +1,5 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSimpleRecAlgo.h"
+#include "RecoLocalCalo/HcalRecAlgos/src/HcalTDCReco.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include <algorithm> // for "max"
@@ -6,7 +7,7 @@
 //--- temporary for printouts
 #include<iostream>
 
-static double MaximumFractionalError = 0.0005; // 0.05% error allowed from this source
+static double MaximumFractionalError = 0.005; // 0.05% error allowed from this source
 
 HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPulse, float phaseNS) : 
   correctForTimeslew_(correctForTimeslew),
@@ -130,6 +131,14 @@ HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, i
 									 pulseCorr_.get(),
 									 HcalTimeSlew::Fast,
                                                                          setForData_ );
+}
+
+HcalUpgradeRecHit HcalSimpleRecAlgo::reconstruct(const HcalUpgradeDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
+  HcalUpgradeRecHit result = HcalSimpleRecAlgoImpl::reco<HcalUpgradeDataFrame,HcalUpgradeRecHit>(
+    digi,coder,calibs, first,toadd,correctForTimeslew_, pulseCorr_.get(), HcalTimeSlew::Medium,setForData_ );
+  HcalTDCReco tdcReco;
+  tdcReco.reconstruct(digi, result);
+  return result;
 }
 
 HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
