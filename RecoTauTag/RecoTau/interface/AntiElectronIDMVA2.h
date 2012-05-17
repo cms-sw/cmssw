@@ -56,7 +56,7 @@ class AntiElectronIDMVA2
 				const std::string& oneProng1pi0wGSFwPfEleMva_EC);
 
     // RECOMMENDED:
-    double MVAValue(Float_t TauEta,
+    double MVAValue(Float_t TauEtaAtEcalEntrance,
 		    Float_t TauPhi,
 		    Float_t TauPt,
 		    Float_t TauSignalPFChargedCands, 
@@ -87,7 +87,7 @@ class AntiElectronIDMVA2
 		    Float_t ElecGSFTracklnPt,
 		    Float_t ElecGSFTrackEta);
 
-    double MVAValue(Float_t TauEta,
+    double MVAValue(Float_t TauEtaAtEcalEntrance,
 		    Float_t TauPhi,
 		    Float_t TauPt,
 		    Float_t TauSignalPFChargedCands, 
@@ -136,7 +136,7 @@ class AntiElectronIDMVA2
     Float_t GammadPhi_;
     Float_t GammadPt_;
 
-    Float_t Tau_Eta_;
+    Float_t Tau_EtaAtEcalEntrance_;
     Float_t Tau_Pt_;
     Float_t Tau_HasGsf_; 
     Float_t Tau_EmFraction_; 

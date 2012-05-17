@@ -23,10 +23,14 @@ updateHPSPFTaus = cms.Sequence(
 
     hpsPFTauDiscriminationByMVAElectronRejection*
     hpsPFTauDiscriminationByMVA2rawElectronRejection*
-    hpsPFTauDiscriminationByMVA2VLooseElectronRejection*
-    hpsPFTauDiscriminationByMVA2LooseElectronRejection*    
-    hpsPFTauDiscriminationByMVA2MediumElectronRejection*
-    hpsPFTauDiscriminationByMVA2TightElectronRejection*
+    hpsPFTauDiscriminationByMVA2Loose1ElectronRejection*
+    hpsPFTauDiscriminationByMVA2Loose2ElectronRejection*
+    hpsPFTauDiscriminationByMVA2Medium1ElectronRejection*
+    hpsPFTauDiscriminationByMVA2Medium2ElectronRejection*
+    hpsPFTauDiscriminationByMVA2Tight1ElectronRejection*
+    hpsPFTauDiscriminationByMVA2Tight2ElectronRejection*
+    hpsPFTauDiscriminationByMVA2VTight1ElectronRejection*
+    hpsPFTauDiscriminationByMVA2VTight2ElectronRejection*    
     hpsPFTauDiscriminationByLooseMuonRejection*
     hpsPFTauDiscriminationByMediumMuonRejection*
     hpsPFTauDiscriminationByTightMuonRejection

@@ -15,25 +15,26 @@ pfRecoTauDiscriminationAgainstElectronMVA2 = cms.EDProducer(
     method = cms.string("BDT"),
 
     inputFileName1prongNoEleMatchBL           = \
-      cms.FileInPath('RecoTauTag/RecoTau/data/TMVAClassification_v4_NoEleMatch_Barrel_BDT.weights.xml.gz'),
+      cms.FileInPath('RecoTauTag/RecoTau/data/TMVAClassification_v5_NoEleMatch_Barrel_BDTG.weights.xml.gz'),
     inputFileName1prongBL                     = \
-      cms.FileInPath('RecoTauTag/RecoTau/data/TMVAClassification_v4_woG_Barrel_BDT.weights.xml.gz'),
+      cms.FileInPath('RecoTauTag/RecoTau/data/TMVAClassification_v5_woG_Barrel_BDTG.weights.xml.gz'),
     inputFileName1prongStripsWOgsfBL          = \
-      cms.FileInPath('RecoTauTag/RecoTau/data/TMVAClassification_v4_wGwoGSF_Barrel_BDT.weights.xml.gz'),
+      cms.FileInPath('RecoTauTag/RecoTau/data/TMVAClassification_v5_wGwoGSF_Barrel_BDTG.weights.xml.gz'),
     inputFileName1prongStripsWgsfWOpfEleMvaBL = \
-      cms.FileInPath('RecoTauTag/RecoTau/data/TMVAClassification_v4_wGwGSFwoPFMVA_Barrel_BDT.weights.xml.gz'),
+      cms.FileInPath('RecoTauTag/RecoTau/data/TMVAClassification_v5_wGwGSFwoPFMVA_Barrel_BDTG.weights.xml.gz'),
     inputFileName1prongStripsWgsfWpfEleMvaBL  = \
-      cms.FileInPath('RecoTauTag/RecoTau/data/TMVAClassification_v4_wGwGSFwPFMVA_Barrel_BDT.weights.xml.gz'),
+      cms.FileInPath('RecoTauTag/RecoTau/data/TMVAClassification_v5_wGwGSFwPFMVA_Barrel_BDTG.weights.xml.gz'),
+
     inputFileName1prongNoEleMatchEC           = \
-      cms.FileInPath('RecoTauTag/RecoTau/data/TMVAClassification_v4_NoEleMatch_Endcap_BDT.weights.xml.gz'),
+      cms.FileInPath('RecoTauTag/RecoTau/data/TMVAClassification_v5_NoEleMatch_Endcap_BDTG.weights.xml.gz'),
     inputFileName1prongEC                     = \
-      cms.FileInPath('RecoTauTag/RecoTau/data/TMVAClassification_v4_woG_Endcap_BDT.weights.xml.gz'),
+      cms.FileInPath('RecoTauTag/RecoTau/data/TMVAClassification_v5_woG_Endcap_BDTG.weights.xml.gz'),
     inputFileName1prongStripsWOgsfEC          = \
-      cms.FileInPath('RecoTauTag/RecoTau/data/TMVAClassification_v4_wGwoGSF_Endcap_BDT.weights.xml.gz'),
+      cms.FileInPath('RecoTauTag/RecoTau/data/TMVAClassification_v5_wGwoGSF_Endcap_BDTG.weights.xml.gz'),
     inputFileName1prongStripsWgsfWOpfEleMvaEC = \
-      cms.FileInPath('RecoTauTag/RecoTau/data/TMVAClassification_v4_wGwGSFwoPFMVA_Endcap_BDT.weights.xml.gz'),
+      cms.FileInPath('RecoTauTag/RecoTau/data/TMVAClassification_v5_wGwGSFwoPFMVA_Endcap_BDTG.weights.xml.gz'),
     inputFileName1prongStripsWgsfWpfEleMvaEC  = \
-      cms.FileInPath('RecoTauTag/RecoTau/data/TMVAClassification_v4_wGwGSFwPFMVA_Endcap_BDT.weights.xml.gz'),
+      cms.FileInPath('RecoTauTag/RecoTau/data/TMVAClassification_v5_wGwGSFwPFMVA_Endcap_BDTG.weights.xml.gz'),
 
     returnMVA = cms.bool(True),
 
