@@ -4,6 +4,9 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
@@ -464,12 +467,16 @@ struct RecoMuonValidator::CommonME {
 //Constructor
 //
 RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset):
-  selector_(pset.getParameter<std::string>("selection"))
+    selector_(pset.getParameter<std::string>("selection"))
 {
+
   verbose_ = pset.getUntrackedParameter<unsigned int>("verbose", 0);
 
   outputFileName_ = pset.getUntrackedParameter<string>("outputFileName", "");
 
+  wantTightMuon_ = pset.getParameter<bool>("wantTightMuon");
+  beamspotLabel_ = pset.getParameter< edm::InputTag >("beamSpot");
+  primvertexLabel_ = pset.getParameter< edm::InputTag >("primaryVertex");
 
   // Set histogram dimensions from config
   HistoDimensions hDim;
@@ -675,6 +682,35 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     return;
   }
 
+  // Look for the Primary Vertex (and use the BeamSpot instead, if you can't find it):
+  reco::Vertex::Point posVtx;
+  reco::Vertex::Error errVtx;
+  edm::Handle<reco::VertexCollection> recVtxs;
+  event.getByLabel(primvertexLabel_,recVtxs);
+  unsigned int theIndexOfThePrimaryVertex = 999.;
+  for (unsigned int ind=0; ind<recVtxs->size(); ++ind) {
+    if ( (*recVtxs)[ind].isValid() && !((*recVtxs)[ind].isFake()) ) {
+      theIndexOfThePrimaryVertex = ind;
+      break;
+    }
+  }
+  if (theIndexOfThePrimaryVertex<100) {
+    posVtx = ((*recVtxs)[theIndexOfThePrimaryVertex]).position();
+    errVtx = ((*recVtxs)[theIndexOfThePrimaryVertex]).error();
+  }
+  else {
+    LogInfo("RecoMuonValidator") << "reco::PrimaryVertex not found, use BeamSpot position instead\n";
+    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+    event.getByLabel(beamspotLabel_,recoBeamSpotHandle);
+    reco::BeamSpot bs = *recoBeamSpotHandle;
+    posVtx = bs.position();
+    errVtx(0,0) = bs.BeamWidthX();
+    errVtx(1,1) = bs.BeamWidthY();
+    errVtx(2,2) = bs.sigmaZ();
+  }
+  const reco::Vertex thePrimaryVertex(posVtx,errVtx);
+
+
   // Get TrackingParticles
   Handle<TrackingParticleCollection> simHandle;
   event.getByLabel(simLabel_, simHandle);
@@ -761,9 +797,11 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     commonME_->hMuonAllEta_->Fill(muonEta);
     commonME_->hMuonAllPhi_->Fill(muonPhi);
 
-
     if (!selector_(*iMuon)) continue;
-
+    if (wantTightMuon_)
+      {
+	if (!muon::isTightMuon(*iMuon, thePrimaryVertex)) continue;
+      }
 
     TrackRef Track = iMuon->track();
 
@@ -843,26 +881,26 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     const TrackingParticle* simTP = simRef.get();
     if ( ! tpSelector_(*simTP) ) continue;
 
-      //denominators for efficiency plots
-      const double simP   = simRef->p();
-      const double simPt  = simRef->pt();
-      const double simEta = doAbsEta_ ? fabs(simRef->eta()) : simRef->eta();
-      const double simPhi = simRef->phi();
+    //denominators for efficiency plots
+    const double simP   = simRef->p();
+    const double simPt  = simRef->pt();
+    const double simEta = doAbsEta_ ? fabs(simRef->eta()) : simRef->eta();
+    const double simPhi = simRef->phi();
+    
+    GlobalPoint  simVtx(simRef->vertex().x(), simRef->vertex().y(), simRef->vertex().z());
+    GlobalVector simMom(simRef->momentum().x(), simRef->momentum().y(), simRef->momentum().z());
+    const double simDxy = -simVtx.x()*sin(simPhi)+simVtx.y()*cos(simPhi);
+    const double simDz  = simVtx.z() - (simVtx.x()*simMom.x()+simVtx.y()*simMom.y())*simMom.z()/simMom.perp2();
+    
+    const unsigned int nSimHits = simRef->pSimHit_end() - simRef->pSimHit_begin();
 
-      GlobalPoint  simVtx(simRef->vertex().x(), simRef->vertex().y(), simRef->vertex().z());
-      GlobalVector simMom(simRef->momentum().x(), simRef->momentum().y(), simRef->momentum().z());
-      const double simDxy = -simVtx.x()*sin(simPhi)+simVtx.y()*cos(simPhi);
-      const double simDz  = simVtx.z() - (simVtx.x()*simMom.x()+simVtx.y()*simMom.y())*simMom.z()/simMom.perp2();
-      
-      const unsigned int nSimHits = simRef->pSimHit_end() - simRef->pSimHit_begin();
-
-      muonME_->hSimP_  ->Fill(simP  );
-      muonME_->hSimPt_ ->Fill(simPt );
-      muonME_->hSimEta_->Fill(simEta);
-      muonME_->hSimPhi_->Fill(simPhi);
-      muonME_->hSimDxy_->Fill(simDxy);
-      muonME_->hSimDz_->Fill(simDz);
-      muonME_->hNSimHits_->Fill(nSimHits);
+    muonME_->hSimP_  ->Fill(simP  );
+    muonME_->hSimPt_ ->Fill(simPt );
+    muonME_->hSimEta_->Fill(simEta);
+    muonME_->hSimPhi_->Fill(simPhi);
+    muonME_->hSimDxy_->Fill(simDxy);
+    muonME_->hSimDz_->Fill(simDz);
+    muonME_->hNSimHits_->Fill(nSimHits);
 
     // Get sim-reco association for a simRef
     vector<pair<RefToBase<Muon>, double> > MuRefV;
@@ -873,6 +911,10 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
         muonME_->hNSimToReco_->Fill(MuRefV.size());
         const Muon* Mu = MuRefV.begin()->first.get();
         if (!selector_(*Mu)) continue;
+	if (wantTightMuon_)
+	  {
+	    if (!muon::isTightMuon(*Mu, thePrimaryVertex)) continue;
+	  }
 
         muonME_->fill(&*simTP, Mu); 
       }

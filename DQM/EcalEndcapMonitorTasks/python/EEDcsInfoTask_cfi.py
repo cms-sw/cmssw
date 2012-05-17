@@ -5,5 +5,3 @@ ecalEndcapDcsInfoTask = cms.EDAnalyzer("EEDcsInfoTask",
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False)
 )
-
-# ecalEndcapDcsInfoTask = cms.Sequence()

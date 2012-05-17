@@ -52,7 +52,7 @@ TtFullHadronicEvent::print(const int verbosity) const
     case kWMassMaxSumPt     : log << " WMassMaxSumPt not (yet) applicable to TtFullHadronicEvent --> skipping"    ; continue;
     case kMaxSumPtWMass     : log << " MaxSumPtWMass not (yet) applicable to TtFullHadronicEvent --> skipping"    ; continue;
     case kGenMatch          : log << " GenMatch"                                                                  ; break;
-    case kMVADisc           : log << " MVADisc not (yet) applicable to TtFullHadronicEvent --> skipping"          ; continue;
+    case kMVADisc           : log << " MVADisc"                                                                   ; break;
     case kKinFit            : log << " KinFit"                                                                    ; break;
     case kKinSolution       : log << " KinSolution not (yet) applicable to TtFullHadronicEvent --> skipping"      ; continue;
     case kWMassDeltaTopMass : log << " WMassDeltaTopMass not (yet) applicable to TtFullHadronicEvent --> skipping"; continue;
@@ -85,6 +85,8 @@ TtFullHadronicEvent::print(const int verbosity) const
 	switch(hypKey) {
 	case kGenMatch : log << " * Sum(DeltaR) : " << this->genMatchSumDR(cmb) << " \n"
 			     << " * Sum(DeltaPt): " << this->genMatchSumPt(cmb) << " \n"; break;
+	case kMVADisc  : log << " * Method      : " << this->mvaMethod()        << " \n"
+			     << " * Discrim.    : " << this->mvaDisc(cmb)       << " \n"; break;
 	case kKinFit   : log << " * Chi^2       : " << this->fitChi2(cmb)       << " \n"
 			     << " * Prob(Chi^2) : " << this->fitProb(cmb)       << " \n"; break;
 	default        : break;
@@ -92,8 +94,6 @@ TtFullHadronicEvent::print(const int verbosity) const
 	// kinematic quantities of particles (if last digit of verbosity level > 1)
 	if(verbosity%10 >= 2) {
 	  log << " * Candidates (pt; eta; phi; mass) :\n";
-	  if(verbosity%10 >= 3)
-	    printParticle(log, "top pair", this->topPair(hypKey, cmb));
 	  printParticle(log, "top       ", this->top  (hypKey, cmb));
 	  printParticle(log, "W plus    ", this->wPlus(hypKey, cmb));
 	  if(verbosity%10 >= 3) {

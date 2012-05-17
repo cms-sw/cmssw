@@ -36,7 +36,7 @@ void    lsbs_cert( string filename );
 
 int main(int argc , char *argv[]) {
 
-  if(argc==2) {
+  if(argc==1) {
     char* filename = argv[1];
 
     std::cout << "ready to run lsbs filename " << filename << std::endl;
@@ -119,9 +119,9 @@ void    lsbs_cert( string filename )
   check_sigma  ( filename, "Debug"      , "hsigmaYLumibased PrimaryVertex-DataBase fit" ,  limit_errdy , ls_errdy_bad );
   check_sigma  ( filename, "Debug"      , "hsigmaZLumibased PrimaryVertex-DataBase fit" ,  limit_errdz , ls_errdz_bad );
   
-  check_sigma  ( filename, "Validation" , "hsigmaXLumibased Scalers-DataBase fit" ,  limit_errdx , ls_errdxsc_bad );
-  check_sigma  ( filename, "Validation" , "hsigmaYLumibased Scalers-DataBase fit" ,  limit_errdy , ls_errdysc_bad );
-  check_sigma  ( filename, "Validation" , "hsigmaZLumibased Scalers-DataBase fit" ,  limit_errdz , ls_errdzsc_bad );
+  check_sigma  ( filename, "Validation" , "hsigmaXLumibased PrimaryVertex-DataBase fit" ,  limit_errdx , ls_errdxsc_bad );
+  check_sigma  ( filename, "Validation" , "hsigmaYLumibased PrimaryVertex-DataBase fit" ,  limit_errdy , ls_errdysc_bad );
+  check_sigma  ( filename, "Validation" , "hsigmaZLumibased PrimaryVertex-DataBase fit" ,  limit_errdz , ls_errdzsc_bad );
 
   //BAD LS only if bad in both histos (wrt PV, Scalers)
   vector_AND ( ls_x_bad , ls_xsc_bad );
@@ -237,7 +237,7 @@ void    lsbs_cert( string filename )
     }
 
   outfile.close();
-  std::cout << "Lumibased BeamSpot Calibration Certification summary saved in " << namefile << endl;
+  cout << "Lumibased BeamSpot Calibration Certification summary saved in " << namefile << endl;
 }
 
 void check_offset ( string filename , string iDir , string plot , float limit_min , float limit_max , vector <int>& badLS ) 
@@ -332,7 +332,7 @@ string runnum_str( string filename )
 int getplot( string filename , string iDir , string strplot , TH1F& plot )
 {
   string run = runnum_str( filename );
-  if (debug) std::cout << filename.c_str() << endl;
+  if (debug) cout << filename.c_str() << endl;
   
   TFile* file = TFile::Open(filename.c_str());
   if (!file->IsOpen()) {
@@ -348,11 +348,7 @@ int getplot( string filename , string iDir , string strplot , TH1F& plot )
   TH1F* thisplot;
   gDirectory->GetObject ( theplot.c_str() , thisplot );
 
-  if ( !thisplot )
-    {
-      std::cout << "Error: plot " << dir << "/" << theplot.c_str() << " not found!" << endl;
-      return -2;
-    }
+  if ( !thisplot ) return -2;
 
   plot = *thisplot;
   thisplot = NULL;

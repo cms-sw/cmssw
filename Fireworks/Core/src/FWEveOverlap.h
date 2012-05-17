@@ -6,24 +6,39 @@
 #include <Rtypes.h>
 
 class FWGeometryTableManagerBase;
-class TGLViewer;
+
 class FWEveOverlap : public FWGeoTopNode
 {
 public:
+
+   enum MenuOptions {
+      //      kOvlVisOff,
+      //  kOvlVisOnOvl,
+      // kOvlVisOnAllMother,
+      //kOvlVisMother,
+      //kOvlSwitchVis,
+
+      kOvlDaugtersVisOn,
+      kOvlDaugtersVisOff,
+      kOvlCamera,
+      kOvlSetTopNode,
+      kOvlPrintOvl,
+      kOvlPrintPath
+   };
+
    FWEveOverlap(FWOverlapTableView* v);
    virtual ~FWEveOverlap(){}
 
    virtual void Paint(Option_t* option="");
    virtual TString     GetHighlightTooltip();
-   
+
    virtual FWGeometryTableManagerBase* tableManager();
-   virtual FWGeometryTableViewBase* browser();
-   virtual void popupMenu(int x, int y, TGLViewer* v);
+   virtual void popupMenu(int x, int y);
 private:
    FWOverlapTableView       *m_browser;
 
 #ifndef __CINT__
-   bool paintChildNodesRecurse(FWGeometryTableManagerBase::Entries_i pIt, Int_t idx,  const TGeoHMatrix& mtx);
+   void paintChildNodesRecurse(FWGeometryTableManagerBase::Entries_i pIt, Int_t idx,  const TGeoHMatrix& mtx);
 #endif
    ClassDef(FWEveOverlap, 0);
 };

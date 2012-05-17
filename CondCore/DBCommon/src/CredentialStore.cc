@@ -1007,7 +1007,7 @@ bool cond::CredentialStore::unsetPermission( const std::string& principal,
     throwException( msg, "CredentialStore::unsetPermission");
   }
 
-  coral::ITableDataEditor& editor = schema.tableHandle(COND_AUTHORIZATION_TABLE).dataEditor();
+  coral::ITableDataEditor& editor = schema.tableHandle(COND_AUTHENTICATION_TABLE).dataEditor();
   coral::AttributeList deleteData;
   deleteData.extend<int>( P_ID_COL );
   deleteData.extend<std::string>( ROLE_COL );

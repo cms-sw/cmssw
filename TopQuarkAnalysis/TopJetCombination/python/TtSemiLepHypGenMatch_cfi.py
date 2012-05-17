@@ -10,10 +10,8 @@ ttSemiLepHypGenMatch = cms.EDProducer("TtSemiLepHypGenMatch",
     jets  = cms.InputTag("selectedPatJets"),
     ## lepton input
     leps  = cms.InputTag("selectedPatMuons"),
-    ## matched jet combination
+    ## gen match hypothesis input
     match = cms.InputTag("ttSemiLepJetPartonMatch"),
-    ## number of considered jets
-    nJetsConsidered = cms.InputTag("ttSemiLepJetPartonMatch","NumberOfConsideredJets"),    
     ## specify jet correction level as, Uncorrected, L1Offset, L2Relative, L3Absolute,
     ## L4Emf, L5Hadron, L6UE, L7Parton, a flavor specification will be added automatically,
     ## when chosen   

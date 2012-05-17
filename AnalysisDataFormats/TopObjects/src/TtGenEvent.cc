@@ -1,5 +1,5 @@
 //
-// $Id: TtGenEvent.cc,v 1.33 2012/04/20 11:27:09 snaumann Exp $
+// $Id: TtGenEvent.cc,v 1.30 2010/01/05 22:33:10 rwolf Exp $
 //
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -7,33 +7,12 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-/// default constructor from decaySubset and initSubset
+
+/// default contructor from decaySubset and initSubset
 TtGenEvent::TtGenEvent(reco::GenParticleRefProd& decaySubset, reco::GenParticleRefProd& initSubset)
 {
   parts_ = decaySubset;
   initPartons_= initSubset;
-  if(top() && topBar())
-    topPair_ = math::XYZTLorentzVector(top()->p4()+topBar()->p4());
-}
-
-bool
-TtGenEvent::fromGluonFusion() const
-{
-  const reco::GenParticleCollection& initPartsColl = *initPartons_;
-  if(initPartsColl.size()==2)
-    if(initPartsColl[0].pdgId()==21 && initPartsColl[1].pdgId()==21)
-      return true;
-  return false;
-}
-
-bool
-TtGenEvent::fromQuarkAnnihilation() const
-{
-  const reco::GenParticleCollection& initPartsColl = *initPartons_;
-  if(initPartsColl.size()==2)
-    if(std::abs(initPartsColl[0].pdgId())<(unsigned)TopDecayID::tID && initPartsColl[0].pdgId()==-initPartsColl[1].pdgId())
-      return true;
-  return false;
 }
 
 WDecay::LeptonType 

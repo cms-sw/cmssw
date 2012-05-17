@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2012/04/13 17:59:44 $
- * $Revision: 1.50.2.5 $
+ * $Date: 2012/03/16 14:46:38 $
+ * $Revision: 1.50.2.2 $
  * \author G. Della Ricca
  *
 */
@@ -85,13 +85,9 @@ bool debug_;
 
 std::string prefixME_;
 
- std::string subfolder_;
-
 bool enableCleanup_;
 
  bool produceReports_;
-
- bool reducedReports_;
 
 std::vector<int> superModules_;
 std::vector<int> laserWavelengths_;
@@ -191,8 +187,6 @@ TProfile2D* hpot01_[18];
 TProfile2D* httt01_[18];
 TProfile2D* htmt01_[18];
 TH1F* norm01_, *synch01_;
-
- float timingNHitThreshold_;
 
 };
 

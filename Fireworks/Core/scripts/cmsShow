@@ -98,11 +98,8 @@ setupEnv()
      export ROOTSYS=$CMSSW_BASE/external/root 
      export LD_LIBRARY_PATH=${CMSSW_BASE}/lib:${CMSSW_BASE}/external/gcc/lib64:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib:$LD_LIBRARY_PATH
      export DYLD_FALLBACK_LIBRARY_PATH=${LD_LIBRARY_PATH}
-     if [ -n "$DYLD_LIBRARY_PATH" ]; then
-        echo "Warning: DYLD_LIBRARY_PATH not empty. Unsetting DYLD_LIBRARY_PATH." 
-        unset DYLD_LIBRARY_PATH
-     fi
      export PATH=${ROOTSYS}/bin:$PATH
+
      # move cmsShow.exe to libexec
      SHELLDIR=$SHELLDIR/libexec
    fi
@@ -175,11 +172,7 @@ if [ "X$debuginteractiveflag" = Xon ] ; then
   gdb --args "$SHELLDIR/cmsShow.exe" $originalOptions
   exit;
 elif [ "X$valgrindflag" = Xon ] ; then
-  # MT: This should supposedly get rid of ROOT dicitonary reports etc. but it
-  # didn't seem to work very well when I tried it (so I disabled error limit).
-  # --suppressions=$ROOTSYS/etc/valgrind-root.supp
-  valgrind --num-callers=30 --log-file=valgrind.log.$$ --freelist-vol=100000000 \
-    --error-limit=no  "$SHELLDIR/cmsShow.exe" $originalOptions
+  valgrind --num-callers=30 --log-file=valgrind.log.$$ --freelist-vol=100000000 "$SHELLDIR/cmsShow.exe" $@
   exit;
 fi
 

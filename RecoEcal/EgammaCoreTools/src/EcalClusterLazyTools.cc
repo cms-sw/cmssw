@@ -10,6 +10,9 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
+#include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
+#include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
 
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
@@ -70,6 +73,18 @@ EcalClusterLazyTools::EcalClusterLazyTools( const edm::Event &ev, const edm::Eve
 
 }
 
+EcalClusterLazyTools::EcalClusterLazyTools( const edm::Event &ev, const edm::EventSetup &es, edm::InputTag redEBRecHits, edm::InputTag redEERecHits, edm::InputTag redESRecHits)
+{
+        getGeometry( es );
+        getTopology( es );
+        getEBRecHits( ev, redEBRecHits );
+        getEERecHits( ev, redEERecHits );
+        getESRecHits( ev, redESRecHits );
+        getIntercalibConstants( es );
+        getADCToGeV ( es );
+        getLaserDbService ( es );
+
+}
 
 EcalClusterLazyTools::~EcalClusterLazyTools()
 {
@@ -109,6 +124,28 @@ void EcalClusterLazyTools::getEERecHits( const edm::Event &ev, edm::InputTag red
         edm::Handle< EcalRecHitCollection > pEERecHits;
         ev.getByLabel( redEERecHits, pEERecHits );
         eeRecHits_ = pEERecHits.product();
+}
+
+
+
+void EcalClusterLazyTools::getESRecHits( const edm::Event &ev, edm::InputTag redESRecHits )
+{
+        edm::Handle< EcalRecHitCollection > pESRecHits;
+        ev.getByLabel( redESRecHits, pESRecHits );
+        esRecHits_ = pESRecHits.product();
+
+        // make the map of rechits
+        rechits_map_.clear();
+        if (pESRecHits.isValid()) {
+          EcalRecHitCollection::const_iterator it;
+          for (it = pESRecHits->begin(); it != pESRecHits->end(); ++it) {
+            // remove bad ES rechits
+            if (it->recoFlag()==1 || it->recoFlag()==14 || (it->recoFlag()<=10 && it->recoFlag()>=5)) continue;
+            //Make the map of DetID, EcalRecHit pairs
+            rechits_map_.insert(std::make_pair(it->id(), *it));
+          }
+        }
+
 }
 
 
@@ -574,4 +611,196 @@ float EcalClusterLazyTools::SuperClusterTime(const reco::SuperCluster &cluster, 
   
   return BasicClusterTime ( (*cluster.seed()) , ev);
 
+}
+
+
+// get Preshower effective sigmaIRIR
+float EcalClusterLazyTools::eseffsirir(const reco::SuperCluster &cluster)
+{
+  if (!(fabs(cluster.eta()) > 1.6 && fabs(cluster.eta()) < 3.)) return 0.;
+
+  const CaloSubdetectorGeometry *geometryES = geometry_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  CaloSubdetectorTopology *topology_p = 0;
+  if (geometryES) topology_p = new EcalPreshowerTopology(geometry_);
+
+  std::vector<float> phoESHitsIXIX = getESHits(cluster.x(), cluster.y(), cluster.z(), rechits_map_, geometry_, topology_p, 0, 1);
+  std::vector<float> phoESHitsIYIY = getESHits(cluster.x(), cluster.y(), cluster.z(), rechits_map_, geometry_, topology_p, 0, 2);
+  float phoESShapeIXIX = getESShape(phoESHitsIXIX);
+  float phoESShapeIYIY = getESShape(phoESHitsIYIY);
+
+  return sqrt(phoESShapeIXIX*phoESShapeIXIX + phoESShapeIYIY*phoESShapeIYIY);
+}
+
+// get Preshower effective sigmaIXIX
+float EcalClusterLazyTools::eseffsixix(const reco::SuperCluster &cluster)
+{
+  if (!(fabs(cluster.eta()) > 1.6 && fabs(cluster.eta()) < 3.)) return 0.;
+
+  const CaloSubdetectorGeometry *geometryES = geometry_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  CaloSubdetectorTopology *topology_p = 0;
+  if (geometryES) topology_p = new EcalPreshowerTopology(geometry_);
+
+  std::vector<float> phoESHitsIXIX = getESHits(cluster.x(), cluster.y(), cluster.z(), rechits_map_, geometry_, topology_p, 0, 1);
+  float phoESShapeIXIX = getESShape(phoESHitsIXIX);
+
+  return phoESShapeIXIX;
+}
+
+// get Preshower effective sigmaIYIY
+float EcalClusterLazyTools::eseffsiyiy(const reco::SuperCluster &cluster)
+{
+  if (!(fabs(cluster.eta()) > 1.6 && fabs(cluster.eta()) < 3.)) return 0.;
+
+  const CaloSubdetectorGeometry *geometryES = geometry_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  CaloSubdetectorTopology *topology_p = 0;
+  if (geometryES) topology_p = new EcalPreshowerTopology(geometry_);
+
+  std::vector<float> phoESHitsIYIY = getESHits(cluster.x(), cluster.y(), cluster.z(), rechits_map_, geometry_, topology_p, 0, 2);
+  float phoESShapeIYIY = getESShape(phoESHitsIYIY);
+
+  return phoESShapeIYIY;
+}
+
+// get Preshower Rechits
+std::vector<float> EcalClusterLazyTools::getESHits(double X, double Y, double Z, std::map<DetId, EcalRecHit> rechits_map, const CaloGeometry* geometry, CaloSubdetectorTopology *topology_p, int row, int plane) 
+{
+  std::vector<float> esHits;
+
+  const GlobalPoint point(X,Y,Z);
+
+  const CaloSubdetectorGeometry *geometry_p ;
+  geometry_p = geometry->getSubdetectorGeometry (DetId::Ecal,EcalPreshower) ;
+
+  DetId esId = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, plane);
+  ESDetId esDetId = (esId == DetId(0)) ? ESDetId(0) : ESDetId(esId);
+
+  std::map<DetId, EcalRecHit>::iterator it;
+  ESDetId next;
+  ESDetId strip;
+  strip = esDetId;
+
+  EcalPreshowerNavigator theESNav(strip, topology_p);
+  theESNav.setHome(strip);
+
+  if (row == 1) {
+    if (plane==1 && strip != ESDetId(0)) strip = theESNav.north();
+    if (plane==2 && strip != ESDetId(0)) strip = theESNav.east();
+  } else if (row == -1) {
+    if (plane==1 && strip != ESDetId(0)) strip = theESNav.south();
+    if (plane==2 && strip != ESDetId(0)) strip = theESNav.west();
+  }
+
+
+  if (strip == ESDetId(0)) {
+    for (int i=0; i<31; ++i) esHits.push_back(0);
+  } else {
+    it = rechits_map.find(strip);
+    if (it->second.energy() > 1.0e-10 && it != rechits_map.end()) esHits.push_back(it->second.energy());
+    else esHits.push_back(0);
+    //cout<<"center : "<<strip<<" "<<it->second.energy()<<endl;
+
+    // Front Plane
+    if (plane==1) {
+      // east road
+      for (int i=0; i<15; ++i) {
+        next = theESNav.east();
+        if (next != ESDetId(0)) {
+          it = rechits_map.find(next);
+          if (it->second.energy() > 1.0e-10 && it != rechits_map.end()) esHits.push_back(it->second.energy());
+          else esHits.push_back(0);
+          //cout<<"east "<<i<<" : "<<next<<" "<<it->second.energy()<<endl;
+        } else {
+          for (int j=i; j<15; j++) esHits.push_back(0);
+          break;
+          //cout<<"east "<<i<<" : "<<next<<" "<<0<<endl;
+        }
+      }
+
+      // west road
+      theESNav.setHome(strip);
+      theESNav.home();
+      for (int i=0; i<15; ++i) {
+        next = theESNav.west();
+        if (next != ESDetId(0)) {
+          it = rechits_map.find(next);
+          if (it->second.energy() > 1.0e-10 && it != rechits_map.end()) esHits.push_back(it->second.energy());
+          else esHits.push_back(0);
+          //cout<<"west "<<i<<" : "<<next<<" "<<it->second.energy()<<endl;
+        } else {
+          for (int j=i; j<15; j++) esHits.push_back(0);
+          break;
+          //cout<<"west "<<i<<" : "<<next<<" "<<0<<endl;
+        }
+      }
+    } // End of Front Plane
+
+    // Rear Plane
+    if (plane==2) {
+      // north road
+      for (int i=0; i<15; ++i) {
+        next = theESNav.north();
+        if (next != ESDetId(0)) {
+          it = rechits_map.find(next);
+          if (it->second.energy() > 1.0e-10 && it != rechits_map.end()) esHits.push_back(it->second.energy());
+          else esHits.push_back(0);
+          //cout<<"north "<<i<<" : "<<next<<" "<<it->second.energy()<<endl;
+        } else {
+          for (int j=i; j<15; j++) esHits.push_back(0);
+          break;
+          //cout<<"north "<<i<<" : "<<next<<" "<<0<<endl;
+        }
+      }
+
+      // south road
+      theESNav.setHome(strip);
+      theESNav.home();
+      for (int i=0; i<15; ++i) {
+        next = theESNav.south();
+        if (next != ESDetId(0)) {
+          it = rechits_map.find(next);
+          if (it->second.energy() > 1.0e-10 && it != rechits_map.end()) esHits.push_back(it->second.energy());
+          else esHits.push_back(0);
+          //cout<<"south "<<i<<" : "<<next<<" "<<it->second.energy()<<endl;
+        } else {
+          for (int j=i; j<15; j++) esHits.push_back(0);
+          break;
+          //cout<<"south "<<i<<" : "<<next<<" "<<0<<endl;
+        }
+      }
+    } // End of Rear Plane
+  } // Fill ES RecHits
+
+  return esHits;
+}
+
+
+// get Preshower hit shape
+float EcalClusterLazyTools::getESShape(std::vector<float> ESHits0)
+{
+  const int nBIN = 21;
+  float esRH[nBIN];
+  for (int idx=0; idx<nBIN; idx++) {
+    esRH[idx] = 0.;
+  }
+
+  for(int ibin=0; ibin<((nBIN+1)/2); ibin++) {
+    if (ibin==0) {
+      esRH[(nBIN-1)/2] = ESHits0[ibin];
+    } else {
+      esRH[(nBIN-1)/2+ibin] = ESHits0[ibin];
+      esRH[(nBIN-1)/2-ibin] = ESHits0[ibin+15];
+    }
+  }
+
+  // ---- Effective Energy Deposit Width ---- //
+  double EffWidthSigmaISIS = 0.;
+  double totalEnergyISIS   = 0.;
+  double EffStatsISIS      = 0.;
+  for (int id_X=0; id_X<21; id_X++) {
+    totalEnergyISIS  += esRH[id_X];
+    EffStatsISIS     += esRH[id_X]*(id_X-10)*(id_X-10);
+  }
+  EffWidthSigmaISIS  = (totalEnergyISIS>0.)  ? sqrt(fabs(EffStatsISIS  / totalEnergyISIS))   : 0.;
+
+  return EffWidthSigmaISIS;
 }

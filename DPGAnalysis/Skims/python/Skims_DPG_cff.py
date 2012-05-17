@@ -279,7 +279,7 @@ SKIMStreamTkSD = cms.FilteredStream(
 from DPGAnalysis.Skims.WElectronSkim_cff import *
 WElectronPath = cms.Path( elecMetSeq )
 SKIMStreamWElectron = cms.FilteredStream(
-    responsible = 'ECAL DPG',
+    responsible = 'Egamma POG',
     name = 'WElectron',
     paths = ( WElectronPath ),
     content = skimContent.outputCommands,
@@ -290,13 +290,13 @@ SKIMStreamWElectron = cms.FilteredStream(
 #####################
 
 from DPGAnalysis.Skims.ZElectronSkim_cff import *
-#ZElectronPathPhoton = cms.Path( tagPhotonSeq )
-#ZElectronPathTrack = cms.Path( tagTrackSeq )
+ZElectronPathPhoton = cms.Path( tagPhotonSeq )
+ZElectronPathTrack = cms.Path( tagTrackSeq )
 ZElectronPathGsf = cms.Path( tagGsfSeq )
 SKIMStreamZElectron = cms.FilteredStream(
-    responsible = 'ECAL DPG',
+    responsible = 'Egamma POG',
     name = 'ZElectron',
-    paths = ( ZElectronPathGsf ),
+    paths = ( ZElectronPathPhoton, ZElectronPathTrack, ZElectronPathGsf ),
     content = skimContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
@@ -309,7 +309,7 @@ from DPGAnalysis.Skims.HighMETSkim_cff import *
 pfPath = cms.Path(pfMETSelSeq)
 tcPath = cms.Path(tcMETSelSeq)
 SKIMStreamHighMET   = cms.FilteredStream(
-            responsible = 'MET Group',
+        responsible = 'MET Group',
             name = 'HighMET',
             paths = (pfPath,tcPath),
             content = skimContent.outputCommands,
@@ -318,19 +318,3 @@ SKIMStreamHighMET   = cms.FilteredStream(
             )
 
 #####################
-
-
-#####################
-
-from DPGAnalysis.Skims.ZHbbSkim_cff import *
-ZHbbSkimPath = cms.Path(ZHbbSkim)
-SKIMStreamZHbb = cms.FilteredStream(
-    responsible = 'BTV',
-    name = 'ZHbb',
-    paths = (ZHbbSkimPath),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
-
-

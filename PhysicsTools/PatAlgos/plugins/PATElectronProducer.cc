@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.57 2012/04/17 09:27:33 tjkim Exp $
+// $Id: PATElectronProducer.cc,v 1.56 2012/04/14 02:12:39 tjkim Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
 
@@ -182,7 +182,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   edm::InputTag  reducedEERecHitCollection(string("reducedEcalRecHitsEE"));
   EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollection, reducedEERecHitCollection);
 
-  // for conversion veto selection
+  // for conversion veto selection  
   edm::Handle<reco::ConversionCollection> hConversions;
   iEvent.getByLabel("allConversions", hConversions);
 
@@ -330,7 +330,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	  }
 
           double ip3d = -999; // for mva variable
-
+ 
 	  // embed high level selection
 	  if ( embedHighLevelSelection_ ) {
 	    // get the global track
@@ -340,7 +340,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	    if ( track.isNonnull() && track.isAvailable() ) {
 
 	      reco::TransientTrack tt = trackBuilder->build(track);
-	      embedHighLevel( anElectron,
+	      embedHighLevel( anElectron, 
 			      track,
 			      tt,
 			      primaryVertex,
@@ -388,7 +388,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
           // set conversion veto selection
           bool passconversionveto = false;
-          if( hConversions.isValid()){
+          if( hConversions.isValid()){          
             // this is recommended method
             passconversionveto = !ConversionTools::hasMatchedConversion( *itElectron, hConversions, beamSpotHandle->position());
           }else{
@@ -426,13 +426,6 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   }
 
   else{
-    // Try to access PF electron collection
-    edm::Handle<edm::ValueMap<reco::PFCandidatePtr> >ValMapH;
-    bool valMapPresent = iEvent.getByLabel(pfCandidateMap_,ValMapH);
-    // Try to access a PFCandidate collection, as supplied by the user
-    edm::Handle< reco::PFCandidateCollection >  pfElectrons;
-    bool pfCandsPresent = iEvent.getByLabel(pfElecSrc_, pfElectrons);
-
     for (edm::View<reco::GsfElectron>::const_iterator itElectron = electrons->begin(); itElectron != electrons->end(); ++itElectron) {
       // construct the Electron from the ref -> save ref to original object
       //FIXME: looks like a lot of instances could be turned into const refs
@@ -444,15 +437,21 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       // Is this GsfElectron also identified as an e- in the particle flow?
       bool pfId = false;
 
+      // first try to access PF electron collection
+      edm::Handle<edm::ValueMap<reco::PFCandidatePtr> >ValMapH;
+      bool valMapPresent = iEvent.getByLabel(pfCandidateMap_,ValMapH);
       if( valMapPresent ) {
-	const edm::ValueMap<reco::PFCandidatePtr> & myValMap(*ValMapH);
-
+	const edm::ValueMap<reco::PFCandidatePtr> & myValMap(*ValMapH); 
+	
 	// Get the PFCandidate
 	const reco::PFCandidatePtr& pfElePtr(myValMap[elecsRef]);
 	pfId= pfElePtr.isNonnull();
       }
-      else if ( pfCandsPresent ) {
-	// PF electron collection not available.
+      else {
+	// PF electron collection not available. 
+	// trying to access a PFCandidate collection, as supplied by the user
+	edm::Handle< reco::PFCandidateCollection >  pfElectrons;
+	iEvent.getByLabel(pfElecSrc_, pfElectrons);
 	const reco::GsfTrackRef& trkRef = itElectron->gsfTrack();
 	for( reco::PFCandidateConstIterator ie = pfElectrons->begin();
 	     ie != pfElectrons->end(); ++ie) {
@@ -464,7 +463,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	  }
 	}
       }
-
+            
       // add resolution info
 
       // Isolation
@@ -506,7 +505,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	if ( track.isNonnull() && track.isAvailable() ) {
 
 	  reco::TransientTrack tt = trackBuilder->build(track);
-	  embedHighLevel( anElectron,
+	  embedHighLevel( anElectron, 
 			  track,
 			  tt,
 			  primaryVertex,
@@ -542,7 +541,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       // set conversion veto selection
       bool passconversionveto = false;
       if( hConversions.isValid()){
-        // this is recommended method
+        // this is recommended method 
         passconversionveto = !ConversionTools::hasMatchedConversion( *itElectron, hConversions, beamSpotHandle->position());
       }else{
         // use missing hits without vertex fit method
@@ -697,7 +696,7 @@ void PATElectronProducer::fillElectron2( Electron& anElectron,
   for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
     if( isoDepositLabels_[j].first==pat::TrackIso ||
 	isoDepositLabels_[j].first==pat::EcalIso ||
-	isoDepositLabels_[j].first==pat::HcalIso ||
+	isoDepositLabels_[j].first==pat::HcalIso || 
 	deposits[j]->contains(candPtrForGenMatch.id())) {
       anElectron.setIsoDeposit(isoDepositLabels_[j].first,
  			       (*deposits[j])[candPtrForGenMatch]);
@@ -715,7 +714,7 @@ void PATElectronProducer::fillElectron2( Electron& anElectron,
   for (size_t j = 0; j<isolationValues.size(); ++j) {
     if( isolationValueLabels_[j].first==pat::TrackIso ||
 	isolationValueLabels_[j].first==pat::EcalIso ||
-	isolationValueLabels_[j].first==pat::HcalIso ||
+	isolationValueLabels_[j].first==pat::HcalIso || 
 	isolationValues[j]->contains(candPtrForGenMatch.id())) {
       anElectron.setIsolation(isolationValueLabels_[j].first,
  			      (*isolationValues[j])[candPtrForGenMatch]);
@@ -727,7 +726,7 @@ void PATElectronProducer::fillElectron2( Electron& anElectron,
     else {
       anElectron.setIsolation(isolationValueLabels_[j].first,
 			      (*isolationValues[j])[candPtrForIsolation->sourceCandidatePtr(0)]);
-    }
+    }    
   }
 }
 
@@ -898,7 +897,7 @@ void PATElectronProducer::readIsolationLabels( const edm::ParameterSet & iConfig
 
 // embed various impact parameters with errors
 // embed high level selection
-void PATElectronProducer::embedHighLevel( pat::Electron & anElectron,
+void PATElectronProducer::embedHighLevel( pat::Electron & anElectron, 
 					  reco::GsfTrackRef track,
 					  reco::TransientTrack & tt,
 					  reco::Vertex & primaryVertex,
@@ -915,7 +914,7 @@ void PATElectronProducer::embedHighLevel( pat::Electron & anElectron,
 					     GlobalVector(track->px(),
 							  track->py(),
 							  track->pz()),
-					     primaryVertex);
+					     primaryVertex); 
   double d0_corr = result.second.value();
   double d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
   anElectron.setDB( d0_corr, d0_err, pat::Electron::PV2D);
@@ -931,12 +930,12 @@ void PATElectronProducer::embedHighLevel( pat::Electron & anElectron,
   d0_corr = result.second.value();
   d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
   anElectron.setDB( d0_corr, d0_err, pat::Electron::PV3D);
-
+  
 
   // Correct to beam spot
   // make a fake vertex out of beam spot
   reco::Vertex vBeamspot(beamspot.position(), beamspot.covariance3D());
-
+  
   // BS2D
   result =
     IPTools::signedTransverseImpactParameter(tt,
@@ -947,7 +946,7 @@ void PATElectronProducer::embedHighLevel( pat::Electron & anElectron,
   d0_corr = result.second.value();
   d0_err = beamspotIsValid ? result.second.error() : -1.0;
   anElectron.setDB( d0_corr, d0_err, pat::Electron::BS2D);
-
+  
   // BS3D
   result =
     IPTools::signedImpactParameter3D(tt,

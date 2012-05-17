@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 20:31:32 CET 2012
-// $Id: FWOverlapTableManager.cc,v 1.7 2012/03/16 01:05:07 amraktad Exp $
+// $Id: FWOverlapTableManager.cc,v 1.6 2012/03/14 23:58:21 amraktad Exp $
 //
 
 // system include files
@@ -56,7 +56,6 @@ std::vector<std::string> FWOverlapTableManager::getTitles() const
 
    returnValue.push_back("Name");
    returnValue.push_back("Color");
-   returnValue.push_back("Opcty");
    returnValue.push_back("RnrSelf");
    returnValue.push_back("RnrChildren");
    returnValue.push_back("Overlap");
@@ -71,8 +70,8 @@ std::vector<std::string> FWOverlapTableManager::getTitles() const
 void FWOverlapTableManager::importOverlaps(std::string iPath, double iPrecision)
 {
    m_entries.clear();
-   m_mapNodeOverlaps.clear();
-   m_browser->m_markerVertices.clear();
+  m_mapNodeOverlaps.clear();
+  m_browser->m_markerVertices.clear();
    m_browser->m_markerIndices.clear();
 
    TEveGeoManagerHolder mangeur( FWGeometryTableViewManager::getGeoMangeur());
@@ -80,10 +79,7 @@ void FWOverlapTableManager::importOverlaps(std::string iPath, double iPrecision)
    NodeInfo topNodeInfo;
    topNodeInfo.m_node   = gGeoManager->GetTopNode();
    topNodeInfo.m_level  = 0;
-   topNodeInfo.m_color  = gGeoManager->GetTopNode()->GetVolume()->GetLineColor();
-   topNodeInfo.m_transparency  = gGeoManager->GetTopNode()->GetVolume()->GetTransparency();
    topNodeInfo.m_parent = -1;
-   topNodeInfo.resetBit(kVisNodeSelf);
 
    m_entries.resize(gGeoManager->GetNNodes());
    m_entries[0] = topNodeInfo;
@@ -127,7 +123,6 @@ void FWOverlapTableManager::importOverlaps(std::string iPath, double iPrecision)
       if (!eit->testBit(kOverlap)) eit->resetBit(kVisNodeSelf);
       eit->m_node = node;
       eit->m_color = node->GetVolume()->GetLineColor();
-      eit->m_transparency = node->GetVolume()->GetTransparency();
       eit->m_level = git.GetLevel();
       eit->m_parent = icheck;
      
@@ -400,13 +395,7 @@ FWTableCellRendererBase* FWOverlapTableManager::cellRenderer(int iSortedRowNumbe
 
    if (unsortedRow < 0) printf("!!!!!!!!!!!!!!!! error %d %d \n",unsortedRow,  iSortedRowNumber);
 
-   // editor state
-   //
-   m_renderer.showEditor(unsortedRow == m_editTransparencyIdx && iCol == 2);
 
-
-   // selection state
-   //
    const NodeInfo& data = m_entries[unsortedRow];
 
    bool isSelected = data.testBit(kHighlighted) ||  data.testBit(kSelected);
@@ -425,9 +414,6 @@ FWTableCellRendererBase* FWOverlapTableManager::cellRenderer(int iSortedRowNumbe
       m_highlightContext->SetBackground(0xdddddd);
    }
   
-
-   // set column content
-   //
    if (iCol == 0)
    {
       if (unsortedRow == m_browser->getTopNodeIdx())
@@ -459,7 +445,7 @@ FWTableCellRendererBase* FWOverlapTableManager::cellRenderer(int iSortedRowNumbe
       m_renderer.setIsParent(false);
       m_renderer.setIndentation(0);
 
-      if (iCol == 5)
+      if (iCol == 4)
       {
          if (data.testBit(kOverlap) ) 
          {
@@ -490,20 +476,16 @@ FWTableCellRendererBase* FWOverlapTableManager::cellRenderer(int iSortedRowNumbe
          return  &m_colorBoxRenderer;
       }
       else if (iCol == 2 )
-      { 
-         m_renderer.setData(Form("%d", 100 -data.m_transparency), isSelected);
-      }
-      else if (iCol == 3 )
       {
          m_renderer.setData(data.testBit(kVisNodeSelf)  ? "On" : "-",  isSelected );
 
       }
-      else if (iCol == 4 )
+      else if (iCol == 3 )
       {
          m_renderer.setData(data.testBit(kVisNodeChld)  ? "On" : "-",  isSelected);
 
       }
-      else if (iCol == 6)
+      else if (iCol == 5)
       { 
          bool motherV = false;
          if (data.testBit(kOverlapChild))

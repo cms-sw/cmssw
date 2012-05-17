@@ -8,7 +8,4 @@
 <use name="boost"/>
 <use name="clhep"/>
 <use name="pythia8"/>
-<architecture name="slc._[^_]*_gcc4[5-9]">                                                                                                  
-  <flags LDFLAGS="$(PYTHIA6_BASE)/lib/pydata.o"/>
-</architecture>
 <flags EDM_PLUGIN="1"/>

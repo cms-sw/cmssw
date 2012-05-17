@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:06:35 CET 2012
-// $Id: FWOverlapTableView.cc,v 1.10 2012/05/04 00:22:11 amraktad Exp $
+// $Id: FWOverlapTableView.cc,v 1.6 2012/02/24 23:00:56 amraktad Exp $
 //
 
 // system include files
@@ -115,12 +115,7 @@ FWOverlapTableView::FWOverlapTableView(TEveWindowSlot* iParent, FWColorManager* 
    // std::cerr << " FWOverlapTableView::initGeometry \n";
   
    FWGeoTopNodeGLScene *gls = new FWGeoTopNodeGLScene(0);
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,32,0)
-   m_eveScene  = new  FWGeoTopNodeEveScene(gls, "TopGeoNodeScene", "");
-#else
-   m_eveScene  = new  TEveScene(gls, "TopGeoNodeScene", "");
-#endif
-
+   m_eveScene  = new TEveScene(gls, "OverlapScene", "");
    gEve->GetScenes()->AddElement(m_eveScene);
 
    m_eveTopNode = new  FWEveOverlap(this);
@@ -129,8 +124,8 @@ FWOverlapTableView::FWOverlapTableView(TEveWindowSlot* iParent, FWColorManager* 
    m_eveTopNode->SetPickable(true);
    m_eveScene->AddElement(m_eveTopNode);
 
-   gls->m_eveTopNode = m_eveTopNode;
-   m_eveTopNode->m_scene   = gls;
+   gls->fTopNodeJebo = m_eveTopNode;
+   m_eveTopNode->fSceneJebo   = gls;
 
    m_marker = new TEvePointSet();
    m_marker->SetMarkerSize(5);
@@ -232,8 +227,6 @@ void FWOverlapTableView::populateController(ViewerParameterGUI& gui) const
       separator().
       addParam(&m_drawPoints).
       addParam(&m_pointSize);
-   
-   FWGeometryTableViewBase::populateController(gui);
 }
 
 //______________________________________________________________________________
@@ -278,18 +271,85 @@ void FWOverlapTableView::setCheckerState(bool x)
 
 void FWOverlapTableView::chosenItem(int menuIdx)
 {
+   int selectedIdx =  m_eveTopNode->getFirstSelectedTableIndex();
+   FWGeometryTableManagerBase::NodeInfo& ni = getTableManager()->refEntry(m_eveTopNode->getFirstSelectedTableIndex());
+  
    // printf(" FWOverlapTableView::chosenItem chosen item %s \n", ni->name());
-   
-   switch (menuIdx) {
-      case FWGeoTopNode::kPrintOverlap:
-      {
-         std::cout << "=============================================================================" <<  std::endl << std::endl;
-         m_tableManager->printOverlaps(m_eveTopNode->getFirstSelectedTableIndex());
-         break;
+
+   TGeoVolume* gv = ni.m_node->GetVolume();
+   bool resetHome = false;
+   if (gv)
+   {
+      switch (menuIdx) {
+         case FWEveOverlap::kOvlDaugtersVisOff:
+            m_tableManager->setDaughtersSelfVisibility(selectedIdx, false);
+            refreshTable3D();
+            break;
+         case  FWEveOverlap::kOvlDaugtersVisOn:
+            m_tableManager->setDaughtersSelfVisibility(selectedIdx,  true);
+            refreshTable3D();
+            break;
+
+         case FWEveOverlap::kOvlSetTopNode:
+            if (m_topNodeIdx.value() > selectedIdx )
+            {
+               cdNode(m_eveTopNode->getFirstSelectedTableIndex());
+            }
+            else
+            {
+               cdNode(m_eveTopNode->getFirstSelectedTableIndex());
+               std::cout << sUpdateMsg;
+            }
+            break; 
+            /*
+         case FWEveOverlap::kOvlVisMother:
+            m_tableManager->refEntries().at(ni.m_parent).switchBit(FWGeometryTableManagerBase::kVisNodeSelf);
+            break;
+         case FWEveOverlap::kOvlSwitchVis:
+            ni.switchBit(FWGeometryTableManagerBase::kVisNodeSelf);
+            break
+            */;
+         case FWEveOverlap::kOvlCamera:
+         {
+            TGeoHMatrix mtx;
+            getTableManager()->getNodeMatrix( ni, mtx);
+
+            static double pnt[3];
+            TGeoBBox* bb = static_cast<TGeoBBox*>( ni.m_node->GetVolume()->GetShape());
+            const double* origin = bb->GetOrigin();
+            mtx.LocalToMaster(origin, pnt);
+
+            TEveElementList* vl = gEve->GetViewers();
+            for (TEveElement::List_i it = vl->BeginChildren(); it != vl->EndChildren(); ++it)
+            {
+               TEveViewer* v = ((TEveViewer*)(*it));
+               TString name = v->GetElementName();
+               if (name.Contains("3D"))
+               {
+                  v->GetGLViewer()->SetDrawCameraCenter(true);
+                  TGLCamera& cam = v->GetGLViewer()->CurrentCamera();
+                  cam.SetExternalCenter(true);
+                  cam.SetCenterVec(pnt[0], pnt[1], pnt[2]);
+               }
+            }
+            if (resetHome) gEve->FullRedraw3D(true, true);
+            break;
+         }
+         case FWEveOverlap::kOvlPrintOvl:
+         {
+            std::cout << "=============================================================================" <<  std::endl << std::endl;
+            m_tableManager->printOverlaps(m_eveTopNode->getFirstSelectedTableIndex());
+            break;
+         }
+         case FWEveOverlap::kOvlPrintPath:
+         {
+
+            std::cout << "\npath: "<< ni.m_node->GetTitle() << std::endl;
+           
+         }
       }
-      default:
-         FWGeometryTableViewBase::chosenItem(menuIdx);
    }
+   refreshTable3D();
 }
 
 //______________________________________________________________________________

@@ -20,11 +20,10 @@ gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
 gtDigis.DaqGtInputTag = 'rawDataCollector'
 
 
-# filter on HLT paths:
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import *
-triggerResultsFilter.l1tResults = 'gtDigis'
-triggerResultsFilter.throw = False
-triggerResultsFilter.triggerConditions = cms.vstring( 'HLT_Mu*', 'HLT_DoubleMu*', 'HLT_L1SingleMu*', 'HLT_IsoMu*', 'HLT_Dimuon*', 'HLT_L2Double*', 'HLT_L2Mu*', 'HLT_L1TrackerCosmics*' )
+# filter on L1 trigger bits:
+# select only events triggered by muon L1A
+from L1Trigger.Skimmer.l1Filter_cfi import *
+l1Filter.algorithms = cms.vstring('L1_SingleMuOpen_BptxAND', 'L1_SingleMu0_BptxAND', 'L1_SingleMu3_BptxAND', 'L1_SingleMu5_BptxAND', 'L1_SingleMu7', 'L1_SingleMu10', 'L1_SingleMu14', 'L1_SingleMu20', 'L1_DoubleMuOpen_BptxAND', 'L1_DoubleMu3_BptxAND')
 
 # Scalers info
 from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
@@ -121,4 +120,4 @@ dtDQMTest = cms.Sequence(dataIntegrityTest + blockedROChannelTest + triggerLutTe
 dtDQMCalib = cms.Sequence(dtTPmonitor + dtTPTriggerMonitor + dtTPmonitorTest + dtTPTriggerTest)
 
 # sequence to be run on physics events (includes filters, reco and DQM)
-dtDQMPhysSequence = cms.Sequence(dtScalerInfoMonitor + gtDigis + triggerResultsFilter * reco + dtDQMTask + dtDQMTest)
+dtDQMPhysSequence = cms.Sequence(dtScalerInfoMonitor + gtDigis + l1Filter * reco + dtDQMTask + dtDQMTest)

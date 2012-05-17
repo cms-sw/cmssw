@@ -71,9 +71,8 @@ class TtFullHadKinFitProducer : public edm::EDProducer {
   double mTop_;
   /// store the resolutions for the jets
   std::vector<edm::ParameterSet> udscResolutions_, bResolutions_;
-  /// scale factors for jet energy resolution
-  std::vector<double> jetEnergyResolutionScaleFactors_;
-  std::vector<double> jetEnergyResolutionEtaBinning_;
+  /// smearing factor for jet energy resolutions
+  double energyResolutionSmearFactor_;
 
  public:
 

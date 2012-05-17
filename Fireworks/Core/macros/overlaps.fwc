@@ -278,6 +278,9 @@
     </config>
    </config>
    <config name="Overlap Table" version="1">
+    <config name="TopNodeIndex" version="0">
+      <string>1791211</string>
+    </config>
     <config name="ExpandList:" version="0">
       <string>1</string>
     </config>
@@ -288,7 +291,7 @@
       <string>/cms:World_1/cms:CMSE_1</string>
     </config>
     <config name="Precision" version="0">
-      <string>0.10</string>
+      <string>0.05</string>
     </config>
     <config name="Overlap" version="0">
       <string>1</string>

@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel  
 //         Created:  Thu Jun 23 01:24:51 CEST 2011
-// $Id: FWGeoTopNode.cc,v 1.24 2012/05/04 00:22:05 amraktad Exp $
+// $Id: FWGeoTopNode.cc,v 1.20 2012/02/22 03:45:59 amraktad Exp $
 //
 
 // system include files
@@ -29,8 +29,6 @@
 #include "TGLScenePad.h"
 #include "TGLPhysicalShape.h"
 #include "TGLSelectRecord.h"
-#include "TGLViewer.h"
-#include "TGLWidget.h"
 
 #include "TGeoShape.h"
 #include "TGeoVolume.h"
@@ -44,12 +42,8 @@
 
 #include "Fireworks/Core/interface/FWGeoTopNode.h"
 #include "Fireworks/Core/src/FWGeoTopNodeScene.h"
-#include "Fireworks/Core/src/FWPopupMenu.cc"
 #include "Fireworks/Core/interface/FWViewType.h"
 #include "Fireworks/Core/interface/fwLog.h"
-
-TGLViewer* FWGeoTopNode::s_pickedViewer = 0;
-TGLVector3 FWGeoTopNode::s_pickedCamera3DCenter;
 
 UInt_t FWGeoTopNode::phyID(int tableIdx) 
 {
@@ -107,7 +101,7 @@ void FWGeoTopNode::ProcessSelection(TGLSelectRecord& rec, std::set<TGLPhysicalSh
 {
    // printf("FWGeoTopNode::ProcessSelection ===============================\n");
 
-   m_scene->BeginUpdate();
+   fSceneJebo->BeginUpdate();
 
    if (sset.empty())
    {
@@ -164,14 +158,14 @@ void FWGeoTopNode::ProcessSelection(TGLSelectRecord& rec, std::set<TGLPhysicalSh
 
    if (rec.GetSecSelResult() != TGLSelectRecord::kNone)
    {
-      m_scene->EndUpdate(kTRUE, kFALSE, kTRUE);
+      fSceneJebo->EndUpdate(kTRUE, kFALSE, kTRUE);
       gEve->Redraw3D();
 
       tableManager()->dataChanged();
    }
    else
    {
-      m_scene->EndUpdate(kFALSE, kFALSE, kFALSE);
+      fSceneJebo->EndUpdate(kFALSE, kFALSE, kFALSE);
    }
 }
 
@@ -180,7 +174,7 @@ bool FWGeoTopNode::selectPhysicalFromTable( int tableIndex)
 {
    //   printf("FWGeoTopNode::selectPhysicalFromTable 
 
-   TGLPhysicalShape* ps = m_scene->FindPhysical(phyID(tableIndex));
+   TGLPhysicalShape* ps = fSceneJebo->FindPhysical(phyID(tableIndex));
    if (ps) {
       fSted.insert(ps);
       ps->Select(1);
@@ -244,30 +238,25 @@ void FWGeoTopNode::setupBuffMtx(TBuffer3D& buff, const TGeoHMatrix& mat)
 }
 
 // ______________________________________________________________________
-void FWGeoTopNode::paintShape( Int_t tableIndex, const TGeoHMatrix& nm, bool volumeColor, bool isParentNode)
+void FWGeoTopNode::paintShape(FWGeometryTableManagerBase::NodeInfo& data,  Int_t tableIndex, const TGeoHMatrix& nm, bool volumeColor)
 {
    static const TEveException eh("FWGeoTopNode::paintShape ");
  
-  // printf("paint sahpe id %d\n", tableIndex );
+   //  printf("paint sahpe %s idx %d\n", data.m_node->GetVolume()->GetName(), tableIndex );
 
-   FWGeometryTableManagerBase::NodeInfo& data = tableManager()->refEntries().at(tableIndex);
-   UChar_t transparency = wrapTransparency(data, isParentNode);
-   // printf("trans %d \n", transparency );
-   if (transparency >= 100) return;
-   
    TGeoShape* shape = data.m_node->GetVolume()->GetShape();
    
    TGeoCompositeShape* compositeShape = dynamic_cast<TGeoCompositeShape*>(shape);
    if (compositeShape)
    {
-      // m_scene->fNextCompositeID = phyID(tableIndex);
+      // fSceneJebo->fNextCompositeID = phyID(tableIndex);
 
       Double_t halfLengths[3] = { compositeShape->GetDX(), compositeShape->GetDY(), compositeShape->GetDZ() };
 
       TBuffer3D buff(TBuffer3DTypes::kComposite);
       buff.fID           = data.m_node->GetVolume();
       buff.fColor        = volumeColor ? data.m_node->GetVolume()->GetLineColor() : data.m_color ;
-      buff.fTransparency = transparency;// data.m_node->GetVolume()->GetTransparency(); 
+      buff.fTransparency = data.m_node->GetVolume()->GetTransparency(); 
 
       nm.GetHomogenousMatrix(buff.fLocalMaster);  
       buff.fLocalFrame   = kTRUE; // Always enforce local frame (no geo manager).
@@ -277,7 +266,7 @@ void FWGeoTopNode::paintShape( Int_t tableIndex, const TGeoHMatrix& nm, bool vol
       Bool_t paintComponents = kTRUE;
       // Start a composite shape, identified by this buffer
       if (TBuffer3D::GetCSLevel() == 0) {
-         paintComponents = m_scene->OpenCompositeWithPhyID(phyID(tableIndex), buff);
+         paintComponents = fSceneJebo->OpenCompositeWithPhyID(phyID(tableIndex), buff);
       }
 
       TBuffer3D::IncCSLevel();
@@ -294,7 +283,7 @@ void FWGeoTopNode::paintShape( Int_t tableIndex, const TGeoHMatrix& nm, bool vol
          gPad->GetViewer3D()->CloseComposite();
 
 
-      //  m_scene->fNextCompositeID = 0;
+      //  fSceneJebo->fNextCompositeID = 0;
    }
    else
    {
@@ -302,8 +291,7 @@ void FWGeoTopNode::paintShape( Int_t tableIndex, const TGeoHMatrix& nm, bool vol
       setupBuffMtx(buff, nm);
       buff.fID           = data.m_node->GetVolume();
       buff.fColor        = volumeColor ? data.m_node->GetVolume()->GetLineColor() : data.m_color ;
-      buff.fTransparency = transparency;// data.m_node->GetVolume()->GetTransparency(); 
-
+      buff.fTransparency =  data.m_node->GetVolume()->GetTransparency();
 
       nm.GetHomogenousMatrix(buff.fLocalMaster);
       buff.fLocalFrame   = kTRUE; // Always enforce local frame (no geo manager).
@@ -329,7 +317,7 @@ void FWGeoTopNode::paintShape( Int_t tableIndex, const TGeoHMatrix& nm, bool vol
 // ______________________________________________________________________
 void FWGeoTopNode::Paint(Option_t* opt)
 {
-   static const TEveException eh("FWGeoTopNode::Paint ");
+   static const TEveException eh("TEveTopNodeJebo::Paint ");
 
    TBuffer3D buff(TBuffer3DTypes::kGeneric);
 
@@ -364,62 +352,3 @@ void FWGeoTopNode::UnHighlighted()
    for (FWGeometryTableManagerBase::Entries_i i = tableManager()->refEntries().begin(); i != tableManager()->refEntries().end(); ++i)
       i->resetBit(FWGeometryTableManagerBase::kHighlighted);
 }   
-
-
-// ______________________________________________________________________
-FWPopupMenu* FWGeoTopNode::setPopupMenu(int iX, int iY, TGLViewer* v, bool overlap)
-{
-   if (getFirstSelectedTableIndex() < 0)
-   {
-      if (fSted.empty()) fwLog(fwlog::kInfo) << "No menu -- no node/entry selected \n";
-      return 0;
-   }
-   
-   FWPopupMenu* nodePopup = new FWPopupMenu();
-   
-   nodePopup->AddEntry("Set As Top Node", kSetTopNode);
-   nodePopup->AddEntry("Set As Top Node And Reset Camera", kSetTopNodeCam);
-   nodePopup->AddSeparator();
-   if (v) { 
-       nodePopup->AddEntry("Rnr Off", kVisSelfOff);
-   }
-   nodePopup->AddEntry("Rnr Off For All Children", kVisChldOff);
-   nodePopup->AddEntry("Rnr On For All Children", kVisChldOn);      
-   nodePopup->AddSeparator();
-   
-   if (overlap)
-      nodePopup->AddEntry("Print Overlap", kPrintOverlap);
-   nodePopup->AddEntry("Print Path", kPrintPath);
-   nodePopup->AddEntry("Print Shape", kPrintShape);
-   nodePopup->AddEntry("Print Material", kPrintMaterial);   
-   
-   nodePopup->AddSeparator();
-   if (v) {
-      Window_t wdummy;
-      Int_t x,y;
-      gVirtualX->TranslateCoordinates(gClient->GetDefaultRoot()->GetId(), v->GetGLWidget()->GetId(), iX, iY, x, y, wdummy);   
-      TGLVector3 pnt(x, y, 0.5*v->GetSelRec().GetMinZ());
-      v->CurrentCamera().WindowToViewport(pnt);
-      s_pickedCamera3DCenter = v->CurrentCamera().ViewportToWorld(pnt);
-      // s_pickedCamera3DCenter.Dump();
-      s_pickedViewer = v;
-      
-      nodePopup->AddEntry("Set Camera Center", kCamera);
-   }
-   
-   nodePopup->PlaceMenu(iX, iY,true,true);
-   return nodePopup;
-}
-
-
-UChar_t FWGeoTopNode::wrapTransparency(FWGeometryTableManagerBase::NodeInfo& data, bool isParentNode)
-{
-   if (isParentNode)
-   {
-      return TMath::Max((Char_t)browser()->getMinParentTransparency(), data.m_transparency) * browser()->getParentTransparencyFactor();
-   }
-   else 
-   {
-      return TMath::Max((Char_t)browser()->getMinLeafTransparency(), data.m_transparency) * browser()->getLeafTransparencyFactor();
-   }   
-}

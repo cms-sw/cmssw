@@ -1,3 +1,4 @@
+#include "TString.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -12,15 +13,9 @@ TopDecaySubset::TopDecaySubset(const edm::ParameterSet& cfg):
 {
   // mapping of the corresponding fillMode; see FillMode 
   // enumerator of TopDecaySubset for available modes
-  std::string mode = cfg.getParameter<std::string>( "fillMode" );
-  if(mode=="kME")
-    fillMode_=kME;
-  else if(mode=="kStable")
-    fillMode_=kStable;
-  else
-    throw cms::Exception("Configuration") << mode << " is not a supported FillMode!\n";
-
-  // produces a set of GenParticles following
+  if( cfg.getParameter<std::string>( "fillMode" ) == "kME"     ){ fillMode_=kME;     }
+  if( cfg.getParameter<std::string>( "fillMode" ) == "kStable" ){ fillMode_=kStable; }
+  // produces a set of gen particle collections following
   // the decay branch of top quarks to the first level of 
   // stable decay products
   produces<reco::GenParticleCollection>(); 

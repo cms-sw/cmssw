@@ -16,7 +16,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel
 //         Created:  Thu Jun 23 01:25:00 CEST 2011
-// $Id: FWGeoTopNode.h,v 1.12 2012/05/04 00:21:43 amraktad Exp $
+// $Id: FWGeoTopNode.h,v 1.9.2.8 2012/02/17 18:18:13 amraktad Exp $
 //
 
 #ifndef __CINT__
@@ -24,51 +24,32 @@
 #endif
 #include "TEveElement.h"
 #include "TAttBBox.h"
-#include "TGLUtil.h"
 #include  <set>
 
 class TGeoHMatrix;
 class TGLPhysicalShape;
 class TGLSelectRecord;
-class TGLViewer;
 
 class FWGeometryTableView;
 class FWOverlapTableView;
 class TBuffer3D;
 class TGeoNode;
 class FWGeoTopNodeGLScene;
-class FWPopupMenu;
+
 
 class FWGeoTopNode : public TEveElementList,
                      public TAttBBox
 {
    friend class FWGeoTopNodeGL;
+
 public:
-      
-   enum MenuOptions {
-      kSetTopNode,
-      kSetTopNodeCam,
-      kVisSelfOff,
-      kVisChldOn,
-      kVisChldOff,
-      kCamera,
-      kPrintMaterial,
-      kPrintPath,
-      kPrintShape,
-      kPrintOverlap,
-      kOverlapVisibilityMotherOn,
-      kOverlapVisibilityMotherOff
-   };
-   
    FWGeoTopNode(const char* n = "FWGeoTopNode", const char* t = "FWGeoTopNode"){}
    virtual ~FWGeoTopNode(){}
 
    virtual void Paint(Option_t* option="");
-   FWGeoTopNodeGLScene    *m_scene;
-   
+   FWGeoTopNodeGLScene    *fSceneJebo;
+
    virtual FWGeometryTableManagerBase* tableManager() { return 0; }
-   virtual FWGeometryTableViewBase* browser() { return 0; }
-   
    std::set<TGLPhysicalShape*> fHted;
    std::set<TGLPhysicalShape*> fSted;
 
@@ -77,13 +58,10 @@ public:
    void clearSelection() {fHted.clear(); fSted.clear();}
 
    void printSelected();
-   virtual void popupMenu(int x, int y, TGLViewer*) {}
 
    virtual void UnSelected();
    virtual void UnHighlighted();
-   
-   static TGLVector3 s_pickedCamera3DCenter;
-   static TGLViewer* s_pickedViewer;
+   virtual void popupMenu(int x, int y){}
 
 protected:
    static UInt_t phyID(int tableIdx);
@@ -98,20 +76,15 @@ protected:
 
 
    void setupBuffMtx(TBuffer3D& buff, const TGeoHMatrix& mat);
-   
-   FWPopupMenu* setPopupMenu(int iX, int iY, TGLViewer* v, bool);
+#ifndef __CINT__
+   void paintShape(FWGeometryTableManagerBase::NodeInfo& nodeInfo, Int_t idx,  const TGeoHMatrix& nm, bool volumeColor);
+#endif
 
-
-   void paintShape(Int_t idx,  const TGeoHMatrix& nm, bool volumeColor, bool parentNode);
    virtual void ComputeBBox();
 private:   
    FWGeoTopNode(const FWGeoTopNode&); // stop default
    const FWGeoTopNode& operator=(const FWGeoTopNode&); // stop default
-#ifndef __CINT__
-   UChar_t wrapTransparency(FWGeometryTableManagerBase::NodeInfo& data, bool leafNode); 
-#endif
 
-   
    ClassDef(FWGeoTopNode, 0);
 };
 

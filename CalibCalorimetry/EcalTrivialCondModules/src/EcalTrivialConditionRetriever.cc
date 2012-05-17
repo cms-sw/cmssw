@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.53 2011/11/02 09:37:36 fay Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.52 2011/10/13 09:29:36 eulisse Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -2632,9 +2632,7 @@ std::auto_ptr<Alignments>
 EcalTrivialConditionRetriever::produceEcalAlignmentEB( const EBAlignmentRcd& ) {
   double mytrans[3] = {0., 0., 0.};
   double myeuler[3] = {0., 0., 0.};
-  std::ifstream f;
-  if(getEBAlignmentFromFile_)
-    f.open(edm::FileInPath(EBAlignmentFile_).fullPath().c_str());
+  std::ifstream f(edm::FileInPath(EBAlignmentFile_).fullPath().c_str());
   std::vector<AlignTransform> my_align;
   int ieta = 1;
   int iphi = 0;
@@ -2689,9 +2687,7 @@ std::auto_ptr<Alignments>
 EcalTrivialConditionRetriever::produceEcalAlignmentEE( const EEAlignmentRcd& ) {
   double mytrans[3] = {0., 0., 0.};
   double myeuler[3] = {0., 0., 0.};
-  std::ifstream f;
-  if(getEEAlignmentFromFile_)
-    f.open(edm::FileInPath(EEAlignmentFile_).fullPath().c_str());
+  std::ifstream f(edm::FileInPath(EEAlignmentFile_).fullPath().c_str());
   std::vector<AlignTransform> my_align;
   int ix = 20;
   int iy = 50;
@@ -2724,9 +2720,7 @@ std::auto_ptr<Alignments>
 EcalTrivialConditionRetriever::produceEcalAlignmentES( const ESAlignmentRcd& ) {
   double mytrans[3] = {0., 0., 0.};
   double myeuler[3] = {0., 0., 0.};
-  std::ifstream f;
-  if(getESAlignmentFromFile_)
-    f.open(edm::FileInPath(ESAlignmentFile_).fullPath().c_str());
+  std::ifstream f(edm::FileInPath(ESAlignmentFile_).fullPath().c_str());
   std::vector<AlignTransform> my_align;
   //  int ix_vect[10] = {10, 30, 30, 50, 10, 30, 10, 30};
   int pl_vect[10] = {2, 2, 1, 1, 1, 1, 2, 2};

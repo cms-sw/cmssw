@@ -50,22 +50,12 @@ namespace egHLT {
       float r9;
     };
     
-public:
-    //helper struct to store reco approximations of variables made by HLT
-    struct HLTData {
-      //const math::XYZTLorentzVector p4() const;
-      float HLTeta;
-      float HLTphi;
-      float HLTenergy;
-    };    
-
-
+    
   private:
     const reco::Photon* pho_; //pointers to the underlying phoctron (we do not own this)
 
     ClusShapeData clusShapeData_;
     IsolData isolData_;
-    HLTData hltData_;
     
     //these are bit-packed words telling me which cuts the photon fail (ie 0x0 is passed all cuts) 
     int cutCode_;
@@ -82,8 +72,8 @@ public:
     
   public:
     
-    OffPho(const reco::Photon& pho,const ClusShapeData& shapeData,const IsolData& isolData,const HLTData& hltData):
-      pho_(&pho),clusShapeData_(shapeData),isolData_(isolData),hltData_(hltData),
+    OffPho(const reco::Photon& pho,const ClusShapeData& shapeData,const IsolData& isolData):
+      pho_(&pho),clusShapeData_(shapeData),isolData_(isolData),
       cutCode_(int(EgCutCodes::INVALID)),looseCutCode_(int(EgCutCodes::INVALID)){}
     ~OffPho(){}
     
@@ -134,14 +124,6 @@ public:
     float hltIsolHad()const{return isolData_.hltHad;}
     float hltIsolTrks()const{return isolData_.hltTrks;}
     float hltIsolEm()const{return isolData_.hltEm;}
-
-    //hlt position - not a reco approximation, taken from triggerobject
-    //const math::XYZTLorentzVector& HLTp4()const{return hltDataPho_.p4();}
-    float hltPhi()const{return hltData_.HLTphi;}
-    float hltEta()const{return hltData_.HLTeta;}
-    float hltEnergy()const{return hltData_.HLTenergy;}
-    //Diference between HLT Et and reco SC Et
-    float DeltaE()const{return (hltEnergy() - energy());}
 
     //selection cuts
     int cutCode()const{return cutCode_;}

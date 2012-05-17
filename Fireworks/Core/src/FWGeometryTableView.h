@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jan  4 00:05:38 CET 2012
-// $Id: FWGeometryTableView.h,v 1.9 2012/05/04 00:22:06 amraktad Exp $
+// $Id: FWGeometryTableView.h,v 1.1.2.9 2012/02/18 04:39:15 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
@@ -29,11 +29,7 @@ class FWEveDetectorGeo;
 class FWGeometryTableView : public FWGeometryTableViewBase
 {
 public:
-   enum EMode          { kNode, kVolume };
-   enum EProximityAlgo { kBBoxCenter, kBBoxSurface };
-   enum EFiterType     { kFilterMaterialName, kFilterMaterialTitle, kFilterShapeName, kFilterShapeClassName };
 
-public:
    FWGeometryTableView(TEveWindowSlot* iParent, FWColorManager* colMng);
    virtual ~FWGeometryTableView();
    virtual void populateController(ViewerParameterGUI&) const;
@@ -44,24 +40,23 @@ public:
    void updateFilter(std::string&);
 
    bool getVolumeMode()      const { return m_mode.value() == kVolume; }
-   std::string getFilter()   const { return m_filter.value(); }
+   std::string getFilter ()  const { return m_filter.value(); }
    int  getAutoExpand()      const { return m_autoExpand.value(); }
    int  getVisLevel()        const { return m_visLevel.value(); }
-   bool getIgnoreVisLevelWhenFilter() const { return m_visLevelFilter.value(); }
+   bool getIgnoreVisLevelWhenFilter() const  { return m_visLevelFilter.value(); }
 
-   int getFilterType() const { return m_filterType.value(); }
-
-   bool drawTopNode() const { return ! m_disableTopNode.value(); }
+   bool drawTopNode() const { return !m_disableTopNode.value(); }
    void autoExpandCallback();
-   virtual void setPath(int, std::string&);   
+   virtual void setPath(int, std::string&);
+   void printTable();
+
+   
    virtual void setFrom(const FWConfiguration&);
 
-  // void chosenItem(int);
+
+   void chosenItem(int);
    void updateVisibilityTopNode();
-   
-   void checkRegionOfInterest();
-   bool isSelectedByRegion() const { return m_selectRegion.value(); } 
-   
+
 protected:
    // virtual void initGeometry(TGeoNode* iGeoTopNode, TObjArray* iVolumes);
 
@@ -70,29 +65,22 @@ private:
    const FWGeometryTableView& operator=(const FWGeometryTableView&); // stop default
 
    // ---------- member data --------------------------------
-   FWGeometryTableManager   *m_tableManager;
+   FWGeometryTableManager *m_tableManager;
 
-   FWGUIValidatingTextEntry *m_filterEntry;
-   FWGeoMaterialValidator   *m_filterValidator;
+   FWGUIValidatingTextEntry* m_filterEntry;
+   FWGeoMaterialValidator*   m_filterValidator;
 
 #ifndef __CINT__ 
    FWEnumParameter         m_mode;
+   FWStringParameter       m_filter; 
    FWBoolParameter         m_disableTopNode;
    FWLongParameter         m_visLevel;
-
-   FWStringParameter       m_filter; 
-   FWEnumParameter         m_filterType;
    FWBoolParameter         m_visLevelFilter; 
-   
-   FWBoolParameter         m_selectRegion;
-   FWDoubleParameter       m_regionRadius;
-   FWEnumParameter         m_proximityAlgo;
-   
-   
-
 #endif  
+
 
    ClassDef(FWGeometryTableView, 0);
 };
+
 
 #endif

@@ -1,8 +1,8 @@
 #! /bin/bash
 
-HLT='/online/collisions/2012/7e33/v2.1/HLT'
-L1T='L1GtTriggerMenu_L1Menu_Collisions2012_v0_mc'
-#L1T='L1GtTriggerMenu_L1Menu_Collisions2012_v0_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v0/sqlFile/L1Menu_Collisions2012_v0_mc.db'
+HLT='/online/collisions/2012/7e33/v2.2/HLT'
+L1T='L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc'
+#L1T='L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v1/sqlFile/L1Menu_Collisions2012_v1_mc.db'
 
 # tests
 hltGetConfiguration $HLT --process TEST                               --full --online  --data --unprescale --l1 $L1T --l1-emulator > online_data.py

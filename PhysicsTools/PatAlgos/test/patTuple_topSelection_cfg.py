@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
+from PhysicsTools.PatAlgos.tools.cmsswVersionTools import run36xOn35xInput
+
 from PhysicsTools.PatAlgos.tools.coreTools import *
 removeMCMatching(process, ['All'])
 

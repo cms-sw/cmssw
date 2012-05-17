@@ -17,6 +17,7 @@ class ESElectronicsSim
   enum {MINADC = 0};
 
   ESElectronicsSim (bool addNoise);
+  virtual ~ESElectronicsSim();
 
   void setGain (const int gain) { gain_ = gain; }
   void setPedestals(const ESPedestals* peds) { peds_ = peds; }

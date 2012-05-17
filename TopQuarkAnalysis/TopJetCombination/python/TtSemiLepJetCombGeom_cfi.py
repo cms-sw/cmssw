@@ -1,14 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# module to make the geom jet combination
+# module to make the geom hypothesis
 #
 findTtSemiLepJetCombGeom = cms.EDProducer("TtSemiLepJetCombGeom",
     ## jet input 
     jets  = cms.InputTag("selectedPatJets"),
     ## lepton input 
     leps  = cms.InputTag("selectedPatMuons"),
-    ## maximum number of jets to be considered
     maxNJets  = cms.int32(4),
     ## use deltaR or deltaTheta
     useDeltaR = cms.bool(True),

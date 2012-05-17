@@ -92,7 +92,6 @@ def adaptPFMuons(process,module,postfix="" ):
     warningIsolation()
     print
     module.useParticleFlow = True
-    module.pfMuonSource    = cms.InputTag("pfIsolatedMuons" + postfix)
     module.userIsolation   = cms.PSet()
     module.isoDeposits = cms.PSet(
         pfChargedHadrons = cms.InputTag("muPFIsoDepositCharged" + postfix),
@@ -126,7 +125,6 @@ def adaptPFElectrons(process,module, postfix):
     warningIsolation()
     print
     module.useParticleFlow = True
-    module.pfElectronSource = cms.InputTag("pfIsolatedElectrons" + postfix)
     module.userIsolation   = cms.PSet()
     module.isoDeposits = cms.PSet(
         pfChargedHadrons = cms.InputTag("elPFIsoDepositCharged" + postfix),
@@ -225,6 +223,7 @@ def reconfigurePF2PATTaus(process,
                               "src",
                               cms.InputTag("combinatoricRecoTaus"),
                               cms.InputTag("pfTausBase"+postfix) )
+       getattr(process,"hpsPFTauProducer"+postfix).src = "pfTausBase"+postfix
 
    newTau.builders[0].pfCandSrc = oldTau.builders[0].pfCandSrc
    newTau.jetRegionSrc = oldTau.jetRegionSrc

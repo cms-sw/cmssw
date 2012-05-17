@@ -36,9 +36,8 @@ public:
    void changeGeomColor(Color_t);
    void changeGeomTransparency2D(int);
    void changeGeomTransparency3D(int);
-   void changeSelectionColorSet(Color_t);
    void colorSetChanged();
-   
+ 
    ClassDef(CmsShowCommonPopup, 0);
 
 private:
@@ -46,7 +45,7 @@ private:
    const CmsShowCommonPopup& operator=(const CmsShowCommonPopup&);
 
    void makeSetter(TGCompositeFrame* frame, FWParameterBase* param);
-   void getColorSetColors (int& hci, int& sci);
+
    // ---------- member data --------------------------------
 
    CmsShowCommon  *m_common;
@@ -57,8 +56,6 @@ private:
 
 #ifndef __CINT__
    FWColorSelect* m_colorSelectWidget[kFWGeomColorSize];
-   FWColorSelect* m_colorRnrCtxHighlightWidget;   
-   FWColorSelect* m_colorRnrCtxSelectWidget;
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
 #endif
 };

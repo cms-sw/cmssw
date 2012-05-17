@@ -5,7 +5,7 @@
 #include "DiskSectorBounds.h"
 
 #pragma GCC visibility push(hidden)
-class BoundDiskSector GCC11_FINAL : public BoundPlane {
+class BoundDiskSector : public BoundPlane {
  public:
  
  

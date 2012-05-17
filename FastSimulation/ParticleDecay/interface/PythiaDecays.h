@@ -8,7 +8,6 @@
 #include <HepMC/GenParticle.h> 
 #include <Pythia.h>
 #include <HepMCInterface.h>
-#include "GeneratorInterface/Pythia8Interface/interface/RandomP8.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
