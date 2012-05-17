@@ -25,7 +25,7 @@ bool EmissionVetoHook::doVetoMPIStep(int, const Pythia8::Event &e) {
   }
   if(Verbosity)
     cout << "last before powheg emission = " << last << " , id = "
-         << e[last].id() << endl;
+         << e[last].id() << " emission size = " << e.size() - 1 - last << endl;
 
   // Some events may not have radiation from POWHEG
   switch (e.size() - 1 - last) {
@@ -52,13 +52,13 @@ bool EmissionVetoHook::doVetoMPIStep(int, const Pythia8::Event &e) {
       fatalEmissionVeto(string("Error: jet is not quark/gluon"));
     }
     // Veto scale is given by jet pT
-    pTveto = pTpowheg = e[last+1].pT();
-    noRad  = false;
+    pTpowheg = e[last+1].pT();
+    pTveto = e[last+1].pT();
     noRad  = false;
     break;
   }
 
-  if(Verbosity) cout << "veto pT = " << pTveto << endl;
+  if(Verbosity) cout << "veto pT = " << pTveto << " QFac = " << infoPtr->QFac() << endl;
 
   // Initialise other variables
   pTshower = -1.;

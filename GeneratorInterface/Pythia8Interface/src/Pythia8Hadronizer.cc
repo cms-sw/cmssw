@@ -107,14 +107,14 @@ class Pythia8Hadronizer : public BaseHadronizer {
     EmissionVetoHook* fEmissionVetoHook;
     EmissionVetoHook1* fEmissionVetoHook1;
 
-    int EV1_nFinal;
-    int EV1_vetoMode;
-    int EV1_maxVetoCount;
-    int EV1_pThardMode;
-    int EV1_pTempMode;
-    int EV1_emittedMode;
-    int EV1_pTdefMode;
-    int EV1_MPIvetoMode;
+    int  EV1_nFinal;
+    bool EV1_vetoOn;
+    int  EV1_maxVetoCount;
+    int  EV1_pThardMode;
+    int  EV1_pTempMode;
+    int  EV1_emittedMode;
+    int  EV1_pTdefMode;
+    bool EV1_MPIvetoOn;
 
 };
 
@@ -212,17 +212,25 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
 
   if ( params.exists("emissionVeto1") )
   {
-    EV1_nFinal = params.getParameter<int>("EV1_nFinal");
-    EV1_vetoMode = params.getParameter<int>("EV1_vetoMode");
-    EV1_maxVetoCount = params.getParameter<int>("EV1_maxVetoCount");
-    EV1_pThardMode = params.getParameter<int>("EV1_pThardMode");
-    EV1_pTempMode = params.getParameter<int>("EV1_pTempMode");
-    EV1_emittedMode = params.getParameter<int>("EV1_emittedMode");
-    EV1_pTdefMode = params.getParameter<int>("EV1_pTdefMode");
-    EV1_MPIvetoMode = params.getParameter<int>("EV1_MPIvetoMode");
-    fEmissionVetoHook1 = new EmissionVetoHook1(EV1_nFinal, EV1_vetoMode, 
+    EV1_nFinal = -1;
+    if(params.exists("EV1_nFinal")) EV1_nFinal = params.getParameter<int>("EV1_nFinal");
+    EV1_vetoOn = true;
+    if(params.exists("EV1_vetoOn")) EV1_vetoOn = params.getParameter<bool>("EV1_vetoOn");
+    EV1_maxVetoCount = 10;
+    if(params.exists("EV1_maxVetoCount")) EV1_maxVetoCount = params.getParameter<int>("EV1_maxVetoCount");
+    EV1_pThardMode = 1;
+    if(params.exists("EV1_pThardMode")) EV1_pThardMode = params.getParameter<int>("EV1_pThardMode");
+    EV1_pTempMode = 0;
+    if(params.exists("EV1_pTempMode")) EV1_pTempMode = params.getParameter<int>("EV1_pTempMode");
+    EV1_emittedMode = 0;
+    if(params.exists("EV1_emittedMode")) EV1_emittedMode = params.getParameter<int>("EV1_emittedMode");
+    EV1_pTdefMode = 1;
+    if(params.exists("EV1_pTdefMode")) EV1_pTdefMode = params.getParameter<int>("EV1_pTdefMode");
+    EV1_MPIvetoOn = false;
+    if(params.exists("EV1_MPIvetoOn")) EV1_MPIvetoOn = params.getParameter<bool>("EV1_MPIvetoOn");
+    fEmissionVetoHook1 = new EmissionVetoHook1(EV1_nFinal, EV1_vetoOn, 
                                EV1_maxVetoCount, EV1_pThardMode, EV1_pTempMode,
-                               EV1_emittedMode, EV1_pTdefMode, EV1_MPIvetoMode);
+                               EV1_emittedMode, EV1_pTdefMode, EV1_MPIvetoOn, 0);
   }
 
   int NHooks=0;

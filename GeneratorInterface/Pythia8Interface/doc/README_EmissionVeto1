@@ -1,0 +1,45 @@
+EV1_nFinal        (D=-1)      Number of outgoing particles of POWHEG Born level process
+                              (i.e. not counting additional POWHEG radiation)
+                              If negative, the program tried to find it out automatically.
+                              Note that the automatic finding  will not work for QCD processes
+                              without top quarks
+
+EV1_vetoOn        (D=true)    This is needed if one needs to veto only on MPI (see below)
+
+EV1_maxVetoCount  (D=10)      After 'maxVetoCount' accepted emissions in a row, no more emissions
+                              are checked.
+
+EV1_pThardMode    (D=1)       Selection of pThard (note, for events where there is no
+                              radiation, pThard is always set to be Q_fac):
+                              0 - pThard = Q_fac
+                              1 - the pT of the POWHEG emission is tested against all other
+                                  incoming and outgoing partons, with the minimal value chosen
+                              2 - the pT of all final-state partons is tested against all other
+                                  incoming and outgoing partons, with the minimal value chosen
+
+EV1_pTempMode     (D=0)       Selection of pTemp:
+                              0 - pTemp is pT of the emitted parton w.r.t. radiating parton
+                              1 - pT of the emission is checked against all incoming and outgoing
+                                  partons. pTemp is set to the minimum of these values
+                              2 - the pT of all final-state partons is tested against all other
+                                  incoming and outgoing partons, with the minimal value chosen
+
+EV1_emittedMode   (D=0)       Selection of emitted parton for FSR
+                              0 - Pythia definition of emitted
+                              1 - Pythia definition of radiator
+                              2 - Random selection of emitted or radiator 
+                              3 - Both emitted and radiator are tried
+
+EV1_pTdefMode     (D=1)       pT definitions
+                              0 - POWHEG ISR pT definition is used for both ISR and FSR
+                              1 - POWHEG ISR pT and FSR d_ij definitions
+                              2 - Pythia definitions
+
+EV1_MPIvetoOn     (D=false)   MPI vetoing
+                              false - No MPI vetoing is done
+                              true  - When there is no radiation, MPIs with a scale above pT_1 are 
+                                      vetoed, else MPIs with a scale above (pT_1 + pT_2 + pT_3) / 2
+                                      are vetoed
+                              Attention! If true add 'MultipartonInteractions:pTmaxMatch = 2' to pythia
+                              parameters.
+

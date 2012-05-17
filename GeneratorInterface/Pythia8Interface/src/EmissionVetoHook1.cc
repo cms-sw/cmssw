@@ -251,20 +251,41 @@ bool EmissionVetoHook1::doVetoMPIStep(int nMPI, const Pythia8::Event &e) {
   // Find if there is a POWHEG emission. Go backwards through the
   // event record until there is a non-final particle. Also sum pT and
   // find pT_1 for possible MPI vetoing
-  int    count = 0;
+  int count = 0, inonfinal = 0;
   double pT1 = 0., pTsum = 0.;
   for (int i = e.size() - 1; i > 0; i--) {
+    inonfinal = i;
     if (e[i].isFinal()) {
       count++;
       pT1    = e[i].pT();
       pTsum += e[i].pT();
     } else break;
   }
-  // Extra check that we have the correct final state
-  if (count != nFinal && count != nFinal + 1) {
-    cout << "Error: wrong number of final state particles in event" << endl;
-    exit(1);
+
+  nFinal = nFinalExt;
+
+  if (nFinal < 0) {      // nFinal is not specified from external, try to find out
+    int first = -1, myid;
+    int last = -1;
+    for(int ip = 2; ip < e.size(); ip++) {
+      myid = e[ip].id();
+      if(abs(myid) < 6 || abs(myid) == 21) continue;
+      first = ip;
+      break;
+    }
+    if(first < 0) fatalEmissionVeto(string("signal particles not found"));
+    for(int ip = first; ip < e.size(); ip++) {
+      myid = e[ip].id();
+      if(abs(myid) < 6 || abs(myid) == 21) continue;
+      last = ip;
+    }
+    nFinal = last - inonfinal;
   }
+
+  // Extra check that we have the correct final state
+  if (count != nFinal && count != nFinal + 1)
+    fatalEmissionVeto(string("Wrong number of final state particles in event"));
+
   // Flag if POWHEG radiation present and index
   bool isEmt = (count == nFinal) ? false : true;
   int  iEmt  = (isEmt) ? e.size() - 1 : -1;
@@ -287,14 +308,13 @@ bool EmissionVetoHook1::doVetoMPIStep(int nMPI, const Pythia8::Event &e) {
   }
 
   // Find MPI veto pT if necessary
-  if (MPIvetoMode == 1) {
+  if (MPIvetoOn) {
     pTMPI = (isEmt) ? pTsum / 2. : pT1;
   }
 
-#ifdef DBGOUTPUT
-  cout << "doVetoMPIStep: Qfac = " << infoPtr->QFac()
-       << ", pThard = " << pThard << endl << endl;
-#endif
+  if(Verbosity)
+    cout << "doVetoMPIStep: Qfac = " << infoPtr->QFac()
+         << ", pThard = " << pThard << endl << endl;
 
   // Initialise other variables
   accepted   = false;
@@ -313,7 +333,7 @@ bool EmissionVetoHook1::doVetoISREmission(int, const Pythia8::Event &e, int iSys
   if (iSys != 0) return false;
 
   // If we already have accepted 'vetoCount' emissions in a row, do nothing
-  if (vetoMode == 1 && nAcceptSeq >= vetoCount) return false;
+  if (vetoOn && nAcceptSeq >= vetoCount) return false;
 
   // Pythia radiator after, emitted and recoiler after.
   int iRadAft = -1, iEmt = -1, iRecAft = -1;
@@ -325,8 +345,7 @@ bool EmissionVetoHook1::doVetoISREmission(int, const Pythia8::Event &e, int iSys
   }
   if (iRadAft == -1 || iEmt == -1 || iRecAft == -1) {
     e.list();
-    cout << "Error: couldn't find Pythia ISR emission" << endl;
-    exit(1);
+    fatalEmissionVeto(string("Couldn't find Pythia ISR emission"));
   }
 
   // pTemtMode == 0: pT of emitted w.r.t. radiator
@@ -365,7 +384,7 @@ bool EmissionVetoHook1::doVetoFSREmission(int, const Pythia8::Event &e, int iSys
   if (iSys != 0) return false;
 
   // If we already have accepted 'vetoCount' emissions in a row, do nothing
-  if (vetoMode == 1 && nAcceptSeq >= vetoCount) return false;
+  if (vetoOn && nAcceptSeq >= vetoCount) return false;
 
   // Pythia radiator (before and after), emitted and recoiler (after)
   int iRecAft = e.size() - 1;
@@ -375,8 +394,7 @@ bool EmissionVetoHook1::doVetoFSREmission(int, const Pythia8::Event &e, int iSys
   if ( (e[iRecAft].status() != 52 && e[iRecAft].status() != -53) ||
        e[iEmt].status() != 51 || e[iRadAft].status() != 51) {
     e.list();
-    cout << "Error: couldn't find Pythia FSR emission" << endl;
-    exit(1);
+    fatalEmissionVeto(string("Couldn't find Pythia FSR emission"));
   }
 
   // Behaviour based on pTemtMode:
@@ -436,7 +454,7 @@ bool EmissionVetoHook1::doVetoFSREmission(int, const Pythia8::Event &e, int iSys
 // MPI veto
 
 bool EmissionVetoHook1::doVetoMPIEmission(int, const Pythia8::Event &e) {
-  if (MPIvetoMode == 1) {
+  if (MPIvetoOn) {
     if (e[e.size() - 1].pT() > pTMPI) {
 #ifdef DBGOUTPUT
       cout << "doVetoMPIEmission: pTnow = " << e[e.size() - 1].pT()
