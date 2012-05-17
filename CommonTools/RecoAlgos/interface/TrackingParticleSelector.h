@@ -39,8 +39,7 @@ public:
       } else {
 	for( TrackingParticle::genp_iterator j = tp.genParticle_begin(); j != tp.genParticle_end(); ++ j ) {
           const HepMC::GenParticle * p = j->get();
-	  if (!p) break;
-	  if (p->status() != 1) {
+	  if (!p || p->status() != 1) {
 	    stable = 0; break;
 	  }
 	}
