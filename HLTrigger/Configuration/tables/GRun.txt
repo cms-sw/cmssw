@@ -40,7 +40,7 @@ HLT_L1DoubleJet36Central_v*                                                     
 
 HLT_DiJet40Eta2p6_BTagIP3DFastPV_v*								#sr127336, sr128118
 HLT_DiJet80Eta2p6_BTagIP3DFastPVLoose_v*							#sr127336, sr128118
-HLT_Jet60Eta1p7_Jet53Eta1p7_DiBTagIP3DFastPV_v*							#sr127336, sr128118
+5~~5~HLT_Jet60Eta1p7_Jet53Eta1p7_DiBTagIP3DFastPV_v*							#sr127336, sr128118
 HLT_Jet80Eta1p7_Jet70Eta1p7_DiBTagIP3DFastPV_v*							#sr127336, sr128118
 HLT_Jet160Eta2p4_Jet120Eta2p4_DiBTagIP3DFastPVLoose_v*						#sr127336, sr128118
 
