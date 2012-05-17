@@ -146,7 +146,7 @@ void finalize(CommonMETData& metData)
   metData.phi = atan2(metData.mey, metData.mex);
 }
 
-CommonMETData mvaMEtUtilities::computeTrackMEt(const std::vector<pfCandInfo>& pfCandidates, double dZmax, int dZflag)
+CommonMETData mvaMEtUtilities::computePFCandSum(const std::vector<pfCandInfo>& pfCandidates, double dZmax, int dZflag)
 {
   // dZcut
   //   maximum distance within which tracks are considered to be associated to hard scatter vertex
@@ -163,15 +163,15 @@ CommonMETData mvaMEtUtilities::computeTrackMEt(const std::vector<pfCandInfo>& pf
     if ( pfCandidate->dZ_ < 0.    && dZflag != 2 ) continue;
     if ( pfCandidate->dZ_ > dZmax && dZflag == 0 ) continue;
     if ( pfCandidate->dZ_ < dZmax && dZflag == 1 ) continue;
-    retVal.mex   -= pfCandidate->p4_.px();
-    retVal.mey   -= pfCandidate->p4_.py();
+    retVal.mex   += pfCandidate->p4_.px();
+    retVal.mey   += pfCandidate->p4_.py();
     retVal.sumet += pfCandidate->p4_.pt();
   }
   finalize(retVal);
   return retVal;
 }
 
-CommonMETData mvaMEtUtilities::computeJetMEt_neutral(const std::vector<JetInfo>& jets, bool mvaPassFlag)
+CommonMETData mvaMEtUtilities::computeJetSum_neutral(const std::vector<JetInfo>& jets, bool mvaPassFlag)
 {
   // mvaPassFlag
   //   true  : select jets passing MVA based jet Id. (= jets produced by hard scatter interaction)
@@ -185,30 +185,10 @@ CommonMETData mvaMEtUtilities::computeJetMEt_neutral(const std::vector<JetInfo>&
     bool passesMVAjetId = passesMVA(jet->p4_, jet->mva_);
     if (  passesMVAjetId && !mvaPassFlag ) continue;
     if ( !passesMVAjetId &&  mvaPassFlag ) continue;
-    //reco::Candidate::LorentzVector p4neutral = jet->p4_;
-    //p4neutral *= jet->neutralEnFrac_; // CV: in Phil's original implementation the mass did not get scaled (?)
-    retVal.mex   -= jet->p4_.px()*jet->neutralEnFrac_;
-    retVal.mey   -= jet->p4_.py()*jet->neutralEnFrac_;
+    retVal.mex   += jet->p4_.px()*jet->neutralEnFrac_;
+    retVal.mey   += jet->p4_.py()*jet->neutralEnFrac_;
     retVal.sumet += jet->p4_.pt()*jet->neutralEnFrac_;
   }
-  finalize(retVal);
-  return retVal;
-}
-
-CommonMETData mvaMEtUtilities::computeNoPUMEt(const std::vector<pfCandInfo>& pfCandidates, 
-					      const std::vector<JetInfo>& jets, double dZcut)
-{
-  CommonMETData retVal;
-  retVal.mex   = 0.;
-  retVal.mey   = 0.;
-  retVal.sumet = 0.;
-  CommonMETData trackMEt = computeTrackMEt(pfCandidates, dZcut, 0);
-  CommonMETData jetMEt_neutral = computeJetMEt_neutral(jets, true);
-  retVal.mex   = trackMEt.mex   + jetMEt_neutral.mex;
-  retVal.mey   = trackMEt.mey   + jetMEt_neutral.mey;
-  //double lNPSumEtBug = 0; 
-  //for(int i0 = 0; i0 < int(pfCandidates.size()); i0++) if(pfCandidates[i0].dZ_ > 0) lNPSumEtBug += pfCandidates[i0].p4_.pt();  //One More bug
-  retVal.sumet = trackMEt.sumet + jetMEt_neutral.sumet;
   finalize(retVal);
   return retVal;
 }
@@ -220,28 +200,11 @@ CommonMETData mvaMEtUtilities::computePUMEt(const std::vector<pfCandInfo>& pfCan
   retVal.mex   = 0.;
   retVal.mey   = 0.;
   retVal.sumet = 0.;
-  CommonMETData trackMEt = computeTrackMEt(pfCandidates, dZcut, 1);
-  CommonMETData jetMEt_neutral = computeJetMEt_neutral(jets, false);
-  retVal.mex   = trackMEt.mex   + jetMEt_neutral.mex;
-  retVal.mey   = trackMEt.mey   + jetMEt_neutral.mey;
-  retVal.sumet = trackMEt.sumet + jetMEt_neutral.sumet;
-  finalize(retVal);
-  return retVal;
-}
-
-CommonMETData mvaMEtUtilities::computePUCMEt(const std::vector<pfCandInfo>& pfCandidates, 
-					     const std::vector<JetInfo>& jets, double dZcut)
-{
-  CommonMETData retVal;
-  retVal.mex   = 0.;
-  retVal.mey   = 0.;
-  retVal.sumet = 0.;
-  CommonMETData pfMEt = computeTrackMEt(pfCandidates, dZcut, 2);
-  CommonMETData trackMEt = computeTrackMEt(pfCandidates, dZcut, 1);
-  CommonMETData jetMEt_neutral = computeJetMEt_neutral(jets, false);
-  retVal.mex   = pfMEt.mex   - (trackMEt.mex    + jetMEt_neutral.mex);
-  retVal.mey   = pfMEt.mey   - (trackMEt.mey    + jetMEt_neutral.mey);
-  retVal.sumet = pfMEt.sumet - (trackMEt.sumet) - jetMEt_neutral.sumet;
+  CommonMETData trackSumPU = computePFCandSum(pfCandidates, dZcut, 1);
+  CommonMETData jetSumPU_neutral = computeJetSum_neutral(jets, false);
+  retVal.mex   = -(trackSumPU.mex + jetSumPU_neutral.mex);
+  retVal.mey   = -(trackSumPU.mey + jetSumPU_neutral.mey);
+  retVal.sumet = trackSumPU.sumet + jetSumPU_neutral.sumet;
   finalize(retVal);
   return retVal;
 }
@@ -250,10 +213,10 @@ CommonMETData mvaMEtUtilities::computeNegPFRecoil(const CommonMETData& leptons,
 						  const std::vector<pfCandInfo>& pfCandidates, double dZcut)
 {
   CommonMETData retVal;
-  CommonMETData pfMEt = computeTrackMEt(pfCandidates, dZcut, 2);
-  retVal.mex   = pfMEt.mex; 
-  retVal.mey   = pfMEt.mey;
-  retVal.sumet = pfMEt.sumet;
+  CommonMETData pfCandSum = computePFCandSum(pfCandidates, dZcut, 2);
+  retVal.mex   = -pfCandSum.mex; 
+  retVal.mey   = -pfCandSum.mey;
+  retVal.sumet = pfCandSum.sumet;
   finalize(retVal);
   return retVal;
 }
@@ -262,10 +225,10 @@ CommonMETData mvaMEtUtilities::computeNegTrackRecoil(const CommonMETData& lepton
 						     const std::vector<pfCandInfo>& pfCandidates, double dZcut)
 {
   CommonMETData retVal;
-  CommonMETData trackMEt = computeTrackMEt(pfCandidates, dZcut, 0);
-  retVal.mex   = trackMEt.mex; 
-  retVal.mey   = trackMEt.mey;
-  retVal.sumet = trackMEt.sumet;
+  CommonMETData trackSum = computePFCandSum(pfCandidates, dZcut, 0);
+  retVal.mex   = -trackSum.mex; 
+  retVal.mey   = -trackSum.mey;
+  retVal.sumet = trackSum.sumet;
   finalize(retVal);
   return retVal;
 }
@@ -275,10 +238,14 @@ CommonMETData mvaMEtUtilities::computeNegNoPURecoil(const CommonMETData& leptons
 						    const std::vector<JetInfo>& jets, double dZcut)
 {
   CommonMETData retVal;
-  CommonMETData noPUMEt = computeNoPUMEt(pfCandidates, jets, dZcut);
-  retVal.mex   = noPUMEt.mex; 
-  retVal.mey   = noPUMEt.mey;
-  retVal.sumet = noPUMEt.sumet;
+  retVal.mex   = 0.;
+  retVal.mey   = 0.;
+  retVal.sumet = 0.;
+  CommonMETData trackSumNoPU = computePFCandSum(pfCandidates, dZcut, 0);
+  CommonMETData jetSumNoPU_neutral = computeJetSum_neutral(jets, true);
+  retVal.mex   = -(trackSumNoPU.mex + jetSumNoPU_neutral.mex);
+  retVal.mey   = -(trackSumNoPU.mey + jetSumNoPU_neutral.mey);
+  retVal.sumet = trackSumNoPU.sumet + jetSumNoPU_neutral.sumet;
   finalize(retVal);
   return retVal;
 }
@@ -287,11 +254,16 @@ CommonMETData mvaMEtUtilities::computeNegPUCRecoil(const CommonMETData& leptons,
 						   const std::vector<pfCandInfo>& pfCandidates, 
 						   const std::vector<JetInfo>& jets, double dZcut)
 {
-  CommonMETData retVal;
-  CommonMETData puCMEt = computePUCMEt(pfCandidates, jets, dZcut);
-  retVal.mex   = puCMEt.mex;
-  retVal.mey   = puCMEt.mey;
-  retVal.sumet = puCMEt.sumet;
+   CommonMETData retVal;
+  retVal.mex   = 0.;
+  retVal.mey   = 0.;
+  retVal.sumet = 0.;
+  CommonMETData pfCandSum = computePFCandSum(pfCandidates, dZcut, 2);
+  CommonMETData trackSumNoPU = computePFCandSum(pfCandidates, dZcut, 1);
+  CommonMETData jetSumPU_neutral = computeJetSum_neutral(jets, false);
+  retVal.mex   = -(pfCandSum.mex - (trackSumNoPU.mex + jetSumPU_neutral.mex));
+  retVal.mey   = -(pfCandSum.mey - (trackSumNoPU.mey + jetSumPU_neutral.mey));
+  retVal.sumet = pfCandSum.sumet - (trackSumNoPU.sumet + jetSumPU_neutral.sumet);
   finalize(retVal);
   return retVal;
 }

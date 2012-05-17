@@ -54,11 +54,10 @@ class mvaMEtUtilities
   std::vector<pfCandInfo> cleanPFCands(const std::vector<pfCandInfo>&, 
 				       const std::vector<reco::Candidate::LorentzVector>&, double, bool);
 
-  CommonMETData computeTrackMEt(const std::vector<pfCandInfo>&, double, int);
-  CommonMETData computeJetMEt_neutral(const std::vector<JetInfo>&, bool);
-  CommonMETData computeNoPUMEt(const std::vector<pfCandInfo>&, const std::vector<JetInfo>&, double);
+  CommonMETData computePFCandSum(const std::vector<pfCandInfo>&, double, int);
+  CommonMETData computeJetSum_neutral(const std::vector<JetInfo>&, bool);
+
   CommonMETData computePUMEt(const std::vector<pfCandInfo>&, const std::vector<JetInfo>&, double);
-  CommonMETData computePUCMEt(const std::vector<pfCandInfo>&, const std::vector<JetInfo>&, double);
   
   CommonMETData computeNegPFRecoil(const CommonMETData&, const std::vector<pfCandInfo>&, double);
   CommonMETData computeNegTrackRecoil(const CommonMETData&, const std::vector<pfCandInfo>&, double);

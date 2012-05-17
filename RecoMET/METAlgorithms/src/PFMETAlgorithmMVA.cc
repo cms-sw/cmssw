@@ -89,10 +89,9 @@ void PFMETAlgorithmMVA::setInput(const std::vector<reco::Candidate::LorentzVecto
 				 const std::vector<reco::Vertex::Point>& vertices)
 {
   std::vector<mvaMEtUtilities::pfCandInfo> pfCandidates_leptons = utils_.cleanPFCands(pfCandidates, leptons, 0.3, true);
-  CommonMETData sumLeptons = utils_.computeTrackMEt(pfCandidates_leptons, dZcut_, 2);
+  CommonMETData sumLeptons = utils_.computePFCandSum(pfCandidates_leptons, dZcut_, 2);
   sumLeptonPx_ = sumLeptons.mex;
   sumLeptonPy_ = sumLeptons.mey;
-  //std::cout << "sumLeptons: Px = " << sumLeptonPx_ << ", Py = " << sumLeptonPy_ << std::endl;
 
   double ptThreshold = -1.;
   if(is42_) ptThreshold = 1.;  //PH: For 42 training added a pT cut of 1 GeV on corrected Jets
