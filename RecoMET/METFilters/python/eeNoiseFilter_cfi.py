@@ -6,5 +6,7 @@ eeNoiseFilter = cms.EDFilter(
   EBRecHitSource = cms.InputTag('reducedEcalRecHitsEB'),
   EERecHitSource = cms.InputTag('reducedEcalRecHitsEE'),
   Slope     = cms.double(2),
-  Intercept = cms.double(1000)
+  Intercept = cms.double(1000),
+  taggingMode = cms.bool(False),
+  debug = cms.bool(False),
 )
