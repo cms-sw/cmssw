@@ -162,7 +162,7 @@ void OHltRatePrinter::printRatesASCII(OHltConfig *cfg, OHltMenu *menu)
          hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);
 
       //JH
-      hltPrescaleCorrection = 1.0;
+      //      hltPrescaleCorrection = 1.0;
       // JH
       
       cout<<setw(50)<<menu->GetTriggerName(i)<<" (" <<setw(8)
@@ -328,7 +328,7 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu)
          hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);
 
       // JH
-      hltPrescaleCorrection = 1.0;
+      //      hltPrescaleCorrection = 1.0;
       // end JH
 
       outFile << "| !"<< menu->GetTriggerName(i) << " | !" << tempTrigSeeds
@@ -801,7 +801,7 @@ void OHltRatePrinter::printL1RatesTex(OHltConfig *cfg, OHltMenu *menu)
          hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);
 
       // JH
-      hltPrescaleCorrection = 1.0;
+      //      hltPrescaleCorrection = 1.0;
       // JH
 
       outFile << "\\color{blue}" << tempTrigName << " & "
@@ -1018,7 +1018,7 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu)
          hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);
 
       // JH
-      hltPrescaleCorrection = 1.0;
+      //      hltPrescaleCorrection = 1.0;
       // JH
 
       outFile << "\\color{blue}" << tempTrigName << " & " << tempTrigSeeds
@@ -1116,7 +1116,7 @@ void OHltRatePrinter::printPrescalesCfg(OHltConfig *cfg, OHltMenu *menu)
          hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);
 
       // JH
-      hltPrescaleCorrection = 1.0;
+      //      hltPrescaleCorrection = 1.0;
       // JH
 
       outFile << "\tcms.PSet(  pathName = cms.string( \""
@@ -1214,7 +1214,7 @@ void OHltRatePrinter::printHLTDatasets(
                   hltPrescaleCorrection = menu->GetReferenceRunPrescale(i);
 
 	       // JH
-	       hltPrescaleCorrection = 1.0;
+	       //	       hltPrescaleCorrection = 1.0;
 	       // JH
 
                if (DStriggerName.CompareTo(iMenuTriggerName)==0)
