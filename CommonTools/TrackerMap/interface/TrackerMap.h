@@ -70,7 +70,7 @@ class TrackerMap {
   void drawPalette(std::ofstream * file); 
   void showPalette(bool printflag1){printflag=printflag1;}; 
   void setTitle(std::string s){title=s;};
-  void setRange(float min,float max){gminvalue=min;gmaxvalue=max;};
+  void setRange(float min,float max);
   std::pair<float,float>getAutomaticRange();
   void addPixel(bool addPixelfl){addPixelFlag=addPixelfl;};
   void reset();
@@ -107,6 +107,7 @@ class TrackerMap {
   bool enableFecProcessing;
   bool enableLVProcessing;
   bool enableHVProcessing;
+  bool tkMapLog;
   int ndet; //number of detectors 
   int npart; //number of detectors parts 
   std::string title;
