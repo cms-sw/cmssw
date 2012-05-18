@@ -1,5 +1,4 @@
 #include "CondCore/IOVService/interface/IOVProxy.h"
-
 #include "CondFormats/Common/interface/TimeConversions.h"
 
 void cond::IOVProxyData::refresh(){
