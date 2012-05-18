@@ -17,32 +17,26 @@
 
 #=============BEGIN CONFIGURATION=================
 setenv TYPE Photons
-setenv CMSSWver1 3_11_0
-setenv RELEASE 3_11_0
-setenv PRERELEASE pre5
+setenv CMSSWver1 5_3_0
+setenv RELEASE 5_3_0
+setenv PRERELEASE 
 
-setenv RELEASE ${RELEASE}_${PRERELEASE}
+setenv FULLGLOBALTAG START53_V4-v1
+setenv FASTGLOBALTAG START53_V4_FastSim-v1
 
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/testForFastSimIn382/src/Validation/RecoEgamma/test
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${PRERELEASE}/src/Validation/RecoEgamma/test
+#setenv RELEASE ${RELEASE}_${PRERELEASE}
+setenv RELEASE ${RELEASE}
+
+
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${PRERELEASE}/src/Validation/RecoEgamma/test
 
 
 #Name of sample (affects output directory name and htmldescription only) 
 
-#setenv SAMPLE PhotonJetPt15
-#setenv SAMPLE PhotonJetPt0-15
-#setenv SAMPLE PhotonJetPt500toInf
-#setenv SAMPLE PhotonJetPt80
-#setenv SAMPLE PhotonJetPt470
 
-#setenv SAMPLE SingleGammaPt10IDEAL
-#setenv SAMPLE SingleGammaPt35IDEAL
-##setenv SAMPLE SingleGammaFlatPt10_100IDEAL
-setenv SAMPLE H130GGgluonfusionSTARTUP
-#setenv SAMPLE PhotonJets_Pt_10
-#setenv SAMPLE GammaJets_Pt_80_120STARTUP
-#setenv SAMPLE QCD_Pt_80_120STARTUP
+setenv SAMPLE H130GGgluonfusion
+
 #TYPE must be one ofPixelMatchGsfElectron, Photon 
 
 #==============END BASIC CONFIGURATION==================
@@ -68,13 +62,13 @@ setenv FULLSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_SingleGammaFlatPt10T
 setenv FASTSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_SingleGammaFlatPt10To100_FastSim.root
 
 
-else if ($SAMPLE == H130GGgluonfusionSTARTUP) then 
+else if ($SAMPLE == H130GGgluonfusion) then 
 
 setenv HISTOPATHNAME_Efficiencies DQMData/Run\ 1/EgammaV/Run\ summary/PhotonValidator/Efficiencies
 setenv HISTOPATHNAME_Photons DQMData/Run\ 1/EgammaV/Run\ summary/PhotonValidator/Photons
 setenv HISTOPATHNAME_Conversions DQMData/Run\ 1/EgammaV/Run\ summary/PhotonValidator/ConversionInfo
-setenv FULLSIM ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_3_11_0_pre5-START311_V0-v1__GEN-SIM-RECO.root
-setenv FASTSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_H130GGgluonfusion_FastSim.root
+setenv FULLSIM ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${RELEASE}-${FULLGLOBALTAG}__DQM.root
+setenv FASTSIM ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${RELEASE}-${FASTGLOBALTAG}__DQM.root
 
 
 
@@ -299,36 +293,36 @@ setenv N 1
 foreach i (`cat efficiencyForPhotons`)
   cat > temp$N.C <<EOF
 
-TCanvas *c$i = new TCanvas("c$i");
-c$i->SetFillColor(10);
-file_old->cd("DQMData/EgammaV/PhotonValidator/Efficiencies");
-$i->SetStats(0);
-if ( $i==deadChVsEta ||  $i==deadChVsPhi ||  $i==deadChVsEt ) {
-$i->SetMinimum(0.);
-$i->SetMaximum(0.2);
-} else if (  $i==recoEffVsEt ) {
-$i->GetXaxis()->SetRangeUser(0.,200.);
-} else {
-$i->SetMinimum(0.);
-$i->SetMaximum(1.1);
-}
-$i->SetLineColor(kPink+8);
-$i->SetMarkerColor(kPink+8);
-$i->SetMarkerStyle(20);
-$i->SetMarkerSize(1);
-$i->SetLineWidth(1);
-$i->Draw();
-file_new->cd("$HISTOPATHNAME_Efficiencies");
-$i->SetStats(0);
-$i->SetMinimum(0.);
-$i->SetMaximum(1.1);
-$i->SetLineColor(kBlack);
-$i->SetMarkerColor(kBlack);
-$i->SetMarkerStyle(20);
-$i->SetMarkerSize(1);
-$i->SetLineWidth(1);
-$i->Draw("same");
-c$i->SaveAs("gifs/$i.gif");
+//TCanvas *c$i = new TCanvas("c$i");
+//c$i->SetFillColor(10);
+//file_old->cd("$HISTOPATHNAME_Efficiencies");
+//$i->SetStats(0);
+//if ( $i==deadChVsEta ||  $i==deadChVsPhi ||  $i==deadChVsEt ) {
+//$i->SetMinimum(0.);
+//$i->SetMaximum(0.2);
+//} else if (  $i==recoEffVsEt ) {
+//$i->GetXaxis()->SetRangeUser(0.,200.);
+//} else {
+//$i->SetMinimum(0.);
+//$i->SetMaximum(1.1);
+//}
+//$i->SetLineColor(kPink+8);
+//$i->SetMarkerColor(kPink+8);
+//$i->SetMarkerStyle(20);
+//$i->SetMarkerSize(1);
+//$i->SetLineWidth(1);
+//$i->Draw();
+//file_new->cd("$HISTOPATHNAME_Efficiencies");
+//$i->SetStats(0);
+//$i->SetMinimum(0.);
+//$i->SetMaximum(1.1);
+//$i->SetLineColor(kBlack);
+//$i->SetMarkerColor(kBlack);
+//$i->SetMarkerStyle(20);
+//$i->SetMarkerSize(1);
+//$i->SetLineWidth(1);
+//$i->Draw("same");
+//c$i->SaveAs("gifs/$i.gif");
 
 EOF
   setenv N `expr $N + 1`
@@ -342,7 +336,7 @@ c$i->SetFillColor(10);
 file_new->cd("$HISTOPATHNAME_Photons");
 Double_t mnew=$i->GetMaximum();
 Double_t nnew=$i->GetEntries();
-file_old->cd("DQMData/EgammaV/PhotonValidator/Photons");
+file_old->cd("$HISTOPATHNAME_Photons");
 Double_t mold=$i->GetMaximum();
 Double_t nold=$i->GetEntries();
 $i->SetStats(0);
@@ -380,7 +374,7 @@ c$i->SetFillColor(10);
 c$i->SetLogy(1);
 file_new->cd("$HISTOPATHNAME_Photons");
 Double_t nnew=$i->GetEntries();
-file_old->cd("DQMData/EgammaV/PhotonValidator/Photons");
+file_old->cd("$HISTOPATHNAME_Photons");
 if ( $i==hcalTowerSumEtConeDR04Barrel ||  $i==hcalTowerSumEtConeDR04Endcap  ) {  
 $i->GetXaxis()->SetRangeUser(0.,10.);
 }
@@ -412,7 +406,7 @@ foreach i (`cat unscaledhistosForPhotons`)
   cat > temp$N.C <<EOF
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
-file_old->cd("DQMData/EgammaV/PhotonValidator/Photons");
+file_old->cd("$HISTOPATHNAME_Photons");
 $i->SetStats(0);
 if ( $i==pEcalRecHitSumEtConeDR04VsEtaAll   ) {  
 $i->GetYaxis()->SetRangeUser(0.,5.);
@@ -458,7 +452,7 @@ foreach i (`cat 2dhistosForPhotons`)
   cat > temp$N.C <<EOF
 TCanvas *c$i = new TCanvas("c$i");
 c$i->SetFillColor(10);
-file_old->cd("DQMData/EgammaV/PhotonValidator/Photons");
+file_old->cd("$HISTOPATHNAME_Photons");
 $i->SetStats(0);
 $i->SetMinimum(0.);
 $i->SetMarkerColor(kPink+8);
