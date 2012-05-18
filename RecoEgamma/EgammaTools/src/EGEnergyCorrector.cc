@@ -1,4 +1,4 @@
-// $Id: EGEnergyCorrector.cc,v 1.7 2011/12/14 14:43:39 bendavid Exp $
+// $Id: EGEnergyCorrector.cc,v 1.8 2011/12/14 20:16:56 bendavid Exp $
 
 #include <TFile.h>
 #include "../interface/EGEnergyCorrector.h"
@@ -479,4 +479,209 @@ std::pair<double,double> EGEnergyCorrector::CorrectedEnergyWithError(const GsfEl
   
   return std::pair<double,double>(ecor,ecorerr);
 
+}
+
+//--------------------------------------------------------------------------------------------------
+std::pair<double,double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Photon &p, const reco::VertexCollection& vtxcol, double rho, EcalClusterLazyTools &clustertools, const edm::EventSetup &es) {
+  
+  const SuperClusterRef s = p.superCluster();
+  const CaloClusterPtr b = s->seed(); //seed  basic cluster
+
+  Bool_t isbarrel =  b->hitsAndFractions().at(0).first.subdetId()==EcalBarrel;
+  
+  //basic supercluster variables
+  fVals[0]  = s->rawEnergy();
+  fVals[1]  = s->eta();
+  fVals[2]  = s->phi();
+  fVals[3]  = p.r9();
+  fVals[4]  = p.e5x5()/s->rawEnergy();  
+  fVals[5] = s->etaWidth();
+  fVals[6] = s->phiWidth();
+  fVals[7] = s->clustersSize();
+  fVals[8] = p.hadTowOverEm();
+  fVals[9] = rho;
+  fVals[10] = vtxcol.size();
+
+  //seed basic cluster variables
+  double bemax = clustertools.eMax(*b);
+  double be2nd = clustertools.e2nd(*b);
+  double betop = clustertools.eTop(*b);
+  double bebottom = clustertools.eBottom(*b);
+  double beleft = clustertools.eLeft(*b);
+  double beright = clustertools.eRight(*b);
+
+  double be2x5max = clustertools.e2x5Max(*b);
+  double be2x5top = clustertools.e2x5Top(*b);
+  double be2x5bottom = clustertools.e2x5Bottom(*b);
+  double be2x5left = clustertools.e2x5Left(*b);
+  double be2x5right = clustertools.e2x5Right(*b);
+
+  fVals[11] = b->eta()-s->eta();
+  fVals[12] = reco::deltaPhi(b->phi(),s->phi());
+  fVals[13] = b->energy()/s->rawEnergy();
+  fVals[14] = clustertools.e3x3(*b)/b->energy();
+  fVals[15] = clustertools.e5x5(*b)/b->energy();
+  fVals[16] = sqrt(clustertools.localCovariances(*b)[0]); //sigietaieta
+  fVals[17] = sqrt(clustertools.localCovariances(*b)[2]); //sigiphiiphi
+  fVals[18] = clustertools.localCovariances(*b)[1];       //sigietaiphi
+  fVals[19] = bemax/b->energy();                       //crystal energy ratio gap variables   
+  fVals[20] = be2nd/b->energy();
+  fVals[21] = betop/b->energy();
+  fVals[22] = bebottom/b->energy();
+  fVals[23] = beleft/b->energy();
+  fVals[24] = beright/b->energy();
+  fVals[25] = be2x5max/b->energy();                       //crystal energy ratio gap variables   
+  fVals[26] = be2x5top/b->energy();
+  fVals[27] = be2x5bottom/b->energy();
+  fVals[28] = be2x5left/b->energy();
+  fVals[29] = be2x5right/b->energy();
+
+  if (isbarrel) {
+    //local coordinates and crystal indices (barrel only)    
+    
+    //seed cluster
+    float betacry, bphicry, bthetatilt, bphitilt;
+    int bieta, biphi;
+    _ecalLocal.localCoordsEB(*b,es,betacry,bphicry,bieta,biphi,bthetatilt,bphitilt);
+    
+    fVals[30] = bieta; //crystal ieta
+    fVals[31] = biphi; //crystal iphi
+    fVals[32] = bieta%5; //submodule boundary eta symmetry
+    fVals[33] = biphi%2; //submodule boundary phi symmetry
+    fVals[34] = (TMath::Abs(bieta)<=25)*(bieta%25) + (TMath::Abs(bieta)>25)*((bieta-25*TMath::Abs(bieta)/bieta)%20);  //module boundary eta approximate symmetry
+    fVals[35] = biphi%20; //module boundary phi symmetry
+    fVals[36] = betacry; //local coordinates with respect to closest crystal center at nominal shower depth
+    fVals[37] = bphicry;
+
+  }
+  else {
+    //preshower energy ratio (endcap only)
+    fVals[30]  = s->preshowerEnergy()/s->rawEnergy();
+  }
+
+  if (isbarrel) {
+    for (int i=0; i<38; ++i) printf("%i: %5f\n",i,fVals[i]);
+  }
+  else for (int i=0; i<31; ++i) printf("%i: %5f\n",i,fVals[i]);
+    
+  Double_t den;
+  const GBRForest *reader;
+  const GBRForest *readervar;
+  if (isbarrel) {
+    den = s->rawEnergy();
+    reader = fReadereb;
+    readervar = fReaderebvariance;
+  }
+  else {
+    den = s->rawEnergy() + s->preshowerEnergy();
+    reader = fReaderee;
+    readervar = fReadereevariance;
+  }
+  
+  Double_t ecor = reader->GetResponse(fVals)*den;
+  Double_t ecorerr = readervar->GetResponse(fVals)*den;
+  
+  //printf("ecor = %5f, ecorerr = %5f\n",ecor,ecorerr);
+  
+  return std::pair<double,double>(ecor,ecorerr);
+}
+
+//--------------------------------------------------------------------------------------------------
+std::pair<double,double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const GsfElectron &e, const reco::VertexCollection& vtxcol, double rho, EcalClusterLazyTools &clustertools, const edm::EventSetup &es) {
+  
+  const SuperClusterRef s = e.superCluster();
+  const CaloClusterPtr b = s->seed(); //seed  basic cluster
+
+  Bool_t isbarrel =  b->hitsAndFractions().at(0).first.subdetId()==EcalBarrel;
+  
+  //basic supercluster variables
+  fVals[0]  = s->rawEnergy();
+  fVals[1]  = s->eta();
+  fVals[2]  = s->phi();
+  fVals[3]  = clustertools.e3x3(*b)/s->rawEnergy(); //r9
+  fVals[4]  = clustertools.e5x5(*b)/s->rawEnergy();  
+  fVals[5] = s->etaWidth();
+  fVals[6] = s->phiWidth();
+  fVals[7] = s->clustersSize();
+  fVals[8] = e.hcalOverEcalBc();
+  fVals[9] = rho;
+  fVals[10] = vtxcol.size();
+
+  //seed basic cluster variables
+  double bemax = clustertools.eMax(*b);
+  double be2nd = clustertools.e2nd(*b);
+  double betop = clustertools.eTop(*b);
+  double bebottom = clustertools.eBottom(*b);
+  double beleft = clustertools.eLeft(*b);
+  double beright = clustertools.eRight(*b);
+
+  double be2x5max = clustertools.e2x5Max(*b);
+  double be2x5top = clustertools.e2x5Top(*b);
+  double be2x5bottom = clustertools.e2x5Bottom(*b);
+  double be2x5left = clustertools.e2x5Left(*b);
+  double be2x5right = clustertools.e2x5Right(*b);
+
+  fVals[11] = b->eta()-s->eta();
+  fVals[12] = reco::deltaPhi(b->phi(),s->phi());
+  fVals[13] = b->energy()/s->rawEnergy();
+  fVals[14] = clustertools.e3x3(*b)/b->energy();
+  fVals[15] = clustertools.e5x5(*b)/b->energy();
+  fVals[16] = sqrt(clustertools.localCovariances(*b)[0]); //sigietaieta
+  fVals[17] = sqrt(clustertools.localCovariances(*b)[2]); //sigiphiiphi
+  fVals[18] = clustertools.localCovariances(*b)[1];       //sigietaiphi
+  fVals[19] = bemax/b->energy();                       //crystal energy ratio gap variables   
+  fVals[20] = be2nd/b->energy();
+  fVals[21] = betop/b->energy();
+  fVals[22] = bebottom/b->energy();
+  fVals[23] = beleft/b->energy();
+  fVals[24] = beright/b->energy();
+  fVals[25] = be2x5max/b->energy();                       //crystal energy ratio gap variables   
+  fVals[26] = be2x5top/b->energy();
+  fVals[27] = be2x5bottom/b->energy();
+  fVals[28] = be2x5left/b->energy();
+  fVals[29] = be2x5right/b->energy();
+
+  if (isbarrel) {
+    //local coordinates and crystal indices (barrel only)    
+    
+    //seed cluster
+    float betacry, bphicry, bthetatilt, bphitilt;
+    int bieta, biphi;
+    _ecalLocal.localCoordsEB(*b,es,betacry,bphicry,bieta,biphi,bthetatilt,bphitilt);
+    
+    fVals[30] = bieta; //crystal ieta
+    fVals[31] = biphi; //crystal iphi
+    fVals[32] = bieta%5; //submodule boundary eta symmetry
+    fVals[33] = biphi%2; //submodule boundary phi symmetry
+    fVals[34] = (TMath::Abs(bieta)<=25)*(bieta%25) + (TMath::Abs(bieta)>25)*((bieta-25*TMath::Abs(bieta)/bieta)%20);  //module boundary eta approximate symmetry
+    fVals[35] = biphi%20; //module boundary phi symmetry
+    fVals[36] = betacry; //local coordinates with respect to closest crystal center at nominal shower depth
+    fVals[37] = bphicry;
+
+  }
+  else {
+    //preshower energy ratio (endcap only)
+    fVals[30]  = s->preshowerEnergy()/s->rawEnergy();
+  }
+    
+  Double_t den;
+  const GBRForest *reader;
+  const GBRForest *readervar;
+  if (isbarrel) {
+    den = s->rawEnergy();
+    reader = fReadereb;
+    readervar = fReaderebvariance;
+  }
+  else {
+    den = s->rawEnergy() + s->preshowerEnergy();
+    reader = fReaderee;
+    readervar = fReadereevariance;
+  }
+  
+  Double_t ecor = reader->GetResponse(fVals)*den;
+  Double_t ecorerr = readervar->GetResponse(fVals)*den;
+  
+  //printf("ecor = %5f, ecorerr = %5f\n",ecor,ecorerr);
+  
+  return std::pair<double,double>(ecor,ecorerr);
 }
