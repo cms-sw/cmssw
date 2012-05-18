@@ -177,6 +177,8 @@ process.load('RecoMET.METFilters.greedyMuonPFCandidateFilter_cfi')
 #    getattr(process,"patPF2PATSequence"+postfix)
 #)
 
+process.load('RecoMET.METFilters.eeNoiseFilter_cfi')
+
 process.load('RecoMET/METAnalyzers/CSCHaloFilter_cfi')
 
 process.rejectRecov = cms.EDFilter(
@@ -199,6 +201,7 @@ process.jetID = cms.Path(~process.jetIDFailure)
 process.trackingFailure = cms.Path(process.goodVertices*~process.trackingFailureFilter)
 process.inconsistentMuon = cms.Path(~process.inconsistentMuonPFCandidateFilter)
 process.greedyMuon = cms.Path(~process.greedyMuonPFCandidateFilter)
+process.eeNoise = cms.Path(~process.eeNoiseFilter)
 
 ##____________________________________________________________________________||
 process.hltTriggerSummaryAOD = cms.EDProducer(
