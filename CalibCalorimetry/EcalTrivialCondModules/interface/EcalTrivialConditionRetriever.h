@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.30 2011/04/23 08:12:04 depasse Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.31 2011/11/02 09:35:20 fay Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -94,6 +94,9 @@
 #include "CondFormats/AlignmentRecord/interface/EEAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
+#include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
+
 // forward declarations
 
 namespace edm{
@@ -155,6 +158,8 @@ public:
   virtual std::auto_ptr<Alignments> produceEcalAlignmentEB( const EBAlignmentRcd& );
   virtual std::auto_ptr<Alignments> produceEcalAlignmentEE( const EEAlignmentRcd& );
   virtual std::auto_ptr<Alignments> produceEcalAlignmentES( const ESAlignmentRcd& );
+
+  virtual std::auto_ptr<EcalSampleMask> produceEcalSampleMask( const EcalSampleMaskRcd& );
 
 protected:
   //overriding from ContextRecordIntervalFinder
@@ -254,6 +259,8 @@ private:
   std::string ESAlignmentFile_;
   std::string EBLaserAlphaFile_;
   std::string EELaserAlphaFile_;
+  unsigned int sampleMaskEB_;      // Mask to discard sample in barrel
+  unsigned int sampleMaskEE_;      // Mask to discard sample in endcaps
 
   int nTDCbins_;
 
@@ -289,6 +296,7 @@ private:
   bool getEEAlignmentFromFile_;
   bool getESAlignmentFromFile_;
   bool getLaserAlphaFromFile_;
+  bool producedEcalSampleMask_;
 
   int    verbose_; // verbosity
 
