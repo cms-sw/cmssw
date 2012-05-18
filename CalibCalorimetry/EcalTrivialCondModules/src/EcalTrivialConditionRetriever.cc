@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.53 2011/11/02 09:37:36 fay Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.55 2012/05/09 fay Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -81,6 +81,9 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   gainRatio6over1_  = ps.getUntrackedParameter<double>("gainRatio6over1",  6.0);
 
   getWeightsFromFile_ = ps.getUntrackedParameter<bool>("getWeightsFromFile",false);
+
+  sampleMaskEB_ = ps.getUntrackedParameter<unsigned int>("sampleMaskEB",1023);
+  sampleMaskEE_ = ps.getUntrackedParameter<unsigned int>("sampleMaskEB",1023);
 
   nTDCbins_ = 1;
 
@@ -367,6 +370,11 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
 
   if (producedEcalADCToGeVConstant_)  findingRecord<EcalADCToGeVConstantRcd>();
 
+  producedEcalSampleMask_ = ps.getUntrackedParameter<bool>("producedEcalSampleMask",true);
+  if (producedEcalSampleMask_) {
+    setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalSampleMask );
+    findingRecord<EcalSampleMaskRcd>();
+  }
 }
 
 EcalTrivialConditionRetriever::~EcalTrivialConditionRetriever()
@@ -2753,4 +2761,10 @@ EcalTrivialConditionRetriever::produceEcalAlignmentES( const ESAlignmentRcd& ) {
   a.m_align = my_align; 
   std::auto_ptr<Alignments> ical = std::auto_ptr<Alignments>( new Alignments(a) );
   return ical;
+}
+
+std::auto_ptr<EcalSampleMask>
+EcalTrivialConditionRetriever::produceEcalSampleMask( const EcalSampleMaskRcd& )
+{
+  return std::auto_ptr<EcalSampleMask>( new EcalSampleMask(sampleMaskEB_, sampleMaskEE_) );
 }

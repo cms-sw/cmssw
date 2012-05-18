@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.23 2011/04/22 18:09:20 depasse Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.25 2012/05/09 fay Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -70,6 +70,9 @@
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
+#include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
 
 #include "CLHEP/Matrix/Matrix.h"
 
@@ -395,7 +398,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
      std::cout << "i = " << std::setprecision(6) << i
              << ltimestamp.t1.value() << " " << ltimestamp.t2.value() << " : " ;
    }
-   std::cout << "Tests finihed." << std::endl;
+   std::cout << "Tests finished." << std::endl;
 
    // channel status
    edm::ESHandle<EcalChannelStatus> pChannelStatus;
@@ -417,6 +420,13 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
 
 
    // laser transparency correction
+
+   // Mask to ignore sample
+   edm::ESHandle<EcalSampleMask> pSMask;
+   context.get<EcalSampleMaskRcd>().get(pSMask);
+   const EcalSampleMask* smask = pSMask.product();
+   std::cout << "Sample Mask EB " << std::hex << smask->getEcalSampleMaskRecordEB() 
+	     << " EE " << std::hex << smask->getEcalSampleMaskRecordEE() << std::endl;
    
 
 /*
