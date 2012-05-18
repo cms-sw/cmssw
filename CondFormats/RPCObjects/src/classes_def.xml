@@ -50,7 +50,9 @@
   <class name="RPCClusterSize::ClusterSizeItem"/>
   <class name="std::vector<RPCClusterSize::ClusterSizeItem>"/>
 
-  <class name="RPCDQMObject"/>
+  <class name="RPCDQMObject">
+   <field name="v_cls" mapping="blob" />
+  </class>
   <class name="RPCDQMObject::DQMObjectItem"/>
   <class name="std::vector<RPCDQMObject::DQMObjectItem>"/>
 
