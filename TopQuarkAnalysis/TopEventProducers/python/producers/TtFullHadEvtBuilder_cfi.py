@@ -25,8 +25,7 @@ ttFullHadEvent = cms.EDProducer("TtFullHadEvtBuilder",
     ## (this vector of strings can be modified using the functions
     ## addTtFullHadHypotheses and removeTtFullHadHypGenMatch in
     ## TopQuarkAnalysis.TopEventProducers.sequences.ttFullHadEvtBuilder_cff)
-    hypotheses = cms.vstring("ttFullHadHypGenMatch"),  # "ttFullHadHypKinFit"
-                                                       # "ttFullHadHypMVADisc"
+    hypotheses = cms.VInputTag("ttFullHadHypGenMatch"),  # "ttFullHadHypKinFit"
 
     ## add extra information on kinFit
     kinFit = cms.PSet(

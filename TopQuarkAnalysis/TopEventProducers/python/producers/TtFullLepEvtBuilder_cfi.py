@@ -29,9 +29,8 @@ ttFullLepEvent = cms.EDProducer("TtFullLepEvtBuilder",
                               # can be set to -1 to take all jets
 
     ## labels for event hypotheses
-    hypotheses = cms.vstring("ttFullLepHypGenMatch",
-                             "ttFullLepHypKinSolution"                
-                            ),
+    hypotheses = cms.VInputTag("ttFullLepHypGenMatch",
+                               "ttFullLepHypKinSolution"),
                                 
     ## add extra information on kinSolution
     kinSolution = cms.PSet(
