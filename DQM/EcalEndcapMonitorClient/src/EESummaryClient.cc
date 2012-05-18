@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2012/04/27 13:46:08 $
- * $Revision: 1.221 $
+ * $Date: 2012/05/09 12:48:46 $
+ * $Revision: 1.222 $
  * \author G. Della Ricca
  *
 */
@@ -93,7 +93,7 @@ EESummaryClient::EESummaryClient(const edm::ParameterSet& ps) {
   MGPAGainsPN_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGainsPN", MGPAGainsPN_);
 
   timingNHitThreshold_ = ps.getUntrackedParameter<int>("timingNHitThreshold", 5);
-  synchErrorThreshold_ = ps.getUntrackedParameter<int>("synchErrorThreshold", 5);
+  synchErrorThreshold_ = ps.getUntrackedParameter<double>("synchErrorThreshold", 0.01);
 
   // summary maps
   meIntegrity_[0]      = 0;
@@ -1660,6 +1660,8 @@ void EESummaryClient::analyze(void) {
 
   std::string subdir(subfolder_ == "" ? "" : subfolder_ + "/");
 
+  TH1F* oosTrend(0);
+
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
     EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
@@ -1682,6 +1684,15 @@ void EESummaryClient::analyze(void) {
     TH2F* h2;
     TH2F* h3;
 
+    me = dqmStore_->get( prefixME_ + "/EcalInfo/EEMM DCC" );
+    norm01_ = UtilsClient::getHisto( me, cloneME_, norm01_ );
+
+    me = dqmStore_->get( prefixME_ + "/EERawDataTask/" + subdir + "EERDT L1A FE errors" );
+    synch01_ = UtilsClient::getHisto( me, cloneME_, synch01_ );
+
+    me = dqmStore_->get(prefixME_ + "/EERawDataTask/" + subdir + "EERDT accumulated FE synchronization errors");
+    oosTrend = UtilsClient::getHisto(me, cloneME_, oosTrend);
+
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
       int ism = superModules_[i];
@@ -1697,12 +1708,6 @@ void EESummaryClient::analyze(void) {
 
       me = dqmStore_->get( prefixME_ + "/EETimingTask/EETMT timing " + Numbers::sEE(ism) );
       htmt01_[ism-1] = UtilsClient::getHisto( me, cloneME_, htmt01_[ism-1] );
-
-      me = dqmStore_->get( prefixME_ + "/EcalInfo/EEMM DCC" );
-      norm01_ = UtilsClient::getHisto( me, cloneME_, norm01_ );
-
-      me = dqmStore_->get( prefixME_ + "/EERawDataTask/" + subdir + "EERDT L1A FE errors" );
-      synch01_ = UtilsClient::getHisto( me, cloneME_, synch01_ );
 
       for ( int ix = 1; ix <= 50; ix++ ) {
         for ( int iy = 1; iy <= 50; iy++ ) {
@@ -2829,9 +2834,14 @@ void EESummaryClient::analyze(void) {
               validCry = true;
 
               // recycle the validEE for the synch check of the DCC
-	      if(synch01_) {
-		float synchErrors = synch01_->GetBinContent(ism);
-		if(synchErrors >= synchErrorThreshold_) xval=0;
+              if(norm01_ && synch01_) {
+                float frac_synch_errors = 0.;
+                float norm = norm01_->GetBinContent(ism);
+                if(norm > 0) frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm);
+                if(frac_synch_errors > synchErrorThreshold_){
+		  xval = 0;
+		  if(oosTrend && oosTrend->GetBinContent(oosTrend->GetNbinsX()) - oosTrend->GetBinContent(1) < 1.) xval += 3.;
+		}
               }
 
               for ( unsigned int i=0; i<clients_.size(); i++ ) {
@@ -2962,8 +2972,10 @@ void EESummaryClient::analyze(void) {
                 float frac_synch_errors = 0.;
                 float norm = norm01_->GetBinContent(ism);
                 if(norm > 0) frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm);
-                float val_sy = (frac_synch_errors <= synchErrorThreshold_);
-                if(val_sy==0) xval=0;
+                if(frac_synch_errors > synchErrorThreshold_){
+		  xval = 0.;
+		  if(oosTrend && oosTrend->GetBinContent(oosTrend->GetNbinsX()) - oosTrend->GetBinContent(1) < 1.) xval += 3.;
+		}
               }
 
               for ( unsigned int i=0; i<clients_.size(); i++ ) {
@@ -3004,7 +3016,6 @@ void EESummaryClient::analyze(void) {
 
     }
   }
-
 
 
   float reportSummary = -1.0;
@@ -3054,6 +3065,29 @@ void EESummaryClient::analyze(void) {
 	  }
 	}
       }
+
+      // Countermeasure to partial TR failure
+      // make the whole Dee red if more than 2 towers within a 2x2 matrix fails
+
+//       for(int iside(0); iside < 2; iside++){
+// 	for(int jy(1); jy <= 20; jy++){
+// 	  for(int jx(1); jx <= 20; jx++){
+// 	    int nErr(0);
+// 	    if(nValidChannelsSC[iside][jx - 1][jy - 1] > 0 && nGlobalErrorsSC[iside][jx - 1][jy - 1] == nValidChannelsSC[iside][jx - 1][jy - 1]) nErr += 1;
+// 	    if(nValidChannelsSC[iside][jx][jy - 1] > 0 && nGlobalErrorsSC[iside][jx][jy - 1] == nValidChannelsSC[iside][jx][jy - 1]) nErr += 1;
+// 	    if(nValidChannelsSC[iside][jx - 1][jy] > 0 && nGlobalErrorsSC[iside][jx - 1][jy] == nValidChannelsSC[iside][jx - 1][jy]) nErr += 1;
+// 	    if(nValidChannelsSC[iside][jx][jy] > 0 && nGlobalErrorsSC[iside][jx][jy] == nValidChannelsSC[iside][jx][jy]) nErr += 1;
+// 	    if(nErr > 2){
+// 	      int jx0(((jx - 1) / 10) * 10);
+// 	      for(int jjx(jx0); jjx < jx0 + 10; jjx++){
+// 		for(int jjy(0); jjy < 20; jjy++){
+// 		  nGlobalErrorsSC[iside][jjx][jjy] = nValidChannelsSC[iside][jjx][jjy];
+// 		}
+// 	      }
+// 	    }
+// 	  }
+// 	}
+//       }
 
       for (int iside = 0; iside < 2; iside++ ) {
 	for ( int jxsc = 0; jxsc < 20; jxsc++ ) {

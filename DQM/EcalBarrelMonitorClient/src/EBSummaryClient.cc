@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2012/04/27 13:45:59 $
- * $Revision: 1.229 $
+ * $Date: 2012/05/09 12:48:46 $
+ * $Revision: 1.230 $
  * \author G. Della Ricca
  *
 */
@@ -81,7 +81,7 @@ EBSummaryClient::EBSummaryClient(const edm::ParameterSet& ps) {
 
   timingNHitThreshold_ = ps.getUntrackedParameter<int>("timingNHitThreshold", 5);
 
-  synchErrorThreshold_ = ps.getUntrackedParameter<int>("synchErrorThreshold", 5);
+  synchErrorThreshold_ = ps.getUntrackedParameter<double>("synchErrorThreshold", 0.01);
 
   // summary maps
   meIntegrity_            = 0;
@@ -1122,6 +1122,8 @@ void EBSummaryClient::analyze(void) {
 
   std::string subdir(subfolder_ == "" ? "" : subfolder_ + "/");
 
+  TH1F* oosTrend(0);
+
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
     EBIntegrityClient* ebic = dynamic_cast<EBIntegrityClient*>(clients_[i]);
@@ -1143,6 +1145,15 @@ void EBSummaryClient::analyze(void) {
     TH2F* h2;
     TH2F* h3;
 
+    me = dqmStore_->get( prefixME_ + "/EcalInfo/EBMM DCC" );
+    norm01_ = UtilsClient::getHisto( me, cloneME_, norm01_ );
+
+    me = dqmStore_->get( prefixME_ + "/EBRawDataTask/" + subdir + "EBRDT L1A FE errors" );
+    synch01_ = UtilsClient::getHisto( me, cloneME_, synch01_ );
+
+    me = dqmStore_->get(prefixME_ + "/EBRawDataTask/" + subdir + "EBRDT accumulated FE synchronization errors");
+    oosTrend = UtilsClient::getHisto(me, cloneME_, oosTrend);
+
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
       int ism = superModules_[i];
@@ -1158,12 +1169,6 @@ void EBSummaryClient::analyze(void) {
 
       me = dqmStore_->get( prefixME_ + "/EBTimingTask/EBTMT timing " + Numbers::sEB(ism) );
       htmt01_[ism-1] = UtilsClient::getHisto( me, cloneME_, htmt01_[ism-1] );
-
-      me = dqmStore_->get( prefixME_ + "/EcalInfo/EBMM DCC" );
-      norm01_ = UtilsClient::getHisto( me, cloneME_, norm01_ );
-
-      me = dqmStore_->get( prefixME_ + "/EBRawDataTask/" + subdir + "EBRDT L1A FE errors" );
-      synch01_ = UtilsClient::getHisto( me, cloneME_, synch01_ );
 
       for ( int ie = 1; ie <= 85; ie++ ) {
         for ( int ip = 1; ip <= 20; ip++ ) {
@@ -2024,10 +2029,15 @@ void EBSummaryClient::analyze(void) {
         // are reverted back to yellow
         float iEntries=0;
 
-        if(synch01_) {
-	  float synchErrors = synch01_->GetBinContent(ism);
-          if(synchErrors > synchErrorThreshold_) xval=0;
-        }
+	if(norm01_ && synch01_) {
+	  float frac_synch_errors = 0.;
+	  float norm = norm01_->GetBinContent(ism);
+	  if(norm > 0) frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm);
+	  if(frac_synch_errors > synchErrorThreshold_){
+	    xval = 0;
+	    if(oosTrend && oosTrend->GetBinContent(oosTrend->GetNbinsX()) - oosTrend->GetBinContent(1) < 1.) xval += 3.;
+	  }
+	}
 
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
         if (iter != superModules_.end()) {
@@ -2112,6 +2122,28 @@ void EBSummaryClient::analyze(void) {
 
 	}
       }
+
+      // Countermeasure to partial TR failure
+      // make the whole SM red if more than 2 towers within a 2x2 matrix fails
+
+//       for(int jeta(1); jeta <= 33; jeta++){
+// 	for(int jphi(1); jphi <= 71; jphi++){
+// 	  int nErr(0);
+// 	  if(nValidChannelsTT[jphi - 1][jeta - 1] > 0 && nGlobalErrorsTT[jphi - 1][jeta - 1] == nValidChannelsTT[jphi - 1][jeta - 1]) nErr += 1;
+// 	  if(nValidChannelsTT[jphi][jeta - 1] > 0 && nGlobalErrorsTT[jphi][jeta - 1] == nValidChannelsTT[jphi][jeta - 1]) nErr += 1;
+// 	  if(nValidChannelsTT[jphi - 1][jeta] > 0 && nGlobalErrorsTT[jphi - 1][jeta] == nValidChannelsTT[jphi - 1][jeta]) nErr += 1;
+// 	  if(nValidChannelsTT[jphi][jeta] > 0 && nGlobalErrorsTT[jphi][jeta] == nValidChannelsTT[jphi][jeta]) nErr += 1;
+// 	  if(nErr > 2){
+// 	    int jphi0(((jphi - 1) / 4) * 4);
+// 	    int jeta0(((jeta - 1) / 17) * 17);
+// 	    for(int jjphi(jphi0); jjphi < jphi0 + 4; jjphi++){
+// 	      for(int jjeta(jeta0); jjeta < jeta0 + 17; jjeta++){
+// 		nGlobalErrorsTT[jjphi][jjeta] = nValidChannelsTT[jjphi][jjeta];
+// 	      }
+// 	    }
+// 	  }
+// 	}
+//       }
 
       for ( int iettx = 0; iettx < 34; iettx++ ) {
 	for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
