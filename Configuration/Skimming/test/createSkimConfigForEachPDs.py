@@ -19,7 +19,8 @@ for k in autoSkim:
       ### 5E33 menu
       #os.system('cmsDriver.py skims -s SKIM:@%s --data --no_exec --dbs \"find file,file.parent where dataset=/%s/Run2012A-PromptReco-v1/RECO and run=191277\" -n 100 --conditions auto:com10 --python_filename=skim_%s.py --scenario=cosmics' %(k,k,k))
       ### 7E33 menu
-      os.system('cmsDriver.py skims -s SKIM:@%s --data --no_exec --dbs \"find file,file.parent where dataset=/%s/Run2012B-PromptReco-v1/RECO and run=193928\" -n 100 --conditions auto:com10 --python_filename=skim_%s.py --scenario=cosmics' %(k,k,k))
+      #os.system('cmsDriver.py skims -s SKIM:@%s --data --no_exec --dbs \"find file,file.parent where dataset=/%s/Run2012B-PromptReco-v1/RECO and run=193928\" -n 100 --conditions auto:com10 --python_filename=skim_%s.py --scenario=cosmics' %(k,k,k))
+      os.system('cmsDriver.py skims -s SKIM:@%s --data --no_exec --dbs \"find file,file.parent where dataset=/%s/Run2012B-PromptReco-v1/RECO and run=194050 and lumi=500\" -n 1000 --conditions auto:com10 --python_filename=skim_%s.py --scenario=cosmics' %(k,k,k))
 
    else:
       ### 5E33 menu
@@ -27,7 +28,8 @@ for k in autoSkim:
       #os.system('cmsDriver.py skims -s SKIM:@%s --data --no_exec --dbs \"find file,file.parent where dataset=/%s/Run2012A-PromptReco-v1/RECO and run=190705\" -n 100 --conditions auto:com10 --python_filename=skim_%s.py' %(k,k,k))
       #os.system('cmsDriver.py skims -s SKIM:@%s --data --no_exec --dbs \"find file,file.parent where dataset=/%s/Run2012A-PromptReco-v1/RECO and run=191277\" -n 100 --conditions auto:com10 --python_filename=skim_%s.py' %(k,k,k))
       ### 7E33 menu
-      os.system('cmsDriver.py skims -s SKIM:@%s --data --no_exec --dbs \"find file,file.parent where dataset=/%s/Run2012B-PromptReco-v1/RECO and run=193928\" -n 100 --conditions auto:com10 --python_filename=skim_%s.py' %(k,k,k))
+      #os.system('cmsDriver.py skims -s SKIM:@%s --data --no_exec --dbs \"find file,file.parent where dataset=/%s/Run2012B-PromptReco-v1/RECO and run=193928\" -n 100 --conditions auto:com10 --python_filename=skim_%s.py' %(k,k,k))
+      os.system('cmsDriver.py skims -s SKIM:@%s --data --no_exec --dbs \"find file,file.parent where dataset=/%s/Run2012B-PromptReco-v1/RECO and run=194050 and lumi=500\" -n 1000 --conditions auto:com10 --python_filename=skim_%s.py' %(k,k,k))
       
    os.system('mkdir -p %s/%s' %(testdirname,k))
 
@@ -39,7 +41,11 @@ for k in autoSkim:
    os.system('cp skim_%s.py %s/%s' %(k,testdirname,k))
    os.system('mv skim_%s.py %s' %(k,tier1dirname))
 
+
    ######################################################
    # uncomment below if you want to run a test on all the skims
    ######################################################
    #os.system('cd %s/%s ; cmsRun skim_%s.py > skim_%s.txt 2>&1' %(testdirname,k,k,k) )
+   # use the one below in case RAW not available on eos
+   #print ('cd %s/%s ; sed -i \"s/\/store\/data\/Run2012B/rfio\:\/castor\/cern.ch\/cms\/store\/data\/Run2012B/g\" skim_%s.py ; cmsRun skim_%s.py > skim_%s.txt 2>&1' %(testdirname,k,k,k,k) )
+   #os.system('cd %s/%s ; sed -i \"s/\/store\/data\/Run2012B/rfio\:\/castor\/cern.ch\/cms\/store\/data\/Run2012B/g\" skim_%s.py ; cmsRun skim_%s.py > skim_%s.txt 2>&1 &' %(testdirname,k,k,k,k) )
