@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/GRun/V132 (CMSSW_5_2_5_HLT5)
+# /dev/CMSSW_5_2_1/GRun/V133 (CMSSW_5_2_5_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V132')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V133')
 )
 
 streams = cms.PSet( 
@@ -1322,6 +1322,7 @@ datasets = cms.PSet(
     'HLT_Dimuon10_Jpsi_v3',
     'HLT_Dimuon5_PsiPrime_v3',
     'HLT_Dimuon5_Upsilon_v3',
+    'HLT_Dimuon7_PsiPrime_v1',
     'HLT_Dimuon8_Jpsi_v4',
     'HLT_Dimuon8_Upsilon_v3',
     'HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_v6',
