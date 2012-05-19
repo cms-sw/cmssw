@@ -432,9 +432,9 @@ streamA_datasetMuOniaParked_selector.throw      = cms.bool(False)
 streamA_datasetMuOniaParked_selector.triggerConditions = cms.vstring('HLT_Dimuon10_Jpsi_v3', 
     'HLT_Dimuon5_PsiPrime_v3', 
     'HLT_Dimuon5_Upsilon_v3', 
+    'HLT_Dimuon7_PsiPrime_v1', 
     'HLT_Dimuon8_Jpsi_v4', 
     'HLT_Dimuon8_Upsilon_v3', 
-    'HLT_Dimuon9_PsiPrime_v9', 
     'HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v3', 
     'HLT_DoubleMu3p5_LowMass_Displaced_v3')
 

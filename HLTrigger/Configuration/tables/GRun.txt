@@ -335,10 +335,13 @@ HLT_Dimuon0_Upsilon_v*                                                          
 HLT_Dimuon8_Upsilon_v*                                                                          #sr126726
 HLT_Dimuon11_Upsilon_v*                                                                         #sr126726
 HLT_Dimuon7_Upsilon_v*                                                                          #sr126726
-HLT_Dimuon9_PsiPrime_v*                                                                         #sr126726
+#HLT_Dimuon9_PsiPrime_v*                                                                        #sr126726, removed in sr128758
 HLT_Dimuon10_Jpsi_v*                                                                            #sr126726
 HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v*                                                 #sr126726
 HLT_Mu7_Track7_Jpsi_v*                                                                          #claimed by Higgs
+
+HLT_Dimuon7_PsiPrime_v*                                                                         #sr128758
+
 #HLT_Mu18_eta2p1_LooseIsoPFTau20_v*                                                             #sr126461, dropped in #sr128206
 #HLT_IsoMu18_eta2p1_LooseIsoPFTau20_v*                                                          #sr126461, dropped in #sr128206
 #HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20L1Jet_v*                          #sr126461, dropped in #sr128206

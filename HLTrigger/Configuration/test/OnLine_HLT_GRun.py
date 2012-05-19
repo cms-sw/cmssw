@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/GRun/V131 (CMSSW_5_2_5_HLT5)
+# /dev/CMSSW_5_2_1/GRun/V132 (CMSSW_5_2_5_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V131')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V132')
 )
 
 process.streams = cms.PSet( 
@@ -392,9 +392,9 @@ process.datasets = cms.PSet(
   MuOniaParked = cms.vstring( 'HLT_Dimuon10_Jpsi_v3',
     'HLT_Dimuon5_PsiPrime_v3',
     'HLT_Dimuon5_Upsilon_v3',
+    'HLT_Dimuon7_PsiPrime_v1',
     'HLT_Dimuon8_Jpsi_v4',
     'HLT_Dimuon8_Upsilon_v3',
-    'HLT_Dimuon9_PsiPrime_v9',
     'HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v3',
     'HLT_DoubleMu3p5_LowMass_Displaced_v3' ),
   MultiJet = cms.vstring( 'HLT_DiJet80_DiJet60_DiJet20_v2',
@@ -500,10 +500,10 @@ process.datasets = cms.PSet(
     'HLT_Dimuon3p5_SameSign_v3',
     'HLT_Dimuon5_PsiPrime_v3',
     'HLT_Dimuon5_Upsilon_v3',
+    'HLT_Dimuon7_PsiPrime_v1',
     'HLT_Dimuon7_Upsilon_v4',
     'HLT_Dimuon8_Jpsi_v4',
     'HLT_Dimuon8_Upsilon_v3',
-    'HLT_Dimuon9_PsiPrime_v9',
     'HLT_DisplacedPhoton65EBOnly_CaloIdVL_IsoL_PFMET30_v1',
     'HLT_DisplacedPhoton65_CaloIdVL_IsoL_PFMET25_v1',
     'HLT_DoubleDisplacedMu4_DiPFJet40Neutral_v4',
@@ -1325,7 +1325,6 @@ process.datasets = cms.PSet(
     'HLT_Dimuon5_Upsilon_v3',
     'HLT_Dimuon8_Jpsi_v4',
     'HLT_Dimuon8_Upsilon_v3',
-    'HLT_Dimuon9_PsiPrime_v9',
     'HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_v6',
     'HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v3',
     'HLT_DoubleMu3p5_LowMass_Displaced_v3',
@@ -4762,13 +4761,13 @@ process.PrescaleService = cms.Service( "PrescaleService",
       cms.PSet(  pathName = cms.string( "HLT_Dimuon7_Upsilon_v4" ),
         prescales = cms.vuint32( 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
       ),
+      cms.PSet(  pathName = cms.string( "HLT_Dimuon7_PsiPrime_v1" ),
+        prescales = cms.vuint32( 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
+      ),
       cms.PSet(  pathName = cms.string( "HLT_Dimuon8_Jpsi_v4" ),
         prescales = cms.vuint32( 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Dimuon8_Upsilon_v3" ),
-        prescales = cms.vuint32( 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
-      ),
-      cms.PSet(  pathName = cms.string( "HLT_Dimuon9_PsiPrime_v9" ),
         prescales = cms.vuint32( 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Dimuon10_Jpsi_v3" ),
@@ -16730,6 +16729,102 @@ process.hltVertexmumuFilterDimuon7Upsilon = cms.EDFilter( "HLTDisplacedmumuFilte
     MaxNormalisedChi2 = cms.double( 999999.0 ),
     MinLxySignificance = cms.double( 0.0 )
 )
+process.hltL1sL1DoubleMu30HighQ = cms.EDFilter( "HLTLevel1GTSeed",
+    saveTags = cms.bool( True ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu_3er_0er_HighQ_WdEta22" ),
+    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
+    L1UseL1TriggerObjectMaps = cms.bool( True ),
+    L1UseAliasesForSeeding = cms.bool( True ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
+    L1NrBxInEvent = cms.int32( 3 ),
+    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
+    L1TechTriggerSeeding = cms.bool( False )
+)
+process.hltPreDimuon7PsiPrime = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
+process.hltDimuon30L1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
+    saveTags = cms.bool( True ),
+    CSCTFtag = cms.InputTag( "unused" ),
+    PreviousCandTag = cms.InputTag( "hltL1sL1DoubleMu30HighQ" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 2 ),
+    MaxEta = cms.double( 2.5 ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( "hltL1extraParticles" ),
+    ExcludeSingleSegmentCSC = cms.bool( False )
+)
+process.hltDimuon30L2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltDimuon30L1Filtered0" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 2 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0 )
+)
+process.hltDimuon7PsiPrimeL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
+    saveTags = cms.bool( True ),
+    ChargeOpt = cms.int32( -1 ),
+    MaxPtMin = cms.vdouble( 1.0E125 ),
+    FastAccept = cms.bool( False ),
+    CandTag = cms.InputTag( "hltL3MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltDimuon30L2PreFiltered0" ),
+    MaxPtBalance = cms.double( 999999.0 ),
+    MaxPtPair = cms.vdouble( 1.0E125 ),
+    MaxAcop = cms.double( 999.0 ),
+    MinPtMin = cms.vdouble( 0.0 ),
+    MaxInvMass = cms.vdouble( 4.05 ),
+    MinPtMax = cms.vdouble( 0.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MaxDz = cms.double( 9999.0 ),
+    MinPtPair = cms.vdouble( 6.9 ),
+    MaxDr = cms.double( 2.0 ),
+    MinAcop = cms.double( -999.0 ),
+    MaxDCAMuMu = cms.double( 0.5 ),
+    MinNhits = cms.int32( 0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinPtBalance = cms.double( -1.0 ),
+    MaxEta = cms.double( 2.2 ),
+    MaxRapidityPair = cms.double( 2.5 ),
+    CutCowboys = cms.bool( False ),
+    MinInvMass = cms.vdouble( 3.35 )
+)
+process.hltDisplacedmumuVtxProducerDimuon7PsiPrime = cms.EDProducer( "HLTDisplacedmumuVtxProducer",
+    Src = cms.InputTag( "hltL3MuonCandidates" ),
+    PreviousCandTag = cms.InputTag( "hltDimuon7PsiPrimeL3Filtered" ),
+    MinPt = cms.double( 0.0 ),
+    ChargeOpt = cms.int32( -1 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxInvMass = cms.double( 999999.0 ),
+    MinPtPair = cms.double( 0.0 ),
+    MinInvMass = cms.double( 0.0 )
+)
+process.hltVertexmumuFilterDimuon7PsiPrime = cms.EDFilter( "HLTDisplacedmumuFilter",
+    saveTags = cms.bool( True ),
+    FastAccept = cms.bool( True ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinVtxProbability = cms.double( 0.0050 ),
+    MaxLxySignificance = cms.double( -1.0 ),
+    DisplacedVertexTag = cms.InputTag( "hltDisplacedmumuVtxProducerDimuon7PsiPrime" ),
+    MuonTag = cms.InputTag( "hltL3MuonCandidates" ),
+    MinCosinePointingAngle = cms.double( -2.0 ),
+    MaxNormalisedChi2 = cms.double( 999999.0 ),
+    MinLxySignificance = cms.double( 0.0 )
+)
 process.hltPreDimuon8Jpsi = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -16783,52 +16878,9 @@ process.hltVertexmumuFilterDimuon8Jpsi = cms.EDFilter( "HLTDisplacedmumuFilter",
     MaxNormalisedChi2 = cms.double( 999999.0 ),
     MinLxySignificance = cms.double( 0.0 )
 )
-process.hltL1sL1DoubleMu50HighQ = cms.EDFilter( "HLTLevel1GTSeed",
-    saveTags = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu_5er_0er_HighQ_WdEta22" ),
-    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
-    L1UseL1TriggerObjectMaps = cms.bool( True ),
-    L1UseAliasesForSeeding = cms.bool( True ),
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
-    L1NrBxInEvent = cms.int32( 3 ),
-    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
-    L1TechTriggerSeeding = cms.bool( False )
-)
 process.hltPreDimuon8Upsilon = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
-)
-process.hltDimuon50L1Filtered0 = cms.EDFilter( "HLTMuonL1Filter",
-    saveTags = cms.bool( True ),
-    CSCTFtag = cms.InputTag( "unused" ),
-    PreviousCandTag = cms.InputTag( "hltL1sL1DoubleMu50HighQ" ),
-    MinPt = cms.double( 0.0 ),
-    MinN = cms.int32( 2 ),
-    MaxEta = cms.double( 2.5 ),
-    SelectQualities = cms.vint32(  ),
-    CandTag = cms.InputTag( "hltL1extraParticles" ),
-    ExcludeSingleSegmentCSC = cms.bool( False )
-)
-process.hltDimuon50L2PreFiltered0 = cms.EDFilter( "HLTMuonL2PreFilter",
-    saveTags = cms.bool( True ),
-    MaxDr = cms.double( 9999.0 ),
-    CutOnChambers = cms.bool( False ),
-    PreviousCandTag = cms.InputTag( "hltDimuon50L1Filtered0" ),
-    MinPt = cms.double( 0.0 ),
-    MinN = cms.int32( 2 ),
-    SeedMapTag = cms.InputTag( "hltL2Muons" ),
-    MaxEta = cms.double( 2.5 ),
-    MinNhits = cms.vint32( 0 ),
-    MinDxySig = cms.double( -1.0 ),
-    MinNchambers = cms.vint32( 0 ),
-    AbsEtaBins = cms.vdouble( 5.0 ),
-    MaxDz = cms.double( 9999.0 ),
-    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
-    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
-    MinDr = cms.double( -1.0 ),
-    NSigmaPt = cms.double( 0.0 ),
-    MinNstations = cms.vint32( 0 )
 )
 process.hltDimuon8UpsilonL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     saveTags = cms.bool( True ),
@@ -16836,7 +16888,7 @@ process.hltDimuon8UpsilonL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MaxPtMin = cms.vdouble( 1.0E125 ),
     FastAccept = cms.bool( False ),
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
-    PreviousCandTag = cms.InputTag( "hltDimuon50L2PreFiltered0" ),
+    PreviousCandTag = cms.InputTag( "hltDimuon30L2PreFiltered0" ),
     MaxPtBalance = cms.double( 999999.0 ),
     MaxPtPair = cms.vdouble( 1.0E125 ),
     MaxAcop = cms.double( 999.0 ),
@@ -16879,59 +16931,6 @@ process.hltVertexmumuFilterDimuon8Upsilon = cms.EDFilter( "HLTDisplacedmumuFilte
     MaxNormalisedChi2 = cms.double( 999999.0 ),
     MinLxySignificance = cms.double( 0.0 )
 )
-process.hltPreDimuon9PsiPrime = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
-)
-process.hltDimuon9PsiPrimeL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
-    saveTags = cms.bool( True ),
-    ChargeOpt = cms.int32( -1 ),
-    MaxPtMin = cms.vdouble( 1.0E125 ),
-    FastAccept = cms.bool( False ),
-    CandTag = cms.InputTag( "hltL3MuonCandidates" ),
-    PreviousCandTag = cms.InputTag( "hltDimuon50L2PreFiltered0" ),
-    MaxPtBalance = cms.double( 999999.0 ),
-    MaxPtPair = cms.vdouble( 1.0E125 ),
-    MaxAcop = cms.double( 999.0 ),
-    MinPtMin = cms.vdouble( 0.0 ),
-    MaxInvMass = cms.vdouble( 4.05 ),
-    MinPtMax = cms.vdouble( 0.0 ),
-    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
-    MaxDz = cms.double( 9999.0 ),
-    MinPtPair = cms.vdouble( 8.9 ),
-    MaxDr = cms.double( 2.0 ),
-    MinAcop = cms.double( -999.0 ),
-    MaxDCAMuMu = cms.double( 0.5 ),
-    MinNhits = cms.int32( 0 ),
-    NSigmaPt = cms.double( 0.0 ),
-    MinPtBalance = cms.double( -1.0 ),
-    MaxEta = cms.double( 2.2 ),
-    MaxRapidityPair = cms.double( 2.5 ),
-    CutCowboys = cms.bool( False ),
-    MinInvMass = cms.vdouble( 3.35 )
-)
-process.hltDisplacedmumuVtxProducerDimuon9PsiPrime = cms.EDProducer( "HLTDisplacedmumuVtxProducer",
-    Src = cms.InputTag( "hltL3MuonCandidates" ),
-    PreviousCandTag = cms.InputTag( "hltDimuon9PsiPrimeL3Filtered" ),
-    MinPt = cms.double( 0.0 ),
-    ChargeOpt = cms.int32( -1 ),
-    MaxEta = cms.double( 2.5 ),
-    MaxInvMass = cms.double( 999999.0 ),
-    MinPtPair = cms.double( 0.0 ),
-    MinInvMass = cms.double( 0.0 )
-)
-process.hltVertexmumuFilterDimuon9PsiPrime = cms.EDFilter( "HLTDisplacedmumuFilter",
-    saveTags = cms.bool( True ),
-    FastAccept = cms.bool( True ),
-    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
-    MinVtxProbability = cms.double( 0.0050 ),
-    MaxLxySignificance = cms.double( -1.0 ),
-    DisplacedVertexTag = cms.InputTag( "hltDisplacedmumuVtxProducerDimuon9PsiPrime" ),
-    MuonTag = cms.InputTag( "hltL3MuonCandidates" ),
-    MinCosinePointingAngle = cms.double( -2.0 ),
-    MaxNormalisedChi2 = cms.double( 999999.0 ),
-    MinLxySignificance = cms.double( 0.0 )
-)
 process.hltPreDimuon10Jpsi = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -16942,12 +16941,12 @@ process.hltDimuon10JpsiL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MaxPtMin = cms.vdouble( 1.0E125 ),
     FastAccept = cms.bool( False ),
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
-    PreviousCandTag = cms.InputTag( "hltDimuon50L2PreFiltered0" ),
+    PreviousCandTag = cms.InputTag( "hltDimuon30L2PreFiltered0" ),
     MaxPtBalance = cms.double( 999999.0 ),
     MaxPtPair = cms.vdouble( 1.0E125 ),
     MaxAcop = cms.double( 999.0 ),
     MinPtMin = cms.vdouble( 0.0 ),
-    MaxInvMass = cms.vdouble( 3.35 ),
+    MaxInvMass = cms.vdouble( 3.5 ),
     MinPtMax = cms.vdouble( 0.0 ),
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
     MaxDz = cms.double( 9999.0 ),
@@ -16961,7 +16960,7 @@ process.hltDimuon10JpsiL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MaxEta = cms.double( 2.2 ),
     MaxRapidityPair = cms.double( 2.5 ),
     CutCowboys = cms.bool( False ),
-    MinInvMass = cms.vdouble( 2.8 )
+    MinInvMass = cms.vdouble( 2.7 )
 )
 process.hltDisplacedmumuVtxProducerDimuon10Jpsi = cms.EDProducer( "HLTDisplacedmumuVtxProducer",
     Src = cms.InputTag( "hltL3MuonCandidates" ),
@@ -16995,7 +16994,7 @@ process.hltDimuon11UpsilonL3Filtered = cms.EDFilter( "HLTMuonDimuonL3Filter",
     MaxPtMin = cms.vdouble( 1.0E125 ),
     FastAccept = cms.bool( False ),
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
-    PreviousCandTag = cms.InputTag( "hltDimuon50L2PreFiltered0" ),
+    PreviousCandTag = cms.InputTag( "hltDimuon30L2PreFiltered0" ),
     MaxPtBalance = cms.double( 999999.0 ),
     MaxPtPair = cms.vdouble( 1.0E125 ),
     MaxAcop = cms.double( 999.0 ),
@@ -40131,9 +40130,9 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Dimuon5_Upsilon_v3',
       'HLT_Dimuon5_PsiPrime_v3',
       'HLT_Dimuon7_Upsilon_v4',
+      'HLT_Dimuon7_PsiPrime_v1',
       'HLT_Dimuon8_Jpsi_v4',
       'HLT_Dimuon8_Upsilon_v3',
-      'HLT_Dimuon9_PsiPrime_v9',
       'HLT_Dimuon10_Jpsi_v3',
       'HLT_Dimuon11_Upsilon_v3',
       'HLT_Dimuon0_Jpsi_Muon_v15',
@@ -40486,10 +40485,10 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_Dimuon3p5_SameSign_v3',
   'HLT_Dimuon5_PsiPrime_v3',
   'HLT_Dimuon5_Upsilon_v3',
+  'HLT_Dimuon7_PsiPrime_v1',
   'HLT_Dimuon7_Upsilon_v4',
   'HLT_Dimuon8_Jpsi_v4',
   'HLT_Dimuon8_Upsilon_v3',
-  'HLT_Dimuon9_PsiPrime_v9',
   'HLT_DisplacedPhoton65EBOnly_CaloIdVL_IsoL_PFMET30_v1',
   'HLT_DisplacedPhoton65_CaloIdVL_IsoL_PFMET25_v1',
   'HLT_DoubleDisplacedMu4_DiPFJet40Neutral_v4',
@@ -40876,7 +40875,6 @@ process.hltOutputB = cms.OutputModule( "PoolOutputModule",
   'HLT_Dimuon5_Upsilon_v3',
   'HLT_Dimuon8_Jpsi_v4',
   'HLT_Dimuon8_Upsilon_v3',
-  'HLT_Dimuon9_PsiPrime_v9',
   'HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_v6',
   'HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v3',
   'HLT_DoubleMu3p5_LowMass_Displaced_v3',
@@ -40939,6 +40937,7 @@ process.hltOutputALCALUMIPIXELS = cms.OutputModule( "PoolOutputModule",
   'AlCa_LumiPixels_v6' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltFEDSelectorLumiPixels_*_*',
+      'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
       'keep edmTriggerResults_*_*_*' )
 )
 process.hltOutputCalibration = cms.OutputModule( "PoolOutputModule",
@@ -41571,10 +41570,10 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_Dimuon3p5_SameSign_v3',
   'HLT_Dimuon5_PsiPrime_v3',
   'HLT_Dimuon5_Upsilon_v3',
+  'HLT_Dimuon7_PsiPrime_v1',
   'HLT_Dimuon7_Upsilon_v4',
   'HLT_Dimuon8_Jpsi_v4',
   'HLT_Dimuon8_Upsilon_v3',
-  'HLT_Dimuon9_PsiPrime_v9',
   'HLT_DisplacedPhoton65EBOnly_CaloIdVL_IsoL_PFMET30_v1',
   'HLT_DisplacedPhoton65_CaloIdVL_IsoL_PFMET25_v1',
   'HLT_DoubleDisplacedMu4_DiPFJet40Neutral_v4',
@@ -42485,11 +42484,11 @@ process.HLT_Dimuon0_PsiPrime_v3 = cms.Path( process.HLTBeginSequence + process.h
 process.HLT_Dimuon5_Upsilon_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu0erHighQ + process.hltPreDimuon5Upsilon + process.hltDimuonL1Filtered0 + process.HLTL2muonrecoSequence + process.hltDimuonL2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDimuon5UpsilonL3Filtered + process.hltDisplacedmumuVtxProducerDimuon5Upsilon + process.hltVertexmumuFilterDimuon5Upsilon + process.HLTEndSequence )
 process.HLT_Dimuon5_PsiPrime_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu0erHighQ + process.hltPreDimuon5PsiPrime + process.hltDimuonL1Filtered0 + process.HLTL2muonrecoSequence + process.hltDimuonL2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDimuon5PsiPrimeL3Filtered + process.hltDisplacedmumuVtxProducerDimuon5PsiPrime + process.hltVertexmumuFilterDimuon5PsiPrime + process.HLTEndSequence )
 process.HLT_Dimuon7_Upsilon_v4 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu0erHighQ + process.hltPreDimuon7Upsilon + process.hltDimuonL1Filtered0 + process.HLTL2muonrecoSequence + process.hltDimuonL2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDimuon7UpsilonL3Filtered + process.hltDisplacedmumuVtxProducerDimuon7Upsilon + process.hltVertexmumuFilterDimuon7Upsilon + process.HLTEndSequence )
+process.HLT_Dimuon7_PsiPrime_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu30HighQ + process.hltPreDimuon7PsiPrime + process.hltDimuon30L1Filtered0 + process.HLTL2muonrecoSequence + process.hltDimuon30L2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDimuon7PsiPrimeL3Filtered + process.hltDisplacedmumuVtxProducerDimuon7PsiPrime + process.hltVertexmumuFilterDimuon7PsiPrime + process.HLTEndSequence )
 process.HLT_Dimuon8_Jpsi_v4 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu0erHighQ + process.hltPreDimuon8Jpsi + process.hltDimuonL1Filtered0 + process.HLTL2muonrecoSequence + process.hltDimuonL2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDimuon8JpsiL3Filtered + process.hltDisplacedmumuVtxProducerDimuon8Jpsi + process.hltVertexmumuFilterDimuon8Jpsi + process.HLTEndSequence )
-process.HLT_Dimuon8_Upsilon_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu50HighQ + process.hltPreDimuon8Upsilon + process.hltDimuon50L1Filtered0 + process.HLTL2muonrecoSequence + process.hltDimuon50L2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDimuon8UpsilonL3Filtered + process.hltDisplacedmumuVtxProducerDimuon8Upsilon + process.hltVertexmumuFilterDimuon8Upsilon + process.HLTEndSequence )
-process.HLT_Dimuon9_PsiPrime_v9 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu50HighQ + process.hltPreDimuon9PsiPrime + process.hltDimuon50L1Filtered0 + process.HLTL2muonrecoSequence + process.hltDimuon50L2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDimuon9PsiPrimeL3Filtered + process.hltDisplacedmumuVtxProducerDimuon9PsiPrime + process.hltVertexmumuFilterDimuon9PsiPrime + process.HLTEndSequence )
-process.HLT_Dimuon10_Jpsi_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu50HighQ + process.hltPreDimuon10Jpsi + process.hltDimuon50L1Filtered0 + process.HLTL2muonrecoSequence + process.hltDimuon50L2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDimuon10JpsiL3Filtered + process.hltDisplacedmumuVtxProducerDimuon10Jpsi + process.hltVertexmumuFilterDimuon10Jpsi + process.HLTEndSequence )
-process.HLT_Dimuon11_Upsilon_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu50HighQ + process.hltPreDimuon11Upsilon + process.hltDimuon50L1Filtered0 + process.HLTL2muonrecoSequence + process.hltDimuon50L2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDimuon11UpsilonL3Filtered + process.hltDisplacedmumuVtxProducerDimuon11Upsilon + process.hltVertexmumuFilterDimuon11Upsilon + process.HLTEndSequence )
+process.HLT_Dimuon8_Upsilon_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu30HighQ + process.hltPreDimuon8Upsilon + process.hltDimuon30L1Filtered0 + process.HLTL2muonrecoSequence + process.hltDimuon30L2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDimuon8UpsilonL3Filtered + process.hltDisplacedmumuVtxProducerDimuon8Upsilon + process.hltVertexmumuFilterDimuon8Upsilon + process.HLTEndSequence )
+process.HLT_Dimuon10_Jpsi_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu30HighQ + process.hltPreDimuon10Jpsi + process.hltDimuon30L1Filtered0 + process.HLTL2muonrecoSequence + process.hltDimuon30L2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDimuon10JpsiL3Filtered + process.hltDisplacedmumuVtxProducerDimuon10Jpsi + process.hltVertexmumuFilterDimuon10Jpsi + process.HLTEndSequence )
+process.HLT_Dimuon11_Upsilon_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu30HighQ + process.hltPreDimuon11Upsilon + process.hltDimuon30L1Filtered0 + process.HLTL2muonrecoSequence + process.hltDimuon30L2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDimuon11UpsilonL3Filtered + process.hltDisplacedmumuVtxProducerDimuon11Upsilon + process.hltVertexmumuFilterDimuon11Upsilon + process.HLTEndSequence )
 process.HLT_Dimuon0_Jpsi_Muon_v15 = cms.Path( process.HLTBeginSequence + process.hltL1sL1TripleMu0HighQ + process.hltPreDimuon0JpsiMuon + process.hltTripleMuonL1Filtered0 + process.HLTL2muonrecoSequence + process.hltTripleMuonL2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltTripleMuL3PreFiltered0 + process.hltJpsiMuonL3Filtered + process.hltDisplacedmumuVtxProducerJpsiMuon + process.hltVertexmumuFilterJpsiMuon + process.HLTEndSequence )
 process.HLT_Dimuon0_Upsilon_Muon_v15 = cms.Path( process.HLTBeginSequence + process.hltL1sL1TripleMu0HighQ + process.hltPreDimuon0UpsilonMuon + process.hltTripleMuonL1Filtered0 + process.HLTL2muonrecoSequence + process.hltTripleMuonL2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltTripleMuL3PreFiltered0 + process.hltUpsilonMuonL3Filtered + process.hltDisplacedmumuVtxProducerUpsilonMuon + process.hltVertexmumuFilterUpsilonMuon + process.HLTEndSequence )
 process.HLT_Dimuon3p5_SameSign_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu0erHighQ + process.hltPreDimuon3p5SameSign + process.hltDimuonL1Filtered0 + process.HLTL2muonrecoSequence + process.hltDimuonL2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDimuon3p5SameSignL3Filtered + process.HLTEndSequence )
