@@ -8,7 +8,6 @@ pixelPairStepClusters = cms.EDProducer("TrackClusterRemover",
     trajectories = cms.InputTag("lowPtTripletStepTracks"),
     overrideTrkQuals = cms.InputTag('lowPtTripletStepSelector','lowPtTripletStep'),
     TrackQuality = cms.string('highPurity'),
-    minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
     Common = cms.PSet(
@@ -82,33 +81,25 @@ pixelPairStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuil
     trajectoryFilterName = 'pixelPairStepTrajectoryFilter',
     clustersToSkip = cms.InputTag('pixelPairStepClusters'),
     maxCand = 2,
-    estimator = cms.string('pixelPairStepChi2Est'),
-    maxDPhiForLooperReconstruction = cms.double(2.0),
-    maxPtForLooperReconstruction = cms.double(0.7) 
+    estimator = cms.string('pixelPairStepChi2Est')
     )
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 pixelPairStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('pixelPairStepSeeds'),
-    TrajectoryBuilder = 'pixelPairStepTrajectoryBuilder',
-    ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
-
-)
+    TrajectoryBuilder = 'pixelPairStepTrajectoryBuilder'
+    )
 
 
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 pixelPairStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     AlgorithmName = cms.string('iter2'),
-    src = 'pixelPairStepTrackCandidates',
-    Fitter = cms.string('FlexibleKFFittingSmoother')
+    src = 'pixelPairStepTrackCandidates'
     )
 
 # Final selection
-import RecoTracker.IterativeTracking.LowPtTripletStep_cff
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 pixelPairStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='pixelPairStepTracks',

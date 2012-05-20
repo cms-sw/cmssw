@@ -85,7 +85,7 @@ EERecoSummary::EERecoSummary(const edm::ParameterSet& ps)
   dqmStore_ = edm::Service<DQMStore>().operator->();
 
   // Monitor Elements (ex THXD)
-  dqmStore_->setCurrentFolder(prefixME_ + "/RecoSummary"); // to organise the histos in folders
+  dqmStore_->setCurrentFolder(prefixME_ + "/EERecoSummary"); // to organise the histos in folders
      
   // ReducedRecHits ----------------------------------------------
   // ... endcap 
@@ -114,7 +114,7 @@ EERecoSummary::EERecoSummary(const edm::ParameterSet& ps)
   h_superClusters_EEP_nBC    = dqmStore_->book1D("superClusters_EEP_nBC","superClusters_EEP_nBC",100,0.,100.);
   h_superClusters_EEM_nBC    = dqmStore_->book1D("superClusters_EEM_nBC","superClusters_EEM_nBC",100,0.,100.);
 
-  h_superClusters_eta        = dqmStore_->book1D("superClusters_EE_eta","superClusters_eta",150,-3.,3.);
+  h_superClusters_eta        = dqmStore_->book1D("superClusters_eta","superClusters_eta",150,-3.,3.);
   h_superClusters_EE_phi     = dqmStore_->book1D("superClusters_EE_phi","superClusters_EE_phi",360,-3.1415927,3.1415927);
   
 }

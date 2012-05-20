@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.h,v 1.18 2011/03/07 15:31:31 mommsen Exp $
+// $Id: DataSenderMonitorCollection.h,v 1.19 2011/11/14 11:49:23 mommsen Exp $
 /// @file: DataSenderMonitorCollection.h 
 
 #ifndef EventFilter_StorageManager_DataSenderMonitorCollection_h
@@ -24,8 +24,8 @@ namespace stor {
    * and events by their source (resource broker, filter unit, etc.)
    *
    * $Author: mommsen $
-   * $Revision: 1.18 $
-   * $Date: 2011/03/07 15:31:31 $
+   * $Revision: 1.19 $
+   * $Date: 2011/11/14 11:49:23 $
    */
   
   class DataSenderMonitorCollection : public MonitorCollection
@@ -188,6 +188,7 @@ namespace stor {
       MonitoredQuantity dataDiscardCount;
       MonitoredQuantity dqmDiscardCount;
       MonitoredQuantity skippedDiscardCount;
+      uint32_t nExpectedEPs;
       uint32_t initMsgCount;
       uint32_t lastRunNumber;
       uint64_t lastEventNumber;
@@ -206,7 +207,7 @@ namespace stor {
         dataDiscardCount(updateInterval,boost::posix_time::seconds(10)),
         dqmDiscardCount(updateInterval,boost::posix_time::seconds(10)),
         skippedDiscardCount(updateInterval,boost::posix_time::seconds(10)),
-        initMsgCount(0), lastRunNumber(0), lastEventNumber(0) {}
+        nExpectedEPs(0), initMsgCount(0), lastRunNumber(0), lastEventNumber(0) {}
     };
     typedef boost::shared_ptr<ResourceBrokerRecord> RBRecordPtr;
 
@@ -299,11 +300,6 @@ namespace stor {
     );
 
     /**
-     * Adds the specified fragment to the monitor collection.
-     */
-    void addFragmentSample(I2OChain const&);
-
-    /**
      * Adds the specified (complete) INIT message to the monitor collection.
      */
     void addInitSample(I2OChain const&);
@@ -367,6 +363,12 @@ namespace stor {
      * Fetches the filter unit results for a specific resource broker.
      */
     FilterUnitResultsList getFilterUnitResultsForRB(UniqueResourceBrokerID_t uniqueRBID) const;
+
+    /**
+     * Return the number of event processors connected.
+     */
+    size_t getConnectedEPs() const;
+
 
   private:
 

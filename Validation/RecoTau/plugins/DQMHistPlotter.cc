@@ -46,7 +46,7 @@ const double defaultYaxisTitleSize = 0.05;
 const double defaultYaxisMaximumScaleFactor_linear = 1.6;
 const double defaultYaxisMaximumScaleFactor_log = 5.e+2;
 
-double DQMHistPlotter::cfgEntryAxisY::yAxisNorm_ = 0.;
+double TauDQMHistPlotter::cfgEntryAxisY::yAxisNorm_ = 0.;
 
 // defaults for cfgEntryLegend
 const double defaultLegendPosX = 0.50;
@@ -162,7 +162,7 @@ bool find_vstring(const std::vector<std::string>& vs, const std::string& s)
 //-----------------------------------------------------------------------------------------------------------------------
 //
 
-DQMHistPlotter::cfgEntryProcess::cfgEntryProcess(const std::string& name, const edm::ParameterSet& cfg)
+TauDQMHistPlotter::cfgEntryProcess::cfgEntryProcess(const std::string& name, const edm::ParameterSet& cfg)
 {
   name_ = name;
 
@@ -177,9 +177,9 @@ DQMHistPlotter::cfgEntryProcess::cfgEntryProcess(const std::string& name, const 
   if ( verbosity ) print();
 }
 
-void DQMHistPlotter::cfgEntryProcess::print() const
+void TauDQMHistPlotter::cfgEntryProcess::print() const
 {
-  std::cout << "<DQMHistPlotter::cfgEntryProcess::print>:" << std::endl;
+  std::cout << "<TauDQMHistPlotter::cfgEntryProcess::print>:" << std::endl;
   std::cout << " name = " << name_ << std::endl;
   std::cout << " dqmDirectory = " << dqmDirectory_ << std::endl;
   std::cout << " legendEntry = " << legendEntry_ << std::endl;
@@ -191,7 +191,7 @@ void DQMHistPlotter::cfgEntryProcess::print() const
 //-----------------------------------------------------------------------------------------------------------------------
 //
 
-DQMHistPlotter::cfgEntryAxisX::cfgEntryAxisX(const std::string& name, const edm::ParameterSet& cfg)
+TauDQMHistPlotter::cfgEntryAxisX::cfgEntryAxisX(const std::string& name, const edm::ParameterSet& cfg)
 {
   name_ = name;
 
@@ -204,9 +204,9 @@ DQMHistPlotter::cfgEntryAxisX::cfgEntryAxisX(const std::string& name, const edm:
   if ( verbosity ) print();
 }
 
-void DQMHistPlotter::cfgEntryAxisX::print() const
+void TauDQMHistPlotter::cfgEntryAxisX::print() const
 {
-  std::cout << "<DQMHistPlotter::cfgEntryAxisX::print>:" << std::endl;
+  std::cout << "<TauDQMHistPlotter::cfgEntryAxisX::print>:" << std::endl;
   std::cout << " name = " << name_ << std::endl;
   std::cout << " minX_ = " << minX_ << std::endl;
   std::cout << " maxX_ = " << maxX_ << std::endl;
@@ -215,7 +215,7 @@ void DQMHistPlotter::cfgEntryAxisX::print() const
   std::cout << " xAxisTitleSize = " << xAxisTitleSize_ << std::endl;
 }
 
-void DQMHistPlotter::cfgEntryAxisX::applyTo(TH1* histogram) const
+void TauDQMHistPlotter::cfgEntryAxisX::applyTo(TH1* histogram) const
 {
   if ( histogram ) {
     double xMin = ( minX_ != defaultMinX ) ? minX_ : histogram->GetXaxis()->GetXmin();
@@ -231,7 +231,7 @@ void DQMHistPlotter::cfgEntryAxisX::applyTo(TH1* histogram) const
 //-----------------------------------------------------------------------------------------------------------------------
 //
 
-DQMHistPlotter::cfgEntryAxisY::cfgEntryAxisY(const std::string& name, const edm::ParameterSet& cfg)
+TauDQMHistPlotter::cfgEntryAxisY::cfgEntryAxisY(const std::string& name, const edm::ParameterSet& cfg)
 {
   name_ = name;
 
@@ -247,9 +247,9 @@ DQMHistPlotter::cfgEntryAxisY::cfgEntryAxisY(const std::string& name, const edm:
   if ( verbosity ) print();
 }
 
-void DQMHistPlotter::cfgEntryAxisY::print() const
+void TauDQMHistPlotter::cfgEntryAxisY::print() const
 {
-  std::cout << "<DQMHistPlotter::cfgEntryAxisY::print>:" << std::endl;
+  std::cout << "<TauDQMHistPlotter::cfgEntryAxisY::print>:" << std::endl;
   std::cout << " name = " << name_ << std::endl;
   std::cout << " minY_linear = " << minY_linear_ << std::endl;
   std::cout << " minY_log = " << minY_log_ << std::endl;
@@ -261,7 +261,7 @@ void DQMHistPlotter::cfgEntryAxisY::print() const
   std::cout << " yAxisTitleSize = " << yAxisTitleSize_ << std::endl;
 }
 
-void DQMHistPlotter::cfgEntryAxisY::applyTo(TH1* histogram) const
+void TauDQMHistPlotter::cfgEntryAxisY::applyTo(TH1* histogram) const
 {
   if ( histogram ) {
     bool yLogScale = ( yScale_ == yScale_log ) ? true : false;
@@ -289,7 +289,7 @@ void DQMHistPlotter::cfgEntryAxisY::applyTo(TH1* histogram) const
 //-----------------------------------------------------------------------------------------------------------------------
 //
 
-DQMHistPlotter::cfgEntryLegend::cfgEntryLegend(const std::string& name, const edm::ParameterSet& cfg)
+TauDQMHistPlotter::cfgEntryLegend::cfgEntryLegend(const std::string& name, const edm::ParameterSet& cfg)
 {
   name_ = name;
 
@@ -305,9 +305,9 @@ DQMHistPlotter::cfgEntryLegend::cfgEntryLegend(const std::string& name, const ed
   if ( verbosity ) print();
 }
 
-void DQMHistPlotter::cfgEntryLegend::print() const
+void TauDQMHistPlotter::cfgEntryLegend::print() const
 {
-  std::cout << "<DQMHistPlotter::cfgEntryLegend::print>:" << std::endl;
+  std::cout << "<TauDQMHistPlotter::cfgEntryLegend::print>:" << std::endl;
   std::cout << " name = " << name_ << std::endl;
   std::cout << " posX = " << posX_ << std::endl;
   std::cout << " posY = " << posY_ << std::endl;
@@ -319,7 +319,7 @@ void DQMHistPlotter::cfgEntryLegend::print() const
   std::cout << " fillColor = " << fillColor_ << std::endl;
 }
 
-void DQMHistPlotter::cfgEntryLegend::applyTo(TLegend* legend) const
+void TauDQMHistPlotter::cfgEntryLegend::applyTo(TLegend* legend) const
 {
   if ( legend ) {
     legend->SetX1(posX_);
@@ -337,7 +337,7 @@ void DQMHistPlotter::cfgEntryLegend::applyTo(TLegend* legend) const
 //-----------------------------------------------------------------------------------------------------------------------
 //
 
-DQMHistPlotter::cfgEntryLabel::cfgEntryLabel(const std::string& name, const edm::ParameterSet& cfg)
+TauDQMHistPlotter::cfgEntryLabel::cfgEntryLabel(const std::string& name, const edm::ParameterSet& cfg)
 {
   name_ = name;
 
@@ -357,9 +357,9 @@ DQMHistPlotter::cfgEntryLabel::cfgEntryLabel(const std::string& name, const edm:
   if ( verbosity ) print();
 }
 
-void DQMHistPlotter::cfgEntryLabel::print() const
+void TauDQMHistPlotter::cfgEntryLabel::print() const
 {
-  std::cout << "<DQMHistPlotter::cfgEntryLabel::print>:" << std::endl;
+  std::cout << "<TauDQMHistPlotter::cfgEntryLabel::print>:" << std::endl;
   std::cout << " name = " << name_ << std::endl;
   std::cout << " posX = " << posX_ << std::endl;
   std::cout << " posY = " << posY_ << std::endl;
@@ -375,7 +375,7 @@ void DQMHistPlotter::cfgEntryLabel::print() const
   std::cout << " text = " << format_vstring(text_) << std::endl;
 }
 
-void DQMHistPlotter::cfgEntryLabel::applyTo(TPaveText* label) const
+void TauDQMHistPlotter::cfgEntryLabel::applyTo(TPaveText* label) const
 {
   if ( label ) {
 //--- WARNING: need to call TPaveText::SetX1NDC, **not** TPaveText::SetX1 !!
@@ -404,7 +404,7 @@ void DQMHistPlotter::cfgEntryLabel::applyTo(TPaveText* label) const
 //-----------------------------------------------------------------------------------------------------------------------
 //
 
-DQMHistPlotter::cfgEntryDrawOption::cfgEntryDrawOption(const std::string& name, const edm::ParameterSet& cfg)
+TauDQMHistPlotter::cfgEntryDrawOption::cfgEntryDrawOption(const std::string& name, const edm::ParameterSet& cfg)
 {
   name_ = name;
 
@@ -425,7 +425,7 @@ DQMHistPlotter::cfgEntryDrawOption::cfgEntryDrawOption(const std::string& name, 
   if ( verbosity ) print();
 }
 
-DQMHistPlotter::cfgEntryDrawOption::cfgEntryDrawOption(const std::string& name, const cfgEntryDrawOption& blueprint)
+TauDQMHistPlotter::cfgEntryDrawOption::cfgEntryDrawOption(const std::string& name, const cfgEntryDrawOption& blueprint)
   : name_(name),
     markerColor_(blueprint.markerColor_), markerSize_(blueprint.markerSize_), markerStyle_(blueprint.markerStyle_),
     lineColor_(blueprint.lineColor_), lineStyle_(blueprint.lineStyle_), lineWidth_(blueprint.lineWidth_),
@@ -435,9 +435,9 @@ DQMHistPlotter::cfgEntryDrawOption::cfgEntryDrawOption(const std::string& name, 
   if ( verbosity ) print();
 }
 
-void DQMHistPlotter::cfgEntryDrawOption::print() const
+void TauDQMHistPlotter::cfgEntryDrawOption::print() const
 {
-  std::cout << "<DQMHistPlotter::cfgEntryDrawOption::print>:" << std::endl;
+  std::cout << "<TauDQMHistPlotter::cfgEntryDrawOption::print>:" << std::endl;
   std::cout << " name = " << name_ << std::endl;
   std::cout << " markerColor = " << markerColor_ << std::endl;
   std::cout << " markerSize = " << markerSize_ << std::endl;
@@ -451,7 +451,7 @@ void DQMHistPlotter::cfgEntryDrawOption::print() const
   std::cout << " drawOptionLegend = " << drawOptionLegend_ << std::endl;
 }
 
-void DQMHistPlotter::cfgEntryDrawOption::applyTo(TH1* histogram) const 
+void TauDQMHistPlotter::cfgEntryDrawOption::applyTo(TH1* histogram) const 
 {
   if ( histogram ) {
     histogram->SetMarkerColor(markerColor_);
@@ -469,7 +469,7 @@ void DQMHistPlotter::cfgEntryDrawOption::applyTo(TH1* histogram) const
 //-----------------------------------------------------------------------------------------------------------------------
 //
 
-DQMHistPlotter::plotDefEntry::plotDefEntry(const std::string& dqmMonitorElement, 
+TauDQMHistPlotter::plotDefEntry::plotDefEntry(const std::string& dqmMonitorElement, 
 					   const std::string& drawOptionEntry,
 					   const std::string& legendEntry,
 					   const std::string& legendEntryErrorBand,
@@ -486,7 +486,7 @@ DQMHistPlotter::plotDefEntry::plotDefEntry(const std::string& dqmMonitorElement,
   //if ( verbosity ) print();
 }
 
-DQMHistPlotter::plotDefEntry::plotDefEntry(const plotDefEntry& blueprint)
+TauDQMHistPlotter::plotDefEntry::plotDefEntry(const plotDefEntry& blueprint)
   : dqmMonitorElement_(blueprint.dqmMonitorElement_), 
     drawOptionEntry_(blueprint.drawOptionEntry_),
     legendEntry_(blueprint.legendEntry_),
@@ -498,9 +498,9 @@ DQMHistPlotter::plotDefEntry::plotDefEntry(const plotDefEntry& blueprint)
   //if ( verbosity ) print();
 }
 
-void DQMHistPlotter::plotDefEntry::print() const
+void TauDQMHistPlotter::plotDefEntry::print() const
 {
-  std::cout << "<DQMHistPlotter::plotDefEntry::print>:" << std::endl;
+  std::cout << "<TauDQMHistPlotter::plotDefEntry::print>:" << std::endl;
   std::cout << " dqmMonitorElement = " << dqmMonitorElement_ << std::endl;
   std::cout << " drawOptionEntry = " << drawOptionEntry_ << std::endl;
   std::cout << " legendEntry = " << legendEntry_ << std::endl;
@@ -513,7 +513,7 @@ void DQMHistPlotter::plotDefEntry::print() const
 //-----------------------------------------------------------------------------------------------------------------------
 //
 
-DQMHistPlotter::cfgEntryDrawJob::cfgEntryDrawJob(const std::string& name, 
+TauDQMHistPlotter::cfgEntryDrawJob::cfgEntryDrawJob(const std::string& name, 
 						 const plotDefList& plotDefList, 
 						 const std::string& title,
 						 const std::string& xAxis, const std::string& yAxis, 
@@ -542,9 +542,9 @@ DQMHistPlotter::cfgEntryDrawJob::cfgEntryDrawJob(const std::string& name,
   if ( verbosity ) print();
 }
 
-void DQMHistPlotter::cfgEntryDrawJob::print() const
+void TauDQMHistPlotter::cfgEntryDrawJob::print() const
 {
-  std::cout << "<DQMHistPlotter::cfgSetDrawJob::print>:" << std::endl;
+  std::cout << "<TauDQMHistPlotter::cfgSetDrawJob::print>:" << std::endl;
   std::cout << " name = " << name_ << std::endl;
   std::cout << "plots = {" << std::endl;
   for ( plotDefList::const_iterator plot = plots_.begin();
@@ -563,10 +563,10 @@ void DQMHistPlotter::cfgEntryDrawJob::print() const
 //-----------------------------------------------------------------------------------------------------------------------
 //
 
-DQMHistPlotter::DQMHistPlotter(const edm::ParameterSet& cfg)
+TauDQMHistPlotter::TauDQMHistPlotter(const edm::ParameterSet& cfg)
 {
   if( verbosity)
-    std::cout << "<DQMHistPlotter::DQMHistPlotter>:" << std::endl;
+    std::cout << "<TauDQMHistPlotter::TauDQMHistPlotter>:" << std::endl;
 
   toFile_ = cfg.getParameter<bool>("PrintToFile");
   cfgError_ = 0;
@@ -589,7 +589,7 @@ DQMHistPlotter::DQMHistPlotter(const edm::ParameterSet& cfg)
 	   (type == type_bsmMC) ||
 	   (type == type_smSumMC) ||
 	   (type == type_Data)) ) {
-      edm::LogError ("DQMHistPlotter") << " Undefined process type = " << type << " !!";
+      edm::LogError ("TauDQMHistPlotter") << " Undefined process type = " << type << " !!";
       cfgError_ = 1;
     }
 
@@ -598,7 +598,7 @@ DQMHistPlotter::DQMHistPlotter(const edm::ParameterSet& cfg)
   }
 
   if ( (numProcesses_Data > 1) || (numProcesses_sumMC > 1) ) {
-    edm::LogError ("DQMHistPlotter") << " Cannot have more than one process of types sumMC and Data !!";
+    edm::LogError ("TauDQMHistPlotter") << " Cannot have more than one process of types sumMC and Data !!";
     cfgError_ = 1;
   }
 
@@ -727,7 +727,7 @@ DQMHistPlotter::DQMHistPlotter(const edm::ParameterSet& cfg)
 	isFirstEntry = false;
       } else {
 	if ( plot->second.size() != numMonitorElements_ref ) {
-	  edm::LogError ("DQMHistPlotter::DQMHistPlotter") << " Numbers of dqmMonitorElements must be the same for all plots" 
+	  edm::LogError ("TauDQMHistPlotter::TauDQMHistPlotter") << " Numbers of dqmMonitorElements must be the same for all plots" 
 							   << " --> skipping drawJob = " << (*drawJobName) << " !!";
 	  cfgError_ = 1;
 	}
@@ -758,7 +758,7 @@ DQMHistPlotter::DQMHistPlotter(const edm::ParameterSet& cfg)
 	    cfgError_ = 1;
 	  }
 	} else {
-	  edm::LogError ("DQMHistPlotter::DQMHistPlotter") << " Undefined process = " << process << " !!";
+	  edm::LogError ("TauDQMHistPlotter::TauDQMHistPlotter") << " Undefined process = " << process << " !!";
 	  cfgError_ = 1;
 	}
       }
@@ -856,7 +856,7 @@ DQMHistPlotter::DQMHistPlotter(const edm::ParameterSet& cfg)
 
   indOutputFileName_ = ( cfg.exists("indOutputFileName") ) ? cfg.getParameter<std::string>("indOutputFileName") : "";
   if ( indOutputFileName_ != "" && indOutputFileName_.find('.') == std::string::npos ) {
-    edm::LogError ("DQMHistPlotter") << " Failed to determine type of graphics format from indOutputFileName = " << indOutputFileName_ << " !!";
+    edm::LogError ("TauDQMHistPlotter") << " Failed to determine type of graphics format from indOutputFileName = " << indOutputFileName_ << " !!";
     cfgError_ = 1;
   }
   //std::cout << " indOutputFileName = " << indOutputFileName_ << std::endl;
@@ -867,12 +867,12 @@ DQMHistPlotter::DQMHistPlotter(const edm::ParameterSet& cfg)
 //     cannot create both types of output simultaneously,
 //     as TCanvas::Print seems to interfere with TPostScript::NewPage)
   if ( outputFileName_ == "" && indOutputFileName_ == "" ) {
-    edm::LogError ("DQMHistPlotter") << " Either outputFileName or indOutputFileName must be specified !!";
+    edm::LogError ("TauDQMHistPlotter") << " Either outputFileName or indOutputFileName must be specified !!";
     cfgError_ = 1;
   }
 
   if ( outputFileName_ != "" && indOutputFileName_ != "" ) {
-    edm::LogError ("DQMHistPlotter") << " Must not specify outputFileName and indOutputFileName simultaneously !!";
+    edm::LogError ("TauDQMHistPlotter") << " Must not specify outputFileName and indOutputFileName simultaneously !!";
     cfgError_ = 1;
   }
 
@@ -880,20 +880,20 @@ DQMHistPlotter::DQMHistPlotter(const edm::ParameterSet& cfg)
     std::cout << "done." << std::endl;
 }
 
-DQMHistPlotter::~DQMHistPlotter() 
+TauDQMHistPlotter::~TauDQMHistPlotter() 
 {
 // nothing to be done yet...
 }
 
-void DQMHistPlotter::analyze(const edm::Event&, const edm::EventSetup&)
+void TauDQMHistPlotter::analyze(const edm::Event&, const edm::EventSetup&)
 {
 // nothing to be done yet...
 }
 
-void DQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
+void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
 {
   if( verbosity )
-    std::cout << "<DQMHistPlotter::endJob>:" << std::endl;
+    std::cout << "<TauDQMHistPlotter::endJob>:" << std::endl;
 
 //--- check that configuration parameters contain no errors
   if ( cfgError_ ) {
@@ -918,7 +918,7 @@ void DQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
 
 //--- initialize graphical output;
 //    open postscript file
-  TCanvas canvas("DQMHistPlotter","DQMHistPlotter", canvasSizeX_, canvasSizeY_);
+  TCanvas canvas("TauDQMHistPlotter","TauDQMHistPlotter", canvasSizeX_, canvasSizeY_);
   canvas.SetFillColor(10);
 
 //--- restrict area in which histograms are drawn to quadratic TPad in the center of the TCanvas,
@@ -1201,4 +1201,4 @@ void DQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE(DQMHistPlotter);
+DEFINE_FWK_MODULE(TauDQMHistPlotter);

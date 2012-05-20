@@ -70,19 +70,10 @@ void JetMatchingHook::beforeHadronization( lhef::LHEEvent* lhee )
 bool JetMatchingHook::doVetoPartonLevel( const Event& event )
 {
             
-   // not necessary because later on we select only "stable partons"
-   //
-   // omitResonanceDecays(event); 
-      
-   // extract "hardest" event - the output will go into workEvent, 
-   // which is a data mamber of base class UserHooks
-   //
+   omitResonanceDecays(event); 
+   
    subEvent(event,true);
-
-   setHEPEVT( event ); // here we pass in "full" event, not workEvent !
-   // setHEPEVT();
-
-   // std::cout << " NPartons= " << hepeup_.nup << std::endl;
+   setHEPEVT( workEvent );
    
    if ( !hepeup_.nup || fJetMatching->isMatchingDone() )
    {
@@ -108,19 +99,14 @@ bool JetMatchingHook::doVetoPartonLevel( const Event& event )
 
 }
 
-/* earlier, simplified version
-
-void JetMatchingHook::setHEPEVT()
+void JetMatchingHook::setHEPEVT( const Event& event )
 {
 
-   HepMC::HEPEVT_Wrapper::zero_everything();
-   
    int index = 0;
-   
-   for ( int iprt=1; iprt<workEvent.size(); iprt++ ) // from 0-entry (system) or from 1st entry ???
+   for ( int iprt=1; iprt<event.size(); iprt++ ) // from 0-entry (system) or from 1st entry ???
    {
    
-      const Particle& part = workEvent[iprt];
+      const Particle& part = event[iprt];
       if ( part.status() != 62 ) continue;
       index++;
       HepMC::HEPEVT_Wrapper::set_id( index, part.id() );
@@ -149,196 +135,126 @@ void JetMatchingHook::setHEPEVT()
    return;
 
 }
-*/
+
+/* Oct.2011 - Note from JY:
+   This is an attempt to mimic Py6 routine PYVETO, including boost along Z and mother-daughter links.
+   It's unclear if we'll ever need thsoe details, but for now I keep the commented code here, just in case...
 
 void JetMatchingHook::setHEPEVT( const Event& event )
 {
-        
-   HepMC::HEPEVT_Wrapper::zero_everything();   
-      
-   // service container for further mother-daughters links
-   //
+
+   HepMC::HEPEVT_Wrapper::zero_everything();
+   
+   int index = 0;
    std::vector<int> IndexContainer;
-   IndexContainer.clear();   
-
-   // fisrt of all, add "system particle" - to avoid 0-mother and prevent hiccups in ME2pythia
-   //
-   int index = 1;
-   const Particle& part = event[0];
-   HepMC::HEPEVT_Wrapper::set_id( index, part.id() );
-   HepMC::HEPEVT_Wrapper::set_status( index, 2 );
-   HepMC::HEPEVT_Wrapper::set_momentum( index, part.px(), part.py(), part.pz(), part.e() );
-   HepMC::HEPEVT_Wrapper::set_mass( index, part.m() );
-   HepMC::HEPEVT_Wrapper::set_position( index, part.xProd(), part.yProd(), part.zProd(), part.tProd() );
-   HepMC::HEPEVT_Wrapper::set_parents( index, 0, 0 ); // for some, mother will need to be re-set properly !
-   HepMC::HEPEVT_Wrapper::set_children( index, 0, 0 );      
-
-   // now select the original partons from LHE recpord
-   //
-   for ( int iprt=1; iprt<event.size(); iprt++ )
+   IndexContainer.clear();
+   int status = 0;
+   for ( int iprt=1; iprt<event.size(); iprt++ ) // from 0-entry (system) or from 1st entry ???
    {
+   
       const Particle& part = event[iprt];
-
+      
       if ( abs(part.status()) < 22 ) continue; // below 10 is "service"
                                                // 11-19 are beam particles; below 10 is "service"
 					       // 21 is incoming partons
-      if ( abs(part.status()) > 23 ) break; // intermediate steps in the event development 
-                                               // BUT already decayed/branched/fragmented/...
-					       // Here we have to remember that, in princle, LHE record may contain decayed resonances, 
-					       // i.e. the resonance and its decay products, like Z->e+e- or Z->tautau, or the likes,
-					       // but in this case Py8 will place decay products much father in the Py8::Event,
-					       // although they'll appear with status=23
-					       // Thus, if we break on the fisrt record with abs(status)>23, we will NOT take in
-					       // decay products, which is what we want
+      if ( part.status() < -23 ) continue; // intermediate steps in the event development 
+                                           // BUT already decayed/branched/fragmented/...
+      // so we get here if status=+/-22 or +/-23, or remaining particles with status >30 
       //
-      // so we get here if status=+/-22 or +/-23
-      //
-
       IndexContainer.push_back( iprt );
-
       index++;
       HepMC::HEPEVT_Wrapper::set_id( index, part.id() );
       // HepMC::HEPEVT_Wrapper::set_status( index, event.statusHepMC(iprt) ); 
-      HepMC::HEPEVT_Wrapper::set_status( index, 2 );
-      HepMC::HEPEVT_Wrapper::set_momentum( index, part.px(), part.py(), part.pz(), part.e() );
-      HepMC::HEPEVT_Wrapper::set_mass( index, part.m() );
-      HepMC::HEPEVT_Wrapper::set_position( index, part.xProd(), part.yProd(), part.zProd(), part.tProd() );
-      HepMC::HEPEVT_Wrapper::set_parents( index, 1, 1 ); // for now, point it back to "system particle"
-      HepMC::HEPEVT_Wrapper::set_children( index, 0, 0 ); 
-   }
-      
-   HepMC::HEPEVT_Wrapper::set_number_entries( index );   
-      
-   // do NOT reset index as we need to *add* more particles sequentially
-   
-   // now that the initial partons are in, attach parton-level from Pythia8
-   //
-   for ( int iprt=1; iprt<workEvent.size(); iprt++ ) // from 0-entry (system) or from 1st entry ???
-   {
-   
-      const Particle& part = workEvent[iprt];
-      
-
-      if ( part.status() != 62 ) continue;
-                  
-      index++;
-      HepMC::HEPEVT_Wrapper::set_id( index, part.id() );
-      
-      // HepMC::HEPEVT_Wrapper::set_status( index, event.statusHepMC(iprt) ); 
-      HepMC::HEPEVT_Wrapper::set_status( index, 1 );
-      
-      // it used to need a boost along z-axis !!!
+      status = 1;
+      if (abs(part.status()) == 22 || abs(part.status()) == 23 )
+      {
+         // HepMC::HEPEVT_Wrapper::set_status( index, 2 );
+	 status = 2;
+      }
+      HepMC::HEPEVT_Wrapper::set_status( index, status );
+      // needs to be boosted along z-axis !!!
       // this is from Py6/pyveto code:
-      //
       // C...Define longitudinal boost from initiator rest frame to cm frame
       // - need to replicate !!!
       // GAMMA=0.5D0*(VINT(141)+VINT(142))/SQRT(VINT(141)*VINT(142))
       // GABEZ=0.5D0*(VINT(141)-VINT(142))/SQRT(VINT(141)*VINT(142))
-      //
-      // however, since we call it in py8 later in the event than in py6,
-      // the boost is no longer necessary...
-      //
-//      double x1 = fInfoPtr->x1();
-//      double x2 = fInfoPtr->x2();
-//      double dot = x1*x2;
-//      assert( dot );
-//      double gamma = 0.5 * ( x1+x2 ) / std::sqrt( dot );
-//      double gabez = 0.5 * ( x1-x2 ) / std::sqrt( dot );
-//      double pz = gamma*part.pz() + gabez*part.e();
-//      double e  = gamma*part.e()  + gabez*part.pz();
-//      HepMC::HEPEVT_Wrapper::set_momentum( index, part.px(), part.py(), pz, e );
-//
-      HepMC::HEPEVT_Wrapper::set_momentum( index, part.px(), part.py(), part.pz(), part.e() );
+      double x1 = fInfoPtr->x1();
+      double x2 = fInfoPtr->x2();
+      double dot = x1*x2;
+      assert( dot );
+      double gamma = 0.5 * ( x1+x2 ) / std::sqrt( dot );
+      double gabez = 0.5 * ( x1-x2 ) / std::sqrt( dot );
+      double pz = gamma*part.pz() + gabez*part.e();
+      double e  = gamma*part.e()  + gabez*part.pz();
+      HepMC::HEPEVT_Wrapper::set_momentum( index, part.px(), part.py(), pz, e );
       HepMC::HEPEVT_Wrapper::set_mass( index, part.m() );
       HepMC::HEPEVT_Wrapper::set_position( index, part.xProd(), part.yProd(), part.zProd(), part.tProd() );
-      HepMC::HEPEVT_Wrapper::set_parents( index, 1, 1 ); // by default, point back to the "system particle:
-                                                         // although for some, mother will need to be re-set properly !
+      HepMC::HEPEVT_Wrapper::set_parents( index, 0, 0 ); // for some, mother will need to be re-set properly !
       HepMC::HEPEVT_Wrapper::set_children( index, 0, 0 );
-
-      // now refine mother-daughters links, where applicable
+      if ( status == 2 ) continue; 
+      int parentId = part.mother1();
+      int parentPrevId = 0;
       
-      int parentId = getAncestor( part.daughter1(), event );
-      
-      if ( parentId <= 0 ) continue;
-
-      for ( int idx=0; idx<(int)IndexContainer.size(); idx++ )
-      {
-         if ( parentId == IndexContainer[idx] )
-	 {
-	    HepMC::HEPEVT_Wrapper::set_parents( index, idx+2, idx+2 ); 
-	    break;
-	 }
-      }
-
-   }  
-     
-   HepMC::HEPEVT_Wrapper::set_number_entries( index );
-   
-   HepMC::HEPEVT_Wrapper::set_event_number( fEventNumber ); // well, if you know it... well, it's one of the counters...
-   
-   // HepMC::HEPEVT_Wrapper::print_hepevt();
-   
-   return;
-
-}
-
-int JetMatchingHook::getAncestor( int pos, const Event& fullEvent )
-{
-
-   int parentId = fullEvent[pos].mother1();
-   int parentPrevId = 0;
-   int counter = pos;
-   
-   while ( parentId > 0 )
-   {               
-         if ( parentId == fullEvent[counter].mother2() ) // carbon copy, keep walking up
+      while ( parentId > 0 )
+      {               
+         if ( parentId == part.mother2() ) // carbon copy
 	 {
 	    parentPrevId = parentId;
-	    counter = parentId;
-	    parentId = fullEvent[parentPrevId].mother1();
+	    parentId = event[parentPrevId].mother1();
 	    continue;
 	 }
 	 
-	 // we get here if not a carbon copy
-	 
-	 // let's check if it's a normal process, etc.
-	 //
-	 if ( (parentId < parentPrevId) || parentId < fullEvent[counter].mother2() ) // normal process
+	 // we get here if not a carbon copy, but a result of a process
+	 if ( parentId < parentPrevId ) // normal process
 	 {
-	    
-	    // first of all, check if hard block
-	    if ( abs(fullEvent[counter].status()) == 22 || abs(fullEvent[counter].status()) == 23 )
-	    {
-	       // yes, it's the hard block
-	       // we got what we want, and can exit now !
-	       parentId = counter;
-	       break;
-	    }
-	    else
-	    {
-	       parentPrevId = parentId;
-	       parentId = fullEvent[parentPrevId].mother1();
-	    }
+	    parentPrevId = parentId;
+	    parentId = event[parentPrevId].mother1();
 	 }
-	 else if ( parentId > parentPrevId || parentId > pos ) // "circular"/"forward-pointing parent" - intermediate process
+	 else if ( parentId > parentPrevId || parentId > iprt ) // "circular"/"forward-pointing parent" - intermediate process
 	 {
 	    parentId = -1;
 	    break;
 	 }
-
-         // additional checks... although we shouldn't be geeting here all that much...
-	 //	 
-	 if ( abs(fullEvent[parentId].status()) == 22 || abs(fullEvent[parentId].status())== 23 ) // hard block
+	 
+	 if ( parentId < part.mother2() ) // normal process
+	 {
+	    parentPrevId = parentId;
+	    parentId = event[parentPrevId].mother1();
+	 }
+	 
+         if ( abs(event[parentId].status()) == 22 || abs(event[parentId].status())== 23 ) // hard block
 	 {
 	    break;
-	 } 	 
-	 if ( abs(fullEvent[parentId].status()) < 22 ) // incoming
+	 } 
+	 
+	 if ( abs(event[parentId].status()) < 22 ) // incoming
 	 {
 	    parentId = -1;
 	    break;
 	 } 
+      }
+
+      if ( parentId > 0 )
+      {
+         for ( int idx=0; idx<(int)IndexContainer.size(); idx++ )
+         {
+            if ( parentId == IndexContainer[idx] )
+	    {
+	       HepMC::HEPEVT_Wrapper::set_parents( index, idx+1, idx+1 ); // probably need to check status of index-particle in HEPEVT - has to be 2 !!!
+	       break;
+	    }
+         }
+      }
+        
    }
    
-   return parentId;
+   HepMC::HEPEVT_Wrapper::set_number_entries( index );
+   
+   HepMC::HEPEVT_Wrapper::set_event_number( fEventNumber ); // well, if you know it... well, it's one of the counters...
+   
+   HepMC::HEPEVT_Wrapper::print_hepevt();
+   
+   return;
 
 }
+*/

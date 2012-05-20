@@ -10,6 +10,9 @@
 
 #include "EventFilter/Utilities/interface/MasterQueue.h"
 #include "EventFilter/Utilities/interface/SlaveQueue.h"
+#include "EventFilter/Utilities/interface/ModuleWeb.h"
+#include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
+#include "EventFilter/Modules/interface/ShmOutputModuleRegistry.h"
 #include "SubProcess.h"
 #include "FWEPWrapper.h"
 
@@ -111,10 +114,20 @@ namespace evf
     void procStat(xgi::Input *in,xgi::Output *out);
     void sendMessageOverMonitorQueue(MsgBuf &);
 
+    static void forkProcessFromEDM_helper(void * addr);
+
   private:
 
-    void attachDqmToShm()   throw (evf::Exception);
-    void detachDqmFromShm() throw (evf::Exception);
+
+    void forkProcessesFromEDM();
+
+    bool enableForkInEDM();
+    bool restartForkInEDM(unsigned int slotId);
+    bool doEndRunInEDM();
+
+    void setAttachDqmToShm() throw (evf::Exception);
+    void attachDqmToShm()    throw (evf::Exception);
+    void detachDqmFromShm()  throw (evf::Exception);
 
     std::string logsAsString();
     void localLog(std::string);
@@ -199,6 +212,7 @@ namespace evf
 
     xdata::UnsignedInteger32         nbSubProcesses_;
     xdata::UnsignedInteger32         nbSubProcessesReporting_;
+    xdata::UnsignedInteger32         forkInEDM_;
     std::vector<SubProcess>          subs_;
     unsigned int                     nblive_; 
     unsigned int                     nbdead_; 
@@ -252,11 +266,17 @@ namespace evf
     CPUStat                         *cpustat_;
     RateStat                        *ratestat_;
 
+    ModuleWebRegistry                *mwrRef_;
+    ShmOutputModuleRegistry          *sorRef_;
     MsgBuf                           master_message_prg_;
     MsgBuf                           master_message_prr_;
     MsgBuf                           slave_message_prr_;
     MsgBuf                           slave_message_monitoring_;
     MsgBuf                           master_message_trr_;
+
+    moduleweb::ForkInfoObj           *forkInfoObj_;
+    pthread_mutex_t                  forkObjLock_;
+    bool                             edm_init_done_;
   };
   
 } // namespace evf

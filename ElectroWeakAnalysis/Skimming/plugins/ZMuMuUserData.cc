@@ -51,7 +51,6 @@ ZMuMuUserData::ZMuMuUserData( const ParameterSet & cfg ):
   alpha_(cfg.getParameter<double>("alpha") ),
   beta_(cfg.getParameter<double>("beta") ), 
   hltPath_(cfg.getParameter<std::string >("hltPath") ){
-  counter = 0;
   produces<vector<pat::CompositeCandidate> >();
 }
 
@@ -121,57 +120,53 @@ void ZMuMuUserData::produce( Event & evt, const EventSetup & ) {
     */
 
     if(mu1.isGlobalMuon()==true && mu2.isGlobalMuon()==true){
-      ++counter;
-
-      // StandAlone part of the Z daughters
-      TrackRef stAloneTrack1 = dau1->get<TrackRef,reco::StandAloneMuonTag>();
-      TrackRef stAloneTrack2 = dau2->get<TrackRef,reco::StandAloneMuonTag>();
-      // StandAlone kinematics
-      Vector momentumSta1 = stAloneTrack1->momentum();
-      Vector momentumSta2 = stAloneTrack2->momentum();
+      TrackRef stAloneTrack1;
+      TrackRef stAloneTrack2;
+      Vector momentum;
+      Candidate::PolarLorentzVector p4_1;
+      double mu_mass;
+      stAloneTrack1 = dau1->get<TrackRef,reco::StandAloneMuonTag>();
+      stAloneTrack2 = dau2->get<TrackRef,reco::StandAloneMuonTag>();
       float zDau1SaEta = stAloneTrack1->eta();
       float zDau2SaEta = stAloneTrack2->eta();
       float zDau1SaPhi = stAloneTrack1->phi();
       float zDau2SaPhi = stAloneTrack2->phi();
       float zDau1SaPt,zDau2SaPt;
-
-      Candidate::PolarLorentzVector p4_Sta1(momentumSta1.rho(), momentumSta1.eta(),momentumSta1.phi(), dau1->mass()); 
-      Candidate::PolarLorentzVector p4_Sta2(momentumSta2.rho(), momentumSta2.eta(),momentumSta2.phi(), dau2->mass()); 
-
-      float zSaGlbMass = ( p4_Sta1 + (dau2->polarP4()) ).mass() ;
-      float zGlbSaMass = ( p4_Sta2 + (dau1->polarP4()) ).mass() ;
-      float zSaSaMass = ( p4_Sta1 + p4_Sta2 ).mass() ;
-      float zMassSaPdf;
-
       if(counter % 2 == 0) {
-	/// dau2 Pt filled with negative value in order to flag the downgraded muon for building zMassSa
-	zMassSaPdf = zSaGlbMass;
+	momentum = stAloneTrack1->momentum();
+	p4_1 = dau2->polarP4();
+	mu_mass = dau1->mass();
+	/// I fill the dau1 with positive and dau2 with negatove values for the pt, in order to flag the muons used for building zMassSa
 	zDau1SaPt = stAloneTrack1->pt();
 	zDau2SaPt = - stAloneTrack2->pt();
       }else{
-	/// dau1 Pt filled with negative value in order to flag the downgraded muon for building zMassSa
-	zMassSaPdf = zGlbSaMass;
+	momentum = stAloneTrack2->momentum();
+	p4_1= dau1->polarP4();
+	mu_mass = dau2->mass();
+	/// I fill the dau1 with negatove and dau2 with positive values for the pt
 	zDau1SaPt = - stAloneTrack1->pt();
 	zDau2SaPt =  stAloneTrack2->pt();
       }
       
-      dimuon.addUserFloat("SaGlbMass",zSaGlbMass);  	
-      dimuon.addUserFloat("GlbSaMass",zGlbSaMass);  	
-      dimuon.addUserFloat("SaSaMass",zSaSaMass);  	
-      dimuon.addUserFloat("MassSa",zMassSaPdf);  	
+      Candidate::PolarLorentzVector p4_2(momentum.rho(), momentum.eta(),momentum.phi(), mu_mass);
+      double mass = (p4_1+p4_2).mass();
+      float zMassSa = mass;
+      //cout<<"zMassSa "<<zMassSa;
+      dimuon.addUserFloat("MassSa",zMassSa);  	
       dimuon.addUserFloat("Dau1SaPt",zDau1SaPt);  	
       dimuon.addUserFloat("Dau2SaPt",zDau2SaPt);  	
       dimuon.addUserFloat("Dau1SaPhi",zDau1SaPhi);  	
       dimuon.addUserFloat("Dau2SaPhi",zDau2SaPhi);  	
       dimuon.addUserFloat("Dau1SaEta",zDau1SaEta);  	
       dimuon.addUserFloat("Dau2SaEta",zDau2SaEta);  	
+      ++counter;
     }
-
     dimuonColl->push_back(dimuon);
     
   }
   
-  evt.put( dimuonColl );
+
+  evt.put( dimuonColl);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

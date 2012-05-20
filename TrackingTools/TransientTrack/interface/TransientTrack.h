@@ -24,37 +24,40 @@ namespace reco {
 
   public:
 
-    TransientTrack() noexcept {}
+    TransientTrack() {}
 
-    explicit TransientTrack( BasicTransientTrack * btt ) noexcept : Base(btt) {}
+    explicit TransientTrack( BasicTransientTrack * btt ) : Base(btt) {}
 
-    ~TransientTrack() noexcept {}
+    ~TransientTrack() {}
 
 
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
 
-    TransientTrack(TransientTrack const & rh) noexcept :
+    TransientTrack(TransientTrack const & rh) :
       Base(rh){}
     
     
-    TransientTrack(TransientTrack && rh) noexcept :
+    TransientTrack(TransientTrack && rh) :
       Base(std::move(rh)){}
     
-    TransientTrack & operator=(TransientTrack && rh) noexcept {
-      Base::operator=(std::move(rh));
+    TransientTrack & operator=(TransientTrack && rh) {
+      this->Base::operator=(std::move(rh));
+      //      Base::swap(rh);
       return *this;
     }
     
-    TransientTrack & operator=(TransientTrack const & rh) noexcept {
-      Base::operator=(rh);
+    TransientTrack & operator=(TransientTrack const & rh) {
+      this->Base::operator=(rh);
       return *this;
     }
-
-#endif
-  
-    void swap(TransientTrack & rh) noexcept {
+    
+    
+#else
+    
+    void swap(TransientTrack & rh) {
       Base::swap(rh);
     }
+#endif
 
     TransientTrack( const Track & tk , const MagneticField* field); 
     TransientTrack( const TrackRef & tk , const MagneticField* field); 

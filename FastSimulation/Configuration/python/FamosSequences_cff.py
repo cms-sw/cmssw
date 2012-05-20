@@ -6,7 +6,8 @@ from FastSimulation.Configuration.CommonInputs_cff import *
 from PhysicsTools.HepMCCandAlgos.genParticleCandidatesFast_cfi import *
 
 # Pile-up options: FAMOS-style or with the Mixing Module
-from FastSimulation.Configuration.MixingFamos_cff import *
+#the sequence is defined as a p[lace holder, to be defined separatedly
+#from FastSimulation.Configuration.MixingFamos_cff import *
 #from FastSimulation.Configuration.MixingFull_cff import *
 
 # Famos SimHits producer
@@ -245,10 +246,10 @@ famosBTaggingSequence = cms.Sequence(
 # The sole simulation sequence
 famosSimulationSequence = cms.Sequence(
     offlineBeamSpot+
-    famosMixing+
+    cms.SequencePlaceholder("famosMixing")+
     famosSimHits+
     MuonSimHits+
-    mix
+    cms.SequencePlaceholder("mix")
     )
 
 # Famos pre-defined sequences (and self-explanatory names)

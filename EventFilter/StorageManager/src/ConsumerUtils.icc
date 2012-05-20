@@ -1,4 +1,4 @@
-// $Id: ConsumerUtils.icc,v 1.5 2011/08/22 14:20:16 mommsen Exp $
+// $Id: ConsumerUtils.icc,v 1.6 2011/08/31 20:10:10 wmtan Exp $
 /// @file: ConsumerUtils.icc
 
 #include "EventFilter/StorageManager/interface/ConsumerID.h"
@@ -155,7 +155,7 @@ namespace stor
     }
     
     InitMsgSharedPtr payload =
-      initMsgCollection_->getElementForOutputModule( consRegPtr->outputModuleLabel() );
+      initMsgCollection_->getElementForOutputModuleLabel( consRegPtr->outputModuleLabel() );
     
     if( payload.get() == NULL )
     {

@@ -120,73 +120,23 @@ from  DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi import *
 # APV Phase Producer
 from DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2011_cfi import *
 
-# LogMessageMonitor ####
-from DQM.TrackingMonitor.LogMessageMonitor_cff import *
-# Clone for all PDs but MinBias ####
-import DQM.TrackingMonitor.LogMessageMonitor_cff
-TrackerCollisionIterTrackingLogMessageMonCommon = DQM.TrackingMonitor.LogMessageMonitor_cff.FullIterTrackingLogMessageMon.clone()
-TrackerCollisionIterTrackingLogMessageMonCommon.andOr         = cms.bool( False )
-TrackerCollisionIterTrackingLogMessageMonCommon.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
-TrackerCollisionIterTrackingLogMessageMonCommon.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29)
-TrackerCollisionIterTrackingLogMessageMonCommon.andOrDcs      = cms.bool( False )
-TrackerCollisionIterTrackingLogMessageMonCommon.errorReplyDcs = cms.bool( True )
-
-# Clone for MinBias ###
-TrackerCollisionIterTrackingLogMessageMonMB = DQM.TrackingMonitor.LogMessageMonitor_cff.FullIterTrackingLogMessageMon.clone()
-TrackerCollisionIterTrackingLogMessageMonMB.andOr         = cms.bool( False )
-TrackerCollisionIterTrackingLogMessageMonMB.dcsInputTag   = cms.InputTag( "scalersRawToDigi" )
-TrackerCollisionIterTrackingLogMessageMonMB.dcsPartitions = cms.vint32 ( 24, 25, 26, 27, 28, 29)
-TrackerCollisionIterTrackingLogMessageMonMB.andOrDcs      = cms.bool( False )
-TrackerCollisionIterTrackingLogMessageMonMB.errorReplyDcs = cms.bool( True )
-TrackerCollisionIterTrackingLogMessageMonMB.dbLabel       = cms.string("SiStripDQMTrigger")
-TrackerCollisionIterTrackingLogMessageMonMB.hltInputTag = cms.InputTag( "TriggerResults::HLT" )
-TrackerCollisionIterTrackingLogMessageMonMB.hltPaths = cms.vstring("HLT_ZeroBias_*")
-TrackerCollisionIterTrackingLogMessageMonMB.hltDBKey = cms.string("Tracker_MB")
-TrackerCollisionIterTrackingLogMessageMonMB.errorReplyHlt  = cms.bool( False )
-TrackerCollisionIterTrackingLogMessageMonMB.andOrHlt = cms.bool(True) 
-
-
-# temporary patch in order to have BXlumi 
-from RecoLuminosity.LumiProducer.lumiProducer_cff import *
-
-from PhysicsTools.SelectorUtils.pvSelector_cfi import pvSelector
-# temporary test in order to temporary produce the "goodPrimaryVertexCollection"
-goodOfflinePrimaryVertices = cms.EDFilter(
-    "PrimaryVertexObjectFilter",
-    filterParams = pvSelector.clone( minNdof = cms.double(4.0), maxZ = cms.double(24.0) ),
-    src=cms.InputTag('offlinePrimaryVertices')
-)
-
 # Sequence
 SiStripDQMTier0 = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster
     *SiStripMonitorTrackCommon*MonitorTrackResiduals
-#    # temporary patch in order to have BXlumi
-#    * lumiProducer
-    # temporary test in order to have the "goodPrimaryVertexCollection"
-    * goodOfflinePrimaryVertices *TrackerCollisionTrackMonCommon
-#    * LocalRecoLogMessageMon * TrackerCollisionIterTrackingLogMessageMonCommon
+    *TrackerCollisionTrackMonCommon
     *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
     *dqmInfoSiStrip)
 
 SiStripDQMTier0Common = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster
-    *SiStripMonitorTrackCommon
-#    # temporary patch in order to have BXlumi
-#    * lumiProducer
-#    # temporary test in order to have the "goodPrimaryVertexCollection"
-    * goodOfflinePrimaryVertices *TrackerCollisionTrackMonCommon
-#    * LocalRecoLogMessageMon * TrackerCollisionIterTrackingLogMessageMonCommon
+    *SiStripMonitorTrackCommon*TrackerCollisionTrackMonCommon
     *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
     *dqmInfoSiStrip)
 
 SiStripDQMTier0MinBias = cms.Sequence(
     APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster
-    *SiStripMonitorTrackMB*MonitorTrackResiduals
-#    * lumiProducer
-#    # temporary test in order to have the "goodPrimaryVertexCollection"
-    * goodOfflinePrimaryVertices *TrackerCollisionTrackMonMB
-#    * LocalRecoLogMessageMon * TrackerCollisionIterTrackingLogMessageMonMB
+    *SiStripMonitorTrackMB*MonitorTrackResiduals*TrackerCollisionTrackMonMB
     *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
     *dqmInfoSiStrip)
 

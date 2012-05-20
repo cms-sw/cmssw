@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/11 17:33:03 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/11/08 22:39:00 $
+ *  $Revision: 1.5.10.2 $
  *  \author S. Bolognesi, Erik - CERN
  */
 
@@ -52,9 +52,9 @@ BPhysicsOniaDQM::BPhysicsOniaDQM(const ParameterSet& parameters) {
   trkSigNoCut = NULL;
   trkBkgNoCut = NULL;
 
-  //   JPsiGlbYdLumi = NULL;
-  //   JPsiStaYdLumi = NULL;
-  //   JPsiTrkYdLumi = NULL;
+  JPsiGlbYdLumi = NULL;
+  JPsiStaYdLumi = NULL;
+  JPsiTrkYdLumi = NULL;
 }
 
 BPhysicsOniaDQM::~BPhysicsOniaDQM() { 
@@ -244,36 +244,36 @@ void BPhysicsOniaDQM::endLuminosityBlock(const edm::LuminosityBlock &lumiBlock, 
   if (jpsiGlbSig.size()%5 != 0) return;
 
   theDbe->setCurrentFolder("Physics/BPhysics");
-//   if(JPsiGlbYdLumi!=NULL) {
-//     theDbe->removeElement("JPsiGlbYdLumi");   // Remove histograms from previous run
-//     theDbe->removeElement("JPsiStaYdLumi");
-//     theDbe->removeElement("JPsiTrkYdLumi");
-//   }
+  if(JPsiGlbYdLumi!=NULL) {
+    theDbe->removeElement("JPsiGlbYdLumi");   // Remove histograms from previous run
+    theDbe->removeElement("JPsiStaYdLumi");
+    theDbe->removeElement("JPsiTrkYdLumi");
+  }
 
-//   int xmin = (*jpsiGlbSig.begin()).first;
-//   int xmax = (*jpsiGlbSig.rbegin()).first;
-//   int nx   = (xmax - xmin + 1)/5 + 1; // Merge 5 lumisections into 1 bin
-// //  cout << "x-axis " << xmin << " " << xmax << endl;
+  int xmin = (*jpsiGlbSig.begin()).first;
+  int xmax = (*jpsiGlbSig.rbegin()).first;
+  int nx   = (xmax - xmin + 1)/5 + 1; // Merge 5 lumisections into 1 bin
+//  cout << "x-axis " << xmin << " " << xmax << endl;
 
-//   JPsiGlbYdLumi = theDbe->book1D("JPsiGlbYdLumi", "JPsi yield from global-global dimuon", nx, xmin, xmax);
-//   JPsiStaYdLumi = theDbe->book1D("JPsiStaYdLumi", "JPsi yield from standalone-standalone dimuon", nx, xmin, xmax);
-//   JPsiTrkYdLumi = theDbe->book1D("JPsiTrkYdLumi", "JPsi yield from tracker-tracker dimuon", nx, xmin, xmax);
+  JPsiGlbYdLumi = theDbe->book1D("JPsiGlbYdLumi", "JPsi yield from global-global dimuon", nx, xmin, xmax);
+  JPsiStaYdLumi = theDbe->book1D("JPsiStaYdLumi", "JPsi yield from standalone-standalone dimuon", nx, xmin, xmax);
+  JPsiTrkYdLumi = theDbe->book1D("JPsiTrkYdLumi", "JPsi yield from tracker-tracker dimuon", nx, xmin, xmax);
 
-//   map<int,int>::iterator glb;
-//   map<int,int>::iterator sta;
-//   map<int,int>::iterator trk;
-//   for (glb = jpsiGlbSig.begin(); glb != jpsiGlbSig.end(); ++glb)
-//   {
-//     int bin = ((*glb).first - xmin + 1)/5 + 1;  //X-axis bin #
-//     sta = jpsiStaSig.find((*glb).first);
-//     trk = jpsiTrkSig.find((*glb).first);
-//     JPsiGlbYdLumi->setBinContent(bin,JPsiGlbYdLumi->getBinContent(bin)+(*glb).second);
-//     JPsiStaYdLumi->setBinContent(bin,JPsiStaYdLumi->getBinContent(bin)+(*sta).second);
-//     JPsiTrkYdLumi->setBinContent(bin,JPsiTrkYdLumi->getBinContent(bin)+(*trk).second);
-// //    cout << "glb: " << bin << "\t" << (*glb).first << "\t" << (*glb).second << endl;
-// //    cout << "sta: " << bin << "\t" << (*sta).first << "\t" << (*sta).second << endl;
-// //    cout << "trk: " << bin << "\t" << (*trk).first << "\t" << (*trk).second << endl;
-//   }
+  map<int,int>::iterator glb;
+  map<int,int>::iterator sta;
+  map<int,int>::iterator trk;
+  for (glb = jpsiGlbSig.begin(); glb != jpsiGlbSig.end(); ++glb)
+  {
+    int bin = ((*glb).first - xmin + 1)/5 + 1;  //X-axis bin #
+    sta = jpsiStaSig.find((*glb).first);
+    trk = jpsiTrkSig.find((*glb).first);
+    JPsiGlbYdLumi->setBinContent(bin,JPsiGlbYdLumi->getBinContent(bin)+(*glb).second);
+    JPsiStaYdLumi->setBinContent(bin,JPsiStaYdLumi->getBinContent(bin)+(*sta).second);
+    JPsiTrkYdLumi->setBinContent(bin,JPsiTrkYdLumi->getBinContent(bin)+(*trk).second);
+//    cout << "glb: " << bin << "\t" << (*glb).first << "\t" << (*glb).second << endl;
+//    cout << "sta: " << bin << "\t" << (*sta).first << "\t" << (*sta).second << endl;
+//    cout << "trk: " << bin << "\t" << (*trk).first << "\t" << (*trk).second << endl;
+  }
 }
 
 void BPhysicsOniaDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)

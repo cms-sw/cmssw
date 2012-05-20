@@ -39,7 +39,6 @@ class SiStripActionExecutor {
 		  const edm::ESHandle<SiStripFedCabling>& fedcabling, 
                   DQMStore* dqm_store, std::string& map_type);
  void createOfflineTkMap(const edm::ParameterSet & tkmapPset,
-		  const edm::ESHandle<SiStripFedCabling>& fedcabling, 
                   DQMStore* dqm_store, std::string& map_type);
 
  void createStatus(DQMStore* dqm_store);

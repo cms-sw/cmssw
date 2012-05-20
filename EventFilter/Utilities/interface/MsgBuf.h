@@ -4,24 +4,28 @@
 #include "EventFilter/Utilities/interface/queue_defs.h"
 #include <string.h>
 
-//@EM ToDo move implementation to .cc file
+namespace evf {
 
-namespace evf{
-  class MsgBuf{
-  public:
-    MsgBuf();
-    MsgBuf(unsigned int size, unsigned int type);
-    MsgBuf(const MsgBuf &b);
-    MsgBuf &operator=(const MsgBuf &);
-    size_t msize();
-    virtual ~MsgBuf();
-    msgbuf* operator->();
-  private:
-    size_t msize_;
-    unsigned char *buf_;
-    struct msgbuf *ptr_;
-    friend class MasterQueue;
-    friend class SlaveQueue;
-  };
+class MsgBuf {
+
+public:
+	MsgBuf();
+	MsgBuf(unsigned int size, unsigned int type);
+	MsgBuf(const MsgBuf &b);
+
+	MsgBuf &operator=(const MsgBuf &);
+	size_t msize();
+	virtual ~MsgBuf();
+	msgbuf* operator->();
+
+protected:
+	size_t msize_;
+	unsigned char *buf_;
+	struct msgbuf *ptr_;
+	friend class MasterQueue;
+	friend class SlaveQueue;
+};
+
 }
+
 #endif

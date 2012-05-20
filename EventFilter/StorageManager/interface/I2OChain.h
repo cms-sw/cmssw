@@ -1,4 +1,4 @@
-// $Id: I2OChain.h,v 1.14 2011/03/08 18:34:11 mommsen Exp $
+// $Id: I2OChain.h,v 1.15 2011/08/31 20:11:59 wmtan Exp $
 /// @file: I2OChain.h 
 
 #ifndef EventFilter_StorageManager_I2OChain_h
@@ -28,9 +28,9 @@ namespace stor {
    * assures that the corresponding release methods are called when 
    * the last instance of I2OChain goes out of scope.
    *
-   * $Author: mommsen $
-   * $Revision: 1.14 $
-   * $Date: 2011/03/08 18:34:11 $
+   * $Author: wmtan $
+   * $Revision: 1.15 $
+   * $Date: 2011/08/31 20:11:59 $
    */
 
 
@@ -466,6 +466,13 @@ namespace stor {
        an exception is thrown.
      */
     uint32_t outputModuleId() const;
+
+    /**
+       Returns the number of slave EPs reported in the message, if and
+       only if, the message is an INIT message.  Otherwise,
+       an exception is thrown.
+     */
+    uint32_t nExpectedEPs() const;
 
     /**
        Returns the top folder contained in the message, if and

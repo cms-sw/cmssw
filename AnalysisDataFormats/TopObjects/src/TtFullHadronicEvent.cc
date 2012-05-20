@@ -94,6 +94,8 @@ TtFullHadronicEvent::print(const int verbosity) const
 	// kinematic quantities of particles (if last digit of verbosity level > 1)
 	if(verbosity%10 >= 2) {
 	  log << " * Candidates (pt; eta; phi; mass) :\n";
+	  if(verbosity%10 >= 3)
+	    printParticle(log, "top pair", this->topPair(hypKey, cmb));
 	  printParticle(log, "top       ", this->top  (hypKey, cmb));
 	  printParticle(log, "W plus    ", this->wPlus(hypKey, cmb));
 	  if(verbosity%10 >= 3) {

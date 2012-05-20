@@ -6,8 +6,7 @@ process.load('Configuration/StandardSequences/GeometryDB_cff')
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['mc']
+process.GlobalTag.globaltag = 'MC_31X_V8::All'
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

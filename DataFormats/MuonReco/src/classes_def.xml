@@ -35,18 +35,14 @@
   <class name="reco::MuonEnergy" ClassVersion="10">
    <version ClassVersion="10" checksum="1493325087"/>
   </class>
-  <class name="reco::MuonChamberMatch" ClassVersion="11">
-   <version ClassVersion="11" checksum="541727491"/>
+  <class name="reco::MuonChamberMatch" ClassVersion="10">
+   <version ClassVersion="10" checksum="4050071853"/>
   </class>
   <class name="reco::MuonSegmentMatch" ClassVersion="10">
    <version ClassVersion="10" checksum="754193003"/>
   </class>
-  <class name="reco::MuonRPCHitMatch" ClassVersion="0">
-   <version ClassVersion="0" checksum="4193465224"/>
-  </class>
   <class name="std::vector<reco::MuonChamberMatch>"/>
   <class name="std::vector<reco::MuonSegmentMatch>"/>
-  <class name="std::vector<reco::MuonRPCHitMatch>"/>
 
   <class name="reco::MuonIsolation" ClassVersion="10">
    <version ClassVersion="10" checksum="2078425999"/>

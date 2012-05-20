@@ -10,9 +10,14 @@ genParticlesFromMixingModule = cms.EDProducer("GenParticleProducer",
 # Famos SimHits producer
 from FastSimulation.EventProducer.FamosSimHits_cff import *
 famosSimHits.GenParticleLabel = "genParticlesFromMixingModule" 
+# PileupSummaryInfo
+from SimGeneral.PileupInformation.AddPileupSummary_cfi import *
+addPileupInfo.PileupMixingLabel = 'mixGenPU'
+addPileupInfo.simHitLabel = 'famosSimHits'
 
 famosMixing = cms.Sequence(
     mixGenPU+
-    genParticlesFromMixingModule
+    genParticlesFromMixingModule+
+    addPileupInfo
     )
     

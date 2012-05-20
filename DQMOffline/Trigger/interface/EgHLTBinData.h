@@ -32,7 +32,6 @@ namespace egHLT {
     explicit BinData(const edm::ParameterSet& conf){setup(conf);}
     void setup(const edm::ParameterSet& conf);
     
-    Data1D energy;
     Data1D et;
     Data1D etHigh;
     Data1D eta;
@@ -49,10 +48,6 @@ namespace egHLT {
     Data1D minr9;
     Data1D maxr9;
     Data1D nVertex;
-    Data1D HLTenergy;
-    Data1D HLTphi;
-    Data1D HLTeta;
-    Data1D deltaE;
     //-----------
     Data1D isolEm;
     Data1D isolHad;

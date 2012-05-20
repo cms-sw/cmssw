@@ -51,8 +51,8 @@ scram project -n ${name} CMSSW ${RELEASE} ; cd ${name} ; mkdir -p work ; cd work
 eval `scram runtime -sh`
 
 # force the f77 compiler to be the CMS defined one
-#ln -s `which gfortran` f77
-#ln -s `which gfortran` g77
+ln -s `which gfortran` f77
+ln -s `which gfortran` g77
 export PATH=`pwd`:${PATH}
 
 # FastJet and LHAPDF
@@ -76,98 +76,19 @@ chmod +x lhapdf-config
 #svn checkout --username anonymous --password anonymous svn://powhegbox.mib.infn.it/trunk/POWHEG-BOX
 # # retrieve the wanted POWHEG-BOX from the official repository 
 
-wget --no-check-certificate http://cms-project-generators.web.cern.ch/cms-project-generators/${repo}/${name}.tar.gz  -O ${name}.tar.gz
+wget --no-check-certificate http://cms-project-generators.web.cern.ch/cms-project-generators/${repo}/${name}.tar.gz 
 tar xzf ${name}.tar.gz
 
-#remove from Powheg the LENOCC function which is already defined in LHAPDF library
-patch POWHEG-BOX/cernroutines.f <<EOF
-*** POWHEG-BOX/cernroutines_orig.f	Wed Mar 14 11:48:14 2012
---- POWHEG-BOX/cernroutines.f	Wed Mar 14 11:48:29 2012
-***************
-*** 790,815 ****
-  
-  
-  
-! c# 10 "lenocc.F" 2
-!       FUNCTION LENOCC (CHV)
-! C
-! C CERN PROGLIB# M507    LENOCC          .VERSION KERNFOR  4.21  890323
-! C ORIG. March 85, A.Petrilli, re-write 21/02/89, JZ
-! C
-! C-    Find last non-blank character in CHV
-! 
-!       CHARACTER    CHV*(*)
-! 
-!       N = LEN(CHV)
-! 
-!       DO 17  JJ= N,1,-1
-!       IF (CHV(JJ:JJ).NE.' ') GO TO 99
-!    17 CONTINUE
-!       JJ = 0
-! 
-!    99 LENOCC = JJ
-!       RETURN
-!       END
-  c# 1 "mtlset.F"
-  c# 1 "<built-in>"
-  c# 1 "<command line>"
---- 790,815 ----
-  
-  
-  
-! ccccccc# 10 "lenocc.F" 2
-! cccccc      FUNCTION LENOCC (CHV)
-! ccccccC
-! ccccccC CERN PROGLIB# M507    LENOCC          .VERSION KERNFOR  4.21  890323
-! ccccccC ORIG. March 85, A.Petrilli, re-write 21/02/89, JZ
-! ccccccC
-! ccccccC-    Find last non-blank character in CHV
-! cccccc
-! cccccc      CHARACTER    CHV*(*)
-! cccccc
-! cccccc      N = LEN(CHV)
-! cccccc
-! cccccc      DO 17  JJ= N,1,-1
-! cccccc      IF (CHV(JJ:JJ).NE.' ') GO TO 99
-! cccccc   17 CONTINUE
-! cccccc      JJ = 0
-! cccccc
-! cccccc   99 LENOCC = JJ
-! cccccc      RETURN
-! cccccc      END
-  c# 1 "mtlset.F"
-  c# 1 "<built-in>"
-  c# 1 "<command line>"
-
-EOF
-
 cd POWHEG-BOX/${process}
-
 mv Makefile Makefile.orig
 cat Makefile.orig | sed -e "s#STATIC[ \t]*=[ \t]*-static#STATIC=-dynamic#g" | sed -e "s#PDF[ \t]*=[ \t]*native#PDF=lhapdf#g"> Makefile
-echo "LIBS+=-lz -lstdc++" >> Makefile
-
-
-LHA_BASE="`readlink -f "$LHAPATH/../../../"`"
-
-#slc5_amd64_gcc462/external/lhapdf/5.8.5 has a bug. if this version is used, replace it by 5.8.5-cms:
-LHA_BASE="`echo "$LHA_BASE" | sed 's@slc5_amd64_gcc462/external/lhapdf/5.8.5@slc5_amd64_gcc462/external/lhapdf/5.8.5-cms@'`"
-
-LHA_BASE_OLD="`$LHA_BASE/bin/lhapdf-config --prefix`"
-cat > lhapdf-config-wrap <<EOF
-#!/bin/bash
-"$LHA_BASE/bin/lhapdf-config" "\$@" | sed "s|$LHA_BASE_OLD|$LHA_BASE|g"
-EOF
-chmod a+x lhapdf-config-wrap
-
-make LHAPDF_CONFIG="`pwd`/lhapdf-config-wrap" pwhg_main
+make pwhg_main
 mkdir workdir
 cd workdir
 cat ${card} | sed -e "s#SEED#${seed}#g" | sed -e "s#NEVENTS#${nevt}#g" > powheg.input
 cat powheg.input
 ../pwhg_main &> log_${process}_${seed}.txt
-#remove the spurious random seed output that is non LHE standard 
-cat pwgevents.lhe | grep -v "Random number generator exit values" > ${file}_final.lhe
+mv pwgevents.lhe ${file}_final.lhe
 cp ${file}_final.lhe $WORKDIR/.
 
 echo "Output ready with log_${process}_${seed}.txt and ${file}_final.lhe at `pwd`"
