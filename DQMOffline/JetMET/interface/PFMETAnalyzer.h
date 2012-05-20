@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFMET
  *
- *  $Date: 2012/03/23 18:24:43 $
- *  $Revision: 1.27 $
+ *  $Date: 2012/04/20 14:37:06 $
+ *  $Revision: 1.28 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -39,7 +39,6 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
-#include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
 #include "RecoJets/JetProducers/interface/JetIDHelper.h"
 
@@ -111,11 +110,11 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
 
   edm::InputTag thePfMETCollectionLabel;
   edm::InputTag HcalNoiseRBXCollectionTag;
-  edm::InputTag HcalNoiseSummaryTag;
   edm::InputTag theJetCollectionLabel;
   edm::InputTag thePfJetCollectionLabel;
   edm::InputTag PFCandidatesTag;
   edm::InputTag BeamHaloSummaryTag;
+  edm::InputTag HBHENoiseFilterResultTag;
   edm::InputTag vertexTag;
   edm::InputTag gtTag;
 
@@ -150,7 +149,6 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
 
   bool     _tightBHFiltering;
   int      _tightJetIDFiltering;
-  bool     _tightHcalFiltering;
 
   int _nvtx_min;
   int _nvtxtrks_min;
