@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.27 2009/10/15 17:17:26 rwolf Exp $
+// $Id: PATPhotonProducer.cc,v 1.28 2010/09/03 15:41:27 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -20,68 +20,61 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
   useUserData_(iConfig.exists("userData"))
 {
   // initialize the configurables
-  photonSrc_         = iConfig.getParameter<edm::InputTag>("photonSource");
-  embedSuperCluster_ = iConfig.getParameter<bool>         ("embedSuperCluster");
-
-   // MC matching configurables
-  addGenMatch_       = iConfig.getParameter<bool>         ( "addGenMatch" );
+  photonSrc_ = iConfig.getParameter<edm::InputTag>("photonSource");
+  embedSuperCluster_ = iConfig.getParameter<bool>("embedSuperCluster");
+  // MC matching configurables
+  addGenMatch_ = iConfig.getParameter<bool>( "addGenMatch" );
   if (addGenMatch_) {
-      embedGenMatch_ = iConfig.getParameter<bool>         ( "embedGenMatch" );
-      if (iConfig.existsAs<edm::InputTag>("genParticleMatch")) {
-          genMatchSrc_.push_back(iConfig.getParameter<edm::InputTag>( "genParticleMatch" ));
-      } else {
-          genMatchSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" );
-      }
+    embedGenMatch_ = iConfig.getParameter<bool>( "embedGenMatch" );
+    if (iConfig.existsAs<edm::InputTag>("genParticleMatch")) {
+      genMatchSrc_.push_back(iConfig.getParameter<edm::InputTag>( "genParticleMatch" ));
+    } 
+    else {
+      genMatchSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" );
+    }
   }
-
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
   if (addEfficiencies_) {
-     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
+    efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
   }
- 
   // photon ID configurables
-  addPhotonID_        = iConfig.getParameter<bool>         ( "addPhotonID" );
+  addPhotonID_ = iConfig.getParameter<bool>( "addPhotonID" );
   if (addPhotonID_) {
-      // it might be a single photon ID
-      if (iConfig.existsAs<edm::InputTag>("photonIDSource")) {
-          photIDSrcs_.push_back(NameTag("", iConfig.getParameter<edm::InputTag>("photonIDSource")));
+    // it might be a single photon ID
+    if (iConfig.existsAs<edm::InputTag>("photonIDSource")) {
+      photIDSrcs_.push_back(NameTag("", iConfig.getParameter<edm::InputTag>("photonIDSource")));
+    }
+    // or there might be many of them
+    if (iConfig.existsAs<edm::ParameterSet>("photonIDSources")) {
+      // please don't configure me twice
+      if (!photIDSrcs_.empty()){
+	throw cms::Exception("Configuration") << "PATPhotonProducer: you can't specify both 'photonIDSource' and 'photonIDSources'\n";
       }
-      // or there might be many of them
-      if (iConfig.existsAs<edm::ParameterSet>("photonIDSources")) {
-          // please don't configure me twice
-          if (!photIDSrcs_.empty()) throw cms::Exception("Configuration") << 
-                "PATPhotonProducer: you can't specify both 'photonIDSource' and 'photonIDSources'\n";
-          // read the different photon ID names
-          edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("photonIDSources");
-          std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
-          for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
-              photIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
-          }
+      // read the different photon ID names
+      edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("photonIDSources");
+      std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
+      for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
+	photIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
       }
-      // but in any case at least once
-      if (photIDSrcs_.empty()) throw cms::Exception("Configuration") <<
-            "PATPhotonProducer: id addPhotonID is true, you must specify either:\n" <<
-            "\tInputTag photonIDSource = <someTag>\n" << "or\n" <<
-            "\tPSet photonIDSources = { \n" <<
-            "\t\tInputTag <someName> = <someTag>   // as many as you want \n " <<
-            "\t}\n";
+    }
+    // but in any case at least once
+    if (photIDSrcs_.empty()) throw cms::Exception("Configuration") <<
+      "PATPhotonProducer: id addPhotonID is true, you must specify either:\n" <<
+      "\tInputTag photonIDSource = <someTag>\n" << "or\n" <<
+      "\tPSet photonIDSources = { \n" <<
+      "\t\tInputTag <someName> = <someTag>   // as many as you want \n " <<
+      "\t}\n";
   }
-  
-
-
   // Resolution configurables
   addResolutions_ = iConfig.getParameter<bool>("addResolutions");
   if (addResolutions_) {
-     resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
+    resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
   }
- 
   // Check to see if the user wants to add user data
   if ( useUserData_ ) {
     userDataHelper_ = PATUserDataHelper<Photon>(iConfig.getParameter<edm::ParameterSet>("userData"));
   }
-
- 
   // produces vector of photons
   produces<std::vector<Photon> >();
 
@@ -104,16 +97,17 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
 PATPhotonProducer::~PATPhotonProducer() {
 }
 
-void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) 
+{
+  // switch off embedding (in unschedules mode)
+  if (iEvent.isRealData()){
+    addGenMatch_   = false;
+    embedGenMatch_ = false;
+  }
  
   // Get the vector of Photon's from the event
   edm::Handle<edm::View<reco::Photon> > photons;
   iEvent.getByLabel(photonSrc_, photons);
-
-  if (iEvent.isRealData()){
-    addGenMatch_ = false;
-    embedGenMatch_ = false;
-  }
 
   // prepare the MC matching
   std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > > genMatches(genMatchSrc_.size());

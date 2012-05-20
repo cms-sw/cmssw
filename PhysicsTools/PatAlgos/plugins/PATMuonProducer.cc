@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.47 2012/01/19 02:50:19 tjkim Exp $
+// $Id: PATMuonProducer.cc,v 1.48 2012/03/23 01:25:57 namapane Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -53,23 +53,19 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) : useUserDat
   embedTrack_ = iConfig.getParameter<bool>( "embedTrack" );
   embedCombinedMuon_ = iConfig.getParameter<bool>( "embedCombinedMuon"   );
   embedStandAloneMuon_ = iConfig.getParameter<bool>( "embedStandAloneMuon" );
-
   // embedding of muon MET correction information
   embedCaloMETMuonCorrs_ = iConfig.getParameter<bool>("embedCaloMETMuonCorrs" );
   embedTcMETMuonCorrs_ = iConfig.getParameter<bool>("embedTcMETMuonCorrs"   );
   caloMETMuonCorrs_ = iConfig.getParameter<edm::InputTag>("caloMETMuonCorrs" );
   tcMETMuonCorrs_ = iConfig.getParameter<edm::InputTag>("tcMETMuonCorrs"   );
-
   // pflow specific configurables
-  useParticleFlow_  = iConfig.getParameter<bool>( "useParticleFlow" );
+  useParticleFlow_ = iConfig.getParameter<bool>( "useParticleFlow" );
   embedPFCandidate_ = iConfig.getParameter<bool>( "embedPFCandidate" );
   pfMuonSrc_ = iConfig.getParameter<edm::InputTag>( "pfMuonSource" );
-
   // embedding of tracks from TeV refit
   embedPickyMuon_ = iConfig.getParameter<bool>( "embedPickyMuon" );
   embedTpfmsMuon_ = iConfig.getParameter<bool>( "embedTpfmsMuon" );
-  embedDytMuon_   = iConfig.getParameter<bool>( "embedDytMuon" );
-
+  embedDytMuon_ = iConfig.getParameter<bool>( "embedDytMuon" );
   // Monte Carlo matching
   addGenMatch_ = iConfig.getParameter<bool>( "addGenMatch" );
   if(addGenMatch_){
@@ -80,29 +76,24 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) : useUserDat
       genMatchSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" );
     }
   }
-  
   // efficiencies
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
   if(addEfficiencies_){
     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
   }
-
   // resolutions
   addResolutions_ = iConfig.getParameter<bool>("addResolutions");
   if (addResolutions_) {
     resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
   }
-
   // read isoDeposit labels, for direct embedding
   readIsolationLabels(iConfig, "isoDeposits", isoDepositLabels_);
   // read isolation value labels, for direct embedding
   readIsolationLabels(iConfig, "isolationValues", isolationValueLabels_);
-  
   // check to see if the user wants to add user data
   if( useUserData_ ){
     userDataHelper_ = PATUserDataHelper<Muon>(iConfig.getParameter<edm::ParameterSet>("userData"));
   }
-
   // embed high level selection variables
   usePV_ = true;
   embedHighLevelSelection_ = iConfig.getParameter<bool>("embedHighLevelSelection");
@@ -111,7 +102,6 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) : useUserDat
     usePV_ = iConfig.getParameter<bool>("usePV");
     pvSrc_ = iConfig.getParameter<edm::InputTag>("pvSrc");
   }
-  
   // produces vector of muons
   produces<std::vector<Muon> >();
 }
@@ -122,14 +112,15 @@ PATMuonProducer::~PATMuonProducer()
 }
 
 void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) 
-{  
-  edm::Handle<edm::View<reco::Muon> > muons;
-  iEvent.getByLabel(muonSrc_, muons);
-
+{ 
+  // switch off embedding (in unschedules mode) 
   if (iEvent.isRealData()){
-    addGenMatch_ = false;
+    addGenMatch_   = false;
     embedGenMatch_ = false;
   }
+
+  edm::Handle<edm::View<reco::Muon> > muons;
+  iEvent.getByLabel(muonSrc_, muons);
 
   // get the ESHandle for the transient track builder,
   // if needed for high level selection embedding

@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.35 2010/11/08 16:18:06 veelken Exp $
+// $Id: PATTauProducer.cc,v 1.36 2011/09/26 12:36:31 veelken Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -33,11 +33,10 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
   useUserData_(iConfig.exists("userData"))
 {
   // initialize the configurables
-  tauSrc_               = iConfig.getParameter<edm::InputTag>( "tauSource" );
-
-  embedIsolationTracks_ = iConfig.getParameter<bool>         ( "embedIsolationTracks" );
-  embedLeadTrack_       = iConfig.getParameter<bool>         ( "embedLeadTrack" );
-  embedSignalTracks_    = iConfig.getParameter<bool>         ( "embedSignalTracks" );
+  tauSrc_ = iConfig.getParameter<edm::InputTag>( "tauSource" );
+  embedIsolationTracks_ = iConfig.getParameter<bool>( "embedIsolationTracks" );
+  embedLeadTrack_ = iConfig.getParameter<bool>( "embedLeadTrack" );
+  embedSignalTracks_ = iConfig.getParameter<bool>( "embedSignalTracks" );
   embedLeadPFCand_ = iConfig.getParameter<bool>( "embedLeadPFCand" );
   embedLeadPFChargedHadrCand_ = iConfig.getParameter<bool>( "embedLeadPFChargedHadrCand" );
   embedLeadPFNeutralCand_ = iConfig.getParameter<bool>( "embedLeadPFNeutralCand" );
@@ -49,29 +48,25 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
   embedIsolationPFChargedHadrCands_ = iConfig.getParameter<bool>( "embedIsolationPFChargedHadrCands" );
   embedIsolationPFNeutralHadrCands_ = iConfig.getParameter<bool>( "embedIsolationPFNeutralHadrCands" );
   embedIsolationPFGammaCands_ = iConfig.getParameter<bool>( "embedIsolationPFGammaCands" );
-
-  addGenMatch_    = iConfig.getParameter<bool>         ( "addGenMatch" );
-
+  addGenMatch_ = iConfig.getParameter<bool>( "addGenMatch" );
   if (addGenMatch_) {
-      embedGenMatch_ = iConfig.getParameter<bool>         ( "embedGenMatch" );
-      if (iConfig.existsAs<edm::InputTag>("genParticleMatch")) {
-          genMatchSrc_.push_back(iConfig.getParameter<edm::InputTag>( "genParticleMatch" ));
-      } else {
-          genMatchSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" );
-      }
+    embedGenMatch_ = iConfig.getParameter<bool>( "embedGenMatch" );
+    if (iConfig.existsAs<edm::InputTag>("genParticleMatch")) {
+      genMatchSrc_.push_back(iConfig.getParameter<edm::InputTag>( "genParticleMatch" ));
+    } 
+    else {
+      genMatchSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" );
+    }
   }
-
-  addGenJetMatch_    = iConfig.getParameter<bool>         ( "addGenJetMatch" );
+  addGenJetMatch_ = iConfig.getParameter<bool>( "addGenJetMatch" );
   if(addGenJetMatch_) {
-    embedGenJetMatch_  = iConfig.getParameter<bool>         ( "embedGenJetMatch" );
-    genJetMatchSrc_    = iConfig.getParameter<edm::InputTag>( "genJetMatch" );
+    embedGenJetMatch_ = iConfig.getParameter<bool>( "embedGenJetMatch" );
+    genJetMatchSrc_ = iConfig.getParameter<edm::InputTag>( "genJetMatch" );
   }
-
-  addTauJetCorrFactors_ = iConfig.getParameter<bool>                       ( "addTauJetCorrFactors" );
+  addTauJetCorrFactors_ = iConfig.getParameter<bool>( "addTauJetCorrFactors" );
   tauJetCorrFactorsSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "tauJetCorrFactorsSource" );
-
   // tau ID configurables
-  addTauID_       = iConfig.getParameter<bool>         ( "addTauID" );
+  addTauID_ = iConfig.getParameter<bool>( "addTauID" );
   if ( addTauID_ ) {
     // it might be a single tau ID
     if (iConfig.existsAs<edm::InputTag>("tauIDSource")) {
@@ -80,8 +75,9 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
     // or there might be many of them
     if (iConfig.existsAs<edm::ParameterSet>("tauIDSources")) {
       // please don't configure me twice
-      if (!tauIDSrcs_.empty()) throw cms::Exception("Configuration") << 
-	"PATTauProducer: you can't specify both 'tauIDSource' and 'tauIDSources'\n";
+      if (!tauIDSrcs_.empty()){
+	throw cms::Exception("Configuration") << "PATTauProducer: you can't specify both 'tauIDSource' and 'tauIDSources'\n";
+      }
       // read the different tau ID names
       edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("tauIDSources");
       std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
@@ -97,7 +93,6 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
       "\t\tInputTag <someName> = <someTag>   // as many as you want \n " <<
       "\t}\n";
   }
-  
   // IsoDeposit configurables
   if (iConfig.exists("isoDeposits")) {
     edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>("isoDeposits");
@@ -118,24 +113,20 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
       }
     }
   }
-
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
   if (addEfficiencies_) {
      efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
   }
-
   // Resolution configurables
   addResolutions_ = iConfig.getParameter<bool>("addResolutions");
   if (addResolutions_) {
      resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
   }
-
   // Check to see if the user wants to add user data
   if ( useUserData_ ) {
     userDataHelper_ = PATUserDataHelper<Tau>(iConfig.getParameter<edm::ParameterSet>("userData"));
   }
-
   // produces vector of taus
   produces<std::vector<Tau> >();
 }
@@ -146,6 +137,13 @@ PATTauProducer::~PATTauProducer()
 
 void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) 
 { 
+  // switch off embedding (in unschedules mode)
+  if (iEvent.isRealData()){
+    addGenMatch_    = false;
+    embedGenMatch_  = false;
+    addGenJetMatch_ = false;
+  }
+
   // Get the collection of taus from the event
   edm::Handle<edm::View<reco::BaseTau> > anyTaus;
   try {
@@ -155,12 +153,6 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     std::auto_ptr<std::vector<Tau> > patTaus(new std::vector<Tau>()); 
     iEvent.put(patTaus);
     return;
-  }
-
-  if (iEvent.isRealData()){
-    addGenMatch_ = false;
-    embedGenMatch_ = false;
-    addGenJetMatch_ = false;
   }
 
   if (isolator_.enabled()) isolator_.beginEvent(iEvent,iSetup);
