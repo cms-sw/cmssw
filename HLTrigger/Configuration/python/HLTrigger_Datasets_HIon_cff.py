@@ -48,7 +48,7 @@ streamA_datasetHIHighPt_selector.triggerConditions = cms.vstring('HLT_HIDiJet55_
     'HLT_HIJet80_v4', 
     'HLT_HIJet95_v4', 
     'HLT_HIJetE30_NoBPTX_v4', 
-    'HLT_HIJetE50_NoBPTX3BX_NoHalo_v4', 
+    'HLT_HIJetE50_NoBPTX3BX_NoHalo_v5', 
     'HLT_HIMET120_v4', 
     'HLT_HIMET200_v4', 
     'HLT_HIMET220_v4', 

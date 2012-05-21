@@ -405,38 +405,38 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMuOnia_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMuOnia_selector.l1tResults = cms.InputTag('')
 streamA_datasetMuOnia_selector.throw      = cms.bool(False)
-streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Jpsi_Muon_v15', 
-    'HLT_Dimuon0_Jpsi_NoVertexing_v11', 
-    'HLT_Dimuon0_Jpsi_v14', 
-    'HLT_Dimuon0_PsiPrime_v3', 
-    'HLT_Dimuon0_Upsilon_Muon_v15', 
-    'HLT_Dimuon0_Upsilon_v14', 
-    'HLT_Dimuon11_Upsilon_v3', 
-    'HLT_Dimuon3p5_SameSign_v3', 
-    'HLT_Dimuon7_Upsilon_v4', 
-    'HLT_DoubleMu3_4_Dimuon5_Bs_Central_v2', 
-    'HLT_DoubleMu3p5_4_Dimuon5_Bs_Central_v2', 
-    'HLT_DoubleMu4_Dimuon7_Bs_Forward_v2', 
-    'HLT_DoubleMu4_JpsiTk_Displaced_v3', 
-    'HLT_DoubleMu4_Jpsi_Displaced_v9', 
-    'HLT_Mu5_L2Mu3_Jpsi_v4', 
-    'HLT_Mu5_Track2_Jpsi_v18', 
-    'HLT_Mu5_Track3p5_Jpsi_v4', 
+streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Jpsi_Muon_v16', 
+    'HLT_Dimuon0_Jpsi_NoVertexing_v12', 
+    'HLT_Dimuon0_Jpsi_v15', 
+    'HLT_Dimuon0_PsiPrime_v4', 
+    'HLT_Dimuon0_Upsilon_Muon_v16', 
+    'HLT_Dimuon0_Upsilon_v15', 
+    'HLT_Dimuon11_Upsilon_v4', 
+    'HLT_Dimuon3p5_SameSign_v4', 
+    'HLT_Dimuon7_Upsilon_v5', 
+    'HLT_DoubleMu3_4_Dimuon5_Bs_Central_v3', 
+    'HLT_DoubleMu3p5_4_Dimuon5_Bs_Central_v3', 
+    'HLT_DoubleMu4_Dimuon7_Bs_Forward_v3', 
+    'HLT_DoubleMu4_JpsiTk_Displaced_v4', 
+    'HLT_DoubleMu4_Jpsi_Displaced_v10', 
+    'HLT_Mu5_L2Mu3_Jpsi_v5', 
+    'HLT_Mu5_Track2_Jpsi_v19', 
+    'HLT_Mu5_Track3p5_Jpsi_v5', 
     'HLT_Mu7_Track7_Jpsi_v18', 
-    'HLT_Tau2Mu_ItTrack_v3')
+    'HLT_Tau2Mu_ItTrack_v4')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuOniaParked_selector
 streamA_datasetMuOniaParked_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMuOniaParked_selector.l1tResults = cms.InputTag('')
 streamA_datasetMuOniaParked_selector.throw      = cms.bool(False)
-streamA_datasetMuOniaParked_selector.triggerConditions = cms.vstring('HLT_Dimuon10_Jpsi_v3', 
-    'HLT_Dimuon5_PsiPrime_v3', 
-    'HLT_Dimuon5_Upsilon_v3', 
+streamA_datasetMuOniaParked_selector.triggerConditions = cms.vstring('HLT_Dimuon10_Jpsi_v4', 
+    'HLT_Dimuon5_PsiPrime_v4', 
+    'HLT_Dimuon5_Upsilon_v4', 
     'HLT_Dimuon7_PsiPrime_v1', 
-    'HLT_Dimuon8_Jpsi_v4', 
-    'HLT_Dimuon8_Upsilon_v3', 
-    'HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v3', 
-    'HLT_DoubleMu3p5_LowMass_Displaced_v3')
+    'HLT_Dimuon8_Jpsi_v5', 
+    'HLT_Dimuon8_Upsilon_v4', 
+    'HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v4', 
+    'HLT_DoubleMu3p5_LowMass_Displaced_v4')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMultiJet_selector
 streamA_datasetMultiJet_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -482,14 +482,14 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetNoBPTX_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetNoBPTX_selector.l1tResults = cms.InputTag('')
 streamA_datasetNoBPTX_selector.throw      = cms.bool(False)
-streamA_datasetNoBPTX_selector.triggerConditions = cms.vstring('HLT_JetE30_NoBPTX3BX_NoHalo_v13', 
+streamA_datasetNoBPTX_selector.triggerConditions = cms.vstring('HLT_JetE30_NoBPTX3BX_NoHalo_v14', 
     'HLT_JetE30_NoBPTX_v12', 
-    'HLT_JetE50_NoBPTX3BX_NoHalo_v10', 
-    'HLT_JetE70_NoBPTX3BX_NoHalo_v2', 
-    'HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v2', 
-    'HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v2', 
+    'HLT_JetE50_NoBPTX3BX_NoHalo_v11', 
+    'HLT_JetE70_NoBPTX3BX_NoHalo_v3', 
+    'HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v3', 
+    'HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v3', 
     'HLT_L2Mu20_eta2p1_NoVertex_v1', 
-    'HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v2')
+    'HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v3')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetPhotonHad_selector
 streamA_datasetPhotonHad_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')

@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/HIon/V133 (CMSSW_5_2_5_HLT5)
+# /dev/CMSSW_5_2_1/HIon/V134 (CMSSW_5_2_5_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V133')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V134')
 )
 
 streams = cms.PSet( 
@@ -57,7 +57,7 @@ datasets = cms.PSet(
     'HLT_HIJet80_v4',
     'HLT_HIJet95_v4',
     'HLT_HIJetE30_NoBPTX_v4',
-    'HLT_HIJetE50_NoBPTX3BX_NoHalo_v4',
+    'HLT_HIJetE50_NoBPTX3BX_NoHalo_v5',
     'HLT_HIL1Algo_BptxXOR_BSC_OR_v3',
     'HLT_HIL1DoubleMu0_HighQ_v4',
     'HLT_HIL1DoubleMuOpen_v4',
@@ -125,7 +125,7 @@ datasets = cms.PSet(
     'HLT_HIJet80_v4',
     'HLT_HIJet95_v4',
     'HLT_HIJetE30_NoBPTX_v4',
-    'HLT_HIJetE50_NoBPTX3BX_NoHalo_v4',
+    'HLT_HIJetE50_NoBPTX3BX_NoHalo_v5',
     'HLT_HIMET120_v4',
     'HLT_HIMET200_v4',
     'HLT_HIMET220_v4',
@@ -186,7 +186,7 @@ datasets = cms.PSet(
     'HLT_HIJet80_v4',
     'HLT_HIJet95_v4',
     'HLT_HIJetE30_NoBPTX_v4',
-    'HLT_HIJetE50_NoBPTX3BX_NoHalo_v4',
+    'HLT_HIJetE50_NoBPTX3BX_NoHalo_v5',
     'HLT_HIL1Algo_BptxXOR_BSC_OR_v3',
     'HLT_HIL1DoubleMu0_HighQ_v4',
     'HLT_HIL1DoubleMuOpen_v4',
@@ -260,7 +260,7 @@ datasets = cms.PSet(
     'HLT_HIJet80_v4',
     'HLT_HIJet95_v4',
     'HLT_HIJetE30_NoBPTX_v4',
-    'HLT_HIJetE50_NoBPTX3BX_NoHalo_v4',
+    'HLT_HIJetE50_NoBPTX3BX_NoHalo_v5',
     'HLT_HIL1Algo_BptxXOR_BSC_OR_v3',
     'HLT_HIL1DoubleMu0_HighQ_v4',
     'HLT_HIL1DoubleMuOpen_v4',
@@ -6991,7 +6991,7 @@ HLT_HIJet95_v4 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet68BptxAND + hltPr
 HLT_HIDiJet55_v4 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet36BptxAND + hltPreHIDiJet55 + HLTHIRecoJetSequenceIC5Corrected + hltHIDiJet55and55 + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HIJet65_Jet55_v4 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet36BptxAND + hltPreHIJet65Jet55 + HLTHIRecoJetSequenceIC5Corrected + hltHIDiJet55and55 + hltHI1jet65 + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HIJetE30_NoBPTX_v4 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet20CentralNotBptx + hltPreHIJetE30NoBPTX + HLTStoppedHSCPLocalHcalReco + HLTStoppedHSCPJetSequence + hltStoppedHSCP1CaloJetEnergy30 + HLTDoHIStripZeroSuppression + HLTEndSequence )
-HLT_HIJetE50_NoBPTX3BX_NoHalo_v4 = cms.Path( HLTBeginSequenceAntiBPTX + hltL1sL1SingleJet32CentralNotBptx + hltL1BeamHaloAntiCoincidence3BX + hltPreHIJetE50NoBPTX3BXNoHalo + HLTStoppedHSCPLocalHcalReco + hltStoppedHSCPHpdFilter + HLTStoppedHSCPJetSequence + hltStoppedHSCP1CaloJetEnergy50 + HLTDoHIStripZeroSuppression + HLTEndSequence )
+HLT_HIJetE50_NoBPTX3BX_NoHalo_v5 = cms.Path( HLTBeginSequenceAntiBPTX + hltL1sL1SingleJet32CentralNotBptx + hltL1BeamHaloAntiCoincidence3BX + hltPreHIJetE50NoBPTX3BXNoHalo + HLTStoppedHSCPLocalHcalReco + hltStoppedHSCPHpdFilter + HLTStoppedHSCPJetSequence + hltStoppedHSCP1CaloJetEnergy50 + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HIActivityHF_Coincidence3_v3 = cms.Path( HLTBeginSequence + hltL1sL1GlobalDecision + hltPreHIActivityHFCoincidence3 + hltHcalDigis + hltHfreco + hltHcalSimpleRecHitFilterCoincidence + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HIActivityHF_Single3_v3 = cms.Path( HLTBeginSequence + hltL1sL1GlobalDecision + hltPreHIActivityHFSingle3 + hltHcalDigis + hltHfreco + hltHcalSimpleRecHitFilter + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HIClusterVertexCompatibility_v4 = cms.Path( HLTBeginSequence + hltL1sL1GlobalDecision + hltPreHIClusterVertexCompatibility + HLTDoHILocalPixelSequence + hltHIPixelClusterShapeFilter + HLTDoHIStripZeroSuppression + HLTEndSequence )
@@ -7018,7 +7018,7 @@ HLTriggerFinalPath = cms.Path( hltGtDigis + hltScalersRawToDigi + hltFEDSelector
 HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 
 
-HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_HIMET120_v4, HLT_HIMET200_v4, HLT_HIMET220_v4, HLT_HIPhysics_v3, HLT_HIDTCalibration_v3, HLT_HIEcalCalibration_v3, HLT_HIHcalCalibration_v3, HLT_HIZeroBias_v3, HLT_HIZeroBiasXOR_v3, HLT_HIZeroBiasPixel_SingleTrack_v4, HLT_HIMinBiasBSC_v3, HLT_HIMinBiasBSC_OR_v3, HLT_HIMinBiasHF_v3, HLT_HIMinBiasHf_OR_v3, HLT_HIMinBiasHfOrBSC_v3, HLT_HIMinBiasPixel_SingleTrack_v4, HLT_HIMinBiasZDC_Calo_v3, HLT_HIMinBiasZDC_Calo_PlusOrMinus_v3, HLT_HIMinBiasZDCPixel_SingleTrack_v4, HLT_HIMinBiasZDC_PlusOrMinusPixel_SingleTrack_v4, HLT_HIBptxXOR_v3, HLT_HIL1Algo_BptxXOR_BSC_OR_v3, HLT_HIL1DoubleMuOpen_v4, HLT_HIL1DoubleMu0_HighQ_v4, HLT_HIL2Mu3_v4, HLT_HIL2Mu3_NHitQ_v4, HLT_HIL2Mu7_v4, HLT_HIL2Mu15_v4, HLT_HIL2DoubleMu0_v4, HLT_HIL2DoubleMu0_NHitQ_v4, HLT_HIL2DoubleMu0_L1HighQL2NHitQ_v4, HLT_HIL2DoubleMu3_v4, HLT_HIL3Mu3_v5, HLT_HIL3DoubleMuOpen_v5, HLT_HIL3DoubleMuOpen_Mgt2_v5, HLT_HIL3DoubleMuOpen_Mgt2_SS_v5, HLT_HIL3DoubleMuOpen_Mgt2_OS_v5, HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v5, HLT_HISinglePhoton15_v4, HLT_HISinglePhoton20_v5, HLT_HISinglePhoton30_v5, HLT_HISinglePhoton40_v5, HLT_HIPhoton10_Photon15_v4, HLT_HIPhoton15_Photon20_v4, HLT_HIDoublePhoton10_v4, HLT_HIDoublePhoton15_v4, HLT_HIDoublePhoton20_v4, HLT_HIJet55_v4, HLT_HIJet65_v4, HLT_HIJet80_v4, HLT_HIJet95_v4, HLT_HIDiJet55_v4, HLT_HIJet65_Jet55_v4, HLT_HIJetE30_NoBPTX_v4, HLT_HIJetE50_NoBPTX3BX_NoHalo_v4, HLT_HIActivityHF_Coincidence3_v3, HLT_HIActivityHF_Single3_v3, HLT_HIClusterVertexCompatibility_v4, HLT_HICentralityVeto_v4, HLT_HIFullTrack12_L1Central_v5, HLT_HIFullTrack12_L1Peripheral_v5, HLT_HIFullTrack14_L1Central_v5, HLT_HIFullTrack14_L1Peripheral_v5, HLT_HIFullTrack20_L1Central_v5, HLT_HIFullTrack20_L1Peripheral_v5, HLT_HIFullTrack25_L1Central_v5, HLT_HIFullTrack25_L1Peripheral_v5, HLT_HIRandom_v3, HLT_HIUCC010_v5, HLT_HIUCC015_v5, HLT_HICentral10_v5, HLT_HIUPCNeuMuPixel_SingleTrack_v4, HLT_HIUPCNeuEG2Pixel_SingleTrack_v4, HLT_HIUPCNeuEG5Pixel_SingleTrack_v4, HLT_HIUPCNeuHcalHfMuPixel_SingleTrack_v4, HLT_HIUPCNeuHcalHfEG2Pixel_SingleTrack_v4, HLT_HIUPCNeuHcalHfEG5Pixel_SingleTrack_v4, HLTriggerFinalPath, HLTAnalyzerEndpath ))
+HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_HIMET120_v4, HLT_HIMET200_v4, HLT_HIMET220_v4, HLT_HIPhysics_v3, HLT_HIDTCalibration_v3, HLT_HIEcalCalibration_v3, HLT_HIHcalCalibration_v3, HLT_HIZeroBias_v3, HLT_HIZeroBiasXOR_v3, HLT_HIZeroBiasPixel_SingleTrack_v4, HLT_HIMinBiasBSC_v3, HLT_HIMinBiasBSC_OR_v3, HLT_HIMinBiasHF_v3, HLT_HIMinBiasHf_OR_v3, HLT_HIMinBiasHfOrBSC_v3, HLT_HIMinBiasPixel_SingleTrack_v4, HLT_HIMinBiasZDC_Calo_v3, HLT_HIMinBiasZDC_Calo_PlusOrMinus_v3, HLT_HIMinBiasZDCPixel_SingleTrack_v4, HLT_HIMinBiasZDC_PlusOrMinusPixel_SingleTrack_v4, HLT_HIBptxXOR_v3, HLT_HIL1Algo_BptxXOR_BSC_OR_v3, HLT_HIL1DoubleMuOpen_v4, HLT_HIL1DoubleMu0_HighQ_v4, HLT_HIL2Mu3_v4, HLT_HIL2Mu3_NHitQ_v4, HLT_HIL2Mu7_v4, HLT_HIL2Mu15_v4, HLT_HIL2DoubleMu0_v4, HLT_HIL2DoubleMu0_NHitQ_v4, HLT_HIL2DoubleMu0_L1HighQL2NHitQ_v4, HLT_HIL2DoubleMu3_v4, HLT_HIL3Mu3_v5, HLT_HIL3DoubleMuOpen_v5, HLT_HIL3DoubleMuOpen_Mgt2_v5, HLT_HIL3DoubleMuOpen_Mgt2_SS_v5, HLT_HIL3DoubleMuOpen_Mgt2_OS_v5, HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v5, HLT_HISinglePhoton15_v4, HLT_HISinglePhoton20_v5, HLT_HISinglePhoton30_v5, HLT_HISinglePhoton40_v5, HLT_HIPhoton10_Photon15_v4, HLT_HIPhoton15_Photon20_v4, HLT_HIDoublePhoton10_v4, HLT_HIDoublePhoton15_v4, HLT_HIDoublePhoton20_v4, HLT_HIJet55_v4, HLT_HIJet65_v4, HLT_HIJet80_v4, HLT_HIJet95_v4, HLT_HIDiJet55_v4, HLT_HIJet65_Jet55_v4, HLT_HIJetE30_NoBPTX_v4, HLT_HIJetE50_NoBPTX3BX_NoHalo_v5, HLT_HIActivityHF_Coincidence3_v3, HLT_HIActivityHF_Single3_v3, HLT_HIClusterVertexCompatibility_v4, HLT_HICentralityVeto_v4, HLT_HIFullTrack12_L1Central_v5, HLT_HIFullTrack12_L1Peripheral_v5, HLT_HIFullTrack14_L1Central_v5, HLT_HIFullTrack14_L1Peripheral_v5, HLT_HIFullTrack20_L1Central_v5, HLT_HIFullTrack20_L1Peripheral_v5, HLT_HIFullTrack25_L1Central_v5, HLT_HIFullTrack25_L1Peripheral_v5, HLT_HIRandom_v3, HLT_HIUCC010_v5, HLT_HIUCC015_v5, HLT_HICentral10_v5, HLT_HIUPCNeuMuPixel_SingleTrack_v4, HLT_HIUPCNeuEG2Pixel_SingleTrack_v4, HLT_HIUPCNeuEG5Pixel_SingleTrack_v4, HLT_HIUPCNeuHcalHfMuPixel_SingleTrack_v4, HLT_HIUPCNeuHcalHfEG2Pixel_SingleTrack_v4, HLT_HIUPCNeuHcalHfEG5Pixel_SingleTrack_v4, HLTriggerFinalPath, HLTAnalyzerEndpath ))
 
 # Disable HF Noise filters in HIon menu
 if 'hltHfreco' in locals():
