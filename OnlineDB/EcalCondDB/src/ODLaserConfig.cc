@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <string>
+#include <sstream>
 #include <fstream>
 #include <iostream>
 #include <stdio.h>
@@ -14,30 +15,29 @@ using namespace oracle::occi;
 
 ODLaserConfig::ODLaserConfig()
 {
+  m_db_checked = false;
+
   m_env = NULL;
   m_conn = NULL;
   m_writeStmt = NULL;
   m_readStmt = NULL;
   m_size=0;
   m_config_tag="";
-   m_ID=0;
-   clear();
-
+  m_ID=0;
+  clear();
 }
 
 void ODLaserConfig::clear(){
-
-
   m_debug=0;
   m_dummy=0;
-
+  
   // emtc 
-   m_emtc_1=0;
-   m_emtc_2=0;
-   m_emtc_3=0;
-   m_emtc_4=0;
-   m_emtc_5=0;
-
+  m_emtc_1=0;
+  m_emtc_2=0;
+  m_emtc_3=0;
+  m_emtc_4=0;
+  m_emtc_5=0;
+  
   // laser
   m_wave=0;
   m_power=0;
@@ -46,57 +46,96 @@ void ODLaserConfig::clear(){
   m_on=0;
   m_laserhost="";
   m_laserport=0;
-
+  
   // mataq
-   m_mq_base=0;
-   m_mq_none=0;
-   m_mode="" ;
-   m_chan_mask=0;
-   m_samples="";
-   m_ped_file="";
-   m_use_buffer=0;
-   m_post_trig=0;
-   m_fp_mode=0;
-   m_hal_mod_file="";
-   m_hal_add_file="";
-   m_hal_tab_file="";
-   m_serial="";
-   m_ped_count=0;
-   m_raw_mode=0;
-   m_aqmode="";
-   m_mq_file="";
-   m_laser_tag="";
-   m_matacq_vernier_min=0;
-   m_matacq_vernier_max=0;
+  m_mq_base=0;
+  m_mq_none=0;
+  m_mode="" ;
+  m_chan_mask=0;
+  m_samples="";
+  m_ped_file="";
+  m_use_buffer=0;
+  m_post_trig=0;
+  m_fp_mode=0;
+  m_hal_mod_file="";
+  m_hal_add_file="";
+  m_hal_tab_file="";
+  m_serial="";
+  m_ped_count=0;
+  m_raw_mode=0;
+  m_aqmode="";
+  m_mq_file="";
+  m_laser_tag="";
+  m_matacq_vernier_min=0;
+  m_matacq_vernier_max=0;
+  
+  m_wte_2_led_delay =0;
+  m_led1_on =0;
+  m_led2_on =0;
+  m_led3_on =0;
+  m_led4_on =0;
+  m_vinj =0;
+  m_orange_led_mon_ampl=0;
+  m_blue_led_mon_ampl =0;
+  m_trig_log_file ="";
+  m_led_control_on =0;
+  m_led_control_host="";
+  m_led_control_port =0;
+  m_ir_laser_power =0;
+  m_green_laser_power=0;
+  m_red_laser_power =0;
+  m_blue_laser_log_attenuator =0;
+  m_ir_laser_log_attenuator =0;
+  m_green_laser_log_attenuator  =0;
+  m_red_laser_log_attenuator =0;
+  m_laser_config_file ="";
 
-   m_wte_2_led_delay =0;
-   m_led1_on =0;
-   m_led2_on =0;
-   m_led3_on =0;
-   m_led4_on =0;
-   m_vinj =0;
-   m_orange_led_mon_ampl=0;
-   m_blue_led_mon_ampl =0;
-   m_trig_log_file ="";
-   m_led_control_on =0;
-   m_led_control_host="";
-   m_led_control_port =0;
-   m_ir_laser_power =0;
-   m_green_laser_power=0;
-   m_red_laser_power =0;
-   m_blue_laser_log_attenuator =0;
-   m_ir_laser_log_attenuator =0;
-   m_green_laser_log_attenuator  =0;
-   m_red_laser_log_attenuator =0;
-   m_laser_config_file ="";
-
+  // new in 2012
+  m_ir_laser_phase = 0;
+  m_blue2_laser_phase = 0;
+  m_blue_laser_post_trig = 0; 
+  m_blue2_laser_post_trig = 0;
+  m_ir_laser_post_trig = 0;
+  m_green_laser_post_trig = 0;
+  m_blue_laser_power = 0;
+  m_wte2_blue_laser = 0; 
+  m_wte2_blue2_laser = 0;
+  m_wte2_ir_laser = 0;
+  m_wte2_green_laser = 0;
+  m_wte_2_led_soak_delay = 0;
+  m_led_postscale = 0; 
+  m_blue2_laser_power = 0;
+  m_blue2_laser_log_attenuator = 0;
 }
 
 ODLaserConfig::~ODLaserConfig()
 {
 }
 
+std::string ODLaserConfig::getLaserClobAsString() const {
+  std::string ret;
+  std::vector<unsigned char>::const_iterator i = m_laser_clob.begin();
+  std::vector<unsigned char>::const_iterator e = m_laser_clob.end();
+  while (i != e) {
+    ret += *i++;
+  }
+  ret += "\0";
+  return ret;
+}
 
+void ODLaserConfig::setLaserClob(unsigned char *s, int size) {
+  m_laser_clob.clear();
+  for (int i = 0; i < size; i++) {
+    if (m_debug) {
+      std::cout << "CLOB[" << i << "] = " << s[i] << " (" << 
+	(unsigned int)s[i] << ")" << std::endl << std::flush;
+    }
+    m_laser_clob.push_back(s[i]);
+  }
+  if (m_debug) {
+    std::cout << getLaserClobAsString() << std::endl << std::flush;
+  }
+}
 
 void ODLaserConfig::setParameters(std::map<string,string> my_keys_map){
   
@@ -119,6 +158,10 @@ void ODLaserConfig::setParameters(std::map<string,string> my_keys_map){
     if(ci->first==  "PEDESTAL_FILE") setPedestalFile(ci->second );
     if(ci->first==  "USE_BUFFER") setUseBuffer(atoi(ci->second.c_str())) ;
     if(ci->first==  "POSTTRIG") setPostTrig(atoi(ci->second.c_str()) );
+    if(ci->first==  "BLUE_LASER_POSTTRIG") setBlueLaserPostTrig(atoi(ci->second.c_str()) );
+    if(ci->first==  "BLUE2_LASER_POSTTRIG") setBlue2LaserPostTrig(atoi(ci->second.c_str()) );
+    if(ci->first==  "IR_LASER_POSTTRIG") setIRLaserPostTrig(atoi(ci->second.c_str()) );
+    if(ci->first==  "GREEN_LASER_POSTTRIG") setGreenLaserPostTrig(atoi(ci->second.c_str()) );
     if(ci->first==  "FP_MODE") setFPMode(atoi(ci->second.c_str() ));
     if(ci->first==  "HAL_MODULE_FILE") setHalModuleFile(ci->second );
     if(ci->first==  "HAL_ADDRESS_TABLE_FILE" || ci->first==  "HAL_ADDRESST_ABLE_FILE") setHalAddressTableFile(ci->second);
@@ -130,20 +173,31 @@ void ODLaserConfig::setParameters(std::map<string,string> my_keys_map){
     if(ci->first==  "LOCAL_OUTPUT_FILE") setLocalOutputFile(ci->second );
     if(ci->first==  "EMTC_NONE") setEMTCNone(atoi(ci->second.c_str()) );
     if(ci->first==  "WTE2_LASER_DELAY") setWTE2LaserDelay(atoi(ci->second.c_str()) );
+    if(ci->first==  "WTE2_IR_LASER") setWTE2IRLaser(atoi(ci->second.c_str()) );
+    if(ci->first==  "WTE2_BLUE_LASER") setWTE2BlueLaser(atoi(ci->second.c_str()) );
+    if(ci->first==  "WTE2_BLUE2_LASER") setWTE2Blue2Laser(atoi(ci->second.c_str()) );
+    if(ci->first==  "WTE2_GREEN_LASER") setWTE2GreenLaser(atoi(ci->second.c_str()) );
     if(ci->first==  "LASER_PHASE") setLaserPhase(atoi(ci->second.c_str()) );
+    if(ci->first==  "BLUE_LASER_PHASE") setBlueLaserPhase(atoi(ci->second.c_str()) );
+    if(ci->first==  "BLUE2_LASER_PHASE") setBlue2LaserPhase(atoi(ci->second.c_str()) );
+    if(ci->first==  "IR_LASER_PHASE") setIRLaserPhase(atoi(ci->second.c_str()) );
+    if(ci->first==  "GREEN_LASER_PHASE") setGreenLaserPhase(atoi(ci->second.c_str()) );
     if(ci->first==  "EMTC_TTC_IN") setEMTCTTCIn(atoi(ci->second.c_str()) );
     if(ci->first==  "EMTC_SLOT_ID") setEMTCSlotId(atoi(ci->second.c_str()) );
     if(ci->first==  "WAVELENGTH") setWaveLength(atoi(ci->second.c_str()) );
     if(ci->first==  "OPTICAL_SWITCH") setOpticalSwitch(atoi(ci->second.c_str()) );
     if(ci->first==  "POWER_SETTING") setPower(atoi(ci->second.c_str()) );
+    if(ci->first==  "BLUE_LASER_POWER") setBlueLaserPower(atoi(ci->second.c_str()) );
     if(ci->first==  "FILTER") setFilter(atoi(ci->second.c_str()) );
     if(ci->first==  "LASER_CONTROL_ON") setLaserControlOn(atoi(ci->second.c_str()) );
     if(ci->first==  "LASER_CONTROL_HOST") setLaserControlHost(ci->second );
     if(ci->first==  "LASER_CONTROL_PORT") setLaserControlPort(atoi(ci->second.c_str()) );
     if(ci->first==  "MATACQ_VERNIER_MAX") setMatacqVernierMax(atoi(ci->second.c_str()) );
     if(ci->first==  "MATACQ_VERNIER_MIN") setMatacqVernierMin(atoi(ci->second.c_str()) );
-
+    
     if(ci->first==  "WTE_2_LED_DELAY") setWTE2LedDelay(atoi(ci->second.c_str()) );
+    if(ci->first==  "WTE_2_LED_SOAK_DELAY") setWTE2LedSoakDelay(atoi(ci->second.c_str()) );
+    if(ci->first==  "LED_POST_SCALE") setLedPostScale(atoi(ci->second.c_str()) );
     if(ci->first==  "LED1_ON") setLed1ON(atoi(ci->second.c_str()) );
     if(ci->first==  "LED2_ON") setLed2ON(atoi(ci->second.c_str()) );
     if(ci->first==  "LED3_ON") setLed3ON(atoi(ci->second.c_str()) );
@@ -158,18 +212,20 @@ void ODLaserConfig::setParameters(std::map<string,string> my_keys_map){
     if(ci->first==  "IR_LASER_POWER") setIRLaserPower(atoi(ci->second.c_str()) );
     if(ci->first==  "GREEN_LASER_POWER") setGreenLaserPower(atoi(ci->second.c_str()) );
     if(ci->first==  "RED_LASER_POWER") setRedLaserPower(atoi(ci->second.c_str()) );
+    if(ci->first==  "BLUE2_LASER_POWER") setBlue2LaserPower(atoi(ci->second.c_str()) );
     if(ci->first==  "BLUE_LASER_LOG_ATTENUATOR") setBlueLaserLogAttenuator(atoi(ci->second.c_str()) );
+    if(ci->first==  "BLUE2_LASER_LOG_ATTENUATOR") setBlue2LaserLogAttenuator(atoi(ci->second.c_str()) );
     if(ci->first==  "IR_LASER_LOG_ATTENUATOR") setIRLaserLogAttenuator(atoi(ci->second.c_str()) );
     if(ci->first==  "GREEN_LASER_LOG_ATTENUATOR") setGreenLaserLogAttenuator(atoi(ci->second.c_str()) );
     if(ci->first==  "RED_LASER_LOG_ATTENUATOR") setRedLaserLogAttenuator(atoi(ci->second.c_str()) );
-  
-
+    
+    
     if(ci->first==  "LASER_CONFIG_FILE") {
       std::string fname=ci->second ;
       setLaserConfigFile(fname );
       // here we must open the file and read the DCC Clob
       std::cout << "Going to read Laser file: " << fname << endl;
-
+      
       ifstream inpFile;
       inpFile.open(fname.c_str());
 
@@ -177,7 +233,9 @@ void ODLaserConfig::setParameters(std::map<string,string> my_keys_map){
       int bufsize = 0;
       inpFile.seekg( 0,ios::end );
       bufsize = inpFile.tellg();
-      std::cout <<" bufsize ="<<bufsize<< std::endl;
+      if (m_debug) {
+	std::cout <<" bufsize ="<<bufsize<< std::endl;
+      }
       // set file pointer to start again
       inpFile.seekg( 0,ios::beg );
 
@@ -197,6 +255,7 @@ int ODLaserConfig::fetchNextId()  throw(std::runtime_error) {
   int result=0;
   try {
     this->checkConnection();
+    setDB();
 
     m_readStmt = m_conn->createStatement(); 
     m_readStmt->setSQL("select ecal_laser_config_sq.NextVal from dual");
@@ -213,186 +272,261 @@ int ODLaserConfig::fetchNextId()  throw(std::runtime_error) {
 
 }
 
+std::string ODLaserConfig::values(int n) {
+  std::stringstream r;
+  for (int i = 0; i < n - 1; i++) {
+    r << ":" << (i + 1)  << ", ";
+  }
+  r << ":" << n;
+  return r.str();
+}
 
 void ODLaserConfig::prepareWrite()
   throw(std::runtime_error)
 {
   this->checkConnection();
+  setDB();
   int next_id=fetchNextId();
 
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO ECAL_Laser_CONFIGURATION ( laser_configuration_id, laser_tag "
-			", laser_DEBUG "
-			", DUMMY "
-			", MATACQ_BASE_ADDRESS " 
-			", MATACQ_NONE "
-			", matacq_mode "
-			", channel_Mask "
-			", max_Samples_For_Daq "
-			", maTACQ_FED_ID "
-			", pedestal_File "
-			", use_Buffer "
-			", postTrig "
-			", fp_Mode "
-			", hal_Module_File " 
-			", hal_Address_Table_File "
-			", hal_Static_Table_File "
-			", matacq_Serial_Number "
-			", pedestal_Run_Event_Count " 
-			", raw_Data_Mode "
-			", ACQUISITION_MODE " 
-			", LOCAL_OUTPUT_FILE " 
-			", emtc_none "
-			", wte2_laser_delay " 
-			", laser_phase "
-			", emtc_ttc_in "
-			", emtc_slot_id " 
-			", WAVELENGTH "
-			", POWER_SETTING "
-			", OPTICAL_SWITCH "
-			", FILTER "
-			", LASER_CONTROL_ON " 
-			", LASER_CONTROL_HOST " 
-			", LASER_CONTROL_PORT "
-			", LASER_TAG2 "
-			", MATACQ_VERNIER_MIN "
-			", MATACQ_VERNIER_MAX "
-			" , wte_2_led_delay " 
-			" , led1_on "
-			" , led2_on "
-			" , led3_on "
-			" , led4_on "
-			" , VINJ "
-			" , orange_led_mon_ampl" 
-			" , blue_led_mon_ampl "
-			" , trig_log_file "
-			" , led_control_on "
-			" , led_control_host "
-			" , led_control_port "
-			" , ir_laser_power "
-			" , green_laser_power" 
-			" , red_laser_power "
-			" , blue_laser_log_attenuator "
-			" , IR_LASER_LOG_ATTENUATOR "
-			" , GREEN_LASER_LOG_ATTENUATOR"  
-			" , RED_LASER_LOG_ATTENUATOR "
-			" , LASER_CONFIG_FILE "
-			" , laser_configuration ) "
-			" VALUES (  :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, "
-			":11, :12, :13, :14, :15, :16, :17, :18, :19, :20,  "
-			":21, :22, :23, :24, :25, :26, :27, :28, :29, :30,  "
-			":31, :32, :33, :34, :35, :36, :37, "
-			" :38, :39, :40, :41, :42, :43, :44, :45, :46, :47, :48, :49, :50, :51, :52, :53, :54, :55, :56, :57, :58  )");
+    std::string sql = "INSERT INTO " + getTable() + " ( "
+      "  laser_configuration_id, laser_tag "
+      ", laser_DEBUG "
+      ", DUMMY "
+      ", MATACQ_BASE_ADDRESS " 
+      ", MATACQ_NONE "
+      ", matacq_mode "
+      ", channel_Mask "
+      ", max_Samples_For_Daq "
+      ", maTACQ_FED_ID "
+      ", pedestal_File "
+      ", use_Buffer ";
+    if (m_isOldDb) {
+      sql += ", postTrig ";
+    } else {
+      sql += ", blue_laser_posttrig ";
+    }
+    sql += ", fp_Mode "
+      ", hal_Module_File " 
+      ", hal_Address_Table_File "
+      ", hal_Static_Table_File "
+      ", matacq_Serial_Number "
+      ", pedestal_Run_Event_Count " 
+      ", raw_Data_Mode "
+      ", ACQUISITION_MODE " 
+      ", LOCAL_OUTPUT_FILE " 
+      ", MATACQ_VERNIER_MIN "
+      ", MATACQ_VERNIER_MAX "
+      ", emtc_none ";
+    if (m_isOldDb) {
+      sql += ", wte2_laser_delay " ;
+      sql += ", laser_phase ";
+    }  else {
+      sql += ", wte_2_blue_laser ";
+      sql += ", blue_laser_phase ";
+    }
+    sql += ", emtc_ttc_in "
+      ", emtc_slot_id " 
+      ", WAVELENGTH ";
+    if (m_isOldDb) {
+      sql += ", POWER_SETTING";
+    } else {
+      sql += ", BLUE_LASER_POWER";
+    }
+    sql += ", OPTICAL_SWITCH "
+      ", FILTER "
+      ", LASER_CONTROL_ON " 
+      ", LASER_CONTROL_HOST " 
+      ", LASER_CONTROL_PORT "
+      ", LASER_TAG2 "
+      " , wte_2_led_delay " 
+      " , led1_on "
+      " , led2_on "
+      " , led3_on "
+      " , led4_on "
+      " , VINJ "
+      " , orange_led_mon_ampl" 
+      " , blue_led_mon_ampl "
+      " , trig_log_file "
+      " , led_control_on "
+      " , led_control_host "
+      " , led_control_port "
+      " , ir_laser_power "
+      " , green_laser_power";
+    if (m_isOldDb) {
+      sql += " , red_laser_power ";
+    } else {
+      sql += ", blue2_laser_power";
+    }
+    sql += " , blue_laser_log_attenuator "
+      " , IR_LASER_LOG_ATTENUATOR "
+      " , GREEN_LASER_LOG_ATTENUATOR"  ;
+    if (m_isOldDb) {
+      sql += " , RED_LASER_LOG_ATTENUATOR ";
+    } else {
+      sql += " , BLUE2_LASER_LOG_ATTENUATOR"  ;
+    }
+    sql += " , LASER_CONFIG_FILE ";
+    if (!m_isOldDb) {
+      sql += ", IR_LASER_POSTTRIG"
+	", BLUE2_LASER_POSTTRIG"
+	", GREEN_LASER_POSTTRIG"
+	", IR_LASER_PHASE"
+	", BLUE2_LASER_PHASE"
+	", GREEN_LASER_PHASE"
+	", WTE_2_LED_SOAK_DELAY"
+	", LED_POSTSCALE"
+	", WTE_2_IR_LASER"
+	", WTE_2_BLUE2_LASER"
+	", WTE_2_GREEN_LASER"
+	", laser_configuration) VALUES (";
+      sql += values(69) + ")";
+    } else {
+      sql += ", laser_configuration) VALUES ("; 
+      sql += values(58) + ")";
+    }
+    m_writeStmt->setSQL(sql);  
     m_writeStmt->setInt(1, next_id);
     m_ID=next_id;
+    if (m_debug) {
+      std::cout << "Executing query: " << std::endl << sql << std::endl;
+    }
   } catch (SQLException &e) {
     throw(std::runtime_error("ODLaserConfig::prepareWrite():  "+e.getMessage()));
   }
 }
 
-
-
 void ODLaserConfig::writeDB()
   throw(std::runtime_error)
 {
   this->checkConnection();
+  setDB();
   this->checkPrepare();
 
   try {
     
     // 1 is the id 2 is the tag
-    m_writeStmt->setString(2, this->getConfigTag());
-
-    m_writeStmt->setInt(   3, this->getDebug());
-    m_writeStmt->setInt(   4, this->getDummy());
-    m_writeStmt->setInt(   5, this->getMatacqBaseAddress());
-    m_writeStmt->setInt(   6, this->getMatacqNone());
-    m_writeStmt->setString(7, this->getMatacqMode());
-    m_writeStmt->setInt(   8, this->getChannelMask());
-    m_writeStmt->setString(9, this->getMaxSamplesForDaq());
-    m_writeStmt->setInt(  10, this->getMatacqFedId());
-    m_writeStmt->setString(11, this->getPedestalFile());
-    m_writeStmt->setInt(  12, this->getUseBuffer());
-    m_writeStmt->setInt(  13, this->getPostTrig());
-    m_writeStmt->setInt(  14, this->getFPMode());
-    m_writeStmt->setString(15,  this->getHalModuleFile() );
-    m_writeStmt->setString(16, this->getHalAddressTableFile() );
-    m_writeStmt->setString(17, this->getHalStaticTableFile() );
-    m_writeStmt->setString(18, this->getMatacqSerialNumber() );
-    m_writeStmt->setInt(   19, this->getPedestalRunEventCount() );
-    m_writeStmt->setInt(   20, this->getRawDataMode());
-    m_writeStmt->setString(21, this->getMatacqAcquisitionMode());
-    m_writeStmt->setString(22, this->getLocalOutputFile());
-    m_writeStmt->setInt(   23, this->getEMTCNone());
-    m_writeStmt->setInt(   24, this->getWTE2LaserDelay());
-    m_writeStmt->setInt(   25, this->getLaserPhase());
-    m_writeStmt->setInt(   26, this->getEMTCTTCIn());
-    m_writeStmt->setInt(   27, this->getEMTCSlotId());
+    int ifield = 2;
+    m_writeStmt->setString(ifield++, this->getConfigTag());
+    m_writeStmt->setInt(   ifield++, this->getDebug());
+    m_writeStmt->setInt(   ifield++, this->getDummy());
+    m_writeStmt->setInt(   ifield++, this->getMatacqBaseAddress());
+    m_writeStmt->setInt(   ifield++, this->getMatacqNone());
+    m_writeStmt->setString(ifield++, this->getMatacqMode());
+    m_writeStmt->setInt(   ifield++, this->getChannelMask());
+    m_writeStmt->setString(ifield++, this->getMaxSamplesForDaq());
+    m_writeStmt->setInt(   ifield++, this->getMatacqFedId());
+    m_writeStmt->setString(ifield++, this->getPedestalFile());
+    m_writeStmt->setInt(   ifield++, this->getUseBuffer());
+    if (!m_isOldDb) {
+      m_writeStmt->setInt(   ifield++, this->getBlueLaserPostTrig());
+    } else {
+      m_writeStmt->setInt(   ifield++, this->getPostTrig());
+    }
+    m_writeStmt->setInt(   ifield++, this->getFPMode());
+    m_writeStmt->setString(ifield++, this->getHalModuleFile() );
+    m_writeStmt->setString(ifield++, this->getHalAddressTableFile() );
+    m_writeStmt->setString(ifield++, this->getHalStaticTableFile() );
+    m_writeStmt->setString(ifield++, this->getMatacqSerialNumber() );
+    m_writeStmt->setInt(   ifield++, this->getPedestalRunEventCount() );
+    m_writeStmt->setInt(   ifield++, this->getRawDataMode());
+    m_writeStmt->setString(ifield++, this->getMatacqAcquisitionMode());
+    m_writeStmt->setString(ifield++, this->getLocalOutputFile());
+    m_writeStmt->setInt(   ifield++, this->getMatacqVernierMin());
+    m_writeStmt->setInt(   ifield++, this->getMatacqVernierMax());
+    m_writeStmt->setInt(   ifield++, this->getEMTCNone());
+    if (!m_isOldDb) {
+      m_writeStmt->setInt(   ifield++, this->getWTE2BlueLaser());
+      m_writeStmt->setInt(   ifield++, this->getBlueLaserPhase());
+    } else {
+      m_writeStmt->setInt(   ifield++, this->getWTE2LaserDelay());
+      m_writeStmt->setInt(   ifield++, this->getLaserPhase());
+    }
+    m_writeStmt->setInt(   ifield++, this->getEMTCTTCIn());
+    m_writeStmt->setInt(   ifield++, this->getEMTCSlotId());
     // laser
-    m_writeStmt->setInt(28, this->getWaveLength());
-    m_writeStmt->setInt(29, this->getPower());
-    m_writeStmt->setInt(30, this->getOpticalSwitch());
-    m_writeStmt->setInt(31, this->getFilter());
-    m_writeStmt->setInt(32, this->getLaserControlOn());
-    m_writeStmt->setString(33, this->getLaserControlHost() );
-    m_writeStmt->setInt(   34, this->getLaserControlPort());
-    m_writeStmt->setString(   35, this->getLaserTag());
-
-    m_writeStmt->setInt(   36, this->getMatacqVernierMin());
-    m_writeStmt->setInt(   37, this->getMatacqVernierMax());
-
+    m_writeStmt->setInt(ifield++, this->getWaveLength());
+    if (!m_isOldDb) {
+      m_writeStmt->setInt(ifield++, this->getBlueLaserPower());
+    } else {
+      m_writeStmt->setInt(ifield++, this->getPower());
+    }
+    m_writeStmt->setInt(   ifield++, this->getOpticalSwitch());
+    m_writeStmt->setInt(   ifield++, this->getFilter());
+    m_writeStmt->setInt(   ifield++, this->getLaserControlOn());
+    m_writeStmt->setString(ifield++, this->getLaserControlHost() );
+    m_writeStmt->setInt(   ifield++, this->getLaserControlPort());
+    m_writeStmt->setString(ifield++, this->getLaserTag());
 
     // here goes the led and the new parameters 
-    m_writeStmt->setInt(   38, this->getWTE2LedDelay());
-    m_writeStmt->setInt(   39, this->getLed1ON());
-    m_writeStmt->setInt(   40, this->getLed2ON());
-    m_writeStmt->setInt(   41, this->getLed3ON());
-    m_writeStmt->setInt(   42, this->getLed4ON());
-    m_writeStmt->setInt(   43, this->getVinj());
-    m_writeStmt->setInt(   44, this->getOrangeLedMonAmpl());
-    m_writeStmt->setInt(   45, this->getBlueLedMonAmpl());
-    m_writeStmt->setString(   46, this->getTrigLogFile());
-    m_writeStmt->setInt(   47, this->getLedControlON());
-    m_writeStmt->setString(   48, this->getLedControlHost());
-    m_writeStmt->setInt(   49, this->getLedControlPort());
-    m_writeStmt->setInt(   50, this->getIRLaserPower());
-    m_writeStmt->setInt(   51, this->getGreenLaserPower());
-    m_writeStmt->setInt(   52, this->getRedLaserPower());
-    m_writeStmt->setInt(   53, this->getBlueLaserLogAttenuator());
-    m_writeStmt->setInt(   54, this->getIRLaserLogAttenuator());
-    m_writeStmt->setInt(   55, this->getGreenLaserLogAttenuator());
-    m_writeStmt->setInt(   56, this->getRedLaserLogAttenuator());
-    m_writeStmt->setString(   57, this->getLaserConfigFile());
-
+    m_writeStmt->setInt(   ifield++, this->getWTE2LedDelay());
+    m_writeStmt->setInt(   ifield++, this->getLed1ON());
+    m_writeStmt->setInt(   ifield++, this->getLed2ON());
+    m_writeStmt->setInt(   ifield++, this->getLed3ON());
+    m_writeStmt->setInt(   ifield++, this->getLed4ON());
+    m_writeStmt->setInt(   ifield++, this->getVinj());
+    m_writeStmt->setInt(   ifield++, this->getOrangeLedMonAmpl());
+    m_writeStmt->setInt(   ifield++, this->getBlueLedMonAmpl());
+    m_writeStmt->setString(ifield++, this->getTrigLogFile());
+    m_writeStmt->setInt(   ifield++, this->getLedControlON());
+    m_writeStmt->setString(ifield++, this->getLedControlHost());
+    m_writeStmt->setInt(   ifield++, this->getLedControlPort());
+    m_writeStmt->setInt(   ifield++, this->getIRLaserPower());
+    m_writeStmt->setInt(   ifield++, this->getGreenLaserPower());
+    if (!m_isOldDb) {
+      m_writeStmt->setInt(   ifield++, this->getBlue2LaserPower());
+    } else {
+      m_writeStmt->setInt(   ifield++, this->getRedLaserPower());
+    }
+    m_writeStmt->setInt(   ifield++, this->getBlueLaserLogAttenuator());
+    m_writeStmt->setInt(   ifield++, this->getIRLaserLogAttenuator());
+    m_writeStmt->setInt(   ifield++, this->getGreenLaserLogAttenuator());
+    if (!m_isOldDb) {
+      m_writeStmt->setInt(   ifield++, this->getBlue2LaserLogAttenuator());
+    } else {
+      m_writeStmt->setInt(   ifield++, this->getRedLaserLogAttenuator());
+    }
+    m_writeStmt->setString(   ifield++, this->getLaserConfigFile());
+    // new parameters added in 2012
+    if (!m_isOldDb) {
+      m_writeStmt->setInt(   ifield++, this->getIRLaserPostTrig());
+      m_writeStmt->setInt(   ifield++, this->getBlue2LaserPostTrig());
+      m_writeStmt->setInt(   ifield++, this->getGreenLaserPostTrig());
+      m_writeStmt->setInt(   ifield++, this->getIRLaserPhase());
+      m_writeStmt->setInt(   ifield++, this->getIRLaserPhase());
+      m_writeStmt->setInt(   ifield++, this->getBlue2LaserPhase());
+      m_writeStmt->setInt(   ifield++, this->getWTE2LedSoakDelay());
+      m_writeStmt->setInt(   ifield++, this->getLedPostScale());
+      m_writeStmt->setInt(   ifield++, this->getWTE2IRLaser());
+      m_writeStmt->setInt(   ifield++, this->getWTE2Blue2Laser());
+      m_writeStmt->setInt(   ifield++, this->getWTE2GreenLaser());
+    }
     // and now the clob
     oracle::occi::Clob clob(m_conn);
     clob.setEmpty();
-    m_writeStmt->setClob(58,clob);
-    m_writeStmt->executeUpdate ();
-    m_conn->terminateStatement(m_writeStmt);
+    m_writeStmt->setClob(ifield++, clob);
+    m_writeStmt->executeUpdate();
 
     // now we read and update it
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL ("SELECT laser_configuration FROM "+getTable()+" WHERE"
-                         " laser_configuration_id=:1 FOR UPDATE");
+    m_writeStmt->setSQL ("SELECT laser_configuration FROM " + getTable() +
+			 " WHERE"
+			 " laser_configuration_id=:1 FOR UPDATE");
     std::cout<<"updating the laser clob "<<std::endl;
-    
 
     m_writeStmt->setInt(1, m_ID);
     ResultSet* rset = m_writeStmt->executeQuery();
     rset->next ();
     oracle::occi::Clob clob_to_write = rset->getClob (1);
     cout << "Opening the clob in read write mode" << endl;
-
+    
     populateClob (clob_to_write, getLaserConfigFile(), m_size);
     int clobLength=clob_to_write.length ();
     cout << "Length of the clob is: " << clobLength << endl;
     m_writeStmt->executeUpdate();
     m_writeStmt->closeResultSet (rset);
-
-
   } catch (SQLException &e) {
     throw(std::runtime_error("ODLaserConfig::writeDB():  "+e.getMessage()));
   }
@@ -400,97 +534,155 @@ void ODLaserConfig::writeDB()
   if (!this->fetchID()) {
     throw(std::runtime_error("ODLaserConfig::writeDB:  Failed to write"));
   }
-
+  
 }
 
-
+bool ODLaserConfig::setDB() {
+  if (m_debug) {
+    std::cout << "============ checking which DB we are interrogating ====="
+	      << std::endl << std::flush;
+  }
+  if (!m_db_checked) {
+    if (m_debug) {
+      std::cout << "             Not yet checked..." << std::endl << std::flush;
+    }
+    m_isOldDb = false;
+    this->checkConnection();  
+    m_db_checked = true;
+    try {
+      m_readStmt = m_conn->createStatement();
+      m_readStmt->setSQL("SELECT * FROM ECAL_LASER_CONFIGURATION_CP WHERE ROWNUM = 1");
+      ResultSet* rset = m_readStmt->executeQuery();
+      if (rset != NULL) {
+	rset->next(); // just to avoid compilation warnings
+      }
+      if (m_debug) {
+	std::cout << "New DB structure >= 2012" << std::endl;
+      }
+      m_conn->terminateStatement(m_readStmt);
+    }
+    catch (SQLException &e) {
+      // old database - the new table structure is not in place
+      m_isOldDb = true;
+      if (m_debug) {
+	std::cout << "Old DB structure <= 2012" << std::endl;
+      }
+    }
+  }
+  if (m_debug) {
+    std::cout << "============ checked ============================= ====="
+	      << std::endl << std::flush;
+  }
+  return m_isOldDb;
+}
 
 void ODLaserConfig::fetchData(ODLaserConfig * result)
   throw(std::runtime_error)
 {
+  setDB();
   this->checkConnection();
+  createReadStatement();
   result->clear();
   if(result->getId()==0 && (result->getConfigTag()=="") ){
     throw(std::runtime_error("ODLaserConfig::fetchData(): no Id defined for this ODLaserConfig "));
   }
-
+  if (m_debug) {
+    std::cout << "Fetching data..." << std::endl << std::flush;
+  }
   try {
-
-    m_readStmt->setSQL("SELECT * "
-		       "FROM "+getTable()+
-		       " where ( laser_configuration_id = :1  or laser_tag=:2 )" );
+    m_readStmt->setSQL("SELECT *"
+		       " FROM " + getTable() + 
+		       " where (laser_configuration_id=:1 or laser_tag=:2 )" );
     m_readStmt->setInt(1, result->getId());
     m_readStmt->setString(2, result->getConfigTag());
-   ResultSet* rset = m_readStmt->executeQuery();
+    ResultSet* rset = m_readStmt->executeQuery();
 
     rset->next();
 
-    
-    // start from 3 because of select * 
+    int c = 1;
+    result->setId(rset->getInt(c++));
+    result->setConfigTag(rset->getString(c++));
 
-    result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
-
-    result->setDebug(rset->getInt(  3  ));
-    result->setDummy(rset->getInt(  4  ));
-    result->setMatacqBaseAddress(rset->getInt( 5   ));
-    result->setMatacqNone(rset->getInt(  6  ));
-    result->setMatacqMode(rset->getString(7    ));
-    result->setChannelMask(rset->getInt(  8  ));
-    result->setMaxSamplesForDaq(rset->getString( 9   ));
-    result->setMatacqFedId(rset->getInt( 10   ));
-    result->setPedestalFile(rset->getString( 11   ));
-    result->setUseBuffer(rset->getInt(   12 ));
-    result->setPostTrig(rset->getInt(   13 ));
-    result->setFPMode(rset->getInt(   14 ));
-    result->setHalModuleFile(rset->getString( 15   ));
-    result->setHalAddressTableFile(rset->getString( 16   ));
-    result->setHalStaticTableFile(rset->getString(  17  ));
-    result->setMatacqSerialNumber(rset->getString(  18  ));
-    result->setPedestalRunEventCount(rset->getInt(  19  ));
-    result->setRawDataMode(rset->getInt( 20   ));
-    result->setMatacqAcquisitionMode(rset->getString( 21   ));
-    result->setLocalOutputFile(rset->getString(  22  ));
-    result->setEMTCNone(rset->getInt(  23  ));
-    result->setWTE2LaserDelay(rset->getInt( 24   ));
-    result->setLaserPhase(rset->getInt(  25  ));
-    result->setEMTCTTCIn(rset->getInt(  26  ));
-    result->setEMTCSlotId(rset->getInt( 27   ));
+    result->setDebug(rset->getInt(  c++  ));
+    result->setDummy(rset->getInt(  c++  ));
+    result->setMatacqBaseAddress(rset->getInt( c++   ));
+    result->setMatacqNone(rset->getInt(  c++  ));
+    result->setMatacqMode(rset->getString(c++    ));
+    result->setChannelMask(rset->getInt(  c++  ));
+    result->setMaxSamplesForDaq(rset->getString( c++   ));
+    result->setMatacqFedId(rset->getInt( c++   ));
+    result->setPedestalFile(rset->getString( c++   ));
+    result->setUseBuffer(rset->getInt(   c++ ));
+    if (!m_isOldDb) {
+      result->setPostTrig(rset->getInt(   c++ ));
+    } else {
+      result->setBlueLaserPostTrig(rset->getInt(   c++ ));
+    }
+    result->setFPMode(rset->getInt(   c++ ));
+    result->setHalModuleFile(rset->getString( c++   ));
+    result->setHalAddressTableFile(rset->getString( c++   ));
+    result->setHalStaticTableFile(rset->getString(  c++  ));
+    result->setMatacqSerialNumber(rset->getString(  c++  ));
+    result->setPedestalRunEventCount(rset->getInt(  c++  ));
+    result->setRawDataMode(rset->getInt( c++   ));
+    result->setMatacqAcquisitionMode(rset->getString( c++   ));
+    result->setLocalOutputFile(rset->getString(  c++  ));
+    result->setMatacqVernierMin(rset->getInt( c++   ));
+    result->setMatacqVernierMax(rset->getInt( c++   ));
+    result->setEMTCNone(rset->getInt(  c++  ));
+    if (!m_isOldDb) {
+      result->setWTE2LaserDelay(rset->getInt( c++   ));
+      result->setLaserPhase(rset->getInt(  c++  ));
+    } else {
+      result->setWTE2BlueLaser(rset->getInt( c++   ));
+      result->setBlueLaserPhase(rset->getInt(  c++  ));
+    }
+    result->setEMTCTTCIn(rset->getInt(  c++  ));
+    result->setEMTCSlotId(rset->getInt( c++   ));
     // laser
-    result->setWaveLength(rset->getInt( 28   ));
-    result->setPower(rset->getInt(  29  ));
-    result->setOpticalSwitch(rset->getInt( 30   ));
-    result->setFilter(rset->getInt(  31  ));
-    result->setLaserControlOn(rset->getInt( 32   ));
-    result->setLaserControlHost(rset->getString( 33   ));
-    result->setLaserControlPort(rset->getInt( 34   ));
-    result->setLaserTag(rset->getString( 35   ));
+    result->setWaveLength(rset->getInt( c++   ));
+    if (!m_isOldDb) {
+      result->setBlueLaserPower(rset->getInt(  c++  ));
+    } else {
+      result->setPower(rset->getInt(  c++  ));
+    }
+    result->setOpticalSwitch(rset->getInt( c++   ));
+    result->setFilter(rset->getInt(  c++  ));
+    result->setLaserControlOn(rset->getInt( c++   ));
+    result->setLaserControlHost(rset->getString( c++   ));
+    result->setLaserControlPort(rset->getInt( c++   ));
+    result->setLaserTag(rset->getString( c++   ));
   
-    result->setMatacqVernierMin(rset->getInt( 36   ));
-    result->setMatacqVernierMax(rset->getInt( 37   ));
+    result->setWTE2LedDelay(rset->getInt( c++   ));
+    result->setLed1ON(rset->getInt( c++   ));
+    result->setLed2ON(rset->getInt( c++   ));
+    result->setLed3ON(rset->getInt( c++   ));
+    result->setLed4ON(rset->getInt( c++   ));
+    result->setVinj(rset->getInt( c++   ));
+    result->setOrangeLedMonAmpl(rset->getInt( c++   ));
+    result->setBlueLedMonAmpl(rset->getInt( c++   ));
+    result->setTrigLogFile(rset->getString( c++   ));
+    result->setLedControlON(rset->getInt( c++   ));
+    result->setLedControlHost(rset->getString( c++   ));
+    result->setLedControlPort(rset->getInt( c++   ));
+    result->setIRLaserPower(rset->getInt( c++   ));
+    result->setGreenLaserPower(rset->getInt( c++   ));
+    if (!m_isOldDb) {
+      result->setBlue2LaserPower(rset->getInt( c++   ));
+    } else {
+      result->setRedLaserPower(rset->getInt( c++   ));
+    }
+    result->setBlueLaserLogAttenuator(rset->getInt( c++   ));
+    result->setIRLaserLogAttenuator(rset->getInt( c++   ));
+    result->setGreenLaserLogAttenuator(rset->getInt( c++   ));
+    if (!m_isOldDb) {
+      result->setBlue2LaserLogAttenuator(rset->getInt( c++   ));
+    } else {
+      result->setRedLaserLogAttenuator(rset->getInt( c++   ));
+    }
+    result->setLaserConfigFile(rset->getString( c++   ));
 
-    result->setWTE2LedDelay(rset->getInt( 38   ));
-    result->setLed1ON(rset->getInt( 39   ));
-    result->setLed2ON(rset->getInt( 40   ));
-    result->setLed3ON(rset->getInt( 41   ));
-    result->setLed4ON(rset->getInt( 42   ));
-    result->setVinj(rset->getInt( 43   ));
-    result->setOrangeLedMonAmpl(rset->getInt( 44   ));
-    result->setBlueLedMonAmpl(rset->getInt( 45   ));
-    result->setTrigLogFile(rset->getString( 46   ));
-    result->setLedControlON(rset->getInt( 47   ));
-    result->setLedControlHost(rset->getString( 48   ));
-    result->setLedControlPort(rset->getInt( 49   ));
-    result->setIRLaserPower(rset->getInt( 50   ));
-    result->setGreenLaserPower(rset->getInt( 51   ));
-    result->setRedLaserPower(rset->getInt( 52   ));
-    result->setBlueLaserLogAttenuator(rset->getInt( 53   ));
-    result->setIRLaserLogAttenuator(rset->getInt( 54   ));
-    result->setGreenLaserLogAttenuator(rset->getInt( 55   ));
-    result->setRedLaserLogAttenuator(rset->getInt( 56   ));
-    result->setLaserConfigFile(rset->getString( 57   ));
-
-    Clob clob = rset->getClob (58);
+    Clob clob = rset->getClob (c++);
     cout << "Opening the clob in Read only mode" << endl;
     clob.open (OCCI_LOB_READONLY);
     int clobLength=clob.length ();
@@ -498,14 +690,28 @@ void ODLaserConfig::fetchData(ODLaserConfig * result)
     m_size=clobLength;
     unsigned char* buffer = readClob (clob, m_size);
     clob.close ();
-    cout<< "the clob buffer is:"<<endl;
-    for (int i = 0; i < clobLength; ++i)
-      cout << (char) buffer[i];
-    cout << endl;
-
-    result->setLaserClob(buffer);
-
-
+    if (m_debug) {
+      cout<< "the clob buffer is:"<<endl;
+      for (int i = 0; i < clobLength; ++i) {
+	cout << (char) buffer[i];
+      }
+      cout << endl;
+    } 
+    result->setLaserClob(buffer, clobLength);
+    // parameters added in 2012
+    if (!m_isOldDb) {
+      result->setIRLaserPostTrig(rset->getInt( c++   ));
+      result->setBlue2LaserPostTrig(rset->getInt( c++   ));
+      result->setGreenLaserPostTrig(rset->getInt( c++   ));
+      result->setIRLaserPhase(rset->getInt( c++   ));
+      result->setBlue2LaserPhase(rset->getInt( c++   ));
+      result->setGreenLaserPhase(rset->getInt( c++   ));
+      result->setWTE2LedSoakDelay(rset->getInt( c++   ));
+      result->setLedPostScale(rset->getInt( c++   ));
+      result->setWTE2IRLaser(rset->getInt( c++   ));
+      result->setWTE2Blue2Laser(rset->getInt( c++   ));
+      result->setWTE2GreenLaser(rset->getInt( c++   ));
+    }
   } catch (SQLException &e) {
     throw(std::runtime_error("ODLaserConfig::fetchData():  "+e.getMessage()));
   }
@@ -519,11 +725,11 @@ int ODLaserConfig::fetchID()    throw(std::runtime_error)
   }
 
   this->checkConnection();
-
+  setDB();
   try {
     Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT laser_configuration_id FROM ecal_laser_configuration "
-                 "WHERE laser_tag=:laser_tag ");
+    stmt->setSQL("SELECT laser_configuration_id FROM " + getTable() + 
+                 " WHERE laser_tag=:laser_tag ");
     stmt->setString(1, getLaserTag());
 
     ResultSet* rset = stmt->executeQuery();

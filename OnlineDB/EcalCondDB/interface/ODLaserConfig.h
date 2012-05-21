@@ -19,15 +19,18 @@ class ODLaserConfig : public IODConfig {
   ~ODLaserConfig();
 
   // User data methods
-  inline std::string getTable() { return "ECAL_Laser_CONFIGURATION"; }
+  inline std::string getTable() { 
+    return "ECAL_LASER_CONFIGURATION";
+  }
 
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
   inline void setSize(unsigned int id) { m_size = id; }
   inline unsigned int getSize() const { return m_size; }
 
-
-  inline void setDebug(int x) { m_debug = x; }
+  inline void setDebug() { setDebug(1); }
+  inline void setDebug(int x) { m_debug = x; IODConfig::setDebug(); }
+  inline void noDebug() { m_debug = 0; }
   inline int getDebug() const { return m_debug; }
   inline void setDummy(int x) { m_dummy = x; }
   inline int getDummy() const { return m_dummy; }
@@ -48,8 +51,28 @@ class ODLaserConfig : public IODConfig {
   inline std::string getPedestalFile() const { return m_ped_file; }
   inline void setUseBuffer(int x) { m_use_buffer = x; }
   inline int getUseBuffer() const { return m_use_buffer; }
-  inline void setPostTrig(int x) { m_post_trig = x; }
+  inline void setPostTrig(int x) { 
+    m_post_trig = x; 
+    if (x != getBlueLaserPostTrig()) {
+      setBlueLaserPostTrig(x);
+    }
+  }
   inline int getPostTrig() const { return m_post_trig; }
+  // new in 2012
+  inline void setBlueLaserPostTrig(int x) { 
+    m_blue_laser_post_trig = x; 
+    if (x != getPostTrig()) {
+      setPostTrig(x);
+    }
+  }
+  inline int getBlueLaserPostTrig() const { return m_blue_laser_post_trig; }
+  inline void setBlue2LaserPostTrig(int x) { m_blue2_laser_post_trig = x; }
+  inline int getBlue2LaserPostTrig() const { return m_blue2_laser_post_trig; }
+  inline void setIRLaserPostTrig(int x) { m_ir_laser_post_trig = x; }
+  inline int getIRLaserPostTrig() const { return m_ir_laser_post_trig; }
+  inline void setGreenLaserPostTrig(int x) { m_green_laser_post_trig = x; }
+  inline int getGreenLaserPostTrig() const { return m_green_laser_post_trig; }
+  //
   inline void setFPMode(int x) { m_fp_mode = x; }
   inline int getFPMode() const { return m_fp_mode; }
   inline void setHalModuleFile(std::string x) { m_hal_mod_file = x; }
@@ -83,10 +106,50 @@ class ODLaserConfig : public IODConfig {
   // emtc  
   inline void setEMTCNone(int x) { m_emtc_1 = x; }
   inline int getEMTCNone() const { return m_emtc_1; }
-  inline void setWTE2LaserDelay(int x) { m_emtc_2 = x; }
+  inline void setWTE2LaserDelay(int x) { 
+    m_emtc_2 = x; 
+    if (x != getWTE2BlueLaser()) {
+      setWTE2BlueLaser(x);
+    }
+  }
   inline int getWTE2LaserDelay() const { return m_emtc_2; }
-  inline void setLaserPhase(int x) { m_emtc_3 = x; }
+  // new in 2012
+  inline void setWTE2IRLaser(int x) { m_wte2_ir_laser = x; }
+  inline int getWTE2IRLaser() const { return m_wte2_ir_laser; }
+  inline void setWTE2BlueLaser(int x) { 
+    m_wte2_blue_laser = x; 
+    if (x != getWTE2LaserDelay()) {
+      setWTE2LaserDelay(x);
+    }
+  }
+  inline int getWTE2BlueLaser() const { return m_wte2_blue_laser; }
+  inline void setWTE2Blue2Laser(int x) { m_wte2_blue2_laser = x; }
+  inline int getWTE2Blue2Laser() const { return m_wte2_blue2_laser; }
+  inline void setWTE2GreenLaser(int x) { m_wte2_green_laser = x; }
+  inline int getWTE2GreenLaser() const { return m_wte2_green_laser; }
+  //
+  inline void setLaserPhase(int x) { 
+    m_emtc_3 = x; 
+    if (x != getBlueLaserPhase()) {
+      setBlueLaserPhase(x);
+    }
+  }
   inline int getLaserPhase() const { return m_emtc_3; }
+  // new in 2012
+  inline void setBlueLaserPhase(int x) { 
+    m_blue_laser_phase = x; 
+    if (x != getLaserPhase()) {
+      setLaserPhase(x);
+    }
+  }
+  inline int getBlueLaserPhase() const { return m_blue_laser_phase; }
+  inline void setBlue2LaserPhase(int x) { m_blue2_laser_phase = x; }
+  inline int getBlue2LaserPhase() const { return m_blue2_laser_phase; }
+  inline void setIRLaserPhase(int x) { m_ir_laser_phase = x; }
+  inline int getIRLaserPhase() const { return m_ir_laser_phase; }
+  inline void setGreenLaserPhase(int x) { m_green_laser_phase = x; }
+  inline int getLGreenLaserPhase() const { return m_green_laser_phase; }
+  //
   inline void setEMTCTTCIn(int x) { m_emtc_4 = x; }
   inline int getEMTCTTCIn() const { return m_emtc_4; }
   inline void setEMTCSlotId(int x) { m_emtc_5 = x; }
@@ -101,7 +164,10 @@ class ODLaserConfig : public IODConfig {
 
   inline void setPower(int x) { m_power = x; }
   inline int getPower() const { return m_power; }
-
+  // new in 2012
+  inline void setBlueLaserPower(int x) { m_blue_laser_power = x; }
+  inline int getBlueLaserPower() const { return m_blue_laser_power; }
+  //
   inline void setOpticalSwitch(int x) { m_switch = x; }
   inline int getOpticalSwitch() const { return m_switch; }
 
@@ -129,6 +195,12 @@ class ODLaserConfig : public IODConfig {
   inline void setWTE2LedDelay(int x) { m_wte_2_led_delay = x; }
   inline int getWTE2LedDelay() const { return m_wte_2_led_delay; }
 
+  // new in 2012
+  inline void setWTE2LedSoakDelay(int x) { m_wte_2_led_soak_delay = x; }
+  inline int getWTE2LedSoakDelay() { return m_wte_2_led_soak_delay; }
+  inline void setLedPostScale(int x) { m_led_postscale = x; };
+  inline int getLedPostScale() { return m_led_postscale; };
+  //
   inline void setLed1ON(int x) { m_led1_on = x; }
   inline int getLed1ON() const { return m_led1_on; }
 
@@ -168,9 +240,22 @@ class ODLaserConfig : public IODConfig {
   inline void setGreenLaserPower(int x) { m_green_laser_power = x; }
   inline int getGreenLaserPower() const { return m_green_laser_power; }
 
-  inline void setRedLaserPower(int x) { m_red_laser_power = x; }
+  inline void setRedLaserPower(int x) { 
+    m_red_laser_power = x; 
+    if (x != getBlue2LaserPower()) {
+      setBlue2LaserPower(x);
+    }
+  }
   inline int getRedLaserPower() const { return m_red_laser_power; }
-
+  // new in 2012
+  inline void setBlue2LaserPower(int x) { 
+    m_blue2_laser_power = x; 
+    if (x != getRedLaserPower()) {
+      setRedLaserPower(x);
+    }
+  }
+  inline int getBlue2LaserPower() const { return m_blue2_laser_power; }
+  //
   inline void setBlueLaserLogAttenuator(int x) { m_blue_laser_log_attenuator = x; }
   inline int getBlueLaserLogAttenuator() const { return m_blue_laser_log_attenuator; }
 
@@ -180,93 +265,109 @@ class ODLaserConfig : public IODConfig {
   inline void setGreenLaserLogAttenuator(int x) { m_green_laser_log_attenuator = x; }
   inline int getGreenLaserLogAttenuator() const { return m_green_laser_log_attenuator; }
 
-  inline void setRedLaserLogAttenuator(int x) { m_red_laser_log_attenuator = x; }
+  inline void setRedLaserLogAttenuator(int x) { 
+    m_red_laser_log_attenuator = x; 
+    if (x != getBlue2LaserLogAttenuator()) {
+      setBlue2LaserLogAttenuator(x);
+    }
+  }
   inline int getRedLaserLogAttenuator() const { return m_red_laser_log_attenuator; }
-
+  // new in 2012
+  inline void setBlue2LaserLogAttenuator(int x) { 
+    m_blue2_laser_log_attenuator = x; 
+    if (x != getRedLaserLogAttenuator()) {
+      setRedLaserLogAttenuator(x);
+    }
+  }
+  inline int getBlue2LaserLogAttenuator() const { return m_blue2_laser_log_attenuator; }
+  //
   inline void setLaserConfigFile(std::string x) { m_laser_config_file = x; }
   inline std::string getLaserConfigFile() const { return m_laser_config_file ; }
 
-  inline void setLaserClob(unsigned char* x) { m_laser_clob = x; }
-  inline unsigned char* getLaserClob() const { return m_laser_clob; }
+  void setLaserClob(unsigned char *x, int size);
+  inline std::vector<unsigned char> getLaserClob() const { return m_laser_clob; }
+  std::string getLaserClobAsString() const;
 
   inline void printout() { 
 
-    std::cout <<"Laser >>" <<"Size() 				" << getSize() <<std::endl; 				
-    std::cout <<"Laser >>" <<"Debug()				" << getDebug() <<std::endl;				
-    std::cout <<"Laser >>" <<"Dummy()				" << getDummy() <<std::endl;				
-    std::cout <<"Laser >>" <<"MatacqBaseAddress()		" << getMatacqBaseAddress() <<std::endl;		
-    std::cout <<"Laser >>" <<"MatacqNone() 			" << getMatacqNone() <<std::endl; 			
-    std::cout <<"Laser >>" <<"MatacqMode() 			" << getMatacqMode() <<std::endl; 			
-    std::cout <<"Laser >>" <<"ChannelMask()			" << getChannelMask() <<std::endl;			
-    std::cout <<"Laser >>" <<"MaxSamplesForDaq()		" << getMaxSamplesForDaq() <<std::endl;		
-    std::cout <<"Laser >>" <<"MatacqFedId() 			" << getMatacqFedId() <<std::endl; 			
-    std::cout <<"Laser >>" <<"PedestalFile()			" << getPedestalFile() <<std::endl;			
-    std::cout <<"Laser >>" <<"UseBuffer() 			" << getUseBuffer() <<std::endl; 			
-    std::cout <<"Laser >>" <<"PostTrig() 			" << getPostTrig() <<std::endl; 			
-    std::cout <<"Laser >>" <<"FPMode() 			" << getFPMode() <<std::endl; 			
-    std::cout <<"Laser >>" <<"HalModuleFile() 		" << getHalModuleFile() <<std::endl; 		
-    std::cout <<"Laser >>" <<"MatacqVernierMax() 		" << getMatacqVernierMax() <<std::endl; 		
-    std::cout <<"Laser >>" <<"MatacqVernierMin() 		" << getMatacqVernierMin() <<std::endl; 		
-    std::cout <<"Laser >>" <<"Size() 				" << getSize() <<std::endl; 				
-    std::cout <<"Laser >>" <<"Debug()				" << getDebug() <<std::endl;				
-    std::cout <<"Laser >>" <<"Dummy()				" << getDummy() <<std::endl;				
-    std::cout <<"Laser >>" <<"MatacqBaseAddress() 		" << getMatacqBaseAddress() <<std::endl; 		
-    std::cout <<"Laser >>" <<"MatacqNone() 			" << getMatacqNone() <<std::endl; 			
-    std::cout <<"Laser >>" <<"MatacqMode() 			" << getMatacqMode() <<std::endl; 			
-    std::cout <<"Laser >>" <<"ChannelMask()			" << getChannelMask() <<std::endl;			
-    std::cout <<"Laser >>" <<"MaxSamplesForDaq() 		" << getMaxSamplesForDaq() <<std::endl; 		
-    std::cout <<"Laser >>" <<"MatacqFedId() 			" << getMatacqFedId() <<std::endl; 			
-    std::cout <<"Laser >>" <<"PedestalFile()			" << getPedestalFile() <<std::endl;			
-    std::cout <<"Laser >>" <<"UseBuffer() 			" << getUseBuffer() <<std::endl; 			
-    std::cout <<"Laser >>" <<"PostTrig() 			" << getPostTrig() <<std::endl; 			
-    std::cout <<"Laser >>" <<"FPMode() 			" << getFPMode() <<std::endl; 			
-    std::cout <<"Laser >>" <<"HalModuleFile() 		" << getHalModuleFile() <<std::endl; 		
-    std::cout <<"Laser >>" <<"MatacqVernierMax() 		" << getMatacqVernierMax() <<std::endl; 		
-    std::cout <<"Laser >>" <<"MatacqVernierMin() 		" << getMatacqVernierMin() <<std::endl; 		
-    std::cout <<"Laser >>" <<"HalAddressTableFile() 		" << getHalAddressTableFile() <<std::endl; 		
-    std::cout <<"Laser >>" <<"HalStaticTableFile()		" << getHalStaticTableFile() <<std::endl;		
-    std::cout <<"Laser >>" <<"MatacqSerialNumber() 		" << getMatacqSerialNumber() <<std::endl; 		
-    std::cout <<"Laser >>" <<"PedestalRunEventCount() 	" << getPedestalRunEventCount() <<std::endl; 	
-    std::cout <<"Laser >>" <<"RawDataMode() 			" << getRawDataMode() <<std::endl; 			
-    std::cout <<"Laser >>" <<"MatacqAcquisitionMode() 	" << getMatacqAcquisitionMode() <<std::endl; 	
-    std::cout <<"Laser >>" <<"LocalOutputFile() 		" << getLocalOutputFile() <<std::endl; 		
-    std::cout <<"Laser >>" <<"EMTCNone() 			" << getEMTCNone() <<std::endl; 			
-    std::cout <<"Laser >>" <<"WTE2LaserDelay() 		" << getWTE2LaserDelay() <<std::endl; 		
-    std::cout <<"Laser >>" <<"LaserPhase() 			" << getLaserPhase() <<std::endl; 			
-    std::cout <<"Laser >>" <<"EMTCTTCIn() 			" << getEMTCTTCIn() <<std::endl; 			
-    std::cout <<"Laser >>" <<"EMTCSlotId() 			" << getEMTCSlotId() <<std::endl; 			
-    std::cout <<"Laser >>" <<"WaveLength() 			" << getWaveLength() <<std::endl; 			
-    std::cout <<"Laser >>" <<"Power() 			" << getPower() <<std::endl; 			
-    std::cout <<"Laser >>" <<"OpticalSwitch() 		" << getOpticalSwitch() <<std::endl; 		
-    std::cout <<"Laser >>" <<"Filter() 			" << getFilter() <<std::endl; 			
-    std::cout <<"Laser >>" <<"LaserControlOn() 		" << getLaserControlOn() <<std::endl; 		
-    std::cout <<"Laser >>" <<"LaserControlHost() 		" << getLaserControlHost() <<std::endl; 		
-    std::cout <<"Laser >>" <<"LaserControlPort() 		" << getLaserControlPort() <<std::endl; 		
-    std::cout <<"Laser >>" <<"LaserTag() 			" << getLaserTag() <<std::endl; 			
-    std::cout <<"Laser >>" <<"WTE2LedDelay() 			" << getWTE2LedDelay() <<std::endl; 			
-    std::cout <<"Laser >>" <<"Led1ON() 			" << getLed1ON() <<std::endl; 			
-    std::cout <<"Laser >>" <<"Led2ON() 			" << getLed2ON() <<std::endl; 			
-    std::cout <<"Laser >>" <<"Led3ON() 			" << getLed3ON() <<std::endl; 			
-    std::cout <<"Laser >>" <<"Led4ON() 			" << getLed4ON() <<std::endl; 			
-    std::cout <<"Laser >>" <<"Vinj() 				" << getVinj() <<std::endl; 				
-    std::cout <<"Laser >>" <<"OrangeLedMonAmpl()  		" << getOrangeLedMonAmpl()<<std::endl; 		
-    std::cout <<"Laser >>" <<"BlueLedMonAmpl()  		" << getBlueLedMonAmpl() 	<<std::endl;	
-    std::cout <<"Laser >>" <<"TrigLogFile()  			" << getTrigLogFile() 			<<std::endl;
-    std::cout <<"Laser >>" <<"LedControlON()  			" << getLedControlON() 			<<std::endl;
-    std::cout <<"Laser >>" <<"LedControlHost()  		" << getLedControlHost() 		<<std::endl;
-    std::cout <<"Laser >>" <<"LedControlPort()  		" << getLedControlPort() 		<<std::endl;
-    std::cout <<"Laser >>" <<"IRLaserPower()  			" << getIRLaserPower() 			<<std::endl;
-    std::cout <<"Laser >>" <<"GreenLaserPower()  		" << getGreenLaserPower() 		<<std::endl;
-    std::cout <<"Laser >>" <<"RedLaserPower()  	 	" << getRedLaserPower() 		<<std::endl;
-    std::cout <<"Laser >>" <<"BlueLaserLogAttenuator()  	" << getBlueLaserLogAttenuator() <<std::endl;	
-    std::cout <<"Laser >>" <<"IRLaserLogAttenuator()  		" << getIRLaserLogAttenuator() 		<<std::endl;
-    std::cout <<"Laser >>" <<"GreenLaserLogAttenuator()  	" << getGreenLaserLogAttenuator() <<std::endl; 	
-    std::cout <<"Laser >>" <<"RedLaserLogAttenuator() 	" << getRedLaserLogAttenuator() <<std::endl; 	
-    std::cout <<"Laser >>" <<"LaserConfigFile()               " << getLaserConfigFile() <<std::endl;               
-
-
-
-    
+    std::cout <<"Laser >>" <<"Size()                        " << getSize() <<std::endl << std::endl;
+    std::cout <<"Laser >>" <<"Id()                          " << getId() <<std::endl;
+    std::cout <<"Laser >>" <<"Tag()                         " << getConfigTag() <<std::endl;
+    std::cout <<"Laser >>" <<"Debug()                       " << getDebug() <<std::endl;
+    std::cout <<"Laser >>" <<"Dummy()                       " << getDummy() <<std::endl;
+    std::cout <<"Laser >>" <<"MatacqBaseAddress()           " << getMatacqBaseAddress() <<std::endl;
+    std::cout <<"Laser >>" <<"MatacqNone()                  " << getMatacqNone() <<std::endl;
+    std::cout <<"Laser >>" <<"MatacqMode()                  " << getMatacqMode() <<std::endl; 
+    std::cout <<"Laser >>" <<"ChannelMask()                 " << getChannelMask() <<std::endl;
+    std::cout <<"Laser >>" <<"MaxSamplesForDaq()            " << getMaxSamplesForDaq() <<std::endl;
+    std::cout <<"Laser >>" <<"MatacqFedId()                 " << getMatacqFedId() <<std::endl;    
+    std::cout <<"Laser >>" <<"PedestalFile()                " << getPedestalFile() <<std::endl;
+    std::cout <<"Laser >>" <<"UseBuffer()                   " << getUseBuffer() <<std::endl;
+    std::cout <<"Laser >>" <<"[x] PostTrig()                " << getPostTrig() <<std::endl;
+    std::cout <<"Laser >>" <<"[x] BlueLaserPostTrig()       " << getBlueLaserPostTrig() << std::endl;
+    std::cout <<"Laser >>" <<"FPMode()                      " << getFPMode() <<std::endl;
+    std::cout <<"Laser >>" <<"HalModuleFile()               " << getHalModuleFile() <<std::endl;
+    std::cout <<"Laser >>" <<"HalAddressTableFile()         " << getHalAddressTableFile() <<std::endl;
+    std::cout <<"Laser >>" <<"HalStaticTableFile()          " << getHalStaticTableFile() <<std::endl;
+    std::cout <<"Laser >>" <<"MatacqSerialNumber()          " << getMatacqSerialNumber() <<std::endl; 
+    std::cout <<"Laser >>" <<"PedestalRunEventCount()       " 
+	      << getPedestalRunEventCount() <<std::endl;     
+    std::cout <<"Laser >>" <<"RawDataMode()                 " << getRawDataMode() <<std::endl; 
+    std::cout <<"Laser >>" <<"MatacqAcquisitionMode()       " 
+	      << getMatacqAcquisitionMode() <<std::endl;     
+    std::cout <<"Laser >>" <<"LocalOutputFile()             " << getLocalOutputFile() <<std::endl;     
+    std::cout <<"Laser >>" <<"MatacqVernierMin()            " << getMatacqVernierMin() <<std::endl;  
+    std::cout <<"Laser >>" <<"MatacqVernierMax()            " << getMatacqVernierMax() <<std::endl;    
+    std::cout <<"Laser >>" <<"EMTCNone()                    " << getEMTCNone() <<std::endl; 
+    std::cout <<"Laser >>" <<"[x] WTE2LaserDelay()          " << getWTE2LaserDelay() <<std::endl; 
+    std::cout <<"Laser >>" <<"[x] WTE2BlueLaserDelay()      " << getWTE2BlueLaser() <<std::endl; 
+    std::cout <<"Laser >>" <<"[n] WTE2IRLaserDelay()        " << getWTE2IRLaser() <<std::endl; 
+    std::cout <<"Laser >>" <<"[n] WTE2Blue2LaserDelay()     " << getWTE2Blue2Laser() <<std::endl; 
+    std::cout <<"Laser >>" <<"[n] WTE2GreenLaserDelay()     " << getWTE2GreenLaser() <<std::endl; 
+    std::cout <<"Laser >>" <<"[x] LaserPhase()              " << getLaserPhase() <<std::endl;      
+    std::cout <<"Laser >>" <<"[x] BlueLaserPhase()          " << getBlueLaserPhase() <<std::endl;      
+    std::cout <<"Laser >>" <<"[n] IRLaserPhase()            " << getIRLaserPhase() <<std::endl;      
+    std::cout <<"Laser >>" <<"[n] Blue2LaserPhase()         " << getBlue2LaserPhase() <<std::endl; 
+    std::cout <<"Laser >>" <<"EMTCTTCIn()                   " << getEMTCTTCIn() <<std::endl;  
+    std::cout <<"Laser >>" <<"EMTCSlotId()                  " << getEMTCSlotId() <<std::endl; 
+    std::cout <<"Laser >>" <<"WaveLength()                  " << getWaveLength() <<std::endl; 
+    std::cout <<"Laser >>" <<"Power()                       " << getPower() <<std::endl;       
+    std::cout <<"Laser >>" <<"[n] BlueLaserPower()          " << getBlueLaserPower() <<std::endl;       
+    std::cout <<"Laser >>" <<"OpticalSwitch()               " << getOpticalSwitch() <<std::endl;  
+    std::cout <<"Laser >>" <<"Filter()                      " << getFilter() <<std::endl;       
+    std::cout <<"Laser >>" <<"LaserControlOn()              " << getLaserControlOn() <<std::endl; 
+    std::cout <<"Laser >>" <<"LaserControlHost()            " << getLaserControlHost() <<std::endl; 
+    std::cout <<"Laser >>" <<"LaserControlPort()            " << getLaserControlPort() <<std::endl; 
+    std::cout <<"Laser >>" <<"LaserTag()                    " << getLaserTag() <<std::endl;  
+    std::cout <<"Laser >>" <<"WTE2LedDelay()                " << getWTE2LedDelay() <<std::endl; 
+    std::cout <<"Laser >>" <<"[n] WTE2LedSoakDelay()        " << getWTE2LedSoakDelay() <<std::endl; 
+    std::cout <<"Laser >>" <<"[n] LedPostScale()            " << getLedPostScale() <<std::endl; 
+    std::cout <<"Laser >>" <<"Led1ON()                      " << getLed1ON() <<std::endl;        
+    std::cout <<"Laser >>" <<"Led2ON()                      " << getLed2ON() <<std::endl;
+    std::cout <<"Laser >>" <<"Led3ON()                      " << getLed3ON() <<std::endl; 
+    std::cout <<"Laser >>" <<"Led4ON()                      " << getLed4ON() <<std::endl;  
+    std::cout <<"Laser >>" <<"Vinj()                        " << getVinj() <<std::endl; 
+    std::cout <<"Laser >>" <<"OrangeLedMonAmpl()            " << getOrangeLedMonAmpl() <<std::endl; 
+    std::cout <<"Laser >>" <<"BlueLedMonAmpl()              " << getBlueLedMonAmpl() <<std::endl;    
+    std::cout <<"Laser >>" <<"TrigLogFile()                 " << getTrigLogFile() <<std::endl;
+    std::cout <<"Laser >>" <<"LedControlON()                " << getLedControlON() <<std::endl;
+    std::cout <<"Laser >>" <<"LedControlHost()              " << getLedControlHost() <<std::endl;
+    std::cout <<"Laser >>" <<"LedControlPort()              " << getLedControlPort() <<std::endl;
+    std::cout <<"Laser >>" <<"IRLaserPower()                " << getIRLaserPower() <<std::endl;
+    std::cout <<"Laser >>" <<"GreenLaserPower()             " << getGreenLaserPower() <<std::endl;
+    std::cout <<"Laser >>" <<"[x] RedLaserPower()           " << getRedLaserPower() <<std::endl;
+    std::cout <<"Laser >>" <<"[x] Blue2LaserPower()         " << getBlue2LaserPower() <<std::endl;
+    std::cout <<"Laser >>" <<"BlueLaserLogAttenuator()      " << getBlueLaserLogAttenuator() 
+	      <<std::endl;    
+    std::cout <<"Laser >>" <<"IRLaserLogAttenuator()        " << getIRLaserLogAttenuator() <<std::endl;
+    std::cout <<"Laser >>" <<"GreenLaserLogAttenuator()     " << getGreenLaserLogAttenuator() 
+	      <<std::endl;     
+    std::cout <<"Laser >>" <<"[x] RedLaserLogAttenuator()   " << getRedLaserLogAttenuator() 
+	      <<std::endl;     
+    std::cout <<"Laser >>" <<"[x] Blue2LaserLogAttenuator() " << getBlue2LaserLogAttenuator() 
+	      <<std::endl;     
+    std::cout <<"Laser >>" <<"LaserConfigFile()             " << getLaserConfigFile() <<std::endl; 
+    std::cout <<"Laser >>" <<"LaserClob()                   " << getLaserClobAsString() <<std::endl;
   }
 
   void setParameters(std::map<std::string,std::string> my_keys_map);
@@ -274,12 +375,17 @@ class ODLaserConfig : public IODConfig {
   int fetchNextId() throw(std::runtime_error);
   
  private:
+  std::string values(int i);
+  bool setDB(); // determines if we are reading a pre-2012 db
   void prepareWrite()  throw(std::runtime_error);
   void writeDB()       throw(std::runtime_error);
   void clear();
   void fetchData(ODLaserConfig * result)     throw(std::runtime_error);
   int fetchID()  throw(std::runtime_error);
 
+  // internal data
+  bool m_isOldDb;
+  bool m_db_checked;
 
   // User data
   int m_ID;
@@ -296,6 +402,12 @@ class ODLaserConfig : public IODConfig {
   std::string m_ped_file;
   int  m_use_buffer;
   int  m_post_trig;
+  // new in 2012
+  int m_blue_laser_post_trig; //replace POSTTRIG
+  int m_blue2_laser_post_trig;
+  int m_ir_laser_post_trig;
+  int m_green_laser_post_trig;
+  //
   int  m_fp_mode;
   std::string m_hal_mod_file;
   std::string m_hal_add_file;
@@ -312,12 +424,21 @@ class ODLaserConfig : public IODConfig {
   int m_emtc_1;
   int m_emtc_2;
   int m_emtc_3;
+  // new in 2012
+  int m_green_laser_phase;
+  int m_ir_laser_phase;
+  int m_blue_laser_phase; // replace LASER_PHASE
+  int m_blue2_laser_phase;
+  //
   int m_emtc_4;
   int m_emtc_5;
 
   // laser
   int m_wave;
   int m_power;
+  // new in 2012
+  int m_blue_laser_power;
+  //
   int m_switch;
   int m_filter;
   int m_on;
@@ -329,6 +450,15 @@ class ODLaserConfig : public IODConfig {
 
   // led 
  int m_wte_2_led_delay;
+ // new in 2012
+ int m_wte2_blue_laser; // replace WTE2_LASER_DELAY
+ int m_wte2_blue2_laser;
+ int m_wte2_ir_laser;
+ int m_wte2_green_laser;
+
+ int m_wte_2_led_soak_delay;
+ int m_led_postscale;
+ //
  int m_led1_on; 
  int m_led2_on ;
  int m_led3_on ;
@@ -344,11 +474,15 @@ class ODLaserConfig : public IODConfig {
  int m_green_laser_power; 
  int m_red_laser_power ;
  int m_blue_laser_log_attenuator; 
+ // new in 2012
+ int m_blue2_laser_power; // replace red_laser_power
+ int m_blue2_laser_log_attenuator; // red_laser_log_attenuator
+ //
  int m_ir_laser_log_attenuator;
  int m_green_laser_log_attenuator;
  int m_red_laser_log_attenuator;
  std::string m_laser_config_file;
- unsigned char* m_laser_clob ;
+ std::vector<unsigned char> m_laser_clob ;
  unsigned int m_size;
 
 
