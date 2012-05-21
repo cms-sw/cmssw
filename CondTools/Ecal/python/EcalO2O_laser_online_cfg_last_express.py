@@ -1,5 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
+############################################################
+#
+# Config file to transfer the very last laser corrections
+# to production DB used to validate them
+#
+############################################################
+
 process = cms.Process("ProcessOne")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/popcondev/conddb'
@@ -42,7 +49,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 #
 # Be sure to comment the following line while testing
 #
-#process.PoolDBOutputService.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
+process.PoolDBOutputService.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
 
 process.Test1 = cms.EDAnalyzer("ExTestEcalLaserAnalyzer",
     SinceAppendMode = cms.bool(True),
@@ -60,8 +67,8 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalLaserAnalyzer",
     # debug must be False for production
         debug = cms.bool(False),
     # if fake is True, no insertion in the db is performed
-        fake = cms.bool(True),
-        OnlineDBPassword = cms.string('0r4cms_3c4l_2011'),
+        fake = cms.bool(False),
+        OnlineDBPassword = cms.string('XXXXXXXXXX'),
         OnlineDBSID = cms.string('CMS_OMDS_LB')
     )
 )
