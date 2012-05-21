@@ -35,7 +35,7 @@ class testit(Thread):
                 os.makedirs(self.dirName)
 
             commandbase = command.replace(' ','_').replace('/','_')
-            logfile='%s.log' % commandbase[:150].replace("'",'').replace('../','')
+            logfile='%s.log' % commandbase[:150].replace("'",'').replace('"','').replace('../','')
             
             executable = 'cd '+self.dirName+'; '+command+' > '+logfile+' 2>&1'
 
