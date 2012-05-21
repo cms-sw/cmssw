@@ -21,6 +21,7 @@ my $usage =
   "\t-qualifier           (parameter to action id     [default: 0            ])\n" .
   "\n";
 die $usage if($ARGV[0] eq "-help");
+die $usage if($ARGV[0] eq "");
 
 print "\n============================================================";
 print "\nexceptionGeneratorTest...";
@@ -32,9 +33,9 @@ my $hostname = `hostname -f`;
 chop($hostname);
 my $EPport = 40002;
 my $EPappname = "evf::FUEventProcessor";
-my $EPid=27;
+my $EPid=50;
 
-my $mask=0xff;
+my $mask=0xffffffff;
 my $testtype=8;
 my $testqual=0;
 
@@ -44,7 +45,7 @@ foreach $param (@ARGV) {
     elsif ($param eq "-port")        { $EPport="fillme";}
     elsif ($EPport eq "fillme")      { $EPport=$param;  }
     elsif ($param eq "-mask")        { $mask="fillme";}
-    elsif ($mask eq "fillme")        { $mask=$param;  }
+    elsif ($mask eq "fillme")        { $mask=hex($param);  }
     elsif ($param eq "-lid")         { $EPid="fillme";}
     elsif ($EPid eq "fillme")        { $EPid=$param;  }
     elsif ($param eq "-action")      { $testtype="fillme";}
@@ -56,7 +57,6 @@ foreach $param (@ARGV) {
 my $EPs = "http://$hostname:$EPport/urn:xdaq-application:lid=$EPid/getSlavePids";
 my $pids = `curl -s $EPs`;
 print "got slave EP pids: $pids ...\n\n";
-print $pids;
 @tokens = split(/,/,$pids);
 
 my $EPx = "http://$hostname:$EPport/urn:xdaq-application:lid=$EPid/SubWeb?process=";
