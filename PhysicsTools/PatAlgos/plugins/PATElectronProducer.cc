@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.58 2012/05/07 10:17:54 vadler Exp $
+// $Id: PATElectronProducer.cc,v 1.59 2012/05/20 20:12:25 rwolf Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
 
@@ -103,7 +103,7 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
 	"\t\tInputTag <someName> = <someTag>   // as many as you want \n " <<
 	"\t}\n";
     }
-
+  }
   // construct resolution calculator
 
   //   // IsoDeposit configurables
@@ -148,10 +148,11 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   }
   // produces vector of muons
   produces<std::vector<Electron> >();
-}
+  }
 
 
-PATElectronProducer::~PATElectronProducer() {
+  PATElectronProducer::~PATElectronProducer() 
+{
 }
 
 
