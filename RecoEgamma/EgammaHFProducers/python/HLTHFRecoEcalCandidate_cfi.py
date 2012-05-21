@@ -5,6 +5,7 @@ import FWCore.ParameterSet.Config as cms
 HLTHFRecoEcalCandidate = cms.EDProducer("HLTHFRecoEcalCandidateProducer",
                                         e9e25Cut = cms.double(0.94),
                                         hfclusters = cms.InputTag("hfEMClusters"),
+                                        Correct = cms.bool(True),
                                         intercept2DCut = cms.double(0.7),
                                         intercept2DSlope = cms.double(0.475),
                                         e1e9Cut= cms.vdouble(-1,99),
