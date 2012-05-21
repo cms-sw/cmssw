@@ -70,9 +70,9 @@ class MatrixInjector(object):
             "TaskName" : None,                            #Task Name
             "ConfigCacheID" : None,                   #Generator Config id
             "SplittingAlgorithm"  : "EventBased",             #Splitting Algorithm
-            "SplittingArguments" : {"events_per_job" : 250},  #Size of jobs in terms of splitting algorithm
+            "SplittingArguments" : {"events_per_job" : None},  #Size of jobs in terms of splitting algorithm
             #"RequestSizeEvents" : 10000,                      #Total number of events to generate
-            "RequestNumEvents" : 10000,                      #Total number of events to generate
+            "RequestNumEvents" : None,                      #Total number of events to generate
             "Seeding" : "AutomaticSeeding",                          #Random seeding method
             "PrimaryDataset" : None,                          #Primary Dataset to be created
             "nowmIO": {}
@@ -84,7 +84,7 @@ class MatrixInjector(object):
             #"SplittingAlgorithm"  : "FileBased",                        #Splitting Algorithm
             #"SplittingArguments" : {"files_per_job" : 1},               #Size of jobs in terms of splitting algorithm
             "SplittingAlgorithm"  : "LumiBased",                        #Splitting Algorithm
-            "SplittingArguments" : {"lumis_per_job" : 1},               #Size of jobs in terms of splitting algorithm
+            "SplittingArguments" : {"lumis_per_job" : 10},               #Size of jobs in terms of splitting algorithm
             "nowmIO": {}
             }
         self.defaultTask={
@@ -92,8 +92,10 @@ class MatrixInjector(object):
             "InputTask" : None,                                #Input Task Name (Task Name field of a previous Task entry)
             "InputFromOutputModule" : None,                    #OutputModule name in the input task that will provide files to process
             "ConfigCacheID" : None,                            #Processing Config id
-            "SplittingAlgorithm" : "FileBased",                #Splitting Algorithm
-            "SplittingArguments" : {"files_per_job" : 1 },     #Size of jobs in terms of splitting algorithm
+            #"SplittingAlgorithm" : "FileBased",                #Splitting Algorithm
+            #"SplittingArguments" : {"files_per_job" : 1 },     #Size of jobs in terms of splitting algorithm
+            "SplittingAlgorithm"  : "LumiBased",                        #Splitting Algorithm
+            "SplittingArguments" : {"lumis_per_job" : 10},               #Size of jobs in terms of splitting algorithm
             "nowmIO": {}
             }
 
