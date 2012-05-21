@@ -20,7 +20,7 @@
 //$Id:HFClusterAlgo.h,v 1.2 2007/09/19 09:52 K. Klapoetke Minnesota
 
 class HFClusterAlgo {
-public:
+ public:
   HFClusterAlgo(); 
 
   void setup(double minTowerEnergy, double seedThreshold,double maximumSL,double m_maximumRenergy,bool usePMTflag,bool usePulseflag, bool forcePulseFlagMC, int correctionSet);
@@ -32,9 +32,11 @@ public:
 		  const CaloGeometry& geom,
 		  reco::HFEMClusterShapeCollection& clusters,
 		  reco::SuperClusterCollection& SuperClusters);
+  
 
+  void resetForRun();
 
-private:
+ private:
   friend class CompareHFCompleteHitET;
   friend class CompareHFCore;
  
@@ -45,12 +47,15 @@ private:
   int m_correctionSet;
   std::vector<double> m_cutByEta;
   std::vector<double> m_correctionByEta;
- 
+  std::vector<double> m_seedmnEta;
+  std::vector<double> m_seedMXeta;
+  std::vector<double> m_seedmnPhi;
+  std::vector<double> m_seedMXphi;
   struct HFCompleteHit {
     HcalDetId id;
     double energy, et;
   };
- bool isPMTHit(const HFRecHit& hfr);
+  bool isPMTHit(const HFRecHit& hfr);
   bool makeCluster(const HcalDetId& seedid,
 		   const HFRecHitCollection& hf, 
 		   const CaloGeometry& geom,

@@ -43,45 +43,59 @@ HFRecoEcalCandidateAlgo::HFRecoEcalCandidateAlgo(bool correct,double e9e25Cut,do
 }
 
 RecoEcalCandidate HFRecoEcalCandidateAlgo::correctEPosition(const SuperCluster& original , const HFEMClusterShape& shape,int nvtx) {
-  double energyCorrect=0.7397;
-  double etaCorrect=.00938422+0.00682824*sin(6.28318531*shape.CellEta());
-  double phiAmpCorrect=0.00644091;
-  double phiFreqCorrect=6.28318531;
-
-  double corEnergy= original.energy()/energyCorrect;
+  
   double corEta=original.eta();
-  corEta+=(original.eta()>0)?(etaCorrect):(-etaCorrect);
-  double corPhi=original.phi()+phiAmpCorrect*sin(phiFreqCorrect*shape.CellPhi());
-  
- 
-  double etabounds[30]={2.853,2.964,3.139,3.314,3.489,3.664,3.839,4.013,4.191,4.363,4.538,4.716,4.889,5.191};
-  
-  int ieta=0;
-  for (int kk=0;kk<12;kk++){
+  //piece-wise log energy correction to eta
+  double logel=log(original.energy()/100.0);
+  double hiC=0.0097;
+  double lowC=0.0;
+  double logSlope=0.014;
+  double logIntercept=-0.018;
+  double sgn=(original.eta()>0)?(1.0):(-1.0);
+  if(logel<=1.25)corEta+=(lowC)*sgn;
+  else if((logel>1.25)&&(logel<=2))corEta+=(logIntercept+logSlope*logel)*sgn;
+  else if(logel>2)corEta+=hiC*sgn;
+  //poly-3 cell eta correction to eta (de)
+  double p0=0.0107;
+  double p1=-0.0988;
+  double p2=0.232;
+  double p3=-0.155;
+  double de =sgn*(p0+(p1*(shape.CellEta()))+(p2*(shape.CellEta()*shape.CellEta()))+(p3*(shape.CellEta()*shape.CellEta()*shape.CellEta())));
+  corEta+=de;
+
+  double corPhi=original.phi();
+  //poly-3 cell phi correction to phi (dp)
+  p0=0.0113;
+  p1=-0.103;
+  p2=0.242;
+  p3=-0.162;
+  double dp =p0+(p1*(shape.CellPhi()))+(p2*(shape.CellPhi()*shape.CellPhi()))+(p3*(shape.CellPhi()*shape.CellPhi()*shape.CellPhi()));
+  corPhi+=dp;
     
+  double corEnergy= original.energy();
+  //energy corrections
+  //flat correction for using only long fibers
+  double energyCorrect=0.7397;
+  corEnergy= corEnergy/energyCorrect; 
+  //corection based on ieta for pileup and general 
+  //find ieta
+  int ieta=0;
+  double etabounds[30]={2.846,2.957,3.132,3.307,3.482,3.657,3.833,4.006,4.184,4.357,4.532,4.709,4.882,5.184};
+  for (int kk=0;kk<12;kk++){
     if((fabs(corEta) < etabounds[kk+1])&&(fabs(corEta) > etabounds[kk])){
       ieta = (corEta > 0)?(kk+29):(-kk-29);
     }
   }
-  
-  
   corEnergy=(m_hfvv.PUSlope(ieta)*1.0*(nvtx-1)+m_hfvv.PUIntercept(ieta)*1.0)*corEnergy*1.0*m_hfvv.EnCor(ieta);
-  
-  
-  
+  //re-calculate the energy vector  
   double corPx=corEnergy*cos(corPhi)/cosh(corEta);
   double corPy=corEnergy*sin(corPhi)/cosh(corEta);
   double corPz=corEnergy*tanh(corEta);
   
-  
+  //make the candidate
   RecoEcalCandidate corCand(0,
 			    math::XYZTLorentzVector(corPx,corPy,corPz,corEnergy),
 			    math::XYZPoint(0,0,0));
-  
-  
-  
-  
-  
   
   return corCand;
 }
