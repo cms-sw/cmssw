@@ -1,4 +1,4 @@
-// $Id: EGEnergyCorrector.cc,v 1.8 2011/12/14 20:16:56 bendavid Exp $
+// $Id: EGEnergyCorrector.cc,v 1.9 2012/05/18 19:21:09 bendavid Exp $
 
 #include <TFile.h>
 #include "../interface/EGEnergyCorrector.h"
@@ -78,7 +78,7 @@ void EGEnergyCorrector::Initialize(const edm::EventSetup &iSetup, std::string re
     else { //weights from root file
       fOwnsForests = kTRUE;
 
-      TFile *fgbr = new TFile(regweights.c_str(),"READ");
+      TFile *fgbr = TFile::Open(regweights.c_str(),"READ");
       fReadereb = (GBRForest*)fgbr->Get("EBCorrection");
       fReaderebvariance = (GBRForest*)fgbr->Get("EBUncertainty");  
       fReaderee = (GBRForest*)fgbr->Get("EECorrection");
@@ -685,3 +685,4 @@ std::pair<double,double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Gsf
   
   return std::pair<double,double>(ecor,ecorerr);
 }
+
