@@ -457,6 +457,7 @@ void HFLightCalRand::analyze(const edm::Event& fEvent, const edm::EventSetup& fS
     if (ieta>0) ieta = ieta-29;
     else ieta = 13-ieta-29;
 
+    for (int ii=0; ii<10; ii++) buf[ii]=0;
     maxADC=-99;
     for (int isample = 0; isample < frame.size(); ++isample) {
       int adc = frame[isample].adc();
@@ -480,7 +481,7 @@ void HFLightCalRand::analyze(const edm::Event& fEvent, const edm::EventSetup& fS
      
     // Signal is four capIDs around maxTS, Pedestal is four capID off the signal
     maxADC=-99;    
-    for (int ibf=0; ibf<9; ibf++) {
+    for (int ibf=0; ibf<frame.size()-1; ibf++) {
       Double_t sumbuf=0;
       for (int jbf=0; jbf<2; jbf++) {    
 	sumbuf += buf[ibf+jbf];
