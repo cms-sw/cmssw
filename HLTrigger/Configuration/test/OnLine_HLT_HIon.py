@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V110 (CMSSW_5_2_3_HLT9)
+# /dev/CMSSW_5_2_1/HIon/V130 (CMSSW_5_2_5_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V110')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V130')
 )
 
 process.streams = cms.PSet( 
@@ -334,7 +334,8 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     ),
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
     globaltag = cms.string( "GR_H_V29::All" ),
-    timetype = cms.string( "runnumber" )
+    timetype = cms.string( "runnumber" ),
+    RefreshEachRun = cms.untracked.bool( True )
 )
 process.HepPDTESSource = cms.ESSource( "HepPDTESSource",
     pdtFileName = cms.FileInPath( "SimGeneral/HepPDTESSource/data/pythiaparticle.tbl" )
@@ -3010,6 +3011,10 @@ process.DQM = cms.Service( "DQM",
     collectorHost = cms.untracked.string( "" )
 )
 process.DQMStore = cms.Service( "DQMStore",
+    verboseQT = cms.untracked.int32( 0 ),
+    referenceFileName = cms.untracked.string( "" ),
+    verbose = cms.untracked.int32( 0 ),
+    collateHistograms = cms.untracked.bool( False )
 )
 process.DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
     processingMode = cms.untracked.string( "HLT" ),
@@ -3017,12 +3022,22 @@ process.DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
     getSCInfo = cms.untracked.bool( True )
 )
 process.MessageLogger = cms.Service( "MessageLogger",
+    suppressInfo = cms.untracked.vstring(  ),
     debugs = cms.untracked.PSet( 
       threshold = cms.untracked.string( "INFO" ),
       placeholder = cms.untracked.bool( True ),
+      suppressInfo = cms.untracked.vstring(  ),
+      suppressWarning = cms.untracked.vstring(  ),
+      suppressDebug = cms.untracked.vstring(  ),
+      suppressError = cms.untracked.vstring(  )
     ),
+    suppressDebug = cms.untracked.vstring(  ),
     cout = cms.untracked.PSet( 
       threshold = cms.untracked.string( "ERROR" ),
+      suppressInfo = cms.untracked.vstring(  ),
+      suppressWarning = cms.untracked.vstring(  ),
+      suppressDebug = cms.untracked.vstring(  ),
+      suppressError = cms.untracked.vstring(  )
     ),
     cerr_stats = cms.untracked.PSet( 
       threshold = cms.untracked.string( "WARNING" ),
@@ -3032,6 +3047,10 @@ process.MessageLogger = cms.Service( "MessageLogger",
     warnings = cms.untracked.PSet( 
       threshold = cms.untracked.string( "INFO" ),
       placeholder = cms.untracked.bool( True ),
+      suppressInfo = cms.untracked.vstring(  ),
+      suppressWarning = cms.untracked.vstring(  ),
+      suppressDebug = cms.untracked.vstring(  ),
+      suppressError = cms.untracked.vstring(  )
     ),
     statistics = cms.untracked.vstring( 'cerr' ),
     cerr = cms.untracked.PSet( 
@@ -3049,6 +3068,10 @@ process.MessageLogger = cms.Service( "MessageLogger",
         limit = cms.untracked.int32( 10000000 )
       ),
       threshold = cms.untracked.string( "INFO" ),
+      suppressInfo = cms.untracked.vstring(  ),
+      suppressWarning = cms.untracked.vstring(  ),
+      suppressDebug = cms.untracked.vstring(  ),
+      suppressError = cms.untracked.vstring(  )
     ),
     FrameworkJobReport = cms.untracked.PSet( 
       default = cms.untracked.PSet(  limit = cms.untracked.int32( 0 ) ),
@@ -3069,12 +3092,21 @@ process.MessageLogger = cms.Service( "MessageLogger",
     errors = cms.untracked.PSet( 
       threshold = cms.untracked.string( "INFO" ),
       placeholder = cms.untracked.bool( True ),
+      suppressInfo = cms.untracked.vstring(  ),
+      suppressWarning = cms.untracked.vstring(  ),
+      suppressDebug = cms.untracked.vstring(  ),
+      suppressError = cms.untracked.vstring(  )
     ),
     fwkJobReports = cms.untracked.vstring( 'FrameworkJobReport' ),
+    debugModules = cms.untracked.vstring(  ),
     infos = cms.untracked.PSet( 
       threshold = cms.untracked.string( "INFO" ),
       Root_NoDictionary = cms.untracked.PSet(  limit = cms.untracked.int32( 0 ) ),
       placeholder = cms.untracked.bool( True ),
+      suppressInfo = cms.untracked.vstring(  ),
+      suppressWarning = cms.untracked.vstring(  ),
+      suppressDebug = cms.untracked.vstring(  ),
+      suppressError = cms.untracked.vstring(  )
     ),
     categories = cms.untracked.vstring( 'FwkJob',
       'FwkReport',
@@ -3334,6 +3366,9 @@ process.PrescaleService = cms.Service( "PrescaleService",
       cms.PSet(  pathName = cms.string( "AForHIOutput" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
       ),
+      cms.PSet(  pathName = cms.string( "DQMOutput" ),
+        prescales = cms.vuint32( 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 1, 1 )
+      ),
       cms.PSet(  pathName = cms.string( "ExpressForHIOutput" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
       ),
@@ -3342,7 +3377,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
       )
     ),
     lvl1DefaultLabel = cms.string( "3e33" ),
-    lvl1Labels = cms.vstring( '5e33_parking',
+    lvl1Labels = cms.vstring( '7e33nopark',
       '7e33',
       '6e33',
       '5e33',
@@ -6672,8 +6707,8 @@ process.hltL1BeamHaloAntiCoincidence3BX = cms.EDFilter( "HLTLevel1Activity",
     technicalBits = cms.uint64( 0x0 ),
     ignoreL1Mask = cms.bool( True ),
     invert = cms.bool( True ),
-    physicsLoBits = cms.uint64( 0x40000000000000 ),
-    physicsHiBits = cms.uint64( 0x0 ),
+    physicsLoBits = cms.uint64( 0x0 ),
+    physicsHiBits = cms.uint64( 0x8000000000000000 ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     daqPartitions = cms.uint32( 1 ),
     bunchCrossings = cms.vint32( 0, 1, -1 )
@@ -7529,7 +7564,7 @@ process.hltL1GtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
 process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
-process.hltPreOutputAForHI = cms.EDFilter( "HLTPrescaler",
+process.hltPreAForHIOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -7546,6 +7581,10 @@ process.hltPreALCALUMIPIXELSOutput = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltPreCalibrationOutput = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
+process.hltPreDQMOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -8185,8 +8224,19 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep FEDRawDataCollection_rawDataRepacker_*_*',
       'keep FEDRawDataCollection_source_*_*',
       'keep edmTriggerResults_*_*_*',
+      'keep recoCaloJets_*_*_*',
+      'keep recoCaloMETs_*_*_*',
+      'keep recoCompositeCandidates_*_*_*',
+      'keep recoElectrons_*_*_*',
+      'keep recoIsolatedPixelTrackCandidates_*_*_*',
+      'keep recoMETs_*_*_*',
+      'keep recoPFJets_*_*_*',
+      'keep recoPFTaus_*_*_*',
+      'keep recoRecoChargedCandidates_*_*_*',
+      'keep recoRecoEcalCandidates_*_*_*',
       'keep triggerTriggerEventWithRefs_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
+      'keep triggerTriggerEvent_*_*_*',
+      'keep triggerTriggerFilterObjectWithRefs_*_*_*' )
 )
 
 process.HLTL1UnpackerSequence = cms.Sequence( process.hltGtDigis + process.hltGctDigis + process.hltL1GtObjectMap + process.hltL1extraParticles )
@@ -8301,11 +8351,12 @@ process.HLT_HIUPCNeuHcalHfEG2Pixel_SingleTrack_v4 = cms.Path( process.HLTBeginSe
 process.HLT_HIUPCNeuHcalHfEG5Pixel_SingleTrack_v4 = cms.Path( process.HLTBeginSequence + process.hltL1sHIUPCNeuHcalHfEG5 + process.hltPreHIUPCNeuHcalHfEG5PixelSingleTrack + process.HLTDoHILocalPixelSequence + process.HLTPixelTrackingForHITrackTrigger + process.hltHISinglePixelTrackFilter + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtDigis + process.hltScalersRawToDigi + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
-process.AForHIOutput = cms.EndPath( process.hltPreOutputAForHI + process.hltOutputAForHI )
+process.AForHIOutput = cms.EndPath( process.hltPreAForHIOutput + process.hltOutputAForHI )
 process.ALCAP0Output = cms.EndPath( process.hltPreALCAP0Output )
 process.ALCAPHISYMOutput = cms.EndPath( process.hltPreALCAPHISYMOutput )
 process.ALCALUMIPIXELSOutput = cms.EndPath( process.hltPreALCALUMIPIXELSOutput )
 process.CalibrationOutput = cms.EndPath( process.hltPreCalibrationOutput + process.hltOutputCalibration )
+process.DQMOutput = cms.Path( process.hltPreDQMOutput )
 process.EcalCalibrationOutput = cms.EndPath( process.hltPreEcalCalibrationOutput + process.hltOutputEcalCalibration )
 process.ExpressForHIOutput = cms.EndPath( process.hltPreExpressForHIOutput + process.hltPreExpressForHIOutputSmart + process.hltOutputExpressForHI )
 process.HLTDQMOutput = cms.EndPath( process.hltPreHLTDQMOutput + process.hltPreHLTDQMOutputSmart + process.hltOutputHLTDQM )

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jan  4 20:31:25 CET 2012
-// $Id: FWGeometryTableManager.cc,v 1.51 2012/04/29 06:07:37 matevz Exp $
+// $Id: FWGeometryTableManager.cc,v 1.52 2012/04/30 19:59:36 amraktad Exp $
 //
 
 // system include files
@@ -208,36 +208,52 @@ void FWGeometryTableManager::checkChildMatches(TGeoVolume* vol, std::vector<TGeo
 // Callbacks
 //------------------------------------------------------------------------------
 
-void FWGeometryTableManager::updateFilter(bool useName)
+void FWGeometryTableManager::updateFilter(int iType)
 {
    std::string filterExp =  m_browser->getFilter();
    m_filterOff =  filterExp.empty();
-   // printf("update filter %s  OFF %d volumes size %d\n",filterExp.c_str(),  m_filterOff , (int)m_volumes.size());
+   printf("update filter %s  OFF %d volumes size %d\n",filterExp.c_str(),  m_filterOff , (int)m_volumes.size());
 
    if (m_filterOff || m_entries.empty()) return;
 
    // update volume-match entries
-   // m_numVolumesMatched = 0;
+   int numMatched = 0;
    for (Volumes_i i = m_volumes.begin(); i != m_volumes.end(); ++i)
    {
-      if (strcasestr(useName ? i->first->GetMaterial()->GetName() : i->first->GetMaterial()->GetTitle() , filterExp.c_str()) > 0) {
-         i->second.m_matches = true;
-         // m_numVolumesMatched++;
-      }
-      else
+      char* res = 0;
+      
+      if (iType == FWGeometryTableView::kFilterMaterialName)
       {
-         i->second.m_matches = false;
+         res = strcasestr( i->first->GetMaterial()->GetName() , filterExp.c_str());
       }
+      else if (iType == FWGeometryTableView::kFilterMaterialTitle)
+      {
+         res = strcasestr( i->first->GetMaterial()->GetTitle() , filterExp.c_str());
+      }
+      else if (iType == FWGeometryTableView::kFilterShapeName) 
+      {
+         res = strcasestr( i->first->GetShape()->GetName() , filterExp.c_str());
+      }      
+      else if (iType == FWGeometryTableView::kFilterShapeClassName) 
+      {
+         res = strcasestr( i->first->GetShape()->ClassName() , filterExp.c_str());
+      }
+      
+      i->second.m_matches = (res != 0);
       i->second.m_childMatches = false;
+      if (res != 0) numMatched++;
    }
 
+   printf("update filter [%d] volumes matched\n", numMatched);
    std::vector<TGeoVolume*> pstack;
    checkChildMatches(m_entries[0].m_node->GetVolume(), pstack);
 
    for (Entries_i ni = m_entries.begin(); ni != m_entries.end(); ++ni)
    {
       ni->resetBit(kFilterCached);
+     assertNodeFilterCache(*ni);
    }
+   
 }
 
 //==============================================================================
@@ -265,7 +281,7 @@ void FWGeometryTableManager::loadGeometry(TGeoNode* iGeoTopNode, TObjArray* iVol
       m_volumes.insert(std::make_pair(v, Match()));
 
    if (!m_filterOff)
-      updateFilter(m_browser->getFilterByName());
+      updateFilter(m_browser->getFilterType());
 
    // add top node to init
 
@@ -410,6 +426,7 @@ void FWGeometryTableManager::assertNodeFilterCache(NodeInfo& data)
    if (! data.testBit(kFilterCached))
    {
       bool matches = m_volumes[data.m_node->GetVolume()].m_matches;
+     // if (matches) printf("%s matches filter \n", data.name());
       data.setBitVal(kMatches, matches);
       setVisibility(data, matches);
 

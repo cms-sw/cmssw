@@ -1,11 +1,11 @@
 
 <var name="TEST_COMMENT" value="">
-<var name="TEST_NEW" value="6_0_0_pre2">
-<var name="TEST_REF" value="6_0_0_pre1">
+<var name="TEST_NEW" value="5_2_0_pre6">
+<var name="TEST_REF" value="5_2_0_pre4">
 
-<var name="TAG_STARTUP" value="START52_V9">
-<var name="TAG_IDEAL" value="MC_52_V9">
-<var name="DATA_VERSION" value="v1">
+<var name="TAG_STARTUP" value="START52_V2">
+<var name="TAG_IDEAL" value="MC_43_V4">
+<var name="DATA_VERSION" value="v3">
 
 <var name="STORE_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_NEW}">
 <var name="STORE_REF" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_REF}">
@@ -105,7 +105,7 @@ FullSim
   
     <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
     <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-    <var name="DD_COND" value="-${TEST_GLOBAL_TAG}-${DATA_VERSION}">
+    <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
     
     <environment name="FullPt35Startup">
   
@@ -203,52 +203,6 @@ FullSim
   
     </environment>
   
-  </environment>
-
-  <environment name="FullSimStdStatsPileUpStartup">
-    <var name="TAG_STARTUP" value="PU_START52_V9">
-    <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
-    <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-    <var name="DD_COND" value="-${TEST_GLOBAL_TAG}-${DATA_VERSION}">
-
-      <environment name="FullTTbarStartupPileUp">
-        
-        <var name="DD_SAMPLE" value="RelValTTbar">
-        <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
-      
-        <target name="dqm" cmd="electronDataDiscovery.py castor">
-        <target name="wget" cmd="electronWget.py castor">
-      
-        <target name="dd" cmd="electronDataDiscovery.py">
-        <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}.py">
-        <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
-      
-        <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-        <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} vs ${TEST_REF} /
-	${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/PileUp_${DD_SAMPLE}_Startup'>
-  
-      </environment>
-
-    <environment name="FullZEEStartupPileUp">
-    
-      <var name="DD_SAMPLE" value="RelValZEE">
-      <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
-      
-      <target name="dqm" cmd="electronDataDiscovery.py castor">
-      <target name="wget" cmd="electronWget.py castor">
-      
-      <target name="dd" cmd="electronDataDiscovery.py">
-      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}.py">
-      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
-      
-      <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} vs ${TEST_REF} /${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/PileUp_${DD_SAMPLE}_Startup'>
-  
-    </environment>
-  
-
   </environment>
   
   <environment name="FullSimStdStatsIdeal">
@@ -419,7 +373,7 @@ FastSim
 
       <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
       <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-      <var name="DD_COND" value="-${TEST_GLOBAL_TAG}*FastSim*-${DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${DATA_VERSION}">
 
       <environment name="FastTTbarStartup">
       
@@ -461,7 +415,7 @@ FastSim
 
       <var name="TEST_GLOBAL_TAG" value="${TAG_IDEAL}">
       <var name="TEST_GLOBAL_AUTOCOND" value="mc">
-      <var name="DD_COND" value="-${TEST_GLOBAL_TAG}*FastSim*-${DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${DATA_VERSION}">
       
       <environment name="FastTTbarIdeal">
       
@@ -507,7 +461,7 @@ FastSim
     
       <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
       <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-      <var name="DD_COND" value="-${TEST_GLOBAL_TAG}*FastSim*-${DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${DATA_VERSION}">
 
       <environment name="FastVsFastTTbarStartup">
         <var name="DD_SAMPLE" value="RelValTTbar">
@@ -527,7 +481,7 @@ FastSim
     
       <var name="TEST_GLOBAL_TAG" value="${TAG_IDEAL}">
       <var name="TEST_GLOBAL_AUTOCOND" value="mc">
-      <var name="DD_COND" value="-${TEST_GLOBAL_TAG}*FastSim*-${DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${DATA_VERSION}">
       
       <environment name="FastVsFastTTbarIdeal">
         <var name="DD_SAMPLE" value="RelValTTbar">
@@ -551,7 +505,7 @@ FastSim
     
       <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
       <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-      <var name="DD_COND" value="-${TEST_GLOBAL_TAG}-${DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
 
       <environment name="FastVsFullTTbarStartup">
         <var name="DD_SAMPLE" value="RelValTTbar">
@@ -573,7 +527,7 @@ FastSim
     
       <var name="TEST_GLOBAL_TAG" value="${TAG_IDEAL}">
       <var name="TEST_GLOBAL_AUTOCOND" value="mc">
-      <var name="DD_COND" value="-${TEST_GLOBAL_TAG}*FastSim*-${DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${DATA_VERSION}">
       
       <environment name="FastVsFullTTbarIdeal">
         <var name="DD_SAMPLE" value="RelValTTbar">
@@ -609,7 +563,7 @@ with the local modified code.
 
     <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
     <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-    <var name="DD_COND" value="-${TEST_GLOBAL_TAG}-${DATA_VERSION}">
+    <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
     <var name="DD_SAMPLE" value="RelValSingleElectronPt10">
       
     <environment name="SeedsRemakerStep1">
@@ -674,7 +628,7 @@ with the local modified code.
   
       <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
       <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-      <var name="DD_COND" value="-${TEST_GLOBAL_TAG}-${DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
 
       <environment name="RedoFromCoreZEEStartup">
         <var name="DD_SAMPLE" value="RelValZEE">
@@ -689,7 +643,7 @@ with the local modified code.
   
       <var name="TEST_GLOBAL_TAG" value="${TAG_IDEAL}">
       <var name="TEST_GLOBAL_AUTOCOND" value="mc">
-      <var name="DD_COND" value="-${TEST_GLOBAL_TAG}-${DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
 
       <environment name="RedoFromCorePt35Ideal">
         <var name="DD_SAMPLE" value="RelValSingleElectronPt35">
@@ -748,7 +702,7 @@ with the local modified code.
 
       <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
       <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-      <var name="DD_COND" value="-${TEST_GLOBAL_TAG}-${DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
       <!--var name="DD_COND" value="STARTUP"-->
 
       <target name="cfg" cmd="cmsDriver.py reco -s RAW2DIGI,RECO -n -1 --conditions auto:startup --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=Dummy-RAW.root --fileout=Dummy-STARTUP-RECO.root --python_filename=ElectronRedoFromRawStartup_driver_cfg.py --no_exec">
@@ -787,7 +741,7 @@ with the local modified code.
     
       <var name="TEST_GLOBAL_TAG" value="${TAG_IDEAL}">
       <var name="TEST_GLOBAL_AUTOCOND" value="mc">
-      <var name="DD_COND" value="-${TEST_GLOBAL_TAG}-${DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
       <!--var name="DD_COND" value="IDEAL"-->
 
       <target name="cfg" cmd="cmsDriver.py reco -s RAW2DIGI,RECO -n -1 --geometry DB --conditions FrontierConditions_GlobalTag,${TAG_IDEAL}::All --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=Dummy-RAW.root --fileout=Dummy-IDEAL-RECO.root --python_filename=ElectronRedoFromRaw_driver_cfg.py --no_exec">

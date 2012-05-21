@@ -180,6 +180,7 @@ steps['MinBias']=gen('MinBias_8TeV_cfi',K9by100)
 steps['QCD_Pt_3000_3500']=gen('QCD_Pt_3000_3500_8TeV_cfi',K9by25)
 steps['QCD_Pt_80_120']=gen('QCD_Pt_80_120_8TeV_cfi',K9by50)
 steps['SingleElectronPt10']=gen('SingleElectronPt10_cfi',K9by250)
+steps['SingleElectronPt1000']=gen('SingleElectronPt1000_cfi',K9by250)
 steps['SingleElectronPt35']=gen('SingleElectronPt35_cfi',K9by250)
 steps['SingleGammaPt10']=gen('SingleGammaPt10_cfi',K9by100)
 steps['SingleGammaPt35']=gen('SingleGammaPt35_cfi',K9by100)
@@ -196,15 +197,16 @@ steps['QCD_FlatPt_15_3000']=gen('QCDForPF_8TeV_cfi',K9by100)
 steps['QCD_FlatPt_15_3000HS']=gen('QCDForPF_8TeV_cfi',K50by100)
 
 baseDataSetRelease=[
-    'CMSSW_6_0_0_pre3-START60_V0-v1',
-    'CMSSW_6_0_0_pre3-STARTHI60_V0-v1',
-    'CMSSW_6_0_0_pre3-PU_START60_V0-v1'
+    'CMSSW_5_2_1-START52_V4-v1',
+    'CMSSW_5_2_1-STARTHI52_V4-v1',
+    'CMSSW_5_2_1-PU_START52_V4-v1'
     ]
 
 steps['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['QCD_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['QCD_Pt_80_120INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_80_120/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['SingleElectronPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt10/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['SingleElectronPt1000INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt1000/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['SingleElectronPt35INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt35/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['SingleGammaPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleGammaPt10/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['SingleGammaPt35INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleGammaPt35/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
@@ -646,6 +648,7 @@ steps['SKIMD']={'-s':'SKIM:all',
                 '--filein':'file:step2.root',
                 '--secondfilein':'filelist:step1_dbsquery.log'}
 
+steps['SKIMD3']=merge([{'--filein':'file:step3.root'},steps['SKIMD']])
 
 steps['SKIMCOSD']={'-s':'SKIM:all',
                    '--conditions':'auto:com10',

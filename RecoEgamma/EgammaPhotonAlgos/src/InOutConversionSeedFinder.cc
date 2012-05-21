@@ -424,6 +424,10 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
 						     startingState.globalDirection(),
 						     double(transverseCurvature), 0, &(*theMF_) ),
 			  CurvilinearTrajectoryError(m));
+  if (fts.momentum().mag2() == 0){
+    edm::LogWarning("FailedToInitiateSeeding")<< " initial FTS has a zero momentum, probably because of the zero field.  ";
+    return;
+  }
  //std::cout << " InOutConversionSeedFinder::findSeeds startingState R "<< startingState.globalPosition().perp() << " Z " << startingState.globalPosition().z() << " phi " <<  startingState.globalPosition().phi() <<  " position " << startingState.globalPosition() << "\n";
  //std::cout << " InOutConversionSeedFinder::findSeeds Initial FTS charge " << fts.charge() << " curvature " <<  transverseCurvature << "\n";  
  //std::cout << " InOutConversionSeedFinder::findSeeds Initial FTS parameters " << fts <<  "\n"; 

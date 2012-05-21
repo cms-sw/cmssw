@@ -45,14 +45,14 @@ tauSkimBy1Path = cms.Path( tauSkim1Sequence )
 tauSkimBy2Path = cms.Path( tauSkim2Sequence )
 mutauSkimPath  = cms.Path( mutauSkimSequence )
 mutauMETSkimPath  = cms.Path( mutauMETSkimSequence )
-SKIMStreamTau = cms.FilteredStream(
-    responsible = 'PDWG',
-    name = 'Tau',
-    paths = (tauSkimBy1Path),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
+#SKIMStreamTau = cms.FilteredStream(
+#    responsible = 'PDWG',
+#    name = 'Tau',
+#    paths = (tauSkimBy1Path),
+#    content = skimContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('RAW-RECO')
+#    )
 SKIMStreamDiTau = cms.FilteredStream(
     responsible = 'Tau POG',
     name = 'DiTau',
@@ -142,6 +142,7 @@ SKIMStreamHZZ = cms.FilteredStream(
         )
 
 
+"""
 #####################
 # For the Data on Data Mixing in TSG
 from HLTrigger.Configuration.HLT_FULL_cff import hltGtDigis
@@ -172,7 +173,7 @@ SKIMStreamHLTZEROBIASSIGSD = cms.FilteredStream(
     )
 
 ####################
-   
+"""   
 
 #####################
 

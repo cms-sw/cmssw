@@ -71,8 +71,6 @@ public:
 
   static std::vector<std::string> const& algoNames();
 
-  static std::vector<std::string> const& dipalgoNames();
-
 private:
 
   void checkAlgo(AlgoType algo) const;

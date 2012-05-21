@@ -51,53 +51,18 @@ ln -sf `which gfortran` g77
 PATH=`pwd`:${PATH}
 
 tar xzf ${name}_gridpack.tar.gz ; rm -f ${name}_gridpack.tar.gz ; cd madevent
-## compile according to MG version 1.3.30 or 1.4.3 
-
-
-version=`cat MGMEVersion.txt | grep -c "1.4"`
-
-if [ "$version" -eq "0" ] ; then
-
-#echo "Version of MG is < 1.4 Will compile"
-./bin/compile
-./bin/clean4grid
-mv bin/addmasses.py bin/addmasses.py.no
-
-fi
-
-if [ "$version" -eq "1" ] ; then
-./bin/change_compiler.py
-./bin/compile
-./bin/clean4grid
-mv bin/internal/addmasses.py bin/internal/addmasses.py.no
-
-fi
-
-
-cd ..
 
 # run the production stage
-./run.sh ${nevt} ${rnum}
-
-#if [ "$version" -eq "1" ] ; then
-echo will fetch DECAY and post-processing tools from repository
-
-HTTP_DOWNLOAD="http://cms-project-generators.web.cern.ch/cms-project-generators/slc5_ia32_gcc434/madgraph/Tools"
-
-cd madevent
-wget --no-check-certificate  ${HTTP_DOWNLOAD}/mgPostProcv2.py
-mv mgPostProcv2.py bin/.
-wget --no-check-certificate  ${HTTP_DOWNLOAD}/replace.pl
-mv replace.pl bin/.
+./bin/compile
+./bin/clean4grid
 cd ..
-#fi
+./run.sh ${nevt} ${rnum}
 
 file="events"
 
 if [ ! -f ${file}.lhe.gz ]; then
         echo "%MSG-MG5 events.lhe.gz file is not in the same folder with run.sh script, abort  !!! "
         exit
-
 fi
 
 cp ${file}.lhe.gz ${file}_orig.lhe.gz
@@ -137,41 +102,16 @@ fi
 # DECAY process
 if [ "${decay}" == true ] ; then
 
-wget --no-check-certificate  ${HTTP_DOWNLOAD}/DECAY.tar.gz
-tar -zxf DECAY.tar.gz
-wget --no-check-certificate  ${HTTP_DOWNLOAD}/HELAS.tar.gz
-tar -zxf HELAS.tar.gz
-#cd HELAS ; make clean ;make ; cd ..
-cd DECAY ; 
-sed -i 's/DATA WRITEOUT \/.TRUE./DATA WRITEOUT \/.FALSE./g' decay.f
-make clean ;make ; cd ..
+    echo "%MSG-MG5 Running DECAY..."
+	sed 's/  5 0.000000 # b : 0.0/  5  4.700000 # b/' ${file}.lhe > ${file}_in.lhe ; rm -f ${file}.lhe
 
-bm=`grep -c "# MB" events.lhe`
-echo "%MSG-MG5 Running DECAY..."
-
-#changed this from 4.7 -> 4.8
-zero=0;
-if [ $bm -eq $zero ] ;then
-sed 's/  5 0.000000 # b : 0.0/  5  4.800000 # b/' ${file}.lhe > ${file}_in.lhe ; rm -f ${file}.lhe
-fi
-
-if [ $bm -gt $zero ] ;then
-sed  's/5 0.000000e+00 # MB/5 4.800000e+00 # MB/g' ${file}.lhe > ${file}_in.lhe ; rm -f ${file}.lhe
-fi
-
-
-cd DECAY
-#cp decay ../madevent/bin/.
-
-echo -$seed > iseed.dat
-    for ((i = 1 ;  i <= 2;  i++)) ; do
-	if [[ -e decay_${i}.in ]]; then
-	    echo "Decaying events..."
-	mv ../events.lhe ../events_in.lhe;
-	./decay < decay_$i\.in
-	fi
-    done
-    cd ..
+	# if you want to do not-inclusive top-decays you have to modify the switch in the decay_1.in and decay_2.in
+	for (( i = 1; i <=2; i++)) ; do
+        if [ -f ${file}.lhe ] ; then
+           mv ${file}.lhe ${file}_in.lhe 
+        fi 
+		madevent/bin/decay < decay_$i\.in
+	done
 fi
 
 #__________________________________________
@@ -199,7 +139,6 @@ fi
 
 #__________________________________________
 # wjets/zjets
-
 if [[ ${process} == wjets || ${process} == zjets ]] ; then
 	echo "%MSG-MG5 process V+jets"
 	python madevent/bin/mgPostProcv2.py -o ${file}_qcut${qcut}_mgPostv2.lhe -m -w -j ${maxjetflavor} -q ${qcut} -e 5 -s ${file}.lhe

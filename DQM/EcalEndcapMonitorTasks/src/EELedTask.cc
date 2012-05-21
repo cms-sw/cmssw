@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2012/04/27 13:46:15 $
- * $Revision: 1.71 $
+ * $Date: 2011/09/15 21:03:25 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  *
 */
@@ -448,54 +448,6 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   edm::Handle<EEDigiCollection> digis;
 
   if ( e.getByLabel(EEDigiCollection_, digis) ) {
-
-    int maxpos[10];
-    for(int i(0); i < 10; i++)
-      maxpos[i] = 0;
-    int nReadouts(0);
-
-    for ( EEDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
-
-      EEDetId id = digiItr->id();
-
-      int ism = Numbers::iSM( id );
-
-      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LED_STD ||
-               runType[ism-1] == EcalDCCHeaderBlock::LED_GAP ) ) continue;
-
-      if ( rtHalf[ism-1] != Numbers::RtHalf(id) ) continue;
-
-      nReadouts++;
-
-      EEDataFrame dataframe = (*digiItr);
-
-      int iMax(-1);
-      float max(0.);
-      float min(4096.);
-      for (int i = 0; i < 10; i++) {
-        int adc = dataframe.sample(i).adc();
-	if(adc > max){
-	  max = adc;
-	  iMax = i;
-	}
-	if(adc < min)
-	  min = adc;
-      }
-      if(iMax >= 0 && max - min > 20.)
-	maxpos[iMax] += 1;
-
-    }
-
-    int threshold(nReadouts / 2);
-    enable = false;
-    for(int i(0); i < 10; i++){
-      if(maxpos[i] > threshold){
-	enable = true;
-	break;
-      }
-    }
-
-    if(!enable) return;
 
     int need = digis->size();
     LogDebug("EELedTask") << "event " << ievt_ << " digi collection size " << need;

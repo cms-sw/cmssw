@@ -46,6 +46,9 @@ process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # HLT paths - defined by configDB
 # This one is created on the fly by FastSimulation/Configuration/test/IntegrationTestWithHLT_py.csh
 process.load("FastSimulation.Configuration.HLT_GRun_cff")
+#process.load("HLTrigger.Configuration.HLT_7E33v2_Famos_cff")
+#process.load("HLTrigger.Configuration.HLT_5E33v4_Famos_cff")
+#process.load("HLTrigger.Configuration.HLT_GRun_Famos_cff")
 
 # Only event accepted by L1 + HLT are reconstructed
 process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)
@@ -75,13 +78,23 @@ process.famosSimHits.SimulateTracking = True
 # Parameterized magnetic field
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # Number of pileup events per crossing
+#process.load('FastSimulation.PileUpProducer.PileUpSimulator_NoPileUp_cff')
+#process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 process.load('FastSimulation.PileUpProducer.PileUpSimulator_2012_Startup_inTimeOnly_cff')
 #process.load('FastSimulation.PileUpProducer.mix_2012_Startup_inTimeOnly_cff')
-#process.famosPileUp.PileUpSimulator.averageNumber = 0.0
+
 
 # Get frontier conditions   - not applied in the HCAL, see below
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['startup']
+process.GlobalTag.toGet.append(
+   cms.PSet(
+     record  = cms.string( 'L1GtTriggerMenuRcd' ),
+     tag     = cms.string( 'L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc' ),
+     label   = cms.untracked.string( '' ),
+     connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_L1T' )
+           )
+)
 
 # Apply ECAL miscalibration 
 process.ecalRecHit.doMiscalib = True

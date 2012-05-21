@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2012/04/20 11:18:26 $
- * $Revision: 1.223.2.12 $
+ * $Date: 2012/03/18 17:20:52 $
+ * $Revision: 1.223.2.5 $
  * \author G. Della Ricca
  *
 */
@@ -55,14 +55,10 @@ EBSummaryClient::EBSummaryClient(const edm::ParameterSet& ps) {
   // prefixME path
   prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
-  subfolder_ = ps.getUntrackedParameter<std::string>("subfolder", "");
-
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   produceReports_ = ps.getUntrackedParameter<bool>("produceReports", true);
-
-  reducedReports_ = ps.getUntrackedParameter<bool>("reducedReports", false);
 
   // vector of selected Super Modules (Defaults to all 36).
   superModules_.reserve(36);
@@ -80,10 +76,6 @@ EBSummaryClient::EBSummaryClient(const edm::ParameterSet& ps) {
   MGPAGainsPN_.reserve(2);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGainsPN_.push_back(i);
   MGPAGainsPN_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGainsPN", MGPAGainsPN_);
-
-  timingNHitThreshold_ = ps.getUntrackedParameter<int>("timingNHitThreshold", 5);
-
-  synchErrorThreshold_ = ps.getUntrackedParameter<int>("synchErrorThreshold", 5);
 
   // summary maps
   meIntegrity_            = 0;
@@ -170,6 +162,9 @@ EBSummaryClient::EBSummaryClient(const edm::ParameterSet& ps) {
     htmt01_[ism-1] = 0;
 
   }
+
+  synchErrorThreshold_ = 0.0;
+
 }
 
 EBSummaryClient::~EBSummaryClient() {
@@ -258,7 +253,7 @@ void EBSummaryClient::setup(void) {
 	meIntegrityErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
       }
     }
-    if(laserClient){
+    else{
       if ( meIntegrityPN_ ) dqmStore_->removeElement( meIntegrityPN_->getName() );
       name = "EBIT PN integrity quality summary";
       meIntegrityPN_ = dqmStore_->book2D(name, name, 90, 0., 90., 20, -10., 10.);
@@ -288,7 +283,7 @@ void EBSummaryClient::setup(void) {
       meRecHitEnergy_->setAxisTitle("jphi", 1);
       meRecHitEnergy_->setAxisTitle("jeta", 2);
     }
-    if(laserClient){
+    else{
       if ( meOccupancyPN_ ) dqmStore_->removeElement( meOccupancyPN_->getName() );
       name = "EBOT PN digi occupancy summary";
       meOccupancyPN_ = dqmStore_->book2D(name, name, 90, 0., 90., 20, -10., 10.);
@@ -298,7 +293,7 @@ void EBSummaryClient::setup(void) {
 
   }
 
-  if(statusFlagsClient && produceReports_){
+  if(statusFlagsClient){
     if ( meStatusFlags_ ) dqmStore_->removeElement( meStatusFlags_->getName() );
     name = "EBSFT front-end status summary";
     meStatusFlags_ = dqmStore_->book2D(name, name, 72, 0., 72., 34, -17., 17.);
@@ -313,7 +308,7 @@ void EBSummaryClient::setup(void) {
     }
   }
 
-  if(pedestalOnlineClient && produceReports_){
+  if(pedestalOnlineClient){
     if ( mePedestalOnline_ ) dqmStore_->removeElement( mePedestalOnline_->getName() );
     name = "EBPOT pedestal quality summary G12";
     mePedestalOnline_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
@@ -754,7 +749,7 @@ void EBSummaryClient::setup(void) {
     meTriggerTowerNonSingleTiming_->setAxisTitle("fraction", 3);
   }
 
-  if(meIntegrity_ && mePedestalOnline_ && meStatusFlags_ && (reducedReports_ || (meTiming_ && meTriggerTowerEmulError_))){
+  if(meIntegrity_ && mePedestalOnline_ && meTiming_ && meStatusFlags_ && meTriggerTowerEmulError_){
     if( meGlobalSummary_ ) dqmStore_->removeElement( meGlobalSummary_->getName() );
     name = "EB global summary";
     meGlobalSummary_ = dqmStore_->book2D(name, name, 360, 0., 360., 170, -85., 85.);
@@ -1012,7 +1007,7 @@ void EBSummaryClient::analyze(void) {
 
       if ( meRecHitEnergy_ ) meRecHitEnergy_->setBinContent( ipx, iex, 0. );
 
-      if(meGlobalSummary_ ) meGlobalSummary_->setBinContent( ipx, iex, 6. );
+      if(meIntegrity_ && mePedestalOnline_ && meTiming_ && meStatusFlags_ && meTriggerTowerEmulError_ && meGlobalSummary_ ) meGlobalSummary_->setBinContent( ipx, iex, 6. );
 
     }
   }
@@ -1115,22 +1110,13 @@ void EBSummaryClient::analyze(void) {
   if ( meTriggerTowerTiming_ ) meTriggerTowerTiming_->setEntries( 0 );
   if ( meTriggerTowerNonSingleTiming_ ) meTriggerTowerNonSingleTiming_->setEntries( 0 );
 
-  if(meGlobalSummary_ ) meGlobalSummary_->setEntries( 0 );
-
-  MonitorElement* me(0);
-  me = dqmStore_->get(prefixME_ + "/EBTimingTask/EBTMT timing map");
-  TProfile2D* htmt(0);
-  htmt = UtilsClient::getHisto(me, false, htmt);
-
-  std::string subdir(subfolder_ == "" ? "" : subfolder_ + "/");
+  if(meIntegrity_ && mePedestalOnline_ && meTiming_ && meStatusFlags_ && meTriggerTowerEmulError_ && meGlobalSummary_ ) meGlobalSummary_->setEntries( 0 );
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
     EBIntegrityClient* ebic = dynamic_cast<EBIntegrityClient*>(clients_[i]);
     EBStatusFlagsClient* ebsfc = dynamic_cast<EBStatusFlagsClient*>(clients_[i]);
-    if(!produceReports_) ebsfc = 0;
     EBPedestalOnlineClient* ebpoc = dynamic_cast<EBPedestalOnlineClient*>(clients_[i]);
-    if(!produceReports_) ebpoc = 0;
 
     EBLaserClient* eblc = dynamic_cast<EBLaserClient*>(clients_[i]);
     EBPedestalClient* ebpc = dynamic_cast<EBPedestalClient*>(clients_[i]);
@@ -1139,6 +1125,7 @@ void EBSummaryClient::analyze(void) {
     EBTimingClient* ebtmc = dynamic_cast<EBTimingClient*>(clients_[i]);
     EBTriggerTowerClient* ebtttc = dynamic_cast<EBTriggerTowerClient*>(clients_[i]);
 
+    MonitorElement *me;
     MonitorElement *me_01, *me_02, *me_03;
     MonitorElement *me_04, *me_05;
     //    MonitorElement *me_f[6], *me_fg[2];
@@ -1149,10 +1136,10 @@ void EBSummaryClient::analyze(void) {
 
       int ism = superModules_[i];
 
-      me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/" + subdir + "EBOT rec hit energy " + Numbers::sEB(ism) );
+      me = dqmStore_->get( prefixME_ + "/EBOccupancyTask/EBOT rec hit energy " + Numbers::sEB(ism) );
       hot01_[ism-1] = UtilsClient::getHisto( me, cloneME_, hot01_[ism-1] );
 
-      me = dqmStore_->get( prefixME_ + "/EBPedestalOnlineTask/"+ subdir + "Gain12/EBPOT pedestal " + Numbers::sEB(ism) + " G12" );
+      me = dqmStore_->get( prefixME_ + "/EBPedestalOnlineTask/Gain12/EBPOT pedestal " + Numbers::sEB(ism) + " G12" );
       hpot01_[ism-1] = UtilsClient::getHisto( me, cloneME_, hpot01_[ism-1] );
 
       me = dqmStore_->get( prefixME_ + "/EBTriggerTowerTask/EBTTT Et map Real Digis " + Numbers::sEB(ism) );
@@ -1164,7 +1151,7 @@ void EBSummaryClient::analyze(void) {
       me = dqmStore_->get( prefixME_ + "/EcalInfo/EBMM DCC" );
       norm01_ = UtilsClient::getHisto( me, cloneME_, norm01_ );
 
-      me = dqmStore_->get( prefixME_ + "/EBRawDataTask/" + subdir + "EBRDT L1A FE errors" );
+      me = dqmStore_->get( prefixME_ + "/EBRawDataTask/EBRDT L1A FE errors" );
       synch01_ = UtilsClient::getHisto( me, cloneME_, synch01_ );
 
       for ( int ie = 1; ie <= 85; ie++ ) {
@@ -1237,8 +1224,8 @@ void EBSummaryClient::analyze(void) {
 
               float xval = me->getBinContent( ie, ip );
 
-              if(mePedestalOnline_) mePedestalOnline_->setBinContent( ipx, iex, xval );
-              if ( xval == 0 && mePedestalOnlineErr_ ) mePedestalOnlineErr_->Fill( ism );
+              mePedestalOnline_->setBinContent( ipx, iex, xval );
+              if ( xval == 0 ) mePedestalOnlineErr_->Fill( ism );
 
             }
 
@@ -1258,11 +1245,11 @@ void EBSummaryClient::analyze(void) {
                 ipx = 1+(20-ip)+20*(ism-19);
               }
 
-              if(mePedestalOnlineRMSMap_) mePedestalOnlineRMSMap_->setBinContent( ipx, iex, rms01 );
+              mePedestalOnlineRMSMap_->setBinContent( ipx, iex, rms01 );
 
-              if(mePedestalOnlineRMS_) mePedestalOnlineRMS_->Fill( ism, rms01 );
+              mePedestalOnlineRMS_->Fill( ism, rms01 );
 
-              if(mePedestalOnlineMean_) mePedestalOnlineMean_->Fill( ism, mean01 );
+              mePedestalOnlineMean_->Fill( ism, mean01 );
 
             }
 
@@ -1448,7 +1435,7 @@ void EBSummaryClient::analyze(void) {
 
             float num02, mean02, rms02;
 
-	    bool update02 = UtilsClient::getBinStatistics(htmt01_[ism-1], ie, ip, num02, mean02, rms02, timingNHitThreshold_);
+	    bool update02 = UtilsClient::getBinStatistics(htmt01_[ism-1], ie, ip, num02, mean02, rms02, 3.);
 
             if ( update02 ) {
 
@@ -1563,7 +1550,7 @@ void EBSummaryClient::analyze(void) {
                 // float emulErrorVal = h2->GetBinContent( ie, ip ) + h3->GetBinContent( ie, ip );
                 float emulErrorVal = h2->GetBinContent( ie, ip );
 
-                if( emulErrorVal > 0.01 * ievt_ && hadNonZeroInterest ) xval = 0;
+                if( emulErrorVal!=0 && hadNonZeroInterest ) xval = 0;
 
               }
 
@@ -1579,40 +1566,38 @@ void EBSummaryClient::analyze(void) {
 
 	    if( htmt01_[ism-1] ){
 
-	      float num(0.);
-	      bool mask(false);
+	      float ent, cont, err;
+	      float num, sum, sumw2;
+	      num = sum = sumw2 = 0.;
+	      bool mask = false;
 
 	      for(int ce=1; ce<=5; ce++){
 		for(int cp=1; cp<=5; cp++){
 
 		  int scie = (ie - 1) * 5 + ce;
 		  int scip = (ip - 1) * 5 + cp; 
+		  int bin = htmt01_[ism-1]->GetBin( scie, scip );
 
-		  num += htmt01_[ism-1]->GetBinEntries(htmt01_[ism-1]->GetBin(scie, scip));
+		  // htmt01_ are booked with option "s" -> error = RMS not RMS/sqrt(N)
+		  ent = htmt01_[ism-1]->GetBinEntries( bin );
+		  cont = htmt01_[ism-1]->GetBinContent( bin ) - 50.;
+		  err = htmt01_[ism-1]->GetBinError( bin );
 
-		  if(Masks::maskChannel(ism, scie, scip, chWarnBit, EcalBarrel)) mask = true;
+		  num += ent;
+		  sum += cont * ent;
+		  sumw2 += (err * err + cont * cont) * ent;
+
+		  if( ent > 3. && (std::abs(cont) > 2. || err > 6.) && Masks::maskChannel(ism, scie, scip, chWarnBit, EcalBarrel) ) mask = true;
 		}
 	      }
 
-	      float nHitThreshold(timingNHitThreshold_ * 18.);
-
-	      bool update01(false);
-	      float num01, mean01, rms01;
-	      update01 = UtilsClient::getBinStatistics(htmt, ipx, iex, num01, mean01, rms01, nHitThreshold);
-
-	      mean01 -= 50.;
-
-	      if(!update01){
-		mean01 = 0.;
-		rms01 = 0.;
-	      }
-
-	      update01 |= num > 1.3 * nHitThreshold;
-
 	      float xval = 2.;
-	      if(update01){
+	      if( num > 10. ){
 
-		if( std::abs(mean01) > 2. || rms01 > 6. || num > 1.3 * num01) xval = 0.;
+		float mean = sum / num;
+		float rms = std::sqrt( sumw2 / num - mean * mean );
+
+		if( std::abs(mean) > 2. || rms > 6. ) xval = 0.;
 		else xval = 1.;
 
 	      }
@@ -1959,7 +1944,7 @@ void EBSummaryClient::analyze(void) {
   for ( int iex = 1; iex <= 170; iex++ ) {
     for ( int ipx = 1; ipx <= 360; ipx++ ) {
 
-      if(meGlobalSummary_) {
+      if(meIntegrity_ && mePedestalOnline_ && meTiming_ && meStatusFlags_ && meTriggerTowerEmulError_ && meGlobalSummary_) {
 
         int ism = (ipx-1)/20 + 1 ;
         if ( iex>85 ) ism+=18;
@@ -1970,10 +1955,10 @@ void EBSummaryClient::analyze(void) {
         float xval = 6;
         float val_in = meIntegrity_->getBinContent(ipx,iex);
         float val_po = mePedestalOnline_->getBinContent(ipx,iex);
-        float val_tm = reducedReports_ ? 1. : meTiming_->getBinContent(ipt,iet);
+        float val_tm = meTiming_->getBinContent(ipt,iet);
         float val_sf = meStatusFlags_->getBinContent((ipx-1)/5+1,(iex-1)/5+1);
-        float val_ee = reducedReports_ ? 1. : meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1); // removed from the global summary temporarily
-	//        float val_ee = 1;
+        // float val_ee = meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1); // removed from the global summary temporarily
+        float val_ee = 1;
 
         // combine all the available wavelenghts in unique laser status
         // for each laser turn dark color and yellow into bright green
@@ -2026,9 +2011,12 @@ void EBSummaryClient::analyze(void) {
         // are reverted back to yellow
         float iEntries=0;
 
-        if(synch01_) {
-	  float synchErrors = synch01_->GetBinContent(ism);
-          if(synchErrors > synchErrorThreshold_) xval=0;
+        if(norm01_ && synch01_) {
+          float frac_synch_errors = 0.;
+          float norm = norm01_->GetBinContent(ism);
+          if(norm > 0) frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm);
+          float val_sy = (frac_synch_errors <= synchErrorThreshold_);
+          if(val_sy==0) xval=0;
         }
 
         std::vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
@@ -2069,6 +2057,8 @@ void EBSummaryClient::analyze(void) {
 
     }
   }
+
+  MonitorElement* me;
 
   float reportSummary = -1.0;
   if ( nValidChannels != 0 )

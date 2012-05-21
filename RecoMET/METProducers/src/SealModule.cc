@@ -8,17 +8,12 @@
 #include "RecoMET/METProducers/interface/HcalHaloDataProducer.h" 
 #include "RecoMET/METProducers/interface/EcalHaloDataProducer.h" 
 #include "RecoMET/METProducers/interface/GlobalHaloDataProducer.h" 
-#include "RecoMET/METProducers/interface/PFCandidatesForTrackMETProducer.h" 
-#include "RecoMET/METProducers/interface/PFMETProducerMVA.h" 
-
 using cms::METProducer;
 using reco::BeamHaloSummaryProducer;
 using reco::CSCHaloDataProducer;
 using reco::HcalHaloDataProducer;
 using reco::EcalHaloDataProducer;
 using reco::GlobalHaloDataProducer;
-using reco::PFCandidatesForTrackMETProducer;
-using reco::PFMETProducerMVA;
 
 DEFINE_FWK_MODULE(METProducer);
 DEFINE_FWK_MODULE(BeamHaloSummaryProducer);
@@ -26,8 +21,6 @@ DEFINE_FWK_MODULE(CSCHaloDataProducer);
 DEFINE_FWK_MODULE(HcalHaloDataProducer);
 DEFINE_FWK_MODULE(EcalHaloDataProducer);
 DEFINE_FWK_MODULE(GlobalHaloDataProducer);
-DEFINE_FWK_MODULE(PFCandidatesForTrackMETProducer);
-DEFINE_FWK_MODULE(PFMETProducerMVA);
 
 #include "RecoMET/METProducers/interface/MuonMET.h"
 using cms::MuonMET;

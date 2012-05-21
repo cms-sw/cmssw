@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2012/04/20 06:20:34 $
- * $Revision: 1.136.2.2 $
+ * $Date: 2011/09/15 20:59:51 $
+ * $Revision: 1.135 $
  * \author G. Della Ricca
  *
 */
@@ -705,55 +705,6 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   edm::Handle<EBDigiCollection> digis;
 
   if ( e.getByLabel(EBDigiCollection_, digis) ) {
-
-    int maxpos[10];
-    for(int i(0); i < 10; i++)
-      maxpos[i] = 0;
-
-    int nReadouts(0);
-
-    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
-
-      EBDetId id = digiItr->id();
-
-      int ism = Numbers::iSM( id );
-
-      if ( ! ( runType[ism-1] == EcalDCCHeaderBlock::LASER_STD ||
-               runType[ism-1] == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
-
-      if ( rtHalf[ism-1] != Numbers::RtHalf(id) ) continue;
-
-      nReadouts++;
-
-      EBDataFrame dataframe = (*digiItr);
-
-      int iMax(-1);
-      float max(0.);
-      float min(4096.);
-      for (int i = 0; i < 10; i++) {
-        int adc = dataframe.sample(i).adc();
-	if(adc > max){
-	  max = adc;
-	  iMax = i;
-	}
-	if(adc < min)
-	  min = adc;
-      }
-      if(iMax >= 0 && max - min > 20.)
-	maxpos[iMax] += 1;
-
-    }
-
-    int threshold(nReadouts / 2);
-    enable = false;
-    for(int i(0); i < 10; i++){
-      if(maxpos[i] > threshold){
-	enable = true;
-	break;
-      }
-    }
-
-    if(!enable) return;
 
     int nebd = digis->size();
     LogDebug("EBLaserTask") << "event " << ievt_ << " digi collection size " << nebd;

@@ -51,6 +51,14 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('FastSimulation.Configuration.Geometries_cff')
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['startup']
+process.GlobalTag.toGet.append(
+   cms.PSet(
+     record  = cms.string( 'L1GtTriggerMenuRcd' ),
+     tag     = cms.string( 'L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc' ),
+     label   = cms.untracked.string( '' ),
+     connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_L1T' )
+           )
+)
 
 # L1 Emulator and HLT Setup
 process.load("FastSimulation.HighLevelTrigger.HLTSetup_cff")

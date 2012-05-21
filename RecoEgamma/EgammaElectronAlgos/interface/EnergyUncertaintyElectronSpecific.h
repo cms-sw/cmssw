@@ -33,7 +33,7 @@ class EnergyUncertaintyElectronSpecific
    double computeElectronEnergyUncertainty_golden(double eta, double brem, double energy);
    double computeElectronEnergyUncertainty_bigbrem(double eta, double brem, double energy);
    double computeElectronEnergyUncertainty_showering(double eta, double brem, double energy);
-   double computeElectronEnergyUncertainty_crack(double eta, double brem, double energy);
+   double computeElectronEnergyUncertainty_cracks(double eta, double brem, double energy);
    double computeElectronEnergyUncertainty_badtrack(double eta, double brem, double energy);
 
 
