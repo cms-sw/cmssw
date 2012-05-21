@@ -89,60 +89,55 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    
    PrimaryVertexGenerator* theVertexGenerator = fevt->thePrimaryVertexGenerator();
    
-   // Get the generated signal event
-   bool source = iEvent.getByLabel(theSourceLabel,theHepMCProduct);
-   if ( source ) { 
-     myGenEvent = theHepMCProduct->GetEvent();
-     // First rotate in case of beam crossing angle (except if done already)
-     if ( theVertexGenerator ) { 
-       TMatrixD* boost = theVertexGenerator->boost();
-       if ( boost ) theHepMCProduct->boostToLab(boost,"momentum");
-     }          
-     myGenEvent = theHepMCProduct->GetEvent();
-   } 
    
-   // to take the GenParticle from crossingframe event collection   
+   const reco::GenParticleCollection* myGenParticlesXF = 0;
+   const reco::GenParticleCollection* myGenParticles = 0;
+   const HepMC::GenEvent* thePUEvents = 0;
+   
    Handle<CrossingFrame<HepMCProduct> > theHepMCProductCrossingFrame;
    bool isPileUpXF = iEvent.getByLabel("mixGenPU","generator",theHepMCProductCrossingFrame);
-   if (isPileUpXF){
-     const reco::GenParticleCollection* myGenParticlesXF = 0;
+
+   if (isPileUpXF){// take the GenParticle from crossingframe event collection, if it exists 
      Handle<reco::GenParticleCollection> genEvtXF;
      bool genPartXF = iEvent.getByLabel("genParticlesFromMixingModule",genEvtXF);
-     if(genPartXF) {
-       myGenParticlesXF = &(*genEvtXF);
-       famosManager_->reconstruct(myGenParticlesXF);
-     }
+     if(genPartXF) myGenParticlesXF = &(*genEvtXF);
    }
-       
-   else{
-     // to switch to the famos PU     
+   else{// otherwise, use the old famos PU     
+
+     // Get the generated signal event
+     bool source = iEvent.getByLabel(theSourceLabel,theHepMCProduct);
+     if ( source ) { 
+       myGenEvent = theHepMCProduct->GetEvent();
+       // First rotate in case of beam crossing angle (except if done already)
+       if ( theVertexGenerator ) { 
+	 TMatrixD* boost = theVertexGenerator->boost();
+	 if ( boost ) theHepMCProduct->boostToLab(boost,"momentum");
+       }          
+       myGenEvent = theHepMCProduct->GetEvent();
+     } 
+
      fevt->setBeamSpot(BSPosition_);
        
      //     In case there is no HepMCProduct, seek a genParticle Candidate Collection
      bool genPart = false;
-     const reco::GenParticleCollection* myGenParticles = 0;
      if ( !myGenEvent ) { 
        // Look for the particle CandidateCollection
        Handle<reco::GenParticleCollection> genEvt;
        genPart = iEvent.getByLabel(theGenParticleLabel,genEvt);
        if ( genPart ) myGenParticles = &(*genEvt);
+     }
        
-       if ( !myGenEvent && !genPart )
-	 std::cout << "There is no generator input for this event, under " 
-		   << "any form (HepMCProduct, genParticles)" << std::endl
-		   << "Please check SourceLabel or GenParticleLabel" << std::endl;
+     if ( !myGenEvent && !genPart )
+       std::cout << "There is no generator input for this event, under " 
+		 << "any form (HepMCProduct, genParticles)" << std::endl
+		 << "Please check SourceLabel or GenParticleLabel" << std::endl;
        
-       // Get the pile-up events from the pile-up producer
-       // There might be no pile-up events, by the way, in that case, just continue
-       Handle<HepMCProduct> thePileUpEvents;
-       bool isPileUp = iEvent.getByLabel("famosPileUp","PileUpEvents",thePileUpEvents);
-       const HepMC::GenEvent* thePUEvents = isPileUp ? thePileUpEvents->GetEvent() : 0;
-       
-       
-       // .and pass the event to the Famos Manager for propagation and simulation
-       if ( myGenEvent || myGenParticles ) 
-	 famosManager_->reconstruct(myGenEvent,myGenParticles,thePUEvents);
-     }   
+     // Get the pile-up events from the pile-up producer
+     // There might be no pile-up events, by the way, in that case, just continue
+     Handle<HepMCProduct> thePileUpEvents;
+     bool isPileUp = iEvent.getByLabel("famosPileUp","PileUpEvents",thePileUpEvents);
+     thePUEvents = isPileUp ? thePileUpEvents->GetEvent() : 0;
+      
      // Set the vertex back to the HepMCProduct (except if it was smeared already)
      if ( myGenEvent ) { 
        if ( theVertexGenerator ) { 
@@ -155,7 +150,13 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
        }
      }
    }//end else
-   
+
+   // pass the event to the Famos Manager for propagation and simulation
+   if (myGenParticlesXF) {
+     famosManager_->reconstruct(myGenParticlesXF);
+   } else {
+     famosManager_->reconstruct(myGenEvent,myGenParticles,thePUEvents);
+   }
    
    CalorimetryManager * calo = famosManager_->calorimetryManager();
    TrajectoryManager * tracker = famosManager_->trackerManager();
