@@ -70,7 +70,7 @@ FastHisto::T FastHisto::GetAt(const T &x) const {
 }
 
 FastHisto::T FastHisto::IntegralWidth() const {
-    T total = 0;
+    double total = 0;
     for (unsigned int i = 0; i < size_; ++i) total += values_[i] * binWidths_[i];
     return total;
 }
@@ -130,7 +130,7 @@ FastHisto2D::T FastHisto2D::GetAt(const T &x, const T &y) const {
 }
 
 FastHisto2D::T FastHisto2D::IntegralWidth() const {
-    T total = 0;
+    double total = 0;
     for (unsigned int i = 0; i < size_; ++i) total += values_[i] * binWidths_[i];
     return total;
 }
@@ -138,7 +138,7 @@ FastHisto2D::T FastHisto2D::IntegralWidth() const {
 void FastHisto2D::NormalizeXSlices() {
     for (unsigned int ix = 0, offs = 0; ix < binX_; ++ix, offs += binY_) {
        T *values = & values_[offs], *widths = & binWidths_[offs];
-       T total = 0;
+       double total = 0;
        for (unsigned int i = 0; i < binY_; ++i) total += values[i] * widths[i];
        if (total > 0) {
             total = T(1.0)/total;

@@ -7,7 +7,7 @@
 
 class FastTemplate {
     public:
-        typedef float T;
+        typedef double T;
         FastTemplate() : size_(0), values_(0) {}
         FastTemplate(unsigned int size) : size_(size), values_(new T[size_]) {}
         FastTemplate(const FastTemplate &other) : size_(other.size_), values_(new T[size_]) { CopyValues(other); }
