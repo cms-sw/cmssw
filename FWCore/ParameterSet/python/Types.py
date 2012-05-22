@@ -985,6 +985,15 @@ class EDAlias(_ConfigureComponent,_Labelable):
             param.insertInto(newpset, name)
         parameterSet.addPSet(True, self.nameInProcessDesc_(myname), newpset)
 
+    def dumpPython(self, options=PrintOptions()):
+        resultList = ['cms.EDAlias(']
+        for name in self.parameterNames_():
+            param = self.__dict__[name]
+            options.indent()
+            resultList.append(options.indentation()+name+' = '+param.dumpPython(options))
+            options.unindent()
+        return '\n'.join(resultList)+'\n)'
+
 if __name__ == "__main__":
 
     import unittest
