@@ -480,6 +480,7 @@ class matplotRender():
             yvalues.sort()
             flat.append([t[3] for t in yvalues])
             alldays=[t[0] for t in yvalues]
+            alldates=[str(datetime.date.fromordinal(t)) for t in alldays]
             ypoints[label]=[]
             lumivals=[t[3] for t in yvalues]
             for d in fulldays:
@@ -499,7 +500,7 @@ class matplotRender():
         xpoints=fulldays
         if textoutput:
             csvreport=csvReporter.csvReporter(textoutput)
-            head=['#day','begrunls','endrunls','delivered','recorded']
+            head=['#day','begrunls','endrunls','delivered','recorded','date']
             csvreport.writeRow(head)
             flat.insert(0,alldays)
             allstarts=[ t[1] for t in rawdata[referenceLabel]]
@@ -507,6 +508,7 @@ class matplotRender():
             #print 'allstarts ',allstarts
             flat.insert(1,allstarts)
             flat.insert(2,allstops)
+            flat.append(alldates)
             rows=zip(*flat)
             csvreport.writeRows([list(t) for t in rows])
         yearStrMin=minTime.strftime('%Y')
@@ -621,6 +623,7 @@ class matplotRender():
         for label,yvalues in rawdata.items():
             yvalues.sort()#sort by day
             alldays=[t[0] for t in yvalues]
+            alldates=[str(datetime.date.fromordinal(t)) for t in alldays]
             ypoints[label]=[]
             lumivals=[t[3] for t in yvalues]
             flat.append(lumivals)
@@ -641,13 +644,14 @@ class matplotRender():
         xpoints=fulldays
         if textoutput:
             csvreport=csvReporter.csvReporter(textoutput)
-            head=['#day','run','lsnum','maxinstlumi']
+            head=['#day','run','lsnum','maxinstlumi','date']
             csvreport.writeRow(head)
             flat.insert(0,alldays)
             allruns=[ t[1] for t in rawdata[referenceLabel]]
             allls=[ t[2] for t in rawdata[referenceLabel]]
             flat.insert(1,allruns)
             flat.insert(2,allls)
+            flat.append(alldates)
             rows=zip(*flat)
             csvreport.writeRows([list(t) for t in rows])
             
