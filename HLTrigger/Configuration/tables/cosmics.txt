@@ -14,12 +14,12 @@ HLT_L1SingleMuOpen_DT_v*
 HLT_L1SingleMu12_v*
 HLT_L1SingleEG5_v*
 HLT_L1SingleEG12_v*
-HLT_BeamGas_HF_v*
+#HLT_BeamGas_HF_v*										# removed sr128706
 HLT_BeamGas_HF_Beam1_v*
 HLT_BeamGas_HF_Beam2_v*
 HLT_BeamHalo_v*
-HLT_L1_PreCollisions_v*
-HLT_L1_Interbunch_BSC_v*
+#HLT_L1_PreCollisions_v*									# removed sr128706
+#HLT_L1_Interbunch_BSC_v*									# removed sr128706
 HLT_HcalPhiSym_v*
 HLT_HcalNZS_v*
 HLT_GlobalRunHPDNoise_v*
