@@ -109,11 +109,8 @@ int FUShmReader::fillRawData(EventID& eID,
       shmBuffer_->sem_print();
     }
     shmBuffer_->scheduleRawCellForDiscard(newCell->index());
-    //write process ID into the Shm
-    shmBuffer_->setEvtPrcId(lastCellIndex_,getpid());
-    //set event number to special value for lumi
-    shmBuffer_->setEvtNumber(lastCellIndex_,0xffffffff);
-    shmBuffer_->finishReadingRawCell(newCell);
+    //write process ID for raw cell to shm
+    shmBuffer_->setEvtPrcId(newCell->index(),getpid());
     if(ls==0){
       edm::LogError("ZeroLsCell") << getpid() 
 				  << " GOT an EOL event for ls 0!!!" 
@@ -134,7 +131,7 @@ int FUShmReader::fillRawData(EventID& eID,
   // read the event data into the fwk raw data format
   evtNumber_    =newCell->evtNumber();
   lastCellIndex_=newCell->index();
-  //write process ID into the cell
+  //write process ID for the current raw cell to shm
   shmBuffer_->setEvtPrcId(lastCellIndex_,getpid());
   event_        =new FEDRawDataCollection();
   for (unsigned int i=0;i<newCell->nFed();i++) {
