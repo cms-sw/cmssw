@@ -220,7 +220,7 @@ class matplotRender():
             if minFill and fillnum<minFill:continue
             if maxFill and fillnum>maxFill:continue
             for i,lab in enumerate(labels) :
-                v=float(r[-(len(labels)-i)])#the values to plot are always the 2nd last n fields
+                v=float(r[-(len(labels)-i)])#the values to plot are always the last n fields
                 rawdata.setdefault(lab,[]).append((fillnum,runnum,v))
         #print 'fillrunDict ',fillrunDict
         if not rawdata:
@@ -455,14 +455,13 @@ class matplotRender():
             day=int(r[0])
             begrunls=r[1]
             endrunls=r[2]
-            datestr=r[-1] #perday plot last field is datestr
             #[begrun,begls]=[int(s) for s in r[1].split(':')]
             if rawdata and day in [t[0] for t in rawdata[referenceLabel]]:continue
             if day < minTime.date().toordinal():continue
             if day > maxTime.date().toordinal():continue
             for i,lab in enumerate(labels):
-                v=float(r[-(len(labels)-i)-1])#perday plots last field is date
-                rawdata.setdefault(lab,[]).append((day,begrunls,endrunls,v,datestr))
+                v=float(r[-(len(labels)-i)])
+                rawdata.setdefault(lab,[]).append((day,begrunls,endrunls,v))
         if not rawdata:
             print '[WARNING]: no data, do nothing'
             return
@@ -601,14 +600,13 @@ class matplotRender():
         for r in resultlines:
             day=int(r[0])
             runnumber=int(r[1])
-            datestr=r[-1] #perday plot last field is datestr
             lsnum=int(r[2].split('.')[0])
             if rawdata and day in [int(t[0]) for t in rawdata[referenceLabel]]:continue
             if day < minTime.date().toordinal():continue
             if day > maxTime.date().toordinal():continue
             for i,lab in enumerate(labels):
-                v=float(r[-(len(labels)-i)-1])
-                rawdata.setdefault(lab,[]).append((day,runnumber,lsnum,v,datestr))
+                v=float(r[-(len(labels)-i)])
+                rawdata.setdefault(lab,[]).append((day,runnumber,lsnum,v))
         if not rawdata:
             print '[WARNING]: no data, do nothing'
             return
