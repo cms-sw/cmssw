@@ -43,7 +43,7 @@ process.hltMonBits = cms.EDAnalyzer("HLTMonBitSummary",
         TriggerResultsTag = cms.InputTag('TriggerResults','','HLT'),
 )
 
-import PhysicsTools.PythonAnalysis.LumiList as LumiList
+import FWCore.PythonUtilities.LumiList as LumiList
 import FWCore.ParameterSet.Types as CfgTypes
 myLumis = LumiList.LumiList(filename = '%%%JSON%%%').getCMSSWString().split(',')
 process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
