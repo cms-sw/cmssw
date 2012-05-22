@@ -4351,7 +4351,7 @@ protected:
       Mini[iPar] = thisMini[iPar];
       Maxi[iPar] = thisMaxi[iPar];
       ind[iPar] = *(parBgrOrderIt+iPar);
-      parname[iPar] = thisParName[iPar];
+      // EM 2012.05.22 this line is crashing cmsRun (need to be fixed)      parname[iPar] = thisParName[iPar];
     }
   }
   class FunctionForIntegral
@@ -4411,7 +4411,7 @@ class backgroundFunctionType1 : public backgroundFunctionBase
   }
   virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) {
     double thisStep[] = {0.01, 0.01};
-    TString thisParName[] = {"Bgr fraction", "Constant", "Linear"};
+    TString thisParName[] = {"Constant", "Linear"};
     if( muonType == 1 ) {
       double thisMini[] = {0.0, -300.};
       double thisMaxi[] = {1.0,    0.};
@@ -5515,10 +5515,5 @@ class backgroundFunctionType10 : public backgroundFunctionBase {
     return 0;
   }
 };
-
-
-/// Service to build the background functor corresponding to the passed identifier
-backgroundFunctionBase * backgroundFunctionService( const int identifier, const double & lowerLimit, const double & upperLimit );
-
 
 #endif // FUNCTIONS_H
