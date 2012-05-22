@@ -72,7 +72,7 @@ class CvCfHiggs(SMLikeHiggsModel):
         ## XS*BR scales
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "CvCf_XSBRscal_%s_%s" % (production,decay)
-        if self.modelBuilder.out.function("CvCf_XSBRscal_%s_%s") == None: 
+        if self.modelBuilder.out.function(name) == None: 
             XSscal = "CF,CF" if production in ["ggH","ttH"] else "CV,CV"
             BRscal = "hgg"
             if decay in ["hww", "hzz"]: BRscal = "hv"
@@ -155,7 +155,7 @@ class C5Higgs(SMLikeHiggsModel):
             self.modelBuilder.factory_("expr::C5_BRscal_htt(\"@0/@1\", Ctt, C5_Gscal_tot)")
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "C5_XSBRscal_%s_%s" % (production,decay)
-        if self.modelBuilder.out.function("C5_XSBRscal_%s_%s") == None: 
+        if self.modelBuilder.out.function(name) == None: 
             XSscal = "Cgluglu" if production in ["ggH"] else "Cvv"
             BRscal = "hgg"
             if decay in ["hww", "hzz"]: BRscal = "hv"
