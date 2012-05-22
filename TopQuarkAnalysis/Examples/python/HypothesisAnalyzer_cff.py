@@ -5,18 +5,13 @@ import FWCore.ParameterSet.Config as cms
 # between event hypothesis from different algorithms
 #
 
-# initialize analyzers
+# initialize/configure analyzers
 from TopQuarkAnalysis.Examples.HypothesisAnalyzer_cfi import *
-analyzeGenMatch      = analyzeHypothesis.clone()
-analyzeMaxSumPtWMass = analyzeHypothesis.clone()
-analyzeMVADisc       = analyzeHypothesis.clone()
-
-# configure analyzers
-analyzeGenMatch.hypoClassKey      = "kGenMatch"
-analyzeMaxSumPtWMass.hypoClassKey = "kMaxSumPtWMass"
-analyzeMVADisc.hypoClassKey       = "kMVADisc"
+analyzeGenMatch      = analyzeHypothesis.clone(hypoClassKey = "kGenMatch")
+analyzeMaxSumPtWMass = analyzeHypothesis.clone(hypoClassKey = "kMaxSumPtWMass")
+analyzeKinFit        = analyzeHypothesis.clone(hypoClassKey = "kKinFit")
 
 # define sequence
 analyzeHypotheses = cms.Sequence(analyzeGenMatch *
                                  analyzeMaxSumPtWMass *
-                                 analyzeMVADisc)
+                                 analyzeKinFit)
