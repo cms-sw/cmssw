@@ -501,9 +501,9 @@ void create_plots(std::string const colorScheme="Greg") {
   int peakDayEnd = dayV.back();
   int numDaysPeakLumi = (peakDayEnd - peakDayStart) / (24 * 60 * 60) + 1;
 
-//   // DEBUG DEBUG DEBUG
-//   assert(numDaysPeakLumi == numDays);
-//   // DEBUG DEBUG DEBUG end
+  // DEBUG DEBUG DEBUG
+  assert(numDaysPeakLumi == numDays);
+  // DEBUG DEBUG DEBUG end
 
   peakDayStart -= (12 * 60 * 60);
   peakDayEnd += (12 * 60 * 60);
