@@ -8,17 +8,17 @@ process.MessageLogger.categories.append('TtSemiLeptonicEvent')
 process.MessageLogger.categories.append('TtSemiLepKinFitter')
 
 ## define input
-#from TopQuarkAnalysis.TopEventProducers.tqafInputFiles_cff import relValTTbar
-#process.source = cms.Source("PoolSource",
-#    fileNames = cms.untracked.vstring(relValTTbar)
-#)
+from TopQuarkAnalysis.TopEventProducers.tqafInputFiles_cff import relValTTbar
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-    ['rfio:///castor/cern.ch/user/s/snaumann/test/Spring12/TTJets_TuneZ2star_8TeV-madgraph-tauola_AODSIM_PU_S7_START52_V5-v1/PAT_muJets_1.root',
-     'rfio:///castor/cern.ch/user/s/snaumann/test/Spring12/TTJets_TuneZ2star_8TeV-madgraph-tauola_AODSIM_PU_S7_START52_V5-v1/PAT_muJets_2.root',
-     'rfio:///castor/cern.ch/user/s/snaumann/test/Spring12/TTJets_TuneZ2star_8TeV-madgraph-tauola_AODSIM_PU_S7_START52_V5-v1/PAT_muJets_3.root']
-    )
+    fileNames = cms.untracked.vstring(relValTTbar)
 )
+#process.source = cms.Source("PoolSource",
+#    fileNames = cms.untracked.vstring(
+#    ['rfio:///castor/cern.ch/user/s/snaumann/test/Spring12/TTJets_TuneZ2star_8TeV-madgraph-tauola_AODSIM_PU_S7_START52_V5-v1/PAT_muJets_1.root',
+#     'rfio:///castor/cern.ch/user/s/snaumann/test/Spring12/TTJets_TuneZ2star_8TeV-madgraph-tauola_AODSIM_PU_S7_START52_V5-v1/PAT_muJets_2.root',
+#     'rfio:///castor/cern.ch/user/s/snaumann/test/Spring12/TTJets_TuneZ2star_8TeV-madgraph-tauola_AODSIM_PU_S7_START52_V5-v1/PAT_muJets_3.root']
+#    )
+#)
 
 ## define maximal number of events to loop over
 process.maxEvents = cms.untracked.PSet(
@@ -31,7 +31,7 @@ process.options = cms.untracked.PSet(
 )
 
 ## configure geometry & conditions
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
@@ -77,8 +77,8 @@ process.TFileService = cms.Service("TFileService",
 )
 
 ## end path   
-process.path = cms.Path(process.ttSemiLeptonicFilter *
-                        #process.patDefaultSequence *
+process.path = cms.Path(#process.ttSemiLeptonicFilter *
+                        process.patDefaultSequence *
                         process.makeGenEvt *
                         process.makeTtSemiLepEvent *
                         process.analyzeHypotheses)
