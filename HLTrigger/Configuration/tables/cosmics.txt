@@ -12,8 +12,8 @@ HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v*								# added sr128706
 HLT_L1SingleMuOpen_v*
 HLT_L1SingleMuOpen_DT_v*
 HLT_L1SingleMu12_v*
-HLT_L1SingleEG5_v*
-HLT_L1SingleEG12_v*
+#HLT_L1SingleEG5_v*										# removed sr128706
+#HLT_L1SingleEG12_v*										# removed sr128706
 #HLT_BeamGas_HF_v*										# removed sr128706
 HLT_BeamGas_HF_Beam1_v*
 HLT_BeamGas_HF_Beam2_v*
@@ -37,8 +37,8 @@ HLT_TrackerCalibration_v*
 HLT_Random_v*
 HLT_L1SingleMuOpen_AntiBPTX_v*
 HLT_L1TrackerCosmics_v*
-# HLT_RegionalCosmicTracking_v*                                                                 # removed sr #127068
-# HLT_L3MuonsCosmicTracking_v*                                                                  # removed sr #127068
+#HLT_RegionalCosmicTracking_v*                                                                 # removed sr #127068
+#HLT_L3MuonsCosmicTracking_v*                                                                  # removed sr #127068
 HLT_LogMonitor_v*
 HLT_DTErrors_v*
 AlCa_EcalPi0EBonly_v*
