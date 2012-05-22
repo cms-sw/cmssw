@@ -34,6 +34,7 @@ FUShmReader::FUShmReader()
   , runNumber_(0xffffffff)
   , evtNumber_(0xffffffff)
   , lastCellIndex_(0xffffffff)
+  , lumi_(false)
 {
   //  shmBuffer_=FUShmBuffer::getShmBuffer();
 }
@@ -76,6 +77,10 @@ int FUShmReader::fillRawData(EventID& eID,
     shmBuffer_->scheduleRawCellForDiscard(lastCellIndex_);
     event_ = 0;
   }
+  else if (lumi_==true) {
+    shmBuffer_->scheduleRawCellForDiscard(lastCellIndex_);
+    lumi_=false;    
+  }
   
   // wait for an event to become available, retrieve it
   FUShmRawCell* newCell=shmBuffer_->rawCellToRead();
@@ -95,6 +100,7 @@ int FUShmReader::fillRawData(EventID& eID,
     shmdt(shmBuffer_);
     shmBuffer_=0;
     event_=0;
+    lumi_=false;
     lastCellIndex_=0xffffffff;
     return 0;
   }
@@ -108,8 +114,11 @@ int FUShmReader::fillRawData(EventID& eID,
 					  << std::endl;
       shmBuffer_->sem_print();
     }
-    //shmBuffer_->setEvtState(newCell->index(),evt::PROCESSING);
-    shmBuffer_->scheduleRawCellForDiscard(newCell->index());
+    lumi_=true;
+    //shmBuffer_->scheduleRawCellForDiscard(newCell->index());
+    lastCellIndex_=newCell->index();
+    shmBuffer_->setEvtState(newCell->index(),evt::RAWREADING);
+    shmBuffer_->finishReadingRawCell(newCell);
     if(ls==0){
       edm::LogError("ZeroLsCell") << getpid() 
 				  << " GOT an EOL event for ls 0!!!" 

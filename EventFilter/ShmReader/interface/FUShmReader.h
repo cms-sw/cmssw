@@ -40,6 +40,7 @@ private:
   unsigned int          runNumber_;
   unsigned int          evtNumber_;
   unsigned int          lastCellIndex_;
+  bool                  lumi_;
   
 };
 
