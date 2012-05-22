@@ -1,3 +1,8 @@
+2012-05-22 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-05-09
+	* keeping raw cell occupied during processing of Lumi message
+
 2011-06-27  Emilio Meschi <Emilio.Meschi@cern.ch>
 
 	* tag V01-05-08
