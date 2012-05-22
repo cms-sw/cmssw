@@ -32,3 +32,6 @@
 <library   file="PixelVTXMonitor.cc" name="PixelVTXMonitor">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="BeamSpotProblemMonitor.cc" name="BeamSpotProblemMonitor">
+  <flags   EDM_PLUGIN="1"/>
+</library>
