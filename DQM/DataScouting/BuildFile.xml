@@ -1,5 +1,8 @@
+<use name="clhep"/>
+<use name="root"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
+<use name="DataFormats/Math"/>
 <use name="DQMServices/Components"/>
 <use name="DQMServices/Core"/>
 
