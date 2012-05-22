@@ -281,15 +281,14 @@ if __name__=='__main__':
     session.transaction().start(True)
     schema=session.nominalSchema()
     if options.action=='perday' or options.action=='instpeakperday':
-        maxDrawnDay=int(lut.StrToDatetime(begtime,customfm='%m/%d/%y %H:%M:%S').date().toordinal())
-        if resultlines:
+        maxDrawnDay=int(lut.StrToDatetime(begtime,customfm='%m/%d/%y %H:%M:%S').date().toordinal()) #default maxDrawnDay is begtime
+        if resultlines: #if there's old result lines
             for drawnDay in [ int(t[0]) for t in resultlines]:
-                if drawnDay>maxDrawnDay:
+                if drawnDay>maxDrawnDay: #all required days are already drawn
                     maxDrawnDay=drawnDay
-        #print maxDrawnDay
-        newFirstDay=maxDrawnDay+1
-        if options.lastpointfromdb:
-            newFirstDay=maxDrawnDay
+            if options.lastpointfromdb:                
+                maxDrawnDay=maxDrawnDay-1
+        newFirstDay=maxDrawnDay
         midnight=datetime.time()
         begT=datetime.datetime.combine(datetime.date.fromordinal(newFirstDay),midnight)
         begTStr=lut.DatetimeToStr(begT,customfm='%m/%d/%y %H:%M:%S')
