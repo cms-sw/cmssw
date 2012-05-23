@@ -1,7 +1,6 @@
 <flags   EDM_PLUGIN="1"/>
 <use   name="boost"/>
-<use   name="root"/>
-<use   name="rootinteractive"/>
+<use   name="rootgpad"/>
 <use   name="CommonTools/Statistics"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/Utilities"/>
@@ -13,6 +12,3 @@
 <use   name="CalibFormats/HcalObjects"/>
 <use   name="CalibCalorimetry/HcalAlgos"/>
 <use   name="CondTools/Hcal"/>
-<export>
-  <lib   name="1"/>
-</export>
