@@ -77,7 +77,7 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
       
    const HepMC::GenEvent* myGenEvent = 0;
    FSimEvent* fevt = famosManager_->simEvent();
-   //    fevt->setBeamSpot(BSPosition_);     
+   //   fevt->setBeamSpot(BSPosition_);     
    
    // Get the generated event(s) from the edm::Event
    // 1. Check if a HepMCProduct exists
@@ -93,7 +93,7 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    const reco::GenParticleCollection* myGenParticlesXF = 0;
    const reco::GenParticleCollection* myGenParticles = 0;
    const HepMC::GenEvent* thePUEvents = 0;
-   
+
    Handle<CrossingFrame<HepMCProduct> > theHepMCProductCrossingFrame;
    bool isPileUpXF = iEvent.getByLabel("mixGenPU","generator",theHepMCProductCrossingFrame);
 
@@ -103,7 +103,6 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
      if(genPartXF) myGenParticlesXF = &(*genEvtXF);
    }
    else{// otherwise, use the old famos PU     
-
      // Get the generated signal event
      bool source = iEvent.getByLabel(theSourceLabel,theHepMCProduct);
      if ( source ) { 
@@ -138,17 +137,6 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
      bool isPileUp = iEvent.getByLabel("famosPileUp","PileUpEvents",thePileUpEvents);
      thePUEvents = isPileUp ? thePileUpEvents->GetEvent() : 0;
       
-     // Set the vertex back to the HepMCProduct (except if it was smeared already)
-     if ( myGenEvent ) { 
-       if ( theVertexGenerator ) { 
-	 HepMC::FourVector theVertex(
-				     (theVertexGenerator->X()-theVertexGenerator->beamSpot().X()+BSPosition_.X())*10.,
-				     (theVertexGenerator->Y()-theVertexGenerator->beamSpot().Y()+BSPosition_.Y())*10.,
-				     (theVertexGenerator->Z()-theVertexGenerator->beamSpot().Z()+BSPosition_.Z())*10.,
-				     0.);
-	 if ( fabs(theVertexGenerator->Z()) > 1E-10 ) theHepMCProduct->applyVtxGen( &theVertex );
-       }
-     }
    }//end else
 
    // pass the event to the Famos Manager for propagation and simulation
@@ -156,6 +144,18 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
      famosManager_->reconstruct(myGenParticlesXF);
    } else {
      famosManager_->reconstruct(myGenEvent,myGenParticles,thePUEvents);
+   }
+
+   // Set the vertex back to the HepMCProduct (except if it was smeared already)
+   if ( myGenEvent ) { 
+     if ( theVertexGenerator ) { 
+       HepMC::FourVector theVertex(
+				   (theVertexGenerator->X()-theVertexGenerator->beamSpot().X()+BSPosition_.X())*10.,
+				   (theVertexGenerator->Y()-theVertexGenerator->beamSpot().Y()+BSPosition_.Y())*10.,
+				   (theVertexGenerator->Z()-theVertexGenerator->beamSpot().Z()+BSPosition_.Z())*10.,
+				   0.);
+       if ( fabs(theVertexGenerator->Z()) > 1E-10 ) theHepMCProduct->applyVtxGen( &theVertex );
+     }
    }
    
    CalorimetryManager * calo = famosManager_->calorimetryManager();
