@@ -115,7 +115,7 @@ EventTimeDistribution::EventTimeDistribution(const edm::ParameterSet& iConfig):
   m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction",4)),
   m_ewhdepthHisto(iConfig.getUntrackedParameter<bool>("wantEWHDepthHisto",false)),
   _rhm(),
-  _dbxvsbxincycle(0),   _dbxvsbx(0),   _bxincyclevsbx(0),   _orbitvsbxincycle(0)
+  _dbxvsbxincycle(0),   _dbxvsbx(0),   _bxincyclevsbx(0),   _orbitvsbxincycle(0), m_ewhdepth(0)
 {
    //now do what ever initialization is needed
 
@@ -220,7 +220,7 @@ EventTimeDistribution::beginRun(const edm::Run& iRun, const edm::EventSetup&)
     (*_orbitvsbxincycle)->GetXaxis()->SetTitle("Event BX mod(70)"); (*_orbitvsbxincycle)->GetYaxis()->SetTitle("time [Orb#]"); 
   }
 
-  if(m_ewhdepth&& *m_ewhdepth) {
+  if(m_ewhdepth && *m_ewhdepth) {
     (*m_ewhdepth)->GetXaxis()->SetTitle("Depth");
   }
 
