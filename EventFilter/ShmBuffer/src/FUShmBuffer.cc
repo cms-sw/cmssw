@@ -583,6 +583,7 @@ void FUShmBuffer::writeRawLumiSectionEvent(unsigned int ls) {
 	details << "state==evt::RAWWRITING assertion failed! Actual state is "
 			<< state << ", index = " << cell->index();
 	XCEPT_ASSERT(state == evt::RAWWRITING, evf::Exception, details.str());
+        setEvtNumber(cell->index(),0xffffffff);
 	setEvtState(cell->index(), evt::LUMISECTION);
 	cell->setEventTypeEol();
 	postRawIndexToRead(cell->index());
