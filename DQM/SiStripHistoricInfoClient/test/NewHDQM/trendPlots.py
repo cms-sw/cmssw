@@ -69,6 +69,12 @@ class TrendPlot:
             self.__labels.append((x,y," %s %.2f#sigma"%(run,significance)))
         if y < float(self.__config.get("styleDefaults","ksThreshold")) and 'Kolmogorov' in self.__yTitle:
             self.__labels.append((x,y," %s ks=%.2f"%(run,y)))
+        if self.__config.has_option(self.__section,"yMin") and self.__config.has_option(self.__section,"yMax") :
+            yMin = float(self.__config.get(self.__section,"yMin"))
+            yMax = float(self.__config.get(self.__section,"yMax"))
+            yDelta = yMax-yMin
+            if y < yMin : self.__labels.append((x,yMin+0.05*yDelta,"run %s, value=%.2f"%(run,y)))    
+            if y > yMax : self.__labels.append((x,yMax-0.40*yDelta,"run %s, value=%.2f"%(run,y)))    
 
     def drawAnnotation(self):
         from ROOT import TLatex
@@ -327,6 +333,9 @@ class TrendPlot:
               if int(x-self.__x[0]) % showEvery == 0 or x==self.__x[-1]:
                 axis.SetBinLabel(axis.FindFixBin(x), str(run))
             #axis.SetRangeUser(self.__x[0], self.__x[-1])
+        if self.__config.has_option(self.__section,"yMin") and self.__config.has_option(self.__section,"yMax") :
+            graph.GetYaxis().SetRangeUser(float(self.__config.get(self.__section,"yMin")),
+                                          float(self.__config.get(self.__section,"yMax")))
 
         if xMode.startswith("runNumber"):
             axis = graph.GetXaxis()
