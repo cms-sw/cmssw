@@ -13,7 +13,7 @@
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: OccupancyPlotter.cc,v 1.14 2012/04/05 19:52:43 halil Exp $
+// $Id: OccupancyPlotter.cc,v 1.17 2012/05/16 09:02:39 halil Exp $
 //
 //
 
@@ -402,7 +402,7 @@ std::string PD_Folder;
 std::string Path_Folder;
 
 PD_Folder = TString("HLT/OccupancyPlots");
-if (label != "SingleMu" && label != "SingleElectron" && label != "Jet")  PD_Folder = TString("HLT/OccupancyPlots/"+label); 
+if (label != "SingleMu" && label != "SingleElectron" && label != "JetHT")  PD_Folder = TString("HLT/OccupancyPlots/"+label); 
 
 dbe->setCurrentFolder(PD_Folder.c_str());
 
@@ -472,7 +472,7 @@ void OccupancyPlotter::fillHltMatrix(std::string label, std::string path,double 
  fullPathToME1dEta = "HLT/OccupancyPlots/HLT_"+label+"_1dEta";
  fullPathToME1dPhi = "HLT/OccupancyPlots/HLT_"+label+"_1dPhi";
 
-if (label != "SingleMu" && label != "SingleElectron" && label != "Jet") {
+if (label != "SingleMu" && label != "SingleElectron" && label != "JetHT") {
  fullPathToME = "HLT/OccupancyPlots/"+label+"/HLT_"+label+"_EtaVsPhi"; 
  fullPathToME1dEta = "HLT/OccupancyPlots/"+label+"/HLT_"+label+"_1dEta";
  fullPathToME1dPhi = "HLT/OccupancyPlots/"+label+"/HLT_"+label+"_1dPhi";
