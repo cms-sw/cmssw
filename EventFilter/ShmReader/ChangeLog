@@ -1,5 +1,10 @@
 2012-05-23 Srecko Morovic <srecko.morovic@cern.ch>
 
+	* tag V01-05-11
+	* fix Buildfile.xml compile warning
+
+2012-05-23 Srecko Morovic <srecko.morovic@cern.ch>
+
 	* tag V01-05-10
 	* revert latest changes to lumi handling, current is also safe
 	* pid for currently used raw cell written into shared memory
