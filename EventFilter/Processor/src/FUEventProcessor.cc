@@ -340,6 +340,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   getrlimit(RLIMIT_CORE,&rlimit_coresize_default_);
 
   //prepare IPC semaphore for getting the workloop waked up on signal caught in slaves
+  #ifdef linux
   if (sigmon_sem_==0) {
     sigmon_sem_ = (sem_t*)mmap(NULL, sizeof(sem_t),
 	PROT_READ | PROT_WRITE,
@@ -350,7 +351,8 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
     }
     else
       sem_init(sigmon_sem_,true,0);
-  } 
+  }
+  #endif
 }
 //___________here ends the *huge* constructor___________________________________
 
@@ -2531,7 +2533,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.141 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.142 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
