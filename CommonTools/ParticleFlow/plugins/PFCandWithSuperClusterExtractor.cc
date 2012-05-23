@@ -5,6 +5,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
 using namespace edm;
 using namespace reco;
@@ -13,6 +14,7 @@ PFCandWithSuperClusterExtractor::PFCandWithSuperClusterExtractor( const Paramete
   thePFCandTag(par.getParameter<edm::InputTag>("inputCandView")),
   theDepositLabel(par.getUntrackedParameter<std::string>("DepositLabel")),
   theVetoSuperClusterMatch(par.getParameter<bool>("SCMatch_Veto")),
+  theMissHitVetoSuperClusterMatch(par.getParameter<bool>("MissHitSCMatch_Veto")),
   theDiff_r(par.getParameter<double>("Diff_r")),
   theDiff_z(par.getParameter<double>("Diff_z")),
   theDR_Max(par.getParameter<double>("DR_Max")),
@@ -65,6 +67,40 @@ IsoDeposit PFCandWithSuperClusterExtractor::depositFromObject(const Event & even
     
     return deposit;
 }
+
+
+IsoDeposit PFCandWithSuperClusterExtractor::depositFromObject(const Event & event, const EventSetup & eventSetup, const GsfElectron & cand) const
+{
+    reco::isodeposit::Direction candDir(cand.eta(), cand.phi());
+    IsoDeposit deposit(candDir );
+    deposit.setVeto( veto(candDir) );
+    deposit.addCandEnergy(cand.pt());
+
+    Handle< PFCandidateCollection > PFCandH;
+    event.getByLabel(thePFCandTag, PFCandH);
+
+    double eta = cand.eta(), phi = cand.phi();
+    reco::Particle::Point vtx = cand.vertex();
+    for (PFCandidateCollection::const_iterator it = PFCandH->begin(), ed = PFCandH->end(); it != ed; ++it) {
+      double dR = deltaR(it->eta(), it->phi(), eta, phi);
+      // If MissHits>0 (possibly reconstructed as a photon in the PF in this case, kill the the photon if sharing the same SC)
+      if (cand.gsfTrack()->trackerExpectedHitsInner().numberOfHits()>0 && theMissHitVetoSuperClusterMatch && 
+	  it->mva_nothing_gamma() > 0.99 && cand.superCluster().isNonnull() 
+	  && it->superClusterRef().isNonnull() 
+	  && cand.superCluster() == it->superClusterRef())   continue;
+      if ( (dR < theDR_Max) && (dR > theDR_Veto) &&
+	   (std::abs(it->vz() - cand.vz()) < theDiff_z) &&
+	   ((it->vertex() - vtx).Rho() < theDiff_r)) {
+	// ok
+	reco::isodeposit::Direction dirTrk(it->eta(), it->phi());
+	deposit.addDeposit(dirTrk, it->pt());
+      }
+    }
+    
+    return deposit;
+}
+
+
 
 IsoDeposit PFCandWithSuperClusterExtractor::depositFromObject(const Event & event, const EventSetup & eventSetup, const Track & cand) const
 {
