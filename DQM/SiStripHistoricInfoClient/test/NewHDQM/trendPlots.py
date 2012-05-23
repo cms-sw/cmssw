@@ -625,6 +625,11 @@ def main(argv=None):
     for plot in plots:
         #(graph, legend, refLabel) = plot.getGraph()
         print "plot = ", plot
+        try: plot.getGraph()
+        except:
+            print "Error producing plot:", plot.getName()
+            print "Possible cause: no entries, or non-existing plot name"
+            continue
         (graph, legend) = plot.getGraph()
         canvas.Clear()
         graph.Draw("AP")
