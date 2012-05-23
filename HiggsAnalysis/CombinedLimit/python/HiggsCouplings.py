@@ -58,8 +58,11 @@ class CvCfHiggs(SMLikeHiggsModel):
         #
         # Taylor series around MH=125 to (MH-125)^2 in Horner polynomial form
         self.modelBuilder.factory_('expr::CvCf_cgamma("\
+        pow(\
         @0*(1.2259236555204187 + (0.00216740776385032 - 0.000013693587140986294*@2)*@2) +\
-        @1*(-0.22592365552041888 + (-0.002167407763850317 + 0.000013693587140986278*@2)*@2)",CV,CF,MH)')
+        @1*(-0.22592365552041888 + (-0.002167407763850317 + 0.000013693587140986278*@2)*@2)\
+        ,2)\
+        ",CV,CF,MH)')
         ## partial witdhs, normalized to the SM one, for decays scaling with F, V and total (ignoring small modes)
         for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
@@ -75,11 +78,11 @@ class CvCfHiggs(SMLikeHiggsModel):
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "CvCf_XSBRscal_%s_%s" % (production,decay)
         if self.modelBuilder.out.function(name) == None: 
-            XSscal = "CF,CF" if production in ["ggH","ttH"] else "CV,CV"
+            XSscal = 'CF' if production in ["ggH","ttH"] else 'CV'
             BRscal = "hgg"
             if decay in ["hww", "hzz"]: BRscal = "hv"
             if decay in ["hbb", "htt"]: BRscal = "hf"
-            self.modelBuilder.factory_("prod::%s(%s, CvCf_BRscal_%s)" % (name, XSscal, BRscal))
+            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, CvCf_BRscal_%s)' % (name, XSscal, BRscal))
         return name
 
 class C5Higgs(SMLikeHiggsModel):
