@@ -22,6 +22,7 @@ parser.add_option("-r", "--random",   dest="random",   default=False, action="st
 parser.add_option("-P", "--priority", dest="prio",     default=False, action="store_true", help="Use PriorityUser role")
 parser.add_option("-s", "--smart",    dest="smart",     default=False, action="store_true", help="Run more toys at low edge of the band, to get better low range")
 parser.add_option("-S", "--signif",   dest="signif",     default=False, action="store_true", help="Compute significance. You should set min = 1, max = 1")
+parser.add_option("-u", "--uidir",    dest="uidir", default="", help="Sepcify a CRAB UI directory.  If not provided using the normal crab_0_timestamp")
 #parser.add_option("--fork",           dest="fork",     default=1,   type="int",  help="Cores to use (leave to 1)") # no fork in batch jobs for now
 (options, args) = parser.parse_args()
 if len(args) != 3:
@@ -34,7 +35,7 @@ if workspace.endswith(".txt"):
     os.system("text2workspace.py -b %s -o %s.workspace.root" % (workspace, options.out))
     workspace = options.out+".workspace.root"
     print "Converted workspace to binary",workspace
-    
+
 min, max = float(args[1]), float(args[2])
 dx = (max-min)/(options.points-1) if options.points > 1 else 0
 points = [ min + dx*i for i in range(options.points) ]
@@ -51,8 +52,8 @@ script.write("""
 #
 # Driver script for creating Hybrid or Frequentist grids
 #
-# author: Giovanni Petrucciani, UCSD                       
-#         from a similar script by Luca Lista, INFN        
+# author: Giovanni Petrucciani, UCSD
+#         from a similar script by Luca Lista, INFN
 #
 ##############################################################
 
@@ -107,6 +108,11 @@ sched = "glite"
 if options.lsf: sched = "lsf"
 if options.condor: sched = "condor"
 if options.glide: sched = "glidein"
+
+uidir_line = ''
+if options.uidir:
+    uidir_line = "ui_working_dir = %s" % options.uidir
+
 print "Creating crab cfg ",options.out+".cfg"
 cfg = open(options.out+".cfg", "w")
 cfg.write("""
@@ -129,7 +135,14 @@ number_of_jobs = {jobs}
 script_exe = {out}.sh
 additional_input_files = combine,{wsp}
 return_data = 1
-""".format(wsp=workspace, out=options.out, sched=sched, srv=(1 if options.server else 0), queue=options.queue, jobs=options.j, total=options.t))
+{uidir_line}
+""".format(
+    wsp=workspace, out=options.out,
+    sched=sched, srv=(1 if options.server else 0),
+    queue=options.queue, jobs=options.j, total=options.t,
+    uidir_line = uidir_line
+))
+
 
 if options.prio: cfg.write("""
 [GRID]
