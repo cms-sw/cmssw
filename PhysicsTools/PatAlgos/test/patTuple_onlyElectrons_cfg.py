@@ -8,11 +8,18 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.electronSelector_cfi")
 ## make sure to keep the created objects
 process.out.outputCommands = ['keep *_selectedPat*_*_*',]
 
-## let it run
+## to run in scheduled mode uncomment the following lines
+#process.p = cms.Path(
+#    process.makePatElectrons *
+#    process.selectedPatElectrons
+#)
+
+## to run in un-scheduled mode uncomment the following lines
+process.options.allowUnscheduled = cms.untracked.bool(True)
+#process.Tracer = cms.Service("Tracer")
 process.p = cms.Path(
-    process.makePatElectrons *
     process.selectedPatElectrons
-)
+    )
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
@@ -23,7 +30,7 @@ process.p = cms.Path(
 #                                         ##
 #   process.source.fileNames =  ...       ##  (e.g. 'file:AOD.root')
 #                                         ##
-process.maxEvents.input = 10
+process.maxEvents.input = 100
 #                                         ##
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #                                         ##
