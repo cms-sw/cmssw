@@ -181,6 +181,10 @@ private:
 
 	FUShmBuffer *shmBuffer_;
 
+	//workloop termination status
+	bool sDataActive_;
+	bool sDqmActive_;
+
 };
 
 } // namespace evf

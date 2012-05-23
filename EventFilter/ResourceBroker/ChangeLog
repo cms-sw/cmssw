@@ -1,3 +1,9 @@
+2012-05-23 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-00-15
+	* fix late dqm cell discards on queued empty dqm cell
+	* waiting for "send" workloops to exit before resetting shm
+
 2012-05-10  Andrei Spataru  <aspataru@cern.ch>
 
 	* tag V01-00-14

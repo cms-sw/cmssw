@@ -199,6 +199,7 @@ bool FUResourceTable::sendData() {
 		}
 	}
 
+	sDataActive_=reschedule;
 	return reschedule;
 }
 
@@ -236,6 +237,7 @@ bool FUResourceTable::sendDataWhileHalting() {
 		}
 	}
 
+	sDataActive_=reschedule;
 	return reschedule;
 }
 
@@ -293,6 +295,7 @@ bool FUResourceTable::sendDqm() {
 		}
 	}
 
+	sDqmActive_=reschedule;
 	return reschedule;
 }
 
@@ -333,6 +336,7 @@ bool FUResourceTable::sendDqmWhileHalting() {
 		}
 	}
 
+	sDqmActive_=reschedule;
 	return reschedule;
 }
 
@@ -347,6 +351,14 @@ void FUResourceTable::discardNoReschedule() {
 		rethrowShmBufferException(e,
 				"FUResourceTable:discardNoReschedule:writeRecoEmptyEvent");
 	}
+
+	try {
+		shmBuffer_->writeDqmEmptyEvent();
+	} catch (evf::Exception& e) {
+		rethrowShmBufferException(e,
+				"FUResourceTable:discardNoReschedule:writeDqmEmptyEvent");
+	}
+
 	UInt_t count = 0;
 	while (count < 100) {
 		std::cout << " shutdown cycle " << shmBuffer_->nClients() << " "
@@ -375,6 +387,7 @@ void FUResourceTable::discardNoReschedule() {
 
 		}
 	}
+	/* // do not wait for dqm discards from SM
 	bool allEmpty = false;
 	std::cout << "Checking if all dqm cells are empty " << std::endl;
 	while (!allEmpty) {
@@ -395,6 +408,7 @@ void FUResourceTable::discardNoReschedule() {
 		}
 		shmBuffer_->unlock();
 	}
+	*/
 	std::cout << "Making sure there are no dqm pending discards " << std::endl;
 	if (nbPendingSMDqmDiscards_ != 0) {
 		LOG4CPLUS_WARN(
@@ -403,12 +417,6 @@ void FUResourceTable::discardNoReschedule() {
 						<< nbPendingSMDqmDiscards_
 						<< " while cells are all empty. This may cause problems at next start ");
 
-	}
-	try {
-		shmBuffer_->writeDqmEmptyEvent();
-	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e,
-				"FUResourceTable:discardNoReschedule:writeDqmEmptyEvent");
 	}
 	isReadyToShutDown_ = true; // moved here from within the first while loop to make sure the
 	// sendDqm loop has been shut down as well
@@ -794,7 +802,6 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef) {
 	return true;
 }
 
-// concept: discardDqmEventWhileHalting required??
 //______________________________________________________________________________
 bool FUResourceTable::discardDqmEventWhileHalting(MemRef_t* bufRef) {
 	I2O_FU_DQM_DISCARD_MESSAGE_FRAME *msg;
@@ -918,7 +925,9 @@ bool FUResourceTable::handleCrashedEP(UInt_t runNumber, pid_t pid) {
 
 	if (iRawCell < pids.size()) {
 		try {
-			shmBuffer_->writeErrorEventData(runNumber, pid, iRawCell, true);
+			bool shmret = shmBuffer_->writeErrorEventData(runNumber, pid, iRawCell, true);
+			if (!shmret)
+				LOG4CPLUS_ERROR(log_,"Possible EP crash on Lumi event. Skip sending this to the error stream.");
 		} catch (evf::Exception& e) {
 			rethrowShmBufferException(e,
 					"FUResourceTable:handleCrashedEP:writeErrorEventData");
@@ -1089,6 +1098,11 @@ void FUResourceTable::resetCounters() {
 
 	sumOfSquares_ = 0;
 	sumOfSizes_ = 0;
+
+	//"send" workloop states
+	sDqmActive_=true;
+	sDataActive_=true;
+
 }
 
 //______________________________________________________________________________
@@ -1299,6 +1313,17 @@ void FUResourceTable::lastResort() {
 
 void FUResourceTable::resetIPC() {
 	if (shmBuffer_ != 0) {
+		//waiting for sendData and sendDqm workloops to finish
+		int countdown_=60;
+		while (countdown_-- && (sDataActive_ || sDqmActive_)) ::usleep(50000);
+		if (countdown_<=0) {
+		  std::ostringstream ostr;
+		  ostr << "Resource broker timed out waiting for workloop shutdowns (3 seconds). Continuing to reset Shm. States - "
+		       << " sendDqm:"<<sDqmActive_ << " sendData:" << sDataActive_;
+		  LOG4CPLUS_ERROR(log_,ostr.str());
+		  std::cout << ostr.str() << std::endl;
+		}
+		//resetting shm buffer
 		shmBuffer_->reset();
 		LOG4CPLUS_INFO(log_, "ShmBuffer was reset!");
 	}
