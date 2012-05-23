@@ -72,7 +72,7 @@ double L1OffsetCorrector::correction(const reco::Jet& fJet,
   } 
   if (NPV > 0) {
     mCorrector->setJetEta(fJet.eta());
-    mCorrector->setJetE(fJet.energy());
+    mCorrector->setJetPt(fJet.pt());
     mCorrector->setNPV(NPV);
     result = mCorrector->getCorrection();
   }
