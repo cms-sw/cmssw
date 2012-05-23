@@ -58,17 +58,15 @@ class CvCfHiggs(SMLikeHiggsModel):
         #
         # Taylor series around MH=125 to (MH-125)^2 in Horner polynomial form
         self.modelBuilder.factory_('expr::CvCf_cgamma("\
-        pow(\
         @0*(1.2259236555204187 + (0.00216740776385032 - 0.000013693587140986294*@2)*@2) +\
         @1*(-0.22592365552041888 + (-0.002167407763850317 + 0.000013693587140986278*@2)*@2)\
-        ,2)\
         ",CV,CF,MH)')
         ## partial witdhs, normalized to the SM one, for decays scaling with F, V and total (ignoring small modes)
         for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
-        self.modelBuilder.factory_("expr::CvCf_Gscal_sumf(\"@0*@0*(@1+@2+@3+@4+@5+@6+@7)\", CF, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hgluglu, SM_BR_hmm, SM_BR_hss)") 
-        self.modelBuilder.factory_("expr::CvCf_Gscal_sumv(\"@0*@0*(@1+@2+@3)\", CV, SM_BR_hww, SM_BR_hzz, SM_BR_hZg)") 
-        self.modelBuilder.factory_("expr::CvCf_Gscal_gg(\"@0*@0*(@1)\", CvCf_cgamma, SM_BR_hgg)") 
+        self.modelBuilder.factory_("expr::CvCf_Gscal_sumf(\"@0*@0 * (@1+@2+@3+@4+@5+@6+@7)\", CF, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hgluglu, SM_BR_hmm, SM_BR_hss)") 
+        self.modelBuilder.factory_("expr::CvCf_Gscal_sumv(\"@0*@0 * (@1+@2+@3)\", CV, SM_BR_hww, SM_BR_hzz, SM_BR_hZg)") 
+        self.modelBuilder.factory_("expr::CvCf_Gscal_gg(\"@0*@0 * @1\", CvCf_cgamma, SM_BR_hgg)") 
         self.modelBuilder.factory_( "sum::CvCf_Gscal_tot(CvCf_Gscal_sumf, CvCf_Gscal_sumv, CvCf_Gscal_gg)")
         ## BRs, normalized to the SM ones: they scale as (coupling/coupling_SM)^2 / (totWidth/totWidthSM)^2 
         self.modelBuilder.factory_("expr::CvCf_BRscal_hgg(\"@0*@0/@1\", CvCf_cgamma, CvCf_Gscal_tot)")
