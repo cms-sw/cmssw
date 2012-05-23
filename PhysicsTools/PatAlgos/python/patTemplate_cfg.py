@@ -26,21 +26,17 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ## Test JEC from test instances of the global DB
 #process.load("PhysicsTools.PatAlgos.patTestJEC_cfi")
-
 ## Test JEC from local sqlite file
 #process.load("PhysicsTools.PatAlgos.patTestJEC_local_cfi")
-
-## Standard PAT Configuration File
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 ## Output Module Configuration (expects a path 'p')
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
 process.out = cms.OutputModule("PoolOutputModule",
                                fileName = cms.untracked.string('patTuple.root'),
-                               # save only events passing the full path
-                               SelectEvents   = cms.untracked.PSet( SelectEvents = cms.vstring('p') ),
-                               # save PAT Layer 1 output; you need a '*' to
-                               # unpack the list of commands 'patEventContent'
+                               ## save only events passing the full path
+                               #SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('p') ),
+                               ## save PAT output; you need a '*' to unpack the list of commands
+                               ## 'patEventContent'
                                outputCommands = cms.untracked.vstring('drop *', *patEventContent )
                                )
 
