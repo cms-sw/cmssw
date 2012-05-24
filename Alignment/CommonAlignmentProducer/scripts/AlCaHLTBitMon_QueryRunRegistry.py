@@ -2,8 +2,8 @@
 
 #-----------------------------------------------------
 # original author: Andrea Lucaroni
-# Revision:        $Revision: 1.2 $
-# Last update:     $Date: 2011/12/14 17:04:53 $
+# Revision:        $Revision: 1.3 $
+# Last update:     $Date: 2012/05/22 08:22:04 $
 # by:              $Author: taroni $
 #-----------------------------------------------------
 
@@ -28,7 +28,7 @@ import pickle as pk
 
 from optparse import OptionParser
 #####DEBUG
-DEBUG=1
+DEBUG=0
 import inspect
 
 def lineno():
@@ -229,11 +229,8 @@ def getData(doc,options,dataset,site):
                 if DEBUG:
                     print lineno(), printObj(run,'NUMBER')
                 txtruns = "{runNumber} >= " + printObj(run,'NUMBER') +  " and {runNumber} <= " + str(int(printObj(run,'NUMBER')))
-                txtriv = txtruns + " and {cmpPix} in ('GOOD') and {cmpStrip} in ('GOOD') and {cmpTrack} in ('GOOD')"
-##                riv = server.RunDatasetTable.export('GLOBAL', 'jsoncsv_runs',txtriv)
-                if DEBUG:
-                    print lineno(), txtriv
-                lumirun = server.RunLumiSectionRangeTable.export('GLOBAL', 'json',txtruns)
+                txtriv = txtruns + " and {cmpDcsBPix} = 1  and {cmpDcsFPix} = 1 and {cmpDcsTibTid} = 1 and {cmpDcsTob} = 1 and {cmpDcsTecM} = 1 and {cmpDcsTecP} = 1"
+                lumirun = server.RunLumiSectionRangeTable.export('GLOBAL', 'json',txtriv)
                 if DEBUG:
                     print lineno(), lumirun
                   ###dbs file
