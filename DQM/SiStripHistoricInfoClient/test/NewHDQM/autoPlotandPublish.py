@@ -4,6 +4,7 @@ import re
 import subprocess
 
 ##Setting variables:
+#webDir = '/data/users/event_display/HDQM/dev/Tristan'
 webDir = '/data/users/event_display/HDQM/Current/'
 Epochs = ['Run2012','Run2012A','Run2012B']
 Recos  = ['Prompt']           ##other examples: 08Nov2011
@@ -15,6 +16,10 @@ pwDir  = subprocess.Popen("pwd", shell=True, stdout=subprocess.PIPE).stdout.read
 jsonFile = subprocess.Popen("ls -1tr /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions12/8TeV/Prompt/Cert_*_8TeV_PromptReco_Collisions12_JSON.txt", shell=True, stdout=subprocess.PIPE).stdout.readlines()[-1][:-1]
 
 subprocess.Popen("rm -rf fig/*", shell=True)
+
+#subprocess.Popen("rm StripReadoutMode4Cosmics.txt", shell=True).wait()
+#subprocess.Popen("./autoRunDecoDetector.py",        shell=True).wait()
+#subprocess.Popen("rm *.xml",                        shell=True).wait()
 
 ##Internally set vars
 pwDir  = subprocess.Popen("pwd", shell=True, stdout=subprocess.PIPE).stdout.readline()[:-1]+'/'
@@ -32,7 +37,11 @@ for epoch in Epochs:
         for pd in PDs:
             #run_hDQM_cmd = './trendPlots.py -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco
             #run_hDQM_cmd = './trendPlots.py -r "run > 194050" -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +" -J "+jsonFile
-            run_hDQM_cmd = './trendPlots.py  -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +" -J "+jsonFile
+            if pd=="Cosmics":
+                run_hDQM_cmd = './trendPlots.py  -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +" -s PEAK" 
+                run_hDQM_cmd = './trendPlots.py  -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +" -s DECO" 
+            else :
+                run_hDQM_cmd = './trendPlots.py  -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +" -J "+jsonFile
             print "Running ",run_hDQM_cmd
             subprocess.Popen(run_hDQM_cmd, shell=True).wait()
 
