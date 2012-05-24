@@ -13,7 +13,7 @@
 //
 // Original Author:  Ali Fahim,22 R-013,+41227672649,
 //         Created:  Wed Mar 23 11:42:34 CET 2011
-// $Id: HcalDigisValidation.cc,v 1.1 2012/05/24 08:39:13 abdullin Exp $
+// $Id: HcalDigisValidation.cc,v 1.2 2012/05/24 13:59:17 abdullin Exp $
 //
 //
 
@@ -726,11 +726,11 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 	    }
 	    
 	    //Special for HF
-	    if (isubdet == 4 && ampl1 > 10. && depth == 1) {
+	    if (isubdet == 4 && ampl1 > 30. && depth == 1) {
 	      double fBin5 = tool[2] - calibrations.pedestal((*digiItr)[2].capid());
 	      double fBin67 = tool[3] + tool[4]
 		- calibrations.pedestal((*digiItr)[3].capid())
-                        - calibrations.pedestal((*digiItr)[4].capid());
+		- calibrations.pedestal((*digiItr)[4].capid());
 	      fBin5 /= ampl1;
 	      fBin67 /= ampl1;
 	      strtmp = "HcalDigiTask_bin_5_frac_" + subdet_;
