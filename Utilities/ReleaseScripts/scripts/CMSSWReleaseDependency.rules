@@ -67,7 +67,6 @@ CalibCalorimetry/EcalPedestalOffsets/.* : oracle.*
 
 #rootinteractive (direct)
 CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/.* : rootinteractive
-CalibCalorimetry/HcalStandardModules/.*              : rootinteractive
 Fireworks/.*                                         : rootinteractive
 RecoParticleFlow/PFRootEvent/.*                      : rootinteractive
 
