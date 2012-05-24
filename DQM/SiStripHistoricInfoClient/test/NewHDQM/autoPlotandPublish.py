@@ -31,7 +31,8 @@ for epoch in Epochs:
     for reco in Recos:
         for pd in PDs:
             #run_hDQM_cmd = './trendPlots.py -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco
-            run_hDQM_cmd = './trendPlots.py -r "run > 194050" -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +" -J "+jsonFile
+            #run_hDQM_cmd = './trendPlots.py -r "run > 194050" -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +" -J "+jsonFile
+            run_hDQM_cmd = './trendPlots.py  -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +" -J "+jsonFile
             print "Running ",run_hDQM_cmd
             subprocess.Popen(run_hDQM_cmd, shell=True).wait()
 
