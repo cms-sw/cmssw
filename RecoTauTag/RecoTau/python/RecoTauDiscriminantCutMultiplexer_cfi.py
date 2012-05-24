@@ -14,6 +14,13 @@ recoTauDiscriminantCutMultiplexer = cms.EDProducer(
     "RecoTauDiscriminantCutMultiplexer",
     PFTauProducer = cms.InputTag("fixme"),
     toMultiplex = cms.InputTag("fixme"),
+    Prediscriminants = cms.PSet(
+        BooleanOperator = cms.string("and"),
+        decayMode = cms.PSet(
+            Producer = cms.InputTag("fixme"),
+            cut = cms.double(0.)
+            )
+        ),
     key = cms.InputTag("fixme"), # a discriminator
     mapping = cms.VPSet(
         cms.PSet(
