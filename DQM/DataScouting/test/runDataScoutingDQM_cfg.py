@@ -10,6 +10,10 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.GlobalTag.globaltag = 'GR_R_52_V7::All'
 
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr.default.limit = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('/store/data/Run2012B/DataScouting/RAW/v1/000/194/535/16D13DD4-CBA2-E111-AE6F-001D09F24353.root',
                                       '/store/data/Run2012B/DataScouting/RAW/v1/000/194/533/FADCCE72-C5A2-E111-825D-003048D2BBF0.root',
@@ -19,7 +23,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(50000)
 )
 
 process.DQMoutput = cms.OutputModule("PoolOutputModule",
@@ -43,6 +47,4 @@ process.testmodule_step = cms.Path(process.dataScoutingDQMSequence)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
 process.schedule = cms.Schedule(process.testmodule_step,process.dqmsave_step,process.DQMoutput_step)
-
-
 
