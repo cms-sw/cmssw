@@ -155,8 +155,8 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , edm_init_done_(true)
   , crashesThisRun_(false)
   , rlimit_coresize_changed_(false)
-  , sigmon_sem_(0)
   , crashesToDump_(2)
+  , sigmon_sem_(0)
 {
   using namespace utils;
 
@@ -2534,7 +2534,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.143 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.144 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
