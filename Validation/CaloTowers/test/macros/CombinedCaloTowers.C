@@ -109,14 +109,16 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
     //Read in 1/0 switch saying whether this histogram is used 
     //Skip it if not used, otherwise get output file label, histogram
     //axis ranges and title
+    //Altered: Reads in all inputs and then uses 1/0 switch to skip
     ctstr>>HistName>>DrawSwitch;
-    if (DrawSwitch == 0) continue;
+//    if (DrawSwitch == 0) continue;
     
     ctstr>>OutLabel>>nRebin;
     ctstr>>xAxisMin>>xAxisMax>>yAxisMin>>yAxisMax;
     ctstr>>DimSwitch>>StatSwitch>>Chi2Switch>>LogSwitch;
     ctstr>>RefCol>>ValCol;
     ctstr.getline(xAxisTitle,200);
+    if (DrawSwitch == 0) continue;
     
     //Format pad
     if (LogSwitch == "Log") myc->SetLogy();
@@ -158,8 +160,8 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
       ref_hist1[nh1]->GetYaxis()->SetLabelOffset(0.02);
       val_hist1[nh1]->GetYaxis()->SetLabelOffset(0.02);
 
-      ref_hist1[nh1]->GetXaxis()->SetTitleOffset(1.3); 
-      val_hist1[nh1]->GetXaxis()->SetTitleOffset(1.3); 
+      ref_hist1[nh1]->GetXaxis()->SetTitleOffset(1.0); 
+      val_hist1[nh1]->GetXaxis()->SetTitleOffset(1.0); 
 
       
       //Rebin histograms -- has to be done first
@@ -215,7 +217,7 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
       //Chi2
       if (Chi2Switch == "Chi2"){
 	//Draw histograms
-	ref_hist1[nh1]->SetFillColor(48);
+	ref_hist1[nh1]->SetFillColor(40);//Originally 42. 
 	ref_hist1[nh1]->Draw("hist"); // "stat"
 
 	val_hist1[nh1]->SetLineStyle(1);
@@ -308,8 +310,8 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
       ref_hist2[nh2]->GetYaxis()->SetLabelOffset(0.02);
       val_hist2[nh2]->GetYaxis()->SetLabelOffset(0.02);
 
-      ref_hist2[nh2]->GetXaxis()->SetTitleOffset(1.3); 
-      val_hist2[nh2]->GetXaxis()->SetTitleOffset(1.3); 
+      ref_hist2[nh2]->GetXaxis()->SetTitleOffset(1.0); 
+      val_hist2[nh2]->GetXaxis()->SetTitleOffset(1.0); 
 
 
 
@@ -403,8 +405,8 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
       ref_hist2[nh2]->GetYaxis()->SetLabelOffset(0.02);
       val_hist2[nh2]->GetYaxis()->SetLabelOffset(0.02);
 
-      ref_hist2[nh2]->GetXaxis()->SetTitleOffset(1.3); 
-      val_hist2[nh2]->GetXaxis()->SetTitleOffset(1.3); 
+      ref_hist2[nh2]->GetXaxis()->SetTitleOffset(1.0); 
+      val_hist2[nh2]->GetXaxis()->SetTitleOffset(1.0); 
 
 
       //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
@@ -432,15 +434,18 @@ void ProcessSubDetCT(TFile &ref_file, TFile &val_file, ifstream &ctstr, const in
       
       ref_hist2[nh2]->GetXaxis()->SetTitle(xAxisTitle);
       ref_hist2[nh2]->SetStats(kFALSE);
-      
+     
+      ref_hist2[nh2]->SetTitle("");
+      val_prof[npi]->SetTitle("");
+
       ref_hist2[nh2]->SetMarkerColor(RefCol); // rose
       ref_hist2[nh2]->Draw();
-      ref_prof[npi]->SetLineColor(41); 
+      ref_prof[npi]->SetLineColor(RefCol); 
       ref_prof[npi]->Draw("same");
       
       val_hist2[nh2]->SetMarkerColor(ValCol); 
       val_hist2[nh2]->Draw("same");
-      val_prof[npi]->SetLineColor(45); 
+      val_prof[npi]->SetLineColor(867); 
       val_prof[npi]->Draw("same");
       
       leg->AddEntry(ref_prof[npi],"CMSSW_"+ref_vers,"pl");
