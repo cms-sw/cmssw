@@ -53,14 +53,10 @@ updateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr*
     hpsPFTauDiscriminationByMVAElectronRejection*
     hpsPFTauDiscriminationByMVA2rawElectronRejection*
-    hpsPFTauDiscriminationByMVA2Loose1ElectronRejection*
-    hpsPFTauDiscriminationByMVA2Loose2ElectronRejection*
-    hpsPFTauDiscriminationByMVA2Medium1ElectronRejection*
-    hpsPFTauDiscriminationByMVA2Medium2ElectronRejection*
-    hpsPFTauDiscriminationByMVA2Tight1ElectronRejection*
-    hpsPFTauDiscriminationByMVA2Tight2ElectronRejection*
-    hpsPFTauDiscriminationByMVA2VTight1ElectronRejection*
-    hpsPFTauDiscriminationByMVA2VTight2ElectronRejection*    
+    hpsPFTauDiscriminationByMVA2LooseElectronRejection*
+    hpsPFTauDiscriminationByMVA2VLooseElectronRejection*
+    hpsPFTauDiscriminationByMVA2MediumElectronRejection*
+    hpsPFTauDiscriminationByMVA2TightElectronRejection*
     hpsPFTauDiscriminationByLooseMuonRejection*
     hpsPFTauDiscriminationByMediumMuonRejection*
     hpsPFTauDiscriminationByTightMuonRejection
