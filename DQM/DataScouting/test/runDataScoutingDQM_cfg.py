@@ -14,6 +14,8 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.default.limit = 100
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('/store/data/Run2012B/DataScouting/RAW/v1/000/194/535/16D13DD4-CBA2-E111-AE6F-001D09F24353.root',
                                       '/store/data/Run2012B/DataScouting/RAW/v1/000/194/533/FADCCE72-C5A2-E111-825D-003048D2BBF0.root',
@@ -23,7 +25,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(50000)
+    input = cms.untracked.int32(10000)
 )
 
 process.DQMoutput = cms.OutputModule("PoolOutputModule",
