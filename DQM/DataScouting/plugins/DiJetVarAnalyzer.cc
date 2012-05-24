@@ -94,16 +94,18 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
   bool pass_JetIDtwojets=false;
   bool pass_dphi=false;
 
-  // no cut
+  bool pass_fullsel=false;
+
+  // No cut
   pass_nocut=true;
 
-  // two wide jets
+  // Two wide jets
   if( widejets_handle->size() >= numwidejets_ )
     {
-      // two wide jets
+      // Two wide jets
       pass_twowidejets=true;
 
-      // eta/pt cuts
+      // Eta/pt cuts
       if( fabs(wj1.Eta())<etawidejets_ && wj1.Pt()>ptwidejets_ 
 	  &&
 	  fabs(wj2.Eta())<etawidejets_ && wj2.Pt()>ptwidejets_
@@ -112,25 +114,40 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
 	  pass_etaptcuts=true;
 	}
       
-      // deta cut
+      // Deta cut
       if( DeltaEtaJJWide < detawidejets_ )
 	pass_deta=true;
 
-      // dphi cut
+      // Dphi cut
       if( DeltaPhiJJWide > dphiwidejets_ )
 	pass_dphi=true;
     }
 
-  //jet id two leading jets
+  // Jet id two leading jets
   pass_JetIDtwojets=true;
 
+  // Full selection
+  if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_deta && pass_JetIDtwojets && pass_dphi )
+    pass_fullsel=true;
+
   // ## Fill Histograms 
-  if(  pass_nocut 
-       && pass_twowidejets 
-       && pass_etaptcuts 
-       && pass_deta 
-       && pass_JetIDtwojets 
-       && pass_dphi ) 
+
+  // Cut-flow plot
+  if( pass_nocut )
+    m_cutFlow->Fill(0);
+  if( pass_nocut && pass_twowidejets )
+    m_cutFlow->Fill(1);
+  if( pass_nocut && pass_twowidejets && pass_etaptcuts )
+    m_cutFlow->Fill(2);
+  if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_deta )
+    m_cutFlow->Fill(3);
+  if( pass_nocut && pass_twowidejets && pass_etaptcuts && pass_deta && pass_JetIDtwojets )
+    m_cutFlow->Fill(4);
+  if( pass_fullsel )
+    m_cutFlow->Fill(5);
+
+  // After full selection
+  if( pass_fullsel ) 
     {
       // 1D histograms
       m_MjjWide->Fill(MJJWide);
@@ -152,6 +169,13 @@ void DiJetVarAnalyzer::bookMEs(){
   
 
   // 1D histograms
+  m_cutFlow = bookH1withSumw2( "h1_cutFlow",
+			       "Cut Flow",
+			       6,0.,6.,
+			       "Cut",
+			       "Number of events"
+			       );
+
   m_MjjWide = bookH1withSumw2( "h1_MjjWide",
 			       "M_{jj} WideJets",
 			       500,0.,5000.,

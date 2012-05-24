@@ -34,6 +34,8 @@ class DiJetVarAnalyzer : public ScoutingAnalyzerBase
     double  dphiwidejets_;
 
     //1D histograms
+    MonitorElement * m_cutFlow;
+
     MonitorElement * m_MjjWide;
     MonitorElement * m_DetajjWide;
     MonitorElement * m_DphijjWide;
