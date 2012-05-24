@@ -5,7 +5,7 @@ import subprocess
 
 ##Setting variables:
 webDir = '/data/users/event_display/HDQM/Current/'
-Epochs = ['Run2012A']
+Epochs = ['Run2012B']
 Recos  = ['Prompt']           ##other examples: 08Nov2011
 PDs    = ['MinimumBias']      ##other examples: 'SingleMu','DoubleMu'
 
@@ -19,7 +19,7 @@ pwDir  = subprocess.Popen("pwd", shell=True, stdout=subprocess.PIPE).stdout.read
 Plots  = ['cfg/trendPlotsTracking.ini', 'cfg/trendPlotsPixel_General.ini','cfg/trendPlotsStrip_APVShots.ini', 'cfg/trendPlotsStrip_General.ini',
           'cfg/trendPlotsStrip_TEC.ini','cfg/trendPlotsStrip_TIB.ini',    'cfg/trendPlotsStrip_TID.ini',      'cfg/trendPlotsStrip_TOB.ini']
 addplots=''
-for i in range(1,len(Plots)):
+for i in range(0,1) : #range(1,len(Plots)):
     addplots+= " -C "+Plots[i]
 
 ##Loop hDQM with xxx PDs
@@ -27,9 +27,9 @@ for epoch in Epochs:
     for reco in Recos:
         for pd in PDs:
             run_hDQM_cmd = './trendPlots.py -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco
-            #run_hDQM_cmd = './trendPlots.py -r "run > 191800" -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco
+            #run_hDQM_cmd = './trendPlots.py -r "run > 194560" -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco
             print "Running ",run_hDQM_cmd
-            #subprocess.Popen(run_hDQM_cmd, shell=True).wait()
+            subprocess.Popen(run_hDQM_cmd, shell=True).wait()
 
 ####Build individual indices for each PD set of plots, and parent directories
 subprocess.Popen("rm fig/index.html", shell=True).wait()
