@@ -91,29 +91,15 @@ cat ../html_indices/RelVal_RecHits.html | sed -e s/DATA_SAMPLE/MinBias/ > MinBia
 cp ../html_indices/RelVal_CaloTowers.html MinBias/CaloTowers/index.html
 cp ../html_indices/RBX.html               MinBias/RBX/index.html
 
-cd ../
 
 #Single Pions
 
-#mkdir SinglePi50_ECAL+HCAL_Scan
+mkdir SinglePi50_ECAL+HCAL_Scan
 
-#cp ../html_indices/SinglePiScan.html       SinglePi50_ECAL+HCAL_Scan/index.html
+cp ../html_indices/SinglePiScan.html       SinglePi50_ECAL+HCAL_Scan/index.html
 
-#cd ../
+cd ../
 
-#Process MC TTbar
-#root -b -q 'RelValMacro.C("'${OLD_VERS}_MC'","'${NEW_VERS}_MC'","'HcalRecHitValidationRelVal_TTbar_MC_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_TTbar_MC_${NEW_VERS}.root'","InputRelVal_Medium.txt",'${harvest}')'
-
-#mv *CaloTowers*.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarMC/CaloTowers/
-#mv RBX*gif          ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarMC/RBX/
-#mv *gif             ${NEW_VERS}_vs_${OLD_VERS}_RelVal/TTbarMC/RecHits/
-
-#Process MC QCD
-#root -b -q 'RelValMacro.C("'${OLD_VERS}_MC'","'${NEW_VERS}_MC'","'HcalRecHitValidationRelVal_QCD_MC_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_QCD_MC_${NEW_VERS}.root'","InputRelVal_Medium.txt",'${harvest}')'
-
-#mv *CaloTowers*.gif ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDMC/CaloTowers/
-#mv RBX*gif          ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDMC/RBX/
-#mv *gif             ${NEW_VERS}_vs_${OLD_VERS}_RelVal/QCDMC/RecHits/
 
 #Process Startup TTbar
 root -b -q 'RelValMacro.C("'${OLD_VERS}_Startup'","'${NEW_VERS}_Startup'","'HcalRecHitValidationRelVal_TTbar_Startup_${OLD_VERS}.root'","'HcalRecHitValidationRelVal_TTbar_Startup_${NEW_VERS}.root'","InputRelVal_Medium.txt",'${harvest}')'
