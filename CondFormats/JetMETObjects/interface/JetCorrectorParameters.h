@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: JetCorrectorParameters.h,v 1.14 2011/01/27 12:14:13 kkousour Exp $
+// $Id: JetCorrectorParameters.h,v 1.15 2012/03/01 18:24:52 srappocc Exp $
 //
 // Generic parameters for Jet corrections
 //
@@ -129,7 +129,8 @@ class JetCorrectorParametersCollection {
 		 UncertaintyPileUpPt=24, 
 		 UncertaintyPileUpBias=25, 
 		 UncertaintyPileUpJetRate=26,
-		 N_LEVELS=27
+		 L1Residual=27,
+		 N_LEVELS=28
   };
 
 
