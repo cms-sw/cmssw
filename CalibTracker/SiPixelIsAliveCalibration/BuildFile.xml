@@ -8,6 +8,3 @@
 <use   name="Geometry/Records"/>
 <use   name="Geometry/CommonDetUnit"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>

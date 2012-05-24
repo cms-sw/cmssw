@@ -9,6 +9,3 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="CLHEP"/>
 <use   name="root"/>
-<export>
-  <lib   name="1"/>
-</export>

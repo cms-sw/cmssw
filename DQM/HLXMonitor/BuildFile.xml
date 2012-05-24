@@ -2,6 +2,3 @@
 <use   name="DQMServices/Core"/>
 <use   name="RecoLuminosity/TCPReceiver"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>

@@ -14,6 +14,3 @@
 <use   name="DQMServices/Components"/>
 <use   name="DataFormats/FEDRawData"/>
 <use   name="rootmath"/>
-<export>
-  <lib   name="1"/>
-</export>

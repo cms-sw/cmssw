@@ -5,14 +5,9 @@
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/METReco"/>
-<use   name="HLTrigger/HLTcore"/>
 <use   name="AnalysisDataFormats/EWK"/>
 <use   name="CommonTools/CandUtils"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="CommonTools/RecoAlgos"/>
-<use   name="ElectroWeakAnalysis/Utilities"/>
 <use   name="CLHEP"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>
