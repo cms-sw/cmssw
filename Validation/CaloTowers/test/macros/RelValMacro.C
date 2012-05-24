@@ -42,14 +42,14 @@ void RelValMacro(TString ref_vers = "218", TString val_vers = "218", TString rfn
     //HcalDigis
     //Please note 22 MC histograms are taken OUT of here
     //Add 11 for HD_nProfID and 11 for HD_nHist1 and 22 for HD_nHistTot
-    const int HD_nHistTot = 43 + 11 + 4  + 4 + 4;
-//    const int HD_nHistTot = 43 + 11 + 4 + 11 + 4 + 4;
-    const int HD_nHist1 = 8 + 5 + 11 + 4  + 4 + 4 + 4;
-//    const int HD_nHist1 = 8 + 5 + 11 + 4 + 11  + 4 + 4 + 4;
+    const int HD_nHistTot = 43 + 11 + 4 + 1; 
+//    const int HD_nHistTot = 43 + 11 + 4 + 11 + 1;
+    const int HD_nHist1 = 8 + 5 + 11 + 4 + 4 + 1;
+//    const int HD_nHist1 = 8 + 5 + 11 + 4 + 11 + 4 + 1;
     const int HD_nHist2 = 11;
     const int HD_nHist2D = 4;
     const int HD_nProfInd = 0;
-//    const int HD_nProfInd = 0;
+//    const int HD_nProfInd = 11;
 
     //CaloTowers
     const int CT_nHistTot = 61 + 15;
