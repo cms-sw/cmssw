@@ -13,7 +13,7 @@
 //
 // Original Author:  Ali Fahim,22 R-013,+41227672649,
 //         Created:  Wed Mar 23 11:42:34 CET 2011
-// $Id$
+// $Id: HcalDigisValidation.cc,v 1.1 2012/05/24 08:39:13 abdullin Exp $
 //
 //
 
@@ -192,10 +192,6 @@ void HcalDigisValidation::booking(const std::string bsubdet, int bnoise, int bmc
         sprintf(histo, "HcalDigiTask_all_amplitudes_vs_bin_1D_depth2_%s", sub);
         book1D(histo, nbin);
 
-        sprintf(histo, "HcalDigiTask_bin_3_frac_%s", sub);
-        book1D(histo, frac);
-        sprintf(histo, "HcalDigiTask_bin_4_5_frac_%s", sub);
-        book1D(histo, frac);
         sprintf(histo, "HcalDigiTask_bin_5_frac_%s", sub);
         book1D(histo, frac);
         sprintf(histo, "HcalDigiTask_bin_6_7_frac_%s", sub);
@@ -713,37 +709,37 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
             if (ampl1 > 10. || ampl2 > 10. || ampl3 > 10. || ampl4 > 10.) indigis++;
 
             // fraction 5,6 bins if ampl. is big.
-            if (ampl1 > 30. && depth == 1 && closen == 1) {
-                double fBin5 = tool[4] - calibrations.pedestal((*digiItr)[4].capid());
-                if (isubdet == 4) 
-                     fBin5 = tool[2] - calibrations.pedestal((*digiItr)[2].capid());
-                double fBin67 = tool[5] + tool[6]
-                        - calibrations.pedestal((*digiItr)[5].capid())
-                        - calibrations.pedestal((*digiItr)[6].capid());
-                fBin5 /= ampl1;
-                fBin67 /= ampl1;
-
-                strtmp = "HcalDigiTask_bin_5_frac_" + subdet_;
-                fill1D(strtmp, fBin5);
-                strtmp = "HcalDigiTask_bin_6_7_frac_" + subdet_;
-                fill1D(strtmp, fBin67);
- 
-                }
-
-             if (isubdet == 4 && ampl1 > 10. && depth == 1) {
-                double fBin3 = tool[2] - calibrations.pedestal((*digiItr)[2].capid());
-                double fBin45 = tool[3] + tool[4]
-                        - calibrations.pedestal((*digiItr)[3].capid())
+            if (ampl1 > 30. && depth == 1 && closen == 1 && isubdet != 4) {
+	      double fBin5 = tool[4] - calibrations.pedestal((*digiItr)[4].capid());
+	      double fBin67 = tool[5] + tool[6]
+		- calibrations.pedestal((*digiItr)[5].capid())
+		- calibrations.pedestal((*digiItr)[6].capid());
+	      
+	      fBin5 /= ampl1;
+	      fBin67 /= ampl1;
+	      
+	      strtmp = "HcalDigiTask_bin_5_frac_" + subdet_;
+	      fill1D(strtmp, fBin5);
+	      strtmp = "HcalDigiTask_bin_6_7_frac_" + subdet_;
+	      fill1D(strtmp, fBin67);
+	      
+	    }
+	    
+	    //Special for HF
+	    if (isubdet == 4 && ampl1 > 10. && depth == 1) {
+	      double fBin5 = tool[2] - calibrations.pedestal((*digiItr)[2].capid());
+	      double fBin67 = tool[3] + tool[4]
+		- calibrations.pedestal((*digiItr)[3].capid())
                         - calibrations.pedestal((*digiItr)[4].capid());
-                fBin3 /= ampl1;
-                fBin45 /= ampl1;
-                strtmp = "HcalDigiTask_bin_3_frac_" + subdet_;
-                fill1D(strtmp, fBin3);
-                strtmp = "HcalDigiTask_bin_4_5_frac_" + subdet_;
-                fill1D(strtmp, fBin45);
+	      fBin5 /= ampl1;
+	      fBin67 /= ampl1;
+	      strtmp = "HcalDigiTask_bin_5_frac_" + subdet_;
+	      fill1D(strtmp, fBin5);
+	      strtmp = "HcalDigiTask_bin_6_7_frac_" + subdet_;
+	      fill1D(strtmp, fBin67);
             }
-
-
+	    
+	    
             strtmp = "HcalDigiTask_signal_amplitude_" + subdet_;
             fill1D(strtmp, ampl);
             strtmp = "HcalDigiTask_signal_amplitude_depth1_" + subdet_;
