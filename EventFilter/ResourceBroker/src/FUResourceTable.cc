@@ -387,7 +387,7 @@ void FUResourceTable::discardNoReschedule() {
 
 		}
 	}
-	/* // do not wait for dqm discards from SM
+
 	bool allEmpty = false;
 	std::cout << "Checking if all dqm cells are empty " << std::endl;
 	while (!allEmpty) {
@@ -408,7 +408,7 @@ void FUResourceTable::discardNoReschedule() {
 		}
 		shmBuffer_->unlock();
 	}
-	*/
+
 	std::cout << "Making sure there are no dqm pending discards " << std::endl;
 	if (nbPendingSMDqmDiscards_ != 0) {
 		LOG4CPLUS_WARN(

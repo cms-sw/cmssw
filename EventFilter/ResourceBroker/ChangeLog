@@ -1,3 +1,9 @@
+2012-05-24 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-00-16
+	* revert to waiting for dqm cells to be empty
+	  (seems to cause RB to stop before EP's disconnect)
+
 2012-05-23 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V01-00-15
