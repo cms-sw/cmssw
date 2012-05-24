@@ -28,12 +28,12 @@ setenv CMSSWver1 6_0_0
 setenv CMSSWver2 6_0_0
 setenv OLDRELEASE 6_0_0
 setenv NEWRELEASE 6_0_0
-setenv OLDPRERELEASE pre3
-setenv NEWPRERELEASE pre4
+setenv OLDPRERELEASE pre4
+setenv NEWPRERELEASE pre5
 
 if ( $STARTUP == True) then
-setenv OLDGLOBALTAG START60_V0-v1
-setenv NEWGLOBALTAG START53_V4-v1
+setenv OLDGLOBALTAG PU_START53_V4-v2
+setenv NEWGLOBALTAG PU_START53_V4-v1
 else 
 setenv OLDGLOBALTAG START50_V8-v3
 setenv NEWGLOBALTAG START50_V8-v3
@@ -66,7 +66,7 @@ setenv PU True
 #setenv SAMPLE SingleGammaPt10
 #setenv SAMPLE SingleGammaPt35
 ##setenv SAMPLE SingleGammaFlatPt10_100
-setenv SAMPLE H130GGgluonfusion
+#setenv SAMPLE H130GGgluonfusion
 #setenv SAMPLE PhotonJets_Pt_10
 #setenv SAMPLE GammaJets_Pt_80_120
 #setenv SAMPLE QCD_Pt_80_120
