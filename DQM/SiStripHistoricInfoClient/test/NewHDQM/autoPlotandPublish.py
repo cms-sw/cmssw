@@ -5,29 +5,33 @@ import subprocess
 
 ##Setting variables:
 webDir = '/data/users/event_display/HDQM/Current/'
-Epochs = ['Run2012B']
+Epochs = ['Run2012','Run2012A','Run2012B']
 Recos  = ['Prompt']           ##other examples: 08Nov2011
 PDs    = ['MinimumBias']      ##other examples: 'SingleMu','DoubleMu'
 
 ##Internally set vars
 pwDir  = subprocess.Popen("pwd", shell=True, stdout=subprocess.PIPE).stdout.readline()[:-1]+'/'
 
-#subprocess.Popen("rm -rf fig/*", shell=True)
+jsonFile = subprocess.Popen("ls -1tr /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions12/8TeV/Prompt/Cert_*_8TeV_PromptReco_Collisions12_JSON.txt", shell=True, stdout=subprocess.PIPE).stdout.readlines()[-1][:-1]
+
+subprocess.Popen("rm -rf fig/*", shell=True)
 
 ##Internally set vars
 pwDir  = subprocess.Popen("pwd", shell=True, stdout=subprocess.PIPE).stdout.readline()[:-1]+'/'
 Plots  = ['cfg/trendPlotsTracking.ini', 'cfg/trendPlotsPixel_General.ini','cfg/trendPlotsStrip_APVShots.ini', 'cfg/trendPlotsStrip_General.ini',
           'cfg/trendPlotsStrip_TEC.ini','cfg/trendPlotsStrip_TIB.ini',    'cfg/trendPlotsStrip_TID.ini',      'cfg/trendPlotsStrip_TOB.ini']
 addplots=''
-for i in range(0,1) : #range(1,len(Plots)):
-    addplots+= " -C "+Plots[i]
+for plot in Plots: addplots+= " -C "+plot
+
+#for i in range(1,len(Plots)):
+#    addplots+= " -C "+Plots[i]
 
 ##Loop hDQM with xxx PDs
 for epoch in Epochs:
     for reco in Recos:
         for pd in PDs:
-            run_hDQM_cmd = './trendPlots.py -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco
-            #run_hDQM_cmd = './trendPlots.py -r "run > 194560" -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco
+            #run_hDQM_cmd = './trendPlots.py -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco
+            run_hDQM_cmd = './trendPlots.py -r "run > 194050" -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +" -J "+jsonFile
             print "Running ",run_hDQM_cmd
             subprocess.Popen(run_hDQM_cmd, shell=True).wait()
 
