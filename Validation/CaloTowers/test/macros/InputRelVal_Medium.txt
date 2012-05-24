@@ -9,23 +9,13 @@ HcalDigiTask_occupancy_vs_ieta_depth2_HF	1	HcalDigiTask_occupancy_vs_ieta_depth2
 HcalDigiTask_occupancy_vs_ieta_depth4_HO	1	HcalDigiTask_occupancy_vs_ieta_depth4_HO.gif	1	-20	20	0	-1	1D	noStat	noChi2	NoLog	41	42	HcalDigiTask_occupancy_vs_ieta_depth4_HO
 
 
-HcalDigiTask_bin_3_frac_HB   1	HcalDigiTask_bin_3_frac_HB.gif	1	-0.5 	4.0	0 	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_3_frac_HB
-HcalDigiTask_bin_3_frac_HE   1  HcalDigiTask_bin_3_frac_HE.gif	1	-0.5 	4.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_3_frac_HE
-HcalDigiTask_bin_3_frac_HF   1	HcalDigiTask_bin_3_frac_HF.gif	2	-0.5	3.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_3_frac_HF 
-HcalDigiTask_bin_3_frac_HO   1	HcalDigiTask_bin_3_frac_HO.gif	1	-0.5	4.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_3_frac_HO
-
-
-HcalDigiTask_bin_4_5_frac_HB   1	HcalDigiTask_bin_4_5_frac_HB.gif	1	-0.5 	4.0	0 	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_4_5_frac_HB
-HcalDigiTask_bin_4_5_frac_HE   1  HcalDigiTask_bin_4_5_frac_HE.gif	1	-0.5 	4.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_4_5_frac_HE
-HcalDigiTask_bin_4_5_frac_HF   1	HcalDigiTask_bin_4_5_frac_HF.gif	2	-2.0	2.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_4_5_frac_HF 
-HcalDigiTask_bin_4_5_frac_HO   1	HcalDigiTask_bin_4_5_frac_HO.gif	1	-0.5	4.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_4_5_frac_HO
-
 
 HcalDigiTask_bin_5_frac_HB	1	HcalDigiTask_bin_5_frac_HB.gif	1	-0.1	1.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_5_frac_HB
 HcalDigiTask_bin_5_frac_HE	1	HcalDigiTask_bin_5_frac_HE.gif	1	-0.1	1.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_5_frac_HE
-HcalDigiTask_bin_5_frac_HF	1	HcalDigiTask_bin_5_frac_HF.gif	1	-0.1	1.5	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_5_frac_HF
+HcalDigiTask_bin_5_frac_HF	1	HcalDigiTask_bin_3_frac_HF.gif	1	-0.5	2.5	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_3_frac_HF
 HcalDigiTask_bin_6_7_frac_HB	1	HcalDigiTask_bin_6_7_frac_HB.gif	1	-0.1	1.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_6_7_frac_HB
 HcalDigiTask_bin_6_7_frac_HE	1	HcalDigiTask_bin_6_7_frac_HE.gif	1	-0.1	1.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_6_7_frac_HE
+HcalDigiTask_bin_6_7_frac_HF	1	HcalDigiTask_bin_4_5_frac_HF.gif	1	-2.0	2.0	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_bin_4_5_frac_HF
 
 
 
@@ -36,15 +26,15 @@ HcalDigiTask_signal_amplitude_HE	1	HcalDigiTask_signal_amplitude_HE.gif	10	-10	2
 HcalDigiTask_signal_amplitude_depth1_HE	1	HcalDigiTask_signal_amplitude_depth1_HE.gif	10	-10	2000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth1_HE
 HcalDigiTask_signal_amplitude_depth2_HE	1	HcalDigiTask_signal_amplitude_depth2_HE.gif	10	-10	2000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth2_HE
 HcalDigiTask_signal_amplitude_depth3_HE	1	HcalDigiTask_signal_amplitude_depth3_HE.gif	10	-10	2000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth3_HE
-HcalDigiTask_signal_amplitude_HF	1	HcalDigiTask_signal_amplitude_HF.gif	20	-10	4000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_HF
-HcalDigiTask_signal_amplitude_depth1_HF	1	HcalDigiTask_signal_amplitude_depth1_HF.gif	20	-10	4000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth1_HF
-HcalDigiTask_signal_amplitude_depth2_HF	1	HcalDigiTask_signal_amplitude_depth2_HF.gif	20	-10	4000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth2_HF
+HcalDigiTask_signal_amplitude_HF	1	HcalDigiTask_signal_amplitude_HF.gif	10	-10	4000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_HF
+HcalDigiTask_signal_amplitude_depth1_HF	1	HcalDigiTask_signal_amplitude_depth1_HF.gif	10	-10	4000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth1_HF
+HcalDigiTask_signal_amplitude_depth2_HF	1	HcalDigiTask_signal_amplitude_depth2_HF.gif	10	-10	4000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth2_HF
 HcalDigiTask_signal_amplitude_HO	1	HcalDigiTask_signal_amplitude_HO.gif	5	-10	1000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_HO
 
 
 
-HcalDigiTask_number_of_amplitudes_above_10fC_HB	1	HcalDigiTask_number_of_amplitudes_above_10fC_HB.gif	2	-10	100	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_number_of_amplitudes_above_10fC_HB
-HcalDigiTask_number_of_amplitudes_above_10fC_HE	1	HcalDigiTask_number_of_amplitudes_above_10fC_HE.gif	2	-10	100	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_number_of_amplitudes_above_10fC_HE
+HcalDigiTask_number_of_amplitudes_above_10fC_HB	1	HcalDigiTask_number_of_amplitudes_above_10fC_HB.gif	5	-10	100	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_number_of_amplitudes_above_10fC_HB
+HcalDigiTask_number_of_amplitudes_above_10fC_HE	1	HcalDigiTask_number_of_amplitudes_above_10fC_HE.gif	5	-10	100	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_number_of_amplitudes_above_10fC_HE
 HcalDigiTask_number_of_amplitudes_above_10fC_HF	1	HcalDigiTask_number_of_amplitudes_above_10fC_HF.gif	5	-10	500	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_number_of_amplitudes_above_10fC_HF
 HcalDigiTask_number_of_amplitudes_above_10fC_HO	1	HcalDigiTask_number_of_amplitudes_above_10fC_HO.gif	1	-1	100	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_number_of_amplitudes_above_10fC_HO
 

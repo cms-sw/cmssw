@@ -148,7 +148,7 @@ mv RBX*gif          ${NEW_VERS}_vs_${OLD_VERS}_RelVal/MinBias/RBX/
 mv *gif             ${NEW_VERS}_vs_${OLD_VERS}_RelVal/MinBias/RecHits/
 
 #Process single pions
-#root -b -q 'SinglePi.C("'${OLD_VERS}'","'${NEW_VERS}'")'
-#mv *gif                 ${NEW_VERS}_vs_${OLD_VERS}_RelVal/SinglePi50_ECAL+HCAL_Scan
+root -b -q 'SinglePi.C("'${OLD_VERS}'","'${NEW_VERS}'")'
+mv *gif                 ${NEW_VERS}_vs_${OLD_VERS}_RelVal/SinglePi50_ECAL+HCAL_Scan
 
 exit
