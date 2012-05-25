@@ -1,7 +1,4 @@
 <flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>
 <use   name="SimG4Core/Application"/>
 <use   name="geant4core"/>
 <use   name="boost"/>

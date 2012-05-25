@@ -6,6 +6,3 @@
 <use   name="CondTools/L1Trigger"/>
 <use   name="CondFormats/RunInfo"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>

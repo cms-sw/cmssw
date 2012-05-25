@@ -16,7 +16,3 @@
 <use name="RecoLocalTracker/Records"/>
 <use name="RecoLocalTracker/ClusterParameterEstimator"/>
 <use name="DataFormats/TrackerRecHit2D"/>
-
-<export>
-  <lib   name="1"/>
-</export>

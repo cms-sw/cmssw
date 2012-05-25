@@ -7,6 +7,3 @@
 <use   name="DataFormats/SiPixelDetId"/>
 <use   name="RecoTracker/RoadMapRecord"/>
 <use   name="RecoTracker/RingRecord"/>
-<export>
-  <lib   name="1"/>
-</export>

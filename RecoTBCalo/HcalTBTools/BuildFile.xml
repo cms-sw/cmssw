@@ -2,6 +2,3 @@
 <use   name="FWCore/Framework"/>
 <use   name="DataFormats/Common"/>
 <use   name="TBDataFormats/HcalTBObjects"/>
-<export>
-  <lib   name="1"/>
-</export>

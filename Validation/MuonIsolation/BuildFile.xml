@@ -9,5 +9,3 @@
 <use   name="DataFormats/MuonReco"/>
 <use   name="DQMServices/Core"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-</export>

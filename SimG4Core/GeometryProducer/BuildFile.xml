@@ -11,6 +11,3 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="geant4"/>
 <use   name="clhep"/>
-<export>
-  <lib   name="1"/>
-</export>

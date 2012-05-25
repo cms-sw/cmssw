@@ -3,6 +3,3 @@
 <use   name="RecoTracker/RingRecord"/>
 <use   name="Geometry/Records"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>

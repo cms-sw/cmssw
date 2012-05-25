@@ -5,7 +5,4 @@
 <use   name="SimDataFormats/SimHitMaker"/>
 <use   name="SimG4Core/Application"/>
 <use   name="Geometry/MuonNumbering"/>
-<export>
-  <lib   name="1"/>
-</export>
 <flags   EDM_PLUGIN="1"/>
