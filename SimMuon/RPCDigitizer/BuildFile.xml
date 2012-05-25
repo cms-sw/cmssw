@@ -32,6 +32,3 @@
 <use   name="Utilities/General"/>
 <use   name="SimMuon/Neutron"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>

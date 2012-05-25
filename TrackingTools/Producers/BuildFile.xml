@@ -10,7 +10,4 @@
 <use   name="TrackingTools/TrajectoryCleaning"/>
 <use   name="TrackingTools/TrajectoryFiltering"/>
 <use   name="boost"/>
-<export>
-  <lib   name="1"/>
-</export>
 <flags   EDM_PLUGIN="1"/>
