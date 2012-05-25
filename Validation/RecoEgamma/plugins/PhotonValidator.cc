@@ -81,8 +81,8 @@
  **
  **
  **  $Id: PhotonValidator
- **  $Date: 2011/05/20 13:55:42 $
- **  $Revision: 1.1 $
+ **  $Date: 2012/02/14 19:43:43 $
+ **  $Revision: 1.2 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -757,6 +757,12 @@ void  PhotonValidator::beginJob() {
     h_hOverE_[0][1] = dbe_->book1D(histname+"Barrel","H/E: Barrel ", 100,0., 0.1) ;
     h_hOverE_[0][2] = dbe_->book1D(histname+"Endcap","H/E: Endcap ", 100,0., 0.1) ;
     //
+    histname = "newhOverE";
+    h_newhOverE_[0][0] = dbe_->book1D(histname+"All",   "new H/E: All Ecal",100,0., 0.1) ;
+    h_newhOverE_[0][1] = dbe_->book1D(histname+"Barrel","new H/E: Barrel ", 100,0., 0.1) ;
+    h_newhOverE_[0][2] = dbe_->book1D(histname+"Endcap","new H/E: Endcap ", 100,0., 0.1) ;
+
+    //
     if ( ! isRunCentrally_ ) { 
       histname="hOverEVsEta";
       h2_hOverEVsEta_[0] = dbe_->book2D(histname+"All"," All photons H/E vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
@@ -774,6 +780,14 @@ void  PhotonValidator::beginJob() {
     histname="pHoverEVsEt";
     p_hOverEVsEt_[0] = dbe_->bookProfile(histname+"All"," All photons H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
     p_hOverEVsEt_[1] = dbe_->bookProfile(histname+"Unconv"," All photons H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+    //
+    histname="pnewHoverEVsEta";
+    p_newhOverEVsEta_[0] = dbe_->bookProfile(histname+"All"," All photons new H/E vs #eta: all Ecal ",  etaBin2,etaMin, etaMax,100, 0.,0.1);
+    p_newhOverEVsEta_[1] = dbe_->bookProfile(histname+"Unconv"," All photons new H/E vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,0.1);
+    //
+    histname="pnewHoverEVsEt";
+    p_newhOverEVsEt_[0] = dbe_->bookProfile(histname+"All"," All photons new H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
+    p_newhOverEVsEt_[1] = dbe_->bookProfile(histname+"Unconv"," All photons new H/E vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,0.1);
     //
     histname = "ecalRecHitSumEtConeDR04";
     h_ecalRecHitSumEtConeDR04_[0][0] = dbe_->book1D(histname+"All",   "ecalRecHitSumEtDR04: All Ecal",etBin,etMin,20.);
@@ -805,6 +819,11 @@ void  PhotonValidator::beginJob() {
     h_hcalTowerSumEtConeDR04_[0][0] = dbe_->book1D(histname+"All",   "hcalTowerSumEtConeDR04: All Ecal",etBin,etMin,20.);
     h_hcalTowerSumEtConeDR04_[0][1] = dbe_->book1D(histname+"Barrel","hcalTowerSumEtConeDR04: Barrel ", etBin,etMin,20.);
     h_hcalTowerSumEtConeDR04_[0][2] = dbe_->book1D(histname+"Endcap","hcalTowerSumEtConeDR04: Endcap ", etBin,etMin,20.);
+    //
+    histname = "hcalTowerBcSumEtConeDR04";
+    h_hcalTowerBcSumEtConeDR04_[0][0] = dbe_->book1D(histname+"All",   "hcalTowerBcSumEtConeDR04: All Ecal",etBin,etMin,20.);
+    h_hcalTowerBcSumEtConeDR04_[0][1] = dbe_->book1D(histname+"Barrel","hcalTowerBcSumEtConeDR04: Barrel ", etBin,etMin,20.);
+    h_hcalTowerBcSumEtConeDR04_[0][2] = dbe_->book1D(histname+"Endcap","hcalTowerBcSumEtConeDR04: Endcap ", etBin,etMin,20.);
 
     //
     if ( ! isRunCentrally_ ) { 
@@ -815,6 +834,9 @@ void  PhotonValidator::beginJob() {
     histname="pHcalTowerSumEtConeDR04VsEta";
     p_hcalTowerSumEtConeDR04VsEta_[0] = dbe_->bookProfile(histname+"All","All photons hcalTowerSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1, "");
     p_hcalTowerSumEtConeDR04VsEta_[1] = dbe_->bookProfile(histname+"Unconv","All photons hcalTowerSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1, "");
+    histname="pHcalTowerBcSumEtConeDR04VsEta";
+    p_hcalTowerBcSumEtConeDR04VsEta_[0] = dbe_->bookProfile(histname+"All","All photons hcalTowerBcSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1, "");
+    p_hcalTowerBcSumEtConeDR04VsEta_[1] = dbe_->bookProfile(histname+"Unconv","All photons hcalTowerBcSumEtDR04 vs #eta: all Ecal ",  etaBin2,etaMin, etaMax, etBin,etMin,etMax*0.1, "");
     //
     if ( ! isRunCentrally_ ) { 
       histname="hcalTowerSumEtConeDR04VsEt";
@@ -826,6 +848,11 @@ void  PhotonValidator::beginJob() {
     p_hcalTowerSumEtConeDR04VsEt_[0] = dbe_->bookProfile(histname+"All","All photons hcalTowerSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
     p_hcalTowerSumEtConeDR04VsEt_[1] = dbe_->bookProfile(histname+"Barrel","All photons hcalTowerSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
     p_hcalTowerSumEtConeDR04VsEt_[2] = dbe_->bookProfile(histname+"Endcap","All photons hcalTowerSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+    //
+    histname="pHcalTowerBcSumEtConeDR04VsEt";
+    p_hcalTowerBcSumEtConeDR04VsEt_[0] = dbe_->bookProfile(histname+"All","All photons hcalTowerBcSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+    p_hcalTowerBcSumEtConeDR04VsEt_[1] = dbe_->bookProfile(histname+"Barrel","All photons hcalTowerBcSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
+    p_hcalTowerBcSumEtConeDR04VsEt_[2] = dbe_->bookProfile(histname+"Endcap","All photons hcalTowerBcSumEtDR04 vs Et: all Ecal ",  etBin,etMin, etMax, etBin,etMin,etMax*etScale, "");
 
     //
     histname = "isoTrkSolidConeDR04";
@@ -1872,8 +1899,10 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       float r2 = matchingPho.r2x5();
       float sigmaIetaIeta =  matchingPho.sigmaIetaIeta();
       float hOverE = matchingPho.hadronicOverEm();
+      float newhOverE = matchingPho.hadTowOverEm();
       float ecalIso = matchingPho.ecalRecHitSumEtConeDR04();
       float hcalIso = matchingPho.hcalTowerSumEtConeDR04();
+      float newhcalIso = matchingPho.hcalTowerSumEtBcConeDR04();
       float trkIso =  matchingPho.trkSumPtSolidConeDR04();
       float nIsoTrk   =  matchingPho.nTrkSolidConeDR04();
       std::vector< std::pair<DetId, float> >::const_iterator rhIt;
@@ -1935,6 +1964,11 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       p_hOverEVsEta_[0] -> Fill (mcEta_, hOverE );
       p_hOverEVsEt_[0] -> Fill ((*mcPho).fourMomentum().et(), hOverE);
       //
+      h_newhOverE_[type][0]->Fill( newhOverE );
+      p_newhOverEVsEta_[0] -> Fill (mcEta_, newhOverE );
+      p_newhOverEVsEt_[0] -> Fill ((*mcPho).fourMomentum().et(), newhOverE);
+
+      //
       h_ecalRecHitSumEtConeDR04_[type][0]->Fill( ecalIso );
       if ( ! isRunCentrally_ ) { 
 	h2_ecalRecHitSumEtConeDR04VsEta_[0] -> Fill (mcEta_, ecalIso );
@@ -1949,6 +1983,10 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h_hcalTowerSumEtConeDR04_[type][0]->Fill( hcalIso );
       p_hcalTowerSumEtConeDR04VsEta_[0] -> Fill (mcEta_, hcalIso );
       p_hcalTowerSumEtConeDR04VsEt_[0] -> Fill ((*mcPho).fourMomentum().et(), hcalIso);
+      //
+      h_hcalTowerBcSumEtConeDR04_[type][0]->Fill( newhcalIso );
+      p_hcalTowerBcSumEtConeDR04VsEta_[0] -> Fill (mcEta_, newhcalIso );
+      p_hcalTowerBcSumEtConeDR04VsEt_[0] -> Fill ((*mcPho).fourMomentum().et(), newhcalIso);
       //
       h_isoTrkSolidConeDR04_[type][0]->Fill( trkIso );
       h2_isoTrkSolidConeDR04VsEta_[0] -> Fill (mcEta_, trkIso );
@@ -2050,10 +2088,13 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	h_r2_[type][1]->Fill( r2 );
 	h_sigmaIetaIeta_[type][1]->Fill( sigmaIetaIeta );
 	h_hOverE_[type][1]->Fill( hOverE );
+	h_newhOverE_[type][1]->Fill( newhOverE );
 	h_ecalRecHitSumEtConeDR04_[type][1]->Fill( ecalIso );
 	p_ecalRecHitSumEtConeDR04VsEt_[1] -> Fill ((*mcPho).fourMomentum().et(), ecalIso);
 	h_hcalTowerSumEtConeDR04_[type][1]->Fill( hcalIso );
 	p_hcalTowerSumEtConeDR04VsEt_[1] -> Fill ((*mcPho).fourMomentum().et(), hcalIso);
+	h_hcalTowerBcSumEtConeDR04_[type][1]->Fill( newhcalIso );
+	p_hcalTowerBcSumEtConeDR04VsEt_[1] -> Fill ((*mcPho).fourMomentum().et(), newhcalIso);
 	h_isoTrkSolidConeDR04_[type][1]->Fill( trkIso );
 	h_nTrkSolidConeDR04_[type][1]->Fill( nIsoTrk );
 	if ( ! isRunCentrally_ ) {
@@ -2100,10 +2141,13 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	h_r2_[type][2]->Fill( r2 );
 	h_sigmaIetaIeta_[type][2]->Fill( sigmaIetaIeta );
 	h_hOverE_[type][2]->Fill( hOverE );
+	h_newhOverE_[type][2]->Fill( newhOverE );
 	h_ecalRecHitSumEtConeDR04_[type][2]->Fill( ecalIso );
 	p_ecalRecHitSumEtConeDR04VsEt_[2] -> Fill ((*mcPho).fourMomentum().et(), ecalIso);
 	h_hcalTowerSumEtConeDR04_[type][2]->Fill( hcalIso );
         p_hcalTowerSumEtConeDR04VsEt_[2] -> Fill ((*mcPho).fourMomentum().et(), hcalIso);
+	h_hcalTowerBcSumEtConeDR04_[type][2]->Fill( newhcalIso );
+        p_hcalTowerBcSumEtConeDR04VsEt_[2] -> Fill ((*mcPho).fourMomentum().et(), newhcalIso);
 	h_isoTrkSolidConeDR04_[type][2]->Fill( trkIso );
 	h_nTrkSolidConeDR04_[type][2]->Fill( nIsoTrk );
 	h_phoE_[type][2]->Fill( photonE );
