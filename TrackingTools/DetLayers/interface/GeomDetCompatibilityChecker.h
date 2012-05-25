@@ -4,7 +4,7 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 
 /** helper class which checks if a GeomDet is geometrically 
  *  compatible with a TrajectoryState
