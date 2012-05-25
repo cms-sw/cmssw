@@ -4,4 +4,5 @@
 <use   name="DataFormats/EcalDigi"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="SimCalorimetry/EcalTrigPrimProducers"/>
+<use   name="RecoLocalCalo/EcalRecAlgos"/>
 <use   name="root"/>
