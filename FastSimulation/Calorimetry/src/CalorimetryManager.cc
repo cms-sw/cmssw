@@ -122,8 +122,11 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
      // please keep the binning with fixed width and coherent between ShapeRhoZ and Tr/Lo shapes. Also check if you 
      // change the binning that the weight changes in the filling in EMShower.cc
     dbe->book1D("TransverseShape","Transverse Shape; #rho / Moliere radius; 1/E dE/d#rho",70, 0., 7.);
-    dbe->book1D("LongitudinalShape","Longitudinal Shape; z / X0; 1/E dE/dz",26, 0.01, 26.01);
-    dbe->book2D("ShapeRhoZ","2D Shape Ee = 10 GeV; #rho / Moliere radius; z / X0",70, 0., 7., 26, 0.01, 26.01);
+    dbe->book1D("LongitudinalShape","Longitudinal Shape; z / X0; 1/E dE/dz",40, 0.01, 40.01);
+
+    dbe->book1D("LongitudinalShapeLayers","Longitudinal Shape in number of layers; z / Layers; 1/E dE/dz", 26, 0.01, 26.01);
+
+    dbe->book2D("ShapeRhoZ","2D Shape; #rho / Moliere radius; z / X0", 70, 0., 7., 26, 0.01, 26.01);
     
     dbe->book1D("NumberOfParticles","Number Of Particles entering the Shower; #Particles; #Events", 6, -0.5, 5.5);
     
