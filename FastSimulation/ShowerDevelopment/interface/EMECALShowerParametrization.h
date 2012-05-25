@@ -57,6 +57,7 @@ class EMECALShowerParametrization
 
   inline double meanTHom(double lny) const { 
     return lny-0.858; }
+    //return lny-1.23; }
 
   inline double meanAlphaHom(double lny) const { 
     return 0.21+(0.492+2.38/theECAL->theZeff())*lny; }
@@ -130,10 +131,10 @@ class EMECALShowerParametrization
     return log( std::exp(meanLnTHom(lny)) - 0.55/theECAL->theFs() - 0.69*(1-theECAL->ehat()) ); }
 
   inline double sigmaLnTSam(double lny) const {
-    return 1/(-2.5 + 1.25*lny); }
+    return 1./(-2.5 + 1.25*lny); }
 
   inline double meanLnAlphaSam(double lny) const {
-    return log( std::exp(meanLnAlphaHom(lny)) - 0.476/theECAL->theZeff() ); }
+    return log( std::exp(meanLnAlphaHom(lny)) - 0.476/theECAL->theFs() ); }
 
   inline double sigmaLnAlphaSam(double lny) const {
     return 1./(-0.82+0.79*lny); }
