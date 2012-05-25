@@ -34,9 +34,6 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexSmoother.h"
 //#include "DataFormats/Math/interface/deltaR.h"
 
-
-#include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableVertexReconstructor.h"
-
 //#define VTXDEBUG
 using namespace reco;
 
