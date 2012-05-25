@@ -35,6 +35,9 @@ ECALBarrelProperties::ECALBarrelProperties(const edm::ParameterSet& fastDet)
   ehat_ = fastDetBarrel.getParameter<double>("ehat");
   resE_ = fastDetBarrel.getParameter<double>("resE");
 
+  da_ = fastDetBarrel.getParameter<double>("da");
+  dp_ = fastDetBarrel.getParameter<double>("dp");
+
   bHom_ = fastDetBarrel.getParameter<bool>("bHom");
 
   bool debug = fastDetBarrel.getParameter<bool>("debug");
@@ -42,21 +45,22 @@ ECALBarrelProperties::ECALBarrelProperties(const edm::ParameterSet& fastDet)
 
   if (debug)
     edm::LogInfo("ECALProperties")  <<" ========== Barrel ========= " << "\n"
-	 <<" isHom ? " << bHom_ << "\n"
-	 <<" lightColl = " << lightColl_ << "\n"
-	 <<" lightCollUnif_ = " <<  lightCollUnif_  << "\n"
-	 <<" photoStatistics_ = " << photoStatistics_ << " photons/GeV\n"
-	 <<" thickness_ = " << thickness_ << " cm\n"
-	 <<" interactionLength_ = " << interactionLength_ << " cm\n"
-	 <<" Aeff_ = " << Aeff_ << "\n"
-	 <<" Zeff_ = " << Zeff_ << "\n"
-	 <<" rho_ = " << rho_ << " g/cm3\n"
-	 <<" radLenIngcm2_ = " << radLenIngcm2_ << " g*cm2\n"
-	 <<" radLenIncm_ = " << radLenIncm_ << " cm\n"
-	 <<" moliereRadius_ = " << moliereRadius_ << " cm\n"
-	 <<" criticalEnergy_ = " << criticalEnergy_ << " GeV\n"
-	 <<" scaleEnergy_ = " << scaleEnergy_ << " GeV\n"
-	 <<" Fs = " << Fs_ << " ehat = " << ehat_ << " resE = " << resE_ << "\n";
+				    <<" isHom ? " << bHom_ << "\n"
+				    <<" da = " << da_ << " dp = " << dp_ 
+				    <<" lightColl = " << lightColl_ << "\n"
+				    <<" lightCollUnif_ = " <<  lightCollUnif_  << "\n"
+				    <<" photoStatistics_ = " << photoStatistics_ << " photons/GeV\n"
+				    <<" thickness_ = " << thickness_ << " cm\n"
+				    <<" interactionLength_ = " << interactionLength_ << " cm\n"
+				    <<" Aeff_ = " << Aeff_ << "\n"
+				    <<" Zeff_ = " << Zeff_ << "\n"
+				    <<" rho_ = " << rho_ << " g/cm3\n"
+				    <<" radLenIngcm2_ = " << radLenIngcm2_ << " g*cm2\n"
+				    <<" radLenIncm_ = " << radLenIncm_ << " cm\n"
+				    <<" moliereRadius_ = " << moliereRadius_ << " cm\n"
+				    <<" criticalEnergy_ = " << criticalEnergy_ << " GeV\n"
+				    <<" scaleEnergy_ = " << scaleEnergy_ << " GeV\n"
+				    <<" Fs = " << Fs_ << " ehat = " << ehat_ << " resE = " << resE_ << "\n";
 
 
 }

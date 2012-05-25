@@ -61,6 +61,13 @@ class ECALProperties : public CalorimeterProperties
   /// a rough estimate of ECAL resolution sigma/E = resE/sqrt(E)
   inline double resE() const { return resE_; }
 
+  /// the width of the active layer in the case of the homogeneous detector
+  inline double da() const { return da_; }
+
+  /// the width of the passive layer in the case of the homogeneous detector
+  inline double dp() const { return dp_; }
+
+
   /// a rough estimate of ECAL resolution sigma/E = resE/sqrt(E)
   inline bool isHom() const { return bHom_; }
 
@@ -93,6 +100,9 @@ class ECALProperties : public CalorimeterProperties
   double Fs_;
   double ehat_;
   double resE_;
+  
+  double da_;
+  double dp_;
 
   bool bHom_;
 
