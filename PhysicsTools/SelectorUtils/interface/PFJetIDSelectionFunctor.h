@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: PFJetIDSelectionFunctor.h,v 1.21 2012/04/24 07:20:57 veelken Exp $
+  \version  $Id: PFJetIDSelectionFunctor.h,v 1.22 2012/04/24 12:16:26 veelken Exp $
 */
 
 
@@ -146,7 +146,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   bool operator()( const pat::Jet & jet, pat::strbitset & ret )  
   {
     if ( version_ == FIRSTDATA ) {
-      if ( jet.currentJECLevel() == "Uncorrected" ) 
+      if ( jet.currentJECLevel() == "Uncorrected" || !jet.jecSetsAvailable() ) 
 	return firstDataCuts( jet, ret );
       else 
 	return firstDataCuts( jet.correctedJet("Uncorrected"), ret );
