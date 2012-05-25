@@ -31,6 +31,8 @@
 #include "DataFormats/METReco/interface/PhiWedge.h"
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
+#include "DataFormats/METReco/interface/MVAMETData.h"
+#include "DataFormats/METReco/interface/MVAMETDataFwd.h"
 #include "DataFormats/METReco/interface/AnomalousECALVariables.h"
 #include "DataFormats/METReco/interface/BoundaryInformation.h"
 
@@ -144,6 +146,10 @@ namespace {
     edm::Wrapper<CorrMETData> dummy42;
     std::vector<CorrMETData> dummy43;
     edm::Wrapper<std::vector<CorrMETData> > dummy44;
+
+    reco::JetInfo dummyJetInfo;
+    reco::JetInfoCollection dummyJetInfoCollection;
+    edm::Wrapper<reco::JetInfoCollection> dummyJetInfoCollectionWrapped;
 
     AnomalousECALVariables dummyBE20;
     edm::Wrapper<AnomalousECALVariables> dummyBE21;
