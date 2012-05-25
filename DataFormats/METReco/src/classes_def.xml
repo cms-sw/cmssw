@@ -7,7 +7,9 @@
   <class name="std::vector<CorrMETData>"/> 
   <class name="edm::Wrapper<std::vector<CorrMETData> >"/> 
 
-  <class name="reco::JetInfo" />
+  <class name="reco::JetInfo" ClassVersion="10">
+   <version ClassVersion="10" checksum="1396416553"/>
+  </class>
   <class name="reco::JetInfoCollection" />
   <class name="edm::Wrapper<reco::JetInfoCollection>" />
 
