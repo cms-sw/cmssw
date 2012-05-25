@@ -14,6 +14,7 @@
 #include "TColor.h"
 #include "TH1F.h"
 #include "TImage.h"
+#include "TPaveLabel.h"
 
 // NOTE: All the below colors have been tweaked based on the PNG
 // versions of the CMS logos present in this CVS area.
@@ -118,6 +119,21 @@ void drawLogo(TCanvas* canvas, std::string const logoName) {
   p->Draw();
   p->cd();
   logo->Draw();
+}
+
+void drawDateLabel(TCanvas* canvas, std::string const end_time) {
+  std::string date_str("Data included up to ");
+  date_str += end_time;
+  date_str += std::string(" UTC");
+  float x_offset = .2;
+  float y_lo = .82;
+  float height = .2;
+  TPaveLabel* label = new TPaveLabel(.5 - x_offset, y_lo,
+                                     .5 + x_offset, y_lo + height,
+                                     date_str.c_str(), "NDC");
+  label->SetBorderSize(0.);
+  label->SetFillColor(0);
+  label->Draw();
 }
 
 void duplicateYAxis(TCanvas* const canvas,
@@ -338,7 +354,7 @@ void create_plots(std::string const colorScheme="Greg") {
   std::string titlePeak =
     std::string("CMS Peak Luminosity Per Day, 2012, #sqrt{s} = 8 TeV;") +
     std::string("Date;") +
-    std::string("Peak Delivered Luminosity (Hz/#mub)");
+    std::string("Peak Delivered Luminosity (Hz/nb)");
 
   // Conversion factor to go to inverse femtobarn.
   float conversionFactor = 1.e6;
@@ -379,9 +395,6 @@ void create_plots(std::string const colorScheme="Greg") {
     kFillColorDelivered = kCMSYellow;
     kFillColorRecorded = kCMSRed;
     kFillColorPeak = kCMSRed;
-//     kFillColorDelivered = kCMSRed;
-//     kFillColorRecorded = kCMSYellow;
-//     kFillColorPeak = kCMSYellow;
     kLineColorDelivered = TColor::GetColorDark(kFillColorDelivered);
     kLineColorRecorded = TColor::GetColorDark(kFillColorRecorded);
     kLineColorPeak = TColor::GetColorDark(kFillColorPeak);
@@ -571,6 +584,10 @@ void create_plots(std::string const colorScheme="Greg") {
   // Duplicate the vertical axis on the right-hand side.
   duplicateYAxis(canvas, h_delLum.GetYaxis());
 
+  // Add a label specifying up until when data taken was included in
+  // this plot.
+  drawDateLabel(canvas, end_timeV.back());
+
   // Redraw the axes. This way the graphs don't overshoot on top of
   // the axes any more.
   canvas->RedrawAxis();
@@ -636,6 +653,10 @@ void create_plots(std::string const colorScheme="Greg") {
   // Duplicate the vertical axis on the right-hand side.
   duplicateYAxis(canvas, h_delLumCum->GetYaxis());
 
+  // Add a label specifying up until when data taken was included in
+  // this plot.
+  drawDateLabel(canvas, end_timeV.back());
+
   // Redraw the axes. This way the graphs don't overshoot on top of
   // the axes any more.
   canvas->RedrawAxis();
@@ -685,8 +706,12 @@ void create_plots(std::string const colorScheme="Greg") {
   hPeakLum.GetYaxis()->SetRangeUser(min_y, max_y);
   duplicateYAxis(canvas, hPeakLum.GetYaxis());
 
+  // Add a label specifying up until when data taken was included in
+  // this plot.
+  drawDateLabel(canvas, end_timeV.back());
+
   legend = createLegend();
-  legend->SetHeader(Form("Max. inst. lumi.: %.2f Hz/#mub", maxPeak));
+  legend->SetHeader(Form("Max. inst. lumi.: %.2f Hz/nb", maxPeak));
   legend->Draw();
 
   canvas->RedrawAxis();
