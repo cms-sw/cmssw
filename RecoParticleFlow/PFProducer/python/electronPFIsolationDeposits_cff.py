@@ -18,12 +18,16 @@ elPFIsoDepositGamma= cms.EDProducer("CandIsoDepositProducer",
                                             DR_Max = cms.double(1.0),
                                             Diff_r = cms.double(99999.99),
                                             inputCandView = cms.InputTag("pfAllPhotons"),
-                                            DR_Veto = cms.double(1e-05),
+                                            DR_Veto = cms.double(0),
                                             SCMatch_Veto = cms.bool(False),
                                             MissHitSCMatch_Veto = cms.bool(True),
                                             DepositLabel = cms.untracked.string('')
                                             )
                                     )
+elPFIsoDepositCharged.ExtractorPSet.DR_Veto = cms.double(0)
+elPFIsoDepositChargedAll.ExtractorPSet.DR_Veto = cms.double(0)
+elPFIsoDepositNeutral.ExtractorPSet.DR_Veto = cms.double(0)
+elPFIsoDepositPU.ExtractorPSet.DR_Veto = cms.double(0)
 
 
 electronPFIsolationDepositsSequence = cms.Sequence(
