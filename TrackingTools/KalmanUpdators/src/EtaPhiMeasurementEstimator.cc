@@ -2,7 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/KalmanUpdators/interface/EtaPhiMeasurementEstimator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 

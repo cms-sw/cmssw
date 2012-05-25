@@ -4,7 +4,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/invertPosDefMatrix.h"
-
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 using namespace std;
 
 pair<bool,double>

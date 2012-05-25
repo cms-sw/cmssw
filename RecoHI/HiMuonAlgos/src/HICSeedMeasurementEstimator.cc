@@ -1,4 +1,5 @@
 #include "RecoHI/HiMuonAlgos/interface/HICSeedMeasurementEstimator.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 //#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 //#define DEBUG

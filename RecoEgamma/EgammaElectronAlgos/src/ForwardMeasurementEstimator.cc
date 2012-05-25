@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ForwardMeasurementEstimator.cc,v 1.20 2010/07/29 15:19:45 chamont Exp $
+// $Id: ForwardMeasurementEstimator.cc,v 1.21 2010/09/21 17:06:14 chamont Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"
@@ -22,7 +22,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/GlobalDetRangeRPhi.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
-
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 // zero value indicates incompatible ts - hit pair
 std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts,
 							      const TransientTrackingRecHit& hit) const {

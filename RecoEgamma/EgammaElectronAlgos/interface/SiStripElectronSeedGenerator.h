@@ -47,6 +47,7 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h" 
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
