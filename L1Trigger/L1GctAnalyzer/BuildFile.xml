@@ -5,6 +5,3 @@
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="root"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>

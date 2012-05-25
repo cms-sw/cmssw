@@ -4,6 +4,3 @@
 <use   name="CondFormats/CSCObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>

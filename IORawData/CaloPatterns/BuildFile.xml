@@ -9,6 +9,3 @@
 <use   name="boost_filesystem"/>
 <use   name="CalibCalorimetry/HcalAlgos"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>

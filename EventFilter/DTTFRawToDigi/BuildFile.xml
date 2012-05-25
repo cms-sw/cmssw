@@ -1,6 +1,3 @@
-<export>
-  <lib   name="1"/>
-</export>
 <use   name="FWCore/Framework"/>
 <use   name="DataFormats/L1DTTrackFinder"/>
 <use   name="DataFormats/L1GlobalMuonTrigger"/>

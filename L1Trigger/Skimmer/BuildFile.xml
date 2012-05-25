@@ -8,5 +8,3 @@
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/L1TObjects"/>
-<export>
-</export>
