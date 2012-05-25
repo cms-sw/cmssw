@@ -8,9 +8,9 @@
  * \authors Phil Harris, CERN
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.1 $
  *
- * $Id: PFMETProducerMVAData.h,v 1.3 2012/05/02 10:29:52 veelken Exp $
+ * $Id: PFMETProducerMVAData.h,v 1.1 2012/05/24 07:58:01 veelken Exp $
  *
  */
 
@@ -34,7 +34,7 @@
 #include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
 
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
-#include "CMGTools/External/interface/PileupJetIdAlgo.h"
+//#include "CMGTools/External/interface/PileupJetIdAlgo.h"
 
 #include <vector>
 
@@ -74,7 +74,7 @@ namespace reco
     PFSpecificAlgo pfMEtSpecificAlgo_;
 
     PFJetIDSelectionFunctor* looseJetIdAlgo_;
-    PileupJetIdAlgo mvaJetIdAlgo_;
+    //PileupJetIdAlgo mvaJetIdAlgo_;
 
     int verbosity_;
   };

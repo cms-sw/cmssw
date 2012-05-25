@@ -31,7 +31,7 @@ pfMEtMVA = cms.EDProducer("PFMETProducerMVA",
     tmvaWeights = cms.string("CMGTools/External/data/mva_JetID_v1.weights.xml"),
     tmvaMethod = cms.string("JetID"),
     version = cms.int32(-1),
-    label = cms.string("philV1"),
+    cutBased = cms.bool(false),                      
     tmvaVariables = cms.vstring(
         "nvtx",
         "jetPt",

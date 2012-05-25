@@ -8,9 +8,9 @@
  * \authors Phil Harris, CERN
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: PFMETProducerMVA.h,v 1.2 2012/04/25 08:53:39 veelken Exp $
+ * $Id: PFMETProducerMVA.h,v 1.3 2012/05/02 10:29:52 veelken Exp $
  *
  */
 
@@ -32,7 +32,7 @@
 #include "RecoMET/METAlgorithms/interface/mvaMEtUtilities.h"
 
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
-#include "CMGTools/External/interface/PileupJetIdAlgo.h"
+//#include "CMGTools/External/interface/PileupJetIdAlgo.h"
 
 #include <vector>
 
@@ -75,7 +75,7 @@ namespace reco
     PFMETAlgorithmMVA mvaMEtAlgo_;
 
     PFJetIDSelectionFunctor* looseJetIdAlgo_;
-    PileupJetIdAlgo mvaJetIdAlgo_;
+    //PileupJetIdAlgo mvaJetIdAlgo_;
 
     int verbosity_;
   };

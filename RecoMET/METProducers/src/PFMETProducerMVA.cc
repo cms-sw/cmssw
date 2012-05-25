@@ -65,8 +65,8 @@ namespace
 
 PFMETProducerMVA::PFMETProducerMVA(const edm::ParameterSet& cfg) 
   : mvaMEtAlgo_(cfg),
-    looseJetIdAlgo_(0),
-    mvaJetIdAlgo_(cfg)
+    looseJetIdAlgo_(0)
+    //mvaJetIdAlgo_(cfg)
 {
   srcCorrJets_     = cfg.getParameter<edm::InputTag>("srcCorrJets");
   srcUncorrJets_   = cfg.getParameter<edm::InputTag>("srcUncorrJets");
@@ -218,7 +218,7 @@ std::vector<mvaMEtUtilities::JetInfo> PFMETProducerMVA::computeJetInfo(const rec
       // check that jet Pt used to compute MVA based jet id. is above threshold
       if ( !(jetInfo.p4_.pt() > minCorrJetPt_) ) continue;
       
-      jetInfo.mva_ = mvaJetIdAlgo_.computeIdVariables(&(*corrJet), jetEnCorrFactor, hardScatterVertex, vertices, true).mva();
+      //jetInfo.mva_ = mvaJetIdAlgo_.computeIdVariables(&(*corrJet), jetEnCorrFactor, hardScatterVertex, vertices, true).mva();
       jetInfo.neutralEnFrac_ = (uncorrJet->neutralEmEnergy() + uncorrJet->neutralHadronEnergy())/uncorrJet->energy();
 
       retVal.push_back(jetInfo);

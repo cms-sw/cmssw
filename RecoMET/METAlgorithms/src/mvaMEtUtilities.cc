@@ -5,12 +5,12 @@
 #include <algorithm>
 #include <math.h>
 
-mvaMEtUtilities::mvaMEtUtilities(const edm::ParameterSet& cfg) 
+mvaMEtUtilities::mvaMEtUtilities(const edm::ParameterSet& cfg)
 {
   // jet id
-  /* ===> this code parses an xml it uses parameter set 
+  /* ===> this code parses an xml it uses parameter set
   edm::ParameterSet jetConfig = iConfig.getParameter<edm::ParameterSet>("JetIdParams");
-  for(int i0 = 0; i0 < 3; i0++) { 
+  for(int i0 = 0; i0 < 3; i0++) {
     std::string lCutType                            = "Tight";
     if(i0 == PileupJetIdentifier::kMedium) lCutType = "Medium";
     if(i0 == PileupJetIdentifier::kLoose)  lCutType = "Loose";
@@ -34,55 +34,50 @@ mvaMEtUtilities::mvaMEtUtilities(const edm::ParameterSet& cfg)
   mvaCut_[1][1][0] = -0.3; mvaCut_[1][1][1] = 0. ; mvaCut_[1][1][2] = 0. ; mvaCut_[1][1][3] = 0.5;
   mvaCut_[1][2][0] =  0.2; mvaCut_[1][2][1] = 0.2; mvaCut_[1][2][2] = 0.5; mvaCut_[1][2][3] = 0.7;
   mvaCut_[1][3][0] =  0.3; mvaCut_[1][3][1] = 0.2; mvaCut_[1][3][2] = 0.7; mvaCut_[1][3][3] = 0.8;
-  //Loose Id 
+  //Loose Id
   mvaCut_[2][0][0] = -0.2; mvaCut_[2][0][1] =  0. ; mvaCut_[2][0][2] =  0.2; mvaCut_[2][0][3] =  0.5;
   mvaCut_[2][1][0] =  0.2; mvaCut_[2][1][1] = -0.6; mvaCut_[2][1][2] = -0.6; mvaCut_[2][1][3] = -0.4;
   mvaCut_[2][2][0] =  0.2; mvaCut_[2][2][1] = -0.6; mvaCut_[2][2][2] = -0.6; mvaCut_[2][2][3] = -0.4;
   mvaCut_[2][3][0] =  0.2; mvaCut_[2][3][1] = -0.8; mvaCut_[2][3][2] = -0.8; mvaCut_[2][3][3] = -0.4;
 }
 
-mvaMEtUtilities::~mvaMEtUtilities() 
+mvaMEtUtilities::~mvaMEtUtilities()
 {
 // nothing to be done yet...
 }
 
-bool mvaMEtUtilities::passesMVA(const reco::Candidate::LorentzVector& jetP4, double mvaJetId) 
-{ 
-  int ptBin = 0; 
+bool mvaMEtUtilities::passesMVA(const reco::Candidate::LorentzVector& jetP4, double mvaJetId)
+{
+  int ptBin = 0;
   if ( jetP4.pt() > 10. && jetP4.pt() < 20. ) ptBin = 1;
   if ( jetP4.pt() > 20. && jetP4.pt() < 30. ) ptBin = 2;
   if ( jetP4.pt() > 30.                     ) ptBin = 3;
-  
+
   int etaBin = 0;
-  if ( fabs(jetP4.eta()) > 2.5  && fabs(jetP4.eta()) < 2.75) etaBin = 1; 
-  if ( fabs(jetP4.eta()) > 2.75 && fabs(jetP4.eta()) < 3.0 ) etaBin = 2; 
-  if ( fabs(jetP4.eta()) > 3.0  && fabs(jetP4.eta()) < 5.0 ) etaBin = 3; 
+  if ( fabs(jetP4.eta()) > 2.5  && fabs(jetP4.eta()) < 2.75) etaBin = 1;
+  if ( fabs(jetP4.eta()) > 2.75 && fabs(jetP4.eta()) < 3.0 ) etaBin = 2;
+  if ( fabs(jetP4.eta()) > 3.0  && fabs(jetP4.eta()) < 5.0 ) etaBin = 3;
 
   return ( mvaJetId > mvaCut_[2][ptBin][etaBin] );
 }
 
 //-------------------------------------------------------------------------------
-reco::Candidate::LorentzVector mvaMEtUtilities::leadJetP4(const std::vector<JetInfo>& jets) 
+reco::Candidate::LorentzVector mvaMEtUtilities::leadJetP4(const std::vector<JetInfo>& jets)
 {
   return jetP4(jets, 0);
 }
 
-reco::Candidate::LorentzVector mvaMEtUtilities::subleadJetP4(const std::vector<JetInfo>& jets) 
+reco::Candidate::LorentzVector mvaMEtUtilities::subleadJetP4(const std::vector<JetInfo>& jets)
 {
   return jetP4(jets, 1);
 }
 
-bool operator<(const mvaMEtUtilities::JetInfo& jet1, const mvaMEtUtilities::JetInfo& jet2)
-{
-  return jet1.p4_.pt() > jet2.p4_.pt();
-} 
-
-reco::Candidate::LorentzVector mvaMEtUtilities::jetP4(const std::vector<JetInfo>& jets, unsigned idx) 
+reco::Candidate::LorentzVector mvaMEtUtilities::jetP4(const std::vector<JetInfo>& jets, unsigned idx)
 {
   reco::Candidate::LorentzVector retVal(0.,0.,0.,0.);
   if ( idx < jets.size() ) {
     std::vector<JetInfo> jets_sorted = jets;
-    std::sort(jets_sorted.begin(), jets_sorted.end()); 
+    std::sort(jets_sorted.begin(), jets_sorted.end());
     retVal = jets_sorted[idx].p4_;
   }
   return retVal;
@@ -90,7 +85,7 @@ reco::Candidate::LorentzVector mvaMEtUtilities::jetP4(const std::vector<JetInfo>
 //-------------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------------
-unsigned mvaMEtUtilities::numJetsAboveThreshold(const std::vector<JetInfo>& jets, double ptThreshold) 
+unsigned mvaMEtUtilities::numJetsAboveThreshold(const std::vector<JetInfo>& jets, double ptThreshold)
 {
   unsigned retVal = 0;
   for ( std::vector<JetInfo>::const_iterator jet = jets.begin();
@@ -102,7 +97,7 @@ unsigned mvaMEtUtilities::numJetsAboveThreshold(const std::vector<JetInfo>& jets
 //-------------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------------
-std::vector<mvaMEtUtilities::JetInfo> mvaMEtUtilities::cleanJets(const std::vector<JetInfo>& jets, 
+std::vector<mvaMEtUtilities::JetInfo> mvaMEtUtilities::cleanJets(const std::vector<JetInfo>& jets,
 								 const std::vector<reco::Candidate::LorentzVector>& leptons,
 								 double ptThreshold, double dRmatch)
 {
@@ -112,14 +107,14 @@ std::vector<mvaMEtUtilities::JetInfo> mvaMEtUtilities::cleanJets(const std::vect
     bool isOverlap = false;
     for ( std::vector<reco::Candidate::LorentzVector>::const_iterator lepton = leptons.begin();
 	  lepton != leptons.end(); ++lepton ) {
-      if ( deltaR(jet->p4_, *lepton) < dRmatch ) isOverlap = true;	
+      if ( deltaR(jet->p4_, *lepton) < dRmatch ) isOverlap = true;
     }
     if ( jet->p4_.pt() > ptThreshold && !isOverlap ) retVal.push_back(*jet);
   }
   return retVal;
 }
 
-std::vector<mvaMEtUtilities::pfCandInfo> mvaMEtUtilities::cleanPFCands(const std::vector<pfCandInfo>& pfCandidates, 
+std::vector<mvaMEtUtilities::pfCandInfo> mvaMEtUtilities::cleanPFCands(const std::vector<pfCandInfo>& pfCandidates,
 								       const std::vector<reco::Candidate::LorentzVector>& leptons,
 								       double dRmatch, bool invert)
 {
@@ -150,7 +145,7 @@ CommonMETData mvaMEtUtilities::computePFCandSum(const std::vector<pfCandInfo>& p
 {
   // dZcut
   //   maximum distance within which tracks are considered to be associated to hard scatter vertex
-  // dZflag 
+  // dZflag
   //   0 : select charged PFCandidates originating from hard scatter vertex
   //   1 : select charged PFCandidates originating from pile-up vertices
   //   2 : select all PFCandidates
@@ -193,7 +188,7 @@ CommonMETData mvaMEtUtilities::computeJetSum_neutral(const std::vector<JetInfo>&
   return retVal;
 }
 
-CommonMETData mvaMEtUtilities::computePUMEt(const std::vector<pfCandInfo>& pfCandidates, 
+CommonMETData mvaMEtUtilities::computePUMEt(const std::vector<pfCandInfo>& pfCandidates,
 					    const std::vector<JetInfo>& jets, double dZcut)
 {
   CommonMETData retVal;
@@ -209,24 +204,24 @@ CommonMETData mvaMEtUtilities::computePUMEt(const std::vector<pfCandInfo>& pfCan
   return retVal;
 }
 
-CommonMETData mvaMEtUtilities::computeNegPFRecoil(const CommonMETData& leptons, 
+CommonMETData mvaMEtUtilities::computeNegPFRecoil(const CommonMETData& leptons,
 						  const std::vector<pfCandInfo>& pfCandidates, double dZcut)
 {
   CommonMETData retVal;
   CommonMETData pfCandSum = computePFCandSum(pfCandidates, dZcut, 2);
-  retVal.mex   = -pfCandSum.mex; 
+  retVal.mex   = -pfCandSum.mex;
   retVal.mey   = -pfCandSum.mey;
   retVal.sumet = pfCandSum.sumet;
   finalize(retVal);
   return retVal;
 }
 
-CommonMETData mvaMEtUtilities::computeNegTrackRecoil(const CommonMETData& leptons, 
+CommonMETData mvaMEtUtilities::computeNegTrackRecoil(const CommonMETData& leptons,
 						     const std::vector<pfCandInfo>& pfCandidates, double dZcut)
 {
   CommonMETData retVal;
   CommonMETData trackSum = computePFCandSum(pfCandidates, dZcut, 0);
-  retVal.mex   = -trackSum.mex; 
+  retVal.mex   = -trackSum.mex;
   retVal.mey   = -trackSum.mey;
   retVal.sumet = trackSum.sumet;
   finalize(retVal);
@@ -234,7 +229,7 @@ CommonMETData mvaMEtUtilities::computeNegTrackRecoil(const CommonMETData& lepton
 }
 
 CommonMETData mvaMEtUtilities::computeNegNoPURecoil(const CommonMETData& leptons,
-						    const std::vector<pfCandInfo>& pfCandidates, 
+						    const std::vector<pfCandInfo>& pfCandidates,
 						    const std::vector<JetInfo>& jets, double dZcut)
 {
   CommonMETData retVal;
@@ -250,8 +245,8 @@ CommonMETData mvaMEtUtilities::computeNegNoPURecoil(const CommonMETData& leptons
   return retVal;
 }
 
-CommonMETData mvaMEtUtilities::computeNegPUCRecoil(const CommonMETData& leptons, 
-						   const std::vector<pfCandInfo>& pfCandidates, 
+CommonMETData mvaMEtUtilities::computeNegPUCRecoil(const CommonMETData& leptons,
+						   const std::vector<pfCandInfo>& pfCandidates,
 						   const std::vector<JetInfo>& jets, double dZcut)
 {
    CommonMETData retVal;
@@ -267,4 +262,4 @@ CommonMETData mvaMEtUtilities::computeNegPUCRecoil(const CommonMETData& leptons,
   finalize(retVal);
   return retVal;
 }
-  
+
