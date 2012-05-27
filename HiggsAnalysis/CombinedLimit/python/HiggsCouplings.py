@@ -61,7 +61,7 @@ class CvCfHiggs(SMLikeHiggsModel):
         @0*(1.2259236555204187 + (0.00216740776385032 - 0.000013693587140986294*@2)*@2) +\
         @1*(-0.22592365552041888 + (-0.002167407763850317 + 0.000013693587140986278*@2)*@2)\
         ",CV,CF,MH)')
-        ## partial witdhs, normalized to the SM one, for decays scaling with F, V and total (ignoring small modes)
+        ## partial witdhs, normalized to the SM one, for decays scaling with F, V and total
         for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
         self.modelBuilder.factory_("expr::CvCf_Gscal_sumf(\"@0*@0 * (@1+@2+@3+@4+@5+@6+@7)\", CF, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hgluglu, SM_BR_hmm, SM_BR_hss)") 
@@ -138,12 +138,13 @@ class C5Higgs(SMLikeHiggsModel):
         #self.doDebugDump()
         self.setup()
     def setup(self):
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu" ]: self.SMH.makeBR(d)
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+            self.SMH.makeBR(d)
         ## total witdhs, normalized to the SM one
         if self.universalCF:
-            self.modelBuilder.factory_("expr::C5_Gscal_tot(\"@0*@1 + @2*(@3+@4+@5) + @6*(@7+@8)\","+
+            self.modelBuilder.factory_("expr::C5_Gscal_tot(\"@0*@1 + @2*(@3+@4+@5+@9+@10+@11) + @6*(@7+@8)\","+
                                        " Cgluglu, SM_BR_hgluglu, Cff, SM_BR_hbb, SM_BR_hcc, SM_BR_htt,"+
-                                       " Cvv, SM_BR_hww, SM_BR_hzz)")
+                                       " Cvv, SM_BR_hww, SM_BR_hzz,   SM_BR_hss, SM_BR_hmm, SM_BR_htoptop)")
         else:
             self.modelBuilder.factory_("expr::C5_Gscal_tot(\"@0*@1 + @2*@3 + @4 + @5*@6 + @7*(@8+@9)\","+
                                        " Cgluglu, SM_BR_hgluglu, Cbb, SM_BR_hbb, SM_BR_hcc, Ctt, SM_BR_htt,"+
@@ -163,7 +164,7 @@ class C5Higgs(SMLikeHiggsModel):
             BRscal = "hgg"
             if decay in ["hww", "hzz"]: BRscal = "hv"
             if decay in ["hbb", "htt"]: BRscal = ("hf" if self.universalCF else decay)
-            self.modelBuilder.factory_("prod::%s(%s, C5_BRscal_%s)" % (name, XSscal, BRscal))
+            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, C5_BRscal_%s)' % (name, XSscal, BRscal))
         return name
 
 cVcF = CvCfHiggs()
