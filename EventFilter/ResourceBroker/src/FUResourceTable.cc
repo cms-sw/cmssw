@@ -387,7 +387,7 @@ void FUResourceTable::discardNoReschedule() {
 
 		}
 	}
-
+        /*
 	bool allEmpty = false;
 	std::cout << "Checking if all dqm cells are empty " << std::endl;
 	while (!allEmpty) {
@@ -408,8 +408,8 @@ void FUResourceTable::discardNoReschedule() {
 		}
 		shmBuffer_->unlock();
 	}
-
-	std::cout << "Making sure there are no dqm pending discards " << std::endl;
+        */
+	std::cout << "Number of  pending discards before declaring ready to shut down: " << nbPendingSMDqmDiscards_ << std::endl;
 	if (nbPendingSMDqmDiscards_ != 0) {
 		LOG4CPLUS_WARN(
 				log_,
