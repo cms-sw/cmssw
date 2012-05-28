@@ -27,9 +27,9 @@ infile="$outdir/totallumivstime-pp-2012.csv"
 export TNS_ADMIN=/afs/cern.ch/cms/lumi/DB
   
 touch $infile
-echo "lumiPlot.py -c $dbConnectionString -P $authdir --norm $normStr -b stable --beamenergy $beamenergy --beamfluctuation 0.15 --amodetag $amodetag --begin $begTime --outplotdata $outfile time" >> "$logpath/$logfile"
+echo "lumiPlot.py -c $dbConnectionString -P $authdir --norm $normStr -b stable --beamenergy $beamenergy --beamfluctuation 0.15 --amodetag $amodetag --begin $begTime --outplotdata $outfile --inplotdata $infile --lastpointfromdb time" >> "$logpath/$logfile"
 
-lumiPlot.py -c $dbConnectionString -P $authdir  --norm $normStr -b stable --beamenergy $beamenergy --beamfluctuation 0.15 --amodetag $amodetag --begin "$begTime" --outplotdata "$outfile" time >> "$logpath/$logfile"
+lumiPlot.py -c $dbConnectionString -P $authdir  --norm $normStr -b stable --beamenergy $beamenergy --beamfluctuation 0.15 --amodetag $amodetag --begin "$begTime" --outplotdata "$outfile"  --inplotdata $infile --lastpointfromdb time >> "$logpath/$logfile"
 
 date >> "$logpath/$logfile"
 
@@ -37,9 +37,9 @@ outfile="$outdir/lumiperday-pp-2012"
 infile="$outdir/lumiperday-pp-2012.csv"
 touch $infile
 
-echo "lumiPlot.py -c $dbConnectionString -P $authdir --norm $normStr -b stable --beamenergy $beamenergy --beamfluctuation 0.15 --amodetag $amodetag --begin $begTime --outplotdata $outfile perday">>  "$logpath/$logfile"
+echo "lumiPlot.py -c $dbConnectionString -P $authdir --norm $normStr -b stable --beamenergy $beamenergy --beamfluctuation 0.15 --amodetag $amodetag --begin $begTime --outplotdata $outfile  --inplotdata $infile --lastpointfromdb perday">>  "$logpath/$logfile"
 
-lumiPlot.py -c $dbConnectionString -P $authdir --norm $normStr -b stable --beamenergy $beamenergy --beamfluctuation 0.15 --amodetag $amodetag --begin "$begTime" --outplotdata $outfile perday >> "$logpath/$logfile"
+lumiPlot.py -c $dbConnectionString -P $authdir --norm $normStr -b stable --beamenergy $beamenergy --beamfluctuation 0.15 --amodetag $amodetag --begin "$begTime" --outplotdata $outfile  --inplotdata $infile --lastpointfromdb perday >> "$logpath/$logfile"
 
 date >> "$logpath/$logfile"
 
@@ -48,9 +48,9 @@ infile="$outdir/lumipeak-pp-2012.csv"
 
 touch $infile
 
-echo "lumiPlot.py -c $dbConnectionString -P $authdir --norm $normStr -b stable --beamenergy $beamenergy --beamfluctuation 0.15 --amodetag $amodetag --begin $begTime --outplotdata $outfile instpeakperday">> "$logpath/$logfile"
+echo "lumiPlot.py -c $dbConnectionString -P $authdir --norm $normStr -b stable --beamenergy $beamenergy --beamfluctuation 0.15 --amodetag $amodetag --begin $begTime --outplotdata $outfile  --inplotdata $infile --lastpointfromdb instpeakperday">> "$logpath/$logfile"
 
-lumiPlot.py -c $dbConnectionString -P $authdir --norm $normStr -b stable --beamenergy $beamenergy --beamfluctuation 0.15 --amodetag $amodetag --begin "$begTime" --outplotdata $outfile instpeakperday >> "$logpath/$logfile"
+lumiPlot.py -c $dbConnectionString -P $authdir --norm $normStr -b stable --beamenergy $beamenergy --beamfluctuation 0.15 --amodetag $amodetag --begin "$begTime" --outplotdata $outfile  --inplotdata $infile --lastpointfromdb instpeakperday >> "$logpath/$logfile"
 
 cd $macrodir
 echo "root -b -q create_public_lumi_plots.C">>"$logpath/$logfile"
