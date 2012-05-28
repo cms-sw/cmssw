@@ -9,8 +9,7 @@ namespace pat {
     typedef pat::PATCleaner<pat::Jet>        PATJetCleaner;
     typedef pat::PATCleaner<pat::MET>        PATMETCleaner;
     typedef pat::PATCleaner<pat::GenericParticle> PATGenericParticleCleaner;
-    //typedef pat::PATCleaner<pat::PFParticle> PATPFParticleCleaner; // I don't think the PF folks need/want this
-                                                                     // but technically it can work
+    typedef pat::PATCleaner<pat::PFParticle> PATPFParticleCleaner; 
 }
 using namespace pat;
 DEFINE_FWK_MODULE(PATElectronCleaner);
@@ -20,4 +19,4 @@ DEFINE_FWK_MODULE(PATPhotonCleaner);
 DEFINE_FWK_MODULE(PATJetCleaner);
 DEFINE_FWK_MODULE(PATMETCleaner);
 DEFINE_FWK_MODULE(PATGenericParticleCleaner);
-//DEFINE_FWK_MODULE(PATPFParticleCleaner);
+DEFINE_FWK_MODULE(PATPFParticleCleaner);
