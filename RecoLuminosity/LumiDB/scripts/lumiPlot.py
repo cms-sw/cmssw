@@ -286,15 +286,13 @@ if __name__=='__main__':
             for drawnDay in [ int(t[0]) for t in resultlines]:
                 if drawnDay>maxDrawnDay: #all required days are already drawn
                     maxDrawnDay=drawnDay
-            if options.lastpointfromdb:                
-                maxDrawnDay=maxDrawnDay-1
         newFirstDay=maxDrawnDay
         midnight=datetime.time()
         begT=datetime.datetime.combine(datetime.date.fromordinal(newFirstDay),midnight)
         begTStr=lut.DatetimeToStr(begT,customfm='%m/%d/%y %H:%M:%S')
         #find runs not in old plot
         runsnotdrawn=lumiCalcAPI.runList(schema,options.fillnum,runmin=None,runmax=None,startT=begTStr,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
-        
+        print '[INFO] runstoredraw ',runsnotdrawn
     if options.action=='run' or options.action=='time':
         lastDrawnRun=132000
         if resultlines:#if there's old plot, start to count runs only after that
@@ -505,6 +503,7 @@ if __name__=='__main__':
                     daymax_val=datatp[2]
                     daymax_run=datatp[0]
                     daymax_ls=datatp[1]
+            #print 'day ',day,' daymax_run ',daymax_run,' daymax_ls ',daymax_ls,' daymax_val ',daymax_val
             rawdata.setdefault('Delivered',[]).append((day,daymax_run,daymax_ls,daymax_val))
         if options.yscale=='linear':
             m.plotPeakPerday_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='linear',referenceLabel=referenceLabel)
