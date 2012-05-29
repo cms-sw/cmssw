@@ -6,7 +6,7 @@
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/MeasurementDet/interface/TrajectoryMeasurementGroup.h"
@@ -16,8 +16,6 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "TrackingTools/DetLayers/interface/GeomDetCompatibilityChecker.h"
 #include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm> 
 
@@ -82,33 +80,6 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   theDbgFlg = false;
 #endif
 
-  //
-  // check number of combinations
-  //
-  enum { MAXCOMB = 100000000 };
-  int ncomb(1);
-  int ngrp(0);
-  bool truncate(false);
-  for (vector<TMG>::const_iterator ig=measGroups.begin(); ig!=measGroups.end(); ++ig) {
-    ++ngrp;
-    int nhit(0);
-    const vector<TM>& measurements = ig->measurements();
-    for ( vector<TM>::const_iterator im=measurements.begin();
-	  im!=measurements.end(); ++im ) {
-      if ( im->recHit()->isValid() )  nhit++;
-    }
-    if ( nhit>0 )  ncomb *= nhit;
-    if ( ncomb>MAXCOMB ) {
-      edm::LogInfo("TrajectorySegmentBuilder") << " found " << measGroups.size() 
-					       << " groups and more than " << static_cast<unsigned int>(MAXCOMB)
-					       << " combinations - limiting to "
-					       << (ngrp-1) << " groups";
-      truncate = true;
-      break;
-    }
-  }  
-//   cout << "Groups / combinations = " << measGroups.size() << " " << ncomb << endl;
-  if ( truncate && ngrp>0 )  measGroups.resize(ngrp-1);
 
 #ifdef DBG_TSB
   if ( theDbgFlg ) {
