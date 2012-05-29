@@ -90,6 +90,14 @@ namespace lumi{
     void insertLumiRunData(coral::ISchema& schema,const LumiEntry& lumientry);
     void insertTrgRunData(coral::ISchema& schema,const TrgEntry& trgentry);
     void insertHltRunData(coral::ISchema& schema,const HltEntry& hltentry);
+    
+    unsigned long long currentHFDataTagId(coral::ISchema& schema);
+    unsigned long long addRunToCurrentHFDataTag(coral::ISchema& schema,
+				  unsigned int runnum,
+				  unsigned long long lumiid,
+				  unsigned long long trgid,
+				  unsigned long long hltid,
+				  const std::string& patchcomment);
   };
   
 }//ns lumi

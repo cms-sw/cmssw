@@ -13,3 +13,7 @@ lumi::noStableBeamException::noStableBeamException(
 			   const std::string& message,			 
 			   const std::string& methodName,
 			   const std::string& moduleName):lumi::Exception("has no stable beam :"+message,methodName,moduleName) {}
+lumi::duplicateRunInDataTagException::duplicateRunInDataTagException(
+			   const std::string& message,			 
+			   const std::string& methodName,
+			   const std::string& moduleName):lumi::Exception("run already registered with the tag "+message,methodName,moduleName) {}

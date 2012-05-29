@@ -65,5 +65,10 @@ const std::string lumi::LumiNames::revmapTableName(const std::string& datatablen
 const std::string lumi::LumiNames::entryTableName(const std::string& datatablename ){
   return datatablename+"_ENTRIES";
 }
-
+const std::string lumi::LumiNames::tagsTableName(){
+  return "TAGS";
+}
+const std::string lumi::LumiNames::tagrunsTableName(){
+  return "TAGRUNS";
+}
 

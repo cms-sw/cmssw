@@ -31,7 +31,7 @@ namespace lumi{
   class HLTConf2DB : public DataPipe{
   public:
     explicit HLTConf2DB( const std::string& dest);
-    virtual void retrieveData( unsigned int );
+    virtual unsigned long long retrieveData( unsigned int );
     virtual const std::string dataType() const;
     virtual const std::string sourceType() const;
     virtual ~HLTConf2DB();
@@ -40,7 +40,7 @@ namespace lumi{
   //implementation
   //
   HLTConf2DB::HLTConf2DB( const std::string& dest):DataPipe(dest){}
-  void HLTConf2DB::retrieveData( unsigned int runnumber ){
+  unsigned long long HLTConf2DB::retrieveData( unsigned int runnumber ){
     std::string runinfoschema("CMS_RUNINFO");
     //std::string hltschema("CMS_HLT_V0");
     std::string hltschema("CMS_HLT");
@@ -178,7 +178,7 @@ namespace lumi{
 	destsession->transaction().commit();
 	delete kQuery;
 	delete svc;
-	return;
+	return 0;
       }
       destsession->transaction().commit();
       destsession->transaction().start(false);
@@ -210,6 +210,7 @@ namespace lumi{
     }
     delete destsession;
     delete svc;
+    return 0;
   }
   const std::string HLTConf2DB::dataType() const{
     return "HLTConf";

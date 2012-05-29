@@ -8,7 +8,7 @@ namespace lumi{
   class DataPipe{
   public:
     explicit DataPipe( const std::string& );
-    virtual void retrieveData( unsigned int ) = 0;
+    virtual unsigned long long retrieveData( unsigned int ) = 0;
     virtual const std::string dataType() const = 0;
     virtual const std::string sourceType() const = 0;
     virtual ~DataPipe(){}

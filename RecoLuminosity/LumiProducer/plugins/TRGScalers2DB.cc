@@ -35,7 +35,7 @@ namespace lumi{
     const static unsigned int COMMITLSINTERVAL=150; //commit interval in LS, totalrow=nsl*192
     const static unsigned int COMMITLSTRGINTERVAL=550; //commit interval in LS of schema2
     explicit TRGScalers2DB(const std::string& dest);
-    virtual void retrieveData( unsigned int runnumber);
+    virtual unsigned long long retrieveData( unsigned int runnumber);
     virtual const std::string dataType() const;
     virtual const std::string sourceType() const;
     virtual ~TRGScalers2DB();													  
@@ -69,7 +69,7 @@ namespace lumi{
 		      PrescaleResult_Algo& prescalealgo,
 		      PrescaleResult_Tech& prescaletech,
 		      unsigned int commitintv);
-    void writeTrgDataToSchema2(coral::ISessionProxy* session,
+    unsigned long long writeTrgDataToSchema2(coral::ISessionProxy* session,
 			       unsigned int runnumber,
 			       const std::string& source,
 			       TriggerDeadCountResult::iterator deadtimesBeg,
@@ -109,7 +109,7 @@ namespace lumi{
   //select prescale_factor_tt_000,prescale_factor_tt_001..._63 from cms_gt.gt_run_presc_tech_view where runr=:runnumber and prescale_index=0;
   //    
   TRGScalers2DB::TRGScalers2DB(const std::string& dest):DataPipe(dest){}
-  void TRGScalers2DB::retrieveData( unsigned int runnumber){
+  unsigned long long TRGScalers2DB::retrieveData( unsigned int runnumber){
     std::string runnumberstr=int2str(runnumber,6);
     //query source GT database
     coral::ConnectionService* svc=new coral::ConnectionService;
@@ -328,7 +328,7 @@ namespace lumi{
       delete Querydeadview;
       transaction.commit();
       throw lumi::Exception(std::string("requested run ")+runnumberstr+std::string(" doesn't exist for deadcounts"),"retrieveData","TRGScalers2DB");
-      return;
+      return 0;
     }
     delete Querydeadview;
     
@@ -639,7 +639,7 @@ namespace lumi{
  //    
     //write data into lumi db
     //
-    
+    unsigned long long trgdataid=0;
     coral::ISessionProxy* lumisession=svc->connect(m_dest,coral::Update);
     coral::ITypeConverter& lumitpc=lumisession->typeConverter();
     lumitpc.setCppTypeForSqlType("unsigned int","NUMBER(7)");
@@ -652,7 +652,7 @@ namespace lumi{
 	 std::cout<<"done"<<std::endl;
       }
       std::cout<<"writing trg data to new lstrg table "<<std::endl;
-      writeTrgDataToSchema2(lumisession,runnumber,m_source,deadtimeresult.begin(),deadtimeresult.end(),deadfracresult,algonames,technames,algocount,techcount,algoprescale,techprescale,COMMITLSTRGINTERVAL);
+      trgdataid=writeTrgDataToSchema2(lumisession,runnumber,m_source,deadtimeresult.begin(),deadtimeresult.end(),deadfracresult,algonames,technames,algocount,techcount,algoprescale,techprescale,COMMITLSTRGINTERVAL);
       std::cout<<"done"<<std::endl;
       delete lumisession;
       delete svc;
@@ -663,6 +663,7 @@ namespace lumi{
       delete svc;
       throw er;
     }
+    return trgdataid;
   }
   void  
   TRGScalers2DB::writeTrgData(coral::ISessionProxy* lumisession,
@@ -795,7 +796,7 @@ namespace lumi{
       }
     }
   }
-  void  
+  unsigned long long
   TRGScalers2DB::writeTrgDataToSchema2(coral::ISessionProxy* lumisession,
 				unsigned int irunnumber,
 				const std::string& source,
@@ -937,7 +938,7 @@ namespace lumi{
       }
     }
 
-
+    return trgrundata.data_id;
   }
   const std::string TRGScalers2DB::dataType() const{
     return "TRG";

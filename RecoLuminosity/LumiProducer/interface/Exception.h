@@ -38,5 +38,13 @@ namespace lumi{
 			 const std::string& moduleName);
     virtual ~noStableBeamException() throw(){}
   };
+  
+  class duplicateRunInDataTagException : public lumi::Exception{
+  public:
+    duplicateRunInDataTagException(const std::string& message,
+				       const std::string& methodname,
+				       const std::string& moduleName);
+    virtual ~duplicateRunInDataTagException() throw(){}
+  };
 }//ns lumi
 #endif

@@ -29,7 +29,7 @@ namespace lumi{
   public:
     const static unsigned int COMMITLSINTERVAL=20; //commit interval in LS,totalrow=nsl*192
     explicit TRGWBM2DB(const std::string& dest);
-    virtual void retrieveData( unsigned int runnumber);
+    virtual unsigned long long retrieveData( unsigned int runnumber);
     virtual const std::string dataType() const;
     virtual const std::string sourceType() const;
     virtual ~TRGWBM2DB();
@@ -53,7 +53,7 @@ namespace lumi{
   //implementation
   //
  TRGWBM2DB::TRGWBM2DB(const std::string& dest):DataPipe(dest){}
-  void TRGWBM2DB::retrieveData( unsigned int runnumber){
+ unsigned long long TRGWBM2DB::retrieveData( unsigned int runnumber){
     std::string runnumberstr=int2str(runnumber,6);
     //query source GT database
     coral::ConnectionService* svc=new coral::ConnectionService;
@@ -277,7 +277,7 @@ namespace lumi{
       delete Querydead;
       transaction.commit();
       throw lumi::Exception(std::string("requested run ")+runnumberstr+std::string(" doesn't exist for deadcounts"),"retrieveData","TRGWBM2DB");
-      return;
+      return 0;
     }
     delete Querydead;
     transaction.commit();
@@ -608,7 +608,8 @@ namespace lumi{
     //lumisession->transaction().commit();
     delete lumisession;
     delete svc;
-  }
+    return 0;
+ }
   const std::string TRGWBM2DB::dataType() const{
     return "TRG";
   }

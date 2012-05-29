@@ -27,7 +27,7 @@ namespace lumi{
   class LumiDummy2DB : public DataPipe{
   public:
     LumiDummy2DB(const std::string& dest);
-    virtual void retrieveData( unsigned int );
+    virtual unsigned long long retrieveData( unsigned int );
     virtual const std::string dataType() const;
     virtual const std::string sourceType() const;
     virtual ~LumiDummy2DB();
@@ -38,7 +38,7 @@ namespace lumi{
   LumiDummy2DB::LumiDummy2DB( const std::string& dest):DataPipe(dest){
     //check the format of dest
   }
-  void LumiDummy2DB::retrieveData( unsigned int runnum){
+  unsigned long long LumiDummy2DB::retrieveData( unsigned int runnum){
     //
     //generate dummy data for lumi summary and detail for the given run and write data to LumiDB
     //
@@ -177,6 +177,7 @@ namespace lumi{
     session->transaction().commit();
     delete session;
     delete svc;
+    return 0;
   }
   const std::string LumiDummy2DB::dataType() const{
     return "LUMI";

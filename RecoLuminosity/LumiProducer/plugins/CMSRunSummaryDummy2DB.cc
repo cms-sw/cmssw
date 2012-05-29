@@ -21,7 +21,7 @@ namespace lumi{
   class CMSRunSummaryDummy2DB : public DataPipe{
   public:
     CMSRunSummaryDummy2DB(const std::string& dest);
-    virtual void retrieveData( unsigned int );
+    virtual unsigned long long retrieveData( unsigned int );
     virtual const std::string dataType() const;
     virtual const std::string sourceType() const;
     virtual ~CMSRunSummaryDummy2DB();
@@ -30,7 +30,7 @@ namespace lumi{
   //implementation
   //
   CMSRunSummaryDummy2DB::CMSRunSummaryDummy2DB( const std::string& dest):DataPipe(dest){}
-  void CMSRunSummaryDummy2DB::retrieveData( unsigned int runnum){
+  unsigned long long CMSRunSummaryDummy2DB::retrieveData( unsigned int runnum){
     //
     //generate dummy data of run summary for the given run and write data to LumiDB
     //
@@ -67,6 +67,7 @@ namespace lumi{
     session->transaction().commit();
     delete session;
     delete svc;
+    return 0;
   }
   const std::string CMSRunSummaryDummy2DB::dataType() const{
     return "CMSRUNSUMMARY";

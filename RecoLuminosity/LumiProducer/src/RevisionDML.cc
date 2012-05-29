@@ -4,12 +4,15 @@
 #include "RelationalAccess/ITableDataEditor.h"
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ICursor.h"
+#include "RelationalAccess/SchemaException.h" 
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/TimeStamp.h"
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
 #include "RecoLuminosity/LumiProducer/interface/idDealer.h"
+#include "RecoLuminosity/LumiProducer/interface/Exception.h"
+#include <algorithm>
 unsigned long long 
 lumi::RevisionDML::getEntryInBranchByName(coral::ISchema& schema,
 					  const std::string& datatableName,
@@ -181,4 +184,61 @@ lumi::RevisionDML::insertHltRunData(coral::ISchema& schema,
   hltrundata["PATHNAMECLOB"].data<std::string>()=hltentry.pathnames;
   const std::string hltdataTableName=lumi::LumiNames::hltdataTableName();
   schema.tableHandle(hltdataTableName).dataEditor().insertRow(hltrundata);
+}
+
+unsigned long long
+lumi::RevisionDML::currentHFDataTagId(coral::ISchema& schema){
+  unsigned long long currentdatatagid=0;
+  std::vector<unsigned long long> alltagids;
+  coral::IQuery* qHandle=schema.newQuery();
+  qHandle->addToTableList( lumi::LumiNames::tagsTableName());
+  qHandle->addToOutputList("TAGID");
+  coral::AttributeList qResult;
+  qResult.extend("TAGID",typeid(unsigned long long));
+  qHandle->defineOutput(qResult);
+  coral::ICursor& cursor=qHandle->execute();
+  while(cursor.next()){
+    if(!cursor.currentRow()["TAGID"].isNull()){
+      alltagids.push_back(cursor.currentRow()["TAGID"].data<unsigned long long>());
+    }
+  }
+  delete qHandle;
+  if(alltagids.size()>0){
+    std::vector<unsigned long long>::iterator currentdatatagidIt=std::max_element(alltagids.begin(),alltagids.end());
+    currentdatatagid=*currentdatatagidIt;
+  }
+  return currentdatatagid;
+}
+
+unsigned long long
+lumi::RevisionDML::addRunToCurrentHFDataTag(coral::ISchema& schema,
+					    unsigned int runnum,
+					    unsigned long long lumiid,
+					    unsigned long long trgid,
+					    unsigned long long hltid,
+					    const std::string& patchcomment)
+{
+  unsigned long long currenttagid=currentHFDataTagId(schema);  
+  coral::AttributeList tagrundata;
+  tagrundata.extend("TAGID",typeid(unsigned long long));
+  tagrundata.extend("RUNNUM",typeid(unsigned int));
+  tagrundata.extend("LUMIDATAID",typeid(unsigned long long));
+  tagrundata.extend("TRGDATAID",typeid(unsigned long long));
+  tagrundata.extend("HLTDATAID",typeid(unsigned long long));
+  tagrundata.extend("CREATIONTIME",typeid(coral::TimeStamp));
+  tagrundata.extend("COMMENT",typeid(std::string));
+  tagrundata["TAGID"].data<unsigned long long>()=currenttagid;
+  tagrundata["RUNNUM"].data<unsigned int>()=runnum;
+  tagrundata["LUMIDATAID"].data<unsigned long long>()=lumiid;
+  tagrundata["TRGDATAID"].data<unsigned long long>()=trgid;
+  tagrundata["HLTDATAID"].data<unsigned long long>()=hltid;
+  tagrundata["CREATIONTIME"].data<coral::TimeStamp>()=coral::TimeStamp::now();
+  tagrundata["COMMENT"].data<std::string>()=patchcomment;
+  const std::string tagrunTableName=lumi::LumiNames::tagrunsTableName();
+  try{
+    schema.tableHandle(lumi::LumiNames::tagrunsTableName()).dataEditor().insertRow(tagrundata);
+  }catch(const coral::DuplicateEntryInUniqueKeyException& er){
+    throw lumi::duplicateRunInDataTagException("","addRunToCurrentHFDataTag","RevisionDML");
+  }
+  return currenttagid;
 }

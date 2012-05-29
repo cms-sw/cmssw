@@ -22,7 +22,7 @@ namespace lumi{
   class HLTDummy2DB : public DataPipe{
   public:
     HLTDummy2DB( const std::string& dest);
-    virtual void retrieveData( unsigned int );
+    virtual unsigned long long retrieveData( unsigned int );
     virtual const std::string dataType() const;
     virtual const std::string sourceType() const;
     virtual ~HLTDummy2DB();
@@ -31,7 +31,7 @@ namespace lumi{
   //implementation
   //
   HLTDummy2DB::HLTDummy2DB(const std::string& dest):DataPipe(dest){}
-  void HLTDummy2DB::retrieveData( unsigned int runnum){
+  unsigned long long HLTDummy2DB::retrieveData( unsigned int runnum){
     //
     //generate dummy data of hlt for the given run and write data to LumiDB
     //
@@ -92,6 +92,7 @@ namespace lumi{
     session->transaction().commit();
     delete session;
     delete svc;
+    return 0;
   }
   const std::string HLTDummy2DB::dataType() const{
     return "HLT";

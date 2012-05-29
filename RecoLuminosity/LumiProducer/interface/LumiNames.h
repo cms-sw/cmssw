@@ -27,6 +27,9 @@ namespace lumi{
     
     static const std::string revmapTableName(const std::string& datatablename );
     static const std::string entryTableName(const std::string& datatablename );
+
+    static const std::string tagsTableName();
+    static const std::string tagrunsTableName();
   };
 }
 #endif

@@ -40,7 +40,7 @@ namespace lumi{
   class CMSRunSummary2DB : public DataPipe{
   public:
     CMSRunSummary2DB( const std::string& dest);
-    virtual void retrieveData( unsigned int runnumber );
+    virtual unsigned long long retrieveData( unsigned int runnumber );
     virtual const std::string dataType() const;
     virtual const std::string sourceType() const;
     unsigned int str2int(const std::string& s) const;
@@ -105,7 +105,8 @@ namespace lumi{
     if(what[0].matched) isPhysics=true;
     return (isCollision&&isPhysics);
   }
-  void CMSRunSummary2DB::retrieveData( unsigned int runnumber){
+  unsigned long long 
+  CMSRunSummary2DB::retrieveData( unsigned int runnumber){
     /**
        //select distinct name from runsession_parameter
        l1key: select string_value from cms_runinfo.runsession_parameter where runnumber=:runnumber and name='CMS.TRG:TSC_KEY';
@@ -367,6 +368,7 @@ namespace lumi{
     }
     destsession->transaction().commit();
     delete svc;
+    return 0;
   }
   const std::string CMSRunSummary2DB::dataType() const{
     return "CMSRUNSUMMARY";

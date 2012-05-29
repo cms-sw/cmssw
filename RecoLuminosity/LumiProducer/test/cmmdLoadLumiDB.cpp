@@ -3,6 +3,14 @@
 #include "RecoLuminosity/LumiProducer/interface/DataPipe.h"
 #include "RecoLuminosity/LumiProducer/interface/DataPipeFactory.h"
 #include "RecoLuminosity/LumiProducer/interface/Exception.h"
+#include "RecoLuminosity/LumiProducer/interface/RevisionDML.h"
+#include "RecoLuminosity/LumiProducer/interface/DBConfig.h"
+#include "RecoLuminosity/LumiProducer/interface/Exception.h"
+#include "RelationalAccess/ConnectionService.h"
+#include "RelationalAccess/ISessionProxy.h"
+#include "RelationalAccess/ITransaction.h"
+#include "RelationalAccess/ITypeConverter.h"
+#include "RelationalAccess/ISchema.h"
 #include "CoralBase/Exception.h"
 #include <fstream>
 #include <stdexcept>
@@ -36,9 +44,10 @@ int main(int argc, char** argv){
     ("runinfodb,R",boost::program_options::value<std::string>(),"connect to runinfodb")
     ("confdb,C",boost::program_options::value<std::string>(),"connect to hltconfdb")
     ("trgdb,T",boost::program_options::value<std::string>(),"connect to trgdb")
-    ("wbmdb,W",boost::program_options::value<std::string>(),"connect to wbmdb")
+    ("wbmdb,W",boost::program_options::value<std::string>(),"connect to wbmdb")    
     ("configFile,f",boost::program_options::value<std::string>(),"configuration file(optional)")
     ("norm,n",boost::program_options::value<float>(),"norm factor(optional)")
+    ("patchcomment,a",boost::program_options::value<std::string>(),"patchcomment(optional)")
     ("without-lumi","exclude lumi loading")
     ("without-trg","exclude trg loading")
     ("without-hlt","exclude hlt loading")
@@ -63,6 +72,7 @@ int main(int argc, char** argv){
   std::string trgdb=defaultTRGConnect;
   std::string wbmdb=defaultWBMConnect;
   std::string hltconfdb=defaultHLTConfConnect;
+  std::string patchcomment("");
   float norm=0.0;
   bool without_lumi=false;
   bool without_trg=false;
@@ -123,6 +133,9 @@ int main(int argc, char** argv){
     }
     if( vm.count("wbmdb") ){
       wbmdb=vm["wbmdb"].as<std::string>();
+    }
+    if( vm.count("patchcomment") ){
+      patchcomment=vm["patchcomment"].as<std::string>();
     }
     if( vm.count("norm") ){
       norm=vm["norm"].as<float>();
@@ -213,6 +226,9 @@ int main(int argc, char** argv){
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
   std::cout<<"=========="<<std::endl;
+  unsigned int lumidataid=0;
+  unsigned int trgdataid=0;
+  unsigned int hltdataid=0;
   if(!without_lumi){
     std::cout<<"Loading lumi from "<<lumipath<<" to "<< destconnect <<" run "<<runnumber<<" with "<<lumipluginName<<std::endl;
     try{
@@ -236,7 +252,7 @@ int main(int argc, char** argv){
       }
       startClock=clock();
       time(&t1);
-      lumiptr->retrieveData(runnumber);
+      lumidataid=lumiptr->retrieveData(runnumber);
       time(&t2);
       endClock=clock();
       lumiptr.release();
@@ -329,7 +345,7 @@ int main(int argc, char** argv){
 	}
 	startClock=clock();
 	time(&t1);
-	trgptr->retrieveData(runnumber);
+	trgdataid=trgptr->retrieveData(runnumber);
 	time(&t2);
 	endClock=clock();
 	trgptr.release();
@@ -340,7 +356,7 @@ int main(int argc, char** argv){
 	trgptr->setSource(wbmdb);
 	startClock=clock();
 	time(&t1);
-	trgptr->retrieveData(runnumber);
+	trgdataid=trgptr->retrieveData(runnumber);
 	time(&t2);
 	endClock=clock();
 	trgptr.release();
@@ -367,7 +383,7 @@ int main(int argc, char** argv){
       }
       startClock=clock();
       time(&t1);
-      hltptr->retrieveData(runnumber);
+      hltdataid=hltptr->retrieveData(runnumber);
       time(&t2);
       endClock=clock();
       hltptr.release();
@@ -381,5 +397,41 @@ int main(int argc, char** argv){
     printf("\tElaspsed time %fs\n",difftime(t2,t1));
     std::cout<<"\tCPU Time taken in seconds : "<<elapsedTime<<std::endl;
   }
+
+  //
+  //register ids and patchcomment
+  //
+  coral::ConnectionService* svc=new coral::ConnectionService;
+  lumi::DBConfig dbconf(*svc);
+  if(!authpath.empty()){
+    dbconf.setAuthentication(authpath);
+  }
+  coral::ISessionProxy* session=svc->connect(destconnect,coral::Update);
+  coral::ITypeConverter& lumitpc=session->typeConverter();
+  lumitpc.setCppTypeForSqlType("unsigned int","NUMBER(7)");
+  lumitpc.setCppTypeForSqlType("unsigned int","NUMBER(10)");
+  lumitpc.setCppTypeForSqlType("unsigned long long","NUMBER(20)");
+  coral::ITransaction& transaction=session->transaction();
+  transaction.start(false);
+  lumi::RevisionDML revisionDML;
+  unsigned long long currenttagiid=0;
+  try{
+    currenttagiid=revisionDML.addRunToCurrentHFDataTag(session->nominalSchema(),runnumber,lumidataid,trgdataid,hltdataid,patchcomment);
+  }catch(const lumi::duplicateRunInDataTagException& ){
+    std::cout<<"\t[ERROR] run already registered in the current tag, create a new tag for the patches"<<std::endl;
+    transaction.rollback();
+    delete session;
+    return 0;
+  }catch(const coral::Exception& er){
+    std::cout<<"\t[ERROR] Database error "<<er.what()<<std::endl;
+    throw;
+  }catch(...){
+    std::cout<<"\t[ERROR] problem in registering run to tag "<<runnumber<<" SKIP "<<std::endl;
+    throw;
+  }
+  transaction.commit();
+  std::cout<<"register run to current data tag id="<<currenttagiid<<" run "<< runnumber<<" dataid: "<<lumidataid<<"-"<<trgdataid<<"-"<<hltdataid<<" "<<patchcomment<<std::endl;
+  delete session;
   return 0;
+
 }
