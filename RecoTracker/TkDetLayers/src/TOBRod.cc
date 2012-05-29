@@ -4,7 +4,7 @@
 
 #include "TrackingTools/DetLayers/interface/RodPlaneBuilderFromDet.h"
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelPlaneCrossingByCircle.h"
 
 #include "LayerCrossingSide.h"

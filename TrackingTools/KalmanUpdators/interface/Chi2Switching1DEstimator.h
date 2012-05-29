@@ -6,12 +6,12 @@
  *  pixel and matched strip hits, and Chi2Strip1DEstimator for
  *  simple strip hits. Ported from ORCA.
  *
- *  $Date: 2007/05/09 13:11:43 $
- *  $Revision: 1.3.2.1 $
+ *  $Date: 2007/05/09 13:50:25 $
+ *  $Revision: 1.4 $
  *  \author todorov, cerati
  */
 
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2Strip1DEstimator.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"

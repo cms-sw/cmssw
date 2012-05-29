@@ -1,7 +1,7 @@
 #ifndef HIC_SEED_MeasurementEstimator_HIC_H 
 #define HIC_SEED_MeasurementEstimator_HIC_H 
 
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
 //#define HICMEASUREMENT_DEBUG

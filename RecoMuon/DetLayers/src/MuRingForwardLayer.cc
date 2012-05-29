@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/03/07 13:20:54 $
- *  $Revision: 1.18 $
+ *  $Date: 2007/06/14 17:22:48 $
+ *  $Revision: 1.19 $
  *  \author N. Amapane - CERN
  */
 
@@ -10,7 +10,7 @@
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <DataFormats/GeometrySurface/interface/SimpleDiskBounds.h>
 #include <TrackingTools/GeomPropagators/interface/Propagator.h>
-#include <TrackingTools/PatternTools/interface/MeasurementEstimator.h>
+#include <TrackingTools/DetLayers/interface/MeasurementEstimator.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 

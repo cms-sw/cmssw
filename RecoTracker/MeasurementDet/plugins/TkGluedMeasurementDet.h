@@ -9,7 +9,7 @@ class GluedGeomDet;
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripMatchedRecHit.h"
-#include <TrackingTools/PatternTools/interface/MeasurementEstimator.h>
+#include <TrackingTools/DetLayers/interface/MeasurementEstimator.h>
 #include <TrackingTools/PatternTools/interface/TrajectoryMeasurement.h>
 
 

@@ -6,7 +6,7 @@
 #include "TECPetal.h"
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 #include "SubLayerCrossings.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 
 /** A concrete implementation for TEC layer 
  *  built out of TECPetals

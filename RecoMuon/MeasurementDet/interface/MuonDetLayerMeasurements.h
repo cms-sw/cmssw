@@ -4,8 +4,8 @@
 /** \class MuonDetLayerMeasurements
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.  
  *
- *  $Date: 2010/05/11 03:30:05 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/05/12 23:01:23 $
+ *  $Revision: 1.20 $
  *  \author C. Liu, R. Bellan, N. Amapane
  *
  */
@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 //#include "TrackingTools/ementDet/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/MeasurementDet/interface/TrajectoryMeasurementGroup.h"

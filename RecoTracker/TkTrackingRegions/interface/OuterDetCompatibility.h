@@ -8,7 +8,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/HitRZConstraint.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 
 class OuterDetCompatibility  {
 public:

@@ -4,8 +4,8 @@
 /** \class KFTrajectoryFitter
  *  A Standard Kalman fit. Ported from ORCA
  *
- *  $Date: 2010/12/08 10:05:27 $
- *  $Revision: 1.12 $
+ *  $Date: 2011/01/06 17:04:16 $
+ *  $Revision: 1.13 $
  *  \author todorov, cerati
  */
 
@@ -16,7 +16,7 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/DetLayers/interface/DetLayerGeometry.h"
 
 class KFTrajectoryFitter : public TrajectoryFitter {

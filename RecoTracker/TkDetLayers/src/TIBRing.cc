@@ -8,7 +8,7 @@
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelPlaneCrossing2OrderLocal.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelCylinderCrossing.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 
 #include "LayerCrossingSide.h"
 #include "DetGroupMerger.h"

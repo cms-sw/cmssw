@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/12/19 09:48:37 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/10/14 17:22:48 $
+ *  $Revision: 1.4 $
  *  \author Rick Wilkinson
  */
 
@@ -10,7 +10,7 @@
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <DataFormats/GeometrySurface/interface/SimpleDiskBounds.h>
 #include <TrackingTools/GeomPropagators/interface/Propagator.h>
-#include <TrackingTools/PatternTools/interface/MeasurementEstimator.h>
+#include <TrackingTools/DetLayers/interface/MeasurementEstimator.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 

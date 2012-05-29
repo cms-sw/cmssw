@@ -5,8 +5,8 @@
  *  A Standard Kalman smoother. The forward fit is not redone,
  *  only the backward smoothing. Ported from ORCA
  *
- *  $Date: 2008/10/15 09:06:48 $
- *  $Revision: 1.7 $
+ *  $Date: 2009/07/03 01:11:06 $
+ *  $Revision: 1.8 $
  *  \author todorov, cerati
  */
 
@@ -15,7 +15,7 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/DetLayers/interface/DetLayerGeometry.h"
 

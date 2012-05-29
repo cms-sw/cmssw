@@ -4,9 +4,9 @@
 /** \class InOutConversionSeedFinder
  **  
  **
- **  $Id: InOutConversionSeedFinder.h,v 1.13 2010/12/11 10:11:11 innocent Exp $ 
- **  $Date: 2010/12/11 10:11:11 $ 
- **  $Revision: 1.13 $
+ **  $Id: InOutConversionSeedFinder.h,v 1.14 2010/12/11 10:13:37 innocent Exp $ 
+ **  $Date: 2010/12/11 10:13:37 $ 
+ **  $Revision: 1.14 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -21,7 +21,7 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h" 

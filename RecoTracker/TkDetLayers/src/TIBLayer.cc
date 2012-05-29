@@ -9,7 +9,7 @@
 #include "CompatibleDetToGroupAdder.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelCylinderCrossing.h"
 #include "TrackingTools/DetLayers/src/DetLessZ.h"
 

@@ -15,12 +15,12 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: BarrelMeasurementEstimator.h,v 1.12 2010/07/28 09:09:35 amartell Exp $
+// $Id: BarrelMeasurementEstimator.h,v 1.13 2010/07/28 10:52:45 chamont Exp $
 //
 //
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 

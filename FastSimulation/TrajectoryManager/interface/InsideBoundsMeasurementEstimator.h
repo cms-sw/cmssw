@@ -1,7 +1,7 @@
 #ifndef InsideBoundsMeasurementEstimator_H
 #define InsideBoundsMeasurementEstimator_H
 
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 
 class InsideBoundsMeasurementEstimator : public MeasurementEstimator {
 public:

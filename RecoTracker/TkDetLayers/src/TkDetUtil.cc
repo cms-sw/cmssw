@@ -2,7 +2,7 @@
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
