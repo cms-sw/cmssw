@@ -9,10 +9,9 @@ R&D Class to develop ClusterTools for ECal Energy Resolution.
 So Far Members are used for Regression Based Energy Corrections
 Developer: Rishi Patel rpatel@cern.ch
 */
-using namespace reco;
 class PFPhotonClusters{
  public:
-  PFPhotonClusters(PFClusterRef PFClusterRef);
+  PFPhotonClusters(reco::PFClusterRef PFClusterRef);
   void SetSeed();
   void PFCrystalCoor();
   void FillClusterShape();
@@ -57,7 +56,7 @@ class PFPhotonClusters{
   double EtaWidth(){return sigetaeta_;}
   double EtaPhiWidth(){return sigetaphi_;}
  private:
-  PFClusterRef PFClusterRef_;
+  reco::PFClusterRef PFClusterRef_;
   //seed detId, position and axis
   DetId idseed_; 
   math::XYZVector seedPosition_, seedAxis_; 
