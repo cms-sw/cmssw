@@ -47,10 +47,10 @@ MonitorElement * ScoutingAnalyzerBase::bookH1
    const std::string & titleX, const std::string & titleY,
    Option_t * option )
  {
-  MonitorElement * me = m_store->book1D(newName(name),title,nchX,lowX,highX) ;
-  if (titleX!="") { me->getTH1F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
-  if (titleY!="") { me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
-  if (TString(option)!="") { me->getTH1F()->SetOption(option) ; }
+  MonitorElement * me = m_store->book1DD(newName(name),title,nchX,lowX,highX) ;
+  if (titleX!="") { me->getTH1()->GetXaxis()->SetTitle(titleX.c_str()) ; }
+  if (titleY!="") { me->getTH1()->GetYaxis()->SetTitle(titleY.c_str()) ; }
+  if (TString(option)!="") { me->getTH1()->SetOption(option) ; }
   return me ;
  }
 
@@ -64,11 +64,11 @@ MonitorElement * ScoutingAnalyzerBase::bookH1withSumw2
  {
    
   std::cout << newName(name) << std::endl;
-  MonitorElement * me = m_store->book1D(newName(name),title,nchX,lowX,highX) ;
-  me->getTH1F()->Sumw2() ;
-  if (titleX!="") { me->getTH1F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
-  if (titleY!="") { me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
-  if (TString(option)!="") { me->getTH1F()->SetOption(option) ; }
+  MonitorElement * me = m_store->book1DD(newName(name),title,nchX,lowX,highX) ;
+  me->getTH1()->Sumw2() ;
+  if (titleX!="") { me->getTH1()->GetXaxis()->SetTitle(titleX.c_str()) ; }
+  if (titleY!="") { me->getTH1()->GetYaxis()->SetTitle(titleY.c_str()) ; }
+  if (TString(option)!="") { me->getTH1()->SetOption(option) ; }
   return me ;
  }
 
@@ -81,10 +81,10 @@ MonitorElement * ScoutingAnalyzerBase::bookH2
    const std::string & titleX, const std::string & titleY,
    Option_t * option )
  {
-  MonitorElement * me = m_store->book2D(newName(name),title,nchX,lowX,highX,nchY,lowY,highY) ;
-  if (titleX!="") { me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
-  if (titleY!="") { me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
-  if (TString(option)!="") { me->getTH2F()->SetOption(option) ; }
+  MonitorElement * me = m_store->book2DD(newName(name),title,nchX,lowX,highX,nchY,lowY,highY) ;
+  if (titleX!="") { me->getTH1()->GetXaxis()->SetTitle(titleX.c_str()) ; }
+  if (titleY!="") { me->getTH1()->GetYaxis()->SetTitle(titleY.c_str()) ; }
+  if (TString(option)!="") { me->getTH1()->SetOption(option) ; }
   return me ;
  }
 
@@ -97,11 +97,11 @@ MonitorElement * ScoutingAnalyzerBase::bookH2withSumw2
    const std::string & titleX, const std::string & titleY,
    Option_t * option )
  {
-  MonitorElement * me = m_store->book2D(newName(name),title,nchX,lowX,highX,nchY,lowY,highY) ;
-  me->getTH2F()->Sumw2() ;
-  if (titleX!="") { me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
-  if (titleY!="") { me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
-  if (TString(option)!="") { me->getTH2F()->SetOption(option) ; }
+  MonitorElement * me = m_store->book2DD(newName(name),title,nchX,lowX,highX,nchY,lowY,highY) ;
+  me->getTH1()->Sumw2() ;
+  if (titleX!="") { me->getTH1()->GetXaxis()->SetTitle(titleX.c_str()) ; }
+  if (titleY!="") { me->getTH1()->GetYaxis()->SetTitle(titleY.c_str()) ; }
+  if (TString(option)!="") { me->getTH1()->SetOption(option) ; }
   return me ;
  }
 
@@ -129,14 +129,14 @@ MonitorElement * ScoutingAnalyzerBase::bookH1andDivide
    const std::string & title )
  {
   std::string name2 = newName(name) ;
-  TH1F * h_temp = (TH1F *)num->getTH1F()->Clone(name2.c_str()) ;
+  TH1D * h_temp = dynamic_cast<TH1D*>( num->getTH1()->Clone(name2.c_str()) );
   h_temp->Reset() ;
   h_temp->Divide(num->getTH1(),denom->getTH1(),1,1,"b") ;
   h_temp->GetXaxis()->SetTitle(titleX.c_str()) ;
   h_temp->GetYaxis()->SetTitle(titleY.c_str()) ;
   if (title!="") { h_temp->SetTitle(title.c_str()) ; }
   if (m_verbosityLevel>0) { h_temp->Print() ; }
-  MonitorElement * me = m_store->book1D(name2,h_temp) ;
+  MonitorElement * me = m_store->book1DD(name2,h_temp) ;
   delete h_temp ;
   return me ;
  }
@@ -149,14 +149,14 @@ MonitorElement * ScoutingAnalyzerBase::bookH2andDivide
    const std::string & title )
  {
   std::string name2 = newName(name) ;
-  TH2F * h_temp = (TH2F *)num->getTH2F()->Clone(name2.c_str()) ;
+  TH2D * h_temp = dynamic_cast<TH2D*>( num->getTH1()->Clone(name2.c_str()) );
   h_temp->Reset() ;
   h_temp->Divide(num->getTH1(),denom->getTH1(),1,1,"b") ;
   h_temp->GetXaxis()->SetTitle(titleX.c_str()) ;
   h_temp->GetYaxis()->SetTitle(titleY.c_str()) ;
   if (title!="") { h_temp->SetTitle(title.c_str()) ; }
   if (m_verbosityLevel>0) { h_temp->Print() ; }
-  MonitorElement * me = m_store->book2D(name2,h_temp) ;
+  MonitorElement * me = m_store->book2DD(name2,h_temp) ;
   delete h_temp ;
   return me ;
  }
@@ -169,7 +169,7 @@ MonitorElement * ScoutingAnalyzerBase::profileX
    Double_t minimum, Double_t maximum )
  {
   std::string name2 = me2d->getName()+"_pfx" ;
-  TProfile * p1_temp = me2d->getTH2F()->ProfileX() ;
+  TProfile * p1_temp = me2d->getTH2D()->ProfileX() ;
   if (title!="") { p1_temp->SetTitle(title.c_str()) ; }
   if (titleX!="") { p1_temp->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { p1_temp->GetYaxis()->SetTitle(titleY.c_str()) ; }
@@ -188,7 +188,7 @@ MonitorElement * ScoutingAnalyzerBase::profileY
    Double_t minimum, Double_t maximum )
  {
   std::string name2 = me2d->getName()+"_pfy" ;
-  TProfile * p1_temp = me2d->getTH2F()->ProfileY() ;
+  TProfile * p1_temp = me2d->getTH2D()->ProfileY() ;
   if (title!="") { p1_temp->SetTitle(title.c_str()) ; }
   if (titleX!="") { p1_temp->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { p1_temp->GetYaxis()->SetTitle(titleY.c_str()) ; }
