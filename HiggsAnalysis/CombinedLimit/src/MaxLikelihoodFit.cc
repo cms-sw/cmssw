@@ -87,6 +87,11 @@ void MaxLikelihoodFit::applyOptions(const boost::program_options::variables_map 
 
 bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
 
+  if (reuseParams_ && minos_!="none"){
+	std::cout << "Cannot reuse b-only fit params when running minos. Parameters will be reset when running S+B fit"<<std::endl;
+	reuseParams_=false;
+  }
+
   if (!justFit_ && out_ != "none"){
 	if (currentToy_ < 1){
 		fitOut.reset(TFile::Open((out_+"/mlfit"+name_+".root").c_str(), "RECREATE")); 
@@ -342,6 +347,8 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   } 
   bool fitreturn = (res_s!=0);
   delete res_s;
+
+  std::cout << "nll S+B -> "<<nll_sb_ << "  nll B -> " << nll_bonly_ <<std::endl;
   return fitreturn;
 }
 
@@ -409,8 +416,8 @@ void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc){
 	 t_fit_b_->Branch("numbadnll",&numbadnll_,"numbadnll/Int_t");
 	 t_fit_sb_->Branch("numbadnll",&numbadnll_,"numbadnll/Int_t");
 
-	 t_fit_b_->Branch("nll_min",&nll_bonly_,"nll_min/Float_t");
-	 t_fit_sb_->Branch("nll_min",&nll_sb_,"nll_min/Float_t");
+	 t_fit_b_->Branch("nll_min",&nll_bonly_,"nll_min/Double_t");
+	 t_fit_sb_->Branch("nll_min",&nll_sb_,"nll_min/Double_t");
 
 	 t_fit_sb_->Branch("nll_nll0",&nll_nll0_,"nll_nll0/Double_t");
 
