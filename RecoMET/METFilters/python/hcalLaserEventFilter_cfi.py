@@ -14,7 +14,7 @@ hcalLaserEventFilter = cms.EDFilter("HcalLaserEventFilter",
 
     ),
                                     vetoByHBHEOccupancy=cms.untracked.bool(False),
-                                    minOccupiedHBHE=cms.untracked.uint32(5000), # minimum number of HBHErechits that must be present for HBHEOccupancy filter to remove event
+                                    minOccupiedHBHE=cms.untracked.uint32(4000), # minimum number of HBHErechits that must be present for HBHEOccupancy filter to remove event
                                     
                                     debug = cms.untracked.bool(False),
                                     reverseFilter = cms.untracked.bool(False), # if True, will select only events failing filter, rather than events passing
