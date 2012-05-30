@@ -352,13 +352,6 @@ void FUResourceTable::discardNoReschedule() {
 				"FUResourceTable:discardNoReschedule:writeRecoEmptyEvent");
 	}
 
-	try {
-		shmBuffer_->writeDqmEmptyEvent();
-	} catch (evf::Exception& e) {
-		rethrowShmBufferException(e,
-				"FUResourceTable:discardNoReschedule:writeDqmEmptyEvent");
-	}
-
 	UInt_t count = 0;
 	while (count < 100) {
 		std::cout << " shutdown cycle " << shmBuffer_->nClients() << " "
@@ -387,7 +380,7 @@ void FUResourceTable::discardNoReschedule() {
 
 		}
 	}
-        /*
+        
 	bool allEmpty = false;
 	std::cout << "Checking if all dqm cells are empty " << std::endl;
 	while (!allEmpty) {
@@ -408,7 +401,7 @@ void FUResourceTable::discardNoReschedule() {
 		}
 		shmBuffer_->unlock();
 	}
-        */
+
 	std::cout << "Number of  pending discards before declaring ready to shut down: " << nbPendingSMDqmDiscards_ << std::endl;
 	if (nbPendingSMDqmDiscards_ != 0) {
 		LOG4CPLUS_WARN(
@@ -418,6 +411,14 @@ void FUResourceTable::discardNoReschedule() {
 						<< " while cells are all empty. This may cause problems at next start ");
 
 	}
+
+	try {
+		shmBuffer_->writeDqmEmptyEvent();
+	} catch (evf::Exception& e) {
+		rethrowShmBufferException(e,
+				"FUResourceTable:discardNoReschedule:writeDqmEmptyEvent");
+	}
+
 	isReadyToShutDown_ = true; // moved here from within the first while loop to make sure the
 	// sendDqm loop has been shut down as well
 }
@@ -927,7 +928,7 @@ bool FUResourceTable::handleCrashedEP(UInt_t runNumber, pid_t pid) {
 		try {
 			bool shmret = shmBuffer_->writeErrorEventData(runNumber, pid, iRawCell, true);
 			if (!shmret)
-				LOG4CPLUS_ERROR(log_,"Possible EP crash on Lumi event. Skip sending this to the error stream.");
+				LOG4CPLUS_WARN(log_,"Problem writing to the error stream.");
 		} catch (evf::Exception& e) {
 			rethrowShmBufferException(e,
 					"FUResourceTable:handleCrashedEP:writeErrorEventData");

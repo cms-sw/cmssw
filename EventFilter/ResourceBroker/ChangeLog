@@ -1,3 +1,9 @@
+2012-05-28 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-00-18
+	* putting back in the waiting for dqm discards before attempting
+	  empty event write
+
 2012-05-27 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V01-00-17
