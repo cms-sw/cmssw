@@ -359,7 +359,7 @@ class RunMEtUncertainties(ConfigToolBase):
         if self._isValidInputTag(muonCollection):
             muonsEnUp = cms.EDProducer("ShiftedPATMuonProducer",
                 src = muonCollection,
-                uncertainty = cms.double(0.01),
+                uncertainty = cms.double(0.002),
                 shiftBy = cms.double(+1.*varyByNsigmas)
             )
             muonCollectionEnUp = \
