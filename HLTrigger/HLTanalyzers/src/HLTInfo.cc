@@ -536,7 +536,8 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
       for (CItAlgo algo = menu->gtAlgorithmMap().begin(); algo!=menu->gtAlgorithmMap().end(); ++algo) {
 	if (_Debug) std::cout << "Name: " << (algo->second).algoName() << " Alias: " << (algo->second).algoAlias() << std::endl;
         int itrig = (algo->second).algoBitNumber();
-        algoBitToName[itrig] = TString( (algo->second).algoName() );
+	//        algoBitToName[itrig] = TString( (algo->second).algoName() );
+	algoBitToName[itrig] = TString( (algo->second).algoAlias() );
         HltTree->Branch(algoBitToName[itrig],l1flag+itrig,algoBitToName[itrig]+"/I");
         HltTree->Branch(algoBitToName[itrig]+"_Prescl",l1Prescl+itrig,algoBitToName[itrig]+"_Prescl/I");
 	if (_OR_BXes)
