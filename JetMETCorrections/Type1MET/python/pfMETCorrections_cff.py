@@ -48,7 +48,7 @@ pfchsMETcorr = cms.EDProducer("PFchsMETcorrInputProducer",
 # use MET corrections to produce Type 1 / Type 1 + 2 corrected PFMET objects
 pfType1CorrectedMet = cms.EDProducer("CorrectedPFMETProducer",
     src = cms.InputTag('pfMet'),
-    applyType0Corrections = cms.bool(True),
+    applyType0Corrections = cms.bool(False),
     srcCHSSums = cms.VInputTag(
         cms.InputTag('pfchsMETcorr', 'type0')
     ),
@@ -62,7 +62,7 @@ pfType1CorrectedMet = cms.EDProducer("CorrectedPFMETProducer",
 
 pfType1p2CorrectedMet = cms.EDProducer("CorrectedPFMETProducer",
     src = cms.InputTag('pfMet'),
-    applyType0Corrections = cms.bool(True),
+    applyType0Corrections = cms.bool(False),
     srcCHSSums = cms.VInputTag(
         cms.InputTag('pfchsMETcorr', 'type0')
     ),
