@@ -109,3 +109,5 @@ DQMOfflineEcal = cms.Sequence( ecal_dqm_source_offline *
                              )
 DQMOfflineJetMET = cms.Sequence( jetMETDQMOfflineSource )
 
+DQMOfflineEGamma = cms.Sequence( egammaDQMOffline )
+

@@ -101,4 +101,5 @@ DQMHarvestEcal = cms.Sequence( ecal_dqm_client_offline *
 DQMHarvestHcal = cms.Sequence( hcalOfflineDQMClient )
 
 DQMHarvestJetMET = cms.Sequence( SusyPostProcessorSequence )
-                                             
+
+DQMHarvestEGamma = cms.Sequence( egammaPostProcessing )                                             
