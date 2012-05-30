@@ -90,6 +90,7 @@ int main(int argc, char **argv) {
     ("perfCounters", "Dump performance counters at end of job")
     ("LoadLibrary,L", po::value<vector<string> >(&librariesToLoad), "Load library through gSystem->Load(...). Can specify multiple libraries using this option multiple times")
     ("X-rtd",  po::value<vector<string> >(&runtimeDefines), "Define some constants to be used at runtime (for debugging purposes). The syntax is --X-rtd identifier[=value], where value is an integer and defaults to 1. Can specify multiple times")
+    ("X-fpeMask", po::value<int>(), "Set FPE mask: 1=NaN, 2=Div0, 4=Overfl, 8=Underf, 16=Inexact; 7=default")
     ;
   desc.add(combiner.statOptions());
   desc.add(combiner.ioOptions());
@@ -231,6 +232,9 @@ int main(int argc, char **argv) {
   }
 
   if (vm.count("igpMem")) setupIgProfDumpHook();
+
+  if (vm.count("X-fpeMask")) gSystem->SetFPEMask(vm["X-fpeMask"].as<int>());
+
 
   // if you have libraries, it's time to load them now
   for (vector<string>::const_iterator rtdp = runtimeDefines.begin(), endrtdp = runtimeDefines.end(); rtdp != endrtdp; ++rtdp) {
