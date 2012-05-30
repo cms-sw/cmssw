@@ -446,7 +446,7 @@ def getRunsFromDQM(config, mask, pd, mode, runMask="all",runlistfile=[],jsonfile
     for mask in masks :
         json = dqm_get_samples(serverUrl, mask, dataType)
         for runNr, dataset in json:
-            if pd == 'Cosmics' and mode != 'ALL':
+            if 'Cosmics' in pd and mode != 'ALL':
               ##For this to run correctly, I need autoRunDecoDetector.py checked out (UserCode/TkDQM/Tools)
                 if checkStripMode(runNr) != mode:
                     continue
@@ -551,7 +551,7 @@ def checkStripMode(runNo):
                 pair = pair.replace("'","")
                 fromrun = re.split(":",pair)[0]
                 tillrun = re.split(":",pair)[1]
-                if int(runNo) > int(fromrun) and int(runNo) < int(tillrun):
+                if int(runNo) >= int(fromrun) and int(runNo) <= int(tillrun):
                     return Output[i]
     return "NONE"
 
@@ -614,7 +614,7 @@ def main(argv=None):
     cacheFile.close()
 
     outPath = "fig/"+opts.reco+"/"+opts.epoch+"/"+opts.dset
-    if opts.dset == 'Cosmics':
+    if 'Cosmics' in opts.dset:
         outPath = outPath + "/" + opts.state
     ##outPath = config.get("output","defautlOutputPath")
     if not opts.outPath == None: outPath  = opts.outPath
