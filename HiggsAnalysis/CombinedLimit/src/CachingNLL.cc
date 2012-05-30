@@ -22,6 +22,41 @@
 bool cacheutils::CachingSimNLL::noDeepLEE_ = false;
 bool cacheutils::CachingSimNLL::hasError_  = false;
 
+//#define DEBUG_TRACE_POINTS
+#ifdef DEBUG_TRACE_POINTS
+namespace { 
+    void tracePoint(const RooAbsCollection &point) {
+        static const RooAbsCollection *lastPoint = 0;
+        static std::vector<double> values;
+        if (&point != lastPoint) {
+            std::cout << "Arrived in a completely new point. " << std::endl;
+            values.resize(point.getSize());
+            RooLinkedListIter iter = point.iterator();
+            for (RooAbsArg *a  = (RooAbsArg*)(iter.Next()); a != 0; a  = (RooAbsArg*)(iter.Next())) {
+                RooRealVar *rrv = dynamic_cast<RooRealVar *>(a); if (!rrv) continue;
+                values.push_back(rrv->getVal());
+            }
+            lastPoint = &point;
+        } else {
+            std::cout << "Moved: ";
+            RooLinkedListIter iter = point.iterator();
+            int i = 0;
+            for (RooAbsArg *a  = (RooAbsArg*)(iter.Next()); a != 0; a  = (RooAbsArg*)(iter.Next())) {
+                RooRealVar *rrv = dynamic_cast<RooRealVar *>(a); if (!rrv) continue;
+                if (values[i] != rrv->getVal()) std::cout << a->GetName() << " " << values[i] << " => " << rrv->getVal() << "    "; 
+                values[i++] = rrv->getVal();
+            }
+            std::cout << std::endl;
+        }
+    }
+}
+#define TRACE_POINT(x)  ::tracePoint(x);
+#define TRACE_NLL(x)    std::cout << x << std::endl;
+#else
+#define TRACE_POINT(x) 
+#define TRACE_NLL(x) 
+#endif
+
 cacheutils::ArgSetChecker::ArgSetChecker(const RooAbsCollection &set) 
 {
     std::auto_ptr<TIterator> iter(set.createIterator());
@@ -371,6 +406,7 @@ cacheutils::CachingAddNLL::evaluate() const
     ret += expectedEvents - sumWeights_ * log(expectedEvents);
     ret += zeroPoint_;
     // std::cout << "     plus extended term: " << ret << std::endl;
+    TRACE_NLL("AddNLL for " << pdf_->GetName() << ": " << ret)
     return ret;
 }
 
@@ -508,6 +544,7 @@ cacheutils::CachingSimNLL::setup_()
 Double_t 
 cacheutils::CachingSimNLL::evaluate() const 
 {
+    TRACE_POINT(params_)
 #ifdef DEBUG_CACHE
     PerfCounter::add("CachingSimNLL::evaluate called");
 #endif
@@ -567,6 +604,7 @@ cacheutils::CachingSimNLL::evaluate() const
     if (_trace_ % 10 == 0)  { putchar('.'); fflush(stdout); }
     //if (_trace_ % 250 == 0) { printf("               NLL % 10.4f after %10lu evals.\n", ret, _trace_); fflush(stdout); }
 #endif
+    TRACE_NLL("SimNLL for " << GetName() << ": " << ret)
     return ret;
 }
 
