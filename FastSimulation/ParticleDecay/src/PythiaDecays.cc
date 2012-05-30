@@ -49,7 +49,18 @@ PythiaDecays::PythiaDecays(std::string program)
     // init decayer
     decayer->readString("ProcessLevel:all = off"); // The trick!
     decayer->readString("ParticleDecays:sophisticatedTau = 0"); // safer option with old-style tau decays
+    decayer->readString("ParticleDecays:limitTau = off");
+    decayer->readString("ParticleDecays:limitTau0 = off");
+    decayer->readString("ParticleDecays:tauMax = 999999");
+    decayer->readString("ParticleDecays:tau0Max = 999999");
     decayer->init();    
+
+    // print out settings
+    //decayer->settings.listChanged();
+    //decayer->settings.listAll();
+    //decayer->particleData.listChanged(); 
+    //decayer->particleData.listAll();
+
   } else {
     std::cout << "WARNING: you are requesting an option which is not available in PythiaDecays::PythiaDecays " << std::endl;
   }
@@ -101,13 +112,13 @@ PythiaDecays::particleDaughtersPy8(ParticlePropagator& particle)
   
   // print out event content before decays
   //
-  // decayer->event.list();
+  //  decayer->event.list();
   
   decayer->next();
   
   // print out event content after decays
   //
-  // decayer->event.list();
+  //decayer->event.list();
   
   int nentries1 = decayer->event.size();
   if ( nentries1 <= nentries ) return theList; //same number of particles, no decays...
@@ -120,12 +131,11 @@ PythiaDecays::particleDaughtersPy8(ParticlePropagator& particle)
   //       reduce it by 2 - 1 for "system particle", and 1 for the one that decays
   
   theList.clear();
-  theList.resize(nentries1-2,RawParticle());
-  // Pythia8::Particle& py8daughter = decayer->event[nentries]; // the 1st daughter // DO I NEED THIS LINE?
+  theList.resize(nentries1-nentries,RawParticle());
 
   for ( int ipart=nentries; ipart<nentries1; ipart++ )
     {
-      Pythia8::Particle& py8daughter = decayer->event[ipart];
+      Pythia8::Particle& py8daughter = decayer->event[ipart]; 
       theList[ipart-nentries].SetXYZT( py8daughter.px(), py8daughter.py(), py8daughter.pz(), py8daughter.e() );
       theList[ipart-nentries].setVertex( py8daughter.xProd(),
 					   py8daughter.yProd(),
