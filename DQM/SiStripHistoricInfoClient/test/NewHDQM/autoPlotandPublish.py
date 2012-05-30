@@ -4,11 +4,10 @@ import re
 import subprocess
 
 ##Setting variables:
-#webDir = '/data/users/event_display/HDQM/dev/Tristan'
 webDir = '/data/users/event_display/HDQM/Current/'
 Epochs = ['Run2012','Run2012A','Run2012B']
 Recos  = ['Prompt']           ##other examples: 08Nov2011
-PDs    = ['MinimumBias']      ##other examples: 'SingleMu','DoubleMu'
+PDs    = ['MinimumBias','Cosmics']      ##other examples: 'SingleMu','DoubleMu'
 
 ##Internally set vars
 pwDir  = subprocess.Popen("pwd", shell=True, stdout=subprocess.PIPE).stdout.readline()[:-1]+'/'
@@ -16,28 +15,22 @@ pwDir  = subprocess.Popen("pwd", shell=True, stdout=subprocess.PIPE).stdout.read
 jsonFile = subprocess.Popen("ls -1tr /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions12/8TeV/Prompt/Cert_*_8TeV_PromptReco_Collisions12_JSON.txt", shell=True, stdout=subprocess.PIPE).stdout.readlines()[-1][:-1]
 
 subprocess.Popen("rm -rf fig/*", shell=True)
-
-#subprocess.Popen("rm StripReadoutMode4Cosmics.txt", shell=True).wait()
-#subprocess.Popen("./autoRunDecoDetector.py",        shell=True).wait()
-#subprocess.Popen("rm *.xml",                        shell=True).wait()
+#copy over strip mode map
+subprocess.Popen("cp /data/users/cctrack/DQMdata/StripMode/StripReadoutMode4Cosmics.txt ./", shell=True).wait()
 
 ##Internally set vars
 pwDir  = subprocess.Popen("pwd", shell=True, stdout=subprocess.PIPE).stdout.readline()[:-1]+'/'
 Plots  = ['cfg/trendPlotsTracking.ini', 'cfg/trendPlotsPixel_General.ini','cfg/trendPlotsStrip_APVShots.ini', 'cfg/trendPlotsStrip_General.ini',
           'cfg/trendPlotsStrip_TEC.ini','cfg/trendPlotsStrip_TIB.ini',    'cfg/trendPlotsStrip_TID.ini',      'cfg/trendPlotsStrip_TOB.ini']
 addplots=''
-for plot in Plots: addplots+= " -C "+plot
-
-#for i in range(1,len(Plots)):
-#    addplots+= " -C "+Plots[i]
+for i in range(0,len(Plots)): addplots+= " -C "+Plots[i]
 
 ##Loop hDQM with xxx PDs
 for epoch in Epochs:
     for reco in Recos:
         for pd in PDs:
-            #run_hDQM_cmd = './trendPlots.py -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco
             #run_hDQM_cmd = './trendPlots.py -r "run > 194050" -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +" -J "+jsonFile
-            if pd=="Cosmics":
+            if 'Cosmics' in pd:
                 run_hDQM_cmd = './trendPlots.py  -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +" -s PEAK" 
                 run_hDQM_cmd = './trendPlots.py  -C cfg/trendPlotsDQM.ini' + addplots +  ' --epoch '+epoch+' --dataset '+pd+' --reco '+reco +" -s DECO" 
             else :
@@ -46,7 +39,6 @@ for epoch in Epochs:
             subprocess.Popen(run_hDQM_cmd, shell=True).wait()
 
 ####Build individual indices for each PD set of plots, and parent directories
-subprocess.Popen("rm fig/index.html", shell=True).wait()
 epochDirs  = subprocess.Popen("ls -d1 ./fig/*", shell=True, stdout=subprocess.PIPE).stdout.readlines()
 epochIndex = ''
 
@@ -61,6 +53,7 @@ for edir in epochDirs:
         pdDirs     = subprocess.Popen("ls -d1 "+rdir[:-1]+"/*", shell=True, stdout=subprocess.PIPE).stdout.readlines()
         pdIndex    = ''
         for pdir in pdDirs:
+            if 'Cosmics' in pdir: continue
             ##First setup title (PD,Epoch,Reco)
             title = re.split('/',pdir[:-1])[-1]+'_'+re.split('/',edir[:-1])[-1]+'-'+re.split('/',rdir[:-1])[-1]
             ##To run, I must be in the directory with all pngs...#
