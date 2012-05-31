@@ -116,7 +116,7 @@ FUShmBuffer::FUShmBuffer(bool segmentationMode, unsigned int nRawCells,
 	addr = (void*) ((unsigned long) this + clientPrcIdOffset_);
 	new (addr) pid_t[nClientsMax_];
 
-	rawCellOffset_ = dqmStateOffset_ + nClientsMax_ * sizeof(pid_t);
+	rawCellOffset_ = clientPrcIdOffset_ + nClientsMax_ * sizeof(pid_t);
 
 	if (segmentationMode_) {
 		recoCellOffset_ = rawCellOffset_ + nRawCells_ * sizeof(key_t);

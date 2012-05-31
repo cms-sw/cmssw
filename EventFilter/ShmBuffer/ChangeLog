@@ -1,3 +1,10 @@
+2012-05-31 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-08-19
+	* fix for wrong offset of raw cell index buffer
+	* we were safe due to part of Process ID buffer never used,
+	  until it manifested with a large number of dqm cells
+
 2012-05-22 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V00-08-18
