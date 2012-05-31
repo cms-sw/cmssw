@@ -18,6 +18,7 @@
   <class name="std::vector<DTT0Data>"/>
   <class name="DTT0Data" id="604A5767-1B3B-DA11-9D99-000E0C5CE283"/>
   <class name="DTTtrig" id="FA524625-415C-DA11-A1AE-000E0C5CE283">
+    <field name="dataList" mapping="blob"/>
     <field name="dBuf" transient="true"/>
   </class>
   <class name="std::pair<DTTtrigId,DTTtrigData>"/>
