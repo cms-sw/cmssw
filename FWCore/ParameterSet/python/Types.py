@@ -987,7 +987,10 @@ class EDAlias(_ConfigureComponent,_Labelable):
 
     def dumpPython(self, options=PrintOptions()):
         resultList = ['cms.EDAlias(']
+        separator = ""
         for name in self.parameterNames_():
+            resultList[-1] = resultList[-1] + separator
+            separator=","
             param = self.__dict__[name]
             options.indent()
             resultList.append(options.indentation()+name+' = '+param.dumpPython(options))
