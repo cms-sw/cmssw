@@ -42,7 +42,9 @@ CPPUNIT_TEST(oneOfTwoRecordTest);
 CPPUNIT_TEST(resetTest);
 CPPUNIT_TEST(alternateFinderTest);
 CPPUNIT_TEST(invalidRecordTest);
+CPPUNIT_TEST(extendIOVTest);
 
+  
 CPPUNIT_TEST_SUITE_END();
 public:
 
@@ -59,11 +61,19 @@ public:
   void resetTest();
   void alternateFinderTest();
   void invalidRecordTest();
+  void extendIOVTest();
   
 }; //Cppunit class declaration over
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testdependentrecord);
+
+/* The Records used in the test have the following dependencies
+   DepRecord -----> DummyRecord
+                /
+   DepOn2Record---> Dummy2Record
+ 
+ */
 
 namespace {
 class DummyProxyProvider : public edm::eventsetup::DataProxyProvider {
@@ -728,7 +738,7 @@ void testdependentrecord::alternateFinderTest()
   const edm::ValidityInterval dep2Interval(sync_3, 
                                            edm::IOVSyncValue(eID_4));
   depFinder->setInterval(dep2Interval);
-  const edm::ValidityInterval tempIOV =finder.findIntervalFor(depRecordKey, sync_3);
+  /*const edm::ValidityInterval tempIOV = */ finder.findIntervalFor(depRecordKey, sync_3);
   //std::cout <<  tempIOV.first().eventID()<<" to "<<tempIOV.last().eventID() <<std::endl;
   CPPUNIT_ASSERT(dep2Interval == finder.findIntervalFor(depRecordKey, sync_3)); 
   
@@ -816,4 +826,104 @@ void testdependentrecord::invalidRecordTest()
 
    CPPUNIT_ASSERT(openEnded2 == finder.findIntervalFor(depRecordKey, 
 						       edm::IOVSyncValue(edm::EventID(1, 1, 7))));
+}
+
+void testdependentrecord::extendIOVTest()
+{
+   edm::eventsetup::EventSetupProvider provider;
+   boost::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv{new DummyProxyProvider{}};
+   provider.add(dummyProv);
+   
+   boost::shared_ptr<DummyFinder> dummyFinder{new DummyFinder};
+   
+   edm::IOVSyncValue startSyncValue{edm::EventID{1, 1, 1}};
+   dummyFinder->setInterval(edm::ValidityInterval{startSyncValue, 
+                                                  edm::IOVSyncValue{edm::EventID{1, 1, 5}}});
+   provider.add(boost::shared_ptr<edm::EventSetupRecordIntervalFinder>{dummyFinder});
+   
+   boost::shared_ptr<edm::eventsetup::DataProxyProvider> depProv(new DepOn2RecordProxyProvider());
+   provider.add(depProv);
+   
+   boost::shared_ptr<Dummy2RecordFinder> dummy2Finder(new Dummy2RecordFinder);
+   dummy2Finder->setInterval(edm::ValidityInterval{startSyncValue, 
+                                                   edm::IOVSyncValue{edm::EventID{1, 1, 6}}});
+   provider.add(boost::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummy2Finder));
+   {
+      const edm::EventSetup& eventSetup1 = provider.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1), edm::Timestamp(1)));
+      unsigned long long id1 = eventSetup1.get<DepOn2Record>().cacheIdentifier();
+      CPPUNIT_ASSERT(id1 == eventSetup1.get<DummyRecord>().cacheIdentifier());
+      CPPUNIT_ASSERT(id1 == eventSetup1.get<Dummy2Record>().cacheIdentifier());
+      
+      {
+         const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 5), edm::Timestamp(2)));
+         unsigned long long id = eventSetup.get<DepOn2Record>().cacheIdentifier();
+         CPPUNIT_ASSERT(id1 == id);
+         CPPUNIT_ASSERT(id1 == eventSetup.get<DummyRecord>().cacheIdentifier());
+         CPPUNIT_ASSERT(id1 == eventSetup.get<Dummy2Record>().cacheIdentifier());
+      }
+      //extend the IOV DummyRecord while Dummy2Record still covers this range
+      dummyFinder->setInterval(edm::ValidityInterval{startSyncValue, 
+                                                     edm::IOVSyncValue{edm::EventID{1, 1, 7}}});
+      {
+         const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 6), edm::Timestamp(7)));
+         unsigned long long id = eventSetup.get<DepOn2Record>().cacheIdentifier();
+         CPPUNIT_ASSERT(id1 == id);
+         CPPUNIT_ASSERT(id1 == eventSetup.get<DummyRecord>().cacheIdentifier());
+         CPPUNIT_ASSERT(id1 == eventSetup.get<Dummy2Record>().cacheIdentifier());
+      }
+      
+      //extend the IOV Dummy2Record while DummyRecord still covers this range
+      dummy2Finder->setInterval(edm::ValidityInterval{startSyncValue, 
+         edm::IOVSyncValue{edm::EventID{1, 1, 7}}});
+
+      {
+         const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 7), edm::Timestamp(7)));
+         unsigned long long id = eventSetup.get<DepOn2Record>().cacheIdentifier();
+         CPPUNIT_ASSERT(id1 == id);
+         CPPUNIT_ASSERT(id1 == eventSetup.get<DummyRecord>().cacheIdentifier());
+         CPPUNIT_ASSERT(id1 == eventSetup.get<Dummy2Record>().cacheIdentifier());
+      }
+      //extend the both IOVs
+      dummy2Finder->setInterval(edm::ValidityInterval{startSyncValue, 
+                                                      edm::IOVSyncValue{edm::EventID{1, 1, 8}}});
+      
+      dummyFinder->setInterval(edm::ValidityInterval{startSyncValue, 
+         edm::IOVSyncValue{edm::EventID{1, 1, 8}}});
+      {
+         const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 8), edm::Timestamp(7)));
+         unsigned long long id = eventSetup.get<DepOn2Record>().cacheIdentifier();
+         CPPUNIT_ASSERT(id1 == id);
+         CPPUNIT_ASSERT(id1 == eventSetup.get<DummyRecord>().cacheIdentifier());
+         CPPUNIT_ASSERT(id1 == eventSetup.get<Dummy2Record>().cacheIdentifier());
+      }
+      //extend only one and create a new IOV for the other
+      dummy2Finder->setInterval(edm::ValidityInterval{startSyncValue, 
+                                                      edm::IOVSyncValue{edm::EventID{1, 1, 9}}});
+      
+      dummyFinder->setInterval(edm::ValidityInterval{edm::IOVSyncValue{edm::EventID{1, 1, 9}}, 
+                                                     edm::IOVSyncValue{edm::EventID{1, 1, 9}}});
+      {
+         const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 9), edm::Timestamp(7)));
+         unsigned long long id = eventSetup.get<DepOn2Record>().cacheIdentifier();
+         CPPUNIT_ASSERT(id1+1 == id);
+         CPPUNIT_ASSERT(id1+1 == eventSetup.get<DummyRecord>().cacheIdentifier());
+         CPPUNIT_ASSERT(id1 == eventSetup.get<Dummy2Record>().cacheIdentifier());
+      }
+      //extend the otherone and create a new IOV for the other
+      dummy2Finder->setInterval(edm::ValidityInterval{edm::IOVSyncValue{edm::EventID{1, 1, 10}}, 
+                                                      edm::IOVSyncValue{edm::EventID{1, 1, 10}} });
+      
+      dummyFinder->setInterval(edm::ValidityInterval{edm::IOVSyncValue{edm::EventID{1, 1, 9}}, 
+                                                     edm::IOVSyncValue{edm::EventID{1, 1, 10}} });
+      
+      {
+         const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 10), edm::Timestamp(7)));
+         unsigned long long id = eventSetup.get<DepOn2Record>().cacheIdentifier();
+         CPPUNIT_ASSERT(id1+2 == id);
+         CPPUNIT_ASSERT(id1+1 == eventSetup.get<DummyRecord>().cacheIdentifier());
+         CPPUNIT_ASSERT(id1+1 == eventSetup.get<Dummy2Record>().cacheIdentifier());
+      }
+      
+   }
+
 }

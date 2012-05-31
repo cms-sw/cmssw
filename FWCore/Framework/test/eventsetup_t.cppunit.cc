@@ -60,6 +60,8 @@ CPPUNIT_TEST(preferTest);
 
 CPPUNIT_TEST(introspectionTest);
 
+CPPUNIT_TEST(iovExtentionTest);
+
 CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){}
@@ -83,6 +85,8 @@ public:
   void preferTest();
   
   void introspectionTest();
+  
+  void iovExtentionTest();
   
 };
 
@@ -692,4 +696,42 @@ void testEventsetup::introspectionTest()
     std::cout <<"caught "<<iException.explainSelf()<<std::endl;
     throw;
   }
+}
+
+void testEventsetup::iovExtentionTest()
+{
+  DummyEventSetupProvider provider;
+  typedef eventsetup::EventSetupRecordProviderTemplate<DummyRecord> DummyRecordProvider;
+  std::auto_ptr<DummyRecordProvider > dummyRecordProvider(new DummyRecordProvider());
+  
+  boost::shared_ptr<DummyFinder> finder(new DummyFinder);
+  dummyRecordProvider->addFinder(finder);
+  
+  provider.insert(dummyRecordProvider);
+  
+  const Timestamp time_2(2);
+  finder->setInterval(ValidityInterval(IOVSyncValue{time_2}, IOVSyncValue{Timestamp{3}}));
+  {
+    EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue{time_2});
+    CPPUNIT_ASSERT(2==eventSetup.get<DummyRecord>().cacheIdentifier());
+  }
+  {
+    EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue{Timestamp{3}});
+    eventSetup.get<DummyRecord>();
+    CPPUNIT_ASSERT(2==eventSetup.get<DummyRecord>().cacheIdentifier());
+  }
+  //extending the IOV should not cause the cache to be reset
+  finder->setInterval(ValidityInterval(IOVSyncValue{time_2}, IOVSyncValue{Timestamp{4}}));
+  {
+    EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue{Timestamp{4}});
+    CPPUNIT_ASSERT(2==eventSetup.get<DummyRecord>().cacheIdentifier());
+  }
+
+  //this is a new IOV so should get cache reset
+  finder->setInterval(ValidityInterval(IOVSyncValue{Timestamp{5}}, IOVSyncValue{Timestamp{6}}));
+  {
+    EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue{Timestamp{5}});
+    CPPUNIT_ASSERT(3==eventSetup.get<DummyRecord>().cacheIdentifier());
+  }
+
 }
