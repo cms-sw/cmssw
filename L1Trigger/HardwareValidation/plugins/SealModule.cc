@@ -11,6 +11,3 @@ DEFINE_FWK_MODULE(L1DummyProducer);
 
 #include <L1Trigger/HardwareValidation/plugins/L1EmulBias.h>
 DEFINE_FWK_MODULE(L1EmulBias);
-
-#include <L1Trigger/HardwareValidation/plugins/MuonCandProducerMon.h>
-DEFINE_FWK_MODULE(MuonCandProducerMon);
