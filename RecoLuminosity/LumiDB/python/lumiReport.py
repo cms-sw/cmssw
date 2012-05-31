@@ -41,7 +41,7 @@ def toScreenTotDelivered(lumidata,resultlines,scalefactor,isverbose):
     totaltable=[]
     for run in lumidata.keys():
         lsdata=lumidata[run]
-        if lsdata is None:
+        if not lsdata:
             result.append([str(run),'n/a','n/a','n/a','n/a','n/a'])
             if isverbose:
                 result.extend(['n/a'])
@@ -74,7 +74,7 @@ def toScreenTotDelivered(lumidata,resultlines,scalefactor,isverbose):
                 result.append([str(run)+':'+str(fillnum),str(nls),'%.3f'%(totlumival*scalefactor)+' ('+lumiunit+')',runstarttime,'%.1f'%(avgbeamenergy)])
             else:
                 result.append([str(run)+':'+str(fillnum),str(nls),'%.3f'%(totlumival*scalefactor)+' ('+lumiunit+')','n/a','%.1f'%(avgbeamenergy)])
-    sortedresult=sorted(result,key=lambda x : int(x[0].split(':')[0]))
+    sortedresult=sorted(result,key=lambda x : int(str(x[0]).split(':')[0]))
     #print 'sortedresult ',sortedresult
     print ' ==  = '
     if isverbose:
@@ -108,7 +108,7 @@ def toCSVTotDelivered(lumidata,filename,resultlines,scalefactor,isverbose):
         result.append(rline)
     for run in lumidata.keys():
         lsdata=lumidata[run]
-        if lsdata is None:
+        if not lsdata:
             result.append([run,'n/a','n/a','n/a','n/a'])
             if isverbose:
                 result.extend(['n/a'])
@@ -133,7 +133,7 @@ def toCSVTotDelivered(lumidata,filename,resultlines,scalefactor,isverbose):
             result.append([str(run)+':'+str(fillnum),nls,totlumival*scalefactor,runstarttime,avgbeamenergy, str(selectedls)])
         else:
             result.append([str(run)+':'+str(fillnum),nls,totlumival*scalefactor,runstarttime,avgbeamenergy])
-    sortedresult=sorted(result,key=lambda x : int(x[0].split(':')[0]))
+    sortedresult=sorted(result,key=lambda x : int(str(x[0]).split(':')[0]))
     r=None
     assert(filename)
     if filename.upper()=='STDOUT':
@@ -221,7 +221,7 @@ def toScreenOverview(lumidata,resultlines,scalefactor,isverbose):
         else:
             selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
         result.append([str(run)+':'+str(fillnum),str(nls),'%.3f'%(totdeliveredlumi*scalefactor)+' ('+deliveredlumiunit+')',selectedlsStr,'%.3f'%(totrecordedlumi*scalefactor)+' ('+recordedlumiunit+')'])
-    sortedresult=sorted(result,key=lambda x : int(x[0].split(':')[0]))    
+    sortedresult=sorted(result,key=lambda x : int(str(x[0]).split(':')[0]))    
     print ' ==  = '
     print tablePrinter.indent (labels+sortedresult, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
@@ -325,7 +325,7 @@ def toScreenLumiByLS(lumidata,resultlines,scalefactor,isverbose):
         
     for run in lumidata.keys():
         rundata=lumidata[run]
-        if rundata is None:
+        if not rundata:
             result.append([str(run),'n/a','n/a','n/a','n/a','n/a','n/a'])
             continue
         fillnum=0
@@ -350,7 +350,7 @@ def toScreenLumiByLS(lumidata,resultlines,scalefactor,isverbose):
     #guess ls lumi unit
     (lsunitstring,unitdenomitor)=CommonUtil.lumiUnitForPrint(maxlslumi*scalefactor)
     labels = [ ('Run:Fill','LS','UTCTime','Beam Status','E(GeV)','Delivered('+lsunitstring+')','Recorded('+lsunitstring+')') ]
-    sortedresult=sorted(result,key=lambda x : int(x[0].split(':')[0]))
+    sortedresult=sorted(result,key=lambda x : int(str(x[0]).split(':')[0]))
     perlsresult=[]
     for entry in sortedresult:
         delumi=entry[5]
@@ -404,7 +404,7 @@ def toCSVLumiByLS(lumidata,filename,resultlines,scalefactor,isverbose):
             recordedlumi=lsdata[6]
             #if cmslsnum!=0:
             result.append([str(run)+':'+str(fillnum),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,begev,deliveredlumi*scalefactor,recordedlumi*scalefactor])
-    sortedresult=sorted(result,key=lambda x : int(x[0].split(':')[0]))
+    sortedresult=sorted(result,key=lambda x : int(str(x[0]).split(':')[0]))
     assert(filename)
     if filename.upper()=='STDOUT':
         r=sys.stdout
@@ -490,7 +490,7 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,isverbose):
     #guess ls lumi unit
     (lsunitstring,unitdenomitor)=CommonUtil.lumiUnitForPrint(maxlslumi*scalefactor)
     labels = [('Run:Fill','LS','HLTpath','L1bit','HLTpresc','L1presc','Recorded('+lsunitstring+')','Effective('+lsunitstring+')')]
-    sortedresult=sorted(result,key=lambda x : int(x[0].split(':')[0]))
+    sortedresult=sorted(result,key=lambda x : int(str(x[0]).split(':')[0]))
     perlsresult=[]
     for entry in sortedresult:
         reclumi=entry[6]
