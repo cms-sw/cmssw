@@ -392,7 +392,7 @@ def toCSVLumiByLS(lumidata,filename,resultlines,scalefactor,isverbose):
             result.append([run,'n/a','n/a','n/a','n/a','n/a'])
             continue
         fillnum=0
-        if rundata[0][10]:
+        if rundata and rundata[0][10]:
             fillnum=rundata[0][10]
         for lsdata in rundata:
             lumilsnum=lsdata[0]
