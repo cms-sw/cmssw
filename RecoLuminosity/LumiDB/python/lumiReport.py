@@ -195,7 +195,7 @@ def toScreenOverview(lumidata,resultlines,scalefactor,isverbose):
     
     for run in lumidata.keys():
         lsdata=lumidata[run]
-        if lsdata is None:
+        if not lsdata:
             result.append([str(run),'n/a','n/a','n/a','n/a'])
             continue
         fillnum=0
@@ -249,7 +249,7 @@ def toCSVOverview(lumidata,filename,resultlines,scalefactor,isverbose):
         
     for run in lumidata.keys():
         lsdata=lumidata[run]
-        if lsdata is None:
+        if not lsdata:
             result.append([run,'n/a','n/a','n/a','n/a'])
             continue
         nls=len(lsdata)
@@ -270,7 +270,7 @@ def toCSVOverview(lumidata,filename,resultlines,scalefactor,isverbose):
         else:
             selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
         result.append([str(run)+':'+str(fillnum),nls,totdeliveredlumi*scalefactor,selectedlsStr,totrecordedlumi*scalefactor])
-    sortedresult=sorted(result,key=lambda x : int(x[0].split(':')[0]))
+    sortedresult=sorted(result,key=lambda x : int(str(x[0]).split(':')[0]))
     
     r=None
     assert(filename)
