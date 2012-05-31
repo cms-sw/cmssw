@@ -36,9 +36,20 @@ class DiJetVarAnalyzer : public ScoutingAnalyzerBase
     //1D histograms
     MonitorElement * m_cutFlow;
 
-    MonitorElement * m_MjjWide;
+    MonitorElement * m_MjjWide_finalSel;
+    MonitorElement * m_MjjWide_finalSel_varbin;
+    MonitorElement * m_MjjWide_deta_0p0_0p5;
+    MonitorElement * m_MjjWide_deta_0p5_1p0;
+    MonitorElement * m_MjjWide_deta_1p0_1p5;
+    MonitorElement * m_MjjWide_deta_1p5_2p0;
+    MonitorElement * m_MjjWide_deta_2p0_2p5;
+    MonitorElement * m_MjjWide_deta_2p5_3p0;
+    MonitorElement * m_MjjWide_deta_3p0_inf;
+
+    MonitorElement * m_DetajjWide_finalSel;
     MonitorElement * m_DetajjWide;
-    MonitorElement * m_DphijjWide;
+
+    MonitorElement * m_DphijjWide_finalSel;
 
     //2D histograms
     MonitorElement * m_DetajjVsMjjWide;
