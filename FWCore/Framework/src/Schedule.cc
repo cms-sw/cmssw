@@ -157,9 +157,15 @@ namespace edm {
 
       BranchKey key(friendlyClassName, moduleLabel, productInstanceName, processName);
       if(preg.productList().find(key) == preg.productList().end()) {
-        throw Exception(errors::Configuration, "EDAlias does not match data\n")
-          << "There are no products of type '" << friendlyClassName << "'\n"
-          << "with module label '" << moduleLabel << "' and instance name '" << productInstanceName << "'.\n";
+        // No product was found matching the alias.
+        // We throw an exception only if a module with the specified module label was created in this process.
+        for(auto const& product : preg.productList()) {
+          if(moduleLabel == product.first.moduleLabel_ && processName == product.first.processName_) {
+            throw Exception(errors::Configuration, "EDAlias does not match data\n")
+              << "There are no products of type '" << friendlyClassName << "'\n"
+              << "with module label '" << moduleLabel << "' and instance name '" << productInstanceName << "'.\n";
+            }
+          }
       }
 
       std::string const& theInstanceAlias(instanceAlias == star ? productInstanceName : instanceAlias);
@@ -228,9 +234,15 @@ namespace edm {
                 checkAndInsertAlias(friendlyClassName, moduleLabel, it->first.productInstanceName_, processName, alias, instanceAlias, preg, aliasMap, aliasKeys);
               }
               if(!match) {
-                throw Exception(errors::Configuration, "EDAlias parameter set mismatch\n")
-                   << "There are no products of type '" << friendlyClassName << "'\n"
-                   << "with module label '" << moduleLabel << "'.\n";
+                // No product was found matching the alias.
+                // We throw an exception only if a module with the specified module label was created in this process.
+                for(auto const& product : preg.productList()) {
+                  if(moduleLabel == product.first.moduleLabel_ && processName == product.first.processName_) {
+                    throw Exception(errors::Configuration, "EDAlias parameter set mismatch\n")
+                       << "There are no products of type '" << friendlyClassName << "'\n"
+                       << "with module label '" << moduleLabel << "'.\n";
+                  }
+                }
               }
             } else {
               checkAndInsertAlias(friendlyClassName, moduleLabel, productInstanceName, processName, alias, instanceAlias, preg, aliasMap, aliasKeys);
