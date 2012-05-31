@@ -7,8 +7,8 @@
  * \author J. Berryhill, I. Mikulec
  * \author Vasile Mihai Ghete - HEPHY Vienna
  *
- * $Date: 2012/03/29 14:49:31 $
- * $Revision: 1.22 $
+ * $Date: 2012/04/04 09:56:36 $
+ * $Revision: 1.23 $
  *
  */
 
@@ -22,13 +22,15 @@
 L1TGT::L1TGT(const edm::ParameterSet& ps) :
             gtSource_(ps.getParameter<edm::InputTag> ("gtSource")),
             gtEvmSource_(ps.getParameter<edm::InputTag> ("gtEvmSource")),
+            m_runInEventLoop(ps.getUntrackedParameter<bool>("runInEventLoop", false)),
+            m_runInEndLumi(ps.getUntrackedParameter<bool>("runInEndLumi", false)),
+            m_runInEndRun(ps.getUntrackedParameter<bool>("runInEndRun", false)),
+            m_runInEndJob(ps.getUntrackedParameter<bool>("runInEndJob", false)),
             verbose_(ps.getUntrackedParameter<bool> ("verbose", false)),
             m_dbe(0),
             //
             m_nrEvJob(0), m_nrEvRun(0),
-            preGps_(0ULL), preOrb_(0ULL),
-            m_previousLS(-1),
-            m_previousPfIndex(-1)
+            preGps_(0ULL), preOrb_(0ULL)
 {
 
     m_histFolder = ps.getUntrackedParameter<std::string> ("HistFolder",
@@ -155,7 +157,7 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
             trigger_lumi->Fill(lsNumber, tcsWord.partTrigNr());
             event_lumi->Fill(lsNumber, tcsWord.eventNr());
             evnum_trignum_lumi->Fill(lsNumber,
-                    double(tcsWord.eventNr()) / double(tcsWord.partTrigNr()));
+                    static_cast<double>(tcsWord.eventNr()) / static_cast<double>(tcsWord.partTrigNr()));
 
             boost::uint16_t master = gtfeEvmExtWord.bstMasterStatus();
             boost::uint32_t turnCount = gtfeEvmExtWord.turnCountNumber();
@@ -165,14 +167,14 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
             boost::uint32_t intensity1 = gtfeEvmExtWord.totalIntensityBeam1();
             boost::uint32_t intensity2 = gtfeEvmExtWord.totalIntensityBeam2();
 
-            BST_MasterStatus->Fill(lsNumber, (float) (master));
-            BST_turnCountNumber->Fill(lsNumber, (float) (turnCount));
-            BST_lhcFillNumber->Fill((float) (lhcFill % 1000));
-            BST_beamMode->Fill(lsNumber, (float) (beam));
+            BST_MasterStatus->Fill(lsNumber, static_cast<double>(master));
+            BST_turnCountNumber->Fill(lsNumber, static_cast<double>(turnCount));
+            BST_lhcFillNumber->Fill(static_cast<double>(lhcFill % 1000));
+            BST_beamMode->Fill(lsNumber, static_cast<double>(beam));
 
-            BST_beamMomentum->Fill(lsNumber, (float) (momentum));
-            BST_intensityBeam1->Fill(lsNumber, (float) (intensity1));
-            BST_intensityBeam2->Fill(lsNumber, (float) (intensity2));
+            BST_beamMomentum->Fill(lsNumber, static_cast<double>(momentum));
+            BST_intensityBeam1->Fill(lsNumber, static_cast<double>(intensity1));
+            BST_intensityBeam2->Fill(lsNumber, static_cast<double>(intensity2));
 
             if (verbose_) {
                 edm::LogInfo("L1TGT") << " check mode = " << beam << "    momentum " << momentum
@@ -362,7 +364,7 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
                 for (GTtbitItr1 = gtTTWord.begin(); GTtbitItr1
                         != gtTTWord.end(); GTtbitItr1++) {
                     if (*GTtbitItr1)
-                        tt_bits_corr->Fill(dbitNumber, tbitNumber1);
+                        algo_tt_bits_corr->Fill(dbitNumber, tbitNumber1);
                     tbitNumber1++;
                 }
             }
@@ -399,7 +401,7 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
 
         //
 
-        // check that the combination (pfIndex, lsNumber) is not already included
+        // check that the combination (lsNumber, pfIndex) is not already included
         // to avoid fake entries due to different event order
 
         std::pair<int, int> pairLsPfi = std::make_pair(lsNumber,
@@ -412,8 +414,6 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
 
             m_pairLsNumberPfIndex.push_back(pairLsPfi);
 
-            m_previousPfIndex = pfIndexAlgoTrig;
-            m_previousLS = lsNumber;
         }
 
     }
@@ -456,42 +456,25 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
 void L1TGT::endLuminosityBlock(const edm::LuminosityBlock& iLumi,
         const edm::EventSetup& evSetup) {
 
-    edm::LogInfo("L1TGT")
-            << "\n  endLuminosityBlock:: Prescale factor indices used in a LS "
-            << std::endl;
-    for (CItVecPair cIt = m_pairLsNumberPfIndex.begin(); cIt
-            != m_pairLsNumberPfIndex.end(); ++cIt) {
-
-        edm::LogVerbatim("L1TGT") << "  lsNumber = " << (*cIt).first
-                << " pfIndex = " << (*cIt).second << std::endl;
+    if (m_runInEndLumi) {
+        countPfsIndicesPerLs();
     }
-    edm::LogVerbatim("L1TGT") << std::endl;
-
-    // sort the vector (for pairs: sort after first argument, then after the second argument)
-    std::sort(m_pairLsNumberPfIndex.begin(), m_pairLsNumberPfIndex.end());
-
 }
 
 void L1TGT::endRun(const edm::Run& iRrun, const edm::EventSetup& evSetup) {
 
-    edm::LogInfo("L1TGT")
-            << "\n  endRun:: Prescale factor indices used in a LS "
-            << std::endl;
-    for (CItVecPair cIt = m_pairLsNumberPfIndex.begin(); cIt
-            != m_pairLsNumberPfIndex.end(); ++cIt) {
-
-        edm::LogVerbatim("L1TGT") << "  lsNumber = " << (*cIt).first
-                << " pfIndex = " << (*cIt).second << std::endl;
+    if (m_runInEndRun) {
+        countPfsIndicesPerLs();
     }
-    edm::LogVerbatim("L1TGT") << std::endl;
-
-    // clear the content of the vector
-    m_pairLsNumberPfIndex.clear();
 
 }
 
 
 void L1TGT::endJob() {
+
+    if (m_runInEndJob) {
+        countPfsIndicesPerLs();
+    }
 
     if (verbose_) {
         edm::LogInfo("L1TGT") << "\n Analyzed " << m_nrEvJob << " events";
@@ -510,46 +493,46 @@ void L1TGT::bookHistograms() {
     if (m_dbe) {
         m_dbe->setCurrentFolder(m_histFolder);
 
-        algo_bits = m_dbe->book1D("algo_bits", "GT algo bits", 128, -0.5, 127.5);
-        algo_bits->setAxisTitle("algorithm bits", 1);
+        algo_bits = m_dbe->book1D("algo_bits", "GT algorithm trigger bits", 128, -0.5, 127.5);
+        algo_bits->setAxisTitle("Algorithm trigger bits", 1);
 
         algo_bits_corr = m_dbe->book2D("algo_bits_corr",
-                "GT algo bit correlation",
+                "GT algorithm trigger bit correlation",
                 128, -0.5, 127.5, 128, -0.5, 127.5);
-        algo_bits_corr->setAxisTitle("algorithm bits", 1);
-        algo_bits_corr->setAxisTitle("algorithm bits", 2);
+        algo_bits_corr->setAxisTitle("Algorithm trigger bits", 1);
+        algo_bits_corr->setAxisTitle("Algorithm trigger bits", 2);
 
         tt_bits = m_dbe->book1D("tt_bits",
                 "GT technical trigger bits",
                 64, -0.5, 63.5);
-        tt_bits->setAxisTitle("technical trigger bits", 1);
+        tt_bits->setAxisTitle("Technical trigger bits", 1);
 
         tt_bits_corr = m_dbe->book2D("tt_bits_corr",
-                "GT tech. trig. bit correlation",
+                "GT technical trigger bit correlation",
                 64, -0.5, 63.5, 64, -0.5, 63.5);
-        tt_bits_corr->setAxisTitle("technical trigger bits", 1);
-        tt_bits_corr->setAxisTitle("technical trigger bits", 2);
+        tt_bits_corr->setAxisTitle("Technical trigger bits", 1);
+        tt_bits_corr->setAxisTitle("Technical trigger bits", 2);
 
         algo_tt_bits_corr = m_dbe->book2D("algo_tt_bits_corr",
-                "GT algo tech. trig. bit correlation",
+                "GT algorithm - technical trigger bit correlation",
                 128, -0.5, 127.5, 64, -0.5, 63.5);
-        algo_tt_bits_corr->setAxisTitle("algorithm bits", 1);
-        algo_tt_bits_corr->setAxisTitle("technical trigger bits", 2);
+        algo_tt_bits_corr->setAxisTitle("Algorithm trigger bits", 1);
+        algo_tt_bits_corr->setAxisTitle("Technical trigger bits", 2);
 
         algo_bits_lumi = m_dbe->book2D("algo_bits_lumi",
-                "GT algo bit rate per lumi segment",
+                "GT algorithm trigger bit rate per LS",
                 TotalNrBinsLs, 0., totalNrBinsLs, 128, -0.5, 127.5);
         algo_bits_lumi->setAxisTitle("Luminosity segment", 1);
-        algo_bits_lumi->setAxisTitle("Algorithm bits", 2);
+        algo_bits_lumi->setAxisTitle("Algorithm trigger bits", 2);
 
         tt_bits_lumi = m_dbe->book2D("tt_bits_lumi",
-                "GT tech. trig. bit rate per lumi segment",
+                "GT technical trigger bit rate per LS",
                 TotalNrBinsLs, 0., totalNrBinsLs, 64, -0.5, 63.5);
         tt_bits_lumi->setAxisTitle("Luminosity segment", 1);
         tt_bits_lumi->setAxisTitle("Technical trigger bits", 2);
 
         event_type = m_dbe->book1D("event_type", "GT event type", 10, -0.5, 9.5);
-        event_type->setAxisTitle("event type", 1);
+        event_type->setAxisTitle("Event type", 1);
         event_type->setBinLabel(2, "Physics", 1);
         event_type->setBinLabel(3, "Calibration", 1);
         event_type->setBinLabel(4, "Random", 1);
@@ -558,41 +541,41 @@ void L1TGT::bookHistograms() {
         event_type->setBinLabel(8, "Error", 1);
 
         event_number = m_dbe->book1D("event_number",
-                "GT Event number (from last resync)",
+                "GT event number (from last resync)",
                 100, 0., 50000.);
-        event_number->setAxisTitle("event number", 1);
+        event_number->setAxisTitle("Event number", 1);
 
         event_lumi = m_dbe->bookProfile("event_lumi",
-                "GT Event number (from last resync) vs lumi section",
+                "GT event number (from last resync) vs LS",
                 TotalNrBinsLs, 0., totalNrBinsLs, 100, -0.1, 1.e15, "s");
         event_lumi->setAxisTitle("Luminosity segment", 1);
-        event_lumi->setAxisTitle("event number", 2);
+        event_lumi->setAxisTitle("Event number", 2);
 
         trigger_number = m_dbe->book1D("trigger_number",
-                "GT Trigger number (from start run)",
+                "GT trigger number (from start run)",
                 100, 0., 50000.);
-        trigger_number->setAxisTitle("trigger number", 1);
+        trigger_number->setAxisTitle("Trigger number", 1);
 
         trigger_lumi = m_dbe->bookProfile("trigger_lumi",
-                "GT Trigger number (from start run) vs lumi section",
+                "GT trigger number (from start run) vs LS",
                 TotalNrBinsLs, 0., totalNrBinsLs, 100, -0.1, 1.e15, "s");
         trigger_lumi->setAxisTitle("Luminosity segment", 1);
         trigger_lumi->setAxisTitle("Trigger number", 2);
 
         evnum_trignum_lumi = m_dbe->bookProfile("evnum_trignum_lumi",
-                "GT Event/Trigger number ratio vs lumi section",
+                "GT event/trigger number ratio vs LS",
                 TotalNrBinsLs, 0., totalNrBinsLs, 100, -0.1, 2., "s");
         evnum_trignum_lumi->setAxisTitle("Luminosity segment", 1);
         evnum_trignum_lumi->setAxisTitle("Event/trigger number ratio", 2);
 
         orbit_lumi = m_dbe->bookProfile("orbit_lumi",
-                "GT orbit number vs lumi section",
+                "GT orbit number vs LS",
                 TotalNrBinsLs, 0., totalNrBinsLs, 100, -0.1, 1.e15, "s");
         orbit_lumi->setAxisTitle("Luminosity segment", 1);
         orbit_lumi->setAxisTitle("Orbit number", 2);
 
         setupversion_lumi = m_dbe->bookProfile("setupversion_lumi",
-                "GT setup version vs lumi section",
+                "GT setup version vs LS",
                 TotalNrBinsLs, 0., totalNrBinsLs, 100, -0.1, 1.e10, "i");
         setupversion_lumi->setAxisTitle("Luminosity segment", 1);
         setupversion_lumi->setAxisTitle("Setup version", 2);
@@ -601,7 +584,7 @@ void L1TGT::bookHistograms() {
         gtfe_bx->setAxisTitle("GTFE BX number", 1);
 
         dbx_module = m_dbe->bookProfile("dbx_module",
-                "delta Bx of GT modules wrt. GTFE",
+                "delta Bx of GT modules wrt GTFE",
                 20, 0., 20., 100, -4000., 4000., "i");
         dbx_module->setAxisTitle("GT crate module", 1);
         dbx_module->setAxisTitle("Module Bx - GTFE Bx", 2);
@@ -626,7 +609,7 @@ void L1TGT::bookHistograms() {
         dbx_module->setBinLabel(19, "GMT", 1);
 
         BST_MasterStatus = m_dbe->book2D("BST_MasterStatus",
-                "BST master status over lumi segment",
+                "BST master status over LS",
                 TotalNrBinsLs, 0., totalNrBinsLs, 6, -1., 5.);
         BST_MasterStatus->setAxisTitle("Luminosity segment", 1);
         BST_MasterStatus->setAxisTitle("BST master status", 2);
@@ -634,7 +617,7 @@ void L1TGT::bookHistograms() {
         BST_MasterStatus->setBinLabel(3, "Master Beam 2", 2);
 
         BST_turnCountNumber = m_dbe->book2D("BST_turnCountNumber",
-                "BST turn count over lumi segment",
+                "BST turn count over LS",
                 TotalNrBinsLs, 0., totalNrBinsLs, 250, 0., 4.3e9);
         BST_turnCountNumber->setAxisTitle("Luminosity segment", 1);
         BST_turnCountNumber->setAxisTitle("BST turn count number", 2);
@@ -644,31 +627,31 @@ void L1TGT::bookHistograms() {
         BST_lhcFillNumber->setAxisTitle("BST LHC fill number modulo 1000");
 
         BST_beamMode = m_dbe->book2D("BST_beamMode",
-                "BST beam mode over lumi segment",
+                "BST beam mode over LS",
                 TotalNrBinsLs, 0., totalNrBinsLs, 25, 1., 26.);
         BST_beamMode->setAxisTitle("Luminosity segment", 1);
-        BST_beamMode->setAxisTitle("mode", 2);
-        BST_beamMode->setBinLabel(1, "no mode", 2);
-        BST_beamMode->setBinLabel(2, "setup", 2);
-        BST_beamMode->setBinLabel(3, "inj pilot", 2);
-        BST_beamMode->setBinLabel(4, "inj intr", 2);
-        BST_beamMode->setBinLabel(5, "inj nomn", 2);
-        BST_beamMode->setBinLabel(6, "pre ramp", 2);
-        BST_beamMode->setBinLabel(7, "ramp", 2);
-        BST_beamMode->setBinLabel(8, "flat top", 2);
-        BST_beamMode->setBinLabel(9, "squeeze", 2);
-        BST_beamMode->setBinLabel(10, "adjust", 2);
-        BST_beamMode->setBinLabel(11, "stable", 2);
-        BST_beamMode->setBinLabel(12, "unstable", 2);
-        BST_beamMode->setBinLabel(13, "beam dump", 2);
-        BST_beamMode->setBinLabel(14, "ramp down", 2);
-        BST_beamMode->setBinLabel(15, "recovery", 2);
-        BST_beamMode->setBinLabel(16, "inj dump", 2);
-        BST_beamMode->setBinLabel(17, "circ dump", 2);
-        BST_beamMode->setBinLabel(18, "abort", 2);
-        BST_beamMode->setBinLabel(19, "cycling", 2);
-        BST_beamMode->setBinLabel(20, "warn beam dump", 2);
-        BST_beamMode->setBinLabel(21, "no beam", 2);
+        BST_beamMode->setAxisTitle("Mode", 2);
+        BST_beamMode->setBinLabel(1, "No mode", 2);
+        BST_beamMode->setBinLabel(2, "Setup", 2);
+        BST_beamMode->setBinLabel(3, "Inj pilot", 2);
+        BST_beamMode->setBinLabel(4, "Inj intr", 2);
+        BST_beamMode->setBinLabel(5, "Inj nomn", 2);
+        BST_beamMode->setBinLabel(6, "Pre ramp", 2);
+        BST_beamMode->setBinLabel(7, "Ramp", 2);
+        BST_beamMode->setBinLabel(8, "Flat top", 2);
+        BST_beamMode->setBinLabel(9, "Squeeze", 2);
+        BST_beamMode->setBinLabel(10, "Adjust", 2);
+        BST_beamMode->setBinLabel(11, "Stable", 2);
+        BST_beamMode->setBinLabel(12, "Unstable", 2);
+        BST_beamMode->setBinLabel(13, "Beam dump", 2);
+        BST_beamMode->setBinLabel(14, "Ramp down", 2);
+        BST_beamMode->setBinLabel(15, "Recovery", 2);
+        BST_beamMode->setBinLabel(16, "Inj dump", 2);
+        BST_beamMode->setBinLabel(17, "Circ dump", 2);
+        BST_beamMode->setBinLabel(18, "Abort", 2);
+        BST_beamMode->setBinLabel(19, "Cycling", 2);
+        BST_beamMode->setBinLabel(20, "Warn beam dump", 2);
+        BST_beamMode->setBinLabel(21, "No beam", 2);
 
         BST_beamMomentum = m_dbe->book2D("BST_beamMomentum",
                 "BST beam momentum",
@@ -676,29 +659,29 @@ void L1TGT::bookHistograms() {
         BST_beamMomentum->setAxisTitle("Luminosity segment", 1);
         BST_beamMomentum->setAxisTitle("Beam momentum", 2);
 
-        gpsfreq = m_dbe->book1D("gpsfreq", "clock frequency measured by GPS",
+        gpsfreq = m_dbe->book1D("gpsfreq", "Clock frequency measured by GPS",
                 1000, 39.95, 40.2);
         gpsfreq->setAxisTitle("CMS clock frequency (MHz)");
 
         gpsfreqwide = m_dbe->book1D("gpsfreqwide",
-                "clock frequency measured by GPS", 1000, -2., 200.);
+                "Clock frequency measured by GPS", 1000, -2., 200.);
         gpsfreqwide->setAxisTitle("CMS clock frequency (MHz)");
 
         gpsfreqlum = m_dbe->book2D("gpsfreqlum",
-                "clock frequency measured by GPS",
+                "Clock frequency measured by GPS",
                 TotalNrBinsLs, 0., totalNrBinsLs, 100, 39.95, 40.2);
         gpsfreqlum->setAxisTitle("Luminosity segment", 1);
         gpsfreqlum->setAxisTitle("CMS clock frequency (MHz)", 2);
 
         BST_intensityBeam1 = m_dbe->book2D("BST_intensityBeam1",
-                "intensity beam 1",
-                TotalNrBinsLs, 0., totalNrBinsLs, 100, 0., 100.);
+                "Intensity beam 1",
+                TotalNrBinsLs, 0., totalNrBinsLs, 1000, 0., 5000.);
         BST_intensityBeam1->setAxisTitle("Luminosity segment", 1);
         BST_intensityBeam1->setAxisTitle("Beam intensity", 2);
 
         BST_intensityBeam2 = m_dbe->book2D("BST_intensityBeam2",
-                "intensity beam 2",
-                TotalNrBinsLs, 0., totalNrBinsLs, 100, 0., 100.);
+                "Intensity beam 2",
+                TotalNrBinsLs, 0., totalNrBinsLs, 1000, 0., 5000.);
         BST_intensityBeam2->setAxisTitle("Luminosity segment", 1);
         BST_intensityBeam2->setAxisTitle("Beam intensity", 2);
 
@@ -713,7 +696,7 @@ void L1TGT::bookHistograms() {
         m_monL1PfIndicesPerLs = m_dbe->book1D("L1PfIndicesPerLs",
                 "Number of prescale factor indices used per LS", 10, 0., 10.);
         m_monL1PfIndicesPerLs->setAxisTitle("Number of PF indices used per LS", 1);
-        m_monL1PfIndicesPerLs->setAxisTitle("Entries/run", 2);
+        m_monL1PfIndicesPerLs->setAxisTitle("Entries", 2);
 
 
         // TCS vs FDL common quantity monitoring
@@ -771,10 +754,73 @@ bool L1TGT::isActive(int word, int bit) {
         return true;
     return false;
 }
+
+
+void L1TGT::countPfsIndicesPerLs() {
+
+    if (verbose_) {
+        edm::LogInfo("L1TGT") << "\n  Prescale factor indices used in a LS "
+                << std::endl;
+
+        for (CItVecPair cIt = m_pairLsNumberPfIndex.begin(); cIt
+                != m_pairLsNumberPfIndex.end(); ++cIt) {
+
+            edm::LogVerbatim("L1TGT") << "  lsNumber = " << (*cIt).first
+                    << " pfIndex = " << (*cIt).second << std::endl;
+        }
+        edm::LogVerbatim("L1TGT") << std::endl;
+    }
+
+    // reset the histogram...
+    m_monL1PfIndicesPerLs->Reset();
+
+    // sort the vector (for pairs: sort after first argument, then after the second argument)
+    std::sort(m_pairLsNumberPfIndex.begin(), m_pairLsNumberPfIndex.end());
+
+    int previousLsNumber = -1;
+    int previousPfsIndex = -1;
+
+    // count the number of pairs (lsNumber, pfIndex) per Ls
+    // there are no duplicate entries, and pairs are sorted after both members
+    // ... and fill again the histogram
+    for (CItVecPair cIt = m_pairLsNumberPfIndex.begin(); cIt
+            != m_pairLsNumberPfIndex.end(); ++cIt) {
+
+        int pfsIndicesPerLs = 1;
+
+        if ((*cIt).first == previousLsNumber) {
+
+            if ((*cIt).second != previousPfsIndex) {
+                pfsIndicesPerLs++;
+                previousPfsIndex = (*cIt).second;
+            }
+
+        } else {
+
+            // fill the histogram with the number of PF indices for the previous Ls
+            if (previousLsNumber != -1) {
+                m_monL1PfIndicesPerLs->Fill(pfsIndicesPerLs);
+            }
+
+            // new Ls
+            previousLsNumber = (*cIt).first;
+            previousPfsIndex = (*cIt).second;
+
+            pfsIndicesPerLs = 1;
+        }
+
+    }
+
+}
+
+
+
+
 // static class members
 // maximum difference in orbit number
 const int L1TGT::MaxOrbitNrDiffTcsFdlEvm = 24;
 
 // maximum difference in luminosity segment number
 const int L1TGT::MaxLsNrDiffTcsFdlEvm = 24;
+
 

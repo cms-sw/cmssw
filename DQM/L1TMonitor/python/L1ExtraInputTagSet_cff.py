@@ -19,7 +19,7 @@ L1ExtraInputTagSet = cms.PSet(
         TagL1ExtraEtMissMET=cms.InputTag("dqmL1ExtraParticles", "MET"),
         TagL1ExtraEtMissHTM=cms.InputTag("dqmL1ExtraParticles", "MHT"),
     
-        TagL1ExtraHFRings=cms.InputTag("dqmL1ExtraParticles"),
+        TagL1ExtraHFRings=cms.InputTag("dqmL1ExtraParticles")
         )
     )
 

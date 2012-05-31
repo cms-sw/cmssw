@@ -18,7 +18,7 @@ runNumber = '165633-CAFDQM'
 #runNumber = 143657
 #runNumber = 137028
 
-maxNumberEvents = 10000
+maxNumberEvents = 1000
 
 ###################### end user choices ###################
 
