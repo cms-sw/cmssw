@@ -538,15 +538,17 @@ class AddJetCollection(ConfigToolBase):
                         )
 
                     ## add MET corrections to sequence
-                    addClone('patMETs', metSource = cms.InputTag(jetCorrLabel[0]+'Type1CorMet'))
-                    
+                    setattr(process,'patMETs'+jetCorrLabel[0],getattr(process,'patMETs').clone(metSource = cms.InputTag(jetCorrLabel[0]+'Type1CorMet'),addMuonCorrections = False))
+
                     setattr(process,'produce'+jetCorrLabel[0]+'METCorrections',produceCaloMETCorrections.copy())
                     getattr(process,'produce'+jetCorrLabel[0]+'METCorrections').replace(getattr(process,'caloJetMETcorr'),         getattr(process,jetCorrLabel[0]+'JetMETcorr'))
                     getattr(process,'produce'+jetCorrLabel[0]+'METCorrections').replace(getattr(process,'caloType1CorrectedMet'),  getattr(process,jetCorrLabel[0]+'Type1CorMet'))
                     getattr(process,'produce'+jetCorrLabel[0]+'METCorrections').replace(getattr(process,'caloType1p2CorrectedMet'),getattr(process,jetCorrLabel[0]+'Type1p2CorMet'))
-                    process.patDefaultSequence.replace( getattr(process,newLabel('patMETs')),
+
+                    process.patDefaultSequence.replace( getattr(process,'patMETs'+jetCorrLabel[0]),
                                                         getattr(process,'produce'+jetCorrLabel[0]+'METCorrections')
-                                                        *getattr(process,newLabel('patMETs')) )                    
+                                                        *getattr(process,'patMETs'+jetCorrLabel[0]))
+
                 elif jetCollType == 'PF':
                     from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfCandsNotInJet,pfJetMETcorr,pfCandMETcorr,pfType1CorrectedMet,pfType1p2CorrectedMet,producePFMETCorrections
                     setattr(process,jetCorrLabel[0]+'CandsNotInJet',pfCandsNotInJet.clone(topCollection = jetCollection))
@@ -563,12 +565,14 @@ class AddJetCollection(ConfigToolBase):
                         getattr(process,jetCorrLabel[0]+'JetMETcorr'   ).offsetCorrLabel = cms.string('')
                     getattr(process,jetCorrLabel[0]+'JetMETcorr').jetCorrLabel    = cms.string(jetCorrLabel[0]+'CombinedCorrector')
 
+                    getattr(process,jetCorrLabel[0]+'Type1CorMet').applyType0Corrections = cms.bool(False)
                     getattr(process,jetCorrLabel[0]+'Type1CorMet').srcType1Corrections = cms.VInputTag(
                         cms.InputTag(jetCorrLabel[0]+'JetMETcorr', 'type1')
                         )
                     getattr(process,jetCorrLabel[0]+'Type1p2CorMet').srcType1Corrections = cms.VInputTag(
                         cms.InputTag(jetCorrLabel[0]+'JetMETcorr', 'type1')
                         )
+                    getattr(process,jetCorrLabel[0]+'Type1p2CorMet').applyType0Corrections = cms.bool(False)
                     getattr(process,jetCorrLabel[0]+'Type1p2CorMet').srcUnclEnergySums = cms.VInputTag(
                         cms.InputTag(jetCorrLabel[0]+'JetMETcorr', 'type2'),
                         cms.InputTag(jetCorrLabel[0]+'JetMETcorr', 'offset'),
@@ -576,16 +580,19 @@ class AddJetCollection(ConfigToolBase):
                         )
 
                     ## add MET corrections to sequence
-                    addClone('patMETs', metSource = cms.InputTag(jetCorrLabel[0]+'Type1CorMet'), addMuonCorrections = False)
+                    setattr(process,'patMETs'+jetCorrLabel[0],getattr(process,'patMETs').clone(metSource = cms.InputTag(jetCorrLabel[0]+'Type1CorMet'),addMuonCorrections = False))
+
                     setattr(process,'produce'+jetCorrLabel[0]+'METCorrections',producePFMETCorrections.copy())
                     getattr(process,'produce'+jetCorrLabel[0]+'METCorrections').replace(getattr(process,'pfCandsNotInJet'),      getattr(process,jetCorrLabel[0]+'CandsNotInJet'))
                     getattr(process,'produce'+jetCorrLabel[0]+'METCorrections').replace(getattr(process,'pfJetMETcorr'),         getattr(process,jetCorrLabel[0]+'JetMETcorr'))
                     getattr(process,'produce'+jetCorrLabel[0]+'METCorrections').replace(getattr(process,'pfCandMETcorr'),        getattr(process,jetCorrLabel[0]+'CandMETcorr'))
                     getattr(process,'produce'+jetCorrLabel[0]+'METCorrections').replace(getattr(process,'pfType1CorrectedMet'),  getattr(process,jetCorrLabel[0]+'Type1CorMet'))
                     getattr(process,'produce'+jetCorrLabel[0]+'METCorrections').replace(getattr(process,'pfType1p2CorrectedMet'),getattr(process,jetCorrLabel[0]+'Type1p2CorMet'))
-                    process.patDefaultSequence.replace( getattr(process,newLabel('patMETs')),
+
+                    process.patDefaultSequence.replace( getattr(process,'patMETs'+jetCorrLabel[0]),
                                                         getattr(process,'produce'+jetCorrLabel[0]+'METCorrections')
-                                                        *getattr(process,newLabel('patMETs')) )
+                                                        *getattr(process,'patMETs'+jetCorrLabel[0]))
+
         else:
             ## switch jetCorrFactors off
             l1Jets.addJetCorrFactors = False
@@ -839,13 +846,9 @@ class SwitchJetCollection(ConfigToolBase):
 
                 ## configuration of MET corrections
                 if jetCollType == 'Calo':
-                    from JetMETCorrections.Type1MET.caloMETCorrections_cff import caloJetMETcorr,caloType1CorrectedMet,caloType1p2CorrectedMet,produceCaloMETCorrections
-                    
-                    setattr(process,'caloJetMETcorr'+         postfix, caloJetMETcorr.clone(srcMET       = "corMetGlobalMuons"))
-                    setattr(process,'caloType1CorrectedMet'+  postfix, caloType1CorrectedMet.clone(src   = "corMetGlobalMuons"))
-                    setattr(process,'caloType1p2CorrectedMet'+postfix, caloType1p2CorrectedMet.clone(src = "corMetGlobalMuons"))
-                    
+                    getattr(process, "patMETCorrections"+postfix).remove(getattr(process,"producePFMETCorrections"+postfix))
                     getattr(process,'caloJetMETcorr'+postfix).src          = cms.InputTag(jetCollection.getModuleLabel())
+
                     if ('L1FastJet' in jetCorrLabel[1] or 'L1Fastjet' in jetCorrLabel[1]):
                         getattr(process,'caloJetMETcorr'+postfix   ).offsetCorrLabel = cms.string(jetCorrLabel[0]+'L1FastJet')
                     elif ('L1Offset' in jetCorrLabel[1]):
@@ -874,11 +877,7 @@ class SwitchJetCollection(ConfigToolBase):
                                                                            getattr(process,'produceCaloMETCorrections'+postfix)
                                                                            *getattr(process,'patMETs'+postfix) )
                 elif jetCollType == 'PF':
-                    from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfCandsNotInJet,pfJetMETcorr,pfCandMETcorr,pfType1CorrectedMet,pfType1p2CorrectedMet,producePFMETCorrections
-                    setattr(process,'producePFMETCorrections'+postfix,producePFMETCorrections.copy())
-                    setattr(process,'pfCandsNotInJet'        +postfix,pfCandsNotInJet.clone(topCollection = jetCollection))
-                    setattr(process,'pfCandMETcorr'          +postfix,pfCandMETcorr.clone(src = cms.InputTag('pfCandsNotInJet'+postfix)))
-                    setattr(process,'pfJetMETcorr'           +postfix,pfJetMETcorr.clone(src = jetCollection))
+                    getattr(process, "patMETCorrections"+postfix).remove(getattr(process,"produceCaloMETCorrections"+postfix))
 
                     if ('L1FastJet' in jetCorrLabel[1] or 'L1Fastjet' in jetCorrLabel[1]):
                         getattr(process,'pfJetMETcorr' +postfix).offsetCorrLabel = cms.string(jetCorrLabel[0]+'L1FastJet')
@@ -888,6 +887,7 @@ class SwitchJetCollection(ConfigToolBase):
                         getattr(process,'pfJetMETcorr'+postfix).offsetCorrLabel = cms.string('')
                     getattr(process,'pfJetMETcorr'+postfix).jetCorrLabel    = cms.string(jetCorrLabel[0]+'CombinedCorrector')
 
+                    getattr(process,'pfType1CorrectedMet'+postfix).applyType0Corrections = cms.bool(False)
                     getattr(process,'pfType1CorrectedMet'+postfix).srcCHSSums = cms.VInputTag(
                         cms.InputTag("pfchsMETcorr"+postfix,"type0")
                         )
@@ -895,6 +895,7 @@ class SwitchJetCollection(ConfigToolBase):
                         cms.InputTag('pfJetMETcorr'+postfix, 'type1')
                         )
 
+                    getattr(process,'pfType1p2CorrectedMet'+postfix).applyType0Corrections = cms.bool(False)
                     getattr(process,'pfType1p2CorrectedMet'+postfix).srcCHSSums = cms.VInputTag(
                         cms.InputTag("pfchsMETcorr"+postfix,"type0")
                         )
@@ -910,22 +911,7 @@ class SwitchJetCollection(ConfigToolBase):
                     ## add MET corrections to sequence
                     getattr(process, 'patMETs'+ postfix).metSource = cms.InputTag('pfType1CorrectedMet'+postfix)
                     getattr(process, 'patMETs'+ postfix).addMuonCorrections = False
-                    #getattr(process,'producePFMETCorrections'+postfix).remove(getattr(process,'kt6PFJets'))#,            getattr(process,'kt6PFJets'            +postfix))
-                    #getattr(process,'producePFMETCorrections'+postfix).remove(getattr(process,'ak5PFJets'))#,            getattr(process,'ak5PFJets'            +postfix))
-                    getattr(process,'producePFMETCorrections'+postfix).replace(getattr(process,'pfCandsNotInJet'),      getattr(process,'pfCandsNotInJet'      +postfix))
-                    getattr(process,'producePFMETCorrections'+postfix).replace(getattr(process,'pfJetMETcorr'),         getattr(process,'pfJetMETcorr'         +postfix))
-                    getattr(process,'producePFMETCorrections'+postfix).replace(getattr(process,'pfCandMETcorr'),        getattr(process,'pfCandMETcorr'        +postfix))
-                    getattr(process,'producePFMETCorrections'+postfix).replace(getattr(process,'pfchsMETcorr'),         getattr(process,'pfchsMETcorr'         +postfix))
-                    getattr(process,'producePFMETCorrections'+postfix).replace(getattr(process,'pfType1CorrectedMet'),  getattr(process,'pfType1CorrectedMet'  +postfix))
-                    getattr(process,'producePFMETCorrections'+postfix).replace(getattr(process,'pfType1p2CorrectedMet'),getattr(process,'pfType1p2CorrectedMet'+postfix))
 
-                    getattr(process,"patDefaultSequence"+postfix).replace( getattr(process,'patMETs'+postfix),
-                                                                           getattr(process,'producePFMETCorrections'+postfix)
-                                                                           *getattr(process,'patMETs'+postfix) )
-
-            getattr(process,'patDefaultSequence'+postfix).replace(getattr(process,'patJetCorrFactors'+postfix),
-                                                                  getattr(process,'kt6PFJets'+postfix)
-                                                                  *getattr(process,'patJetCorrFactors'+postfix))
         else:
             ## remove the jetCorrFactors from the std sequence
             process.patJetMETCorrections.remove(process.patJetCorrFactors)

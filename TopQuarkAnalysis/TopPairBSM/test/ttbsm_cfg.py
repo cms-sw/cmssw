@@ -84,7 +84,12 @@ if not options.useData :
 			]    
 	elif options.release == '52x' :
 		process.source.fileNames = [
-			'/store/mc/Summer12/TTJets_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S7_START52_V5-v1/0000/FEBE99BB-3881-E111-B1F3-003048D42DC8.root'
+			'/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-RECO/START52_V5-v1/0043/18E75EC8-2B7A-E111-B784-002354EF3BDE.root',
+			'/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-RECO/START52_V5-v1/0043/42F2FCD5-FF79-E111-9A09-003048FFD736.root',
+			'/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-RECO/START52_V5-v1/0043/60C59011-FE79-E111-B86A-003048FFCB9E.root',
+			'/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-RECO/START52_V5-v1/0043/72675B06-FE79-E111-BCD2-003048FFD736.root',
+			'/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-RECO/START52_V5-v1/0043/B832091D-007A-E111-B3D2-0018F3D096C6.root',
+			'/store/relval/CMSSW_5_2_3/RelValTTbar/GEN-SIM-RECO/START52_V5-v1/0043/C63C1406-FE79-E111-B880-003048FFD76E.root'
 			]    		
 
 else :
@@ -112,12 +117,6 @@ else :
 		process.source.fileNames = [
 		    '/store/relval/CMSSW_5_2_2/Jet/RECO/GR_R_52_V4_RelVal_jet2011B-v2/0252/96518387-A174-E111-95A6-001A928116E8.root'
 		    ]
-
-		
-process.source.fileNames = [
-	'/store/mc/Summer12/TTJets_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S7_START52_V5-v1/0000/FEBE99BB-3881-E111-B1F3-003048D42DC8.root'
-	]    		
-
 
 #process.source.eventsToProcess = cms.untracked.VEventRange( ['1:86747'] )
 
@@ -506,35 +505,6 @@ process.ak7PrunedPFlow = process.ak5PrunedPFlow.clone(
 	rParam = cms.double(0.7)
     )
 
-
-process.ak7TrimmedGenJetsNoNu = ak5GenJets.clone(
-	rParam = cms.double(0.7),
-	src = cms.InputTag("genParticlesForJetsNoNu"),
-	useTrimming = cms.bool(True),
-	rFilt = cms.double(0.2),
-	trimPtFracMin = cms.double(0.03),
-	)
-
-process.ak7FilteredGenJetsNoNu = ak5GenJets.clone(
-	rParam = cms.double(0.7),
-	src = cms.InputTag("genParticlesForJetsNoNu"),
-	useFiltering = cms.bool(True),
-	nFilt = cms.int32(3),
-	rFilt = cms.double(0.3),
-	writeCompound = cms.bool(True),
-	jetCollInstanceName=cms.string("SubJets")
-	)
-
-
-
-process.ak7PrunedGenJetsNoNu = ak5GenJets.clone(
-	SubJetParameters,
-	rParam = cms.double(0.7),
-	src = cms.InputTag("genParticlesForJetsNoNu"),
-	usePruning = cms.bool(True),
-	writeCompound = cms.bool(True),
-	jetCollInstanceName=cms.string("SubJets")
-	)
 
 
 
@@ -1319,43 +1289,6 @@ if options.useExtraJetColls:
 		)
 
 
-
-
-	process.ak7TrimmedGenLite = cms.EDProducer(
-	    "CandViewNtpProducer", 
-	    src = cms.InputTag('ak7TrimmedGenJetsNoNu'),
-	    lazyParser = cms.untracked.bool(True),
-	    eventInfo = cms.untracked.bool(False),
-	    variables = cms.VPSet(
-			cms.PSet(
-				tag = cms.untracked.string("px"),
-				quantity = cms.untracked.string("px")
-				),
-			cms.PSet(
-				tag = cms.untracked.string("py"),
-				quantity = cms.untracked.string("py")
-				),
-			cms.PSet(
-				tag = cms.untracked.string("pz"),
-				quantity = cms.untracked.string("pz")
-				),
-			cms.PSet(
-				tag = cms.untracked.string("energy"),
-				quantity = cms.untracked.string("energy")
-				)
-				)
-	)
-
-
-	process.ak7PrunedGenLite = process.ak7TrimmedGenLite.clone(
-		src = cms.InputTag('ak7PrunedGenJetsNoNu')
-		)
-
-	process.ak7FilteredGenLite = process.ak7TrimmedGenLite.clone(
-		src = cms.InputTag('ak7FilteredGenJetsNoNu')
-		)
-
-
 	process.ak8Lite = process.ak5Lite.clone(
 		src = cms.InputTag('goodPatJetsAK8PF')
 		)
@@ -1372,11 +1305,6 @@ if options.useExtraJetColls:
 		src = cms.InputTag('goodPatJetsAK8FilteredPF')
 		)
 
-
-## IVF and BCandidate producer for Vbb cross check analysis
-process.load('RecoVertex/AdaptiveVertexFinder/inclusiveVertexing_cff')
-
-
 # let it run
 
 process.patseq = cms.Sequence(
@@ -1385,8 +1313,6 @@ process.patseq = cms.Sequence(
     #process.offlinePrimaryVerticesDAF*    
     process.goodOfflinePrimaryVertices*
     process.primaryVertexFilter*
-    process.softElectronCands*
-    process.inclusiveVertexing*
     process.genParticlesForJetsNoNu*
     process.ca8GenJetsNoNu*
     process.ak8GenJetsNoNu*
@@ -1407,37 +1333,31 @@ process.patseq = cms.Sequence(
 
 if options.useExtraJetColls:
 	process.extraJetSeq = cms.Sequence(
-		process.ak7TrimmedGenJetsNoNu*
-		process.ak7FilteredGenJetsNoNu*
-		process.ak7PrunedGenJetsNoNu*
-		process.goodPatJetsCA12FilteredPF*
-		process.goodPatJetsCA12MassDropFilteredPF*
-		process.goodPatJetsAK5TrimmedPF*
-		process.goodPatJetsAK5FilteredPF*
-		process.goodPatJetsAK5PrunedPF*
-		process.goodPatJetsAK7PF*
-		process.goodPatJetsAK7TrimmedPF*
-		process.goodPatJetsAK7FilteredPF*
-		process.goodPatJetsAK7PrunedPF*
-		process.goodPatJetsAK8PF*
-		process.goodPatJetsAK8TrimmedPF*
-		process.goodPatJetsAK8FilteredPF*
-		process.goodPatJetsAK8PrunedPF*
-		process.ak5Lite*
-		process.ak5TrimmedLite*
-		process.ak5FilteredLite*
-		process.ak5PrunedLite*
-		process.ak7Lite*
-		process.ak7TrimmedLite*
-		process.ak7FilteredLite*
-		process.ak7PrunedLite*
-		process.ak7TrimmedGenLite*
-		process.ak7FilteredGenLite*
-		process.ak7PrunedGenLite*
-		process.ak8Lite*
-		process.ak8TrimmedLite*
-		process.ak8FilteredLite*
-		process.ak8PrunedLite
+	    process.goodPatJetsCA12FilteredPF*
+	    process.goodPatJetsCA12MassDropFilteredPF*
+	    process.goodPatJetsAK5TrimmedPF*
+	    process.goodPatJetsAK5FilteredPF*
+	    process.goodPatJetsAK5PrunedPF*
+	    process.goodPatJetsAK7PF*
+	    process.goodPatJetsAK7TrimmedPF*
+	    process.goodPatJetsAK7FilteredPF*
+	    process.goodPatJetsAK7PrunedPF*
+	    process.goodPatJetsAK8PF*
+	    process.goodPatJetsAK8TrimmedPF*
+	    process.goodPatJetsAK8FilteredPF*
+	    process.goodPatJetsAK8PrunedPF*
+	    process.ak5Lite*
+	    process.ak5TrimmedLite*
+	    process.ak5FilteredLite*
+	    process.ak5PrunedLite*
+	    process.ak7Lite*
+	    process.ak7TrimmedLite*
+	    process.ak7FilteredLite*
+	    process.ak7PrunedLite*
+	    process.ak8Lite*
+	    process.ak8TrimmedLite*
+	    process.ak8FilteredLite*
+	    process.ak8PrunedLite
 	)
 	process.patseq *= process.extraJetSeq
 
@@ -1459,13 +1379,6 @@ if options.useData == True :
     if options.useExtraJetColls:
 	    process.patseq.remove( process.ak8GenJetsNoNu )
 	    process.patseq.remove( process.caFilteredGenJetsNoNu )
-	    process.patseq.remove( process.ak7TrimmedGenJetsNoNu )
-	    process.patseq.remove( process.ak7FilteredGenJetsNoNu )
-	    process.patseq.remove( process.ak7PrunedGenJetsNoNu )
-	    process.patseq.remove( process.ak7TrimmedGenLite )
-	    process.patseq.remove( process.ak7FilteredGenLite )
-	    process.patseq.remove( process.ak7PrunedGenLite )
-
 
 if options.writeSimpleInputs :
 	process.patseq *= cms.Sequence(process.pfInputs)
@@ -1511,7 +1424,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
 
 
 # process all the events
-process.maxEvents.input = 100
+process.maxEvents.input = -1
 process.options.wantSummary = True
 process.out.dropMetaData = cms.untracked.string("DROPPED")
 
@@ -1586,8 +1499,7 @@ else :
                                    'keep GenRunInfoProduct_generator_*_*',
                                    'keep GenEventInfoProduct_generator_*_*',
                                    'keep *_flavorHistoryFilter_*_*',
-                                   'keep PileupSummaryInfos_*_*_*',
-				   'keep recoGenJets_selectedPatJetsPFlow_*_*',
+                                   'keep PileupSummaryInfos_*_*_*'
                                    ]
 
 if options.writeFat :

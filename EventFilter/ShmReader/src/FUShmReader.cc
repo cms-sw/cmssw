@@ -108,6 +108,7 @@ int FUShmReader::fillRawData(EventID& eID,
 					  << std::endl;
       shmBuffer_->sem_print();
     }
+    //shmBuffer_->setEvtState(newCell->index(),evt::PROCESSING);
     shmBuffer_->scheduleRawCellForDiscard(newCell->index());
     if(ls==0){
       edm::LogError("ZeroLsCell") << getpid() 

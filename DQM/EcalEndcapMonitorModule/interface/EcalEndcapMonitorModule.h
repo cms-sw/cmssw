@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorModule.h
  *
- * $Date: 2009/10/26 17:33:49 $
- * $Revision: 1.21 $
+ * $Date: 2009/04/28 10:35:59 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */

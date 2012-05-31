@@ -105,12 +105,6 @@ FamosCalorimetryBlock = cms.PSet(
                  # it is used to generate Nspots in radial profiles.
                  resE = cms.double(1.),
 
-                 # the width in cm of the active layer
-                 da = cms.double(0.2),
-
-                 # the width in cm of the passive layer
-                 dp = cms.double(0.8),
-
                  # Is a homogenious detector?
                  bHom = cms.bool(True),
 
@@ -169,12 +163,6 @@ FamosCalorimetryBlock = cms.PSet(
                  # a rough estimate of ECAL resolution sigma/E = resE/sqrt(E)
                  # it is used to generate Nspots in radial profiles.
                  resE = cms.double(1.),
-
-                 # the width in cm of the active layer
-                 da = cms.double(0.2),
-
-                 # the width in cm of the passive layer
-                 dp = cms.double(0.8),
 
                  # Is a homogenious detector?
                  bHom = cms.bool(True),

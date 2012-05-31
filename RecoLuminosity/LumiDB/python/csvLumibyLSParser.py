@@ -51,23 +51,22 @@ class csvLumibyLSParser(object):
             except:
                 print 'Record not parsed, Run = %d, LS = %d' % (runnumber, lsnumber)                
 
-# Commented out... If there is no value, there is no interpolation now...
-#            if recorded>0 :
-#                lastLumi = recorded
-#                if NonValidLumi>0:
-#                    # have to put real values in lumi list
-#                    for lnum in llist:
-#                        elems = [delivered, recorded]
-#                        ldict[lnum] = elems
-#                    NonValidLumi=0
-#                    llist = []
-#            else:
-#                if lastLumi>0:
-#                    recorded = lastLumi
-#                else:
-#                   # have to save lumi sections to fill once we get a non-zero lumi value
-#                   llist.append(lsnumber)
-#                   NonValidLumi=1
+            if recorded>0 :
+                lastLumi = recorded
+                if NonValidLumi>0:
+                    # have to put real values in lumi list
+                    for lnum in llist:
+                        elems = [delivered, recorded]
+                        ldict[lnum] = elems
+                    NonValidLumi=0
+                    llist = []
+            else:
+                if lastLumi>0:
+                    recorded = lastLumi
+                else:
+                    # have to save lumi sections to fill once we get a non-zero lumi value
+                    llist.append(lsnumber)
+                    NonValidLumi=1
                     
             elems = [ delivered,recorded ]
             ldict[lsnumber]=elems

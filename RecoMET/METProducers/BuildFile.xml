@@ -5,9 +5,6 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/TrackReco"/>
-<use   name="DataFormats/VertexReco"/>
 <use   name="CalibFormats/HcalObjects"/>
 <use   name="RecoLocalCalo/HcalRecAlgos"/>
 <use   name="Geometry/CSCGeometry"/>
-<use   name="PhysicsTools/SelectorUtils"/>
-<use   name="CMGTools/External"/>

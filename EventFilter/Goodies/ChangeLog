@@ -1,8 +1,3 @@
-2012-05-22 Srecko morovic <srecko.morovic@cern.ch>
-
-	* tag V00-02-01
-	* TTree deleted before TFile Close and delete
-
 2011-09-27 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V00-02-00

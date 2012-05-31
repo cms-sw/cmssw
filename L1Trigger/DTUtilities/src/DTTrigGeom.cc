@@ -10,7 +10,6 @@
 //   Modifications: 
 //   S. Vanini : NEWGEO implementation
 //   S. Vanini 090902 : dumpLUT method implemented
-//   A. Gozzelino May 11th 2012: IEEE32toDSP method bug fix
 //--------------------------------------------------
 
 //-----------------------
@@ -455,8 +454,6 @@ DTTrigGeom::dumpLUT(short int btic) {
  
 }
 
-/* 
-// A. Gozzelino May 11th 2012: Old and wrong definition
 void 
 DTTrigGeom::IEEE32toDSP(float f, short int & DSPmantissa, short int & DSPexp)
 {
@@ -468,8 +465,7 @@ DTTrigGeom::IEEE32toDSP(float f, short int & DSPmantissa, short int & DSPexp)
 
   if( f!=0.0 )
   {
-	memcpy(pl,&f,sizeof(float));
-		
+        memcpy(pl,&f,sizeof(float));
         if((*pl & 0x80000000)!=0) 
 		sign=true;	  
         lm = ( 0x800000 | (*pl & 0x7FFFFF)); // [1][23bit mantissa]
@@ -483,41 +479,7 @@ DTTrigGeom::IEEE32toDSP(float f, short int & DSPmantissa, short int & DSPexp)
   }
   return;
 }
-*/
 
-//*******************
-// A.Gozzelino May 11th 2012: bug fix in method IEEE32toDSP
-//******************
-
-void 
-DTTrigGeom::IEEE32toDSP(float f, short int & DSPmantissa, short int & DSPexp)
-{  
-  long int lm;
-  long int pl = 0;
-  
-  bool sign=false;
-
-  DSPmantissa = 0;
-  DSPexp = 0;
-
-  if( f!=0.0 )
-  {
-	memcpy(&pl,&f,sizeof(float));
-	
-        if((pl & 0x80000000)!=0) 
-		sign=true;	  
-        lm = ( 0x800000 | (pl & 0x7FFFFF)); // [1][23bit mantissa]
-        lm >>= 9; //reduce to 15bits
-	lm &= 0x7FFF;
-        DSPexp = ((pl>>23)&0xFF)-126;
-	DSPmantissa = (short)lm;
-	if(sign) 
-		DSPmantissa = - DSPmantissa;  // convert negative value in 2.s complement	
-
-  }
-  return;
-}
-//********************** end bug fix ****************
 
 LocalPoint 
 DTTrigGeom::localPosition(const DTBtiId id) const {

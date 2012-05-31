@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2012/05/02 14:48:04 $
- *  $Revision: 1.56 $
+ *  $Date: 2012/04/20 07:16:19 $
+ *  $Revision: 1.55.2.3 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -184,7 +184,6 @@ namespace edm {
 	    //check if asked to stop
 	    immediateStop=forkInfo_->stopCondition;
 	    if (immediateStop) {
-	      forkInfo_->receivedStop_=true;
 	      break;
 	    }
 	    

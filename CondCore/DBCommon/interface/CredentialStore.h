@@ -137,8 +137,6 @@ namespace cond {
 
     bool exportAll( coral_bridge::AuthenticationCredentialSet& data );
 
-    const std::string& keyPrincipalName ();
-
     private:
 
     friend class CSScopedSession;

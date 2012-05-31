@@ -10,9 +10,6 @@
 #include "FastSimulation/ParticleDecay/interface/Pythia6jets.h"
 #include "FastSimulation/ParticleDecay/interface/RandomP8.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-// move it here from the header
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 // Needed for Pythia6 
 #define PYTHIA6PYDECY pythia6pydecy_
@@ -31,25 +28,12 @@ PythiaDecays::PythiaDecays(std::string program)
     // The PYTHIA decay tables will be initialized later 
   } else if (program_ == "pythia8") {
     //// Pythia8:
-    // --> no need pythia.reset(new Pythia8::Pythia);
+    pythia.reset(new Pythia8::Pythia);
     decayer.reset(new Pythia8::Pythia);
+
     RandomP8* RP8 = new RandomP8();
-    // get rndm engine by the framework
-    edm::Service<edm::RandomNumberGenerator> rng;
-    if(!rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-       << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
-          "which appears to be absent.  Please add that service to your configuration\n"
-          "or remove the modules that require it." << std::endl;
-    }
-// The Service has already instantiated an engine.  Make contact with it.
-    randomEngine = &(rng->getEngine());    
-    // ---> no need pythia->setRndmEnginePtr(RP8);
+    pythia->setRndmEnginePtr(RP8);
     decayer->setRndmEnginePtr(RP8);
-    // init decayer
-    decayer->readString("ProcessLevel:all = off"); // The trick!
-    decayer->readString("ParticleDecays:sophisticatedTau = 0"); // safer option with old-style tau decays
-    decayer->init();    
   } else {
     std::cout << "WARNING: you are requesting an option which is not available in PythiaDecays::PythiaDecays " << std::endl;
   }
@@ -98,41 +82,23 @@ PythiaDecays::particleDaughtersPy8(ParticlePropagator& particle)
 
   int nentries = decayer->event.size();
   if ( !decayer->event[nentries-1].mayDecay() ) return theList;
-  
-  // print out event content before decays
-  //
-  // decayer->event.list();
-  
   decayer->next();
-  
-  // print out event content after decays
-  //
-  // decayer->event.list();
-  
   int nentries1 = decayer->event.size();
   if ( nentries1 <= nentries ) return theList; //same number of particles, no decays...
+  Pythia8::Particle& py8daughter = decayer->event[nentries]; // the 1st daughter // DO I NEED THIS LINE?
 
-  
-  // now we need to fill up the list of daughters
-  // Note: remember that the Py8 event record always contains "system particle", 
-  //       so the Py8 record is always +1 longer than "we want";
-  //       To offset for it, we need to take the final number of particles and
-  //       reduce it by 2 - 1 for "system particle", and 1 for the one that decays
-  
-  theList.clear();
-  theList.resize(nentries1-2,RawParticle());
-  // Pythia8::Particle& py8daughter = decayer->event[nentries]; // the 1st daughter // DO I NEED THIS LINE?
+  theList.resize(nentries,RawParticle());
 
-  for ( int ipart=nentries; ipart<nentries1; ipart++ )
+  for ( int ipart=nentries+1; ipart<nentries1; ipart++ )
     {
-      Pythia8::Particle& py8daughter = decayer->event[ipart];
-      theList[ipart-nentries].SetXYZT( py8daughter.px(), py8daughter.py(), py8daughter.pz(), py8daughter.e() );
-      theList[ipart-nentries].setVertex( py8daughter.xProd(),
+      py8daughter = decayer->event[ipart];
+      theList[ipart-nentries-1].SetXYZT( py8daughter.px(), py8daughter.py(), py8daughter.pz(), py8daughter.e() );
+      theList[ipart-nentries-1].setVertex( py8daughter.xProd(),
 					   py8daughter.yProd(),
 					   py8daughter.zProd(),
 					   py8daughter.tProd() );
-      theList[ipart-nentries].setID( py8daughter.id() );
-      theList[ipart-nentries].setMass( py8daughter.m() );
+      theList[ipart-nentries-1].setID( py8daughter.id() );
+      theList[ipart-nentries-1].setMass( py8daughter.m() );
     }
 
   return theList;

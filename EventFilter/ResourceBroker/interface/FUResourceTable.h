@@ -177,13 +177,9 @@ private:
 	/**
 	 * Rethrows an exception from the ShmBuffer including details.
 	 */
-	void rethrowShmBufferException(evf::Exception& e, std::string where) const throw (evf::Exception);
+	void rethrowShmBufferException(evf::Exception& e) const throw (evf::Exception);
 
 	FUShmBuffer *shmBuffer_;
-
-	//workloop termination status
-	bool sDataActive_;
-	bool sDqmActive_;
 
 };
 

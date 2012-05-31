@@ -46,7 +46,7 @@ workflows[4.27] = ['',['ZElSkim2011A','RECOSKIM']]
 workflows[4.28] = ['',['HighMet2011A','RECOSKIM']]
 
 workflows[4.29] = ['', ['RunMinBias2011B','HLTD','RECODst3','HARVESTD','SKIMD3']]
-#workflows[4.291] = ['', ['RunMinBias2011B','HLTD','RECODst3','HARVESTD']]
+workflows[4.291] = ['', ['RunMinBias2011B','HLTD','RECODst3','HARVESTD']]
 workflows[4.30] = ['', ['RunMu2011B','HLTD','RECODst3']]
 workflows[4.31] = ['', ['RunElectron2011B','HLTD','RECODst3']]
 workflows[4.32] = ['', ['RunPhoton2011B','HLTD','RECODst3']]

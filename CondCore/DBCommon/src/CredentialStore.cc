@@ -1380,8 +1380,3 @@ bool cond::CredentialStore::exportAll( coral_bridge::AuthenticationCredentialSet
   return found;  
 }
 
-const std::string& cond::CredentialStore::keyPrincipalName (){
-  return m_key.principalName();
-}
-
-

@@ -9,7 +9,6 @@
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
-#include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
 
@@ -79,9 +78,6 @@ EcalUncalibRecHitWorkerGlobal::set(const edm::EventSetup& es)
         // for the weights method
         es.get<EcalWeightXtalGroupsRcd>().get(grps);
         es.get<EcalTBWeightsRcd>().get(wgts);
-
-	// which of the samples need be used
-	es.get<EcalSampleMaskRcd>().get(sampleMaskHand_);
 
         // for the ratio method
 
@@ -191,9 +187,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                 EcalUncalibratedRecHitCollection & result )
 {
         DetId detid(itdg->id());
-
-	const EcalSampleMask  *sampleMask_ = sampleMaskHand_.product();        
-
+        
         // intelligence for recHit computation
         EcalUncalibratedRecHit uncalibRecHit;
         
@@ -319,7 +313,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                 // ratio method
                 float const clockToNsConstant = 25.;
                 if (detid.subdetId()==EcalEndcap) {
-    		                ratioMethod_endcap_.init( *itdg, *sampleMask_, pedVec, pedRMSVec, gainRatios );
+                                ratioMethod_endcap_.init( *itdg, pedVec, pedRMSVec, gainRatios );
                                 ratioMethod_endcap_.computeTime( EEtimeFitParameters_, EEtimeFitLimits_, EEamplitudeFitParameters_ );
                                 ratioMethod_endcap_.computeAmplitude( EEamplitudeFitParameters_);
                                 EcalUncalibRecHitRatioMethodAlgo<EEDataFrame>::CalculatedRecHit crh = ratioMethod_endcap_.getCalculatedRecHit();
@@ -355,7 +349,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 				}
 				
                 } else {
- 		                ratioMethod_barrel_.init( *itdg, *sampleMask_, pedVec, pedRMSVec, gainRatios );
+                                ratioMethod_barrel_.init( *itdg, pedVec, pedRMSVec, gainRatios );
 				ratioMethod_barrel_.fixMGPAslew(*itdg);
                                 ratioMethod_barrel_.computeTime( EBtimeFitParameters_, EBtimeFitLimits_, EBamplitudeFitParameters_ );
                                 ratioMethod_barrel_.computeAmplitude( EBamplitudeFitParameters_);
@@ -382,7 +376,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 					outOfTimeThreshM = outOfTimeThreshG61mEB_;
 					break;}
 				    } }
-				  float correctedTime = (crh.timeMax-5) * clockToNsConstant + itimeconst + offsetTime;
+				  float correctedTime = (crh.timeMax-5) * clockToNsConstant + itimeconst + offsetTime; //GF add here
 				  float cterm         = EBtimeConstantTerm_;
 				  float sigmaped      = pedRMSVec[0];  // approx for lower gains
 				  float nterm         = EBtimeNconst_*sigmaped/uncalibRecHit.amplitude();

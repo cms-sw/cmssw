@@ -1,32 +1,3 @@
-2012-05-27 Srecko Morovic <srecko.morovic@cern.ch>
-
-	* tag V01-00-17
-	* putting back in 01-00-15 (was not the problem)
-
-2012-05-24 Srecko Morovic <srecko.morovic@cern.ch>
-
-	* tag V01-00-16
-	* revert to waiting for dqm cells to be empty
-	  (seems to cause RB to stop before EP's disconnect)
-
-2012-05-23 Srecko Morovic <srecko.morovic@cern.ch>
-
-	* tag V01-00-15
-	* fix late dqm cell discards on queued empty dqm cell
-	* waiting for "send" workloops to exit before resetting shm
-
-2012-05-10  Andrei Spataru  <aspataru@cern.ch>
-
-	* tag V01-00-14
-	* Added lock between I2O SM discards & stopping
-	* Improved input validation from SM I2O messages
-	
-2012-05-09  Andrei Spataru  <aspataru@cern.ch>
-
-	* tag V01-00-13
-	* improved exception reporting from ShmBuffer
-	* some input validation through I2O
-	
 2012-05-03  Andrei Spataru  <aspataru@cern.ch>
 
 	* tag V01-00-12

@@ -210,7 +210,6 @@ namespace evf {
     void           postDqmIndexToRead(unsigned int index);
     
     unsigned int   indexForEvtNumber(unsigned int evtNumber);
-    unsigned int   indexForEvtPrcId(pid_t evtNumber);
 
   public:
     bool           setEvtState(unsigned int index,evt::State_t state);
@@ -219,11 +218,11 @@ namespace evf {
     int            incEvtDiscard(unsigned int index);
   private:
     bool           setEvtNumber(unsigned int index,unsigned int evtNumber);
+    bool           setEvtPrcId(unsigned int index,pid_t prcId);
     bool           setEvtTimeStamp(unsigned int index,time_t timeStamp);
     
     bool           setClientPrcId(pid_t prcId);
   public:
-    bool           setEvtPrcId(unsigned int index,pid_t prcId);
     bool           removeClientPrcId(pid_t prcId);
 
     FUShmRawCell*  rawCell(unsigned int iCell);
