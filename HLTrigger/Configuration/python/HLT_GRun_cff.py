@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/GRun/V135 (CMSSW_5_2_5_HLT5)
+# /dev/CMSSW_5_2_1/GRun/V136 (CMSSW_5_2_5_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V135')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V136')
 )
 
 streams = cms.PSet( 
@@ -34703,9 +34703,9 @@ hltEle5SC5JpsiPMMassFilter = cms.EDFilter( "HLTPMMassFilter",
     reqOppCharge = cms.untracked.bool( False ),
     nZcandcut = cms.int32( 1 )
 )
-hltL1sL1HTT150OrETM40 = cms.EDFilter( "HLTLevel1GTSeed",
+hltL1sL1HTT200OrHTT175OrHTT150OrETM40 = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_HTT150 OR L1_ETM40" ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT200 OR L1_HTT175 OR L1_HTT150 OR L1_ETM40" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),
@@ -34741,9 +34741,9 @@ hltDiCaloJet35MJJ650AllJetsDEta3p5Filter = cms.EDFilter( "HLTCaloJetVBFFilter",
     minPtHigh = cms.double( 35.0 ),
     minPtLow = cms.double( 35.0 )
 )
-hltL1sL1HTT175OrETM40 = cms.EDFilter( "HLTLevel1GTSeed",
+hltL1sL1HTT200OrL1HTT175OrETM40 = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_HTT175 OR L1_ETM40" ),
+    L1SeedsLogicalExpression = cms.string( "L1_HTT200 OR L1_HTT175 OR L1_ETM40" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),
@@ -38734,9 +38734,9 @@ HLT_CleanPFHT300_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_PFMET50_v5 = cms.Path( 
 HLT_CleanPFHT300_Ele40_CaloIdVT_TrkIdT_v5 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175 + hltPreCleanPFHT300Ele40CaloIdVTTrkIdT + HLTEle40CaloIdVTTrkIdTCaloIsoVLTrkIsoVLUnseeded + HLTPFReconstructionSequence + hltEle40CaloIdVTTrkIdTPFJetCollForElePlusJets + hltEle40CaloIdVTTrkIdTCleanedPFHT + hltElectron40CaloIdTTrkIdTCleanedPFHT300 + HLTEndSequence )
 HLT_CleanPFHT300_Ele60_CaloIdVT_TrkIdT_v5 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175 + hltPreCleanPFHT300Ele60CaloIdVTTrkIdT + HLTEle60CaloIdVTTrkIdTCaloIsoVLTrkIsoVLUnseeded + HLTPFReconstructionSequence + hltEle60CaloIdVTTrkIdTPFJetCollForElePlusJets + hltEle60CaloIdVTTrkIdTCleanedPFHT + hltElectron60CaloIdTTrkIdTCleanedPFHT300 + HLTEndSequence )
 HLT_Ele5_SC5_Jpsi_Mass2to15_v3 = cms.Path( HLTBeginSequence + hltL1sL1DoubleEG5 + hltPreEle5SC5JpsiMass2to15 + HLTEle5SC5JpsiMass2to15Sequence + HLTEndSequence )
-HLT_DiJet35_MJJ650_AllJets_DEta3p5_VBF_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrETM40 + hltPreDiJet35MJJ650AllJetsDEta3p5VBF + HLTRecoJetSequenceAK5L1FastJetCorrected + hltDiCaloJet35NoEtaCut + hltDiCaloJet35MJJ650AllJetsDEta3p5Filter + HLTEndSequence )
-HLT_DiJet35_MJJ700_AllJets_DEta3p5_VBF_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT175OrETM40 + hltPreDiJet35MJJ700AllJetsDEta3p5VBF + HLTRecoJetSequenceAK5L1FastJetCorrected + hltDiCaloJet35NoEtaCut + hltDiCaloJet35MJJ700AllJetsDEta3p5Filter + HLTEndSequence )
-HLT_DiJet35_MJJ750_AllJets_DEta3p5_VBF_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT175OrETM40 + hltPreDiJet35MJJ750AllJetsDEta3p5VBF + HLTRecoJetSequenceAK5L1FastJetCorrected + hltDiCaloJet35NoEtaCut + hltDiCaloJet35MJJ750AllJetsDEta3p5Filter + HLTEndSequence )
+HLT_DiJet35_MJJ650_AllJets_DEta3p5_VBF_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT200OrHTT175OrHTT150OrETM40 + hltPreDiJet35MJJ650AllJetsDEta3p5VBF + HLTRecoJetSequenceAK5L1FastJetCorrected + hltDiCaloJet35NoEtaCut + hltDiCaloJet35MJJ650AllJetsDEta3p5Filter + HLTEndSequence )
+HLT_DiJet35_MJJ700_AllJets_DEta3p5_VBF_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT200OrL1HTT175OrETM40 + hltPreDiJet35MJJ700AllJetsDEta3p5VBF + HLTRecoJetSequenceAK5L1FastJetCorrected + hltDiCaloJet35NoEtaCut + hltDiCaloJet35MJJ700AllJetsDEta3p5Filter + HLTEndSequence )
+HLT_DiJet35_MJJ750_AllJets_DEta3p5_VBF_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT200OrL1HTT175OrETM40 + hltPreDiJet35MJJ750AllJetsDEta3p5VBF + HLTRecoJetSequenceAK5L1FastJetCorrected + hltDiCaloJet35NoEtaCut + hltDiCaloJet35MJJ750AllJetsDEta3p5Filter + HLTEndSequence )
 HLT_Ele22_eta2p1_WP90Rho_LooseIsoPFTau20_v2 = cms.Path( HLTBeginSequence + hltL1sL1SingleIsoEG18erORIsoEG20erOREG22 + hltPreEle22eta2p1WP90RhoLooseIsoPFTau20 + HLTEle22WP90RhoSequence + HLTRecoJetSequencePrePF + hltTauJet5 + hltOverlapFilterIsoEle20CaloJet5 + HLTPFJetTriggerSequence + hltPFJet20 + HLTIsoEleLooseIsoPFTauSequence + HLTEndSequence )
 HLT_Ele22_eta2p1_WP90NoIso_LooseIsoPFTau20_v2 = cms.Path( HLTBeginSequence + hltL1sL1SingleIsoEG18erORIsoEG20erOREG22 + hltPreEle22eta2p1WP90NoIsoLooseIsoPFTau20 + HLTEle22WP90NoIsoSequence + HLTRecoJetSequencePrePF + hltTauJet5 + hltOverlapFilterEle18CaloJet5 + HLTPFJetTriggerSequence + hltPFJet20 + HLTEleLooseIsoPFTauSequence + HLTEndSequence )
 HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v2 = cms.Path( HLTBeginSequence + hltL1sMu14erORMu16er + hltPreIsoMu17eta2p1LooseIsoPFTau20 + hltL1fL1sMu14erORMu16erL1Filtered0 + HLTL2muonrecoSequence + hltL2fL1sMu14erORMu16erL1f0L2Filtered14Q + HLTL3muonrecoSequence + hltL3fL1sMu14erORMu16erL1f0L2f14QL3Filtered17Q + HLTL3muoncaloisorecoSequenceNoBools + HLTL3muonisorecoSequence + hltL3crIsoL1sMu14erORMu16erL1f0L2f14QL3f17QL3crIsoRhoFiltered0p15 + HLTRecoJetSequencePrePF + hltTauJet5 + HLTPFJetTriggerSequenceMuTau + hltPFJet20 + HLTIsoMuLooseIsoPFTauSequence + HLTEndSequence )
