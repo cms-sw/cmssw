@@ -2,6 +2,7 @@ from Validation.RecoTau.dataTypes.ValidateTausOnQCD_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnRealData_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnRealElectronsData_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnRealMuonsData_cff import *
+from Validation.RecoTau.dataTypes.ValidateTausOnRealTausData_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnZEEFastSim_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnZEE_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnZMM_cff import *
@@ -13,6 +14,7 @@ pfTauRunDQMValidation = cms.Sequence(
     TauValNumeratorAndDenominatorRealData+
     TauValNumeratorAndDenominatorRealElectronsData+
     TauValNumeratorAndDenominatorRealMuonsData+
+    TauValNumeratorAndDenominatorRealTausData+
     TauValNumeratorAndDenominatorZEE+
     TauValNumeratorAndDenominatorZMM+
     TauValNumeratorAndDenominatorZTT
@@ -23,6 +25,7 @@ produceDenoms = cms.Sequence(
     produceDenominatorRealData+
     produceDenominatorRealElectronsData+
     produceDenominatorRealMuonsData+
+    produceDenominatorRealTausData+
     produceDenominatorZEE+
     produceDenominatorZMM+
     produceDenominatorZTT
@@ -33,6 +36,7 @@ runTauEff = cms.Sequence(
     efficienciesRealData+
     efficienciesRealElectronsData+
     efficienciesRealMuonsData+
+    efficienciesRealTausData+
     efficienciesZEE+
     efficienciesZMM+
     efficienciesZTT+
@@ -43,6 +47,7 @@ runTauEff = cms.Sequence(
 ## TauEfficienciesRealData+
 ## TauEfficienciesRealElectronsData+
 ## TauEfficienciesRealMuonsData+
+## TauEfficienciesRealTausData+
 ## TauEfficienciesZEEFastSim+
 ## TauEfficienciesZEE+
 ## TauEfficienciesZMM+
