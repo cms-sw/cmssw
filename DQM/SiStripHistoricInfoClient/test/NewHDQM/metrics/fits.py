@@ -51,3 +51,28 @@ class FlatLine(BaseMetric):
         del fit
         return result
 
+class FlatLineXcut(BaseMetric):
+    def __init__(self, diseredParameter, minVal, maxVal, paramDefault):
+        BaseMetric.__init__(self)
+        
+        self.range = [minVal, maxVal]
+        self.parameter = paramDefault
+        assert diseredParameter in [0], "can only get parameter 0,,not '%s'"%desiredParameter
+        self.desired = diseredParameter
+        
+    def calculate(self, histo):
+        from ROOT import TF1
+        Nbins = histo.GetNbinsX()
+        NN=0
+        for xbin in range(Nbins):
+            if histo.GetBinContent(xbin)>0:
+                NN=xbin
+        self.range = [1, histo.GetXaxis().GetBinCenter( NN-3 ) ]
+        fit = TF1("pol0","[0]", *(self.range))
+        fit.SetParameter(0,self.parameter)
+        histo.Fit(fit,"QOR")
+        result = (fit.GetParameter(self.desired), fit.GetParError(self.desired))
+        del fit
+        return result
+
+

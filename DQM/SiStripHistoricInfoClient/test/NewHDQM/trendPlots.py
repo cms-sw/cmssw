@@ -247,7 +247,9 @@ class TrendPlot:
 
         result.Add(sysGraph,"[]")
         result.Add(graph,"P")
-        result.SetName("MultiPlots")
+#        result.SetName("MultiPlots")
+#         result.SetTitle("%s;%s;%s"%(self.__title,self.__xTitle,self.__yTitle))
+        result.SetName("MG_%s"%(self.__title))
         legend.AddEntry(graph, self.__getStyleOption("name"))
         
         #for (x,y,yErr) in zip(self.__x, self.__y, zip(self.__yErrLow,self.__yErrHigh)):

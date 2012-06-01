@@ -53,9 +53,34 @@ class SummaryMapPartition(BaseMetric):
         value /= self.__nbinsy
         return (value, 0)
 
+class AverageYwithXCut(BaseMetric):
+    def __init__(self,  nbinx):
+        self.__nbinsx = nbinx
+
+    def calculate(self, histo):
+        value = 0
+        Nbins = histo.GetNbinsX()
+        self.__nbinsx=Nbins
+        for xbin in range(self.__nbinsx):
+            if histo.GetBinContent(xbin)>0:
+                NN=xbin
+        self.__nbinsx=NN-3
+        for xbin in range(self.__nbinsx):
+            value += histo.GetBinContent(xbin)
+            value1=value
+        value /= self.__nbinsx
+        return (value, 0)
+
+
 class Mean(BaseMetric):
     def calculate(self, histo):
         return (histo.GetMean(), histo.GetMeanError())
+
+class MeanRMS(BaseMetric):
+    def calculate(self, histo):
+        #print 'mean:',histo.GetMean(), histo.GetMeanError()
+        return (histo.GetMean(), histo.GetRMS())
+
 
 class MeanY(BaseMetric):
     def calculate(self, histo):
