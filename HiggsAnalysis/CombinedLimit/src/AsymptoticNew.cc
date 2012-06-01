@@ -53,7 +53,7 @@ bool AsymptoticNew::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
 
     if (verbose >= 0) {
         const char *rname = mc_s->GetParametersOfInterest()->first()->GetName();
-        std::cout << "\n -- AsymptotiNew -- " << "\n";
+        std::cout << "\n -- AsymptoticNew -- " << "\n";
         if (ret && what_ != "expected") {
             printf("Observed Limit: %s < %6.4f\n", rname, limit);
         }
