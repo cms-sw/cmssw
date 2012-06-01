@@ -42,11 +42,17 @@ void DiJetVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
   edm::Handle<reco::CaloJetCollection> calojets_handle;
   iEvent.getByLabel(jetCollectionTag_,calojets_handle);
 
-  //   // Loop over all the jets
-  //   for(reco::CaloJetCollection::const_iterator it = calojets_handle->begin(); it != calojets_handle->end(); ++it)
-  //     {
-  //       cout << "== jet: " << it->pt() << " " << it->eta() << " " << it->phi() << endl;
-  //     }
+  // Loop over all the selected jets ( defined at DQM/DataScouting/python/dijetScouting_cff.py )  
+  for(reco::CaloJetCollection::const_iterator it = calojets_handle->begin(); it != calojets_handle->end(); ++it)
+    {
+      //cout << "== jet: " << it->pt() << " " << it->eta() << " " << it->phi() << endl;
+      m_selJets_pt->Fill( it->pt() );
+      m_selJets_eta->Fill( it->eta() );
+      m_selJets_phi->Fill( it->phi() );
+      m_selJets_hadEnergyFraction->Fill( it->energyFractionHadronic() );
+      m_selJets_emEnergyFraction->Fill( it->emEnergyFraction() );
+      m_selJets_towersArea->Fill( it->towersArea() );
+    }
   
   // ## Get widejets 
   edm::Handle< vector<math::PtEtaPhiMLorentzVector> > widejets_handle;
@@ -198,7 +204,8 @@ void DiJetVarAnalyzer::endRun( edm::Run const &, edm::EventSetup const & ){
 void DiJetVarAnalyzer::bookMEs(){
   
   // ==> TO BE UPDATED FOR sqrt(s)=8 TeV
-  Double_t massBins[84] = {1, 3, 6, 10, 16, 23, 31, 40, 50, 61, 74, 88, 103, 119, 137, 156, 176, 197, 220, 244, 270, 296, 325, 354, 386, 419, 453, 489, 526, 565, 606, 649, 693, 740, 788, 838, 890, 944, 1000, 1058, 1118, 1181, 1246, 1313, 1383, 1455, 1530, 1607, 1687, 1770, 1856, 1945, 2037, 2132, 2231, 2332, 2438, 2546, 2659, 2775, 2895, 3019, 3147, 3279, 3416, 3558, 3704, 3854, 4010, 4171, 4337, 4509, 4686, 4869, 5058, 5253, 5455, 5663, 5877, 6099, 6328, 6564, 6808, 7000};
+  const int N_mass_bins=83;
+  float massBins[N_mass_bins+1] = {1, 3, 6, 10, 16, 23, 31, 40, 50, 61, 74, 88, 103, 119, 137, 156, 176, 197, 220, 244, 270, 296, 325, 354, 386, 419, 453, 489, 526, 565, 606, 649, 693, 740, 788, 838, 890, 944, 1000, 1058, 1118, 1181, 1246, 1313, 1383, 1455, 1530, 1607, 1687, 1770, 1856, 1945, 2037, 2132, 2231, 2332, 2438, 2546, 2659, 2775, 2895, 3019, 3147, 3279, 3416, 3558, 3704, 3854, 4010, 4171, 4337, 4509, 4686, 4869, 5058, 5253, 5455, 5663, 5877, 6099, 6328, 6564, 6808, 7000};
 
   // 1D histograms
   m_cutFlow = bookH1withSumw2( "h1_cutFlow",
@@ -216,64 +223,64 @@ void DiJetVarAnalyzer::bookMEs(){
 
   m_MjjWide_finalSel = bookH1withSumw2( "h1_MjjWide_finalSel",
 					"M_{jj} WideJets (final selection)",
-					500,0.,5000.,
+					8000,0.,8000.,
 					"M_{jj} WideJets [GeV]",
 					"Number of events"
 					);
 
 
-  m_MjjWide_finalSel_varbin = bookH1withSumw2( "h1_MjjWide_finalSel_varbin",
-					       "M_{jj} WideJets (final selection)",
-					       500,0.,5000.,
-					       "M_{jj} WideJets [GeV]",
-					       "Number of events"
-					       );
+  m_MjjWide_finalSel_varbin = bookH1withSumw2BinArray( "h1_MjjWide_finalSel_varbin",
+						       "M_{jj} WideJets (final selection)",
+						       N_mass_bins, massBins,
+						       "M_{jj} WideJets [GeV]",
+						       "Number of events"
+						       );
 
   m_MjjWide_deta_0p0_0p5 = bookH1withSumw2( "h1_MjjWide_deta_0p0_0p5",
 					    "M_{jj} WideJets (0.0<=#Delta#eta<0.5)",
-					    500,0.,5000.,
+					    8000,0.,8000.,
 					    "M_{jj} WideJets [GeV]",
 					    "Number of events"
 					    );
 
   m_MjjWide_deta_0p5_1p0 = bookH1withSumw2( "h1_MjjWide_deta_0p5_1p0",
 					    "M_{jj} WideJets (0.5<=#Delta#eta<1.0)",
-					    500,0.,5000.,
+					    8000,0.,8000.,
 					    "M_{jj} WideJets [GeV]",
 					    "Number of events"
 					    );
 
   m_MjjWide_deta_1p0_1p5 = bookH1withSumw2( "h1_MjjWide_deta_1p0_1p5",
 					    "M_{jj} WideJets (1.0<=#Delta#eta<1.5)",
-					    500,0.,5000.,
+					    8000,0.,8000.,
 					    "M_{jj} WideJets [GeV]",
 					    "Number of events"
 					    );
 
   m_MjjWide_deta_1p5_2p0 = bookH1withSumw2( "h1_MjjWide_deta_1p5_2p0",
 					    "M_{jj} WideJets (1.5<=#Delta#eta<2.0)",
-					    500,0.,5000.,
+					    8000,0.,8000.,
 					    "M_{jj} WideJets [GeV]",
 					    "Number of events"
 					    );
 
   m_MjjWide_deta_2p0_2p5 = bookH1withSumw2( "h1_MjjWide_deta_2p0_2p5",
 					    "M_{jj} WideJets (2.0<=#Delta#eta<2.5)",
-					    500,0.,5000.,
+					    8000,0.,8000.,
 					    "M_{jj} WideJets [GeV]",
 					    "Number of events"
 					    );
 
   m_MjjWide_deta_2p5_3p0 = bookH1withSumw2( "h1_MjjWide_deta_2p5_3p0",
 					    "M_{jj} WideJets (2.5<=#Delta#eta<3.0)",
-					    500,0.,5000.,
+					    8000,0.,8000.,
 					    "M_{jj} WideJets [GeV]",
 					    "Number of events"
 					    );
 
   m_MjjWide_deta_3p0_inf = bookH1withSumw2( "h1_MjjWide_deta_3p0_inf",
 					    "M_{jj} WideJets (#Delta#eta>=3.0)",
-					    500,0.,5000.,
+					    8000,0.,8000.,
 					    "M_{jj} WideJets [GeV]",
 					    "Number of events"
 					    );
@@ -299,10 +306,53 @@ void DiJetVarAnalyzer::bookMEs(){
 					   "Number of events"
 					   );
 
+
+  m_selJets_pt = bookH1withSumw2( "h1_selJets_pt",
+				  "Selected CaloJets",
+				  500,0.,5000.,
+				  "Jet Pt [GeV]",
+				  "Number of events"
+				  );
+
+  m_selJets_eta = bookH1withSumw2( "h1_selJets_eta",
+				  "Selected CaloJets",
+				  100,-5.,5.,
+				  "#eta",
+				  "Number of events"
+				  );
+
+  m_selJets_phi = bookH1withSumw2( "h1_selJets_phi",
+				  "Selected CaloJets",
+				   100,-TMath::Pi(),TMath::Pi(),
+				  "#phi (rad.)",
+				  "Number of events"
+				  );
+
+  m_selJets_hadEnergyFraction = bookH1withSumw2( "h1_selJets_hadEnergyFraction",
+						 "Selected CaloJets",
+						 110,0.,1.1,
+						 "HAD Energy Fraction",
+						 "Number of events"
+						 );
+
+  m_selJets_emEnergyFraction = bookH1withSumw2( "h1_selJets_emEnergyFraction",
+						 "Selected CaloJets",
+						 110,0.,1.1,
+						 "EM Energy Fraction",
+						 "Number of events"
+						 );
+
+  m_selJets_towersArea = bookH1withSumw2( "h1_selJets_towersArea",
+					  "Selected CaloJets",
+					  200,0.,2.,
+					  "towers area",
+					  "Number of events"
+					  );
+
   // 2D histograms
   m_DetajjVsMjjWide = bookH2withSumw2("h2_DetajjVsMjjWide",
 				      "#Delta#eta_{jj} vs M_{jj} WideJets",
-				      500,0.,5000.,
+				      8000,0.,8000.,
 				      100,0.,5.,
 				      "M_{jj} WideJets [GeV]",
 				      "#Delta#eta_{jj} WideJets");

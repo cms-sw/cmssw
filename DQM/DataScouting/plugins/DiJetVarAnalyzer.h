@@ -51,6 +51,13 @@ class DiJetVarAnalyzer : public ScoutingAnalyzerBase
 
     MonitorElement * m_DphijjWide_finalSel;
 
+    MonitorElement * m_selJets_pt; 
+    MonitorElement * m_selJets_eta;
+    MonitorElement * m_selJets_phi;
+    MonitorElement * m_selJets_hadEnergyFraction;
+    MonitorElement * m_selJets_emEnergyFraction;
+    MonitorElement * m_selJets_towersArea;
+
     //2D histograms
     MonitorElement * m_DetajjVsMjjWide;
  } ;
