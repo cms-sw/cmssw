@@ -78,6 +78,12 @@ class ggPFPhotons  {
 						   const CaloSubdetectorGeometry* geomBar,
 						   const CaloSubdetectorGeometry* geomEnd
 					    );
+  void PhotonPFCandMatch(  
+			  reco::SuperCluster sc, 		
+			  std::vector<reco::PFCandidatePtr>&insideBox, 
+			  edm::Handle<PFCandidateCollection>& pfCandidates,
+			  vector<reco::CaloCluster> &PFClust
+			  );
   //for filling PFCluster Variables
  private:
   reco::Photon matchedPhot_;

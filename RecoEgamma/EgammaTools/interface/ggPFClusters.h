@@ -54,6 +54,12 @@ class ggPFClusters  {
   virtual DetId FindSeed(std::vector< std::pair<DetId, float> >& bcCells, bool isEB);  
   virtual std::pair<float, float>ClusterWidth(vector<reco::CaloCluster>& PFClust);
   double LocalEnergyCorrection(const GBRForest *ReaderLCEB, const GBRForest *ReaderLCEE, reco::CaloCluster PFClust, float beamspotZ);
+  
+  void BasicClusterPFCandLink(
+				      reco::SuperCluster sc, 
+				      std::vector<reco::PFCandidatePtr>&insideBox
+				      );
+  
   // virtual std::pair<float, float>ClusterShape(reco::CaloCluster PFClust);
  private:
  Handle<EcalRecHitCollection>  EBReducedRecHits_;

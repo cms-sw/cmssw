@@ -654,3 +654,126 @@ double ggPFClusters::LocalEnergyCorrection(const GBRForest *ReaderLCEB, const GB
   
   return PFClustCorr;
 }
+void ggPFClusters::BasicClusterPFCandLink(	     
+				      reco::SuperCluster sc, 
+				      std::vector<reco::PFCandidatePtr>&insideBox
+				      ){
+  std::vector<reco::PFCandidatePtr>Linked;
+  for(unsigned int p=0; p<insideBox.size(); ++p){
+    math::XYZPointF position_ = insideBox[p]->positionAtECALEntrance();
+    //math::XYZPointF positionvtx(position_.x()+insideBox[p]->vx(), 
+    //			position_.y()+insideBox[p]->vy(),
+    //			position_.z()+insideBox[p]->vz());
+    //position_=positionvtx;
+    //math::XYZVector position_=insideBox[p]->momentum();
+    if(insideBox[p]->pdgId()==22){
+      double Theta = -position_.theta()+0.5*TMath::Pi();
+      double Eta = position_.eta();
+      double Phi = TVector2::Phi_mpi_pi(position_.phi());
+      double X = position_.x();
+      double Y = position_.y();
+      reco::CaloCluster_iterator cit=sc.clustersBegin();
+      std::vector< std::pair<DetId, float> > crystals_vector = (*cit)->hitsAndFractions();
+      DetId seedXtalId = crystals_vector[0].first;
+      int detector = seedXtalId.subdetId();
+      bool isEb=false;
+      float X0 = 0.89; float T0 = 7.4;
+      double depth = X0 * (T0 + log((*cit)->energy()));
+      if(detector==1){
+	X0 = 0.89;  T0 = 7.4;
+	depth = X0 * (T0 + log((*cit)->energy()));
+	isEb=true;
+      }
+      else{
+	X0 = 0.89; T0 = 1.2;
+	if(fabs(Eta)<1.653)T0=3.1;
+	depth = X0 * (T0 + log((*cit)->energy()));
+	
+	isEb=false;
+      }
+      crystals_vector.clear();
+      for(; cit!=sc.clustersEnd(); ++cit){
+	bool matchBC=false;
+	crystals_vector = (*cit)->hitsAndFractions();
+	
+        
+	for (unsigned int icry=0; icry<crystals_vector.size(); ++icry){
+	  
+	  if(isEb){
+	    
+	    EBDetId crystal(crystals_vector[icry].first);
+	    const CaloCellGeometry* cell=geomBar_->getGeometry(crystal);
+	    
+	    GlobalPoint center_pos = (dynamic_cast<const TruncatedPyramid*>(cell))->getPosition(depth);
+	    //GlobalPoint vtx(insideBox[p]->vx(), insideBox[p]->vy(), insideBox[p]->vz());
+	    //GlobalPoint center_pos(oldcenter_pos.x()-vtx.x(), 
+	    //		   oldcenter_pos.y()-vtx.y(),
+	    //		   oldcenter_pos.z()-vtx.z());
+	    //double EtaCentr = center_pos.eta();
+	     double PhiCentr = TVector2::Phi_mpi_pi(center_pos.phi());
+	     double PhiWidth = (TMath::Pi()/180.);
+	     double ThetaCentr = -center_pos.theta()+0.5*TMath::Pi();
+	     double ThetaWidth = (TMath::Pi()/180.)*TMath::Cos(ThetaCentr);
+	     double phicry = (TVector2::Phi_mpi_pi(Phi-PhiCentr))/PhiWidth;
+	     double etacry=(Theta-ThetaCentr)/ThetaWidth;
+	     if(fabs(etacry)<0.6 && fabs(phicry)<0.6){
+	       Linked.push_back(insideBox[p]);
+	       matchBC=true;
+	       break;
+	       
+	     }
+	     
+	  }//Barrel
+	  else{
+	     
+	    EEDetId crystal(crystals_vector[icry].first);
+	    const CaloCellGeometry* cell=geomEnd_->getGeometry(crystal);
+	    
+	    GlobalPoint center_pos = (dynamic_cast<const TruncatedPyramid*>(cell))->getPosition(depth);
+	    //GlobalPoint vtx(insideBox[p]->vx(), insideBox[p]->vy(), insideBox[p]->vz());
+	    //GlobalPoint center_pos(oldcenter_pos.x()-vtx.x(), oldcenter_pos.y()-vtx.y(), oldcenter_pos.z()-vtx.z());
+	    double XCentr = center_pos.x();
+	    double XWidth = 2.59;
+	    double xcry = (X-XCentr)/XWidth;
+	    double YCentr = center_pos.y();
+	    double YWidth = 2.59;
+	    double ycry = (Y-YCentr)/YWidth;  
+	    if(fabs(xcry)<0.6 && fabs(ycry)<0.6){
+	      Linked.push_back(insideBox[p]);
+	      matchBC=true;
+	      break;
+	    }
+	    
+	  }//Endcap
+	  
+	}
+	if(matchBC)break;
+      }      
+    }
+    if(abs(insideBox[p]->pdgId())==211){
+      float drmin = 999.;
+      float deta=999;
+      float dphi=999;
+      reco::CaloCluster_iterator cit=sc.clustersBegin();
+      for(; cit!=sc.clustersEnd(); ++cit){
+	math::XYZVector photon_directionWrtVtx((*cit)->position().x()-insideBox[p]->vx(), 
+					       (*cit)->position().y()-insideBox[p]->vy(),
+					       (*cit)->position().z()-insideBox[p]->vz()
+					       );
+	float dR=deltaR(photon_directionWrtVtx.eta(), photon_directionWrtVtx.phi(), position_.eta(), position_.phi());
+	//float dR=deltaR((*cit)->eta(), (*cit)->phi(), position_.eta(), position_.phi());
+	if(dR<drmin){
+	  drmin=dR;
+	  deta=fabs(photon_directionWrtVtx.eta()-position_.eta());
+	  dphi=acos(cos(photon_directionWrtVtx.phi()- position_.phi()));
+	}
+      }
+      if(deta<0.05 && dphi<0.07){
+	Linked.push_back(insideBox[p]);
+      }
+    }
+    
+  }
+  insideBox.clear();
+  insideBox=Linked;
+}
