@@ -338,6 +338,7 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_DiCentralJetSum
     'HLT_MET300_v2', 
     'HLT_MET400_HBHENoiseCleaned_v3', 
     'HLT_MET400_v5', 
+    'HLT_MonoCentralPFJet80_PFMETnoMu105_NHEF0p95_v1', 
     'HLT_MonoCentralPFJet80_PFMETnoMu95_NHEF0p95_v5', 
     'HLT_PFMET150_v4', 
     'HLT_PFMET180_v4')
