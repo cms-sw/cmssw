@@ -74,6 +74,41 @@ MonitorElement * ScoutingAnalyzerBase::bookH1withSumw2
 
 //------------------------------------------------------------------------------
 
+MonitorElement * ScoutingAnalyzerBase::bookH1BinArray
+ ( const std::string & name, const std::string & title,
+   int nchX, float *xbinsize,
+   const std::string & titleX, const std::string & titleY,
+   Option_t * option )
+ {
+  MonitorElement * me = m_store->book1D(newName(name),title,nchX,xbinsize) ;
+  //book1DD not implemented in DQMServices/Core/src/DQMStore.cc
+  if (titleX!="") { me->getTH1()->GetXaxis()->SetTitle(titleX.c_str()) ; }
+  if (titleY!="") { me->getTH1()->GetYaxis()->SetTitle(titleY.c_str()) ; }
+  if (TString(option)!="") { me->getTH1()->SetOption(option) ; }
+  return me ;
+ }
+
+//------------------------------------------------------------------------------
+
+MonitorElement * ScoutingAnalyzerBase::bookH1withSumw2BinArray
+ ( const std::string & name, const std::string & title,
+   int nchX, float *xbinsize,
+   const std::string & titleX, const std::string & titleY,
+   Option_t * option )
+ {
+   
+  std::cout << newName(name) << std::endl;
+  MonitorElement * me = m_store->book1D(newName(name),title,nchX,xbinsize) ;
+  //book1DD not implemented in DQMServices/Core/src/DQMStore.cc
+  me->getTH1()->Sumw2() ;
+  if (titleX!="") { me->getTH1()->GetXaxis()->SetTitle(titleX.c_str()) ; }
+  if (titleY!="") { me->getTH1()->GetYaxis()->SetTitle(titleY.c_str()) ; }
+  if (TString(option)!="") { me->getTH1()->SetOption(option) ; }
+  return me ;
+ }
+
+//------------------------------------------------------------------------------
+
 MonitorElement * ScoutingAnalyzerBase::bookH2
  ( const std::string & name, const std::string & title,
    int nchX, double lowX, double highX,
