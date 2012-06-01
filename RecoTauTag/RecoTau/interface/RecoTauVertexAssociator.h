@@ -23,11 +23,9 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 
 // histograms
-#ifdef EDM_ML_DEBUG
-  #include "FWCore/ServiceRegistry/interface/Service.h"
-  #include "CommonTools/UtilAlgos/interface/TFileService.h"
-  #include "TH1.h"
-#endif
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "TH1.h"
 
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
