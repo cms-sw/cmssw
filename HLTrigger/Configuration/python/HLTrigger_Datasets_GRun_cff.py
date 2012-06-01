@@ -339,7 +339,6 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_DiCentralJetSum
     'HLT_MET400_HBHENoiseCleaned_v3', 
     'HLT_MET400_v5', 
     'HLT_MonoCentralPFJet80_PFMETnoMu105_NHEF0p95_v1', 
-    'HLT_MonoCentralPFJet80_PFMETnoMu95_NHEF0p95_v5', 
     'HLT_PFMET150_v4', 
     'HLT_PFMET180_v4')
 
@@ -609,9 +608,9 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetTau_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetTau_selector.l1tResults = cms.InputTag('')
 streamA_datasetTau_selector.throw      = cms.bool(False)
-streamA_datasetTau_selector.triggerConditions = cms.vstring('HLT_DoubleMediumIsoPFTau30_Trk5_eta2p1_Jet30_v2', 
-    'HLT_DoubleMediumIsoPFTau30_Trk5_eta2p1_v2', 
-    'HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_Prong1_v6', 
+streamA_datasetTau_selector.triggerConditions = cms.vstring('HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_Jet30_v1', 
+    'HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_v1', 
+    'HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Prong1_v1', 
     'HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v6', 
     'HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v6', 
     'HLT_LooseIsoPFTau35_Trk20_Prong1_v6')
@@ -620,10 +619,10 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetTauParked_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetTauParked_selector.l1tResults = cms.InputTag('')
 streamA_datasetTauParked_selector.throw      = cms.bool(False)
-streamA_datasetTauParked_selector.triggerConditions = cms.vstring('HLT_DoubleMediumIsoPFTau30_Trk5_eta2p1_Jet30_v2', 
-    'HLT_DoubleMediumIsoPFTau30_Trk5_eta2p1_v2', 
-    'HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_Prong1_v6', 
-    'HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_v6', 
+streamA_datasetTauParked_selector.triggerConditions = cms.vstring('HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_Jet30_v1', 
+    'HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_v1', 
+    'HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Prong1_v1', 
+    'HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_v1', 
     'HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v6', 
     'HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v6', 
     'HLT_LooseIsoPFTau35_Trk20_Prong1_v6')
@@ -637,7 +636,7 @@ streamA_datasetTauPlusX_selector.triggerConditions = cms.vstring('HLT_Ele22_eta2
     'HLT_IsoMu15_eta2p1_L1ETM20_v5', 
     'HLT_IsoMu15_eta2p1_LooseIsoPFTau35_Trk20_Prong1_L1ETM20_v6', 
     'HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v2', 
-    'HLT_IsoMu18_eta2p1_MediumIsoPFTau25_Trk5_eta2p1_v7', 
+    'HLT_IsoMu18_eta2p1_MediumIsoPFTau25_Trk1_eta2p1_v1', 
     'HLT_Mu15_eta2p1_L1ETM20_v3', 
     'HLT_Mu17_eta2p1_LooseIsoPFTau20_v2')
 

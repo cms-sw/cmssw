@@ -121,7 +121,7 @@ HLT_Ele30_CaloIdVT_TrkIdT_PFJet150_PFJet25_v*                                   
 HLT_Ele30_CaloIdVT_TrkIdT_v*                                                                    #sr126292
 HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v*                                                           #sr126292
 HLT_Mu30_Ele30_CaloIdL_v*                                                                       #sr126292
-HLT_MonoCentralPFJet80_PFMETnoMu95_NHEF0p95_v*							#removed in sr128691
+#HLT_MonoCentralPFJet80_PFMETnoMu95_NHEF0p95_v*							#removed in sr128691
 HLT_MonoCentralPFJet80_PFMETnoMu105_NHEF0p95_v*							#sr128691
 #HLT_Photon250_NoHE_v*                                                                          #sr126292, removed in #sr128164
 HLT_Photon300_NoHE_v*                                                                           #sr126292
@@ -389,12 +389,18 @@ HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v*							#sr127332
 HLT_IsoMu15_eta2p1_LooseIsoPFTau35_Trk20_Prong1_L1ETM20_v*					#sr127332
 
 #HLT_DoubleMediumIsoPFTau25_Trk5_eta2p1_Jet30_v*						#sr127359 (removed by sr128205)
-HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_Prong1_v*						#sr127359
-HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_v*							#sr127359
-HLT_IsoMu18_eta2p1_MediumIsoPFTau25_Trk5_eta2p1_v*						#sr127359
+#HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_Prong1_v*						#sr127359, removed in sr129017
+#HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_v*							#sr127359, removed in sr129017
+#HLT_IsoMu18_eta2p1_MediumIsoPFTau25_Trk5_eta2p1_v*						#sr127359, removed in sr129017
 
-HLT_DoubleMediumIsoPFTau30_Trk5_eta2p1_Jet30_v*							#sr128205
-HLT_DoubleMediumIsoPFTau30_Trk5_eta2p1_v*							#sr128205
+#HLT_DoubleMediumIsoPFTau30_Trk5_eta2p1_Jet30_v*							#sr128205, removed in sr129017
+#HLT_DoubleMediumIsoPFTau30_Trk5_eta2p1_v*							#sr128205, removed in sr129017
+
+HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_Jet30_v*                                                 #sr129017
+HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_v*                                                       #sr129017
+HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Prong1_v*                                                #sr129017
+HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_v*                                                       #sr129017
+HLT_IsoMu18_eta2p1_MediumIsoPFTau25_Trk1_eta2p1_v*                                              #sr129017
 
 HLT_DiPFJet40_PFMETnoMu65_MJJ800VBF_AllJets_v*							#sr126471, sr127434, removed L1FastJet from name
 HLT_DiPFJet40_PFMETnoMu65_MJJ600VBF_LeadingJets_v*						#sr126471, sr127434, removed L1FastJet from name
