@@ -47,14 +47,13 @@ bool AsymptoticNew::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
     RooFitGlobalKillSentry silence(verbose <= 1 ? RooFit::WARNING : RooFit::DEBUG);
     if (verbose > 0) std::cout << "Will compute " << what_ << " limit(s) " << std::endl;
   
-    bool ret = false; 
     std::vector<std::pair<float,float> > expected;
     expected = runLimit(w, mc_s, mc_b, data, limit, limitErr, hint);
 
     if (verbose >= 0) {
         const char *rname = mc_s->GetParametersOfInterest()->first()->GetName();
         std::cout << "\n -- AsymptoticNew -- " << "\n";
-        if (ret && what_ != "expected") {
+        if (what_ != "expected") {
             printf("Observed Limit: %s < %6.4f\n", rname, limit);
         }
         for (std::vector<std::pair<float,float> >::const_iterator it = expected.begin(), ed = expected.end(); it != ed; ++it) {
@@ -63,8 +62,7 @@ bool AsymptoticNew::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
         std::cout << std::endl;
     }
 
-    // note that for expected we have to return FALSE even if we succeed because otherwise it goes into the observed limit as well
-    return ret;
+    return true;
 }
 
 std::vector<std::pair<float,float> > AsymptoticNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
@@ -100,8 +98,14 @@ std::vector<std::pair<float,float> > AsymptoticNew::runLimit(RooWorkspace *w, Ro
         expected.push_back(std::pair<float,float>(quantiles[iq], limit));
   }
 
+  
   // Observed Limit
-  limit = r->UpperLimit();
+  if (what_!="expected")   {
+    limit = r->UpperLimit();
+  } else {
+    limit = 0 ;
+  }
+
   return expected;
    
 }
