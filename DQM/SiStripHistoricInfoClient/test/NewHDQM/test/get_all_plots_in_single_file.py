@@ -25,5 +25,6 @@ for item in os.listdir(dir):
             obj=file.Get(name) 
             fileOut.cd()
             obj.Write()
+       file.Close()
 fileOut.Close()
 
