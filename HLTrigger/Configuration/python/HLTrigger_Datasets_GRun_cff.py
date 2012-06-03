@@ -487,9 +487,9 @@ streamA_datasetNoBPTX_selector.triggerConditions = cms.vstring('HLT_JetE30_NoBPT
     'HLT_JetE50_NoBPTX3BX_NoHalo_v11', 
     'HLT_JetE70_NoBPTX3BX_NoHalo_v3', 
     'HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v3', 
-    'HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v3', 
+    'HLT_L2Mu20_NoVertex_2Cha_NoBPTX3BX_NoHalo_v1', 
     'HLT_L2Mu20_eta2p1_NoVertex_v1', 
-    'HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v3')
+    'HLT_L2Mu30_NoVertex_2Cha_NoBPTX3BX_NoHalo_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetPhotonHad_selector
 streamA_datasetPhotonHad_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')

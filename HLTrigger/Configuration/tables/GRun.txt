@@ -138,8 +138,11 @@ HLT_Ele30_CaloIdVT_TrkIdT_PFNoPUJet150_PFNoPUJet25_v*						#sr127353
 
 HLT_L2Mu20_eta2p1_NoVertex_v*                                                                   #sr126302
 HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v*                                                         #sr126302, removed in sr128286, added back in sr128588
-HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v*                                                         #sr126302, removed in sr128286, added back in sr128588
-HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v*                                                         #sr126302, removed in sr128286, added back in sr128588
+#HLT_L2Mu20_NoVertex_NoBPTX3BX_NoHalo_v*                                                        #sr126302, removed in sr128286, added back in sr128588, removed in sr129063
+#HLT_L2Mu30_NoVertex_NoBPTX3BX_NoHalo_v*                                                        #sr126302, removed in sr128286, added back in sr128588, removed in sr129063
+
+HLT_L2Mu20_NoVertex_2Cha_NoBPTX3BX_NoHalo_v*                                                    #sr129063
+HLT_L2Mu30_NoVertex_2Cha_NoBPTX3BX_NoHalo_v*                                                    #sr129063
 
 #HLT_L2Mu10_NoVertex_NoBPTX3BX_v*								#sr128286, removed in sr128588
 #HLT_L2Mu20_NoVertex_NoBPTX3BX_v*								#sr128286, removed in sr128588

@@ -63,6 +63,8 @@ class HLTProcess(object):
     "HLT_L2Mu10_NoVertex_NoBPTX3BX_v*",
     "HLT_L2Mu20_NoVertex_NoBPTX3BX_v*",
     "HLT_L2Mu30_NoVertex_NoBPTX3BX_v*",
+    "HLT_L2Mu20_NoVertex_2Cha_NoBPTX3BX_NoHalo_v*",
+    "HLT_L2Mu30_NoVertex_2Cha_NoBPTX3BX_NoHalo_v*",
     "HLT_PixelTracks_Multiplicity70_v*",
     "HLT_PixelTracks_Multiplicity80_v*",
     "HLT_PixelTracks_Multiplicity90_v*",
