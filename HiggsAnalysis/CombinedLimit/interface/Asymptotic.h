@@ -42,7 +42,8 @@ private:
   mutable std::auto_ptr<RooArgSet>  params_;
   mutable std::auto_ptr<RooAbsReal> nllD_, nllA_; 
   mutable std::auto_ptr<RooFitResult> fitFreeD_, fitFreeA_;
-  mutable std::auto_ptr<RooFitResult> fitFixD_, fitFixA_;
+  mutable std::auto_ptr<RooFitResult> fitFixD_,  fitFixA_;
+  mutable double                      minNllD_,  minNllA_;
   mutable RooArgSet snapGlobalObsData, snapGlobalObsAsimov;
 
   RooAbsData *asimovDataset(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data);
