@@ -490,7 +490,7 @@ void PixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es)
 	      }
 	    } // end of filling simhit_
 	  }
-	  SiPixelLorentzAngleTreeForward_->Fill();
+	  //SiPixelLorentzAngleTreeForward_->Fill();//don't fill Forward tree for the moment, not needed
 	}
       }	//end iteration over trajectory measurements
     } //end iteration over trajectories
