@@ -224,7 +224,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
 	numbadnll_=-1;	
   }
   mu_=r->getVal();
-  t_fit_b_->Fill();
+  if (t_fit_b_) t_fit_b_->Fill();
   // no longer need res_b
   delete res_b;
 
@@ -297,7 +297,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
   	nll_nll0_ = -1;
   }
   mu_=r->getVal();
-  t_fit_sb_->Fill();
+  if (t_fit_sb_) t_fit_sb_->Fill();
 
   if (res_s) {
       RooRealVar *rf = dynamic_cast<RooRealVar*>(res_s->floatParsFinal().find(r->GetName()));
