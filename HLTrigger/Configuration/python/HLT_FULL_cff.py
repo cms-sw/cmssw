@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/HLT/V346 (CMSSW_5_2_5_HLT5)
+# /dev/CMSSW_5_2_1/HLT/V347 (CMSSW_5_2_5_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V346')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V347')
 )
 
 streams = cms.PSet( 
@@ -597,6 +597,10 @@ datasets = cms.PSet(
     'HLT_PFHT350_Mu15_PFMET50_v6',
     'HLT_PFHT400_Mu5_PFMET45_v6',
     'HLT_PFHT400_Mu5_PFMET50_v6',
+    'HLT_PFNoPUHT350_Mu15_PFMET45_v1',
+    'HLT_PFNoPUHT350_Mu15_PFMET50_v1',
+    'HLT_PFNoPUHT400_Mu5_PFMET45_v1',
+    'HLT_PFNoPUHT400_Mu5_PFMET50_v1',
     'HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFHT175_v6',
     'HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFHT225_v6',
     'HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFNoPUHT175_v1',

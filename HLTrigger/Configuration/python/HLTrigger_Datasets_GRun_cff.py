@@ -394,6 +394,10 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleDisplac
     'HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Mass8_PFNoPUHT225_v1', 
     'HLT_Mu8_QuadJet30_v4', 
     'HLT_Mu8_TriJet30_v4', 
+    'HLT_PFNoPUHT350_Mu15_PFMET45_v1', 
+    'HLT_PFNoPUHT350_Mu15_PFMET50_v1', 
+    'HLT_PFNoPUHT400_Mu5_PFMET45_v1', 
+    'HLT_PFNoPUHT400_Mu5_PFMET50_v1', 
     'HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFNoPUHT175_v1', 
     'HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFNoPUHT225_v1')
 

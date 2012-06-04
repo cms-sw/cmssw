@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/GRun/V140 (CMSSW_5_2_5_HLT5)
+# /dev/CMSSW_5_2_1/GRun/V141 (CMSSW_5_2_5_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V140')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V141')
 )
 
 process.streams = cms.PSet( 
@@ -364,6 +364,10 @@ process.datasets = cms.PSet(
     'HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Mass8_PFNoPUHT225_v1',
     'HLT_Mu8_QuadJet30_v4',
     'HLT_Mu8_TriJet30_v4',
+    'HLT_PFNoPUHT350_Mu15_PFMET45_v1',
+    'HLT_PFNoPUHT350_Mu15_PFMET50_v1',
+    'HLT_PFNoPUHT400_Mu5_PFMET45_v1',
+    'HLT_PFNoPUHT400_Mu5_PFMET50_v1',
     'HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFNoPUHT175_v1',
     'HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFNoPUHT225_v1' ),
   MuOnia = cms.vstring( 'HLT_Dimuon0_Jpsi_Muon_v16',
@@ -40814,8 +40818,12 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_PFJet80_v5',
   'HLT_PFMET150_v4',
   'HLT_PFMET180_v4',
+  'HLT_PFNoPUHT350_Mu15_PFMET45_v1',
+  'HLT_PFNoPUHT350_Mu15_PFMET50_v1',
   'HLT_PFNoPUHT350_PFMET100_v1',
   'HLT_PFNoPUHT350_v1',
+  'HLT_PFNoPUHT400_Mu5_PFMET45_v1',
+  'HLT_PFNoPUHT400_Mu5_PFMET50_v1',
   'HLT_PFNoPUHT400_PFMET100_v1',
   'HLT_PFNoPUHT650_DiCentralPFNoPUJet80_CenPFNoPUJet40_v1',
   'HLT_PFNoPUHT650_v1',

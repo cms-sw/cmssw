@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/GRun/V140 (CMSSW_5_2_5_HLT5)
+# /dev/CMSSW_5_2_1/GRun/V141 (CMSSW_5_2_5_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V140')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V141')
 )
 
 streams = cms.PSet( 
@@ -363,6 +363,10 @@ datasets = cms.PSet(
     'HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Mass8_PFNoPUHT225_v1',
     'HLT_Mu8_QuadJet30_v4',
     'HLT_Mu8_TriJet30_v4',
+    'HLT_PFNoPUHT350_Mu15_PFMET45_v1',
+    'HLT_PFNoPUHT350_Mu15_PFMET50_v1',
+    'HLT_PFNoPUHT400_Mu5_PFMET45_v1',
+    'HLT_PFNoPUHT400_Mu5_PFMET50_v1',
     'HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFNoPUHT175_v1',
     'HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFNoPUHT225_v1' ),
   MuOnia = cms.vstring( 'HLT_Dimuon0_Jpsi_Muon_v16',
