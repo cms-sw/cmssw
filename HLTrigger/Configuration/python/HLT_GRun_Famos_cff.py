@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/GRun/V142 (CMSSW_5_2_5_HLT5)
+# /dev/CMSSW_5_2_1/GRun/V144 (CMSSW_5_2_5_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V142')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V144')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -15431,7 +15431,7 @@ hltPhoton65CaloIdVLIsoLTrackIsoFilter = cms.EDFilter( "HLTEgammaGenericQuadratic
     candTag = cms.InputTag( "hltPhoton65CaloIdVLIsoLHcalIsoFilter" ),
     thrOverE2EE = cms.double( 0.0 )
 )
-HLTDisplacedEgammaFilter = cms.EDFilter( "HLTDisplacedEgammaFilter",
+hltDisplacedEgammaFilter = cms.EDFilter( "HLTDisplacedEgammaFilter",
     saveTags = cms.bool( False ),
     maxTrackCut = cms.int32( 0 ),
     L1NonIsoCand = cms.InputTag( "" ),
@@ -15465,7 +15465,7 @@ hltPreDisplacedPhoton65EBOnlyCaloIdVLIsoLPFMET30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "gtDigis" ),
     offset = cms.uint32( 0 )
 )
-HLTDisplacedEgammaFilterEBOnly = cms.EDFilter( "HLTDisplacedEgammaFilter",
+hltDisplacedEgammaFilterEBOnly = cms.EDFilter( "HLTDisplacedEgammaFilter",
     saveTags = cms.bool( False ),
     maxTrackCut = cms.int32( 0 ),
     L1NonIsoCand = cms.InputTag( "" ),
@@ -31163,8 +31163,8 @@ HLTEle22WP90NoIsoSequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL
 HLTEleLooseIsoPFTauSequence = cms.Sequence( hltPFTauJetTracksAssociator + hltEleVertex + hltElePFTauTagInfo + hltElePFTaus + hltElePFTau20 + hltElePFTauTrackFindingDiscriminator + hltSelectedElePFTausTrackFinding + hltElePFTau20Track + hltElePFTauLooseIsolationDiscriminator + hltSelectedElePFTausTrackFindingLooseIsolation + hltElePFTau20TrackLooseIso + hltOverlapFilterEle20LooseIsoPFTau20 )
 HLTIsoMuLooseIsoPFTauSequence = cms.Sequence( hltPFTauJetTracksAssociator + hltIsoMuonVertex + hltIsoMuPFTauTagInfo + hltIsoMuPFTaus + hltIsoMuPFTau20 + hltIsoMuPFTauTrackFindingDiscriminator + hltSelectedIsoMuPFTausTrackFinding + hltIsoMuPFTau20Track + hltIsoMuPFTauLooseIsolationDiscriminator + hltSelectedIsoMuPFTausTrackFindingLooseIsolation + hltIsoMuPFTau20TrackLooseIso + hltOverlapFilterIsoMu17LooseIsoPFTau20 )
 HLTMuLooseIsoPFTauSequence = cms.Sequence( hltPFTauJetTracksAssociator + hltMuonVertex + hltMuPFTauTagInfo + hltMuPFTaus + hltMuPFTau20 + hltMuPFTauTrackFindingDiscriminator + hltSelectedMuPFTausTrackFinding + hltMuPFTau20Track + hltMuPFTauLooseIsolationDiscriminator + hltSelectedMuPFTausTrackFindingLooseIsolation + hltMuPFTau20TrackLooseIso + hltOverlapFilterMu17LooseIsoPFTau20 )
-DSTMuonRecoPt5 = cms.Sequence( cms.ignore(hltL1sL1SingleMuOpenCandidate) + hltSingleMuOpenCandidateL1Filtered0 + HLTL2muonrecoSequence + hltSingleMuOpenCandidateL2Filtered0 + HLTL3muonrecoSequence + hltSingleMuOpenCandidateL3Filtered5 + HLTL3muoncaloisorecoSequenceNoBools + HLTL3muonisorecoSequence )
-DSTEleCaloIdLTrkIdVLCaloIsoVLTrkIsoVLUnseededRecoPt5 = cms.Sequence( HLTEcalActivitySequence + hltEG8EtFilterUnseeded + hltActivityPhotonClusterShape + hltEle8CaloIdLClusterShapeFilterUnseeded + hltActivityPhotonEcalIso + hltEle8CaloIdLCaloIsoVLEcalIsoFilterUnseeded + hltActivityPhotonHcalForHE + hltEle8CaloIdLCaloIsoVLHEFilterUnseeded + hltActivityPhotonHcalIso + hltEle8CaloIdLCaloIsoVLHcalIsoFilterUnseeded + HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltActivityStartUpElectronPixelSeeds + hltEle8CaloIdLCaloIsoVLPixelMatchFilterUnseeded + HLTPixelMatchElectronActivityTrackingSequence + hltEle8CaloIdLTrkIdVLCaloIsoVLOneOEMinusOneOPFilterUnseeded + hltElectronActivityDetaDphi + hltEle8CaloIdLTrkIdVLCaloIsoVLDetaFilterUnseeded + hltEle8CaloIdLTrkIdVLCaloIsoVLDphiFilterUnseeded + HLTEcalActivityEgammaRegionalRecoTrackerSequence + hltHitElectronActivityTrackIsol + hltEle8CaloIdLTrkIdVLCaloIsoVLTrkIsoVLTrackIsolFilterUnseeded )
+HLTDSTMuonRecoPt5 = cms.Sequence( cms.ignore(hltL1sL1SingleMuOpenCandidate) + hltSingleMuOpenCandidateL1Filtered0 + HLTL2muonrecoSequence + hltSingleMuOpenCandidateL2Filtered0 + HLTL3muonrecoSequence + hltSingleMuOpenCandidateL3Filtered5 + HLTL3muoncaloisorecoSequenceNoBools + HLTL3muonisorecoSequence )
+HLTDSTEleCaloIdLTrkIdVLCaloIsoVLTrkIsoVLUnseededRecoPt5 = cms.Sequence( HLTEcalActivitySequence + hltEG8EtFilterUnseeded + hltActivityPhotonClusterShape + hltEle8CaloIdLClusterShapeFilterUnseeded + hltActivityPhotonEcalIso + hltEle8CaloIdLCaloIsoVLEcalIsoFilterUnseeded + hltActivityPhotonHcalForHE + hltEle8CaloIdLCaloIsoVLHEFilterUnseeded + hltActivityPhotonHcalIso + hltEle8CaloIdLCaloIsoVLHcalIsoFilterUnseeded + HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltActivityStartUpElectronPixelSeeds + hltEle8CaloIdLCaloIsoVLPixelMatchFilterUnseeded + HLTPixelMatchElectronActivityTrackingSequence + hltEle8CaloIdLTrkIdVLCaloIsoVLOneOEMinusOneOPFilterUnseeded + hltElectronActivityDetaDphi + hltEle8CaloIdLTrkIdVLCaloIsoVLDetaFilterUnseeded + hltEle8CaloIdLTrkIdVLCaloIsoVLDphiFilterUnseeded + HLTEcalActivityEgammaRegionalRecoTrackerSequence + hltHitElectronActivityTrackIsol + hltEle8CaloIdLTrkIdVLCaloIsoVLTrkIsoVLTrackIsolFilterUnseeded )
 HLTPixelTrackingForMinBiasSequence = cms.Sequence( hltPixelTracksForMinBias )
 
 HLTriggerFirstPath = cms.Path( hltGetConditions + hltGetRaw + hltBoolFalse )
@@ -31378,8 +31378,8 @@ HLT_Photon75_R9Id90_HE10_Iso40_EBOnly_v4 = cms.Path( HLTBeginSequence + hltL1sL1
 HLT_Photon90_CaloIdVL_v9 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG20ORL1SingleEG22 + hltPrePhoton90CaloIdVL + HLTPhoton90CaloIdVLSequence + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_Photon90_CaloIdVL_IsoL_v14 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG20ORL1SingleEG22 + hltPrePhoton90CaloIdVLIsoL + HLTPhoton90CaloIdVLIsoLSequence + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_Photon90_R9Id90_HE10_Iso40_EBOnly_v4 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG22 + hltPrePhoton90R9Id90HE10Iso40EBOnly + HLTPhoton90R9Id90HE10Iso40EBOnlySequence + cms.SequencePlaceholder( "HLTEndSequence" ) )
-HLT_DisplacedPhoton65_CaloIdVL_IsoL_PFMET25_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG20ORL1SingleEG22 + hltPreDisplacedPhoton65CaloIdVLIsoLPFMET25 + HLTPhoton65CaloIdVLIsoLSequence + HLTDisplacedEgammaFilter + HLTPFReconstructionSequence + hltPFHTMET + hltPFMET25 + cms.SequencePlaceholder( "HLTEndSequence" ) )
-HLT_DisplacedPhoton65EBOnly_CaloIdVL_IsoL_PFMET30_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG20ORL1SingleEG22 + hltPreDisplacedPhoton65EBOnlyCaloIdVLIsoLPFMET30 + HLTPhoton65CaloIdVLIsoLSequence + HLTDisplacedEgammaFilterEBOnly + HLTPFReconstructionSequence + hltPFHTMET + hltPFMET30 + cms.SequencePlaceholder( "HLTEndSequence" ) )
+HLT_DisplacedPhoton65_CaloIdVL_IsoL_PFMET25_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG20ORL1SingleEG22 + hltPreDisplacedPhoton65CaloIdVLIsoLPFMET25 + HLTPhoton65CaloIdVLIsoLSequence + hltDisplacedEgammaFilter + HLTPFReconstructionSequence + hltPFHTMET + hltPFMET25 + cms.SequencePlaceholder( "HLTEndSequence" ) )
+HLT_DisplacedPhoton65EBOnly_CaloIdVL_IsoL_PFMET30_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG20ORL1SingleEG22 + hltPreDisplacedPhoton65EBOnlyCaloIdVLIsoLPFMET30 + HLTPhoton65CaloIdVLIsoLSequence + hltDisplacedEgammaFilterEBOnly + HLTPFReconstructionSequence + hltPFHTMET + hltPFMET30 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_Photon135_v6 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG30 + hltPrePhoton135 + HLTSinglePhoton135Sequence + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_Photon150_v3 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG30 + hltPrePhoton150 + HLTSinglePhoton150Sequence + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_Photon160_v3 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG30 + hltPrePhoton160 + HLTSinglePhoton160Sequence + cms.SequencePlaceholder( "HLTEndSequence" ) )
@@ -31554,8 +31554,8 @@ HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v2 = cms.Path( HLTBeginSequence + hltL1sMu14e
 HLT_Mu17_eta2p1_LooseIsoPFTau20_v2 = cms.Path( HLTBeginSequence + hltL1sMu14erORMu16er + hltPreMu17eta2p1LooseIsoPFTau20 + hltL1fL1sMu14erORMu16erL1Filtered0 + HLTL2muonrecoSequence + hltL2fL1sMu14erORMu16erL1f0L2Filtered14Q + HLTL3muonrecoSequence + hltL3fL1sMu14erORMu16erL1f0L2f14QL3Filtered17Q + HLTRecoJetSequencePrePF + hltTauJet5 + HLTPFJetTriggerSequenceMuTau + hltPFJet20 + HLTMuLooseIsoPFTauSequence + cms.SequencePlaceholder( "HLTEndSequence" ) )
 DST_HT250_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175OrDoubleJetC56OrSingleJet128OrQuadJetC32OrQuadJetC36OrQuadJetC40 + hltPreDSTHT250 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHtL1FastJet + hltHt250L1FastJet + HLTHBHENoiseCleanerSequence + hltMet + hltMetClean + cms.SequencePlaceholder( "HLTEndSequence" ) )
 DST_L1HTT_Or_L1MultiJet_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175OrDoubleJetC56OrSingleJet128OrQuadJetC32OrQuadJetC36OrQuadJetC40 + hltPreDSTL1HTTOrL1MultiJet + HLTRecoJetSequenceAK5L1FastJetCorrected + cms.SequencePlaceholder( "HLTEndSequence" ) )
-DST_Mu5_HT250_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175OrDoubleJetC56OrSingleJet128OrQuadJetC32OrQuadJetC36OrQuadJetC40 + hltPreDSTMu5HT250 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHtL1FastJet + hltHt250L1FastJet + DSTMuonRecoPt5 + cms.SequencePlaceholder( "HLTEndSequence" ) )
-DST_Ele8_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT250_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175OrDoubleJetC56OrSingleJet128OrQuadJetC32OrQuadJetC36OrQuadJetC40 + hltPreDSTEle8CaloIdLCaloIsoVLTrkIdVLTrkIsoVLHT250 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHtL1FastJet + hltHt250L1FastJet + DSTEleCaloIdLTrkIdVLCaloIsoVLTrkIsoVLUnseededRecoPt5 + cms.SequencePlaceholder( "HLTEndSequence" ) )
+DST_Mu5_HT250_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175OrDoubleJetC56OrSingleJet128OrQuadJetC32OrQuadJetC36OrQuadJetC40 + hltPreDSTMu5HT250 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHtL1FastJet + hltHt250L1FastJet + HLTDSTMuonRecoPt5 + cms.SequencePlaceholder( "HLTEndSequence" ) )
+DST_Ele8_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT250_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150OrHTT175OrDoubleJetC56OrSingleJet128OrQuadJetC32OrQuadJetC36OrQuadJetC40 + hltPreDSTEle8CaloIdLCaloIsoVLTrkIdVLTrkIsoVLHT250 + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHtL1FastJet + hltHt250L1FastJet + HLTDSTEleCaloIdLTrkIdVLCaloIsoVLTrkIsoVLUnseededRecoPt5 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_ZeroBias_v6 = cms.Path( HLTBeginSequence + hltL1sL1ZeroBias + hltPreZeroBias + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_ZeroBiasPixel_DoubleTrack_v1 = cms.Path( HLTBeginSequence + hltL1sL1ZeroBias + hltPreZeroBiasPixelDoubleTrack + HLTDoLocalPixelSequence + HLTPixelTrackingForMinBiasSequence + hltPixelCandsForMinBias + hltMinBiasPixelFilter2 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_Physics_v4 = cms.Path( HLTBeginSequence + hltPrePhysics + cms.SequencePlaceholder( "HLTEndSequence" ) )
