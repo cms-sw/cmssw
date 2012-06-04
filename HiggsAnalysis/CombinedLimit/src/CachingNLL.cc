@@ -25,6 +25,7 @@ bool cacheutils::CachingSimNLL::hasError_  = false;
 //#define DEBUG_TRACE_POINTS
 #ifdef DEBUG_TRACE_POINTS
 namespace { 
+    template<unsigned int>
     void tracePoint(const RooAbsCollection &point) {
         static const RooAbsCollection *lastPoint = 0;
         static std::vector<double> values;
@@ -50,9 +51,11 @@ namespace {
         }
     }
 }
-#define TRACE_POINT(x)  ::tracePoint(x);
+#define TRACE_POINT2(x,i)  ::tracePoint<i>(x);
+#define TRACE_POINT(x)  ::tracePoint<0>(x);
 #define TRACE_NLL(x)    std::cout << x << std::endl;
 #else
+#define TRACE_POINT2(x,i)
 #define TRACE_POINT(x) 
 #define TRACE_NLL(x) 
 #endif
@@ -228,6 +231,8 @@ cacheutils::CachingPdf::realFill_(const RooAbsData &data, std::vector<Double_t> 
         //*params = *data.get(i); // for non-smart handling of pointers
         *itv = pdf_->getVal(obs_);
         //std::cout << " at i = " << i << " pdf = " << *itv << std::endl;
+        TRACE_NLL("PDF value for " << pdf_->GetName() << " is " << *itv << " at this point.") 
+        TRACE_POINT2(*obs_,1)
     }
 }
 
