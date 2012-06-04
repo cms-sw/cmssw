@@ -23,6 +23,3 @@ DEFINE_FWK_MODULE(L1TEventInfoClient);
 
 #include <DQM/L1TMonitorClient/interface/L1EmulatorErrorFlagClient.h>
 DEFINE_FWK_MODULE(L1EmulatorErrorFlagClient);
-
-#include <DQM/L1TMonitorClient/interface/L1TEMUEventInfoClient.h>
-DEFINE_FWK_MODULE(L1TEMUEventInfoClient);

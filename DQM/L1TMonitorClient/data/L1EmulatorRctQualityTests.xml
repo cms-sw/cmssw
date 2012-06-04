@@ -8,110 +8,116 @@
 		<PARAM name="xmax">1.0</PARAM>
 	</QTEST>
 
-
 	<LINK name="*RCTErrorFlag">
 		<TestName activate="true">L1EmulatorRCTErrorFlagQT</TestName>
 	</LINK>
 
 
-    <QTEST name="eff2DErrorQTest">
-        <TYPE>ContentsWithinExpected</TYPE>
-        <PARAM name="minMean">0.98</PARAM>
-        <PARAM name="maxMean">1.01</PARAM>
-        <PARAM name="minRMS">0</PARAM>
-        <PARAM name="maxRMS">0</PARAM>
-        <PARAM name="toleranceMean">0</PARAM>
-        <PARAM name="minEntries">0</PARAM>
-        <PARAM name="useEmptyBins">0</PARAM>
-        <PARAM name="error">0.999</PARAM>
-        <PARAM name="warning">0.999</PARAM>
-    </QTEST>
+<QTEST name="L1EmulatorRCTeff2DErrorQTest">
+  <TYPE>ContentsWithinExpected</TYPE>
+  <PARAM name="minMean">0.98</PARAM>
+  <PARAM name="maxMean">1.01</PARAM>
+  <PARAM name="minRMS">0</PARAM>
+  <PARAM name="maxRMS">0</PARAM>
+  <PARAM name="toleranceMean">0</PARAM>
+  <PARAM name="minEntries">0</PARAM>
+  <PARAM name="useEmptyBins">0</PARAM>
+  <PARAM name="error">0.95</PARAM>
+  <PARAM name="warning">0.98</PARAM>
+</QTEST>
 
-    <QTEST name="eff1DErrorQTest">
-        <TYPE>ContentsYRange</TYPE>
-        <PARAM name="ymin">1.0</PARAM>
-        <PARAM name="ymax">1.01</PARAM>
-        <PARAM name="useEmptyBins">0</PARAM>
-        <PARAM name="error">0.999</PARAM>
-        <PARAM name="warning">0.999</PARAM>
-    </QTEST>
+<LINK name="*rct*Eff2D">
+  <TestName activate="true">L1EmulatorRCTeff2DErrorQTest</TestName>
+</LINK>
 
-    <QTEST name="ineff2DErrorQTest">
-        <TYPE>ContentsWithinExpected</TYPE>
-        <PARAM name="minMean">0.0</PARAM>
-        <PARAM name="maxMean">0.02</PARAM>
-        <PARAM name="minRMS">0</PARAM>
-        <PARAM name="maxRMS">0</PARAM>
-        <PARAM name="toleranceMean">0</PARAM>
-        <PARAM name="minEntries">0</PARAM>
-        <PARAM name="useEmptyBins">0</PARAM>
-        <PARAM name="error">0.999</PARAM>
-        <PARAM name="warning">0.999</PARAM>
-    </QTEST>
+<LINK name="*rct*Eff1">
+  <TestName activate="true">L1EmulatorRCTeff2DErrorQTest</TestName>
+</LINK>
 
-    <QTEST name="ineff1DErrorQTest">
-        <TYPE>ContentsYRange</TYPE>
-        <PARAM name="ymin">0.0</PARAM>
-        <PARAM name="ymax">0.0</PARAM>
-        <PARAM name="useEmptyBins">0</PARAM>
-        <PARAM name="error">0.999</PARAM>
-        <PARAM name="warning">0.999</PARAM>
-    </QTEST>
+<LINK name="*rct*Eff2">
+  <TestName activate="true">L1EmulatorRCTeff2DErrorQTest</TestName>
+</LINK>
 
-    <LINK name="*Eff2D">
-        <TestName activate="false">eff2DErrorQTest</TestName>
-    </LINK>
 
-    <LINK name="*Eff1">
-        <TestName activate="false">eff2DErrorQTest</TestName>
-    </LINK>
 
-    <LINK name="*Eff2">
-        <TestName activate="false">eff2DErrorQTest</TestName>
-    </LINK>
+<QTEST name="L1EmulatorRCTeff1DErrorQTest">
+  <TYPE>ContentsYRange</TYPE>
+  <PARAM name="ymin">1.0</PARAM>
+  <PARAM name="ymax">1.01</PARAM>
+  <PARAM name="useEmptyBins">0</PARAM>
+  <PARAM name="error">0.95</PARAM>
+  <PARAM name="warning">0.98</PARAM>
+</QTEST>
 
-    <LINK name="*Eff1D">
-        <TestName activate="false">eff1DErrorQTest</TestName>
-    </LINK>
+<LINK name="*rct*Eff1D">
+  <TestName activate="true">L1EmulatorRCTeff1DErrorQTest</TestName>
+</LINK>
 
-    <LINK name="*Eff1oneD">
-        <TestName activate="false">eff1DErrorQTest</TestName>
-    </LINK>
+<LINK name="*rct*Eff1oneD">
+  <TestName activate="true">L1EmulatorRCTeff1DErrorQTest</TestName>
+</LINK>
 
-    <LINK name="*Eff2oneD">
-        <TestName activate="false">eff1DErrorQTest</TestName>
-    </LINK>
+<LINK name="*rct*Eff2oneD">
+  <TestName activate="true">L1EmulatorRCTeff1DErrorQTest</TestName>
+</LINK>
 
-    <LINK name="*Ineff2D">
-        <TestName activate="false">ineff2DErrorQTest</TestName>
-    </LINK>
 
-    <LINK name="*Ineff">
-        <TestName activate="false">ineff2DErrorQTest</TestName>
-    </LINK>
 
-    <LINK name="*Ineff2">
-        <TestName activate="false">ineff2DErrorQTest</TestName>
-    </LINK>
+<QTEST name="L1EmulatorRCTineff2DErrorQTest">
+  <TYPE>ContentsWithinExpected</TYPE>
+  <PARAM name="minMean">0.0</PARAM>
+  <PARAM name="maxMean">0.02</PARAM>
+  <PARAM name="minRMS">0</PARAM>
+  <PARAM name="maxRMS">0</PARAM>
+  <PARAM name="toleranceMean">0</PARAM>
+  <PARAM name="minEntries">0</PARAM>
+  <PARAM name="useEmptyBins">0</PARAM>
+  <PARAM name="error">0.95</PARAM>
+  <PARAM name="warning">0.98</PARAM>
+</QTEST>
 
-    <LINK name="*Overeff2D">
-        <TestName activate="false">ineff2DErrorQTest</TestName>
-    </LINK>
+<LINK name="*rct*Ineff2D">
+  <TestName activate="true">L1EmulatorRCTineff2DErrorQTest</TestName>
+</LINK>
 
-    <LINK name="*Overeff">
-        <TestName activate="false">ineff2DErrorQTest</TestName>
-    </LINK>
+<LINK name="*rct*Ineff">
+  <TestName activate="true">L1EmulatorRCTineff2DErrorQTest</TestName>
+</LINK>
 
-    <LINK name="*Ineff1D">
-        <TestName activate="false">ineff1DErrorQTest</TestName>
-    </LINK>
+<LINK name="*rct*Ineff2">
+  <TestName activate="true">L1EmulatorRCTineff2DErrorQTest</TestName>
+</LINK>
 
-    <LINK name="*Ineff2oneD">
-        <TestName activate="false">ineff1DErrorQTest</TestName>
-    </LINK>
+<LINK name="*rct*Overeff2D">
+  <TestName activate="true">L1EmulatorRCTineff2DErrorQTest</TestName>
+</LINK>
 
-    <LINK name="*Overeff1D">
-        <TestName activate="false">ineff1DErrorQTest</TestName>
-    </LINK>
+<LINK name="*rct*Overeff">
+  <TestName activate="true">L1EmulatorRCTineff2DErrorQTest</TestName>
+</LINK>
+
+
+
+<QTEST name="L1EmulatorRCTineff1DErrorQTest">
+  <TYPE>ContentsYRange</TYPE>
+  <PARAM name="ymin">0.0</PARAM>
+  <PARAM name="ymax">0.0</PARAM>
+  <PARAM name="useEmptyBins">0</PARAM>
+  <PARAM name="error">0.95</PARAM>
+  <PARAM name="warning">0.98</PARAM>
+</QTEST>
+
+<LINK name="*rct*Ineff1D">
+  <TestName activate="true">L1EmulatorRCTineff1DErrorQTest</TestName>
+</LINK>
+
+<LINK name="*rct*Ineff2oneD">
+  <TestName activate="true">L1EmulatorRCTineff1DErrorQTest</TestName>
+</LINK>
+
+<LINK name="*rct*Overeff1D">
+  <TestName activate="true">L1EmulatorRCTineff1DErrorQTest</TestName>
+</LINK>
+
 
 </TESTSCONFIGURATION>

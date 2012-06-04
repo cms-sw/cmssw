@@ -1,7 +1,7 @@
 <TESTSCONFIGURATION>
 
 
-    <QTEST name="deDiffInRange">
+    <QTEST name="deDiffInRange_DTTF">
         <TYPE>ContentsYRange</TYPE> 
         <PARAM name="error">1.0</PARAM>
         <PARAM name="warning">0.0</PARAM>
@@ -42,7 +42,7 @@
         <PARAM name="neighbours">3</PARAM>
     </QTEST>
 
-    <QTEST name="CompareHist">
+    <QTEST name="CompareHist_DTTF">
         <TYPE>Comp2RefChi2</TYPE>
         <PARAM name="testparam">0</PARAM>
         <PARAM name="error">0.30</PARAM>
@@ -51,7 +51,7 @@
 
 
     <LINK name="*Integrated Packed *">
-        <TestName activate="false">CompareHist</TestName>
+        <TestName activate="false">CompareHist_DTTF</TestName>
     </LINK>
 
 
@@ -77,7 +77,7 @@
 
 
     <LINK name="*test*">
-        <TestName activate="false">deDiffInRange</TestName>
+        <TestName activate="false">deDiffInRange_DTTF</TestName>
     </LINK>
 
 

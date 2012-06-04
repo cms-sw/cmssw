@@ -6,21 +6,46 @@
 	-->
 
 
-	<!--
-		Dummy test to check code correctness for L1 objects. To be removed.
-	-->
-
-	<QTEST name="L1EmulatorAlgorithmsMuQT">
-		<TYPE>ContentsXRange</TYPE>
-		<PARAM name="xmin">0.0</PARAM>
-		<PARAM name="xmax">1.0</PARAM>
-		<PARAM name="warning">0.999</PARAM>
-		<PARAM name="error">0.99</PARAM>
-	</QTEST>
+    <QTEST name="L1EmulatorMuGmtErrorFlagQT">
+        <TYPE>ContentsXRange</TYPE>
+        <PARAM name="warning">0.99</PARAM>
+        <PARAM name="error">0.95</PARAM>
+        <PARAM name="xmin">0.0</PARAM>
+        <PARAM name="xmax">1.0</PARAM>
+    </QTEST>
 
 
-	<LINK name="*GTErrorFlag">
-		<TestName activate="true">L1EmulatorAlgorithmsMuQT</TestName>
-	</LINK>
+    <LINK name="*GMT/GMTErrorFlag">
+        <TestName activate="true">L1EmulatorMuGmtErrorFlagQT</TestName>
+    </LINK>
+    
+
+    <QTEST name="L1EmulatorMuDttfErrorFlagQT">
+        <TYPE>ContentsXRange</TYPE>
+        <PARAM name="warning">0.95</PARAM>
+        <PARAM name="error">0.9</PARAM>
+        <PARAM name="xmin">0.0</PARAM>
+        <PARAM name="xmax">1.0</PARAM>
+    </QTEST>
+
+
+    <LINK name="*DTTF/DTFErrorFlag">
+        <TestName activate="true">L1EmulatorMuDttfErrorFlagQT</TestName>
+    </LINK>
+
+
+    <QTEST name="L1EmulatorMuRpcErrorFlagQT">
+        <TYPE>ContentsXRange</TYPE>
+        <PARAM name="warning">0.99</PARAM>
+        <PARAM name="error">0.98</PARAM>
+        <PARAM name="xmin">0.0</PARAM>
+        <PARAM name="xmax">1.0</PARAM>
+    </QTEST>
+
+
+    <LINK name="*RPC/RPCErrorFlag">
+        <TestName activate="true">L1EmulatorMuRpcErrorFlagQT</TestName>
+    </LINK>
+    
 
 </TESTSCONFIGURATION>

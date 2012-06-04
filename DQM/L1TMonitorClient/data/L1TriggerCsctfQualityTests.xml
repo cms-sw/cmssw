@@ -16,13 +16,13 @@
     </QTEST>
 
     <LINK name="*CSCTF_Chamber_Occupancies">
-        <TestName activate="true">HotChannels_CSCTF_2D</TestName>
         <TestName activate="true">DeadChannels_CSCTF_2D</TestName>
+        <TestName activate="true">HotChannels_CSCTF_2D</TestName>
     </LINK>
 
     <LINK name="*CSCTF_occupancies">
-        <TestName activate="true">HotChannels_CSCTF_2D</TestName>
         <TestName activate="true">DeadChannels_CSCTF_2D</TestName>
+        <TestName activate="true">HotChannels_CSCTF_2D</TestName>
     </LINK>
 
 
