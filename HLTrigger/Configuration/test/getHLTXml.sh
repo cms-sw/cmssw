@@ -122,8 +122,10 @@ echo
 
 # for things now also in CMSSW CVS:
 echo "Extracting full configurations"
-rm -f OnData_HLT_*.py
-rm -f OnLine_HLT_*.py
+rm -f OnData_HLT_GRun_*.py
+rm -f OnData_HLT_HIon_*.py
+rm -f OnLine_HLT_GRun_*.py
+rm -f OnLine_HLT_HIon_*.py
 for TABLE in $TABLES; do
   getConfigForOnline $(eval echo $TARGET) $TABLE
 done
