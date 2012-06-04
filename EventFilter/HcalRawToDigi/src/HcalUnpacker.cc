@@ -97,6 +97,7 @@ namespace HcalUnpacker_impl {
 	}
 	ncurr++;
       }
+      digi.setSize(ntaken);
     }
     return qie_work;
   }
@@ -160,7 +161,17 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	edm::LogWarning("Invalid Data") << "CRC Error on HTR data observed on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
       report.countSpigotFormatError();
       continue;
-    }  
+    } 
+    // check for EE
+    if (htr.isEmptyEvent()) {
+      report.countEmptyEventSpigot();
+    }
+    if (htr.isOverflowWarning()) {
+      report.countOFWSpigot();
+    }
+    if (htr.isBusy()) {
+      report.countBusySpigot();
+    }
     if (!htr.check()) {
       if (!silent) 
 	edm::LogWarning("Invalid Data") << "Invalid HTR data observed on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
