@@ -1,8 +1,11 @@
-# L1 Emulator Event Info client cfi
+# L1 Trigger Event Info client cfi
+# 
+#   The cfi can be used, with appropriate settings, for both L1T and L1TEMU. 
+#   Default version in cfi: L1T event client
 #
 #   authors previous versions - see CVS
 #
-#   V.M. Ghete 2010-10-22 revised version of L1T DQM
+#   V.M. Ghete 2010-10-22 revised version of L1T DQM and L1TEMU DQM
 
 
 
