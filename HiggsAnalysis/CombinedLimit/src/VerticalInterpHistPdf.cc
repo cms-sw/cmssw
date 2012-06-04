@@ -309,7 +309,8 @@ Double_t FastVerticalInterpHistPdf::evaluate() const
   if (_cache.size() == 0) setupCaches();
 
   if (!_sentry.good()) syncTotal();
-  return std::max<float>(1e-9f, _cache.GetAt(_x));
+  //return std::max<double>(1e-9, _cache.GetAt(_x));
+  return _cache.GetAt(_x);
 }
 
 //_____________________________________________________________________________
@@ -318,7 +319,8 @@ Double_t FastVerticalInterpHistPdf2D::evaluate() const
   if (_cache.size() == 0) setupCaches();
 
   if (!_sentry.good()) syncTotal();
-  return std::max<float>(1e-9f, _cache.GetAt(_x, _y));
+  //return std::max<double>(1e-9, _cache.GetAt(_x, _y));
+  return _cache.GetAt(_x, _y);
 }
 
 

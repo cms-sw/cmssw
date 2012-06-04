@@ -175,6 +175,7 @@ public:
   Double_t evaluate() const ;
 
   Bool_t selfNormalized() const { return kTRUE; }
+  Bool_t conditional() const { return _conditional; }
 
 protected:
   RooRealProxy _x, _y;
