@@ -343,6 +343,7 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
 
       G4ThreeVector SpotPosition0 = trajectoryPoint.getPosition() + rShower*std::cos(azimuthalAngle)*trajectoryPoint.getOrthogonalUnitVector() + rShower*std::sin(azimuthalAngle)*trajectoryPoint.getCrossUnitVector();
 
+      //!V.Ivanchenko - not clear if it is correct
       // Convert into mm unit
       SpotPosition0 *= cm;
 
@@ -376,7 +377,8 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
       }
 #endif
 
-      if(SpotPosition0 == 0) continue;
+      //!V.Ivanchenko what this means??
+      //if(SpotPosition0 == 0) continue;
 
       double energyratio = emSpotEnergy/(preStepPoint->GetTotalEnergy()/(nSpots*e25Scale));
 

@@ -17,7 +17,7 @@
 #include "G4Neutron.hh"
 
 #include "G4WHadronElasticProcess.hh"
-#include "G4VHadronElastic.hh"
+//#include "G4VHadronElastic.hh"
 #include "G4CHIPSElastic.hh"
 #include "G4ElasticHadrNucleusHE.hh"
 #include "G4BGGNucleonElasticXS.hh"
@@ -62,8 +62,10 @@ void CMSHadronElasticPhysicsXS::ConstructProcess()
 	   << elimit << " MeV" << G4endl;
   }
 
-  G4VHadronElastic* plep0 = new G4VHadronElastic();
-  G4VHadronElastic* plep1 = new G4VHadronElastic();
+  //G4VHadronElastic* plep0 = new G4VHadronElastic();
+  //G4VHadronElastic* plep1 = new G4VHadronElastic();
+  G4HadronElastic* plep0 = new G4HadronElastic();
+  G4HadronElastic* plep1 = new G4HadronElastic();
   plep1->SetMaxEnergy(elimit);
 
   G4CHIPSElastic* chipsp = new G4CHIPSElastic();
