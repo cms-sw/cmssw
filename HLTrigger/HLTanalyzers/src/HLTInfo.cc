@@ -126,7 +126,6 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   algoBitToName = new TString[128];
   techBitToName = new TString[128];
 
-  /*
   HltTree->Branch("NL1IsolEm",&nl1extiem,"NL1IsolEm/I");
   HltTree->Branch("L1IsolEmEt",l1extiemet,"L1IsolEmEt[NL1IsolEm]/F");
   HltTree->Branch("L1IsolEmE",l1extieme,"L1IsolEmE[NL1IsolEm]/F");
@@ -158,11 +157,13 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("L1ForJetE",l1extjtfe,"L1ForJetE[NL1ForJet]/F");
   HltTree->Branch("L1ForJetEta",l1extjtfeta,"L1ForJetEta[NL1ForJet]/F");
   HltTree->Branch("L1ForJetPhi",l1extjtfphi,"L1ForJetPhi[NL1ForJet]/F");
+  /*
   HltTree->Branch("NL1Jet",&nl1extjet,"NL1Jet/I");
   HltTree->Branch("L1JetEt",l1extjtet,"L1JetEt[NL1Jet]/F");
   HltTree->Branch("L1JetE",l1extjte,"L1JetE[NL1Jet]/F");
   HltTree->Branch("L1JetEta",l1extjteta,"L1JetEta[NL1Jet]/F");
   HltTree->Branch("L1JetPhi",l1extjtphi,"L1JetPhi[NL1Jet]/F");
+  */
   HltTree->Branch("NL1Tau",&nl1exttau,"NL1Tau/I");
   HltTree->Branch("L1TauEt",l1exttauet,"L1TauEt[NL1Tau]/F");
   HltTree->Branch("L1TauE",l1exttaue,"L1TauE[NL1Tau]/F");
@@ -184,7 +185,6 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("L1HfTowerCountNegativeEtaRing1",&l1hfTowerCountNegativeEtaRing1,"L1HfTowerCountNegativeEtaRing1/I");
   HltTree->Branch("L1HfTowerCountPositiveEtaRing2",&l1hfTowerCountPositiveEtaRing2,"L1HfTowerCountPositiveEtaRing2/I");
   HltTree->Branch("L1HfTowerCountNegativeEtaRing2",&l1hfTowerCountNegativeEtaRing2,"L1HfTowerCountNegativeEtaRing2/I");
-  */
 }
 
 /* **Analyze the event** */
@@ -436,7 +436,7 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
     }
   }
   else {
-    nl1extjetf = 0;
+    //    nl1extjetf = 0;
     if (_Debug) std::cout << "%HLTInfo -- No L1 JET object" << std::endl;
   }
 
