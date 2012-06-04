@@ -7,20 +7,20 @@ import FWCore.ParameterSet.Config as cms
 
 ###################### user choices ######################
 
-dataType = 'RAW'
-#dataType = 'StreamFile'
+# choose one sample identifier from the list of data samples 
+#
+#sampleIdentifier = '165633-CAFDQM'
+sampleIdentifier = '195378'
 
-
-# runNumber for RAW only 
-runNumber = '165633-CAFDQM'
-#runNumber = 163661
-#runNumber = 161312
-#runNumber = 143657
-#runNumber = 137028
-
-maxNumberEvents = 1000
+maxNumberEvents = 5000
 
 ###################### end user choices ###################
+
+# initialize list of files, of secondary files, list of selected events and luminosity segments
+readFiles = cms.untracked.vstring()
+secFiles = cms.untracked.vstring() 
+selectedEvents = cms.untracked.VEventRange()
+selectedLumis= cms.untracked.VLuminosityBlockRange()
 
 
 maxEvents = cms.untracked.PSet(
@@ -28,70 +28,105 @@ maxEvents = cms.untracked.PSet(
 )
 
 
+
+if sampleIdentifier == '195378' :
+    runNumber = '195378'
+    dataset = '/MinimumBias/Run2012B-v1/RAW'
+    dataType = 'RAW'
+    useDAS = True
+    selectedLumis= cms.untracked.VLuminosityBlockRange(
+                                                '195378:1275-195378:max'
+                                                )
+           
+elif sampleIdentifier == '195379' :
+    runNumber = '195379'
+    dataset = '/MinimumBias/Run2012B-v1/RAW'
+    dataType = 'RAW'
+    useDAS = True
+           
+elif sampleIdentifier == '195390' :
+    runNumber = '195390'
+    dataset = '/MinimumBias/Run2012B-v1/RAW'
+    dataType = 'RAW'
+    useDAS = True
+           
+# high PU run 2011   
+elif sampleIdentifier == '179828' :
+    runNumber = '179828'
+    dataset =  '/ZeroBiasHPF0/Run2011B-v1/RAW'
+    dataType = 'RAW'
+    useDAS = True
+        
+        
+elif sampleIdentifier == '165633-CAFDQM' :
+    runNumber = '165633'
+    dataset = '/ZeroBiasHPF0/Run2011B-v1/RAW'
+    dataType = 'RAW'
+    useDAS = False
+    readFiles.extend( [ 
+            'file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/DQMTest/MinimumBias__RAW__v1__165633__1CC420EE-B686-E011-A788-0030487CD6E8.root'                       
+            ]);    
+                                                                                                           
+elif sampleIdentifier == 'FileStream_105760' :
+    runNumber = '105760'
+    dataset = 'A_Stream'
+    dataType = 'FileStream'
+    useDAS = False
+    readFiles.extend( [
+            'file:/lookarea_SM/MWGR_29.00105760.0001.A.storageManager.00.0000.dat'       
+            ] );
+                
+else :
+    print 'Error: sample identifier ', sampleIdentifier, ' not defined.\n'
+    errorUserOptions = True 
+    runNumber = '0'
+    dataset = 'None'
+    dataType = 'None'
+    useDAS = False
+       
+     
+#            
+# end of data samples 
+#            
+
+print "   Run number: ", runNumber
+print "   Dataset: ", dataset
+print "   Data type: ", dataType
+
+if useDAS :
+    import das_client
+    import os
+
+    # query DAS
+    myQuery =  'file dataset=' + dataset + ' run=' + runNumber
+    dasClientCommand = 'das_client.py --limit=0 --format=plain --query='+'"'+myQuery+'"'
+    data = os.popen(dasClientCommand)
+    filePaths = data.readlines()
+            
+       
+    print '\n   das_client using the query'
+    print '      ', myQuery
+    print '   retrieved the following files\n'
+        
+    for line in filePaths :
+        print '      ', line
+           
+    readFiles.extend(filePaths);
+        
+        
+    # nothing added to secondary files by DAS 
+    secFiles.extend([
+            ])
+
+        
 # for RAW data, run first the RAWTODIGI 
 if dataType == 'StreamFile' :
-    readFiles = cms.untracked.vstring()
     source = cms.Source("NewEventStreamFileReader", fileNames=readFiles)
-else :        
-    readFiles = cms.untracked.vstring()
-    secFiles = cms.untracked.vstring() 
-    source = cms.Source ('PoolSource', fileNames=readFiles, secondaryFileNames=secFiles)
+else :               
+    source = cms.Source ('PoolSource', 
+                            fileNames=readFiles, 
+                            secondaryFileNames=secFiles,
+                            lumisToProcess = selectedLumis,
+                            eventsToProcess = selectedEvents
+                            )
 
-
-if dataType == 'RAW' : 
-
-    if runNumber == 137028: 
-    
-        readFiles.extend( [
-            '/store/data/Run2010A/ZeroBias/RAW/v1/000/137/028/0C88B386-3971-DF11-A163-000423D99896.root' 
-            ] );
-
-        secFiles.extend([
-            ])    
-    
-    elif runNumber == 143657 : 
-    
-        readFiles.extend( [
-            '/store/data/Run2010A/MinimumBias/RAW/v1/000/143/657/00FB1636-91AE-DF11-B177-001D09F248F8.root',
-            '/store/data/Run2010A/MinimumBias/RAW/v1/000/143/657/023EB128-51AE-DF11-96D3-001D09F24682.root'
-            ] );
-
-        secFiles.extend([
-            ])    
-   
-    elif runNumber == 161312 : 
-    
-        readFiles.extend( [
-            '/store/data/Run2011A/MinimumBias/RAW/v1/000/161/312/FEE65985-EF55-E011-A137-001617E30F50.root',
-            '/store/data/Run2011A/MinimumBias/RAW/v1/000/161/312/F4E4E71A-E755-E011-B7BA-001617E30CC8.root',
-            '/store/data/Run2011A/MinimumBias/RAW/v1/000/161/312/F442D1A6-D755-E011-A93F-003048F01E88.root'
-            ] );
-
-        secFiles.extend([
-            ])    
-    elif runNumber == 163661 : 
-    
-        readFiles.extend( [
-            '/store/data/Run2011A/MinimumBias/RAW/v1/000/163/661/2E455CA5-2272-E011-A3A8-003048F024F6.root'
-            ] );
-
-        secFiles.extend([
-            ])    
-   
-    elif runNumber == '165633-CAFDQM' : 
-    
-        readFiles.extend( [
-            'file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/DQMTest/MinimumBias__RAW__v1__165633__1CC420EE-B686-E011-A788-0030487CD6E8.root'
-            ] );
-
-        secFiles.extend([
-            ])    
-   
-elif dataType == 'StreamFile' : 
-
-    readFiles.extend( [
-        'file:/lookarea_SM/Data.00147754.0001.A.storageManager.00.0000.dat'       
-        ] );
-
-else :
-    print 'Error: no such dataType:' + dataType + 'was specified'
