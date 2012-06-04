@@ -14,8 +14,8 @@ process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cf
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 # check for the correct tag on https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
-#process.GlobalTag.globaltag = "GR_R_311_V2::All"
-process.GlobalTag.globaltag = "GR_R_42_V20::All"
+#process.GlobalTag.globaltag = "GR09_PV7::All"
+process.GlobalTag.globaltag = "GR_R_52_V8::All"
 
 
 process.load("RecoTracker.Configuration.RecoTracker_cff")
@@ -48,13 +48,14 @@ process.lorentzAngle = cms.EDAnalyzer("PixelLorentzAngle",
 	fileNameFit	= cms.string("lorentzFit.txt"),
 	binsDepth	= cms.int32(50),
 	binsDrift =	cms.int32(200),
-	ptMin = cms.double(3.0),#3
+         # generally used cuts:
+	ptMin = cms.double(2.0),#default is 3.0
 	#in case of MC set this to true to save the simhits (does not work currently, Mixing Module needs to be included correctly)
 	simData = cms.bool(False),
-  	normChi2Max = cms.double(2),	
-	clustSizeYMin = cms.int32(4),#4
-	residualMax = cms.double(0.005),
-	clustChargeMax = cms.double(120000)
+  	normChi2Max = cms.double(3),#default is 2
+	clustSizeYMin = cms.int32(3),# default is 4
+	residualMax = cms.double(0.01),#default is 0.005
+	clustChargeMax = cms.double(200000) #default is 120000
 )
 
 process.myout = cms.OutputModule("PoolOutputModule",
@@ -72,7 +73,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
 	#put here the sample you want to use
     fileNames = cms.untracked.vstring(
-    'file:FA5133E6-DBE5-E011-B387-BCAEC5329718.root'
+    '/store/data/Run2011A/MuOnia/RECO/PromptReco-v1/000/161/312/EC43E47F-DC57-E011-9497-001D09F253D4.root'
 	),   
 #   skipEvents = cms.untracked.uint32(100) 
 )
