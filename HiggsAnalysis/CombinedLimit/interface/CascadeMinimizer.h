@@ -36,9 +36,11 @@ class CascadeMinimizer {
         static boost::program_options::options_description options_;
         /// compact information about an algorithm
         struct Algo { 
-            Algo() : algo(), tolerance() {}
-            Algo(const std::string &str, float tol=-1.f) : algo(str), tolerance(tol) {}
-            std::string algo; float tolerance;
+            Algo() : algo(), tolerance(), strategy(-1) {}
+            Algo(const std::string &str, float tol=-1.f, int strategy=-1) : algo(str), tolerance(tol), strategy(-1) {}
+            std::string algo; float tolerance; int strategy;
+            static float default_tolerance() { return -1.f; }
+            static int   default_strategy() { return -1; }
         };
         /// list of algorithms to run if the default one fails
         static std::vector<Algo> fallbacks_;
@@ -52,6 +54,8 @@ class CascadeMinimizer {
         static bool setZeroPoint_;
         /// don't do old fallback using robustMinimize 
         static bool oldFallback_;
+
+        //static void setDefaultIntegrator(RooCategory &cat, const std::string & val) ;
 };
 
 #endif
