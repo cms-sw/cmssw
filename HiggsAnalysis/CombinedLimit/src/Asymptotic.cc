@@ -126,8 +126,9 @@ bool Asymptotic::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats
     minim.setStrategy(minimizerStrategy_);
     minim.minimize(verbose-2);
     fitFreeD_.reset(minim.save());
+    minNllD_ = nllD_->getVal();
   }
-  if (verbose > 0) std::cout << "NLL at global minimum of data: " << fitFreeD_->minNll() << " (" << r->GetName() << " = " << r->getVal() << ")" << std::endl;
+  if (verbose > 0) std::cout << "NLL at global minimum of data: " << minNllD_ << " (" << r->GetName() << " = " << r->getVal() << ")" << std::endl;
 
   r->setMin(0);
 
@@ -140,8 +141,9 @@ bool Asymptotic::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats
     minim.setStrategy(minimizerStrategy_);
     minim.minimize(verbose-2);
     fitFreeA_.reset(minim.save());
+    minNllA_ = nllA_->getVal();
   }
-  if (verbose > 0) std::cout << "NLL at global minimum of asimov: " << fitFreeA_->minNll() << " (" << r->GetName() << " = " << r->getVal() << ")" << std::endl;
+  if (verbose > 0) std::cout << "NLL at global minimum of asimov: " << minNllA_ << " (" << r->GetName() << " = " << r->getVal() << ")" << std::endl;
   if (verbose > 1) fitFreeA_->Print("V");
 
   *params_ = fitFreeD_->floatParsFinal();
@@ -195,10 +197,9 @@ double Asymptotic::getCLs(RooRealVar &r, double rVal) {
   r.setConstant(true);
 
   CloseCoutSentry sentry(verbose < 3);
+
   CascadeMinimizer minimD(*nllD_, CascadeMinimizer::Constrained, &r);
-  CascadeMinimizer minimA(*nllA_, CascadeMinimizer::Constrained, &r);
   minimD.setStrategy(minimizerStrategy_);  
-  minimA.setStrategy(minimizerStrategy_); 
 
   *params_ = fitFixD_.get() ? fitFixD_->floatParsFinal() : fitFreeD_->floatParsFinal();
   *params_ = snapGlobalObsData;
@@ -209,7 +210,10 @@ double Asymptotic::getCLs(RooRealVar &r, double rVal) {
       fitFixD_.reset(minimD.save());
       if (verbose >= 2) fitFixD_->Print("V");
   }
-  double qmu = 2*(nllD_->getVal() - fitFreeD_->minNll()); if (qmu < 0) qmu = 0;
+  double qmu = 2*(nllD_->getVal() - minNllD_); if (qmu < 0) qmu = 0;
+
+  CascadeMinimizer minimA(*nllA_, CascadeMinimizer::Constrained, &r);
+  minimA.setStrategy(minimizerStrategy_); 
 
   *params_ = fitFixA_.get() ? fitFixA_->floatParsFinal() : fitFreeA_->floatParsFinal();
   *params_ = snapGlobalObsAsimov;
@@ -220,7 +224,7 @@ double Asymptotic::getCLs(RooRealVar &r, double rVal) {
       fitFixA_.reset(minimA.save());
       if (verbose >= 2) fitFixA_->Print("V");
   }
-  double qA  = 2*(nllA_->getVal() - fitFreeA_->minNll()); if (qA < 0) qA = 0;
+  double qA  = 2*(nllA_->getVal() - minNllA_); if (qA < 0) qA = 0;
 
   double CLsb = ROOT::Math::normal_cdf_c(sqrt(qmu));
   double CLb  = ROOT::Math::normal_cdf(sqrt(qA)-sqrt(qmu));

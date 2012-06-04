@@ -175,7 +175,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
             RooFit::Extended(mc_s->GetPdf()->canBeExtended()), 
             constCmdArg_s, minosCmdArg
             );
-    if (res_b) nll_bonly_ =res_b->minNll();
+    if (res_b) nll_bonly_ = nll->getVal() - nll0;
 
   }
 
@@ -243,7 +243,7 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
             RooFit::Extended(mc_s->GetPdf()->canBeExtended()), 
             constCmdArg_s, minosCmdArg
             );
-    if (res_s) nll_sb_= res_s->minNll();
+    if (res_s) nll_sb_= nll_sb_ = nll->getVal()-nll0;
 
   }
   if (res_s) { 
