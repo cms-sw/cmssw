@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Core.DQM_cfg import *
 
-DQM.collectorHost = 'lxplus444.cern.ch'
+DQM.collectorHost = 'lxplus419.cern.ch'
 DQM.collectorPort = 9190
 
 from DQMServices.Components.DQMEnvironment_cfi import *

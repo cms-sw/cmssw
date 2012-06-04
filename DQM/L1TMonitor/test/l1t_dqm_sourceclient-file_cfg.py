@@ -132,11 +132,11 @@ process.load("DQM.L1TMonitorClient.L1TMonitorClient_cff")
 
 # change the DB connections when not at P5 - works on lxplus only...
 if ( l1DqmEnv == 'file' ) : 
-    process.l1tSync.oracleDB = cms.string("oracle://cms_orcoff_prod/CMS_COND_31X_L1T")
-    process.l1tSync.pathCondDB = cms.string("/afs/cern.ch/cms/DB/conddb")
+    process.l1tSync.oracleDB = cms.string("oracle://cms_orcon_adg/CMS_COND_31X_L1T")
+    process.l1tSync.pathCondDB = cms.string("/afs/cern.ch/cms/DB/conddb/ADG")
     #
-    process.l1tRate.oracleDB = cms.string("oracle://cms_orcoff_prod/CMS_COND_31X_L1T")
-    process.l1tRate.pathCondDB = cms.string("/afs/cern.ch/cms/DB/conddb")
+    process.l1tRate.oracleDB = cms.string("oracle://cms_orcon_adg/CMS_COND_31X_L1T")
+    process.l1tRate.pathCondDB = cms.string("/afs/cern.ch/cms/DB/conddb/ADG")
     
 
 #-------------------------------------
@@ -217,7 +217,7 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 
 #process.l1tMonitorOnline.remove(process.l1ExtraDqmSeq)
 
-#process.l1tMonitorOnline.remove(process.l1tRate)
+process.l1tMonitorOnline.remove(process.l1tRate)
 
 #process.l1tMonitorOnline.remove(process.l1tRctSeq)
 
@@ -230,25 +230,7 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 #process.l1tMonitorEndPathSeq.remove(process.l1tscalers)
 
 #
-#process.schedule.remove(process.l1tSyncPath)
-
-                                    
-#
-# available data masks (case insensitive):
-#    all, gt, muons, jets, taujets, isoem, nonisoem, met
-process.l1tEventInfoClient.dataMaskedSystems = cms.untracked.vstring(
-                                                            "Muons",
-                                                            "Jets",
-                                                            "TauJets",
-                                                            "IsoEm",
-                                                            "NonIsoEm",
-                                                            "MET"
-                                                            )
-
-#
-# available emulator masks (case insensitive):
-#    all, dttf, dttpg, csctf, csctpg, rpc, gmt, ecal, hcal, rct, gct, glt
-process.l1tEventInfoClient.emulatorMaskedSystems = cms.untracked.vstring("All")
+process.schedule.remove(process.l1tSyncPath)
 
 
 # 
