@@ -10,6 +10,7 @@ parser.add_option("-S", "--force-shape", dest="shape",    default=False, action=
 parser.add_option("-a", "--asimov", dest="asimov",  default=False, action="store_true", help="Replace observation with asimov dataset. Works only for counting experiments")
 parser.add_option("-P", "--prefix", type="string", dest="fprefix", default="",  help="Prefix this to all file names")
 parser.add_option("--xc", "--exclude-channel", type="string", dest="channelVetos", default=[], action="append", help="Exclude channels that match this regexp; can specify multiple ones")
+parser.add_option("--X-no-jmax",  dest="noJMax", default=False, action="store_true", help="FOR DEBUG ONLY: Turn off the consistency check between jmax and number of processes.")
 (options, args) = parser.parse_args()
 options.bin = True # fake that is a binary output, so that we parse shape lines
 options.nuisancesToExclude = []

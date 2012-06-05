@@ -15,10 +15,11 @@ def addDatacardParserOptions(parser):
     parser.add_option("-D", "--dataset",  dest="dataname", default="data_obs",  type="string",  help="Name of the observed dataset")
     parser.add_option("-L", "--LoadLibrary", dest="libs",  type="string" , action="append", help="Load these libraries")
     parser.add_option("--poisson",  dest="poisson",  default=0,  type="int",    help="If set to a positive number, binned datasets wih more than this number of entries will be generated using poissonians")
-    parser.add_option("--default-morphing",  dest="defMorph", type="string", default="shape2", help="Default template morphing algorithm (to be used when the datacard has just 'shape')")
+    parser.add_option("--default-morphing",  dest="defMorph", type="string", default="shape2N", help="Default template morphing algorithm (to be used when the datacard has just 'shape')")
     parser.add_option("--X-exclude-nuisance", dest="nuisancesToExclude", type="string", action="append", default=[], help="Exclude nuisances that match these regular expressions.")
     parser.add_option("--X-force-simpdf",  dest="forceSimPdf", default=False, action="store_true", help="FOR DEBUG ONLY: Always produce a RooSimultaneous, even for single channels.")
     parser.add_option("--X-no-check-norm",  dest="noCheckNorm", default=False, action="store_true", help="FOR DEBUG ONLY: Turn off the consistency check between datacard norms and shape norms. Will give you nonsensical results if you have shape uncertainties.")
+    parser.add_option("--X-no-jmax",  dest="noJMax", default=False, action="store_true", help="FOR DEBUG ONLY: Turn off the consistency check between jmax and number of processes.")
 
     
 class Datacard():
@@ -99,8 +100,9 @@ def parseCard(file, options):
                 if p not in ret.processes: ret.processes.append(p)
             if nprocesses == -1: nprocesses = len(ret.processes)
             if nbins      == -1: nbins      = len(ret.bins)
-            if nprocesses != len(ret.processes): raise RuntimeError, "Found %d processes (%s), declared jmax = %d" % (len(ret.processes),ret.processes,nprocesses)
-            if nbins      != len(ret.bins):      raise RuntimeError, "Found %d bins (%s), declared jmax = %d" % (len(ret.bins),ret.bins,nbins)
+            if not options.noJMax:
+                if nprocesses != len(ret.processes): raise RuntimeError, "Found %d processes (%s), declared jmax = %d" % (len(ret.processes),ret.processes,nprocesses)
+            if nbins      != len(ret.bins):      raise RuntimeError, "Found %d bins (%s), declared imax = %d" % (len(ret.bins),ret.bins,nbins)
             ret.exp = dict([(b,{}) for b in ret.bins])
             ret.isSignal = dict([(p,None) for p in ret.processes])
             if ret.obs != [] and type(ret.obs) == list: # still as list, must change into map with bin names
