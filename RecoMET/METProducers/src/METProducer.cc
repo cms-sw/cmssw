@@ -36,19 +36,6 @@ using namespace reco;
 
 namespace cms 
 {
-  //--------------------------------------------------------------------------
-  // Constructor : used to fill the parameters from the configuration file
-  // Currently there are only two defined parameters:
-  // 1. src = the label of the input data product (which must derive from 
-  //    Candidate)
-  // 2. METType = the type of to produce into the event.  currently there are
-  //    only two types of MET defined: (1) MET from calorimetery (and so 
-  //    contains extra information specific to calorimetery) and (2) the 
-  //    default MET which contains only generic information.  Additional
-  //    MET types will appear (such as GenMET) in the future.  (All "types"
-  //    of MET inherit from RecoCandidate and merely extend that class with
-  //    extra information)
-  //-----------------------------------
   METProducer::METProducer(const edm::ParameterSet& iConfig) : alg_() , resolutions_(0), tcmetalgorithm(0) 
   {
     inputLabel = iConfig.getParameter<edm::InputTag>("src");
