@@ -21,9 +21,12 @@ class ShapeBuilder(ModelBuilder):
         if (self.options.verbose > 1): stderr.write("Using shapes: qui si parra' la tua nobilitate\n")
         self.prepareAllShapes();
         if len(self.DC.bins) > 1 or self.options.forceSimPdf:
-            strexpr="CMS_channel[" + ",".join(["%s=%d" % (l,i) for i,l in enumerate(self.DC.bins)]) + "]";
+            ## start with just a few channels
+            strexpr="CMS_channel[" + ",".join(["%s=%d" % (l,i) for i,l in enumerate(self.DC.bins[:5])]) + "]";
             self.doVar(strexpr);
             self.out.binCat = self.out.cat("CMS_channel");
+            ## then add all the others, to avoid a too long factory string
+            for i,l in enumerate(self.DC.bins[5:]): self.out.binCat.defineType(l,i+5)   
             if self.options.verbose: stderr.write("Will use category 'CMS_channel' to identify the %d channels\n" % self.out.binCat.numTypes())
             self.out.obs = ROOT.RooArgSet()
             self.out.obs.add(self.out.binVars)
