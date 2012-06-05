@@ -451,7 +451,7 @@ class ShapeBuilder(ModelBuilder):
             elif shape.InheritsFrom("RooAbsPdf"):
                 _cache[shape.GetName()+"Pdf"] = shape
             elif shape.InheritsFrom("RooDataHist"):
-                rhp = ROOT.RooHistPdf("%sPdf" % shape.GetName(), "", self.out.binVars, shape) 
+                rhp = ROOT.RooHistPdf("%sPdf" % shape.GetName(), "", shape.get(), shape) 
                 self.out._import(rhp)
                 _cache[shape.GetName()+"Pdf"] = rhp
             elif shape.InheritsFrom("RooDataSet"):
