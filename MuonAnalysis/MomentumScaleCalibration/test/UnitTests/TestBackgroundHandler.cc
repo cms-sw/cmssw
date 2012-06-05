@@ -96,8 +96,8 @@ public:
     double parval[] = {0., 0., 0., 0., 0.3, 0.8};
     double mass = 3.;
     std::pair<double, double> result = backgroundHandler_->backgroundFunction( true, parval, 6, 5,
-									       resConsidered, ResMass, massWindowHalfWidth,
-									       1, mass, 0., 0. );
+                                                                          resConsidered, ResMass, massWindowHalfWidth,
+                                                                          1, mass, 1000 );
     double lowerBound = backgroundHandler_->backgroundWindow_[2].lowerBound();
     double upperBound = backgroundHandler_->backgroundWindow_[2].upperBound();
     CPPUNIT_ASSERT( result.first == parval[4] );

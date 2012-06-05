@@ -38,6 +38,9 @@ addMixingScenario("E7TeV_AVE_50_BX2808",{'file': 'SimGeneral.MixingModule.mix_E7
 addMixingScenario("E7TeV_AVE_5_BX156",{'file': 'SimGeneral.MixingModule.mix_E7TeV_AVE_1_BX156_cfi', 'N': 5})
 addMixingScenario("E7TeV_AVE_5_BX2808",{'file': 'SimGeneral.MixingModule.mix_E7TeV_AVE_2_BX2808_cfi', 'N': 5})
 addMixingScenario("E7TeV_FIX_1_BX156",{'file': 'SimGeneral.MixingModule.mix_E7TeV_FIX_1_BX156_cfi'})
+addMixingScenario("E7TeV_FIX_1_BX_50ns_B_p2p2", {'file': 'SimGeneral.MixingModule.mix_E7TeV_FIX_1_BX156_cfi', "BX":50.0,"B":(2,2)})
+addMixingScenario("E7TeV_FIX_1_BX_50ns_B_00", {'file': 'SimGeneral.MixingModule.mix_E7TeV_FIX_1_BX156_cfi', "BX":50.0,"B":(0,0)})
+addMixingScenario("E7TeV_FIX_1_BX_50ns_B_m2m2", {'file': 'SimGeneral.MixingModule.mix_E7TeV_FIX_1_BX156_cfi', "BX":50.0,"B":(-2,-2)})
 addMixingScenario("E7TeV_FIX_2_BX156",{'file': 'SimGeneral.MixingModule.mix_E7TeV_FIX_1_BX156_cfi', 'N': 2})
 addMixingScenario("E7TeV_FIX_3_BX156",{'file': 'SimGeneral.MixingModule.mix_E7TeV_FIX_1_BX156_cfi', 'N': 3})
 addMixingScenario("E7TeV_FIX_5_BX156",{'file': 'SimGeneral.MixingModule.mix_E7TeV_FIX_1_BX156_cfi', 'N': 5})
@@ -46,6 +49,7 @@ addMixingScenario("E7TeV_L69E30_BX156",{'file': 'SimGeneral.MixingModule.mix_E7T
 addMixingScenario("E8TeV_AVE_10_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':50, 'B': (-3,2), 'N': 10})
 addMixingScenario("E8TeV_AVE_16_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi'})
 addMixingScenario("E8TeV_AVE_16_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX': 50, 'B': (-3,2)})
+addMixingScenario("E8TeV_AVE_4_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX': 50, 'B': (-3,2), 'N': 4})
 addMixingScenario("HiMix",{'file': 'SimGeneral.MixingModule.HiEventMixing_cff'})
 addMixingScenario("HighLumiPileUp",{'file': 'SimGeneral.MixingModule.mixHighLumPU_cfi'})
 addMixingScenario("InitialLumiPileUp",{'file': 'SimGeneral.MixingModule.mixInitialLumPU_cfi'})
@@ -106,8 +110,7 @@ addMixingScenario("SLHC_LowLumiPileUp_Phase1_R34F16_smpx",{'file':'SLHCUpgradeSi
 addMixingScenario("SLHC_LowLumiPileUp_stdgeom",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_stdgeom_cff'})
 addMixingScenario("SLHC_LowLumiPileUp_Phase1_R39F16_HCal",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_HCal_cff'})
 
-MixingDefaultKey = '2012_Startup_50ns_PoissonOOTPU'
-MixingFSDefaultKey = '2012_Startup_inTimeOnly'
+MixingDefaultKey = 'NoPileUp'
 
 def printMe():
     global Mixing

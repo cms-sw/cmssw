@@ -1,5 +1,6 @@
 <lcgdict>
-  <class name="TtGenEvent"  ClassVersion="10">
+  <class name="TtGenEvent"  ClassVersion="11">
+   <version ClassVersion="11" checksum="3979818069"/>
    <version ClassVersion="10" checksum="2353612425"/>
   </class>
   <class name="StGenEvent"  ClassVersion="10">

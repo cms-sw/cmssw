@@ -1,3 +1,18 @@
+2012-04-23 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-09-00
+	* Add reconnect method for event server (from Srecko).
+	* Use EPs instead of FUs on SM hyperdaq page.
+
+2012-04-20 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-08-00
+	* More efficient handling of INIT messages.
+	* Handle case that INIT messages are sent by the master EP and
+	  not from the slaves. I.e. the number of init messages may be
+	  less than the number of EPs sending events.
+	* Add unit test for DiskWriter thread
+
 2012-03-28 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-07-00

@@ -42,7 +42,11 @@ private:
   muonisolation::Cuts theCuts;
 
   // Option to write MuIsoDeposits into the event
-  double optOutputIsoDeposits;
+  bool optOutputIsoDeposits;
+
+  // Option to use rho-corrected calo deposits (ONLY if already available)
+  bool useRhoCorrectedCaloDeps;
+  edm::InputTag theCaloDepsLabel;
 
   // MuIsoExtractor
   reco::isodeposit::IsoDepositExtractor * caloExtractor;

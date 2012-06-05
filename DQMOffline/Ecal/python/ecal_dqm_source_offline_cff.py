@@ -17,83 +17,29 @@ from DQMOffline.Ecal.ESRecoSummary_cfi import *
 
 from DQMOffline.Ecal.EcalZmassTask_cfi import *
 
-dqmInfoEcal = cms.EDAnalyzer("DQMEventInfo",
-    subSystemFolder = cms.untracked.string('Ecal')
+dqmInfoEB = cms.EDAnalyzer("DQMEventInfo",
+    subSystemFolder = cms.untracked.string('EcalBarrel')
+)
+
+dqmInfoEE = cms.EDAnalyzer("DQMEventInfo",
+    subSystemFolder = cms.untracked.string('EcalEndcap')
 )
 
 ## standard
-eb_dqm_source_offline = cms.Sequence(
-    ecalBarrelMonitorModule *
-    dqmInfoEcal *
-    ecalBarrelOccupancyTask *
-    ecalBarrelIntegrityTask *
-    ecalBarrelStatusFlagsTask *
-    ecalBarrelRawDataTask *
-    ecalBarrelPedestalOnlineTask *
-    ecalBarrelTriggerTowerTask *
-    ecalBarrelClusterTask *
-    ecalBarrelHltTask *
-    ecalBarrelClusterTaskExtras *
-    ecalBarrelRecoSummary
-    )
+eb_dqm_source_offline = cms.Sequence(ecalBarrelMonitorModule*dqmInfoEB*ecalBarrelOccupancyTask*ecalBarrelIntegrityTask*ecalBarrelStatusFlagsTask*ecalBarrelRawDataTask*ecalBarrelPedestalOnlineTask*ecalBarrelTriggerTowerTask*ecalBarrelClusterTask*ecalBarrelHltTask*ecalBarrelClusterTaskExtras*ecalBarrelRecoSummary)
 
 ## standard with Selective Readout Task
-eb_dqm_source_offline1 = cms.Sequence(
-    ecalBarrelMonitorModule *
-    dqmInfoEcal *
-    ecalBarrelOccupancyTask *
-    ecalBarrelIntegrityTask *
-    ecalBarrelStatusFlagsTask *
-    ecalBarrelSelectiveReadoutTask *
-    ecalBarrelRawDataTask *
-    ecalBarrelPedestalOnlineTask *
-    ecalBarrelTriggerTowerTask *
-    ecalBarrelClusterTask *
-    ecalBarrelHltTask *
-    ecalBarrelClusterTaskExtras *
-    ecalBarrelRecoSummary
-    )
+eb_dqm_source_offline1 = cms.Sequence(ecalBarrelMonitorModule*dqmInfoEB*ecalBarrelOccupancyTask*ecalBarrelIntegrityTask*ecalBarrelStatusFlagsTask*ecalBarrelSelectiveReadoutTask*ecalBarrelRawDataTask*ecalBarrelPedestalOnlineTask*ecalBarrelTriggerTowerTask*ecalBarrelClusterTask*ecalBarrelHltTask*ecalBarrelClusterTaskExtras*ecalBarrelRecoSummary)
 
 ## standard
-ee_dqm_source_offline = cms.Sequence(
-    ecalEndcapMonitorModule *
-    ecalEndcapOccupancyTask *
-    ecalEndcapIntegrityTask *
-    ecalEndcapStatusFlagsTask *
-    ecalEndcapRawDataTask *
-    ecalEndcapPedestalOnlineTask *
-    ecalEndcapTriggerTowerTask *
-    ecalEndcapClusterTask *
-    ecalEndcapClusterTaskExtras *
-    ecalEndcapRecoSummary *
-    ecalPreshowerRecoSummary
-    )
+ee_dqm_source_offline = cms.Sequence(ecalEndcapMonitorModule*dqmInfoEE*ecalEndcapOccupancyTask*ecalEndcapIntegrityTask*ecalEndcapStatusFlagsTask*ecalEndcapRawDataTask*ecalEndcapPedestalOnlineTask*ecalEndcapTriggerTowerTask*ecalEndcapClusterTask*ecalEndcapHltTask*ecalEndcapClusterTaskExtras*ecalEndcapRecoSummary*ecalPreshowerRecoSummary)
 
 ## standard with Selective Readout Task
-ee_dqm_source_offline1 = cms.Sequence(
-    ecalEndcapMonitorModule *
-    ecalEndcapOccupancyTask *
-    ecalEndcapIntegrityTask *
-    ecalEndcapStatusFlagsTask *
-    ecalEndcapSelectiveReadoutTask *
-    ecalEndcapRawDataTask *
-    ecalEndcapPedestalOnlineTask *
-    ecalEndcapTriggerTowerTask *
-    ecalEndcapClusterTask *
-    ecalEndcapClusterTaskExtras *
-    ecalEndcapRecoSummary *
-    ecalPreshowerRecoSummary
-    )
+ee_dqm_source_offline1 = cms.Sequence(ecalEndcapMonitorModule*dqmInfoEE*ecalEndcapOccupancyTask*ecalEndcapIntegrityTask*ecalEndcapStatusFlagsTask*ecalEndcapSelectiveReadoutTask*ecalEndcapRawDataTask*ecalEndcapPedestalOnlineTask*ecalEndcapTriggerTowerTask*ecalEndcapClusterTask*ecalEndcapHltTask*ecalEndcapClusterTaskExtras*ecalEndcapRecoSummary*ecalPreshowerRecoSummary)
 
-ecalcalib_dqm_source_offline = cms.Sequence(
-    ecalzmasstask
-    )
+ecalcalib_dqm_source_offline = cms.Sequence(ecalzmasstask)
 
-ecal_dqm_source_offline = cms.Sequence(
-    eb_dqm_source_offline *
-    ee_dqm_source_offline *
-    ecalcalib_dqm_source_offline
-    )
+ecal_dqm_source_offline = cms.Sequence(eb_dqm_source_offline*ee_dqm_source_offline*ecalcalib_dqm_source_offline)
 
 ecalBarrelMonitorModule.EcalRawDataCollection = 'ecalDigis:'
 ecalBarrelMonitorModule.EBDigiCollection = 'ecalDigis:ebDigis'
@@ -202,4 +148,14 @@ ecalBarrelHltTask.EcalElectronicsIdCollection4 = 'ecalDigis:EcalIntegrityMemBloc
 ecalBarrelHltTask.EcalElectronicsIdCollection5 = 'ecalDigis:EcalIntegrityMemChIdErrors'
 ecalBarrelHltTask.EcalElectronicsIdCollection6 = 'ecalDigis:EcalIntegrityMemGainErrors'
 
+ecalEndcapHltTask.EEDetIdCollection0 = 'ecalDigis:EcalIntegrityDCCSizeErrors'
+ecalEndcapHltTask.EEDetIdCollection1 = 'ecalDigis:EcalIntegrityGainErrors'
+ecalEndcapHltTask.EEDetIdCollection2 = 'ecalDigis:EcalIntegrityChIdErrors'
+ecalEndcapHltTask.EEDetIdCollection3 = 'ecalDigis:EcalIntegrityGainSwitchErrors'
+ecalEndcapHltTask.EcalElectronicsIdCollection1 = 'ecalDigis:EcalIntegrityTTIdErrors'
+ecalEndcapHltTask.EcalElectronicsIdCollection2 = 'ecalDigis:EcalIntegrityBlockSizeErrors'
+ecalEndcapHltTask.EcalElectronicsIdCollection3 = 'ecalDigis:EcalIntegrityMemTtIdErrors'
+ecalEndcapHltTask.EcalElectronicsIdCollection4 = 'ecalDigis:EcalIntegrityMemBlockSizeErrors'
+ecalEndcapHltTask.EcalElectronicsIdCollection5 = 'ecalDigis:EcalIntegrityMemChIdErrors'
+ecalEndcapHltTask.EcalElectronicsIdCollection6 = 'ecalDigis:EcalIntegrityMemGainErrors'
 

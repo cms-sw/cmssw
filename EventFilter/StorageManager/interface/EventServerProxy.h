@@ -1,4 +1,4 @@
-// $Id: EventServerProxy.h,v 1.6 2011/08/31 20:11:04 wmtan Exp $
+// $Id: EventServerProxy.h,v 1.7 2011/11/16 14:32:22 mommsen Exp $
 /// @file: EventServerProxy.h
 
 #ifndef EventFilter_StorageManager_EventServerProxy_h
@@ -27,9 +27,9 @@ namespace stor {
    * event server responses with a binary octet-stream. The init message
    * is also obtained through a HTTP get.
    *
-   * $Author: wmtan $
-   * $Revision: 1.6 $
-   * $Date: 2011/08/31 20:11:04 $
+   * $Author: mommsen $
+   * $Revision: 1.7 $
+   * $Date: 2011/11/16 14:32:22 $
    */
 
   template<typename RegInfo>
@@ -40,6 +40,11 @@ namespace stor {
 
     EventServerProxy(edm::ParameterSet const&);
     virtual ~EventServerProxy() {};
+
+    /**
+     * Reconnect to the event server
+    */
+    void reconnect();
 
     /**
      * Get one event from the event server.

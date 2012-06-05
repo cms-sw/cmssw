@@ -14,6 +14,8 @@
  * functions.  See the .cc files for the QCut functions.
  *
  * Note that for some QCuts, the primary vertex must be updated every event.
+ * Others require the lead track be defined for each tau before filter(..)
+ * is called.
  *
  */
 
@@ -24,6 +26,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace reco { namespace tau {
 
@@ -35,14 +38,25 @@ class RecoTauQualityCuts {
     typedef std::map<PFCandidate::ParticleType, QCutFuncCollection> QCutFuncMap;
 
     explicit RecoTauQualityCuts(const edm::ParameterSet &qcuts);
+
     /// Update the primary vertex
     void setPV(const reco::VertexRef& vtx) const { pv_ = vtx; }
+
+    /// Update the leading track
+    void setLeadTrack(const reco::PFCandidate& leadCand) const;
+
+    /// Update the leading track (using reference)
+    /// If null, this will set the lead track ref null.
+    void setLeadTrack(const reco::PFCandidateRef& leadCand) const;
+
     /// Get the predicate used to filter.
     const QCutFunc& predicate() const { return predicate_; }
+
     /// Filter a single PFCandidate
     bool filter(const reco::PFCandidate& cand) const {
       return predicate_(cand);
     }
+
     /// Filter a PFCandidate held by a smart pointer or Ref
     template<typename PFCandRefType>
     bool filterRef(const PFCandRefType& cand) const { return filter(*cand); }
@@ -61,6 +75,8 @@ class RecoTauQualityCuts {
   private:
     // The current primary vertex
     mutable reco::VertexRef pv_;
+    // The current lead track references
+    mutable reco::TrackBaseRef leadTrack_;
     // A mapping from particle type to a set of QCuts
     QCutFuncMap qcuts_;
     // Our entire predicate function

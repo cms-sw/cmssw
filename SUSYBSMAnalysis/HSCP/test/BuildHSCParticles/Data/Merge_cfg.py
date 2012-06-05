@@ -4,7 +4,7 @@ process = cms.Process("MergeHLT")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 5000
+process.MessageLogger.cerr.FwkReport.reportEvery = 50000
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
 XXX_INPUT_XXX
@@ -73,7 +73,7 @@ process.Out = cms.OutputModule("PoolOutputModule",
          "keep *_muontiming_*_HSCPAnalysis",
          "keep triggerTriggerEvent_hltTriggerSummaryAOD_*_*",
     ),
-    fileName = cms.untracked.string('/uscmst1b_scratch/lpc1/3DayLifetime/farrell/NewDTError/XXX_OUTPUT_XXX.root'),
+    fileName = cms.untracked.string('/uscmst1b_scratch/lpc1/3DayLifetime/farrell/UpdateTo4p3fb/XXX_OUTPUT_XXX.root'),
     SelectEvents = cms.untracked.PSet(
        SelectEvents = cms.vstring('Filter')
     ),

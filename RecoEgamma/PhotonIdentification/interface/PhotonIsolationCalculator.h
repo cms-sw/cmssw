@@ -68,15 +68,6 @@ public:
                                signed int depth);
 
 
-  double calculateHcalTowerIso(const reco::Photon* photon,
-			       const edm::Event& iEvent,
-			       const edm::EventSetup& iSetup,
-			       double RCone,
-			       double eMin,
-                               signed int depth);
-
-
-
   
  protected:
 

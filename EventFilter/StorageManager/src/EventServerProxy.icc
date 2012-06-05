@@ -1,4 +1,4 @@
-// $Id: EventServerProxy.icc,v 1.3 2011/04/05 09:19:01 mommsen Exp $
+// $Id: EventServerProxy.icc,v 1.4 2011/11/16 14:32:22 mommsen Exp $
 /// @file: EventServerProxy.icc
 
 #include "EventFilter/StorageManager/interface/CurlInterface.h"
@@ -34,6 +34,19 @@ namespace stor
   {
     nextRequestTime_ = stor::utils::getCurrentTime();
 
+    registerWithEventServer();
+  }
+
+
+  template<class RegInfo>
+  void
+  EventServerProxy<RegInfo>::reconnect()
+  {
+    consumerId_=0;
+    alreadySaidHalted_=0;
+    alreadySaidWaiting_ =0;
+    failedAttemptsToGetData_=0;
+    nextRequestTime_ = stor::utils::getCurrentTime();
     registerWithEventServer();
   }
 

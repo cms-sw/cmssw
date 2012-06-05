@@ -48,7 +48,6 @@ namespace edm {
       historyAppender_(new HistoryAppender),
       esInfo_(0),
       subProcess_(),
-      cleaningUpAfterException_(false),
       processParameterSet_() {
 
     std::string const maxEvents("maxEvents");
@@ -96,10 +95,10 @@ namespace edm {
     ServiceRegistry::Operate operate(serviceToken_);
 
     // intialize miscellaneous items
-    items.initMisc(*processParameterSet_);
+    boost::shared_ptr<CommonParams> common(items.initMisc(*processParameterSet_));
 
     // intialize the event setup provider
-    esp_ = esController.makeProvider(*processParameterSet_);
+    esp_ = esController.makeProvider(*processParameterSet_, *common);
 
     // intialize the Schedule
     schedule_ = items.initSchedule(*processParameterSet_,subProcessParameterSet.get());
@@ -231,8 +230,7 @@ namespace edm {
   }
 
   void
-  SubProcess::doEndRun(RunPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
-    cleaningUpAfterException_ = cleaningUpAfterException;
+  SubProcess::doEndRun(RunPrincipal const& principal, IOVSyncValue const& ts) {
     ServiceRegistry::Operate operate(serviceToken_);
     esInfo_.reset(new ESInfo(ts, *esp_));
     CurrentProcessingContext cpc;
@@ -245,8 +243,8 @@ namespace edm {
     RunPrincipal& rp = *principalCache_.runPrincipalPtr();
     propagateProducts(InRun, principal, rp);
     typedef OccurrenceTraits<RunPrincipal, BranchActionEnd> Traits;
-    schedule_->processOneOccurrence<Traits>(rp, esInfo_->es_, cleaningUpAfterException_);
-    if(subProcess_.get()) subProcess_->doEndRun(rp, esInfo_->ts_, cleaningUpAfterException_);
+    schedule_->processOneOccurrence<Traits>(rp, esInfo_->es_);
+    if(subProcess_.get()) subProcess_->doEndRun(rp, esInfo_->ts_);
   }
 
   void
@@ -290,8 +288,7 @@ namespace edm {
   }
 
   void
-  SubProcess::doEndLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts, bool cleaningUpAfterException) {
-    cleaningUpAfterException_ = cleaningUpAfterException;
+  SubProcess::doEndLuminosityBlock(LuminosityBlockPrincipal const& principal, IOVSyncValue const& ts) {
     ServiceRegistry::Operate operate(serviceToken_);
     esInfo_.reset(new ESInfo(ts, *esp_));
     CurrentProcessingContext cpc;
@@ -304,8 +301,8 @@ namespace edm {
     LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
     propagateProducts(InLumi, principal, lbp);
     typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionEnd> Traits;
-    schedule_->processOneOccurrence<Traits>(lbp, esInfo_->es_, cleaningUpAfterException_);
-    if(subProcess_.get()) subProcess_->doEndLuminosityBlock(lbp, esInfo_->ts_, cleaningUpAfterException_);
+    schedule_->processOneOccurrence<Traits>(lbp, esInfo_->es_);
+    if(subProcess_.get()) subProcess_->doEndLuminosityBlock(lbp, esInfo_->ts_);
   }
 
   void
@@ -331,13 +328,24 @@ namespace edm {
     for(Selections::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
       Group const* parentGroup = parentPrincipal.getGroup((*it)->branchID(), false, false);
       if(parentGroup != 0) {
-        // Make copy of parent group data
-        ProductData parentData = parentGroup->productData();
+        ProductData const& parentData = parentGroup->productData();
         Group const* group = principal.getGroup((*it)->branchID(), false, false);
         if(group != 0) {
-          // Swap copy with this group data
           ProductData& thisData = const_cast<ProductData&>(group->productData());
-          thisData.swap(parentData);
+          //Propagate the per event(run)(lumi) data for this product to the subprocess.
+          //First, the product itself.
+          thisData.wrapper_ = parentData.wrapper_;
+          // Then the product ID and the ProcessHistory
+          thisData.prov_.setProductID(parentData.prov_.productID());
+          thisData.prov_.setProcessHistoryID(parentData.prov_.processHistoryID());
+          // Then the store, in case the product needs reading in a subprocess.
+          thisData.prov_.setStore(parentData.prov_.store());
+          // And last, the other per event provenance.
+          if(parentData.prov_.productProvenanceValid()) {
+            thisData.prov_.setProductProvenance(*parentData.prov_.productProvenance());
+          } else {
+            thisData.prov_.resetProductProvenance();
+          }
           // Sets unavailable flag, if known that product is not available
           (void)group->productUnavailable();
         }

@@ -1,0 +1,93 @@
+
+/*!
+
+\page DQM_L1TMonitor Package DQM/L1TMonitor
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DQM/L1TMonitor/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DQM/L1TMonitor/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+(THE PACKAGE ADMINISTATOR SHOULD REPLACE THIS SENTENCE WITH HAND-WRITTEN DOCUMENTATION SAYING WHAT THE PACKAGE DOES.)
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- BxTiming
+- L1ExtraDQM
+- L1GtHwValidation
+- L1TCSCTF
+- L1TCSCTPG
+- L1TCompare
+- L1TDEMON
+- L1TDTTF
+- L1TDTTPG
+- L1TFED
+- L1TGCT
+- L1TGMT
+- L1TGT
+- L1TLTC
+- L1TMenuHelper
+- L1TOMDSHelper
+- L1TRCT
+- L1TRPCTF
+- L1TRPCTPG
+- L1TRate
+- L1TSync
+- L1TdeCSCTF
+- L1TdeGCT
+- L1TdeRCT
+
+
+\subsection pluginai Plugins
+<!-- List the plugins that are provided for use in other packages (if any) -->
+
+
+
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+- L1ExtraDQM
+-  L1GtHwValidation
+- L1TRate
+- L1TSync
+- L1TLTC
+- L1TFED
+- L1TCSCTPG
+- L1TCSCTF
+- L1TDTTPG
+- L1TDTTF
+- L1TRPCTPG
+- L1TRPCTF
+- L1TGMT
+- L1TGCT
+- L1TRCT
+- L1TGT
+- L1TCompare
+- BxTiming
+- L1TDEMON
+- L1TdeGCT
+- L1TdeRCT
+- L1TdeCSCTF
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+Unknown
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Unknown
+
+<hr>
+Last updated:
+@DATE@  Author: computer-generated.
+*/
+

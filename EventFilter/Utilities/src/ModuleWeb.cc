@@ -11,11 +11,18 @@
 
 namespace evf{
 
+
 ModuleWeb::ModuleWeb(const std::string &moduleName) : moduleName_(moduleName)
 {
   if(edm::Service<ModuleWebRegistry>())
     edm::Service<ModuleWebRegistry>()->registerWeb(moduleName_, this);
 }
+
+void ModuleWeb::publishForkInfo(moduleweb::ForkInfoObj * forkInfoObj)
+{
+  return;
+}
+
 
 void ModuleWeb::defaultWebPage(xgi::Input *in, xgi::Output *out)
 {

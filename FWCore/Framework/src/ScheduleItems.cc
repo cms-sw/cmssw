@@ -86,7 +86,10 @@ namespace edm {
     std::string processName = parameterSet.getParameter<std::string>("@process_name");
     processConfiguration_.reset(new ProcessConfiguration(processName, getReleaseVersion(), getPassID()));
     boost::shared_ptr<CommonParams>
-        common(new CommonParams(parameterSet.getUntrackedParameterSet(
+        common(new CommonParams(processName,
+                                getReleaseVersion(),
+                                getPassID(),
+                                parameterSet.getUntrackedParameterSet(
                                    "maxEvents", ParameterSet()).getUntrackedParameter<int>("input", -1),
                                 parameterSet.getUntrackedParameterSet(
                                    "maxLuminosityBlocks", ParameterSet()).getUntrackedParameter<int>("input", -1)));

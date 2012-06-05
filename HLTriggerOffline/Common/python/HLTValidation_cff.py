@@ -3,7 +3,7 @@ from HLTriggerOffline.Tau.Validation.HLTTauValidation_cff import *
 from HLTriggerOffline.Egamma.EgammaValidationAutoConf_cff import *
 from HLTriggerOffline.Top.topvalidation_cfi import *
 from HLTriggerOffline.Common.FourVectorHLTriggerOffline_cff import *
-#from HLTriggerOffline.HeavyFlavor.heavyFlavorValidationSequence_cff import *
+from HLTriggerOffline.HeavyFlavor.heavyFlavorValidationSequence_cff import *
 from HLTriggerOffline.JetMET.Validation.HLTJetMETValidation_cff import *
 #from HLTriggerOffline.special.hltAlCaVal_cff import *
 from HLTriggerOffline.SUSYBSM.SusyExoValidation_cff import *
@@ -28,7 +28,7 @@ hltvalidation = cms.Sequence(
     +egammaValidationSequence
     +HLTTopVal
     +HLTFourVector
-    #+heavyFlavorValidationSequence
+    +heavyFlavorValidationSequence
     +HLTJetMETValSeq
     +HLTSusyExoValSeq
     +HiggsValidationSequence
@@ -49,7 +49,7 @@ hltvalidation_fastsim = cms.Sequence(
     +egammaValidationSequenceFS
     +HLTTopVal
     +HLTFourVector
-    #+heavyFlavorValidationSequence
+    +heavyFlavorValidationSequence
     +HLTJetMETValSeq
     #+HLTAlCaVal_FastSim
     +HLTSusyExoValSeq_FastSim
@@ -60,7 +60,7 @@ hltvalidation_preprod = cms.Sequence(
   HLTTauVal
   +HLTTopVal
   +HLTFourVector
-  #+heavyFlavorValidationSequence
+  +heavyFlavorValidationSequence
   +HLTSusyExoValSeq
  #+HiggsValidationSequence
  )
@@ -69,7 +69,7 @@ hltvalidation_preprod_fastsim = cms.Sequence(
  HLTTauVal
  +HLTTopVal
  +HLTFourVector
- #+heavyFlavorValidationSequence
+ +heavyFlavorValidationSequence
  +HLTSusyExoValSeq_FastSim
 #+HiggsValidationSequence
 )

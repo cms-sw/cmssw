@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.79 2012/02/20 18:10:19 borrell Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.80 2012/03/06 11:47:06 borrell Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -401,11 +401,6 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
 					    StripCluster.getParameter<double>("xmax"));
       NumberOfStripClus->setAxisTitle("# of Clusters in Strip", 1);
       NumberOfStripClus->setAxisTitle("Number of Events", 2);
-      //
-      HistoName = "RatioOfPixelAndStripClusters";
-      RatioOfPixelAndStripClus = dqmStore_->book1D(HistoName, HistoName, 80, 0.0, 1.6);
-      RatioOfPixelAndStripClus->setAxisTitle("ArcTan(5*PixelCluster/StripClusters)", 1);
-      RatioOfPixelAndStripClus->setAxisTitle("Number of Events", 2);
     }
 
  
@@ -455,15 +450,12 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     isPixValid=true;
     MultiplicityRegion=FindRegion(NStripClusters,NPixClusters);  
     if (globalswitchcstripvscpix) GlobalCStripVsCpix->Fill(NStripClusters,NPixClusters);
-    if (globalswitchmaindiagonalposition) GlobalMainDiagonalPosition->Fill(atan(NPixClusters/(k0*NStripClusters)));
+    if (globalswitchmaindiagonalposition && NStripClusters > 0) GlobalMainDiagonalPosition->Fill(atan(NPixClusters/(k0*NStripClusters)));
     if (globalswitchMultiRegions) PixVsStripMultiplicityRegions->Fill(MultiplicityRegion);
    
     if (ClusterHisto_){
       NumberOfPixelClus->Fill(NPixClusters);
       NumberOfStripClus->Fill(NStripClusters);
-      double ratio = 0.0;      
-      if ( NPixClusters > 0) ratio = atan(NPixClusters*5.0/NStripClusters);
-      RatioOfPixelAndStripClus->Fill(ratio);
     }
   }
   // initialise # of clusters to zero

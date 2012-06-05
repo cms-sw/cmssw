@@ -1,4 +1,4 @@
-// $Id: EventDistributor.cc,v 1.24 2011/03/07 15:31:32 mommsen Exp $
+// $Id: EventDistributor.cc,v 1.25 2011/11/08 10:48:40 mommsen Exp $
 /// @file: EventDistributor.cc
 
 #include "EventFilter/StorageManager/interface/DataSenderMonitorCollection.h"
@@ -94,18 +94,18 @@ void EventDistributor::tagCompleteEventForQueues( I2OChain& ioc )
     
     case Header::INIT:
     {
-      std::vector<unsigned char> b;
-      ioc.copyFragmentsIntoBuffer(b);
-      InitMsgView imv( &b[0] );
-      if( sharedResources_->initMsgCollection_->addIfUnique( imv ) )
+      InitMsgSharedPtr serializedProds;
+      if( sharedResources_->initMsgCollection_->addIfUnique(ioc, serializedProds) )
       {
         try
         {
+          InitMsgView initMsgView(&(*serializedProds)[0]);
+
           for_each(eventStreamSelectors_.begin(),eventStreamSelectors_.end(),
-            boost::bind(&EventStreamSelector::initialize, _1, imv));
+            boost::bind(&EventStreamSelector::initialize, _1, initMsgView));
 
           for_each(eventConsumerSelectors_.begin(), eventConsumerSelectors_.end(),
-            boost::bind(&EventConsumerSelector::initialize, _1, imv));
+            boost::bind(&EventConsumerSelector::initialize, _1, initMsgView));
         }
         catch( stor::exception::InvalidEventSelection& e )
         {
@@ -250,7 +250,7 @@ void EventDistributor::registerEventConsumer
   ConsSelPtr evtSel( new EventConsumerSelector(regPtr) );
 
   InitMsgSharedPtr initMsgPtr =
-    sharedResources_->initMsgCollection_->getElementForOutputModule(
+    sharedResources_->initMsgCollection_->getElementForOutputModuleLabel(
       regPtr->outputModuleLabel()
     );
   if ( initMsgPtr.get() != 0 )

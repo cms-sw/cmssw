@@ -1,12 +1,9 @@
 #ifndef TFILE_ADAPTOR_TSTORAGE_FACTORY_FILE_H
 # define TFILE_ADAPTOR_TSTORAGE_FACTORY_FILE_H
 
-# include <vector>
-
 # include "TFile.h"
 
-# include "Utilities/StorageFactory/interface/IOPosBuffer.h"
-
+#define READ_COALESCE_SIZE 256 * 1024
 
 class Storage;
 
@@ -23,7 +20,7 @@ public:
   // This one is to match TXNetFile
   TStorageFactoryFile(const char *name, Option_t *option,
                       const char *ftitle, Int_t compress, Int_t netopt,
-                      Bool_t parallelopen = kFALSE);
+                      Bool_t parallelopen);
 
   // This matches everything else.
   TStorageFactoryFile(const char *name, Option_t *option = "",
@@ -48,8 +45,6 @@ protected:
 
 private:
   void                  Initialize(const char *name, Option_t *option = "");
-
-  Bool_t                ReadBuffersSync(char *buf, Long64_t *pos, Int_t *len, Int_t nbuf);
 
   TStorageFactoryFile(void);
 

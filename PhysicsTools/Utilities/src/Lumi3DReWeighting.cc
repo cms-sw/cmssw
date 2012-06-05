@@ -37,15 +37,13 @@
 using namespace edm;
 
 Lumi3DReWeighting::Lumi3DReWeighting( std::string generatedFile,
-				      std::string dataFile,
-				      std::string GenHistName = "pileup",
-				      std::string DataHistName = "pileup", 
-				      std::string WeightOutputFile ="") :
+		   std::string dataFile,
+		   std::string GenHistName = "pileup",
+		   std::string DataHistName = "pileup" ) :
       generatedFileName_( generatedFile), 
       dataFileName_     ( dataFile ), 
-      GenHistName_      ( GenHistName ), 
-      DataHistName_     ( DataHistName ),
-      weightFileName_   (WeightOutputFile)
+      GenHistName_        ( GenHistName ), 
+      DataHistName_        ( DataHistName )
       {
 	generatedFile_ = boost::shared_ptr<TFile>( new TFile(generatedFileName_.c_str()) ); //MC distribution
 	dataFile_      = boost::shared_ptr<TFile>( new TFile(dataFileName_.c_str()) );      //Data distribution
@@ -67,11 +65,7 @@ Lumi3DReWeighting::Lumi3DReWeighting( std::string generatedFile,
 
 }
 
-Lumi3DReWeighting::Lumi3DReWeighting( std::vector< float > MC_distr, std::vector< float > Lumi_distr,
-				      std::string WeightOutputFile ="") {
-
-  weightFileName_ = WeightOutputFile;
-
+Lumi3DReWeighting::Lumi3DReWeighting( std::vector< float > MC_distr, std::vector< float > Lumi_distr) {
   // no histograms for input: use vectors
   
   // now, make histograms out of them:
@@ -161,14 +155,13 @@ double Lumi3DReWeighting::weight3D( const edm::EventBase &e ) {
  
 }
 
-void Lumi3DReWeighting::weight3D_set( std::string generatedFile, std::string dataFile, std::string GenHistName, std::string DataHistName, std::string WeightOutputFile )
+void Lumi3DReWeighting::weight3D_set( std::string generatedFile, std::string dataFile, std::string GenHistName, std::string DataHistName)
 {
  
   generatedFileName_ = generatedFile;
   dataFileName_ = dataFile ; 
   GenHistName_ = GenHistName ; 
   DataHistName_= DataHistName ;
-  weightFileName_  = WeightOutputFile; 	
     
   std::cout<< " seting values: " << generatedFileName_ << " " << dataFileName_ << " " << GenHistName_ << " " << DataHistName_ << std::endl;
 
@@ -197,9 +190,10 @@ void Lumi3DReWeighting::weight3D_init( float ScaleFactor ) {
 
   //create histogram to write output weights, save pain of generating them again...
 
-  TH3D* WHist = new TH3D("WHist","3D weights",50,0.,50.,50,0.,50.,50,0.,50. );
-  TH3D* DHist = new TH3D("DHist","3D weights",50,0.,50.,50,0.,50.,50,0.,50. );
-  TH3D* MHist = new TH3D("MHist","3D weights",50,0.,50.,50,0.,50.,50,0.,50. );
+  TH3D* WHist = new TH3D("WHist","3D weights",50,-.5,49.5,50,-.5,49.5,50,-.5,49.5 );
+  TH3D* DHist = new TH3D("DHist","3D weights",50,-.5,49.5,50,-.5,49.5,50,-.5,49.5 );
+  TH3D* MHist = new TH3D("MHist","3D weights",50,-.5,49.5,50,-.5,49.5,50,-.5,49.5 );
+
 
   using std::min;
 
@@ -229,7 +223,7 @@ void Lumi3DReWeighting::weight3D_init( float ScaleFactor ) {
   factorial[0] = 1.;
   PowerSer[0]=1.;
 
-  for (int i = 1; i<50; ++i) {
+  for (int i = 1; i<51; ++i) {
     base = base*float(i);
     factorial[i] = base;
   }
@@ -355,19 +349,18 @@ void Lumi3DReWeighting::weight3D_init( float ScaleFactor ) {
     }
   }
 
-  if(! weightFileName_.empty() ) { 
-    std::cout << " 3D Weight Matrix initialized! " << std::endl;
-    std::cout << " Writing weights to file " << weightFileName_ << " for re-use...  " << std::endl;
 
+  std::cout << " 3D Weight Matrix initialized! " << std::endl;
+  std::cout << " Writing weights to file Weight3D.root for re-use...  " << std::endl;
 
-    TFile * outfile = new TFile(weightFileName_.c_str(),"RECREATE");
-    WHist->Write();
-    MHist->Write();
-    DHist->Write();
-    outfile->Write();
-    outfile->Close();
-    outfile->Delete();              
-  }
+  TFile * outfile = new TFile("Weight3D.root","RECREATE");
+  WHist->Write();
+  MHist->Write();
+  DHist->Write();
+  outfile->Write();
+  outfile->Close();
+  outfile->Delete();              
+
 
   return;
 

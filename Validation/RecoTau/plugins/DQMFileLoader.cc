@@ -52,9 +52,9 @@ void mapSubDirectoryStructure(TDirectory* directory, std::string directoryName, 
 //-----------------------------------------------------------------------------------------------------------------------
 //
 
-DQMFileLoader::cfgEntryFileSet::cfgEntryFileSet(const std::string& name, const edm::ParameterSet& cfg)
+TauDQMFileLoader::cfgEntryFileSet::cfgEntryFileSet(const std::string& name, const edm::ParameterSet& cfg)
 {
-  //std::cout << "<DQMFileLoader::cfgEntryFileSet>" << std::endl;
+  //std::cout << "<TauDQMFileLoader::cfgEntryFileSet>" << std::endl;
 
   name_ = name;
 
@@ -69,7 +69,7 @@ DQMFileLoader::cfgEntryFileSet::cfgEntryFileSet(const std::string& name, const e
 
       if ( (posRangeEnd == std::string::npos) || 
 	   (posRangeSeparator >= posRangeEnd) ) { 
-	edm::LogError ("DQMFileLoader::cfgEntryFileSet") << " Invalid range specification in inputFile = " << (*inputFile) << " !!";
+	edm::LogError ("TauDQMFileLoader::cfgEntryFileSet") << " Invalid range specification in inputFile = " << (*inputFile) << " !!";
 	continue;
       }
 
@@ -79,7 +79,7 @@ DQMFileLoader::cfgEntryFileSet::cfgEntryFileSet(const std::string& name, const e
       //std::cout << "lastFile = " << lastFile << std::endl;
 
       if ( firstFile.length() != lastFile.length() ) {
-	edm::LogError ("DQMFileLoader::cfgEntryFileSet") << " Invalid range specification in inputFile = " << (*inputFile) << " !!";
+	edm::LogError ("TauDQMFileLoader::cfgEntryFileSet") << " Invalid range specification in inputFile = " << (*inputFile) << " !!";
 	continue;
       }
 
@@ -106,7 +106,7 @@ DQMFileLoader::cfgEntryFileSet::cfgEntryFileSet(const std::string& name, const e
   if ( verbosity ) print();
 }
 
-void DQMFileLoader::cfgEntryFileSet::print() const
+void TauDQMFileLoader::cfgEntryFileSet::print() const
 {
   std::cout << "<cfgEntryFileSet::print>:" << std::endl;
   std::cout << " name = " << name_ << std::endl;
@@ -119,9 +119,9 @@ void DQMFileLoader::cfgEntryFileSet::print() const
 //-----------------------------------------------------------------------------------------------------------------------
 //
 
-DQMFileLoader::DQMFileLoader(const edm::ParameterSet& cfg)
+TauDQMFileLoader::TauDQMFileLoader(const edm::ParameterSet& cfg)
 {
-  std::cout << "<DQMFileLoader::DQMFileLoader>:" << std::endl;
+  std::cout << "<TauDQMFileLoader::TauDQMFileLoader>:" << std::endl;
 
   cfgError_ = 0;
 
@@ -136,7 +136,7 @@ DQMFileLoader::DQMFileLoader(const edm::ParameterSet& cfg)
   for ( std::map<std::string, cfgEntryFileSet>::const_iterator fileSet = fileSets_.begin();
 	fileSet != fileSets_.end(); ++fileSet ) {
     if ( fileSet->second.dqmDirectory_store_ == "" && fileSets_.size() > 1 ) {
-      edm::LogError ("DQMFileLoader") << " dqmDirectory_store undefined for fileSet = " << fileSet->second.name_ << " !!";
+      edm::LogError ("TauDQMFileLoader") << " dqmDirectory_store undefined for fileSet = " << fileSet->second.name_ << " !!";
       cfgError_ = 1;
       break;
     }
@@ -145,19 +145,19 @@ DQMFileLoader::DQMFileLoader(const edm::ParameterSet& cfg)
   std::cout << "done." << std::endl;
 }
 
-DQMFileLoader::~DQMFileLoader() 
+TauDQMFileLoader::~TauDQMFileLoader() 
 {
 // nothing to be done yet...
 }
 
-void DQMFileLoader::analyze(const edm::Event&, const edm::EventSetup&)
+void TauDQMFileLoader::analyze(const edm::Event&, const edm::EventSetup&)
 {
 // nothing to be done yet...
 }
 
-void DQMFileLoader::endRun(const edm::Run& r, const edm::EventSetup& c)
+void TauDQMFileLoader::endRun(const edm::Run& r, const edm::EventSetup& c)
 {
-  std::cout << "<DQMFileLoader::endJob>:" << std::endl;
+  std::cout << "<TauDQMFileLoader::endJob>:" << std::endl;
 
 //--- check that configuration parameters contain no errors
   if ( cfgError_ ) {
@@ -270,4 +270,4 @@ void DQMFileLoader::endRun(const edm::Run& r, const edm::EventSetup& c)
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE(DQMFileLoader);
+DEFINE_FWK_MODULE(TauDQMFileLoader);

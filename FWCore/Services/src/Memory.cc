@@ -309,6 +309,7 @@ namespace edm {
     , showMallocInfo_(iPS.getUntrackedParameter<bool>("showMallocInfo"))
     , oncePerEventMode_(iPS.getUntrackedParameter<bool>("oncePerEventMode"))
     , jobReportOutputOnly_(iPS.getUntrackedParameter<bool>("jobReportOutputOnly"))
+    , monitorPssAndPrivate_(iPS.getUntrackedParameter<bool>("monitorPssAndPrivate"))
     , count_()
     , smapsFile_(0)
     , smapsLineBuffer_(NULL)
@@ -402,6 +403,7 @@ namespace edm {
       desc.addUntracked<bool>("showMallocInfo", false);
       desc.addUntracked<bool>("oncePerEventMode", false);
       desc.addUntracked<bool>("jobReportOutputOnly", false);
+      desc.addUntracked<bool>("monitorPssAndPrivate", false);
       desc.addUntracked<bool>("moduleMemorySummary", false);
       desc.addUntracked<int>("M_MMAP_MAX", -1);
       desc.addUntracked<int>("M_TRIM_THRESHOLD", -1);
@@ -421,14 +423,16 @@ namespace edm {
         throw Exception(errors::Configuration)
         << "Memory checker server: Failed to open " << ost.str() << std::endl;
       }
-      std::ostringstream smapsNameOst;
-      smapsNameOst <<"/proc/"<<getpid()<<"/smaps";
-      if((smapsFile_ =fopen(smapsNameOst.str().c_str(), "r"))==0) {
-        throw Exception(errors::Configuration) <<"Failed to open smaps file "<<smapsNameOst.str()<<std::endl;
+      if (monitorPssAndPrivate_) {
+        std::ostringstream smapsNameOst;
+        smapsNameOst <<"/proc/"<<getpid()<<"/smaps";
+        if((smapsFile_ =fopen(smapsNameOst.str().c_str(), "r"))==0) {
+          throw Exception(errors::Configuration) <<"Failed to open smaps file "<<smapsNameOst.str()<<std::endl;
+        }
       }
 #endif
     }
-    
+
     void SimpleMemoryCheck::postBeginJob() {
         growthRateVsize_ = current_->vsize;
         growthRateRss_ = current_->rss;
@@ -680,7 +684,9 @@ namespace edm {
     void SimpleMemoryCheck::postEventProcessing(Event const& e, EventSetup const&) {
       ++count_;
       update();
-      currentSmaps_ = fetchSmaps();
+      if (monitorPssAndPrivate_) {
+        currentSmaps_ = fetchSmaps();
+      }
       updateEventStats(e.id());
       if(oncePerEventMode_) {
         // should probably use be Run:Event or count_ for the label and name
@@ -710,11 +716,12 @@ namespace edm {
     void SimpleMemoryCheck::postFork(unsigned int, unsigned int) {
 #ifdef LINUX
       close(fd_);
-      fclose(smapsFile_);
+      if(0 != smapsFile_) {
+        fclose(smapsFile_);
+      }
       openFiles();
 #endif      
     }
-
 
     void SimpleMemoryCheck::update() {
       std::swap(current_, previous_);
@@ -869,12 +876,14 @@ namespace edm {
       { std::ostringstream os;
         os << title << "-f-RSS";
         m.insert(std::make_pair(os.str(), d2str(e.rss))); }
-      { std::ostringstream os;
-        os << title << "-g-PRIVATE";
-        m.insert(std::make_pair(os.str(), d2str(e.privateSize))); }
-      { std::ostringstream os;
-        os << title << "-h-PSS";
-        m.insert(std::make_pair(os.str(), d2str(e.pss))); }
+      if (monitorPssAndPrivate_) {
+        { std::ostringstream os;
+          os << title << "-g-PRIVATE";
+          m.insert(std::make_pair(os.str(), d2str(e.privateSize))); }
+        { std::ostringstream os;
+          os << title << "-h-PSS";
+          m.insert(std::make_pair(os.str(), d2str(e.pss))); }
+      }
     } // eventStatOutput
 #endif
 
@@ -924,7 +933,11 @@ namespace edm {
       os << "[" << se.count << "] "
       << se.event << "  vsize = " << se.vsize
       << " deltaVsize = " << se.deltaVsize
-      << " rss = " << se.rss << " delta " << se.deltaRss <<" private = "<<se.privateSize<<" pss = "<<se.pss;
+      << " rss = " << se.rss << " delta = " << se.deltaRss;
+
+      if (se.monitorPssAndPrivate) {
+        os <<" private = "<<se.privateSize<<" pss = "<<se.pss;
+      }
       return os;
     }
 

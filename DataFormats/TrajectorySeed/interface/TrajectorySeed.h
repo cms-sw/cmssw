@@ -7,7 +7,6 @@
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include <utility>
 #include <algorithm>
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 /**
    TrajectorySeed contains
@@ -33,20 +32,20 @@ class TrajectorySeed {
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
   TrajectorySeed(PTrajectoryStateOnDet const & ptsos, 
 		 recHitContainer && rh, 
-		 PropagationDirection  dir) noexcept : 
+		 PropagationDirection  dir) : 
     hits_(std::move(rh)),  tsos_(ptsos), dir_(dir) {}
 #endif
 
 
   void swap(PTrajectoryStateOnDet & ptsos, 
 		 recHitContainer & rh, 
-	    PropagationDirection & dir) noexcept { 
+	    PropagationDirection & dir) { 
     hits_.swap(rh);
     std::swap(tsos_,ptsos);
     std::swap(dir_,dir);
   }
 
-  void swap(TrajectorySeed & rh) noexcept { 
+  void swap(TrajectorySeed & rh) { 
     hits_.swap(rh.hits_);
     std::swap(tsos_,rh.tsos_);
     std::swap(dir_,rh.dir_);
@@ -62,7 +61,7 @@ class TrajectorySeed {
 
 
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
-  TrajectorySeed(TrajectorySeed && o) noexcept :
+  TrajectorySeed(TrajectorySeed && o) :
     hits_(std::move(o.hits_)),  tsos_(std::move(o.tsos_)), dir_(std::move(o.dir_)) {}
 
   TrajectorySeed & operator=(TrajectorySeed && o) {
@@ -88,7 +87,7 @@ class TrajectorySeed {
   PropagationDirection dir_;
 };
 
-inline void swap(TrajectorySeed & rh, TrajectorySeed & lh) noexcept { 
+inline void swap(TrajectorySeed & rh, TrajectorySeed & lh) { 
   rh.swap(lh);
 }
 

@@ -10,7 +10,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/Math/interface/deltaR.h"
 
 using namespace std;
 using namespace edm;
@@ -18,8 +17,6 @@ using namespace reco;
 
 PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
   
-
-
   inputTagPFCandidates_ 
     = iConfig.getParameter<InputTag>("PFCandidates");
 
@@ -38,6 +35,9 @@ PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
     checkClosestZVertex_ = false;
   }
 
+  // Configure the algo
+  pileUpAlgo_.setVerbose(verbose_);
+  pileUpAlgo_.setCheckClosestZVertex(checkClosestZVertex_);
 
   produces<reco::PFCandidateCollection>();
   
@@ -74,107 +74,12 @@ void PFPileUp::produce(Event& iEvent,
 
     Handle<VertexCollection> vertices;
     iEvent.getByLabel( inputTagVertices_, vertices);
-  
-    for( unsigned i=0; i<pfCandidates->size(); i++ ) {
     
-      const reco::PFCandidate& cand = (*pfCandidates)[i];
-      PFCandidatePtr candptr(pfCandidates, i);
-
-      //     PFCandidateRef pfcandref(pfCandidates,i); 
-
-      VertexRef vertexref;
-
-      switch( candptr->particleId() ) {
-      case PFCandidate::h:
-	vertexref = chargedHadronVertex( vertices, *candptr );
-	break;
-      default:
-	continue;
-      } 
+    pileUpAlgo_.process(*pfCandidates,*vertices,&pfCandidates);
     
-      // no associated vertex, or primary vertex
-      // not pile-up
-      if( vertexref.isNull() || 
-	  vertexref.key()==0 ) continue;
-
-      pOutput->push_back( cand );
-      pOutput->back().setSourceCandidatePtr( candptr );
-    }
-  }
+    pOutput->insert(pOutput->end(),pileUpAlgo_.getPFCandidatesFromPU().begin(),pileUpAlgo_.getPFCandidatesFromPU().end());
+  }  
+  // outsize of the loop to fill the collection anyway even when disabled
   iEvent.put( pOutput );
-  
 }
-
-
-
-VertexRef 
-PFPileUp::chargedHadronVertex( const Handle<VertexCollection>& vertices, const PFCandidate& pfcand ) const {
-
-  
-  reco::TrackBaseRef trackBaseRef( pfcand.trackRef() );
-  
-  size_t  iVertex = 0;
-  unsigned index=0;
-  unsigned nFoundVertex = 0;
-  typedef reco::VertexCollection::const_iterator IV;
-  float bestweight=0;
-  for(IV iv=vertices->begin(); iv!=vertices->end(); ++iv, ++index) {
-
-    const reco::Vertex& vtx = *iv;
-    
-    typedef reco::Vertex::trackRef_iterator IT;
-    
-    // loop on tracks in vertices
-    for(IT iTrack=vtx.tracks_begin(); 
-	iTrack!=vtx.tracks_end(); ++iTrack) {
-	 
-      const reco::TrackBaseRef& baseRef = *iTrack;
-
-      // one of the tracks in the vertex is the same as 
-      // the track considered in the function
-      if(baseRef == trackBaseRef ) {
-	float w = vtx.trackWeight(baseRef);
-	//select the vertex for which the track has the highest weight
-	if (w > bestweight){
-	  bestweight=w;
-	  iVertex=index;
-	  nFoundVertex++;
-	}	 	
-      }
-    }
-  }
-
-  if (nFoundVertex>0){
-    if (nFoundVertex!=1)
-      edm::LogWarning("TrackOnTwoVertex")<<"a track is shared by at least two verteces. Used to be an assert";
-    return VertexRef( vertices, iVertex);
-  }
-  // no vertex found with this track. 
-
-  // optional: as a secondary solution, associate the closest vertex in z
-  if ( checkClosestZVertex_ ) {
-
-    double dzmin = 10000;
-    double ztrack = pfcand.vertex().z();
-    bool foundVertex = false;
-    index = 0;
-    for(IV iv=vertices->begin(); iv!=vertices->end(); ++iv, ++index) {
-
-      double dz = fabs(ztrack - iv->z());
-      if(dz<dzmin) {
-	dzmin = dz; 
-	iVertex = index;
-	foundVertex = true;
-      }
-    }
-
-    if( foundVertex ) 
-      return VertexRef( vertices, iVertex);  
-
-  }
-
-
-  return VertexRef();
-}
-
 

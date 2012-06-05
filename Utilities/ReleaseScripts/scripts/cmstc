@@ -354,7 +354,7 @@ def cmd_diff(releases):
 
 def cmd_difflast(releases):
   a = cmstc.TagCollector().getReleasesTags(releases, True)
-  printTags([(x[0], x[-1]) for x in a])
+  printTable([(x[0], x[-1]) for x in a])
 
 def number(tag):
   if not tag.startswith("V"):

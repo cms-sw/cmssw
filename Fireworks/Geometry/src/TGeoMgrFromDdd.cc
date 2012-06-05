@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jul  2 16:11:42 CEST 2010
-// $Id: TGeoMgrFromDdd.cc,v 1.11 2012/01/27 11:19:55 yana Exp $
+// $Id: TGeoMgrFromDdd.cc,v 1.10 2010/12/15 13:47:58 yana Exp $
 //
 
 #include "Fireworks/Geometry/interface/TGeoMgrFromDdd.h"
@@ -375,7 +375,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    }
 	    else
 	    {
-	      throw cms::Exception( "Check parameters of the PseudoTrap! name=" + pt.name().name());   
+	      throw DDException( "Check parameters of the PseudoTrap! name=" + pt.name().name());   
 	    }
 
 	    std::auto_ptr<TGeoShape> trap( new TGeoTrd2( pt.name().name().c_str(),
@@ -486,17 +486,17 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    if( rIn <= 0 || rOut <=0 || cutAtStart <=0 || cutAtDelta <= 0 )
 	    {
 	      std::string s = "TruncTubs " + std::string( tt.name().fullname()) + ": 0 <= rIn,cutAtStart,rOut,cutAtDelta,rOut violated!";
-	      throw cms::Exception( s );
+	      throw DDException( s );
 	    }
 	    if( rIn >= rOut )
 	    {
 	      std::string s = "TruncTubs " + std::string( tt.name().fullname()) + ": rIn<rOut violated!";
-	      throw cms::Exception(s);
+	      throw DDException(s);
 	    }
 	    if( startPhi != 0. )
 	    {
 	      std::string s= "TruncTubs " + std::string( tt.name().fullname()) + ": startPhi != 0 not supported!";
-	      throw cms::Exception( s );
+	      throw DDException( s );
 	    }
 	    
 	    startPhi = 0.;

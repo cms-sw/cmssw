@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2011/10/28 14:15:46 $
- * $Revision: 1.55 $
+ * $Date: 2011/08/30 09:30:33 $
+ * $Revision: 1.54 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -96,8 +96,6 @@ EBSelectiveReadoutTask::EBSelectiveReadoutTask(const edm::ParameterSet& ps){
   for(int i=20; i<89; i++) ybins[i] = ZSthreshold * (i-19);
   for(int i=0; i<=36; i++) xbins[i] = i+1;
 
-  ievt_ = 0;
-
 }
 
 EBSelectiveReadoutTask::~EBSelectiveReadoutTask() {
@@ -109,8 +107,8 @@ void EBSelectiveReadoutTask::beginJob(void) {
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/SelectiveReadout");
-    dqmStore_->rmdir(prefixME_ + "/SelectiveReadout");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBSelectiveReadoutTask");
+    dqmStore_->rmdir(prefixME_ + "/EBSelectiveReadoutTask");
   }
 
 }
@@ -216,113 +214,113 @@ void EBSelectiveReadoutTask::setup(void) {
 
   if ( dqmStore_ ) {
 
-    dqmStore_->setCurrentFolder(prefixME_ + "/SelectiveReadout");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBSelectiveReadoutTask");
 
-    name = "SRTask tower event size EB";
-    EBTowerSize_ = dqmStore_->bookProfile2D(name, name, 72, 0, 360, 34, -85, 85, 100, 0, 200, "s");
+    name = "EBSRT tower event size";
+    EBTowerSize_ = dqmStore_->bookProfile2D(name, name, 72, 0, 72, 34, -17, 17, 100, 0, 200, "s");
     EBTowerSize_->setAxisTitle("jphi", 1);
     EBTowerSize_->setAxisTitle("jeta", 2);
 
-    name = "SRTask TT flag mismatch EB";
-    EBTTFMismatch_ = dqmStore_->book2D(name, name, 72, 0, 360, 34, -85, 85);
+    name = "EBSRT TT flag mismatch";
+    EBTTFMismatch_ = dqmStore_->book2D(name, name, 72, 0, 72, 34, -17, 17);
     EBTTFMismatch_->setAxisTitle("jphi", 1);
     EBTTFMismatch_->setAxisTitle("jeta", 2);
 
-    name = "SRTask DCC event size EB";
+    name = "EBSRT DCC event size";
     EBDccEventSize_ = dqmStore_->bookProfile(name, name, 36, 1, 37, 100, 0., 200., "s");
     EBDccEventSize_->setAxisTitle("event size (kB)", 2);
     for (int i = 0; i < 36; i++) {
       EBDccEventSize_->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
-    name = "SRTask event size vs DCC EB";
+    name = "EBSRT event size vs DCC";
     EBDccEventSizeMap_ = dqmStore_->book2D(name, name, 36, xbins, 88, ybins);
     EBDccEventSizeMap_->setAxisTitle("event size (kB)", 2);
     for (int i = 0; i < 36; i++) {
       EBDccEventSizeMap_->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
-    name = "SRTask readout unit with SR forced EB";
-    EBReadoutUnitForcedBitMap_ = dqmStore_->book2D(name, name, 72, 0, 360, 34, -85, 85);
+    name = "EBSRT readout unit with SR forced";
+    EBReadoutUnitForcedBitMap_ = dqmStore_->book2D(name, name, 72, 0, 72, 34, -17, 17);
     EBReadoutUnitForcedBitMap_->setAxisTitle("jphi", 1);
     EBReadoutUnitForcedBitMap_->setAxisTitle("jeta", 2);
     EBReadoutUnitForcedBitMap_->setAxisTitle("rate", 3);
 
-    name = "SRTask full readout SR Flags EB";
-    EBFullReadoutSRFlagMap_ = dqmStore_->book2D(name, name, 72, 0, 360, 34, -85, 85);
+    name = "EBSRT full readout SR Flags";
+    EBFullReadoutSRFlagMap_ = dqmStore_->book2D(name, name, 72, 0, 72, 34, -17, 17);
     EBFullReadoutSRFlagMap_->setAxisTitle("jphi", 1);
     EBFullReadoutSRFlagMap_->setAxisTitle("jeta", 2);
     EBFullReadoutSRFlagMap_->setAxisTitle("rate", 3);
 
-    name = "SRTask full readout SR Flags Number EB";
+    name = "EBSRT full readout SR Flags Number";
     EBFullReadoutSRFlagCount_ = dqmStore_->book1D(name, name, 200, 0., 200.);
     EBFullReadoutSRFlagCount_->setAxisTitle("Readout Units number", 1);
 
-    name = "SRTask zero suppression 1 SR Flags EB";
-    EBZeroSuppression1SRFlagMap_ = dqmStore_->book2D(name, name, 72, 0, 360, 34, -85, 85);
+    name = "EBSRT zero suppression 1 SR Flags";
+    EBZeroSuppression1SRFlagMap_ = dqmStore_->book2D(name, name, 72, 0, 72, 34, -17, 17);
     EBZeroSuppression1SRFlagMap_->setAxisTitle("jphi", 1);
     EBZeroSuppression1SRFlagMap_->setAxisTitle("jeta", 2);
     EBZeroSuppression1SRFlagMap_->setAxisTitle("rate", 3);
 
-    name = "SRTask high interest TT Flags EB";
-    EBHighInterestTriggerTowerFlagMap_ = dqmStore_->book2D(name, name, 72, 0, 360, 34, -85, 85);
+    name = "EBSRT high interest TT Flags";
+    EBHighInterestTriggerTowerFlagMap_ = dqmStore_->book2D(name, name, 72, 0, 72, 34, -17, 17);
     EBHighInterestTriggerTowerFlagMap_->setAxisTitle("jphi", 1);
     EBHighInterestTriggerTowerFlagMap_->setAxisTitle("jeta", 2);
     EBHighInterestTriggerTowerFlagMap_->setAxisTitle("rate", 3);
 
-    name = "SRTask medium interest TT Flags EB";
-    EBMediumInterestTriggerTowerFlagMap_ = dqmStore_->book2D(name, name, 72, 0, 360, 34, -85, 85);
+    name = "EBSRT medium interest TT Flags";
+    EBMediumInterestTriggerTowerFlagMap_ = dqmStore_->book2D(name, name, 72, 0, 72, 34, -17, 17);
     EBMediumInterestTriggerTowerFlagMap_->setAxisTitle("jphi", 1);
     EBMediumInterestTriggerTowerFlagMap_->setAxisTitle("jeta", 2);
     EBMediumInterestTriggerTowerFlagMap_->setAxisTitle("rate", 3);
 
-    name = "SRTask low interest TT Flags EB";
-    EBLowInterestTriggerTowerFlagMap_ = dqmStore_->book2D(name, name, 72, 0, 360, 34, -85, 85);
+    name = "EBSRT low interest TT Flags";
+    EBLowInterestTriggerTowerFlagMap_ = dqmStore_->book2D(name, name, 72, 0, 72, 34, -17, 17);
     EBLowInterestTriggerTowerFlagMap_->setAxisTitle("jphi", 1);
     EBLowInterestTriggerTowerFlagMap_->setAxisTitle("jeta", 2);
     EBLowInterestTriggerTowerFlagMap_->setAxisTitle("rate", 3);
 
-    name = "SRTask TT Flags EB";
+    name = "EBSRT TT Flags";
     EBTTFlags_ = dqmStore_->book1D(name, name, 8, 0., 8.);
     EBTTFlags_->setAxisTitle("TT Flag value", 1);
 
-    name = "SRTask ZS Flagged Fully Readout EB";
-    EBCompleteZSMap_ = dqmStore_->book2D(name, name, 72, 0, 360, 34, -85, 85);
+    name = "EBSRT ZS Flagged Fully Readout";
+    EBCompleteZSMap_ = dqmStore_->book2D(name, name, 72, 0, 72, 34, -17, 17);
     EBCompleteZSMap_->setAxisTitle("jphi", 1);
     EBCompleteZSMap_->setAxisTitle("jeta", 2);
     EBCompleteZSMap_->setAxisTitle("rate", 3);
 
-    name = "SRTask ZS Flagged Fully Readout Number EB";
+    name = "EBSRT ZS Flagged Fully Readout Number";
     EBCompleteZSCount_ = dqmStore_->book1D(name, name, 20, 0., 20.);
     EBCompleteZSCount_->setAxisTitle("Readout Units number", 1);
 
-    name = "SRTask FR Flagged Dropped Readout EB";
-    EBDroppedFRMap_ = dqmStore_->book2D(name, name, 72, 0, 360, 34, -85, 85);
+    name = "EBSRT FR Flagged Dropped Readout";
+    EBDroppedFRMap_ = dqmStore_->book2D(name, name, 72, 0, 72, 34, -17, 17);
     EBDroppedFRMap_->setAxisTitle("jphi", 1);
     EBDroppedFRMap_->setAxisTitle("jeta", 2);
     EBDroppedFRMap_->setAxisTitle("rate", 3);
 
-    name = "SRTask FR Flagged Dropped Readout Number EB";
+    name = "EBSRT FR Flagged Dropped Readout Number";
     EBDroppedFRCount_ = dqmStore_->book1D(name, name, 20, 0., 20.);
     EBDroppedFRCount_->setAxisTitle("Readout Units number", 1);
 
-    name = "SRTask event size EB";
+    name = "EBSRT event size";
     EBEventSize_ = dqmStore_->book1D(name, name, 100, 0, 200);
     EBEventSize_->setAxisTitle("event size (kB)",1);
 
-    name = "SRTask high interest payload EB";
+    name = "EBSRT high interest payload";
     EBHighInterestPayload_ =  dqmStore_->book1D(name, name, 100, 0, 200);
     EBHighInterestPayload_->setAxisTitle("event size (kB)",1);
 
-    name = "SRTask low interest payload EB";
+    name = "EBSRT low interest payload";
     EBLowInterestPayload_ =  dqmStore_->book1D(name, name, 100, 0, 200);
     EBLowInterestPayload_->setAxisTitle("event size (kB)",1);
 
-    name = "SRTask high interest ZS filter output EB";
+    name = "EBSRT high interest ZS filter output";
     EBHighInterestZsFIR_ = dqmStore_->book1D(name, name, 60, -30, 30);
     EBHighInterestZsFIR_->setAxisTitle("ADC counts*4",1);
 
-    name = "SRTask low interest ZS filter output EB";
+    name = "EBSRT low interest ZS filter output";
     EBLowInterestZsFIR_ = dqmStore_->book1D(name, name, 60, -30, 30);
     EBLowInterestZsFIR_->setAxisTitle("ADC counts*4",1);
 
@@ -336,67 +334,69 @@ void EBSelectiveReadoutTask::cleanup(void){
 
   if ( dqmStore_ ) {
 
-    if ( EBTowerSize_ ) dqmStore_->removeElement( EBTowerSize_->getFullname() );
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBSelectiveReadoutTask");
+
+    if ( EBTowerSize_ ) dqmStore_->removeElement( EBTowerSize_->getName() );
     EBTowerSize_ = 0;
 
-    if ( EBTTFMismatch_ ) dqmStore_->removeElement( EBTTFMismatch_->getFullname() );
+    if ( EBTTFMismatch_ ) dqmStore_->removeElement( EBTTFMismatch_->getName() );
     EBTTFMismatch_ = 0;
 
-    if ( EBDccEventSize_ ) dqmStore_->removeElement( EBDccEventSize_->getFullname() );
+    if ( EBDccEventSize_ ) dqmStore_->removeElement( EBDccEventSize_->getName() );
     EBDccEventSize_ = 0;
 
-    if ( EBDccEventSizeMap_ ) dqmStore_->removeElement( EBDccEventSizeMap_->getFullname() );
+    if ( EBDccEventSizeMap_ ) dqmStore_->removeElement( EBDccEventSizeMap_->getName() );
     EBDccEventSizeMap_ = 0;
 
-    if ( EBReadoutUnitForcedBitMap_ ) dqmStore_->removeElement( EBReadoutUnitForcedBitMap_->getFullname() );
+    if ( EBReadoutUnitForcedBitMap_ ) dqmStore_->removeElement( EBReadoutUnitForcedBitMap_->getName() );
     EBReadoutUnitForcedBitMap_ = 0;
 
-    if ( EBFullReadoutSRFlagMap_ ) dqmStore_->removeElement( EBFullReadoutSRFlagMap_->getFullname() );
+    if ( EBFullReadoutSRFlagMap_ ) dqmStore_->removeElement( EBFullReadoutSRFlagMap_->getName() );
     EBFullReadoutSRFlagMap_ = 0;
 
-    if ( EBFullReadoutSRFlagCount_ ) dqmStore_->removeElement( EBFullReadoutSRFlagCount_->getFullname() );
+    if ( EBFullReadoutSRFlagCount_ ) dqmStore_->removeElement( EBFullReadoutSRFlagCount_->getName() );
     EBFullReadoutSRFlagCount_ = 0;
 
-    if ( EBFullReadoutSRFlagCount_ ) dqmStore_->removeElement( EBFullReadoutSRFlagCount_->getFullname() );
+    if ( EBFullReadoutSRFlagCount_ ) dqmStore_->removeElement( EBFullReadoutSRFlagCount_->getName() );
     EBFullReadoutSRFlagCount_ = 0;
 
-    if ( EBHighInterestTriggerTowerFlagMap_ ) dqmStore_->removeElement( EBHighInterestTriggerTowerFlagMap_->getFullname() );
+    if ( EBHighInterestTriggerTowerFlagMap_ ) dqmStore_->removeElement( EBHighInterestTriggerTowerFlagMap_->getName() );
     EBHighInterestTriggerTowerFlagMap_ = 0;
 
-    if ( EBMediumInterestTriggerTowerFlagMap_ ) dqmStore_->removeElement( EBMediumInterestTriggerTowerFlagMap_->getFullname() );
+    if ( EBMediumInterestTriggerTowerFlagMap_ ) dqmStore_->removeElement( EBMediumInterestTriggerTowerFlagMap_->getName() );
     EBMediumInterestTriggerTowerFlagMap_ = 0;
 
-    if ( EBLowInterestTriggerTowerFlagMap_ ) dqmStore_->removeElement( EBLowInterestTriggerTowerFlagMap_->getFullname() );
+    if ( EBLowInterestTriggerTowerFlagMap_ ) dqmStore_->removeElement( EBLowInterestTriggerTowerFlagMap_->getName() );
     EBLowInterestTriggerTowerFlagMap_ = 0;
 
-    if ( EBTTFlags_ ) dqmStore_->removeElement( EBTTFlags_->getFullname() );
+    if ( EBTTFlags_ ) dqmStore_->removeElement( EBTTFlags_->getName() );
     EBTTFlags_ = 0;
 
-    if ( EBCompleteZSMap_ ) dqmStore_->removeElement( EBCompleteZSMap_->getFullname() );
+    if ( EBCompleteZSMap_ ) dqmStore_->removeElement( EBCompleteZSMap_->getName() );
     EBCompleteZSMap_ = 0;
 
-    if ( EBCompleteZSCount_ ) dqmStore_->removeElement( EBCompleteZSCount_->getFullname() );
+    if ( EBCompleteZSCount_ ) dqmStore_->removeElement( EBCompleteZSCount_->getName() );
     EBCompleteZSCount_ = 0;
 
-    if ( EBDroppedFRMap_ ) dqmStore_->removeElement( EBDroppedFRMap_->getFullname() );
+    if ( EBDroppedFRMap_ ) dqmStore_->removeElement( EBDroppedFRMap_->getName() );
     EBDroppedFRMap_ = 0;
 
-    if ( EBDroppedFRCount_ ) dqmStore_->removeElement( EBDroppedFRCount_->getFullname() );
+    if ( EBDroppedFRCount_ ) dqmStore_->removeElement( EBDroppedFRCount_->getName() );
     EBDroppedFRCount_ = 0;
 
-    if ( EBEventSize_ ) dqmStore_->removeElement( EBEventSize_->getFullname() );
+    if ( EBEventSize_ ) dqmStore_->removeElement( EBEventSize_->getName() );
     EBEventSize_ = 0;
 
-    if ( EBHighInterestPayload_ ) dqmStore_->removeElement( EBHighInterestPayload_->getFullname() );
+    if ( EBHighInterestPayload_ ) dqmStore_->removeElement( EBHighInterestPayload_->getName() );
     EBHighInterestPayload_ = 0;
 
-    if ( EBLowInterestPayload_ ) dqmStore_->removeElement( EBLowInterestPayload_->getFullname() );
+    if ( EBLowInterestPayload_ ) dqmStore_->removeElement( EBLowInterestPayload_->getName() );
     EBLowInterestPayload_ = 0;
 
-    if ( EBHighInterestZsFIR_ ) dqmStore_->removeElement( EBHighInterestZsFIR_->getFullname() );
+    if ( EBHighInterestZsFIR_ ) dqmStore_->removeElement( EBHighInterestZsFIR_->getName() );
     EBHighInterestZsFIR_ = 0;
 
-    if ( EBLowInterestZsFIR_ ) dqmStore_->removeElement( EBLowInterestZsFIR_->getFullname() );
+    if ( EBLowInterestZsFIR_ ) dqmStore_->removeElement( EBLowInterestZsFIR_->getName() );
     EBLowInterestZsFIR_ = 0;
 
   }
@@ -485,9 +485,8 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
       for(int ietindex = 0; ietindex < 34; ietindex++ ) {
         for(int iptindex = 0; iptindex < 72; iptindex++ ) {
 
-	  // ietindex == 0 -> ieta == 1, ietindex == 17 -> ieta == -1
-          float xiet = (ietindex < 17) ? ietindex * 5 + 2 : (17-ietindex) * 5 - 2;
-          float xipt = iptindex * 5 + 2;
+          float xiet = (ietindex < 17) ? ietindex + 0.5 : (16-ietindex) + 0.5;
+          float xipt = iptindex + 0.5;
 
           double towerSize =  nCryTower[iptindex][ietindex] * bytesPerCrystal;
           EBTowerSize_->Fill(xipt, xiet, towerSize);
@@ -564,8 +563,8 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
 
       if(nEvtAnyReadout[iptindex][ietindex]) {
 
-        float xiet = (ietindex < 17) ? ietindex * 5 + 2 : (17-ietindex) * 5 - 2;
-        float xipt = iptindex * 5 + 2;
+        float xiet = (ietindex < 17) ? ietindex + 0.5 : (16-ietindex) + 0.5;
+        float xipt = iptindex + 0.5;
 
         float fraction = float(nEvtFullReadout[iptindex][ietindex]) / float(nEvtAnyReadout[iptindex][ietindex]);
         float error = sqrt(fraction*(1-fraction)/float(nEvtAnyReadout[iptindex][ietindex]));
@@ -675,8 +674,8 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
 
       EBTTFlags_->Fill( TPdigi->ttFlag() );
 
-      float xiet = (ietindex < 17) ? ietindex * 5 + 2 : (17-ietindex) * 5 - 2;
-      float xipt = iptindex * 5 + 2;
+      float xiet = (ietindex < 17) ? ietindex + 0.5 : (16-ietindex) + 0.5;
+      float xipt = iptindex + 0.5;
 
       if ( ((TPdigi->ttFlag() & 0x3) == 1 || (TPdigi->ttFlag() & 0x3) == 3)
            && nCryTower[iptindex][ietindex] != 25 ) EBTTFMismatch_->Fill(xipt, xiet);
@@ -691,8 +690,8 @@ void EBSelectiveReadoutTask::analyze(const edm::Event& e, const edm::EventSetup&
 
       if(nEvtAnyInterest[iptindex][ietindex]) {
 
-        float xiet = (ietindex < 17) ? ietindex * 5 + 2 : (17-ietindex) * 5 - 2;
-        float xipt = iptindex * 5 + 2;
+        float xiet = (ietindex < 17) ? ietindex + 0.5 : (16-ietindex) + 0.5;
+        float xipt = iptindex + 0.5;
 
         float fraction = float(nEvtHighInterest[iptindex][ietindex]) / float(nEvtAnyInterest[iptindex][ietindex]);
         float error = sqrt(fraction*(1-fraction)/float(nEvtAnyInterest[iptindex][ietindex]));

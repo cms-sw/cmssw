@@ -11,6 +11,7 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
@@ -226,7 +227,7 @@ DDDividedPolyhedraPhi::checkParametersValidity( void )
 	      << " instead of " << compNDiv_ << " !"
 	      << std::endl; 
     std::string s = "DDDividedPolyhedraPhi::checkParametersValidity() Not supported configuration.";
-    throw cms::Exception("DDException") << s;
+    throw DDException(s);
   }
 }
 
@@ -365,7 +366,7 @@ DDDividedPolyhedraZ::checkParametersValidity( void )
 	      << std::endl; 
     std::string s = "DDDividedPolyhedraZ::checkParametersValidity()";
     s += "Illegal Construct. Not a supported configuration.";
-    throw cms::Exception("DDException") << s;
+    throw DDException (s);
   }
 }
 

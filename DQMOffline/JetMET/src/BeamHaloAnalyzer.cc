@@ -89,7 +89,7 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
 	hEcalHaloData_PhiWedgeConstituents = dqm->book1D("EcalHaloData_PhiWedgeConstituents","",20,-0.5, 19.5);
 	//	hEcalHaloData_PhiWedgeiPhi         = dqm->book1D("EcalHaloData_PhiWedgeiPhi","", 360, 0.5, 360.5) ;
 	hEcalHaloData_PhiWedgeZDirectionConfidence = dqm->book1D("EcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
-	hEcalHaloData_SuperClusterShowerShapes  = dqm->book2D("EcalHaloData_SuperClusterShowerShapes","", 25,0.0, TMath::Pi(), 25,0.0, 2.0);
+	hEcalHaloData_SuperClusterShowerShapes  = dqm->book2D("EcalHaloData_SuperClusterShowerShapes","", 30, 0, 3.2, 25,0.0, 2.0);
 	hEcalHaloData_SuperClusterEnergy = dqm->book1D("EcalHaloData_SuperClusterEnergy","",50,-0.5,99.5); 
 	hEcalHaloData_SuperClusterNHits = dqm->book1D("EcalHaloData_SuperClusterNHits", "", 20, -0.5, 19.5);
       }
@@ -104,10 +104,10 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
 	hEcalHaloData_PhiWedgePlusZDirectionConfidence = dqm->book1D("EcalHaloData_PlusZDirectionConfidence","",  50, 0., 1.0);
 	hEcalHaloData_PhiWedgeZDirectionConfidence = dqm->book1D("EcalHaloData_ZDirectionConfidence","",  120, -1.2, 1.2);
 	hEcalHaloData_PhiWedgeMinVsMaxTime = dqm->book2D("EcalHaloData_PhiWedgeMinVsMaxTime","", 50,-100.0, 100.0, 50, -100.0, 100.0);
-	hEcalHaloData_SuperClusterShowerShapes  = dqm->book2D("EcalHaloData_SuperClusterShowerShapes","", 25,0.0, TMath::Pi(), 25,0.0, 2.0);
+	hEcalHaloData_SuperClusterShowerShapes  = dqm->book2D("EcalHaloData_SuperClusterShowerShapes","", 30, 0, 3.2, 25,0.0, 2.0);
 	hEcalHaloData_SuperClusterEnergy = dqm->book1D("EcalHaloData_SuperClusterEnergy","",100,-0.5,99.5); 
 	hEcalHaloData_SuperClusterNHits = dqm->book1D("EcalHaloData_SuperClusterNHits", "", 20, -0.5, 19.5);
-	hEcalHaloData_SuperClusterPhiVsEta = dqm->book2D("EcalHaloData_SuperClusterPhiVsEta","",60, -3.0, 3.0,72, -TMath::Pi(), TMath::Pi());  
+	hEcalHaloData_SuperClusterPhiVsEta = dqm->book2D("EcalHaloData_SuperClusterPhiVsEta","",60, -3.0, 3.0, 60, -3.2, 3.2);  
       }
 
     // HcalHaloData
@@ -140,7 +140,7 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
 	hCSCHaloData_TrackMultiplicityMEPlus  = dqm->book1D("CSCHaloData_TrackMultiplicityMEPlus", "", 15, -0.5, 14.5);
 	hCSCHaloData_TrackMultiplicityMEMinus  = dqm->book1D("CSCHaloData_TrackMultiplicityMEMinus", "", 15, -0.5, 14.5);
 	hCSCHaloData_InnerMostTrackHitR  = dqm->book1D("CSCHaloData_InnerMostTrackHitR", "", 70, 99.5, 799.5);
-	hCSCHaloData_InnerMostTrackHitPhi  = dqm->book1D("CSCHaloData_InnerMostTrackHitPhi","", 72, -TMath::Pi(), TMath::Pi());
+	hCSCHaloData_InnerMostTrackHitPhi  = dqm->book1D("CSCHaloData_InnerMostTrackHitPhi","", 60, -3.2, 3.2);
 	hCSCHaloData_L1HaloTriggersMEPlus  = dqm->book1D("CSCHaloData_L1HaloTriggersMEPlus", "", 10, -0.5, 9.5);
 	hCSCHaloData_L1HaloTriggersMEMinus  = dqm->book1D("CSCHaloData_L1HaloTriggersMEMinus", "" , 10, -0.5, 9.5);
 	hCSCHaloData_L1HaloTriggers  = dqm->book1D("CSCHaloData_L1HaloTriggers", "", 10, -0.5, 9.5);
@@ -173,7 +173,7 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
 	hCSCHaloData_InnerMostTrackHitRPlusZ = dqm->book2D("CSCHaloData_InnerMostTrackHitRPlusZ","", 400 , 400, 1200, 400, -0.5, 799.5 );
 	hCSCHaloData_InnerMostTrackHitRMinusZ = dqm->book2D("CSCHaloData_InnerMostTrackHitRMinusZ","", 400 , -1200, -400, 400, -0.5, 799.5 );
 	hCSCHaloData_InnerMostTrackHitiPhi  = dqm->book1D("CSCHaloData_InnerMostTrackHitiPhi","", 72, 0.5, 72.5);
-	hCSCHaloData_InnerMostTrackHitPhi  = dqm->book1D("CSCHaloData_InnerMostTrackHitPhi","", 72, -TMath::Pi(), TMath::Pi());
+	hCSCHaloData_InnerMostTrackHitPhi  = dqm->book1D("CSCHaloData_InnerMostTrackHitPhi","", 60, -3.2, 3.2);
 	hCSCHaloData_L1HaloTriggersMEPlus  = dqm->book1D("CSCHaloData_L1HaloTriggersMEPlus", "", 10, -0.5, 9.5);
 	hCSCHaloData_L1HaloTriggersMEMinus  = dqm->book1D("CSCHaloData_L1HaloTriggersMEMinus", "" , 10, -0.5, 9.5);
 	hCSCHaloData_L1HaloTriggers  = dqm->book1D("CSCHaloData_L1HaloTriggers", "", 10, -0.5, 9.5);
@@ -254,7 +254,7 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
     dqm->setCurrentFolder(FolderName+"/ExtraHaloData");
     if(StandardDQM)
       {
-	hExtra_CSCTrackInnerOuterDPhi = dqm->book1D("Extra_CSCTrackInnerOuterDPhi","",100, 0, TMath::Pi() );
+	hExtra_CSCTrackInnerOuterDPhi = dqm->book1D("Extra_CSCTrackInnerOuterDPhi","", 30, 0, 3.2);
 	hExtra_CSCTrackInnerOuterDEta = dqm->book1D("Extra_CSCTrackInnerOuterDEta","", 100, 0, 3.0 );
 	hExtra_CSCTrackChi2Ndof  = dqm->book1D("Extra_CSCTrackChi2Ndof","", 25, 0, 10);
 	hExtra_CSCTrackNHits     = dqm->book1D("Extra_CSCTrackNHits","", 75,0, 75);
@@ -268,7 +268,7 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
 	hExtra_CSCActivityWithMET->setBinLabel(4, "Nothing", 1);
 	hExtra_CSCActivityWithMET->setBinLabel(4, "Nothing", 2);
 	hExtra_InnerMostTrackHitR  = dqm->book1D("Extra_InnerMostTrackHitR", "", 70, 99.5, 799.5);
-	hExtra_InnerMostTrackHitPhi  = dqm->book1D("Extra_InnerMostTrackHitPhi","", 72, -TMath::Pi(), TMath::Pi());
+	hExtra_InnerMostTrackHitPhi  = dqm->book1D("Extra_InnerMostTrackHitPhi","", 60, -3.2, 3.2);
       }
     else 
       {
@@ -285,8 +285,8 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
 	hExtra_HcalToF_HaloId  = dqm->book2D("Extra_HcalToF_HaloId","", 83,-41.5,41.5 , 1000, -125., 125.); 
 	hExtra_EcalToF  = dqm->book2D("Extra_EcalToF","",  171,-85.5,85.5 , 2000, -225., 225.); 
 	hExtra_EcalToF_HaloId  = dqm->book2D("Extra_EcalToF_HaloId","",  171,-85.5,85.5 , 2000, -225., 225.); 
-	hExtra_CSCTrackInnerOuterDPhi = dqm->book1D("Extra_CSCTrackInnerOuterDPhi","",100, 0, TMath::Pi() );
-	hExtra_CSCTrackInnerOuterDEta = dqm->book1D("Extra_CSCTrackInnerOuterDEta","", 100, 0, TMath::Pi() );
+	hExtra_CSCTrackInnerOuterDPhi = dqm->book1D("Extra_CSCTrackInnerOuterDPhi","", 30, 0, 3.2);
+	hExtra_CSCTrackInnerOuterDEta = dqm->book1D("Extra_CSCTrackInnerOuterDEta","", 30, 0, 3.2);
 	hExtra_CSCTrackChi2Ndof  = dqm->book1D("Extra_CSCTrackChi2Ndof","", 100, 0, 10);
 	hExtra_CSCTrackNHits     = dqm->book1D("Extra_CSCTrackNHits","", 75,0, 75);
 	hExtra_InnerMostTrackHitXY  = dqm->book2D("Extra_InnerMostTrackHitXY","", 100,-700,700,100, -700,700);
@@ -294,7 +294,7 @@ void BeamHaloAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
 	hExtra_InnerMostTrackHitRPlusZ = dqm->book2D("Extra_InnerMostTrackHitRPlusZ","", 400 , 400, 1200, 400, -0.5, 799.5 );
 	hExtra_InnerMostTrackHitRMinusZ = dqm->book2D("Extra_InnerMostTrackHitRMinusZ","", 400 , -1200, -400, 400, -0.5, 799.5 );
 	hExtra_InnerMostTrackHitiPhi  = dqm->book1D("Extra_InnerMostTrackHitiPhi","", 72, 0.5, 72.5);
-	hExtra_InnerMostTrackHitPhi  = dqm->book1D("Extra_InnerMostTrackHitPhi","", 72, -TMath::Pi(), TMath::Pi());
+	hExtra_InnerMostTrackHitPhi  = dqm->book1D("Extra_InnerMostTrackHitPhi","", 60, -3.2, 3.2);
 	hExtra_BXN = dqm->book1D("Extra_BXN", "BXN Occupancy", 4000, 0.5, 4000.5);
       }
   }
