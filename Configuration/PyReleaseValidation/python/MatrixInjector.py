@@ -240,7 +240,7 @@ class MatrixInjector(object):
                 print "For eyes before submitting",n
                 print pprint.pprint(d)
                 print "Submitting",n,"..........."
-                workFlow=makeRequest(self.wmagent,d)
+                workFlow=makeRequest(self.wmagent,d,encodeDict=True)
                 approveRequest(self.wmagent,workFlow)
                 print "...........",n,"submitted"
                 random_sleep()
