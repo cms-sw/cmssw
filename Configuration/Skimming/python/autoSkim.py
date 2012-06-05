@@ -14,7 +14,7 @@ autoSkim = {
     'JetHT' : 'LogError+LogErrorMonitor+EXOHSCP',
     'JetMon' : 'LogError+LogErrorMonitor',
     'MET' : 'LogError+LogErrorMonitor+ZHbb+HighMET+EXOHSCP',
-    'MinimumBias' : 'LogError+LogErrorMonitor',
+    'MinimumBias' : 'LogError+LogErrorMonitor+HLTPhysics',
     'MuEG' : 'LogError+LogErrorMonitor+HZZ',
     'MuHad' : 'LogError+LogErrorMonitor',
     'MuOnia' : 'LogError+LogErrorMonitor+ChiB',
