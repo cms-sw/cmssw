@@ -3,7 +3,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include <boost/bind.hpp>
 
@@ -74,11 +73,26 @@ bool trkLongitudinalImpactParameter(const PFCandidate& cand,
   return difference <= cut;
 }
 
+/// DZ cut, with respect to the current lead rack
+bool trkLongitudinalImpactParameterWrtTrack(const PFCandidate& cand,
+    const reco::TrackBaseRef* trk, double cut) {
+  if (trk->isNull()) {
+    edm::LogError("QCutsNoValidLeadTrack") << "Lead track Ref in " <<
+        "RecoTauQualityCuts is invalid. - trkLongitudinalImpactParameterWrtTrack";
+    return false;
+  }
+  TrackBaseRef candTrk = getTrack(cand);
+  if (!candTrk) return false;
+  double difference = std::abs((*trk)->vz() - candTrk->vz());
+  return difference <= cut;
+}
+
+
 bool minTrackVertexWeight(const PFCandidate& cand, const reco::VertexRef* pv,
     double cut) {
   if (pv->isNull()) {
     edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<
-        "RecoTauQualityCuts is invalid. - trkLongitudinalImpactParameter";
+        "RecoTauQualityCuts is invalid. - minTrackVertexWeight";
     return false;
   }
   TrackBaseRef trk = getTrack(cand);
@@ -178,6 +192,13 @@ RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts) {
     passedOptionSet.erase("maxDeltaZ");
   }
 
+  if (qcuts.exists("maxDeltaZToLeadTrack")) {
+    chargedHadronCuts.push_back(boost::bind(
+            qcuts::trkLongitudinalImpactParameterWrtTrack, _1, &leadTrack_,
+            qcuts.getParameter<double>("maxDeltaZToLeadTrack")));
+    passedOptionSet.erase("maxDeltaZToLeadTrack");
+  }
+
   // Require tracks to contribute a minimum weight to the associated vertex.
   if (qcuts.exists("minTrackVertexWeight")) {
     chargedHadronCuts.push_back(boost::bind(
@@ -259,7 +280,8 @@ std::pair<edm::ParameterSet, edm::ParameterSet> factorizePUQCuts(
 
   std::vector<std::string> inputNames = input.getParameterNames();
   BOOST_FOREACH(const std::string& cut, inputNames) {
-    if (cut == "minTrackVertexWeight" || cut == "maxDeltaZ") {
+    if (cut == "minTrackVertexWeight" || cut == "maxDeltaZ"
+        || cut == "maxDeltaZToLeadTrack") {
       puCuts.copyFrom(input, cut);
     } else {
       nonPUCuts.copyFrom(input, cut);
@@ -269,6 +291,20 @@ std::pair<edm::ParameterSet, edm::ParameterSet> factorizePUQCuts(
 }
 
 
+void RecoTauQualityCuts::setLeadTrack(
+    const reco::PFCandidate& leadCand) const {
+  leadTrack_ = getTrack(leadCand);
+}
+
+void RecoTauQualityCuts::setLeadTrack(
+    const reco::PFCandidateRef& leadCand) const {
+  if (leadCand.isNonnull()) {
+    leadTrack_ = getTrack(*leadCand);
+  } else {
+    // Set null
+    leadTrack_ = reco::TrackBaseRef();
+  }
+}
 
 
 }}  // end namespace reco::tau

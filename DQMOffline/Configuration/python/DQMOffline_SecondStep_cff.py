@@ -14,6 +14,7 @@ from DQM.CSCMonitorModule.csc_dqm_offlineclient_collisions_cff import *
 from DQM.EcalPreshowerMonitorClient.es_dqm_client_offline_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitorClient_cff import *
 from DQMServices.Components.DQMFEDIntegrityClient_cff import *
+from Validation.RecoTau.DQMSequences_cfi import *
 
 DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                              ecal_dqm_client_offline *
@@ -45,7 +46,8 @@ DQMOffline_SecondStep_PrePOG = cms.Sequence( muonQualityTests *
                                              hltOfflineDQMClient *
                                              bTagCollectorSequence *
                                              alcaBeamMonitorClient *
-                                             SusyPostProcessorSequence )
+                                             SusyPostProcessorSequence *
+                                             runTauEff)
 
 DQMOffline_SecondStepPOG = cms.Sequence( dqmRefHistoRootFileGetter *
                                          DQMOffline_SecondStep_PrePOG *
@@ -63,7 +65,9 @@ DQMOffline_SecondStepPOGMC = cms.Sequence( dqmRefHistoRootFileGetter *
                                            DQMMessageLoggerClientSeq )
 
 
-DQMHarvestCommon = cms.Sequence(dqmDcsInfoClient *
+DQMHarvestCommon = cms.Sequence( dqmRefHistoRootFileGetter *
+                                 DQMMessageLoggerClientSeq *
+                                 dqmDcsInfoClient *
                                  SiStripOfflineDQMClient *
                                  PixelOfflineDQMClientNoDataCertification *
                                  l1TriggerDqmOfflineClient *
@@ -71,18 +75,20 @@ DQMHarvestCommon = cms.Sequence(dqmDcsInfoClient *
                                  hltOfflineDQMClient *
                                  dqmFEDIntegrityClient *
                                  alcaBeamMonitorClient *
-                                 SusyPostProcessorSequence
+                                 runTauEff
                                 )
-DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmDcsInfoClient *
-                                 SiStripOfflineDQMClient *
-                                 PixelOfflineDQMClientNoDataCertification *
-                                 l1TriggerDqmOfflineClient *
-                                 triggerOfflineDQMClient *
-                                 hltOfflineDQMClient *
-                                 dqmFEDIntegrityClient *
-                                 alcaBeamMonitorClient *
-                                 SusyPostProcessorSequence
-                                )
+DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
+                                               DQMMessageLoggerClientSeq *
+                                               dqmDcsInfoClient *
+                                               SiStripOfflineDQMClient *
+                                               PixelOfflineDQMClientNoDataCertification *
+                                               l1TriggerDqmOfflineClient *
+                                               triggerOfflineDQMClient *
+                                               hltOfflineDQMClient *
+                                               dqmFEDIntegrityClient *
+                                               alcaBeamMonitorClient *
+                                               runTauEff
+                                               )
 
 DQMHarvestMuon = cms.Sequence( dtClients *
                                 rpcTier0Client *
@@ -95,4 +101,5 @@ DQMHarvestEcal = cms.Sequence( ecal_dqm_client_offline *
 DQMHarvestHcal = cms.Sequence( hcalOfflineDQMClient )
 
 DQMHarvestJetMET = cms.Sequence( SusyPostProcessorSequence )
-                                             
+
+DQMHarvestEGamma = cms.Sequence( photonOfflineClient )                                             

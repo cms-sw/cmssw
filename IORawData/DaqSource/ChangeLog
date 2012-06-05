@@ -1,3 +1,16 @@
+2012-05-02 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-12-00
+	* merging in new forking support from development branch
+
+2012-04-22 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-11-00
+	* support for master process fork in framework working thread
+	* slightly safer waiting for scalers thread to lock (requires new
+	  Processor tag)
+	* timing statistics of beginRun
+
 2011-10-14  William Tanenbaum <wmtan@fnal.gov>
 
 	* tag V01-10-01

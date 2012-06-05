@@ -69,14 +69,14 @@ process.maxEvents = cms.untracked.PSet(
 process.DQMStore = cms.Service("DQMStore")
 process.load("Validation.RecoTau.dataTypes.ValidateTausOn%s_cff"%dataType)
 
-process.loadFile   = cms.EDAnalyzer("DQMFileLoader",
+process.loadFile   = cms.EDAnalyzer("TauDQMFileLoader",
       myFiles = cms.PSet(
          inputFileNames = cms.vstring(OutputFile),
          scaleFactor = cms.double(1.),
          )
 )
 
-process.saveTauEff = cms.EDAnalyzer("DQMSimpleFileSaver",
+process.saveTauEff = cms.EDAnalyzer("TauDQMSimpleFileSaver",
 #  outputFileName = cms.string(OutputFile.replace('.root', '_Eff.root'))
   outputFileName = cms.string(OutputFile)
 )

@@ -1,5 +1,5 @@
 //
-// $Id: GenericTriggerEventFlag.cc,v 1.10 2012/01/19 20:17:34 vadler Exp $
+// $Id: GenericTriggerEventFlag.cc,v 1.12 2012/04/22 14:21:29 vadler Exp $
 //
 
 
@@ -608,6 +608,14 @@ std::vector< std::string > GenericTriggerEventFlag::expressionsFromDB( const std
 
   if ( key.size() == 0 ) return std::vector< std::string >( 1, emptyKeyError_ );
   edm::ESHandle< AlCaRecoTriggerBits > logicalExpressions;
+  std::vector< edm::eventsetup::DataKey > labels;
+  setup.get< AlCaRecoTriggerBitsRcd >().fillRegisteredDataKeys( labels );
+  std::vector< edm::eventsetup::DataKey >::const_iterator iKey = labels.begin();
+  while ( iKey != labels.end() && iKey->name().value() != dbLabel_ ) ++iKey;
+  if ( iKey == labels.end() ) {
+    if ( verbose_ > 0 ) edm::LogWarning( "GenericTriggerEventFlag" ) << "Label " << dbLabel_ << " not found in DB for 'AlCaRecoTriggerBitsRcd'";
+    return std::vector< std::string >( 1, configError_ );
+  }
   setup.get< AlCaRecoTriggerBitsRcd >().get( dbLabel_, logicalExpressions );
   const std::map< std::string, std::string > & expressionMap = logicalExpressions->m_alcarecoToTrig;
   std::map< std::string, std::string >::const_iterator listIter = expressionMap.find( key );

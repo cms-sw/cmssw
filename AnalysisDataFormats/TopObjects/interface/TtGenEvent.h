@@ -28,6 +28,10 @@ class TtGenEvent: public TopGenEvent {
 
   /// check if the event can be classified as ttbar
   bool isTtBar() const {return (top() && topBar());}
+  /// check if the tops were produced from a pair of gluons
+  bool fromGluonFusion() const;
+  /// check if the tops were produced from qqbar
+  bool fromQuarkAnnihilation() const;
   /// check if the event can be classified as full hadronic
   bool isFullHadronic(bool excludeTauLeptons=false) const { return isTtBar() ? isNumberOfLeptons(excludeTauLeptons, 0) : false;}
   /// check if the event can be classified as semi-laptonic
@@ -78,6 +82,14 @@ class TtGenEvent: public TopGenEvent {
   const reco::GenParticle* neutrino(bool excludeTauLeptons=false) const;
   /// get anti-neutrino for semi-leptonic or full leptonic decays
   const reco::GenParticle* neutrinoBar(bool excludeTauLeptons=false) const;
+
+  /// return combined 4-vector of top and topBar
+  const math::XYZTLorentzVector* topPair() const { return isTtBar() ? &topPair_ : 0; };
+
+ protected:
+
+  /// combined 4-vector of top and topBar
+  math::XYZTLorentzVector topPair_;
 
  private:
 

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/10/10 13:45:50 $
- *  $Revision: 1.43 $
+ *  $Date: 2012/05/14 09:02:47 $
+ *  $Revision: 1.49 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -40,7 +40,7 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   edm::ParameterSet lowptjetparms  = parameters.getParameter<edm::ParameterSet>("lowPtJetTrigger" );
   edm::ParameterSet minbiasparms   = parameters.getParameter<edm::ParameterSet>("minBiasTrigger"  );
   edm::ParameterSet highmetparms   = parameters.getParameter<edm::ParameterSet>("highMETTrigger"  );
-  edm::ParameterSet lowmetparms    = parameters.getParameter<edm::ParameterSet>("lowMETTrigger"   );
+  //  edm::ParameterSet lowmetparms    = parameters.getParameter<edm::ParameterSet>("lowMETTrigger"   );
   edm::ParameterSet eleparms       = parameters.getParameter<edm::ParameterSet>("eleTrigger"      );
   edm::ParameterSet muonparms      = parameters.getParameter<edm::ParameterSet>("muonTrigger"     );
 
@@ -49,14 +49,14 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   _LowPtJetEventFlag  = new GenericTriggerEventFlag( lowptjetparms  );
   _MinBiasEventFlag   = new GenericTriggerEventFlag( minbiasparms   );
   _HighMETEventFlag   = new GenericTriggerEventFlag( highmetparms   );
-  _LowMETEventFlag    = new GenericTriggerEventFlag( lowmetparms    );
+  //  _LowMETEventFlag    = new GenericTriggerEventFlag( lowmetparms    );
   _EleEventFlag       = new GenericTriggerEventFlag( eleparms       );
   _MuonEventFlag      = new GenericTriggerEventFlag( muonparms      );
 
   highPtJetExpr_ = highptjetparms.getParameter<std::vector<std::string> >("hltPaths");
   lowPtJetExpr_  = lowptjetparms .getParameter<std::vector<std::string> >("hltPaths");
   highMETExpr_   = highmetparms  .getParameter<std::vector<std::string> >("hltPaths");
-  lowMETExpr_    = lowmetparms   .getParameter<std::vector<std::string> >("hltPaths");
+  //  lowMETExpr_    = lowmetparms   .getParameter<std::vector<std::string> >("hltPaths");
   muonExpr_      = muonparms     .getParameter<std::vector<std::string> >("hltPaths");
   elecExpr_      = eleparms      .getParameter<std::vector<std::string> >("hltPaths");
   minbiasExpr_   = minbiasparms  .getParameter<std::vector<std::string> >("hltPaths");
@@ -70,7 +70,7 @@ METAnalyzer::~METAnalyzer() {
   delete _LowPtJetEventFlag;
   delete _MinBiasEventFlag;
   delete _HighMETEventFlag;
-  delete _LowMETEventFlag;
+  //  delete _LowMETEventFlag;
   delete _EleEventFlag;
   delete _MuonEventFlag;
 
@@ -97,7 +97,6 @@ void METAnalyzer::beginJob(DQMStore * dbe) {
 
   _tightBHFiltering     = theCleaningParameters.getParameter<bool>("tightBHFiltering");
   _tightJetIDFiltering  = theCleaningParameters.getParameter<int>("tightJetIDFiltering");
-  _tightHcalFiltering   = theCleaningParameters.getParameter<bool>("tightHcalFiltering");
 
   // ==========================================================
   //DCS information
@@ -130,8 +129,8 @@ void METAnalyzer::beginJob(DQMStore * dbe) {
   // Other data collections
   theJetCollectionLabel       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
   HcalNoiseRBXCollectionTag   = parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection");
-  HcalNoiseSummaryTag         = parameters.getParameter<edm::InputTag>("HcalNoiseSummary");
   BeamHaloSummaryTag          = parameters.getParameter<edm::InputTag>("BeamHaloSummaryLabel");
+  HBHENoiseFilterResultTag    = parameters.getParameter<edm::InputTag>("HBHENoiseFilterResultLabel");
 
   // misc
   _verbose      = parameters.getParameter<int>("verbose");
@@ -145,7 +144,7 @@ void METAnalyzer::beginJob(DQMStore * dbe) {
   _highPtJetThreshold = parameters.getParameter<double>("HighPtJetThreshold"); // High Pt Jet threshold
   _lowPtJetThreshold  = parameters.getParameter<double>("LowPtJetThreshold");   // Low Pt Jet threshold
   _highMETThreshold   = parameters.getParameter<double>("HighMETThreshold");     // High MET threshold
-  _lowMETThreshold    = parameters.getParameter<double>("LowMETThreshold");       // Low MET threshold
+  //  _lowMETThreshold    = parameters.getParameter<double>("LowMETThreshold");       // Low MET threshold
 
   //
   jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
@@ -164,7 +163,6 @@ void METAnalyzer::beginJob(DQMStore * dbe) {
   _FolderNames.push_back("BasicCleanup");
   _FolderNames.push_back("ExtraCleanup");
   _FolderNames.push_back("HcalNoiseFilter");
-  _FolderNames.push_back("HcalNoiseFilterTight");
   _FolderNames.push_back("JetIDMinimal");
   _FolderNames.push_back("JetIDLoose");
   _FolderNames.push_back("JetIDTight");
@@ -182,7 +180,6 @@ void METAnalyzer::beginJob(DQMStore * dbe) {
     }
     if (_allSelection){
       if (*ic=="HcalNoiseFilter")      bookMESet(DirName+"/"+*ic);
-      if (*ic=="HcalNoiseFilterTight") bookMESet(DirName+"/"+*ic);
       if (*ic=="JetIDMinimal")         bookMESet(DirName+"/"+*ic);
       if (*ic=="JetIDLoose")           bookMESet(DirName+"/"+*ic);
       if (*ic=="JetIDTight")           bookMESet(DirName+"/"+*ic);
@@ -232,10 +229,10 @@ void METAnalyzer::bookMESet(std::string DirName)
     hTriggerName_HighMET = _dbe->bookString("triggerName_HighMET", highMETExpr_[0]);
   }
 
-  if ( _LowMETEventFlag->on() ) {
-    bookMonitorElement(DirName+"/"+"LowMET",false);
-    hTriggerName_LowMET = _dbe->bookString("triggerName_LowMET", lowMETExpr_[0]);
-  }
+  //  if ( _LowMETEventFlag->on() ) {
+  //    bookMonitorElement(DirName+"/"+"LowMET",false);
+  //    hTriggerName_LowMET = _dbe->bookString("triggerName_LowMET", lowMETExpr_[0]);
+  //  }
 
   if ( _EleEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"Ele",false);
@@ -253,37 +250,29 @@ void METAnalyzer::bookMESet(std::string DirName)
 // ***********************************************************
 void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=false)
 {
-
   if (_verbose) std::cout << "bookMonitorElement " << DirName << std::endl;
+
   _dbe->setCurrentFolder(DirName);
- 
-  //hNevents            = _dbe->book1D("METTask_Nevents", "METTask_Nevents"   ,1,0,1);
-  hMEx                = _dbe->book1D("METTask_MEx",   "METTask_MEx"   ,200,-500,500);
-  hMEx->setAxisTitle("MEx [GeV]",1);
-  hMEy                = _dbe->book1D("METTask_MEy",   "METTask_MEy"   ,200,-500,500);
-  hMEy->setAxisTitle("MEy [GeV]",1);
-  //hEz                 = _dbe->book1D("METTask_Ez",    "METTask_Ez"    ,500,-500,500);
-  //hEz->setAxisTitle("MEz [GeV]",1);
-  hMETSig             = _dbe->book1D("METTask_METSig","METTask_METSig",51,0,51);
-  hMETSig->setAxisTitle("CaloMETSig",1);
-  hMET                = _dbe->book1D("METTask_MET",   "METTask_MET"   ,200,0,1000); 
-  hMET->setAxisTitle("MET [GeV]",1);
-  hMETPhi             = _dbe->book1D("METTask_METPhi","METTask_METPhi",60,-TMath::Pi(),TMath::Pi()); 
-  hMETPhi->setAxisTitle("METPhi [rad]",1);
-  hSumET              = _dbe->book1D("METTask_SumET", "METTask_SumET" ,400,0,2000); 
-  hSumET->setAxisTitle("SumET [GeV]",1);
 
-  hMET_logx           = _dbe->book1D("METTask_MET_logx",   "METTask_MET_logx"   ,40,-1.,7.);
-  hMET_logx->setAxisTitle("log(MET) [GeV]",1);
-  hSumET_logx         = _dbe->book1D("METTask_SumET_logx", "METTask_SumET_logx" ,40,-1.,7.);
-  hSumET_logx->setAxisTitle("log(SumET) [GeV]",1);
 
-  //hMETIonFeedbck      = _dbe->book1D("METTask_METIonFeedbck", "METTask_METIonFeedbck" ,500,0,1000);
-  //hMETIonFeedbck->setAxisTitle("MET [GeV]",1);
-  //hMETHPDNoise        = _dbe->book1D("METTask_METHPDNoise",   "METTask_METHPDNoise"   ,500,0,1000);
-  //hMETHPDNoise->setAxisTitle("MET [GeV]",1);
-  //hMETRBXNoise        = _dbe->book1D("METTask_METRBXNoise",   "METTask_METRBXNoise"   ,500,0,1000);
-  //hMETRBXNoise->setAxisTitle("MET [GeV]",1);
+  hMEx        = _dbe->book1D("METTask_MEx",        "METTask_MEx",        200, -500,  500);
+  hMEy        = _dbe->book1D("METTask_MEy",        "METTask_MEy",        200, -500,  500);
+  hMET        = _dbe->book1D("METTask_MET",        "METTask_MET",        200,    0, 1000); 
+  hSumET      = _dbe->book1D("METTask_SumET",      "METTask_SumET",      400,    0, 4000); 
+  hMETSig     = _dbe->book1D("METTask_METSig",     "METTask_METSig",      51,    0,   51);
+  hMETPhi     = _dbe->book1D("METTask_METPhi",     "METTask_METPhi",      60, -3.2,  3.2); 
+  hMET_logx   = _dbe->book1D("METTask_MET_logx",   "METTask_MET_logx",    40,   -1,    7);
+  hSumET_logx = _dbe->book1D("METTask_SumET_logx", "METTask_SumET_logx",  40,   -1,    7);
+
+  hMEx       ->setAxisTitle("MEx [GeV]",        1);
+  hMEy       ->setAxisTitle("MEy [GeV]",        1);
+  hMET       ->setAxisTitle("MET [GeV]",        1);
+  hSumET     ->setAxisTitle("SumET [GeV]",      1);
+  hMETSig    ->setAxisTitle("CaloMETSig",       1);
+  hMETPhi    ->setAxisTitle("METPhi [rad]",     1);
+  hMET_logx  ->setAxisTitle("log(MET) [GeV]",   1);
+  hSumET_logx->setAxisTitle("log(SumET) [GeV]", 1);
+
 
   if (_allhist){
     if (bLumiSecPlot){
@@ -325,7 +314,7 @@ void METAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
   if ( _LowPtJetEventFlag ->on() ) _LowPtJetEventFlag ->initRun( iRun, iSetup );
   if ( _MinBiasEventFlag  ->on() ) _MinBiasEventFlag  ->initRun( iRun, iSetup );
   if ( _HighMETEventFlag  ->on() ) _HighMETEventFlag  ->initRun( iRun, iSetup );
-  if ( _LowMETEventFlag   ->on() ) _LowMETEventFlag   ->initRun( iRun, iSetup );
+  //  if ( _LowMETEventFlag   ->on() ) _LowMETEventFlag   ->initRun( iRun, iSetup );
   if ( _EleEventFlag      ->on() ) _EleEventFlag      ->initRun( iRun, iSetup );
   if ( _MuonEventFlag     ->on() ) _MuonEventFlag     ->initRun( iRun, iSetup );
 
@@ -335,8 +324,8 @@ void METAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
     lowPtJetExpr_  = _LowPtJetEventFlag->expressionsFromDB(_LowPtJetEventFlag->hltDBKey(),   iSetup);
   if (_HighMETEventFlag->on() && _HighMETEventFlag->expressionsFromDB(_HighMETEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
     highMETExpr_   = _HighMETEventFlag->expressionsFromDB(_HighMETEventFlag->hltDBKey(),     iSetup);
-  if (_LowMETEventFlag->on() && _LowMETEventFlag->expressionsFromDB(_LowMETEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
-    lowMETExpr_    = _LowMETEventFlag->expressionsFromDB(_LowMETEventFlag->hltDBKey(),       iSetup);
+  //  if (_LowMETEventFlag->on() && _LowMETEventFlag->expressionsFromDB(_LowMETEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
+  //    lowMETExpr_    = _LowMETEventFlag->expressionsFromDB(_LowMETEventFlag->hltDBKey(),       iSetup);
   if (_MuonEventFlag->on() && _MuonEventFlag->expressionsFromDB(_MuonEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
     muonExpr_      = _MuonEventFlag->expressionsFromDB(_MuonEventFlag->hltDBKey(),           iSetup);
   if (_EleEventFlag->on() && _EleEventFlag->expressionsFromDB(_EleEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
@@ -391,14 +380,15 @@ void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQ
 	makeRatePlot(DirName+"/"+"triggerName_MinBias",totltime);
       if ( _HighMETEventFlag->on() ) 
 	makeRatePlot(DirName+"/"+"triggerName_HighMET",totltime);
-      if ( _LowMETEventFlag->on() ) 
-	makeRatePlot(DirName+"/"+"triggerName_LowMET",totltime);
+      //      if ( _LowMETEventFlag->on() ) 
+      //	makeRatePlot(DirName+"/"+"triggerName_LowMET",totltime);
       if ( _EleEventFlag->on() ) 
 	makeRatePlot(DirName+"/"+"triggerName_Ele",totltime);
       if ( _MuonEventFlag->on() ) 
 	makeRatePlot(DirName+"/"+"triggerName_Muon",totltime);
     }
 }
+
 
 // ***********************************************************
 void METAnalyzer::makeRatePlot(std::string DirName, double totltime)
@@ -449,7 +439,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   _trig_LowPtJet=0;
   _trig_MinBias=0;
   _trig_HighMET=0;
-  _trig_LowMET=0;
+  //  _trig_LowMET=0;
   _trig_Ele=0;
   _trig_Muon=0;
   _trig_PhysDec=0;
@@ -479,8 +469,8 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  _trig_LowPtJet=true;
         else if (triggerNames.triggerName(i).find(highMETExpr_[0].substr(0,highMETExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
 	  _trig_HighMET=true;
-        else if (triggerNames.triggerName(i).find(lowMETExpr_[0].substr(0,lowMETExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
-	  _trig_LowMET=true;
+	//        else if (triggerNames.triggerName(i).find(lowMETExpr_[0].substr(0,lowMETExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
+	//	  _trig_LowMET=true;
         else if (triggerNames.triggerName(i).find(muonExpr_[0].substr(0,muonExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
 	  _trig_Muon=true;
         else if (triggerNames.triggerName(i).find(elecExpr_[0].substr(0,elecExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
@@ -573,7 +563,6 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
   // ==========================================================
-  // HcalNoiseSummary
   //
 
   edm::Handle<HcalNoiseRBXCollection> HRBXCollection;
@@ -583,12 +572,15 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (_verbose) std::cout << "METAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
   }
   
-  edm::Handle<HcalNoiseSummary> HNoiseSummary;
-  iEvent.getByLabel(HcalNoiseSummaryTag,HNoiseSummary);
-  if (!HNoiseSummary.isValid()) {
-    LogDebug("") << "METAnalyzer: Could not find Hcal NoiseSummary product" << std::endl;
-    if (_verbose) std::cout << "METAnalyzer: Could not find Hcal NoiseSummary product" << std::endl;
+
+  edm::Handle<bool> HBHENoiseFilterResultHandle;
+  iEvent.getByLabel(HBHENoiseFilterResultTag, HBHENoiseFilterResultHandle);
+  bool HBHENoiseFilterResult = *HBHENoiseFilterResultHandle;
+  if (!HBHENoiseFilterResultHandle.isValid()) {
+    LogDebug("") << "METAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
+    if (_verbose) std::cout << "METAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
   }
+
 
   edm::Handle<reco::CaloJetCollection> caloJets;
   iEvent.getByLabel(theJetCollectionLabel, caloJets);
@@ -701,8 +693,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // ==========================================================
   // HCAL Noise filter
   
-  bool bHcalNoiseFilter      = HNoiseSummary->passLooseNoiseFilter();
-  bool bHcalNoiseFilterTight = HNoiseSummary->passTightNoiseFilter();
+  bool bHcalNoiseFilter = HBHENoiseFilterResult;
 
   // ==========================================================
   // Get BeamHaloSummary
@@ -829,7 +820,6 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if(_doHLTPhysicsOn) bPhysicsDeclared =_trig_PhysDec;
 
 
-  if      (_tightHcalFiltering)     bHcalNoise  = bHcalNoiseFilterTight;
   if      (_tightBHFiltering)       bBeamHaloID = bBeamHaloIDTightPass;
 
   if      (_tightJetIDFiltering==1)  bJetID      = bJetIDMinimal;
@@ -852,7 +842,6 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
     if (_allSelection) {
       if (*ic=="HcalNoiseFilter"      && bHcalNoiseFilter )       fillMESet(iEvent, DirName+"/"+*ic, *met);
-      if (*ic=="HcalNoiseFilterTight" && bHcalNoiseFilterTight )  fillMESet(iEvent, DirName+"/"+*ic, *met);
       if (*ic=="JetIDMinimal"         && bJetIDMinimal)           fillMESet(iEvent, DirName+"/"+*ic, *met);
       if (*ic=="JetIDLoose"           && bJetIDLoose)             fillMESet(iEvent, DirName+"/"+*ic, *met);
       if (*ic=="JetIDTight"           && bJetIDTight)             fillMESet(iEvent, DirName+"/"+*ic, *met);
@@ -886,8 +875,8 @@ void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
     fillMonitorElement(iEvent,DirName,"MinBias",met,false);
   if (_trig_HighMET)
     fillMonitorElement(iEvent,DirName,"HighMET",met,false);
-  if (_trig_LowMET)
-    fillMonitorElement(iEvent,DirName,"LowMET",met,false);
+  //  if (_trig_LowMET)
+  //    fillMonitorElement(iEvent,DirName,"LowMET",met,false);
   if (_trig_Ele)
     fillMonitorElement(iEvent,DirName,"Ele",met,false);
   if (_trig_Muon)
@@ -909,9 +898,9 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
   else if (TriggerTypeName=="HighMET") {
     if (met.pt()<_highMETThreshold) return;
   }
-  else if (TriggerTypeName=="LowMET") {
-    if (met.pt()<_lowMETThreshold) return;
-  }
+  //  else if (TriggerTypeName=="LowMET") {
+  //    if (met.pt()<_lowMETThreshold) return;
+  //  }
   else if (TriggerTypeName=="Ele") {
     if (!selectWElectronEvent(iEvent)) return;
   }

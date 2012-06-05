@@ -261,7 +261,7 @@ std::vector<TrajectoryMeasurement>
 HICTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
 {
   std::vector<TrajectoryMeasurement> result;
-//  
+//  TrajectoryStateTransform tsTransform;
 
 #ifdef DEBUG 
   cout<<" HICTrajectoryBuilder::seedMeasurements number of TM "<<dynamic_cast<DiMuonTrajectorySeed*>(const_cast<TrajectorySeed*>(&seed))->measurements().size()<<endl;

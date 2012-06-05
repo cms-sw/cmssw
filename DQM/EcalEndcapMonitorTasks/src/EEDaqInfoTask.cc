@@ -1,8 +1,8 @@
 /*
  * \file EEDaqInfoTask.cc
  *
- * $Date: 2011/08/30 09:28:42 $
- * $Revision: 1.15 $
+ * $Date: 2011/06/27 12:16:03 $
+ * $Revision: 1.13.4.1 $
  * \author E. Di Marco
  *
 */
@@ -61,10 +61,11 @@ void EEDaqInfoTask::beginJob(void){
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
 
-    meEEDaqFraction_ = dqmStore_->bookFloat( "DAQSummary EE" );
+    meEEDaqFraction_ = dqmStore_->bookFloat( "DAQSummary" );
     meEEDaqFraction_->Fill(0.0);
 
-    meEEDaqActiveMap_ = dqmStore_->book2D("DAQSummaryMap EE", "Ecal DAQ Summary Map EE", 40, 0., 200., 20, 0., 100.);
+    name = "DAQSummaryMap";
+    meEEDaqActiveMap_ = dqmStore_->book2D(name, name, 40, 0., 200., 20, 0., 100.);
     meEEDaqActiveMap_->setAxisTitle("ix / ix+100", 1);
     meEEDaqActiveMap_->setAxisTitle("iy", 2);
 

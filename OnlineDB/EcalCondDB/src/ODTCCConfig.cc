@@ -28,7 +28,6 @@ void ODTCCConfig::clear(){
   m_slb_file="";
   m_test_url="";
   m_ntest=0;
-  m_slb=0;
 }
 
 
@@ -72,8 +71,7 @@ void ODTCCConfig::setParameters(std::map<string,string> my_keys_map){
     if(ci->first==  "CONFIGURATION_FILE") setTCCConfigurationFile(ci->second );
     if(ci->first==  "SLB_CONFIGURATION_FILE") setSLBConfigurationFile(ci->second );
     if(ci->first==  "TESTPATTERNFILE_URL") setTestPatternFileUrl(ci->second );
-    if(ci->first==  "SLB_LATENCY") setSLBLatency(atoi(ci->second.c_str()) );
-    if(ci->first==  "SLBLATENCY") setSLBLatency(atoi(ci->second.c_str()) );
+
   }
 
 }
@@ -92,8 +90,8 @@ void ODTCCConfig::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO ECAL_TCC_CONFIGURATION (tcc_configuration_id, tcc_tag, "
 			"Configuration_file, LUT_CONFIGURATION_FILE, SLB_CONFIGURATION_FILE, "
 			"TESTPATTERNFILE_URL , N_TESTPATTERNS_TO_LOAD, "
-			"tcc_configuration, lut_configuration, slb_configuration ,slblatency) "
-                        "VALUES (:1, :2, :3, :4, :5, :6, :7, :8 , :9, :10, :11)");
+			"tcc_configuration, lut_configuration, slb_configuration ) "
+                        "VALUES (:1, :2, :3, :4, :5, :6, :7, :8 , :9, :10)");
     m_writeStmt->setInt(1, next_id);
     m_writeStmt->setString(2, getConfigTag());
     m_writeStmt->setString(3, getTCCConfigurationFile());
@@ -101,8 +99,6 @@ void ODTCCConfig::prepareWrite()
     m_writeStmt->setString(5, getSLBConfigurationFile());
     m_writeStmt->setString(6, getTestPatternFileUrl());
     m_writeStmt->setInt(7, getNTestPatternsToLoad());
-    m_writeStmt->setInt(11, getSLBLatency());
-
     // and now the clobs
     oracle::occi::Clob clob1(m_conn);
     clob1.setEmpty();

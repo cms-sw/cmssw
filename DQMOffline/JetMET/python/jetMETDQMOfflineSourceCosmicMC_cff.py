@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi import *
+
 from DQMOffline.JetMET.jetMETAnalyzerCosmic_cff import *
 from DQMOffline.JetMET.caloTowers_cff           import *
 from DQMOffline.JetMET.BeamHaloAnalyzer_cfi     import *
@@ -21,5 +23,6 @@ jetMETAnalyzer.tcMETAnalysis.cleanupSelection         = cms.bool(False)
 
 towerSchemeBAnalyzer.AllHist = cms.untracked.bool(False)
 
-jetMETDQMOfflineSourceCosmic = cms.Sequence(analyzecaloTowersDQM*jetMETAnalyzerCosmicSequence)
+jetMETDQMOfflineSourceCosmic = cms.Sequence(HBHENoiseFilterResultProducer*analyzecaloTowersDQM*jetMETAnalyzerCosmicSequence)
+#jetMETDQMOfflineSourceCosmic = cms.Sequence(analyzecaloTowersDQM*jetMETAnalyzerCosmicSequence)
 #jetMETDQMOfflineSourceCosmic = cms.Sequence(analyzecaloTowersDQM*AnalyzeBeamHalo*jetMETAnalyzerCosmicSequence)

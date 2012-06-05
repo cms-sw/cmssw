@@ -94,19 +94,19 @@ public:
 
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
 
- TrajectoryStateOnSurface(TrajectoryStateOnSurface const & rh)  noexcept :
+ TrajectoryStateOnSurface(TrajectoryStateOnSurface const & rh) :
     Base(rh){}
 
 
-  TrajectoryStateOnSurface(TrajectoryStateOnSurface && rh)  noexcept :
+  TrajectoryStateOnSurface(TrajectoryStateOnSurface && rh) :
     Base(std::forward<Base>(rh)){}
     
-  TrajectoryStateOnSurface & operator=(TrajectoryStateOnSurface && rh)  noexcept {
+  TrajectoryStateOnSurface & operator=(TrajectoryStateOnSurface && rh) {
     Base::swap(rh);
     return *this;
   }
 
- TrajectoryStateOnSurface & operator=(TrajectoryStateOnSurface const & rh)  noexcept {
+ TrajectoryStateOnSurface & operator=(TrajectoryStateOnSurface const & rh) {
     Base::operator=(rh);
     return *this;
   }
@@ -114,7 +114,7 @@ public:
 
 #endif
 
-  void swap(TrajectoryStateOnSurface & rh)  noexcept {
+  void swap(TrajectoryStateOnSurface & rh) {
     Base::swap(rh);
   }
 

@@ -1,3 +1,5 @@
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "RecoRomanPot/RecoFP420/interface/ClusterizerFP420.h"

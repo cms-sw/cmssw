@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFMET
  *
- *  $Date: 2012/03/23 15:13:47 $
- *  $Revision: 1.26 $
+ *  $Date: 2012/05/20 13:11:46 $
+ *  $Revision: 1.29 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -24,11 +24,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-//
+
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
-//
-//#include "DataFormats/METReco/interface/PFMETCollection.h"
-//#include "DataFormats/METReco/interface/PFMET.h"
 #include <DataFormats/ParticleFlowCandidate/interface/PFCandidate.h>
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
@@ -39,7 +36,6 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
-#include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
 #include "RecoJets/JetProducers/interface/JetIDHelper.h"
 
@@ -103,7 +99,6 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   // ----------member data ---------------------------
   
   edm::ParameterSet parameters;
-  // Switch for verbosity
   int _verbose;
 
   std::string metname;
@@ -111,11 +106,11 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
 
   edm::InputTag thePfMETCollectionLabel;
   edm::InputTag HcalNoiseRBXCollectionTag;
-  edm::InputTag HcalNoiseSummaryTag;
   edm::InputTag theJetCollectionLabel;
   edm::InputTag thePfJetCollectionLabel;
   edm::InputTag PFCandidatesTag;
   edm::InputTag BeamHaloSummaryTag;
+  edm::InputTag HBHENoiseFilterResultTag;
   edm::InputTag vertexTag;
   edm::InputTag gtTag;
 
@@ -126,14 +121,14 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   GenericTriggerEventFlag * _LowPtJetEventFlag;
   GenericTriggerEventFlag * _MinBiasEventFlag;
   GenericTriggerEventFlag * _HighMETEventFlag;
-  GenericTriggerEventFlag * _LowMETEventFlag;
+  //  GenericTriggerEventFlag * _LowMETEventFlag;
   GenericTriggerEventFlag * _EleEventFlag;
   GenericTriggerEventFlag * _MuonEventFlag;
 
   std::vector<std::string> highPtJetExpr_;
   std::vector<std::string> lowPtJetExpr_;
   std::vector<std::string> highMETExpr_;
-  std::vector<std::string> lowMETExpr_;
+  //  std::vector<std::string> lowMETExpr_;
   std::vector<std::string> muonExpr_;
   std::vector<std::string> elecExpr_;
   std::vector<std::string> minbiasExpr_;
@@ -150,7 +145,6 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
 
   bool     _tightBHFiltering;
   int      _tightJetIDFiltering;
-  bool     _tightHcalFiltering;
 
   int _nvtx_min;
   int _nvtxtrks_min;
@@ -163,7 +157,7 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   int _trig_LowPtJet;
   int _trig_MinBias;
   int _trig_HighMET;
-  int _trig_LowMET;
+  //  int _trig_LowMET;
   int _trig_Ele;
   int _trig_Muon;
   int _trig_PhysDec;
@@ -192,50 +186,49 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   bool _allSelection;
   bool _cleanupSelection;
 
-  //
   std::vector<std::string> _FolderNames;
 
-  //
   DQMStore *_dbe;
 
-  //the histos
-  // lines commented out have been removed to improve the bin usage of JetMET DQM
+
+  // MonitorElements
+  //----------------------------------------------------------------------------
   MonitorElement* metME;
+  MonitorElement* mePfMETRate;
 
   MonitorElement* meTriggerName_HighPtJet;
   MonitorElement* meTriggerName_LowPtJet;
   MonitorElement* meTriggerName_MinBias;
   MonitorElement* meTriggerName_HighMET;
-  MonitorElement* meTriggerName_LowMET;
   MonitorElement* meTriggerName_Ele;
   MonitorElement* meTriggerName_Muon;
   MonitorElement* meTriggerName_PhysDec;
 
-  MonitorElement* mePfNeutralEMFraction;
-  MonitorElement* mePfNeutralHadFraction;
-  MonitorElement* mePfChargedEMFraction;
-  MonitorElement* mePfChargedHadFraction;
-  MonitorElement* mePfMuonFraction;
-
-  //MonitorElement* meNevents;
   MonitorElement* mePfMEx;
   MonitorElement* mePfMEy;
-  //MonitorElement* mePfEz;
   MonitorElement* mePfMETSig;
   MonitorElement* mePfMET;
   MonitorElement* mePfMETPhi;
   MonitorElement* mePfSumET;
   MonitorElement* mePfMExLS;
   MonitorElement* mePfMEyLS;
-
   MonitorElement* mePfMET_logx;
   MonitorElement* mePfSumET_logx;
 
-  //MonitorElement* mePfMETIonFeedbck;
-  //MonitorElement* mePfMETHPDNoise;
-  //MonitorElement* mePfMETRBXNoise;
-
-  MonitorElement* mePfMETRate;
+  MonitorElement* mePhotonEtFraction;
+  MonitorElement* mePhotonEt;
+  MonitorElement* meNeutralHadronEtFraction;
+  MonitorElement* meNeutralHadronEt;
+  MonitorElement* meElectronEtFraction;
+  MonitorElement* meElectronEt;
+  MonitorElement* meChargedHadronEtFraction;
+  MonitorElement* meChargedHadronEt;
+  MonitorElement* meMuonEtFraction;
+  MonitorElement* meMuonEt;
+  MonitorElement* meHFHadronEtFraction;
+  MonitorElement* meHFHadronEt;
+  MonitorElement* meHFEMEtFraction;
+  MonitorElement* meHFEMEt;
 
 
   // NPV profiles
@@ -245,11 +238,20 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   MonitorElement* mePfMET_profile;
   MonitorElement* mePfSumET_profile;
 
-  MonitorElement* mePfNeutralEMFraction_profile;
-  MonitorElement* mePfNeutralHadFraction_profile;
-  MonitorElement* mePfChargedEMFraction_profile;
-  MonitorElement* mePfChargedHadFraction_profile;
-  MonitorElement* mePfMuonFraction_profile;
+  MonitorElement* mePhotonEtFraction_profile;
+  MonitorElement* mePhotonEt_profile;
+  MonitorElement* meNeutralHadronEtFraction_profile;
+  MonitorElement* meNeutralHadronEt_profile;
+  MonitorElement* meElectronEtFraction_profile;
+  MonitorElement* meElectronEt_profile;
+  MonitorElement* meChargedHadronEtFraction_profile;
+  MonitorElement* meChargedHadronEt_profile;
+  MonitorElement* meMuonEtFraction_profile;
+  MonitorElement* meMuonEt_profile;
+  MonitorElement* meHFHadronEtFraction_profile;
+  MonitorElement* meHFHadronEt_profile;
+  MonitorElement* meHFEMEtFraction_profile;
+  MonitorElement* meHFEMEt_profile;
 };
 
 

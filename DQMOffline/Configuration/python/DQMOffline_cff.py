@@ -13,6 +13,7 @@ from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
 from DQM.EcalPreshowerMonitorModule.es_dqm_source_offline_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitor_cff import *
 from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
+from Validation.RecoTau.DQMSequences_cfi import *
 
 DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
                                  ecal_dqm_source_offline *
@@ -36,6 +37,8 @@ from DQMOffline.Trigger.DQMOffline_Trigger_cff import *
 from DQMOffline.RecoB.PrimaryVertexMonitor_cff import *
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 from DQM.Physics.DQMPhysics_cff import *
+from Validation.RecoTau.DQMSequences_cfi import *
+
 
 DQMOfflinePrePOG = cms.Sequence( muonMonitors *
                                  jetMETDQMOfflineSource *
@@ -45,7 +48,9 @@ DQMOfflinePrePOG = cms.Sequence( muonMonitors *
                                  pvMonitor *
                                  bTagPlots *
                                  alcaBeamMonitor *
-                                 dqmPhysics )
+                                 dqmPhysics *
+                                 produceDenoms *
+                                 pfTauRunDQMValidation)
 
 DQMOfflinePOG = cms.Sequence( DQMOfflinePrePOG *
                               DQMMessageLogger )
@@ -72,9 +77,10 @@ DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
                                  triggerOfflineDQMSource *
                                  alcaBeamMonitor *
                                  castorSources *
-                                 piZeroAnalysis *
                                  dqmPhysics *
-                                 pvMonitor
+                                 pvMonitor *
+                                 produceDenoms *
+                                 pfTauRunDQMValidation
                                 )
 DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  DQMMessageLogger *
@@ -84,9 +90,10 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  triggerOfflineDQMSource *
                                  alcaBeamMonitor *
                                  castorSources *
-                                 piZeroAnalysis *
                                  dqmPhysics *
-                                 pvMonitor
+                                 pvMonitor *
+                                 produceDenoms *
+                                 pfTauRunDQMValidation
                                  )
 DQMOfflineMuon = cms.Sequence( dtSources *
                                rpcTier0Source *
@@ -99,4 +106,8 @@ DQMOfflineEcal = cms.Sequence( ecal_dqm_source_offline *
                                es_dqm_source_offline
                              )
 DQMOfflineJetMET = cms.Sequence( jetMETDQMOfflineSource )
+
+DQMOfflineEGamma = cms.Sequence(  photonAnalysis *
+                                  zmumugammaAnalysis *
+                                  piZeroAnalysis )
 

@@ -4,39 +4,26 @@
 // ----------
 //
 //            12/10/2006 Philipp Schieferdecker <philipp.schieferdecker@cern.ch>
+//            20/01/2012 Andrei Spataru <aspataru@cern.ch>
 ////////////////////////////////////////////////////////////////////////////////
 
-
 #include "EventFilter/ResourceBroker/interface/FUResource.h"
-#include "FWCore/Utilities/interface/CRC16.h"
-#include "EventFilter/Utilities/interface/GlobalEventNumber.h"
+#include "EventFilter/ResourceBroker/interface/ResourceChecker.h"
+
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-
-#include "EvffedFillerRB.h"
-
-#include "interface/shared/frl_header.h"
-#include "interface/shared/fed_header.h"
-#include "interface/shared/fed_trailer.h"
 #include "interface/shared/i2oXFunctionCodes.h"
 #include "interface/evb/i2oEVBMsgs.h"
-
-
-#include "xdaq/Application.h"
+#include "EvffedFillerRB.h"
 #include "toolbox/mem/Reference.h"
 #include "xcept/tools.h"
 
 #include <sstream>
 #include <sys/shm.h>
 
-
-#define FED_HCTRLID    0x50000000
-#define FED_TCTRLID    0xa0000000
-#define REAL_SOID_MASK 0x0003FF00
-#define FED_RBIT_MASK  0x0000C004
-
-
 using namespace std;
 using namespace evf;
+
+//#define DEBUG_FU_RES
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -46,790 +33,297 @@ using namespace evf;
 //______________________________________________________________________________
 bool FUResource::doFedIdCheck_ = true;
 bool FUResource::useEvmBoard_ = true;
-unsigned int FUResource::gtpEvmId_ =  FEDNumbering::MINTriggerGTPFEDID;
-unsigned int FUResource::gtpDaqId_ =  FEDNumbering::MAXTriggerGTPFEDID;
-unsigned int FUResource::gtpeId_ =  FEDNumbering::MINTriggerEGTPFEDID;
+unsigned int FUResource::gtpEvmId_ = FEDNumbering::MINTriggerGTPFEDID;
+unsigned int FUResource::gtpDaqId_ = FEDNumbering::MAXTriggerGTPFEDID;
+unsigned int FUResource::gtpeId_ = FEDNumbering::MINTriggerEGTPFEDID;
 
 ////////////////////////////////////////////////////////////////////////////////
 // construction/destruction
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-FUResource::FUResource(UInt_t fuResourceId
-		       , log4cplus::Logger logger
-		       , EvffedFillerRB *frb
-		       , xdaq::Application *app)
-  : log_(logger)
-  , fuResourceId_(fuResourceId)
-  , superFragHead_(0)
-  , superFragTail_(0)
-  , nbBytes_(0)
-  , superFragSize_(0)
-  , frb_(frb)
-  , app_(app)
-  , nextEventWillHaveCRCError_(false)
-{
-  release();
+FUResource::FUResource(UInt_t fuResourceId, log4cplus::Logger logger,
+		EvffedFillerRB *frb, xdaq::Application *app) :
+	log_(logger), fuResourceId_(fuResourceId), superFragHead_(0),
+			superFragTail_(0), nbBytes_(0), superFragSize_(0), shmCell_(0),
+			frb_(frb), app_(app), nextEventWillHaveCRCError_(false) {
+	//release();
 }
-
 
 //______________________________________________________________________________
-FUResource::~FUResource()
-{
-  
-}
+FUResource::~FUResource() {
 
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-void FUResource::allocate(FUShmRawCell* shmCell)
-{
-  //release();
-  shmCell_=shmCell;
-  shmCell_->clear();
-  shmCell_->setFuResourceId(fuResourceId_);
-  shmCell_->setEventTypeData();
-  eventPayloadSize_=shmCell_->payloadSize();
-  nFedMax_         =shmCell_->nFed();
-  nSuperFragMax_   =shmCell_->nSuperFrag();
-}
-
-
-//______________________________________________________________________________
-void FUResource::release()
-{
-  doCrcCheck_   =false;
-  fatalError_   =false;
-  
-  buResourceId_ =0xffffffff;
-  evtNumber_    =0xffffffff;
-  
-  if (0!=superFragHead_) {
-    try {
-      superFragHead_->release();
-    }
-    catch (xcept::Exception& e) {
-      LOG4CPLUS_ERROR(log_,"Failed to release superFragHead: "
-		      <<xcept::stdformat_exception_history(e));
-    }
-  }
-  
-  superFragHead_=0;
-  superFragTail_=0;
-  
-  iBlock_       =0;
-  nBlock_       =0xffffffff;
-  iSuperFrag_   =0;
-  nSuperFrag_   =0xffffffff;
-
-  nbSent_       =0;
-  
-  nbErrors_     =0;
-  nbCrcErrors_  =0;
-
-  for (UInt_t i=0;i<1024;i++) fedSize_[i]=0;
-  eventSize_    =0;
-  
-  if (0!=shmCell_) {
-    shmdt(shmCell_);
-    shmCell_=0;
-  }
-}
-
-
-//______________________________________________________________________________
-void FUResource::process(MemRef_t* bufRef)
-{
-  if (fatalError()) {
-    LOG4CPLUS_ERROR(log_,"THIS SHOULD *NEVER* HAPPEN!."); // DEBUG
-    bufRef->release();
-    return;
-  }
-  
-  MemRef_t* itBufRef = bufRef;
-  while(0!=itBufRef&&!fatalError()) {
-    MemRef_t* next=itBufRef->getNextReference();
-    itBufRef->setNextReference(0);
-    try {
-      processDataBlock(itBufRef);
-    }
-    catch (xcept::Exception& e) {
-      LOG4CPLUS_ERROR(log_,"EVENT LOST:"
-		      <<xcept::stdformat_exception_history(e));
-      fatalError_=true;
-      itBufRef->setNextReference(next); 
-      itBufRef->release();
-    }
-    
-    itBufRef=next;
-  }
-  if(isComplete()){
-    frb_->putHeader(evtNumber_,0);
-    frb_->putTrailer();
-    fedSize_[frb_->fedId()]=frb_->size();  
-    UChar_t *startPos = shmCell_->writeData(frb_->getPayload(),frb_->size());
-    superFragSize_=frb_->size();
-    if (!shmCell_->markSuperFrag(iSuperFrag_,superFragSize_,startPos)) {
-      nbErrors_++;
-      stringstream oss;
-      oss<<"Failed to mark super fragment in shared mem buffer."
-	 <<" fuResourceId:"<<fuResourceId_
-	 <<" evtNumber:"<<evtNumber_
-	 <<" iSuperFrag:"<<iSuperFrag_;
-      XCEPT_RAISE(evf::Exception,oss.str());
-    }
-    
-    if (!shmCell_->markFed(frb_->fedId(),frb_->size(),startPos)) {
-      nbErrors_++;
-      stringstream oss;
-      oss<<"Failed to mark fed in buffer."
-	 <<" evtNumber:"<<evtNumber_
-	 <<" fedId:"<<frb_->fedId()
-	 <<" fedSize:"<<frb_->size()
-	 <<" fedAddr:0x"<<hex<<(unsigned long)frb_->getPayload()<<dec;
-      XCEPT_RAISE(evf::Exception,oss.str());
-    }
-
-  }
-  return;
-}
-
-
-//______________________________________________________________________________
-void FUResource::processDataBlock(MemRef_t* bufRef)
-  throw (evf::Exception)
-{
-  // reset iBlock_/nBlock_ counters
-  if (iBlock_==nBlock_) {
-    iBlock_=0;
-    nBlock_=0xffffffff;
-  }
-  
-  I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *block=
-    (I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*)bufRef->getDataLocation();
-  
-  UInt_t iBlock      =block->blockNb;
-  UInt_t nBlock      =block->nbBlocksInSuperFragment;
-  UInt_t iSuperFrag  =block->superFragmentNb;
-  UInt_t nSuperFrag  =block->nbSuperFragmentsInEvent;
-  
-  UInt_t fuResourceId=block->fuTransactionId;
-  UInt_t buResourceId=block->buResourceId;
-  UInt_t evtNumber   =block->eventNumber;
-  stringstream oss;
-  oss << "TransId:" << fuResourceId << " BUResourceId:" 
-      << buResourceId << " eventNumber:" << evtNumber << " "; 
-  // check fuResourceId consistency
-  if (fuResourceId!=fuResourceId_) {
-    nbErrors_++;
-
-    oss<<"RU/FU fuResourceId mismatch."
-       <<" Received:"<<fuResourceId
-       <<" Expected:"<<fuResourceId_;
-    XCEPT_RAISE(evf::Exception,oss.str());
-  }
-  
-  // check iBlock consistency
-  if (iBlock!=iBlock_) {
-    nbErrors_++;
-    oss<<"RU/FU block number mismatch."
-       <<" Received:"<<iBlock
-       <<" Expected:"<<iBlock_;
-    XCEPT_RAISE(evf::Exception,oss.str());
-  }
-  
-  // check iSuperFrag consistency
-  if (iSuperFrag!=iSuperFrag_) {
-    nbErrors_++;
-    oss<<"RU/FU superfragment number mismatch."
-       <<" Received:"<<iSuperFrag
-       <<" Expected:"<<iSuperFrag_;
-    XCEPT_RAISE(evf::Exception,oss.str());
-  }
-
-  // assign nBlock_
-  if (iBlock==0) {
-    nBlock_=nBlock;
-  }
-  else {
-    // check nBlock_
-    if (nBlock!=nBlock_) {
-      nbErrors_++;
-      oss<<"RU/FU number of blocks mismatch."
-	 <<" Received:"<<nBlock
-	 <<" Expected:"<<nBlock_;
-      XCEPT_RAISE(evf::Exception,oss.str());
-    }
-  }
-  
-  
-  // if this is the first block in the event,
-  // *assign* evtNumber,buResourceId,nSuperFrag ...
-  if (iBlock==0&&iSuperFrag==0) {
-    evtNumber_   =evtNumber;
-    buResourceId_=buResourceId;
-    nSuperFrag_  =nSuperFrag;
-    
-    shmCell_->setEvtNumber(evtNumber);
-    shmCell_->setBuResourceId(buResourceId);
-
-    // check that buffers are allocated for nSuperFrag superfragments
-    if(nSuperFrag_>nSuperFragMax_) {
-      nbErrors_++;
-      oss<<"Invalid maximum number of superfragments."
-	 <<" fuResourceId:"<<fuResourceId_
-	 <<" evtNumber:"<<evtNumber_
-	 <<" nSuperFrag:"<<nSuperFrag_
-	 <<" nSuperFragMax:"<<nSuperFragMax_;
-      XCEPT_RAISE(evf::Exception,oss.str());
-    }
-  }
-  // ... otherwise,
-  // *check* evtNumber,buResourceId,nSuperFrag
-  else {
-    // check evtNumber
-    if (evtNumber!=evtNumber_) {
-      nbErrors_++;
-      oss<<"RU/FU evtNumber mismatch."
-	 <<" Received:"<<evtNumber
-	 <<" Expected:"<<evtNumber_;
-      XCEPT_RAISE(evf::Exception,oss.str());
-    }
-    
-    // check buResourceId
-    if (buResourceId!=buResourceId_) {
-      nbErrors_++;
-      oss<<"RU/FU buResourceId mismatch."
-	 <<" Received:"<<buResourceId
-	 <<" Expected:"<<buResourceId_;
-      XCEPT_RAISE(evf::Exception,oss.str());
-    }
-    
-    // check nSuperFrag
-    if (nSuperFrag!=nSuperFrag_) {
-      nbErrors_++;
-      oss<<"RU/FU number of superfragments mismatch."
-	 <<" Received:"<<nSuperFrag
-	 <<" Expected:"<<nSuperFrag_;
-      XCEPT_RAISE(evf::Exception,oss.str());
-    }
-  }
-  
-  
-  // check payload
-  try {
-    checkDataBlockPayload(bufRef);
-  }
-  catch (xcept::Exception& e) {
-    oss<<"data block payload failed check."
-       <<" evtNumber:"<<evtNumber_
-       <<" buResourceId:"<<buResourceId_
-       <<" iSuperFrag:"<<iSuperFrag_;
-    XCEPT_RETHROW(evf::Exception,oss.str(),e);
-  }
-  
-  appendBlockToSuperFrag(bufRef);
-
-  // increment iBlock_, as expected for the next message
-  iBlock_++;
-  
-  // superfragment complete ...
-  bool lastBlockInSuperFrag=(iBlock==nBlock-1);
-  if (lastBlockInSuperFrag) {
-    
-    // ... fill the FED buffers contained in the superfragment
-    try {
-      superFragSize(); // if event exceeds size an exception is thrown here, keep it distinct from SF corruption
-    }
-    catch (xcept::Exception& e) {
-      oss<<"Invalid super fragment size."
-	 <<" evtNumber:"<<evtNumber_
-	 <<" buResourceId:"<<buResourceId_
-	 <<" iSuperFrag:"<<iSuperFrag_;
-      removeLastAppendedBlockFromSuperFrag();
-      XCEPT_RETHROW(evf::Exception,oss.str(),e);
-    }
-    try{
-      fillSuperFragPayload();
-      findFEDs();
-    }
-    catch (xcept::Exception& e) {
-      oss<<"Invalid super fragment."
-	 <<" evtNumber:"<<evtNumber_
-	 <<" buResourceId:"<<buResourceId_
-	 <<" iSuperFrag:"<<iSuperFrag_;
-      removeLastAppendedBlockFromSuperFrag();
-      XCEPT_RETHROW(evf::Exception,oss.str(),e);
-    }
-    
-    // ... release the buffers associated with the superfragment
-    try {
-      releaseSuperFrag();
-    }
-    catch (xcept::Exception& e) {
-      nbErrors_++;
-      oss<<"Failed to release super fragment."
-	 <<" evtNumber:"<<evtNumber_
-	 <<" buResourceId:"<<buResourceId_
-	 <<" iSuperFrag:"<<iSuperFrag_;
-      XCEPT_RETHROW(evf::Exception,oss.str(),e);
-    }
-
-    // increment iSuperFrag_, as expected for the next message(s)
-    iSuperFrag_++;
-    
-  } // lastBlockInSuperFragment
-  
-  return;
-}
-
-
-//______________________________________________________________________________
-void FUResource::checkDataBlockPayload(MemRef_t* bufRef)
-  throw (evf::Exception)
-{
-  UInt_t   frameSize      =0;
-  UInt_t   bufSize        =0;
-  UInt_t   segSize        =0;
-  UInt_t   segSizeExpected=0;
-
-  frlh_t  *frlHeader      =0;
-  
-  UChar_t *blockAddr      =0;
-  UChar_t *frlHeaderAddr  =0;
-  
-  frameSize    =sizeof(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME);
-
-  blockAddr    =(UChar_t*)bufRef->getDataLocation();
-  frlHeaderAddr=blockAddr+frameSize;
-  frlHeader    =(frlh_t*)frlHeaderAddr;
-  
-  I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *block
-    =(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*)blockAddr;
-    
-
-  // check that FRL trigno is consistent with FU evtNumber
-  if(evtNumber_!=frlHeader->trigno) {
-    nbErrors_++;
-    std::stringstream oss;
-    oss<<"FRL header \"trigno\" does not match "
-       <<"FU  \"evtNumber\"."
-       <<" trigno:"<<frlHeader->trigno
-       <<" evtNumber:"<<evtNumber_;
-    XCEPT_RAISE(evf::Exception,oss.str());
-  }
-  
-
-  // check that FRL trigno is consistent with RU eventNumber
-  if(block->eventNumber!=frlHeader->trigno) {
-    nbErrors_++;
-    std::stringstream oss;
-    oss<<"FRL header \"trigno\" does not match "
-       <<"RU builder header \"eventNumber\"."
-       <<" trigno:"<<frlHeader->trigno
-       <<" eventNumber:"<<block->eventNumber;
-    XCEPT_RAISE(evf::Exception,oss.str());
-  }
-  
-
-  // check that block numbers reported by FRL / RU are consistent
-  if(block->blockNb!=frlHeader->segno) {
-    nbErrors_++;
-    std::stringstream oss;
-    oss<<"FRL header \"segno\" does not match"
-       <<"RU builder header \"blockNb\"."
-       <<" segno:"<<frlHeader->segno
-       <<" blockNb:"<<block->blockNb;
-    XCEPT_RAISE(evf::Exception,oss.str());
-  }
-  
-  
-  // reported block number consistent with expectation
-  if(block->blockNb!=iBlock_) {
-    nbErrors_++;
-    std::stringstream oss;
-    oss<<"Incorrect block number."
-       <<" Expected:"<<iBlock_
-       <<" Received:"<<block->blockNb;
-    XCEPT_RAISE(evf::Exception, oss.str());
-  }
-  
-  
-  // reported payload size consistent with expectation
-  bufSize        =bufRef->getDataSize();
-  segSizeExpected=bufSize-frameSize-sizeof(frlh_t);
-  segSize        =frlHeader->segsize & FRL_SEGSIZE_MASK;
-  if(segSize!=segSizeExpected) {
-    nbErrors_++;
-    std::stringstream oss;
-    oss<<"FRL header segment size is not as expected."
-       <<" Expected:"<<segSizeExpected
-       <<" Received:"<<segSize;
-    XCEPT_RAISE(evf::Exception, oss.str());
-  }
-  
-  
-  // Check that FU and FRL headers agree on end of super-fragment
-  bool fuLastBlockInSuperFrag =(block->blockNb==(block->nbBlocksInSuperFragment-1));
-  bool frlLastBlockInSuperFrag=((frlHeader->segsize & FRL_LAST_SEGM)!=0);
-  if (fuLastBlockInSuperFrag!=frlLastBlockInSuperFrag) {
-    nbErrors_++;
-    std::stringstream oss;
-    oss<<"FU / FRL header end-of-superfragment mismatch."
-       <<" FU header:"<<fuLastBlockInSuperFrag
-       <<" FRL header:"<<frlLastBlockInSuperFrag;
-    XCEPT_RAISE(evf::Exception,oss.str());
-  }
-  
-  return;
-}
-
-
-//______________________________________________________________________________
-void FUResource::appendBlockToSuperFrag(MemRef_t* bufRef)
-{
-  if (0==superFragHead_) {
-    superFragHead_=bufRef;
-    superFragTail_=bufRef;
-  }
-  else {
-    superFragTail_->setNextReference(bufRef);
-    superFragTail_=bufRef;
-  }
-  return;
+void FUResource::allocate(FUShmRawCell* shmCell) {
+	//release();
+	shmCell_ = shmCell;
+	shmCell_->clear();
+	shmCell_->setFuResourceId(fuResourceId_);
+	//UPDATED
+	shmCell_->setEventTypeData();
+	eventPayloadSize_ = shmCell_->payloadSize();
+	nFedMax_ = shmCell_->nFed();
+	nSuperFragMax_ = shmCell_->nSuperFrag();
+	/*
+	 cout << "shmCell = " << shmCell_ << " shm cell furesourceId = "
+	 << fuResourceId_ << " payload size = " << shmCell_->payloadSize()
+	 << " nFed max = " << shmCell_->nFed() << " nSuperFragMax_ = "
+	 << shmCell_->nSuperFrag() << endl;
+	 */
 }
 
 //______________________________________________________________________________
-void FUResource::removeLastAppendedBlockFromSuperFrag()
-{
-  if (0==superFragHead_) {
-    //nothing to do... why did we get here then ???
-  }
-  else if(superFragHead_==superFragTail_){
-    superFragHead_ = 0; 
-    superFragTail_ = 0;
-  }
-  else{
-    MemRef_t *next = 0;
-    MemRef_t *current = superFragHead_;
-    while((next=current->getNextReference()) != superFragTail_){
-      current = next;
-      //get to the next-to-last block
-    }
-    superFragTail_ = current;
-    current->setNextReference(0);
-  }
-  return;
+void FUResource::release(bool detachResource) {
+	doCrcCheck_ = false;
+	fatalError_ = false;
+
+	buResourceId_ = 0xffffffff;
+	evtNumber_ = 0xffffffff;
+
+	if (0 != superFragHead_) {
+		try {
+			superFragHead_->release();
+		} catch (xcept::Exception& e) {
+			LOG4CPLUS_ERROR(
+					log_,
+					"Failed to release superFragHead: "
+							<< xcept::stdformat_exception_history(e));
+		}
+	}
+
+	superFragHead_ = 0;
+	superFragTail_ = 0;
+
+	iBlock_ = 0;
+	nBlock_ = 0xffffffff;
+	iSuperFrag_ = 0;
+	nSuperFrag_ = 0xffffffff;
+
+	nbSent_ = 0;
+
+	nbErrors_ = 0;
+	nbCrcErrors_ = 0;
+
+	for (UInt_t i = 0; i < 1024; i++)
+		fedSize_[i] = 0;
+	eventSize_ = 0;
+
+	if (0 != shmCell_) {
+		shmCell_ = 0;
+		if (detachResource)
+			shmdt(shmCell_);
+	}
+
 }
 
-
 //______________________________________________________________________________
-void FUResource::superFragSize() throw (evf::Exception)
-{
-  UChar_t *blockAddr    =0;
-  UChar_t *frlHeaderAddr=0;
-  frlh_t  *frlHeader    =0;
+void FUResource::process(MemRef_t* bufRef) {
+	if (fatalError()) {
+		LOG4CPLUS_ERROR(log_, "THIS SHOULD *NEVER* HAPPEN!."); // DEBUG
+		bufRef->release();
+		return;
+	}
+#ifdef DEBUG_FU_RES
+	std::cout << "Started process() for bufRef: " << bufRef<< std::endl;
+#endif
+	MemRef_t* itBufRef = bufRef;
+	while (0 != itBufRef && !fatalError()) {
+		MemRef_t* next = itBufRef->getNextReference();
+		itBufRef->setNextReference(0);
+		try {
 
-  superFragSize_=0;
+			ResourceChecker resCheck(this);
+			resCheck.processDataBlock(itBufRef);
 
-  UInt_t frameSize=sizeof(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME);
-  MemRef_t* bufRef=superFragHead_;
-  
-  while (0!=bufRef) {
-    blockAddr      =(UChar_t*)bufRef->getDataLocation();
-    frlHeaderAddr  =blockAddr+frameSize;
-    frlHeader      =(frlh_t*)frlHeaderAddr;
-    superFragSize_+=frlHeader->segsize & FRL_SEGSIZE_MASK; 
-    bufRef         =bufRef->getNextReference();
-  }
-  
-  eventSize_+=superFragSize_;
+		} catch (xcept::Exception& e) {
+			LOG4CPLUS_ERROR(log_,
+					"EVENT LOST:" << xcept::stdformat_exception_history(e));
+			fatalError_ = true;
+			itBufRef->setNextReference(next);
+		}
 
-  if (eventSize_>eventPayloadSize_) {  
-    nbErrors_++;
-    stringstream oss;
-    oss<<"Event size exceeds maximum size."
-       <<" fuResourceId:"<<fuResourceId_
-       <<" evtNumber:"<<evtNumber_
-       <<" iSuperFrag:"<<iSuperFrag_
-       <<" eventSize:"<<eventSize_
-       <<" eventPayloadSize:"<<eventPayloadSize_;
-    XCEPT_RAISE(evf::Exception,oss.str());
-  }
-  
+		itBufRef = next;
+	}
+	if (isComplete()) {
+		frb_->putHeader(evtNumber_, 0);
+		frb_->putTrailer();
+		fedSize_[frb_->fedId()] = frb_->size();
+		UChar_t *startPos = shmCell_->writeData(frb_->getPayload(),
+				frb_->size());
+		superFragSize_ = frb_->size();
+		if (!shmCell_->markSuperFrag(iSuperFrag_, superFragSize_, startPos)) {
+			nbErrors_++;
+			stringstream oss;
+			oss << "Failed to mark super fragment in shared mem buffer."
+					<< " fuResourceId:" << fuResourceId_ << " evtNumber:"
+					<< evtNumber_ << " iSuperFrag:" << iSuperFrag_;
+			XCEPT_RAISE(evf::Exception, oss.str());
+		}
+
+		if (!shmCell_->markFed(frb_->fedId(), frb_->size(), startPos)) {
+			nbErrors_++;
+			stringstream oss;
+			oss << "Failed to mark fed in buffer." << " evtNumber:"
+					<< evtNumber_ << " fedId:" << frb_->fedId() << " fedSize:"
+					<< frb_->size() << " fedAddr:0x" << hex
+					<< (unsigned long) frb_->getPayload() << dec;
+			XCEPT_RAISE(evf::Exception, oss.str());
+		}
+
+	}
+	return;
 }
 
-
 //______________________________________________________________________________
-void FUResource::fillSuperFragPayload() throw (evf::Exception)
-{
-  UChar_t *blockAddr    =0;
-  UChar_t *frlHeaderAddr=0;
-  UChar_t *fedAddr      =0;
-  UInt_t   nbBytes      =0;
-  UInt_t   nbBytesTot   =0;
-  frlh_t  *frlHeader    =0;
-  UChar_t *bufferPos    =0;
-  UChar_t *startPos     =0;
-  
-  MemRef_t* bufRef=superFragHead_;
-  while(bufRef != 0) {
-    blockAddr    =(UChar_t*)bufRef->getDataLocation();
-    frlHeaderAddr=blockAddr+sizeof(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME);
-    fedAddr      =frlHeaderAddr+sizeof(frlh_t);
-    frlHeader    =(frlh_t*)frlHeaderAddr;
-    nbBytes      =frlHeader->segsize & FRL_SEGSIZE_MASK;
-    nbBytesTot  +=nbBytes;
-    
-    // check if still within limits
-    if(nbBytesTot>superFragSize_) {
-      nbErrors_++;
-      stringstream oss;
-      oss<<"Reached end of buffer."
-	 <<" fuResourceId:"<<fuResourceId_
-	 <<" evtNumber:"<<evtNumber_
-	 <<" iSuperFrag:"<<iSuperFrag_;
-      XCEPT_RAISE(evf::Exception,oss.str());
-    }
-    
-    bufferPos=shmCell_->writeData(fedAddr,nbBytes);
-    if (0==startPos) startPos=bufferPos;
-    
-    nbBytes_+=nbBytes;
-    bufRef=bufRef->getNextReference();
-  }
-  
-  if (!shmCell_->markSuperFrag(iSuperFrag_,superFragSize_,startPos)) {
-    nbErrors_++;
-    stringstream oss;
-    oss<<"Failed to mark super fragment in shared mem buffer."
-       <<" fuResourceId:"<<fuResourceId_
-       <<" evtNumber:"<<evtNumber_
-       <<" iSuperFrag:"<<iSuperFrag_;
-    XCEPT_RAISE(evf::Exception,oss.str());
-  }
-  
-  return;
+void FUResource::appendBlockToSuperFrag(MemRef_t* bufRef) {
+	if (0 == superFragHead_) {
+		superFragHead_ = bufRef;
+		superFragTail_ = bufRef;
+	} else {
+		superFragTail_->setNextReference(bufRef);
+		superFragTail_ = bufRef;
+	}
+	return;
 }
 
-
 //______________________________________________________________________________
-void FUResource::findFEDs() throw (evf::Exception)
-{
-  UChar_t* superFragAddr =0;
-  UInt_t   superFragSize =0;
-  
-  UChar_t *fedTrailerAddr=0;
-  UChar_t *fedHeaderAddr =0;
-  
-  UInt_t   fedSize       =0;
-  UInt_t   sumOfFedSizes =0;
-  UInt_t   evtNumber     =0;
-  
-  UShort_t crc           =0;
-  UShort_t crcChk        =0;
-  
-  fedt_t  *fedTrailer    =0;
-  fedh_t  *fedHeader     =0;
-
-
-  
-  superFragAddr =shmCell_->superFragAddr(iSuperFrag_);
-  superFragSize =shmCell_->superFragSize(iSuperFrag_);
-  fedTrailerAddr=superFragAddr+superFragSize-sizeof(fedt_t);
-  
-  while (fedTrailerAddr>superFragAddr) {
-    
-    fedTrailer    =(fedt_t*)fedTrailerAddr;
-    fedSize       =(fedTrailer->eventsize & FED_EVSZ_MASK) << 3;
-    sumOfFedSizes+=fedSize;
-    
-    // check for fed trailer id
-    if ((fedTrailer->eventsize & FED_TCTRLID_MASK)!=FED_TCTRLID) {
-      nbErrors_++;
-      stringstream oss;
-      oss<<"Missing FED trailer id."
-	 <<" evtNumber:"<<evtNumber_
-	 <<" iSuperFrag:"<<iSuperFrag_;
-      XCEPT_RAISE(evf::Exception,oss.str());
-    }
-    
-    fedHeaderAddr=fedTrailerAddr-fedSize+sizeof(fedt_t);
-    
-    // check that fed header is within buffer
-    if(fedHeaderAddr<superFragAddr) {
-      nbErrors_++;
-      stringstream oss;
-      oss<<"FED header address out-of-bounds."
-	 <<" evtNumber:"<<evtNumber_
-	 <<" iSuperFrag:"<<iSuperFrag_;
-      XCEPT_RAISE(evf::Exception,oss.str());
-    }
-    
-    // check that payload starts within buffer
-    if((fedHeaderAddr+sizeof(fedh_t))>(superFragAddr+superFragSize)) {
-      nbErrors_++;
-      stringstream oss;
-      oss<<"FED payload out-of-bounds."
-	 <<" evtNumber:"<<evtNumber_
-	 <<" iSuperFrag:"<<iSuperFrag_;
-      XCEPT_RAISE(evf::Exception,oss.str());
-    }
-    
-    fedHeader  =(fedh_t*)fedHeaderAddr;
-    
-    // check for fed header id
-    if ((fedHeader->eventid & FED_HCTRLID_MASK)!=FED_HCTRLID) {
-      nbErrors_++;
-      stringstream oss;
-      oss<<"Missing FED header id."
-	 <<" evtNumber:"<<evtNumber_
-	 <<" iSuperFrag:"<<iSuperFrag_;
-      XCEPT_RAISE(evf::Exception,oss.str());
-    }
-    
-    UInt_t fedId=(fedHeader->sourceid & REAL_SOID_MASK) >> 8;
-    
-    // check evtNumber consisency
-    evtNumber=fedHeader->eventid & FED_LVL1_MASK;
-    if (evtNumber!=evtNumber_) {
-      nbErrors_++;
-      stringstream oss;
-      oss<<"FU / FED evtNumber mismatch."
-	 <<" FU:"<<evtNumber_
-	 <<" FED:"<<evtNumber
-	 <<" fedid:"<<fedId;
-      XCEPT_RAISE(evf::Exception,oss.str());
-    }
-  
-    // check that fedid is within valid ranges
-    if (fedId>=1024||
-	(doFedIdCheck_&&(!FEDNumbering::inRange(fedId)))) {
-      LOG4CPLUS_WARN(log_,"Invalid fedid. Data will still be logged"
-		     <<" evtNumber:"<<evtNumber_
-		     <<" fedid:"<<fedId);
-      nbErrors_++;
-    }
-
-    // check if a previous fed has already claimed same fed id
-
-    if(fedSize_[fedId]!=0) {
-      LOG4CPLUS_ERROR(log_,"Duplicated fedid. Data will be lost for"
-		      <<" evtNumber:"<<evtNumber_
-		      <<" fedid:"<<fedId);
-      nbErrors_++;
-    }
-    
-    if (fedId<1024) fedSize_[fedId]=fedSize;
-
-    //if gtp EVM block is available set cell event number to global partition-independent trigger number
-    //daq block partition-independent event number is left as an option in case of problems
-
-    if(fedId == gtpeId_)
-      if(evf::evtn::gtpe_board_sense(fedHeaderAddr)) shmCell_->setEvtNumber(evf::evtn::gtpe_get(fedHeaderAddr));
-    if(useEvmBoard_ && (fedId == gtpEvmId_))
-      if(evf::evtn::evm_board_sense(fedHeaderAddr,fedSize)) {
-	shmCell_->setEvtNumber(evf::evtn::get(fedHeaderAddr, true));
-	shmCell_->setLumiSection(evf::evtn::getlbn(fedHeaderAddr));
-      }
-    if(!useEvmBoard_ && (fedId == gtpDaqId_))
-      if(evf::evtn::daq_board_sense(fedHeaderAddr)) {
-	shmCell_->setEvtNumber(evf::evtn::get(fedHeaderAddr, false));
-      }
-    // crc check
-    if (doCrcCheck_) {
-      UInt_t conscheck=fedTrailer->conscheck;
-      crc=((fedTrailer->conscheck & FED_CRCS_MASK) >> FED_CRCS_SHIFT);
-      fedTrailer->conscheck &= (~FED_CRCS_MASK);
-      fedTrailer->conscheck &= (~FED_RBIT_MASK);
-      crcChk=compute_crc(fedHeaderAddr,fedSize);
-      if(nextEventWillHaveCRCError_ && random() > RAND_MAX/2){
-	crc--;
-	nextEventWillHaveCRCError_ = false;
-      }
-      if (crc!=crcChk) {
-	std::ostringstream oss;
-	oss << "crc check failed."
-	    <<" evtNumber:"<<evtNumber_
-	    <<" fedid:"<<fedId
-	    <<" crc:"<<crc
-	    <<" chk:"<<crcChk;
-	LOG4CPLUS_INFO(log_,oss.str());
-	XCEPT_DECLARE(evf::Exception,
-		      sentinelException, oss.str());
-	app_->notifyQualified("error",sentinelException);
-	nbErrors_++;
-	nbCrcErrors_++;
-      }
-      fedTrailer->conscheck=conscheck;
-    }
-    
-    
-    // mark fed
-    if (!shmCell_->markFed(fedId,fedSize,fedHeaderAddr)) {
-      nbErrors_++;
-      stringstream oss;
-      oss<<"Failed to mark fed in buffer."
-	 <<" evtNumber:"<<evtNumber_
-	 <<" fedId:"<<fedId
-	 <<" fedSize:"<<fedSize
-	 <<" fedAddr:0x"<<hex<<(unsigned long)fedHeaderAddr<<dec;
-      XCEPT_RAISE(evf::Exception,oss.str());
-    }
-    
-    // Move to the next fed trailer
-    fedTrailerAddr=fedTrailerAddr-fedSize;
-  }
-  
-  // check that we indeed end up on the starting address of the buffer
-  if ((fedTrailerAddr+sizeof(fedh_t))!=superFragAddr) {
-    std::stringstream oss;
-    oss<<"First FED in superfragment ouf-of-bound."
-       <<" evtNumber:"<<evtNumber_
-       <<" iSuperFrag:"<<iSuperFrag_;
-    XCEPT_RAISE(evf::Exception,oss.str());
-  }
-  
-  return;
+void FUResource::removeLastAppendedBlockFromSuperFrag() {
+	if (0 == superFragHead_) {
+		//nothing to do... why did we get here then ???
+	} else if (superFragHead_ == superFragTail_) {
+		superFragHead_ = 0;
+		superFragTail_ = 0;
+	} else {
+		MemRef_t *next = 0;
+		MemRef_t *current = superFragHead_;
+		while ((next = current->getNextReference()) != superFragTail_) {
+			current = next;
+			//get to the next-to-last block
+		}
+		superFragTail_ = current;
+		current->setNextReference(0);
+	}
+	return;
 }
 
-
 //______________________________________________________________________________
-void FUResource::releaseSuperFrag()
-{
-  if (0==superFragHead_) return;
-  superFragHead_->release(); // throws xcept::Exception
-  superFragHead_=0;
-  superFragTail_=0;
-  return;
+void FUResource::superFragSize() throw (evf::Exception) {
+	UChar_t *blockAddr = 0;
+	UChar_t *frlHeaderAddr = 0;
+	frlh_t *frlHeader = 0;
+
+	superFragSize_ = 0;
+
+	UInt_t frameSize = sizeof(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME);
+	MemRef_t* bufRef = superFragHead_;
+
+	while (0 != bufRef) {
+		blockAddr = (UChar_t*) bufRef->getDataLocation();
+		frlHeaderAddr = blockAddr + frameSize;
+		frlHeader = (frlh_t*) frlHeaderAddr;
+		superFragSize_ += frlHeader->segsize & FRL_SEGSIZE_MASK;
+		bufRef = bufRef->getNextReference();
+	}
+
+	eventSize_ += superFragSize_;
+
+	if (eventSize_ > eventPayloadSize_) {
+		nbErrors_++;
+		stringstream oss;
+		oss << "Event size exceeds maximum size." << " fuResourceId:"
+				<< fuResourceId_ << " evtNumber:" << evtNumber_
+				<< " iSuperFrag:" << iSuperFrag_ << " eventSize:" << eventSize_
+				<< " eventPayloadSize:" << eventPayloadSize_;
+		XCEPT_RAISE(evf::Exception, oss.str());
+	}
 }
 
-
 //______________________________________________________________________________
-UInt_t FUResource::nbErrors(bool reset)
-{
-  UInt_t result=nbErrors_;
-  if (reset) nbErrors_=0;
-  return result;
+void FUResource::fillSuperFragPayload() throw (evf::Exception) {
+	UChar_t *blockAddr = 0;
+	UChar_t *frlHeaderAddr = 0;
+	UChar_t *fedAddr = 0;
+	UInt_t nbBytes = 0;
+	UInt_t nbBytesTot = 0;
+	frlh_t *frlHeader = 0;
+	UChar_t *bufferPos = 0;
+	UChar_t *startPos = 0;
+
+	MemRef_t* bufRef = superFragHead_;
+	while (bufRef != 0) {
+		blockAddr = (UChar_t*) bufRef->getDataLocation();
+		frlHeaderAddr = blockAddr + sizeof(I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME);
+		fedAddr = frlHeaderAddr + sizeof(frlh_t);
+		frlHeader = (frlh_t*) frlHeaderAddr;
+		nbBytes = frlHeader->segsize & FRL_SEGSIZE_MASK;
+		nbBytesTot += nbBytes;
+
+		// check if still within limits
+		if (nbBytesTot > superFragSize_) {
+			nbErrors_++;
+			stringstream oss;
+			oss << "Reached end of buffer." << " fuResourceId:"
+					<< fuResourceId_ << " evtNumber:" << evtNumber_
+					<< " iSuperFrag:" << iSuperFrag_;
+			XCEPT_RAISE(evf::Exception, oss.str());
+		}
+
+		bufferPos = shmCell_->writeData(fedAddr, nbBytes);
+		if (0 == startPos)
+			startPos = bufferPos;
+
+		nbBytes_ += nbBytes;
+		bufRef = bufRef->getNextReference();
+	}
+
+	if (!shmCell_->markSuperFrag(iSuperFrag_, superFragSize_, startPos)) {
+		nbErrors_++;
+		stringstream oss;
+		oss << "Failed to mark super fragment in shared mem buffer."
+				<< " fuResourceId:" << fuResourceId_ << " evtNumber:"
+				<< evtNumber_ << " iSuperFrag:" << iSuperFrag_;
+		XCEPT_RAISE(evf::Exception, oss.str());
+	}
+
+	return;
 }
 
-
 //______________________________________________________________________________
-UInt_t FUResource::nbCrcErrors(bool reset)
-{
-  UInt_t result=nbCrcErrors_;
-  if (reset) nbCrcErrors_=0;
-  return result;
+void FUResource::releaseSuperFrag() {
+	if (0 == superFragHead_)
+		return;
+	superFragHead_->release(); // throws xcept::Exception
+	superFragHead_ = 0;
+	superFragTail_ = 0;
+	return;
 }
 
+//______________________________________________________________________________
+UInt_t FUResource::nbErrors(bool reset) {
+	UInt_t result = nbErrors_;
+	if (reset)
+		nbErrors_ = 0;
+	return result;
+}
 
 //______________________________________________________________________________
-UInt_t FUResource::nbBytes(bool reset)
-{
-  UInt_t result=nbBytes_;
-  if (reset) nbBytes_=0;
-  return result;
+UInt_t FUResource::nbCrcErrors(bool reset) {
+	UInt_t result = nbCrcErrors_;
+	if (reset)
+		nbCrcErrors_ = 0;
+	return result;
+}
+
+//______________________________________________________________________________
+UInt_t FUResource::nbBytes(bool reset) {
+	UInt_t result = nbBytes_;
+	if (reset)
+		nbBytes_ = 0;
+	return result;
 }

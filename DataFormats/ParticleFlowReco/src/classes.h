@@ -58,8 +58,6 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PreId.h"
 #include "DataFormats/ParticleFlowReco/interface/PreIdFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/RecoPFClusterRefCandidate.h"
-#include "DataFormats/ParticleFlowReco/interface/RecoPFClusterRefCandidateFwd.h"
 
 #include <map>
 
@@ -122,18 +120,6 @@ namespace {
     edm::RefProd<std::vector<reco::PFDisplacedTrackerVertex> >    dummy25a;
     edm::RefVector<std::vector<reco::PFDisplacedTrackerVertex> >  dummy26a;
 
-
-    reco::RecoPFClusterRefCandidateCollection vpfcr1;
-    edm::Wrapper<reco::RecoPFClusterRefCandidateCollection> wpfcr1;
-    edm::Ref<reco::RecoPFClusterRefCandidateCollection> rpfcrr1;
-    edm::RefProd<reco::RecoPFClusterRefCandidateCollection> rpfcrpr1;
-    edm::RefVector<reco::RecoPFClusterRefCandidateCollection> rvpfcrr1;
-
-
-    edm::reftobase::Holder<reco::Candidate, reco::RecoPFClusterRefCandidateRef> rbpfr1;
-    edm::reftobase::RefHolder<reco::RecoPFClusterRefCandidateRef> rbpfr2;
-    edm::reftobase::VectorHolder<reco::Candidate, reco::RecoPFClusterRefCandidateRefVector> rbpfr3;
-    edm::reftobase::RefVectorHolder<reco::RecoPFClusterRefCandidateRefVector> rbpfr4;
 
     reco::PFConversionCollection dummy27;
     edm::Wrapper<reco::PFConversionCollection> dummy28;
@@ -230,9 +216,6 @@ namespace {
     edm::Wrapper<std::vector<reco::PFBlockElementSuperCluster> > dummy335;
 
     edm::RefVector<std::vector<reco::PFBlock>, reco::PFBlock, edm::refhelper::FindUsingAdvance< std::vector<reco::PFBlock>, reco::PFBlock> > dummy336;
-
-edm::Wrapper<edm::RefVector<std::vector<reco::RecoPFClusterRefCandidate>,reco::RecoPFClusterRefCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoPFClusterRefCandidate>,reco::RecoPFClusterRefCandidate> > > tpaaapfc2;
-
 
   };
 }

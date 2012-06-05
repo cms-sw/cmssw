@@ -1,4 +1,4 @@
-// $Id: ChainData.cc,v 1.18 2011/03/08 18:34:11 mommsen Exp $
+// $Id: ChainData.cc,v 1.19 2011/08/31 20:12:00 wmtan Exp $
 /// @file: ChainData.cc
 
 #include "IOPool/Streamer/interface/MsgHeader.h"
@@ -573,15 +573,19 @@ std::string detail::ChainData::hltClassName() const
     }
 }
 
+std::string detail::ChainData::outputModuleLabel() const
+{
+  return do_outputModuleLabel();
+}
+
 uint32_t detail::ChainData::outputModuleId() const
 {
   return do_outputModuleId();
 }
 
-
-std::string detail::ChainData::outputModuleLabel() const
+uint32_t detail::ChainData::nExpectedEPs() const
 {
-  return do_outputModuleLabel();
+  return do_nExpectedEPs();
 }
 
 std::string detail::ChainData::topFolderName() const
@@ -851,6 +855,14 @@ uint32_t detail::ChainData::calculateAdler32() const
   return adler;
 }
 
+std::string detail::ChainData::do_outputModuleLabel() const
+{
+  std::stringstream msg;
+  msg << "An output module label is only available from a valid, ";
+  msg << "complete INIT message.";
+  XCEPT_RAISE(stor::exception::WrongI2OMessageType, msg.str());
+}
+
 uint32_t detail::ChainData::do_outputModuleId() const
 {
   std::stringstream msg;
@@ -859,10 +871,10 @@ uint32_t detail::ChainData::do_outputModuleId() const
   XCEPT_RAISE(stor::exception::WrongI2OMessageType, msg.str());
 }
 
-std::string detail::ChainData::do_outputModuleLabel() const
+uint32_t detail::ChainData::do_nExpectedEPs() const
 {
   std::stringstream msg;
-  msg << "An output module label is only available from a valid, ";
+  msg << "The number of slave EPs is only available from a valid, ";
   msg << "complete INIT message.";
   XCEPT_RAISE(stor::exception::WrongI2OMessageType, msg.str());
 }

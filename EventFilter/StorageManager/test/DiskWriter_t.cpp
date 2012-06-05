@@ -49,8 +49,8 @@ class testDiskWriter : public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE(testDiskWriter);
   CPPUNIT_TEST(writeAnEvent);
   CPPUNIT_TEST(writeManyEvents);
-  CPPUNIT_TEST(writeManyStreams);
-  CPPUNIT_TEST(writeSameEventToAllStreams);
+  //CPPUNIT_TEST(writeManyStreams);
+  //CPPUNIT_TEST(writeSameEventToAllStreams);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -78,11 +78,14 @@ private:
   boost::shared_ptr<MockAlarmHandler> alarmHandler_;
   typedef std::vector<std::string> Streams;
   Streams streams_;
-  std::string path;
+  std::string path_;
+  static unsigned int testCount_;
+  bool keepDir_;
 };
 
 xdaq::Application* testDiskWriter::app_;
 boost::shared_ptr<SharedResources> testDiskWriter::sharedResources_;
+unsigned int testDiskWriter::testCount_ = 0;
 
 void testDiskWriter::setUp()
 {
@@ -102,13 +105,14 @@ void testDiskWriter::setUp()
   diskWriter_.reset(new DiskWriter(app_, sharedResources_));
   diskWriter_->startWorkLoop("theDiskWriter");
   
+  keepDir_ = false;
   std::ostringstream spath;
-  spath << "/tmp/smtest_" << getpid();
-  path = spath.str();
-  boost::filesystem::remove_all(path);
-  CPPUNIT_ASSERT( boost::filesystem::create_directory(path) );
-  CPPUNIT_ASSERT( boost::filesystem::create_directory(path + "/open") );
-  CPPUNIT_ASSERT( boost::filesystem::create_directory(path + "/closed") );
+  spath << "/tmp/smtest_" << getpid() << "_" << ++testCount_;
+  path_ = spath.str();
+  boost::filesystem::remove_all(path_);
+  CPPUNIT_ASSERT( boost::filesystem::create_directory(path_) );
+  CPPUNIT_ASSERT( boost::filesystem::create_directory(path_ + "/open") );
+  CPPUNIT_ASSERT( boost::filesystem::create_directory(path_ + "/closed") );
 
   streams_.clear();
   streams_.push_back("A");
@@ -139,7 +143,11 @@ void testDiskWriter::tearDown()
   }
   CPPUNIT_ASSERT_MESSAGE( msg.str(), alarmHandler_->noAlarmSet() );
   diskWriter_.reset();
-  CPPUNIT_ASSERT( boost::filesystem::remove_all(path) > 0 );
+  if ( keepDir_ )
+    std::cout << std::endl << "Keeping test directory " << path_ << std::endl;
+  else
+    CPPUNIT_ASSERT( boost::filesystem::remove_all(path_) > 0 );
+
 }
 
 void testDiskWriter::writeAnEvent()
@@ -250,8 +258,8 @@ void testDiskWriter::createStreams()
   sharedResources_->configuration_->setCurrentEventStreamConfig(evtCfgList);
   sharedResources_->configuration_->setCurrentErrorStreamConfig(errCfgList);
 
-  dwParams.filePath_ = path;
-  dwParams.dbFilePath_ = path;
+  dwParams.filePath_ = path_;
+  dwParams.dbFilePath_ = path_;
   dwParams.checkAdler32_ = true;
   
   DiskWriterResourcesPtr diskWriterResources =
@@ -294,11 +302,9 @@ void testDiskWriter::createInitMessage(const std::string& stream)
 {
   Reference* ref = allocate_frame_with_init_msg(stream);
   stor::I2OChain initMsg(ref);
-  std::vector<unsigned char> b;
-  initMsg.copyFragmentsIntoBuffer(b);
-  InitMsgView imv( &b[0] );
-  CPPUNIT_ASSERT( sharedResources_->initMsgCollection_->addIfUnique(imv) );
-  CPPUNIT_ASSERT( sharedResources_->initMsgCollection_->getElementForOutputModule(stream).get() != 0 );
+  InitMsgSharedPtr serializedProds;
+  CPPUNIT_ASSERT( sharedResources_->initMsgCollection_->addIfUnique(initMsg,serializedProds) );
+  CPPUNIT_ASSERT( sharedResources_->initMsgCollection_->getElementForOutputModuleLabel(stream).get() != 0 );
 }
 
 stor::I2OChain testDiskWriter::getAnEvent(const std::string& stream)
@@ -320,7 +326,7 @@ void testDiskWriter::checkLogFile()
 
   std::ostringstream dbfilename;
   dbfilename
-    << path // Don't use dwParams.dbFilePath_ here. The configuration does not reflect the actual path.
+    << path_ // Don't use dwParams.dbFilePath_ here. The configuration does not reflect the actual path.
       << "/"
       << utils::dateStamp(utils::getCurrentTime())
       << "-" << dwParams.hostName_
@@ -334,17 +340,24 @@ void testDiskWriter::checkLogFile()
   std::string line;
   unsigned int fileCount = 0;
 
-  getline(logfile,line);
-  checkBoR(line);
-  getline(logfile,line);
-  while( checkFileEntry(line,fileCount) )
+  try
   {
     getline(logfile,line);
-  };
-  CPPUNIT_ASSERT( checkEoLS(line) == fileCount );
-  getline(logfile,line);
-  checkEoR(line);
-
+    checkBoR(line);
+    getline(logfile,line);
+    while( checkFileEntry(line,fileCount) )
+    {
+      getline(logfile,line);
+    };
+    CPPUNIT_ASSERT( checkEoLS(line) == fileCount );
+    getline(logfile,line);
+    checkEoR(line);
+  }
+  catch (CppUnit::Exception& e)
+  {
+    keepDir_ = true;
+    throw e;
+  }
   logfile.close();
 }
 

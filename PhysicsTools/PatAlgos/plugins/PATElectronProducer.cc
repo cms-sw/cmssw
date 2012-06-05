@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.55 2012/03/29 16:43:55 tjkim Exp $
+// $Id: PATElectronProducer.cc,v 1.56 2012/04/14 02:12:39 tjkim Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
 
@@ -387,7 +387,15 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
           anElectron.setMvaVariables( r9, sigmaIphiIphi, sigmaIetaIphi, ip3d);
 
           // set conversion veto selection
-          bool passconversionveto = !ConversionTools::hasMatchedConversion( *itElectron, hConversions, beamSpotHandle->position());
+          bool passconversionveto = false;
+          if( hConversions.isValid()){          
+            // this is recommended method
+            passconversionveto = !ConversionTools::hasMatchedConversion( *itElectron, hConversions, beamSpotHandle->position());
+          }else{
+            // use missing hits without vertex fit method
+            passconversionveto = itElectron->gsfTrack()->trackerExpectedHitsInner().numberOfLostHits() < 1;
+          }
+
           anElectron.setPassConversionVeto( passconversionveto );
 
 
@@ -531,7 +539,14 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       anElectron.setMvaVariables( r9, sigmaIphiIphi, sigmaIetaIphi, ip3d);
 
       // set conversion veto selection
-      bool passconversionveto = !ConversionTools::hasMatchedConversion( *itElectron, hConversions, beamSpotHandle->position());
+      bool passconversionveto = false;
+      if( hConversions.isValid()){
+        // this is recommended method 
+        passconversionveto = !ConversionTools::hasMatchedConversion( *itElectron, hConversions, beamSpotHandle->position());
+      }else{
+        // use missing hits without vertex fit method
+        passconversionveto = itElectron->gsfTrack()->trackerExpectedHitsInner().numberOfLostHits() < 1;
+      }
       anElectron.setPassConversionVeto( passconversionveto );
 
       // add sel to selected

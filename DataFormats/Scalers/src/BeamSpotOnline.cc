@@ -104,7 +104,7 @@ std::ostream& operator<<(std::ostream& s, const BeamSpotOnline& c)
 	  c.z(), c.err_z(), c.sigma_z(), c.err_sigma_z());
   s << line << std::endl;
 
-  sprintf(line," dxdy: %e +/- %e    dydz: %e +/- %e",
+  sprintf(line," dxdy: %e +/- %e   dydz: %e +/- %e",
 	  c.dxdz(), c.err_dxdz(), c.dydz(), c.err_dydz());
   s << line << std::endl;
   return s;

@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for CaloMET
  *
- *  $Date: 2010/02/24 19:08:54 $
- *  $Revision: 1.5 $
+ *  $Date: 2012/04/20 14:37:07 $
+ *  $Revision: 1.8 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -32,7 +32,6 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
-#include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 
 #include "RecoJets/JetProducers/interface/JetIDHelper.h"
 
@@ -93,7 +92,7 @@ class TcMETAnalyzer : public TcMETAnalyzerBase {
 
   edm::InputTag theTcMETCollectionLabel;
   edm::InputTag HcalNoiseRBXCollectionTag;
-  edm::InputTag HcalNoiseSummaryTag;
+  edm::InputTag HBHENoiseFilterResultTag;
   edm::InputTag theJetCollectionLabel;
   edm::InputTag thePfJetCollectionLabel;
   edm::InputTag TcCandidatesTag;
@@ -104,7 +103,7 @@ class TcMETAnalyzer : public TcMETAnalyzerBase {
   std::string _hlt_HighPtJet;
   std::string _hlt_LowPtJet;
   std::string _hlt_HighMET;
-  std::string _hlt_LowMET;
+  //  std::string _hlt_LowMET;
   std::string _hlt_Ele;
   std::string _hlt_Muon;
   
@@ -112,7 +111,7 @@ class TcMETAnalyzer : public TcMETAnalyzerBase {
   int _trig_HighPtJet;
   int _trig_LowPtJet;
   int _trig_HighMET;
-  int _trig_LowMET;
+  //  int _trig_LowMET;
   int _trig_Ele;
   int _trig_Muon;
 
@@ -147,7 +146,7 @@ class TcMETAnalyzer : public TcMETAnalyzerBase {
   MonitorElement* meTriggerName_HighPtJet;
   MonitorElement* meTriggerName_LowPtJet;
   MonitorElement* meTriggerName_HighMET;
-  MonitorElement* meTriggerName_LowMET;
+  //  MonitorElement* meTriggerName_LowMET;
   MonitorElement* meTriggerName_Ele;
   MonitorElement* meTriggerName_Muon;
 
@@ -157,7 +156,6 @@ class TcMETAnalyzer : public TcMETAnalyzerBase {
   MonitorElement* meTcChargedHadFraction;
   MonitorElement* meTcMuonFraction;
 
-  MonitorElement* meNevents;
   MonitorElement* meTcMEx;
   MonitorElement* meTcMEy;
   MonitorElement* meTcEz;
@@ -173,7 +171,5 @@ class TcMETAnalyzer : public TcMETAnalyzerBase {
   MonitorElement* meTcMETRBXNoise;
 
   MonitorElement* meTcMETRate;
-
-
 };
 #endif
