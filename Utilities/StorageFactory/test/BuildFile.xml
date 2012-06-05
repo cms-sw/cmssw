@@ -4,8 +4,6 @@
   <flags   TEST_RUNNER_ARGS=" /bin/bash Utilities/StorageFactory/test run_StorageFactoryTests.sh"/>
   <use   name="FWCore/Utilities"/>
 </bin>
-<bin   file="threadsafe.cpp" name="test_StorageFactory_threadsafe">
-</bin>
 <bin   file="t0Repack.cpp" name="test_StorageFactory_t0Repack">
   <flags NO_TESTRUN="1"/>
 </bin>
@@ -48,3 +46,10 @@
 </bin>
 <bin   file="mkstemp.cpp" name="test_StorageFactory_Mkstemp">
 </bin>
+# We do not currently run the threadsafe test, as the StorageFactoryMaker is not thread-safe
+# (the underlying PluginManager can be called from multiple threads, but itself is not
+# thread safe.)
+# It's not that hard guard accesses to the PluginManager, but per Chris Jones, we want
+# to wait until the framework decides on a threading model to implement a fix.
+# file="threadsafe.cpp" name="test_StorageFactory_threadsafe"
+
