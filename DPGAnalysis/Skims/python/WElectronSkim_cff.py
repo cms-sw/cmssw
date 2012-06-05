@@ -78,14 +78,14 @@ cut = cms.string(
     " && (sigmaIetaIeta<0.01)"
     " && ( -0.06<deltaPhiSuperClusterTrackAtVtx<0.06 )"
     " && ( -0.004<deltaEtaSuperClusterTrackAtVtx<0.004 )"
-    " && (hadronicOverEm<0.04)"
+    " && (hadronicOverEm<0.12)"
     ")"
     " || (isEE"
     " && ( dr03TkSumPt/p4.Pt <0.05 && dr03EcalRecHitSumEt/p4.Pt < 0.06 && dr03HcalTowerSumEt/p4.Pt  < 0.03 )"
     " && (sigmaIetaIeta<0.03)"
     " && ( -0.03<deltaPhiSuperClusterTrackAtVtx<0.03 )" 
     " && ( -0.007<deltaEtaSuperClusterTrackAtVtx<0.007 )"
-    " && (hadronicOverEm<0.025) "
+    " && (hadronicOverEm<0.10) "
     "))"
     )
 ) 
@@ -119,7 +119,7 @@ WElecTagHLT = PassingHLT.clone(
 
 ele_sequence = cms.Sequence(
     goodElectrons +
-    PassingWP80 +
+    PassingWP80 + 
     WElecTagHLT
     )
 
@@ -155,4 +155,16 @@ elecMetSeq = cms.Sequence( WEnuHltFilter * ele_sequence * elecMetFilter )
 
 from Configuration.EventContent.EventContent_cff import OutALCARECOEcalCalElectron
 WElectronSkimContent = OutALCARECOEcalCalElectron.clone()
-WElectronSkimContent.outputCommands.extend( [ "keep *_pfMet_*_*", "keep *_kt6*_rho_*", "keep *_offlinePrimaryVerticesWithBS_*_*","keep *_generator_*_*", "keep *_rawDataCollector_*_*" ] )
+WElectronSkimContent.outputCommands.extend( [ 
+  "keep *_pfMet_*_*", 
+  "keep *_kt6*_rho_*", 
+  "keep *_offlinePrimaryVerticesWithBS_*_*",
+  "keep *_generator_*_*", 
+  "keep *_rawDataCollector_*_*",
+  'keep recoCaloClusters_*_*_*', 
+  'keep recoPreshowerClusters_*_*_*',
+  'keep *_reducedEcalRecHits*_*_*',
+  'keep *_offlineBeamSpot_*_*',
+  'keep *_allConversions_*_*',
+  'keep *_gtDigis_*_*'
+ ] )
