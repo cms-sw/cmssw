@@ -38,9 +38,13 @@ namespace edm {
          typedef DataProxyProvider base_type;
         
          static std::string name();
-         static void addTo(EventSetupProvider& iProvider, boost::shared_ptr<DataProxyProvider> iComponent) ;
-         static boost::shared_ptr<base_type> const* getAlreadyMadeComponent(EventSetupsController const& esController,
-                                                                       ParameterSet const& iConfiguration);
+         static void addTo(EventSetupProvider& iProvider,
+                           boost::shared_ptr<DataProxyProvider> iComponent,
+                           ParameterSet const&,
+                           bool);
+         static void replaceExisting(EventSetupProvider& iProvider, boost::shared_ptr<DataProxyProvider> iComponent); 
+         static boost::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
+                                                                            ParameterSet const& iConfiguration);
          static void putComponent(EventSetupsController& esController,
                                   ParameterSet const& iConfiguration,
                                   boost::shared_ptr<base_type> const& component);

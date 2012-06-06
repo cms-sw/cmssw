@@ -76,6 +76,26 @@ EventSetupRecord::set(const ValidityInterval& iInterval)
    validity_ = iInterval;
 }
 
+void
+EventSetupRecord::getESProducers(std::vector<ComponentDescription const*>& esproducers) {
+   esproducers.clear();
+   esproducers.reserve(proxies_.size());
+   for (auto const& iData : proxies_) {
+      ComponentDescription const* componentDescription = iData.second->providerDescription();
+      if (!componentDescription->isLooper_ && !componentDescription->isSource_) {
+         esproducers.push_back(componentDescription);
+      }
+   }
+}
+
+void
+EventSetupRecord::fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys) {
+   referencedDataKeys.clear();
+   for (auto const& iData : proxies_) {
+      referencedDataKeys[iData.first] = iData.second->providerDescription();
+   }
+}
+
 bool 
 EventSetupRecord::add(const DataKey& iKey ,
                     const DataProxy* iProxy)
@@ -123,10 +143,16 @@ EventSetupRecord::add(const DataKey& iKey ,
 }
 
 void 
+EventSetupRecord::clearProxies() 
+{
+   proxies_.clear();
+}
+
+void 
 EventSetupRecord::cacheReset() 
 {
    transientAccessRequested_ = false;
-  ++cacheIdentifier_;
+   ++cacheIdentifier_;
 }
 
 bool

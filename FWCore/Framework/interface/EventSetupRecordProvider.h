@@ -40,6 +40,7 @@ namespace edm {
       class DataProxyProvider;
       class EventSetupProvider;
       class EventSetupRecord;
+      class ParameterSetIDHolder;
       
 class EventSetupRecordProvider {
 
@@ -62,12 +63,19 @@ class EventSetupRecordProvider {
       ///return information on which DataProxyProviders are supplying information
       std::set<ComponentDescription> proxyProviderDescriptions() const;
       
-      ///returns the DataProxyProvider or a 'null' if not found
+      ///returns the first matching DataProxyProvider or a 'null' if not found
       boost::shared_ptr<DataProxyProvider> proxyProvider(ComponentDescription const&) const;
+
+      ///returns the first matching DataProxyProvider or a 'null' if not found
+      boost::shared_ptr<DataProxyProvider> proxyProvider(ParameterSetIDHolder const&) const;
+
 
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
+
+      void resetProxyProvider(ParameterSetIDHolder const&, boost::shared_ptr<DataProxyProvider> const&);
+
       void addRecordTo(EventSetupProvider&);
       void addRecordToIfValid(EventSetupProvider&, IOVSyncValue const&) ;
 
@@ -90,6 +98,12 @@ class EventSetupRecordProvider {
       void resetProxies();
       
       boost::shared_ptr<EventSetupRecordIntervalFinder> finder() const { return finder_; }
+
+      void getReferencedESProducers(std::map<EventSetupRecordKey, std::vector<ComponentDescription const*> >& referencedESProducers);
+
+      void fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys);
+
+      void resetRecordToProxyPointers(DataToPreferredProviderMap const& iMap);
 
    protected:
       void addProxiesToRecord(boost::shared_ptr<DataProxyProvider>,

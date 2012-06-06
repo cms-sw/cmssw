@@ -16,6 +16,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
+#include "FWCore/Framework/interface/ParameterSetIDHolder.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/src/IntersectingIOVRecordIntervalFinder.h"
@@ -226,13 +227,29 @@ EventSetupRecordProvider::setValidityIntervalFor(const IOVSyncValue& iTime)
 void 
 EventSetupRecordProvider::resetProxies()
 {
-  cacheReset();
-  for_all(providers_, boost::bind(&DataProxyProvider::resetProxies,_1,key_));
-  //some proxies only clear if they were accessed transiently,
-  // since resetProxies resets that flag, calling resetTransients
-  // will force a clear
-  for_all(providers_, boost::bind(&DataProxyProvider::resetProxiesIfTransient,_1,key_)); 
+   cacheReset();
+   for_all(providers_, boost::bind(&DataProxyProvider::resetProxies,_1,key_));
+   //some proxies only clear if they were accessed transiently,
+   // since resetProxies resets that flag, calling resetTransients
+   // will force a clear
+   for_all(providers_, boost::bind(&DataProxyProvider::resetProxiesIfTransient,_1,key_)); 
 
+}
+
+void
+EventSetupRecordProvider::getReferencedESProducers(std::map<EventSetupRecordKey, std::vector<ComponentDescription const*> >& referencedESProducers) {
+   record().getESProducers(referencedESProducers[key_]);
+}
+
+void
+EventSetupRecordProvider::fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys) {
+   record().fillReferencedDataKeys(referencedDataKeys);
+}
+
+void
+EventSetupRecordProvider::resetRecordToProxyPointers(DataToPreferredProviderMap const& iMap) {
+   record().clearProxies();
+   for_all(providers_, boost::bind(&EventSetupRecordProvider::addProxiesToRecord, this, _1, iMap));
 }
 
 void 
@@ -277,7 +294,24 @@ EventSetupRecordProvider::proxyProvider(const ComponentDescription& iDesc) const
    return *itFound;
 }
 
-      
+boost::shared_ptr<DataProxyProvider> 
+EventSetupRecordProvider::proxyProvider(ParameterSetIDHolder const& psetID) const {
+   for (auto const& dataProxyProvider : providers_) {
+      if (dataProxyProvider->description().pid_ == psetID.psetID()) {
+         return dataProxyProvider;
+      }
+   }
+   return boost::shared_ptr<DataProxyProvider>();
+}
+
+void
+EventSetupRecordProvider::resetProxyProvider(ParameterSetIDHolder const& psetID, boost::shared_ptr<DataProxyProvider> const& sharedDataProxyProvider) {
+   for (auto& dataProxyProvider : providers_) {
+      if (dataProxyProvider->description().pid_ == psetID.psetID()) {
+         dataProxyProvider = sharedDataProxyProvider;
+      }
+   }
+}
 
 //
 // static member functions

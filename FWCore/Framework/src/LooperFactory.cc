@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 19:27:37 EDT 2005
-// $Id: LooperFactory.cc,v 1.3 2007/06/29 03:43:21 wmtan Exp $
+// $Id: LooperFactory.cc,v 1.4 2012/04/16 15:43:50 wdd Exp $
 //
 
 // system include files
@@ -23,10 +23,18 @@ namespace edm {
    namespace eventsetup {
       std::string LooperMakerTraits::name() { return "CMS EDM Framework EDLooper"; }
       
-      boost::shared_ptr<LooperMakerTraits::base_type> const*
-      LooperMakerTraits::getAlreadyMadeComponent(EventSetupsController const&,
-                                                 ParameterSet const&) {
-         return 0;
+      void 
+      LooperMakerTraits::replaceExisting(EventSetupProvider& iProvider, boost::shared_ptr<EDLooperBase> iComponent) {
+         throw edm::Exception(edm::errors::LogicError)
+            << "LooperMakerTraits::replaceExisting\n"
+            << "This function is not implemented and should never be called.\n"
+            << "Please report this to a Framework Developer\n";
+      }
+
+      boost::shared_ptr<LooperMakerTraits::base_type>
+      LooperMakerTraits::getComponentAndRegisterProcess(EventSetupsController&,
+                                                        ParameterSet const&) {
+        return boost::shared_ptr<LooperMakerTraits::base_type>();
       }
 
       void LooperMakerTraits::putComponent(EventSetupsController&,

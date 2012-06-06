@@ -23,12 +23,12 @@ namespace edm {
   namespace eventsetup {
   // ---------------------------------------------------------------
     std::auto_ptr<EventSetupProvider>
-    makeEventSetupProvider(ParameterSet const& params) {
+    makeEventSetupProvider(ParameterSet const& params, unsigned subProcessIndex) {
       std::vector<std::string> prefers =
         params.getParameter<std::vector<std::string> >("@all_esprefers");
 
       if(prefers.empty()) {
-        return std::auto_ptr<EventSetupProvider>(new EventSetupProvider());
+        return std::auto_ptr<EventSetupProvider>(new EventSetupProvider(subProcessIndex));
       }
 
       EventSetupProvider::PreferredProviderInfo preferInfo;
@@ -96,7 +96,7 @@ namespace edm {
                                         preferPSet.getParameter<std::string>("@module_label"),
                                         false)] = recordToData;
       }
-      return std::auto_ptr<EventSetupProvider>(new EventSetupProvider(&preferInfo));
+      return std::auto_ptr<EventSetupProvider>(new EventSetupProvider(subProcessIndex, &preferInfo));
     }
 
     // ---------------------------------------------------------------

@@ -562,7 +562,7 @@ void testEventsetup::preferTest()
          //default means use all proxies
          preferInfo[ComponentDescription("DummyProxyProvider","",false)]=recordToData;
          
-         eventsetup::EventSetupProvider provider(&preferInfo);
+         eventsetup::EventSetupProvider provider(0U, &preferInfo);
          {
             edm::eventsetup::ComponentDescription description("DummyProxyProvider","bad",false);
             boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kBad));
@@ -593,7 +593,7 @@ void testEventsetup::preferTest()
          EventSetupProvider::RecordToDataMap recordToData;
          //default means use all proxies
          preferInfo[ComponentDescription("DummyProxyProvider","",false)]=recordToData;
-         eventsetup::EventSetupProvider provider(&preferInfo);
+         eventsetup::EventSetupProvider provider(0U, &preferInfo);
          {
             edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
             boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kGood));
@@ -625,7 +625,7 @@ void testEventsetup::preferTest()
          recordToData.insert(std::make_pair(std::string("DummyRecord"),
                                             std::make_pair(std::string("DummyData"),std::string())));
          preferInfo[ComponentDescription("DummyProxyProvider","",false)]=recordToData;
-         eventsetup::EventSetupProvider provider(&preferInfo);
+         eventsetup::EventSetupProvider provider(0U, &preferInfo);
          {
             edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
             boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kGood));

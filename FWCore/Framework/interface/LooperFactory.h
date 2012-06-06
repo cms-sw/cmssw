@@ -84,15 +84,20 @@ namespace edm {
          typedef EDLooperBase base_type;
          static std::string name();
          template<class T>
-            static void addTo(EventSetupProvider& iProvider, boost::shared_ptr<T> iComponent)
+         static void addTo(EventSetupProvider& iProvider,
+                           boost::shared_ptr<T> iComponent,
+                           ParameterSet const&,
+                           bool)
             {
                //a looper does not always have to be a provider or a finder
                looper::addProviderTo(iProvider, iComponent, static_cast<const T*>(0));
                looper::addFinderTo(iProvider, iComponent, static_cast<const T*>(0));
             }
 
-         static boost::shared_ptr<base_type> const* getAlreadyMadeComponent(EventSetupsController const& esController,
-                                                                       ParameterSet const& iConfiguration);               
+         static void replaceExisting(EventSetupProvider& iProvider, boost::shared_ptr<EDLooperBase> iComponent); 
+
+         static boost::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
+                                                                            ParameterSet const& iConfiguration);               
          static void putComponent(EventSetupsController& esController,
                                   ParameterSet const& iConfiguration,
                                   boost::shared_ptr<base_type> const& component);

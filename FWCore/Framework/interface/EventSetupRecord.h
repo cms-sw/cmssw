@@ -157,11 +157,17 @@ namespace edm {
          // The following member functions should only be used by EventSetupRecordProvider
          bool add(DataKey const& iKey ,
                   DataProxy const* iProxy) ;
+         void clearProxies();
          void cacheReset() ;
          /// returns 'true' if a transient request has occurred since the last call to transientReset.
          bool transientReset() ;
+
          void set(ValidityInterval const&);
          void setEventSetup(EventSetup const* iEventSetup) {eventSetup_ = iEventSetup; }
+
+         void getESProducers(std::vector<ComponentDescription const*>& esproducers);
+         void fillReferencedDataKeys(std::map<DataKey, ComponentDescription const*>& referencedDataKeys);
+
       protected:
 
          DataProxy const* find(DataKey const& aKey) const ;

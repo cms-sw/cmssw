@@ -56,21 +56,31 @@ namespace edm {
          typedef EventSetupRecordIntervalFinder base_type;
          static std::string name();
          template<class T>
-            static void addTo(EventSetupProvider& iProvider, boost::shared_ptr<T> iComponent)
+         static void addTo(EventSetupProvider& iProvider,
+                           boost::shared_ptr<T> iComponent,
+                           ParameterSet const& iConfiguration,
+                           bool matchesPreceding)
             {
+               if (matchesPreceding) {
+                  logInfoWhenSharing(iConfiguration);
+               }
                //a source does not always have to be a provider
                addProviderTo(iProvider, iComponent, static_cast<const T*>(0));
                boost::shared_ptr<EventSetupRecordIntervalFinder> pFinder(iComponent);
                iProvider.add(pFinder);
             }
+         static void replaceExisting(EventSetupProvider& iProvider, boost::shared_ptr<EventSetupRecordIntervalFinder> iComponent); 
                
-         static boost::shared_ptr<base_type> const* getAlreadyMadeComponent(EventSetupsController const& esController,
-                                                                       ParameterSet const& iConfiguration);
+         static boost::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
+                                                                            ParameterSet const& iConfiguration);
 
          static void putComponent(EventSetupsController& esController,
                                   ParameterSet const& iConfiguration,
                                   boost::shared_ptr<base_type> const& component);
+
+         static void logInfoWhenSharing(ParameterSet const& iConfiguration);
       };
+
       template< class TType>
          struct SourceMaker : public ComponentMaker<edm::eventsetup::SourceMakerTraits,TType> {};
       typedef  ComponentFactory<SourceMakerTraits> SourceFactory ;

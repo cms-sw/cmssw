@@ -660,7 +660,6 @@ namespace edm {
     if(subProcessParameterSet) {
       subProcess_.reset(new SubProcess(*subProcessParameterSet, *parameterSet, preg_, branchIDListHelper_, *espController_, *actReg_, token, serviceregistry::kConfigurationOverrides));
     }
-    espController_->clearComponents();
   }
 
   EventProcessor::~EventProcessor() {

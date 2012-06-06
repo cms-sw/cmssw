@@ -40,7 +40,6 @@ namespace edm {
       public:
         virtual ~ComponentMakerBaseHelper() {}
       protected:
-        void logInfoWhenSharing(ParameterSet const& iConfiguration) const;
         ComponentDescription createComponentDescription(ParameterSet const& iConfiguration) const;
       };
  
@@ -50,7 +49,8 @@ namespace edm {
          typedef typename T::base_type base_type;
          virtual boost::shared_ptr<base_type> addTo(EventSetupsController& esController,
                                                     EventSetupProvider& iProvider,
-                                                    ParameterSet const& iConfiguration) const = 0;
+                                                    ParameterSet const& iConfiguration,
+                                                    bool replaceExisting) const = 0;
       };
       
    template <class T, class TComponent>
@@ -65,7 +65,8 @@ namespace edm {
       // ---------- const member functions ---------------------
    virtual boost::shared_ptr<base_type> addTo(EventSetupsController& esController,
                                               EventSetupProvider& iProvider,
-                                              ParameterSet const& iConfiguration) const;
+                                              ParameterSet const& iConfiguration,
+                                              bool replaceExisting) const;
    
       // ---------- static member functions --------------------
 
@@ -100,27 +101,53 @@ template< class T, class TComponent>
 boost::shared_ptr<typename ComponentMaker<T,TComponent>::base_type>
 ComponentMaker<T,TComponent>::addTo(EventSetupsController& esController,
                                     EventSetupProvider& iProvider,
-                                    ParameterSet const& iConfiguration) const
+                                    ParameterSet const& iConfiguration,
+                                    bool replaceExisting) const
 {
-   boost::shared_ptr<typename T::base_type> const* alreadyMadeComponent = T::getAlreadyMadeComponent(esController, iConfiguration);
+   // This adds components to the EventSetupProvider for the process. It might
+   // make a new component then add it or reuse a component from an earlier
+   // SubProcess or the top level process and add that.
 
-   if (alreadyMadeComponent) {
-      this->logInfoWhenSharing(iConfiguration);
-      boost::shared_ptr<TComponent> component(boost::static_pointer_cast<TComponent, typename T::base_type>(*alreadyMadeComponent));
-      T::addTo(iProvider, component);
-      return component;
+   if (!replaceExisting) {
+      boost::shared_ptr<typename T::base_type> alreadyMadeComponent = T::getComponentAndRegisterProcess(esController, iConfiguration);
+
+      if (alreadyMadeComponent) {
+         // This is for the case when a component is shared between
+         // a SubProcess and a previous SubProcess or the top level process
+         // because the component has an identical configuration to a component
+         // from the top level process or earlier SubProcess.
+         boost::shared_ptr<TComponent> component(boost::static_pointer_cast<TComponent, typename T::base_type>(alreadyMadeComponent));
+         T::addTo(iProvider, component, iConfiguration, true);
+         return component;
+      }
    }
 
    boost::shared_ptr<TComponent> component(new TComponent(iConfiguration));
    ComponentDescription description =
-       this->createComponentDescription(iConfiguration);
+      this->createComponentDescription(iConfiguration);
 
    this->setDescription(component.get(),description);
    this->setDescriptionForFinder(component.get(),description);
    this->setPostConstruction(component.get(),iConfiguration);
-   T::addTo(iProvider, component);
-   T::putComponent(esController, iConfiguration, component);
 
+   if (replaceExisting) {
+      // This case is for ESProducers where in the first pass
+      // the algorithm thought the component could be shared
+      // across SubProcess's because there was an ESProducer
+      // from a previous process with an identical configuration.
+      // But in a later check it was determined that sharing was not
+      // possible because other components associated with the
+      // same record or records that record depends on had
+      // differing configurations.
+      T::replaceExisting(iProvider, component);
+   } else {
+      // This is for the case when a new component is being constructed.
+      // All components for the top level process fall in this category.
+      // Or it could be a SubProcess where neither the top level process
+      // nor any prior SubProcess had a component with exactly the same configuration.
+      T::addTo(iProvider, component, iConfiguration, false);
+      T::putComponent(esController, iConfiguration, component);
+   }
    return component;
 }
    }

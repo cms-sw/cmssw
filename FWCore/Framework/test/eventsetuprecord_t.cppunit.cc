@@ -313,24 +313,53 @@ void testEventsetupRecord::introspectionTest()
 {
   DummyRecord dummyRecord;
   FailingDummyProxy dummyProxy;
-  
+
+  ComponentDescription cd1;
+  cd1.label_ = "foo1";
+  cd1.type_ = "DummyProd1";
+  cd1.isSource_ = false;
+  cd1.isLooper_ = false;
+  dummyProxy.setProviderDescription(&cd1);
+
   const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(),
                              "");
 
   std::vector<edm::eventsetup::DataKey> keys;
   dummyRecord.fillRegisteredDataKeys(keys);
-  
   CPPUNIT_ASSERT(keys.empty()) ;
-  
+
+  std::vector<ComponentDescription const*> esproducers;
+  dummyRecord.getESProducers(esproducers);
+  CPPUNIT_ASSERT(esproducers.empty()) ;
+
+  std::map<DataKey, ComponentDescription const*> referencedDataKeys;
+  dummyRecord.fillReferencedDataKeys(referencedDataKeys);
+  CPPUNIT_ASSERT(referencedDataKeys.empty()) ;  
+
   dummyRecord.add(dummyDataKey,
                   &dummyProxy);
   
   dummyRecord.fillRegisteredDataKeys(keys);
   CPPUNIT_ASSERT(1 == keys.size());
-  
+
+  dummyRecord.getESProducers(esproducers);
+  CPPUNIT_ASSERT(esproducers.size() == 1);
+  CPPUNIT_ASSERT(esproducers[0] == &cd1);
+
+  dummyRecord.fillReferencedDataKeys(referencedDataKeys);
+  CPPUNIT_ASSERT(referencedDataKeys.size() == 1);  
+  CPPUNIT_ASSERT(referencedDataKeys[dummyDataKey] == &cd1);  
+
   Dummy myDummy;
   WorkingDummyProxy workingProxy(&myDummy);
-  
+
+  ComponentDescription cd2;
+  cd2.label_ = "foo2";
+  cd2.type_ = "DummyProd2";
+  cd2.isSource_ = true;
+  cd2.isLooper_ = false;
+  workingProxy.setProviderDescription(&cd2);
+
   const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(),
                                "working");
   
@@ -339,6 +368,64 @@ void testEventsetupRecord::introspectionTest()
   
   dummyRecord.fillRegisteredDataKeys(keys);
   CPPUNIT_ASSERT(2 == keys.size());
+
+  dummyRecord.getESProducers(esproducers);
+  CPPUNIT_ASSERT(esproducers.size() == 1);
+
+  dummyRecord.fillReferencedDataKeys(referencedDataKeys);
+  CPPUNIT_ASSERT(referencedDataKeys.size() == 2);  
+  CPPUNIT_ASSERT(referencedDataKeys[workingDataKey] == &cd2);  
+
+  Dummy myDummy3;
+  WorkingDummyProxy workingProxy3(&myDummy3);
+
+  ComponentDescription cd3;
+  cd3.label_ = "foo3";
+  cd3.type_ = "DummyProd3";
+  cd3.isSource_ = false;
+  cd3.isLooper_ = true;
+  workingProxy3.setProviderDescription(&cd3);
+
+  const DataKey workingDataKey3(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(),
+                                "working3");
+
+  dummyRecord.add(workingDataKey3,
+                  &workingProxy3);
+  
+  dummyRecord.getESProducers(esproducers);
+  CPPUNIT_ASSERT(esproducers.size() == 1);
+
+  dummyRecord.fillReferencedDataKeys(referencedDataKeys);
+  CPPUNIT_ASSERT(referencedDataKeys.size() == 3);  
+  CPPUNIT_ASSERT(referencedDataKeys[workingDataKey3] == &cd3);  
+
+  Dummy myDummy4;
+  WorkingDummyProxy workingProxy4(&myDummy4);
+
+  ComponentDescription cd4;
+  cd4.label_ = "foo4";
+  cd4.type_ = "DummyProd4";
+  cd4.isSource_ = false;
+  cd4.isLooper_ = false;
+  workingProxy4.setProviderDescription(&cd4);
+
+  const DataKey workingDataKey4(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(),
+                                "working4");
+
+  dummyRecord.add(workingDataKey4,
+                  &workingProxy4);
+  
+  dummyRecord.getESProducers(esproducers);
+  CPPUNIT_ASSERT(esproducers.size() == 2);
+  CPPUNIT_ASSERT(esproducers[1] == &cd4);
+
+  dummyRecord.fillReferencedDataKeys(referencedDataKeys);
+  CPPUNIT_ASSERT(referencedDataKeys.size() == 4);  
+  CPPUNIT_ASSERT(referencedDataKeys[workingDataKey4] == &cd4);  
+
+  dummyRecord.clearProxies();
+  dummyRecord.fillRegisteredDataKeys(keys);
+  CPPUNIT_ASSERT(0 == keys.size());
 }
 
 void testEventsetupRecord::doGetExepTest()

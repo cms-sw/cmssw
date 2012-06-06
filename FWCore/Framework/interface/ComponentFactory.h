@@ -52,7 +52,8 @@ template<typename T>
       // ---------- const member functions ---------------------
    boost::shared_ptr<base_type> addTo(EventSetupsController& esController,
                                       EventSetupProvider& iProvider,
-                                      edm::ParameterSet const& iConfiguration) const
+                                      edm::ParameterSet const& iConfiguration,
+                                      bool replaceExisting = false) const
       {
          std::string modtype = iConfiguration.template getParameter<std::string>("@module_type");
          //cerr << "Factory: module_type = " << modtype << endl;
@@ -89,7 +90,7 @@ template<typename T>
          
          try {
            try {
-             return it->second->addTo(esController, iProvider, iConfiguration);
+             return it->second->addTo(esController, iProvider, iConfiguration, replaceExisting);
            }
            catch (cms::Exception& e) { throw; }
            catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
