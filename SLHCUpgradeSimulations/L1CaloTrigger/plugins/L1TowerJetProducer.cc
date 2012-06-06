@@ -113,7 +113,7 @@ void L1TowerJetProducer::algorithm( const int &aEta, const int &aPhi )
 	for ( std::vector< std::pair< int , int > >::const_iterator lJetShapeMapIt = mJetShapeMap.begin() ; lJetShapeMapIt != mJetShapeMap.end() ; ++lJetShapeMapIt )
 	{
 		int lPhi = aPhi+(lJetShapeMapIt->second);
-		if ( lPhi > mCaloTriggerSetup->phiMax(  ) ) lPhi -= mCaloTriggerSetup->phiMax(  );
+		if ( lPhi > mCaloTriggerSetup->phiMax(  ) ) lPhi -= 72; //mCaloTriggerSetup->phiMax(  );
 
 		l1slhc::L1CaloTowerCollection::const_iterator lTowerItr = fetch( aEta+(lJetShapeMapIt->first) , lPhi );
 		if ( lTowerItr != mInputCollection->end(  ) )
