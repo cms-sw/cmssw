@@ -1178,7 +1178,6 @@ bool cond::CredentialStore::importForPrincipal( const std::string& principal,
   std::string princKey = cipher.b64decrypt( princData.adminKey);
 
   const std::map< std::pair<std::string,std::string>, coral::AuthenticationCredentials* >& creds = dataSource.data();
-  // first import the connections
   for( std::map< std::pair<std::string,std::string>, coral::AuthenticationCredentials* >::const_iterator iConn = creds.begin(); iConn != creds.end(); ++iConn ){
     const std::string& connectionString = iConn->first.first;
     coral::URIParser parser;
@@ -1187,8 +1186,10 @@ bool cond::CredentialStore::importForPrincipal( const std::string& principal,
     const std::string& role = iConn->first.second;
     std::string userName = iConn->second->valueForItem( coral::IAuthenticationCredentials::userItem() );
     std::string password = iConn->second->valueForItem( coral::IAuthenticationCredentials::passwordItem());
+    // first import the connections
     std::pair<int,std::string> conn = updateConnection( schemaLabel( serviceName, userName ), userName, password, false );
     Cipher cipher( m_principalKey );
+    // than set the permission for the specific role
     setPermission( princData.id, princKey, role, connectionString, conn.first, conn.second );
     imported = true;
   }
