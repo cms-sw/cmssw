@@ -1,9 +1,15 @@
-// File: METProducer.cc 
-// Description:  see METProducer.h
-// Author: R. Cavanaugh, The University of Florida
-// Creation Date:  20.04.2006.
+// -*- C++ -*-
 //
-//--------------------------------------------
+// Package:    METProducers
+// Class:      METProducer
+// 
+// Original Author:  Rick Cavanaugh
+//         Created:  April 4, 2006
+// $Id$
+//
+//
+
+//____________________________________________________________________________||
 // Modification by R. Remington on 10/21/08
 // Added globalThreshold input Parameter to impose on each tower in tower collection
 // that is looped over by the CaloSpecificAlgo.  This is in order to fulfill Scheme B threhsolds...   
@@ -36,7 +42,8 @@ using namespace reco;
 
 namespace cms 
 {
-  METProducer::METProducer(const edm::ParameterSet& iConfig) : alg_() , resolutions_(0), tcmetalgorithm(0) 
+  METProducer::METProducer(const edm::ParameterSet& iConfig) 
+  : alg_(), resolutions_(0), tcmetalgorithm(0) 
   {
     inputLabel = iConfig.getParameter<edm::InputTag>("src");
     inputType  = iConfig.getParameter<std::string>("InputType");
@@ -104,53 +111,22 @@ namespace cms
 	
     }
   }
-  //--------------------------------------------------------------------------
 
-  //--------------------------------------------------------------------------
-  // Default Constructor
-  //-----------------------------------
   METProducer::METProducer() : alg_() 
   {
     tcmetalgorithm = 0; // why does this constructor exist?
     produces<METCollection>(); 
   }
-  //--------------------------------------------------------------------------
 
-  //--------------------------------------------------------------------------
-  // Default Destructor
-  //-----------------------------------
-  METProducer::~METProducer() { delete tcmetalgorithm;}
-  //--------------------------------------------------------------------------
+  METProducer::~METProducer() { delete tcmetalgorithm; }
 
-  //--------------------------------------------------------------------------
-  // Run Algorithm and put results into event
-  //-----------------------------------
   void METProducer::produce(Event& event, const EventSetup& setup) 
   {
 
-    //-----------------------------------
-    // Step A: Get Inputs.  Create an empty collection of candidates
     edm::Handle<edm::View<Candidate> > input;
     event.getByLabel(inputLabel,input);
-    //-----------------------------------
-    // Step B: Create an empty MET struct output.
-    CommonMETData output;
-    /*
-    //-----------------------------------
-    // Step C: Convert input source to type CandidateCollection
-    const RefToBaseVector<Candidate> inputCol = inputHandle->refVector();
-    const CandidateCollection *input = (const CandidateCollection *)inputCol.product();
-    */
-    //-----------------------------------
-    // Step C2: Invoke the MET algorithm, which runs on any CandidateCollection input. 
 
-    //    alg_.run(input, &output, globalThreshold);   // No need to run this for all METTypes!
- 
-    //-----------------------------------
-    // Step D: Invoke the specific "afterburner", which adds information
-    //         depending on the input type, given via the config parameter.
-    //         Also, after the specific algorithm has been called, store
-    //         the output into the Event.
+    CommonMETData output;
 
     if( METtype == "CaloMET" ) 
     {

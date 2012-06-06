@@ -1,16 +1,24 @@
+// -*- C++ -*-
+//
+// Package:    METProducers
+// Class:      METProducer
+// 
+/**\class METProducer METProducer.h RecoMET/METProducers/interface/METProducer.h
+
+ Description: An EDProducer which produces MET
+
+ Implementation:
+     [Notes on implementation]
+*/
+//
+// Original Author:  Rick Cavanaugh
+//         Created:  May 14, 2005
+// $Id$
+//
+//
+
 #ifndef METProducer_h
 #define METProducer_h
-
-/** \class METProducer
- *
- * METProducer is the EDProducer subclass which runs 
- * the METAlgo MET finding algorithm.
- *
- * \author R. Cavanaugh, The University of Florida
- *
- * \version 1st Version May 14, 2005
- *
- */
 
 #include <vector>
 #include <cstdlib>
