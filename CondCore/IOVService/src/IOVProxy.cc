@@ -111,7 +111,9 @@ cond::IOVElementProxy cond::IOVRange::back() const {
 }
 
 size_t cond::IOVRange::size() const {
-  return m_high-m_low+1;
+  size_t sz = 0;
+  if( m_high>=0 && m_low>=0 ) sz = m_high-m_low+1;
+  return sz;
 }
 
 cond::IOVProxy::IOVProxy() : 
