@@ -18,8 +18,8 @@
 ///
 ///  \author    : Andreas Mussgiller
 ///  date       : December 2010
-///  $Revision: 1.4 $
-///  $Date: 2012/04/18 09:47:32 $
+///  $Revision: 1.5 $
+///  $Date: 2012/04/26 17:28:55 $
 ///  (last update by $Author: innocent $)
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
@@ -66,7 +66,10 @@ public:
   virtual std::pair<float,float> pitch() const { return specificTopology().pitch(); }
   virtual int nrows() const { return specificTopology().nrows(); }
   virtual int ncolumns() const { return specificTopology().ncolumns(); }
-
+  virtual int rocsY() const { return specificTopology().rocsY(); } 	 
+  virtual int rocsX() const { return specificTopology().rocsX(); } 	 
+  virtual int rowsperroc() const { return specificTopology().rowsperroc(); } 	 
+  virtual int colsperroc() const { return specificTopology().colsperroc(); }
   virtual float localX( const float mpX ) const;
   virtual float localX( const float mpX, const Topology::LocalTrackPred &trkPred ) const;
   virtual float localY( const float mpY ) const;

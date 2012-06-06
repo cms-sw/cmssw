@@ -22,7 +22,9 @@ private:
   double thePixelROCCols;
   double thePixelROCsInX;
   double thePixelROCsInY;
-  
+  int m_BIG_PIX_PER_ROC_X;
+  int m_BIG_PIX_PER_ROC_Y;
+  bool m_upgradeGeometry;
 };
 
 #endif

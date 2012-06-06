@@ -47,44 +47,65 @@ std::pair<float,float> RectangularPixelTopology::pixel(
   //if(fractionY<0.) cout<<" fractiony "<<fractionY<<" "<<newybin<<endl;
   
   // Normalize it all to 1 ROC
-  int iybin0 = (iybin%54); // 0-53
-  int numROC = iybin/54;  // 0-7
+  int iybin0 = 0;
+  int numROC = 0;
+  float mpY = 0.;
   
-  if (iybin0>53) {
-    if(TP_DEBUG) {
-      cout<<" very bad, newbiny "<<iybin0<<endl;
-      cout<<py<<" "<<m_yoffset<<" "<<m_pitchy<<" "
-	  <<newybin<<" "<<iybin<<" "<<fractionY<<" "<<iybin0<<" "
-	  <<numROC<<endl;
-    }
-  } else if (iybin0==53) {   // inside big pixel
-    iybin0=51;
-    fractionY = (fractionY+1.)/2.;
-  } else if (iybin0==52) {   // inside big pixel
-    iybin0=51;
-    fractionY = fractionY/2.;
-  } else if (iybin0>1) {   // inside normal pixel
-    iybin0=iybin0-1;
-  } else if (iybin0==1) {   // inside big pixel
-    iybin0=0;
-    fractionY = (fractionY+1.)/2.;
-  } else if (iybin0==0) {   // inside big pixel
-    iybin0=0;
-    fractionY = fractionY/2.;
-  } else {
-    if(TP_DEBUG) {
-      cout<<" very bad, newbiny "<<newybin<<endl;
-      cout<<py<<" "<<m_yoffset<<" "<<m_pitchy<<" "
-	  <<newybin<<" "<<iybin<<" "<<fractionY<<" "
-	  <<iybin0<<" "<<numROC<<endl;
+  if( m_upgradeGeometry ) 
+  {
+    iybin0 = (iybin%m_COLS_PER_ROC); // 0-51
+    numROC = iybin/m_COLS_PER_ROC;  // 0-7
+    mpY = float(numROC*m_COLS_PER_ROC + iybin0) + fractionY;
+
+    if( iybin0 > m_COLS_PER_ROC )
+    {
+      LogDebug("RectangularPixelTopology") << " very bad, newbiny " << iybin0 << "\n"
+					   << py << " " << m_yoffset << " " << m_pitchy << " "
+					   << newybin << " " << iybin << " " << fractionY << " " << iybin0 << " "
+					   << numROC;
     }
   }
-  float mpY = float(numROC*52. + iybin0) + fractionY;
-  if(TP_DEBUG && (mpY<0. || mpY>=416.)) {
-    cout<<" bad pix y "<<mpY<<endl;
-    cout<<py<<" "<<m_yoffset<<" "<<m_pitchy<<" "
-	<<newybin<<" "<<iybin<<" "<<fractionY<<" "
-	<<iybin0<<" "<<numROC<<endl;
+  else
+  {
+    iybin0 = (iybin%54); // 0-53
+    numROC = iybin/54;  // 0-7
+
+    if( iybin0 > 53 )
+    {
+      LogDebug("RectangularPixelTopology") << " very bad, newbiny " << iybin0 << "\n"
+					   << py << " " << m_yoffset << " " << m_pitchy << " "
+					   << newybin << " " << iybin << " " << fractionY << " " << iybin0 << " "
+					   << numROC;
+    } else if (iybin0==53) {   // inside big pixel
+      iybin0=51;
+      fractionY = (fractionY+1.)/2.;
+    } else if (iybin0==52) {   // inside big pixel
+      iybin0=51;
+      fractionY = fractionY/2.;
+    } else if (iybin0>1) {   // inside normal pixel
+      iybin0=iybin0-1;
+    } else if (iybin0==1) {   // inside big pixel
+      iybin0=0;
+      fractionY = (fractionY+1.)/2.;
+    } else if (iybin0==0) {   // inside big pixel
+      iybin0=0;
+      fractionY = fractionY/2.;
+    } else {
+      LogDebug("RectangularPixelTopology") << " very bad, newbiny " << newybin << "\n"
+					   << py << " " << m_yoffset << " " << m_pitchy << " "
+					   << newybin << " " << iybin << " " << fractionY << " "
+					   << iybin0 << " " << numROC;
+    }
+    mpY = float(numROC*52. + iybin0) + fractionY;
+  }
+  
+  //  float mpY = float(numROC*52. + iybin0) + fractionY;
+  if( mpY<0. || mpY>=416.)
+  {
+    LogDebug("RectangularPixelTopology") << " bad pix y " << mpY << "\n"
+					 << py << " " << m_yoffset << " " << m_pitchy << " "
+					 << newybin << " " << iybin << " " << fractionY << " "
+					 << iybin0 << " " << numROC;
   }
   
   // In X
@@ -97,44 +118,61 @@ std::pair<float,float> RectangularPixelTopology::pixel(
   // 	  <<newxbin<<" "<<ixbin<<" "<<fractionX<<endl;
   // }
 
-  if (ixbin>161) {
-    if(TP_DEBUG) {
-      cout<<" very bad, newbinx "<<ixbin<<endl;
-      cout<<px<<" "<<m_xoffset<<" "<<m_pitchx<<" "
-	  <<newxbin<<" "<<ixbin<<" "<<fractionX<<endl;
+  if( m_upgradeGeometry ) 
+  {
+    if (ixbin>161) {
+      if(TP_DEBUG) {
+	cout<<" very bad, newbinx "<<ixbin<<endl;
+	cout<<px<<" "<<m_xoffset<<" "<<m_pitchx<<" "
+	    <<newxbin<<" "<<ixbin<<" "<<fractionX<<endl;
+      }
+    } 
+    else if (ixbin<0) {   // outside range
+      if(TP_DEBUG) {
+	cout<<" very bad, newbinx "<<ixbin<<endl;
+	cout<<px<<" "<<m_xoffset<<" "<<m_pitchx<<" "
+	    <<newxbin<<" "<<ixbin<<" "<<fractionX<<endl;
+      }
     }
-  } else if (ixbin>82) {   // inside normal pixel, ROC 1 
-    ixbin=ixbin-2;
-  } else if (ixbin==82) {   // inside bin pixel 
-    ixbin=80;
-    fractionX = (fractionX+1.)/2.;
-  } else if (ixbin==81) {   // inside big pixel
-    ixbin=80;
-    fractionX = fractionX/2.;
-  } else if (ixbin==80) {   // inside bin pixel, ROC 0 
-    ixbin=79;
-    fractionX = (fractionX+1.)/2.;
-  } else if (ixbin==79) {   // inside big pixel
-    ixbin=79;
-    fractionX = fractionX/2.;
-  } else if (ixbin<0) {   // outside range
-    if(TP_DEBUG) {
-      cout<<" very bad, newbinx "<<ixbin<<endl;
-      cout<<px<<" "<<m_xoffset<<" "<<m_pitchx<<" "
-	  <<newxbin<<" "<<ixbin<<" "<<fractionX<<endl;
+  }
+  else 
+  {
+    if( ixbin>161 ) {
+      LogDebug("RectangularPixelTopology") << " very bad, newbinx " << ixbin << "\n"
+					   << px << " " << m_xoffset << " " << m_pitchx << " "
+					   << newxbin << " " << ixbin << " " << fractionX << endl;
+    } else if (ixbin>82) {   // inside normal pixel, ROC 1 
+      ixbin=ixbin-2;
+    } else if (ixbin==82) {   // inside bin pixel 
+      ixbin=80;
+      fractionX = (fractionX+1.)/2.;
+    } else if (ixbin==81) {   // inside big pixel
+      ixbin=80;
+      fractionX = fractionX/2.;
+    } else if (ixbin==80) {   // inside bin pixel, ROC 0 
+      ixbin=79;
+      fractionX = (fractionX+1.)/2.;
+    } else if (ixbin==79) {   // inside big pixel
+      ixbin=79;
+      fractionX = fractionX/2.;
+    } else if (ixbin<0) {   // outside range
+      LogDebug("RectangularPixelTopology") << " very bad, newbinx " << ixbin << "\n"
+					   << px << " " << m_xoffset << " " << m_pitchx << " "
+					   << newxbin << " " << ixbin << " " << fractionX;
     }
   }
   
   float mpX = float(ixbin) + fractionX;
   
-  if(TP_DEBUG && (mpX<0. || mpX>=160.) ) {
-    cout<<" bad pix x "<<mpX<<" "<<endl;
-    cout<<px<<" "<<m_xoffset<<" "<<m_pitchx<<" "
-	<<newxbin<<" "<<ixbin<<" "<<fractionX<<endl;
+  if( mpX<0. || mpX>=160.) {
+    LogDebug("RectangularPixelTopology") << " bad pix x " << mpX << "\n"
+					 << px << " " << m_xoffset << " " << m_pitchx << " "
+					 << newxbin << " " << ixbin << " " << fractionX;
   }
   
   return std::pair<float,float>(mpX,mpY);
 }
+
 //----------------------------------------------------------------------
 // Topology interface, go from Masurement to Local corrdinates
 // pixel coordinates (mp) -> cm (LocalPoint)
@@ -335,24 +373,37 @@ float RectangularPixelTopology::localX(const float mpx) const {
   float fractionX = mpx - binoffx; // find the fraction 
   float local_pitchx = m_pitchx;      // defaultpitch
   //if(fractionX<0.) cout<<" fractionx m "<<fractionX<<" "<<mpx<<endl;
-  
-	if (binoffx>80) {            // ROC 1 - handles x on edge cluster
-    binoffx=binoffx+2;
-  } else if (binoffx==80) {    // ROC 1
-    binoffx=binoffx+1;
-    local_pitchx = 2 * m_pitchx;
+
+  if( m_upgradeGeometry ) 
+  {
+    if (binoffx>m_ROWS_PER_ROC*m_ROCS_X) {   // too large
+      if(TP_DEBUG) { 
+	cout<<" very bad, binx "<<binoffx<<endl;
+	cout<<mpx<<" "<<binoffx<<" "
+	    <<fractionX<<" "<<local_pitchx<<" "<<m_xoffset<<endl;
+      }
+    }
+  }
+  else 
+  { 
+    if (binoffx>80) {            // ROC 1 - handles x on edge cluster
+      binoffx=binoffx+2;
+    } else if (binoffx==80) {    // ROC 1
+      binoffx=binoffx+1;
+      local_pitchx = 2 * m_pitchx;
     
-  } else if (binoffx==79) {      // ROC 0
-    binoffx=binoffx+0;
-    local_pitchx = 2 * m_pitchx;    
-  } else if (binoffx>=0) {       // ROC 0
-    binoffx=binoffx+0;
+    } else if (binoffx==79) {      // ROC 0
+      binoffx=binoffx+0;
+      local_pitchx = 2 * m_pitchx;    
+    } else if (binoffx>=0) {       // ROC 0
+      binoffx=binoffx+0;
     
-  } else { // too small
-    if(TP_DEBUG) { 
-      cout<<" very bad, binx "<<binoffx<<endl;
-      cout<<mpx<<" "<<binoffx<<" "
-	  <<fractionX<<" "<<local_pitchx<<" "<<m_xoffset<<endl;
+    } else { // too small
+      if(TP_DEBUG) { 
+	cout<<" very bad, binx "<<binoffx<<endl;
+	cout<<mpx<<" "<<binoffx<<" "
+	    <<fractionX<<" "<<local_pitchx<<" "<<m_xoffset<<endl;
+      }
     }
   }
   
@@ -379,88 +430,100 @@ float RectangularPixelTopology::localY(const float mpy) const {
   float local_pitchy = m_pitchy;      // defaultpitch
   //if(fractionY<0.) cout<<" fractiony m "<<fractionY<<" "<<mpy<<endl;
 
-  if (binoffy>416) {            // ROC 8, not real ROC
-    binoffy=binoffy+17;
-  } else if (binoffy==416) {    // ROC 8
-    binoffy=binoffy+16;
-    local_pitchy = 2 * m_pitchy;
+  if( m_upgradeGeometry )
+  {
+    if (binoffy>m_ROCS_Y*m_COLS_PER_ROC) {   // too large
+      if(TP_DEBUG) { 
+	cout<<" very bad, biny "<<binoffy<<endl;
+	cout<<mpy<<" "<<binoffy<<" "<<fractionY<<" "<<local_pitchy<<" "<<m_yoffset<<endl;
+      }
+    }     
+  }
+  else 
+  {
+    if (binoffy>416) {            // ROC 8, not real ROC
+      binoffy=binoffy+17;
+    } else if (binoffy==416) {    // ROC 8
+      binoffy=binoffy+16;
+      local_pitchy = 2 * m_pitchy;
 		
-  } else if (binoffy==415) {    // ROC 7, last big pixel
-    binoffy=binoffy+15;
-    local_pitchy = 2 * m_pitchy;
-  } else if (binoffy>364) {     // ROC 7
-    binoffy=binoffy+15;
-  } else if (binoffy==364) {    // ROC 7
-    binoffy=binoffy+14;
-    local_pitchy = 2 * m_pitchy;
+    } else if (binoffy==415) {    // ROC 7, last big pixel
+      binoffy=binoffy+15;
+      local_pitchy = 2 * m_pitchy;
+    } else if (binoffy>364) {     // ROC 7
+      binoffy=binoffy+15;
+    } else if (binoffy==364) {    // ROC 7
+      binoffy=binoffy+14;
+      local_pitchy = 2 * m_pitchy;
     
-  } else if (binoffy==363) {      // ROC 6
-    binoffy=binoffy+13;
-    local_pitchy = 2 * m_pitchy;    
-  } else if (binoffy>312) {       // ROC 6
-    binoffy=binoffy+13;
-  } else if (binoffy==312) {      // ROC 6
-    binoffy=binoffy+12;
-    local_pitchy = 2 * m_pitchy;
+    } else if (binoffy==363) {      // ROC 6
+      binoffy=binoffy+13;
+      local_pitchy = 2 * m_pitchy;    
+    } else if (binoffy>312) {       // ROC 6
+      binoffy=binoffy+13;
+    } else if (binoffy==312) {      // ROC 6
+      binoffy=binoffy+12;
+      local_pitchy = 2 * m_pitchy;
     
-  } else if (binoffy==311) {      // ROC 5
-    binoffy=binoffy+11;
-    local_pitchy = 2 * m_pitchy;    
-  } else if (binoffy>260) {       // ROC 5
-    binoffy=binoffy+11;
-  } else if (binoffy==260) {      // ROC 5
-    binoffy=binoffy+10;
-    local_pitchy = 2 * m_pitchy;
+    } else if (binoffy==311) {      // ROC 5
+      binoffy=binoffy+11;
+      local_pitchy = 2 * m_pitchy;    
+    } else if (binoffy>260) {       // ROC 5
+      binoffy=binoffy+11;
+    } else if (binoffy==260) {      // ROC 5
+      binoffy=binoffy+10;
+      local_pitchy = 2 * m_pitchy;
     
-  } else if (binoffy==259) {      // ROC 4
-    binoffy=binoffy+9;
-    local_pitchy = 2 * m_pitchy;    
-  } else if (binoffy>208) {       // ROC 4
-    binoffy=binoffy+9;
-  } else if (binoffy==208) {      // ROC 4
-    binoffy=binoffy+8;
-    local_pitchy = 2 * m_pitchy;
+    } else if (binoffy==259) {      // ROC 4
+      binoffy=binoffy+9;
+      local_pitchy = 2 * m_pitchy;    
+    } else if (binoffy>208) {       // ROC 4
+      binoffy=binoffy+9;
+    } else if (binoffy==208) {      // ROC 4
+      binoffy=binoffy+8;
+      local_pitchy = 2 * m_pitchy;
     
-  } else if (binoffy==207) {      // ROC 3
-    binoffy=binoffy+7;
-    local_pitchy = 2 * m_pitchy;    
+    } else if (binoffy==207) {      // ROC 3
+      binoffy=binoffy+7;
+      local_pitchy = 2 * m_pitchy;    
     } else if (binoffy>156) {       // ROC 3
-    binoffy=binoffy+7;
-  } else if (binoffy==156) {      // ROC 3
-    binoffy=binoffy+6;
-    local_pitchy = 2 * m_pitchy;
+      binoffy=binoffy+7;
+    } else if (binoffy==156) {      // ROC 3
+      binoffy=binoffy+6;
+      local_pitchy = 2 * m_pitchy;
     
-  } else if (binoffy==155) {      // ROC 2
-    binoffy=binoffy+5;
-    local_pitchy = 2 * m_pitchy;    
-  } else if (binoffy>104) {       // ROC 2
-    binoffy=binoffy+5;
-  } else if (binoffy==104) {      // ROC 2
-    binoffy=binoffy+4;
-    local_pitchy = 2 * m_pitchy;
+    } else if (binoffy==155) {      // ROC 2
+      binoffy=binoffy+5;
+      local_pitchy = 2 * m_pitchy;    
+    } else if (binoffy>104) {       // ROC 2
+      binoffy=binoffy+5;
+    } else if (binoffy==104) {      // ROC 2
+      binoffy=binoffy+4;
+      local_pitchy = 2 * m_pitchy;
     
-  } else if (binoffy==103) {      // ROC 1
-    binoffy=binoffy+3;
-    local_pitchy = 2 * m_pitchy;    
-  } else if (binoffy>52) {       // ROC 1
-    binoffy=binoffy+3;
-  } else if (binoffy==52) {      // ROC 1
-    binoffy=binoffy+2;
-    local_pitchy = 2 * m_pitchy;
+    } else if (binoffy==103) {      // ROC 1
+      binoffy=binoffy+3;
+      local_pitchy = 2 * m_pitchy;    
+    } else if (binoffy>52) {       // ROC 1
+      binoffy=binoffy+3;
+    } else if (binoffy==52) {      // ROC 1
+      binoffy=binoffy+2;
+      local_pitchy = 2 * m_pitchy;
     
-  } else if (binoffy==51) {      // ROC 0
-    binoffy=binoffy+1;
-    local_pitchy = 2 * m_pitchy;    
-  } else if (binoffy>0) {        // ROC 0
-    binoffy=binoffy+1;
-  } else if (binoffy==0) {       // ROC 0
-    binoffy=binoffy+0;
-    local_pitchy = 2 * m_pitchy;
-  } else { // too small
-    if(TP_DEBUG) { 
-      cout<<" very bad, biny "<<binoffy<<endl;
-      cout<<mpy<<" "<<binoffy<<" "
-	  <<fractionY<<" "<<local_pitchy<<" "<<m_yoffset<<endl;
+    } else if (binoffy==51) {      // ROC 0
+      binoffy=binoffy+1;
+      local_pitchy = 2 * m_pitchy;    
+    } else if (binoffy>0) {        // ROC 0
+      binoffy=binoffy+1;
+    } else if (binoffy==0) {       // ROC 0
+      binoffy=binoffy+0;
+      local_pitchy = 2 * m_pitchy;
+    } else { // too small
+      if(TP_DEBUG) { 
+	cout<<" very bad, biny "<<binoffy<<endl;
+	cout<<mpy<<" "<<binoffy<<" "
+	    <<fractionY<<" "<<local_pitchy<<" "<<m_yoffset<<endl;
+      }
     }
   }
   
@@ -498,33 +561,44 @@ MeasurementError RectangularPixelTopology::measurementError(
 		 const LocalError& le) const {
 
   float pitchy=m_pitchy;
-  int iybin = int( (lp.y() - m_yoffset)/m_pitchy );   //get bin for equal picth 
-  int iybin0 = iybin%54;  //This is just to avoid many ifs by using the periodicy
-  //quasi bins 0,1,52,53 fall into larger pixels  
-  if(iybin0==0 || iybin0==1 || iybin0==52 || iybin0==53 )
-    pitchy = 2. * m_pitchy;
-
   float pitchx=m_pitchx;
-  int ixbin = int( (lp.x() - m_xoffset)/m_pitchx );   //get bin for equal pitch
-  //quasi bins 79,80,81,82 fall into the 2 larger pixels  
-  if(ixbin>=79 && ixbin<=82) pitchx = 2. * m_pitchx;  
 
+  if( !m_upgradeGeometry ) 
+  {    
+    int iybin = int( (lp.y() - m_yoffset)/m_pitchy );   //get bin for equal picth 
+    int iybin0 = iybin%54;  //This is just to avoid many ifs by using the periodicy
+    //quasi bins 0,1,52,53 fall into larger pixels  
+    if(iybin0==0 || iybin0==1 || iybin0==52 || iybin0==53 )
+      pitchy = 2. * m_pitchy;
+
+    int ixbin = int( (lp.x() - m_xoffset)/m_pitchx );   //get bin for equal pitch
+    //quasi bins 79,80,81,82 fall into the 2 larger pixels  
+    if(ixbin>=79 && ixbin<=82) pitchx = 2. * m_pitchx;  
+  }
+  
   return MeasurementError( le.xx()/float(pitchx*pitchx), 0,
 			   le.yy()/float(pitchy*pitchy));
 }
 
 bool RectangularPixelTopology::containsBigPixelInX(const int& ixmin, const int& ixmax) const {
   bool big = false;
-  for(int i=ixmin; i!=ixmax+1; i++) {
-    if(isItBigPixelInX(i) && big==false) big=true;
+  if( !m_upgradeGeometry ) 
+  {    
+    for(int i=ixmin; i!=ixmax+1; i++) {
+      if(isItBigPixelInX(i) && big==false) big=true;
+    }
   }
+  
   return big;
 }
 
 bool RectangularPixelTopology::containsBigPixelInY(const int& iymin, const int& iymax) const {
   bool big = false;
-  for(int i=iymin; i!=iymax+1; i++) {
-    if(isItBigPixelInY(i) && big==false) big=true;
+  if( !m_upgradeGeometry ) 
+  {    
+    for(int i=iymin; i!=iymax+1; i++) {
+      if(isItBigPixelInY(i) && big==false) big=true;
+    }
   }
   return big;
 }
