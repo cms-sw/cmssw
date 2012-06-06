@@ -28,6 +28,8 @@ class CastorSimpleReconstructor : public edm::EDProducer {
       int samplesToAdd_;
       bool tsFromDB_;
       CastorRecoParams* paramTS_;
+      bool setSaturationFlag_;
+      int maxADCvalue_;
 };
 
 #endif

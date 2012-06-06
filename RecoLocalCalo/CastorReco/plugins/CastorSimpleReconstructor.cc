@@ -28,7 +28,9 @@ CastorSimpleReconstructor::CastorSimpleReconstructor(edm::ParameterSet const& co
   inputLabel_(conf.getParameter<edm::InputTag>("digiLabel")),
   firstSample_(conf.getParameter<int>("firstSample")),
   samplesToAdd_(conf.getParameter<int>("samplesToAdd")),
-  tsFromDB_(conf.getUntrackedParameter<bool>("tsFromDB",true))
+  tsFromDB_(conf.getUntrackedParameter<bool>("tsFromDB",true)),
+  setSaturationFlag_(conf.getUntrackedParameter<bool>("setSaturationFlag",true)),
+  maxADCvalue_(conf.getUntrackedParameter<int>("maxADCvalue",127))
 {
   std::string subd=conf.getParameter<std::string>("Subdetector");
   if (!strcasecmp(subd.c_str(),"CASTOR")) {
@@ -106,7 +108,10 @@ void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& ev
       }          
       const CastorQIECoder* channelCoder = conditions->getCastorCoder (cell);
       CastorCoderDb coder (*channelCoder, *shape);
-      if (ok) rec->push_back(reco_.reconstruct(*i,coder,calibrations));
+      if (ok) {
+	rec->push_back(reco_.reconstruct(*i,coder,calibrations));
+	if (setSaturationFlag_) reco_.checkADCSaturation(rec->back(),*i,maxADCvalue_);
+      }
     }
     // return result
     e.put(rec);     
