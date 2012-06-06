@@ -4,6 +4,8 @@
 #include <vector>
 #include <sstream>
 
+static const char *kCrabJobIdEnv = "CRAB_UNIQUE_JOB_ID";
+
 XrdFile::XrdFile (void)
   : m_client (0),
     m_offset (0),
@@ -152,6 +154,16 @@ XrdFile::open (const char *name,
   }
   m_offset = 0;
   m_close = true;
+
+  // Send the monitoring info, if available.
+  // Note: getenv is not reentrant.
+  char * crabJobId = getenv(kCrabJobIdEnv);
+  if (crabJobId) {
+    kXR_unt32 dictId;
+    m_client->SendMonitoringInfo(crabJobId, &dictId);
+    edm::LogInfo("XrdFileInfo") << "Set monitoring ID to " << crabJobId << " with resulting dictId " << dictId << ".";
+  }
+
   edm::LogInfo("XrdFileInfo") << "Opened " << m_name;
 
   XrdClientConn *conn = m_client->GetClientConn();
