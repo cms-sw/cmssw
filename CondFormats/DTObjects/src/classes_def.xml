@@ -26,6 +26,7 @@
   <class name="DTTtrigId" id="B0103027-415C-DA11-8831-000E0C5CE283"/>
   <class name="DTTtrigData" id="1465F61D-E708-DB11-BDAF-000E0C5CE283"/>
   <class name="DTMtime" id="DE34E051-095D-DA11-86A8-000E0C5CE283">
+    <field name="dataList" mapping="blob"/>
     <field name="dBuf" transient="true"/>
   </class>
   <class name="std::pair<DTMtimeId,DTMtimeData>"/> 
