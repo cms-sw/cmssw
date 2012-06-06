@@ -27,7 +27,7 @@ bool  Asymptotic::qtilde_ = true;
 bool  Asymptotic::picky_ = false; 
 std::string Asymptotic::minosAlgo_ = "stepping"; 
 std::string Asymptotic::minimizerAlgo_ = "Minuit2";
-float       Asymptotic::minimizerTolerance_ = 0.1;
+float       Asymptotic::minimizerTolerance_ = 0.01;
 int         Asymptotic::minimizerStrategy_  = 0;
 double Asymptotic::rValue_ = 1.0;
 
@@ -53,8 +53,8 @@ void Asymptotic::applyOptions(const boost::program_options::variables_map &vm) {
         if (!vm["run"].defaulted()) throw std::invalid_argument("Asymptotic: when using --singlePoint you can't use --run (at least for now)");
         what_ = "singlePoint";
     } else {
-        if (what_ != "observed" && what_ != "expected" && what_ != "both") 
-            throw std::invalid_argument("Asymptotic: option 'run' can only be 'observed', 'expected' or 'both' (the default)");
+        if (what_ != "observed" && what_ != "expected" && what_ != "both" && what_ != "blind") 
+            throw std::invalid_argument("Asymptotic: option 'run' can only be 'observed', 'expected' or 'both' (the default) or 'blind' (a-priori expected)");
     }
     picky_ = vm.count("picky");
 }
@@ -71,8 +71,8 @@ bool Asymptotic::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mod
     
     bool ret = false; 
     std::vector<std::pair<float,float> > expected;
-    if (what_ == "both" || what_ == "expected") expected = runLimitExpected(w, mc_s, mc_b, data, limit, limitErr, hint);
-    if (what_ != "expected") ret = runLimit(w, mc_s, mc_b, data, limit, limitErr, hint);
+    if (what_ == "both" || what_ == "expected" || what_ == "blind") expected = runLimitExpected(w, mc_s, mc_b, data, limit, limitErr, hint);
+    if (what_ != "expected" && what_ != "blind") ret = runLimit(w, mc_s, mc_b, data, limit, limitErr, hint);
 
     if (verbose >= 0) {
         const char *rname = mc_s->GetParametersOfInterest()->first()->GetName();
@@ -407,7 +407,8 @@ RooAbsData * Asymptotic::asimovDataset(RooWorkspace *w, RooStats::ModelConfig *m
         gobs.snapshot(snapGlobalObsData);
     }
     // get asimov dataset and global observables
-    RooAbsData *asimovData = asimovutils::asimovDatasetWithFit(mc_s, data, snapGlobalObsAsimov, 0.0, verbose);
+    RooAbsData *asimovData = (what_ == "blind" ? asimovutils::asimovDatasetNominal(mc_s, 0.0, verbose) :
+                                                 asimovutils::asimovDatasetWithFit(mc_s, data, snapGlobalObsAsimov, 0.0, verbose));
     asimovData->SetName("_Asymptotic_asimovDataset_");
     w->import(*asimovData); // I'm assuming the Workspace takes ownership. Might be false.
     return w->data("_Asymptotic_asimovDataset_");
