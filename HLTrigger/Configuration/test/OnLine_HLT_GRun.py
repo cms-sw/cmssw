@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/GRun/V145 (CMSSW_5_2_5_HLT6)
+# /dev/CMSSW_5_2_1/GRun/V146 (CMSSW_5_2_5_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V145')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V146')
 )
 
 process.streams = cms.PSet( 
@@ -1721,7 +1721,9 @@ process.TrackerDigiGeometryESModule = cms.ESProducer( "TrackerDigiGeometryESModu
   alignmentsLabel = cms.string( "" )
 )
 process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
-  fromDDD = cms.bool( False )
+  fromDDD = cms.bool( False ),
+  layerNumberPXB = cms.uint32( 16 ),
+  totalBlade = cms.uint32( 24 )
 )
 process.TransientTrackBuilderESProducer = cms.ESProducer( "TransientTrackBuilderESProducer",
   ComponentName = cms.string( "TransientTrackBuilder" )
