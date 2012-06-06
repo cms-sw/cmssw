@@ -78,6 +78,7 @@ void utils::printPdf(RooWorkspace *w, const char *pdfName) {
 }
 
 RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgList &constraints) {
+    assert(&pdf);
     const std::type_info & id = typeid(pdf);
     if (id == typeid(RooProdPdf)) {
         //std::cout << " pdf is product pdf " << pdf.GetName() << std::endl;
@@ -149,6 +150,7 @@ void utils::factorizePdf(RooStats::ModelConfig &model, RooAbsPdf &pdf, RooArgLis
     return factorizePdf(*model.GetObservables(), pdf, obsTerms, constraints, debug);
 }
 void utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgList &obsTerms, RooArgList &constraints, bool debug) {
+    assert(&pdf);
     const std::type_info & id = typeid(pdf);
     if (id == typeid(RooProdPdf)) {
         RooProdPdf *prod = dynamic_cast<RooProdPdf *>(&pdf);
@@ -162,7 +164,8 @@ void utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgLis
         RooAbsCategoryLValue *cat = (RooAbsCategoryLValue *) sim->indexCat().Clone();
         for (int ic = 0, nc = cat->numBins((const char *)0); ic < nc; ++ic) {
             cat->setBin(ic);
-            factorizePdf(observables, *sim->getPdf(cat->getLabel()), obsTerms, constraints);
+            RooAbsPdf *pdfi = sim->getPdf(cat->getLabel());
+            if (pdfi != 0) factorizePdf(observables, *pdfi, obsTerms, constraints);
         }
         delete cat;
     } else if (pdf.dependsOn(observables)) {
@@ -199,6 +202,7 @@ RooAbsPdf *utils::makeNuisancePdf(RooStats::ModelConfig &model, const char *name
 }
 
 RooAbsPdf *utils::makeNuisancePdf(RooAbsPdf &pdf, const RooArgSet &observables, const char *name) { 
+    assert(&pdf);
     RooArgList obsTerms, constraints;
     factorizePdf(observables, pdf, obsTerms, constraints);
     if (constraints.getSize() == 0) return 0;
