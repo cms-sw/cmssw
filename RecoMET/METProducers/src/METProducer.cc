@@ -5,7 +5,7 @@
 // 
 // Original Author:  Rick Cavanaugh
 //         Created:  April 4, 2006
-// $Id$
+// $Id: METProducer.cc,v 1.47 2012/06/06 18:41:37 sakuma Exp $
 //
 //
 
@@ -18,27 +18,41 @@
 // Modified:     12.12.2008  by R. Remington, UFL
 // Description:  include TCMET , move alg_.run() inside of relevant if-statements, and add METSignficance algorithm to METtype="CaloMET" cases
 
-#include <memory>
+//____________________________________________________________________________||
 #include "RecoMET/METProducers/interface/METProducer.h"
-#include "RecoMET/METAlgorithms/interface/SignCaloSpecificAlgo.h"
-#include "RecoMET/METAlgorithms/interface/SignAlgoResolutions.h"
-#include "RecoMET/METAlgorithms/interface/CaloSpecificAlgo.h"
-#include "RecoMET/METAlgorithms/interface/GenSpecificAlgo.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/METReco/interface/METFwd.h"
+#include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/GenMETFwd.h"
+#include "DataFormats/METReco/interface/PFMETFwd.h"
+#include "DataFormats/METReco/interface/PFClusterMETFwd.h"
+#include "DataFormats/METReco/interface/CommonMETData.h"
+
 #include "RecoMET/METAlgorithms/interface/TCMETAlgo.h"
+#include "RecoMET/METAlgorithms/interface/SignAlgoResolutions.h"
 #include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
 #include "RecoMET/METAlgorithms/interface/PFClusterSpecificAlgo.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/METReco/interface/CommonMETData.h"
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "DataFormats/Candidate/interface/Particle.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/Common/interface/View.h"
+#include "RecoMET/METAlgorithms/interface/GenSpecificAlgo.h"
+#include "RecoMET/METAlgorithms/interface/CaloSpecificAlgo.h"
+#include "RecoMET/METAlgorithms/interface/SignCaloSpecificAlgo.h"
 
-using namespace edm;
-using namespace std;
-using namespace reco;
+#include <memory>
+
+//____________________________________________________________________________||
+
+// using namespace edm;
+// using namespace std;
+// using namespace reco;
 
 namespace cms 
 {
@@ -55,18 +69,18 @@ namespace cms
     if( METtype == "CaloMET" ) 
       {
 	noHF = iConfig.getParameter<bool>("noHF");
-	produces<CaloMETCollection>().setBranchAlias(alias.c_str()); 
+	produces<reco::CaloMETCollection>().setBranchAlias(alias.c_str()); 
 	calculateSignificance_ = iConfig.getParameter<bool>("calculateSignificance");
       }
     else if( METtype == "GenMET" )  
       {
 	onlyFiducial = iConfig.getParameter<bool>("onlyFiducialParticles");
-        usePt      = iConfig.getUntrackedParameter<bool>("usePt",false);
-	produces<GenMETCollection>().setBranchAlias(alias.c_str());
+        usePt = iConfig.getUntrackedParameter<bool>("usePt", false);
+	produces<reco::GenMETCollection>().setBranchAlias(alias.c_str());
       }
     else if( METtype == "PFMET" )
       {
-	produces<PFMETCollection>().setBranchAlias(alias.c_str()); 
+	produces<reco::PFMETCollection>().setBranchAlias(alias.c_str()); 
 
 	calculateSignificance_ = iConfig.getParameter<bool>("calculateSignificance");
 
@@ -77,11 +91,11 @@ namespace cms
       }
     else if( METtype == "PFClusterMET" )
       {
-	produces<PFClusterMETCollection>().setBranchAlias(alias.c_str()); 
+	produces<reco::PFClusterMETCollection>().setBranchAlias(alias.c_str()); 
       }
     else if (METtype == "TCMET" )
       {
-	produces<METCollection>().setBranchAlias(alias.c_str());
+	produces<reco::METCollection>().setBranchAlias(alias.c_str());
 
 	int rfType_               = iConfig.getParameter<int>("rf_type");
 	bool correctShowerTracks_ = iConfig.getParameter<bool>("correctShowerTracks"); 
@@ -104,7 +118,7 @@ namespace cms
 	tcmetalgorithm->configure(iConfig, myResponseFunctionType );
       }
     else                            
-      produces<METCollection>().setBranchAlias(alias.c_str()); 
+      produces<reco::METCollection>().setBranchAlias(alias.c_str()); 
 
     if (calculateSignificance_ && ( METtype == "CaloMET" || METtype == "PFMET")){
 	resolutions_ = new metsig::SignAlgoResolutions(iConfig);
@@ -115,15 +129,15 @@ namespace cms
   METProducer::METProducer() : alg_() 
   {
     tcmetalgorithm = 0; // why does this constructor exist?
-    produces<METCollection>(); 
+    produces<reco::METCollection>(); 
   }
 
   METProducer::~METProducer() { delete tcmetalgorithm; }
 
-  void METProducer::produce(Event& event, const EventSetup& setup) 
+  void METProducer::produce(edm::Event& event, const edm::EventSetup& setup) 
   {
 
-    edm::Handle<edm::View<Candidate> > input;
+    edm::Handle<edm::View<reco::Candidate> > input;
     event.getByLabel(inputLabel,input);
 
     CommonMETData output;
@@ -135,7 +149,7 @@ namespace cms
 
       // Run CaloSpecific Algorithm
       CaloSpecificAlgo calospecalgo;
-      CaloMET calomet = calospecalgo.addInfo(input,output,noHF, globalThreshold);
+      reco::CaloMET calomet = calospecalgo.addInfo(input,output,noHF, globalThreshold);
 
       //Run algorithm to calculate CaloMET Significance and add to the MET Object
       if( calculateSignificance_ ) 
@@ -148,8 +162,8 @@ namespace cms
 	  calomet.setSignificanceMatrix(signcalospecalgo.getSignificanceMatrix());
 	}
       //Store CaloMET object in CaloMET collection 
-      std::auto_ptr<CaloMETCollection> calometcoll;
-      calometcoll.reset(new CaloMETCollection);
+      std::auto_ptr<reco::CaloMETCollection> calometcoll;
+      calometcoll.reset(new reco::CaloMETCollection);
       calometcoll->push_back( calomet ) ;
       event.put( calometcoll );  
       
@@ -157,8 +171,8 @@ namespace cms
     //-----------------------------------
     else if( METtype == "TCMET" )
       {
-	std::auto_ptr<METCollection> tcmetcoll;
-	tcmetcoll.reset(new METCollection);
+	std::auto_ptr<reco::METCollection> tcmetcoll;
+	tcmetcoll.reset(new reco::METCollection);
 	tcmetcoll->push_back( tcmetalgorithm->CalculateTCMET(event, setup ) ) ;
 	event.put( tcmetcoll );
       }
@@ -167,8 +181,8 @@ namespace cms
       {
 	alg_.run(input, &output, globalThreshold);
 	PFSpecificAlgo pf;
-	std::auto_ptr<PFMETCollection> pfmetcoll;
-	pfmetcoll.reset (new PFMETCollection);
+	std::auto_ptr<reco::PFMETCollection> pfmetcoll;
+	pfmetcoll.reset (new reco::PFMETCollection);
 	
 	// add resolutions and calculate significance
 	if( calculateSignificance_ )
@@ -186,8 +200,8 @@ namespace cms
       {
 	alg_.run(input, &output, globalThreshold);
 	PFClusterSpecificAlgo pfcluster;
-	std::auto_ptr<PFClusterMETCollection> pfclustermetcoll;
-	pfclustermetcoll.reset (new PFClusterMETCollection);
+	std::auto_ptr<reco::PFClusterMETCollection> pfclustermetcoll;
+	pfclustermetcoll.reset (new reco::PFClusterMETCollection);
 	
 	pfclustermetcoll->push_back( pfcluster.addInfo(input, output) );
 	event.put( pfclustermetcoll );
@@ -196,19 +210,20 @@ namespace cms
     else if( METtype == "GenMET" ) 
     {
       GenSpecificAlgo gen;
-      std::auto_ptr<GenMETCollection> genmetcoll;
-      genmetcoll.reset (new GenMETCollection);
+      std::auto_ptr<reco::GenMETCollection> genmetcoll;
+      genmetcoll.reset (new reco::GenMETCollection);
       genmetcoll->push_back( gen.addInfo(input, &output, globalThreshold, onlyFiducial, usePt) );
       event.put( genmetcoll );
     }
     else
       {
       alg_.run(input, &output, globalThreshold); 
-      LorentzVector p4( output.mex, output.mey, 0.0, output.met);
-      Point vtx(0,0,0);
-      MET met( output.sumet, p4, vtx );
-      std::auto_ptr<METCollection> metcoll;
-      metcoll.reset(new METCollection);
+
+      math::XYZTLorentzVector p4( output.mex, output.mey, 0.0, output.met);
+      math::XYZPoint vtx(0,0,0);
+      reco::MET met( output.sumet, p4, vtx );
+      std::auto_ptr<reco::METCollection> metcoll;
+      metcoll.reset(new reco::METCollection);
       metcoll->push_back( met );
       event.put( metcoll );
     }
