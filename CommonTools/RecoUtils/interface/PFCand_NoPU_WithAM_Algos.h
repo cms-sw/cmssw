@@ -14,7 +14,7 @@
 //
 // Original Author:  Matthias Geisler,32 4-B20,+41227676487,
 //         Created:  Thu Dec  1 16:07:41 CET 2011
-// $Id: PFCand_NoPU_WithAM_Algos.h,v 1.1 2012/04/17 11:54:46 mgeisler Exp $
+// $Id: PFCand_NoPU_WithAM_Algos.h,v 1.2 2012/04/18 15:10:18 mgeisler Exp $
 //
 //
 
@@ -51,11 +51,20 @@ using namespace reco;
   typedef AssociationMap<OneToManyWithQuality< VertexCollection, TrackCollection, float> > TrackVertexAssMap;
   typedef AssociationMap<OneToManyWithQuality< VertexCollection, PFCandidateCollection, float> > PFCandVertexAssMap;
 
+  typedef pair<PFCandidateRef, float> PFCandQualityPair;
+  typedef pair<VertexRef, PFCandQualityPair> VertexPfcQuality;
+
 class PFCand_NoPU_WithAM_Algos{
  public:
+  
+   //function to find the vertex with the highest TrackWeight for a certain track
+   static VertexPfcQuality TrackWeightAssociation(const PFCandidateRef, Handle<VertexCollection>); 
 
    //function to find the closest vertex in z for a certain point
    static VertexRef FindClosestInZ(double, Handle<VertexCollection>);
+
+   //function to associate the track to the closest vertex in z
+   static VertexPfcQuality AssociateClosestInZ(const PFCandidateRef, Handle<VertexCollection>);
 
    //function to compare two pfcandidates
    static bool Match(const PFCandidateRef, const RecoCandidate*);
@@ -73,7 +82,10 @@ class PFCand_NoPU_WithAM_Algos{
    //function to find out if the track comes from a nuclear interaction
    static bool ComesFromNI(const PFCandidateRef, Handle<PFDisplacedVertexCollection>, PFDisplacedVertex*, const edm::EventSetup&);
    
-   static VertexRef FindNIVertex(const PFCandidateRef, PFDisplacedVertex, Handle<VertexCollection>, bool, const edm::EventSetup&);  
+   static VertexRef FindNIVertex(const PFCandidateRef, PFDisplacedVertex, Handle<VertexCollection>); 
+   
+   //function to check if a secondary is compatible with the BeamSpot
+   static bool CheckBeamSpotCompability(const PFCandidateRef, Handle<BeamSpot>); 
 
    //function to sort the vertices in the AssociationMap by the sum of (pT - pT_Error)**2
    static auto_ptr<PFCandVertexAssMap> SortAssociationMap(PFCandVertexAssMap*);
