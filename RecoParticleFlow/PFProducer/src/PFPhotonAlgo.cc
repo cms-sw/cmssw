@@ -763,8 +763,12 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     math::XYZVector photonPosition(photonX_,
 				   photonY_,
 				   photonZ_);
-
-    math::XYZVector photonDirection=photonPosition.Unit();
+      math::XYZVector photonPositionwrtVtx(
+					   photonX_- primaryVertex_.x(),
+					   photonY_-primaryVertex_.y(),
+					   photonZ_-primaryVertex_.z()
+					   );
+    math::XYZVector photonDirection=photonPositionwrtVtx.Unit();
     
     math::XYZTLorentzVector photonMomentum(photonEnergy_* photonDirection.X(),
 					   photonEnergy_* photonDirection.Y(),

@@ -71,7 +71,7 @@ PFAlgo::~PFAlgo() {
 }
 
 
-void 
+void
 PFAlgo::setParameters(double nSigmaECAL,
                       double nSigmaHCAL, 
                       const boost::shared_ptr<PFEnergyCalibration>& calibration,
@@ -297,8 +297,17 @@ PFAlgo::setPFVertexParameters(bool useVertex,
     }
   //Use vertices if the user wants to but only if it exists a good vertex 
   useVertices_ = useVertex && primaryVertexFound; 
-  if(usePFPhotons_){
+  if(usePFPhotons_&& useVertices_ ){
     pfpho_->setPhotonPrimaryVtx(primaryVertex_ );
+  }
+  else{
+    reco::Vertex::Error e;  
+    e(0, 0) = 0.0015 * 0.0015;  
+    e(1, 1) = 0.0015 * 0.0015;  
+    e(2, 2) = 15. * 15.;  
+    reco::Vertex::Point p(0, 0, 0);  
+    reco::Vertex dummy = reco::Vertex(p, e, 0, 0, 0); 
+    pfpho_->setPhotonPrimaryVtx(dummy);
   }
 }
 
