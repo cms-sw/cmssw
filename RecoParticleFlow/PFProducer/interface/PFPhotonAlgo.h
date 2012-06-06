@@ -75,6 +75,9 @@ class PFPhotonAlgo {
   void setnPU(int nVtx){
     nVtx_=nVtx;
   }
+  void setPhotonPrimaryVtx(const reco::Vertex primary){
+    primaryVertex_=primary;
+  }
   //check candidate validity
   bool isPhotonValidCandidate(const reco::PFBlockRef&  blockRef,
 			      std::vector< bool >&  active,

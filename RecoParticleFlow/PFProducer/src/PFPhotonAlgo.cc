@@ -62,7 +62,7 @@ PFPhotonAlgo::PFPhotonAlgo(std::string mvaweightfile,
   x0inner_(0.0), x0middle_(0.0), x0outer_(0.0),
   excluded_(0.0), Mustache_EtRatio_(0.0), Mustache_Et_out_(0.0)
 {  
-    primaryVertex_=primary;  
+  //primaryVertex_=primary;  
     //Book MVA  
     tmvaReader_ = new TMVA::Reader("!Color:Silent");  
     tmvaReader_->AddVariable("del_phi",&del_phi);  
