@@ -17,8 +17,8 @@
 #include "DataFormats/FP420Cluster/interface/RecoCollectionFP420.h"
 #include "RecoRomanPot/RecoFP420/interface/RecoProducerFP420.h"
 
-#include "CLHEP/Vector/LorentzVector.h"
-#include "CLHEP/Random/RandFlat.h"
+// #include "CLHEP/Vector/LorentzVector.h"
+// #include "CLHEP/Random/RandFlat.h"
 #include <math.h>
 
 using namespace std;
@@ -26,47 +26,30 @@ using namespace std;
 
 FP420RecoMain::FP420RecoMain(const edm::ParameterSet& conf):conf_(conf)  { 
   
-  verbosity    = conf_.getUntrackedParameter<int>("VerbosityLevel");
-  
-  m_rpp420_f     = conf_.getParameter<double>("RP420f");//mm - distance of transport in clockwise dir. for FP420
-  m_rpp420_b     = conf_.getParameter<double>("RP420b");//mm - distance of transport in anti-clockwise dir. for FP420
-  m_zreffFP420   = conf_.getParameter<double>("zreffFP420");//mm - arm for FP420 clockwise detectors
-  m_zrefbFP420   = conf_.getParameter<double>("zrefbFP420");//mm - arm for FP420 anti-clockwise detectors
-  dn0            = conf_.getParameter<int>("NumberFP420Detectors");
-  VtxFlagFP420   = conf.getParameter<int>("VtxFlagGenRecFP420");
-  VtxFP420X      = conf.getParameter<double>("VtxFP420X");
-  VtxFP420Y      = conf.getParameter<double>("VtxFP420Y");
-  VtxFP420Z      = conf.getParameter<double>("VtxFP420Z");
-  
-  m_rpp240_f     = conf_.getParameter<double>("RP240f");//mm - distance of transport in clockwise dir. for HPS240
-  m_rpp240_b     = conf_.getParameter<double>("RP240b");//mm - distance of transport in anti-clockwise dir. for HPS240
-  m_zreffHPS240  = conf_.getParameter<double>("zreffHPS240");//mm - arm for HPS240 clockwise detectors
-  m_zrefbHPS240  = conf_.getParameter<double>("zrefbHPS240");//mm - arm for HPS240 anti-clockwise detectors
-  dh0            = conf_.getParameter<int>("NumberHPS240Detectors");
-  VtxFlagHPS240  = conf.getParameter<int>("VtxFlagGenRecHPS240");
-  VtxHPS240X     = conf.getParameter<double>("VtxHPS240X");
-  VtxHPS240Y     = conf.getParameter<double>("VtxHPS240Y");
-  VtxHPS240Z     = conf.getParameter<double>("VtxHPS240Z");
+  verbosity   = conf_.getUntrackedParameter<int>("VerbosityLevel");
+  m_rpp420_f     = conf_.getParameter<double>("RP420f");//mm
+  m_rpp420_b     = conf_.getParameter<double>("RP420b");//mm
+  m_zreff          = conf_.getParameter<double>("zreff");//mm
+  m_zrefb          = conf_.getParameter<double>("zrefb");//mm
+  dn0                = conf_.getParameter<int>("NumberFP420Detectors");
   
   if (verbosity > 0) {
     std::cout << "FP420RecoMain constructor::" << std::endl;
     std::cout << "m_rpp420_f=" << m_rpp420_f << " m_rpp420_b=" << m_rpp420_b << std::endl;
-    std::cout << "m_zreffFP420 = " << m_zreffFP420 << " m_zrefbFP420 = " <<  m_zrefbFP420 << std::endl;
-    std::cout << "m_rpp240_f=" << m_rpp240_f << " m_rpp240_b=" << m_rpp240_b << std::endl;
-    std::cout << "m_zreffHPS240 = " << m_zreffHPS240 << " m_zrefbHPS240 = " <<  m_zrefbHPS240 << std::endl;
+    std::cout << "m_zreff=" << m_zreff << " m_zrefb=" <<  m_zrefb<< std::endl;
   }
-  
+    
   double eee1=11.;
   double eee2=12.;
-  //  zinibeg_ = (eee1-eee2)/2.;
+//  zinibeg_ = (eee1-eee2)/2.;
   zinibeg_ = 0.;
-  //
-  if (verbosity > 1) {
-    std::cout << "FP420RecoMain constructor::" << std::endl;
-    std::cout << " eee1=" << eee1 << " eee2=" << eee2 << " zinibeg =" << zinibeg_ << std::endl;
-  }
+//
+    if (verbosity > 1) {
+      std::cout << "FP420RecoMain constructor::" << std::endl;
+      std::cout << " eee1=" << eee1 << " eee2=" << eee2 << " zinibeg =" << zinibeg_ << std::endl;
+    }
   ///////////////////////////////////////////////////////////////////
-  finderParameters_ = new RecoProducerFP420(conf_);
+      finderParameters_ = new RecoProducerFP420(conf_);
 }
 
 FP420RecoMain::~FP420RecoMain() {
@@ -77,24 +60,20 @@ FP420RecoMain::~FP420RecoMain() {
 
 
 
-void FP420RecoMain::run(edm::Handle<TrackCollectionFP420> &input, std::auto_ptr<RecoCollectionFP420> &toutput)  
+void FP420RecoMain::run(edm::Handle<TrackCollectionFP420> &input, std::auto_ptr<RecoCollectionFP420> &toutput, double VtxX, double VtxY, double VtxZ)  
 {
   // initialization
   bool first = true;
   //  finderParameters_->clear();
   // finderParameters_->setIP( 0., 0., 0. );
-  
   std::vector<TrackFP420> rhits;
   int restracks = 10;// max # tracks
   rhits.reserve(restracks); 
   rhits.clear();
   
   // loop over detunits:
-  int det_start = 1, det_finish = 5;
-  if(dn0 < 1) det_start = 3;
-  if(dh0 < 1) det_finish = 3;
-  for (int det=det_start; det<det_finish; det++) {
-    unsigned int StID = det;
+  for (int number_detunits=1; number_detunits<dn0; number_detunits++) {
+    unsigned int StID = number_detunits;
     std::vector<RecoFP420> rcollector;
     int restracks = 10;// max # tracks
     rcollector.reserve(restracks); 
@@ -104,54 +83,24 @@ void FP420RecoMain::run(edm::Handle<TrackCollectionFP420> &input, std::auto_ptr<
     std::vector<TrackFP420> collector;
     collector.clear();
     TrackCollectionFP420::Range outputRange;
-    
-    unsigned int StIDTrack = 0;
-    double  zfin    = 0.;
-    double  zref1   = 0.;
-    double  zinibeg = 0.;
-    
-    double  VtxXcur = 0.;
-    double  VtxYcur = 0.;
-    double  VtxZcur = 0.;
-    
-    if(StID == 1  ||  StID == 2 )  {
-      if(VtxFlagFP420 == 1) {
-	VtxXcur = VtxFP420X;// mm
-	VtxYcur = VtxFP420Y;// mm
-	VtxZcur = VtxFP420Z;// mm
-      }
-      StIDTrack = 1111;
-      zfin    = m_rpp420_f;
-      zref1   = m_zreffFP420;
-      zinibeg = zinibeg_;
-      if(StID==2)  {
-	StIDTrack = 2222;
-	zfin    = -m_rpp420_b;
-	zref1   = -m_zrefbFP420;
-	zinibeg = -zinibeg_;
-      }
+    unsigned int StIDTrack = 1111;
+    double  z420    = m_rpp420_f;
+    double  zref1   = m_zreff;
+    double  zinibeg = zinibeg_;
+    double  VtxXcur = VtxX;
+    double  VtxYcur = VtxY;
+    double  VtxZcur = VtxZ;
+    if(StID==2)  {
+      StIDTrack = 2222;
+      z420    = -m_rpp420_b;
+      zref1   = -m_zrefb;
+      zinibeg = -zinibeg_;
+      //  VtxXcur = -VtxX;
+      // VtxYcur = -VtxY;
+      // VtxZcur = -VtxZ;
     }
-    
-    if(StID == 3  ||  StID == 4 )  {
-      if(VtxFlagHPS240 == 1) {
-	VtxXcur = VtxHPS240X;// mm
-	VtxYcur = VtxHPS240Y;// mm
-	VtxZcur = VtxHPS240Z;// mm
-      }
-      StIDTrack = 3333;
-      zfin    = m_rpp240_f;
-      zref1   = m_zreffHPS240;
-      zinibeg = zinibeg_;
-      if(StID==4)  {
-	StIDTrack = 4444;
-	zfin    = -m_rpp240_b;
-	zref1   = -m_zrefbHPS240;
-	zinibeg = -zinibeg_;
-      }
-    }
-    
-    double z1 = zfin+zinibeg-VtxZcur;
-    double z2 = zfin+zinibeg+zref1-VtxZcur;
+    double z1 = z420+zinibeg-VtxZcur;
+    double z2 = z420+zinibeg+zref1-VtxZcur;
     if (verbosity > 1) {
       std::cout << "FP420RecoMain: StIDTrack=" << StIDTrack << std::endl;
     }
@@ -177,33 +126,33 @@ void FP420RecoMain::run(edm::Handle<TrackCollectionFP420> &input, std::auto_ptr<
       double x2 = (    itrack.bx()*z2 + (itrack.ax()-VtxXcur)    )*1000.;//um
       double y2 = (    itrack.by()*z2 + (itrack.ay()-VtxYcur)    )*1000.;//um
       /////////////////////////////////////////////////////////////////
-      if (verbosity == -49) {
-	std::cout << "==================================================================== " << std::endl;
-	std::cout << "FP420RecoMain: StID= " << StID << std::endl;
-	std::cout << "input coord. in mm:  z1= " <<  z1  << std::endl;
-	std::cout << "input coord. in mm:  z2= " <<  z2  << std::endl;
-	std::cout << "input:  itrack.bx()= " <<  itrack.bx()  << std::endl;
-	std::cout << "input:  itrack.ax()= " <<  itrack.ax()  << std::endl;
-	std::cout << "input:  itrack.by()= " <<  itrack.by()  << std::endl;
-	std::cout << "input:  itrack.ay()= " <<  itrack.ay()  << std::endl;
-	
-	std::cout << "input: in um X1noVtx= " <<  (itrack.bx()*(zfin+zinibeg)+itrack.ax())*1000.  << std::endl;
-	std::cout << "input: in um Y1noVtx= " <<  (itrack.by()*(zfin+zinibeg)+itrack.ay())*1000.  << std::endl;
-	std::cout << "input: in um X2noVtx= " <<  (itrack.bx()*(zfin+zinibeg+zref1)+itrack.ax())*1000.  << std::endl;
-	std::cout << "input: in um Y2noVtx= " <<  (itrack.by()*(zfin+zinibeg+zref1)+itrack.ay())*1000.  << std::endl;
-	
-	
-	std::cout << "input:  in mm VtxXcur= " << VtxXcur   << std::endl;
-	std::cout << "input:  in mm VtxYcur= " << VtxYcur   << std::endl;
-	std::cout << "input:  in mm VtxZcur= " << VtxZcur   << std::endl;
-	std::cout << "input coord. in um:  x1= " <<  x1  << std::endl;
-	std::cout << "input coord. in um:  y1= " <<  y1  << std::endl;
-	std::cout << "input coord. in um:  x2= " <<  x2  << std::endl;
-	std::cout << "input coord. in um:  y2= " <<  y2  << std::endl;
-      }
-      double zz1=fabs(z1);
-      double zz2=fabs(z2);
-      rcollector = finderParameters_->reconstruct(StID, x1,y1,x2,y2,zz1,zz2); // x1,y1,x2,y2 input coord. in um; z1, z2 in mm
+	if (verbosity == -49) {
+	  std::cout << "==================================================================== " << std::endl;
+	  std::cout << "FP420RecoMain: StID= " << StID << std::endl;
+	  std::cout << "input coord. in mm:  z1= " <<  z1  << std::endl;
+	  std::cout << "input coord. in mm:  z2= " <<  z2  << std::endl;
+	  std::cout << "input:  itrack.bx()= " <<  itrack.bx()  << std::endl;
+	  std::cout << "input:  itrack.ax()= " <<  itrack.ax()  << std::endl;
+	  std::cout << "input:  itrack.by()= " <<  itrack.by()  << std::endl;
+	  std::cout << "input:  itrack.ay()= " <<  itrack.ay()  << std::endl;
+
+	  std::cout << "input: in um X1noVtx= " <<  (itrack.bx()*(z420+zinibeg)+itrack.ax())*1000.  << std::endl;
+	  std::cout << "input: in um Y1noVtx= " <<  (itrack.by()*(z420+zinibeg)+itrack.ay())*1000.  << std::endl;
+	  std::cout << "input: in um X2noVtx= " <<  (itrack.bx()*(z420+zinibeg+zref1)+itrack.ax())*1000.  << std::endl;
+	  std::cout << "input: in um Y2noVtx= " <<  (itrack.by()*(z420+zinibeg+zref1)+itrack.ay())*1000.  << std::endl;
+
+
+	  std::cout << "input:  in mm VtxXcur= " << VtxXcur   << std::endl;
+	  std::cout << "input:  in mm VtxYcur= " << VtxYcur   << std::endl;
+	  std::cout << "input:  in mm VtxZcur= " << VtxZcur   << std::endl;
+	  std::cout << "input coord. in um:  x1= " <<  x1  << std::endl;
+	  std::cout << "input coord. in um:  y1= " <<  y1  << std::endl;
+	  std::cout << "input coord. in um:  x2= " <<  x2  << std::endl;
+	  std::cout << "input coord. in um:  y2= " <<  y2  << std::endl;
+	}
+	double zz1=fabs(z1);
+	double zz2=fabs(z2);
+	rcollector = finderParameters_->reconstruct(StID, x1,y1,x2,y2,zz1,zz2); // x1,y1,x2,y2 input coord. in um; z1, z2 in mm
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
@@ -227,7 +176,7 @@ void FP420RecoMain::run(edm::Handle<TrackCollectionFP420> &input, std::auto_ptr<
 	}
       } //if ( first ) 
       
-	// !!! put                                        !!! put
+      // !!! put                                        !!! put
       toutput->put(rinputRange,StID);
       if (verbosity > 1) {
 	std::cout << "FP420RecoMain: put(rinputRange,StID)" << std::endl;
@@ -237,18 +186,15 @@ void FP420RecoMain::run(edm::Handle<TrackCollectionFP420> &input, std::auto_ptr<
     
   }// for loop over detunits
   
-  
-  
-  
-    
-  
+
+
+
+
+
   if (verbosity > 1) {
     //     check of access to the zcollector:
-    int det_start = 1, det_finish = 5;
-    if(dn0 < 1) det_start = 3;
-    if(dh0 < 1) det_finish = 3;
-    for (int det=det_start; det<det_finish; det++) {
-      int StID = det;
+    for (int number_detunits=1; number_detunits<dn0; number_detunits++) {
+      int StID = number_detunits;
       if (verbosity > 1) {
 	std::cout <<" ===" << std::endl;
 	std::cout <<" ===" << std::endl;
@@ -290,5 +236,10 @@ void FP420RecoMain::run(edm::Handle<TrackCollectionFP420> &input, std::auto_ptr<
     
   }//if (verbos
   
-  
+
+
+
+
+
+
 }
