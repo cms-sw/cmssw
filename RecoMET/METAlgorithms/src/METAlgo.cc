@@ -1,73 +1,46 @@
-// File: METAlgo.cc
-// Description:  see METAlgo.h
-// Author: Michael Schmitt, Richard Cavanaugh The University of Florida
-// Creation Date:  MHS May 31, 2005 Initial version.
+// -*- C++ -*-
 //
-//------------------------------------------------------------------------
+// Package:    METAlgorithms
+// Class:      METAlgo
+// 
+// Original Authors:  Michael Schmitt, Richard Cavanaugh The University of Florida
+//          Created:  May 31, 2005
+// $Id: METProducer.h,v 1.29 2012/06/07 01:16:10 sakuma Exp $
+//
 
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/METReco/interface/CommonMETData.h"
+//____________________________________________________________________________||
 #include "RecoMET/METAlgorithms/interface/METAlgo.h"
-#include <iostream>
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include <cmath>
 
-using namespace std;
-using namespace reco;
-
-//------------------------------------------------------------------------
-// Default Constructer
-//----------------------------------
-METAlgo::METAlgo() {}
-//------------------------------------------------------------------------
-
-//------------------------------------------------------------------------
-// Default Destructor
-//----------------------------------
-METAlgo::~METAlgo() {}
-//------------------------------------------------------------------------
-
-//------------------------------------------------------------------------
-// This method represents "the" implementation of the MET algorithm and is
-// very simple:
-// (1) It takes as input a collection of candidates (which can be
-// calorimeter towers, HEPMC generator-level particles, etc).
-// (2) It returns as output, a pointer to a struct of CommonMETData which
-// contains the following members:  MET, MEx, MEy, SumET, and MEz
-// (The inclusion of MEz deserves some justification ; it is included here
-// since it _may_ be useful for Data Quality Monitering as it should be 
-// symmetrically distributed about the origin.)
-//----------------------------------
-void METAlgo::run(edm::Handle<edm::View<Candidate> > input, CommonMETData *met, double globalThreshold) 
+void METAlgo::run(edm::Handle<edm::View<reco::Candidate> > candidates, CommonMETData *met, double globalThreshold) 
 { 
-  double sum_px = 0.0;
-  double sum_py = 0.0;
-  double sum_pz = 0.0;
-  double sum_et = 0.0;
-  // Loop over Candidate Objects and calculate MET and related quantities
-  /*
-  CandidateCollection::const_iterator candidate;
-  for( candidate = input->begin(); candidate != input->end(); candidate++ )
-  */
-  for (unsigned int candidate_i = 0; candidate_i < input->size(); candidate_i++)
+  double px = 0.0;
+  double py = 0.0;
+  double pz = 0.0;
+  double et = 0.0;
+
+  for (unsigned int i = 0; i < candidates->size(); ++i)
   {
-    const Candidate *candidate = &((*input)[candidate_i]);
-    if( candidate->et() > globalThreshold  )
-      {
-	double theta = candidate->theta();
-	double e     = candidate->energy();
-	double et    = e*sin(theta);
-	sum_px += candidate->px();
-	sum_py += candidate->py();
-	sum_pz += candidate->pz();
-	sum_et += et;
-      }
+    const reco::Candidate &cand = (*candidates)[i];
+    if( !(cand.et() > globalThreshold) ) continue;
+    px += cand.px();
+    py += cand.py();
+    pz += cand.pz();
+    et += cand.energy()*sin(cand.theta());
   }
-  met->mex   = -sum_px;
-  met->mey   = -sum_py;
-  met->mez   = -sum_pz;
-  met->met   = sqrt( sum_px*sum_px + sum_py*sum_py );
-  met->sumet = sum_et;
-  met->phi   = atan2( -sum_py, -sum_px ); // since MET is now a candidate,
-}                                         // this is no longer needed
-//------------------------------------------------------------------------
+
+  met->mex   = -px;
+  met->mey   = -py;
+
+  met->mez   = -pz; // included here since it might be useful
+                    // for Data Quality Monitering as it should be 
+                    // symmetrically distributed about the origin
+
+  met->met   = sqrt( px*px + py*py );
+  met->sumet = et;
+  met->phi   = atan2( -py, -px ); // no longer needed as MET is now a candidate
+}
+
+//____________________________________________________________________________||
 
