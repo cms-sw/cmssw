@@ -11,9 +11,16 @@ parser.add_option("-a", "--asimov", dest="asimov",  default=False, action="store
 parser.add_option("-P", "--prefix", type="string", dest="fprefix", default="",  help="Prefix this to all file names")
 parser.add_option("--xc", "--exclude-channel", type="string", dest="channelVetos", default=[], action="append", help="Exclude channels that match this regexp; can specify multiple ones")
 parser.add_option("--X-no-jmax",  dest="noJMax", default=False, action="store_true", help="FOR DEBUG ONLY: Turn off the consistency check between jmax and number of processes.")
+parser.add_option("--xn-file", "--exclude-nuisances-from-file", type="string", dest="nuisVetoFile", help="Exclude all the nuisances in this file")
+
 (options, args) = parser.parse_args()
 options.bin = True # fake that is a binary output, so that we parse shape lines
 options.nuisancesToExclude = []
+options.verbose = 0
+
+if options.nuisVetoFile:
+    for line in open(options.nuisVetoFile,"r"):
+        options.nuisancesToExclude.append(re.compile(line.strip()))
 
 from HiggsAnalysis.CombinedLimit.DatacardParser import *
 
@@ -78,8 +85,8 @@ for ich,fname in enumerate(args):
                     if pdf[-1] != '?': pdf += '?'
                     systlines[lsyst][0] = pdf
                     for b,v in systeffect.items(): othereffect[b] = v;
-                elif (pdf == "shape?" and otherpdf == "shape") or (pdf == "shape" and otherpdf == "shape?"):
-                    systlines[lsyst][0] = "shape?"
+                elif (pdf == otherpdf+"?") or (pdf+"?" == otherpdf):
+                    systlines[lsyst][0] = pdf.replace("?","")+"?"
                     for b,v in systeffect.items(): othereffect[b] = v;
                 else:
                     raise RuntimeError, "File %s defines systematic %s as using pdf %s, while a previous file defines it as using %s" % (fname,lsyst,pdf,otherpdf)
