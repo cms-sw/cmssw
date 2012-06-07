@@ -495,7 +495,7 @@ cacheutils::CachingSimNLL::setup_()
     // Allow runtime-flag to switch off logEvalErrors
     noDeepLEE_ = runtimedef::get("SIMNLL_NO_LEE");
 
-    RooAbsPdf *pdfclone = utils::fullClonePdf(pdfOriginal_, piecesForCloning_);
+    RooAbsPdf *pdfclone = runtimedef::get("SIMNLL_NOCLONE") ? pdfOriginal_  : utils::fullClonePdf(pdfOriginal_, piecesForCloning_);
     std::auto_ptr<RooArgSet> params(pdfclone->getParameters(*dataOriginal_));
     params_.add(*params);
 
