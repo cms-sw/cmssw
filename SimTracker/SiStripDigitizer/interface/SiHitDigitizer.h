@@ -15,6 +15,7 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 #include <map>
+#include <memory>
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -32,18 +33,15 @@ class SiHitDigitizer {
   ~SiHitDigitizer();
 
   void setChargeDivider(SiChargeDivider* cd) {
-    if (theSiChargeDivider) delete theSiChargeDivider;
-    theSiChargeDivider = cd;
+    theSiChargeDivider.reset(cd);
   }
 
   void setChargeCollectionDrifter(SiChargeCollectionDrifter* cd) {
-    if (theSiChargeCollectionDrifter) delete theSiChargeCollectionDrifter;
-    theSiChargeCollectionDrifter = cd;
+    theSiChargeCollectionDrifter.reset(cd);
   }
 
   void setInduceChargeOnStrips(SiInduceChargeOnStrips* cd) {
-    if (theSiInduceChargeOnStrips) delete theSiInduceChargeOnStrips;
-    theSiInduceChargeOnStrips = cd;
+    theSiInduceChargeOnStrips.reset(cd);
   }
   
   void setParticleDataTable(const ParticleDataTable * pdt) { 
@@ -54,18 +52,12 @@ class SiHitDigitizer {
 		  std::vector<double>&, size_t&, size_t&);
   
  private:
-  SiChargeDivider* theSiChargeDivider;
-  SiChargeCollectionDrifter* theSiChargeCollectionDrifter;
-  SiInduceChargeOnStrips* theSiInduceChargeOnStrips;
-  edm::ParameterSet conf_;
-  CLHEP::HepRandomEngine& rndEngine;
-  double depletionVoltage;
-  double appliedVoltage;
-  double chargeMobility;
-  double temperature;
-  bool noDiffusion;
-  double chargeDistributionRMS;
-  double gevperelectron;
+  const double depletionVoltage;
+  const double chargeMobility;
+  std::unique_ptr<SiChargeDivider> theSiChargeDivider;
+  std::unique_ptr<SiChargeCollectionDrifter> theSiChargeCollectionDrifter;
+  std::unique_ptr<const SiInduceChargeOnStrips> theSiInduceChargeOnStrips;
+
   typedef GloballyPositioned<double> Frame;
   
   LocalVector DriftDirection(const StripGeomDetUnit* _detp, GlobalVector _bfield, float langle) {

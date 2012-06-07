@@ -1,6 +1,1 @@
-import FWCore.ParameterSet.Config as cms
-
-# Silicon Strip Digitizer running with APV Mode Deconvolution
-from SimTracker.SiStripDigitizer.SiStripDigi_cfi import *
-simSiStripDigis.APVpeakmode = False
-
+raise RuntimeError, "Do not import obsolete file SiStripDigi_APVModeDec_cff.py. Use 'SimGeneral.MixingModule.stripDigitizer_APVModeDec_cff.py_cff'"

@@ -7,20 +7,17 @@
 SiGaussianTailNoiseAdder::SiGaussianTailNoiseAdder(float th,CLHEP::HepRandomEngine& eng):
   threshold(th),
   rndEngine(eng),
-  gaussDistribution(0)
+  gaussDistribution(new CLHEP::RandGaussQ(rndEngine)),
+  genNoise(new GaussianTailNoiseGenerator(rndEngine))
 {
-  genNoise = new GaussianTailNoiseGenerator(rndEngine);
-  gaussDistribution = new CLHEP::RandGaussQ(rndEngine);
 }
 
 SiGaussianTailNoiseAdder::~SiGaussianTailNoiseAdder(){
-  delete genNoise;
-  delete gaussDistribution;
 }
 
 void SiGaussianTailNoiseAdder::addNoise(std::vector<double> &in,
 					size_t& minChannel, size_t& maxChannel,
-					int numStrips, float noiseRMS){
+					int numStrips, float noiseRMS) const {
  
   std::vector<std::pair<int,float> > generatedNoise;
   genNoise->generate(numStrips,threshold,noiseRMS,generatedNoise);
@@ -41,7 +38,7 @@ void SiGaussianTailNoiseAdder::addNoise(std::vector<double> &in,
   }
 }
 
-void SiGaussianTailNoiseAdder::addNoiseVR(std::vector<double> &in, std::vector<float> &noiseRMS){
+void SiGaussianTailNoiseAdder::addNoiseVR(std::vector<double> &in, std::vector<float> &noiseRMS) const {
   // Add noise
   // Full Gaussian noise is added everywhere
   for (size_t iChannel=0; iChannel!=in.size(); iChannel++) {
@@ -49,13 +46,13 @@ void SiGaussianTailNoiseAdder::addNoiseVR(std::vector<double> &in, std::vector<f
   }
 }
 
-void SiGaussianTailNoiseAdder::addPedestals(std::vector<double> &in,std::vector<float> & ped){
+void SiGaussianTailNoiseAdder::addPedestals(std::vector<double> &in,std::vector<float> & ped) const {
 	for (size_t iChannel=0; iChannel!=in.size(); iChannel++) {
       if(ped[iChannel]>0.) in[iChannel] += ped[iChannel];      
     }
 }
 
-void SiGaussianTailNoiseAdder::addCMNoise(std::vector<double> &in, float cmnRMS, std::vector<bool> &badChannels){
+void SiGaussianTailNoiseAdder::addCMNoise(std::vector<double> &in, float cmnRMS, std::vector<bool> &badChannels) const {
   int nAPVs = in.size()/128;
   std::vector<float> CMNv;
   for(int APVn =0; APVn < nAPVs; ++APVn) CMNv.push_back(gaussDistribution->fire(0.,cmnRMS));
@@ -64,7 +61,7 @@ void SiGaussianTailNoiseAdder::addCMNoise(std::vector<double> &in, float cmnRMS,
   }
 }
 
-void SiGaussianTailNoiseAdder::addBaselineShift(std::vector<double> &in, std::vector<bool> &badChannels){
+void SiGaussianTailNoiseAdder::addBaselineShift(std::vector<double> &in, std::vector<bool> &badChannels) const {
   size_t nAPVs = in.size()/128;
   std::vector<float> vShift;
   double apvCharge, apvMult;

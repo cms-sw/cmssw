@@ -1,3 +1,4 @@
+<use   name="SimGeneral/MixingModule"/>
 <use   name="SimTracker/SiStripDigitizer"/>
 <use   name="MagneticField/Records"/>
 <use   name="MagneticField/Engine"/>

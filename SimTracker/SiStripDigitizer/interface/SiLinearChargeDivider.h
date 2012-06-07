@@ -1,6 +1,8 @@
 #ifndef Tracker_SiLinearChargeDivider_H
 #define Tracker_SiLinearChargeDivider_H
 
+#include <memory>
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimTracker/SiStripDigitizer/interface/SiChargeDivider.h"
@@ -38,19 +40,18 @@ class SiLinearChargeDivider : public SiChargeDivider{
   void setParticleDataTable(const ParticleDataTable * pdt) { theParticleDataTable = pdt; }
   
  private:
-  // configuration
-  edm::ParameterSet conf_;
   // configuration data
-  bool   peakMode;
-  bool   fluctuateCharge;
-  int    chargedivisionsPerStrip;
-  double deltaCut ;
-  double cosmicShift;
+  const bool   peakMode;
+  const bool   fluctuateCharge;
+  const int    chargedivisionsPerStrip;
+  const double deltaCut ;
+  const double cosmicShift;
+
   const ParticleDataTable * theParticleDataTable;
-  // Geant4 engine used by fluctuateEloss()
-  SiG4UniversalFluctuation* fluctuate; 
   // random generator
   CLHEP::HepRandomEngine& rndEngine;
+  // Geant4 engine used by fluctuateEloss()
+  std::unique_ptr<SiG4UniversalFluctuation> fluctuate; 
   // utility: drifts the charge to the surface to estimate the number of relevant strips
   inline float driftXPos(const Local3DPoint& pos, const LocalVector& drift, double thickness) { 
     return pos.x()+(thickness/2.-pos.z())*drift.x()/drift.z();

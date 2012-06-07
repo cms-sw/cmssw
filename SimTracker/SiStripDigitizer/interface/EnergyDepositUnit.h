@@ -12,7 +12,7 @@ class EnergyDepositUnit{
   EnergyDepositUnit(): _energy(0),_position(0,0,0){}
   EnergyDepositUnit(float energy,float x, float y, float z):
     _energy(energy),_position(x,y,z){}
-  EnergyDepositUnit(float energy, Local3DPoint position):
+  EnergyDepositUnit(float energy, const Local3DPoint& position):
     _energy(energy),_position(position){}
   float x() const{return _position.x();}
   float y() const{return _position.y();}

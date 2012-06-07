@@ -4,32 +4,27 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf, CLHEP::HepRandomEngine& eng):
-  conf_(conf),theParticleDataTable(0),rndEngine(eng){
+SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf, CLHEP::HepRandomEngine& eng) :
   // Run APV in peak instead of deconvolution mode, which degrades the time resolution.
-  peakMode=conf_.getParameter<bool>("APVpeakmode");
-
+  peakMode(conf.getParameter<bool>("APVpeakmode")),
   // Enable interstrip Landau fluctuations within a cluster.
-  fluctuateCharge=conf_.getParameter<bool>("LandauFluctuations");
-  
+  fluctuateCharge(conf.getParameter<bool>("LandauFluctuations")),
   // Number of segments per strip into which charge is divided during
   // simulation. If large, precision of simulation improves.
-  chargedivisionsPerStrip=conf_.getParameter<int>("chargeDivisionsPerStrip");
- 
+  chargedivisionsPerStrip(conf.getParameter<int>("chargeDivisionsPerStrip")),
   // delta cutoff in MeV, has to be same as in Geant (0.120425 MeV corresponding to 100um range for electrons)
-  deltaCut=conf_.getParameter<double>("DeltaProductionCut");
-
+  deltaCut(conf.getParameter<double>("DeltaProductionCut")),
   //Offset for digitization during the MTCC and in general for taking cosmic particle
   //The value to be used it must be evaluated and depend on the volume defnition used
   //for the cosimc generation (Considering only the tracker the value is 11 ns)
-  cosmicShift=conf_.getUntrackedParameter<double>("CosmicDelayShift");
-  
+  cosmicShift(conf.getUntrackedParameter<double>("CosmicDelayShift")),
+  theParticleDataTable(0),
+  rndEngine(eng),
   // Geant4 engine used to fluctuate the charge from segment to segment
-  fluctuate = new SiG4UniversalFluctuation(rndEngine);
+  fluctuate(new SiG4UniversalFluctuation(rndEngine)) {
 }
 
 SiLinearChargeDivider::~SiLinearChargeDivider(){
-  delete fluctuate;
 }
 
 SiChargeDivider::ionization_type 

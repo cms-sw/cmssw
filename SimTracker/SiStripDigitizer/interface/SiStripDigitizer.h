@@ -7,61 +7,69 @@
 #ifndef SiStripDigitizer_h
 #define SiStripDigitizer_h
 
-#include "boost/shared_ptr.hpp"
-
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "SimTracker/SiStripDigitizer/interface/SiStripDigitizerAlgorithm.h"
-
-#include "SimTracker/Common/interface/SimHitSelectorFromDB.h"
-
+#include <map>
+#include <memory>
 #include <string>
 #include <vector>
-#include <map>
+
+#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 namespace CLHEP {
   class HepRandomEngine;
 }
 
-class SiStripDigitizer : public edm::EDProducer
-{
+namespace edm {
+  class EDProducer;
+  class Event;
+  class EventSetup;
+  class ParameterSet;
+  template<typename T> class Handle;
+}
+
+class MagneticField;
+class PileUpEventPrincipal;
+class PSimHit;
+class SiStripDigitizerAlgorithm;
+class StripGeomDetUnit;
+class TrackerGeometry;
+
+class SiStripDigitizer : public DigiAccumulatorMixMod {
 public:
-  
-  explicit SiStripDigitizer(const edm::ParameterSet& conf);
+  explicit SiStripDigitizer(const edm::ParameterSet& conf, edm::EDProducer& mixMod);
   
   virtual ~SiStripDigitizer();
   
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
+  virtual void accumulate(edm::Event const& e, edm::EventSetup const& c);
+  virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c);
+  virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
   
 private:
+  void accumulateStripHits(edm::Handle<std::vector<PSimHit> >);   
+
   typedef std::vector<std::string> vstring;
   typedef std::map<unsigned int, std::vector<std::pair<const PSimHit*, int> >,std::less<unsigned int> > simhit_map;
   typedef simhit_map::iterator simhit_map_iterator;
 
-  SiStripDigitizerAlgorithm * theDigiAlgo;
-  SiStripFedZeroSuppression* theSiFEDZeroSuppress;
+  const std::string gainLabel;
+  const std::string hitsProducer;
+  const vstring trackerContainers;
+  const std::string ZSDigi;
+  const std::string SCDigi;
+  const std::string VRDigi;
+  const std::string PRDigi;
+  const std::string geometryType;
+  const bool useConfFromDB;
+  const bool zeroSuppression;
+
+  std::unique_ptr<SiStripDigitizerAlgorithm> theDigiAlgo;
   std::map<uint32_t, std::vector<int> > theDetIdList;
-  SimHitSelectorFromDB SimHitSelectorFromDB_;
-  std::vector<edm::DetSet<SiStripDigi> > theDigiVector;
-  std::vector<edm::DetSet<SiStripRawDigi> > theRawDigiVector;
-  std::vector<edm::DetSet<StripDigiSimLink> > theDigiLinkVector;
-  edm::ParameterSet conf_;
-  vstring trackerContainers;
-  simhit_map SimHitMap;
-  int numStrips;    // number of strips in the module
+  edm::ESHandle<TrackerGeometry> pDD;
+  edm::ESHandle<MagneticField> pSetup;
+  std::map<unsigned int, StripGeomDetUnit*> detectorUnits;
+
   CLHEP::HepRandomEngine* rndEngine;
-  std::string geometryType;
-  std::string alias;
-  bool zeroSuppression;
-  bool useConfFromDB;
 };
 
 #endif

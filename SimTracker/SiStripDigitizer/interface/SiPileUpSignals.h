@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "FWCore/Utilities/interface/Map.h"
 
 class SimHit;
 /**
@@ -14,30 +15,31 @@ class SiPileUpSignals{
  public:
   // type used to describe the amplitude on a strip
   typedef float Amplitude;
-  // associates to each strip a vector of pairs {simhit,amplitude}. 
+  // associates to each strip a vector of amplitudes. 
   // That allows later to comput the fraction of the contribution of each simhit to the ADC value
-  typedef std::map< int , std::vector < std::pair < const PSimHit*, Amplitude > >, std::less<int> >  HitToDigisMapType;
-  // associates to each strip a vector of pairs {simhit,index_in_the_allhit_collection}
-  // That allows to build the links properly
-  typedef std::map< int , std::vector < std::pair < const PSimHit*, int > >, std::less<int> >  HitCounterToDigisMapType;
+  typedef std::map<int, Amplitude>  SignalMapType;
+  typedef std::map<uint32_t, SignalMapType>  signalMaps;
   
   SiPileUpSignals() { reset(); }
 
   virtual ~SiPileUpSignals() { }
   
-  virtual void add(const std::vector<double>& locAmpl,
-		   const size_t& firstChannelWithSignal, const size_t& lastChannelWithSignal,
-		   const PSimHit* hit,const int& counter);
-		   
-  void reset(){ resetLink(); }
+  virtual void add(uint32_t detID,
+                   const std::vector<double>& locAmpl,
+                   const size_t& firstChannelWithSignal, const size_t& lastChannelWithSignal);
+
+  void reset(){ resetSignals(); }
   
-  const HitToDigisMapType& dumpLink() const { return theMapLink; }
-  
-  const HitCounterToDigisMapType& dumpCounterLink() const { return theCounterMapLink; }
+  const SignalMapType* getSignal(uint32_t detID) const {
+    auto where = signal_.find(detID);
+    if(where == signal_.end()) {
+      return 0;
+    }
+    return &where->second;
+  }
   
  private:
-  void resetLink();
-  HitToDigisMapType theMapLink;
-  HitCounterToDigisMapType theCounterMapLink;
+  void resetSignals();
+  signalMaps signal_;
 };
 #endif

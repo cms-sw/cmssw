@@ -2,8 +2,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-SiTrivialDigitalConverter::SiTrivialDigitalConverter(float in){
-  electronperADC = in;
+SiTrivialDigitalConverter::SiTrivialDigitalConverter(float in) :
+  electronperADC(in) {
   _temp.reserve(800);
   _tempRaw.reserve(800);
 }
@@ -56,7 +56,7 @@ SiTrivialDigitalConverter::convertRaw(const std::vector<double>& analogSignal, e
   return _tempRaw;
 }
 
-int SiTrivialDigitalConverter::truncate(float in_adc) {
+int SiTrivialDigitalConverter::truncate(float in_adc) const {
   //Rounding the ADC number instead of truncating it
   int adc = int(in_adc+0.5);
   /*
@@ -70,7 +70,7 @@ int SiTrivialDigitalConverter::truncate(float in_adc) {
   return adc;
 }
 
-int SiTrivialDigitalConverter::truncateRaw(float in_adc) {
+int SiTrivialDigitalConverter::truncateRaw(float in_adc) const {
   //Rounding the ADC number
   int adc = int(in_adc+0.5);
   if (adc > 1023 ) return 1023;

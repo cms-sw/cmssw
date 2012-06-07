@@ -8,11 +8,11 @@ class SiTrivialInduceChargeOnStrips: public SiInduceChargeOnStrips {
  public:
   SiTrivialInduceChargeOnStrips(const edm::ParameterSet& conf,double g);
   virtual ~SiTrivialInduceChargeOnStrips() {}
-  void  induce(SiChargeCollectionDrifter::collection_type collection_points,
+  void  induce(const SiChargeCollectionDrifter::collection_type& collection_points,
 	       const StripGeomDetUnit& det,
 	       std::vector<double>& localAmplitudes,
 	       size_t& recordMinAffectedStrip,
-	       size_t& recordMaxAffectedStrip);
+	       size_t& recordMaxAffectedStrip) const;
   
  private:
   double chargeDeposited(size_t strip, 
@@ -24,7 +24,7 @@ class SiTrivialInduceChargeOnStrips: public SiInduceChargeOnStrips {
   static unsigned int indexOf(const std::string&);
   static const std::string type[];
   static const int Ntypes;
-  std::vector<std::vector<double> > signalCoupling; 
+  const std::vector<std::vector<double> > signalCoupling; 
   
   const double Nsigma;
   const double geVperElectron;
