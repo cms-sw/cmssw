@@ -72,10 +72,10 @@ toymcoptutils::SinglePdfGenInfo::SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSe
       else if (runtimedef::get("TMCSO_GenBinnedWorkaround")) mode_ = Binned;
       else mode_ = Poisson;
    } else if (mode_ == Unbinned) {
-       if (!runtimedef::get("TMCSO_NoPrepareMultiGen")) {
-           spec_ = protoData ? pdf.prepareMultiGen(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true)) 
-                             : pdf.prepareMultiGen(observables_, RooFit::Extended());
-       }
+       //if (!runtimedef::get("TMCSO_NoPrepareMultiGen")) {
+       //    spec_ = protoData ? pdf.prepareMultiGen(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true)) 
+       //                      : pdf.prepareMultiGen(observables_, RooFit::Extended());
+       //}
    }
 }
 
@@ -94,6 +94,8 @@ toymcoptutils::SinglePdfGenInfo::generate(const RooDataSet* protoData, int force
     RooAbsData *ret = 0;
     switch (mode_) {
         case Unbinned:
+            if (spec_ == 0) spec_ = protoData ? pdf_->prepareMultiGen(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true))
+                                              : pdf_->prepareMultiGen(observables_, RooFit::Extended());
             if (spec_) ret = pdf_->generate(*spec_);
             else ret = pdf_->generate(observables_, RooFit::Extended());
             break;
