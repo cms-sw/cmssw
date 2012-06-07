@@ -162,7 +162,7 @@ def parseCard(file, options):
         nonNullEntries = 0 
         for (b,p,s),r in zip(ret.keyline,numbers):
             if "/" in r: # "number/number"
-                if pdf not in ["lnN","lnU"]: raise RuntimeError, "Asymmetric errors are allowed only for Log-normals"
+                if (pdf not in ["lnN","lnU"]) and ("?" not in pdf): raise RuntimeError, "Asymmetric errors are allowed only for Log-normals"
                 errline[b][p] = [ float(x) for x in r.split("/") ]
             else:
                 errline[b][p] = float(r) 
