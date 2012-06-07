@@ -78,7 +78,6 @@ class HLTProcess(object):
     "HLT_L1Tech_HBHEHO_totalOR_v*",
     "HLT_L1Tech_HCAL_HF_single_channel_v*",
     "HLT_L1TrackerCosmics_v*",
-    "DQM_HcalEmptyEvents_v*",
     
 # TODO: paths not supported by FastSim, but for which a recovery should be attempted
   
