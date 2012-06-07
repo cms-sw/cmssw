@@ -131,8 +131,8 @@ static std::string ADMIN_KEY_COL("CRED2");
 static std::string COND_AUTHORIZATION_TABLE("COND_AUTHORIZATION");
 static std::string AUTH_ID_COL("AUTH_ID");
 static std::string P_ID_COL("P_ID");
-static std::string ROLE_COL("ROLE");
-static std::string SCHEMA_COL("SCHEMA");
+static std::string ROLE_COL("C_ROLE");
+static std::string SCHEMA_COL("C_SCHEMA");
 static std::string AUTH_KEY_COL("CRED3");
 static std::string C_ID_COL("C_ID");
 

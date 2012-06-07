@@ -4,6 +4,7 @@
 #include "CondCore/DBCommon/interface/Auth.h"
 // CMSSW includes
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+//#include "FWCore/MessageLogger/interface/MessageLogger.h"
 // coral includes
 #include "RelationalAccess/IConnectionServiceConfiguration.h"
 #include "CoralKernel/Context.h"
@@ -35,7 +36,8 @@ cond::DbConnectionConfiguration::DbConnectionConfiguration():
   m_connectionRetrialPeriod(false,0),
   m_connectionRetrialTimeOut(false,0),
   m_poolAutomaticCleanUp(false,false),
-  m_authPath(),
+  m_authPath(""),
+  m_authSys(0),
   m_transactionId(),
   m_messageLevel(coral::Error),
   m_monitoringLevel(coral::monitor::Off),
@@ -61,6 +63,7 @@ cond::DbConnectionConfiguration::DbConnectionConfiguration( bool connectionShari
   m_connectionRetrialTimeOut(true,connectionRetrialTimeOut),
   m_poolAutomaticCleanUp(true,poolAutomaticCleanUp),
   m_authPath(authenticationPath),
+  m_authSys(0),
   m_transactionId(transactionId),
   m_messageLevel(msgLev),
   m_monitoringLevel(monitorLev),
@@ -76,6 +79,7 @@ cond::DbConnectionConfiguration::DbConnectionConfiguration( const cond::DbConnec
   m_connectionRetrialTimeOut(rhs.m_connectionRetrialTimeOut),
   m_poolAutomaticCleanUp(rhs.m_poolAutomaticCleanUp),
   m_authPath(rhs.m_authPath),
+  m_authSys(rhs.m_authSys),
   m_transactionId(rhs.m_transactionId),
   m_messageLevel(rhs.m_messageLevel),
   m_monitoringLevel(rhs.m_monitoringLevel),
@@ -96,6 +100,7 @@ cond::DbConnectionConfiguration::operator=( const cond::DbConnectionConfiguratio
   m_connectionRetrialTimeOut = rhs.m_connectionRetrialTimeOut;
   m_poolAutomaticCleanUp = rhs.m_poolAutomaticCleanUp;
   m_authPath = rhs.m_authPath;
+  m_authSys = rhs.m_authSys;
   m_transactionId=rhs.m_transactionId;
   m_messageLevel = rhs.m_messageLevel;
   m_monitoringLevel = rhs.m_monitoringLevel;
@@ -106,6 +111,8 @@ cond::DbConnectionConfiguration::operator=( const cond::DbConnectionConfiguratio
 void cond::DbConnectionConfiguration::setParameters( const edm::ParameterSet& connectionPset ){
   std::string authPath = connectionPset.getUntrackedParameter<std::string>("authenticationPath","");
   setAuthenticationPath(authPath);
+  int authSysPar = connectionPset.getUntrackedParameter<int>("authenticationSystem",0);
+  setAuthenticationSystem( authSysPar );
   setTransactionId(connectionPset.getUntrackedParameter<std::string>("transactionId",""));
   int messageLevel = connectionPset.getUntrackedParameter<int>("messageLevel",0);
   coral::MsgLevel level = coral::Error;
@@ -175,6 +182,9 @@ void cond::DbConnectionConfiguration::setAuthenticationPath( const std::string& 
   m_authPath = p;
 }
 
+void cond::DbConnectionConfiguration::setAuthenticationSystem( int authSysCode ){
+  m_authSys = authSysCode;
+}
 
 void cond::DbConnectionConfiguration::setTransactionId( std::string const & tid) {
   m_transactionId=tid;
@@ -208,24 +218,40 @@ void cond::DbConnectionConfiguration::configure( coral::IConnectionServiceConfig
       authPath += authEnv;
     } 
   }
-  const char* authSys = ::getenv( Auth::COND_AUTH_SYS );
+  int authSys = m_authSys;
+  if( authSys != CondDbKey && authSys != CoralXMLFile ){
+    // first attempt, look at the env...
+    const char* authSysEnv = ::getenv( Auth::COND_AUTH_SYS );
+    if( authSysEnv ){
+      authSys = ::atoi( authSysEnv );
+    }
+  }
+  if( authSys != CondDbKey && authSys != CoralXMLFile ){
+    // take the default
+    authSys = CondDbKey;
+  }  
   std::string servName("");
-  if( authSys ){
+  if( authSys == CondDbKey ){
     if( authPath.empty() ){
       const char* authEnv = ::getenv("HOME");
       if(authEnv){
 	authPath += authEnv;
       } 
     }
-    servName = "COND/Services/RelationalAuthenticationService";
-  } else {
+    servName = "COND/Services/RelationalAuthenticationService";     
+    //edm::LogInfo("DbSessionInfo") << "Authentication using Keys";  
+  } else if( authSys == CoralXMLFile ){
+    if( authPath.empty() ){
+      authPath = ".";
+    }
     servName = "COND/Services/XMLAuthenticationService";  
+    //edm::LogInfo("DbSessionInfo") << "Authentication using XML File";  
   }
   if( !authPath.empty() ){
     authServiceName = servName;    
     coral::Context::instance().PropertyManager().property(Auth::COND_AUTH_PATH_PROPERTY)->set(authPath);  
     coral::Context::instance().loadComponent( authServiceName, m_pluginManager );
-  } 
+  }
   coralConfig.setAuthenticationService( authServiceName );
   // connection sharing
   if(m_connectionSharing.first)
