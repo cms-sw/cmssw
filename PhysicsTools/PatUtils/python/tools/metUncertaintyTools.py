@@ -39,7 +39,7 @@ class RunMEtUncertainties(ConfigToolBase):
                           "Flag to enable/disable sequence for Type 1 corrected PFMEt", Type=bool)
         self.addParameter(self._defaultParameters, 'makeType1p2corrPFMEt', True,
                           "Flag to enable/disable sequence for Type 1 + 2 corrected PFMEt", Type=bool)
-        self.addParameter(self._defaultParameters, 'makePFMEtByMVA', True,
+        self.addParameter(self._defaultParameters, 'makePFMEtByMVA', False,
                           "Flag to enable/disable sequence for MVA-based PFMEt", Type=bool)
         self.addParameter(self._defaultParameters, 'doApplyType0corr', True,
                           "Flag to enable/disable usage of Type-0 MET corrections", Type=bool)
