@@ -12,7 +12,6 @@ streamA_datasetBJetPlusX_selector.throw      = cms.bool(False)
 streamA_datasetBJetPlusX_selector.triggerConditions = cms.vstring('HLT_DiJet40Eta2p6_BTagIP3DFastPV_v5', 
     'HLT_DiJet80Eta2p6_BTagIP3DFastPVLoose_v5', 
     'HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05_v2', 
-    'HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d03_PFDiJetPt120_v2', 
     'HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d03_v2', 
     'HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d05_v2', 
     'HLT_Jet160Eta2p4_Jet120Eta2p4_DiBTagIP3DFastPVLoose_v5', 
@@ -299,16 +298,13 @@ streamA_datasetJetMon_selector.triggerConditions = cms.vstring('HLT_DiPFJetAve14
     'HLT_DiPFJetAve260_v7', 
     'HLT_DiPFJetAve40_v7', 
     'HLT_DiPFJetAve80_v7', 
-    'HLT_Jet20_NoL1FastJet_v3', 
-    'HLT_Jet50_NoL1FastJet_v3', 
     'HLT_PFJet140_v6', 
     'HLT_PFJet200_v6', 
     'HLT_PFJet260_v6', 
     'HLT_PFJet40_v6', 
     'HLT_PFJet80_v6', 
     'HLT_SingleForJet15_v3', 
-    'HLT_SingleForJet25_v3', 
-    'HLT_SingleJetC5_v3')
+    'HLT_SingleForJet25_v3')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetLogMonitor_selector
 streamA_datasetLogMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
