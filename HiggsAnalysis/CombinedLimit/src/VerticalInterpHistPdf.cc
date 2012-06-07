@@ -10,7 +10,13 @@
 #include "RooRealVar.h"
 #include "RooMsgService.h"
 
-
+//#define TRACE_CALLS
+#ifdef TRACE_CALLS
+#include "../interface/ProfilingTools.h"
+#define TRACEME()   PerfCounter::add( __PRETTY_FUNCTION__ );
+#else
+#define TRACEME() 
+#endif
 
 ClassImp(VerticalInterpHistPdf)
 
@@ -210,7 +216,7 @@ void VerticalInterpHistPdf::setupCaches() const {
         _cacheSingleGood[i] = 0; 
         syncComponent(i);  
     } 
-    _sentry.addVars(_coefList); 
+    if (_sentry.empty()) _sentry.addVars(_coefList); 
     syncTotal();
 }
 
@@ -236,8 +242,10 @@ FastVerticalInterpHistPdfBase::FastVerticalInterpHistPdfBase(const char *name, c
   _coefList("coefList","List of coefficients",this), // we should get shapeDirty when coefficients change
   _smoothRegion(smoothRegion),
   _smoothAlgo(smoothAlgo),
+  _init(false),
   _morphs(), _morphParams()
 { 
+  TRACEME()
 
   if (inFuncList.getSize()!=2*inCoefList.getSize()+1) {
     coutE(InputArguments) << "VerticalInterpHistPdf::VerticalInterpHistPdf(" << GetName() 
@@ -286,11 +294,20 @@ FastVerticalInterpHistPdfBase::FastVerticalInterpHistPdfBase(const FastVerticalI
   _coefList("coefList",this,other._coefList),
   _smoothRegion(other._smoothRegion),
   _smoothAlgo(other._smoothAlgo),
+  _init(false),
+#ifdef FastVerticalInterpHistPdf_CopyConstructor
+  _morphs(other._morphs), _morphParams(other._morphParams)
+#else
   _morphs(), _morphParams()
+#endif
 {
   // Copy constructor
   _funcIter  = _funcList.createIterator() ;
   _coefIter = _coefList.createIterator() ;
+#ifdef FastVerticalInterpHistPdf_CopyConstructor
+  _sentry.addVars(_coefList);
+  _sentry.setValueDirty(); 
+#endif
 }
 
 
@@ -306,9 +323,9 @@ FastVerticalInterpHistPdfBase::~FastVerticalInterpHistPdfBase()
 //_____________________________________________________________________________
 Double_t FastVerticalInterpHistPdf::evaluate() const 
 {
+  TRACEME()
   if (_cache.size() == 0) setupCaches();
-
-  if (!_sentry.good()) syncTotal();
+  if (!_sentry.good() || !_init) syncTotal();
   //return std::max<double>(1e-9, _cache.GetAt(_x));
   return _cache.GetAt(_x);
 }
@@ -316,9 +333,10 @@ Double_t FastVerticalInterpHistPdf::evaluate() const
 //_____________________________________________________________________________
 Double_t FastVerticalInterpHistPdf2D::evaluate() const 
 {
+  TRACEME()
   if (_cache.size() == 0) setupCaches();
 
-  if (!_sentry.good()) syncTotal();
+  if (!_sentry.good() || !_init) syncTotal();
   //return std::max<double>(1e-9, _cache.GetAt(_x, _y));
   return _cache.GetAt(_x, _y);
 }
@@ -326,6 +344,7 @@ Double_t FastVerticalInterpHistPdf2D::evaluate() const
 
 
 void FastVerticalInterpHistPdf::syncNominal() const {
+    TRACEME()
     RooAbsPdf *pdf = dynamic_cast<RooAbsPdf *>(_funcList.at(0));
     const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
     std::auto_ptr<TH1> hist(pdf->createHistogram("",x));
@@ -339,6 +358,7 @@ void FastVerticalInterpHistPdf::syncNominal() const {
 }
 
 void FastVerticalInterpHistPdf2D::syncNominal() const {
+    TRACEME()
     RooAbsPdf *pdf = dynamic_cast<RooAbsPdf *>(_funcList.at(0));
     const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
     const RooRealVar &y = dynamic_cast<const RooRealVar &>(_y.arg());
@@ -370,6 +390,7 @@ void FastVerticalInterpHistPdfBase::syncMorph(Morph &out, const FastTemplate &no
 }
 
 void FastVerticalInterpHistPdf::syncComponents(int dim) const {
+    TRACEME()
     RooAbsPdf *pdfHi = dynamic_cast<RooAbsPdf *>(_funcList.at(2*dim+1));
     RooAbsPdf *pdfLo = dynamic_cast<RooAbsPdf *>(_funcList.at(2*dim+2));
     const RooRealVar &x = dynamic_cast<const RooRealVar &>(_x.arg());
@@ -404,6 +425,7 @@ void FastVerticalInterpHistPdf2D::syncComponents(int dim) const {
 
 
 void FastVerticalInterpHistPdfBase::syncTotal(FastTemplate &cache, const FastTemplate &cacheNominal, const FastTemplate &cacheNominalLog) const {
+    TRACEME()
     /* === how the algorithm works, in theory ===
      * let  dhi = h_hi - h_nominal
      *      dlo = h_lo - h_nominal
@@ -443,6 +465,7 @@ void FastVerticalInterpHistPdfBase::syncTotal(FastTemplate &cache, const FastTem
     
     // mark as done
     _sentry.reset();
+    _init = true;
 }
 
 void FastVerticalInterpHistPdf::syncTotal() const {
@@ -464,6 +487,7 @@ void FastVerticalInterpHistPdf2D::syncTotal() const {
 
 
 void FastVerticalInterpHistPdf::setupCaches() const {
+    TRACEME()
     int ndim = _coefList.getSize();
 
     _morphs.resize(ndim);
@@ -479,11 +503,12 @@ void FastVerticalInterpHistPdf::setupCaches() const {
     } 
     _cache = FastHisto(_cacheNominal);
 
-    _sentry.addVars(_coefList); 
+    if (_sentry.empty()) _sentry.addVars(_coefList); 
     syncTotal();
 }
 
 void FastVerticalInterpHistPdf2D::setupCaches() const {
+    TRACEME()
     int ndim = _coefList.getSize();
 
     _morphs.resize(ndim);
@@ -499,7 +524,7 @@ void FastVerticalInterpHistPdf2D::setupCaches() const {
     } 
     _cache = FastHisto2D(_cacheNominal);
 
-    _sentry.addVars(_coefList); 
+    if (_sentry.empty()) _sentry.addVars(_coefList); 
     syncTotal();
 }
 

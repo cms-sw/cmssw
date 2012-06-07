@@ -12,6 +12,9 @@
 #include "../interface/FastTemplate.h"
 #include <cmath>
 
+#define FastVerticalInterpHistPdf_CopyConstructor
+#define FastVerticalInterpHistPdf_Serializable
+
 class FastVerticalInterpHistPdf;
 
 class VerticalInterpHistPdf : public RooAbsPdf {
@@ -80,6 +83,8 @@ public:
   const RooArgList& funcList() const { return _funcList ; }
   const RooArgList& coefList() const { return _coefList ; }
 
+  /// Must be public, for serialization
+  struct Morph { FastTemplate sum; FastTemplate diff; };
 protected:
   RooRealProxy   _x;
   RooListProxy _funcList ;   //  List of component FUNCs
@@ -90,13 +95,13 @@ protected:
   TIterator* _coefIter ;    //! Iterator over coefficient list
 
   // TH1 containing the histogram of this pdf
-  mutable SimpleCacheSentry _sentry; // !not to be serialized
+  mutable bool              _init; //! not to be serialized
+  mutable SimpleCacheSentry _sentry; //! not to be serialized
 
   // For additive morphing, histograms of (fUp-f0)+(fDown-f0) and (fUp-f0)-(fDown-f0)
   // For multiplicative morphing, log(fUp/f0)+log(fDown/f0),  log(fUp/f0)-log(fDown/f0)
-  struct Morph { FastTemplate sum; FastTemplate diff; };
   mutable std::vector<Morph> _morphs;  //! not to be serialized
-  mutable std::vector<RooAbsReal *> _morphParams;
+  mutable std::vector<RooAbsReal *> _morphParams; //! not to be serialized
 
   // Prepare morphing data for a triplet of templates
   void syncMorph(Morph &out, const FastTemplate &nominal, FastTemplate &lo, FastTemplate &hi) const;
@@ -113,7 +118,7 @@ protected:
   }
 
 private:
-  ClassDef(FastVerticalInterpHistPdfBase,1) // 
+  ClassDef(FastVerticalInterpHistPdfBase,2) // 
 };
 
 
@@ -128,12 +133,18 @@ public:
   FastVerticalInterpHistPdf(const FastVerticalInterpHistPdf& other, const char* name=0) :
     FastVerticalInterpHistPdfBase(other, name),
     _x("x",this,other._x),
+#ifdef FastVerticalInterpHistPdf_CopyConstructor
+    _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
+#else
     _cache(), _cacheNominal(), _cacheNominalLog()  {}
+#endif
   virtual TObject* clone(const char* newname) const { return new FastVerticalInterpHistPdf(*this,newname) ; }
   virtual ~FastVerticalInterpHistPdf() {}
 
   Double_t evaluate() const ;
 
+  Bool_t hasCache()     const { return _cache.size() > 0; }
+  Bool_t isCacheReady() const { return _cache.size() > 0 && _init; }
 protected:
   RooRealProxy   _x;
 
@@ -168,7 +179,11 @@ public:
   FastVerticalInterpHistPdf2D(const FastVerticalInterpHistPdf2D& other, const char* name=0) :
     FastVerticalInterpHistPdfBase(other, name),
     _x("x",this,other._x), _y("y",this,other._y), _conditional(other._conditional),
+#ifdef FastVerticalInterpHistPdf_CopyConstructor
+    _cache(other._cache), _cacheNominal(other._cacheNominal), _cacheNominalLog(other._cacheNominalLog)  {}
+#else
     _cache(), _cacheNominal(), _cacheNominalLog()  {}
+#endif
   virtual TObject* clone(const char* newname) const { return new FastVerticalInterpHistPdf2D(*this,newname) ; }
   virtual ~FastVerticalInterpHistPdf2D() {}
 
@@ -177,6 +192,8 @@ public:
   Bool_t selfNormalized() const { return kTRUE; }
   Bool_t conditional() const { return _conditional; }
 
+  Bool_t hasCache()     const { return _cache.size() > 0; }
+  Bool_t isCacheReady() const { return _cache.size() > 0 && _init; }
 protected:
   RooRealProxy _x, _y;
   bool _conditional;
