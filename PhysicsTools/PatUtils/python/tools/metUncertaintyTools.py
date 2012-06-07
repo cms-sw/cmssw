@@ -237,6 +237,7 @@ class RunMEtUncertainties(ConfigToolBase):
             jetCorrInputFileName = cms.FileInPath('PhysicsTools/PatUtils/data/JEC11_V12_AK5PF_UncertaintySources.txt'),
             jetCorrUncertaintyTag = cms.string("SubTotalDataMC"),
             addResidualJES = cms.bool(True),
+            ##addResidualJES = cms.bool(False), # CV: temporarily disabled to test new jet energy corrections (2012/05/31)                               
             jetCorrLabelUpToL3 = cms.string("ak5PFL1FastL2L3"),
             jetCorrLabelUpToL3Res = cms.string("ak5PFL1FastL2L3Residual"),                               
             shiftBy = cms.double(+1.*varyByNsigmas)
@@ -393,7 +394,7 @@ class RunMEtUncertainties(ConfigToolBase):
             tauCollectionEnUp = \
               self._addModuleToSequence(process, tausEnUp,
                                         [ "shifted", tauCollection.value(), "EnUp" ],
-                                        process.process.shiftedParticlesForMEtUncertainties)
+                                        process.shiftedParticlesForMEtUncertainties)
             shiftedParticleCollections['tauCollectionEnUp'] = tauCollectionEnUp
             collectionsToKeep.append(tauCollectionEnUp)
             tausEnDown = tausEnUp.clone(
@@ -402,7 +403,7 @@ class RunMEtUncertainties(ConfigToolBase):
             tauCollectionEnDown = \
               self._addModuleToSequence(process, tausEnDown,
                                         [ "shifted", tauCollection.value(), "EnDown" ],
-                                        process.process.shiftedParticlesForMEtUncertainties)
+                                        process.shiftedParticlesForMEtUncertainties)
             shiftedParticleCollections['tauCollectionEnDown'] = tauCollectionEnDown
             collectionsToKeep.append(tauCollectionEnDown)
 
@@ -422,14 +423,14 @@ class RunMEtUncertainties(ConfigToolBase):
 
         if not (makeType1corrPFMEt or makeType1p2corrPFMEt):
             return
+
+        if not hasattr(process, 'producePatPFMETCorrections'):
+            process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
         
         # add "nominal" (unshifted) pat::MET collections        
         process.pfCandsNotInJet.bottomCollection = pfCandCollection        
         process.selectedPatJetsForMETtype1p2Corr.src = shiftedParticleCollections['lastJetCollection']
         process.selectedPatJetsForMETtype2Corr.src = shiftedParticleCollections['lastJetCollection']
-        
-        if not hasattr(process, 'producePatPFMETCorrections'):
-            process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
 
         if doApplySysShiftCorr:
             if not hasattr(process, 'pfMEtSysShiftCorrSequence'):
@@ -986,6 +987,7 @@ class RunMEtUncertainties(ConfigToolBase):
                 jetCorrInputFileName = cms.FileInPath('PhysicsTools/PatUtils/data/JEC11_V12_AK5PF_UncertaintySources.txt'),
                 jetCorrUncertaintyTag = cms.string("SubTotalDataMC"),
                 addResidualJES = cms.bool(True),
+                ##addResidualJES = cms.bool(False), # CV: temporarily disabled to test new jet energy corrections (2012/05/31)                                                          
                 jetCorrLabelUpToL3 = cms.string("ak5PFL1FastL2L3"),
                 jetCorrLabelUpToL3Res = cms.string("ak5PFL1FastL2L3Residual"),                               
                 shiftBy = cms.double(+1.*varyByNsigmas)
