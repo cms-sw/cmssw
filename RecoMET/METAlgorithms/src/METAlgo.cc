@@ -37,7 +37,6 @@ METAlgo::~METAlgo() {}
 // since it _may_ be useful for Data Quality Monitering as it should be 
 // symmetrically distributed about the origin.)
 //----------------------------------
-//void METAlgo::run(const CandidateCollection *input, CommonMETData *met, double globalThreshold) 
 void METAlgo::run(edm::Handle<edm::View<Candidate> > input, CommonMETData *met, double globalThreshold) 
 { 
   double sum_px = 0.0;
@@ -67,7 +66,6 @@ void METAlgo::run(edm::Handle<edm::View<Candidate> > input, CommonMETData *met, 
   met->mey   = -sum_py;
   met->mez   = -sum_pz;
   met->met   = sqrt( sum_px*sum_px + sum_py*sum_py );
-  // cout << "MET = " << met->met << endl;
   met->sumet = sum_et;
   met->phi   = atan2( -sum_py, -sum_px ); // since MET is now a candidate,
 }                                         // this is no longer needed
