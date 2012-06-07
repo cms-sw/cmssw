@@ -1399,11 +1399,12 @@ process.out.outputCommands = [
     'drop recoGenJets_selectedPatJets*_*_*',
     'keep *_*_rho_*',
     'drop *_*PFlowLoose*_*_*',
-    'keep patElectrons_*PFlowLoose*_*_*',
-    'keep patMuons_*PFlowLoose*_*_*',
+    'keep patElectrons_selected*PFlowLoose*_*_*',
+    'keep patMuons_selected*PFlowLoose*_*_*',
     #'keep patTaus_*PFlowLoose*_*_*',
     'keep *_offlineBeamSpot_*_*',
-    'keep *_allConversions_*_*'
+    'keep *_allConversions_*_*',
+    'drop *_*atTaus_*_*'
     #'keep recoTracks_generalTracks_*_*'
     ]
 
