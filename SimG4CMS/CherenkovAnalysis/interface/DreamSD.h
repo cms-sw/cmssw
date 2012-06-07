@@ -44,13 +44,14 @@ private:
   /// Returns the total energy due to Cherenkov radiation
   double         cherenkovDeposit_( G4Step* aStep );
   /// Returns average number of photons created by track
-  const double   getAverageNumberOfPhotons_(const double charge,
-					    const double beta,
-					    const G4Material* aMaterial,
-					    const G4MaterialPropertyVector* rIndex ) const;
+  double getAverageNumberOfPhotons_(const double charge,
+				    const double beta,
+				    const G4Material* aMaterial,
+				    G4MaterialPropertyVector* rIndex );
   /// Returns energy deposit for a given photon
-  const double getPhotonEnergyDeposit_( const G4ParticleMomentum& p, const G4ThreeVector& x,
-                                        const G4Step* aStep );
+  double getPhotonEnergyDeposit_( const G4ParticleMomentum& p, 
+				  const G4ThreeVector& x,
+				  const G4Step* aStep );
   /// Sets material properties at run-time...
   bool setPbWO2MaterialProperties_( G4Material* aMaterial );
 

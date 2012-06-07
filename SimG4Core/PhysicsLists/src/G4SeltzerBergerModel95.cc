@@ -130,7 +130,7 @@ void G4SeltzerBergerModel95::ReadData(size_t Z, const char* path)
   if(!datadir) {
     datadir = getenv("G4LEDATA");
     if(!datadir) {
-      G4Exception("G4SeltzerBergerModel95::ReadData() Environment variable G4LEDATA not defined");
+      //G4Exception("G4SeltzerBergerModel95::ReadData() Environment variable G4LEDATA not defined");
       //G4Exception("G4SeltzerBergerModel95::ReadData()","em0006",FatalException,
       //		  "Environment variable G4LEDATA not defined");
       return;
@@ -143,7 +143,7 @@ void G4SeltzerBergerModel95::ReadData(size_t Z, const char* path)
     //G4ExceptionDescription ed;
     G4cout << "Bremsstrahlung data file <" << ost.str().c_str()
 	   << "> is not opened!" << G4endl;
-    G4Exception("G4SeltzerBergerModel95::ReadData() G4LEDATA version should be G4EMLOW6.23 or later.");
+    //G4Exception("G4SeltzerBergerModel95::ReadData() G4LEDATA version should be G4EMLOW6.23 or later.");
     return;
   } 
   //G4cout << "G4SeltzerBergerModel95 read from <" << ost.str().c_str() 
@@ -154,7 +154,7 @@ void G4SeltzerBergerModel95::ReadData(size_t Z, const char* path)
     //G4ExceptionDescription ed;
     G4cout << "Bremsstrahlung data file <" << ost.str().c_str()
        << "> is not retrieved!" << G4endl;
-    G4Exception("G4SeltzerBergerModel95::ReadData() G4LEDATA version should be G4EMLOW6.23 or later.");
+    //G4Exception("G4SeltzerBergerModel95::ReadData() G4LEDATA version should be G4EMLOW6.23 or later.");
     delete v;
   }
   // G4cout << dataSB[Z] << G4endl;

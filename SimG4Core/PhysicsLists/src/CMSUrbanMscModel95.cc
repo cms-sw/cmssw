@@ -160,7 +160,7 @@ void CMSUrbanMscModel95::Initialise(const G4ParticleDefinition* p,
   }
 
   fParticleChange = GetParticleChangeForMSC();
-  InitialiseSafetyHelper();
+  //InitialiseSafetyHelper();
 
   //samplez = true;
 

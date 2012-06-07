@@ -248,6 +248,12 @@ namespace edm {
     // We make sure the treeCache_ is detached from the file,
     // so that ROOT does not also delete it.
     filePtr_->SetCacheRead(0);
+    // We *must* delete the TTreeCache here because the TFilePrefetch object
+    // references the TFile.  If TFile is closed, before the TTreeCache is
+    // deleted, the TFilePrefetch may continue to do TFile operations, causing
+    // deadlocks or exceptions.
+    treeCache_.reset();
+    rawTreeCache_.reset();
     // We give up our shared ownership of the TFile itself.
     filePtr_.reset();
   }

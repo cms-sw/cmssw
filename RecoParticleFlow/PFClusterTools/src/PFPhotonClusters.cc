@@ -5,6 +5,7 @@
 
 #include <TMath.h>
 #include <TVector2.h>
+using namespace reco;
 PFPhotonClusters::PFPhotonClusters(PFClusterRef PFClusterRef):
   PFClusterRef_(PFClusterRef)
 {

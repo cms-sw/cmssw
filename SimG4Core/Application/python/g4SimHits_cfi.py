@@ -62,7 +62,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         #        please select "SimG4Core/Physics/DummyPhysics" for type
         #        and turn ON DummyEMPhysics
         #
-        type = cms.string('SimG4Core/Physics/QGSP_FTFP_BERT_EML'),
+        type = cms.string('SimG4Core/Physics/QGSP_FTFP_BERT_EML95msc93'),
         DummyEMPhysics = cms.bool(False),
         CutsPerRegion = cms.bool(True),
         DefaultCutValue = cms.double(1.0), ## cuts in cm
@@ -290,7 +290,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         Verbosity                      = cms.untracked.int32(0)
     ),
     CastorShowerLibrary =  cms.PSet(
-        FileName  = cms.FileInPath('SimG4CMS/Forward/data/castorShowerLibrary_QFBE.root'),
+        FileName  = cms.FileInPath('SimG4CMS/Forward/data/CastorShowerLibrary_CMSSW500_Standard.root'),
         BranchEvt = cms.untracked.string('hadShowerLibInfo.'),
         BranchEM  = cms.untracked.string('emParticles.'),
         BranchHAD = cms.untracked.string('hadParticles.'),

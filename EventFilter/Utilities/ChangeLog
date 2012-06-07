@@ -1,32 +1,3 @@
-2012-05-23 Srecko Morovic <srecko.morovic@cern.ch>
-
-	* V01-19-32
-	* fixes to the exceptionGeneratorTest
-
-2012-05-16 Srecko Morovic <srecko.morovic@cern.ch>
-
-	* V00-19-31
-	* added test 13: invalid free (heap corruption)
-	* scripts/exceptionGeneratorTest for ExceptionGenerator
-
-2012-05-15 Srecko Morovic <srecko.morovic@cern.ch>
-
-	* V00-19-30
-	* update beginRun to latest framework definition
-
-2012-05-15 Srecko Morovic <srecko.morovic@cern.ch>
-
-	* V00-19-29
-	* ExceptionGenerator updated:
-	* timed segfault (type 12), improved cgi parameter handling
-	* added virtual function to compile properly
-
-2012-05-10 Srecko Morovic <srecko.morovic@cern.ch>
-
-	* V00-19-27
-	* adding new message type
-	* when receiving it, slave will set core dump size to 0
-
 2012-05-02 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* V00-19-26

@@ -231,7 +231,7 @@ CLHEP::Hep3Vector ALILine::intersect( const ALIPlane& plane, bool notParallel)
   		
   vtemp = _direction * dtemp;
   	if(ALIUtils::debug >= 4) ALIUtils::dump3v( vtemp, "n_r scaled (vtemp) : "); 
-  	if(ALIUtils::debug >= 4) ALIUtils::dump3v( dtemp, "dtemp analog to vtemp : "); 
+  	if(ALIUtils::debug >= 4) ALIUtils::dump3v( CLHEP::Hep3Vector(dtemp), "dtemp analog to vtemp : "); 
     
   CLHEP::Hep3Vector inters = vtemp + _point;
   	if(ALIUtils::debug >= 4) ALIUtils::dump3v( inters, "intersection point = vtemp + _point"); 

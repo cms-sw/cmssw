@@ -53,7 +53,7 @@ def toScreenTotDelivered(lumidata,resultlines,scalefactor,isverbose):
         totlumi=sum([x[5] for x in lsdata])
         totdelivered+=totlumi
         (totlumival,lumiunit)=CommonUtil.guessUnit(totlumi)
-        beamenergyPerLS=[float(x[4]) for x in lsdata if x[3]=='STABLE BEAMS']
+        beamenergyPerLS=[float(x[4]) for x in lsdata]
         avgbeamenergy=0.0
         if len(beamenergyPerLS):
             avgbeamenergy=sum(beamenergyPerLS)/len(beamenergyPerLS)
@@ -118,7 +118,7 @@ def toCSVTotDelivered(lumidata,filename,resultlines,scalefactor,isverbose):
         if lsdata[0][9]:
             fillnum=lsdata[0][9]
         totlumival=sum([x[5] for x in lsdata])
-        beamenergyPerLS=[float(x[4]) for x in lsdata if x[3]=='STABLE BEAMS']
+        beamenergyPerLS=[float(x[4]) for x in lsdata]
         avgbeamenergy=0.0
         if len(beamenergyPerLS):
             avgbeamenergy=sum(beamenergyPerLS)/len(beamenergyPerLS)
@@ -204,7 +204,6 @@ def toScreenOverview(lumidata,resultlines,scalefactor,isverbose):
         nls=len(lsdata)
         deliveredData=[x[5] for x in lsdata]
         totdelivered=sum(deliveredData)
-
         totalDelivered+=totdelivered
         totalDeliveredLS+=len(deliveredData)
         (totdeliveredlumi,deliveredlumiunit)=CommonUtil.guessUnit(totdelivered)
@@ -340,8 +339,8 @@ def toScreenLumiByLS(lumidata,resultlines,scalefactor,isverbose):
             deliveredlumi=lsdata[5]            
             if deliveredlumi>maxlslumi: maxlslumi=deliveredlumi
             recordedlumi=lsdata[6]
-            #if cmslsnum!=0:               
-            result.append([str(run)+':'+str(fillnum),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,'%.1f'%begev,(deliveredlumi),(recordedlumi)])
+            if cmslsnum!=0:               
+                result.append([str(run)+':'+str(fillnum),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,'%.1f'%begev,(deliveredlumi),(recordedlumi)])
             totalDelivered+=deliveredlumi
             totalRecorded+=recordedlumi
             totalDeliveredLS+=1
@@ -402,8 +401,8 @@ def toCSVLumiByLS(lumidata,filename,resultlines,scalefactor,isverbose):
             begev=lsdata[4]
             deliveredlumi=lsdata[5]
             recordedlumi=lsdata[6]
-            #if cmslsnum!=0:
-            result.append([str(run)+':'+str(fillnum),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,begev,deliveredlumi*scalefactor,recordedlumi*scalefactor])
+            if cmslsnum!=0:
+                result.append([str(run)+':'+str(fillnum),str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,begev,deliveredlumi*scalefactor,recordedlumi*scalefactor])
     sortedresult=sorted(result,key=lambda x : int(x[0].split(':')[0]))
     assert(filename)
     if filename.upper()=='STDOUT':
@@ -664,18 +663,17 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
        
         for name in sorted(totefflumiDict):
             lname=pathmap[name]
-            totrecordedinrun=recordedPerpathPerrun[name][run]
-            hprescs=list(set(hprescdict[name]))
-            hprescStr='('+','.join(['%d'%(x) for x in hprescs])+')'
-            (totrecval,totrecunit)=CommonUtil.guessUnit(totrecordedinrun*scalefactor)
             if lname=='n/a':
-                result.append([str(run)+':'+str(fillnum),selectedlsStr,'%.3f'%(totrecval)+'('+totrecunit+')',name+hprescStr,lname,'n/a'])
-            else:
-                (efflumival,efflumiunit)=CommonUtil.guessUnit(totefflumiDict[name]*scalefactor)
-                lprescs=list(set(lprescdict[lname]))
-                lprescStr='('+','.join(['%d'%(x) for x in lprescs])+')'
-                cleanlname=lname.replace('"','')
-                result.append([str(run)+':'+str(fillnum),selectedlsStr,'%.3f'%(totrecval)+'('+totrecunit+')',name+hprescStr,cleanlname+lprescStr,'%.3f'%(efflumival)+'('+efflumiunit+')'])
+                continue
+            (efflumival,efflumiunit)=CommonUtil.guessUnit(totefflumiDict[name]*scalefactor)
+            totrecordedinrun=recordedPerpathPerrun[name][run]
+            (totrecval,totrecunit)=CommonUtil.guessUnit(totrecordedinrun*scalefactor)
+            hprescs=list(set(hprescdict[name]))
+            lprescs=list(set(lprescdict[lname]))
+            hprescStr='('+','.join(['%d'%(x) for x in hprescs])+')'
+            lprescStr='('+','.join(['%d'%(x) for x in lprescs])+')'
+            cleanlname=lname.replace('"','')
+            result.append([str(run)+':'+str(fillnum),selectedlsStr,'%.3f'%(totrecval)+'('+totrecunit+')',name+hprescStr,cleanlname+lprescStr,'%.3f'%(efflumival)+'('+efflumiunit+')'])
     labels = [('Run:Fill','SelectedLS','Recorded','HLTpath(Presc)','L1bit(Presc)','Effective')]
     print ' ==  = '
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,

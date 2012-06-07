@@ -48,7 +48,7 @@ namespace edm {
     operator float() { return (float)(trand_->Rndm()); }
 
     // Returns an unsigned int (32-bit) flat 
-    operator unsigned int() { return (unsigned int)((trand_->Rndm())*exponent_bit_32); }
+    operator unsigned int() { return (unsigned int)((trand_->Rndm())*exponent_bit_32()); }
 
     virtual std::ostream & put (std::ostream & os) const;
     virtual std::istream & get (std::istream & is);

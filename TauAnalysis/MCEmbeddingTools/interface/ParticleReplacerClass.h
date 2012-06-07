@@ -92,8 +92,7 @@ private:
 	bool useTauola_ ;
 	bool useTauolaPolarization_ ;
 	
-	//gen::TauolaInterface* tauola_;
-	gen::TauolaInterface tauola_;
+	gen::TauolaInterface* tauola_;
 
 	bool printEvent_;
 

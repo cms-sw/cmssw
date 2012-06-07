@@ -297,15 +297,20 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
   G4Material* material = aStep->GetTrack()->GetMaterial();
 
   // Retrieve refractive index
-  const G4MaterialPropertyVector* Rindex = materialPropertiesTable->GetProperty("RINDEX"); 
+  G4MaterialPropertyVector* Rindex = materialPropertiesTable->GetProperty("RINDEX"); 
   if ( Rindex == NULL ) {
     edm::LogWarning("EcalSim") << "Couldn't retrieve refractive index";
     return cherenkovEnergy;
   }
 
+  // V.Ivanchenko - temporary close log output for 9.5
+  // Material refraction properties
+  int Rlength = Rindex->GetVectorLength() - 1; 
+  double Pmin = Rindex->Energy(0);
+  double Pmax = Rindex->Energy(Rlength);
   LogDebug("EcalSim") << "Material properties: " << "\n"
-                      << "  Pmin = " << Rindex->GetMinPhotonEnergy()
-                      << "  Pmax = " << Rindex->GetMaxPhotonEnergy();
+                      << "  Pmin = " << Pmin
+                      << "  Pmax = " << Pmax;
   
   // Get particle properties
   G4StepPoint* pPreStepPoint  = aStep->GetPreStepPoint();
@@ -343,10 +348,8 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
   }
 
   // Material refraction properties
-  double Pmin = Rindex->GetMinPhotonEnergy();
-  double Pmax = Rindex->GetMaxPhotonEnergy();
   double dp = Pmax - Pmin;
-  double maxCos = BetaInverse / Rindex->GetMaxProperty(); 
+  double maxCos = BetaInverse / (*Rindex)[Rlength]; 
   double maxSin2 = (1.0 - maxCos) * (1.0 + maxCos);
 
   // Finally: get contribution of each photon
@@ -361,7 +364,7 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
     do {
       randomNumber = G4UniformRand();	
       sampledMomentum = Pmin + randomNumber * dp; 
-      sampledRI = Rindex->GetProperty(sampledMomentum);
+      sampledRI = Rindex->Value(sampledMomentum);
       cosTheta = BetaInverse / sampledRI;  
       
       sin2Theta = (1.0 - cosTheta)*(1.0 + cosTheta);
@@ -419,10 +422,10 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
 //________________________________________________________________________________________
 // Returns number of photons produced per GEANT-unit (millimeter) in the current medium. 
 // From G4Cerenkov.cc
-const double DreamSD::getAverageNumberOfPhotons_( const double charge,
-                                                  const double beta,
-                                                  const G4Material* aMaterial,
-                                                  const G4MaterialPropertyVector* Rindex ) const
+double DreamSD::getAverageNumberOfPhotons_( const double charge,
+					    const double beta,
+					    const G4Material* aMaterial,
+					    G4MaterialPropertyVector* Rindex )
 {
   const G4double rFact = 369.81/(eV * cm);
 
@@ -434,13 +437,14 @@ const double DreamSD::getAverageNumberOfPhotons_( const double charge,
   // 	- Refraction Indices for the current material
   //	- new G4PhysicsOrderedFreeVector allocated to hold CAI's
  
-  // Min and Max photon momenta  
-  double Pmin = Rindex->GetMinPhotonEnergy();
-  double Pmax = Rindex->GetMaxPhotonEnergy();
+  // Min and Max photon momenta 
+  int Rlength = Rindex->GetVectorLength() - 1; 
+  double Pmin = Rindex->Energy(0);
+  double Pmax = Rindex->Energy(Rlength);
 
   // Min and Max Refraction Indices 
-  double nMin = Rindex->GetMinProperty();	
-  double nMax = Rindex->GetMaxProperty();
+  double nMin = (*Rindex)[0];	
+  double nMax = (*Rindex)[Rlength];
 
   // Max Cerenkov Angle Integral 
   double CAImax = chAngleIntegrals_->GetMaxValue();
@@ -461,12 +465,11 @@ const double DreamSD::getAverageNumberOfPhotons_( const double charge,
   // GetProperty() methods of the G4MaterialPropertiesTable and
   // the GetValue() method of G4PhysicsVector.  
   else {
-    Pmin = Rindex->GetPhotonEnergy(BetaInverse);
+    Pmin = Rindex->Value(BetaInverse);
     dp = Pmax - Pmin;
     // need boolean for current implementation of G4PhysicsVector
     // ==> being phased out
-    bool isOutRange;
-    double CAImin = chAngleIntegrals_->GetValue(Pmin, isOutRange);
+    double CAImin = chAngleIntegrals_->Value(Pmin);
     ge = CAImax - CAImin;
     
   }
@@ -554,9 +557,9 @@ bool DreamSD::setPbWO2MaterialProperties_( G4Material* aMaterial ) {
 // - simple tracing to APD position (straight line);
 // - configurable reflection probability if not straight to APD;
 // - APD response function
-const double DreamSD::getPhotonEnergyDeposit_( const G4ThreeVector& p, 
-                                               const G4ThreeVector& x,
-                                               const G4Step* aStep )
+double DreamSD::getPhotonEnergyDeposit_( const G4ThreeVector& p, 
+					 const G4ThreeVector& x,
+					 const G4Step* aStep )
 {
 
   double energy = 0;

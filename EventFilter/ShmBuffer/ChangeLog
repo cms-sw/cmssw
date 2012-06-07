@@ -1,8 +1,3 @@
-2012-05-22 Srecko Morovic <srecko.morovic@cern.ch>
-
-	* tag V00-08-18
-	* setEvtPrcId is global,indexForEvtPrcId added
-
 2012-05-02 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V00-08-17

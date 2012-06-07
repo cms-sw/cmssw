@@ -27,14 +27,8 @@ process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
                                            ZIP = cms.untracked.bool(True)
                                            )
 process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetExtraESModule",
-                                                           fromDDD = cms.bool( True ),
+                                                           fromDDD = cms.bool( True )
                                                            )
-
-process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
-                                                      fromDDD = cms.bool( True ),
-                                                      layerNumberPXB = cms.uint32(18),
-                                                      totalBlade = cms.uint32(56)
-                                                      )
 
 process.TrackerGeometryWriter = cms.EDAnalyzer("PGeometricDetBuilder")
 process.TrackerGeometryExtraWriter = cms.EDAnalyzer("PGeometricDetExtraBuilder")

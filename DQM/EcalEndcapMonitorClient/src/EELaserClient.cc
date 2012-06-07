@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2012/04/13 17:59:45 $
- * $Revision: 1.143.2.1 $
+ * $Date: 2011/09/02 13:55:02 $
+ * $Revision: 1.142 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1881,8 +1881,6 @@ void EELaserClient::analyze(void) {
 
     nCryL1 = nCryL2 = nCryL3 = nCryL4 = 0;
 
-    bool l1Data(false), l2Data(false), l3Data(false), l4Data(false);
-
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
 
@@ -1899,11 +1897,6 @@ void EELaserClient::analyze(void) {
         update02 = UtilsClient::getBinStatistics(h03_[ism-1], ix, iy, num02, mean02, rms02);
         update03 = UtilsClient::getBinStatistics(h05_[ism-1], ix, iy, num03, mean03, rms03);
         update04 = UtilsClient::getBinStatistics(h07_[ism-1], ix, iy, num04, mean04, rms04);
-
-	if(update01) l1Data = true;
-	if(update02) l2Data = true;
-	if(update03) l3Data = true;
-	if(update04) l4Data = true;
 
         if ( update01 ) {
           meanAmplL1 += mean01;
@@ -2395,9 +2388,6 @@ void EELaserClient::analyze(void) {
         if ( mepnprms05_[ism-1] ) mepnprms05_[ism-1]->Fill(rms13);
 
       }
-      else if(l1Data){
-	if ( meg09_[ism-1] )           meg09_[ism-1]->setBinContent(i, 1, 0.);
-      }
 
       if ( update10 && update14 ) {
 
@@ -2416,9 +2406,6 @@ void EELaserClient::analyze(void) {
        if ( meg10_[ism-1] )           meg10_[ism-1]->setBinContent(i, 1, val);
        if ( mepnprms06_[ism-1] ) mepnprms06_[ism-1]->Fill(rms14);
 
-      }
-      else if(l2Data){
-	if ( meg10_[ism-1] )           meg10_[ism-1]->setBinContent(i, 1, 0.);
       }
 
       if ( update11 && update15 ) {
@@ -2439,9 +2426,6 @@ void EELaserClient::analyze(void) {
         if ( mepnprms07_[ism-1] ) mepnprms07_[ism-1]->Fill(rms15);
 
       }
-      else if(l3Data){
-	if ( meg11_[ism-1] )           meg11_[ism-1]->setBinContent(i, 1, 0.);
-      }
 
       if ( update12 && update16 ) {
 
@@ -2460,9 +2444,6 @@ void EELaserClient::analyze(void) {
         if ( meg12_[ism-1] ) meg12_[ism-1]->setBinContent(i, 1, val);
         if ( mepnprms08_[ism-1] ) mepnprms08_[ism-1]->Fill(rms16);
 
-      }
-      else if(l4Data){
-	if ( meg12_[ism-1] )           meg12_[ism-1]->setBinContent(i, 1, 0.);
       }
 
       if ( Masks::maskPn(ism, i, bits01|bits03, EcalEndcap) ) {

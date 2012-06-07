@@ -20,8 +20,6 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
-static const bool useL1EventSetup(true);
-static const bool useL1GtTriggerMenuLite(false);
 
 HLTInfo::HLTInfo() {
 
@@ -53,6 +51,7 @@ void HLTInfo::beginRun(const edm::Run& run, const edm::EventSetup& c){
 
 /*  Setup the analysis to put the branch-variables into the tree. */
 void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
+
 
   processName_ = pSet.getParameter<std::string>("HLTProcessName") ;
 
@@ -112,11 +111,6 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   l1extjtfe = new float[kMaxL1ExtJtF];
   l1extjtfeta = new float[kMaxL1ExtJtF];
   l1extjtfphi = new float[kMaxL1ExtJtF];
-  const int kMaxL1ExtJt = 10000;
-  l1extjtet = new float[kMaxL1ExtJt];
-  l1extjte = new float[kMaxL1ExtJt];
-  l1extjteta = new float[kMaxL1ExtJt];
-  l1extjtphi = new float[kMaxL1ExtJt];
   const int kMaxL1ExtTau = 10000;
   l1exttauet = new float[kMaxL1ExtTau];
   l1exttaue = new float[kMaxL1ExtTau];
@@ -126,7 +120,6 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   algoBitToName = new TString[128];
   techBitToName = new TString[128];
 
-  /*
   HltTree->Branch("NL1IsolEm",&nl1extiem,"NL1IsolEm/I");
   HltTree->Branch("L1IsolEmEt",l1extiemet,"L1IsolEmEt[NL1IsolEm]/F");
   HltTree->Branch("L1IsolEmE",l1extieme,"L1IsolEmE[NL1IsolEm]/F");
@@ -158,11 +151,6 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("L1ForJetE",l1extjtfe,"L1ForJetE[NL1ForJet]/F");
   HltTree->Branch("L1ForJetEta",l1extjtfeta,"L1ForJetEta[NL1ForJet]/F");
   HltTree->Branch("L1ForJetPhi",l1extjtfphi,"L1ForJetPhi[NL1ForJet]/F");
-  HltTree->Branch("NL1Jet",&nl1extjet,"NL1Jet/I");
-  HltTree->Branch("L1JetEt",l1extjtet,"L1JetEt[NL1Jet]/F");
-  HltTree->Branch("L1JetE",l1extjte,"L1JetE[NL1Jet]/F");
-  HltTree->Branch("L1JetEta",l1extjteta,"L1JetEta[NL1Jet]/F");
-  HltTree->Branch("L1JetPhi",l1extjtphi,"L1JetPhi[NL1Jet]/F");
   HltTree->Branch("NL1Tau",&nl1exttau,"NL1Tau/I");
   HltTree->Branch("L1TauEt",l1exttauet,"L1TauEt[NL1Tau]/F");
   HltTree->Branch("L1TauE",l1exttaue,"L1TauE[NL1Tau]/F");
@@ -184,7 +172,7 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("L1HfTowerCountNegativeEtaRing1",&l1hfTowerCountNegativeEtaRing1,"L1HfTowerCountNegativeEtaRing1/I");
   HltTree->Branch("L1HfTowerCountPositiveEtaRing2",&l1hfTowerCountPositiveEtaRing2,"L1HfTowerCountPositiveEtaRing2/I");
   HltTree->Branch("L1HfTowerCountNegativeEtaRing2",&l1hfTowerCountNegativeEtaRing2,"L1HfTowerCountNegativeEtaRing2/I");
-  */
+
 }
 
 /* **Analyze the event** */
@@ -194,7 +182,6 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
                       const edm::Handle<l1extra::L1MuonParticleCollection>   & L1ExtMu,
                       const edm::Handle<l1extra::L1JetParticleCollection>    & L1ExtJetC,
                       const edm::Handle<l1extra::L1JetParticleCollection>    & L1ExtJetF,
-		      const edm::Handle<l1extra::L1JetParticleCollection>    & L1ExtJet,
                       const edm::Handle<l1extra::L1JetParticleCollection>    & L1ExtTau,
                       const edm::Handle<l1extra::L1EtMissParticleCollection> & L1ExtMet,
                       const edm::Handle<l1extra::L1EtMissParticleCollection> & L1ExtMht,
@@ -413,34 +400,6 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
     if (_Debug) std::cout << "%HLTInfo -- No L1 Forward JET object" << std::endl;
   }
 
-  const int maxL1Jet = 324;
-  for (int i=0; i!=maxL1Jet; ++i){
-    l1extjtet[i] = -999.;
-    l1extjte[i] = -999.;
-    l1extjteta[i] = -999.;
-    l1extjtphi[i] = -999.;
-  }
-  if (L1ExtJet.isValid()) {
-    if (_Debug) std::cout << "%HLTInfo -- Found L1 JET object" << std::endl;
-    nl1extjet = maxL1Jet;
-    l1extra::L1JetParticleCollection myl1jets;
-    myl1jets = * L1ExtJet;
-    std::sort(myl1jets.begin(),myl1jets.end(),EtGreater());
-    int il1exjt = 0;
-    for (l1extra::L1JetParticleCollection::const_iterator jtItr = myl1jets.begin(); jtItr != myl1jets.end(); ++jtItr) {
-      l1extjtet[il1exjt] = jtItr->et();
-      l1extjte[il1exjt] = jtItr->energy();
-      l1extjteta[il1exjt] = jtItr->eta();
-      l1extjtphi[il1exjt] = jtItr->phi();
-      il1exjt++;
-    }
-  }
-  else {
-    nl1extjetf = 0;
-    if (_Debug) std::cout << "%HLTInfo -- No L1 JET object" << std::endl;
-  }
-
-
   const int maxL1TauJet = 4;
   for (int i=0; i!=maxL1TauJet; ++i){
     l1exttauet[i] = -999.;
@@ -489,8 +448,7 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
 
   // L1 Triggers from Menu
 
-  //  m_l1GtUtils.retrieveL1EventSetup(eventSetup);
-  m_l1GtUtils.getL1GtRunCache(iEvent,eventSetup,useL1EventSetup,useL1GtTriggerMenuLite);
+  m_l1GtUtils.retrieveL1EventSetup(eventSetup);
   edm::ESHandle<L1GtTriggerMenu> menuRcd;
   eventSetup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
   const L1GtTriggerMenu* menu = menuRcd.product();
