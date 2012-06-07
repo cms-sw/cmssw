@@ -51,7 +51,7 @@ class MatrixInjector(object):
             
         self.defaultChain={
             "RequestType" :   "TaskChain",                    #this is how we handle relvals
-            "AcquisitionEra": "ReleaseValidation",            #Acq Era
+            "AcquisitionEra": None,            #Acq Era
             "Requestor": self.user,                           #Person responsible
             "Group": self.group,                              #group for the request
             "CMSSWVersion": os.getenv('CMSSW_VERSION'),       #CMSSW Version (used for all tasks in chain)
@@ -152,6 +152,7 @@ class MatrixInjector(object):
                                 return -15
                             chainDict['nowmTasklist'][-1]['ConfigCacheID']='%s/%s.py'%(dir,step)
                             chainDict['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT']
+                            chainDict['AcquisitionEra']=(chainDict['CMSSWVersion']+'-'+chainDict['GlobalTag']).replace('::All','')
                         index+=1
                         
             #wrap up for this one
