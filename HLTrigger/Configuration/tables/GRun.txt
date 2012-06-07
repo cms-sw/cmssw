@@ -665,8 +665,8 @@ HLT_Ele27_WP80_WCandPt80_v*                                                     
 
 HLT_IsoMu20_WCandPt80_v*									#sr128565 
 
-HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_v1				#sr128284
-HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet50_40_30_v1			#sr128284
+HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_v*				#sr128284
+HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet50_40_30_v*			#sr128284
 
 HLT_DiJet35_MJJ650_AllJets_DEta3p5_VBF_v*							#sr127987
 HLT_DiJet35_MJJ700_AllJets_DEta3p5_VBF_v*							#sr127987
@@ -727,6 +727,7 @@ AlCa_LumiPixels_Random_v*
 AlCa_LumiPixels_ZeroBias_v*
 
 DQM_FEDIntegrity_v*
+DQM_HcalEmptyEvents_v*                                                                          #129237
 HLTriggerFirstPath
 HLTriggerFinalPath
 HLTAnalyzerEndpath                                                                              # only in 'GRun', not in 'online'
