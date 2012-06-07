@@ -35,7 +35,7 @@ process = cms.Process( 'PAT' )
 runOnMC = options.runOnMC
 
 ### Standard and PF reconstruction
-runStandardPAT = False
+runStandardPAT = True
 runPF2PAT      = True
 
 ### Switch on/off selection steps
@@ -316,7 +316,14 @@ if runPF2PAT:
     applyPostfix( process, 'pfIsolatedMuons', postfix ).isolationValueMapsNeutral  = cms.VInputTag( cms.InputTag( 'muPFIsoValueNeutral03' + postfix )
                                                                                                   , cms.InputTag( 'muPFIsoValueGamma03' + postfix )
                                                                                                   )
+    applyPostfix( process, 'pfMuons', postfix ).isolationValueMapsCharged  = cms.VInputTag( cms.InputTag( 'muPFIsoValueCharged03' + postfix )
+                                                                                          )
+    applyPostfix( process, 'pfMuons', postfix ).deltaBetaIsolationValueMap = cms.InputTag( 'muPFIsoValuePU03' + postfix )
+    applyPostfix( process, 'pfMuons', postfix ).isolationValueMapsNeutral  = cms.VInputTag( cms.InputTag( 'muPFIsoValueNeutral03' + postfix )
+                                                                                          , cms.InputTag( 'muPFIsoValueGamma03' + postfix )
+                                                                                          )
     applyPostfix( process, 'patMuons', postfix ).isolationValues.pfNeutralHadrons   = cms.InputTag( 'muPFIsoValueNeutral03' + postfix )
+    applyPostfix( process, 'patMuons', postfix ).isolationValues.pfChargedAll       = cms.InputTag( 'muPFIsoValueChargedAll03' + postfix )
     applyPostfix( process, 'patMuons', postfix ).isolationValues.pfPUChargedHadrons = cms.InputTag( 'muPFIsoValuePU03' + postfix )
     applyPostfix( process, 'patMuons', postfix ).isolationValues.pfPhotons          = cms.InputTag( 'muPFIsoValueGamma03' + postfix )
     applyPostfix( process, 'patMuons', postfix ).isolationValues.pfChargedHadrons   = cms.InputTag( 'muPFIsoValueCharged03' + postfix )
@@ -331,7 +338,14 @@ if runPF2PAT:
     applyPostfix( process, 'pfIsolatedElectrons', postfix ).isolationValueMapsNeutral  = cms.VInputTag( cms.InputTag( 'elPFIsoValueNeutral03PFId' + postfix )
                                                                                                       , cms.InputTag( 'elPFIsoValueGamma03PFId'   + postfix )
                                                                                                       )
+    applyPostfix( process, 'pfElectrons', postfix ).isolationValueMapsCharged  = cms.VInputTag( cms.InputTag( 'elPFIsoValueCharged03PFId' + postfix )
+                                                                                               )
+    applyPostfix( process, 'pfElectrons', postfix ).deltaBetaIsolationValueMap = cms.InputTag( 'elPFIsoValuePU03PFId' + postfix )
+    applyPostfix( process, 'pfElectrons', postfix ).isolationValueMapsNeutral  = cms.VInputTag( cms.InputTag( 'elPFIsoValueNeutral03PFId' + postfix )
+                                                                                              , cms.InputTag( 'elPFIsoValueGamma03PFId'   + postfix )
+                                                                                              )
     applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfNeutralHadrons   = cms.InputTag( 'elPFIsoValueNeutral03PFId' + postfix )
+    applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfChargedAll       = cms.InputTag( 'elPFIsoValueChargedAll03PFId' + postfix )
     applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfPUChargedHadrons = cms.InputTag( 'elPFIsoValuePU03PFId' + postfix )
     applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfPhotons          = cms.InputTag( 'elPFIsoValueGamma03PFId' + postfix )
     applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfChargedHadrons   = cms.InputTag( 'elPFIsoValueCharged03PFId' + postfix )
@@ -370,7 +384,7 @@ if runStandardPAT:
     print '        switching to   L1Offset   !!!'
     process.patJetCorrFactors.levels.insert( 0, 'L1Offset' )
     process.patJetCorrFactors.levels.remove( 'L1FastJet' )
-    process.patJetCorrFactors.useRho = False # FIXME: does not apply
+    process.patJetCorrFactors.useRho = False
 
   from PhysicsTools.PatAlgos.tools.jetTools import *
   jecSetPFNoCHS = jecSetPF.rstrip('chs')
@@ -382,7 +396,7 @@ if runStandardPAT:
                    doL1Cleaning = False,
                    doL1Counters = True,
                    genJetCollection=cms.InputTag('ak5GenJets'),
-                   doJetID      = True,
+                   doJetID      = True
                    )
   from PhysicsTools.PatAlgos.tools.metTools import *
   addPfMET(process, 'AK5PF')
@@ -416,22 +430,17 @@ if runStandardPAT:
 
   ### Jets
 
-  process.kt6PFJets = kt6PFJets.clone( src          = cms.InputTag( 'particleFlow' )
-                                     , doRhoFastjet = True
-                                     )
-  process.patDefaultSequence.replace( process.patJetCorrFactors
-                                    , process.kt6PFJets * process.patJetCorrFactors
-                                    )
-  process.out.outputCommands.append( 'keep double_kt6PFJets_*_' + process.name_() )
-
   process.step3b_1 = step3b_1.clone()
   process.step3b_2 = step3b_2.clone()
   process.step3b_3 = step3b_3.clone()
   process.step3b   = cms.Sequence( process.step3b_1 * process.step3b_2 * process.step3b_3 )
 
-  process.out.outputCommands.append( 'keep double_*_*_' + process.name_() )
+  process.out.outputCommands.append( 'keep double_kt6PFJets*_*_*' )
   if useL1FastJet:
     process.patJetCorrFactors.useRho = True
+    process.patJetCorrFactors.rho    = cms.InputTag( 'kt6PFJets', 'rho' )
+    process.patJetCorrFactorsAK5PF.useRho = True
+    process.patJetCorrFactorsAK5PF.rho    = cms.InputTag( 'kt6PFJets', 'rho' )
 
   process.goodPatJets       = goodPatJets.clone()
   process.goodPatJetsMedium = process.goodPatJets.clone()
@@ -458,14 +467,9 @@ if runPF2PAT:
 
   ### Jets
 
-  kt6PFJetsPF = kt6PFJets.clone( doRhoFastjet = True )
-  setattr( process, 'kt6PFJets' + postfix, kt6PFJetsPF )
-  getattr( process, 'patPF2PATSequence' + postfix).replace( getattr( process, 'pfNoElectron' + postfix )
-                                                          , getattr( process, 'pfNoElectron' + postfix ) * getattr( process, 'kt6PFJets' + postfix )
-                                                          )
   if useL1FastJet:
-    applyPostfix( process, 'patJetCorrFactors', postfix ).rho = cms.InputTag( 'kt6PFJets' + postfix, 'rho' )
-  process.out.outputCommands.append( 'keep double_kt6PFJets' + postfix + '_*_' + process.name_() )
+    applyPostfix( process, 'patJetCorrFactors', postfix ).rho = cms.InputTag( 'kt6PFJets', 'rho' )
+  process.out.outputCommands.append( 'keep double_kt6PFJets*_*_*' )
 
   goodPatJetsPF = goodPatJets.clone( src = cms.InputTag( 'selectedPatJets' + postfix ), checkOverlaps = cms.PSet() )
   setattr( process, 'goodPatJets' + postfix, goodPatJetsPF )
@@ -680,7 +684,7 @@ if runStandardPAT:
 if runPF2PAT:
   pPF = cms.Path()
   if not runOnMC:
-    process.pPF += process.eventCleaningData
+    pPF += process.eventCleaningData
   if useTrigger:
     pPF += process.step1
   pPF += process.goodOfflinePrimaryVertices

@@ -25,7 +25,7 @@ runOnMC = True
 ### Standard and PF work flow
 
 # Standard
-runStandardPAT = False
+runStandardPAT = True
 usePFJets      = True
 useCaloJets    = True
 
@@ -330,7 +330,14 @@ if runPF2PAT:
     applyPostfix( process, 'pfIsolatedMuons', postfix ).isolationValueMapsNeutral  = cms.VInputTag( cms.InputTag( 'muPFIsoValueNeutral03' + postfix )
                                                                                                   , cms.InputTag( 'muPFIsoValueGamma03' + postfix )
                                                                                                   )
+    applyPostfix( process, 'pfMuons', postfix ).isolationValueMapsCharged  = cms.VInputTag( cms.InputTag( 'muPFIsoValueCharged03' + postfix )
+                                                                                          )
+    applyPostfix( process, 'pfMuons', postfix ).deltaBetaIsolationValueMap = cms.InputTag( 'muPFIsoValuePU03' + postfix )
+    applyPostfix( process, 'pfMuons', postfix ).isolationValueMapsNeutral  = cms.VInputTag( cms.InputTag( 'muPFIsoValueNeutral03' + postfix )
+                                                                                          , cms.InputTag( 'muPFIsoValueGamma03' + postfix )
+                                                                                          )
     applyPostfix( process, 'patMuons', postfix ).isolationValues.pfNeutralHadrons   = cms.InputTag( 'muPFIsoValueNeutral03' + postfix )
+    applyPostfix( process, 'patMuons', postfix ).isolationValues.pfChargedAll       = cms.InputTag( 'muPFIsoValueChargedAll03' + postfix )
     applyPostfix( process, 'patMuons', postfix ).isolationValues.pfPUChargedHadrons = cms.InputTag( 'muPFIsoValuePU03' + postfix )
     applyPostfix( process, 'patMuons', postfix ).isolationValues.pfPhotons          = cms.InputTag( 'muPFIsoValueGamma03' + postfix )
     applyPostfix( process, 'patMuons', postfix ).isolationValues.pfChargedHadrons   = cms.InputTag( 'muPFIsoValueCharged03' + postfix )
@@ -345,7 +352,14 @@ if runPF2PAT:
     applyPostfix( process, 'pfIsolatedElectrons', postfix ).isolationValueMapsNeutral  = cms.VInputTag( cms.InputTag( 'elPFIsoValueNeutral03PFId' + postfix )
                                                                                                       , cms.InputTag( 'elPFIsoValueGamma03PFId'   + postfix )
                                                                                                       )
+    applyPostfix( process, 'pfElectrons', postfix ).isolationValueMapsCharged  = cms.VInputTag( cms.InputTag( 'elPFIsoValueCharged03PFId' + postfix )
+                                                                                               )
+    applyPostfix( process, 'pfElectrons', postfix ).deltaBetaIsolationValueMap = cms.InputTag( 'elPFIsoValuePU03PFId' + postfix )
+    applyPostfix( process, 'pfElectrons', postfix ).isolationValueMapsNeutral  = cms.VInputTag( cms.InputTag( 'elPFIsoValueNeutral03PFId' + postfix )
+                                                                                              , cms.InputTag( 'elPFIsoValueGamma03PFId'   + postfix )
+                                                                                              )
     applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfNeutralHadrons   = cms.InputTag( 'elPFIsoValueNeutral03PFId' + postfix )
+    applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfChargedAll       = cms.InputTag( 'elPFIsoValueChargedAll03PFId' + postfix )
     applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfPUChargedHadrons = cms.InputTag( 'elPFIsoValuePU03PFId' + postfix )
     applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfPhotons          = cms.InputTag( 'elPFIsoValueGamma03PFId' + postfix )
     applyPostfix( process, 'patElectrons', postfix ).isolationValues.pfChargedHadrons   = cms.InputTag( 'elPFIsoValueCharged03PFId' + postfix )
@@ -360,36 +374,17 @@ if runStandardPAT:
     runOnData( process )
   # subsequent jet area calculations needed for L1FastJet on RECO jets
   if useCaloJets and useL1FastJet:
-    if useRelVals:
-      process.ak5CaloJets = ak5CaloJets.clone( doAreaFastjet = True )
-      process.ak5JetID    = ak5JetID.clone()
-      process.ak5CaloJetSequence = cms.Sequence(
-        process.ak5CaloJets
-      * process.ak5JetID
-      )
-      from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
-      switchJetCollection( process
-                         , cms.InputTag( jetAlgo.lower() + 'CaloJets' )
-                         , doJTA            = True
-                         , doBTagging       = True
-                         , jetCorrLabel     = ( jecSet, jecLevels )
-                         , doType1MET       = False
-                         , genJetCollection = cms.InputTag( jetAlgo.lower() + 'GenJets' )
-                         , doJetID          = True
-                         )
-    else:
-      print 'WARNING patRefSel_muJets_test_cfg.py:'
-      print '        L1FastJet JECs are not available for AK5Calo jets in this data due to missing jet area computation;'
-      print '        switching to   L1Offset   !!!'
-      jecLevelsCalo.insert( 0, 'L1Offset' )
-      jecLevelsCalo.remove( 'L1FastJet' )
-      process.patJetCorrFactors.levels = jecLevelsCalo
-      #process.patJetCorrFactors.useRho = False # FIXME: does not apply
+    print 'WARNING patRefSel_muJets_test_cfg.py:'
+    print '        L1FastJet JECs are not available for AK5Calo jets in this data due to missing jet area computation;'
+    print '        switching to   L1Offset   !!!'
+    jecLevelsCalo.insert( 0, 'L1Offset' )
+    jecLevelsCalo.remove( 'L1FastJet' )
+    process.patJetCorrFactors.levels = jecLevelsCalo
+    process.patJetCorrFactors.useRho = False
   if usePFJets:
     if useL1FastJet:
       process.ak5PFJets = ak5PFJets.clone( doAreaFastjet = True )
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
-    from PhysicsTools.PatAlgos.tools.metTools import addPfMET
     addJetCollection( process
                     , cms.InputTag( jetAlgo.lower() + pfSuffix + 'Jets' )
                     , jetAlgo
@@ -403,6 +398,7 @@ if runStandardPAT:
                     , genJetCollection = cms.InputTag( jetAlgo.lower() + 'GenJets' )
                     , doJetID          = True
                     )
+    from PhysicsTools.PatAlgos.tools.metTools import addPfMET
     addPfMET( process
             , jetAlgo + pfSuffix
             )
@@ -470,17 +466,14 @@ if runStandardPAT:
 
   ### Jets
 
-  process.kt6PFJets = kt6PFJets.clone( src          = cms.InputTag( 'particleFlow' )
-                                     , doRhoFastjet = True
-                                     )
-  process.patDefaultSequence.replace( process.patJetCorrFactors
-                                    , process.kt6PFJets * process.patJetCorrFactors
-                                    )
-  process.out.outputCommands.append( 'keep double_kt6PFJets_*_' + process.name_() )
+  process.out.outputCommands.append( 'keep double_kt6PFJets*_*_*' )
   if useL1FastJet:
-    process.patJetCorrFactors.useRho = True
+    if useCaloJets and "L1FastJet" in jecLevelsCalo:
+      process.patJetCorrFactors.useRho = True
+      process.patJetCorrFactors.rho    = cms.InputTag( 'kt6PFJets', 'rho' )
     if usePFJets:
       getattr( process, 'patJetCorrFactors' + jetAlgo + pfSuffix ).useRho = True
+      getattr( process, 'patJetCorrFactors' + jetAlgo + pfSuffix ).rho    = cms.InputTag( 'kt6PFJets', 'rho' )
 
   process.goodPatJets = goodPatJets.clone()
   process.step4a      = step4a.clone()
@@ -529,14 +522,9 @@ if runPF2PAT:
 
   ### Jets
 
-  kt6PFJetsPF = kt6PFJets.clone( doRhoFastjet = True )
-  setattr( process, 'kt6PFJets' + postfix, kt6PFJetsPF )
-  getattr( process, 'patPF2PATSequence' + postfix).replace( getattr( process, 'pfNoElectron' + postfix )
-                                                          , getattr( process, 'pfNoElectron' + postfix ) * getattr( process, 'kt6PFJets' + postfix )
-                                                          )
   if useL1FastJet:
-    applyPostfix( process, 'patJetCorrFactors', postfix ).rho = cms.InputTag( 'kt6PFJets' + postfix, 'rho' )
-  process.out.outputCommands.append( 'keep double_kt6PFJets' + postfix + '_*_' + process.name_() )
+    applyPostfix( process, 'patJetCorrFactors', postfix ).rho = cms.InputTag( 'kt6PFJets', 'rho' )
+  process.out.outputCommands.append( 'keep double_kt6PFJets*_*_*' )
 
   goodPatJetsPF = goodPatJets.clone( src = cms.InputTag( 'selectedPatJets' + postfix ), checkOverlaps = cms.PSet() )
   setattr( process, 'goodPatJets' + postfix, goodPatJetsPF )
@@ -708,8 +696,6 @@ if runStandardPAT:
       process.p += process.step0b
     process.p += process.step0c
     process.p += process.eidMVASequence
-    if useL1FastJet and useRelVals:
-      process.p += process.ak5CaloJetSequence
     process.p += process.patDefaultSequence
     if usePFJets:
       process.p.remove( getattr( process, 'patJetCorrFactors'                            + jetAlgo + pfSuffix ) )
@@ -775,27 +761,6 @@ if runStandardPAT:
       pAddPF += process.ak5PFJets
     pAddPF += process.patDefaultSequence
     pAddPF.remove( process.patJetCorrFactors )
-    if useCaloJets and useL1FastJet and useRelVals:
-      pAddPF.remove( process.jetTracksAssociatorAtVertex )
-      pAddPF.remove( process.impactParameterTagInfosAOD )
-      pAddPF.remove( process.secondaryVertexTagInfosAOD )
-      pAddPF.remove( process.softMuonTagInfosAOD )
-      pAddPF.remove( process.secondaryVertexNegativeTagInfosAOD )
-      pAddPF.remove( process.jetBProbabilityBJetTagsAOD )
-      pAddPF.remove( process.jetProbabilityBJetTagsAOD )
-      pAddPF.remove( process.trackCountingHighPurBJetTagsAOD )
-      pAddPF.remove( process.trackCountingHighEffBJetTagsAOD )
-      pAddPF.remove( process.simpleSecondaryVertexHighEffBJetTagsAOD )
-      pAddPF.remove( process.simpleSecondaryVertexHighPurBJetTagsAOD )
-      pAddPF.remove( process.combinedSecondaryVertexBJetTagsAOD )
-      pAddPF.remove( process.combinedSecondaryVertexMVABJetTagsAOD )
-      pAddPF.remove( process.softMuonBJetTagsAOD )
-      pAddPF.remove( process.softMuonByPtBJetTagsAOD )
-      pAddPF.remove( process.softMuonByIP3dBJetTagsAOD )
-      pAddPF.remove( process.simpleSecondaryVertexNegativeHighEffBJetTagsAOD )
-      pAddPF.remove( process.simpleSecondaryVertexNegativeHighPurBJetTagsAOD )
-      pAddPF.remove( process.negativeTrackCountingHighEffJetTagsAOD )
-      pAddPF.remove( process.negativeTrackCountingHighPurJetTagsAOD )
     pAddPF.remove( process.patJetCharge )
     pAddPF.remove( process.patJetPartonMatch )
     pAddPF.remove( process.patJetGenJetMatch )
