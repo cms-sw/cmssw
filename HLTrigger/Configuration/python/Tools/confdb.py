@@ -36,6 +36,7 @@ class HLTProcess(object):
     "AlCa_LumiPixels_Random_v*",
     "AlCa_LumiPixels_ZeroBias_v*",
     "DQM_FEDIntegrity_v*",
+    "DQM_HcalEmptyEvents_v*",
     "HLT_Calibration_v*",
     "HLT_EcalCalibration_v*",
     "HLT_HcalCalibration_v*",
