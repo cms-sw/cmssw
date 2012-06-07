@@ -39,13 +39,13 @@ namespace
 	TH1F * h = new TH1F("h","h",10,0,10);
 	vector<int> dataProbFunctionVar;
 	vector<double> dataProb;
-
+	
 	
 	const edm::ParameterSet & psin=ps.getParameter<edm::ParameterSet>(sourceName);
 	std::string type_=psin.getParameter<std::string>("type");
 	if (ps.exists("readDB") && ps.getParameter<bool>("readDB")){
 	  //in case of DB access, do not try to load anything from the PSet, but wait for beginRun.
-	  edm::LogError("BMixingModule")<<"Will read from DB: reset to a dummy PileUp object.";
+ 	  edm::LogError("BMixingModule")<<"Will read from DB: reset to a dummy PileUp object.";
 	  pileup.reset(new edm::PileUp(psin,0,0,playback));
 	  return pileup;
 	}
@@ -152,7 +152,7 @@ namespace
 	    else if (sourceName=="input" && psin_average.exists("Lumi") && psin_average.exists("sigmaInel")) {
 	      averageNumber=psin_average.getParameter<double>("Lumi")*psin_average.getParameter<double>("sigmaInel")*ps.getParameter<int>("bunchspace")/1000*3564./2808.;  //FIXME
 	      pileup.reset(new
-	      edm::PileUp(psin,averageNumber,h,playback));
+ 	      edm::PileUp(psin,averageNumber,h,playback));
 	      edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb;
 	      edm::LogInfo("MixingModule")<<" Luminosity configuration, average number used is "<<averageNumber;
 	    }
@@ -173,7 +173,7 @@ namespace edm {
     mixProdStep1_(pset.getParameter<bool>("mixProdStep1")),
     mixProdStep2_(pset.getParameter<bool>("mixProdStep2")),
     readDB_(false)
-  { 
+  {
     if (pset.exists("readDB"))      readDB_=pset.getParameter<bool>("readDB");
 
     playback_=pset.getUntrackedParameter<bool>("playback",false);
@@ -204,6 +204,7 @@ namespace edm {
   void BMixingModule::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&setup){
     update(setup);
   }
+
   void BMixingModule::beginRun(edm::Run & r, const edm::EventSetup & setup){
     update(setup);
   }
@@ -227,12 +228,17 @@ namespace edm {
     // Create EDProduct
     createnewEDProduct();
 
+    initializeEvent(e, setup);
+
     // Add signals
     if (!mixProdStep1_){ 
       addSignals(e,setup);
     }
 
     doPileUp(e,setup);
+
+    // Includes putting digi products into the edm::Event.
+    finalizeEvent(e, setup);
 
     // Put output into event (here only playback info)
     put(e,setup);

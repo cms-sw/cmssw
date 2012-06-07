@@ -11,7 +11,7 @@
 //
 // Project: HPD noise library reader
 // Author: T.Yetkin University of Iowa, Feb. 7, 2008
-// $Id: HPDNoiseLibraryReader.cc,v 1.3 2008/09/19 17:03:50 tyetkin Exp $
+// $Id: HPDNoiseLibraryReader.cc,v 1.4.2.1 2012/03/16 17:52:51 wmtan Exp $
 // --------------------------------------------------------
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDNoiseLibraryReader.h"
@@ -182,9 +182,8 @@ vector <pair<HcalDetId, const float *> >HPDNoiseLibraryReader::getNoisyHcalDetId
 
         data = getNoiseData(iphi);
         for (unsigned int i = 0; i < data->size(); ++i) {
-            pair < HcalDetId, const float *>tmp_pair(data->getDataFrame(i).id(), data->getDataFrame(i).getFrame());
 
-            result.push_back(tmp_pair);
+            result.emplace_back(data->getDataFrame(i).id(), data->getDataFrame(i).getFrame());
         }
     }
     return result;
@@ -205,8 +204,7 @@ vector <pair<HcalDetId, const float *> >HPDNoiseLibraryReader::getNoisyHcalDetId
 	    float* data_ = const_cast<float*>(data->getDataFrame(i).getFrame());
 	    shuffleData(timeSliceId, data_);
 	    const float* _data_ =const_cast<const float*>(data_);
-            pair < HcalDetId, const float *>tmp_pair(data->getDataFrame(i).id(), _data_);
-            result.push_back(tmp_pair);
+            result.emplace_back(data->getDataFrame(i).id(), _data_);
         }
     }
     return result;
@@ -229,8 +227,7 @@ vector < pair < HcalDetId, const float *> >HPDNoiseLibraryReader::getBiasedNoisy
 	    float* data_ = const_cast<float*>(data->getDataFrame(i).getFrame());
 	    shuffleData(timeSliceId, data_);
 	    const float* _data_ =const_cast<const float*>(data_);
-            pair < HcalDetId, const float *>tmp_pair(data->getDataFrame(i).id(), _data_);
-            result.push_back(tmp_pair);
+            result.emplace_back(data->getDataFrame(i).id(), _data_);
         }
     }
     return result;
@@ -250,9 +247,7 @@ vector < pair < HcalDetId, const float *> >HPDNoiseLibraryReader::getBiasedNoisy
 
         data = getNoiseData(iphi);
         for (unsigned int i = 0; i < data->size(); ++i) {
-            pair < HcalDetId, const float *>tmp_pair(data->getDataFrame(i).id(), data->getDataFrame(i).getFrame());
-
-            result.push_back(tmp_pair);
+            result.emplace_back(data->getDataFrame(i).id(), data->getDataFrame(i).getFrame());
         }
     }
     return result;

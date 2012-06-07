@@ -8,5 +8,6 @@
   <use   name="FWCore/MessageLogger"/>
   <use   name="FWCore/ParameterSet"/>
   <use   name="SimDataFormats/CrossingFrame"/>
+  <use   name="SimGeneral/MixingModule"/>
   <use   name="Geometry/HcalTowerAlgo"/>
 </library>

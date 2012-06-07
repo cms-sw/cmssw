@@ -35,6 +35,27 @@ void HcalHitCorrection::fillChargeSums(MixCollection<PCaloHit> & hits)
 }
 
 
+void HcalHitCorrection::fillChargeSums( const std::vector<PCaloHit> & hits)
+{
+  for(std::vector<PCaloHit>::const_iterator hitItr = hits.begin();
+      hitItr != hits.end(); ++hitItr)
+  {
+    HcalDetId hcalDetId(hitItr->id());
+    if(hcalDetId.subdet() == HcalBarrel || hcalDetId.subdet() == HcalEndcap || hcalDetId.subdet() == HcalOuter )
+    {
+      LogDebug("HcalHitCorrection") << "HcalHitCorrection::Hit 0x" << std::hex
+        				  << hitItr->id() << std::dec;
+      int tbin = timeBin(*hitItr);
+      LogDebug("HcalHitCorrection") << "HcalHitCorrection::Hit tbin" << tbin;
+      if(tbin >= 0 && tbin < 10) 
+      {  
+        theChargeSumsForTimeBin[tbin][DetId(hitItr->id())] += charge(*hitItr);
+      }
+    }
+  }
+}
+
+
 void HcalHitCorrection::clear()
 {
   for(int i = 0; i < 10; ++i)
@@ -59,7 +80,7 @@ double HcalHitCorrection::delay(const PCaloHit & hit) const
   //ZDC not used for the moment
 
   DetId detId(hit.id());
-  if(detId.det()==DetId::Calo && detId.subdetId()==HcalZDCDetId::SubdetectorId) return 0;
+  if(detId.det()==DetId::Calo && detId.subdetId()==HcalZDCDetId::SubdetectorId) return 0.0;
   HcalDetId hcalDetId(hit.id());
   double delay = 0.;
 
@@ -99,13 +120,6 @@ double HcalHitCorrection::delay(const PCaloHit & hit) const
 
   return delay;
 }
-
-
-void HcalHitCorrection::correct(PCaloHit & hit) const {
-  // replace the hit with a new one, with a time delay
-  hit = PCaloHit(hit.id(), hit.energyEM(), hit.energyHad(), hit.time()+delay(hit), hit.geantTrackId());
-}
-
 
 int HcalHitCorrection::timeBin(const PCaloHit & hit) const
 {

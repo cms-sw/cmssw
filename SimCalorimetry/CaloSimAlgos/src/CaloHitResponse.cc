@@ -79,11 +79,9 @@ void CaloHitResponse::run(MixCollection<PCaloHit> & hits) {
   for(MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
       hitItr != hits.end(); ++hitItr)
   {
-    // check the bunch crossing range
-    if ( hitItr.bunch() < theMinBunch || hitItr.bunch() > theMaxBunch ) 
-      { continue; }
-  
-    add(*hitItr);
+    if(withinBunchRange(hitItr.bunch())) {
+      add(*hitItr);
+    }
   } // loop over hits
 }
 
@@ -136,19 +134,17 @@ void CaloHitResponse::add(const CaloSamples & signal)
 }
 
 
-CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & inputHit) const {
-
-  // see if we need to correct the hit 
-  PCaloHit hit = inputHit;
-
-  if(theHitCorrection != 0) {
-    theHitCorrection->correct(hit);
-  }
+CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & hit) const {
 
   DetId detId(hit.id());
   const CaloSimParameters & parameters = theParameterMap->simParameters(detId);
 
-  double signal = analogSignalAmplitude(hit, parameters);
+  double signal = analogSignalAmplitude(detId, hit.energy(), parameters);
+
+  double time = hit.time();
+  if(theHitCorrection != 0) {
+    time += theHitCorrection->delay(hit);
+  }
 
   double jitter = hit.time() - timeOfFlight(detId);
 
@@ -174,7 +170,7 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & inputHit) const {
 } 
 
 
-double CaloHitResponse::analogSignalAmplitude(const PCaloHit & hit, const CaloSimParameters & parameters) const {
+double CaloHitResponse::analogSignalAmplitude(const DetId & detId, float energy, const CaloSimParameters & parameters) const {
 
   if(!theRandPoisson)
   {
@@ -190,8 +186,7 @@ double CaloHitResponse::analogSignalAmplitude(const PCaloHit & hit, const CaloSi
 
   // OK, the "energy" in the hit could be a real energy, deposited energy,
   // or pe count.  This factor converts to photoelectrons
-  DetId detId(hit.id());
-  double npe = hit.energy() * parameters.simHitToPhotoelectrons(detId);
+  double npe = energy * parameters.simHitToPhotoelectrons(detId);
   // do we need to doPoisson statistics for the photoelectrons?
   if(parameters.doPhotostatistics()) {
     npe = theRandPoisson->fire(npe);

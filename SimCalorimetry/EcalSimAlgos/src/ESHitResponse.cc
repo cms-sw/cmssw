@@ -25,9 +25,9 @@ ESHitResponse::ESHitResponse( const CaloVSimParameterMap* parameterMap ,
 
    for( unsigned int i ( 0 ) ; i != size ; ++i )
    {
-      m_vSam.push_back(
-	 ESSamples( CaloGenericDetId( detId.det(), detId.subdetId(), i ) ,
-		    rSize, nPre ) ) ;
+      m_vSam.emplace_back(
+	 CaloGenericDetId( detId.det(), detId.subdetId(), i ) ,
+		    rSize, nPre ) ;
    }
 }
 

@@ -5,7 +5,7 @@
 
 class CaloVHitCorrection {
 public:
-  virtual void correct(PCaloHit & hit) const = 0;
+  virtual double delay(const PCaloHit & hit) const = 0;
 };
 
 #endif

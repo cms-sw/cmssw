@@ -21,7 +21,7 @@ void HPDNoiseGenerator::fillNoiseSignals()
     }
     // result should come back in units of photoelectrons
     fC2pe(newSamples);
-    theNoiseSignals.push_back(newSamples);
+    theNoiseSignals.push_back(std::move(newSamples));
   }
 }
 

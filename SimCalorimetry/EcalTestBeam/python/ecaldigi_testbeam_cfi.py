@@ -8,6 +8,7 @@ from SimCalorimetry.EcalSimProducers.esElectronicsSim_cff import *
 from SimCalorimetry.EcalSimProducers.ecalNotContainmentSim_cff import *
 from SimCalorimetry.EcalSimProducers.ecalCosmicsSim_cff import *
 from RecoTBCalo.EcalTBTDCReconstructor.EcalTBSimTDCRanges_cff import *
+from SimGeneral.MixingModule.mixNoPU_cfi import *
 
 simEcalUnsuppressedDigis = cms.EDProducer("EcalTBDigiProducer",
     ecal_digi_parameters,
@@ -27,8 +28,11 @@ simEcalUnsuppressedDigis = cms.EDProducer("EcalTBDigiProducer",
     EBdigiFinalCollection = cms.string('')
 )
 
-simEcalUnsuppressedDigis.doESNoise = False
+#simEcalUnsuppressedDigis.doESNoise = False
+mix.digitizers.ecal.doESNoise = False
 
-simEcalUnsuppressedDigis.syncPhase = False
+#simEcalUnsuppressedDigis.syncPhase = False
+mix.digitizers.ecal.syncPhase = False
 
-simEcalUnsuppressedDigis.EBdigiCollection = cms.string('TEMP')
+#simEcalUnsuppressedDigis.EBdigiCollection = cms.string('TEMP')
+mix.digitizers.ecal.EBdigiCollection = cms.string('TEMP')

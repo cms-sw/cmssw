@@ -1,7 +1,9 @@
 
 #include "SimCalorimetry/EcalTestBeam/interface/EcalTBDigiProducer.h"
 #include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -9,14 +11,15 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EBHitResponse.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEHitResponse.h"
 
-EcalTBDigiProducer::EcalTBDigiProducer( const edm::ParameterSet& params ) :
-   EcalDigiProducer( params )
+EcalTBDigiProducer::EcalTBDigiProducer( const edm::ParameterSet& params, edm::EDProducer& mixMod ) :
+   EcalDigiProducer( params, mixMod )
 {
+   std::string const instance("simEcalUnsuppressedDigis");
    m_EBdigiFinalTag = params.getParameter<std::string>( "EBdigiFinalCollection" ) ;
    m_EBdigiTempTag  = params.getParameter<std::string>( "EBdigiCollection");
 
-   produces<EBDigiCollection>( m_EBdigiFinalTag ) ; // after selective readout
-   produces<EcalTBTDCRawInfo>() ;
+   mixMod.produces<EBDigiCollection>(instance + m_EBdigiFinalTag) ; // after selective readout
+   mixMod.produces<EcalTBTDCRawInfo>(instance) ;
 
    const bool syncPhase ( params.getParameter<bool>("syncPhase") ) ;
 
@@ -35,7 +38,7 @@ EcalTBDigiProducer::EcalTBDigiProducer( const edm::ParameterSet& params ) :
       aRange.runRanges.second = itRanges->getParameter<int>("endRun");
       aRange.tdcMin = itRanges->getParameter< std::vector<double> >("tdcMin");
       aRange.tdcMax = itRanges->getParameter< std::vector<double> >("tdcMax");
-      m_tdcRanges.push_back(aRange);
+      m_tdcRanges.push_back(std::move(aRange));
    }
 
    m_use2004OffsetConvention = 
@@ -57,9 +60,7 @@ EcalTBDigiProducer::~EcalTBDigiProducer()
 {
 }
 
-void EcalTBDigiProducer::produce( edm::Event&            event      ,
-				  const edm::EventSetup& eventSetup   ) 
-{
+void EcalTBDigiProducer::initializeEvent(edm::Event const& event, edm::EventSetup const& eventSetup) {
   std::cout<<"====****Entering EcalTBDigiProducer produce()"<<std::endl ;
    edm::ESHandle<CaloGeometry>               hGeometry ;
    eventSetup.get<CaloGeometryRecord>().get( hGeometry ) ;
@@ -68,7 +69,7 @@ void EcalTBDigiProducer::produce( edm::Event&            event      ,
 
    m_theTBReadout->setDetIds( theBarrelDets ) ;
 
-   std::auto_ptr<EcalTBTDCRawInfo> TDCproduct( new EcalTBTDCRawInfo(1) ) ;
+   m_TDCproduct.reset( new EcalTBTDCRawInfo(1) ) ;
    if( m_doPhaseShift ) 
    {
       edm::Handle<PEcalTBInfo>             theEcalTBInfo   ;
@@ -78,12 +79,15 @@ void EcalTBDigiProducer::produce( edm::Event&            event      ,
       DetId detId( DetId::Ecal, 1 ) ;
       setPhaseShift( detId ) ;
 
-      fillTBTDCRawInfo( *TDCproduct ) ; // fill the TDC info in the event    
+      fillTBTDCRawInfo( *m_TDCproduct ) ; // fill the TDC info in the event    
    }
+   EcalDigiProducer::initializeEvent( event, eventSetup ) ;
+}
 
-   m_ebDigis = std::auto_ptr<EBDigiCollection> ( new EBDigiCollection ) ;
+void EcalTBDigiProducer::finalizeEvent( edm::Event& event, const edm::EventSetup& eventSetup ) {
+   m_ebDigis.reset( new EBDigiCollection ) ;
 
-   EcalDigiProducer::produce( event, eventSetup ) ;
+   EcalDigiProducer::finalizeEvent( event, eventSetup ) ;
 
    const EBDigiCollection* barrelResult ( &*m_ebDigis ) ;
 
@@ -103,11 +107,12 @@ void EcalTBDigiProducer::produce( edm::Event&            event      ,
    std::cout<< "===**** EcalTBDigiProducer: number of barrel digis = "
 	    << barrelReadout->size()<<std::endl ;
 
-   event.put( barrelReadout, m_EBdigiFinalTag ) ;
-   event.put( TDCproduct ) ;
+   std::string const instance("simEcalUnsuppressedDigis");
+   event.put(barrelReadout, instance + m_EBdigiFinalTag) ;
+   event.put(m_TDCproduct, instance) ;
 
-   m_ebDigis.reset() ; // release memory
-   m_eeDigis.reset() ; // release memory
+   m_ebDigis.reset(); // release memory
+   m_eeDigis.reset(); // release memory
 }
 
 void 

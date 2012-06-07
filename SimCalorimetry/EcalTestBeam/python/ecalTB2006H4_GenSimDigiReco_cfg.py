@@ -48,10 +48,6 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
         initialSeed = cms.untracked.uint32(12345),
         engineName = cms.untracked.string('HepJamesRandom')
     ),
-    simEcalUnsuppressedDigis = cms.PSet(
-        initialSeed = cms.untracked.uint32(1234567),
-        engineName = cms.untracked.string('HepJamesRandom')
-    ),
 )
 
 process.randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
@@ -254,7 +250,7 @@ print "physics type : ", process.g4SimHits.Physics.type
 # sequences
 process.doSimHits = cms.Sequence(process.ProductionFilterSequence*process.VtxSmeared*process.g4SimHits)
 process.doSimTB = cms.Sequence(process.SimEcalTBG4Object*process.SimEcalTBHodoscope*process.SimEcalEventHeader)
-process.doEcalDigis = cms.Sequence(process.mix*process.simEcalUnsuppressedDigis)
+process.doEcalDigis = cms.Sequence(process.mix)
 #process.p1 = cms.Path(process.doSimHits*process.doSimTB*process.doEcalDigis*process.localReco_tbsim*process.treeProducerCalibSimul)
 process.p1 = cms.Path(process.doSimHits*process.doSimTB*process.doEcalDigis*process.localReco_tbsim)
 

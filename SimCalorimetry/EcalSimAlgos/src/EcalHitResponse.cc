@@ -143,6 +143,31 @@ EcalHitResponse::blankOutUsedSamples()  // blank out previously used elements
 }
 
 void 
+EcalHitResponse::add( const PCaloHit& hit ) 
+{
+  if (!isnan( hit.time() ) && ( 0 == m_hitFilter || m_hitFilter->accepts( hit ) ) ) {
+     putAnalogSignal( hit ) ;
+  }
+}
+
+bool
+EcalHitResponse::withinBunchRange(int bunchCrossing) const
+{
+   return(m_minBunch <= bunchCrossing && m_maxBunch >= bunchCrossing);
+}
+
+void
+EcalHitResponse::initializeHits()
+{
+   blankOutUsedSamples() ;
+}
+
+void
+EcalHitResponse::finalizeHits()
+{
+}
+
+void 
 EcalHitResponse::run( MixCollection<PCaloHit>& hits ) 
 {
    blankOutUsedSamples() ;
@@ -152,8 +177,7 @@ EcalHitResponse::run( MixCollection<PCaloHit>& hits )
    {
       const PCaloHit& hit ( *hitItr ) ;
       const int bunch ( hitItr.bunch() ) ;
-      if( m_minBunch <= bunch  &&
-	  m_maxBunch >= bunch  &&
+      if( withinBunchRange(bunch)  &&
 	  !isnan( hit.time() ) &&
 	  ( 0 == m_hitFilter ||
 	    m_hitFilter->accepts( hit ) ) ) putAnalogSignal( hit ) ;
@@ -161,19 +185,21 @@ EcalHitResponse::run( MixCollection<PCaloHit>& hits )
 }
 
 void
-EcalHitResponse::putAnalogSignal( const PCaloHit& inputHit )
+EcalHitResponse::putAnalogSignal( const PCaloHit& hit )
 {
-   PCaloHit hit ( inputHit ) ;
-
-   if( 0 != m_hitCorrection ) m_hitCorrection->correct( hit ) ;
-
    const DetId detId ( hit.id() ) ;
 
    const CaloSimParameters* parameters ( params( detId ) ) ;
 
-   const double signal ( analogSignalAmplitude( hit ) ) ;
+   const double signal ( analogSignalAmplitude( detId, hit.energy() ) ) ;
 
-   const double jitter ( hit.time() - timeOfFlight( detId ) ) ;
+   double time = hit.time();
+
+   if(m_hitCorrection) {
+     time += m_hitCorrection->delay( hit ) ;
+   }
+
+   const double jitter ( time - timeOfFlight( detId ) ) ;
 
    const double tzero = ( shape()->timeToRise()
 			  + parameters->timePhase() 
@@ -203,16 +229,14 @@ EcalHitResponse::findSignal( const DetId& detId )
 }
 
 double 
-EcalHitResponse::analogSignalAmplitude( const PCaloHit& hit ) const
+EcalHitResponse::analogSignalAmplitude( const DetId& detId, float energy ) const
 {
-   const DetId& detId ( hit.id() ) ;
-
    const CaloSimParameters& parameters ( *params( detId ) ) ;
 
    // OK, the "energy" in the hit could be a real energy, deposited energy,
    // or pe count.  This factor converts to photoelectrons
 
-   double npe ( hit.energy()*parameters.simHitToPhotoelectrons( detId ) ) ;
+   double npe ( energy*parameters.simHitToPhotoelectrons( detId ) ) ;
 
    // do we need to doPoisson statistics for the photoelectrons?
    if( parameters.doPhotostatistics() ) npe = ranPois()->fire( npe ) ;

@@ -29,6 +29,22 @@ void CastorHitCorrection::fillChargeSums(MixCollection<PCaloHit> & hits)
   }
 }
 
+void CastorHitCorrection::fillChargeSums(const std::vector<PCaloHit> & hits)
+{
+  //  clear();
+  for(std::vector<PCaloHit>::const_iterator hitItr = hits.begin();
+      hitItr != hits.end(); ++hitItr)
+  {
+    LogDebug("CastorHitCorrection") << "CastorHitCorrection::Hit 0x" << std::hex << hitItr->id() << std::dec;
+    int tbin = timeBin(*hitItr);
+    LogDebug("CastorHitCorrection") << "CastorHitCorrection::Hit tbin" << tbin;
+    if(tbin >= 0 && tbin < 10) 
+    {  
+      theChargeSumsForTimeBin[tbin][DetId(hitItr->id())] += charge(*hitItr);
+    }
+  }
+}
+
 
 void CastorHitCorrection::clear()
 {
@@ -78,11 +94,6 @@ double CastorHitCorrection::delay(const PCaloHit & hit) const
   }
 
   return delay;
-}
-
-void CastorHitCorrection::correct(PCaloHit & hit) const {
-  // replace the hit with a new one, with a time delay
-  hit = PCaloHit(hit.id(), hit.energyEM(), hit.energyHad(), hit.time(), hit.geantTrackId());
 }
 
 

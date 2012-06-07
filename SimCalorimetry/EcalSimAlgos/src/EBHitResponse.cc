@@ -51,9 +51,8 @@ EBHitResponse::EBHitResponse( const CaloVSimParameterMap* parameterMap ,
 
    for( unsigned int i ( 0 ) ; i != size ; ++i )
    {
-      m_vSam.push_back(
-	 EBSamples( CaloGenericDetId( detId.det(), detId.subdetId(), i ) ,
-		    rSize, nPre ) ) ;
+      m_vSam.emplace_back(CaloGenericDetId( detId.det(), detId.subdetId(), i ) ,
+		    rSize, nPre );
    }
 }
 
@@ -174,6 +173,61 @@ EBHitResponse::findIntercalibConstant( const DetId& detId,
    icalconst = thisconst ;
 }
 
+void 
+EBHitResponse::initializeHits() {
+   if( 0 != index().size() ) blankOutUsedSamples() ;
+
+   const unsigned int bSize ( EBDetId::kSizeForDenseIndexing ) ;
+
+   if( 0 == m_apdNpeVec.size() )
+   {
+      m_apdNpeVec  = std::vector<double>( bSize, (double)0.0 ) ;
+      m_apdTimeVec = std::vector<double>( bSize, (double)0.0 ) ;
+   }
+}
+
+void 
+EBHitResponse::finalizeHits() {
+   const unsigned int bSize ( EBDetId::kSizeForDenseIndexing ) ;
+   if( apdParameters()->addToBarrel() ||
+       m_apdOnly                         )
+   {
+      for( unsigned int i ( 0 ) ; i != bSize ; ++i )
+      {
+         if( 0 < m_apdNpeVec[i] )
+         {
+            putAPDSignal( EBDetId::detIdFromDenseIndex( i ),
+                          m_apdNpeVec[i] ,
+                          m_apdTimeVec[i]                    ) ;
+
+            // now zero out for next time
+            m_apdNpeVec[i] = 0. ;
+            m_apdTimeVec[i] = 0. ;
+         }
+      }
+   }
+}
+
+void 
+EBHitResponse::add( const PCaloHit& hit ) 
+{
+  if (!isnan( hit.time() ) && ( 0 == hitFilter() || hitFilter()->accepts( hit ) ) ) {
+     if( 0 == hit.depth() ) // for now take only nonAPD hits
+     {
+        if( !m_apdOnly ) putAnalogSignal( hit ) ;
+     }
+     else // APD hits here
+     {
+        if( apdParameters()->addToBarrel() ||
+            m_apdOnly                         )
+        {
+           const unsigned int icell ( EBDetId( hit.id() ).denseIndex() ) ;
+           m_apdNpeVec[ icell ] += apdSignalAmplitude( hit ) ;
+           if( 0 == m_apdTimeVec[ icell ] ) m_apdTimeVec[ icell ] = hit.time() ;
+        }
+     }
+  }
+}
 
 void 
 EBHitResponse::run( MixCollection<PCaloHit>& hits ) 

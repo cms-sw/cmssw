@@ -21,38 +21,30 @@ void HcalTestHitGenerator::getNoiseHits(std::vector<PCaloHit> & noiseHits)
   for(int i = 1; i <= 16; ++i)
   {
      HcalDetId detId(HcalBarrel, i, 1, 1);
-     PCaloHit hit(detId.rawId(), e/theBarrelSampling[i-1], hbTof, 0., 0);
-     noiseHits.push_back(hit);
+     noiseHits.emplace_back(detId.rawId(), e/theBarrelSampling[i-1], hbTof, 0., 0);
   }
 
   // ring 16 is special
   HcalDetId detId(HcalEndcap, 16, 1, 3);
-  PCaloHit hit(detId.rawId(), e/theEndcapSampling[0], heTof, 0., 0);
-  noiseHits.push_back(hit);
+  noiseHits.emplace_back(detId.rawId(), e/theEndcapSampling[0], heTof, 0., 0);
 
   for(int i = 17; i <= 29; ++i)
   {
      HcalDetId detId(HcalEndcap, i, 1, 1);
-     PCaloHit hit(detId.rawId(), e/theEndcapSampling[i-16], heTof, 0., 0);
-     noiseHits.push_back(hit);
+     noiseHits.emplace_back(detId.rawId(), e/theEndcapSampling[i-16], heTof, 0., 0);
   }
 
   HcalDetId outerDetId(HcalOuter, 1, 1, 4);
-  PCaloHit outerHit(outerDetId.rawId(), 0.45, hoTof, 0., 0);
+  noiseHits.emplace_back(outerDetId.rawId(), 0.45, hoTof, 0., 0);
 
   HcalDetId forwardDetId1(HcalForward, 30, 1, 1);
-  PCaloHit forwardHit1(forwardDetId1.rawId(), 35., hfTof, 0., 0);
+  noiseHits.emplace_back(forwardDetId1.rawId(), 35., hfTof, 0., 0);
 
   HcalDetId forwardDetId2(HcalForward, 30, 1, 2);
-  PCaloHit forwardHit2(forwardDetId2.rawId(), 48., hfTof, 0., 0);
+  noiseHits.emplace_back(forwardDetId2.rawId(), 48., hfTof, 0., 0);
 
-  HcalZDCDetId zdcDetId(HcalZDCDetId::Section(2),true,1);
-  PCaloHit zdcHit(zdcDetId.rawId(), 50.0, 0.);
-
-  noiseHits.push_back(outerHit);
-  noiseHits.push_back(forwardHit1);
-  noiseHits.push_back(forwardHit2);
-  //noiseHits.push_back(zdcHit);
+  //HcalZDCDetId zdcDetId(HcalZDCDetId::Section(2),true,1);
+  //noiseHits.emplace_back(zdcDetId.rawId(), 50.0, 0.);
 
 }
 

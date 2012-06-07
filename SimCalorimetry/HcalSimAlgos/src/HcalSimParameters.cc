@@ -93,20 +93,20 @@ static const double GeV2fC = 1.0/0.4;
 
 void HcalSimParameters::defaultTimeSmearing() {
   // GeV->ampl (fC), time (ns)
-  theSmearSettings.push_back(std::pair<double,double>(  4.00*GeV2fC, 4.050));
-  theSmearSettings.push_back(std::pair<double,double>( 20.00*GeV2fC, 3.300));
-  theSmearSettings.push_back(std::pair<double,double>( 25.00*GeV2fC, 2.925));
-  theSmearSettings.push_back(std::pair<double,double>( 30.00*GeV2fC, 2.714));
-  theSmearSettings.push_back(std::pair<double,double>( 37.00*GeV2fC, 2.496));
-  theSmearSettings.push_back(std::pair<double,double>( 44.50*GeV2fC, 2.278));
-  theSmearSettings.push_back(std::pair<double,double>( 56.00*GeV2fC, 2.138));
-  theSmearSettings.push_back(std::pair<double,double>( 63.50*GeV2fC, 2.022));
-  theSmearSettings.push_back(std::pair<double,double>( 81.00*GeV2fC, 1.788));
-  theSmearSettings.push_back(std::pair<double,double>( 88.50*GeV2fC, 1.695));
-  theSmearSettings.push_back(std::pair<double,double>(114.50*GeV2fC, 1.716));
-  theSmearSettings.push_back(std::pair<double,double>(175.50*GeV2fC, 1.070));
-  theSmearSettings.push_back(std::pair<double,double>(350.00*GeV2fC, 1.564));
-  theSmearSettings.push_back(std::pair<double,double>(99999.00*GeV2fC, 1.564));
+  theSmearSettings.emplace_back(  4.00*GeV2fC, 4.050);
+  theSmearSettings.emplace_back( 20.00*GeV2fC, 3.300);
+  theSmearSettings.emplace_back( 25.00*GeV2fC, 2.925);
+  theSmearSettings.emplace_back( 30.00*GeV2fC, 2.714);
+  theSmearSettings.emplace_back( 37.00*GeV2fC, 2.496);
+  theSmearSettings.emplace_back( 44.50*GeV2fC, 2.278);
+  theSmearSettings.emplace_back( 56.00*GeV2fC, 2.138);
+  theSmearSettings.emplace_back( 63.50*GeV2fC, 2.022);
+  theSmearSettings.emplace_back( 81.00*GeV2fC, 1.788);
+  theSmearSettings.emplace_back( 88.50*GeV2fC, 1.695);
+  theSmearSettings.emplace_back(114.50*GeV2fC, 1.716);
+  theSmearSettings.emplace_back(175.50*GeV2fC, 1.070);
+  theSmearSettings.emplace_back(350.00*GeV2fC, 1.564);
+  theSmearSettings.emplace_back(99999.00*GeV2fC, 1.564);
 }
 
 double HcalSimParameters::timeSmearRMS(double ampl) const {

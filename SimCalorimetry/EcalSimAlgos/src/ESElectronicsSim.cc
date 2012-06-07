@@ -87,7 +87,7 @@ ESElectronicsSim::encode(const CaloSamples& timeframe) const
     if (adc>MAXADC) adc = MAXADC;
     if (adc<MINADC) adc = MINADC;
 
-    results.push_back(ESSample(adc));
+    results.emplace_back(adc);
   }
 
   return results;

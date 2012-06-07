@@ -1,10 +1,6 @@
-#ifndef ECALDDIGIPRODUCER_H
-#define ECALDDIGIPRODUCER_H
+#ifndef SimCalorimetry_EcalSimProducers_EcalDigiProducer_h
+#define SimCalorimetry_EcalSimProducers_EcalDigiProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/APDShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
@@ -17,7 +13,10 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalTDigitizer.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
+#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 
+
+#include <vector>
 
 typedef EcalTDigitizer<EBDigitizerTraits> EBDigitizer  ;
 typedef EcalTDigitizer<EEDigitizerTraits> EEDigitizer  ;
@@ -39,23 +38,34 @@ class CaloGeometry ;
 class EBDigiCollection ;
 class EEDigiCollection ;
 class ESDigiCollection ;
+class PileUpEventPrincipal ;
 
-class EcalDigiProducer : public edm::EDProducer
-{
+namespace edm {
+  class EDProducer;
+  class Event;
+  class EventSetup;
+  template<typename T> class Handle;
+  class ParameterSet;
+}
 
+class EcalDigiProducer : public DigiAccumulatorMixMod {
    public:
 
-      EcalDigiProducer( const edm::ParameterSet& params ) ;
-      virtual ~EcalDigiProducer() ;
+      EcalDigiProducer( const edm::ParameterSet& params , edm::EDProducer& mixMod);
+      virtual ~EcalDigiProducer();
 
-      /**Produces the EDM products,*/
-      virtual void produce( edm::Event&            event ,
-			    const edm::EventSetup& eventSetup ) ;
+      virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
+      virtual void accumulate(edm::Event const& e, edm::EventSetup const& c);
+      virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c);
+      virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
+
+   private:
 
       virtual void cacheEBDigis( const EBDigiCollection* ebDigiPtr ) const { }
       virtual void cacheEEDigis( const EEDigiCollection* eeDigiPtr ) const { }
 
-   protected:
+      typedef edm::Handle<std::vector<PCaloHit> > HitsHandle;
+      void accumulateCaloHits(HitsHandle const& ebHandle, HitsHandle const& eeHandle, HitsHandle const& esHandle, int bunchCrossing);
 
       void checkGeometry(const edm::EventSetup& eventSetup) ;
 
@@ -79,13 +89,17 @@ class EcalDigiProducer : public edm::EDProducer
       const double m_EEs25notCont ;
 
       const unsigned int         m_readoutFrameSize ;
+   protected:
       const EcalSimParameterMap* m_ParameterMap  ;
+   private:
       const std::string          m_apdDigiTag    ;
       const APDSimParameters*    m_apdParameters ;
 
       EBHitResponse* m_APDResponse ;
+   protected:
       EBHitResponse* m_EBResponse ;
       EEHitResponse* m_EEResponse ;
+   private:
       ESHitResponse* m_ESResponse ;
       CaloHitResponse* m_ESOldResponse ;
 

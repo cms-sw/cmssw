@@ -13,6 +13,8 @@
 <use   name="SimDataFormats/TrackingHit"/>
 <use   name="SimDataFormats/Vertex"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="SimCalorimetry/HcalSimProducers"/>
+<use   name="SimGeneral/MixingModule"/>
 <use   name="clhep"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/RunInfo"/>

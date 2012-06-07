@@ -8,6 +8,7 @@ from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff import *
 from SimCalorimetry.EcalSelectiveReadoutProducers.ecalDigis_cfi import *
 # Preshower Zero suppression producer
 from SimCalorimetry.EcalZeroSuppressionProducers.ecalPreshowerDigis_cfi import *
-ecalDigiSequence = cms.Sequence(simEcalUnsuppressedDigis*simEcalTriggerPrimitiveDigis*simEcalDigis*simEcalPreshowerDigis)
+# simEcalUnsuppressedDigis is now done inside mixing module
+ecalDigiSequence = cms.Sequence(simEcalTriggerPrimitiveDigis*simEcalDigis*simEcalPreshowerDigis)
 
 

@@ -1,6 +1,7 @@
 #include "SimCalorimetry/CastorSim/plugins/CastorDigiProducer.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
@@ -15,11 +16,9 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
+#include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
-using namespace std;
-
-
-CastorDigiProducer::CastorDigiProducer(const edm::ParameterSet& ps) 
+CastorDigiProducer::CastorDigiProducer(const edm::ParameterSet& ps, edm::EDProducer& mixMod) 
 : theParameterMap(new CastorSimParameterMap(ps)),
   theCastorShape(new CastorShape()),
   theCastorIntegratedShape(new CaloShapeIntegrator(theCastorShape)),
@@ -32,11 +31,11 @@ CastorDigiProducer::CastorDigiProducer(const edm::ParameterSet& ps)
   theCastorHits()
 {
   
-produces<CastorDigiCollection>();
+  mixMod.produces<CastorDigiCollection>();
 
-theCastorResponse->setHitFilter(&theCastorHitFilter);
+  theCastorResponse->setHitFilter(&theCastorHitFilter);
 
-bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
+  bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
   if(doTimeSlew) {
     // no time slewing for HF
     theCastorResponse->setHitCorrection(theHitCorrection);
@@ -75,8 +74,7 @@ CastorDigiProducer::~CastorDigiProducer() {
   delete theHitCorrection;
 }
 
-
-void CastorDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
+void CastorDigiProducer::initializeEvent(edm::Event const&, edm::EventSetup const& eventSetup) {
   // get the appropriate gains, noises, & widths for this event
   edm::ESHandle<CastorDbService> conditions;
   eventSetup.get<CastorDbRecord>().get(conditions);
@@ -84,38 +82,55 @@ void CastorDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetu
   theCoderFactory->setDbService(conditions.product());
   theParameterMap->setDbService(conditions.product());
 
-edm::LogInfo("CastorDigiProducer") << "checking the geometry...";
+  edm::LogInfo("CastorDigiProducer") << "checking the geometry...";
 
   // get the correct geometry
-checkGeometry(eventSetup);
+  checkGeometry(eventSetup);
   
-theCastorHits.clear();
+  theCastorHits.clear();
 
-  // Step A: Get Inputs
-//edm::Handle<edm::PCaloHitContainer> castorcf;
-edm::Handle<CrossingFrame<PCaloHit> > castorcf;
-e.getByLabel("mix", "g4SimHitsCastorFI", castorcf);
+  theCastorDigitizer->initializeHits();
+}
 
-  // test access to SimHits for HcalHits and ZDC hits
-std::auto_ptr<MixCollection<PCaloHit> > colcastor(new MixCollection<PCaloHit>(castorcf.product()));
-
+void CastorDigiProducer::accumulateCaloHits(std::vector<PCaloHit> const& hcalHits, int bunchCrossing) {
   //fillFakeHits();
 
-if(theHitCorrection != 0)
-  {
-theHitCorrection->fillChargeSums(*colcastor);
+  if(theHitCorrection != 0) {
+    theHitCorrection->fillChargeSums(hcalHits);
   }
+  theCastorDigitizer->add(hcalHits, bunchCrossing); 
+}
+
+void CastorDigiProducer::accumulate(edm::Event const& e, edm::EventSetup const&) {
+  // Step A: Get and accumulate digitized hits 
+  edm::InputTag castorTag("g4SimHits", "CastorFI");
+  edm::Handle<std::vector<PCaloHit> > castorHandle;
+  e.getByLabel(castorTag, castorHandle);
+
+  accumulateCaloHits(*castorHandle.product(), 0);
+}
+
+void CastorDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const&) {
+  // Step A: Get and accumulate digitized hits 
+  edm::InputTag castorTag("g4SimHits", "CastorFI");
+  edm::Handle<std::vector<PCaloHit> > castorHandle;
+  e.getByLabel(castorTag, castorHandle);
+
+  accumulateCaloHits(*castorHandle.product(), e.bunchCrossing());
+}
+
+void CastorDigiProducer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSetup) {
   // Step B: Create empty output
 
-std::auto_ptr<CastorDigiCollection> castorResult(new CastorDigiCollection());
+  std::auto_ptr<CastorDigiCollection> castorResult(new CastorDigiCollection());
 
-  // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
-theCastorDigitizer->run(*colcastor, *castorResult);
+  // Step C: Invoke the algorithm, getting back outputs.
+  theCastorDigitizer->run(*castorResult);
 
-edm::LogInfo("CastorDigiProducer") << "HCAL/Castor digis   : " << castorResult->size();
+  edm::LogInfo("CastorDigiProducer") << "HCAL/Castor digis   : " << castorResult->size();
 
   // Step D: Put outputs into event
-e.put(castorResult);
+  e.put(castorResult);
 }
 
 
@@ -133,23 +148,22 @@ void CastorDigiProducer::sortHits(const edm::PCaloHitContainer & hits){
 }
 
 void CastorDigiProducer::fillFakeHits() {
-HcalCastorDetId castorDetId(HcalCastorDetId::Section(2),true,1,1);
-PCaloHit castorHit(castorDetId.rawId(), 50.0, 0.);
+  HcalCastorDetId castorDetId(HcalCastorDetId::Section(2),true,1,1);
 
-theCastorHits.push_back(castorHit);
+  theCastorHits.emplace_back(castorDetId.rawId(), 50.0, 0.);
 }
 
 
 void CastorDigiProducer::checkGeometry(const edm::EventSetup & eventSetup) {
   // TODO find a way to avoid doing this every event
-edm::ESHandle<CaloGeometry> geometry;
-eventSetup.get<CaloGeometryRecord>().get(geometry);
-theCastorResponse->setGeometry(&*geometry);
+  edm::ESHandle<CaloGeometry> geometry;
+  eventSetup.get<CaloGeometryRecord>().get(geometry);
+  theCastorResponse->setGeometry(&*geometry);
 
-const vector<DetId>& castorCells = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
+  const std::vector<DetId>& castorCells = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
 
-//std::cout<<"CastorDigiProducer::CheckGeometry number of cells: "<<castorCells.size()<<std::endl;
-theCastorDigitizer->setDetIds(castorCells);
+  //std::cout<<"CastorDigiProducer::CheckGeometry number of cells: "<<castorCells.size()<<std::endl;
+  theCastorDigitizer->setDetIds(castorCells);
 }
 
 

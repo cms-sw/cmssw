@@ -16,19 +16,27 @@
 #include "SimCalorimetry/CastorSim/src/CastorAmplifier.h"
 #include "SimCalorimetry/CastorSim/src/CastorCoderFactory.h"
 #include "SimCalorimetry/CastorSim/src/CastorHitCorrection.h"
+#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 
+#include <vector>
 
-class CastorDigiProducer : public edm::EDProducer
-{
+class PCaloHit;
+class PileUpEventPrincipal;
+
+class CastorDigiProducer : public DigiAccumulatorMixMod {
 public:
 
-  explicit CastorDigiProducer(const edm::ParameterSet& ps);
+  explicit CastorDigiProducer(const edm::ParameterSet& ps, edm::EDProducer& mixMod);
   virtual ~CastorDigiProducer();
 
-  /**Produces the EDM products,*/
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
+  virtual void accumulate(edm::Event const& e, edm::EventSetup const& c);
+  virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c);
+  virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
 
 private:
+  void accumulateCaloHits(std::vector<PCaloHit> const&, int bunchCrossing);
+
   /// fills the vectors for each subdetector
   void sortHits(const edm::PCaloHitContainer & hits);
   /// some hits in each subdetector, just for testing purposes

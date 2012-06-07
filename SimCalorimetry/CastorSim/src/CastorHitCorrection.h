@@ -12,6 +12,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include <map>
+#include <vector>
 
 class CastorHitCorrection : public CaloVHitCorrection
 {
@@ -23,16 +24,15 @@ public:
 
   void fillChargeSums(MixCollection<PCaloHit> & hits);
 
+  void fillChargeSums(const std::vector<PCaloHit> & hits);
+
   void clear();
 
   /// how much charge we expect from this hit
   double charge(const PCaloHit & hit) const;
 
   /// how much delay this hit will get
-  double delay(const PCaloHit & hit) const;
-
-  /// applies the delay to the hit
-  virtual void correct(PCaloHit & hit) const;
+  virtual double delay(const PCaloHit & hit) const;
 
   /// which time bin the peak of the signal will fall in
   int timeBin(const PCaloHit & hit) const;

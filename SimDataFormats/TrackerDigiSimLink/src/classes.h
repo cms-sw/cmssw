@@ -7,6 +7,7 @@
 
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripCompactDigiSimLinks.h"
 
 namespace {
   struct dictionary {
@@ -21,6 +22,8 @@ namespace {
     edm::Wrapper<StripDigiSimLink> StripDigiSimLinkWrapper;
     edm::Wrapper< edm::DetSet<StripDigiSimLink> > StripDigiSimLinkDetSetWrapper;
     edm::Wrapper< edm::DetSetVector<StripDigiSimLink> > StripDigiSimLinkDetSetVectorWrapper;
+
+    edm::Wrapper<StripCompactDigiSimLinks> StripCompactDigiSimLinksWrapper_;
   };
 }
 

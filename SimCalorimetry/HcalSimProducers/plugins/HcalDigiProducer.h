@@ -1,29 +1,25 @@
-#ifndef HcalDigiProducer_h
-#define HcalDigiProducer_h
+#ifndef SimCalorimetry_HcalSimProducers_HcalDigiProducer_h
+#define SimCalorimetry_HcalSimProducers_HcalDigiProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimCalorimetry/HcalSimProducers/interface/HcalDigitizer.h"
 
+namespace edm {
+  class EDProducer;
+  class ParameterSet;
+}
 
-class HcalDigiProducer : public edm::EDProducer
-{
+class HcalDigiProducer : public DigiAccumulatorMixMod {
 public:
-
-  explicit HcalDigiProducer(const edm::ParameterSet& ps);
-  virtual ~HcalDigiProducer();
-
-  /**Produces the EDM products,*/
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  HcalDigiProducer(edm::ParameterSet const& pset, edm::EDProducer& mixMod);
+  virtual void initializeEvent(edm::Event const&, edm::EventSetup const&);
+  virtual void finalizeEvent(edm::Event&, edm::EventSetup const&);
+  virtual void accumulate(edm::Event const&, edm::EventSetup const&);
+  virtual void accumulate(PileUpEventPrincipal const&, edm::EventSetup const&);
   virtual void beginRun(edm::Run&, edm::EventSetup const&);
   virtual void endRun(edm::Run&, edm::EventSetup const&);
-
-
 private:
-  HcalDigitizer theDigitizer;
+  HcalDigitizer theDigitizer_;
 };
 
 #endif
-

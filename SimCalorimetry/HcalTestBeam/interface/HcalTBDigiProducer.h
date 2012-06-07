@@ -1,5 +1,5 @@
-#ifndef HcalTestBeam_HcalTBDigiProducer_h
-#define HcalTestBeam_HcalTBDigiProducer_h
+#ifndef SimCalorimetry_HcalTestBeam_HcalTBDigiProducer_h
+#define SimCalorimetry_HcalTestBeam_HcalTBDigiProducer_h
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -17,21 +17,24 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalAmplifier.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalCoderFactory.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitCorrection.h"
+#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 
 #include<vector>
 #include<string>
 
-class HcalTBDigiProducer : public edm::EDProducer {
-
+class HcalTBDigiProducer : public DigiAccumulatorMixMod {
 public:
 
-  explicit HcalTBDigiProducer(const edm::ParameterSet& ps);
+  explicit HcalTBDigiProducer(const edm::ParameterSet& ps, edm::EDProducer& mixMod);
   virtual ~HcalTBDigiProducer();
 
-  /**Produces the EDM products,*/
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
+  virtual void accumulate(edm::Event const& e, edm::EventSetup const& c);
+  virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c);
+  virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
 
 private:
+  void accumulateCaloHits(std::vector<PCaloHit> const& hits, int bunchCrossing);
 
   /// fills the vectors for each subdetector
   void sortHits(const edm::PCaloHitContainer & hits);

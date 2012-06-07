@@ -88,7 +88,8 @@ namespace edm {
 
     // Digitize
 
-    myHcalDigitizer_->produce( e, ES );
+    myHcalDigitizer_->initializeEvent( e, ES );
+    myHcalDigitizer_->finalizeEvent( e, ES );
   }
 
 } //edm
