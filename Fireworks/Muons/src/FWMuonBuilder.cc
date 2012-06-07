@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.35 2010/09/07 15:46:48 yana Exp $
+// $Id: FWMuonBuilder.cc,v 1.36 2011/10/18 12:40:59 yana Exp $
 //
 
 #include "TEveVSDStructs.h"
@@ -98,10 +98,12 @@ void addMatchInformation( const reco::Muon* muon,
         segmentLength = det->shape[3];
         segmentLimit  = det->shape[4];
       }
-      else if( det->shape[0] == 0 ) // TGeoBBox
+      else if( det->shape[0] == 2 ) // TGeoBBox
       {
 	segmentLength = det->shape[3];
       }
+      else
+	fwLog( fwlog::kError ) << "Unable to set a DT segment length for " << rawid << std::endl;
         
       if( ids.insert( rawid ).second &&  // ensure that we add same chamber only once
 	  ( chamber->detector() != MuonSubdetId::CSC || showEndcap ))
