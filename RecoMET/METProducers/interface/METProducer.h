@@ -13,7 +13,7 @@
 //
 // Original Author:  Rick Cavanaugh
 //         Created:  May 14, 2005
-// $Id: METProducer.h,v 1.27 2012/06/06 18:41:37 sakuma Exp $
+// $Id: METProducer.h,v 1.28 2012/06/06 23:20:12 sakuma Exp $
 //
 //
 
@@ -23,8 +23,8 @@
 #include <string.h>
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "RecoMET/METAlgorithms/interface/METAlgo.h" 
+#include "RecoMET/METAlgorithms/interface/TCMETAlgo.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
 
 namespace edm {
   class ParameterSet;
@@ -44,12 +44,20 @@ namespace cms
     {
     public:
       explicit METProducer(const edm::ParameterSet&);
-      explicit METProducer();
-      virtual ~METProducer();
+      // explicit METProducer();
+      virtual ~METProducer() { }
       virtual void produce(edm::Event&, const edm::EventSetup&);
 
     private:
-      METAlgo alg_; 
+
+      void produce_CaloMET(edm::Event& event);
+      void produce_TCMET(edm::Event& event, const edm::EventSetup& setup);
+      void produce_PFMET(edm::Event& event);
+      void produce_PFClusterMET(edm::Event& event);
+      void produce_GenMET(edm::Event& event);
+      void produce_else(edm::Event& event);
+      
+
       edm::InputTag inputLabel;
       std::string inputType;
       std::string METtype;
@@ -72,9 +80,8 @@ namespace cms
       //Use Pt instaed of Et
       bool usePt; 
 
-      TCMETAlgo* tcmetalgorithm;
-      int myResponseFunctionType;
-
+      METAlgo alg_; 
+      TCMETAlgo tcmetalgorithm;
     };
 }
 
