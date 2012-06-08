@@ -509,7 +509,6 @@ streamA_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele2
     'HLT_Ele25_CaloIdVL_CaloIsoT_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_30_20_v2', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v7', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_v6', 
-    'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralPFNoPUJet30_v6', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFNoPUJet30_30_20_v2', 
     'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_v2', 
     'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet50_40_30_v2', 
@@ -534,7 +533,6 @@ streamA_datasetSingleMu_selector.l1tResults = cms.InputTag('')
 streamA_datasetSingleMu_selector.throw      = cms.bool(False)
 streamA_datasetSingleMu_selector.triggerConditions = cms.vstring('HLT_IsoMu17_eta2p1_CentralPFNoPUJet30_BTagIPIter_v2', 
     'HLT_IsoMu17_eta2p1_CentralPFNoPUJet30_v2', 
-    'HLT_IsoMu17_eta2p1_DiCentralPFNoPUJet30_v2', 
     'HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet30_30_20_v2', 
     'HLT_IsoMu20_WCandPt80_v2', 
     'HLT_IsoMu20_eta2p1_CentralPFJet80_v7', 
