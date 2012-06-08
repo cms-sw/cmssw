@@ -1,7 +1,7 @@
 def customize(process):
-"""adapt the HLT to run on MC, instead of data
-see Configuration/StandardSequences/Reconstruction_Data_cff.py
-which does the opposite, for RECO"""
+  """adapt the HLT to run on MC, instead of data
+  see Configuration/StandardSequences/Reconstruction_Data_cff.py
+  which does the opposite, for RECO"""
 
   # CSCHaloDataProducer - not used at HLT
   #if 'CSCHaloData' in process.__dict__():
