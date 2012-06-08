@@ -4,21 +4,21 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Digi_cff import *
 
-from SimGeneral.Mixing.mixNoPU_cfi import *
+#from SimGeneral.MixingModule.mixNoPU_cfi import *
 
 # If we are going to run this with the DataMixer to follow adding
 # detector noise, turn this off for now:
 
 ##### #turn off noise in all subdetectors
 #simHcalUnsuppressedDigis.doNoise = False
-mix.digitizers.hcal.doNoise = False
+#mix.digitizers.hcal.doNoise = False
 #simEcalUnsuppressedDigis.doNoise = False
-mix.digitizers.ecal.doNoise = False
+#mix.digitizers.ecal.doNoise = False
 #simEcalUnsuppressedDigis.doESNoise = False
 #simSiPixelDigis.AddNoise = False
-mix.digitizers.pixel.AddNoise = False
+#mix.digitizers.pixel.AddNoise = False
 #simSiStripDigis.Noise = False
-mix.digitizers.strip.AddNoise = False
+#mix.digitizers.strip.AddNoise = False
 simMuonCSCDigis.strips.doNoise = False
 simMuonCSCDigis.wires.doNoise = False
 #DTs are strange - no noise flag - only use true hits?
