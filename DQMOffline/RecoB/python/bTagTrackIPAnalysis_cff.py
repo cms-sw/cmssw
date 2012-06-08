@@ -18,7 +18,7 @@ bTagTrackIPAnalysisBlock = cms.PSet(
         NBinsIPE = cms.int32(100),
         MinDecayLength = cms.double(-9999.0),
         MaxDecayLength = cms.double(5.0),
-        MinJetDistance = cms.double(-9999.0),
+        MinJetDistance = cms.double(0.0),
         MaxJetDistance = cms.double(0.07),
     )
 )
