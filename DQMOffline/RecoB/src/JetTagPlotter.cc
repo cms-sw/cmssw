@@ -21,7 +21,11 @@ JetTagPlotter::JetTagPlotter (const std::string & tagName, const EtaPtBin & etaP
   const std::string & es = theExtensionString;
   const std::string jetTagDir(es.substr(1));
 
-  nJets = 0; //added to count the number of jets by event
+  //added to count the number of jets by event : 0=DATA or NI, 1to5=quarks u,d,s,c,b , 6=gluon
+  nJets = new int [7];
+  for(int i = 0; i < 7; i++){
+    nJets[i]=0;
+  }
 
   if (mcPlots_){
     // jet flavour
@@ -66,17 +70,17 @@ JetTagPlotter::JetTagPlotter (const std::string & tagName, const EtaPtBin & etaP
   dDiscriminator->settitle("Discriminant");
     // reconstructed jet momentum
   dJetRecMomentum = new FlavourHistograms<double>
-	("jetMomentum" + es, "jet momentum", 200, 0.0, 200.0,
+	("jetMomentum" + es, "jet momentum", 350, 0.0, 350.0,
 	false, false, true, "b", update,jetTagDir, mcPlots_);
 
   // reconstructed jet transverse momentum
   dJetRecPt = new FlavourHistograms<double>
-	("jetPt" + es, "jet pt", 200, 0.0, 200.0,
+	("jetPt" + es, "jet pt", 350, 0.0, 350.0,
 	false, false, true, "b", update,jetTagDir, mcPlots_);
 
   // reconstructed jet eta
   dJetRecPseudoRapidity = new FlavourHistograms<double>
-	("jetEta" + es, "jet eta", 100, -3.5, 3.5,
+	("jetEta" + es, "jet eta", 100, -3.0, 3.0,
 	false, false, true, "b", update,jetTagDir, mcPlots_);
 
   // reconstructed jet phi
@@ -176,31 +180,55 @@ void JetTagPlotter::psPlot(const std::string & name)
   canvas.Print((name + cName + ".ps]").c_str());
 }
 
-void JetTagPlotter::analyzeTag(const int& jetFlavour)
+void JetTagPlotter::analyzeTag() //here jetFlavour not needed
 {
-  JetMultiplicity->fill(jetFlavour, nJets);  
-  nJets = 0; //reset to 0 before the next event
+  //to use on data
+  JetMultiplicity->fill(-1, nJets[0]);
+  nJets[0] = 0; //reset to 0 before the next event
 }
 
-void JetTagPlotter::analyzeTag(const int& jetFlavour, const float& w)
+void JetTagPlotter::analyzeTag(const float& w)
 {
-  JetMultiplicity->fill(jetFlavour, nJets, w);
-  nJets = 0; //reset to 0 before the next event
+  if (mcPlots_) {
+  //to use with MC
+    int totNJets = 0;
+    for(int i = 0; i < 7; i++){
+      totNJets += nJets[i];
+      if(i <= 5 && i >= 1) JetMultiplicity->fill(i, nJets[i], w);
+      else if (i==6) JetMultiplicity->fill(21, nJets[i], w);
+      else JetMultiplicity->fill(0, nJets[i], w);
+      nJets[i] = 0; //reset to 0 before the next event
+    }
+    JetMultiplicity->fill(-1, totNJets, w); //total number of jets in the event
+  }
+  else 
+    {
+      int totNJets = 0;
+      for(int i = 0; i < 7; i++){
+	totNJets += nJets[i];
+	nJets[i] = 0;
+      }
+      JetMultiplicity->fill(-1, totNJets, w);
+    }
 }
 
 void JetTagPlotter::analyzeTag(const reco::Jet & jet,
 			       const float& discriminator,
                                const int& jetFlavour)  
 {
-
-  nJets++; //added to count the number of jets
-
   if (mcPlots_) {
-  dJetFlav->fill(jetFlavour, jetFlavour);
+    dJetFlav->fill(jetFlavour, jetFlavour);
 //   dJetPartonMomentum->fill(jetFlavour, jetFlavour.underlyingParton4Vec().P() );
 //   dJetPartonPt->fill(jetFlavour, jetFlavour.underlyingParton4Vec().Pt() );
 //   dJetPartonPseudoRapidity->fill(jetFlavour, jetFlavour.underlyingParton4Vec().Eta() );
+    if(abs(jetFlavour)>0 && abs(jetFlavour)<6) nJets[abs(jetFlavour)]+=1; //quarks 1 to 5
+    else if(abs(jetFlavour)==21) nJets[6]+=1; //gluons
+    else nJets[0]+=1; //NI
   }
+  else{
+    nJets[0]+=1;
+  }
+
   //  dJetTrackMultiplicity->fill(jetFlavour, jetTag.tracks().size()); //fixme
   if (isinf(discriminator) ) dDiscriminator->fill(jetFlavour, -999.0 );
   else dDiscriminator->fill(jetFlavour, discriminator );
@@ -208,7 +236,6 @@ void JetTagPlotter::analyzeTag(const reco::Jet & jet,
   dJetRecPt->fill(jetFlavour, jet.pt() );
   dJetRecPseudoRapidity->fill(jetFlavour, jet.eta() );
   dJetRecPhi->fill(jetFlavour, jet.phi());
-  
 }
 
 void JetTagPlotter::analyzeTag(const reco::Jet & jet,
@@ -216,15 +243,19 @@ void JetTagPlotter::analyzeTag(const reco::Jet & jet,
                                const int& jetFlavour,
 			       const float& w)  
 {
-
-  nJets++;
-
   if (mcPlots_) {
     dJetFlav->fill(jetFlavour, jetFlavour , w );
 //   dJetPartonMomentum->fill(jetFlavour, jetFlavour.underlyingParton4Vec().P() );
 //   dJetPartonPt->fill(jetFlavour, jetFlavour.underlyingParton4Vec().Pt() );
 //   dJetPartonPseudoRapidity->fill(jetFlavour, jetFlavour.underlyingParton4Vec().Eta() );
+    if(abs(jetFlavour)>0 && abs(jetFlavour)<6) nJets[abs(jetFlavour)]+=1; //quarks 1 to 5
+    else if(abs(jetFlavour)==21) nJets[6]+=1; //gluons
+    else nJets[0]+=1; //NI
   }
+  else{
+    nJets[0]+=1;
+  }
+
   //  dJetTrackMultiplicity->fill(jetFlavour, jetTag.tracks().size()); //fixme
   if (isinf(discriminator) ) dDiscriminator->fill(jetFlavour, -999.0 , w );
   else dDiscriminator->fill(jetFlavour, discriminator , w );
@@ -232,22 +263,25 @@ void JetTagPlotter::analyzeTag(const reco::Jet & jet,
   dJetRecPt->fill(jetFlavour, jet.pt() , w);
   dJetRecPseudoRapidity->fill(jetFlavour, jet.eta() , w );
   dJetRecPhi->fill(jetFlavour, jet.phi() , w );
-  
 }
 
 
 void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
 	const int & jetFlavour)
 {
-
-  nJets++;
-
   if (mcPlots_) {
   dJetFlav->fill(jetFlavour, jetFlavour);
 //   dJetPartonMomentum->fill(jetFlavour, jetFlavour.underlyingParton4Vec().P() );
 //   dJetPartonPt->fill(jetFlavour, jetFlavour.underlyingParton4Vec().Pt() );
 //   dJetPartonPseudoRapidity->fill(jetFlavour, jetFlavour.underlyingParton4Vec().Eta() );
+  if(abs(jetFlavour)>0 && abs(jetFlavour)<6) nJets[abs(jetFlavour)]+=1; //quarks 1 to 5
+  else if(abs(jetFlavour)==21) nJets[6]+=1; //gluons
+  else nJets[0]+=1; //NI
   }
+  else{
+    nJets[0]+=1;
+  }
+
   //  dJetTrackMultiplicity->fill(jetFlavour, jetTag.tracks().size()); //fixme
   if (isinf(jetTag.second) ) dDiscriminator->fill(jetFlavour, -999.0 );
   else dDiscriminator->fill(jetFlavour, jetTag.second);
@@ -255,22 +289,25 @@ void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
   dJetRecPt->fill(jetFlavour, jetTag.first->pt() );
   dJetRecPseudoRapidity->fill(jetFlavour, jetTag.first->eta() );
   dJetRecPhi->fill(jetFlavour, jetTag.first->phi());
-  
 }
 
 void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
 			       const int & jetFlavour,
 			       const float& w)
 {
-
-  nJets++;
-
   if (mcPlots_) {
     dJetFlav->fill(jetFlavour, jetFlavour, w );
 //   dJetPartonMomentum->fill(jetFlavour, jetFlavour.underlyingParton4Vec().P() );
 //   dJetPartonPt->fill(jetFlavour, jetFlavour.underlyingParton4Vec().Pt() );
 //   dJetPartonPseudoRapidity->fill(jetFlavour, jetFlavour.underlyingParton4Vec().Eta() );
+    if(abs(jetFlavour)>0 && abs(jetFlavour)<6) nJets[abs(jetFlavour)]+=1; //quarks 1 to 5
+    else if(abs(jetFlavour)==21) nJets[6]+=1; //gluons
+    else nJets[0]+=1; //NI
   }
+  else{
+    nJets[0]+=1;
+  }
+
   //  dJetTrackMultiplicity->fill(jetFlavour, jetTag.tracks().size()); //fixme
   if (isinf(jetTag.second) ) dDiscriminator->fill(jetFlavour, -999.0 , w );
   else dDiscriminator->fill(jetFlavour, jetTag.second , w );
@@ -278,7 +315,6 @@ void JetTagPlotter::analyzeTag(const reco::JetTag & jetTag,
   dJetRecPt->fill(jetFlavour, jetTag.first->pt() , w );
   dJetRecPseudoRapidity->fill(jetFlavour, jetTag.first->eta() , w );
   dJetRecPhi->fill(jetFlavour, jetTag.first->phi() , w );
-  
 }
 
 

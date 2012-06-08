@@ -21,8 +21,8 @@ class JetTagPlotter : public BaseBTagPlotter {
 
   virtual ~JetTagPlotter () ;
 
-  void analyzeTag (const int & jetFlavour); //added to fill the jet multiplicity 
-  void analyzeTag (const int & jetFlavour, const float & w); //added to fill the jet multiplicity 
+  void analyzeTag (); //added to fill the jet multiplicity on data 
+  void analyzeTag (const float & w); //added to fill the jet multiplicity on mc 
   void analyzeTag (const reco::JetTag & jetTag, const int & jetFlavour);
   void analyzeTag (const reco::JetTag & jetTag, const int & jetFlavour, const float & w);
   void analyzeTag (const reco::Jet & jet, const float& discriminator, const int& jetFlavour);
@@ -59,7 +59,7 @@ class JetTagPlotter : public BaseBTagPlotter {
   bool mcPlots_;
   bool willFinalize_;
 
-  int nJets;
+  int *nJets;
   // jet multiplicity
   FlavourHistograms<int> * JetMultiplicity;
 
