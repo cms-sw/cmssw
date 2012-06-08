@@ -451,23 +451,11 @@ if runStandardPAT:
 
   ### Jets
 
-  process.patDefaultSequence.remove( process.kt6PFJets )
-  process.patDefaultSequence.remove( process.ak5PFJets )
-  jecLevelsCalo = copy.copy( jecLevels )
+  process.patJetCorrFactors.payload = jecSet
+  process.patJetCorrFactors.levels  = jecLevels
   if useL1FastJet:
     if useCaloJets:
-      print 'WARNING patRefSel_muJets_test_cfg.py:'
-      print '        L1FastJet JECs are not available for AK5Calo jets in this data due to missing jet area computation;'
-      print '        switching to   L1Offset   !!!'
-      jecLevelsCalo.insert( 0, 'L1Offset' )
-      jecLevelsCalo.remove( 'L1FastJet' )
-      process.patJetCorrFactors.useRho = False
-    if usePFJets:
-      process.patDefaultSequence.remove( getattr( process, 'kt6PFJets' + jetAlgo + pfSuffix ) )
-      getattr( process, 'patJetCorrFactors' + jetAlgo + pfSuffix ).useRho = True
-      getattr( process, 'patJetCorrFactors' + jetAlgo + pfSuffix ).rho    = cms.InputTag( 'kt6PFJets', 'rho' )
-  process.patJetCorrFactors.payload = jecSet
-  process.patJetCorrFactors.levels  = jecLevelsCalo
+      process.patJetCorrFactors.useRho = True
 
   process.goodPatJets = goodPatJets.clone()
   process.step4a      = step4a.clone()
@@ -515,10 +503,6 @@ if runPF2PAT:
   setattr( process, 'step2' + postfix, step2PF )
 
   ### Jets
-
-  if useL1FastJet:
-    getattr( process, 'patPF2PATSequence' + postfix ).remove( getattr( process, 'kt6PFJets' + postfix ) )
-    applyPostfix( process, 'patJetCorrFactors', postfix ).rho = cms.InputTag( 'kt6PFJets', 'rho' )
 
   goodPatJetsPF = goodPatJets.clone( src = cms.InputTag( 'selectedPatJets' + postfix ), checkOverlaps = cms.PSet() )
   setattr( process, 'goodPatJets' + postfix, goodPatJetsPF )
@@ -692,7 +676,6 @@ if runStandardPAT:
     process.p += process.eidMVASequence
     process.p += process.patDefaultSequence
     if usePFJets:
-      process.p.remove( getattr( process, jetAlgo.lower() + pfSuffix + 'Jets' ) )
       process.p.remove( getattr( process, 'patJetCorrFactors'                            + jetAlgo + pfSuffix ) )
       process.p.remove( getattr( process, 'jetTracksAssociatorAtVertex'                  + jetAlgo + pfSuffix ) )
       process.p.remove( getattr( process, 'impactParameterTagInfos'                      + jetAlgo + pfSuffix ) )
