@@ -105,11 +105,11 @@ void Analysis_Step5()
 //  CutFlow(InputDir);
 //   SelectionPlot(InputDir, CutIndex, 0);
    InputDir = "Results/dedxASmi/combined/Eta15/PtMin45/Type2/";   CutIndex = 16;
-    MassPrediction(InputDir, CutIndex, "Mass");
+   MassPrediction(InputDir, CutIndex, "Mass");
 //   CutFlow(InputDir);
 //   SelectionPlot(InputDir, CutIndex, 0);return;
-   GetSystematicOnPrediction(InputDir);
-   PredictionAndControlPlot(InputDir, CutIndex);
+   //GetSystematicOnPrediction(InputDir);
+   //PredictionAndControlPlot(InputDir, CutIndex);
 
    //SelectionPlot(InputDir, CutIndex);
    //PredictionAndControlPlot(InputDir, CutIndex);
@@ -722,7 +722,6 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex, unsigned int Glui
    stPlots_InitFromFile(InputFile, MCTrPlots,"MCTr", InputFileMC);
 
    for(unsigned int s=0;s<signals.size();s++){
-      if (signals[s].Name!="Gluino300" && signals[s].Name!="Gluino600" && signals[s].Name!="Gluino800" && signals[s].Name!="GMStau247" && signals[s].Name!="GMStau370" && signals[s].Name!="GMStau494") continue;
       stPlots_InitFromFile(InputFile, SignPlots[s],signals[s].Name, InputFile);
       if(!signals[s].MakePlot)continue;
 //      stPlots_Draw(SignPlots[s], SavePath + "/Selection_" +  signals[s].Name, LegendTitle, CutIndex);
@@ -741,7 +740,7 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex, unsigned int Glui
    stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, GluinoCutIndex, &DataPlots, &MCTrPlots, &SignPlots[0], &SignPlots[3], &SignPlots[5]);
   //stPlots_DrawComparison(SavePath + "/Selection_Comp_DCStau" , LegendTitle, CutIndex, &DataPlots, &SignPlots[SID_D12K182 ], &SignPlots[SID_D12K595 ], &SignPlots[SID_D12K700 ]);
 //   stPlots_DrawComparison(SavePath + "/Selection_Comp_Stop"   , LegendTitle, CutIndex, &DataPlots, &SignPlots[24]);
-   stPlots_DrawComparison(SavePath + "/Selection_Comp_GMStau" , LegendTitle, CutIndex, &DataPlots, &MCTrPlots, &SignPlots[40], &SignPlots[42], &SignPlots[44]);
+   stPlots_DrawComparison(SavePath + "/Selection_Comp_GMStau" , LegendTitle, CutIndex, &DataPlots, &MCTrPlots, &SignPlots[38], &SignPlots[40], &SignPlots[42]);
    return;
 
    stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, CutIndex, &DataPlots, &SignPlots[SID_GL300 ], &SignPlots[SID_GL500 ], &SignPlots[SID_GL900 ]);
@@ -1473,11 +1472,11 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       MCPredErr->SetBinError(i,error);
       if(MCPredErr->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)MCPredErr->GetNbinsX();j++)MCPredErr->SetBinContent(j,0);}
    }
-   PredErr->SetLineColor(5);
-   PredErr->SetFillColor(5);
-   PredErr->SetFillStyle(1001);
+   PredErr->SetLineColor(8);
+   PredErr->SetFillColor(8);
+   PredErr->SetFillStyle(3001);
    PredErr->SetMarkerStyle(22);
-   PredErr->SetMarkerColor(5);
+   PredErr->SetMarkerColor(2);
    PredErr->SetMarkerSize(1.0);
    PredErr->GetXaxis()->SetNdivisions(505);
    PredErr->SetTitle("");
@@ -1491,24 +1490,24 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    PredErr->Draw("AXIS");
 
    Signal->SetMarkerStyle(21);
-   Signal->SetMarkerColor(5);
+   Signal->SetMarkerColor(4);
    Signal->SetMarkerSize(1.5);
-   Signal->SetLineColor(3);
-   Signal->SetFillColor(3);
+   Signal->SetLineColor(4);
+   Signal->SetFillColor(38);
    Signal->Draw("same HIST");
 
-   MCPredErr->SetLineColor(7);
-   MCPredErr->SetFillColor(7);
-   MCPredErr->SetFillStyle(1001);
+   MCPredErr->SetLineColor(5);
+   MCPredErr->SetFillColor(5);
+   MCPredErr->SetFillStyle(3017);
    MCPredErr->SetMarkerStyle(23);
-   MCPredErr->SetMarkerColor(7);
+   MCPredErr->SetMarkerColor(5);
    MCPredErr->SetMarkerSize(1.0);
    MCPredErr->Draw("same E5");
 
    MCPred->SetMarkerStyle(23);
-   MCPred->SetMarkerColor(4);
+   MCPred->SetMarkerColor(5);
    MCPred->SetMarkerSize(1.5);
-   MCPred->SetLineColor(4);
+   MCPred->SetLineColor(5);
    MCPred->SetFillColor(0);
    MCPred->Draw("same HIST P");
 

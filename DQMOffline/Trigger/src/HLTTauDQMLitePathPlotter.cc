@@ -41,7 +41,7 @@ HLTTauDQMLitePathPlotter::HLTTauDQMLitePathPlotter( const edm::ParameterSet& ps,
         for ( size_t k = 0; k < filterObjs_.size(); ++k ) {
             accepted_events->setBinLabel(k+1,filterObjs_[k].getAlias(),1);
             if ( filterObjs_[k].getNTriggeredTaus() >= 2 || (filterObjs_[k].getNTriggeredTaus() >= 1 && filterObjs_[k].getNTriggeredLeptons() >= 1) ) { 
-                mass_distribution.push_back(store_->book1D(("mass_"+filterObjs_[k].getAlias()).c_str(),("Mass Distribution for "+filterObjs_[k].getAlias()).c_str(),100,0,500)); 
+                mass_distribution.insert(std::make_pair(filterObjs_[k].getAlias(), store_->book1D(("mass_"+filterObjs_[k].getAlias()).c_str(),("Mass Distribution for "+filterObjs_[k].getAlias()).c_str(),100,0,500))); 
             }
         }
         
@@ -177,6 +177,7 @@ void HLTTauDQMLitePathPlotter::analyze( const edm::Event& iEvent, const edm::Eve
     if ( gotTEV ) {
         //Loop through the filters
         for ( size_t i = 0; i < filterObjs_.size(); ++i ) {
+            std::map<std::string, MonitorElement*>::iterator thisMassDist = mass_distribution.find(filterObjs_[i].getAlias());
             size_t ID = trigEv->filterIndex(filterObjs_[i].getFilterName());
             if ( ID != trigEv->sizeFilters() ) {
                 LVColl leptons = getFilterCollection(ID,filterObjs_[i].getLeptonType(),*trigEv);
@@ -206,22 +207,22 @@ void HLTTauDQMLitePathPlotter::analyze( const edm::Event& iEvent, const edm::Eve
                             if ( nT >= filterObjs_[i].getNTriggeredTaus() && nL >= filterObjs_[i].getNTriggeredLeptons() ) {
                                 accepted_events_matched->Fill(i+0.5);
                                 if ( filterObjs_[i].getNTriggeredTaus() >= 2 && refTaus.size() >= 2 ) {
-                                    mass_distribution[i]->Fill( (refTaus[0]+refTaus[1]).M() );
+                                    if (thisMassDist != mass_distribution.end()) thisMassDist->second->Fill( (refTaus[0]+refTaus[1]).M() );
                                 } else if ( filterObjs_[i].getNTriggeredTaus() >= 1 && filterObjs_[i].getNTriggeredLeptons() >= 1 ) {
                                     if ( filterObjs_[i].leptonId() == 11 && refElectrons.size() >= 1 ) {
-                                        mass_distribution[i]->Fill( (refTaus[0]+refElectrons[0]).M() );
+                                        if (thisMassDist != mass_distribution.end()) thisMassDist->second->Fill( (refTaus[0]+refElectrons[0]).M() );
                                     }				      
                                     if ( filterObjs_[i].leptonId() == 13 && refMuons.size() >= 1 ) {
-                                        mass_distribution[i]->Fill( (refTaus[0]+refMuons[0]).M() );
+                                        if (thisMassDist != mass_distribution.end()) thisMassDist->second->Fill( (refTaus[0]+refMuons[0]).M() );
                                     }
                                 }
                             }
                         }
                     } else {
                         if ( filterObjs_[i].getNTriggeredTaus() >= 2 ) {
-                            mass_distribution[i]->Fill( (taus[0]+taus[1]).M() );
+                            if (thisMassDist != mass_distribution.end()) thisMassDist->second->Fill( (taus[0]+taus[1]).M() );
                         } else if ( filterObjs_[i].getNTriggeredTaus() >= 1 && filterObjs_[i].getNTriggeredLeptons() >= 1 ) {
-                            mass_distribution[i]->Fill( (taus[0]+leptons[0]).M() );
+                            if (thisMassDist != mass_distribution.end()) thisMassDist->second->Fill( (taus[0]+leptons[0]).M() );
                         }
                     }
                 }

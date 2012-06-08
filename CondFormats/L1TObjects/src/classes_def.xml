@@ -10,10 +10,7 @@
   <class name="L1MuPseudoSignedPacking"/>
   <class name="L1MuTriggerScales"/>
   <class name="L1MuTriggerPtScale"/>
-  <class name="L1MuGMTParameters">
-    <field name="m_VersionLUTs" persistency="loose_on_writing" />
-    <field name="m_VersionLUTs" persistency="loose_on_reading" />
-  </class>
+  <class name="L1MuGMTParameters" class_version="L1MuGMTParameters_V01" />
   <class name="L1MuGMTChannelMask"/>
   <class name="L1MuGMTScales"/>
   <class name="L1CaloEtScale">

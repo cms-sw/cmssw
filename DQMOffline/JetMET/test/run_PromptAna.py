@@ -110,20 +110,28 @@ process.jetMETAnalyzer.processname = cms.string(trigger_set)
 #process.jetMETAnalyzer.processname = cms.string("HLT8E29")
 
 if allhist=="True":
-  process.jetMETAnalyzer.DoJetPtAnalysis = cms.untracked.bool(True)
-  process.jetMETAnalyzer.DoJetPtCleaning = cms.untracked.bool(True)
-  process.jetMETAnalyzer.DoIterativeCone = cms.untracked.bool(True)
+  process.jetMETAnalyzer.DoJetPtAnalysis = cms.untracked.bool(False)
+  process.jetMETAnalyzer.DoJetPtCleaning = cms.untracked.bool(False)
+  process.jetMETAnalyzer.DoIterativeCone = cms.untracked.bool(False)
 
 #process.jetMETAnalyzer.caloMETAnalysis.verbose = cms.int32(1)
 
-if allhist=="True":
-  process.jetMETAnalyzer.caloMETAnalysis.allSelection       = cms.bool(True)
-  process.jetMETAnalyzer.caloMETNoHFAnalysis.allSelection   = cms.bool(True)
-  process.jetMETAnalyzer.caloMETHOAnalysis.allSelection     = cms.bool(True)
-  process.jetMETAnalyzer.caloMETNoHFHOAnalysis.allSelection = cms.bool(True)
-  process.jetMETAnalyzer.pfMETAnalysis.allSelection         = cms.bool(True)
-  process.jetMETAnalyzer.tcMETAnalysis.allSelection         = cms.bool(True)
-  process.jetMETAnalyzer.mucorrMETAnalysis.allSelection     = cms.bool(True)
+
+################################################################################
+#
+# If allSelection = True, all the MET cleaning folders are filled.
+# If allSelection = False, only All, BasicCleanup and ExtraCleanup are filled.
+#
+################################################################################
+# if allhist=="True":
+#   process.jetMETAnalyzer.caloMETAnalysis.allSelection       = cms.bool(True)
+#   process.jetMETAnalyzer.caloMETNoHFAnalysis.allSelection   = cms.bool(True)
+#   process.jetMETAnalyzer.caloMETHOAnalysis.allSelection     = cms.bool(True)
+#   process.jetMETAnalyzer.caloMETNoHFHOAnalysis.allSelection = cms.bool(True)
+#   process.jetMETAnalyzer.pfMETAnalysis.allSelection         = cms.bool(True)
+#   process.jetMETAnalyzer.tcMETAnalysis.allSelection         = cms.bool(True)
+#   process.jetMETAnalyzer.mucorrMETAnalysis.allSelection     = cms.bool(True)
+
 
 # check # of bins
 process.load("DQMServices.Components.DQMStoreStats_cfi")

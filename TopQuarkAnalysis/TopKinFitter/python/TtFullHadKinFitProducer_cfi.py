@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from TopQuarkAnalysis.TopObjectResolutions.stringResolutions_etEtaPhi_Spring10_cff import *
+from TopQuarkAnalysis.TopObjectResolutions.stringResolutions_etEtaPhi_cff import *
 
 kinFitTtFullHadEvent = cms.EDProducer("TtFullHadKinFitProducer",
     jets = cms.InputTag("selectedPatJets"),

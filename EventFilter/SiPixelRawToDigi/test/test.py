@@ -19,8 +19,8 @@ process.GlobalTag.globaltag = "GR_R_52_V2::All"
 
 #--- SiPixelRawToDigi ---#
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
-process.siPixelDigis.InputLabel = "source"
-#process.siPixelDigis.InputLabel = "rawDataCollector"
+#process.siPixelDigis.InputLabel = "source"
+process.siPixelDigis.InputLabel = "rawDataCollector"
 process.siPixelDigis.Timing = True
 process.siPixelDigis.UseQualityInfo = False
 process.siPixelDigis.IncludeErrors = True
@@ -70,7 +70,7 @@ process.source = cms.Source("PoolSource",
 #        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/442/1EDF60D5-0E3C-DF11-9245-0030487CD6DA.root',
 #        'rfio:/castor/cern.ch/cms/store/data/Commissioning10/ZeroBias/RAW/v4/000/132/442/14349126-153C-DF11-A00B-0030487C608C.root'
 
-        'file:/tmp/andrewdc/temp/CMSSW_5_2_X_2012-02-28-1400/src/5E591B51-40F5-E011-BEAE-E0CB4E55365D.root'
+        'file:/tmp/andrewdc/CMSSW_5_2_X_2012-04-06-0100/src/Fall11_TTbarZIncl_TuneZ2_7TeV-madgraph-tauola_GEN-RAW.root'
   )
 )
 
@@ -78,7 +78,7 @@ process.source = cms.Source("PoolSource",
 ## number of events
 ##
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1) )
+    input = cms.untracked.int32(100) )
 
 ##
 ## Output
@@ -90,6 +90,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 ##
 ## executionpath
 ##
+process.Timing = cms.Service("Timing")
 process.p = cms.Path(process.siPixelDigis)
 process.ep = cms.EndPath(process.out)
 

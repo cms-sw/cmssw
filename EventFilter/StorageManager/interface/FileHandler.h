@@ -1,4 +1,4 @@
-// $Id: FileHandler.h,v 1.19 2011/07/05 13:25:43 mommsen Exp $
+// $Id: FileHandler.h,v 1.20 2011/07/07 09:22:44 mommsen Exp $
 /// @file: FileHandler.h 
 
 #ifndef EventFilter_StorageManager_FileHandler_h
@@ -25,8 +25,8 @@ namespace stor {
    * Abstract representation of a physical file
    *
    * $Author: mommsen $
-   * $Revision: 1.19 $
-   * $Date: 2011/07/05 13:25:43 $
+   * $Revision: 1.20 $
+   * $Date: 2011/07/07 09:22:44 $
    */
 
   class FileHandler
@@ -37,7 +37,6 @@ namespace stor {
     (
       FilesMonitorCollection::FileRecordPtr,
       const DbFileHandlerPtr,
-      const DiskWritingParams&,
       const uint64_t& maxFileSize
      );
     
@@ -163,11 +162,6 @@ namespace stor {
      * Throws a stor::execption::NoSuchDirectory when a directory does not exist.
      */
     void checkDirectories() const;
-    
-    /**
-     * Return the name of the log file
-     */
-    std::string logFile(const DiskWritingParams&) const;
 
     /**
      * Return the relative difference btw to file sizes
@@ -196,9 +190,9 @@ namespace stor {
     
     const uint64_t maxFileSize_;                    // maximal file size in bytes
     
-    const std::string  logPath_;                    // log path
-    const std::string  logFile_;                    // log file including path
-    std::string  cmsver_;                           // CMSSW version string
+    const std::string logPath_;                     // log path
+    const std::string logFile_;                     // log file including path
+    std::string cmsver_;                            // CMSSW version string
   };
   
 } // stor namespace

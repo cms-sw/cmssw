@@ -5,5 +5,4 @@
 <use   name="DQMServices/Core"/>
 <use   name="PhysicsTools/JetMCUtils"/>
 <use   name="CommonTools/Utils"/>
-<use   name="CommonTools/TriggerUtils"/>
 <flags   EDM_PLUGIN="1"/>

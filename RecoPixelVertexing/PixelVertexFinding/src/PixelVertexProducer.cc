@@ -3,17 +3,13 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "RecoPixelVertexing/PixelVertexFinding/interface/DivisiveVertexFinder.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <memory>
 #include <string>
 #include <cmath>
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
 
 PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf) 
   : conf_(conf), verbose_(0), dvf_(0), ptMin_(1.0)
@@ -47,13 +43,6 @@ PixelVertexProducer::~PixelVertexProducer() {
 }
 
 void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
-
-  edm::ESHandle<MagneticField> field;
-  es.get<IdealMagneticFieldRecord>().get(field); 
- 
- //  edm::ESHandle<MagneticField> field;
- //  es.get<IdealMagneticFieldRecord>().get(field);
- 
 
   // First fish the pixel tracks out of the event
   edm::Handle<reco::TrackCollection> trackCollection;
@@ -98,55 +87,67 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     }
   }
 
-  int maxvtx_=15;
-  int nvtx2_ = vertexes->size();
-  if (nvtx2_ > 0) {
-    vector<reco::TransientTrack> t_tks;
-    for (int i=0; i<nvtx2_ && i<maxvtx_; i++) {
-      t_tks.clear();
-      for (reco::Vertex::trackRef_iterator j=(*vertexes)[i].tracks_begin(); j!=(*vertexes)[i].tracks_end(); ++j) {
-        t_tks.push_back( reco::TransientTrack(**j,field.product()) );
+
+  if(bsHandle.isValid())
+    {
+      const reco::BeamSpot & bs = *bsHandle;
+      
+      for (unsigned int i=0; i<vertexes->size(); ++i) {
+	double z=(*vertexes)[i].z();
+	double x=bs.x0()+bs.dxdz()*(z-bs.z0());
+	double y=bs.y0()+bs.dydz()*(z-bs.z0()); 
+	reco::Vertex v( reco::Vertex::Point(x,y,z), (*vertexes)[i].error(),(*vertexes)[i].chi2() , (*vertexes)[i].ndof() , (*vertexes)[i].tracksSize());
+	//Copy also the tracks 
+	for (std::vector<reco::TrackBaseRef >::const_iterator it = (*vertexes)[i].tracks_begin();
+	     it !=(*vertexes)[i].tracks_end(); it++) {
+	  v.add( *it );
+	}
+	(*vertexes)[i]=v;
+	
       }
-      KalmanVertexFitter kvf;
-      TransientVertex tv = kvf.vertex(t_tks);
-      if (!tv.isValid()) continue;
-      if (verbose_>0) std::cout << "Kalman Position: " << reco::Vertex::Point(tv.position()) << std::endl;
-      double x = tv.position().x();
-      double y = tv.position().y();
-      double z = tv.position().z();
- //     std::cout<<" x/y/z: "<<x<<" "<<y<<" "<<z<<"\n";
-       reco::Vertex v( reco::Vertex::Point(x,y,z), (*vertexes)[i].error(),(*vertexes)[i].chi2() , (*vertexes)[i].ndof() , (*vertexes)[i].tracksSize());
-      for (std::vector<reco::TrackBaseRef >::const_iterator it = (*vertexes)[i].tracks_begin();
-            it !=(*vertexes)[i].tracks_end(); it++) {
-            v.add( *it );
-      }
-      (*vertexes)[i]=v;
     }
+  else
+    {
+      edm::LogWarning("PixelVertexProducer") << "No beamspot found. Using returning vertexes with (0,0,Z) ";
+    } 
+  
+  if(!vertexes->size() && bsHandle.isValid()){
+    
+    const reco::BeamSpot & bs = *bsHandle;
+      
+      GlobalError bse(bs.rotatedCovariance3D());
+      if ( (bse.cxx() <= 0.) ||
+	   (bse.cyy() <= 0.) ||
+	   (bse.czz() <= 0.) ) {
+	AlgebraicSymMatrix33 we;
+	we(0,0)=10000;
+	we(1,1)=10000;
+	we(2,2)=10000;
+	vertexes->push_back(reco::Vertex(bs.position(), we,0.,0.,0));
+	
+	edm::LogInfo("PixelVertexProducer") <<"No vertices found. Beamspot with invalid errors " << bse.matrix() << std::endl
+					       << "Will put Vertex derived from dummy-fake BeamSpot into Event.\n"
+					       << (*vertexes)[0].x() << "\n"
+					       << (*vertexes)[0].y() << "\n"
+					       << (*vertexes)[0].z() << "\n";
+      } else {
+	vertexes->push_back(reco::Vertex(bs.position(),
+					 bs.rotatedCovariance3D(),0.,0.,0));
+	
+	edm::LogInfo("PixelVertexProducer") << "No vertices found. Will put Vertex derived from BeamSpot into Event:\n"
+					       << (*vertexes)[0].x() << "\n"
+					       << (*vertexes)[0].y() << "\n"
+					       << (*vertexes)[0].z() << "\n";
+      }
   }
-
-//  if(bsHandle.isValid())
-//   {
-//    const reco::BeamSpot & bs = *bsHandle;
-//
-//    for (unsigned int i=0; i<vertexes->size(); ++i) {
-//      double z=(*vertexes)[i].z();
-//      double x=bs.x0()+bs.dxdz()*(z-bs.z0());
-//      double y=bs.y0()+bs.dydz()*(z-bs.z0());
-//      reco::Vertex v( reco::Vertex::Point(x,y,z), (*vertexes)[i].error(),(*vertexes)[i].chi2() , (*vertexes)[i].ndof() , (*vertexes)[i].tracksSize());
-//       //Copy also the tracks
-//       for (std::vector<reco::TrackBaseRef >::const_iterator it = (*vertexes)[i].tracks_begin();
-//            it !=(*vertexes)[i].tracks_end(); it++) {
-//            v.add( *it );
-//       }
-//      (*vertexes)[i]=v;
-//    }
-//  }
-//   else
-//  {
-//      edm::LogWarning("PixelVertexProducer") << "No beamspot found. Using returning vertexes with (0,0,Z) ";
-//  }
-
-   e.put(vertexes);
-
-
+      
+  else if(!vertexes->size() && !bsHandle.isValid())
+    {
+      edm::LogWarning("PixelVertexProducer") << "No beamspot and no vertex found. No vertex returned.";
+    }
+  
+  e.put(vertexes);
+  
 }
+
+

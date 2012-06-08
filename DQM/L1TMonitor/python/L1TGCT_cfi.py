@@ -9,7 +9,8 @@ l1tGct = cms.EDAnalyzer("L1TGCT",
     gctNonIsoEmSource = cms.InputTag("gctDigis","nonIsoEm"),
     verbose = cms.untracked.bool(False),
     DQMStore = cms.untracked.bool(True),
-    disableROOToutput = cms.untracked.bool(True)
+    disableROOToutput = cms.untracked.bool(True),
+    filterTriggerType = cms.int32(1)
 )
 
 

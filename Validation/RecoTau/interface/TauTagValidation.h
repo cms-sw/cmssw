@@ -23,9 +23,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
+
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/CaloTau.h"
@@ -41,7 +41,7 @@
 #include "TH1.h"
 #include "TH1F.h"
 #include <vector>
-#include <string>
+
 
 // Include DQM core
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -50,50 +50,26 @@
 typedef math::XYZTLorentzVectorD  LV;
 typedef std::vector<LV>  LVCollection;
 
-struct hinfo{
-  int nbins;
-  double min;
-  double max;
-  hinfo(int n, double m, double M){
-    nbins = n;
-    min = m;
-    max = M;
-  }
-  hinfo(const edm::ParameterSet& config){
-    nbins = config.getParameter<int>("nbins");
-    min = config.getParameter<double>("min");
-    max = config.getParameter<double>("max");
-  }
-};
-
 // class declaration
 class TauTagValidation : public edm::EDAnalyzer {
 
 public:
   explicit TauTagValidation(const edm::ParameterSet&);
-  ~TauTagValidation();
+  ~TauTagValidation() {}
 
   virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   virtual void beginJob();
   virtual void endJob();
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
 private:
-  /// label of the current module
-  std::string moduleLabel_;
+
   ///sum the transversal momentum of all candidates
   double getSumPt(const reco::PFCandidateRefVector & 	candidates);
   ///get rid of redundant parts to shorten the label
   bool stripDiscriminatorLabel(const std::string& discriminatorLabel, std::string & newLabel);
 
-  edm::ParameterSet histoSettings_;
-  /// generic access to dynamic trigger table
-  GenericTriggerEventFlag * genericTriggerEventFlag_;
-    
-  /// What's the reference for the Validation Leptons or Jets
+
+  // What's the reference for the Validation Leptons or Jets
   std::string dataType_;
 
  // Matching criteria
@@ -105,7 +81,7 @@ private:
   std::string recoCuts_, genCuts_;
 
   // output histograms
-  bool saveoutputhistograms_, turnOnTrigger_;
+  bool saveoutputhistograms_;
 
  // Reference Collection
   edm::InputTag refCollectionInputTag_;
@@ -183,6 +159,7 @@ private:
   // book-keeping variables
 
   DQMStore* dbeTau_;
+
   int numEvents_;
 
  protected:

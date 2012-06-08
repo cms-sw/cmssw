@@ -31,19 +31,17 @@ triggerSelection_000000   = 'HLT_Mu9'
 # 147196 <= run < 149442 (Run2010B)
 triggerSelection_147196   = 'HLT_Mu15_v*'
 # 160404 <= run < 163269 (Run2011A)
-triggerSelection_160404   = 'HLT_Mu15_v* OR HLT_IsoMu17_v*'
-# 163270 <= run < 173198 (Run2011A)
-triggerSelection_163270   = 'HLT_IsoMu17_v*'
-# 173236 <= run < 173692 (Run2011A)
-triggerSelection_173236   = 'HLT_IsoMu24_v*'
-# 175832 <= run < 180252 (Run2011B)
-triggerSelection_175832   = 'HLT_IsoMu24_eta2p1_v*'
-triggerSelection_Summer11 = 'HLT_Mu20_v* OR HLT_IsoMu17_v*'
-triggerSelection_Fall11   = 'HLT_Mu24_v* OR HLT_IsoMu24_v*'
-triggerSelectionData = triggerSelection_175832
-triggerSelectionMC   = triggerSelection_Fall11
+triggerSelection_160404   = 'HLT_Mu15_v* OR HLT_IsoMu17_v* OR HLT_Mu17_CentralJet30_v* OR HLT_Mu17_DiCentralJet30_v* OR HLT_Mu17_TriCentralJet30_v* OR HLT_Mu17_CentralJet30_BTagIP_v* OR HLT_IsoMu17_CentralJet30_BTagIP_v*'
+# 163270 <= run < ...    (Run2011A)
+triggerSelection_163270   = 'HLT_IsoMu17_v* OR HLT_Mu17_TriCentralJet30_v* OR HLT_Mu17_CentralJet30_BTagIP_v* OR HLT_IsoMu17_CentralJet30_BTagIP_v*' # un-prescaled only
+triggerSelection_Summer11 = 'HLT_Mu20_v* OR HLT_Mu24_v* OR HLT_IsoMu17_v*'
+triggerSelectionData = triggerSelection_163270
+triggerSelectionMC   = triggerSelection_Summer11
 
 ### Muon selection
+
+# PF2PAT top projection settings
+pfMuonIsoConeR = 0.4 # for mu+jets, default: 0.4
 
 # Minimal selection for all muons, also basis for signal and veto muons
 muonCutBase  =     'pt > 10.'                                                    # transverse momentum
@@ -129,18 +127,13 @@ electronCutPF += ' && (chargedHadronIso+neutralHadronIso+photonIso)/et < 0.2'   
 
 # Trigger object selection
 #           run < 147196 (Run2010A)
-triggerObjectSelection_000000   = 'type("TriggerMuon") && ( path("HLT_Mu9", 1, 0) )'
+triggerObjectSelection_000000   = 'type("TriggerMuon") && ( path("HLT_Mu9") )'
 # 147196 <= run < 149442 (Run2010B)
-triggerObjectSelection_147196   = 'type("TriggerMuon") && ( path("HLT_Mu15_v*, 1, 0") )'
+triggerObjectSelection_147196   = 'type("TriggerMuon") && ( path("HLT_Mu15_v*") )'
 # 160404 <= run < 163269 (Run2011A)
-triggerObjectSelection_160404   = 'type("TriggerMuon") && ( path("HLT_Mu15_v*, 1, 0") || path("HLT_IsoMu17_v*, 0, 0") )'
-# 163270 <= run < 173198 (Run2011A)
-triggerObjectSelection_163270   = 'type("TriggerMuon") && ( path("HLT_IsoMu17_v*") )'
-# 173236 <= run < 173692 (Run2011A)
-triggerObjectSelection_173236   = 'type("TriggerMuon") && ( path("HLT_IsoMu24_v*") )'
-# 175832 <= run < 180252 (Run2011B)
-triggerObjectSelection_175832   = 'type("TriggerMuon") && ( path("HLT_IsoMu24_eta2p1_v*") )'
-triggerObjectSelection_Summer11 = 'type("TriggerMuon") && ( path("HLT_Mu20_v*, 1, 0") || path("HLT_IsoMu17_v*, 0, 0") )'
-triggerObjectSelection_Fall11   = 'type("TriggerMuon") && ( path("HLT_Mu24_v*") || path("HLT_IsoMu24_v*") )'
-triggerObjectSelectionData = triggerObjectSelection_175832
-triggerObjectSelectionMC   = triggerObjectSelection_Fall11
+triggerObjectSelection_160404   = 'type("TriggerMuon") && ( path("HLT_Mu15_v*") || path("HLT_IsoMu17_v*") || ( filter("hltL1Mu7CenJetL3MuFiltered17") && ( path("HLT_Mu17_CentralJet30_v*", 0) || path("HLT_Mu17_DiCentralJet30_v*", 0) || path("HLT_Mu17_TriCentralJet30_v*", 0) || path("HLT_Mu17_CentralJet30_BTagIP_v*", 0) ) ) || ( filter("hltIsoMu17CenJet30L3IsoFiltered17") && path("HLT_IsoMu17_CentralJet30_BTagIP_v*", 0) ) )'
+# 163270 <= run < ...    (Run2011A)
+triggerObjectSelection_163270   = 'type("TriggerMuon") && ( path("HLT_IsoMu17_v*") || ( filter("hltL1Mu7CenJetL3MuFiltered17") && ( path("HLT_Mu17_TriCentralJet30_v*", 0) || path("HLT_Mu17_CentralJet30_BTagIP_v*", 0) ) ) || ( filter("hltIsoMu17CenJet30L3IsoFiltered17") && path("HLT_IsoMu17_CentralJet30_BTagIP_v*", 0) ) )'
+triggerObjectSelection_Summer11 = 'type("TriggerMuon") && ( path("HLT_Mu20_v*") || path("HLT_Mu24_v*") || path("HLT_IsoMu17_v*") )'
+triggerObjectSelectionData = triggerObjectSelection_163270
+triggerObjectSelectionMC   = triggerObjectSelection_Summer11

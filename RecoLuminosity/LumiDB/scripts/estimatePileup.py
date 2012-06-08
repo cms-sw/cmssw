@@ -74,7 +74,7 @@ def fillPileupHistogram (deadTable, parameters,
                 else:
                     print "mean number of pileup events > 100 for lum %d: m %f l %f" % \
                           (lumiSection, mean, xingInstLumi)
-            totalProb = 0
+
             for obs in range (upper):
                 prob = ROOT.TMath.Poisson (obs, mean)
                 totalProb += prob
@@ -181,8 +181,8 @@ if __name__ == '__main__':
     if not options.inputfile and not options.runnumber and not options.csvInput:
         raise "must specify either a run (-r), an input run selection file (-i), or an input CSV file (--csvInput)"
     pileupHist = ROOT.TH1D(parameters.pileupHistName, parameters.pileupHistName,
-                      parameters.maxPileupBin + 1,
-                      -0.5, parameters.maxPileupBin + 0.5)
+                      1001,
+                      0.0, 25.)
     histList = []
     if options.csvInput:
         # we're going to read in the CSV file and use this as not only
@@ -194,17 +194,17 @@ if __name__ == '__main__':
         csvDict = {}
         for line in events:
             pieces = sepRE.split (line.strip())
-            if len (pieces) < 6:
+            if len (pieces) < 8:
                 continue
-            if len (pieces) % 2:
-                # not an even number
-                continue
+            #if len (pieces) % 2:
+            #    # not an even number
+            #    continue
             try:
-                run,       lumi     = int  ( pieces[0] ), int  ( pieces[1] )
-                delivered, recorded = float( pieces[2] ), float( pieces[3] )
+                run,       lumi     = int  ( pieces[0] ), int  ( pieces[2] )
+                delivered, recorded = float( pieces[7] ), float( pieces[8] )
                 xingInstLumiArray = [( int(orbit), float(lum) ) \
-                                     for orbit, lum in zip( pieces[4::2],
-                                                            pieces[5::2] ) ]
+                                     for orbit, lum in zip( pieces[9::2],
+                                                            pieces[10::2] ) ]
             except:
                 continue
             csvDict.setdefault (run, {})[lumi] = \

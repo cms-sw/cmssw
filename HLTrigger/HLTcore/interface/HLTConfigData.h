@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2011/05/01 10:32:13 $
- *  $Revision: 1.13 $
+ *  $Date: 2011/09/06 13:54:33 $
+ *  $Revision: 1.14 $
  *
  *  \author Martin Grunewald
  *
@@ -44,14 +44,17 @@ class HLTConfigData {
   /// process name
   const std::string& processName() const;
 
+  /// GlobalTag.globaltag
+  const std::string& globalTag() const;
+
+  /// HLT ConfDB table name
+  const std::string& tableName() const;
+
   /// number of trigger paths in trigger table
   unsigned int size() const;
   /// number of modules on a specific trigger path
   unsigned int size(unsigned int trigger) const;
   unsigned int size(const std::string& trigger) const;
-
-  /// HLT ConfDB table name
-  const std::string& tableName() const;
 
   /// names of trigger paths
   const std::vector<std::string>& triggerNames() const;
@@ -86,7 +89,6 @@ class HLTConfigData {
 
   /// Is module an L3 filter (ie, tracked saveTags=true)
   bool saveTags(const std::string& module) const;
-
 
   /// HLTLevel1GTSeed module
   /// HLTLevel1GTSeed modules for all trigger paths
@@ -144,6 +146,7 @@ class HLTConfigData {
   const edm::ParameterSet* processPSet_;
 
   std::string processName_;
+  std::string globalTag_;
   std::string tableName_;
   std::vector<std::string> triggerNames_;
   std::vector<std::vector<std::string> > moduleLabels_;

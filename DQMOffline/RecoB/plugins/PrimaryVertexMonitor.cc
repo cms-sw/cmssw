@@ -26,7 +26,7 @@ PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
 
 //   xPos = dqmStore_->book1D ("xPos","x Coordinate" ,100, -0.1, 0.1);
 
-  nbvtx      = dqmStore_->book1D("vtxNbr","Reconstructed Vertices in Event",20,-0.5,19.5);
+  nbvtx      = dqmStore_->book1D("vtxNbr","Reconstructed Vertices in Event",50,-0.5,49.5);
 
   nbtksinvtx[0] = dqmStore_->book1D("otherVtxTrksNbr","Reconstructed Tracks in Vertex (other Vtx)",40,-0.5,99.5); 
   trksWeight[0] = dqmStore_->book1D("otherVtxTrksWeight","Total weight of Tracks in Vertex (other Vtx)",40,0,100.); 

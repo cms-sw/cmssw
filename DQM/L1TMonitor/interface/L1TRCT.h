@@ -5,11 +5,17 @@
 /*
  * \file L1TRCT.h
  *
- * $Date: 2008/11/08 08:45:42 $
- * $Revision: 1.6 $
+ * $Date: 2012/03/29 21:16:48 $
+ * $Revision: 1.8 $
  * \author P. Wittich
- * $Id: L1TRCT.h,v 1.6 2008/11/08 08:45:42 asavin Exp $
+ * $Id: L1TRCT.h,v 1.8 2012/03/29 21:16:48 rovere Exp $
  * $Log: L1TRCT.h,v $
+ * Revision 1.8  2012/03/29 21:16:48  rovere
+ * Removed all instances of hltTriggerTypeFilter from L1T DQM Code.
+ *
+ * Revision 1.7  2009/11/19 14:34:14  puigh
+ * modify beginJob
+ *
  * Revision 1.6  2008/11/08 08:45:42  asavin
  * changing the fine grain to HfPlusTau
  *
@@ -91,6 +97,9 @@ private:
   // ----------member data ---------------------------
   DQMStore * dbe;
 
+  // trigger type information
+  MonitorElement *triggerType_;
+
   // region global coordinates
   MonitorElement* rctRegionsEtEtaPhi_;
   MonitorElement* rctRegionsOccEtaPhi_;
@@ -135,6 +144,8 @@ private:
 
   edm::InputTag rctSource_;
 
+  /// filter TriggerType
+  int filterTriggerType_;
 
 };
 

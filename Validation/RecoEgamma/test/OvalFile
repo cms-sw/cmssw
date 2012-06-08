@@ -1,18 +1,10 @@
 
-<var name="TEST_COMMENT" value="">
-<var name="TEST_NEW" value="5_2_0_pre6">
-<var name="TEST_REF" value="5_2_0_pre4">
-
-<var name="TAG_STARTUP" value="START52_V2">
-<var name="TAG_IDEAL" value="MC_43_V4">
-<var name="DATA_VERSION" value="v3">
-
-<var name="STORE_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_NEW}">
-<var name="STORE_REF" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_REF}">
-
-<var name="WEB_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Releases">
-<!--var name="WEB_DIR" value="/afs/cern.ch/user/c/chamont/www/validation"-->
-<!--var name="WEB_URL" value="https://chamont.web.cern.ch/chamont/validation"-->
+<var name="TEST_RELEASE" value="5_0_1">
+<var name="TEST_GLOBAL_STARTUP_TAG" value="START50_V13">
+<var name="TEST_GLOBAL_IDEAL_TAG" value="MC_43_V4">
+<var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
+<var name="TEST_GLOBAL_AUTOCOND" value="startup">
+<var name="TEST_GLOBAL_VERSION" value="v1">
 
 The value of OVAL_ENVNAME is automatically set by Oval to the name
 of the current environment, before running any executable. Using it below,
@@ -20,7 +12,6 @@ we have an output file name which is unique for each execution.
 
 <var name="TEST_HISTOS_FILE" value="electronHistos.${OVAL_ENVNAME}.root">
 <var name="TEST_OUTPUT_LOGS" value="*.${OVAL_ENVNAME}.olog">
-<!--var name="TEST_HISTOS_FILE" value="DQM_V0001_R000000001__${DD_SAMPLE}__${DD_RELEASE}-${DD_COND}__DQM.root"-->
 <!--difffile name="electronHistos.root"-->
 
 The DD_* variables are configuration variables for the script electronDataDiscovery.py,
@@ -28,7 +19,26 @@ which prepares and send a query to the Data Discovery web server,
 and receive as a result the corresponding list of input data files.
 
 <var name="DD_SOURCE" value="das">
-<var name="DD_RELEASE" value="${CMSSW_VERSION}">
+<var name="DD_RELEASE" value="CMSSW_${TEST_RELEASE}">
+<var name="DD_TIER" value="*RECO*">
+<var name="DD_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
+<!--var name="TEST_HISTOS_FILE" value="DQM_V0001_R000000001__${DD_SAMPLE}__${DD_RELEASE}-${DD_COND}__DQM.root"-->
+
+The VAL_* variables are configuration variables for electronValidation.csh,
+which compares the histograms from two releases. electronValidation.csh relies
+on the ROOT script electronValidation.C.
+
+<var name="VAL_NEW_RELEASE" value="5_0_1_SeedsRemaker2">
+<var name="VAL_REF_RELEASE" value="5_0_1">
+<var name="VAL_COMMENT" value="Redo from reco, with Jean-Roch seeds">
+
+<var name="STORE_RELEASE" value="${VAL_NEW_RELEASE}">
+
+<!--var name="VAL_WEB" value="/afs/cern.ch/user/c/chamont/www/validation"-->
+<!--var name="VAL_WEB_URL" value="https://chamont.web.cern.ch/chamont/validation"-->
+<var name="VAL_WEB" value="/afs/cern.ch/cms/Physics/egamma/www/validation">
+<var name="VAL_WEB_URL" value="http://cmsdoc.cern.ch/Physics/egamma/www/validation">
+<var name="STORE_WEB" value="${VAL_WEB}">
 
 Oval is able to check the output channel of an execution and compare it with a reference output.
 The tags below are defining which are lines to be compared. The currently specification is a
@@ -48,7 +58,7 @@ first draft, and we do not yet check the differences that Oval could raise.
 The file defined below is used by the script electronDataDiscovery.py when we want to analyze
 some RelVal reco files which have been regenerated locally.
 
-<var name="TEST_AFS_DIR" value="/afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/ReleaseValidationTmp/SeedsRemaker3">
+<var name="TEST_AFS_DIR" value="/afs/cern.ch/cms/CAF/CMSPHYS/PHYS_EGAMMA/electrons/chamont/ReleaseValidationTmp/SeedsRemaker2">
 <file name="electronInputDataFiles.txt">
 file:${TEST_AFS_DIR}/RelValSingleElectronPt10-IDEAL-RECO.root
 file:${TEST_AFS_DIR}/RelValSingleElectronPt35-IDEAL-RECO.root
@@ -78,15 +88,14 @@ FullSim
 
 <environment name="FullSimStdStats">
 
-  This set of targets is currently used for the validation of electrons.
+This set of targets is currently used for the validation of electrons.
 
-  <var name="DD_TIER" value="*RECO*">
-  
   <var name="VAL_HISTOS" value="ElectronMcSignalHistos.txt">
   <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
   <var name="VAL_POST_ANALYZER" value="ElectronMcSignalPostValidator">
-  <var name="VAL_CONFIGURATION" value="ElectronMcSignalValidation_cfg">
-  <var name="VAL_POST_CONFIGURATION" value="ElectronMcSignalPostValidation_cfg">
+  <var name="VAL_CONFIGURATION" value="ElectronMcSignalValidation_cfg.py">
+  <var name="VAL_POST_CONFIGURATION" value="ElectronMcSignalPostValidation_cfg.py">
+  
   
   The tags below are to be used when DBS seems not up-to-date,
   as compared to what you see within castor directories.
@@ -96,17 +105,12 @@ FullSim
   The tags below are to be used when you want to process some files
   made with a modified code, and generated locally, thanks to the
   targets RedoFrom% defined later on.
-
   <!--var name="DD_SOURCE" value="/eos/cms/store/relval/${DD_RELEASE}"-->
   <!--var name="DD_SOURCE" value="electronInputDataFiles.txt"-->
   <!--var name="DD_COND" value="STARTUP"-->
     
   <environment name="FullSimStdStatsStartup">
   
-    <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
-    <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-    <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
-    
     <environment name="FullPt35Startup">
   
       <var name="DD_SAMPLE" value="RelValSingleElectronPt35">
@@ -116,13 +120,13 @@ FullSim
       <target name="wget" cmd="electronWget.py castor">
       
       <target name="dd" cmd="electronDataDiscovery.py">
-      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}.py">
-      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
+      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}">
+      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}">
       
-      <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/${DD_SAMPLE}_Startup'>
-            
+      <target name="store" cmd="electronStore.csh ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+      <target name="force" cmd="electronStore.csh -f ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+      <target name="publish" cmd="electronValidation.csh ${TEST_HISTOS_FILE}">
+      
     </environment>
     
     <environment name="FullQcdPt80Pt120Startup">
@@ -133,19 +137,19 @@ FullSim
       <var name="VAL_HISTOS" value="ElectronMcFakeHistos.txt">
       <var name="VAL_ANALYZER" value="ElectronMcFakeValidator">
       <var name="VAL_POST_ANALYZER" value="ElectronMcFakePostValidator">
-      <var name="VAL_CONFIGURATION" value="ElectronMcFakeValidation_cfg">
-      <var name="VAL_POST_CONFIGURATION" value="ElectronMcFakePostValidation_cfg">
+      <var name="VAL_CONFIGURATION" value="ElectronMcFakeValidation_cfg.py">
+      <var name="VAL_POST_CONFIGURATION" value="ElectronMcFakePostValidation_cfg.py">
       
       <target name="dqm" cmd="electronDataDiscovery.py castor">
       <target name="wget" cmd="electronWget.py castor">
       
       <target name="dd" cmd="electronDataDiscovery.py">
-      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}.py">
-      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
+      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}">
+      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}">
       
-      <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/${DD_SAMPLE}_Startup'>
+      <target name="store" cmd="electronStore.csh ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+      <target name="force" cmd="electronStore.csh -f ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+      <target name="publish" cmd="electronValidation.csh ${TEST_HISTOS_FILE}">
   
     </environment>
   
@@ -158,12 +162,12 @@ FullSim
       <target name="wget" cmd="electronWget.py castor">
       
       <target name="dd" cmd="electronDataDiscovery.py">
-      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}.py">
-      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
+      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}">
+      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}">
       
-      <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/${DD_SAMPLE}_Startup'>
+      <target name="store" cmd="electronStore.csh ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+      <target name="force" cmd="electronStore.csh -f ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+      <target name="publish" cmd="electronValidation.csh ${TEST_HISTOS_FILE}">
   
     </environment>
   
@@ -176,12 +180,12 @@ FullSim
       <target name="wget" cmd="electronWget.py castor">
       
       <target name="dd" cmd="electronDataDiscovery.py">
-      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}.py">
-      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
+      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}">
+      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}">
       
-      <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/${DD_SAMPLE}_Startup'>
+      <target name="store" cmd="electronStore.csh ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+      <target name="force" cmd="electronStore.csh -f ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+      <target name="publish" cmd="electronValidation.csh ${TEST_HISTOS_FILE}">
   
     </environment>
   
@@ -194,12 +198,12 @@ FullSim
       <target name="wget" cmd="electronWget.py castor">
       
       <target name="dd" cmd="electronDataDiscovery.py">
-      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}.py">
-      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
+      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}">
+      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}">
       
-      <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/${DD_SAMPLE}_Startup'>
+      <target name="store" cmd="electronStore.csh ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+      <target name="force" cmd="electronStore.csh -f ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+      <target name="publish" cmd="electronValidation.csh ${TEST_HISTOS_FILE}">
   
     </environment>
   
@@ -207,9 +211,9 @@ FullSim
   
   <environment name="FullSimStdStatsIdeal">
 
-    <var name="TEST_GLOBAL_TAG" value="${TAG_IDEAL}">
+    <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_IDEAL_TAG}">
     <var name="TEST_GLOBAL_AUTOCOND" value="mc">
-    <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
+    <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
     <!--var name="DD_COND" value="IDEAL"-->
       
     <environment name="FullPt35Ideal">
@@ -221,12 +225,12 @@ FullSim
       <target name="wget" cmd="electronWget.py castor">
       
       <target name="dd" cmd="electronDataDiscovery.py">
-      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}.py">
-      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
+      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}">
+      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}">
       
-      <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/${DD_SAMPLE}_Startup'>
+      <target name="store" cmd="electronStore.csh ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+      <target name="force" cmd="electronStore.csh -f ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+      <target name="publish" cmd="electronValidation.csh ${TEST_HISTOS_FILE}">
       
     </environment>
     
@@ -238,19 +242,19 @@ FullSim
       <var name="VAL_HISTOS" value="ElectronMcFakeHistos.txt">
       <var name="VAL_ANALYZER" value="ElectronMcFakeValidator">
       <var name="VAL_POST_ANALYZER" value="ElectronMcFakePostValidator">
-      <var name="VAL_CONFIGURATION" value="ElectronMcFakeValidation_cfg">
-      <var name="VAL_POST_CONFIGURATION" value="ElectronMcFakePostValidation_cfg">
+      <var name="VAL_CONFIGURATION" value="ElectronMcFakeValidation_cfg.py">
+      <var name="VAL_POST_CONFIGURATION" value="ElectronMcFakePostValidation_cfg.py">
       
       <target name="dqm" cmd="electronDataDiscovery.py castor">
       <target name="wget" cmd="electronWget.py castor">
       
       <target name="dd" cmd="electronDataDiscovery.py">
-      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}.py">
-      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
+      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}">
+      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}">
       
-      <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/${DD_SAMPLE}_Startup'>
+      <target name="store" cmd="electronStore.csh ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+      <target name="force" cmd="electronStore.csh -f ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+      <target name="publish" cmd="electronValidation.csh ${TEST_HISTOS_FILE}">
   
     </environment>
   
@@ -263,12 +267,12 @@ FullSim
       <target name="wget" cmd="electronWget.py castor">
       
       <target name="dd" cmd="electronDataDiscovery.py">
-      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}.py">
-      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
+      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}">
+      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}">
       
-      <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/${DD_SAMPLE}_Startup'>
+      <target name="store" cmd="electronStore.csh ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+      <target name="force" cmd="electronStore.csh -f ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+      <target name="publish" cmd="electronValidation.csh ${TEST_HISTOS_FILE}">
   
     </environment>
     
@@ -281,12 +285,12 @@ FullSim
       <target name="wget" cmd="electronWget.py castor">
       
       <target name="dd" cmd="electronDataDiscovery.py">
-      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}.py">
-      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
+      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}">
+      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}">
       
-      <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/${DD_SAMPLE}_Startup'>
+      <target name="store" cmd="electronStore.csh ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+      <target name="force" cmd="electronStore.csh -f ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+      <target name="publish" cmd="electronValidation.csh ${TEST_HISTOS_FILE}">
   
     </environment>
   
@@ -299,31 +303,29 @@ FullSim
       <target name="wget" cmd="electronWget.py castor">
       
       <target name="dd" cmd="electronDataDiscovery.py">
-      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}.py">
-      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
+      <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}">
+      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}">
       
-      <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/${DD_SAMPLE}_Startup'>
+      <target name="store" cmd="electronStore.csh ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+      <target name="force" cmd="electronStore.csh -f ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+      <target name="publish" cmd="electronValidation.csh ${TEST_HISTOS_FILE}">
   
     </environment>
   
     <environment name="OldFullPt35Ideal">
       <var name="DD_RELEASE" value="CMSSW_3_9_7">
-      <var name="TEST_GLOBAL_TAG" value="${TAG_IDEAL}">
+      <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_IDEAL_TAG}">
       <var name="TEST_GLOBAL_AUTOCOND" value="mc">
       <var name="DD_COND" value="MC_39Y_V7-v1">
       <var name="DD_SAMPLE" value="RelValSingleElectronPt35">
       <executable name="electronDataDiscovery.py">
-      <executable name="cmsRun" args="${VAL_CONFIGURATION}.py">
-      <var name="TEST_REF" value="397">
+      <executable name="cmsRun" args="${VAL_CONFIGURATION}">
+      <var name="VAL_REF_RELEASE" value="397">
       <var name="VAL_REF_FILE" value="${VAL_WEB}/397/Electrons/data/cmsRun.FullPt35.olog.electronHistos.root">
-      <var name="TEST_COMMENT" value="Check backward compatibility with 397.">
-      
+      <var name="VAL_COMMENT" value="Check backward compatibility with 397.">
       <executable name="electronStore.csh" args="${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
       <executable name="electronStoreForce.csh" args="${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
       <executable name="electronValidation.csh" args="${TEST_HISTOS_FILE} Old_RelValSingleElectronPt35_Mc">
-      
     </environment>
   
   </environment>
@@ -332,11 +334,9 @@ FullSim
 
 <environment name="FullSimHighStatsIdeal">
 
-  <var name="DD_TIER" value="*RECO*">
-
-  <var name="TEST_GLOBAL_TAG" value="${TAG_IDEAL}">
+  <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_IDEAL_TAG}">
   <var name="TEST_GLOBAL_AUTOCOND" value="mc">
-  <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
+  <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
   <!--var name="DD_COND" value="*"-->
 
   <environment name="HighFlatPt5To100Ideal">
@@ -359,21 +359,24 @@ FastSim
 
 <environment name="FastSim">
 
-  <var name="DD_TIER" value="*RECO*">
-
+  <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
+  <var name="TEST_GLOBAL_AUTOCOND" value="startup">
+  <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${TEST_GLOBAL_VERSION}">
+  
   <var name="VAL_ANALYZER" value="ElectronMcSignalValidator">
   <var name="VAL_POST_ANALYZER" value="ElectronMcSignalPostValidator">
-  <var name="VAL_CONFIGURATION" value="ElectronMcSignalValidation_cfg">
-  <var name="VAL_POST_CONFIGURATION" value="ElectronMcSignalPostValidation_cfg">
+  <var name="VAL_CONFIGURATION" value="ElectronMcSignalValidation_cfg.py">
+  <var name="VAL_POST_CONFIGURATION" value="ElectronMcSignalPostValidation_cfg.py">
   <var name="VAL_HISTOS" value="ElectronMcSignalHistos.txt">
  
+  The tags below are to be used in conjunction with DD_SOURCE in each sample,
+  when DAS seems not up-to-date as compared to what you see within castor directories
+  <!--var name="DD_TIER" value="GEN-SIM-DIGI-RECO"-->
+  <!--var name="DD_COND" value="${TEST_GLOBAL_TAG}_FastSim-${TEST_GLOBAL_VERSION}"-->
+
   <environment name="FastAnalysis">
 
     <environment name="FastAnalysisStartup">
-
-      <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
-      <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${DATA_VERSION}">
 
       <environment name="FastTTbarStartup">
       
@@ -384,11 +387,11 @@ FastSim
         <target name="wget" cmd="electronWget.py castor">
         
         <target name="dd" cmd="electronDataDiscovery.py">
-        <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}.py">
-        <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
+        <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}">
+        <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}">
         
-        <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-        <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
+        <target name="store" cmd="electronStore.csh ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+        <target name="force" cmd="electronStore.csh -f ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
         
       </environment>
     
@@ -401,11 +404,11 @@ FastSim
         <target name="wget" cmd="electronWget.py castor">
         
         <target name="dd" cmd="electronDataDiscovery.py">
-        <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}.py">
-        <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
+        <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}">
+        <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}">
         
-        <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-        <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
+        <target name="store" cmd="electronStore.csh ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+        <target name="force" cmd="electronStore.csh -f ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
         
       </environment>
     
@@ -413,9 +416,9 @@ FastSim
   
     <environment name="FastAnalysisIdeal">
 
-      <var name="TEST_GLOBAL_TAG" value="${TAG_IDEAL}">
+      <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_IDEAL_TAG}">
       <var name="TEST_GLOBAL_AUTOCOND" value="mc">
-      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${TEST_GLOBAL_VERSION}">
       
       <environment name="FastTTbarIdeal">
       
@@ -426,11 +429,11 @@ FastSim
         <target name="wget" cmd="electronWget.py castor">
         
         <target name="dd" cmd="electronDataDiscovery.py">
-        <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}.py">
-        <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
+        <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}">
+        <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}">
         
-        <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-        <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
+        <target name="store" cmd="electronStore.csh ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+        <target name="force" cmd="electronStore.csh -f ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
         
       </environment>
     
@@ -443,11 +446,11 @@ FastSim
         <target name="wget" cmd="electronWget.py castor">
         
         <target name="dd" cmd="electronDataDiscovery.py">
-        <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}.py">
-        <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
+        <target name="analyze" cmd="cmsRun ${VAL_CONFIGURATION}">
+        <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}">
         
-        <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-        <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
+        <target name="store" cmd="electronStore.csh ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
+        <target name="force" cmd="electronStore.csh -f ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS}">
         
       </environment>
       
@@ -459,40 +462,32 @@ FastSim
   
     <environment name="FastVsFastStart">
     
-      <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
-      <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${DATA_VERSION}">
-
       <environment name="FastVsFastTTbarStartup">
         <var name="DD_SAMPLE" value="RelValTTbar">
-        <var name="TEST_HISTOS_FILE" value="electronHistos.FastTTbarStartup.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/FastSim_${DD_SAMPLE}_Startup'>
+        <target name="publish" cmd="electronValidation.csh electronHistos.FastTTbarStartup.root">
       </environment>
       
       <environment name="FastVsFastZEEStartup">
         <var name="DD_SAMPLE" value="RelValZEE">
-        <var name="TEST_HISTOS_FILE" value="electronHistos.FastZEEStartup.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/FastSim_${DD_SAMPLE}_Startup'>
+        <target name="publish" cmd="electronValidation.csh electronHistos.FastZEEStartup.root">
       </environment>
         
     </environment>
   
     <environment name="FastVsFastIdeal">
     
-      <var name="TEST_GLOBAL_TAG" value="${TAG_IDEAL}">
+      <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_IDEAL_TAG}">
       <var name="TEST_GLOBAL_AUTOCOND" value="mc">
-      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${TEST_GLOBAL_VERSION}">
       
       <environment name="FastVsFastTTbarIdeal">
         <var name="DD_SAMPLE" value="RelValTTbar">
-        <var name="TEST_HISTOS_FILE" value="electronHistos.FastTTbarIdeal.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/FastSim_${DD_SAMPLE}_Ideal'>
+        <target name="publish" cmd="electronValidation.csh electronHistos.FastTTbar.root">
       </environment>
       
       <environment name="FastVsFastZEEIdeal">
         <var name="DD_SAMPLE" value="RelValZEE">
-        <var name="TEST_HISTOS_FILE" value="electronHistos.FastZEEIdeal.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/FastSim_${DD_SAMPLE}_Ideal'>
+        <target name="publish" cmd="electronValidation.csh electronHistos.FastZEEIdeal.root">
       </environment>
       
     </environment>
@@ -501,46 +496,46 @@ FastSim
   
   <environment name="FastVsFull">
   
-    <environment name="FastVsFullStartup">
+    <environment name="FastVsFullStart">
     
-      <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
-      <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
-
       <environment name="FastVsFullTTbarStartup">
         <var name="DD_SAMPLE" value="RelValTTbar">
-        <var name="BLUE_FILE" value="electronHistos.FullTTbarStartup.root">
-        <var name="RED_FILE" value="electronHistos.FastTTbarStartup.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r FastSim -b FullSim -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_DIR}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/vsFastSim/FastSim_${DD_SAMPLE}_Startup'>
+        <var name="VAL_REF_RELEASE" value="FastSim">
+        <var name="VAL_NEW_FILE" value="electronHistos.FullTTbarStartup.root">
+        <var name="VAL_REF_FILE" value="electronHistos.FastTTbarStartup.root">
+        <target name="publish" cmd="electronValidation.csh">
       </environment>
       
       <environment name="FastVsFullZEEStartup">
         <var name="DD_SAMPLE" value="RelValZEE">
-        <var name="BLUE_FILE" value="electronHistos.FullZEEStartup.root">
-        <var name="RED_FILE" value="electronHistos.FastZEEStartup.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r FastSim -b FullSim -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_DIR}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/vsFastSim/FastSim_${DD_SAMPLE}_Startup'>
+        <var name="VAL_REF_RELEASE" value="FastSim">
+        <var name="VAL_NEW_FILE" value="electronHistos.FullZEEStartup.root">
+        <var name="VAL_REF_FILE" value="electronHistos.FastZEEStartup.root">
+        <target name="publish" cmd="electronValidation.csh">
       </environment>
       
     </environment>
     
     <environment name="FastVsFullIdeal">
     
-      <var name="TEST_GLOBAL_TAG" value="${TAG_IDEAL}">
+      <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_IDEAL_TAG}">
       <var name="TEST_GLOBAL_AUTOCOND" value="mc">
-      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}*FastSim*-${TEST_GLOBAL_VERSION}">
       
       <environment name="FastVsFullTTbarIdeal">
         <var name="DD_SAMPLE" value="RelValTTbar">
-        <var name="BLUE_FILE" value="electronHistos.FullTTbar.root">
-        <var name="RED_FILE" value="electronHistos.FastTTbar.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r FastSim -b FullSim -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_DIR}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/vsFastSim/FastSim_${DD_SAMPLE}_Ideal'>
+        <var name="VAL_REF_RELEASE" value="FastSim">
+        <var name="VAL_NEW_FILE" value="electronHistos.FullTTbar.root">
+        <var name="VAL_REF_FILE" value="electronHistos.FastTTbar.root">
+        <target name="publish" cmd="electronValidation.csh">
       </environment>
       
       <environment name="FastVsFullZEEIdeal">
         <var name="DD_SAMPLE" value="RelValZEE">
-        <var name="BLUE_FILE" value="electronHistos.FullZEEIdeal.root">
-        <var name="RED_FILE" value="electronHistos.FastZEEIdeal.root">
-        <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r FastSim -b FullSim -t "Fast vs Full / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${RED_FILE} ${STORE_DIR}/${BLUE_FILE} ${WEB_DIR}/${TEST_NEW}/vsFastSim/FastSim_${DD_SAMPLE}_Ideal'>
+        <var name="VAL_REF_RELEASE" value="FastSim">
+        <var name="VAL_NEW_FILE" value="electronHistos.FullZEEIdeal.root">
+        <var name="VAL_REF_FILE" value="electronHistos.FastZEEIdeal.root">
+        <target name="publish" cmd="electronValidation.csh">
       </environment>
       
     </environment>
@@ -561,17 +556,17 @@ with the local modified code.
 
   <environment name="SeedsRemaker">
 
-    <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
+    <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
     <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-    <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
+    <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
     <var name="DD_SAMPLE" value="RelValSingleElectronPt10">
+    <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DD_SAMPLE}-STARTUP-RECO.root">
       
     <environment name="SeedsRemakerStep1">
 
       <var name="DD_TIER" value="*RAW*">
-      <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DD_SAMPLE}-STARTUP-FIRST-RECO.root">
 
-      <target name="cfg" cmd="cmsDriver.py step3 -n -1 -s RAW2DIGI,L1Reco,RECO,VALIDATION,DQM --conditions auto:startup --datatier GEN-SIM-RECO,DQM --eventcontent RECOSIM,DQM --filein=Dummy-STARTUP-RAW.root --fileout=Dummy-STARTUP-RECO.root --customise reseed.storeseed --python_filename=ElectronRedoFromRawStartup_driver_cfg.py --no_exec">
+      <target name="cfg" cmd="cmsDriver.py reco -n -1 --geometry DB -s RAW2DIGI,L1Reco,RECO --conditions auto:startup --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=Dummy-STARTUP-RAW.root --fileout=Dummy-STARTUP-RECO.root --customise reseed.storeseed --python_filename=ElectronRedoFromRawStartup_driver_cfg.py --no_exec">
       <target name="dd" cmd="electronDataDiscovery.py">
       <target name="reco" cmd="cmsRun ElectronRedoFromRawStartup_cfg.py">
       
@@ -579,15 +574,11 @@ with the local modified code.
   
     <environment name="SeedsRemakerStep2">
     
-      <var name="DD_TIER" value="*FIRST-RECO*">
+      <var name="DD_TIER" value="*RECO*">
       <var name="DD_SOURCE" value="electronInputDataFiles.txt">
       <var name="DD_COND" value="STARTUP">
-      <file name="electronInputDataFiles.txt">
-      file:${TEST_AFS_DIR}/RelValSingleElectronPt10-STARTUP-FIRST-RECO.root
-      </file>
-      <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DD_SAMPLE}-STARTUP-RECO.root">
       
-      <target name="cfg" cmd="cmsDriver.py step3 -n -1 --process reRECO --filtername RECOfromRECO -s RECO:reconstruction_fromRECO_noTrackingTest --conditions auto:startup --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=Dummy-STARTUP-RECO.root --fileout=Dummy-STARTUP-RECO.root --customise reseed.reseed+regenseed+reconv --python_filename=SeedsRemaker_driver_cfg.py --no_exec">
+      <target name="cfg" cmd="cmsDriver.py reco -n -1 --process reRECO --filtername RECOfromRECO -s RECO:reconstruction_fromRECO_noTrackingTest --conditions auto:startup --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=Dummy-STARTUP-RECO.root --fileout=Dummy-STARTUP-RECO.root --customise reseed.reseed+regenseed+reconv --python_filename=SeedsRemaker_driver_cfg.py --no_exec">
       <target name="dd" cmd="electronDataDiscovery.py">
       <target name="redo" cmd="cmsRun SeedsRemaker_cfg.py">
       
@@ -597,27 +588,27 @@ with the local modified code.
   
   <environment name="RedoFromTrackSeeds">
 
-    <var name="VAL_CONFIGURATION" value="ElectronRedoFromTrackSeeds_cfg">
+    <var name="VAL_CONFIGURATION" value="ElectronRedoFromTrackSeeds_cfg.py">
     
     <environment name="RedoFromTrackSeedsPt35">
       <var name="DD_SAMPLE" value="RelValSingleElectronPt35">
       <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DD_SAMPLE}-STARTUP-RECO.root">
       <target name="dd" cmd="electronDataDiscovery.py">
-      <target name="redo" cmd="cmsRun ${VAL_CONFIGURATION}.py">
+      <target name="redo" cmd="cmsRun ${VAL_CONFIGURATION}">
     </environment>
   
     <environment name="RedoFromTrackSeedsQcdPt80Pt120">
       <var name="DD_SAMPLE" value="RelValQCD_Pt_80_120">
       <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DD_SAMPLE}-STARTUP-RECO.root">
       <target name="dd" cmd="electronDataDiscovery.py">
-      <target name="redo" cmd="cmsRun ${VAL_CONFIGURATION}.py">
+      <target name="redo" cmd="cmsRun ${VAL_CONFIGURATION}">
     </environment>
   
     <environment name="RedoFromTrackSeedsPt10">
       <var name="DD_SAMPLE" value="RelValSingleElectronPt10">
       <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DD_SAMPLE}-STARTUP-RECO.root">
       <target name="dd" cmd="electronDataDiscovery.py">
-      <target name="redo" cmd="cmsRun ${VAL_CONFIGURATION}.py">
+      <target name="redo" cmd="cmsRun ${VAL_CONFIGURATION}">
     </environment>
   
   </environment>
@@ -626,9 +617,9 @@ with the local modified code.
 
     <environment name="RedoFromCoreStartup">
   
-      <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
+      <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
       <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
 
       <environment name="RedoFromCoreZEEStartup">
         <var name="DD_SAMPLE" value="RelValZEE">
@@ -641,9 +632,9 @@ with the local modified code.
     
     <environment name="RedoFromCoreIdeal">
   
-      <var name="TEST_GLOBAL_TAG" value="${TAG_IDEAL}">
+      <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_IDEAL_TAG}">
       <var name="TEST_GLOBAL_AUTOCOND" value="mc">
-      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
 
       <environment name="RedoFromCorePt35Ideal">
         <var name="DD_SAMPLE" value="RelValSingleElectronPt35">
@@ -700,51 +691,52 @@ with the local modified code.
 
     <environment name="RedoFromRawStartup">
 
-      <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
+      <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_STARTUP_TAG}">
       <var name="TEST_GLOBAL_AUTOCOND" value="startup">
-      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
       <!--var name="DD_COND" value="STARTUP"-->
 
-      <target name="cfg" cmd="cmsDriver.py reco -s RAW2DIGI,RECO -n -1 --conditions auto:startup --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=Dummy-RAW.root --fileout=Dummy-STARTUP-RECO.root --python_filename=ElectronRedoFromRawStartup_driver_cfg.py --no_exec">
+      <target name="cfg" cmd="cmsDriver.py reco -s RAW2DIGI,RECO -n -1 --geometry DB --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_STARTUP_TAG}::All --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=Dummy-RAW.root --fileout=Dummy-STARTUP-RECO.root --python_filename=ElectronRedoFromRawStartup_driver_cfg.py --no_exec">
 
       <environment name="RedoFromRawPt35Startup">
         <var name="DD_SAMPLE" value="RelValSingleElectronPt35">
         <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DD_SAMPLE}-STARTUP-RECO.root">
         <target name="dd" cmd="electronDataDiscovery.py">
-        <target name="redo" cmd="cmsRun ElectronRedoFromRawStartup_cfg.py">
+        <target name="reco" cmd="cmsRun ElectronRedoFromRawStartup_cfg.py">
       </environment>
     
       <environment name="RedoFromRawQcdPt80Pt120Startup">
         <var name="DD_SAMPLE" value="RelValQCD_Pt_80_120">
         <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DD_SAMPLE}-STARTUP-RECO.root">
         <target name="dd" cmd="electronDataDiscovery.py">
-        <target name="redo" cmd="cmsRun ElectronRedoFromRawStartup_cfg.py">
+        <target name="reco" cmd="cmsRun ElectronRedoFromRawStartup_cfg.py">
       </environment>
     
       <environment name="RedoFromRawPt10Startup">
         <var name="DD_SAMPLE" value="RelValSingleElectronPt10">
         <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DD_SAMPLE}-STARTUP-RECO.root">
         <target name="dd" cmd="electronDataDiscovery.py">
-        <target name="redo" cmd="cmsRun ElectronRedoFromRawStartup_cfg.py">
+        <target name="reco" cmd="cmsRun ElectronRedoFromRawStartup_cfg.py">
       </environment>
   
       <environment name="RedoFromRawZEEStartup">
         <var name="DD_SAMPLE" value="RelValZEE">
         <var name="TEST_HISTOS_FILE" value="${TEST_AFS_DIR}/${DD_SAMPLE}-STARTUP-RECO.root">
-        <target name="dd" cmd="electronDataDiscovery.py">
-        <target name="redo" cmd="cmsRun ElectronRedoFromRawStartup_cfg.py">
+        <!--var name="DD_COND" value="STARTUP"-->
+        <executable name="electronDataDiscovery.py">
+        <executable name="cmsRun" args="ElectronRedoFromRaw_cfg.py">
       </environment>
     
     </environment>
 
     <environment name="RedoFromRawIdeal">
     
-      <var name="TEST_GLOBAL_TAG" value="${TAG_IDEAL}">
+      <var name="TEST_GLOBAL_TAG" value="${TEST_GLOBAL_IDEAL_TAG}">
       <var name="TEST_GLOBAL_AUTOCOND" value="mc">
-      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">
+      <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${TEST_GLOBAL_VERSION}">
       <!--var name="DD_COND" value="IDEAL"-->
 
-      <target name="cfg" cmd="cmsDriver.py reco -s RAW2DIGI,RECO -n -1 --geometry DB --conditions FrontierConditions_GlobalTag,${TAG_IDEAL}::All --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=Dummy-RAW.root --fileout=Dummy-IDEAL-RECO.root --python_filename=ElectronRedoFromRaw_driver_cfg.py --no_exec">
+      <target name="cfg" cmd="cmsDriver.py reco -s RAW2DIGI,RECO -n -1 --geometry DB --conditions FrontierConditions_GlobalTag,${TEST_GLOBAL_IDEAL_TAG}::All --datatier GEN-SIM-RECO --eventcontent RECOSIM --filein=Dummy-RAW.root --fileout=Dummy-IDEAL-RECO.root --python_filename=ElectronRedoFromRaw_driver_cfg.py --no_exec">
  
       <environment name="RedoFromRawPt35Ideal">
         <var name="DD_SAMPLE" value="RelValSingleElectronPt35">

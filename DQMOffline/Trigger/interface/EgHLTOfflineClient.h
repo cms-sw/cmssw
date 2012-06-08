@@ -60,9 +60,7 @@ class EgHLTOfflineClient : public edm::EDAnalyzer {
   std::vector<std::string> phoTrigTPEffVsVars_;
   std::vector<std::string> eleLooseTightTrigEffVsVars_;
   std::vector<std::string> phoLooseTightTrigEffVsVars_;
-				
-  std::vector<std::string> eleHLTvOfflineVars_;
-		
+						
   bool runClientEndLumiBlock_;
   bool runClientEndRun_;
   bool runClientEndJob_;
@@ -99,9 +97,7 @@ class EgHLTOfflineClient : public edm::EDAnalyzer {
   void createTrigTagProbeEffHists(const std::string& filterName,const std::string& region,const std::vector<std::string>& vsVarNames,const std::string& objName);
   void createTrigTagProbeEffHistsNewAlgo(const std::string& filterName,const std::string& region,const std::vector<std::string>& vsVarNames,const std::string& objName);
   void createTrigTagProbeEffHists2Leg(const std::string& filterNameLeg1,const std::string& filterNameLeg2,const std::string& region,const std::vector<std::string>& vsVarNames,const std::string& objName);
-  void createHLTvsOfflineHists(const std::string& filterName,const std::string& baseName,const std::string& region,const std::vector<std::string>& varNames);
-  MonitorElement* FillHLTvsOfflineHist(const std::string& filter,const std::string& name,const std::string& title,const MonitorElement* numer,const MonitorElement* denom);
-
+  
   MonitorElement* makeEffMonElemFromPassAndAll(const std::string& filterName,const std::string& name,const std::string& title,const MonitorElement* pass,const MonitorElement* all);
   MonitorElement* makeEffMonElemFromPassAndFail(const std::string& filterName,const std::string& name,const std::string& title,const MonitorElement* pass,const MonitorElement* fail);
   MonitorElement* makeEffMonElemFromPassAndFailAndTagTag(const std::string& filter,const std::string& name,const std::string& title,const MonitorElement* pass,const MonitorElement* fail, const MonitorElement* tagtag);

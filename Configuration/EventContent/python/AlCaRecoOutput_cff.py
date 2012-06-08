@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-# last update: $Date: 2011/10/11 12:48:39 $ by $Author: cerminar $
+# last update: $Date: 2012/02/11 15:19:29 $ by $Author: demattia $
 ###############################################################
 # Tracker Alignment
 ###############################################################
@@ -99,3 +99,5 @@ from CalibMuon.DTCalibration.ALCARECODtCalibCosmics_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProd_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_Output_cff import *
 
+# stream for the LumiPixels workflow
+from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixels_Output_cff import *

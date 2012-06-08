@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for JPT Jets
  *
- *  $Date: 2010/03/22 09:11:46 $
- *  $Revision: 1.10 $
+ *  $Date: 2012/03/06 11:39:21 $
+ *  $Revision: 1.11 $
  *  \author N. Cripps - Imperial
  */
 
@@ -177,13 +177,6 @@ class JPTJetAnalyzer : public JetAnalyzerBase {
   TrackHistograms allPionHistograms_, inCaloInVertexPionHistograms_, inCaloOutVertexPionHistograms_, outCaloInVertexPionHistograms_;
   TrackHistograms allMuonHistograms_, inCaloInVertexMuonHistograms_, inCaloOutVertexMuonHistograms_, outCaloInVertexMuonHistograms_;
   TrackHistograms allElectronHistograms_, inCaloInVertexElectronHistograms_, inCaloOutVertexElectronHistograms_, outCaloInVertexElectronHistograms_;
-
-
-  // NPV binned
-  //----------------------------------------------------------------------------
-  MonitorElement* JetPt_npv [_npvRanges];
-  MonitorElement* JetEta_npv[_npvRanges];
-  MonitorElement* JetPhi_npv[_npvRanges];
 
 
   ///DQMStore. Used to write out to file

@@ -5,11 +5,17 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2009/11/19 14:33:13 $
- * $Revision: 1.22 $
+ * $Date: 2012/03/29 21:16:48 $
+ * $Revision: 1.24 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.22 2009/11/19 14:33:13 puigh Exp $
+ * $Id: L1TGCT.h,v 1.24 2012/03/29 21:16:48 rovere Exp $
  * $Log: L1TGCT.h,v $
+ * Revision 1.24  2012/03/29 21:16:48  rovere
+ * Removed all instances of hltTriggerTypeFilter from L1T DQM Code.
+ *
+ * Revision 1.23  2010/05/30 10:01:58  tapper
+ * Added one histogram, correlation of sum ET and HT and changed a few labels for the better.
+ *
  * Revision 1.22  2009/11/19 14:33:13  puigh
  * modify beginJob
  *
@@ -145,6 +151,9 @@ private:
   // ----------member data ---------------------------
   DQMStore * dbe;
 
+  // trigger type information
+  MonitorElement *triggerType_;
+
   // Jet and EM stuff
   MonitorElement* l1GctAllJetsEtEtaPhi_; 
   MonitorElement* l1GctCenJetsEtEtaPhi_; 
@@ -219,6 +228,8 @@ private:
   edm::InputTag gctIsoEmSource_;
   edm::InputTag gctNonIsoEmSource_;
 
+  /// filter TriggerType
+  int filterTriggerType_;
 };
 
 #endif

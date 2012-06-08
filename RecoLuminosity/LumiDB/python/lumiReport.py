@@ -62,7 +62,6 @@ def toScreenTotDelivered(lumidata,resultlines,scalefactor,isverbose):
             runstarttime=lsdata[0][2]
             runstarttime=runstarttime.strftime("%m/%d/%y %H:%M:%S")
             fillnum=0
-            print lsdata[0]
             if lsdata[0][9]:
                 fillnum=lsdata[0][9]
         if isverbose:

@@ -356,25 +356,29 @@ void HotPixels::print(int events, int fed_id) {
   int cut1 = events/100;
   int cut2 = events/1000;
   int cut3 = events/10000;
-  int cut = events/10000;
+
+  int cut = events/1000;
   //int cut = 2;
-  if(cut<2) cut=2;
+  if(cut<2) cut=10;
 
 
 
   if(fed_id==0) {
+    cout<<" Threshold of "<<cut<<endl;
     cout<<"fed chan     module                  tbm roc dcol  pix  colR ";   
     cout<<"rowR count  num roc-local"<<endl;   
   }
   for(int i=0;i<count;++i) {
+
+    if(data[i]>cut1) count1++;
+    if(data[i]>cut2) count2++;
+    if(data[i]>cut3) count3++;
+
     if(data[i]>cut) {
       num++;
       int index = array[i];
       decode(index, channel, roc, dcol, pix);
 
-      if(data[i]>cut1) count1++;
-      if(data[i]>cut2) count2++;
-      if(data[i]>cut3) count3++;
 
       // First find if we are in the first or 2nd col of a dcol.
       int colEvenOdd = pix%2;  // module(2), 0-1st sol, 1-2nd col.
@@ -441,7 +445,7 @@ void findHotPixels::endJob() {
   for(int i=0;i<40;++i) {
     hotPixels[i].print(countAllEvents,i);
   }
-  cout<<" Number of noisy pixels "<<count1<<" "<<count2<<" "<<count3<<endl;
+  cout<<" Number of noisy pixels: 1% "<<count1<<" 0.1% "<<count2<<" 0.01% "<<count3<<endl;
 
 
 }
@@ -473,7 +477,7 @@ void findHotPixels::analyze(const  edm::Event& ev, const edm::EventSetup& es) {
   int status=0;
   int countPixels=0;
   int countErrors=0;
-  // int eventId = -1;
+  int eventId = -1;
   int channel=-1, roc=-1, dcol=-1, pix=-1;
   
   countAllEvents++;
@@ -496,7 +500,7 @@ void findHotPixels::analyze(const  edm::Event& ev, const edm::EventSetup& es) {
     // check headers
     const Word64* header = reinterpret_cast<const Word64* >(rawData.data()); 
     //cout<<hex<<*header<<dec<<endl;
-    //eventId = MyDecode::header(*header, printHeaders);
+    eventId = MyDecode::header(*header, printHeaders);
     //if(fedId = fedIds.first) 
 
     const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1);
@@ -538,7 +542,7 @@ void findHotPixels::analyze(const  edm::Event& ev, const edm::EventSetup& es) {
   } // loop over feds
 
   if(countPixels>0) {
-    //cout<<"EVENT: "<<countEvents<<" "<<eventId<<" pixels "<<countPixels<<" errors "<<countErrors<<endl;
+    cout<<"EVENT: "<<countEvents<<" "<<eventId<<" pixels "<<countPixels<<" errors "<<countErrors<<endl;
     sumPixels += countPixels;
     countEvents++;
     //int dummy=0;

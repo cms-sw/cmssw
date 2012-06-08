@@ -157,7 +157,6 @@ void CMSEmStandardPhysics95::ConstructProcess() {
       G4eBremsstrahlung* ebrem = new G4eBremsstrahlung();
       ebrem->SetEmModel(new G4SeltzerBergerModel95(), 1);
       ebrem->SetEmModel(new G4eBremsstrahlungRelModel95(), 2);
-      ebrem->EmModel(2)->SetLowEnergyLimit(GeV);
 
       pmanager->AddProcess(msc,                   -1, 1, 1);
       pmanager->AddProcess(eioni,                 -1, 2, 2);
@@ -178,7 +177,6 @@ void CMSEmStandardPhysics95::ConstructProcess() {
       G4eBremsstrahlung* ebrem = new G4eBremsstrahlung();
       ebrem->SetEmModel(new G4SeltzerBergerModel95(), 1);
       ebrem->SetEmModel(new G4eBremsstrahlungRelModel95(), 2);
-      ebrem->EmModel(2)->SetLowEnergyLimit(GeV);
 
       pmanager->AddProcess(msc,                     -1, 1, 1);
       pmanager->AddProcess(eioni,                   -1, 2, 2);

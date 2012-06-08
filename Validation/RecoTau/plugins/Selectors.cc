@@ -19,7 +19,6 @@
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "CommonTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
-#include "CommonTools/UtilAlgos/interface/ObjectCountFilter.h"
 
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
@@ -39,15 +38,16 @@
 #include <vector>
 #include <iostream>
 
-typedef SingleObjectSelector< std::vector<reco::Jet>        , StringCutObjectSelector<reco::Jet>            >   TauValJetSelector     ;
-typedef SingleObjectSelector< reco::MuonCollection          , StringCutObjectSelector<reco::Muon>           >   TauValMuonSelector    ;
-typedef SingleObjectSelector< reco::GenParticleCollection   , StringCutObjectSelector<reco::GenParticle>    >   TauValGenPSelector    ;
-typedef SingleObjectSelector< reco::GenParticleRefVector    , StringCutObjectSelector<reco::GenParticleRef> >   TauValGenPRefSelector ;
-typedef SingleObjectSelector< reco::PFJetCollection         , StringCutObjectSelector<reco::PFJet>          >   TauValPFJetSelector   ;
-typedef SingleObjectSelector< edm::View<reco::GsfElectron>  , StringCutObjectSelector<reco::GsfElectron>, reco::GsfElectronCollection > TauValElectronSelector;
+typedef SingleObjectSelector< reco::PFJetCollection      , StringCutObjectSelector<reco::PFJet> >          TauValPFJetSelector;
+//typedef SingleObjectSelector< std::vector<reco::Jet>     , StringCutObjectSelector<reco::Jet> >          TauValJetSelector;
+typedef SingleObjectSelector< reco::MuonCollection       , StringCutObjectSelector<reco::Muon> >           TauValMuonSelector;
+typedef SingleObjectSelector< reco::GsfElectronCollection   , StringCutObjectSelector<reco::GsfElectron> > TauValElectronSelector;
+typedef SingleObjectSelector< reco::GenParticleCollection, StringCutObjectSelector<reco::GenParticle> >    TauValGenPSelector;
+typedef SingleObjectSelector< reco::GenParticleRefVector, StringCutObjectSelector<reco::GenParticleRef> >    TauValGenPRefSelector;
+
 
 DEFINE_FWK_MODULE( TauValPFJetSelector );
-DEFINE_FWK_MODULE( TauValJetSelector );
+//DEFINE_FWK_MODULE( TauValJetSelector );
 DEFINE_FWK_MODULE( TauValMuonSelector );
 DEFINE_FWK_MODULE( TauValElectronSelector );
 DEFINE_FWK_MODULE( TauValGenPSelector );

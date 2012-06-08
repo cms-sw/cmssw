@@ -15,13 +15,13 @@ l1EmulatorErrorFlagClient = cms.EDAnalyzer("L1EmulatorErrorFlagClient",
                     cms.PSet(
                         SystemLabel = cms.string("ECAL"),
                         HwValLabel = cms.string("ETP"),
-                        SystemMask  = cms.uint32(0),
+                        SystemMask  = cms.uint32(1),
                         SystemFolder = cms.string("")
                         ),
                     cms.PSet(
                         SystemLabel = cms.string("HCAL"),
                         HwValLabel = cms.string("HTP"),
-                        SystemMask  = cms.uint32(0),
+                        SystemMask  = cms.uint32(1),
                         SystemFolder = cms.string("")
                         ),
                     cms.PSet(
@@ -45,19 +45,19 @@ l1EmulatorErrorFlagClient = cms.EDAnalyzer("L1EmulatorErrorFlagClient",
                     cms.PSet(
                         SystemLabel = cms.string("DTTPG"),
                         HwValLabel = cms.string("DTP"),
-                        SystemMask  = cms.uint32(0),
+                        SystemMask  = cms.uint32(1),
                         SystemFolder = cms.string("")
                         ),
                     cms.PSet(
                         SystemLabel = cms.string("CSCTF"),
                         HwValLabel = cms.string("CTF"),
-                        SystemMask  = cms.uint32(0),
+                        SystemMask  = cms.uint32(1),
                         SystemFolder = cms.string("")
                         ),
                     cms.PSet(
                         SystemLabel = cms.string("CSCTPG"),
                         HwValLabel = cms.string("CTP"),
-                        SystemMask  = cms.uint32(0),
+                        SystemMask  = cms.uint32(1),
                         SystemFolder = cms.string("")
                         ),
                     cms.PSet(
@@ -75,7 +75,7 @@ l1EmulatorErrorFlagClient = cms.EDAnalyzer("L1EmulatorErrorFlagClient",
                     cms.PSet(
                         SystemLabel = cms.string("GT"),
                         HwValLabel = cms.string("GT"),
-                        SystemMask  = cms.uint32(0),
+                        SystemMask  = cms.uint32(1),
                         SystemFolder = cms.string("L1TEMU/GTexpert")
                         )
                         

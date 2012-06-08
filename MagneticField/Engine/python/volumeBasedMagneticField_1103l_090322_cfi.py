@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# This cfi contains everything needed to use the OBSOLETE VolumeBased magnetic
+# This cfi contains everything needed to use the VolumeBased magnetic
 # field engine version 090322 (based on 2007 geometry, model with extended R and Z)
 
 magfield = cms.ESSource("XMLIdealGeometryESSource",
@@ -32,7 +32,6 @@ VolumeBasedMagneticFieldESProducer = cms.ESProducer("VolumeBasedMagneticFieldESP
     label = cms.untracked.string(''),
     paramLabel = cms.string('parametrizedField'),
     version = cms.string('grid_1103l_090322_3_8t'),
-    geometryVersion = cms.int32(71212),
     debugBuilder = cms.untracked.bool(False),
     cacheLastVolume = cms.untracked.bool(True),
     overrideMasterSector = cms.bool(True),

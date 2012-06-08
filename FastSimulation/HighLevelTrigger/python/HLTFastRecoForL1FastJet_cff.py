@@ -17,7 +17,10 @@ hltFastTrackMergerForFastJet = cms.EDProducer("FastTrackMerger",
 )
 
 hltDisplacedHT250L1FastJetRegionalPixelSeedGenerator = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
+hltDisplacedHT300L1FastJetRegionalPixelSeedGenerator = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 
 hltDisplacedHT250L1FastJetRegionalCkfTrackCandidates = cms.Sequence(globalPixelTracking)
+hltDisplacedHT300L1FastJetRegionalCkfTrackCandidates  = cms.Sequence(globalPixelTracking)
 
 hltDisplacedHT250L1FastJetRegionalCtfWithMaterialTracks = hltFastTrackMergerForFastJet.clone()
+hltDisplacedHT300L1FastJetRegionalCtfWithMaterialTracks = hltFastTrackMergerForFastJet.clone() 

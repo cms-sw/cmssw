@@ -711,8 +711,8 @@ void HLTEcalResonanceFilter::calcShowerShape(const reco::BasicCluster &bc,   con
       float energy = (*rit).energy();
       e5x5 += energy; 
       
-      std::vector<std::pair<DetId,float> >::const_iterator idItr = std::find( vid.begin(),vid.end(), std::make_pair(ed,1.0f));  ///has to add "f", make it float 
-      if( idItr == vid.end()){ ///only store those not belonging to this cluster
+      std::vector<std::pair<DetId,float> >::const_iterator idItrF = std::find( vid.begin(),vid.end(), std::make_pair(ed,1.0f));  ///has to add "f", make it float 
+      if( idItrF == vid.end()){ ///only store those not belonging to this cluster
 	rechit5x5.push_back(*rit);
       }else{ /// S4, S9 are defined inside the cluster, the same as below. 
 	if(std::abs(dx)<=1 && std::abs(dy)<=1) {

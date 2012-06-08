@@ -1,4 +1,4 @@
-// $Id: StreamHandler.cc,v 1.22 2011/06/20 16:38:51 mommsen Exp $
+// $Id: StreamHandler.cc,v 1.23 2011/11/08 10:48:41 mommsen Exp $
 /// @file: StreamHandler.cc
 
 #include <sstream>
@@ -20,7 +20,7 @@ namespace stor {
   sharedResources_(sharedResources),
   statReporter_(sharedResources->statisticsReporter_),
   streamRecord_(statReporter_->getStreamsMonitorCollection().getNewStreamRecord()),
-  diskWritingParams_(sharedResources->configuration_->getDiskWritingParams()),
+  diskWritingParams_(dbFileHandler->getDiskWritingParams()),
   dbFileHandler_(dbFileHandler)
   {}
   

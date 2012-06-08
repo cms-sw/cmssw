@@ -2,8 +2,8 @@
 
 	<QTEST name="L1EmulatorDTTFErrorFlagQT">
 		<TYPE>ContentsXRange</TYPE>
-		<PARAM name="warning">0.90</PARAM>
-		<PARAM name="error">0.80</PARAM>
+		<PARAM name="warning">0.95</PARAM>
+		<PARAM name="error">0.9</PARAM>
 		<PARAM name="xmin">0.0</PARAM>
 		<PARAM name="xmax">1.0</PARAM>
 	</QTEST>

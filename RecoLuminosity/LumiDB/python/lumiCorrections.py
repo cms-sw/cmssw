@@ -48,6 +48,9 @@ def driftcorrectionsForRange(schema,inputRange,correctionTerm,startrun=160403):
         if r<150008 :# no drift corrections for 2010 data
             result[r]=defaultresult
             continue
+        if r>189738: # no drift correction for 2012 data
+            result[r]=defaultresult
+            continue
         qHandle=schema.newQuery()
         try:
             qHandle.addToTableList(nameDealer.intglumiTableName())
@@ -163,7 +166,7 @@ def correctionsForRangeV2(schema,inputRange,correctionTerm):
         qResult.extend('runnum','unsigned int')
         qResult.extend('fillscheme','string')
         qResult.extend('ncollidingbunches','unsigned int')
-        qConditionStr='AMODETAG=:amodetag AND EGEV>=:egev'
+        qConditionStr='AMODETAG=:amodetag AND EGEV>=:egev'#filter out lowenergy and non-proton runs
         qCondition=coral.AttributeList()
         qCondition.extend('amodetag','string')
         qCondition.extend('egev','unsigned int')
@@ -189,7 +192,8 @@ def correctionsForRangeV2(schema,inputRange,correctionTerm):
             if cursor.currentRow()['fillscheme']:
                 fillscheme=cursor.currentRow()['fillscheme'].data()
             if fillscheme and len(fillscheme)!=0:
-                afterglow=afterglowByFillscheme(fillscheme,afterglows)           
+                if fillnum>=2124: #afterglow'salready applied by lumidaq in hf root for fill<2124                 
+                    afterglow=afterglowByFillscheme(fillscheme,afterglows)           
             result[runnum]=(constfactor,afterglow,ncollidingbunches,nonlinear_1,nonlinear_2)
     except :
         del qHandle
@@ -200,120 +204,120 @@ def correctionsForRangeV2(schema,inputRange,correctionTerm):
             result[run]=(constfactor,afterglow,ncollidingbunches,nonlinear_1,nonlinear_2) 
     return result
 #=======================================================================================================
-#below : below correction formula version_1
+#below : below correction formula version_1,  default untill April 2012, no more used.
 #======================================================================================================
-def applyfinecorrectionBX(bxlumi,avglumi,norm,constfactor,afterglowfactor,nonlinearfactor):
-    if bxlumi<=0:
-        return bxlumi
-    correctbxlumi=bxlumi*norm*constfactor*afterglowfactor
-    if constfactor!=1.0 and nonlinearfactor!=0:
-        if avglumi<0:
-            avglumi=0.0
-        nonlinearTerm=1.0+avglumi*nonlinearfactor#0.076/ncollidinbunches
-        correctbxlumi=correctbxlumi/nonlinearTerm
-        #print 'avglumi,nonlinearfactor,nonlinearTerm ',avglumi,nonlinearfactor,nonlinearTerm
-    #print 'bxlumi,avglumi,norm,const,after',bxlumi,avglumi,norm,constfactor,afterglowfactor,correctbxlumi
-    return correctbxlumi
+#def applyfinecorrectionBX(bxlumi,avglumi,norm,constfactor,afterglowfactor,nonlinearfactor):
+#    if bxlumi<=0:
+#        return bxlumi
+#    correctbxlumi=bxlumi*norm*constfactor*afterglowfactor
+#    if constfactor!=1.0 and nonlinearfactor!=0:
+#        if avglumi<0:
+#            avglumi=0.0
+#        nonlinearTerm=1.0+avglumi*nonlinearfactor#0.076/ncollidinbunches
+#        correctbxlumi=correctbxlumi/nonlinearTerm
+#        #print 'avglumi,nonlinearfactor,nonlinearTerm ',avglumi,nonlinearfactor,nonlinearTerm
+#    #print 'bxlumi,avglumi,norm,const,after',bxlumi,avglumi,norm,constfactor,afterglowfactor,correctbxlumi
+#    return correctbxlumi
 
-def applyfinecorrection(avglumi,constfactor,afterglowfactor,nonlinearfactor):
-    instlumi=avglumi*afterglowfactor*constfactor
-    if nonlinearfactor!=0 and constfactor!=1.0:
-        nonlinearTerm=1.0+avglumi*nonlinearfactor#0.076/ncollidinbunches
-        instlumi=instlumi/nonlinearTerm
-    #print 'avglumi,const,after,nonlinear,instlumi ',avglumi,constfactor,afterglowfactor,nonlinearfactor,instlumi
-    return instlumi
+#def applyfinecorrection(avglumi,constfactor,afterglowfactor,nonlinearfactor):
+#    instlumi=avglumi*afterglowfactor*constfactor
+#    if nonlinearfactor!=0 and constfactor!=1.0:
+#        nonlinearTerm=1.0+avglumi*nonlinearfactor#0.076/ncollidinbunches
+#        instlumi=instlumi/nonlinearTerm
+#    #print 'avglumi,const,after,nonlinear,instlumi ',avglumi,constfactor,afterglowfactor,nonlinearfactor,instlumi
+#    return instlumi
 
-def correctionsForRange(schema,inputRange,correctionTerm):
-    '''
-    select fillschemepattern,correctionfactor from fillscheme; 
-       [(fillschemepattern,afterglow),...]
-    select fillnum,runnum,fillscheme,ncollidingbunches,egev from cmsrunsummary where amodetag='PROTPYHS' and egev>3000
-        {runnum: (fillnum,fillscheme,ncollidingbunches),...}
-    output:
-        {runnum:(constantfactor,afterglowfactor,nonlinearfactor)}
-    '''
-    runs=[]
-    result={}
-    if isinstance(inputRange,str):
-        runs.append(int(inputRange))
-    else:
-        runs=inputRange
-    for r in runs:
-        if r<150008 :
-            result[r]=(1.0,1.0,0.0)
-    afterglows=[]
-    constfactor=correctionTerm.constfactor
-    s=nameDealer.fillschemeTableName()
-    r=nameDealer.cmsrunsummaryTableName()
-    qHandle=schema.newQuery()
-    try:
-        qHandle.addToTableList(s)
-        qResult=coral.AttributeList()
-        qResult.extend('FILLSCHEMEPATTERN','string')
-        qResult.extend('CORRECTIONFACTOR','float')
-        qHandle.defineOutput(qResult)
-        qHandle.addToOutputList('FILLSCHEMEPATTERN')
-        qHandle.addToOutputList('CORRECTIONFACTOR')
-        cursor=qHandle.execute()
-        while cursor.next():
-            fillschemePattern=cursor.currentRow()['FILLSCHEMEPATTERN'].data()
-            afterglowfac=cursor.currentRow()['CORRECTIONFACTOR'].data()
-            afterglows.append((fillschemePattern,afterglowfac))
-    except :
-        del qHandle
-        raise
-    del qHandle
-    qHandle=schema.newQuery()
-    try:
-        qHandle.addToTableList(r)
-        qHandle.addToOutputList('FILLNUM', 'fillnum')
-        qHandle.addToOutputList('RUNNUM', 'runnum')
-        qHandle.addToOutputList('FILLSCHEME','fillscheme')
-        qHandle.addToOutputList('NCOLLIDINGBUNCHES','ncollidingbunches')
-        qResult=coral.AttributeList()
-        qResult.extend('fillnum','unsigned int')
-        qResult.extend('runnum','unsigned int')
-        qResult.extend('fillscheme','string')
-        qResult.extend('ncollidingbunches','unsigned int')
-        qConditionStr='AMODETAG=:amodetag AND EGEV>=:egev'
-        qCondition=coral.AttributeList()
-        qCondition.extend('amodetag','string')
-        qCondition.extend('egev','unsigned int')
-        qCondition['amodetag'].setData('PROTPHYS')
-        qCondition['egev'].setData(3000)
-        qHandle.defineOutput(qResult)
-        qHandle.setCondition(qConditionStr,qCondition)
-        cursor=qHandle.execute()
-        while cursor.next():
-            runnum=cursor.currentRow()['runnum'].data()
-            #print 'runnum ',runnum 
-            if runnum not in runs or result.has_key(runnum):
-                continue
-            fillnum=cursor.currentRow()['fillnum'].data()
-            constfactor=correctionTerm.constfactor
-            afterglow=1.0
-            nonlinear=correctionTerm.t1
-            nonlinearPerBX=0.0
-            ncollidingbunches=0
-            if cursor.currentRow()['ncollidingbunches']:
-                ncollidingbunches=cursor.currentRow()['ncollidingbunches'].data()
-            fillscheme=''
-            if cursor.currentRow()['fillscheme']:
-                fillscheme=cursor.currentRow()['fillscheme'].data()
-            if fillscheme and len(fillscheme)!=0:
-                afterglow=afterglowByFillscheme(fillscheme,afterglows)
-            if ncollidingbunches and ncollidingbunches!=0:
-                nonlinearPerBX=float(1)/float(ncollidingbunches)
-            nonlinear=nonlinearPerBX*nonlinear
-            result[runnum]=(constfactor,afterglow,nonlinear)
-    except :
-        del qHandle
-        raise
-    del qHandle
-    for run in runs:
-        if run not in result.keys():
-            result[run]=(1.0,1.0,0.0) #those have no fillscheme 2011 runs
-    return result
+#def correctionsForRange(schema,inputRange,correctionTerm):
+#    '''
+#    select fillschemepattern,correctionfactor from fillscheme; 
+#       [(fillschemepattern,afterglow),...]
+#    select fillnum,runnum,fillscheme,ncollidingbunches,egev from cmsrunsummary where amodetag='PROTPYHS' and egev>3000
+#        {runnum: (fillnum,fillscheme,ncollidingbunches),...}
+#    output:
+#        {runnum:(constantfactor,afterglowfactor,nonlinearfactor)}
+#    '''
+#    runs=[]
+#    result={}
+#    if isinstance(inputRange,str):
+#        runs.append(int(inputRange))
+#    else:
+#        runs=inputRange
+#    for r in runs:
+#        if r<150008 :
+#            result[r]=(1.0,1.0,0.0)
+#    afterglows=[]
+#    constfactor=correctionTerm.constfactor
+#    s=nameDealer.fillschemeTableName()
+#    r=nameDealer.cmsrunsummaryTableName()
+#    qHandle=schema.newQuery()
+#    try:
+#        qHandle.addToTableList(s)
+#        qResult=coral.AttributeList()
+#        qResult.extend('FILLSCHEMEPATTERN','string')
+#        qResult.extend('CORRECTIONFACTOR','float')
+#        qHandle.defineOutput(qResult)
+#        qHandle.addToOutputList('FILLSCHEMEPATTERN')
+#        qHandle.addToOutputList('CORRECTIONFACTOR')
+#        cursor=qHandle.execute()
+#        while cursor.next():
+#            fillschemePattern=cursor.currentRow()['FILLSCHEMEPATTERN'].data()
+#            afterglowfac=cursor.currentRow()['CORRECTIONFACTOR'].data()
+#            afterglows.append((fillschemePattern,afterglowfac))
+#    except :
+#        del qHandle
+#        raise
+#    del qHandle
+#    qHandle=schema.newQuery()
+#    try:
+#        qHandle.addToTableList(r)
+#        qHandle.addToOutputList('FILLNUM', 'fillnum')
+#        qHandle.addToOutputList('RUNNUM', 'runnum')
+#        qHandle.addToOutputList('FILLSCHEME','fillscheme')
+#        qHandle.addToOutputList('NCOLLIDINGBUNCHES','ncollidingbunches')
+#        qResult=coral.AttributeList()
+#        qResult.extend('fillnum','unsigned int')
+#        qResult.extend('runnum','unsigned int')
+#        qResult.extend('fillscheme','string')
+#        qResult.extend('ncollidingbunches','unsigned int')
+#        qConditionStr='AMODETAG=:amodetag AND EGEV>=:egev'
+#        qCondition=coral.AttributeList()
+#        qCondition.extend('amodetag','string')
+#        qCondition.extend('egev','unsigned int')
+#        qCondition['amodetag'].setData('PROTPHYS')
+#        qCondition['egev'].setData(3000)
+#        qHandle.defineOutput(qResult)
+#        qHandle.setCondition(qConditionStr,qCondition)
+#        cursor=qHandle.execute()
+#        while cursor.next():
+#            runnum=cursor.currentRow()['runnum'].data()
+#            #print 'runnum ',runnum 
+#            if runnum not in runs or result.has_key(runnum):
+#                continue
+#            fillnum=cursor.currentRow()['fillnum'].data()
+#            constfactor=correctionTerm.constfactor
+#            afterglow=1.0
+#            nonlinear=correctionTerm.t1
+#            nonlinearPerBX=0.0
+#            ncollidingbunches=0
+#            if cursor.currentRow()['ncollidingbunches']:
+#                ncollidingbunches=cursor.currentRow()['ncollidingbunches'].data()
+#            fillscheme=''
+#            if cursor.currentRow()['fillscheme']:
+#                fillscheme=cursor.currentRow()['fillscheme'].data()
+#            if fillscheme and len(fillscheme)!=0:
+#                afterglow=afterglowByFillscheme(fillscheme,afterglows)
+#            if ncollidingbunches and ncollidingbunches!=0:
+#                nonlinearPerBX=float(1)/float(ncollidingbunches)
+#            nonlinear=nonlinearPerBX*nonlinear
+#            result[runnum]=(constfactor,afterglow,nonlinear)
+#    except :
+#        del qHandle
+#        raise
+#    del qHandle
+#    for run in runs:
+#        if run not in result.keys():
+#            result[run]=(1.0,1.0,0.0) #those have no fillscheme 2011 runs
+#    return result
 #=======================================================================================================
 #below : correction on pixellumi, afterglow only
 #======================================================================================================

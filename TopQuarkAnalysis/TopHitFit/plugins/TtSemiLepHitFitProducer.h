@@ -126,7 +126,7 @@ TtSemiLepHitFitProducer<LeptonCollection>::TtSemiLepHitFitProducer(const edm::Pa
                             edm::FileInPath(std::string("TopQuarkAnalysis/TopHitFit/data/resolution/tqafUdscJetResolution.txt")))),
   hitfitBJetResolution_    (cfg.getUntrackedParameter<edm::FileInPath>(std::string("hitfitBJetResolution"),
                             edm::FileInPath(std::string("TopQuarkAnalysis/TopHitFit/data/resolution/tqafBJetResolution.txt")))),
-  hitfitMETResolution_     (cfg.getUntrackedParameter<edm::FileInPath>(std::string("hitfitMETResolution"),
+  hitfitMETResolution_     (cfg.getUntrackedParameter<edm::FileInPath>(std::string("hitfitElectronResolution"),
                             edm::FileInPath(std::string("TopQuarkAnalysis/TopHitFit/data/resolution/tqafKtResolution.txt")))),
 
   // The following four initializers instantiate the translator between PAT objects

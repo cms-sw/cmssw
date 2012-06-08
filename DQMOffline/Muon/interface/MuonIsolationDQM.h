@@ -72,8 +72,7 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
   void InitStatics();
-  void RecordData(MuonIterator muon);//Fills Histograms with info from single muo
-  void doPFIsoPlots(MuonIterator muon); //Fills Histograms with PF info from single muo (only for GLB)
+  void RecordData(MuonIterator muon);//Fills Histograms with info from single muon
   void InitHistos();//adds title, bin information to member histograms
   void FillHistos();//Fills histograms with data
   void NormalizeHistos(); //Normalize to number of muons
@@ -95,7 +94,7 @@ private:
   //  std::string subDirName;
 
   //Histogram parameters
-  static const int NUM_VARS = 42; // looking at R03 and R05.  Total of 48 histos.
+  static const int NUM_VARS = 24; // looking at R03 and R05.  Total of 48 histos.
   double L_BIN_WIDTH;//large bins
   double S_BIN_WIDTH;//small bins
   int LOG_BINNING_ENABLED;//pseudo log binning for profile plots

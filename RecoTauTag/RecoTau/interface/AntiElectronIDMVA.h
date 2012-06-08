@@ -30,8 +30,6 @@
 
 #include <vector>
 
-using namespace std;
-
 class AntiElectronIDMVA {
   public:
 
@@ -53,7 +51,7 @@ class AntiElectronIDMVA {
 		    Float_t TauLeadPFChargedHadrMva, 
 		    Float_t TauLeadPFChargedHadrHoP, Float_t TauLeadPFChargedHadrEoP, 
 		    Float_t TauHasGsf, Float_t TauVisMass,  Float_t TauEmFraction,
-		    vector<Float_t>* GammasdEta, vector<Float_t>* GammasdPhi, vector<Float_t>* GammasPt
+		    std::vector<Float_t>* GammasdEta, std::vector<Float_t>* GammasdPhi, std::vector<Float_t>* GammasPt
 		    );
 
     /* 

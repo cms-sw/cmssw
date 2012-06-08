@@ -6,7 +6,6 @@
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/Records"/>
 <use   name="DataFormats/JetReco"/>
-<use   name="DataFormats/PatCandidates"/>
 <use   name="DataFormats/HepMCCandidate"/>
 <use   name="DataFormats/CaloTowers"/>
 <use   name="DataFormats/HcalRecHit"/>

@@ -16,27 +16,25 @@
 #which can then be viewed in a web browser using validation.html.
 
 #=============BEGIN CONFIGURATION=================
-setenv TYPE AllConversions
+setenv TYPE TrackBasedConversions
 setenv RUNTYPE Central
 setenv STARTUP True
 
-setenv CMSSWver1 5_1_2
-setenv CMSSWver2 5_2_0
-setenv OLDRELEASE 5_1_2
-setenv NEWRELEASE 5_2_0
+
+setenv CMSSWver1 4_2_0
+setenv CMSSWver2 4_2_2
+setenv OLDRELEASE 4_2_0
+setenv NEWRELEASE 4_2_2
 setenv OLDPRERELEASE 
 setenv NEWPRERELEASE 
 
-
-
 if ( $STARTUP == True) then
-setenv OLDGLOBALTAG START50_V15A-v1
-setenv NEWGLOBALTAG START52_V4A-v1
-else 
-setenv OLDGLOBALTAG START50_V8-v3
-setenv NEWGLOBALTAG START50_V8-v3
+setenv OLDGLOBALTAG START42_V9-v1
+setenv NEWGLOBALTAG START42_V11-v1
+else
+setenv OLDGLOBALTAG MC_42_V9-v1
+setenv NEWGLOBALTAG MC_42_V11-v1
 endif
-
 
 
 
@@ -56,17 +54,20 @@ setenv NEWRELEASE ${NEWRELEASE}
 #setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${OLDPRERELEASE}/src/Validation/RecoEgamma/test
 #setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
 
+#setenv WorkDir1    /data/pccmsnd1/b/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+#setenv WorkDir2    /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}_${NEWPRERELEASE}/src/Validation/RecoEgamma/test
+#setenv WorkDir2    /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
 setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
 setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver2}/src/Validation/RecoEgamma/test
 
 
 #Name of sample (affects output directory name and htmldescription only) 
-#setenv SAMPLE SingleGammaPt10
-#setenv SAMPLE SingleGammaPt35
-setenv SAMPLE QCD_Pt_80_120
-#setenv SAMPLE QCD_Pt_20_30
-#setenv SAMPLE H130GGgluonfusion
+#setenv SAMPLE SingleGammaPt10IDEAL
+#setenv SAMPLE SingleGammaPt35IDEAL
+#setenv SAMPLE QCD_Pt_80_120STARTUP
+#setenv SAMPLE QCD_Pt_20_30STARTUP
+setenv SAMPLE H130GGgluonfusionSTARTUP
 
 if ( $RUNTYPE == Central ) then
 setenv HISTOPATHNAME_Efficiencies DQMData/Run\ 1/EgammaV/Run\ summary/ConversionValidator/EfficienciesAndFakeRate
@@ -81,29 +82,29 @@ endif
 #==============END BASIC CONFIGURATION==================
 #Input root trees for the two cases to be compared 
 
-if ($SAMPLE == SingleGammaPt10) then
+if ($SAMPLE == SingleGammaPt10IDEAL) then
 
 if ( $RUNTYPE == Local ) then
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt10.root
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.root
 else if ( $RUNTYPE == Central ) then
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt10__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
-setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt10__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+setenv OLDFILE ${WorkDir1}/DQM_V0002_R000000001__RelValSingleGammaPt10__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt10__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
 endif
 
 
-else if ($SAMPLE == SingleGammaPt35) then 
+else if ($SAMPLE == SingleGammaPt35IDEAL) then 
 
 if ( $RUNTYPE == Local ) then
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt35.root
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt35.root
 else if ( $RUNTYPE == Central ) then
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt35__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
-setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt35__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+setenv OLDFILE ${WorkDir1}/DQM_V0002_R000000001__RelValSingleGammaPt35__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt35__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
 endif
 
 
-else if ($SAMPLE == SingleGammaFlatPt10_100) then 
+else if ($SAMPLE == SingleGammaFlatPt10_100IDEAL) then 
 
 
 if ( $RUNTYPE == Local ) then
@@ -112,7 +113,7 @@ setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaFlatPt
 endif 
 
 
-else if ($SAMPLE == H130GGgluonfusion) then 
+else if ($SAMPLE == H130GGgluonfusionSTARTUP) then 
 
 
 if ( $RUNTYPE == Local ) then
@@ -125,17 +126,17 @@ endif
 
 
 
-else if ($SAMPLE == PhotonJets_Pt_10) then
+else if ($SAMPLE == PhotonJets_Pt_10STARTUP) then
 
 if ( $RUNTYPE == Local ) then
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_PhotonJets_Pt_10.root
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_PhotonJets_Pt_10.root
 else if ( $RUNTYPE == Central ) then
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValPhotonJets_Pt_10__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
-setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValPhotonJets_Pt_10__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValPhotonJets_Pt_10__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-RECO.root
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValPhotonJets_Pt_10__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__GEN-SIM-RECO.root
 endif
 
-else if ($SAMPLE ==  GammaJets_Pt_80_120) then 
+else if ($SAMPLE ==  GammaJets_Pt_80_120STARTUP) then 
 
 if ( $RUNTYPE == Local ) then
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_GammaJets_Pt_80_120.root
@@ -143,13 +144,13 @@ setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_GammaJets_Pt_80_1
 else if ( $RUNTYPE == Central ) then
 endif
 
-else if ($SAMPLE == QCD_Pt_80_120) then 
+else if ($SAMPLE == QCD_Pt_80_120STARTUP) then 
 
 if ( $RUNTYPE == Local ) then
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_QCD_Pt_80_120.root
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_QCD_Pt_80_120.root
 else if ( $RUNTYPE == Central ) then
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValQCD_Pt_80_120__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
+setenv OLDFILE ${WorkDir1}/DQM_V0003_R000000001__RelValQCD_Pt_80_120__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
 setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValQCD_Pt_80_120__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
 endif
 
@@ -202,7 +203,7 @@ echo "cd $OUTDIR"
 #The list of histograms to be compared for each TYPE can be configured below:
 
 
-if ( $TYPE == AllConversions ) then
+if ( $TYPE == TrackBasedConversions ) then
 
 cat > efficiency <<EOF
   convEffVsEtaTwoTracks
@@ -253,15 +254,6 @@ hInvMassEndcap_AllTracks
 hTkPtPullAll
 hTkPtPullBarrel
 hTkPtPullEndcap
-
-nSharedHitsBarrel
-nSharedHitsEndcap
-nHitsBeforeVtxBarrel
-nHitsBeforeVtxEndcap
-maxNHitsBeforeVtxBarrel
-maxNHitsBeforeVtxEndcap
-maxDlClosestHitToVtxBarrel
-maxDlClosestHitToVtxEndcap
 
 EOF
 
@@ -348,32 +340,6 @@ $i->SetMaximum (2*250);
 $i->SetMaximum (2*150);
 }  else if ( $i==hTkPtPullEndcap ) {
 $i->SetMaximum (2*200);
-} else if ( $i==nSharedHitsBarrel ) {
-$i->SetTitle(" Number of shared hits: barrel");
-$i->SetMaximum(3000);
-$i->GetXaxis()->SetRangeUser(-0.5,10.);
-} else if ( $i==nSharedHitsEndcap ) {
-$i->SetTitle(" Number of shared hits: endcap");
-$i->SetMaximum(3200);
-$i->GetXaxis()->SetRangeUser(-0.5,10.);
-} else if ( $i==nHitsBeforeVtxBarrel ) {
-$i->SetTitle(" Number of hits before the vtx: barrel");
-$i->GetXaxis()->SetRangeUser(-0.5,10.);
-} else if ( $i==nHitsBeforeVtxEndcap ) {
-$i->SetTitle(" Number of hits before the vtx: endcap");
-$i->GetXaxis()->SetRangeUser(-0.5,10.);
-} else if ( $i==maxNHitsBeforeVtxBarrel ) {
-$i->SetTitle(" Max number of hits before the vtx: barrel");
-$i->GetXaxis()->SetRangeUser(-0.5,10.);
-} else if ( $i==maxNHitsBeforeVtxEndcap ) {
-$i->SetTitle(" Max number of hits before the vtx: endcap");
-$i->GetXaxis()->SetRangeUser(-0.5,10.);
-} else if ( $i==maxDlClosestHitToVtxBarrel ) {
-$i->SetTitle(" Max Dl closest hit  to vtx: barrel");
-} else if ( $i==maxDlClosestHitToVtxEndcap ) {
-$i->SetTitle(" Max Dl closest hit  to vtx: endcap");
-
-
 }
 
 $i->SetLineColor(kPink+8);
@@ -569,7 +535,7 @@ rm end.C
 if ( $TYPE == PixelMatchGsfElectron ) then
   setenv ANALYZER PixelMatchGsfElectronAnalyzer
   setenv CFG read_gsfElectrons
-else if ( $TYPE == AllConversions ) then
+else if ( $TYPE == TrackBasedConversions ) then
   setenv ANALYZER ConversionValidator
   setenv CFG ConversionValidator_cfg
 endif

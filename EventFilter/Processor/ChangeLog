@@ -1,3 +1,65 @@
+2012-05-24 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-10
+	* set up semaphore pointer to 0 in the beginning,
+	  to get it memory mapped properly
+
+2012-05-22 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-09
+	* #ifded linux for MMAP_ANONYMOUS (OS X fix)
+
+2012-05-16 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-08
+	* add alarm signal handler, use it as timeout in signal handling
+
+2012-05-15 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-07
+	* automatic limiter of core dumps in slave EP's
+	* sets up custom signal handler for SIGSEGV
+	  and other signals generating core dumps
+	* stack trace is printed and logged
+
+2012-05-10 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-06
+	* putting message posting in try/catch
+	* check that prc is alive
+
+2012-05-10 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-05
+	* limit core dump size to 0 with two or more restarts in a run
+	* parameter crashestoDump unsignedInt can override this value
+	* it detects this using status from the waitpid call
+
+2012-05-02 Srecko morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-04
+	* merging new forking method support
+	* new forking can be turned off with xdaq parameter:
+	* forkInEDM unsignedInt 0
+
+2012-04-30 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-02
+	* ShmOutputModuleRegistry moved to Modules
+
+2012-04-27 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-01
+	* fixing possible invalid write when pid from invalid
+	  location is 0 (passing waitpid check)
+	* related thread safety improvements
+
+2012-04-17 Srecko Morovic <srecko.smorovic@cern.ch>
+
+	* tag V02-05-00
+	* support for fork in DaqSource (framework thread)
+	* requires new DaqSource, Modules and Utilities
+
 2011-10-21 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-04-17

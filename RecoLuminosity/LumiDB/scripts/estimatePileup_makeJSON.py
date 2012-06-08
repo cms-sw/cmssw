@@ -64,11 +64,12 @@ def CalcPileup (deadTable, parameters, mode='deadtable'):
              if TotalLumi >0:
                  MeanInt = TotalInt/TotalLumi
              for xing, xingInstLumi in instLumiArray:
-                 xingIntLumi = xingInstLumi * parameters.lumiSectionLen * livetime
-                 mean = xingInstLumi * parameters.rotationTime
-                 TotalInt2+= xingIntLumi*(mean-MeanInt)*(mean-MeanInt)
-                 TotalWeight+= xingIntLumi
-                 TotalWeight2+= xingIntLumi*xingIntLumi
+                 if xingInstLumi > 0.1:
+                     xingIntLumi = xingInstLumi * parameters.lumiSectionLen * livetime
+                     mean = xingInstLumi * parameters.rotationTime
+                     TotalInt2+= xingIntLumi*(mean-MeanInt)*(mean-MeanInt)
+                     TotalWeight+= xingIntLumi
+                     TotalWeight2+= xingIntLumi*xingIntLumi
 
 
 

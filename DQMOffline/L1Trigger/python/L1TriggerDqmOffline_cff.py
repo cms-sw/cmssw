@@ -21,16 +21,10 @@ import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvL1T = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 dqmEnvL1T.subSystemFolder = 'L1T'
 
-# DQM online L1 Trigger modules 
+# DQM online L1 Trigger modules, with offline configuration 
+from DQMOffline.L1Trigger.L1TMonitorOffline_cff import *
+from DQMOffline.L1Trigger.L1TMonitorClientOffline_cff import *
 
-from DQM.L1TMonitor.L1TMonitor_cff import *
-from DQM.L1TMonitorClient.L1TMonitorClient_cff import * 
-#
-# DTTF to offline configuration
-l1tDttf.online = cms.untracked.bool(False) 
-
-# input tag for BXTimining
-bxTiming.FedSource = 'rawDataCollector'
 
 # DQM offline L1 Trigger versus Reco modules
 
@@ -50,9 +44,9 @@ import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvL1TEMU = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 dqmEnvL1TEMU.subSystemFolder = 'L1TEMU'
 
-from DQM.L1TMonitor.L1TEmulatorMonitor_cff import *  
-from DQM.L1TMonitorClient.L1TEMUMonitorClient_cff import *
-    
+from DQMOffline.L1Trigger.L1TEmulatorMonitorOffline_cff import *  
+from DQMOffline.L1Trigger.L1TEmulatorMonitorClientOffline_cff import *
+
 #
 # define sequences 
 #
@@ -170,10 +164,10 @@ l1tMonitorOnline.remove(l1tRate)
 # l1TriggerClients sequence, part of l1tMonitorClient sequence
 
 #l1TriggerClients.remove(l1tGctClient)
-l1TriggerClients.remove(l1tDttfClient)
-l1TriggerClients.remove(l1tCsctfClient) 
+#l1TriggerClients.remove(l1tDttfClient)
+#l1TriggerClients.remove(l1tCsctfClient) 
 #l1TriggerClients.remove(l1tRpctfClient)
-l1TriggerClients.remove(l1tGmtClient)
+#l1TriggerClients.remove(l1tGmtClient)
 #l1TriggerClients.remove(l1tOccupancyClient)
 l1TriggerClients.remove(l1tTestsSummary)
 #l1TriggerClients.remove(l1tEventInfoClient)

@@ -50,6 +50,8 @@ def fillPileupHistogram (lumiInfo, calcOption, hist, minbXsec, Nbins):
         for bin in range (Nbins):
             ProbFromRMS.append(0.0)
         ProbFromRMS[obs] = 1.0
+        if AveNumInt < 1.0E-5:
+           ProbFromRMS[obs] = 0.  # just ignore zero values
         
     if calcOption == 'true':  # Just put distribution into histogram
         if RMSInt > 0:

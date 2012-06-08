@@ -24,13 +24,13 @@ if l1DqmEnv == 'file' :
     #globalTagType = 'R'
     
     if globalTagType == 'HLT' :
-        globalTagValue = 'GR_H_V25'
+        globalTagValue = 'GR_H_V26'
     elif globalTagType == 'P' :
-        globalTagValue = 'GR_P_V27'
+        globalTagValue = 'GR_P_V29'
     elif globalTagType == 'E' :
-        globalTagValue = 'GR_E_V22'
+        globalTagValue = 'GR_E_V23'
     elif globalTagType == 'R' :
-        globalTagValue = 'GR_R_44_V10'
+        globalTagValue = 'GR_R_52_V4'
     else :
         print 'No valid global tag type', globalTagType
         print 'Valid types: HLT, P, E, R'
@@ -109,7 +109,8 @@ else :
     es_prefer_GlobalTag = cms.ESPrefer('GlobalTag')
 
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+#process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #-------------------------------------
 # sequences needed for L1 trigger DQM
@@ -251,8 +252,90 @@ process.l1tEventInfoClient.emulatorMaskedSystems = cms.untracked.vstring("All")
 
 
 # 
-# un-comment next lines in case you use the file for private tests on the L1T server
+# un-comment next lines in case you use the file for private tests using data from the L1T server
 #
 #process.dqmSaver.dirName = '.'
 #process.dqmSaver.saveByRun = 1
 #process.dqmSaver.saveAtJobEnd = True
+
+
+# Message Logger
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.debugModules = ['l1tGt']
+process.MessageLogger.categories.append('L1TGT')
+process.MessageLogger.destinations = ['L1TDQM_errors', 
+                                      'L1TDQM_warnings', 
+                                      'L1TDQM_info', 
+                                      'L1TDQM_debug'
+                                      ]
+
+process.MessageLogger.L1TDQM_errors = cms.untracked.PSet( 
+        threshold = cms.untracked.string('ERROR'),
+        ERROR = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
+       )
+
+process.MessageLogger.L1TDQM_warnings = cms.untracked.PSet( 
+        threshold = cms.untracked.string('WARNING'),
+        WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+        ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) )
+        )
+
+process.MessageLogger.L1TDQM_info = cms.untracked.PSet( 
+        threshold = cms.untracked.string('INFO'),
+        INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+        WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+        ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+        L1TGT = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
+        )
+
+process.MessageLogger.L1TDQM_debug = cms.untracked.PSet( 
+        threshold = cms.untracked.string('DEBUG'),
+        DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+        INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+        WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+        ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) )
+        )
+
+#--------------------------------------------------
+# Heavy Ion Specific Fed Raw Data Collection Label
+#--------------------------------------------------
+
+print "Running with run type = ", process.runType.getRunType()
+process.castorDigis.InputLabel = cms.InputTag("rawDataCollector")
+process.csctfDigis.producer = cms.InputTag("rawDataCollector")
+process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataCollector")
+process.ecalDigis.InputLabel = cms.InputTag("rawDataCollector")
+process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataCollector")
+process.gctDigis.inputLabel = cms.InputTag("rawDataCollector")
+process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataCollector")
+process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataCollector")
+process.hcalDigis.InputLabel = cms.InputTag("rawDataCollector")
+process.muonCSCDigis.InputObjects = cms.InputTag("rawDataCollector")
+process.muonDTDigis.inputLabel = cms.InputTag("rawDataCollector")
+process.muonRPCDigis.InputLabel = cms.InputTag("rawDataCollector")
+process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
+process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
+process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
+process.bxTiming.FedSource = cms.untracked.InputTag("rawDataCollector")
+process.l1s.fedRawData = cms.InputTag("rawDataCollector")
+    
+if (process.runType.getRunType() == process.runType.hi_run):
+    process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
+    process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataRepacker")
+    process.ecalDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
+    process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
+    process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
+    process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataRepacker")
+    process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.muonCSCDigis.InputObjects = cms.InputTag("rawDataRepacker")
+    process.muonDTDigis.inputLabel = cms.InputTag("rawDataRepacker")
+    process.muonRPCDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
+    process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
+    process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
+    process.bxTiming.FedSource = cms.untracked.InputTag("rawDataRepacker")
+    process.l1s.fedRawData = cms.InputTag("rawDataRepacker")
+
+

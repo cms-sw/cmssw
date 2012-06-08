@@ -5,7 +5,7 @@
  *  Concrete implementation of a DTVDriftBaseAlgo.
  *  Computes vDrift using the Mean Timer algorithm.
  *
- *  $Revision: 1.1 $
+ *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 
@@ -14,8 +14,6 @@
 
 class TFile;
 class DTMeanTimerFitter;
-
-namespace dtCalibration {
 
 class DTVDriftMeanTimer: public DTVDriftBaseAlgo {
 public:
@@ -29,5 +27,4 @@ private:
    DTMeanTimerFitter* fitter_;
 };
 
-} // namespace
 #endif

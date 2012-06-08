@@ -14,7 +14,7 @@ class PFRecoTauDiscriminationAgainstElectronMVA : public PFTauDiscriminationProd
    public:
       explicit PFRecoTauDiscriminationAgainstElectronMVA(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig) {
 
-         method_                           = iConfig.getParameter<string>("method");
+         method_                           = iConfig.getParameter<std::string>("method");
 	 inputFileName1prongBL_            = iConfig.getParameter<edm::FileInPath>("inputFileName1prongBL");
 	 inputFileName1prongStripsWgsfBL_  = iConfig.getParameter<edm::FileInPath>("inputFileName1prongStripsWgsfBL");
 	 inputFileName1prongStripsWOgsfBL_ = iConfig.getParameter<edm::FileInPath>("inputFileName1prongStripsWOgsfBL");
@@ -49,7 +49,7 @@ class PFRecoTauDiscriminationAgainstElectronMVA : public PFTauDiscriminationProd
 
    private:
 
-  string method_ ;
+  std::string method_ ;
   edm::FileInPath inputFileName1prongBL_;
   edm::FileInPath inputFileName1prongStripsWgsfBL_;
   edm::FileInPath inputFileName1prongStripsWOgsfBL_;

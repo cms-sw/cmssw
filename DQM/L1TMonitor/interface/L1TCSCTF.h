@@ -4,8 +4,8 @@
 /*
  * \file L1TCSCTF.h
  *
- * $Date: 2009/12/01 09:13:44 $
- * $Revision: 1.15 $
+ * $Date: 2011/12/29 20:49:26 $
+ * $Revision: 1.16 $
  * \author J. Berryhill
  *
 */
@@ -33,9 +33,13 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
-// KK_start: Sector Receiver LUT class to transform wire/strip numbers to eta/phi observables
+// Sector Receiver LUT class to transform wire/strip numbers to eta/phi observables
 #include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
-// KK_end
+
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 
 #include <iostream>
 #include <fstream>
@@ -69,46 +73,38 @@ class L1TCSCTF : public edm::EDAnalyzer {
   // ----------member data ---------------------------
   DQMStore * dbe;
 
-  // MonitorElement* csctfetavalue[3];
-  // MonitorElement* csctfphivalue[3];
-  // MonitorElement* csctfptvalue[3];
-  // MonitorElement* csctfchargevalue[3];
-  // MonitorElement* csctfquality[3];
   MonitorElement* csctfntrack;
   MonitorElement* csctfbx;
+  MonitorElement* csctfbx_H;
 
-  // KK_start: see source for description
   MonitorElement* csctferrors;
   MonitorElement* csctfoccupancies;
-  CSCSectorReceiverLUT *srLUTs_[5];
-  // KK_end
+  MonitorElement* csctfoccupancies_H;
   
-  // JAG
-  //MonitorElement* haloDelEta23;
-  MonitorElement* haloDelEta112;
-  MonitorElement* haloDelEta12;
-  MonitorElement* haloDelEta113;
-  MonitorElement* haloDelEta13;
+  //MonitorElement* haloDelEta112;
+  //MonitorElement* haloDelEta12;
+  //MonitorElement* haloDelEta113;
+  //MonitorElement* haloDelEta13;
+  
   MonitorElement* csctfChamberOccupancies;
-  MonitorElement* csctfTrackPhi;
-  MonitorElement* csctfTrackEta;
+  MonitorElement* csctfTrackPhi; //all tracks but halo
+  MonitorElement* csctfTrackEta; //all tracks but halo
+  MonitorElement* csctfTrackEtaLowQ;  //all tracks but halo
+  MonitorElement* csctfTrackEtaHighQ; //all tracks but halo
+  MonitorElement* csctfTrackPhi_H; //halo tracks only
+  MonitorElement* csctfTrackEta_H; //halo tracks only
   MonitorElement* cscTrackStubNumbers;
   MonitorElement* csctfTrackM;
   MonitorElement* trackModeVsQ;
   MonitorElement* csctfAFerror;
-  // JAG
 
-  // GP
   // 1-> 6 plus endcap
   // 7->12 minus endcap
   MonitorElement* DTstubsTimeTrackMenTimeArrival[12];
   int BxInEvent_; //bx of the CSC muon candidate
   bool isCSCcand_;//does GMT readout window have a CSC cand?
 
-  MonitorElement* csctfHaloL1ABXN;
-  MonitorElement* csctfCoincL1ABXN;
   int L1ABXN;
-  // GP_end
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
@@ -116,6 +112,14 @@ class L1TCSCTF : public edm::EDAnalyzer {
   bool monitorDaemon_;
   ofstream logFile_;
   edm::InputTag gmtProducer, lctProducer, trackProducer, statusProducer, mbProducer;
+
+  CSCSectorReceiverLUT *srLUTs_[5];
+
+  const L1MuTriggerScales  *ts;
+  const L1MuTriggerPtScale *tpts;
+  unsigned long long m_scalesCacheID ;
+  unsigned long long m_ptScaleCacheID ;
+
 };
 
 #endif

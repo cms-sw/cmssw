@@ -26,7 +26,12 @@ L1TGCTClient::L1TGCTClient(const edm::ParameterSet& ps):
   counterLS_(0), 
   counterEvt_(0), 
   prescaleLS_(ps.getUntrackedParameter<int>("prescaleLS", -1)),
-  prescaleEvt_(ps.getUntrackedParameter<int>("prescaleEvt", -1))
+  prescaleEvt_(ps.getUntrackedParameter<int>("prescaleEvt", -1)),
+  m_runInEventLoop(ps.getUntrackedParameter<bool>("runInEventLoop", false)),
+  m_runInEndLumi(ps.getUntrackedParameter<bool>("runInEndLumi", false)),
+  m_runInEndRun(ps.getUntrackedParameter<bool>("runInEndRun", false)),
+  m_runInEndJob(ps.getUntrackedParameter<bool>("runInEndJob", false))
+
 {
 }
 
@@ -60,89 +65,85 @@ void L1TGCTClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const Ev
 
 void L1TGCTClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) 
 {
-  MonitorElement* Input;
 
-  Input = dbe_->get("L1T/L1TGCT/IsoEmOccEtaPhi");
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctIsoEmOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctIsoEmOccPhi_);
-  }
+    if (m_runInEndLumi) {
 
-  Input = dbe_->get("L1T/L1TGCT/NonIsoEmOccEtaPhi");
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctNonIsoEmOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctNonIsoEmOccPhi_);
-  }
+        processHistograms();
+    }
 
-  Input = dbe_->get("L1T/L1TGCT/AllJetsOccEtaPhi");
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctAllJetsOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctAllJetsOccPhi_);
-  }
-
-  Input = dbe_->get("L1T/L1TGCT/CenJetsOccEtaPhi");
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctCenJetsOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctCenJetsOccPhi_);
-  }
-
-  Input = dbe_->get("L1T/L1TGCT/ForJetsOccEtaPhi");
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctForJetsOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctForJetsOccPhi_);
-  }
-  
-  Input = dbe_->get("L1T/L1TGCT/TauJetsOccEtaPhi"); 
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctTauJetsOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctTauJetsOccPhi_);
-  }
 }
 
-void L1TGCTClient::analyze(const Event& e, const EventSetup& context){}
+void L1TGCTClient::analyze(const Event& e, const EventSetup& context){
 
-void L1TGCTClient::endRun(const Run& r, const EventSetup& context)
-{
-  MonitorElement* Input;
+    // there is no loop on events in the offline harvesting step
+    // code here will not be executed offline
 
-  Input = dbe_->get("L1T/L1TGCT/IsoEmOccEtaPhi");
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctIsoEmOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctIsoEmOccPhi_);
-  }
+    if (m_runInEventLoop) {
 
-  Input = dbe_->get("L1T/L1TGCT/NonIsoEmOccEtaPhi");
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctNonIsoEmOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctNonIsoEmOccPhi_);
-  }
+        processHistograms();
+    }
 
-  Input = dbe_->get("L1T/L1TGCT/AllJetsOccEtaPhi");
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctAllJetsOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctAllJetsOccPhi_);
-  }
-
-  Input = dbe_->get("L1T/L1TGCT/CenJetsOccEtaPhi");
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctCenJetsOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctCenJetsOccPhi_);
-  }
-
-  Input = dbe_->get("L1T/L1TGCT/ForJetsOccEtaPhi");
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctForJetsOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctForJetsOccPhi_);
-  }
-  
-  Input = dbe_->get("L1T/L1TGCT/TauJetsOccEtaPhi"); 
-  if (Input!=NULL){
-    makeXProjection(Input->getTH2F(),l1GctTauJetsOccEta_);
-    makeYProjection(Input->getTH2F(),l1GctTauJetsOccPhi_);
-  }
 }
 
-void L1TGCTClient::endJob(){}
+void L1TGCTClient::endRun(const Run& r, const EventSetup& context) {
+
+    if (m_runInEndRun) {
+
+        processHistograms();
+    }
+
+}
+
+void L1TGCTClient::endJob() {
+
+    if (m_runInEndJob) {
+
+        processHistograms();
+    }
+}
+
+void L1TGCTClient::processHistograms() {
+
+    MonitorElement* Input;
+
+    Input = dbe_->get("L1T/L1TGCT/IsoEmOccEtaPhi");
+    if (Input!=NULL){
+      makeXProjection(Input->getTH2F(),l1GctIsoEmOccEta_);
+      makeYProjection(Input->getTH2F(),l1GctIsoEmOccPhi_);
+    }
+
+    Input = dbe_->get("L1T/L1TGCT/NonIsoEmOccEtaPhi");
+    if (Input!=NULL){
+      makeXProjection(Input->getTH2F(),l1GctNonIsoEmOccEta_);
+      makeYProjection(Input->getTH2F(),l1GctNonIsoEmOccPhi_);
+    }
+
+    Input = dbe_->get("L1T/L1TGCT/AllJetsOccEtaPhi");
+    if (Input!=NULL){
+      makeXProjection(Input->getTH2F(),l1GctAllJetsOccEta_);
+      makeYProjection(Input->getTH2F(),l1GctAllJetsOccPhi_);
+    }
+
+    Input = dbe_->get("L1T/L1TGCT/CenJetsOccEtaPhi");
+    if (Input!=NULL){
+      makeXProjection(Input->getTH2F(),l1GctCenJetsOccEta_);
+      makeYProjection(Input->getTH2F(),l1GctCenJetsOccPhi_);
+    }
+
+    Input = dbe_->get("L1T/L1TGCT/ForJetsOccEtaPhi");
+    if (Input!=NULL){
+      makeXProjection(Input->getTH2F(),l1GctForJetsOccEta_);
+      makeYProjection(Input->getTH2F(),l1GctForJetsOccPhi_);
+    }
+
+    Input = dbe_->get("L1T/L1TGCT/TauJetsOccEtaPhi");
+    if (Input!=NULL){
+      makeXProjection(Input->getTH2F(),l1GctTauJetsOccEta_);
+      makeYProjection(Input->getTH2F(),l1GctTauJetsOccPhi_);
+    }
+
+}
+
 
 void L1TGCTClient::makeXProjection(TH2F* input, MonitorElement* output)
 {

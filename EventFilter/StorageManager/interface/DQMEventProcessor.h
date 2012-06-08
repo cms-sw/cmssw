@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessor.h,v 1.7 2011/04/19 16:01:55 mommsen Exp $
+// $Id: DQMEventProcessor.h,v 1.8 2011/11/08 10:48:40 mommsen Exp $
 /// @file: DQMEventProcessor.h 
 
 #ifndef EventFilter_StorageManager_DQMEventProcessor_h
@@ -32,8 +32,8 @@ namespace stor {
    * to disk every N lumi-sections.
    *
    * $Author: mommsen $
-   * $Revision: 1.7 $
-   * $Date: 2011/04/19 16:01:55 $
+   * $Revision: 1.8 $
+   * $Date: 2011/11/08 10:48:40 $
    */
   
   class DQMEventProcessor : public toolbox::lang::Class
@@ -86,7 +86,7 @@ namespace stor {
 
     toolbox::task::WorkLoop* processWL_;      
 
-    DQMEventStore<I2OChain,InitMsgCollection,AlarmHandler> dqmEventStore_;
+    DQMEventStore<I2OChain,DataSenderMonitorCollection,AlarmHandler> dqmEventStore_;
 
   };
   

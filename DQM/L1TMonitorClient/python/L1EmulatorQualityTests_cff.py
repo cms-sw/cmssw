@@ -1,5 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 
+#
+# default configuration valid for online DQM
+#
+# configuration for online DQM
+#    perform tests on endLumi
+#    perform tests on endRun
+#
+# configuration for offline DQM
+#    perform tests on endRun only
+#
+# for both online and offline
+#    get the quality tests from an XML file
+#    no tests in event loop
+#    do not prescale
+#    verboseQT true, but reportThreshold empty
+
+
 # L1 systems quality tests
 
 # ECAL quality tests

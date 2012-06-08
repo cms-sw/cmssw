@@ -35,10 +35,16 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-	    'file:/afs/cern.ch/user/d/duarte/scratch0/step2_RAW2DIGI_RECO.root',
+	    #'file:/afs/cern.ch/user/d/duarte/scratch0/step2_RAW2DIGI_RECO.root',
+	    '/store/relval/CMSSW_5_2_0/RelValZMM/GEN-SIM-RECO/START52_V4A-v1/0248/BE2AD2B0-1569-E111-B555-003048678FF4.root',
     ),
     secondaryFileNames = cms.untracked.vstring(
-	    'file:/afs/cern.ch/user/d/duarte/scratch0/H130GGgluonfusion_cfi_py_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root',
+	    #'file:/afs/cern.ch/user/d/duarte/scratch0/H130GGgluonfusion_cfi_py_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root',
+           '/store/relval/CMSSW_5_2_0/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V4A-v1/0248/C493C02B-1569-E111-B86D-0030486792AC.root', 
+           '/store/relval/CMSSW_5_2_0/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V4A-v1/0000/E61E0884-0469-E111-8AF4-001BFCDBD160.root', 
+           '/store/relval/CMSSW_5_2_0/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V4A-v1/0000/56FCB9F3-0869-E111-85DA-001A928116EA.root', 
+           '/store/relval/CMSSW_5_2_0/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V4A-v1/0000/4E7E8D82-0469-E111-8839-002354EF3BCE.root', 
+           '/store/relval/CMSSW_5_2_0/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/START52_V4A-v1/0000/083CE9EB-0869-E111-979C-001A928116C4.root',
     )
 )
 

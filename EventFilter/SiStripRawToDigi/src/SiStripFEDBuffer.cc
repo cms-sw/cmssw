@@ -139,10 +139,12 @@ namespace sistrip {
     }
   }
   
-  bool FEDBuffer::channelGood(const uint8_t internalFEDChannelNum) const
+  bool FEDBuffer::channelGood(const uint8_t internalFEDChannelNum, const bool doAPVeCheck) const
   {
     return ( (internalFEDChannelNum < validChannels_) &&
-             feGood(internalFEDChannelNum/FEDCH_PER_FEUNIT) &&
+	     ( (doAPVeCheck && feGood(internalFEDChannelNum/FEDCH_PER_FEUNIT)) || 
+	       (!doAPVeCheck && feGoodWithoutAPVEmulatorCheck(internalFEDChannelNum/FEDCH_PER_FEUNIT)) 
+	       ) &&
              (this->readoutMode() == sistrip::READOUT_MODE_SCOPE || checkStatusBits(internalFEDChannelNum)) );
   }
 

@@ -82,5 +82,8 @@ hltSiPixelDigis = cms.Sequence(pixeltrackerlocalreco)
 hltSiPixelClusters = cms.Sequence(pixeltrackerlocalreco)
 hltSiPixelRecHits = cms.Sequence(pixeltrackerlocalreco)
 HLTDoLocalStripSequence = cms.Sequence(striptrackerlocalreco)
+
+HLTDoLocalPixelSequenceRegL2Tau = cms.Sequence(pixeltrackerlocalreco)
+
 from FastSimulation.Tracking.HLTIterativeTracking_cff import *
 

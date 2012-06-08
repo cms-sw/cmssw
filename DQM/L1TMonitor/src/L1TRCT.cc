@@ -1,13 +1,14 @@
 /*
  * \file L1TRCT.cc
  *
- * $Date: 2009/11/19 14:54:33 $
- * $Revision: 1.18 $
+ * $Date: 2012/03/30 10:24:07 $
+ * $Revision: 1.21 $
  * \author P. Wittich
  *
  */
 
 #include "DQM/L1TMonitor/interface/L1TRCT.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 
 // GCT and RCT data formats
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
@@ -40,8 +41,8 @@ const float ETAMAX = 21.5;
 
 
 L1TRCT::L1TRCT(const ParameterSet & ps) :
-   rctSource_( ps.getParameter< InputTag >("rctSource") )
-
+   rctSource_( ps.getParameter< InputTag >("rctSource") ),
+   filterTriggerType_ (ps.getParameter< int >("filterTriggerType"))
 {
 
   // verbosity switch
@@ -101,6 +102,9 @@ void L1TRCT::beginJob(void)
 
   if (dbe) {
     dbe->setCurrentFolder("L1T/L1TRCT");
+
+    triggerType_ =
+      dbe->book1D("TriggerType", "TriggerType", 17, -0.5, 16.5);
 
     rctIsoEmEtEtaPhi_ =
 	dbe->book2D("RctEmIsoEmEtEtaPhi", "ISO EM E_{T}", ETABINS, ETAMIN,
@@ -206,15 +210,48 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
     std::cout << "L1TRCT: analyze...." << std::endl;
   }
 
+  // filter according trigger type
+  //  enum ExperimentType {
+  //        Undefined          =  0,
+  //        PhysicsTrigger     =  1,
+  //        CalibrationTrigger =  2,
+  //        RandomTrigger      =  3,
+  //        Reserved           =  4,
+  //        TracedEvent        =  5,
+  //        TestTrigger        =  6,
+  //        ErrorTrigger       = 15
+
+  // fill a histogram with the trigger type, for normalization fill also last bin
+  // ErrorTrigger + 1
+  double triggerType = static_cast<double> (e.experimentType()) + 0.001;
+  double triggerTypeLast = static_cast<double> (edm::EventAuxiliary::ExperimentType::ErrorTrigger)
+                          + 0.001;
+  triggerType_->Fill(triggerType);
+  triggerType_->Fill(triggerTypeLast + 1);
+
+  // filter only if trigger type is greater than 0, negative values disable filtering
+  if (filterTriggerType_ >= 0) {
+
+      // now filter, for real data only
+      if (e.isRealData()) {
+          if (!(e.experimentType() == filterTriggerType_)) {
+
+              edm::LogInfo("L1TRCT") << "\n Event of TriggerType "
+                      << e.experimentType() << " rejected" << std::endl;
+              return;
+
+          }
+      }
+
+  }
+
   // Get the RCT digis
   edm::Handle < L1CaloEmCollection > em;
   edm::Handle < L1CaloRegionCollection > rgn;
 
-  // need to change to getByLabel
-  bool doEm = true; 
+  bool doEm = true;
   bool doHd = true;
 
-  
   e.getByLabel(rctSource_,rgn);
  
   if (!rgn.isValid()) {
@@ -280,7 +317,7 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
 			      iem->regionId().iphi(), iem->rank());
       if(iem->rank()>10){
 	rctIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
-			       iem->regionId().iphi());
+				 iem->regionId().iphi());
       }
       rctEmBx_->Fill(iem->bx());
       }
@@ -293,7 +330,7 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
 				 iem->regionId().iphi(), iem->rank());
       if(iem->rank()>10){
 	rctNonIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
-				  iem->regionId().iphi());
+				    iem->regionId().iphi());
       }
       rctEmBx_->Fill(iem->bx());
       }

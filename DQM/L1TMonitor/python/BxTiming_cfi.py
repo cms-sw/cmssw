@@ -8,7 +8,7 @@ bxTiming = cms.EDAnalyzer("BxTiming",
     GtBitList = cms.untracked.vint32(0, 1),
     ReferenceFedId = cms.untracked.int32(813),
     GtSource = cms.untracked.InputTag("gtDigis"),
-    FedSource = cms.untracked.InputTag("source"),
+    FedSource = cms.untracked.InputTag("rawDataCollector"),
     RunInFilterFarm = cms.untracked.bool(False)
 )
 

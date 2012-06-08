@@ -9,7 +9,6 @@
 #include <TString.h>
 #include "OHltRatePrinter.h"
 #include "OHltTree.h"
-#include "OHltPileupRateFitter.h"
 
 using namespace std;
 
@@ -30,8 +29,7 @@ void OHltRatePrinter::SetupAll(
       vector<float> tAverageRefPrescaleHLT,
       vector<float> tAverageRefPrescaleL1,
       vector< vector<int> > tCountPerLS,
-      vector<int> tTotalCountPerLS,
-      vector<double> tLumiPerLS)
+      vector<int> tTotalCountPerLS)
 {
    Rate = tRate;
    RateErr = tRateErr;
@@ -50,8 +48,7 @@ void OHltRatePrinter::SetupAll(
    averageRefPrescaleL1 = tAverageRefPrescaleL1;
    CountPerLS = tCountPerLS;
    totalCountPerLS = tTotalCountPerLS;
-   LumiPerLS = tLumiPerLS;
-
+     
    ReorderRunLS(); // reorder messed up runids/LS
 }
 
@@ -455,7 +452,6 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu)
    TH2F *individualCountsPerLS = new TH2F("individualCountsPerLS","individualCountsPerLS",nTrig,1,nTrig+1,
 	 RunLSn,RunLSmin,RunLSmax);
    TH1F *totalCountsPerLS = new TH1F("totalCountsPerLS","totalCountsPerLS",RunLSn,RunLSmin,RunLSmax);
-   TH1F *instLumiPerLS = new TH1F("instLumiPerLS","instLumiPerLS",RunLSn,RunLSmin,RunLSmax);
 
    float cumulRate = 0.;
    float cumulRateErr = 0.;
@@ -504,8 +500,6 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu)
       totalPerLS->GetXaxis()->SetBinLabel(j+1, tstr);
       totalCountsPerLS->SetBinContent(j+1, totalCountPerLS[j]);
       totalCountsPerLS->GetXaxis()->SetBinLabel(j+1, tstr);
-      instLumiPerLS->SetBinContent(j+1, LumiPerLS[j]);
-      instLumiPerLS->GetXaxis()->SetBinLabel(j+1, tstr);
 
       // L1
       for (unsigned int k=0; k<menu->GetL1TriggerSize(); k++)
@@ -621,37 +615,8 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu)
    totalCountsPerLS->SetZTitle("Events selected");
    totalCountsPerLS->SetTitle("Total trigger counts vs Run/LumiSection");
    totalCountsPerLS->Write();
-   instLumiPerLS->SetStats(0);
-   instLumiPerLS->SetZTitle("Events selected");
-   instLumiPerLS->SetTitle("Instantaneous lumi vs Run/LumiSection");
-   instLumiPerLS->Write();
-
 
    fr->Close();
-}
-
-/* ********************************************** */
-// Call pileup fitting 
-/* ********************************************** */
-void OHltRatePrinter::fitRatesForPileup(OHltConfig *cfg, OHltMenu *menu)
-{
-  TString tableFileName = GetFileName(cfg, menu);
-
-  TFile *fr = new TFile(tableFileName+TString(".root"),"UPDATE");
-  fr->cd();
-
-  OHltPileupRateFitter* pileupfitter = new OHltPileupRateFitter();
-  pileupfitter->fitForPileup(
-			     cfg,
-			     menu,
-			     RatePerLS,
-			     totalRatePerLS,
-			     LumiPerLS,
-			     CountPerLS,
-			     totalCountPerLS,
-			     fr);
-
-  fr->Close();
 }
 
 /* ********************************************** */
@@ -1248,10 +1213,6 @@ void OHltRatePrinter::ReorderRunLS()
 	    CountPerLS[j] = CountPerLS[j+1];
 	    CountPerLS[j+1] = swap6;
 
-	    double swap7 = LumiPerLS[j];
-	    LumiPerLS[j] = LumiPerLS[j+1];
-	    LumiPerLS[j+1] = swap7;
-	    
             //cout<<"<<<<<< "<<runID[j]<<" "<<runID[j+1]<<" "<<endl;
             //cout<<"<<<<<< "<<lumiSection[j]<<" "<<lumiSection[j+1]<<" "<<endl;
          }

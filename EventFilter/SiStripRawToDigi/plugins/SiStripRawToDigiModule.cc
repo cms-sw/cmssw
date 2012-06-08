@@ -23,7 +23,8 @@ namespace sistrip {
     cabling_(0),
     cacheId_(0),
     extractCm_(false),
-    doFullCorruptBufferChecks_(false)
+    doFullCorruptBufferChecks_(false),
+    doAPVEmulatorCheck_(true)
   {
     if ( edm::isDebugEnabled() ) {
       LogTrace("SiStripRawToDigi")
@@ -43,6 +44,8 @@ namespace sistrip {
     bool quiet = pset.getUntrackedParameter<bool>("Quiet",true);
     extractCm_ = pset.getParameter<bool>("UnpackCommonModeValues");
     doFullCorruptBufferChecks_ = pset.getParameter<bool>("DoAllCorruptBufferChecks");
+    doAPVEmulatorCheck_ = pset.getParameter<bool>("DoAPVEmulatorCheck");
+
     uint32_t errorThreshold = pset.getParameter<unsigned int>("ErrorThreshold");
 
     rawToDigi_ = new sistrip::RawToDigiUnpacker( appended_bytes, fed_buffer_dump_freq, fed_event_dump_freq, trigger_fed_id, using_fed_key, unpack_bad_channels, mark_missing_feds, errorThreshold);
@@ -50,7 +53,8 @@ namespace sistrip {
     rawToDigi_->useDaqRegister( use_daq_register ); 
     rawToDigi_->extractCm(extractCm_);
     rawToDigi_->doFullCorruptBufferChecks(doFullCorruptBufferChecks_);
-  
+    rawToDigi_->doAPVEmulatorCheck(doAPVEmulatorCheck_);
+
     produces< SiStripEventSummary >();
     produces< edm::DetSetVector<SiStripRawDigi> >("ScopeMode");
     produces< edm::DetSetVector<SiStripRawDigi> >("VirginRaw");

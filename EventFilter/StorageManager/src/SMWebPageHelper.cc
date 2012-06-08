@@ -1,4 +1,4 @@
-// $Id: SMWebPageHelper.cc,v 1.6 2011/11/17 17:35:40 mommsen Exp $
+// $Id: SMWebPageHelper.cc,v 1.7 2011/11/18 14:48:25 mommsen Exp $
 /// @file: SMWebPageHelper.cc
 
 #include <iomanip>
@@ -1714,7 +1714,7 @@ namespace stor
     tableDiv = maker.addNode("th", tableRow);
     maker.addText(tableDiv, "RB TID");
     tableDiv = maker.addNode("th", tableRow);
-    maker.addText(tableDiv, "# of FUs");
+    maker.addText(tableDiv, "# of EPs");
     tableDiv = maker.addNode("th", tableRow);
     maker.addText(tableDiv, "# of INIT messages");
     tableDiv = maker.addNode("th", tableRow);

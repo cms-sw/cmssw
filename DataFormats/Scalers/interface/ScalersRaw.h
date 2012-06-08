@@ -36,7 +36,7 @@ class ScalersRaw
     N_BX_v6               = 8,
     N_SPARE_v5            = 3,
     I_SPARE_PILEUP_v7     = 0,
-    I_SPARE_PILEUPRMS_v7  = 1,
+    I_SPARE_SPARE_v7      = 1,
     SCALERS_FED_ID        = 735
   };
 };

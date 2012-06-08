@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.cc,v 1.18 2011/05/24 10:14:58 mommsen Exp $
+// $Id: DataSenderMonitorCollection.cc,v 1.19 2011/11/14 11:49:22 mommsen Exp $
 /// @file: DataSenderMonitorCollection.cc
 
 #include <string>
@@ -32,39 +32,6 @@ namespace stor {
   {}
   
   
-  void DataSenderMonitorCollection::addFragmentSample(I2OChain const& i2oChain)
-  {
-    // focus only on INIT and event fragments, for now
-    if (i2oChain.messageCode() != Header::INIT &&
-      i2oChain.messageCode() != Header::EVENT) {return;}
-    if (i2oChain.fragmentCount() != 1) {return;}
-    
-    // fetch basic data from the I2OChain
-    double fragmentSize = static_cast<double>(i2oChain.totalDataSize());
-    
-    // look up the monitoring records that we need
-    bool pointersAreValid;
-    RBRecordPtr rbRecordPtr;
-    FURecordPtr fuRecordPtr;
-    OutModRecordPtr topLevelOutModPtr, rbSpecificOutModPtr, fuSpecificOutModPtr;
-    {
-      boost::mutex::scoped_lock sl(collectionsMutex_);
-      pointersAreValid = getAllNeededPointers(
-        i2oChain, rbRecordPtr, fuRecordPtr,
-        topLevelOutModPtr, rbSpecificOutModPtr,
-        fuSpecificOutModPtr);
-    }
-    
-    // accumulate the data of interest
-    if (pointersAreValid)
-    {
-      topLevelOutModPtr->fragmentSize.addSample(fragmentSize);
-      rbSpecificOutModPtr->fragmentSize.addSample(fragmentSize);
-      fuSpecificOutModPtr->fragmentSize.addSample(fragmentSize);
-    }
-  }
-  
-  
   void DataSenderMonitorCollection::addInitSample(I2OChain const& i2oChain)
   {
     // sanity checks
@@ -95,12 +62,13 @@ namespace stor {
       topLevelOutModPtr->initMsgSize = msgSize;
       
       ++rbRecordPtr->initMsgCount;
+      rbRecordPtr->nExpectedEPs += i2oChain.nExpectedEPs();
       rbSpecificOutModPtr->name = outModName;
       rbSpecificOutModPtr->initMsgSize = msgSize;
       
       ++fuRecordPtr->initMsgCount;
-    fuSpecificOutModPtr->name = outModName;
-    fuSpecificOutModPtr->initMsgSize = msgSize;
+      fuSpecificOutModPtr->name = outModName;
+      fuSpecificOutModPtr->initMsgSize = msgSize;
     }
   }
   
@@ -525,7 +493,8 @@ namespace stor {
     for (rbMapIter = resourceBrokerMap_.begin(); rbMapIter != rbMapEnd; ++rbMapIter)
     {
       RBRecordPtr rbRecordPtr = rbMapIter->second;
-      localEPCount += rbRecordPtr->filterUnitMap.size();
+      if ( rbRecordPtr->initMsgCount > 0 )
+        localEPCount += rbRecordPtr->nExpectedEPs / rbRecordPtr->initMsgCount;
       
       MonitoredQuantity::Stats skippedDiscardStats;
       rbRecordPtr->skippedDiscardCount.getStats(skippedDiscardStats);
@@ -539,7 +508,6 @@ namespace stor {
       rbRecordPtr->dataDiscardCount.getStats(dataDiscardStats);
       localMissingDataDiscardCount += rbRecordPtr->initMsgCount + eventStats.getSampleCount() +
         errorEventStats.getSampleCount() - dataDiscardStats.getSampleCount();
-      localEPCount -= errorEventStats.getSampleCount();
       
       MonitoredQuantity::Stats dqmEventStats;
       MonitoredQuantity::Stats dqmDiscardStats;
@@ -616,6 +584,21 @@ namespace stor {
     {
       alarmHandler_->revokeAlarm(alarmName);
     }
+  }
+
+  
+  size_t DataSenderMonitorCollection::getConnectedEPs() const
+  {
+    size_t count = 0;
+    std::map<UniqueResourceBrokerID_t, RBRecordPtr>::const_iterator rbMapIter;
+    std::map<UniqueResourceBrokerID_t, RBRecordPtr>::const_iterator rbMapEnd =
+      resourceBrokerMap_.end();
+    for (rbMapIter = resourceBrokerMap_.begin(); rbMapIter != rbMapEnd; ++rbMapIter)
+    {
+      if ( rbMapIter->second->initMsgCount > 0 )
+        count += rbMapIter->second->nExpectedEPs / rbMapIter->second->initMsgCount;
+    }
+    return count;
   }
 
   
@@ -807,7 +790,7 @@ namespace stor {
   {
     RBResultPtr result(new ResourceBrokerResult(rbRecordPtr->key));
     
-    result->filterUnitCount = rbRecordPtr->filterUnitMap.size();
+    result->filterUnitCount = rbRecordPtr->initMsgCount>0 ? rbRecordPtr->nExpectedEPs / rbRecordPtr->initMsgCount : 0;
     result->initMsgCount = rbRecordPtr->initMsgCount;
     result->lastRunNumber = rbRecordPtr->lastRunNumber;
     result->lastEventNumber = rbRecordPtr->lastEventNumber;

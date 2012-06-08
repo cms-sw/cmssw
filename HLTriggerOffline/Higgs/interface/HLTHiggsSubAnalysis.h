@@ -26,15 +26,15 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/METReco/interface/PFMET.h"
-#include "DataFormats/METReco/interface/PFMETFwd.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -53,22 +53,8 @@
 class EVTColContainer;
 
 class HLTHiggsSubAnalysis 
-{
+{	
        	public:
-		enum 
-		{
-			MUON,
-			ELEC,
-			PHOTON,
-			CALOMET,
-			PFMET,
-			PFTAU,
-			JET,
-			PFJET,
-			MHT,
-			_nMAX
-		};
-
 		enum
 		{
 			GEN,
@@ -83,7 +69,6 @@ class HLTHiggsSubAnalysis
 	      	void analyze(const edm::Event & iEvent, const edm::EventSetup & iEventSetup, EVTColContainer * cols);
 
 		//! Extract what objects need this analysis
-		const std::vector<unsigned int> getObjectsType() const; // TO BE DEPRECATED
 		const std::vector<unsigned int> getObjectsType(const std::string & hltpath) const;
 
 		
@@ -92,8 +77,7 @@ class HLTHiggsSubAnalysis
 		void initobjects(const edm::Event & iEvent, EVTColContainer * col);
 		void InitSelector(const unsigned int & objtype);
 		void insertcandidates(const unsigned int & objtype, const EVTColContainer * col,
-				std::vector<MatchStruct> & matches);
-		const std::string getTypeString(const unsigned int & objtype) const;
+				std::vector<MatchStruct> * matches);
 
 		void bookHist(const std::string & source, const std::string & objType,
 			       	const std::string & variable);
@@ -122,27 +106,28 @@ class HLTHiggsSubAnalysis
 	      	std::string _genParticleLabel;
 		std::map<unsigned int,std::string> _recLabels;
 		
-		//! 
+		//! Some kinematical parameters
 	      	std::vector<double> _parametersEta;
 	      	std::vector<double> _parametersPhi;
 	      	std::vector<double> _parametersTurnOn;
 		
-		std::map<unsigned int,double> _cutMinPt;
+		std::map<unsigned int,double> _cutMinPt;   
 		std::map<unsigned int,double> _cutMaxEta;
-		std::map<unsigned int,unsigned int> _cutMotherId;
-		std::map<unsigned int,std::vector<double> > _cutsDr;
+		std::map<unsigned int,unsigned int> _cutMotherId;    //TO BE DEPRECATED (HLTMATCH)
+		std::map<unsigned int,std::vector<double> > _cutsDr; // TO BE DEPRECATED (HLTMATCH)
 		//! gen/rec objects cuts
 		std::map<unsigned int,std::string> _genCut;
 		std::map<unsigned int,std::string> _recCut;
 
-	      	StringCutObjectSelector<reco::GenParticle> * _genSelector;
+		//! The concrete String selectors (use the string cuts introduced
+		//! via the config python)
+		std::map<unsigned int,StringCutObjectSelector<reco::GenParticle> *> _genSelectorMap;
 	      	StringCutObjectSelector<reco::Muon>        * _recMuonSelector;
 	      	StringCutObjectSelector<reco::GsfElectron> * _recElecSelector;
-	      	//StringCutObjectSelector<reco::caloMET>    * _recMETSelector;
-/*	      	StringCutObjectSelector<reco::pfMET>        * _recPFMETSelector;
-	      	StringCutObjectSelector<reco::Jet>         * _recJetSelector;
-	      	StringCutObjectSelector<reco::pfJet>       * _recPFJetSelector;*/
+	      	StringCutObjectSelector<reco::CaloMET>     * _recCaloMETSelector;
+	      	StringCutObjectSelector<reco::PFTau>       * _recPFTauSelector;
 	      	StringCutObjectSelector<reco::Photon>      * _recPhotonSelector;
+	      	StringCutObjectSelector<reco::Track>       * _recTrackSelector;
 		
 		// The plotters: managers of each hlt path where the plots are done
 		std::vector<HLTHiggsPlotter> _analyzers;

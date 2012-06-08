@@ -9,16 +9,13 @@ ak5PFJetsFiltered = ak5PFJets.clone(
     nFilt = cms.int32(3),
     rFilt = cms.double(0.3),
     useExplicitGhosts = cms.bool(True),
-    writeCompound = cms.bool(True),
-    jetCollInstanceName=cms.string("SubJets")
+    writeCompound = cms.bool(True)
     )
 
 
 ak5PFJetsMassDropFiltered = ak5PFJetsFiltered.clone(
     useMassDropTagger = cms.bool(True),
     muCut = cms.double(0.667),
-    yCut = cms.double(0.08),
-    writeCompound = cms.bool(True),
-    jetCollInstanceName=cms.string("SubJets")
+    yCut = cms.double(0.08)
     )
 

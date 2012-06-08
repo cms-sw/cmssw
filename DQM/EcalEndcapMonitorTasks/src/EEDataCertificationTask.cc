@@ -1,8 +1,8 @@
 /*
  * \file EEDataCertificationTask.cc
  *
- * $Date: 2011/08/30 09:28:42 $
- * $Revision: 1.28 $
+ * $Date: 2011/06/27 12:16:03 $
+ * $Revision: 1.26.4.1 $
  * \author E. Di Marco
  *
 */
@@ -45,9 +45,7 @@ EEDataCertificationTask::EEDataCertificationTask(const edm::ParameterSet& ps) {
   meEEDataCertificationSummaryMap_ = 0;
   for (int i = 0; i < 18; i++) {
     meEEDataCertification_[i] = 0;
-    meEEReportSummaryContents_[i] = 0;
   }
-  meEEReportSummary_ = 0;
 
   hDQM_ = 0;
   hDAQ_ = 0;
@@ -69,10 +67,11 @@ void EEDataCertificationTask::beginJob(void){
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
 
-    meEEDataCertificationSummary_ = dqmStore_->bookFloat( "CertificationSummary EE" );
+    meEEDataCertificationSummary_ = dqmStore_->bookFloat( "CertificationSummary" );
     meEEDataCertificationSummary_->Fill(-1.0);
 
-    meEEDataCertificationSummaryMap_ = dqmStore_->book2D("CertificationSummaryMap EE", "Ecal Data Certification Summary Map EE", 40, 0., 200., 20, 0., 100.);
+    name = "CertificationSummaryMap";
+    meEEDataCertificationSummaryMap_ = dqmStore_->book2D(name, name, 40, 0., 200., 20, 0., 100.);
     meEEDataCertificationSummaryMap_->setAxisTitle("ix / ix+100", 1);
     meEEDataCertificationSummaryMap_->setAxisTitle("iy", 2);
 

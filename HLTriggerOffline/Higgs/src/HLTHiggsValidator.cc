@@ -8,7 +8,7 @@
 // Jordi Duarte Campderros (based on the Jason Slaunwhite 
 // and Jeff Klukas coded from the HLTriggerOffline/Muon package
 //
-// $Id: HLTHiggsValidator.cc,v 1.2 2012/03/16 01:55:33 duarte Exp $
+// $Id: HLTHiggsValidator.cc,v 1.5 2012/03/19 11:59:50 duarte Exp $
 //
 //
 
@@ -53,7 +53,6 @@ void HLTHiggsValidator::beginRun(const edm::Run & iRun, const edm::EventSetup & 
 			iter != _analyzers.end(); ++iter) 
 	{
 	    	iter->beginRun(iRun, iSetup);
-	
 	}
 }
 	

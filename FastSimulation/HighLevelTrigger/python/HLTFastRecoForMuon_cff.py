@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+import FastSimulation.HighLevelTrigger.DummyModule_cfi
+from FastSimulation.Tracking.GlobalPixelTracking_cff import *
+
 # RecoMuon flux ##########################################################
 # L2 seeds from L1 input
 # module hltL2MuonSeeds = L2MuonSeeds from "RecoMuon/L2MuonSeedGenerator/data/L2MuonSeeds.cfi"
@@ -51,15 +54,7 @@ from FastSimulation.Tracking.GlobalPixelTracking_cff import *
 
 
 # Seeds (just clone the hltMuTrackSeeds with a different InputVertexCollection, for now):
-hltJpsiTkPixelSeedFromL3Candidate = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
-    useEventsWithNoVertex = cms.bool( True ),
-    originHalfLength = cms.double( 1.0E9 ),
-    useProtoTrackKinematics = cms.bool( False ),
-    InputVertexCollection = cms.InputTag( "hltDisplacedmumuVtxProducerDoubleMu4JpsiTk" ),
-    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-    InputCollection = cms.InputTag( "hltL3Muons" ),
-    originRadius = cms.double( 1.0 )
-)
+hltJpsiTkPixelSeedFromL3Candidate = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 
 
 # CKFTrackCandidateMaker
@@ -83,11 +78,7 @@ hltMuTrackJpsiEffCkfTrackCandidates.TrackProducers = []
 hltMuTrackJpsiEffCkfTrackCandidates.SeedCleaning = True
 hltMuTrackJpsiEffCkfTrackCandidates.SplitHits = False
 
-hltCkfTrackCandidatesJpsiTk = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-hltCkfTrackCandidatesJpsiTk.SeedProducer = cms.InputTag("hltJpsiTkPixelSeedFromL3Candidate")
-hltCkfTrackCandidatesJpsiTk.TrackProducers = []
-hltCkfTrackCandidatesJpsiTk.SeedCleaning = True
-hltCkfTrackCandidatesJpsiTk.SplitHits = False
+hltCkfTrackCandidatesJpsiTk = cms.Sequence(globalPixelTracking)
 
 
 # CTF track fit with material

@@ -197,11 +197,7 @@ if __name__=='__main__':
     parser.add_argument('--without-correction',
                         dest='withoutCorrection',
                         action='store_true',
-                        help='without fine correction')
-    parser.add_argument('--correctionv2',
-                        dest='correctionv2',
-                        action='store_true',
-                        help='apply correction v2')
+                        help='without fine correction')    
     parser.add_argument('--correctionv3',
                         dest='correctionv3',
                         action='store_true',
@@ -355,22 +351,16 @@ if __name__=='__main__':
         rruns=runlsfromDB.keys()
         session.transaction().start(True)
         schema=session.nominalSchema()
-        if options.correctionv2:
-            cterms=lumiCorrections.nonlinearV2()
-            finecorrections=lumiCorrections.correctionsForRangeV2(schema,rruns,cterms)#constant+nonlinear corrections
-            driftcorrections=lumiCorrections.driftcorrectionsForRange(schema,rruns,cterms)
-        elif options.correctionv3:
-            cterms=lumiCorrections.nonlinearV3()
-            finecorrections=lumiCorrections.correctionsForRangeV2(schema,rruns,cterms)#constant+nonlinear corrections
-            driftcorrections=lumiCorrections.driftcorrectionsForRange(schema,rruns,cterms)            
+        if options.correctionv3:
+            cterms=lumiCorrections.nonlinearV3()               
         else:#default
-            cterms=lumiCorrections.nonlinearSingle()
-            finecorrections=lumiCorrections.correctionsForRange(schema,rruns,cterms)
-            driftcorrections=None
+            cterms=lumiCorrections.nonlinearV2()
+        finecorrections=lumiCorrections.correctionsForRangeV2(schema,rruns,cterms)#constant+nonlinear corrections
+        driftcorrections=lumiCorrections.driftcorrectionsForRange(schema,rruns,cterms)
         session.transaction().commit()
     session.transaction().start(True)
     if not options.hltpath:
-        lumibyls=lumiCalcAPI.lumiForRange(session.nominalSchema(),runlsfromDB,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=(options.correctionv2 or options.correctionv3))
+        lumibyls=lumiCalcAPI.lumiForRange(session.nominalSchema(),runlsfromDB,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=True)
     else:
         referenceLabel='Recorded'
         hltname=options.hltpath
@@ -380,7 +370,7 @@ if __name__=='__main__':
         elif 1 in [c in hltname for c in '*?[]']: #is a fnmatch pattern
             hltpat=hltname
             hltname=None
-        lumibyls=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),runlsfromDB,hltpathname=hltname,hltpathpattern=hltpat,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=(options.correctionv2 or options.correctionv3))
+        lumibyls=lumiCalcAPI.effectiveLumiForRange(session.nominalSchema(),runlsfromDB,hltpathname=hltname,hltpathpattern=hltpat,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections,driftcorrections=driftcorrections,usecorrectionv2=True)
     session.transaction().commit()
     rawdata={}
     #

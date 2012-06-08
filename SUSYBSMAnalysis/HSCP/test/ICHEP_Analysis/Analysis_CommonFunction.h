@@ -132,11 +132,11 @@ double deltaR(double eta1, double phi1, double eta2, double phi2) {
 
 std::string LegendFromType(const std::string& InputPattern){
    if(InputPattern.find("Type0",0)<std::string::npos){
-      return std::string("Tk-Only");
+      return std::string("Tracker - Only");
    }else if(InputPattern.find("Type1",0)<std::string::npos){
       return std::string("Tracker + Muon");
    }else{
-      return std::string("Tk+TOF");
+      return std::string("Tracker + TOF");
    }
 }
 

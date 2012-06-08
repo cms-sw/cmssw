@@ -1,4 +1,4 @@
-// $Id: DbFileHandler.cc,v 1.9.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: DbFileHandler.cc,v 1.10 2011/03/07 15:31:32 mommsen Exp $
 /// @file: DbFileHandler.cc
 
 #include "EventFilter/StorageManager/interface/DbFileHandler.h"
@@ -19,6 +19,7 @@ namespace stor {
     std::ofstream outputFile;
     openFile(outputFile, timestamp);
     outputFile << str.c_str();
+    outputFile << std::endl;
     outputFile.close();
   }
   

@@ -24,7 +24,7 @@ hcalDeadCellMonitor=cms.EDAnalyzer("HcalDeadCellMonitor",
                                    # minimum number of events necessary for lumi-block-based checking to commence
                                    minDeadEventCount      = cms.untracked.int32(1000),
 
-                                   excludeHORing2         = cms.untracked.bool(True),
+                                   excludeHORing2         = cms.untracked.bool(False),
                                    excludeHO1P02          = cms.untracked.bool(True),
                                    #booleans for dead cell tests
                                    test_digis             = cms.untracked.bool(True), # test for recent missing digis

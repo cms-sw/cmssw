@@ -76,18 +76,13 @@ detachedTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajecto
     clustersToSkip = cms.InputTag('detachedTripletStepClusters'),
     maxCand = 2,
     alwaysUseInvalidHits = False,
-    estimator = cms.string('detachedTripletStepChi2Est'),
-    maxPtForLooperReconstruction = cms.double(-1) 
+    estimator = cms.string('detachedTripletStepChi2Est')
     )
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 detachedTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('detachedTripletStepSeeds'),
-    ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
-
     TrajectoryBuilder = 'detachedTripletStepTrajectoryBuilder',
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
@@ -97,8 +92,7 @@ detachedTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_c
 import RecoTracker.TrackProducer.TrackProducer_cfi
 detachedTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     AlgorithmName = cms.string('iter3'),
-    src = 'detachedTripletStepTrackCandidates',
-    Fitter = cms.string('FlexibleKFFittingSmoother')
+    src = 'detachedTripletStepTrackCandidates'
     )
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.

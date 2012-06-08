@@ -1,3 +1,4 @@
+
 #include "Analysis_Samples.h"
 
 
@@ -13,7 +14,7 @@ struct stPlots {
    float        Tree_Pt;
    float        Tree_I;
    float        Tree_TOF;
-   float        Tree_Mass;
+  float        Tree_Mass;
 
    TH2F*  Mass;
    TH2F*  MassTOF;
@@ -40,13 +41,7 @@ struct stPlots {
    TH2F*  MassComb_SystT;
    TH2F*  MaxEventMass_SystT;
 
-  TH2F*  Mass_SystPU;
-  TH2F*  MassTOF_SystPU;
-  TH2F*  MassComb_SystPU;
-  TH2F*  MaxEventMass_SystPU;
-
-   TH1F* TotalE;
-   TH1F* TotalEPU; 
+   TH1F* TotalE; 
    TH1F* TotalTE;
    TH1F* Total;
    TH1F* V3D; 
@@ -70,7 +65,6 @@ struct stPlots {
    TH1F* HSCPE_SystI;
    TH1F* HSCPE_SystM;
    TH1F* HSCPE_SystT;
-   TH1F* HSCPE_SystPU;
 
    TH1F* Beta_Gen;
    TH1F* Beta_GenCharged;
@@ -117,7 +111,6 @@ struct stPlots {
    TH2F*  BS_PtIm;         TH3F*  AS_PtIm;
    TH2F*  BS_TOFIs;        TH3F*  AS_TOFIs;  
    TH2F*  BS_TOFIm;        TH3F*  AS_TOFIm;   
-
 };
 
 void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned int NCuts, bool SkipSelectionPlot=false)
@@ -130,32 +123,31 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = BaseName;               st.Directory = HistoFile->mkdir(Name.c_str(), Name.c_str()); 
    st.Directory->cd();
 
-   Name = "TotalE";   st.TotalE  = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "TotalEPU"; st.TotalEPU= new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);
-   Name = "TotalTE";  st.TotalTE = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "Total";    st.Total   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "V3D";      st.V3D     = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "Chi2";     st.Chi2    = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "Qual";     st.Qual    = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "TNOH";     st.TNOH    = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "TNOM";     st.TNOM    = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);
-   Name = "nDof";     st.nDof    = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "Pterr";    st.Pterr   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "TIsol";    st.TIsol   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "EIsol";    st.EIsol   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "MPt";      st.MPt     = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "MI";       st.MI      = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "MTOF";     st.MTOF    = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
-   Name = "Pt";       st.Pt      = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);     
-   Name = "I";        st.I       = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);     
-   Name = "TOF";      st.TOF     = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);     
-   Name = "HSCPE";    st.HSCPE   = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);     
+   Name = "TotalE";   st.TotalE = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "TotalTE";  st.TotalTE= new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "Total";    st.Total  = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "V3D";      st.V3D    = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "Chi2";     st.Chi2   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "Qual";     st.Qual   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "TNOH";     st.TNOH   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "TNOM";     st.TNOM   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);
+   Name = "nDof";     st.nDof   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "Pterr";    st.Pterr  = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "TIsol";    st.TIsol  = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "EIsol";    st.EIsol  = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "MPt";      st.MPt    = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "MI";       st.MI     = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "MTOF";     st.MTOF   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);     
+   Name = "Pt";       st.Pt     = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);     
+   Name = "I";        st.I      = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);     
+   Name = "TOF";      st.TOF    = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);     
+   Name = "HSCPE";    st.HSCPE  = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);     
 
    Name = "HSCPE_SystP";    st.HSCPE_SystP  = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);
    Name = "HSCPE_SystI";    st.HSCPE_SystI  = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);
    Name = "HSCPE_SystM";    st.HSCPE_SystM  = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);
    Name = "HSCPE_SystT";    st.HSCPE_SystT  = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);
-   Name = "HSCPE_SystPU";   st.HSCPE_SystPU = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);
+
 
 
    Name = "Mass";     st.Mass     = new TH2F(Name.c_str(), Name.c_str(),NCuts,0,NCuts, MassNBins, 0, MassHistoUpperBound);   st.Mass    ->Sumw2();
@@ -183,10 +175,6 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "MassComb_SystT"; st.MassComb_SystT = new TH2F(Name.c_str(), Name.c_str(),NCuts,0,NCuts, MassNBins, 0, MassHistoUpperBound);   st.MassComb_SystT->Sumw2();
    Name = "MaxEventMass_SystT";     st.MaxEventMass_SystT = new TH2F(Name.c_str(), Name.c_str(),NCuts,0,NCuts, MassNBins, 0, MassHistoUpperBound);st.MaxEventMass_SystT->Sumw2();
 
-   Name = "Mass_SystPU";    st.Mass_SystPU     = new TH2F(Name.c_str(), Name.c_str(),NCuts,0,NCuts, MassNBins, 0, MassHistoUpperBound);   st.Mass_SystPU    ->Sumw2();
-   Name = "MassTOF_SystPU"; st.MassTOF_SystPU  = new TH2F(Name.c_str(), Name.c_str(),NCuts,0,NCuts, MassNBins, 0, MassHistoUpperBound);   st.MassTOF_SystPU ->Sumw2();
-   Name = "MassComb_SystPU";st.MassComb_SystPU = new TH2F(Name.c_str(), Name.c_str(),NCuts,0,NCuts, MassNBins, 0, MassHistoUpperBound);   st.MassComb_SystPU->Sumw2();
-   Name = "MaxEventMass_SystPU";  st.MaxEventMass_SystPU = new TH2F(Name.c_str(), Name.c_str(),NCuts,0,NCuts, MassNBins, 0, MassHistoUpperBound);st.MaxEventMass_SystPU->Sumw2();
 
    if(SkipSelectionPlot)return;
    Name = "Beta_Gen"         ; st.Beta_Gen         = new TH1F(Name.c_str(), Name.c_str(),                 20, 0,  1);  st.Beta_Gen         ->Sumw2();
@@ -215,6 +203,7 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_MTOF" ; st.BS_MTOF  = new TH1F(Name.c_str(), Name.c_str(),  50, -2, 5);                 st.BS_MTOF->Sumw2();
    Name = "BS_TIsol"; st.BS_TIsol = new TH1F(Name.c_str(), Name.c_str(),  25,  0, 100);               st.BS_TIsol->Sumw2();
    Name = "BS_EIsol"; st.BS_EIsol = new TH1F(Name.c_str(), Name.c_str(),  25,  0, 1.5);               st.BS_EIsol->Sumw2();
+
    Name = "BS_P"    ; st.BS_P     = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_P->Sumw2();
    Name = "BS_Pt"   ; st.BS_Pt    = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_Pt->Sumw2();
    Name = "BS_Is"   ; st.BS_Is    = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, dEdxS_UpLim);       st.BS_Is->Sumw2();
@@ -279,7 +268,6 @@ void stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName, T
    TH1::AddDirectory(kTRUE);
 
    st.TotalE            = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/TotalE");
-   st.TotalEPU          = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/TotalEPU");
    st.TotalTE           = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/TotalTE");
    st.Total             = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/Total");
    st.V3D               = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/V3D");
@@ -303,7 +291,6 @@ void stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName, T
    st.HSCPE_SystI       = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/HSCPE_SystI");
    st.HSCPE_SystM       = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/HSCPE_SystM");
    st.HSCPE_SystT       = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/HSCPE_SystT");
-   st.HSCPE_SystPU      = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/HSCPE_SystPU");
 
    st.Mass              = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/Mass");
    st.MassTOF           = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/MassTOF");
@@ -325,10 +312,6 @@ void stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName, T
    st.MassComb_SystT    = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/MassComb_SystT");
    st.MaxEventMass_SystT    = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/MaxEventMass_SystT");
 
-   st.Mass_SystPU        = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/Mass_SystPU");
-   st.MassTOF_SystPU     = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/MassTOF_SystPU");
-   st.MassComb_SystPU    = (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/MassComb_SystPU");
-   st.MaxEventMass_SystPU= (TH2F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/MaxEventMass_SystPU");
 
    st.Beta_Gen          = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/Beta_Gen");
    st.Beta_GenCharged   = (TH1F*)GetObjectFromPath(st.Directory, InputFile,  BaseName + "/Beta_GenCharged");
@@ -897,8 +880,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    char tmp[2048];
    sprintf(tmp,"Fraction of tracks/%0.2f",Histos[0]->GetBinWidth(1));
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend.c_str(), tmp, 0,0, 0,0);
-   if(IsTkOnly) DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.76, 0.65, 0.13, 0.05);
-   else DrawLegend((TObject**)Histos,legend,LegendTitle,"P",  0.76, 0.65);
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P",  0.76, 0.65);
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Is_BS");
@@ -940,9 +922,8 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_Pt; legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral()); }
    sprintf(tmp,"Fraction of tracks/%2.0f GeV/c",Histos[0]->GetBinWidth(1));
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} (GeV/c)", tmp, 0,1250, 0.000000001, 1.2);
-   if(IsTkOnly) DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.4, 0.42, 0.13, 0.05);
-   else DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.4, 0.42);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} (GeV/c)", tmp, 0,1250, 0,0);
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.86, 0.94);
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Pt_BS");
@@ -965,10 +946,10 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    //char tmp[2048];
    sprintf(tmp,"Fraction of tracks/%0.2f",Histos[0]->GetBinWidth(1));
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", tmp, 1,4, 0,0);
-   DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.81);//,0.35);
+   DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.82);//,0.35);
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"TOF_BS");
+   SaveCanvas(c1,SavePath,"TOF_BS", true);
    delete c1;
    
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
@@ -978,7 +959,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    DrawLegend((TObject**)Histos,legend,LegendTitle,"P");//, 0.35);
    c1->SetLogy(true);
    DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,std::string("TOF_AS")+CutIndexStr);
+   SaveCanvas(c1,SavePath,std::string("TOF_AS")+CutIndexStr, true);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
 }

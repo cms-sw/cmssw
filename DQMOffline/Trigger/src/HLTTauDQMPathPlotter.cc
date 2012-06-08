@@ -155,7 +155,6 @@ void HLTTauDQMPathPlotter::analyze( const edm::Event& iEvent, const edm::EventSe
 
 LVColl HLTTauDQMPathPlotter::getFilterCollection( size_t filterID, int id, const trigger::TriggerEventWithRefs& trigEv ) {
     using namespace trigger;
-    
     LVColl out;
     
     if ( id == trigger::TriggerL1IsoEG || id == trigger::TriggerL1NoIsoEG ) {
@@ -206,10 +205,26 @@ LVColl HLTTauDQMPathPlotter::getFilterCollection( size_t filterID, int id, const
     if ( id == trigger::TriggerTau ) {
         VRjet obj;
         trigEv.getObjects(filterID,id,obj);
-        for (size_t i=0;i<obj.size();++i)
-            if (obj.at(i).isAvailable())
+        for (size_t i = 0; i < obj.size(); ++i) {
+            if (obj.at(i).isAvailable()) {
                 out.push_back(obj[i]->p4());
+            }
+        }
+        VRpfjet pfjetobj;
+        trigEv.getObjects(filterID,id,pfjetobj);
+        for (size_t i = 0; i < pfjetobj.size(); ++i) {
+            if (pfjetobj.at(i).isAvailable()) {
+                out.push_back(pfjetobj[i]->p4());
+            }
+        }
+        VRpftau pftauobj;
+        trigEv.getObjects(filterID,id,pftauobj);
+        for (size_t i = 0; i < pftauobj.size(); ++i) {
+            if (pftauobj.at(i).isAvailable()) {
+                out.push_back(pftauobj[i]->p4());
+            }
+        }
     }
-    
+
     return out;
 }

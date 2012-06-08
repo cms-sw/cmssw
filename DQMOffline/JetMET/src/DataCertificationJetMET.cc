@@ -5,7 +5,7 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.50 2011/12/05 19:04:30 dutta Exp $
+// $Id: DataCertificationJetMET.cc,v 1.51 2012/02/27 15:54:59 piedra Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -593,10 +593,10 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   //
   // Prepare test histograms
   //
-  MonitorElement *meMExy[5][2];
-  MonitorElement *meMEt[5];
-  MonitorElement *meSumEt[5];
-  MonitorElement *meMETPhi[5];
+  MonitorElement *meMExy[4][2];
+  MonitorElement *meMEt[4];
+  MonitorElement *meSumEt[4];
+  MonitorElement *meMETPhi[4];
   //MonitorElement *meMETEMFrac[5];
   //MonitorElement *meMETEmEt[3][2];
   //MonitorElement *meMETHadEt[3][2];
@@ -612,56 +612,56 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   //MEx/MEy monitor elements
   meMExy[0][0] = dbe_->get(newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEx");
   meMExy[0][1] = dbe_->get(newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEy");
-  meMExy[1][0] = dbe_->get(newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEx");
-  meMExy[1][1] = dbe_->get(newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEy");
-  meMExy[2][0] = dbe_->get(newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfMEx");
-  meMExy[2][1] = dbe_->get(newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfMEy");
-  meMExy[3][0] = dbe_->get(newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_MEx");
-  meMExy[3][1] = dbe_->get(newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_MEy");
-  meMExy[4][0] = dbe_->get(newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEx");
-  meMExy[4][1] = dbe_->get(newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEy");
+  //  meMExy[1][0] = dbe_->get(newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEx");
+  //  meMExy[1][1] = dbe_->get(newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEy");
+  meMExy[1][0] = dbe_->get(newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfMEx");
+  meMExy[1][1] = dbe_->get(newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfMEy");
+  meMExy[2][0] = dbe_->get(newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_MEx");
+  meMExy[2][1] = dbe_->get(newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_MEy");
+  meMExy[3][0] = dbe_->get(newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEx");
+  meMExy[3][1] = dbe_->get(newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEy");
   //MET Phi monitor elements
   meMETPhi[0]  = dbe_->get(newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMETPhi");
-  meMETPhi[1]  = dbe_->get(newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMETPhi");
-  meMETPhi[2]  = dbe_->get(newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfMETPhi");
-  meMETPhi[3]  = dbe_->get(newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_METPhi");
-  meMETPhi[4]  = dbe_->get(newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMETPhi");
+  //  meMETPhi[1]  = dbe_->get(newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMETPhi");
+  meMETPhi[1]  = dbe_->get(newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfMETPhi");
+  meMETPhi[2]  = dbe_->get(newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_METPhi");
+  meMETPhi[3]  = dbe_->get(newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMETPhi");
   //MET monitor elements
   meMEt[0]  = dbe_->get(newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMET");
-  meMEt[1]  = dbe_->get(newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMET");
-  meMEt[2]  = dbe_->get(newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfMET");
-  meMEt[3]  = dbe_->get(newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_MET");
-  meMEt[4]  = dbe_->get(newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMET");
+  //  meMEt[1]  = dbe_->get(newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMET");
+  meMEt[1]  = dbe_->get(newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfMET");
+  meMEt[2]  = dbe_->get(newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_MET");
+  meMEt[3]  = dbe_->get(newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMET");
   //SumET monitor elements
   meSumEt[0]  = dbe_->get(newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloSumET");
-  meSumEt[1]  = dbe_->get(newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloSumET");
-  meSumEt[2]  = dbe_->get(newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfSumET");
-  meSumEt[3]  = dbe_->get(newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_SumET");
-  meSumEt[4]  = dbe_->get(newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloSumET");
+  //  meSumEt[1]  = dbe_->get(newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloSumET");
+  meSumEt[1]  = dbe_->get(newHistoName+"PfMET/"+cleaningdir+"/"+metFolder+"/METTask_PfSumET");
+  meSumEt[2]  = dbe_->get(newHistoName+"TcMET/"+cleaningdir+"/"+metFolder+"/METTask_SumET");
+  meSumEt[3]  = dbe_->get(newHistoName+"MuCorrMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloSumET");
 				   
   //----------------------------------------------------------------------------
   //--- Extract quality test results and fill data certification results for MET
   //----------------------------------------------------------------------------
 
-  //5 types of MET {CaloMET, CaloMETNoHF, PfMET, TcMET, MuCorrMET}
-  //2 types of tests Mean test/Kolmogorov test
-  const QReport * QReport_MExy[5][2][2];
-  const QReport * QReport_MEt[5][2];
-  const QReport * QReport_SumEt[5][2];
+  // 4 types of MET {CaloMET, PfMET, TcMET, MuCorrMET}  // It is 5 if CaloMETNoHF is included
+  // 2 types of tests Mean test/Kolmogorov test
+  const QReport * QReport_MExy[4][2][2];
+  const QReport * QReport_MEt[4][2];
+  const QReport * QReport_SumEt[4][2];
   //2 types of tests phiQTest and Kolmogorov test
-  const QReport * QReport_METPhi[5][2];
+  const QReport * QReport_METPhi[4][2];
 
 
-  float qr_MET_MExy[5][2][2] = {{{-999.}}};
-  float qr_MET_MEt[5][2]     = {{-999.}};
-  float qr_MET_SumEt[5][2]   = {{-999.}};
-  float qr_MET_METPhi[5][2]  = {{-999.}};
-  float dc_MET[5]            = {-999.};
+  float qr_MET_MExy[4][2][2] = {{{-999.}}};
+  float qr_MET_MEt[4][2]     = {{-999.}};
+  float qr_MET_SumEt[4][2]   = {{-999.}};
+  float qr_MET_METPhi[4][2]  = {{-999.}};
+  float dc_MET[4]            = {-999.};
 
 
   // J.Piedra, 27/02/212
-  // Started the process to remove MuCorrMET --> loop up to 4 instead of 5
-  for (int mtyp = 0; mtyp < 4; ++mtyp){
+  // Started the process to remove MuCorrMET --> loop up to 3 instead of 4
+  for (int mtyp = 0; mtyp < 3; ++mtyp){
     //Mean test results
     //std::cout<<"meMEx = :"<<meMExy[mtyp][0]<<std::endl;
     //std::cout<<"meMEy = :"<<meMExy[mtyp][1]<<std::endl;

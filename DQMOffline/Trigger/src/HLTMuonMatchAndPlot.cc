@@ -1,8 +1,8 @@
  /** \file DQMOffline/Trigger/HLTMuonMatchAndPlot.cc
  *
- *  $Author: klukas $
- *  $Date: 2011/10/19 19:58:52 $
- *  $Revision: 1.30 $
+ *  $Author: rovere $
+ *  $Date: 2011/12/02 10:26:30 $
+ *  $Revision: 1.31 $
  */
 
 
@@ -476,7 +476,9 @@ void HLTMuonMatchAndPlot::book1D(string name, string binningType, string title)
 
   hists_[name] = dbe_->book1D(name, title, nBins, edges);
   if (hists_[name])
-    hists_[name]->getTH1F()->Sumw2();
+    if (hists_[name]->getTH1F()->GetSumw2N())
+      hists_[name]->getTH1F()->Sumw2();
+
   if (edges)
     delete [] edges;
 }
@@ -505,7 +507,8 @@ HLTMuonMatchAndPlot::book2D(string name, string binningTypeX,
   hists_[name] = dbe_->book2D(name.c_str(), title.c_str(),
 			      nBinsX, edgesX, nBinsY, edgesY);
   if (hists_[name])
-    hists_[name]->getTH2F()->Sumw2();
+    if (hists_[name]->getTH2F()->GetSumw2N())
+      hists_[name]->getTH2F()->Sumw2();
 
   if (edgesX)
     delete [] edgesX;

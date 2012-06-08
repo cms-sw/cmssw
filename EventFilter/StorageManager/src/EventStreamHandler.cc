@@ -1,4 +1,4 @@
-// $Id: EventStreamHandler.cc,v 1.8 2011/03/07 15:31:32 mommsen Exp $
+// $Id: EventStreamHandler.cc,v 1.10 2012/04/04 12:17:01 mommsen Exp $
 /// @file: EventStreamHandler.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -34,14 +34,13 @@ namespace stor {
     // INIT messages have been received)
     if (initMsgView_.get() == 0)
     {
-      initMsgView_ = initMsgCollection_->getElementForOutputModule(streamConfig_.outputModuleLabel());
+      initMsgView_ = initMsgCollection_->getElementForOutputModuleId( event.outputModuleId() );
     }
     
     FilesMonitorCollection::FileRecordPtr fileRecord = getNewFileRecord(event);
     
     FileHandlerPtr newFileHandler(
-      new EventFileHandler(initMsgView_, fileRecord, dbFileHandler_,
-        diskWritingParams_, getMaxFileSize())
+      new EventFileHandler(initMsgView_, fileRecord, dbFileHandler_, getMaxFileSize())
     );
     fileHandlers_.push_back(newFileHandler);
     

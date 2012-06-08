@@ -208,7 +208,7 @@ bool L1RCTLookupTables::hOeFGVetoBit(float ecal, float hcal, bool fgbit) const
     {
       if(fgbit) veto = true;
     }
-  if(ecal > rctParameters_->eMinForHoECut() && 
+  if(ecal >= rctParameters_->eMinForHoECut() && 
      ecal < rctParameters_->eMaxForHoECut())
     {
       if((hcal / ecal) > rctParameters_->hOeCut()) veto = true;
@@ -216,7 +216,7 @@ bool L1RCTLookupTables::hOeFGVetoBit(float ecal, float hcal, bool fgbit) const
   //  else
   if (ecal < rctParameters_->eMinForHoECut())
     {
-      if(hcal > rctParameters_->hMinForHoECut()) veto = true;  // Changed from eMinForHoECut() - JLL 2008-Feb-13
+      if(hcal >= rctParameters_->hMinForHoECut()) veto = true;  // Changed from eMinForHoECut() - JLL 2008-Feb-13
     }
   return veto;
 }

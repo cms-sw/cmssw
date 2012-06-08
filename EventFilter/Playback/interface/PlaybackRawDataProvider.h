@@ -23,13 +23,15 @@ public:
   virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
+  virtual void respondToCloseInputFile(edm::FileBlock const& fb);
 
   // provide cached fed collection (and run/evt number, if needed!)
   virtual FEDRawDataCollection* getFEDRawData();
   virtual FEDRawDataCollection* getFEDRawData(unsigned int& runNumber,
 					      unsigned int& evtNumber);
   void setFreeToEof();
-  
+  bool areFilesClosed();
+
   static PlaybackRawDataProvider* instance();
   
   
@@ -66,6 +68,8 @@ private:
   unsigned int           writeIndex_;
   unsigned int           readIndex_;
   bool                   freeToEof_;
+  bool                   filesClosed_;
+  bool                   destroying_;
 };
 
 

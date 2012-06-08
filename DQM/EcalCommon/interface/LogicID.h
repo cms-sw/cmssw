@@ -5,8 +5,8 @@
   \file LogicID.h
   \brief Cache logicID vector from database
   \author B. Gobbo 
-  \version $Revision: 1.13 $
-  \date $Date: 2010/08/20 19:09:03 $
+  \version $Revision: 1.12 $
+  \date $Date: 2010/08/06 12:28:07 $
 */
 
 #include <vector>
@@ -109,6 +109,7 @@ static EcalLogicID getEcalLogicID( const char* name,
   }
 
   throw( std::runtime_error( "Unknown 'name': " + std::string( name ) ) );
+  return( EcalLogicID( std::string( "" ), EcalLogicID::NULLID ) );
 
 }
 

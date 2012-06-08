@@ -31,9 +31,6 @@ DEFINE_FWK_MODULE(L1TRPCTF);
 #include <DQM/L1TMonitor/interface/L1TGMT.h>
 DEFINE_FWK_MODULE(L1TGMT);
 
-#include <DQM/L1TMonitor/interface/L1TECALTPG.h>
-DEFINE_FWK_MODULE(L1TECALTPG);
-
 
 #include <DQM/L1TMonitor/interface/L1TGCT.h>
 DEFINE_FWK_MODULE(L1TGCT);
@@ -54,9 +51,6 @@ DEFINE_FWK_MODULE(BxTiming);
 
 #include "DQM/L1TMonitor/interface/L1TDEMON.h"
 DEFINE_FWK_MODULE(L1TDEMON);
-
-#include "DQM/L1TMonitor/interface/L1TdeECAL.h"
-DEFINE_FWK_MODULE(L1TdeECAL);
 
 #include "DQM/L1TMonitor/interface/L1TdeGCT.h"
 DEFINE_FWK_MODULE(L1TdeGCT);

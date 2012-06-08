@@ -32,15 +32,15 @@ l1compare = cms.EDProducer("L1Comparator",
     GLTsourceEmul = cms.InputTag("valGtDigis"),
     LTCsourceData = cms.InputTag("none"),
     LTCsourceEmul = cms.InputTag("none"),
-    FEDsourceData = cms.untracked.InputTag("source"),
-    FEDsourceEmul = cms.untracked.InputTag("source"),
+    FEDsourceData = cms.untracked.InputTag("rawDataCollector"),
+    FEDsourceEmul = cms.untracked.InputTag("rawDataCollector"),
     FEDid = cms.untracked.int32(735),
     DumpMode = cms.untracked.int32(0),
     DumpFile = cms.untracked.string('dump.txt'),
     VerboseFlag = cms.untracked.int32(0),
     COMPARE_COLLS = cms.untracked.vuint32(
-    1, 1, 1, 1,  1, 1, 1, 1, 1,  0, 1, 1
-    # ETP,HTP,RCT,GCT, DTP,DTF,CTP,CTF,RPC, LTC,GMT,GT
+        0,  0,  1,  1,   0,  1,  0,  0,  1,  0,  1, 0
+    # ETP,HTP,RCT,GCT, DTP,DTF,CTP,CTF,RPC,LTC,GMT,GT
     )
 )
 

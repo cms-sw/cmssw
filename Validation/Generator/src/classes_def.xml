@@ -1,5 +1,0 @@
-<lcgdict>
-  <class name="edm::RefToBaseVector<reco::CaloJet>"/>
-  <class name="edm::Wrapper<edm::RefToBaseVector<reco::CaloJet> >"/>
-  <class name="edm::reftobase::BaseVectorHolder<reco::CaloJet>"/>
-</lcgdict>

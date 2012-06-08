@@ -237,6 +237,8 @@ bool BU::stopping(toolbox::task::WorkLoop* wl)
       }
       // let the playback go to the last event and exit
       PlaybackRawDataProvider::instance()->setFreeToEof(); 
+      while (!PlaybackRawDataProvider::instance()->areFilesClosed()) usleep(1000000);
+      usleep(100000);
     }
     
     lock();
@@ -248,6 +250,8 @@ bool BU::stopping(toolbox::task::WorkLoop* wl)
       LOG4CPLUS_INFO(log_,"wait to flush ...");
       ::sleep(1);
     }
+    reset();
+    /* this is not needed and should not run if reset is called
     if (0!=PlaybackRawDataProvider::instance()&&
 	(replay_.value_&&nbEventsBuilt_>=(uint32_t)events_.size())) {
       lock();
@@ -255,6 +259,7 @@ bool BU::stopping(toolbox::task::WorkLoop* wl)
       unlock();
       postBuild();
     }
+    */
     LOG4CPLUS_INFO(log_,"Finished stopping!");
     fsm_.fireEvent("StopDone",this);
   }
@@ -280,6 +285,12 @@ bool BU::halting(toolbox::task::WorkLoop* wl)
       postBuild();
       postSend();
     }
+    if (0!=PlaybackRawDataProvider::instance()&&
+	(!replay_.value_||nbEventsBuilt_<(uint32_t)events_.size())) { 
+      PlaybackRawDataProvider::instance()->setFreeToEof();
+      while (!PlaybackRawDataProvider::instance()->areFilesClosed()) usleep(1000000);
+      usleep(100000);
+    }
     LOG4CPLUS_INFO(log_,"Finished halting!");
     fsm_.fireEvent("HaltDone",this);
   }
@@ -287,7 +298,6 @@ bool BU::halting(toolbox::task::WorkLoop* wl)
     string msg = "halting FAILED: " + (string)e.what();
     fsm_.fireFailed(msg,this);
   }
-  
   return false;
 }
 
@@ -470,6 +480,7 @@ void BU::startSendingWorkLoop() throw (evf::Exception)
 								"Sending",
 								"waiting");
     if (!wlSending_->isActive()) wlSending_->activate();
+
     asSending_=toolbox::task::bind(this,&BU::sending,sourceId_+"Sending");
     wlSending_->submit(asSending_);
     isSending_=true;
@@ -691,7 +702,7 @@ void BU::reset()
   while (!freeIds_.empty())  freeIds_.pop();
   while (!builtIds_.empty()) builtIds_.pop();
   sentIds_.clear();
-  
+ 
   sem_init(&lock_,0,1);
   sem_init(&buildSem_,0,queueSize_);
   sem_init(&sendSem_,0,0);
@@ -701,8 +712,8 @@ void BU::reset()
     events_.push_back(new BUEvent(i,eventBufferSize_));
     freeIds_.push(i);
   }
+  validFedIds_.clear();
 }
-
 
 //______________________________________________________________________________
 double BU::deltaT(const struct timeval *start,const struct timeval *end)
@@ -730,7 +741,8 @@ bool BU::generateEvent(BUEvent* evt)
   // replay?
   if (replay_.value_&&nbEventsBuilt_>=(uint32_t)events_.size()) 
     {
-      PlaybackRawDataProvider::instance()->setFreeToEof();
+      if (0!=PlaybackRawDataProvider::instance())
+        PlaybackRawDataProvider::instance()->setFreeToEof();
       return true;
     }  
   // PLAYBACK mode

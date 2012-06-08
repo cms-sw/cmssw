@@ -18,7 +18,7 @@ def LoadCommandlineOptions(argv):
   parser = OptionParser(description=__doc__)
   parser.add_option('--myhelp',metavar='', action="store_true",help='prints this output message',dest='help',default = False)
   parser.add_option('--TestFile','-T',metavar='testFile', type=str,help='Sets the test file',dest='test',default = '')
-  parser.add_option('--RefFile','-R',metavar='refFile', type=str,help='Sets the reference file',dest='ref',default = None)
+  parser.add_option('--RefFile','-R',metavar='refFile', type=str,help='Sets the reference file',dest='ref',default = '')
   parser.add_option('--output','-o',metavar='outputFile', type=str,help='Sets the output file',dest='out',default = 'MultipleCompare.png')
   parser.add_option('--logScale',action="store_true", dest="logScale", default=False, help="Sets the log scale in the plot")
   parser.add_option('--fakeRate','-f',action="store_true", dest="fakeRate", default=False, help="Sets the fake rate options and put the correct label (implies --logScale)")
@@ -475,10 +475,10 @@ def main(argv=None):
     optimizeRangeSubPad(argv, divHistos)
 
     effPad.cd()
-  legend.Draw()
-  if drawStats:
-    statsBox.Draw()
-  canvas.Print(options.out)
+    legend.Draw()
+    if drawStats:
+        statsBox.Draw()
+    canvas.Print(options.out)
 
 
 if __name__ == '__main__':

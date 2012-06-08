@@ -51,6 +51,8 @@ class L1TGCTClient: public edm::EDAnalyzer {
 
  private:
 
+  void processHistograms();
+
   void makeXProjection(TH2F* input, MonitorElement* output);
   void makeYProjection(TH2F* input, MonitorElement* output);
 
@@ -60,6 +62,13 @@ class L1TGCTClient: public edm::EDAnalyzer {
   int counterEvt_;     ///counter 
   int prescaleLS_;     ///units of lumi sections 
   int prescaleEvt_;    ///prescale on number of events
+
+  bool m_runInEventLoop;
+  bool m_runInEndLumi;
+  bool m_runInEndRun;
+  bool m_runInEndJob;
+
+
 
   MonitorElement *l1GctIsoEmOccEta_;
   MonitorElement *l1GctIsoEmOccPhi_;

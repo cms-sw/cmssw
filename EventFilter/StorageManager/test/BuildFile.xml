@@ -29,16 +29,13 @@
     <use   name="cppunit"/>
   </bin>
   <bin   file="EnquingPolicyTag_t.cpp">
+    <use   name="cppunit"/>
   </bin>
   <bin   file="ConsumerRegistrationInfo_t.cpp">
     <use   name="cppunit"/>
   </bin>
-  <bin   file="workloop_t.cpp">
-  </bin>
   <bin   file="I2OChain_t.cpp">
     <use   name="cppunit"/>
-  </bin>
-  <bin   file="MemoryChainDuplicate_t.cpp">
   </bin>
   <bin   file="CommandQueue_t.cpp">
     <use   name="cppunit"/>
@@ -87,5 +84,10 @@
     <use   name="cppunit"/>
   </bin>
   <bin   file="TriggerSelector_t.cpp">
+    <use   name="cppunit"/>
+  </bin>
+  <bin   file="DiskWriter_t.cpp">
+    <flags NO_TESTRUN="1"/>
+    <use   name="cppunit"/>
   </bin>
 </environment>

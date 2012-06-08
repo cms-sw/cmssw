@@ -28,6 +28,9 @@ public:
   virtual Int_t		GetPathInfo(const char *path, FileStat_t &info);
 
   virtual Bool_t	AccessPathName(const char *path, EAccessMode mode);
+
+  virtual int           Unlink(const char *name);
+
 };
 
 #endif // TFILE_ADAPTOR_TSTORAGE_FACTORY_SYSTEM_H

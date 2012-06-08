@@ -21,10 +21,3 @@ from RecoBTag.ImpactParameter.trackCountingHighEffBJetTags_cfi import *
 from RecoBTag.ImpactParameter.trackCounting3D3rdComputer_cfi import *
 from RecoBTag.ImpactParameter.trackCountingHighPurBJetTags_cfi import *
 
-# Negative Tags
-
-from RecoBTag.ImpactParameter.negativeTrackCountingHighEffJetTags_cfi import *
-from RecoBTag.ImpactParameter.negativeTrackCountingHighPurJetTags_cfi import *
-from RecoBTag.ImpactParameter.negativeTrackCounting3D2ndComputer_cfi import *
-from RecoBTag.ImpactParameter.negativeTrackCounting3D3rdComputer_cfi import *
-

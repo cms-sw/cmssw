@@ -48,10 +48,6 @@ namespace egHLT {
     Data1D minr9;
     Data1D maxr9;
     Data1D nVertex;
-    Data1D HLTet;
-    Data1D HLTphi;
-    Data1D HLTeta;
-    Data1D deltaEt;
     //-----------
     Data1D isolEm;
     Data1D isolHad;

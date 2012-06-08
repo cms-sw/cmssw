@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2011/06/01 11:54:45 $
- *  $Revision: 1.42 $
+ *  $Date: 2011/09/06 14:01:48 $
+ *  $Revision: 1.43 $
  *
  *  \author Martin Grunewald
  *
@@ -51,10 +51,6 @@ class HLTConfigProvider {
 
   /// Accessors (const methods)
 
-  /// process name
-  const std::string& processName() const {
-    return hltConfigData_->processName();
-  }
   /// initialised?
   bool inited() const {
     return inited_;
@@ -62,6 +58,21 @@ class HLTConfigProvider {
   /// changed?
   bool changed() const {
     return changed_;
+  }
+
+  /// process name
+  const std::string& processName() const {
+    return hltConfigData_->processName();
+  }
+
+  /// global tag
+  const std::string& globalTag() const {
+    return hltConfigData_->globalTag();
+  }
+
+  /// HLT ConfDB table name
+  const std::string& tableName() const {
+    return hltConfigData_->tableName();
   }
 
   /// number of trigger paths in trigger table
@@ -74,11 +85,6 @@ class HLTConfigProvider {
   }
   unsigned int size(const std::string& trigger) const {
     return hltConfigData_->size(trigger);
-  }
-
-  /// HLT ConfDB table name
-  const std::string& tableName() const {
-    return hltConfigData_->tableName();
   }
 
   /// names of trigger paths
@@ -146,7 +152,6 @@ class HLTConfigProvider {
   bool saveTags(const std::string& module) const {
     return hltConfigData_->saveTags(module);
   }
-
 
   /// HLTLevel1GTSeed module
   /// HLTLevel1GTSeed modules for all trigger paths

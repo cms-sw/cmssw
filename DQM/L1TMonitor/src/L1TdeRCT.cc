@@ -22,6 +22,8 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
@@ -122,7 +124,8 @@ L1TdeRCT::L1TdeRCT(const ParameterSet & ps) :
    hcalTPGData_( ps.getParameter< InputTag >("hcalTPGData") ),
    gtDigisLabel_( ps.getParameter< InputTag >("gtDigisLabel") ),
    gtEGAlgoName_ ( ps.getParameter< std::string >("gtEGAlgoName") ),
-   doubleThreshold_ ( ps.getParameter< int >("doubleThreshold") )
+   doubleThreshold_ ( ps.getParameter< int >("doubleThreshold") ),
+   filterTriggerType_ (ps.getParameter< int >("filterTriggerType") )
 {
 
 
@@ -192,6 +195,9 @@ void L1TdeRCT::beginJob(void)
   if (dbe) {
 
     dbe->setCurrentFolder(histFolder_);
+
+    triggerType_ =
+      dbe->book1D("TriggerType", "TriggerType", 17, -0.5, 16.5);
 
     triggerAlgoNumbers_ =
       dbe->book1D("gtTriggerAlgoNumbers", "gtTriggerAlgoNumbers", 128, -0.5, 127.5);
@@ -867,6 +873,41 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
   if (verbose_) {
     std::cout << "L1TdeRCT: analyze...." << std::endl;
   }
+
+    // filter according trigger type
+    //  enum ExperimentType {
+    //        Undefined          =  0,
+    //        PhysicsTrigger     =  1,
+    //        CalibrationTrigger =  2,
+    //        RandomTrigger      =  3,
+    //        Reserved           =  4,
+    //        TracedEvent        =  5,
+    //        TestTrigger        =  6,
+    //        ErrorTrigger       = 15
+
+  // fill a histogram with the trigger type, for normalization fill also last bin
+    // ErrorTrigger + 1
+    double triggerType = static_cast<double> (e.experimentType()) + 0.001;
+    double triggerTypeLast = static_cast<double> (edm::EventAuxiliary::ExperimentType::ErrorTrigger)
+                            + 0.001;
+    triggerType_->Fill(triggerType);
+    triggerType_->Fill(triggerTypeLast + 1);
+
+    // filter only if trigger type is greater than 0, negative values disable filtering
+    if (filterTriggerType_ >= 0) {
+
+        // now filter, for real data only
+        if (e.isRealData()) {
+            if (!(e.experimentType() == filterTriggerType_)) {
+
+                edm::LogInfo("L1TdeRCT") << "\n Event of TriggerType "
+                        << e.experimentType() << " rejected" << std::endl;
+                return;
+
+            }
+        }
+
+    }
 
   // for GT decision word
 //  edm::ESHandle<L1GtTriggerMenu> menuRcd;

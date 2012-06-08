@@ -38,8 +38,6 @@ L1EmulatorErrorFlagClient::~L1EmulatorErrorFlagClient() {
 
 void L1EmulatorErrorFlagClient::initialize() {
 
-    m_counterLS = 0;
-    m_counterEvt = 0;
 
     // get back-end interface
     m_dbe = edm::Service<DQMStore>().operator->();
@@ -206,7 +204,8 @@ void L1EmulatorErrorFlagClient::endLuminosityBlock(
 void L1EmulatorErrorFlagClient::analyze(const edm::Event& iEvent,
         const edm::EventSetup& evSetup) {
 
-    m_counterEvt++;
+    // there is no loop on events in the offline harvesting step
+    // do not put any code here, it will not be executed
 
 }
 

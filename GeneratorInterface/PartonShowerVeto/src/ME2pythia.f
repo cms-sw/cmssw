@@ -595,7 +595,7 @@ C   local variables
       INTEGER IMO
       logical norad(20)
       REAL*4 var2(nvar2)
-      
+
 c      if(NLJETS.GT.0)then
 c        idbg=1
 c      else
@@ -740,11 +740,7 @@ c     $     ihep)),' PID=',IDHEP(JMOHEP(1,ihep))
 c      ENDDO
 
       DO ihep=1,NHEP
-
-	if ( jmohep(1,ihep) .gt. 0 ) then
-c	
-c         If valid mother and status is 2 and a mother of 6<PID>nqmatch =>reject from particle list
-c 
+c         If status is 2 and a mother of 6<PID>nqmatch =>reject from particle list
          IF(ISTHEP(JMOHEP(1,ihep)).EQ.2
      $    .AND.iabs(IDHEP(JMOHEP(1,ihep))).GT.nqmatch.AND.
      $    iabs(IDHEP(JMOHEP(1,ihep))).LT.6) THEN
@@ -758,9 +754,6 @@ c     $      ihep)),' PID=',IDHEP(JMOHEP(1,ihep))
      $     nqmatch.AND.iabs(IDHEP(ihep)).LT.6.AND.
      $     ISTHEP(JMOHEP(1,ihep)).EQ.2.AND.iabs(IDHEP(JMOHEP(1,ihep)))
      $     .EQ.21) goto 999
-c
-        endif
-
       ENDDO
 c
 c      DO ihep=1,NHEP
