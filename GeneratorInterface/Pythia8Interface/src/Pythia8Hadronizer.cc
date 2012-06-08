@@ -222,6 +222,9 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
     if(params.exists("EV1_pThardMode")) EV1_pThardMode = params.getParameter<int>("EV1_pThardMode");
     EV1_pTempMode = 0;
     if(params.exists("EV1_pTempMode")) EV1_pTempMode = params.getParameter<int>("EV1_pTempMode");
+    if(EV1_pTempMode > 2 || EV1_pTempMode < 0)
+      throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
+        <<" Wrong value for EV1_pTempMode code\n";
     EV1_emittedMode = 0;
     if(params.exists("EV1_emittedMode")) EV1_emittedMode = params.getParameter<int>("EV1_emittedMode");
     EV1_pTdefMode = 1;
