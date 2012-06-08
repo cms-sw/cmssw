@@ -33,7 +33,6 @@ process = cms.Process( 'PAT' )
 
 ### Data or MC?
 runOnMC = options.runOnMC
-runOnMC = True
 
 ### Standard and PF reconstruction
 runStandardPAT = True
@@ -137,7 +136,6 @@ inputFiles = []   # overwritten, if "useRelVals" is 'True'
 
 # maximum number of events
 maxInputEvents = -1 # reduce for testing
-maxInputEvents = 1000
 
 ### Conditions
 
@@ -376,8 +374,6 @@ if runStandardPAT:
   removeSpecificPATObjects( process
                           , names = [ 'Photons', 'Taus' ]
                           ) # includes 'removeCleaning'
-  if useL1FastJet:
-    process.ak5PFJets = ak5PFJets.clone( doAreaFastjet = True )
 
 if runPF2PAT:
   if not runOnMC:
@@ -425,20 +421,10 @@ if runStandardPAT:
   process.step3b_3 = step3b_3.clone()
   process.step3b   = cms.Sequence( process.step3b_1 * process.step3b_2 * process.step3b_3 )
 
-  process.patDefaultSequence.remove( process.kt6PFJets )
-  process.patDefaultSequence.remove( process.ak5PFJets )
   process.patJetCorrFactors.payload = jecSet
   process.patJetCorrFactors.levels  = jecLevels
   if useL1FastJet:
-    print 'WARNING patRefSel_allJets_test_cfg.py:'
-    print '        L1FastJet JECs are not available for AK5Calo jets in this data due to missing jet area computation;'
-    print '        switching to   L1Offset   !!!'
-    process.patJetCorrFactors.levels.insert( 0, 'L1Offset' )
-    process.patJetCorrFactors.levels.remove( 'L1FastJet' )
-    process.patJetCorrFactors.useRho = False
-    process.patDefaultSequence.remove( getattr( process, 'kt6PFJetsAK5PF' ) )
-    process.patJetCorrFactorsAK5PF.useRho = True
-    process.patJetCorrFactorsAK5PF.rho    = cms.InputTag( 'kt6PFJets', 'rho' )
+    process.patJetCorrFactors.useRho = True
 
   process.goodPatJets       = goodPatJets.clone()
   process.goodPatJetsMedium = process.goodPatJets.clone()
@@ -464,10 +450,6 @@ if runPF2PAT:
   setattr( process, 'tightPatMuons' + postfix, tightPatMuonsPF )
 
   ### Jets
-
-  if useL1FastJet:
-    getattr( process, 'patPF2PATSequence' + postfix ).remove( getattr( process, 'kt6PFJets' + postfix ) )
-    applyPostfix( process, 'patJetCorrFactors', postfix ).rho = cms.InputTag( 'kt6PFJets', 'rho' )
 
   goodPatJetsPF = goodPatJets.clone( src = cms.InputTag( 'selectedPatJets' + postfix ), checkOverlaps = cms.PSet() )
   setattr( process, 'goodPatJets' + postfix, goodPatJetsPF )
@@ -669,8 +651,6 @@ if runStandardPAT:
   if useGoodVertex:
     process.p += process.step2
   process.p += process.eidMVASequence
-  if useL1FastJet:
-    process.p += process.ak5PFJets
   process.p += process.patDefaultSequence
   process.p += process.patAddOnSequence
   if use6JetsLoose:
