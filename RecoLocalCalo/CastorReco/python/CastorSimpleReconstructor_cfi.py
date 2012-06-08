@@ -8,7 +8,7 @@ castorreco = cms.EDProducer("CastorSimpleReconstructor",
     firstSample                = cms.int32(4),
     correctForPhaseContainment = cms.bool(False),
     correctForTimeslew         = cms.bool(False),
-    tsFromDB                   = cms.untracked.bool(True),
-    setSaturationFlag          = cms.untracked.bool(True),
-    maxADCvalue                = cms.untracked.int32(127)
+    tsFromDB                   = cms.bool(True),
+    setSaturationFlag          = cms.bool(True),
+    maxADCvalue                = cms.int32(127)
 )

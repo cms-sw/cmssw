@@ -28,9 +28,9 @@ CastorSimpleReconstructor::CastorSimpleReconstructor(edm::ParameterSet const& co
   inputLabel_(conf.getParameter<edm::InputTag>("digiLabel")),
   firstSample_(conf.getParameter<int>("firstSample")),
   samplesToAdd_(conf.getParameter<int>("samplesToAdd")),
-  tsFromDB_(conf.getUntrackedParameter<bool>("tsFromDB",true)),
-  setSaturationFlag_(conf.getUntrackedParameter<bool>("setSaturationFlag",true)),
-  maxADCvalue_(conf.getUntrackedParameter<int>("maxADCvalue",127))
+  tsFromDB_(conf.getParameter<bool>("tsFromDB")),
+  setSaturationFlag_(conf.getParameter<bool>("setSaturationFlag")),
+  maxADCvalue_(conf.getParameter<int>("maxADCvalue"))
 {
   std::string subd=conf.getParameter<std::string>("Subdetector");
   if (!strcasecmp(subd.c_str(),"CASTOR")) {
