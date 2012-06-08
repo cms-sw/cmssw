@@ -5,7 +5,7 @@
 // 
 // Original Authors:  Michael Schmitt, Richard Cavanaugh The University of Florida
 //          Created:  May 31, 2005
-// $Id: METProducer.h,v 1.29 2012/06/07 01:16:10 sakuma Exp $
+// $Id: METAlgo.cc,v 1.14 2012/06/07 23:55:30 sakuma Exp $
 //
 
 //____________________________________________________________________________||
@@ -13,7 +13,15 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include <cmath>
 
-void METAlgo::run(edm::Handle<edm::View<reco::Candidate> > candidates, CommonMETData *met, double globalThreshold) 
+CommonMETData METAlgo::run(edm::Handle<edm::View<reco::Candidate> > candidates, double globalThreshold)
+{
+  CommonMETData met;
+  run(candidates, &met, globalThreshold);
+  return met;
+}
+
+//____________________________________________________________________________||
+void METAlgo::run(edm::Handle<edm::View<reco::Candidate> > candidates, CommonMETData *met, double globalThreshold)
 { 
   double px = 0.0;
   double py = 0.0;
@@ -43,4 +51,3 @@ void METAlgo::run(edm::Handle<edm::View<reco::Candidate> > candidates, CommonMET
 }
 
 //____________________________________________________________________________||
-

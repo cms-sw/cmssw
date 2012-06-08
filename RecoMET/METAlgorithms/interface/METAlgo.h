@@ -13,7 +13,7 @@
 //
 // Original Authors:  Michael Schmitt, Richard Cavanaugh The University of Florida
 //          Created:  May 14, 2005
-// $Id: METProducer.h,v 1.29 2012/06/07 01:16:10 sakuma Exp $
+// $Id: METAlgo.h,v 1.11 2012/06/07 23:55:30 sakuma Exp $
 //
 //
 #ifndef METAlgo_h
@@ -27,7 +27,8 @@ class METAlgo
 public:
   METAlgo() {}
   virtual ~METAlgo() {}
-  virtual void run(edm::Handle<edm::View<reco::Candidate> >, CommonMETData*,  double );
+  virtual CommonMETData run(edm::Handle<edm::View<reco::Candidate> > candidates, double globalThreshold = 0.0);
+  virtual void run(edm::Handle<edm::View<reco::Candidate> > candidates, CommonMETData *met, double globalThreshold = 0.0);
 };
 
 #endif // METAlgo_h
