@@ -1,3 +1,13 @@
+// -*- C++ -*-
+//
+// Package:    METAlgorithms
+// Class:      CaloSpecificAlgo
+// 
+// Original Author:  R. Cavanaugh (taken from F.Ratnikov, UMd)
+//         Created:  June 6, 2006
+// $Id: METAlgo.h,v 1.12 2012/06/08 00:51:27 sakuma Exp $
+//
+//
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "RecoMET/METAlgorithms/interface/CaloSpecificAlgo.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
@@ -15,6 +25,7 @@ using namespace std;
 // information will be added in the future. 
 //-------------------------------------
 
+//____________________________________________________________________________||
 reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > towers, CommonMETData met, bool noHF, double globalThreshold)
 { 
   // Instantiate the container to hold the calorimeter specific information
@@ -185,4 +196,4 @@ reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > tower
   CaloMET specificmet( specific, met.sumet, p4, vtx );
   return specificmet;
 }
-//-------------------------------------------------------------------------
+//____________________________________________________________________________||
