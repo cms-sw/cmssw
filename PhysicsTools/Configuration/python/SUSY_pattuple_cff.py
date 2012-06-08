@@ -203,12 +203,6 @@ def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,pos
     #process.patTausPF.addDecayMode = True
     #process.patTausPF.decayModeSrc = "shrinkingConePFTauDecayModeProducerPF" 
 
-
-    # TODO: Fix type I MET
-    #PF type I corrected MET
-	# Temporarily disabled for first 44X recipe -- Benjamin
-    # addPFTypeIMet(process)
-
     #Set isolation cone to 0.3 for PF leptons
     # TODO: fix this for electrons and muons
     #process.pfElectrons.isolationValueMapsCharged = cms.VInputTag(cms.InputTag("elPFIsoValueCharged03PFId"))
@@ -412,31 +406,13 @@ def addTypeIIMet(process) :
         process.patMETsAK5CaloTypeII
         )
 
-def addPFTypeIMet(process):
-    from JetMETCorrections.Type1MET.MetType1Corrections_cff import metJESCorAK5PFJet 
-    process.metJESCorAK5PFTypeI = metJESCorAK5PFJet.clone( 
-        inputUncorJetsLabel = "patJetsPF", 
-        metType = "pat",                  
-        inputUncorMetLabel = "pfMet",
-    )
-    process.patMETsTypeIPF = process.patMETsPF.clone(
-        metSource = cms.InputTag("metJESCorAK5PFTypeI")
-    )
-    # Add to producersLayer1 sequence
-    process.patDefaultSequencePF.replace(
-        process.patMETsPF,
-        process.patMETsPF+
-        process.metJESCorAK5PFTypeI+
-        process.patMETsTypeIPF
-        )
-
 def addTagInfos(process,jetMetCorrections):
     from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
     switchJetCollection( process,
                      jetCollection=cms.InputTag('ak5CaloJets'),
                      jetCorrLabel=('AK5Calo', jetMetCorrections))
 
-def addSUSYJetCollection(process,jetMetCorrections,jets = 'IC5Calo',mcVersion='',doJTA=True,doType1MET=False,doJetID=True,jetIdLabel=None):
+def addSUSYJetCollection(process,jetMetCorrections,jets = 'IC5Calo',mcVersion='',doJTA=True,doType1MET=True,doJetID=True,jetIdLabel=None):
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
     algorithm = jets[0:3]
     type = jets[3:len(jets)]
@@ -479,15 +455,6 @@ def addSUSYJetCollection(process,jetMetCorrections,jets = 'IC5Calo',mcVersion=''
                      genJetCollection = cms.InputTag('%(collection)sGenJets' % locals())
                      )
 
-    if (type == 'PF'):
-        if ("L1FastJet" in jetMetCorrections):
-            setattr(getattr(process, jetCollection), "doAreaFastjet", True)
-            process.patDefaultSequence.replace(
-                process.kt6PFJets,
-                process.kt6PFJets + getattr(process, jetCollection)
-                )
-        else:
-            setattr(getattr(process, jetCollection), "doAreaFastjet", False)
 
 def addJetMET(process,theJetNames,jetMetCorrections,mcVersion):
     #-- Extra Jet/MET collections -------------------------------------------------
