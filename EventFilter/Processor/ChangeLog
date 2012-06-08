@@ -1,3 +1,11 @@
+2012-06-08 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-11
+	* moving EnableDone after subprocesses are forked
+	* coredump protection enabled stopping
+	* longer stacktrace sent to logger (20 lines)
+	* try-catch for fsm transitions in slave EPs
+
 2012-05-24 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V02-05-10
