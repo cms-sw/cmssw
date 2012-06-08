@@ -7,7 +7,6 @@ process.load('Configuration.StandardSequences.GeometrySimDB_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load("Geometry.TrackerGeometryBuilder.TrackerGeometryConstants_cff")
 
 process.source = cms.Source("EmptySource")
 

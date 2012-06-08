@@ -21,14 +21,27 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-
 #include <memory>
 
 //__________________________________________________________________
 TrackerDigiGeometryESModule::TrackerDigiGeometryESModule(const edm::ParameterSet & p) 
   : alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")),
-    myLabel_(p.getParameter<std::string>("appendToDataLabel"))
+    myLabel_(p.getParameter<std::string>("appendToDataLabel")),
+    m_ROWS_PER_ROC( 80 ),     // Num of Rows per ROC 
+    m_COLS_PER_ROC( 52 ),     // Num of Cols per ROC
+    m_BIG_PIX_PER_ROC_X( 1 ), // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
+    m_BIG_PIX_PER_ROC_Y( 2 ), // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
+    m_ROCS_X( 0 ),	      // 2 for SLHC
+    m_ROCS_Y( 0 ),	      // 8 for SLHC
+    m_upgradeGeometry( false )
 {
+  m_ROWS_PER_ROC  = p.getUntrackedParameter<int>( "ROWS_PER_ROC", m_ROWS_PER_ROC );
+  m_COLS_PER_ROC  = p.getUntrackedParameter<int>( "COLS_PER_ROC", m_COLS_PER_ROC );
+  m_BIG_PIX_PER_ROC_X = p.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_X", m_BIG_PIX_PER_ROC_X );
+  m_BIG_PIX_PER_ROC_Y = p.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_Y", m_BIG_PIX_PER_ROC_Y );
+  m_ROCS_X = p.getUntrackedParameter<int>( "ROCS_X", m_ROCS_X );
+  m_ROCS_Y = p.getUntrackedParameter<int>( "ROCS_Y", m_ROCS_Y );
+  m_upgradeGeometry = p.getUntrackedParameter<bool>( "upgradeGeometry", m_upgradeGeometry );
 
     applyAlignment_ = p.getParameter<bool>("applyAlignment");
     fromDDD_ = p.getParameter<bool>("fromDDD");
@@ -55,7 +68,12 @@ TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord)
   iRecord.getRecord<IdealGeometryRecord>().get( gD );
   
   TrackerGeomBuilderFromGeometricDet builder;
-  _tracker  = boost::shared_ptr<TrackerGeometry>(builder.build(&(*gD)));
+  _tracker  = boost::shared_ptr<TrackerGeometry>(builder.build(&(*gD), m_upgradeGeometry,
+							       m_ROWS_PER_ROC,
+							       m_COLS_PER_ROC,
+							       m_BIG_PIX_PER_ROC_X,
+							       m_BIG_PIX_PER_ROC_Y,
+							       m_ROCS_X, m_ROCS_Y ));
 
   if (applyAlignment_) {
     // Since fake is fully working when checking for 'empty', we should get rid of applyAlignment_!

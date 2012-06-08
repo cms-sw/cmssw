@@ -47,7 +47,6 @@ class RectangularPixelTopology GCC11_FINAL : public PixelTopology
 {
 public:
 
-  // Constructor, initilize 
   RectangularPixelTopology( int nrows, int ncols, float pitchx, float pitchy )
     : m_pitchx( pitchx ),
       m_pitchy( pitchy ),
@@ -76,34 +75,75 @@ public:
 					   << m_BIG_PIX_PER_ROC_X << " " << m_BIG_PIX_PER_ROC_Y << " "
 					   << m_ROWS_PER_ROC << " " << m_COLS_PER_ROC;
     }
-
-  // added for StrawmanB with differing layer size 	 
-  RectangularPixelTopology( int nrows, int ncols, float pitchx, float pitchy, int rocsX, int rocsY, int rowsPerRoc, int colsPerRoc )
+  
+  // Constructor, initilize 
+  RectangularPixelTopology( int nrows, int ncols, float pitchx, float pitchy,
+			    bool upgradeGeometry,
+			    int ROWS_PER_ROC, // Num of Rows per ROC
+			    int COLS_PER_ROC, // Num of Cols per ROC
+			    int BIG_PIX_PER_ROC_X, // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
+			    int BIG_PIX_PER_ROC_Y, // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
+			    int ROCS_X, int ROCS_Y )
     : m_pitchx( pitchx ),
       m_pitchy( pitchy ),
       m_nrows( nrows ),
       m_ncols( ncols ),
-      m_ROWS_PER_ROC( rowsPerRoc ),     // Num of Rows per ROC 
-      m_COLS_PER_ROC( colsPerRoc ),     // Num of Cols per ROC
-      m_BIG_PIX_PER_ROC_X( 1 ), // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
-      m_BIG_PIX_PER_ROC_Y( 2 ), // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
-      m_ROCS_X( rocsX ),
-      m_ROCS_Y( rocsY )
+      m_ROWS_PER_ROC( ROWS_PER_ROC ),     // Num of Rows per ROC 
+      m_COLS_PER_ROC( COLS_PER_ROC ),     // Num of Cols per ROC
+      m_BIG_PIX_PER_ROC_X( BIG_PIX_PER_ROC_X ), // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
+      m_BIG_PIX_PER_ROC_Y( BIG_PIX_PER_ROC_Y ), // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
+      m_ROCS_X( ROCS_X ), // 2 for SLHC
+      m_ROCS_Y( ROCS_Y ),  // 8 for SLHC
+      m_upgradeGeometry( upgradeGeometry )
     {
-      initConstants();
-      
-      m_xoffset = -(m_nrows + m_BIG_PIX_PER_ROC_X*m_nrows/m_ROWS_PER_ROC)/2. *
+      // Calculate the edge of the active sensor with respect to the center,
+      // that is simply the half-size.       
+      // Take into account large pixels
+      m_xoffset = -(m_nrows + BIG_PIX_PER_ROC_X*m_nrows/ROWS_PER_ROC)/2. * 
 		  m_pitchx;
-      m_yoffset = -(m_ncols + m_BIG_PIX_PER_ROC_Y*m_ncols/m_COLS_PER_ROC)/2. *
+      m_yoffset = -(m_ncols + BIG_PIX_PER_ROC_Y*m_ncols/COLS_PER_ROC)/2. * 
+		  m_pitchy;
+
+      LogDebug("RectangularPixelTopology") << m_nrows << " " << m_ncols << " "
+					   << m_pitchx << " " << m_pitchy << " "
+					   << m_xoffset << " " << m_yoffset << " "
+					   << BIG_PIX_PER_ROC_X << " " << BIG_PIX_PER_ROC_Y << " "
+					   << ROWS_PER_ROC << " " << COLS_PER_ROC;
+    }
+
+  // added for StrawmanB with differing layer size 	 
+  RectangularPixelTopology( int nrows, int ncols, float pitchx, float pitchy, int rocsX, int rocsY, int rowsPerRoc, int colsPerRoc,
+			    bool upgradeGeometry,
+			    int ROWS_PER_ROC, // Num of Rows per ROC
+			    int COLS_PER_ROC, // Num of Cols per ROC
+			    int BIG_PIX_PER_ROC_X, // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
+			    int BIG_PIX_PER_ROC_Y, // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
+			    int ROCS_X, int ROCS_Y )
+    : m_pitchx( pitchx ),
+      m_pitchy( pitchy ),
+      m_nrows( nrows ),
+      m_ncols( ncols ),
+      m_ROWS_PER_ROC( ROWS_PER_ROC ),     // Num of Rows per ROC 
+      m_COLS_PER_ROC( COLS_PER_ROC ),     // Num of Cols per ROC
+      m_BIG_PIX_PER_ROC_X( BIG_PIX_PER_ROC_X ), // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
+      m_BIG_PIX_PER_ROC_Y( BIG_PIX_PER_ROC_Y ), // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
+      m_ROCS_X( ROCS_X ), // 2 for SLHC
+      m_ROCS_Y( ROCS_Y ), // 8 for SLHC
+      m_upgradeGeometry( upgradeGeometry )
+    {
+      m_xoffset = -(m_nrows + BIG_PIX_PER_ROC_X*m_nrows/ROWS_PER_ROC)/2. *
+		  m_pitchx;
+      m_yoffset = -(m_ncols + BIG_PIX_PER_ROC_Y*m_ncols/COLS_PER_ROC)/2. *
 		  m_pitchy;
       
       LogDebug("RectangularPixelTopology") << m_nrows << " " << m_ncols << " "
 					   << m_pitchx << " " << m_pitchy << " "
 					   << m_xoffset << " " << m_yoffset << " "
-					   << m_BIG_PIX_PER_ROC_X << " " << m_BIG_PIX_PER_ROC_Y << " "
-					   << m_ROWS_PER_ROC << " " << m_COLS_PER_ROC;
+					   << BIG_PIX_PER_ROC_X << " " << BIG_PIX_PER_ROC_Y << " "
+					   << ROWS_PER_ROC << " " << COLS_PER_ROC;
 
     }
+
   void initConstants( void ) 
     {
       edm::Service<TrackerGeometryService> tkGeoService;
