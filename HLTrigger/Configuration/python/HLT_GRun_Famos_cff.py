@@ -1,11 +1,11 @@
-# /online/collisions/2012/7e33/v3.0/HLT/V6 (CMSSW_5_2_5_HLT7)
+# /online/collisions/2012/7e33/v3.0/HLT/V7 (CMSSW_5_2_5_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/7e33/v3.0/HLT/V6')
+  tableName = cms.string('/online/collisions/2012/7e33/v3.0/HLT/V7')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -7874,7 +7874,7 @@ hltPFHTMETNoMu = cms.EDProducer( "HLTHtMhtProducer",
 hltPFMET80MuORNoMu = cms.EDFilter( "HLTHtMhtFilter",
     saveTags = cms.bool( True ),
     mhtLabels = cms.VInputTag( 'hltPFHTMET','hltPFHTMETNoMu' ),
-    meffSlope = cms.vdouble( 1.0, 1.0, 1.0 ),
+    meffSlope = cms.vdouble( 1.0, 1.0 ),
     minMeff = cms.vdouble( 0.0, 0.0 ),
     minMht = cms.vdouble( 80.0, 80.0 ),
     htLabels = cms.VInputTag( 'hltPFHTMET','hltPFHTMET' ),
