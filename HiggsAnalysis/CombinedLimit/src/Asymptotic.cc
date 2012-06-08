@@ -25,6 +25,7 @@ double Asymptotic::rRelAccuracy_ = 0.005;
 std::string Asymptotic::what_ = "both"; 
 bool  Asymptotic::qtilde_ = true; 
 bool  Asymptotic::picky_ = false; 
+bool  Asymptotic::noFitAsimov_ = false; 
 std::string Asymptotic::minosAlgo_ = "stepping"; 
 std::string Asymptotic::minimizerAlgo_ = "Minuit2";
 float       Asymptotic::minimizerTolerance_ = 0.01;
@@ -37,13 +38,14 @@ LimitAlgo("Asymptotic specific options") {
     options_.add_options()
         ("rAbsAcc", boost::program_options::value<double>(&rAbsAccuracy_)->default_value(rAbsAccuracy_), "Absolute accuracy on r to reach to terminate the scan")
         ("rRelAcc", boost::program_options::value<double>(&rRelAccuracy_)->default_value(rRelAccuracy_), "Relative accuracy on r to reach to terminate the scan")
-        ("run", boost::program_options::value<std::string>(&what_)->default_value(what_), "What to run: both (default), observed, expected.")
+        ("run", boost::program_options::value<std::string>(&what_)->default_value(what_), "What to run: both (default), observed, expected, blind.")
         ("singlePoint",  boost::program_options::value<double>(&rValue_),  "Just compute CLs for the given value of r")
         ("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer used for profiling (Minuit vs Minuit2)")
         ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer used for profiling")
         ("minimizerStrategy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Stragegy for minimizer")
         ("qtilde", boost::program_options::value<bool>(&qtilde_)->default_value(qtilde_),  "Allow only non-negative signal strengths (default is true).")
         ("picky", "Abort on fit failures")
+        ("noFitAsimov", "Use the pre-fit asimov dataset")
         ("minosAlgo", boost::program_options::value<std::string>(&minosAlgo_)->default_value(minosAlgo_), "Algorithm to use to get the median expected limit: 'minos' (fastest), 'bisection', 'stepping' (default, most robust)")
     ;
 }
@@ -57,10 +59,13 @@ void Asymptotic::applyOptions(const boost::program_options::variables_map &vm) {
             throw std::invalid_argument("Asymptotic: option 'run' can only be 'observed', 'expected' or 'both' (the default) or 'blind' (a-priori expected)");
     }
     picky_ = vm.count("picky");
+    noFitAsimov_ = vm.count("noFitAsimov");
+    if (what_ == "blind") { what_ = "expected"; noFitAsimov_ = true; } 
+    if (noFitAsimov_) std::cout << "Will use a-priori expected background instead of a-posteriori one." << std::endl; 
 }
 
 void Asymptotic::applyDefaultOptions() { 
-    what_ = "observed";
+    what_ = "observed"; noFitAsimov_ = true; // faster
 }
 
 bool Asymptotic::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
@@ -71,8 +76,8 @@ bool Asymptotic::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mod
     
     bool ret = false; 
     std::vector<std::pair<float,float> > expected;
-    if (what_ == "both" || what_ == "expected" || what_ == "blind") expected = runLimitExpected(w, mc_s, mc_b, data, limit, limitErr, hint);
-    if (what_ != "expected" && what_ != "blind") ret = runLimit(w, mc_s, mc_b, data, limit, limitErr, hint);
+    if (what_ == "both" || what_ == "expected") expected = runLimitExpected(w, mc_s, mc_b, data, limit, limitErr, hint);
+    if (what_ != "expected") ret = runLimit(w, mc_s, mc_b, data, limit, limitErr, hint);
 
     if (verbose >= 0) {
         const char *rname = mc_s->GetParametersOfInterest()->first()->GetName();
@@ -125,14 +130,15 @@ bool Asymptotic::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats
     CascadeMinimizer minim(*nllD_, CascadeMinimizer::Unconstrained, r);
     minim.setStrategy(minimizerStrategy_);
     minim.minimize(verbose-2);
-    fitFreeD_.reset(minim.save());
+    fitFreeD_.readFrom(*params_);
     minNllD_ = nllD_->getVal();
   }
   if (verbose > 0) std::cout << "NLL at global minimum of data: " << minNllD_ << " (" << r->GetName() << " = " << r->getVal() << ")" << std::endl;
+  double rErr = std::max<double>(r->getError(), 0.02 * (r->getMax() - r->getMin()));
 
   r->setMin(0);
 
-  if (verbose > 1) fitFreeD_->Print("V");
+  if (verbose > 1) fitFreeD_.Print("V");
   if (verbose > 0) std::cout << "\nMake global fit of asimov data" << std::endl;
   {
     CloseCoutSentry sentry(verbose < 3);
@@ -140,13 +146,13 @@ bool Asymptotic::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats
     CascadeMinimizer minim(*nllA_, CascadeMinimizer::Unconstrained, r);
     minim.setStrategy(minimizerStrategy_);
     minim.minimize(verbose-2);
-    fitFreeA_.reset(minim.save());
+    fitFreeA_.readFrom(*params_);
     minNllA_ = nllA_->getVal();
   }
   if (verbose > 0) std::cout << "NLL at global minimum of asimov: " << minNllA_ << " (" << r->GetName() << " = " << r->getVal() << ")" << std::endl;
-  if (verbose > 1) fitFreeA_->Print("V");
+  if (verbose > 1) fitFreeA_.Print("V");
 
-  *params_ = fitFreeD_->floatParsFinal();
+  fitFreeD_.writeTo(*params_);
   r->setConstant(true);
 
   if (what_ == "singlePoint") {
@@ -155,7 +161,6 @@ bool Asymptotic::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats
   }
 
   double clsTarget = 1-cl;
-  double rErr = std::max<double>(((RooRealVar*)fitFreeD_->floatParsFinal().find(r->GetName()))->getError(), 0.02 * (r->getMax() - r->getMin()));
   double rMin = std::max<double>(0, r->getVal()), rMax = rMin + 3 * rErr;
   double clsMax = 1, clsMin = 0;
   for (int tries = 0; tries < 5; ++tries) {
@@ -201,28 +206,28 @@ double Asymptotic::getCLs(RooRealVar &r, double rVal) {
   CascadeMinimizer minimD(*nllD_, CascadeMinimizer::Constrained, &r);
   minimD.setStrategy(minimizerStrategy_);  
 
-  *params_ = fitFixD_.get() ? fitFixD_->floatParsFinal() : fitFreeD_->floatParsFinal();
+  (!fitFixD_.empty() ? fitFixD_ : fitFreeD_).writeTo(*params_);
   *params_ = snapGlobalObsData;
   r.setVal(rVal);
   r.setConstant(true);
   if (hasFloatParams_) {
       if (!minimD.improve(verbose-2) && picky_) return -999;
-      fitFixD_.reset(minimD.save());
-      if (verbose >= 2) fitFixD_->Print("V");
+      fitFixD_.readFrom(*params_);
+      if (verbose >= 2) fitFixD_.Print("V");
   }
   double qmu = 2*(nllD_->getVal() - minNllD_); if (qmu < 0) qmu = 0;
 
   CascadeMinimizer minimA(*nllA_, CascadeMinimizer::Constrained, &r);
   minimA.setStrategy(minimizerStrategy_); 
 
-  *params_ = fitFixA_.get() ? fitFixA_->floatParsFinal() : fitFreeA_->floatParsFinal();
+  (!fitFixA_.empty() ? fitFixA_ : fitFreeA_).writeTo(*params_);
   *params_ = snapGlobalObsAsimov;
   r.setVal(rVal);
   r.setConstant(true);
   if (hasFloatParams_) {
       if (!minimA.improve(verbose-2) && picky_) return -999;
-      fitFixA_.reset(minimA.save());
-      if (verbose >= 2) fitFixA_->Print("V");
+      fitFixA_.readFrom(*params_);
+      if (verbose >= 2) fitFixA_.Print("V");
   }
   double qA  = 2*(nllA_->getVal() - minNllA_); if (qA < 0) qA = 0;
 
@@ -407,9 +412,10 @@ RooAbsData * Asymptotic::asimovDataset(RooWorkspace *w, RooStats::ModelConfig *m
         gobs.snapshot(snapGlobalObsData);
     }
     // get asimov dataset and global observables
-    RooAbsData *asimovData = (what_ == "blind" ? asimovutils::asimovDatasetNominal(mc_s, 0.0, verbose) :
-                                                 asimovutils::asimovDatasetWithFit(mc_s, data, snapGlobalObsAsimov, 0.0, verbose));
+    RooAbsData *asimovData = (noFitAsimov_  ? asimovutils::asimovDatasetNominal(mc_s, 0.0, verbose) :
+                                              asimovutils::asimovDatasetWithFit(mc_s, data, snapGlobalObsAsimov, 0.0, verbose));
     asimovData->SetName("_Asymptotic_asimovDataset_");
     w->import(*asimovData); // I'm assuming the Workspace takes ownership. Might be false.
+    delete asimovData;      //  ^^^^^^^^----- now assuming that the workspace clones.
     return w->data("_Asymptotic_asimovDataset_");
 }

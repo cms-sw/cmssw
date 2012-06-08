@@ -9,6 +9,7 @@
  *
  */
 #include "../interface/LimitAlgo.h"
+#include "../interface/utils.h"
 #include <memory>
 class RooRealVar;
 #include <RooAbsReal.h>
@@ -31,6 +32,7 @@ private:
   static std::string what_;
   static bool qtilde_; 
   static bool picky_; 
+  static bool noFitAsimov_; 
   static std::string minosAlgo_;
   static std::string minimizerAlgo_;
   static float       minimizerTolerance_;
@@ -41,8 +43,10 @@ private:
   bool    hasFloatParams_;
   mutable std::auto_ptr<RooArgSet>  params_;
   mutable std::auto_ptr<RooAbsReal> nllD_, nllA_; 
-  mutable std::auto_ptr<RooFitResult> fitFreeD_, fitFreeA_;
-  mutable std::auto_ptr<RooFitResult> fitFixD_,  fitFixA_;
+  //mutable std::auto_ptr<RooFitResult> fitFreeD_, fitFreeA_;
+  //mutable std::auto_ptr<RooFitResult> fitFixD_,  fitFixA_;
+  utils::CheapValueSnapshot fitFreeD_, fitFreeA_, fitFixD_,  fitFixA_;
+
   mutable double                      minNllD_,  minNllA_;
   mutable RooArgSet snapGlobalObsData, snapGlobalObsAsimov;
 
