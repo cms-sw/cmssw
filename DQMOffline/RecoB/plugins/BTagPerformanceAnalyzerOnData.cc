@@ -288,7 +288,7 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
       }
     }
     for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
-      binJetTagPlotters[iJetLabel][iPlotter]->analyzeTag(-1);
+      binJetTagPlotters[iJetLabel][iPlotter]->analyzeTag();
     }
   }
 
