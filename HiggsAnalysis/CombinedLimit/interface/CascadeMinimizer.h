@@ -23,6 +23,7 @@ class CascadeMinimizer {
         static void  initOptions() ;
         static void  applyOptions(const boost::program_options::variables_map &vm) ;
         static const boost::program_options::options_description & options() { return options_; }
+        void trivialMinimize(const RooAbsReal &nll, RooRealVar &r, int points=100) const ;
     private:
         RooAbsReal & nll_;
         RooMinimizerOpt minimizer_;

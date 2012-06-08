@@ -83,11 +83,10 @@ bool CascadeMinimizer::minimize(int verbose, bool cascade)
     minimizer_.setPrintLevel(verbose-2);  
     minimizer_.setStrategy(strategy_);
     if (preScan_) minimizer_.minimize("Minuit2","Scan");
-    // // FIXME to be ported later
-    //if (mode_ == Unconstrained && poiOnlyFit_) {
-    //    OneDimMinimizer min1D(&nll_, poi_);
-    //    min1D.minimize(100,ROOT::Math::MinimizerOptions::DefaultTolerance());
-    //}
+     // FIXME can be made smarter than this
+    if (mode_ == Unconstrained && poiOnlyFit_) {
+        trivialMinimize(nll_, *poi_, 200);
+    }
     return improve(verbose, cascade);
 }
 
@@ -175,3 +174,16 @@ void CascadeMinimizer::applyOptions(const boost::program_options::variables_map 
 //        cat.setLabel(val.c_str()); 
 //    }
 //}
+
+
+void CascadeMinimizer::trivialMinimize(const RooAbsReal &nll, RooRealVar &r, int points) const {
+    double rMin = r.getMin(), rMax = r.getMax(), rStep = (rMax-rMin)/(points-1);
+    int iMin = -1; double minnll = 0;
+    for (int i = 0; i < points; ++i) {
+        double x = rMin + (i+0.5)*rStep;
+        r.setVal(x);
+        double y = nll.getVal();
+        if (iMin == -1 || y < minnll) { minnll = y; iMin = i; }
+    }
+    r.setVal( rMin + (iMin+0.5)*rStep );
+}
