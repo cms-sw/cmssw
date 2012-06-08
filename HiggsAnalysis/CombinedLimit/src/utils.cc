@@ -445,3 +445,46 @@ utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signa
 
 }
 
+void utils::CheapValueSnapshot::readFrom(const RooAbsCollection &src) {
+    if (&src != src_) {
+        src_ = &src;
+        values_.resize(src.getSize());
+    }
+    RooLinkedListIter iter = src.iterator(); int i = 0;
+    for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
+        RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
+        if (rrv == 0) throw std::invalid_argument("Collection to read from contains a non-RooRealVar");
+        values_[i] = rrv->getVal();
+    }
+}
+
+void utils::CheapValueSnapshot::writeTo(const RooAbsCollection &src) const {
+    if (&src == src_) {
+        RooLinkedListIter iter = src.iterator();  int i = 0;
+        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
+            RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
+            rrv->setVal(values_[i]);
+        }
+    } else {
+        RooLinkedListIter iter = src_->iterator();  int i = 0;
+        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
+            RooAbsArg *a2 = src.find(a->GetName()); if (a2 == 0) continue;
+            RooRealVar *rrv = dynamic_cast<RooRealVar *>(a2);
+            rrv->setVal(values_[i]);
+        }
+    }
+}
+
+void utils::CheapValueSnapshot::Print(const char *fmt) const {
+    if (src_ == 0) { printf("<NIL>\n"); return; }
+    if (fmt[0] == 'V') {
+        RooLinkedListIter iter = src_->iterator(); int i = 0;
+        for (RooAbsArg *a = (RooAbsArg *) iter.Next(); a != 0; a = (RooAbsArg *) iter.Next(), ++i) {
+            printf(" %3d) %-30s = %9.6g\n", i, a->GetName(), values_[i]);
+        }
+        printf("\n");
+    } else {
+        src_->Print(fmt);
+    }
+}
+

@@ -2,6 +2,7 @@
 #define HiggsAnalysis_CombinedLimit_utils_h
 
 #include <vector>
+#include <string>
 struct RooDataHist;
 struct RooAbsData;
 struct RooAbsPdf;
@@ -67,5 +68,21 @@ namespace utils {
     
     /// make plots, if possible
     std::vector<RooPlot *> makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signalSel=0, const char *backgroundSel=0, float rebinFactor=1.0);
+
+    struct CheapValueSnapshot {
+        public:
+            CheapValueSnapshot() : src_(0) {}
+            CheapValueSnapshot(const RooAbsCollection &src) : src_(0), values_() { readFrom(src); }
+            void readFrom(const RooAbsCollection &) ;
+            void writeTo(const RooAbsCollection &) const ;
+            void clear() { src_ = 0; values_.clear(); }
+            const RooAbsCollection &src() const { return *src_; }
+            bool  empty() const { return src_ == 0; }
+            void  Print(const char *fmt) const ;
+        private:
+            const RooAbsCollection *src_;
+            std::vector<double> values_;
+    };
 }
+
 #endif
