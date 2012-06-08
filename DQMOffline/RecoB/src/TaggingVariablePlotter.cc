@@ -33,7 +33,7 @@ TaggingVariablePlotter::VariableConfig::VariableConfig(
 		Plot plot;
 		plot.histo.reset(new FlavourHistograms<double>(
 							       name + (*iter ? Form("%d", *iter) : "")
-							       + (category.empty() ? ""
+							       + (category.empty() ? "_" + label
 								  : ("_" + category) + "_" + label),
 			TaggingVariableDescription[var], nBins, min, max,
 			false, logScale, true, "b", update,label,mc));
