@@ -337,6 +337,9 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
 	        binJetTagPlotters[iJetLabel][iPlotter]->analyzeTag(jetWithFlavour.first, tagI->second, std::abs(jetWithFlavour.second.getFlavour()),weight);
       }
     }
+    for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
+      binJetTagPlotters[iJetLabel][iPlotter]->analyzeTag(weight);
+    }
   }
 
 // Now look at Tag Correlations
