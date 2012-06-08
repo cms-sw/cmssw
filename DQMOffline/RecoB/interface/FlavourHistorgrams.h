@@ -480,8 +480,8 @@ void FlavourHistograms<T>::divide ( const FlavourHistograms<T> & bHD ) const {
 
 template <class T>
 void FlavourHistograms<T>::fillVariable ( const int & flavour , const T & var , const T & w) const {
-  // all
-  theHisto_all                ->Fill ( var ,w) ;
+  // all, except for the Jet Multiplicity which is not filled for each jets but for each events  
+  if(theBaseNameDescription != "Jet Multiplicity" || flavour == -1) theHisto_all                ->Fill ( var ,w) ;
   // flavour specific
   if (!mcPlots_) return;
 
