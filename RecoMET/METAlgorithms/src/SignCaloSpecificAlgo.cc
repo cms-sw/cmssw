@@ -1,3 +1,15 @@
+// -*- C++ -*-
+//
+// Package:    METAlgorithms
+// Class:      SigInputObj
+// 
+// Original Author:  Kyle Story, Freya Blekman (Cornell University)
+//         Created:  Fri Apr 18 11:58:33 CEST 2008
+// $Id: SignCaloSpecificAlgo.cc,v 1.9 2010/02/22 23:43:47 dlange Exp $
+//
+//
+
+//____________________________________________________________________________||
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "RecoMET/METAlgorithms/interface/SignCaloSpecificAlgo.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
@@ -13,32 +25,9 @@
 #include <string>
 using namespace reco;
 using namespace std;
-// -*- C++ -*-
-//
-// Package:    METAlgorithms
-// Class:      SigInputObj
-// 
-/**\class METSignificance SigInputObj.cc RecoMET/METAlgorithms/src/SigInputObj.cc
 
- Description: <one line class summary>
 
- Implementation:
-
--------------------------------------------------------------------------
- This algorithm adds calorimeter specific global event information to 
- the MET object which may be useful/needed for MET Data Quality Monitoring
- and MET cleaning.  This list is not exhaustive and additional 
- information will be added in the future. 
--------------------------------------
-
-*/
-//
-// Original Author:  Kyle Story, Freya Blekman (Cornell University)
-//         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignCaloSpecificAlgo.cc,v 1.8 2009/10/22 16:50:45 fblekman Exp $
-//
-//
-
+//____________________________________________________________________________||
 SignCaloSpecificAlgo::SignCaloSpecificAlgo():
   significance_(0.),
   matrix_(2,2)

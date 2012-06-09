@@ -1,11 +1,9 @@
-#ifndef METProducers_SignCaloMETAlgo_h
-#define METProducers_SignCaloMETAlgo_h
 // -*- C++ -*-
 //
 // Package:    METAlgorithms
 // Class:      SignCaloSpecificAlgo
 // 
-/**\class METSignificance SignCaloSpecificAlgo.h RecoMET/METAlgorithms/include/SignCaloSpecificAlgo.h
+/**\class SignCaloSpecificAlgo SignCaloSpecificAlgo.h RecoMET/METAlgorithms/interface/SignCaloSpecificAlgo.h
 
  Description: <one line class summary>
 
@@ -13,12 +11,15 @@
      <Notes on implementation>
 */
 //
-// Original Author:  Kyle Story, Freya Blekman (Cornell University)
-//         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignCaloSpecificAlgo.h,v 1.3 2009/10/21 11:27:11 fblekman Exp $
-//
+// Original Authors:  Kyle Story, Freya Blekman (Cornell University)
+//          Created:  Fri Apr 18 11:58:33 CEST 2008
+// $Id: SignCaloSpecificAlgo.h,v 1.4 2009/10/22 16:50:45 fblekman Exp $
 //
 // 
+#ifndef METProducers_SignCaloMETAlgo_h
+#define METProducers_SignCaloMETAlgo_h
+
+//____________________________________________________________________________||
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -32,9 +33,10 @@
 #include "TMatrixD.h"
 
 
-class SignCaloSpecificAlgo 
-{
- public:
+//____________________________________________________________________________||
+class SignCaloSpecificAlgo {
+
+public:
 
   SignCaloSpecificAlgo();
   ~SignCaloSpecificAlgo();
@@ -58,4 +60,6 @@ class SignCaloSpecificAlgo
   TMatrixD matrix_;
 };
 
-#endif
+
+//____________________________________________________________________________||
+#endif // METProducers_SignCaloMETAlgo_h
