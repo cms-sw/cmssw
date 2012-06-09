@@ -5,27 +5,22 @@
 // 
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignCaloSpecificAlgo.cc,v 1.9 2010/02/22 23:43:47 dlange Exp $
+// $Id: SignCaloSpecificAlgo.cc,v 1.10 2012/06/09 18:27:46 sakuma Exp $
 //
 //
 
 //____________________________________________________________________________||
-#include "DataFormats/Math/interface/LorentzVector.h"
 #include "RecoMET/METAlgorithms/interface/SignCaloSpecificAlgo.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "RecoMET/METAlgorithms/interface/SigInputObj.h"
 #include "RecoMET/METAlgorithms/interface/significanceAlgo.h"
 #include "RecoMET/METAlgorithms/interface/SignAlgoResolutions.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 #include <string>
+
 using namespace reco;
 using namespace std;
-
 
 //____________________________________________________________________________||
 SignCaloSpecificAlgo::SignCaloSpecificAlgo():
