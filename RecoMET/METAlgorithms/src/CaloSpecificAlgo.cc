@@ -5,12 +5,13 @@
 // 
 // Original Author:  R. Cavanaugh (taken from F.Ratnikov, UMd)
 //         Created:  June 6, 2006
-// $Id: CaloSpecificAlgo.cc,v 1.30 2012/06/09 01:17:21 sakuma Exp $
+// $Id: CaloSpecificAlgo.cc,v 1.31 2012/06/09 01:20:48 sakuma Exp $
 //
 //
 #include "RecoMET/METAlgorithms/interface/CaloSpecificAlgo.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
 
 #include <iostream>
 

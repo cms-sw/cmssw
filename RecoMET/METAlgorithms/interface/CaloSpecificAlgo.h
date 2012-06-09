@@ -13,7 +13,7 @@
 //
 // Original Author:  R. Cavanaugh (taken from F.Ratnikov, UMd)
 //         Created:  June 6, 2006
-// $Id: CaloSpecificAlgo.h,v 1.8 2012/06/08 15:42:42 sakuma Exp $
+// $Id: CaloSpecificAlgo.h,v 1.9 2012/06/09 00:52:37 sakuma Exp $
 //
 //
 #ifndef METProducers_CaloMETInfo_h
@@ -22,26 +22,28 @@
 //____________________________________________________________________________||
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
 #include "DataFormats/METReco/interface/SpecificCaloMETData.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
 
 #include <vector>
 
+class CaloTower;
 struct SpecificCaloMETData;
 
+//____________________________________________________________________________||
 class CaloSpecificAlgo 
 {
+
  public:
+  reco::CaloMET addInfo(edm::Handle<edm::View<reco::Candidate> > towers, CommonMETData met, bool noHF, double globalThreshold);
+
+ private:
   typedef math::XYZTLorentzVector LorentzVector;
   typedef math::XYZPoint Point;
-  reco::CaloMET addInfo(edm::Handle<edm::View<reco::Candidate> > towers, CommonMETData met, bool noHF, double globalThreshold);
- private:
   void initializeSpecificCaloMETData(SpecificCaloMETData &specific);
   void update_totalEt_totalEm(double &totalEt, double& totalEm, const CaloTower* calotower, bool noHF);
   void update_MaxTowerEm_MaxTowerHad(double &MaxTowerEm, double &MaxTowerHad, const CaloTower* calotower, bool noHF);
@@ -56,4 +58,6 @@ class CaloSpecificAlgo
 
 };
 
-#endif
+//____________________________________________________________________________||
+#endif // METProducers_CaloMETInfo_h
+
