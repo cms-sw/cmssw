@@ -5,7 +5,7 @@
 // 
 // Original Author:  R. Cavanaugh (taken from F.Ratnikov, UMd)
 //         Created:  June 6, 2006
-// $Id: CaloSpecificAlgo.cc,v 1.28 2012/06/08 15:42:42 sakuma Exp $
+// $Id: CaloSpecificAlgo.cc,v 1.29 2012/06/09 00:52:38 sakuma Exp $
 //
 //
 #include "RecoMET/METAlgorithms/interface/CaloSpecificAlgo.h"
@@ -91,19 +91,32 @@ void CaloSpecificAlgo::initializeSpecificCaloMETData(SpecificCaloMETData &specif
 //____________________________________________________________________________||
 void CaloSpecificAlgo::update_totalEt_totalEm(double &totalEt, double& totalEm, const CaloTower* calotower, bool noHF)
 {
-  totalEt += calotower->et();
-  totalEm += calotower->emEt();
+  // totalEt += calotower->et();
+  // totalEm += calotower->emEt();
+  // 
+  // if( !noHF ) return;
+  // 
+  // DetId detIdHcal = find_DetId_of_HCAL_cell_in_constituent_of(calotower);
+  // if(detIdHcal.null()) return;
+  // 
+  // HcalSubdetector subdet = HcalDetId(detIdHcal).subdet();
+  // if( !(subdet == HcalForward) ) return;
+  // totalEm -= calotower->emEt();
+  // totalEt -= calotower->et();
 
-  DetId detIdHcal = find_DetId_of_HCAL_cell_in_constituent_of(calotower);
-  if( !detIdHcal.null() )
+
+  if( noHF )
     {
-      HcalSubdetector subdet = HcalDetId(detIdHcal).subdet();
-      if( noHF && subdet == HcalForward )
+      DetId detIdHcal = find_DetId_of_HCAL_cell_in_constituent_of(calotower);
+      if(!detIdHcal.null()) 
 	{
-	  totalEm -= calotower->emEt();
-	  totalEt -= calotower->et();
+	  HcalSubdetector subdet = HcalDetId(detIdHcal).subdet();
+	  if( subdet == HcalForward ) return;
 	}
     }
+
+  totalEt += calotower->et();
+  totalEm += calotower->emEt();
 }
 
 //____________________________________________________________________________||
@@ -133,17 +146,16 @@ void CaloSpecificAlgo::update_MaxTowerEm_MaxTowerHad(double &MaxTowerEm, double 
 void CaloSpecificAlgo::update_EmEtInEB_EmEtInEE(double &EmEtInEB, double &EmEtInEE, const CaloTower* calotower)
 {
   DetId detIdEcal = find_DetId_of_ECAL_cell_in_constituent_of(calotower);
-  if( !detIdEcal.null() )
+  if(detIdEcal.null()) return;
+
+  EcalSubdetector subdet = EcalSubdetector( detIdEcal.subdetId() );
+  if( subdet == EcalBarrel )
     {
-      EcalSubdetector subdet = EcalSubdetector( detIdEcal.subdetId() );
-      if( subdet == EcalBarrel )
-	{
-	  EmEtInEB += calotower->emEt(); 
-	}
-      else if( subdet == EcalEndcap ) 
-	{
-	  EmEtInEE += calotower->emEt();
-	}
+      EmEtInEB += calotower->emEt(); 
+    }
+  else if( subdet == EcalEndcap ) 
+    {
+      EmEtInEE += calotower->emEt();
     }
 }
 
@@ -151,29 +163,24 @@ void CaloSpecificAlgo::update_EmEtInEB_EmEtInEE(double &EmEtInEB, double &EmEtIn
 void CaloSpecificAlgo::update_HadEtInHB_HadEtInHE_HadEtInHO_HadEtInHF_EmEtInHF(double &HadEtInHB, double &HadEtInHE, double &HadEtInHO, double &HadEtInHF, double &EmEtInHF, const CaloTower* calotower, bool noHF)
 {
   DetId detIdHcal = find_DetId_of_HCAL_cell_in_constituent_of(calotower);
+  if(detIdHcal.null()) return;
 
-  if( !detIdHcal.null() )
+  HcalSubdetector subdet = HcalDetId(detIdHcal).subdet();
+  if( subdet == HcalBarrel || subdet == HcalOuter )
     {
-      HcalSubdetector subdet = HcalDetId(detIdHcal).subdet();
-      if( subdet == HcalBarrel || subdet == HcalOuter )
-	{
-	  HadEtInHB += calotower->hadEt();
-	  HadEtInHO += calotower->outerEt();
-	}
+      HadEtInHB += calotower->hadEt();
+      HadEtInHO += calotower->outerEt();
+    }
 
-      if( subdet == HcalEndcap )
-	{
-	  HadEtInHE   += calotower->hadEt();
-	}
+  if( subdet == HcalEndcap )
+    {
+      HadEtInHE += calotower->hadEt();
+    }
 
-      if( subdet == HcalForward )
-	{
-	  if (!noHF)
-	    {
-	      HadEtInHF += calotower->hadEt();
-	      EmEtInHF += calotower->emEt();
-	    }
-	}
+  if( subdet == HcalForward && !noHF)
+    {
+      HadEtInHF += calotower->hadEt();
+      EmEtInHF += calotower->emEt();
     }
 }
 
@@ -181,25 +188,22 @@ void CaloSpecificAlgo::update_HadEtInHB_HadEtInHE_HadEtInHO_HadEtInHF_EmEtInHF(d
 void CaloSpecificAlgo::update_sumEtInpHF_MExInpHF_MEyInpHF_sumEtInmHF_MExInmHF_MEyInmHF(double &sumEtInpHF, double &MExInpHF, double &MEyInpHF, double &sumEtInmHF, double &MExInmHF, double &MEyInmHF, const CaloTower* calotower)
 {
   DetId detIdHcal = find_DetId_of_HCAL_cell_in_constituent_of(calotower);
+  if(detIdHcal.null()) return;
 
-  if( !detIdHcal.null() )
+  HcalSubdetector subdet = HcalDetId(detIdHcal).subdet();
+  if( !(subdet == HcalForward) ) return;
+
+  if (calotower->eta() >= 0)
     {
-      HcalSubdetector subdet = HcalDetId(detIdHcal).subdet();
-      if( subdet == HcalForward )
-	{
-	  if (calotower->eta() >= 0)
-	    {
-	      sumEtInpHF += calotower->et();
-	      MExInpHF -= (calotower->et() * cos(calotower->phi()));
-	      MEyInpHF -= (calotower->et() * sin(calotower->phi()));
-	    }
-	  else
-	    {
-	      sumEtInmHF += calotower->et();
-	      MExInmHF -= (calotower->et() * cos(calotower->phi()));
-	      MEyInmHF -= (calotower->et() * sin(calotower->phi()));
-	    }
-	}
+      sumEtInpHF += calotower->et();
+      MExInpHF -= (calotower->et() * cos(calotower->phi()));
+      MEyInpHF -= (calotower->et() * sin(calotower->phi()));
+    }
+  else
+    {
+      sumEtInmHF += calotower->et();
+      MExInmHF -= (calotower->et() * cos(calotower->phi()));
+      MEyInmHF -= (calotower->et() * sin(calotower->phi()));
     }
 }
 
