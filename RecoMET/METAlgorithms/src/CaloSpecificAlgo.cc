@@ -5,7 +5,7 @@
 // 
 // Original Author:  R. Cavanaugh (taken from F.Ratnikov, UMd)
 //         Created:  June 6, 2006
-// $Id: CaloSpecificAlgo.cc,v 1.29 2012/06/09 00:52:38 sakuma Exp $
+// $Id: CaloSpecificAlgo.cc,v 1.30 2012/06/09 01:17:21 sakuma Exp $
 //
 //
 #include "RecoMET/METAlgorithms/interface/CaloSpecificAlgo.h"
@@ -91,20 +91,6 @@ void CaloSpecificAlgo::initializeSpecificCaloMETData(SpecificCaloMETData &specif
 //____________________________________________________________________________||
 void CaloSpecificAlgo::update_totalEt_totalEm(double &totalEt, double& totalEm, const CaloTower* calotower, bool noHF)
 {
-  // totalEt += calotower->et();
-  // totalEm += calotower->emEt();
-  // 
-  // if( !noHF ) return;
-  // 
-  // DetId detIdHcal = find_DetId_of_HCAL_cell_in_constituent_of(calotower);
-  // if(detIdHcal.null()) return;
-  // 
-  // HcalSubdetector subdet = HcalDetId(detIdHcal).subdet();
-  // if( !(subdet == HcalForward) ) return;
-  // totalEm -= calotower->emEt();
-  // totalEt -= calotower->et();
-
-
   if( noHF )
     {
       DetId detIdHcal = find_DetId_of_HCAL_cell_in_constituent_of(calotower);
