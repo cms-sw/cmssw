@@ -1,27 +1,29 @@
-/*
-class: PFSpecificAlgo.cc
-description:  MET made from Particle Flow candidates
-authors: R. Remington (UF), R. Cavanaugh (UIC/Fermilab)
-  date: 10/27/08
-*/
+// -*- C++ -*-
+//
+// Package:    METAlgorithms
+// Class:      PFSpecificAlgo
+// 
+// Original Authors:  R. Remington (UF), R. Cavanaugh (UIC/Fermilab)
+//          Created:  October 27, 2008
+// $Id: METAlgo.h,v 1.12 2012/06/08 00:51:27 sakuma Exp $
+//
+//
+//____________________________________________________________________________||
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
 #include "RecoMET/METAlgorithms/interface/significanceAlgo.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+
+//____________________________________________________________________________||
 using namespace reco;
 using namespace std;
 
-//--------------------------------------------------------------------------------------
-// This algorithm adds Particle Flow specific global event information to the MET object
-//--------------------------------------------------------------------------------------
-
+//____________________________________________________________________________||
 reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandidates, CommonMETData met)
 {
-  // Instantiate the container to hold the PF specific information
   SpecificPFMETData specific;
-  // Initialize the container
   specific.NeutralEMFraction = 0.0;
   specific.NeutralHadFraction = 0.0;
   specific.ChargedEMFraction = 0.0;
@@ -30,7 +32,7 @@ reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandida
   specific.Type6Fraction = 0.0;
   specific.Type7Fraction = 0.0;
 
-  if(!PFCandidates->size()) // if no Particle Flow candidates in the event
+  if(!PFCandidates->size())
   {
     const LorentzVector p4( met.mex, met.mey, 0.0, met.met);
     const Point vtx(0.0, 0.0, 0.0 );
@@ -53,14 +55,9 @@ reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandida
   {   
     const Candidate* candidate = &(*iParticle);
     if (candidate) {
-      //const PFCandidate* pfCandidate = static_cast<const PFCandidate*> (candidate);
       const PFCandidate* pfCandidate = dynamic_cast<const PFCandidate*> (candidate);
       if (pfCandidate)
       {
-	//cout << pfCandidate->et() << "     "
-	//   << pfCandidate->hcalEnergy() << "    "
-	//   << pfCandidate->ecalEnergy() << endl;
-	//std::cout << "pfCandidate->particleId() = " << pfCandidate->particleId() << std::endl;
 	const double theta = iParticle->theta();
 	const double e     = iParticle->energy();
 	const double et    = e*sin(theta);
@@ -70,7 +67,6 @@ reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandida
 		reco::PFCandidatePtr pf(dau.id(), pfCandidate, dau.key());
 		pfsignalgo_.addPFCandidate(pf);
 	    }
-	  //metSigInputVector.push_back(resolutions_.evalPF(pfCandidate));
 	}
 
 	if (pfCandidate->particleId() == 1) ChargedHadEt += et;
@@ -112,3 +108,5 @@ void PFSpecificAlgo::runSignificance(metsig::SignAlgoResolutions &resolutions, e
   pfsignalgo_.setResolutions( &resolutions );
   pfsignalgo_.addPFJets(jets);
 }
+
+//____________________________________________________________________________||

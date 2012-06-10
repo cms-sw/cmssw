@@ -1,11 +1,25 @@
+// -*- C++ -*-
+//
+// Package:    METAlgorithms
+// Class:      PFSpecificAlgo
+// 
+/**\class PFSpecificAlgo PFSpecificAlgo.h RecoMET/METAlgorithms/interface/PFSpecificAlgo.h
+
+ Description: Adds Particle Flow specific information to MET
+
+ Implementation:
+     [Notes on implementation]
+*/
+//
+// Original Authors:  R. Remington (UF), R. Cavanaugh (UIC/Fermilab)
+//          Created:  October 27, 2008
+// $Id: METAlgo.h,v 1.12 2012/06/08 00:51:27 sakuma Exp $
+//
+//
 #ifndef METAlgorithms_PFMETInfo_h
 #define METAlgorithms_PFMETInfo_h
 
-// Adds Particle Flow specific information to MET base class
-// Author: R. Remington (UF), R. Cavanaugh (UIC/Fermilab)
-// First Implementation: 10/27/08
-
-
+//____________________________________________________________________________||
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -30,5 +44,6 @@ class PFSpecificAlgo
   metsig::SignPFSpecificAlgo pfsignalgo_;
 };
 
-#endif
+//____________________________________________________________________________||
+#endif // METAlgorithms_PFMETInfo_h
 
