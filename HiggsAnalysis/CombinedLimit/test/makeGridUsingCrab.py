@@ -96,7 +96,7 @@ for i,x in enumerate(points):
     what = "--singlePoint %g " % x if options.signif == False else "--signif";
     if options.diagnosticRun:
       what = "--expectSignal %g --preFitValue %g "%(x,x)
-      script.write("./combine {wsp} -M MaxLikelihoodFit {opts} -v {v} -n {out} -s {seed} -t {toys} {what} \n".format(
+      script.write("./combine {wsp} -M MaxLikelihoodFit {opts} --toysFrequentist -v {v} -n {out} -s {seed} -t {toys} {what} \n".format(
                 wsp=workspace, opts=options.options, fork=options.fork, T=options.T, seed=seed, out=options.out, what=what, v=options.v,
                 toys=toys
               ))
@@ -145,12 +145,13 @@ total_number_of_events = {total}
 number_of_jobs = {jobs}
 
 [USER]
-script_exe = {out}.sh
+script_exe = {scriptout}.sh
 additional_input_files = combine,{wsp}
 return_data = 1
 {uidir_line}
 """.format(
     wsp=workspace, out="mlfit%s.root,%s.root"%(options.out,options.out) if options.diagnosticRun else options.out+'.root',
+    scriptout=options.out,
     sched=sched, srv=(1 if options.server else 0),
     queue=options.queue, jobs=options.j, total=options.t,
     uidir_line = uidir_line
