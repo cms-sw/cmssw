@@ -440,9 +440,11 @@ jptDQMParameters = cms.PSet(
   #Muons
   nAllMuonsTracksPerJetHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
-    NBins = cms.uint32(nTracksBins),
+  #  NBins = cms.uint32(nTracksBins),
+    NBins = cms.uint32(10),
     Min = cms.double(0),
-    Max = cms.double(nTracksBins)
+  #  Max = cms.double(nTracksBins)
+    Max = cms.double(10)
   ),
   AllMuonsTrackPtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -495,9 +497,11 @@ jptDQMParameters = cms.PSet(
   #Muons In of cone at calo, in cone at vertex
   nInCaloInVertexMuonsTracksPerJetHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
-    NBins = cms.uint32(nTracksBins),
+  #  NBins = cms.uint32(nTracksBins),
+    NBins = cms.uint32(10),
     Min = cms.double(0),
-    Max = cms.double(nTracksBins)
+  #  Max = cms.double(nTracksBins)
+    Max = cms.double(10)
   ),
   InCaloInVertexMuonsTrackPtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -551,9 +555,11 @@ jptDQMParameters = cms.PSet(
   #Muons In of cone at calo, out cone at vertex
   nInCaloOutVertexMuonsTracksPerJetHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
-    NBins = cms.uint32(nTracksBins),
+  #  NBins = cms.uint32(nTracksBins),
+    NBins = cms.uint32(10),
     Min = cms.double(0),
-    Max = cms.double(nTracksBins)
+  #  Max = cms.double(nTracksBins)
+    Max = cms.double(10)
   ),
   InCaloOutVertexMuonsTrackPtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -606,9 +612,11 @@ jptDQMParameters = cms.PSet(
   #Muons Out of cone at calo, in cone at vertex
   nOutCaloInVertexMuonsTracksPerJetHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
-    NBins = cms.uint32(nTracksBins),
+  #  NBins = cms.uint32(nTracksBins),
+    NBins = cms.uint32(10),
     Min = cms.double(0),
-    Max = cms.double(nTracksBins)
+  #  Max = cms.double(nTracksBins)
+    Max = cms.double(10)
   ),
   OutCaloInVertexMuonsTrackPtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -662,9 +670,11 @@ jptDQMParameters = cms.PSet(
   #Electrons
   nAllElectronsTracksPerJetHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
-    NBins = cms.uint32(nTracksBins),
+   # NBins = cms.uint32(nTracksBins), 
+    NBins = cms.uint32(10),
     Min = cms.double(0),
-    Max = cms.double(nTracksBins)
+   # Max = cms.double(nTracksBins)
+    Max = cms.double(10)
   ),
   AllElectronsTrackPtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -717,9 +727,11 @@ jptDQMParameters = cms.PSet(
   #Electrons In of cone at calo, in cone at vertex
   nInCaloInVertexElectronsTracksPerJetHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
-    NBins = cms.uint32(nTracksBins),
+  #  NBins = cms.uint32(nTracksBins),
+    NBins = cms.uint32(10),
     Min = cms.double(0),
-    Max = cms.double(nTracksBins)
+  #  Max = cms.double(nTracksBins)
+    Max = cms.double(10)
   ),
   InCaloInVertexElectronsTrackPtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -772,9 +784,11 @@ jptDQMParameters = cms.PSet(
   #Electrons In of cone at calo, out cone at vertex
   nInCaloOutVertexElectronsTracksPerJetHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
-    NBins = cms.uint32(nTracksBins),
+  #  NBins = cms.uint32(nTracksBins),
+    NBins = cms.uint32(10),
     Min = cms.double(0),
-    Max = cms.double(nTracksBins)
+  #  Max = cms.double(nTracksBins)
+    Max = cms.double(10)
   ),
   InCaloOutVertexElectronsTrackPtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
@@ -827,9 +841,11 @@ jptDQMParameters = cms.PSet(
   #Electrons Out of cone at calo, in cone at vertex
   nOutCaloInVertexElectronsTracksPerJetHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
-    NBins = cms.uint32(nTracksBins),
+  #  NBins = cms.uint32(nTracksBins),
+    NBins = cms.uint32(10),
     Min = cms.double(0),
-    Max = cms.double(nTracksBins)
+  #  Max = cms.double(nTracksBins)
+    Max = cms.double(10)
   ),
   OutCaloInVertexElectronsTrackPtHistogramConfig = cms.PSet(
     Enabled = cms.bool(True),
