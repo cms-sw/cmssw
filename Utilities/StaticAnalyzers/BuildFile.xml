@@ -1,2 +1,3 @@
 <use name="llvm"/>
 <flags NO_LIB_CHECKING="yes"/>
+<flags CXXFLAGS="-w"/>
