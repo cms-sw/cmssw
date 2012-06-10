@@ -24,6 +24,7 @@ parser.add_option("-s", "--smart",    dest="smart",     default=False, action="s
 parser.add_option("-S", "--signif",   dest="signif",     default=False, action="store_true", help="Compute significance. You should set min = 1, max = 1")
 parser.add_option("-u", "--uidir",    dest="uidir", default="", help="Sepcify a CRAB UI directory.  If not provided using the normal crab_0_timestamp")
 parser.add_option("-d", "--diagnosticRun", dest="diagnosticRun", default=False ,action="store_true",help="Run MaxLikelihoodFit with toys for diagnostic studies")
+parser.add_option("-m", "--mass",     dest="mass",	default=120, type="float",help="Hypothesis mass (mH)")
 #parser.add_option("--fork",           dest="fork",     default=1,   type="int",  help="Cores to use (leave to 1)") # no fork in batch jobs for now
 (options, args) = parser.parse_args()
 if len(args) != 3:
@@ -33,7 +34,7 @@ options.fork = 1 ## NEVER EVER FORK IN GRID JOBS. NOT ALLOWED BY THE SYSTEM ##
 
 workspace = args[0]
 if workspace.endswith(".txt"):
-    os.system("text2workspace.py -b %s -o %s.workspace.root" % (workspace, options.out))
+    os.system("text2workspace.py -b %s -o %s.workspace.root -m %f" % (workspace, options.out, options.mass))
     workspace = options.out+".workspace.root"
     print "Converted workspace to binary",workspace
 
@@ -96,14 +97,14 @@ for i,x in enumerate(points):
     what = "--singlePoint %g " % x if options.signif == False else "--signif";
     if options.diagnosticRun:
       what = "--expectSignal %g --preFitValue %g "%(x,x)
-      script.write("./combine {wsp} -M MaxLikelihoodFit {opts} --toysFrequentist -v {v} -n {out} -s {seed} -t {toys} {what} \n".format(
+      script.write("./combine {wsp} -M MaxLikelihoodFit {opts} -m {mass} --toysFrequentist -v {v} -n {out} -s {seed} -t {toys} {what} \n".format(
                 wsp=workspace, opts=options.options, fork=options.fork, T=options.T, seed=seed, out=options.out, what=what, v=options.v,
-                toys=toys
+                toys=toys,mass=options.mass
               ))
     else:
-      script.write("{cond} ./combine {wsp} -M HybridNew {opts} --fork $nchild -T {T} --clsAcc 0 -v {v} -n {out} --saveHybridResult --saveToys -s {seed} -i {toys} {what}\n".format(
+      script.write("{cond} ./combine {wsp} -M HybridNew {opts} -m {mass} --fork $nchild -T {T} --clsAcc 0 -v {v} -n {out} --saveHybridResult --saveToys -s {seed} -i {toys} {what}\n".format(
                 wsp=workspace, opts=options.options, fork=options.fork, T=options.T, seed=seed, out=options.out, what=what, v=options.v,
-                cond=interleave, toys=toys
+                cond=interleave, toys=toys,mass=options.mass
               ))
 
 script.write("\n");
