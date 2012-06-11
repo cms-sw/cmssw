@@ -36,7 +36,6 @@
 # include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
 # include "FWCore/ServiceRegistry/interface/Service.h"
 # include "FWCore/MessageLogger/interface/MessageLogger.h"
-# include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometryService.h"
 
 namespace {
   const float EPS = 0.001;     // accuray in pixel units, so about 0.1 um
@@ -47,35 +46,6 @@ class RectangularPixelTopology GCC11_FINAL : public PixelTopology
 {
 public:
 
-  RectangularPixelTopology( int nrows, int ncols, float pitchx, float pitchy )
-    : m_pitchx( pitchx ),
-      m_pitchy( pitchy ),
-      m_nrows( nrows ),
-      m_ncols( ncols ),
-      m_ROWS_PER_ROC( 80 ),     // Num of Rows per ROC 
-      m_COLS_PER_ROC( 52 ),     // Num of Cols per ROC
-      m_BIG_PIX_PER_ROC_X( 1 ), // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
-      m_BIG_PIX_PER_ROC_Y( 2 ), // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
-      m_ROCS_X( 0 ), // 2 for SLHC
-      m_ROCS_Y( 0 ) // 8 for SLHC
-    {
-      initConstants();
-      
-      // Calculate the edge of the active sensor with respect to the center,
-      // that is simply the half-size.       
-      // Take into account large pixels
-      m_xoffset = -(m_nrows + m_BIG_PIX_PER_ROC_X*m_nrows/m_ROWS_PER_ROC)/2. * 
-		  m_pitchx;
-      m_yoffset = -(m_ncols + m_BIG_PIX_PER_ROC_Y*m_ncols/m_COLS_PER_ROC)/2. * 
-		  m_pitchy;
-
-      LogDebug("RectangularPixelTopology") << m_nrows << " " << m_ncols << " "
-					   << m_pitchx << " " << m_pitchy << " "
-					   << m_xoffset << " " << m_yoffset << " "
-					   << m_BIG_PIX_PER_ROC_X << " " << m_BIG_PIX_PER_ROC_Y << " "
-					   << m_ROWS_PER_ROC << " " << m_COLS_PER_ROC;
-    }
-  
   // Constructor, initilize 
   RectangularPixelTopology( int nrows, int ncols, float pitchx, float pitchy,
 			    bool upgradeGeometry,
@@ -144,21 +114,6 @@ public:
 
     }
 
-  void initConstants( void ) 
-    {
-      edm::Service<TrackerGeometryService> tkGeoService;
-      if( !tkGeoService.isAvailable()) // Die if not available
-	throw cms::Exception("NotAvailable") << "TrackerGeometryService not available";
-      
-      m_ROWS_PER_ROC = tkGeoService->rowsPerRoc();
-      m_COLS_PER_ROC = tkGeoService->colsPerRoc();
-      m_BIG_PIX_PER_ROC_X = tkGeoService->bigPixPerRocX();
-      m_BIG_PIX_PER_ROC_Y = tkGeoService->bigPixPerRocY();
-      m_ROCS_X = tkGeoService->rocsX();
-      m_ROCS_Y = tkGeoService->rocsY();
-      m_upgradeGeometry = tkGeoService->upgradeGeometry();
-    }
-  
   // Topology interface, go from Masurement to Local corrdinates
   // pixel coordinates (mp) -> cm (LocalPoint)
   virtual LocalPoint localPosition( const MeasurementPoint& mp ) const;
