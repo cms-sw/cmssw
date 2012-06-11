@@ -495,9 +495,13 @@ cacheutils::CachingSimNLL::setup_()
     // Allow runtime-flag to switch off logEvalErrors
     noDeepLEE_ = runtimedef::get("SIMNLL_NO_LEE");
 
-    RooAbsPdf *pdfclone = runtimedef::get("SIMNLL_NOCLONE") ? pdfOriginal_  : utils::fullClonePdf(pdfOriginal_, piecesForCloning_);
-    std::auto_ptr<RooArgSet> params(pdfclone->getParameters(*dataOriginal_));
-    params_.add(*params);
+    //RooAbsPdf *pdfclone = runtimedef::get("SIMNLL_CLONE") ? pdfOriginal_  : utils::fullClonePdf(pdfOriginal_, piecesForCloning_);
+    RooAbsPdf *pdfclone = pdfOriginal_; // never clone
+
+    //---- Instead of getting the parameters here, we get them from the individual constraint terms and single pdfs ----
+    //---- This seems to save memory.
+    //std::auto_ptr<RooArgSet> params(pdfclone->getParameters(*dataOriginal_));
+    //params_.add(*params);
 
     RooArgList constraints;
     factorizedPdf_.reset(dynamic_cast<RooSimultaneous *>(utils::factorizePdf(*dataOriginal_->get(), *pdfclone, constraints)));
@@ -507,13 +511,17 @@ cacheutils::CachingSimNLL::setup_()
     if (constraints.getSize()) {
         //constrainPdfs_.push_back(new RooProdPdf("constraints","constraints", constraints));
         for (int i = 0, n = constraints.getSize(); i < n; ++i) {
-            constrainPdfs_.push_back(dynamic_cast<RooAbsPdf*>(constraints.at(i)));
+            RooAbsPdf *pdfi = dynamic_cast<RooAbsPdf*>(constraints.at(i));
+            constrainPdfs_.push_back(pdfi);
             constrainZeroPoints_.push_back(0);
             //std::cout << "Constraint pdf: " << constraints.at(i)->GetName() << std::endl;
+            std::auto_ptr<RooArgSet> params(pdfi->getParameters(*dataOriginal_));
+            params_.add(*params, false);
         }
     } else {
         std::cerr << "PDF didn't factorize!" << std::endl;
         std::cout << "Parameters: " << std::endl;
+        std::auto_ptr<RooArgSet> params(pdfclone->getParameters(*dataOriginal_));
         params->Print("V");
         std::cout << "Obs: " << std::endl;
         dataOriginal_->get()->Print("V");
@@ -537,6 +545,7 @@ cacheutils::CachingSimNLL::setup_()
             //std::cout << "   bin " << ib << " (label " << catClone->getLabel() << ") has pdf " << pdf->GetName() << " of type " << pdf->ClassName() << " and " << (data ? data->numEntries() : -1) << " dataset entries" << std::endl;
             if (data == 0) { throw std::logic_error("Error: no data"); }
             pdfs_[ib] = new CachingAddNLL(catClone->getLabel(), "", pdf, data);
+            params_.add(pdfs_[ib]->params(), /*silent=*/true); 
         } else { 
             pdfs_[ib] = 0; 
             //std::cout << "   bin " << ib << " (label " << catClone->getLabel() << ") has no pdf" << std::endl;

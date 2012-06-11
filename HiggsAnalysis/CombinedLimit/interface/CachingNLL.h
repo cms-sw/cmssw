@@ -84,6 +84,7 @@ class CachingAddNLL : public RooAbsReal {
         const RooAbsPdf *pdf() const { return pdf_; }
         void setZeroPoint() { zeroPoint_ = -this->getVal(); setValueDirty(); }
         void clearZeroPoint() { zeroPoint_ = 0.0; setValueDirty();  }
+        RooSetProxy & params() { return params_; }
     private:
         void setup_();
         RooAbsPdf *pdf_;
