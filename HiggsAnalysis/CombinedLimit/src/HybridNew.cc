@@ -40,6 +40,7 @@
 #include "../interface/ToyMCSamplerOpt.h"
 #include "../interface/utils.h"
 #include "../interface/ProfileLikelihood.h"
+#include "../interface/ProfilingTools.h"
 
 using namespace RooStats;
 
@@ -57,7 +58,8 @@ bool HybridNew::fitNuisances_ = false;
 unsigned int HybridNew::iterations_ = 1;
 unsigned int HybridNew::nCpu_ = 0; // proof-lite mode
 unsigned int HybridNew::fork_ = 1; // fork mode
-double HybridNew::rValue_  = 1.0;
+std::string         HybridNew::rValue_   = "1.0";
+RooArgSet           HybridNew::rValues_;
 bool HybridNew::CLs_ = false;
 bool HybridNew::saveHybridResult_  = false;
 bool HybridNew::readHybridResults_ = false; 
@@ -89,7 +91,7 @@ LimitAlgo("HybridNew specific options") {
     options_.add_options()
         ("rule",    boost::program_options::value<std::string>(&rule_)->default_value(rule_),            "Rule to use: CLs, CLsplusb")
         ("testStat",boost::program_options::value<std::string>(&testStat_)->default_value(testStat_),    "Test statistics: LEP, TEV, LHC (previously known as Atlas), Profile.")
-        ("singlePoint",  boost::program_options::value<float>(),  "Just compute CLs for the given value of r")
+        ("singlePoint",  boost::program_options::value<std::string>(&rValue_)->default_value(rValue_),  "Just compute CLs for the given value of the parameter of interest. In case of multiple parameters, use a syntax 'name=value,name2=value2,...'")
         ("onlyTestStat", "Just compute test statistics, not actual p-values (works only with --singlePoint)")
         ("generateNuisances",            boost::program_options::value<bool>(&genNuisances_)->default_value(genNuisances_), "Generate nuisance parameters for each toy")
         ("generateExternalMeasurements", boost::program_options::value<bool>(&genGlobalObs_)->default_value(genGlobalObs_), "Generate external measurements for each toy, taken from the GlobalObservables of the ModelConfig")
@@ -107,7 +109,7 @@ LimitAlgo("HybridNew specific options") {
         ("readHybridResults", "Read and merge results from file (requires 'toysFile' or 'grid')")
         ("grid",    boost::program_options::value<std::string>(&gridFile_),            "Use the specified file containing a grid of SamplingDistributions for the limit (implies readHybridResults).\n For --singlePoint or --signif use --toysFile=x.root --readHybridResult instead of this.")
         ("expectedFromGrid", boost::program_options::value<float>(&quantileForExpectedFromGrid_)->default_value(0.5), "Use the grid to compute the expected limit for this quantile")
-        ("signalForSignificance", boost::program_options::value<float>()->default_value(1.0), "Use this value of signal when generating signal toys for expected significance")
+        ("signalForSignificance", boost::program_options::value<std::string>()->default_value("1"), "Use this value of the parameter of interest when generating signal toys for expected significance (same syntax as --singlePoint)")
         ("clsQuantiles", boost::program_options::value<bool>(&clsQuantiles_)->default_value(clsQuantiles_), "Compute correct quantiles of CLs or CLsplusb instead of assuming they're the same as CLb ones")
         //("importanceSamplingNull", boost::program_options::value<bool>(&importanceSamplingNull_)->default_value(importanceSamplingNull_),  
         //                           "Enable importance sampling for null hypothesis (background only)") 
@@ -151,17 +153,15 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
     if (genGlobalObs_ && genNuisances_) {
         std::cerr << "ALERT: generating both global observables and nuisance parameters at the same time is not validated." << std::endl;
     }
-    if (vm.count("singlePoint")) {
+    if (!vm["singlePoint"].defaulted()) {
         if (doSignificance_) throw std::invalid_argument("HybridNew: Can't use --significance and --singlePoint at the same time");
-        rValue_ = vm["singlePoint"].as<float>();
         workingMode_ = ( vm.count("onlyTestStat") ? MakeTestStatistics : MakePValues );
-        rValue_ = vm["singlePoint"].as<float>();
     } else if (vm.count("onlyTestStat")) {
         if (doSignificance_) workingMode_ = MakeSignificanceTestStatistics;
         else throw std::invalid_argument("HybridNew: --onlyTestStat works only with --singlePoint or --significance");
     } else if (doSignificance_) {
         workingMode_ = MakeSignificance;
-        rValue_ = vm["signalForSignificance"].as<float>();
+        rValue_ = vm["signalForSignificance"].as<std::string>();
     } else {
         workingMode_ = MakeLimit;
     }
@@ -217,10 +217,42 @@ void HybridNew::validateOptions() {
     if (reportPVal_ && workingMode_ != MakeSignificance) throw std::invalid_argument("HybridNew: option --pvalue must go together with --significance");
 }
 
+void HybridNew::setupPOI(RooStats::ModelConfig *mc_s) {
+    RooArgSet POI(*mc_s->GetParametersOfInterest());
+    if (rValue_.find("=") == std::string::npos) {
+        if (POI.getSize() != 1) throw std::invalid_argument("Error: the argument to --singlePoint or --signalForSignificance is a single value, but there are multiple POIs");
+        POI.snapshot(rValues_);
+        errno = 0; // check for errors in str->float conversion
+        ((RooRealVar*)rValues_.first())->setVal(strtod(rValue_.c_str(),NULL));
+        if (errno != 0) std::invalid_argument("Error: the argument to --singlePoint or --signalForSignificance is not a valid number.");
+    } else {
+        std::string::size_type eqidx = 0, colidx = 0, colidx2;
+        do {
+            eqidx   = rValue_.find("=", colidx);
+            colidx2 = rValue_.find(",", colidx+1);
+            if (eqidx == std::string::npos || (colidx2 != std::string::npos && colidx2 < eqidx)) {
+                throw std::invalid_argument("Error: the argument to --singlePoint or --signalForSignificance is not in the forms 'value' or 'name1=value1,name2=value2,...'\n");
+            }
+            std::string poiName = rValue_.substr(colidx, eqidx);
+            std::string poiVal  = rValue_.substr(eqidx+1, (colidx2 == std::string::npos ? std::string::npos : colidx2 - eqidx - 1));
+            RooAbsArg *poi = POI.find(poiName.c_str());
+            if (poi == 0) throw std::invalid_argument("Error: unknown parameter '"+poiName+"' passed to --singlePoint or --signalForSignificance.");
+            rValues_.addClone(*poi);
+            errno = 0;
+            rValues_.setRealValue(poi->GetName(), strtod(poiVal.c_str(),NULL));
+            if (errno != 0) throw std::invalid_argument("Error: invalid value '"+poiVal+"' for parameter '"+poiName+"' passed to --singlePoint or --signalForSignificance.");
+        } while (colidx2 != std::string::npos);
+        if (rValues_.getSize() != POI.getSize()) {
+            throw std::invalid_argument("Error: not all parameters of interest specified in  --singlePoint or --signalForSignificance");
+        }
+    }
+}
+
 bool HybridNew::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
     RooFitGlobalKillSentry silence(verbose <= 1 ? RooFit::WARNING : RooFit::DEBUG);
     ProfileLikelihood::MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
     perf_totalToysRun_ = 0; // reset performance counter
+    if (rValues_.getSize() == 0) setupPOI(mc_s);
     switch (workingMode_) {
         case MakeLimit:            return runLimit(w, mc_s, mc_b, data, limit, limitErr, hint);
         case MakeSignificance:     return runSignificance(w, mc_s, mc_b, data, limit, limitErr, hint);
@@ -234,10 +266,10 @@ bool HybridNew::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mode
 
 bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
     HybridNew::Setup setup;
-    std::auto_ptr<RooStats::HybridCalculator> hc(create(w, mc_s, mc_b, data, rValue_, setup));
+    std::auto_ptr<RooStats::HybridCalculator> hc(create(w, mc_s, mc_b, data, rValues_, setup));
     std::auto_ptr<HypoTestResult> hcResult;
     if (readHybridResults_) {
-        hcResult.reset(readToysFromFile());
+        hcResult.reset(readToysFromFile(rValues_));
     } else {
         hcResult.reset(evalGeneric(*hc));
         for (unsigned int i = 1; i < iterations_; ++i) {
@@ -251,7 +283,12 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
         return false;
     }
     if (saveHybridResult_) {
-        TString name = TString::Format("HypoTestResult_mh%g_r%g_%u",mass_, 0., RooRandom::integer(std::numeric_limits<UInt_t>::max() - 1));
+        TString name = TString::Format("HypoTestResult_mh%g",mass_);
+        RooLinkedListIter it = rValues_.iterator();
+        for (RooRealVar *rIn = (RooRealVar*) it.Next(); rIn != 0; rIn = (RooRealVar*) it.Next()) {
+            name += Form("_%s%g", rIn->GetName(), rIn->getVal());
+        }
+        name += Form("_%u", RooRandom::integer(std::numeric_limits<UInt_t>::max() - 1));
         writeToysHere->WriteTObject(new HypoTestResult(*hcResult), name);
         if (verbose) std::cout << "Hybrid result saved as " << name << " in " << writeToysHere->GetFile()->GetName() << " : " << writeToysHere->GetPath() << std::endl;
     }
@@ -275,6 +312,7 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
 }
 
 bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
+  if (mc_s->GetParametersOfInterest()->getSize() != 1) throw std::logic_error("Cannot run limits in more than one dimension, for the moment.");
   RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first()); r->setConstant(true);
   w->loadSnapshot("clean");
 
@@ -316,7 +354,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
         } else {
             updateGridData(w, mc_s, mc_b, data, !fullGrid_, clsTarget);
         }
-      } else readAllToysFromFile(); 
+      } else throw std::logic_error("When setting a limit reading results from file, a grid file must be specified with option --grid");
       if (grid_.size() <= 1) throw std::logic_error("The grid must contain at least 2 points."); 
 
       useGrid();
@@ -502,8 +540,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
 }
 
 bool HybridNew::runSinglePoint(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
-    RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first()); r->setConstant(true);
-    std::pair<double, double> result = eval(w, mc_s, mc_b, data, rValue_, clsAccuracy_ != 0);
+    std::pair<double, double> result = eval(w, mc_s, mc_b, data, rValues_, clsAccuracy_ != 0);
     std::cout << "\n -- Hybrid New -- \n";
     std::cout << (CLs_ ? "CLs = " : "CLsplusb = ") << result.first << " +/- " << result.second << std::endl;
     if (verbose > 1) std::cout << "Total toys: " << perf_totalToysRun_ << std::endl;
@@ -515,15 +552,17 @@ bool HybridNew::runSinglePoint(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
 bool HybridNew::runTestStatistics(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
     bool isProfile = (testStat_ == "LHC" || testStat_ == "LHCFC"  || testStat_ == "Profile");
     if (readHybridResults_ && expectedFromGrid_) {
-        std::auto_ptr<RooStats::HypoTestResult> result(readToysFromFile(0));
+        std::auto_ptr<RooStats::HypoTestResult> result(readToysFromFile(rValues_));
         applyExpectedQuantile(*result);
         limit = -2 * result->GetTestStatisticData();
     } else {    
-        RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
         HybridNew::Setup setup;
-        std::auto_ptr<RooStats::HybridCalculator> hc(create(w, mc_s, mc_b, data, rValue_, setup));
+        std::auto_ptr<RooStats::HybridCalculator> hc(create(w, mc_s, mc_b, data, rValues_, setup));
         RooArgSet nullPOI(*setup.modelConfig_bonly.GetSnapshot());
-        if (isProfile) nullPOI.setRealValue(r->GetName(), rValue_);
+        if (isProfile) { 
+            /// Probably useless, but should double-check before deleting this.
+            nullPOI.assignValueOnly(rValues_);
+        }
         limit = -2 * setup.qvar->Evaluate(data, nullPOI);
     }
     if (isProfile) limit = -limit; // there's a sign flip for these two
@@ -533,40 +572,49 @@ bool HybridNew::runTestStatistics(RooWorkspace *w, RooStats::ModelConfig *mc_s, 
 }
 
 std::pair<double, double> HybridNew::eval(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double rVal, bool adaptive, double clsTarget) {
+    RooArgSet rValues;
+    mc_s->GetParametersOfInterest()->snapshot(rValues);
+    RooRealVar *r = dynamic_cast<RooRealVar*>(rValues.first());
+    if (rVal > r->getMax()) r->setMax(2*rVal);
+    r->setVal(rVal);
+    return eval(w,mc_s,mc_b,data,rValues,adaptive,clsTarget);
+}
+
+std::pair<double, double> HybridNew::eval(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, const RooAbsCollection & rVals, bool adaptive, double clsTarget) {
     if (readHybridResults_) {
         bool isProfile = (testStat_ == "LHC" || testStat_ == "LHCFC"  || testStat_ == "Profile");
-        std::auto_ptr<RooStats::HypoTestResult> result(readToysFromFile(rVal));
+        std::auto_ptr<RooStats::HypoTestResult> result(readToysFromFile(rVals));
         std::pair<double, double> ret(-1,-1);
-        if (result.get() == 0) { 
-            std::cerr << "HypoTestResults for r = " << rVal << " not found in file" << std::endl;
-        } else {
-            if (expectedFromGrid_) {
-                applyExpectedQuantile(*result);
-                result->SetTestStatisticData(result->GetTestStatisticData() + (isProfile ? -EPS : EPS));
-            } else if (!noUpdateGrid_) {
-                Setup setup;
-                std::auto_ptr<RooStats::HybridCalculator> hc = create(w, mc_s, mc_b, data, rVal, setup);
-                RooArgSet nullPOI(*setup.modelConfig_bonly.GetSnapshot());
-                if (isProfile) nullPOI.setRealValue(mc_s->GetParametersOfInterest()->first()->GetName(), rVal);
-                double testStat = setup.qvar->Evaluate(data, nullPOI);
-                result->SetTestStatisticData(testStat + (isProfile ? -EPS : EPS));
-            }
-            ret = eval(*result, rVal);
+        assert(result.get() != 0 && "Null result in HybridNew::eval(Workspace,...) after readToysFromFile");
+        if (expectedFromGrid_) {
+            applyExpectedQuantile(*result);
+            result->SetTestStatisticData(result->GetTestStatisticData() + (isProfile ? -EPS : EPS));
+        } else if (!noUpdateGrid_) {
+            Setup setup;
+            std::auto_ptr<RooStats::HybridCalculator> hc = create(w, mc_s, mc_b, data, rVals, setup);
+            RooArgSet nullPOI(*setup.modelConfig_bonly.GetSnapshot());
+            if (isProfile) nullPOI.assignValueOnly(rVals);
+            double testStat = setup.qvar->Evaluate(data, nullPOI);
+            result->SetTestStatisticData(testStat + (isProfile ? -EPS : EPS));
         }
+        ret = eval(*result, rVals);
         return ret;
     }
 
     HybridNew::Setup setup;
-    RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
-    r->setVal(rVal);
-    if (verbose) std::cout << "  " << r->GetName() << " = " << rVal << " +/- " << r->getError() << std::endl;
-    std::auto_ptr<RooStats::HybridCalculator> hc(create(w, mc_s, mc_b, data, rVal, setup));
-    std::pair<double, double> ret = eval(*hc, rVal, adaptive, clsTarget);
+    RooLinkedListIter it = rVals.iterator();
+    for (RooRealVar *rIn = (RooRealVar*) it.Next(); rIn != 0; rIn = (RooRealVar*) it.Next()) {
+        RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->find(rIn->GetName()));
+        r->setVal(rIn->getVal());
+        if (verbose) std::cout << "  " << r->GetName() << " = " << rIn->getVal() << " +/- " << r->getError() << std::endl;
+    } 
+    std::auto_ptr<RooStats::HybridCalculator> hc(create(w, mc_s, mc_b, data, rVals, setup));
+    std::pair<double, double> ret = eval(*hc, rVals, adaptive, clsTarget);
 
     // add to plot 
     if (limitPlot_.get()) { 
         limitPlot_->Set(limitPlot_->GetN()+1);
-        limitPlot_->SetPoint(limitPlot_->GetN()-1, rVal, ret.first); 
+        limitPlot_->SetPoint(limitPlot_->GetN()-1, ((RooAbsReal*)rVals.first())->getVal(), ret.first); 
         limitPlot_->SetPointError(limitPlot_->GetN()-1, 0, ret.second);
     }
 
@@ -576,6 +624,15 @@ std::pair<double, double> HybridNew::eval(RooWorkspace *w, RooStats::ModelConfig
 
 
 std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double rVal, HybridNew::Setup &setup) {
+    RooArgSet rValues;
+    mc_s->GetParametersOfInterest()->snapshot(rValues);
+    RooRealVar *r = dynamic_cast<RooRealVar*>(rValues.first());
+    if (rVal > r->getMax()) r->setMax(2*rVal);
+    r->setVal(rVal);
+    return create(w,mc_s,mc_b,data,rValues,setup);
+}
+
+std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, const RooAbsCollection & rVals, HybridNew::Setup &setup) {
   using namespace RooStats;
   
   w->loadSnapshot("clean");
@@ -584,16 +641,23 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   RooArgSet  poi(*mc_s->GetParametersOfInterest()), params(poi);
   RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
 
-  if (testStat_ != "MLZ") r->setMax(rVal); 
-  r->setVal(rVal); 
-  if (testStat_ == "LHC" || testStat_ == "Profile") {
-    r->setConstant(false); r->setMin(0); 
-    if (workingMode_ == MakeSignificance || workingMode_ == MakeSignificanceTestStatistics) {
-        r->setVal(0);
-        r->removeMax(); 
-    }
+  if (poi.getSize() == 1) { // here things are a bit more convoluted, although they could probably be cleaned up
+      double rVal = ((RooAbsReal*)rVals.first())->getVal();
+      if (testStat_ != "MLZ") r->setMax(rVal); 
+      r->setVal(rVal); 
+      if (testStat_ == "LHC" || testStat_ == "Profile") {
+        r->setConstant(false); r->setMin(0); 
+        if (workingMode_ == MakeSignificance || workingMode_ == MakeSignificanceTestStatistics) {
+            r->setVal(0);
+            r->removeMax(); 
+        }
+      } else {
+        r->setConstant(true);
+      }
   } else {
-    r->setConstant(true);
+      if (testStat_ == "Profile") utils::setAllConstant(poi, false);
+      else if (testStat_ == "LEP" || testStat_ == "TEV") utils::setAllConstant(poi, true);
+      poi.assignValueOnly(rVals);
   }
 
   //set value of "globalConstrained" nuisances to the value of the corresponding global observable and set them constant
@@ -622,21 +686,26 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   if (fitNuisances_ && mc_s->GetNuisanceParameters() && withSystematics) {
     TStopwatch timer;
     bool isExt = mc_s->GetPdf()->canBeExtended();
-    r->setConstant(true); r->setVal(0);
+    utils::setAllConstant(poi, true);
+    /// Background-only fit. In 1D case, can use model_s with POI set to zero, but in nD must use model_b.
+    RooAbsPdf *pdfB = mc_b->GetPdf();
+    if (poi.getSize() == 1) {
+        r->setVal(0); pdfB = mc_s->GetPdf();
+    }
     timer.Start();
     {
         CloseCoutSentry sentry(verbose < 3);
-        fitZero.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+        fitZero.reset(pdfB->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
     }
     if (verbose > 1) { std::cout << "Zero signal fit" << std::endl; fitZero->Print("V"); }
     if (verbose > 1) { std::cout << "Fitting of the background hypothesis done in " << timer.RealTime() << " s" << std::endl; }
-    r->setConstant(true); r->setVal(rVal);
+    poi.assignValueOnly(rVals);
     timer.Start();
     {
        CloseCoutSentry sentry(verbose < 3);
        fitMu.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Extended(isExt), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
     }
-    if (verbose > 1) { std::cout << "Reference signal fit (r = " << rVal << ")" << std::endl; fitMu->Print("V"); }
+    if (verbose > 1) { std::cout << "Reference signal fit" << std::endl; fitMu->Print("V"); }
     if (verbose > 1) { std::cout << "Fitting of the signal-plus-background hypothesis done in " << timer.RealTime() << " s" << std::endl; }
   } else { fitNuisances_ = false; }
 
@@ -675,8 +744,10 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
 
   // create snapshots
   RooArgSet paramsZero; 
-  paramsZero.addClone(*r); 
-  paramsZero.setRealValue(r->GetName(), 0);
+  if (poi.getSize() == 1) { // in the trivial 1D case, the background has POI=0.
+    paramsZero.addClone(*rVals.first()); 
+    paramsZero.setRealValue(rVals.first()->GetName(), 0);
+  }
   if (fitNuisances_) params.add(fitMu->floatParsFinal());
   if (fitNuisances_) paramsZero.addClone(fitZero->floatParsFinal());
   setup.modelConfig.SetSnapshot(params);
@@ -703,41 +774,53 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   }
 
   if (testStat_ == "LEP") {
-      //SLR is evaluated using the central value of the nuisance parameters, so I believe we have to put them in the snapshots
-      RooArgSet snapS; snapS.addClone(params); 
-      if (withSystematics) snapS.addClone(*mc_s->GetNuisanceParameters());
-      RooArgSet snapB; snapB.addClone(snapS);
-      snapS.setRealValue(r->GetName(), rVal);
-      snapB.setRealValue(r->GetName(),    0);
+      //SLR is evaluated using the central value of the nuisance parameters, so we have to put them in the parameter sets
+      if (withSystematics) {
+          if (!fitNuisances_) {
+              params.add(*mc_s->GetNuisanceParameters(), true);
+              paramsZero.addClone(*mc_b->GetNuisanceParameters(), true);
+          } else {
+              std::cerr << "ALERT: using LEP test statistics with --fitNuisances is not validated and most likely broken" << std::endl;
+              params.assignValueOnly(*mc_s->GetNuisanceParameters());
+              paramsZero.assignValueOnly(*mc_s->GetNuisanceParameters());
+          }
+      } 
+      RooAbsPdf *pdfB = factorizedPdf_b; 
+      if (poi.getSize() == 1) pdfB = factorizedPdf_s; // in this case we can remove the arbitrary constant from the test statistics.
       if (optimizeTestStatistics_) {
           if (!mc_s->GetPdf()->canBeExtended()) {
-              setup.qvar.reset(new SimplerLikelihoodRatioTestStat(*factorizedPdf_s,*factorizedPdf_s, snapB, snapS));
+              setup.qvar.reset(new SimplerLikelihoodRatioTestStat(*pdfB,*factorizedPdf_s, paramsZero, params));
           } else {
-              setup.qvar.reset(new SimplerLikelihoodRatioTestStatOpt(*mc_s->GetObservables(), *factorizedPdf_s, *factorizedPdf_s, snapB, snapS, withSystematics));
+              setup.qvar.reset(new SimplerLikelihoodRatioTestStatOpt(*mc_s->GetObservables(), *pdfB, *factorizedPdf_s, paramsZero, params, withSystematics));
           }
       } else {
           std::cerr << "ALERT: LEP test statistics without optimization not validated." << std::endl;
-          setup.qvar.reset(new SimpleLikelihoodRatioTestStat(*factorizedPdf_b,*factorizedPdf_s));
-          ((SimpleLikelihoodRatioTestStat&)*setup.qvar).SetNullParameters(snapB); // Null is B
-          ((SimpleLikelihoodRatioTestStat&)*setup.qvar).SetAltParameters(snapS);
+          RooArgSet paramsSnap; params.snapshot(paramsSnap); // needs a snapshot
+          setup.qvar.reset(new SimpleLikelihoodRatioTestStat(*pdfB,*factorizedPdf_s));
+          ((SimpleLikelihoodRatioTestStat&)*setup.qvar).SetNullParameters(paramsZero); // Null is B
+          ((SimpleLikelihoodRatioTestStat&)*setup.qvar).SetAltParameters(paramsSnap);
       }
   } else if (testStat_ == "TEV") {
       std::cerr << "ALERT: Tevatron test statistics not yet validated." << std::endl;
+      RooAbsPdf *pdfB = factorizedPdf_b; 
+      if (poi.getSize() == 1) pdfB = factorizedPdf_s; // in this case we can remove the arbitrary constant from the test statistics.
       if (optimizeTestStatistics_) {
-          setup.qvar.reset(new ProfiledLikelihoodRatioTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(), paramsZero, params));
+          setup.qvar.reset(new ProfiledLikelihoodRatioTestStatOpt(*mc_s->GetObservables(), *pdfB, *mc_s->GetPdf(), mc_s->GetNuisanceParameters(), paramsZero, params));
           ((ProfiledLikelihoodRatioTestStatOpt&)*setup.qvar).setPrintLevel(verbose);
       } else {   
-          setup.qvar.reset(new RatioOfProfiledLikelihoodsTestStat(*mc_s->GetPdf(), *mc_s->GetPdf(), setup.modelConfig.GetSnapshot()));
+          setup.qvar.reset(new RatioOfProfiledLikelihoodsTestStat(*mc_s->GetPdf(), *pdfB, setup.modelConfig.GetSnapshot()));
           ((RatioOfProfiledLikelihoodsTestStat&)*setup.qvar).SetSubtractMLE(false);
       }
   } else if (testStat_ == "LHC" || testStat_ == "LHCFC" || testStat_ == "Profile") {
+      if (poi.getSize() != 1 && testStat_ != "Profile") {
+        throw std::logic_error("ERROR: modified profile likelihood definitions (LHC, LHCFC) do not make sense in more than one dimension");
+      }
       if (optimizeTestStatistics_) {
           ProfiledLikelihoodTestStatOpt::OneSidedness side = ProfiledLikelihoodTestStatOpt::oneSidedDef;
           if (testStat_ == "LHCFC")   side = ProfiledLikelihoodTestStatOpt::signFlipDef;
           if (testStat_ == "Profile") side = ProfiledLikelihoodTestStatOpt::twoSidedDef;
           if (workingMode_ == MakeSignificance) r->setVal(0.0);
-          RooArgSet snapS(params); 
-          setup.qvar.reset(new ProfiledLikelihoodTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  snapS, poi, gobsParams,gobs, verbose, side));
+          setup.qvar.reset(new ProfiledLikelihoodTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  params, poi, gobsParams,gobs, verbose, side));
       } else {
           std::cerr << "ALERT: LHC test statistics without optimization not validated." << std::endl;
           setup.qvar.reset(new ProfileLikelihoodTestStat(*mc_s->GetPdf()));
@@ -749,8 +832,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
       }
   } else if (testStat_ == "MLZ") {
       if (workingMode_ == MakeSignificance) r->setVal(0.0);
-      RooArgSet snapS(params); 
-      setup.qvar.reset(new BestFitSigmaTestStat(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  snapS, verbose));
+      setup.qvar.reset(new BestFitSigmaTestStat(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  params, verbose));
   }
 
   RooAbsPdf *nuisancePdf = 0;
@@ -846,7 +928,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
 }
 
 std::pair<double,double> 
-HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, double clsTarget) {
+HybridNew::eval(RooStats::HybridCalculator &hc, const RooAbsCollection & rVals, bool adaptive, double clsTarget) {
     std::auto_ptr<HypoTestResult> hcResult(evalGeneric(hc));
     if (expectedFromGrid_) applyExpectedQuantile(*hcResult);
     if (hcResult.get() == 0) {
@@ -860,7 +942,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
         hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+EPS); // issue with < vs <= in discrete models
         hcResult->SetPValueIsRightTail(!hcResult->GetPValueIsRightTail());
     }
-    std::pair<double,double> cls = eval(*hcResult, rVal);
+    std::pair<double,double> cls = eval(*hcResult, rVals);
     if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << cls.first << " +/- " << cls.second << std::endl;
     if (adaptive) {
         if (CLs_) {
@@ -879,7 +961,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
             if (testStat_ == "LHC" || testStat_ == "LHCFC"  || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
             hcResult->Append(more.get());
             if (expectedFromGrid_) applyExpectedQuantile(*hcResult);
-            cls = eval(*hcResult, rVal);
+            cls = eval(*hcResult, rVals);
             if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << cls.first << " +/- " << cls.second << std::endl;
         }
     } else if (iterations_ > 1) {
@@ -889,7 +971,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
             if (testStat_ == "LHC" || testStat_ == "LHCFC"  || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
             hcResult->Append(more.get());
             if (expectedFromGrid_) applyExpectedQuantile(*hcResult);
-            cls = eval(*hcResult, rVal);
+            cls = eval(*hcResult, rVals);
             if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << cls.first << " +/- " << cls.second << std::endl;
         }
     }
@@ -912,13 +994,24 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
         delete c1;
     }
     if (saveHybridResult_) {
-        TString name = TString::Format("HypoTestResult_mh%g_r%g_%u", mass_, rVal, RooRandom::integer(std::numeric_limits<UInt_t>::max() - 1));
+        TString name = TString::Format("HypoTestResult_mh%g",mass_);
+        RooLinkedListIter it = rVals.iterator();
+        for (RooRealVar *rIn = (RooRealVar*) it.Next(); rIn != 0; rIn = (RooRealVar*) it.Next()) {
+            name += Form("_%s%g", rIn->GetName(), rIn->getVal());
+        }
+        name += Form("_%u", RooRandom::integer(std::numeric_limits<UInt_t>::max() - 1));
         writeToysHere->WriteTObject(new HypoTestResult(*hcResult), name);
         if (verbose) std::cout << "Hybrid result saved as " << name << " in " << writeToysHere->GetFile()->GetName() << " : " << writeToysHere->GetPath() << std::endl;
     }
 
     return cls;
 } 
+
+std::pair<double,double> HybridNew::eval(const RooStats::HypoTestResult &hcres, const RooAbsCollection & rVals) 
+{
+    double rVal = ((RooAbsReal*)rVals.first())->getVal();
+    return eval(hcres,rVal);
+}
 
 std::pair<double,double> HybridNew::eval(const RooStats::HypoTestResult &hcres, double rVal) 
 {
@@ -1072,7 +1165,12 @@ void HybridNew::applySignalQuantile(RooStats::HypoTestResult &hcres) {
 
 RooStats::HypoTestResult * HybridNew::evalGeneric(RooStats::HybridCalculator &hc, bool noFork) {
     if (fork_ && !noFork) return evalWithFork(hc);
-    else return hc.GetHypoTest();
+    else {
+        TStopwatch timer; timer.Start();
+        RooStats::HypoTestResult * ret = hc.GetHypoTest();
+        if (runtimedef::get("HybridNew_Timing")) std::cout << "Evaluated toys in " << timer.RealTime() << " s " <<  std::endl;
+        return ret;
+    }
 }
 
 RooStats::HypoTestResult * HybridNew::evalWithFork(RooStats::HybridCalculator &hc) {
@@ -1188,13 +1286,20 @@ RooStats::HypoTestResult * HybridNew::evalFrequentist(RooStats::HybridCalculator
 }
 #endif
 
-RooStats::HypoTestResult * HybridNew::readToysFromFile(double rValue) {
+RooStats::HypoTestResult * HybridNew::readToysFromFile(const RooAbsCollection & rVals) {
     if (!readToysFromHere) throw std::logic_error("Cannot use readHypoTestResult: option toysFile not specified, or input file empty");
     TDirectory *toyDir = readToysFromHere->GetDirectory("toys");
     if (!toyDir) throw std::logic_error("Cannot use readHypoTestResult: empty toy dir in input file empty");
-    if (verbose) std::cout << "Reading toys for r = " << rValue << std::endl;
-    TString prefix1 = TString::Format("HypoTestResult_mh%g_r%g_",mass_,rValue);
-    TString prefix2 = TString::Format("HypoTestResult_r%g_",rValue);
+    if (verbose) std::cout << "Reading toys for ";
+    TString prefix1 = TString::Format("HypoTestResult_mh%g",mass_);
+    TString prefix2 = TString::Format("HypoTestResult");
+    RooLinkedListIter it = rVals.iterator();
+    for (RooRealVar *rIn = (RooRealVar*) it.Next(); rIn != 0; rIn = (RooRealVar*) it.Next()) {
+        if (verbose) std::cout << rIn->GetName() << " = " << rIn->getVal() << "   ";
+        prefix1 += Form("_%s%g", rIn->GetName(), rIn->getVal());
+        prefix2 += Form("_%s%g", rIn->GetName(), rIn->getVal());
+    }
+    if (verbose) std::cout << std::endl;
     std::auto_ptr<RooStats::HypoTestResult> ret;
     TIter next(toyDir->GetListOfKeys()); TKey *k;
     while ((k = (TKey *) next()) != 0) {
@@ -1210,9 +1315,10 @@ RooStats::HypoTestResult * HybridNew::readToysFromFile(double rValue) {
     }
 
     if (ret.get() == 0) {
-        std::cout << "ERROR: signal strength value " << rValue << " not found in input root file.\n";
+        std::cout << "ERROR: parameter point not found in input root file.\n";
+        rVals.Print("V");
         if (verbose > 0) toyDir->ls();
-        std::cout << "ERROR: signal strength value " << rValue << " not found in input root file" << std::endl;
+        std::cout << "ERROR: parameter point not found in input root file" << std::endl;
         throw std::invalid_argument("Missing input");
     }
     if (verbose > 0) {
@@ -1232,28 +1338,22 @@ RooStats::HypoTestResult * HybridNew::readToysFromFile(double rValue) {
     return ret.release();
 }
 
-void HybridNew::readAllToysFromFile() {
-    throw std::logic_error("Deprecated method used");
-    if (!readToysFromHere) throw std::logic_error("Cannot use readHypoTestResult without grid and without option toysFile");
-    TDirectory *toyDir = readToysFromHere->GetDirectory("toys");
-    if (!toyDir) throw std::logic_error("Cannot use readHypoTestResult: empty toy dir in input file empty");
-    readGrid(toyDir,-99e99,+99e99);
-}
-
 void HybridNew::readGrid(TDirectory *toyDir, double rMin, double rMax) {
+    if (rValues_.getSize() != 1) throw std::runtime_error("Running limits with grid only works in one dimension for the moment");
     clearGrid();
 
-    TIter next(toyDir->GetListOfKeys()); TKey *k;
+    TIter next(toyDir->GetListOfKeys()); TKey *k; const char *poiName = rValues_.first()->GetName();
     while ((k = (TKey *) next()) != 0) {
         TString name(k->GetName());
         if (name.Index("HypoTestResult_mh") == 0) {
-            if (name.Index(TString::Format("HypoTestResult_mh%g_r",mass_)) != 0 || name.Index("_", name.Index("_")+1) == -1) continue;
-            name.ReplaceAll(TString::Format("HypoTestResult_mh%g_r",mass_),"");
-            name.Remove(name.Index("_"),name.Length());
-        } else if (name.Index("HypoTestResult_r") == 0) {
-            if (name.Index("_", name.Index("_")+1) == -1) continue;
-            name.ReplaceAll(TString::Format("HypoTestResult_r"),"");
-            name.Remove(name.Index("_"),name.Length());
+            if (name.Index(TString::Format("HypoTestResult_mh%g_%s",mass_,poiName)) != 0 || name.Index("_", name.Index("_")+1) == -1) continue;
+            name.ReplaceAll(TString::Format("HypoTestResult_mh%g_%s",mass_,poiName),"");  // remove the prefix
+            if (name.Index("_") == -1) continue;                                          // check if it has the _<uniqueId> postfix
+            name.Remove(name.Index("_"),name.Length());                                   // remove it before calling atof
+        } else if (name.Index("HypoTestResult_") == 0) {
+            // let's put a warning here, since results of this form were supported in the past
+            std::cout << "HybridNew::readGrid: HypoTestResult with non-conformant name " << name << " will be skipped" << std::endl;
+            continue;
         } else continue;
         double rVal = atof(name.Data());
         if (rVal < rMin || rVal > rMax) continue;
