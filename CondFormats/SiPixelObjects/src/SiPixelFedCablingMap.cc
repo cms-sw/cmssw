@@ -43,7 +43,9 @@ SiPixelFedCablingMap::SiPixelFedCablingMap(const SiPixelFedCablingTree *cab)
         if (pROC==0) continue;
         if (static_cast<int>(pROC->idInLink()) != roc) 
             std::cout << "PROBLEM WITH ROC NUMBER!!!!" << std::endl;
-        Key key = {fed, link, roc}; 
+        Key key = {static_cast<unsigned int>(fed),
+                   static_cast<unsigned int>(link),
+                   static_cast<unsigned int>(roc)}; 
         theMap[key] = (*pROC);
       }
     } 
