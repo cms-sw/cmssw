@@ -445,6 +445,14 @@ process.caFilteredGenJetsNoNu = process.ca8GenJetsNoNu.clone(
 	jetPtMin = cms.double(100.0)
 )
 
+process.caMassDropFilteredGenJetsNoNu = process.caFilteredGenJetsNoNu.clone(
+        src = cms.InputTag('genParticlesForJetsNoNu'),
+	useMassDropTagger = cms.bool(True),
+	muCut = cms.double(0.667),
+	yCut = cms.double(0.08)
+)
+
+
 
 ###############################
 #### CATopTag Setup ###########
@@ -619,6 +627,20 @@ if options.useExtraJetColls:
 			 doL1Cleaning=False,
 			 doL1Counters=False,
 			 genJetCollection = cms.InputTag("ca8GenJetsNoNu"),
+			 doJetID = False
+			 )
+
+
+	addJetCollection(process, 
+			 cms.InputTag('caMassDropFilteredPFlow', 'SubJets'),         # Jet collection; must be already in the event when patLayer0 sequence is executed
+			 'CA12MassDropFilteredSubjets', 'PF',
+			 doJTA=True,            # Run Jet-Track association & JetCharge
+			 doBTagging=True,       # Run b-tagging
+			 jetCorrLabel=None,
+			 doType1MET=False,
+			 doL1Cleaning=False,
+			 doL1Counters=False,
+			 genJetCollection = cms.InputTag("ak5GenJetsNoNu"),
 			 doJetID = False
 			 )
 
@@ -1197,6 +1219,19 @@ if options.useExtraJetColls:
 		src = cms.InputTag('ak7FilteredGenJetsNoNu')
 		)
 
+        process.ca8PrunedGenLite = process.ak7TrimmedGenLite.clone(
+                src = cms.InputTag('caPrunedGen')
+                )
+
+        process.ca12FilteredGenLite = process.ak7TrimmedGenLite.clone(
+                src = cms.InputTag('caFilteredGenJetsNoNu')
+                )
+
+        process.ca12MassDropFilteredGenLite = process.ak7TrimmedGenLite.clone(
+                src = cms.InputTag('caMassDropFilteredGenJetsNoNu')
+                )
+
+
 
 	process.ak8Lite = process.ak5Lite.clone(
 		src = cms.InputTag('goodPatJetsAK8PF')
@@ -1233,6 +1268,7 @@ process.patseq = cms.Sequence(
     process.ca8GenJetsNoNu*
     process.ak8GenJetsNoNu*
     process.caFilteredGenJetsNoNu*
+    process.caMassDropFilteredGenJetsNoNu*
     getattr(process,"patPF2PATSequence"+postfix)*
     process.patDefaultSequence*
     process.goodPatJetsPFlow*
@@ -1280,7 +1316,10 @@ if options.useExtraJetColls:
 		process.ak8Lite*
 		process.ak8TrimmedLite*
 		process.ak8FilteredLite*
-		process.ak8PrunedLite
+		process.ak8PrunedLite*
+                process.ca8PrunedGenLite*
+                process.ca12FilteredGenLite*
+                process.ca12MassDropFilteredGenLite
 	)
 	process.patseq *= process.extraJetSeq
 
@@ -1305,6 +1344,9 @@ if options.useData == True :
 	    process.patseq.remove( process.ak7TrimmedGenLite )
 	    process.patseq.remove( process.ak7FilteredGenLite )
 	    process.patseq.remove( process.ak7PrunedGenLite )
+            process.patseq.remove( process.ca8PrunedGenLite )
+            process.patseq.remove( process.ca12FilteredGenLite )
+            process.patseq.remove( process.ca12MassDropFilteredGenLite )
 
 
 if options.writeSimpleInputs :
@@ -1365,6 +1407,7 @@ process.out.outputCommands = [
     'keep *_selectedPat*_*_*',
     'keep *_goodPat*_*_*',
     'drop patJets_selectedPat*_*_*',
+    'keep patJets_selectedPatJetsCA12MassDropFilteredSubjetsPF*_*_*',
     'drop *_selectedPatJets_*_*',    
     'keep *_patMETs*_*_*',
 #    'keep *_offlinePrimaryVertices*_*_*',
