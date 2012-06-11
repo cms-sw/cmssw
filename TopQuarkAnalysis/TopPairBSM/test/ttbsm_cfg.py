@@ -98,9 +98,9 @@ import sys
 # 4.2.x or 52x configuration
 fileTag = "52x"
 if options.useData :
-	process.GlobalTag.globaltag = cms.string( 'GR_R_52_V7::All' )
+	process.GlobalTag.globaltag = cms.string( 'GR_R_52_V9::All' )
 else :
-	process.GlobalTag.globaltag = cms.string( 'START52_V8::All' )
+	process.GlobalTag.globaltag = cms.string( 'START52_V9B::All' )
 
 
 # require scraping filter
@@ -775,7 +775,18 @@ if options.useExtraJetColls:
 
 
 
-for icorr in [process.patJetCorrFactorsCATopTagPF,
+
+switchJetCollection(process,cms.InputTag('ak5PFJets'),
+		    doJTA        = False,
+		    doBTagging   = False,
+		    jetCorrLabel = inputJetCorrLabel,
+		    doType1MET   = False,
+		    genJetCollection=cms.InputTag("ak5GenJetsNoNu"),
+		    doJetID      = False
+		    )
+
+for icorr in [process.patJetCorrFactors,
+	      process.patJetCorrFactorsCATopTagPF,
               process.patJetCorrFactorsCA8PrunedPF,
               process.patJetCorrFactorsCA8PF ] :
     icorr.rho = cms.InputTag("kt6PFJets", "rho")
@@ -803,6 +814,7 @@ if options.useExtraJetColls:
 
 # Do some configuration of the jet substructure things
 for jetcoll in (process.patJetsPFlow,
+		process.patJets,
                 process.patJetsCA8PF,
                 process.patJetsCA8PrunedPF,
                 process.patJetsCATopTagPF
