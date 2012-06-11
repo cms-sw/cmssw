@@ -116,8 +116,8 @@ HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFNoPUJet30_30_20_v*			#sr1
 HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFNoPUJet30_30_20_v*					#sr128556
 HLT_Ele25_CaloIdVL_CaloIsoT_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_30_20_v*			#sr128556
 
-HLT_Ele30_CaloIdVT_TrkIdT_PFJet100_PFJet25_v*                                                   #sr126292
-HLT_Ele30_CaloIdVT_TrkIdT_PFJet150_PFJet25_v*                                                   #sr126292
+#HLT_Ele30_CaloIdVT_TrkIdT_PFJet100_PFJet25_v*                                                  #sr126292, removed in sr129401
+#HLT_Ele30_CaloIdVT_TrkIdT_PFJet150_PFJet25_v*                                                  #sr126292, removed in sr129401
 HLT_Ele30_CaloIdVT_TrkIdT_v*                                                                    #sr126292
 HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v*                                                           #sr126292
 HLT_Mu30_Ele30_CaloIdL_v*                                                                       #sr126292
