@@ -115,7 +115,7 @@ class BinCount(BaseMetric):
         from math import sqrt
         binNr = self.__name
         if type(self.__name) == type(""):
-            binNr = hist.GetXaxis().FindBin(self.__name)
+            binNr = histo.GetXaxis().FindBin(self.__name)
         error = 0
         if not self.__noError:
             error = sqrt(histo.GetBinContent(binNr))
@@ -151,20 +151,20 @@ class NormBinCount(BaseMetric):
             raise StandardError,"Efficiency cannot be calculated '%s' in '%s'"%(self.__name, histo.GetName())
         return ( eff.GetY()[0], (eff.GetEYlow()[0],eff.GetEYhigh()[0]) )
 
-    def __getWeightOneHisto(self, hist, name):
+    def __getWeightOneHisto(self, histo, name):
         """return histo with one bin filled with entries of weight on to match hist at name
-        if name == None use integral of hist."""
+        if name == None use integral of histo."""
         from ROOT import TH1D
         from math import sqrt
         result = TH1D( ("%s"%name) + "%s"%self.__iWeightHisto,
                        ("%s"%name) + "%s"%self.__iWeightHisto,1,0,1)
         self.__iWeightHisto+=1
-        bin = hist.GetSumOfWeights()
+        bin = histo.GetSumOfWeights()
         if not name == None:
             binNr = name
             if type(name) == type(""):
-                binNr = hist.GetXaxis().FindBin(name)
-            bin =  hist.GetBinContent(binNr)
+                binNr = histo.GetXaxis().FindBin(name)
+            bin =  histo.GetBinContent(binNr)
         result.Sumw2()
         result.SetBinContent(1, bin )
         result.SetBinError(1, sqrt(bin))
