@@ -5,9 +5,9 @@
  *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
  *  using a ratio method
  *
- *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.45 2012/01/31 17:05:52 wmtan Exp $
- *  $Date: 2012/01/31 17:05:52 $
- *  $Revision: 1.45 $
+ *  $Id: EcalUncalibRecHitRatioMethodAlgo.h,v 1.48 2012/06/11 20:49:20 wmtan Exp $
+ *  $Date: 2012/06/11 20:49:20 $
+ *  $Revision: 1.48 $
  *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
  */
 
@@ -20,14 +20,14 @@
 template < class C > class EcalUncalibRecHitRatioMethodAlgo {
       public:
 	struct Ratio {
-		int index;
-                int step;
+		unsigned int index;
+                unsigned int step;
 		double value;
 		double error;
 	};
 	struct Tmax {
-		int index;
-                int step;
+		unsigned int index;
+                unsigned int step;
 		double value;
 		double error;
                 double amplitude;
