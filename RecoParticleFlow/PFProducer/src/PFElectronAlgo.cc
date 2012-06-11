@@ -2161,29 +2161,23 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	for (unsigned int ibrem = 0; ibrem < assobrem_index.size(); ibrem++){
 	  if (elements[(assobrem_index[ibrem])].type() == reco::PFBlockElement::ECAL) {
 	    // brem emission is from the considered gsf track
-	    unsigned int keyecalbrem = assobrem_index[ibrem];
-	    const vector<unsigned int>& assoelebrem_index = associatedToEcal_.find(keyecalbrem)->second;
-	    vector<double> ps1EneFromBrem(0);
-	    vector<double> ps2EneFromBrem(0);
-	    float ps1EneFromBremTot=0.;
-	    float ps2EneFromBremTot=0.;
-	    for (unsigned int ielebrem=0; ielebrem<assoelebrem_index.size();ielebrem++) {
-	      if (elements[(assoelebrem_index[ielebrem])].type() == reco::PFBlockElement::PS1) {
-		PFClusterRef  psref = elements[(assoelebrem_index[ielebrem])].clusterRef();
-		ps1EneFromBrem.push_back(psref->energy());
-		ps1EneFromBremTot+=psref->energy();
-		elementsToAdd.push_back(assoelebrem_index[ielebrem]);
-	      }
-	      if (elements[(assoelebrem_index[ielebrem])].type() == reco::PFBlockElement::PS2) {
-		PFClusterRef  psref = elements[(assoelebrem_index[ielebrem])].clusterRef();
-		ps2EneFromBrem.push_back(psref->energy());
-		ps2EneFromBremTot+=psref->energy();
-		elementsToAdd.push_back(assoelebrem_index[ielebrem]);
-	      }	  
-	    }
-	    
-
 	    if( assobrem_index[ibrem] !=  ecalGsf_index) {
+	      unsigned int keyecalbrem = assobrem_index[ibrem];
+	      const vector<unsigned int>& assoelebrem_index = associatedToEcal_.find(keyecalbrem)->second;
+	      vector<double> ps1EneFromBrem(0);
+	      vector<double> ps2EneFromBrem(0);
+	      for (unsigned int ielebrem=0; ielebrem<assoelebrem_index.size();ielebrem++) {
+		if (elements[(assoelebrem_index[ielebrem])].type() == reco::PFBlockElement::PS1) {
+		  PFClusterRef  psref = elements[(assoelebrem_index[ielebrem])].clusterRef();
+		  ps1EneFromBrem.push_back(psref->energy());
+		  elementsToAdd.push_back(assoelebrem_index[ielebrem]);
+		}
+		if (elements[(assoelebrem_index[ielebrem])].type() == reco::PFBlockElement::PS2) {
+		  PFClusterRef  psref = elements[(assoelebrem_index[ielebrem])].clusterRef();
+		  ps2EneFromBrem.push_back(psref->energy());
+		  elementsToAdd.push_back(assoelebrem_index[ielebrem]);
+		}	  
+	      }
 	      elementsToAdd.push_back(assobrem_index[ibrem]);
 	      reco::PFClusterRef clusterRef = elements[(assobrem_index[ibrem])].clusterRef();
 	      //pfClust_vec.push_back(*clusterRef);
