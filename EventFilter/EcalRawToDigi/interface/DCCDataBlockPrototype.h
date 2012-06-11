@@ -6,8 +6,8 @@
  * Prototype for ECAL data block unpacking
  * \file DCCDataBlockPrototype.h
  *
- * $Date: 2008/12/11 18:05:56 $
- * $Revision: 1.1 $
+ * $Date: 2010/09/15 21:51:33 $
+ * $Revision: 1.2 $
  * \author N. Almeida
  *
 */
@@ -34,7 +34,9 @@ class DCCDataBlockPrototype {
     /**
       Class constructor
     */
-    DCCDataBlockPrototype( DCCDataUnpacker *  unpacker, EcalElectronicsMapper * mapper, DCCEventBlock * event, bool unpack = true);    
+    DCCDataBlockPrototype( DCCDataUnpacker *  unpacker, EcalElectronicsMapper * mapper, DCCEventBlock * event, bool unpack = true);
+
+    virtual ~DCCDataBlockPrototype() {};
   
     virtual int unpack(uint64_t ** data, unsigned int * dwToEnd){ return BLOCK_UNPACKED;}
 
