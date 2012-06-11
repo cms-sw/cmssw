@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/GRun/V151 (CMSSW_5_2_5_HLT7)
+# /online/collisions/2012/7e33/v3.0/HLT/V8 (CMSSW_5_2_5_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V151')
+  tableName = cms.string('/online/collisions/2012/7e33/v3.0/HLT/V8')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -31456,10 +31456,6 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Activity_Ecal_SC7_v13, HLT
 # En-able HF Noise filters in GRun menu
 if 'hltHfreco' in locals():
     hltHfreco.setNoiseFlags = cms.bool( True )
-
-# Fix HLT for MC
-from HLTrigger.Configuration.customizeHLTforMC import customize
-process = customize(process)
 
 # CMSSW version specific customizations
 import os

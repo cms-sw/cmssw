@@ -7027,10 +7027,6 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_HIMET120_v5, HLT_HIMET200_
 if 'hltHfreco' in locals():
     hltHfreco.setNoiseFlags = cms.bool( False )
 
-# Fix HLT for MC
-from HLTrigger.Configuration.customizeHLTforMC import customize
-process = customize(process)
-
 # CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']

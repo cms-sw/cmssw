@@ -346,7 +346,8 @@ if 'hltHfreco' in %(dict)s:
   def fixForMC(self):
     if not self.config.data:
 #      pass # No longer needed!
-      self.data += """
+      if not self.config.fragment:
+        self.data += """
 # Fix HLT for MC
 from HLTrigger.Configuration.customizeHLTforMC import customize
 process = customize(process)
