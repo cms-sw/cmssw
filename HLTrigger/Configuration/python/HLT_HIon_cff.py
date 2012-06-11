@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/HIon/V150 (CMSSW_5_2_5_HLT7)
+# /dev/CMSSW_5_2_1/HIon/V151 (CMSSW_5_2_5_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V150')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V151')
 )
 
 streams = cms.PSet( 
@@ -510,7 +510,11 @@ hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
   'HFInTimeWindow',
   'ZDCBit',
   'CalibrationBit',
-  'TimingErrorBit' ),
+  'TimingErrorBit',
+  'HBHEFlatNoise',
+  'HBHESpikeNoise',
+  'HBHETriangleNoise',
+  'HBHETS4TS5Noise' ),
       ChannelStatus = cms.vstring(  ),
       Level = cms.int32( 8 )
     ),
@@ -7022,6 +7026,10 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_HIMET120_v5, HLT_HIMET200_
 # Disable HF Noise filters in HIon menu
 if 'hltHfreco' in locals():
     hltHfreco.setNoiseFlags = cms.bool( False )
+
+# Fix HLT for MC
+from HLTrigger.Configuration.customizeHLTforMC import customize
+process = customize(process)
 
 # CMSSW version specific customizations
 import os

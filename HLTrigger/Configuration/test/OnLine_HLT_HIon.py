@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V150 (CMSSW_5_2_5_HLT7)
+# /dev/CMSSW_5_2_1/HIon/V151 (CMSSW_5_2_5_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V150')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V151')
 )
 
 process.streams = cms.PSet( 
@@ -775,7 +775,11 @@ process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
   'HFInTimeWindow',
   'ZDCBit',
   'CalibrationBit',
-  'TimingErrorBit' ),
+  'TimingErrorBit',
+  'HBHEFlatNoise',
+  'HBHESpikeNoise',
+  'HBHETriangleNoise',
+  'HBHETS4TS5Noise' ),
       ChannelStatus = cms.vstring(  ),
       Level = cms.int32( 8 )
     ),
@@ -8390,6 +8394,10 @@ process.source = cms.Source( "PoolSource",
 # Disable HF Noise filters in HIon menu
 if 'hltHfreco' in process.__dict__:
     process.hltHfreco.setNoiseFlags = cms.bool( False )
+
+# Fix HLT for MC
+from HLTrigger.Configuration.customizeHLTforMC import customize
+process = customize(process)
 
 # remove the HLT prescales
 if 'PrescaleService' in process.__dict__:
