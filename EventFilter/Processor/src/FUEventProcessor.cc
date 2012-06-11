@@ -603,6 +603,10 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 
   if (forkInEDM_.value_) {
 
+    LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");
+    fsm_.fireEvent("EnableDone",this);
+    localLog("-I- Start completed");
+
     edm::event_processor::State st;
     while (!edm_init_done_) {
       usleep(10000);
@@ -622,11 +626,7 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
     startSummarizeWorkLoop();
     startSignalMonitorWorkLoop();//only with new forking
     vp_ = vulture_->start(iDieUrl_.value_,runNumber_.value_);
-
     //enable after we are done with conditions loading and forking
-    LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");
-    fsm_.fireEvent("EnableDone",this);
-    localLog("-I- Start completed");
     return false;
   }
 
@@ -2566,7 +2566,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.145 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.146 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
