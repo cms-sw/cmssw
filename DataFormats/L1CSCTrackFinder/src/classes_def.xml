@@ -1,7 +1,7 @@
 <lcgdict>
    <class name="csc::L1Track" ClassVersion="10">
     <version ClassVersion="10" checksum="3522733234"/>
-     <field name="scale" transient="true"/>
+     <!-- <field name="scale" transient="true"/> -->
    </class>
 
    <class name="csc::L1TrackId" ClassVersion="10">
