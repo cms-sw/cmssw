@@ -537,19 +537,3 @@ if __name__=='__main__':
                 rawydata.setdefault('Recorded',[]).append(reclumi)
             rawxdata=[run,thisfillnumber,starttime,stoptime,totlumils,totcmsls]
         m.plotInst_RunLS(rawxdata,rawydata,textoutput=None)
-    
-    if options.yscale=='linear':
-        if options.interactive:
-            m.drawInteractive()
-            exit(0)
-        else:
-            m.drawPNG(outplotfilename+'.png')
-    elif options.yscale=='log':
-        if options.interactive:
-            mlog.drawInteractive()
-            exit(0)
-        else:
-            mlog.drawPNG(outplotfilename+'_log.png')
-    else:
-        m.drawPNG(outplotfilename+'.png')            
-        mlog.drawPNG(outplotfilename+'_log.png')
