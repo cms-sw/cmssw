@@ -22,6 +22,13 @@ set (CLANG_BUILD_DIR ${LLVM_SRC_BUILD_DIR}/tools/clang)
 add_definitions (-D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS)
 add_definitions (-D_GNU_SOURCE -DHAVE_CLANG_CONFIG_H)
 
+# omit reports for some CMS specific cases
+add_definitions ( -DTHREAD_CHECKS_USE_CMS_EXCPEPTIONS )
+
+# omit reports found in the system headers
+add_definitions ( -DTHREAD_CHECKS_NO_REPORT_SYSTEM )
+
+
 # this sets up the devel clang as our compiler
 set (CMAKE_CXX_COMPILER "${LLVM_BIN_BUILD_DIR}/bin/clang++")
 set (CMAKE_CC_COMPILER "${LLVM_BIN_BUILD_DIR}/bin/clang")

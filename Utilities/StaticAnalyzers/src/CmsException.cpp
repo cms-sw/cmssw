@@ -37,12 +37,20 @@ CmsException::~CmsException()
 bool CmsException::reportGeneral( clang::ento::PathDiagnosticLocation const& path,
 				clang::ento::BugReporter & BR ) const
 {
-	  clang::SourceLocation SL = path.asLocation();
-	  if ( SL.isMacroID() ) {return false;}	
 
-          const SourceManager &SM = BR.getSourceManager();
-	  PresumedLoc PL = SM.getPresumedLoc(SL);
+#if defined(THREAD_CHECKS_USE_CMS_EXCPEPTIONS) || defined(THREAD_CHECKS_NO_REPORT_SYSTEM)
+	  clang::SourceLocation SL = path.asLocation();
+	 
+      const SourceManager &SM = BR.getSourceManager();
+      PresumedLoc PL = SM.getPresumedLoc(SL); 
+#endif
+
+// report exceptions which are useful when
+// analyzing CMSSW source code
+#ifdef THREAD_CHECKS_USE_CMS_EXCPEPTIONS
 	  llvm::StringRef FN = llvm::StringRef((PL.getFilename()));
+
+      if ( SL.isMacroID() ) {return false;}	
 	  size_t found = 0;
 	  found += FN.count("xr.cc");
 	  found += FN.count("xi.cc");
@@ -51,7 +59,13 @@ bool CmsException::reportGeneral( clang::ento::PathDiagnosticLocation const& pat
 	  found +=FN.count("/lcg/");
 	  if ( found!=0 )  {return false;}
 
+#endif
+
+// reports of system libararies
+#ifdef THREAD_CHECKS_NO_REPORT_SYSTEM
 	  if (SM.isInSystemHeader(SL) || SM.isInExternCSystemHeader(SL)) {return false;}
+#endif
+
  	return true;
 }
 
