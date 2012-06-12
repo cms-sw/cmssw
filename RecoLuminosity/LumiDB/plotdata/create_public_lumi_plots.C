@@ -121,11 +121,15 @@ void drawLogo(TCanvas* canvas, std::string const logoName) {
   logo->Draw();
 }
 
-void drawDateLabel(TCanvas* canvas, std::string const end_time) {
-  std::string date_str("Data included up to ");
+void drawDateLabel(TCanvas* canvas,
+                   std::string const start_time,
+                   std::string const end_time) {
+  std::string date_str("Data included from ");
+  date_str += start_time;
+  date_str += std::string(" to ");
   date_str += end_time;
   date_str += std::string(" UTC");
-  float x_offset = .2;
+  float x_offset = .4;
   float y_lo = .82;
   float height = .2;
   TPaveLabel* label = new TPaveLabel(.5 - x_offset, y_lo,
@@ -286,25 +290,29 @@ void readInputFileIntLumi(std::string& fileName,
   char runC[i], start_timeC[i], end_timeC[i],
     delivered_lumiC[i], recorded_lumiC[i];
   FILE* file = fopen(fileName.c_str(), "rt");
-  int runI;
-  float delivered_lumiF, recorded_lumiF;
-  while (fgets(line, 100, file)) {
-    if (line[0] != '#') {
-      sscanf(line, "%[^','],%[^','],%[^','],%[^','],%[^',']",
-             runC, start_timeC, end_timeC, delivered_lumiC, recorded_lumiC);
-      runI = atoi(runC);
-      std::string start_timeS(start_timeC);
-      std::string end_timeS(end_timeC);
-      delivered_lumiF = atof(delivered_lumiC);
-      recorded_lumiF = atof(recorded_lumiC);
-      runV.push_back(runI);
-      start_timeV.push_back(start_timeS);
-      end_timeV.push_back(end_timeS);
-      delivered_lumiV.push_back(delivered_lumiF);
-      recorded_lumiV.push_back(recorded_lumiF);
+  if (!file) {
+    std::cerr << "ERROR Could not open file '" << fileName << "'" << std::endl;
+  } else {
+    int runI;
+    float delivered_lumiF, recorded_lumiF;
+    while (fgets(line, 100, file)) {
+      if (line[0] != '#') {
+        sscanf(line, "%[^','],%[^','],%[^','],%[^','],%[^',']",
+               runC, start_timeC, end_timeC, delivered_lumiC, recorded_lumiC);
+        runI = atoi(runC);
+        std::string start_timeS(start_timeC);
+        std::string end_timeS(end_timeC);
+        delivered_lumiF = atof(delivered_lumiC);
+        recorded_lumiF = atof(recorded_lumiC);
+        runV.push_back(runI);
+        start_timeV.push_back(start_timeS);
+        end_timeV.push_back(end_timeS);
+        delivered_lumiV.push_back(delivered_lumiF);
+        recorded_lumiV.push_back(recorded_lumiF);
+      }
     }
+    fclose(file);
   }
-  fclose(file);
 }
 
 void readInputFilePeakLumi(std::string const& fileName,
@@ -320,50 +328,116 @@ void readInputFilePeakLumi(std::string const& fileName,
   int lsI;
   float lumiF;
   FILE* file = fopen(fileName.c_str(), "rt");
-  while (fgets(line, 100, file)) {
-    if (line[0] != '#') {
-      sscanf(line, "%[^','],%[^','],%[^','],%[^',']",
-             dayC, runC, lsC, lumiC);
-      dayI = atoi(dayC);
-      runI = atoi(runC);
-      lsI = atoi(lsC);
-      lumiF = atof(lumiC);
-      TTimeStamp t = timestampFromOrdinal(dayI);
-      dayV.push_back(timestampFromOrdinal(dayI).GetSec());
-      runV.push_back(runI);
-      lsV.push_back(lsI);
-      lumiV.push_back(lumiF);
+  if (!file) {
+    std::cerr << "ERROR Could not open file '" << fileName << "'" << std::endl;
+  } else {
+    while (fgets(line, 100, file)) {
+      if (line[0] != '#') {
+        sscanf(line, "%[^','],%[^','],%[^','],%[^',']",
+               dayC, runC, lsC, lumiC);
+        dayI = atoi(dayC);
+        runI = atoi(runC);
+        lsI = atoi(lsC);
+        lumiF = atof(lumiC);
+        TTimeStamp t = timestampFromOrdinal(dayI);
+        dayV.push_back(timestampFromOrdinal(dayI).GetSec());
+        runV.push_back(runI);
+        lsV.push_back(lsI);
+        lumiV.push_back(lumiF);
+      }
     }
+    fclose(file);
   }
-  fclose(file);
 }
 
-void create_plots(std::string const colorScheme="Greg") {
+void create_plots(std::string const colorScheme="Greg", int const year=2012,
+                  std::string const dataPath="/afs/cern.ch/cms/lumi/www/publicplots/",
+                  std::string const beamType="PROTPHYS") {
+
+  std::string partType = "?";
+  std::string partTypeStr = "?";
+  if (beamType == "PROTPHYS") {
+    partType = "pp";
+    partTypeStr = "p-p";
+  } else if (beamType == "IONPHYS") {
+    partType = "pbpb";
+    partTypeStr = "Pb-Pb";
+  } else {
+    std::cerr << "ERROR Unknown beam type: " << beamType << std::endl;
+  }
+
+  std::string eBeam = "?";
+  std::string units = "?";
+  std::string units2 = "?";
+  std::string nucleon = "";
+  // Conversion factor to go to inverse femtobarn or inverse picobarn
+  // depending on the beam type.
+  float conversionFactor = 0;
+  float scaleFactor = 0;
+  float scaleFactor2 = 0;
+  switch (year) {
+  case 2011:
+    if (partType == "pp") {
+      eBeam = "7 TeV";
+      units = "fb";
+      units2 = "pb";
+      conversionFactor = 1.e6;
+      scaleFactor = 1.e-3;
+      scaleFactor2 = 1.e-3;
+    } else if (partType == "pbpb") {
+      eBeam = "2.76 TeV";
+      units = "#mub";
+      units2 = "#mub";
+      conversionFactor = 1.;
+      scaleFactor = 1.;
+      scaleFactor2 = 1.e3;
+      nucleon = "/nucleon";
+    } else {
+      std::cerr << "ERROR Unknown beam type for 2011: " << beamType << std::endl;
+    }
+    break;
+  case 2012:
+    if (partType == "pp") {
+      eBeam = "8 TeV";
+      units = "fb";
+      units2 = "pb";
+      conversionFactor = 1.e6;
+      scaleFactor = 1.e-3;
+      scaleFactor2 = 1.e-3;
+    } else {
+      std::cerr << "ERROR Unknown beam type for 2012: " << beamType << std::endl;
+    }
+    break;
+  default:
+    std::cerr << "ERROR Unknown year: " << year << std::endl;
+  }
 
   // Overall title and axis titles for everything. One version for the
   // per-day plot, one for the cumulative plot, one for the peak lumi
   // plot.
   std::string titlePerDay =
-    std::string("CMS Integrated Luminosity Per Day, 2012, #sqrt{s} = 8 TeV;") +
+    std::string(Form("CMS Integrated Luminosity Per Day, %d, %s, #sqrt{s} = %s%s;",
+                     year, partTypeStr.c_str(), eBeam.c_str(), nucleon.c_str())) +
     std::string("Date;") +
-    std::string("Integrated Luminosity (pb^{-1}/day)");
+    std::string(Form("Integrated Luminosity (%s^{-1}/day)", units2.c_str()));
   std::string titleCumulative =
-    std::string("CMS Total Integrated Luminosity, 2012, #sqrt{s} = 8 TeV;") +
+    std::string(Form("CMS Total Integrated Luminosity, %d, %s, #sqrt{s} = %s%s;",
+                     year, partTypeStr.c_str(), eBeam.c_str(), nucleon.c_str())) +
     std::string("Date;") +
-    std::string("Total Integrated Luminosity (fb^{-1})");
+    std::string(Form("Total Integrated Luminosity (%s^{-1})", units.c_str()));
   std::string titlePeak =
-    std::string("CMS Peak Luminosity Per Day, 2012, #sqrt{s} = 8 TeV;") +
+    std::string(Form("CMS Peak Luminosity Per Day, %d, %s, #sqrt{s} = %s%s;",
+                     year, partTypeStr.c_str(), eBeam.c_str(), nucleon.c_str())) +
     std::string("Date;") +
     std::string("Peak Delivered Luminosity (Hz/nb)");
 
-  // Conversion factor to go to inverse femtobarn.
-  float conversionFactor = 1.e6;
-
   // This is the intermediate CSV file with the integrated lumi data
   // from the lumi DB
-  std::string fileNameIntLumi = "/afs/cern.ch/cms/lumi/www/publicplots/totallumivstime-pp-2012.csv";
+  std::string fileNameIntLumi = Form("%s/totallumivstime-%s-%d.csv",
+                                     dataPath.c_str(), partType.c_str(), year);
   // Same for the peak lumi file.
-  std::string fileNamePeakLumi = "/afs/cern.ch/cms/lumi/www/publicplots/lumipeak-pp-2012.csv";
+  std::string fileNamePeakLumi = Form("%s/lumipeak-%s-%d.csv",
+                                      dataPath.c_str(), partType.c_str(), year);
 
   // Basic style settings.
   rootInit();
@@ -440,7 +514,8 @@ void create_plots(std::string const colorScheme="Greg") {
     TTimeStamp timeStart = timestampFromString(start_timeV.at(ind));
     TTimeStamp timeEnd = timestampFromString(end_timeV.at(ind).c_str());
 
-    Int_t dayDiff = timeEnd.GetDate() - timeStart.GetDate();
+    Int_t dayDiff = (timeEnd.GetSec() - timeStart.GetSec()) / (60 * 60 * 24);
+    //Int_t dayDiff = timeEnd.GetDate() - timeStart.GetDate();
     // DEBUG DEBUG DEBUG
     // This assumes we don't take runs longer than 24 hours.
     assert(dayDiff >= 0);
@@ -574,11 +649,11 @@ void create_plots(std::string const colorScheme="Greg") {
                    1.01 * (legend->GetX2NDC() - legend->GetX1NDC()));
   legend->SetMargin(marginOld / 1.01);
   legend->AddEntry(&h_delLum,
-                   Form("LHC Delivered, max: %6.1f pb^{-1}/day", maxDel),
-                   "F");
+                   Form("LHC Delivered, max: %6.1f %s^{-1}/day",
+                        units2.c_str(), maxDel), "F");
   legend->AddEntry(&h_recLum,
-                   Form("CMS Recorded, max: %6.1f pb^{-1}/day", maxRec),
-                   "F");
+                   Form("CMS Recorded, max: %6.1f %s^{-1}/day",
+                        units2.c_str(), maxRec), "F");
   legend->Draw();
 
   // Duplicate the vertical axis on the right-hand side.
@@ -586,7 +661,7 @@ void create_plots(std::string const colorScheme="Greg") {
 
   // Add a label specifying up until when data taken was included in
   // this plot.
-  drawDateLabel(canvas, end_timeV.back());
+  drawDateLabel(canvas, end_timeV.front(), end_timeV.back());
 
   // Redraw the axes. This way the graphs don't overshoot on top of
   // the axes any more.
@@ -596,7 +671,8 @@ void create_plots(std::string const colorScheme="Greg") {
   // action so the logo sits on top of the axes.
   drawLogo(canvas, logoName);
 
-  canvas->Print(Form("int_lumi_per_day_2012%s.png", fileSuffix.c_str()));
+  canvas->Print(Form("int_lumi_per_day_%s_%d%s.png",
+                     partType.c_str(), year, fileSuffix.c_str()));
 
   delete legend;
   delete canvas;
@@ -616,11 +692,9 @@ void create_plots(std::string const colorScheme="Greg") {
     h_recLumCum->SetBinContent(bin, cumRec);
   }
 
-  // Scale from inv. pb to inv. fb to reduce the vertical labels a
-  // bit.
-  float scale = 1.e-3;
-  h_delLumCum->Scale(scale);
-  h_recLumCum->Scale(scale);
+  // Scale to reduce the vertical labels a bit.
+  h_delLumCum->Scale(scaleFactor);
+  h_recLumCum->Scale(scaleFactor);
 
   h_delLumCum->SetTitle(titleCumulative.c_str());
 
@@ -643,10 +717,10 @@ void create_plots(std::string const colorScheme="Greg") {
   // Add legend to the top left.
   legend = createLegend();
   legend->AddEntry(h_delLumCum,
-                   Form("LHC Delivered: %.2f fb^{-1}", sumDel),
+                   Form("LHC Delivered: %.2f %s^{-1}", units.c_str(), sumDel),
                    "F");
   legend->AddEntry(h_recLumCum,
-                   Form("CMS Recorded: %.2f fb^{-1}", sumRec),
+                   Form("CMS Recorded: %.2f %s^{-1}", units.c_str(), sumRec),
                    "F");
   legend->Draw();
 
@@ -655,7 +729,7 @@ void create_plots(std::string const colorScheme="Greg") {
 
   // Add a label specifying up until when data taken was included in
   // this plot.
-  drawDateLabel(canvas, end_timeV.back());
+  drawDateLabel(canvas, end_timeV.front(), end_timeV.back());
 
   // Redraw the axes. This way the graphs don't overshoot on top of
   // the axes any more.
@@ -665,7 +739,8 @@ void create_plots(std::string const colorScheme="Greg") {
   // action so the logo sits on top of the axes.
   drawLogo(canvas, logoName);
 
-  canvas->Print(Form("int_lumi_cumulative_2012%s.png", fileSuffix.c_str()));
+  canvas->Print(Form("int_lumi_cumulative_%s_%d%s.png",
+                     partType.c_str(), year, fileSuffix.c_str()));
 
   delete h_delLumCum;
   delete h_recLumCum;
@@ -677,8 +752,7 @@ void create_plots(std::string const colorScheme="Greg") {
   //------------------------------
 
   // Scale the vertical axis to reduce the size of the labels a bit.
-  scale = 1.e-3;
-  hPeakLum.Scale(scale);
+  hPeakLum.Scale(scaleFactor2);
 
   hPeakLum.SetTitle(titlePeak.c_str());
   hPeakLum.GetXaxis()->SetTimeDisplay(1);
@@ -708,7 +782,7 @@ void create_plots(std::string const colorScheme="Greg") {
 
   // Add a label specifying up until when data taken was included in
   // this plot.
-  drawDateLabel(canvas, end_timeV.back());
+  drawDateLabel(canvas, end_timeV.front(), end_timeV.back());
 
   legend = createLegend();
   legend->SetHeader(Form("Max. inst. lumi.: %.2f Hz/nb", maxPeak));
@@ -720,17 +794,19 @@ void create_plots(std::string const colorScheme="Greg") {
   // action so the logo sits on top of the axes.
   drawLogo(canvas, logoName);
 
-  canvas->Print(Form("peak_lumi_per_day_2012%s.png", fileSuffix.c_str()));
+  canvas->Print(Form("peak_lumi_per_day_%s_%d%s.png", partType.c_str(), year, fileSuffix.c_str()));
 
   delete legend;
   delete canvas;
 }
 
-void create_public_lumi_plots() {
+void create_public_lumi_plots(int const year=2012,
+                              std::string const dataPath="/afs/cern.ch/cms/lumi/www/publicplots/",
+                              std::string const beamType="PROTPHYS") {
   std::vector<std::string> colorSchemes;
   colorSchemes.push_back("Greg");
   colorSchemes.push_back("Joe");
   for (size_t i = 0; i < colorSchemes.size(); ++i) {
-    create_plots(colorSchemes[i]);
+    create_plots(colorSchemes[i], year, dataPath, beamType);
   }
 }
