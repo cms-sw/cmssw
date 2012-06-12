@@ -28,7 +28,7 @@
   <class name="reco::PFRecHit" ClassVersion="10">
    <version ClassVersion="10" checksum="1807687081"/>
     <field name="posrep_" transient="true"/>
-    <field name="seedState_" transient="true"/>
+    <!-- <field name="seedState_" transient="true"/> -->
     <field name="nNeighbours_" transient="true"/>
     <field name="nCorners_" transient="true"/>
     <field name="cornersrep_" transient="true"/>
@@ -60,16 +60,16 @@
   <class name="edm::RefVector<std::vector<reco::PFBlock>,reco::PFBlock,edm::refhelper::FindUsingAdvance<std::vector<reco::PFBlock>,reco::PFBlock> >"/>
   <class name="reco::PFRecTrack" ClassVersion="10">
    <version ClassVersion="10" checksum="2979491836"/>
-    <field name="doPropagation_" transient="true"/>
-    <field name="color_" transient="true"/>
+    <!-- <field name="doPropagation_" transient="true"/> -->
+    <!-- <field name="color_" transient="true"/> -->
   </class>
   <class name="std::vector<reco::PFRecTrack>"/>
   <class name="edm::Wrapper<std::vector<reco::PFRecTrack> >"/>
 
   <class name="reco::GsfPFRecTrack" ClassVersion="10">
    <version ClassVersion="10" checksum="3411096264"/>
-    <field name="doPropagation_" transient="true"/>
-    <field name="color_" transient="true"/>
+    <!-- <field name="doPropagation_" transient="true"/> -->
+    <!-- <field name="color_" transient="true"/> -->
   </class>
   <class name="std::vector<reco::GsfPFRecTrack>"/>
   <class name="edm::Wrapper<std::vector<reco::GsfPFRecTrack> >"/>
@@ -88,7 +88,7 @@
 
   <class name="reco::PFBlockElement" ClassVersion="11">
    <version ClassVersion="11" checksum="3944635097"/>
-    <field name="multilinkslinks_" transient="true"/>
+    <!-- <field name="multilinkslinks_" transient="true"/> -->
   </class>
   <class name="std::vector<reco::PFBlockElement *>" />
   <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >"/>
