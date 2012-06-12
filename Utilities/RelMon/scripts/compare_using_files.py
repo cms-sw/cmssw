@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: dpiparo $
-# $Date: 2012/03/09 13:55:23 $
-# $Revision: 1.13 $
+# $Date: 2012/06/12 12:25:27 $
+# $Revision: 1.1 $
 #
 #
 # Danilo Piparo CERN - danilo.piparo@cern.ch
@@ -18,6 +18,7 @@ def getInfoFromFilename(filename):
   return run,sample,cmssw_release,tier
 
 from sys import argv,exit
+import os
 
 # Default Configuration Parameters ---------------------------------------------
 
@@ -138,14 +139,16 @@ if len(args)!=2 and options.compare:
 #-------------------------------------------------------------------------------
 original_pickle_name=""
 if options.compare:
+  
   if os.environ.has_key("RELMON_SA"):
-    import Utilities.RelMon.definitions as definitions  
+    import definitions  
     from dqm_interfaces import DirID,DirWalkerFile,string2blacklist
+    from dirstructure import Directory
   else:
-    import Utilities.RelMon.Utilities.RelMon.definitions as definitions  
+    import Utilities.RelMon.definitions as definitions  
     from Utilities.RelMon.dqm_interfaces import DirID,DirWalkerFile,string2blacklist
+    from Utilities.RelMon.dirstructure import Directory
 
-  from dirstructure import Directory
   import cPickle
   from os import mkdir,chdir,getcwd
   from os.path import exists
@@ -264,6 +267,7 @@ if options.report:
   from dirstructure import Directory
   from os.path import exists
   from os import chdir,mkdir
+  import os
   import cPickle    
   
   pickle_name=options.pklfile
@@ -276,7 +280,7 @@ if options.report:
   ifile.close()
 
   if not options.compare:
-    if not exists(options.outdir_name):
+    if not os.path.exists(options.outdir_name):
       mkdir(options.outdir_name)
 
   if exists(options.outdir_name) and len(directory.name)==0:

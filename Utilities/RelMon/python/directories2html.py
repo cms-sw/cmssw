@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: dpiparo $
-# $Date: 2012/03/09 13:55:23 $
-# $Revision: 1.18 $
+# $Date: 2012/06/12 12:25:27 $
+# $Revision: 1.1 $
 
 #
 #                                                                              
@@ -22,7 +22,7 @@ sys.argv=[]
 from ROOT import TCanvas,gStyle,TH1F,TGaxis,gPad,kRed
 sys.argv=theargv
 
-
+import os
 if os.environ.has_key("RELMON_SA"):
   from dirstructure import Comparison,Directory
   from definitions import *
