@@ -17,7 +17,7 @@
   </ioread>
   <class name="reco::Candidate" ClassVersion="10">
    <version ClassVersion="10" checksum="783896264"/>
-    <field name="mothers_" transient="true"/>
+    <!-- <field name="mothers_" transient="true"/> -->
   </class>
   <class name="reco::LeafCandidate"  ClassVersion="11">
    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" />
