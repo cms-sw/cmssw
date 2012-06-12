@@ -1,4 +1,5 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtEvent.h"
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cstring>
 
@@ -17,33 +18,7 @@ TtEvent::correspondingHypo(const HypoClassKey& key1, const unsigned& hyp1, const
 TtEvent::HypoClassKey
 TtEvent::hypoClassKeyFromString(const std::string& label) const 
 {
-   static HypoClassKeyStringToEnum hypoClassKeyStringToEnumMap[] = {
-      { "kGeom",              kGeom             },
-      { "kWMassMaxSumPt",     kWMassMaxSumPt    },
-      { "kMaxSumPtWMass",     kMaxSumPtWMass    },
-      { "kGenMatch",          kGenMatch         },
-      { "kMVADisc",           kMVADisc          },
-      { "kKinFit",            kKinFit           },
-      { "kKinSolution",       kKinSolution      },
-      { "kWMassDeltaTopMass", kWMassDeltaTopMass},
-      { "kHitFit",            kHitFit           },
-      { 0, (HypoClassKey)-1 }
-   };
-
-   bool found = false;
-   HypoClassKey value = (HypoClassKey)-1;
-   for(int i = 0; hypoClassKeyStringToEnumMap[i].label && (!found); ++i){
-     if(!strcmp(label.c_str(), hypoClassKeyStringToEnumMap[i].label)){
-       found = true;
-       value = hypoClassKeyStringToEnumMap[i].value;
-     }
-   }
-
-   // in case of unrecognized selection type
-   if(!found){
-     throw cms::Exception("TtEventError") << label << " is not a recognized HypoClassKey";
-   }
-   return value;
+  return (HypoClassKey) StringToEnumValue<HypoClassKey>(label);
 }
 
 // print pt, eta, phi, mass of a given candidate into an existing LogInfo
