@@ -1,7 +1,7 @@
 
 <lcgdict>
   <class name="PFRootEventManager">
-    <field name="pdgTable_" transient="true"/>
+    <!-- <field name="pdgTable_" transient="true"/> -->
   </class>
   <class name="PFRootEventManagerColin"/>
   <class name="TauEvent"/>
