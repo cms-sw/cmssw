@@ -1,6 +1,6 @@
 <lcgdict>
  <class name="TestPayloadClass">
-	<field name="testIntVector" mapping="blob"/>
+	<!-- <field name="testIntVector" mapping="blob"/> -->
   </class>
   <class name="Inheritances"/>
   <class name="Primitives"/>
