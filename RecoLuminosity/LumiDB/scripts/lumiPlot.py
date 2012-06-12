@@ -211,6 +211,10 @@ if __name__=='__main__':
                         dest='debug',
                         action='store_true',
                         help='debug')
+    parser.add_argument('--without-png',
+                        dest='withoutpng',
+                        action='store_true',
+                        help='do not produce')
     parser.add_argument('action',
                         choices=allowedActions,
                         help='type of plots')
@@ -537,3 +541,29 @@ if __name__=='__main__':
                 rawydata.setdefault('Recorded',[]).append(reclumi)
             rawxdata=[run,thisfillnumber,starttime,stoptime,totlumils,totcmsls]
         m.plotInst_RunLS(rawxdata,rawydata,textoutput=None)
+    
+    if options.yscale=='linear':
+        if options.interactive:
+            m.drawInteractive()
+            exit(0)
+        else:
+            if not options.withoutpng:
+                m.drawPNG(outplotfilename+'.png')
+                exit(0)
+    elif options.yscale=='log':
+        if options.interactive:
+            mlog.drawInteractive()
+            exit(0)
+        else:
+            if not options.withoutpng:
+                mlog.drawPNG(outplotfilename+'_log.png')
+                exit(0)
+    else:
+        if options.interactive:
+            print 'cannot draw both log and linear from interactive'
+            exit(0)
+        if not options.withoutpng:
+            m.drawPNG(outplotfilename+'.png')
+            mlog.drawPNG(outplotfilename+'_log.png')
+            exit(0)
+        
