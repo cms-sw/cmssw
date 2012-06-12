@@ -1,10 +1,10 @@
-# /online/collisions/2012/7e33/v3.0/HLT/V11 (CMSSW_5_2_5_HLT7)
+# /online/collisions/2012/7e33/v3.0/HLT/V12 (CMSSW_5_2_5_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/7e33/v3.0/HLT/V11')
+  tableName = cms.string('/online/collisions/2012/7e33/v3.0/HLT/V12')
 )
 
 streams = cms.PSet( 
@@ -1091,7 +1091,6 @@ datasets = cms.PSet(
     'HLT_L2Mu70_eta2p1_PFMET55_v2',
     'HLT_L2Mu70_eta2p1_PFMET60_v2',
     'HLT_L2TripleMu10_0_0_NoVertex_PFJet40Neutral_v5',
-    'HLT_LogMonitor_v3',
     'HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v7',
     'HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v7',
     'HLT_LooseIsoPFTau35_Trk20_Prong1_v7',
@@ -1137,8 +1136,8 @@ datasets = cms.PSet(
     'HLT_Mu30_Ele30_CaloIdL_v7',
     'HLT_Mu30_eta2p1_v4',
     'HLT_Mu30_v15',
-    'HLT_Mu40_HT200_v2')+cms.vstring( 'HLT_Mu40_eta2p1_Track50_dEdx3p6_v4',
-    'HLT_Mu40_eta2p1_Track60_dEdx3p7_v4',
+    'HLT_Mu40_HT200_v2',
+    'HLT_Mu40_eta2p1_Track50_dEdx3p6_v4')+cms.vstring( 'HLT_Mu40_eta2p1_Track60_dEdx3p7_v4',
     'HLT_Mu40_eta2p1_v10',
     'HLT_Mu40_v13',
     'HLT_Mu50_eta2p1_v7',

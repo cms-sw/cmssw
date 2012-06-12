@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/HLT/V363 (CMSSW_5_2_5_HLT7)
+# /dev/CMSSW_5_2_1/HLT/V364 (CMSSW_5_2_5_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V363')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V364')
 )
 
 streams = cms.PSet( 
@@ -1824,7 +1824,6 @@ datasets = cms.PSet(
     'HLT_L2Mu80_eta2p1_PFMET70_v5',
     'HLT_L2TripleMu10_0_0_NoVertex_PFJet40Neutral_v5',
     'HLT_L3MuonsCosmicTracking_v10',
-    'HLT_LogMonitor_v3',
     'HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v7',
     'HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v7',
     'HLT_LooseIsoPFTau35_Trk20_Prong1_v7',
@@ -1995,8 +1994,8 @@ datasets = cms.PSet(
     'HLT_QuadPFJet82_65_48_35_BTagCSV_VBF_v2',
     'HLT_Random_v2',
     'HLT_RegionalCosmicTracking_v14',
-    'HLT_RelIso1p0Mu17_v5')+cms.vstring( 'HLT_RelIso1p0Mu20_v2',
-    'HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFHT175_v7',
+    'HLT_RelIso1p0Mu17_v5',
+    'HLT_RelIso1p0Mu20_v2')+cms.vstring( 'HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFHT175_v7',
     'HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFHT225_v7',
     'HLT_RelIso1p0Mu5_v5',
     'HLT_RsqMR40_Rsq0p04_v4',
