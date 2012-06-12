@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: dpiparo $
-# $Date: 2012/06/12 12:25:27 $
-# $Revision: 1.1 $
+# $Date: 2012/06/12 12:57:40 $
+# $Revision: 1.2 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -56,7 +56,7 @@ def setTDRStyle():
   if os.environ.has_key("RELMON_SA"):
     style_file=this_dir_one_up+"data/tdrstyle_mod.C"
   else:
-    style_file="%s/Utilities/RelMon/data/tdrstyle_mod.C"%(os.environ["CMSSW_BASE"])
+    style_file="%s/src/Utilities/RelMon/data/tdrstyle_mod.C"%(os.environ["CMSSW_BASE"])
   try:
     gROOT.ProcessLine(".L %s" %style_file)
     gROOT.ProcessLine("setTDRStyle()")
