@@ -100,7 +100,7 @@
   <class name="edm::PtrVector<reco::Candidate>" />
 
   <class name="edm::RefToBaseProd<reco::Candidate>">
-    <field name="view_" transient="true" />
+    <!-- <field name="view_" transient="true" /> -->
   </class>
   <class name="std::map<const reco::Candidate *, const reco::Candidate *>" />
   <class name="std::vector<const reco::Candidate *>" />
