@@ -30,8 +30,8 @@
   </class>
   <class name="std::vector<reco::FitQuality>" />
   <class name="reco::FitResultCollection">
-    <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
+    <!-- <field name="transientVector_" transient="true"/> -->
+    <!-- <field name="fixed_" transient="true"/> -->
   </class>
 
   <class name="std::vector<reco::RecoChargedCandidate>"/>
