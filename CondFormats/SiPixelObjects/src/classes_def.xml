@@ -2,8 +2,8 @@
   
   <class name="sipixelobjects::PixelROC">
   <field name="theFrameConverter" transient="true"/>
-  <field name="theNRows" transient="true"/>
-  <field name="theNCols" transient="true"/>
+  <!-- <field name="theNRows" transient="true"/> -->
+  <!-- <field name="theNCols" transient="true"/> -->
   </class>
 
   <class name="SiPixelFedCabling"/>
