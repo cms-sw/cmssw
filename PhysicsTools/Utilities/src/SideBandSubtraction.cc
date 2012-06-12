@@ -13,6 +13,8 @@
 #include "PhysicsTools/Utilities/interface/SideBandSubtraction.h"
 // System includes
 #include <iostream>
+#include <ios>
+#include <fstream>
 #include <cstdlib>
 #include <sstream>
 
