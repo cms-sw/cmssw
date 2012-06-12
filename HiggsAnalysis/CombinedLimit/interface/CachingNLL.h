@@ -12,6 +12,7 @@
 #include <RooSetProxy.h>
 #include <RooRealVar.h>
 #include <RooSimultaneous.h>
+#include <RooGaussian.h>
 
 // Part zero: ArgSet checker
 namespace cacheutils {
@@ -104,6 +105,7 @@ class CachingSimNLL  : public RooAbsReal {
     public:
         CachingSimNLL(RooSimultaneous *pdf, RooAbsData *data, const RooArgSet *nuis=0) ;
         CachingSimNLL(const CachingSimNLL &other, const char *name = 0) ;
+        ~CachingSimNLL() ;
         virtual CachingSimNLL *clone(const char *name = 0) const ;
         virtual Double_t evaluate() const ;
         virtual Bool_t isDerived() const { return kTRUE; }
@@ -117,6 +119,16 @@ class CachingSimNLL  : public RooAbsReal {
         void clearZeroPoint() ;
         friend class CachingAddNLL;
     private:
+        class SimpleGaussianConstraint : public RooGaussian {
+            public:
+                SimpleGaussianConstraint(const RooGaussian &g) : RooGaussian(g, "") {}
+                double getLogValFast() const { 
+                    Double_t arg = x - mean;  
+                    Double_t sig = sigma ;
+                    return -0.5*arg*arg/(sig*sig);
+                }
+        };
+
         void setup_();
         RooSimultaneous   *pdfOriginal_;
         const RooAbsData  *dataOriginal_;
@@ -125,12 +137,14 @@ class CachingSimNLL  : public RooAbsReal {
         RooArgSet piecesForCloning_;
         std::auto_ptr<RooSimultaneous>  factorizedPdf_;
         std::vector<RooAbsPdf *>        constrainPdfs_;
+        std::vector<SimpleGaussianConstraint *>  constrainPdfsFast_;
         std::vector<CachingAddNLL*>     pdfs_;
         std::auto_ptr<TList>            dataSets_;
         std::vector<RooDataSet *>       datasets_;
         static bool noDeepLEE_;
         static bool hasError_;
         std::vector<double> constrainZeroPoints_;
+        std::vector<double> constrainZeroPointsFast_;
 };
 
 }

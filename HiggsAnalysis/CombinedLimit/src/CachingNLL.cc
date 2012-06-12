@@ -15,7 +15,6 @@
 //---- Uncomment to enable Kahan's summation (if enabled at runtime with --X-rtd = ...
 // http://en.wikipedia.org/wiki/Kahan_summation_algorithm
 //#define ADDNLL_KAHAN_SUM
-//#define SIMNLL_KAHAN_SUM
 #include "../interface/ProfilingTools.h"
 
 //std::map<std::string,double> cacheutils::CachingAddNLL::offsets_;
@@ -373,9 +372,6 @@ cacheutils::CachingAddNLL::evaluate() const
     }
     // then get the final nll
     double ret = 0;
-    #ifdef ADDNLL_KAHAN_SUM
-    double compensation = 0;
-    #endif
     for ( its = bgs, itw = bgw ; its != eds ; ++its, ++itw ) {
         if (*itw == 0) continue;
         if (!isnormal(*its) || *its <= 0) {
@@ -489,6 +485,13 @@ cacheutils::CachingSimNLL::clone(const char *name) const
     return new cacheutils::CachingSimNLL(*this, name);
 }
 
+cacheutils::CachingSimNLL::~CachingSimNLL()
+{
+    for (std::vector<SimpleGaussianConstraint*>::iterator it = constrainPdfsFast_.begin(), ed = constrainPdfsFast_.end(); it != ed; ++it) {
+        delete *it;
+    }
+}
+
 void
 cacheutils::CachingSimNLL::setup_() 
 {
@@ -509,11 +512,17 @@ cacheutils::CachingSimNLL::setup_()
     RooSimultaneous *simpdf = factorizedPdf_.get();
     constrainPdfs_.clear(); 
     if (constraints.getSize()) {
+        bool FastConstraints = runtimedef::get("SIMNLL_FASTGAUSS");
         //constrainPdfs_.push_back(new RooProdPdf("constraints","constraints", constraints));
         for (int i = 0, n = constraints.getSize(); i < n; ++i) {
             RooAbsPdf *pdfi = dynamic_cast<RooAbsPdf*>(constraints.at(i));
-            constrainPdfs_.push_back(pdfi);
-            constrainZeroPoints_.push_back(0);
+            if (FastConstraints && typeid(*pdfi) == typeid(RooGaussian)) {
+                constrainPdfsFast_.push_back(new SimpleGaussianConstraint(dynamic_cast<const RooGaussian&>(*pdfi)));
+                constrainZeroPointsFast_.push_back(0);
+            } else {
+                constrainPdfs_.push_back(pdfi);
+                constrainZeroPoints_.push_back(0);
+            }
             //std::cout << "Constraint pdf: " << constraints.at(i)->GetName() << std::endl;
             std::auto_ptr<RooArgSet> params(pdfi->getParameters(*dataOriginal_));
             params_.add(*params, false);
@@ -563,33 +572,15 @@ cacheutils::CachingSimNLL::evaluate() const
     PerfCounter::add("CachingSimNLL::evaluate called");
 #endif
     double ret = 0;
-    #ifdef SIMNLL_KAHAN_SUM
-    double compensation = 0;
-    #endif
     for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it) {
         if (*it != 0) {
             double nllval = (*it)->getVal();
             // what sanity check could I put here?
-            #ifdef SIMNLL_KAHAN_SUM
-            static bool do_kahan = runtimedef::get("SIMNLL_KAHAN_SUM");
-            if (do_kahan) {
-                double kahan_y = nllval - compensation;
-                double kahan_t = ret + kahan_y;
-                double kahan_d = (kahan_t - ret);
-                compensation = kahan_d - kahan_y;
-                ret  = kahan_t;
-            } else {
-                ret += nllval;
-            }
-            #else
             ret += nllval;
-            #endif
         }
     }
     if (!constrainPdfs_.empty()) {
-        #ifdef SIMNLL_KAHAN_SUM
-        compensation = 0;
-        #endif
+        /// ============= GENERIC CONSTRAINTS  =========
         std::vector<double>::const_iterator itz = constrainZeroPoints_.begin();
         for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it, ++itz) { 
             double pdfval = (*it)->getVal(nuis_);
@@ -597,20 +588,13 @@ cacheutils::CachingSimNLL::evaluate() const
                 if (!noDeepLEE_) logEvalError((std::string("Constraint pdf ")+(*it)->GetName()+" evaluated to zero, negative or error").c_str());
                 pdfval = 1e-9;
             }
-            #ifdef SIMNLL_KAHAN_SUM
-            static bool do_kahan = runtimedef::get("SIMNLL_KAHAN_SUM");
-            if (do_kahan) {
-                double kahan_y = -log(pdfval) - compensation;
-                double kahan_t = ret + kahan_y;
-                double kahan_d = (kahan_t - ret);
-                compensation = kahan_d - kahan_y;
-                ret  = kahan_t;
-            } else {
-                ret -= (log(pdfval) + *itz);
-            }
-            #else
             ret -= (log(pdfval) + *itz);
-            #endif
+        }
+        /// ============= FAST GAUSSIAN CONSTRAINTS  =========
+        itz = constrainZeroPointsFast_.begin();
+        for (std::vector<SimpleGaussianConstraint*>::const_iterator it = constrainPdfsFast_.begin(), ed = constrainPdfsFast_.end(); it != ed; ++it, ++itz) { 
+            double logpdfval = (*it)->getLogValFast();
+            ret -= (logpdfval + *itz);
         }
     }
 #ifdef TRACE_NLL_EVALS
@@ -672,6 +656,11 @@ void cacheutils::CachingSimNLL::setZeroPoint() {
         double pdfval = (*it)->getVal(nuis_);
         if (isnormal(pdfval) || pdfval > 0) *itz = -log(pdfval);
     }
+    itz = constrainZeroPointsFast_.begin();
+    for (std::vector<SimpleGaussianConstraint*>::const_iterator it = constrainPdfsFast_.begin(), ed = constrainPdfsFast_.end(); it != ed; ++it, ++itz) {
+        double logpdfval = (*it)->getLogValFast();
+        *itz = -logpdfval;
+    }
     setValueDirty();
 }
 
@@ -680,6 +669,7 @@ void cacheutils::CachingSimNLL::clearZeroPoint() {
         if (*it != 0) (*it)->clearZeroPoint();
     }
     std::fill(constrainZeroPoints_.begin(), constrainZeroPoints_.end(), 0.0);
+    std::fill(constrainZeroPointsFast_.begin(), constrainZeroPointsFast_.end(), 0.0);
     setValueDirty();
 }
 
