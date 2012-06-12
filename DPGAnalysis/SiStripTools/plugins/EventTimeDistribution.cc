@@ -22,6 +22,7 @@
 
 // user include files
 #include <string>
+#include <vector>
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -77,9 +78,13 @@ class EventTimeDistribution : public edm::EDAnalyzer {
   const unsigned int m_LSfrac;
   const bool m_ewhdepthHisto;
 
+  
+
   RunHistogramManager _rhm;
 
   TH1F** _dbx;
+  std::vector<TH1F**> m_dbxhistos;
+  std::vector<std::pair<unsigned int,unsigned int> > m_dbxindices;
   TH1F** _bx;
   TH1F** _bxincycle;
   TH1F** _orbit;
@@ -118,6 +123,22 @@ EventTimeDistribution::EventTimeDistribution(const edm::ParameterSet& iConfig):
   _dbxvsbxincycle(0),   _dbxvsbx(0),   _bxincyclevsbx(0),   _orbitvsbxincycle(0), m_ewhdepth(0)
 {
    //now do what ever initialization is needed
+
+  std::vector<edm::ParameterSet> dbxhistoparams(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >("dbxHistosParams",std::vector<edm::ParameterSet>()));
+
+  for(std::vector<edm::ParameterSet>::const_iterator params=dbxhistoparams.begin();params!=dbxhistoparams.end();++params) {
+    m_dbxindices.push_back(std::pair<unsigned int,unsigned int>(params->getParameter<unsigned int>("firstEvent"),params->getParameter<unsigned int>("secondEvent")));
+    char hname[300];
+    sprintf(hname,"dbx_%d_%d",params->getParameter<unsigned int>("firstEvent"),params->getParameter<unsigned int>("secondEvent"));
+    char htitle[300];
+    sprintf(htitle,"dbx(%d,%d)",params->getParameter<unsigned int>("firstEvent"),params->getParameter<unsigned int>("secondEvent"));
+
+    m_dbxhistos.push_back(_rhm.makeTH1F(hname,htitle,params->getParameter<int>("nbins"),params->getParameter<double>("min"),
+					params->getParameter<double>("max")));
+    LogDebug("DBXHistoPreBooking") << "Booked DBX histo named " << hname << " untitled " << htitle;
+  }
+
+
 
   _dbx = _rhm.makeTH1F("dbx","dbx",1000,-0.5,999.5);
   _bx = _rhm.makeTH1F("bx","BX number",3564,-0.5,3563.5);
@@ -161,6 +182,11 @@ EventTimeDistribution::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    // improve the matchin between default and actual partitions
    
    (*_dbx)->Fill(he->deltaBX());
+   std::vector<std::pair<unsigned int,unsigned int> >::const_iterator indices=m_dbxindices.begin();
+   for(std::vector<TH1F**>::const_iterator dbxhist=m_dbxhistos.begin();dbxhist!=m_dbxhistos.end();++dbxhist,++indices) {
+     (*(*dbxhist))->Fill(he->deltaBX(indices->first,indices->second));
+   }
+
    (*_bx)->Fill(iEvent.bunchCrossing());
    (*_orbit)->Fill(iEvent.orbitNumber());
    if(_dbxvsbx && *_dbxvsbx) (*_dbxvsbx)->Fill(iEvent.bunchCrossing(),he->deltaBX());
@@ -194,7 +220,15 @@ EventTimeDistribution::beginRun(const edm::Run& iRun, const edm::EventSetup&)
 {
 
   _rhm.beginRun(iRun);
+
   if(*_dbx) {    (*_dbx)->GetXaxis()->SetTitle("#DeltaBX"); }
+
+  LogDebug("NomberOfHistos") << m_dbxhistos.size();
+  for(std::vector<TH1F**>::const_iterator dbxhist=m_dbxhistos.begin();dbxhist!=m_dbxhistos.end();++dbxhist) {
+    LogDebug("HistoPointer") << *dbxhist;
+    if(*(*dbxhist)) { (*(*dbxhist))->GetXaxis()->SetTitle("#DeltaBX"); }
+  }
+  LogDebug("LabelDone") << "all labels set";
 
   if(*_bx) { (*_bx)->GetXaxis()->SetTitle("BX");  }
 
@@ -204,6 +238,8 @@ EventTimeDistribution::beginRun(const edm::Run& iRun, const edm::EventSetup&)
     (*_orbit)->SetBit(TH1::kCanRebin);
     (*_orbit)->GetXaxis()->SetTitle("time [Orb#]"); 
   }
+
+  LogDebug("StdPlotsDone") << "all labels in std plots set";
 
   if(_dbxvsbxincycle && *_dbxvsbxincycle) {
     (*_dbxvsbxincycle)->GetXaxis()->SetTitle("Event BX mod(70)"); (*_dbxvsbxincycle)->GetYaxis()->SetTitle("#DeltaBX"); 
