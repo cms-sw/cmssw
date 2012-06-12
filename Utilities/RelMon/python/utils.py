@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: dpiparo $
-# $Date: 2012/03/09 13:55:23 $
-# $Revision: 1.17 $
+# $Date: 2012/06/12 12:25:27 $
+# $Revision: 1.1 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -28,14 +28,14 @@ ROOT.gErrorIgnoreLevel=1001
 ROOT.gROOT.SetBatch(True)
 sys.argv=theargv
 
+from urllib2  import Request,build_opener,urlopen
+
 if os.environ.has_key("RELMON_SA"):
   from definitions import *
-  from urllib2  import Request,build_opener,urlopen
   from authentication import X509CertOpen
   from utils import __file__ as this_module_name  
 else:
   from Utilities.RelMon.definitions import *
-  from Utilities.RelMon.urllib2  import Request,build_opener,urlopen
   from Utilities.RelMon.authentication import X509CertOpen
   from Utilities.RelMon.utils import __file__ as this_module_name
 
