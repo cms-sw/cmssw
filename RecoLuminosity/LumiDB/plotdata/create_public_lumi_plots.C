@@ -376,6 +376,18 @@ void create_plots(std::string const colorScheme="Greg", int const year=2012,
   float scaleFactor = 0;
   float scaleFactor2 = 0;
   switch (year) {
+  case 2010:
+    if (partType == "pp") {
+      eBeam = "7 TeV";
+      units = "fb";
+      units2 = "pb";
+      conversionFactor = 1.e6;
+      scaleFactor = 1.e-3;
+      scaleFactor2 = 1.e-3;
+    } else {
+      std::cerr << "ERROR Unknown beam type for 2010: " << beamType << std::endl;
+    }
+    break;
   case 2011:
     if (partType == "pp") {
       eBeam = "7 TeV";
