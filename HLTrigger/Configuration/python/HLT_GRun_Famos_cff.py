@@ -1,11 +1,11 @@
-# /online/collisions/2012/7e33/v3.0/HLT/V12 (CMSSW_5_2_5_HLT7)
+# /dev/CMSSW_5_2_1/GRun/V155 (CMSSW_5_2_5_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/7e33/v3.0/HLT/V12')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V155')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -30744,10 +30744,6 @@ hltPreDSTPhysics = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "gtDigis" ),
     offset = cms.uint32( 0 )
 )
-hltPreLogMonitor = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "gtDigis" ),
-    offset = cms.uint32( 0 )
-)
 hltLogMonitorFilter = cms.EDFilter( "HLTLogMonitorFilter",
     saveTags = cms.bool( False ),
     default_threshold = cms.uint32( 10 ),
@@ -30765,6 +30761,10 @@ hltLogMonitorFilter = cms.EDFilter( "HLTLogMonitorFilter",
         threshold = cms.uint32( 0 )
       )
     )
+)
+hltPreLogMonitor = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "gtDigis" ),
+    offset = cms.uint32( 0 )
 )
 hltPreL1DoubleJet36Central = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "gtDigis" ),
@@ -31394,7 +31394,7 @@ HLT_ZeroBias_v7 = cms.Path( HLTBeginSequence + hltL1sL1ZeroBias + hltPreZeroBias
 HLT_ZeroBiasPixel_DoubleTrack_v2 = cms.Path( HLTBeginSequence + hltL1sL1ZeroBias + hltPreZeroBiasPixelDoubleTrack + HLTDoLocalPixelSequence + HLTPixelTrackingForMinBiasSequence + hltPixelCandsForMinBias + hltMinBiasPixelFilter2 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_Physics_v5 = cms.Path( HLTBeginSequence + hltPrePhysics + cms.SequencePlaceholder( "HLTEndSequence" ) )
 DST_Physics_v5 = cms.Path( HLTBeginSequence + hltPreDSTPhysics + cms.SequencePlaceholder( "HLTEndSequence" ) )
-HLT_LogMonitor_v3 = cms.Path( HLTBeginSequence + hltPreLogMonitor + hltLogMonitorFilter + cms.SequencePlaceholder( "HLTEndSequence" ) )
+HLT_LogMonitor_v3 = cms.Path( HLTBeginSequence + hltLogMonitorFilter + hltPreLogMonitor + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_L1DoubleJet36Central_v7 = cms.Path( HLTBeginSequence + hltL1sL1DoubleJet36Central + hltPreL1DoubleJet36Central + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLTriggerFinalPath = cms.Path( HLTBeginSequence + hltScalersRawToDigi + hltFEDSelector + hltTriggerSummaryAOD + hltTriggerSummaryRAW )
 
