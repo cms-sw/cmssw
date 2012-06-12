@@ -175,6 +175,7 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
     histoSpec_->Scale(expectedEvents/ histoSpec_->Integral()); 
     RooArgSet obsPlusW(obs); obsPlusW.add(*weightVar);
     RooDataSet *data = new RooDataSet(TString::Format("%sData", pdf_->GetName()), "", obsPlusW, weightVar->GetName());
+    RooAbsArg::setDirtyInhibit(true); // don't propagate dirty flags while filling histograms 
     switch (obs.getSize()) {
         case 1:
             for (int i = 1, n = histoSpec_->GetNbinsX(); i <= n; ++i) {
@@ -206,6 +207,7 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
             } } }
             }
     }
+    RooAbsArg::setDirtyInhibit(false); // restore proper propagation of dirty flags
     if (!keepHistoSpec_) { delete histoSpec_; histoSpec_ = 0; }
     //std::cout << "Asimov dataset generated from " << pdf_->GetName() << " (sumw? " << data->sumEntries() << ", expected events " << expectedEvents << ")" << std::endl;
     //utils::printRDH(data);
