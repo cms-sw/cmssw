@@ -72,7 +72,7 @@
   <class name="edm::reftobase::Holder<reco::BaseTau, edm::Ref<std::vector<reco::PFTau>,reco::PFTau,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTau>,reco::PFTau> > >" />
 
   <class name="edm::RefToBaseProd<reco::PFTau>" >
-     <field name="view_" transient="true" />
+     <!-- <field name="view_" transient="true" /> -->
   </class>
   <class name="edm::RefToBase<reco::PFTau>" />
   <class name="edm::reftobase::BaseHolder<reco::PFTau>" />
@@ -116,8 +116,8 @@
   </class>
   <class name="reco::CaloTauDiscriminatorByIsolation" ClassVersion="10">
    <version ClassVersion="10" checksum="2968502385"/>
-    <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
+    <!-- <field name="transientVector_" transient="true"/> -->
+    <!-- <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::CaloTauDiscriminatorByIsolationRef"/>
   <class name="reco::CaloTauDiscriminatorByIsolationRefProd"/>
@@ -130,8 +130,8 @@
   </class>
   <class name="reco::CaloTauDiscriminator" ClassVersion="10">
    <version ClassVersion="10" checksum="1989330711"/>
-    <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
+    <!-- <field name="transientVector_" transient="true"/> -->
+    <!-- <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::CaloTauDiscriminatorRef"/>
   <class name="reco::CaloTauDiscriminatorRefProd"/>
@@ -144,8 +144,8 @@
   </class>
   <class name="reco::CaloTauDiscriminatorAgainstElectron" ClassVersion="10">
    <version ClassVersion="10" checksum="3692008801"/>
-    <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
+    <!-- <field name="transientVector_" transient="true"/> -->
+    <!-- <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::CaloTauDiscriminatorAgainstElectronRef"/>
   <class name="reco::CaloTauDiscriminatorAgainstElectronRefProd"/>
@@ -164,8 +164,8 @@
   </class>
   <class name="reco::PFTauDiscriminatorByIsolation" ClassVersion="10">
    <version ClassVersion="10" checksum="1187112623"/>
-    <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
+    <!-- <field name="transientVector_" transient="true"/> -->
+    <!-- <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::PFTauDiscriminatorByIsolationRef"/>
   <class name="reco::PFTauDiscriminatorByIsolationRefProd"/>
@@ -185,8 +185,8 @@
 
   <class name="reco::PFTauDiscriminator" ClassVersion="10">
    <version ClassVersion="10" checksum="4019319043"/>
-    <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
+    <!-- <field name="transientVector_" transient="true"/> -->
+    <!-- <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::PFTauDiscriminatorRef"/>
   <class name="reco::PFTauDiscriminatorRefProd"/>
@@ -200,8 +200,8 @@
 
   <class name="reco::JetPiZeroAssociation" ClassVersion="10">
    <version ClassVersion="10" checksum="3488813045"/>
-    <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
+    <!-- <field name="transientVector_" transient="true"/> -->
+    <!-- <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::JetPiZeroAssociationRef"/>
   <class name="reco::JetPiZeroAssociationRefProd"/>
