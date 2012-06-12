@@ -45,8 +45,8 @@
   </class>
 
   <class name="SiStripLorentzAngle" class_version="0">
-    <field name="key_type" mapping="blob"/>
-    <field name="mapped_type" mapping="blob"/>
+    <!-- <field name="key_type" mapping="blob"/> -->
+    <!-- <field name="mapped_type" mapping="blob"/> -->
   </class>
 
   <class name="SiStripBadStrip" class_version="0">
@@ -85,7 +85,7 @@
   <class name="std::vector<SiStripSummary::DetRegistry>"/>
 
   <class name="SiStripConfObject" class_version="0">
-    <field name="names_" mapping="blob"/>
-    <field name="values_" mapping="blob"/>
+    <!-- <field name="names_" mapping="blob"/> -->
+    <!-- <field name="values_" mapping="blob"/> -->
   </class>
 </lcgdict>
