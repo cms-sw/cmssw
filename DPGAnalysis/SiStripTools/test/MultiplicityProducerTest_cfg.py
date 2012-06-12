@@ -12,6 +12,16 @@ options.register ('globalTag',
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "GlobalTag")
+options.register ('fromRAW',
+                  "0",
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.int,          # string, int, or float
+                  "=1 if from RAW")
+options.register ('testTag',
+                  "0",
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.int,          # string, int, or float
+                  "=1 if test tag to be used")
 
 options.parseArguments()
 
@@ -70,6 +80,20 @@ process.source = cms.Source("PoolSource",
                     )
 
 #--------------------------------------
+process.seqRECO = cms.Sequence()
+
+if options.fromRAW == 1:
+    process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+    process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
+    process.load("Configuration.StandardSequences.GeometryDB_cff")
+    process.load("Configuration.StandardSequences.Reconstruction_cff")
+    process.load("Configuration.StandardSequences.L1Reco_cff")
+    process.seqRECO = cms.Sequence(process.gtEvmDigis + process.L1Reco
+                                   + process.siStripDigis + process.siStripZeroSuppression + process.siStripClusters
+                                   + process.siPixelDigis + process.siPixelClusters )
+
+
+#
 
 process.load("DPGAnalysis.SiStripTools.sipixelclustermultiplicityprod_cfi")
 process.load("DPGAnalysis.SiStripTools.sistripclustermultiplicityprod_cfi")
@@ -86,34 +110,31 @@ process.spclustermultprodnew = process.spclustermultprod.clone(wantedSubDets = c
 )
 process.ssclustermultprodnew = process.ssclustermultprod.clone(wantedSubDets = cms.VPSet(    
     cms.PSet(detSelection = cms.uint32(103),detLabel = cms.string("TIB"),selection=cms.untracked.vstring("0x1e000000-0x16000000")),
-    cms.PSet(detSelection = cms.uint32(104),detLabel = cms.string("TID"),selection=cms.untracked.vstring("0x1e000000-0x18000000")),
-    cms.PSet(detSelection = cms.uint32(105),detLabel = cms.string("TOB"),selection=cms.untracked.vstring("0x1e000000-0x1a000000")),
-    cms.PSet(detSelection = cms.uint32(106),detLabel = cms.string("TEC"),selection=cms.untracked.vstring("0x1e000000-0x1c000000")),
-    cms.PSet(detSelection = cms.uint32(61),detLabel = cms.string("TECm"),selection=cms.untracked.vstring("0x1e0c0000-0x1c040000")),
-    cms.PSet(detSelection = cms.uint32(62),detLabel = cms.string("TECp"),selection=cms.untracked.vstring("0x1e0c0000-0x1c080000"))
+    cms.PSet(detSelection = cms.uint32(113),detLabel = cms.string("TIBL134"),selection=cms.untracked.vstring("0x1e01c000-0x16010000","0x1e01c000-0x1600c000","0x1e01c000-0x16004000","0x1e01f000-0x1600a000","0x1e01fc00-0x16009800")),
+    cms.PSet(detSelection = cms.uint32(123),detLabel = cms.string("TIBL2"),selection=cms.untracked.vstring("0x1e01fc00-0x16009400"))
     )
 )
 
 process.seqMultProd = cms.Sequence(process.spclustermultprod+process.ssclustermultprod+process.spclustermultprodnew+process.ssclustermultprodnew)
 
+process.seqProducers = cms.Sequence(process.seqRECO + process.seqMultProd)
+
+
 process.load("DPGAnalysis.SiStripTools.ssclusmultinvestigator_cfi")
-process.ssclusmultinvestigator.runHisto = cms.untracked.bool(False)
+process.ssclusmultinvestigator.runHisto = cms.untracked.bool(True)
 process.ssclusmultinvestigator.scaleFactor=cms.untracked.int32(2)
 
 process.ssclusmultinvestigatornew = process.ssclusmultinvestigator.clone(
                             wantedSubDets = cms.untracked.VPSet(    
                               cms.PSet(detSelection = cms.uint32(103),detLabel = cms.string("TIB"), binMax = cms.int32(1787904/64)),
-                              cms.PSet(detSelection = cms.uint32(104),detLabel = cms.string("TID"), binMax = cms.int32( 565248/64)),
-                              cms.PSet(detSelection = cms.uint32(105),detLabel = cms.string("TOB"), binMax = cms.int32(3303936/64)),
-                              cms.PSet(detSelection = cms.uint32(106),detLabel = cms.string("TEC"), binMax = cms.int32(3866624/64)),
-                              cms.PSet(detSelection = cms.uint32(61),detLabel = cms.string("TECm"), binMax = cms.int32(3866624/64)),
-                              cms.PSet(detSelection = cms.uint32(62),detLabel = cms.string("TECp"), binMax = cms.int32(3866624/64))
+                              cms.PSet(detSelection = cms.uint32(113),detLabel = cms.string("TIBL134"), binMax = cms.int32(1787904/64)),
+                              cms.PSet(detSelection = cms.uint32(123),detLabel = cms.string("TIBL2"), binMax = cms.int32(1787904/64)),
                             ),
                                          multiplicityMap = cms.InputTag("ssclustermultprodnew")
     )
 
 process.load("DPGAnalysis.SiStripTools.spclusmultinvestigator_cfi")
-process.spclusmultinvestigator.runHisto = cms.untracked.bool(False)
+process.spclusmultinvestigator.runHisto = cms.untracked.bool(True)
 process.spclusmultinvestigator.scaleFactor=cms.untracked.int32(5)
 
 process.spclusmultinvestigatornew = process.spclusmultinvestigator.clone(
@@ -140,10 +161,9 @@ process.multiplicitycorr.correlationConfigurations = cms.VPSet(
    )
 
 process.seqClusMultInvest = cms.Sequence(process.spclusmultinvestigator + process.ssclusmultinvestigator +
-                                         process.spclusmultinvestigatornew + process.ssclusmultinvestigatornew + process.multiplicitycorr) 
+                                         process.spclusmultinvestigatornew + process.ssclusmultinvestigatornew)
+#+ process.multiplicitycorr) 
 
-
-process.seqProducers = cms.Sequence(process.seqMultProd)
 
 
 process.p0 = cms.Path(
@@ -155,6 +175,19 @@ process.p0 = cms.Path(
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = options.globalTag
 
+if options.testTag==1:
+    process.stripConditions = cms.ESSource(
+        "PoolDBESSource",
+        process.CondDBSetup,
+        connect = cms.string('frontier://FrontierProd/CMS_COND_31X_STRIP'),
+        toGet = cms.VPSet(
+        cms.PSet(
+        record = cms.string('SiStripNoisesRcd'), tag = cms.string('SiStripNoise_GR10_v2_offline')
+        ),
+        ),
+        )
+
+    process.es_prefer_strips = cms.ESPrefer("PoolDBESSource","stripConditions")
 
 process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string('MultiplicityProducerTest.root')
