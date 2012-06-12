@@ -9,8 +9,8 @@
  </class>
 	<class name="HepMC::GenParticle" ClassVersion="10">
   <version ClassVersion="10" checksum="3138667414"/>
-		<field name="itsParticleData" transient="true"/>
-		<field name="itsDecayData" transient="true"/>
+		<!-- <field name="itsParticleData" transient="true"/> -->
+		<!-- <field name="itsDecayData" transient="true"/> -->
 	</class>
     <class name="HepMC::GenCrossSection" ClassVersion="10">
      <version ClassVersion="10" checksum="920043842"/>
