@@ -414,10 +414,10 @@
   <class name="edm::Wrapper<edm::ValueMap<pat::LookupTableRecord> >" />
 
   <class name="pat::CandKinResolution"  ClassVersion="11">
-   <!-- <field name="covariance_" transient="true"/> -->
+   <field name="covmatrix_" transient="true"/>
    <field name="hasMatrix_" transient="true"/>
-   <version ClassVersion="11" checksum="3628324235"/>
-   <version ClassVersion="10" checksum="932672721"/>
+   <version ClassVersion="12" checksum="811710989"/>
+   <version ClassVersion="11" checksum="811710989"/>
   </class>
   <ioread sourceClass="pat::CandKinResolution" targetClass="pat::CandKinResolution" version="[1-]" source="" target="hasMatrix_">
   <![CDATA[hasMatrix_ = false;]]>
