@@ -414,7 +414,7 @@
   <class name="edm::Wrapper<edm::ValueMap<pat::LookupTableRecord> >" />
 
   <class name="pat::CandKinResolution"  ClassVersion="11">
-   <field name="covariance_" transient="true"/>
+   <!-- <field name="covariance_" transient="true"/> -->
    <field name="hasMatrix_" transient="true"/>
    <version ClassVersion="11" checksum="3628324235"/>
    <version ClassVersion="10" checksum="932672721"/>
