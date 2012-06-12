@@ -191,7 +191,7 @@ void SideBandSubtract::printResults(string prefix)
     cerr <<"ERROR: printResults, Data or ModelPDF is NULL!\n";
 
   string result_outname = prefix + "_fit_results.txt";
-  ofstream output(result_outname.c_str(),ios::out);
+  ofstream output(result_outname.c_str(),std::ios::out);
   if(!output)
     {
       cout <<"ERROR: Could not open file for writing!\n";
