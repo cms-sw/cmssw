@@ -727,7 +727,7 @@ AlCa_LumiPixels_Random_v*
 AlCa_LumiPixels_ZeroBias_v*
 
 DQM_FEDIntegrity_v*
-#DQM_HcalEmptyEvents_v*                                                                          #129237 - should only go in 7e33 v2.5 menu
+#DQM_HcalEmptyEvents_v*                                                                          #129237 should only go in 7e33 v2.5 menu
 HLTriggerFirstPath
 HLTriggerFinalPath
 # HLTAnalyzerEndpath                                                                              # only in 'GRun', not in 'online'
