@@ -14,8 +14,8 @@
   </class>
   <class name="reco::JetFlavourMatchingCollection" ClassVersion="10">
    <version ClassVersion="10" checksum="344297371"/>
-    <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
+    <!-- <field name="transientVector_" transient="true"/> -->
+    <!-- <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::JetFlavourMatchingRef"/>
   <class name="reco::JetFlavourMatchingRefProd"/>
@@ -34,8 +34,8 @@
   </class>
   <class name="reco::JetMatchedPartonsCollection" ClassVersion="10">
    <version ClassVersion="10" checksum="1343220703"/>
-    <field name="transientVector_" transient="true"/>
-    <field name="fixed_" transient="true"/>
+    <!-- <field name="transientVector_" transient="true"/> -->
+    <!-- <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::JetMatchedPartonsRef"/>
   <class name="reco::JetMatchedPartonsRefProd"/>
