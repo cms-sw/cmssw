@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: dpiparo $
-# $Date: 2012/06/12 12:25:27 $
-# $Revision: 1.1 $
+# $Date: 2012/06/12 13:19:32 $
+# $Revision: 1.2 $
 #
 #
 # Danilo Piparo CERN - danilo.piparo@cern.ch
@@ -263,8 +263,14 @@ if options.compare:
 
 #-------------------------------------------------------------------------------
 if options.report:
-  from directories2html import directory2html
-  from dirstructure import Directory
+  
+  if os.environ.has_key("RELMON_SA"):
+    from directories2html import directory2html
+    from dirstructure import Directory
+  else:
+    from Utilities.RelMon.directories2html import directory2html
+    from Utilities.RelMon.dirstructure import Directory
+
   from os.path import exists
   from os import chdir,mkdir
   import os
