@@ -33,12 +33,12 @@
     <field name="sigmaPitch_" transient="true" />
    <version ClassVersion="11" checksum="1486832741"/>
     <field name="sigmaPitch_" transient="true" />
-    <field name="pos_" transient="true" />
-    <field name="err_" transient="true" />
+    <!-- <field name="pos_" transient="true" /> -->
+    <!-- <field name="err_" transient="true" /> -->
    <version ClassVersion="10" checksum="1325274892"/>
     <field name="sigmaPitch_" transient="true" />
-    <field name="pos_" transient="true" />
-    <field name="err_" transient="true" />
+    <!-- <field name="pos_" transient="true" /> -->
+    <!-- <field name="err_" transient="true" /> -->
   </class> 
 
   <class name="SiStripRecHit2D"  ClassVersion="12">
