@@ -14,7 +14,8 @@
 //===----------------------------------------------------------------------===//
 
 #include "ConstCastAwayChecker.h"
- 
+#include "CmsSupport.h" 
+
 namespace clangcms
 {
 
@@ -26,7 +27,7 @@ void ConstCastAwayChecker::checkPreStmt(const ExplicitCastExpr *CE,
 	QualType OrigTy = Ctx.getCanonicalType(E->getType());
 	QualType ToTy = Ctx.getCanonicalType(CE->getType());
 
-	if (OrigTy.isConstQualified() && !ToTy.isConstQualified()) {
+	if ( support::isConst( OrigTy ) && ! support::isConst(ToTy) ) {
 		if (ExplodedNode *errorNode = C.generateSink()) {
 			if (!BT)
 				BT.reset(

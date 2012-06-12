@@ -13,6 +13,9 @@
 
 #include "StaticLocalChecker.h"
 
+#include "CmsSupport.h"
+#include <iostream>
+
 namespace clangcms {
 
 
@@ -21,13 +24,13 @@ void StaticLocalChecker::checkASTDecl(const VarDecl *D,
                     BugReporter &BR) const
 {
 	QualType t =  D->getType();
-	if ( D->isStaticLocal() && !t.isConstQualified())
+
+	if ( D->isStaticLocal() && ! support::isConst( t ) )
 	{
-	  PathDiagnosticLocation DLoc =
-	    PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
+		PathDiagnosticLocation DLoc = PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
 
 	    if ( ! m_exception.reportGlobalStaticForType( t, DLoc, BR ) )
-		return;
+			return;
 
 	    std::string buf;
 	    llvm::raw_string_ostream os(buf);

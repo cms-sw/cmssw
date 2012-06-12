@@ -13,6 +13,8 @@
 
 #include "GlobalStaticChecker.h"
 
+#include "CmsSupport.h"
+
 namespace clangcms
 {
 
@@ -25,14 +27,13 @@ void GlobalStaticChecker::checkASTDecl(const VarDecl *D,
 	if ( (D->getStorageClass() == SC_Static) &&
 			  !D->isStaticDataMember() &&
 			  !D->isStaticLocal() &&
-			 !t.isConstQualified())
+			  !support::isConst( t ) )
 	{
-	  PathDiagnosticLocation DLoc =
-	    PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
+	    PathDiagnosticLocation DLoc = PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
     	    QualType t =  D->getType();
 
 	    if ( ! m_exception.reportGlobalStaticForType( t, DLoc, BR ) )
-		return;
+		   return;
 
 	    std::string buf;
 	    llvm::raw_string_ostream os(buf);
