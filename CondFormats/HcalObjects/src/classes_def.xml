@@ -270,11 +270,11 @@
  <class name="HcalLutMetadata::NonChannelData"/>
 
  <class name="HcalDcsValue">
-  <field name="mHBsorted" transient="true"/>
-  <field name="mHEsorted" transient="true"/>
-  <field name="mHO0sorted" transient="true"/>
-  <field name="mHO12sorted" transient="true"/>
-  <field name="mHFsorted" transient="true"/>
+  <!-- <field name="mHBsorted" transient="true"/> -->
+  <!-- <field name="mHEsorted" transient="true"/> -->
+  <!-- <field name="mHO0sorted" transient="true"/> -->
+  <!-- <field name="mHO12sorted" transient="true"/> -->
+  <!-- <field name="mHFsorted" transient="true"/> -->
  </class>
  <class name="std::vector<HcalDcsValue>"/>
  <class name="HcalDcsValues"/>
