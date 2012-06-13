@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: dpiparo $
-# $Date: 2011/10/19 11:14:12 $
-# $Revision: 1.12 $
+# $Date: 2012/06/12 12:25:27 $
+# $Revision: 1.1 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -445,7 +445,7 @@ class DirWalkerDB(Thread):
         walkers.append(dirwalker)
         n_threads=activeCount()
         if n_threads>5:
-          print >> stderr, "Threads that are running: %s. Joining them." %(n_threads)    
+          #print >> stderr, "Threads that are running: %s. Joining them." %(n_threads)    
           dirwalker.join()
       elif content["kind"]=="ROOT":
 #	print directory1,name

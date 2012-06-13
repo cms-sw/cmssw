@@ -4,8 +4,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: dpiparo $
-# $Date: 2011/04/08 16:24:20 $
-# $Revision: 1.4 $
+# $Date: 2012/06/12 12:25:27 $
+# $Revision: 1.1 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -14,17 +14,17 @@
 
 from sys import argv,exit
 from optparse import OptionParser
-from os.path import exists
-from os import chdir,getcwd,mkdir
+import cPickle
+import os
 
 # Default Configuration Parameters ---------------------------------------------
-dqm_server='https://cmsweb.cern.ch/dqm/dev'
+dqm_server='https://cmsweb.cern.ch/dqm/relval'
 
-cmssw_release1="CMSSW_4_1_3-START311_V2-v1"
-cmssw_release2="CMSSW_4_1_2-START311_V2-v1"
+cmssw_release1="CMSSW_5_3_0-START53_V4-v1" 
+cmssw_release2="CMSSW_5_3_1-START53_V5-v1"
 
 stat_test="Chi2"
-test_threshold=.0
+test_threshold=0.00001
 
 sample = "RelValZMM"
 
@@ -147,9 +147,13 @@ parser.add_option("-B","--black_list",
 #-------------------------------------------------------------------------------
 original_pickle_name=""
 if options.compare:
-  import cPickle
-  from dqm_interfaces import DirID,DQMcommunicator,DirWalkerDB
-  from dirstructure import Directory
+
+  if os.environ.has_key("RELMON_SA"):
+    from dqm_interfaces import DirID,DQMcommunicator,DirWalkerDB
+    from dirstructure import Directory
+  else:  
+    from Utilities.RelMon.dqm_interfaces import DirID,DQMcommunicator,DirWalkerDB
+    from Utilities.RelMon.dirstructure import Directory
 
 
   # Pre-process the inputs
@@ -200,10 +204,10 @@ if options.compare:
     dirwalker.black_list=black_list
 
   # Start the walker
-  if not exists(options.outdir_name) and len(options.outdir_name )>0:
-    mkdir(options.outdir_name)
+  if not os.path.exists(options.outdir_name) and len(options.outdir_name )>0:
+    os.mkdir(options.outdir_name)
   if len(options.outdir_name)>0:
-    chdir(options.outdir_name)
+    os.chdir(options.outdir_name)
 
   # Since the walker is a thread, run it!
   dirwalker.start()
@@ -227,16 +231,19 @@ if options.compare:
 
   # Dump the directory structure on disk in a pickle
   original_pickle_name="%s.pkl" %fulldirname
-  print "Pickleing the directory as %s in dir %s" %(original_pickle_name,getcwd())
+  print "Pickleing the directory as %s in dir %s" %(original_pickle_name,os.getcwd())
   output = open(original_pickle_name,"w")
   cPickle.dump(directory, output, -1)# use highest protocol available for the pickle
   output.close()
 
 #-------------------------------------------------------------------------------
 if options.report:
-  from directories2html import directory2html
-  from dirstructure import Directory
-  import cPickle    
+  if os.environ.has_key("RELMON_SA"):  
+    from directories2html import directory2html
+    from dirstructure import Directory
+  else:
+    from Utilities.RelMon.directories2html import directory2html
+    from Utilities.RelMon.dirstructure import Directory    
   
   pickle_name=options.pklfile
   if len(options.pklfile)==0:
@@ -247,8 +254,8 @@ if options.report:
   directory=cPickle.load(ifile)
   ifile.close()
 
-  if exists(options.outdir_name) and len(directory.name)==0:
-    chdir(options.outdir_name)
+  if os.path.exists(options.outdir_name) and len(directory.name)==0:
+    os.chdir(options.outdir_name)
   
   # Calculate the results of the tests for each directory
   print "Calculating stats for the directory..."
