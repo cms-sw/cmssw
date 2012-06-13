@@ -35,11 +35,10 @@
 
 #include <string>
 #include <sstream>
+#include <fstream>
 
 using namespace std;
 using namespace edm;
-
-namespace dtCalibration {
 
 DTTTrigResidualCorrection::DTTTrigResidualCorrection(const ParameterSet& pset) {
   string residualsRootFile = pset.getParameter<string>("residualsRootFile");
@@ -197,5 +196,3 @@ string DTTTrigResidualCorrection::getHistoName(const DTSuperLayerId& slId) {
 
   return histoName;
 }
-
-} // namespace
