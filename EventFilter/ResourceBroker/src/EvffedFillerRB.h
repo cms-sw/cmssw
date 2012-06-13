@@ -51,7 +51,7 @@ public:
 				hostid += strtol(p, 0, 16);
 			hostid_ = hostid;
 		}
-		*(uint32_t*) (payload_.asBytes + fedinterface::EVFFED_RBIDENT_OFFSET)
+		*reinterpret_cast<uint32_t *>(payload_.asBytes + fedinterface::EVFFED_RBIDENT_OFFSET)
 				= ((hostid_ & fedinterface::EVFFED_RBPCIDE_MASK)
 						<< fedinterface::EVFFED_RBPCIDE_SHIFT)
 						+ ((rb->instanceNumber()
@@ -68,7 +68,7 @@ public:
 	void putHeader(unsigned int l1id, unsigned int bxid) {
 		*(payload_.asHWords) = FED_SOID_INSERT(fedinterface::EVFFED_ID)
 				+ FED_VERSION_INSERT(fedinterface::EVFFED_VERSION);
-		*(uint32_t*) (payload_.asBytes + evtn::SLINK_HALFWORD_SIZE)
+		*reinterpret_cast<uint32_t *>(payload_.asBytes + evtn::SLINK_HALFWORD_SIZE)
 				= FED_HCTRLID_INSERT + FED_EVTY_INSERT(0x1)
 						+ FED_LVL1_INSERT(l1id) + FED_BXID_INSERT(bxid);
 
@@ -83,16 +83,16 @@ public:
 				= FED_CRCS_INSERT(compute_crc(payload_.asBytes,fedinterface::EVFFED_TOTALSIZE));
 	}
 	void setRBTimeStamp(uint64_t ts) {
-		*(uint64_t*) (payload_.asBytes + fedinterface::EVFFED_RBWCTIM_OFFSET)
+		*reinterpret_cast<uint64_t *>(payload_.asBytes + fedinterface::EVFFED_RBWCTIM_OFFSET)
 				= ts;
 	}
 	void setRBEventCount(uint32_t evtcnt) {
-		*(uint32_t*) (payload_.asBytes + fedinterface::EVFFED_RBEVCNT_OFFSET)
+		*reinterpret_cast<uint32_t *>(payload_.asBytes + fedinterface::EVFFED_RBEVCNT_OFFSET)
 				= evtcnt;
 	}
 
 	void setEPProcessId(pid_t pid) {
-		*(uint32_t*) (payload_.asBytes + fedinterface::EVFFED_EPIDENT_OFFSET)
+		*reinterpret_cast<uint32_t *>(payload_.asBytes + fedinterface::EVFFED_EPIDENT_OFFSET)
 				= (pid & fedinterface::EVFFED_EPPCIDE_MASK)
 						<< fedinterface::EVFFED_EPPCIDE_SHIFT;
 	}
