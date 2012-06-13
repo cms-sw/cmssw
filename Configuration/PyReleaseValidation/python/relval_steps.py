@@ -15,8 +15,8 @@ class Steps(dict):
         if key in self:
             print "ERROR in Step"
             print "overwritting",key,"not allowed"
-             import sys
-             sys.exit(-9)
+            import sys
+            sys.exit(-9)
         else:
             self.update({key:value})
             # make the python file named <step>.py
@@ -41,14 +41,15 @@ class WF(list):
     
 InputInfoNDefault=2000000    
 class InputInfo(object):
-    def __init__(self,dataSet,label='',run=[],files=1000,events=InputInfoNDefault,location='CAF') :
+    def __init__(self,dataSet,label='',run=[],files=1000,events=InputInfoNDefault,split=8,location='CAF') :
         self.run = run
         self.files = files
         self.events = events
         self.location = location
         self.label = label
         self.dataSet = dataSet
-
+        self.split=split
+        
     def dbs(self):
         command='dbs search --noheader --query "find file where dataset like '+self.dataSet
         def requ(r):
@@ -92,14 +93,9 @@ step1Defaults = {'--relval'      : None, # need to be explicitly set
 steps = Steps()
 
 #### Production test section ####
-steps['ProdMinBias']=merge([{'cfg':'MinBias_8TeV_cfi','--relval':'9000,100'},step1Defaults])
-steps['ProdTTbar']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi','--relval':'9000,50'},step1Defaults])
+steps['ProdMinBias']=merge([{'cfg':'MinBias_8TeV_cfi','--relval':'9000,300'},step1Defaults])
+steps['ProdTTbar']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi','--relval':'9000,100'},step1Defaults])
 steps['ProdQCD_Pt_3000_3500']=merge([{'cfg':'QCD_Pt_3000_3500_8TeV_cfi','--relval':'9000,25'},step1Defaults])
-
-#steps['ProdMinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValProdMinBias/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='prodmbrv',location='STD')}
-#steps['ProdTTbarINPUT']={'INPUT':InputInfo(dataSet='/RelValProdTTbar/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='prodttbrv',location='STD')}
-#steps['ProdQCD_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValProdQCD_Pt_3000_3500/CMSSW_4_3_0_pre2-MC_42_V9-v1/GEN-SIM',label='qcd335',location='STD')}
-
 
 
 #### data ####
