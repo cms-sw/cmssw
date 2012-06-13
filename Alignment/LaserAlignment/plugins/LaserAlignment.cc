@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2011/09/16 07:45:48 $
- *  $Revision: 1.41 $
+ *  $Date: 2011/10/31 08:58:11 $
+ *  $Revision: 1.42 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -64,6 +64,13 @@ LaserAlignment::LaserAlignment( edm::ParameterSet const& theConf ) :
 	    << (theSetNominalStrips?"\n    Set strips to nominal       =  true":"\n")
 	    << "\n=============================================================" << std::endl;
 
+  m_ROWS_PER_ROC  = theConf.getUntrackedParameter<int>( "ROWS_PER_ROC", m_ROWS_PER_ROC );
+  m_COLS_PER_ROC  = theConf.getUntrackedParameter<int>( "COLS_PER_ROC", m_COLS_PER_ROC );
+  m_BIG_PIX_PER_ROC_X = theConf.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_X", m_BIG_PIX_PER_ROC_X );
+  m_BIG_PIX_PER_ROC_Y = theConf.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_Y", m_BIG_PIX_PER_ROC_Y );
+  m_ROCS_X = theConf.getUntrackedParameter<int>( "ROCS_X", m_ROCS_X );
+  m_ROCS_Y = theConf.getUntrackedParameter<int>( "ROCS_Y", m_ROCS_Y );
+  m_upgradeGeometry = theConf.getUntrackedParameter<bool>( "upgradeGeometry", m_upgradeGeometry );
 
   // tell about masked modules
   if( theMaskTecModules.size() ) {
@@ -285,7 +292,13 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
       edm::ESHandle<GeometricDet> theGeometricDet;
       theSetup.get<IdealGeometryRecord>().get(theGeometricDet);
       TrackerGeomBuilderFromGeometricDet trackerBuilder;
-      TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet);
+      TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet,
+							    m_upgradeGeometry,
+							    m_ROWS_PER_ROC,
+							    m_COLS_PER_ROC,
+							    m_BIG_PIX_PER_ROC_X,
+							    m_BIG_PIX_PER_ROC_Y,
+							    m_ROCS_X, m_ROCS_Y );
       theAlignableTracker = new AlignableTracker(&(*theRefTracker));
     }
     else {

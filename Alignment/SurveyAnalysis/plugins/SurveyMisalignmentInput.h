@@ -5,8 +5,8 @@
  *
  *  Class to misaligned tracker from DB.
  *
- *  $Date: 2007/10/08 16:38:04 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/01/07 14:36:23 $
+ *  $Revision: 1.4 $
  *  \author Chung Khim Lae
  */
 // user include files
@@ -46,7 +46,14 @@ private:
 
   /// Get alignable surface from misalignments.db
   AlignableSurface getAlignableSurface(align::ID);
-	
+
+  int m_ROWS_PER_ROC;
+  int m_COLS_PER_ROC;
+  int m_BIG_PIX_PER_ROC_X;
+  int m_BIG_PIX_PER_ROC_Y;
+  int m_ROCS_X;
+  int m_ROCS_Y;
+  bool m_upgradeGeometry;
 };
 
 #endif

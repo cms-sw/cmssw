@@ -5,8 +5,8 @@
  *
  *  Class to misaligned tracker from DB.
  *
- *  $Date: 2009/12/17 20:46:50 $
- *  $Revision: 1.3 $
+ *  $Date: 2010/06/14 14:45:15 $
+ *  $Revision: 1.4 $
  *  \author Chung Khim Lae
  */
 // user include files
@@ -61,7 +61,14 @@ private:
 
 	// flag for old z behaviour, version <= 1.5
 	bool oldMinusZconvention;
-	
+
+  int m_ROWS_PER_ROC;
+  int m_COLS_PER_ROC;
+  int m_BIG_PIX_PER_ROC_X;
+  int m_BIG_PIX_PER_ROC_Y;
+  int m_ROCS_X;
+  int m_ROCS_Y;
+  bool m_upgradeGeometry;
 };
 
 #endif

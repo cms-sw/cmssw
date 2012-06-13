@@ -6,8 +6,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2010/01/06 09:38:00 $
- *  $Revision: 1.28 $
+ *  $Date: 2011/09/16 07:45:48 $
+ *  $Revision: 1.29 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -244,6 +244,13 @@ class LaserAlignment : public edm::EDProducer, public TObject {
 
   std::string theAlignRecordName, theErrorRecordName;
 
+  int m_ROWS_PER_ROC;
+  int m_COLS_PER_ROC;
+  int m_BIG_PIX_PER_ROC_X;
+  int m_BIG_PIX_PER_ROC_Y;
+  int m_ROCS_X;
+  int m_ROCS_Y;
+  bool m_upgradeGeometry;
   bool firstEvent_;
 
 };

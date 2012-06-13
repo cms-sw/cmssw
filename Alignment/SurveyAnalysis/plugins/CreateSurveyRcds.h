@@ -5,8 +5,8 @@
  *
  *  Class to create Survey[Error]Rcd for alignment with survey constraint
  *
- *  $Date: 2008/10/10 08:41:47 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/01/07 14:36:22 $
+ *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 // user include files
@@ -59,7 +59,13 @@ class CreateSurveyRcds:
 		
 		edm::ESHandle<Alignments> alignments;
 		
-		
+	  int m_ROWS_PER_ROC;
+	  int m_COLS_PER_ROC;
+	  int m_BIG_PIX_PER_ROC_X;
+	  int m_BIG_PIX_PER_ROC_Y;
+	  int m_ROCS_X;
+	  int m_ROCS_Y;
+	  bool m_upgradeGeometry;
 		
 	};
 

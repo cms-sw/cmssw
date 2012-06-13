@@ -55,6 +55,13 @@ private:
   
   boost::shared_ptr<TrackerGeometry> theTracker;
 
+  int m_ROWS_PER_ROC;
+  int m_COLS_PER_ROC;
+  int m_BIG_PIX_PER_ROC_X;
+  int m_BIG_PIX_PER_ROC_Y;
+  int m_ROCS_X;
+  int m_ROCS_Y;
+  bool m_upgradeGeometry;
 };
 
 //__________________________________________________________________________________________________
@@ -70,6 +77,13 @@ MisalignedTrackerESProducer::MisalignedTrackerESProducer(const edm::ParameterSet
   theAlignRecordName("TrackerAlignmentRcd"),
   theErrorRecordName("TrackerAlignmentErrorRcd")
 {
+  m_ROWS_PER_ROC  = p.getUntrackedParameter<int>( "ROWS_PER_ROC", m_ROWS_PER_ROC );
+  m_COLS_PER_ROC  = p.getUntrackedParameter<int>( "COLS_PER_ROC", m_COLS_PER_ROC );
+  m_BIG_PIX_PER_ROC_X = p.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_X", m_BIG_PIX_PER_ROC_X );
+  m_BIG_PIX_PER_ROC_Y = p.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_Y", m_BIG_PIX_PER_ROC_Y );
+  m_ROCS_X = p.getUntrackedParameter<int>( "ROCS_X", m_ROCS_X );
+  m_ROCS_Y = p.getUntrackedParameter<int>( "ROCS_Y", m_ROCS_Y );
+  m_upgradeGeometry = p.getUntrackedParameter<bool>( "upgradeGeometry", m_upgradeGeometry );
   
   setWhatProduced(this);
 
@@ -91,7 +105,13 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   edm::ESHandle<GeometricDet> gD;
   iRecord.getRecord<IdealGeometryRecord>().get( gD );
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
-  theTracker  = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*gD)) );
+  theTracker  = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*gD),
+									 m_upgradeGeometry,
+									 m_ROWS_PER_ROC,
+									 m_COLS_PER_ROC,
+									 m_BIG_PIX_PER_ROC_X,
+									 m_BIG_PIX_PER_ROC_Y,
+									 m_ROCS_X, m_ROCS_Y ));
   
   // Create the alignable hierarchy
   std::auto_ptr<AlignableTracker> theAlignableTracker(new AlignableTracker( &(*theTracker) ) );

@@ -5,8 +5,8 @@
  *
  *  Class to read ideal tracker from DB.
  *
- *  $Date: 2007/10/08 16:38:04 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/01/07 14:36:23 $
+ *  $Revision: 1.3 $
  *  \author Chung Khim Lae
  */
 
@@ -38,6 +38,13 @@ private:
   void addSurveyInfo(
 		     Alignable*
 		     );
+  int m_ROWS_PER_ROC;
+  int m_COLS_PER_ROC;
+  int m_BIG_PIX_PER_ROC_X;
+  int m_BIG_PIX_PER_ROC_Y;
+  int m_ROCS_X;
+  int m_ROCS_Y;
+  bool m_upgradeGeometry;
 };
 
 #endif

@@ -31,13 +31,26 @@ CreateSurveyRcds::CreateSurveyRcds(const edm::ParameterSet& cfg)
 	m_inputSimpleMis = cfg.getUntrackedParameter< double > ("simpleMis");
 	m_generatedRandom = cfg.getUntrackedParameter< bool > ("generatedRandom");
 	m_generatedSimple = cfg.getUntrackedParameter< bool > ("generatedSimple");
+  m_ROWS_PER_ROC  = cfg.getUntrackedParameter<int>( "ROWS_PER_ROC", m_ROWS_PER_ROC );
+  m_COLS_PER_ROC  = cfg.getUntrackedParameter<int>( "COLS_PER_ROC", m_COLS_PER_ROC );
+  m_BIG_PIX_PER_ROC_X = cfg.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_X", m_BIG_PIX_PER_ROC_X );
+  m_BIG_PIX_PER_ROC_Y = cfg.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_Y", m_BIG_PIX_PER_ROC_Y );
+  m_ROCS_X = cfg.getUntrackedParameter<int>( "ROCS_X", m_ROCS_X );
+  m_ROCS_Y = cfg.getUntrackedParameter<int>( "ROCS_Y", m_ROCS_Y );
+  m_upgradeGeometry = cfg.getUntrackedParameter<bool>( "upgradeGeometry", m_upgradeGeometry );
 }
 
 void CreateSurveyRcds::analyze(const edm::Event& event, const edm::EventSetup& setup){
 	
 	edm::ESHandle<GeometricDet>  geom;
 	setup.get<IdealGeometryRecord>().get(geom);	 
-	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom);
+	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom,
+									      m_upgradeGeometry,
+									      m_ROWS_PER_ROC,
+									      m_COLS_PER_ROC,
+									      m_BIG_PIX_PER_ROC_X,
+									      m_BIG_PIX_PER_ROC_Y,
+									      m_ROCS_X, m_ROCS_Y );
 	
 	//take geometry from DB or randomly generate geometry
 	if (m_inputGeom == "sqlite"){

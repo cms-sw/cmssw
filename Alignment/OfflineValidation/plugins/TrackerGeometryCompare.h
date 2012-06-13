@@ -14,8 +14,8 @@
  *   path p = { comparator }
  *
  *
- *  $Date: 2009/07/24 13:48:19 $
- *  $Revision: 1.9 $
+ *  $Date: 2010/01/04 18:24:37 $
+ *  $Revision: 1.10 $
  *  \author Nhan Tran
  */
 
@@ -124,7 +124,15 @@ private:
 	float _surWidth, _surLength;
 	uint32_t _identifiers[6];
 	double _surRot[9];
-	
+
+  int m_ROWS_PER_ROC;
+  int m_COLS_PER_ROC;
+  int m_BIG_PIX_PER_ROC_X;
+  int m_BIG_PIX_PER_ROC_Y;
+  int m_ROCS_X;
+  int m_ROCS_Y;
+  bool m_upgradeGeometry;
+
 	bool firstEvent_;
 	
 };

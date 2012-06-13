@@ -63,6 +63,13 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg) :
   _inputTree2(0),
   firstEvent_(true)
 {
+  m_ROWS_PER_ROC  = cfg.getUntrackedParameter<int>( "ROWS_PER_ROC", m_ROWS_PER_ROC );
+  m_COLS_PER_ROC  = cfg.getUntrackedParameter<int>( "COLS_PER_ROC", m_COLS_PER_ROC );
+  m_BIG_PIX_PER_ROC_X = cfg.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_X", m_BIG_PIX_PER_ROC_X );
+  m_BIG_PIX_PER_ROC_Y = cfg.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_Y", m_BIG_PIX_PER_ROC_Y );
+  m_ROCS_X = cfg.getUntrackedParameter<int>( "ROCS_X", m_ROCS_X );
+  m_ROCS_Y = cfg.getUntrackedParameter<int>( "ROCS_Y", m_ROCS_Y );
+  m_upgradeGeometry = cfg.getUntrackedParameter<bool>( "upgradeGeometry", m_upgradeGeometry );
 	
 	//input is ROOT
 	_inputFilename1 = cfg.getUntrackedParameter< std::string > ("inputROOTFile1");
@@ -299,7 +306,13 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
 	
 	//reference tracker
-	TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet); 
+	TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet,
+							      m_upgradeGeometry,
+							      m_ROWS_PER_ROC,
+							      m_COLS_PER_ROC,
+							      m_BIG_PIX_PER_ROC_X,
+							      m_BIG_PIX_PER_ROC_Y,
+							      m_ROCS_X, m_ROCS_Y ); 
 	if (_inputFilename1 != "IDEAL"){
 		GeometryAligner aligner1;
 		aligner1.applyAlignments<TrackerGeometry>( &(*theRefTracker), &(*alignments1), &(*alignmentErrors1),
@@ -308,7 +321,13 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	referenceTracker = new AlignableTracker(&(*theRefTracker));
 
 	//currernt tracker
-	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet); 
+	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet,
+							      m_upgradeGeometry,
+							      m_ROWS_PER_ROC,
+							      m_COLS_PER_ROC,
+							      m_BIG_PIX_PER_ROC_X,
+							      m_BIG_PIX_PER_ROC_Y,
+							      m_ROCS_X, m_ROCS_Y ); 
 	if (_inputFilename2 != "IDEAL"){
 		GeometryAligner aligner2;
 		aligner2.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments2), &(*alignmentErrors2),
