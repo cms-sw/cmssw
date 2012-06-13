@@ -1,6 +1,10 @@
 <use name="llvm"/>
 <flags NO_LIB_CHECKING="yes"/>
 <flags CXXFLAGS="-w"/>
+<flags CppDefiles="THREAD_CHECKS_USE_CMS_EXCPEPTIONS=1"/>
+<flags CppDefines="THREAD_CHECKS_NO_REPORT_SYSTEM=1"/>
 <architecture name="osx">
   <flags LDFLAGs="-flat_namespace"/>
 </architecture>
+
+
