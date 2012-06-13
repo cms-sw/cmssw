@@ -33,6 +33,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1RetrieveL1Extra.h"
+
 
 // class declaration
 
@@ -53,15 +55,15 @@ private:
     ///   bunch cross in event BxInEvent = 0 - L1Accept event
     virtual void analyzeDecisionReadoutRecord(const edm::Event&, const edm::EventSetup&);
 
-    /// analyze: decision for a given algorithm via trigger menu
-    void analyzeDecisionLiteRecord(const edm::Event&, const edm::EventSetup&);
-
     /// analyze: usage of L1GtUtils
     void analyzeL1GtUtilsCore(const edm::Event&, const edm::EventSetup&);
     ///   for tests, use only one of the following methods
     void analyzeL1GtUtilsMenuLite(const edm::Event&, const edm::EventSetup&);
     void analyzeL1GtUtilsEventSetup(const edm::Event&, const edm::EventSetup&);
     void analyzeL1GtUtils(const edm::Event&, const edm::EventSetup&);
+
+    /// full analysis of an algorithm or technical trigger
+    void analyzeTrigger(const edm::Event&, const edm::EventSetup&);
 
     /// analyze: object map product
     virtual void analyzeObjectMap(const edm::Event&, const edm::EventSetup&);
@@ -78,6 +80,9 @@ private:
     /// to be used in analyze/produce/filter
     void analyzeConditionsInEventBlock(const edm::Event&, const edm::EventSetup&);
 
+    /// print the output stream to the required output, given by m_printOutput
+    void printOutput(std::ostringstream&);
+
     /// analyze each event: event loop over various code snippets
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
@@ -91,14 +96,42 @@ private:
 
 private:
 
+    // L1Extra collections
+    L1RetrieveL1Extra m_retrieveL1Extra;
+
+    /// print output
+    int m_printOutput;
+
+
+    /// enable / disable various analysis methods
+    bool m_analyzeDecisionReadoutRecordEnable;
+    //
+    bool m_analyzeL1GtUtilsMenuLiteEnable;
+    bool m_analyzeL1GtUtilsEventSetupEnable;
+    bool m_analyzeL1GtUtilsEnable;
+    bool m_analyzeTriggerEnable;
+    //
+    bool m_analyzeObjectMapEnable;
+    //
+    bool m_analyzeL1GtTriggerMenuLiteEnable;
+    //
+    bool m_analyzeConditionsInRunBlockEnable;
+    bool m_analyzeConditionsInLumiBlockEnable;
+    bool m_analyzeConditionsInEventBlockEnable;
+
+private:
+
     /// input tags for GT DAQ product
     edm::InputTag m_l1GtDaqReadoutRecordInputTag;
 
     /// input tags for GT lite product
     edm::InputTag m_l1GtRecordInputTag;
 
-    /// input tags for GT object map collection
+    /// input tags for GT object map collection L1GlobalTriggerObjectMapRecord
     edm::InputTag m_l1GtObjectMapTag;
+
+    /// input tags for GT object map collection L1GlobalTriggerObjectMaps
+    edm::InputTag m_l1GtObjectMapsInputTag;
 
     /// input tag for muon collection from GMT
     edm::InputTag m_l1GmtInputTag;
@@ -109,10 +142,10 @@ private:
     /// input tag for ConditionInEdm products
     edm::InputTag m_condInEdmInputTag;
 
-    /// a physics algorithm (name or alias) or a technical trigger name
+    /// an algorithm trigger (name or alias) or a technical trigger name
     std::string m_nameAlgTechTrig;
 
-    /// a condition in the physics algorithm to test the object maps
+    /// a condition in the algorithm trigger to test the object maps
     std::string m_condName;
 
     /// a bit number to retrieve the name and the alias
@@ -124,6 +157,10 @@ private:
     /// if true, use methods in L1GtUtils with the input tag for L1GtTriggerMenuLite
     /// from provenance
     bool m_l1GtTmLInputTagProv;
+
+    /// if true, use methods in L1GtUtils with the given input tags
+    /// for L1GlobalTriggerReadoutRecord and / or L1GlobalTriggerRecord from provenance
+    bool m_l1GtRecordsInputTagProv;
 
     /// if true, configure (partially) L1GtUtils in beginRun using getL1GtRunCache
     bool m_l1GtUtilsConfigureBeginRun;

@@ -21,7 +21,7 @@ if errorUserOptions == True :
 # if True, modify correspondingly L1Trigger_custom
 
 customL1Menu = True
-#customL1Menu = False
+customL1Menu = False
 
 if customL1Menu == True :
     from L1Trigger.Configuration.L1Trigger_custom import customiseL1Menu
@@ -38,6 +38,7 @@ else :
     process.source = cms.Source ('PoolSource', 
                                  fileNames=readFiles, 
                                  secondaryFileNames=secFiles,
+                                 lumisToProcess = selectedLumis,
                                  eventsToProcess = selectedEvents
                                  )
 
@@ -131,15 +132,15 @@ process.l1GtEmulDigis.EmulateBxInEvent = 1
 # number of BXs in the event corresponding to alternative 0 and 1 in altNrBxBoard()
 # EmulateBxInEvent >= max(RecordLength[0], RecordLength[1])
 # negative values: take the numbers from event setup, from L1GtParameters
-process.l1GtEmulDigis.RecordLength = cms.vint32(1, 1)
+process.l1GtEmulDigis.RecordLength = cms.vint32(3, 5)
 
 # alternative for number of BX per active board in GT DAQ record: 0 or 1
 # the position is identical with the active board bit
-process.l1GtEmulDigis.AlternativeNrBxBoardDaq = cms.uint32(0x000F)  
+process.l1GtEmulDigis.AlternativeNrBxBoardDaq = 0x101 
 
 # alternative for number of BX per active board in GT EVM record: 0 or 1
 # the position is identical with the active board bit
-#process.l1GtEmulDigis.AlternativeNrBxBoardEvm = cms.uint32(0x0000)  
+process.l1GtEmulDigis.AlternativeNrBxBoardEvm = 0x2 
 
 # length of BST record (in bytes) from parameter set
 # negative value: take the value from EventSetup      
@@ -195,6 +196,9 @@ process.l1GtTrigReport.L1GtRecordInputTag = "l1GtEmulDigis"
 # for RAW data, run first the RAWTODIGI 
 if (dataType == 'RAW') and not (useRelValSample) :
     process.load('Configuration/StandardSequences/RawToDigi_Data_cff')
+    # unpack five BX for GCT
+    process.gctDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
+    #
     process.p = cms.Path(process.RawToDigi+process.l1GtEmulDigis*process.l1GtTrigReport)
 elif (dataType == 'RAW') and (useRelValSample) :
     process.load('Configuration/StandardSequences/RawToDigi_cff')
