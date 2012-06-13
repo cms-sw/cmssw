@@ -11,7 +11,7 @@ TrackerDigiGeometryESModule = cms.ESProducer("TrackerDigiGeometryESModule",
     fromDDD = cms.bool(False),
     applyAlignment = cms.bool(True), # to be abondoned
 
-    alignmentsLabel = cms.string('')
+    alignmentsLabel = cms.string(''),
+    trackerGeometryConstants = cms.PSet(trackerGeometryConstants_cfi.trackerGeometryConstants)
 )
 
-trackerGeometryConstants = cms.PSet(trackerGeometryConstants_cfi.trackerGeometryConstants)

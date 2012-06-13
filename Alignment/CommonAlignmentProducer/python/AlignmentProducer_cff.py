@@ -11,8 +11,6 @@ from Alignment.KalmanAlignmentAlgorithm.KalmanAlignmentAlgorithm_cfi import *
 # parameters
 from Alignment.CommonAlignmentAlgorithm.AlignmentParameterStore_cfi import *
 
-trackerGeometryConstants = cms.PSet(trackerGeometryConstants_cfi.trackerGeometryConstants)
-
 looper = cms.Looper("AlignmentProducer",
                     AlignmentParameterStore, # configuration of AlignmentParameterStore
                     maxLoops = cms.untracked.uint32(1),
@@ -68,6 +66,9 @@ looper = cms.Looper("AlignmentProducer",
                       #                                'TrackerTPEHalfDisk,111000')
                       #)
                     ),
+
+                    # Tracker constants: different for SLHC pixel topology
+                    trackerGeometryConstants = cms.PSet(trackerGeometryConstants_cfi.trackerGeometryConstants),
 
                     # Save alignment to DB: true requires configuration of PoolDBOutputService
                     saveToDB = cms.bool(False),            # save alignment?
