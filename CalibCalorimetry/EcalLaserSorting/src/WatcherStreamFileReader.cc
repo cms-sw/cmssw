@@ -215,7 +215,11 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile(){
 
   if(!cmdSet){
     cmd.str("");
-    cmd << "/bin/ls -rt " << inputDir_ << " | egrep '(";
+    //    cmd << "/bin/ls -rt " << inputDir_ << " | egrep '(";
+    //by default ls will sort the file alphabetically which will results
+    //in ordering the files in increasing LB number, which is the desired
+    //order.
+    cmd << "/bin/ls " << inputDir_ << " | egrep '(";
     //TODO: validate patternDir (see ;, &&, ||) and escape special character
     if(filePatterns_.size()==0) return 0;
     if(getcwd(curDir, sizeof(curDir))==0){
@@ -369,7 +373,13 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile(){
 			    << " Moving file "
 			    << fileName_ << " to " << dest << "\n";
 	
+	stringstream c;
+	c << "/bin/mv -f \"" << fileName_ << "\" \"" << dest
+	  << "/.\"";
+	
+
 	if(0!=rename(fileName_.c_str(), dest.c_str())){
+	  //if(0!=system(c.str().c_str())){
 	  throw cms::Exception("WatcherSource")
 	    << "Failed to move file '" << fileName_ << "' "
 	    << "to processing directory " << inprocessDir_
