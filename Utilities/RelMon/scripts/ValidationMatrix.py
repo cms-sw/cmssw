@@ -4,8 +4,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: dpiparo $
-# $Date: 2011/12/08 08:09:30 $
-# $Revision: 1.27 $
+# $Date: 2012/06/12 12:25:27 $
+# $Revision: 1.1 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -392,8 +392,8 @@ def do_comparisons_threaded(options):
     command+= " -o %s " %sample
     # Change threshold to an experimental and empirical value of 10^-5
     command+= " --specify_run "
-    command+= " -t %s " %test_threshold
-    command+= " -s %s " %stat_test
+    command+= " -t %s " %options.test_threshold
+    command+= " -s %s " %options.stat_test
 
     # Inspect the HLT directories
     if options.hlt:
