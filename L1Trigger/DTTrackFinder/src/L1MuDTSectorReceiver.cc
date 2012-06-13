@@ -5,8 +5,8 @@
 //   Description: Sector Receiver 
 //
 //
-//   $Date: 2009/05/12 09:07:29 $
-//   $Revision: 1.17 $
+//   $Date: 2010/09/10 12:26:35 $
+//   $Revision: 1.19 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -269,6 +269,7 @@ void L1MuDTSectorReceiver::receiveCSCData(int bx, const edm::Event& e, const edm
 
     if ( msks->get_inrec_chdis_csc(m_sp.id().wheel(), m_sp.id().sector()) ) continue;
     if ( qual < pars->get_soc_qual_csc(m_sp.id().wheel(), m_sp.id().sector()) ) continue;
+    if ( pars->get_soc_csc_etacanc(m_sp.id().wheel(), m_sp.id().sector()) && etaFlag ) continue;
 
     if ( ncsc < 2 ) {
       int address = 16 + ncsc;
