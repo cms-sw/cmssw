@@ -32,6 +32,7 @@ using namespace boost;
 namespace po = boost::program_options;
 #include <vector>
 
+using namespace std;
 using namespace RooFit;
 
 // A function that get histogram, restricting it on fit range  and sets contents to 0.0 if entries are too small
