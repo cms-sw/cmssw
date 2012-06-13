@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import Geometry.TrackerGeometryBuilder.trackerGeometryConstants_cfi as trackerGeometryConstants_cfi
 
 # misalignment scenarios
 from Alignment.TrackerAlignment.Scenarios_cff import *
@@ -9,6 +10,8 @@ from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi impor
 from Alignment.KalmanAlignmentAlgorithm.KalmanAlignmentAlgorithm_cfi import *
 # parameters
 from Alignment.CommonAlignmentAlgorithm.AlignmentParameterStore_cfi import *
+
+trackerGeometryConstants = cms.PSet(trackerGeometryConstants_cfi.trackerGeometryConstants)
 
 looper = cms.Looper("AlignmentProducer",
                     AlignmentParameterStore, # configuration of AlignmentParameterStore
