@@ -43,6 +43,16 @@ void L1RCT::processEvent(){
     crates.at(i).fillJetSummaryCard();
     crates.at(i).processJetSummaryCard();
   }
+  // TEMP output
+  unsigned int totalRegionET = 0;
+  for(int i = 0; i < 18; i++) {
+    std::vector<L1CaloRegion> regions = getRegions(i);
+    for(int j = 0; j < 22; j++) {
+      totalRegionET += regions.at(j).et();
+    }
+  }
+  std::cout << "Total Region ET after RCT = " << totalRegionET << std::endl;
+
 }
 
 void L1RCT::makeCrates()
@@ -207,6 +217,29 @@ void L1RCT::digiInput(const EcalTrigPrimDigiCollection& ecalCollection,
   }
   
   input();
+
+  //TEMP debug
+
+  unsigned int totalECalET = 0;
+  unsigned int totalHCalET = 0;
+  unsigned int totalET = 0;
+  for (int i = 0; i < 18; i++)
+    {
+      for (int j = 0; j < 7; j++)
+	{
+	  for (int k = 0; k < 64; k++)
+	    {
+	      if(k < 32) totalECalET += barrel.at(i).at(j).at(k);
+	      if(k > 31) totalHCalET += barrel.at(i).at(j).at(k);
+	      totalET += barrel.at(i).at(j).at(k);
+	    }
+	}
+    }
+  std::cout << "L1RCT: total tpg input (ECal, HCal, Total) ET = (" 
+	    << totalECalET << "," 
+	    << totalHCalET << ","
+	    << totalET << ")" 
+	    << std::endl;
 
   return;
 

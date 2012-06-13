@@ -223,11 +223,27 @@ bool L1RCTLookupTables::hOeFGVetoBit(float ecal, float hcal, bool fgbit) const
 
 bool L1RCTLookupTables::activityBit(float ecal, float hcal) const
 {
+  // Redefined for upgrade as EM activity only
   if(rctParameters_ == 0)
     throw cms::Exception("L1RCTParameters Invalid")
       << "L1RCTParameters should be set every event" << rctParameters_;
-  return ((ecal > rctParameters_->eActivityCut()) || 
-	  (hcal > rctParameters_->hActivityCut()));
+  bool aBit = false;
+  if(rctParameters_->eMinForHoECut() < rctParameters_->eMaxForHoECut()) {
+    // For RCT operations HoE cut and tauVeto are used
+    aBit = ((ecal > rctParameters_->eActivityCut()) || 
+	    (hcal > rctParameters_->hActivityCut()));
+  }
+  else {
+    // We redefine tauVeto() for upgrade as EM activity only  -- 
+    // both EG and Tau make it through the EIC and JSC to CTP cards
+    // In the CTP card we want to rechannel EG/Tau candidates to EG and Tau
+    if(ecal > rctParameters_->eActivityCut()) {
+      if((hcal/ecal) < rctParameters_->hOeCut()) {
+	aBit = true;
+      }
+    }
+  }
+  return aBit;
 }
 
 // uses etScale
