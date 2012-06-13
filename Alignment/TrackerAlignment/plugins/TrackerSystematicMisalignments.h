@@ -5,8 +5,8 @@
  *
  *  Class to misaligned tracker from DB.
  *
- *  $Date: 2010/06/14 14:45:15 $
- *  $Revision: 1.4 $
+ *  $Date: 2012/06/13 09:24:50 $
+ *  $Revision: 1.5 $
  *  \author Chung Khim Lae
  */
 // user include files
@@ -18,6 +18,9 @@
 class AlignableSurface;
 class Alignments;
 
+namespace edm {
+  class ParameterSet;
+}
 
 class TrackerSystematicMisalignments:
 public edm::EDAnalyzer
@@ -62,13 +65,7 @@ private:
 	// flag for old z behaviour, version <= 1.5
 	bool oldMinusZconvention;
 
-  int m_ROWS_PER_ROC;
-  int m_COLS_PER_ROC;
-  int m_BIG_PIX_PER_ROC_X;
-  int m_BIG_PIX_PER_ROC_Y;
-  int m_ROCS_X;
-  int m_ROCS_Y;
-  bool m_upgradeGeometry;
+  const edm::ParameterSet theParameterSet;
 };
 
 #endif

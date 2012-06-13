@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Apr 26 12:36:13 CDT 2008
-// $Id: AlignmentMonitorAsAnalyzer.cc,v 1.5 2010/05/12 09:43:40 mussgill Exp $
+// $Id: AlignmentMonitorAsAnalyzer.cc,v 1.6 2012/06/13 09:10:35 yana Exp $
 //
 //
 
@@ -73,6 +73,7 @@ class AlignmentMonitorAsAnalyzer : public edm::EDAnalyzer {
       // ----------member data ---------------------------
       edm::InputTag m_tjTag;
       edm::ParameterSet m_aliParamStoreCfg;
+  const edm::ParameterSet theTkConstants;
 
       AlignableTracker *m_alignableTracker;
       AlignableMuon *m_alignableMuon;
@@ -80,14 +81,6 @@ class AlignmentMonitorAsAnalyzer : public edm::EDAnalyzer {
 
       std::vector<AlignmentMonitorBase*> m_monitors;
       const edm::EventSetup *m_lastSetup;
-
-  int m_ROWS_PER_ROC;
-  int m_COLS_PER_ROC;
-  int m_BIG_PIX_PER_ROC_X;
-  int m_BIG_PIX_PER_ROC_Y;
-  int m_ROCS_X;
-  int m_ROCS_Y;
-  bool m_upgradeGeometry;
 
       bool m_firstEvent;
 };
@@ -105,19 +98,12 @@ class AlignmentMonitorAsAnalyzer : public edm::EDAnalyzer {
 //
 AlignmentMonitorAsAnalyzer::AlignmentMonitorAsAnalyzer(const edm::ParameterSet& iConfig)
    : m_tjTag(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag"))
-   , m_aliParamStoreCfg(iConfig.getParameter<edm::ParameterSet>("ParameterStore"))
+     , m_aliParamStoreCfg(iConfig.getParameter<edm::ParameterSet>("ParameterStore")),
+     theTkConstants(iConfig.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ))
    , m_alignableTracker(NULL)
    , m_alignableMuon(NULL)
    , m_alignmentParameterStore(NULL)
 {
-  m_ROWS_PER_ROC  = iConfig.getUntrackedParameter<int>( "ROWS_PER_ROC", m_ROWS_PER_ROC );
-  m_COLS_PER_ROC  = iConfig.getUntrackedParameter<int>( "COLS_PER_ROC", m_COLS_PER_ROC );
-  m_BIG_PIX_PER_ROC_X = iConfig.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_X", m_BIG_PIX_PER_ROC_X );
-  m_BIG_PIX_PER_ROC_Y = iConfig.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_Y", m_BIG_PIX_PER_ROC_Y );
-  m_ROCS_X = iConfig.getUntrackedParameter<int>( "ROCS_X", m_ROCS_X );
-  m_ROCS_Y = iConfig.getUntrackedParameter<int>( "ROCS_Y", m_ROCS_Y );
-  m_upgradeGeometry = iConfig.getUntrackedParameter<bool>( "upgradeGeometry", m_upgradeGeometry );
-
    std::vector<std::string> monitors = iConfig.getUntrackedParameter<std::vector<std::string> >( "monitors" );
 
    for (std::vector<std::string>::const_iterator miter = monitors.begin();  miter != monitors.end();  ++miter) {
@@ -156,12 +142,13 @@ AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
       iSetup.get<IdealGeometryRecord>().get( theGeometricDet );
       TrackerGeomBuilderFromGeometricDet trackerBuilder;
       boost::shared_ptr<TrackerGeometry> theTracker(trackerBuilder.build(&(*theGeometricDet),
-									 m_upgradeGeometry,
-									 m_ROWS_PER_ROC,
-									 m_COLS_PER_ROC,
-									 m_BIG_PIX_PER_ROC_X,
-									 m_BIG_PIX_PER_ROC_Y,
-									 m_ROCS_X, m_ROCS_Y ));
+									 theTkConstants.getParameter<bool>("upgradeGeometry"),
+									 theTkConstants.getParameter<int>( "ROWS_PER_ROC" ),
+									 theTkConstants.getParameter<int>( "COLS_PER_ROC" ),
+									 theTkConstants.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
+									 theTkConstants.getParameter<int>( "BIG_PIX_PER_ROC_Y" ),
+									 theTkConstants.getParameter<int>( "ROCS_X" ),
+									 theTkConstants.getParameter<int>( "ROCS_Y" )));
       
       edm::ESHandle<MuonDDDConstants> mdc;
       iSetup.get<MuonNumberingRecord>().get(mdc);

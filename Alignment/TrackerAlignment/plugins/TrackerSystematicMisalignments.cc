@@ -33,17 +33,11 @@
 // made some variables constant, removed obviously dead code and comments
 
 TrackerSystematicMisalignments::TrackerSystematicMisalignments(const edm::ParameterSet& cfg)
-  : theAlignableTracker(0)
+  : theAlignableTracker(0),
+    theParameterSet(cfg)
 {
 	// use existing geometry
 	m_fromDBGeom = cfg.getUntrackedParameter< bool > ("fromDBGeom");
-	m_ROWS_PER_ROC  = cfg.getUntrackedParameter<int>( "ROWS_PER_ROC", m_ROWS_PER_ROC );
-	m_COLS_PER_ROC  = cfg.getUntrackedParameter<int>( "COLS_PER_ROC", m_COLS_PER_ROC );
-	m_BIG_PIX_PER_ROC_X = cfg.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_X", m_BIG_PIX_PER_ROC_X );
-	m_BIG_PIX_PER_ROC_Y = cfg.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_Y", m_BIG_PIX_PER_ROC_Y );
-	m_ROCS_X = cfg.getUntrackedParameter<int>( "ROCS_X", m_ROCS_X );
-	m_ROCS_Y = cfg.getUntrackedParameter<int>( "ROCS_Y", m_ROCS_Y );
-	m_upgradeGeometry = cfg.getUntrackedParameter<bool>( "upgradeGeometry", m_upgradeGeometry );
 	
 	// constants
 	m_radialEpsilon = cfg.getUntrackedParameter< double > ("radialEpsilon");
@@ -115,13 +109,15 @@ void TrackerSystematicMisalignments::analyze(const edm::Event& event, const edm:
 	
 	edm::ESHandle<GeometricDet>  geom;
 	setup.get<IdealGeometryRecord>().get(geom);	 
+	const edm::ParameterSet tkGeomConsts( theParameterSet.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
 	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom,
-									      m_upgradeGeometry,
-									      m_ROWS_PER_ROC,
-									      m_COLS_PER_ROC,
-									      m_BIG_PIX_PER_ROC_X,
-									      m_BIG_PIX_PER_ROC_Y,
-									      m_ROCS_X, m_ROCS_Y );
+									      tkGeomConsts.getParameter<bool>("upgradeGeometry"),
+									      tkGeomConsts.getParameter<int>( "ROWS_PER_ROC" ),
+									      tkGeomConsts.getParameter<int>( "COLS_PER_ROC" ),
+									      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
+									      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ),
+									      tkGeomConsts.getParameter<int>( "ROCS_X" ),
+									      tkGeomConsts.getParameter<int>( "ROCS_Y" ));
 	
 	//take geometry from DB or randomly generate geometry
 	if (m_fromDBGeom){

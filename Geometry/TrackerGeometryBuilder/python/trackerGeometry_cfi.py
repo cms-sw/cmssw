@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import Geometry.TrackerGeometryBuilder.trackerGeometryConstants_cfi as trackerGeometryConstants_cfi
 
 #
 # This cfi should be included to build the Tracker geometry model.
@@ -10,14 +11,7 @@ TrackerDigiGeometryESModule = cms.ESProducer("TrackerDigiGeometryESModule",
     fromDDD = cms.bool(True),
     applyAlignment = cms.bool(True), # to be abondoned
 
-    alignmentsLabel = cms.string(''),
-    upgradeGeometry = cms.untracked.bool(False),
-    ROWS_PER_ROC = cms.untracked.int32(80),
-    COLS_PER_ROC = cms.untracked.int32(52),
-    BIG_PIX_PER_ROC_X = cms.untracked.int32(1),
-    BIG_PIX_PER_ROC_Y = cms.untracked.int32(2),
-    ROCS_X = cms.untracked.int32(0),
-    ROCS_Y = cms.untracked.int32(0)
+    alignmentsLabel = cms.string('')
 )
 
-
+trackerGeometryConstants = cms.PSet(trackerGeometryConstants_cfi.trackerGeometryConstants)

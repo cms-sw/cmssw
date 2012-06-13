@@ -5,13 +5,17 @@
  *
  *  Class to read ideal tracker from DB.
  *
- *  $Date: 2010/01/07 14:36:23 $
- *  $Revision: 1.3 $
+ *  $Date: 2012/06/13 09:22:26 $
+ *  $Revision: 1.4 $
  *  \author Chung Khim Lae
  */
 
 #include "Alignment/SurveyAnalysis/interface/SurveyInputBase.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyInputTextReader.h"
+
+namespace edm {
+  class ParameterSet;
+}
 
 class SurveyInputTrackerFromDB:
   public SurveyInputBase
@@ -38,13 +42,8 @@ private:
   void addSurveyInfo(
 		     Alignable*
 		     );
-  int m_ROWS_PER_ROC;
-  int m_COLS_PER_ROC;
-  int m_BIG_PIX_PER_ROC_X;
-  int m_BIG_PIX_PER_ROC_Y;
-  int m_ROCS_X;
-  int m_ROCS_Y;
-  bool m_upgradeGeometry;
+
+  const edm::ParameterSet theParameterSet;
 };
 
 #endif

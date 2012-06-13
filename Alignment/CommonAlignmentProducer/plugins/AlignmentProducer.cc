@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.62 $
-///  last update: $Date: 2012/02/22 07:36:04 $
-///  by         : $Author: mussgill $
+///  Revision   : $Revision: 1.63 $
+///  last update: $Date: 2012/06/13 09:13:57 $
+///  by         : $Author: yana $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -101,14 +101,6 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
 
   // Tell the framework what data is being produced
   if (doTracker_) {
-    m_ROWS_PER_ROC  = iConfig.getUntrackedParameter<int>( "ROWS_PER_ROC", m_ROWS_PER_ROC );
-    m_COLS_PER_ROC  = iConfig.getUntrackedParameter<int>( "COLS_PER_ROC", m_COLS_PER_ROC );
-    m_BIG_PIX_PER_ROC_X = iConfig.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_X", m_BIG_PIX_PER_ROC_X );
-    m_BIG_PIX_PER_ROC_Y = iConfig.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_Y", m_BIG_PIX_PER_ROC_Y );
-    m_ROCS_X = iConfig.getUntrackedParameter<int>( "ROCS_X", m_ROCS_X );
-    m_ROCS_Y = iConfig.getUntrackedParameter<int>( "ROCS_Y", m_ROCS_Y );
-    m_upgradeGeometry = iConfig.getUntrackedParameter<bool>( "upgradeGeometry", m_upgradeGeometry );
-
      setWhatProduced(this, &AlignmentProducer::produceTracker);
   }
   if (doMuon_) {
@@ -609,16 +601,19 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
    iSetup.get<IdealGeometryRecord>().get( cpv );
 
    if (doTracker_) {
+     const edm::ParameterSet tkGeomConsts( theParameterSet.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
+     
      edm::ESHandle<GeometricDet> geometricDet;
      iSetup.get<IdealGeometryRecord>().get( geometricDet );
      TrackerGeomBuilderFromGeometricDet trackerBuilder;
      theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet),
-									   m_upgradeGeometry,
-									   m_ROWS_PER_ROC,
-									   m_COLS_PER_ROC,
-									   m_BIG_PIX_PER_ROC_X,
-									   m_BIG_PIX_PER_ROC_Y,
-									   m_ROCS_X, m_ROCS_Y ));
+									   tkGeomConsts.getParameter<bool>("upgradeGeometry"),
+									   tkGeomConsts.getParameter<int>( "ROWS_PER_ROC" ),
+									   tkGeomConsts.getParameter<int>( "COLS_PER_ROC" ),
+									   tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
+									   tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ),
+									   tkGeomConsts.getParameter<int>( "ROCS_X" ),
+									   tkGeomConsts.getParameter<int>( "ROCS_Y" )));
    }
 
    if (doMuon_) {

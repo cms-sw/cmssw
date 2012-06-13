@@ -17,17 +17,10 @@
 
 #include "Alignment/SurveyAnalysis/plugins/SurveyInputTrackerFromDB.h"
 
-SurveyInputTrackerFromDB::SurveyInputTrackerFromDB(const edm::ParameterSet& cfg):
-textFileName( cfg.getParameter<std::string>("textFileName") )
-{
-  m_ROWS_PER_ROC  = cfg.getUntrackedParameter<int>( "ROWS_PER_ROC", m_ROWS_PER_ROC );
-  m_COLS_PER_ROC  = cfg.getUntrackedParameter<int>( "COLS_PER_ROC", m_COLS_PER_ROC );
-  m_BIG_PIX_PER_ROC_X = cfg.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_X", m_BIG_PIX_PER_ROC_X );
-  m_BIG_PIX_PER_ROC_Y = cfg.getUntrackedParameter<int>( "BIG_PIX_PER_ROC_Y", m_BIG_PIX_PER_ROC_Y );
-  m_ROCS_X = cfg.getUntrackedParameter<int>( "ROCS_X", m_ROCS_X );
-  m_ROCS_Y = cfg.getUntrackedParameter<int>( "ROCS_Y", m_ROCS_Y );
-  m_upgradeGeometry = cfg.getUntrackedParameter<bool>( "upgradeGeometry", m_upgradeGeometry );
-}
+SurveyInputTrackerFromDB::SurveyInputTrackerFromDB(const edm::ParameterSet& cfg)
+  : textFileName( cfg.getParameter<std::string>("textFileName") ),
+    theParameterSet( cfg )
+{}
 
 void SurveyInputTrackerFromDB::analyze(const edm::Event&, const edm::EventSetup& setup)
 {
@@ -42,13 +35,15 @@ void SurveyInputTrackerFromDB::analyze(const edm::Event&, const edm::EventSetup&
 	
 	edm::ESHandle<GeometricDet>  geom;
 	setup.get<IdealGeometryRecord>().get(geom);	 
+	const edm::ParameterSet tkGeomConsts( theParameterSet.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
 	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom,
-									      m_upgradeGeometry,
-									      m_ROWS_PER_ROC,
-									      m_COLS_PER_ROC,
-									      m_BIG_PIX_PER_ROC_X,
-									      m_BIG_PIX_PER_ROC_Y,
-									      m_ROCS_X, m_ROCS_Y );
+									      tkGeomConsts.getParameter<bool>("upgradeGeometry"),
+									      tkGeomConsts.getParameter<int>( "ROWS_PER_ROC" ),
+									      tkGeomConsts.getParameter<int>( "COLS_PER_ROC" ),
+									      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
+									      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ),
+									      tkGeomConsts.getParameter<int>( "ROCS_X" ),
+									      tkGeomConsts.getParameter<int>( "ROCS_Y" ));
 	
 	addComponent( new AlignableTracker( tracker ) );
 	addSurveyInfo( detector() );
