@@ -33,7 +33,7 @@ class TagProbeFitter {
   void addPdf(std::string pdfName, std::vector<std::string>& pdfCommands);
 
   ///set a list of variables to fix during first fit iteration. If the list is empty, do one iteration.
-  void addFixedVariavles(std::vector<std::string>);
+  void addFixedVariavles(std::vector<string>);
 
   ///calculate the efficiency for a particular binning of the data; it saves everything in the directory "dirName", uses the previously defined PDF with name "pdfName"
   std::string calculateEfficiency(std::string dirName, std::string efficiencyCategory, std::string efficiencyState, std::vector<std::string>& unbinnedVariables, std::map<std::string, std::vector<double> >& binnedReals, std::map<std::string, std::vector<std::string> >& binnedCategories, std::vector<std::string>& binToPDFmap) {
@@ -49,6 +49,9 @@ class TagProbeFitter {
 
   /// set number of bins to use when making the plots; 0 = automatic
   void setBinsForMassPlots(int bins) ;
+
+  //// turn on or off the saving of distribution plots)
+  void setSaveDistributionsPlot(bool saveDistributionsPlot_) { doSaveDistributionsPlot = saveDistributionsPlot_; }
 
   /// set a variable to be used as weight for a dataset. empty string means no weights.
   void setWeightVar(const std::string &weight);
@@ -71,6 +74,9 @@ class TagProbeFitter {
 
   ///the default option wether to save the workspace for each bin
   bool saveWorkspace;
+
+  ///save distribution plots
+  bool doSaveDistributionsPlot;
 
   ///do binned fit; 0 = automatic, 1 = yes, -1 = no. d
   int binnedFit;
@@ -141,11 +147,11 @@ class TagProbeFitter {
   ///saves the efficiency plots
   void saveEfficiencyPlots(RooDataSet& eff, TString effName, RooArgSet& binnedVariables, RooArgSet& mappedCategories);
   
-  ///makes the 1D plot
-  void makeEfficiencyPlot1D(RooDataSet& eff, RooRealVar& v, TString plotName, TString plotTitle, TString effName);
+  ///makes the 1D plot, possibly selecting a value for a category
+  void makeEfficiencyPlot1D(RooDataSet& eff, RooRealVar& v, TString plotName, TString plotTitle, TString effName, const char *catName = 0, int catIndex = -1);
   
   ///makes the 2D plot
-  void makeEfficiencyPlot2D(RooDataSet& eff, RooRealVar& v1, RooRealVar& v2, TString plotName, TString plotTitle, TString effName);
+  void makeEfficiencyPlot2D(RooDataSet& eff, RooRealVar& v1, RooRealVar& v2, TString plotName, TString plotTitle, TString effName, const char *catName = 0, int catIndex = -1);
   
 };
 

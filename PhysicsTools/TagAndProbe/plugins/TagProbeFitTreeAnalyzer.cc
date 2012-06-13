@@ -8,7 +8,6 @@
 
 #include "PhysicsTools/TagAndProbe/interface/TagProbeFitter.h"
 
-using namespace std;
 using namespace edm;
 
 class TagProbeFitTreeAnalyzer : public edm::EDAnalyzer{
@@ -40,6 +39,9 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
     fitter.setBinnedFit(binned, binned ? pset.getParameter<uint32_t>("binsForFit") : 0);
   } else if (pset.existsAs<uint32_t>("binsForMassPlots")) {
     fitter.setBinsForMassPlots(pset.getParameter<uint32_t>("binsForMassPlots"));
+  }
+  if (pset.existsAs<bool>("saveDistributionsPlot")) {
+     fitter.setSaveDistributionsPlot(pset.getParameter<bool>("saveDistributionsPlot"));
   }
 
   if (pset.existsAs<std::string>("WeightVariable")) {
