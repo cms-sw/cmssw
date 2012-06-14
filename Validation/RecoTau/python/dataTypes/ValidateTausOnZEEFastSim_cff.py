@@ -18,7 +18,7 @@ zttModifier = ApplyFunctionToSequence(zttLabeler)
 proc.TauValNumeratorAndDenominatorZEEFastSim.visit(zttModifier)
 
 #Sets the correct naming to efficiency histograms
-proc.efficienciesZEEFastSim.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominatorZEEFastSim)
+proc.efficienciesZEEFastSim.streamTag = cms.InputTag("ZEEFastSim")
 
 #checks what's new in the process (the cloned sequences and modules in them)
 newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('FastSim') != -1), dir(proc) )

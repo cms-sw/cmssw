@@ -42,7 +42,7 @@ zttModifier = ApplyFunctionToSequence(zttLabeler)
 proc.TauValNumeratorAndDenominatorZEE.visit(zttModifier)
 
 #Sets the correct naming to efficiency histograms
-proc.efficienciesZEE.plots = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominatorZEE)
+proc.efficienciesZEE.streamTag = cms.InputTag("ZEE")
 
 #checks what's new in the process (the cloned sequences and modules in them)
 newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('ZEE') != -1), dir(proc) )
