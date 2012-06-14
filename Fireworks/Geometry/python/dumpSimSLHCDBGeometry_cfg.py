@@ -4,6 +4,7 @@ process = cms.Process("DUMP")
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'DESIGN42_V17::All'
+process.XMLFromDBSource.label=''
 
 process.GlobalTag.toGet = cms.VPSet(
         cms.PSet(record = cms.string("GeometryFileRcd"),
