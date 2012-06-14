@@ -1,8 +1,14 @@
-//based on a code by Jan Valenta
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtFullLepKinSolver.h"
 #include "TF2.h"
 
-TtFullLepKinSolver::TtFullLepKinSolver() 
+TtFullLepKinSolver::TtFullLepKinSolver():
+  topmass_begin(0),
+  topmass_end(0),
+  topmass_step(0),
+  mw(80.4),
+  mb(4.8),
+  pxmiss_(0),
+  pymiss_(0)
 {
   // That crude parametrisation has been obtained from a fit of O(1000) pythia events.
   // It is normalized to 1.
@@ -10,19 +16,15 @@ TtFullLepKinSolver::TtFullLepKinSolver()
   EventShape_->SetParameters(30.7137,56.2880,23.0744,59.1015,24.9145);
 }
 
-TtFullLepKinSolver::TtFullLepKinSolver(double b, double e, double s, std::vector<double> nupars) 
+TtFullLepKinSolver::TtFullLepKinSolver(const double b, const double e, const double s, const std::vector<double> nupars, const double mW, const double mB):
+  topmass_begin(b),
+  topmass_end(e),
+  topmass_step(s),
+  mw(mW),
+  mb(mB),
+  pxmiss_(0),
+  pymiss_(0)
 {
-  topmass_begin = b;
-  topmass_end = e;
-  topmass_step = s;
-  pxmiss_ = 0;
-  pymiss_ = 0;
-  mw = 80.22;
-  maw = 80.22;
-  mab = 4.800;
-  mb = 4.800;
-  // That crude parametrisation has been obtained from a fit of O(1000) pythia events.
-  // It is normalized to 1.
   EventShape_ = new TF2("landau2D","[0]*TMath::Landau(x,[1],[2],0)*TMath::Landau(y,[3],[4],0)",0,500,0,500);
   EventShape_->SetParameters(nupars[0],nupars[1],nupars[2],nupars[3],nupars[4]);
 }
@@ -34,8 +36,6 @@ TtFullLepKinSolver::~TtFullLepKinSolver()
 {
   delete EventShape_;
 }
-
-
 
 TtDilepEvtSolution TtFullLepKinSolver::addKinSolInfo(TtDilepEvtSolution * asol) 
 {
@@ -127,17 +127,19 @@ TtDilepEvtSolution TtFullLepKinSolver::addKinSolInfo(TtDilepEvtSolution * asol)
   return fitsol;
 }
 
-void TtFullLepKinSolver::SetConstraints(double xx, double yy)
+void
+TtFullLepKinSolver::SetConstraints(const double xx, const double yy)
 {
   pxmiss_ = xx;
   pymiss_ = yy;
 }
 
-TtFullLepKinSolver::NeutrinoSolution TtFullLepKinSolver::getNuSolution(TLorentzVector LV_l, 
-                                                                       TLorentzVector LV_l_, 
-			                                               TLorentzVector LV_b, 
-			                                               TLorentzVector LV_b_) {					    					    					    
-    
+TtFullLepKinSolver::NeutrinoSolution
+TtFullLepKinSolver::getNuSolution(TLorentzVector LV_l, 
+				  TLorentzVector LV_l_, 
+				  TLorentzVector LV_b, 
+				  TLorentzVector LV_b_)
+{
   math::XYZTLorentzVector maxLV_n  = math::XYZTLorentzVector(0,0,0,0); 
   math::XYZTLorentzVector maxLV_n_ = math::XYZTLorentzVector(0,0,0,0);   
 
@@ -168,28 +170,28 @@ TtFullLepKinSolver::NeutrinoSolution TtFullLepKinSolver::getNuSolution(TLorentzV
   return nuSol;
 }
 
-void TtFullLepKinSolver::FindCoeff(const TLorentzVector al, 
-                                   const TLorentzVector l,
-	                           const TLorentzVector b_al,
-	                           const TLorentzVector b_l,
-	                           double mt, 
-				   double mat, 
-				   double px_miss, 
-				   double py_miss,
-	                           double* koeficienty) {
-
-double E, apom1, apom2, apom3;
-double k11, k21, k31, k41,  cpom1, cpom2, cpom3, l11, l21, l31, l41, l51, l61, k1, k2, k3, k4, k5,k6;
-double l1, l2, l3, l4, l5, l6, k15, k25, k35, k45;
+void
+TtFullLepKinSolver::FindCoeff(const TLorentzVector al, 
+			      const TLorentzVector l,
+			      const TLorentzVector b_al,
+			      const TLorentzVector b_l,
+			      const double mt, 
+			      const double mat, 
+			      const double px_miss, 
+			      const double py_miss,
+			      double* koeficienty)
+{
+  double E, apom1, apom2, apom3;
+  double k11, k21, k31, k41,  cpom1, cpom2, cpom3, l11, l21, l31, l41, l51, l61, k1, k2, k3, k4, k5,k6;
+  double l1, l2, l3, l4, l5, l6, k15, k25, k35, k45;
 
   C = -al.Px()-b_al.Px()-l.Px()-b_l.Px() + px_miss;
   D = -al.Py()-b_al.Py()-l.Py()-b_l.Py() + py_miss;
 
-  // right side offirst two linear equations - missing pT
-
+  // right side of first two linear equations - missing pT
   
   E = (sqr(mt)-sqr(mw)-sqr(mb))/(2*b_al.E())-sqr(mw)/(2*al.E())-al.E()+al.Px()*b_al.Px()/b_al.E()+al.Py()*b_al.Py()/b_al.E()+al.Pz()*b_al.Pz()/b_al.E();
-  F = (sqr(mat)-sqr(maw)-sqr(mab))/(2*b_l.E())-sqr(maw)/(2*l.E())-l.E()+l.Px()*b_l.Px()/b_l.E()+l.Py()*b_l.Py()/b_l.E()+l.Pz()*b_l.Pz()/b_l.E();
+  F = (sqr(mat)-sqr(mw)-sqr(mb))/(2*b_l.E())-sqr(mw)/(2*l.E())-l.E()+l.Px()*b_l.Px()/b_l.E()+l.Py()*b_l.Py()/b_l.E()+l.Pz()*b_l.Pz()/b_l.E();
   
   m1 = al.Px()/al.E()-b_al.Px()/b_al.E();
   m2 = al.Py()/al.E()-b_al.Py()/b_al.E();
@@ -215,9 +217,9 @@ double l1, l2, l3, l4, l5, l6, k15, k25, k35, k45;
   cpom2 = sqr(l.Py())-sqr(l.E());
   cpom3 = sqr(l.Pz())-sqr(l.E());
   
-  l11 = 1/sqr(l.E())*(pow(maw,4)/4+cpom3*sqr(F)/sqr(n3)+sqr(maw)*l.Pz()*F/n3);
-  l21 = 1/sqr(l.E())*(-2*cpom3*F*m3*n1/n3+sqr(maw)*(l.Px()*m3*n3-l.Pz()*n1*m3)+2*l.Px()*l.Pz()*F*m3);
-  l31 = 1/sqr(l.E())*(-2*cpom3*F*m3*n2/n3+sqr(maw)*(l.Py()*m3*n3-l.Pz()*n2*m3)+2*l.Py()*l.Pz()*F*m3);
+  l11 = 1/sqr(l.E())*(pow(mw,4)/4+cpom3*sqr(F)/sqr(n3)+sqr(mw)*l.Pz()*F/n3);
+  l21 = 1/sqr(l.E())*(-2*cpom3*F*m3*n1/n3+sqr(mw)*(l.Px()*m3*n3-l.Pz()*n1*m3)+2*l.Px()*l.Pz()*F*m3);
+  l31 = 1/sqr(l.E())*(-2*cpom3*F*m3*n2/n3+sqr(mw)*(l.Py()*m3*n3-l.Pz()*n2*m3)+2*l.Py()*l.Pz()*F*m3);
   l41 = 1/sqr(l.E())*(2*cpom3*n1*n2*sqr(m3)+2*l.Px()*l.Py()*sqr(m3)*sqr(n3)-2*l.Px()*l.Pz()*n2*n3*sqr(m3)-2*l.Py()*l.Pz()*n1*n3*sqr(m3));
   l51 = 1/sqr(l.E())*(cpom1*sqr(m3)*sqr(n3)+cpom3*sqr(n1)*sqr(m3)-2*l.Px()*l.Pz()*n1*n3*sqr(m3));
   l61 = 1/sqr(l.E())*(cpom2*sqr(m3)*sqr(n3)+cpom3*sqr(n2)*sqr(m3)-2*l.Py()*l.Pz()*n2*n3*sqr(m3));
@@ -246,7 +248,6 @@ double l1, l2, l3, l4, l5, l6, k15, k25, k35, k45;
   k36 = k3*l6-l3*k6;
   k46 = k4*l6-l4*k6;
   k56 = k5*l6-l5*k6;
-  
 
   koeficienty[0] = k15*sqr(k36)-k35*k36*k16-k56*sqr(k16);
   koeficienty[1] = 2*k15*k36*k46+k25*sqr(k36)+k35*(-k46*k16-k36*k26)-k45*k36*k16-2*k56*k26*k16;
@@ -268,12 +269,11 @@ void TtFullLepKinSolver::TopRec(const TLorentzVector al,
                                 const TLorentzVector l,
 	                        const TLorentzVector b_al,
 	                        const TLorentzVector b_l, 
-				double sol) {
-
+				const double sol)
+{
   TVector3 t_ttboost;
   TLorentzVector aux;
   double pxp, pyp, pzp, pup, pvp, pwp;
-  
     
   pxp = sol*(m3*n3/k51);   
   pyp = -(m3*n3/k61)*(k56*pow(sol,2) + k26*sol + k16)/(k36 + k46*sol);
@@ -284,12 +284,10 @@ void TtFullLepKinSolver::TopRec(const TLorentzVector al,
      
   LV_n_.SetXYZM(pxp, pyp, pzp, 0.0);
   LV_n.SetXYZM(pup, pvp, pwp, 0.0);
-      
   
   LV_t_ = b_l + l + LV_n_;
   LV_t = b_al + al + LV_n;  
-  
-  
+ 
   aux = (LV_t_ + LV_t);
   t_ttboost = -aux.BoostVector();
   LV_tt_t_ = LV_t_;
@@ -298,30 +296,29 @@ void TtFullLepKinSolver::TopRec(const TLorentzVector al,
   LV_tt_t.Boost(t_ttboost); 
 }
 
-double TtFullLepKinSolver::WeightSolfromMC() {
-
+double
+TtFullLepKinSolver::WeightSolfromMC() const
+{
   double weight = 1;
   weight = ((LV_n.E() > genLV_n.E())? genLV_n.E()/LV_n.E(): LV_n.E()/genLV_n.E())
            *((LV_n_.E() > genLV_n_.E())? genLV_n_.E()/LV_n_.E(): LV_n_.E()/genLV_n_.E());
   return weight;
-
 }
 
-double TtFullLepKinSolver::WeightSolfromShape() {
-  
-  // Use the parametrized event shape to obtain the solution weight.
+double
+TtFullLepKinSolver::WeightSolfromShape() const
+{
   return EventShape_->Eval(LV_n.E(),LV_n_.E());
-
 }
 		     
-int TtFullLepKinSolver::quartic(double *koeficienty, double* koreny) {
-  int i, nreal;
+int
+TtFullLepKinSolver::quartic(double *koeficienty, double* koreny) const
+{
   double w, b0, b1, b2;
   double c[4];
   double d0, d1, h, t, z;
   double *px;
-
-  
+ 
   if (koeficienty[4]==0.0) 
     return cubic(koeficienty, koreny);
   /* quartic problem? */
@@ -338,8 +335,7 @@ int TtFullLepKinSolver::quartic(double *koeficienty, double* koreny) {
   c[1] = -4*b0;
   c[0] = sqr(b1) - 4*b0*b2;
   
-  
-  i = cubic(c, koreny);
+  cubic(c, koreny);
   z = koreny[0];
   //double z1=1.0,z2=2.0,z3=3.0;
   //TMath::RootsCubic(c,z1,z2,z3);
@@ -347,10 +343,10 @@ int TtFullLepKinSolver::quartic(double *koeficienty, double* koreny) {
   //if (z1 !=0) z = z1;
   /* only lowermost root needed */
 
-  nreal = 0;
+  int nreal = 0;
   px = koreny;
   t = sqrt(0.25*sqr(z) - b0);
-  for (i=-1; i<=1; i+=2) {
+  for(int i=-1; i<=1; i+=2) {
     d0 = -0.5*z + i*t;
     /* coeffs. of quadratic factor */
     d1 = (t!=0.0)? -i*0.5*b1/t : i*sqrt(-z - b2);
@@ -363,20 +359,22 @@ int TtFullLepKinSolver::quartic(double *koeficienty, double* koreny) {
     }
   }
 
-  if (nreal==4) {
+  //  if (nreal==4) {
     /* sort results */
 //    if (koreny[2]<koreny[0]) SWAP(koreny[0], koreny[2]);
 //    if (koreny[3]<koreny[1]) SWAP(koreny[1], koreny[3]);
 //    if (koreny[1]<koreny[0]) SWAP(koreny[0], koreny[1]);
 //    if (koreny[3]<koreny[2]) SWAP(koreny[2], koreny[3]);
 //    if (koreny[2]<koreny[1]) SWAP(koreny[1], koreny[2]);
-  }
+//  }
   return nreal;
 
 }
 
-int TtFullLepKinSolver::cubic(double *coeffs, double* koreny) {
-  int i, nreal;
+int
+TtFullLepKinSolver::cubic(const double *coeffs, double* koreny) const
+{
+  unsigned nreal;
   double w, p, q, dis, h, phi;
   
   if (coeffs[3]!=0.0) {
@@ -395,7 +393,7 @@ int TtFullLepKinSolver::cubic(double *coeffs, double* koreny) {
       /* acos to [-1;+1] */
       phi = acos(h);
       p = 2*TMath::Power(-p, 1.0/6.0);
-      for (i=0; i<3; i++) 
+      for(unsigned i=0; i<3; i++) 
 	koreny[i] = p*cos((phi+2*i*TMath::Pi())/3.0) - w;
       if (koreny[1]<koreny[0]) SWAP(koreny[0], koreny[1]);
       /* sort results */
@@ -414,7 +412,7 @@ int TtFullLepKinSolver::cubic(double *coeffs, double* koreny) {
 
     /* Perform one step of a Newton iteration in order to minimize
        round-off errors */
-    for (i=0; i<nreal; i++) {
+    for(unsigned i=0; i<nreal; i++) {
       h = coeffs[1] + koreny[i] * (2 * coeffs[2] + 3 * koreny[i] * coeffs[3]);
       if (h != 0.0)
 	koreny[i] -= (coeffs[0] + koreny[i] * (coeffs[1] + koreny[i] * (coeffs[2] + koreny[i] * coeffs[3])))/h;
@@ -451,7 +449,9 @@ int TtFullLepKinSolver::cubic(double *coeffs, double* koreny) {
 }
 
 
-void  TtFullLepKinSolver::SWAP(double& realone, double& realtwo) {
+void
+TtFullLepKinSolver::SWAP(double& realone, double& realtwo) const
+{
   if (realtwo < realone) {
     double aux = realtwo;
     realtwo = realone;
