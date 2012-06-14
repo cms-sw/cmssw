@@ -1,5 +1,5 @@
 /*
- * $Id: LaserSorter.h,v 1.4 2010/01/27 18:17:59 pgras Exp $
+ * $Id: LaserSorter.h,v 1.5 2010/04/20 21:46:27 pgras Exp $
  */
 
 #ifndef EVENT_SELECT_H
@@ -45,8 +45,8 @@ class LaserSorter : public edm::EDAnalyzer {
   //inner classes
 private:
   struct IndexRecord{
-    uint32_t orbit;
-    uint32_t filePos;
+    int orbit;
+    std::streamerpos filePos;
     bool operator<(const IndexRecord& i) const { return orbit < i.orbit; }
   };
   

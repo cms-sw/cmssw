@@ -14,8 +14,8 @@
 class LmfSource: public edm::ConfigurableInputSource{
 private:
   struct IndexRecord{
-    uint32_t orbit;
-    uint32_t filePos;
+    int orbit;
+    std::streamerpos filePos;
     //    bool operator<(const IndexRecord& i) const { return orbit < i.orbit; }
   };
   
