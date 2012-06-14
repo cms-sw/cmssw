@@ -69,6 +69,7 @@ private:
   std::string wheelpath_[6];
   std::string inclusivepath_;
   std::string gmtpath_;
+  std::string testpath_;
 
   MonitorElement* dttf_nTracks_integ;
   MonitorElement* dttf_occupancySummary;
@@ -90,6 +91,7 @@ private:
   MonitorElement* dttf_gmt_matching;
   MonitorElement* dttf_2ndTrack_Summary;
 
+  MonitorElement* dttf_occupancySummary_test;
 
   MonitorElement* dttf_nTracks_integ_2ndTrack;
   MonitorElement* dttf_occupancySummary_2ndTrack;
