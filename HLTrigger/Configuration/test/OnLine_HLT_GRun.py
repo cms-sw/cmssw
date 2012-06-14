@@ -42576,9 +42576,9 @@ process.source = cms.Source( "PoolSource",
 if 'hltHfreco' in process.__dict__:
     process.hltHfreco.setNoiseFlags = cms.bool( True )
 
-# Fix HLT for MC
-from HLTrigger.Configuration.customizeHLTforMC import customize
-process = customize(process)
+# customise the HLT menu for running on MC
+from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
+process = customizeHLTforMC(process)
 
 # remove the HLT prescales
 if 'PrescaleService' in process.__dict__:

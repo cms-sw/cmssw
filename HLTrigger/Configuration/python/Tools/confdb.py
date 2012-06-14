@@ -345,16 +345,13 @@ if 'hltHfreco' in %(dict)s:
 
   def fixForMC(self):
     if not self.config.data:
-#      pass # No longer needed!
+      # customise the HLT menu for running on MC
       if not self.config.fragment:
         self.data += """
-# Fix HLT for MC
-from HLTrigger.Configuration.customizeHLTforMC import customize
-process = customize(process)
+# customise the HLT menu for running on MC
+from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
+process = customizeHLTforMC(process)
 """
-#      # override the raw data collection label
-#      self._fix_parameter(type = 'InputTag', value = 'source', replace = 'rawDataCollector')
-#      self._fix_parameter(type = 'string',   value = 'source', replace = 'rawDataCollector')
 
 
   def fixForFastSim(self):
