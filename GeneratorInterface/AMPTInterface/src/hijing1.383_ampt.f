@@ -690,10 +690,8 @@ C
         IF(IHPR2(8).GT.0 .AND.RNIP(JP,JT).LT.EXP(-TT)*
      &                (1.0-EXP(-TTS))) GO TO 160
 C                ********this is the probability for no jet production
-C...Fix compiler warning
-C110        XR=-ALOG(EXP(-TT)+RANART(NSEED)*(1.0-EXP(-TT)))
-           XRTMP=EXP(-TT)+RANART(NSEED)*(1.0-EXP(-TT)) 
-110        XR=-ALOG(XRTMP)
+110        TMPEXP = EXP(-TT)
+           XR=-ALOG(TMPEXP+RANART(NSEED)*(1.0-TMPEXP))
 111        NJET=NJET+1
         XR=XR-ALOG(max(RANART(NSEED),1.0e-20))
         IF(XR.LT.TT) GO TO 111

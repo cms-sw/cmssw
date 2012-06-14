@@ -1826,7 +1826,7 @@ C*********************************************************************
     
 C...Purpose: to handle the fragmentation of a jet system (or a single   
 C...jet) according to independent fragmentation models. 
-      IMPLICIT DOUBLE PRECISION(D) 
+      IMPLICIT DOUBLE PRECISION(D)  
       COMMON/LUJETS/N,K(9000,5),P(9000,5),V(9000,5)
       SAVE /LUJETS/ 
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
@@ -2107,11 +2107,11 @@ C...Store hadron at random among free positions.
       NREM=NREM-1   
       NREQ=(IABS(NFL(1))+IABS(NFL(2))+IABS(NFL(3))-IABS(NFL(1)+ 
      &NFL(2)+NFL(3)))/2+IABS(NFL(1)+NFL(2)+NFL(3))/3    
-      imod=MOD(MSTJ(3),5)
       IF(NREM.GT.0) GOTO 280    
     
-C...Compensate for missing momentum in global scheme (3 options).  
-  320 IF(imod.NE.0.AND.imod.NE.4) THEN  
+C...Compensate for missing momentum in global scheme (3 options).   
+  320 MTMP = MOD(MSTJ(3),5)
+      IF(MTMP.NE.0.AND.MTMP.NE.4) THEN
         DO 330 J=1,3    
         PSI(J)=0.   
         DO 330 I=NSAV+NJET+1,N  
@@ -5096,8 +5096,6 @@ C...Purpose: to perform rotations and boosts.
       SAVE /LUDAT1/ 
       DIMENSION ROT(3,3),PR(3),DP(4)    
     
-C      DV(1)=DV(1)
-C      VR(1)=VR(1)
 C...Find range of rotation/boost. Convert boost to double precision.    
       IMIN=1    
       IF(MSTU(1).GT.0) IMIN=MSTU(1) 
@@ -11717,13 +11715,10 @@ C...pre-set kinematical limits.
           ETA3=LOG(MIN(1.E10,MAX(1.E-10,EXPET3)))   
           ETA4=LOG(MIN(1.E10,MAX(1.E-10,EXPET4)))   
           ETALAR=MAX(ETA3,ETA4) 
-          ETASMA=MIN(ETA3,ETA4)
-C...Fix compiler warnings
-          CTST1=(1.+RM3-RM4)*COSH(YST)
-          CTST2=BE34*SINH(YST)*CTH
-  100     CTS3=((1.+RM3-RM4)*SINH(YST)+BE34*COSH(YST)*CTH)/ 
-     &    SQRT((CTST1+CTST2)**2-4.*RM3)   
-C     &    SQRT(((1.+RM3-RM4)*COSH(YST)+BE34*SINH(YST)*CTH)**2-4.*RM3)   
+          ETASMA=MIN(ETA3,ETA4) 
+  100     TMP1=(1.+RM3-RM4)*COSH(YST)
+          CTS3=((1.+RM3-RM4)*SINH(YST)+BE34*COSH(YST)*CTH)/ 
+     &    SQRT((TMP1+BE34*SINH(YST)*CTH)**2-4.*RM3)   
           CTS4=((1.-RM3+RM4)*SINH(YST)-BE34*COSH(YST)*CTH)/ 
      &    SQRT(((1.-RM3+RM4)*COSH(YST)-BE34*SINH(YST)*CTH)**2-4.*RM4)   
           CTSLAR=MAX(CTS3,CTS4) 
