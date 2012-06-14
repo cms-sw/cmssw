@@ -35,16 +35,20 @@ TrackerDigiGeometryESModule::TrackerDigiGeometryESModule(const edm::ParameterSet
     m_ROCS_Y( 0 ),	      // 8 for SLHC
     m_upgradeGeometry( false )
 {
-  const edm::ParameterSet tkGeomConsts(p.getParameter<edm::ParameterSet>("trackerGeometryConstants"));
+  if( p.existsAs<edm::ParameterSet>("trackerGeometryConstants"))
+  {
+      
+    const edm::ParameterSet tkGeomConsts(p.getParameter<edm::ParameterSet>("trackerGeometryConstants"));
 
-  m_ROWS_PER_ROC  = tkGeomConsts.getParameter<int>( "ROWS_PER_ROC" );
-  m_COLS_PER_ROC  = tkGeomConsts.getParameter<int>( "COLS_PER_ROC" );
-  m_BIG_PIX_PER_ROC_X = tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" );
-  m_BIG_PIX_PER_ROC_Y = tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" );
-  m_ROCS_X = tkGeomConsts.getParameter<int>( "ROCS_X" );
-  m_ROCS_Y = tkGeomConsts.getParameter<int>( "ROCS_Y" );
-  m_upgradeGeometry = tkGeomConsts.getParameter<bool>( "upgradeGeometry" );
-
+    m_ROWS_PER_ROC  = tkGeomConsts.getParameter<int>( "ROWS_PER_ROC" );
+    m_COLS_PER_ROC  = tkGeomConsts.getParameter<int>( "COLS_PER_ROC" );
+    m_BIG_PIX_PER_ROC_X = tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" );
+    m_BIG_PIX_PER_ROC_Y = tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" );
+    m_ROCS_X = tkGeomConsts.getParameter<int>( "ROCS_X" );
+    m_ROCS_Y = tkGeomConsts.getParameter<int>( "ROCS_Y" );
+    m_upgradeGeometry = tkGeomConsts.getParameter<bool>( "upgradeGeometry" );
+  }
+     
     applyAlignment_ = p.getParameter<bool>("applyAlignment");
     fromDDD_ = p.getParameter<bool>("fromDDD");
 
