@@ -137,23 +137,29 @@ void PFJetMonitor::fillOne(const reco::Jet& jet,
   const reco::PFJet* pfJet = dynamic_cast<const reco::PFJet*>(&jet);
   const reco::PFJet* pfMatchedJet = dynamic_cast<const reco::PFJet*>(&matchedJet);
   if (pfJet && pfMatchedJet && createPFractionHistos_) {
-    float frac_muon = -99.9;
-    float frac_elec = -99.9; 
-    float frac_phot = -99.9;
-    float frac_ch_had = -99.9;
-    float frac_neu_had = -99.9;
- 
-    if (pfMatchedJet->muonMultiplicity() > 0) frac_muon = (pfJet->muonMultiplicity() - pfMatchedJet->muonMultiplicity())*1.0/pfMatchedJet->muonMultiplicity(); 
-    if (pfMatchedJet->chargedHadronMultiplicity() > 0) frac_ch_had = (pfJet->chargedHadronMultiplicity() - pfMatchedJet->chargedHadronMultiplicity())*1.0/pfMatchedJet->chargedHadronMultiplicity(); 
-    if (pfMatchedJet->neutralHadronMultiplicity() > 0) frac_neu_had = (pfJet->neutralHadronMultiplicity() - pfMatchedJet->neutralHadronMultiplicity())*1.0/pfMatchedJet->neutralHadronMultiplicity(); 
-    if (pfMatchedJet->photonMultiplicity() > 0) frac_phot = (pfJet->photonMultiplicity() - pfMatchedJet->photonMultiplicity())*1.0/pfMatchedJet->photonMultiplicity(); 
-    if (pfMatchedJet->electronMultiplicity() > 0) frac_elec = (pfJet->electronMultiplicity() - pfMatchedJet->electronMultiplicity())*1.0/pfMatchedJet->electronMultiplicity(); 
+    float del_frac_muon    = -99.9;
+    float del_frac_elec    = -99.9; 
+    float del_frac_phot    = -99.9;
+    float del_frac_ch_had  = -99.9;
+    float del_frac_neu_had = -99.9;
 
-    delta_frac_VS_frac_muon_->Fill(frac_muon);
-    delta_frac_VS_frac_electron_->Fill(frac_elec);
-    delta_frac_VS_frac_photon_->Fill(frac_phot);
-    delta_frac_VS_frac_charged_hadron_->Fill(frac_ch_had);
-    delta_frac_VS_frac_neutral_hadron_->Fill(frac_neu_had);
+    int mult_muon = pfMatchedJet->muonMultiplicity();
+    int mult_elec = pfMatchedJet->electronMultiplicity();
+    int mult_phot = pfMatchedJet->photonMultiplicity();
+    int mult_ch_had = pfMatchedJet->chargedHadronMultiplicity();
+    int mult_neu_had = pfMatchedJet->neutralHadronMultiplicity();
+ 
+    if (mult_muon > 0)     del_frac_muon = (pfJet->muonMultiplicity() - mult_muon)*1.0/mult_muon; 
+    if (mult_elec > 0)     del_frac_elec = (pfJet->electronMultiplicity() - mult_elec)*1.0/mult_elec; 
+    if (mult_phot > 0)     del_frac_phot = (pfJet->photonMultiplicity() - mult_phot)*1.0/mult_phot; 
+    if (mult_ch_had > 0)   del_frac_ch_had = (pfJet->chargedHadronMultiplicity() - mult_ch_had)*1.0/mult_ch_had; 
+    if (mult_neu_had > 0)  del_frac_neu_had = (pfJet->neutralHadronMultiplicity() - mult_neu_had)*1.0/mult_neu_had; 
+
+    delta_frac_VS_frac_muon_->Fill(mult_muon, del_frac_muon);
+    delta_frac_VS_frac_electron_->Fill(mult_elec, del_frac_elec);
+    delta_frac_VS_frac_photon_->Fill(mult_phot, del_frac_phot);
+    delta_frac_VS_frac_charged_hadron_->Fill(mult_ch_had, del_frac_ch_had);
+    delta_frac_VS_frac_neutral_hadron_->Fill(mult_neu_had, del_frac_neu_had);
   }
 }
 
