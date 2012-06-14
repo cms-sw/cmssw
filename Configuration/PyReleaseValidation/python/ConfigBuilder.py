@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.386 $"
+__version__ = "$Revision: 1.387 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1380,12 +1380,7 @@ class ConfigBuilder(object):
                     self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
 
         if self._options.isMC:
-                self.additionalCommands.append('# customise the HLT menu for running on MC')
-                self.additionalCommands.append('from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC')
-                self.additionalCommands.append('process = customizeHLTforMC(process)')
-                self.additionalCommands.append('')
-                from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
-                self.process = customizeHLTforMC(self.process)
+		self._options.customisation_file+="HLTrigger/Configuration/customizeHLTforMC.customizeHLTforMC"
 
 	if self._options.name != 'HLT':
 		self.additionalCommands.append('from HLTrigger.Configuration.CustomConfigs import ProcessName')
@@ -1783,7 +1778,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.386 $"),
+                                            (version=cms.untracked.string("$Revision: 1.387 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
