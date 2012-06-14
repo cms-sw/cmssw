@@ -14,6 +14,7 @@
 #include<TString.h>
 #include<TPRegexp.h>
 
+using namespace std;
 using namespace edm;
 using namespace dqmTnP;
 
