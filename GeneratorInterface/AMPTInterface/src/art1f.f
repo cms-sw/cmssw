@@ -20806,7 +20806,9 @@ c
 c----------------------------------------------------
 *  for process:  K-bar + L(S) --> Ca + pi 
 *
-60         if(iabs(lb1).ge.14 .and. iabs(lb1).le.17)then 
+C...Fix compiler warnings
+C60         if(iabs(lb1).ge.14 .and. iabs(lb1).le.17)then 
+60         if(lb1a.ge.14 .and. lb1a.le.17)then 
              asap = e(i1)
              akap = e(i2)
              idp = i1
@@ -20891,7 +20893,10 @@ c else only cascade(bar) formed perturbatively
 c----------------------------------------------------
 *  for process:  Cas(bar) + K_bar(K) --> Om(bar) + pi  !! eta
 *
-70         if(iabs(lb1).eq.40 .or. iabs(lb1).eq.41)then 
+C...fix to compiler warning  
+C70         if(iabs(lb1).eq.40 .or. iabs(lb1).eq.41)then 
+           lb1a=iabs(lb1)
+70         if(lb1a.eq.40 .or. lb1a.eq.41)then 
              acap = e(i1)
              akap = e(i2)
              idp = i1
@@ -20966,7 +20971,9 @@ c else omega(bar) formed perturbatively and cascade destroyed
 c-----------------------------------------------------------
 *  for process:  Ca + pi/eta --> K-bar + L(S)
 *
-90         if(iabs(lb1).eq.40 .or. iabs(lb1).eq.41)then 
+C...Fxi compiler warning
+C90         if(iabs(lb1).eq.40 .or. iabs(lb1).eq.41)then 
+90         if(lb1a.eq.40 .or. lb1a.eq.41)then 
              acap = e(i1)
              app = e(i2)
              idp = i1
