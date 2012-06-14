@@ -544,8 +544,8 @@ C
 	IF(IHPR2(8).GT.0 .AND.RNIP(JP,JT).LT.EXP(-TT)*
      &		(1.0-EXP(-TTS))) GO TO 160
 C		********this is the probability for no jet production
-        XTMP=EXP(-TT)+HIJRAN(NSEED)*(1.0-EXP(-TT))
-110	XR=-ALOG(XTMP)
+110     XTMP=EXP(-TT)
+        XR=-ALOG(XTMP+HIJRAN(NSEED)*(1.0-XTMP))
 111	NJET=NJET+1
 	XR=XR-ALOG(max(HIJRAN(NSEED),1.0e-20))
 	IF(XR.LT.TT) GO TO 111
