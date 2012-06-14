@@ -466,7 +466,7 @@ dataReco={'--conditions':'auto:com10',
 
 steps['HLTD']=merge([{'--process':'reHLT',
                       '-s':'L1REPACK,HLT',
-                      '--condition':'auto:hltonline11',
+                      '--conditions':'auto:hltonline11',
                       '--data':'',
                       '--output':'\'[{"e":"RAW","t":"RAW","o":["drop FEDRawDataCollection_rawDataCollector__LHC"]}]\'',
                       },])
