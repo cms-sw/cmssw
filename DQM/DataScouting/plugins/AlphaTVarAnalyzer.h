@@ -25,6 +25,8 @@ class AlphaTVarAnalyzer : public ScoutingAnalyzerBase
 
     //inclusive histograms by jet number
     MonitorElement * m_HTAlphaT;
+    MonitorElement * m_HTAlphaTg0p55;
+    MonitorElement * m_HTAlphaTg0p60;
 
  } ;
 

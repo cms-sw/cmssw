@@ -34,6 +34,9 @@ void AlphaTVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetu
     const double AlphaT = alphaTvar_handle->at(0);
     const double HT = alphaTvar_handle->at(1);
     m_HTAlphaT->Fill(HT,AlphaT);
+    if(AlphaT > 0.55) m_HTAlphaTg0p55->Fill(HT);
+    if(AlphaT > 0.60) m_HTAlphaTg0p60->Fill(HT);
+    
   }
   
 }
@@ -52,5 +55,14 @@ void AlphaTVarAnalyzer::bookMEs(){
 			       50,0.,1.,
 			       "H_{T} [GeV]",
 			       "#alpha_{T}");
+  m_HTAlphaTg0p55 = bookH1withSumw2("HTvsAlphaTg0p55",
+				   "H_{T} (#alpha_{T} > 0.55)",
+				   400,0.,4000.,
+				   "H_{T} [GeV]");
+
+  m_HTAlphaTg0p60 = bookH1withSumw2("HTvsAlphaTg0p60",
+				   "H_{T} (#alpha_{T} > 0.60)",
+				   400,0.,4000.,
+				   "H_{T} [GeV]");
 }
 
