@@ -31,8 +31,6 @@ class EGEnergyCorrector {
     std::pair<double,double> CorrectedEnergyWithError(const reco::Photon &p, const reco::VertexCollection& vtxcol, EcalClusterLazyTools &clustertools, const edm::EventSetup &es);
     std::pair<double,double> CorrectedEnergyWithError(const reco::GsfElectron &e, const reco::VertexCollection& vtxcol, EcalClusterLazyTools &clustertools, const edm::EventSetup &es);
     
-    std::pair<double,double> CorrectedEnergyWithErrorV3(const reco::Photon &p, const reco::VertexCollection& vtxcol, double rho, EcalClusterLazyTools &clustertools, const edm::EventSetup &es);
-    std::pair<double,double> CorrectedEnergyWithErrorV3(const reco::GsfElectron &e, const reco::VertexCollection& vtxcol, double rho, EcalClusterLazyTools &clustertools, const edm::EventSetup &es);
     
   protected:
     const GBRForest *fReadereb;

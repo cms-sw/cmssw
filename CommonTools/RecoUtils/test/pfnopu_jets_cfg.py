@@ -5,11 +5,11 @@ process = cms.Process("PFJETS")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/user/geisler/QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6_PU_S7_START52-AODSIM.root')
+    fileNames = cms.untracked.vstring('file:/user/geisler/Test.root')
 )
 		
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(10)
 )
 
 ### conditions
@@ -20,12 +20,21 @@ process.GlobalTag.globaltag = 'START52_V9::All'
 process.load('Configuration.StandardSequences.GeometryPilot2_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
-		
 	
 process.selectedPrimaryVertexQuality = cms.EDFilter("VertexSelector",
    	src = cms.InputTag('offlinePrimaryVertices'),
 	cut = cms.string("isValid & ndof >= 4 & chi2 > 0 & tracksSize > 0 & abs(z) < 24 & abs(position.Rho) < 2."),
 	filter = cms.bool(False),
+)
+
+### GeneralTrack AssociationMap-specific includes		
+from CommonTools.RecoUtils.pf_pu_assomap_cfi import Tracks2Vertex
+		
+process.Tracks2VertexAM = Tracks2Vertex.clone(
+        VertexCollection = cms.InputTag('selectedPrimaryVertexQuality'),
+	VertexAssOneDim = cms.untracked.bool(False),
+	VertexAssUseAbsDistance = cms.untracked.bool(True),
+	UseBeamSpotCompatibility = cms.untracked.bool(True),
 )
 		
 ### PFCandidate AssociationMap-specific includes
@@ -33,6 +42,7 @@ from CommonTools.RecoUtils.pfcand_assomap_cfi import PFCandAssoMap
 		
 process.PFCand2VertexAM = PFCandAssoMap.clone(
           VertexCollection = cms.InputTag('selectedPrimaryVertexQuality'),
+          VertexTrackAssociationMap = cms.InputTag('Tracks2VertexAM'),
 )
 		
 ### PFCandidateCollection-specific includes
@@ -66,10 +76,15 @@ process.ak5PFJetsNewL123 = cms.EDProducer('PFJetCorrectionProducer',
 				
 ### paths & sequences
 		
+##sequence to produce the association map for the general tracks		 
+process.cHs = cms.Sequence(
+	  process.selectedPrimaryVertexQuality
+	* process.Tracks2VertexAM
+)
+		
 ##sequence to produce the collection of pfcand's associated to the first vertex
 process.pfc = cms.Sequence(
-	  process.selectedPrimaryVertexQuality
-	* process.PFCand2VertexAM
+	  process.PFCand2VertexAM
 	* process.PFCand
 )
 		
@@ -82,15 +97,14 @@ process.pfjet = cms.Sequence(
 		
 
   
-process.p = cms.Path( 
-	  process.pfc
+process.p = cms.Path(  
+	  process.cHs
+	* process.pfc
 	* process.pfjet
 )
 		
 process.myOutput = cms.OutputModule("PoolOutputModule",
-     	fileName = cms.untracked.string('myOutput.root'),
- 	outputCommands = cms.untracked.vstring('drop *',
-		  'keep *_*_*_PFJETS'),
+     	fileName = cms.untracked.string('myOutput.root')
 )
   
 process.e = cms.EndPath( process.myOutput )

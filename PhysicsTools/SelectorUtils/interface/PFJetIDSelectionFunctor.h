@@ -13,7 +13,7 @@
   for a general overview of the selectors. 
 
   \author Salvatore Rappoccio
-  \version  $Id: PFJetIDSelectionFunctor.h,v 1.22 2012/04/24 12:16:26 veelken Exp $
+  \version  $Id: PFJetIDSelectionFunctor.h,v 1.19 2011/03/24 14:51:20 srappocc Exp $
 */
 
 
@@ -146,7 +146,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   bool operator()( const pat::Jet & jet, pat::strbitset & ret )  
   {
     if ( version_ == FIRSTDATA ) {
-      if ( jet.currentJECLevel() == "Uncorrected" || !jet.jecSetsAvailable() ) 
+      if ( jet.currentJECLevel() == "Uncorrected" ) 
 	return firstDataCuts( jet, ret );
       else 
 	return firstDataCuts( jet.correctedJet("Uncorrected"), ret );
@@ -161,20 +161,13 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   // Accessor from *CORRECTED* 4-vector, EMF, and Jet ID. 
   // This can be used with reco quantities. 
   // 
-  bool operator()( const reco::PFJet & jet, pat::strbitset & ret )  
+  bool operator()( reco::PFJet const & jet, 
+		   pat::strbitset & ret )  
   {
     if ( version_ == FIRSTDATA ) return firstDataCuts( jet, ret );
     else {
       return false;
     }
-  }
-
-  bool operator()( const reco::PFJet & jet )
-  {
-    retInternal_.set(false);
-    operator()(jet, retInternal_);
-    setIgnored(retInternal_);
-    return (bool)retInternal_;
   }
   
   // 
@@ -183,6 +176,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   bool firstDataCuts( reco::Jet const & jet,
 		      pat::strbitset & ret) 
   {    
+
     ret.set(false);
 
     // cache some variables
@@ -199,6 +193,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     reco::BasicJet const * basicJet = dynamic_cast<reco::BasicJet const *>(&jet);
 
     if ( patJet != 0 ) {
+
       if ( patJet->isPFJet() ) {
 	chf = patJet->chargedHadronEnergyFraction();
 	nhf = ( patJet->neutralHadronEnergy() + patJet->HFHadronEnergy() ) / patJet->energy();
@@ -240,21 +235,10 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       }
     } // end if pat jet
     else if ( pfJet != 0 ) {
-      // CV: need to compute energy fractions in a way that works for corrected as well as for uncorrected PFJets
-      double jetEnergyUncorrected = 
-	pfJet->chargedHadronEnergy() 
-       + pfJet->neutralHadronEnergy()
-       + pfJet->photonEnergy()
-       + pfJet->electronEnergy()
-       + pfJet->muonEnergy()
-       + pfJet->HFHadronEnergy()
-       + pfJet->HFEMEnergy();
-      if ( jetEnergyUncorrected > 0. ) {
-	chf = pfJet->chargedHadronEnergy() / jetEnergyUncorrected;
-        nhf = ( pfJet->neutralHadronEnergy() + pfJet->HFHadronEnergy() ) / jetEnergyUncorrected;
-        cef = pfJet->chargedEmEnergy() / jetEnergyUncorrected;
-        nef = pfJet->neutralEmEnergy() / jetEnergyUncorrected;
-      }
+      chf = pfJet->chargedHadronEnergyFraction();
+      nhf = ( pfJet->neutralHadronEnergy() + pfJet->HFHadronEnergy() ) / pfJet->energy();
+      cef = pfJet->chargedEmEnergyFraction();
+      nef = pfJet->neutralEmEnergyFraction();
       nch = pfJet->chargedMultiplicity();
       nconstituents = pfJet->numberOfDaughters();
     } // end if PF jet
@@ -297,10 +281,6 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     if ( ignoreCut(indexCEF_)           || ( cef < cut(indexCEF_, double()) || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexCEF_);
     if ( ignoreCut(indexCHF_)           || ( chf > cut(indexCHF_, double()) || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexCHF_);
     if ( ignoreCut(indexNCH_)           || ( nch > cut(indexNCH_, int())    || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexNCH_);    
-
-    //std::cout << "<PFJetIDSelectionFunctor::firstDataCuts>:" << std::endl;
-    //std::cout << " jet: Pt = " << jet.pt() << ", eta = " << jet.eta() << ", phi = " << jet.phi() << std::endl;
-    //ret.print(std::cout);
 
     setIgnored( ret );
     return (bool)ret;

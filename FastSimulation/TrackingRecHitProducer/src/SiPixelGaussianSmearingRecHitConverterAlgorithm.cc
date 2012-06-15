@@ -145,16 +145,14 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 #endif
   
   const PixelTopology* theSpecificTopology = &(detUnit->specificTopology());
-  RectangularPixelTopology rectPixelTopology(theSpecificTopology->nrows(),
-  						theSpecificTopology->ncolumns(),
-						theSpecificTopology->pitch().first,
-						theSpecificTopology->pitch().second);
+  const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(&(detUnit->specificTopology()));
+
   const int nrows = theSpecificTopology->nrows();
   const int ncolumns = theSpecificTopology->ncolumns();
 
   const Local3DPoint lp = simHit.localPosition();
   //Transform local position to measurement position
-  const MeasurementPoint mp = rectPixelTopology.measurementPosition( lp );
+  const MeasurementPoint mp = rectPixelTopology->measurementPosition( lp );
   float mpy = mp.y();
   float mpx = mp.x();
   //Get the center of the struck pixel in measurement position
@@ -166,7 +164,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 
   const MeasurementPoint mpCenter(pixelCenterX, pixelCenterY);
   //Transform the center of the struck pixel back into local position
-  const Local3DPoint lpCenter = rectPixelTopology.localPosition( mpCenter );
+  const Local3DPoint lpCenter = rectPixelTopology->localPosition( mpCenter );
 #ifdef FAMOS_DEBUG
   cout<<"Struck point at cm x: "<<lp.x()<<" y: "<<lp.y()<<endl;
   cout<<"Struck pixel center at cm x: "<<lpCenter.x()<<" y: "<<lpCenter.y()<<endl;
@@ -203,8 +201,8 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 
   double xsizeProbability = random->flatShoot();
   double ysizeProbability = random->flatShoot();
-  bool hitbigx = rectPixelTopology.isItBigPixelInX( (int)mpx );
-  bool hitbigy = rectPixelTopology.isItBigPixelInY( (int)mpy );
+  bool hitbigx = rectPixelTopology->isItBigPixelInX( (int)mpx );
+  bool hitbigy = rectPixelTopology->isItBigPixelInY( (int)mpy );
   
   if( hitbigx ) 
     if( xsizeProbability < nx2_frac )  singlex = true;
@@ -304,14 +302,14 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   lastPixelInX  = (lastPixelInX < nrows ) ? lastPixelInX : nrows-1 ;
   lastPixelInY  = (lastPixelInY < ncolumns ) ? lastPixelInY : ncolumns-1;
 
-  edgex = rectPixelTopology.isItEdgePixelInX( firstPixelInX ) || rectPixelTopology.isItEdgePixelInX( lastPixelInX );
-  edgey = rectPixelTopology.isItEdgePixelInY( firstPixelInY ) || rectPixelTopology.isItEdgePixelInY( lastPixelInY );
+  edgex = rectPixelTopology->isItEdgePixelInX( firstPixelInX ) || rectPixelTopology->isItEdgePixelInX( lastPixelInX );
+  edgey = rectPixelTopology->isItEdgePixelInY( firstPixelInY ) || rectPixelTopology->isItEdgePixelInY( lastPixelInY );
   edge = edgex || edgey;
 
-  //  bigx = rectPixelTopology.isItBigPixelInX( firstPixelInX ) || rectPixelTopology.isItBigPixelInX( lastPixelInX );
-  //  bigy = rectPixelTopology.isItBigPixelInY( firstPixelInY ) || rectPixelTopology.isItBigPixelInY( lastPixelInY );
-  bool hasBigPixelInX = rectPixelTopology.containsBigPixelInX( firstPixelInX, lastPixelInX );
-  bool hasBigPixelInY = rectPixelTopology.containsBigPixelInY( firstPixelInY, lastPixelInY );
+  //  bigx = rectPixelTopology->isItBigPixelInX( firstPixelInX ) || rectPixelTopology->isItBigPixelInX( lastPixelInX );
+  //  bigy = rectPixelTopology->isItBigPixelInY( firstPixelInY ) || rectPixelTopology->isItBigPixelInY( lastPixelInY );
+  bool hasBigPixelInX = rectPixelTopology->containsBigPixelInX( firstPixelInX, lastPixelInX );
+  bool hasBigPixelInY = rectPixelTopology->containsBigPixelInY( firstPixelInY, lastPixelInY );
 
   //Variables for SiPixelTemplate pixel hit error output
   float sigmay, sigmax, sy1, sy2, sx1, sx2;

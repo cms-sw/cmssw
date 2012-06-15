@@ -5,16 +5,15 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
-  *  $Id: EcalUncalibRecHitWorkerRatio.h,v 1.3 2010/06/21 16:49:16 franzoni Exp $
-  *  $Date: 2010/06/21 16:49:16 $
-  *  $Revision: 1.3 $
+  *  $Id: EcalUncalibRecHitWorkerRatio.h,v 1.2 2009/10/25 23:30:22 franzoni Exp $
+  *  $Date: 2009/10/25 23:30:22 $
+  *  $Revision: 1.2 $
   *  \author A. Ledovskoy (Design) - M. Balazs (Implementation)
   */
 
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerBaseClass.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface//EcalUncalibRecHitRatioMethodAlgo.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 
@@ -34,9 +33,6 @@ class EcalUncalibRecHitWorkerRatio : public EcalUncalibRecHitWorkerBaseClass {
                 bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
 
         protected:
-
-                // determie which of the samples must actually be used by ECAL local reco
-		edm::ESHandle<EcalSampleMask> sampleMaskHand_;
 
                 edm::ESHandle<EcalPedestals> peds;
                 edm::ESHandle<EcalGainRatios>  gains;

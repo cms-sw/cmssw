@@ -29,7 +29,7 @@ public:
     { return (id > 0 && id <= theLinks.size()) ? &theLinks[id-1] : 0; }
 
   /// number of links in FED
-  int numberOfLinks() const { return theLinks.size(); }
+  unsigned int numberOfLinks() const { return theLinks.size(); }
 
   unsigned int id() const { return theFedId; } 
 

@@ -61,43 +61,10 @@ const double piMass = 0.1396;
   typedef pair<PFCandidateRef, float> PFCandQualityPair;
   typedef vector< PFCandQualityPair > PFCandQualityPairVector;
 
-  typedef pair<VertexRef, PFCandQualityPair> VertexPfcQuality;
-
   typedef pair <VertexRef, float>  VertexPtsumPair;
   typedef vector< VertexPtsumPair > VertexPtsumVector;
 
   typedef math::XYZTLorentzVector LorentzVector;
-
-/*************************************************************************************/
-/* function to find the vertex with the highest TrackWeight for a certain track      */ 
-/*************************************************************************************/
-
-VertexPfcQuality 
-PFCand_NoPU_WithAM_Algos::TrackWeightAssociation(const PFCandidateRef candRef, Handle<VertexCollection> vtxcollH) 
-{
-
-	VertexRef bestvertexref(vtxcollH,0);		
- 	float bestweight = 0.;
-
-	const TrackBaseRef& trackbaseRef = TrackBaseRef(candRef->trackRef());
-
-	//loop over all vertices in the vertex collection
-  	for(unsigned int index_vtx=0;  index_vtx<vtxcollH->size(); ++index_vtx){
-
-          VertexRef vertexref(vtxcollH,index_vtx);
-
-     	  //get the most probable vertex for the track
-	  float weight = vertexref->trackWeight(trackbaseRef);
-	  if(weight>bestweight){
-  	    bestweight = weight;
-	    bestvertexref = vertexref;
- 	  } 
-
-	}
-
-  	return make_pair(bestvertexref,make_pair(candRef,bestweight));
-
-}
 
 
 /*************************************************************************************/
@@ -128,17 +95,6 @@ PFCand_NoPU_WithAM_Algos::FindClosestInZ(double ztrack, Handle<VertexCollection>
 
 	if(dzmin<3.) return bestvertexref;
 	  else return VertexRef(vtxcollH,0);
-}
-
-
-/*************************************************************************************/
-/* function to associate the track to the closest vertex in z                        */ 
-/*************************************************************************************/
-
-VertexPfcQuality
-PFCand_NoPU_WithAM_Algos::AssociateClosestInZ(const PFCandidateRef candref, Handle<VertexCollection> vtxcollH)
-{
-	return make_pair(PFCand_NoPU_WithAM_Algos::FindClosestInZ(candref->vertex().z(),vtxcollH),make_pair(candref,-1.));
 }
 
 
@@ -278,7 +234,7 @@ PFCand_NoPU_WithAM_Algos::ComesFromV0Decay(const PFCandidateRef candref, Handle<
 /*************************************************************************************/
 
 VertexRef
-PFCand_NoPU_WithAM_Algos::FindNIVertex(const PFCandidateRef candref, PFDisplacedVertex displVtx, Handle<VertexCollection> vtxcollH)
+PFCand_NoPU_WithAM_Algos::FindNIVertex(const PFCandidateRef candref, PFDisplacedVertex displVtx, Handle<VertexCollection> vtxcollH, bool oneDim, const edm::EventSetup& iSetup)
 {
 
 	TrackCollection refittedTracks = displVtx.refittedTracks();
@@ -373,30 +329,6 @@ PFCand_NoPU_WithAM_Algos::ComesFromNI(const PFCandidateRef candref, Handle<PFDis
 	if(IpMin<0.5) return true;
 
 	return false;
-}
-
-
-/*************************************************************************************/
-/* function to check if a secondary is compatible with the BeamSpot                  */ 
-/*************************************************************************************/
-
-bool
-PFCand_NoPU_WithAM_Algos::CheckBeamSpotCompability(const PFCandidateRef candref, Handle<BeamSpot> beamspotH)
-{
-   
-        double cand_x = candref->vertex().x();
-        double cand_y = candref->vertex().y(); 
-
-        double bs_x = beamspotH->x(candref->vertex().z());
-        double bs_y = beamspotH->y(candref->vertex().z());
-
-	double relative_x = (cand_x - bs_x) /  beamspotH->BeamWidthX();
-	double relative_y = (cand_y - bs_y) /  beamspotH->BeamWidthY();
-
-	double relative_distance = sqrt(relative_x*relative_x + relative_y*relative_y);
-
-	return (relative_distance<=5.);
-
 }
 
 

@@ -40,7 +40,12 @@ namespace {
   }
 }
 
-TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd){
+TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, bool upgradeGeometry,
+							    int ROWS_PER_ROC,
+							    int COLS_PER_ROC,
+							    int BIG_PIX_PER_ROC_X,
+							    int BIG_PIX_PER_ROC_Y,
+							    int ROCS_X, int ROCS_Y){
 
   thePixelDetTypeMap.clear();
   theStripDetTypeMap.clear();
@@ -61,8 +66,20 @@ TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* 
     dets[comp[i]->geographicalID().subdetId()-1].push_back(comp[i]);
   
   // this order is VERY IMPORTANT!!!!!
-  buildPixel(pixB,tracker,theDetIdToEnum.type(1), "barrel"); //"PixelBarrel" 
-  buildPixel(pixF,tracker,theDetIdToEnum.type(2), "endcap"); //"PixelEndcap" 
+  buildPixel(pixB,tracker,theDetIdToEnum.type(1), "barrel",
+	     upgradeGeometry,
+	     ROWS_PER_ROC,
+	     COLS_PER_ROC,
+	     BIG_PIX_PER_ROC_X,
+	     BIG_PIX_PER_ROC_Y,
+	     ROCS_X, ROCS_Y ); //"PixelBarrel" 
+  buildPixel(pixF,tracker,theDetIdToEnum.type(2), "endcap",
+	     upgradeGeometry,
+	     ROWS_PER_ROC,
+	     COLS_PER_ROC,
+	     BIG_PIX_PER_ROC_X,
+	     BIG_PIX_PER_ROC_Y,
+	     ROCS_X, ROCS_Y  ); //"PixelEndcap" 
   buildSilicon(tib,tracker,theDetIdToEnum.type(3), "barrel");// "TIB"	
   buildSilicon(tid,tracker,theDetIdToEnum.type(4), "endcap");//"TID" 
   buildSilicon(tob,tracker,theDetIdToEnum.type(5), "barrel");//"TOB"	
@@ -77,7 +94,14 @@ TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* 
 void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricDet*>  const & gdv, 
 						    TrackerGeometry* tracker,
 						    GeomDetType::SubDetector det,
-						    const std::string& part){ 
+						    const std::string& part,
+						    bool upgradeGeometry,
+						    int ROWS_PER_ROC, // Num of Rows per ROC
+						    int COLS_PER_ROC, // Num of Cols per ROC
+						    int BIG_PIX_PER_ROC_X, // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
+						    int BIG_PIX_PER_ROC_Y, // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
+						    int ROCS_X, int ROCS_Y ) 
+{
   tracker->setOffsetDU(det);
 
   for(u_int32_t i=0; i<gdv.size(); i++){
@@ -91,7 +115,13 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
 				       gdv[i]->pixROCCols(),
 				       gdv[i]->pixROCx(),
 				       gdv[i]->pixROCy(),
-				       part);
+				       part,
+				       upgradeGeometry,
+				       ROWS_PER_ROC,
+				       COLS_PER_ROC,
+				       BIG_PIX_PER_ROC_X,
+				       BIG_PIX_PER_ROC_Y,
+				       ROCS_X, ROCS_Y );
       
       thePixelDetTypeMap[detName] = new PixelGeomDetType(t,detName,det);
       tracker->addType(thePixelDetTypeMap[detName]);

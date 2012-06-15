@@ -48,6 +48,8 @@ public:
     * to m_tower number 2'complement*/
   virtual int towNum2TowNum2Comp(int towNum);
 
+  virtual ~RPCBasicTrigConfig() {}
+
 private:
   static const int m_TRIGGER_CRATES_CNT;
 

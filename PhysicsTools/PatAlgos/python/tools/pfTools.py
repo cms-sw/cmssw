@@ -401,11 +401,50 @@ def switchToPFMET(process,input=cms.InputTag('pfMET'), type1=False, postfix=""):
         # type1 corrected MET
         # name of corrected MET hardcoded in PAT and meaningless
         print 'Apply TypeI corrections for MET'
-        getattr(process, "patDefaultSequence"+postfix).remove(applyPostfix(process, "patMETCorrections",postfix))
-        jecLabel = getattr(process,'patJetCorrFactors'+postfix).payload.pythonValue().replace("'","")
-        getattr(process,jecLabel+'CorMet'+postfix).inputUncorMetLabel = input.getModuleLabel()
-        getattr(process,'patMETs'+postfix).metSource = jecLabel+'CorMet'+postfix
-        getattr(process,'patMETs'+postfix).addMuonCorrections = False
+        getattr(process, "patDefaultSequence"+postfix).remove(applyPostfix(process, "makePatMETs",postfix))
+        jecLabel = getattr(process,'patJetCorrFactors'+postfix).levels
+
+        if not hasattr(process,'producePatPFMETCorrections'):
+            process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
+        #here add to the current path and give proper postfix
+        if not hasattr(process,'producePatPFMETCorrections'+postfix):
+            cloneProcessingSnippet(process,process.producePatPFMETCorrections,postfix)
+        
+        getattr(process,'patPFMet'+postfix).metSource = cms.InputTag('pfMET'+postfix)
+
+        getattr(process,'selectedPatJetsForMETtype1p2Corr'+postfix).src = cms.InputTag('selectedPatJets'+postfix)
+        getattr(process,'selectedPatJetsForMETtype2Corr'+postfix).src   = cms.InputTag('selectedPatJets'+postfix)
+
+        getattr(process,'pfCandMETcorr'+postfix).src = cms.InputTag('pfNoJet'+postfix)
+
+        getattr(process,'patPFJetMETtype1p2Corr'+postfix).offsetCorrLabel = cms.string(jecLabel[0])
+        getattr(process,'patPFJetMETtype1p2Corr'+postfix).jetCorrLabel = cms.string(jecLabel[-1])
+        getattr(process,'patPFJetMETtype1p2Corr'+postfix).type1JetPtThreshold = cms.double(10.0)
+        getattr(process,'patPFJetMETtype1p2Corr'+postfix).skipEM    = cms.bool(False)
+        getattr(process,'patPFJetMETtype1p2Corr'+postfix).skipMuons = cms.bool(False)
+
+        getattr(process,'patPFJetMETtype2Corr'+postfix).offsetCorrLabel = cms.string(jecLabel[0])
+        getattr(process,'patPFJetMETtype2Corr'+postfix).jetCorrLabel = cms.string(jecLabel[-1])
+        getattr(process,'patPFJetMETtype2Corr'+postfix).type1JetPtThreshold = cms.double(10.0)
+        getattr(process,'patPFJetMETtype2Corr'+postfix).skipEM    = cms.bool(False)
+        getattr(process,'patPFJetMETtype2Corr'+postfix).skipMuons = cms.bool(False)
+        
+        getattr(process,'patType1CorrectedPFMet'+postfix).srcType1Corrections = cms.VInputTag(
+            cms.InputTag("patPFJetMETtype1p2Corr"+postfix,"type1"),
+            #cms.InputTag("patPFMETtype0Corr"+postfix),
+            )
+        getattr(process,'patType1p2CorrectedPFMet'+postfix).srcType1Corrections = cms.VInputTag(
+            cms.InputTag("patPFJetMETtype1p2Corr"+postfix,"type1"),
+            #cms.InputTag("patPFMETtype0Corr"+postfix),
+            )
+        
+        getattr(process,'patMETs'+postfix).metSource = 'patType1CorrectedPFMet'+postfix
+
+        getattr(process,"patDefaultSequence"+postfix).replace( getattr(process,'selectedPatJets'+postfix),
+                                                               getattr(process,'selectedPatJets'+postfix)
+                                                               *getattr(process,'producePatPFMETCorrections'+postfix)
+                                                               *getattr(process,'patMETs'+postfix)
+                                                              )
 
 def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='AK5', postfix = "", jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative', 'L3Absolute']), type1=False, outputModules=['out']):
 
@@ -580,6 +619,9 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix="", 
 
     # MET
     switchToPFMET(process, cms.InputTag('pfMET'+postfix), type1=typeIMetCorrections, postfix=postfix)
+    if not runOnMC :
+        if hasattr(process,'patPFMet'+postfix):
+            getattr(process,'patPFMet'+postfix).addGenMET = cms.bool(False)
 
     # Unmasked PFCandidates
     addPFCandidates(process,cms.InputTag('pfNoJet'+postfix),patLabel='PFParticles'+postfix,cut="",postfix=postfix)

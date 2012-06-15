@@ -3,5 +3,8 @@
 <use   name="GeneratorInterface/PartonShowerVeto"/>
 <use   name="GeneratorInterface/ExternalDecays"/>
 <use   name="heppdt"/>
+<architecture name="slc._[^_]*_gcc4[5-9]">
+  <flags LDFLAGS="$(PYTHIA6_BASE)/lib/pydata.o"/>
+</architecture>
 <flags   EDM_PLUGIN="1"/>
 </library>

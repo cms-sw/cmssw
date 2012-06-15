@@ -212,7 +212,7 @@ namespace edm {
     if (cacheSize_ == 0) {
       return;
     }
-    assert(treeCache_ && treeCache_->GetOwner() == tree_);
+    assert(treeCache_);
     assert(branchType_ == InEvent);
     assert(!rawTreeCache_);
     treeCache_->SetLearnEntries(learningEntries_);
@@ -229,6 +229,7 @@ namespace edm {
     treeCache_->SetEntryRange(switchOverEntry_, tree_->GetEntries());
     treeCache_->AddBranch(poolNames::branchListIndexesBranchName().c_str(), kTRUE);
     treeCache_->AddBranch(BranchTypeToAuxiliaryBranchName(branchType_).c_str(), kTRUE);
+    assert(treeCache_->GetTree() == tree_);
   }
 
   void
@@ -266,11 +267,11 @@ namespace edm {
     tree_->LoadTree(0);
     assert(treeCache_);
     filePtr_->SetCacheRead(treeCache_.get());
-    assert(treeCache_->GetOwner() == tree_);
     treeCache_->StartLearningPhase();
     treeCache_->SetEntryRange(0, tree_->GetEntries());
     treeCache_->AddBranch(branchNames, kTRUE);
     treeCache_->StopLearningPhase();
+    assert(treeCache_->GetTree() == tree_);
     // We own the treeCache_.
     // We make sure the treeCache_ is detached from the file,
     // so that ROOT does not also delete it.

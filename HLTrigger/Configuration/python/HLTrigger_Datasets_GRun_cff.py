@@ -12,7 +12,6 @@ streamA_datasetBJetPlusX_selector.throw      = cms.bool(False)
 streamA_datasetBJetPlusX_selector.triggerConditions = cms.vstring('HLT_DiJet40Eta2p6_BTagIP3DFastPV_v5', 
     'HLT_DiJet80Eta2p6_BTagIP3DFastPVLoose_v5', 
     'HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05_v2', 
-    'HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d03_PFDiJetPt120_v2', 
     'HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d03_v2', 
     'HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d05_v2', 
     'HLT_Jet160Eta2p4_Jet120Eta2p4_DiBTagIP3DFastPVLoose_v5', 
@@ -299,16 +298,13 @@ streamA_datasetJetMon_selector.triggerConditions = cms.vstring('HLT_DiPFJetAve14
     'HLT_DiPFJetAve260_v7', 
     'HLT_DiPFJetAve40_v7', 
     'HLT_DiPFJetAve80_v7', 
-    'HLT_Jet20_NoL1FastJet_v3', 
-    'HLT_Jet50_NoL1FastJet_v3', 
     'HLT_PFJet140_v6', 
     'HLT_PFJet200_v6', 
     'HLT_PFJet260_v6', 
     'HLT_PFJet40_v6', 
     'HLT_PFJet80_v6', 
     'HLT_SingleForJet15_v3', 
-    'HLT_SingleForJet25_v3', 
-    'HLT_SingleJetC5_v3')
+    'HLT_SingleForJet25_v3')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetLogMonitor_selector
 streamA_datasetLogMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -513,7 +509,6 @@ streamA_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele2
     'HLT_Ele25_CaloIdVL_CaloIsoT_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_30_20_v2', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v7', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_v6', 
-    'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralPFNoPUJet30_v6', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFNoPUJet30_30_20_v2', 
     'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_v2', 
     'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet50_40_30_v2', 
@@ -538,7 +533,6 @@ streamA_datasetSingleMu_selector.l1tResults = cms.InputTag('')
 streamA_datasetSingleMu_selector.throw      = cms.bool(False)
 streamA_datasetSingleMu_selector.triggerConditions = cms.vstring('HLT_IsoMu17_eta2p1_CentralPFNoPUJet30_BTagIPIter_v2', 
     'HLT_IsoMu17_eta2p1_CentralPFNoPUJet30_v2', 
-    'HLT_IsoMu17_eta2p1_DiCentralPFNoPUJet30_v2', 
     'HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet30_30_20_v2', 
     'HLT_IsoMu20_WCandPt80_v2', 
     'HLT_IsoMu20_eta2p1_CentralPFJet80_v7', 

@@ -188,8 +188,8 @@ SiStripDQMTier0MinBias = cms.Sequence(
 #    * lumiProducer
 #    # temporary test in order to have the "goodPrimaryVertexCollection"
 #    * goodOfflinePrimaryVertices
-    *TrackerCollisionTrackMonCommon
-#    * LocalRecoLogMessageMon * TrackerCollisionIterTrackingLogMessageMonMB
+    *TrackerCollisionTrackMonMB
+#   * LocalRecoLogMessageMon * TrackerCollisionIterTrackingLogMessageMonMB
     *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
     *dqmInfoSiStrip)
 

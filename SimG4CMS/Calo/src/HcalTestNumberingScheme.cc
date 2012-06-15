@@ -37,13 +37,13 @@ uint32_t HcalTestNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID
   } else {
     // Test case
     index = HcalTestNumbering::packHcalIndex(id.subdet, id.zside, id.depth, 
-					     id.etaR, id.phi, id.lay);
+					     id.etaR, id.phis, id.lay);
   }
 
   LogDebug("HcalSim") << "HcalTestNumberingScheme det = " << id.subdet 
 		      << " depth/lay = " << id.depth << "/" << id.lay 
 		      << " zside = " << id.zside << " eta/R = " << id.etaR 
-		      << " phi = " << id.phi << " packed index = 0x" 
+		      << " phi = " << id.phis << " packed index = 0x" 
 		      << std::hex << index << std::dec;
 
   return index;

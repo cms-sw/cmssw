@@ -191,8 +191,6 @@
 <class name="std::map<std::pair<EcalXtalGroupId, EcalTBWeights::EcalTDCId>, EcalWeightSet>"/>
 <class name="std::pair<const std::pair<EcalXtalGroupId, EcalTBWeights::EcalTDCId>, EcalWeightSet>"/>
 
-<class name="EcalSampleMask"/>
-
 <class name="EcalADCToGeVConstant"/>
 
 <class name="EcalTimeOffsetConstant"/>

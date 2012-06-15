@@ -21,26 +21,6 @@ pfMEtSysShiftCorrParameters_2011runBvsSumEt_mc = cms.PSet(
     px = cms.string("-1.070e-1 + 9.587e-5*sumEt"),
     py = cms.string("-1.517e-2 - 3.357e-3*sumEt")
 )
-
-pfMEtSysShiftCorrParameters_2011runAplusBvsSumEt_data = cms.PSet(
-    px = cms.string("-5.65217e-01 + 5.42436e-03*sumEt"),
-    py = cms.string("+4.54054e-01 - 6.73607e-03*sumEt")
-)
-
-pfMEtSysShiftCorrParameters_2011runAplusBvsSumEt_mc = cms.PSet(
-    px = cms.string("-4.53909e-02 - 2.55863e-05*sumEt"),
-    py = cms.string("+1.27947e-01 - 3.62604e-03*sumEt")    
-)
-
-pfMEtSysShiftCorrParameters_2012runAvsSumEt_data = cms.PSet(
-    px = cms.string("-7.67892e-01 + 5.76983e-03*sumEt"),
-    py = cms.string("+5.54005e-01 - 2.94046e-03*sumEt")
-)
-
-pfMEtSysShiftCorrParameters_2012runAvsSumEt_mc = cms.PSet(
-    px = cms.string("+1.77344e-01 - 1.34333e-03*sumEt"),
-    py = cms.string("+8.08402e-01 - 2.84264e-03*sumEt")
-)
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
@@ -65,26 +45,6 @@ pfMEtSysShiftCorrParameters_2011runBvsNvtx_mc = cms.PSet(
     py = cms.string("-5.32495e-1 - 1.82195e-1*Nvtx")
 )
 
-pfMEtSysShiftCorrParameters_2011runAplusBvsNvtx_data = cms.PSet(
-    px = cms.string("+3.64118e-01 + 2.93853e-01*Nvtx"),
-    py = cms.string("-7.17757e-01 - 3.57309e-01*Nvtx")
-)
-
-pfMEtSysShiftCorrParameters_2011runAplusBvsNvtx_mc = cms.PSet(
-    px = cms.string("-4.79178e-02 + 8.62653e-04*Nvtx"),
-    py = cms.string("-4.54408e-01 - 1.89684e-01*Nvtx")
-)
-
-pfMEtSysShiftCorrParameters_2012runAvsNvtx_data = cms.PSet(
-    px = cms.string("+3.54233e-01 + 2.65299e-01*Nvtx"),
-    py = cms.string("+1.88923e-01 - 1.66425e-01*Nvtx")
-)
-
-pfMEtSysShiftCorrParameters_2012runAvsNvtx_mc = cms.PSet(
-    px = cms.string("-2.99576e-02 - 6.61932e-02*Nvtx"),
-    py = cms.string("+3.70819e-01 - 1.48617e-01*Nvtx")
-)
-
 selectedVerticesForMEtCorr = cms.EDFilter("VertexSelector",
     src = cms.InputTag('offlinePrimaryVertices'),
     cut = cms.string("isValid & ndof >= 4 & chi2 > 0 & tracksSize > 0 & abs(z) < 24 & abs(position.Rho) < 2."),
@@ -95,7 +55,7 @@ selectedVerticesForMEtCorr = cms.EDFilter("VertexSelector",
 pfMEtSysShiftCorr = cms.EDProducer("SysShiftMETcorrInputProducer",
     src = cms.InputTag('pfMet'), # "raw"/uncorrected PFMEt, needed to access sumEt
     srcVertices = cms.InputTag('selectedVerticesForMEtCorr'),                                   
-    parameter = pfMEtSysShiftCorrParameters_2012runAvsNvtx_data
+    parameter = pfMEtSysShiftCorrParameters_2011runBvsNvtx_data
 )                                     
 
 pfMEtSysShiftCorrSequence = cms.Sequence(selectedVerticesForMEtCorr * pfMEtSysShiftCorr)

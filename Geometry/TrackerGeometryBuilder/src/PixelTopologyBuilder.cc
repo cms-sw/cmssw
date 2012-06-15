@@ -9,22 +9,17 @@ PixelTopologyBuilder::PixelTopologyBuilder( void )
   : thePixelROCRows( 0 ),
     thePixelROCCols( 0 ),
     thePixelROCsInX( 0 ),
-    thePixelROCsInY( 0 ),
-    m_BIG_PIX_PER_ROC_X( 1 ),
-    m_BIG_PIX_PER_ROC_Y( 2 ),
-    m_upgradeGeometry( false )
-{
-  edm::Service<TrackerGeometryService> tkGeoService;
-  if( !tkGeoService.isAvailable()) // Die if not available
-    throw cms::Exception("NotAvailable") << "TrackerGeometryService not available";
-      
-  m_BIG_PIX_PER_ROC_X = tkGeoService->bigPixPerRocX();
-  m_BIG_PIX_PER_ROC_Y = tkGeoService->bigPixPerRocY();
-  m_upgradeGeometry = tkGeoService->upgradeGeometry();
-}
+    thePixelROCsInY( 0 )
+{}
 
 PixelTopology*
-PixelTopologyBuilder::build( const Bounds* bs, double rocRow, double rocCol, double rocInX, double rocInY, std::string /* part */ )
+PixelTopologyBuilder::build( const Bounds* bs, double rocRow, double rocCol, double rocInX, double rocInY, std::string /* part */,
+			     bool upgradeGeometry,
+			     int ROWS_PER_ROC, // Num of Rows per ROC
+			     int COLS_PER_ROC, // Num of Cols per ROC
+			     int BIG_PIX_PER_ROC_X, // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
+			     int BIG_PIX_PER_ROC_Y, // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
+			     int ROCS_X, int ROCS_Y )
 {
   thePixelROCRows = rocRow; // number of pixel rows per ROC
   thePixelROCsInX = rocInX; // number of ROCs per module in x
@@ -48,9 +43,9 @@ PixelTopologyBuilder::build( const Bounds* bs, double rocRow, double rocCol, dou
 
   // Take into account the large edge pixles
   // 1 big pixel per ROC
-  float pitchX = width /(float(nrows)+thePixelROCsInX*m_BIG_PIX_PER_ROC_X); 
+  float pitchX = width /(float(nrows)+thePixelROCsInX*BIG_PIX_PER_ROC_X); 
   // 2 big pixels per ROC
-  float pitchY = length/(float(ncols)+thePixelROCsInY*m_BIG_PIX_PER_ROC_Y);
+  float pitchY = length/(float(ncols)+thePixelROCsInY*BIG_PIX_PER_ROC_Y);
 
   //std::cout<<"Build Pixel Topology: row/cols = "<<nrows<<"/"<<ncols
   //   <<" sizeX/Y = "<<width<<"/"<<length
@@ -60,9 +55,21 @@ PixelTopologyBuilder::build( const Bounds* bs, double rocRow, double rocCol, dou
   //   <<" big pixels "<<BIG_PIX_PER_ROC_X<<"/"<<BIG_PIX_PER_ROC_Y
   //   <<std::endl;   
 
-  return ( m_upgradeGeometry
-	   ? ( new RectangularPixelTopology( nrows, ncols, pitchX, pitchY, (int)rocInX, (int)rocInY, (int)rocRow, (int)rocCol ))
-	   : ( new RectangularPixelTopology( nrows, ncols, pitchX, pitchY )));
+  return ( upgradeGeometry
+	   ? ( new RectangularPixelTopology( nrows, ncols, pitchX, pitchY, (int)rocInX, (int)rocInY, (int)rocRow, (int)rocCol,
+					     upgradeGeometry,
+					     ROWS_PER_ROC,
+					     COLS_PER_ROC,
+					     BIG_PIX_PER_ROC_X,
+					     BIG_PIX_PER_ROC_Y,
+					     ROCS_X, ROCS_Y ))
+	   : ( new RectangularPixelTopology( nrows, ncols, pitchX, pitchY,
+					     upgradeGeometry,
+					     ROWS_PER_ROC,
+					     COLS_PER_ROC,
+					     BIG_PIX_PER_ROC_X,
+					     BIG_PIX_PER_ROC_Y,
+					     ROCS_X, ROCS_Y )));
 }
 
 

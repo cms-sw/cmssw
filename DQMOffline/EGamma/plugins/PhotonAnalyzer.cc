@@ -9,7 +9,7 @@
  **
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2012/02/09 16:49:14 $
+ **  $Date: 2012/02/14 19:37:18 $
  **  authors:
  **   Nancy Marinelli, U. of Notre Dame, US
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -235,10 +235,13 @@ void PhotonAnalyzer::beginJob()
     dbe_->setCurrentFolder("Egamma/PhotonAnalyzer/InvMass");
 
     h_invMassAllPhotons_    = bookHisto("invMassAllIsolatedPhotons","Two photon invariant mass: All isolated photons;M (GeV)",etBin,etMin,etMax);
+    h_invMassPhotonsEBarrel_    = bookHisto("invMassIsoPhotonsEBarrel", "Two photon invariant mass: isolated photons in barrel; M (GeV)",etBin,etMin,etMax);
+    h_invMassPhotonsEEndcap_    = bookHisto("invMassIsoPhotonsEEndcap", "Two photon invariant mass: isolated photons in endcap; M (GeV)",etBin,etMin,etMax);
+    
     h_invMassZeroWithTracks_= bookHisto("invMassZeroWithTracks",    "Two photon invariant mass: Neither has tracks;M (GeV)",  etBin,etMin,etMax);
     h_invMassOneWithTracks_ = bookHisto("invMassOneWithTracks",     "Two photon invariant mass: Only one has tracks;M (GeV)", etBin,etMin,etMax);
     h_invMassTwoWithTracks_ = bookHisto("invMassTwoWithTracks",     "Two photon invariant mass: Both have tracks;M (GeV)",    etBin,etMin,etMax);
-
+    
 
     ////////////////START OF BOOKING FOR PHOTON-RELATED HISTOGRAMS////////////////
 
@@ -341,6 +344,8 @@ void PhotonAnalyzer::beginJob()
 
     //ecal sum
     book2DHistoVector(    h_ecalSum_      ,"1D","ecalSum","Ecal Sum in the Iso Cone;E (GeV)",sumBin,sumMin,sumMax);
+    book2DHistoVector(    h_ecalSumEBarrel_,"1D","ecalSumEBarrel","Ecal Sum in the IsoCone for Barrel;E (GeV)",sumBin,sumMin,sumMax);
+    book2DHistoVector(    h_ecalSumEEndcap_,"1D","ecalSumEEndcap","Ecal Sum in the IsoCone for Endcap;E (GeV)",sumBin,sumMin,sumMax);
     book2DHistoVector(    h_ecalSumVsEt_  ,"2D","ecalSumVsEt2D","Ecal Sum in the Iso Cone;E_{T} (GeV);E (GeV)",reducedEtBin,etMin, etMax,reducedSumBin,sumMin,sumMax);
     book3DHistoVector(    p_ecalSumVsEt_  ,"Profile","ecalSumVsEt","Avg Ecal Sum in the Iso Cone vs E_{T};E_{T} (GeV);E (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax);
     book2DHistoVector(    h_ecalSumVsEta_ ,"2D","ecalSumVsEta2D","Ecal Sum in the Iso Cone;#eta;E (GeV)",reducedEtaBin,etaMin, etaMax,reducedSumBin,sumMin,sumMax);
@@ -348,6 +353,8 @@ void PhotonAnalyzer::beginJob()
 
     //hcal sum
     book2DHistoVector(    h_hcalSum_      ,"1D","hcalSum","Hcal Sum in the Iso Cone;E (GeV)",sumBin,sumMin,sumMax);
+    book2DHistoVector(    h_hcalSumEBarrel_,"1D","hcalSumEBarrel","Hcal Sum in the IsoCone for Barrel;E (GeV)",sumBin,sumMin,sumMax);
+    book2DHistoVector(    h_hcalSumEEndcap_,"1D","hcalSumEEndcap","Hcal Sum in the IsoCone for Endcap;E (GeV)",sumBin,sumMin,sumMax);
     book2DHistoVector(    h_hcalSumVsEt_  ,"2D","hcalSumVsEt2D","Hcal Sum in the Iso Cone;E_{T} (GeV);E (GeV)",reducedEtBin,etMin, etMax,reducedSumBin,sumMin,sumMax);
     book3DHistoVector(    p_hcalSumVsEt_  ,"Profile","hcalSumVsEt","Avg Hcal Sum in the Iso Cone vs E_{T};E_{T} (GeV);E (GeV)",etBin,etMin, etMax,sumBin,sumMin,sumMax);
     book2DHistoVector(    h_hcalSumVsEta_ ,"2D","hcalSumVsEta2D","Hcal Sum in the Iso Cone;#eta;E (GeV)",reducedEtaBin,etaMin, etaMax,reducedSumBin,sumMin,sumMax);
@@ -694,6 +701,8 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	//calorimeter isolation variables
 
 	fill2DHistoVector(h_ecalSum_,(*iPho).ecalRecHitSumEtConeDR04(),cut,type);
+    if(iPho->isEB()){fill2DHistoVector(h_ecalSumEBarrel_,(*iPho).ecalRecHitSumEtConeDR04(),cut,type);}
+    if(iPho->isEE()){fill2DHistoVector(h_ecalSumEEndcap_,(*iPho).ecalRecHitSumEtConeDR04(),cut,type);}
 	fill2DHistoVector(h_ecalSumVsEta_,(*iPho).eta(),(*iPho).ecalRecHitSumEtConeDR04(),cut,type);
 	fill2DHistoVector(p_ecalSumVsEta_,(*iPho).eta(),(*iPho).ecalRecHitSumEtConeDR04(),cut,type);
  	fill2DHistoVector(h_ecalSumVsEt_, (*iPho).et(), (*iPho).ecalRecHitSumEtConeDR04(),cut,type);
@@ -702,6 +711,8 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	///////
 
 	fill2DHistoVector(h_hcalSum_,(*iPho).hcalTowerSumEtConeDR04(),cut,type);
+    if(iPho->isEB()){fill2DHistoVector(h_hcalSumEBarrel_,(*iPho).hcalTowerSumEtConeDR04(),cut,type);}
+    if(iPho->isEE()){fill2DHistoVector(h_hcalSumEEndcap_,(*iPho).hcalTowerSumEtConeDR04(),cut,type);}
 	fill2DHistoVector(h_hcalSumVsEta_,(*iPho).eta(),(*iPho).hcalTowerSumEtConeDR04(),cut,type);
 	fill2DHistoVector(p_hcalSumVsEta_,(*iPho).eta(),(*iPho).hcalTowerSumEtConeDR04(),cut,type);
  	fill2DHistoVector(h_hcalSumVsEt_, (*iPho).et(), (*iPho).hcalTowerSumEtConeDR04(),cut,type);
@@ -949,6 +960,8 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 
 	  h_invMassAllPhotons_ -> Fill(sqrt( gamgamMass2 ));
+      if(iPho->isEB() && iPho2->isEB()){h_invMassPhotonsEBarrel_ -> Fill(sqrt( gamgamMass2 ));}
+      if(iPho->isEE() || iPho2->isEE()){h_invMassPhotonsEEndcap_ -> Fill(sqrt( gamgamMass2 ));}      
 
  	  if(conversions.size()!=0 && conversions[0]->nTracks() >= 2){
 	    if(conversions2.size()!=0 && conversions2[0]->nTracks() >= 2) h_invMassTwoWithTracks_ -> Fill(sqrt( gamgamMass2 ));

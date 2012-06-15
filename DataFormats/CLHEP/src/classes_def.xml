@@ -11,11 +11,11 @@
   <class name="CLHEP::HepLorentzVector" ClassVersion="10">
    <version ClassVersion="10" checksum="2698081358"/>
   </class>
-  <class name="CLHEP::HepMatrix" ClassVersion="10">
-   <version ClassVersion="10" checksum="761242697"/>
+  <class name="CLHEP::HepMatrix" ClassVersion="11">
+   <version ClassVersion="11" checksum="2283727874"/>
   </class>
-  <class name="CLHEP::HepSymMatrix" ClassVersion="10">
-   <version ClassVersion="10" checksum="2655181035"/>
+  <class name="CLHEP::HepSymMatrix" ClassVersion="11">
+   <version ClassVersion="11" checksum="3670575592"/>
   </class>
   <class name="std::vector<CLHEP::HepLorentzVector>"/>
 </lcgdict>

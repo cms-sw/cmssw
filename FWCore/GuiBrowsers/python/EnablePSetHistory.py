@@ -108,10 +108,9 @@ cms.Process.resetHistory=new_resetHistory
 def new_dumpHistory(self,withImports=True):
     dumpHistory=[]
     for item,objects in self.history():
-        if isinstance(item,(str,unicode)):
+        if isinstance(item,str):
             dumpHistory.append(item +"\n")
         else: # isTool
-	    print item
             dump=item.dumpPython()
             if isinstance(dump,tuple):
                 if withImports and dump[0] not in dumpHistory:

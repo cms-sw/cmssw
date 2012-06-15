@@ -9,6 +9,8 @@
 ECALEndcapProperties::ECALEndcapProperties(const edm::ParameterSet& fastDet)
 {
 
+  using namespace std;
+
   edm::ParameterSet fastDetEndcap = fastDet.getParameter<edm::ParameterSet>("EndcapCalorimeterProperties");
 
   lightColl_ =  fastDetEndcap.getParameter<double>("lightColl");  
@@ -37,30 +39,27 @@ ECALEndcapProperties::ECALEndcapProperties(const edm::ParameterSet& fastDet)
   ehat_ = fastDetEndcap.getParameter<double>("ehat");
   resE_ = fastDetEndcap.getParameter<double>("resE");
 
-  da_ = fastDetEndcap.getParameter<double>("da");
-  dp_ = fastDetEndcap.getParameter<double>("dp");
-
   bHom_ = fastDetEndcap.getParameter<bool>("bHom");
 
   bool debug = fastDetEndcap.getParameter<bool>("debug");
 
   if (debug)
-    edm::LogInfo("ECALProperties") <<" ========== Endcap ========= \n"
-				   <<" isHom ? " << bHom_ << "\n"
-				   <<" da = " << da_ << " dp = " << dp_ 
-				   <<" lightColl = " << lightColl_ << "\n"
-				   <<" lightCollUnif_ = " <<  lightCollUnif_  << "\n"
-				   <<" photoStatistics_ = " << photoStatistics_ << " photons/GeV\n"
-				   <<" thickness_ = " << thickness_ << " in cm \n"
-				   <<" interactionLength_ = " << interactionLength_ << " cm \n"
-				   <<" Aeff_ = " << Aeff_ << "\n"
-				   <<" Zeff_ = " << Zeff_ << "\n"
-				   <<" rho_ = " << rho_ << " g/cm3\n"
-				   <<" radLenIngcm2_ = " << radLenIngcm2_ << " g*cm2\n"
-				   <<" radLenIncm_ = " << radLenIncm_ << " cm\n"
-				   <<" moliereRadius_ = " << moliereRadius_ << " cm\n"
-				   <<" criticalEnergy_ = " << criticalEnergy_ << " GeV\n"	 
-				   <<" scaleEnergy_ = " << scaleEnergy_ << " GeV\n"
-				   <<" Fs = " << Fs_ << " ehat = " << ehat_ << " resE = " << resE_ << "\n";
+    LogDebug("ECALEndcapProperties") <<" ========== Endcap ========= " << endl
+	 <<" \t\t isHom ? " << bHom_ << endl
+	 <<" lightColl = " << lightColl_ << endl
+	 <<" lightCollUnif_ = " <<  lightCollUnif_  << endl
+	 <<" photoStatistics_ = " << photoStatistics_ << endl
+	 <<" thickness_ = " << thickness_ << endl
+	 <<" interactionLength_ = " << interactionLength_ << endl
+	 <<" Aeff_ = " << Aeff_ << endl
+	 <<" Zeff_ = " << Zeff_ << endl
+	 <<" rho_ = " << rho_ << endl
+	 <<" radLenIngcm2_ = " << radLenIngcm2_ << endl
+	 <<" radLenIncm_ = " << radLenIncm_ << endl
+	 <<" moliereRadius_ = " << moliereRadius_ << endl
+	 <<" criticalEnergy_ = " << criticalEnergy_ << endl	 
+	 <<" scaleEnergy_ = " << scaleEnergy_ << endl
+	 <<" Fs = " << Fs_ << " ehat = " << ehat_ << " resE = " << resE_ << endl;
+
 
 }

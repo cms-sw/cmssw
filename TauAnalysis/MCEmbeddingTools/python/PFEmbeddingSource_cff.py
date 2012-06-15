@@ -15,7 +15,7 @@ TauolaPolar = cms.PSet(
 from TauAnalysis.MCEmbeddingTools.MCParticleReplacer_cfi import *
 newSource.algorithm = "ZTauTau"
 newSource.ZTauTau.TauolaOptions.InputCards.mdtau = cms.int32(0)
-newSource.ZTauTau.minVisibleTransverseMomentum = cms.untracked.string("")
+newSource.ZTauTau.minVisibleTransverseMomentum = cms.untracked.double(0)
 
 
 
@@ -43,8 +43,7 @@ filterEmptyEv = cms.EDFilter("EmptyEventsFilter",
 #)
 
 #inputColl = cms.InputTag("adaptedMuonsFromDiTauCands","zMusExtracted")
-#inputColl = cms.InputTag("goldenZmumuCandidatesGe2IsoMuons")
-inputColl = cms.InputTag("goldenZmumuCandidatesGe0IsoMuons")
+inputColl = cms.InputTag("goldenZmumuCandidatesGe2IsoMuons")
 
 # Removes input muons from tracks and PF candidate collections
 removedInputMuons = cms.EDProducer('ZmumuPFEmbedder',
@@ -58,18 +57,5 @@ generator = newSource.clone()
 generator.src = inputColl
 
 #ProductionFilterSequence = cms.Sequence(adaptedMuonsFromDiTauCands*removedInputMuons*generator*filterEmptyEv)
-# MuonCaloCleaner
-
-#
-from TrackingTools.TrackAssociator.default_cfi import *
-anaDeposits = cms.EDProducer('MuonCaloCleaner',
-   TrackAssociatorParameterBlock,
-   selectedMuons = inputColl,
-   useCombinedCandidate = cms.untracked.bool(True)
-)
- 
-
-ProductionFilterSequence = cms.Sequence(removedInputMuons*generator*filterEmptyEv*anaDeposits)
-
-
+ProductionFilterSequence = cms.Sequence(removedInputMuons*generator*filterEmptyEv)
 #ProductionFilterSequence = cms.Sequence(generator)

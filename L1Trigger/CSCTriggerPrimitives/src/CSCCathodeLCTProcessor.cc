@@ -581,10 +581,7 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
 	if (!halfstrip[i_layer][i_hstrip].empty()) {layersHit++; break;}
       }
     }
-    // Run the algorithm only if the probability for the pre-trigger
-    // to fire is not null.  (Pre-trigger decisions are used for the
-    // strip read-out conditions in DigiToRaw.)
-    if (layersHit >= nplanes_hit_pretrig) run(halfstrip, distrip);
+    if (layersHit >= nplanes_hit_pattern) run(halfstrip, distrip);
   }
 
   // Return vector of CLCTs.
@@ -1065,7 +1062,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
   const int max_lct_num = 2;
   const int adjacent_strips = 2;
   // Distrip, halfstrip pattern threshold.
-  const int ptrn_thrsh[2] = {nplanes_hit_pattern, nplanes_hit_pattern};
+  const unsigned int ptrn_thrsh[2] = {nplanes_hit_pattern, nplanes_hit_pattern};
   int highest_quality = 0;
 
   int keystrip_data[CSCConstants::NUM_HALF_STRIPS][7];
@@ -1111,7 +1108,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
       // equal to the (variable) valid pattern threshold ptrn_thrsh.
       int keystrip = final_lcts[j];
       if (keystrip >= 0 &&
-	  keystrip_data[keystrip][CLCT_QUALITY] >= ptrn_thrsh[stripType]) {
+	  keystrip_data[keystrip][CLCT_QUALITY] >= static_cast<int>(ptrn_thrsh[stripType])) {
      	// assign the stripType here. 1 = halfstrip, 0 = distrip.
      	keystrip_data[keystrip][CLCT_STRIP_TYPE] = stripType;
 	// Now make the LCT words for the 2 highest, and store them in a list

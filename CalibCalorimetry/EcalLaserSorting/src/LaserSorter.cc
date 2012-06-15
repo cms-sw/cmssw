@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: LaserSorter.cc,v 1.16 2012/02/26 21:20:28 pgras Exp $
+ * $Id: LaserSorter.cc,v 1.15 2012/02/03 11:11:46 vskarupe Exp $
  */
 
 /***************************************************
@@ -492,7 +492,7 @@ bool LaserSorter::writeEvent(OutStreamRecord& outRcd, const edm::Event& event,
   if(rc){
     //update index table for this file:
     vector<IndexRecord>& indices = *outRcd.indices();
-    IndexRecord indexRcd = {(uint32_t)event.orbitNumber(), evtStart};
+    IndexRecord indexRcd = {event.orbitNumber(), evtStart};
     indices.push_back(indexRcd);
   }
   return rc;

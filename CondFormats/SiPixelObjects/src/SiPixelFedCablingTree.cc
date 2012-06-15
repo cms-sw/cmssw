@@ -14,11 +14,11 @@ std::vector<sipixelobjects::CablingPathToDetUnit> SiPixelFedCablingTree::pathToD
   typedef std::map<int, PixelFEDCabling>::const_iterator IM;
   for (IM im = theFedCablings.begin(); im != theFedCablings.end(); ++im) {
     const PixelFEDCabling & aFed = im->second;
-    for (int idxLink = 1; idxLink <= aFed.numberOfLinks(); idxLink++) {
+    for (unsigned int idxLink = 1; idxLink <= aFed.numberOfLinks(); idxLink++) {
       const PixelFEDLink * link = aFed.link(idxLink);
       if (!link) continue;
-      int numberOfRocs = link->numberOfROCs();
-      for(int idxRoc = 1; idxRoc <= numberOfRocs; idxRoc++) {
+      unsigned int numberOfRocs = link->numberOfROCs();
+      for(unsigned int idxRoc = 1; idxRoc <= numberOfRocs; idxRoc++) {
         const PixelROC * roc = link->roc(idxRoc);
         if (rawDetId == roc->rawId() ) {
           CablingPathToDetUnit path = {aFed.id(), link->id(), roc->idInLink()};

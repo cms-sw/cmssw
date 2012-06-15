@@ -5,7 +5,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
 #include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 
@@ -31,12 +30,8 @@ EcalUncalibRecHitWorkerRatio::EcalUncalibRecHitWorkerRatio(const edm::ParameterS
 void
 EcalUncalibRecHitWorkerRatio::set(const edm::EventSetup& es)
 {
-  
-  // which of the samples need be used      
-  es.get<EcalSampleMaskRcd>().get(sampleMaskHand_);
-  
-  es.get<EcalGainRatiosRcd>().get(gains);
-  es.get<EcalPedestalsRcd>().get(peds);
+        es.get<EcalGainRatiosRcd>().get(gains);
+        es.get<EcalPedestalsRcd>().get(peds);
 
 }
 
@@ -47,8 +42,6 @@ EcalUncalibRecHitWorkerRatio::run( const edm::Event & evt,
                 EcalUncalibratedRecHitCollection & result )
 {
         DetId detid(itdg->id());
-
-	const EcalSampleMask *sampleMask_ = sampleMaskHand_.product();
 
         const EcalPedestals::Item * aped = 0;
         const EcalMGPAGainRatio * aGain = 0;
@@ -78,11 +71,11 @@ EcalUncalibRecHitWorkerRatio::run( const edm::Event & evt,
 
 	if (detid.subdetId()==EcalEndcap) {
 
-	  uncalibRecHit = 
-	    uncalibMaker_endcap_.makeRecHit(*itdg,*sampleMask_,pedVec,pedRMSVec,
+          uncalibRecHit = 
+	    uncalibMaker_endcap_.makeRecHit(*itdg,pedVec,pedRMSVec,
 					    gainRatios,EEtimeFitParameters_,
 					    EEamplitudeFitParameters_,
-					    EEtimeFitLimits_);//GF pass mask here
+					    EEtimeFitLimits_);
           
           EcalUncalibRecHitRatioMethodAlgo<EEDataFrame>::CalculatedRecHit crh =
 	                          uncalibMaker_endcap_.getCalculatedRecHit();
@@ -98,10 +91,10 @@ EcalUncalibRecHitWorkerRatio::run( const edm::Event & evt,
 	  bool gainSwitch = uncalibMaker_barrel_.fixMGPAslew(*itdg);
 
           uncalibRecHit= 
-	    uncalibMaker_barrel_.makeRecHit(*itdg,*sampleMask_,pedVec,pedRMSVec,
+	    uncalibMaker_barrel_.makeRecHit(*itdg,pedVec,pedRMSVec,
 					    gainRatios,EBtimeFitParameters_,
 					    EBamplitudeFitParameters_,
-					    EBtimeFitLimits_);//GF pass mask here
+					    EBtimeFitLimits_);
           
           
           EcalUncalibRecHitRatioMethodAlgo<EBDataFrame>::CalculatedRecHit crh= 

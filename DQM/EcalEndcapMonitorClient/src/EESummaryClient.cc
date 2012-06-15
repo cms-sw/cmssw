@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2012/05/09 12:48:46 $
- * $Revision: 1.222 $
+ * $Date: 2012/03/18 17:20:57 $
+ * $Revision: 1.215.2.5 $
  * \author G. Della Ricca
  *
 */
@@ -42,6 +42,8 @@
 #include "DQM/EcalEndcapMonitorClient/interface/EEPedestalClient.h"
 #include "DQM/EcalEndcapMonitorClient/interface/EEPedestalOnlineClient.h"
 #include "DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEBeamCaloClient.h"
+#include "DQM/EcalEndcapMonitorClient/interface/EEBeamHodoClient.h"
 #include "DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h"
 #include "DQM/EcalEndcapMonitorClient/interface/EEClusterClient.h"
 #include "DQM/EcalEndcapMonitorClient/interface/EETimingClient.h"
@@ -62,14 +64,10 @@ EESummaryClient::EESummaryClient(const edm::ParameterSet& ps) {
   // prefixME path
   prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
-  subfolder_ = ps.getUntrackedParameter<std::string>("subfolder", "");
-
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   produceReports_ = ps.getUntrackedParameter<bool>("produceReports", true);
-
-  reducedReports_ = ps.getUntrackedParameter<bool>("reducedReports", false);
 
   // vector of selected Super Modules (Defaults to all 18).
   superModules_.reserve(18);
@@ -91,9 +89,6 @@ EESummaryClient::EESummaryClient(const edm::ParameterSet& ps) {
   MGPAGainsPN_.reserve(2);
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGainsPN_.push_back(i);
   MGPAGainsPN_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGainsPN", MGPAGainsPN_);
-
-  timingNHitThreshold_ = ps.getUntrackedParameter<int>("timingNHitThreshold", 5);
-  synchErrorThreshold_ = ps.getUntrackedParameter<double>("synchErrorThreshold", 0.01);
 
   // summary maps
   meIntegrity_[0]      = 0;
@@ -222,6 +217,8 @@ EESummaryClient::EESummaryClient(const edm::ParameterSet& ps) {
 
   }
 
+  synchErrorThreshold_ = 0.0;
+
 }
 
 EESummaryClient::~EESummaryClient() {
@@ -318,7 +315,7 @@ void EESummaryClient::setup(void) {
 	meIntegrityErr_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
       }
     }
-    if(laserClient){
+    else{
       if ( meIntegrityPN_ ) dqmStore_->removeElement( meIntegrityPN_->getName() );
       name = "EEIT PN integrity quality summary";
       meIntegrityPN_ = dqmStore_->book2D(name, name, 45, 0., 45., 20, -10., 10.);
@@ -360,7 +357,7 @@ void EESummaryClient::setup(void) {
       meRecHitEnergy_[1]->setAxisTitle("ix", 1);
       meRecHitEnergy_[1]->setAxisTitle("iy", 2);
     }
-    if(laserClient){
+    else{
       if ( meOccupancyPN_ ) dqmStore_->removeElement( meOccupancyPN_->getName() );
       name = "EEOT PN digi occupancy summary";
       meOccupancyPN_ = dqmStore_->book2D(name, name, 45, 0., 45., 20, -10., 10.);
@@ -369,7 +366,7 @@ void EESummaryClient::setup(void) {
     }
   }
 
-  if(statusFlagsClient && produceReports_){
+  if(statusFlagsClient){
     if ( meStatusFlags_[0] ) dqmStore_->removeElement( meStatusFlags_[0]->getName() );
     name = "EESFT EE - front-end status summary";
     meStatusFlags_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
@@ -390,7 +387,7 @@ void EESummaryClient::setup(void) {
     }
   }
 
-  if(pedestalOnlineClient && produceReports_){
+  if(pedestalOnlineClient){
     if ( mePedestalOnline_[0] ) dqmStore_->removeElement( mePedestalOnline_[0]->getName() );
     name = "EEPOT EE - pedestal quality summary G12";
     mePedestalOnline_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
@@ -1088,7 +1085,7 @@ void EESummaryClient::setup(void) {
     meTriggerTowerNonSingleTiming_[1]->setAxisTitle("fraction", 3);
   }
 
-  if(meIntegrity_[0] && mePedestalOnline_[0] && meStatusFlags_[0] && (reducedReports_ || (meTiming_[0] && meTriggerTowerEmulError_[0]))) {
+  if(meIntegrity_[0] && mePedestalOnline_[0] && meTiming_[0] && meStatusFlags_[0] && meTriggerTowerEmulError_[0]) {
     if( meGlobalSummary_[0] ) dqmStore_->removeElement( meGlobalSummary_[0]->getName() );
     name = "EE global summary EE -";
     meGlobalSummary_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
@@ -1096,7 +1093,7 @@ void EESummaryClient::setup(void) {
     meGlobalSummary_[0]->setAxisTitle("iy", 2);
   }
 
-  if(meIntegrity_[1] && mePedestalOnline_[1] && meStatusFlags_[1] && (reducedReports_ || (meTiming_[1] && meTriggerTowerEmulError_[1]))) {
+  if(meIntegrity_[1] && mePedestalOnline_[1] && meTiming_[1] && meStatusFlags_[1] && meTriggerTowerEmulError_[1]) {
     if( meGlobalSummary_[1] ) dqmStore_->removeElement( meGlobalSummary_[1]->getName() );
     name = "EE global summary EE +";
     meGlobalSummary_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
@@ -1497,8 +1494,8 @@ void EESummaryClient::analyze(void) {
       if ( meRecHitEnergy_[0] ) meRecHitEnergy_[0]->setBinContent( ix, iy, 0. );
       if ( meRecHitEnergy_[1] ) meRecHitEnergy_[1]->setBinContent( ix, iy, 0. );
 
-      if( meGlobalSummary_[0] ) meGlobalSummary_[0]->setBinContent( ix, iy, 6. );
-      if( meGlobalSummary_[1] ) meGlobalSummary_[1]->setBinContent( ix, iy, 6. );
+      if(meIntegrity_[0] && mePedestalOnline_[0] && meTiming_[0] && meStatusFlags_[0] && meTriggerTowerEmulError_[0] && meGlobalSummary_[0] ) meGlobalSummary_[0]->setBinContent( ix, iy, 6. );
+      if(meIntegrity_[1] && mePedestalOnline_[1] && meTiming_[1] && meStatusFlags_[1] && meTriggerTowerEmulError_[1] && meGlobalSummary_[1] ) meGlobalSummary_[1]->setBinContent( ix, iy, 6. );
 
     }
   }
@@ -1646,29 +1643,14 @@ void EESummaryClient::analyze(void) {
   if ( meTriggerTowerNonSingleTiming_[0] ) meTriggerTowerNonSingleTiming_[0]->setEntries( 0 );
   if ( meTriggerTowerNonSingleTiming_[1] ) meTriggerTowerNonSingleTiming_[1]->setEntries( 0 );
 
-  if( meGlobalSummary_[0] ) meGlobalSummary_[0]->setEntries( 0 );
-  if( meGlobalSummary_[1] ) meGlobalSummary_[1]->setEntries(0);
-
-  MonitorElement *me(0);
-  me = dqmStore_->get(prefixME_ + "/EETimingTask/EETMT timing map EE +");
-  TProfile2D *htmtp(0);
-  htmtp = UtilsClient::getHisto(me, false, htmtp);
- 
-  me = dqmStore_->get(prefixME_ + "/EETimingTask/EETMT timing map EE -");
-  TProfile2D *htmtm(0);
-  htmtm = UtilsClient::getHisto(me, false, htmtm);
-
-  std::string subdir(subfolder_ == "" ? "" : subfolder_ + "/");
-
-  TH1F* oosTrend(0);
+  if(meIntegrity_[0] && mePedestalOnline_[0] && meTiming_[0] && meStatusFlags_[0] && meTriggerTowerEmulError_[0] && meGlobalSummary_[0] ) meGlobalSummary_[0]->setEntries( 0 );
+  if(meIntegrity_[1] && mePedestalOnline_[1] && meTiming_[1] && meStatusFlags_[1] && meTriggerTowerEmulError_[1] && meGlobalSummary_[1] ) meGlobalSummary_[1]->setEntries(0);
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
     EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
     EEStatusFlagsClient* eesfc = dynamic_cast<EEStatusFlagsClient*>(clients_[i]);
-    if(!produceReports_) eesfc = 0;
     EEPedestalOnlineClient* eepoc = dynamic_cast<EEPedestalOnlineClient*>(clients_[i]);
-    if(!produceReports_) eepoc = 0;
 
     EELaserClient* eelc = dynamic_cast<EELaserClient*>(clients_[i]);
     EELedClient* eeldc = dynamic_cast<EELedClient*>(clients_[i]);
@@ -1678,29 +1660,21 @@ void EESummaryClient::analyze(void) {
     EETimingClient* eetmc = dynamic_cast<EETimingClient*>(clients_[i]);
     EETriggerTowerClient* eetttc = dynamic_cast<EETriggerTowerClient*>(clients_[i]);
 
+    MonitorElement *me;
     MonitorElement *me_01, *me_02, *me_03;
     MonitorElement *me_04, *me_05;
     //    MonitorElement *me_f[6], *me_fg[2];
     TH2F* h2;
     TH2F* h3;
 
-    me = dqmStore_->get( prefixME_ + "/EcalInfo/EEMM DCC" );
-    norm01_ = UtilsClient::getHisto( me, cloneME_, norm01_ );
-
-    me = dqmStore_->get( prefixME_ + "/EERawDataTask/" + subdir + "EERDT L1A FE errors" );
-    synch01_ = UtilsClient::getHisto( me, cloneME_, synch01_ );
-
-    me = dqmStore_->get(prefixME_ + "/EERawDataTask/" + subdir + "EERDT accumulated FE synchronization errors");
-    oosTrend = UtilsClient::getHisto(me, cloneME_, oosTrend);
-
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
       int ism = superModules_[i];
 
-      me = dqmStore_->get( prefixME_ + "/EEOccupancyTask/" + subdir + "EEOT rec hit energy " + Numbers::sEE(ism) );
+      me = dqmStore_->get( prefixME_ + "/EEOccupancyTask/EEOT rec hit energy " + Numbers::sEE(ism) );
       hot01_[ism-1] = UtilsClient::getHisto( me, cloneME_, hot01_[ism-1] );
 
-      me = dqmStore_->get( prefixME_ + "/EEPedestalOnlineTask/" + subdir + "Gain12/EEPOT pedestal " + Numbers::sEE(ism) + " G12" );
+      me = dqmStore_->get( prefixME_ + "/EEPedestalOnlineTask/Gain12/EEPOT pedestal " + Numbers::sEE(ism) + " G12" );
       hpot01_[ism-1] = UtilsClient::getHisto( me, cloneME_, hpot01_[ism-1] );
 
       me = dqmStore_->get( prefixME_ + "/EETriggerTowerTask/EETTT Et map Real Digis " + Numbers::sEE(ism) );
@@ -1708,6 +1682,12 @@ void EESummaryClient::analyze(void) {
 
       me = dqmStore_->get( prefixME_ + "/EETimingTask/EETMT timing " + Numbers::sEE(ism) );
       htmt01_[ism-1] = UtilsClient::getHisto( me, cloneME_, htmt01_[ism-1] );
+
+      me = dqmStore_->get( prefixME_ + "/EcalInfo/EEMM DCC" );
+      norm01_ = UtilsClient::getHisto( me, cloneME_, norm01_ );
+
+      me = dqmStore_->get( prefixME_ + "/EERawDataTask/EERDT L1A FE errors" );
+      synch01_ = UtilsClient::getHisto( me, cloneME_, synch01_ );
 
       for ( int ix = 1; ix <= 50; ix++ ) {
         for ( int iy = 1; iy <= 50; iy++ ) {
@@ -1766,12 +1746,12 @@ void EESummaryClient::analyze(void) {
               float xval = me->getBinContent( ix, iy );
 
               if ( ism >= 1 && ism <= 9 ) {
-                if(mePedestalOnline_[0]) mePedestalOnline_[0]->setBinContent( 101 - jx, jy, xval );
+                mePedestalOnline_[0]->setBinContent( 101 - jx, jy, xval );
               } else {
-                if(mePedestalOnline_[1]) mePedestalOnline_[1]->setBinContent( jx, jy, xval );
+                mePedestalOnline_[1]->setBinContent( jx, jy, xval );
               }
 
-              if ( xval == 0 && mePedestalOnlineErr_) mePedestalOnlineErr_->Fill( ism );
+              if ( xval == 0 ) mePedestalOnlineErr_->Fill( ism );
 
             }
 
@@ -1780,13 +1760,13 @@ void EESummaryClient::analyze(void) {
 
             if ( update01 ) {
 
-              if(mePedestalOnlineRMS_) mePedestalOnlineRMS_->Fill( ism, rms01 );
-              if(mePedestalOnlineMean_) mePedestalOnlineMean_->Fill( ism, mean01 );
+              mePedestalOnlineRMS_->Fill( ism, rms01 );
+              mePedestalOnlineMean_->Fill( ism, mean01 );
 
               if ( ism >= 1 && ism <= 9 ) {
-                if(mePedestalOnlineRMSMap_[0]) mePedestalOnlineRMSMap_[0]->setBinContent( 101 - jx, jy, rms01 );
+                mePedestalOnlineRMSMap_[0]->setBinContent( 101 - jx, jy, rms01 );
               } else {
-                if(mePedestalOnlineRMSMap_[1]) mePedestalOnlineRMSMap_[1]->setBinContent( jx, jy, rms01 );
+                mePedestalOnlineRMSMap_[1]->setBinContent( jx, jy, rms01 );
               }
 
             }
@@ -2151,7 +2131,7 @@ void EESummaryClient::analyze(void) {
                 // float emulErrorVal = h2->GetBinContent( ix, iy ) + h3->GetBinContent( ix, iy );
                 float emulErrorVal = h2->GetBinContent( ix, iy );
 
-                if( emulErrorVal > 0.01 * ievt_ && hadNonZeroInterest ) xval = 0;
+                if( emulErrorVal!=0 && hadNonZeroInterest ) xval = 0;
 
               }
 
@@ -2173,7 +2153,7 @@ void EESummaryClient::analyze(void) {
           if ( eetmc ) {
 
 	    float num01, mean01, rms01;
-	    bool update01 = UtilsClient::getBinStatistics(htmt01_[ism-1], ix, iy, num01, mean01, rms01, timingNHitThreshold_);
+	    bool update01 = UtilsClient::getBinStatistics(htmt01_[ism-1], ix, iy, num01, mean01, rms01, 1.);
 	    mean01 -= 50.;
 
 	    if( update01 ){
@@ -2220,9 +2200,12 @@ void EESummaryClient::analyze(void) {
 	      int jxedge = (jx-1) * 5;
 	      int jyedge = (jy-1) * 5;
 
- 	      float num(0);
- 	      int nValid(0);
- 	      bool mask(false);
+	      float nvalid = 0.;
+	      float ent, cont, err;
+	      float num, sum, sumw2;
+	      num = sum = sumw2 = 0.;
+	      bool mask = false;
+	      float eta = 999.;
 
 	      for(int cx=1; cx<=5; cx++){
 		for(int cy=1; cy<=5; cy++){
@@ -2233,38 +2216,39 @@ void EESummaryClient::analyze(void) {
 
 		  if ( ! Numbers::validEE(ism, scjx, scjy) ) continue;
 
-		  nValid += 1;
+		  nvalid += 1.;
 
-		  num += htmt01_[ism-1]->GetBinEntries(htmt01_[ism-1]->GetBin(scix, sciy));
+		  if( eta > 4.0 ){ // EE |eta| is < 3.0
+		    EEDetId id(scjx, scjy, (ism / 10) * 2 - 1);
+		    eta = Numbers::eta(id);
+		  }
 
-		  if(Masks::maskChannel(ism, scix, sciy, chWarnBit, EcalEndcap) ) mask = true;
+		  int bin = htmt01_[ism-1]->GetBin(scix, sciy);
+
+		  // htmt01_ are booked with option "s" -> error = RMS not RMS/sqrt(N)
+		  ent = htmt01_[ism-1]->GetBinEntries( bin );
+		  cont = htmt01_[ism-1]->GetBinContent( bin ) - 50.;
+		  err = htmt01_[ism-1]->GetBinError( bin );
+
+		  num += ent;
+		  sum += cont * ent;
+		  sumw2 += (err * err + cont * cont) * ent;
+
+		  float rmsThreshold = std::abs(eta) > 2.6 ? 10. : 4.;
+
+		  if( ent > 1 && (std::abs(cont) > 3. || err > rmsThreshold) && Masks::maskChannel(ism, scix, sciy, chWarnBit, EcalEndcap) ) mask = true;
 		}
 	      }
 
- 	      float nHitThreshold(timingNHitThreshold_ * 15. * nValid / 25.);
-
- 	      bool update01(false);
- 	      float num01, mean01, rms01;
- 	      if(ism >= 1 && ism <= 9)
- 		update01 = UtilsClient::getBinStatistics(htmtm, 21 - jx, jy, num01, mean01, rms01, nHitThreshold);
- 	      else
- 		update01 = UtilsClient::getBinStatistics(htmtp, jx, jy, num01, mean01, rms01, nHitThreshold);
- 
- 	      mean01 -= 50.;
- 
- 	      if(!update01){
- 		mean01 = 0.;
- 		rms01 = 0.;
- 	      }
-
- 	      update01 |= num > 1.4 * nHitThreshold; // allow 40% outliers
-
 	      float xval = 2.;
+	      if( num > (10. * nvalid / 25.) ){
 
- 	      if( update01 ){
+		float mean = sum / num;
+		float rms = std::sqrt( sumw2 / num - mean * mean );
 
- 		// quality BAD if mean large, rms large, or significantly more outliers (num: # events in +-20 ns time window)
- 		if( std::abs(mean01) > 3. || rms01 > 6. || num > 1.4 * num01 ) xval = 0.;
+		float rmsThreshold = std::abs(eta) > 2.6 ? 10. : 4.;
+
+		if( std::abs(mean) > 3. || rms > rmsThreshold ) xval = 0.;
 		else xval = 1.;
 
 	      }
@@ -2746,15 +2730,15 @@ void EESummaryClient::analyze(void) {
   for ( int jx = 1; jx <= 100; jx++ ) {
     for ( int jy = 1; jy <= 100; jy++ ) {
 
-      if(meGlobalSummary_[0]) {
+      if(meIntegrity_[0] && mePedestalOnline_[0] && meTiming_[0] && meStatusFlags_[0] && meTriggerTowerEmulError_[0] && meGlobalSummary_[0]) {
 
         float xval = 6;
         float val_in = meIntegrity_[0]->getBinContent(jx,jy);
         float val_po = mePedestalOnline_[0]->getBinContent(jx,jy);
-        float val_tm = reducedReports_ ? 1. : meTiming_[0]->getBinContent((jx-1)/5+1,(jy-1)/5+1);
+        float val_tm = meTiming_[0]->getBinContent((jx-1)/5+1,(jy-1)/5+1);
         float val_sf = meStatusFlags_[0]->getBinContent(jx,jy);
-	float val_ee = reducedReports_ ? 1. : meTriggerTowerEmulError_[0]->getBinContent(jx,jy); // removed temporarily from the global summary
-        // float val_ee = 1;
+        // float val_ee = meTriggerTowerEmulError_[0]->getBinContent(jx,jy); // removed temporarily from the global summary
+        float val_ee = 1;
 
         // combine all the available wavelenghts in unique laser status
         // for each laser turn dark color and yellow into bright green
@@ -2838,10 +2822,8 @@ void EESummaryClient::analyze(void) {
                 float frac_synch_errors = 0.;
                 float norm = norm01_->GetBinContent(ism);
                 if(norm > 0) frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm);
-                if(frac_synch_errors > synchErrorThreshold_){
-		  xval = 0;
-		  if(oosTrend && oosTrend->GetBinContent(oosTrend->GetNbinsX()) - oosTrend->GetBinContent(1) < 1.) xval += 3.;
-		}
+                float val_sy = (frac_synch_errors <= synchErrorThreshold_);
+                if(val_sy==0) xval=0;
               }
 
               for ( unsigned int i=0; i<clients_.size(); i++ ) {
@@ -2880,15 +2862,15 @@ void EESummaryClient::analyze(void) {
 
       }
 
-      if(meGlobalSummary_[1]) {
+      if(meIntegrity_[1] && mePedestalOnline_[1] && meTiming_[1] && meStatusFlags_[1] && meTriggerTowerEmulError_[1] && meGlobalSummary_[1]) {
 
         float xval = 6;
         float val_in = meIntegrity_[1]->getBinContent(jx,jy);
         float val_po = mePedestalOnline_[1]->getBinContent(jx,jy);
-        float val_tm = reducedReports_ ? 1. : meTiming_[1]->getBinContent((jx-1)/5+1,(jy-1)/5+1);
+        float val_tm = meTiming_[1]->getBinContent((jx-1)/5+1,(jy-1)/5+1);
         float val_sf = meStatusFlags_[1]->getBinContent(jx,jy);
-	float val_ee = reducedReports_ ? 1. : meTriggerTowerEmulError_[1]->getBinContent(jx,jy); // removed temporarily from the global summary
-        // float val_ee = 1;
+        // float val_ee = meTriggerTowerEmulError_[1]->getBinContent(jx,jy); // removed temporarily from the global summary
+        float val_ee = 1;
 
         // combine all the available wavelenghts in unique laser status
         // for each laser turn dark color and yellow into bright green
@@ -2972,10 +2954,8 @@ void EESummaryClient::analyze(void) {
                 float frac_synch_errors = 0.;
                 float norm = norm01_->GetBinContent(ism);
                 if(norm > 0) frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm);
-                if(frac_synch_errors > synchErrorThreshold_){
-		  xval = 0.;
-		  if(oosTrend && oosTrend->GetBinContent(oosTrend->GetNbinsX()) - oosTrend->GetBinContent(1) < 1.) xval += 3.;
-		}
+                float val_sy = (frac_synch_errors <= synchErrorThreshold_);
+                if(val_sy==0) xval=0;
               }
 
               for ( unsigned int i=0; i<clients_.size(); i++ ) {
@@ -3017,6 +2997,9 @@ void EESummaryClient::analyze(void) {
     }
   }
 
+
+
+  MonitorElement* me;
 
   float reportSummary = -1.0;
   if ( nValidChannels != 0 )
@@ -3065,29 +3048,6 @@ void EESummaryClient::analyze(void) {
 	  }
 	}
       }
-
-      // Countermeasure to partial TR failure
-      // make the whole Dee red if more than 2 towers within a 2x2 matrix fails
-
-//       for(int iside(0); iside < 2; iside++){
-// 	for(int jy(1); jy <= 20; jy++){
-// 	  for(int jx(1); jx <= 20; jx++){
-// 	    int nErr(0);
-// 	    if(nValidChannelsSC[iside][jx - 1][jy - 1] > 0 && nGlobalErrorsSC[iside][jx - 1][jy - 1] == nValidChannelsSC[iside][jx - 1][jy - 1]) nErr += 1;
-// 	    if(nValidChannelsSC[iside][jx][jy - 1] > 0 && nGlobalErrorsSC[iside][jx][jy - 1] == nValidChannelsSC[iside][jx][jy - 1]) nErr += 1;
-// 	    if(nValidChannelsSC[iside][jx - 1][jy] > 0 && nGlobalErrorsSC[iside][jx - 1][jy] == nValidChannelsSC[iside][jx - 1][jy]) nErr += 1;
-// 	    if(nValidChannelsSC[iside][jx][jy] > 0 && nGlobalErrorsSC[iside][jx][jy] == nValidChannelsSC[iside][jx][jy]) nErr += 1;
-// 	    if(nErr > 2){
-// 	      int jx0(((jx - 1) / 10) * 10);
-// 	      for(int jjx(jx0); jjx < jx0 + 10; jjx++){
-// 		for(int jjy(0); jjy < 20; jjy++){
-// 		  nGlobalErrorsSC[iside][jjx][jjy] = nValidChannelsSC[iside][jjx][jjy];
-// 		}
-// 	      }
-// 	    }
-// 	  }
-// 	}
-//       }
 
       for (int iside = 0; iside < 2; iside++ ) {
 	for ( int jxsc = 0; jxsc < 20; jxsc++ ) {

@@ -22,9 +22,16 @@ using namespace edm;
 
 TrackerGeometricDetESModule::TrackerGeometricDetESModule( const edm::ParameterSet & p ) 
   : fromDDD_( p.getParameter<bool>( "fromDDD" )),
-    layerNumberPXB_( p.getParameter<unsigned int>( "layerNumberPXB" )),
-    totalBlade_( p.getParameter<unsigned int>( "totalBlade" ))
+    layerNumberPXB_( 16 ), // 18 for SLHC p.getParameter<unsigned int>( "layerNumberPXB" )),
+    totalBlade_( 24 ) 	   // 56 for SLHC p.getParameter<unsigned int>( "totalBlade" ))
 {
+  if( p.existsAs<edm::ParameterSet>( "pixelGeometryConstants" ))
+  {  
+    const edm::ParameterSet tkGeomConsts( p.getParameter<edm::ParameterSet>( "pixelGeometryConstants" ));
+    layerNumberPXB_ = tkGeomConsts.getParameter<unsigned int>( "layerNumberPXB" );
+    totalBlade_ = tkGeomConsts.getParameter<unsigned int>( "totalBlade" );
+  }
+  
   setWhatProduced( this );
 }
 

@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.36 2011/10/18 12:40:59 yana Exp $
+// $Id: FWMuonBuilder.cc,v 1.37 2012/06/07 06:23:44 yana Exp $
 //
 
 #include "TEveVSDStructs.h"
@@ -103,7 +103,10 @@ void addMatchInformation( const reco::Muon* muon,
 	segmentLength = det->shape[3];
       }
       else
-	fwLog( fwlog::kError ) << "Unable to set a DT segment length for " << rawid << std::endl;
+      {   
+        const double segmentLength = 15;
+        fwLog( fwlog::kWarning ) << Form("FWMuonBuilder: unknown shape type in muon chamber with detId=%d. Setting segment length to %.0f cm.\n",  rawid, segmentLength);
+      }
         
       if( ids.insert( rawid ).second &&  // ensure that we add same chamber only once
 	  ( chamber->detector() != MuonSubdetId::CSC || showEndcap ))

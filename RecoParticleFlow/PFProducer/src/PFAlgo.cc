@@ -297,17 +297,20 @@ PFAlgo::setPFVertexParameters(bool useVertex,
     }
   //Use vertices if the user wants to but only if it exists a good vertex 
   useVertices_ = useVertex && primaryVertexFound; 
-  if(usePFPhotons_&& useVertices_ ){
-    pfpho_->setPhotonPrimaryVtx(primaryVertex_ );
-  }
-  else{
-    reco::Vertex::Error e;  
-    e(0, 0) = 0.0015 * 0.0015;  
-    e(1, 1) = 0.0015 * 0.0015;  
-    e(2, 2) = 15. * 15.;  
-    reco::Vertex::Point p(0, 0, 0);  
-    reco::Vertex dummy = reco::Vertex(p, e, 0, 0, 0); 
-    pfpho_->setPhotonPrimaryVtx(dummy);
+  if(usePFPhotons_) {
+    if (useVertices_ ){
+      pfpho_->setPhotonPrimaryVtx(primaryVertex_ );
+    }
+    else{
+      reco::Vertex::Error e;  
+      e(0, 0) = 0.0015 * 0.0015;  
+      e(1, 1) = 0.0015 * 0.0015;  
+      e(2, 2) = 15. * 15.;  
+      reco::Vertex::Point p(0, 0, 0);  
+      reco::Vertex dummy = reco::Vertex(p, e, 0, 0, 0); 
+      std::cout << " PFPho " << pfpho_ << std::endl;
+      pfpho_->setPhotonPrimaryVtx(dummy);
+    }
   }
 }
 

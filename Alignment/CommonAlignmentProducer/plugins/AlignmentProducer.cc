@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.60 $
-///  last update: $Date: 2012/02/15 15:39:52 $
-///  by         : $Author: andreasp $
+///  Revision   : $Revision: 1.63 $
+///  last update: $Date: 2012/06/13 09:13:57 $
+///  by         : $Author: yana $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -601,10 +601,19 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
    iSetup.get<IdealGeometryRecord>().get( cpv );
 
    if (doTracker_) {
+     const edm::ParameterSet tkGeomConsts( theParameterSet.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
+     
      edm::ESHandle<GeometricDet> geometricDet;
      iSetup.get<IdealGeometryRecord>().get( geometricDet );
      TrackerGeomBuilderFromGeometricDet trackerBuilder;
-     theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet)) );
+     theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet),
+									   tkGeomConsts.getParameter<bool>("upgradeGeometry"),
+									   tkGeomConsts.getParameter<int>( "ROWS_PER_ROC" ),
+									   tkGeomConsts.getParameter<int>( "COLS_PER_ROC" ),
+									   tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
+									   tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ),
+									   tkGeomConsts.getParameter<int>( "ROCS_X" ),
+									   tkGeomConsts.getParameter<int>( "ROCS_Y" )));
    }
 
    if (doMuon_) {

@@ -31,7 +31,7 @@ public:
   unsigned int id() const { return theId; }
 
   /// number of ROCs in fed
-  int numberOfROCs() const { return theROCs.size(); }
+  unsigned int numberOfROCs() const { return theROCs.size(); }
 
   /// return ROC identified by id. ROC ids are ranged [1,numberOfROCs]
   const PixelROC * roc(unsigned int id) const

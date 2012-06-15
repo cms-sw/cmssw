@@ -228,7 +228,7 @@ void cond::DbConnectionConfiguration::configure( coral::IConnectionServiceConfig
   }
   if( authSys != CondDbKey && authSys != CoralXMLFile ){
     // take the default
-    authSys = CondDbKey;
+    authSys = CoralXMLFile;
   }  
   std::string servName("");
   if( authSys == CondDbKey ){

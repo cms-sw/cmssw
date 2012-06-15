@@ -393,11 +393,6 @@ void SiPixelRecHitsInputDistributionsMakerNew::fillBarrel(const SiPixelRecHit& r
   float sim_ypos = 0.5*(sim_y1 + sim_y2);
   float res_y = lp.y() - sim_ypos;
   
-  int rows = theGeomDet->specificTopology().nrows();
-  int cols = theGeomDet->specificTopology().ncolumns();
-  float pitchX = theGeomDet->specificTopology().pitch().first;
-  float pitchY = theGeomDet->specificTopology().pitch().second;
-  
   //get cluster
   SiPixelRecHit::ClusterRef const& clust = recHit.cluster();
 
@@ -419,19 +414,19 @@ void SiPixelRecHitsInputDistributionsMakerNew::fillBarrel(const SiPixelRecHit& r
   icotbeta  = icotbeta > (cotBetaBinsBarrel_-1 ) ? cotBetaBinsBarrel_-1 : icotbeta;
 
 // Use this definition if you want to consider an ideal topology 
-  RectangularPixelTopology rectPixelTopology(rows, cols, pitchX, pitchY);
+  const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
 // Use the following instead of the previous line if you want the real topology that will take care of the 
 // module deformations when mapping from ideal to real coordinates:
 //  PixelTopology const & rectPixelTopology = theGeomDet->specificTopology();
 
   bool edgex = 
-       ( rectPixelTopology.isItEdgePixelInX( firstPixelInX ) || rectPixelTopology.isItEdgePixelInX( lastPixelInX ) );
+       ( rectPixelTopology->isItEdgePixelInX( firstPixelInX ) || rectPixelTopology->isItEdgePixelInX( lastPixelInX ) );
   bool edgey = 
-       ( rectPixelTopology.isItEdgePixelInY( firstPixelInY ) || rectPixelTopology.isItEdgePixelInY( lastPixelInY ) );
-  bool bigx =  ( rectPixelTopology.isItBigPixelInX( firstPixelInX ) || 
-		 rectPixelTopology.isItBigPixelInX( lastPixelInX ) );
-  bool bigy =  ( rectPixelTopology.isItBigPixelInY( firstPixelInY ) ||
-                 rectPixelTopology.isItBigPixelInY( lastPixelInY ) );
+       ( rectPixelTopology->isItEdgePixelInY( firstPixelInY ) || rectPixelTopology->isItEdgePixelInY( lastPixelInY ) );
+  bool bigx =  ( rectPixelTopology->isItBigPixelInX( firstPixelInX ) || 
+		 rectPixelTopology->isItBigPixelInX( lastPixelInX ) );
+  bool bigy =  ( rectPixelTopology->isItBigPixelInY( firstPixelInY ) ||
+                 rectPixelTopology->isItBigPixelInY( lastPixelInY ) );
 //  bool bigx =  ( RectangularPixelTopology::isItBigPixelInX( firstPixelInX ) || 
 //	 	 RectangularPixelTopology::isItBigPixelInX( lastPixelInX ) );
 //  bool bigy =  ( RectangularPixelTopology::isItBigPixelInY( firstPixelInY ) ||
@@ -531,11 +526,6 @@ void SiPixelRecHitsInputDistributionsMakerNew::fillBarrel(const SiPixelRecHit& r
 void SiPixelRecHitsInputDistributionsMakerNew::fillForward(const SiPixelRecHit & recHit, const PSimHit & simHit, 
                                                         DetId detId,const PixelGeomDetUnit * theGeomDet ) 
 {
-  int rows = theGeomDet->specificTopology().nrows();
-  int cols = theGeomDet->specificTopology().ncolumns();
-  float pitchX = theGeomDet->specificTopology().pitch().first;
-  float pitchY = theGeomDet->specificTopology().pitch().second;
-  
   LocalPoint lp = recHit.localPosition();
   
   //  LocalError lerr = recHit.localPositionError();
@@ -575,13 +565,13 @@ void SiPixelRecHitsInputDistributionsMakerNew::fillForward(const SiPixelRecHit &
   int lastPixelInX = (*clust).maxPixelRow();
   int firstPixelInY = (*clust).minPixelCol();
   int lastPixelInY = (*clust).maxPixelCol();
-  RectangularPixelTopology rectPixelTopology(rows, cols, pitchX, pitchY);
-  bool hasBigPixelInX = rectPixelTopology.containsBigPixelInX(firstPixelInX,lastPixelInX);
-  bool hasBigPixelInY = rectPixelTopology.containsBigPixelInY(firstPixelInY,lastPixelInY);
+  const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+  bool hasBigPixelInX = rectPixelTopology->containsBigPixelInX(firstPixelInX,lastPixelInX);
+  bool hasBigPixelInY = rectPixelTopology->containsBigPixelInY(firstPixelInY,lastPixelInY);
   bool edgex =
-         ( rectPixelTopology.isItEdgePixelInX( firstPixelInX ) || rectPixelTopology.isItEdgePixelInX( lastPixelInX ) );
+         ( rectPixelTopology->isItEdgePixelInX( firstPixelInX ) || rectPixelTopology->isItEdgePixelInX( lastPixelInX ) );
   bool edgey = 
-  	( rectPixelTopology.isItEdgePixelInY( firstPixelInY ) || rectPixelTopology.isItEdgePixelInY( lastPixelInY  ) );
+  	( rectPixelTopology->isItEdgePixelInY( firstPixelInY ) || rectPixelTopology->isItEdgePixelInY( lastPixelInY  ) );
 
   bool edge = edgex || edgey;
   int icotalpha = int ( ( cotalpha - cotAlphaLowEdgeForward_ ) / cotAlphaBinWidthForward_ );

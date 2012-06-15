@@ -7,8 +7,8 @@
 
 /** \class CaloRecHit
  * 
- * $Date: 2011/06/30 15:32:14 $
- * $Revision: 1.8 $
+ * $Date: 2010/06/14 14:28:30 $
+ * $Revision: 1.7 $
  *\author J. Mans - Minnesota
  */
 class CaloRecHit {
@@ -17,7 +17,6 @@ public:
   explicit CaloRecHit(const DetId& id, float energy, float time, uint32_t flags = 0, uint32_t aux=0);
 
   float energy() const { return energy_; }
-  void setEnergy(float energy) { energy_=energy; }
   float time() const { return time_; }
   const DetId& detid() const { return id_; }
   uint32_t flags() const { return flags_; }

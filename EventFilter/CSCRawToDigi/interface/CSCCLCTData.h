@@ -47,7 +47,9 @@ public:
 #ifdef ASSERTS
     assert(iline < nlines());
 #endif
-    return *(CSCCLCTDataWord *)(theData+iline);
+    union dataPtr { const unsigned short * s; CSCCLCTDataWord * d; } mptr;
+    mptr.s = theData+iline;
+    return *(mptr.d);
   }
 
   CSCCLCTDataWord & dataWord(int cfeb, int tbin, int layer) const {

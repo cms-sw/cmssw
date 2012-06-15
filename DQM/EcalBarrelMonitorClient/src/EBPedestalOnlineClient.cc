@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2012/03/29 22:30:18 $
- * $Revision: 1.164.2.4 $
+ * $Date: 2012/03/18 15:59:29 $
+ * $Revision: 1.164.2.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -47,8 +47,6 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const edm::ParameterSet& ps) {
 
   // prefixME path
   prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
-
-  subfolder_ = ps.getUntrackedParameter<std::string>("subfolder", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -132,9 +130,6 @@ void EBPedestalOnlineClient::setup(void) {
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EBPedestalOnlineClient" );
 
-  if(subfolder_.size())
-    dqmStore_->setCurrentFolder( prefixME_ + "/EBPedestalOnlineClient/" + subfolder_);
-
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
@@ -195,9 +190,6 @@ void EBPedestalOnlineClient::cleanup(void) {
   }
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EBPedestalOnlineClient" );
-
-  if(subfolder_.size())
-    dqmStore_->setCurrentFolder( prefixME_ + "/EBPedestalOnlineClient/" + subfolder_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -311,15 +303,13 @@ void EBPedestalOnlineClient::analyze(void) {
   bits03 |= 1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR;
   bits03 |= 1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR;
 
-  std::string subdir(subfolder_.size() ? subfolder_ + "/" : "");
-
   MonitorElement* me;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    me = dqmStore_->get( prefixME_ + "/EBPedestalOnlineTask/" + subdir + "Gain12/EBPOT pedestal " + Numbers::sEB(ism) + " G12" );
+    me = dqmStore_->get( prefixME_ + "/EBPedestalOnlineTask/Gain12/EBPOT pedestal " + Numbers::sEB(ism) + " G12" );
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
     if ( meg03_[ism-1] ) meg03_[ism-1]->Reset();
     if ( mep03_[ism-1] ) mep03_[ism-1]->Reset();

@@ -31,11 +31,6 @@ options.register('outputDBAuth',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Authentication path for output DB")
-options.register('forceUpdate',
-                 0, #default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "Check all record IOVs even if L1TriggerKey unchanged")
 options.register('logTransactions',
                  1, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -60,9 +55,6 @@ if options.logTransactions == 1:
 #    initIOVWriter.outputDB.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
     initIOVWriter.outputDB.logconnect = cms.untracked.string('sqlite_file:l1o2o-log.db')
     process.L1CondDBIOVWriter.logTransactions = True
-
-if options.forceUpdate == 1:
-    process.L1CondDBIOVWriter.forceUpdate = True
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)

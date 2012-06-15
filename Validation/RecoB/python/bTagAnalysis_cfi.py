@@ -17,7 +17,6 @@ from DQMOffline.RecoB.bTagCommon_cff import *
 bTagValidation = cms.EDAnalyzer("BTagPerformanceAnalyzerMC",
     bTagCommonBlock,
     finalizeOnly = cms.bool(False),
-    applyPtHatWeight = cms.bool(False),
     jetCorrection = cms.string(''),
     recJetMatching = cms.PSet(
         refJetCorrection = cms.string(''),

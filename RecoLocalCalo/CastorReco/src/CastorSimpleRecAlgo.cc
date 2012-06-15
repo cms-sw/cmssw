@@ -1,7 +1,6 @@
 #include "RecoLocalCalo/CastorReco/interface/CastorSimpleRecAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/CastorCalib/interface/CastorTimeSlew.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 #include <algorithm> // for "max"
 #include <math.h>
 
@@ -86,16 +85,6 @@ namespace CastorSimpleRecAlgoImpl {
     }
     return RecHit(digi.id(),ampl,time);    
   }
-
-  // returns TRUE if ADC count is >= maxADCvalue
-  template<class Digi>
-  inline bool isSaturated(const Digi& digi, const int& maxADCvalue, int ifirst, int n) {
-    for (int i=ifirst; i<digi.size() && i<n+ifirst; i++) {
-      if(digi[i].adc() >= maxADCvalue) return true;
-    }
-    
-    return false;
-  }
 }
 
 CastorRecHit CastorSimpleRecAlgo::reconstruct(const CastorDataFrame& digi, const CastorCoder& coder, const CastorCalibrations& calibs) const {
@@ -104,12 +93,6 @@ CastorRecHit CastorSimpleRecAlgo::reconstruct(const CastorDataFrame& digi, const
 							     0,
 							     CastorTimeSlew::Fast);
 }
-
-void CastorSimpleRecAlgo::checkADCSaturation(CastorRecHit& rechit, const CastorDataFrame& digi, const int& maxADCvalue) {
-  if(CastorSimpleRecAlgoImpl::isSaturated<CastorDataFrame>(digi,maxADCvalue,firstSample_,samplesToAdd_))
-    rechit.setFlagField(1,HcalCaloFlagLabels::ADCSaturationBit);
-}
-
 
 // timeshift implementation
 
