@@ -66,9 +66,10 @@ simHcalUnsuppressedDigis.hb.pixels = cms.int32(4500*4*2)
 #turn on hit relabeling and set depth segmentation
 HcalReLabel.RelabelHits = cms.untracked.bool(True)
 HcalReLabel.RelabelRules = cms.untracked.PSet(
-    Eta1 = cms.untracked.vint32(1,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,4,4),
-    Eta16 = cms.untracked.vint32(1,1,1,1,2,2,2,2,3,3,3,3,3,3,3,3),
-    Eta17 = cms.untracked.vint32(1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,5)
+    CorrectPhi = cms.untracked.bool(True),
+    Eta1  = cms.untracked.vint32(1,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,5,5),
+    Eta16 = cms.untracked.vint32(1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3),
+    Eta17 = cms.untracked.vint32(1,1,2,2,3,3,3,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5)
     )
 
 #
