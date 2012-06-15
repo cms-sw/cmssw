@@ -160,7 +160,7 @@ allAlignemts is a list of Alignment objects the is used to generate Alignment_vs
                                 foundAlignment = True
                         if not foundAlignment:
                             raise StandardError, " could not find alignment called '%s'"%alignmentName
-                    result.append( GeometryComparision( self, referenceAlignment, config, options.getImages, randomWorkdirPart ) )
+                    result.append( GeometryComparison( self, referenceAlignment, config, options.getImages, randomWorkdirPart ) )
                     if randomWorkdirPart == None:
                         randomWorkdirPart = result[-1].randomWorkdirPart
             elif validationName == "offline":
@@ -260,7 +260,7 @@ cmsRun %(cfgFile)s
         return self.scriptFiles
 
     
-class GeometryComparision(GenericValidation):
+class GeometryComparison(GenericValidation):
     """
 object representing a geometry comparison job
 alignemnt is the alignment to analyse
@@ -587,7 +587,7 @@ def createExtendedValidationScript(offlineValidationList, outFilePath):
         repMap[ "extendedInstantiation" ] = validation.appendToExtendedValidation( repMap[ "extendedInstantiation" ] )
     
     theFile = open( outFilePath, "w" )
-    theFile.write( replaceByMap( configTemplates.extendedVaidationTemplate ,repMap ) )
+    theFile.write( replaceByMap( configTemplates.extendedValidationTemplate ,repMap ) )
     theFile.close()
     
 def createMergeScript( path, validations ):
@@ -614,7 +614,7 @@ def createMergeScript( path, validations ):
     if "OfflineValidation" in comparisonLists:
         repMap["extendeValScriptPath"] = os.path.join(path, "TkAlExtendedOfflineValidation.C")
         createExtendedValidationScript( comparisonLists["OfflineValidation"], repMap["extendeValScriptPath"] )
-        repMap["RunExtendedOfflineValidation"] = replaceByMap(configTemplates.extendedVaidationExecution, repMap)
+        repMap["RunExtendedOfflineValidation"] = replaceByMap(configTemplates.extendedValidationExecution, repMap)
 
     repMap["CompareAllignments"] = "#run comparisons"
     for validationId in comparisonLists:
