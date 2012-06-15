@@ -78,43 +78,43 @@ def customise(process):
 
 #  HCAL Upgrade Geometry
 
-process.load("RecoLocalCalo.HcalRecProducers.HcalUpgradeReconstructor_cff")
-process.load("RecoJets.Configuration.CaloTowersRec_cff")
-process.load("RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi")
-process.load("RecoLocalCalo.Configuration.RecoLocalCalo_cff")
+    process.load("RecoLocalCalo.HcalRecProducers.HcalUpgradeReconstructor_cff")
+    process.load("RecoJets.Configuration.CaloTowersRec_cff")
+    process.load("RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi")
+    process.load("RecoLocalCalo.Configuration.RecoLocalCalo_cff")
 
-process.ecalGlobalUncalibRecHit.EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis")
-process.ecalGlobalUncalibRecHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis")
-process.ecalRecHit.ebDetIdToBeRecovered = cms.InputTag("","")
-process.ecalRecHit.eeDetIdToBeRecovered = cms.InputTag("","")
-process.ecalRecHit.eeFEToBeRecovered = cms.InputTag("","")
-process.ecalRecHit.ebFEToBeRecovered = cms.InputTag("","")
-process.ecalRecHit.recoverEBFE = cms.bool(False)
-process.ecalRecHit.recoverEEFE = cms.bool(False)
+    process.ecalGlobalUncalibRecHit.EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis")
+    process.ecalGlobalUncalibRecHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis")
+    process.ecalRecHit.ebDetIdToBeRecovered = cms.InputTag("","")
+    process.ecalRecHit.eeDetIdToBeRecovered = cms.InputTag("","")
+    process.ecalRecHit.eeFEToBeRecovered = cms.InputTag("","")
+    process.ecalRecHit.ebFEToBeRecovered = cms.InputTag("","")
+    process.ecalRecHit.recoverEBFE = cms.bool(False)
+    process.ecalRecHit.recoverEEFE = cms.bool(False)
 
-process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi")
-process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi")
-process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi")
+    process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi")
+    process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi")
+    process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi")
 
-process.hbheprereco.digiLabel = "simHcalUnsuppressedDigis"
-process.horeco.digiLabel = "simHcalUnsuppressedDigis"
-process.hfreco.digiLabel = "simHcalUnsuppressedDigis"
-process.hcalupgradereco.digiLabel = "simHcalUnsuppressedDigis"
+    process.hbheprereco.digiLabel = "simHcalUnsuppressedDigis"
+    process.horeco.digiLabel = "simHcalUnsuppressedDigis"
+    process.hfreco.digiLabel = "simHcalUnsuppressedDigis"
+    process.hcalupgradereco.digiLabel = "simHcalUnsuppressedDigis"
 
 ### Known alterations for Reco #####################################################
-delattr(process,"hbhereco")
-process.hbhereco = process.hbheprereco.clone()
+    delattr(process,"hbhereco")
+    process.hbhereco = process.hbheprereco.clone()
 
-process.metrecoPlusHCALNoise.remove(process.BeamHaloSummary)
-process.metrecoPlusHCALNoise.remove(process.GlobalHaloData)
-process.metrecoPlusHCALNoise.remove(process.HcalHaloData)
+    process.metrecoPlusHCALNoise.remove(process.BeamHaloSummary)
+    process.metrecoPlusHCALNoise.remove(process.GlobalHaloData)
+    process.metrecoPlusHCALNoise.remove(process.HcalHaloData)
 
-process.metrecoPlusHCALNoise.remove(process.hcalnoise)
-process.jetGlobalReco = cms.Sequence(process.recoJets*process.recoTrackJets)
-process.jetHighLevelReco = cms.Sequence(process.recoJetAssociations*process.recoPFJets*process.recoJPTJets)
+    process.metrecoPlusHCALNoise.remove(process.hcalnoise)
+    process.jetGlobalReco = cms.Sequence(process.recoJets*process.recoTrackJets)
+    process.jetHighLevelReco = cms.Sequence(process.recoJetAssociations*process.recoPFJets*process.recoJPTJets)
 
 ### Place to add in the reco steps one by one ######################################
-process.calolocalreco = cms.Sequence(process.ecalGlobalUncalibRecHit+
+    process.calolocalreco = cms.Sequence(process.ecalGlobalUncalibRecHit+
                                 process.ecalDetIdToBeRecovered+
                                 process.ecalRecHit+
                                 process.ecalCompactTrigPrim+
@@ -125,13 +125,13 @@ process.calolocalreco = cms.Sequence(process.ecalGlobalUncalibRecHit+
                                 process.horeco+process.hfreco+process.hcalupgradereco+process.towerMaker
                                 #+process.zdcreco
                                 )
-process.localreco  = cms.Sequence(process.trackerlocalreco+
+    process.localreco  = cms.Sequence(process.trackerlocalreco+
                                 process.muonlocalreco+
                                 process.calolocalreco+
                                 process.castorreco+
                                 process.lumiProducer
                                 )
-process.globalreco = cms.Sequence(process.offlineBeamSpot
+    process.globalreco = cms.Sequence(process.offlineBeamSpot
                           *process.recopixelvertexing
                           *process.trackingGlobalReco
                           #*process.hcalGlobalRecoSequence 
@@ -146,7 +146,7 @@ process.globalreco = cms.Sequence(process.offlineBeamSpot
                           *process.muoncosmicreco
                           *process.CastorFullReco
                           )
-process.highlevelreco = cms.Sequence(process.egammaHighLevelRecoPrePF
+    process.highlevelreco = cms.Sequence(process.egammaHighLevelRecoPrePF
                              *process.particleFlowReco
                              *process.egammaHighLevelRecoPostPF
                              *process.jetHighLevelReco
@@ -159,12 +159,14 @@ process.highlevelreco = cms.Sequence(process.egammaHighLevelRecoPrePF
                              *process.muoncosmichighlevelreco
                              *process.reducedRecHits
                              )
-process.reconstruction = cms.Sequence(  process.localreco       *
+    process.reconstruction = cms.Sequence(  process.localreco       *
                                         process.globalreco      *
                                         process.highlevelreco   *
                                         process.logErrorHarvester
                                         )
-
+    # Clean out some unused sequences
+    process.hcalLocalRecoSequence=cms.Sequence()
+    process.hcalGlobalRecoSequence=cms.Sequence()
 
     return(process)
 
