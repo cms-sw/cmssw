@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import Geometry.TrackerGeometryBuilder.trackerGeometryConstants_cfi as trackerGeometryConstants_cfi
 
 # misalignment scenarios
 from Alignment.TrackerAlignment.Scenarios_cff import *
@@ -65,6 +66,9 @@ looper = cms.Looper("AlignmentProducer",
                       #                                'TrackerTPEHalfDisk,111000')
                       #)
                     ),
+
+                    # Tracker constants: different for SLHC pixel topology
+                    trackerGeometryConstants = cms.PSet(trackerGeometryConstants_cfi.trackerGeometryConstants),
 
                     # Save alignment to DB: true requires configuration of PoolDBOutputService
                     saveToDB = cms.bool(False),            # save alignment?

@@ -84,7 +84,7 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: 2011/05/23 15:01:13 $ 
+ **  $Date: 2012/02/08 16:03:29 $ 
  **  authors: 
  **   Nancy Marinelli, U. of Notre Dame, US  
  **   Jamie Antonelli, U. of Notre Dame, US
@@ -230,6 +230,8 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   MonitorElement* h_invMassOneWithTracks_;
   MonitorElement* h_invMassZeroWithTracks_;
   MonitorElement* h_invMassAllPhotons_;
+  MonitorElement* h_invMassPhotonsEBarrel_;
+  MonitorElement* h_invMassPhotonsEEndcap_;
 
  ////////2D vectors of histograms
 
@@ -255,8 +257,11 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   std::vector<std::vector<MonitorElement*> > h_nTrackIsolHollow_;
   std::vector<std::vector<MonitorElement*> > h_trackPtSumHollow_;
   std::vector<std::vector<MonitorElement*> > h_ecalSum_;
+  std::vector<std::vector<MonitorElement*> > h_ecalSumEBarrel_;
+  std::vector<std::vector<MonitorElement*> > h_ecalSumEEndcap_;
   std::vector<std::vector<MonitorElement*> > h_hcalSum_;
-
+  std::vector<std::vector<MonitorElement*> > h_hcalSumEBarrel_;
+  std::vector<std::vector<MonitorElement*> > h_hcalSumEEndcap_;
 
   std::vector<std::vector<MonitorElement*> > p_nTrackIsolSolidVsEta_;
   std::vector<std::vector<MonitorElement*> > p_trackPtSumSolidVsEta_;

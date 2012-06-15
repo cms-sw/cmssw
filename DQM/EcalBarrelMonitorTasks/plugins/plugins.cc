@@ -1,6 +1,12 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "DQM/EcalBarrelMonitorTasks/interface/EBBeamHodoTask.h"
+DEFINE_FWK_MODULE(EBBeamHodoTask);
+
+#include "DQM/EcalBarrelMonitorTasks/interface/EBBeamCaloTask.h"
+DEFINE_FWK_MODULE(EBBeamCaloTask);
+
 #include "DQM/EcalBarrelMonitorTasks/interface/EBClusterTask.h"
 DEFINE_FWK_MODULE(EBClusterTask);
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Matthias Geisler
 //         Created:  Wed Apr 18 14:48:37 CEST 2012
-// $Id: PFCand_AssoMap.h,v 1.2 2012/05/14 09:03:48 mgeisler Exp $
+// $Id: PFCand_AssoMap.h,v 1.1 2012/04/18 15:16:54 mgeisler Exp $
 //
 //
 #include "CommonTools/RecoUtils/interface/PFCand_NoPU_WithAM.h"
@@ -67,11 +67,13 @@ class PFCand_AssoMap : public edm::EDProducer {
 
    private:
       virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual bool TrackMatch(reco::TrackRef,reco::TrackRef);
 
       // ----------member data ---------------------------
 
       edm::InputTag input_PFCandidates_;
       edm::InputTag input_VertexCollection_;
+      edm::InputTag input_VertexTrackAssociationMap_;
 
       edm::InputTag ConversionsCollection_;
 
@@ -79,11 +81,6 @@ class PFCand_AssoMap : public edm::EDProducer {
       edm::InputTag LambdaCollection_;
 
       edm::InputTag NIVertexCollection_;
-
-      bool UseBeamSpotCompatibility_;
-      InputTag input_BeamSpot_;
-
-      bool input_VertexAssClosest_;
 
       int maxNumWarnings_; // CV: print Warning if TrackExtra objects don't exist in input file,
                            //     but only a few times

@@ -10,11 +10,10 @@
 //
 // Original Author:  Matthias Geisler
 //         Created:  Wed Apr 18 14:48:37 CEST 2012
-// $Id: PFCand_AssoMap.cc,v 1.2 2012/05/14 09:03:21 mgeisler Exp $
+// $Id: PFCand_AssoMap.cc,v 1.1 2012/04/18 15:16:18 mgeisler Exp $
 //
 //
 #include "CommonTools/RecoUtils/interface/PFCand_AssoMap.h"
-#include "CommonTools/RecoUtils/interface/PF_PU_AssoMap.h"
 
 //
 // constants, enums and typedefs
@@ -54,6 +53,7 @@ PFCand_AssoMap::PFCand_AssoMap(const edm::ParameterSet& iConfig)
 
   	input_PFCandidates_ = iConfig.getParameter<InputTag>("PFCandidateCollection");
   	input_VertexCollection_ = iConfig.getParameter<InputTag>("VertexCollection");
+  	input_VertexTrackAssociationMap_ = iConfig.getParameter<InputTag>("VertexTrackAssociationMap");
 
   	ConversionsCollection_= iConfig.getParameter<InputTag>("ConversionsCollection");
 
@@ -61,11 +61,6 @@ PFCand_AssoMap::PFCand_AssoMap(const edm::ParameterSet& iConfig)
   	LambdaCollection_= iConfig.getParameter<InputTag>("V0LambdaCollection");
 
   	NIVertexCollection_= iConfig.getParameter<InputTag>("NIVertexCollection");
-
-   	UseBeamSpotCompatibility_= iConfig.getUntrackedParameter<bool>("UseBeamSpotCompatibility", false);
-  	input_BeamSpot_= iConfig.getParameter<InputTag>("BeamSpot");
-
-  	input_VertexAssClosest_= iConfig.getUntrackedParameter<bool>("VertexAssClosest", true);
 
         ignoremissingpfcollection_ = iConfig.getParameter<bool>("ignoreMissingCollection");
 
@@ -92,6 +87,10 @@ PFCand_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//get the input pfCandidateCollection
   	Handle<PFCandidateCollection> pfCandInH;
   	iEvent.getByLabel(input_PFCandidates_,pfCandInH);
+  
+	//get the input vertex<->general track association map
+  	Handle<TrackVertexAssMap> GTassomapH;
+  	iEvent.getByLabel(input_VertexTrackAssociationMap_,GTassomapH);
 
 	//get the input vertex collection
   	Handle<VertexCollection> vtxcollH;
@@ -118,10 +117,6 @@ PFCand_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   	if(!iEvent.getByLabel(NIVertexCollection_,displVertexCollH) && ignoremissingpfcollection_){
     	  displVtxColl = false;
   	}
-  
-  	//get the offfline beam spot
-  	Handle<BeamSpot> beamspotH;
-  	iEvent.getByLabel(input_BeamSpot_, beamspotH);
    
 	for( unsigned i=0; i<pfCandInH->size(); i++ ) {
      
@@ -132,136 +127,94 @@ PFCand_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  TrackRef PFCtrackref = candref->trackRef();
 
           VertexPfcQuality VtxPfcQualAss;
-	  VertexRef vtxref_tmp;
- 	  
-	  Conversion gamma;
-	  VertexCompositeCandidate V0;
-	  PFDisplacedVertex displVtx; 
 
 	  if(PFCtrackref.isNull()){
      
             //the pfcand has no reference to a general track, therefore its mostly uncharged
-            //it will allways be associated to the first vertex,
-            //this was found out to be the best solution w.r.t. jet-pt response
-            //weight set to -3.
 
-            weight = -3.;              
-	    VtxPfcQualAss = make_pair(VertexRef(vtxcollH, 0), make_pair(candref, weight));         
+	    VertexRef vtxref_tmp;
+
+            //weight set to -3.
+            weight = -3.;   
+ 	  
+	    Conversion gamma;
+	    VertexCompositeCandidate V0;
+	    PFDisplacedVertex displVtx;  
+
+            if(PFCand_NoPU_WithAM_Algos::ComesFromV0Decay(candref,vertCompCandCollKshortH,vertCompCandCollLambdaH,vtxcollH,&vtxref_tmp)){
+
+              VtxPfcQualAss = make_pair(vtxref_tmp,make_pair(candref,weight));
+              break;
+
+            }   
+	  
+	    if(displVtxColl){
+
+              if(PFCand_NoPU_WithAM_Algos::ComesFromNI(candref,displVertexCollH,&displVtx,iSetup)){
+
+                vtxref_tmp = PFCand_NoPU_WithAM_Algos::FindNIVertex(candref,displVtx,vtxcollH,true,iSetup);
+                VtxPfcQualAss = make_pair(vtxref_tmp,make_pair(candref,weight));
+                break;
+
+	      }
+
+            }else if ( numWarnings_ < maxNumWarnings_ ){
+	      edm::LogWarning("PFCand_AssoMap::produce")
+	        << "No PFDisplacedVertex Collection available in input file --> skipping check for nuclear interaction !!" << std::endl;
+	      ++numWarnings_;
+            } 
+
+            if(PFCand_NoPU_WithAM_Algos::ComesFromConversion(candref,convCollH,vtxcollH,&vtxref_tmp)){
+
+              VtxPfcQualAss = make_pair(vtxref_tmp,make_pair(candref,weight));
+              break;
+
+            }
+
+            //the uncharged particle does not come from a V0 decay, gamma conversion or a nuclear interaction
+            //association to the closest vertex in z to the pfcand's vertex
+            //weight is set to -4.
+            weight = -4.;   
+            vtxref_tmp = PFCand_NoPU_WithAM_Algos::FindPFCandVertex(candref,vtxcollH);
+            VtxPfcQualAss = make_pair(vtxref_tmp,make_pair(candref,weight));
 
           }else{
-
-	    //Round 1: Check for track weight in vertices
-    	    VtxPfcQualAss = PFCand_NoPU_WithAM_Algos::TrackWeightAssociation(candref, vtxcollH);
-    
-            if ( VtxPfcQualAss.second.second <= 1.e-5 ) {
-
-	      //Round 2a: Check for photon conversion
-              if ( PFCtrackref->extra().isAvailable() ) {
-
-        	if (PFCand_NoPU_WithAM_Algos::ComesFromConversion(candref,convCollH,vtxcollH,&vtxref_tmp)) {
-
-                  if ( UseBeamSpotCompatibility_ ){
-
-                    if (PFCand_NoPU_WithAM_Algos::CheckBeamSpotCompability(candref, beamspotH) ){
-	              //associate to closest vertex in z 
-	              VtxPfcQualAss = PFCand_NoPU_WithAM_Algos::AssociateClosestInZ(candref, vtxcollH);
-	            } else {
-	            //choose always the first vertex from the vertex collection & bestweight set to -2
-	            VtxPfcQualAss = make_pair(VertexRef(vtxcollH, 0), make_pair(candref, -2.));
-                    }
-
-                  } else {
-	
-		    VtxPfcQualAss = make_pair(vtxref_tmp,make_pair(candref,-2.));
-
-                  }
-
-	          if ( VtxPfcQualAss.second.second == -1. ) VtxPfcQualAss.second.second = -2.;
-                }
-              }
-
-              if ( VtxPfcQualAss.second.second != -2. ) {
-
-	      	//Round 2b: Check for V0 decay
-	        if(PFCand_NoPU_WithAM_Algos::ComesFromV0Decay(candref,vertCompCandCollKshortH,vertCompCandCollLambdaH,vtxcollH,&vtxref_tmp)){
-
-                  if ( UseBeamSpotCompatibility_ ){
-
-                    if (PFCand_NoPU_WithAM_Algos::CheckBeamSpotCompability(candref, beamspotH) ){
-	              //associate to closest vertex in z 
-	              VtxPfcQualAss = PFCand_NoPU_WithAM_Algos::AssociateClosestInZ(candref, vtxcollH);
-	            } else {
-	            //choose always the first vertex from the vertex collection & bestweight set to -2
-	            VtxPfcQualAss = make_pair(VertexRef(vtxcollH, 0), make_pair(candref, -2.));
-                    }
-
-                  } else {
-	
-		    VtxPfcQualAss = make_pair(vtxref_tmp,make_pair(candref,-2.));
-
-                  }
-
-	          if ( VtxPfcQualAss.second.second == -1. ) VtxPfcQualAss.second.second = -2.;
-
-	        }
-	
-              }
      
-              if ( (VtxPfcQualAss.second.second != -2.) && displVtxColl ) {
+            //the pfcand has a reference to a general track
+            //look for association in the general track association map
 
-	      	//Round 2c: Check for nuclear interaction
-	        if ( PF_PU_AssoMapAlgos::ComesFromNI(PFCtrackref, displVertexCollH, &displVtx) ){
+            TrackVertexAssMap::const_iterator assomap_ite;
 
-                  if ( UseBeamSpotCompatibility_ ){
+	    bool isAssoc = false;
 
-                    if (PFCand_NoPU_WithAM_Algos::CheckBeamSpotCompability(candref, beamspotH) ){
-	              //associate to closest vertex in z 
-	              VtxPfcQualAss = PFCand_NoPU_WithAM_Algos::AssociateClosestInZ(candref, vtxcollH);
-	            } else {
-	            //choose always the first vertex from the vertex collection & bestweight set to -2
-	            VtxPfcQualAss = make_pair(VertexRef(vtxcollH, 0), make_pair(candref, -2.));
-                    }
+            for(assomap_ite=GTassomapH->begin(); assomap_ite!=GTassomapH->end(); assomap_ite++){
 
-                  } else {	          
-
-                    vtxref_tmp = PFCand_NoPU_WithAM_Algos::FindNIVertex(candref,displVtx,vtxcollH);
-                    VtxPfcQualAss = make_pair(vtxref_tmp,make_pair(candref, -2.));
+              VertexRef vertexref = assomap_ite->key;
+	      TrackQualityPairVector GTtrckcoll = assomap_ite->val;
+  
+  	      for(unsigned index_GTtrck=0; index_GTtrck<GTtrckcoll.size(); index_GTtrck++){
  
-                  }
+	        TrackRef GTtrackref = GTtrckcoll.at(index_GTtrck).first;
+                weight = GTtrckcoll.at(index_GTtrck).second;
 
-	          if ( VtxPfcQualAss.second.second == -1. ) VtxPfcQualAss.second.second = -2.;
+   	        if(TrackMatch(GTtrackref,PFCtrackref)){
 
-	        }
-	
-              }
+	          VtxPfcQualAss = make_pair(vertexref,make_pair(candref,weight));
+                  isAssoc = true;
+                  break;
+	 	   	      
+	        } 
 
-              if ( VtxPfcQualAss.second.second != -2. ) {
+	      }
 
-	      	//Round 3: Associate to closest/first vertex
+            }
 
-                if ( UseBeamSpotCompatibility_ ){
+            if(!isAssoc){
 
-                  if (PFCand_NoPU_WithAM_Algos::CheckBeamSpotCompability(candref, beamspotH) ){
-	            //associate to closest vertex in z 
-	            VtxPfcQualAss = PFCand_NoPU_WithAM_Algos::AssociateClosestInZ(candref, vtxcollH);
-	          } else {
-	            //choose always the first vertex from the vertex collection & bestweight set to -2
-	            VtxPfcQualAss = make_pair(VertexRef(vtxcollH, 0), make_pair(candref, -2.));
-                  }
-
-                } else {
-
-  	          if ( input_VertexAssClosest_ ) {
-	            //associate to closest vertex in z 
-	            VtxPfcQualAss = PFCand_NoPU_WithAM_Algos::AssociateClosestInZ(candref, vtxcollH);
-	          } else {
-	            //choose always the first vertex from the vertex collection & bestweight set to -1
-	            VtxPfcQualAss = make_pair(VertexRef(vtxcollH, 0), make_pair(candref, -1.));
-	          }
-
-                }
-      
-              }
+              //weight is set to -4.
+              weight = -4.;   
+              VertexRef vtxref_tmp = PFCand_NoPU_WithAM_Algos::FindPFCandVertex(candref,vtxcollH);
+              VtxPfcQualAss = make_pair(vtxref_tmp,make_pair(candref,weight));
 
             }
 
@@ -272,6 +225,20 @@ PFCand_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        	}
 
    	iEvent.put( PFCand_NoPU_WithAM_Algos::SortAssociationMap(&(*pfCandAM)) );
+
+}
+
+bool 
+PFCand_AssoMap::TrackMatch(reco::TrackRef trackref1,reco::TrackRef trackref2)
+{
+
+	return (
+	  (*trackref1).eta() == (*trackref2).eta() &&
+	  (*trackref1).phi() == (*trackref2).phi() &&
+	  (*trackref1).chi2() == (*trackref2).chi2() &&
+	  (*trackref1).ndof() == (*trackref2).ndof() &&
+	  (*trackref1).p() == (*trackref2).p()
+	);
 
 }
 

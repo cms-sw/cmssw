@@ -26,6 +26,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 CreateSurveyRcds::CreateSurveyRcds(const edm::ParameterSet& cfg)
+  : theParameterSet( cfg )
 {
 	m_inputGeom = cfg.getUntrackedParameter< std::string > ("inputGeom");
 	m_inputSimpleMis = cfg.getUntrackedParameter< double > ("simpleMis");
@@ -37,7 +38,15 @@ void CreateSurveyRcds::analyze(const edm::Event& event, const edm::EventSetup& s
 	
 	edm::ESHandle<GeometricDet>  geom;
 	setup.get<IdealGeometryRecord>().get(geom);	 
-	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom);
+	const edm::ParameterSet tkGeomConsts( theParameterSet.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
+	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom,
+									      tkGeomConsts.getParameter<bool>("upgradeGeometry"),
+									      tkGeomConsts.getParameter<int>( "ROWS_PER_ROC" ),
+									      tkGeomConsts.getParameter<int>( "COLS_PER_ROC" ),
+									      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
+									      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ),
+									      tkGeomConsts.getParameter<int>( "ROCS_X" ),
+									      tkGeomConsts.getParameter<int>( "ROCS_Y" ));
 	
 	//take geometry from DB or randomly generate geometry
 	if (m_inputGeom == "sqlite"){

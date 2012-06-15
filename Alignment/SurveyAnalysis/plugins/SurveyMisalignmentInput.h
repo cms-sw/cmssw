@@ -5,8 +5,8 @@
  *
  *  Class to misaligned tracker from DB.
  *
- *  $Date: 2007/10/08 16:38:04 $
- *  $Revision: 1.3 $
+ *  $Date: 2012/06/13 09:22:26 $
+ *  $Revision: 1.5 $
  *  \author Chung Khim Lae
  */
 // user include files
@@ -46,7 +46,8 @@ private:
 
   /// Get alignable surface from misalignments.db
   AlignableSurface getAlignableSurface(align::ID);
-	
+  
+  const edm::ParameterSet theParameterSet;
 };
 
 #endif

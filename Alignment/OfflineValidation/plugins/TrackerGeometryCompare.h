@@ -14,8 +14,8 @@
  *   path p = { comparator }
  *
  *
- *  $Date: 2009/07/24 13:48:19 $
- *  $Revision: 1.9 $
+ *  $Date: 2012/06/13 09:20:14 $
+ *  $Revision: 1.11 $
  *  \author Nhan Tran
  */
 
@@ -114,8 +114,8 @@ private:
 	TFile* _inputRootFile2;
 	TTree* _inputTree1;
 	TTree* _inputTree2;
-	
-	int _id, _level, _mid, _mlevel, _sublevel, _useDetId, _detDim;
+
+  	int _id, _level, _mid, _mlevel, _sublevel, _useDetId, _detDim;
 	float _xVal, _yVal, _zVal, _rVal, _phiVal, _alphaVal, _betaVal, _gammaVal, _etaVal;
 	// changes in global variables
 	float _dxVal, _dyVal, _dzVal, _drVal, _dphiVal, _dalphaVal, _dbetaVal, _dgammaVal;
@@ -124,7 +124,7 @@ private:
 	float _surWidth, _surLength;
 	uint32_t _identifiers[6];
 	double _surRot[9];
-	
+
 	bool firstEvent_;
 	
 };

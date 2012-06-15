@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_1/HLT/V359 (CMSSW_5_2_5_HLT7)
+# /dev/CMSSW_5_2_1/HLT/V360 (CMSSW_5_2_5_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V359')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HLT/V360')
 )
 
 streams = cms.PSet( 
@@ -13670,7 +13670,7 @@ hltPFHTMETNoMu = cms.EDProducer( "HLTHtMhtProducer",
 hltPFMET80MuORNoMu = cms.EDFilter( "HLTHtMhtFilter",
     saveTags = cms.bool( True ),
     mhtLabels = cms.VInputTag( 'hltPFHTMET','hltPFHTMETNoMu' ),
-    meffSlope = cms.vdouble( 1.0, 1.0, 1.0 ),
+    meffSlope = cms.vdouble( 1.0, 1.0 ),
     minMeff = cms.vdouble( 0.0, 0.0 ),
     minMht = cms.vdouble( 80.0, 80.0 ),
     htLabels = cms.VInputTag( 'hltPFHTMET','hltPFHTMET' ),

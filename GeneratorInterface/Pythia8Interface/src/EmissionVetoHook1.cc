@@ -407,7 +407,7 @@ bool EmissionVetoHook1::doVetoFSREmission(int, const Pythia8::Event &e, int iSys
   int r   = (pTemtMode == 0) ? iRecAft : -1;
 
   // When pTemtMode is 0 or 1, iEmt has been selected
-  double pTemt;
+  double pTemt = -1.;
   if (pTemtMode == 0 || pTemtMode == 1) {
     // Which parton is emitted, based on emittedMode:
     //  0 - Pythia definition of emitted

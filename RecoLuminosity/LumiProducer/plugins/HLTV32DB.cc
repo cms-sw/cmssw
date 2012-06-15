@@ -38,7 +38,7 @@ namespace lumi{
     const static unsigned int COMMITLSINTERVAL=500; //commit interval in LS
     
     explicit HLTV32DB(const std::string& dest);
-    virtual unsigned long long retrieveData( unsigned int );
+    virtual void retrieveData( unsigned int );
     virtual const std::string dataType() const;
     virtual const std::string sourceType() const;
     virtual ~HLTV32DB();
@@ -59,7 +59,7 @@ namespace lumi{
 		      HltResult::iterator hltBeg,
 		      HltResult::iterator hltEnd,
 		      unsigned int commitintv);
-    unsigned long long writeHltDataToSchema2(coral::ISessionProxy* lumisession,
+    void writeHltDataToSchema2(coral::ISessionProxy* lumisession,
 			       unsigned int irunnumber,
 			       const std::string& source,
 			       unsigned int npath,
@@ -74,7 +74,7 @@ namespace lumi{
   //
   
   HLTV32DB::HLTV32DB(const std::string& dest):DataPipe(dest){}
-  unsigned long long HLTV32DB::retrieveData( unsigned int runnumber){
+  void HLTV32DB::retrieveData( unsigned int runnumber){
     std::string confdbschema("CMS_HLT");
     std::string hltschema("CMS_RUNINFO");
     std::string confdbpathtabname("PATHS");
@@ -265,7 +265,6 @@ namespace lumi{
     std::cout<<"inserting totalhltls "<<totalcmsls<<" total path "<<npath<<std::endl;
     //HltResult::iterator hltItBeg=hltresult.begin();
     //HltResult::iterator hltItEnd=hltresult.end();
-    unsigned long long hltdataid=0;
     try{     
        if(m_mode=="loadoldschema"){
 	  std::cout<<"writing hlt data to old hlt table"<<std::endl;
@@ -273,7 +272,7 @@ namespace lumi{
 	  std::cout<<"done"<<std::endl;
        }
        std::cout<<"writing hlt data to new lshlt table"<<std::endl;
-       hltdataid=writeHltDataToSchema2(destsession,runnumber,dbsource,npath,hltresult.begin(),hltresult.end(), hltpathmap,COMMITLSINTERVAL);
+       writeHltDataToSchema2(destsession,runnumber,dbsource,npath,hltresult.begin(),hltresult.end(), hltpathmap,COMMITLSINTERVAL);
        std::cout<<"done"<<std::endl;
        delete destsession;
        delete svc;
@@ -284,9 +283,8 @@ namespace lumi{
        delete svc;
        throw er;
     }
-    return hltdataid;
   }
-  void
+  void 
   HLTV32DB::writeHltData(coral::ISessionProxy* lumisession,
 		       unsigned int irunnumber,
 		       const std::string& source,
@@ -372,7 +370,7 @@ namespace lumi{
       }
     }
   }
- unsigned long long
+ void 
  HLTV32DB::writeHltDataToSchema2(coral::ISessionProxy* lumisession,
 			unsigned int irunnumber,
 			const std::string& source,
@@ -498,7 +496,6 @@ namespace lumi{
        std::cout<<"\t done"<<std::endl; 
      }
    }
-   return hltrundata.data_id;
  }
   const std::string HLTV32DB::dataType() const{
     return "HLTV3";

@@ -5,8 +5,8 @@
  *
  *  Class to create Survey[Error]Rcd for alignment with survey constraint
  *
- *  $Date: 2008/10/10 08:41:47 $
- *  $Revision: 1.1 $
+ *  $Date: 2012/06/13 09:22:26 $
+ *  $Revision: 1.3 $
  *  \author Chung Khim Lae
  */
 // user include files
@@ -58,9 +58,7 @@ class CreateSurveyRcds:
 		std::string textFileName;
 		
 		edm::ESHandle<Alignments> alignments;
-		
-		
-		
+	  const edm::ParameterSet theParameterSet;
 	};
 
 #endif

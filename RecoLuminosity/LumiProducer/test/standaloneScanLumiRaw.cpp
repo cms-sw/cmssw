@@ -4,9 +4,6 @@
 #include "RecoLuminosity/LumiProducer/interface/LumiRawDataStructures.h"
 #include <iostream>
 #include <iomanip>
-#include <memory>
-//#include <cmath>
-#include <algorithm>
 /** This programm scans a given lumi raw data file and print out the content
  **/
 int main(int argc, char** argv){
@@ -17,35 +14,7 @@ int main(int argc, char** argv){
   }
   //TFile *myfile=new TFile(filename,"READ");
   TFile * myfile=TFile::Open(filename);
-  TTree *diptree=(TTree*)myfile->Get("DIPCombined");
-  if(diptree){
-    std::auto_ptr<HCAL_HLX::DIP_COMBINED_DATA> dipdata(new HCAL_HLX::DIP_COMBINED_DATA);
-    diptree->SetBranchAddress("DIPCombined.",&dipdata);
-    size_t ndipentries=diptree->GetEntries();
-    unsigned int dipls=0;
-    if(ndipentries>0){
-      for(size_t i=0;i<1;++i){
-	unsigned int ncollidingbunches=0;
-	unsigned int nfilledbunches=0;
-	diptree->GetEntry(i);
-	unsigned int fillnumber=dipdata->FillNumber;
-	std::cout<<"Beam Mode : "<<dipdata->beamMode<<"\n";
-	std::cout<<"Beam Energy : "<<dipdata->Energy<<"\n";
-	//std::cout<<"sectionnumber : "<<dipdata->sectionNumber<<"\n";
-	dipls=dipdata->sectionNumber;
-	for(unsigned int i=0;i<3564;++i){
-	  int beam1in=dipdata->Beam[0].beamConfig[i];
-	  int beam2in=dipdata->Beam[1].beamConfig[i];
-	  if(beam1in && beam1in!=0 && beam2in && beam2in!=0){//if both bunches are filled
-	    ++nfilledbunches;
-	  }
-	}
-	std::cout<<"fillnumber "<<fillnumber<<" nfilled "<<nfilledbunches<<std::endl;
-      }
-    }
-  }
-}
-//TFile * myfile=TFile::Open("rfio:/castor/cern.ch/cms/store/lumi/200912/CMS_LUMI_RAW_20091212_000124025_0001_1.root");
+  //TFile * myfile=TFile::Open("rfio:/castor/cern.ch/cms/store/lumi/200912/CMS_LUMI_RAW_20091212_000124025_0001_1.root");
   //HCAL_HLX::RUN_SUMMARY *myRunSummary = new HCAL_HLX::RUN_SUMMARY;
   //TTree *runsummaryTree = (TTree *) myfile->Get("RunSummary");
   //if(!runsummaryTree) std::cout<<"no run summary data"<<std::endl;
@@ -57,7 +26,7 @@ int main(int argc, char** argv){
   // std::cout<<"Summary for run : "<<myRunSummary->runNumber<<std::endl;
   // std::cout<<std::setw(20)<<"timestamp : "<<myRunSummary->timestamp<<" : timestamp micros : "<<myRunSummary->timestamp_micros<<" : start orbit : "<<myRunSummary->startOrbitNumber<<" : end orbit : "<<myRunSummary->endOrbitnumber<<" : fill number : "<<myRunSummary->fillNumber<<" : number CMS LS : "<<myRunSummary->numberCMSLumiSections<<" : number DAQ LS : "<<myRunSummary->numberLumiDAQLumiSections<<std::endl;
   //}
-  /**
+
   HCAL_HLX::LEVEL1_TRIGGER *myTRG = new HCAL_HLX::LEVEL1_TRIGGER;
   TTree *trgTree = (TTree *) myfile->Get("L1Trigger");
   if(!trgTree) std::cout<<"no trg data"<<std::endl;
@@ -66,7 +35,7 @@ int main(int argc, char** argv){
   for(size_t i=0;i<trgentries;++i){
     trgTree->GetEntry(i);
     //std::cout<<"trg runnumber "<<myTRG->runNumber<<std::endl;
-    std::cout<<"TRG for run : "<< myTRG->runNumber<<" : LS : "<<myTRG->sectionNumber<<" : deadtime : "<< myTRG->deadtiecount<<std::endl;
+    std::cout<<"TRG for run : "<< myTRG->runNumber<<" : LS : "<<myTRG->sectionNumber<<" : deadtime : "<< myTRG->deadtimecount<<std::endl;
     for( unsigned int j=0; j<128; ++j){
       std::cout<<std::setw(20)<<"GT Algo  "<<j;
       std::cout<<" : path : "<< myTRG->GTAlgo[j].pathName<<" : counts : "<< myTRG->GTAlgo[j].counts<<" : prescale : "<< myTRG->GTAlgo[j].prescale<<std::endl;
@@ -76,7 +45,6 @@ int main(int argc, char** argv){
       std::cout<<" : path : "<< myTRG->GTTech[k].pathName<<" : counts : "<< myTRG->GTTech[k].counts<<" : prescale : "<< myTRG->GTTech[k].prescale<<std::endl;
     }
   }
-  **/
   /**
   HCAL_HLX::HLTRIGGER *myHLT = new HCAL_HLX::HLTRIGGER;
   TTree *hltTree = (TTree *) myfile->Get("HLTrigger");
@@ -91,7 +59,7 @@ int main(int argc, char** argv){
     }
   }
   **/
-  /**
+
   HCAL_HLX::LUMI_SECTION *myLumiSection=new HCAL_HLX::LUMI_SECTION;
   HCAL_HLX::LUMI_SECTION_HEADER *myLumiHeader = &(myLumiSection->hdr);
   HCAL_HLX::LUMI_SUMMARY *myLumiSummary = &(myLumiSection->lumiSummary);
@@ -122,6 +90,5 @@ int main(int argc, char** argv){
     //  std::cout<<std::setw(20)<<"    LHCLumi : "<<myLumiDetail->LHCLumi[j]<<" : ETLumi : "<<myLumiDetail->ETLumi[j]<<" : ETLumiErr : "<<myLumiDetail->ETLumiErr[j]<<" : ETLumiQlty : "<<myLumiDetail->ETLumiQlty[j]<<" : ETBXNormalization : "<<myLumiDetail->ETBXNormalization[j]<<std::endl;
     //}
   }
-  **/
-//}
+}
 

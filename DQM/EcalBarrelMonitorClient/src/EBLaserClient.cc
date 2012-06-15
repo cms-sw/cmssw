@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2012/04/13 17:59:43 $
- * $Revision: 1.283.2.1 $
+ * $Date: 2011/08/30 09:33:51 $
+ * $Revision: 1.282 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1895,8 +1895,6 @@ void EBLaserClient::analyze(void) {
     if ( nCryL3 > 0 ) meanAmplL3 /= float (nCryL3);
     if ( nCryL4 > 0 ) meanAmplL4 /= float (nCryL4);
 
-    bool l1Data(false), l2Data(false), l3Data(false), l4Data(false);
-
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
 
@@ -1937,11 +1935,6 @@ void EBLaserClient::analyze(void) {
         update10 = UtilsClient::getBinStatistics(h10_[ism-1], ie, ip, num10, mean10, rms10);
         update11 = UtilsClient::getBinStatistics(h11_[ism-1], ie, ip, num11, mean11, rms11);
         update12 = UtilsClient::getBinStatistics(h12_[ism-1], ie, ip, num12, mean12, rms12);
-
-	if(update01) l1Data = true;
-	if(update03) l2Data = true;
-	if(update05) l3Data = true;
-	if(update07) l4Data = true;
 
         float xmean01 = mean01;
         float xmean03 = mean03;
@@ -2339,9 +2332,6 @@ void EBLaserClient::analyze(void) {
         if ( meg09_[ism-1] )           meg09_[ism-1]->setBinContent(i, 1, val);
         if ( mepnprms05_[ism-1] ) mepnprms05_[ism-1]->Fill(rms13);
       }
-      else if(l1Data){
-	if ( meg09_[ism-1] )           meg09_[ism-1]->setBinContent(i, 1, 0.);
-      }
 
       if ( update10 && update14 ) {
 
@@ -2358,9 +2348,6 @@ void EBLaserClient::analyze(void) {
 
         if ( meg10_[ism-1] )           meg10_[ism-1]->setBinContent(i, 1, val);
         if ( mepnprms06_[ism-1] ) mepnprms06_[ism-1]->Fill(rms14);
-      }
-      else if(l2Data){
-	if ( meg10_[ism-1] )           meg10_[ism-1]->setBinContent(i, 1, 0.);
       }
 
       if ( update11 && update15 ) {
@@ -2379,9 +2366,6 @@ void EBLaserClient::analyze(void) {
         if ( meg11_[ism-1] )           meg11_[ism-1]->setBinContent(i, 1, val);
         if ( mepnprms07_[ism-1] ) mepnprms07_[ism-1]->Fill(rms15);
       }
-      else if(l3Data){
-	if ( meg11_[ism-1] )           meg11_[ism-1]->setBinContent(i, 1, 0.);
-      }
 
       if ( update12 && update16 ) {
 
@@ -2398,9 +2382,6 @@ void EBLaserClient::analyze(void) {
 
         if ( meg12_[ism-1] )           meg12_[ism-1]->setBinContent(i, 1, val);
         if ( mepnprms08_[ism-1] ) mepnprms08_[ism-1]->Fill(rms16);
-      }
-      else if(l4Data){
-	if ( meg12_[ism-1] )           meg12_[ism-1]->setBinContent(i, 1, 0.);
       }
 
       if ( Masks::maskPn(ism, i, bits01|bits03, EcalBarrel) ) {

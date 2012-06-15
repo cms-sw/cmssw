@@ -67,7 +67,7 @@ int SiPixelFrameReverter::toCabling(
     GlobalPixel global = {detector.row, detector.col};
     LocalPixel local = roc->toLocal(global);
     if(!local.valid()) continue;
-    ElectronicIndex cabIdx = {it->link, it->roc, local.dcol(), local.pxid()};
+    ElectronicIndex cabIdx = {static_cast<int>(it->link), static_cast<int>(it->roc), local.dcol(), local.pxid()};
     cabling = cabIdx;
 
     return it->fed;

@@ -8,8 +8,7 @@
 
 ParticleReplacerParticleGun::ParticleReplacerParticleGun(const edm::ParameterSet& iConfig, bool verbose):
   ParticleReplacerBase(iConfig),
-  tauola_(iConfig.getParameter<edm::ParameterSet>("ExternalDecays").getParameter<edm::ParameterSet>("Tauola")),
-  //tauola_(gen::TauolaInterface::getInstance()),
+  tauola_(gen::TauolaInterface::getInstance()),
   pythia_(iConfig),
   particleOrigin_(iConfig.getParameter<std::string>("particleOrigin")),
   forceTauPolarization_(iConfig.getParameter<std::string>("forceTauPolarization")),
@@ -19,7 +18,7 @@ ParticleReplacerParticleGun::ParticleReplacerParticleGun(const edm::ParameterSet
   forceTauPlusHelicity_(iConfig.getParameter<int>("forceTauPlusHelicity")),
   forceTauMinusHelicity_(iConfig.getParameter<int>("forceTauMinusHelicity")),
   printout_(verbose) {
-  //tauola_->setPSet(iConfig.getParameter<edm::ParameterSet>("ExternalDecays").getParameter<edm::ParameterSet>("Tauola"));
+  tauola_->setPSet(iConfig.getParameter<edm::ParameterSet>("ExternalDecays").getParameter<edm::ParameterSet>("Tauola"));
   srand(time(NULL)); // Should we use RandomNumberGenerator service?
 
   if(forceTauPlusHelicity_ != 0) 

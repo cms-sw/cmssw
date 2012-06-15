@@ -2,9 +2,9 @@
 
 #-----------------------------------------------------
 # original author: Andrea Lucaroni
-# Revision:        $Revision: 1.3 $
-# Last update:     $Date: 2012/05/22 08:22:04 $
-# by:              $Author: taroni $
+# Revision:        $Revision: 1.1 $
+# Last update:     $Date: 2011/06/28 19:34:22 $
+# by:              $Author: mussgill $
 #-----------------------------------------------------
 
 from xml.dom import minidom
@@ -28,12 +28,7 @@ import pickle as pk
 
 from optparse import OptionParser
 #####DEBUG
-DEBUG=0
-import inspect
-
-def lineno():
-    """Returns the current line number in our program."""
-    return inspect.currentframe().f_back.f_lineno
+DEBUG = 0
 
 #size file
 def filesize1(n):    
@@ -44,7 +39,7 @@ def filesize1(n):
 ### lumiCalc
 def printLumi(file,namefile):
     if(filesize1(file) != 0):
-        string= "lumiCalc2.py -c frontier://LumiCalc/CMS_LUMI_PROD -i "
+        string= "lumiCalc.py -c frontier://LumiCalc/CMS_LUMI_PROD -i "
         string1= " --nowarning overview >"
         string2= string + file + string1 + namefile
         data = os.system(string2)
@@ -57,25 +52,11 @@ def printLumi(file,namefile):
 def DBSquery(dataset,site,run):
 
     url = "http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet"
-    if DEBUG:
-        print lineno()
     args = {}
     args['url']     = url
     args['level']   = 'CRITICAL'
-    if DEBUG:
-        print lineno()
     api = DBSAPI.dbsApi.DbsApi(args)
-    if DEBUG:
-        print lineno()
-    try:
-        files = api.listFiles(path=dataset,tier_list =site,runNumber=run)
-    except DbsApiException, ex:
-        print "Caught API Exception %s: %s "  % (ex.getClassName(), ex.getErrorMessage() )
-        files = ""
-        if ex.getErrorCode() not in (None, ""):
-            print "DBS Exception Error Code: ", ex.getErrorCode()
-    if DEBUG:
-        print lineno()
+    files = api.listFiles(path=dataset,tier_list =site,runNumber=run)
     return files
 
 ###file cff data
@@ -129,7 +110,7 @@ def defineOptions():
     parser.add_option("-r", "--regexp",
                       dest="regexp",
                       type="string",
-                      default='groupName : LIKE %Collisions12% , runNumber : = 190000 ',
+                      default='groupName : LIKE %Collisions10% , runNumber : = 136088',
                       help=" \"{runNumber} >= 148127 and {runNumber} < 148128 \" ")
 
     parser.add_option("-d", "--datasetPath",
@@ -161,7 +142,7 @@ def serverQuery(workspaceName,regexp):
     # get handler to RR XML-RPC server
     server = xmlrpclib.ServerProxy('http://cms-service-runregistry-api.web.cern.ch/cms-service-runregistry-api/xmlrpc')
     if DEBUG:
-        print lineno(), regexp
+        print regexp
     data = server.RunDatasetTable.export(workspaceName,'xml_all' ,regexp)
     return data
 
@@ -182,8 +163,6 @@ def printObj(obj,name):
 
 
 def getData(doc,options,dataset,site):
-    if DEBUG:
-        print lineno(), 'getData'
     server = xmlrpclib.ServerProxy('http://cms-service-runregistry-api.web.cern.ch/cms-service-runregistry-api/xmlrpc')
     runs = getElement(doc,'RUN')
     txtLongData=""
@@ -195,6 +174,7 @@ def getData(doc,options,dataset,site):
     for run in runs:
         txtrun=printObj(run,'NUMBER') + sep + printObj(run,'HLTKEY')
         txtLongData+= txtrun + sep + "\n" 
+
     for run in runs:
         test=printObj(run,'HLTKEY')
         if not (test in lista):
@@ -204,14 +184,12 @@ def getData(doc,options,dataset,site):
         for pkey in range(len(lista)):
             pwkey = lista[pkey] +"\n"
             file2.write(pwkey)
-            if DEBUG:
-                print lineno(),  lista[pkey]
 
         file2.close()
 
     for i in range(len(lista)):
         if DEBUG:
-            print lineno(), lista[i]
+            print lista[i]
         nameDBS=""
         nameDBS=str(i)+".data"
         name=""
@@ -221,30 +199,27 @@ def getData(doc,options,dataset,site):
         file1 = open( name ,'w')
         listaDBS = []
         if DEBUG:
-            print lineno(), nameDBS
+            print nameDBS
         for run in runs:
             key=printObj(run,'HLTKEY')
             if (key == lista[i]):
-                print "running......", key
+                print "running......"
                 if DEBUG:
-                    print lineno(), printObj(run,'NUMBER')
-                txtruns = "{runNumber} >= " + printObj(run,'NUMBER') +  " and {runNumber} <= " + str(int(printObj(run,'NUMBER')))
-                txtriv = txtruns + " and {cmpDcsBPix} = 1  and {cmpDcsFPix} = 1 and {cmpDcsTibTid} = 1 and {cmpDcsTob} = 1 and {cmpDcsTecM} = 1 and {cmpDcsTecP} = 1"
-                lumirun = server.RunLumiSectionRangeTable.export('GLOBAL', 'json',txtriv)
-                if DEBUG:
-                    print lineno(), lumirun
-                  ###dbs file
-                if lumirun:
+                    print printObj(run,'NUMBER')
+                txtruns = "{runNumber} >= " + printObj(run,'NUMBER') +  " and {runNumber} < " + str(int(printObj(run,'NUMBER'))+1)
+                txtriv = txtruns + " and {cmpPix} in ('GOOD') and {cmpStrip} in ('GOOD') and {cmpTrack} in ('GOOD')"
+                riv = server.RunDatasetTable.export('GLOBAL', 'csv_run_numbers',txtriv)
+                if riv:
+                    lumirun = server.RunLumiSectionRangeTable.export('GLOBAL', 'json',txtruns)
+                    ###dbs file
                     file = DBSquery(dataset,site,str(printObj(run,'NUMBER')))                    
-##                 if DEBUG:
-##                     print lineno(), file
-                if (file != "") :
                     for uno in file:
                         stringDBS = {}
                         stringDBS = uno['LogicalFileName']
                         listaDBS    += [stringDBS]
+                    ###
                     if DEBUG:
-                        print lineno(), lumirun
+                        print lumirun
                     comp="{}"
                     if (lumirun == comp):
                         print "LUMI ZERO"

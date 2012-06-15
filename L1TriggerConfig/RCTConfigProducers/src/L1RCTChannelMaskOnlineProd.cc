@@ -14,7 +14,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1RCTChannelMaskOnlineProd.cc,v 1.1 2009/03/11 10:15:45 jleonard Exp $
+// $Id: L1RCTChannelMaskOnlineProd.cc,v 1.2 2009/08/18 17:18:22 efron Exp $
 //
 //
 
@@ -170,8 +170,8 @@ L1RCTChannelMaskOnlineProd::newObject( const std::string& objectKey )
      
       L1RCTChannelMask* m = new L1RCTChannelMask;
 
-     long long hcal_temp;
-     int ecal_temp;
+     long long hcal_temp = 0LL;
+     int ecal_temp = 0;
      for(int i = 0 ; i < 36 ; i++) {
        dcMaskResults.fillVariable(dc_maskStrings.at(i),hcal_temp);
        for(int j = 0; j < 32 ;  j++) 

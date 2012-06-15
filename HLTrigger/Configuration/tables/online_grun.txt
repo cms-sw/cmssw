@@ -87,7 +87,7 @@ HLT_L2TripleMu10_0_0_NoVertex_PFJet40Neutral_v*							#sr126258, sr127329, remov
 #HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFNoPUJet50_40_30_v*                                       #sr127305, removed in sr128901
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_v*				#sr127305
 #HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFNoPUJet30_v*                            #sr127305 (removed by sr128556)
-HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralPFNoPUJet30_v*                              #sr127305
+#HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralPFNoPUJet30_v*                             #sr127305, removed in sr129269
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v*                     #sr127305, sr128254
 #HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralPFNoPUJet50_40_30_v*                      #sr127305, removed in sr128901
 #HLT_IsoMu20_eta2p1_CentralPFNoPUJet30_BTagIPIter_v*                                            #sr127305 (removed by sr128283)
@@ -101,7 +101,7 @@ HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v*     
 
 HLT_IsoMu17_eta2p1_CentralPFNoPUJet30_v*							#sr128283
 HLT_IsoMu17_eta2p1_CentralPFNoPUJet30_BTagIPIter_v*						#sr128283
-HLT_IsoMu17_eta2p1_DiCentralPFNoPUJet30_v*							#sr128283
+#HLT_IsoMu17_eta2p1_DiCentralPFNoPUJet30_v*							#sr128283, removed in sr129269
 #HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet30_v*							#sr128283 (removed by sr128556)
 #HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet50_40_30_v*						#sr128283, removed in sr128901
 HLT_Mu17_eta2p1_CentralPFNoPUJet30_BTagIPIter_v*						#sr128283
@@ -506,7 +506,7 @@ HLT_DiCentralPFJet30_PFMET80_BTagCSV07_v*	                                      
 
 HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d03_v*							#sr128219
 HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d05_v*							#sr128219
-HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d03_PFDiJetPt120_v*					#sr128219
+#HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05d03_PFDiJetPt120_v*					#sr128219, removed in sr129263
 HLT_DiPFJet80_DiPFJet30_BTagCSVd07d05_v*							#sr128219
 
 HLT_DiCentralJetSumpT100_dPhi05_DiCentralPFJet60_25_PFMET100_HBHENoiseCleaned_v* 		#sr128167
@@ -633,13 +633,13 @@ HLT_PixelTracks_Multiplicity70_v*								#sr126810
 HLT_PixelTracks_Multiplicity80_v*								#sr126810
 HLT_PixelTracks_Multiplicity90_v*								#sr126810
 
-HLT_Jet20_NoL1FastJet_v*									#sr126817
-HLT_Jet50_NoL1FastJet_v*									#sr126817
+#HLT_Jet20_NoL1FastJet_v*									#sr126817, removed in sr129264
+#HLT_Jet50_NoL1FastJet_v*									#sr126817, removed in sr129264
 HLT_Jet370_NoJetID_v*                                                                           #added in favor of HLT_Jet370
 HLT_DoubleJet20_ForwardBackward_v*								#sr126817
 HLT_DoublePhoton5_IsoVL_CEP_v*									#sr126817
 HLT_Photon50_CaloIdVL_IsoL_v*									#sr126817
-HLT_SingleJetC5_v*										#sr126817
+#HLT_SingleJetC5_v*										#sr126817, removed in sr129264
 HLT_ZeroBias_v*											#sr126817
 HLT_SingleForJet25_v*										#sr126817
 HLT_SingleForJet15_v*										#sr126817
@@ -727,7 +727,7 @@ AlCa_LumiPixels_Random_v*
 AlCa_LumiPixels_ZeroBias_v*
 
 DQM_FEDIntegrity_v*
-DQM_HcalEmptyEvents_v*                                                                          #129237
+#DQM_HcalEmptyEvents_v*                                                                          #129237 - should only go in 7e33 v2.5 menu
 HLTriggerFirstPath
 HLTriggerFinalPath
 # HLTAnalyzerEndpath                                                                              # only in 'GRun', not in 'online'

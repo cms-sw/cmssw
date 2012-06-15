@@ -100,7 +100,6 @@ EMShower::EMShower(const RandomEngine* engine,
     double theSigmaLnT     = myParam->sigmaLnT(lny);
     double theSigmaLnAlpha = myParam->sigmaLnAlpha(lny);
 
-
     // The correlation matrix
     double theCorrelation = myParam->correlationAlphaT(lny);
     double rhop = std::sqrt( (1.+theCorrelation)/2. );
@@ -208,8 +207,6 @@ void EMShower::prepareSteps()
   // ECAL
   radlen += theGrid->ecalTotalX0();
 
-  //  std::cout << "theGrid->ecalTotalX0() = " << theGrid->ecalTotalX0() << std::endl;
-
   if ( radlen > 0. ) {
 
     if (!bFixedLength_){
@@ -303,15 +300,6 @@ void EMShower::prepareSteps()
 
 void
 EMShower::compute() {
-
-  double samplingWidth = theECAL->da() + theECAL->dp();
-  double theECALX0 = theECAL->radLenIncm();
-
-  double one_over_resoSquare = 1./(theECAL->resE()*theECAL->resE());
-
-
-
-
 
   double t = 0.;
   double dt = 0.;
@@ -416,46 +404,6 @@ EMShower::compute() {
      //  integration of the shower profile between t-dt and t
       double dE = (!hcal)? depositedEnergy[iStep][i]:1.-deposit(a[i],b[i],t-dt);
 
-      // no need to do the full machinery if there is ~nothing to distribute)
-      if(dE*E[i]<0.000001) continue;
-
-
-      if (ecal && !theECAL->isHom()) {
-	double mean = dE*E[i];
-	double sigma = theECAL->resE()*sqrt(mean);
-	
-	/*
-	  double meanLn = log(mean);
-	  double kLn = sigma/mean+1;
-	  double sigmaLn = log(kLn);
-	*/
-
-	double dE0 = dE;
-
-	//	  std::cout << "dE before shoot = " << dE << std::endl;
-	dE = random->gaussShoot(mean, sigma)/E[i];
-	
-	//	  myGammaGenerator->setParameters(aSam,bSam,0);
-	//	  dE = myGammaGenerator->shoot()/E[i];
-	//	  std::cout << "dE shooted = " << dE << " E[i] = " << E[i] << std::endl; 
-	if (dE*E[i] < 0.000001) continue;
-	photos[i] = photos[i]*dE/dE0;
-	
-      }
-
-
-
-      /*
-      if (ecal && !theParam->ecalProperties()->isHom()){
-
-	double cSquare = TMath::Power(theParam->ecalProperties()->resE(),2);
-	double aSam = dE/cSquare;
-	double bSam = 1./cSquare;
-
-	//	dE = dE*gam(bSam*dE, aSam)/tgamma(aSam);
-      }
-      */
-
       totECalc +=dE;
       
       if (dbe && fabs(dt-1.)< 1e-5 && ecal) {
@@ -465,70 +413,26 @@ EMShower::compute() {
 	  double dx = 1.;
 	  // dE is aready in relative units from 0 to 1
 	  dbe->get("EMShower/LongitudinalShape")->Fill(t, dE/dx);
-
-	  double step = theECALX0/samplingWidth;
-	  double binMin = abs((t-1)*step)+1;
-	  double binMax = abs(t*step)+1;
-	  double dBins = binMax-binMin;
-
-	  /*
-	  std::cout << "X0 = " << theECALX0 << " Sampling Width = " << samplingWidth << " t = " << t 
-		    << " binMin = " << binMin << " binMax = " << binMax << " (t-1)*step = " 
-		    << (t-1)*step+1 << " t*step = " << t*step+1 << std::endl;
-	  */
-
-	  if ( dBins < 1) {
-	    dbe->get("EMShower/LongitudinalShapeLayers")->Fill(binMin, dE/dx);
-	    //	    std::cout << "bin " << binMin << " filled" << std::endl;
-	  }
-	  else {
-
-
-	    double w1 = (binMin + 1 - (t-1)*step - 1)/step;
-	    double w2 = 1./step;
-	    double w3 = (t*step+1-binMax)/step;
-
-	    //double Esum = 0;
-
-	    /*
-	    std::cout <<" ((t-1)*step - binMin) = " << (binMin + 1 - (t-1)*step - 1) 
-		      <<" w1 = " << w1 << " w2 = " << w2 << " w3 = " << w3
-		      << " (t*step+1 - binMax) = " << (t*step+1 - binMax) << std::endl;
-
-	    std::cout << "fill bin = " << binMin << std::endl;
-	    */
-
-	    dbe->get("EMShower/LongitudinalShapeLayers")->Fill(binMin, dE/dx*w1);
-	    //Esum = dE/dx*w1;
-
-	    for (int iBin = 1; iBin < dBins; iBin++){
-	      //	      std::cout << "fill bin = " << binMin+iBin << std::endl;
-	      dbe->get("EMShower/LongitudinalShapeLayers")->Fill(binMin+iBin, dE/dx*w2);
-	      //	      Esum += dE/dx*w2;
-	    }
-
-	    //	    std::cout << "fill bin = " << binMax << std::endl;
-	    dbe->get("EMShower/LongitudinalShapeLayers")->Fill(binMax, dE/dx*w3);	    
-	    //	    Esum += dE/dx*w3;	   
-	    //	    std::cout << "Esum = " << Esum << " dE/dx = " << dE/dx << std::endl;
-	  }
-
-
 	}
 	//(dbe->get("TransverseShape"))->Fill(ri,log10(1./1000.*eSpot/0.2));
 
       }
- 
+
+
+
+       // no need to do the full machinery if there is ~nothing to distribute)
+      if(dE*E[i]<0.000001) continue;
+
+      if(detailedShowerTail)
+	{
+	  myGammaGenerator->setParameters(floor(a[i]+0.5),b[i],t-dt);
+	}
+      
       // The number of energy spots (or mips)
       double nS = 0;
       
       // ECAL case : Account for photostatistics and long'al non-uniformity
       if (ecal) {
-
-
-	//	double aSam = E[i]*dE*one_over_resoSquare;
-	//	double bSam = one_over_resoSquare;
-
 
 	dE = random->poissonShoot(dE*photos[i])/photos[i];
 	double z0 = random->gaussShoot(0.,1.);
@@ -582,11 +486,6 @@ EMShower::compute() {
 	
       }
 
-      if(detailedShowerTail)
-	myGammaGenerator->setParameters(floor(a[i]+0.5),b[i],t-dt);
-	
-
-
       //    myHistos->fill("h100",t,dE);
       
       // The lateral development parameters  
@@ -620,7 +519,7 @@ EMShower::compute() {
       //    myHistos->fill("h301",taui,theRT);
       //    myHistos->fill("h302",taui,proba);
       
-      double dSpotsCore = 
+	 double dSpotsCore = 
 	random->gaussShoot(proba*nSpot,std::sqrt(proba*(1.-proba)*nSpot));
       
       if(dSpotsCore<0) dSpotsCore=0;

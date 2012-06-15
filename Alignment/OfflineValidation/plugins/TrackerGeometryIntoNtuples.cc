@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: TrackerGeometryIntoNtuples.cc,v 1.7 2011/09/15 08:03:31 mussgill Exp $
+// $Id: TrackerGeometryIntoNtuples.cc,v 1.9 2012/06/13 09:20:14 yana Exp $
 //
 //
 
@@ -76,6 +76,8 @@ private:
 	std::string m_outputFile;
 	std::string m_outputTreename;
 	TFile *m_file;
+
+  const edm::ParameterSet theParameterSet;
 };
 
 //
@@ -95,7 +97,8 @@ TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& 
   m_x(0.), m_y(0.), m_z(0.),
   m_alpha(0.), m_beta(0.), m_gamma(0.),
   m_subdetid(0),
-  m_xx(0.), m_xy(0.), m_yy(0.), m_xz(0.), m_yz(0.), m_zz(0.)
+  m_xx(0.), m_xy(0.), m_yy(0.), m_xz(0.), m_yz(0.), m_zz(0.),
+  theParameterSet( iConfig )
 {
 	m_outputFile = iConfig.getUntrackedParameter< std::string > ("outputFile");
 	m_outputTreename = iConfig.getUntrackedParameter< std::string > ("outputTreename");
@@ -105,7 +108,6 @@ TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& 
 	//snprintf(errorTreeName, sizeof(errorTreeName), "%sErrors", m_outputTreename);
 	//m_treeErrors = new TTree(errorTreeName,errorTreeName);
 	m_treeErrors = new TTree("alignTreeErrors","alignTreeErrors");
-	
 }
 
 
@@ -129,8 +131,15 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 	iSetup.get<IdealGeometryRecord>().get(theGeometricDet);
 	TrackerGeomBuilderFromGeometricDet trackerBuilder;
 	//currernt tracker
-	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet); 
-	
+	const edm::ParameterSet tkGeomConsts( theParameterSet.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
+	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet,
+							      tkGeomConsts.getParameter<bool>("upgradeGeometry"),
+							      tkGeomConsts.getParameter<int>( "ROWS_PER_ROC" ),
+							      tkGeomConsts.getParameter<int>( "COLS_PER_ROC" ),
+							      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
+							      tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ),
+							      tkGeomConsts.getParameter<int>( "ROCS_X" ),
+							      tkGeomConsts.getParameter<int>( "ROCS_Y" ));
 	
 	//build the tracker
 	edm::ESHandle<Alignments> alignments;

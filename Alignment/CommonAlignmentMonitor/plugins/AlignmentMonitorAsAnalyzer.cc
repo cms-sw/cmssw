@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Apr 26 12:36:13 CDT 2008
-// $Id: AlignmentMonitorAsAnalyzer.cc,v 1.4 2010/01/04 15:36:54 mussgill Exp $
+// $Id: AlignmentMonitorAsAnalyzer.cc,v 1.6 2012/06/13 09:10:35 yana Exp $
 //
 //
 
@@ -73,6 +73,7 @@ class AlignmentMonitorAsAnalyzer : public edm::EDAnalyzer {
       // ----------member data ---------------------------
       edm::InputTag m_tjTag;
       edm::ParameterSet m_aliParamStoreCfg;
+  const edm::ParameterSet theTkConstants;
 
       AlignableTracker *m_alignableTracker;
       AlignableMuon *m_alignableMuon;
@@ -97,7 +98,8 @@ class AlignmentMonitorAsAnalyzer : public edm::EDAnalyzer {
 //
 AlignmentMonitorAsAnalyzer::AlignmentMonitorAsAnalyzer(const edm::ParameterSet& iConfig)
    : m_tjTag(iConfig.getParameter<edm::InputTag>("tjTkAssociationMapTag"))
-   , m_aliParamStoreCfg(iConfig.getParameter<edm::ParameterSet>("ParameterStore"))
+     , m_aliParamStoreCfg(iConfig.getParameter<edm::ParameterSet>("ParameterStore")),
+     theTkConstants(iConfig.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ))
    , m_alignableTracker(NULL)
    , m_alignableMuon(NULL)
    , m_alignmentParameterStore(NULL)
@@ -139,7 +141,14 @@ AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
       edm::ESHandle<GeometricDet> theGeometricDet;
       iSetup.get<IdealGeometryRecord>().get( theGeometricDet );
       TrackerGeomBuilderFromGeometricDet trackerBuilder;
-      boost::shared_ptr<TrackerGeometry> theTracker(trackerBuilder.build(&(*theGeometricDet)));
+      boost::shared_ptr<TrackerGeometry> theTracker(trackerBuilder.build(&(*theGeometricDet),
+									 theTkConstants.getParameter<bool>("upgradeGeometry"),
+									 theTkConstants.getParameter<int>( "ROWS_PER_ROC" ),
+									 theTkConstants.getParameter<int>( "COLS_PER_ROC" ),
+									 theTkConstants.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
+									 theTkConstants.getParameter<int>( "BIG_PIX_PER_ROC_Y" ),
+									 theTkConstants.getParameter<int>( "ROCS_X" ),
+									 theTkConstants.getParameter<int>( "ROCS_Y" )));
       
       edm::ESHandle<MuonDDDConstants> mdc;
       iSetup.get<MuonNumberingRecord>().get(mdc);

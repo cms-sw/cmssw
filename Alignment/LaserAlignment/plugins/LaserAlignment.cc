@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2011/09/16 07:45:48 $
- *  $Revision: 1.41 $
+ *  $Date: 2012/06/13 09:16:06 $
+ *  $Revision: 1.43 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -39,7 +39,9 @@ LaserAlignment::LaserAlignment( edm::ParameterSet const& theConf ) :
   theAlignableTracker(),
   theAlignRecordName( "TrackerAlignmentRcd" ),
   theErrorRecordName( "TrackerAlignmentErrorRcd" ),
-  firstEvent_(true) {
+  firstEvent_(true),
+  theParameterSet( theConf )
+{
 
 
   std::cout << std::endl;
@@ -63,7 +65,6 @@ LaserAlignment::LaserAlignment( edm::ParameterSet const& theConf ) :
 	    << "\n    ----------------------------------------------- ----------"
 	    << (theSetNominalStrips?"\n    Set strips to nominal       =  true":"\n")
 	    << "\n=============================================================" << std::endl;
-
 
   // tell about masked modules
   if( theMaskTecModules.size() ) {
@@ -285,7 +286,16 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
       edm::ESHandle<GeometricDet> theGeometricDet;
       theSetup.get<IdealGeometryRecord>().get(theGeometricDet);
       TrackerGeomBuilderFromGeometricDet trackerBuilder;
-      TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet);
+      const edm::ParameterSet tkGeomConsts( theParameterSet.getParameter<edm::ParameterSet>( "trackerGeometryConstants" ));
+      TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet,
+							    tkGeomConsts.getParameter<bool>("upgradeGeometry"),
+							    tkGeomConsts.getParameter<int>( "ROWS_PER_ROC" ),
+							    tkGeomConsts.getParameter<int>( "COLS_PER_ROC" ),
+							    tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_X" ),
+							    tkGeomConsts.getParameter<int>( "BIG_PIX_PER_ROC_Y" ),
+							    tkGeomConsts.getParameter<int>( "ROCS_X" ),
+							    tkGeomConsts.getParameter<int>( "ROCS_Y" ));
+
       theAlignableTracker = new AlignableTracker(&(*theRefTracker));
     }
     else {

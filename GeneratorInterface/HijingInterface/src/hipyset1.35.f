@@ -2409,8 +2409,11 @@ C...Store hadron at random among free positions.
      &NFL(2)+NFL(3)))/2+IABS(NFL(1)+NFL(2)+NFL(3))/3    
       IF(NREM.GT.0) GOTO 280    
     
-C...Compensate for missing momentum in global scheme (3 options).   
-  320 IF(MOD(MSTJ(3),5).NE.0.AND.MOD(MSTJ(3),5).NE.4) THEN  
+C...Compensate for missing momentum in global scheme (3 options).
+C...temporary variables to avoid compiler warnings   
+      imod = MOD(MSTJ(3),5)
+C  320 IF(MOD(MSTJ(3),5).NE.0.AND.MOD(MSTJ(3),5).NE.4) THEN  
+  320 IF(imod.NE.0.AND.imod.NE.4) THEN  
         DO 330 J=1,3    
         PSI(J)=0.   
         DO 330 I=NSAV+NJET+1,N  
@@ -15627,9 +15630,13 @@ C...pre-set kinematical limits.
           ETA3=LOG(MIN(1.E10,MAX(1.E-10,EXPET3)))   
           ETA4=LOG(MIN(1.E10,MAX(1.E-10,EXPET4)))   
           ETALAR=MAX(ETA3,ETA4) 
-          ETASMA=MIN(ETA3,ETA4) 
+          ETASMA=MIN(ETA3,ETA4)
+C...temporary variables to avoid compiler warning           
+          CTSTM1=(1.+RM3-RM4)*COSH(YST)
+          CTSTM2=BE34*SINH(YST)*CTH
   100     CTS3=((1.+RM3-RM4)*SINH(YST)+BE34*COSH(YST)*CTH)/ 
-     &    SQRT(((1.+RM3-RM4)*COSH(YST)+BE34*SINH(YST)*CTH)**2-4.*RM3)   
+C     &    SQRT(((1.+RM3-RM4)*COSH(YST)+BE34*SINH(YST)*CTH)**2-4.*RM3)   
+     &    SQRT((CTSTM1+CTSTM2)**2-4.*RM3)   
           CTS4=((1.-RM3+RM4)*SINH(YST)-BE34*COSH(YST)*CTH)/ 
      &    SQRT(((1.-RM3+RM4)*COSH(YST)-BE34*SINH(YST)*CTH)**2-4.*RM4)   
           CTSLAR=MAX(CTS3,CTS4) 

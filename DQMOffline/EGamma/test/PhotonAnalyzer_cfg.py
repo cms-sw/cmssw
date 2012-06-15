@@ -11,15 +11,15 @@ process.load("DQMServices.Components.DQMStoreStats_cfi")
 DQMStore = cms.Service("DQMStore")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2)
+    input = cms.untracked.int32(-1)
 )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-'/store/relval/CMSSW_5_2_0_pre2/RelValZMM/GEN-SIM-RECO/START50_V9-v1/0214/C0CCF508-5244-E111-B211-00261894389E.root',
-'/store/relval/CMSSW_5_2_0_pre2/RelValZMM/GEN-SIM-RECO/START50_V9-v1/0217/10161C44-D444-E111-A1AC-003048679164.root',
-'/store/relval/CMSSW_5_2_0_pre2/RelValZMM/GEN-SIM-RECO/START50_V9-v1/0217/EC841A5E-A844-E111-84C1-0026189438DF.root'
 
+ '/store/relval/CMSSW_6_0_0_pre5/RelValH130GGgluonfusion/GEN-SIM-RECO/START53_V4-v1/0132/025C64FA-8FA2-E111-A72F-002618943869.root',
+ '/store/relval/CMSSW_6_0_0_pre5/RelValH130GGgluonfusion/GEN-SIM-RECO/START53_V4-v1/0132/5297CBFF-78A3-E111-A559-0018F3D09630.root',
+ '/store/relval/CMSSW_6_0_0_pre5/RelValH130GGgluonfusion/GEN-SIM-RECO/START53_V4-v1/0132/8C258978-94A2-E111-AF3F-00248C0BE016.root'
 
 ))
 
