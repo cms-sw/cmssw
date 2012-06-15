@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManagerBase.cc,v 1.5 2012/04/25 06:09:34 amraktad Exp $
+// $Id: FWGeometryTableManagerBase.cc,v 1.6 2012/04/30 19:59:37 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -340,7 +340,7 @@ void FWGeometryTableManagerBase::setDaughtersSelfVisibility(int selectedIdx, boo
       getNNodesTotal(parentNode->GetDaughter(n), dOff);
    }
 }
-/*
+
 //------------------------------------------------------------------------------
 
 bool FWGeometryTableManagerBase::getVisibility(const NodeInfo& data) const
@@ -353,4 +353,4 @@ bool FWGeometryTableManagerBase::getVisibilityChld(const NodeInfo& data) const
    return data.testBit(kVisNodeChld);
 }
 
-*/
+

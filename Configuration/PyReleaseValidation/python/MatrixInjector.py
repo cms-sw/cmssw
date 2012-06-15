@@ -70,9 +70,9 @@ class MatrixInjector(object):
             "TaskName" : None,                            #Task Name
             "ConfigCacheID" : None,                   #Generator Config id
             "SplittingAlgorithm"  : "EventBased",             #Splitting Algorithm
-            "SplittingArguments" : {"events_per_job" : 250},  #Size of jobs in terms of splitting algorithm
+            "SplittingArguments" : {"events_per_job" : None},  #Size of jobs in terms of splitting algorithm
             #"RequestSizeEvents" : 10000,                      #Total number of events to generate
-            "RequestNumEvents" : 10000,                      #Total number of events to generate
+            "RequestNumEvents" : None,                      #Total number of events to generate
             "Seeding" : "AutomaticSeeding",                          #Random seeding method
             "PrimaryDataset" : None,                          #Primary Dataset to be created
             "nowmIO": {}
@@ -84,7 +84,7 @@ class MatrixInjector(object):
             #"SplittingAlgorithm"  : "FileBased",                        #Splitting Algorithm
             #"SplittingArguments" : {"files_per_job" : 1},               #Size of jobs in terms of splitting algorithm
             "SplittingAlgorithm"  : "LumiBased",                        #Splitting Algorithm
-            "SplittingArguments" : {"lumis_per_job" : 1},               #Size of jobs in terms of splitting algorithm
+            "SplittingArguments" : {"lumis_per_job" : 10},               #Size of jobs in terms of splitting algorithm
             "nowmIO": {}
             }
         self.defaultTask={
@@ -92,8 +92,10 @@ class MatrixInjector(object):
             "InputTask" : None,                                #Input Task Name (Task Name field of a previous Task entry)
             "InputFromOutputModule" : None,                    #OutputModule name in the input task that will provide files to process
             "ConfigCacheID" : None,                            #Processing Config id
-            "SplittingAlgorithm" : "FileBased",                #Splitting Algorithm
-            "SplittingArguments" : {"files_per_job" : 1 },     #Size of jobs in terms of splitting algorithm
+            #"SplittingAlgorithm" : "FileBased",                #Splitting Algorithm
+            #"SplittingArguments" : {"files_per_job" : 1 },     #Size of jobs in terms of splitting algorithm
+            "SplittingAlgorithm"  : "LumiBased",                        #Splitting Algorithm
+            "SplittingArguments" : {"lumis_per_job" : 10},               #Size of jobs in terms of splitting algorithm
             "nowmIO": {}
             }
 
@@ -191,17 +193,18 @@ class MatrixInjector(object):
             return self.count
         else:
             try:
-                from wmcontrol2_newauth import upload_to_couch,loadConfig
+                from modules.wma import upload_to_couch
             except:
                 print '\n\tUnable to find wmcontrol modules. Please include it in your python path\n'
                 print '\n\t QUIT\n'
                 sys.exit(-16)
             print "Loading",filePath,"to",where,"for",label
             return upload_to_couch(filePath,
-                                   self.group,
-                                   self.user,
                                    labelInCouch,
-                                   where
+                                   self.user,
+                                   self.group,
+                                   test_mode=False,
+                                   url=where
                                    )
     
     def upload(self):
@@ -218,7 +221,8 @@ class MatrixInjector(object):
             
     def submit(self):
         try:
-            from wmcontrol2_newauth import makeRequest,approveRequest,random_sleep
+            from modules.wma import makeRequest,approveRequest
+            from wmcontrol import random_sleep
             print '\n\tFound wmcontrol\n'
         except:
             print '\n\tUnable to find wmcontrol modules. Please include it in your python path\n'
@@ -236,7 +240,7 @@ class MatrixInjector(object):
                 print "For eyes before submitting",n
                 print pprint.pprint(d)
                 print "Submitting",n,"..........."
-                workFlow=makeRequest(self.wmagent,d)
+                workFlow=makeRequest(self.wmagent,d,encodeDict=True)
                 approveRequest(self.wmagent,workFlow)
                 print "...........",n,"submitted"
                 random_sleep()

@@ -350,6 +350,9 @@ def cmd_tags(releases):
   printTags(cmstc.TagCollector().getReleasesTags(releases))
 
 def cmd_diff(releases):
+  if len(releases) < 2:
+    print "Error: Please specify two releases."
+    exit(1)
   printTags(cmstc.TagCollector().getReleasesTags(releases, True))
 
 def cmd_difflast(releases):

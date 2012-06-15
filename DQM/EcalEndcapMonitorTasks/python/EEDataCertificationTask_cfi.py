@@ -6,6 +6,3 @@ ecalEndcapDataCertificationTask = cms.EDAnalyzer("EEDataCertificationTask",
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False)
 )
-
-# ecalEndcapDataCertificationTask = cms.Sequence()
-

@@ -23,8 +23,6 @@ DEFINE_FWK_MODULE(SiStripPopConBadComponentsDQM);
 #include "DQMOffline/CalibTracker/plugins/SiStripFEDErrorsDQM.h"
 DEFINE_FWK_MODULE(SiStripFEDErrorsDQM);
 
-#include "DQMOffline/CalibTracker/plugins/SiStripBadChannelsDQM.h"
-DEFINE_FWK_MODULE(SiStripBadChannelsDQM);
 
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 typedef popcon::PopConAnalyzer< popcon::SiStripPopConDbObjHandler< SiStripPedestals, SiStripPedestalsDQMService > > SiStripPopConPedestalsDQM;

@@ -2,7 +2,7 @@
 #define FastSimulation_EventProducer_FamosManager_H
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include <string>
 
 namespace HepMC {
@@ -13,6 +13,7 @@ namespace edm {
   class ParameterSet;
   class EventSetup;
   class Run;
+  class HepMCProduct;
 }
 
 class FSimEvent;
@@ -49,13 +50,15 @@ class FamosManager
   void reconstruct(const HepMC::GenEvent* evt, 
 		   const reco::GenParticleCollection* particles,
 		   const HepMC::GenEvent* pu);
+  
+  void reconstruct(const reco::GenParticleCollection* particles);
 
   /// The tracker 
   TrajectoryManager * trackerManager() const {return myTrajectoryManager;}
 
   /// The calorimeter 
   CalorimetryManager * calorimetryManager() const {return myCalorimetry;}
-
+  
   
  private:   
 

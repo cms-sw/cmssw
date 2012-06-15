@@ -17,12 +17,11 @@ def main(argv):
     input_orcoffmenu = 0
     input_userefprescales = 0
     input_referencecolumn = 0
-    input_useconfdbprescales = 0
     input_pdsort = 0
     input_config = "/cdaq/physics/firstCollisions10/v5.0/HLT/V2"
     input_refconfig = "/cdaq/physics/firstCollisions10/v5.1/HLT_900GeV/V3"
 
-    opts, args = getopt.getopt(sys.argv[1:], "c:onfdp:s:r:h", ["config=","orcoff","notechnicaltriggers","fakel1seeds","datasetsorting","addreferenceprescales=","confdbprescales=","referenceconfig=","help"])
+    opts, args = getopt.getopt(sys.argv[1:], "c:onfdp:r:h", ["config=","orcoff","notechnicaltriggers","fakel1seeds","datasetsorting","addreferenceprescales=","referenceconfig=","help"])
 
     for o, a in opts:
         if o in ("-c","config="):
@@ -40,10 +39,6 @@ def main(argv):
             input_userefprescales = 1
             input_referencecolumn = a
             print "Will use reference prescales from column " + str(a)
-        if o in ("-s","confdbprescales"):
-            input_useconfdbprescales = 1
-            input_referencecolumn = a
-            print "Will use ConfDB prescales from column " + str(a)
         if o in ("-r","referenceconfig="):
             input_refconfig = str(a)
         if o in ("-o","orcoff"):
@@ -54,19 +49,18 @@ def main(argv):
             print "-n (Don't include paths seeded by technical triggers)"
             print "-f (Use the fake OpenL1_ZeroBias seed instead of rechecking L1's)"
             print "-p <column> (Include prescales that were previously applied online. Default is the first column (0))"
-            print "-s <column> (Apply prescales from the ConfDB menu. Default is the first column (0))"
             print "-r <HLT key> (HLT configuration to take the previously applied prescales from)" 
             print "-d (Sort triggers in the cfg by Primary Dataset rather than the order they appear in the menu" 
             print "-h (Print the help menu)"
             return
 
-    confdbjob = ConfdbToOpenHLT(input_config,input_orcoffmenu,input_notech,input_fakel1,input_userefprescales,input_refconfig,input_referencecolumn,input_pdsort,input_useconfdbprescales)
+    confdbjob = ConfdbToOpenHLT(input_config,input_orcoffmenu,input_notech,input_fakel1,input_userefprescales,input_refconfig,input_referencecolumn,input_pdsort)
     confdbjob.BeginJob()
     os.system("mv OHltTree_FromConfDB.h OHltTree.h")
     
             
 class ConfdbToOpenHLT:
-    def __init__(self,cliconfig,cliorcoff,clinotech,clifakel1,clirefprescales,clirefconfig,clireferencecolumn,clipdsort,cliconfdbprescales):
+    def __init__(self,cliconfig,cliorcoff,clinotech,clifakel1,clirefprescales,clirefconfig,clireferencecolumn,clipdsort):
 
         self.configname = cliconfig
         self.orcoffmenu = cliorcoff 
@@ -77,12 +71,10 @@ class ConfdbToOpenHLT:
         self.hltl1seedmap = {}
         self.l1aliasmap = {}
         self.hltprescalemap = {}
-        self.confdbhltprescalemap = {}
         self.l1modulenameseedmap = {}
         self.hltl1modulemap = {}
         self.referencecolumn = int(clireferencecolumn)
         self.pdsort = clipdsort
-        self.confdbprescales = cliconfdbprescales
 
     def BeginJob(self):
 
@@ -126,7 +118,6 @@ class ConfdbToOpenHLT:
         # Use edmConfigFromDB to get a temporary HLT configuration that determines the prescales applied online 
         # We assume this is always from ORCOFF...
         referencemenuconfigcommand = "edmConfigFromDB --orcoff --configName " + self.refconfigname + " --cff >& refhltmenu.py"
-        #        referencemenuconfigcommand = "edmConfigFromDB --configName " + self.configname + " --cff >& refhltmenu.py"
         os.system(referencemenuconfigcommand)
     
         # Setup a fake process and load the HLT configuration for the reference menu
@@ -164,29 +155,6 @@ class ConfdbToOpenHLT:
         exec importcommand
         theextend = "process.extend(temphltmenu)"
         exec theextend
-
-        # JH Get HLT prescales from a new ConfDB menu
-        myconfdbservices = process.services_()
-        for confdbservicename, confdbservicevalue in myconfdbservices.iteritems():
-            if(confdbservicename == "PrescaleService"):
-                confdbserviceparams = confdbservicevalue.parameters_()
-                for confdbserviceparamname, confdbserviceparamval in confdbserviceparams.iteritems():
-                    if(confdbserviceparamname == "prescaleTable"):
-                        for vpsetentry in confdbserviceparamval:
-                            hltname = ""
-                            hltprescale = "1"
-                            prescalepsetparams = vpsetentry.parameters_()
-                            for paramname, paramval in prescalepsetparams.iteritems():
-                                if(paramname == "prescales"):
-                                    hltprescale = str(paramval.value()).strip('[').strip(']')
-                                    # Deal with prescale columns
-                                    if(hltprescale.find(',') != -1):
-                                        hltprescalevector = hltprescale.split(',')
-                                        hltprescale = hltprescalevector[self.referencecolumn]
-                                if(paramname == "pathName"):
-                                    hltname = str(paramval.value())
-                            self.confdbhltprescalemap[hltname] = hltprescale
-        #JH
 
         # Get L1 Seeds
         myfilters = process.filters_()
@@ -228,12 +196,6 @@ class ConfdbToOpenHLT:
         mydatasets = process.datasets
         mydataset = mydatasets.parameters_()
         for datasetname, datasetval in mydataset.iteritems():
-            if(datasetname.find("Monitor") != -1):
-                continue
-            if(datasetname.find("Test") != -1):
-                continue
-            if(datasetname.find("Express") != -1):
-                continue
             thepds.append(datasetname)
             for datasetmember in datasetval:
                 hltpdmap.append((datasetmember, datasetname)) 
@@ -260,9 +222,6 @@ class ConfdbToOpenHLT:
                                 aliasedseeds.append("AND")
                                                                 
                             self.hltl1modulemap[name] = thinginpath
-                            if thinginpath not in self.l1modulenameseedmap:
-                                continue
-                                  
                             seedexpression = self.l1modulenameseedmap[thinginpath]
                             splitseedexpression = seedexpression.split()
 
@@ -307,7 +266,6 @@ class ConfdbToOpenHLT:
         
         for hltpath, seed in theconfdbpaths:
             refprescaleval = ''
-            confdbprescaleval = ', 1'
 
             # Check if we need to use the L1 alias
             if(seed in self.l1aliasmap):
@@ -318,30 +276,19 @@ class ConfdbToOpenHLT:
                     refprescaleval = ', ' + self.hltprescalemap[hltpath]
                 else:
                     refprescaleval = ', 1'
-
-            if(self.confdbprescales == 1):
-                if(hltpath in self.confdbhltprescalemap):
-                    confdbprescaleval = ', ' + self.confdbhltprescalemap[hltpath]
-                else:
-                    confdbprescaleval = ', 1'
-                                                                
             if(hltpath.startswith("HLT_")):
-                #               fullpath = '   ("' + str(hltpath) + '", "' + seed + '", 1, 0.15' + refprescaleval + ')'
-                #               openpath = '   ("Open' + str(hltpath) + '", "' + seed + '", 1, 0.15' + refprescaleval + ')'
-                fullpath = '   ("' + str(hltpath) + '", "' + seed + '"' + confdbprescaleval + ', 0.15' + refprescaleval + ')'
-                openpath = '   ("Open' + str(hltpath) + '", "' + seed + '"' + confdbprescaleval + ', 0.15' + refprescaleval + ')'
-                if(pathcount < npaths):
-                    fullpath = fullpath + ','
-                    openpath = openpath + ','
+               fullpath = '   ("' + str(hltpath) + '", "' + seed + '", 1, 0.15' + refprescaleval + ')'
+               openpath = '   ("Open' + str(hltpath) + '", "' + seed + '", 1, 0.15' + refprescaleval + ')'
+               if(pathcount < npaths):
+                   fullpath = fullpath + ','
+                   openpath = openpath + ','
                
             if(hltpath.startswith("AlCa_")):
-                #               fullpath = '   ("' + str(hltpath) + '", "' + seed + '", 1, 0.' + refprescaleval + ')'
-                #               openpath = '   ("Open' + str(hltpath) + '", "' + seed + '", 1, 0.' + refprescaleval + ')'
-                fullpath = '   ("' + str(hltpath) + '", "' + seed + '"' + confdbprescaleval + ', 0.15' + refprescaleval + ')'
-                openpath = '   ("Open' + str(hltpath) + '", "' + seed + '"' + confdbprescaleval + ', 0.15' + refprescaleval + ')'
-                if(pathcount < npaths):
-                    fullpath = fullpath + ','
-                    openpath = openpath + ','
+               fullpath = '   ("' + str(hltpath) + '", "' + seed + '", 1, 0.' + refprescaleval + ')'
+               openpath = '   ("Open' + str(hltpath) + '", "' + seed + '", 1, 0.' + refprescaleval + ')'
+               if(pathcount < npaths):
+                   fullpath = fullpath + ','
+                   openpath = openpath + ','
                                                         
             thefullhltpaths.append(fullpath)
             theopenhltpaths.append(openpath)

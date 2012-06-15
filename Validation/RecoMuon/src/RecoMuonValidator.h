@@ -44,6 +44,9 @@ class RecoMuonValidator : public edm::EDAnalyzer
   edm::InputTag muAssocLabel_;
   const MuonAssociatorByHits * assoByHits;
   
+  edm::InputTag beamspotLabel_;
+  edm::InputTag primvertexLabel_;
+
   std::string outputFileName_;
   std::string subDir_;
 
@@ -67,6 +70,7 @@ class RecoMuonValidator : public edm::EDAnalyzer
 
  private:
   StringCutObjectSelector<reco::Muon> selector_;
+  bool wantTightMuon_;
 
 };
 
