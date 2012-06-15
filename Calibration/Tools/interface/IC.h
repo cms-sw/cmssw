@@ -25,6 +25,8 @@
 #include "TRandom.h"
 #include "TTree.h"
 
+#include "Calibration/Tools/interface/DRings.h"
+
 class DS
 {
         public:
@@ -344,6 +346,7 @@ class IC {
                 const EcalIntercalibConstants & ic() const { return _ic; }
                 const EcalIntercalibErrors & eic() const { return _eic; }
                 const std::vector<DetId> & ids() const { return _detId; }
+                void setRings(const DRings & dr) { dr_ = dr; idr_ = true; }
 
                 // plotters
                 static void constantMap(const IC & a, TH2F * h, DS & d, bool errors = false);
@@ -351,6 +354,8 @@ class IC {
                 static void profileEta(const IC & a, TProfile * h, DS & d, bool errors = false);
                 static void profilePhi(const IC & a, TProfile * h, DS & d, bool errors = false);
                 static void profileSM(const IC & a, TProfile * h, DS & d, bool errors = false);
+
+                static bool isValid(float v, float e);
 
                 // IC manipulation
                 static void reciprocal(const IC & a, IC & res);
@@ -363,6 +368,7 @@ class IC {
 
                 // tools
                 static void applyEtaScale(IC & ic);
+                static void scaleEta(IC & ic, const IC & ic_scale, bool reciprocalScale = false);
                 static void applyTwoCrystalEffect(IC & ic);
                 static void setToUnit(IC & ic);
                 static void dump(const IC & a, const char * fileName, DS & d);
@@ -379,6 +385,8 @@ class IC {
         private:
                 EcalIntercalibConstants   _ic;
                 EcalIntercalibErrors     _eic;
+                static DRings dr_;
+                static bool idr_;
                 static std::vector<DetId>     _detId;
 };
 

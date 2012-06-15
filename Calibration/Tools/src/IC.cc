@@ -1,7 +1,8 @@
 #include "Calibration/Tools/interface/IC.h"
-#include "Calibration/Tools/interface/DRings.h"
 
 std::vector<DetId> IC::_detId;
+DRings IC::dr_;
+bool IC::idr_;
 
 IC::IC()
 {
@@ -61,17 +62,24 @@ void IC::constantMap(const IC & a, TH2F * h, DS & selector, bool errors)
 
 void IC::profileEta(const IC & a, TProfile * h, DS & selector, bool errors)
 {
-        DRings dr;
-        dr.setEERings("eerings.dat");
+        if (!idr_) {
+                fprintf(stderr, "Please set the DRings object to your IC object\n");
+                fprintf(stderr, "before calling `profileEta(...)', e.g. for C++\n");
+                fprintf(stderr, "DRings dr;\n");
+                fprintf(stderr, "dr.setEERings(\"eerings.dat\");\n");
+                fprintf(stderr, "ic.setRings(rings);\n");
+                assert(0);
+        }
+        //DRings dr;
+        //dr.setEERings("eerings.dat");
         for (size_t i = 0; i < a.ids().size(); ++i) {
                 DetId id(a.ids()[i]);
                 if (!selector(id)) continue;
-                int x = dr.ieta(id);
-                printf("ieta %d\n", dr.ieta(id));
+                int x = dr_.ieta(id);
+                //printf("ieta %d\n", dr.ieta(id));
                 float v = a.ic()[id];
                 float e = a.eic()[id];
-                if (v < 0 || v > 2) continue;
-                if (e > 100 && v < 0) continue;
+                if (!isValid(v, e)) continue;
                 if (errors) h->Fill(x, e);
                 else        h->Fill(x, v);
         }
@@ -91,7 +99,7 @@ void IC::profilePhi(const IC & a, TProfile * h, DS & selector, bool errors)
                 }
                 float v = a.ic()[id];
                 float e = a.eic()[id];
-                if (e > 100 && v < 0) continue;
+                if (!isValid(v, e)) continue;
                 if (errors) h->Fill(x, e);
                 else        h->Fill(x, v);
         }
@@ -106,7 +114,7 @@ void IC::profileSM(const IC & a, TProfile * h, DS & selector, bool errors)
                 if (!selector(id) || !isBarrel(id)) continue;
                 float v = a.ic()[id];
                 float e = a.eic()[id];
-                if (e > 100 && v < 0) continue;
+                if (!isValid(v, e)) continue;
                 if (errors) h->Fill(EBDetId(id).ism(), e);
                 else        h->Fill(EBDetId(id).ism(), v);
         }
@@ -122,7 +130,7 @@ float IC::average(const IC & a, DS & selector, bool errors)
                 if (!selector(id)) continue;
                 float v = a.ic()[id];
                 float e = a.eic()[id];
-                if (e > 100 && v < 0) continue;
+                if (!isValid(v, e)) continue;
                 ++cnt;
                 if (errors) ave += e;
                 else        ave += v;
@@ -138,6 +146,7 @@ void IC::reciprocal(const IC & a, IC & res)
                 DetId id(a.ids()[i]);
                 float v = a.ic()[id];
                 float e = a.eic()[id];
+                if (!isValid(v, e)) continue;
                 res.ic().setValue(id, 1. / v);
                 res.eic().setValue(id, v / e / e);
         }
@@ -187,11 +196,24 @@ void IC::combine(const IC & a, const IC & b, IC & res)
         for (size_t i = 0; i < a.ids().size(); ++i) {
                 DetId id(a.ids()[i]);
                 float va = a.ic()[id];
-                float wa = 1. / a.eic()[id] / a.eic()[id];
+                float ea = a.eic()[id];
                 float vb = b.ic()[id];
-                float wb = 1. / b.eic()[id] / b.eic()[id];
-                res.ic().setValue(id, (wa * va + wb * vb) / (wa + wb));
-                res.eic().setValue(id, 1. / sqrt(wa + wb));
+                float eb = b.eic()[id];
+                if (isValid(va, ea) && isValid(vb, eb)) {
+                        float wa = 1. / ea / ea;
+                        float wb = 1. / eb / eb;
+                        res.ic().setValue(id, (wa * va + wb * vb) / (wa + wb));
+                        res.eic().setValue(id, 1. / sqrt(wa + wb));
+                } else if (isValid(va, ea)) {
+                        res.ic().setValue(id, va);
+                        res.eic().setValue(id, ea);
+                } else if (isValid(vb, eb)) {
+                        res.ic().setValue(id, vb);
+                        res.eic().setValue(id, eb);
+                } else {
+                        res.ic().setValue(id, 1);
+                        res.eic().setValue(id, 999);
+                }
         }
 }
 
@@ -607,6 +629,44 @@ void IC::applyEtaScale(IC & ic)
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////
+
+bool IC::isValid(float v, float e)
+{
+        //if (v < 0 || v > 2) return false;
+        //if (v < 0) return false;
+        if (fabs(e) > 100 || v < 0) return false;
+        return true;
+}
+
+void IC::scaleEta(IC & ic, const IC & ic_scale, bool reciprocalScale)
+{
+        float etasum[DRings::nHalfIEta * 2 + 1]; // ieta = 0 does not exist
+        int n[DRings::nHalfIEta * 2 + 1]; // ieta = 0 does not exist
+        for (int i = 0; i < DRings::nHalfIEta * 2 + 1; ++i) {
+                etasum[i] = 0;
+                n[i] = 0;
+        }
+        for (size_t i = 0; i < ic_scale.ids().size(); ++i) {
+                DetId id(ic_scale.ids()[i]);
+                float v = ic_scale.ic()[id];
+                float e = ic_scale.eic()[id];
+                if (!isValid(v, e)) continue;
+                int idx = dr_.ieta(id) + DRings::nHalfIEta;
+                etasum[idx] += v;
+                n[idx]++;
+        }
+        for (size_t i = 0; i < ic.ids().size(); ++i) {
+                DetId id(ic.ids()[i]);
+                float v = ic.ic()[id];
+                float e = ic.eic()[id];
+                if (!isValid(v, e)) continue;
+                int idx = dr_.ieta(id) + DRings::nHalfIEta;
+                float s = etasum[idx] / n[idx];
+                if (reciprocalScale) s = 1 / s;
+                ic.ic().setValue(id, v * s);
+                ic.eic().setValue(id, e * s);
+        }
+}
 
 
 void IC::setToUnit(IC & ic)

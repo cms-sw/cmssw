@@ -1,5 +1,5 @@
 // federico.ferri@cern.ch
-// largely copied from a class written by Tommaso Tabarelli de Fatis
+// largely copied from a class written by T. Tabarelli de Fatis
 
 #ifndef DRing_h
 #define DRing_h
@@ -14,6 +14,8 @@ class DRings {
                 void setEERings(const char * filename);
                 int ieta(DetId id);
                 int ring(DetId id);
+
+                static const int nHalfIEta = 124;
 
         private:
                 int eeRings_[101][101][2];
