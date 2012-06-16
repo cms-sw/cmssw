@@ -142,7 +142,7 @@ void HeavyFlavorValidation::beginRun(const Run & iRun, const EventSetup & iSetup
       vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
       for( size_t j = 0; j < moduleNames.size(); j++) {
         TString name = moduleNames[j];
-        if(name.Contains("Filtered")){
+        if(name.Contains("Filter")){
           int level = 0;
           if(name.Contains("L1"))
             level = 1;
@@ -150,6 +150,8 @@ void HeavyFlavorValidation::beginRun(const Run & iRun, const EventSetup & iSetup
             level = 2;
           else if(name.Contains("L3"))
             level = 3;
+          else if(name.Contains("mumuFilter") || name.Contains("JpsiTrackMass"))
+            level = 4;
           filterNamesLevels.push_back( pair<string,int>(moduleNames[j],level) );
           os<<" "<<moduleNames[j];
         }
@@ -379,10 +381,16 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   if(triggerResults.isValid()){
     LogDebug("HLTriggerOfflineHeavyFlavor")<<"Successfully initialized "<<triggerResultsTag<<endl;
     const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
-    size_t index = triggerNames.triggerIndex(triggerPathName);
-    if( index < triggerNames.size() ){
-      triggerFired = triggerResults->accept( index );
-    }else{
+    bool hlt_exists = false;
+    for ( unsigned int i=0; i!=triggerNames.size(); i++) {
+      TString hlt_name = triggerNames.triggerName(i);
+      if (hlt_name.Contains(triggerPathName)) {
+        triggerFired = triggerResults->accept( i );
+        hlt_exists = true;
+        break;
+      }
+    }
+    if (!hlt_exists) {
       LogDebug("HLTriggerOfflineHeavyFlavor")<<triggerResultsTag<<" has no trigger: "<<triggerPathName<<endl;
     }
   }else{
@@ -399,7 +407,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
       match( ME[TString::Format("filt%dGlob_deltaEtaDeltaPhi",int(i+1))], globMuons_position, muonsAtFilter[i] ,globL1DeltaRMatchingCut, filt_glob[i] );
     }else if( filterNamesLevels[i].second == 2 ){
       match( ME[TString::Format("filt%dGlob_deltaEtaDeltaPhi",int(i+1))], globMuons_position, muonPositionsAtFilter[i] ,globL2DeltaRMatchingCut, filt_glob[i] );
-    }else if( filterNamesLevels[i].second == 3 ){
+    }else if( filterNamesLevels[i].second == 3 || filterNamesLevels[i].second == 4){
       match( ME[TString::Format("filt%dGlob_deltaEtaDeltaPhi",int(i+1))], globMuons, muonsAtFilter[i] ,globL3DeltaRMatchingCut, filt_glob[i] );
     }
   }
@@ -408,7 +416,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
     match( ME["pathGlob_deltaEtaDeltaPhi"], globMuons_position, pathMuons ,globL1DeltaRMatchingCut, path_glob );
   }else if( (filterNamesLevels.end()-1)->second == 2 ){
     match( ME["pathGlob_deltaEtaDeltaPhi"], globMuons, pathMuons ,globL2DeltaRMatchingCut, path_glob );
-  }else if( (filterNamesLevels.end()-1)->second == 3 ){
+  }else if( (filterNamesLevels.end()-1)->second == 3 || (filterNamesLevels.end()-1)->second == 4){
     match( ME["pathGlob_deltaEtaDeltaPhi"], globMuons, pathMuons ,globL3DeltaRMatchingCut, path_glob );
   }
     
