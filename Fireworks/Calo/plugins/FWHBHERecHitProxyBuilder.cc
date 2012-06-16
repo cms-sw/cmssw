@@ -13,7 +13,6 @@ class FWHBHERecHitProxyBuilder : public FWDigitSetProxyBuilder
 {
 public:
    FWHBHERecHitProxyBuilder( void )
-      : m_maxEnergy( 0.85 ), m_plotEt(true)
     {}
   
    virtual ~FWHBHERecHitProxyBuilder( void ) 
@@ -27,55 +26,85 @@ public:
 private:
    virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );
 
-   Float_t m_maxEnergy;
-   bool m_plotEt;
-
    FWHBHERecHitProxyBuilder( const FWHBHERecHitProxyBuilder& );
    const FWHBHERecHitProxyBuilder& operator=( const FWHBHERecHitProxyBuilder& );
 };
 
+namespace
+{
+
+float  scaleFactor(const FWViewContext* vc)
+{
+   // printf("scale face %f \n", vc->getEnergyScale()->getScaleFactor3D());
+   return vc->getEnergyScale()->getScaleFactor3D()/20;
+}
+
+void viewContextBoxScale( const float* corners, float scale, bool plotEt, std::vector<float>& scaledCorners, bool invert)
+{
+   TEveVector  center;
+   for( unsigned int i = 0; i < 24; i += 3 )
+   {	 
+      center[0] += corners[i];
+      center[1] += corners[i + 1];
+      center[2] += corners[i + 2];
+   }
+   center *= 1.f/8.f;
+
+   if (plotEt)
+   {
+      scale *= center.Perp()/center.Mag();
+   }
+
+   // Coordinates for a scaled version of the original box
+   for( unsigned int i = 0; i < 24; i += 3 )
+   {	
+      scaledCorners[i] = center[0] + ( corners[i] - center[0] ) * scale;
+      scaledCorners[i + 1] = center[1] + ( corners[i + 1] - center[1] ) * scale;
+      scaledCorners[i + 2] = center[2] + ( corners[i + 2] - center[2] ) * scale;
+   }
+      
+   if( invert )
+      fireworks::invertBox( scaledCorners );
+}
+}
+
 void
 FWHBHERecHitProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc)
 {
-   if (m_plotEt != vc->getEnergyScale()->getPlotEt() )
+
+   const HBHERecHitCollection* collection = 0;
+   item()->get( collection );
+   if (! collection)
+      return;
+
+   int index = 0;
+   std::vector<float> scaledCorners(24);
+
+   float scale = scaleFactor(vc);
+
+   for (std::vector<HBHERecHit>::const_iterator it = collection->begin() ; it != collection->end(); ++it, ++index)
    {
-      m_plotEt = !m_plotEt;
+      const float* corners = item()->getGeom()->getCorners((*it).detid());
+      if (corners == 0) 
+         continue;
+      FWDigitSetProxyBuilder::BFreeBox_t* b = (FWDigitSetProxyBuilder::BFreeBox_t*)getBoxSet()->GetPlex()->Atom(index);
 
-      const HBHERecHitCollection* collection = 0;
-      item()->get( collection );
-      if (! collection)
-         return;
+      /*          
+      printf("--------------------scale product \n");
+      for (int i = 0; i < 8 ; ++i)
+         printf("[%f %f %f ]\n",b->fVertices[i][0], b->fVertices[i][1],b->fVertices[i][2] );
+      
+      */
 
-      int index = 0;
-      std::vector<float> scaledCorners(24);
-      for (std::vector<HBHERecHit>::const_iterator it = collection->begin() ; it != collection->end(); ++it, ++index)
-      {
-         const float* corners = item()->getGeom()->getCorners((*it).detid());
-         if (corners == 0) 
-            continue;
-         FWDigitSetProxyBuilder::BFreeBox_t* b = (FWDigitSetProxyBuilder::BFreeBox_t*)getBoxSet()->GetPlex()->Atom(index);
-
-         /*          
-         printf("--------------------scale product \n");
-         for (int i = 0; i < 8 ; ++i)
-            printf("[%f %f %f ]\n",b->fVertices[i][0], b->fVertices[i][1],b->fVertices[i][2] );
-         */
-
-         if (m_plotEt)
-            fireworks::etScaledBox3DCorners(corners, (*it).energy(),  m_maxEnergy, scaledCorners, true);
-         else
-            fireworks::energyScaledBox3DCorners(corners, (*it).energy() / m_maxEnergy, scaledCorners, true);
-         
-         /*
-         printf("after \n");
-         for (int i = 0; i < 8 ; ++i)
-            printf("[%f %f %f ]\n",b->fVertices[i][0], b->fVertices[i][1],b->fVertices[i][2] );        
-         */
-         memcpy(b->fVertices, &scaledCorners[0], sizeof(b->fVertices));
-
-      }
-      getBoxSet()->ElementChanged();
+      viewContextBoxScale(corners, (*it).energy()*scale, vc->getEnergyScale()->getPlotEt(), scaledCorners, true);
+      /*
+        printf("after \n");
+        for (int i = 0; i < 8 ; ++i)
+        printf("[%f %f %f ]\n",b->fVertices[i][0], b->fVertices[i][1],b->fVertices[i][2] );        
+      */
+      memcpy(b->fVertices, &scaledCorners[0], sizeof(b->fVertices));
    }
+   getBoxSet()->ElementChanged();
 }
 
 //______________________________________________________________________________
@@ -83,37 +112,38 @@ FWHBHERecHitProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::ETyp
 void
 FWHBHERecHitProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* vc)
 {
-   m_plotEt = vc->getEnergyScale()->getPlotEt();
-
    const HBHERecHitCollection* collection = 0;
    iItem->get( collection );
 
    if( 0 == collection )
-   {
       return;
-   }
+
    std::vector<HBHERecHit>::const_iterator it = collection->begin();
    std::vector<HBHERecHit>::const_iterator itEnd = collection->end();
    std::vector<float> scaledCorners(24);
 
-   for( ; it != itEnd; ++it )
-   {
-      if(( *it ).energy() > m_maxEnergy )
-         m_maxEnergy = ( *it ).energy();
-   }
-
    TEveBoxSet* boxSet = addBoxSetToProduct(product);
    int index = 0;
+
+   float scale = scaleFactor(vc);
+
+   TEveVector centre;
    for (std::vector<HBHERecHit>::const_iterator it = collection->begin() ; it != collection->end(); ++it)
    {  
       const float* corners = context().getGeom()->getCorners((*it).detid());
       if (corners)
       {
-         if (m_plotEt)
-            fireworks::etScaledBox3DCorners(corners, (*it).energy(), m_maxEnergy, scaledCorners, true);
-         else
-            fireworks::energyScaledBox3DCorners(corners, (*it).energy() / m_maxEnergy, scaledCorners, true);
+         for( unsigned int i = 0; i < 24; i += 3 )
+         {	 
+            centre[0] += corners[i];
+            centre[1] += corners[i + 1];
+            centre[2] += corners[i + 2];
+         }
+         centre.Normalize();
+         context().voteMaxEtAndEnergy( centre.Perp() *it->energy() ,it->energy());
+         viewContextBoxScale(corners, (*it).energy()*scale, vc->getEnergyScale()->getPlotEt(), scaledCorners, true);
       }
+
       addBox(boxSet, &scaledCorners[0], iItem->modelInfo(index++).displayProperties());
    }
 }
