@@ -75,6 +75,8 @@ private:
   const bool _wantHistos;
   const bool _useEC0;
   const int _magicOffset;
+  const unsigned int m_maxLS;
+  const unsigned int m_LSfrac;
 
   TH1F* _hsize;
   TH1F* _hlresync;
@@ -118,6 +120,8 @@ APVCyclePhaseProducerFromL1TS::APVCyclePhaseProducerFromL1TS(const edm::Paramete
   _wantHistos(iConfig.getUntrackedParameter<bool>("wantHistos",false)),
   _useEC0(iConfig.getUntrackedParameter<bool>("useEC0",false)),
   _magicOffset(iConfig.getUntrackedParameter<int>("magicOffset",8)),
+  m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin",250)),
+  m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction",16)),
   m_badruns(),
   _lastResync(-1),_lastHardReset(-1),_lastStart(-1),
   _lastEventCounter0(-1),_lastOrbitCounter0(-1),_lastTestEnable(-1)
@@ -164,27 +168,27 @@ APVCyclePhaseProducerFromL1TS::beginRun(edm::Run& iRun, const edm::EventSetup& i
 
     _hsize = subrun.make<TH1F>("size","Level1TriggerScalers Collection size",20,-0.5,19.5);
 
-    _hlresync = subrun.make<TH1F>("lresync","Orbit of last resync",3600,0.,3600*11223);
+    _hlresync = subrun.make<TH1F>("lresync","Orbit of last resync",m_LSfrac*m_maxLS,0,m_maxLS*262144);
     _hlresync->GetXaxis()->SetTitle("Orbit");     _hlresync->GetYaxis()->SetTitle("Events");
     _hlresync->SetBit(TH1::kCanRebin);
 
-    _hlOC0 = subrun.make<TH1F>("lOC0","Orbit of last OC0",3600,0.,3600*11223);
+    _hlOC0 = subrun.make<TH1F>("lOC0","Orbit of last OC0",m_LSfrac*m_maxLS,0,m_maxLS*262144);
     _hlOC0->GetXaxis()->SetTitle("Orbit");     _hlOC0->GetYaxis()->SetTitle("Events");
     _hlOC0->SetBit(TH1::kCanRebin);
 
-    _hlTE = subrun.make<TH1F>("lTE","Orbit of last TestEnable",3600,0.,3600*11223);
+    _hlTE = subrun.make<TH1F>("lTE","Orbit of last TestEnable",m_LSfrac*m_maxLS,0,m_maxLS*262144);
     _hlTE->GetXaxis()->SetTitle("Orbit");     _hlTE->GetYaxis()->SetTitle("Events");
     _hlTE->SetBit(TH1::kCanRebin);
 
-    _hlstart = subrun.make<TH1F>("lstart","Orbit of last Start",3600,0.,3600*11223);
+    _hlstart = subrun.make<TH1F>("lstart","Orbit of last Start",m_LSfrac*m_maxLS,0,m_maxLS*262144);
     _hlstart->GetXaxis()->SetTitle("Orbit");     _hlstart->GetYaxis()->SetTitle("Events");
     _hlstart->SetBit(TH1::kCanRebin);
 
-    _hlEC0 = subrun.make<TH1F>("lEC0","Orbit of last EC0",3600,0.,3600*11223);
+    _hlEC0 = subrun.make<TH1F>("lEC0","Orbit of last EC0",m_LSfrac*m_maxLS,0,m_maxLS*262144);
     _hlEC0->GetXaxis()->SetTitle("Orbit");     _hlEC0->GetYaxis()->SetTitle("Events");
     _hlEC0->SetBit(TH1::kCanRebin);
 
-    _hlHR = subrun.make<TH1F>("lHR","Orbit of last HardReset",3600,0.,3600*11223);
+    _hlHR = subrun.make<TH1F>("lHR","Orbit of last HardReset",m_LSfrac*m_maxLS,0,m_maxLS*262144);
     _hlHR->GetXaxis()->SetTitle("Orbit");     _hlHR->GetYaxis()->SetTitle("Events");
     _hlHR->SetBit(TH1::kCanRebin);
 
