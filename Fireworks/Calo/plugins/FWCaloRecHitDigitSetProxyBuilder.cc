@@ -19,9 +19,7 @@ FWCaloRecHitDigitSetProxyBuilder::FWCaloRecHitDigitSetProxyBuilder()
 void FWCaloRecHitDigitSetProxyBuilder::setItem(const FWEventItem* iItem)
 {
    FWProxyBuilderBase::setItem(iItem);
-   if (iItem) {
-      iItem->getConfig()->assertParam( "IgnoreShapeSize", false);
-   }
+   // if (iItem) iItem->getConfig()->assertParam( "IgnoreShapeSize", false);
 }
 //______________________________________________________________________________
 
@@ -98,12 +96,14 @@ void FWCaloRecHitDigitSetProxyBuilder::viewContextBoxScale( const float* corners
          fireworks::invertBox( scaledCorners );
    }
 }
+//_____________________________________________________________________________
 
 float  FWCaloRecHitDigitSetProxyBuilder::scaleFactor(const FWViewContext* vc)
 {
    // printf("scale face %f \n", vc->getEnergyScale()->getScaleFactor3D());
-   return vc->getEnergyScale()->getScaleFactor3D()/20;
+     return vc->getEnergyScale()->getScaleFactor3D()/50;
 }
+
 //______________________________________________________________________________
 
 void
@@ -137,7 +137,7 @@ FWCaloRecHitDigitSetProxyBuilder::build( const FWEventItem* iItem, TEveElementLi
    size_t size = iItem->size();
    if (!size) return;
 
-   m_ignoreGeoShapeSize = item()->getConfig()->value<bool>("IgnoreShapeSize");
+   // m_ignoreGeoShapeSize = item()->getConfig()->value<bool>("IgnoreShapeSize");
 
    std::vector<float> scaledCorners(24);
 
