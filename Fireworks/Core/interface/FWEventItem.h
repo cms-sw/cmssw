@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.44 2010/08/18 10:30:09 amraktad Exp $
+// $Id: FWEventItem.h,v 1.48 2011/08/20 03:48:39 amraktad Exp $
 //
 
 // system include files
@@ -44,6 +44,8 @@ class FWSelectionManager;
 class FWGeometry;
 class TVirtualCollectionProxy;
 class FWItemAccessorBase;
+class FWProxyBuilderConfiguration;
+class FWConfiguration;
 
 namespace edm {
    class EventBase;
@@ -54,7 +56,6 @@ namespace fireworks {
 
 class FWEventItem
 {
-
 public:
    struct ModelInfo {
       FWDisplayProperties m_displayProperties;
@@ -75,8 +76,8 @@ public:
    FWEventItem(fireworks::Context* iContext,
                unsigned int iItemId,
                boost::shared_ptr<FWItemAccessorBase> iAccessor,
-               const FWPhysicsObjectDesc& iDesc);
-   //virtual ~FWEventItem();
+               const FWPhysicsObjectDesc& iDesc,  const FWConfiguration* pbConf = 0);
+   virtual ~FWEventItem();
 
    // ---------- const member functions ---------------------
 #if !defined(__CINT__) && !defined(__MAKECINT__)
@@ -115,8 +116,8 @@ public:
    std::string modelName(int iIndex) const;
 
    ///one value from the model which is normally used for the popup
+  const  FWItemValueGetter& valueGetter() const { return m_interestingValueGetter; }
    bool haveInterestingValue() const;
-   double modelInterestingValue(int iIndex) const;
    const std::string& modelInterestingValueAsString(int iIndex) const;
 
    bool isCollection() const;
@@ -162,6 +163,7 @@ public:
    void setEvent(const edm::EventBase* iEvent);
 
    const FWGeometry* getGeom() const;
+   FWProxyBuilderConfiguration* getConfig() const { return m_proxyBuilderConfig; }
 
    void setLabels(const std::string& iModule,
                   const std::string& iProductInstance,
@@ -181,6 +183,8 @@ public:
    void moveToFront();
    void moveToBack();
    void moveToLayer(int layer);
+
+   void proxyConfigChanged();
 
    void unselect(int iIndex) const;
    void select(int iIndex) const;
@@ -242,6 +246,9 @@ private:
    mutable std::string m_errorMessage;
    
    bool m_isSelected;
+
+
+   FWProxyBuilderConfiguration*  m_proxyBuilderConfig;
 };
 
 

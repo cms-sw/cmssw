@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:16:20 EST 2008
-// $Id: FWParameterSetterBase.cc,v 1.12 2010/06/18 10:17:16 yana Exp $
+// $Id: FWParameterSetterBase.cc,v 1.13.12.1 2012/02/18 01:58:29 matevz Exp $
 //
 
 // system include files
@@ -79,6 +79,7 @@ FWParameterSetterBase::attach(FWParameterBase* iBase, FWParameterSetterEditorBas
 //
 // const member functions
 //
+
 void
 FWParameterSetterBase::update() const
 {
@@ -89,15 +90,18 @@ FWParameterSetterBase::update() const
 //
 // static member functions
 //
+
 boost::shared_ptr<FWParameterSetterBase>
 FWParameterSetterBase::makeSetterFor(FWParameterBase* iParam)
 {
    static std::map<edm::TypeID,ROOT::Reflex::Type> s_paramToSetterMap;
    edm::TypeID paramType( typeid(*iParam) );
    std::map<edm::TypeID,ROOT::Reflex::Type>::iterator itFind = s_paramToSetterMap.find(paramType);
-   if( itFind == s_paramToSetterMap.end() ) {
+   if (itFind == s_paramToSetterMap.end())
+   {
       ROOT::Reflex::Type paramClass( ROOT::Reflex::Type::ByTypeInfo(typeid(*iParam)) );
-      if(paramClass == ROOT::Reflex::Type() ) {
+      if (paramClass == ROOT::Reflex::Type())
+      {
          fwLog(fwlog::kError) << " the type "<<typeid(*iParam).name()<< " is not known to REFLEX" <<std::endl;
       }
       assert(paramClass != ROOT::Reflex::Type() );
@@ -125,7 +129,8 @@ FWParameterSetterBase::makeSetterFor(FWParameterBase* iParam)
          name += "Setter";
 
       ROOT::Reflex::Type setterClass( ROOT::Reflex::Type::ByName( name ) );
-      if(setterClass == ROOT::Reflex::Type() ) {
+      if (setterClass == ROOT::Reflex::Type())
+      {
          fwLog(fwlog::kError) << " the type "<<name<< " is not known to REFLEX" <<std::endl;
       }
       assert(setterClass != ROOT::Reflex::Type());

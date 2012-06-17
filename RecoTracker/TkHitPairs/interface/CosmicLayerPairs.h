@@ -13,8 +13,6 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
 //#include "RecoTracker/TkDetLayers/interface/PixelForwardLayer.h"
-#include "RecoTracker/TkDetLayers/interface/TOBLayer.h"
-#include "RecoTracker/TkDetLayers/interface/TIBLayer.h"
 #include <vector>
 class CosmicLayerPairs : public SeedLayerPairs{
 public:

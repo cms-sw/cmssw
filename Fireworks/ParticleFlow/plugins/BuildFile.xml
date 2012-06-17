@@ -5,12 +5,7 @@
  <use name="DataFormats/ParticleFlowReco"/>
  <use name="DataFormats/PatCandidates"/>
  <use name="DataFormats/TrackReco"/>
- <use name="Fireworks/Core"/>
- <use name="Fireworks/Tracks"/>
  <use name="Fireworks/ParticleFlow"/>
- <use name="rootinteractive"/>
- <use name="rootphysics"/>
  <lib name="Eve"/>
- <lib name="RGL"/>
  <flags EDM_PLUGIN="1"/>
 </library>

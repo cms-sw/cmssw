@@ -20,7 +20,7 @@ MemoryTestClient_B::MemoryTestClient_B( edm::ParameterSet const & ps)
 }
 
 void
-  MemoryTestClient_B::analyze( edm::Event      const & e
+  MemoryTestClient_B::analyze( edm::Event      const & /*unused*/
                            , edm::EventSetup const & /*unused*/
                               )
 {

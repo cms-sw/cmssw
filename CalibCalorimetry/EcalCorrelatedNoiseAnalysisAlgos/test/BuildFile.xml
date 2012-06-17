@@ -6,11 +6,10 @@
 <bin   name="EcnaGuiEE" file="EcnaGuiEE.cc">
   <lib   name="Gui"/>
 </bin>
-<bin   name="EcnaHistosExample1" file="EcnaHistosExample1.cc">
- <lib   name="Gui"/>
-</bin>
-<bin   name="EcnaHistosExample2" file="EcnaHistosExample2.cc">
- <lib   name="Gui"/>
+<bin   name="EcnaHistosExample" file="EcnaHistosExample.cc">
 </bin>
 <bin   name="EcnaCalculationsExample" file="EcnaCalculationsExample.cc">
+</bin>
+<bin   name="TEcnaHistosTest" file="TEcnaHistosTest.cc">
+  <lib   name="Gui"/>
 </bin>

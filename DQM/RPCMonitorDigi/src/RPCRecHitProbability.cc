@@ -21,7 +21,7 @@ RPCRecHitProbability::RPCRecHitProbability( const edm::ParameterSet& pset ):coun
 
   muonLabel_ = pset.getParameter<edm::InputTag>("MuonLabel");
   muPtCut_  = pset.getUntrackedParameter<double>("MuonPtCut", 3.0); 
-  muEtaCut_ = pset.getUntrackedParameter<double>("MuonEtaCut", 1.6); 
+  muEtaCut_ = pset.getUntrackedParameter<double>("MuonEtaCut", 1.9); 
  
   subsystemFolder_ = pset.getUntrackedParameter<std::string>("RPCFolder", "RPC");
   globalFolder_ = pset.getUntrackedParameter<std::string>("GlobalFolder", "SummaryHistograms");
@@ -46,7 +46,7 @@ void RPCRecHitProbability::beginRun(const edm::Run& r, const edm::EventSetup& iS
   //General part
   NumberOfMuonEta_ = dbe->get(currentFolder+"/NumberOfMuonEta");
   if(NumberOfMuonEta_) dbe->removeElement(NumberOfMuonEta_->getName());
-  NumberOfMuonEta_ = dbe->book1D("NumberOfMuonEta", "Muons vs Eta", 32, -1.6, 1.6);
+  NumberOfMuonEta_ = dbe->book1D("NumberOfMuonEta", "Muons vs Eta", 20*muEtaCut_,  -muEtaCut_,  muEtaCut_ );
 
   NumberOfMuonPt_B_ = dbe->get(currentFolder+"/NumberOfMuonPt_Barrel");
   if(NumberOfMuonPt_B_) dbe->removeElement(NumberOfMuonPt_B_->getName());
@@ -75,7 +75,7 @@ void RPCRecHitProbability::beginRun(const edm::Run& r, const edm::EventSetup& iS
   //RPC part
   RPCRecHitMuonEta_ = dbe->get(currentFolder+"/RPCRecHitMuonEta");
   if(RPCRecHitMuonEta_) dbe->removeElement(RPCRecHitMuonEta_->getName());
-  RPCRecHitMuonEta_ = dbe->book2D("RPCRecHitMuonEta", "Number Of RecHits per Muons vs Eta", 32, -1.6, 1.6, 7, 0.5, 7.5);
+  RPCRecHitMuonEta_ = dbe->book2D("RPCRecHitMuonEta", "Number Of RecHits per Muons vs Eta", 20*muEtaCut_,  -muEtaCut_,  muEtaCut_, 7, 0.5, 7.5);
   
   std::stringstream name, title;
   for(int i = 0 ; i< 6 ; i++) {
@@ -83,7 +83,7 @@ void RPCRecHitProbability::beginRun(const edm::Run& r, const edm::EventSetup& iS
     title.str("");
     name<<(i+1)<<"RecHitMuonEta";
     title<<"At least " <<(i+1)<<" Cluster vs Eta";
-    recHitEta_[i] = dbe->book1D(name.str(), title.str(), 32, -1.6, 1.6);
+    recHitEta_[i] = dbe->book1D(name.str(), title.str(), 20*muEtaCut_,  -muEtaCut_,  muEtaCut_);
 
     name.str("");
     title.str("");

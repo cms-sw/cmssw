@@ -1,7 +1,6 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.57 2010/09/20 11:56:02 rofierzy Exp $
 //
 #include <vector>
 #include <string>
@@ -839,12 +838,12 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
     std::vector <std::string> items = splitString (std::string (buffer));
     if (items.size()<1) continue;
     if (items [0] == "SHAPE") { // basic shape
-      if (items.size () < 33) {
-	edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 33 items: SHAPE  32 x low QIE edges for first 32 bins" << std::endl;
+      if (items.size () < 65) {
+	edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 65 items: SHAPE  64 x low QIE edges for first 64 bins" << std::endl;
 	continue;
       }
-      float lowEdges [32];
-      int i = 32;
+      float lowEdges [64];
+      int i = 64;
       while (--i >= 0) lowEdges [i] = atof (items [i+1].c_str ());
       //      fObject->setShape (lowEdges);
     }
@@ -882,10 +881,10 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
 
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIEData& fObject) {
   char buffer [1024];
-  fOutput << "# QIE basic shape: SHAPE 32 x low edge values for first 32 channels" << std::endl;
+  fOutput << "# QIE basic shape: SHAPE 64 x low edge values for first 64 channels" << std::endl;
   sprintf (buffer, "SHAPE ");
   fOutput << buffer;
-  for (unsigned bin = 0; bin < 32; bin++) {
+  for (unsigned bin = 0; bin < 64; bin++) {
     sprintf (buffer, " %8.5f", fObject.getShape ().lowEdge (bin));
     fOutput << buffer;
   }
@@ -921,14 +920,13 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIEData& fObjec
   return true;
 }
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalCalibrationQIEData* fObject) {
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
     if (buffer [0] == '#') continue; //ignore comment
     std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size () < 36) {
-      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 36 items: eta, phi, depth, subdet, 32 bin values" << std::endl;
+    if (items.size () < 68) {
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 68 items: eta, phi, depth, subdet, 64 bin values" << std::endl;
       continue;
     }
     DetId id = getId (items);
@@ -940,8 +938,8 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalCalibrationQIEData* fOb
 //    catch (cms::Exception& e) {
       HcalCalibrationQIECoder coder (id.rawId ());
       int index = 4;
-      float values [32];
-      for (unsigned bin = 0; bin < 32; bin++) {
+      float values [64];
+      for (unsigned bin = 0; bin < 64; bin++) {
 	values[bin] = atof (items [index++].c_str ());
       }
       coder.setMinCharges (values);
@@ -967,7 +965,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalCalibrationQIED
     if (coder) {
       dumpId (fOutput, *channel);
       const float* lowEdge = coder->minCharges ();
-      for (unsigned bin = 0; bin < 32; bin++) {
+      for (unsigned bin = 0; bin < 64; bin++) {
 	sprintf (buffer, " %8.5f", lowEdge [bin]);
 	fOutput << buffer;
       }

@@ -83,11 +83,8 @@ void EvtGenTestAnalyzer::beginJob()
    hIdPhiDaugs = new TH1D( "hIdPhiDaugs","LundIDs of the phi's daughters",  100, -500., 500.) ;
    hIdJpsiMot = new TH1D( "hIdJpsiMot","LundIDs of the J/psi's mother",  100, -500., 500.) ;
    hIdBDaugs = new TH1D( "hIdBDaugs","LundIDs of the B's daughters",  100, -1000., 1000.) ;
-   hCosTheta1 = new TH1D( "hCosTheta1","cos#theta_{1}",  50, -1., 1.) ;
-   hCosTheta2 = new TH1D( "hCosTheta2","cos#theta_{2}",  50, -1., 1.) ;
-   hPhi1 = new TH1D( "hPhi1","#phi_{1}",  50, -3.14, 3.14) ;
-   hPhi2 = new TH1D( "hPhi2","#phi_{2}",  50, -3.14, 3.14) ;
-   hCosThetaLambda = new TH1D( "hCosThetaLambda","cos#theta_{#Lambda}",  50, -1., 1.) ;
+   hCosHelAngleK = new TH1D( "hCosHelAngleK","cos#theta_{K}",  100, 0., 1.) ;
+   hCosHelAngleKbkg = new TH1D( "hCosHelAngleKbkg","cos#theta_{K} background",  100, 0., 1.) ;
 
    decayed = new ofstream("decayed.txt") ;
    undecayed = new ofstream("undecayed.txt") ;
@@ -154,19 +151,28 @@ void EvtGenTestAnalyzer::analyze( const Event& e, const EventSetup& )
      if ( abs((*p)->pdg_id()) == 521 )   // B+/- 
        // || abs((*p)->pdg_id()/100) == 4 || abs((*p)->pdg_id()/100) == 3) 
      {
+       if (!endvert) {
+	 *undecayed << (*p)->pdg_id() << endl;
+       } else {
+	 *decayed << (*p)->pdg_id() << " --> " ;
+         for ( GenVertex::particles_out_const_iterator bp = endvert->particles_out_const_begin(); bp != endvert->particles_out_const_end(); ++bp ) {
+	   *decayed << (*bp)->pdg_id() << " " ;
+         }
+         *decayed << endl;
+
          nBp++;
 	 htbPlus->Fill( dectime );
 	 int isJpsiKstar = 0;
 	 for ( GenVertex::particles_out_const_iterator bp = endvert->particles_out_const_begin(); bp != endvert->particles_out_const_end(); ++bp ) {
 	   if ( (*bp)->pdg_id() == 443 || abs( (*bp)->pdg_id() ) == 323 ) isJpsiKstar++ ;          
 	 }
-	 if (isJpsiKstar == 2) nBJpsiKstar++;       
+	 if (isJpsiKstar == 2) nBJpsiKstar++;
+       }       
      }
      // if ((*p)->pdg_id() == 443) *undecayed << (*p)->pdg_id() << endl;
      // --------------------------------------------------------------
-
      if ( (*p)->pdg_id() == 531 /* && endvert */ ) {  // B_s 
-       // nbs++;
+       nbs++;
        hPtbs->Fill((*p)->momentum().perp());
        hPbs->Fill( sqrt ( pow((*p)->momentum().px(),2)+pow((*p)->momentum().py(),2)+
 			  pow((*p)->momentum().pz(),2) )) ;
@@ -295,92 +301,33 @@ void EvtGenTestAnalyzer::analyze( const Event& e, const EventSetup& )
        }
      }
      // --------------------------------------------------------------
-     // Calculate helicity angles to test polarization
-     // (from Hrivnac et al., J. Phys. G21, 629)
-
-     if ( (*p)->pdg_id() == 5122 /* && endvert */ ) {   // lambdaB
-
-       TLorentzVector pMuP;
-       TLorentzVector pProt;
-       TLorentzVector pLambda0;
-       TLorentzVector pJpsi;
-       TLorentzVector pLambdaB;
-       TVector3 enne;
-
-       nbs++; 
-       if (!endvert) {
-	 *undecayed << (*p)->pdg_id() << endl;
-       } else {
-	 *decayed << (*p)->pdg_id() << " --> " ;
-	 for ( GenVertex::particles_out_const_iterator bp = endvert->particles_out_const_begin(); bp != endvert->particles_out_const_end(); ++bp ) {
-	   *decayed << (*bp)->pdg_id() << " " ;
-	 }
-       }
-       *decayed << endl;
-
-       pLambdaB.SetPxPyPzE((*p)->momentum().px(), (*p)->momentum().py(),
-			   (*p)->momentum().pz(), (*p)->momentum().e());
-       enne = - (pLambdaB.Vect().Cross(TVector3(0.,0.,1.))).Unit();
- 
-       if (endvert) {
-	 for ( GenVertex::particles_out_const_iterator p2 = endvert->particles_out_const_begin(); p2 != endvert->particles_out_const_end(); ++p2 ) {
-	   if ((*p2)->pdg_id() == 443) {  // J/psi
-	     pJpsi.SetPxPyPzE((*p2)->momentum().px(), (*p2)->momentum().py(),
-			      (*p2)->momentum().pz(), (*p2)->momentum().e());
-	     GenVertex* psivert = (*p2)->end_vertex();
-	     if (psivert) {
-	       for ( GenVertex::particles_out_const_iterator p3 = psivert->particles_out_const_begin(); p3 != psivert->particles_out_const_end(); ++p3 ) {
-		 if ((*p3)->pdg_id() == -13) {  // mu+
-		   pMuP.SetPxPyPzE((*p3)->momentum().px(), (*p3)->momentum().py(),
-				   (*p3)->momentum().pz(), (*p3)->momentum().e());
-		 }
-	       }
-	     }
-	   }
-	   if ((*p2)->pdg_id() == 3122) {   // Lambda0
-	     pLambda0.SetPxPyPzE((*p2)->momentum().px(), (*p2)->momentum().py(),
-				 (*p2)->momentum().pz(), (*p2)->momentum().e());
-	     GenVertex* lamvert = (*p2)->end_vertex();
-	     if (lamvert) {
-	       for ( GenVertex::particles_out_const_iterator p3 = lamvert->particles_out_const_begin(); p3 != lamvert->particles_out_const_end(); ++p3 ) {
-		 if (abs((*p3)->pdg_id()) == 2212) {   // p
-		   pProt.SetPxPyPzE((*p3)->momentum().px(), (*p3)->momentum().py(),
-				    (*p3)->momentum().pz(), (*p3)->momentum().e());
-		 }
+     if ( (*p)->pdg_id() == 321 ) {   // K+
+       GenVertex* phivert = (*p)->production_vertex();
+       if (phivert) {
+	 for ( GenVertex::particles_in_const_iterator p2 = phivert->particles_in_const_begin(); p2 != phivert->particles_in_const_end(); ++p2 ) {
+	   GenVertex* bsvert = (*p2)->production_vertex();
+           if (bsvert) {
+	     for ( GenVertex::particles_in_const_iterator p3 = bsvert->particles_in_const_begin(); p3 != bsvert->particles_in_const_end(); ++p3 ) {
+	       TLorentzVector pK1((*p)->momentum().px(), (*p)->momentum().py(),
+				  (*p)->momentum().pz(), (*p)->momentum().e());
+	       TLorentzVector pphi((*p2)->momentum().px(), (*p2)->momentum().py(),
+				   (*p2)->momentum().pz(), (*p2)->momentum().e());
+	       TLorentzVector pds((*p3)->momentum().px(), (*p3)->momentum().py(),
+				  (*p3)->momentum().pz(), (*p3)->momentum().e());
+	       TVector3 booster = pphi.BoostVector();
+	       pK1.Boost( -booster );
+	       pds.Boost( -booster );
+	       if ( abs((*p3)->pdg_id()) == 431 && (*p2)->pdg_id() == 333) {   
+		 // D_s -> phi
+		 hCosHelAngleK->Fill( fabs( cos( pK1.Vect().Angle(pds.Vect())) ));
+	       } else {
+		 hCosHelAngleKbkg->Fill( fabs( cos( pK1.Vect().Angle(pds.Vect())) ));
 	       }
 	     }
 	   }
 	 }
        }
-	       
-       TVector3 booster1 = pLambdaB.BoostVector();
-       TVector3 booster2 = pLambda0.BoostVector();
-       TVector3 booster3 = pJpsi.BoostVector();
-
-       pLambda0.Boost( -booster1 );
-       pJpsi.Boost( -booster1 );
-       hCosThetaLambda->Fill( cos( pLambda0.Vect().Angle(enne) ));
-      
-       pProt.Boost( -booster2 );
-       hCosTheta1->Fill( cos( pProt.Vect().Angle(pLambda0.Vect()) ));
-       TVector3 tempY = (pLambda0.Vect().Cross(enne)).Unit();
-       TVector3 xyProj = (enne.Dot(pProt.Vect()))*enne + (tempY.Dot(pProt.Vect()))*tempY;
-       // find the sign of phi
-       TVector3 crossProd = xyProj.Cross(enne);
-       float tempPhi = (crossProd.Dot(pLambda0.Vect()) > 0 ? xyProj.Angle(enne) : -xyProj.Angle(enne));
-       hPhi1->Fill( tempPhi );
-
-       pMuP.Boost( -booster3 );
-       hCosTheta2->Fill( cos( pMuP.Vect().Angle(pJpsi.Vect()) ));
-       tempY = (pJpsi.Vect().Cross(enne)).Unit();
-       xyProj = (enne.Dot(pMuP.Vect()))*enne + (tempY.Dot(pMuP.Vect()))*tempY;
-       // find the sign of phi
-       crossProd = xyProj.Cross(enne);
-       tempPhi = (crossProd.Dot(pJpsi.Vect()) > 0 ? xyProj.Angle(enne) : -xyProj.Angle(enne));
-       hPhi2->Fill( tempPhi );
-       
      }
-     
    }
    // ---------------------------------------------------------
 
@@ -436,15 +383,12 @@ void EvtGenTestAnalyzer::endJob()
   Hlist.Add(hmumuMassSqrMinus); 
   Hlist.Add(hIdBsDaugs) ;	   
   Hlist.Add(hIdBDaugs) ;	   
-  Hlist.Add(hCosTheta1) ;   
-  Hlist.Add(hCosTheta2) ;
-  Hlist.Add(hPhi1) ;   
-  Hlist.Add(hPhi2) ;
-  Hlist.Add(hCosThetaLambda) ;
+  Hlist.Add(hCosHelAngleK) ;   
+  Hlist.Add(hCosHelAngleKbkg) ;
   Hlist.Write() ;
   fOutputFile->Close() ;
   cout << "N_events = " << nevent << "\n";
-  cout << "N_LambdaB = " << nbs << "\n"; 
+  cout << "N_Bs = " << nbs << "\n"; 
   return ;
 }
  

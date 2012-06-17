@@ -926,6 +926,7 @@ namespace cscdqm {
           getEMUHisto(h::EMU_CSC_CLCT0_BXN_MEAN, mo_CSC_CLCT0_BXN_mean);
 
           MonitorObject*  mo_CSC_CLCT0_BXN_rms = 0;
+	  getEMUHisto(h::EMU_CSC_CLCT0_BXN_RMS, mo_CSC_CLCT0_BXN_rms);
 
           for (uint32_t lct = 0; lct < clctsDatas.size(); lct++) {
 

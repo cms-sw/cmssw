@@ -6,7 +6,7 @@
 //
 // Project: HPD ion feedback
 // Author: T.Yetkin University of Iowa, Feb. 16, 2010
-// $Id: HPDIonFeedbackSim.h,v 1.2 2010/02/27 00:35:48 rpw Exp $
+// $Id: HPDIonFeedbackSim.h,v 1.1 2010/02/24 01:56:49 rpw Exp $
 // --------------------------------------------------------
 
 #ifndef HcalSimAlgos_HPDIonFeedbackSim_h
@@ -23,18 +23,18 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandPoissonQ.h"
-class CaloShapes;
+class CaloVShape;
 
 class HPDIonFeedbackSim: public CaloVPECorrection
 {
   public:
-    /// need a shaper in order to set thermal noise
-    HPDIonFeedbackSim(const edm::ParameterSet&, const CaloShapes * shapes);
+    explicit HPDIonFeedbackSim(const edm::ParameterSet&);
     ~HPDIonFeedbackSim();
     
     //copied from HFSimParameters.h
     void setDbService(const HcalDbService * service) {theDbService = service;}
     /// need a shaper in order to set thermal noise
+    void setShape(const CaloVShape * shape) {theShape = shape;}
     void setRandomEngine(CLHEP::HepRandomEngine & engine);
 
     // in units of fC
@@ -46,7 +46,7 @@ class HPDIonFeedbackSim: public CaloVPECorrection
   private:
     double fCtoGeV(const DetId & detId) const;
     const HcalDbService * theDbService;
-    const CaloShapes * theShapes;
+    const CaloVShape * theShape;
     
     mutable CLHEP::RandBinomial * theRandBinomial;
     mutable CLHEP::RandFlat*      theRandFlat;

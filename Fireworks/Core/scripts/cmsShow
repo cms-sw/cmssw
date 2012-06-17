@@ -1,103 +1,217 @@
 #!/usr/bin/env bash
 #set -x
-# strip of the directory name for this shell script
-export SHELLDIR=`dirname $0`
-# if no directory specified we need to use the local directory
-if [ ! -n "$SHELLDIR" ] || [ "$SHELLDIR" == "." ] ; then
-  export SHELLDIR=$PWD
-fi
 
-# see if we are running in standalone mode
-FROM_RELEASE=""
-if [ -n "$CMSSW_BASE" ] && [ `expr "$SHELLDIR" : "$CMSSW_BASE"` -gt 0 ]; then
-  FROM_RELEASE='true'
-  #echo "from CMSSW_BASE"
-elif [ -n "$CMSSW_RELEASE_BASE" ]; then
-  if [ `expr "$SHELLDIR" : "$CMSSW_RELEASE_BASE"` -gt 0 ]; then
-    FROM_RELEASE='true'
-    #echo "from CMSSW_RELEASE_BASE"
-  else
-    NO_PATCH_CMSSWRB=`echo $CMSSW_RELEASE_BASE | sed 's/cmssw-patch/cmssw/; s/\(CMSSW_[0-9_]*\)_patch[0-9]\+/\1/;'`
-    if [ `expr "$SHELLDIR" : "$NO_PATCH_CMSSWRB"` -gt 0 ]; then
-      FROM_RELEASE='true'
-      #echo "from CMSSW_RELEASE_BASE with patch removed"
-    fi
-  fi
-fi
-if [ -z "$FROM_RELEASE" ]; then
-  export CMSSW_BASE=$SHELLDIR
-  export CMSSW_SEARCH_PATH="."
-  export CMSSW_DATA_PATH="."
-  export ROOTSYS=$CMSSW_BASE/external/root 
-  export LD_LIBRARY_PATH=${CMSSW_BASE}:${CMSSW_BASE}/external/gcc/lib:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib:$LD_LIBRARY_PATH
-  export LD_LIBRARY_PATH=${CMSSW_BASE}:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib:$LD_LIBRARY_PATH
-  export DYLD_LIBRARY_PATH=${CMSSW_BASE}:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib:$DYLD_LIBRARY_PATH
-  export PATH=${ROOTSYS}/bin:$PATH
-fi
+checkOS()
+{
+   # Only 64-bit arch supported, and OSX version 10.6 or more.
 
-# We store in originalOptions all the options that need to be passed to the
-# actual cmsShow.exe executable but not those that are specific for the wrapper
-# file itself.
-while [ $# -gt 0 ]
-do
-    case "$1" in
-      --soft)  softflag=on ; originalOptions="${originalOptions} --soft";;
-      -d|--debug) debugflag=on; originalOptions="${originalOptions} --debug";;
-      -di|--debug-interactive) debuginteractiveflag=on;;
-      --valgrind) valgrindflag=on;;
-      --prompt) originalOptions="${originalOptions} $1 -r";;
-      --eve) originalOptions="${originalOptions} --eve -r";;
-      -r|--root-interactive) rootflag=on; originalOptions="${originalOptions} -r";;
-      *) originalOptions="$originalOptions $1";;
-    esac
-    shift
-done
-
-if [ "X$softflag" = "on" ] ; then
-  export LIBGL_DRIVERS_PATH=/tmp/
-fi
-
-export exitStatus=0;
-if [ "X$debugflag" = Xon ] ; then
-   tmpfile=`mktemp /tmp/cmsshow-gdb-XXXXXXXX`
-   if [ -w . ]; then
-      creport=./cmsshow-crash-report.txt
+   osname=`uname -s`
+   if [ f$osname = f"Darwin" ]; then
+       arch=`sysctl hw | grep 64bit | awk '{print $2;}'`
+       if [ $arch -eq 0 ]; then
+           echo "###################################"
+           echo "Only 64-bit OSX-10.6 is supported!"
+           echo "###################################"
+           exit 1;
+       fi
+       osv=`sw_vers -productVersion` 
+       osvt=`echo $osv | awk '{if ( $1 >= 10.6 ) print "$osv";}'`
+       if [ "$osvt" == "" ]; then
+           echo "#######################################"
+           echo "Only version 10.6 or greater supported!"
+           echo "#######################################"
+   	exit 1;
+       fi
    else
-      creport=`mktemp /tmp/cmsshow-crash-report-XXXXXXXX`
+       arch=`uname -m`
+       if [ f$arch != f"x86_64" -a f$arch != f"amd64" ]; then
+           echo "###################################"
+           echo "Only 64-bit GNU/linux is supported!"
+           echo "###################################"
+           exit 1
+       fi
    fi
-   $SHELLDIR/cmsShow.exe $originalOptions 2>&1 | tee $creport
-   exitSstatus=$?
-   echo "" >> $creport
-   echo "System Info" >> $creport
-   uname -a  >> $creport
-   glxinfo >> $creport
-   echo "Crash report saved to '$creport'."
-elif [ "X$debuginteractiveflag" = Xon ] ; then
-  echo $originalOptions
-  gdb --args $SHELLDIR/cmsShow.exe $originalOptions
+}
+
+checkRemoteConnection()
+{
+   # Running via ssh can lead to dis-synchronization between server and
+   # client due to bugs and incompatibilities of GLX implementations.
+   # Here we apply some workarounds for known problems.
+
+   if [ f$osname != f"Darwin" -a -n "$SSH_CLIENT" ]; then
+     export LIBGL_NO_DRAWARRAYS=1
+     if ldd $ROOTSYS/lib/libRGL.so | grep libGL.so | grep -q nvidia; then
+         echo "################################################################################"
+         echo "# WARNING"
+         echo "################################################################################"
+         echo "You are running remotely on a machine that uses NVIDIA drivers."
+         echo "This is known to cause problems with some client configurations."
+         if [ -e /etc/redhat-release ]; then
+   	  grep -q 'Scientific Linux' /etc/redhat-release && grep -q '5.' /etc/redhat-release
+   	  is_sl5=$?
+   	  grep -q 'CentOS' /etc/redhat-release && grep -q '5.' /etc/redhat-release
+   	  is_centos5=$?
+   	  if [ $is_sl5 = 0 -o $is_centos5 = 0 ]; then
+   	      echo "We are running on SL5 or CentOS5."
+   	      if [ -e /usr/lib64/libGL.so.1.2 ]; then
+   		  echo "To avoid this problem libGL.so from MesaGL package will be preloaded."
+   		  export LD_PRELOAD=/usr/lib64/libGL.so.1.2
+   	      else
+   		  echo "Can not find replacement libGL.so from MesaGL."
+   		  echo "If you run into trouble try installing mesa-libGL package on remote machine."
+   	      fi
+   	  fi
+         fi
+         echo "################################################################################"
+     fi
+   fi
+}
+
+setupEnv()
+{
+   # strip of the directory name for this shell script
+   export SHELLDIR=`dirname $0`
+   # if no directory specified we need to use the local directory
+   if [ ! -n "$SHELLDIR" ] || [ "$SHELLDIR" = "." ] ; then
+     export SHELLDIR=$PWD
+   fi
+   
+   # see if we are running in standalone mode
+   FROM_RELEASE=""
+   if [ -n "$CMSSW_BASE" ] && [ `expr "$SHELLDIR" : "$CMSSW_BASE"` -gt 0 ]; then
+     FROM_RELEASE='true'
+   elif [ -n "$CMSSW_RELEASE_BASE" ]; then
+     if [ `expr "$SHELLDIR" : "$CMSSW_RELEASE_BASE"` -gt 0 ]; then
+       FROM_RELEASE='true'
+     else
+       NO_PATCH_CMSSWRB=`echo $CMSSW_RELEASE_BASE | sed 's/cmssw-patch/cmssw/; s/\(CMSSW_[0-9_]*\)_patch[0-9]\+/\1/;'`
+       if [ `expr "$SHELLDIR" : "$NO_PATCH_CMSSWRB"` -gt 0 ]; then
+         FROM_RELEASE='true'
+       fi
+     fi
+   fi
+   if [ -z "$FROM_RELEASE" ]; then 
+     export CMSSW_BASE=$SHELLDIR
+     export CMSSW_SEARCH_PATH="."
+     export CMSSW_DATA_PATH="."
+     export ROOTSYS=$CMSSW_BASE/external/root 
+     export LD_LIBRARY_PATH=${CMSSW_BASE}/lib:${CMSSW_BASE}/external/gcc/lib64:${CMSSW_BASE}/external/lib:${ROOTSYS}/lib:$LD_LIBRARY_PATH
+     export DYLD_FALLBACK_LIBRARY_PATH=${LD_LIBRARY_PATH}
+     if [ -n "$DYLD_LIBRARY_PATH" ]; then
+        echo "Warning: DYLD_LIBRARY_PATH not empty. Unsetting DYLD_LIBRARY_PATH." 
+        unset DYLD_LIBRARY_PATH
+     fi
+     export PATH=${ROOTSYS}/bin:$PATH
+     # move cmsShow.exe to libexec
+     SHELLDIR=$SHELLDIR/libexec
+   fi
+}
+
+parseOptions()
+{
+   # We store in originalOptions all the options that need to be passed to the
+   # actual cmsShow.exe executable but not those that are specific for the wrapper
+   # file itself.
+
+   while [ $# -gt 0 ]
+   do
+       case "$1" in
+         --soft)  softflag=on ; originalOptions="${originalOptions} --soft";;
+         -d|--debug) debugflag=on; originalOptions="${originalOptions} --debug";;
+         -di|--debug-interactive) debuginteractiveflag=on;;
+         --valgrind) valgrindflag=on;;
+         --prompt) originalOptions="${originalOptions} $1 -r";;
+         --eve) originalOptions="${originalOptions} --eve -r";;
+         -r|--root-interactive) rootflag=on; originalOptions="${originalOptions} -r";;
+         *) originalOptions="$originalOptions $1";;
+       esac
+       shift
+   done
+}
+
+writeSystemInfoToFile()
+{
+   file=$1
+   echo "" >> $file
+   echo "System Info" >> $file
+   uname -a  >> $file
+   glxinfo >> $file
+}
+
+errorPrint()
+{
+   # Wrap message to defined line width and add padding.
+   echo $2 | awk -v m=$1 '{  txt=$0; m-=4; \
+                  ll=int(length(txt)/m) ; i=1; \
+                  if (length(txt)>(m +2)) { \
+                      { print "  #  " substr(txt,0,m) "  #  "} \
+                      while (i<ll) { { print "  #  " substr(txt,i*m+1,m) }  i=i+1;} \
+                      fmt=sprintf("%%%ds", ll*m + m + 1 -length(txt) ); x=sprintf(fmt, "#"); \
+                      { print "  #  " substr(txt,i*m+1,m) "  " x "  " } \
+                      }\
+                  else { \
+                      fmt=sprintf("%%%ds", m +1  -length(txt) ); x=sprintf(fmt, "#"); \
+                      { print "  #  " (txt) "  " x " "} } \
+                  }' 
+}
+
+################################################################################
+# Main body of script starts here
+################################################################################
+
+checkOS
+setupEnv
+checkRemoteConnection
+parseOptions $@
+
+if [ "X$softflag" = "Xon" ] ; then
+  export LIBGL_ALWAYS_INDIRECT=1 
+  export LIBGL_DRIVERS_PATH=/tmp/
+  export LIBGL_DEBUG=verbose
+  export MESA_DEBUG=1
+fi
+
+
+# Developers cases -- run from gdb or valgrind.
+if [ "X$debuginteractiveflag" = Xon ] ; then
+  gdb --args "$SHELLDIR/cmsShow.exe" $originalOptions
+  exit;
 elif [ "X$valgrindflag" = Xon ] ; then
-  valgrind --num-callers=30 --log-file=valgrind.log.$$ --freelist-vol=100000000 $CMSSW_BASE/cmsShow.exe $@
+  # MT: This should supposedly get rid of ROOT dicitonary reports etc. but it
+  # didn't seem to work very well when I tried it (so I disabled error limit).
+  # --suppressions=$ROOTSYS/etc/valgrind-root.supp
+  valgrind --num-callers=30 --log-file=valgrind.log.$$ --freelist-vol=100000000 \
+    --error-limit=no  "$SHELLDIR/cmsShow.exe" $originalOptions
+  exit;
+fi
+
+
+# Run cmsShow  
+creport=`mktemp /tmp/cmsshow-crash-report-XXXXXXXX`.txt
+"$SHELLDIR/cmsShow.exe" $originalOptions 2> >( tee $creport) 
+exitStatus=$?
+
+if [ $exitStatus -gt 0 ] && [ "$rootflag" != "on" ] ; then 
+   writeSystemInfoToFile $creport
+   echo ""
+   msgLen=75;
+   awk -v msgLen=$msgLen 'BEGIN {printf("  %c",  35);  i=0;  while ( i <= msgLen) { printf( "%c", 35 ); ++i}; print ""; }'
+   errorPrint $msgLen ""
+   errorPrint $msgLen "        Abnormal program termination!"
+   errorPrint $msgLen ""
+   errorPrint $msgLen "Please send:"
+   errorPrint $msgLen "$creport"
+   errorPrint $msgLen "to hn-cms-visualization@cern.ch."
+   errorPrint $msgLen " "                          
+   errorPrint $msgLen "Alternatively, you can send the bug report anonymously by running:"
+   errorPrint $msgLen "cmsShowSendReport ${creport}"            
+   errorPrint $msgLen ""
+   awk -v msgLen=$msgLen 'BEGIN {printf("  %c",  35);  i=0;  while ( i <= msgLen) { printf( "%c", 35 ); ++i}; print ""; }'  
+   echo ""
 else
-   $SHELLDIR/cmsShow.exe $originalOptions
-   exitStatus=$?
-   if [ $exitStatus -gt 128 ] ; then
-      if [ "$rootflag" == "off" ] ; then
-         echo ""
-         echo "  ########################################################################"
-         echo "  #                                                                      #"
-         echo "  #                  Abnormal program termination!                       #"
-         echo "  #                                                                      #"
-         echo "  #  We regret that this happened and we would appreciate your help      #"
-         echo "  #  in debugging and reporting this problem. Please try to reproduce    #"
-         echo "  #  the problem by running the program with --debug flag to get         #"
-         echo "  #  a crash report and send its content (file name reported on screen)  #"
-         echo "  #  to hn-cms-visualization@cern.ch with brief instructions how to      #"
-         echo "  #  reproduce the problem.                                              #"
-         echo "  #                                                                      #"
-         echo "  ########################################################################"
-         echo ""
-      fi
-   fi
+   rm $creport;
 fi
 
 exit $exitStatus;
+

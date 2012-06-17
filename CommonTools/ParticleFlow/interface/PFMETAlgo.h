@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_PFCandProducer_PFMETAlgo_
-#define PhysicsTools_PFCandProducer_PFMETAlgo_
+#ifndef CommonTools_ParticleFlow_PFMETAlgo_
+#define CommonTools_ParticleFlow_PFMETAlgo_
 
 // system include files
 #include <memory>

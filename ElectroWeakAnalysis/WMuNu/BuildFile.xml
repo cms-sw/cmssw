@@ -9,7 +9,6 @@
 <use   name="CommonTools/CandUtils"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="CommonTools/RecoAlgos"/>
-<use   name="ElectroWeakAnalysis/Utilities"/>
 <use   name="CLHEP"/>
 <flags   EDM_PLUGIN="1"/>
 <export>

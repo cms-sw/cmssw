@@ -16,7 +16,7 @@ enum dd_scope_class { different_branch, subtree, supertree, delete_action };
 */
 struct DDScopeClassification
 {
-  dd_scope_class operator()( const DDGeoHistory &, const DDGeoHistory & ) const;
+  dd_scope_class operator()(const DDGeoHistory & ,const DDGeoHistory &) const;
 };  
 
 //! defines subtrees in the expanded-view
@@ -25,33 +25,33 @@ struct DDScopeClassification
 */
 class DDScope
 {
-  friend std::ostream & operator<<( std::ostream &, const DDScope & );
+  friend std::ostream & operator<<(std::ostream &, const DDScope &);
   
 public:
   typedef std::vector<DDGeoHistory> scope_type;
   
   //! empty scope
-  DDScope( void );
+  DDScope();
   
   //! scope with a single subtree
-  DDScope( const DDGeoHistory &, int depth = 0 );
+  DDScope(const DDGeoHistory &, int depth=0);
   
-  ~DDScope( void );
+  ~DDScope();
   
   //! Adds a scope. No new scope will be added if s is already contained in one of the subtrees
   /**
     returns true, if scope has changed, else false.
   */  
-  bool addScope( const DDGeoHistory & s );
+  bool addScope(const DDGeoHistory & s);
   
   //! subtrees of the scope are only transversed down to the given level
-  void setDepth( int );  
+  void setDepth(int);  
   
   //! return the depth to wich the subtrees are restricted
-  int depth( void ) const;
+  int depth() const;
   
   //! returns the scope container
-  const scope_type & scope( void ) const;
+  const scope_type & scope() const;
   
 protected:
   scope_type subtrees_;
@@ -59,6 +59,33 @@ protected:
   int depth_;
 };
 
-std::ostream & operator<<( std::ostream &, const DDScope & );
+std::ostream & operator<<(std::ostream &, const DDScope &);
+
+//! compare two DDGeoHistory
+/**
+ A DDGeoHistory A is less than B if 
+ - the leaf-node of B is a root of any node in A or
+ - the leaf-node of B is less than the leaf node of A
+*/
+/*
+struct DDGeoHistoryCompare
+{
+  bool operator()(const DDGeoHistory & left ,const DDGeoHistory & right) const
+  {
+    bool result=false;
+    DDGeoHistory::const_iterator lit = left.begin();
+    DDGeoHistory::const_iterator rit = right.begin();
+    while(lit != left.end() && rit!=right.end()) {
+      result |= less_(*lit,*rit);
+      ++lit;
+      ++rit;
+    }
+    return result;
+  }
+  DDExpandedNodeLess less_;
+};
+*/
+
+
 
 #endif

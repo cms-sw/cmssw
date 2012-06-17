@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <iostream>
+#include <fstream>
 #include <stdlib.h>
 #include <set>
 #include "TGClient.h"
@@ -11,9 +12,12 @@
 #include "TPluginManager.h"
 #include "TUrl.h"
 #include "TSocket.h"
+#include "TSystem.h"
 #include "TVirtualX.h"
+#include "TPRegexp.h"
 #include "Fireworks/Core/interface/CmsShowSearchFiles.h"
-
+#include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/interface/fwPaths.h"
 
 class FWHtml : public TGHtml {
 public:
@@ -35,8 +39,6 @@ private:
 
 static const unsigned int s_columns = 3;
 static const char* const s_prefixes[][s_columns] ={ 
-  {"http://fireworks.web.cern.ch/fireworks/","Pre-selected example files at CERN","t"},
-  {"http://uaf-2.t2.ucsd.edu/fireworks/","Pre-selected example files in USA","t"},
   {"http://", "Web site known by you",0},
   {"file:","Local file [you must type full path name]",0},
   {"dcap://","dCache [FNAL]",0},
@@ -49,38 +51,27 @@ static const std::string s_filePrefix("file:");
 static const std::string s_rootPostfix(".root");
 
 
-static const char *s_noBrowserMessage[] = {
-   "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd\"> ",
-   "<HTML><HEAD><TITLE>No Browser Available</TITLE> ",
-   "<META http-equiv=Content-Type content=\"text/html; charset=UTF-8\"></HEAD> ",
-   "<BODY> ",
-   //"No file browser is available for this prefix.  You can still type the full URL into the above text box to open the EDM ROOT file.<BR>",
-   //"Only a prefix beginning in <STRONG>http:</STRONG> which contains a site name (e.g. http://www.site.org) is supported for browsing."
-   "<b>Welcome....</b><BR>",
-   "<BR>",
-   "<b>You may look at examples:</b><BR>",
-   "If you are in Europe, open example data files at CERN: <a href=http://fireworks.web.cern.ch/fireworks/>http://fireworks.web.cern.ch/fireworks/</a><BR>",
-   "If you are in US, open example data files at UCSD: <a href=http://uaf-2.t2.ucsd.edu/fireworks/>http://uaf-2.t2.ucsd.edu/fireworks/</a><BR>",
-   "<BR>"
-   "<b>You also may load files with Choose Prefix </b><BR>"
-   "</BODY></HTML> ",
-   0
-};
+namespace {
+float
+getURLResponseTime(const char* url)
+{
+  TString com = "ping -q -c 1 -n " + TString(url) + "| tail -n 1";
+  FILE* p = gSystem->OpenPipe(com, "r");
+  TString l;
+  l.Gets(p);
+  gSystem->ClosePipe(p);
 
-static const char *s_readError[] = {
-   "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd\"> ",
-   "<HTML><HEAD><TITLE>HTTP Read Error</TITLE> ",
-   "<META http-equiv=Content-Type content=\"text/html; charset=UTF-8\"></HEAD> ",
-   "<BODY> ",
-   "<P>Unknown error while trying to get file via http</P>",
-   "</BODY></HTML> ",
-   0
-};
-
+  TPMERegexp re("([\\d\\.]+)");
+  if (re.Match(l))
+    return  re[1].Atof();
+  else
+    return -1;
+}
+}
 
 CmsShowSearchFiles::CmsShowSearchFiles (const char *filename,
-                                    const char* windowname,
-                                    const TGWindow* p, UInt_t w, UInt_t h)
+                                        const char* windowname,
+                                        const TGWindow* p, UInt_t w, UInt_t h)
    : TGTransientFrame(gClient->GetDefaultRoot(), p, w, h)
 {
    TGVerticalFrame* vf = new TGVerticalFrame(this);
@@ -115,7 +106,22 @@ CmsShowSearchFiles::CmsShowSearchFiles (const char *filename,
    cancel->Connect("Clicked()","CmsShowSearchFiles",this,"UnmapWindow()");
 
    SetWindowName(windowname);
-   sendToWebBrowser("");
+   float x1 = getURLResponseTime("lxplus.cern.ch");
+   float x2 = getURLResponseTime("uaf-2.t2.ucsd.edu");
+   // printf("timtes %f %f \n", x1, x2); fflush(stdout);
+
+   std::string path;
+   if (x1 > 0 && x1 < x2)
+      path = Form("http://fireworks.web.cern.ch/fireworks/%d/",fireworks::supportedDataFormatsVersion()[0] );
+   else if (x2 > 0)
+      path = Form("http://uaf-2.t2.ucsd.edu/fireworks/%d/", fireworks::supportedDataFormatsVersion()[0]);
+
+   if (!path.empty())
+      fwLog(fwlog::kInfo) << "Search files at " << path  << "." << std::endl;
+
+   sendToWebBrowser(path);
+
+
    MapSubwindows();
    Layout();
    m_prefixMenu=0;
@@ -127,9 +133,12 @@ CmsShowSearchFiles::~CmsShowSearchFiles()
    delete m_prefixMenu;
 }
 
+//______________________________________________________________________________
+
 void 
 CmsShowSearchFiles::prefixChoosen(Int_t iIndex)
 {
+   //   printf ("pref chosen %d \n", iIndex);
    m_file->SetText(m_prefixes[iIndex].c_str(),kFALSE);
    m_openButton->SetEnabled(kFALSE);
 
@@ -140,9 +149,13 @@ CmsShowSearchFiles::prefixChoosen(Int_t iIndex)
       gClient->ProcessEventsFor(this);
       updateBrowser();
    } else {
-      sendToWebBrowser("");
+      std::string p;
+      sendToWebBrowser(p);
    }
 }
+
+//______________________________________________________________________________
+
 
 void 
 CmsShowSearchFiles::fileEntryChanged(const char* iFileName)
@@ -160,12 +173,17 @@ CmsShowSearchFiles::fileEntryChanged(const char* iFileName)
    }
 }
 
+//______________________________________________________________________________
+
 void 
 CmsShowSearchFiles::updateBrowser()
 {
-   sendToWebBrowser(m_file->GetText());
+   std::string n = m_file->GetText();
+   sendToWebBrowser(n);
 }
 
+
+//______________________________________________________________________________
 
 void 
 CmsShowSearchFiles::hyperlinkClicked(const char* iLink)
@@ -184,6 +202,8 @@ CmsShowSearchFiles::hyperlinkClicked(const char* iLink)
    }
 }
 
+//______________________________________________________________________________
+
 void 
 CmsShowSearchFiles::openClicked()
 {
@@ -191,6 +211,7 @@ CmsShowSearchFiles::openClicked()
    this->UnmapWindow();
 }
 
+//______________________________________________________________________________
 
 void 
 CmsShowSearchFiles::showPrefixes()
@@ -208,9 +229,9 @@ CmsShowSearchFiles::showPrefixes()
             s_filePrefix==prefix ||
             (gPluginMgr->FindHandler("TSystem",prefix.c_str()) && 
              gPluginMgr->FindHandler("TSystem",prefix.c_str())->CheckPlugin() != -1)) {
-               m_prefixMenu->AddEntry((std::string((*it)[0])+" ("+((*it)[1])+")").c_str(),index);
-               m_prefixes.push_back((*it)[0]);
-               m_prefixComplete.push_back(0!=(*it)[2]);
+	    m_prefixMenu->AddEntry((std::string((*it)[0])+" ("+((*it)[1])+")").c_str(),index);
+	    m_prefixes.push_back((*it)[0]);
+	    m_prefixComplete.push_back(0!=(*it)[2]);
          }
       }
       m_prefixMenu->Connect("Activated(Int_t)","CmsShowSearchFiles",this,"prefixChoosen(Int_t)");
@@ -218,14 +239,18 @@ CmsShowSearchFiles::showPrefixes()
    m_prefixMenu->PlaceMenu(m_choosePrefix->GetX(),m_choosePrefix->GetY(),true,true);
 }
 
-//Copied from TGHtmlBrowser
+
+//______________________________________________________________________________
+
+
+    //Copied from TGHtmlBrowser
 static std::string readRemote(const char *url)
 {
    // Read (open) remote files.
    
    char *buf = 0;
    TUrl fUrl(url);
-   
+
    TString msg = "GET ";
    msg += fUrl.GetProtocol();
    msg += "://";
@@ -255,11 +280,13 @@ static std::string readRemote(const char *url)
    return returnValue;
 }
 
+//______________________________________________________________________________
 
 void 
-CmsShowSearchFiles::sendToWebBrowser(const char* iWebFile)
+CmsShowSearchFiles::sendToWebBrowser(std::string& fileName)
 {
-   const std::string fileName(iWebFile);
+   //  std::cout << "CmsShowSearchFiles::sendToWebBrowser " <<  fileName << std::endl ;
+
    size_t index = fileName.find_first_of(":");
    if(index != std::string::npos) {
       ++index;
@@ -276,28 +303,73 @@ CmsShowSearchFiles::sendToWebBrowser(const char* iWebFile)
       gVirtualX->SetCursor(m_webFile->GetId(),gVirtualX->CreateCursor(kWatch));
       //If we don't call ProcessEventsFor then the cursor will not be updated
       gClient->ProcessEventsFor(this);
-      TUrl url(iWebFile);
+      TUrl url(fileName.c_str());
       std::string buffer = readRemote(url.GetUrl());
+
       if (buffer.size()) {
          m_webFile->SetBaseUri(url.GetUrl());
          m_webFile->ParseText(const_cast<char*>(buffer.c_str()));
       }
       else {
-         m_webFile->SetBaseUri("");
-         for (int i=0; s_readError[i]; i++) {
-            m_webFile->ParseText(const_cast<char *>(s_readError[i]));
-         }
+         readError();
       }
       gVirtualX->SetCursor(GetId(),gVirtualX->CreateCursor(kPointer));
       gVirtualX->SetCursor(m_webFile->GetId(),gVirtualX->CreateCursor(kPointer));
    } else {
-      m_webFile->SetBaseUri("");
-      for (int i=0; s_noBrowserMessage[i]; i++) {
-         m_webFile->ParseText((char *)s_noBrowserMessage[i]);
-      }
+      readInfo();
    }
    m_webFile->Layout();
 }
+
+//______________________________________________________________________________
+void 
+CmsShowSearchFiles::readError()
+{
+
+   static const char *s_readError[] = {
+      "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd\"> ",
+      "<HTML><HEAD><TITLE>HTTP Read Error</TITLE> ",
+      "<META http-equiv=Content-Type content=\"text/html; charset=UTF-8\"></HEAD> ",
+      "<BODY> ",
+      "<P>Unknown error while trying to get file via http</P>",
+      "</BODY></HTML> ",
+      0
+   };
+
+   m_webFile->SetBaseUri("");
+   for (int i=0; s_readError[i]; i++) {
+      m_webFile->ParseText(const_cast<char *>(s_readError[i]));
+   }
+}
+
+void 
+CmsShowSearchFiles::readInfo()
+{
+   static const char *s_noBrowserMessage[] = {
+      "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3c.org/TR/1999/REC-html401-19991224/loose.dtd\"> ",
+      "<HTML><HEAD><TITLE>No Browser Available</TITLE> ",
+      "<META http-equiv=Content-Type content=\"text/html; charset=UTF-8\"></HEAD> ",
+      "<BODY> ",
+      //"No file browser is available for this prefix.  You can still type the full URL into the above text box to open the EDM ROOT file.<BR>",
+      //"Only a prefix beginning in <STRONG>http:</STRONG> which contains a site name (e.g. http://www.site.org) is supported for browsing."
+      "<b>Welcome....</b><BR>",
+      "<BR>",
+      "<b>You may look at examples:</b><BR>",  
+      "If you are in Europe, open example data files at CERN :  ", " <a href=" , Form("http://fireworks.web.cern.ch/fireworks/%d/",fireworks::supportedDataFormatsVersion()[0] ),"> http://fireworks.web.cern.ch/fireworks/ </a><BR>",
+      "If you are in US, open example data files at UCSD:  ", " <a href=" , Form("http://uaf-2.t2.ucsd.edu/fireworks/%d/",fireworks::supportedDataFormatsVersion()[0] ),">http://uaf-2.t2.ucsd.edu/fireworks/ </a><BR>",
+      "<BR>"
+      "<b>You also may load files with Choose Prefix </b><BR>"
+      "</BODY></HTML> ",
+      0
+   };
+
+   m_webFile->SetBaseUri("");
+   for (int i=0; s_noBrowserMessage[i]; i++) {
+      m_webFile->ParseText((char *)s_noBrowserMessage[i]);
+   }
+
+}
+//______________________________________________________________________________
 
 std::string 
 CmsShowSearchFiles::chooseFileFromURL()
@@ -313,4 +385,3 @@ CmsShowSearchFiles::chooseFileFromURL()
    }
    return m_file->GetText();
 }
-

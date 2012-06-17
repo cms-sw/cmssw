@@ -12,6 +12,8 @@
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/CSGContinuousAction.h"
 #include "Fireworks/Core/interface/FWRecoGeom.h"
+#include "Fireworks/Core/interface/FWGeometryTableViewManager.h"
+#include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Geometry/interface/FWRecoGeometry.h"
 #include "Fireworks/Geometry/interface/FWRecoGeometryRecord.h"
 
@@ -20,25 +22,30 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
 #include "FWCore/Framework/interface/ScheduleInfo.h"
 #include "FWCore/Framework/interface/ModuleChanger.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/ConditionsInEdm.h"
+#include "DataFormats/FWLite/interface/LuminosityBlock.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TRint.h"
+#include "TGLWidget.h"
+
 #include "TEveManager.h"
 #include "TEveEventManager.h"
 #include "TEveTrackPropagator.h"
-#include "TGLWidget.h"
-
 #include "TEveBrowser.h"
+#include "TGeoManager.h"
+
 
 namespace
 {
@@ -126,7 +133,8 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const&ps)
      m_AllowStep(true),
      m_ShowEvent(true),
      m_firstTime(true),
-     m_pathsGUI(0)
+     m_pathsGUI(0),
+     m_geomWatcher(this, &FWFFLooper::remakeGeometry)
 {
    setup(m_navigator.get(), m_context.get(), m_metadataManager.get());
 
@@ -291,6 +299,12 @@ FWFFLooper::stopPlaying()
 void
 FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
+   // Check DisplayGeomRecord changes.
+   try {
+      m_geomWatcher.check(iSetup);
+   }
+   catch (...) {}
+   
    // If the geometry was not picked up from a file, we try to get it from the
    // EventSetup!
    // FIXME: we need to check we execute only once because the view managers
@@ -313,7 +327,8 @@ FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	 }
 	 catch( const cms::Exception& exception )
 	 {
-	    loadDefaultGeometryFile();
+            setGeometryFilename("cmsGeom10.root");
+	    CmsShowMainBase::loadGeometry();
 	 }
       }
 
@@ -330,30 +345,33 @@ FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
    }
 
    float current = 18160.0f;
-
-   edm::Handle<edm::ConditionsInRunBlock> runCond;
-   bool res = iRun.getByType(runCond);
-   //bool res = run.getByLabel("conditionsInEdm", runCond, "", "");
-   if (res && runCond.isValid())
-   {
-      printf("Got current from conds in edm %f\n", runCond->BAvgCurrent);
-      current = runCond->BAvgCurrent;
-   }
-   else
-   {
-      printf("Could not extract run-conditions get-result=%d, is-valid=%d\n", res, runCond.isValid());
-
-      const edm::eventsetup::EventSetupRecord* rec = iSetup.find( edm::eventsetup::EventSetupRecordKey::makeKey<RunInfoRcd>());
-      if( 0 != rec )
+   try {
+      edm::Handle<edm::ConditionsInRunBlock> runCond;
+      bool res = iRun.getByType(runCond);
+      //bool res = run.getByLabel("conditionsInEdm", runCond, "", "");
+      if (res && runCond.isValid())
       {
-	 edm::ESHandle<RunInfo> sum;
-	 iSetup.get<RunInfoRcd>().get(sum);
+         printf("Got current from conds in edm %f\n", runCond->BAvgCurrent);
+         current = runCond->BAvgCurrent;
+      }
+      else
+      {
+         printf("Could not extract run-conditions get-result=%d, is-valid=%d\n", res, runCond.isValid());
 
-	 current = sum->m_avg_current;
-	 printf("Got current from RunInfoRcd %f\n", sum->m_avg_current);
+         const edm::eventsetup::EventSetupRecord* rec = iSetup.find( edm::eventsetup::EventSetupRecordKey::makeKey<RunInfoRcd>());
+         if( 0 != rec )
+         {
+            edm::ESHandle<RunInfo> sum;
+            iSetup.get<RunInfoRcd>().get(sum);
+
+            current = sum->m_avg_current;
+            printf("Got current from RunInfoRcd %f\n", sum->m_avg_current);
+         }
       }
    }
-
+   catch (...) {
+      fwLog(fwlog::kInfo) << "ConditionsInRunBlock not available\n";
+   }
    static_cast<CmsEveMagField*>(m_MagField)->SetFieldByCurrent(current);
 }
 
@@ -363,6 +381,12 @@ FWFFLooper::duringLoop(const edm::Event &event,
                        const edm::EventSetup&es, 
                        edm::ProcessingController &controller)
 {
+   // Check DisplayGeomRecord changes.
+   try { 
+      m_geomWatcher.check(es);
+   } catch (...) {}
+   
+
    m_isLastEvent = controller.forwardState() == edm::ProcessingController::kAtLastEvent;
    m_isFirstEvent = controller.reverseState() == edm::ProcessingController::kAtFirstEvent;
    // If the next event id is valid, set the transition so 
@@ -498,4 +522,40 @@ void
 FWFFLooper::requestChanges(const std::string &moduleLabel, const edm::ParameterSet& ps)
 {
    m_scheduledChanges[moduleLabel] = ps;
+}
+ 
+
+//______________________________________________________________________________
+// AMT : I'm not sure if geometry can change in the two functionss. Plese delete
+// them if you think this is impossible
+
+void FWFFLooper::doBeginLuminosityBlock(edm::LuminosityBlockPrincipal& iLB, edm::EventSetup const& iES)
+{
+   try {
+      m_geomWatcher.check(iES);
+   } catch (...) {}
+   
+   EDLooperBase::doBeginLuminosityBlock(iLB, iES);
+}
+
+void FWFFLooper::doEndLuminosityBlock(edm::LuminosityBlockPrincipal& iLB, edm::EventSetup const& iES)
+{
+   try {
+      m_geomWatcher.check(iES);
+   }  catch (...) {}
+   
+   EDLooperBase::doEndLuminosityBlock(iLB, iES);
+}
+
+//______________________________________________________________________________
+
+void
+FWFFLooper::remakeGeometry(const DisplayGeomRecord& dgRec)
+{
+   fwLog(fwlog::kInfo) << "FWFFLooper set TGeo geomtery from DisplayGeomRecord.\n";
+
+   edm::ESHandle<TGeoManager> geom;
+   dgRec.get(geom);
+   TEveGeoManagerHolder _tgeo(const_cast<TGeoManager*>(geom.product()));
+   FWGeometryTableViewManager::setGeoManagerRuntime(gGeoManager);
 }

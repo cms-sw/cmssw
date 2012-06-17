@@ -2,7 +2,7 @@
 //
 // Package:     Muons
 // Class  :     FWMuonBuilder
-// $Id: FWMuonBuilder.cc,v 1.34 2010/09/06 15:49:55 yana Exp $
+// $Id: FWMuonBuilder.cc,v 1.37 2012/06/07 06:23:44 yana Exp $
 //
 
 #include "TEveVSDStructs.h"
@@ -42,7 +42,7 @@ std::vector<TEveVector> getRecoTrajectoryPoints( const reco::Muon* muon,
    const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
    for( std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin(),
 							 chamberEnd = matches.end();
-	chamber != matches.end(); ++chamber )
+	chamber != chamberEnd; ++chamber )
    {
       // expected track position
       localTrajectoryPoint[0] = chamber->x;
@@ -98,9 +98,14 @@ void addMatchInformation( const reco::Muon* muon,
         segmentLength = det->shape[3];
         segmentLimit  = det->shape[4];
       }
-      else if( det->shape[0] == 0 ) // TGeoBBox
+      else if( det->shape[0] == 2 ) // TGeoBBox
       {
 	segmentLength = det->shape[3];
+      }
+      else
+      {   
+        const double segmentLength = 15;
+        fwLog( fwlog::kWarning ) << Form("FWMuonBuilder: unknown shape type in muon chamber with detId=%d. Setting segment length to %.0f cm.\n",  rawid, segmentLength);
       }
         
       if( ids.insert( rawid ).second &&  // ensure that we add same chamber only once

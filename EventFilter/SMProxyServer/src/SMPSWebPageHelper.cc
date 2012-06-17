@@ -1,4 +1,4 @@
-// $Id: SMPSWebPageHelper.cc,v 1.1.4.2 2011/03/07 12:01:12 mommsen Exp $
+// $Id: SMPSWebPageHelper.cc,v 1.2 2011/03/07 15:41:55 mommsen Exp $
 /// @file: SMPSWebPageHelper.cc
 
 #include "EventFilter/SMProxyServer/interface/SMPSWebPageHelper.h"
@@ -17,9 +17,9 @@ namespace smproxy
     xdaq::ApplicationDescriptor* appDesc,
     StateMachinePtr stateMachine
   ) :
-  stor::WebPageHelper<SMPSWebPageHelper>(appDesc, "$Name: branch_3_10_x $", this, &smproxy::SMPSWebPageHelper::addDOMforHyperLinks),
+  stor::WebPageHelper<SMPSWebPageHelper>(appDesc, "$Name:  $", this, &smproxy::SMPSWebPageHelper::addDOMforHyperLinks),
   stateMachine_(stateMachine),
-  consumerWebPageHelper_(appDesc, "$Name: branch_3_10_x $", this, &smproxy::SMPSWebPageHelper::addDOMforHyperLinks)
+  consumerWebPageHelper_(appDesc, "$Name:  $", this, &smproxy::SMPSWebPageHelper::addDOMforHyperLinks)
   { }
   
   
@@ -230,7 +230,7 @@ namespace smproxy
   ) const
   {
     stor::XHTMLMaker::AttrMap colspanAttr;
-    colspanAttr[ "colspan" ] = "11";
+    colspanAttr[ "colspan" ] = "13";
     
     stor::XHTMLMaker::AttrMap subColspanAttr;
     
@@ -252,7 +252,7 @@ namespace smproxy
     subColspanAttr[ "colspan" ] = "2";
     tableDiv = maker.addNode("th", tableRow, subColspanAttr);
     maker.addText(tableDiv, "");
-    subColspanAttr[ "colspan" ] = "4";
+    subColspanAttr[ "colspan" ] = "6";
     tableDiv = maker.addNode("th", tableRow, subColspanAttr);
     maker.addText(tableDiv, "Input");
     tableDiv = maker.addNode("th", tableRow, subColspanAttr);
@@ -267,11 +267,17 @@ namespace smproxy
     tableDiv = maker.addNode("th", tableRow, subColspanAttr);
     maker.addText(tableDiv, "Bandwidth (kB/s)");
     tableDiv = maker.addNode("th", tableRow, subColspanAttr);
+    maker.addText(tableDiv, "Corrupted Event Rate (Hz)");
+    tableDiv = maker.addNode("th", tableRow, subColspanAttr);
     maker.addText(tableDiv, "Event Rate (Hz)");
     tableDiv = maker.addNode("th", tableRow, subColspanAttr);
     maker.addText(tableDiv, "Bandwidth (kB/s)");
 
     tableRow = maker.addNode("tr", table, rowAttr_);
+    tableDiv = maker.addNode("th", tableRow);
+    maker.addText(tableDiv, "overall");
+    tableDiv = maker.addNode("th", tableRow, noWrapAttr);
+    maker.addText(tableDiv, "last 60 s");
     tableDiv = maker.addNode("th", tableRow);
     maker.addText(tableDiv, "overall");
     tableDiv = maker.addNode("th", tableRow, noWrapAttr);
@@ -344,21 +350,29 @@ namespace smproxy
     
     // Average event size
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, stats.second.getValueAverage(stor::MonitoredQuantity::FULL));
+    maker.addDouble(tableDiv, stats.second.sizeStats.getValueAverage(stor::MonitoredQuantity::FULL));
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, stats.second.getValueAverage(stor::MonitoredQuantity::RECENT));
+    maker.addDouble(tableDiv, stats.second.sizeStats.getValueAverage(stor::MonitoredQuantity::RECENT));
 
     // Input event rate
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, stats.second.getSampleRate(stor::MonitoredQuantity::FULL));
+    maker.addDouble(tableDiv, stats.second.sizeStats.getSampleRate(stor::MonitoredQuantity::FULL));
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, stats.second.getSampleRate(stor::MonitoredQuantity::RECENT));
+    maker.addDouble(tableDiv, stats.second.sizeStats.getSampleRate(stor::MonitoredQuantity::RECENT));
 
     // Input bandwidth
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, stats.second.getValueRate(stor::MonitoredQuantity::FULL));
+    maker.addDouble(tableDiv, stats.second.sizeStats.getValueRate(stor::MonitoredQuantity::FULL));
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, stats.second.getValueRate(stor::MonitoredQuantity::RECENT));
+    maker.addDouble(tableDiv, stats.second.sizeStats.getValueRate(stor::MonitoredQuantity::RECENT));
+
+    // Input corrupted events rate
+    tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+    maker.addDouble(tableDiv,
+      stats.second.corruptedEventsStats.getSampleRate(stor::MonitoredQuantity::FULL));
+    tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+    maker.addDouble(tableDiv,
+      stats.second.corruptedEventsStats.getSampleRate(stor::MonitoredQuantity::RECENT));
 
     // Get statistics for consumers requesting this event type
     stor::QueueIDs queueIDs;
@@ -435,21 +449,27 @@ namespace smproxy
 
     // Average event size
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, summaryStats.sizeStats.getValueAverage(stor::MonitoredQuantity::FULL));
+    maker.addDouble(tableDiv, summaryStats.totals.sizeStats.getValueAverage(stor::MonitoredQuantity::FULL));
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, summaryStats.sizeStats.getValueAverage(stor::MonitoredQuantity::RECENT));
+    maker.addDouble(tableDiv, summaryStats.totals.sizeStats.getValueAverage(stor::MonitoredQuantity::RECENT));
 
     // Input event rate
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, summaryStats.sizeStats.getSampleRate(stor::MonitoredQuantity::FULL));
+    maker.addDouble(tableDiv, summaryStats.totals.sizeStats.getSampleRate(stor::MonitoredQuantity::FULL));
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, summaryStats.sizeStats.getSampleRate(stor::MonitoredQuantity::RECENT));
+    maker.addDouble(tableDiv, summaryStats.totals.sizeStats.getSampleRate(stor::MonitoredQuantity::RECENT));
 
     // Input bandwidth
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, summaryStats.sizeStats.getValueRate(stor::MonitoredQuantity::FULL));
+    maker.addDouble(tableDiv, summaryStats.totals.sizeStats.getValueRate(stor::MonitoredQuantity::FULL));
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, summaryStats.sizeStats.getValueRate(stor::MonitoredQuantity::RECENT));
+    maker.addDouble(tableDiv, summaryStats.totals.sizeStats.getValueRate(stor::MonitoredQuantity::RECENT));
+
+    // Input corrupted events rate
+    tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+    maker.addDouble(tableDiv, summaryStats.totals.corruptedEventsStats.getValueRate(stor::MonitoredQuantity::FULL));
+    tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+    maker.addDouble(tableDiv, summaryStats.totals.corruptedEventsStats.getValueRate(stor::MonitoredQuantity::RECENT));
     
     const stor::EventConsumerMonitorCollection& ecmc =
       stateMachine_->getStatisticsReporter()->getEventConsumerMonitorCollection();
@@ -492,7 +512,7 @@ namespace smproxy
   ) const
   {
     stor::XHTMLMaker::AttrMap colspanAttr;
-    colspanAttr[ "colspan" ] = "10";
+    colspanAttr[ "colspan" ] = "14";
     
     stor::XHTMLMaker::Node* table = maker.addNode("table", parent, tableAttr_);
     
@@ -525,6 +545,10 @@ namespace smproxy
     maker.addText(tableDiv, "Average Event Size (kB)");
     tableDiv = maker.addNode("th", tableRow, subColspanAttr);
     maker.addText(tableDiv, "Bandwidth (kB/s)");
+    tableDiv = maker.addNode("th", tableRow, subColspanAttr);
+    maker.addText(tableDiv, "Corrupted Events");
+    tableDiv = maker.addNode("th", tableRow, subColspanAttr);
+    maker.addText(tableDiv, "Corrupted Event Rate (Hz)");
 
     tableRow = maker.addNode("tr", table, specialRowAttr_);
     tableDiv = maker.addNode("th", tableRow);
@@ -539,16 +563,24 @@ namespace smproxy
     maker.addText(tableDiv, "overall");
     tableDiv = maker.addNode("th", tableRow, noWrapAttr);
     maker.addText(tableDiv, "last 60 s");
+    tableDiv = maker.addNode("th", tableRow);
+    maker.addText(tableDiv, "overall");
+    tableDiv = maker.addNode("th", tableRow, noWrapAttr);
+    maker.addText(tableDiv, "last 60 s");
+    tableDiv = maker.addNode("th", tableRow);
+    maker.addText(tableDiv, "overall");
+    tableDiv = maker.addNode("th", tableRow, noWrapAttr);
+    maker.addText(tableDiv, "last 60 s");
 
-    DataRetrieverMonitorCollection::EventTypeStatList eventTypeStats;
+    DataRetrieverMonitorCollection::EventTypePerConnectionStatList eventTypePerConnectionStats;
     stateMachine_->getStatisticsReporter()->getDataRetrieverMonitorCollection()
-      .getStatsByEventTypes(eventTypeStats);
+      .getStatsByEventTypesPerConnection(eventTypePerConnectionStats);
 
     DataRetrieverMonitorCollection::ConnectionStats connectionStats;
     stateMachine_->getStatisticsReporter()->getDataRetrieverMonitorCollection()
       .getStatsByConnection(connectionStats);
 
-    if ( eventTypeStats.empty() )
+    if ( eventTypePerConnectionStats.empty() )
     {
       stor::XHTMLMaker::AttrMap messageAttr = colspanAttr;
       messageAttr[ "align" ] = "center";
@@ -561,8 +593,8 @@ namespace smproxy
 
     bool evenRow = false;
 
-    for (DataRetrieverMonitorCollection::EventTypeStatList::const_iterator
-           it = eventTypeStats.begin(), itEnd = eventTypeStats.end();
+    for (DataRetrieverMonitorCollection::EventTypePerConnectionStatList::const_iterator
+           it = eventTypePerConnectionStats.begin(), itEnd = eventTypePerConnectionStats.end();
          it != itEnd; ++it)
     {
       stor::XHTMLMaker::AttrMap rowAttr = rowAttr_;
@@ -580,7 +612,7 @@ namespace smproxy
       
       const std::string currentSourceURL = it->regPtr->sourceURL();
 
-      if ( (it+1) == eventTypeStats.end() ||
+      if ( (it+1) == eventTypePerConnectionStats.end() ||
         (it+1)->regPtr->sourceURL() != currentSourceURL )
       {
         addSummaryRowForEventServer(maker, table,
@@ -594,7 +626,7 @@ namespace smproxy
   (
     stor::XHTMLMaker& maker,
     stor::XHTMLMaker::Node* tableRow,
-    DataRetrieverMonitorCollection::EventTypeStats const& stats
+    DataRetrieverMonitorCollection::EventTypePerConnectionStats const& stats
   ) const
   {
     stor::XHTMLMaker::Node* tableDiv;
@@ -636,21 +668,37 @@ namespace smproxy
 
     // Event rate
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, stats.sizeStats.getSampleRate(stor::MonitoredQuantity::FULL));
+    maker.addDouble(tableDiv, stats.eventStats.sizeStats.getSampleRate(stor::MonitoredQuantity::FULL));
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, stats.sizeStats.getSampleRate(stor::MonitoredQuantity::RECENT));
+    maker.addDouble(tableDiv, stats.eventStats.sizeStats.getSampleRate(stor::MonitoredQuantity::RECENT));
 
     // Average event size
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, stats.sizeStats.getValueAverage(stor::MonitoredQuantity::FULL));
+    maker.addDouble(tableDiv, stats.eventStats.sizeStats.getValueAverage(stor::MonitoredQuantity::FULL));
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, stats.sizeStats.getValueAverage(stor::MonitoredQuantity::RECENT));
+    maker.addDouble(tableDiv, stats.eventStats.sizeStats.getValueAverage(stor::MonitoredQuantity::RECENT));
     
     // Bandwidth
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, stats.sizeStats.getValueRate(stor::MonitoredQuantity::FULL));
+    maker.addDouble(tableDiv, stats.eventStats.sizeStats.getValueRate(stor::MonitoredQuantity::FULL));
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, stats.sizeStats.getValueRate(stor::MonitoredQuantity::RECENT));
+    maker.addDouble(tableDiv, stats.eventStats.sizeStats.getValueRate(stor::MonitoredQuantity::RECENT));
+    
+    // Corrupted events counts
+    tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+    maker.addDouble(tableDiv,
+      stats.eventStats.corruptedEventsStats.getValueSum(stor::MonitoredQuantity::FULL), 0);
+    tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+    maker.addDouble(tableDiv,
+      stats.eventStats.corruptedEventsStats.getValueSum(stor::MonitoredQuantity::RECENT), 0);
+    
+    // Corrupted event rate
+    tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+    maker.addDouble(tableDiv,
+      stats.eventStats.corruptedEventsStats.getValueRate(stor::MonitoredQuantity::FULL));
+    tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+    maker.addDouble(tableDiv,
+      stats.eventStats.corruptedEventsStats.getValueRate(stor::MonitoredQuantity::RECENT));
   }
   
   
@@ -673,21 +721,37 @@ namespace smproxy
     
     // Event rate
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, pos->second.getSampleRate(stor::MonitoredQuantity::FULL));
+    maker.addDouble(tableDiv, pos->second.sizeStats.getSampleRate(stor::MonitoredQuantity::FULL));
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, pos->second.getSampleRate(stor::MonitoredQuantity::RECENT));
+    maker.addDouble(tableDiv, pos->second.sizeStats.getSampleRate(stor::MonitoredQuantity::RECENT));
 
     // Average event size
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, pos->second.getValueAverage(stor::MonitoredQuantity::FULL));
+    maker.addDouble(tableDiv, pos->second.sizeStats.getValueAverage(stor::MonitoredQuantity::FULL));
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, pos->second.getValueAverage(stor::MonitoredQuantity::RECENT));
+    maker.addDouble(tableDiv, pos->second.sizeStats.getValueAverage(stor::MonitoredQuantity::RECENT));
     
     // Bandwidth
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, pos->second.getValueRate(stor::MonitoredQuantity::FULL));
+    maker.addDouble(tableDiv, pos->second.sizeStats.getValueRate(stor::MonitoredQuantity::FULL));
     tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
-    maker.addDouble(tableDiv, pos->second.getValueRate(stor::MonitoredQuantity::RECENT));
+    maker.addDouble(tableDiv, pos->second.sizeStats.getValueRate(stor::MonitoredQuantity::RECENT));
+    
+    // Corrupted events counts
+    tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+    maker.addDouble(tableDiv,
+      pos->second.corruptedEventsStats.getValueSum(stor::MonitoredQuantity::FULL), 0);
+    tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+    maker.addDouble(tableDiv,
+      pos->second.corruptedEventsStats.getValueSum(stor::MonitoredQuantity::RECENT), 0);
+    
+    // Corrupted event rate
+    tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+    maker.addDouble(tableDiv,
+      pos->second.corruptedEventsStats.getValueRate(stor::MonitoredQuantity::FULL));
+    tableDiv = maker.addNode("td", tableRow, tableValueAttr_);
+    maker.addDouble(tableDiv,
+      pos->second.corruptedEventsStats.getValueRate(stor::MonitoredQuantity::RECENT));
   }
   
   

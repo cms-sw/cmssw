@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 22 10:13:39 CST 2009
-// $Id: FWCollectionSummaryTableManager.cc,v 1.8 2010/12/16 12:04:43 amraktad Exp $
+// $Id: FWCollectionSummaryTableManager.cc,v 1.11 2011/08/20 03:48:40 amraktad Exp $
 //
 
 // system include files
@@ -47,63 +47,6 @@ FWCollectionSummaryTableManager::FWCollectionSummaryTableManager(FWEventItem* iI
    std::vector<std::pair<std::string,std::string> > s_names;
    ROOT::Reflex::Type type = ROOT::Reflex::Type::ByTypeInfo(*(m_collection->modelType()->GetTypeInfo()));
 
-   if ( type.Name() == "CaloTower" ){
-      if ( m_collection->purpose() == "ECal" ){
-         s_names.push_back(std::pair<std::string,std::string>("emEt","GeV"));
-         boost::shared_ptr<FWItemValueGetter> trans( new FWItemValueGetter(type,s_names));
-         if(trans->isValid()) m_valueGetters.push_back(trans);
-      }
-      else if ( m_collection->purpose() == "HCal" ){
-         s_names.push_back(std::pair<std::string,std::string>("hadEt","GeV"));
-         boost::shared_ptr<FWItemValueGetter> hadEt( new FWItemValueGetter(type,s_names));
-         if(hadEt->isValid()) m_valueGetters.push_back(hadEt);
-      }
-      else if (m_collection->purpose() == "HCal Outer"){
-         s_names.push_back(std::pair<std::string,std::string>("outerEt","GeV"));
-         boost::shared_ptr<FWItemValueGetter> outerEt( new FWItemValueGetter(type,s_names));
-         if(outerEt->isValid()) m_valueGetters.push_back(outerEt);
-      }
-   }
-   else if (strstr(m_collection->purpose().c_str(), "Beam Spot")  ){
-
-      s_names.push_back(std::pair<std::string,std::string>("x0","cm"));
-      {
-         boost::shared_ptr<FWItemValueGetter> pos( new FWItemValueGetter(type,s_names));
-         if(pos->isValid()) m_valueGetters.push_back(pos);
-      }
-      {
-         s_names.begin()->first = "y0";
-         boost::shared_ptr<FWItemValueGetter> pos( new FWItemValueGetter(type,s_names));
-         if(pos->isValid()) m_valueGetters.push_back(pos);
-      }
-      {
-         s_names.begin()->first = "z0";
-         boost::shared_ptr<FWItemValueGetter> pos( new FWItemValueGetter(type,s_names));
-         if(pos->isValid()) m_valueGetters.push_back(pos);
-      }
-
-   }
-   else {
-      s_names.push_back(std::pair<std::string,std::string>("pt","GeV"));
-      s_names.push_back(std::pair<std::string,std::string>("et","GeV"));
-      s_names.push_back(std::pair<std::string,std::string>("energy","GeV"));
-      boost::shared_ptr<FWItemValueGetter> trans( new FWItemValueGetter(type,s_names));
-      if(trans->isValid()) m_valueGetters.push_back(trans);
-   }
-
-   
-   s_names.clear();
-   s_names.push_back(std::pair<std::string,std::string>("eta",""));
-   boost::shared_ptr<FWItemValueGetter> eta( new FWItemValueGetter(type,s_names));
-   if(eta->isValid()) {
-      s_names.clear();
-      s_names.push_back(std::pair<std::string,std::string>("phi",""));
-      boost::shared_ptr<FWItemValueGetter> phi( new FWItemValueGetter(type,s_names));
-      if(phi->isValid()) {
-         m_valueGetters.push_back(eta);
-         m_valueGetters.push_back(phi);
-      }
-   }
    
    dataChanged();
 }
@@ -135,12 +78,12 @@ FWCollectionSummaryTableManager::~FWCollectionSummaryTableManager()
 namespace {
    template<typename S>
    void doSort(const FWEventItem& iItem,
-               FWItemValueGetter& iGetter,
-               std::multimap<double,int,S>& iMap,
+              const FWItemValueGetter& iGetter, int iCol,
+               std::multimap<double,int,S>& iMap, 
                std::vector<int>& oNewSort) {
       int size = iItem.size();
       for(int index = 0; index < size; ++index) {
-         iMap.insert(std::make_pair(iGetter.valueFor(iItem.modelData(index)),
+         iMap.insert(std::make_pair(iGetter.valueFor(iItem.modelData(index), iCol),
                                        index));
       }
       std::vector<int>::iterator itVec = oNewSort.begin();
@@ -157,10 +100,10 @@ FWCollectionSummaryTableManager::implSort(int iCol, bool iSortOrder)
 {
    if(iSortOrder) {
       std::multimap<double,int, std::greater<double> > s;
-      doSort(*m_collection, *(m_valueGetters[iCol]), s, m_sortedToUnsortedIndicies);
+      doSort(*m_collection, m_collection->valueGetter(), iCol, s, m_sortedToUnsortedIndicies);
    } else {
       std::multimap<double,int, std::less<double> > s;
-      doSort(*m_collection, *(m_valueGetters[iCol]), s, m_sortedToUnsortedIndicies);
+      doSort(*m_collection, m_collection->valueGetter(), iCol, s, m_sortedToUnsortedIndicies);
    }
 }
 
@@ -195,19 +138,16 @@ FWCollectionSummaryTableManager::numberOfRows() const
 
 int 
 FWCollectionSummaryTableManager::numberOfColumns() const {
-   return m_valueGetters.size();
+   return m_collection->valueGetter().numValues();
 }
 
 std::vector<std::string> 
 FWCollectionSummaryTableManager::getTitles() const {
-   std::vector<std::string> titles;
-   titles.reserve(m_valueGetters.size());
-   for(std::vector<boost::shared_ptr<FWItemValueGetter> >::const_iterator it = m_valueGetters.begin(), itEnd=m_valueGetters.end();
-       it != itEnd;
-       ++it) {
-      titles.push_back((*it)->valueName());
-   }
-   return titles;
+
+
+
+   //return titles;
+      return  m_collection->valueGetter().getTitles();
 }
 
 int 
@@ -219,7 +159,7 @@ FWCollectionSummaryTableManager::unsortedRowNumber(int iSortedRowNumber) const
 FWTableCellRendererBase* 
 FWCollectionSummaryTableManager::cellRenderer(int iSortedRowNumber, int iCol) const
 {
-   if(iCol >= static_cast<int>(m_valueGetters.size())) {
+   if(!m_collection->valueGetter().numValues()) {
       return 0;
    }
    if(iSortedRowNumber >= static_cast<int>(m_collection->size())) {
@@ -229,11 +169,10 @@ FWCollectionSummaryTableManager::cellRenderer(int iSortedRowNumber, int iCol) co
    int index = m_sortedToUnsortedIndicies[iSortedRowNumber];
    std::stringstream s;
    s.setf(std::ios_base::fixed,std::ios_base::floatfield);
-   s.precision(1);
-   double v = m_valueGetters[iCol]->valueFor(m_collection->modelData(index));
+   s.precision( m_collection->valueGetter().precision(iCol));
+   double v = m_collection->valueGetter().valueFor(m_collection->modelData(index), iCol);
    s <<v;
-   m_bodyRenderer.setData(s.str(),
-                          m_collection->modelInfo(index).isSelected());
+   m_bodyRenderer.setData(s.str(), m_collection->modelInfo(index).isSelected());
    return &m_bodyRenderer;
 }
 

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEnumsAndStrings.cc,v 1.22 2010/02/22 14:10:23 wto Exp $
+// Last commit: $Id: SiStripEnumsAndStrings.cc,v 1.21 2010/02/03 18:28:43 dstrom Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 
@@ -364,8 +364,6 @@ std::string SiStripEnumsAndStrings::monitorable( const sistrip::Monitorable& mon
   else if ( mon == sistrip::NOISE_BIN_84_ALL_STRIPS) { return sistrip::noiseBin84AllStrips_; }
   else if ( mon == sistrip::NOISE_RMS_ALL_STRIPS) { return sistrip::noiseRMSAllStrips_; }
   else if ( mon == sistrip::NOISE_SIGNIF_ALL_STRIPS ) { return sistrip::noiseSignif_; }
-  else if ( mon == sistrip::DEAD_STRIP_NUM ) { return sistrip::deadStripNum_; }
-  else if ( mon == sistrip::NOISY_STRIP_NUM ) { return sistrip::noisyStripNum_; }
 
   // fine delay
   else if ( mon == sistrip::FINE_DELAY_POS) { return sistrip::fineDelayPos_; }
@@ -483,8 +481,6 @@ sistrip::Monitorable SiStripEnumsAndStrings::monitorable( const std::string& mon
   else if ( mon.find( sistrip::noiseMin_ ) != std::string::npos ) { return sistrip::NOISE_MIN; }
   else if ( mon.find( sistrip::numOfDead_ ) != std::string::npos ) { return sistrip::NUM_OF_DEAD; }
   else if ( mon.find( sistrip::numOfNoisy_ ) != std::string::npos ) { return sistrip::NUM_OF_NOISY; }
-	else if ( mon.find( sistrip::deadStripNum_ ) != std::string::npos ) { return sistrip::DEAD_STRIP_NUM; }
-  else if ( mon.find( sistrip::noisyStripNum_ ) != std::string::npos ) { return sistrip::NOISY_STRIP_NUM; }
 
   // fine delay
   else if ( mon.find( sistrip::fineDelayPos_ ) != std::string::npos ) { return sistrip::FINE_DELAY_POS; }

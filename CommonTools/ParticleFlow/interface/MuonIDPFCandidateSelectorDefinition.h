@@ -1,12 +1,12 @@
-#ifndef PhysicsTools_PFCandProducer_MuonIDPFCandidateSelectorDefinition
-#define PhysicsTools_PFCandProducer_MuonIDPFCandidateSelectorDefinition
+#ifndef CommonTools_ParticleFlow_MuonIDPFCandidateSelectorDefinition
+#define CommonTools_ParticleFlow_MuonIDPFCandidateSelectorDefinition
 
 /**
    \class    pf2pat::MuonIDPFCandidateSelectorDefinition MuonIDPFCandidateSelectorDefinition.h "CommonTools/ParticleFlow/interface/MuonIDPFCandidateSelectorDefinition.h"
    \brief    Selects PFCandidates basing on cuts provided with string cut parser
 
    \author   Giovanni Petrucciani
-   \version  $Id: MuonIDPFCandidateSelectorDefinition.h,v 1.1 2010/09/30 12:35:51 gpetrucc Exp $
+   \version  $Id: MuonIDPFCandidateSelectorDefinition.h,v 1.1 2011/01/28 20:56:44 srappocc Exp $
 */
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"

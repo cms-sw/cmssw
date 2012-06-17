@@ -242,7 +242,7 @@ void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction)
       }
       if (logic_id == 0) {
 	// get data for all crystals with a given timestamp
-	stmt->setPrefetchRowCount(10000);
+	stmt->setPrefetchRowCount(131072);
       }
       stmt->setSQL(sql);
       int count = 1;
@@ -309,7 +309,7 @@ std::map<int, std::vector<float> > LMFDat::fetchData()
     Statement* stmt = m_conn->createStatement();
     stmt->setSQL(sql);
     stmt->setInt(1, getLMFRunIOVID());
-    stmt->setPrefetchRowCount(10000);
+    stmt->setPrefetchRowCount(131072);
     ResultSet* rset = stmt->executeQuery();
     std::map<int, std::vector<float> >::iterator i = s.end();
     std::map<int, std::vector<float> >::iterator e = s.end();

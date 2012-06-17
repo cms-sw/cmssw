@@ -23,7 +23,17 @@
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 #include "Fireworks/Core/interface/FWInvMassDialog.h"
 
-#include "Fireworks/Core/interface/FWGeometryBrowser.h"
+#include "Fireworks/Core/interface/FWGeometryTableViewBase.h"
+#include "Fireworks/Core/src/FWGeometryTableView.h"
+#include "Fireworks/Core/src/FWOverlapTableView.h"
+#include "Fireworks/Core/interface/FWTextProjected.h"
+
+#include "Fireworks/Core/interface/FWGeoTopNode.h"
+#include "Fireworks/Core/src/FWEveOverlap.h"
+#include "Fireworks/Core/src/FWEveDetectorGeo.h"
+#include "Fireworks/Core/src/FWGeoTopNodeGL.h"
+
+
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -62,6 +72,18 @@
 #pragma link C++ class CmsShowViewPopup;
 #pragma link C++ class FWInvMassDialog;
 
-#pragma link C++ class FWGeometryBrowser;
+#pragma link C++ class FWEveText;
+#pragma link C++ class FWEveTextProjected;
+#pragma link C++ class FWEveTextGL;
 
+#pragma link C++ class FWInvMassDialog;
+
+#pragma link C++ class FWGeometryTableViewBase;
+#pragma link C++ class FWGeometryTableView;
+#pragma link C++ class FWOverlapTableView;
+
+#pragma link C++ class FWGeoTopNode;
+#pragma link C++ class FWEveOverlap;
+#pragma link C++ class FWEveDetectorGeo;
+#pragma link C++ class FWGeoTopNodeGL;
 #endif

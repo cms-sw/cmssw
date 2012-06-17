@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Oct 21 20:40:28 CEST 2010
-// $Id: FWTauProxyBuilderBase.cc,v 1.3 2010/11/26 20:24:46 amraktad Exp $
+// $Id: FWTauProxyBuilderBase.cc,v 1.4 2011/02/23 11:34:52 amraktad Exp $
 //
 
 // system include files
@@ -45,7 +45,7 @@ FWTauProxyBuilderBase::~FWTauProxyBuilderBase()
 }
 
 void
-FWTauProxyBuilderBase::buildBaseTau( const reco::BaseTau& iTau, const reco::Jet& iJet, TEveElement* comp, FWViewType::EType type, const FWViewContext* vc)
+FWTauProxyBuilderBase::buildBaseTau( const reco::BaseTau& iTau, const reco::Jet* iJet, TEveElement* comp, FWViewType::EType type, const FWViewContext* vc)
 {
    // track
    addLeadTrack( iTau, comp );
@@ -105,10 +105,10 @@ FWTauProxyBuilderBase::buildBaseTau( const reco::BaseTau& iTau, const reco::Jet&
 
       context().voteMaxEtAndEnergy( iTau.et(), iTau.energy());
    }
-   else
+   else if (iJet)
    {
       // jet
-      TEveJetCone* cone = fireworks::makeEveJetCone(iJet, context());
+      TEveJetCone* cone = fireworks::makeEveJetCone(*iJet, context());
       const FWDisplayProperties &dp = item()->defaultDisplayProperties();
       cone->SetFillColor(dp.color());
       cone->SetLineColor(dp.color());

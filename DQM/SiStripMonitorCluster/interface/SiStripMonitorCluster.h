@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.35 2010/04/22 16:26:59 dutta Exp $
+// $Id: SiStripMonitorCluster.h,v 1.36 2010/05/06 08:24:36 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -85,13 +85,18 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   };
 
   MonitorElement* GlobalApvCycleDBxTH2; 
+  MonitorElement* GlobalCStripVsCpix;
+  MonitorElement* PixVsStripMultiplicityRegions;
+  MonitorElement* StripNoise2Cycle;
+  MonitorElement* StripNoise3Cycle;
+
  private:
 
   void createMEs(const edm::EventSetup& es);
   void createLayerMEs(std::string label, int ndets);
   void createModuleMEs(ModMEs& mod_single, uint32_t detid);
   void createSubDetMEs(std::string label);
-
+  int FindRegion(int nstrip,int npixel);
   void fillModuleMEs(ModMEs& mod_mes, ClusterProperties& cluster);
   void fillLayerMEs(LayerMEs&, ClusterProperties& cluster, float timeinorbit);
 
@@ -140,6 +145,9 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   bool layerswitchnrclusterizedstrip;
   bool layerswitchnumclusterprofon;
   bool layerswitchclusterwidthprofon;
+  
+  bool globalswitchstripnoise2apvcycle;
+  bool globalswitchstripnoise3apvcycle;
 
   bool moduleswitchncluson;
   bool moduleswitchcluschargeon;
@@ -158,7 +166,8 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   bool subdetswitchdbxcycleprofon;
   bool subdetswitchtotclusth1on;
   bool globalswitchapvcycledbxth2on;
-
+  bool globalswitchcstripvscpix;
+  bool globalswitchMultiRegions;
   bool clustertkhistomapon;
   bool createTrendMEs;
 
@@ -167,7 +176,8 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   std::string topFolderName_;
   std::string qualityLabel_;
 
-  edm::InputTag clusterProducer_;
+  edm::InputTag clusterProducerStrip_;
+  edm::InputTag clusterProducerPix_;
   edm::InputTag historyProducer_;  
   edm::InputTag apvPhaseProducer_;
 
@@ -176,6 +186,12 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
   double sToNUpperLimit_;  
   double widthLowerLimit_;
   double widthUpperLimit_;
+
+  double k0;
+  double q0;
+  double dk0;
+  double maxClus;
+  double minPix;
 
   SiStripDCSStatus* dcsStatus_;
 };

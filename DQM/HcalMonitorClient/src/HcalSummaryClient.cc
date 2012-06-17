@@ -15,8 +15,8 @@
 /*
  * \file HcalSummaryClient.cc
  * 
- * $Date: 2010/09/17 13:47:10 $
- * $Revision: 1.103 $
+ * $Date: 2011/04/12 18:25:42 $
+ * $Revision: 1.105 $
  * \author J. Temple
  * \brief Summary Client class
  */
@@ -33,6 +33,7 @@ HcalSummaryClient::HcalSummaryClient(std::string myname)
   StatusVsLS_=0;
   certificationMap_=0;
   reportMap_=0;
+  reportMapShift_=0;
 }
 
 HcalSummaryClient::HcalSummaryClient(std::string myname, const edm::ParameterSet& ps)
@@ -59,12 +60,15 @@ HcalSummaryClient::HcalSummaryClient(std::string myname, const edm::ParameterSet
 						   ps.getUntrackedParameter<double>("minerrorrate",0));
   minevents_    = ps.getUntrackedParameter<int>("Summary_minevents",
 						ps.getUntrackedParameter<int>("minevents",0));
+  Online_                = ps.getUntrackedParameter<bool>("online",false);
+
   SummaryMapByDepth=0;
   ProblemCells=0;
   ProblemCellsByDepth=0;
   StatusVsLS_=0;
   certificationMap_=0;
   reportMap_=0;
+  reportMapShift_=0;
 }
 
 void HcalSummaryClient::analyze(int LS)
@@ -554,6 +558,22 @@ void HcalSummaryClient::fillReportSummary(int LS)
     }
   else if (debug_>0) std::cout <<"<HcalSummaryClient::fillReportSummary> CANNOT GET REPORT SUMMARY MAP!!!!!"<<std::endl;
 
+  if (reportMapShift_)
+    {
+      reportMapShift_->setBinContent(1,1,status_HB_);
+      reportMapShift_->setBinContent(2,1,status_HE_);
+      reportMapShift_->setBinContent(3,1,status_HO_);
+      reportMapShift_->setBinContent(4,1,status_HF_);
+      reportMapShift_->setBinContent(5,1,status_HO0_);
+      reportMapShift_->setBinContent(6,1,status_HO12_);
+      // Set reportMap underflow bin based on whether enough total events have been processed
+      if (enoughevents_==false)
+	reportMapShift_->setBinContent(0,0,-1);
+      else
+	reportMapShift_->setBinContent(0,0,1);
+    }
+  else if (debug_>0) std::cout <<"<HcalSummaryClient::fillReportSummary> CANNOT GET REPORT SUMMARY MAP!!!!!"<<std::endl;
+
   me=dqmStore_->get(subdir_+"reportSummary");
   // Clear away old versions
   if (me) me->Fill(status_global_);
@@ -670,6 +690,23 @@ void HcalSummaryClient::fillReportSummaryLSbyLS(int LS)
 	reportMap_->setBinContent(0,0,-1);
       else
 	reportMap_->setBinContent(0,0,1);
+
+    }
+  else if (debug_>0) std::cout <<"<HcalSummaryClient::fillReportSummaryLSbyLS> CANNOT GET REPORT SUMMARY MAP!!!!!"<<std::endl;
+
+  if (reportMapShift_)
+    {
+      reportMapShift_->setBinContent(1,1,status_HB);
+      reportMapShift_->setBinContent(2,1,status_HE);
+      reportMapShift_->setBinContent(3,1,status_HO);
+      reportMapShift_->setBinContent(4,1,status_HF);
+      reportMapShift_->setBinContent(5,1,status_HO0);
+      reportMapShift_->setBinContent(6,1,status_HO12);
+      // Set reportMap underflow bin based on whether enough total events have been processed
+      if (enoughevents_==false)
+	reportMapShift_->setBinContent(0,0,-1);
+      else
+	reportMapShift_->setBinContent(0,0,1);
 
     }
   else if (debug_>0) std::cout <<"<HcalSummaryClient::fillReportSummaryLSbyLS> CANNOT GET REPORT SUMMARY MAP!!!!!"<<std::endl;
@@ -880,6 +917,23 @@ void HcalSummaryClient::beginRun(void)
   (reportMap_->getTH2F())->SetMinimum(-1);
   (reportMap_->getTH2F())->SetMaximum(1);
 
+  if (reportMapShift_)
+    dqmStore_->removeElement(reportMapShift_->getName());
+  reportMapShift_ = dqmStore_->book2D("reportSummaryMapShift","reportSummaryMapShift",
+				 6,0,6,1,0,1);
+  (reportMapShift_->getTH2F())->GetXaxis()->SetBinLabel(1,"HB");
+  (reportMapShift_->getTH2F())->GetXaxis()->SetBinLabel(2,"HE");
+  (reportMapShift_->getTH2F())->GetXaxis()->SetBinLabel(3,"HO");
+  (reportMapShift_->getTH2F())->GetXaxis()->SetBinLabel(4,"HF");
+  (reportMapShift_->getTH2F())->GetXaxis()->SetBinLabel(5,"HO0");
+  (reportMapShift_->getTH2F())->GetXaxis()->SetBinLabel(6,"HO12");
+  (reportMapShift_->getTH2F())->GetYaxis()->SetBinLabel(1,"Status");
+  (reportMapShift_->getTH2F())->SetMarkerSize(3);
+  (reportMapShift_->getTH2F())->SetOption("text90colz");
+  //(reportMapShift_->getTH2F())->SetOption("textcolz");
+  (reportMapShift_->getTH2F())->SetMinimum(-1);
+  (reportMapShift_->getTH2F())->SetMaximum(1);
+
   // Set initial counters to -1 (unknown)
   status_global_=-1; 
   status_HB_=-1; 
@@ -892,6 +946,8 @@ void HcalSummaryClient::beginRun(void)
   status_HFlumi_=-1;
   for (int i=1;i<=(reportMap_->getTH2F())->GetNbinsX();++i)
     reportMap_->setBinContent(i,1,-1);
+  for (int i=1;i<=(reportMapShift_->getTH2F())->GetNbinsX();++i)
+    reportMapShift_->setBinContent(i,1,-1);
 } // void HcalSummaryClient::beginRun(void)
 
 

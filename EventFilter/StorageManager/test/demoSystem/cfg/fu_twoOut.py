@@ -30,7 +30,7 @@ process.DQMStore = cms.Service("DQMStore")
 
 process.source = cms.Source("DaqSource",
                             readerPluginName = cms.untracked.string('FUShmReader'),
-                            evtsPerLS = cms.untracked.uint32(1000)
+                            evtsPerLS = cms.untracked.uint32(10000)
                             )
 
 process.errorInjector = cms.EDAnalyzer("ExceptionGenerator")

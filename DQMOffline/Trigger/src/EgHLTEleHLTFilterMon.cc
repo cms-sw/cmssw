@@ -15,21 +15,21 @@ EleHLTFilterMon::EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
   filterName_(filterName),
   filterBit_(filterBit)
 {
-  bool doChargeSep = true;
-  bool monHLTFailedEle = true;
+  bool doChargeSep = false;
+  bool monHLTFailedEle = false;
   bool doFakeRate=false;
   bool doTagAndProbe=false;
 
   eleMonElems_.push_back(new MonElemContainer<OffEle>());
   //---Morse-------
-  eleMonElems_.push_back(new MonElemContainer<OffEle>("_cut"," cut, debug hists ",new EgHLTDQMVarCut<OffEle>(~0x0,&OffEle::cutCode)));
+  //eleMonElems_.push_back(new MonElemContainer<OffEle>("_cut"," cut, debug hists ",new EgHLTDQMVarCut<OffEle>(~0x0,&OffEle::cutCode)));
   //-----------------
   if(doChargeSep){
     eleMonElems_.push_back(new MonElemContainer<OffEle>("_posCharge"," q=+1 ",new ChargeCut<OffEle>(1)));
     eleMonElems_.push_back(new MonElemContainer<OffEle>("_negCharge"," q=-1 ",new ChargeCut<OffEle>(-1)));
   }
   for(size_t i=0;i<eleMonElems_.size();i++){
-    MonElemFuncs::initStdEleHists(eleMonElems_[i]->monElems(),filterName_+"_gsfEle_passFilter"+eleMonElems_[i]->name(),bins);
+    MonElemFuncs::initStdEleHists(eleMonElems_[i]->monElems(),filterName,filterName_+"_gsfEle_passFilter"+eleMonElems_[i]->name(),bins);
   }
   
   if(monHLTFailedEle){
@@ -40,7 +40,7 @@ EleHLTFilterMon::EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
     }
   }
   for(size_t i=0;i<eleFailMonElems_.size();i++){
-    MonElemFuncs::initStdEleHists(eleFailMonElems_[i]->monElems(),filterName_+"_gsfEle_failFilter"+eleMonElems_[i]->name(),bins);
+    MonElemFuncs::initStdEleHists(eleFailMonElems_[i]->monElems(),filterName,filterName_+"_gsfEle_failFilter"+eleMonElems_[i]->name(),bins);
   }
 
  
@@ -51,13 +51,13 @@ EleHLTFilterMon::EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
   if(doTagAndProbe) eleEffHists_.push_back(new MonElemContainer<OffEle>("_tagProbe"," Tag and Probe ",new EgTagProbeCut<OffEle>(effProbeCutCode,&OffEle::cutCode,effTagCutCode,&OffEle::cutCode)));
   if(doFakeRate) eleEffHists_.push_back(new MonElemContainer<OffEle>("_fakeRate"," Fake Rate ",new EgJetTagProbeCut<OffEle>(fakeRateProbeCut,&OffEle::looseCutCode)));
   for(size_t i=0;i<eleEffHists_.size();i++){ 
-    MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),
+    MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
 				  filterName_+"_gsfEle_effVsEt"+eleEffHists_[i]->name(),bins.et,&OffEle::et,masks);
-    MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),
+    MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
 				  filterName_+"_gsfEle_effVsEta"+eleEffHists_[i]->name(),bins.eta,&OffEle::eta,masks); 
-    MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),
-				  filterName_+"_gsfEle_effVsPhi"+eleEffHists_[i]->name(),bins.phi,&OffEle::phi,masks); 
-    // MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),
+    /*  MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
+	filterName_+"_gsfEle_effVsPhi"+eleEffHists_[i]->name(),bins.phi,&OffEle::phi,masks); */
+    // MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),filterName,
     //			  filterName_+"_gsfEle_effVsCharge"+eleEffHists_[i]->name(),bins.charge,&OffEle::chargeF);
   }
 

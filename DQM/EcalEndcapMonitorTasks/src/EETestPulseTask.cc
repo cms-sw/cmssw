@@ -1,14 +1,15 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2010/06/14 15:00:40 $
- * $Revision: 1.57 $
+ * $Date: 2010/08/08 08:46:09 $
+ * $Revision: 1.58 $
  * \author G. Della Ricca
  *
 */
 
 #include <iostream>
-#include <fstream>
+#include <sstream>
+#include <iomanip>
 #include <vector>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -127,23 +128,30 @@ void EETestPulseTask::setup(void){
 
   init_ = true;
 
-  char histo[200];
+  std::string name;
+  std::stringstream GainN, GN;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask");
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/Gain01");
+      GainN.str("");
+      GainN << "Gain" << std::setw(2) << std::setfill('0') << 1;
+      GN.str("");
+      GN << "G" << std::setw(2) << std::setfill('0') << 1;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/" + GainN.str());
       for (int i = 0; i < 18; i++) {
-        sprintf(histo, "EETPT shape %s G01", Numbers::sEE(i+1).c_str());
-        meShapeMapG01_[i] = dqmStore_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+	name = "EETPT shape " + Numbers::sEE(i+1) + " " + GN.str();
+        meShapeMapG01_[i] = dqmStore_->bookProfile2D(name, name, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
         meShapeMapG01_[i]->setAxisTitle("channel", 1);
         meShapeMapG01_[i]->setAxisTitle("sample", 2);
         meShapeMapG01_[i]->setAxisTitle("amplitude", 3);
         dqmStore_->tag(meShapeMapG01_[i], i+1);
-        sprintf(histo, "EETPT amplitude %s G01", Numbers::sEE(i+1).c_str());
-        meAmplMapG01_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+
+	name = "EETPT amplitude " + Numbers::sEE(i+1) + " " + GN.str();
+        meAmplMapG01_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
         meAmplMapG01_[i]->setAxisTitle("ix", 1);
         if ( i+1 >= 1 && i+1 <= 9 ) meAmplMapG01_[i]->setAxisTitle("101-ix", 1);
         meAmplMapG01_[i]->setAxisTitle("iy", 2);
@@ -154,16 +162,22 @@ void EETestPulseTask::setup(void){
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/Gain06");
+      GainN.str("");
+      GainN << "Gain" << std::setw(2) << std::setfill('0') << 6;
+      GN.str("");
+      GN << "G" << std::setw(2) << std::setfill('0') << 6;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/" + GainN.str());
       for (int i = 0; i < 18; i++) {
-        sprintf(histo, "EETPT shape %s G06", Numbers::sEE(i+1).c_str());
-        meShapeMapG06_[i] = dqmStore_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+	name = "EETPT shape " + Numbers::sEE(i+1) + " " + GN.str();
+        meShapeMapG06_[i] = dqmStore_->bookProfile2D(name, name, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
         meShapeMapG06_[i]->setAxisTitle("channel", 1);
         meShapeMapG06_[i]->setAxisTitle("sample", 2);
         meShapeMapG06_[i]->setAxisTitle("amplitude", 3);
         dqmStore_->tag(meShapeMapG06_[i], i+1);
-        sprintf(histo, "EETPT amplitude %s G06", Numbers::sEE(i+1).c_str());
-        meAmplMapG06_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+
+	name = "EETPT amplitude " + Numbers::sEE(i+1) + " " + GN.str();
+        meAmplMapG06_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
         meAmplMapG06_[i]->setAxisTitle("ix", 1);
         if ( i+1 >= 1 && i+1 <= 9 ) meAmplMapG06_[i]->setAxisTitle("101-ix", 1);
         meAmplMapG06_[i]->setAxisTitle("iy", 2);
@@ -174,16 +188,22 @@ void EETestPulseTask::setup(void){
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/Gain12");
+      GainN.str("");
+      GainN << "Gain" << std::setw(2) << std::setfill('0') << 12;
+      GN.str("");
+      GN << "G" << std::setw(2) << std::setfill('0') << 12;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/" + GainN.str());
       for (int i = 0; i < 18; i++) {
-        sprintf(histo, "EETPT shape %s G12", Numbers::sEE(i+1).c_str());
-        meShapeMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
+	name = "EETPT shape " + Numbers::sEE(i+1) + " " + GN.str();
+        meShapeMapG12_[i] = dqmStore_->bookProfile2D(name, name, 850, 0., 850., 10, 0., 10., 4096, 0., 4096., "s");
         meShapeMapG12_[i]->setAxisTitle("channel", 1);
         meShapeMapG12_[i]->setAxisTitle("sample", 2);
         meShapeMapG12_[i]->setAxisTitle("amplitude", 3);
         dqmStore_->tag(meShapeMapG12_[i], i+1);
-        sprintf(histo, "EETPT amplitude %s G12", Numbers::sEE(i+1).c_str());
-        meAmplMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
+
+	name = "EETPT amplitude " + Numbers::sEE(i+1) + " " + GN.str();
+        meAmplMapG12_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096.*12., "s");
         meAmplMapG12_[i]->setAxisTitle("ix", 1);
         if ( i+1 >= 1 && i+1 <= 9 ) meAmplMapG12_[i]->setAxisTitle("101-ix", 1);
         meAmplMapG12_[i]->setAxisTitle("iy", 2);
@@ -196,15 +216,20 @@ void EETestPulseTask::setup(void){
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/PN/Gain01");
+      GainN.str("");
+      GainN << "Gain" << std::setw(2) << std::setfill('0') << 1;
+      GN.str("");
+      GN << "G" << std::setw(2) << std::setfill('0') << 1;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/PN/" + GainN.str());
       for (int i = 0; i < 18; i++) {
-        sprintf(histo, "EETPT PNs amplitude %s G01", Numbers::sEE(i+1).c_str());
-        mePnAmplMapG01_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+	name = "EETPT PNs amplitude " + Numbers::sEE(i+1) + " " + GN.str();
+        mePnAmplMapG01_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnAmplMapG01_[i]->setAxisTitle("channel", 1);
         mePnAmplMapG01_[i]->setAxisTitle("amplitude", 2);
         dqmStore_->tag(mePnAmplMapG01_[i], i+1);
-        sprintf(histo, "EETPT PNs pedestal %s G01", Numbers::sEE(i+1).c_str());
-        mePnPedMapG01_[i] =  dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+	name = "EETPT PNs pedestal " + Numbers::sEE(i+1) + " " + GN.str();
+        mePnPedMapG01_[i] =  dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG01_[i]->setAxisTitle("channel", 1);
         mePnPedMapG01_[i]->setAxisTitle("pedestal", 2);
         dqmStore_->tag(mePnPedMapG01_[i], i+1);
@@ -214,15 +239,20 @@ void EETestPulseTask::setup(void){
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/PN/Gain16");
+      GainN.str("");
+      GainN << "Gain" << std::setw(2) << std::setfill('0') << 16;
+      GN.str("");
+      GN << "G" << std::setw(2) << std::setfill('0') << 16;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EETestPulseTask/PN/" + GainN.str());
       for (int i = 0; i < 18; i++) {
-        sprintf(histo, "EETPT PNs amplitude %s G16", Numbers::sEE(i+1).c_str());
-        mePnAmplMapG16_[i] = dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+	name = "EETPT PNs amplitude " + Numbers::sEE(i+1) + " " + GN.str();
+        mePnAmplMapG16_[i] = dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnAmplMapG16_[i]->setAxisTitle("channel", 1);
         mePnAmplMapG16_[i]->setAxisTitle("amplitude", 2);
         dqmStore_->tag(mePnAmplMapG16_[i], i+1);
-        sprintf(histo, "EETPT PNs pedestal %s G16", Numbers::sEE(i+1).c_str());
-        mePnPedMapG16_[i] =  dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+	name = "EETPT PNs pedestal " + Numbers::sEE(i+1) + " " + GN.str();
+        mePnPedMapG16_[i] =  dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG16_[i]->setAxisTitle("channel", 1);
         mePnPedMapG16_[i]->setAxisTitle("pedestal", 2);
         dqmStore_->tag(mePnPedMapG16_[i], i+1);

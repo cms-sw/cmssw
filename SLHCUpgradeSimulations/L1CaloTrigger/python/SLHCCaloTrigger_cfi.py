@@ -12,8 +12,16 @@ L1CaloTriggerSetup = cms.ESProducer("L1CaloTriggerSetupProducer",
 
 L1CaloTowerProducer = cms.EDProducer("L1CaloTowerProducer",
     ECALDigis = cms.InputTag("simEcalTriggerPrimitiveDigis"),
-    HCALDigis = cms.InputTag("simHcalTriggerPrimitiveDigis")
+    HCALDigis = cms.InputTag("simHcalTriggerPrimitiveDigis"),
+    UseUpgradeHCAL = cms.bool(False) #added to allow use of Upgrade HCAL - AWR 12/05/2011
 )
+
+
+L1RingSubtractionProducer = cms.EDProducer("L1RingSubtractionProducer",
+    src = cms.InputTag("L1CaloTowerProducer"),
+	RingSubtractionType = cms.string("median") # "mean", "median" or "constant"
+)
+
 
 L1CaloRegionProducer = cms.EDProducer("L1CaloRegionProducer",
                                       src = cms.InputTag("L1CaloTowerProducer")
@@ -43,12 +51,18 @@ L1CaloJetExpander = cms.EDProducer("L1CaloJetExpander",
     src = cms.InputTag("L1CaloJetFilter")
 )
 
+L1TowerJetProducer = cms.EDProducer("L1TowerJetProducer",
+    src = cms.InputTag("L1CaloTowerProducer"),
+	JetDiameter = cms.uint32(9),
+	JetShape = cms.string("circle") # "circle" or "square"
+)
+
 
 rawSLHCL1ExtraParticles = cms.EDProducer("L1ExtraTranslator",
                                   Clusters = cms.InputTag("L1CaloClusterIsolator"),
                                   Jets = cms.InputTag("L1CaloJetExpander"),
-                                  NParticles = cms.int32(8),
-                                  NJets      = cms.int32(12)
+                                  NParticles = cms.uint32(8),
+                                  NJets      = cms.uint32(12)
                               
 )
 
@@ -68,10 +82,10 @@ SLHCL1ExtraParticles = cms.EDProducer("L1ExtraCalibrator",
                                       ## 6.Aug.2010 -- Barrel/endcap calibration separated
                                       ## L1ExtraCalibrator.cc currently ignores the second coefficient, to provide symmetric 
 
-                                      eGammaCoefficientsB = cms.vdouble(1.05,0.0,0.111),
-                                      tauCoefficientsB    = cms.vdouble(1.36,0.0,0.0286),
-                                      eGammaCoefficientsE = cms.vdouble(1.43,-0.470,0.0),
-                                      tauCoefficientsE    = cms.vdouble(1.52,-0.197,0.0),
+                                      eGammaCoefficientsB = cms.vdouble(1.112,-0.02623,0.08898),
+                                      tauCoefficientsB    = cms.vdouble(1.175,0.1656,0.03392),
+                                      eGammaCoefficientsE = cms.vdouble(1.506,0.2938,-0.1501),
+                                      tauCoefficientsE    = cms.vdouble(1.175,0.1656,0.03392),
 
                                       #eGammaCoefficientsB = cms.vdouble(1.0,0.0,0.0),
                                       #tauCoefficientsB    = cms.vdouble(1.0,0.0,0.0),
@@ -109,10 +123,10 @@ l1extraParticlesCalibrated = cms.EDProducer("L1ExtraCalibrator",
                                             ## Same as we do for RCT Calibration
                                             ## 6.Aug.2010 -- Barrel/endcap calibration separated
 
-                                            eGammaCoefficientsB = cms.vdouble(1.25,0.0,0.03199),
-                                            tauCoefficientsB    = cms.vdouble(1.26,0.0,0.0610),
+                                            eGammaCoefficientsB = cms.vdouble(1.093,-0.1662,0.1321),
+                                            tauCoefficientsB    = cms.vdouble(0.6865,-0.0261,0.02295),
                                             eGammaCoefficientsE = cms.vdouble(1.33,-0.0949,0.0),
-                                            tauCoefficientsE    = cms.vdouble(1.32,-0.278,0.0),
+                                            tauCoefficientsE    = cms.vdouble(0.6865,-0.0261,0.02295),
                                             
                                             #eGammaCoefficientsB = cms.vdouble(1.0,0.0,0.0),
                                             #tauCoefficientsB    = cms.vdouble(1.0,0.0,0.0),
