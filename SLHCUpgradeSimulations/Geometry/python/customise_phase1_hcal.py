@@ -175,7 +175,7 @@ def customise_pu15_25ns(process):
 
     process=customise(process)
 
-    process.load("SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R30F12_cff")
+    process.load("SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R30F12_HCal_cff")
 
 ### set the number of pileup
     process.mix.input.nbPileupEvents = cms.PSet(
@@ -183,6 +183,15 @@ def customise_pu15_25ns(process):
         )
     return (process)
 
+def customise_3bx(process):
+    process.mix.maxBunch=1
+    process.mix.minBunch=-1
+    return process
+
+def customise_pu15_25ns_3bx(process):
+    process=customise_pu15_25ns(process)
+    process=customise_3bx(process)
+    return process
 
 #pileup specific stuff here
 def customise_pu50_25ns(process):
@@ -196,7 +205,6 @@ def customise_pu50_25ns(process):
         averageNumber = cms.double(50.0)
         )
     
-
 ### if doing inefficiency at <PU>=50
     process.simSiPixelDigis.AddPixelInefficiency = 20
     ## also for strips TIB inefficiency if we want
@@ -208,6 +216,11 @@ def customise_pu50_25ns(process):
     #process.simSiStripDigis.Inefficiency = 40
     
     return (process)
+
+def customise_pu50_25ns_3bx(process):
+    process=customise_pu50_25ns(process)
+    process=customise_3bx(process)
+    return process
 
 def customise_wo_pairs(process):
 
