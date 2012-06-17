@@ -1,4 +1,4 @@
-// $Id: EGEnergyCorrector.cc,v 1.9 2012/05/18 19:21:09 bendavid Exp $
+// $Id: EGEnergyCorrector.cc,v 1.10 2012/05/21 12:10:39 bendavid Exp $
 
 #include <TFile.h>
 #include "../interface/EGEnergyCorrector.h"
@@ -482,7 +482,7 @@ std::pair<double,double> EGEnergyCorrector::CorrectedEnergyWithError(const GsfEl
 }
 
 //--------------------------------------------------------------------------------------------------
-std::pair<double,double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Photon &p, const reco::VertexCollection& vtxcol, double rho, EcalClusterLazyTools &clustertools, const edm::EventSetup &es) {
+std::pair<double,double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Photon &p, const reco::VertexCollection& vtxcol, double rho, EcalClusterLazyTools &clustertools, const edm::EventSetup &es, bool applyRescale) {
   
   const SuperClusterRef s = p.superCluster();
   const CaloClusterPtr b = s->seed(); //seed  basic cluster
@@ -559,10 +559,10 @@ std::pair<double,double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Pho
     fVals[30]  = s->preshowerEnergy()/s->rawEnergy();
   }
 
-  if (isbarrel) {
-    for (int i=0; i<38; ++i) printf("%i: %5f\n",i,fVals[i]);
-  }
-  else for (int i=0; i<31; ++i) printf("%i: %5f\n",i,fVals[i]);
+//   if (isbarrel) {
+//     for (int i=0; i<38; ++i) printf("%i: %5f\n",i,fVals[i]);
+//   }
+//   else for (int i=0; i<31; ++i) printf("%i: %5f\n",i,fVals[i]);
     
   Double_t den;
   const GBRForest *reader;
@@ -579,6 +579,63 @@ std::pair<double,double> EGEnergyCorrector::CorrectedEnergyWithErrorV3(const Pho
   }
   
   Double_t ecor = reader->GetResponse(fVals)*den;
+
+
+  //apply shower shape rescaling - for Monte Carlo only, and only for calculation of energy uncertainty
+  if (applyRescale) {
+    if (isbarrel) {
+      fVals[3] = 1.0045*p.r9() +0.001; //r9
+      fVals[5] = 1.04302*s->etaWidth() - 0.000618; //etawidth
+      fVals[6] = 1.00002*s->phiWidth() - 0.000371;  //phiwidth
+      fVals[14] = fVals[3]*s->rawEnergy()/b->energy();  //compute consistent e3x3/eseed after r9 rescaling
+      if (fVals[15]<=1.0)  // rescale e5x5/eseed only if value is <=1.0, don't allow scaled values to exceed 1.0
+        fVals[15] = TMath::Min(1.0,1.0022*p.e5x5()/b->energy());
+
+      fVals[4] = fVals[15]*b->energy()/s->rawEnergy(); // compute consistent e5x5()/rawEnergy() after e5x5/eseed resacling  
+
+      fVals[16] = 0.891832*sqrt(clustertools.localCovariances(*b)[0]) + 0.0009133; //sigietaieta
+      fVals[17] = 0.993*sqrt(clustertools.localCovariances(*b)[2]); //sigiphiiphi
+
+      fVals[19] = 1.012*bemax/b->energy();                       //crystal energy ratio gap variables   
+      fVals[20] = 1.0*be2nd/b->energy();
+      fVals[21] = 0.94*betop/b->energy();
+      fVals[22] = 0.94*bebottom/b->energy();
+      fVals[23] = 0.94*beleft/b->energy();
+      fVals[24] = 0.94*beright/b->energy();
+      fVals[25] = 1.006*be2x5max/b->energy();                       //crystal energy ratio gap variables   
+      fVals[26] = 1.09*be2x5top/b->energy();
+      fVals[27] = 1.09*be2x5bottom/b->energy();
+      fVals[28] = 1.09*be2x5left/b->energy();
+      fVals[29] = 1.09*be2x5right/b->energy();
+
+    }
+    else {
+      fVals[3] = 1.0086*p.r9() -0.0007;           //r9
+      fVals[4] = TMath::Min(1.0,1.0022*p.e5x5()/s->rawEnergy());  //e5x5/rawenergy
+      fVals[5] = 0.903254*s->etaWidth() +0.001346;  //etawidth
+      fVals[6] = 0.99992*s->phiWidth() +  4.8e-07;   //phiwidth
+      fVals[13] = TMath::Min(1.0,1.0022*b->energy()/s->rawEnergy());  //eseed/rawenergy (practically equivalent to e5x5)
+
+
+      fVals[14] = fVals[3]*s->rawEnergy()/b->energy(); //compute consistent e3x3/eseed after r9 rescaling
+
+      fVals[16] = 0.9947*sqrt(clustertools.localCovariances(*b)[0]) + 0.00003; //sigietaieta
+
+      fVals[19] = 1.005*bemax/b->energy();                       //crystal energy ratio gap variables   
+      fVals[20] = 1.02*be2nd/b->energy();
+      fVals[21] = 0.96*betop/b->energy();
+      fVals[22] = 0.96*bebottom/b->energy();
+      fVals[23] = 0.96*beleft/b->energy();
+      fVals[24] = 0.96*beright/b->energy();
+      fVals[25] = 1.0075*be2x5max/b->energy();                       //crystal energy ratio gap variables   
+      fVals[26] = 1.13*be2x5top/b->energy();
+      fVals[27] = 1.13*be2x5bottom/b->energy();
+      fVals[28] = 1.13*be2x5left/b->energy();
+      fVals[29] = 1.13*be2x5right/b->energy();
+    }
+
+  }
+
   Double_t ecorerr = readervar->GetResponse(fVals)*den;
   
   //printf("ecor = %5f, ecorerr = %5f\n",ecor,ecorerr);
