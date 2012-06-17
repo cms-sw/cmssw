@@ -26,6 +26,7 @@ std::string Asymptotic::what_ = "both";
 bool  Asymptotic::qtilde_ = true; 
 bool  Asymptotic::picky_ = false; 
 bool  Asymptotic::noFitAsimov_ = false; 
+bool  Asymptotic::newExpected_ = false; 
 std::string Asymptotic::minosAlgo_ = "stepping"; 
 std::string Asymptotic::minimizerAlgo_ = "Minuit2";
 float       Asymptotic::minimizerTolerance_ = 0.01;
@@ -46,6 +47,7 @@ LimitAlgo("Asymptotic specific options") {
         ("qtilde", boost::program_options::value<bool>(&qtilde_)->default_value(qtilde_),  "Allow only non-negative signal strengths (default is true).")
         ("picky", "Abort on fit failures")
         ("noFitAsimov", "Use the pre-fit asimov dataset")
+        ("newExpected", "Use the new formula for expected limits")
         ("minosAlgo", boost::program_options::value<std::string>(&minosAlgo_)->default_value(minosAlgo_), "Algorithm to use to get the median expected limit: 'minos' (fastest), 'bisection', 'stepping' (default, most robust)")
     ;
 }
@@ -60,6 +62,7 @@ void Asymptotic::applyOptions(const boost::program_options::variables_map &vm) {
     }
     picky_ = vm.count("picky");
     noFitAsimov_ = vm.count("noFitAsimov");
+    newExpected_ = vm.count("newExpected");
     if (what_ == "blind") { what_ = "expected"; noFitAsimov_ = true; } 
     if (noFitAsimov_) std::cout << "Will use a-priori expected background instead of a-posteriori one." << std::endl; 
 }
@@ -274,7 +277,6 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
     r->setMin(qtilde_ ? 0 : -r->getMax()); // FIXME TEST
     r->setVal(0.01*r->getMax());
     r->setError(0.1*r->getMax());
-    double rMax0 = r->getMax();
     //r->removeMax();
     
     std::auto_ptr<RooAbsReal> nll(mc_s->GetPdf()->createNLL(*asimov, RooFit::Constrain(*mc_s->GetNuisanceParameters())));
@@ -290,18 +292,76 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
         std::auto_ptr<RooFitResult> res(minim.save());
         res->Print("V");
     }
+    if (r->getVal()/r->getMax() > 1e-3) {
+        if (verbose) printf("WARNING: Best fit of asimov dataset is at %s = %f (%f times %sMax), while it should be at zero\n",
+                r->GetName(), r->getVal(), r->getVal()/r->getMax(), r->GetName());
+    }
+
+
+    // 3) get ingredients for equation 37
+    double nll0 = nll->getVal();
+    double median = findExpectedLimitFromCrossing(*nll, r, r->getMin(), r->getMax(), nll0, 0.5);
+    double sigma  = median / ROOT::Math::normal_quantile(1-0.5*(1-cl),1.0);
+    double alpha = 1-cl;
+    if (verbose > 0) { 
+        std::cout << "Median for expected limits: " << median << std::endl; 
+        std::cout << "Sigma  for expected limits: " << sigma  << std::endl; 
+    }
+
+    std::vector<std::pair<float,float> > expected;
+    const double quantiles[5] = { 0.025, 0.16, 0.50, 0.84, 0.975 };
+    for (int iq = 0; iq < 5; ++iq) {
+        double N = ROOT::Math::normal_quantile(quantiles[iq], 1.0);
+        if (newExpected_ && iq != 2) { // the median is exactly the same in the two methods
+            std::string minosAlgoBackup = minosAlgo_;
+            if (minosAlgo_ == "stepping") minosAlgo_ = "bisection";
+            switch (iq) {
+                case 0: limit = findExpectedLimitFromCrossing(*nll, r, r->getMin(),            median,      nll0, quantiles[iq]); break;
+                case 1: limit = findExpectedLimitFromCrossing(*nll, r, expected.back().second, median,      nll0, quantiles[iq]); break;
+                case 3: limit = findExpectedLimitFromCrossing(*nll, r, expected.back().second, median+2*sigma, nll0, quantiles[iq]); break;
+                case 4: limit = findExpectedLimitFromCrossing(*nll, r, expected.back().second, median+4*sigma, nll0, quantiles[iq]); break;
+            }
+            minosAlgo_ = minosAlgoBackup;
+            if (std::isnan(limit)) { expected.clear(); break; } 
+        } else {
+            limit = sigma*(ROOT::Math::normal_quantile(1 - alpha * quantiles[iq], 1.0) + N);
+        }
+        limitErr = 0;
+        Combine::commitPoint(true, quantiles[iq]);
+        expected.push_back(std::pair<float,float>(quantiles[iq], limit));
+    }
+    return expected;
+
+}
+
+float Asymptotic::findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVar *r, double rMin, double rMax, double nll0, double clb) {
+    // EQ 37 of CMS NOTE 2011-005:
+    //   mu_N = sigma * ( normal_quantile_c( (1-cl) * normal_cdf(N) ) + N )
+    // --> (mu_N/sigma) = N + normal_quantile_c( (1-cl) * clb )
+    // but qmu = (mu_N/sigma)^2
+    // --> qmu = [ N + normal_quantile_c( (1-cl)*CLb ) ]^2
+    // remember that qmu = 2*nll
+    double N = ROOT::Math::normal_quantile(clb, 1.0);
+    double errorlevel = 0.5 * pow(N+ROOT::Math::normal_quantile_c(clb*(1-cl),1.0), 2);
     int minosStat = -1;
     if (minosAlgo_ == "minos") {
-        //CloseCoutSentry sentry2(verbose < 3);
+        double rMax0 = r->getMax();
+        // Have to repeat the fit, but I'm already at the minimum
+        CascadeMinimizer minim(nll, CascadeMinimizer::Unconstrained, r);
+        minim.setStrategy(minimizerStrategy_);
+        minim.setErrorLevel(errorlevel); 
+        CloseCoutSentry sentry(verbose < 3);
+        minim.minimize(verbose-2);
+        sentry.clear();
         for (int tries = 0; tries < 3; ++tries) {
             minosStat = minim.minimizer().minos(RooArgSet(*r));
             if (minosStat != -1) {
                 while ((minosStat != -1) && (r->getVal()+r->getAsymErrorHi())/r->getMax() > 0.9) {
                     if (r->getMax() >= 100*rMax0) { minosStat = -1; break; }
                     r->setMax(2*r->getMax());
-                    CascadeMinimizer minim2(*nll, CascadeMinimizer::Unconstrained, r);
+                    CascadeMinimizer minim2(nll, CascadeMinimizer::Unconstrained, r);
                     minim2.setStrategy(minimizerStrategy_);
-                    minim2.setErrorLevel(0.5*pow(ROOT::Math::normal_quantile(1-0.5*(1-cl),1.0), 2)); 
+                    minim2.setErrorLevel(errorlevel); 
                     minim2.minimize(verbose-2);
                     minosStat = minim2.minimizer().minos(RooArgSet(*r));
                 }
@@ -316,28 +376,25 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
                 }
             }
         }
+        if (minosStat != -1) return r->getVal()+r->getAsymErrorHi();
     } else {
-        if (r->getVal()/r->getMax() > 1e-3) {
-            if (verbose) printf("WARNING: Best fit of asimov dataset is at %s = %f (%f times %sMax), while it should be at zero\n",
-                                    r->GetName(), r->getVal(), r->getVal()/r->getMax(), r->GetName());
-        }
-        double nll0 = nll->getVal();
-        double threshold = nll->getVal() + 0.5*pow(ROOT::Math::normal_quantile(1-0.5*(1-cl),1.0), 2);
-        double rMin = r->getVal(), rMax = r->getMax();
+        double threshold = nll0 + errorlevel;
         double rCross = 0.5*(rMin+rMax), rErr = 0.5*(rMax-rMin);
         r->setVal(rCross); r->setConstant(true);
-        CascadeMinimizer minim2(*nll, CascadeMinimizer::Constrained);
+        CascadeMinimizer minim2(nll, CascadeMinimizer::Constrained);
         minim2.setStrategy(minimizerStrategy_);
         if (minosAlgo_ == "bisection") {
             if (verbose > 1) printf("Will search for NLL crossing by bisection\n");
             while (rErr > std::max(rRelAccuracy_*rCross, rAbsAccuracy_)) {
+                if (rCross >= r->getMax()) r->setMax(rCross*1.1);
+                r->setVal(rCross);
                 bool ok = true;
                 { 
                     CloseCoutSentry sentry2(verbose < 3);
                     ok = minim2.improve(verbose-2);
                 }
                 if (!ok && picky_) break; else minosStat = 0;
-                double here = nll->getVal();
+                double here = nll.getVal();
                 if (verbose > 1) printf("At %s = %f:\tdelta(nll) = %.5f\n", r->GetName(), rCross, here-nll0);
                 if (fabs(here - threshold) < 0.05*minimizerTolerance_) break;
                 if (here < threshold) rMin = rCross; else rMax = rCross;
@@ -349,7 +406,7 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
             double stride = rCross; bool overstepped = false;
             while (rErr > std::max(rRelAccuracy_*rCross, rAbsAccuracy_)) {
                 if (rCross >= r->getMax()) r->setMax(rCross*1.1);
-                double there = nll->getVal();
+                double there = nll.getVal();
                 r->setVal(rCross);
                 bool ok = true;
                 { 
@@ -357,7 +414,7 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
                     ok = minim2.improve(verbose-2);
                 }
                 if (!ok && picky_) break; else minosStat = 0;
-                double here = nll->getVal();
+                double here = nll.getVal();
                 if (verbose > 1) printf("At %s = %f:\tdelta(nll) = %.5f\n", r->GetName(), rCross, here-nll0);
                 if (fabs(here - threshold) < 0.05*minimizerTolerance_) break;
                 if (here < threshold) { 
@@ -369,33 +426,105 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
                 }
                 if (overstepped) rErr = stride;
             }
+        } else if (minosAlgo_ == "new") {
+            if (verbose > 1) printf("Will search for NLL crossing with new algorithm.\n");
+            // 
+            // Let X(x,y) = (x-a*y)^2 / s^2 + y^2    be the chi-square in case of correlations
+            // then yhat(x) = a*x / (a^2 + s^2)
+            // and X(x, yhat(x)) = x^2 / (a^2 + s^2)
+            // For an unprofiled step
+            //    X(x+dx, yhat(x)) - X(x,yhat(x))     = dx^2 / s^2         + 2 * x * dx / (a^2 + s^2)
+            // For a profiled step  
+            //    X(x+dx, yhat(x+dx)) - X(x,yhat(x))  = dx^2 / (a^2 + s^2) + 2 * x * dx / (a^2 + s^2)
+            // So,
+            //     dX_prof - dX_unprof = dx^2 * a^2 / (s^2 * (a^2 + s^2) )
+            // The idea is then to take this approximation
+            //     X_approx(x)  =  X(x, y(x1)) - k * (x-x1)^2 
+            //           with k = [ X(x1, y1(x0)) - X(y1, y1(x1) ] / (x1-x0)^2
+            double r_0   = rMin; 
+            r->setVal(rMin);
+            double nll_0 = nll.getVal(); 
+            double rMax0 = rMax*100;
+            double kappa = 0;
+            // part 1: try to bracket the crossing between two points that have profiled nll above & below threshold
+            double rStep = 0.05 * (rMax - r_0);
+            double r_1 = r_0, nll_1 = nll_0;
+            do {
+                r_1 += rStep; 
+                if (r_1 >= r->getMax()) r->setMax(r_1*1.1);
+                r->setVal(r_1);
+                nll_1 = nll.getVal();
+                // we profile if the NLL changed by more than 0.5, or if we got above threshold
+                bool binNLLchange = (nll_1 < threshold && nll_1 - nll_0 > 0.5);
+                bool aboveThresh  = (nll_1 > threshold + kappa*std::pow(r_1-r_0,2));
+                if (binNLLchange || aboveThresh) { 
+                    if (verbose > 1) printf("At %s = %f:\tdelta(nll unprof) = %.5f\t                         \tkappa=%.5f\n", r->GetName(), r_1, nll_1-nll0, kappa);
+                    { 
+                        CloseCoutSentry sentry2(verbose < 3);
+                        bool ok = minim2.improve(verbose-2);
+                        if (!ok && picky_) return std::numeric_limits<float>::quiet_NaN();
+                    }
+                    double nll_1_prof = nll.getVal();
+                    kappa = (nll_1 - nll_1_prof) / std::pow(r_1 - r_0,2);
+                    if (verbose > 1) printf("At %s = %f:\tdelta(nll unprof) = %.5f\tdelta(nll prof) = %.5f\tkappa=%.5f\n", r->GetName(), r_1, nll_1-nll0, nll.getVal()-nll0, kappa);
+                    if (nll_1_prof > threshold) { 
+                        nll_1 = nll_1_prof; 
+                        break; 
+                    } else {
+                        r_0 = r_1; 
+                        nll_0 = nll_1_prof;
+                        if (aboveThresh) rStep *= 2;
+                    }
+                } else {
+                    if (verbose > 1) printf("At %s = %f:\tdelta(nll unprof) = %.5f\t                         \tkappa=%.5f\n", r->GetName(), r_1, nll_1-nll0, kappa);
+                }
+                if (r_1 > rMax0) return std::numeric_limits<float>::quiet_NaN();
+            } while (true);
+            // now crossing is bracketed, do bisection
+            if (verbose > 1) printf("At %s = %f:\t                         \tdelta(nll prof) = %.5f\tkappa=%.5f\n", r->GetName(), r_0, nll_0-nll0, kappa);
+            if (verbose > 1) printf("At %s = %f:\t                         \tdelta(nll prof) = %.5f\tkappa=%.5f\n", r->GetName(), r_1, nll_1-nll0, kappa);
+            minosStat = 0;
+            do {
+               // LOOP PRECONDITIONS:
+               //   - r_0 and r_1 have profiled nll values on the two sides of the threshold
+               //   - nuisance parameters have been profiled at r_1 
+               double rEps = 0.2*std::max(rRelAccuracy_*r_1, rAbsAccuracy_);
+               // bisection loop to find point with the right nll_approx
+               double r_lo = std::min(r_0,r_1), r_hi = std::max(r_1,r_0);
+               while (r_hi - r_lo > rEps) {
+                   double r_2 = 0.5*(r_hi+r_lo); 
+                   r->setVal(r_2);
+                   double y0 = nll.getVal(), y = y0 - kappa*std::pow(r_2-r_1,2);
+                   if (verbose > 1) printf("At %s = %f:\tdelta(nll unprof) = %.5f\tdelta(nll appr) = %.5f\tkappa=%.5f\n", r->GetName(), r_2, y0-nll0, y-nll0, kappa);
+                   if (y < threshold) { r_lo = r_2; } else { r_hi = r_2; }
+               } 
+               // profile at that point
+               rCross = r->getVal(); 
+               double nll_unprof = nll.getVal();
+               bool ok = true;
+               { 
+                   CloseCoutSentry sentry2(verbose < 3);
+                   ok = minim2.improve(verbose-2);
+               }
+               if (!ok && picky_) return std::numeric_limits<float>::quiet_NaN();
+               double nll_prof = nll.getVal();
+               if (verbose > 1) printf("At %s = %f:\tdelta(nll unprof) = %.5f\tdelta(nll prof) = %.5f\tdelta(nll appr) = %.5f\n", r->GetName(), rCross, nll_unprof-nll0, nll_prof-nll0, nll_unprof-nll0 - kappa*std::pow(rCross-r_1,2));
+               if (fabs(nll_prof - threshold) < 0.1*minimizerTolerance_) { break; }
+               // not yet bang on, so update r_0, kappa
+               kappa = (nll_unprof - nll_prof)/std::pow(rCross-r_1,2);
+               // (r0 or r1) --> r0, and rCross --> r1;  
+               if ((nll_prof < threshold) == (nll_0 < threshold)) { // if rCross is on the same side of r_0
+                   r_0 = r_1;   
+                   nll_0 = nll_1; 
+               } else {
+                   // stay with r_0 as is
+               }
+               r_1 = rCross; nll_1 = nll_prof;
+            } while (fabs(r_1-r_0) > std::max(rRelAccuracy_*rCross, rAbsAccuracy_));
         }
-        r->setAsymError(0,rCross);
+        if (minosStat != -1) return rCross;
     }
-    if (minosStat == -1) {
-        std::cerr << "Minos did not converge. No expected limit available" << std::endl;
-        return std::vector<std::pair<float,float> >(); 
-    }
-    
-    // 3) get ingredients for equation 37
-    double median = r->getAsymErrorHi();
-    double sigma  = median / ROOT::Math::normal_quantile(1-0.5*(1-cl),1.0);
-    double alpha = 1-cl;
-    if (verbose > 0) { 
-        std::cout << "Median for expected limits: " << median << std::endl; 
-        std::cout << "Sigma  for expected limits: " << sigma  << std::endl; 
-    }
-
-    std::vector<std::pair<float,float> > expected;
-    const double quantiles[5] = { 0.025, 0.16, 0.50, 0.84, 0.975 };
-    for (int iq = 0; iq < 5; ++iq) {
-        double N     = ROOT::Math::normal_quantile(quantiles[iq], 1.0);
-        limit = sigma*(ROOT::Math::normal_quantile(1 - alpha * quantiles[iq], 1.0) + N);
-        limitErr = 0;
-        Combine::commitPoint(true, quantiles[iq]);
-        expected.push_back(std::pair<float,float>(quantiles[iq], limit));
-    }
-    return expected;
+    return std::numeric_limits<float>::quiet_NaN();
 }
 
 RooAbsData * Asymptotic::asimovDataset(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data) {

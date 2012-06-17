@@ -26,6 +26,8 @@ public:
   virtual bool runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
   std::vector<std::pair<float,float> > runLimitExpected(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) ;
 
+  float findExpectedLimitFromCrossing(RooAbsReal &nll, RooRealVar *r, double rMin, double rMax, double nll0, double quantile) ; 
+
   virtual const std::string& name() const { static std::string name_ = "Asymptotic"; return name_; }
 private:
   static double rAbsAccuracy_, rRelAccuracy_;
@@ -33,6 +35,7 @@ private:
   static bool qtilde_; 
   static bool picky_; 
   static bool noFitAsimov_; 
+  static bool newExpected_; 
   static std::string minosAlgo_;
   static std::string minimizerAlgo_;
   static float       minimizerTolerance_;
