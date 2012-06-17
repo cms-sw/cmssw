@@ -24,18 +24,7 @@ def x509_params():
 
  x509_path = os.getenv("X509_USER_PROXY", None)
  if x509_path and os.path.exists(x509_path):
-##   key_file = cert_file = x509_path
-     key_file = cert_file = "/data/users/cctrkdata/current/auth/proxy/proxy.cert"
-
- if not key_file:
-   x509_path = "/data/users/cctrkdata/current/auth/proxy/proxy.cert"
-   if os.path.exists(x509_path):
-     key_file = x509_path
-
- if not cert_file:
-   x509_path = "/data/users/cctrkdata/current/auth/proxy/proxy.cert"
-   if os.path.exists(x509_path):
-     cert_file = x509_path     
+   key_file = cert_file = x509_path
 
  if not key_file:
    x509_path = os.getenv("X509_USER_KEY", None)
