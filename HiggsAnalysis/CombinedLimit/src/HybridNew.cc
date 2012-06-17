@@ -292,6 +292,10 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
         writeToysHere->WriteTObject(new HypoTestResult(*hcResult), name);
         if (verbose) std::cout << "Hybrid result saved as " << name << " in " << writeToysHere->GetFile()->GetName() << " : " << writeToysHere->GetPath() << std::endl;
     }
+    if (verbose > 1) {
+        std::cout << "Observed test statistics in data: " << hcResult->GetTestStatisticData() << std::endl;
+        std::cout << "Background-only toys sampled:     " << hcResult->GetNullDistribution()->GetSize() << std::endl;
+    }
     if (expectedFromGrid_) applyExpectedQuantile(*hcResult);
     // I don't need to flip the P-values for significances, only for limits
     hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+EPS); // issue with < vs <= in discrete models
