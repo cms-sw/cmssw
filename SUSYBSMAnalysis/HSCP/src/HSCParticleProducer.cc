@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCParticleProducer.cc,v 1.19 2011/04/20 09:17:15 querten Exp $
+// $Id: HSCParticleProducer.cc,v 1.20 2012/04/27 20:49:41 farrell3 Exp $
 //
 //
 
@@ -48,6 +48,7 @@ HSCParticleProducer::HSCParticleProducer(const edm::ParameterSet& iConfig) {
   minTkHits       = iConfig.getParameter<uint32_t>("minTkHits");    // 9
   minMuP          = iConfig.getParameter<double>  ("minMuP");       // 30
   minDR           = iConfig.getParameter<double>  ("minDR");        // 0.1
+  minSAMuPt       = iConfig.getParameter<double>  ("minSAMuPt");    // 70
   minMTMuPt       = iConfig.getParameter<double>  ("minMTMuPt");    // 70
   minMTDR         = iConfig.getParameter<double>  ("minMTDR");        // 0.3
   maxInvPtDiff    = iConfig.getParameter<double>  ("maxInvPtDiff"); // 0.005
@@ -102,7 +103,6 @@ HSCParticleProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // information from the tracks iso
   edm::Handle<reco::TrackCollection> trackIsoCollectionHandle;
   iEvent.getByLabel(m_trackIsoTag,trackIsoCollectionHandle);
-
 
   // creates the output collection
   susybsm::HSCParticleCollection* hscp = new susybsm::HSCParticleCollection; 
@@ -218,14 +218,28 @@ std::vector<HSCParticle> HSCParticleProducer::getHSCPSeedCollection(edm::Handle<
    std::vector<reco::TrackRef> tracks;
    for(unsigned int i=0; i<trackCollectionHandle->size(); i++){
       TrackRef track = reco::TrackRef( trackCollectionHandle, i );
-      if(track->p()<minTkP || (track->chi2()/track->ndof())>maxTkChi2 || track->found()<minTkHits)continue;
+
+      //If track is from muon always keep it
+      bool isMuon=false;
+      for(unsigned int m=0; m<muonCollectionHandle->size(); m++){
+	reco::MuonRef muon  = reco::MuonRef( muonCollectionHandle, m );
+	TrackRef innertrack = muon->innerTrack();
+	if(innertrack.isNull())continue;
+	if( fabs( (1.0/innertrack->pt())-(1.0/track->pt())) > maxInvPtDiff) continue;
+	float dR = deltaR(innertrack->momentum(), track->momentum());
+	if(dR <= minDR) isMuon=true;
+      }
+
+      if((track->p()<minTkP || (track->chi2()/track->ndof())>maxTkChi2 || track->found()<minTkHits) && !isMuon)continue;
       tracks.push_back( track );
    }
 
    // Loop on muons with inner track ref and create Muon HSCP Candidate
    for(unsigned int m=0; m<muonCollectionHandle->size(); m++){
       reco::MuonRef muon  = reco::MuonRef( muonCollectionHandle, m );
-      if(muon->p()<minMuP )continue;
+      double SApt=-1;
+      if(muon->isStandAloneMuon()) SApt=muon->standAloneMuon()->pt();
+      if(muon->p()<minMuP && SApt<minSAMuPt)continue;
       TrackRef innertrack = muon->innerTrack();
       if(innertrack.isNull())continue;
 
@@ -252,10 +266,11 @@ std::vector<HSCParticle> HSCParticleProducer::getHSCPSeedCollection(edm::Handle<
    // Loop on muons without inner tracks and create Muon HSCP Candidate
    for(unsigned int m=0; m<muonCollectionHandle->size(); m++){
       reco::MuonRef muon  = reco::MuonRef( muonCollectionHandle, m );
-      if(muon->p()<minMuP)continue;
+      double SApt=-1;
+      if(muon->isStandAloneMuon()) SApt=muon->standAloneMuon()->pt();
+      if(muon->p()<minMuP && SApt<minSAMuPt)continue;
       TrackRef innertrack = muon->innerTrack();
       if(innertrack.isNonnull())continue;
-
       // Check if the muon match any track in order to create a Muon+Track HSCP Candidate
       float dRMin=1000; int found = -1;
       for(unsigned int t=0; t<tracks.size();t++) {
@@ -274,6 +289,7 @@ std::vector<HSCParticle> HSCParticleProducer::getHSCPSeedCollection(edm::Handle<
       }
       HSCPCollection.push_back(candidate);
    }
+
 
    //Loop on MT muons and add to collection
    for(unsigned int m=0; m<MTmuonCollectionHandle->size(); m++){

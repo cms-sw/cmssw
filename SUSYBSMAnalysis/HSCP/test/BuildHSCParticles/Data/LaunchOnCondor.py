@@ -164,7 +164,7 @@ def CreateTheCmdFile():
 		cmd_file.write('Environment             = CONDORJOBID=$(Process)\n')
 		cmd_file.write('notification            = Error\n')
 		#code specific for louvain
-		if(commands.getstatusoutput("uname -n")[1].find("ucl.ac.be")):
+		if(commands.getstatusoutput("uname -n")[1].find("ucl.ac.be")!=-1):
         		cmd_file.write('requirements            = (CMSFARM=?=True)&&(Memory > 200)\n')
 		else:
 			cmd_file.write('requirements            = (Memory > 200)\n')

@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCParticleProducer.h,v 1.6 2011/04/20 09:17:15 querten Exp $
+// $Id: HSCParticleProducer.h,v 1.7 2012/04/27 20:49:41 farrell3 Exp $
 
 
 // system include files
@@ -82,6 +82,7 @@ class HSCParticleProducer : public edm::EDFilter {
     float        maxTkChi2;
     unsigned int minTkHits;
     float        minMuP;
+    float        minSAMuPt;
     float        minMTMuPt;
     float        minDR;
     float        minMTDR;

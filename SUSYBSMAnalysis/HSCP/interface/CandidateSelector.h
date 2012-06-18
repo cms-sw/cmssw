@@ -36,6 +36,7 @@ class  CandidateSelector{
 
       float minMuonP;
       float minMuonPt;      
+      float minSAMuonPt;
       float minMTMuonPt;
 
       float maxMuTimeDtBeta;

@@ -25,6 +25,7 @@ CandidateSelector::CandidateSelector(const edm::ParameterSet& iConfig){
 
    minMuonP              = iConfig.getParameter<double> ("minMuonP");
    minMuonPt             = iConfig.getParameter<double> ("minMuonPt");
+   minSAMuonPt           = iConfig.getParameter<double> ("minMTMuonPt");
    minMTMuonPt           = iConfig.getParameter<double> ("minMTMuonPt");
 
    maxMuTimeDtBeta       = iConfig.getParameter<double> ("maxMuTimeDtBeta");
@@ -74,6 +75,10 @@ bool CandidateSelector::isSelected(HSCParticle& candidate)
    }
 
    if(candidate.hasRpcInfo()  && maxBetaRpc>=0  && candidate.rpc ().beta     > maxBetaRpc ){return false;}
+
+   if(candidate.hasMuonRef() && candidate.muonRef()->isStandAloneMuon()) {
+     if(candidate.muonRef()->standAloneMuon()->pt() < minSAMuonPt  ){return false;}
+   }
 
    if(candidate.hasMTMuonRef()){
      if(!candidate.MTMuonRef()->standAloneMuon().isNull()){

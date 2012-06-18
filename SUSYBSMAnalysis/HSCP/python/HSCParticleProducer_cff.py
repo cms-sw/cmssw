@@ -219,6 +219,7 @@ HSCParticleProducer = cms.EDFilter("HSCParticleProducer",
    minTkP             = cms.double(25),
    maxTkChi2          = cms.double(25),
    minTkHits          = cms.uint32(3),
+   minSAMuPt          = cms.double(70),
    minMTMuPt          = cms.double(70),
 
    #MUON/TRACK MATCHING THRESHOLDS (ONLY IF NO MUON INNER TRACK)
@@ -230,6 +231,7 @@ HSCParticleProducer = cms.EDFilter("HSCParticleProducer",
    SelectionParameters = cms.VPSet(
       HSCPSelectionDefault,
       HSCPSelectionMTMuonOnly,
+      HSCPSelectionSAMuonOnly,
    ),
 )
 
@@ -239,9 +241,11 @@ HSCParticleProducer = cms.EDFilter("HSCParticleProducer",
 
 from RecoMuon.Configuration.RecoMuon_cff import *
 from RecoMuon.MuonSeedGenerator.ancientMuonSeed_cfi import *
-ancientMuonSeed.DTRecSegmentLabel = "dt4DSegmentsMT"
-from RecoMuon.StandAloneMuonProducer.standAloneMuons_cfi import *
-RefitMTSAMuons = standAloneMuons.clone()
+MTancientMuonSeed = ancientMuonSeed.clone()
+MTancientMuonSeed.DTRecSegmentLabel = "dt4DSegmentsMT"
+NoRefitMTSAMuons = standAloneMuons.clone()
+NoRefitMTSAMuons.InputObjects="MTancientMuonSeed"
+RefitMTSAMuons=NoRefitMTSAMuons.clone()
 RefitMTSAMuons.STATrajBuilderParameters.DoRefit=True
 
 from RecoMuon.MuonIdentification.muons1stStep_cfi import *
@@ -262,7 +266,7 @@ MuonSegmentProducer = cms.EDProducer("MuonSegmentProducer",
 MTmuontiming = muontiming.clone()
 MTmuontiming.MuonCollection = "RefitMTMuons"
 
-MuonOnlySeq = cms.Sequence(standAloneMuonSeeds + RefitMTSAMuons + RefitMTMuons + MuonSegmentProducer + MTmuontiming)
+MuonOnlySeq = cms.Sequence(MTancientMuonSeed + NoRefitMTSAMuons + RefitMTSAMuons + RefitMTMuons + MuonSegmentProducer + MTmuontiming)
 
 ####################################################################################
 #   HSCParticle Selector  (Just an Example of what we can do)
