@@ -245,11 +245,11 @@ int main (int argc, char** argv)
     for (unsigned int tower = 0 ; tower < treeVars.nbOfTowers ; tower++) {
 
       int tp = getEt(treeVars.rawTPData[tower]) ;
-      int emul[5] = {static_cast<unsigned int>(   getEt(static_cast<unsigned int>(treeVars.rawTPEmul1[tower]))  ) ,  
-		     static_cast<unsigned int>(   getEt(static_cast<unsigned int>(treeVars.rawTPEmul2[tower]))  ) ,
-		     static_cast<unsigned int>(   getEt(static_cast<unsigned int>(treeVars.rawTPEmul3[tower]))  ) ,
-		     static_cast<unsigned int>(   getEt(static_cast<unsigned int>(treeVars.rawTPEmul4[tower]))  ) ,
-		     static_cast<unsigned int>(   getEt(static_cast<unsigned int>(treeVars.rawTPEmul5[tower]))  ) } ;
+      int emul[5] = {getEt(static_cast<unsigned int>(treeVars.rawTPEmul1[tower])  ) ,  
+		     getEt(static_cast<unsigned int>(treeVars.rawTPEmul2[tower])  ) ,
+		     getEt(static_cast<unsigned int>(treeVars.rawTPEmul3[tower])  ) ,
+		     getEt(static_cast<unsigned int>(treeVars.rawTPEmul4[tower])  ) ,
+		     getEt(static_cast<unsigned int>(treeVars.rawTPEmul5[tower])  ) } ;
       int maxOfTPEmul = 0 ;
       int indexOfTPEmulMax = -1 ;
       for (int i=0 ; i<5 ; i++) if (emul[i]>maxOfTPEmul) {
