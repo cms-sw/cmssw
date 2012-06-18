@@ -11,8 +11,8 @@
 /*
  * \file HcalTrigPrimClient.cc
  * 
- * $Date: 2010/09/17 13:47:10 $
- * $Revision: 1.20 $
+ * $Date: 2011/04/12 18:25:42 $
+ * $Revision: 1.21 $
  * \author J. Temple
  * \brief Hcal Trigger Primitive Client class
  */
@@ -404,4 +404,5 @@ void HcalTrigPrimClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& 
 
 } //void HcalTrigPrimClient::updateChannelStatus
 
-
+HcalTrigPrimClient::~HcalTrigPrimClient()
+{}

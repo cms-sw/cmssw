@@ -12,8 +12,8 @@
 /*
  * \file HcalBaseDQClient.h
  * 
- * $Date: 2011/04/12 18:25:42 $
- * $Revision: 1.6 $
+ * $Date: 2012/06/11 22:12:08 $
+ * $Revision: 1.7 $
  * \author J. Temple
  * \brief Hcal Monitor Client base class
  * based on code in EcalBarrelMonitorClient/interface/EBClient.h
@@ -25,7 +25,7 @@ class HcalBaseDQClient
  public:
   HcalBaseDQClient(){name_="HcalBaseDQClient";subdir_="HcalInfo";badChannelStatusMask_=0;enoughevents_=true;minerrorrate_=0;minevents_=0;};
   HcalBaseDQClient(std::string s, const edm::ParameterSet& ps);
-  virtual ~HcalBaseDQClient(void){}
+  virtual ~HcalBaseDQClient(void);
   
   // Overload these functions with client-specific instructions
   virtual void beginJob(void);

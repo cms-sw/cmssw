@@ -11,8 +11,8 @@
 /*
  * \file HcalBeamClient.cc
  * 
- * $Date: 2011/04/12 18:25:42 $
- * $Revision: 1.18 $
+ * $Date: 2011/04/27 12:26:10 $
+ * $Revision: 1.19 $
  * \author J. Temple
  * \brief Hcal Beam Monitor Client class
  */
@@ -273,4 +273,5 @@ void HcalBeamClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& myqu
 
 } //void HcalBeamClient::updateChannelStatus
 
-
+HcalBeamClient::~HcalBeamClient()
+{}

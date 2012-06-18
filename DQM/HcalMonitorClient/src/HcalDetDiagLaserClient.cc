@@ -14,8 +14,8 @@
 /*
  * \file HcalDetDiagLaserClient.cc
  * 
- * $Date: 2010/03/25 16:47:29 $
- * $Revision: 1.5 $
+ * $Date: 2011/04/12 18:25:42 $
+ * $Revision: 1.6 $
  * \author J. Temple
  * \brief Hcal DetDiagLaser Client class
  */
@@ -1119,3 +1119,5 @@ void HcalDetDiagLaserClient::htmlOutput(string htmlDir){
   return;
 }
 
+HcalDetDiagLaserClient::~HcalDetDiagLaserClient()
+{}

@@ -11,8 +11,8 @@
 /*
  * \file HcalNZSClient.cc
  * 
- * $Date: 2010/03/25 21:26:02 $
- * $Revision: 1.3 $
+ * $Date: 2010/05/07 09:09:12 $
+ * $Revision: 1.4 $
  * \author J. Temple
  * \brief Hcal NZS Client class
  */
@@ -258,4 +258,5 @@ void HcalNZSClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& myqua
 
 } //void HcalNZSClient::updateChannelStatus
 
-
+HcalNZSClient::~HcalNZSClient()
+{}

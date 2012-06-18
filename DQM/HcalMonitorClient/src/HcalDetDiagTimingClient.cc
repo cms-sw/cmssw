@@ -11,8 +11,8 @@
 /*
  * \file HcalDetDiagTimingClient.cc
  * 
- * $Date: 2011/04/12 18:25:42 $
- * $Revision: 1.4 $
+ * $Date: 2012/01/12 17:08:39 $
+ * $Revision: 1.5 $
  * \author J. Temple
  * \brief Hcal DetDiagTiming Client class
  */
@@ -275,4 +275,5 @@ void HcalDetDiagTimingClient::updateChannelStatus(std::map<HcalDetId, unsigned i
 
 } //void HcalDetDiagTimingClient::updateChannelStatus
 
-
+HcalDetDiagTimingClient::~HcalDetDiagTimingClient()
+{}

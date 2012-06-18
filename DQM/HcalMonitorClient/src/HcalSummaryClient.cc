@@ -15,8 +15,8 @@
 /*
  * \file HcalSummaryClient.cc
  * 
- * $Date: 2011/04/12 18:25:42 $
- * $Revision: 1.105 $
+ * $Date: 2011/04/26 15:33:10 $
+ * $Revision: 1.106 $
  * \author J. Temple
  * \brief Summary Client class
  */
@@ -965,3 +965,5 @@ bool HcalSummaryClient::test_enabled(void){return true;}
 void HcalSummaryClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual){return;}
 
 
+HcalSummaryClient::~HcalSummaryClient()
+{}
