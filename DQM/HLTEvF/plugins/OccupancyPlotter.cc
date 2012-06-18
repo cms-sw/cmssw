@@ -13,7 +13,7 @@
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: OccupancyPlotter.cc,v 1.17 2012/05/16 09:02:39 halil Exp $
+// $Id: OccupancyPlotter.cc,v 1.18 2012/05/23 13:09:14 halil Exp $
 //
 //
 
@@ -103,6 +103,7 @@ class OccupancyPlotter : public edm::EDAnalyzer {
   // Store the HV info
   bool dcs[25];
   bool thisiLumiValue;
+  bool _muonsGood;
 
   // counters
   int cntevt;
@@ -172,12 +173,6 @@ OccupancyPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    ++cntevt;
    if (cntevt % 10000 == 0) std::cout << "[OccupancyPlotter::analyze] Received event " << cntevt << std::endl;
    // === Check the HV and the lumi
-   bool highVoltageOK = checkDcsInfo ( iEvent );
-   if (!highVoltageOK) {
-      if (debugPrint) std::cout << "Skipping event: DCS problem\n";
-      ++cntBadHV;
-      return; 
-   } 
    checkLumiInfo( iEvent);
 
    if (debugPrint) std::cout << "instantaneous luminosity=" << _instLumi << " ± " << _instLumi_err << std::endl;
@@ -220,8 +215,24 @@ OccupancyPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
    vector<string> datasetNames =  hltConfig_.streamContent("A");
-// Loop over PDs
-   for (unsigned int iPD = 0; iPD < datasetNames.size(); iPD++) { 
+
+   // Loop over PDs
+   for (unsigned int iPD = 0; iPD < datasetNames.size(); iPD++) {
+      // check DCS status
+      bool highVoltageOK = checkDcsInfo ( iEvent );
+//highVoltageOK=false;
+      bool histoMuons = _muonsGood && ( datasetNames[iPD] == "SingleMu" || 
+                                        datasetNames[iPD] == "DoubleMu" ||
+                                        datasetNames[iPD] == "DoubleMuParked");
+      //std::cout << "HV=" << highVoltageOK << ", muons good?=" << histoMuons << ", pd=" << datasetNames[iPD] << "\n";
+      if (!highVoltageOK && !histoMuons) {
+         if (debugPrint) std::cout << "Skipping PD: DCS problem\n";
+         ++cntBadHV;
+         continue; 
+      } 
+
+
+      
 
      //     if (datasetNames[iPD] != "SingleMu" && datasetNames[iPD] != "SingleElectron" && datasetNames[iPD] != "Jet") continue;  
 
@@ -382,7 +393,7 @@ OccupancyPlotter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 // ------------ method called when ending the processing of a run  ------------
 void OccupancyPlotter::endRun(edm::Run const&, edm::EventSetup const&)
 {
-   std::cout << "[OccupancyPlotter::endRun] Total events received=" << cntevt << ", events with HV problem=" << cntBadHV << std::endl;
+   std::cout << "[OccupancyPlotter::endRun] Total events received=" << cntevt << ", datasets skipped due to an HV problem=" << cntBadHV << std::endl;
 }
 
 void OccupancyPlotter::setupHltMatrix(std::string label, int iPD) {
@@ -542,18 +553,18 @@ bool OccupancyPlotter::checkDcsInfo (const edm::Event & jEvent) {
   
   // initialize all to "true"
   for (int i=0; i<24; i++) dcs[i]=true;
-  
+  _muonsGood=true;
   for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); 
        dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) 
     {
       
       if (debugPrint) std::cout << (*dcsStatusItr) << std::endl;
       
-      if (!dcsStatusItr->ready(DcsStatus::CSCp))   dcs[0]=false;
-      if (!dcsStatusItr->ready(DcsStatus::CSCm))   dcs[1]=false;   
-      if (!dcsStatusItr->ready(DcsStatus::DT0))    dcs[2]=false;
-      if (!dcsStatusItr->ready(DcsStatus::DTp))    dcs[3]=false;
-      if (!dcsStatusItr->ready(DcsStatus::DTm))    dcs[4]=false;
+      if (!dcsStatusItr->ready(DcsStatus::CSCp))   {dcs[0]=false;_muonsGood=false;}
+      if (!dcsStatusItr->ready(DcsStatus::CSCm))   {dcs[1]=false;_muonsGood=false;}   
+      if (!dcsStatusItr->ready(DcsStatus::DT0))    {dcs[2]=false;_muonsGood=false;}
+      if (!dcsStatusItr->ready(DcsStatus::DTp))    {dcs[3]=false;_muonsGood=false;}
+      if (!dcsStatusItr->ready(DcsStatus::DTm))    {dcs[4]=false;_muonsGood=false;}
       if (!dcsStatusItr->ready(DcsStatus::EBp))    dcs[5]=false;
       if (!dcsStatusItr->ready(DcsStatus::EBm))    dcs[6]=false;
       if (!dcsStatusItr->ready(DcsStatus::EEp))    dcs[7]=false;
@@ -567,12 +578,12 @@ bool OccupancyPlotter::checkDcsInfo (const edm::Event & jEvent) {
 //      if (!dcsStatusItr->ready(DcsStatus::HO))     dcs[15]=false; // ignore HO
       if (!dcsStatusItr->ready(DcsStatus::BPIX))   dcs[16]=false;
       if (!dcsStatusItr->ready(DcsStatus::FPIX))   dcs[17]=false;
-      if (!dcsStatusItr->ready(DcsStatus::RPC))    dcs[18]=false;
+      if (!dcsStatusItr->ready(DcsStatus::RPC))    {dcs[18]=false;_muonsGood=false;}
       if (!dcsStatusItr->ready(DcsStatus::TIBTID)) dcs[19]=false;
       if (!dcsStatusItr->ready(DcsStatus::TOB))    dcs[20]=false;
       if (!dcsStatusItr->ready(DcsStatus::TECp))   dcs[21]=false;
       if (!dcsStatusItr->ready(DcsStatus::TECm))   dcs[22]=false;
-//      if (!dcsStatusItr->ready(DcsStatus::CASTOR)) dcs[23]=false;
+//      if (!dcsStatusItr->ready(DcsStatus::CASTOR)) dcs[23]=false; // ignore CASTOR
     }
 
 
