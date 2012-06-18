@@ -2084,7 +2084,8 @@ void SiPixelActionExecutor::dumpBarrelModIds(DQMStore * bei, edm::EventSetup con
       if(fedId==-1) continue; 
       sipixelobjects::ElectronicIndex cabling; 
       SiPixelFrameConverter formatter(theCablingMap.product(),fedId);
-      sipixelobjects::DetectorIndex detector = {detId, 1, 1};	   
+      assert(detId >= 0);
+      sipixelobjects::DetectorIndex detector = {static_cast<unsigned int>(detId), 1, 1};	   
       formatter.toCabling(cabling,detector);
       linkId = cabling.link;
       // long version:
@@ -2149,7 +2150,8 @@ void SiPixelActionExecutor::dumpEndcapModIds(DQMStore * bei, edm::EventSetup con
       if(fedId==-1) continue; 
       sipixelobjects::ElectronicIndex cabling; 
       SiPixelFrameConverter formatter(theCablingMap.product(),fedId);
-      sipixelobjects::DetectorIndex detector = {detId, 1, 1};	   
+      assert(detId >= 0);
+      sipixelobjects::DetectorIndex detector = {static_cast<unsigned int>(detId), 1, 1};	   
       formatter.toCabling(cabling,detector);
       linkId = cabling.link;
       // long version:
