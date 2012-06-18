@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1EmEtScaleOnlineProd.cc,v 1.1 2009/03/18 11:03:04 efron Exp $
+// $Id: L1EmEtScaleOnlineProd.cc,v 1.2 2009/10/06 13:42:13 efron Exp $
 //
 //
 
@@ -177,7 +177,7 @@ L1EmEtScaleOnlineProd::newObject( const std::string& objectKey )
 
      for( std::vector< std::string >::iterator thresh = queryStrings.begin();
 	  thresh != queryStrings.end(); ++thresh) {
-       float tempScale;
+       float tempScale = 0.0;
        scaleResults.fillVariable(*thresh,tempScale);
        m_thresholds.push_back(tempScale);
      }

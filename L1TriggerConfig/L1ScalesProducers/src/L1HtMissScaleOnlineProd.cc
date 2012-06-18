@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1HtMissScaleOnlineProd.cc,v 1.4 2010/05/27 15:21:15 jbrooke Exp $
+// $Id: L1HtMissScaleOnlineProd.cc,v 1.5 2010/06/30 08:58:05 jbrooke Exp $
 //
 //
 
@@ -282,7 +282,7 @@ L1HtMissScaleOnlineProd::newObject( const std::string& objectKey )
      else {
        for( std::vector< std::string >::iterator thresh = queryStrings.begin();
 	    thresh != queryStrings.end(); ++thresh) {
-	 float tempScale;
+	 float tempScale = 0.;
 	 scaleResults.fillVariable(*thresh,tempScale);
 	 thresholds.push_back(tempScale);
        }
