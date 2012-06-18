@@ -2,8 +2,8 @@
  *  
  *  Class to produce efficiency histograms by dividing nominator by denominator histograms
  *
- *  $Date: 2012/02/13 16:27:59 $
- *  $Revision: 1.5 $
+ *  $Date: 2012/06/18 12:29:24 $
+ *  $Revision: 1.7 $
  *  \author Christian Veelken, UC Davis
  */
 
@@ -70,7 +70,7 @@ void DQMHistNormalizer::analyze(const edm::Event&, const edm::EventSetup&)
 
 lat::Regexp* DQMHistNormalizer::buildRegex(const string & expr)
 {
-  lat::Regexp* rx;
+  lat::Regexp* rx = 0;
   try
   {
     rx = new lat::Regexp(expr, 0, lat::Regexp::Wildcard);
