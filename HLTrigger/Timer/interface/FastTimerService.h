@@ -134,6 +134,23 @@ private:
       dqm_active(0),
       has_just_run(false)
     { }
+
+    ~ModuleInfo() {
+      reset();
+    }
+
+    // reset the timers and DQM plots
+    void reset() {
+      time_active = 0.;
+      summary_active = 0.;
+      // note that we do not *own* the plots, so we cannot delete them
+      // instead, we Reset() them and assume the DQMStore will take care of them
+      if (dqm_active) {
+        dqm_active->Reset();
+        dqm_active = 0;
+      }
+      has_just_run = false;
+    }
   };
 
   struct PathInfo {
@@ -203,6 +220,74 @@ private:
       dqm_module_active(0),
       dqm_module_total(0)
     { }
+
+    ~PathInfo() {
+      reset();
+    }
+
+    // reset the timers and DQM plots
+    void reset() {
+      modules.clear();
+      time_active = 0.;
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+      time_premodules = 0.;
+      time_intermodules = 0.;
+      time_postmodules = 0.;
+#else
+      time_overhead = 0.;
+#endif
+      time_total = 0.;
+      summary_active = 0.;
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+      summary_premodules = 0.;
+      summary_intermodules = 0.;
+      summary_postmodules = 0.;
+#else
+      summary_overhead = 0.;
+#endif
+      summary_total = 0.;
+      // note that we do not *own* the plots, so we cannot delete them
+      // instead, we Reset() them and assume the DQMStore will take care of them
+      if (dqm_active) {
+        dqm_active->Reset();
+        dqm_active = 0;
+      }
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+      if (dqm_premodules) {
+        dqm_premodules->Reset();
+        dqm_premodules = 0;
+      }
+      if (dqm_intermodules) {
+        dqm_intermodules->Reset();
+        dqm_intermodules = 0;
+      }
+      if (dqm_postmodules) {
+        dqm_postmodules->Reset();
+        dqm_postmodules = 0;
+      }
+#else
+      if (dqm_overhead) {
+        dqm_overhead->Reset();
+        dqm_overhead = 0;
+      }
+#endif
+      if (dqm_total) {
+        dqm_total->Reset();
+        dqm_total = 0;
+      }
+      if (dqm_module_counter) {
+        dqm_module_counter->Reset();
+        dqm_module_counter = 0;
+      }
+      if (dqm_module_active) {
+        dqm_module_active->Reset();
+        dqm_module_active = 0;
+      }
+      if (dqm_module_total) {
+        dqm_module_total->Reset();
+        dqm_module_total = 0;
+      }
+    }
   };
 
   template <typename T> class PathMap   : public std::tr1::unordered_map<std::string, T> {};

@@ -1,3 +1,7 @@
+// FIXME
+// we are by-passing the ME's when filling the plots, so we might need to call the ME's update() by hand
+
+
 // system headers
 #ifdef __linux
 #include <time.h>
@@ -256,86 +260,133 @@ void FastTimerService::postBeginJob() {
 }
 
 void FastTimerService::postEndJob() {
-  if (not m_enable_timing_summary)
-    return;
+  if (m_enable_timing_summary) {
+    // print a timing sumary for the whle job
+    edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
 
-  edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
-
-  std::ostringstream out;
-  out << std::fixed << std::setprecision(6);
-  out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ") << '\n';
-  out << "FastReport              " << std::right << std::setw(10) << m_summary_source       / (double) m_summary_events << "  Source"        << '\n';
-  out << "FastReport              " << std::right << std::setw(10) << m_summary_event        / (double) m_summary_events << "  Event"         << '\n';
-  out << "FastReport              " << std::right << std::setw(10) << m_summary_all_paths    / (double) m_summary_events << "  all Paths"     << '\n';
-  out << "FastReport              " << std::right << std::setw(10) << m_summary_all_endpaths / (double) m_summary_events << "  all EndPaths"  << '\n';
-  if (m_enable_timing_modules) {
-    double modules_total = 0.;
-    BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules)
-      modules_total += keyval.second.summary_active;
-    out << "FastReport              " << std::right << std::setw(10) << modules_total          / (double) m_summary_events << "  all Modules"   << '\n';
-  }
-  out << '\n';
-  if (m_enable_timing_paths and not m_enable_timing_modules) {
-    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active Path" << '\n';
-    BOOST_FOREACH(std::string const & name, tns.getTrigPaths())
-      out << "FastReport              "
-          << std::right << std::setw(10) << m_paths[name].summary_active  / (double) m_summary_events << "  "
-          << name << '\n';
-    out << '\n';
-    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active EndPath" << '\n';
-    BOOST_FOREACH(std::string const & name, tns.getEndPaths())
-      out << "FastReport              "
-          << std::right << std::setw(10) << m_paths[name].summary_active  / (double) m_summary_events << "  "
-          << name << '\n';
-  } else if (m_enable_timing_paths and m_enable_timing_modules) {
-#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
-    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Pre-mods Inter-mods  Post-mods      Total  Path" << '\n';
-#else
-    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Overhead      Total  Path" << '\n';
-#endif
-    BOOST_FOREACH(std::string const & name, tns.getTrigPaths())
-      out << "FastReport              "
-          << std::right << std::setw(10) << m_paths[name].summary_active        / (double) m_summary_events << " "
-#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
-          << std::right << std::setw(10) << m_paths[name].summary_premodules    / (double) m_summary_events << " "
-          << std::right << std::setw(10) << m_paths[name].summary_intermodules  / (double) m_summary_events << " "
-          << std::right << std::setw(10) << m_paths[name].summary_postmodules   / (double) m_summary_events << " "
-#else
-          << std::right << std::setw(10) << m_paths[name].summary_overhead      / (double) m_summary_events << "  "
-#endif
-          << std::right << std::setw(10) << m_paths[name].summary_total         / (double) m_summary_events << "  "
-          << name << '\n';
-    out << '\n';
-#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
-    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Pre-mods Inter-mods  Post-mods      Total  Path" << '\n';
-#else
-    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Overhead      Total  Path" << '\n';
-#endif
-    BOOST_FOREACH(std::string const & name, tns.getEndPaths())
-      out << "FastReport              "
-          << std::right << std::setw(10) << m_paths[name].summary_active        / (double) m_summary_events << " "
-#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
-          << std::right << std::setw(10) << m_paths[name].summary_premodules    / (double) m_summary_events << " "
-          << std::right << std::setw(10) << m_paths[name].summary_intermodules  / (double) m_summary_events << " "
-          << std::right << std::setw(10) << m_paths[name].summary_postmodules   / (double) m_summary_events << " "
-#else
-          << std::right << std::setw(10) << m_paths[name].summary_overhead      / (double) m_summary_events << "  "
-#endif
-          << std::right << std::setw(10) << m_paths[name].summary_total         / (double) m_summary_events << "  "
-          << name << '\n';
-  }
-  out << '\n';
-  if (m_enable_timing_modules) {
-    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
-    BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules) {
-      std::string const & label  = keyval.first->moduleLabel();
-      ModuleInfo  const & module = keyval.second;
-      out << "FastReport              " << std::right << std::setw(10) << module.summary_active  / (double) m_summary_events << "  " << label << '\n';
+    std::ostringstream out;
+    out << std::fixed << std::setprecision(6);
+    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ") << '\n';
+    out << "FastReport              " << std::right << std::setw(10) << m_summary_source       / (double) m_summary_events << "  Source"        << '\n';
+    out << "FastReport              " << std::right << std::setw(10) << m_summary_event        / (double) m_summary_events << "  Event"         << '\n';
+    out << "FastReport              " << std::right << std::setw(10) << m_summary_all_paths    / (double) m_summary_events << "  all Paths"     << '\n';
+    out << "FastReport              " << std::right << std::setw(10) << m_summary_all_endpaths / (double) m_summary_events << "  all EndPaths"  << '\n';
+    if (m_enable_timing_modules) {
+      double modules_total = 0.;
+      BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules)
+        modules_total += keyval.second.summary_active;
+      out << "FastReport              " << std::right << std::setw(10) << modules_total          / (double) m_summary_events << "  all Modules"   << '\n';
     }
-    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
+    out << '\n';
+    if (m_enable_timing_paths and not m_enable_timing_modules) {
+      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active Path" << '\n';
+      BOOST_FOREACH(std::string const & name, tns.getTrigPaths())
+        out << "FastReport              "
+            << std::right << std::setw(10) << m_paths[name].summary_active  / (double) m_summary_events << "  "
+            << name << '\n';
+      out << '\n';
+      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active EndPath" << '\n';
+      BOOST_FOREACH(std::string const & name, tns.getEndPaths())
+        out << "FastReport              "
+            << std::right << std::setw(10) << m_paths[name].summary_active  / (double) m_summary_events << "  "
+            << name << '\n';
+    } else if (m_enable_timing_paths and m_enable_timing_modules) {
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Pre-mods Inter-mods  Post-mods      Total  Path" << '\n';
+#else
+      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Overhead      Total  Path" << '\n';
+#endif
+      BOOST_FOREACH(std::string const & name, tns.getTrigPaths())
+        out << "FastReport              "
+            << std::right << std::setw(10) << m_paths[name].summary_active        / (double) m_summary_events << " "
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+            << std::right << std::setw(10) << m_paths[name].summary_premodules    / (double) m_summary_events << " "
+            << std::right << std::setw(10) << m_paths[name].summary_intermodules  / (double) m_summary_events << " "
+            << std::right << std::setw(10) << m_paths[name].summary_postmodules   / (double) m_summary_events << " "
+#else
+            << std::right << std::setw(10) << m_paths[name].summary_overhead      / (double) m_summary_events << "  "
+#endif
+            << std::right << std::setw(10) << m_paths[name].summary_total         / (double) m_summary_events << "  "
+            << name << '\n';
+      out << '\n';
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Pre-mods Inter-mods  Post-mods      Total  Path" << '\n';
+#else
+      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active   Overhead      Total  Path" << '\n';
+#endif
+      BOOST_FOREACH(std::string const & name, tns.getEndPaths())
+        out << "FastReport              "
+            << std::right << std::setw(10) << m_paths[name].summary_active        / (double) m_summary_events << " "
+#ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
+            << std::right << std::setw(10) << m_paths[name].summary_premodules    / (double) m_summary_events << " "
+            << std::right << std::setw(10) << m_paths[name].summary_intermodules  / (double) m_summary_events << " "
+            << std::right << std::setw(10) << m_paths[name].summary_postmodules   / (double) m_summary_events << " "
+#else
+            << std::right << std::setw(10) << m_paths[name].summary_overhead      / (double) m_summary_events << "  "
+#endif
+            << std::right << std::setw(10) << m_paths[name].summary_total         / (double) m_summary_events << "  "
+            << name << '\n';
+    }
+    out << '\n';
+    if (m_enable_timing_modules) {
+      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
+      BOOST_FOREACH(ModuleMap<ModuleInfo>::value_type & keyval, m_modules) {
+        std::string const & label  = keyval.first->moduleLabel();
+        ModuleInfo  const & module = keyval.second;
+        out << "FastReport              " << std::right << std::setw(10) << module.summary_active  / (double) m_summary_events << "  " << label << '\n';
+      }
+      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
+    }
+    out << '\n';
+    edm::LogVerbatim("FastReport") << out.str();
   }
-  out << '\n';
-  edm::LogVerbatim("FastReport") << out.str();
+
+  // the DAQ may "recycle" an event processor, issuing a EndJob signal followed by a new BeginJob signal.
+  // thus, we must clean up all chaches after each EndJob
+
+  // caching
+  m_first_path = 0;          // these are initialized at prePathBeginRun(),
+  m_last_path = 0;           // to make sure we cache the correct pointers
+  m_first_endpath = 0;
+  m_last_endpath = 0;
+  m_is_first_module = false;
+  // per-event accounting
+  m_event = 0.;
+  m_source = 0.;
+  m_all_paths = 0.;
+  m_all_endpaths = 0.;
+  // per-job summary
+  m_summary_events = 0;
+  m_summary_event = 0.;
+  m_summary_source = 0.;
+  m_summary_all_paths = 0.;
+  m_summary_all_endpaths = 0.;
+  // DQM
+  m_dqms = 0;
+  // note that we do not *own* the plots, so we cannot delete them
+  // instead, we Reset() them and assume the DQMStore will take care of them
+  if (m_dqm_event) {
+    m_dqm_event->Reset();
+    m_dqm_event = 0;
+  }
+  if (m_dqm_source) {
+    m_dqm_source->Reset();
+    m_dqm_source = 0;
+  }
+  if (m_dqm_all_paths) {
+    m_dqm_all_paths->Reset();
+    m_dqm_all_paths = 0;
+  }
+  if (m_dqm_all_endpaths) {
+    m_dqm_all_endpaths->Reset();
+    m_dqm_all_endpaths = 0;
+  }
+  // per-path and per-module accounting
+  m_current_path = 0;
+  m_paths.clear();          // this should destroy all PathInfo objects and Reset the associated plots
+  m_modules.clear();        // this should destroy all ModuleInfo objects and Reset the associated plots
+  m_cache_paths.clear();
+  m_cache_modules.clear();
 }
 
 void FastTimerService::preModuleBeginJob(edm::ModuleDescription const & module) {
