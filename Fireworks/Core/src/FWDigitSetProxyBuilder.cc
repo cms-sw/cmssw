@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Tue Oct 19 12:00:50 CEST 2010
-// $Id: FWDigitSetProxyBuilder.cc,v 1.2 2010/11/09 18:37:30 amraktad Exp $
+// $Id: FWDigitSetProxyBuilder.cc,v 1.3 2010/12/03 20:38:57 amraktad Exp $
 //
 
 // system include files
@@ -83,7 +83,7 @@ TString FWDigitSetProxyBuilder::getTooltip(TEveDigitSet* set, int idx)
 {
    TEveElement* el = static_cast<TEveElement*>(set); // tmp-workaround
    FWSecondarySelectableSelector* ss = static_cast<FWSecondarySelectableSelector*>(el->GetUserData());
-   return ss->item()->modelInterestingValueAsString(idx);
+   return TString::Format("%d %s %s", idx, ss->item()->name().c_str(), ss->item()->modelInterestingValueAsString(idx).c_str());
 }
 
 TEveBoxSet* FWDigitSetProxyBuilder::addBoxSetToProduct(TEveElementList* product)
