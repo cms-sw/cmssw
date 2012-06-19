@@ -54,7 +54,7 @@ private:
   mutable RooArgSet snapGlobalObsData, snapGlobalObsAsimov;
 
   RooAbsData *asimovDataset(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data);
-  double getCLs(RooRealVar &r, double rVal);
+  double getCLs(RooRealVar &r, double rVal, bool getAlsoExpected=false, double *limit=0, double *limitErr=0);
 };
 
 #endif

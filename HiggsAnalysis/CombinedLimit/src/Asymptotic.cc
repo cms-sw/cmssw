@@ -159,7 +159,7 @@ bool Asymptotic::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats
   r->setConstant(true);
 
   if (what_ == "singlePoint") {
-    limit = getCLs(*r, rValue_);
+    limit = getCLs(*r, rValue_, true, &limit, &limitErr);
     return true;
   }
 
@@ -200,7 +200,7 @@ bool Asymptotic::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats
   return true;
 }
 
-double Asymptotic::getCLs(RooRealVar &r, double rVal) {
+double Asymptotic::getCLs(RooRealVar &r, double rVal, bool getAlsoExpected, double *limit, double *limitErr) {
   r.setMax(1.1 * rVal);
   r.setConstant(true);
 
@@ -245,6 +245,18 @@ double Asymptotic::getCLs(RooRealVar &r, double rVal) {
   double CLs  = (CLb == 0 ? 0 : CLsb/CLb);
   sentry.clear();
   if (verbose > 0) printf("At %s = %f:\tq_mu = %.5f\tq_A  = %.5f\tCLsb = %7.5f\tCLb  = %7.5f\tCLs  = %7.5f\n", r.GetName(), rVal, qmu, qA, CLsb, CLb, CLs);
+
+  if (getAlsoExpected) {
+    const double quantiles[5] = { 0.025, 0.16, 0.50, 0.84, 0.975 };
+    for (int iq = 0; iq < 5; ++iq) {
+        double N = ROOT::Math::normal_quantile(quantiles[iq], 1.0);
+        double clb = quantiles[iq];
+        double clsplusb = ROOT::Math::normal_cdf_c( sqrt(qA) - N, 1.);
+        *limit = (clb == 0 ? clsplusb/clb : -1); *limitErr = 0;
+        Combine::commitPoint(true, quantiles[iq]);
+        if (verbose > 0) printf("Expected %4.1f%%: CLsb = %.5f  CLb = %.5f   CLs = %.5f\n", quantiles[iq]*100, clsplusb, clb, clsplusb/clb);
+    }
+  }
   return CLs; 
 }   
 
