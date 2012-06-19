@@ -35,14 +35,11 @@
 // to unwind up the stack into main.
 
 #include "FWCore/Utilities/interface/ConvertException.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <exception>
 #include <functional>
 #include <string>
-
-namespace cms {
-  class Exception;
-}
 
 namespace edm {
 
