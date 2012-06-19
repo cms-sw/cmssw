@@ -19,14 +19,14 @@
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
-#include "FWCore/Framework/interface/eventSetupGetImplementation.icc"
+#include "FWCore/Framework/interface/eventSetupGetImplementation.h"
 
 #include "FWCore/Framework/test/DummyRecord.h"
 #include "FWCore/Framework/test/DummyProxyProvider.h"
 
 //class DummyRecord : public edm::eventsetup::EventSetupRecordImplementation<DummyRecord> {};
 
-#include "FWCore/Framework/interface/HCMethods.icc"
+#include "FWCore/Framework/interface/HCMethods.h"
 
 
 #include "FWCore/Framework/interface/EventSetupRecordProviderTemplate.h"

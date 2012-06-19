@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactoryTemplate.h"
 #include "FWCore/Framework/interface/MakeDataException.h"
 
-#include "FWCore/Framework/interface/HCMethods.icc"
+#include "FWCore/Framework/interface/HCMethods.h"
 #include "FWCore/Framework/interface/HCTypeTag.h"
 
 #include "FWCore/Framework/interface/DataProxyTemplate.h"

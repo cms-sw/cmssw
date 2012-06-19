@@ -28,8 +28,8 @@ macro EVENTSETUP_RECORD_REG is used to create that code.
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/HCMethods.icc"
-#include "FWCore/Framework/interface/eventSetupGetImplementation.icc"
+#include "FWCore/Framework/interface/HCMethods.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactoryTemplate.h"
 
@@ -38,8 +38,6 @@ macro EVENTSETUP_RECORD_REG is used to create that code.
 
 #define EVENTSETUP_RECORD_REG(_recordclassname_) \
 TYPELOOKUP_DATA_REG(_recordclassname_); \
-static const edm::eventsetup::EventSetupRecordProviderFactoryTemplate<_recordclassname_> EVENTSETUP_RECORD_NAME2(s_factory,__LINE__);\
-template void edm::eventsetup::eventSetupGetImplementation<_recordclassname_>(edm::EventSetup const&, _recordclassname_ const*&); \
-template  edm::eventsetup::EventSetupRecordKey edm::eventsetup::heterocontainer::makeKey<_recordclassname_, edm::eventsetup::EventSetupRecordKey>()
+static const edm::eventsetup::EventSetupRecordProviderFactoryTemplate<_recordclassname_> EVENTSETUP_RECORD_NAME2(s_factory,__LINE__)
 
 #endif
