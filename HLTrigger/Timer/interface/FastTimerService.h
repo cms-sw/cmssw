@@ -119,6 +119,10 @@ private:
   void preModule(  edm::ModuleDescription const & );
   void postModule( edm::ModuleDescription const & );
 
+  // needed for the DAQ when reconfiguring between runs
+  void reset();
+  bool m_is_configured;
+
 private:
 
   struct ModuleInfo {
@@ -146,7 +150,7 @@ private:
       // note that we do not *own* the plots, so we cannot delete them
       // instead, we Reset() them and assume the DQMStore will take care of them
       if (dqm_active) {
-        dqm_active->Reset();
+        // XXX dqm_active->Reset();
         dqm_active = 0;
       }
       has_just_run = false;
@@ -249,42 +253,42 @@ private:
       // note that we do not *own* the plots, so we cannot delete them
       // instead, we Reset() them and assume the DQMStore will take care of them
       if (dqm_active) {
-        dqm_active->Reset();
+        // XXX dqm_active->Reset();
         dqm_active = 0;
       }
 #ifdef FASTTIMERSERVICE_DETAILED_OVERHEAD_ACCOUNTING
       if (dqm_premodules) {
-        dqm_premodules->Reset();
+        // XXX dqm_premodules->Reset();
         dqm_premodules = 0;
       }
       if (dqm_intermodules) {
-        dqm_intermodules->Reset();
+        // XXX dqm_intermodules->Reset();
         dqm_intermodules = 0;
       }
       if (dqm_postmodules) {
-        dqm_postmodules->Reset();
+        // XXX dqm_postmodules->Reset();
         dqm_postmodules = 0;
       }
 #else
       if (dqm_overhead) {
-        dqm_overhead->Reset();
+        // XXX dqm_overhead->Reset();
         dqm_overhead = 0;
       }
 #endif
       if (dqm_total) {
-        dqm_total->Reset();
+        // XXX dqm_total->Reset();
         dqm_total = 0;
       }
       if (dqm_module_counter) {
-        dqm_module_counter->Reset();
+        // XXX dqm_module_counter->Reset();
         dqm_module_counter = 0;
       }
       if (dqm_module_active) {
-        dqm_module_active->Reset();
+        // XXX dqm_module_active->Reset();
         dqm_module_active = 0;
       }
       if (dqm_module_total) {
-        dqm_module_total->Reset();
+        // XXX dqm_module_total->Reset();
         dqm_module_total = 0;
       }
     }
