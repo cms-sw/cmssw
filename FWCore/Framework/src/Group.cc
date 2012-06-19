@@ -145,7 +145,7 @@ namespace edm {
     if(!prod.isValid() || !prod.isPresent()) {
       setProductUnavailable();
     }
-    assert(productData().getInterface()->sameType(*prod.interface()) || !prod.isValid());
+    assert(!prod.isValid() || productData().getInterface()->sameType(*prod.interface()));
     productData().wrapper_ = prod.product();
   }
 
