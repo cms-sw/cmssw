@@ -90,6 +90,7 @@ EwkElecDQM::EwkElecDQM( const ParameterSet & cfg ) :
 
 
 {
+  isValidHltConfig_ = false;
 
   // access to dbe
   theDbe = Service<DQMStore>().operator->();
@@ -98,7 +99,7 @@ EwkElecDQM::EwkElecDQM( const ParameterSet & cfg ) :
 
 }
 
-void EwkElecDQM::beginRun(const Run& r, const EventSetup&) {
+void EwkElecDQM::beginRun(const Run& iRun, const EventSetup& iSet) {
       nall = 0;
       nsel = 0;
 
@@ -107,6 +108,13 @@ void EwkElecDQM::beginRun(const Run& r, const EventSetup&) {
       niso = 0; 
 //       nhlt = 0; 
 //       nmet = 0;
+
+     // passed as parameter to HLTConfigProvider::init(), not yet used
+     bool isConfigChanged = false;
+     // isValidHltConfig_ could be used to short-circuit analyze() in case of problems
+     isValidHltConfig_ = hltConfigProvider_.init( iRun, iSet, "HLT", isConfigChanged );
+
+     LogTrace("") << "isValidHltConfig_=" << isValidHltConfig_ << "\n";
 }
 
 
@@ -434,8 +442,13 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
               }
               if(!found) continue;
               
-                        
-	      if(triggerResults->accept(i)) trigger_fired=true;
+	      bool prescaled=false;    
+              for (unsigned int ps= 0; ps<  hltConfigProvider_.prescaleSize(); ps++){
+                  const unsigned int prescaleValue = hltConfigProvider_.prescaleValue(ps, trigName) ;
+                  if (prescaleValue != 1) prescaled =true;
+              }
+                       
+	      if(triggerResults->accept(i) && !prescaled) trigger_fired=true;
 
 	}
 

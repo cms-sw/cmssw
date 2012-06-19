@@ -9,6 +9,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -72,6 +73,9 @@ private:
 
   double eJetMin_;
   int nJetMax_;
+
+  bool isValidHltConfig_;
+  HLTConfigProvider  hltConfigProvider_;
 
   unsigned int nall;
   unsigned int nrec;

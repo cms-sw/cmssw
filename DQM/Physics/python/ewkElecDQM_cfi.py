@@ -8,7 +8,8 @@ ewkElecDQM = cms.EDAnalyzer("EwkElecDQM",
       ElecTag = cms.untracked.InputTag("gsfElectrons"),
       METTag = cms.untracked.InputTag("met"),
       METIncludesMuons = cms.untracked.bool(False),
-      JetTag = cms.untracked.InputTag("ak5CaloJets"),
+      JetTag = cms.untracked.InputTag("ak5PFJets"),
+#      JetTag = cms.untracked.InputTag("ak5CaloJets"),
 #      JetTag = cms.untracked.InputTag("sisCone5CaloJets"),
 
       # Main cuts ->
