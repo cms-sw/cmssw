@@ -34,7 +34,7 @@ namespace edm {
     setProductProvenance(productProvenance);
     assert(provenance()->productProvenanceValid());
     if(productData().getInterface() != 0) {
-      assert(productData().getInterface() == edp.interface());
+      assert(productData().getInterface()->sameType(*edp.interface()));
     }
     productData().wrapper_ = edp.product();
     status_() = Present;
@@ -72,7 +72,7 @@ namespace edm {
     assert(status() != Present);
     assert(status() != Uninitialized);
     if(productData().getInterface() != 0) {
-      assert(productData().getInterface() == edp.interface());
+      assert(productData().getInterface()->sameType(*edp.interface()));
     }
     productData().wrapper_ = edp.product();
     status_() = Present;
@@ -145,7 +145,7 @@ namespace edm {
     if(!prod.isValid() || !prod.isPresent()) {
       setProductUnavailable();
     }
-    assert(productData().getInterface() == prod.interface() || !prod.isValid());
+    assert(productData().getInterface()->sameType(*prod.interface()) || !prod.isValid());
     productData().wrapper_ = prod.product();
   }
 

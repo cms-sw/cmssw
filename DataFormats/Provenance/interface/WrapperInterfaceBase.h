@@ -65,6 +65,10 @@ namespace edm {
       return dynamicTypeInfo_();
     }
 
+    bool sameType(WrapperInterfaceBase const & other) const {
+      return other.dynamicTypeInfo()==dynamicTypeInfo();
+    }
+
     std::type_info const& wrappedTypeInfo() const {
       return wrappedTypeInfo_();
     }
