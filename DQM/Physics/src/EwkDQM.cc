@@ -1,10 +1,9 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/01/11 13:53:28 $
- *  $Revision: 1.18 $
- *  \author Michael B. Anderson, University of Wisconsin-Madison
- *  \author Will Parker, University of Wisconsin-Madison
+ *  $Date: 2012/06/18 16:52:41 $
+ *  $Revision: 1.19 $
+ *  \author Valentina Gori, University of Firenze
  */
 
 #include "DQM/Physics/src/EwkDQM.h"
@@ -20,17 +19,15 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 // Physics Objects
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-//#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/PFJet.h"  // voglio usare i Particle Flow Jets, non i Calo Jets
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
-#include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -52,59 +49,66 @@ using namespace reco;
 
 // EwkDQM::EwkDQM(const ParameterSet& parameters) {
 EwkDQM::EwkDQM(const ParameterSet& parameters) {
-  //  eJetMin_     = parameters.getUntrackedParameter<double>("EJetMin", 999999.);
-  eJetMin_     = parameters.getUntrackedParameter<double>("EJetMin", 15.);
-  // faccio questa prova: inizializzo eJetMin_ a 15, come dopo
+  eJetMin_     = parameters.getUntrackedParameter<double>("EJetMin", 999999.);
 
   // riguardare questa sintassi 
   // Get parameters from configuration file
-  theElecTriggerPathToPass    = parameters.getParameter<string>("elecTriggerPathToPass");
-  theMuonTriggerPathToPass    = parameters.getParameter<string>("muonTriggerPathToPass");
-  theTriggerResultsCollection = parameters.getParameter<InputTag>("triggerResultsCollection");
-  theMuonCollectionLabel      = parameters.getParameter<InputTag>("muonCollection");
-  theElectronCollectionLabel  = parameters.getParameter<InputTag>("electronCollection");
-  //  theCaloJetCollectionLabel   = parameters.getParameter<InputTag>("caloJetCollection");
-  thePFJetCollectionLabel   = parameters.getParameter<InputTag>("PFJetCollection");
-  theCaloMETCollectionLabel   = parameters.getParameter<InputTag>("caloMETCollection");
+  theElecTriggerPathToPass_   = parameters.getParameter<string>("elecTriggerPathToPass");
+  theMuonTriggerPathToPass_    = parameters.getParameter<string>("muonTriggerPathToPass");
+  //eleTrigPathNames_ = parameters.getUntrackedParameter< std::vector<std::string> >("eleTrigPathNames");
+  //muTrigPathNames_ = parameters.getUntrackedParameter< std::vector<std::string> >("muTrigPathNames");
+  theTriggerResultsCollection_ = parameters.getParameter<InputTag>("triggerResultsCollection");
+  theMuonCollectionLabel_      = parameters.getParameter<InputTag>("muonCollection");
+  theElectronCollectionLabel_  = parameters.getParameter<InputTag>("electronCollection");
+  //  theCaloJetCollectionLabel_   = parameters.getParameter<InputTag>("caloJetCollection");
+  thePFJetCollectionLabel_   = parameters.getParameter<InputTag>("PFJetCollection");
+  theCaloMETCollectionLabel_   = parameters.getParameter<InputTag>("caloMETCollection");
   
   // just to initialize
   isValidHltConfig_ = false;
 
   // coverity says.. (cos'e` questo?? che variabili sono???)
-  h_e1_et = 0;
-  h_e1_eta = 0;
-  h_e1_phi = 0;
-  h_e2_et = 0;
-  h_e2_eta = 0;
-  h_e2_phi = 0;
-  h_e_invWMass = 0;
-  h_ee_invMass = 0;
-  h_jet2_et = 0;
+  h_vertex_number = 0;
+  h_vertex_chi2 = 0;
+  h_vertex_numTrks = 0;
+  h_vertex_sumTrks = 0;
+  h_vertex_d0 = 0;
+
   h_jet_count = 0;
   h_jet_et = 0;
-
   h_jet_pt = 0;   // prova
-
   h_jet_eta = 0;  // aggiunto il 23 maggio 
-  h_m1_eta = 0;
-  h_m1_phi = 0;
+  h_jet_phi = 0;
+  h_jet2_et = 0;
+  //h_jet2_pt = 0;
+  h_jet2_eta = 0;
+  h_jet2_phi = 0;
+
+  h_e1_et = 0;
+  h_e2_et = 0;
+  h_e1_eta = 0;
+  h_e2_eta = 0;
+  h_e1_phi = 0;
+  h_e2_phi = 0;
+
   h_m1_pt = 0;
-  h_m2_eta = 0;
-  h_m2_phi = 0;
   h_m2_pt = 0;
-  h_m_invWMass = 0;
+  h_m1_eta = 0;
+  h_m2_eta = 0;
+  h_m1_phi = 0;
+  h_m2_phi = 0;
+
+  //h_t1_et = 0;
+  //h_t1_eta = 0;
+  //h_t1_phi = 0;
+
   h_met = 0;
   h_met_phi = 0;
-  h_mumu_invMass = 0;
-  h_t1_et = 0;
-  h_t1_eta = 0;
-  h_t1_phi = 0;
-  h_vertex_chi2 = 0;
-  h_vertex_d0 = 0;
-  h_vertex_numTrks = 0;
-  h_vertex_number = 0;
-  h_vertex_sumTrks = 0;
 
+  h_e_invWMass = 0;
+  h_m_invWMass = 0;
+  h_mumu_invMass = 0;
+  h_ee_invMass = 0;
   
   theDbe = Service<DQMStore>().operator->();
 
@@ -116,54 +120,70 @@ EwkDQM::~EwkDQM() {
 
 void EwkDQM::beginJob() {
 
+  char chtitle[256] = "";
+
   logTraceName = "EwkAnalyzer";
 
   LogTrace(logTraceName)<<"Parameters initialization";
   theDbe->setCurrentFolder("Physics/EwkDQM");  // Use folder with name of PAG
 
-  const float pi = 3.14159265;
+  const float pi = 4*atan(1);
 
   // Keep the number of plots and number of bins to a minimum!
-  h_vertex_number = theDbe->book1D("h_vertex_number", "Number of event vertices in collection", 10,-0.5,   9.5 );
-  h_vertex_chi2  = theDbe->book1D("h_vertex_chi2" , "Event Vertex #chi^{2}/n.d.o.f."          , 20, 0.0,   2.0 );
-  h_vertex_numTrks = theDbe->book1D("h_vertex_numTrks", "Event Vertex, number of tracks"     , 20, -0.5,  59.5 );
-  h_vertex_sumTrks = theDbe->book1D("h_vertex_sumTrks", "Event Vertex, sum of track pt"      , 20,  0.0, 100.0 );
-  h_vertex_d0    = theDbe->book1D("h_vertex_d0"   , "Event Vertex d0"                        , 20,  0.0,   0.05);
-  h_mumu_invMass = theDbe->book1D("h_mumu_invMass", "#mu#mu Invariant Mass;InvMass (GeV)"    , 20, 40.0, 140.0 );
-  h_ee_invMass   = theDbe->book1D("h_ee_invMass",   "ee Invariant Mass;InvMass (Gev)"        , 20, 40.0, 140.0 );
+  h_vertex_number = theDbe->book1D("vertex_number", "Number of event vertices in collection", 10,-0.5,   9.5 );
+  h_vertex_chi2  = theDbe->book1D("vertex_chi2" , "Event Vertex #chi^{2}/n.d.o.f."          , 20, 0.0,   2.0 );
+  h_vertex_numTrks = theDbe->book1D("vertex_numTrks", "Event Vertex, number of tracks"     , 20, -0.5,  59.5 );
+  h_vertex_sumTrks = theDbe->book1D("vertex_sumTrks", "Event Vertex, sum of track pt"      , 20,  0.0, 100.0 );
+  h_vertex_d0    = theDbe->book1D("vertex_d0"   , "Event Vertex d0"                        , 20,  0.0,   0.05);
   
-  //  h_jet_et       = theDbe->book1D("h_jet_et",       "Jet with highest E_{T} (from "+theCaloJetCollectionLabel.label()+");E_{T}(1^{st} jet) (GeV)",    20, 0., 200.0);
-  h_jet_et       = theDbe->book1D("h_jet_et",       "Leading jet E_{T} (from "+thePFJetCollectionLabel.label()+");E_{T}(1^{st} jet) (GeV)",    20, 0., 200.0);
+  snprintf(chtitle, 255,  "Number of %s (E_{T} > 15 GeV);Number of Jets",thePFJetCollectionLabel_.label().data());
+  h_jet_count    = theDbe->book1D("jet_count", chtitle, 8, -0.5, 7.5);
 
-  h_jet_pt       = theDbe->book1D("h_jet_pt",      "Leading jet p_{T} (from "+thePFJetCollectionLabel.label()+");p_{T}(1^{st} jet) (GeV/c)",    20, 0., 200.0); 
+  snprintf(chtitle, 255, "Leading jet E_{T} (from %s);E_{T}(1^{st} jet) (GeV)",
+	   thePFJetCollectionLabel_.label().data());
+  h_jet_et       = theDbe->book1D("jet_et", chtitle,    20, 0., 200.0);
 
-  h_jet_eta      = theDbe->book1D("h_jet_eta",      "Leading jet #eta (from "+thePFJetCollectionLabel.label()+"); #eta (1^{st} jet)",    20, -10., 10.0);
+  snprintf(chtitle, 255, "Leading jet p_{T} (from %s);p_{T}(1^{st} jet) (GeV/c)", thePFJetCollectionLabel_.label().data());
+  h_jet_pt       = theDbe->book1D("jet_pt", chtitle,  20, 0., 200.0); 
 
-  //  h_jet2_et      = theDbe->book1D("h_jet2_et",      "Jet with 2^{nd} highest E_{T} (from "+theCaloJetCollectionLabel.label()+");E_{T}(2^{nd} jet) (GeV)",    20, 0., 200.0);
-  h_jet2_et      = theDbe->book1D("h_jet2_et",      "2^{nd} leading jet E_{T} (from "+thePFJetCollectionLabel.label()+");E_{T}(2^{nd} jet) (GeV)",    20, 0., 200.0);
+  snprintf(chtitle, 255,  "Leading jet #eta (from %s); #eta (1^{st} jet)",thePFJetCollectionLabel_.label().data());
+  h_jet_eta      = theDbe->book1D("jet_eta", chtitle,  20, -10., 10.0);
+  snprintf(chtitle, 255, "Leading jet #phi (from %s); #phi(1^{st} jet)", thePFJetCollectionLabel_.label().data());
+  h_jet_phi      = theDbe->book1D("jet_phi", chtitle,  22, -1.1*pi, 1.1*pi); 
 
-  //  h_jet_count    = theDbe->book1D("h_jet_count",    "Number of "+theCaloJetCollectionLabel.label()+" (E_{T} > 15 GeV);Number of Jets", 8, -0.5, 7.5);
-  h_jet_count    = theDbe->book1D("h_jet_count",    "Number of "+thePFJetCollectionLabel.label()+" (E_{T} > 15 GeV);Number of Jets", 8, -0.5, 7.5);
+  snprintf(chtitle, 255, "2^{nd} leading jet E_{T} (from %s);E_{T}(2^{nd} jet) (GeV)",thePFJetCollectionLabel_.label().data());
+  h_jet2_et      = theDbe->book1D("jet2_et", chtitle,  20, 0., 200.0);
+  //snprintf(chtitle, 255, "2^{nd} leading jet p_{T} (from %s);p_{T}(2^{nd} jet) (GeV/c)", thePFJetCollectionLabel_.label().data());
+  //h_jet2_pt       = theDbe->book1D("jet2_pt", chtitle,  20, 0., 200.0); 
+  snprintf(chtitle, 255,  "2^{nd} leading jet #eta (from %s); #eta (2^{nd} jet)",thePFJetCollectionLabel_.label().data());
+  h_jet2_eta      = theDbe->book1D("jet2_eta", chtitle,  20, -10., 10.0);
+  snprintf(chtitle, 255, "2^{nd} leading jet #phi (from %s); #phi(2^{nd} jet)", thePFJetCollectionLabel_.label().data());
+  h_jet2_phi      = theDbe->book1D("jet2_phi", chtitle,  22, -1.1*pi, 1.1*pi); 
 
-  h_e1_et        = theDbe->book1D("h_e1_et",  "E_{T} of Leading Electron;E_{T} (GeV)"        , 20,  0.0 , 100.0);
-  h_e2_et        = theDbe->book1D("h_e2_et",  "E_{T} of Second Electron;E_{T} (GeV)"         , 20,  0.0 , 100.0);
-  h_e1_eta       = theDbe->book1D("h_e1_eta", "#eta of Leading Electron;#eta"                , 20, -4.0 , 4.0);
-  h_e2_eta       = theDbe->book1D("h_e2_eta", "#eta of Second Electron;#eta"                 , 20, -4.0 , 4.0);
-  h_e1_phi       = theDbe->book1D("h_e1_phi", "#phi of Leading Electron;#phi"                , 22, (-1.-1./10.)*pi, (1.+1./10.)*pi );
-  h_e2_phi       = theDbe->book1D("h_e2_phi", "#phi of Second Electron;#phi"                 , 22, (-1.-1./10.)*pi, (1.+1./10.)*pi );
-  h_m1_pt        = theDbe->book1D("h_m1_pt",  "p_{T} of Leading Muon;p_{T}(1^{st} #mu) (GeV)", 20,  0.0 , 100.0);
-  h_m2_pt        = theDbe->book1D("h_m2_pt",  "p_{T} of Second Muon;p_{T}(2^{nd} #mu) (GeV)" , 20,  0.0 , 100.0);
-  h_m1_eta       = theDbe->book1D("h_m1_eta", "#eta of Leading Muon;#eta(1^{st} #mu)"        , 20, -4.0 , 4.0);
-  h_m2_eta       = theDbe->book1D("h_m2_eta", "#eta of Second Muon;#eta(2^{nd} #mu)"         , 20, -4.0 , 4.0);
-  h_m1_phi       = theDbe->book1D("h_m1_phi", "#phi of Leading Muon;#phi(1^{st} #mu)"        , 20, (-1.-1./10.)*pi, (1.+1./10.)*pi);
-  h_m2_phi       = theDbe->book1D("h_m2_phi", "#phi of Second Muon;#phi(2^{nd} #mu)"         , 20, (-1.-1./10.)*pi, (1.+1./10.)*pi);
-//  h_t1_et          = theDbe->book1D("h_t1_et",           "E_{T} of Leading Tau;E_{T} (GeV)" , 20, 0.0 , 100.0);
-//  h_t1_eta         = theDbe->book1D("h_t1_eta",          "#eta of Leading Tau;#eta"               , 20, -4.0, 4.0);
-//  h_t1_phi         = theDbe->book1D("h_t1_phi",          "#phi of Leading Tau;#phi"               , 20, -4.0, 4.0);
-  h_met          = theDbe->book1D("h_met",        "Missing E_{T}; GeV"                       , 20,  0.0 , 100);
-  h_met_phi      = theDbe->book1D("h_met_phi",    "Missing E_{T} #phi;#phi(MET)"             , 22, (-1.-1./10.)*pi, (1.+1./10.)*pi );
-  h_e_invWMass   = theDbe->book1D("h_e_invWMass", "W-> e #nu Transverse Mass;M_{T} (GeV)"    , 20,  0.0, 140.0); 
-  h_m_invWMass   = theDbe->book1D("h_m_invWMass", "W-> #mu #nu Transverse Mass;M_{T} (GeV)"  , 20,  0.0, 140.0); 
+  h_e1_et        = theDbe->book1D("e1_et",  "E_{T} of Leading Electron;E_{T} (GeV)"        , 20,  0.0 , 100.0);
+  h_e2_et        = theDbe->book1D("e2_et",  "E_{T} of Second Electron;E_{T} (GeV)"         , 20,  0.0 , 100.0);
+  h_e1_eta       = theDbe->book1D("e1_eta", "#eta of Leading Electron;#eta"                , 20, -4.0 , 4.0);
+  h_e2_eta       = theDbe->book1D("e2_eta", "#eta of Second Electron;#eta"                 , 20, -4.0 , 4.0);
+  h_e1_phi       = theDbe->book1D("e1_phi", "#phi of Leading Electron;#phi"                , 22, -1.1*pi, 1.1*pi );
+  h_e2_phi       = theDbe->book1D("e2_phi", "#phi of Second Electron;#phi"                 , 22, -1.1*pi, 1.1*pi );
+  h_m1_pt        = theDbe->book1D("m1_pt",  "p_{T} of Leading Muon;p_{T}(1^{st} #mu) (GeV)", 20,  0.0 , 100.0);
+  h_m2_pt        = theDbe->book1D("m2_pt",  "p_{T} of Second Muon;p_{T}(2^{nd} #mu) (GeV)" , 20,  0.0 , 100.0);
+  h_m1_eta       = theDbe->book1D("m1_eta", "#eta of Leading Muon;#eta(1^{st} #mu)"        , 20, -4.0 , 4.0);
+  h_m2_eta       = theDbe->book1D("m2_eta", "#eta of Second Muon;#eta(2^{nd} #mu)"         , 20, -4.0 , 4.0);
+  h_m1_phi       = theDbe->book1D("m1_phi", "#phi of Leading Muon;#phi(1^{st} #mu)"        , 20, (-1.-1./10.)*pi, (1.+1./10.)*pi);
+  h_m2_phi       = theDbe->book1D("m2_phi", "#phi of Second Muon;#phi(2^{nd} #mu)"         , 20, (-1.-1./10.)*pi, (1.+1./10.)*pi);
+//  h_t1_et          = theDbe->book1D("t1_et",           "E_{T} of Leading Tau;E_{T} (GeV)" , 20, 0.0 , 100.0);
+//  h_t1_eta         = theDbe->book1D("t1_eta",          "#eta of Leading Tau;#eta"               , 20, -4.0, 4.0);
+//  h_t1_phi         = theDbe->book1D("t1_phi",          "#phi of Leading Tau;#phi"               , 20, -4.0, 4.0);
+  snprintf(chtitle, 255, "Missing E_{T} (%s); GeV", theCaloMETCollectionLabel_.label().data());
+  h_met          = theDbe->book1D("met",  chtitle, 20,  0.0 , 100);
+  h_met_phi      = theDbe->book1D("met_phi",    "Missing E_{T} #phi;#phi(MET)"             , 22, (-1.-1./10.)*pi, (1.+1./10.)*pi );
+
+  h_e_invWMass   = theDbe->book1D("we_invWMass", "W-> e #nu Transverse Mass;M_{T} (GeV)"    , 20,  0.0, 140.0); 
+  h_m_invWMass   = theDbe->book1D("wm_invWMass", "W-> #mu #nu Transverse Mass;M_{T} (GeV)"  , 20,  0.0, 140.0); 
+
+  h_mumu_invMass = theDbe->book1D("z_mm_invMass", "#mu#mu Invariant Mass;InvMass (GeV)"    , 20, 40.0, 140.0 );
+  h_ee_invMass   = theDbe->book1D("z_ee_invMass",   "ee Invariant Mass;InvMass (Gev)"        , 20, 40.0, 140.0 );
 }
 
 
@@ -177,7 +197,7 @@ void EwkDQM::beginRun( const edm::Run& theRun, const edm::EventSetup& theSetup )
   bool isConfigChanged = false;
   
   // isValidHltConfig_ used to short-circuit analyze() in case of problems
-  const std::string hltProcessName( theTriggerResultsCollection.process() );
+  const std::string hltProcessName( theTriggerResultsCollection_.process() );
   isValidHltConfig_ = hltConfigProvider_.init( theRun, theSetup, hltProcessName, isConfigChanged );
 
 }
@@ -192,16 +212,40 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   LogTrace(logTraceName)<<"Analysis of event # ";
   // Did it pass certain HLT path?
   Handle<TriggerResults> HLTresults;
-  iEvent.getByLabel(theTriggerResultsCollection, HLTresults); 
+  iEvent.getByLabel(theTriggerResultsCollection_, HLTresults); 
   if ( !HLTresults.isValid() ) return;
 
-  //unsigned int triggerIndex_elec = hltConfig.triggerIndex(theElecTriggerPathToPass);
-  //unsigned int triggerIndex_muon = hltConfig.triggerIndex(theMuonTriggerPathToPass);
-  bool passed_electron_HLT = true;
-  bool passed_muon_HLT     = true;
-  //if (triggerIndex_elec < HLTresults->size()) passed_electron_HLT = HLTresults->accept(triggerIndex_elec);
-  //if (triggerIndex_muon < HLTresults->size()) passed_muon_HLT     = HLTresults->accept(triggerIndex_muon);
-  //if ( !(passed_electron_HLT || passed_muon_HLT) ) return;
+  const edm::TriggerNames & trigNames = iEvent.triggerNames(*HLTresults);
+
+  // a temporary, until we have a list of triggers of interest
+  std::vector<std::string> eleTrigPathNames;
+  std::vector<std::string> muTrigPathNames;
+  eleTrigPathNames.push_back(theElecTriggerPathToPass_);
+  muTrigPathNames.push_back(theMuonTriggerPathToPass_);
+  // end of temporary
+
+  bool passed_electron_HLT = false;
+  bool passed_muon_HLT     = false;
+  for (unsigned int i=0; i<HLTresults->size(); i++) {
+    const std::string trigName = trigNames.triggerName(i);
+    // check if triggerName matches electronPath
+    for(unsigned int index=0; index<eleTrigPathNames.size() && !passed_electron_HLT; index++) {
+      size_t trigPath = trigName.find(eleTrigPathNames[index]); // 0 if found, pos if not
+      if (trigPath==0) {
+	passed_electron_HLT = HLTresults->accept(i);
+      }
+    }
+    // check if triggerName matches muonPath
+    for(unsigned int index=0; index<muTrigPathNames.size() && !passed_muon_HLT; index++) {
+      size_t trigPath = trigName.find(muTrigPathNames[index]); // 0 if found, pos if not
+      if (trigPath==0) {
+	passed_muon_HLT = HLTresults->accept(i);
+      }
+    }
+  }
+  
+  // we are interested in events with a valid electron or muon
+  if ( !(passed_electron_HLT || passed_muon_HLT) ) return;
 
   ////////////////////////////////////////////////////////////////////////////////
   //Vertex information
@@ -213,6 +257,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   VertexCollection::const_iterator v = vertexCollection.begin();
   double vertex_chi2    = v->normalizedChi2(); //v->chi2();
   double vertex_d0      = sqrt(v->x()*v->x()+v->y()*v->y());
+  //std::cout << "vertex_d0=" << vertex_d0 << "\n";
   //double vertex_ndof    = v->ndof();cout << "ndof="<<vertex_ndof<<endl;
   double vertex_numTrks = v->tracksSize();
   double vertex_sumTrks = 0.0;
@@ -222,8 +267,8 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
   ////////////////////////////////////////////////////////////////////////////////
   //Missing ET
-  Handle<CaloMETCollection> caloMETCollection;
-  iEvent.getByLabel(theCaloMETCollectionLabel, caloMETCollection);
+  Handle< View<MET> > caloMETCollection;
+  iEvent.getByLabel(theCaloMETCollectionLabel_, caloMETCollection);
   if ( !caloMETCollection.isValid() ) return;
   float missing_et = caloMETCollection->begin()->et();
   float met_phi    = caloMETCollection->begin()->phi();
@@ -232,7 +277,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   ////////////////////////////////////////////////////////////////////////////////
   // grab "gaussian sum fitting" electrons
   Handle<GsfElectronCollection> electronCollection;
-  iEvent.getByLabel(theElectronCollectionLabel, electronCollection);
+  iEvent.getByLabel(theElectronCollectionLabel_, electronCollection);
   if ( !electronCollection.isValid() ) return;
 
   // Find the highest and 2nd highest electron
@@ -285,7 +330,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   ////////////////////////////////////////////////////////////////////////////////
   // Take the STA muon container
   Handle<MuonCollection> muonCollection;
-  iEvent.getByLabel(theMuonCollectionLabel,muonCollection);
+  iEvent.getByLabel(theMuonCollectionLabel_,muonCollection);
   if ( !muonCollection.isValid() ) return;
 
   // Find the highest pt muons
@@ -333,29 +378,26 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   // Find the highest et jet			
     
   //  Handle<CaloJetCollection> caloJetCollection;
-  Handle<PFJetCollection> PFJetCollection;
+  Handle<View<Jet> > PFJetCollection;
   //  iEvent.getByLabel (theCaloJetCollectionLabel,caloJetCollection);
-  iEvent.getByLabel (thePFJetCollectionLabel,PFJetCollection);
+  iEvent.getByLabel (thePFJetCollectionLabel_,PFJetCollection);
   //  if ( !caloJetCollection.isValid() ) return;
   if ( !PFJetCollection.isValid() ) return;
   
   unsigned int muonCollectionSize = muonCollection->size();
   //unsigned int jetCollectionSize = jetCollection->size();
   unsigned int PFJetCollectionSize = PFJetCollection->size();
-  int jet_count = 0; int LEADJET=-1;  double max_pt=0;
-  //  eJetMin_     (cfg.getUntrackedParameter<double>("EJetMin", 999999.))
-  
-
+  int jet_count = 0; 
+  //int LEADJET=-1;  double max_pt=0;
   
   
-  
-  float jet_et    = -8.0;
-  float jet_pt    = -8.0;  // prova
+  float jet_et    = -80.0;
+  float jet_pt    = -80.0;  // prova
   float jet_eta   = -80.0; // now USED
-  float jet_phi   = -8.0; // not USED
-  float jet2_et   = -9.0;
-  float jet2_eta  = -9.0; // now USED
-  float jet2_phi  = -9.0; // not USED
+  float jet_phi   = -80.0; // now USED
+  float jet2_et   = -90.0;
+  float jet2_eta  = -90.0; // now USED
+  float jet2_phi  = -90.0; // now USED
   //  for (CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin(); i_calojet != caloJetCollection->end(); i_calojet++) {
   //  for (PFJetCollection::const_iterator i_pfjet = PFJetCollection->begin(); i_pfjet != PFJetCollection->end(); i_pfjet++) {
 
@@ -396,7 +438,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
       
       // if it has too low Et, throw away
-      if (jet.et() < 15) continue;
+      if (jet.et() < eJetMin_) continue;
       jet_count ++;
 
       // ovvero: incrementa jet_count se:
@@ -404,7 +446,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
       //   - se il jet non si sovrappone ad un elettrone;
       //   - se l'energia trasversa e` maggiore della soglia impostata (15?)
       
-      if(jet.et()>max_pt) { LEADJET=i; max_pt=jet.et();} 
+      //if(jet.et()>max_pt) { LEADJET=i; max_pt=jet.et();} 
       // se l'energia del jet e` maggiore di max_pt, diventa "i" l'indice del jet piu` energetico e max_pt la sua energia 
         
   
@@ -419,7 +461,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
       // ah, ok! lo riaggiorna solo dopo!
       jet_pt = jet.pt();           // e` il pT del leading jet
       jet_eta  = jet.eta(); // now USED
-      jet_phi  = jet.phi(); // now USED
+      jet_phi  = jet.phi()*(Geom::pi()/180.); // now USED
     } 
         else if (jet.et() > jet2_et) {
           //      jet2_et  = i_calojet->et();
@@ -483,7 +525,6 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   if (jet_et>-10.0) {
     h_jet_et   ->Fill(jet_et);
     h_jet_count->Fill(jet_count);
-    h_jet2_et  ->Fill(jet2_et);
   }
 
   if (jet_pt>0.) {
@@ -493,7 +534,27 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   if (jet_eta>-50.) {
     h_jet_eta  ->Fill(jet_eta); 
   }
-  
+
+  if (jet_phi>-10.) {
+    h_jet_phi   ->Fill(jet_phi);
+  }
+
+  if (jet2_et>-10.0) {
+    h_jet2_et  ->Fill(jet2_et);
+  }
+
+  //if (jet2_pt>0.) {
+  //  h_jet2_pt   ->Fill(jet2_pt);
+  //}
+
+  if (jet2_eta>-50.) {
+    h_jet2_eta  ->Fill(jet2_eta); 
+  }
+
+  if (jet2_phi>-10.) {
+    h_jet2_phi   ->Fill(jet2_phi);
+  }
+ 
 
 
   if (fill_e1 || fill_m1) {
