@@ -6,13 +6,13 @@
  *
  *  DQM offline for QCD-Photons
  *
- *  $Date: 2010/01/04 14:46:10 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/03/12 10:25:45 $
+ *  $Revision: 1.9 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"   
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 // Trigger stuff
@@ -65,8 +65,10 @@ class EwkDQM : public edm::EDAnalyzer {
   edm::InputTag theTriggerResultsCollection;
   edm::InputTag theMuonCollectionLabel;
   edm::InputTag theElectronCollectionLabel;
-  edm::InputTag theCaloJetCollectionLabel;
+  //edm::InputTag theCaloJetCollectionLabel;
+  edm::InputTag thePFJetCollectionLabel;
   edm::InputTag theCaloMETCollectionLabel;
+  double eJetMin_;
 
   // Histograms
   MonitorElement* h_vertex_number;
@@ -77,6 +79,10 @@ class EwkDQM : public edm::EDAnalyzer {
   MonitorElement* h_mumu_invMass;
   MonitorElement* h_ee_invMass;
   MonitorElement* h_jet_et;
+  MonitorElement* h_jet_eta;   // aggiunto il 23 maggio
+
+  MonitorElement* h_jet_pt;    // prova
+
   MonitorElement* h_jet2_et;
   MonitorElement* h_jet_count;
 //WCP: Adding a Histo
