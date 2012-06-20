@@ -66,10 +66,10 @@ AutoLibraryLoader::enable()
    if( 0 != env) {
      //this is a comma separated list
      const char* start = env;
-     const char* end = start;
+     const char* end = env;
      do{
        //find end
-       for(; *end!=0 and *end != ':';++end);
+       for(end=start; *end!=0 and *end != ':';++end);
        std::string dir(start, end);
        intrp->AddIncludePath(dir.c_str());
        start = end+1;
