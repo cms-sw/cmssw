@@ -27,7 +27,25 @@ vector<reco::PreshowerCluster>ggPFESClusters::getPFESClusters(
 							      ){
   // cout<<"SC Eta "<<sc.eta()<<endl;
   std::vector<PreshowerCluster>PFPreShowerClust;
+  int jj = 0;
+  float energies[100];
   for(reco::CaloCluster_iterator ps=sc.preshowerClustersBegin(); ps!=sc.preshowerClustersEnd(); ++ps){
+    if(jj>99)
+      cout << endl << "Attention! More than 100 ES clusters!" << endl;
+    else {
+      energies[jj] = (*ps)->energy();
+      bool doubl = false;
+      for(int kk=0; kk<jj; kk++){
+        if(fabs(energies[kk]-(*ps)->energy())<0.0000001){
+//        cout << endl << "Duplicate cluster";
+          doubl = true;
+	  break;
+        }
+      }
+      jj++;
+      if(doubl) continue;
+    }
+
     std::vector< std::pair<DetId, float> > psCells=(*ps)->hitsAndFractions();
     float PS1E=0;
     float PS2E=0;	
