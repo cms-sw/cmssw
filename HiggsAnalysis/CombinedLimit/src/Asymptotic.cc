@@ -252,7 +252,7 @@ double Asymptotic::getCLs(RooRealVar &r, double rVal, bool getAlsoExpected, doub
         double N = ROOT::Math::normal_quantile(quantiles[iq], 1.0);
         double clb = quantiles[iq];
         double clsplusb = ROOT::Math::normal_cdf_c( sqrt(qA) - N, 1.);
-        *limit = (clb == 0 ? clsplusb/clb : -1); *limitErr = 0;
+        *limit = (clb != 0 ? clsplusb/clb : 0); *limitErr = 0;
         Combine::commitPoint(true, quantiles[iq]);
         if (verbose > 0) printf("Expected %4.1f%%: CLsb = %.5f  CLb = %.5f   CLs = %.5f\n", quantiles[iq]*100, clsplusb, clb, clsplusb/clb);
     }
