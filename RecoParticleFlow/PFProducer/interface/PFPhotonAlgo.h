@@ -8,15 +8,12 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtraFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
-#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "TMVA/Reader.h"
 #include <iostream>
@@ -55,26 +52,6 @@ class PFPhotonAlgo {
     ReaderGC_=GCorrForest;
     ReaderRes_=ResForest;
   }  
-  
-  void setGBRForest(
-		    const GBRForest *LCorrForestEB,
-		    const GBRForest *LCorrForestEE,
-		    const GBRForest *GCorrForestBarrel,
-		    const GBRForest *GCorrForestEndcapHr9,
-		    const GBRForest *GCorrForestEndcapLr9,
-		    const GBRForest *PFEcalResolution
-		    )
-  {
-    ReaderLCEB_=LCorrForestEB;
-    ReaderLCEE_=LCorrForestEE;
-    ReaderGCEB_=GCorrForestBarrel;
-    ReaderGCEEhR9_=GCorrForestEndcapHr9;
-    ReaderGCEElR9_=GCorrForestEndcapLr9;
-    ReaderRes_=PFEcalResolution;
-  }  
-  void setnPU(int nVtx){
-    nVtx_=nVtx;
-  }
   //check candidate validity
   bool isPhotonValidCandidate(const reco::PFBlockRef&  blockRef,
 			      std::vector< bool >&  active,
@@ -147,13 +124,6 @@ private:
   const GBRForest *ReaderLC_;
   const GBRForest *ReaderGC_;
   const GBRForest *ReaderRes_;
-  
-  const GBRForest *ReaderLCEB_;
-  const GBRForest *ReaderLCEE_;
-  const GBRForest *ReaderGCEB_;
-  const GBRForest *ReaderGCEEhR9_;
-  const GBRForest *ReaderGCEElR9_;
-  
   boost::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_;
   double sumPtTrackIsoForPhoton_;
   double sumPtTrackIsoSlopeForPhoton_;
@@ -168,20 +138,16 @@ private:
   float e5x5Map[5][5];
   
   //For Local Containment Corrections:
-  float CrysPhi_, CrysEta_,  VtxZ_, ClusPhi_, ClusEta_, 
-    ClusR9_, Clus5x5ratio_,  PFCrysEtaCrack_, logPFClusE_, e3x3_;
-  int CrysIPhi_, CrysIEta_;
-  float CrysX_, CrysY_;
+  float CrysPhi_, CrysEta_, CrysIPhi_, CrysIEta_, VtxZ_, ClusPhi_, ClusEta_, 
+    ClusR9_, Clus5x5ratio_, PFCrysPhiCrack_, PFCrysEtaCrack_, logPFClusE_, e3x3_;
   float EB;
   //Cluster Shapes:
-  float eSeed_, e1x3_,e3x1_, e1x5_, e2x5Top_,  e2x5Bottom_, e2x5Left_,  e2x5Right_ ;
-  float etop_, ebottom_, eleft_, eright_;
+  float eSeed_, e1x3_,e3x1_, e1x5_, e2x5Top_,  e2x5Bottom_, e2x5Left_,  e2x5Right_ ; 
   float e2x5Max_;
   //For Global Corrections:
-  float PFPhoEta_, PFPhoPhi_, PFPhoR9_, PFPhoR9Corr_, SCPhiWidth_, SCEtaWidth_, PFPhoEt_, RConv_, PFPhoEtCorr_, PFPhoE_, PFPhoECorr_, MustE_, E3x3_;
-  float dEta_, dPhi_, LowClusE_, RMSAll_, RMSMust_, nPFClus_;
-  float TotPS1_, TotPS2_;
-  float nVtx_;
+  float PFPhoEta_, PFPhoPhi_, PFPhoR9_, SCPhiWidth_, SCEtaWidth_, PFPhoEt_, RConv_;
+  float dEta_, dPhi_, LowClusE_, nPFClus_;
+  
   //for Material Map
   TH2D* X0_sum;
   TH2D* X0_inner;
@@ -208,10 +174,12 @@ private:
 			    const reco::Vertex& primaryvtx, 
 			    unsigned int track_index);
   
-  double ClustersPhiRMS(std::vector<reco::CaloCluster>PFClusters, float PFPhoPhi);
+
+  void GetCrysCoordinates(reco::PFClusterRef clusterRef);
+  void fill5x5Map(reco::PFClusterRef clusterRef);
   float EvaluateLCorrMVA(reco::PFClusterRef clusterRef );
-  float EvaluateGCorrMVA(reco::PFCandidate, std::vector<reco::CaloCluster>PFClusters);
-  float EvaluateResMVA(reco::PFCandidate,std::vector<reco::CaloCluster>PFClusters );
+  float EvaluateGCorrMVA(reco::PFCandidate);
+  float EvaluateResMVA(reco::PFCandidate);
   std::vector<int> getPFMustacheClus(int nClust, std::vector<float>& ClustEt, std::vector<float>& ClustEta, std::vector<float>& ClustPhi);
   void EarlyConversion(
 		       //std::auto_ptr< reco::PFCandidateCollection > 

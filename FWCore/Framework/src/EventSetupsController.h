@@ -19,19 +19,16 @@
 //
 
 // user include files
-#include "DataFormats/Provenance/interface/ParameterSetID.h"
 
 // system include files
 #include <boost/shared_ptr.hpp>
 
-#include <map>
 #include <vector>
 
 // forward declarations
 namespace edm {
-  class EventSetupRecordIntervalFinder;
+   struct CommonParams;
    class ParameterSet;
-   class IOVSyncValue;
    
    namespace eventsetup {
       class EventSetupProvider;
@@ -47,16 +44,8 @@ namespace edm {
          // ---------- static member functions --------------------
          
          // ---------- member functions ---------------------------
-         boost::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&);
-
-         void eventSetupForInstance(IOVSyncValue const& syncValue) const;
-
-         void forceCacheClear() const;
-
-         boost::shared_ptr<EventSetupRecordIntervalFinder> const* getAlreadyMadeESSource(ParameterSet const& pset) const;
-         void putESSource(ParameterSet const& pset, boost::shared_ptr<EventSetupRecordIntervalFinder> const& component);
-         void clearComponents();
-
+         boost::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&, CommonParams const&);
+         
       private:
          EventSetupsController(EventSetupsController const&); // stop default
          
@@ -64,8 +53,6 @@ namespace edm {
          
          // ---------- member data --------------------------------
          std::vector<boost::shared_ptr<EventSetupProvider> > providers_;
-
-         std::multimap<ParameterSetID, std::pair<ParameterSet const*, boost::shared_ptr<EventSetupRecordIntervalFinder> > > essources_;
       };
    }
 }

@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from DQM.EcalEndcapMonitorTasks.EEBeamCaloTask_cfi import *
+from DQM.EcalEndcapMonitorTasks.EEBeamHodoTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EEClusterTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EECosmicTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EEIntegrityTask_cfi import *
@@ -29,6 +31,9 @@ ecalEndcapTestPulseTask.enableCleanup = True
 
 ecalEndcapTriggerTowerTask.enableCleanup = True
 ecalEndcapTimingTask.enableCleanup = True
+
+ecalEndcapBeamHodoTask.enableCleanup = True
+ecalEndcapBeamCaloTask.enableCleanup = True
 
 ecalEndcapClusterTask.enableCleanup = True
 

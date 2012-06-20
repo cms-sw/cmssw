@@ -403,7 +403,8 @@ void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
 
     // name of the attached HTML file FIXME get it automatically from L1 Trigger Menu Implementation
     //m_htmlFile =  "%ATTACHURL%/L1Menu_Collisions2011_v6_L1T_Scales_20101224_Imp0_0x1024.html";
-    m_htmlFile =  "%ATTACHURL%/L1Menu_Collisions2012_v0_L1T_Scales_20101224_Imp0_0x1027.html";
+    //m_htmlFile =  "%ATTACHURL%/L1Menu_Collisions2012_v0_L1T_Scales_20101224_Imp0_0x1027.html";
+    m_htmlFile =  "%ATTACHURL%/L1Menu_Collisions2012_v1_L1T_Scales_20101224_Imp0_0x1028.html";
 
 
     // header for printing algorithms

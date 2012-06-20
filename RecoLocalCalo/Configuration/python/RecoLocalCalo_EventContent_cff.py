@@ -37,6 +37,7 @@ RecoLocalCaloRECO = cms.PSet(
 #AOD content
 RecoLocalCaloAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
+    'keep *_castorreco_*_*',
     'keep *_reducedHcalRecHits_*_*',
     )
 )

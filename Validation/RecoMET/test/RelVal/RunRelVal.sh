@@ -5,13 +5,12 @@
 # by: Michael Schmitt and Bobby Scurlock (The University of Florida)
 ##### Modification by : Ronny Remington (UF) 6/12/08
 ##### Modification by : Dayong Wang 12/2009
-##### Modification by : Samantha Hewamanage 01/2012
 ##### This script will validate all 12 met collections, both calotower thresholds, ECAL, and HCAL : Takes 14 mins to run over all layers for a given sample
 
 
 # user input area:
 
-dirlist="TTbar"
+dirlist="QCD_Pt_80_120 TTbar LM1_sfts QCD_FlatPt_15_3000"
 
 CaloMetList="met metNoHF metHO metNoHFHO metOpt metOptNoHF metOptHO metOptNoHFHO"
 tcMetList="tcMet"
@@ -19,14 +18,18 @@ GenMetList="genMetTrue genMetCalo genMetCaloAndNonPrompt"
 CaloTowerList="SchemeB"
 MCaloTowerList="SchemeB Optimized"
 
-datadirRef="/uscms_data/d3/samantha/METRelValTesting_new/CMSSW_5_2_2/src/Validation/RecoMET/test/FullSim/PU/"
-datadirNew="/uscms_data/d3/samantha/METRelValTesting_new/CMSSW_5_2_2/src/Validation/RecoMET/test/FullSim/STD/"
 
-release_ref="500"
-release_new="500_g4emtest"
+datadirNew="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal/CMSSW_4_2_x"
+datadirRef="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal/CMSSW_4_2_x"
 
-cond_ref="522"
-cond_new="522 PU"
+datadirRef="/tmp/wangdy/4_2_0_pre7"
+datadirNew="/tmp/wangdy/4_2_0"
+
+release_ref="4_2_0_pre7"
+release_new="4_2_0"
+
+cond_ref="MC_42_V6"
+cond_new="MC_42_V9"
 
 # error handling
 
@@ -203,22 +206,12 @@ for i in $dirlist; do
       newRoot=$datadirNew/DQM_V000?_R000000001__RelVal"$i"__CMSSW_"$release"-"$cond_new"_FastSim-v?__GEN-SIM-DIGI-RECO.root;
   fi
 
-  if [ -e $refRoot ]; then
-	  echo "Found $refRoot"
-  else
-	  echo "NOT FOUND!! $refRoot"
-	  exit
-  fi
+  echo $refRoot;
+  echo $newRoot;
 
-  if [ -e $newRoot ]; then
-	  echo "Found $newRoot"
-  else
-	  echo "NOT FOUND!! $newRoot"
-	  exit
-  fi
 
   #========Run MET Validation=============#
-  cd $i/MET;
+  cd MET;
   failtrue=0
 #  if [ -f Result-button.gif ]; then rm Result-button.gif; fi;
   if [ -f METSummaryTable.html ]; then rm METSummaryTable.html; fi;

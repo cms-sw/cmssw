@@ -8,7 +8,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # Include the RandomNumberGeneratorService definition
-process.load("IOMC.RandomEngine.IOMC_cff")
+process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 
 # Generate ttbar events
 process.load("FastSimulation.Configuration.ttbar_cfi")
@@ -112,8 +112,8 @@ process.outpath = cms.EndPath(process.o1)
 process.schedule.append(process.outpath)
 
 process.configurationMetadata = cms.untracked.PSet(
-       version = cms.untracked.string('$Revision: 1.6 $'),
-          name = cms.untracked.string('$Source: /cvs/CMSSW/CMSSW/FastSimulation/Validation/test/Template_cfg.py,v $'),
+       version = cms.untracked.string('$Revision: 1.5 $'),
+          name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/FastSimulation/Validation/test/Template_cfg.py,v $'),
           annotation = cms.untracked.string('RelVal Fast Sim ==SAMPLE== IDEAL')
        ) 
 

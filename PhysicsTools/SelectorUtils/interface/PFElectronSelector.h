@@ -112,7 +112,7 @@ class PFElectronSelector : public Selector<pat::Electron> {
     // in >= 39x conversion rejection variables are accessible from Gsf electron
     Double_t dist = electron.convDist(); // default value is -9999 if conversion partner not found
     Double_t dcot = electron.convDcot(); // default value is -9999 if conversion partner not found
-    bool isNotConv = !(fabs(dist) < 0.02 && fabs(dcot) < 0.02);
+    bool isConv = fabs(dist) < 0.02 && fabs(dcot) < 0.02;
 
     int bitWiseResults =  (int) electron.electronID( electronIDvalue_ );  
     bool electronIDboolean = ((bitWiseResults & 1) == 1 );
@@ -126,7 +126,7 @@ class PFElectronSelector : public Selector<pat::Electron> {
 
     if ( missingHits   <= cut(indexMaxMissingHits_,  double()) || ignoreCut(indexMaxMissingHits_)   ) passCut(ret, indexMaxMissingHits_  );
     if ( fabs(corr_d0) <  cut(indexD0_,              double()) || ignoreCut(indexD0_)               ) passCut(ret, indexD0_     );
-    if ( isNotConv                                             || ignoreCut(indexConvRej_)          ) passCut(ret, indexConvRej_     );
+    if ( isConv                                                || ignoreCut(indexConvRej_)          ) passCut(ret, indexConvRej_     );
     if ( pfIso         <  cut(indexPFIso_,           double()) || ignoreCut(indexPFIso_)            ) passCut(ret, indexPFIso_ );
     if ( mva           >  cut(indexMVA_,             double()) || ignoreCut(indexMVA_)              ) passCut(ret, indexMVA_ );
     if ( electronIDboolean                                     || ignoreCut(indexElectronId_)       ) passCut(ret, indexElectronId_);

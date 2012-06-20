@@ -1,9 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
-import warnings
-warnings.warn('Configuration.StandardSequences.GeometryECALHCAL_cff is deprecated, please use Configuration.Geometry.GeometryECALHCAL_cff', DeprecationWarning, stacklevel=2)
+#
+# Geometry master configuration
+# for ECAL+HCAL
+#
+# Ideal geometry, needed for simulation
+from Geometry.CMSCommonData.ecalhcalGeometryXML_cfi import *
 
-from Configuration.Geometry.GeometryECALHCAL_cff import *
+#  Calorimeters
+from Geometry.CaloEventSetup.CaloTopology_cfi import *
+from Geometry.CaloEventSetup.CaloGeometry_cff import *
+from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
+from Geometry.EcalMapping.EcalMapping_cfi import *
+from Geometry.EcalMapping.EcalMappingRecord_cfi import *
+
 
 
 

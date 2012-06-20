@@ -84,6 +84,8 @@ bool debug_;
 
 std::string prefixME_;
 
+ std::string subfolder_;
+
 bool enableCleanup_;
 
 std::vector<int> superModules_;
@@ -107,8 +109,6 @@ MonitorElement* meg02_[18];
 
 TH2F* h_[18];
 TH2F* hmem_[18];
-
- std::map<uint32_t, float> gain_, chid_, gainswitch_, ttid_, ttblocksize_, memchid_, memgain_, memttid_, memblocksize_;
 
 // Quality criteria for data integrity
 

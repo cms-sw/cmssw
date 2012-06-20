@@ -541,8 +541,7 @@ void PFPhotonTranslator::createBasicCluster(const reco::PFBlockElement & PFBE,
   //std::cout << " # hits " << myPFCluster.hitsAndFractions().size() << std::endl;
 
 //  basicClusters.push_back(reco::CaloCluster(myPFCluster.energy(),
-  basicClusters.push_back(reco::CaloCluster(//coCandidate.rawEcalEnergy(),
-					    myPFCluster.energy(),
+  basicClusters.push_back(reco::CaloCluster(coCandidate.rawEcalEnergy(),
 					    myPFCluster.position(),
 					    myPFCluster.caloID(),
 					    myPFCluster.hitsAndFractions(),
@@ -712,67 +711,22 @@ void PFPhotonTranslator::createOneLegConversions(const edm::OrphanHandle<reco::S
 	  for (unsigned iConv=0; iConv<pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]].size(); iConv++){
 
 	    reco::CaloClusterPtrVector scPtrVec;
-	    std::vector<reco::CaloClusterPtr>matchingBC;
+
 	    math::Error<3>::type error;
 	    const reco::Vertex  * convVtx = new reco::Vertex(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->innerPosition(), error);
-	    
+
 	    //cout << "Vtx x="<<convVtx->x() << " y="<< convVtx->y()<<" z="<<convVtx->z()<< endl;
 	    //cout << "VtxError x=" << convVtx->xError() << endl;
 
 	    std::vector<reco::TrackRef> OneLegConvVector;
 	    OneLegConvVector.push_back(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]);
-	    
-	    reco::CaloClusterPtrVector clu=scPtrVec;
-	    std::vector<reco::TrackRef> tr=OneLegConvVector;
-	    std::vector<math::XYZPointF>trackPositionAtEcalVec;
-	    std::vector<math::XYZPointF>innPointVec;
-	    std::vector<math::XYZVectorF>trackPinVec;
-	    std::vector<math::XYZVectorF>trackPoutVec;
-	    math::XYZPointF trackPositionAtEcal(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-						outerPosition().X(), 
-						pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-						outerPosition().Y(),
-						pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-						outerPosition().Z());
-	    math::XYZPointF innPoint(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-				     innerPosition().X(), 
-				     pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-				     innerPosition().Y(),
-				     pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-				     innerPosition().Z());
-	    math::XYZVectorF trackPin(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-				     innerMomentum().X(), 
-				     pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-				     innerMomentum().Y(),
-				     pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-				     innerMomentum().Z());
-	    math::XYZVectorF trackPout(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-				      outerMomentum().X(), 
-				      pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-				      outerMomentum().Y(),
-				      pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->
-				      outerMomentum().Z());
-	    float DCA=pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->d0();
-	    trackPositionAtEcalVec.push_back(trackPositionAtEcal);
-	    innPointVec.push_back(innPoint);
-	    trackPinVec.push_back(trackPin);
-	    trackPoutVec.push_back(trackPout);
+	
+	    reco::Conversion myOneLegConversion(scPtrVec, OneLegConvVector, *convVtx, reco::Conversion::pflow);
+	
+
 	    std::vector< float > OneLegMvaVector;
-	    reco::Conversion myOneLegConversion(scPtrVec, 
-						OneLegConvVector,
-						trackPositionAtEcalVec,
-						*convVtx,
-						matchingBC,
-						DCA,
-						innPointVec,
-						trackPinVec,
-						trackPoutVec,
-						pfSingleLegConvMva_[conv1legPFCandidateIndex_[iphot]][iConv],			  
-						reco::Conversion::pflow);
 	    OneLegMvaVector.push_back(pfSingleLegConvMva_[conv1legPFCandidateIndex_[iphot]][iConv]);
 	    myOneLegConversion.setOneLegMVA(OneLegMvaVector);
-	    //reco::Conversion myOneLegConversion(scPtrVec, 
-	    //OneLegConvVector, *convVtx, reco::Conversion::pflow);
 	    
 	    /*
 	    std::cout << "One leg conversion created" << endl;

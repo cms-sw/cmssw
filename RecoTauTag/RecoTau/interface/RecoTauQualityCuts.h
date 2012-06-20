@@ -45,6 +45,10 @@ class RecoTauQualityCuts {
     /// Update the leading track
     void setLeadTrack(const reco::PFCandidate& leadCand) const;
 
+    /// Update the leading track (using reference)
+    /// If null, this will set the lead track ref null.
+    void setLeadTrack(const reco::PFCandidateRef& leadCand) const;
+
     /// Get the predicate used to filter.
     const QCutFunc& predicate() const { return predicate_; }
 

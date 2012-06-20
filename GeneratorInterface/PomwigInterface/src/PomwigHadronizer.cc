@@ -140,7 +140,7 @@ bool PomwigHadronizer::readSettings( int )
                         << "----------------------------------------------\n";
 
    // Call hwudat to set up HERWIG block data
-   //hwudat();
+   hwudat();
  
    // Setting basic parameters ...
    hwproc.PBEAM1 = comEnergy/2.;

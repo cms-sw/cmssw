@@ -2,7 +2,6 @@
 #define ElectronMVA_H
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
 #include "TMVA/Reader.h"
 #include<string>
 

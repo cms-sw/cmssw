@@ -40,11 +40,6 @@ public:
   reco::SuperCluster applyCrackCorrection(const reco::SuperCluster &cl,
 					  EcalClusterFunctionBaseClass* crackCorrectionFunction);
   
-  // take a SuperCluster and return a local containment corrected SuperCluster
-
-  reco::SuperCluster applyLocalContCorrection(const reco::SuperCluster &cl,
-					  EcalClusterFunctionBaseClass* localContCorrectionFunction);
-
 private:
   
   // correction factor as a function of number of crystals,

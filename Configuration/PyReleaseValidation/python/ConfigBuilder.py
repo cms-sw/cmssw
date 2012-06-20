@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.380 $"
-__source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
+__version__ = "$Revision: 1.372.2.13 $"
+__source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module
@@ -14,12 +14,13 @@ class Options:
 # the canonical defaults
 defaultOptions = Options()
 defaultOptions.datamix = 'DataOnSim'
+from Configuration.StandardSequences.Mixing import MixingDefaultKey
 defaultOptions.isMC=False
 defaultOptions.isData=True
 defaultOptions.step=''
-defaultOptions.pileup='NoPileUp'
+defaultOptions.pileup=MixingDefaultKey
 defaultOptions.pileup_input = None
-defaultOptions.geometry = 'SimDB'
+defaultOptions.geometry = 'DB'
 defaultOptions.geometryExtendedOptions = ['ExtendedGFlash','Extended','NoCastor']
 defaultOptions.magField = '38T'
 defaultOptions.conditions = None
@@ -377,7 +378,7 @@ class ConfigBuilder(object):
 					count+=1
 					
 		
-		## allow comma separated input eventcontent
+		##allow comma separated input eventcontent
 		if not hasattr(self.process.source,'inputCommands'): self.process.source.inputCommands=cms.untracked.vstring()
 		for evct in self._options.inputEventContent.split(','):
 			if evct=='': continue
@@ -458,6 +459,7 @@ class ConfigBuilder(object):
 						break
 			if not theModuleLabel:
 				raise Exception("cannot find a module label for specification: "+outDefDictStr)
+
 			if id==0:
 				defaultFileName=self._options.outfile_name
 			else:
@@ -466,7 +468,6 @@ class ConfigBuilder(object):
 			theFileName=self._options.dirout+anyOf(['fn','fileName'],outDefDict,defaultFileName)
 			if not theFileName.endswith('.root'):
 				theFileName+='.root'
-				
 			if len(outDefDict.keys()):
 				raise Exception("unused keys from --output options: "+','.join(outDefDict.keys()))
 			if theStreamType=='DQMROOT': theStreamType='DQM'
@@ -612,10 +613,6 @@ class ConfigBuilder(object):
         try:
 		if len(self.stepMap):
 			self.loadAndRemember(self.GeometryCFF)
-			if 'SIM' in self.stepMap or 'reSIM' in self.stepMap:
-				self.loadAndRemember(self.SimGeometryCFF)
-				if self.geometryDBLabel:
-					self.executeAndRemember('process.XMLFromDBSource.label = cms.string("%s")'%(self.geometryDBLabel))
         except ImportError:
                 print "Geometry option",self._options.geometry,"unknown."
                 raise
@@ -623,10 +620,6 @@ class ConfigBuilder(object):
 	if len(self.stepMap):
 		self.loadAndRemember(self.magFieldCFF)
 
-	if self._options.restoreRNDSeeds:
-		self.executeAndRemember('process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")')
-		if not self._options.inputCommands:			self._options.inputCommands='keep *_randomEngineStateProducer_*_*,'     
-		else:		self._options.inputCommands+='keep *_randomEngineStateProducer_*_*,'
 
         # what steps are provided by this class?
         stepList = [re.sub(r'^prepare_', '', methodName) for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
@@ -658,6 +651,18 @@ class ConfigBuilder(object):
             else:
                 raise ValueError("Step definition "+step+" invalid")
 
+	if self._options.restoreRNDSeeds!=False:
+		#it is either True, or a process name
+		if self._options.restoreRNDSeeds==True:
+			self.executeAndRemember('process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")')
+		else:
+			self.executeAndRemember('process.RandomNumberGeneratorService.restoreStateTag=cms.untracked.InputTag("randomEngineStateProducer","","%s")'%(self._options.restoreRNDSeeds))
+		if self._options.inputEventContent or self._options.inputCommands:
+			if self._options.inputCommands:
+				self._options.inputCommands+='keep *_randomEngineStateProducer_*_*,'
+			else:
+				self._options.inputCommands='keep *_randomEngineStateProducer_*_*,'
+				
     def addConditions(self):
         """Add conditions to the process"""
 	if not self._options.conditions: return
@@ -678,12 +683,12 @@ class ConfigBuilder(object):
 		else:
 			self._options.custom_conditions=self._options.conditions[1]
 		self._options.conditions=self._options.conditions[0]
-
-
+			
+        #it is insane to keep this replace in: dependency on changes in DataProcessing
 	if 'FrontierConditions_GlobalTag' in self._options.conditions:
 		print 'using FrontierConditions_GlobalTag in --conditions is not necessary anymore and will be deprecated soon. please update your command line'
 		self._options.conditions = self._options.conditions.replace("FrontierConditions_GlobalTag,",'')
-						
+
 	conditions = self._options.conditions.split(',')
 	
         gtName = str( conditions[0] )
@@ -846,6 +851,10 @@ class ConfigBuilder(object):
         self.CFWRITERDefaultCFF = "Configuration/StandardSequences/CrossingFrameWriter_cff"
         self.REPACKDefaultCFF="Configuration/StandardSequences/DigiToRaw_Repack_cff"
 
+        # synchronize the geometry configuration and the FullSimulation sequence to be used
+        if self._options.geometry not in defaultOptions.geometryExtendedOptions:
+            self.SIMDefaultCFF="Configuration/StandardSequences/SimIdeal_cff"
+
         if "DATAMIX" in self.stepMap.keys():
             self.DATAMIXDefaultCFF="Configuration/StandardSequences/DataMixer"+self._options.datamix+"_cff"
             self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDM_cff"
@@ -960,57 +969,22 @@ class ConfigBuilder(object):
         self.magFieldCFF = self.magFieldCFF.replace("__",'_')
 
         # the geometry
-	self.GeometryCFF='Configuration/StandardSequences/GeometryRecoDB_cff'
-	self.geometryDBLabel=None
-	simGeometry=''
+	if self._options.isData and 'HLT' in self.stepMap:
+		## temporary solution for HLT on data and pre-loading conditions. Should be solved with Geometry migration
+		self._options.geometry = 'RecoDB'
+		
         if 'FASTSIM' in self.stepMap:
                 if 'start' in self._options.conditions.lower():
                         self.GeometryCFF='FastSimulation/Configuration/Geometries_START_cff'
                 else:
                         self.GeometryCFF='FastSimulation/Configuration/Geometries_MC_cff'
         else:
-		def inGeometryKeys(opt):
-			from Configuration.StandardSequences.GeometryConf import GeometryConf
-			if opt in GeometryConf:
-				return GeometryConf[opt]
-			else:
-				return opt
+                if self._options.gflash==True:
+                        self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'GFlash_cff'
+                else:
+                        self.GeometryCFF='Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff'
 
-		geoms=self._options.geometry.split(',')
-		if len(geoms)==1: geoms=inGeometryKeys(geoms[0]).split(',')
-		if len(geoms)==2:
-			#may specify the reco geometry
-			if '/' in geoms[1] or '_cff' in geoms[1]:
-				self.GeometryCFF=geoms[1]
-			else:
-				self.GeometryCFF='Configuration/StandardSequences/Geometry'+geoms[1]+'_cff'
-
-		if (geoms[0].startswith('DB:')):
-			self.SimGeometryCFF='Configuration/StandardSequences/GeometrySimDB_cff'
-			self.geometryDBLabel=geoms[0][3:]
-			print "with DB:"
-		else:
-			if '/' in geoms[0] or '_cff' in geoms[0]:
-								self.SimGeometryCFF=geoms[0]
-			else:
-				simGeometry=geoms[0]
-				if self._options.gflash==True:
-					self.SimGeometryCFF='Configuration/StandardSequences/Geometry'+geoms[0]+'GFlash_cff'
-				else:
-					self.SimGeometryCFF='Configuration/StandardSequences/Geometry'+geoms[0]+'_cff'
-
-	# synchronize the geometry configuration and the FullSimulation sequence to be used
-        if simGeometry not in defaultOptions.geometryExtendedOptions:
-		self.SIMDefaultCFF="Configuration/StandardSequences/SimIdeal_cff"
-	    
         # Mixing
-	if self._options.pileup=='default':
-		from Configuration.StandardSequences.Mixing import MixingDefaultKey,MixingFSDefaultKey
-		if 'FASTSIM' in self.stepMap:
-			self._options.pileup=MixingFSDefaultKey
-		else:
-			self._options.pileup=MixingDefaultKey
-			
 	#not driven by a default cff anymore
 	if self._options.isData:
 		self._options.pileup=None
@@ -1023,7 +997,7 @@ class ConfigBuilder(object):
 
 	if self._options.slhc:
 		if 'stdgeom' not in self._options.slhc:
-			self.SimGeometryCFF='SLHCUpgradeSimulations.Geometry.%s_cmsSimIdealGeometryXML_cff'%(self._options.slhc,)
+			self.GeometryCFF='SLHCUpgradeSimulations.Geometry.%s_cmsSimIdealGeometryXML_cff'%(self._options.slhc,)
 		self.DIGIDefaultCFF='SLHCUpgradeSimulations/Geometry/Digi_%s_cff'%(self._options.slhc,)
 		if self._options.pileup!=defaultOptions.pileup:
 			self._options.pileup='SLHC_%s_%s'%(self._options.pileup,self._options.slhc)
@@ -1349,28 +1323,37 @@ class ConfigBuilder(object):
         if not sequence:
                 print "no specification of the hlt menu has been given, should never happen"
                 raise  Exception('no HLT sequence provided')
-        else:
-                if ',' in sequence:
-                        #case where HLT:something:something was provided
-                        self.executeAndRemember('import HLTrigger.Configuration.Utilities')
-                        optionsForHLT = {}
-                        if self._options.scenario == 'HeavyIons':
-                          optionsForHLT['type'] = 'HIon'
-                        else:
-                          optionsForHLT['type'] = 'GRun'
-                        optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.iteritems())
-                        self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
-                else:
-                        if 'FASTSIM' in self.stepMap:
-                            self.loadAndRemember('HLTrigger/Configuration/HLT_%s_Famos_cff' % sequence)
-                        else:
-                            self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
 
-	if self._options.name!='HLT':
+        if ',' in sequence:
+                #case where HLT:something:something was provided
+                self.executeAndRemember('import HLTrigger.Configuration.Utilities')
+                optionsForHLT = {}
+                if self._options.scenario == 'HeavyIons':
+                  optionsForHLT['type'] = 'HIon'
+                else:
+                  optionsForHLT['type'] = 'GRun'
+                optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.iteritems())
+                self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
+        else:
+                if 'FASTSIM' in self.stepMap:
+                    self.loadAndRemember('HLTrigger/Configuration/HLT_%s_Famos_cff' % sequence)
+                else:
+                    self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
+
+        if self._options.isMC:
+                self.additionalCommands.append('# customise the HLT menu for running on MC')
+                self.additionalCommands.append('from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC')
+                self.additionalCommands.append('process = customizeHLTforMC(process)')
+                self.additionalCommands.append('')
+                from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
+                self.process = customizeHLTforMC(self.process)
+
+	if self._options.name != 'HLT':
 		self.additionalCommands.append('from HLTrigger.Configuration.CustomConfigs import ProcessName')
-		self.additionalCommands.append('process=ProcessName(process)')
+		self.additionalCommands.append('process = ProcessName(process)')
+                self.additionalCommands.append('')
 		from HLTrigger.Configuration.CustomConfigs import ProcessName
-		self.process=ProcessName(self.process)
+		self.process = ProcessName(self.process)
 		
         self.schedule.append(self.process.HLTSchedule)
         [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
@@ -1489,8 +1472,10 @@ class ConfigBuilder(object):
                             prevalSeqName=''
                             valSeqName=sequence
 
-            if not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap:
-                    self.loadAndRemember('Configuration.StandardSequences.ReMixingSeeds_cff')
+	    if not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap:
+		    if self._options.restoreRNDSeeds==False and not self._options.restoreRNDSeeds==True and not valSeqName.startswith('genvalid'):
+			    self._options.restoreRNDSeeds=True
+
             #rename the HLT process in validation steps
 	    if ('HLT' in self.stepMap and not 'FASTSIM' in self.stepMap) or self._options.hltProcess:
 		    self.renameHLTprocessInSequence(valSeqName)
@@ -1501,7 +1486,6 @@ class ConfigBuilder(object):
                     self.process.prevalidation_step = cms.Path( getattr(self.process, prevalSeqName ) )
                     self.schedule.append(self.process.prevalidation_step)
             if valSeqName.startswith('genvalid'):
-                    self.loadAndRemember("IOMC.RandomEngine.IOMC_cff")
                     self.process.validation_step = cms.Path( getattr(self.process,valSeqName ) )
             else:
                     self.process.validation_step = cms.EndPath( getattr(self.process,valSeqName ) )
@@ -1751,15 +1735,14 @@ class ConfigBuilder(object):
         beamspotName = 'process.%sVtxSmearingParameters' %(self._options.beamspot)
         self.executeAndRemember(beamspotName+'.type = cms.string("%s")'%(beamspotType))
         self.executeAndRemember('process.famosSimHits.VertexGenerator = '+beamspotName)
-	if hasattr(self.process,'famosPileUp'):
-		self.executeAndRemember('process.famosPileUp.VertexGenerator = '+beamspotName)
+        self.executeAndRemember('process.famosPileUp.VertexGenerator = '+beamspotName)
 
 
 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.380 $"),
+                                            (version=cms.untracked.string("$Revision: 1.372.2.13 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )

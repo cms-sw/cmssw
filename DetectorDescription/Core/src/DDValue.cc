@@ -1,4 +1,6 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
+#include "DetectorDescription/Base/interface/DDException.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cassert>
@@ -141,7 +143,7 @@ DDValue::doubles( void ) const
   {
     std::string message = "DDValue " + names()[id_] + " is not numerically evaluated! Use DDValue::std::strings()!";
     edm::LogError("DDValue") << message << std::endl;
-    throw cms::Exception("DDException") << message;
+    throw DDException(message);
   }
 }
 
@@ -184,7 +186,7 @@ DDValue::operator[]( unsigned int i ) const
   {
     std::string message = "DDValue " + names()[id_] + " is not numerically evaluated! Use DDValue::std::strings()!";
     edm::LogError( "DDValue" ) << message;
-    throw cms::Exception("DDException") << message;
+    throw DDException( message );
   }
 }
 
