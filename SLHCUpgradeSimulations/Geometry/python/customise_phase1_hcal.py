@@ -296,7 +296,7 @@ def saveAllProds(process):
         mod=getattr(process,k)
         mod.outputCommands.extend(['keep *_simHcalUnsuppressedDigis_*_*',
                                    'keep *_hcalupgradereco_*_*',
-                                   'keep *_hbheprereco_*_*',
+                                   'keep *_hbhereco_*_*',
                                    'keep recoPFRecHits_particleFlowRecHitPS_*_*',
                                    'keep recoPFRecHits_particleFlowRecHitECAL_*_*',
                                    'keep recoPFBlocks_particleFlowBlock_*_*',
