@@ -31,6 +31,9 @@ Test of the EventProcessor class.
 #include <sstream>
 #include <string>
 
+// defined in the other cppunit
+void doInit();
+
 class testeventprocessor: public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testeventprocessor);
   CPPUNIT_TEST(parseTest);
@@ -47,7 +50,8 @@ class testeventprocessor: public CppUnit::TestFixture {
  public:
 
   void setUp() {
-    edm::RootAutoLibraryLoader::enable();
+    std::cout << "setting up testeventprocessor" << std::endl;
+    doInit();
     m_handler = std::auto_ptr<edm::AssertHandler>(new edm::AssertHandler());
     sleep_secs_ = 0;
   }
@@ -71,6 +75,7 @@ class testeventprocessor: public CppUnit::TestFixture {
  private:
   std::auto_ptr<edm::AssertHandler> m_handler;
   void work() {
+    std::cout << "work in testeventprocessor" << std::endl;
     std::string configuration(
       "import FWCore.ParameterSet.Config as cms\n"
       "process = cms.Process('p')\n"
