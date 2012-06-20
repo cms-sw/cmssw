@@ -75,6 +75,8 @@ public:
 
   FTS straightLineStateAtVertex() const;
 
+  const FastCircle & circle() const { return theCircle; }
+
 private:
   
   GlobalPoint theOuterHit;

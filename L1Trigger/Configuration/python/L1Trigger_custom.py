@@ -1,6 +1,6 @@
-# customization fragments to be used with cmsDriver
+# customization fragments to be used with cmsDriver and hltGetConfiguration
 #
-# V.M. Ghete 2010-06-09
+# V.M. Ghete 2010-06-09 initial version
 
 import FWCore.ParameterSet.Config as cms
 
@@ -94,12 +94,12 @@ def customiseL1Menu(process):
 
     if l1MenuSource == 'sqlFile' :
         # the menu will be read from the SQL file instead of the global tag
-        useSqlFile = '/afs/cern.ch/user/g/ghete/public/L1Menu/sqlFile/L1Menu_CollisionsHeavyIons2010_v0_mc.db'
-        menuDbTag = 'L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2010_v0_mc'
+        useSqlFile = '/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2011_v4/sqlFile/L1Menu_Collisions2011_v4_mc.db'
+        menuDbTag = 'L1GtTriggerMenu_L1Menu_Collisions2011_v4_mc'
     elif l1MenuSource == 'xmlFile' :
-        # the menu will be read from an XML file instead of the global tag
+        # the menu will be read from an XML file instead of the global tag - must copy the file in luminosityDirectory
         luminosityDirectory = "startup"
-        useXmlFile = 'L1Menu_CollisionsHeavyIons2010_v0_L1T_Scales_20080926_startup_Imp0_0x101b.xml'
+        useXmlFile = 'L1Menu_Collisions2011_v4_L1T_Scales_20101224_Imp0_0x1022.xml'
 
     else :
         print '   Using default L1 trigger menu from Global Tag '
@@ -197,7 +197,8 @@ def customiseL1EmulatorFromRaw(process):
 ##############################################################################
 
 def customiseL1GtEmulatorFromRaw(process):
-    # customization fragment to run L1 GT emulator starting from a RAW file
+    # customization fragment to run L1 GT emulator starting from a RAW file, with input from unpacked GCT and GMT products
+    # assuming that "RawToDigi_cff" (or "RawToDigi_data_cff") and "SimL1Emulator_cff" have already been loaded
 
     # producers for technical triggers:
     # they must be re-run as their output is not available from RAW2DIGI
@@ -221,7 +222,16 @@ def customiseL1GtEmulatorFromRaw(process):
      
 
     # Global Trigger emulator
-    simGtDigis.TechnicalTriggersInputTags = cms.VInputTag(
+    
+    # do not run calo emulators - instead, use unpacked GCT digis for GT input
+    process.simGtDigis.GctInputTag = 'gctDigis'
+    
+    # do not run muon emulators - instead, use unpacked GMT digis for GT input 
+    # (GMT digis produced by same module as the GT digis, as GT and GMT have common unpacker)
+    process.simGtDigis.GmtInputTag = 'gtDigis'                                                                                                                                                               
+    
+    # technical triggers
+    process.simGtDigis.TechnicalTriggersInputTags = cms.VInputTag(
         cms.InputTag( 'simBscDigis' ), 
         cms.InputTag( 'simRpcTechTrigDigis' ),
         cms.InputTag( 'simHcalTechTrigDigis' )
@@ -233,12 +243,19 @@ def customiseL1GtEmulatorFromRaw(process):
         process.simHcalTechTrigDigis
         )
 
-    process.L1GtEmulator = cms.Sequence(
+    # run producers for technical triggers, L1 GT emulator only
+    SimL1Emulator = cms.Sequence(
         process.SimL1TechnicalTriggers +
         process.simGtDigis )
 
-    for path in process._Process__paths.itervalues():
-        path.replace(process.SimL1Emulator, process.L1GtEmulator)
+    # replace the SimL1Emulator in all paths and sequences
+    for iterable in process.sequences.itervalues():
+        iterable.replace( process.SimL1Emulator, SimL1Emulator)
+    for iterable in process.paths.itervalues():
+        iterable.replace( process.SimL1Emulator, SimL1Emulator)
+    for iterable in process.endpaths.itervalues():
+        iterable.replace( process.SimL1Emulator, SimL1Emulator)
+    process.SimL1Emulator = SimL1Emulator
 
     return process
 
@@ -297,7 +314,7 @@ def customiseL1TriggerReport(process):
     #   GT lite record: l1GtRecord
     process.l1GtTrigReport.L1GtRecordInputTag = "gtDigis"
 
-    process.l1GtTrigReport.PrintVerbosity = 2
+    process.l1GtTrigReport.PrintVerbosity = 10
     process.l1GtTrigReport.PrintOutput = 0
 
 

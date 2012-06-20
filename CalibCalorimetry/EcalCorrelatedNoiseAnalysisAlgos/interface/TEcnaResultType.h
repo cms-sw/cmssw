@@ -2,24 +2,7 @@
 #define ROOT_TEcnaResultType
 
 #include "TMath.h"
-
-#include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaObject.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNArrayD.h"
-
-///-----------------------------------------------------------
-///   TEcnaResultType.h
-///   Update: 16/02/2011
-///   Authors:   FX Gentit, B.Fabbro (bernard.fabbro@cea.fr)
-///              DSM/IRFU/SPP CEA-Saclay
-///   Copyright: Those valid for CEA sofware
-///
-///   ECNA web page:
-///     http://cms-fabbro.web.cern.ch/cms-fabbro/
-///     cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
-///-----------------------------------------------------------
-///
-///  Set the results types and dimensions 
-///
 
 enum CnaResultTyp
   {cTypNumbers,     cTypMSp,         cTypSSp,
@@ -44,8 +27,9 @@ public:
   TEcnaNArrayD   fMatHis;         //2nd matrix, used in case of MatHis
 
   TEcnaResultType();
-  TEcnaResultType(TEcnaObject*);
-
+  
+  // TEcnaResultType(CnaResultTyp, Int_t, Int_t = 0, Int_t = 0, Int_t = 0, Int_t = 0);
+  
   ~TEcnaResultType();
   void SetSizeMat(Int_t, Int_t);
   void SetSizeHis(Int_t, Int_t);

@@ -16,7 +16,7 @@
 // Original Author:  Vincenzo Chiochia
 //         Created:  Tue 8 12:31:25 CEST 2007
 //         Modified: Evan Friis
-// $Id: SiPixelGainCalibration.h,v 1.8 2009/02/10 17:25:42 rougny Exp $
+// $Id: SiPixelGainCalibration.h,v 1.9.4.1 2010/06/25 16:43:56 hcheung Exp $
 //
 //
 #include<vector>
@@ -38,7 +38,7 @@ class SiPixelGainCalibration {
     uint32_t detid;
     uint32_t ibegin;
     uint32_t iend;
-    int ncols;
+    int ncols,rocrows;
   };
   
   class StrictWeakOrdering{
@@ -56,11 +56,11 @@ class SiPixelGainCalibration {
   SiPixelGainCalibration(float minPed, float maxPed, float minGain, float maxGain);
   virtual ~SiPixelGainCalibration(){};
 
-  bool  put(const uint32_t& detID,Range input, const int& nCols);
+  bool  put(const uint32_t& detID,Range input, const int& nCols, const int& ROCRows=80);
   const Range getRange(const uint32_t& detID) const;
   void  getDetIds(std::vector<uint32_t>& DetIds_) const;
-  const int getNCols(const uint32_t& detID) const;
-  const std::pair<const Range, const int> getRangeAndNCols(const uint32_t& detID) const;
+  const int getNCols(const uint32_t& detID, int* ROCRows=0) const;
+  const std::pair<const Range, const int> getRangeAndNCols(const uint32_t& detID, int* ROCRows=0) const;
 
   unsigned int getNumberOfRowsToAverageOver() const { return numberOfRowsToAverageOver_; }
   double getGainLow() const { return minGain_; }
@@ -74,8 +74,8 @@ class SiPixelGainCalibration {
   void  setDeadPixel(std::vector<char>& vped)  { setData(0, 0, /*dummy values, not used*/ vped,  true , false ); }
   void  setNoisyPixel(std::vector<char>& vped) { setData(0, 0, /*dummy values, not used*/ vped,  false , true ); }
 
-  float getPed   (const int& col, const int& row, const Range& range, const int& nCols, bool& isDead, bool& isNoisy) const;
-  float getGain  (const int& col, const int& row, const Range& range, const int& nCols, bool& isDead, bool& isNoisy) const;
+  float getPed   (const int& col, const int& row, const Range& range, const int& nCols, bool& isDead, bool& isNoisy, const int& ROCRows=80) const;
+  float getGain  (const int& col, const int& row, const Range& range, const int& nCols, bool& isDead, bool& isNoisy, const int& ROCRows=80) const;
 
   private:
 

@@ -26,7 +26,7 @@
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
 #include "EventFilter/RPCRawToDigi/interface/DebugDigisPrintout.h"
 
-#include <iostream>
+#include <sstream>
 #include <bitset>
 
 using namespace edm;
@@ -52,6 +52,19 @@ RPCUnpackingModule::~RPCUnpackingModule()
   delete theCabling;
 }
 
+void RPCUnpackingModule::beginRun(edm::Run &run, const edm::EventSetup& es)
+{
+  if (theRecordWatcher.check(es)) {  
+    LogTrace("") << "record has CHANGED!!, (re)initialise readout map!";
+    delete theCabling; 
+    ESTransientHandle<RPCEMap> readoutMapping;
+    es.get<RPCEMapRcd>().get(readoutMapping);
+    theCabling = readoutMapping->convert();
+    theReadoutMappingSearch.init(theCabling);
+     LogTrace("") <<" READOUT MAP VERSION: " << theCabling->version() << endl;
+  }
+}
+
 
 void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
 {
@@ -62,15 +75,6 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
   Handle<FEDRawDataCollection> allFEDRawData; 
   ev.getByLabel(dataLabel_,allFEDRawData); 
 
-  if (theRecordWatcher.check(es)) {  
-    if (debug) LogTrace("") << "record has CHANGED!!, (re)initialise readout map!";
-    delete theCabling; 
-    ESTransientHandle<RPCEMap> readoutMapping;
-    es.get<RPCEMapRcd>().get(readoutMapping);
-    theCabling = readoutMapping->convert();
-    theReadoutMappingSearch.init(theCabling);
-    if (debug) LogTrace("") <<" READOUT MAP VERSION: " << theCabling->version() << endl;
-  }
 
   std::auto_ptr<RPCDigiCollection> producedRPCDigis(new RPCDigiCollection);
   std::auto_ptr<RPCRawDataCounts> producedRawDataCounts(new RPCRawDataCounts);
@@ -108,7 +112,7 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es)
       triggerBX = fedHeader.bxID();
       moreHeaders = fedHeader.moreHeaders();
       if (debug) {
-        ostringstream str;
+        stringstream str;
         str <<"  header: "<< *reinterpret_cast<const bitset<64>*> (header) << endl;
         str <<"  header triggerType: " << fedHeader.triggerType()<<endl;
         str <<"  header lvl1ID:      " << fedHeader.lvl1ID() << endl;

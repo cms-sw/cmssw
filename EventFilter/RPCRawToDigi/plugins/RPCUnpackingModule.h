@@ -14,7 +14,7 @@
 
 
 class RPCReadOutMapping;
-namespace edm { class Event; class EventSetup; }
+namespace edm { class Event; class EventSetup; class Run; }
 
 class RPCUnpackingModule: public edm::EDProducer {
 public:
@@ -29,6 +29,8 @@ public:
       FEDRawDataCollection (EDProduct) using the DigiToRaw converter,
       and attaches it to the Event. */
     void produce(edm::Event & ev, const edm::EventSetup& es); 
+
+    void beginRun(edm::Run &run, const edm::EventSetup& es);
   
 private:
   edm::InputTag dataLabel_;

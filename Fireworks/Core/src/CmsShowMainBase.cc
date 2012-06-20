@@ -1,5 +1,21 @@
-#include "Fireworks/Core/interface/CmsShowMainBase.h"
+#include <fstream>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
 
+#include <boost/bind.hpp>
+
+#include "TGLWidget.h"
+#include "TGMsgBox.h"
+#include "TROOT.h"
+#include "TSystem.h"
+#include "TStopwatch.h"
+#include "TTimer.h"
+#include "TEveManager.h"
+
+#include "Fireworks/Core/interface/CmsShowMainBase.h"
 #include "Fireworks/Core/interface/ActionsList.h"
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/interface/CSGContinuousAction.h"
@@ -19,23 +35,15 @@
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWTableViewManager.h"
 #include "Fireworks/Core/interface/FWTriggerTableViewManager.h"
+#include "Fireworks/Core/interface/FWGeometryTableViewManager.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/src/SimpleSAXParser.h"
 #include "Fireworks/Core/interface/CmsShowCommon.h"
-
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/interface/fwPaths.h"
 
-#include "TGLWidget.h"
-#include "TGMsgBox.h"
-#include "TROOT.h"
-#include "TSystem.h"
-#include "TStopwatch.h"
-#include "TTimer.h"
-#include "TEveManager.h"
-
-#include <boost/bind.hpp>
 
 CmsShowMainBase::CmsShowMainBase()
    : 
@@ -57,12 +65,11 @@ CmsShowMainBase::CmsShowMainBase()
      m_loop(false),
      m_playDelay(3.f)
 {
+   sendVersionInfo();
 }
 
 CmsShowMainBase::~CmsShowMainBase()
 {
-   //avoids a seg fault from eve which happens if eve is terminated after the GUI is gone
-   m_selectionManager->clearSelection();
 }
 
 void
@@ -116,6 +123,10 @@ CmsShowMainBase::setupViewManagers()
    configurationManager()->add(std::string("L1TriggerTables"), triggerTableViewManager.get()); // AMT: added for backward compatibilty
    triggerTableViewManager->setContext(m_contextPtr);
    viewManager()->add(triggerTableViewManager);
+
+   boost::shared_ptr<FWGeometryTableViewManager> geoTableViewManager(new FWGeometryTableViewManager(guiManager(),  m_simGeometryFilename));
+   geoTableViewManager->setContext(m_contextPtr);
+   viewManager()->add(geoTableViewManager);
 
     
    // Unfortunately, due to the plugin mechanism, we need to delay
@@ -283,28 +294,29 @@ CmsShowMainBase::reloadConfiguration(const std::string &config)
       m_configurationManager->readFromFile(config);
       gEve->EnableRedraw();
    }
-   catch (std::runtime_error &e)
-   {
-      Int_t chosen;
-      new TGMsgBox(gClient->GetDefaultRoot(),
-                   gClient->GetDefaultRoot(),
-                   "Bad configuration",
-                   ("Configuration " + config + " cannot be parsed.").c_str(),
-                   kMBIconExclamation,
-                   kMBCancel,
-                   &chosen);
-   }
    catch (SimpleSAXParser::ParserError &e)
    {
       Int_t chosen;
       new TGMsgBox(gClient->GetDefaultRoot(),
                    gClient->GetDefaultRoot(),
                    "Bad configuration",
+                   ("Configuration " + config + " cannot be parsed: " + e.error()).c_str(),
+                   kMBIconExclamation,
+                   kMBCancel,
+                   &chosen);
+   }
+   catch (...)
+   {
+      Int_t chosen;
+      new TGMsgBox(gClient->GetDefaultRoot(),
+                   gClient->GetDefaultRoot(),
+                   "Bad configuration",
                    ("Configuration " + config + " cannot be parsed.").c_str(),
                    kMBIconExclamation,
                    kMBCancel,
                    &chosen);
    }
+
    m_guiManager->updateStatus("");
 }
 
@@ -364,15 +376,16 @@ CmsShowMainBase::setupConfiguration()
          m_configurationManager->readFromFile(m_configFileName);
          gEve->EnableRedraw();
       }
-      catch (std::runtime_error &e)
+      catch (SimpleSAXParser::ParserError &e)
       {
          fwLog(fwlog::kError) <<"Unable to load configuration file '" 
                               << m_configFileName 
-                              << "' which was specified on command line. Quitting." 
+                              << "': " 
+                              << e.error()
                               << std::endl;
          exit(1);
       }
-      catch (SimpleSAXParser::ParserError &e)
+      catch (std::runtime_error &e)
       {
          fwLog(fwlog::kError) <<"Unable to load configuration file '" 
                               << m_configFileName 
@@ -477,4 +490,64 @@ CmsShowMainBase::loadGeometry()
                            << iException.what() << std::endl;
       exit(0);
    }
+}
+
+void
+CmsShowMainBase::sendVersionInfo()
+{
+   // Send version info to xrootd.t2.ucsd.edu receiver on port 9698.
+
+   // receiver
+   struct hostent* h = gethostbyname("xrootd.t2.ucsd.edu");
+   if (!h) return;
+
+
+   struct sockaddr_in remoteServAddr;
+   remoteServAddr.sin_family = h->h_addrtype;
+   memcpy((char *) &remoteServAddr.sin_addr.s_addr, h->h_addr_list[0], h->h_length);
+   remoteServAddr.sin_port = htons(9698);
+
+   // socket creation
+   int sd = socket(AF_INET,SOCK_DGRAM, 0);
+   if (sd  < 0) 
+   {
+      // std::cout << "can't create socket \n";
+      return;
+   }
+   // bind any port
+   // printf("bind port\n");
+   struct sockaddr_in cliAddr;
+   cliAddr.sin_family = AF_INET;
+   cliAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+   cliAddr.sin_port = htons(0);
+
+   int rc = bind(sd, (struct sockaddr *) &cliAddr, sizeof(cliAddr)); 
+   if (rc < 0) {
+      //  std::cout << "can't bind port %d " << rc << std::endl;
+      return;
+   }
+
+   // send data 
+   SysInfo_t sInfo;
+   gSystem->GetSysInfo(&sInfo);
+
+   char msg[128];
+   if (gSystem->Getenv("CMSSW_VERSION"))
+   {
+      snprintf(msg, 64,"%s %s", gSystem->Getenv("CMSSW_VERSION"), sInfo.fOS.Data());
+   }
+   else
+   {
+      TString versionFileName("data/version.txt");
+      fireworks::setPath(versionFileName);
+      ifstream fs(versionFileName);
+      TString infoText;
+      infoText.ReadLine(fs);
+      fs.close();
+      snprintf(msg, 64,"Standalone %s %s", infoText.Data(), sInfo.fOS.Data() );
+   }
+   int flags = 0;
+   sendto(sd, msg, strlen(msg), flags, 
+          (struct sockaddr *) &remoteServAddr, 
+          sizeof(remoteServAddr));
 }

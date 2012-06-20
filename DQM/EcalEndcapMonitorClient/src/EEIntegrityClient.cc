@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2010/08/09 13:44:54 $
- * $Revision: 1.111 $
+ * $Date: 2011/08/30 09:29:44 $
+ * $Revision: 1.113 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -17,6 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
@@ -143,7 +144,7 @@ void EEIntegrityClient::endRun(void) {
 
 void EEIntegrityClient::setup(void) {
 
-  char histo[200];
+  std::string name;
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EEIntegrityClient" );
 
@@ -152,15 +153,15 @@ void EEIntegrityClient::setup(void) {
     int ism = superModules_[i];
 
     if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
-    sprintf(histo, "EEIT data integrity quality %s", Numbers::sEE(ism).c_str());
-    meg01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    name = "EEIT data integrity quality " + Numbers::sEE(ism);
+    meg01_[ism-1] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     meg01_[ism-1]->setAxisTitle("ix", 1);
     if ( ism >= 1 && ism <= 9 ) meg01_[ism-1]->setAxisTitle("101-ix", 1);
     meg01_[ism-1]->setAxisTitle("iy", 2);
 
     if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
-    sprintf(histo, "EEIT data integrity quality MEM %s", Numbers::sEE(ism).c_str());
-    meg02_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 5, 0.,5.);
+    name = "EEIT data integrity quality MEM " + Numbers::sEE(ism);
+    meg02_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 5, 0.,5.);
     meg02_[ism-1]->setAxisTitle("pseudo-strip", 1);
     meg02_[ism-1]->setAxisTitle("channel", 2);
 
@@ -702,61 +703,47 @@ void EEIntegrityClient::analyze(void) {
   bits01 |= 1 << EcalDQMStatusHelper::TT_ID_ERROR;
   bits01 |= 1 << EcalDQMStatusHelper::TT_SIZE_ERROR;
 
-  char histo[200];
-
   MonitorElement* me;
 
-  sprintf(histo, (prefixME_ + "/EEIntegrityTask/EEIT DCC size error").c_str());
-  me = dqmStore_->get(histo);
-  h00_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h00_ );
+  me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/EEIT DCC size error" );
+  h00_ = UtilsClient::getHisto( me, cloneME_, h00_ );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT digi occupancy %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    h_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EEOccupancyTask/EEOT digi occupancy " + Numbers::sEE(ism) );
+    h_[ism-1] = UtilsClient::getHisto( me, cloneME_, h_[ism-1] );
 
-    sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT MEM digi occupancy %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    hmem_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, hmem_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EEOccupancyTask/EEOT MEM digi occupancy " + Numbers::sEE(ism) );
+    hmem_[ism-1] = UtilsClient::getHisto( me, cloneME_, hmem_[ism-1] );
 
-    sprintf(histo, (prefixME_ + "/EEIntegrityTask/Gain/EEIT gain %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    h01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/Gain/EEIT gain " + Numbers::sEE(ism) );
+    h01_[ism-1] = UtilsClient::getHisto( me, cloneME_, h01_[ism-1] );
 
-    sprintf(histo, (prefixME_ + "/EEIntegrityTask/ChId/EEIT ChId %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    h02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h02_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/ChId/EEIT ChId " + Numbers::sEE(ism) );
+    h02_[ism-1] = UtilsClient::getHisto( me, cloneME_, h02_[ism-1] );
 
-    sprintf(histo, (prefixME_ + "/EEIntegrityTask/GainSwitch/EEIT gain switch %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h03_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/GainSwitch/EEIT gain switch " + Numbers::sEE(ism) );
+    h03_[ism-1] = UtilsClient::getHisto( me, cloneME_, h03_[ism-1] );
 
-    sprintf(histo, (prefixME_ + "/EEIntegrityTask/TTId/EEIT TTId %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    h04_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h04_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/TTId/EEIT TTId " + Numbers::sEE(ism) );
+    h04_[ism-1] = UtilsClient::getHisto( me, cloneME_, h04_[ism-1] );
 
-    sprintf(histo, (prefixME_ + "/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    h05_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h05_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize " + Numbers::sEE(ism) );
+    h05_[ism-1] = UtilsClient::getHisto( me, cloneME_, h05_[ism-1] );
 
-    sprintf(histo, (prefixME_ + "/EEIntegrityTask/MemChId/EEIT MemChId %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    h06_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h06_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/MemChId/EEIT MemChId " + Numbers::sEE(ism) );
+    h06_[ism-1] = UtilsClient::getHisto( me, cloneME_, h06_[ism-1] );
 
-    sprintf(histo, (prefixME_ + "/EEIntegrityTask/MemGain/EEIT MemGain %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    h07_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h07_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/MemGain/EEIT MemGain " + Numbers::sEE(ism) );
+    h07_[ism-1] = UtilsClient::getHisto( me, cloneME_, h07_[ism-1] );
 
-    sprintf(histo, (prefixME_ + "/EEIntegrityTask/MemTTId/EEIT MemTTId %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    h08_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h08_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/MemTTId/EEIT MemTTId " + Numbers::sEE(ism) );
+    h08_[ism-1] = UtilsClient::getHisto( me, cloneME_, h08_[ism-1] );
 
-    sprintf(histo, (prefixME_ + "/EEIntegrityTask/MemSize/EEIT MemSize %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    h09_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h09_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EEIntegrityTask/MemSize/EEIT MemSize " + Numbers::sEE(ism) );
+    h09_[ism-1] = UtilsClient::getHisto( me, cloneME_, h09_[ism-1] );
 
     float num00;
 

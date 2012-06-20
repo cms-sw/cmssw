@@ -8,8 +8,10 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:44:04 EST 2009
-// $Id: FWColumnLabelCellRenderer.cc,v 1.1 2009/02/03 20:33:04 chrjones Exp $
+// $Id: FWColumnLabelCellRenderer.cc,v 1.2 2009/03/04 15:33:35 chrjones Exp $
 //
+
+#include <cassert>
 
 // system include files
 #include "TVirtualX.h"
@@ -30,11 +32,14 @@
 //
 // constructors and destructor
 //
-FWColumnLabelCellRenderer::FWColumnLabelCellRenderer(const TGGC* iContext):
+FWColumnLabelCellRenderer::FWColumnLabelCellRenderer(const TGGC* iContext, bool isSortable):
 FWTextTableCellRenderer(iContext), 
 m_sortOrder(fireworks::table::kNotSorted),
-m_sizeOfOrderIcon(height())
+m_sizeOfOrderIcon(height()),
+m_isSortable(isSortable)
 {
+  if (m_isSortable)
+  {
    FontMetrics_t metrics;
    font()->GetFontMetrics(&metrics);
 
@@ -45,6 +50,7 @@ m_sizeOfOrderIcon(height())
    if(1 == m_sizeOfOrderIcon % 2) {
       ++m_sizeOfOrderIcon;
    }
+  }
 }
 
 
@@ -73,28 +79,39 @@ FWColumnLabelCellRenderer::~FWColumnLabelCellRenderer()
 // member functions
 //
 void FWColumnLabelCellRenderer::setSortOrder(fireworks::table::SortOrder iOrder) {
-   m_sortOrder = iOrder;
+  
+  if (!m_isSortable) assert (iOrder ==  fireworks::table::kNotSorted);
+  
+  m_sortOrder = iOrder;
 }
 
 void 
 FWColumnLabelCellRenderer::draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight)
 {
-   using namespace fireworks::table;
-   UInt_t h = m_sizeOfOrderIcon;
-   const GContext_t c = graphicsContext()->GetGC();
-   int dY = m_sizeOfOrderIconStartX;
-   
-   if(kAscendingSort == m_sortOrder) {
+  if (m_isSortable) 
+  {
+    using namespace fireworks::table;
+    UInt_t h = m_sizeOfOrderIcon;
+    const GContext_t c = graphicsContext()->GetGC();
+    int dY = m_sizeOfOrderIconStartX;
+    
+    if(kAscendingSort == m_sortOrder) {
       gVirtualX->DrawLine(iID, c, iX+h/2, iY+2+dY,   iX,   iY+h-2+dY);
       gVirtualX->DrawLine(iID, c, iX,     iY+h-2+dY, iX+h, iY+h-2+dY);
       gVirtualX->DrawLine(iID, c, iX+h/2, iY+2+dY,   iX+h, iY+h-2+dY);
-   }
-   if(kDescendingSort == m_sortOrder){
+    }
+    if(kDescendingSort == m_sortOrder){
       gVirtualX->DrawLine(iID, c, iX,     iY+2+dY,   iX+h, iY+2+dY);
       gVirtualX->DrawLine(iID, c, iX+h/2, iY+h-2+dY, iX+h, iY+2+dY);
       gVirtualX->DrawLine(iID, c, iX+h/2, iY+h-2+dY, iX,   iY+2+dY);      
-   }
-   FWTextTableCellRenderer::draw(iID,iX+kGap+h,iY,iWidth-kGap-h,iHeight);
+    }
+    FWTextTableCellRenderer::draw(iID,iX+kGap+h,iY,iWidth-kGap-h,iHeight);
+  }
+  else
+  {
+    return FWTextTableCellRenderer::draw(iID, iX+kGap, iY-kGap, iWidth, iHeight);
+  }
+
 }
 
 //
@@ -107,7 +124,12 @@ fireworks::table::SortOrder FWColumnLabelCellRenderer::sortOrder() const
 
 UInt_t FWColumnLabelCellRenderer::width() const
 {
+  if (m_isSortable)
    return FWTextTableCellRenderer::width()+kGap+m_sizeOfOrderIcon;
+  else {
+    return FWTextTableCellRenderer::width() + kGap*2;
+  }
+
 }
 
 //

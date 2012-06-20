@@ -26,7 +26,7 @@
 #include "Fireworks/Core/interface/Context.h"
 
 // Forward declarations
-class FWPFEcalRecHitLegoProxyBuilder;
+class FWProxyBuilderBase;
 
 //-----------------------------------------------------------------------------
 // FWPFLegoRechHit
@@ -35,12 +35,12 @@ class FWPFLegoRecHit
 {
    public:
    // ---------------- Constructor(s)/Destructor ----------------------
-      FWPFLegoRecHit( const std::vector<TEveVector> &corners, TEveElement *comp, FWPFEcalRecHitLegoProxyBuilder*pb,
+      FWPFLegoRecHit( const std::vector<TEveVector> &corners, TEveElement *comp, FWProxyBuilderBase*pb,
                       const FWViewContext *vc, float e, float et );
       virtual ~FWPFLegoRecHit(){}
 
    // --------------------- Member Functions --------------------------
-      void updateScale( const FWViewContext *vc);
+      void updateScale( const FWViewContext *vc, float maxLogVal);
       void setSquareColor( Color_t c ) { m_ls->SetMarkerColor(c); m_ls->SetLineColor(kBlack); }
 
       TEveBox *getTower() { return m_tower; }
@@ -61,7 +61,6 @@ class FWPFLegoRecHit
       void buildLineSet( const std::vector<TEveVector> &corners, const FWViewContext *vc );
 
    // ----------------------- Data Members ----------------------------
-      FWPFEcalRecHitLegoProxyBuilder   *m_builder;
       TEveBox                          *m_tower;
       TEveStraightLineSet              *m_ls;
       float                            m_energy;

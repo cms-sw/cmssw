@@ -53,7 +53,9 @@ namespace edm {
     **/
     
     /// everything that needs to be done during the event loop
-    virtual void filter(const edm::EventBase& event)=0;
+    virtual bool filter(const edm::EventBase& event)=0;
+    /// interface to filters as they exists in PhysicsTools/SelectorUtils
+    vitrual bool operator ()(const edm::EventBase& event){return filter(event);}
   };
   
 }

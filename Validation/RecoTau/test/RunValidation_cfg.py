@@ -4,7 +4,6 @@ import shutil
 import sys
 
 from Validation.RecoTau.ValidationOptions_cfi import *
-import Validation.RecoTau.RecoTauValidation_cfi as validation
 
 process = cms.Process("TEST")
 
@@ -201,8 +200,6 @@ if options.batchNumber >= 0:
    outputFileNameBase += "_%i" % options.batchNumber
    options.writeEDMFile = options.writeEDMFile.replace(".root", "_%i.root" % options.batchNumber)
 outputFileNameBase += ".root"
-
-print "HPSTanc pt Cut set to: %i. If you want a different one change it in RecoTauValidation_cfi" % validation.RunHPSTanc_HPSValidation.LeadingTrackPtCut.value()
 
 if options.gridJob:
    outputFileName = 'TauVal_GridJob.root'

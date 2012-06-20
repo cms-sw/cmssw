@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2010/11/08 18:06:16 $
- * $Revision: 1.262 $
+ * $Date: 2011/08/30 09:29:45 $
+ * $Revision: 1.265 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -684,42 +684,37 @@ void EcalEndcapMonitorClient::beginJob(void) {
 
   // summary for DQM GUI
 
-  char histo[200];
-
   MonitorElement* me;
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
-  sprintf(histo, "reportSummary");
-  me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
   if ( me ) {
     dqmStore_->removeElement(me->getName());
   }
-  me = dqmStore_->bookFloat(histo);
+  me = dqmStore_->bookFloat("reportSummary");
   me->Fill(-1.0);
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
 
   for (int i = 0; i < 18; i++) {
-    sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
-    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/EcalEndcap_" + Numbers::sEE(i+1) );
     if ( me ) {
       dqmStore_->removeElement(me->getName());
     }
-    me = dqmStore_->bookFloat(histo);
+    me = dqmStore_->bookFloat("EcalEndcap_" + Numbers::sEE(i+1));
     me->Fill(-1.0);
   }
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
-  sprintf(histo, "reportSummaryMap");
-  me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
   if ( me ) {
     dqmStore_->removeElement(me->getName());
   }
-  me = dqmStore_->book2D(histo, histo, 200, 0., 200., 100, 0., 100);
-  for ( int jx = 1; jx <= 200; jx++ ) {
-    for ( int jy = 1; jy <= 100; jy++ ) {
+  me = dqmStore_->book2D("reportSummaryMap", "reportSummaryMap", 40, 0., 200., 20, 0., 100);
+  for ( int jx = 1; jx <= 40; jx++ ) {
+    for ( int jy = 1; jy <= 20; jy++ ) {
       me->setBinContent( jx, jy, -1.0 );
     }
   }
@@ -915,24 +910,19 @@ void EcalEndcapMonitorClient::endRun(const edm::Run& r, const edm::EventSetup& c
 
   if ( run_ != -1 && evt_ != -1 && runType_ == -1 )  {
 
-    char histo[200];
-
     MonitorElement* me;
 
-    sprintf(histo, "reportSummary");
-    me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
     if ( me ) me->Fill(-1.0);
 
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
-      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/EcalEndcap_" + Numbers::sEE(i+1));
       if ( me ) me->Fill(-1.0);
     }
 
-    sprintf(histo, "reportSummaryMap");
-    me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo);
-    for ( int jx = 1; jx <= 200; jx++ ) {
-      for ( int jy = 1; jy <= 100; jy++ ) {
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
+    for ( int jx = 1; jx <= 40; jx++ ) {
+      for ( int jy = 1; jy <= 20; jy++ ) {
         if ( me ) me->setBinContent( jx, jy, -1.0 );
       }
     }

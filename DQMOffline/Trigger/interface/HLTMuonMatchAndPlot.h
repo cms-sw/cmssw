@@ -11,8 +11,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2011/01/03 21:10:33 $
- *  $Revision: 1.14 $
+ *  $Date: 2011/05/23 13:07:46 $
+ *  $Revision: 1.17 $
  *  
  *  \author  J. Slaunwhite, Jeff Klukas
  */
@@ -82,7 +82,7 @@ class HLTMuonMatchAndPlot {
     fillMapFromPSet(std::map<std::string, T> &, edm::ParameterSet, std::string);
   template <class T1, class T2> std::vector<size_t> 
     matchByDeltaR(const std::vector<T1> &, const std::vector<T2> &, 
-                  const double maxDeltaR);
+                  const double maxDeltaR = NOMATCH);
 
  private:
 
@@ -92,7 +92,9 @@ class HLTMuonMatchAndPlot {
   reco::MuonCollection selectedMuons(
     const reco::MuonCollection &,
     const reco::BeamSpot &,
-    const edm::ParameterSet &);
+    bool,    
+    const StringCutObjectSelector<reco::Muon> &,
+    double, double);
   trigger::TriggerObjectCollection selectedTriggerObjects(
     const trigger::TriggerObjectCollection &,
     const trigger::TriggerEvent &,
@@ -109,11 +111,23 @@ class HLTMuonMatchAndPlot {
   edm::ParameterSet probeParams_;
 
   // Member Variables
+  std::string triggerLevel_;
+  unsigned int cutMinPt_;
   std::string hltPath_;
   std::vector<std::string> moduleLabels_;
   DQMStore * dbe_;
   std::map<std::string, MonitorElement *> hists_;
-
+  
+  // Selectors
+  bool hasTargetRecoCuts;                                                                                                                                                                                                                                                    
+  bool hasProbeRecoCuts;
+    
+  StringCutObjectSelector<reco::Muon> targetMuonSelector_;
+  double targetZ0Cut_; 
+  double targetD0Cut_;
+  StringCutObjectSelector<reco::Muon> probeMuonSelector_;
+  double probeZ0Cut_; 
+  double probeD0Cut_;
 };
 
 #endif

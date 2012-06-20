@@ -1,4 +1,5 @@
 #include "FWPFPatJetLegoProxyBuilder.h"
+#include "Fireworks/Candidates/interface/FWLegoCandidate.h"
 
 //______________________________________________________________________________
 template<class T> FWPFPatJetLegoProxyBuilder<T>::FWPFPatJetLegoProxyBuilder(){}
@@ -16,7 +17,7 @@ FWPFPatJetLegoProxyBuilder<T>::build( const T& iData, unsigned int iIndex, TEveE
    {
       const reco::PFCandidatePtr pfCandPtr = *ic;
 
-      FWPFLegoCandidate *candidate = new FWPFLegoCandidate( vc, FWProxyBuilderBase::context(), pfCandPtr->energy(), pfCandPtr->et(),
+      FWLegoCandidate *candidate = new FWLegoCandidate( vc, FWProxyBuilderBase::context(), pfCandPtr->energy(), pfCandPtr->et(),
                                                             pfCandPtr->pt(), pfCandPtr->eta(), pfCandPtr->phi() );
       candidate->SetMarkerColor( FWProxyBuilderBase::item()->defaultDisplayProperties().color() );
       fireworks::setTrackTypePF( (*pfCandPtr), candidate );
@@ -38,7 +39,7 @@ FWPFPatJetLegoProxyBuilder<T>::scaleProduct(TEveElementList* parent, FWViewType:
          // loop elements for the reco::PFJet item
          for( TEveElement::List_i j = (*i)->BeginChildren(); j != (*i)->EndChildren(); ++j )
          {
-            FWPFLegoCandidate *cand = dynamic_cast<FWPFLegoCandidate*> ( *j );
+            FWLegoCandidate *cand = dynamic_cast<FWLegoCandidate*> ( *j );
             cand->updateScale( vc, FWProxyBuilderBase::context());
          }
       }
@@ -54,7 +55,7 @@ FWPFPatJetLegoProxyBuilder<T>::localModelChanges(const FWModelId& iId, TEveEleme
    {
       for( TEveElement::List_i j = parent->BeginChildren(); j != parent->EndChildren(); ++j )
       {
-         FWPFLegoCandidate *cand = dynamic_cast<FWPFLegoCandidate*> ( *j );
+         FWLegoCandidate *cand = dynamic_cast<FWLegoCandidate*> ( *j );
          const FWDisplayProperties &dp = FWProxyBuilderBase::item()->modelInfo( iId.index() ).displayProperties();
          cand->SetMarkerColor( dp.color() );
          cand->ElementChanged();

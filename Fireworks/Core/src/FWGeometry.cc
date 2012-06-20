@@ -16,7 +16,6 @@
 #include <algorithm>
 
 FWGeometry::FWGeometry( void )
-  : m_idToInfo( 260000 )
 {}
 
 FWGeometry::~FWGeometry( void )
@@ -26,7 +25,7 @@ TFile*
 FWGeometry::findFile( const char* fileName )
 {
    TString file;
-   if( fileName[0] == '/' )
+   if( fileName[0] == '/' || ( fileName[0] == '.' &&  fileName[1] == '/' ))
    {
       file = fileName;
    }
@@ -265,7 +264,7 @@ FWGeometry::getEveShape( unsigned int id  ) const
 			   info.translation[0], info.translation[1], info.translation[2], 1.
       };
       TEveGeoManagerHolder gmgr( TEveGeoShape::GetGeoMangeur());
-      TEveGeoShape* shape = new TEveGeoShape;
+      TEveGeoShape* shape = new TEveGeoShape(TString::Format("RecoGeom Id=%u", id));
       TGeoShape* geoShape = getShape( info );
       shape->SetShape( geoShape );
       // Set transformation matrix from a column-major array

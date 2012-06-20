@@ -26,8 +26,10 @@ newSeedFromTriplets = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.gl
     )
     )
     )
+newSeedFromTriplets.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClusters'
+newSeedFromTriplets.ClusterCheckPSet.ClusterCollectionLabel = 'siStripClusters'
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-newSeedFromTriplets.SeedComparitorPSet.ComponentName = 'LowPtClusterShapeSeedComparitor'
+newSeedFromTriplets.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.ComponentName = 'LowPtClusterShapeSeedComparitor'
 
 # building
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
@@ -60,57 +62,59 @@ preFilterZeroStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProdu
 
 ### STEP 1 ###
 
-# Lock hits from step0 tracks
-zeroStepFilter = cms.EDProducer("QualityFilter",
-    TrackQuality = cms.string('highPurity'),
-    recTracks = cms.InputTag("zeroStepTracksWithQuality:")
-)
 
 # new hit collection
 newClusters = cms.EDProducer("TrackClusterRemover",
-    trajectories = cms.InputTag("zeroStepFilter"), 
+    trajectories = cms.InputTag("preFilterZeroStepTracks"),
+    overrideTrkQuals = cms.InputTag('zeroSelector','zeroStepTracksWithQuality'),                         
+    TrackQuality = cms.string('highPurity'),                         
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
+    clusterLessSolution= cms.bool(True),
     Common = cms.PSet(
         maxChi2 = cms.double(30.0)
     )
 )
 
 # make corresponding rechits
-import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
-import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
-newPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone(
-    src = cms.InputTag("newClusters")
-    )
-newStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
-    ClusterProducer = 'newClusters'
-    )
+#import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
+#import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
+#newPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone(
+#    src = cms.InputTag("newClusters")
+#    )
+#newStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
+#    ClusterProducer = 'newClusters'
+#    )
 
 
 # seeding 
 newMixedLayerPairs = RecoTracker.TkSeedingLayers.MixedLayerPairs_cfi.mixedlayerpairs.clone(
     ComponentName = 'newMixedLayerPairs'
     )
-newMixedLayerPairs.BPix.HitProducer = 'newPixelRecHits'
-newMixedLayerPairs.FPix.HitProducer = 'newPixelRecHits'
-newMixedLayerPairs.TEC.matchedRecHits = cms.InputTag("newStripRecHits","matchedRecHit")
+newMixedLayerPairs.BPix.HitProducer = 'siPixelRecHits'
+newMixedLayerPairs.BPix.skipClusters = cms.InputTag('newClusters')
+newMixedLayerPairs.FPix.HitProducer = 'siPixelRecHits'
+newMixedLayerPairs.FPix.skipClusters = cms.InputTag('newClusters')
+#newMixedLayerPairs.TEC.matchedRecHits = cms.InputTag("newStripRecHits","matchedRecHit")
+newMixedLayerPairs.TEC.matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit')
+newMixedLayerPairs.TEC.skipClusters = cms.InputTag('newClusters')
 
 from RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff import *
 newSeedFromPairs = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff.globalSeedsFromPairsWithVertices.clone()
 newSeedFromPairs.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 newSeedFromPairs.RegionFactoryPSet.RegionPSet.originRadius = 0.05
 newSeedFromPairs.OrderedHitsFactoryPSet.SeedingLayers = cms.string('newMixedLayerPairs')
-newSeedFromPairs.ClusterCheckPSet.PixelClusterCollectionLabel = 'newClusters'
-newSeedFromPairs.ClusterCheckPSet.ClusterCollectionLabel = 'newClusters'
+newSeedFromPairs.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClusters'
+newSeedFromPairs.ClusterCheckPSet.ClusterCollectionLabel = 'siStripClusters'
    
-
 
 # building 
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 newMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
     ComponentName = 'newMeasurementTracker',
-    pixelClusterProducer = 'newClusters',
-    stripClusterProducer = 'newClusters'
+    skipClusters = cms.InputTag('newClusters'),
+    pixelClusterProducer = 'siPixelClusters',
+    stripClusterProducer = 'siStripClusters'
     )
 
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
@@ -124,8 +128,9 @@ stepOneTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESPr
 
 stepOneCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
     ComponentName = 'stepOneCkfTrajectoryBuilder',
-    MeasurementTrackerName = 'newMeasurementTracker',
-    trajectoryFilterName = 'stepOneTrajectoryFilter'
+    MeasurementTrackerName = '',
+    trajectoryFilterName = 'stepOneTrajectoryFilter',
+    clustersToSkip = cms.InputTag('newClusters')
     )
 
 stepOneTrackCandidateMaker = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
@@ -138,22 +143,64 @@ stepOneTrackCandidateMaker = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTr
 preFilterStepOneTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     AlgorithmName = 'iter1',
     src = 'stepOneTrackCandidateMaker',
-    clusterRemovalInfo = 'newClusters'
     )
 
 ### BOTH STEPS TOGETHER ###
 
 # Set track quality flags for both steps
-from RecoTracker.FinalTrackSelectors.TracksWithQuality_cff import *
 
-# Merge step 0 and step 1
-from RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff import *
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+zeroSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+    src='preFilterZeroStepTracks',
+    trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'zeroStepWithLooseQuality',
+            ), #end of pset
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'zeroStepWithTightQuality',
+            preFilterName = 'zeroStepWithLooseQuality',
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'zeroStepTracksWithQuality',
+            preFilterName = 'zeroStepWithTightQuality',
+            ),
+        ) #end of vpset
+    ) #end of clone
+
+firstSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+    src='preFilterStepOneTracks',
+    trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'firstStepWithLooseQuality',
+            ), #end of pset
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'firstStepWithTightQuality',
+            preFilterName = 'firstStepWithLooseQuality',
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'preMergingFirstStepTracksWithQuality',
+            preFilterName = 'firstStepWithTightQuality',
+            ),
+        ) #end of vpset
+    ) #end of clone
+
+
+
+import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
+
+#then merge everything together
+firstStepTracksWithQuality = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+    TrackProducers = cms.VInputTag(cms.InputTag('preFilterZeroStepTracks'),cms.InputTag('preFilterStepOneTracks')),
+    hasSelector=cms.vint32(1,1),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag("zeroSelector","zeroStepTracksWithQuality"),cms.InputTag("firstSelector","preMergingFirstStepTracksWithQuality")),
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(False) ))
+)                        
 
 # Final sequence
-firstStep = cms.Sequence(newSeedFromTriplets*newTrackCandidateMaker*preFilterZeroStepTracks*tracksWithQualityZeroStep*
-                         zeroStepFilter*newClusters*newPixelRecHits*newStripRecHits*
-                         newSeedFromPairs*stepOneTrackCandidateMaker*preFilterStepOneTracks*tracksWithQualityStepOne*
-                         firstStepTracksWithQuality)
+firstStep = cms.Sequence(newSeedFromTriplets*newTrackCandidateMaker*preFilterZeroStepTracks*zeroSelector*
+                         newClusters*
+                         newSeedFromPairs*stepOneTrackCandidateMaker*preFilterStepOneTracks*
+                         firstSelector*firstStepTracksWithQuality)
 
 
 

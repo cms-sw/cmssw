@@ -59,54 +59,63 @@ def runRules(ruleNumberList, directory):
         exceptRulePaths = []
         for path in rule['exceptPaths']:
             try:
-                file, line = path.split(":")
-                exceptRuleLines.append((pathToRegEx(file), line))
+                file, line = path.split(":",1)
+                xline = line
+                xdata = None
+                try:
+                    xline, xdata = line.split(":",1)
+                    if not xline: xline = '.*'
+                except ValueError:
+                    pass
+                exceptRuleLines.append((pathToRegEx(file), xline,xdata))
             except ValueError:
                 exceptRulePaths.append(pathToRegEx(path))
         for fileType in filesToMatch:
             fileList = getFilePathsFromWalk(osWalk, fileType, exceptPathsForEachRule)
 # ------------------------------------------------------------------------------
             for path in exceptRulePaths:
-                FileList = []
+                xFileList = []
                 for file in fileList:
-                    File = file.replace(join(checkPath, ""), "")
-                    if not re.match(path, File):
-                        FileList.append(file)
-                fileList = FileList
+                    xFile = file.replace(join(checkPath, ""), "")
+                    if not re.match(path, xFile):
+                        xFileList.append(file)
+                fileList = xFileList
 # ------------------------------------------------------------------------------
-            filesLinesList = []
-            skipLines = fileList
-            for skipper in rule['skip']:
-                filesLinesList = skipper(skipLines)
-                skipLines = filesLinesList
-            if not exceptRuleLines and not rule['skip']:
-                filesLinesList = fileList
+            filesLinesList = fileList
+            if rule['skip']:
+                for skipper in rule['skip']:
+                    filesLinesList = skipper(filesLinesList)
+            else:
+                for i,xFile in enumerate(filesLinesList):
+                    filesLinesList[i]=((xFile,open(xFile).readlines()))
 # ------------------------------------------------------------------------------
             for Nr, fileLine in enumerate(exceptRuleLines):
-                regEx, line = fileLine
+                regEx, line, lineEx = fileLine
                 for index, file in enumerate(fileList):
-                    File = file.replace(join(checkPath, ""), "")
-                    if re.match(regEx, File):
-                        if rule['skip'] != None or Nr > 0:
-                            filesLinesList[index] = (filesLinesList[index][0], omitLine(filesLinesList[index][1], line))
-                        else:
-                            filesLinesList.append([file, omitLine(file, line)])
-                    elif rule['skip'] == None:
-                        filesLinesList.append((file, open(file).readlines()))
+                    xFile = file.replace(join(checkPath, ""), "")
+                    if re.match(regEx, xFile):
+                        filesLinesList[index] = (filesLinesList[index][0], omitLine(filesLinesList[index][1], line,lineEx))
             files.extend(filesLinesList)
 # ------------------------------------------------------------------------------
         listRule = finds(files, rule['filter'], rule['exceptFilter'])
         result.append((ruleNr, splitPaths(listRule, checkPath)))
     return result
 
-def omitLine(file, line):
-    try:
-        if type(file).__name__ != 'list':
-            fileLines = open(file).readlines()
-        else: fileLines = file
-        fileLines[int(line)-1] = ''
-    except IndexError:
-        print 'File = "' + file +'" has only ' + str(len(fileLines)) + ' lines. Wrong given line number: ' + str(line)
+def omitLine(lines, line, regEx=None):
+    fileLines = lines
+    if re.match('^\d+$',line):
+        xline = int(line)-1
+        try:
+            if (not regEx) or (re.search(regEx,fileLines[xline].strip())):
+                fileLines[xline] = ''
+        except IndexError:
+            pass
+    else:
+        for i,lineData in enumerate(fileLines):
+            if re.match(line,str(i)):
+                lineData = lineData.strip()
+                if (not regEx) or (re.search(regEx,lineData)):
+                    fileLines[i] = ''
     return fileLines
 
 def printOut(listOfResult, filePath = None):

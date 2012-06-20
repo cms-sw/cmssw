@@ -11,7 +11,9 @@
 class CommonHcalNoiseRBXData {
   
  public:
-  CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, double minRecHitE, double minLowHitE, double minHighHitE);
+  CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, double minRecHitE, double minLowHitE, double minHighHitE,
+      double TS4TS5EnergyThreshold, std::vector<std::pair<double, double> > &TS4TS5UpperCut,
+      std::vector<std::pair<double, double> > &TS4TS5LowerCut);
   ~CommonHcalNoiseRBXData() {}
 
   // accessors to internal variables
@@ -34,7 +36,10 @@ class CommonHcalNoiseRBXData {
   inline int numHighEHits(void) const { return numHighEHits_; }
   inline double RBXEMF(void) const { return RBXEMF_; }
   inline double HPDEMF(void) const { return HPDEMF_; }
+  inline bool PassTS4TS5(void) const { return TS4TS5Decision_; }
   inline edm::RefVector<CaloTowerCollection> rbxTowers(void) const { return rbxtowers_; }
+
+  bool CheckPassFilter(double Charge, double Discriminant, std::vector<std::pair<double, double> > &Cuts, int Side);
 
 private:
 
@@ -56,6 +61,7 @@ private:
   int numHighEHits_;        // number of high energy hits
   double HPDEMF_;           // minimum electromagnetic fraction found in an HPD in the RBX
   double RBXEMF_;           // electromagnetic fraction of the RBX
+  bool TS4TS5Decision_;     // if this RBX fails TS4TS5 variable or not
   edm::RefVector<CaloTowerCollection> rbxtowers_; // calotowers associated with the RBX
 
 };

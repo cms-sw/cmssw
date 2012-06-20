@@ -34,7 +34,10 @@ void testCondIter_Blob(){
     
     while(reference = Iterator->next()){
         std::cout << "Address of reference = " << reference << std::endl;  
-        mySiStripNoises::ContainerIterator it;      
+        mySiStripNoises::Range rangeVect;
+        rangeVect = reference->getRange(1235);
+        mySiStripNoises::ContainerIterator it;
+        
         std::vector<uint32_t> DetIds;
         reference->getDetIds(DetIds);
         for(int i=0; i<DetIds.size(); i++) std::cout << "det " << i << " = " << DetIds.at(i) << std::endl;

@@ -18,3 +18,5 @@
 </library>
 <bin   file="DQMQualityTestsExample.cc">
 </bin>
+<bin   file="DQMTestStandaloneBuildOfDQMStore.cc">
+</bin>

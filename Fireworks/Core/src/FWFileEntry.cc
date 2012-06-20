@@ -9,6 +9,8 @@
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/ReleaseVersion.h"
 
 #define private public
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -16,12 +18,13 @@
 
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/interface/fwPaths.h"
 
-FWFileEntry::FWFileEntry(const std::string& name) :
+FWFileEntry::FWFileEntry(const std::string& name, bool checkVersion) :
    m_name(name), m_file(0), m_eventTree(0), m_event(0),
    m_needUpdate(true), m_globalEventList(0)
 {
-   openFile();
+   openFile(checkVersion);
 }
 
 FWFileEntry::~FWFileEntry()
@@ -32,7 +35,7 @@ FWFileEntry::~FWFileEntry()
    delete m_globalEventList;
 }
 
-void FWFileEntry::openFile()
+void FWFileEntry::openFile(bool checkVersion)
 {
    gErrorIgnoreLevel = 3000; // suppress warnings about missing dictionaries
    TFile *newFile = TFile::Open(m_name.c_str());
@@ -50,6 +53,47 @@ void FWFileEntry::openFile()
    { 
       throw std::runtime_error("Cannot find TTree 'Events' in the data file");
    }
+
+   // check CMSSW relese version for compatibility
+   if (checkVersion) {
+      typedef std::vector<edm::ProcessConfiguration> provList;
+  
+      TTree   *metaData = dynamic_cast<TTree*>(m_file->Get("MetaData"));
+      TBranch *b = metaData->GetBranch("ProcessConfiguration");
+      provList *x = 0;
+      b->SetAddress(&x);
+      b->GetEntry(0);
+      
+      const edm::ProcessConfiguration* dd = 0;
+      int latestVersion =0;
+      int currentVersionArr[] = {0, 0, 0};
+      for (provList::iterator i = x->begin(); i != x->end(); ++i)
+      {
+         // std::cout << i->releaseVersion() << "  " << i->processName() << std::endl;
+         TString dcv = i->releaseVersion();
+         fireworks::getDecomposedVersion(dcv, currentVersionArr);
+         int nvv = currentVersionArr[0]*100 + currentVersionArr[1]*10 + currentVersionArr[2];
+         if (nvv > latestVersion) {
+            latestVersion = nvv;
+            dd = &(*i);
+         }
+      }
+   
+
+      fwLog(fwlog::kInfo) << "Checking process history. " << m_name.c_str() << " latest process \""  << dd->processName() << "\", version " << dd->releaseVersion() << std::endl;
+
+      b->SetAddress(0);
+      TString v = dd->releaseVersion();
+      if (!fireworks::acceptDataFormatsVersion(v))
+      {
+         int* di = (fireworks::supportedDataFormatsVersion());
+         TString msg = Form("incompatible data: Process version does not mactch major data formats version. File produced with %s. Data formats version \"CMSSW_%d_%d_%d\".\n", 
+                            dd->releaseVersion().c_str(), di[0], di[1], di[2]);
+         msg += "Use --no-version-check option if you still want to view the file.\n";
+         throw std::runtime_error(msg.Data());
+      }
+   }
+
 
    // This now set in DataHelper
    //TTreeCache::SetLearnEntries(2);

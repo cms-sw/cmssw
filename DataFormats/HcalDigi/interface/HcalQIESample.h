@@ -8,8 +8,8 @@
  *  Simple container packer/unpacker for a single QIE data word
  *
  *
- *  $Date: 2005/10/04 13:37:35 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/02/06 15:20:34 $
+ *  $Revision: 1.5 $
  *  \author J. Mans - Minnesota
  */
 class HcalQIESample {
@@ -21,19 +21,19 @@ public:
   /// get the raw word
   uint16_t raw() const { return theSample; }
   /// get the ADC sample
-  int adc() const { return theSample&0x7F; }
+  int adc() const { return theSample&0xFF; }
   /// get the nominal FC (no calibrations applied)
   double nominal_fC() const;
   /// get the Capacitor id
-  int capid() const { return (theSample>>7)&0x3; }
+  int capid() const { return (theSample>>8)&0x3; }
   /// is the Data Valid bit set?
-  bool dv() const { return (theSample&0x0200)!=0; }
+  bool dv() const { return (theSample&0x0400)!=0; }
   /// is the error bit set?
-  bool er() const { return (theSample&0x0400)!=0; }
+  bool er() const { return (theSample&0x0800)!=0; }
   /// get the fiber number
-  int fiber() const { return ((theSample>>13)&0x7)+1; }
+  int fiber() const { return ((theSample>>14)&0x7)+1; }
   /// get the fiber channel number
-  int fiberChan() const { return (theSample>>11)&0x3; }
+  int fiberChan() const { return (theSample>>12)&0x3; }
   /// get the id channel
   int fiberAndChan() const { return (theSample>>11)&0x1F; }
   

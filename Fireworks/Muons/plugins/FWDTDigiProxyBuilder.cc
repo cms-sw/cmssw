@@ -81,11 +81,11 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
    }
    const FWGeometry *geom = iItem->getGeom();
 	
-   for( DTDigiCollection::DigiRangeIterator det = digis->begin(), detEnd = digis->end(); det != detEnd; ++det )
+   for( DTDigiCollection::DigiRangeIterator dri = digis->begin(), dre = digis->end(); dri != dre; ++dri )
    {
-      const DTLayerId& layerId = (*det).first;
+      const DTLayerId& layerId = (*dri).first;
       unsigned int rawid = layerId.rawId();
-      const DTDigiCollection::Range &range = (*det).second;
+      const DTDigiCollection::Range &range = (*dri).second;
 
       if( ! geom->contains( rawid ))
       {
@@ -118,7 +118,7 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
          {
             TEveBox* box = new TEveBox;
             setupAddElement( box, product );
-            addTube( box, *det, localPos, pars );
+            ::addTube( box, *det, localPos, pars );
          }
          else if(( ( type == FWViewType::kRhoPhi ||  type == FWViewType::kRhoPhiPF ) && superLayer != 2 ) ||
                  ( type == FWViewType::kRhoZ && superLayer == 2 ))
@@ -133,7 +133,7 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
 
             TEveBox* box = new TEveBox;
             setupAddElement( box, product );
-            addTube( box, *det, localPos, pars );
+            ::addTube( box, *det, localPos, pars );
          }
          else
          {

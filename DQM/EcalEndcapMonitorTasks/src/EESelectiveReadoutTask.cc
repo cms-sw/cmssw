@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2011/03/03 22:05:50 $
- * $Revision: 1.59 $
+ * $Date: 2011/03/03 22:12:47 $
+ * $Revision: 1.60 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -238,212 +238,211 @@ void EESelectiveReadoutTask::setup(void) {
 
   init_ = true;
 
-  char histo[200];
+  std::string name;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EESelectiveReadoutTask");
 
-
-    sprintf(histo, "EESRT tower event size EE -");
-    EETowerSize_[0] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 20., 20, 0., 20., 100, 0., 200., "s");
+    name = "EESRT tower event size EE -";
+    EETowerSize_[0] = dqmStore_->bookProfile2D(name, name, 20, 0., 20., 20, 0., 20., 100, 0., 200., "s");
     EETowerSize_[0]->setAxisTitle("jx", 1);
     EETowerSize_[0]->setAxisTitle("jy", 2);
 
-    sprintf(histo, "EESRT tower event size EE +");
-    EETowerSize_[1] = dqmStore_->bookProfile2D(histo, histo, 20, 0., 20., 20, 0., 20., 100, 0., 200., "s");
+    name = "EESRT tower event size EE +";
+    EETowerSize_[1] = dqmStore_->bookProfile2D(name, name, 20, 0., 20., 20, 0., 20., 100, 0., 200., "s");
     EETowerSize_[1]->setAxisTitle("jx", 1);
     EETowerSize_[1]->setAxisTitle("jy", 2);
 
-    sprintf(histo, "EESRT TT flag mismatch EE -");
-    EETTFMismatch_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EESRT TT flag mismatch EE -";
+    EETTFMismatch_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     EETTFMismatch_[0]->setAxisTitle("jx", 1);
     EETTFMismatch_[0]->setAxisTitle("jy", 2);
 
-    sprintf(histo, "EESRT TT flag mismatch EE +");
-    EETTFMismatch_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EESRT TT flag mismatch EE +";
+    EETTFMismatch_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     EETTFMismatch_[1]->setAxisTitle("jx", 1);
     EETTFMismatch_[1]->setAxisTitle("jy", 2);
 
-    sprintf(histo, "EESRT DCC event size");
-    EEDccEventSize_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 200., "s");
+    name = "EESRT DCC event size";
+    EEDccEventSize_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 100, 0., 200., "s");
     EEDccEventSize_->setAxisTitle("event size (kB)", 2);
     for (int i = 0; i < 18; i++) {
       EEDccEventSize_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    sprintf(histo, "EESRT event size vs DCC");
-    EEDccEventSizeMap_ = dqmStore_->book2D(histo, histo, 18, xbins, 132, ybins);
+    name = "EESRT event size vs DCC";
+    EEDccEventSizeMap_ = dqmStore_->book2D(name, name, 18, xbins, 132, ybins);
     EEDccEventSizeMap_->setAxisTitle("event size (kB)", 2);
     for (int i = 0; i < 18; i++) {
       EEDccEventSizeMap_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    sprintf(histo, "EESRT readout unit with SR forced EE -");
-    EEReadoutUnitForcedBitMap_[0] = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20.);
+    name = "EESRT readout unit with SR forced EE -";
+    EEReadoutUnitForcedBitMap_[0] = dqmStore_->book2D(name, name, 20, 0., 20., 20, 0., 20.);
     EEReadoutUnitForcedBitMap_[0]->setAxisTitle("jx", 1);
     EEReadoutUnitForcedBitMap_[0]->setAxisTitle("jy", 2);
     EEReadoutUnitForcedBitMap_[0]->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EESRT readout unit with SR forced EE +");
-    EEReadoutUnitForcedBitMap_[1] = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20.);
+    name = "EESRT readout unit with SR forced EE +";
+    EEReadoutUnitForcedBitMap_[1] = dqmStore_->book2D(name, name, 20, 0., 20., 20, 0., 20.);
     EEReadoutUnitForcedBitMap_[1]->setAxisTitle("jx", 1);
     EEReadoutUnitForcedBitMap_[1]->setAxisTitle("jy", 2);
     EEReadoutUnitForcedBitMap_[1]->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EESRT full readout SR Flags EE -");
-    EEFullReadoutSRFlagMap_[0] = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20.);
+    name = "EESRT full readout SR Flags EE -";
+    EEFullReadoutSRFlagMap_[0] = dqmStore_->book2D(name, name, 20, 0., 20., 20, 0., 20.);
     EEFullReadoutSRFlagMap_[0]->setAxisTitle("jx", 1);
     EEFullReadoutSRFlagMap_[0]->setAxisTitle("jy", 2);
     EEFullReadoutSRFlagMap_[0]->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EESRT full readout SR Flags EE +");
-    EEFullReadoutSRFlagMap_[1] = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20.);
+    name = "EESRT full readout SR Flags EE +";
+    EEFullReadoutSRFlagMap_[1] = dqmStore_->book2D(name, name, 20, 0., 20., 20, 0., 20.);
     EEFullReadoutSRFlagMap_[1]->setAxisTitle("jx", 1);
     EEFullReadoutSRFlagMap_[1]->setAxisTitle("jy", 2);
     EEFullReadoutSRFlagMap_[1]->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EESRT full readout SR Flags Number EE -");
-    EEFullReadoutSRFlagCount_[0] = dqmStore_->book1D(histo, histo, 200, 0., 200.);
+    name = "EESRT full readout SR Flags Number EE -";
+    EEFullReadoutSRFlagCount_[0] = dqmStore_->book1D(name, name, 200, 0., 200.);
     EEFullReadoutSRFlagCount_[0]->setAxisTitle("Readout Units number", 1);
 
-    sprintf(histo, "EESRT full readout SR Flags Number EE +");
-    EEFullReadoutSRFlagCount_[1] = dqmStore_->book1D(histo, histo, 200, 0., 200.);
+    name = "EESRT full readout SR Flags Number EE +";
+    EEFullReadoutSRFlagCount_[1] = dqmStore_->book1D(name, name, 200, 0., 200.);
     EEFullReadoutSRFlagCount_[1]->setAxisTitle("Fully readout RU number", 1);
 
-    sprintf(histo, "EESRT zero suppression 1 SR Flags EE -");
-    EEZeroSuppression1SRFlagMap_[0] = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20.);
+    name = "EESRT zero suppression 1 SR Flags EE -";
+    EEZeroSuppression1SRFlagMap_[0] = dqmStore_->book2D(name, name, 20, 0., 20., 20, 0., 20.);
     EEZeroSuppression1SRFlagMap_[0]->setAxisTitle("jx", 1);
     EEZeroSuppression1SRFlagMap_[0]->setAxisTitle("jy", 2);
     EEZeroSuppression1SRFlagMap_[0]->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EESRT zero suppression 1 SR Flags EE +");
-    EEZeroSuppression1SRFlagMap_[1] = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20.);
+    name = "EESRT zero suppression 1 SR Flags EE +";
+    EEZeroSuppression1SRFlagMap_[1] = dqmStore_->book2D(name, name, 20, 0., 20., 20, 0., 20.);
     EEZeroSuppression1SRFlagMap_[1]->setAxisTitle("jx", 1);
     EEZeroSuppression1SRFlagMap_[1]->setAxisTitle("jy", 2);
     EEZeroSuppression1SRFlagMap_[1]->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EESRT high interest TT Flags EE -");
-    EEHighInterestTriggerTowerFlagMap_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EESRT high interest TT Flags EE -";
+    EEHighInterestTriggerTowerFlagMap_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     EEHighInterestTriggerTowerFlagMap_[0]->setAxisTitle("jx", 1);
     EEHighInterestTriggerTowerFlagMap_[0]->setAxisTitle("jy", 2);
     EEHighInterestTriggerTowerFlagMap_[0]->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EESRT high interest TT Flags EE +");
-    EEHighInterestTriggerTowerFlagMap_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EESRT high interest TT Flags EE +";
+    EEHighInterestTriggerTowerFlagMap_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     EEHighInterestTriggerTowerFlagMap_[1]->setAxisTitle("jx", 1);
     EEHighInterestTriggerTowerFlagMap_[1]->setAxisTitle("jy", 2);
     EEHighInterestTriggerTowerFlagMap_[1]->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EESRT medium interest TT Flags EE -");
-    EEMediumInterestTriggerTowerFlagMap_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EESRT medium interest TT Flags EE -";
+    EEMediumInterestTriggerTowerFlagMap_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     EEMediumInterestTriggerTowerFlagMap_[0]->setAxisTitle("jx", 1);
     EEMediumInterestTriggerTowerFlagMap_[0]->setAxisTitle("jy", 2);
     EEMediumInterestTriggerTowerFlagMap_[0]->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EESRT medium interest TT Flags EE +");
-    EEMediumInterestTriggerTowerFlagMap_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EESRT medium interest TT Flags EE +";
+    EEMediumInterestTriggerTowerFlagMap_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     EEMediumInterestTriggerTowerFlagMap_[1]->setAxisTitle("jx", 1);
     EEMediumInterestTriggerTowerFlagMap_[1]->setAxisTitle("jy", 2);
     EEMediumInterestTriggerTowerFlagMap_[1]->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EESRT low interest TT Flags EE -");
-    EELowInterestTriggerTowerFlagMap_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EESRT low interest TT Flags EE -";
+    EELowInterestTriggerTowerFlagMap_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     EELowInterestTriggerTowerFlagMap_[0]->setAxisTitle("jx", 1);
     EELowInterestTriggerTowerFlagMap_[0]->setAxisTitle("jy", 2);
     EELowInterestTriggerTowerFlagMap_[0]->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EESRT low interest TT Flags EE +");
-    EELowInterestTriggerTowerFlagMap_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EESRT low interest TT Flags EE +";
+    EELowInterestTriggerTowerFlagMap_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     EELowInterestTriggerTowerFlagMap_[1]->setAxisTitle("jx", 1);
     EELowInterestTriggerTowerFlagMap_[1]->setAxisTitle("jy", 2);
     EELowInterestTriggerTowerFlagMap_[1]->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EESRT TT Flags EE -");
-    EETTFlags_[0] = dqmStore_->book1D(histo, histo, 8, 0., 8.);
+    name = "EESRT TT Flags EE -";
+    EETTFlags_[0] = dqmStore_->book1D(name, name, 8, 0., 8.);
     EETTFlags_[0]->setAxisTitle("TT Flag value", 1);
 
-    sprintf(histo, "EESRT TT Flags EE +");
-    EETTFlags_[1] = dqmStore_->book1D(histo, histo, 8, 0., 8.);
+    name = "EESRT TT Flags EE +";
+    EETTFlags_[1] = dqmStore_->book1D(name, name, 8, 0., 8.);
     EETTFlags_[1]->setAxisTitle("TT Flag value", 1);
 
-    sprintf(histo, "EESRT ZS Flagged Fully Readout EE -");
-    EECompleteZSMap_[0] = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20.);
+    name = "EESRT ZS Flagged Fully Readout EE -";
+    EECompleteZSMap_[0] = dqmStore_->book2D(name, name, 20, 0., 20., 20, 0., 20.);
     EECompleteZSMap_[0]->setAxisTitle("jphi", 1);
     EECompleteZSMap_[0]->setAxisTitle("jeta", 2);
     EECompleteZSMap_[0]->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EESRT ZS Flagged Fully Readout EE +");
-    EECompleteZSMap_[1] = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20.);
+    name = "EESRT ZS Flagged Fully Readout EE +";
+    EECompleteZSMap_[1] = dqmStore_->book2D(name, name, 20, 0., 20., 20, 0., 20.);
     EECompleteZSMap_[1]->setAxisTitle("jphi", 1);
     EECompleteZSMap_[1]->setAxisTitle("jeta", 2);
     EECompleteZSMap_[1]->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EESRT ZS Flagged Fully Readout Number EE -");
-    EECompleteZSCount_[0] = dqmStore_->book1D(histo, histo, 20, 0., 20.);
+    name = "EESRT ZS Flagged Fully Readout Number EE -";
+    EECompleteZSCount_[0] = dqmStore_->book1D(name, name, 20, 0., 20.);
     EECompleteZSCount_[0]->setAxisTitle("Readout Units number", 1);
 
-    sprintf(histo, "EESRT ZS Flagged Fully Readout Number EE +");
-    EECompleteZSCount_[1] = dqmStore_->book1D(histo, histo, 20, 0., 20.);
+    name = "EESRT ZS Flagged Fully Readout Number EE +";
+    EECompleteZSCount_[1] = dqmStore_->book1D(name, name, 20, 0., 20.);
     EECompleteZSCount_[1]->setAxisTitle("Readout Units number", 1);
 
-    sprintf(histo, "EESRT FR Flagged Dropped Readout EE -");
-    EEDroppedFRMap_[0] = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20.);
+    name = "EESRT FR Flagged Dropped Readout EE -";
+    EEDroppedFRMap_[0] = dqmStore_->book2D(name, name, 20, 0., 20., 20, 0., 20.);
     EEDroppedFRMap_[0]->setAxisTitle("jphi", 1);
     EEDroppedFRMap_[0]->setAxisTitle("jeta", 2);
     EEDroppedFRMap_[0]->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EESRT FR Flagged Dropped Readout EE +");
-    EEDroppedFRMap_[1] = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20.);
+    name = "EESRT FR Flagged Dropped Readout EE +";
+    EEDroppedFRMap_[1] = dqmStore_->book2D(name, name, 20, 0., 20., 20, 0., 20.);
     EEDroppedFRMap_[1]->setAxisTitle("jphi", 1);
     EEDroppedFRMap_[1]->setAxisTitle("jeta", 2);
     EEDroppedFRMap_[1]->setAxisTitle("rate", 3);
 
-    sprintf(histo, "EESRT FR Flagged Dropped Readout Number EE -");
-    EEDroppedFRCount_[0] = dqmStore_->book1D(histo, histo, 20, 0., 20.);
+    name = "EESRT FR Flagged Dropped Readout Number EE -";
+    EEDroppedFRCount_[0] = dqmStore_->book1D(name, name, 20, 0., 20.);
     EEDroppedFRCount_[0]->setAxisTitle("Readout Units number", 1);
 
-    sprintf(histo, "EESRT FR Flagged Dropped Readout Number EE +");
-    EEDroppedFRCount_[1] = dqmStore_->book1D(histo, histo, 20, 0., 20.);
+    name = "EESRT FR Flagged Dropped Readout Number EE +";
+    EEDroppedFRCount_[1] = dqmStore_->book1D(name, name, 20, 0., 20.);
     EEDroppedFRCount_[1]->setAxisTitle("Readout Units number", 1);
 
-    sprintf(histo, "EESRT event size EE -");
-    EEEventSize_[0] = dqmStore_->book1D(histo, histo, 100, 0, 200);
+    name = "EESRT event size EE -";
+    EEEventSize_[0] = dqmStore_->book1D(name, name, 100, 0, 200);
     EEEventSize_[0]->setAxisTitle("event size (kB)",1);
 
-    sprintf(histo, "EESRT event size EE +");
-    EEEventSize_[1] = dqmStore_->book1D(histo, histo, 100, 0, 200);
+    name = "EESRT event size EE +";
+    EEEventSize_[1] = dqmStore_->book1D(name, name, 100, 0, 200);
     EEEventSize_[1]->setAxisTitle("event size (kB)",1);
 
-    sprintf(histo, "EESRT high interest payload EE -");
-    EEHighInterestPayload_[0] =  dqmStore_->book1D(histo, histo, 100, 0, 200);
+    name = "EESRT high interest payload EE -";
+    EEHighInterestPayload_[0] =  dqmStore_->book1D(name, name, 100, 0, 200);
     EEHighInterestPayload_[0]->setAxisTitle("event size (kB)",1);
 
-    sprintf(histo, "EESRT high interest payload EE +");
-    EEHighInterestPayload_[1] =  dqmStore_->book1D(histo, histo, 100, 0, 200);
+    name = "EESRT high interest payload EE +";
+    EEHighInterestPayload_[1] =  dqmStore_->book1D(name, name, 100, 0, 200);
     EEHighInterestPayload_[1]->setAxisTitle("event size (kB)",1);
 
-    sprintf(histo, "EESRT low interest payload EE -");
-    EELowInterestPayload_[0] =  dqmStore_->book1D(histo, histo, 100, 0, 200);
+    name = "EESRT low interest payload EE -";
+    EELowInterestPayload_[0] =  dqmStore_->book1D(name, name, 100, 0, 200);
     EELowInterestPayload_[0]->setAxisTitle("event size (kB)",1);
 
-    sprintf(histo, "EESRT low interest payload EE +");
-    EELowInterestPayload_[1] =  dqmStore_->book1D(histo, histo, 100, 0, 200);
+    name = "EESRT low interest payload EE +";
+    EELowInterestPayload_[1] =  dqmStore_->book1D(name, name, 100, 0, 200);
     EELowInterestPayload_[1]->setAxisTitle("event size (kB)",1);
 
-    sprintf(histo, "EESRT high interest ZS filter output EE -");
-    EEHighInterestZsFIR_[0] = dqmStore_->book1D(histo, histo, 60, -30, 30);
+    name = "EESRT high interest ZS filter output EE -";
+    EEHighInterestZsFIR_[0] = dqmStore_->book1D(name, name, 60, -30, 30);
     EEHighInterestZsFIR_[0]->setAxisTitle("ADC counts*4",1);
 
-    sprintf(histo, "EESRT high interest ZS filter output EE +");
-    EEHighInterestZsFIR_[1] = dqmStore_->book1D(histo, histo, 60, -30, 30);
+    name = "EESRT high interest ZS filter output EE +";
+    EEHighInterestZsFIR_[1] = dqmStore_->book1D(name, name, 60, -30, 30);
     EEHighInterestZsFIR_[1]->setAxisTitle("ADC counts*4",1);
 
-    sprintf(histo, "EESRT low interest ZS filter output EE -");
-    EELowInterestZsFIR_[0] = dqmStore_->book1D(histo, histo, 60, -30, 30);
+    name = "EESRT low interest ZS filter output EE -";
+    EELowInterestZsFIR_[0] = dqmStore_->book1D(name, name, 60, -30, 30);
     EELowInterestZsFIR_[0]->setAxisTitle("ADC counts*4",1);
 
-    sprintf(histo, "EESRT low interest ZS filter output EE +");
-    EELowInterestZsFIR_[1] = dqmStore_->book1D(histo, histo, 60, -30, 30);
+    name = "EESRT low interest ZS filter output EE +";
+    EELowInterestZsFIR_[1] = dqmStore_->book1D(name, name, 60, -30, 30);
     EELowInterestZsFIR_[1]->setAxisTitle("ADC counts*4",1);
 
   }

@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.79 2010/05/03 10:15:39 cerati Exp $
+ * \version $Id: TrackBase.h,v 1.80 2011/02/10 17:51:27 vlimant Exp $
  *
  */
 
@@ -56,6 +56,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 namespace reco {
 
@@ -158,6 +159,12 @@ namespace reco {
     double dxy(const Point& myBeamSpot) const { 
       return ( - (vx()-myBeamSpot.x()) * py() + (vy()-myBeamSpot.y()) * px() ) / pt(); 
     }
+
+    /// dxy parameter with respect to the beamSpot taking into account the beamspot slopes WARNING: this quantity can only be interpreted as a minimum transverse distance if beamSpot, if the beam spot is reasonably close to the refPoint, since linear approximations are involved). This is a good approximation for Tracker tracks.
+    double dxy(const BeamSpot& theBeamSpot) const { 
+      return dxy(theBeamSpot.position(vz()));
+    }
+
     /// dsz parameter with respect to a user-given beamSpot (WARNING: this quantity can only be interpreted as the distance in the S-Z plane to the beamSpot, if the beam spot is reasonably close to the refPoint, since linear approximations are involved). This is a good approximation for Tracker tracks.
     double dsz(const Point& myBeamSpot) const { 
       return (vz()-myBeamSpot.z())*pt()/p() - ((vx()-myBeamSpot.x())*px()+(vy()-myBeamSpot.y())*py())/pt() *pz()/p(); 

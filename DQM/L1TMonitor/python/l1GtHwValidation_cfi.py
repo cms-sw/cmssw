@@ -22,7 +22,7 @@ l1GtHwValidation = cms.EDAnalyzer("L1GtHwValidation",
     L1GctDataInputTag = cms.InputTag("gctDigis"),   
 
     DQMStore = cms.untracked.bool(False),
-    DirName = cms.untracked.string("L1TEMU/GTexpert")
+    DirName = cms.untracked.string("L1TEMU/GTHW")
 )
 
 

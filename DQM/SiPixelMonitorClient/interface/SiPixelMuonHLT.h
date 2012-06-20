@@ -17,7 +17,7 @@
 //
 // Original Author:  Dan Duggan
 //         Created:
-// $Id: SiPixelMuonHLT.h,v 1.1 2009/11/05 08:10:34 duggan Exp $
+// $Id: SiPixelMuonHLT.h,v 1.2 2009/12/18 20:44:49 wmtan Exp $
 //
 //////////////////////////////////////////////////////////
 
@@ -41,7 +41,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 //Pixel data formats
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/LazyGetter.h"
 #include "DataFormats/DetId/interface/DetId.h"

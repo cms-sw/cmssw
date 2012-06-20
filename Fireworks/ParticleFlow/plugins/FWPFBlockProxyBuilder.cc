@@ -1,4 +1,5 @@
 #include "FWPFBlockProxyBuilder.h"
+#include "Fireworks/Candidates/interface/FWLegoCandidate.h"
 
 //______________________________________________________________________________
 void
@@ -30,7 +31,7 @@ FWPFBlockProxyBuilder::scaleProduct( TEveElementList *parent, FWViewType::EType 
             {
                if( strcmp( (*j)->GetElementName(), "BlockCluster" ) == 0 )
                {
-                  FWPFLegoCandidate *cluster = dynamic_cast<FWPFLegoCandidate*>( *j );
+                  FWLegoCandidate *cluster = dynamic_cast<FWLegoCandidate*>( *j );
                   cluster->updateScale( vc, context() );
                }
             }
@@ -124,7 +125,7 @@ FWPFBlockProxyBuilder::setupClusterElement( const reco::PFBlockElement &blockEle
 
    if( viewType == FWViewType::kLego || viewType == FWViewType::kLegoPFECAL )
    {
-      FWPFLegoCandidate *legoCluster = new FWPFLegoCandidate( vc, FWProxyBuilderBase::context(), energy, et, pt, eta, phi );
+      FWLegoCandidate *legoCluster = new FWLegoCandidate( vc, FWProxyBuilderBase::context(), energy, et, pt, eta, phi );
       legoCluster->SetMarkerColor( FWProxyBuilderBase::item()->defaultDisplayProperties().color() );
       legoCluster->SetElementName( "BlockCluster" );
       setupAddElement( legoCluster, &oItemHolder );
@@ -171,14 +172,14 @@ FWPFBlockProxyBuilder::buildViewType( const reco::PFBlock &iData, unsigned int i
 
          case 4:  // ECAL
             if( e_builderType == ECAL )
-               setupClusterElement( elements[i], oItemHolder, vc, viewType, FWPFUtils::caloR1() );
+               setupClusterElement( elements[i], oItemHolder, vc, viewType, FWPFGeom::caloR1() );
          break;
 
          case 5:  // HCAL
             if( e_builderType == HCAL )
             {
                if( viewType == FWViewType::kRhoPhiPF )
-                  setupClusterElement( elements[i], oItemHolder, vc, viewType, FWPFUtils::caloR2() );
+                  setupClusterElement( elements[i], oItemHolder, vc, viewType, FWPFGeom::caloR2() );
                else  // RhoZ
                   setupClusterElement( elements[i], oItemHolder, vc, viewType, context().caloR1() );
             }

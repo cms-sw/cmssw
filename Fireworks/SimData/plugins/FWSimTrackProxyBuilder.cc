@@ -36,27 +36,8 @@ private:
 
    virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );
 
-   void getVertices( void );
    void addParticlesToPdgDataBase( void );
-   std::vector<SimVertex> m_vertices;
 };
-
-void
-FWSimTrackProxyBuilder::getVertices( void )
-{
-   edm::Handle<edm::SimVertexContainer> collection;
-   const edm::EventBase *event = item()->getEvent();
-   event->getByLabel( edm::InputTag( "g4SimHits" ), collection );
-   
-   if( collection.isValid())
-   {
-      for( std::vector<SimVertex>::const_iterator isimv = collection->begin(), isimvEnd = collection->end();
-	   isimv != isimvEnd; ++isimv )
-      {
-         m_vertices.push_back( *isimv );
-      }
-   }
-}
 
 void
 FWSimTrackProxyBuilder::addParticlesToPdgDataBase( void )
@@ -212,6 +193,8 @@ FWSimTrackProxyBuilder::addParticlesToPdgDataBase( void )
    pdgDB->AddAntiParticle("Lambda1520bar",-3124);   
 }
 
+//______________________________________________________________________________
+
 void
 FWSimTrackProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* )
 {
@@ -225,24 +208,29 @@ FWSimTrackProxyBuilder::build( const FWEventItem* iItem, TEveElementList* produc
    addParticlesToPdgDataBase();
 
    TEveTrackPropagator* propagator = context().getTrackPropagator();
-   getVertices();
+   
+   
+   edm::Handle<edm::SimVertexContainer> hitColl;
+   const edm::EventBase *event = item()->getEvent();
+   event->getByLabel( edm::InputTag( "g4SimHits" ), hitColl );
+   
    int i = 0;
    for( std::vector<SimTrack>::const_iterator it = collection->begin(), end = collection->end(); it != end; ++it )
    {
-     const SimTrack& iData = (*it);
-     double vx = 0.0;
-     double vy = 0.0;
-     double vz = 0.0;
-     double vt = 0.0;
-     if(! iData.noVertex() && ! m_vertices.empty())
-     {
-       int vInd = iData.vertIndex();
-       vx = ( m_vertices.at( vInd )).position().x() * 0.01;
-       vy = ( m_vertices.at( vInd )).position().y() * 0.01;
-       vz = ( m_vertices.at( vInd )).position().z() * 0.01;
-       vt = ( m_vertices.at( vInd )).position().t();
-     }
-   
+      const SimTrack& iData = (*it);
+      double vx = 0.0;
+      double vy = 0.0;
+      double vz = 0.0;
+      double vt = 0.0;
+      if(! iData.noVertex() && ( hitColl.isValid() && !hitColl->empty()))
+      {
+         int vInd = iData.vertIndex();
+         vx = hitColl->at(vInd).position().x();
+         vy = hitColl->at(vInd).position().y();
+         vz = hitColl->at(vInd).position().z();
+         vt = hitColl->at(vInd).position().t();
+      }
+      
      TParticle* particle = new TParticle;
      particle->SetPdgCode( iData.type());
      particle->SetMomentum( iData.momentum().px(), iData.momentum().py(), iData.momentum().pz(), iData.momentum().e());

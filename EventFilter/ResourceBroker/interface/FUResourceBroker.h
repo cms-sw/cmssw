@@ -183,7 +183,12 @@ namespace evf {
     xdata::UnsignedInteger32 nbPendingSMDiscards_;
     xdata::UnsignedInteger32 nbPendingSMDqmDiscards_;
     xdata::UnsignedInteger32 nbDiscardedEvents_;
+    xdata::UnsignedInteger32 nbReceivedEol_;
+    xdata::UnsignedInteger32 highestEolReceived_;
+    xdata::UnsignedInteger32 nbEolPosted_;
+    xdata::UnsignedInteger32 nbEolDiscarded_;
     
+
     xdata::UnsignedInteger32 nbLostEvents_;
     xdata::UnsignedInteger32 nbDataErrors_;
     xdata::UnsignedInteger32 nbCrcErrors_;

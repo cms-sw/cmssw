@@ -7,4 +7,5 @@
 <use   name="DataFormats/HcalDetId"/>
 <use   name="DataFormats/CaloTowers"/>
 <use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
 <use   name="clhep"/>

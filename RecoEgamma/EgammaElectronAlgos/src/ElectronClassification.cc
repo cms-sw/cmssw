@@ -1,10 +1,6 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronClassification.h"
 
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

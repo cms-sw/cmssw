@@ -26,7 +26,7 @@ my $doEP  = 1;
 my $doPyCfg  = 1;
 my $doSM  = 1;
 my $doID = 1;
-my $doDQM = 0;
+my $doDQM = 1;
 my $useStepper = 0;
 my $useAtcp = 1;
 my $forkProcesses = 0;
@@ -316,12 +316,12 @@ my @RBproperties = ("runNumber",   "unsignedInt",$runNumber,
 		    "doCrcCheck",  "unsignedInt","0",
 		    "processKillerEnabled","boolean","false",
 		    "monSleepSec", "unsignedInt","5",
-		    "nbRawCells",  "unsignedInt","16",
+		    "nbRawCells",  "unsignedInt","32",
 		    "nbRecoCells", "unsignedInt","8",
 		    "nbDqmCells",  "unsignedInt","8",
-		    "rawCellSize", "unsignedInt","0x200000",
-		    "recoCellSize","unsignedInt","0x400000",
-                    "dqmCellSize", "unsignedInt","0x100000");
+		    "rawCellSize", "unsignedInt","0x400000",
+		    "recoCellSize","unsignedInt","0x800000",
+                    "dqmCellSize", "unsignedInt","0x800000");
 
 if (!$doEP) { push (@RBproperties,"doDropEvents","boolean","true"); }
 
@@ -486,8 +486,8 @@ print CTL "#!/usr/bin/perl\n\n";
 if ($doSM) {
     print CTL makeCtlCommand("Enable",$SMappname,"SM",$hostname,$SMport,1);
 }
-print CTL makeCtlCommand("Enable",$BUappname,"BU",$hostname,$BUport,0);
 print CTL makeCtlCommand("Enable",$RBappname,"RB",$hostname,$BUport,0);
+print CTL makeCtlCommand("Enable",$BUappname,"BU",$hostname,$BUport,0);
 if ($doEP) {
     for ($i=0;$i<$doEP;$i++) {
 	$port = $EPport + $i;

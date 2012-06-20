@@ -14,6 +14,8 @@
 class MonitorElement;
 class DQMStore;
 
+double fitf(double *x, double *par);
+
 class ESTimingTask : public edm::EDAnalyzer {
 
  public:

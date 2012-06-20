@@ -31,6 +31,7 @@ FUShmRawCell::FUShmRawCell(unsigned int payloadSize)
   , nFed_(NFED_MAX)
   , nSuperFrag_(NSUPERFRAG_MAX)
   , lumiSection_(0)
+  , eventType_(evt::NOP)
 {
   fedSizeOffset_=sizeof(FUShmRawCell);
   unsigned int* fedSizeAddr;
@@ -75,6 +76,7 @@ void FUShmRawCell::initialize(unsigned int index)
 {
   index_=index;
   lumiSection_=0;
+  eventType_=evt::NOP;
 }
 
 
@@ -149,6 +151,7 @@ void FUShmRawCell::clear()
   fuResourceId_=0xffffffff;
   buResourceId_=0xffffffff;
   lumiSection_ =0;
+  eventType_   =evt::NOP;
   unsigned int* fedSizeAddr;
   fedSizeAddr=(unsigned int*)((unsigned long)this+fedSizeOffset_);
   for (unsigned int i=0;i<nFed();i++) *fedSizeAddr++=0;

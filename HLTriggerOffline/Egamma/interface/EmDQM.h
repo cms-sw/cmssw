@@ -18,6 +18,8 @@
 #include "TDirectory.h"
 #include "HepMC/GenParticle.h"
 #include "CommonTools/Utils/interface/PtComparator.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 class EmDQM : public edm::EDAnalyzer{
 public:
@@ -33,19 +35,51 @@ public:
   void beginJob();
   void endJob();
 
+  void beginRun(edm::Run const&, edm::EventSetup const&);
+  void endRun(edm::Run const&, edm::EventSetup const&);
+
 private:
+
+  /** helper to check whether there were enough generator level
+   *  electrons/photons (MC) or enough reco level electrons/photons
+   *  to analyze this event.
+   *
+   *  @return if the event has enough of these candidates.
+   */
+  bool checkGeneratedParticlesRequirement(const edm::Event &event);
+
+  /** similar to checkGeneratedParticlesRequirement(..) but for reconstructed
+   *  particles. For the moment, there are some additional requirements in
+   *  the MC version so we can't use the same code for both cases.
+   */
+  bool checkRecoParticlesRequirement(const edm::Event & event);
+
+  /// The instance of the HLTConfigProvider as a data member
+  HLTConfigProvider hltConf_;
+
   // Input from cfg file
   edm::InputTag triggerobjwithrefs;
+  unsigned int pathIndex;
   std::vector<edm::InputTag> theHLTCollectionLabels;  
   unsigned int numOfHLTCollectionLabels;  // Will be size of above vector
   bool useHumanReadableHistTitles;
+  bool mcMatchedOnly;
+  bool noPhiPlots;
+  bool noIsolationPlots;
   std::vector<std::string> theHLTCollectionHumanNames; // Human-readable names for the collections
   edm::InputTag theL1Seed;
   std::vector<int> theHLTOutputTypes;
   std::vector<bool> plotiso;
   std::vector<std::vector<edm::InputTag> > isoNames; // there has to be a better solution
   std::vector<std::pair<double,double> > plotBounds; 
+  std::vector<unsigned int> nCandCuts;
   std::string theHltName;
+  unsigned verbosity;
+  // verbosity levels
+  static const unsigned OUTPUT_SILENT = 0;
+  static const unsigned OUTPUT_ERRORS = 1;
+  static const unsigned OUTPUT_WARNINGS = 2;
+  static const unsigned OUTPUT_ALL = 3;
 
   ////////////////////////////////////////////////////////////
   //          Read from configuration file                  //
@@ -64,8 +98,23 @@ private:
   unsigned int plotBins ;
   unsigned int plotMinEtForEtaEffPlot;
   // preselction cuts
+
+  /** collection which should be used for generator particles (MC)
+   *  or reconstructed particles (data).
+   *
+   *  This collection is used for matching the HLT objects against (e.g. match the HLT
+   *  object to generated particles or reconstructed electrons/photons).
+   */
   edm::InputTag gencutCollection_;
+
+  /** number of generator level particles (electrons/photons) required (for MC) */
   unsigned int gencut_;
+
+  /** which hltCollectionLabels were SEEN at least once */
+  std::set<std::string> hltCollectionLabelsFound;
+
+  /** which hltCollectionLabels were MISSED at least once */
+  std::set<std::string> hltCollectionLabelsMissed;
 
 
   ////////////////////////////////////////////////////////////
@@ -103,7 +152,7 @@ private:
   DQMStore * dbe;
   std::string dirname_;
 
-  template <class T> void fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& ,const edm::Event& ,unsigned int, std::vector<reco::Particle>& );
+  template <class T> void fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& ,const edm::Event& ,unsigned int, std::vector<reco::Particle>&, bool & );
   GreaterByPt<reco::Particle> pTComparator_;
   GreaterByPt<reco::GenParticle> pTGenComparator_;
   
