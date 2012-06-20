@@ -590,14 +590,15 @@ HLT_DoublePhoton53_HEVT_v*									#sr128200
 HLT_DisplacedPhoton65_CaloIdVL_IsoL_PFMET25_v*                                                  #sr127920
 HLT_DisplacedPhoton65EBOnly_CaloIdVL_IsoL_PFMET30_v*                                            #sr127920
 
-HLT_Mu12_eta2p1_DiCentral_40_20_DiBTagIP3D1stTrack_v*						#sr126638, removed L1FastJet from name
-HLT_Mu12_eta2p1_DiCentral_40_20_v*								#sr126638, removed L1FastJet from name
-HLT_Mu12_eta2p1_DiCentral_40_20_BTagIP3D1stTrack_v*						#sr126638, removed L1FastJet from name
-HLT_Mu12_eta2p1_DiCentral_20_v*									#sr126638, removed L1FastJet from name
-HLT_Mu12_eta2p1_L1Mu10erJetC12WdEtaPhi1DiJetsC_v*						#sr126638
-HLT_Mu15_eta2p1_TriCentral_40_20_20_DiBTagIP3D1stTrack_v*					#sr126638, removed L1FastJet from name
-HLT_Mu15_eta2p1_TriCentral_40_20_20_BTagIP3D1stTrack_v*						#sr126638, removed L1FastJet from name
-HLT_Mu15_eta2p1_TriCentral_40_20_20_v*								#sr126638, removed L1FastJet from name
+HLT_Mu12_eta2p1_DiCentral_40_20_DiBTagIP3D1stTrack_v*						#sr126638, removed L1FastJet from name, sr129583
+HLT_Mu12_eta2p1_DiCentral_40_20_v*								#sr126638, removed L1FastJet from name, sr129583
+HLT_Mu12_eta2p1_DiCentral_40_20_BTagIP3D1stTrack_v*						#sr126638, removed L1FastJet from name, sr129583
+HLT_Mu12_eta2p1_DiCentral_20_v*									#sr126638, removed L1FastJet from name, sr129583
+HLT_Mu12_eta2p1_L1Mu10erJetC12WdEtaPhi1DiJetsC_v*						#sr126638, sr129583
+HLT_Mu15_eta2p1_TriCentral_40_20_20_DiBTagIP3D1stTrack_v*					#sr126638, removed L1FastJet from name, sr129583
+HLT_Mu15_eta2p1_TriCentral_40_20_20_BTagIP3D1stTrack_v*						#sr126638, removed L1FastJet from name, sr129583
+HLT_Mu15_eta2p1_TriCentral_40_20_20_v*								#sr126638, removed L1FastJet from name, sr129583
+HLT_Mu12_eta2p1_L1Mu10erJetC12WdEtaPhi1DiJetsC_v*						#sr129583
 
 #HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_RsqMR45_Rsq0p04_MR200_v*				#sr127259, removed in sr128235
 #HLT_Mu12_RsqMR45_Rsq0p04_MR200_v*								#sr127259, removed in sr128235
