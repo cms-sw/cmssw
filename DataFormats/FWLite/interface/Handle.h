@@ -270,4 +270,35 @@ class Handle
 };
 
 }
+
+#if defined(__CINT__) || defined(__MAKECINT__)
+#include <RVersion.h>
+#if ROOT_VERSION_CODE >= 336384 // ROOT_VERSION(5,34,0), doesn't work
+
+// "magic" typedefs for CINT
+#define DECL_HANDLE_VECTOR(T) \
+typedef fwlite::Handle<vector<T> > Handle<vector<T,allocator<T> > >
+
+// derived from RootAutoLibraryLoader specials list
+namespace edm {
+  DECL_HANDLE_VECTOR(bool);
+
+  DECL_HANDLE_VECTOR(char);
+  DECL_HANDLE_VECTOR(unsigned char);
+  // vector<signed char> gives CINT conniptions
+  //  DECL_HANDLE_VECTOR(signed char);
+  DECL_HANDLE_VECTOR(short);
+  DECL_HANDLE_VECTOR(unsigned short);
+  DECL_HANDLE_VECTOR(int);
+  DECL_HANDLE_VECTOR(unsigned int);
+  DECL_HANDLE_VECTOR(long);
+  DECL_HANDLE_VECTOR(unsigned long);
+  DECL_HANDLE_VECTOR(long long);
+  DECL_HANDLE_VECTOR(unsigned long long);
+
+  DECL_HANDLE_VECTOR(float);
+  DECL_HANDLE_VECTOR(double);
+}
+#endif
+#endif
 #endif
