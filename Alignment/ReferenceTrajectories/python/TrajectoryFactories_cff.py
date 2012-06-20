@@ -222,18 +222,6 @@ CombinedFwdBwdDualTrajectoryFactory = cms.PSet(
 
 ###############################################################
 #
-# DualKalmanFactory
-#
-###############################################################
-DualKalmanFactory = cms.PSet(
-    TrajectoryFactoryBase,
-    ParticleMass = __muonMass,
-    TrajectoryFactoryName = cms.string('DualKalmanFactory'),
-    ResidualMethod = cms.int32(0) # 0: hitErrors only, 1: unbiased residuals, 2: pulls
-)
-
-###############################################################
-#
 # ReferenceTrajectoryFactory with BrokenLines
 #
 ###############################################################
