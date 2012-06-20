@@ -104,7 +104,7 @@ namespace evf{
     pthread_mutex_init(&ep_guard_lock_,0);
   }
 
-  FWEPWrapper::~FWEPWrapper() {delete evtProcessor_; evtProcessor_=0;}
+  FWEPWrapper::~FWEPWrapper() {if (0!=evtProcessor_) delete evtProcessor_; evtProcessor_=0;}
 
   void FWEPWrapper::publishConfigAndMonitorItems(bool multi)
   {
@@ -204,7 +204,16 @@ namespace evf{
       
     LOG4CPLUS_INFO(log_,"Initialize CMSSW EventProcessor.");
     LOG4CPLUS_INFO(log_,"CMSSW_BASE:"<<getenv("CMSSW_BASE"));
-  
+ 
+    //end job of previous EP instance
+    if (0!=evtProcessor_) {
+	edm::event_processor::State st = evtProcessor_->getState();
+	if(st == edm::event_processor::sJobReady || st == edm::event_processor::sDone) {
+	  evtProcessor_->endJob();
+	}
+        delete evtProcessor_;
+	evtProcessor_=0;
+    }
 
     // job configuration string
     ParameterSetRetriever pr(configString_);
@@ -223,6 +232,7 @@ namespace evf{
     else
       pdesc = boost::shared_ptr<edm::ProcessDesc>(new edm::ProcessDesc(configuration_));
     pServiceSets = pdesc->getServicesPSets();
+
     // add default set of services
     if(!servicesDone_) {
       //DQMStore should not be created in the Master (MP case) since this poses problems in the slave
@@ -324,7 +334,6 @@ namespace evf{
     defaultServices.push_back("JobReportService");
     pdesc->addServices(defaultServices, forcedServices);
     pthread_mutex_lock(&ep_guard_lock_);
-    if (0!=evtProcessor_) delete evtProcessor_;
     
     evtProcessor_ = new edm::EventProcessor(pdesc,
 					    serviceToken_,
@@ -525,7 +534,6 @@ namespace evf{
     watching_ = false;
     if(rc != edm::EventProcessor::epTimedOut)
       {
-	
 	if(st == edm::event_processor::sJobReady || st == edm::event_processor::sDone)
 	  evtProcessor_->endJob();
 	pthread_mutex_lock(&ep_guard_lock_);
