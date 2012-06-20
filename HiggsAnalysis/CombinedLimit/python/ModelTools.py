@@ -59,6 +59,7 @@ class ModelBuilder(ModelBuilderBase):
     def __init__(self,datacard,options):
         ModelBuilderBase.__init__(self,options) 
         self.DC = datacard
+        self.doModelBOnly = True
     def setPhysics(self,physicsModel):
         self.physics = physicsModel
         self.physics.setModelBuilder(self)
@@ -274,7 +275,10 @@ class ModelBuilder(ModelBuilderBase):
         mc_s = ROOT.RooStats.ModelConfig("ModelConfig",       self.out)
         mc_b = ROOT.RooStats.ModelConfig("ModelConfig_bonly", self.out)
         for (l,mc) in [ ('s',mc_s), ('b',mc_b) ]:
-            mc.SetPdf(self.out.pdf("model_"+l))
+            if self.doModelBOnly:
+                mc.SetPdf(self.out.pdf("model_"+l))
+            else:
+                mc.SetPdf(self.out.pdf("model_s"))
             mc.SetParametersOfInterest(self.out.set("POI"))
             mc.SetObservables(self.out.set("observables"))
             if len(self.DC.systs):  mc.SetNuisanceParameters(self.out.set("nuisances"))

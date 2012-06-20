@@ -751,6 +751,9 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   if (poi.getSize() == 1) { // in the trivial 1D case, the background has POI=0.
     paramsZero.addClone(*rVals.first()); 
     paramsZero.setRealValue(rVals.first()->GetName(), 0);
+    if (testStat_ == "LEP" || testStat_ == "TEV") { 
+        ((RooRealVar&)paramsZero[rVals.first()->GetName()]).setConstant(true);
+    }
   }
   if (fitNuisances_) params.add(fitMu->floatParsFinal());
   if (fitNuisances_) paramsZero.addClone(fitZero->floatParsFinal());
