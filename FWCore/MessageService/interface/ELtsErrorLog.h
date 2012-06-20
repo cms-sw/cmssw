@@ -86,6 +86,12 @@ public:
   void item ( short n );
   void item ( unsigned short n );
   void item ( const ELstring & s );
+  ErrorLog const& errorLog() {
+     return e;
+  }
+  edm::ErrorObj& errorObj() {
+     return msg;
+  }
 
 // ----------------------------------------------------------------------
 // Message Completion:
