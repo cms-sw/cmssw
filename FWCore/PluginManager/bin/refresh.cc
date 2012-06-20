@@ -244,8 +244,6 @@ int main (int argc, char **argv) try {
           loadableFile /= (files[fi]);
           listener.nameAndTypes_.clear();
 
-          returnValue = 0;
-
           try {
            try {
                edmplugin::SharedLibrary lib(loadableFile);
@@ -334,7 +332,7 @@ int main (int argc, char **argv) try {
     rename(temporaryFilename.c_str(), cacheFile.string().c_str());  
   } catch(std::exception& iException) {
     std::cerr << "Caught exception " << iException.what() << std::endl;
-    returnValue = 1;
+    returnValue = EXIT_FAILURE;
   }
 
   return returnValue;

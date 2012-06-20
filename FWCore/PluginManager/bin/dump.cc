@@ -96,7 +96,7 @@ int main (int argc, char **argv)
     }
   }catch(std::exception& iException) {
     std::cerr <<"Caught exception "<<iException.what()<<std::endl;
-    returnValue = 1;
+    returnValue = EXIT_FAILURE;
   }
 
     return returnValue;
