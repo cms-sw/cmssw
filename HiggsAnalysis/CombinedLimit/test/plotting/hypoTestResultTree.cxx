@@ -1,5 +1,5 @@
 
-void hypoTestResultTree(TString fOutName, double mass, double rValue=1.0) {
+void hypoTestResultTree(TString fOutName, double mass, double rValue=1.0, const char *poiName="r") {
     if (gROOT->GetListOfFiles()->GetSize() == 0) {
         std::cerr << "ERROR: you have to open at least one root file" << std::endl;
     }
@@ -11,8 +11,8 @@ void hypoTestResultTree(TString fOutName, double mass, double rValue=1.0) {
     tree->Branch("weight", &weight, "weight/F");
     tree->Branch("type", &type, "type/I");
     tree->Branch("r", &r, "r/F");
-    TString prefix1 = TString::Format("HypoTestResult_mh%g_r%g_",mass,rValue);
-    TString prefix2 = TString::Format("HypoTestResult_r%g_",rValue);
+    TString prefix1 = TString::Format("HypoTestResult_mh%g_%s%g_",mass,poiName,rValue);
+    TString prefix2 = TString::Format("HypoTestResult_%s%g_",poiName,rValue);
     long int nS = 0, nB = 0;
     for (int i = 0, n = gROOT->GetListOfFiles()->GetSize()-1;  i < n; ++i) {
         TDirectory *toyDir = ((TFile*) gROOT->GetListOfFiles()->At(i))->GetDirectory("toys");
