@@ -20,50 +20,52 @@
 #include "FWCore/Framework/test/stubs/TestBeginEndJobAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <memory>
+#include <iostream>
+
+void hello(const char * hi) {
+  std::cout << "IN " << hi << std::endl;
+}
 
 TestBeginEndJobAnalyzer::TestBeginEndJobAnalyzer(const edm::ParameterSet& /* iConfig */) {
+   hello("constr");
 }
 
 TestBeginEndJobAnalyzer::~TestBeginEndJobAnalyzer() {
-  destructorCalled = true;
+     hello("destr");
+  control().destructorCalled = true;
 }
 
-bool TestBeginEndJobAnalyzer::beginJobCalled = false;
-bool TestBeginEndJobAnalyzer::endJobCalled = false;
-bool TestBeginEndJobAnalyzer::beginRunCalled = false;
-bool TestBeginEndJobAnalyzer::endRunCalled = false;
-bool TestBeginEndJobAnalyzer::beginLumiCalled = false;
-bool TestBeginEndJobAnalyzer::endLumiCalled = false;
-bool TestBeginEndJobAnalyzer::destructorCalled = false;
 
 void 
 TestBeginEndJobAnalyzer::beginJob() {
-  beginJobCalled = true;
+     hello("bjob");
+  control().beginJobCalled = true;
 }
 
 void 
 TestBeginEndJobAnalyzer::endJob() {
-  endJobCalled = true;
+   hello("ejob");
+  control().endJobCalled = true;
 }
 
 void
 TestBeginEndJobAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&) {
-  beginRunCalled = true;
+  control().beginRunCalled = true;
 }
 
 void
 TestBeginEndJobAnalyzer::endRun(edm::Run const&, edm::EventSetup const&) {
-  endRunCalled = true;
+  control().endRunCalled = true;
 }
 
 void
 TestBeginEndJobAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-  beginLumiCalled = true;
+  control().beginLumiCalled = true;
 }
 
 void
 TestBeginEndJobAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-  endLumiCalled = true;
+  control().endLumiCalled = true;
 }
 
 void

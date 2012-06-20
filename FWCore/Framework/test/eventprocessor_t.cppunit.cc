@@ -335,41 +335,44 @@ void testeventprocessor::beginEndTest() {
       "process.m1 = cms.EDAnalyzer('TestBeginEndJobAnalyzer')\n"
       "process.p1 = cms.Path(process.m1)\n");
   {
-    TestBeginEndJobAnalyzer::beginJobCalled = false;
-    TestBeginEndJobAnalyzer::endJobCalled = false;
-    TestBeginEndJobAnalyzer::beginRunCalled = false;
-    TestBeginEndJobAnalyzer::endRunCalled = false;
-    TestBeginEndJobAnalyzer::beginLumiCalled = false;
-    TestBeginEndJobAnalyzer::endLumiCalled = false;
+    std::cout << "beginEndTest 1" << std::endl;
+    TestBeginEndJobAnalyzer::control().beginJobCalled = false;
+    TestBeginEndJobAnalyzer::control().endJobCalled = false;
+    TestBeginEndJobAnalyzer::control().beginRunCalled = false;
+    TestBeginEndJobAnalyzer::control().endRunCalled = false;
+    TestBeginEndJobAnalyzer::control().beginLumiCalled = false;
+    TestBeginEndJobAnalyzer::control().endLumiCalled = false;
 
     edm::EventProcessor proc(configuration, true);
 
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginJobCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endJobCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginRunCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endRunCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginLumiCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endLumiCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginJobCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endJobCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginRunCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endRunCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginLumiCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endLumiCalled);
     CPPUNIT_ASSERT(0 == proc.totalEvents());
 
     proc.beginJob();
-
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginJobCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endJobCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginRunCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endRunCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginLumiCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endLumiCalled);
+ 
+    std::cout << "beginEndTest 1 af" << std::endl;
+ 
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginJobCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endJobCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginRunCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endRunCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginLumiCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endLumiCalled);
     CPPUNIT_ASSERT(0 == proc.totalEvents());
 
     proc.endJob();
 
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginJobCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::endJobCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginRunCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endRunCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginLumiCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endLumiCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginJobCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().endJobCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginRunCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endRunCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginLumiCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endLumiCalled);
     CPPUNIT_ASSERT(0 == proc.totalEvents());
 
      CPPUNIT_ASSERT(not edm::pset::Registry::instance()->empty());
@@ -377,208 +380,214 @@ void testeventprocessor::beginEndTest() {
   CPPUNIT_ASSERT(edm::pset::Registry::instance()->empty());
 
   {
-    TestBeginEndJobAnalyzer::beginJobCalled = false;
-    TestBeginEndJobAnalyzer::endJobCalled = false;
-    TestBeginEndJobAnalyzer::beginRunCalled = false;
-    TestBeginEndJobAnalyzer::endRunCalled = false;
-    TestBeginEndJobAnalyzer::beginLumiCalled = false;
-    TestBeginEndJobAnalyzer::endLumiCalled = false;
+    std::cout << "beginEndTest 2" << std::endl;
+
+    TestBeginEndJobAnalyzer::control().beginJobCalled = false;
+    TestBeginEndJobAnalyzer::control().endJobCalled = false;
+    TestBeginEndJobAnalyzer::control().beginRunCalled = false;
+    TestBeginEndJobAnalyzer::control().endRunCalled = false;
+    TestBeginEndJobAnalyzer::control().beginLumiCalled = false;
+    TestBeginEndJobAnalyzer::control().endLumiCalled = false;
 
     edm::EventProcessor proc(configuration, true);
     proc.runToCompletion(false);
 
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginJobCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endJobCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginRunCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::endRunCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginLumiCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::endLumiCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginJobCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endJobCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginRunCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().endRunCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginLumiCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().endLumiCalled);
     CPPUNIT_ASSERT(10 == proc.totalEvents());
     CPPUNIT_ASSERT(not edm::pset::Registry::instance()->empty());
   }
   CPPUNIT_ASSERT(edm::pset::Registry::instance()->empty());
   {
-    TestBeginEndJobAnalyzer::beginJobCalled = false;
-    TestBeginEndJobAnalyzer::endJobCalled = false;
-    TestBeginEndJobAnalyzer::beginRunCalled = false;
-    TestBeginEndJobAnalyzer::endRunCalled = false;
-    TestBeginEndJobAnalyzer::beginLumiCalled = false;
-    TestBeginEndJobAnalyzer::endLumiCalled = false;
+    std::cout << "beginEndTest 3" << std::endl;
+
+    TestBeginEndJobAnalyzer::control().beginJobCalled = false;
+    TestBeginEndJobAnalyzer::control().endJobCalled = false;
+    TestBeginEndJobAnalyzer::control().beginRunCalled = false;
+    TestBeginEndJobAnalyzer::control().endRunCalled = false;
+    TestBeginEndJobAnalyzer::control().beginLumiCalled = false;
+    TestBeginEndJobAnalyzer::control().endLumiCalled = false;
 
     edm::EventProcessor proc(configuration, true);
     proc.beginJob();
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginJobCalled);
 
     // Check that beginJob is not called again
-    TestBeginEndJobAnalyzer::beginJobCalled = false;
+    TestBeginEndJobAnalyzer::control().beginJobCalled = false;
 
     proc.runToCompletion(false);
 
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginJobCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endJobCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginRunCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::endRunCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginLumiCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::endLumiCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginJobCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endJobCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginRunCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().endRunCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginLumiCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().endLumiCalled);
     CPPUNIT_ASSERT(10 == proc.totalEvents());
 
     proc.endJob();
 
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginJobCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::endJobCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginJobCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().endJobCalled);
     CPPUNIT_ASSERT(10 == proc.totalEvents());
   }
   {
-    TestBeginEndJobAnalyzer::beginJobCalled = false;
-    TestBeginEndJobAnalyzer::endJobCalled = false;
-    TestBeginEndJobAnalyzer::beginRunCalled = false;
-    TestBeginEndJobAnalyzer::endRunCalled = false;
-    TestBeginEndJobAnalyzer::beginLumiCalled = false;
-    TestBeginEndJobAnalyzer::endLumiCalled = false;
+    TestBeginEndJobAnalyzer::control().beginJobCalled = false;
+    TestBeginEndJobAnalyzer::control().endJobCalled = false;
+    TestBeginEndJobAnalyzer::control().beginRunCalled = false;
+    TestBeginEndJobAnalyzer::control().endRunCalled = false;
+    TestBeginEndJobAnalyzer::control().beginLumiCalled = false;
+    TestBeginEndJobAnalyzer::control().endLumiCalled = false;
 
     edm::EventProcessor proc(configuration, true);
     proc.beginJob();
 
     // Check that beginJob is not called again
-    TestBeginEndJobAnalyzer::beginJobCalled = false;
+    TestBeginEndJobAnalyzer::control().beginJobCalled = false;
 
     proc.runEventCount(-1);
 
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginJobCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endJobCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginRunCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::endRunCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginLumiCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::endLumiCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginJobCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endJobCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginRunCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().endRunCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginLumiCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().endLumiCalled);
     CPPUNIT_ASSERT(10 == proc.totalEvents());
   }
   {
-    TestBeginEndJobAnalyzer::beginJobCalled = false;
-    TestBeginEndJobAnalyzer::endJobCalled = false;
-    TestBeginEndJobAnalyzer::beginRunCalled = false;
-    TestBeginEndJobAnalyzer::endRunCalled = false;
-    TestBeginEndJobAnalyzer::beginLumiCalled = false;
-    TestBeginEndJobAnalyzer::endLumiCalled = false;
+    TestBeginEndJobAnalyzer::control().beginJobCalled = false;
+    TestBeginEndJobAnalyzer::control().endJobCalled = false;
+    TestBeginEndJobAnalyzer::control().beginRunCalled = false;
+    TestBeginEndJobAnalyzer::control().endRunCalled = false;
+    TestBeginEndJobAnalyzer::control().beginLumiCalled = false;
+    TestBeginEndJobAnalyzer::control().endLumiCalled = false;
 
     edm::EventProcessor proc(configuration, true);
     proc.runEventCount(2);
 
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginJobCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endJobCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginRunCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endRunCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginLumiCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endLumiCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginJobCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endJobCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginRunCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endRunCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginLumiCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endLumiCalled);
     CPPUNIT_ASSERT(2 == proc.totalEvents());
 
     // Check that these are not called again
-    TestBeginEndJobAnalyzer::beginJobCalled = false;
-    TestBeginEndJobAnalyzer::beginRunCalled = false;
-    TestBeginEndJobAnalyzer::beginLumiCalled = false;
+    TestBeginEndJobAnalyzer::control().beginJobCalled = false;
+    TestBeginEndJobAnalyzer::control().beginRunCalled = false;
+    TestBeginEndJobAnalyzer::control().beginLumiCalled = false;
 
     proc.runEventCount(1);
 
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginJobCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endJobCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginRunCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endRunCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginLumiCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endLumiCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginJobCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endJobCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginRunCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endRunCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginLumiCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endLumiCalled);
     CPPUNIT_ASSERT(3 == proc.totalEvents());
 
     proc.runEventCount(100);
 
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginJobCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endJobCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginRunCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::endRunCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginLumiCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::endLumiCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginJobCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endJobCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginRunCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().endRunCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginLumiCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().endLumiCalled);
     CPPUNIT_ASSERT(10 == proc.totalEvents());
 
     proc.endJob();
 
     // Check that these are not called again
-    TestBeginEndJobAnalyzer::endRunCalled = false;
-    TestBeginEndJobAnalyzer::endLumiCalled = false;
+    TestBeginEndJobAnalyzer::control().endRunCalled = false;
+    TestBeginEndJobAnalyzer::control().endLumiCalled = false;
 
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginJobCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::endJobCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginRunCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endRunCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginLumiCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endLumiCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginJobCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().endJobCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginRunCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endRunCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginLumiCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endLumiCalled);
     CPPUNIT_ASSERT(10 == proc.totalEvents());
   }
-  CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endRunCalled);
-  CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endLumiCalled);
+  CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endRunCalled);
+  CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endLumiCalled);
 
   {
-    TestBeginEndJobAnalyzer::beginJobCalled = false;
-    TestBeginEndJobAnalyzer::endJobCalled = false;
-    TestBeginEndJobAnalyzer::beginRunCalled = false;
-    TestBeginEndJobAnalyzer::endRunCalled = false;
-    TestBeginEndJobAnalyzer::beginLumiCalled = false;
-    TestBeginEndJobAnalyzer::endLumiCalled = false;
+    TestBeginEndJobAnalyzer::control().beginJobCalled = false;
+    TestBeginEndJobAnalyzer::control().endJobCalled = false;
+    TestBeginEndJobAnalyzer::control().beginRunCalled = false;
+    TestBeginEndJobAnalyzer::control().endRunCalled = false;
+    TestBeginEndJobAnalyzer::control().beginLumiCalled = false;
+    TestBeginEndJobAnalyzer::control().endLumiCalled = false;
 
     edm::EventProcessor proc(configuration, true);
     proc.runEventCount(5);
 
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginJobCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endJobCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginRunCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endRunCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginLumiCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endLumiCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginJobCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endJobCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginRunCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endRunCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginLumiCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endLumiCalled);
     CPPUNIT_ASSERT(5 == proc.totalEvents());
 
     // Check that these are not called again
-    TestBeginEndJobAnalyzer::beginJobCalled = false;
-    TestBeginEndJobAnalyzer::beginRunCalled = false;
-    TestBeginEndJobAnalyzer::beginLumiCalled = false;
+    TestBeginEndJobAnalyzer::control().beginJobCalled = false;
+    TestBeginEndJobAnalyzer::control().beginRunCalled = false;
+    TestBeginEndJobAnalyzer::control().beginLumiCalled = false;
 
     proc.endJob();
 
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginJobCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::endJobCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginRunCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::endRunCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::beginLumiCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::endLumiCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginJobCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().endJobCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginRunCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().endRunCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().beginLumiCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().endLumiCalled);
     CPPUNIT_ASSERT(5 == proc.totalEvents());
 
     // Check that these are not called again
-    TestBeginEndJobAnalyzer::endRunCalled = false;
-    TestBeginEndJobAnalyzer::endLumiCalled = false;
+    TestBeginEndJobAnalyzer::control().endRunCalled = false;
+    TestBeginEndJobAnalyzer::control().endLumiCalled = false;
   }
-  CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endRunCalled);
-  CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endLumiCalled);
+  CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endRunCalled);
+  CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endLumiCalled);
 
   {
-    TestBeginEndJobAnalyzer::beginJobCalled = false;
-    TestBeginEndJobAnalyzer::endJobCalled = false;
-    TestBeginEndJobAnalyzer::beginRunCalled = false;
-    TestBeginEndJobAnalyzer::endRunCalled = false;
-    TestBeginEndJobAnalyzer::beginLumiCalled = false;
-    TestBeginEndJobAnalyzer::endLumiCalled = false;
+    TestBeginEndJobAnalyzer::control().beginJobCalled = false;
+    TestBeginEndJobAnalyzer::control().endJobCalled = false;
+    TestBeginEndJobAnalyzer::control().beginRunCalled = false;
+    TestBeginEndJobAnalyzer::control().endRunCalled = false;
+    TestBeginEndJobAnalyzer::control().beginLumiCalled = false;
+    TestBeginEndJobAnalyzer::control().endLumiCalled = false;
 
     edm::EventProcessor proc(configuration, true);
     proc.runEventCount(4);
 
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginJobCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endJobCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginRunCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endRunCalled);
-    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::beginLumiCalled);
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endLumiCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginJobCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endJobCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginRunCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endRunCalled);
+    CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginLumiCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endLumiCalled);
     CPPUNIT_ASSERT(4 == proc.totalEvents());
   }
-  CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::endJobCalled);
-  CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::endRunCalled);
-  CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::endLumiCalled);
+  CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endJobCalled);
+  CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().endRunCalled);
+  CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().endLumiCalled);
 }
 
 void testeventprocessor::cleanupJobTest()
 {
+  std::cout << "clenaup " << std::endl; 
   std::string configuration(
       "import FWCore.ParameterSet.Config as cms\n"
       "process = cms.Process('p')\n"
@@ -588,30 +597,34 @@ void testeventprocessor::cleanupJobTest()
       "process.m1 = cms.EDAnalyzer('TestBeginEndJobAnalyzer')\n"
       "process.p1 = cms.Path(process.m1)\n");
   {
-    TestBeginEndJobAnalyzer::destructorCalled = false;
+      std::cout << "clenaup 1" << std::endl;
+
+    TestBeginEndJobAnalyzer::control().destructorCalled = false;
     edm::EventProcessor proc(configuration, true);
 
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::destructorCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().destructorCalled);
     proc.beginJob();
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::destructorCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().destructorCalled);
     proc.endJob();
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::destructorCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().destructorCalled);
   }
-  CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::destructorCalled);
+  CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().destructorCalled);
   {
-    TestBeginEndJobAnalyzer::destructorCalled = false;
+      std::cout << "clenaup 2" << std::endl;
+
+    TestBeginEndJobAnalyzer::control().destructorCalled = false;
     edm::EventProcessor proc(configuration, true);
 
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::destructorCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().destructorCalled);
     proc.run(1);
     CPPUNIT_ASSERT(1 == proc.totalEvents());
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::destructorCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().destructorCalled);
     proc.run(1);
     CPPUNIT_ASSERT(2 == proc.totalEvents());
-    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::destructorCalled);
+    CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().destructorCalled);
 
   }
-  CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::destructorCalled);
+  CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().destructorCalled);
 }
 
 namespace {
