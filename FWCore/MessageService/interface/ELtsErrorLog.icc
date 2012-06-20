@@ -21,10 +21,10 @@ namespace service {
 
 template <class T>
 void ELtsItem ( ELtsErrorLog & e, const T & t ) {
-  if (e.e.discarding) return;
+  if (e.errorLog().discarding) return;
   std::ostringstream  ost;
   ost << t << ' ';
-  e.msg.emitToken( ost.str() ); 
+  e.errorObj().emitToken( ost.str() ); 
 }  
 
 // ----------------------------------------------------------------------
