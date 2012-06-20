@@ -290,3 +290,9 @@ def customise_pu50_25ns_wo_pairs(process):
 
     return (process)
 
+def saveAllProds(process):
+    keys=process.outputModules.keys()
+    for k in keys:
+        mod=getattr(process,k)
+        mod.outputCommands.extend(['keep *_*_*_*'])
+    return process
