@@ -58,8 +58,9 @@ class CvCfHiggs(SMLikeHiggsModel):
         #
         # Taylor series around MH=125 to (MH-125)^2 in Horner polynomial form
         self.modelBuilder.factory_('expr::CvCf_cgamma("\
-        @0*(1.2259236555204187 + (0.00216740776385032 - 0.000013693587140986294*@2)*@2) +\
-        @1*(-0.22592365552041888 + (-0.002167407763850317 + 0.000013693587140986278*@2)*@2)\
+        @0*@0*(1.524292518396496 + (0.005166702799572456 - 0.00003355715038472727*@2)*@2) + \
+        @1*(@1*(0.07244520735564258 + (0.0008318872718720393 - 6.16997610275555e-6*@2)*@2) + \
+        @0*(-0.5967377257521194 + (-0.005998590071444782 + 0.00003972712648748393*@2)*@2))\
         ",CV,CF,MH)')
         ## partial witdhs, normalized to the SM one, for decays scaling with F, V and total
         for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
