@@ -39,6 +39,8 @@
 
 #include "boost/type_traits/is_base_and_derived.hpp"
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
 namespace cms {
 
   namespace detail {
@@ -63,7 +65,7 @@ namespace cms {
   }
 
 
-  class Exception : public std::exception {
+  class dso_export Exception : public std::exception {
   public:
 
     explicit Exception(std::string const& aCategory);

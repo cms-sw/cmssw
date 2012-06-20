@@ -69,7 +69,7 @@ namespace edm {
 
   }
 
-  class Exception : public cms::Exception {
+  class dso_export Exception : public cms::Exception {
   public:
     typedef errors::ErrorCodes Code;
 
