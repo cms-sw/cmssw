@@ -52,11 +52,9 @@ class CvCfHiggs(SMLikeHiggsModel):
         self.SMH.dump("SM_GammaTot", "MH", MHvals, "dump.GammaTot.txt")
     def setup(self):
         ## Coefficient for couplings to photons
-        #      arXiv 1202.3144v2, below eq. 2.6:  2/9*cF - 1.04*cV, and then normalize to SM 
-        #      FIXME: this should be replaced with the proper MH dependency
-        #self.modelBuilder.factory_("expr::CvCf_cgamma(\"-0.271*@0+1.27*@1\",CF,CV)")
-        #
-        # Taylor series around MH=125 to (MH-125)^2 in Horner polynomial form
+        #      Based on Eq 1--4 of Nuclear Physics B 453 (1995)17-82
+        #      ignoring b quark contributions
+        # Taylor series around MH=125 including terms up to O(MH-125)^2 in Horner polynomial form
         self.modelBuilder.factory_('expr::CvCf_cgamma("\
         @0*@0*(1.524292518396496 + (0.005166702799572456 - 0.00003355715038472727*@2)*@2) + \
         @1*(@1*(0.07244520735564258 + (0.0008318872718720393 - 6.16997610275555e-6*@2)*@2) + \
