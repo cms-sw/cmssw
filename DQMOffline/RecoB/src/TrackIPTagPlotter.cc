@@ -416,43 +416,43 @@ TrackIPTagPlotter::TrackIPTagPlotter(const std::string & tagName,
   //Pixel hits
   tkcntHistosTkNPixelHits2D[4] = new TrackIPHistograms<int>
        ("tkNPixelHits_2D" + theExtensionString, "Track NPixelHits 2D",
-        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
 
   tkcntHistosTkNPixelHits2D[0] = new TrackIPHistograms<int>
        ("tkNPixelHits1_2D" + theExtensionString, "Track NPixelHits 2D 1.trk",
-        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
 
   tkcntHistosTkNPixelHits2D[1] = new TrackIPHistograms<int>
        ("tkNPixelHits2_2D" + theExtensionString, "Track NPixelHits 2D 2.trk",
-        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
 
   tkcntHistosTkNPixelHits2D[2] = new TrackIPHistograms<int>
        ("tkNPixelHits3_2D" + theExtensionString, "Track NPixelHits 2D 3.trk",
-        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
 
   tkcntHistosTkNPixelHits2D[3] = new TrackIPHistograms<int>
        ("tkNPixelHits4_2D" + theExtensionString, "Track NPixelHits 2D 4.trk",
-        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
 
   tkcntHistosTkNPixelHits3D[4] = new TrackIPHistograms<int>
        ("tkNPixelHits_3D" + theExtensionString, "Track NPixelHits 3D",
-        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
 
   tkcntHistosTkNPixelHits3D[0] = new TrackIPHistograms<int>
        ("tkNPixelHits1_3D" + theExtensionString, "Track NPixelHits 3D 1.trk",
-        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
 
   tkcntHistosTkNPixelHits3D[1] = new TrackIPHistograms<int>
        ("tkNPixelHits2_3D" + theExtensionString, "Track NPixelHits 3D 2.trk",
-        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
 
   tkcntHistosTkNPixelHits3D[2] = new TrackIPHistograms<int>
        ("tkNPixelHits3_3D" + theExtensionString, "Track NPixelHits 3D 3.trk",
-        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
 
   tkcntHistosTkNPixelHits3D[3] = new TrackIPHistograms<int>
        ("tkNPixelHits4_3D" + theExtensionString, "Track NPixelHits 3D 4.trk",
-        31, -0.5, 30.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
+        11, -0.5, 10.5, false, true, true, "b", update, trackIPDir, mc, makeQualityPlots_);
 
   // probability
   tkcntHistosProb3D[4] = new TrackIPHistograms<float>
@@ -613,7 +613,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
   trkNbr2D->fill(jetFlavour, selectedIndices.size(),w);
 
   for(unsigned int n=0; n != selectedIndices.size(); ++n) {
-    const reco::TrackRef& track = sortedTracks[n];
+    const reco::TrackRef& track = selectedTracks[n];
     const reco::TrackBase::TrackQuality& trackQual = highestTrackQual(track);
     tkcntHistosSig2D[4]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip2d.significance(), true,w);
     tkcntHistosVal2D[4]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip2d.value(), true,w);
@@ -651,8 +651,8 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
       selectedTracks.push_back(sortedTracks[n]);
     }
   }
-  for(unsigned int n=0; n != selectedIndices.size() && n != 4; ++n) {
-    const reco::TrackRef& track = sortedTracks[n];
+  for(unsigned int n=0; n != selectedIndices.size(); ++n) {
+    const reco::TrackRef& track = selectedTracks[n];
     const reco::TrackBase::TrackQuality& trackQual = highestTrackQual(track);
     tkcntHistosProb2D[4]->fill(jetFlavour, trackQual, prob2d[n], true,w);
     if(n >= 4) continue;
@@ -681,8 +681,8 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
   trkNbr3D->fill(jetFlavour, selectedIndices.size(),w);
   int nSelectedTracks = selectedIndices.size();
 
-  for(unsigned int n=0; n != selectedIndices.size() && n != 4; ++n) {
-    const reco::TrackRef& track = sortedTracks[n];
+  for(unsigned int n=0; n != selectedIndices.size(); ++n) {
+    const reco::TrackRef& track = selectedTracks[n];
     const reco::TrackBase::TrackQuality& trackQual = highestTrackQual(track);
     tkcntHistosSig3D[4]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip3d.significance(), true,w);
     tkcntHistosVal3D[4]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip3d.value(), true,w);
@@ -726,7 +726,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     }
   }
   for(unsigned int n=0; n != selectedIndices.size(); ++n) {
-    const reco::TrackRef& track = sortedTracks[n];
+    const reco::TrackRef& track = selectedTracks[n];
     const reco::TrackBase::TrackQuality& trackQual = highestTrackQual(track);
     tkcntHistosProb3D[4]->fill(jetFlavour, trackQual, prob3d[n], true,w);
     if(n >= 4) continue;
