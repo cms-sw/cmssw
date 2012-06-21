@@ -120,6 +120,10 @@ void HcalDeadCellMonitor::setup()
   (ProblemsVsLB_HF->getTProfile())->SetMarkerStyle(20);
   (ProblemsVsLB_HBHEHF->getTProfile())->SetMarkerStyle(20);
 
+  RBX_loss_VS_LB=dbe_->book2D("RBX_loss_VS_LB",
+			      "RBX loss vs LS; Lumi Section; Index of lost RBX", 
+			      NLumiBlocks_,0.5,NLumiBlocks_+0.5,156,0,156);
+
   ProblemsInLastNLB_HBHEHF_alarm=dbe_->book1D("ProblemsInLastNLB_HBHEHF_alarm",
 					      "Total Number of Dead HBHEHF Cells in last 10 LS. Last bin contains OverFlow",
 					      100,0,100);
@@ -414,6 +418,7 @@ void HcalDeadCellMonitor::reset()
   is_stable_beam = true;
   hbhedcsON = true; hfdcsON = true; hodcsON = true;
   ProblemsVsLB->Reset(); ProblemsVsLB_HB->Reset(); ProblemsVsLB_HE->Reset(); ProblemsVsLB_HO->Reset(); ProblemsVsLB_HO2->Reset(); ProblemsVsLB_HF->Reset(); ProblemsVsLB_HBHEHF->Reset();
+  RBX_loss_VS_LB->Reset();
   ProblemsInLastNLB_HBHEHF_alarm->Reset();
   ProblemsInLastNLB_HO01_alarm->Reset();
   NumberOfNeverPresentDigis->Reset(); NumberOfNeverPresentDigisHB->Reset(); NumberOfNeverPresentDigisHE->Reset(); NumberOfNeverPresentDigisHO->Reset(); NumberOfNeverPresentDigisHF->Reset();
@@ -1004,9 +1009,6 @@ void HcalDeadCellMonitor::fillNevents_recentdigis()
   // Fill Histograms showing digi cells with no occupancy for the past few lumiblocks
   if (!deadmon_test_digis_) return; // extra protection here against calling histograms than don't exist
 
-
-  if (deadevt_ < minDeadEventCount_) return; // not enough entries to make a determination for this LS
-
   if (debug_>0)
     std::cout <<"<HcalDeadCellMonitor::fillNevents_recentdigis> CHECKING FOR RECENT MISSING DIGIS   evtcount = "<<deadevt_<<std::endl;
 
@@ -1017,8 +1019,8 @@ void HcalDeadCellMonitor::fillNevents_recentdigis()
   int phibins=0;
 
   /////////////////
-  if (deadevt_ >= 10 && deadevt_<minDeadEventCount_) // maybe not enough events to run the standard test
-    if( is_RBX_loss_ == 1 )                          // but enough to detect RBX loss
+  if ((deadevt_ >= 10 && deadevt_<minDeadEventCount_) || (deadevt_ >= 10 && is_RBX_loss_==1)) // maybe not enough events to run the standard test
+    // if( is_RBX_loss_ == 1 )                          // but enough to detect RBX loss
       for (unsigned int depth=0;depth<RecentMissingDigisByDepth.depth.size();++depth)
 	{
 	  RecentMissingDigisByDepth.depth[depth]->setBinContent(0,0,ievt_);
@@ -1049,6 +1051,8 @@ void HcalDeadCellMonitor::fillNevents_recentdigis()
 	      }
 	}
   /////////////////
+
+  if (deadevt_ < minDeadEventCount_) return; // not enough entries to make a determination for this LS
 
   for (unsigned int depth=0;depth<RecentMissingDigisByDepth.depth.size();++depth)
     { 
@@ -1132,8 +1136,8 @@ void HcalDeadCellMonitor::fillNevents_recentrechits()
   int phibins=0;
 
   /////////////////
-  if (deadevt_ >= 10 && deadevt_<minDeadEventCount_) // maybe not enough events to run the standard test
-    if( is_RBX_loss_ == 1 )                          // but enough to detect RBX loss
+  if ((deadevt_ >= 10 && deadevt_<minDeadEventCount_) || (deadevt_ >= 10 && is_RBX_loss_==1)) // maybe not enough events to run the standard test
+    // if( is_RBX_loss_ == 1 )                          // but enough to detect RBX loss
       for (unsigned int depth=0;depth<RecentMissingRecHitsByDepth.depth.size();++depth)
 	{
 	  RecentMissingRecHitsByDepth.depth[depth]->setBinContent(0,0,ievt_);
@@ -1309,7 +1313,11 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 	    { counter_HF ++ ; RBX_loss_HF = 72*(counter_HF); }
 	  
 	  if(excludeHO1P02_==true && i==109) NumBadHO1P02 = 72; // exclude HO1P02
-	}
+	}      
+      if(occupancy_RBX[i]>0)
+	RBX_loss_VS_LB->Fill(currentLS, i, 0);
+      if(occupancy_RBX[i]==0 && is_RBX_loss_ == 1)
+	RBX_loss_VS_LB->Fill(currentLS, i, 1);      
     }  
   
   if (deadevt_ >= 10 && deadevt_<minDeadEventCount_) // maybe not enough events to run the standard test
@@ -1533,7 +1541,7 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
       if( unoccupiedHF<RBX_loss_HF )
 	unoccupiedHF+=RBX_loss_HF;
 
-      is_RBX_loss_ = 0;
+      // is_RBX_loss_ = 0;
     }
 
   ProblemsVsLB_HB->Fill(currentLS,NumBadHB-knownBadHB+0.0001); // add a small offset, so that the histograms reset when no errors follow
