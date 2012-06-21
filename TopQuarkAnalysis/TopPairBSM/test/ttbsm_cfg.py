@@ -98,9 +98,9 @@ import sys
 # 4.2.x or 52x configuration
 fileTag = "52x"
 if options.useData :
-	process.GlobalTag.globaltag = cms.string( 'GR_R_52_V9::All' )
+	process.GlobalTag.globaltag = cms.string( 'GR_R_52_V9B::All' )
 else :
-	process.GlobalTag.globaltag = cms.string( 'START52_V9B::All' )
+	process.GlobalTag.globaltag = cms.string( 'START52_V11B::All' )
 
 
 # require scraping filter
@@ -1393,7 +1393,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
 
 
 # process all the events
-process.maxEvents.input = 1000
+process.maxEvents.input = 100
 process.options.wantSummary = True
 process.out.dropMetaData = cms.untracked.string("DROPPED")
 
