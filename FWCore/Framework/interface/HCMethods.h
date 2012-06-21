@@ -36,6 +36,11 @@ namespace edm {
 	return Key(typeTag);
       }
       
+      //NOTE: the following functions use this struct to determine
+      //  how to find the 'Type' (what is returned from the Storage)
+      //  when given only an ItemType (what is stored in Storage). 
+      //  This allows the Storage to be composed of proxies instead of
+      //  the 'Type' themselves
       template<class Key, class ItemType> struct type_from_itemtype {
 	typedef typename boost::remove_const<ItemType>::type Type;
       };
