@@ -13,7 +13,7 @@
 //
 // Original Author:  Matthias Geisler
 //         Created:  Wed Apr 18 14:48:37 CEST 2012
-// $Id: PFCand_AssoMap.h,v 1.2 2012/05/14 09:03:48 mgeisler Exp $
+// $Id: PFCand_AssoMap.h,v 1.3 2012/06/06 09:06:29 mgeisler Exp $
 //
 //
 #include "CommonTools/RecoUtils/interface/PFCand_NoPU_WithAM.h"
@@ -81,7 +81,7 @@ class PFCand_AssoMap : public edm::EDProducer {
       edm::InputTag NIVertexCollection_;
 
       bool UseBeamSpotCompatibility_;
-      InputTag input_BeamSpot_;
+      edm::InputTag input_BeamSpot_;
 
       bool input_VertexAssClosest_;
 

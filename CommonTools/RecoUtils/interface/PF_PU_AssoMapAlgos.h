@@ -34,52 +34,60 @@
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
    
-using namespace edm;
-using namespace std;
-using namespace reco;
-
-  typedef AssociationMap<OneToManyWithQuality< VertexCollection, TrackCollection, float> > TrackVertexAssMap;
-
-  typedef pair<TrackRef, float> TrackQualityPair;
-  typedef pair<VertexRef, TrackQualityPair> VertexTrackQuality;
 
 class PF_PU_AssoMapAlgos{
  public:
+   typedef reco::BeamSpot BeamSpot;
+   typedef reco::Conversion Conversion;
+   typedef reco::ConversionCollection ConversionCollection;
+   typedef reco::GsfElectronCollection GsfElectronCollection;
+   typedef reco::PFDisplacedVertex PFDisplacedVertex;
+   typedef reco::PFDisplacedVertexCollection PFDisplacedVertexCollection;
+   typedef reco::TrackCollection TrackCollection;
+   typedef reco::TrackRef TrackRef;
+   typedef reco::VertexRef VertexRef;
+   typedef reco::VertexCollection VertexCollection;
+   typedef reco::VertexCompositeCandidate VertexCompositeCandidate;
+   typedef reco::VertexCompositeCandidateCollection VertexCompositeCandidateCollection;
+
+   typedef edm::AssociationMap<edm::OneToManyWithQuality< VertexCollection, TrackCollection, float> > TrackVertexAssMap;
+   typedef std::pair<TrackRef, float> TrackQualityPair;
+   typedef std::pair<VertexRef, TrackQualityPair> VertexTrackQuality;
   
    //function to find the vertex with the highest TrackWeight for a certain track
-   static VertexTrackQuality TrackWeightAssociation(const TrackRef&, Handle<VertexCollection>);  
+   static VertexTrackQuality TrackWeightAssociation(const TrackRef&, edm::Handle<VertexCollection>);  
 
    //function to find the closest vertex in z for a certain point
-   static VertexRef FindClosestInZ(double, Handle<VertexCollection>);
+   static VertexRef FindClosestInZ(double, edm::Handle<VertexCollection>);
 
    //function to associate the track to the closest vertex in z
-   static VertexTrackQuality AssociateClosestInZ(TrackRef, Handle<VertexCollection>);
+   static VertexTrackQuality AssociateClosestInZ(TrackRef, edm::Handle<VertexCollection>);
    
    //function to associate the track to the closest vertex in 3D, absolue distance or sigma
-   static VertexTrackQuality AssociateClosest3D(TrackRef, Handle<VertexCollection>, const edm::EventSetup&, bool);
+   static VertexTrackQuality AssociateClosest3D(TrackRef, edm::Handle<VertexCollection>, const edm::EventSetup&, bool);
 
    //function to find out if the track comes from a gamma conversion
-   static bool ComesFromConversion(const TrackRef, Handle<ConversionCollection>, Conversion*);
-   static bool FindRelatedElectron(const TrackRef,Handle<GsfElectronCollection>, Handle<TrackCollection>); 
+   static bool ComesFromConversion(const TrackRef, edm::Handle<ConversionCollection>, Conversion*);
+   static bool FindRelatedElectron(const TrackRef,edm::Handle<GsfElectronCollection>, edm::Handle<TrackCollection>); 
         
-   static VertexTrackQuality FindConversionVertex(const TrackRef, Conversion, Handle<VertexCollection>, const edm::EventSetup&, bool);     
+   static VertexTrackQuality FindConversionVertex(const TrackRef, Conversion, edm::Handle<VertexCollection>, const edm::EventSetup&, bool);     
 
    //function to find out if the track comes from a V0 decay
-   static bool ComesFromV0Decay(const TrackRef, Handle<VertexCompositeCandidateCollection>, 
-	 	 	  	Handle<VertexCompositeCandidateCollection>, VertexCompositeCandidate*);
+   static bool ComesFromV0Decay(const TrackRef, edm::Handle<VertexCompositeCandidateCollection>, 
+	 	 	  	edm::Handle<VertexCompositeCandidateCollection>, VertexCompositeCandidate*);
    
-   static VertexTrackQuality FindV0Vertex(const TrackRef, VertexCompositeCandidate, Handle<VertexCollection>);   
+   static VertexTrackQuality FindV0Vertex(const TrackRef, VertexCompositeCandidate, edm::Handle<VertexCollection>);   
 
    //function to find out if the track comes from a nuclear interaction
-   static bool ComesFromNI(const TrackRef, Handle<PFDisplacedVertexCollection>, PFDisplacedVertex*);
+   static bool ComesFromNI(const TrackRef, edm::Handle<PFDisplacedVertexCollection>, PFDisplacedVertex*);
    
-   static VertexTrackQuality FindNIVertex(const TrackRef, PFDisplacedVertex, Handle<VertexCollection>, bool, const edm::EventSetup&);
+   static VertexTrackQuality FindNIVertex(const TrackRef, PFDisplacedVertex, edm::Handle<VertexCollection>, bool, const edm::EventSetup&);
    
    //function to check if a secondary is compatible with the BeamSpot
-   static bool CheckBeamSpotCompability(const TrackRef, Handle<BeamSpot>);
+   static bool CheckBeamSpotCompability(const TrackRef, edm::Handle<BeamSpot>);
 
    //function to sort the vertices in the AssociationMap by the sum of (pT - pT_Error)**2
-   static auto_ptr<TrackVertexAssMap> SortAssociationMap(TrackVertexAssMap*); 
+   static std::auto_ptr<TrackVertexAssMap> SortAssociationMap(TrackVertexAssMap*); 
 
  protected:
   //protected functions 
