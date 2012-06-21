@@ -229,9 +229,9 @@ void L1RCT::digiInput(const EcalTrigPrimDigiCollection& ecalCollection,
 	{
 	  for (int k = 0; k < 64; k++)
 	    {
-	      if(k < 32) totalECalET += barrel.at(i).at(j).at(k);
-	      if(k > 31) totalHCalET += barrel.at(i).at(j).at(k);
-	      totalET += barrel.at(i).at(j).at(k);
+	      if(k < 32) totalECalET += barrel.at(i).at(j).at(k) / 2;
+	      if(k > 31) totalHCalET += barrel.at(i).at(j).at(k) / 2;
+	      totalET += barrel.at(i).at(j).at(k) / 2;
 	    }
 	}
     }
