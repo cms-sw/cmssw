@@ -18,7 +18,7 @@ Test of the EventProcessor class.
 void doInit() {
    static bool firstTime=true;
    if(firstTime) {
-      std::cout << "common init" << std::endl;
+      //std::cout << "common init" << std::endl;
       edm::RootAutoLibraryLoader::enable();
       if(not edmplugin::PluginManager::isAvailable()) {
         edmplugin::PluginManager::configure(edmplugin::standard::config());
@@ -35,7 +35,7 @@ CPPUNIT_TEST(eventprocessor2Test);
 CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){
-      std::cout << "setting up testeventprocessor2" << std::endl;
+      //std::cout << "setting up testeventprocessor2" << std::endl;
       doInit();
   }
   void tearDown(){}
@@ -49,7 +49,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testeventprocessor2);
 
 void work()
 {
-  std::cout << "work in testeventprocessor2" << std::endl;
+  //std::cout << "work in testeventprocessor2" << std::endl;
   std::string configuration(
       "import FWCore.ParameterSet.Config as cms\n"
       "process = cms.Process('PROD')\n"

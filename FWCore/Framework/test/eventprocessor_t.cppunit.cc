@@ -50,7 +50,7 @@ class testeventprocessor: public CppUnit::TestFixture {
  public:
 
   void setUp() {
-    std::cout << "setting up testeventprocessor" << std::endl;
+    //std::cout << "setting up testeventprocessor" << std::endl;
     doInit();
     m_handler = std::auto_ptr<edm::AssertHandler>(new edm::AssertHandler());
     sleep_secs_ = 0;
@@ -75,7 +75,7 @@ class testeventprocessor: public CppUnit::TestFixture {
  private:
   std::auto_ptr<edm::AssertHandler> m_handler;
   void work() {
-    std::cout << "work in testeventprocessor" << std::endl;
+    //std::cout << "work in testeventprocessor" << std::endl;
     std::string configuration(
       "import FWCore.ParameterSet.Config as cms\n"
       "process = cms.Process('p')\n"
@@ -335,7 +335,7 @@ void testeventprocessor::beginEndTest() {
       "process.m1 = cms.EDAnalyzer('TestBeginEndJobAnalyzer')\n"
       "process.p1 = cms.Path(process.m1)\n");
   {
-    std::cout << "beginEndTest 1" << std::endl;
+    //std::cout << "beginEndTest 1" << std::endl;
     TestBeginEndJobAnalyzer::control().beginJobCalled = false;
     TestBeginEndJobAnalyzer::control().endJobCalled = false;
     TestBeginEndJobAnalyzer::control().beginRunCalled = false;
@@ -355,7 +355,7 @@ void testeventprocessor::beginEndTest() {
 
     proc.beginJob();
  
-    std::cout << "beginEndTest 1 af" << std::endl;
+    //std::cout << "beginEndTest 1 af" << std::endl;
  
     CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().beginJobCalled);
     CPPUNIT_ASSERT(!TestBeginEndJobAnalyzer::control().endJobCalled);
@@ -380,7 +380,7 @@ void testeventprocessor::beginEndTest() {
   CPPUNIT_ASSERT(edm::pset::Registry::instance()->empty());
 
   {
-    std::cout << "beginEndTest 2" << std::endl;
+    //std::cout << "beginEndTest 2" << std::endl;
 
     TestBeginEndJobAnalyzer::control().beginJobCalled = false;
     TestBeginEndJobAnalyzer::control().endJobCalled = false;
@@ -403,7 +403,7 @@ void testeventprocessor::beginEndTest() {
   }
   CPPUNIT_ASSERT(edm::pset::Registry::instance()->empty());
   {
-    std::cout << "beginEndTest 3" << std::endl;
+    //std::cout << "beginEndTest 3" << std::endl;
 
     TestBeginEndJobAnalyzer::control().beginJobCalled = false;
     TestBeginEndJobAnalyzer::control().endJobCalled = false;
@@ -587,7 +587,7 @@ void testeventprocessor::beginEndTest() {
 
 void testeventprocessor::cleanupJobTest()
 {
-  std::cout << "clenaup " << std::endl; 
+  //std::cout << "cleanup " << std::endl; 
   std::string configuration(
       "import FWCore.ParameterSet.Config as cms\n"
       "process = cms.Process('p')\n"
@@ -597,7 +597,7 @@ void testeventprocessor::cleanupJobTest()
       "process.m1 = cms.EDAnalyzer('TestBeginEndJobAnalyzer')\n"
       "process.p1 = cms.Path(process.m1)\n");
   {
-      std::cout << "clenaup 1" << std::endl;
+      //std::cout << "cleanup 1" << std::endl;
 
     TestBeginEndJobAnalyzer::control().destructorCalled = false;
     edm::EventProcessor proc(configuration, true);
@@ -610,7 +610,7 @@ void testeventprocessor::cleanupJobTest()
   }
   CPPUNIT_ASSERT(TestBeginEndJobAnalyzer::control().destructorCalled);
   {
-      std::cout << "clenaup 2" << std::endl;
+      //std::cout << "cleanup 2" << std::endl;
 
     TestBeginEndJobAnalyzer::control().destructorCalled = false;
     edm::EventProcessor proc(configuration, true);
