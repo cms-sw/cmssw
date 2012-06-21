@@ -111,7 +111,7 @@ private:
     double vertexNdofCut;
 
     // Cut for the vertex Z
-    double vertexZmax;
+    double vertexZmaxCut;
 
     // Vector for associating tracks with Z positions of the vertices
     mutable std::vector<std::pair<double, unsigned> > zAssoc;
@@ -140,7 +140,7 @@ FFTJetPFPileupCleaner::FFTJetPFPileupCleaner(const edm::ParameterSet& ps)
       init_param(double, etaMin),
       init_param(double, etaMax),
       init_param(double, vertexNdofCut),
-      init_param(double, vertexZmax)
+      init_param(double, vertexZmaxCut)
 {
     buildRemovalMask();
     produces<reco::PFCandidateCollection>();
@@ -157,7 +157,7 @@ bool FFTJetPFPileupCleaner::isAcceptableVtx(
 {
     return !iv->isFake() &&
             static_cast<double>(iv->ndof()) > vertexNdofCut &&
-            std::abs(iv->z()) < vertexZmax;
+            std::abs(iv->z()) < vertexZmaxCut;
 }
 
 
