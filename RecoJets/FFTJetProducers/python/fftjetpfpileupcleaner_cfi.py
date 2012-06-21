@@ -15,6 +15,10 @@ fftjet_pf_pileup_cleaner = cms.EDProducer(
     # with any good vertex?
     checkClosestZVertex = cms.bool(True),
     #
+    # Number of vertices to associate in Z. This is meaningful
+    # only if "checkClosestZVertex" parameter is True.
+    nZAssociations = cms.uint32(1),
+    #
     # Remove the objects associated with the main primary vertex?
     removeMainVertex = cms.bool(False),
     #
@@ -39,6 +43,7 @@ fftjet_pf_pileup_cleaner = cms.EDProducer(
     etaMin = cms.double(-fftjet_standard_eta_range),
     etaMax = cms.double(fftjet_standard_eta_range),
     #
-    # Vertex quality cut
-    vertexNdofCut = cms.double(4.0)
+    # Vertex quality cuts
+    vertexNdofCut = cms.double(4.0),
+    vertexZmaxCut = cms.double(1.0e100)
 )

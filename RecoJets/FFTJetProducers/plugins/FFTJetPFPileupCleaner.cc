@@ -13,9 +13,12 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Thu Jul 14 17:50:33 CDT 2011
-// $Id: FFTJetPFPileupCleaner.cc,v 1.1 2011/07/14 00:57:01 igv Exp $
+// $Id: FFTJetPFPileupCleaner.cc,v 1.1 2011/07/15 04:26:34 igv Exp $
 //
 //
+#include <cmath>
+#include <utility>
+#include <algorithm>
 
 // framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -59,6 +62,7 @@ private:
     bool isRemovable(reco::PFCandidate::ParticleType ptype) const;
     void setRemovalBit(reco::PFCandidate::ParticleType ptype, bool onOff);
     void buildRemovalMask();
+    bool isAcceptableVtx(reco::VertexCollection::const_iterator iv) const;
 
     reco::VertexRef findSomeVertex(
         const edm::Handle<reco::VertexCollection>& vertices,
@@ -96,12 +100,21 @@ private:
     // Mask for removing things
     unsigned removalMask;
 
+    // Try to make multiple associations based on the Z position
+    unsigned nZAssociations;
+
     // Min and max eta for keeping things
     double etaMin;
     double etaMax;
 
     // Cut for the vertex Ndof
     double vertexNdofCut;
+
+    // Cut for the vertex Z
+    double vertexZmax;
+
+    // Vector for associating tracks with Z positions of the vertices
+    mutable std::vector<std::pair<double, unsigned> > zAssoc;
 };
 
 //
@@ -123,9 +136,11 @@ FFTJetPFPileupCleaner::FFTJetPFPileupCleaner(const edm::ParameterSet& ps)
       init_param(bool, remove_h_HF     ),
       init_param(bool, remove_egamma_HF),
       removalMask(0),
+      init_param(unsigned, nZAssociations),
       init_param(double, etaMin),
       init_param(double, etaMax),
-      init_param(double, vertexNdofCut)
+      init_param(double, vertexNdofCut),
+      init_param(double, vertexZmax)
 {
     buildRemovalMask();
     produces<reco::PFCandidateCollection>();
@@ -134,6 +149,15 @@ FFTJetPFPileupCleaner::FFTJetPFPileupCleaner(const edm::ParameterSet& ps)
 
 FFTJetPFPileupCleaner::~FFTJetPFPileupCleaner()
 {
+}
+
+
+bool FFTJetPFPileupCleaner::isAcceptableVtx(
+    reco::VertexCollection::const_iterator iv) const
+{
+    return !iv->isFake() &&
+            static_cast<double>(iv->ndof()) > vertexNdofCut &&
+            std::abs(iv->z()) < vertexZmax;
 }
 
 
@@ -214,7 +238,7 @@ void FFTJetPFPileupCleaner::setRemovalBit(
 
 
 // The following essentially duplicates the code in PFPileUp.cc,
-// with added cut on ndof.
+// with added cut on ndof and vertex Z position.
 reco::VertexRef FFTJetPFPileupCleaner::findSomeVertex(
     const edm::Handle<reco::VertexCollection>& vertices,
     const reco::PFCandidate& pfcand) const
@@ -231,9 +255,7 @@ reco::VertexRef FFTJetPFPileupCleaner::findSomeVertex(
 
     const IV vertend(vertices->end());
     for (IV iv=vertices->begin(); iv!=vertend; ++iv, ++index)
-    {
-        const double ndof = iv->ndof();
-        if (!iv->isFake() && ndof > vertexNdofCut)
+        if (isAcceptableVtx(iv))
         {
             const reco::Vertex& vtx = *iv;
 
@@ -258,7 +280,6 @@ reco::VertexRef FFTJetPFPileupCleaner::findSomeVertex(
                 }
             }
         }
-    }
 
     if (nFoundVertex > 0)
     {
@@ -272,21 +293,54 @@ reco::VertexRef FFTJetPFPileupCleaner::findSomeVertex(
     // optional: as a secondary solution, associate the closest vertex in z
     if (checkClosestZVertex) 
     {
-        double dzmin = 10000;
-        double ztrack = pfcand.vertex().z();
+        const double ztrack = pfcand.vertex().z();
         bool foundVertex = false;
         index = 0;
-        for (IV iv=vertices->begin(); iv!=vertend; ++iv, ++index)
+
+        if (nZAssociations < 2U)
         {
-            const double ndof = iv->ndof();
-            if (!iv->isFake() && ndof > vertexNdofCut)
-            {
-                const double dz = fabs(ztrack - iv->z());
-                if (dz < dzmin)
+            double dzmin = 10000;
+            for (IV iv=vertices->begin(); iv!=vertend; ++iv, ++index)
+                if (isAcceptableVtx(iv))
                 {
-                    dzmin = dz; 
-                    iVertex = index;
-                    foundVertex = true;
+                    const double dz = std::abs(ztrack - iv->z());
+                    if (dz < dzmin)
+                    {
+                        dzmin = dz; 
+                        iVertex = index;
+                        foundVertex = true;
+                    }
+                }
+        }
+        else
+        {
+            zAssoc.clear();
+            for (IV iv=vertices->begin(); iv!=vertend; ++iv, ++index)
+                if (isAcceptableVtx(iv))
+                {
+                    const double dz = std::abs(ztrack - iv->z());
+                    zAssoc.push_back(std::pair<double, unsigned>(dz, index));
+                }
+
+            // If the primary vertex is among first nZAssociations
+            // vertices, return it. Otherwise return the best match.
+            if (!zAssoc.empty())
+            {
+                std::sort(zAssoc.begin(), zAssoc.end());
+                foundVertex = true;
+                iVertex = zAssoc[0].second;
+
+                const unsigned nVert = zAssoc.size();
+                const unsigned maxInd = std::min(nZAssociations, nVert);
+
+                for (unsigned i=0; i<maxInd; ++i)
+                {
+                    reco::VertexRef vertexref(vertices, zAssoc[i].second);
+                    if (vertexref.key() == 0)
+                    {
+                        iVertex = zAssoc[i].second;
+                        break;
+                    }
                 }
             }
         }
