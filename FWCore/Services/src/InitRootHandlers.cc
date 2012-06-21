@@ -113,6 +113,9 @@ namespace {
     if (el_severity == edm::ELseverityLevel::ELsev_info) {
       // Don't throw if the message is just informational.
       die = false;
+    } else if (el_message.find("Attempt to add histograms with different labels") != std::string::npos) {
+      // Temporarily, we don't throw for this particular message.
+      die = false;
     } else {
       die = true;
     }
@@ -129,7 +132,7 @@ namespace {
        throw except;
     }
 
-    // Currently we get here only for informational messages,
+    // Typically, we get here only for informational messages,
     // but we leave the other code in just in case we change
     // the criteria for throwing.
     if (el_severity == edm::ELseverityLevel::ELsev_fatal) {
