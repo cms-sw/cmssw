@@ -87,7 +87,7 @@ std::pair<std::vector<reco::TransientTrack>,GlobalPoint> TracksClusteringFromDis
 
 std::vector<TracksClusteringFromDisplacedSeed::Cluster> TracksClusteringFromDisplacedSeed::clusters(
 	 const reco::Vertex &pv,
-	 const std::vector<TransientTrack> & selectedTracks
+	 const std::vector<reco::TransientTrack> & selectedTracks
  )
 {
 	using namespace reco;

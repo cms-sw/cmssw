@@ -22,8 +22,6 @@
 
 //#define VTXDEBUG
 
-using namespace reco;
-
 class TracksClusteringFromDisplacedSeed {
     public:
     struct Cluster 
