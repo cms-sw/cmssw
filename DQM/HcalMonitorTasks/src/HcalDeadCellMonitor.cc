@@ -1555,9 +1555,9 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
   if(excludeHO1P02_==true)
     ProblemsVsLB_HO->Fill(0, NumBadHO1P02);
 
-  if( NumBadHB+NumBadHE+NumBadHF-knownBadHB-knownBadHE-knownBadHF < 50 )    
+  if( NumBadHB+NumBadHE+NumBadHF-knownBadHB-knownBadHE-knownBadHF < 30 )    
     alarmer_counter_ = 0;
-  if( NumBadHO01-knownBadHO01 < 50 )    
+  if( NumBadHO01-knownBadHO01 < 30 )    
     alarmer_counterHO01_ = 0;
     
   if( alarmer_counter_ >= 10 )
