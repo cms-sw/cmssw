@@ -15,8 +15,8 @@
 /*
  * \file HcalSummaryClient.cc
  * 
- * $Date: 2011/04/26 15:33:10 $
- * $Revision: 1.106 $
+ * $Date: 2012/06/18 08:23:10 $
+ * $Revision: 1.107 $
  * \author J. Temple
  * \brief Summary Client class
  */
@@ -52,6 +52,7 @@ HcalSummaryClient::HcalSummaryClient(std::string myname, const edm::ParameterSet
 
   NLumiBlocks_ = ps.getUntrackedParameter<int>("NLumiBlocks",4000);
   UseBadChannelStatusInSummary_ = ps.getUntrackedParameter<bool>("UseBadChannelStatusInSummary",false);
+  excludeBadQPLLs_      = ps.getUntrackedParameter<bool>("excludeBadQPLL",false);
 
   // These aren't used in summary client, are they?
   badChannelStatusMask_   = ps.getUntrackedParameter<int>("Summary_BadChannelStatusMask",
@@ -199,6 +200,49 @@ void HcalSummaryClient::analyze(int LS)
   double localHO0[20]={0};
   double localHO12[20]={0};
 
+  // Check if the RBX data-loss has lasted for more than 2LS. If not, discard from problem rate counts
+  // # of channels in HB and HE = 2592 in each
+  // # of channels in HF = 1728
+  // # of channels in HO = 2160
+  // # of channels in HO01 = 1440
+  // RBX index, HB RBX indices are 0-35
+  // RBX index, HE RBX indices are 36-71
+  TH2F* checkIgnore;
+  MonitorElement* me;
+  checkIgnore = 0;
+
+  // Get the DeadVSLS plots from DeadCellMonitor task
+  std::string s="Hcal/DeadCellMonitor_Hcal/RBX_loss_VS_LB";
+  me=dqmStore_->get(s.c_str());
+  if (me!=0) checkIgnore=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, checkIgnore, debug_);
+  
+  // find the RBX-indices, and how long the data-losses lasted
+  float ignoreDeadRate[156]={0.};
+
+  for (int i=1;i<=checkIgnore->GetNbinsY();++i)   // RBX list
+    for (int j=2;j<=checkIgnore->GetNbinsX();++j) // LS list, start from LS=2
+      if ( checkIgnore->GetBinContent(j,i)>0 )
+	{
+	  if(checkIgnore->GetBinContent(j-1,i)<1 || (checkIgnore->GetBinContent(j-1,i)>0 && checkIgnore->GetBinContent(j-2,i)<1))
+	    ignoreDeadRate[i]=72.;
+	  
+	  if(checkIgnore->GetBinContent(j-1,i)>0 && checkIgnore->GetBinContent(j-2,i)>0 )
+	    {ignoreDeadRate[i] = 0.; break;}
+	}
+  
+  float ignoreShortDeadRate_HB=0;
+  float ignoreShortDeadRate_HE=0;
+  for (int i =0; i<156; i++)
+    {
+      if(i<=35)            // HB
+	ignoreShortDeadRate_HB   = ignoreShortDeadRate_HB+ignoreDeadRate[i];
+      if(i>=36 && i<=71)   // HE
+	ignoreShortDeadRate_HE   = ignoreShortDeadRate_HE+ignoreDeadRate[i];
+    }
+  ignoreShortDeadRate_HB = ignoreShortDeadRate_HB/2592;
+  ignoreShortDeadRate_HE = ignoreShortDeadRate_HE/2592;  
+  //
+
   // reset all depth histograms
   if (SummaryMapByDepth==0)
     {
@@ -246,6 +290,19 @@ void HcalSummaryClient::analyze(int LS)
 		      if ((clients_[cl]->ProblemCellsByDepth)->depth[d]==0) continue;
 		      if ((clients_[cl]->ProblemCellsByDepth)->depth[d]->getBinContent(eta,phi)>clients_[cl]->minerrorrate_)
 			{
+			  // QPLL unlocking channels, have to ignore unpacker errors (fix requires opening CMS)
+			  // skip DigiErrors for these channels when feeding the Summary maps
+			  if(excludeBadQPLLs_)
+			    if(clients_[cl]->name()=="DigiMonitor") 
+			      {
+				bool HEM15A = true ? (isHE(eta-1,d+1) && (phi>56 && phi<59 && ieta<0)) : false;
+				bool HEM15B = true ? (isHE(eta-1,d+1) && (phi>54 && phi<57 && ieta<0)) : false;
+				bool HBP14A = true ? (isHB(eta-1,d+1) && (phi>50 && phi<53 && ieta>0)) : false;
+				
+				if( HEM15A || HEM15B || HBP14A )
+				  continue;
+			      }
+
 			  if (isHF(eta-1,d+1)) 
 			    {
 			      ++localHF[cl];
@@ -319,6 +376,19 @@ void HcalSummaryClient::analyze(int LS)
 		      if ((clients_[cl]->ProblemCellsByDepth)->depth[d]==0) continue;
 		      if ((clients_[cl]->ProblemCellsByDepth)->depth[d]->getBinContent(eta,phi)>clients_[cl]->minerrorrate_)
 			{
+			  // QPLL unlocking channels, have to ignore unpacker errors (fix requires opening CMS)
+			  // skip DigiErrors for these channels when feeding the Summary maps
+			  if(excludeBadQPLLs_)
+			    if(clients_[cl]->name()=="DigiMonitor") 
+			      {
+				bool HEM15A = true ? (isHE(eta-1,d+1) && (phi>56 && phi<59 && ieta<0)) : false;
+				bool HEM15B = true ? (isHE(eta-1,d+1) && (phi>54 && phi<57 && ieta<0)) : false;
+				bool HBP14A = true ? (isHB(eta-1,d+1) && (phi>50 && phi<53 && ieta>0)) : false;
+				
+				if( HEM15A || HEM15B || HBP14A )
+				  continue;
+			      }
+			  
 			  if ((clients_[cl]->ProblemCellsByDepth)->depth[d]->getBinContent(eta,phi)<999)
 			    SummaryMapByDepth->depth[d]->setBinContent(eta,phi,1);
 			  else 
@@ -361,9 +431,12 @@ void HcalSummaryClient::analyze(int LS)
       it=subdetCells_.find("HB");
       totalcells+=it->second;
       status_HB_= 1-(status_HB_/it->second);
+      status_HB_=status_HB_+ignoreShortDeadRate_HB;
       for (unsigned int i=0;i<clients_.size();++i)
 	{
 	  localHB[i]=1-(1.*localHB[i]/it->second);
+	  if(clients_[i]->name()=="DeadCellMonitor") // correct the rate, removing the effect of short RBX losses
+	    localHB[i]=localHB[i]+ignoreShortDeadRate_HB;
 	  localHB[i]=std::max(0.,localHB[i]);
 	}
       status_HB_=std::max(0.,status_HB_); // converts fraction of bad channels to good fraction
@@ -376,9 +449,12 @@ void HcalSummaryClient::analyze(int LS)
       it=subdetCells_.find("HE");
       totalcells+=it->second;
       status_HE_= 1-(status_HE_/it->second);
+      status_HE_=status_HE_+ignoreShortDeadRate_HE;
       for (unsigned int i=0;i<clients_.size();++i)
 	{
 	  localHE[i]=1-(1.*localHE[i]/it->second);
+	  if(clients_[i]->name()=="DeadCellMonitor") // correct the rate, removing the effect of short RBX losses
+	    localHE[i]=localHE[i]+ignoreShortDeadRate_HE;
 	  localHE[i]=std::max(0.,localHE[i]);
 	}
       status_HE_=std::max(0.,status_HE_); // converts fraction of bad channels to good fraction

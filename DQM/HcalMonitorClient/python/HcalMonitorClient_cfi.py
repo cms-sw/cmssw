@@ -49,6 +49,7 @@ hcalClient = cms.EDAnalyzer("HcalMonitorClient",
                             
                             excludeHOring2_backup          = cms.untracked.bool(True), # This is only a 'backup' result, and is overwritten by what was used by the task when the task information
                                                                                        # can be found in the DQM output. If the task info can't be found, this backup value is used in its place.
+                            excludeBadQPLL         = cms.untracked.bool(True),
 
                             # Specify all clients to be run (name = prefix+"Monitor")
 
