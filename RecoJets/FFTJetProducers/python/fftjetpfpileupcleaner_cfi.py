@@ -13,15 +13,15 @@ fftjet_pf_pileup_cleaner = cms.EDProducer(
     #
     # Info about fake primary vertices
     useFakePrimaryVertex = cms.bool(False),
-    FakePrimaryVertices = cms.InputTag("invalid"),
+    FakePrimaryVertices = cms.InputTag("vertexadder", "FFTJetFudgedVertices"),
     #
     # Find the closest vertex even if the track is not associated
     # with any good vertex?
     checkClosestZVertex = cms.bool(True),
     #
-    # Number of vertices to associate in Z. This is meaningful
-    # only if "checkClosestZVertex" parameter is True.
-    nZAssociations = cms.uint32(1),
+    # Associate all tracks neigboring the main vertex with it?
+    # This switch is meaningful only if "checkClosestZVertex" it true.
+    keepIfPVneighbor = cms.bool(True),
     #
     # Remove the objects associated with the main primary vertex?
     removeMainVertex = cms.bool(False),
@@ -33,7 +33,7 @@ fftjet_pf_pileup_cleaner = cms.EDProducer(
     reverseRemovalDecision = cms.bool(False),
     #
     # Various removal flags by object type. See PFCandidate header
-    # for dobject type etails.
+    # for object type details.
     remove_X = cms.bool(False),
     remove_h = cms.bool(True),
     remove_e = cms.bool(True),
@@ -49,5 +49,5 @@ fftjet_pf_pileup_cleaner = cms.EDProducer(
     #
     # Vertex quality cuts
     vertexNdofCut = cms.double(4.0),
-    vertexZmaxCut = cms.double(1.0e100)
+    vertexZmaxCut = cms.double(24.0)
 )

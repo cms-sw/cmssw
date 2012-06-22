@@ -17,6 +17,7 @@
 //
 //
 #include <cmath>
+#include <climits>
 #include <utility>
 #include <algorithm>
 
@@ -25,7 +26,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/View.h"
@@ -81,6 +82,13 @@ private:
     // with some vertex no matter what
     bool checkClosestZVertex;
 
+    // The following switch will check if the primary vertex
+    // is a neighbor (in Z) of a track and will keep the
+    // track if this is so, even if it is not directly associated
+    // with the primary vertex. This switch is meaningful only if
+    // "checkClosestZVertex" is true.
+    bool keepIfPVneighbor;
+
     // The following, if true, will cause removal of candidates
     // associated with the main vertex
     bool removeMainVertex;
@@ -106,9 +114,6 @@ private:
     // Mask for removing things
     unsigned removalMask;
 
-    // Try to make multiple associations based on the Z position
-    unsigned nZAssociations;
-
     // Min and max eta for keeping things
     double etaMin;
     double etaMax;
@@ -132,6 +137,7 @@ FFTJetPFPileupCleaner::FFTJetPFPileupCleaner(const edm::ParameterSet& ps)
       init_param(edm::InputTag, FakePrimaryVertices),
       init_param(bool, useFakePrimaryVertex),
       init_param(bool, checkClosestZVertex),
+      init_param(bool, keepIfPVneighbor),
       init_param(bool, removeMainVertex),
       init_param(bool, removeUnassociated),
       init_param(bool, reverseRemovalDecision),
@@ -144,8 +150,7 @@ FFTJetPFPileupCleaner::FFTJetPFPileupCleaner(const edm::ParameterSet& ps)
       init_param(bool, remove_h_HF     ),
       init_param(bool, remove_egamma_HF),
       removalMask(0),
-      init_param(unsigned, nZAssociations),
-      init_param(double, etaMin),
+       init_param(double, etaMin),
       init_param(double, etaMax),
       init_param(double, vertexNdofCut),
       init_param(double, vertexZmaxCut)
@@ -186,7 +191,14 @@ void FFTJetPFPileupCleaner::produce(
 
     edm::Handle<reco::VertexCollection> fakeVertices;
     if (useFakePrimaryVertex)
+    {
         iEvent.getByLabel(FakePrimaryVertices, fakeVertices);
+        if (!fakeVertices.isValid())
+            throw cms::Exception("FFTJetBadConfig")
+                << "ERROR in FFTJetPFPileupCleaner:"
+                " could not find fake vertices"
+                << std::endl;
+    }
 
     const unsigned ncand = pfCandidates->size();
     for (unsigned i=0; i<ncand; ++i)
@@ -280,11 +292,11 @@ reco::VertexRef FFTJetPFPileupCleaner::findSomeVertexWFakes(
 
     size_t iVertex = 0;
     unsigned nFoundVertex = 0;
-    double bestweight = 0;
     const IV vertend(vertices->end());
 
     {
         unsigned index = 0;
+        double bestweight = 0.0;
         for (IV iv=vertices->begin(); iv!=vertend; ++iv, ++index)
             if (isAcceptableVtx(iv))
             {
@@ -351,8 +363,86 @@ reco::VertexRef FFTJetPFPileupCleaner::findSomeVertexWFakes(
         const double ztrack = pfcand.vertex().z();
         bool foundVertex = false;
 
-        if (nZAssociations < 2U)
+        if (keepIfPVneighbor)
         {
+            // Sort all vertices according to their Z coordinate
+            zAssoc.clear();
+            unsigned index = 0;
+            for (IV iv=vertices->begin(); iv!=vertend; ++iv, ++index)
+                if (isAcceptableVtx(iv))
+                    zAssoc.push_back(std::pair<double,unsigned>(iv->z(), index));
+            const unsigned numRealVertices = index;
+
+            // Mix the fake vertex collection into zAssoc.
+            // Note that we do not reset "index" before doing this.
+            if (useFakePrimaryVertex)
+            {
+                const IV fakeEnd(fakeVertices->end());
+                for (IV iv=fakeVertices->begin(); iv!=fakeEnd; ++iv, ++index)
+                    if (isAcceptableVtx(iv))
+                        zAssoc.push_back(std::pair<double,unsigned>(iv->z(), index));
+            }
+
+            // Check where the track z position fits into this sequence
+            if (!zAssoc.empty())
+            {
+                std::sort(zAssoc.begin(), zAssoc.end());
+                std::pair<double,unsigned> tPair(ztrack, UINT_MAX);
+                const unsigned iAbove = std::upper_bound(
+                    zAssoc.begin(), zAssoc.end(), tPair) - zAssoc.begin();
+
+                // Check whether one of the vertices with indices
+                // iAbove or (iAbove - 1) is a primary vertex.
+                // If so, return it. Otherwise return the one
+                // with closest distance to the track.
+                unsigned ich[2] = {0U, 0U};
+                unsigned nch = 1;
+                if (iAbove)
+                {
+                    ich[0] = iAbove - 1U;
+                    ich[1] = iAbove;
+                    if (iAbove < zAssoc.size())
+                        nch = 2;
+                }
+
+                double dzmin = 1.0e100;
+                unsigned bestVertexNum = UINT_MAX;
+                for (unsigned icheck=0; icheck<nch; ++icheck)
+                {
+                    const unsigned zAssocIndex = ich[icheck];
+                    const unsigned vertexNum = zAssoc[zAssocIndex].second;
+
+                    if (vertexNum == numRealVertices || 
+                        (!useFakePrimaryVertex && vertexNum == 0U))
+                    {
+                        bestVertexNum = vertexNum;
+                        break;
+                    }
+
+                    const double dz = std::abs(ztrack - zAssoc[zAssocIndex].first);
+                    if (dz < dzmin)
+                    {
+                        dzmin = dz; 
+                        bestVertexNum = vertexNum;
+                    }
+                }
+
+                foundVertex = bestVertexNum < UINT_MAX;
+                if (foundVertex)
+                {
+                    iVertex = bestVertexNum;
+                    if (iVertex >= numRealVertices)
+                    {
+                        *fromFakeSet = true;
+                        iVertex -= numRealVertices;
+                    }
+                }
+            }
+        }
+        else
+        {
+            // This is a simple association algorithm (from PFPileUp)
+            // extended to take fake vertices into account
             double dzmin = 1.0e100;
             unsigned index = 0;
             for (IV iv=vertices->begin(); iv!=vertend; ++iv, ++index)
@@ -383,66 +473,6 @@ reco::VertexRef FFTJetPFPileupCleaner::findSomeVertexWFakes(
                             foundVertex = true;
                        }
                     }
-            }
-        }
-        else
-        {
-            zAssoc.clear();
-            unsigned index = 0;
-            for (IV iv=vertices->begin(); iv!=vertend; ++iv, ++index)
-                if (isAcceptableVtx(iv))
-                {
-                    const double dz = std::abs(ztrack - iv->z());
-                    zAssoc.push_back(std::pair<double, unsigned>(dz, index));
-                }
-            const unsigned numRealVertices = index;
-
-            // Mix the fake vertex collection into zAssoc
-            if (useFakePrimaryVertex)
-            {
-                const IV fakeEnd(fakeVertices->end());
-                for (IV iv=fakeVertices->begin(); iv!=fakeEnd; ++iv, ++index)
-                    if (isAcceptableVtx(iv))
-                    {
-                        const double dz = std::abs(ztrack - iv->z());
-                        zAssoc.push_back(std::pair<double, unsigned>(dz, index));
-                    }
-            }
-
-            // If the primary vertex is among first nZAssociations
-            // vertices, return it. Otherwise return the best match.
-            if (!zAssoc.empty())
-            {
-                std::sort(zAssoc.begin(), zAssoc.end());
-                foundVertex = true;
-
-                // This is the current best match
-                iVertex = zAssoc[0].second;
-                if (iVertex >= numRealVertices)
-                {
-                    *fromFakeSet = true;
-                    iVertex -= numRealVertices;
-                }
-
-                const unsigned nVert = zAssoc.size();
-                const unsigned maxInd = std::min(nZAssociations, nVert);
-
-                for (unsigned i=1U; i<maxInd; ++i)
-                {
-                    if (zAssoc[i].second == numRealVertices)
-                    {
-                        // We are using fake vertices, and the primary is in the set
-                        *fromFakeSet = true;
-                        iVertex = 0;
-                        break;
-                    }
-                    if (!useFakePrimaryVertex && zAssoc[i].second == 0U)
-                    {
-                        // Not using fake vertices, and the primary is in the set
-                        iVertex = 0;
-                        break;
-                    }
-                }
             }
         }
 
