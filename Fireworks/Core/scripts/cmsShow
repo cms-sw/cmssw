@@ -102,6 +102,7 @@ setupEnv()
         echo "Warning: DYLD_LIBRARY_PATH not empty. Unsetting DYLD_LIBRARY_PATH." 
         unset DYLD_LIBRARY_PATH
      fi
+     DYLD_LIBRARY_PATH=$CMSSW_BASE/external/gcc/lib64
      export PATH=${ROOTSYS}/bin:$PATH
      # move cmsShow.exe to libexec
      SHELLDIR=$SHELLDIR/libexec
