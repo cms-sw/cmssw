@@ -20,14 +20,14 @@ void SiPixelDigiCompare()
  //Get list of Keys from the Reference file.
   TList* ref_list = rfile->GetListOfKeys() ;
   if (!ref_list) {
-      std::cout<<"=========>> AutoComparison:: There is no Keys available in the Reference file."<<std::endl;
+      std::cout<<"=========>> AutoComaprison:: There is no Keys available in the Reference file."<<std::endl;
       exit(1) ;
    }
 
   //Get list of Keys from the New file.
   TList* new_list = sfile->GetListOfKeys() ;
   if (!new_list) {
-      std::cout<<"=========>> AutoComparison:: There is no Keys available in New file."<<std::endl;
+      std::cout<<"=========>> AutoComaprison:: There is no Keys available in New file."<<std::endl;
       exit(1) ;
    }
 
@@ -44,7 +44,7 @@ void SiPixelDigiCompare()
       if (strcmp(ref_obj->IsA()->GetName(),"TObjString")==0) {
 
          TObjString * rversion = dynamic_cast< TObjString*> (ref_obj);
-         sprintf(rver, "old: %s", rversion->GetName());
+         sprintf(rver, "%s", rversion->GetName());
          std::cout<<" Ref. version =" << rver<<std::endl;
          break;
 
@@ -60,7 +60,7 @@ void SiPixelDigiCompare()
       if (strcmp(new_obj->IsA()->GetName(),"TObjString")==0) {
 
          TObjString * cversion = dynamic_cast< TObjString*> (new_obj);
-         sprintf(cver, "new: %s", cversion->GetName());
+         sprintf(cver, "%s", cversion->GetName());
          std::cout<<" Cur version =" << cver<<std::endl;
          break;
 
@@ -84,7 +84,7 @@ void SiPixelDigiCompare()
 
 ///1st Layer
 if (1) {
-   TCanvas * Pixel = new TCanvas("Pixel","Pixel",1600,2400);
+   TCanvas * Pixel = new TCanvas("Pixel","Pixel",800,1200);
    Pixel->Divide(2,4);
 
    TH1* meAdcLadder_[8];
@@ -105,7 +105,6 @@ if (1) {
       newmeAdcLadder_[i]->Draw("Sames"); 
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdcLadder_[i],rver , "l");
       leg.AddEntry(newmeAdcLadder_[i],cver , "l");
       leg.Draw();
@@ -118,7 +117,7 @@ if (1) {
 }
 
 if (1) {
-   TCanvas * Pixel = new TCanvas("Pixel","Pixel",1600,2400);
+   TCanvas * Pixel = new TCanvas("Pixel","Pixel",800,1200);
    Pixel->Divide(2,4);
 
    TH1* meAdcLadder_[8];
@@ -139,7 +138,6 @@ if (1) {
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdcLadder_[i],rver , "l");
       leg.AddEntry(newmeAdcLadder_[i],cver , "l");
       leg.Draw();
@@ -151,7 +149,7 @@ if (1) {
 }
 
 if (1) {
-   TCanvas * Pixel = new TCanvas("Pixel","Pixel",1600,2400);
+   TCanvas * Pixel = new TCanvas("Pixel","Pixel",800,1200);
    Pixel->Divide(2,4);
 
    TH1* meAdcLadder_[8];
@@ -171,7 +169,6 @@ if (1) {
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdcLadder_[i],rver , "l");
       leg.AddEntry(newmeAdcLadder_[i],cver , "l");
       leg.Draw();
@@ -183,7 +180,7 @@ if (1) {
 }
 
 if (1) {
-  TCanvas * Pixel = new TCanvas("Pixel","Pixel",1600,2400);
+  TCanvas * Pixel = new TCanvas("Pixel","Pixel",800,1200);
    Pixel->Divide(2,4);
 
    TH1* meAdcLadder_[8];
@@ -204,7 +201,6 @@ if (1) {
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdcLadder_[i],rver , "l");
       leg.AddEntry(newmeAdcLadder_[i],cver , "l");
       leg.Draw();
@@ -219,7 +215,7 @@ if (1) {
 ///2nd Layer
 
 if (1) {
-   TCanvas * Pixel = new TCanvas("Pixel","Pixel",1600,2400);
+   TCanvas * Pixel = new TCanvas("Pixel","Pixel",800,1200);
    Pixel->Divide(2,4);
 
    TH1* meAdcLadder_[8];
@@ -239,7 +235,6 @@ if (1) {
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdcLadder_[i],rver , "l");
       leg.AddEntry(newmeAdcLadder_[i],cver , "l");
       leg.Draw();
@@ -251,7 +246,7 @@ if (1) {
 }
 
 if (1) {
-   TCanvas * Pixel = new TCanvas("Pixel","Pixel",1600,2400);
+   TCanvas * Pixel = new TCanvas("Pixel","Pixel",800,1200);
    Pixel->Divide(2,4);
 
    TH1* meAdcLadder_[8];
@@ -270,7 +265,6 @@ if (1) {
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdcLadder_[i],rver , "l");
       leg.AddEntry(newmeAdcLadder_[i],cver , "l");
       leg.Draw();
@@ -282,7 +276,7 @@ if (1) {
 }
 
 if (1) {
-   TCanvas * Pixel = new TCanvas("Pixel","Pixel",1600,2400);
+   TCanvas * Pixel = new TCanvas("Pixel","Pixel",800,1200);
    Pixel->Divide(2,4);
 
    TH1* meAdcLadder_[8];
@@ -301,7 +295,6 @@ if (1) {
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdcLadder_[i],rver , "l");
       leg.AddEntry(newmeAdcLadder_[i],cver , "l");
       leg.Draw();
@@ -312,7 +305,7 @@ if (1) {
    Pixel->Print("ColOfPXBLayer2_compare.gif");
 }
 if (1) {
-  TCanvas * Pixel = new TCanvas("Pixel","Pixel",1600,2400);
+  TCanvas * Pixel = new TCanvas("Pixel","Pixel",800,1200);
    Pixel->Divide(2,4);
 
    TH1* meAdcLadder_[8];
@@ -333,7 +326,6 @@ if (1) {
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdcLadder_[i],rver , "l");
       leg.AddEntry(newmeAdcLadder_[i],cver , "l");
       leg.Draw();
@@ -347,7 +339,7 @@ if (1) {
 
 ///3rd Layer
 if (1) {
-   TCanvas * Pixel = new TCanvas("Pixel","Pixel",1600,2400);
+   TCanvas * Pixel = new TCanvas("Pixel","Pixel",800,1200);
    Pixel->Divide(2,4);
 
    TH1* meAdcLadder_[8];
@@ -368,7 +360,6 @@ if (1) {
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdcLadder_[i],rver , "l");
       leg.AddEntry(newmeAdcLadder_[i],cver , "l");
       leg.Draw();
@@ -379,7 +370,7 @@ if (1) {
    Pixel->Print("AdcOfPXBLayer3_compare.gif");
 }
 if (1) {
-   TCanvas * Pixel = new TCanvas("Pixel","Pixel",1600,2400);
+   TCanvas * Pixel = new TCanvas("Pixel","Pixel",800,1200);
    Pixel->Divide(2,4);
 
    TH1* meAdcLadder_[8];
@@ -399,7 +390,6 @@ if (1) {
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdcLadder_[i],rver , "l");
       leg.AddEntry(newmeAdcLadder_[i],cver , "l");
       leg.Draw();
@@ -411,7 +401,7 @@ if (1) {
 }
 
 if (1) {
-   TCanvas * Pixel = new TCanvas("Pixel","Pixel",1600,2400);
+   TCanvas * Pixel = new TCanvas("Pixel","Pixel",800,1200);
    Pixel->Divide(2,4);
 
    TH1* meAdcLadder_[8];
@@ -431,7 +421,6 @@ if (1) {
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdcLadder_[i],rver , "l");
       leg.AddEntry(newmeAdcLadder_[i],cver , "l");
       leg.Draw();
@@ -444,7 +433,7 @@ if (1) {
 
 /* digi multiplicity per ring */
 if (1) {
-  TCanvas * Pixel = new TCanvas("Pixel","Pixel",1600,2400);
+  TCanvas * Pixel = new TCanvas("Pixel","Pixel",800,1200);
    Pixel->Divide(2,4);
 
    TH1* meAdcLadder_[8];
@@ -465,7 +454,6 @@ if (1) {
       newmeAdcLadder_[i]->Draw("Sames");
       myPV->PVCompute(meAdcLadder_[i] , newmeAdcLadder_[i] , te );
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdcLadder_[i],rver , "l");
       leg.AddEntry(newmeAdcLadder_[i],cver , "l");
       leg.Draw();
@@ -479,7 +467,7 @@ if (1) {
 
 /* Digi Number versus Ladder Num. */
 if (1) {
-  TCanvas * Pixel = new TCanvas("Pixel","Pixel",1600,2400);
+  TCanvas * Pixel = new TCanvas("Pixel","Pixel",800,1200);
    Pixel->Divide(1,3);
    TProfile* meLadder_[3];
    TProfile* newmeLadder_[3];
@@ -499,7 +487,6 @@ if (1) {
       newmeLadder_[i]->Draw("Sames");
       myPV->PVCompute(meLadder_[i] , newmeLadder_[i] , te );
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdcLadder_[i],rver , "l");
       leg.AddEntry(newmeAdcLadder_[i],cver , "l");
       leg.Draw();
@@ -535,7 +522,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);  
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -565,7 +551,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -597,7 +582,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -629,7 +613,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -661,7 +644,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -692,7 +674,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -725,7 +706,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -755,7 +735,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -786,7 +765,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -819,7 +797,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -850,7 +827,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -881,7 +857,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -915,7 +890,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -947,7 +921,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -978,7 +951,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -1011,7 +983,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -1042,7 +1013,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -1073,7 +1043,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -1107,7 +1076,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -1137,7 +1105,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -1168,7 +1135,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -1202,7 +1168,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -1234,7 +1199,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -1265,7 +1229,6 @@ if (1) {
       newmeAdc_[i]->Draw("sames");
       myPV->PVCompute(meAdc_[i],newmeAdc_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meAdc_[i],rver , "l");
       leg.AddEntry(newmeAdc_[i],cver , "l");
       leg.Draw();
@@ -1277,7 +1240,7 @@ if (1) {
 }
 
 if (1) {
-   TCanvas * Pixel = new TCanvas("Pixel","Pixel",1600,2400);
+   TCanvas * Pixel = new TCanvas("Pixel","Pixel",800,1200);
    Pixel->Divide(2,4);
 
    TH1* meMulti_[8];
@@ -1327,7 +1290,6 @@ if (1) {
       newmeMulti_[i]->Draw("sames");
       myPV->PVCompute(meMulti_[i],newmeMulti_[i],te);
       leg.Clear();
-      //leg.SetHeader(histo);
       leg.AddEntry(meMulti_[i],rver , "l");
       leg.AddEntry(newmeMulti_[i],cver , "l");
       leg.Draw();

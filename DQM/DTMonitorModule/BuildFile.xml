@@ -5,7 +5,6 @@
 <use   name="DataFormats/DTDigi"/>
 <use   name="DataFormats/L1DTTrackFinder"/>
 <use   name="DataFormats/L1GlobalMuonTrigger"/>
-<use   name="L1TriggerConfig/DTTPGConfig"/>
 <use   name="CondFormats/DTObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="Geometry/Records"/>

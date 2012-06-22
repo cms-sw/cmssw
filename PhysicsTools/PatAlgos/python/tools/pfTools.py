@@ -29,6 +29,23 @@ from copy import deepcopy
 def warningIsolation():
     print "WARNING: particle based isolation must be studied"
 
+from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFMuonIso
+
+def useGsfElectrons(process, postfix):
+    print "using Gsf Electrons in PF2PAT"
+    print "WARNING: this will destory the feature of top projection which solves the ambiguity between leptons and jets because"
+    print "WARNING: there will be overlap between non-PF electrons and jets even though top projection is ON!"
+    print "********************* "
+    module = applyPostfix(process,"patElectrons",postfix)
+    module.useParticleFlow = False
+    print "Building particle-based isolation for GsfElectrons in PF2PAT(PFBRECO)"
+    print "********************* "
+    process.eleIsoSequence = setupPFElectronIso(process, 'gsfElectrons', "PFIso"+postfix)
+    adaptPFIsoElectrons( process, module, "PFIso"+postfix)
+    getattr(process,'patDefaultSequence'+postfix).replace( getattr(process,"makePatElectrons"+postfix),
+                                                   process.pfParticleSelectionSequence +
+                                                   process.eleIsoSequence +
+                                                   getattr(process,"makePatElectrons"+postfix) )
 
 def adaptPFIsoElectrons(process,module, postfix = "PFIso"):
     #FIXME: adaptPFElectrons can use this function.
@@ -71,8 +88,6 @@ def adaptPFIsoMuons(process,module, postfix = "PFIso"):
         pfPhotons = cms.InputTag("muPFIsoValueGamma04" + postfix)
         )
 
-from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFMuonIso
-
 def usePFIso(process, postfix = "PFIso"):
     print "Building particle-based isolation "
     print "***************** "
@@ -92,6 +107,7 @@ def adaptPFMuons(process,module,postfix="" ):
     warningIsolation()
     print
     module.useParticleFlow = True
+    module.pfMuonSource    = cms.InputTag("pfIsolatedMuons" + postfix)
     module.userIsolation   = cms.PSet()
     module.isoDeposits = cms.PSet(
         pfChargedHadrons = cms.InputTag("muPFIsoDepositCharged" + postfix),
@@ -125,6 +141,7 @@ def adaptPFElectrons(process,module, postfix):
     warningIsolation()
     print
     module.useParticleFlow = True
+    module.pfElectronSource = cms.InputTag("pfIsolatedElectrons" + postfix)
     module.userIsolation   = cms.PSet()
     module.isoDeposits = cms.PSet(
         pfChargedHadrons = cms.InputTag("elPFIsoDepositCharged" + postfix),

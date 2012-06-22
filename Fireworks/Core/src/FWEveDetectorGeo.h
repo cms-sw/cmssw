@@ -18,17 +18,19 @@ public:
    virtual TString     GetHighlightTooltip();
 
    virtual FWGeometryTableManagerBase* tableManager();
+   virtual FWGeometryTableViewBase* browser();
+
    virtual void popupMenu(int x, int y, TGLViewer*);
    
 #ifndef __CINT__
-   virtual void paintShape(bool visLevel, FWGeometryTableManagerBase::NodeInfo& data,  Int_t tableIndex, const TGeoHMatrix& nm, bool volumeColor);
+  // virtual void paintShape(bool visLevel, FWGeometryTableManagerBase::NodeInfo& data,  Int_t tableIndex, const TGeoHMatrix& nm, bool volumeColor);
 #endif
    
 protected:   
 
 private:
 #ifndef __CINT__
-   void paintChildNodesRecurse(FWGeometryTableManagerBase::Entries_i pIt, Int_t idx,  const TGeoHMatrix& mtx);
+   bool paintChildNodesRecurse(FWGeometryTableManagerBase::Entries_i pIt, Int_t idx,  const TGeoHMatrix& mtx);
 #endif
    FWGeometryTableView       *m_browser;
    int m_maxLevel;

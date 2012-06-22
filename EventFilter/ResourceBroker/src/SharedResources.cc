@@ -91,7 +91,7 @@ SharedResources::SharedResources(Logger log) :
 			nbTakeReceived_(0), nbDataDiscardReceived_(0),
 			nbDqmDiscardReceived_(0), nbSentLast_(0), sumOfSquaresLast_(0),
 			sumOfSizesLast_(0), frb_(0), shmInconsistent_(false),
-			allowAccessToResourceStructure_(true) {
+			allowI2ODiscards_(true) {
 
 	sem_init(&lock_, 0, 1);
 	sem_init(&accessToResourceStructureLock_, 0, 1);
