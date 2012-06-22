@@ -3,6 +3,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "Cintex/Cintex.h"
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
 
@@ -15,10 +16,6 @@
 #include <algorithm>
 
 namespace edm {
-  std::string getName(Reflex::Type& cc) {
-    return cc.Name(Reflex::SCOPED);
-  }
-
   void loadCap(std::string const& name) {
     static std::string const fname("LCGReflex/");
     FDEBUG(1) << "Loading dictionary for " << name << "\n";
@@ -33,8 +30,7 @@ namespace edm {
 
   void doBuildRealData(std::string const& name) {
     FDEBUG(3) << "doing BuildRealData for " << name << "\n";
-    Reflex::Type cc = Reflex::Type::ByName(name);
-    TClass* ttest = TClass::GetClass(getName(cc).c_str());
+    TClass* ttest = TClass::GetClass(name.c_str());
     if (ttest != 0) {
       ttest->BuildRealData();
     } else {
@@ -59,11 +55,6 @@ namespace edm {
   }
 
   namespace {
-    Reflex::Type const getReflectClass(std::type_info const& ti) {
-      Reflex::Type const typ = Reflex::Type::ByTypeInfo(ti);
-      return typ;
-    }
-
     TClass* getRootClass(std::string const& name) {
       TClass* tc = TClass::GetClass(name.c_str());    
       
@@ -85,7 +76,7 @@ namespace edm {
 
   // ---------------------
   TClass* getTClass(std::type_info const& ti) {
-    Reflex::Type const typ = getReflectClass(ti);
-    return getRootClass(typ.Name(Reflex::SCOPED));
+    TypeID const type(ti);
+    return getRootClass(type.className());
   }
 }
