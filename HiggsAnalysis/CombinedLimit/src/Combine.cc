@@ -414,6 +414,15 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   if (nToys <= 0) { // observed or asimov
     iToy = nToys;
     if (iToy == -1) {	
+     if (readToysFromHere != 0){
+	dobs = dynamic_cast<RooAbsData *>(readToysFromHere->Get(TString::Format("toys/toy_asimov%g",expectSignal_)));
+	if (dobs == 0) {
+	  std::cerr << "Toy toy_asimov not found in " << readToysFromHere->GetName() << ". List follows:\n";
+	  readToysFromHere->ls();
+	  return;
+	}
+      }
+      else{
         if (newGen_) {
             if (toysFrequentist_) {
                 w->saveSnapshot("reallyClean", w->allVars());
@@ -438,6 +447,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	} else {
 	  dobs = genPdf->generate(*observables,1,RooFit::Asimov());
 	}
+      }
     } else if (dobs == 0) {
       std::cerr << "No observed data '" << dataset << "' in the workspace. Cannot compute limit.\n" << std::endl;
       return;
