@@ -50,7 +50,8 @@ private:
   bool toysNoSystematics_;
   bool toysFrequentist_;
   float expectSignal_;
-
+  float expectSignalMass_;
+  
   // input-output related variables
   bool saveWorkspace_;
   std::string workspaceName_;
