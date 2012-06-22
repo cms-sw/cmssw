@@ -30,8 +30,8 @@ namespace Rivet {
      
      if(fuzzyEquals(sqrtS(), 7000*GeV, 1E-3)){ 
 
-       _h_dijet.reset (new LWH::Histogram1D(binEdges(1,1,1)));
-       _h_trijet.reset(new LWH::Histogram1D(binEdges(1,1,1)));
+       _h_dijet = bookHistogram1D("dijet", binEdges(1, 1, 1)); //.reset (new LWH::Histogram1D(binEdges(1,1,1)));
+       _h_trijet = bookHistogram1D("trijet", binEdges(1, 1, 1)); //.reset(new LWH::Histogram1D(binEdges(1,1,1)));
        _h_r32 = bookDataPointSet(1, 1, 1); 
 
      }
@@ -83,7 +83,7 @@ namespace Rivet {
 
     private:
 
-    shared_ptr<LWH::IHistogram1D> _h_dijet, _h_trijet;
+    AIDA::IHistogram1D* _h_dijet, *_h_trijet;
     AIDA::IDataPointSet* _h_r32;
 
 
