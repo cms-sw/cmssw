@@ -1183,7 +1183,8 @@ RooStats::HypoTestResult * HybridNew::evalGeneric(RooStats::HybridCalculator &hc
 RooStats::HypoTestResult * HybridNew::evalWithFork(RooStats::HybridCalculator &hc) {
     TStopwatch timer;
     std::auto_ptr<RooStats::HypoTestResult> result(0);
-    char *tmpfile = tempnam(NULL,"rstat");
+    char tmpfile[999]; snprintf(tmpfile, 998, "%s/rstats-XXXXXX", P_tmpdir);
+    int fd = mkstemp(tmpfile); close(fd);
     unsigned int ich = 0;
     std::vector<UInt_t> newSeeds(fork_);
     for (ich = 0; ich < fork_; ++ich) {
@@ -1223,7 +1224,6 @@ RooStats::HypoTestResult * HybridNew::evalWithFork(RooStats::HybridCalculator &h
                                           // and deleting of intermediate objects, and when the statics get deleted it crashes
                                           // in 5.27.06 (but not in 5.28)
     }
-    free(tmpfile);
     if (verbose > 1) { std::cout << "      Evaluation of p-values done in  " << timer.RealTime() << " s" << std::endl; }
     return result.release();
 }

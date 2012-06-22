@@ -198,8 +198,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       gSystem->cd(tmpDir.Data());
       garbageCollect.path = tmpDir.Data(); // request that we delete this dir when done
   } else if (!hlfFile.EndsWith(".hlf") && !hlfFile.EndsWith(".root")) {
-      tmpFile = "roostats-XXXXXX";
-      mktemp(const_cast<char *>(tmpFile.Data())); // somewhat unsafe, but I want to get a proper extension in the output file
+      char buff[99]; snprintf(buff, 98, "roostats-XXXXXX");
+      int fd = mkstemp(buff); close(fd);
+      tmpFile = buff;
   }
 
   bool isTextDatacard = false, isBinary = false;
