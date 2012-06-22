@@ -2,6 +2,7 @@
 #include <RooArgSet.h>
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <TIterator.h>
 #include <RooRandom.h>
 #include <RooStats/RooStatsUtils.h>
@@ -45,6 +46,11 @@ void TestProposal::Propose(RooArgSet& xPrime, RooArgSet& x )
    it = alwaysStepMe_.iterator();
    for (RooRealVar *poi = (RooRealVar*)it.Next(); poi != NULL; poi = (RooRealVar*)it.Next()) {
         RooRealVar *var = (RooRealVar*) xPrime.find(poi->GetName());
+        if (var == 0) {
+            std::cout << "ERROR: missing POI " << poi->GetName() << " in xPrime" << std::endl;
+            xPrime.Print("V");
+            throw std::logic_error("Missing POI in ArgSet");
+        }
         double val = var->getVal(), max = var->getMax(), min = var->getMin(), len = max - min;
         val += RooRandom::gaussian() * len * poiDivisor_;
         while (val > max) val -= len;
