@@ -38,7 +38,7 @@ if workspace.endswith(".txt"):
     workspace = options.out+".workspace.root"
     print "Converted workspace to binary",workspace
 
-if options.diagnosticRun : options.points = 1 
+#if options.diagnosticRun : options.points = 1 
 
 min, max = float(args[1]), float(args[2])
 dx = (max-min)/(options.points-1) if options.points > 1 else 0
@@ -97,7 +97,7 @@ for i,x in enumerate(points):
     what = "--singlePoint %g " % x if options.signif == False else "--signif";
     if options.diagnosticRun:
       what = "--expectSignal %g --preFitValue %g "%(x,x)
-      script.write("./combine {wsp} -M MaxLikelihoodFit {opts} -m {mass} --toysFrequentist -v {v} -n {out} -s {seed} -t {toys} {what} \n".format(
+      script.write("./combine {wsp} -M MaxLikelihoodFit {opts} -m {mass} --toysFrequentist -v {v} -n {out} -s {seed} -t {T} {what} \n".format(
                 wsp=workspace, opts=options.options, fork=options.fork, T=options.T, seed=seed, out=options.out, what=what, v=options.v,
                 toys=toys,mass=options.mass
               ))
