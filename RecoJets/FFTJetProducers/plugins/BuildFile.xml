@@ -2,6 +2,9 @@
 </export>
 <library   file="*.cc" name="RecoJetsFFTWJetProducers_plugins">
    <use   name="FWCore/Framework"/>
+   <use   name="FWCore/ServiceRegistry"/>
+   <use   name="FWCore/Utilities"/>
+   <use   name="FWCore/ParameterSet"/>
    <use   name="DataFormats/JetReco"/>
    <use   name="DataFormats/Common"/>
    <use   name="DataFormats/Histograms"/>
@@ -10,6 +13,7 @@
    <use   name="DataFormats/VertexReco"/>
    <use   name="DataFormats/StdDictionaries"/>
    <use   name="DataFormats/WrappedStdDictionaries"/>
+   <use   name="DataFormats/BeamSpot"/>
    <use   name="RecoJets/JetAlgorithms"/>
    <use   name="RecoJets/JetProducers"/>
    <use   name="RecoJets/FFTJetAlgorithms"/>
