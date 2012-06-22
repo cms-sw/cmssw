@@ -1458,7 +1458,9 @@ process.out.outputCommands = [
     'keep patMuons_selected*PFlowLoose*_*_*',
     #'keep patTaus_*PFlowLoose*_*_*',
     'keep *_offlineBeamSpot_*_*',
-    'drop *_*atTaus_*_*'
+    'drop *_*atTaus_*_*',
+    'keep *_pfType1CorrectedMet_*_*',
+    'keep *_pfType1p2CorrectedMet_*_*'
     #'keep recoTracks_generalTracks_*_*'
     ]
 
