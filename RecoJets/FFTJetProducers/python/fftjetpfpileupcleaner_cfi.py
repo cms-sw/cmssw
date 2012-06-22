@@ -11,6 +11,10 @@ fftjet_pf_pileup_cleaner = cms.EDProducer(
     # Label for the collection of primary vertices
     Vertices = cms.InputTag("offlinePrimaryVertices"),
     #
+    # Info about fake primary vertices
+    useFakePrimaryVertex = cms.bool(False),
+    FakePrimaryVertices = cms.InputTag("invalid"),
+    #
     # Find the closest vertex even if the track is not associated
     # with any good vertex?
     checkClosestZVertex = cms.bool(True),

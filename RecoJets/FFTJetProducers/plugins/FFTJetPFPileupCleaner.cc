@@ -64,12 +64,18 @@ private:
     void buildRemovalMask();
     bool isAcceptableVtx(reco::VertexCollection::const_iterator iv) const;
 
-    reco::VertexRef findSomeVertex(
+    reco::VertexRef findSomeVertexWFakes(
         const edm::Handle<reco::VertexCollection>& vertices,
-        const reco::PFCandidate& pfcand) const;
+        const edm::Handle<reco::VertexCollection>& fakeVertices,
+        const reco::PFCandidate& pfcand, bool* fromFakeSet) const;
 
     edm::InputTag PFCandidates;
     edm::InputTag Vertices;
+    edm::InputTag FakePrimaryVertices;
+
+    // The following, if true, will switch to an algorithm
+    // which takes a fake primary vertex into account
+    bool useFakePrimaryVertex;
 
     // The following, if true, will cause association of a candidate
     // with some vertex no matter what
@@ -123,6 +129,8 @@ private:
 FFTJetPFPileupCleaner::FFTJetPFPileupCleaner(const edm::ParameterSet& ps)
     : init_param(edm::InputTag, PFCandidates),
       init_param(edm::InputTag, Vertices),
+      init_param(edm::InputTag, FakePrimaryVertices),
+      init_param(bool, useFakePrimaryVertex),
       init_param(bool, checkClosestZVertex),
       init_param(bool, removeMainVertex),
       init_param(bool, removeUnassociated),
@@ -176,6 +184,10 @@ void FFTJetPFPileupCleaner::produce(
     edm::Handle<reco::VertexCollection> vertices;
     iEvent.getByLabel(Vertices, vertices);
 
+    edm::Handle<reco::VertexCollection> fakeVertices;
+    if (useFakePrimaryVertex)
+        iEvent.getByLabel(FakePrimaryVertices, fakeVertices);
+
     const unsigned ncand = pfCandidates->size();
     for (unsigned i=0; i<ncand; ++i)
     {
@@ -184,11 +196,26 @@ void FFTJetPFPileupCleaner::produce(
 
         if (isRemovable(candptr->particleId()))
         {
-            reco::VertexRef vertexref(findSomeVertex(vertices, *candptr));
+            bool fromFakeSet = false;
+            reco::VertexRef vertexref(findSomeVertexWFakes(vertices, fakeVertices,
+                                                           *candptr, &fromFakeSet));
             if (vertexref.isNull())
+            {
+                // Track is not associated with any vertex 
+                // in any of the vertex sets
                 remove = removeUnassociated;
-            else if (vertexref.key() == 0)
+            }
+            else if (vertexref.key() == 0 && 
+                     (!useFakePrimaryVertex || fromFakeSet))
+            {
+                // Track is associated with the main primary vertex
+                // However, if we are using fake vertices, this only
+                // matters if the vertex comes from the fake set. If
+                // it comes from the real set, remove the track anyway
+                // because in the combined set the associated vertex
+                // would not be the main primary vertex.
                 remove = removeMainVertex;
+            }
             else
                 remove = true;
         }
@@ -237,49 +264,54 @@ void FFTJetPFPileupCleaner::setRemovalBit(
 }
 
 
-// The following essentially duplicates the code in PFPileUp.cc,
-// with added cut on ndof and vertex Z position.
-reco::VertexRef FFTJetPFPileupCleaner::findSomeVertex(
+// The following essentially follows the code in PFPileUp.cc,
+// with added cut on ndof, vertex Z position, and iteration
+// over fakes
+reco::VertexRef FFTJetPFPileupCleaner::findSomeVertexWFakes(
     const edm::Handle<reco::VertexCollection>& vertices,
-    const reco::PFCandidate& pfcand) const
-{  
+    const edm::Handle<reco::VertexCollection>& fakeVertices,
+    const reco::PFCandidate& pfcand, bool* fromFakeSet) const
+{
     typedef reco::VertexCollection::const_iterator IV;
     typedef reco::Vertex::trackRef_iterator IT;
 
+    *fromFakeSet = false;
     reco::TrackBaseRef trackBaseRef(pfcand.trackRef());
 
     size_t iVertex = 0;
-    unsigned index = 0;
     unsigned nFoundVertex = 0;
     double bestweight = 0;
-
     const IV vertend(vertices->end());
-    for (IV iv=vertices->begin(); iv!=vertend; ++iv, ++index)
-        if (isAcceptableVtx(iv))
-        {
-            const reco::Vertex& vtx = *iv;
 
-            // loop on tracks in vertices
-            IT trackend(vtx.tracks_end());
-            for (IT iTrack=vtx.tracks_begin(); iTrack!=trackend; ++iTrack)
+    {
+        unsigned index = 0;
+        for (IV iv=vertices->begin(); iv!=vertend; ++iv, ++index)
+            if (isAcceptableVtx(iv))
             {
-                const reco::TrackBaseRef& baseRef = *iTrack;
+                const reco::Vertex& vtx = *iv;
 
-                // one of the tracks in the vertex is the same as 
-                // the track considered in the function
-                if (baseRef == trackBaseRef)
+                // loop on tracks in vertices
+                IT trackend(vtx.tracks_end());
+                for (IT iTrack=vtx.tracks_begin(); iTrack!=trackend; ++iTrack)
                 {
-                    // select the vertex for which the track has the highest weight
-                    const double w = vtx.trackWeight(baseRef);
-                    if (w > bestweight)
+                    const reco::TrackBaseRef& baseRef = *iTrack;
+
+                    // one of the tracks in the vertex is the same as 
+                    // the track considered in the function
+                    if (baseRef == trackBaseRef)
                     {
-                        bestweight=w;
-                        iVertex=index;
-                        nFoundVertex++;
-                    } 	
+                        // select the vertex for which the track has the highest weight
+                        const double w = vtx.trackWeight(baseRef);
+                        if (w > bestweight)
+                        {
+                            bestweight=w;
+                            iVertex=index;
+                            nFoundVertex++;
+                        } 	
+                    }
                 }
             }
-        }
+    }
 
     if (nFoundVertex > 0)
     {
@@ -287,7 +319,30 @@ reco::VertexRef FFTJetPFPileupCleaner::findSomeVertex(
             edm::LogWarning("TrackOnTwoVertex")
                 << "a track is shared by at least two vertices. "
                 << "Used to be an assert";
-        return reco::VertexRef(vertices, iVertex);
+
+        // Check if we can re-associate this track with one
+        // of the fake vertices
+        if (useFakePrimaryVertex)
+        {
+            const double ztrack = pfcand.vertex().z();
+            double dzmin = std::abs(ztrack - ((*vertices)[iVertex]).z());
+
+            const IV fakeEnd(fakeVertices->end());
+            unsigned index = 0;
+            for (IV iv=fakeVertices->begin(); iv!=fakeEnd; ++iv, ++index)
+                if (isAcceptableVtx(iv))
+                {
+                    const double dz = std::abs(ztrack - iv->z());
+                    if (dz < dzmin)
+                    {
+                        dzmin = dz; 
+                        iVertex = index;
+                        *fromFakeSet = true;
+                    }
+                }
+        }
+
+        return reco::VertexRef(*fromFakeSet ? fakeVertices : vertices, iVertex);
     }
 
     // optional: as a secondary solution, associate the closest vertex in z
@@ -295,11 +350,11 @@ reco::VertexRef FFTJetPFPileupCleaner::findSomeVertex(
     {
         const double ztrack = pfcand.vertex().z();
         bool foundVertex = false;
-        index = 0;
 
         if (nZAssociations < 2U)
         {
-            double dzmin = 10000;
+            double dzmin = 1.0e100;
+            unsigned index = 0;
             for (IV iv=vertices->begin(); iv!=vertend; ++iv, ++index)
                 if (isAcceptableVtx(iv))
                 {
@@ -311,16 +366,48 @@ reco::VertexRef FFTJetPFPileupCleaner::findSomeVertex(
                         foundVertex = true;
                     }
                 }
+
+            if (useFakePrimaryVertex)
+            {
+                const IV fakeEnd(fakeVertices->end());
+                index = 0;
+                for (IV iv=fakeVertices->begin(); iv!=fakeEnd; ++iv, ++index)
+                    if (isAcceptableVtx(iv))
+                    {
+                        const double dz = std::abs(ztrack - iv->z());
+                        if (dz < dzmin)
+                        {
+                            dzmin = dz; 
+                            iVertex = index;
+                            *fromFakeSet = true;
+                            foundVertex = true;
+                       }
+                    }
+            }
         }
         else
         {
             zAssoc.clear();
+            unsigned index = 0;
             for (IV iv=vertices->begin(); iv!=vertend; ++iv, ++index)
                 if (isAcceptableVtx(iv))
                 {
                     const double dz = std::abs(ztrack - iv->z());
                     zAssoc.push_back(std::pair<double, unsigned>(dz, index));
                 }
+            const unsigned numRealVertices = index;
+
+            // Mix the fake vertex collection into zAssoc
+            if (useFakePrimaryVertex)
+            {
+                const IV fakeEnd(fakeVertices->end());
+                for (IV iv=fakeVertices->begin(); iv!=fakeEnd; ++iv, ++index)
+                    if (isAcceptableVtx(iv))
+                    {
+                        const double dz = std::abs(ztrack - iv->z());
+                        zAssoc.push_back(std::pair<double, unsigned>(dz, index));
+                    }
+            }
 
             // If the primary vertex is among first nZAssociations
             // vertices, return it. Otherwise return the best match.
@@ -328,17 +415,31 @@ reco::VertexRef FFTJetPFPileupCleaner::findSomeVertex(
             {
                 std::sort(zAssoc.begin(), zAssoc.end());
                 foundVertex = true;
+
+                // This is the current best match
                 iVertex = zAssoc[0].second;
+                if (iVertex >= numRealVertices)
+                {
+                    *fromFakeSet = true;
+                    iVertex -= numRealVertices;
+                }
 
                 const unsigned nVert = zAssoc.size();
                 const unsigned maxInd = std::min(nZAssociations, nVert);
 
-                for (unsigned i=0; i<maxInd; ++i)
+                for (unsigned i=1U; i<maxInd; ++i)
                 {
-                    reco::VertexRef vertexref(vertices, zAssoc[i].second);
-                    if (vertexref.key() == 0)
+                    if (zAssoc[i].second == numRealVertices)
                     {
-                        iVertex = zAssoc[i].second;
+                        // We are using fake vertices, and the primary is in the set
+                        *fromFakeSet = true;
+                        iVertex = 0;
+                        break;
+                    }
+                    if (!useFakePrimaryVertex && zAssoc[i].second == 0U)
+                    {
+                        // Not using fake vertices, and the primary is in the set
+                        iVertex = 0;
                         break;
                     }
                 }
@@ -346,7 +447,7 @@ reco::VertexRef FFTJetPFPileupCleaner::findSomeVertex(
         }
 
         if (foundVertex) 
-            return reco::VertexRef(vertices, iVertex);
+            return reco::VertexRef(*fromFakeSet ? fakeVertices : vertices, iVertex);
     }
 
     return reco::VertexRef();
