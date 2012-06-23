@@ -71,6 +71,7 @@ class ModelBuilder(ModelBuilderBase):
         self.doExpectedEvents()
         self.doIndividualModels()
         self.doCombination()
+        self.physics.done()
         if self.options.bin:
             self.doModelConfigs()
             if self.options.verbose > 1: self.out.Print("V")
