@@ -74,7 +74,7 @@ public:
     size_t blockSize;
     size_t currentOccupancy;
     size_t currentAvailable;
-    size_t totalAvailable;
+    std::ptrdiff_t totalAvailable;
     size_t nBlocks;
     int alive;
   };
