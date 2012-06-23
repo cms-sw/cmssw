@@ -1,11 +1,12 @@
 from HiggsAnalysis.CombinedLimit.PhysicsModel import *
 from HiggsAnalysis.CombinedLimit.SMHiggsBuilder import SMHiggsBuilder
+import ROOT, os
 
 class CvCfHiggs(SMLikeHiggsModel):
     "assume the SM coupling but let the Higgs mass to float"
     def __init__(self):
         SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
-        self.floatMass = False
+        self.floatMass = False        
     def setPhysicsOptions(self,physOptions):
         for po in physOptions:
             if po.startswith("higgsMassRange="):
@@ -19,7 +20,7 @@ class CvCfHiggs(SMLikeHiggsModel):
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         # --- Signal Strength as only POI --- 
-        self.modelBuilder.doVar("CV[1,-5,5]")
+        self.modelBuilder.doVar("CV[1,0,5]")
         self.modelBuilder.doVar("CF[1,-5,5]")
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
@@ -36,22 +37,14 @@ class CvCfHiggs(SMLikeHiggsModel):
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass) 
             self.modelBuilder.doSet("POI",'CV,CF')
         self.SMH = SMHiggsBuilder(self.modelBuilder)
-        #self.doDebugDump()
         self.setup()
-    def doDebugDump(self):
-        self.modelBuilder.out.var("MH").setConstant(False)
-        self.modelBuilder.out.var("MH").removeRange()
-        MHvals = [ 110 + (600.-110.)*i/4900. for i in xrange(4900+1) ]
-        for p in [ "ggH", "qqH", "WH", "ZH" ]: 
-            self.SMH.makeXS(p)
-            self.SMH.dump("SM_XS_"+p, "MH", MHvals, "dump.XS_"+p+".txt")
-        for p in [ "htt", "hbb", "hww", "hzz", "hgg", "hgluglu", "htoptop" ]:
-            self.SMH.makeBR(p)
-            self.SMH.dump("SM_BR_"+p, "MH", MHvals, "dump.BR_"+p+".txt")
-        self.SMH.makeTotalWidth()
-        self.SMH.dump("SM_GammaTot", "MH", MHvals, "dump.GammaTot.txt")
+
     def setup(self):
         ## Coefficient for couplings to photons
+        #      arXiv 1202.3144v2, below eq. 2.6:  2/9*cF - 1.04*cV, and then normalize to SM 
+        #      FIXME: this should be replaced with the proper MH dependency
+        #self.modelBuilder.factory_("expr::CvCf_cgamma(\"-0.271*@0+1.27*@1\",CF,CV)")
+        #
         #      Based on Eq 1--4 of Nuclear Physics B 453 (1995)17-82
         #      ignoring b quark contributions
         # Taylor series around MH=125 including terms up to O(MH-125)^2 in Horner polynomial form
@@ -134,8 +127,8 @@ class C5Higgs(SMLikeHiggsModel):
            else:            POI = POI.replace(","+F, "")
         self.modelBuilder.doSet("POI",POI)
         self.SMH = SMHiggsBuilder(self.modelBuilder)
-        #self.doDebugDump()
         self.setup()
+
     def setup(self):
         for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
             self.SMH.makeBR(d)
@@ -166,5 +159,104 @@ class C5Higgs(SMLikeHiggsModel):
             self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, C5_BRscal_%s)' % (name, XSscal, BRscal))
         return name
 
+class RzwHiggs(SMLikeHiggsModel):
+    "scale WW by mu and ZZ by cZW^2 * mu"
+    def __init__(self):
+        SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
+        self.floatMass = False        
+    def setPhysicsOptions(self,physOptions):
+        for po in physOptions:
+            if po.startswith("higgsMassRange="):
+                self.floatMass = True
+                self.mHRange = po.replace("higgsMassRange=","").split(",")
+                print 'The Higgs mass range:', self.mHRange
+                if len(self.mHRange) != 2:
+                    raise RuntimeError, "Higgs mass range definition requires two extrema."
+                elif float(self.mHRange[0]) >= float(self.mHRange[1]):
+                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first."
+    def doParametersOfInterest(self):
+        """Create POI out of signal strength and MH"""
+        # --- Signal Strength as only POI --- 
+        self.modelBuilder.doVar("Rzw[1,0,10]")
+        if self.floatMass:
+            if self.modelBuilder.out.var("MH"):
+                self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
+                self.modelBuilder.out.var("MH").setConstant(False)
+            else:
+                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1])) 
+            self.modelBuilder.doSet("POI",'Rzw,MH')
+        else:
+            if self.modelBuilder.out.var("MH"):
+                self.modelBuilder.out.var("MH").setVal(self.options.mass)
+                self.modelBuilder.out.var("MH").setConstant(True)
+            else:
+                self.modelBuilder.doVar("MH[%g]" % self.options.mass) 
+            self.modelBuilder.doSet("POI",'Rzw')
+        self.SMH = SMHiggsBuilder(self.modelBuilder)
+        self.setup()
+        
+    def setup(self):
+        for d in [ "hww", "hzz" ]:
+            self.SMH.makeBR(d)
+        self.modelBuilder.doVar("Rw[1,0,10]")
+        self.modelBuilder.factory_('expr::Rz("@0*@1",Rw, Rzw)')
+            
+        ## total witdhs, normalized to the SM one
+        self.modelBuilder.factory_('expr::Rzw_Gscal_tot("@0*@1 + @2*@3 + (1.0-@1-@3)", \
+                                   Rw, SM_BR_hww, Rz, SM_BR_hzz)')
+        ## BRs, normalized to the SM ones: they scale as (partial/partial_SM) / (total/total_SM) 
+        self.modelBuilder.factory_('expr::Rzw_BRscal_hww("@0/@1", Rw, Rzw_Gscal_tot)')
+        self.modelBuilder.factory_('expr::Rzw_BRscal_hzz("@0/@1", Rz, Rzw_Gscal_tot)')
+               
+        
+    def getHiggsSignalYieldScale(self,production,decay,energy):
+        print 'called for %s %s' %(production, decay)
+        if decay not in ['hww', 'hzz']:
+            return 0
+        if production not in ['ggH']:
+            return 0
+        name = "Rzw_XSBRscal_%s_%s" % (production,decay)
+        if self.modelBuilder.out.function(name) == None: 
+            self.modelBuilder.factory_('expr::%s("@0", Rzw_BRscal_%s)' % (name, decay))
+        return name
+
+
+rZW  = RzwHiggs()
 cVcF = CvCfHiggs()
 c5   = C5Higgs()
+
+        
+#        ## Add some common ingredients
+#        self.modelBuilder.doVar("mt[172.5]")
+#        datadir = os.environ['CMSSW_BASE']+'/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg'
+#        self.SMH.textToSpline('alpha_s', os.path.join(datadir, 'running_constants.txt'), ycol=1 );
+#        self.SMH.textToSpline(     'mb', os.path.join(datadir, 'running_constants.txt'), ycol=2 );
+#        self.SMH.textToSpline(   'RVBF', os.path.join(datadir, 'couplings/R_VBF_8TeV.txt'), ycol=1 );
+##        self.modelBuilder.factory_("expr::VBFScaling(\"(@0+@1*@2 * (@1+@2+@3)\", CW, CZ, RVBFSM_BR_hww, SM_BR_hzz, SM_BR_hZg)")
+#                
+#        ## Add some more ingredients tailored to this model's needs       
+#        mH = self.modelBuilder.out.var('MH')
+#        CF = self.modelBuilder.out.var('CF')
+#        CV = self.modelBuilder.out.var('CV')
+#        mt = self.modelBuilder.out.var('mt')
+#        mb = self.modelBuilder.out.function('mb')
+#        alpha_s = self.modelBuilder.out.function('alpha_s')
+#                
+#        CV.setVal(1.05957)
+#        CF.setVal(0.715628) 
+#        
+#        Rgamgam = ROOT.RooScaleHGamGamLOSM('Rgamgam', 'LO SM Hgamgam scaling', mH, CF, CF, CV, mt, mb)
+#        self.modelBuilder.out._import(Rgamgam)
+#        Rzgam = ROOT.RooScaleHZGamLOSM('Rzgam', 'LO SM HZgam scaling', mH, CF, CF, CV, mt, mb)
+#        self.modelBuilder.out._import(Rzgam)
+#        Rgluglu = ROOT.RooScaleHGluGluLOSM('Rgluglu', 'LO SM Hgluglu scaling', mH, CF, CF, mt, mb, alpha_s)
+#        self.modelBuilder.out._import(Rgluglu)
+#        
+#        mH.Print()
+#        mt.Print()
+#        CV.Print()
+#        CF.Print()
+#        self.modelBuilder.out.Print()
+        
+
+
