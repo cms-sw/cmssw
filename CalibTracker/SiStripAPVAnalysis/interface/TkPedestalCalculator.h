@@ -9,7 +9,7 @@
 class TkPedestalCalculator{
  public:
   
-  virtual ~TkPedestalCalculator() {};
+  virtual ~TkPedestalCalculator() {}
   /** Return reconstructed pedestals */
   //  virtual ApvAnalysis::PedestalType pedestal() const = 0 ;
   virtual ApvAnalysis::PedestalType pedestal() const =0;
