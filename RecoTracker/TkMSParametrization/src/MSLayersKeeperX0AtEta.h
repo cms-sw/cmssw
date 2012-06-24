@@ -6,12 +6,12 @@
 class SumX0AtEtaDataProvider;
 class MSLayersKeeperX0Averaged;
 
-class dso_hidden MSLayersKeeperX0AtEta : public MSLayersKeeper {
+class dso_hidden MSLayersKeeperX0AtEta : public MSLayersKeeper  GCC11_FINAL {
 public:
   MSLayersKeeperX0AtEta() : isInitialised(false) { }
-  virtual ~MSLayersKeeperX0AtEta() { }
-  virtual void init(const edm::EventSetup &iSetup) GCC11_FINAL;
-  virtual const MSLayersAtAngle & layers(float cotTheta) const GCC11_FINAL;
+  ~MSLayersKeeperX0AtEta() { }
+  void init(const edm::EventSetup &iSetup);
+  const MSLayersAtAngle & layers(float cotTheta) const;
 
 private:
   float eta(int idxBin) const;

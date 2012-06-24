@@ -6,7 +6,7 @@ using namespace std;
 template <class T> T sqr( T t) {return t*t;}
 
 //------------------------------------------------------------------------------
-const MSLayersAtAngle & MSLayersKeeperX0AtEta::layers(float cotTheta) const GCC11_FINAL
+const MSLayersAtAngle & MSLayersKeeperX0AtEta::layers(float cotTheta) const
 {
   float eta = asinh(cotTheta);
   return theLayersData[idxBin(eta)];
@@ -27,7 +27,7 @@ int MSLayersKeeperX0AtEta::idxBin(float eta) const
 }
 
 //------------------------------------------------------------------------------
-void MSLayersKeeperX0AtEta::init(const edm::EventSetup &iSetup) GCC11_FINAL
+void MSLayersKeeperX0AtEta::init(const edm::EventSetup &iSetup)
 {
   if (isInitialised) return;
   isInitialised = true;
