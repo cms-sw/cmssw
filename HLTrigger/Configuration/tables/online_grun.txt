@@ -174,20 +174,7 @@ HLT_HT550_v*                                                                    
 #HLT_PFHT700_v*                                                                                 # sr #126304, removed by sr #129069
 #HLT_PFHT750_v*                                                                                 # sr #126304, removed by sr #129069
 #HLT_PFHT350_v*                                                                                 # sr #126304, removed by sr #129069
-#HLT_DoubleMu8_Mass8_PFHT225_v*                                                                 # sr #126304, removed by sr #129069
-#HLT_DoubleMu8_Mass8_PFHT175_v*                                                                 # sr #126304, removed by sr #129069
-#HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Mass8_PFHT175_v*                                                  # sr #126304, removed by sr #129069
-#HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Mass8_PFHT225_v*                                                  # sr #126304, removed by sr #129069
-#HLT_PFHT400_Mu5_PFMET45_v*                                                                     # sr #126304, removed by sr #129069
-#HLT_PFHT400_Mu5_PFMET50_v*                                                                     # sr #126304, removed by sr #129069
-#HLT_PFHT350_Mu15_PFMET45_v*                                                                    # sr #126304, removed by sr #129069
-#HLT_PFHT350_Mu15_PFMET50_v*                                                                    # sr #126304, removed by sr #129069
-#HLT_Mu40_PFHT350_v*                                                                            # sr #126304, removed by sr #129069
-#HLT_Mu60_PFHT350_v*                                                                            # sr #126304, removed by sr #129069
-#HLT_Mu40_FJHT200_v*                                                                            # sr #126304
 HLT_Mu40_HT200_v*                                                                               # renamed
-#HLT_DoubleEle8_CaloIdT_TrkIdVL_Mass8_PFHT175_v*                                                # sr #126304, removed by sr #129069
-#HLT_DoubleEle8_CaloIdT_TrkIdVL_Mass8_PFHT225_v*                                                # sr #126304, removed by sr #129069
 #HLT_DiCentralPFJet50_PFMET80_v*                                                                # sr #126304, removed by sr #129069
 #HLT_Photon70_CaloIdXL_FJHT400_v*                                                               # sr #126304, removed by sr #127259
 #HLT_Photon70_CaloIdXL_FJHT500_v*                                                               # sr #126304, removed by sr #127259
@@ -225,12 +212,6 @@ HLT_DoubleEle14_CaloIdT_TrkIdVL_Mass8_PFMET40_v*                                
 HLT_DoubleEle14_CaloIdT_TrkIdVL_Mass8_PFMET50_v*                                                # sr #126304
 HLT_Mu14_Ele14_CaloIdT_TrkIdVL_Mass8_PFMET40_v*                                                 # sr #126304
 HLT_Mu14_Ele14_CaloIdT_TrkIdVL_Mass8_PFMET50_v*                                                 # sr #126304
-#HLT_PFHT350_PFMET100_v*                                                                        # sr #126304, removed by sr #129069
-#HLT_PFHT400_PFMET100_v*                                                                        # sr #126304, removed by sr #129069
-#HLT_CleanPFHT350_Ele5_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_PFMET45_v*                             # sr #126304, removed by sr #129069
-#HLT_CleanPFHT350_Ele5_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_PFMET50_v*                             # sr #126304, removed by sr #129069
-#HLT_CleanPFHT300_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_PFMET45_v*                            # sr #126304, removed by sr #129069
-#HLT_CleanPFHT300_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_PFMET50_v*                            # sr #126304, removed by sr #129069
 #HLT_CleanPFHT300_Ele40_CaloIdVT_TrkIdT_v*                                                      # sr #126304, removed by sr #129069
 #HLT_CleanPFHT300_Ele60_CaloIdVT_TrkIdT_v*                                                      # sr #126304, removed by sr #129069
 #HLT_IsoMu17_eta2p1_TriCentralPFJet30_v*                                                        # sr #126304, removed by sr #128523
@@ -611,10 +592,6 @@ HLT_RsqMR65_Rsq0p09_MR150_v*                                                    
 #HLT_Photon70_CaloIdXL_PFHT400_v*                                                               # sr #127259, removed by sr #129069
 #HLT_Photon70_CaloIdXL_PFHT500_v*                                                               # sr #127259, removed by sr #129069
 HLT_Photon70_CaloIdXL_PFMET100_v*                                                               # sr #127259
-#HLT_DoubleRelIso1p0Mu5_Mass8_PFHT175_v*                                                        # sr #127259, sr #128522, removed by sr #129069
-#HLT_DoubleRelIso1p0Mu5_Mass8_PFHT225_v*                                                        # sr #127259, sr #128522, removed by sr #129069
-#HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFHT175_v*                                         # sr #127259, sr #128522, removed by sr #129069
-#HLT_RelIso1p0Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_PFHT225_v*                                         # sr #127259, sr #128522, removed by sr #129069
 HLT_RelIso1p0Mu5_v*                                                                             # sr #127259
 #HLT_RelIso1p0Mu17_v*                                                                           # sr #127259, removed by sr #128235
 HLT_Ele8_CaloIdT_TrkIdVL_Jet30_v*                                                               # sr #127259
