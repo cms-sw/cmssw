@@ -47,11 +47,11 @@ void L1RCT::processEvent(){
   unsigned int totalRegionET = 0;
   for(int i = 0; i < 18; i++) {
     std::vector<L1CaloRegion> regions = getRegions(i);
-    for(int j = 0; j < 22; j++) {
+    for(int j = 0; j < 14; j++) {  // excludes hf
       totalRegionET += regions.at(j).et();
     }
   }
-  std::cout << "Total Region ET after RCT = " << totalRegionET << std::endl;
+  std::cout << "Total Region ET excluding HF after RCT = " << totalRegionET << std::endl;
 
 }
 
@@ -235,7 +235,7 @@ void L1RCT::digiInput(const EcalTrigPrimDigiCollection& ecalCollection,
 	    }
 	}
     }
-  std::cout << "L1RCT: total tpg input (ECal, HCal, Total) ET = (" 
+  std::cout << "L1RCT: total tpg input (ECal, HCal, Total) ET excluding HF = (" 
 	    << totalECalET << "," 
 	    << totalHCalET << ","
 	    << totalET << ")" 
