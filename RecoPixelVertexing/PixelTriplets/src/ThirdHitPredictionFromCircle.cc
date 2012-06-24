@@ -6,17 +6,10 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 // there are tons of safety checks.
 // Try to move all of the out the regular control flow using gcc magic
-
-#if defined(__GNUC__) && (__GNUC__ > 2) && defined(__OPTIMIZE__)
-#	define likely(expr) (__builtin_expect(!!(expr), 1))
-#	define unlikely(expr) (__builtin_expect(!!(expr), 0))
-#else
-#	define likely(expr) (expr)
-#	define unlikely(expr) (expr)
-#endif
 
 typedef Basic3DVector<double> Point3D;
 typedef Basic2DVector<double> Point2D;
