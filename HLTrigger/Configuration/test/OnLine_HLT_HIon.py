@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V157 (CMSSW_5_2_5_HLT7)
+# /dev/CMSSW_5_2_1/HIon/V161 (CMSSW_5_2_5_HLT7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V157')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V161')
 )
 
 process.streams = cms.PSet( 
@@ -373,6 +373,50 @@ process.magfield = cms.ESSource( "XMLIdealGeometryESSource",
     rootNodeName = cms.string( "cmsMagneticField:MAGF" )
 )
 
+process.hltESPL1PFNoPUFastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
+  appendToDataLabel = cms.string( "" ),
+  srcRho = cms.InputTag( 'hltKT6PFJets','rho' ),
+  algorithm = cms.string( "AK5PFchsHLT" ),
+  level = cms.string( "L1FastJet" )
+)
+process.hltESPL2PFNoPURelativeCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
+  appendToDataLabel = cms.string( "" ),
+  algorithm = cms.string( "AK5PFchsHLT" ),
+  level = cms.string( "L2Relative" )
+)
+process.hltESPL3PFNoPUAbsoluteCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
+  appendToDataLabel = cms.string( "" ),
+  algorithm = cms.string( "AK5PFchsHLT" ),
+  level = cms.string( "L3Absolute" )
+)
+process.hltESPAK5PFNoPUL1L2L3 = cms.ESProducer( "JetCorrectionESChain",
+  correctors = cms.vstring( 'hltESPL1PFNoPUFastJetCorrectionESProducer',
+    'hltESPL2PFNoPURelativeCorrectionESProducer',
+    'hltESPL3PFNoPUAbsoluteCorrectionESProducer' ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hltESPAK5PFL1L2L3 = cms.ESProducer( "JetCorrectionESChain",
+  correctors = cms.vstring( 'hltESPL1PFFastJetCorrectionESProducer',
+    'hltESPL2PFRelativeCorrectionESProducer',
+    'hltESPL3PFAbsoluteCorrectionESProducer' ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hltESPL1PFFastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
+  appendToDataLabel = cms.string( "" ),
+  srcRho = cms.InputTag( 'hltKT6PFJets','rho' ),
+  algorithm = cms.string( "AK5PFHLT" ),
+  level = cms.string( "L1FastJet" )
+)
+process.hltESPL2PFRelativeCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
+  appendToDataLabel = cms.string( "" ),
+  algorithm = cms.string( "AK5PFHLT" ),
+  level = cms.string( "L2Relative" )
+)
+process.hltESPL3PFAbsoluteCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
+  appendToDataLabel = cms.string( "" ),
+  algorithm = cms.string( "AK5PFHLT" ),
+  level = cms.string( "L3Absolute" )
+)
 process.AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "AnyDirectionAnalyticalPropagator" ),
@@ -8476,4 +8520,31 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
     process.MessageLogger.categories.append('L1GtTrigReport')
     process.MessageLogger.categories.append('HLTrigReport')
+
+# load 5.2.x JECs
+if 'GlobalTag' in process.__dict__:
+    process.GlobalTag.toGet.append(
+        cms.PSet(
+            record  = cms.string( 'JetCorrectionsRecord' ),
+            tag     = cms.string( 'JetCorrectorParametersCollection_Jec12_V8_HLT_AK5CaloHLT' ),
+            label   = cms.untracked.string( 'AK5CaloHLT' ),
+            connect = cms.untracked.string( 'sqlite_file:/afs/fnal.gov/files/home/room2/apana/public/HLT/Jec12_V8_HLT.db' )
+        )
+    )
+    process.GlobalTag.toGet.append(
+        cms.PSet(
+            record  = cms.string( 'JetCorrectionsRecord' ),
+            tag     = cms.string( 'JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFHLT' ),
+            label   = cms.untracked.string( 'AK5PFHLT' ),
+            connect = cms.untracked.string( 'sqlite_file:/afs/fnal.gov/files/home/room2/apana/public/HLT/Jec12_V8_HLT.db' )
+        )
+    )
+    process.GlobalTag.toGet.append(
+        cms.PSet(
+            record  = cms.string( 'JetCorrectionsRecord' ),
+            tag     = cms.string( 'JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFchsHLT' ),
+            label   = cms.untracked.string( 'AK5PFchsHLT' ),
+            connect = cms.untracked.string( 'sqlite_file:/afs/fnal.gov/files/home/room2/apana/public/HLT/Jec12_V8_HLT.db' )
+        )
+    )
 
