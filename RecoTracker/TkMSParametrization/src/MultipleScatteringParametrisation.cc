@@ -27,7 +27,7 @@ namespace {
     MSLayersKeeperX0DetLayer x0DetLayer;
     MSLayersKeeperX0AtEta x0AtEta;
     MSLayersKeeperX0Averaged x0Averaged;
-    MSLayersKeeper * keepers[3];// ={{&x0DetLayer,&x0AtEta,&x0Averaged}};
+    MSLayersKeeper * keepers[3];// {&x0DetLayer,&x0AtEta,&x0Averaged};
     bool isInitialised; // =false;
     MSLayersKeeper const * operator()(int i) const { return keepers[i];}
     void init(const edm::EventSetup &iSetup) {
@@ -35,7 +35,7 @@ namespace {
       for (auto x : keepers) x->init(iSetup);
       isInitialised=true;
     }
-    Keepers() : keepers({&x0DetLayer,&x0AtEta,&x0Averaged}), isInitialised(false) {}
+    Keepers() : keepers{&x0DetLayer,&x0AtEta,&x0Averaged}, isInitialised(false) {}
   };
 
   const Keepers keepers;
