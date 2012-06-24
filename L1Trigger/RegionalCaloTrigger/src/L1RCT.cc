@@ -218,29 +218,6 @@ void L1RCT::digiInput(const EcalTrigPrimDigiCollection& ecalCollection,
   
   input();
 
-  //TEMP debug
-
-  unsigned int totalECalET = 0;
-  unsigned int totalHCalET = 0;
-  unsigned int totalET = 0;
-  for (int i = 0; i < 18; i++)
-    {
-      for (int j = 0; j < 7; j++)
-	{
-	  for (int k = 0; k < 64; k++)
-	    {
-	      if(k < 32) totalECalET += barrel.at(i).at(j).at(k) / 2;
-	      if(k > 31) totalHCalET += barrel.at(i).at(j).at(k) / 2;
-	      totalET += barrel.at(i).at(j).at(k) / 2;
-	    }
-	}
-    }
-  std::cout << "L1RCT: total tpg input (ECal, HCal, Total) ET excluding HF = (" 
-	    << totalECalET << "," 
-	    << totalHCalET << ","
-	    << totalET << ")" 
-	    << std::endl;
-
   return;
 
 }
