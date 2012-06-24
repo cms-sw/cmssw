@@ -44,7 +44,8 @@ class CvCfHiggs(SMLikeHiggsModel):
         #      arXiv 1202.3144v2, below eq. 2.6:  2/9*cF - 1.04*cV, and then normalize to SM 
         #      FIXME: this should be replaced with the proper MH dependency
         #self.modelBuilder.factory_("expr::CvCf_cgamma(\"-0.271*@0+1.27*@1\",CF,CV)")
-        #
+        #########################################################################
+        ## Coefficient for coupling to di-photons
         #      Based on Eq 1--4 of Nuclear Physics B 453 (1995)17-82
         #      ignoring b quark contributions
         # Taylor series around MH=125 including terms up to O(MH-125)^2 in Horner polynomial form
@@ -231,8 +232,10 @@ c5   = C5Higgs()
 #        datadir = os.environ['CMSSW_BASE']+'/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg'
 #        self.SMH.textToSpline('alpha_s', os.path.join(datadir, 'running_constants.txt'), ycol=1 );
 #        self.SMH.textToSpline(     'mb', os.path.join(datadir, 'running_constants.txt'), ycol=2 );
-#        self.SMH.textToSpline(   'RVBF', os.path.join(datadir, 'couplings/R_VBF_8TeV.txt'), ycol=1 );
-##        self.modelBuilder.factory_("expr::VBFScaling(\"(@0+@1*@2 * (@1+@2+@3)\", CW, CZ, RVBFSM_BR_hww, SM_BR_hzz, SM_BR_hZg)")
+#        self.SMH.textToSpline(   'RVBF_7TeV', os.path.join(datadir, 'couplings/R_VBF_7TeV.txt'), ycol=1 );
+#        self.SMH.textToSpline(   'RVBF_8TeV', os.path.join(datadir, 'couplings/R_VBF_8TeV.txt'), ycol=1 );
+#        self.modelBuilder.factory_('expr::VBFscal_7TeV("(@0 + @1*@2) / (1 + @2) ", CW, CZ, RVBF_7TeV)')
+#        self.modelBuilder.factory_('expr::VBFscal_8TeV("(@0 + @1*@2) / (1 + @2) ", CW, CZ, RVBF_8TeV)')
 #                
 #        ## Add some more ingredients tailored to this model's needs       
 #        mH = self.modelBuilder.out.var('MH')

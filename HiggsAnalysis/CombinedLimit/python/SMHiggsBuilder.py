@@ -9,9 +9,9 @@ class SMHiggsBuilder:
         if datadir == None:
             datadir = os.environ['CMSSW_BASE']+"/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg/sm"
         self.datadir = datadir
-	self.brpath = os.path.join(self.datadir,'br')
+        self.brpath = os.path.join(self.datadir,'br')
     def makeXS(self,process, energy='7TeV'):
-	self.xspath = os.path.join(self.datadir, 'xs', energy)
+        self.xspath = os.path.join(self.datadir, 'xs', energy)
         if process == "ggH": self.textToSpline("SM_XS_ggH_"+energy, os.path.join(self.xspath, energy+"-ggH.txt") );
         if process == "qqH": self.textToSpline("SM_XS_qqH_"+energy, os.path.join(self.xspath, energy+"-vbfH.txt") );
         if process == "ttH": self.textToSpline("SM_XS_ttH_"+energy, os.path.join(self.xspath, energy+"-ttH.txt") );
@@ -21,7 +21,7 @@ class SMHiggsBuilder:
             makeXS("WH", energy); makeXS("ZH", energy);
             self.modelBuilder.factory_('sum::SM_XS_VH_'+energy+'(SM_XS_WH_'+energy+',SM_XS_ZH_'+energy+')')
     def makeTotalWidth(self):
-        self.textToSpline("SM_GammaTot", self.datadir+"YR-BR.txt", ycol=6);
+        self.textToSpline("SM_GammaTot", os.path.join(self.brpath,"BR.txt"), ycol=6);
     def makeBR(self,decay):
         if decay == "hww": self.textToSpline("SM_BR_hww", os.path.join(self.brpath, "BR.txt"), ycol=4);
         if decay == "hzz": self.textToSpline("SM_BR_hzz", os.path.join(self.brpath, "BR.txt"), ycol=5);
