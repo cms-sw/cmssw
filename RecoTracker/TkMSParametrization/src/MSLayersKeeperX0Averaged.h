@@ -3,7 +3,7 @@
 
 #include "MSLayersKeeper.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-class dso_hidden MSLayersKeeperX0Averaged : public MSLayersKeeper {
+class dso_hidden MSLayersKeeperX0Averaged GCC11_FINAL : public MSLayersKeeper {
 public:
   MSLayersKeeperX0Averaged() : isInitialised(false) { }
   virtual ~MSLayersKeeperX0Averaged() { }

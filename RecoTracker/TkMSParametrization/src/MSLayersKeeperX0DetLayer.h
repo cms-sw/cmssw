@@ -4,7 +4,7 @@
 #include "MSLayersKeeper.h"
 #include "MultipleScatteringGeometry.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-class dso_hidden MSLayersKeeperX0DetLayer : public MSLayersKeeper {
+class dso_hidden MSLayersKeeperX0DetLayer GCC11_FINAL : public MSLayersKeeper {
 public:
   MSLayersKeeperX0DetLayer() : isInitialised(false) { }
   virtual ~MSLayersKeeperX0DetLayer() { }
@@ -17,10 +17,5 @@ public:
 private:
   bool isInitialised;
   MSLayersAtAngle theLayersData;
-/*   class dso_hidden MSLayersKeeperX0DetLayerGeom : public MultipleScatteringGeometry {   */
-  
-/*   public:  */
-/*     vector<MSLayer> detLayers() const; */
-/*   }; */
 };
 #endif
