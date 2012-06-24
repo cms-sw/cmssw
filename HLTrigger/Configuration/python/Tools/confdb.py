@@ -302,7 +302,7 @@ if 'hltHfreco' in %(dict)s:
           'record'  : 'JetCorrectionsRecord',
           'tag'     : 'JetCorrectorParametersCollection_Jec12_V8_HLT_AK5CaloHLT',
           'label'   : 'AK5CaloHLT',
-          'connect' : 'frontier://PromptProd/CMS_COND_31X_PHYSICSTOOLS'
+          'connect' : 'sqlite_file:/afs/fnal.gov/files/home/room2/apana/public/HLT/Jec12_V8_HLT.db'
         }, {
           'record'  : 'JetCorrectionsRecord',
           'tag'     : 'JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFHLT',
