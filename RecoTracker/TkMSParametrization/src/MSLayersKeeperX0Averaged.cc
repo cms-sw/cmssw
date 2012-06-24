@@ -1,6 +1,6 @@
-#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeperX0Averaged.h"
-#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeperX0AtEta.h"
-#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringGeometry.h"
+#include "MSLayersKeeperX0Averaged.h"
+#include "MSLayersKeeperX0AtEta.h"
+#include "MultipleScatteringGeometry.h"
 
 using namespace std;
 

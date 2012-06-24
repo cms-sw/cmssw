@@ -45,8 +45,7 @@ public:
 
   bool operator== (const MSLayer &o) const;
   bool operator<  (const MSLayer &o) const;
-  std::pair<PixelRecoPointRZ,bool> crossing(
-      const PixelRecoLineRZ &line) const;
+  std::pair<PixelRecoPointRZ,bool> crossing(const PixelRecoLineRZ &line) const;
   float distance(const PixelRecoPointRZ & point) const;
 
 private:

@@ -1,12 +1,12 @@
-#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeperX0AtEta.h"
-#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringX0Data.h"
-#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringGeometry.h"
+#include "MSLayersKeeperX0AtEta.h"
+#include "MultipleScatteringX0Data.h"
+#include "MultipleScatteringGeometry.h"
 #include <algorithm>
 using namespace std;
 template <class T> T sqr( T t) {return t*t;}
 
 //------------------------------------------------------------------------------
-const MSLayersAtAngle & MSLayersKeeperX0AtEta::layers(float cotTheta) const
+const MSLayersAtAngle & MSLayersKeeperX0AtEta::layers(float cotTheta) const GCC11_FINAL
 {
   float eta = asinh(cotTheta);
   return theLayersData[idxBin(eta)];
@@ -27,7 +27,7 @@ int MSLayersKeeperX0AtEta::idxBin(float eta) const
 }
 
 //------------------------------------------------------------------------------
-void MSLayersKeeperX0AtEta::init(const edm::EventSetup &iSetup)
+void MSLayersKeeperX0AtEta::init(const edm::EventSetup &iSetup) GCC11_FINAL
 {
   if (isInitialised) return;
   isInitialised = true;
@@ -113,7 +113,7 @@ void MSLayersKeeperX0AtEta::init(const edm::EventSetup &iSetup)
 void MSLayersKeeperX0AtEta::setX0(
     vector<MSLayer>& layers, 
     float eta, 
-    const SumX0AtEtaDataProvider & sumX0) const
+    const SumX0AtEtaDataProvider & sumX0)
 {
   const float BIG = 99999.;
   float cotTheta = sinh(eta);

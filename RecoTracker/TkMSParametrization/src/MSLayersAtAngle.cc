@@ -1,5 +1,5 @@
 
-#include "RecoTracker/TkMSParametrization/interface/MSLayersAtAngle.h"
+#include "MSLayersAtAngle.h"
 
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoLineRZ.h"
 using namespace std;

@@ -8,6 +8,8 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoPointRZ.h"
 #include "RecoTracker/TkMSParametrization/interface/MSLayer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
 
 class MSLayersKeeper;
 class PixelRecoPointRZ;
@@ -19,7 +21,9 @@ class MultipleScatteringParametrisation {
 
 public:
 
-  enum X0Source { useDetLayer, useX0AtEta, useX0DataAveraged };
+  static void initKeepers(const edm::EventSetup &iSetup);
+
+  enum X0Source { useDetLayer=0, useX0AtEta=1, useX0DataAveraged=2 };
   enum Consecutive { notAssumeConsecutive, useConsecutive };
 
   MultipleScatteringParametrisation( const DetLayer* layer, 
@@ -52,7 +56,7 @@ public:
 private:
 
   MSLayer theLayer;
-  MSLayersKeeper * theLayerKeeper;
+  MSLayersKeeper const * theLayerKeeper;
   static const float x0ToSigma;
 
 };

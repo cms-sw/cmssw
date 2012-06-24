@@ -2,7 +2,7 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeper.h"
+#include "MSLayersKeeper.h"
 
 #include<iostream>
 
@@ -71,10 +71,22 @@ bool MSLayer::operator== (const MSLayer &o) const
 {
   return  theFace == o.theFace && std::abs(thePosition-o.thePosition) < 1.e-3f;
 }
+//----------------------------------------------------------------------
+bool MSLayer::operator< (const MSLayer & o) const
+{
+
+  if (theFace==barrel && o.theFace==barrel) 
+    return thePosition < o.thePosition;
+  else if (theFace==barrel && o.theFace==endcap)
+    return thePosition < o.range().max(); 
+  else if (theFace==endcap && o.theFace==endcap ) 
+    return std::abs(thePosition) < std::abs(o.thePosition);
+  else 
+    return range().max() < o.thePosition; 
+}
 
 //----------------------------------------------------------------------
-pair<PixelRecoPointRZ,bool> MSLayer::crossing( 
-    const PixelRecoLineRZ & line) const
+pair<PixelRecoPointRZ,bool> MSLayer::crossing( const PixelRecoLineRZ & line) const
 { 
  const float eps = 1.e-5;
   bool  inLayer = true;
@@ -134,19 +146,7 @@ float MSLayer::distance(const PixelRecoPointRZ & point) const
   return std::sqrt(sqr(dr)+sqr(dz));
 }
 
-//----------------------------------------------------------------------
-bool MSLayer::operator< (const MSLayer & o) const
-{
 
-  if (theFace==barrel && o.theFace==barrel) 
-    return thePosition < o.thePosition;
-  else if (theFace==barrel && o.theFace==endcap)
-    return thePosition < o.range().max(); 
-  else if (theFace==endcap && o.theFace==endcap ) 
-    return std::abs(thePosition) < std::abs(o.thePosition);
-  else 
-    return range().max() < o.thePosition; 
-}
 //----------------------------------------------------------------------
 float MSLayer::x0(float cotTheta) const
 {

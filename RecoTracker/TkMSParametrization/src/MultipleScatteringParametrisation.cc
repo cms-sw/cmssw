@@ -8,11 +8,11 @@
 
 template <class T> inline T sqr( T t) {return t*t;}
 
-#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeper.h"
-#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeperX0AtEta.h"
-#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeperX0Averaged.h"
-#include "RecoTracker/TkMSParametrization/interface/MSLayersKeeperX0DetLayer.h"
-#include "RecoTracker/TkMSParametrization/interface/MSLayersAtAngle.h"
+#include "MSLayersKeeper.h"
+#include "MSLayersKeeperX0AtEta.h"
+#include "MSLayersKeeperX0Averaged.h"
+#include "MSLayersKeeperX0DetLayer.h"
+#include "MSLayersAtAngle.h"
 
 //#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
@@ -22,35 +22,40 @@ using namespace std;
 
 const float MultipleScatteringParametrisation::x0ToSigma = 0.0136f;
 
+namespace {
+  struct Keepers {
+    MSLayersKeeperX0DetLayer x0DetLayer;
+    MSLayersKeeperX0AtEta x0AtEta;
+    MSLayersKeeperX0Averaged x0Averaged;
+    MSLayersKeeper * keepers[3];// ={{&x0DetLayer,&x0AtEta,&x0Averaged}};
+    bool isInitialised; // =false;
+    MSLayersKeeper const * operator()(int i) const { return keepers[i];}
+    void init(const edm::EventSetup &iSetup) {
+      if (isInitialised) return;
+      for (auto x : keepers) x->init(iSetup);
+      isInitialised=true;
+    }
+    Keepers() : keepers({&x0DetLayer,&x0AtEta,&x0Averaged}), isInitialised(false) {}
+  };
+
+  const Keepers keepers;
+
+}
+
+void MultipleScatteringParametrisation::initKeepers(const edm::EventSetup &iSetup){
+  const_cast<Keepers&>(keepers).init(iSetup);
+}
+
 //using namespace PixelRecoUtilities;
 //----------------------------------------------------------------------
 MultipleScatteringParametrisation::
-MultipleScatteringParametrisation( const DetLayer* layer,const edm::EventSetup &iSetup, X0Source x0Source)
- 
+MultipleScatteringParametrisation( const DetLayer* layer,const edm::EventSetup &iSetup, X0Source x0Source) :
+  theLayerKeeper(keepers(x0Source))
 {
-  switch (x0Source) {
-  case useX0AtEta: { 
-    static MSLayersKeeperX0AtEta x0AtEta; 
-    theLayerKeeper = &x0AtEta;
-    break;
-  }
-  case useX0DataAveraged: {
-    static MSLayersKeeperX0Averaged x0Averaged;
-    theLayerKeeper = &x0Averaged;
-    break;
-  }
 
-  case useDetLayer: {
-    static MSLayersKeeperX0DetLayer x0DetLayer;
-    theLayerKeeper = &x0DetLayer;
-    break;
-  }
-  default:
-    //FIXME should throw or similar
-    cout << "** MultipleScatteringParametrisation ** wrong x0Source"<<endl;
-    return;
-  }
-  theLayerKeeper->init(iSetup);
+  // FIXME not thread safe: move elsewhere...
+  initKeepers(iSetup);
+
   if (!layer) return;
   theLayer = theLayerKeeper->layer(layer);
 } 

@@ -1,4 +1,4 @@
-#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringX0Data.h"
+#include "MultipleScatteringX0Data.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
@@ -8,7 +8,7 @@
 
 #include <iostream>
 #include <string>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 
