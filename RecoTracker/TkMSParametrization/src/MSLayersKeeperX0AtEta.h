@@ -6,7 +6,7 @@
 class SumX0AtEtaDataProvider;
 class MSLayersKeeperX0Averaged;
 
-class dso_hidden MSLayersKeeperX0AtEta : public MSLayersKeeper  GCC11_FINAL {
+class dso_hidden MSLayersKeeperX0AtEta GCC11_FINAL : public MSLayersKeeper {
 public:
   MSLayersKeeperX0AtEta() : isInitialised(false) { }
   ~MSLayersKeeperX0AtEta() { }
