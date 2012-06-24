@@ -447,7 +447,6 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='AK5', postfix =
         if corr == 'L1FastJet':
             applyPostfix(process, "patJetCorrFactors", postfix).useRho = True
             applyPostfix(process, "pfJets", postfix).doAreaFastjet = True
-            applyPostfix(process, "kt6PFJets", postfix).src = inputCollection
             # do correct treatment for TypeI MET corrections
             if type1:
                 for mod in getattr(process,'patPF2PATSequence'+postfix).moduleNames():
