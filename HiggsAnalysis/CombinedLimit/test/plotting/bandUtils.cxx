@@ -1073,6 +1073,43 @@ double smoothWithPolyFit(double x, int npar, int n, double *xi, double *yi) {
     return fitRes(0)+yi[n/2];
 }
 
+void printValueFromScan1D(TDirectory *bands, TString name, TString out) {
+    TGraph *graph = (TGraph*) bands->Get(name);
+    if (graph == 0) return;
+    double *x = graph->GetX();
+    double *y = graph->GetY();
+    int imin = 0, n = graph->GetN();
+    for (int i = 1; i < n; ++i) {
+        if (y[i] < y[imin]) imin = i;
+    }
+    double t1 = 1, t2 = 3.84;
+    bool   hi68ok = false, hi95ok = false, lo68ok = false, lo95ok = false;
+    double hi68 = x[n-1], hi95 = x[n-1], lo68 = x[0], lo95 = x[0];
+    for (int i = 0; i < n-1; ++i) {
+        if (y[i] > t1 && y[i+1] < t1) {
+            double d1 = fabs(y[i] - t1), d2 = fabs(y[i+1] - t1);
+            lo68 = (x[i]*d2 + x[i+1]*d1)/(d1+d2); lo68ok = true; 
+        } else if (y[i] < t1 && y[i+1] > t1) {
+            double d1 = fabs(y[i] - t1), d2 = fabs(y[i+1] - t1);
+            hi68 = (x[i]*d2 + x[i+1]*d1)/(d1+d2); hi68ok = true; 
+        }
+        if (y[i] > t2 && y[i+1] < t2) {
+            double d1 = fabs(y[i] - t2), d2 = fabs(y[i+1] - t2);
+            lo95 = (x[i]*d2 + x[i+1]*d1)/(d1+d2); lo95ok = true; 
+        } else if (y[i] < t2 && y[i+1] > t2) {
+            double d1 = fabs(y[i] - t2), d2 = fabs(y[i+1] - t2);
+            hi95 = (x[i]*d2 + x[i+1]*d1)/(d1+d2); hi95ok = true; 
+        }
+    }
+    FILE *log = fopen(out.Data(), "w");
+    fprintf(log, "Lowest point :  % 8.4f \n", x[imin]);
+    if (lo68ok) fprintf(log, "Crossing at 1.00 from left:  % 8.4f \n", lo68);
+    if (hi68ok) fprintf(log, "Crossing at 1.00 from right: % 8.4f \n", hi68);
+    if (lo95ok) fprintf(log, "Crossing at 3.84 from left:  % 8.4f \n", lo95);
+    if (hi95ok) fprintf(log, "Crossing at 3.84 from right: % 8.4f \n", hi95);
+    fclose(log);
+}
+
 void array_sort(double *begin, double *end) { std::sort(begin, end); }
 void array_sort(float *begin, float *end) { std::sort(begin, end); }
 void array_sort(int *begin, int *end) { std::sort(begin, end); }
