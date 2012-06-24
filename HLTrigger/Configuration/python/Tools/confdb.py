@@ -219,7 +219,7 @@ cmsswVersion = os.environ['CMSSW_VERSION']
     # manual override some parameters
     if self.config.type in ('GRun', ):
       self.data += """
-# En-able HF Noise filters in GRun menu
+# Enable HF Noise filters in GRun menu
 if 'hltHfreco' in %(dict)s:
     %(process)shltHfreco.setNoiseFlags = cms.bool( True )
 """
@@ -297,15 +297,26 @@ if 'hltHfreco' in %(dict)s:
       self.updateMessageLogger()
 
 
-#    # load 4.2.x JECs
-#    self.loadAdditionalConditions('load 4.2.x JECs',
-#      {
-#        'record'  : 'JetCorrectionsRecord',
-#        'tag'     : 'JetCorrectorParametersCollection_Jec11_V1_AK5Calo',
-#        'label'   : 'AK5Calo',
-#        'connect' : 'frontier://PromptProd/CMS_COND_31X_PHYSICSTOOLS'
-#      }
-#    )
+     # load 5.2.x JECs, until they are in the GlobalTag
+     self.loadAdditionalConditions('load 4.2.x JECs',
+       {
+         'record'  : 'JetCorrectionsRecord',
+         'tag'     : 'JetCorrectorParametersCollection_Jec12_V8_HLT_AK5CaloHLT',
+         'label'   : 'AK5CaloHLT',
+         'connect' : 'frontier://PromptProd/CMS_COND_31X_PHYSICSTOOLS'
+       }, {
+         'record'  : 'JetCorrectionsRecord',
+         'tag'     : 'JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFHLT',
+         'label'   : 'AK5PFHLT',
+         'connect' : 'sqlite_file:/afs/fnal.gov/files/home/room2/apana/public/HLT/Jec12_V8_HLT.db'
+       }, {
+         'record'  : 'JetCorrectionsRecord',
+         'tag'     : 'JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFchsHLT',
+         'label'   : 'AK5PFchsHLT',
+         'connect' : 'sqlite_file:/afs/fnal.gov/files/home/room2/apana/public/HLT/Jec12_V8_HLT.db'
+       }
+     )
+
 
   def addGlobalOptions(self):
     # add global options
