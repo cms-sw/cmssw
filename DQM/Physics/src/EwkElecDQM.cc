@@ -12,16 +12,17 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 //#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h" // I guess this is the right one??
 // also need Fwd.h file ???
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
-#include "DataFormats/METReco/interface/CaloMETFwd.h"
+//#include "DataFormats/JetReco/interface/CaloJet.h"
+//#include "DataFormats/METReco/interface/CaloMET.h"
+//#include "DataFormats/METReco/interface/CaloMETCollection.h"
+//#include "DataFormats/METReco/interface/CaloMETFwd.h"
 
 #include "DataFormats/GeometryVector/interface/Phi.h"
 
@@ -43,6 +44,7 @@ EwkElecDQM::EwkElecDQM( const ParameterSet & cfg ) :
       metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met"))),
       //      metIncludesMuons_(cfg.getUntrackedParameter<bool> ("METIncludesMuons", false)),
       jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("sisCone5CaloJets"))),
+      vertexTag_    (cfg.getUntrackedParameter<edm::InputTag> ("VertexTag", edm::InputTag("offlinePrimaryVertices"))),
 
       // Main cuts 
       //      muonTrig_(cfg.getUntrackedParameter<std::string> ("MuonTrig", "HLT_Mu9")),
@@ -83,7 +85,9 @@ EwkElecDQM::EwkElecDQM( const ParameterSet & cfg ) :
 
       // Top rejection
       eJetMin_(cfg.getUntrackedParameter<double>("EJetMin", 999999.)),
-      nJetMax_(cfg.getUntrackedParameter<int>("NJetMax", 999999))
+      nJetMax_(cfg.getUntrackedParameter<int>("NJetMax", 999999)),
+      PUMax_(cfg.getUntrackedParameter<unsigned int>("PUMax", 60)),
+      PUBinCount_(cfg.getUntrackedParameter<unsigned int>("PUBinCount", 12))
       
 //       caloJetCollection_(cfg.getUntrackedParameter<edm:InputTag>("CaloJetCollection","sisCone5CaloJets"))
 
@@ -208,6 +212,14 @@ void EwkElecDQM::init_histograms() {
 
             invmass_before_ = theDbe->book1D("INVMASS_BEFORECUTS","Di-electron invariant mass [GeV]",100,0.,200.);
             invmass_after_ = theDbe->book1D("INVMASS_AFTERCUTS","Di-electron invariant mass [GeV]",100,0.,200.);
+
+            invmassPU_before_ = theDbe->book2D("INVMASS_PU_BEFORECUTS","Di-electron invariant mass [GeV] vs PU; mass [GeV]; PU count",100,0.,200., PUBinCount_, -0.5, PUMax_+0.5);
+            invmassPU_afterZ_ = theDbe->book2D("INVMASS_PU_AFTERZCUTS","Di-electron invariant mass [GeV] vs PU; mass [GeV]; PU count",100,0.,200., PUBinCount_, -0.5, PUMax_+0.5);
+
+	    npvs_before_ = theDbe->book1D("NPVs_BEFORECUTS","Number of Valid Primary Vertices; nGoodPVs",PUMax_+1,-0.5,PUMax_+0.5);
+	    //npvs_afterW_ = theDbe->book1D("NPVs_AFTERWCUTS","Number of Valid Primary Vertices",PUMax_+1,-0.5,PUMax_+0.5);
+	    npvs_afterZ_ = theDbe->book1D("NPVs_AFTERZCUTS","Number of Valid Primary Vertices; nGoodPVs",PUMax_+1,-0.5,PUMax_+0.5);
+
 
 	    nelectrons_before_ = theDbe->book1D("NELECTRONS_BEFORECUTS","Number of electrons in event",10,-0.5,9.5);
 	    nelectrons_after_ = theDbe->book1D("NELECTRONS_AFTERCUTS","Number of electrons in event",10,-0.5,9.5);
@@ -400,6 +412,21 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
       LogTrace("") << ">>> MET, MET_px, MET_py: " << met_et << ", " << met_px << ", " << met_py << " [GeV]";
       met_before_->Fill(met_et);
 
+
+      // Vertices in the event
+      int npvCount = 0;
+      Handle<View<reco::Vertex> > vertexCollection;
+           if (!ev.getByLabel(vertexTag_, vertexCollection)) {
+                 LogError("") << ">>> Vertex collection does not exist !!!";
+                 return;
+            }
+      for (unsigned int i=0; i<vertexCollection->size(); i++) {
+            const Vertex& vertex = vertexCollection->at(i);
+            if (vertex.isValid()) npvCount++;
+      }
+      npvs_before_->Fill(npvCount);
+
+
       // Trigger
       Handle<TriggerResults> triggerResults;
       if (!ev.getByLabel(trigTag_, triggerResults)) {
@@ -558,6 +585,7 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
       LogTrace("") << ">>> Total number of jets: " << jetCollectionSize;
       LogTrace("") << ">>> Number of jets above " << eJetMin_ << " [GeV]: " << njets;
       njets_before_->Fill(njets);
+
 
       // Start counting
       nall++;
@@ -952,20 +980,23 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 	} // end loop through electrons
 
       // inv mass = sqrt(m_1^2 + m_2^2 + 2*(E_1*E_2 - (px1*px2 + py1*py2 + pz1+pz2) ) )
-      double invMass;
+      double invMass=0;
 
       nelectrons_before_->Fill(electronCollectionSize);
       if (electronCollectionSize > 1)
 	{
 	  invMass = sqrt(electron[0][1] + electron[1][1] + 2*(electron[0][2]*electron[1][2] - (electron[0][3]*electron[1][3] + electron[0][4]*electron[1][4] + electron[0][5]*electron[1][5]) ) );
 	  invmass_before_->Fill(invMass);
-	}
+	  invmassPU_before_->Fill(invMass,npvCount);
+ 	}
 
       nelectrons_after_->Fill(nGoodElectrons);
       if (nGoodElectrons > 1)
 	{
 	  invMass = sqrt(goodElectron[0][1] + goodElectron[1][1] + 2*(goodElectron[0][2]*goodElectron[1][2] - (goodElectron[0][3]*goodElectron[1][3] + goodElectron[0][4]*goodElectron[1][4] + goodElectron[0][5]*goodElectron[1][5]) ) );
 	  invmass_after_->Fill(invMass);
+	  invmassPU_afterZ_->Fill(invMass,npvCount);
+	  npvs_afterZ_->Fill(npvCount);
 	}
 
       // Collect final flags

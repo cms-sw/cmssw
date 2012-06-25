@@ -36,6 +36,7 @@ private:
   edm::InputTag metTag_;
    bool metIncludesMuons_;
   edm::InputTag jetTag_;
+  edm::InputTag vertexTag_;
 
   //  const std::string muonTrig_;
   const std::vector<std::string> elecTrig_;
@@ -73,6 +74,9 @@ private:
 
   double eJetMin_;
   int nJetMax_;
+
+  // PU dependence
+  unsigned int PUMax_, PUBinCount_;
 
   bool isValidHltConfig_;
   HLTConfigProvider  hltConfigProvider_;
@@ -143,6 +147,12 @@ private:
 
   MonitorElement* invmass_before_;
   MonitorElement* invmass_after_;
+  MonitorElement* invmassPU_before_;
+  MonitorElement* invmassPU_afterZ_;
+
+  MonitorElement* npvs_before_;
+  //MonitorElement* npvs_afterW_;
+  MonitorElement* npvs_afterZ_;
 
   MonitorElement* nelectrons_before_;
   MonitorElement* nelectrons_after_;
@@ -170,6 +180,7 @@ private:
   MonitorElement* jet_eta_after_; 
 /*   MonitorElement* jet2_et_before_; */
 /*   MonitorElement* jet2_et_after_; */
+
 };
 
 
