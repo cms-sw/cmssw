@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2012/02/24 13:39:54 $
+// last change    : $Date: 2012/03/29 08:42:23 $
 // by             : $Author: flucke $
 
 #include "PlotMillePede.h"
@@ -1831,6 +1831,35 @@ TString PlotMillePede::TitleAdd() const
   if (result.Length()) result.Prepend(": ");  
 
   return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+TString PlotMillePede::AlignableObjIdString(Int_t objId) const
+{
+  switch (objId) { // see StructureType.h in CMSSW
+  case 1: return "DetUnit";
+  case 2: return "Det";
+    //
+  case 5: return "BPIXLayer";
+    //
+  case 11: return "FPIXHalfDisk";
+    //
+  case 15: return "TIBString";
+    //
+  case 19: return "TIBHalfBarrel";
+    //
+  case 25: return "TIDEndcap";
+    //
+  case 29: return "TOBHalfBarrel";
+    //
+  case 36: return "TECEndcap";
+  default: 
+    ::Error("PlotMillePede::AlignableObjIdString",
+            "Missing implementation for ObjId %d, see "
+	    "Alignment/CommonAlignment/interface/StructureType.h",
+	    objId);
+    return Form("alignable obj id %d", objId);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -199,6 +199,7 @@ class PlotMillePede : public MillePedeTrees
 
   TString FinalMisAlignment(UInt_t iPar) const;
   TString TitleAdd() const; // for subdet settings etc.
+  TString AlignableObjIdString(Int_t objId) const;
 
   void CopyAddBinning(TString &name, const TH1 *hist) const;// extend 'name' taking binning from hist
  private: 
