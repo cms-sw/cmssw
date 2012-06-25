@@ -11,8 +11,9 @@ def commonTables():
 def revisionTableName():
        return 'REVISIONS'
 def fillschemeTableName():
-	return 'FILLSCHEME'
-
+       return 'FILLSCHEME'
+def pixelfillschemeTableName(year):
+       return 'PIXELFILLSCHEME_'+str(year)
 def cmsrunsummaryTableName():
        return 'CMSRUNSUMMARY'
 
