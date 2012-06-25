@@ -20,8 +20,8 @@ class CvCfHiggs(SMLikeHiggsModel):
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         # --- Signal Strength as only POI --- 
-        self.modelBuilder.doVar("CV[1,0,5]")
-        self.modelBuilder.doVar("CF[1,-5,5]")
+        self.modelBuilder.doVar("CV[1,0,2]")
+        self.modelBuilder.doVar("CF[1,-2,2]")
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
@@ -200,7 +200,7 @@ class RzwHiggs(SMLikeHiggsModel):
         for d in [ "hww", "hzz" ]:
             self.SMH.makeBR(d)
         self.modelBuilder.doVar("Rw[1,0,10]")
-        self.modelBuilder.factory_('expr::Rz("@0*@1",Rw, Rzw)')
+        self.modelBuilder.factory_('prod::Rz(Rw, Rzw)')
             
         ## total witdhs, normalized to the SM one
         self.modelBuilder.factory_('expr::Rzw_Gscal_tot("@0*@1 + @2*@3 + (1.0-@1-@3)", \
@@ -211,17 +211,88 @@ class RzwHiggs(SMLikeHiggsModel):
                
         
     def getHiggsSignalYieldScale(self,production,decay,energy):
-        print 'called for %s %s' %(production, decay)
         if decay not in ['hww', 'hzz']:
             return 0
         if production not in ['ggH']:
-            return 0
+            return 1
         name = "Rzw_XSBRscal_%s_%s" % (production,decay)
         if self.modelBuilder.out.function(name) == None: 
             self.modelBuilder.factory_('expr::%s("@0", Rzw_BRscal_%s)' % (name, decay))
         return name
 
+class CzwHiggs(SMLikeHiggsModel):
+    "Scale w and z and touch nothing else"
+    def __init__(self):
+        SMLikeHiggsModel.__init__(self) # not using 'super(x,self).__init__' since I don't understand it
+        self.floatMass = False        
+    def setPhysicsOptions(self,physOptions):
+        for po in physOptions:
+            if po.startswith("higgsMassRange="):
+                self.floatMass = True
+                self.mHRange = po.replace("higgsMassRange=","").split(",")
+                print 'The Higgs mass range:', self.mHRange
+                if len(self.mHRange) != 2:
+                    raise RuntimeError, "Higgs mass range definition requires two extrema."
+                elif float(self.mHRange[0]) >= float(self.mHRange[1]):
+                    raise RuntimeError, "Extrema for Higgs mass range defined with inverterd order. Second must be larger the first."
+    def doParametersOfInterest(self):
+        """Create POI out of signal strength and MH"""
+        # --- Signal Strength as only POI --- 
+        self.modelBuilder.doVar("Czw[1,0,10]")
+        if self.floatMass:
+            if self.modelBuilder.out.var("MH"):
+                self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
+                self.modelBuilder.out.var("MH").setConstant(False)
+            else:
+                self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1])) 
+            self.modelBuilder.doSet("POI",'Czw,MH')
+        else:
+            if self.modelBuilder.out.var("MH"):
+                self.modelBuilder.out.var("MH").setVal(self.options.mass)
+                self.modelBuilder.out.var("MH").setConstant(True)
+            else:
+                self.modelBuilder.doVar("MH[%g]" % self.options.mass) 
+            self.modelBuilder.doSet("POI",'Czw')
+        self.SMH = SMHiggsBuilder(self.modelBuilder)
+        self.setup()
 
+    def setup(self):
+        for d in [ "hww", "hzz" ]:
+            self.SMH.makeBR(d)
+        self.modelBuilder.doVar("Cw[1,0,10]")
+        self.modelBuilder.factory_('prod::Cz(Cw, Czw)')
+            
+        ## total witdhs, normalized to the SM one
+        self.modelBuilder.factory_('expr::Czw_Gscal_tot("@0*@1 + @2*@3 + (1.0-@1-@3)", \
+                                   Cw, SM_BR_hww, Cz, SM_BR_hzz)')
+        ## BRs, normalized to the SM ones: they scale as (partial/partial_SM) / (total/total_SM) 
+        self.modelBuilder.factory_('expr::Czw_BRscal_hww("@0/@1", Cw, Czw_Gscal_tot)')
+        self.modelBuilder.factory_('expr::Czw_BRscal_hzz("@0/@1", Cz, Czw_Gscal_tot)')
+        
+        datadir = os.environ['CMSSW_BASE']+'/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg'
+        for e in ['7TeV', '8TeV']:
+            print 'build for %s'%e
+            self.SMH.textToSpline(   'RqqH_%s'%e, os.path.join(datadir, 'couplings/R_VBF_%s.txt'%e), ycol=1 );
+            self.modelBuilder.factory_('expr::Czw_XSscal_qqH_%s("(@0 + @1*@2) / (1.0 + @2) ", Cw, Cz, RqqH_%s)'%(e,e))
+            self.modelBuilder.factory_('expr::Czw_XSscal_WH_%s("@0", Cw)'%e)
+            self.modelBuilder.factory_('expr::Czw_XSscal_ZH_%s("@0", Cz)'%e)
+            self.SMH.makeXS('WH',e)
+            self.SMH.makeXS('ZH',e)
+            self.modelBuilder.factory_('expr::Czw_XSscal_VH_%s("(@0*@1 + @2*@3) / (@1 + @3) ", Cw, SM_XS_WH_%s, Cz, SM_XS_ZH_%s)'%(e,e,e))
+
+    def getHiggsSignalYieldScale(self,production,decay,energy):
+        if decay not in ['hww', 'hzz']:
+            return 0
+        
+        name = "Czw_XSBRscal_%s_%s_%s" % (production,decay,energy)
+        if self.modelBuilder.out.function(name) == None: 
+            if production in ["ggH","ttH"]:
+                self.modelBuilder.factory_('expr::%s("@0", Czw_BRscal_%s)' % (name, decay))
+            else:
+                self.modelBuilder.factory_('expr::%s("@0 * @1", Czw_XSscal_%s_%s, Czw_BRscal_%s)' % (name, production, energy, decay))
+        return name
+
+cZW  = CzwHiggs() 
 rZW  = RzwHiggs()
 cVcF = CvCfHiggs()
 c5   = C5Higgs()
@@ -232,10 +303,6 @@ c5   = C5Higgs()
 #        datadir = os.environ['CMSSW_BASE']+'/src/HiggsAnalysis/CombinedLimit/data/lhc-hxswg'
 #        self.SMH.textToSpline('alpha_s', os.path.join(datadir, 'running_constants.txt'), ycol=1 );
 #        self.SMH.textToSpline(     'mb', os.path.join(datadir, 'running_constants.txt'), ycol=2 );
-#        self.SMH.textToSpline(   'RVBF_7TeV', os.path.join(datadir, 'couplings/R_VBF_7TeV.txt'), ycol=1 );
-#        self.SMH.textToSpline(   'RVBF_8TeV', os.path.join(datadir, 'couplings/R_VBF_8TeV.txt'), ycol=1 );
-#        self.modelBuilder.factory_('expr::VBFscal_7TeV("(@0 + @1*@2) / (1 + @2) ", CW, CZ, RVBF_7TeV)')
-#        self.modelBuilder.factory_('expr::VBFscal_8TeV("(@0 + @1*@2) / (1 + @2) ", CW, CZ, RVBF_8TeV)')
 #                
 #        ## Add some more ingredients tailored to this model's needs       
 #        mH = self.modelBuilder.out.var('MH')
