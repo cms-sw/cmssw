@@ -9,6 +9,7 @@
 #include "TString.h"
 #include "TTree.h"
 #include "TGraph.h"
+#include "TGraphErrors.h"
 #include "TMultiGraph.h"
 #include "TCanvas.h"
 #include "TROOT.h"
@@ -57,6 +58,7 @@ PlotMillePedeIOV::~PlotMillePedeIOV()
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void PlotMillePedeIOV::DrawPedeParam(Option_t *option, unsigned int nNonRigidParam)
 {
   const unsigned int nPar = PlotMillePede::kNpar + nNonRigidParam;
@@ -67,8 +69,10 @@ void PlotMillePedeIOV::DrawPedeParam(Option_t *option, unsigned int nNonRigidPar
   // if no position is selected for legend, use DetId:
   const Int_t idInTitle = (!xInTitle && !yInTitle && !zInTitle)
     || TString(option).Contains("id", TString::kIgnoreCase);
+  const Int_t doErr = TString(option).Contains("err", TString::kIgnoreCase);
+  const Int_t noErr = TString(option).Contains("val", TString::kIgnoreCase);
   
-  typedef std::map<ParId, TGraph*> GraphMap;
+  typedef std::map<ParId, TGraphErrors*> GraphMap;
   GraphMap graphs; // size will be nPar*numAlis (if same nPar for all alignables)
 
   unsigned int maxPar = 0;
@@ -76,37 +80,46 @@ void PlotMillePedeIOV::DrawPedeParam(Option_t *option, unsigned int nNonRigidPar
     PlotMillePede *iov = fIovs[iIov];
     TTree *tree = iov->GetMainTree();
     for (unsigned int iPar = 0; iPar < nPar; ++iPar) { // loop on parameters
-      if (iPar > maxPar) maxPar = iPar; 
-      const TString par(iov->MpT() += iov->Par(iPar) += iov->ToMumMuRadPede(iPar));
+      if (iPar > maxPar) maxPar = iPar;
+      const TString pedePar(iov->MpT() += iov->Par(iPar) += iov->ToMumMuRadPede(iPar));
+      const TString parSi(iov->ParSi(iPar) += iov->ToMumMuRadPede(iPar));
+      const TString par(doErr ? parSi : pedePar); // decide to do param or error
       // The selection is tree-name (but not parameter...) dependent:
       TString selection;//(iov->Valid(iPar)); // FIXME??
       iov->AddBasicSelection(selection);
-      // this tree->Draw(..) is only needed if xyz position requested...
-      const Long64_t numAlis = tree->Draw(iov->XPos() += ":" + iov->YPos() +=
-					  ":" + iov->ZPos(), selection, "goff");
-      // copy result of above Draw(..)
-      const std::vector<double> xs(tree->GetV1(), tree->GetV1() + numAlis);
-      const std::vector<double> ys(tree->GetV2(), tree->GetV2() + numAlis);
-      const std::vector<double> zs(tree->GetV3(), tree->GetV3() + numAlis);
       // main command to get parameter & also (Det)Id and ObjId (e.g. TPBLayer)
-      tree->Draw(par + ":Id:ObjId", selection, "goff");
+      const Long64_t numAlis = tree->Draw(par + ":Id:ObjId:" + parSi, selection, "goff");
+      // copy result of above Draw(..) 
+      const std::vector<double> values(tree->GetV1(), tree->GetV1() + numAlis);
+      const std::vector<double> ids   (tree->GetV2(), tree->GetV2() + numAlis);
+      const std::vector<double> objIds(tree->GetV3(), tree->GetV3() + numAlis);
+      const std::vector<double> sigmas(tree->GetV4(), tree->GetV4() + numAlis);
+
       // now loop on selected alignables and create/fill graphs
       for (Long64_t iAli = 0; iAli < numAlis; ++iAli) {
 	// ParId is Id, ObjId and parameter number - used as key for the map
-	const ParId id(tree->GetV2()[iAli], tree->GetV3()[iAli], iPar);
-	const Double_t value = tree->GetV1()[iAli]; // parameter value
-	TGraph *&gr = graphs[id]; // pointer by ref (might be created!)
+	const ParId id(ids[iAli], objIds[iAli], iPar);
+	TGraphErrors *&gr = graphs[id]; // pointer by ref (might be created!)
 	if (!gr) {
-	  gr = new TGraph; // Assigns value to map-internal pointer. (!)
-	  TString title; // We define title for legend here:
-	  if (idInTitle) title = Form("%d, ", id.id_);
-	  if (xInTitle) title += Form("x=%.1f, ", xs[iAli]);
-	  if (yInTitle) title += Form("y=%.1f, ", ys[iAli]);
-	  if (zInTitle) title += Form("z=%.f, ", zs[iAli]);
-	  if (title.Last(',') != kNPOS) title.Remove(title.Last(','));
+	  // this tree->Draw(..) is only needed if xyz position requested...
+	  tree->Draw(iov->XPos() += ":" + iov->YPos() +=
+		     ":" + iov->ZPos(), selection, "goff");
+	  gr = new TGraphErrors; // Assigns value to map-internal pointer. (!)
+	  // We define title for legend here:
+	  TString title(iov->AlignableObjIdString(id.objId_));
+	  if (idInTitle)title += Form(", %d", id.id_);
+	  if (xInTitle) title += Form(", x=%.1f", tree->GetV1()[iAli]);
+	  if (yInTitle) title += Form(", y=%.1f", tree->GetV2()[iAli]);
+	  if (zInTitle) title += Form(", z=%.f", tree->GetV3()[iAli]);
+	  // if (title.Last(',') != kNPOS) title.Remove(title.Last(','));
 	  gr->SetTitle(title);
 	}
-	gr->SetPoint(gr->GetN(), iIov+1, value); // add new point for IOV
+	gr->SetPoint(gr->GetN(), iIov+1, values[iAli]); // add new point for IOV
+	if (!doErr      // not if we plot error instead of value
+	    && !noErr   // not if error bar is deselected
+	    && sigmas[iAli] > 0.) { // determined by pede (inversion...)
+	  gr->SetPointError(gr->GetN()-1, 0., sigmas[iAli]); // add error in y
+        }
       } // end loop on alignables
     } // end loop on parameters 
   } // end loop on IOVs
@@ -124,6 +137,7 @@ void PlotMillePedeIOV::DrawPedeParam(Option_t *option, unsigned int nNonRigidPar
   }
 
   // Need to draw the multigraph to get its histogram for the axes.
+  // This histogram has to be given to the hist manager before the multigraphs.
   // Therefore set ROOT to batch and prepare a temporary TCanvas for drawing.
   const bool isBatch = gROOT->IsBatch(); gROOT->SetBatch();
   TCanvas c; // On stack: later goes out of scope...
@@ -135,8 +149,14 @@ void PlotMillePedeIOV::DrawPedeParam(Option_t *option, unsigned int nNonRigidPar
     TH1 *h = static_cast<TH1*>(multis[iMulti]->GetHistogram() //...but clone it:
 			       ->Clone(this->Unique(Form("IOV%u", iMulti))));
     const PlotMillePede *i0 = fIovs[0]; // IOV does not matter here...
-    h->SetTitle((i0->NamePede(iMulti) += " IOVs") += i0->TitleAdd() += ";IOV;"
-		+ i0->NamePede(iMulti) += i0->UnitPede(iMulti));
+    if (doErr) { // title if we draw error instead of value
+      const TString errPar(Form("#sigma(%s)", i0->NamePede(iMulti).Data()));
+      h->SetTitle(errPar + " IOVs" += i0->TitleAdd() += ";IOV;"
+		  + errPar + i0->UnitPede(iMulti));
+    } else {     // 'usual' title for drawing parameter values
+      h->SetTitle((i0->NamePede(iMulti) += " IOVs") += i0->TitleAdd() += ";IOV;"
+		  + i0->NamePede(iMulti) += i0->UnitPede(iMulti));
+    }
     fHistManager->AddHistSame(h, layer, iMulti); // cloned hist for axes
     fHistManager->AddObject(multis[iMulti], layer, iMulti, "LP");
     // Create legend refering to graphs and add to manager:  

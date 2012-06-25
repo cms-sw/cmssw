@@ -17,7 +17,7 @@
 // drawn canvases are deleted. But if the option 'add' is given, canvases
 // from previous Draw-commands are kept (in fact they are re-drawn).
 //
-// EXAMPLE (for full scale alignment with time dependent lage pixel structures):
+// EXAMPLE I: full scale alignment with time dependent large pixel structures
 // 
 // PlotMillePedeIOV i("treeFile_merge.root");
 // i.SetSubDetId(1);      // Select BPIX.
@@ -28,6 +28,20 @@
 // i.ClearAdditionalSel();           // Remove selection on z >= 0... 
 // i.AddAdditionalSel("z", -100, 0); // ... and request negative z.
 // i.DrawPedeParam("add x z");
+//
+//
+// EXAMPLE II: time dependent alignment of large pixel structures
+//             using inversion (i.e. errors available), no hierarchy involved
+// 
+// PlotMillePedeIOV i("treeFile_merge.root");
+// i.SetHieraLevel(0); // no hierarchy => lowest level (default is 1, see ctr.)
+// i.SetSubDetId(1);      // Select BPIX.
+// i.DrawPedeParam("x");
+// i.DrawPedeParam("x val"); // same but without error bars
+// i.DrawPedeParam("x err add"); // now draw errors vs IOV
+// i.SetSubDetId(2);      // Select FPIX...
+// i.DrawPedeParam("x val add");
+// i.DrawPedeParam("x err add");
 
 #include <vector>
 
@@ -40,7 +54,7 @@ class PlotMillePedeIOV
   explicit PlotMillePedeIOV(const char *fileName, Int_t maxIov = -1, Int_t hieraLevel = 1); // maxIov <=0: find out from file!; hieraLev: -1 ignore, 0 lowest level, etc.
   virtual ~PlotMillePedeIOV();
 
-  void DrawPedeParam(Option_t *option = "", unsigned int nNonRigidParam = 0);// "add", any of "x","y","z","id" to add position or DetId in legend
+  void DrawPedeParam(Option_t *option = "", unsigned int nNonRigidParam = 0);// "add", any of "x","y","z","id" to add position or DetId in legend, "err" error (not value), "val" skip error bar even if valid 
 
   //  void SetTitle(const char *title) {fTitle = title;}
   //  const TString& GetTitle() const { return fTitle;}
