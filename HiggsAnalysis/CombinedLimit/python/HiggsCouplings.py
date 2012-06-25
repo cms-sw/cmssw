@@ -20,8 +20,8 @@ class CvCfHiggs(SMLikeHiggsModel):
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         # --- Signal Strength as only POI --- 
-        self.modelBuilder.doVar("CV[1,0,2]")
-        self.modelBuilder.doVar("CF[1,-2,2]")
+        self.modelBuilder.doVar("CV[1,0,1.5]")
+        self.modelBuilder.doVar("CF[1,-1.5,1.5]")
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
@@ -200,7 +200,7 @@ class RzwHiggs(SMLikeHiggsModel):
         for d in [ "hww", "hzz" ]:
             self.SMH.makeBR(d)
         self.modelBuilder.doVar("Rw[1,0,10]")
-        self.modelBuilder.factory_('prod::Rz(Rw, Rzw)')
+        self.modelBuilder.factory_('expr::Rz("@0*@1", Rw, Rzw)')
             
         ## total witdhs, normalized to the SM one
         self.modelBuilder.factory_('expr::Rzw_Gscal_tot("@0*@1 + @2*@3 + (1.0-@1-@3)", \
@@ -260,7 +260,7 @@ class CzwHiggs(SMLikeHiggsModel):
         for d in [ "hww", "hzz" ]:
             self.SMH.makeBR(d)
         self.modelBuilder.doVar("Cw[1,0,10]")
-        self.modelBuilder.factory_('prod::Cz(Cw, Czw)')
+        self.modelBuilder.factory_('expr::Cz("@0*@1",Cw, Czw)')
             
         ## total witdhs, normalized to the SM one
         self.modelBuilder.factory_('expr::Czw_Gscal_tot("@0*@1 + @2*@3 + (1.0-@1-@3)", \
