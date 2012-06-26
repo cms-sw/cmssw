@@ -124,7 +124,7 @@ class MatrixInjector(object):
                             if (index==0):
                                 #first step and not input -> gen part
                                 chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultScratch))
-                                chainDict['nowmTasklist'][-1]['PrimaryDataset']='RelVal'+step
+                                chainDict['nowmTasklist'][-1]['PrimaryDataset']='RelVal'+s[1].split('+')[0]
                                 if not '--relval' in s[2][index]:
                                     print 'Impossible to create task from scratch'
                                     return -12
