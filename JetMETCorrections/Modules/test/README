@@ -667,16 +667,16 @@ http://cms-conddb.cern.ch/popcon/PopConRecentActivityRecorded.html
 
 
 
-18) FOR HLT Only!
+18) FOR HLT DATA Only!
 
-If you would like a new HLT global tag, you have to append the payloads to the existing
+If you would like a new HLT global tag in data, you have to append the payloads to the existing
 ones.
 
 Here is the documentation:
 
 https://twiki.cern.ch/twiki/bin/viewauth/CMS/DropBoxOffline
 
-For instance, we need tags for both HLT and express:
+For instance, we need tags for both HLT and express.
 
 ::::::::::::::
 JetCorrectorParametersCollection_Jec12_V8_HLT_AK5CaloHLT.txt
@@ -805,3 +805,59 @@ Total # of payload objects: 2
 
 
 21) Finally make a request for the IOV append to the alca conveners.
+
+
+
+22) For HLT In MC ONLY:
+
+For HLT in MC, the payloads need to have IOV's starting from runnumber=1. That means you also
+have to change the "iovcheck" from hlt to offline. So the three dropbox templates are:
+
+::::::::::::::
+JetCorrectorParametersCollection_Jec12_V8_HLT_AK5CaloHLT_mc.txt
+::::::::::::::
+destDB oracle://cms_orcon_prod/CMS_COND_31X_PHYSICSTOOLS
+tag JetCorrectorParametersCollection_AK5Calo_2012_V8_hlt_mc
+inputtag JetCorrectorParametersCollection_Jec12_V8_HLT_AK5CaloHLT
+since 1
+Timetype runnumber
+IOVCheck offline
+DuplicateTagHLT
+DuplicateTagEXPRESS
+DuplicateTagPROMPT
+usertext
+::::::::::::::
+JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFHLT_mc.txt
+::::::::::::::
+destDB oracle://cms_orcon_prod/CMS_COND_31X_PHYSICSTOOLS
+tag JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc
+inputtag JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFHLT
+since 1
+Timetype runnumber
+IOVCheck offline
+DuplicateTagHLT
+DuplicateTagEXPRESS
+DuplicateTagPROMPT
+usertext
+::::::::::::::
+JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFchsHLT_mc.txt
+::::::::::::::
+destDB oracle://cms_orcon_prod/CMS_COND_31X_PHYSICSTOOLS
+tag JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc
+inputtag JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFchsHLT
+since 1
+Timetype runnumber
+IOVCheck offline
+DuplicateTagHLT
+DuplicateTagEXPRESS
+DuplicateTagPROMPT
+usertext
+
+
+
+then execute:
+
+./dropBoxOffline.sh Jec12_V8_HLT.db JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFHLT_mc.txt
+./dropBoxOffline.sh Jec12_V8_HLT.db JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFchsHLT_mc.txt
+./dropBoxOffline.sh Jec12_V8_HLT.db JetCorrectorParametersCollection_Jec12_V8_HLT_AK5CaloHLT_mc.txt
+
