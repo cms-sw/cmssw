@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/GRun/V167 (CMSSW_5_2_6)
+# /dev/CMSSW_5_2_1/GRun/V168 (CMSSW_5_2_6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V167')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V168')
 )
 
 process.streams = cms.PSet( 
@@ -557,6 +557,7 @@ process.datasets = cms.PSet(
     'HLT_Ele23_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT30_v7',
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v7',
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_v6',
+    'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_DiCentralPFNoPUJet30_v1',
     'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_v2',
     'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet45_35_25_v1',
     'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet50_40_30_v2',
@@ -682,8 +683,8 @@ process.datasets = cms.PSet(
     'HLT_L2Mu20_NoVertex_2Cha_NoBPTX3BX_NoHalo_v1',
     'HLT_L2Mu20_eta2p1_NoVertex_v2',
     'HLT_L2Mu30_NoVertex_2Cha_NoBPTX3BX_NoHalo_v1',
-    'HLT_L2Mu70_eta2p1_PFMET55_v2',
-    'HLT_L2Mu70_eta2p1_PFMET60_v2')+cms.vstring( 'HLT_L2TripleMu10_0_0_NoVertex_PFJet40Neutral_v5',
+    'HLT_L2Mu70_eta2p1_PFMET55_v2')+cms.vstring( 'HLT_L2Mu70_eta2p1_PFMET60_v2',
+    'HLT_L2TripleMu10_0_0_NoVertex_PFJet40Neutral_v5',
     'HLT_LogMonitor_v3',
     'HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v7',
     'HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v7',
@@ -980,6 +981,7 @@ process.datasets = cms.PSet(
     'HLT_Ele23_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT30_v7',
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v7',
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_v6',
+    'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_DiCentralPFNoPUJet30_v1',
     'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_v2',
     'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet45_35_25_v1',
     'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet50_40_30_v2',
@@ -1145,8 +1147,8 @@ process.datasets = cms.PSet(
     'HLT_Mu24_eta2p1_v4',
     'HLT_Mu24_v15',
     'HLT_Mu30_Ele30_CaloIdL_v7',
-    'HLT_Mu30_eta2p1_v4',
-    'HLT_Mu30_v15')+cms.vstring( 'HLT_Mu40_HT200_v2',
+    'HLT_Mu30_eta2p1_v4')+cms.vstring( 'HLT_Mu30_v15',
+    'HLT_Mu40_HT200_v2',
     'HLT_Mu40_eta2p1_Track50_dEdx3p6_v4',
     'HLT_Mu40_eta2p1_Track60_dEdx3p7_v4',
     'HLT_Mu40_eta2p1_v10',
@@ -1273,6 +1275,7 @@ process.datasets = cms.PSet(
   SingleElectron = cms.vstring( 'HLT_Ele22_CaloIdL_CaloIsoVL_v6',
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v7',
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_v6',
+    'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_DiCentralPFNoPUJet30_v1',
     'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_v2',
     'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet45_35_25_v1',
     'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet50_40_30_v2',
@@ -5230,6 +5233,9 @@ process.PrescaleService = cms.Service( "PrescaleService",
       ),
       cms.PSet(  pathName = cms.string( "HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_v6" ),
         prescales = cms.vuint32( 125, 125, 125, 100, 75, 25, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_DiCentralPFNoPUJet30_v1" ),
+        prescales = cms.vuint32( 80, 80, 80, 80, 80, 80, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v7" ),
         prescales = cms.vuint32( 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
@@ -32895,6 +32901,19 @@ process.hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralPFNoPUJet30EleCleaned = cms.
     MinNJets = cms.uint32( 1 ),
     MaxAbsJetEta = cms.double( 2.6 )
 )
+process.hltPreEle25CaloIdVTCaloIsoVLTrkIdVLTrkIsoTDiCentralPFNoPUJet30 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
+process.hltEle25CaloIdVTCaloIsoVLTrkIdVLTrkIsoTDiCentralPFNoPUJet30EleCleaned = cms.EDFilter( "HLTPFJetCollectionsFilter",
+    saveTags = cms.bool( True ),
+    originalTag = cms.InputTag( "hltAK5PFJetL1FastL2L3CorrectedNoPU" ),
+    inputTag = cms.InputTag( "hltEle25CaloIdVTCaloIsoVLTrkIdVLTrkIsoTJetCollectionsForLeptonPlusPFJetsNoPU" ),
+    MinJetPt = cms.double( 30.0 ),
+    triggerType = cms.int32( 0 ),
+    MinNJets = cms.uint32( 2 ),
+    MaxAbsJetEta = cms.double( 2.6 )
+)
 process.hltPreEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralPFNoPUJet30BTagIPIter = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -39731,6 +39750,7 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v16',
       'HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Jet30_v6',
       'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_v6',
+      'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_DiCentralPFNoPUJet30_v1',
       'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v7',
       'HLT_Ele27_WP80_CentralPFJet80_v7',
       'HLT_Ele30_CaloIdVT_TrkIdT_PFNoPUJet100_PFNoPUJet25_v6',
@@ -39968,6 +39988,7 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_Ele23_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT30_v7',
   'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v7',
   'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_v6',
+  'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_DiCentralPFNoPUJet30_v1',
   'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_v2',
   'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet45_35_25_v1',
   'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet50_40_30_v2',
@@ -40108,8 +40129,8 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_MET400_HBHENoiseCleaned_v4',
   'HLT_MET400_v6',
   'HLT_MET80_Track50_dEdx3p6_v5',
-  'HLT_MET80_Track60_dEdx3p7_v5',
-  'HLT_MET80_v4')+cms.vstring( 'HLT_MonoCentralPFJet80_PFMETnoMu105_NHEF0p95_v1',
+  'HLT_MET80_Track60_dEdx3p7_v5')+cms.vstring( 'HLT_MET80_v4',
+  'HLT_MonoCentralPFJet80_PFMETnoMu105_NHEF0p95_v1',
   'HLT_Mu12_eta2p1_DiCentral_20_v4',
   'HLT_Mu12_eta2p1_DiCentral_40_20_BTagIP3D1stTrack_v4',
   'HLT_Mu12_eta2p1_DiCentral_40_20_DiBTagIP3D1stTrack_v4',
@@ -40458,6 +40479,7 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_Ele23_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT30_v7',
   'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v7',
   'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_v6',
+  'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_DiCentralPFNoPUJet30_v1',
   'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_v2',
   'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet45_35_25_v1',
   'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet50_40_30_v2',
@@ -40623,8 +40645,8 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_Mu24_eta2p1_v4',
   'HLT_Mu24_v15',
   'HLT_Mu30_Ele30_CaloIdL_v7',
-  'HLT_Mu30_eta2p1_v4',
-  'HLT_Mu30_v15')+cms.vstring( 'HLT_Mu40_HT200_v2',
+  'HLT_Mu30_eta2p1_v4')+cms.vstring( 'HLT_Mu30_v15',
+  'HLT_Mu40_HT200_v2',
   'HLT_Mu40_eta2p1_Track50_dEdx3p6_v4',
   'HLT_Mu40_eta2p1_Track60_dEdx3p7_v4',
   'HLT_Mu40_eta2p1_v10',
@@ -40984,6 +41006,7 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_Ele23_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_HFT30_v7',
   'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v7',
   'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_v6',
+  'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_DiCentralPFNoPUJet30_v1',
   'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_v2',
   'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet45_35_25_v1',
   'HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet50_40_30_v2',
@@ -41109,8 +41132,8 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_L2Mu20_NoVertex_2Cha_NoBPTX3BX_NoHalo_v1',
   'HLT_L2Mu20_eta2p1_NoVertex_v2',
   'HLT_L2Mu30_NoVertex_2Cha_NoBPTX3BX_NoHalo_v1',
-  'HLT_L2Mu70_eta2p1_PFMET55_v2',
-  'HLT_L2Mu70_eta2p1_PFMET60_v2')+cms.vstring( 'HLT_L2TripleMu10_0_0_NoVertex_PFJet40Neutral_v5',
+  'HLT_L2Mu70_eta2p1_PFMET55_v2')+cms.vstring( 'HLT_L2Mu70_eta2p1_PFMET60_v2',
+  'HLT_L2TripleMu10_0_0_NoVertex_PFJet40Neutral_v5',
   'HLT_LogMonitor_v3',
   'HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v7',
   'HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v7',
@@ -41989,6 +42012,7 @@ process.HLT_Ele8_CaloIdT_TrkIdT_TriJet30_v16 = cms.Path( process.HLTBeginSequenc
 process.HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v16 = cms.Path( process.HLTBeginSequence + process.hltL1sL1EG8DoubleJet20Central + process.hltPreEle8CaloIdTTrkIdTQuadJet30 + process.HLTEle8CaloIdTTrkIdTL1EG8DoubleJet20CentralSequence + process.HLTRecoJetSequenceAK5L1FastJetCorrected + process.hltQuadJet30Central + process.HLTEndSequence )
 process.HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Jet30_v6 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG12 + process.hltPreEle17CaloIdTCaloIsoVLTrkIdVLTrkIsoVLJet30 + process.HLTEle17CaloIdTCaloIsoVLTrkIdVLTrkIsoVLSequence + process.HLTRecoJetSequenceAK5Corrected + process.hltCleanEle17CaloIdTTrkIdVLCaloIsoVLTrkIsoVLFromAK5CorrJetsJet30 + process.hltJet30Ele17CaloIdTTrkIdVLCaloIsoVLTrkIsoVLRemoved + process.HLTEndSequence )
 process.HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_v6 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG20orL1SingleEG22 + process.hltPreEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralPFNoPUJet30 + process.HLTEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTSequence + process.HLTPFnoPUL1FastL2L3ReconstructionSequence + process.hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTJetCollectionsForLeptonPlusPFJetsNoPU + process.hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralPFNoPUJet30EleCleaned + process.HLTEndSequence )
+process.HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_DiCentralPFNoPUJet30_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG20orL1SingleEG22 + process.hltPreEle25CaloIdVTCaloIsoVLTrkIdVLTrkIsoTDiCentralPFNoPUJet30 + process.HLTEle25CaloIdVTCaloIsoVLTrkIdVLTrkIsoTSequence + process.HLTPFnoPUL1FastL2L3ReconstructionSequence + process.hltEle25CaloIdVTCaloIsoVLTrkIdVLTrkIsoTJetCollectionsForLeptonPlusPFJetsNoPU + process.hltEle25CaloIdVTCaloIsoVLTrkIdVLTrkIsoTDiCentralPFNoPUJet30EleCleaned + process.HLTEndSequence )
 process.HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v7 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG20orL1SingleEG22 + process.hltPreEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralPFNoPUJet30BTagIPIter + process.HLTEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTSequence + process.HLTPFnoPUL1FastL2L3ReconstructionSequence + process.hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTJetCollectionsForLeptonPlusPFJetsNoPU + process.hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralBPFNoPUJet30EleCleaned + process.HLTEleBTagIPPFNoPUSequenceL25SingleTop + process.HLTEleBTagIPPFNoPUSequenceL3SingleTop + process.hltEleBLifetimeL3PFNoPUFilterSingleTop + process.HLTEndSequence )
 process.HLT_Ele27_WP80_CentralPFJet80_v7 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG20ORL1SingleEG22 + process.hltPreEle27WP80CentralPFJet80 + process.HLTEle27WP80Sequence + process.HLTPFL1FastL2L3ReconstructionSequence + process.hltEle27WP80JetCollectionsForLeptonPlusPFJets + process.hltEle27WP80CentralPFJet80EleCleaned + process.HLTEndSequence )
 process.HLT_Ele27_WP80_WCandPt80_v7 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG20ORL1SingleEG22 + process.hltPreEle27WP80WCandPt80 + process.HLTEle27WP80Sequence + process.HLTPFL1FastL2L3ReconstructionSequence + process.hltPFMETProducer + process.hltPFMHT0 + process.hlt2ElectronPFMHTPt80 + process.HLTEndSequence )

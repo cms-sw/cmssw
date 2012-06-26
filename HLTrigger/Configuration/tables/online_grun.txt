@@ -98,6 +98,7 @@ HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v*     
 #HLT_Mu20_eta2p1_CentralPFNoPUJet30_BTagIPIter_v*                                               # sr #127305, removed by sr #128283
 #HLT_Mu20_eta2p1_TriCentralPFNoPUJet30_v*                                                       # sr #127305, removed by sr #128283
 #HLT_Mu20_eta2p1_TriCentralPFNoPUJet50_40_30_v*                                                 # sr #127305, removed by sr #128283
+HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_DiCentralPFNoPUJet30_v*				# sr #129852
 
 HLT_IsoMu17_eta2p1_CentralPFNoPUJet30_v*                                                        # sr #128283
 HLT_IsoMu17_eta2p1_CentralPFNoPUJet30_BTagIPIter_v*                                             # sr #128283
