@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 10:19:07 EST 2008
-// $Id: unittest_changemanager.cc,v 1.3 2010/07/23 16:02:54 eulisse Exp $
+// $Id: unittest_changemanager.cc,v 1.4 2010/07/26 15:13:13 matevz Exp $
 //
 
 // system include files
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE( changemanager )
    
    FWEventItem item(&context, 0,accessor,pObj);
    //hack to force update of data
-   ROOT::Reflex::Object dummy;
+   Reflex::Object dummy;
    item.setData(dummy);
    
    cm.newItemSlot(&item);

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWTableView.cc,v 1.30 2010/12/02 20:03:09 amraktad Exp $
+// $Id: FWTableView.cc,v 1.31 2011/01/26 11:57:32 amraktad Exp $
 //
 
 // system include files
@@ -544,7 +544,7 @@ FWTableView::selectCollection(Int_t i_coll)
 //      m_column_expr_field->setValidator(m_validator);
      if (m_validator != 0) {
 // 	  std::cout << "setting validator to " << item->modelType()->GetName() << std::endl;
-	  m_validator->setType(ROOT::Reflex::Type::ByTypeInfo(*(item->modelType()->GetTypeInfo())));
+	  m_validator->setType(Reflex::Type::ByTypeInfo(*(item->modelType()->GetTypeInfo())));
      } else {
 // 	  std::cout << "can't set null validator\n";
      }

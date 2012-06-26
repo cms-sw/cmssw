@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:56 PST 2008
-// $Id: FWModelFilter.cc,v 1.12 2010/06/18 10:17:16 yana Exp $
+// $Id: FWModelFilter.cc,v 1.13 2010/09/01 18:49:00 amraktad Exp $
 //
 
 // system include files
@@ -39,7 +39,7 @@
 FWModelFilter::FWModelFilter(const std::string& iExpression,
                              const std::string& iClassName) :
    m_className(iClassName),
-   m_type(ROOT::Reflex::Type::ByName(iClassName))
+   m_type(Reflex::Type::ByName(iClassName))
 {
    setExpression(iExpression);
 }
@@ -71,7 +71,7 @@ FWModelFilter::~FWModelFilter()
 void
 FWModelFilter::setExpression(const std::string& iExpression)
 {
-   if(m_type != ROOT::Reflex::Type() && iExpression.size()) {
+   if(m_type != Reflex::Type() && iExpression.size()) {
       using namespace fireworks::expression;
 
       //Backwards compatibility with old format
@@ -107,7 +107,7 @@ FWModelFilter::setClassName(const std::string& iClassName)
    // a Reflex dictionary for it?
 
    m_className = iClassName;
-   m_type = ROOT::Reflex::Type::ByName(iClassName);
+   m_type = Reflex::Type::ByName(iClassName);
    setExpression(m_expression);
 }
 
@@ -127,7 +127,7 @@ FWModelFilter::passesFilter(const void* iObject) const
       return true;
    }
 
-   ROOT::Reflex::Object o(m_type, const_cast<void *>(iObject));
+   Reflex::Object o(m_type, const_cast<void *>(iObject));
    return (*m_selector)(o);
 }
 

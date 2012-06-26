@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.46.2.1 2012/02/18 01:58:26 matevz Exp $
+// $Id: CmsShowEDI.cc,v 1.47 2012/02/22 03:45:58 amraktad Exp $
 //
 
 // system include files
@@ -252,7 +252,7 @@ CmsShowEDI::fillEDIFrame() {
          m_colorSelectWidget->SetColorByIndex(p.color(),kFALSE);
          m_opacitySlider->SetPosition(100 - p.transparency());
          m_isVisibleButton->SetDisabledAndSelected(p.isVisible());
-         m_validator->setType(ROOT::Reflex::Type::ByTypeInfo(*(iItem->modelType()->GetTypeInfo())));
+         m_validator->setType(Reflex::Type::ByTypeInfo(*(iItem->modelType()->GetTypeInfo())));
          m_filterExpressionEntry->SetText(iItem->filterExpression().c_str());
          m_filterError->Clear();
          m_selectError->Clear();

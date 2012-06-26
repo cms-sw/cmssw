@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Jan 23 10:37:22 EST 2008
-// $Id: FWModelExpressionSelector.cc,v 1.10 2010/06/18 10:17:16 yana Exp $
+// $Id: FWModelExpressionSelector.cc,v 1.11 2011/11/18 02:57:08 amraktad Exp $
 //
 
 // system include files
@@ -75,8 +75,8 @@ FWModelExpressionSelector::select(FWEventItem* iItem, const std::string& iExpres
 {
    using namespace fireworks::expression;
 
-   ROOT::Reflex::Type type= ROOT::Reflex::Type::ByName(iItem->modelType()->GetName());
-   assert(type != ROOT::Reflex::Type());
+   Reflex::Type type= Reflex::Type::ByName(iItem->modelType()->GetName());
+   assert(type != Reflex::Type());
 
    //Backwards compatibility with old format
    std::string temp = oldToNewFormat(iExpression);
@@ -99,7 +99,7 @@ FWModelExpressionSelector::select(FWEventItem* iItem, const std::string& iExpres
 
    FWChangeSentry sentry(*(iItem->changeManager()));
    for( unsigned int index = 0; index < iItem->size(); ++index ) {
-      ROOT::Reflex::Object o(type, const_cast<void *>(iItem->modelData(index)));
+      Reflex::Object o(type, const_cast<void *>(iItem->modelData(index)));
 
       if((*selectorPtr)(o)) {
          iItem->select(index);

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun  5 15:31:20 EDT 2008
-// $Id: register_dataproxybuilder_macro.h,v 1.5 2009/04/27 14:42:33 chrjones Exp $
+// $Id: register_dataproxybuilder_macro.h,v 1.6 2010/04/06 20:00:35 amraktad Exp $
 //
 
 // system include files
@@ -40,7 +40,7 @@
 
 #define DEFINE_PROXYBUILDER_METHODS(_builder_,_type_,_purpose_,_view_)	\
    const std::string& _builder_::classTypeName() { \
-      static std::string s_type = ROOT::Reflex::Type::ByTypeInfo(typeid(_type_)).Name(ROOT::Reflex::SCOPED); \
+      static std::string s_type = Reflex::Type::ByTypeInfo(typeid(_type_)).Name(Reflex::SCOPED); \
       return s_type;} \
    const std::string& _builder_::classRegisterTypeName() { \
       static std::string s_type( typeid(_type_).name() ); \

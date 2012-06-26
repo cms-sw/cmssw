@@ -18,7 +18,7 @@ public:
    }
 
    static std::string classTypeName() {
-      return ROOT::Reflex::Type::ByTypeInfo(typeid(T)).Name(ROOT::Reflex::SCOPED);
+      return Reflex::Type::ByTypeInfo(typeid(T)).Name(Reflex::SCOPED);
    }
 
    static std::string classRegisterTypeName() {

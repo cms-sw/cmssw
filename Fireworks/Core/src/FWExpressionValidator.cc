@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 20:42:51 EDT 2008
-// $Id: FWExpressionValidator.cc,v 1.6 2009/05/05 08:39:25 elmer Exp $
+// $Id: FWExpressionValidator.cc,v 1.7 2010/06/18 10:17:15 yana Exp $
 //
 
 // system include files
@@ -50,10 +50,10 @@ namespace fireworks {
 
    class OptionNode {
 public:
-      OptionNode(const ROOT::Reflex::Member& );
+      OptionNode(const Reflex::Member& );
       OptionNode(const std::string& iDescription,
                  unsigned long iSubstitutionEnd,
-                 const ROOT::Reflex::Type& iType);
+                 const Reflex::Type& iType);
 
       const std::string& description() const {
          return m_description;
@@ -80,20 +80,20 @@ public:
          return m_description.substr(0,m_endOfName) < iRHS.m_description.substr(0,iRHS.m_endOfName);
       }
 
-      static void fillOptionForType( const ROOT::Reflex::Type&,
+      static void fillOptionForType( const Reflex::Type&,
                                      std::vector<boost::shared_ptr<OptionNode> >& );
 private:
-      ROOT::Reflex::Type m_type;
+      Reflex::Type m_type;
       mutable std::string m_description;
       mutable std::string::size_type m_endOfName;
       mutable std::vector<boost::shared_ptr<OptionNode> > m_subOptions;
       mutable bool m_hasSubOptions;
-      static bool typeHasOptions(const ROOT::Reflex::Type& iType);
+      static bool typeHasOptions(const Reflex::Type& iType);
    };
 
    OptionNode::OptionNode(const std::string& iDescription,
                           unsigned long iSubstitutionEnd,
-                          const ROOT::Reflex::Type& iType) :
+                          const Reflex::Type& iType) :
       m_type(iType),
       m_description(iDescription),
       m_endOfName(iSubstitutionEnd),
@@ -102,7 +102,7 @@ private:
    }
 
    namespace {
-      std::string descriptionFromMember(const ROOT::Reflex::Member& iMember)
+      std::string descriptionFromMember(const Reflex::Member& iMember)
       {
          std::string typeString = iMember.TypeOf().Name();
          std::string::size_type index = typeString.find_first_of("(");
@@ -115,7 +115,7 @@ private:
       }
    }
 
-   OptionNode::OptionNode(const ROOT::Reflex::Member& iMember) :
+   OptionNode::OptionNode(const Reflex::Member& iMember) :
       m_type(reco::returnType(iMember)),
       m_description(descriptionFromMember(iMember)),
       m_endOfName(iMember.Name().size()),
@@ -124,16 +124,16 @@ private:
    }
 
 
-   void OptionNode::fillOptionForType( const ROOT::Reflex::Type& iType,
+   void OptionNode::fillOptionForType( const Reflex::Type& iType,
                                        std::vector<boost::shared_ptr<OptionNode> >& oOptions)
    {
-      ROOT::Reflex::Type type = iType;
+      Reflex::Type type = iType;
       if(type.IsPointer()) {
          type = type.ToType();
       }
       // first look in base scope
       oOptions.reserve(oOptions.size()+type.FunctionMemberSize());
-      for(ROOT::Reflex::Member_Iterator m = type.FunctionMember_Begin(); m != type.FunctionMember_End(); ++m ) {
+      for(Reflex::Member_Iterator m = type.FunctionMember_Begin(); m != type.FunctionMember_End(); ++m ) {
          if(!m->TypeOf().IsConst() ||
             m->IsConstructor() ||
             m->IsDestructor() ||
@@ -143,12 +143,12 @@ private:
          oOptions.push_back(boost::shared_ptr<OptionNode>(new OptionNode(*m)));
       }
 
-      for(ROOT::Reflex::Base_Iterator b = type.Base_Begin(); b != type.Base_End(); ++b) {
+      for(Reflex::Base_Iterator b = type.Base_Begin(); b != type.Base_End(); ++b) {
          fillOptionForType(b->ToType(),oOptions);
       }
    }
 
-   bool OptionNode::typeHasOptions(const ROOT::Reflex::Type& iType) {
+   bool OptionNode::typeHasOptions(const Reflex::Type& iType) {
       return iType.IsClass();
    }
 
@@ -170,7 +170,7 @@ private:
 FWExpressionValidator::FWExpressionValidator()
 {
    using  fireworks::OptionNode;
-   static const ROOT::Reflex::Type s_float(ROOT::Reflex::Type::ByTypeInfo(typeid(float)));
+   static const Reflex::Type s_float(Reflex::Type::ByTypeInfo(typeid(float)));
    FUN1(abs);
    FUN1(acos);
    FUN1(asin);
@@ -220,7 +220,7 @@ FWExpressionValidator::~FWExpressionValidator()
 // member functions
 //
 void
-FWExpressionValidator::setType(const ROOT::Reflex::Type& iType)
+FWExpressionValidator::setType(const Reflex::Type& iType)
 {
    using fireworks::OptionNode;
    m_type=iType;
@@ -283,7 +283,7 @@ FWExpressionValidator::fillOptions(const char* iBegin, const char* iEnd,
        it != itEnd; ++it) {
       OptionNode temp(std::string(begin,*it),
                       *it-begin,
-                      ROOT::Reflex::Type());
+                      Reflex::Type());
 
       boost::shared_ptr<OptionNode> comp(&temp, dummyDelete);
       Options::const_iterator itFind =std::lower_bound(nodes->begin(),

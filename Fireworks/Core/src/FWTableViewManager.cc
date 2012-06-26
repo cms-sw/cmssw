@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWTableViewManager.cc,v 1.20 2010/11/04 22:38:55 amraktad Exp $
+// $Id: FWTableViewManager.cc,v 1.21 2011/03/09 15:32:13 amraktad Exp $
 //
 
 // system include files
@@ -203,7 +203,7 @@ FWTableViewManager::TableHandle::column(const char *name, int precision, const c
 FWTableViewManager::TableSpecs::iterator 
 FWTableViewManager::tableFormatsImpl(const Reflex::Type &key) 
 {
-   TableSpecs::iterator ret = m_tableFormats.find(key.Name(ROOT::Reflex::SCOPED));
+   TableSpecs::iterator ret = m_tableFormats.find(key.Name(Reflex::SCOPED));
    if (ret != m_tableFormats.end())
       return ret;
 
@@ -234,7 +234,7 @@ FWTableViewManager::tableFormatsImpl(const Reflex::Type &key)
 FWTableViewManager::TableSpecs::iterator
 FWTableViewManager::tableFormats(const Reflex::Type &key) 
 {
-   std::string keyType = key.Name(ROOT::Reflex::SCOPED);
+   std::string keyType = key.Name(Reflex::SCOPED);
 
    TableSpecs::iterator ret = m_tableFormats.find(keyType);
 
@@ -247,7 +247,7 @@ FWTableViewManager::tableFormats(const Reflex::Type &key)
       return ret;
 
    TableHandle handle = table(keyType.c_str());
-   for (ROOT::Reflex::Member_Iterator mi = key.Member_Begin(),
+   for (Reflex::Member_Iterator mi = key.Member_Begin(),
                                       me = key.Member_End();
         mi != me; ++mi)
    {
@@ -269,7 +269,7 @@ FWTableViewManager::tableFormats(const Reflex::Type &key)
    return m_tableFormats.find(keyType);
 }
 
-/** Helper function which uses TClass rather than ROOT::Reflex::Type.
+/** Helper function which uses TClass rather than Reflex::Type.
 
     Otherwise identical to FWTableViewManager::tableFormats(const TClass &key).
 

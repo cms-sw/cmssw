@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 20:42:49 EDT 2008
-// $Id: FWExpressionValidator.h,v 1.2 2008/11/06 22:05:25 amraktad Exp $
+// $Id: FWExpressionValidator.h,v 1.3 2009/01/23 21:35:43 amraktad Exp $
 //
 
 // system include files
@@ -45,7 +45,7 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   void setType(const ROOT::Reflex::Type&);
+   void setType(const Reflex::Type&);
 
 private:
    FWExpressionValidator(const FWExpressionValidator&); // stop default
@@ -53,7 +53,7 @@ private:
    const FWExpressionValidator& operator=(const FWExpressionValidator&); // stop default
 
    // ---------- member data --------------------------------
-   ROOT::Reflex::Type m_type;
+   Reflex::Type m_type;
    std::vector<boost::shared_ptr<fireworks::OptionNode> > m_options;
    std::vector<boost::shared_ptr<fireworks::OptionNode> > m_builtins;
 

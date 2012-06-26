@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 30 16:14:58 EST 2008
-// $Id: FWItemValueGetter.h,v 1.4 2011/08/18 00:37:10 amraktad Exp $
+// $Id: FWItemValueGetter.h,v 1.5 2011/08/20 03:48:39 amraktad Exp $
 //
 
 #include <string>
@@ -35,7 +35,7 @@
 class FWItemValueGetter
 {
 public:
-   FWItemValueGetter(const ROOT::Reflex::Type&, const std::string& iPurpose);
+   FWItemValueGetter(const Reflex::Type&, const std::string& iPurpose);
    double valueFor(const void*, int idx) const;
    UInt_t precision( int idx) const;
    std::vector<std::string> getTitles() const;
@@ -62,7 +62,7 @@ private:
    Entries_t::const_iterator Entries_i;
 
    Entries_t m_entries;
-   ROOT::Reflex::Type m_type;
+   Reflex::Type m_type;
 
    int m_titleWidth;
 
