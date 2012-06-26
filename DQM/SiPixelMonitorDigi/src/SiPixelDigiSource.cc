@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.51 2011/12/05 12:13:33 duggan Exp $
+// $Id: SiPixelDigiSource.cc,v 1.52 2012/01/18 12:51:13 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -201,6 +201,21 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
       nFPIXDigis = 0;
       for(int i=0; i!=40; i++) nDigisPerFed[i]=0;  
     }
+    //Now do resets for ROCuppancy maps every 10 ls
+    std::string baseDirs[2] = {"Pixel/Barrel", "Pixel/Endcap"};
+    for (int i = 0; i < 2; ++i){
+      theDMBE->cd(baseDirs[i]);
+      vector<string> shellDirs = theDMBE->getSubdirs();
+      for (vector<string>::const_iterator it = shellDirs.begin(); it != shellDirs.end(); it++) {
+	theDMBE->cd(*it);
+	vector<string> layDirs = theDMBE->getSubdirs();
+	for (vector<string>::const_iterator itt = layDirs.begin(); itt != layDirs.end(); itt++) {
+	  theDMBE->cd(*itt);
+	  vector<string> contents = theDMBE->getMEs();
+	  for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++) {
+	    if ((*im).find("rocmap") == string::npos) continue;
+	    MonitorElement* me = theDMBE->get((*itt)+"/"+(*im));
+	    if(me && lumiSection%10==0) me->Reset();}}}}//end for contents//end for layDirs//end for shellDirs//end for bar/EC
   }
   if(!modOn){
     MonitorElement* meReset = theDMBE->get("Pixel/averageDigiOccupancy");
@@ -459,7 +474,42 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
       // digi occupancy per individual FED channel:
     } // endif any digis in this module
   } // endfor loop over all modules
-  
+
+  //A really, really ugly way to do the occupancy-based 
+  int NzeroROCs[2]        = {0,-672};
+  int NloEffROCs[2]       = {0,-672};
+  std::string baseDirs[2] = {"Pixel/Barrel", "Pixel/Endcap"};
+  for (int i = 0; i < 2; ++i){
+    theDMBE->cd(baseDirs[i]);
+    vector<string> shellDirs = theDMBE->getSubdirs();
+    for (vector<string>::const_iterator it = shellDirs.begin(); it != shellDirs.end(); it++) {
+      theDMBE->cd(*it);
+      vector<string> layDirs = theDMBE->getSubdirs();
+      for (vector<string>::const_iterator itt = layDirs.begin(); itt != layDirs.end(); itt++) {
+	theDMBE->cd(*itt);
+	vector<string> contents = theDMBE->getMEs(); 
+	for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++) {
+	  if ((*im).find("rocmap") == string::npos) continue;
+	  MonitorElement* me = theDMBE->get((*itt)+"/"+(*im));
+	  if(!me) continue;
+	  float SF = 1.0; if (me->getEntries() > 0) SF = float(me->getNbinsX()*me->getNbinsY()/me->getEntries());
+	  for (int ii = 1; ii < me->getNbinsX()+1; ++ii){for (int jj = 1; jj < me->getNbinsY()+1; ++jj){
+	      if (me->getBinContent(ii,jj)    <   1) ++NzeroROCs[i];
+	      if (me->getBinContent(ii,jj)*SF < 0.25) ++NloEffROCs[i];}}
+	}
+      }
+    }
+  }
+  for (int i =0; i < 2; ++i) NloEffROCs[i] = NloEffROCs[i] - NzeroROCs[i];
+  MonitorElement* menoOcc=theDMBE->get("Pixel/noOccROCsBarrel");
+  MonitorElement* meloOcc=theDMBE->get("Pixel/loOccROCsBarrel");
+  if(menoOcc) menoOcc->setBinContent(lumiSection/10, NzeroROCs[0]);
+  if(meloOcc) meloOcc->setBinContent(lumiSection/10, NloEffROCs[0]);
+  MonitorElement* menoOcc1=theDMBE->get("Pixel/noOccROCsEndcap");
+  MonitorElement* meloOcc1=theDMBE->get("Pixel/loOccROCsEndcap");
+  if(menoOcc1) menoOcc1->setBinContent(lumiSection/10, NzeroROCs[1]);
+  if(meloOcc1) meloOcc1->setBinContent(lumiSection/10, NloEffROCs[1]);
+  theDMBE->cd();
 //  if(lumiSection>lumSec){ lumSec = lumiSection; nLumiSecs++; }
 //  if(nEventDigis>bigEventSize) nBigEvents++;
 //  if(nLumiSecs%5==0){
@@ -679,14 +729,22 @@ void SiPixelDigiSource::bookMEs(){
   // Get DQM interface
   DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   theDMBE->setCurrentFolder("Pixel");
-  char title[80]; sprintf(title, "Rate of events with >%i digis;LumiSection;Rate [Hz]",bigEventSize);
-  bigEventRate = theDMBE->book1D("bigEventRate",title,5000,0.,5000.);
-  char title1[80]; sprintf(title1, "Pixel events vs. BX;BX;# events");
-  pixEvtsPerBX = theDMBE->book1D("pixEvtsPerBX",title1,3565,0.,3565.);
-  char title2[80]; sprintf(title2, "Rate of Pixel events;LumiSection;Rate [Hz]");
-  pixEventRate = theDMBE->book1D("pixEventRate",title2,5000,0.,5000.);
-  char title3[80]; sprintf(title3, "Average digi occupancy per FED;FED;NDigis/<NDigis>");
-  averageDigiOccupancy = theDMBE->book1D("averageDigiOccupancy",title3,40,-0.5,39.5);
+  char title[80];   sprintf(title, "Rate of events with >%i digis;LumiSection;Rate [Hz]",bigEventSize);
+  bigEventRate    = theDMBE->book1D("bigEventRate",title,5000,0.,5000.);
+  char title1[80];  sprintf(title1, "Pixel events vs. BX;BX;# events");
+  pixEvtsPerBX    = theDMBE->book1D("pixEvtsPerBX",title1,3565,0.,3565.);
+  char title2[80];  sprintf(title2, "Rate of Pixel events;LumiSection;Rate [Hz]");
+  pixEventRate    = theDMBE->book1D("pixEventRate",title2,5000,0.,5000.);
+  char title3[80];  sprintf(title3, "Number of Disabled Barrel ROCs;LumiSection;N_{DISABLED} Barrel ROCs");
+  noOccROCsBarrel = theDMBE->book1D("noOccROCsBarrel",title3,500,0.,5000.);
+  char title4[80];  sprintf(title4, "Number of Low-Efficiency Barrel ROCs;LumiSection;N_{LO EFF} Barrel ROCs");
+  loOccROCsBarrel = theDMBE->book1D("loOccROCsBarrel",title4,500,0.,5000.);
+  char title5[80];  sprintf(title5, "Number of Disabled Endcap ROCs;LumiSection;N_{DISABLED} Endcap ROCs");
+  noOccROCsEndcap = theDMBE->book1D("noOccROCsEndcap",title5,500,0.,5000.);
+  char title6[80];  sprintf(title6, "Number of Low-Efficiency Endcap ROCs;LumiSection;N_{LO EFF} Endcap ROCs");
+  loOccROCsEndcap = theDMBE->book1D("loOccROCsEndcap",title6,500,0.,5000.);
+  char title7[80];  sprintf(title7, "Average digi occupancy per FED;FED;NDigis/<NDigis>");
+  averageDigiOccupancy = theDMBE->book1D("averageDigiOccupancy",title7,40,-0.5,39.5);
   averageDigiOccupancy->setLumiFlag();
   if(modOn){
     char title4[80]; sprintf(title4, "FED Digi Occupancy (NDigis/<NDigis>) vs LumiSections;Lumi Section;FED");
