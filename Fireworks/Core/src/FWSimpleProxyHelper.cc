@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 15:13:22 EST 2008
-// $Id: FWSimpleProxyHelper.cc,v 1.2 2009/01/23 21:35:44 amraktad Exp $
+// $Id: FWSimpleProxyHelper.cc,v 1.3 2010/08/18 10:30:14 amraktad Exp $
 //
 
 // system include files
@@ -68,11 +68,10 @@ void
 FWSimpleProxyHelper::itemChanged(const FWEventItem* iItem)
 {
    if(0!=iItem) {
-      using namespace ROOT::Reflex;
-      Type myType = Type::ByTypeInfo(*m_itemType);
-      Object dummy(Type::ByTypeInfo(*(iItem->modelType()->GetTypeInfo())),
+      Reflex::Type myType = Reflex::Type::ByTypeInfo(*m_itemType);
+      Reflex::Object dummy(Reflex::Type::ByTypeInfo(*(iItem->modelType()->GetTypeInfo())),
                    reinterpret_cast<void*>(0xFFFF));
-      Object castTo = dummy.CastObject(myType);
+      Reflex::Object castTo = dummy.CastObject(myType);
       assert(0!=castTo.Address());
       m_objectOffset=static_cast<char*>(dummy.Address())-static_cast<char*>(castTo.Address());
    }
