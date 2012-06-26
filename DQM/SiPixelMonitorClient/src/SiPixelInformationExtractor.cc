@@ -1527,7 +1527,11 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
 	//        const sipixelobjects::PixelROC *theRoc = link->roc(cabling.roc);
         sipixelobjects::LocalPixel locpixel(loc);
         assert(realfedID >= 0);
-	sipixelobjects::CablingPathToDetUnit path = {static_cast<unsigned int>(realfedID), cabling.link, cabling.roc};  
+        assert(cabling.link >= 0);
+        assert(cabling.roc >= 0);
+	sipixelobjects::CablingPathToDetUnit path = {static_cast<unsigned int>(realfedID), 
+                                                     static_cast<unsigned int>(cabling.link),
+                                                     static_cast<unsigned int>(cabling.roc)};  
 	const sipixelobjects::PixelROC *theRoc = theCablingMap->findItem(path);
 	// END of FIX
 	
