@@ -153,10 +153,11 @@ void IC::reciprocal(const IC & a, IC & res)
 }
 
 
-void IC::multiply(const IC & a, float c, IC & res)
+void IC::multiply(const IC & a, float c, IC & res, DS & selector)
 {
         for (size_t i = 0; i < a.ids().size(); ++i) {
                 DetId id(a.ids()[i]);
+                if (!selector(id)) continue;
                 res.ic().setValue(id, a.ic()[id] * c);
                 res.eic().setValue(id, a.eic()[id] * fabs(c));
         }
@@ -635,6 +636,7 @@ bool IC::isValid(float v, float e)
         //if (v < 0 || v > 2) return false;
         //if (v < 0) return false;
         if (fabs(e) > 100 || v < 0) return false;
+        //if (v < 0.3 || v > 3) return false;
         return true;
 }
 
@@ -698,6 +700,27 @@ void IC::applyTwoCrystalEffect(IC & ic)
 }
 
 
+void IC::fillHoles(const IC & a, const IC & b, IC & res)
+{
+        for (size_t i = 0; i < a.ids().size(); ++i) {
+                DetId id(a.ids()[i]);
+                float va = a.ic()[id];
+                float ea = a.eic()[id];
+                float vb = b.ic()[id];
+                float eb = b.eic()[id];
+                if (isValid(va, ea)) {
+                        res.ic().setValue(id, va);
+                        res.eic().setValue(id, ea);
+                } else if (isValid(vb, eb)) {
+                        res.ic().setValue(id, vb);
+                        res.eic().setValue(id, eb);
+                } else {
+                        fprintf(stderr, "[IC::fillHoles] WARNING: no IC for crystal %d\n", id.rawId());
+                        res.ic().setValue(id, 1);
+                        res.eic().setValue(id, 999);
+                }
+        }
+}
 
 
 void IC::readSimpleTextFile(const char * fileName, IC & ic)

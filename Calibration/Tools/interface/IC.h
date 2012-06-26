@@ -359,10 +359,11 @@ class IC {
 
                 // IC manipulation
                 static void reciprocal(const IC & a, IC & res);
-                static void multiply(const IC & a, float c, IC & res);
+                static void multiply(const IC & a, float c, IC & res, DS & d);
                 static void multiply(const IC & a, const IC & b, IC & res);
                 static void add(const IC & a, const IC & b, IC & res);
                 static void combine(const IC & a, const IC & b, IC & res);
+                static void fillHoles(const IC & a, const IC & b, IC & res);
                 static void smear(const IC & a, float sigma, IC & res);
                 static void smear(const IC & a, IC & res);
 
