@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: EcalSRCondTools.cc,v 1.2 2010/06/14 10:45:17 pgras Exp $
+ * $Id: EcalSRCondTools.cc,v 1.3 2010/09/13 20:04:28 pgras Exp $
  *
  * author: Ph Gras. June, 2010
  */
@@ -22,7 +22,7 @@
 #include <fstream>
 #include <algorithm>
 
-static int tccNum[12][12] = {
+constexpr int tccNum[12][12] = {
   /* EE- */
   {  36, 19, 20, 21, 22, 23, 18,  1,  2,  3,  4,  5}, //SRP 1
   {  24, 25, 26, 27, 28, 29,  6,  7,  8,  9, 10, 11}, //SRP 2
@@ -41,7 +41,7 @@ static int tccNum[12][12] = {
   {  84, 85, 86, 87, 88, 89,102,103,104,105,106,107}   //SRP 12
 };
 
-static int dccNum[12][12] = {
+constexpr int dccNum[12][12] = {
   {  1,  2,  3, -1, -1, -1, -1, -1, -1, -1, -1, -1},  //SRP 1 
   {  4,  5,  6, -1, -1, -1, -1, -1, -1, -1, -1, -1},  //SRP 2 
   {  7,  8,  9, -1, -1, -1, -1, -1, -1, -1, -1, -1},  //SRP 3 
