@@ -7,31 +7,39 @@
 namespace reco { namespace tau {
 
 namespace {
+  struct entry {
+    char const *label;
+    reco::PFTau::hadronicDecayMode mode;
+  };
+
   // Convert the string decay mode from PhysicsTools to the
   // PFTau::hadronicDecayMode format
-  static std::map<std::string, reco::PFTau::hadronicDecayMode> dmTranslator =
-    boost::assign::map_list_of
-    ("oneProng0Pi0", reco::PFTau::kOneProng0PiZero)
-    ("oneProng1Pi0", reco::PFTau::kOneProng1PiZero)
-    ("oneProng2Pi0", reco::PFTau::kOneProng2PiZero)
-    ("oneProngOther", reco::PFTau::kOneProngNPiZero)
-    ("threeProng0Pi0", reco::PFTau::kThreeProng0PiZero)
-    ("threeProng1Pi0", reco::PFTau::kThreeProng1PiZero)
-    ("threeProngOther", reco::PFTau::kThreeProngNPiZero)
-    ("electron", reco::PFTau::kNull)
-    ("muon", reco::PFTau::kNull);
+  constexpr entry dmTranslatorMap[] = {
+    {"unknown", reco::PFTau::kNull},
+    {"rare", reco::PFTau::kRareDecayMode},
+    {"oneProng0Pi0", reco::PFTau::kOneProng0PiZero},
+    {"oneProng1Pi0", reco::PFTau::kOneProng1PiZero},
+    {"oneProng2Pi0", reco::PFTau::kOneProng2PiZero},
+    {"oneProngOther", reco::PFTau::kOneProngNPiZero},
+    {"threeProng0Pi0", reco::PFTau::kThreeProng0PiZero},
+    {"threeProng1Pi0", reco::PFTau::kThreeProng1PiZero},
+    {"threeProngOther", reco::PFTau::kThreeProngNPiZero},
+    {"electron", reco::PFTau::kNull},
+    {"muon", reco::PFTau::kNull},
+    {0,reco::PFTau::kNull}
+  };
+  
+  constexpr bool same(char const *x, char const *y) {
+    return !*x && !*y ? true : (*x == *y && same(x+1, y+1));
+  }
 
-  static std::map<reco::PFTau::hadronicDecayMode, std::string> dmInverter =
-    boost::assign::map_list_of
-    (reco::PFTau::kOneProng0PiZero, "oneProng0Pi0")
-    (reco::PFTau::kOneProng1PiZero, "oneProng1Pi0")
-    (reco::PFTau::kOneProng2PiZero, "oneProng2Pi0")
-    (reco::PFTau::kOneProngNPiZero, "oneProngOther")
-    (reco::PFTau::kThreeProng0PiZero, "threeProng0Pi0")
-    (reco::PFTau::kThreeProng1PiZero, "threeProng1Pi0")
-    (reco::PFTau::kThreeProngNPiZero, "threeProngOther")
-    (reco::PFTau::kNull, "unknown")
-    (reco::PFTau::kRareDecayMode, "rare");
+  constexpr enum reco::PFTau::hadronicDecayMode decayModeStringToId(char const *label, entry const *entries) {
+    return !entries->label ? reco::PFTau::kRareDecayMode : same(entries->label, label) ? entries->mode : decayModeStringToId(label, entries+1);
+  }
+
+  constexpr char const *decayModeIdToString(reco::PFTau::hadronicDecayMode mode, entry const *entries) {
+    return !entries->label ? "unknown" : (entries->mode == mode ? entries->label : decayModeIdToString(mode, entries+1));
+  }
 }
 
 unsigned int chargedHadronsInDecayMode(PFTau::hadronicDecayMode mode) {
@@ -61,21 +69,11 @@ PFTau::hadronicDecayMode translateDecayMode(
 
 PFTau::hadronicDecayMode translateGenDecayModeToReco(
     const std::string& name) {
-  std::map<std::string, reco::PFTau::hadronicDecayMode>::const_iterator
-    found = dmTranslator.find(name);
-  if (found != dmTranslator.end()) {
-    return found->second;
-  } else
-    return reco::PFTau::kRareDecayMode;
+  return decayModeStringToId(name.c_str(), dmTranslatorMap);
 }
 
 std::string translateRecoDecayModeToGen(PFTau::hadronicDecayMode decayMode) {
-  std::map<reco::PFTau::hadronicDecayMode, std::string>::const_iterator
-    found = dmInverter.find(decayMode);
-  if (found != dmInverter.end()) {
-    return found->second;
-  } else
-    return "unknown";
+  return decayModeIdToString(decayMode, dmTranslatorMap);
 }
 
 
