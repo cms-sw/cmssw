@@ -6,6 +6,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 # setup 'standard' options
 options = VarParsing.VarParsing ('standard')
 options.register('runOnMC', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "decide if run on MC or data")
+options.register('maxEvents', -1, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "maximum number of input events")
 
 # parsing command line arguments
 if( hasattr(sys, "argv") ):
@@ -124,8 +125,8 @@ useL1Offset     = False # needs useL1FastJet being off, error otherwise
 useL2Relative   = True
 useL3Absolute   = True
 useL2L3Residual = True
-useL5Flavor     = True
-useL7Parton     = True
+useL5Flavor     = False
+useL7Parton     = False
 
 ### Input
 
@@ -135,13 +136,13 @@ inputFiles = []   # overwritten, if "useRelVals" is 'True'
 
 
 # maximum number of events
-maxInputEvents = -1 # reduce for testing
+maxEvents = options.maxEvents
 
 ### Conditions
 
 # GlobalTags (w/o suffix '::All')
-globalTagData = 'GR_R_52_V7'
-globalTagMC   = 'START52_V9'
+globalTagData = 'GR_R_52_V7D::All' # incl. Summer12 JEC and new b-tag SF
+globalTagMC   = 'START52_V9C::All' # incl. Summer12 JEC and new b-tag SF
 
 ### Output
 
@@ -168,9 +169,9 @@ process.load( "TopQuarkAnalysis.Configuration.patRefSel_basics_cff" )
 process.MessageLogger.cerr.FwkReport.reportEvery = fwkReportEvery
 process.options.wantSummary = wantSummary
 if runOnMC:
-  process.GlobalTag.globaltag = globalTagMC   + '::All'
+  process.GlobalTag.globaltag = globalTagMC
 else:
-  process.GlobalTag.globaltag = globalTagData + '::All'
+  process.GlobalTag.globaltag = globalTagData
 
 
 ###
@@ -195,7 +196,7 @@ if useRelVals:
                                      , maxVersions   = 1
                                      )
 process.source.fileNames = inputFiles
-process.maxEvents.input  = maxInputEvents
+process.maxEvents.input  = maxEvents
 
 
 ###
@@ -218,6 +219,7 @@ process.out.SelectEvents.SelectEvents = []
 
 ### Event cleaning
 process.load( 'TopQuarkAnalysis.Configuration.patRefSel_eventCleaning_cff' )
+process.trackingFailureFilter.VertexSource = cms.InputTag( pfVertices )
 
 ### Trigger selection
 if runOnMC:
@@ -293,6 +295,7 @@ if runPF2PAT:
            , jetCorrections = ( jecSetPF
                               , jecLevels
                               )
+           , typeIMetCorrections = True
            , pvCollection   = cms.InputTag( pfVertices )
            )
   applyPostfix( process, 'pfNoPileUp'  , postfix ).enable = usePFnoPU
@@ -393,11 +396,11 @@ process.out.outputCommands += [ 'keep edmTriggerResults_*_*_*'
                               , 'keep *_offlineBeamSpot_*_*'
                               , 'keep *_offlinePrimaryVertices*_*_*'
                               , 'keep *_goodOfflinePrimaryVertices*_*_*'
-                              , 'keep double_kt6PFJets_*_*'
                               ]
 if runOnMC:
   process.out.outputCommands += [ 'keep GenEventInfoProduct_*_*_*'
                                 , 'keep recoGenParticles_*_*_*'
+                                , 'keep *_addPileupInfo_*_*'
                                 ]
 
 
@@ -642,12 +645,14 @@ if runPF2PAT:
 
 # The paths
 if runStandardPAT:
-  process.p = cms.Path()
-  if not runOnMC:
+  process.p = cms.Path( process.goodOfflinePrimaryVertices )
+  process.p += process.eventCleaning
+  if runOnMC:
+    process.p += process.eventCleaningMC
+  else:
     process.p += process.eventCleaningData
   if useTrigger:
     process.p += process.step1
-  process.p += process.goodOfflinePrimaryVertices
   if useGoodVertex:
     process.p += process.step2
   process.p += process.eidMVASequence
@@ -660,12 +665,14 @@ if runStandardPAT:
   process.out.SelectEvents.SelectEvents.append( 'p' )
 
 if runPF2PAT:
-  pPF = cms.Path()
-  if not runOnMC:
+  pPF = cms.Path( process.goodOfflinePrimaryVertices )
+  pPF += process.eventCleaning
+  if runOnMC:
+    pPF += process.eventCleaningMC
+  else:
     pPF += process.eventCleaningData
   if useTrigger:
     pPF += process.step1
-  pPF += process.goodOfflinePrimaryVertices
   if useGoodVertex:
     pPF += process.step2
   pPF += process.eidMVASequence

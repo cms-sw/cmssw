@@ -3,15 +3,16 @@
 Build your CMSSW area by copying & pasting the following command lines (one go):
 
 setenv SCRAM_ARCH slc5_amd64_gcc462
-cmsrel CMSSW_5_2_5
-cd CMSSW_5_2_5/src
+cmsrel CMSSW_5_2_6
+cd CMSSW_5_2_6/src
 cmsenv
-cvs co -r V06-02-04    TopQuarkAnalysis/Configuration
+cvs co -r V07-00-00    TopQuarkAnalysis/Configuration
 cvs co                 TopQuarkAnalysis/Configuration/test/patRefSel_exercise_cfg.py
 cvs co -r V06-05-01    DataFormats/PatCandidates
-cvs co -r V08-09-05    PhysicsTools/PatAlgos
-cvs co -r V00-03-11    CommonTools/ParticleFlow
-cvs co -r V00-00-08 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
+cvs co -r V08-09-11-02 PhysicsTools/PatAlgos
+cvs co -r V00-03-14    CommonTools/ParticleFlow
+cvs co -r V06-07-11-01 TopQuarkAnalysis/TopTools
+cvs co -r V00-00-13 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
 cd EGamma/EGammaAnalysisTools/data
 cat download.url | xargs wget
 cd -

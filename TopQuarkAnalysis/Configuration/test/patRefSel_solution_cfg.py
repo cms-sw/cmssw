@@ -3,16 +3,17 @@
 Build your CMSSW area by copying & pasting the following command lines (one go):
 
 setenv SCRAM_ARCH slc5_amd64_gcc462
-cmsrel CMSSW_5_2_5
-cd CMSSW_5_2_5/src
+cmsrel CMSSW_5_2_6
+cd CMSSW_5_2_6/src
 cmsenv
-cvs co -r V06-02-04    TopQuarkAnalysis/Configuration
+cvs co -r V07-00-00    TopQuarkAnalysis/Configuration
 cvs co                 TopQuarkAnalysis/Configuration/test/patRefSel_exercise_cfg.py
 cvs co                 TopQuarkAnalysis/Configuration/test/patRefSel_solution_cfg.py
 cvs co -r V06-05-01    DataFormats/PatCandidates
-cvs co -r V08-09-05    PhysicsTools/PatAlgos
-cvs co -r V00-03-11    CommonTools/ParticleFlow
-cvs co -r V00-00-08 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
+cvs co -r V08-09-11-02 PhysicsTools/PatAlgos
+cvs co -r V00-03-14    CommonTools/ParticleFlow
+cvs co -r V06-07-11-01 TopQuarkAnalysis/TopTools
+cvs co -r V00-00-13 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
 cd EGamma/EGammaAnalysisTools/data
 cat download.url | xargs wget
 cd -
@@ -59,7 +60,14 @@ process.pfIsolatedMuons.deltaBetaIsolationValueMap = cms.InputTag( 'muPFIsoValue
 process.pfIsolatedMuons.isolationValueMapsNeutral  = cms.VInputTag( cms.InputTag( 'muPFIsoValueNeutral03' )
                                                                   , cms.InputTag( 'muPFIsoValueGamma03' )
                                                                   )
+process.pfMuons.isolationValueMapsCharged  = cms.VInputTag( cms.InputTag( 'muPFIsoValueCharged03' )
+                                                          )
+process.pfMuons.deltaBetaIsolationValueMap = cms.InputTag( 'muPFIsoValuePU03' )
+process.pfMuons.isolationValueMapsNeutral  = cms.VInputTag( cms.InputTag( 'muPFIsoValueNeutral03' )
+                                                          , cms.InputTag( 'muPFIsoValueGamma03' )
+                                                          )
 process.patMuons.isolationValues.pfNeutralHadrons   = cms.InputTag( 'muPFIsoValueNeutral03' )
+process.patMuons.isolationValues.pfChargedAll       = cms.InputTag( 'muPFIsoValueChargedAll03' )
 process.patMuons.isolationValues.pfPUChargedHadrons = cms.InputTag( 'muPFIsoValuePU03' )
 process.patMuons.isolationValues.pfPhotons          = cms.InputTag( 'muPFIsoValueGamma03' )
 process.patMuons.isolationValues.pfChargedHadrons   = cms.InputTag( 'muPFIsoValueCharged03' )
@@ -74,9 +82,9 @@ process.patMuons.isolationValues.pfChargedHadrons   = cms.InputTag( 'muPFIsoValu
 process.load('EGamma.EGammaAnalysisTools.electronIdMVAProducer_cfi')
 process.mvaID = cms.Sequence(  process.mvaTrigV0 + process.mvaNonTrigV0 )
 process.patElectrons.electronIDSources = cms.PSet(
-    #MVA
-    mvaTrigV0 = cms.InputTag("mvaTrigV0"),
-    mvaNonTrigV0 = cms.InputTag("mvaNonTrigV0"),
+  #MVA
+  mvaTrigV0    = cms.InputTag( 'mvaTrigV0' )
+, mvaNonTrigV0 = cms.InputTag( 'mvaNonTrigV0' )
 )
 
 ### Exercise 3 ###

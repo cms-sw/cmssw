@@ -3,12 +3,47 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.patSequences_cff import *
 from TopQuarkAnalysis.Configuration.patRefSel_common_cfi import *
 
-from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import intermediatePatMuons
-from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import loosePatMuons
-from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import tightPatMuons
-from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import goodPatJets
+### Muons
+
+intermediatePatMuons = cleanPatMuons.clone(
+  preselection  = '' # looseMuonCut
+)
+loosePatMuons = cleanPatMuons.clone(
+  src           = cms.InputTag( 'intermediatePatMuons' )
+, checkOverlaps = cms.PSet(
+    jets = cms.PSet(
+      src                 = cms.InputTag( 'goodPatJets' )
+    , algorithm           = cms.string( 'byDeltaR' )
+    , preselection        = cms.string( '' )
+    , deltaR              = cms.double( 0. ) # muonJetsDR
+    , checkRecoComponents = cms.bool( False )
+    , pairCut             = cms.string( '' )
+    , requireNoOverlaps   = cms.bool( True)
+    )
+  )
+)
+tightPatMuons = cleanPatMuons.clone(
+  src           = cms.InputTag( 'loosePatMuons' )
+, preselection  = '' # tightMuonCut
+, checkOverlaps = cms.PSet()
+)
 
 ### Jets
+
+goodPatJets = cleanPatJets.clone(
+  preselection  = '' # jetCut
+, checkOverlaps = cms.PSet(
+    muons = cms.PSet(
+      src                 = cms.InputTag( 'intermediatePatMuons' )
+    , algorithm           = cms.string( 'byDeltaR' )
+    , preselection        = cms.string( '' )
+    , deltaR              = cms.double( 0. ) # jetMuonsDR
+    , checkRecoComponents = cms.bool( False )
+    , pairCut             = cms.string( '' )
+    , requireNoOverlaps   = cms.bool( True)
+    )
+  )
+)
 
 step3a = cms.EDFilter(
   "PATCandViewCountFilter"
