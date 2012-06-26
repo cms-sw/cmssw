@@ -3,6 +3,7 @@ from offlineValidationTemplates import *
 from geometryComparisonTemplates import *
 from monteCarloValidationTemplates import *
 from trackSplittingValidationTemplates import *
+from zMuMuValidationTemplates import *
 
 
 ######################################################################
@@ -78,7 +79,7 @@ echo "----"
 echo ""
 
 
-#retrive
+#retrieve
 rfmkdir -p .oO[logdir]Oo.
 gzip LOGFILE_*_.oO[name]Oo..log
 find .oO[workdir]Oo. -maxdepth 1 -name "LOGFILE*.oO[alignmentName]Oo.*" -print | xargs -I {} bash -c "rfcp {} .oO[logdir]Oo."
