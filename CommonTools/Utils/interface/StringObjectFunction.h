@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: StringObjectFunction.h,v 1.2 2009/07/09 10:47:23 gpetrucc Exp $
+ * $Id: StringObjectFunction.h,v 1.3 2011/12/05 16:02:30 eulisse Exp $
  */
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "CommonTools/Utils/src/ExpressionPtr.h"
@@ -26,8 +26,7 @@ struct StringObjectFunction {
     type_(Reflex::Type::ByTypeInfo(typeid(T))) {
   }
   double operator()(const T & t) const {
-    using namespace Reflex;
-    Object o(type_, const_cast<T *>(& t));
+    Reflex::Object o(type_, const_cast<T *>(& t));
     return expr_->value(o);  
   }
 

@@ -4,7 +4,6 @@
 #include <map>
 #include <assert.h>
 using namespace reco::parser;
-using namespace Reflex;
 using namespace std;
 
 ExpressionVar::ExpressionVar(const vector<MethodInvoker>& methods, method::TypeCode retType) : 
@@ -50,7 +49,7 @@ void ExpressionVar::initObjects_() {
 bool
 ExpressionVar::makeStorage(Reflex::Object &obj, const Reflex::Member &member) {
     bool ret = false;
-    static Type tVoid = Type::ByName("void");
+    static Reflex::Type tVoid = Reflex::Type::ByName("void");
     if (member.IsFunctionMember()) {
         Reflex::Type retType = member.TypeOf().ReturnType();
         //remove any typedefs if any. If we do not do this it appears that we get a memory leak
@@ -96,8 +95,8 @@ bool ExpressionVar::isValidReturnType(method::TypeCode retType)
    return ret;
 }
 
-double ExpressionVar::value(const Object & o) const {
-  Object ro = o;
+double ExpressionVar::value(const Reflex::Object & o) const {
+  Reflex::Object ro = o;
   std::vector<MethodInvoker>::const_iterator itm, end = methods_.end();
   std::vector<Reflex::Object>::iterator      ito;
   for(itm = methods_.begin(), ito = objects_.begin(); itm != end; ++itm, ++ito) {

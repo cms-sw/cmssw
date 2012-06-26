@@ -5,7 +5,6 @@
 #include <string>
 using namespace reco::parser;
 using namespace std;
-using namespace Reflex;
 
 void ExpressionVarSetter::operator()(const char * begin, const char* end) const {
   //std::cerr << "ExpressionVarSetter: Pushed [" << std::string(begin,end) << "]" << std::endl;  
@@ -15,7 +14,7 @@ void ExpressionVarSetter::operator()(const char * begin, const char* end) const 
 }
 
 void ExpressionVarSetter::push(const char *begin, const char *end) const {
-  Type type = typeStack_.back();
+  Reflex::Type type = typeStack_.back();
   method::TypeCode retType = reco::typeCode(type);
   if(retType == method::invalid)
     throw  Exception(begin)

@@ -70,7 +70,6 @@ void testCutParser::checkMuon(const std::string & cut, bool res, const reco::Muo
 
 void testCutParser::checkAll() {
   using namespace reco;
-  using namespace Reflex;
   const double chi2 = 20.0;
   const int ndof = 10;
   reco::Track::Point v(1, 2, 3);

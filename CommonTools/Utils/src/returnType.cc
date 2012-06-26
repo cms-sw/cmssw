@@ -1,24 +1,23 @@
 #include "CommonTools/Utils/src/returnType.h"
 #include <map>
 #include <string>
-using namespace Reflex;
 using namespace std;
 using namespace reco::method;
 
 namespace reco {
-  Type returnType(const Member & mem) {
-    Type t = mem.TypeOf().ReturnType();
+  Reflex::Type returnType(const Reflex::Member & mem) {
+    Reflex::Type t = mem.TypeOf().ReturnType();
     if(t) {
        while(t.IsTypedef()) t = t.ToType();
     }
     return t;
   }
 
-  TypeCode returnTypeCode(const Member & mem) {
+  TypeCode returnTypeCode(const Reflex::Member & mem) {
     return typeCode(returnType(mem));
   }
 
-  TypeCode typeCode(const Type & t) {
+  TypeCode typeCode(const Reflex::Type & t) {
     static map<string, method::TypeCode> retTypeMap;
     if (retTypeMap.size() == 0) {
       retTypeMap["double"] = doubleType;

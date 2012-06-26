@@ -7,7 +7,6 @@
 #include <string>
 using namespace reco::parser;
 using namespace std;
-using namespace Reflex;
 
 void MethodSetter::operator()(const char * begin, const char * end) const {
   string name(begin, end);
@@ -42,12 +41,12 @@ void MethodSetter::operator()(const char * begin, const char * end) const {
 }
 
 bool MethodSetter::push(const string & name, const vector<AnyMethodArgument> & args, const char* begin,bool deep) const {
-  Type type = typeStack_.back();
+  Reflex::Type type = typeStack_.back();
   vector<AnyMethodArgument> fixups;
   int error;
-  pair<Member, bool> mem = reco::findMethod(type, name, args, fixups,begin,error);
+  pair<Reflex::Member, bool> mem = reco::findMethod(type, name, args, fixups,begin,error);
   if(mem.first) {
-     Type retType = reco::returnType(mem.first);
+     Reflex::Type retType = reco::returnType(mem.first);
      if(!retType) {
         throw Exception(begin)
      	<< "member \"" << mem.first.Name() << "\" return type is invalid:\n" 
@@ -102,7 +101,7 @@ bool MethodSetter::push(const string & name, const vector<AnyMethodArgument> & a
      }
      //see if it is a member data
      int error;
-     Member member = reco::findDataMember(type,name,error);
+    Reflex:: Member member = reco::findDataMember(type,name,error);
      if(!member) {
         switch(error) {
            case reco::parser::kNameDoesNotExist:

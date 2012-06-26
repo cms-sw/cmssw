@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug 13 10:07:46 EDT 2008
-// $Id: findDataMember.cc,v 1.2 2009/01/11 23:37:33 hegner Exp $
+// $Id: findDataMember.cc,v 1.1 2009/02/24 14:10:22 llista Exp $
 //
 
 // system include files
@@ -24,10 +24,9 @@
 
 namespace reco {
    Reflex::Member findDataMember(const Reflex::Type& iType, const std::string& iName, int& oError) {
-      using namespace Reflex;
-      Member returnValue;
+      Reflex::Member returnValue;
       oError = parser::kNameDoesNotExist;
-      Type type = iType;
+      Reflex::Type type = iType;
       if(type) {
          if(type.IsPointer()) {
             type = type.ToType();
@@ -35,7 +34,7 @@ namespace reco {
          returnValue = type.DataMemberByName(iName);
          if(!returnValue) {
             //check inheriting classes
-            for(Base_Iterator b = type.Base_Begin(); b != type.Base_End(); ++ b) {
+            for(Reflex::Base_Iterator b = type.Base_Begin(); b != type.Base_End(); ++ b) {
                returnValue = findDataMember(b->ToType(), iName, oError);
                //only stop if we found it or some other error happened
                if(returnValue || parser::kNameDoesNotExist != oError) {
@@ -44,7 +43,7 @@ namespace reco {
             }
          }
          if(returnValue && !returnValue.IsPublic()) {
-            returnValue = Member();
+            returnValue = Reflex::Member();
             oError = parser::kIsNotPublic;
          }
       }

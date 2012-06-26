@@ -4,7 +4,6 @@
 #include "Reflex/Base.h"
 #include "Reflex/TypeTemplate.h"
 
-using namespace ROOT::Reflex;
 using namespace std;
 using reco::parser::AnyMethodArgument;
 
@@ -20,8 +19,8 @@ static bool fatalErrorCondition(int iError)
    
 }
 namespace reco {
-  int checkMethod(const ROOT::Reflex::Member & mem, 
-                  const ROOT::Reflex::Type   & type,
+  int checkMethod(const Reflex::Member & mem, 
+                  const Reflex::Type   & type,
                   const std::vector<AnyMethodArgument> &args, std::vector<AnyMethodArgument> &fixuppedArgs) {
     int casts = 0;
     if (mem.IsConstructor()) return -1*parser::kIsConstructor;
@@ -43,7 +42,7 @@ namespace reco {
         << ", min #args = " << minArgs << ", max #args = " << maxArgs 
         << ", args = " << args.size() << std::endl;*/
     if (!args.empty()) {
-        Type t = mem.TypeOf();
+        Reflex::Type t = mem.TypeOf();
         std::vector<AnyMethodArgument> tmpFixups;
         for (size_t i = 0; i < args.size(); ++i) { 
             std::pair<AnyMethodArgument,int> fixup = boost::apply_visitor( reco::parser::AnyMethodArgumentFixup(t.FunctionParameterAt(i)), args[i] );
@@ -63,27 +62,27 @@ namespace reco {
     return casts;
   }
 
-  pair<Member, bool> findMethod(const Type & t, 
+  pair<Reflex::Member, bool> findMethod(const Reflex::Type & t, 
                                 const string & name, 
                                 const std::vector<AnyMethodArgument> &args, 
                                 std::vector<AnyMethodArgument> &fixuppedArgs,
                                 const char* iIterator, 
                                 int& oError) {
      oError = parser::kNameDoesNotExist;
-    Type type = t; 
+    Reflex::Type type = t; 
     if (! type)  
       throw parser::Exception(iIterator)
 	<< "No dictionary for class \"" << type.Name() << "\".";
     while(type.IsPointer() || type.IsTypedef()) type = type.ToType();
-    type = Type(type,0); // strip const, volatile, c++ ref, ..
+    type = Reflex::Type(type,0); // strip const, volatile, c++ ref, ..
 
-    pair<Member, bool> mem; mem.second = false;
+    pair<Reflex::Member, bool> mem; mem.second = false;
 
     // suitable members and number of integer->real casts required to get them
-    vector<pair<int,Member> > oks;
+    vector<pair<int,Reflex::Member> > oks;
 
     // first look in base scope
-    for(Member_Iterator m = type.FunctionMember_Begin(); m != type.FunctionMember_End(); ++m ) {
+    for(Reflex::Member_Iterator m = type.FunctionMember_Begin(); m != type.FunctionMember_End(); ++m ) {
       if(m->Name()==name) {
         int casts = checkMethod(*m, type, args, fixuppedArgs);
         if (casts > -1) {
@@ -121,7 +120,7 @@ namespace reco {
     // if nothing was found, look in parent scopes (without checking for cross-scope overloading, as it's not allowed)
     int baseError=parser::kNameDoesNotExist;
     if(! mem.first) {
-      for(Base_Iterator b = type.Base_Begin(); b != type.Base_End(); ++ b) {
+      for(Reflex::Base_Iterator b = type.Base_Begin(); b != type.Base_End(); ++ b) {
 	      if((mem = findMethod(b->ToType(), name, args, fixuppedArgs,iIterator,baseError)).first) break;
 	      if(fatalErrorCondition(baseError)) {
             oError = baseError;
@@ -135,7 +134,7 @@ namespace reco {
       // check for edm::Ref or edm::RefToBase or edm::Ptr
       // std::cout << "Mem.first is null, so looking for templates from type " << type.Name() << std::endl;
       if(type.IsTemplateInstance()) {
-         TypeTemplate templ = type.TemplateFamily();
+         Reflex::TypeTemplate templ = type.TemplateFamily();
          std::string name = templ.Name();
          if(name.compare("Ref") == 0 ||
             name.compare("RefToBase") == 0 ||

@@ -17,14 +17,12 @@
    </code>
 
    \author Stefano Argiro
-   \version $Id$
+   \version $Id: StringToEnumValue.h,v 1.1 2011/03/07 14:49:48 gpetrucc Exp $
    \date 04 Mar 2011
 */
 
 template <class MyType> 
 int StringToEnumValue(const std::string & enumName){
-  
-  using namespace ROOT::Reflex;
   
   Reflex::Type rflxType = Reflex::Type::ByTypeInfo(typeid(MyType));
   Reflex::Member member = rflxType.MemberByName(enumName);
@@ -41,7 +39,7 @@ int StringToEnumValue(const std::string & enumName){
     err << "Type "<<  member.TypeOf().Name() << " is not Enum";
     throw cms::Exception("ConversionError",err.str());
   }
-  return Object_Cast<int>(member.Get());
+  return Reflex::Object_Cast<int>(member.Get());
 
 } // 
 
@@ -70,7 +68,6 @@ int StringToEnumValue(const std::string & enumName){
 template <class MyType> 
 std::vector<int> StringToEnumValue(const std::vector<std::string> & enumNames){
   
-  using namespace ROOT::Reflex;
   using std::vector;
   using std::string;
 
