@@ -95,14 +95,9 @@ void Genexception::traceit() throw() {
   trace_ = oss.str();
 }
 
-namespace Capri {
-  namespace details {
-    static std::string from(" from ");
-  }
-}
 
 Capri::Error::Error(const std::string & level, const std::string & mess) throw() :
-  Genexception(level+details::from+mess) {}
+  Genexception(level+" from "+mess) {}
 
 
 GenTerminate::GenTerminate() throw() {}
