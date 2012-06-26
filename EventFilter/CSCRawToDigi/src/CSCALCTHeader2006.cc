@@ -1,8 +1,8 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader2006.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 
-static int activeFEBsForChamberType[11] = {0,7,7,0xf,7,0x7f, 0xf,0x3f,0xf,0x3f,0xf};
-static int nTBinsForChamberType[11] = {7,7,7,7,7,7,7,7,7,7,7};
+constexpr int activeFEBsForChamberType[11] = {0,7,7,0xf,7,0x7f, 0xf,0x3f,0xf,0x3f,0xf};
+constexpr int nTBinsForChamberType[11] = {7,7,7,7,7,7,7,7,7,7,7};
 
 
 CSCALCTHeader2006::CSCALCTHeader2006(int chamberType) { //constructor for digi->raw packing based on header2006
