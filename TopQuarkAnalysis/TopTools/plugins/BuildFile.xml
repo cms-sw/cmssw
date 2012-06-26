@@ -1,8 +1,11 @@
 <use   name="AnalysisDataFormats/TopObjects"/>
 <use   name="DataFormats/PatCandidates"/>
+<use   name="DataFormats/VertexReco"/>
 <use   name="TopQuarkAnalysis/TopTools"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Framework"/>
+<use   name="HLTrigger/HLTcore"/>
+<use   name="boost"/>
 <use   name="root"/>
 <library   file="*.cc" name="TopQuarkAnalysisTopToolsPlugins">
   <flags   EDM_PLUGIN="1"/>
