@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 18 14:23:07 CDT 2010
-// $Id: FWLiteESRecordWriterAnalyzer.cc,v 1.1 2010/06/22 21:51:16 chrjones Exp $
+// $Id: FWLiteESRecordWriterAnalyzer.cc,v 1.2 2010/06/23 14:58:36 chrjones Exp $
 //
 //
 
@@ -259,7 +259,7 @@ FWLiteESRecordWriterAnalyzer::update(const edm::EventSetup& iSetup)
                throw cms::Exception("UnknownESDataType")<<"The name '"<<itData->first<<"' is not associated with a known type held in the "<<it->first<<" Record.\n"
                "Please check spelling or load a module known to link with the package which declares that type.";
             }
-            if(ROOT::Reflex::Type::ByTypeInfo( tt.value() ) == ROOT::Reflex::Type()) {
+            if(Reflex::Type::ByTypeInfo( tt.value() ) == Reflex::Type()) {
                throw cms::Exception("NoDictionary")<<"The type '"<<itData->first<<"' can not be retrieved from the Record "<<it->first<<" and stored \n"
                "because no Reflex dictionary exists for the type.";
             }

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Dec  9 17:01:03 CST 2009
-// $Id: RecordWriter.cc,v 1.2 2010/02/19 20:59:02 chrjones Exp $
+// $Id: RecordWriter.cc,v 1.3 2010/02/19 21:13:46 chrjones Exp $
 //
 
 // system include files
@@ -82,16 +82,16 @@ RecordWriter::update(const void* iData, const std::type_info& iType, const char*
       //first request
       DataBuffer buffer;
       buffer.pBuffer_=iData;
-      ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(iType);
-      assert(t != ROOT::Reflex::Type());
+      Reflex::Type t = Reflex::Type::ByTypeInfo(iType);
+      assert(t != Reflex::Type());
       
-      std::string className = t.Name(ROOT::Reflex::SCOPED|ROOT::Reflex::FINAL);
+      std::string className = t.Name(Reflex::SCOPED|Reflex::FINAL);
       
       //now find actual type
-      ROOT::Reflex::Object o(t,const_cast<void*>(iData));
-      ROOT::Reflex::Type trueType = o.DynamicType();
+      Reflex::Object o(t,const_cast<void*>(iData));
+      Reflex::Type trueType = o.DynamicType();
       buffer.trueType_ = edm::TypeIDBase(trueType.TypeInfo());
-      std::string trueClassName = trueType.Name(ROOT::Reflex::SCOPED|ROOT::Reflex::FINAL);
+      std::string trueClassName = trueType.Name(Reflex::SCOPED|Reflex::FINAL);
       
       buffer.branch_ = tree_->Branch((fwlite::format_type_to_mangled(className)+"__"+label).c_str(),
                                      trueClassName.c_str(),
@@ -100,9 +100,9 @@ RecordWriter::update(const void* iData, const std::type_info& iType, const char*
       itFound = idToBuffer_.find(std::make_pair(edm::TypeIDBase(iType),
          std::string(iLabel)));
    }
-   ROOT::Reflex::Type t = ROOT::Reflex::Type::ByTypeInfo(iType);
-   ROOT::Reflex::Object o(t,const_cast<void*>(iData));
-   ROOT::Reflex::Type trueType = o.DynamicType();
+   Reflex::Type t = Reflex::Type::ByTypeInfo(iType);
+   Reflex::Object o(t,const_cast<void*>(iData));
+   Reflex::Type trueType = o.DynamicType();
    assert(edm::TypeIDBase(trueType.TypeInfo())==itFound->second.trueType_);
    itFound->second.branch_->SetAddress(&(itFound->second.pBuffer_));
    itFound->second.pBuffer_ = iData;
