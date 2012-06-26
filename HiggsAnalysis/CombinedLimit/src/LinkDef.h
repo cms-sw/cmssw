@@ -14,6 +14,7 @@
 #include "../interface/SequentialMinimizer.h"
 #include "../interface/ProcessNormalization.h"
 #include "../interface/RooSpline1D.h"
+#include "../interface/RooScaleLOSM.h"
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -60,5 +61,8 @@
 #pragma link C++ class cmsmath::SequentialMinimizer+;
 #pragma link C++ class ProcessNormalization+;
 #pragma link C++ class RooSpline1D+;
+#pragma link C++ class RooScaleLOSM+;
+#pragma link C++ class RooScaleHGamGamLOSM+;
+#pragma link C++ class RooScaleHGluGluLOSM+;
 
 #endif
