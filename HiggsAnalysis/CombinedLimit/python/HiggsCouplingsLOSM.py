@@ -20,7 +20,7 @@ class CvCfHiggsLOSM(SMLikeHiggsModel):
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         # --- Signal Strength as only POI --- 
-        self.modelBuilder.doVar("CV[1,0,2]")
+        self.modelBuilder.doVar("CV[1,0.0,1.5]")
         self.modelBuilder.doVar("CF[1,-2,2]")
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
@@ -48,8 +48,6 @@ class CvCfHiggsLOSM(SMLikeHiggsModel):
         CF = self.modelBuilder.out.function('CF')
         CV = self.modelBuilder.out.function('CV')
 
-        CF.setVal(0.0)
-
         RHggCvCf = ROOT.RooScaleHGamGamLOSM('CvCf_cgamma', 'LO SM Hgamgam scaling', mH, CF, CV, mb, CF)
         self.modelBuilder.out._import(RHggCvCf)
         #Rgluglu = ROOT.RooScaleHGluGluLOSM('Rgluglu', 'LO SM Hgluglu scaling', mH, CF, mb, CF)
@@ -66,11 +64,7 @@ class CvCfHiggsLOSM(SMLikeHiggsModel):
         self.modelBuilder.factory_('expr::CvCf_BRscal_hgg("@0*@0/@1", CvCf_cgamma, CvCf_Gscal_tot)')
         self.modelBuilder.factory_('expr::CvCf_BRscal_hf("@0*@0/@1", CF, CvCf_Gscal_tot)')
         self.modelBuilder.factory_('expr::CvCf_BRscal_hv("@0*@0/@1", CV, CvCf_Gscal_tot)')
-        ## XS*BR scales
         
-        mH.Print()
-        CV.Print()
-        CF.Print()
         self.modelBuilder.out.Print()
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "CvCf_XSBRscal_%s_%s" % (production,decay)

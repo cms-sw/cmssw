@@ -20,8 +20,8 @@ class CvCfHiggs(SMLikeHiggsModel):
     def doParametersOfInterest(self):
         """Create POI out of signal strength and MH"""
         # --- Signal Strength as only POI --- 
-        self.modelBuilder.doVar("CV[1,0,1.5]")
-        self.modelBuilder.doVar("CF[1,-1.5,1.5]")
+        self.modelBuilder.doVar("CV[1,0.0,1.5]")
+        self.modelBuilder.doVar("CF[1,-2,2]")
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
@@ -49,6 +49,8 @@ class CvCfHiggs(SMLikeHiggsModel):
         #      Based on Eq 1--4 of Nuclear Physics B 453 (1995)17-82
         #      ignoring b quark contributions
         # Taylor series around MH=125 including terms up to O(MH-125)^2 in Horner polynomial form
+#        CF = self.modelBuilder.out.function('CF')
+#        CF.setVal(0.0)
         self.modelBuilder.factory_('expr::CvCf_cgamma("\
         @0*@0*(1.524292518396496 + (0.005166702799572456 - 0.00003355715038472727*@2)*@2) + \
         @1*(@1*(0.07244520735564258 + (0.0008318872718720393 - 6.16997610275555e-6*@2)*@2) + \
@@ -65,7 +67,7 @@ class CvCfHiggs(SMLikeHiggsModel):
         self.modelBuilder.factory_("expr::CvCf_BRscal_hgg(\"@0*@0/@1\", CvCf_cgamma, CvCf_Gscal_tot)")
         self.modelBuilder.factory_("expr::CvCf_BRscal_hf(\"@0*@0/@1\", CF, CvCf_Gscal_tot)")
         self.modelBuilder.factory_("expr::CvCf_BRscal_hv(\"@0*@0/@1\", CV, CvCf_Gscal_tot)")
-        ## XS*BR scales
+
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "CvCf_XSBRscal_%s_%s" % (production,decay)
         if self.modelBuilder.out.function(name) == None: 
