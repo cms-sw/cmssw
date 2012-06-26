@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/HIon/V166 (CMSSW_5_2_5_HLT7)
+# /dev/CMSSW_5_2_1/HIon/V167 (CMSSW_5_2_6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V166')
+  tableName = cms.string('/dev/CMSSW_5_2_1/HIon/V167')
 )
 
 process.streams = cms.PSet( 
@@ -666,9 +666,7 @@ process.TrackerDigiGeometryESModule = cms.ESProducer( "TrackerDigiGeometryESModu
   alignmentsLabel = cms.string( "" )
 )
 process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
-  fromDDD = cms.bool( False ),
-  layerNumberPXB = cms.uint32( 16 ),
-  totalBlade = cms.uint32( 24 )
+  fromDDD = cms.bool( False )
 )
 process.TransientTrackBuilderESProducer = cms.ESProducer( "TransientTrackBuilderESProducer",
   ComponentName = cms.string( "TransientTrackBuilder" )
@@ -3064,10 +3062,6 @@ process.DQM = cms.Service( "DQM",
     collectorHost = cms.untracked.string( "" )
 )
 process.DQMStore = cms.Service( "DQMStore",
-    verboseQT = cms.untracked.int32( 0 ),
-    referenceFileName = cms.untracked.string( "" ),
-    verbose = cms.untracked.int32( 0 ),
-    collateHistograms = cms.untracked.bool( False )
 )
 process.DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
     processingMode = cms.untracked.string( "HLT" ),

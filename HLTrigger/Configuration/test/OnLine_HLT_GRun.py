@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_1/GRun/V166 (CMSSW_5_2_5_HLT7)
+# /dev/CMSSW_5_2_1/GRun/V167 (CMSSW_5_2_6)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V166')
+  tableName = cms.string('/dev/CMSSW_5_2_1/GRun/V167')
 )
 
 process.streams = cms.PSet( 
@@ -1728,9 +1728,7 @@ process.TrackerDigiGeometryESModule = cms.ESProducer( "TrackerDigiGeometryESModu
   alignmentsLabel = cms.string( "" )
 )
 process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
-  fromDDD = cms.bool( False ),
-  layerNumberPXB = cms.uint32( 16 ),
-  totalBlade = cms.uint32( 24 )
+  fromDDD = cms.bool( False )
 )
 process.TransientTrackBuilderESProducer = cms.ESProducer( "TransientTrackBuilderESProducer",
   ComponentName = cms.string( "TransientTrackBuilder" )
@@ -4126,10 +4124,6 @@ process.DQM = cms.Service( "DQM",
     collectorHost = cms.untracked.string( "" )
 )
 process.DQMStore = cms.Service( "DQMStore",
-    verboseQT = cms.untracked.int32( 0 ),
-    referenceFileName = cms.untracked.string( "" ),
-    verbose = cms.untracked.int32( 0 ),
-    collateHistograms = cms.untracked.bool( False )
 )
 process.DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
     processingMode = cms.untracked.string( "HLT" ),
@@ -42126,6 +42120,19 @@ process.source = cms.Source( "PoolSource",
 if 'hltHfreco' in process.__dict__:
     process.hltHfreco.setNoiseFlags = cms.bool( True )
 
+# override the L1 menu from an Xml file
+process.l1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
+  TriggerMenuLuminosity = cms.string('startup'),
+  DefXmlFile = cms.string('L1Menu_Collisions2012_v2_L1T_Scales_20101224_Imp0_0x102a.xml'),
+  VmeXmlFile = cms.string('')
+)
+process.L1GtTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
+  recordName = cms.string('L1GtTriggerMenuRcd'),
+  iovIsRunNotTime = cms.bool(True),
+  firstValid = cms.vuint32(1)
+)
+process.es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml') 
+
 # customise the HLT menu for running on MC
 from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
 process = customizeHLTforMC(process)
@@ -42192,16 +42199,17 @@ if 'GlobalTag' in process.__dict__:
     from Configuration.AlCa.autoCond import autoCond
     process.GlobalTag.globaltag = autoCond['startup'].split(',')[0]
 
-# override the L1 menu
-if 'GlobalTag' in process.__dict__:
-    process.GlobalTag.toGet.append(
-        cms.PSet(
-            record  = cms.string( 'L1GtTriggerMenuRcd' ),
-            tag     = cms.string( 'L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc' ),
-            label   = cms.untracked.string( '' ),
-            connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_L1T' )
-        )
-    )
+# customize the L1 emulator to run customiseL1GtEmulatorFromRaw with HLT to switchToSimGtDigis
+process.load( 'Configuration.StandardSequences.RawToDigi_cff' )
+process.load( 'Configuration.StandardSequences.SimL1Emulator_cff' )
+import L1Trigger.Configuration.L1Trigger_custom
+process = L1Trigger.Configuration.L1Trigger_custom.customiseL1GtEmulatorFromRaw( process )
+process = L1Trigger.Configuration.L1Trigger_custom.customiseResetPrescalesAndMasks( process )
+
+# customize the HLT to use the emulated results
+import HLTrigger.Configuration.customizeHLTforL1Emulator
+process = HLTrigger.Configuration.customizeHLTforL1Emulator.switchToL1Emulator( process )
+process = HLTrigger.Configuration.customizeHLTforL1Emulator.switchToSimGtDigis( process )
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
