@@ -300,19 +300,19 @@ if 'hltHfreco' in %(dict)s:
       self.loadAdditionalConditions('load 5.2.x JECs',
         {
           'record'  : 'JetCorrectionsRecord',
-          'tag'     : 'JetCorrectorParametersCollection_Jec12_V8_HLT_AK5CaloHLT',
+          'tag'     : 'JetCorrectorParametersCollection_AK5Calo_2012_V8_hlt_mc',
           'label'   : 'AK5CaloHLT',
-          'connect' : 'sqlite_file:/afs/fnal.gov/files/home/room2/apana/public/HLT/Jec12_V8_HLT.db'
+          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
         }, {
           'record'  : 'JetCorrectionsRecord',
-          'tag'     : 'JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFHLT',
+          'tag'     : 'JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc',
           'label'   : 'AK5PFHLT',
-          'connect' : 'sqlite_file:/afs/fnal.gov/files/home/room2/apana/public/HLT/Jec12_V8_HLT.db'
+          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
         }, {
           'record'  : 'JetCorrectionsRecord',
-          'tag'     : 'JetCorrectorParametersCollection_Jec12_V8_HLT_AK5PFchsHLT',
+          'tag'     : 'JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc',
           'label'   : 'AK5PFchsHLT',
-          'connect' : 'sqlite_file:/afs/fnal.gov/files/home/room2/apana/public/HLT/Jec12_V8_HLT.db'
+          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
         }
       )
 
