@@ -156,7 +156,7 @@ int main()
         IC::smear(ic, 0.02, ic_smeared);
 
         IC ic_diff;
-        IC::multiply(ic_smeared, -1, ic_smeared);
+        IC::multiply(ic_smeared, -1, ic_smeared, all);
         IC::add(ic_smeared, ic, ic_diff);
         TH1F * h_diff = new TH1F("h_diff", "h_diff", 150, -0.5, 0.5);
         IC::constantDistribution(ic_diff, h_diff, isEndcap);
