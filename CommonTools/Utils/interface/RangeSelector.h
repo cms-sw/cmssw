@@ -4,7 +4,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RangeSelector.h,v 1.3 2007/06/18 18:33:54 llista Exp $
+ * $Id: RangeSelector.h,v 1.1 2009/02/24 14:40:26 llista Exp $
  */
 #include <string>
 
