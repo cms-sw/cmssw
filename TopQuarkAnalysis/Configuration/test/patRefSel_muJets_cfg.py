@@ -12,7 +12,6 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('standard')
 options.register('runOnMC', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "decide if run on MC or data")
-options.register('maxEvents', -1, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "maximum number of input events")
 
 process = cms.Process( 'PAT' )
 
@@ -130,7 +129,7 @@ useRelVals = True # if 'False', "inputFiles" is used
 inputFiles = [] # overwritten, if "useRelVals" is 'True'
 
 # maximum number of events
-maxEvents = options.maxEvents
+maxEvents = -1 # reduce for testing
 
 ### Conditions
 
@@ -433,6 +432,8 @@ process.out.outputCommands.append( 'keep *_tightPatJets*_*_*' )
 ### Selection configuration
 ###
 
+### Muons
+
 getattr( process, 'patMuons' + postfix ).usePV      = muonsUsePV
 getattr( process, 'patMuons' + postfix ).embedTrack = muonEmbedTrack
 
@@ -505,10 +506,10 @@ process.eidMVASequence = cms.Sequence(
 
 patAddOnSequence = cms.Sequence(
   getattr( process, 'intermediatePatMuons' + postfix )
-* getattr( process, 'goodPatMuons' + postfix )
-* getattr( process, 'veryLoosePatJets' + postfix )
-* getattr( process, 'loosePatJets' + postfix )
-* getattr( process, 'tightPatJets' + postfix )
+* getattr( process, 'goodPatMuons'         + postfix )
+* getattr( process, 'veryLoosePatJets'     + postfix )
+* getattr( process, 'loosePatJets'         + postfix )
+* getattr( process, 'tightPatJets'         + postfix )
 )
 setattr( process, 'patAddOnSequence' + postfix, patAddOnSequence )
 
