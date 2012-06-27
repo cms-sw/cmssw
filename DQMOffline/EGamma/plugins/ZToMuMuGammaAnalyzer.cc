@@ -10,7 +10,7 @@
  **
  **
  **  $Id: ZToMuMuGammaAnalyzer
- **  $Date: 2012/02/07 13:11:00 $
+ **  $Date: 2012/06/27 11:54:00 $
  **  authors:
  **   Nancy Marinelli, U. of Notre Dame, US
  **   Nathan Kellams, U. of Notre Dame, US
@@ -166,8 +166,8 @@ void ZToMuMuGammaAnalyzer::beginJob()
 
     dbe_->setCurrentFolder("Egamma/PhotonAnalyzer/ZToMuMuGamma");
     
-    h1_mumuInvMass_      = dbe_->book1D("mumuInvMass","Two muon invariant mass: M (GeV)",etBin/2,etMin,etMax/2);
-    h1_mumuGammaInvMass_ = dbe_->book1D("mumuGammaInvMass","Two-muon plus gamma invariant mass: M (GeV)",etBin/2,etMin,etMax/2);
+    h1_mumuInvMass_      = dbe_->book1D("mumuInvMass","Two muon invariant mass: M (GeV)",etBin,etMin,etMax);
+    h1_mumuGammaInvMass_ = dbe_->book1D("mumuGammaInvMass","Two-muon plus gamma invariant mass: M (GeV)",etBin,etMin,etMax);
 
     ////////////////START OF BOOKING FOR PHOTON-RELATED HISTOGRAMS////////////////
 
