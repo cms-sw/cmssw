@@ -25,6 +25,7 @@
 #include "TPaveText.h"
 #include "TPaveStats.h"
 #include "TF1.h"
+
 // This line works only if we have a CMSSW environment...
 #include "Alignment/OfflineValidation/interface/TkOffTreeVariables.h"
 
@@ -430,7 +431,6 @@ void  PlotAlignmentValidation::plotDMR(const std::string variable, Int_t minHits
 
    for(std::vector<TkOfflineVariables*>::iterator it = sourceList.begin();
        it != sourceList.end(); ++it){
-      
      //while ( tree ){
      plotVar=variable;
      TString subdet = "entries>=";
@@ -465,7 +465,7 @@ void  PlotAlignmentValidation::plotDMR(const std::string variable, Int_t minHits
 	 h->SetLineColor( (*it)->getLineColor() );
 	 h->SetLineStyle( (*it)->getLineStyle() );
 	   //h->SetMarkerStyle(20+file_Counter);
-      
+
 	 //draw options
 	 
 	 if (maxY<h->GetMaximum()){
@@ -483,7 +483,7 @@ void  PlotAlignmentValidation::plotDMR(const std::string variable, Int_t minHits
 	   xmax=h->GetXaxis()->GetXmax();
 	  
 	 }else if (histo_Counter!=1 &&  h->GetEntries()>0)hstack->Add(h);
-     
+
 	 char legend [50]="";
 	 std::string legEntry = (*it)->getName();
 	 if ( (variable=="medianX"||variable =="meanX") && useFit_)
@@ -497,6 +497,7 @@ void  PlotAlignmentValidation::plotDMR(const std::string variable, Int_t minHits
 	   std::cerr<< "histogram did not exist!";
        }
      }
+       
      //     tree= (TTree*)treeList.After( tree );
      //     file_Counter++;
      histo_Counter++;
@@ -534,6 +535,7 @@ void  PlotAlignmentValidation::plotDMR(const std::string variable, Int_t minHits
      //c->Close();
     
    }
+
    delete hstack;
    hstack=0; 
   
@@ -594,7 +596,7 @@ TH1* PlotAlignmentValidation::addHists(const char *selection, const TString &res
 
   // second loop on tree:
   // for each selected entry get the hist from the file and merge
-  TkOffTreeVariables *treeMem = 0; // ROOT will initilise
+  TkOffTreeVariables *treeMem = 0; // ROOT will initialise
   tree->SetBranchAddress("TkOffTreeVariables", &treeMem);
   for (Long64_t i = 0; i < nentries; i++){
     if (i < *iterEnt - 0.1             // smaller index (with tolerance): skip
@@ -635,10 +637,10 @@ TH1* PlotAlignmentValidation::addHists(const char *selection, const TString &res
     if (!h) { // first hist: clone, but rename keeping only first part of name
       TString name(newHist->GetName());
       Ssiz_t pos_ = 0;
-      for (UInt_t i = 0; i < 3; ++i) pos_ = name.Index("_", pos_+1);
+      for (UInt_t i2 = 0; i2 < 3; ++i2) pos_ = name.Index("_", pos_+1);
       name = name(0, pos_); // only up to three '_'
 	h = static_cast<TH1*>(newHist->Clone("summed_"+name));
-	h->SetTitle(Form("%s: %d modules", selection, nSel));
+	h->SetTitle(Form("%s: %lld modules", selection, nSel));
     } else { // otherwise just add
       h->Add(newHist);
     }
