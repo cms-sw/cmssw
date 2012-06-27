@@ -453,7 +453,8 @@ void TauolaInterface::init( const edm::EventSetup& es )
 //   Tauola::setTauLifetime( lifetime );
 
    fPDGs.push_back( Tauola::getDecayingParticle() );
-         
+
+   Tauola::setRandomGenerator(&gen::TauolappInterface_RandGetter);         
    Tauola::initialize();
 
    Tauola::spin_correlation.setAll(fPolarization);// Tauola switches this on during Tauola::initialise(); so we add this here to keep it on/off
@@ -945,4 +946,10 @@ int TauolaInterface::selectHadronic()
    return 0;
 
 }
+
+double gen::TauolappInterface_RandGetter(){
+  TauolaInterface* instance = TauolaInterface::getInstance();
+  return  (double)instance->flat();
+}
+
 /* */

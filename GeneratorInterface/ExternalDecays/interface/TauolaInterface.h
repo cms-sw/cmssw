@@ -79,7 +79,7 @@ namespace gen {
       private: 
       
       friend void gen::ranmar_( float *rvec, int *lenv );
-      
+      friend double gen::TauolappInterface_RandGetter();      
       // ctor
       TauolaInterface();
       
@@ -109,6 +109,8 @@ namespace gen {
       static TauolaInterface*                  fInstance;
        
    };
+
+   double TauolappInterface_RandGetter();
 
 /* */
 
