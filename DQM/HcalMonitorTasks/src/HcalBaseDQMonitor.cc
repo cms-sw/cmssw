@@ -7,8 +7,8 @@
 /*
  * \file HcalBaseDQMonitor.cc
  *
- * $Date: 2010/11/24 18:55:12 $
- * $Revision: 1.6 $
+ * $Date: 2012/06/21 13:40:22 $
+ * $Revision: 1.7 $
  * \author J Temple
  *
  * Base class for all Hcal DQM analyzers
@@ -36,6 +36,7 @@ HcalBaseDQMonitor::HcalBaseDQMonitor(const edm::ParameterSet& ps)
   NLumiBlocks_           = ps.getUntrackedParameter<int>("NLumiBlocks",4000);
   makeDiagnostics_       = ps.getUntrackedParameter<bool>("makeDiagnostics",false);
   
+  setupDone_ = false;
   meIevt_=0;
   meLevt_=0;
   meTevtHist_=0;
@@ -126,6 +127,9 @@ void HcalBaseDQMonitor::cleanup(void)
 
 void HcalBaseDQMonitor::setup(void)
 {
+  if (setupDone_)
+    return;
+  setupDone_ = true;
   if (debug_>3) std::cout <<"<HcalBaseDQMonitor> setup in progress"<<std::endl;
   dbe_->setCurrentFolder(subdir_);
   meIevt_ = dbe_->bookInt("EventsProcessed");

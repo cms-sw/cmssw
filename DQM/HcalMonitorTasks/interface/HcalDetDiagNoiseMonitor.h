@@ -24,8 +24,8 @@ class HcalLogicalMapGenerator;
 
 /** \class HcalDetDiagNoiseMonitor
   *  
-  * $Date: 2010/03/25 11:00:57 $
-  * $Revision: 1.5 $
+  * $Date: 2011/02/23 14:16:00 $
+  * $Revision: 1.6 $
   * \author D. Vishnevskiy
   */
 
@@ -58,6 +58,7 @@ private:
   int dataset_seq_number;
  
   bool UseDB;
+  bool setupDone_;
   
   double  HPDthresholdHi;
   double  HPDthresholdLo;

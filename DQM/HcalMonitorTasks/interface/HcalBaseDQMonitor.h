@@ -27,7 +27,7 @@ public:
   // Constructor
   HcalBaseDQMonitor(const edm::ParameterSet& ps);
   // Constructor with no arguments
-  HcalBaseDQMonitor(){};
+  HcalBaseDQMonitor():setupDone_(false){};
 
   // Destructor
   ~HcalBaseDQMonitor();
@@ -117,6 +117,8 @@ protected:
   std::map<unsigned int, int> KnownBadCells_;
 
   int badChannelStatusMask_;
+  private:
+  bool setupDone_;
 };// class HcalBaseDQMonitor : public edm::EDAnalyzer
 
 

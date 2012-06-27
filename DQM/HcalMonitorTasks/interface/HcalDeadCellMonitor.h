@@ -25,8 +25,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2012/04/26 03:04:50 $
-  * $Revision: 1.59 $
+  * $Date: 2012/06/21 13:40:22 $
+  * $Revision: 1.60 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -46,7 +46,7 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
   void endJob();
   void cleanup(); // overrides base class function
   void reset();
-  
+
   void processEvent(const HBHERecHitCollection& hbHits,
                     const HORecHitCollection& hoHits,
                     const HFRecHitCollection& hfHits,
@@ -107,7 +107,7 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
   unsigned int recentoccupancy_digi[85][72][4]; // tests that cells haven't gone missing for long periods
   unsigned int recentoccupancy_rechit[85][72][4]; // tests that cells haven't dropped below threshold for long periods
   unsigned int occupancy_RBX[156];
-  
+
   int deadevt_; // running count of events processed since last dead cell check
   int is_RBX_loss_;
   int rbxlost[156];
@@ -123,6 +123,7 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
 
   bool excludeHORing2_;
   bool excludeHO1P02_;
+  bool setupDone_;
   int NumBadHO1P02;
 };
 

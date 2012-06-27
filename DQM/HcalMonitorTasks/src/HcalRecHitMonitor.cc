@@ -55,7 +55,7 @@ HcalRecHitMonitor::HcalRecHitMonitor(const edm::ParameterSet& ps)
   HFETThreshold_     = ps.getUntrackedParameter<double>("HF_ETThreshold",ETThreshold_);
 
   timediffThresh_    = ps.getUntrackedParameter<double>("collisiontimediffThresh",10.);
-
+  setupDone_         = false;
 } //constructor
 
 HcalRecHitMonitor::~HcalRecHitMonitor()
@@ -68,6 +68,9 @@ HcalRecHitMonitor::~HcalRecHitMonitor()
 
 void HcalRecHitMonitor::setup()
 {
+  if (setupDone_)
+    return;
+  setupDone_=true;
   HcalBaseDQMonitor::setup();
 
 

@@ -28,7 +28,8 @@ public:
 private:
    std::vector<std::string> triggers_;
    int period_;
-
+   bool setupDone_;
+  
 private:
    int mTrianglePeakTS;
    double mE2E10MinEnergy;

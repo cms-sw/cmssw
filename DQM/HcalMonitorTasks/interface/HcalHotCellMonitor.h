@@ -12,8 +12,8 @@
 
 /** \class HcalHotCellMonitor
   *
-  * $Date: 2010/11/10 20:00:33 $
-  * $Revision: 1.43 $
+  * $Date: 2010/11/17 19:17:30 $
+  * $Revision: 1.44 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -84,7 +84,8 @@ class HcalHotCellMonitor: public HcalBaseDQMonitor {
   bool test_energy_;
   bool test_et_;
   bool test_persistent_;
-
+  bool setupDone_;
+  
   double energyThreshold_, HBenergyThreshold_, HEenergyThreshold_, HOenergyThreshold_, HFenergyThreshold_;
   double ETThreshold_, HBETThreshold_, HEETThreshold_, HOETThreshold_, HFETThreshold_;
   double persistentThreshold_, HBpersistentThreshold_, HEpersistentThreshold_, HOpersistentThreshold_, HFpersistentThreshold_;

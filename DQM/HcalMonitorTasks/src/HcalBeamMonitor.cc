@@ -67,6 +67,7 @@ HcalBeamMonitor::HcalBeamMonitor(const edm::ParameterSet& ps):
   hotrate_        = ps.getUntrackedParameter<double>("hotrate",0.25);
   minBadCells_    = ps.getUntrackedParameter<int>("minBadCells",10);
   Overwrite_      = ps.getUntrackedParameter<bool>("Overwrite",false);
+  setupDone_      = false;
 }
 
 
@@ -150,6 +151,9 @@ void HcalBeamMonitor::cleanup()
 
 void HcalBeamMonitor::setup()
 {
+  if (setupDone_)
+    return;
+  setupDone_ = true;
    if (debug_>0) std::cout <<"<HcalBeamMonitor::setup> Setup in progress..."<<std::endl;
   HcalBaseDQMonitor::setup();
   if (!dbe_) return;

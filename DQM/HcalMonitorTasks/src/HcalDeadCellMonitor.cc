@@ -60,6 +60,7 @@ HcalDeadCellMonitor::HcalDeadCellMonitor(const edm::ParameterSet& ps)
 
   HcalLogicalMapGenerator gen;
   logicalMap_=new HcalLogicalMap(gen.createMap());
+  setupDone_=false;
 } //constructor
 
 HcalDeadCellMonitor::~HcalDeadCellMonitor()
@@ -72,6 +73,9 @@ HcalDeadCellMonitor::~HcalDeadCellMonitor()
 
 void HcalDeadCellMonitor::setup()
 {
+  if (setupDone_)
+    return;
+  setupDone_=true;
   HcalBaseDQMonitor::setup();
   zeroCounters(1); // make sure arrays are set up
   if (debug_>0)

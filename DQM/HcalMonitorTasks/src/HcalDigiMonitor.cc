@@ -86,6 +86,7 @@ HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps)
   HFtiming_etaProfile=0;
   HFP_shape=0;
   HFM_shape=0;
+  setupDone_=false;
 }
 
 // destructor
@@ -149,6 +150,9 @@ void HcalDigiMonitor::endJob()
 
 void HcalDigiMonitor::setup()
 {
+  if (setupDone_)
+    return;
+  setupDone_=true;
   // Call base class setup
   HcalBaseDQMonitor::setup();
   if (!dbe_) return;

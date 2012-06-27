@@ -61,6 +61,7 @@ HcalNoiseMonitor::HcalNoiseMonitor(const edm::ParameterSet& ps)
    mMaxHPDNoOtherHitCount = ps.getUntrackedParameter<int>("MaxHPDNoOtherHitCount");
    mMaxADCZeros           = ps.getUntrackedParameter<int>("MaxADCZeros");
    mTotalZeroMinEnergy    = ps.getUntrackedParameter<double>("TotalZeroMinEnergy");
+   setupDone_ = false;
 }
 
 HcalNoiseMonitor::~HcalNoiseMonitor() {}
@@ -97,6 +98,9 @@ void HcalNoiseMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
 void HcalNoiseMonitor::setup()
 {
+   if (setupDone_)
+     return;
+   setupDone_ = true;
    HcalBaseDQMonitor::setup();
 
    if(debug_ > 1)

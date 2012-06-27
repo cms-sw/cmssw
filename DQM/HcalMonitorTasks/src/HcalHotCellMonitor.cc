@@ -97,7 +97,7 @@ HcalHotCellMonitor::HcalHotCellMonitor(const edm::ParameterSet& ps)
   HFNeighborParams_.minNeighborEnergy    = ps.getUntrackedParameter<double>("HF_neighbor_minNeighborEnergy",0.);
   HFNeighborParams_.maxEnergy            = ps.getUntrackedParameter<double>("HF_neighbor_maxEnergy",100);
   HFNeighborParams_.HotEnergyFrac        = ps.getUntrackedParameter<double>("HF_neighbor_HotEnergyFrac",0.01);
-
+  setupDone_=false;
 } //constructor
 
 HcalHotCellMonitor::~HcalHotCellMonitor()
@@ -109,6 +109,9 @@ HcalHotCellMonitor::~HcalHotCellMonitor()
 
 void HcalHotCellMonitor::setup()
 {
+  if (setupDone_)
+    return;
+  setupDone_ = true;
   // Call base class setup
   HcalBaseDQMonitor::setup();
 

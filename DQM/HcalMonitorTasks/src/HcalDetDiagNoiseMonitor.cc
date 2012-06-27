@@ -196,7 +196,7 @@ HcalDetDiagNoiseMonitor::HcalDetDiagNoiseMonitor(const edm::ParameterSet& ps)
   L1ADataLabel_  = ps.getUntrackedParameter<edm::InputTag>("gtLabel");
   
   RMSummary = 0;
-
+  setupDone_ = false;
 }
 
 void HcalDetDiagNoiseMonitor::cleanup(){
@@ -223,6 +223,9 @@ void HcalDetDiagNoiseMonitor::beginRun(const edm::Run& run, const edm::EventSetu
 } 
 
 void HcalDetDiagNoiseMonitor::setup(){
+  if (setupDone_)
+    return;
+  setupDone_ = true;
   // Call base class setup
   HcalBaseDQMonitor::setup();
   if (!dbe_) return;
