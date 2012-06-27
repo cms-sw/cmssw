@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.28 2011/10/26 14:00:29 xiezhen Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.30 2012/03/29 16:24:02 sunanda Exp $
 //
 //
 
@@ -21,6 +21,9 @@
 
 #include "HcalHardcodeCalibrations.h"
 
+const int HcalDetId::maxDepthHB;
+const int HcalDetId::maxDepthHE;
+
 // class decleration
 //
 
@@ -34,7 +37,7 @@ std::vector<HcalGenericDetId> allCells (HcalTopology::Mode mode) {
     HcalTopology hcaltopology(mode);
     for (int eta = -50; eta < 50; eta++) {
       for (int phi = 0; phi < 100; phi++) {
-	for (int depth = 1; depth < HcalDetId::maxDepthHB; depth++) {
+	for (int depth = 1; depth < HcalDetId::maxDepthHB + HcalDetId::maxDepthHE; depth++) {
 	  for (int det = 1; det < 5; det++) {
 	    HcalDetId cell ((HcalSubdetector) det, eta, phi, depth);
 	    if (hcaltopology.valid(cell)) result.push_back (cell);
