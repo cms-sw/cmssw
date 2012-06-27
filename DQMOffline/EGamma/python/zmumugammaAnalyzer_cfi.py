@@ -55,21 +55,20 @@ zmumugammaAnalysis = cms.EDAnalyzer("ZToMuMuGammaAnalyzer",
                                 # 1 provides basic output
                                 # 2 provides output of the fill step + 1
                                 # 3 provides output of the store step + 2
-                                
 
-    useTriggerFiltering = cms.bool(False),                             
-
-
+    useTriggerFiltering = cms.bool(False),
+    splitHistosEBEE = cms.bool(False),
+	use2DHistos = cms.bool(False),
 
     ##### Histogram Ranges and Bins                               
 
-    eBin = cms.int32(500),
+    eBin = cms.int32(150),
     eMin = cms.double(0.0),
-    eMax = cms.double(500.0),
+    eMax = cms.double(150.0),
                                 
-    etBin = cms.int32(500),
+    etBin = cms.int32(150),
     etMin = cms.double(0.0),
-    etMax = cms.double(500.0),
+    etMax = cms.double(150.0),
 
     sumBin = cms.int32(230),
     sumMin = cms.double(-3.0),
@@ -83,16 +82,16 @@ zmumugammaAnalysis = cms.EDAnalyzer("ZToMuMuGammaAnalyzer",
     phiMin = cms.double(-3.14),
     phiMax = cms.double(3.14),
     
-    r9Bin = cms.int32(120),
+    r9Bin = cms.int32(110),
     r9Min = cms.double(0.0),
-    r9Max = cms.double(1.2),
+    r9Max = cms.double(1.1),
 
     hOverEBin = cms.int32(200),
     hOverEMin = cms.double(0),                               
     hOverEMax = cms.double(0.5), 
 
-    numberBin = cms.int32(10),
-    numberMin = cms.double(0),                               
+    numberBin = cms.int32(9),
+    numberMin = cms.double(1),                               
     numberMax = cms.double(10), 
 
     xBin = cms.int32(300),
