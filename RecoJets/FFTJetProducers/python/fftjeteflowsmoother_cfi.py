@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoJets.FFTJetProducers.fftjetcommon_cfi import *
 
 # FFTJet pattern recognition module configuration
-fftjet_eflow_smoother = cms.EDProducer(
+fftjetEflowSmoother = cms.EDProducer(
     "FFTJetEFlowSmoother",
     #
     # The main eta and phi scale factors for the pattern recognition kernel

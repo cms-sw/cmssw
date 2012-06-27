@@ -5,7 +5,7 @@
 #
 import FWCore.ParameterSet.Config as cms
 
-fftjet_image_recorder = cms.EDAnalyzer(
+fftjetImageRecorder = cms.EDAnalyzer(
     "FFTJetImageRecorder",
     #
     # Label for the histograms produced by FFTJetEFlowSmoother

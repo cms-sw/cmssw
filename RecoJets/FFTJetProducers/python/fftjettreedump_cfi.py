@@ -22,7 +22,7 @@ if (sys.argv[0] == "cmsRun"):
 trees_basename = "clustree"
 
 # Configure the FFTJet tree dumper module
-fftjet_tree_dumper = cms.EDAnalyzer(
+fftjetTreeDumper = cms.EDAnalyzer(
     "FFTJetTreeDump",
     #
     # Label for the input clustering tree (either sparse or dense)

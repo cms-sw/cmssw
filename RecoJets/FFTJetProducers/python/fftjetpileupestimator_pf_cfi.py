@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 import RecoJets.FFTJetProducers.mixed_calib_pf_ttbar_result as calib_pf
 
 # FFTJet puleup estimator module configuration
-fftjet_pileup_estimator_pf = cms.EDProducer(
+fftjetPileupEstimatorPf = cms.EDProducer(
     "FFTJetPileupEstimator",
     #
     # Label for the input info

@@ -6,7 +6,7 @@ from RecoJets.FFTJetProducers.fftjetcommon_cfi import *
 fftjet_default_recombination_scale = 0.5
 
 # FFTJet jet producer configuration
-fftjet_jet_maker = cms.EDProducer(
+fftjetJetMaker = cms.EDProducer(
     "FFTJetProducer",
     #
     # Label for the input clustering tree (must be sparse)

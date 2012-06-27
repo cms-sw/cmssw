@@ -21,7 +21,7 @@ fftjet_pileup_grid_calo = cms.PSet(
     title = cms.untracked.string("FFTJet Pileup Grid")
 )
 
-fftjet_pileup_processor_calo = cms.EDProducer(
+fftjetPileupProcessorCalo = cms.EDProducer(
     "FFTJetPileupProcessor",
     #
     # The main eta and phi scale factors for the filters

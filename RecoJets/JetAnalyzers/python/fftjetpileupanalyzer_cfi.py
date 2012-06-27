@@ -8,7 +8,7 @@
 import math
 import FWCore.ParameterSet.Config as cms
 
-fftjet_pileup_analyzer = cms.EDAnalyzer(
+fftjetPileupAnalyzer = cms.EDAnalyzer(
     "FFTJetPileupAnalyzer",
     #
     # Label for the histograms produced by FFTJetPileupProcessor

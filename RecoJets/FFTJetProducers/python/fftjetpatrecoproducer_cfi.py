@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoJets.FFTJetProducers.fftjetcommon_cfi import *
 
 # FFTJet pattern recognition module configuration
-fftjet_patreco_producer = cms.EDProducer(
+fftjetPatrecoProducer = cms.EDProducer(
     "FFTJetPatRecoProducer",
     #
     # The main eta and phi scale factors for the pattern recognition kernel

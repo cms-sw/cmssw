@@ -9,7 +9,7 @@ dummy_functor = cms.PSet(
 )
 
 # FFTJet puleup estimator module configuration
-fftjet_pileup_estimator_pf_uncal = cms.EDProducer(
+fftjetPileupEstimatorPf_uncal = cms.EDProducer(
     "FFTJetPileupEstimator",
     #
     # Label for the input info

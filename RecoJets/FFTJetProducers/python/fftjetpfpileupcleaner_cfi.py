@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoJets.FFTJetProducers.fftjetcommon_cfi import *
 
-fftjet_pf_pileup_cleaner = cms.EDProducer(
+fftjetPfPileupCleaner = cms.EDProducer(
     "FFTJetPFPileupCleaner",
     #
     # Label for the input collection of PFCandidate objects

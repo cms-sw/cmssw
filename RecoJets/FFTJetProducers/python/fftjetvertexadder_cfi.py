@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-fftjet_vertex_adder = cms.EDProducer(
+fftjetVertexAdder = cms.EDProducer(
     "FFTJetVertexAdder",
     #
     # Label for the beam spot info
