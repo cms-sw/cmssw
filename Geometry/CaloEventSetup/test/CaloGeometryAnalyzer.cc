@@ -493,6 +493,7 @@ CaloGeometryAnalyzer::ctrcor( const DetId&            did     ,
       oldCtr>>oldiy>>oldst ;
       oldCor>>oldip>>oldst ;
    }
+   int depth = 0;
    if( cgid.isHcal() ) 
    {
       const HcalDetId hcid ( did ) ;
@@ -509,6 +510,7 @@ CaloGeometryAnalyzer::ctrcor( const DetId&            did     ,
       int  oldde ;
       oldCtr>>oldde ;
       oldCor>>oldde ;
+      depth = de; 
    }
    if( cgid.isZDC() ) 
    {
@@ -557,9 +559,9 @@ CaloGeometryAnalyzer::ctrcor( const DetId&            did     ,
    h_diffs[histi][1]->Fill( dy ) ;
    h_diffs[histi][2]->Fill( dz ) ;
 
-   checkDiff( oldie, oldip, 0, kCenter, kX, dx ) ;
-   checkDiff( oldie, oldip, 0, kCenter, kY, dy ) ;
-   checkDiff( oldie, oldip, 0, kCenter, kZ, dz ) ;
+   checkDiff( oldie, oldip, depth, kCenter, kX, dx ) ;
+   checkDiff( oldie, oldip, depth, kCenter, kY, dy ) ;
+   checkDiff( oldie, oldip, depth, kCenter, kZ, dz ) ;
 
    fCtr << std::fixed << std::setw(12) << std::setprecision(4)
 	<< x
