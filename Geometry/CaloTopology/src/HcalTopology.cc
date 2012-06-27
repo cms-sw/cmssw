@@ -4,6 +4,10 @@
 #include <cassert>
 #include <algorithm>
 #include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+
+const int HcalDetId::maxDepthHB;
+const int HcalDetId::maxDepthHE;
 
 static const int IPHI_MAX=72;
 
