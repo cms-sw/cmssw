@@ -55,6 +55,24 @@ process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("RecoMuon.TrackingTools.MuonServiceProxy_cff")
 
+########### standard includes ##############################
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
+
+########### DATABASE conditions ############################
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
+
+.oO[dbLoad]Oo.
+
+.oO[APE]Oo.
+
+########### TRACK REFITTER #################################
+process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
+process.TrackRefitter.src = 'ALCARECOTkAlZMuMu'
+process.TrackRefitter.TrajectoryInEvent = True
+process.TrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
 
 ###### MuSclFit SETTINGS  ##############################################
 
@@ -79,7 +97,7 @@ process.looper = cms.Looper(
 
     # Choose the kind of muons you want to run on
     # -------------------------------------------
-    MuonLabel = cms.InputTag("ALCARECOTkAlZMuMu"),
+    MuonLabel = cms.InputTag("TrackRefitter"),
 
 
     #MuonType = cms.int32(11),
@@ -215,6 +233,11 @@ process.looper = cms.Looper(
 ###### FINAL SEQUENCE ##############################################
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(.oO[nEvents]Oo.))
+
+process.p = cms.Path(
+    process.offlineBeamSpot*process.TrackRefitter
+    )
+    
 """
 
 
