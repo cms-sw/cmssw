@@ -64,5 +64,7 @@
 #pragma link C++ class RooScaleLOSM+;
 #pragma link C++ class RooScaleHGamGamLOSM+;
 #pragma link C++ class RooScaleHGluGluLOSM+;
+#pragma link C++ class RooScaleHGamGamLOSMPlusX+;
+#pragma link C++ class RooScaleHGluGluLOSMPlusX+;
 
 #endif

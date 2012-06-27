@@ -5,7 +5,7 @@ const double RooScaleLOSM::mW_ = 80.398;
 
 RooScaleLOSM::RooScaleLOSM(const char *name, const char *title, RooAbsReal &mH):
   RooAbsReal(name, title),
-  mH_("mH","",this,mH)
+  mH_("mH","Higgs boson mass [GeV]",this,mH)
 {
 
 }
@@ -31,28 +31,29 @@ complexD RooScaleLOSM::f(double tau) const
 
 inline complexD RooScaleLOSM::AmpSpinOneHalf(double tau) const
 {
-  return (tau + (tau-1.0)*f(tau))/(tau*tau)*2.0;
+  return 2. * (tau + (tau-1.)*f(tau)) / (tau*tau);
 }
 
 inline complexD RooScaleLOSM::AmpSpinOne(double tau) const
 {
-  return -1.0*(2.0*tau*tau + 3.0*tau + 3.0*(2.0*tau-1.0)*f(tau))/(tau*tau);
+  return -1. * (2.*tau*tau + 3.*tau + 3.*(2.*tau-1.)*f(tau)) / (tau*tau);
 }
 
 
 ClassImp(RooScaleLOSM)
 
 ////////////////////////////////////////////////////////////////////
-
-RooScaleHGamGamLOSM::RooScaleHGamGamLOSM(const char *name, const char *title, RooAbsReal &mH, RooAbsReal &ct, RooAbsReal &cW, RooAbsReal &mb, RooAbsReal &cb):
+RooScaleHGamGamLOSM::RooScaleHGamGamLOSM(const char *name, const char *title,
+		RooAbsReal &mH,
+		RooAbsReal &ct, RooAbsReal &cW, RooAbsReal &mb, RooAbsReal &cb):
   RooScaleLOSM(name, title, mH),
   ct_("ct", "Top Quark coupling constant", this, ct),
-  cb_("cb", "Bottom Quark coupling constant", this, cb),
   cW_("cW", "W Boson coupling constant", this, cW),
-  mb_("mb","",this,mb)
+  mb_("mb", "(Running) Bottom Quark mass [GeV]",this,mb),
+  cb_("cb", "Bottom Quark coupling constant", this, cb)
 {
-	At_ = 3.* (4./9.) * AmpSpinOneHalf( (mH_*mH_)/(4*mt_*mt_) );
-	Ab_ = 3.* (1./9.) * AmpSpinOneHalf( (mH_*mH_)/(4*mb_*mb_) );
+	At_ = (4./3.) * AmpSpinOneHalf( (mH_*mH_)/(4*mt_*mt_) ); // Nc = 3, Qt^2 = 4/9  => 4/3
+	Ab_ = (1./3.) * AmpSpinOneHalf( (mH_*mH_)/(4*mb_*mb_) ); // Nc = 3, Qb^2 = 1/9  => 1/3
 	AW_ = AmpSpinOne( (mH_*mH_)/(4*mW_*mW_) );
 	C_SM_ = norm(At_ + Ab_ + AW_);
 }
@@ -71,26 +72,24 @@ TObject* RooScaleHGamGamLOSM::clone(const char *newname) const
 
 Double_t RooScaleHGamGamLOSM::evaluate() const
 {
-	const double ct = ct_;
-	const double cb = cb_;
-	const double cW = cW_;
+	const double ct = ct_, cb = cb_, cW = cW_;
 
 	const double C_deviated = norm(ct*At_ + cb*Ab_ + cW*AW_);
 
 	return C_deviated/C_SM_;
 }
 
-
 ClassImp(RooScaleHGamGamLOSM)
 
 
 ////////////////////////////////////////////////////////////////////
-
-RooScaleHGluGluLOSM::RooScaleHGluGluLOSM(const char *name, const char *title, RooAbsReal &mH, RooAbsReal &ct, RooAbsReal &mb, RooAbsReal &cb):
+RooScaleHGluGluLOSM::RooScaleHGluGluLOSM(const char *name, const char *title,
+		RooAbsReal &mH,
+		RooAbsReal &ct, RooAbsReal &mb, RooAbsReal &cb):
   RooScaleLOSM(name, title, mH),
   ct_("ct", "Top Quark coupling constant", this, ct),
-  cb_("cb", "Bottom Quark coupling constant", this, cb),
-  mb_("mb","",this,mb)
+  mb_("mb", "(Running) Bottom Quark mass [GeV]",this,mb),
+  cb_("cb", "Bottom Quark coupling constant", this, cb)
 {
 	At_ = AmpSpinOneHalf( (mH_*mH_)/(4*mt_*mt_) );
 	Ab_ = AmpSpinOneHalf( (mH_*mH_)/(4*mb_*mb_) );
@@ -110,13 +109,83 @@ TObject* RooScaleHGluGluLOSM::clone(const char *newname) const
 
 Double_t RooScaleHGluGluLOSM::evaluate() const
 {
-	const double ct = ct_;
-	const double cb = cb_;
+	const double ct = ct_, cb = cb_;
 
 	const double C_deviated = norm(ct*At_ + cb*Ab_);
 
 	return C_deviated/C_SM_;
 }
 
-
 ClassImp(RooScaleHGluGluLOSM)
+
+
+////////////////////////////////////////////////////////////////////
+RooScaleHGamGamLOSMPlusX::RooScaleHGamGamLOSMPlusX(const char *name, const char *title,
+		RooAbsReal &mH,
+		RooAbsReal &ct, RooAbsReal &cW, RooAbsReal &mb, RooAbsReal &cb,
+		RooAbsReal &X):
+	RooScaleHGamGamLOSM(name, title, mH, ct, cW, mb, cb),
+	X_("X","Extra amplitude in the photon loop",this,X)
+{
+}
+
+TObject* RooScaleHGamGamLOSMPlusX::clone(const char *newname) const
+{
+  return new RooScaleHGamGamLOSMPlusX(newname, this->GetTitle(),
+    const_cast<RooAbsReal &>(mH_.arg()),
+    const_cast<RooAbsReal &>(ct_.arg()),
+    const_cast<RooAbsReal &>(cW_.arg()),
+    const_cast<RooAbsReal &>(mb_.arg()),
+    const_cast<RooAbsReal &>(cb_.arg()),
+    const_cast<RooAbsReal &>(X_.arg())
+  );
+}
+
+
+Double_t RooScaleHGamGamLOSMPlusX::evaluate() const
+{
+	const double ct = ct_, cb = cb_, cW = cW_, X =  X_;
+
+	const double C_deviated = norm(ct*At_ + cb*Ab_ + cW*AW_ + X);
+
+	return C_deviated/C_SM_;
+}
+
+ClassImp(RooScaleHGamGamLOSMPlusX)
+
+
+////////////////////////////////////////////////////////////////////
+RooScaleHGluGluLOSMPlusX::RooScaleHGluGluLOSMPlusX(const char *name, const char *title,
+		RooAbsReal &mH,
+		RooAbsReal &ct, RooAbsReal &mb, RooAbsReal &cb,
+		RooAbsReal &X):
+  RooScaleHGluGluLOSM(name, title, mH, ct, mb, cb),
+  X_("X","Extra amplitude in the gluon loop",this,X)
+{
+}
+
+TObject* RooScaleHGluGluLOSMPlusX::clone(const char *newname) const
+{
+  return new RooScaleHGluGluLOSMPlusX(newname, this->GetTitle(),
+    const_cast<RooAbsReal &>(mH_.arg()),
+    const_cast<RooAbsReal &>(ct_.arg()),
+    const_cast<RooAbsReal &>(mb_.arg()),
+    const_cast<RooAbsReal &>(cb_.arg()),
+    const_cast<RooAbsReal &>(X_.arg())
+  );
+}
+
+
+Double_t RooScaleHGluGluLOSMPlusX::evaluate() const
+{
+	const double ct = ct_, cb = cb_, X =  X_;
+
+	const double C_deviated = norm(ct*At_ + cb*Ab_ + X);
+
+	return C_deviated/C_SM_;
+}
+
+ClassImp(RooScaleHGluGluLOSMPlusX)
+
+
+
