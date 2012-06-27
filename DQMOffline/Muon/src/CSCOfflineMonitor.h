@@ -82,14 +82,19 @@ public:
   // Operations
   void beginJob(void);
   void finalize(); 
+  virtual void beginRun( edm::Run const &, edm::EventSetup const & ) {finalizedHistograms_ = false;};
   virtual void endRun( edm::Run const &, edm::EventSetup const & ) ; // call finialize() 
   virtual void endJob() ; // call finalize()
 
 
+  
   /// Perform the real analysis
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
-
+  enum LabelType {SMALL, EXTENDED};
+  enum AxisType  {X=1, Y=2, Z=3};
+  
+  
 protected:
 
 private: 
@@ -129,8 +134,7 @@ private:
   float      getSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
   int        typeIndex(CSCDetId id, int flag = 1);
   int        chamberSerial(CSCDetId id);
-  void 	     applyCSClabels(MonitorElement *meHisto);
-
+  void       applyCSClabels(MonitorElement *meHisto, LabelType t, AxisType a);
   // for efficiency calculation
   // these functions handle Stoyan's efficiency code
   void  fillEfficiencyHistos(int bin, int flag);
@@ -148,7 +152,7 @@ private:
                              int station, int ring, float shiftFromEdge, float shiftFromDeadZone);
 
   // for BX monitor plots
-  void harvestChamberMeans(MonitorElement* meMean1D, MonitorElement *meMean2D, TH2F *hNum, MonitorElement *meDenom);
+  void harvestChamberMeans(MonitorElement* meMean1D, MonitorElement *meMean2D, MonitorElement *hNum, MonitorElement *meDenom);
   void normalize(MonitorElement* me);
 
   // DQM
@@ -206,20 +210,20 @@ private:
   MonitorElement *hCSCOccupancy;
 
   // Efficiency
-  TH1F *hSSTE;
-  TH1F *hRHSTE;
+  MonitorElement *hSSTE;
+  MonitorElement *hRHSTE;
   MonitorElement *hSEff;
   MonitorElement *hRHEff;
-  TH2F *hSSTE2;
-  TH2F *hRHSTE2;
-  TH2F *hStripSTE2;
-  TH2F *hWireSTE2;
+  MonitorElement *hSSTE2;
+  MonitorElement *hRHSTE2;
+  MonitorElement *hStripSTE2;
+  MonitorElement *hWireSTE2;
   MonitorElement *hSEff2;
   MonitorElement *hRHEff2;
   MonitorElement *hStripEff2;
   MonitorElement *hWireEff2;
   MonitorElement *hStripReadoutEff2;
-  TH2F *hEffDenominator;
+  MonitorElement *hEffDenominator;
   MonitorElement *hSensitiveAreaEvt;
 
   // BX monitor
@@ -228,21 +232,21 @@ private:
   MonitorElement *hALCTgetBXChamberMeans;
   MonitorElement *hALCTgetBX2DMeans;
   MonitorElement *hALCTgetBX2Denominator;
-  TH2F *hALCTgetBX2DNumerator;
+  MonitorElement *hALCTgetBX2DNumerator;
 
   MonitorElement *hALCTMatch;
   MonitorElement *hALCTMatchSerial;
   MonitorElement *hALCTMatchChamberMeans;
   MonitorElement *hALCTMatch2DMeans;
   MonitorElement *hALCTMatch2Denominator;
-  TH2F *hALCTMatch2DNumerator;
+  MonitorElement *hALCTMatch2DNumerator;
   
   MonitorElement *hCLCTL1A;
   MonitorElement *hCLCTL1ASerial;
   MonitorElement *hCLCTL1AChamberMeans;
   MonitorElement *hCLCTL1A2DMeans;
   MonitorElement *hCLCTL1A2Denominator;
-  TH2F *hCLCTL1A2DNumerator;
+  MonitorElement *hCLCTL1A2DNumerator;
 
 
 };
