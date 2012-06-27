@@ -12,5 +12,4 @@
 <use   name="TopQuarkAnalysis/TopPairBSM"/>
 <library   file="CATopJetTagger.cc" name="CATopJetTagger">
   <flags   EDM_PLUGIN="1"/>
-  <flags   CXXFLAGS="-O0 -g -DDEBUG"/>
 </library>
