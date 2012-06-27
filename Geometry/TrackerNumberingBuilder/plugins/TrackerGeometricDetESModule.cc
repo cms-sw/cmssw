@@ -15,6 +15,8 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <memory>
 
@@ -25,17 +27,46 @@ TrackerGeometricDetESModule::TrackerGeometricDetESModule( const edm::ParameterSe
     layerNumberPXB_( 16 ), // 18 for SLHC p.getParameter<unsigned int>( "layerNumberPXB" )),
     totalBlade_( 24 ) 	   // 56 for SLHC p.getParameter<unsigned int>( "totalBlade" ))
 {
-  if( p.existsAs<edm::ParameterSet>( "pixelGeometryConstants" ))
-  {  
-    const edm::ParameterSet tkGeomConsts( p.getParameter<edm::ParameterSet>( "pixelGeometryConstants" ));
-    layerNumberPXB_ = tkGeomConsts.getParameter<unsigned int>( "layerNumberPXB" );
-    totalBlade_ = tkGeomConsts.getParameter<unsigned int>( "totalBlade" );
-  }
+  const edm::ParameterSet tkGeomConsts( p.getParameter<edm::ParameterSet>( "pixelGeometryConstants" ));
+  layerNumberPXB_ = tkGeomConsts.getParameter<unsigned int>( "layerNumberPXB" );
+  totalBlade_ = tkGeomConsts.getParameter<unsigned int>( "totalBlade" );
   
   setWhatProduced( this );
 }
 
 TrackerGeometricDetESModule::~TrackerGeometricDetESModule( void ) {}
+
+void
+TrackerGeometricDetESModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
+{
+  edm::ParameterSetDescription descPixelGeometryConstants;
+  descPixelGeometryConstants.add<unsigned int>("layerNumberPXB", 16U);
+  descPixelGeometryConstants.add<unsigned int>("totalBlade", 24U);
+
+  edm::ParameterSetDescription descPixelSLHCGeometryConstants;
+  descPixelSLHCGeometryConstants.add<unsigned int>("layerNumberPXB", 18U);
+  descPixelSLHCGeometryConstants.add<unsigned int>("totalBlade", 56U);
+
+  edm::ParameterSetDescription descDB;
+  descDB.add<bool>("fromDDD", false);
+  descDB.addOptional<edm::ParameterSetDescription>("pixelGeometryConstants", descPixelGeometryConstants);
+  descriptions.add("trackerNumberingGeometryDB", descDB);
+
+  edm::ParameterSetDescription descSLHCDB;
+  descSLHCDB.add<bool>("fromDDD", false);
+  descSLHCDB.addOptional<edm::ParameterSetDescription>("pixelGeometryConstants", descPixelSLHCGeometryConstants);
+  descriptions.add("trackerNumberingSLHCGeometryDB", descSLHCDB);
+
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("fromDDD", true);
+  desc.addOptional<edm::ParameterSetDescription>("pixelGeometryConstants", descPixelGeometryConstants);
+  descriptions.add("trackerNumberingGeometry", desc);
+
+  edm::ParameterSetDescription descSLHC;
+  descSLHC.add<bool>("fromDDD", true);
+  descSLHC.addOptional<edm::ParameterSetDescription>("pixelGeometryConstants", descPixelSLHCGeometryConstants);
+  descriptions.add("trackerNumberingSLHCGeometryDB", descSLHC);
+}
 
 std::auto_ptr<GeometricDet> 
 TrackerGeometricDetESModule::produce( const IdealGeometryRecord & iRecord )

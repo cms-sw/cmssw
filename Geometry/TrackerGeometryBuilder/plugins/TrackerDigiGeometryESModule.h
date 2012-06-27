@@ -9,11 +9,18 @@
 
 #include <string>
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class  TrackerDigiGeometryESModule: public edm::ESProducer{
  public:
   TrackerDigiGeometryESModule(const edm::ParameterSet & p);
   virtual ~TrackerDigiGeometryESModule(); 
   boost::shared_ptr<TrackerGeometry> produce(const TrackerDigiGeometryRecord &);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  
  private:
   /// Called when geometry description changes
   boost::shared_ptr<TrackerGeometry> _tracker;
