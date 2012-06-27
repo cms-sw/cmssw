@@ -31,7 +31,7 @@ public:
     token_alca      %= qi::raw[qi::lexeme["AlCa_"   >> +(qi::char_("a-zA-Z0-9_*?"))]];
     token_dqm       %= qi::raw[qi::lexeme["DQM_"    >> +(qi::char_("a-zA-Z0-9_*?"))]];
     token_dst       %= qi::raw[qi::lexeme["DST_"    >> +(qi::char_("a-zA-Z0-9_*?"))]];
-    token_step      %= qi::raw[qi::lexeme[             +(qi::char_("a-zA-Z0-9_*?")) >> "_step"]];
+    token_step      %= qi::raw[qi::lexeme["generation_step"]];
     token_l1        %= qi::raw[qi::lexeme["L1_"     >> +(qi::char_("a-zA-Z0-9_*?"))]];
     token_l1tech    %= qi::raw[qi::lexeme["L1Tech_" >> +(qi::char_("a-zA-Z0-9_*?"))]];
 
