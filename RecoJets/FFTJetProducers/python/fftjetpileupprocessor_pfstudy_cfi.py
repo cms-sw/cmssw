@@ -68,6 +68,9 @@ fftjet_pileup_processor_pf = cms.EDProducer(
     # Files for mixing in external grids
     externalGridFiles = cms.vstring(),
     #
+    # Energy cutoff for external grids (removes some crazy grids)
+    externalGridMaxEnergy = cms.double(20000.0),
+    #
     # Anomalous calo tower definition (comes from JetProducers default)
     anomalous = fftjet_anomalous_tower_default,
     #

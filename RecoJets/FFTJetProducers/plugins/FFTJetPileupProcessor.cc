@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Wed Apr 20 13:52:23 CDT 2011
-// $Id: FFTJetPileupProcessor.cc,v 1.1 2011/04/27 00:57:01 igv Exp $
+// $Id: FFTJetPileupProcessor.cc,v 1.8 2011/07/05 08:24:15 igv Exp $
 //
 //
 
@@ -101,6 +101,7 @@ private:
     // Variable related to mixing additional grids
     std::vector<std::string> externalGridFiles;
     std::ifstream gridStream;
+    double externalGridMaxEnergy;
     unsigned currentFileNum;
 };
 
@@ -116,6 +117,7 @@ FFTJetPileupProcessor::FFTJetPileupProcessor(const edm::ParameterSet& ps)
       convolverMaxBin(ps.getParameter<unsigned>("convolverMaxBin")),
       pileupEtaPhiArea(ps.getParameter<double>("pileupEtaPhiArea")),
       externalGridFiles(ps.getParameter<std::vector<std::string> >("externalGridFiles")),
+      externalGridMaxEnergy(ps.getParameter<double>("externalGridMaxEnergy")),
       currentFileNum(externalGridFiles.size() + 1U)
 {
     // Build the discretization grid
@@ -296,21 +298,40 @@ void FFTJetPileupProcessor::mixExtraGrid()
                 << externalGridFiles[currentFileNum] << std::endl;
     }
 
-    const fftjet::Grid2d<float>* g = fftjet::Grid2d<float>::read(gridStream);
+    const fftjet::Grid2d<float>* g = 0;
+    const unsigned maxFail = 100U;
+    unsigned nEnergyRejected = 0;
 
-    // If we can't read the grid, we need to switch to another file
-    for (unsigned ntries=0; ntries<nFiles && g == 0; ++ntries)
+    while(!g)
     {
-        gridStream.close();
-        currentFileNum = (currentFileNum + 1U) % nFiles;
-        gridStream.open(externalGridFiles[currentFileNum].c_str(),
-                        std::ios_base::in | std::ios_base::binary);
-        if (!gridStream.is_open())
-            throw cms::Exception("FFTJetBadConfig")
-                << "ERROR in FFTJetPileupProcessor::mixExtraGrid():"
-                " failed to open external grid file "
-                << externalGridFiles[currentFileNum] << std::endl;
         g = fftjet::Grid2d<float>::read(gridStream);
+
+        // If we can't read the grid, we need to switch to another file
+        for (unsigned ntries=0; ntries<nFiles && g == 0; ++ntries)
+        {
+            gridStream.close();
+            currentFileNum = (currentFileNum + 1U) % nFiles;
+            gridStream.open(externalGridFiles[currentFileNum].c_str(),
+                            std::ios_base::in | std::ios_base::binary);
+            if (!gridStream.is_open())
+                throw cms::Exception("FFTJetBadConfig")
+                    << "ERROR in FFTJetPileupProcessor::mixExtraGrid():"
+                    " failed to open external grid file "
+                    << externalGridFiles[currentFileNum] << std::endl;
+            g = fftjet::Grid2d<float>::read(gridStream);
+        }
+
+        if (g)
+            if (g->sum() > externalGridMaxEnergy)
+            {
+                delete g;
+                g = 0;
+                if (++nEnergyRejected >= maxFail)
+                    throw cms::Exception("FFTJetBadConfig")
+                        << "ERROR in FFTJetPileupProcessor::mixExtraGrid():"
+                        " too many grids in a row (" << nEnergyRejected
+                        << ") failed the maximum energy cut" << std::endl;
+            }
     }
 
     if (g)
