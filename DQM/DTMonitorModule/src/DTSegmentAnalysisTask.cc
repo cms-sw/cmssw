@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/11/12 09:18:42 $
- *  $Revision: 1.31 $
+ *  $Date: 2011/11/23 14:23:15 $
+ *  $Revision: 1.32 $
  *  \author G. Cerminara - INFN Torino
  *  revised by G. Mila - INFN Torino
  */
@@ -262,6 +262,8 @@ void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
     stringstream wheel; wheel << wh;
     theDbe->setCurrentFolder(topHistoFolder + "/Wheel" + wheel.str());
     string histoName =  "numberOfSegments_W" + wheel.str();
+    if (theDbe->get(topHistoFolder + "/Wheel" + wheel.str() + "/" + histoName))
+      continue;
     summaryHistos[wh] = theDbe->book2D(histoName.c_str(),histoName.c_str(),12,1,13,4,1,5);
     summaryHistos[wh]->setAxisTitle("Sector",1);
     summaryHistos[wh]->setBinLabel(1,"1",1);
