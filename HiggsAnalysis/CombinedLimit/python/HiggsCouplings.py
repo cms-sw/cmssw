@@ -49,9 +49,9 @@ class CvCfHiggs(SMLikeHiggsModel):
         #      Based on Eq 1--4 of Nuclear Physics B 453 (1995)17-82
         #      ignoring b quark contributions
         # Taylor series around MH=125 including terms up to O(MH-125)^2 in Horner polynomial form
-#        CF = self.modelBuilder.out.function('CF')
-#        CF.setVal(0.0)
-        self.modelBuilder.factory_('expr::CvCf_cgamma("\
+        CF = self.modelBuilder.out.function('CF')
+        CF.setVal(0.5)
+        self.modelBuilder.factory_('expr::CvCf_cgammaSq("\
         @0*@0*(1.524292518396496 + (0.005166702799572456 - 0.00003355715038472727*@2)*@2) + \
         @1*(@1*(0.07244520735564258 + (0.0008318872718720393 - 6.16997610275555e-6*@2)*@2) + \
         @0*(-0.5967377257521194 + (-0.005998590071444782 + 0.00003972712648748393*@2)*@2))\
@@ -61,13 +61,14 @@ class CvCfHiggs(SMLikeHiggsModel):
             self.SMH.makeBR(d)
         self.modelBuilder.factory_("expr::CvCf_Gscal_sumf(\"@0*@0 * (@1+@2+@3+@4+@5+@6+@7)\", CF, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hgluglu, SM_BR_hmm, SM_BR_hss)") 
         self.modelBuilder.factory_("expr::CvCf_Gscal_sumv(\"@0*@0 * (@1+@2+@3)\", CV, SM_BR_hww, SM_BR_hzz, SM_BR_hZg)") 
-        self.modelBuilder.factory_("expr::CvCf_Gscal_gg(\"@0*@0 * @1\", CvCf_cgamma, SM_BR_hgg)") 
+        self.modelBuilder.factory_("expr::CvCf_Gscal_gg(\"@0 * @1\", CvCf_cgammaSq, SM_BR_hgg)") 
         self.modelBuilder.factory_( "sum::CvCf_Gscal_tot(CvCf_Gscal_sumf, CvCf_Gscal_sumv, CvCf_Gscal_gg)")
         ## BRs, normalized to the SM ones: they scale as (coupling/coupling_SM)^2 / (totWidth/totWidthSM)^2 
-        self.modelBuilder.factory_("expr::CvCf_BRscal_hgg(\"@0*@0/@1\", CvCf_cgamma, CvCf_Gscal_tot)")
+        self.modelBuilder.factory_("expr::CvCf_BRscal_hgg(\"@0/@1\", CvCf_cgammaSq, CvCf_Gscal_tot)")
         self.modelBuilder.factory_("expr::CvCf_BRscal_hf(\"@0*@0/@1\", CF, CvCf_Gscal_tot)")
         self.modelBuilder.factory_("expr::CvCf_BRscal_hv(\"@0*@0/@1\", CV, CvCf_Gscal_tot)")
 
+        self.modelBuilder.out.Print()
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "CvCf_XSBRscal_%s_%s" % (production,decay)
         if self.modelBuilder.out.function(name) == None: 
