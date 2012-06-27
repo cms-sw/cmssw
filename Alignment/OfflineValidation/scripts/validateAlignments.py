@@ -555,6 +555,7 @@ class ZMuMuValidation(GenericValidation):
     def getRepMap(self, alignment = None):
         repMap = GenericValidation.getRepMap(self, alignment) 
         repMap.update({
+                "APE": configTemplates.APETemplate,
                 "zmumureference":self.__zmumureference,
                 "etamax1":self.__etamax1,
                 "etamin1":self.__etamin1,
