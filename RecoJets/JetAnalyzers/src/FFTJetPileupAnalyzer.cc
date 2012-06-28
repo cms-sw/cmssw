@@ -302,17 +302,29 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
 
     if (collectHistos)
     {
-        edm::Handle<TH2D> input;
+        edm::Handle<reco::DiscretizedEnergyFlow> input;
         iEvent.getByLabel(histoLabel, input);
 
         edm::Service<TFileService> fs;
-        TH2D* copy = new TH2D(*input);
 
+        // Convert the data
         std::ostringstream os;
-        os << copy->GetName() << '_' << counter << '_'
+        os << input->title() << '_' << counter << '_'
            << totalNpu << '_' << runnumber << '_' << eventnumber;
         const std::string& newname(os.str());
-        copy->SetNameTitle(newname.c_str(), newname.c_str());
+
+        const unsigned nScales = input->nEtaBins();
+        const unsigned nPercentiles = input->nPhiBins();
+        TH2D* copy = new TH2D(newname.c_str(), newname.c_str(),
+                              nScales, -0.5, nScales-0.5, nPercentiles, 0.0, 1.0);
+        copy->GetXaxis()->SetTitle("Filter Number");
+        copy->GetYaxis()->SetTitle("Et CDF");
+        copy->GetZaxis()->SetTitle("Et Density");
+
+        const double *data = input->data();
+        for (unsigned iscale=0; iscale<nScales; ++iscale)
+            for (unsigned iper=0; iper<nPercentiles; ++iper)
+                copy->SetBinContent(iscale+1U, iper+1U, data[iscale*nPercentiles + iper]);
 
         copy->SetDirectory(fs->getBareDirectory());
     }

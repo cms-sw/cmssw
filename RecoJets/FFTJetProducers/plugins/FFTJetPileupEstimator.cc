@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Wed Apr 20 13:52:23 CDT 2011
-// $Id: FFTJetPileupEstimator.cc,v 1.0 2011/04/20 00:19:43 igv Exp $
+// $Id: FFTJetPileupEstimator.cc,v 1.1 2011/04/27 00:57:01 igv Exp $
 //
 //
 
@@ -28,8 +28,9 @@
 // Data formats
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
+// #include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
 #include "DataFormats/JetReco/interface/FFTJetPileupSummary.h"
+#include "DataFormats/JetReco/interface/DiscretizedEnergyFlow.h"
 
 #include "RecoJets/FFTJetProducers/interface/FFTJetParameterParser.h"
 
@@ -109,12 +110,12 @@ FFTJetPileupEstimator::~FFTJetPileupEstimator()
 void FFTJetPileupEstimator::produce(edm::Event& iEvent,
                                     const edm::EventSetup& iSetup)
 {
-    edm::Handle<TH2D> input;
+    edm::Handle<reco::DiscretizedEnergyFlow> input;
     iEvent.getByLabel(inputLabel, input);
 
-    const TH2D& h(*input);
-    const unsigned nScales = h.GetXaxis()->GetNbins();
-    const unsigned nCdfvalues = h.GetYaxis()->GetNbins();
+    const reco::DiscretizedEnergyFlow& h(*input);
+    const unsigned nScales = h.nEtaBins();
+    const unsigned nCdfvalues = h.nPhiBins();
 
     const unsigned fixedCdfvalueBin = static_cast<unsigned>(
         std::floor(cdfvalue*nCdfvalues));
@@ -130,8 +131,7 @@ void FFTJetPileupEstimator::produce(edm::Event& iEvent,
     }
 
     // Simple fixed-point pile-up estimate
-    const double curve = h.GetBinContent(filterNumber+1U,
-                                         fixedCdfvalueBin+1U);
+    const double curve = h.data()[filterNumber*nCdfvalues + fixedCdfvalueBin];
     const double pileupRho = ptToDensityFactor*(*calibrationCurve)(curve);
     const double rhoUncert = ptToDensityFactor*(*uncertaintyCurve)(curve);
 

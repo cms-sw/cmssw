@@ -34,7 +34,8 @@
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
+// #include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
+#include "DataFormats/JetReco/interface/DiscretizedEnergyFlow.h"
 
 #include "RecoJets/FFTJetAlgorithms/interface/gridConverters.h"
 
@@ -103,6 +104,9 @@ private:
     std::ifstream gridStream;
     double externalGridMaxEnergy;
     unsigned currentFileNum;
+
+    // Some memory to hold the percentiles found
+    std::vector<double> percentileData;
 };
 
 //
@@ -155,7 +159,9 @@ FFTJetPileupProcessor::FFTJetPileupProcessor(const edm::ParameterSet& ps)
     filterScales = std::auto_ptr<fftjet::EquidistantInLogSpace>(
         new fftjet::EquidistantInLogSpace(minScale, maxScale, nScales));
 
-    produces<TH2D>(outputLabel);
+    percentileData.resize(nScales*nPercentiles);
+
+    produces<reco::DiscretizedEnergyFlow>(outputLabel);
     produces<std::pair<double,double> >(outputLabel);
 }
 
@@ -231,16 +237,6 @@ void FFTJetPileupProcessor::produce(
         (convolverMaxBin - convolverMinBin)*convolvedFlow->nPhi() :
         convolvedFlow->nEta()*convolvedFlow->nPhi();
 
-    // We will fill the following histo
-    std::auto_ptr<TH2D> pTable(new TH2D("FFTJetPileupProcessor",
-                                        "FFTJetPileupProcessor",
-                                        nScales, -0.5, nScales-0.5,
-                                        nPercentiles, 0.0, 1.0));
-    pTable->SetDirectory(0);
-    pTable->GetXaxis()->SetTitle("Filter Number");
-    pTable->GetYaxis()->SetTitle("Et CDF");
-    pTable->GetZaxis()->SetTitle("Et Density");
-
     // Go over all scales and perform the convolutions
     convolver->setEventData(g.data(), g.nEta(), g.nPhi());
     for (unsigned iscale=0; iscale<nScales; ++iscale)
@@ -270,10 +266,16 @@ void FFTJetPileupProcessor::produce(
                 ilow, ilow+1U, sortData[ilow], sortData[ilow+1U], dindex);
 
             // Store the calculated percentile
-            pTable->SetBinContent(iscale+1U, iper+1U, percentile);
+            percentileData[iscale*nPercentiles + iper] = percentile;
         }
     }
 
+    // Convert percentile data into a more convenient storable object
+    // and put it into the event record
+    std::auto_ptr<reco::DiscretizedEnergyFlow> pTable(
+        new reco::DiscretizedEnergyFlow(
+            &percentileData[0], "FFTJetPileupProcessor",
+            -0.5, nScales-0.5, 0.0, nScales, nPercentiles));
     iEvent.put(pTable, outputLabel);
 
     std::auto_ptr<std::pair<double,double> > etSum(
