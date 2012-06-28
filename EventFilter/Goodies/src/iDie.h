@@ -24,15 +24,25 @@
 
 
 #include <vector>
+#include <queue>
 
 #include <sys/time.h>
 
 #include "TFile.h"
 #include "TTree.h"
 
+#include "FWCore/Framework/interface/EventProcessor.h"
+#include "DQMServices/Core/src/DQMService.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+#define MODLZSIZE 25
+#define MODLZSIZELUMI 20
+#define MOD_OCC_THRESHOLD 5
 
 namespace evf {
 
+  int modlistSortFunction( const void *a, const void *b);
 
   namespace internal{
    struct fu{
@@ -61,6 +71,7 @@ namespace evf {
      int etimesFailed[evf::max_endpaths];
      int etimesExcept[evf::max_endpaths];
    };
+
   }
   typedef std::map<std::string,internal::fu> fmap;
   typedef fmap::iterator ifmap;
@@ -140,6 +151,15 @@ namespace evf {
     void parseModuleHisto(const char *, unsigned int);
     void parsePathLegenda(std::string);
     void parsePathHisto(const unsigned char *, unsigned int);
+    void initFramework();
+    void deleteFramework();
+    void initMonitorElements();
+    void fillDQMStatHist(int nbsIdx, unsigned int lsid, float rate, float time, float busy, float rateErr, float timeErr);
+    void fillDQMModFractionHist(int nbsIdx, unsigned int lsid, unsigned int nonIdle,
+		                 std::vector<std::pair<unsigned int, unsigned int>> offenders);
+    void updateRollingHistos(unsigned int lsid,unsigned int rate, float ms, float busy, unsigned int nbsIdx);
+    void doFlush();
+    void perLumiFileSaver(unsigned int lsid);
     //
     // member data
     //
@@ -153,7 +173,8 @@ namespace evf {
     xdata::UnsignedInteger32        instance_;
     xdata::String                   hostname_;
     xdata::UnsignedInteger32        runNumber_;
-    xdata::String                   configString_;
+    xdata::String                   dqmCollectorHost_;
+    xdata::String                   dqmCollectorPort_;
     fmap                            fus_;
     
     unsigned int                    totalCores_;
@@ -187,9 +208,235 @@ namespace evf {
     timeval                         runStartDetectedTimeStamp_;
     timeval                         lastModuleLegendaMessageTimeStamp_;
     timeval                         lastPathLegendaMessageTimeStamp_;
-    
 
+    //DQM histogram statistics
+    std::vector<unsigned int> epInstances;
+    std::vector<unsigned int> epMax;
+    std::vector<float> epThreshold;
+    std::vector<float> epThresholdTheor;
+    std::vector<float> HTInveff;
+    std::vector<unsigned int> nbMachines;
+
+    class commonLsStat {
+      
+      public:
+      unsigned int ls_;
+      std::vector<float> busyVec_;
+      std::vector<float> busyVecTheor_;
+      std::vector<unsigned int> nbMachines;
+      commonLsStat(unsigned int lsid,unsigned int classes) {
+        for (size_t i=0;i<classes;i++) {
+	  busyVec_.push_back(0.);
+	  busyVecTheor_.push_back(0.);
+	  nbMachines.push_back(0);
+	}
+	ls_=lsid;
+      }
+      void setBusyForClass(unsigned int classIdx,float busy,float busyTheor, unsigned int nMachineReports) {
+	busyVec_[classIdx]=busy;
+	busyVecTheor_[classIdx]=busyTheor;
+	nbMachines[classIdx]=nMachineReports;
+      }
+
+      float getBusyTotalFrac() {
+	float sum=0;
+	float sumMachines=0;
+	for (size_t i=0;i<busyVec_.size();i++) {
+	  sum+=nbMachines.at(i)*busyVec_[i];
+	  sumMachines+=nbMachines.at(i);
+	}
+	if (sumMachines>0)
+	  return sum/sumMachines;
+	else return 0.;
+      }
+
+      float getBusyTotalFracTheor(std::vector<unsigned int> &epInstances, std::vector<unsigned int> &epMax) {
+	float sum=0;
+	float sumMachines=0;
+	for (size_t i=0;i<busyVecTheor_.size() && i<nbMachines.size();i++) {
+	  if (epMax[i])
+	    sum+=((float)epInstances[i]/epMax[i])*nbMachines.at(i)*busyVecTheor_[i];
+	  sumMachines+=nbMachines.at(i);
+	}
+	if (sumMachines>0)
+	  return sum/sumMachines;
+	else return 0.;
+      }
+    };
+
+    class lsStat {
+      public:
+      unsigned int ls_;
+      bool updated_;
+      unsigned int nbSubs_;
+      unsigned int nSampledNonIdle_;
+      unsigned int nSampledNonIdle2_;
+      unsigned int nSampledIdle_;
+      unsigned int nSampledIdle2_;
+      unsigned int nProc_;
+      unsigned int nProc2_;
+      unsigned int nReports_;
+      unsigned int nMaxReports_;
+      double rateAvg;
+      double rateErr;
+      double evtTimeAvg;
+      double evtTimeErr;
+      double fracWaitingAvg;
+      unsigned int nmodulenames_;
+      std::pair<unsigned int,unsigned int> *moduleSamplingSums;
+
+      lsStat(unsigned int ls, unsigned int nbSubs,unsigned int maxreps,unsigned int nmodulenames):
+	ls_(ls),updated_(false),nbSubs_(nbSubs),
+	nSampledNonIdle_(0),nSampledNonIdle2_(0),nSampledIdle_(0),nSampledIdle2_(0),
+	nProc_(0),nProc2_(0),nReports_(0),nMaxReports_(maxreps),nmodulenames_(nmodulenames)
+      {
+        moduleSamplingSums = new std::pair<unsigned int,unsigned int>[nmodulenames_];
+	for (unsigned int i=0;i<nmodulenames_;i++) {
+	  moduleSamplingSums[i].first=i;
+	  moduleSamplingSums[i].second=0;
+	}
+      }
+
+      void update(unsigned int nSampledNonIdle,unsigned int nSampledIdle, unsigned int nProc) {
+	nReports_++;
+	nSampledNonIdle_+=nSampledNonIdle;
+	nSampledNonIdle2_+=pow(nSampledNonIdle,2);
+	nSampledIdle_+=nSampledIdle;
+	nSampledIdle2_+=pow(nSampledIdle,2);
+	nProc_+=nProc;
+	nProc2_+=pow(nProc,2);
+	updated_=true;
+      }
+
+      std::pair<unsigned int,unsigned int> * getModuleSamplingPtr() {
+        return moduleSamplingSums;
+      }
+
+      void deleteModuleSamplingPtr() {
+        delete moduleSamplingSums;
+	moduleSamplingSums=nullptr;
+        nmodulenames_=0;
+      }
+
+      void calcStat()
+      {
+	if (!updated_) return;
+	rateAvg=nProc_ / 23.;
+	rateErr=sqrt(fabs(nProc2_ - pow(nProc_,2))) / 23.;
+	if (rateAvg==0.) {rateErr=0.;evtTimeAvg=0.;evtTimeErr=0.;fracWaitingAvg=0;}
+	else {
+	  if (nSampledNonIdle_+nSampledIdle_!=0) {
+	    fracWaitingAvg= nSampledIdle_/(1.0*nSampledNonIdle_+nSampledIdle_);
+	    double nSampledIdleErr2=fabs(nSampledIdle2_ - pow(nSampledIdle_,2));
+	    double nSampledNonIdleErr2=fabs(nSampledNonIdle2_ - pow(nSampledNonIdle_,2));
+	    double fracWaitingAvgErr= sqrt(
+			            (pow(nSampledIdle_,2)*nSampledNonIdleErr2
+				     + pow(nSampledNonIdle_,2)*nSampledIdleErr2)
+				    / pow(nSampledNonIdle_+nSampledIdle_,2));
+	    evtTimeAvg=nbSubs_* fracWaitingAvg / rateAvg;
+	    evtTimeErr = nbSubs_ * ((fracWaitingAvg*rateErr)/pow(rateAvg,2) + fracWaitingAvgErr/rateAvg);
+	  }
+	}
+	updated_=false;
+      }
+
+      float getRate() {
+	if (updated_) calcStat();
+	return rateAvg;
+      }
+
+      float getRateErr() {
+	if (updated_) calcStat();
+	return rateErr;
+      }
+
+      float getEvtTime() {
+	if (updated_) calcStat();
+	return evtTimeAvg;
+      }
+
+      float getEvtTimeErr() {
+	if (updated_) calcStat();
+	return evtTimeErr;
+      }
+
+      unsigned int getNSampledNonIdle() {
+	if (updated_) calcStat();
+        return nSampledNonIdle_;
+      }
+
+      float getFracBusy() {
+	if (updated_) calcStat();
+	return 1.-fracWaitingAvg;
+      }
+
+      std::vector<std::pair<unsigned int, unsigned int>> getOffendersVector() {
+        std::vector<std::pair<unsigned int, unsigned int>> ret;
+	if (updated_) calcStat();
+	if (moduleSamplingSums) {
+          std::qsort((void *)moduleSamplingSums, nmodulenames_,
+	             sizeof(std::pair<unsigned int,unsigned int>), modlistSortFunction);
+	  unsigned int count=0;
+	  unsigned int saveidx=0;
+	  while (saveidx < MODLZSIZE && count<nmodulenames_ && saveidx<MODLZSIZE)
+	  {
+            if (moduleSamplingSums[count].first==2) {count++;continue;}
+            ret.push_back(moduleSamplingSums[count]);
+	    saveidx++;
+	    count++;
+	  }
+	}
+        return ret;
+      }
+    };
+
+
+    //DQM
+    boost::shared_ptr<std::vector<edm::ParameterSet> > pServiceSets_;
+    edm::ServiceToken               serviceToken_;
+    edm::EventProcessor             *evtProcessor_;
+    DQMService                      *dqmService_;
+    DQMStore                        *dqmStore_;
+    std::string                     configString_;
+    bool                            dqmDisabled_;
+
+    std::map<unsigned int,int> nbSubsList;
+    std::map<int,unsigned int> nbSubsListInv;
+    unsigned int nbSubsClasses;
+    std::vector<MonitorElement*> meVecRate_;
+    std::vector<MonitorElement*> meVecTime_;
+    std::vector<MonitorElement*> meVecOffenders_;
+    MonitorElement * rateSummary_;
+    MonitorElement * timingSummary_;
+    MonitorElement * busySummary_;
+    MonitorElement * daqBusySummary_;
+    unsigned int summaryLastLs_;
+    std::map<unsigned int, unsigned int> occupancyNameMap;
+    //1 queue per number of subProcesses (and one common)
+    std::queue<commonLsStat> commonLsHistory;
+    std::queue<lsStat> *lsHistory;
+
+    std::vector<unsigned int> currentLs_;
+
+    xdata::UnsignedInteger32 saveLsInterval_;
+    unsigned int ilumiprev_;
+    std::list<std::string> pastSavedFiles_;
+    xdata::String dqmSaveDir_;
+    unsigned int savedForLs_;
+    std::string fileBaseName_;
+    bool writeDirectoryPresent_;
   }; // class iDie
+
+  int modlistSortFunction( const void *a, const void *b)
+  {
+    std::pair<unsigned int,unsigned int> intOne = *((std::pair<unsigned int,unsigned int>*)a);
+    std::pair<unsigned int,unsigned int> intTwo = *((std::pair<unsigned int,unsigned int>*)b);
+    if (intOne.second > intTwo.second)
+      return -1;
+    if (intOne.second == intTwo.second)
+      return 0;
+    return 1;
+  }
 
 
 } // namespace evf
