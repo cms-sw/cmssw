@@ -23,7 +23,7 @@ def afterglowByFillscheme(fillscheme,afterglowPatterns):
     '''
     for (apattern,cfactor) in afterglowPatterns:
         if re.match(apattern,fillscheme):
-            print apattern,cfactor
+            #print apattern,cfactor
             return cfactor
     return 1.0
 
