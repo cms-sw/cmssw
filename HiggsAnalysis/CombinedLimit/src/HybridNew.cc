@@ -233,7 +233,7 @@ void HybridNew::setupPOI(RooStats::ModelConfig *mc_s) {
             if (eqidx == std::string::npos || (colidx2 != std::string::npos && colidx2 < eqidx)) {
                 throw std::invalid_argument("Error: the argument to --singlePoint or --signalForSignificance is not in the forms 'value' or 'name1=value1,name2=value2,...'\n");
             }
-            std::string poiName = rValue_.substr(colidx, eqidx);
+            std::string poiName = rValue_.substr(colidx, eqidx-colidx);
             std::string poiVal  = rValue_.substr(eqidx+1, (colidx2 == std::string::npos ? std::string::npos : colidx2 - eqidx - 1));
             RooAbsArg *poi = POI.find(poiName.c_str());
             if (poi == 0) throw std::invalid_argument("Error: unknown parameter '"+poiName+"' passed to --singlePoint or --signalForSignificance.");
@@ -241,6 +241,7 @@ void HybridNew::setupPOI(RooStats::ModelConfig *mc_s) {
             errno = 0;
             rValues_.setRealValue(poi->GetName(), strtod(poiVal.c_str(),NULL));
             if (errno != 0) throw std::invalid_argument("Error: invalid value '"+poiVal+"' for parameter '"+poiName+"' passed to --singlePoint or --signalForSignificance.");
+            colidx = colidx2+1;
         } while (colidx2 != std::string::npos);
         if (rValues_.getSize() != POI.getSize()) {
             throw std::invalid_argument("Error: not all parameters of interest specified in  --singlePoint or --signalForSignificance");
