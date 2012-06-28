@@ -103,7 +103,13 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     minim.setStrategy(minimizerStrategy_);
     minim.setErrorLevel(delta68);
     CloseCoutSentry sentry(verbose < 3);    
-    bool ok = minim.minimize(verbose-1);
+    if (verbose>1) std::cout << "do first Minimization " << std::endl;
+    TStopwatch tw; 
+    if (verbose) tw.Start();
+    bool ok = minim.minimize(verbose);
+    if (verbose>1) {
+       std::cout << "Minimized in : " ; tw.Print();
+    }
     nllValue_ =  nll->getVal() - nll0;
     if (!ok && !keepFailures_) { std::cout << "Initial minimization failed. Aborting." << std::endl; return 0; }
     if (doHesse) minim.minimizer().hesse();
@@ -131,15 +137,19 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
                 minim.setErrorLevel(delta95);
                 minim.improve(verbose-1);
                 minim.setErrorLevel(delta95);
-                if (minim.minimizer().minos(RooArgSet(r)) != -1) {
+                if (minim.minos(RooArgSet(r)) != -1) {
                     rf.setRange("err95", r.getVal() + r.getAsymErrorLo(), r.getVal() + r.getAsymErrorHi());
                 }
                 minim.setErrorLevel(delta68);
                 minim.improve(verbose-1);
             }
-            if (minim.minimizer().minos(RooArgSet(r)) != -1) {
-                rf.setRange("err68", r.getVal() + r.getAsymErrorLo(), r.getVal() + r.getAsymErrorHi());
-                rf.setAsymError(r.getAsymErrorLo(), r.getAsymErrorHi());
+            if (verbose) std::cout << "Running Minos for POI " << std::endl;
+            minim.minimizer().setPrintLevel(2);
+            if (verbose>1) {tw.Reset(); tw.Start();}
+            if (minim.minos(RooArgSet(r))) {
+               if (verbose>1) std::cout << "Run Minos in  "; tw.Print(); std::cout << std::endl;
+               rf.setRange("err68", r.getVal() + r.getAsymErrorLo(), r.getVal() + r.getAsymErrorHi());
+               rf.setAsymError(r.getAsymErrorLo(), r.getAsymErrorHi());
             }
        } else {
             r.setVal(r0); r.setConstant(true);

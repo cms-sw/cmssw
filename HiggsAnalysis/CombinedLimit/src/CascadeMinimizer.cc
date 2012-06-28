@@ -7,6 +7,7 @@
 #include <Math/MinimizerOptions.h>
 #include <RooCategory.h>
 #include <RooNumIntConfig.h>
+#include <TStopwatch.h>
 
 
 boost::program_options::options_description CascadeMinimizer::options_("Cascade Minimizer options");
@@ -28,9 +29,10 @@ CascadeMinimizer::CascadeMinimizer(RooAbsReal &nll, Mode mode, RooRealVar *poi, 
 
 bool CascadeMinimizer::improve(int verbose, bool cascade) 
 {
-    minimizer_.setPrintLevel(verbose-2);  
+    minimizer_.setPrintLevel(verbose-1);
+   
     minimizer_.setStrategy(strategy_);
-    bool outcome = improveOnce(verbose-2);
+    bool outcome = improveOnce(verbose-1);
     if (cascade && !outcome && !fallbacks_.empty()) {
         std::string nominalType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
         std::string nominalAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
@@ -80,6 +82,36 @@ bool CascadeMinimizer::improveOnce(int verbose)
         if (simnll) simnll->clearZeroPoint();
     }
     return outcome;
+}
+
+
+bool CascadeMinimizer::minos(const RooArgSet & params , int verbose ) {
+
+   minimizer_.setPrintLevel(verbose-1); // for debugging
+   std::string myType(ROOT::Math::MinimizerOptions::DefaultMinimizerType());
+   std::string myAlgo(ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo());
+
+   if (setZeroPoint_) {
+      cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
+      if (simnll) { 
+         simnll->setZeroPoint();
+      }
+   }
+
+   //TStopwatch tw;
+   // need to re-run Migrad before running minos
+   minimizer_.minimize(myType.c_str(), "Migrad");
+   int iret = minimizer_.minos(params); 
+
+   //std::cout << "Run Minos in  "; tw.Print(); std::cout << std::endl;
+
+
+   if (setZeroPoint_) {
+      cacheutils::CachingSimNLL *simnll = dynamic_cast<cacheutils::CachingSimNLL *>(&nll_);
+      if (simnll) simnll->clearZeroPoint();
+   }
+
+   return (iret != 1) ? true : false; 
 }
 
 bool CascadeMinimizer::minimize(int verbose, bool cascade) 
