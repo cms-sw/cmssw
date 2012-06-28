@@ -67,8 +67,7 @@ class CvCfHiggs(SMLikeHiggsModel):
         self.modelBuilder.factory_("expr::CvCf_BRscal_hgg(\"@0/@1\", CvCf_cgammaSq, CvCf_Gscal_tot)")
         self.modelBuilder.factory_("expr::CvCf_BRscal_hf(\"@0*@0/@1\", CF, CvCf_Gscal_tot)")
         self.modelBuilder.factory_("expr::CvCf_BRscal_hv(\"@0*@0/@1\", CV, CvCf_Gscal_tot)")
-
-        self.modelBuilder.out.Print()
+        #self.modelBuilder.out.Print()
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "CvCf_XSBRscal_%s_%s" % (production,decay)
         if self.modelBuilder.out.function(name) == None: 
