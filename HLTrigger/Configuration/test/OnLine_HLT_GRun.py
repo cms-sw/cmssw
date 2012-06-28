@@ -42144,19 +42144,6 @@ process.source = cms.Source( "PoolSource",
 if 'hltHfreco' in process.__dict__:
     process.hltHfreco.setNoiseFlags = cms.bool( True )
 
-# override the L1 menu from an Xml file
-process.l1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
-  TriggerMenuLuminosity = cms.string('startup'),
-  DefXmlFile = cms.string('L1Menu_Collisions2012_v2_L1T_Scales_20101224_Imp0_0x102a.xml'),
-  VmeXmlFile = cms.string('')
-)
-process.L1GtTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
-  recordName = cms.string('L1GtTriggerMenuRcd'),
-  iovIsRunNotTime = cms.bool(True),
-  firstValid = cms.vuint32(1)
-)
-process.es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml') 
-
 # customise the HLT menu for running on MC
 from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
 process = customizeHLTforMC(process)
@@ -42223,17 +42210,16 @@ if 'GlobalTag' in process.__dict__:
     from Configuration.AlCa.autoCond import autoCond
     process.GlobalTag.globaltag = autoCond['startup'].split(',')[0]
 
-# customize the L1 emulator to run customiseL1GtEmulatorFromRaw with HLT to switchToSimGtDigis
-process.load( 'Configuration.StandardSequences.RawToDigi_cff' )
-process.load( 'Configuration.StandardSequences.SimL1Emulator_cff' )
-import L1Trigger.Configuration.L1Trigger_custom
-process = L1Trigger.Configuration.L1Trigger_custom.customiseL1GtEmulatorFromRaw( process )
-process = L1Trigger.Configuration.L1Trigger_custom.customiseResetPrescalesAndMasks( process )
-
-# customize the HLT to use the emulated results
-import HLTrigger.Configuration.customizeHLTforL1Emulator
-process = HLTrigger.Configuration.customizeHLTforL1Emulator.switchToL1Emulator( process )
-process = HLTrigger.Configuration.customizeHLTforL1Emulator.switchToSimGtDigis( process )
+# override the L1 menu
+if 'GlobalTag' in process.__dict__:
+    process.GlobalTag.toGet.append(
+        cms.PSet(
+            record  = cms.string( 'L1GtTriggerMenuRcd' ),
+            tag     = cms.string( 'L1GtTriggerMenu_L1Menu_Collisions2012_v2_mc' ),
+            label   = cms.untracked.string( '' ),
+            connect = cms.untracked.string( 'sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v2/sqlFile/L1Menu_Collisions2012_v2_mc.db' )
+        )
+    )
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
