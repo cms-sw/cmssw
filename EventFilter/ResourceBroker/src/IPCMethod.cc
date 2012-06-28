@@ -45,6 +45,7 @@ IPCMethod::IPCMethod(bool segmentationMode, UInt_t nbRawCells,
 		freeResRequiredForAllocate_ = freeResReq;
 
 	sem_init(&lock_, 0, 1);
+	//pthread_mutex_init(&crashHandlerLock_, NULL);
 }
 
 IPCMethod::~IPCMethod() {

@@ -33,7 +33,7 @@ namespace evf {
 /**
  * Table of resources linked with the Shared Memory Buffer
  *
- * $Author: aspataru $
+ * $Author: smorovic $
  *
  */
 
@@ -184,6 +184,7 @@ private:
 	//workloop termination status
 	bool sDataActive_;
 	bool sDqmActive_;
+
 
 };
 
